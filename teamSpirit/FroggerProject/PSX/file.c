@@ -16,7 +16,10 @@
 
 #include "main.h"
 
+#if GOLDCD == NO
 #define _DEBUG
+#endif
+
 
 // FlatPacker magic number
 #define FLA_MAGIC			0x32414c46			// Magic number 'FLA2' INTEL
