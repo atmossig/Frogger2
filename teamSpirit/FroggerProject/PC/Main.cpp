@@ -654,7 +654,7 @@ long DrawLoop(void)
 		DrawBackground();
 	EndDraw();
 
-	farClip = fog.max;
+	farClip = (float)fog.max*0.1;
 //	if (fog.mode && fog.min>0)
 //	{
 //		SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0,1);
