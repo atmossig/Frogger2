@@ -38,6 +38,7 @@ extern TextureType	*buttonSprites[6];
 int framePause = 0;
 static int	optChosen, optFrame, optSaveAlready, optSaveSlot;
 static char	optStr[256];
+int vmuChosen = 0;
 
 extern SAVE_INFO saveInfo;
 extern int useMemCard;
@@ -463,11 +464,8 @@ void StartChooseLoadSave(int load)
 	saveInfo.load = load;
 	framePause++;
 	StartChooseOption();
-/*	if(padData.numPads[0] == 4)
-		sprintf(slotNumStr,"1-A");
-	else
-		sprintf(slotNumStr,"1");
-*/	waitCheck = 0;
+
+	waitCheck = 0;
 }
 
 
@@ -557,6 +555,7 @@ static void saveMenuCheck()
 		{
 		case CARDREAD_OK:						// Loaded fine
 			optSaveAlready = 1;
+			vmuChosen = 1;
 			if(saveInfo.load)
 			{
 				saveInfo.saveStage = SAVEMENU_LOAD;
@@ -594,7 +593,7 @@ static void saveMenuCheck()
 			break;
 		}
 
-		if( res == CARDREAD_OK )
+		if( vmuChosen )
 			strcpy( slotNumStr, portlit[vmuDriveToUse] );
 		else
 			strcpy( slotNumStr, "" );
@@ -849,12 +848,6 @@ void ChooseLoadSave()
 {
 	int alpha = fontSmall->alpha;
 
-/*
-	if(padData.numPads[0] == 4)
-		sprintf(slotNumStr,"1-A");
-	else
-		sprintf(slotNumStr,"1");
-*/
 	if(saveInfo.load == 0)
 	{
 		switch(gameSaveGetCardStatus())
@@ -870,14 +863,14 @@ void ChooseLoadSave()
 		}
 		VSync(0);
 	}
-/*
+
 	if( vmuBeepStopTimer )
 	{
 		vmuBeepStopTimer--;
 		if( !vmuBeepStopTimer )
 			cardBeep( 0, NO );
 	}
-*/
+
 	if(waitCheck < MEMWAIT)
 	{
 		waitCheck++;
@@ -957,6 +950,12 @@ void LoadGame(void)
 int CheckVMUs( )
 {
 	int i, j, port, pad, fcStat=CARDREAD_NOCARD, res, freePort=-1, freeDrive;
+
+	// If not the first check then don't search
+	if( vmuChosen )
+	{
+		return cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
+	}
 
 	// Check 4 pads
 	for( i=0,pad=firstPad; i<4; i++, pad=(pad+1)%4 )

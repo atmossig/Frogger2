@@ -394,6 +394,12 @@ int cardBeep( Uint32 time, int good )
 		data[1] = 0x80;
 	}
 
+	while(!pdVmsLcdIsReady(vmuPortToUse))
+	{
+		if(timeOut++ > 1000)
+			return PDD_TMRERR_NO_TIMER;
+	}
+
 	res = pdTmrAlarm( vmuPortToUse, data );
 
 	vmuBeepStopTimer = time;
