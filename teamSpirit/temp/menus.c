@@ -173,6 +173,9 @@ SPRITEOVERLAY *titleHud[4];
 TEXTOVERLAY *titleHudText[4];
 
 int pauseFrameCount;
+int pauseFaded = 0;
+long pauseFadeTimer;
+#define PAUSEFADETIME ((10<<12)*60)
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
@@ -197,6 +200,10 @@ void StartPauseMenu()
 	gameState.oldMode = gameState.mode;
 	gameState.mode = PAUSE_MODE;
 	pauseMode = 1;
+
+	// Fade screen after 300 seconds for Sega reqs.
+	pauseFaded = 0;
+	pauseFadeTimer = PAUSEFADETIME;
 
 	PauseAudio( );
 
@@ -345,6 +352,16 @@ void RunPauseMenu()
 	pauseFrameCount += max((pauseGameSpeed>>12),1);
 	if((quittingLevel) && (pauseConfirmMode == 0))
 	{
+		pauseFadeTimer = PAUSEFADETIME;
+		// Bring screen back if faded
+		if( pauseFaded )
+		{
+			fadingOut = 0;
+			fadeProc = NULL;
+			keepFade = 1;
+			pauseFaded = 0;
+//			ScreenFade( 255, 255, 0 );
+		}
 		if(fadingOut == 0)
 		{
 #ifdef PC_VERSION
@@ -434,6 +451,20 @@ void RunPauseMenu()
 	}
 #endif
 
+	if( padData.debounce[pauseController] )
+	{
+		pauseFadeTimer = PAUSEFADETIME;
+		// Bring screen back if faded
+		if( pauseFaded )
+		{
+			keepFade = 1;
+			pauseFaded = 0;
+			fadingOut = 0;
+			fadeProc = NULL;
+//			ScreenFade( 255, 255, 0 );
+		}
+	}
+
 	if (padData.debounce[pauseController]&PAD_SQUARE)
 	{
 		currCheat = 0;		
@@ -490,6 +521,16 @@ void RunPauseMenu()
 			else
 				currentPauseSelection++;
 		}
+	}
+
+	// If no activity for 300 secs, go to "screensaver" mode
+	pauseFadeTimer -= pauseGameSpeed;
+	if( pauseFadeTimer <= 0 )
+	{
+		// Fade to 75%
+		ScreenFade( 63, 63, 0 );
+		keepFade = 1;
+		pauseFaded = 1;
 	}
 
 	if((pauseConfirmMode) && (padData.debounce[pauseController] & PAD_TRIANGLE))
