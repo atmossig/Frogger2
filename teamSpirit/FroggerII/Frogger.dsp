@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MTd /Gm /GX /ZI /Od /D "WIN32" /D "_WINDOWS" /D "PC_VERSION" /D "DONTUSEJALLOC" /D "USE_EDITOR" /FAs /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /Gm /GX /ZI /Od /D "WIN32" /D "_WINDOWS" /D "PC_VERSION" /D "DONTUSEJALLOC" /FAs /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -760,13 +760,6 @@ SOURCE=.\Pc\font.h
 # Begin Source File
 
 SOURCE=.\Pc\map.c
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
