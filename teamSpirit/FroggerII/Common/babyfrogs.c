@@ -49,7 +49,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 //			{
 				babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 
-				babies[i]->actor->shadow->radius	= 15;
+				babies[i] ->actor->shadow->radius	= 15;
 				babies[i]->actor->shadow->alpha		= 191;
 
 				InitActorAnim(babies[i]->actor);
@@ -58,9 +58,19 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 				babies[i]->actor->scale.v[1] = 0.1;
 				babies[i]->actor->scale.v[2] = 0.1;
 				babies[i]->action.isSaved = 0;
-				babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-				babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-				babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				if ( bTStart[i] )
+				{
+					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				}
+				else
+				{
+					babies[i]->actor->pos.v[X] = 0;
+					babies[i]->actor->pos.v[Y] = 0;				// THIS IS JUST A QUICK FIX AT THERE ARE ONLY 3 FROGS IT
+					babies[i]->actor->pos.v[Z] = 0;				// CANT FIND THE OTHER 2 START POSITIONS
+				}
+				// ENDIF
 
 	//			babies[i]->flags |= ACTOR_DRAW_ALWAYS;
 //			}
