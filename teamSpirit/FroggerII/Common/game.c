@@ -11,7 +11,7 @@
 
 #define F3DEX_GBI_2
 
-#define SHOW_ME_THE_TILE_NUMBERS
+//#define SHOW_ME_THE_TILE_NUMBERS
 
 #include <ultra64.h>
 #include "incs.h"
@@ -315,12 +315,10 @@ void GameProcessController(long pl)
 	if(button[pl] & CONT_G)
 	{
 		player[pl].frogState |= FROGSTATUS_ISFLOATING;
-		gravityModifier = 0.5F;
 	}
 	else
 	{
 		player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
-		gravityModifier = 1.0F;
 	}
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
