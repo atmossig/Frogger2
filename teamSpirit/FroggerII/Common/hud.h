@@ -16,7 +16,7 @@
 extern char countdownTimer;
 extern char displayFullScreenPoly;
 
-extern ANIM_STRUCTURE *livesIcon;
+//extern ANIM_STRUCTURE *livesIcon;
 
 extern TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
 extern TEXTOVERLAY	*babySavedText;

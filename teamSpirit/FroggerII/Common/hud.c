@@ -26,7 +26,7 @@ char timeTemp[6];
 char countdownTimer	= 1;
 char displayFullScreenPoly = 0;
 
-ANIM_STRUCTURE *livesIcon;
+//ANIM_STRUCTURE *livesIcon;
 
 TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
 TEXTOVERLAY	*babySavedText;
