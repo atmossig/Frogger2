@@ -356,7 +356,7 @@ void ProcessShadows()
 	{
 		if ( babies[i] )
 		{
-			if(!babies[i]->action.isSaved)
+			if(!babyList[i].isSaved)
 			{
 				if(babies[i]->actor->shadow && babies[i]->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 				{
