@@ -66,6 +66,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
 void DrawGraphics();
+extern char editorOk;
 
 
 

@@ -366,7 +366,7 @@ void RunLevelSelect()
 			worldSelText[currentWorldSelect--]->draw = 1;
 			for( i=0; i < MAX_LEVELS; i++ )
 			{
-				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
 				{
 					currentLevelSelect = i;
 					break;
@@ -379,7 +379,7 @@ void RunLevelSelect()
 			levelSelText[currentLevelSelect]->draw = 1;
 			for( i=currentLevelSelect-1; i >= 0; i-- )
 			{
-				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
 				{
 					currentLevelSelect = i;
 					break;
@@ -392,10 +392,11 @@ void RunLevelSelect()
     {
 		if( lrSelect == 0 && currentWorldSelect < MAX_WORLDS-1 ) // World select
 		{
+			
 			worldSelText[currentWorldSelect++]->draw = 1;
 			for( i=0; i < MAX_LEVELS; i++ )
 			{
-				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
 				{
 					currentLevelSelect = i;
 					break;
@@ -408,7 +409,7 @@ void RunLevelSelect()
 			levelSelText[currentLevelSelect]->draw = 1;
 			for( i=currentLevelSelect+1; i < MAX_LEVELS; i++ )
 			{
-				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				if ((worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 ) &&	(worldVisualData[currentWorldSelect].levelVisualData[i].description[0] != ' '))
 				{
 					currentLevelSelect = i;
 					break;
@@ -432,7 +433,12 @@ void RunLevelSelect()
 	{
 		// change old level textovers
 		for(i=0; i < MAX_LEVELS; i++)
+		{
+			if (worldVisualData[currentWorldSelect].levelVisualData[i].description[0] == ' ')
+				break;
+			
 			sprintf(lNames[i].name,worldVisualData[currentWorldSelect].levelVisualData[i].description);
+		}
 	}
 
 

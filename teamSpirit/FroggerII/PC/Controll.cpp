@@ -583,18 +583,22 @@ void ProcessUserInput(HWND hWnd)
 	if (!keysEnabled) return;
 
 #ifdef _DEBUG
-	if (KEYPRESS(DIK_NUMPAD7))
-	{
-		farClip*=1.2;
-		horizClip*=1.2;
-		vertClip*=1.2;
-	}
 
-	if (KEYPRESS(DIK_NUMPAD9))
+	if (editorOk)
 	{
-		farClip/=1.2;
-		horizClip/=1.2;
-		vertClip/=1.2;
+		if (KEYPRESS(DIK_NUMPAD7))
+		{
+			farClip*=1.2;
+			horizClip*=1.2;
+			vertClip*=1.2;
+		}
+
+		if (KEYPRESS(DIK_NUMPAD9))
+		{
+			farClip/=1.2;
+			horizClip/=1.2;
+			vertClip/=1.2;
+		}
 	}
 
 	if (KEYPRESS(DIK_Z))
