@@ -435,9 +435,9 @@ unsigned short textureAddCLUT256(unsigned short *palette)
 	int				found;
 	unsigned long	palCRC;
 
-#ifdef _DEBUG
-	utilPrintf("\nAdding 8-bit CLUT ...");
-#endif
+//#ifdef _DEBUG
+//	utilPrintf("\nAdding 8-bit CLUT ...");
+//#endif
 
 	for(col = 0; col < 256; col ++)								// Mask out magenta + mark transparencies
 	{
@@ -497,9 +497,9 @@ int textureRemoveCLUT256(unsigned short clut)
 	int pal;
 
 
-#ifdef _DEBUG
-	utilPrintf("Removing 8 bit palette ...\n");
-#endif
+//#ifdef _DEBUG
+//	utilPrintf("Removing 8 bit palette ...\n");
+//#endif
 
 	for(pal = 0; pal < VRAM_256PALETTES; pal ++)
 	{
@@ -507,9 +507,9 @@ int textureRemoveCLUT256(unsigned short clut)
 		{
 			if((-- VRAMpal256Block[pal]) <= 0)
 			{
-#ifdef _DEBUG
-				utilPrintf("Freeing it\n");
-#endif
+//#ifdef _DEBUG
+//				utilPrintf("Freeing it\n");
+//#endif
 				VRAMpal256Block[pal] = 0;
 				VRAMpal256CLUT[pal] = 0;
 				VRAMpal256CRC[pal] = 0;
