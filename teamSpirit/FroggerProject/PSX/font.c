@@ -216,51 +216,46 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 			x += font->height/2;
 			break;
 		case '@':
-			switch(*(strPtr+1))
+			strPtr++;
+			switch(*strPtr)
 			{
 			case 'X':
-			    fontDispSprite(buttonSprites[2], x+3,y + yAdd,r,g,b,font->alpha);
-				strPtr++;
-				x += buttonSprites[2]->w+6;
+			    fontDispSprite(buttonSprites[2], x,y + yAdd,r,g,b,font->alpha);
+				x += buttonSprites[2]->w+2;
 				break;
 			case 'C':
-			   	fontDispSprite(buttonSprites[1], x+3,y + yAdd,r,g,b,font->alpha);
-				strPtr++;
-				x += buttonSprites[1]->w+6;
+			   	fontDispSprite(buttonSprites[1], x,y + yAdd,r,g,b,font->alpha);
+				x += buttonSprites[1]->w+2;
 				break;
 			case 'S':
-			   	fontDispSprite(buttonSprites[3], x+3,y + yAdd,r,g,b,font->alpha);
-				strPtr++;
-				x += buttonSprites[3]->w+6;
+			   	fontDispSprite(buttonSprites[3], x,y + yAdd,r,g,b,font->alpha);
+				x += buttonSprites[3]->w+2;
 				break;
 			case 'T':
-			   	fontDispSprite(buttonSprites[0], x+3,y + yAdd,r,g,b,font->alpha);
-				strPtr++;
-				x += buttonSprites[0]->w+6;
+			   	fontDispSprite(buttonSprites[0], x,y + yAdd,r,g,b,font->alpha);
+				x += buttonSprites[0]->w+2;
 				break;
 			case 'L':
-			   	fontDispSprite(buttonSprites[4], x+3,y + yAdd,r,g,b,font->alpha);
-				strPtr++;
-				x += buttonSprites[4]->w+6;
+			   	fontDispSprite(buttonSprites[4], x,y + yAdd,r,g,b,font->alpha);
+				x += buttonSprites[4]->w+2;
 				break;
 			case 'R':
-			   	fontDispSprite(buttonSprites[5], x+3,y + yAdd,r,g,b,font->alpha);
-				strPtr++;
-				x += buttonSprites[5]->w+6;
+			   	fontDispSprite(buttonSprites[5], x,y + yAdd,r,g,b,font->alpha);
+				x += buttonSprites[5]->w+2;
 				break;
 			}
 
-			for(loop = 0; loop < numOtherSprites; loop ++)
+/*			for(loop = 0; loop < numOtherSprites; loop ++)
 			{
 				if((*(strPtr+1)) == otherChars[loop])
 				{
 					fontDispSprite(otherSprites[loop], x+3,y-3,r,g,b,font->alpha);
 					strPtr++;
-					x += otherSprites[loop]->w+6;
+					x += otherSprites[loop]->w+2;
 					break;
 				}
 			}
-
+*/
 			break;
 
 		default:
@@ -324,27 +319,27 @@ int fontExtentWScaled(psFont *font, char *text,int scale)
 			{
 			case 'X':
 				strPtr++;
-				x += buttonSprites[2]->w+6;
+				x += buttonSprites[2]->w+2;
 				break;
 			case 'C':
 				strPtr++;
-				x += buttonSprites[1]->w+6;
+				x += buttonSprites[1]->w+2;
 				break;
 			case 'S':
 				strPtr++;
-				x += buttonSprites[3]->w+6;
+				x += buttonSprites[3]->w+2;
 				break;
 			case 'T':
 				strPtr++;
-				x += buttonSprites[0]->w+6;
+				x += buttonSprites[0]->w+2;
 				break;
 			case 'L':
 				strPtr++;
-				x += buttonSprites[4]->w+6;
+				x += buttonSprites[4]->w+2;
 				break;
 			case 'R':
 				strPtr++;
-				x += buttonSprites[5]->w+6;
+				x += buttonSprites[5]->w+2;
 				break;
 			}
 
@@ -353,7 +348,7 @@ int fontExtentWScaled(psFont *font, char *text,int scale)
 				if((*(strPtr+1)) == otherChars[loop])
 				{
 					strPtr++;
-					x += otherSprites[loop]->w+6;
+					x += otherSprites[loop]->w+2;
 					break;
 				}
 			}
@@ -458,24 +453,24 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 			switch(*(strPtr+1))
 			{
 			case 'X':
-			    fontDispSprite(buttonSprites[2], x+3,y-3,r,g,b,font->alpha);
+			    fontDispSprite(buttonSprites[2], x,y-3,r,g,b,font->alpha);
 				strPtr++;
-				x += buttonSprites[2]->w+6;
+				x += buttonSprites[2]->w;
 				break;
 			case 'C':
-			   	fontDispSprite(buttonSprites[1], x+3,y-3,r,g,b,font->alpha);
+			   	fontDispSprite(buttonSprites[1], x,y-3,r,g,b,font->alpha);
 				strPtr++;
-				x += buttonSprites[1]->w+6;
+				x += buttonSprites[1]->w;
 				break;
 			case 'S':
-			   	fontDispSprite(buttonSprites[3], x+3,y-3,r,g,b,font->alpha);
+			   	fontDispSprite(buttonSprites[3], x,y-3,r,g,b,font->alpha);
 				strPtr++;
-				x += buttonSprites[3]->w+6;
+				x += buttonSprites[3]->w;
 				break;
 			case 'T':
-			   	fontDispSprite(buttonSprites[0], x+3,y-3,r,g,b,font->alpha);
+			   	fontDispSprite(buttonSprites[0], x,y-3,r,g,b,font->alpha);
 				strPtr++;
-				x += buttonSprites[0]->w+6;
+				x += buttonSprites[0]->w;
 				break;
 			}
 
@@ -483,9 +478,9 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 			{
 				if((*(strPtr+1)) == otherChars[loop])
 				{
-					fontDispSprite(otherSprites[loop], x+3,y-3,r,g,b,font->alpha);
+					fontDispSprite(otherSprites[loop], x,y-3,r,g,b,font->alpha);
 					strPtr++;
-					x += otherSprites[loop]->w+6;
+					x += otherSprites[loop]->w;
 					break;
 				}
 			}

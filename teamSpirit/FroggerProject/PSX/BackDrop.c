@@ -47,7 +47,7 @@ void InitBackdrop ( char * filename )
 	DrawSync(0);*/
 
 
-	sprintf ( newFileName, "%s.RAW", filename );
+	sprintf ( newFileName, "%s.FLA", filename );
 	backDrop.data = fileLoad ( newFileName, NULL );
 
 	DrawSync(0);
