@@ -1806,7 +1806,7 @@ void RunOptionsMenu(void)
 			options.numPText->g = options.numPText2->g = levNameColG[options.levelSelection];
 			options.numPText->b = options.numPText2->b = 0;
 			
-			temp.vx = -9890938;
+			temp.vx = -9790938;
 //			temp.vy = 8859623;  
 			temp.vy = -500000;  
 			temp.vz = 21231148; 
@@ -1814,7 +1814,7 @@ void RunOptionsMenu(void)
 			camStill += SlideVectorToVectorFF(&camSource,&temp,mpcamspeed);
 			SetVectorFF(&currCamSource,&camSource);
 			
-			temp.vx = -9890938 + (7617)*100;
+			temp.vx = -9790938 + (7617)*100;
 //			temp.vy = 8859623;
 			temp.vy = -500000;
 			temp.vz = 21231148 + (41020)*100;
@@ -2238,8 +2238,8 @@ void GetObjectGouraudValues ( FMA_MESH_HEADER *mesh )
 
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
-		if ( op->r0 < op->r0 + r )
-			op->r0 += r; else op->r0 = 255;
+//		if ( op->r0 < op->r0 + r )
+//			op->r0 += r; else op->r0 = 255;
 	}
 #undef op
 }
