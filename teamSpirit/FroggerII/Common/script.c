@@ -378,12 +378,12 @@ Stop:
 Invis:
 			case FS_SET_INVIS:
 				nme->active = 0;
-				nme->nmeActor->actor->xluOverride = 0;
+				nme->nmeActor->draw = 0;
 				break;
 Vis:
 			case FS_SET_VIS:
 				nme->active = 1;
-				nme->nmeActor->actor->xluOverride = 100;
+				nme->nmeActor->draw = 1;
 				break;
 
 			case FS_SET_TOGGLEVIS:
