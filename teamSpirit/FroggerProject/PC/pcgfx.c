@@ -307,6 +307,12 @@ void DrawFXDecal( SPECFX *fx )
 	// Transform point by combined matrix
 	MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
 
+	// Dull "shadow" for ripple types, otherwise normal colour
+	if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
+		vT[0].color = D3DRGBA(0.2,0.2,0.5,fx->a/255.0);
+	else
+		vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
+
 	for( i=0; i<4; i++ )
 	{
 		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
@@ -315,7 +321,8 @@ void DrawFXDecal( SPECFX *fx )
 		// Assign back to vT array
 		vT[i].sx = m.vx;
 		vT[i].sy = m.vy;
-		vT[i].color = D3DRGBA(0.2,0.2,0.5,fx->a/255.0);
+		vT[i].color = vT[0].color;
+
 		if( !m.vz ) zeroZ++;
 		else vT[i].sz = (m.vz+DIST-4)*0.00025;
 	}
