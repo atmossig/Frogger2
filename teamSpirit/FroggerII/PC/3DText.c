@@ -44,12 +44,20 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->tileSize = t3d->scale*32;
 	t3d->vA = a;
 
-	t3d->xOffs = xO;
-	t3d->yOffs = yO;
-	t3d->zOffs = zO;
-
 	t3d->motion = motion;
 	t3d->type = type;
+
+	if( t3d->motion & T3D_ALIGN_CENTRE )
+		t3d->xOffs = (SCREEN_WIDTH/2)-((SCREEN_WIDTH-(len*t3d->tileSize))/2);
+	else if( t3d->motion & T3D_ALIGN_LEFT )
+		t3d->xOffs = SCREEN_WIDTH/2;
+	else if( t3d->motion & T3D_ALIGN_RIGHT )
+		t3d->xOffs = strlen(str)*t3d->tileSize;
+	else
+		t3d->xOffs = xO;
+
+	t3d->yOffs = yO;
+	t3d->zOffs = zO;
 
 	//t3d->timer = T360_TIMER; // Default value
 
@@ -81,22 +89,13 @@ void Print3DText( )
 	unsigned long vx, c, len, i;
 
 	VECTOR m, tmp;
-	QUATERNION q;
-	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-	float newRotMtx[4][4];
-	short u, v, letterID;
+	float u, v, u2, v2;
+	short letterID;
 	static short f[6] = {0,1,2,0,2,3};
 
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-
-	guTranslateF(transMtx,-0.5,-0.5,10);
-
-	NormalToQuaternion(&q,&inVec);
-	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-	guMtxCatF(rotMtx,transMtx,tempMtx);
-
-	PushMatrix(&tempMtx[0][0]);
 
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
@@ -106,19 +105,27 @@ void Print3DText( )
 		len = strlen(t3d->string);
 		for( c=0,vx=0; c < len; c++,vx+=4 )
 		{
+			if( t3d->string[c] == ' ' )
+				continue;
+
 			letterID = characterMap[t3d->string[c]];
 			u = bigFont->offset[letterID].v[X];
 			v = bigFont->offset[letterID].v[Y];
-			t3d->vT[vx+0].tu = u;
-			t3d->vT[vx+0].tv = v;
-			t3d->vT[vx+1].tu = u+32;
-			t3d->vT[vx+1].tv = v;
-			t3d->vT[vx+2].tu = u+32;
-			t3d->vT[vx+2].tv = v+32;
-			t3d->vT[vx+3].tu = u;
-			t3d->vT[vx+3].tv = v+32;
+			u2 = (float)(u+32)/256.0;
+			v2 = (float)(v+32)/256.0;
+			u = (float)u/256.0;
+			v = (float)v/256.0;
 
-			// Transform to screen coords (I HOPE)
+			t3d->vT[vx+0].tu = u;
+			t3d->vT[vx+0].tv = v2;
+			t3d->vT[vx+1].tu = u2;
+			t3d->vT[vx+1].tv = v2;
+			t3d->vT[vx+2].tu = u2;
+			t3d->vT[vx+2].tv = v;
+			t3d->vT[vx+3].tu = u;
+			t3d->vT[vx+3].tv = v;
+
+			// Transform to screen coords
 			for( i=0; i<4; i++ )
 			{
 				tmp.v[0] = t3d->vT[vx+i].sx;
@@ -130,11 +137,12 @@ void Print3DText( )
 				t3d->vT[vx+i].sz = m.v[2];
 			}
 
-			DrawAHardwarePoly(t3d->vT,4,f,6,bigFont->hdl);
+			DrawAHardwarePoly(&t3d->vT[vx],4,f,6,bigFont->hdl);
 		}
 	}
 
-	PopMatrix( );
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -217,23 +225,23 @@ void MakeTextCircle( TEXT3D *t3d )
 		}
 
 		t3d->vT[v+0].sx = tesa;
-		t3d->vT[v+0].sy = teca;
-		t3d->vT[v+0].sz = yPa;//+DIST)/2000;
+		t3d->vT[v+0].sy = yPa;
+		t3d->vT[v+0].sz = (teca+DIST)/2000;
 		t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+0].specular = D3DRGB(0,0,0);
 		t3d->vT[v+1].sx = tesb;
-		t3d->vT[v+1].sy = tecb;
-		t3d->vT[v+1].sz = yPb;//+DIST)/2000;
+		t3d->vT[v+1].sy = yPb;
+		t3d->vT[v+1].sz = (tecb+DIST)/2000;
 		t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+1].specular = D3DRGB(0,0,0);
 		t3d->vT[v+2].sx = tesb;
-		t3d->vT[v+2].sy = tecb;
-		t3d->vT[v+2].sz = yPc;//+DIST)/2000;
+		t3d->vT[v+2].sy = yPc;
+		t3d->vT[v+2].sz = (tecb+DIST)/2000;
 		t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+2].specular = D3DRGB(0,0,0);
 		t3d->vT[v+3].sx = tesa;
-		t3d->vT[v+3].sy = teca;
-		t3d->vT[v+3].sz = yPd;//+DIST)/2000;
+		t3d->vT[v+3].sy = yPd;
+		t3d->vT[v+3].sz = (teca+DIST)/2000;
 		t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+3].specular = D3DRGB(0,0,0);
 	}
@@ -325,23 +333,23 @@ void MakeTextLine( TEXT3D *t3d )
 			}
 
 			t3d->vT[v+0].sx = -pB+t3d->xOffs;
-			t3d->vT[v+0].sy = zPa;
-			t3d->vT[v+0].sz = yPa;//+DIST)/2000;
+			t3d->vT[v+0].sz = (zPa+DIST)/2000;
+			t3d->vT[v+0].sy = yPa;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
 			t3d->vT[v+1].sx = -pB-tS+t3d->xOffs;
-			t3d->vT[v+1].sy = zPb;
-			t3d->vT[v+1].sz = yPb;//+DIST)/2000;
+			t3d->vT[v+1].sz = (zPb+DIST)/2000;
+			t3d->vT[v+1].sy = yPb;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
 			t3d->vT[v+2].sx = -pB-tS+t3d->xOffs;
-			t3d->vT[v+2].sy = zPc;
-			t3d->vT[v+2].sz = yPc;//+DIST)/2000;
+			t3d->vT[v+2].sz = (zPc+DIST)/2000;
+			t3d->vT[v+2].sy = yPc;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
 			t3d->vT[v+3].sx = -pB+t3d->xOffs;
-			t3d->vT[v+3].sy = zPd;
-			t3d->vT[v+3].sz = yPd;//+DIST)/2000;
+			t3d->vT[v+3].sz = (zPd+DIST)/2000;
+			t3d->vT[v+3].sy = yPd;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
@@ -442,23 +450,23 @@ void MakeTextLine( TEXT3D *t3d )
 			}
 			*/
 			t3d->vT[v+0].sx = xPa;
-			t3d->vT[v+0].sy = zPa;
-			t3d->vT[v+0].sz = yPa;//+DIST)/2000;
+			t3d->vT[v+0].sy = yPa;
+			t3d->vT[v+0].sz = (zPa+DIST)/2000;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
 			t3d->vT[v+1].sx = xPb;
-			t3d->vT[v+1].sy = zPb;
-			t3d->vT[v+1].sz = yPb;//+DIST)/2000;
+			t3d->vT[v+1].sy = yPb;
+			t3d->vT[v+1].sz = (zPb+DIST)/2000;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
 			t3d->vT[v+2].sx = xPc;
-			t3d->vT[v+2].sy = zPc;
-			t3d->vT[v+2].sz = yPc;//+DIST)/2000;
+			t3d->vT[v+2].sy = yPc;
+			t3d->vT[v+2].sz = (zPc+DIST)/2000;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
 			t3d->vT[v+3].sx = xPd;
-			t3d->vT[v+3].sy = zPd;
-			t3d->vT[v+3].sz = yPd;//+DIST)/2000;
+			t3d->vT[v+3].sy = yPd;
+			t3d->vT[v+3].sz = (zPd+DIST)/2000;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
@@ -798,4 +806,65 @@ void Free3DTextList( )
 			t3d = t;
 		}
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RunHiscoreScreen
+	Purpose 	: Draws 3d text of hiscore table as if floating on water
+	Parameters 	: 
+	Returns 	: 
+	Info 		: SHOULD NOT BE HERE!
+*/
+void MakeHiscoreText( )
+{
+	/*
+	static u16 button,lastbutton = 0;
+
+	button = controllerdata[ActiveController].button;
+
+	if( frameCount == 1 )
+	{*/
+		long i;
+		char hiScoreStr[32];
+
+		Init3DTextList( );
+
+		for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
+		{
+			// Create a 3D text object for each hiscore entry.
+			// Increase z and alter y so they form a perspective plane,
+			// in a StarWars stylee.
+
+			sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
+
+			CreateAndAdd3DText( hiScoreStr, 500,
+								255,255,255,255,
+								T3D_HORIZONTAL,
+								T3D_MOVE_TWIST | T3D_ALIGN_CENTRE,
+								&zero,
+								-3,90,
+								0,150-(i*64),20*i,
+								6.0, 0.3, 0.3 );
+		}
+	//}
+/*
+	if(frameCount > 15)
+	{
+		// Move back in menus
+		if( ((button & CONT_A) && !(lastbutton & CONT_A)) ||
+			((button & CONT_B) && !(lastbutton & CONT_B)) )
+		{
+			FreeAllLists();
+			frameCount = 0;
+			lastbutton = 0;
+			frontEndState.mode	= TITLE_MODE;
+			PlaySample ( 2,NULL,255,128);
+			return;
+		}
+
+	}
+
+	lastbutton = button;
+	*/
 }
