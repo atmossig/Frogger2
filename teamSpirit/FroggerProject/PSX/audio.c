@@ -98,8 +98,11 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 	int vl,vr,vs;
 	short pitch;
 
-	if ( !sample )
+	if (!sample)
+	{
+		utilPrintf("Sample Not Valid!!!!!!\n");
 		return;
+	}
 	
 	if(GetSoundVols(&sample->pos,&vl,&vr,sample->radius,sample->volume) == -1)
 	{
@@ -199,19 +202,19 @@ void InitSampleList( )
 	if(soundList.genericBank)
 	{
 		sfxUnloadSampleBank(soundList.genericBank);
-		sfxRemoveSampleBank(soundList.genericBank);
+		sfxRemoveSampleBank(soundList.genericBank,1);
 		soundList.genericBank = NULL;
 	}
 	if(soundList.levelBank)
 	{
 		sfxUnloadSampleBank(soundList.levelBank);
-		sfxRemoveSampleBank(soundList.levelBank);
+		sfxRemoveSampleBank(soundList.levelBank,1);
 		soundList.levelBank = NULL;
 	}
 	if(soundList.loopBank)
 	{
 		sfxUnloadSampleBank(soundList.loopBank);
-		sfxRemoveSampleBank(soundList.loopBank);
+		sfxRemoveSampleBank(soundList.loopBank,1);
 		soundList.loopBank = NULL;
 	}
 
@@ -480,7 +483,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	int vl,vr;
 	int vs;
 
-	if ( (!sample) )
+	if (!sample)
 	{
 		utilPrintf("Sample Not Valid!!!!!!\n");
 		return 0;
