@@ -48,6 +48,7 @@
 //#include "sfx.h"//mmsound
 #include "audio.h" //mmsfx
 #include "ptexture.h"
+#include "cr_lang.h"
 
 
 void customDrawPrimitives2(int);
@@ -315,6 +316,29 @@ int main ( )
 		fontSmall = fontLoad("FONTS.FON");
 
 		StartSound();//mmsfx
+
+
+#define ENABLE_LANG_SEL 1
+#if ENABLE_LANG_SEL
+		languageInitialise();
+		while(!DoneLangSel)
+		{
+			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+			ClearOTagR(currentDisplayPage->ot, 1024);
+			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+			padHandler();
+			languageFrame();
+
+			DrawSync(0);
+			VSync(2);
+			PutDispEnv(&currentDisplayPage->dispenv);
+			PutDrawEnv(&currentDisplayPage->drawenv);
+			DrawOTag(currentDisplayPage->ot+(1024-1));
+		}
+#endif
+
+
 
 		InitCam();
 		actorInitialise();
