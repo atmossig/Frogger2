@@ -600,8 +600,14 @@ void LoadLevelEntities(int worldID, int levelID)
 
 #ifdef LOADWITHEDITOR
 	dprintf"Loading %s with EDITOR loader\n", file));
-	LoadCreateList(file);
-	EditorCreateEntities();
+	
+	FreeCreateList();
+
+	if (LoadCreateList(file))
+		EditorCreateEntities();
+
+	FreeCreateList();
+
 #else
 	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
