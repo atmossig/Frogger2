@@ -24,6 +24,9 @@ void DamageFalling( int pl );
 void DamageWhacking( int pl );
 void DamageVacuum( int pl );
 void DamagePoison( int pl );
+void DamageSlicing( int pl );
+void DamageExplosion( int pl );
+void DamageGibbing( int pl );
 
 void DeathNormal( int pl );
 void DeathRunOver( int pl );
@@ -35,6 +38,9 @@ void DeathFalling( int pl );
 void DeathWhacking( int pl );
 void DeathVacuum( int pl );
 void DeathPoison( int pl );
+void DeathSlicing( int pl );
+void DeathExplosion( int pl );
+void DeathGibbing( int pl );
 
 
 // Needs using on N64

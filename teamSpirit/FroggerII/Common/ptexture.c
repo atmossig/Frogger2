@@ -476,16 +476,13 @@ void ProcessPTSteam( PROCTEXTURE *pt )
 	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
-	if( pt->active )
-	{
-		for( i=935; i<953; i++ )
-			if( Random(3)>1 )
-				pt->buf1[i] = 200 + Random(56);
+	for( i=935; i<953; i++ )
+		if( Random(3)>1 )
+			pt->buf1[i] = 200 + Random(56);
 
-		for( i=968; i<984; i++ )
-			if( Random(3)>1 )
-				pt->buf1[i] = 200 + Random(56);
-	}
+	for( i=968; i<984; i++ )
+		if( Random(3)>1 )
+			pt->buf1[i] = 200 + Random(56);
 
 	// Smooth, move up and fade
 	for( i=30; i; i-- )
@@ -515,7 +512,7 @@ void ProcessProcTextures( )
 	PROCTEXTURE *pt;
 
 	for( pt=prcTexList; pt; pt=pt->next )
-		if( pt->Update && (actFrameCount > pt->timer) )
+		if( pt->Update && (actFrameCount > pt->timer) && pt->active )
 		{
 			pt->timer = actFrameCount+1; // Max 60fps - slow machines will just have to slow down
 			pt->Update( pt );

@@ -187,7 +187,17 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 	
 	if(player[pl].healthPoints != 0)
 	{
+		SPECFX *fx;
+//		VECTOR pos;
+
 		GTInit( &player[pl].safe, 2 );
+
+//		SetVector( &pos, &currTile[pl]->normal );
+//		ScaleVector( &pos, 20 );
+//		AddToVector( &pos, &frog[pl]->actor->pos );
+
+//		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 200 );
+//		fx->follow = frog[pl]->actor;
 
 		// Special death anim
 		if( (nme->reactiveNumber != -1) && (reactiveAnims[nme->reactiveNumber].type == 0xFF) )
@@ -1747,6 +1757,9 @@ void InitEnemyLinkedList()
 	deathAnims[DEATHBY_WHACKING]		= DamageWhacking;
 	deathAnims[DEATHBY_VACUUM]			= DamageVacuum;
 	deathAnims[DEATHBY_POISON]			= DamagePoison;
+	deathAnims[DEATHBY_SLICING]			= DamageSlicing;
+	deathAnims[DEATHBY_EXPLOSION]		= DamageExplosion;
+	deathAnims[DEATHBY_GIBBING]			= DamageGibbing;
 
 	deathAnims[DEATHBY_NORMAL+NUM_DEATHTYPES]		= DeathNormal;
 	deathAnims[DEATHBY_RUNOVER+NUM_DEATHTYPES]		= DeathRunOver;
@@ -1758,6 +1771,9 @@ void InitEnemyLinkedList()
 	deathAnims[DEATHBY_WHACKING+NUM_DEATHTYPES]		= DeathWhacking;
 	deathAnims[DEATHBY_VACUUM+NUM_DEATHTYPES]		= DeathVacuum;
 	deathAnims[DEATHBY_POISON+NUM_DEATHTYPES]		= DeathPoison;
+	deathAnims[DEATHBY_SLICING+NUM_DEATHTYPES]		= DeathSlicing;
+	deathAnims[DEATHBY_EXPLOSION+NUM_DEATHTYPES]	= DeathExplosion;
+	deathAnims[DEATHBY_GIBBING+NUM_DEATHTYPES]		= DeathGibbing;
 }
 
 /*	--------------------------------------------------------------------------------

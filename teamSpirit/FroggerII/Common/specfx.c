@@ -34,6 +34,7 @@ TEXTURE *txtrFire		= NULL;
 TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 TEXTURE *txtrFlash		= NULL;
+TEXTURE *txtrShield		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -143,19 +144,48 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = DrawFXRing;
 
 		break;
+	case FXTYPE_FROGSHIELD:
+
+		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "shield" );
+
+		effect->sprites->texture = txtrShield;
+		effect->sprites->r = 255;
+		effect->sprites->g = 255;
+		effect->sprites->b = 255;
+		effect->sprites->a = 60;
+
+		effect->sprites->offsetX	= -16;
+		effect->sprites->offsetY	= -16;
+		effect->sprites->flags = SPRITE_TRANSLUCENT | SPRITE_FLAGS_NOZB;
+
+		effect->sprites->scaleX = size;
+		effect->sprites->scaleY = size;
+		SetVector( &effect->sprites->pos, &effect->origin );
+
+		AddSprite( effect->sprites, NULL );
+
+		effect->fade = effect->sprites->a / life;
+
+		effect->Update = UpdateFXBolt;
+
+		break;
 	case FXTYPE_LASER:
 		if( !ringVtx )
 			CreateBlastRing( );
 
-		effect->scale.v[X] = 2;
-		effect->scale.v[Z] = 2;
+		if( effect->type == FXTYPE_LASER )
+		{
+			effect->scale.v[X] = 2;
+			effect->scale.v[Z] = 2;
+			effect->tex = txtrBlank;
+		}
+
 		SetVector( &effect->vel, &effect->normal );
 		ScaleVector( &effect->vel, effect->speed );
 		effect->spin = 0.1;
 		effect->tilt = 1;
 		effect->a = 128;
 
-		effect->tex = txtrBlank;
 		effect->Update = UpdateFXBolt;
 		effect->Draw = DrawFXRing;
 
@@ -565,7 +595,12 @@ void UpdateFXBolt( SPECFX *fx )
 	fx->origin.v[Y] += fx->vel.v[Y] * gameSpeed;
 	fx->origin.v[Z] += fx->vel.v[Z] * gameSpeed;
 	fx->angle += fx->spin * gameSpeed;
-	
+
+	if( fx->type == FXTYPE_FROGSHIELD )
+	{
+		SetVector( &fx->sprites->pos, &fx->origin );
+	}
+
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
@@ -1112,6 +1147,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
+	FindTexture(&txtrShield,UpdateCRC("00spaw04.bmp"),YES);
 }
 
 

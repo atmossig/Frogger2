@@ -718,9 +718,10 @@ void FreeActor(ACTOR *c)
 		JallocFree((UBYTE **)&c->objectController);
 	}
 
+	/*
 	if(c->LODObjectController)
 		JallocFree((UBYTE **)&c->LODObjectController);
-
+*/
 	if(c->matrix)
 		JallocFree((UBYTE **)&c->matrix);
 
@@ -1148,7 +1149,7 @@ void MakeUniqueActor(ACTOR *actor,int type)
 			XformActor(actor);
 		}
 	}
-
+/*
 	objCont = actor->LODObjectController;
 	if(objCont)
 	{
@@ -1156,6 +1157,7 @@ void MakeUniqueActor(ACTOR *actor,int type)
 		memcpy(actor->LODObjectController, objCont, sizeof(OBJECT_CONTROLLER));
 		actor->LODObjectController->object = MakeUniqueObject(actor->LODObjectController->object);
 	}
+	*/
 }
 
 

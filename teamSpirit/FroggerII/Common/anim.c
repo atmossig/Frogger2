@@ -15,7 +15,6 @@
 
 #include "incs.h"
 
-
 float hedRotAmt = 0;
 
 /*	--------------------------------------------------------------------------------
@@ -416,6 +415,20 @@ void DamagePoison( int pl )
 	DamageNormal(pl);
 }
 
+void DamageSlicing( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageExplosion( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageGibbing( int pl )
+{
+	DamageNormal(pl);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: Death functions
@@ -460,7 +473,7 @@ void DeathElectric( int pl )
 {
 	player[pl].deathBy = DEATHBY_ELECTRIC;
 	CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &frog[pl]->actor->pos, &currTile[pl]->normal, 5, 40, 0.25, 0.5 );
-	AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+	AnimateActor(frog[pl]->actor, FROG_ANIM_ELECTROCUTE, NO, NO, 0.5F, 0, 0);
 	GTInit( &player[pl].dead, 3 );
 }
 
@@ -488,3 +501,76 @@ void DeathPoison( int pl )
 	GTInit( &player[pl].dead, 3 );
 }
 
+void DeathSlicing( int pl )
+{
+	SPECFX *fx;
+
+	player[pl].deathBy = DEATHBY_SLICING;
+
+	// Drop in replacement model and animate halves falling apart
+	frog[pl]->actor->LODObjectController = frog[pl]->actor->objectController;
+	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-half.obe"), "dth-half.obe", NO );
+	InitActorAnim( frog[pl]->actor );
+
+	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.25, 0, 0 );
+	AnimateActor( frog[pl]->actor, 1, YES, YES, 0.25, 0, 0 );
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 );
+	SetFXColour( fx, 255, 255, 0 );
+	fx->gravity = 0.1;
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
+	SetFXColour( fx, 255, 255, 130 );
+	fx->gravity = 0.1;
+
+	GTInit( &player[pl].dead, 3 );
+}
+
+void DeathExplosion( int pl )
+{
+	SPECFX *fx;
+
+	player[pl].deathBy = DEATHBY_EXPLOSION;
+	player[pl].idleEnable = 0;
+
+	// Drop in replacement model and animate gib explosion
+	frog[pl]->actor->LODObjectController = frog[pl]->actor->objectController;
+	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-gib.obe"), "dth-gib.obe", NO );
+	InitActorAnim( frog[pl]->actor );
+
+	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.2, 0, 0 );
+	AnimateActor( frog[pl]->actor, 2, YES, YES, 0.2, 0, 0 );
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 );
+	SetFXColour( fx, 255, 255, 0 );
+	fx->gravity = 0.1;
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
+	SetFXColour( fx, 255, 255, 130 );
+	fx->gravity = 0.1;
+
+	GTInit( &player[pl].dead, 3 );
+}
+
+void DeathGibbing( int pl )
+{
+	SPECFX *fx;
+
+	player[pl].deathBy = DEATHBY_GIBBING;
+	player[pl].idleEnable = 0;
+
+	// Drop in replacement model and animate gib explosion
+	frog[pl]->actor->LODObjectController = frog[pl]->actor->objectController;
+	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-gib.obe"), "dth-gib.obe", NO );
+	InitActorAnim( frog[pl]->actor );
+
+	AnimateActor( frog[pl]->actor, 1, NO, NO, 0.2, 0, 0 );
+	AnimateActor( frog[pl]->actor, 3, YES, YES, 0.2, 0, 0 );
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 );
+	SetFXColour( fx, 255, 255, 0 );
+	fx->gravity = 0.1;
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
+	SetFXColour( fx, 255, 255, 130 );
+	fx->gravity = 0.1;
+
+	GTInit( &player[pl].dead, 3 );
+}

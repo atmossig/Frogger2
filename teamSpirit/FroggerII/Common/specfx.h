@@ -79,6 +79,7 @@ enum
 	FXTYPE_LIGHTNING,
 	FXTYPE_HEALTHFLY,
 	FXTYPE_SPACETHING1,
+	FXTYPE_FROGSHIELD,
 
 	FXTYPE_NUMTYPES
 };
@@ -143,6 +144,7 @@ extern TEXTURE *txtrFire;
 extern TEXTURE *txtrBlank;
 extern TEXTURE *txtrTrail;
 extern TEXTURE *txtrFlash;
+extern TEXTURE *txtrShield;
 
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );

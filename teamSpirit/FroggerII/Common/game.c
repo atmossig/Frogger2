@@ -966,15 +966,15 @@ void RunGameLoop (void)
 					if( !player[i].safe.time )
 						frog[i]->actor->xluOverride = 100;
 				}
-			}
 
-			if( player[i].idleEnable )
-			{
-				player[i].idleTime-=gameSpeed;
-				if(player[i].idleTime<1)
+				if( player[i].idleEnable )
 				{
-					FroggerIdleAnim(i);
-					player[i].idleTime = MAX_IDLE_TIME + Random(MAX_IDLE_TIME);
+					player[i].idleTime-=gameSpeed;
+					if(player[i].idleTime<1)
+					{
+						FroggerIdleAnim(i);
+						player[i].idleTime = MAX_IDLE_TIME + Random(MAX_IDLE_TIME);
+					}
 				}
 			}
 		}
