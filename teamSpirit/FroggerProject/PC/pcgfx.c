@@ -441,7 +441,7 @@ void DrawFXRing( SPECFX *fx )
 	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=2 )
 	{
 		// Transform to proper coords
-		for( j=0; j<4; j++ )
+		for( j=0,zeroZ=0; j<4; j++ )
 		{
 			if( i && j<2 && vTPrev[0].sz && vTPrev[1].sz )
 				memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );
