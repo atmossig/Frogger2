@@ -72,6 +72,7 @@ void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSUR
 void PrintTextureInfo(void);
 
 extern long surfacesMade;
+extern char showMemDebug;
 
 #ifdef __cplusplus
 }

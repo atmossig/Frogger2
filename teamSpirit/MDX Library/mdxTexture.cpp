@@ -44,7 +44,7 @@ extern "C"
 MDX_TEXENTRY *cDispTexture = NULL;
 MDX_TEXENTRY *texList = NULL;
 MDX_TEXPAGE	*texPages = NULL;
-
+char showMemDebug=0;
 long surfacesMade = 0;
 
 #define TEX_PAGE_SIZE 64
@@ -548,7 +548,8 @@ void FreeAllTextureBanks()
 	dp("Freed %d Textures\n",numTextures);
 	dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
 
-	Show_Mem();
+	if( showMemDebug )
+		Show_Mem();
 //CrtMemCheckpoint(&state2);
 //CrtMemDifference(&state3,&state2,&state1);
 	
