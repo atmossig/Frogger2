@@ -832,3 +832,8 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 	AddSprite(sprite,NULL);
 }
 
+void DropGaribToTile(GARIB *garib, GAMETILE *tile, float dropSpeed)
+{
+	garib->gameTile = tile;
+	garib->dropSpeed = dropSpeed;
+}
