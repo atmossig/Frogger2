@@ -60,6 +60,5 @@ extern void UpDateOnScreenInfo		( void );
 extern void UpdateScore				( ACTOR2 *act, long scoreUpdate);
 extern void InitInGameTextOverlays	( unsigned long worldID,unsigned long levelID );
 extern void RunGameOverSequence		( void );
-extern void DrawFullScreenPoly		( void );
 
 #endif

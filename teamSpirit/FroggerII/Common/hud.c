@@ -268,27 +268,3 @@ void RunGameOverSequence ( void )
 
 
 
-void DrawFullScreenPoly ( void )
-{
-/*	Vtx verts[32];
-	Vtx *vPtr = NULL;
-	TEXTURE *myTxtr1 = NULL;
-
-	vPtr = &verts[0];
-
-	FindTexture(&myTxtr1,UpdateCRC("ai_bigcircle.bmp"),YES,"ai_bigcircle.bmp");
-	LoadTexture(myTxtr1);
-
-	V((&verts[0]),0,0,0,0,1024,0,255,255,255,255);
-	V((&verts[1]),320,0,0,0,0,0,255,255,255,255);
-	V((&verts[2]),320,240,0,0,0,1024,255,255,255,255);
-	V((&verts[3]),320,240,0,0,1024,1024,255,255,255,255);
-
-	gDPLoadTextureBlock(glistp++,myTxtr1->data,G_IM_FMT_IA,G_IM_SIZ_16b,myTxtr1->sx,myTxtr1->sy,0,G_TX_WRAP,G_TX_WRAP,myTxtr1->TCScaleX,myTxtr1->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
-
-	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);	  */
-
-}
-
-
