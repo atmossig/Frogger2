@@ -419,11 +419,13 @@ void TransformObject(MDX_OBJECT *obj, float time)
 			sprite = obj->sprites[i].sprite;
 
 			//MC - if (currentDrawActor2)
-			sprite->draw = drawThisObjectsSprites;					 
-						
+							 						
 			if(sprite)
 			{
 				MDX_VECTOR tVect;
+
+				sprite->draw = drawThisObjectsSprites;
+
 				obj->sprites[i].sprite->scaleX = 2*((float)obj->sprites[i].sx * actorScale->vx * scale.vx);
 				obj->sprites[i].sprite->scaleY = 2*((float)obj->sprites[i].sy * actorScale->vy * scale.vy);
 
