@@ -524,8 +524,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	vs = VSync(1);
 	while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+sfxwaittime));
 
-	if(sample->flags)
-		utilPrintf("playing looping sample the wrong way!!!!!!!!\n");
+//	if(sample->flags)
+//		utilPrintf("playing looping sample the wrong way!!!!!!!!\n");
 	
 	sample->handle = lastSound = sfxPlaySample( sample->snd, vl,vr, pitch);
 	if(lastSound<0)
