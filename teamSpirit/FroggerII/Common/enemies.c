@@ -767,6 +767,7 @@ void UpdateEnemies()
 				{
 					length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
 					length *= PI2;
+					length += cur->path->nodes->offset2 * PI2;
 
 					if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
 					{
