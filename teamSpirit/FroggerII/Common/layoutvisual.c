@@ -684,10 +684,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	MusSetMasterVolume(MUSFLAG_SONGS,32000);
 #endif
 
-#ifdef USE_AUDIO
 	if (audioEnabled)
 		PrepareSongForLevel((short)worldID,(short)levelID);
-#endif
 
 #ifdef PC_VERSION // TEMPORARY
 	fog.mode = 1;
@@ -709,7 +707,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// Stuff that used to be in RunGameLoop
 	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
 	{
-		player[0].lives				= 999;
+		player[0].lives				= 10;
 		player[0].score				= 0;
 		player[0].spawnTimer		= 0;
 		player[0].spawnScoreLevel	= 1;
