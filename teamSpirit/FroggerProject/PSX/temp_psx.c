@@ -1034,13 +1034,13 @@ void PsiActor2ClipCheck(ACTOR2* act)
 
 	if(act->flags & ACTOR_DRAW_ALWAYS)
 	{
-//		TIMER_START1(TIMER_UPANI);
+		//TIMER_START1(TIMER_UPANI);
 		actorUpdateAnimations(act->actor);
-//		TIMER_STOP_ADD1(TIMER_UPANI);
+		//TIMER_STOP_ADD1(TIMER_UPANI);
 
-//		TIMER_START1(TIMER_SETANI);
+		//TIMER_START1(TIMER_SETANI);
 		actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
-//		TIMER_STOP_ADD1(TIMER_SETANI);
+		//TIMER_STOP_ADD1(TIMER_SETANI);
 
 		QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
 		act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
@@ -1096,13 +1096,13 @@ void PsiActor2ClipCheck(ACTOR2* act)
 		}
 		else
 		{
-//			TIMER_START1(TIMER_UPANI);
+			//TIMER_START1(TIMER_UPANI);
 			actorUpdateAnimations(act->actor);
-//			TIMER_STOP_ADD1(TIMER_UPANI);
+			//TIMER_STOP_ADD1(TIMER_UPANI);
 
-//			TIMER_START1(TIMER_SETANI);
+			//TIMER_START1(TIMER_SETANI);
 			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
-//			TIMER_STOP_ADD1(TIMER_SETANI);
+			//TIMER_STOP_ADD1(TIMER_SETANI);
 
 			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
 			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
@@ -1226,9 +1226,13 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		MATRIX tx, rY;
 
 		//need to do this to transform points
-		//oldStackPointer = SetSp(0x1f800400);
-		//QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
-		//SetSp(oldStackPointer);
+//#if GOLDCD==1
+//		oldStackPointer = SetSp(0x1f800400);
+//#endif
+		QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+//#if GOLDCD==1
+//		SetSp(oldStackPointer);
+//#endif
 
 		act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 		act->actor->bffMatrix.t[1] = act->actor->position.vy;
@@ -1249,11 +1253,21 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		gte_rtirtr();
 		gte_stlvl(&tx.t);
 
+/*			
+		gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+		rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
+		rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+		RotMatrixY(2048, &rY);
+		gte_MulMatrix0(&tx, &rY, &tx);
+		gte_SetRotMatrix(&tx);
+		gte_SetTransMatrix(&tx);
+*/
+
 		gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
 		rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
-		rY.m[0][0] = -0x1000;
-		rY.m[1][1] =  0x1000;
-		rY.m[2][2] = -0x1000;
+		rY.m[0][0] = -act->actor->size.vx;
+		rY.m[1][1] =  act->actor->size.vy;
+		rY.m[2][2] = -act->actor->size.vz;
 		gte_MulMatrix0(&tx, &rY, &tx);
 		gte_SetRotMatrix(&tx);
 		gte_SetTransMatrix(&tx);
@@ -1286,9 +1300,13 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		MATRIX tx, rY;
 
 		//need to do this to transform points
-		//oldStackPointer = SetSp(0x1f800400);
+//#if GOLDCD==1
+//		oldStackPointer = SetSp(0x1f800400);
+//#endif
 		QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
-		//SetSp(oldStackPointer);
+//#if GOLDCD==1
+//		SetSp(oldStackPointer);
+//#endif
 
 		act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 		act->actor->bffMatrix.t[1] = act->actor->position.vy;
@@ -1319,17 +1337,11 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		gte_SetTransMatrix(&tx);
 */
 //bbopt
-// - we want a pre set matrix here,
-// - size was set into matrix,
-//   but overwritten by RotMatrixY
 		gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
 		rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
-//			rY.m[0][0] = -act->actor->size.vx;
-//			rY.m[1][1] =  act->actor->size.vy;
-//			rY.m[2][2] = -act->actor->size.vz;
-		rY.m[0][0] = -0x1000;
-		rY.m[1][1] =  0x1000;
-		rY.m[2][2] = -0x1000;
+		rY.m[0][0] = -act->actor->size.vx;
+		rY.m[1][1] =  act->actor->size.vy;
+		rY.m[2][2] = -act->actor->size.vz;
 		gte_MulMatrix0(&tx, &rY, &tx);
 		gte_SetRotMatrix(&tx);
 		gte_SetTransMatrix(&tx);
