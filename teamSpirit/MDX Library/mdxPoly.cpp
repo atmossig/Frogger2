@@ -1289,24 +1289,24 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 
 	if (rHardware)
 	{
-		D3DLVERTEX v[4] = {
+		D3DTLVERTEX v[4] = {
 			{
-				r.left,r.top,0,0,
+				r.left,r.top,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u0,v0
 			},
 			{
-				r.left,r.bottom,0,0,
+				r.left,r.bottom,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u0,v1
 				},
 			{
-				r.right,r.bottom,0,0,
+				r.right,r.bottom,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u1,v1
 			},
 			{
-				r.right,r.top,0,0,
+				r.right,r.top,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u1,v0
 			}

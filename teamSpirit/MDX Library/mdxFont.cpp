@@ -28,7 +28,7 @@
 
 
 #define FONT_TEXTURE_SIZE		256
-#define FONT_TEMP_SURFACES		4
+#define FONT_TEMP_SURFACES		12
 
 
 /* -----------------------------------------------------------------------
@@ -121,7 +121,7 @@ MDX_FONT *InitFont(const char *filename)
 
 	// build all font characters
 	alphaLen = strlen((const char *)alphabet);
-	for (i=0; i<alphaLen && (currSurf == 0); i++)
+	for (i=0; i<alphaLen; i++)
 	{
 		int yscan, found = 0;
 
@@ -173,7 +173,9 @@ MDX_FONT *InitFont(const char *filename)
 				for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=0xf81f;
 				charUV.y = 0;
 
-				currSurf++;
+				if ((++currSurf) == FONT_TEMP_SURFACES)
+					break;
+
 				surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
 			}
 		}
@@ -187,8 +189,8 @@ MDX_FONT *InitFont(const char *filename)
 				//unsigned long d,r,g,b;
 				dt = &tData[(x+left)+(y*bmpWidth)];
 
-				if (*dt==transparent)
-					*dt = 0xf81f;
+				//if (*dt==transparent)
+				//	*dt = 0xf81f;
 
 				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = *dt;
 			}
@@ -257,7 +259,7 @@ MDX_FONT *InitFont(const char *filename)
 	// release the gelf image file
 	gelfDefaultFree(tData);
 
-	dp("Font '%s' loaded, %d textures used\n", filename, currSurf);
+	dp("Font '%s' loaded, %d %dx%d textures used\n", filename, currSurf, FONT_TEXTURE_SIZE,FONT_TEXTURE_SIZE);
 	return font;
 }
 
