@@ -148,8 +148,8 @@ long creditsY = 0;
 CREDIT_DATA creditData[] = 
 {
 	0,GREEN,
-	2,GREEN,
-	0,RED,
+	2,RED,
+	0,GREEN,
 
 	2,RED,		//founded by
 	0,GREEN,
@@ -212,6 +212,20 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 
 	2,RED,		//video
+	0,GREEN,
+
+	2,RED,		//video producer
+	0,GREEN,
+
+	2,RED,		//video animation modelling and lighting
+	0,RED,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+
+	2,RED,		//video modelling
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 
 	2,RED,		//voices
