@@ -765,6 +765,7 @@ void UpdateSlerpPathPlatform( PLATFORM *cur )
 
 	// Skewer a line to rotate around, and make a rotation
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	MakeUnit((VECTOR *)&q3);
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
 		t=-0.999;
