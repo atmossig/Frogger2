@@ -38,7 +38,7 @@ void InitPCSpecifics()
 
 #ifdef _DEBUG
 	// throw floating point exceptions!
-    _controlfp(_EXC_MASK, _MCW_EM); 
+    //_controlfp(_EXC_MASK, _MCW_EM); 
 #endif
 }
 
