@@ -79,6 +79,11 @@ const char* CurrentFilename()
 	return currfileentry->filename;
 }
 
+const int CurrentLineNum()
+{
+	return currfileentry->line;
+}
+
 void Error(const char* message)
 {
 	fprintf(stderr, "%s(%d) : %s\n",

@@ -7,6 +7,8 @@
 #define C_ON		0x40		// special!
 #define C_CALL		0x7F		// special!
 
+#define C_DEBUG		0xFF		// super special!
+
 #define	C_INCLUDE	0x100
 #define C_SET		0x101
 #define C_SUB		0x102

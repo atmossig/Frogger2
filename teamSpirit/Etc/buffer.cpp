@@ -26,7 +26,7 @@ void Buffer::AddData(const void *data, int s)
 
 	if (size + s > alloc)
 	{
-		alloc *= 2;
+		alloc = (alloc + s ) * 2;
 		newBuffer = new char[alloc];
 		memcpy(newBuffer, p, size);
 		delete [] p;

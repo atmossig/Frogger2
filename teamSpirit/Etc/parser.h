@@ -19,6 +19,7 @@ bool GetIntegerToken(int *);
 
 void Error(const char* message);
 const char* CurrentFilename();
+const int CurrentLineNum();
 
 void SetVariable(const char* key, const char* value);
 
