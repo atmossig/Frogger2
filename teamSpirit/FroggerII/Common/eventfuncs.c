@@ -412,8 +412,8 @@ void SpringFrog( EVENT *event )
 		SetVector( &dd, &info->V );
 		ScaleVector( &dd, t );
 
-		AddVector( &(frog[f]->actor->pos), &info->S, &dd );
-		AddVector( &(frog[f]->actor->pos), &(frog[f]->actor->pos), &dh );
+		AddVector( &frog[f]->actor->pos, &info->S, &dd );
+		AddToVector( &frog[f]->actor->pos, &dh );
 
 		// TODO: Slurp frog orientation between source and destination tiles
 	}

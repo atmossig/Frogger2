@@ -776,7 +776,7 @@ void DrawFXRipple( SPECFX *ripple )
 
 	for(i=0; i<4; i++)
 	{
-		AddVector( &tempVect[i], &tempVect[i], &ripple->origin );
+		AddToVector( &tempVect[i], &ripple->origin );
 		XfmPoint (&m[i],&tempVect[i]);
 	}
 	
@@ -821,8 +821,8 @@ void DrawFXRipple( SPECFX *ripple )
 		tEntry = ((TEXENTRY *)ripple->tex);
 		if (tEntry)
 		{
-			memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
-			memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
+			memcpy( &vT2[0], &vT[2], sizeof(D3DTLVERTEX) );
+			memcpy( &vT2[1], &vT[1], sizeof(D3DTLVERTEX) );
 			memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
 			Clip3DPolygon( vT, tEntry->hdl );
 			Clip3DPolygon( vT2, tEntry->hdl );
