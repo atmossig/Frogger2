@@ -27,6 +27,7 @@ extern char baseDirectory[256];
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 void *memoryAllocateZero(unsigned long size, char *file, int line);
 
+
 /*typedef struct _displayPageType {
 	DISPENV			dispenv;
 	DRAWENV			drawenv;
