@@ -386,6 +386,9 @@ int StopSample( SAMPLE *sample )
 	BUFSAMPLE *cur,*next;
 	unsigned long stat;
 
+	if( !sample )
+		return;
+
 	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
 

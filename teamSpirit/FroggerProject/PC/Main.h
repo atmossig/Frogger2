@@ -36,7 +36,7 @@ extern "C"
 //#define MALLOC0(S)	calloc(1,(S))
 
 #ifdef PC_DEMO
-#define REGISTRY_KEY "Software\\Hasbro Interactive\\Frogger2Demo"
+#define REGISTRY_KEY "Software\\Hasbro Interactive\\Frogger2 Demo"
 #else
 #define REGISTRY_KEY "Software\\Hasbro Interactive\\Frogger2"
 #endif
