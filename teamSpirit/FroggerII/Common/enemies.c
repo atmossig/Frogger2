@@ -462,12 +462,15 @@ static void GetEnemyActiveTile(ENEMY *nme)
 float snapRadius = 75;
 long snapTime = 50;
 
+extern float waitScale;
+
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd,swarmPos;
 	VECTOR moveVec;
+	float length;
 
 	float tileRadiusSquared = snapRadius * snapRadius;
 
@@ -487,10 +490,11 @@ void UpdateEnemies()
 		{
 			if(cur->isWaiting == -1)
 				continue;
+
+			if(actFrameCount > cur->path->startFrame)
+				cur->isWaiting = 0;
 			else
-				cur->isWaiting--;
-			
-			continue;
+				continue;
 		}
 
 		if ( cur->isIdle )
@@ -500,19 +504,36 @@ void UpdateEnemies()
 		if(cur->flags & ENEMY_NEW_FOLLOWPATH)
 		{
 			// process enemies that follow a path (>1 node in path)
-
+			
 			// first, update the enemy position
+/*
 			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
 			SubVector(&fwd,&toPosition,&cur->nmeActor->actor->pos);
 			MakeUnit(&fwd);
 
-			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
-				if (Random(100)>50)
-					cur->speed = (Random(100)/100.0)*cur->path->nodes[cur->path->fromNode].speed;
+			length = (float)(actFrameCount-cur->path->startFrame)/(float)(cur->path->endFrame-cur->path->startFrame);
+			
+			ScaleVector(&fwd,length);
+			AddVector (&cur->nmeActor->actor->pos,&fwd,&toPosition);
+*/
+
+			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
+			GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
+			
+			SubVector(&fwd,&toPosition,&fromPosition);
+			
+			length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
+			
+			ScaleVector(&fwd,length);
+			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
+
+//			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+//				if (Random(100)>50)
+//					cur->speed = (Random(100)/100.0)*cur->path->nodes[cur->path->fromNode].speed;
 				
-			cur->nmeActor->actor->pos.v[X] += (cur->speed * fwd.v[X]);
-			cur->nmeActor->actor->pos.v[Y] += (cur->speed * fwd.v[Y]);
-			cur->nmeActor->actor->pos.v[Z] += (cur->speed * fwd.v[Z]);
+//			cur->nmeActor->actor->pos.v[X] += (cur->speed * fwd.v[X]);
+//			cur->nmeActor->actor->pos.v[Y] += (cur->speed * fwd.v[Y]);
+//			cur->nmeActor->actor->pos.v[Z] += (cur->speed * fwd.v[Z]);
 			
 			
 //--------------------->
@@ -528,7 +549,12 @@ void UpdateEnemies()
 
 			// check if this enemy has arrived at a path node
 			if(EnemyHasArrivedAtNode(cur))
+			{
 				UpdateEnemyPathNodes(cur);
+
+				cur->path->startFrame += cur->isWaiting * waitScale;
+				cur->path->endFrame += cur->isWaiting * waitScale;
+			}
 		}
 		else
 			if(cur->flags & ENEMY_NEW_WATCHFROG)
@@ -1293,6 +1319,9 @@ void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned l
 	nme->startSpeed	= path->nodes[nme->path->fromNode].speed;
 	nme->isWaiting	= path->nodes[nme->path->fromNode].waitTime;
 
+	nme->path->startFrame = actFrameCount;
+	nme->path->endFrame = (actFrameCount+(60*nme->speed));
+
 	CalcEnemyNormalInterps(nme);
 
 	dprintf"\n"));
@@ -1311,14 +1340,19 @@ BOOL EnemyHasArrivedAtNode(ENEMY *nme)
 	VECTOR nodePos;
 	PATH *path = nme->path;
 
+	if (actFrameCount>path->endFrame)
+	{
+		return TRUE;
+	}
+
 	// check if path node is reached
-	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
+/*	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
 	if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&nodePos) <  ((nme->speed + 0.1F) * (nme->speed + 0.1F)))
 	{
 		dprintf""));
 		return TRUE;
 	}
-
+*/
 	return FALSE;
 }
 
@@ -1374,6 +1408,9 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 	VECTOR *n1,*n2;
 	
 	// determine to/from nodes for the current enemy
+	path->startFrame = path->endFrame;
+	path->endFrame = path->startFrame+(60*nme->speed);
+	nme->isWaiting = 0;
 
 	if(flags & ENEMY_NEW_FORWARDS)
 	{
