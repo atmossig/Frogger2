@@ -1844,8 +1844,43 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 	}
 }
 
+#define SPRITECLIPLEFT		0
+#define SPRITECLIPTOP		0
+#define SPRITECLIPRIGHT		(SCREEN_WIDTH)
+#define SPRITECLIPBOTTOM	(SCREEN_HEIGHT)
+
 void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h,DWORD colour)
 {
+	float x2 = (x+xs), y2 = (y+ys);
+
+	if (x < SPRITECLIPLEFT)
+	{
+		if (x2 < SPRITECLIPLEFT) return;
+		u1 += (u2-u1) * (SPRITECLIPLEFT-x)/xs;	// clip u
+		xs += x-SPRITECLIPLEFT; x = SPRITECLIPLEFT;
+	}
+	if (x2 > SPRITECLIPRIGHT)
+	{
+		if (x > SPRITECLIPRIGHT) return;
+		u2 += (u2-u1) * (SPRITECLIPRIGHT-x2)/xs;	// clip u
+		xs -= (x-SPRITECLIPRIGHT);
+		x2 = SPRITECLIPRIGHT;
+	}
+
+	if (y < SPRITECLIPTOP)
+	{
+		if (y2 < SPRITECLIPTOP) return;
+		v1 += (v2-v1) * (SPRITECLIPTOP-y)/ys;	// clip v
+		ys += y-SPRITECLIPTOP; y = SPRITECLIPTOP;
+	}
+	if (y2 > SPRITECLIPBOTTOM)
+	{
+		if (y > SPRITECLIPBOTTOM) return;
+		v2 += (v2-v1) * (SPRITECLIPBOTTOM-y2)/ys;	// clip v
+		ys -= (y-SPRITECLIPBOTTOM);
+		y2 = SPRITECLIPBOTTOM;
+	}
+	
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,0,0,
@@ -1853,17 +1888,17 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 			u1,v1
 		},
 		{
-			x+xs,y,0,0,
+			x2,y,0,0,
 			colour,D3DRGBA(0,0,0,1),
 			u2,v1
 		},
 		{
-			x+xs,y+ys,0,0,
+			x2,y2,0,0,
 			colour,D3DRGBA(0,0,0,1),
 			u2,v2
 		},
 		{
-		x,y+ys,0,0,
+			x,y2,0,0,
 			colour,D3DRGBA(0,0,0,1),
 			u1,v2
 	}};
@@ -1894,43 +1929,38 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 	}
 }
 
-#define SPRITECLIPLEFT		0
-#define SPRITECLIPTOP		0
-#define SPRITECLIPRIGHT		SCREEN_WIDTH
-#define SPRITECLIPBOTTOM	SCREEN_WIDTH
-
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, DWORD colour )
 {
 	float x2 = (x+xs), y2 = (y+ys);
 	float fogAmt;
 
-	// Really crap clipping
 	if (x < SPRITECLIPLEFT)
 	{
+		if (x2 < SPRITECLIPLEFT) return;
 		u1 += (u2-u1) * (SPRITECLIPLEFT-x)/xs;	// clip u
-		xs += x+SPRITECLIPLEFT; x = SPRITECLIPLEFT;
+		xs += x-SPRITECLIPLEFT; x = SPRITECLIPLEFT;
 	}
 	if (x2 > SPRITECLIPRIGHT)
 	{
+		if (x > SPRITECLIPRIGHT) return;
 		u2 += (u2-u1) * (SPRITECLIPRIGHT-x2)/xs;	// clip u
 		xs -= (x-SPRITECLIPRIGHT);
 		x2 = SPRITECLIPRIGHT;
 	}
-	if (xs < 0) return;
 
 	if (y < SPRITECLIPTOP)
 	{
+		if (y2 < SPRITECLIPTOP) return;
 		v1 += (v2-v1) * (SPRITECLIPTOP-y)/ys;	// clip v
-		ys += y+SPRITECLIPTOP; y = SPRITECLIPTOP;
+		ys += y-SPRITECLIPTOP; y = SPRITECLIPTOP;
 	}
 	if (y2 > SPRITECLIPBOTTOM)
 	{
+		if (y > SPRITECLIPBOTTOM) return;
 		v2 += (v2-v1) * (SPRITECLIPBOTTOM-y2)/ys;	// clip v
 		ys -= (y-SPRITECLIPBOTTOM);
 		y2 = SPRITECLIPBOTTOM;
 	}
-	if (ys < 0) return;
-
 	
 	fogAmt = FOGADJ(z);
 	if (fogAmt<0)
