@@ -673,12 +673,12 @@ void Actor2ClipCheck(ACTOR2* act)
 			act->actor->bffMatrix.t[1] = act->actor->position.vy;
 			act->actor->bffMatrix.t[2] = act->actor->position.vz;
 
-			//calculate local to screen coords for fma mesh.
-			//(camera matrix and objects' pos/rot matrix)
-
 			(*mesh)->posx = -act->actor->position.vx;
 			(*mesh)->posy = -act->actor->position.vy;
 			(*mesh)->posz = act->actor->position.vz;
+
+			//calculate local to screen coords for fma mesh.
+			//(camera matrix and objects' pos/rot matrix)
 
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);
@@ -827,13 +827,13 @@ void Actor2ClipCheck(ACTOR2* act)
 
 				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
 
-				(*mesh)->posx = -act->actor->position.vx;
-				(*mesh)->posy = -act->actor->position.vy;
-				(*mesh)->posz = act->actor->position.vz;
-
 				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 				act->actor->bffMatrix.t[1] = act->actor->position.vy;
 				act->actor->bffMatrix.t[2] = act->actor->position.vz;
+
+				(*mesh)->posx = -act->actor->position.vx;
+				(*mesh)->posy = -act->actor->position.vy;
+				(*mesh)->posz = act->actor->position.vz;
 
 
 
