@@ -53,7 +53,7 @@ MDX_VECTOR tN[MAX_OBJECT_VERTICES];
 short facesON[3] = {0,1,2};
 
 float nearClip = 1;
-float farClip = 700;
+float farClip = 1200;
 
 float horizClip = 3000;
 float vertClip = 2500;

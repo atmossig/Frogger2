@@ -23,6 +23,7 @@
 #include "mdxActor.h"
 #include "mdxCRC.h"
 #include "mgeReport.h"
+#include "mdxTiming.h"
 #include "gelf.h"
 
 #ifdef __cplusplus
@@ -32,6 +33,35 @@ extern "C"
 
 MDX_OBJECT_BANK objectBanks[MAX_OBJECT_BANKS];
 WORD fpuState;
+
+void SlideObjectTextures(MDX_OBJECT *obj,long speed)
+{
+	int i;
+	
+	// For all the faces.....
+	for (i=0; i<obj->mesh->numFaces; i++)
+	{
+		// Do the sliding.
+		obj->mesh->faceTC[(i*3)].v[1] -= (timeInfo.speed * speed);		
+		obj->mesh->faceTC[(i*3)+1].v[1] -= (timeInfo.speed * speed);		
+		obj->mesh->faceTC[(i*3)+2].v[1] -= (timeInfo.speed * speed);		
+
+		// Deal with the case when they might wrap.
+		if ((obj->mesh->faceTC[(i*3)].v[1] < 4096) || (obj->mesh->faceTC[(i*3)+1].v[1]<4096) || (obj->mesh->faceTC[(i*3)+2].v[1]<4096))
+		{
+			obj->mesh->faceTC[(i*3)].v[1] += 8192;		
+			obj->mesh->faceTC[(i*3)+1].v[1] += 8192;
+			obj->mesh->faceTC[(i*3)+2].v[1] += 8192;		
+		}
+	}
+
+	if (obj->children)
+		SlideObjectTextures(obj->children,speed);
+
+	if (obj->next)
+		SlideObjectTextures(obj->next,speed);
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function 	: 
@@ -415,8 +445,7 @@ void TransformObject(MDX_OBJECT *obj, float time)
 		obj->flags &= ~OBJECT_FLAGS_CLIPPED;
 	
 
-	PopMatrix();
-
+	PopMatrix();	
 
 	if(obj->children)
 	{

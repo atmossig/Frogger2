@@ -264,6 +264,7 @@ typedef struct
 #define OBJECT_FLAGS_CLIPPED				  	(1<<15)		
 
 
+void SlideObjectTextures(MDX_OBJECT *obj,long speed);
 void FindObject(MDX_OBJECT_CONTROLLER **objCPtr, int objID, char *name);
 void LoadObjBank(char *bank, char *baseDir);
 void TransformObject(MDX_OBJECT *obj, float time);

@@ -66,7 +66,8 @@ extern "C"
 	MDX_FONT *pcFont;
 	MDX_FONT *pcFontSmall;
 	long drawLandscape = 1;
-
+	long textEntry = 0;	
+	char textString[255] = "";
 }
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
@@ -83,6 +84,9 @@ unsigned long actTickCountModifier = 0;
 unsigned long synchSpeed = 60 * 1;
 unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
+
+
+long slideSpeeds[4] = {0,16,32,64};
 
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
@@ -150,6 +154,28 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
+void TextInput( char c )
+{
+	long numc = strlen(textString);
+	if (c == 8) // backspace
+	{
+		if (numc>0)
+			textString[numc-1] = 0;
+	}
+	else if (c == 13) // enter
+	{
+		textEntry = 0;
+	}
+	else
+	{
+		if (numc<textEntry)
+		{
+			textString[numc] = c;
+			textString[numc+1] = 0;
+		}
+	}
+}
+
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
 	Params:		As WNDPROC
@@ -188,6 +214,12 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_CHAR:
+
+			if (textEntry)
+			{
+				TextInput((char)wParam);
+			}
+			else
 			if( chatFlags & CHAT_INPUT )
 			{
 				ChatInput((char)wParam);
@@ -199,6 +231,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				EditorKeypress((char)wParam);
 				return 0;
 			}
+
 			return 1;
 			break;
 
@@ -331,7 +364,12 @@ long LoopFunc(void)
 		if (c->actor->actualActor)
 		{
 			MDX_ACTOR *a = (MDX_ACTOR*)c->actor->actualActor;
+			long slideVal;
+			slideVal = ((c->flags>>5) & 3);
+			if (slideVal)
+				SlideObjectTextures(a->objectController->object,slideSpeeds[slideVal]);
 
+			
 			if (!c->draw)
 			{
 				a->visible = 0;

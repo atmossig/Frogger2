@@ -75,6 +75,7 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
 void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry );
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);
+void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1);
 void BlankAllFrames(void);
 void DrawAllFrames(void);
 

@@ -50,7 +50,7 @@ short softScreen[640*480];
 unsigned long numHaloPoints;
 long limTex = 0;
 
-long softFlags = POLY_TEXTURE;
+long softFlags = POLY_TEXTURE | POLY_MAGENTAMASK;
 
 short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
@@ -152,7 +152,6 @@ unsigned long cullCCWRS[] =
 	//
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
-
 
 
 long dPoly = 1;
@@ -412,7 +411,12 @@ void DrawSoftwarePolys (void)
 				thisTex.width = cur->tEntry->xSize;
 				thisTex.height = cur->tEntry->ySize;
 				thisTex.image = (unsigned short *)cur->tEntry->data;
-				
+		
+				if (cur->tEntry->keyed) 
+					softFlags |= POLY_MAGENTAMASK; 
+				else 
+					softFlags &= ~POLY_MAGENTAMASK;
+
 				v[0].u = softV[f1].tu * thisTex.width;
 				v[0].v = softV[f1].tv * thisTex.height;
 
@@ -537,16 +541,23 @@ void DrawBatchedPolys (void)
 
 void SetTexture(MDX_TEXENTRY *me)
 {
-	if (rHardware)
+	if (rHardware) 
 	{
-		if (me)
-			pDirect3DDevice->SetTexture(0,me->surf);
-		else
+		if (me)	
+			pDirect3DDevice->SetTexture(0,me->surf); 
+		else 
 			pDirect3DDevice->SetTexture(0,0);
 	}
+	else
+		if (me)
+		{
+			if (me->keyed) 
+				softFlags |= POLY_MAGENTAMASK; 
+			else 
+				softFlags &= ~POLY_MAGENTAMASK;
+		}
 	
-	cTexture = me;
-	
+	cTexture = me;	
 }
 
 HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags)
@@ -730,7 +741,91 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1)
 {
+	if ((r.left>clx1) || (r.top>cly1) || (r.right<clx0) || (r.bottom<cly0))
+		return;
+		
+	if (r.left<clx0)
+	{
+		u0 += ((clx0 - r.left)/((float)r.right-r.left)) * (u1-u0);
+		r.left = clx0;
+		
+	}
 
+	if (r.top<cly0)
+	{
+		v0 += ((cly0 - r.top)/((float)r.bottom-r.top)) * (v1-v0);
+		r.top = cly0;
+		
+	}
+
+	if (r.right>clx1)
+	{
+		u1 += ((clx1 - r.right)/((float)r.right-r.left)) * (u1-u0);
+		r.right = clx1;		
+	}
+
+	if (r.bottom>cly1)
+	{
+		v1 += ((cly1 - r.bottom)/((float)r.bottom-r.top))*(v1-v0);
+		r.bottom = cly1;		
+	}
+
+	D3DLVERTEX v[4] = {
+		{
+			r.left,r.top,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u0,v0
+		},
+		{
+			r.left,r.bottom,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u0,v1
+			},
+		{
+			r.right,r.bottom,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u1,v1
+		},
+		{
+			r.right,r.top,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u1,v0
+	}};
+
+
+	if (rHardware)
+	{
+		pDirect3DDevice->SetTexture(0,tex);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+
+		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+			
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+	
+	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+		pDirect3DDevice->SetTexture(0,NULL);
+	}	
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1)
+{
+	short Indices[6] = {0,1,2,0,2,3};
 	if ((r.left>clx1) || (r.top>cly1) || (r.right<clx0) || (r.bottom<cly0))
 		return;
 		
@@ -784,23 +879,25 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 
 	if (rHardware)
 	{
-		pDirect3DDevice->SetTexture(0,tex);
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	
-		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
-		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
 			
-		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
-		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+//		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
-	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-		pDirect3DDevice->SetTexture(0,NULL);
+	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);		
+	}
+	else
+	{
+		DrawPoly(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v, 4,(unsigned short *)Indices, 6, D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS );
 	}
 }
 
@@ -870,13 +967,13 @@ void DrawTexturedRectRotated(float x, float y, float width, float height, D3DCOL
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 	while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
 			
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->SetTexture(0,NULL);

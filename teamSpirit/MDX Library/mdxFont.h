@@ -20,7 +20,8 @@ extern "C"
 typedef struct TAG_FONT
 {
 	LPDIRECTDRAWSURFACE7 surf[2];
-	
+	short *data;
+
 	D3DTLVERTEX *vPtrs[2];
 	long *widths[2];
 	long dim;

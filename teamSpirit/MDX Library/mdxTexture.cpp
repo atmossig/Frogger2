@@ -43,11 +43,13 @@ unsigned long texYCoords[((TEX_PAGE_SIZE/32) * (TEX_PAGE_SIZE/32))];
 MDX_TEXENTRY *GetTexEntryFromCRC (long CRC)
 {
 	MDX_TEXENTRY *me = texList;
-	
+	MDX_TEXENTRY *carp;
+
 	while (me)
 	{
 		if (me->CRC==CRC)
 			return me;
+		carp = me;
 		me=me->next;
 	}
 	return NULL;
@@ -156,8 +158,8 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
 					return;
 
-				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);
-
+				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);
+				
 				newE->surf->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);
 				newE->xPos = 0;
 				newE->yPos = 0;
@@ -175,7 +177,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
 					return;
 
-				DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim);			
+				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim);			
 				newE->surf = temp;
 				newE->xPos = 0;
 				newE->yPos = 0;
@@ -190,7 +192,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
 					return;
 
-				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);			
+				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);			
 				newE->surf = temp;
 				newE->xPos = 0;
 				newE->yPos = 0;
@@ -202,7 +204,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 			newE->xSize = xDim;
 			newE->ySize = yDim;
-			newE->softData = new long[yDim*xDim];
+			newE->keyed = 0;
 
 			for (int i=0; i<xDim; i++)
 				for (int j=0; j<yDim; j++)
@@ -213,6 +215,9 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 					r = (dt>>10) & 0x1f;
 					g = (dt>>5) & 0x1f;
 					b = (dt) & 0x1f;
+
+					if ((r==0x1f) && (b==0x1f) && (g==0))
+						newE->keyed = 1;
 					g<<=1;
 					if (r565)
 						newE->data[i+j*xDim] = (r<<11 | g<<5 | b);

@@ -85,12 +85,15 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 {
 	int pptr = -1;
 	int dim,size;
+	long i,j;
 
 	short *tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,&dim,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 	
 	if (tData)
 	{
-		
+		tFont->data = tData;
+
+
 		if ((tFont->surf[surf] = D3DCreateTexSurface(dim,dim, 0xf81f, 0, 1)) == NULL)
 			return false;
 
@@ -100,8 +103,9 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 		tFont->widths[surf] = new long [FONT_NUM32*FONT_NUM32];
 		
 		size = dim/8;
-		for (int i=0; i<FONT_NUM32; i++)
-			for (int j=0; j<FONT_NUM32; j++)
+
+		for (i=0; i<FONT_NUM32; i++)
+			for (j=0; j<FONT_NUM32; j++)
 			{
 				long pixelWidth,k,l,wasColored;
 				// Set up basic Texture pointers!
@@ -124,7 +128,23 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 				tFont->widths[surf][(i+j*FONT_NUM32)] = pixelWidth+1;
 			}
 		tFont->dim = dim;	
-		gelfDefaultFree(tData);
+
+		for (i=0; i<dim; i++)
+			for (j=0; j<dim; j++)
+			{
+				short dt;
+				unsigned long d,r,g,b;
+
+				dt = tFont->data[i+j*dim];
+				r = (dt>>10) & 0x1f;
+				g = (dt>>5) & 0x1f;
+				b = (dt) & 0x1f;
+				g<<=1;
+				if (r565)
+					tFont->data[i+j*dim] = (r<<11 | g<<5 | b);
+			}
+
+//		gelfDefaultFree(tData);
 	}
 
 	return true;
@@ -161,6 +181,8 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 	long fNum;
 	char *s = symbolChars,oc;
 	fNum = 0;
+	MDX_TEXENTRY tTexEntry;
+
 	while (*s)
 	{
 		if (*s==c)
@@ -208,8 +230,16 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 	m.bottom = y+(32*scale)*(font->dim/256.0);
 	m.right = x+(font->widths[fNum][c])*scale*(font->dim/256.0);
 
-	DrawTexturedRect(m,color,font->surf[fNum],font->vPtrs[fNum][c].tu,font->vPtrs[fNum][c].tv,font->vPtrs[fNum][c].tu+((font->widths[fNum][c])/256.0),font->vPtrs[fNum][c].tv+(32.0/256.0));
-	
+	tTexEntry.data = font->data;
+	tTexEntry.surf = font->surf[fNum];
+	tTexEntry.xSize = font->dim;
+	tTexEntry.ySize = font->dim;
+	tTexEntry.xPos = tTexEntry.yPos = 0;
+
+	SetTexture(&tTexEntry);
+	DrawTexturedRect2(m,color,font->vPtrs[fNum][c].tu,font->vPtrs[fNum][c].tv,font->vPtrs[fNum][c].tu+((font->widths[fNum][c])/256.0),font->vPtrs[fNum][c].tv+(32.0/256.0));
+	SetTexture(0);
+
 	return font->widths[fNum][c]*scale * (font->dim/256.0);
 }
 
@@ -264,19 +294,22 @@ long CalcStringWidth(char *string,MDX_FONT *font, float scale)
 
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX, long centredY)
 {
-	unsigned long cx = x;
+	unsigned long cx = x,ox;
 
 	if (centredY)
 		y -= (16*scale)*(font->dim/256.0);
 
 	if (centredX)
 		cx = centredX-CalcStringWidth(c,font,scale)/2;
-	
+	ox= cx;
 	while (*c)
 	{
 		cx+=DrawFontCharAtLoc(cx,y,*c,color,font,scale);
 		c++;
 	}
+
+	if (centredX)
+		cx -= ox;
 	return cx;
 }
 

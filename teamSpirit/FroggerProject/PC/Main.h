@@ -70,6 +70,8 @@ extern char	aiSurf;
 extern char	UseAAMode;
 extern char	UseZMode;
 extern int runQuit;
+extern long textEntry;	
+extern char textString[255];
 
 void debugPrintf(int num);
 void Crash(char *mess);

@@ -113,8 +113,8 @@ unsigned long D3DInit(void)
     if ((res = pDirect3DDevice->SetViewport(&vp)) != D3D_OK)
         return FALSE;
 
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
-	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_MODULATE);
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
@@ -360,6 +360,7 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 {
 	DDSURFACEDESC2		ddsd;
 	short val;
+	unsigned long texHasMagenta = 0;
 	
 	// Copy the data into the surface manually
 	DDINIT(ddsd);
@@ -382,7 +383,8 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 					val |= 0x8000;
 				else
 				{
-					// Stop magenta "halos"
+					texHasMagenta = 1;
+				/*	// Stop magenta "halos"
 					short c;
 					long val2;
 					c = 0;
@@ -399,7 +401,7 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 							if (c!=(0x1f | 0x1f<<10))
 								val = c;
 							c = 0;
-						}					
+						}					*/
 				}
 
 				((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
@@ -407,7 +409,7 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 	}
 
 	pSurface->Unlock(NULL);
-	return 1;
+	return texHasMagenta;
 }
 
 
