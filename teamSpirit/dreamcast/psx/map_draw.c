@@ -1,7 +1,14 @@
+#define _KM_USE_VERTEX_MACRO_
+#define _KM_USE_VERTEX_MACRO_L4_
+
 #include "include.h"
 #include "main.h"
 #include "gte.h"
 #include "frogger.h"
+
+#include <shinobi.h>
+#include <kamui2.h>
+#include <kamuix.h>
 
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
@@ -228,7 +235,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		max_depth = 1024-mesh->extra_depth;
 
 	transformVertexListA(mesh->verts, mesh->n_verts, map_tfv, map_tfd);
-//	transformVertexListB(mesh->verts, mesh->n_verts, map_tfv, map_tfd, map_tfd2);
 
 	// This should really by in the (or an alternative) transformvertexlist function
 	// It scales the OTZ's down so that they actually fit into the size of the ordering table.
@@ -250,6 +256,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	// "!=0" is also marginally faster than ">0" here.
 	// n_gt4s CAN be zero. Otherwise,a (do,while) loop would be ever-so-slightly faster.than the (for...) one.
 
+	kmxxGetCurrentPtr(&vertexBufferDesc);
+		
 	for(i = mesh->n_gt4s; i != 0; i--,opgt4++)
 	{
 		x0 = GETX(opgt4->vert0);
@@ -315,7 +323,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 				vertices_GT4_FMA[3].fU = opgt4->u3 / 127.0;
 				vertices_GT4_FMA[3].fV = opgt4->v3 / 127.0;		
 				vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(opgt4->r3,opgt4->g3,opgt4->b3,255);
-
+				
 				if(tex->animated)
 				{
 					// check to see if alpha channel is to be used
@@ -327,7 +335,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 							kmChangeStripTextureSurface(&StripHead_GT4_FMA_Alpha,KM_IMAGE_PARAM1,tex->surfacePtr);
 							stripGT4FMAtextureID_A = opgt4->tpage;
 						}
-						kmStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA_Alpha);
+						kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA_Alpha);
 					}	
 					else
 					{
@@ -337,23 +345,31 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 							kmChangeStripTextureSurface(&StripHead_GT4_FMA,KM_IMAGE_PARAM1,tex->surfacePtr);		
 							stripGT4FMAtextureID = opgt4->tpage;
 						}
-						kmStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);	
+						kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);	
 					}
 				}
 				else
 				{								
-					kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+					kmxxStartStrip(&vertexBufferDesc, &tex->stripHead);	
 				}
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-				kmEndStrip(&vertexBufferDesc);				
+				
+//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+//				kmEndStrip(&vertexBufferDesc);				
 
+				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[0].fX,vertices_GT4_FMA[0].fY,vertices_GT4_FMA[0].u.fZ,vertices_GT4_FMA[0].fU,vertices_GT4_FMA[0].fV,vertices_GT4_FMA[0].uBaseRGB.dwPacked,vertices_GT4_FMA[0].uBaseRGB.dwPacked);	
+				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[1].fX,vertices_GT4_FMA[1].fY,vertices_GT4_FMA[1].u.fZ,vertices_GT4_FMA[1].fU,vertices_GT4_FMA[1].fV,vertices_GT4_FMA[1].uBaseRGB.dwPacked,vertices_GT4_FMA[1].uBaseRGB.dwPacked);	
+				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[2].fX,vertices_GT4_FMA[2].fY,vertices_GT4_FMA[2].u.fZ,vertices_GT4_FMA[2].fU,vertices_GT4_FMA[2].fV,vertices_GT4_FMA[2].uBaseRGB.dwPacked,vertices_GT4_FMA[2].uBaseRGB.dwPacked);	
+				kmxxSetVertex_3(KM_VERTEXPARAM_ENDOFSTRIP,vertices_GT4_FMA[3].fX,vertices_GT4_FMA[3].fY,vertices_GT4_FMA[3].u.fZ,vertices_GT4_FMA[3].fU,vertices_GT4_FMA[3].fV,vertices_GT4_FMA[3].uBaseRGB.dwPacked,vertices_GT4_FMA[3].uBaseRGB.dwPacked);	
+			
 				polyCount++;
 			}
 		}
 	}
+
+	kmxxReleaseCurrentPtr(&vertexBufferDesc);
 
 	// That's the quads done, now let's do the triangles...
 
@@ -505,27 +521,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		y2 = y3 = y0 + height;
 		y1 = y0 = y0 - height;
 
-/*		si->r0 = op->r0;
-		si->g0 = op->g0;
-		si->b0 = op->b0;
-
-		si->u0 = op->u0;
-		si->v0 = op->v0;
-
-		si->u1 = op->u1;
-		si->v1 = op->v1;
-
-		si->u2 = op->u2;
-		si->v2 = op->v2;
-
-		si->u3 = op->u3;
-		si->v3 = op->v3;
-
-		si->tpage = op->tpage;
-		si->clut = op->clut;
-
-		si->code = GPU_COM_TF4;
-*/
 		vertices_GT4_FMA[0].fX = x0;
 		vertices_GT4_FMA[0].fY = y0;
 		vertices_GT4_FMA[0].u.fZ = 1.0 / spritez;
@@ -560,8 +555,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 		kmEndStrip(&vertexBufferDesc);				
-
-//		ENDPRIM(si, spritez>>4, POLY_FT4);
 
 	}
 
