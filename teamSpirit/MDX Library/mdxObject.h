@@ -60,7 +60,7 @@ typedef struct
 
 typedef struct TAG_MDXSPRITE
 {
-	struct TAGSPRITE *next,*prev;
+	struct TAG_MDXSPRITE *next,*prev;
 
 	MDX_TEXENTRY *texture;
 	MDX_SVECTOR pos;
@@ -72,13 +72,15 @@ typedef struct TAG_MDXSPRITE
 	char  offsetX;
 	char  offsetY;
 
-	MDX_VECTOR sc;
-
 	char draw;
 
-	short angle;
-	short angleInc;
+	short angle, angleInc;
 	short arrayIndex;
+
+#ifdef PC_VERSION
+	MDX_VECTOR sc;
+#endif
+
 
 }MDX_SPRITE;
 

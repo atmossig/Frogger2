@@ -443,7 +443,10 @@ void TransformObject(MDX_OBJECT *obj, float time)
 			{
 				MDX_VECTOR tVect;
 
+				if (!drawThisObjectsSprites)
+					drawThisObjectsSprites = 0;
 				sprite->draw = drawThisObjectsSprites;
+				sprite->g = drawThisObjectsSprites*0xff;
 
 				obj->sprites[i].sprite->scaleX = 2*((float)obj->sprites[i].sx * actorScale->vx * scale.vx);
 				obj->sprites[i].sprite->scaleY = 2*((float)obj->sprites[i].sy * actorScale->vy * scale.vy);

@@ -78,7 +78,7 @@ void ActorListDraw(void)
 	while (cur)
 	{
 		drawThisObjectsSprites = cur->draw;
-		XfmPoint(&where,&cur->pos,NULL);
+//		XfmPoint(&where,&cur->pos,NULL);
 	//f (((where.vx > -50) && (where.vx<640+50)) &&
 	//((where.vy > -50) && (where.vy<480+50)))
 		{	

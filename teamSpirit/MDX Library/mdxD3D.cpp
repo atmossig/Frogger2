@@ -421,7 +421,7 @@ void EndDraw(void)
 unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, long convert)
 {
 	DDSURFACEDESC2		ddsd;
-	short val,r,g,b,rShift,gShift;
+	short val,r,g,b,a,rShift,gShift;
 	unsigned long texHasMagenta = 0;
 	
 	// Copy the data into the surface manually
@@ -449,9 +449,31 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 		// Could be faster
 		if (IAlpha)
 		{
-			for (unsigned int y=0;y<ys;y++)
-				for (unsigned int x=0;x<xs;x++)
-					((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = ((data[x+y*xs] & 0x1f) << 11) | 0x0fff;
+			if (IAlpha==2)
+			{
+				for (unsigned int y=0;y<ys;y++)
+					for (unsigned int x=0;x<xs;x++)
+					{
+						val  = data[x+y*xs];
+						r = (val>>10) & 0x1f;
+						g = (val>>5) & 0x1f;
+						b = val & 0x1f;
+						
+						r>>=1;
+						g>>=1;
+						b>>=1;
+						
+						a = (r+g+b)/3;
+
+						((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = a<<12 | r<<8 |g<<4 | b;
+					}
+			}
+			else
+			{
+				for (unsigned int y=0;y<ys;y++)
+					for (unsigned int x=0;x<xs;x++)
+						((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = ((data[x+y*xs] & 0x1f) << 11) | 0x0fff;
+			}
 		}
 		else
 		{

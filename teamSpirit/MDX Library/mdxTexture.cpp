@@ -143,6 +143,9 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	if (strncmp(mys,"ai_",3)==0)
 		texType = TEXTURE_AI;
 
+	if (strncmp(mys,"ac_",3)==0)
+		texType = TEXTURE_AC;
+
 	if (strncmp(mys,"prc",3)==0)
 		texType = TEXTURE_PROCEDURAL;
 
@@ -262,6 +265,21 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				
 				break;
 			}								
+	
+			case TEXTURE_AC:
+			{
+				// Create a temporary surface to hold the texture.
+				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
+					return;
+
+				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,2,xDim,yDim,0);			
+				newE->surf = temp;
+				newE->xPos = 0;
+				newE->yPos = 0;
+				
+				newE->type = TEXTURE_AI;
+				break;
+			}			
 
 		}
 

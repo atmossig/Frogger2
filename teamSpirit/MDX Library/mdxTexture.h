@@ -20,6 +20,7 @@ extern "C"
 #define TEXTURE_AI	1
 #define TEXTURE_PROCEDURAL 2
 #define TEXTURE_NOTEXTURE 3
+#define TEXTURE_AC	4
 typedef struct TAG_MDX_TEXENTRY
 {
 	long CRC;
