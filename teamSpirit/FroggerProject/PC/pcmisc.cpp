@@ -106,6 +106,7 @@ TextureType *FindTexture( char *name )
 	char bmp[32];
 
 	strcpy( bmp, name );
+	strlwr( bmp );
 	strcat( bmp, ".bmp" );
 
 	return (TextureType *)textureFindCRCInAllBanks(utilStr2CRC(bmp));
