@@ -86,6 +86,7 @@ enum
 
 #define AUDIOTRK_GAMEOVER		100
 #define AUDIOTRK_LEVELCOMPLETE	101
+#define AUDIOTRK_LEVELCOMPLETELOOP 102
 
 //***********************************
 // Type Defines
