@@ -59,7 +59,7 @@ float horizClip = 3000;
 float vertClip = 2500;
 
 long DIST=-10;
-long FOV=450 / (640.0/320.0);
+long FOV=450 / (640.0/640.0);
 float oneOver[65535];
 float halfWidth;
 float halfHeight;
