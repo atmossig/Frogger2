@@ -1175,23 +1175,23 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
-			case FRONTEND1_ENT:
+			case LEVELID_FRONTEND1:
 				bankRomStart	= (u32)&_levData_10_1_SegmentRomStart;
 				bankRomEnd		= (u32)&_levData_10_1_SegmentRomEnd;
 				sprintf(message, "FRE_ENT1");
 				break;
 
-			case FRONTEND2_ENT:
+			case LEVELID_FRONTEND2:
 				bankRomStart	= (u32)&_levData_10_2_SegmentRomStart;
 				bankRomEnd		= (u32)&_levData_10_2_SegmentRomEnd;
 				sprintf(message, "FRE_ENT2");
 				break;
 
-			case FRONTEND3_ENT:
-			case FRONTEND4_ENT:
+			case LEVELID_FRONTEND3:
+			case LEVELID_FRONTEND4:
 				return;
 
-			case FRONTEND5_ENT:
+			case LEVELID_FRONTEND5:
 				bankRomStart	= (u32)&_levData_10_5_SegmentRomStart;
 				bankRomEnd		= (u32)&_levData_10_5_SegmentRomEnd;
 				sprintf(message, "FRE_ENT5");
@@ -1507,13 +1507,12 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
-/*
-			case FRONTEND1_ENT:
+			case LEVELID_FRONTEND1:
 				bankRomStart	= (u32)&_scrData_10_1_SegmentRomStart;
 				bankRomEnd		= (u32)&_scrData_10_1_SegmentRomEnd;
 				sprintf(message, "FRE_SCR1");
 				break;
-*/
+
 			default:
 				return;
 		}

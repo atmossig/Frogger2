@@ -1584,9 +1584,11 @@ static void RunIntro()
 {
 	static ACTOR2 *fAct = NULL,*lilly = NULL;
 	static TEXTOVERLAY *introTxt1 = NULL,*introTxt2 = NULL;
-	static SPRITE *fireSprite = NULL,*sOv;
+	static SPRITE *fireSprite = NULL,*sOv,*fly;
 	static u16 button,lastbutton;
 	static float lillyRot = 0.0F,introSeed = 0.0F,fVal;
+	static GAMETILE dummyTile;
+	static VECTOR lookAtMe = { 0,0,0 },flyVel;
 	float rotMtxY[4][4];
 	int i;
 			
@@ -1625,6 +1627,7 @@ static void RunIntro()
 		fAct->actor->qRot.y = 1.0F;
 		fAct->actor->qRot.z = 0.0F;
 		fAct->actor->qRot.w = -0.25F;
+		frog[0] = fAct;
 
 		// prepare text overlays
 		introTxt1 = CreateAndAddTextOverlay(25,25,"welcome to frogger2",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,6);
@@ -1644,13 +1647,39 @@ static void RunIntro()
 		sOv = AddNewSpriteToList(0,0,256,1280,"prc_watrd.bmp",SPRITE_TRANSLUCENT);
 		sOv->a = 64;
 		CreateAndAddProceduralTexture(sOv->texture,"prc_watrd");
+
+		fly = AddNewSpriteToList(0,0,20,16,"fly1.bmp",0);
+		fly->a = 255;
+		flyVel.v[X] = - 10 + Random(20);
+		flyVel.v[Y] = - 10 + Random(20);
+		flyVel.v[Z] = 0;
 		
+		// set the dummy tile
+		SetVector(&dummyTile.centre,&fAct->actor->pos);
+		SetVector(&dummyTile.normal,&upVec);
+		dummyTile.state			= TILESTATE_SAFE;
+		dummyTile.next			= NULL;
+		dummyTile.dirVector[0].v[X]	= 1;	dummyTile.dirVector[0].v[Y]	= 0;	dummyTile.dirVector[0].v[Z]	= 0;
+		dummyTile.dirVector[1].v[X]	= 0;	dummyTile.dirVector[1].v[Y]	= 0;	dummyTile.dirVector[1].v[Z]	= 1;
+		dummyTile.dirVector[2].v[X]	= -1;	dummyTile.dirVector[2].v[Y]	= 0;	dummyTile.dirVector[2].v[Z]	= 0;
+		dummyTile.dirVector[3].v[X]	= 0;	dummyTile.dirVector[3].v[Y]	= 0;	dummyTile.dirVector[3].v[Z]	= -1;
+		
+		dummyTile.tilePtrs[0]	= NULL;
+		dummyTile.tilePtrs[1]	= NULL;
+		dummyTile.tilePtrs[2]	= NULL;
+		dummyTile.tilePtrs[3]	= NULL;
+		frogFacing[0]			= 3;
+		player[0].canJump		= 1;
+
+		currTile[0]				= &dummyTile;
+		pointOfInterest			= &lookAtMe;
+		hedSpeed				= 1;
+
 		// prepare music
 		PrepareSong(TRACK_LAB,0);
 		PlaySample(136,NULL,0,255,128);
 		
 		player[0].idleTime = MAX_IDLE_TIME;
-
 		myAA = 2;
 
 		StartDrawing("intro");
@@ -1714,11 +1743,28 @@ static void RunIntro()
 
 		myAA = 0;
 
+		hedSpeed		= 0.2;
 		frameCount		= 1;
 		lastbutton		= 0;
 		runningIntro	= 0;
 		return;
 	}
+
+	// update frog look-at position
+	AddToVector(&fly->pos,&flyVel);
+	if(fly->pos.v[X] > 0)
+		flyVel.v[X]--;
+	else if(fly->pos.v[X] < 0)
+		flyVel.v[X]++;
+
+	if(fly->pos.v[Y] > 0)
+		flyVel.v[Y]--;
+	else if(fly->pos.v[Y] < 0)
+		flyVel.v[Y]++;
+
+	pointOfInterest->v[X] = fly->pos.v[X] + fAct->actor->pos.v[X];
+	pointOfInterest->v[Y] = -fly->pos.v[Y] + fAct->actor->pos.v[Y];
+	pointOfInterest->v[Z] = fly->pos.v[Z];
 
 	lastbutton = button;
 

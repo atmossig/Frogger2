@@ -54,6 +54,7 @@ typedef struct
 extern RENDER_MODE renderMode;
 extern char lookatNum;
 extern char hiliteNum;
+extern float hedSpeed;
 
 extern ACTOR2 *hat[MAX_FROGS];
 
