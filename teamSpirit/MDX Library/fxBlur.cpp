@@ -33,6 +33,18 @@ void fxInitBlur(void)
 		tList[i] = 0;
 }
 
+void fxFreeBlur(void)
+{
+	delete [] vList;
+	vList = NULL;
+
+	for (int i=0; i<numRequired; i++)
+		tList[i]->Release( );
+
+	delete [] tList;
+	tList = NULL;
+}
+
 void DrawScreenOverlays(void)
 {
 	unsigned short faces[] = {0,1,2,0,2,3};
