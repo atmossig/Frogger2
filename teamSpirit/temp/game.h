@@ -80,6 +80,12 @@ extern long displayingTile;
 
 extern char doubleQueue[4];
 
+
+extern TIMER screenSaveTimer;
+#define PAUSEFADETIMESECS 295
+#define PAUSEFADETIME ((PAUSEFADETIMESECS<<12)*60)
+
+
 extern void SetCamFF(FVECTOR src, FVECTOR tar);
 
 #ifdef __cplusplus

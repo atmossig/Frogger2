@@ -125,6 +125,15 @@ void GameProcessController(long pl)
 
 	button[pl] = padData.digital[pl];
 
+	if( padData.debounce[pl] )
+	{
+		GTInit( &screenSaveTimer, PAUSEFADETIMESECS );
+
+		keepFade = 1;
+		fadingOut = 0;
+		fadeProc = NULL;
+	}
+
 	// The only thing we can do when dead is press start
 	if((gameState.multi == SINGLEPLAYER) || ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
@@ -513,6 +522,7 @@ void GameProcessController(long pl)
 char* oldStackPointer;
 long startCam = 0;
 TIMER endLevelTimer;
+TIMER screenSaveTimer;
 
 void RunGameLoop (void)
 {
@@ -523,6 +533,14 @@ void RunGameLoop (void)
 		arcadeHud.coinsOver->r = arcadeHud.coinsText->r = 127+((rsin(actFrameCount*4000)+4096)*64)/4096;
 		arcadeHud.coinsOver->g = arcadeHud.coinsText->g = 127+((rcos(actFrameCount*4000)+4096)*64)/4096;
 		arcadeHud.coinsOver->b = arcadeHud.coinsText->b = 0;
+	}
+
+	GTUpdate( &screenSaveTimer, -1 );
+	if( !screenSaveTimer.time )
+	{
+		// Fade to 75%
+		ScreenFade( 255, 63, 30 );
+		keepFade = 1;
 	}
 
 //	if( frameCount==2 )

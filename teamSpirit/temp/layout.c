@@ -911,6 +911,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	player[0].spawnTimer		= 0;
 	player[0].spawnScoreLevel	= 1;
 	GTInit( &scoreTimer, 90 );
+	GTInit( &screenSaveTimer, PAUSEFADETIMESECS );
 
 	if( worldID == WORLDID_FRONTEND || gameState.multi != SINGLEPLAYER )
 	{

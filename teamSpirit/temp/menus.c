@@ -175,7 +175,6 @@ TEXTOVERLAY *titleHudText[4];
 int pauseFrameCount;
 int pauseFaded = 0;
 long pauseFadeTimer;
-#define PAUSEFADETIME ((295<<12)*60)
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
@@ -629,6 +628,11 @@ void RunPauseMenu()
 							EnableHUD( );
 						}
 					}
+
+					GTInit( &screenSaveTimer, PAUSEFADETIME );
+					keepFade = 1;
+					fadingOut = 0;
+					fadeProc = NULL;
 
 					UnPauseAudio( );
 				}

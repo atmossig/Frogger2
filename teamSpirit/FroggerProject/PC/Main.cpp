@@ -766,7 +766,7 @@ int GameStartup()
 	MDX_TEXENTRY *t;
 	char path[MAX_PATH];
 
-	SystemParametersInfo( SPI_SETSCREENSAVERRUNNING, TRUE, NULL, 0 );
+//	SystemParametersInfo( SPI_SETSCREENSAVERRUNNING, TRUE, NULL, 0 );
 
 	InitProfile();
 	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
@@ -851,7 +851,7 @@ int GameShutdown()
 	gelfShutdown();
 
 	SetRegistryInformation();
-	SystemParametersInfo( SPI_SETSCREENSAVERRUNNING, FALSE, NULL, 0 );
+//	SystemParametersInfo( SPI_SETSCREENSAVERRUNNING, FALSE, NULL, 0 );
 
 	return 0;
 }
