@@ -36,6 +36,7 @@
 extern Uint32 portNos[];
 extern Sint8 *portlit[];
 
+extern short portIndex;
 extern unsigned long vmuPortToUse, vmuDriveToUse;
 
 /**************************************************************************

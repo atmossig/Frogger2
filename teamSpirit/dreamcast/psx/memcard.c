@@ -497,11 +497,11 @@ void StartChooseLoadSave(int load)
 	saveInfo.load = load;
 	framePause++;
 	StartChooseOption();
-	if(padData.numPads[0] == 4)
+/*	if(padData.numPads[0] == 4)
 		sprintf(slotNumStr,"1-A");
 	else
 		sprintf(slotNumStr,"1");
-	waitCheck = 0;
+*/	waitCheck = 0;
 }
 
 
@@ -586,7 +586,8 @@ static void saveMenuCheck()
 	SimpleMessage(GAMESTRING(STR_MCARD_CHECK), MIN(255,optFrame*60));
 	if (optFrame++>4)
 	{
-		switch(gameSaveHandleLoad(YES))
+		res = gameSaveHandleLoad(YES);
+		switch(res)
 		{
 		case CARDREAD_OK:						// Loaded fine
 			optSaveAlready = 1;
@@ -626,6 +627,11 @@ static void saveMenuCheck()
 			StartChooseOption();
 			break;
 		}
+
+		if( res == CARDREAD_OK )
+			strcpy( slotNumStr, portlit[vmuDriveToUse] );
+		else
+			strcpy( slotNumStr, "" );
 	}
 }
 
@@ -877,12 +883,12 @@ void ChooseLoadSave()
 {
 	int alpha = fontSmall->alpha;
 
-
+/*
 	if(padData.numPads[0] == 4)
 		sprintf(slotNumStr,"1-A");
 	else
 		sprintf(slotNumStr,"1");
-
+*/
 	if(saveInfo.load == 0)
 	{
 		switch(gameSaveGetCardStatus())
@@ -990,9 +996,10 @@ int CheckVMUs( )
 		{
 			// Port calculated from pad*6 (6 ports per pad) plus j (2 ports available as backup devices)
 			// plus 1 because PDD_PORT_x0 is the actual controller
-			vmuPortToUse = portNos[(pad*2)+j];
+			portIndex = (pad*2)+j;
+			vmuPortToUse = portNos[portIndex];
 			// 2 drives per controller
-			vmuDriveToUse = (pad*2)+j;
+			vmuDriveToUse = portIndex;
 			res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
 
 			// Store state of first expansion of firstPad
@@ -1015,5 +1022,7 @@ int CheckVMUs( )
 		}
 	}
 
+	vmuPortToUse = portNos[firstPad*2];
+	vmuDriveToUse = firstPad*2;
 	return fcStat;
 }

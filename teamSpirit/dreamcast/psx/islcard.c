@@ -39,6 +39,8 @@ Sint8 *portlit[] = {
   "D1", "D2",
 };
 
+short portIndex=0;
+
 unsigned long vmuPortToUse = PDD_PORT_A1;
 unsigned long vmuDriveToUse = BUD_DRIVE_A1;
 
