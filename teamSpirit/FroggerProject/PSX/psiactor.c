@@ -19,6 +19,7 @@ ACTORLIST	actorList;
 
 #include "timer.h"
 #include "temp_psx.h"
+#include "frogger.h"
 
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
 //#define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -27,6 +28,7 @@ ACTORLIST	actorList;
 
 extern PSIMODEL *psiCheck(char *psiName);
 
+PSIDATA oldModel;
 
 void actorInitialise()
 {
@@ -1083,7 +1085,9 @@ void ScalePsi(PSIMESH* pMesh)
 */
 void *ChangeModel( ACTOR *actor, char *model )
 {
-	ACTOR *newActor;
+	actorAnimate( frog[0]->actor, 31, NO, NO, 64, 0 );
+
+/*	ACTOR *newActor;
 
 	PSIMODEL *newModel;
 
@@ -1093,7 +1097,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	FindObject( &a->objectController, UpdateCRC(model), model );
 	InitAnims( a );*/
 
-	newModel = psiCheck ( model );
+/*	newModel = psiCheck ( model );
 
 //	utilPrintf("Trying To Find New Model %s : %s................\n", model);
 
@@ -1106,7 +1110,9 @@ void *ChangeModel( ACTOR *actor, char *model )
 
 	newActor = actorCreate ( newModel );
 
-	actor->psiData = newActor->psiData;
+	oldModel = actor->psiData;
+
+	actor->psiData = newActor->psiData;*/
 }
 
 
@@ -1119,6 +1125,11 @@ void *ChangeModel( ACTOR *actor, char *model )
 */
 int UndoChangeModel( ACTOR *actor )
 {
+
+/*	actor->psiData = oldModel;
+
+	actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
+
 /*	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
 
 	if( a->LODObjectController )
@@ -1336,6 +1347,8 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
 	ANIMATION *anim;
 	int	actualSpeed;
+
+//	return;
 
 	if(actorAnim->numAnimations == 0)
 	{

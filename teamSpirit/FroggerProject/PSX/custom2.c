@@ -225,7 +225,9 @@ void customDrawPrimitives2(int depth)
 					
 				gte_stopz(&clipflag);
 				
-				if (clipflag >= 0) break;								// Back face culling
+				if (!(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) )
+					break;
+//				if (clipflag >= 0) break;								// Back face culling
 
 				gte_stsxy3_gt4(si);
 				

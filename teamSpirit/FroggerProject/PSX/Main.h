@@ -23,6 +23,9 @@ extern int drawLandscape;
 extern long drawGame;
 
 
+extern TextureAnimType* timerAnim;
+extern int animFrame;
+
 #define ASSERT(A)	if(!(A)) {utilPrintf("Debug ASSERT failed at line %d, in "__FILE__, __LINE__);CRASH;}
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 #define MALLOC02(S,X)	memoryAllocateZero(S, X, __LINE__)
