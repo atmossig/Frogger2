@@ -331,7 +331,8 @@ David Swift:
 ------------------------------------------------
 	Fixed WorldConv to handle triangular collision tiles. God the ASE file
 	format is a pile of puppy doo-doo. Never ever use it again.
-
+	Also optimised the checks a lot so it's hugely faster. Except it didn't
+	quite work, so I've got to figure out where it's going wrong.
 
 James Hubbard:
 ------------------------------------------------
@@ -394,3 +395,40 @@ Chris Wilson:
 	require a reset.
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------
+9/12/99 - Friday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+	Fixed the bug with WorldConv so it's producing proper output - I was
+	averaging points from the same triangle twice, rather than both tris
+	of the quad. Working on handling complex collision for perpendicular
+	join tiles.
+
+
+James Hubbard:
+------------------------------------------------
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
