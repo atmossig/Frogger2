@@ -26,7 +26,13 @@ void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz, i
 	newItem->fma_water = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( name ) );
 
 	if ( newItem->fma_water )
+	{
 		SetUpWaterMesh ( newItem->fma_water );
+	}
+	else
+	{
+		utilPrintf("Could Not Create Water.\n");
+	}
 	// ENDIF
 
 }

@@ -165,7 +165,8 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	{
 		utilPrintf("Skinned Model..............");
 		actor->psiData.flags = ACTOR_BONED;
-//		ScalePsi(actor->psiData.object->meshdata);
+
+		//ScalePsi(actor->psiData.object->meshdata);
 	}
 
 	actor->psiData.modelName = &psiModel->name[0];
