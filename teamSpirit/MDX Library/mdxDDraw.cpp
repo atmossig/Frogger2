@@ -363,7 +363,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		DDrawAttachSurface (RENDER_SRF,ZBUFFER_SRF);
 	}
 
-	DDINIT(ddsd);
+/*	DDINIT(ddsd);
 	ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
 	ddsd.dwWidth  = 640;
 	ddsd.dwHeight = 480; 
@@ -375,7 +375,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		return 0;
 	}
 	
-	
+*/	
 	DDrawSetupWindow (window,FALSE);
 
 	return 1;
