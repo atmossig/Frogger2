@@ -228,6 +228,9 @@ BOOL LoadCollision(int num)
 		case HALLOWEENMASTER_COL:
 			strcat(file,"halloweenboss");
 			break;
+		case HALLOWEENMASTERB_COL:
+			strcat(file,"halloweenbossb");
+			break;
 		case HALLOWEENLEV1_COL:
 			strcat(file,"halloween1");
 			break;
@@ -535,6 +538,9 @@ BOOL LoadScenics (int num)
 
 		case HALLOWEENMASTER_COL:
 			strcat(file,"halloweenboss");
+			break;
+		case HALLOWEENMASTERB_COL:
+			strcat(file,"halloweenbossb");
 			break;
 		case HALLOWEENLEV1_COL:
 			strcat(file,"halloween1");
