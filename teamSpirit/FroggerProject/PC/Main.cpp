@@ -399,7 +399,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			if( wParam == VK_F11 )
+			if( wParam == VK_F11 && debugKeys )
 			{
 				showSounds = !showSounds;
 				return 0;
