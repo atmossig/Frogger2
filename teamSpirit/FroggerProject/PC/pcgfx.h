@@ -24,7 +24,7 @@ extern "C"
 void DrawSpecialFX();
 void DrawFXDecal( SPECFX *fx );
 void DrawFXRing( SPECFX *fx );
-void DrawFXTrail( SPECFX *fx );
+//void DrawFXTrail( SPECFX *fx );
 void DrawFXLightning( SPECFX *fx );
 
 void ProcessShadows();

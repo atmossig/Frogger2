@@ -30,7 +30,7 @@
 
 float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 
-void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i );
+//void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i );
 void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i );
 
 void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, MDX_TEXENTRY *tex );
@@ -517,119 +517,119 @@ void DrawFXRing( SPECFX *fx )
 }
 
 
-void DrawFXTrail( SPECFX *fx )
-{
-	unsigned long i = fx->start;
-	D3DTLVERTEX vT[4], vTPrev[2];
-	MDX_TEXENTRY *tEntry;
+//void DrawFXTrail( SPECFX *fx )
+//{
+//	unsigned long i = fx->start;
+//	D3DTLVERTEX vT[4], vTPrev[2];
+//	MDX_TEXENTRY *tEntry;
 
-	tEntry = ((MDX_TEXENTRY *)fx->tex);
-	if( !tEntry || (fx->start == fx->end) )
-		return;
+//	tEntry = ((MDX_TEXENTRY *)fx->tex);
+//	if( !tEntry || (fx->start == fx->end) )
+//		return;
 
-	vT[0].specular = D3DRGB(0,0,0);
-	vT[0].tu = 1;
-	vT[0].tv = 1;
-	vT[0].rhw = 1;
-	vT[1].specular = vT[0].specular;
-	vT[1].tu = 0;
-	vT[1].tv = 1;
-	vT[1].rhw = 1;
-	vT[2].specular = vT[0].specular;
-	vT[2].tu = 0;
-	vT[2].tv = 0;
-	vT[2].rhw = 1;
-	vT[3].specular = vT[0].specular;
-	vT[3].tu = 1;
-	vT[3].tv = 0;
-	vT[3].rhw = 1;
+//	vT[0].specular = D3DRGB(0,0,0);
+//	vT[0].tu = 1;
+//	vT[0].tv = 1;
+//	vT[0].rhw = 1;
+//	vT[1].specular = vT[0].specular;
+//	vT[1].tu = 0;
+//	vT[1].tv = 1;
+//	vT[1].rhw = 1;
+//	vT[2].specular = vT[0].specular;
+//	vT[2].tu = 0;
+//	vT[2].tv = 0;
+//	vT[2].rhw = 1;
+//	vT[3].specular = vT[0].specular;
+//	vT[3].tu = 1;
+//	vT[3].tv = 0;
+//	vT[3].rhw = 1;
 
-	SwapFrame(3);
+//	SwapFrame(3);
 
-	do
-	{
-		/*********-[ First 2 points ]-********/
-		if( i != fx->start && vTPrev[0].sz && vTPrev[1].sz )
-			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
-		else
-			CalcTrailPoints( vT, fx, i );
+//	do
+//	{
+//		/*********-[ First 2 points ]-********/
+//		if( i != fx->start && vTPrev[0].sz && vTPrev[1].sz )
+//			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
+//		else
+//			CalcTrailPoints( vT, fx, i );
 
-		/*********-[ Next 2 points ]-********/
-		CalcTrailPoints( &vT[2], fx, (i+1)%fx->numP );
-		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 ); 			// Store first 2 vertices of the next segment
+//		/*********-[ Next 2 points ]-********/
+//		CalcTrailPoints( &vT[2], fx, (i+1)%fx->numP );
+//		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 ); 			// Store first 2 vertices of the next segment
 
-		/*********-[ Draw the polys ]-********/
-		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
-		{
-			Clip3DPolygon( vT, tEntry );
-			Clip3DPolygon( &vT[1], tEntry );
-		}
+//		/*********-[ Draw the polys ]-********/
+//		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
+//		{
+//			Clip3DPolygon( vT, tEntry );
+//			Clip3DPolygon( &vT[1], tEntry );
+//		}
 
-		if( ++i >= fx->numP ) i=0;
+//		if( ++i >= fx->numP ) i=0;
 
-	} while( i != fx->end );
+//	} while( i != fx->end );
 
-	SwapFrame(0);
-}
+//	SwapFrame(0);
+//}
 
 
-void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i )
-{
-	MDX_VECTOR pos, m;
+//void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i )
+//{
+//	MDX_VECTOR pos, m;
 
-	AddVector( &pos, &fx->origin, &fx->particles[i].pos );
-	ScaleVector( &pos, 0.1 );
+//	AddVector( &pos, &fx->origin, &fx->particles[i].pos );
+//	ScaleVector( &pos, 0.1 );
 
 	// Translate to current fx pos and push
-	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
-	PushMatrix( tMtrx );
+//	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
+//	PushMatrix( tMtrx );
 
-	if( fx->type == FXTYPE_BILLBOARDTRAIL )	// Calculate screen align rotation
-	{
-		MDX_VECTOR normal, cam;
-		MDX_QUATERNION q, cross;
-		float t;
+//	if( fx->type == FXTYPE_BILLBOARDTRAIL )	// Calculate screen align rotation
+//	{
+//		MDX_VECTOR normal, cam;
+//		MDX_QUATERNION q, cross;
+//		float t;
 
-		SetVectorRF( &cam, &currCamSource );
-		SubVector( &normal, &cam, &pos );
-		Normalise( &normal );
-		CrossProduct( (MDX_VECTOR *)&cross, &normal, &upV );
-		Normalise( (MDX_VECTOR *)&cross );
-		t = DotProduct( &normal, &upV );
-		cross.w = acos(t);
-		GetQuaternionFromRotation( &q, &cross );
-		QuaternionToMatrix( &q, (MDX_MATRIX *)fx->particles[i].rMtrx );
-	}
+//		SetVectorRF( &cam, &currCamSource );
+//		SubVector( &normal, &cam, &pos );
+//		Normalise( &normal );
+//		CrossProduct( (MDX_VECTOR *)&cross, &normal, &upV );
+//		Normalise( (MDX_VECTOR *)&cross );
+//		t = DotProduct( &normal, &upV );
+//		cross.w = acos(t);
+//		GetQuaternionFromRotation( &q, &cross );
+//		QuaternionToMatrix( &q, (MDX_MATRIX *)fx->particles[i].rMtrx );
+//	}
 
 	// Precalculated rotation
-	PushMatrix( (MDX_MATRIX *)fx->particles[i].rMtrx );
+//	PushMatrix( (MDX_MATRIX *)fx->particles[i].rMtrx );
 
-	vT[0].sx = fx->particles[i].poly[0].vx*0.1;
-	vT[0].sy = fx->particles[i].poly[0].vy*0.1;
-	vT[0].sz = fx->particles[i].poly[0].vz*0.1;
-	vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
-	vT[1].sx = fx->particles[i].poly[1].vx*0.1;
-	vT[1].sy = fx->particles[i].poly[1].vy*0.1;
-	vT[1].sz = fx->particles[i].poly[1].vz*0.1;
-	vT[1].color = vT[0].color;
+//	vT[0].sx = fx->particles[i].poly[0].vx*0.1;
+//	vT[0].sy = fx->particles[i].poly[0].vy*0.1;
+//	vT[0].sz = fx->particles[i].poly[0].vz*0.1;
+//	vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
+//	vT[1].sx = fx->particles[i].poly[1].vx*0.1;
+//	vT[1].sy = fx->particles[i].poly[1].vy*0.1;
+//	vT[1].sz = fx->particles[i].poly[1].vz*0.1;
+//	vT[1].color = vT[0].color;
 
 	// Transform point by combined matrix
-	MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+//	MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
 
-	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.vx, &pos.vy, &pos.vz );
-	XfmPoint( &m, &pos, NULL );
-	vT[0].sx = m.vx;
-	vT[0].sy = m.vy;
-	vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.vx, &pos.vy, &pos.vz );
-	XfmPoint( &m, &pos, NULL );
-	vT[1].sx = m.vx;
-	vT[1].sy = m.vy;
-	vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+//	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.vx, &pos.vy, &pos.vz );
+//	XfmPoint( &m, &pos, NULL );
+//	vT[0].sx = m.vx;
+//	vT[0].sy = m.vy;
+//	vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+//	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.vx, &pos.vy, &pos.vz );
+//	XfmPoint( &m, &pos, NULL );
+//	vT[1].sx = m.vx;
+//	vT[1].sy = m.vy;
+//	vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 
-	PopMatrix( ); // Rotation
-	PopMatrix( ); // Translation
-}
+//	PopMatrix( ); // Rotation
+//	PopMatrix( ); // Translation
+//}
 
 
 void DrawFXLightning( SPECFX *fx )
