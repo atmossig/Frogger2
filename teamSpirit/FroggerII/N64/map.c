@@ -277,8 +277,8 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile)
 	// make the teleport 'to' tile the current tile
 	currTile[0] = tile;
 	SetVector(&act->actor->pos,&tile->centre);
-	frogState |= FROGSTATUS_ISSTANDING;
-	frogState &= ~FROGSTATUS_ISTELEPORTING;
+	player[0].frogState |= FROGSTATUS_ISSTANDING;
+	player[0].frogState &= ~FROGSTATUS_ISTELEPORTING;
 
 	SetVector(&telePos,&act->actor->pos);
 
