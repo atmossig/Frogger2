@@ -143,14 +143,6 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 	scale = ReadFloat(f);
 	radius = ReadFloat(f);
 	
-	if (state->ver & releaseVersion)
-	{
-		state->ver &= ~releaseVersion;
-		state->fastLoad = 1;
-	}
-	else
-		state->fastLoad = 0;
-
 	if(state->ver > 10 )
 	{
 		animSpeed = ReadFloat(f);
@@ -259,10 +251,10 @@ BOOL LoadCreateList(const char* filename)
 		return FALSE;
 	}
 
-	if (ver > 0x40)
+	if (ver & releaseVersion)
 	{
 		state.fastLoad = 1;
-		ver -= 0x40;
+		ver &= ~releaseVersion;
 	}
 	else
 		state.fastLoad = 0;
@@ -611,6 +603,7 @@ EDITGROUP *ReadTileGroup(EDLOADSTATE *state)
 		//ReadVector(&v, f);
 		//tile = FindNearestTile(v);
 		tile = ReadTile(state);
+		GetTilePos(&v, tile);
 
 		if (tile)
 			AddGroupMember((void*)tile, &v, group);
