@@ -94,8 +94,9 @@ void debugPrintf(int num)
 {
 	FILE *f;
 
-//	_CrtDbgReport(_CRT_WARN,NULL,NULL,"FroggerII",outputMessageBuffer);
-
+#ifdef _DEBUG
+	_CrtDbgReport(_CRT_WARN,NULL,NULL,"FroggerII",outputMessageBuffer);
+#endif
 	f = fopen(DEBUG_FILE, "a+");
 	if (f)
 	{
