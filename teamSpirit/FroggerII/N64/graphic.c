@@ -10,6 +10,7 @@
 
 #define F3DEX_GBI_2
 
+#include <ultra64.h>
 #include "incs.h"
 
 TIMECOUNT timers[10];
@@ -18,6 +19,8 @@ unsigned int frameStart;
 unsigned int printFrameStart[10];
 char timerMode=0;
 char message[256];
+
+TEXTOVERLAY *timerTxt[10];
 
 /*	--------------------------------------------------------------------------------
 	Function 	: TIMER_InitTimers
@@ -146,7 +149,26 @@ void TIMER_PrintTimers()
 	unsigned int maxCount = -1;
 
 	if(!timerMode)
+	{
+		if(timerTxt[0])
+		{
+			i = 10;
+			while(i--)
+				timerTxt[i]->draw = 0;
+		}
+
 		return;
+	}
+
+	if(timerMode == 2)
+	{
+		i = 10;
+		while(i--)
+		{
+			if(!timerTxt[i])
+				timerTxt[i] = CreateAndAddTextOverlay(30,20 + (i * 20),timers[i].name,NO,NO,255,255,255,255,oldeFont,0,0,0);
+		}
+	}
 
 	gDPPipeSync(glistp++);
 	gDPSetRenderMode(glistp++,G_RM_OPA_SURF , G_RM_OPA_SURF2);      
@@ -156,7 +178,6 @@ void TIMER_PrintTimers()
 	gDPSetFillColor(glistp++, GPACK_RGBA5551(255,255,255,1) << 16 | 
 		GPACK_RGBA5551(255,255,255,1));
 
-		
 	gDPFillRectangle(glistp++,100,30,101,195);
 	gDPFillRectangle(glistp++,100+((TicksPerFrame)/10000),30,101+((TicksPerFrame)/10000),195);
 	gDPFillRectangle(glistp++,100+((TicksPerFrame)/20000),30,101+((TicksPerFrame)/20000),195);
@@ -167,12 +188,18 @@ void TIMER_PrintTimers()
 	lry = 35;
 	for (i=0;i<10;i++)
 	{
-		if (timerMode==2)
+		if(timerTxt[i])
+			timerTxt[i]->draw = 0;
+
+		if((timerMode == 2) && (printTimer[i].slice > 0))
 		{
-//			sprintf(message,"  %d",printTimer[i].total[0]);
-//			sprintf(message,"%s %d",printTimer[i].name, printTimer[i].total[0]);
-//			NEW_TEXT(20,30+(i*16),255,255,255,255,1,1,1,message, NO, SMALL_FONT, 0);
+			if(timerTxt[i])
+			{
+				timerTxt[i]->draw = 1;
+				timerTxt[i]->yPos = uly;
+			}
 		}
+
 		for (j=0;j<printTimer[i].slice;j++)
 		{
 			if (printTimer[i].start[j]!=0)
@@ -217,11 +244,7 @@ void TIMER_PrintTimers()
 		lry += 16;
 	}
 
-
 	j = 0;
-
-//	sprintf(message,"  %d : %f",(int)framesPerSec,GAME_SPEED);
-//	NEW_TEXT(160,200,255,255,255,255,1,1,1,message, NO, SMALL_FONT, 0);
 
 	gDPPipeSync(glistp++);
 	gDPSetCycleType(glistp++, G_CYC_1CYCLE);      

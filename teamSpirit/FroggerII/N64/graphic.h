@@ -32,6 +32,8 @@ extern TIMECOUNT timers[10];
 extern unsigned int frameStart;
 extern char timerMode;
 
+extern TEXTOVERLAY *timerTxt[10];
+
 void TIMER_InitTimers();
 void TIMER_StartTimer(int number,char *name);
 void TIMER_EndTimer(int number);
