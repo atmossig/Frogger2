@@ -1700,8 +1700,6 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 	nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
 	nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
 	CalcEnemyNormalInterps(nme);
-
-	dprintf"%d -> %d  (of %d) with flags %8x\n", path->fromNode, path->toNode, path->numNodes, nme->flags));
 }
 
 
