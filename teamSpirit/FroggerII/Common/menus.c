@@ -885,8 +885,6 @@ void RunSaveLoadSelect ( void )
 
 		ResetParameters();
 
-//		runningDevStuff = 1;
-
 		StartDrawing ( "save load select" );
 	}
 	// ENDIF
@@ -928,7 +926,6 @@ void RunSaveLoadSelect ( void )
 								lastbutton		= 0;
 							break;
 						case 2:
-//								runningDevStuff = 0;
 								FreeAllLists();
 								frontEndState.mode = TITLE_MODE;
 								frameCount		= 0;
@@ -1142,7 +1139,6 @@ void RunSaveLoadSelect ( void )
 								slotSelectState.mode = SLOT_MODE;
 								//frameCount		= 0;
 								lastbutton		= 0;
-								//runningDevStuff = 0;
 								DisableTextOverlay ( yesNoText );
 								DisableTextOverlay ( yesText );
 								DisableTextOverlay ( noText );
@@ -1227,7 +1223,6 @@ void RunSaveLoadSelect ( void )
 					if ( currentLetterSlot == 3 )
 					{
 						sprintf ( player[0].name, "%s", enteredName );
-//						runningDevStuff = 0;
 						FreeAllLists();
 						frameCount		= 0;
 						lastbutton		= 0;
@@ -1312,7 +1307,6 @@ void RunTitleScreen()
 
 		ResetParameters();
 
-//		runningDevStuff = 1;
 
 		StartDrawing("title screen");
 	}	
@@ -1346,14 +1340,12 @@ void RunTitleScreen()
 			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
-//			runningDevStuff = 0;
 			return;
 		}
 
 		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
 		   ((button & CONT_START) && !(lastbutton & CONT_START)))
 		{
-//			runningDevStuff = 0;
 			frameCount = 0;
 			lastbutton = 0;
 			FreeAllLists();
@@ -1503,8 +1495,6 @@ void RunLevelSelect ( void )
 		CreateAndAddSpriteOverlay(232,185,"isl2.bmp",32,32,255,255,255,255,0);
 		CreateAndAddSpriteOverlay(264,185,"isl3.bmp",32,32,255,255,255,255,0);
 
-//		runningDevStuff = 1;
-
 		StartDrawing ( "levelsel" );
 	}
 	// ENDIF
@@ -1513,7 +1503,6 @@ void RunLevelSelect ( void )
 
 	/*if ( ( button & CONT_B ) && !( lastbutton & CONT_B ) )
 	{
-		runningDevStuff = 0;
 		FreeAllLists();
 		frontEndState.mode	= GAMETYPE_MODE;
 		frameCount		= 0;
@@ -1656,7 +1645,6 @@ void RunLevelSelect ( void )
 		{
 			if ( worldVisualData[currentSelection].levelVisualData[currentLevelSelection].levelOpen & LEVEL_OPEN )
 			{
-//				runningDevStuff = 0;
 				FreeAllLists();
 				player[0].worldNum = currentSelection;
 				player[0].levelNum = currentLevelSelection;
@@ -1768,7 +1756,6 @@ void RunOptionsMode()
 		if(	((button & CONT_START) && !(lastbutton & CONT_START)) ||
 			((button & CONT_A) && !(lastbutton & CONT_A)))
 		{
-//			runningDevStuff = 0;
 			FreeAllLists();
 			frameCount		= 0;
 			lastbutton		= 0;
@@ -1907,8 +1894,6 @@ void RunSoundAdjust()
 //		sfxVol		= 10;
 //		sprintf ( musVolText->text, "%lu", musicVol );
 //		sprintf ( sfxVolText->text, "%lu", sfxVol );
-
-//		runningDevStuff = 1;
 
 		StartDrawing ( "sound adjust" );
 	}
