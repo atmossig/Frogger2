@@ -377,6 +377,8 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 	}
 }
 
+
+
 /*  --------------------------------------------------------------------------------
     Function      : DrawBatchedPolys
 	Purpose       :	-
@@ -442,151 +444,160 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 */
 //#endif
 
-/*  --------------------------------------------------------------------------------
-    Function      : DrawBatchedPolys
-	Purpose       :	-
-	Parameters    : -
-	Returns       : -
-	Info          : -
-*/
 
+
+
+
+// *ASL* 27/06/2000
+/* -----------------------------------------------------------------------
+   Function: DrawSoftwarePolys
+   Purpose : draw all software polygons from the software depth buffer
+   Parameters : 
+   Returns : 
+   Info :
+*/
 
 void DrawSoftwarePolys (void)
 {
-	SOFTPOLY *cur;
-	
+	SOFTPOLY		*polyPtr;
+	int				l, alphaVal;
+	TSSVertex		ssVerts[3];
+	int				v0, v1, v2;
+
+
+	// default to use gouraud shading
 	ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
-	ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
-	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
+
+	// draw all polygons from depth buffer
+	for (l=MA_SOFTWARE_DEPTH-1; l>0; l--)
 	{
-		cur = (SOFTPOLY *)softDepthBuffer[i];
-		while (cur)
+		polyPtr = (SOFTPOLY *)softDepthBuffer[l];
+
+		// ** According to this loop, only textured polygons are drawn from the software
+		// ** buffer. Can this be right?
+
+		while (polyPtr)
 		{
-			TSSVertex	v[3];		
-			unsigned long f1,f2,f3;
-			f1 = cur->f[0];
-			f2 = cur->f[1];
-			f3 = cur->f[2];
+			v0 = (int)polyPtr->f[0];
+			v1 = (int)polyPtr->f[1];
+			v2 = (int)polyPtr->f[2];
 
-			v[0].x = (long)softV[f1].sx;
-			v[0].y = (long)softV[f1].sy;
-			v[0].r = RGBA_GETRED(softV[f1].color);
-			v[0].g = RGBA_GETGREEN(softV[f1].color);
-			v[0].b = RGBA_GETBLUE(softV[f1].color);
+			// load all software vertices
+			ssVerts[0].x = (int)softV[v0].sx;
+			ssVerts[0].y = (int)softV[v0].sy;
+			ssVerts[0].r = RGBA_GETRED(softV[v0].color);
+			ssVerts[0].g = RGBA_GETGREEN(softV[v0].color);
+			ssVerts[0].b = RGBA_GETBLUE(softV[v0].color);
 
-			v[1].x = (long)softV[f2].sx;
-			v[1].y = (long)softV[f2].sy;
-			v[1].r = RGBA_GETRED(softV[f2].color);
-			v[1].g = RGBA_GETGREEN(softV[f2].color);
-			v[1].b = RGBA_GETBLUE(softV[f2].color);
+			ssVerts[1].x = (int)softV[v1].sx;
+			ssVerts[1].y = (int)softV[v1].sy;
+			ssVerts[1].r = RGBA_GETRED(softV[v1].color);
+			ssVerts[1].g = RGBA_GETGREEN(softV[v1].color);
+			ssVerts[1].b = RGBA_GETBLUE(softV[v1].color);
 
-			v[2].x = (long)softV[f3].sx;
-			v[2].y = (long)softV[f3].sy;
-			v[2].r = RGBA_GETRED(softV[f3].color);
-			v[2].g = RGBA_GETGREEN(softV[f3].color);
-			v[2].b = RGBA_GETBLUE(softV[f3].color);
+			ssVerts[2].x = (int)softV[v2].sx;
+			ssVerts[2].y = (int)softV[v2].sy;
+			ssVerts[2].r = RGBA_GETRED(softV[v2].color);
+			ssVerts[2].g = RGBA_GETGREEN(softV[v2].color);
+			ssVerts[2].b = RGBA_GETBLUE(softV[v2].color);
 
-			if (cur->t)
+			// alpha blend all vertex rgbs
+			alphaVal = RGBA_GETALPHA(softV[v0].color);
+			ssVerts[0].r = (ssVerts[0].r * alphaVal) >>8;
+			ssVerts[0].g = (ssVerts[0].g * alphaVal) >>8;
+			ssVerts[0].b = (ssVerts[0].b * alphaVal) >>8;
+
+			alphaVal = RGBA_GETALPHA(softV[v1].color);
+			ssVerts[1].r = (ssVerts[1].r * alphaVal) >>8;
+			ssVerts[1].g = (ssVerts[1].g * alphaVal) >>8;
+			ssVerts[1].b = (ssVerts[1].b * alphaVal) >>8;
+
+			alphaVal = RGBA_GETALPHA(softV[v2].color);
+			ssVerts[2].r = (ssVerts[2].r * alphaVal) >>8;
+			ssVerts[2].g = (ssVerts[2].g * alphaVal) >>8;
+			ssVerts[2].b = (ssVerts[2].b * alphaVal) >>8;
+
+			// is this polygon textured?
+			if (polyPtr->t)
 			{
-
-				if (cur->tEntry->softData)
-				{
-					// *ASL* 12/06/2000 - added colour key hint
-					ssSetTexture(cur->tEntry->softData,cur->tEntry->xSize,cur->tEntry->ySize, cur->tEntry->keyed ? 0 : SSTEXHINT_NOTRANS);
-				}
+				// set texture
+				if (polyPtr->tEntry->softData)
+					ssSetTexture(polyPtr->tEntry->softData, polyPtr->tEntry->xSize, polyPtr->tEntry->ySize, polyPtr->tEntry->keyed ? 0 : SSTEXHINT_NOTRANS);
 				else
-					ssSetTexture(NULL, 0,0);
+					ssSetTexture(NULL, 0, 0);
 
-/*				thisTex.width = cur->tEntry->xSize;
-				thisTex.height = cur->tEntry->ySize;
-				thisTex.image = (unsigned short *)cur->tEntry->data;
-		*/
-				v[0].u = softV[f1].tu * cur->tEntry->xSize;
-				v[0].v = softV[f1].tv * cur->tEntry->ySize;
+				// range all vertex uvs into texture size range
+				ssVerts[0].u = softV[v0].tu * polyPtr->tEntry->xSize;
+				ssVerts[0].v = softV[v0].tv * polyPtr->tEntry->ySize;
 
-				v[1].u = softV[f2].tu * cur->tEntry->xSize;
-				v[1].v = softV[f2].tv * cur->tEntry->ySize;
+				ssVerts[1].u = softV[v1].tu * polyPtr->tEntry->xSize;
+				ssVerts[1].v = softV[v1].tv * polyPtr->tEntry->ySize;
 	
-				v[2].u = softV[f3].tu * cur->tEntry->xSize;
-				v[2].v = softV[f3].tv * cur->tEntry->ySize;
+				ssVerts[2].u = softV[v2].tu * polyPtr->tEntry->xSize;
+				ssVerts[2].v = softV[v2].tv * polyPtr->tEntry->ySize;
 
-				if (v[0].u>cur->tEntry->xSize-1)
-					 v[0].u = cur->tEntry->xSize-1;
+				// validate all vertex uvs
+				ssVerts[0].u = min(ssVerts[0].u, polyPtr->tEntry->xSize-1);
+				ssVerts[0].u = max(ssVerts[0].u, 0);
+				ssVerts[0].v = min(ssVerts[0].v, polyPtr->tEntry->ySize-1);
+				ssVerts[0].v = max(ssVerts[0].v, 0);
 
-				if (v[0].v>cur->tEntry->ySize-1)
-					 v[0].v = cur->tEntry->ySize-1;
+				ssVerts[1].u = min(ssVerts[1].u, polyPtr->tEntry->xSize-1);
+				ssVerts[1].u = max(ssVerts[1].u, 0);
+				ssVerts[1].v = min(ssVerts[1].v, polyPtr->tEntry->ySize-1);
+				ssVerts[1].v = max(ssVerts[1].v, 0);
 
-				if (v[1].u>cur->tEntry->xSize-1)
-					 v[1].u = cur->tEntry->xSize-1;
+				ssVerts[2].u = min(ssVerts[2].u, polyPtr->tEntry->xSize-1);
+				ssVerts[2].u = max(ssVerts[2].u, 0);
+				ssVerts[2].v = min(ssVerts[2].v, polyPtr->tEntry->ySize-1);
+				ssVerts[2].v = max(ssVerts[2].v, 0);
 
-				if (v[1].v>cur->tEntry->ySize-1)
-					 v[1].v = cur->tEntry->ySize-1;
+				// convert all vertex uvs into softstation format
+				ssVerts[0].u = SSMAKEUV(ssVerts[0].u);
+				ssVerts[0].v = SSMAKEUV(ssVerts[0].v);
 
-				if (v[2].u>cur->tEntry->xSize-1)
-					 v[2].u = cur->tEntry->xSize-1;
+				ssVerts[1].u = SSMAKEUV(ssVerts[1].u);
+				ssVerts[1].v = SSMAKEUV(ssVerts[1].v);
 
-				if (v[2].v>cur->tEntry->ySize-1)
-					 v[2].v = cur->tEntry->ySize-1;
+				ssVerts[2].u = SSMAKEUV(ssVerts[2].u);
+				ssVerts[2].v = SSMAKEUV(ssVerts[2].v);
 
-				if (v[0].u<0)
-					 v[0].u = 0;
+				// ** Additive alpha? Subtactive alpha?, Semi alpha?
+				// ** This cannot be correct?
 
-				if (v[0].v<0)
-					 v[0].v = 0;
-
-				if (v[1].u<0)
-					 v[1].u = 0;
-
-				if (v[1].v<0)
-					 v[1].v = 0;
-
-				if (v[2].u<0)
-					 v[2].u = 0;
-
-				if (v[2].v<0)
-					 v[2].v = 0;
-			
-				v[0].u = SSMAKEUV(((long)v[0].u));
-				v[1].u = SSMAKEUV(((long)v[1].u));
-				v[2].u = SSMAKEUV(((long)v[2].u));
-		
-				v[0].v = SSMAKEUV(((long)v[0].v));
-				v[1].v = SSMAKEUV(((long)v[1].v));
-				v[2].v = SSMAKEUV(((long)v[2].v));
-				
-				if (cur->flags & 1)
-					ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_ADD);
-				
-				if (cur->flags & 2)
+				// use additive alpha?
+				if (polyPtr->flags & 1)
+					ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_ADD);
+				// use subtractive alpha?
+				else if (polyPtr->flags & 2)
 				{
-					ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_SUB);
-					v[0].r = 127;
-					v[0].g = 127;
-					v[0].b = 127;
-					v[1].r = 127;
-					v[1].g = 127;
-					v[1].b = 127;
-					v[2].r = 127;
-					v[2].g = 127;
-					v[2].b = 127;
-				}				
+					ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SUB);
+					// fix all rgbs to psx max
+					ssVerts[0].r = 127;
+					ssVerts[0].g = 127;
+					ssVerts[0].b = 127;
+					ssVerts[1].r = 127;
+					ssVerts[1].g = 127;
+					ssVerts[1].b = 127;
+					ssVerts[2].r = 127;
+					ssVerts[2].g = 127;
+					ssVerts[2].b = 127;
+				}
 
-				ssDrawPrimitive(v, 3);
+				// draw softstation primitive
+				ssDrawPrimitive(ssVerts, 3);
 
-				if (cur->flags)
-					ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_NONE);
-
-//		if (cur->tEntry->keyed) 
-//			f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags | POLY_MAGENTAMASK, &thisTex);
-//		else
-//			f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags, &thisTex);*/
-
+				// what is this!!! reset alpha mode (!!)
+				if (polyPtr->flags)
+					ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_NONE);
 			}
-			 
-			cur = cur->next;
+			polyPtr = polyPtr->next;
 		}
 	}
 }
+
+
+
 
 
 /*  --------------------------------------------------------------------------------
@@ -917,6 +928,8 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 //	MPR_VERT v[3];
 	D3DTLVERTEX *verts;
 	unsigned long f1,f2,f3;
+	int			alphaVal;
+
 	totalFacesDrawn+=dwIndexCount / 3;
 	if (rHardware)
 	{
@@ -976,6 +989,23 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 			v[2].r = RGBA_GETRED(verts[f3].color);
 			v[2].g = RGBA_GETGREEN(verts[f3].color);
 			v[2].b = RGBA_GETBLUE(verts[f3].color);
+
+			// *ASL* 27/06/2000
+			// alpha blend all vertex rgbs
+			alphaVal = RGBA_GETALPHA(softV[f1].color);
+			v[0].r = (v[0].r * alphaVal) >>8;
+			v[0].g = (v[0].g * alphaVal) >>8;
+			v[0].b = (v[0].b * alphaVal) >>8;
+
+			alphaVal = RGBA_GETALPHA(softV[f2].color);
+			v[1].r = (v[1].r * alphaVal) >>8;
+			v[1].g = (v[1].g * alphaVal) >>8;
+			v[1].b = (v[1].b * alphaVal) >>8;
+
+			alphaVal = RGBA_GETALPHA(softV[f3].color);
+			v[2].r = (v[2].r * alphaVal) >>8;
+			v[2].g = (v[2].g * alphaVal) >>8;
+			v[2].b = (v[2].b * alphaVal) >>8;
 
 			if (cTexture)
 			{
@@ -1450,11 +1480,16 @@ void mdxPolyDrawTextureRect(RECT rc, D3DCOLOR colour, MDX_TEXENTRY *mdxTexture, 
 	}
 
 	// software
-	int sr,sg,sb, su0,sv0, su1,sv1;
-
+	int sr,sg,sb,sa, su0,sv0, su1,sv1;
 	sr = RGBA_GETRED(colour);
 	sg = RGBA_GETGREEN(colour);
 	sb = RGBA_GETBLUE(colour);
+	sa = RGBA_GETALPHA(colour);
+
+	// alpha rgbs
+	sr = (sr * sa) >>8;
+	sg = (sg * sa) >>8;
+	sb = (sb * sa) >>8;
 
 	if (mdxTexture != NULL)
 	{
