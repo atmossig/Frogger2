@@ -33,6 +33,8 @@ inline extern void smemcpy( unsigned short *a, unsigned short *b, unsigned long 
 inline extern void lmemcpy( unsigned long *a, unsigned long *b, unsigned long size );
 inline extern void cmemcpy( char *a, char *b, unsigned long size );
 
+extern short FindClosestTileVector( VECTOR *dir, GAMETILE *tile );
+
 extern GAMETILE* FindNearestTile(VECTOR v);
 extern GAMETILE* FindNearestJoinedTile(GAMETILE *tile, VECTOR *pos);
 extern GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d );

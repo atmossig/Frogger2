@@ -223,10 +223,10 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 				SetQuaternion(&(frog[pl]->actor->qRot),&(nme->nmeActor->actor->qRot));
 			else if( reactiveAnims[nme->reactiveNumber].type & ANI_ANTIFACE )
 			{
-				QUATERNION q;
-				GetRotationFromQuaternion( &q, &nme->nmeActor->actor->qRot );
-				q.w = PI2 - q.w;
-				GetQuaternionFromRotation( &frog[pl]->actor->qRot, &q );
+				VECTOR fwd;
+				SubVector( &fwd, &nme->nmeActor->actor->pos, &frog[pl]->actor->pos );
+				MakeUnit( &fwd );
+				Orientate( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
 			}
 			
 			if (reactiveAnims[nme->reactiveNumber].type & ANI_CENTRE)
@@ -710,10 +710,13 @@ void UpdateTileSnapper( ENEMY *cur )
 	case 2:
 		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 		{
-			SetVector( &cur->currNormal, &path->nodes[0].worldTile->normal );
+			VECTOR dir;
+			SetVector( &cur->currNormal, &path->nodes->worldTile->normal );
 			GetPositionForPathNode(&toPosition,&path->nodes[path->fromNode]);
+			SubVector( &dir, &toPosition, &act->pos );
+			MakeUnit( &dir );
 			SetQuaternion( &q1, &act->qRot );
-			ActorLookAt( act, &toPosition, LOOKAT_2D );
+			Orientate( &act->qRot, &dir, &cur->currNormal ); //ActorLookAt( act, &toPosition, LOOKAT_2D );
 			SetQuaternion( &q2, &act->qRot );
 			speed = path->nodes[0].speed * gameSpeed;
 			if( speed > 0.999 ) speed = 0.999;

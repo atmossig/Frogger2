@@ -83,12 +83,34 @@ inline void lmemcpy( unsigned long *a, unsigned long *b, unsigned long size )
 
 
 /*	--------------------------------------------------------------------------------
+    Function		: FindClosestTileVector
+	Parameters		: Direction to match, gametile
+	Returns			: direction vector index
+*/
+short FindClosestTileVector( VECTOR *dir, GAMETILE *tile )
+{
+	int i, match=0;
+	float best=-1, dp;
+
+	for( i=0; i<4; i++ )
+	{
+		dp = DotProduct( &tile->dirVector[i], dir );
+		if( dp > best )
+		{
+			best = dp;
+			match = i;
+		}
+	}
+
+	return match;
+}
+
+
+/*	--------------------------------------------------------------------------------
     Function		: FindNearestTile
 	Parameters		: VECTOR
 	Returns			: GAMETILE*
 */
-
-
 GAMETILE* FindNearestTile(VECTOR v)
 {
 	GAMETILE *t, *closest;
