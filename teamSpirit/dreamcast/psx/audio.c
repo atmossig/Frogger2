@@ -40,6 +40,8 @@
 #include "options.h"
 #include "islxa.h"
 
+extern XAFileType	*curXA;
+
 int lastSound = -1;
 
 char *musicNames[] = {	"CDA.XA",
@@ -693,15 +695,16 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	Returns			: void
 	Info			: 
 */
+
+XAFileType	*adxtestCur;
+
 void PrepareSong(short worldID,int loop)
 {
 	KTU32	memfreeBefore,memfreeAfter;
 	int 	chan;
 	int 	xaNum = 0;
 	char	buffer[32];
-	XAFileType	*adxtestCur;
-
-//	return;
+	float	newVolume;
 
 	XAstop();
 
@@ -722,39 +725,11 @@ void PrepareSong(short worldID,int loop)
 	adxtestCur = XAgetFileInfo(buffer);
 	XAplayChannel(adxtestCur, 1, 1, 64);
 
+	// set global volume
+	newVolume = (100 - globalMusicVol) * -10;
+	ADXT_SetOutVol(adxtestCur->adxt,newVolume);
+
 	return;
-	
-/*
-	if(!bpAmStreamDone(gStream))
-		StopSong();
-	
-	amHeapGetFree(&memfreeBefore);
-	
-	switch ( worldID )
-	{
-		case AUDIOTRK_GAMEOVER:				worldID = 10; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETE:		worldID = 9; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 11; xaNum = 1; break;
-	}
-
-	chan = musicList  [ worldID ] + 1;
-
-	if(chan < 10)
-		sprintf(buffer,"track0%d.str",chan);
-	else
-		sprintf(buffer,"track%d.str",chan);
-	
-	// Set up the buffers etc for the stream
-	if(StreamSetup(buffer,1)==KTFALSE)
-	{
-		acASEBRK(KTTRUE);
-	}
-			
-	// Start the stream
-	bpAmStreamStart(gStream);	
-	
-	amHeapGetFree(&memfreeAfter);	
-*/
 }
 
 void StopSong( )
@@ -764,17 +739,6 @@ void StopSong( )
 	XAstop();
 
 	return;
-
-/*	amHeapGetFree(&memfreeBefore);
-	
-	if(gStream == 0)
-		return;
-	
-	bpAmStreamDestroy(gStream);
-	StreamDestroy();
-	
-	amHeapGetFree(&memfreeAfter);
-*/
 }
 
 long PAN_MAX = 4096*10;
@@ -861,30 +825,23 @@ void StopSample(SAMPLE *sample)
 
 void PauseAudio( )
 {
-	// CD Pause: Possibly should check return value... Nah, can't be bothered.
-//	SpuSetCommonCDVolume(0, 0);
-
-	// Mute sound
-//	SsSetMute( 1 );
-	bpAmStreamSetVolume(gStream, 0);
+	ADXT_Pause(curXA->adxt,1);
 }
 
 void UnPauseAudio( )
 {
-	// CD Resume
-//	SpuSetCommonCDVolume((0x7fff*globalMusicVol)/MAX_SOUND_VOL, (0x7fff*globalMusicVol)/MAX_SOUND_VOL);
-	
-	// Unmute sound
-//	SsSetMute( 0 );
-	bpAmStreamSetVolume(gStream, 127);
+	ADXT_Pause(curXA->adxt,0);
 }
 
 void SpuSetCommonCDVolume(int volume, int volume2)
 {
 	float	newVolume;
 	
-	newVolume = (float)globalMusicVol * (2.55);
-	bpAmStreamSetVolume(gStream, (int)newVolume);
+//	newVolume = (float)globalMusicVol * (2.55);
+//	bpAmStreamSetVolume(gStream, (int)newVolume);
+
+	newVolume = (100 - globalMusicVol) * -10;
+	ADXT_SetOutVol(curXA->adxt,newVolume);
 }
 
 int IsSongPlaying()

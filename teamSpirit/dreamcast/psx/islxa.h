@@ -40,6 +40,9 @@ typedef struct _XADataType {
 #define BFF_SBH_ID (('S'<<0) | ('B'<<8) | ('H'<<16) | (0<<24))
 #define SOUND_XA_NOLOOP 128
 
+extern XADataType	XAData;
+extern XAFileType	*curXA;
+
 /**************************************************************************
 	FUNCTION:	XAsetStatus()
 	PURPOSE:	Enable/disable xa playing
