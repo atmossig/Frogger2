@@ -30,6 +30,7 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "gelf.h"
+#include "softstation.h"
 
 extern "C"
 {
@@ -428,15 +429,36 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 
 void DrawSoftwarePolys (void)
 {
-/*	SOFTPOLY *cur;
-	MPR_BITMAP16 thisTex;
+/*
+	vertices[0].x = 320+x;
+	vertices[0].y = 240-y;
+	vertices[0].u = SSMAKEUV(63);
+	vertices[0].v = SSMAKEUV(0);
+	vertices[0].r = 255;
+	vertices[0].g = 128;
+	vertices[0].b = 0;
+	
+ssBeginScene(surfacePtr, surfacePitch);
+
+
+ssSetTexture(pixeldata, width, height)
+ssDrawPrimitive(vertices, 3 or 4);
+	.
+	.
+	.
+ssDrawPrimitive(vertices, 3 or 4);
+ssEndScene();
+*/
+	SOFTPOLY *cur;
+	
+	ssBeginScene(softScreen, 1280);
 
 	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
 	{
 		cur = (SOFTPOLY *)softDepthBuffer[i];
 		while (cur)
 		{
-			MPR_VERT v[3];
+			TSSVertex	v[3];		
 			unsigned long f1,f2,f3;
 			f1 = cur->f[0];
 			f2 = cur->f[1];
@@ -444,48 +466,63 @@ void DrawSoftwarePolys (void)
 
 			v[0].x = (long)softV[f1].sx >> 1;
 			v[0].y = (long)softV[f1].sy >> 1;
-			v[0].argb = softV[f1].color;
+			
+			v[0].r = RGBA_GETRED(softV[f1].color);
+			v[0].g = RGBA_GETGREEN(softV[f1].color);
+			v[0].b = RGBA_GETBLUE(softV[f1].color);
 			
 			v[1].x = (long)softV[f2].sx >> 1;
 			v[1].y = (long)softV[f2].sy >> 1;
-			v[1].argb = softV[f2].color;
-
+			v[1].r = RGBA_GETRED(softV[f2].color);
+			v[1].g = RGBA_GETGREEN(softV[f2].color);
+			v[1].b = RGBA_GETBLUE(softV[f2].color);
+			
 			v[2].x = (long)softV[f3].sx >> 1;
 			v[2].y = (long)softV[f3].sy >> 1;
-			v[2].argb = softV[f3].color;
-			
+			v[2].r = RGBA_GETRED(softV[f3].color);
+			v[2].g = RGBA_GETGREEN(softV[f3].color);
+			v[2].b = RGBA_GETBLUE(softV[f3].color);
+						
 			if (cur->t)
 			{
-				thisTex.width = cur->tEntry->xSize;
+
+				if (cur->tEntry->softData)
+				{
+					ssSetTexture(cur->tEntry->softData,cur->tEntry->xSize,cur->tEntry->ySize);
+				}
+				else
+					ssSetTexture(NULL, 0,0);
+
+/*				thisTex.width = cur->tEntry->xSize;
 				thisTex.height = cur->tEntry->ySize;
 				thisTex.image = (unsigned short *)cur->tEntry->data;
-		
-				v[0].u = softV[f1].tu * thisTex.width;
-				v[0].v = softV[f1].tv * thisTex.height;
+		*/
+				v[0].u = softV[f1].tu * cur->tEntry->xSize;
+				v[0].v = softV[f1].tv * cur->tEntry->ySize;
 
-				v[1].u = softV[f2].tu * thisTex.width;
-				v[1].v = softV[f2].tv * thisTex.height;
+				v[1].u = softV[f2].tu * cur->tEntry->xSize;
+				v[1].v = softV[f2].tv * cur->tEntry->ySize;
 	
-				v[2].u = softV[f3].tu * thisTex.width;
-				v[2].v = softV[f3].tv * thisTex.height;
+				v[2].u = softV[f3].tu * cur->tEntry->xSize;
+				v[2].v = softV[f3].tv * cur->tEntry->ySize;
 
-				if (v[0].u>thisTex.width-1)
-					 v[0].u = thisTex.width-1;
+				if (v[0].u>cur->tEntry->xSize-1)
+					 v[0].u = cur->tEntry->xSize-1;
 
-				if (v[0].v>thisTex.height-1)
-					 v[0].v = thisTex.height-1;
+				if (v[0].v>cur->tEntry->ySize-1)
+					 v[0].v = cur->tEntry->ySize-1;
 
-				if (v[1].u>thisTex.width-1)
-					 v[1].u = thisTex.width-1;
+				if (v[1].u>cur->tEntry->xSize-1)
+					 v[1].u = cur->tEntry->xSize-1;
 
-				if (v[1].v>thisTex.height-1)
-					 v[1].v = thisTex.height-1;
+				if (v[1].v>cur->tEntry->ySize-1)
+					 v[1].v = cur->tEntry->ySize-1;
 
-				if (v[2].u>thisTex.width-1)
-					 v[2].u = thisTex.width-1;
+				if (v[2].u>cur->tEntry->xSize-1)
+					 v[2].u = cur->tEntry->xSize-1;
 
-				if (v[2].v>thisTex.height-1)
-					 v[2].v = thisTex.height-1;
+				if (v[2].v>cur->tEntry->ySize-1)
+					 v[2].v = cur->tEntry->ySize-1;
 
 				if (v[0].u<0)
 					 v[0].u = 0;
@@ -504,18 +541,28 @@ void DrawSoftwarePolys (void)
 
 				if (v[2].v<0)
 					 v[2].v = 0;
-
-				if (cur->tEntry->keyed) 
-					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags | POLY_MAGENTAMASK, &thisTex);
-				else
-					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags, &thisTex);
+			
+				v[0].u = SSMAKEUV(((long)v[0].u));
+				v[1].u = SSMAKEUV(((long)v[1].u));
+				v[2].u = SSMAKEUV(((long)v[2].u));
+		
+				v[0].v = SSMAKEUV(((long)v[0].v));
+				v[1].v = SSMAKEUV(((long)v[1].v));
+				v[2].v = SSMAKEUV(((long)v[2].v));
+				
+				ssDrawPrimitive(v, 3);
+//		if (cur->tEntry->keyed) 
+//			f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags | POLY_MAGENTAMASK, &thisTex);
+//		else
+//			f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags, &thisTex);*/
 
 			}
 			 
 			cur = cur->next;
 		}
 	}
-	*/
+	
+	ssEndScene();	
 }
 
 

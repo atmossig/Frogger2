@@ -76,6 +76,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 // Add a halo point to be tested at draw time/
 void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size);
 
+void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry);
 
 #define PushPolys(v,vC,fce,fC,tEntry)\
 {\
@@ -83,6 +84,17 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned lo
 	short *mfce = fce;\
 	LPDIRECTDRAWSURFACE7 tH = 0;\
 	char key;\
+	if (!rHardware)\
+	{\
+		if (tEntry)\
+		{\
+			PushPolys_Software(v,vC,fce,fC,tEntry);\
+			memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));\
+			numSoftVertex+=vC;\
+		}\
+	}\
+	else\
+	{\
 	if  (tEntry)\
 	{\
 		tH = tEntry->surf;\
@@ -90,23 +102,24 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned lo
 	}\
 	if ((cFInfo->nV + vC) < MA_MAX_VERTICES && (cFInfo->nF + fC) < MA_MAX_FACES)\
 	{\
-	\
-		for (cnt=fC;cnt; cnt--)\
-		{\
-			*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);\
-			*cFInfo->cT = tH;\
-			*cFInfo->cK = key;\
-			cFInfo->cF++;\
-			cFInfo->cT++;\
-			cFInfo->cK++;\
-			mfce++;\
-		}\
-	\
-		memcpy(cFInfo->cV,v,vC*sizeof(D3DTLVERTEX));\
 		\
-		cFInfo->cV+=vC;\
-		cFInfo->nV+=vC;\
-		cFInfo->nF+=fC;\
+			for (cnt=fC;cnt; cnt--)\
+			{\
+				*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);\
+				*cFInfo->cT = tH;\
+				*cFInfo->cK = key;\
+				cFInfo->cF++;\
+				cFInfo->cT++;\
+				cFInfo->cK++;\
+				mfce++;\
+			}\
+		\
+			memcpy(cFInfo->cV,v,vC*sizeof(D3DTLVERTEX));\
+			\
+			cFInfo->cV+=vC;\
+			cFInfo->nV+=vC;\
+			cFInfo->nF+=fC;\
+		}\
 	}\
 }
 
@@ -133,6 +146,8 @@ extern unsigned long drawPhong;
 extern LPDIRECTDRAWSURFACE7 haloS;
 extern LPDIRECTDRAWSURFACE7 flareS;
 extern LPDIRECTDRAWSURFACE7 flareS2;
+extern unsigned long numSoftVertex;
+extern D3DTLVERTEX softV[MA_MAX_VERTICES];
 
 extern unsigned long lightingMapRS[];
 extern unsigned long normalAlphaCmpRS[];

@@ -22,6 +22,7 @@
 #include "mdxProfile.h"
 #include "mdxiNFO.h"
 #include "math.h"
+#include "softstation.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -104,7 +105,11 @@ unsigned long D3DInit(void)
     D3DVIEWPORT7	vp = {0, 0, rXRes, rYRes, 0.0f, 1.0f};
 
 	if (!rHardware)
+	{
+		ssInit(r565?SSPIXELFORMAT_565:SSPIXELFORMAT_555);
+		ssSetViewport(0,0,640,480);
 		return TRUE;
+	}
 
 	if ((res = pDirectDraw7->QueryInterface(IID_IDirect3D7, (LPVOID *)&pDirect3D)) != S_OK)
 	{
@@ -165,7 +170,8 @@ void SetupFogParams(float fStart,float fR,float fG,float fB,long enable)
 	fogRange = 1.0/(((farClip)-fogStart));
 	fogR = fR; fogG = fG; fogB = fB;
 	fogging = enable;
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,enable);		
+	if (rHardware)
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,enable);		
 }
 
 /*	--------------------------------------------------------------------------------

@@ -438,9 +438,12 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		if(gstrcmp(ts->name,"backdrop.obe") == 0)
 		{
 			backGnd = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION, 0, 0);
-			backGnd->actor->size.vx = ToFixed(5);
-			backGnd->actor->size.vy = ToFixed(5);
-			backGnd->actor->size.vz = ToFixed(5);
+			if (backGnd)
+			{
+				backGnd->actor->size.vx = ToFixed(5);
+				backGnd->actor->size.vy = ToFixed(5);
+				backGnd->actor->size.vz = ToFixed(5);
+			}
 //			actList = actList->next;
 //			if (actList)
 //				actList->prev = NULL;

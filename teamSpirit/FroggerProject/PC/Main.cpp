@@ -663,7 +663,7 @@ long DrawLoop(void)
 	EndDraw();
 	EndTimer(16);
 
-	//CopySoftScreenToSurface(surface[RENDER_SRF]);
+	CopySoftScreenToSurface(surface[RENDER_SRF]);
 
 	EndTimer(0);
 	
