@@ -513,19 +513,16 @@ int main ( )
 				quitMainLoop = 1;
 
 
-			TIMER_STOP(TIMER_TOTAL);
-			TIMER_ENDFRAME;
-			TIMER_ZERO;
-
-
-
-	//	DrawPoly();				Just testing....
-
 			TIMER_START(TIMER_DRAWSYNC);
 			DrawSync(0);
 			TIMER_STOP(TIMER_DRAWSYNC);
 
-			VSync(0);
+
+			TIMER_STOP(TIMER_TOTAL);
+			TIMER_ENDFRAME;
+			TIMER_ZERO;
+
+			VSync(2);
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
