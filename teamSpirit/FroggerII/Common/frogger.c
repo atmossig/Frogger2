@@ -43,6 +43,8 @@ char croakB						= 255;
 
 float globalFrogScale			= 0.6F;
 
+TEXTURE *frogEyeOpen,*frogEyeClosed;
+
 //----------------------------------------------------------------------------//
 //----- FUNCTIONS ------------------------------------------------------------//
 //----------------------------------------------------------------------------//
@@ -132,4 +134,6 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 		}
 		
 	}
+
+
 }
