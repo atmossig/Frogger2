@@ -408,6 +408,34 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		case WM_RBUTTONUP:
 			rButton = 0;
 			break;
+/*
+		case WM_CHAR:
+			if (editorOk)	// only when editor is set up to "grab" keyboard data
+			{
+				EditorKeypress((char)wParam);
+				return 0;
+			}
+			break;
+*/
+		case WM_KEYUP:
+			switch( (int)wParam )
+			{
+			case VK_SHIFT: mod &= ~FRED_SHIFT; break;
+			case VK_CONTROL: mod &= ~FRED_CONTROL; break;
+			}
+			break;
+
+		case WM_KEYDOWN:
+			switch( (int)wParam )
+			{
+			case VK_SHIFT: mod |= FRED_SHIFT; break;
+			case VK_CONTROL: mod |= FRED_CONTROL; break;
+			case VK_CAPITAL: 
+				if( mod & FRED_CAPS ) mod &= ~FRED_CAPS;
+				else mod |= FRED_CAPS;
+				break; // Caps lock is a toggle
+			}
+			break;
 
 		case WM_CHAR:
 			if (editorOk)	// only when editor is set up to "grab" keyboard data
@@ -417,25 +445,25 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			}
 			break;
 
-		    case WM_ERASEBKGND:
-			{
-				RECT cRect;
-				int i,j;
+		case WM_ERASEBKGND:
+		{
+			RECT cRect;
+			int i,j;
 
-				GetClientRect (hWnd,&cRect);
-				appBackgndDC=CreateCompatibleDC((HDC)wParam);
-		
-				if (SelectObject (appBackgndDC,appBackgnd)==NULL)
-					dp("sharugar");
+			GetClientRect (hWnd,&cRect);
+			appBackgndDC=CreateCompatibleDC((HDC)wParam);
+	
+			if (SelectObject (appBackgndDC,appBackgnd)==NULL)
+				dp("sharugar");
 
-				for (i=0; i<cRect.right+128; i+=128)
-					for (j=0; j<cRect.bottom+128; j+=128)
-						if (!BitBlt((HDC)wParam,i,j,128,128,appBackgndDC,0,0,SRCCOPY))
-											 dp("bugger");
-				DeleteDC(appBackgndDC);
-      				
-				return TRUE;
-			 }
+			for (i=0; i<cRect.right+128; i+=128)
+				for (j=0; j<cRect.bottom+128; j+=128)
+					if (!BitBlt((HDC)wParam,i,j,128,128,appBackgndDC,0,0,SRCCOPY))
+										 dp("bugger");
+			DeleteDC(appBackgndDC);
+      			
+			return TRUE;
+		 }
 	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);
