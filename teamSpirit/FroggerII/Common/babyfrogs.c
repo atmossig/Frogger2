@@ -21,7 +21,6 @@ BABY babyList[NUM_BABIES];
 
 GAMETILE **bTStart;
 
-int nearestBaby		= -1;
 int lastBabySaved	= -1;
 
 SPRITEOVERLAY *babyIcons[NUM_BABIES];
@@ -34,7 +33,6 @@ void InitBabyList( unsigned char createOverlays )
 {
 	unsigned long i,j;
 
-	nearestBaby		= -1;
 	lastBabySaved	= -1;
 	babiesSaved		= 0;
 	
@@ -112,7 +110,6 @@ void ResetBabies( )
 		babyList[i].baby = NULL;
 		babiesSaved = 0;
 		lastBabySaved = -1;
-		nearestBaby = -1;
 	}
 }
 
@@ -209,7 +206,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 */
 int GetNearestBabyFrog()
 {
-	int nearest = -1;
+	int baby=-1;
 	float t,distance = 99999;
 	int i;
 
@@ -222,7 +219,7 @@ int GetNearestBabyFrog()
 			if(t < distance)
 			{
 				distance	= t;
-				nearest		= i;
+				baby = i;
 			}
 		}
 	}
@@ -230,5 +227,5 @@ int GetNearestBabyFrog()
 //	if(nearest && (distance < CROAK_SOUND_RANGE))
 //		PlaySample( GEN_BABY_FROG, &babies[nearest]->actor->pos, 0, 255, (short)(128+(128-(distance/4))) );
 
-	return i;
+	return baby;
 }

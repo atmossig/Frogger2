@@ -67,7 +67,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 			continue;
 
 		// Health garibs are buzzy flies
-		if( garib->type == EXTRAHEALTH_GARIB )
+		if( garib->fx && garib->type == EXTRAHEALTH_GARIB )
 			check = &garib->fx->act[pl]->actor->pos;
 		else
 			check = &garib->pos;
@@ -373,11 +373,11 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		if( (garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 )) )
 		{
 			garib->fx->gravity = -0.5;
-		}
-		if( (fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 )) )
-		{
-			fx->follow = garib->fx->act[0]->actor;
-			SetFXColour( fx, 0, 128, 255 );
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 )) )
+			{
+				fx->follow = garib->fx->act[0]->actor;
+				SetFXColour( fx, 0, 128, 255 );
+			}
 		}
 	}
 	else

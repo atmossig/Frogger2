@@ -1677,7 +1677,15 @@ void CalculateQuatForPlane2(float yRot,QUATERNION *qAim,VECTOR *normal)
 	QUATERNION tempRot,tempQ;
 	VECTOR tempVect;
 	
-	if(normal->v[Y] == -1)
+	if( normal->v[Y] > 1-QEPSILON && normal->v[Y] < 1+QEPSILON )
+	{
+		vertQ.w = Aabs(2*PI-yRot);// + PI);
+		tempRot.w = 0;
+		tempRot.x = 0;
+		tempRot.y = 1;
+		tempRot.z = 0;
+	}
+	else if((normal->v[Y] > -1-QEPSILON) && (normal->v[Y] < -1+QEPSILON))
 	{
 		vertQ.w = Aabs(2*PI-yRot);// + PI);
 		tempRot.w = PI;

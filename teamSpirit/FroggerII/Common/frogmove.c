@@ -489,15 +489,22 @@ void UpdateFroggerPos(long pl)
 		GTUpdate( &player[pl].isCroaking, -1 );
 		if( !player[pl].isCroaking.time )
 		{
+			int baby;
 			player[pl].frogState &= ~FROGSTATUS_ISCROAKING;
 
 			// check for nearest baby frog - do radius check ????
-			if(nearestBaby = GetNearestBabyFrog())
+			baby = GetNearestBabyFrog();
+
+			if( baby != -1 )
 			{
-//				fx = CreateAndAddSpecialEffect(	FXTYPE_POLYRING, &babies[nearestBaby]->actor->pos, &upVec, 15, 1, 0.1, 1.2 );
-//				fx->r = babyList[nearestBaby].fxColour[R];
-//				fx->g = babyList[nearestBaby].fxColour[G];
-//				fx->b = babyList[nearestBaby].fxColour[B];
+				VECTOR pos;
+				SetVector( &pos, &upVec );
+				ScaleVector( &pos, 20 );
+				AddToVector( &pos, &babyList[baby].baby->actor->pos );
+				fx = CreateAndAddSpecialEffect(	FXTYPE_POLYRING, &pos, &upVec, 15, 1, 0.1, 1.2 );
+				fx->r = babyList[baby].fxColour[R];
+				fx->g = babyList[baby].fxColour[G];
+				fx->b = babyList[baby].fxColour[B];
 			}
 		}
 	}
