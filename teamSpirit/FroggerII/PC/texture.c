@@ -13,8 +13,9 @@
 #include "incs.h"
 
 
+#ifndef FOR_GODS_SAKE_STOP_PRINTING_CRAP
 #define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
-
+#endif
 
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
 TEXTURE *tempTexture;
