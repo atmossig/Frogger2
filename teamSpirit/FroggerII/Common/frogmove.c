@@ -835,12 +835,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		t = battleHopFrames;
 		h = hopHeight;
 	}
-	else if( player[pl].hasDoubleJumped )
+	// Never used
+/*	else if( player[pl].hasDoubleJumped )
 	{
 		t = doubleHopFrames;
 		h = doublehopHeight;
 	}
-	else if(player[pl].isSuperHopping)
+*/	else if(player[pl].isSuperHopping)
 	{
 		t = superHopFrames;
 		h = superhopHeight;

@@ -429,12 +429,12 @@ void RaceRespawn( int pl )
 		}
 	}
 
-	if( (fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 2, 0.05, 0.6 )) )
+/*	if( (fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 2, 0.05, 0.6 )) )
 	{
 		fx->spin = 5;
 		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 	}
-
+*/
 	TeleportActorToTile(frog[pl],tile,pl);
 
 	// Update progress info
@@ -577,6 +577,7 @@ void KillMPFrog(int num)
 		raceTimeOver[num]->g = mpl[num].g;
 		raceTimeOver[num]->b = mpl[num].b;
 		RaceRespawn(num);
+		GTInit( &player[num].safe, 3 );
 	}
 	else
 	{

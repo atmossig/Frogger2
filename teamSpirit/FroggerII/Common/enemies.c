@@ -349,6 +349,8 @@ void UpdateEnemies()
 		if( act->effects && !(cur->flags & ENEMY_NEW_VENT) )
 			ProcessAttachedEffects( (void *)cur, ENTITY_ENEMY );
 	}
+
+	UpdateBabies();
 }
 
 void RotateWaitingNME( ENEMY *cur )
@@ -1233,7 +1235,7 @@ void UpdateRandomMoveNME( ENEMY *cur )
 			{
 				SubVector( &rVec, &path->nodes[2].worldTile->centre, &path->nodes[1].worldTile->centre );
 				if( DotProduct(&fwd, &rVec) < 0.99 ) // Only do cartwheel if baby needs to turn
-					AnimateActor( act->actor, BABY_ANIM_CARTWHEEL, NO, NO, act->animSpeed, 0, 0 );
+					AnimateActor( act->actor, BABY_ANIM_WHEEL, NO, NO, act->animSpeed, 0, 0 );
 
 				AnimateActor( act->actor, BABY_ANIM_WAVE, NO, YES, act->animSpeed, 0, 0 );
 			}

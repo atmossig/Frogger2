@@ -258,7 +258,7 @@ void GameProcessController(long pl)
 			camFacing[pl] = GetTilesMatchingDirection(currTile[pl], camFacing[pl], destTile[pl]);
 			currTile[pl] = destTile[pl];
 
-			// player is superhopping - make frog double jump
+			// player is superhopping - make frog double jump in desired direction
 			if (MoveToRequestedDestination( dir, pl ))
 			{
 				player[pl].hasDoubleJumped = 1;
@@ -266,23 +266,37 @@ void GameProcessController(long pl)
 
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing[pl]) &3;
 				player[pl].extendedHopDir = dir;
-				Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+				Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &old->normal/*&currTile[pl]->normal*/ );
+				AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
 			}
 			else
 			{
-				// Restore old state :oP
-				destTile[pl] = currTile[pl];
-				currTile[pl] = old;
-				camFacing[pl] = oldCamFacing;
-				player[pl].canJump = 0;
-				
-				CalculateFrogJump(
-					&frog[pl]->actor->pos, &destTile[pl]->centre, &destTile[pl]->normal,
-					10, doubleHopFrames, pl);
+				player[pl].isSuperHopping = 1;
+				if (MoveToRequestedDestination( (dir+2)%3, pl )) // Try to backflip
+				{
+					dir = (dir+2)%3;
+					player[pl].hasDoubleJumped = 1;
+					player[pl].canJump = 0;
+
+					nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing[pl]) &3;
+					player[pl].extendedHopDir = dir;
+					Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &old->normal/*&currTile[pl]->normal*/ );
+					// TODO: Play backflip animation
+				}
+				else
+				{
+					// Restore old state :oP
+					destTile[pl] = currTile[pl];
+					currTile[pl] = old;
+					camFacing[pl] = oldCamFacing;
+					player[pl].canJump = 0;
+					
+					CalculateFrogJump(
+						&frog[pl]->actor->pos, &destTile[pl]->centre, &destTile[pl]->normal,
+						10, standardHopFrames, pl);
+				}
 			}
 
-			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
-			//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 #ifdef N64_VERSION
 			StartRumble(100,1,3,ActiveController);
 #endif

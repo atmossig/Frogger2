@@ -37,6 +37,7 @@ TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 TEXTURE *txtrFlash		= NULL;
 TEXTURE *txtrFlare		= NULL;
+TEXTURE *txtrElectric	= NULL;
 
 
 enum
@@ -491,7 +492,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		i = effect->numP;
 
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "P" );
-		effect->tex = txtrBlank;
+		effect->tex = txtrElectric;
 
 		while(i--)
 		{
@@ -1158,10 +1159,10 @@ void UpdateFXLightning( SPECFX *fx )
 	{
 		if( i )
 		{
-			SetVector( &source, &fx->particles[i-1].pos );
 			scale = 1/(float)(fx->numP-i);
 			fr = 1-((float)i/(float)fx->numP);
 			// Get direction from last particle to target
+			SetVector( &source, &fx->particles[i-1].pos );
 			SubVector( &to, &target, &source );
 			ScaleVector( &to, scale );
 
@@ -1175,21 +1176,21 @@ void UpdateFXLightning( SPECFX *fx )
 			ScaleVector( &ran, r );
 			AddToVector( &to, &ran );
 			AddVector( &fx->particles[i].pos, &source, &to );
-
-			// Push the polys out from the position
-			MakeUnit( &to );
-			CrossProduct( &cross, &to, &upVec );
-			MakeUnit( &cross );
-			ScaleVector( &cross, fx->scale.v[X] );
-			AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
-			SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
 		}
 		else
 		{
-			SetVector( &fx->particles[i].pos, &fx->origin );
-			AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &rightVec );
-			SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &rightVec );
+			// Get direction from last particle to target
+			SetVector( &source, &fx->particles[0].pos );
+			SubVector( &to, &target, &source );
 		}
+
+		// Push the polys out from the position
+		MakeUnit( &to );
+		CrossProduct( &cross, &to, &upVec );
+		MakeUnit( &cross );
+		ScaleVector( &cross, fx->scale.v[X] );
+		AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
+		SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
@@ -1346,7 +1347,6 @@ void InitSpecFXList( )
 	sfxList.count = 0;
 	sfxList.stackPtr = i-1;
 
-
 	// get the textures used for the various special effects
 	FindTexture(&txtrRipple,UpdateCRC("ai_ripple2.bmp"),YES);
 	FindTexture(&txtrStar,UpdateCRC("star_outline.bmp"),YES);
@@ -1359,6 +1359,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 	FindTexture(&txtrFlash,UpdateCRC("flash.bmp"),YES);
 	FindTexture(&txtrFlare,UpdateCRC("flare.bmp"),YES);
+	FindTexture(&txtrElectric,UpdateCRC("electric.bmp"),YES);
 }
 
 

@@ -205,6 +205,14 @@ int MemLoadEntities(const void* data, long size)
 
 				if (act)
 				{
+					if( thing == CREATE_ENEMY )
+					{
+						if( !(enemy->flags & ENEMY_NEW_BABYFROG) )
+							act->effects = effects;
+						else
+							scale *= BABY_SCALE;
+					}
+
 					act->radius = radius;
 					act->actor->scale.v[X] = scale;
 					act->actor->scale.v[Y] = scale;
@@ -214,8 +222,6 @@ int MemLoadEntities(const void* data, long size)
 					// PUT IN LATER
 //					act->actor->objectController->object->flags = objFlags;
 
-					if( thing == CREATE_ENEMY && !(enemy->flags & ENEMY_NEW_BABYFROG) )
-						act->effects = effects;
 				}
 
 				break;

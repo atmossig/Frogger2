@@ -18,7 +18,7 @@
 
 
 BABY babyList[NUM_BABIES];
-
+float BABY_SCALE = 0.4;
 GAMETILE **bTStart;
 
 int lastBabySaved	= -1;
@@ -40,6 +40,7 @@ void InitBabyList( unsigned char createOverlays )
 	{
 		babyList[i].isSaved = 0;
 		babyList[i].baby = NULL;
+		babyList[i].idle = 0;
 
 		// determine baby colour and set values accordingly
 		switch(i)
@@ -108,6 +109,7 @@ void ResetBabies( )
 	{
 		babyList[i].isSaved = 0;
 		babyList[i].baby = NULL;
+		babyList[i].idle = 0;
 		babiesSaved = 0;
 		lastBabySaved = -1;
 	}
@@ -256,8 +258,64 @@ int GetNearestBabyFrog()
 		}
 	}
 
-//	if(nearest && (distance < CROAK_SOUND_RANGE))
-//		PlaySample( GEN_BABY_FROG, &babies[nearest]->actor->pos, 0, 255, (short)(128+(128-(distance/4))) );
-
 	return baby;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateBabies
+	Purpose			: Determine behaviour of baby frogs
+	Parameters		: 
+	Returns			: 
+	Info			: Mope when far from frog, then do sequence of attention grabbing animations.
+						Later, dynamically swap to lower poly model when far from camera.
+*/
+void UpdateBabies( )
+{
+	int i;
+	ACTOR *act;
+	ACTOR2 *baby;
+	VECTOR frogV;
+	QUATERNION q;
+	long dist;
+	float speed;
+
+	for( i=0; i<numBabies; i++ )
+	{
+		baby = babyList[i].baby;
+		act = baby->actor;
+
+		SubVector( &frogV, &frog[0]->actor->pos, &act->pos );
+		dist = MagnitudeSquared(&frogV);
+
+		if( babyList[i].idle > 0 )
+			babyList[i].idle -= gameSpeed;
+
+		// Do animation dependent on distance from frog
+		// Maybe store last distance too?
+		if( dist < BABY_ACTIVE_RADIUS )
+		{
+			MakeUnit( &frogV );
+			SetQuaternion(&q,&act->qRot);
+			Orientate( &act->qRot, &frogV, &currTile[0]->normal );
+			speed = 0.2*gameSpeed;
+			if( speed > 0.999 ) speed = 0.999;
+			QuatSlerp( &q, &act->qRot, speed, &act->qRot );
+
+			if( babyList[i].idle < 1 )
+			{
+				if( dist < BABY_ACTIVE_RADIUS*0.25 )
+				{
+					StartAnimateActor( act, BABY_ANIM_HOP, YES, NO, 0.6, 0,0 );
+				}
+				else
+				{
+					// Randomly play attract animation
+					AnimateActor( act, Random(3)+2, NO, NO, 0.4, 0,0 );
+					AnimateActor( act, BABY_ANIM_SNOOZE, YES, YES, 0.4, 0,0 );
+					babyList[i].idle = BABY_IDLE_TIME + Random(BABY_IDLE_TIME);
+				}
+			}
+		}
+	}
 }

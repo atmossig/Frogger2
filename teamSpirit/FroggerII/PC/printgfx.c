@@ -853,10 +853,8 @@ void DrawFXDecal( SPECFX *ripple )
 			}
 
 			SwapFrame(3);
-
 			Clip3DPolygon( vT, tEntry->hdl );
 			Clip3DPolygon( &vT[2], tEntry->hdl );
-
 			SwapFrame(0);
 		}
 	}
@@ -1059,6 +1057,10 @@ void DrawFXLightning( SPECFX *fx )
 	if( fx->deadCount )
 		return;
 
+	tEntry = ((TEXENTRY *)fx->tex);
+	if( !tEntry )
+		return;
+
 	vT[0].specular = D3DRGB(0,0,0);
 	vT[0].tu = 0;
 	vT[0].tv = 0;
@@ -1072,10 +1074,13 @@ void DrawFXLightning( SPECFX *fx )
 	vT[3].tu = 0;
 	vT[3].tv = 1;
 
+	// Additive mode
+	SwapFrame(3);
+
 	while( i < fx->numP-1 )
 	{
 		// Copy in previous transformed vertices, if they exist
-		if( i != 0 && vTPrev[0].sz && vTPrev[1].sz )
+		if( i && vTPrev[0].sz && vTPrev[1].sz )
 			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );
 		else
 		{
@@ -1125,8 +1130,7 @@ void DrawFXLightning( SPECFX *fx )
 		memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 
 		// Draw polys, if they're not clipped
-		tEntry = ((TEXENTRY *)fx->tex);
-		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
+		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
 			Clip3DPolygon( vT, tEntry->hdl );
 			Clip3DPolygon( &vT[2], tEntry->hdl );
@@ -1134,6 +1138,8 @@ void DrawFXLightning( SPECFX *fx )
 
 		i++;
 	} 
+
+	SwapFrame(0);
 }
 
 

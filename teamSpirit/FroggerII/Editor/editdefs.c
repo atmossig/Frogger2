@@ -290,16 +290,25 @@ void EditorCreateEntities(void)
 
 			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, create->animSpeed, create->facing);
 			act = enemy->nmeActor;
-			act->actor->scale.v[X] = create->scale;
-			act->actor->scale.v[Y] = create->scale;
-			act->actor->scale.v[Z] = create->scale;
+
+			if( !(enemy->flags & ENEMY_NEW_BABYFROG) )
+			{
+				act->effects = create->effects;
+				act->actor->scale.v[X] = create->scale;
+				act->actor->scale.v[Y] = create->scale;
+				act->actor->scale.v[Z] = create->scale;
+			}
+			else
+			{
+				act->actor->scale.v[X] = create->scale*BABY_SCALE;
+				act->actor->scale.v[Y] = create->scale*BABY_SCALE;
+				act->actor->scale.v[Z] = create->scale*BABY_SCALE;
+			}
+
 			act->radius = create->radius;
 			act->value1 = create->value1;
 			// PUT THIS IN LATER
 //			act->actor->objectController->object->flags = create->objFlags;
-
-			if( !(enemy->flags & ENEMY_NEW_BABYFROG) )
-				act->effects = create->effects;
 
 			counts[0]++;
 			break;
