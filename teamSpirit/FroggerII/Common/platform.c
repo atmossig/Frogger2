@@ -842,7 +842,7 @@ void UpdatePlatforms()
 
 			if(cur->flags & PLATFORM_CARRYINGFROG)
 			{
-				frog->actor->pos.v[X] += (cur->moveSpeed[cur->path->toNode] * fwd.v[X]);
+				frog[0]->actor->pos.v[X] += (cur->moveSpeed[cur->path->toNode] * fwd.v[X]);
 			}
 			// endif
 
@@ -1053,11 +1053,11 @@ void UpdatePlatforms()
 				else
 				{
 					// check if over a deadly tile - if so then frog has drowned, sunk, etc.
-					if(cur->inTile->state == TILESTATE_DEADLY && !frog->action.dead)
+					if(cur->inTile->state == TILESTATE_DEADLY && !frog[0]->action.dead)
 					{
-						frogState |= FROGSTATUS_ISDEAD;
-						frog->action.deathBy = DEATHBY_INSTANT;
-						frog->action.dead = 1;
+						player[0].frogState |= FROGSTATUS_ISDEAD;
+						frog[0]->action.deathBy = DEATHBY_INSTANT;
+						frog[0]->action.dead = 1;
 					}
 				}
 			}
@@ -1089,11 +1089,11 @@ void UpdatePlatforms()
 				else
 				{
 					// check if over a deadly tile - if so then frog has risen into seomthing deadly
-					if(cur->inTile->state == TILESTATE_DEADLY && !frog->action.dead)
+					if(cur->inTile->state == TILESTATE_DEADLY && !frog[0]->action.dead)
 					{
-						frogState |= FROGSTATUS_ISDEAD;
-						frog->action.deathBy = DEATHBY_INSTANT;
-						frog->action.dead = 1;
+						player[0].frogState |= FROGSTATUS_ISDEAD;
+						frog[0]->action.deathBy = DEATHBY_INSTANT;
+						frog[0]->action.dead = 1;
 					}
 				}
 			}
@@ -1134,25 +1134,25 @@ void UpdatePlatforms()
 
 
 		// check which world tile platform is currently 'in'
-		oldTile = currTile;
+		oldTile = currTile[0];
 		GetActiveTile(cur);
 
 		if(cur->flags & PLATFORM_CARRYINGFROG)
 		{
-			currTile = cur->inTile;
+			currTile[0] = cur->inTile;
 
-			SetVector(&frog->actor->pos,&cur->pltActor->actor->pos);
+			SetVector(&frog[0]->actor->pos,&cur->pltActor->actor->pos);
 
 			if ( !( cur->flags & PLATFORM_NOORIENTATE ) )
 			{
-				if(currTile != oldTile)
+				if(currTile[0] != oldTile)
 				{
 					// determine new camFacing
 					lowest			= -999.0F;
 					newCamFacing	= 0;
 					for(i=0; i<4; i++)
 					{
-						t = DotProduct(&currTile->dirVector[i],&oldTile->dirVector[camFacing]);
+						t = DotProduct(&currTile[0]->dirVector[i],&oldTile->dirVector[camFacing]);
 						if(t > lowest)
 						{
 							lowest			= t;
@@ -1166,7 +1166,7 @@ void UpdatePlatforms()
 					newFrogFacing	= 0;
 					for(i=0; i<4; i++)
 					{
-						t = DotProduct(&currTile->dirVector[i],&oldTile->dirVector[frogFacing]);
+						t = DotProduct(&currTile[0]->dirVector[i],&oldTile->dirVector[frogFacing]);
 						if(t > lowest)
 						{
 							lowest			= t;
@@ -1211,7 +1211,7 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 		if((!cur->pltActor->draw) || (cur == currPlatform))
 			continue;
 
-		t = DistanceBetweenPointsSquared(&frog->actor->pos,&cur->pltActor->actor->pos);
+		t = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->pltActor->actor->pos);
 		if(t < (distance * distance))
 		{
 			distance = t;
@@ -1224,16 +1224,16 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 			if(cur->flags & PLATFORM_CANWALKUNDER)
 			{
 				// check height of platform
-				if(fabs(cur->pltActor->actor->pos.v[Y] - frog->actor->pos.v[Y]) > 25.0F)
+				if(fabs(cur->pltActor->actor->pos.v[Y] - frog[0]->actor->pos.v[Y]) > 25.0F)
 				{
-					frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-					frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+					player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+					player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 					return NULL;
 				}
 			}
 
-			frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-			frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+			player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+			player[0].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 			return cur;
 		}
@@ -1248,8 +1248,8 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 			// this platform is about to move into the specified tile
 			if(distance < (PLATFORM_GENEROSITY * PLATFORM_GENEROSITY))
 			{
-				frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+				player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+				player[0].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 			
 				return nearestPlatform;
 			}
@@ -1257,8 +1257,8 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 	}
 
 	// if we get here then frog is not jumping to a platform (e.g. no platform, missed a platform)
-	frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-	frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+	player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 	return NULL;
 
@@ -1575,7 +1575,7 @@ BOOL PlatformTooHigh(PLATFORM *plat)
 	VECTOR vec;
 	float height;
 
-	height = (plat->pltActor->actor->pos.v[Y] - frog->actor->pos.v[Y]);
+	height = (plat->pltActor->actor->pos.v[Y] - frog[0]->actor->pos.v[Y]);
 
 	if(height > 50.0F)
 	{
@@ -1604,7 +1604,7 @@ BOOL PlatformTooLow(PLATFORM *plat)
 	VECTOR vec;
 	float height;
 
-	height = (plat->pltActor->actor->pos.v[Y] - frog->actor->pos.v[Y]);
+	height = (plat->pltActor->actor->pos.v[Y] - frog[0]->actor->pos.v[Y]);
 
 	if(height < -125.0F)
 	{

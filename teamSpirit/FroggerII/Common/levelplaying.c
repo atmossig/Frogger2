@@ -111,7 +111,7 @@ void LevelPlayingProcessController ( void )
 		FreeAllLists();
 		levelPlaying = 0;
 
-		frog = NULL;
+		frog[0] = NULL;
 		gameState.mode = TITLE_MODE;	
 		frameCount = 0;
 		lastbutton = 0;

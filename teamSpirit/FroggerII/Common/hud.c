@@ -104,9 +104,9 @@ void UpDateOnScreenInfo ( void )
 	i = 3;
 	while(i--)
 	{
-		if ( frog )
+		if ( frog[0] )
 		{
-			if(frog->action.lives <= i)
+			if(frog[0]->action.lives <= i)
 				sprHeart[i]->a = 64;
 			else
 				sprHeart[i]->a = 255;

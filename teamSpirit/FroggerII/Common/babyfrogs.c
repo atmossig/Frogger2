@@ -218,7 +218,7 @@ ACTOR2 *GetNearestBabyFrog()
 	{
 		if(!babies[i]->action.isSaved)
 		{
-			t = DistanceBetweenPoints(&frog->actor->pos,&babies[i]->actor->pos);
+			t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
 			if(t < distance)
 			{
 				distance	= t;

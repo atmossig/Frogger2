@@ -519,7 +519,7 @@ BOOL EnemyHasArrivedAtNode(ENEMY *nme, int toNodeID)
 */
 static BOOL JumpedOnEnemy(ENEMY *nme)
 {
-	if(currTile == nme->inTile)
+	if(currTile[0] == nme->inTile)
 		return TRUE;
 
 	return FALSE;
@@ -765,26 +765,26 @@ void UpdateEnemies()
 		}
 
 		// check which world tile enemy is currently 'in'
-		oldTile = currTile;
+		oldTile = currTile[0];
 		GetActiveTile(cur);
 
 		// check if frog has been 'killed' by current enemy - tile based collision
-		if ( ( currTile == cur->inTile ) && ( !frog->action.dead ) &&
-			 (!frog->action.safe) && (!(frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NOJUMPOVER) ) &&
-			 (! currPlatform ) && !( frogState & FROGSTATUS_ISFLOATING ) )
+		if ( ( currTile[0] == cur->inTile ) && ( !frog[0]->action.dead ) &&
+			(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NOJUMPOVER) ) &&
+			 (! currPlatform ) && !(player[0].frogState & FROGSTATUS_ISFLOATING ) )
 		{
 
 			//osMotorStart ( &rumble );
 
 //			frog->action.dead = 50;
-			frog->action.lives--;
-			if(frog->action.lives != 0)
+			frog[0]->action.lives--;
+			if(frog[0]->action.lives != 0)
 			{
 				cameraShake = 25;
 				PlaySample(42,NULL,192,128);
-				frog->action.safe = 25;
+				frog[0]->action.safe = 25;
 
-				SetVector(&swarmPos,&frog->actor->pos);
+				SetVector(&swarmPos,&frog[0]->actor->pos);
 				swarmPos.v[Y] += 35;
 				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,25);
 				swarmPos.v[Y] += 10;
@@ -802,9 +802,9 @@ void UpdateEnemies()
 			else
 			{
 				PlaySample(110,NULL,192,128);
-				AnimateActor(frog->actor,2,NO,NO,0.367);
-				frog->action.dead = 50;
-				frog->action.lives = 3;
+				AnimateActor(frog[0]->actor,2,NO,NO,0.367);
+				frog[0]->action.dead = 50;
+				frog[0]->action.lives = 3;
 			
 				switch(cur->nmeActor->actor->type)
 				{
@@ -812,15 +812,15 @@ void UpdateEnemies()
 					case NMETYPE_TRUCK:
 					case NMETYPE_FORK:
 						cameraShake = 50;
-						frog->action.deathBy = DEATHBY_RUNOVER;
+						frog[0]->action.deathBy = DEATHBY_RUNOVER;
 						PlaySample(31,NULL,192,128);
 						break;
 
 					default:
-						frog->action.deathBy = DEATHBY_NORMAL;
+						frog[0]->action.deathBy = DEATHBY_NORMAL;
 				}
 			
-				frogState |= FROGSTATUS_ISDEAD;
+				player[0].frogState |= FROGSTATUS_ISDEAD;
 			}
 		}
 
@@ -875,7 +875,7 @@ void UpdateEnemies()
 			cur->nmeActor->radius = 15;
 
 			// perform radius collision check between frog and current enemy
-			if(ActorsHaveCollided(frog,cur->nmeActor))
+			if(ActorsHaveCollided(frog[0],cur->nmeActor))
 			{
 				dprintf"COLLIDED !\n"));
 			}
@@ -932,7 +932,7 @@ void ProcessNMEDog ( ACTOR2 *nme )
 	{
 		case NMESTATE_DOG_IDLE:
 
-			SubVector(&v1,&nme->actor->pos,&frog->actor->pos);
+			SubVector(&v1,&nme->actor->pos,&frog[0]->actor->pos);
 			MakeUnit(&v1);
 
 			// Calculate snapper dog up vector
@@ -941,7 +941,7 @@ void ProcessNMEDog ( ACTOR2 *nme )
 			CrossProduct				( &v3, &v2, &snapup );
 			Orientate					( &nme->actor->qRot, &v3, &vfd, &snapup );
 
-			snapPos = frog->actor->pos;
+			snapPos = frog[0]->actor->pos;
 
 			// check if frog is in snapping range
 			if(DistanceBetweenPointsSquared(&snapPos,&nme->actor->pos) < 6400.0F)
@@ -967,15 +967,15 @@ void ProcessNMEDog ( ACTOR2 *nme )
 			if((nme->actor->animation->animTime > 200.0F) && (nme->actor->animation->animTime < 240.0F))
 			{
 				// Check if frog is still in snapping range
-				if ( ( DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 6400.0F ) && ( !frog->action.dead ) )
+				if ( ( DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 6400.0F ) && ( !frog[0]->action.dead ) )
 				{
-					if ( ( DistanceBetweenPointsSquared(&snapPos,&frog->actor->pos) == 0.0F ) )
+					if ( ( DistanceBetweenPointsSquared(&snapPos,&frog[0]->actor->pos) == 0.0F ) )
 					{
 						// kill frog
-						AnimateActor(frog->actor,2,NO,NO,0.35F);
-						frog->action.deathBy = DEATHBY_NORMAL;
-						frogState |= FROGSTATUS_ISDEAD;
-						frog->action.dead = 50;
+						AnimateActor(frog[0]->actor,2,NO,NO,0.35F);
+						frog[0]->action.deathBy = DEATHBY_NORMAL;
+						player[0].frogState |= FROGSTATUS_ISDEAD;
+						frog[0]->action.dead = 50;
 						PlaySample ( 75,NULL,192,128);
 					}
 					// ENDIF
@@ -1100,13 +1100,13 @@ case NMESTATE_SNAPPER_SNAPPING:
 			if((nme->actor->animation->animTime > 11.0F) && (nme->actor->animation->animTime < 13.0F))
 			{
 				// Check if frog is still in snapping range
-				if(DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 3600.0F && (!frog->action.dead))
+				if(DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 3600.0F && (!frog[0]->action.dead))
 				{
 					// kill frog
-					AnimateActor(frog->actor,2,NO,NO,0.35F);
-					frog->action.deathBy = DEATHBY_NORMAL;
-					frogState |= FROGSTATUS_ISDEAD;
-					frog->action.dead = 50;
+					AnimateActor(frog[0]->actor,2,NO,NO,0.35F);
+					frog[0]->action.deathBy = DEATHBY_NORMAL;
+					player[0].frogState |= FROGSTATUS_ISDEAD;
+					frog[0]->action.dead = 50;
 				}
 			}
 
@@ -1168,7 +1168,7 @@ void ProcessNMECar(ACTOR2 *nme)
 
 	if((frameCount & 1) == 0)
 	{
-		SetVector(&smokePos,&frog->actor->pos);
+		SetVector(&smokePos,&frog[0]->actor->pos);
 		smokePos.v[Y] -= 10;
 		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&smokePos,128,1,1,8);
 	}

@@ -992,7 +992,7 @@ void CheckTileForCollectable(GAMETILE *tile)
 		if(garib->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
-		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
+		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
 		{
 			PickupCollectable(garib);
 			return;
@@ -1003,7 +1003,7 @@ void CheckTileForCollectable(GAMETILE *tile)
 	i = numBabies;
 	while(i--)
 	{
-		if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
+		if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
 		{
 			PickupBabyFrog(babies[i]);
 			return;
@@ -1360,7 +1360,7 @@ void UpdateGaribs()
 		else if(garib->active > 1)
 			garib->active--;
 
-		garib->distanceFromFrog = DistanceBetweenPointsSquared(&garib->sprite.pos,&frog->actor->pos);
+		garib->distanceFromFrog = DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[0]->actor->pos);
 		radius = 10;
 		scale = garib->scale;
 		scale -= (scale - garib->scaleAim) / 5;
@@ -1376,7 +1376,7 @@ void UpdateGaribs()
 	Function		: 
 	Purpose			: 
 	Parameters		: 
-	Returns			: 
+	Returns			: frog
 	Info			: 
 */
 void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)

@@ -24,7 +24,7 @@
 
 PLAYER player[4];
 
-ACTOR2 *frog					= NULL;
+ACTOR2 *frog[4]					= {0,0,0,0};
 ACTOR2 *frog2					= NULL;
 SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL };
 
@@ -51,21 +51,21 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 
 	if ( createFrogActor )
 	{
-		frog		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
-		frog->actor->shadow->radius = 30;
-		frog->actor->shadow->alpha = 191;
-		frog->flags	|= ACTOR_DRAW_ALWAYS;
+		frog[0]		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+		frog[0]->actor->shadow->radius = 30;
+		frog[0]->actor->shadow->alpha = 191;
+		frog[0]->flags	|= ACTOR_DRAW_ALWAYS;
 		tongueState	 = TONGUE_NONE | TONGUE_IDLE;
-		InitActorAnim ( frog->actor );
-		AnimateActor  ( frog->actor, 0, YES, NO, 0.667 );
-		frog->actor->scale.v[0] = 0.09;
-		frog->actor->scale.v[1] = 0.09;
-		frog->actor->scale.v[2] = 0.09;
+		InitActorAnim ( frog[0]->actor );
+		AnimateActor  ( frog[0]->actor, 0, YES, NO, 0.667 );
+		frog[0]->actor->scale.v[0] = 0.09;
+		frog[0]->actor->scale.v[1] = 0.09;
+		frog[0]->actor->scale.v[2] = 0.09;
 		CreateBabies(createBabyActors, createBabyOverlays );
-		SetFroggerStartPos ( gTStart[0], frog );
-		frog->action.lives		= 3;
-		frog->action.isOnFire	= 0;
-		frog->radius = 20;
+		SetFroggerStartPos ( gTStart[0], frog[0] );
+		frog[0]->action.lives		= 3;
+		frog[0]->action.isOnFire	= 0;
+		frog[0]->radius = 20;
 
 		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog2->actor->shadow->radius = 30;

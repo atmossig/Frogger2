@@ -84,14 +84,14 @@ enum
 };
 
 
-extern GAMETILE *currTile;
-extern GAMETILE *destTile;
+extern GAMETILE *currTile[];
+extern GAMETILE *destTile[];
 extern GAMETILE *prevTile;
 
 extern GAMETILE *currTile2;
 extern GAMETILE *destTile2;
 
-extern unsigned long frogState;
+//extern unsigned long frogState;
 extern unsigned long frogState2;
 
 extern float landRadius;

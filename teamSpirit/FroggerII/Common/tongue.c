@@ -72,8 +72,8 @@ void InitTongue(char toCollect)
 	tongueToCollect		= toCollect;
 
 	// Determine frog's forward vector (ff) and up vector (fu) and right vector (fr)
-	RotateVectorByQuaternion(&ff,&v,&frog->actor->qRot);
-	SetVector(&fu,&currTile->normal);
+	RotateVectorByQuaternion(&ff,&v,&frog[0]->actor->qRot);
+	SetVector(&fu,&currTile[0]->normal);
 	CrossProduct(&fr,&ff,&fu);
 }
 
@@ -110,7 +110,7 @@ void UpdateFrogTongue()
 		// Check if tongue can actually be used
 		if(tongueState & TONGUE_HASITEMINMOUTH)
 		{
-			frogState |= FROGSTATUS_ISSTANDING;
+			player[0].frogState |= FROGSTATUS_ISSTANDING;
 			return;
 		}
 
@@ -162,14 +162,14 @@ void UpdateFrogTongue()
 					PickupBabyFrog(nearestBabyFrog);
 
 				// Check if frog has something in his mouth
-				frogState |= FROGSTATUS_ISSTANDING;
-				frogState &= ~FROGSTATUS_ISTONGUEING;
+				player[0].frogState |= FROGSTATUS_ISSTANDING;
+				player[0].frogState &= ~FROGSTATUS_ISTONGUEING;
 				tongueState = TONGUE_IDLE;
 
 				// Set frog idle animation, and the speed
-				frog->actor->animation->animTime = 0;
-				AnimateActor(frog->actor,3,YES,YES,0.5);
-				frog->actor->animation->animationSpeed = 1.79;
+				frog[0]->actor->animation->animTime = 0;
+				AnimateActor(frog[0]->actor,3,YES,YES,0.5);
+				frog[0]->actor->animation->animationSpeed = 1.79;
 
 				RemoveFrogTongue();
 			}
@@ -188,9 +188,9 @@ void UpdateFrogTongue()
 			InitTongue(TONGUE_GET_BABY);
 
 			// Get first tongue position (tongueCoordIndex == 0)
-			tongueCoords[tongueCoordIndex].v[X] = frog->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Y] = frog->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Z] = frog->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
 			tongueCoordIndex++;
 
 			// Calculate the vector to the collectable item and its magnitude
@@ -202,7 +202,7 @@ void UpdateFrogTongue()
 			dp = DotProduct(&ff,&p);
 			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
 			{
-				frogState	|= FROGSTATUS_ISSTANDING;
+				player[0].frogState	|= FROGSTATUS_ISSTANDING;
 				tongueState = TONGUE_NONE | TONGUE_IDLE;
 			}
 			else
@@ -220,9 +220,9 @@ void UpdateFrogTongue()
 					CreateTongueSegment(tongueCoordIndex);
 
 				// Set frog mouth open animation, and the speed
-				frog->actor->animation->animTime = 0;
-				AnimateActor(frog->actor,1,NO,NO,0.5);
-				frog->actor->animation->animationSpeed = 0.25;
+				frog[0]->actor->animation->animTime = 0;
+				AnimateActor(frog[0]->actor,1,NO,NO,0.5);
+				frog[0]->actor->animation->animationSpeed = 0.25;
 
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
 			}
@@ -232,9 +232,9 @@ void UpdateFrogTongue()
 			InitTongue(TONGUE_GET_GARIB);
 
 			// Get first tongue position (tongueCoordIndex == 0)
-			tongueCoords[tongueCoordIndex].v[X] = frog->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Y] = frog->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Z] = frog->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
 			tongueCoordIndex++;
 
 			// Calculate the vector to the collectable item and its magnitude
@@ -254,7 +254,7 @@ void UpdateFrogTongue()
 			dp = DotProduct(&ff,&p);
 			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
 			{
-				frogState	|= FROGSTATUS_ISSTANDING;
+				player[0].frogState	|= FROGSTATUS_ISSTANDING;
 				tongueState = TONGUE_NONE | TONGUE_IDLE;
 			}
 			else
@@ -272,16 +272,16 @@ void UpdateFrogTongue()
 					CreateTongueSegment(tongueCoordIndex);
 
 				// Set frog mouth open animation, and the speed
-				frog->actor->animation->animTime = 0;
-				AnimateActor(frog->actor,1,NO,NO,0.5);
-				frog->actor->animation->animationSpeed = 0.25;
+				frog[0]->actor->animation->animTime = 0;
+				AnimateActor(frog[0]->actor,1,NO,NO,0.5);
+				frog[0]->actor->animation->animationSpeed = 0.25;
 
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
 			}
 		}
 		else
 		{
-			frogState	|= FROGSTATUS_ISSTANDING;
+			player[0].frogState	|= FROGSTATUS_ISSTANDING;
 			tongueState = TONGUE_NONE | TONGUE_IDLE;
 		}
 	}
@@ -393,7 +393,7 @@ void RemoveFrogTongue()
 	tongueSegment		= 0;
 	numTongueNodes		= MAX_TONGUENODES;
 
-	frogState &= ~FROGSTATUS_ISTONGUEING;
+	player[0].frogState &= ~FROGSTATUS_ISTONGUEING;
 	tongueState = TONGUE_IDLE;
 }
 

@@ -29,6 +29,7 @@ typedef struct _PLAYER
 
 	unsigned long 	worldNum;
 	unsigned long	levelNum;
+	unsigned long	frogState;
 
 } PLAYER;
 
@@ -58,7 +59,7 @@ extern float changeLongSpeed;
 extern float startLongSpeed;
 
 
-extern ACTOR2	*frog;
+extern ACTOR2	*frog[];
 extern ACTOR2	*frog2;
 extern SPRITEOVERLAY *sprHeart[3];
 
