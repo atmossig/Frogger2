@@ -50,11 +50,13 @@ int delayTimer;
 int cardChanged = NO;
 #define DELAY_TIME 200
 
-#if PALMODE==1
-#define SAVE_FILENAME "BESLES-02853FROGGER2"
-#else
-#define SAVE_FILENAME "BASLUS-01172FROGGER2"
-#endif
+//#if PALMODE==1
+//#define SAVE_FILENAME "BESLES-02853FROGGER2"
+//#else
+//#define SAVE_FILENAME "BASLUS-01172FROGGER2"
+//#endif
+#define SAVE_FILENAME "FROGGER2_DAT"
+
 
 void DrawBox(int x0, int y0, int x1, int y1)
 {
@@ -129,33 +131,12 @@ int gameSaveHandleSave()
 
 	switch(res)
 	{
-		case CARDWRITE_OK:
-		{
-			utilPrintf("No errors\n");
-			break;
-		}
-		case CARDWRITE_NOCARD:
-		{
-			utilPrintf("No card in slot\n");
-			break;
-		}
-		case CARDWRITE_BADCARD:
-		{
-			utilPrintf("Bad card in slot\n");
-			break;
-		}
-		case CARDWRITE_NOTFORMATTED:
-		{
-			utilPrintf("Card unformatted\n");
-			break;
-		}
-		case CARDWRITE_FULL:
-		{
-			utilPrintf("Card is full\n");
-			break;
-		}
-	} //end 
-
+		case CARDWRITE_OK: utilPrintf("No errors\n"); break;
+		case CARDWRITE_NOCARD: utilPrintf("No card in slot\n"); break;
+		case CARDWRITE_BADCARD: utilPrintf("Bad card in slot\n"); break;
+		case CARDWRITE_NOTFORMATTED: utilPrintf("Card unformatted\n"); break;
+		case CARDWRITE_FULL: utilPrintf("Card is full\n"); break;
+	}
 
 	FREE(info);
 
@@ -191,43 +172,28 @@ int gameSaveHandleLoad(int justChecking)
 	switch(res)
 	{
 		case CARDREAD_OK:
-		{
 			utilPrintf("No errors\n");
 			LoadSaveGameBlock(info, size);
 			break;
-		}
 		case CARDREAD_NOCARD:
-		{
 			utilPrintf("No card in slot\n");
 			break;
-		}
 		case CARDREAD_BADCARD:
-		{
 			utilPrintf("Bad card in slot\n");
 			break;
-		}
 		case CARDREAD_NOTFORMATTED:
-		{
 			utilPrintf("Card unformatted\n");
 			break;
-		}
 		case CARDREAD_NOTFOUND:
-		{
 			utilPrintf("No game save data found\n");
 			break;
-		}
 		case CARDREAD_CORRUPT:
-		{
 			utilPrintf("Game save data corrupted\n");
 			break;
-		}
 		case CARDREAD_NOTFOUNDANDFULL:
-		{
 			utilPrintf("No game save data found and card is full\n");
 			break;
-		}
-
-	} //end 
+	}
 
 	//free buffer
 	FREE(info);
@@ -905,6 +871,13 @@ void ChooseLoadSave()
 		VSync(0);
 	}
 
+	if( vmuBeepStopTimer )
+	{
+		vmuBeepStopTimer--;
+		if( !vmuBeepStopTimer )
+			cardBeep( 0, NO );
+	}
+
 	if(waitCheck < MEMWAIT)
 	{
 		waitCheck++;
@@ -983,7 +956,7 @@ void LoadGame(void)
 
 int CheckVMUs( )
 {
-	int i, j, port, pad, fcStat=CARDREAD_NOCARD, res;
+	int i, j, port, pad, fcStat=CARDREAD_NOCARD, res, freePort=-1, freeDrive;
 
 	// Check 4 pads
 	for( i=0,pad=firstPad; i<4; i++, pad=(pad+1)%4 )
@@ -1010,16 +983,30 @@ int CheckVMUs( )
 			{
 				case CARDREAD_OK:
 					return res;
+				case CARDREAD_NOTFOUND:
+					if( freePort == -1 )
+					{
+						freePort = vmuPortToUse;
+						freeDrive = vmuDriveToUse;
+					}
+					// Intentional drop-through!
 				case CARDREAD_NOCARD:
 				case CARDREAD_BADCARD:
 				case CARDREAD_NOTFORMATTED:
-				case CARDREAD_NOTFOUND:
 				case CARDREAD_CORRUPT:
 				case CARDREAD_NOTFOUNDANDFULL:
 				default:
 					break;
 			}
 		}
+	}
+
+	// If no actual savegame found then check if there's a card with enough free blocks
+	if( freePort != -1 )
+	{
+		vmuPortToUse = freePort;
+		vmuDriveToUse = freeDrive;
+		return CARDREAD_NOTFOUND;
 	}
 
 	vmuPortToUse = portNos[firstPad*2];

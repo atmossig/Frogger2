@@ -38,6 +38,7 @@ extern Sint8 *portlit[];
 
 extern short portIndex;
 extern unsigned long vmuPortToUse, vmuDriveToUse;
+extern unsigned long vmuBeepStopTimer;
 
 /**************************************************************************
 	FUNCTION:	cardInitialise()
@@ -88,5 +89,14 @@ int cardWrite(char *memCardName, void *saveData, int saveDataSize);
 
 void cardDisplay(Uint8 *bitmap);
 
+
+/**************************************************************************
+	FUNCTION:	cardBeep()
+	PURPOSE:	Audible beep from VMU
+	PARAMETERS:	Should be some controlling duration & pitch, but not yet...
+	RETURNS:	
+**************************************************************************/
+
+int cardBeep( Uint32 time, int play );
 
 #endif //__ISLCARD_H__

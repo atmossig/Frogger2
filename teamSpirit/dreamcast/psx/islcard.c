@@ -15,8 +15,10 @@
 
 #include "islcard.h"
 
-#define GAMENAME16		"Frogger2"
-#define GAMENAME32		"Frogger2"
+#define VMSCOMMENT		"FROGGER2 DATA"
+#define BTRCOMMENT		"FROGGER2 SWAMPYS REVENGE"
+#define GAMENAME16		"FROGGER2"
+#define GAMENAME32		"FROGGER2"
 
 #include "lcdicons.h"
 #include "saveicon.h"
@@ -43,6 +45,8 @@ short portIndex=0;
 
 unsigned long vmuPortToUse = PDD_PORT_A1;
 unsigned long vmuDriveToUse = BUD_DRIVE_A1;
+
+unsigned long vmuBeepStopTimer=0;
 
 /**************************************************************************
 	FUNCTION:	cardInitialise()
@@ -235,10 +239,17 @@ int cardRead(char *memCardName, void *gSaveData, int gameSaveDataSize)
 				memcpy(gSaveData, hdr.save_data, gameSaveDataSize);
 			rtn = translateErrorCodeRead();
 //			rtn = translateErrorCode();
+
 			if (rtn==McErrNone)
+			{
 				cardDisplay(LCD_ok);
+				cardBeep( 120, YES );
+			}
 			else
+			{
 				cardDisplay(LCD_error);
+				cardBeep( 120, NO );
+			}
 			return rtn;
 		}
 #ifdef _NINJA_
@@ -269,8 +280,8 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 	while(!pdVmsLcdIsReady(vmuPortToUse));
 
 	memset(&hdr, 0, sizeof(hdr));
-	strcpy(hdr.vms_comment, GAMENAME16);
-	strcpy(hdr.btr_comment, GAMENAME32);
+	strcpy(hdr.vms_comment, VMSCOMMENT);
+	strcpy(hdr.btr_comment, BTRCOMMENT);
 	strcpy(hdr.game_name, GAMENAME16);
 	hdr.icon_palette = iconPalette;
 	hdr.icon_data = iconData;
@@ -308,9 +319,15 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 		case S_COMPLETE:
 			rtn = translateErrorCode();
 			if (rtn==McErrNone)
+			{
 				cardDisplay(LCD_ok);
+				cardBeep( 120, YES );
+			}
 			else
+			{
 				cardDisplay(LCD_error);
+				cardBeep( 120, NO );
+			}
 			return rtn;
 		}
 #ifdef _NINJA_
@@ -350,5 +367,37 @@ void cardDisplay(Uint8 *bitmap)
 #else
 		kmWaitVBlank();
 #endif*/
+}
+
+
+/**************************************************************************
+	FUNCTION:	cardBeep()
+	PURPOSE:	Audible beep from VMU
+	PARAMETERS:	Should be some controlling duration & pitch, but not yet...
+	RETURNS:	
+**************************************************************************/
+
+int cardBeep( Uint32 time, int good )
+{
+	int timeOut = 0, res;
+	Uint8 data[4] = { 0xc0, 0x80, 0x00, 0x00 };
+
+	// If we should stop making noise
+	if( !time )
+	{
+		data[0] = 0x00;
+		data[1] = 0x00;
+	}
+	else if( !good )  // Make a "bad" noise
+	{
+		data[0] = 0x08;
+		data[1] = 0x80;
+	}
+
+	res = pdTmrAlarm( vmuPortToUse, data );
+
+	vmuBeepStopTimer = time;
+
+	return res;
 }
 
