@@ -670,7 +670,7 @@ void BuildSquareList(void)
 			//long tri2[3], tri2[3];
 			vtx te1, te2, te3;
 
-			if (faceList[j].used) continue;
+			if (faceList[j].used || faceList[j].mat != faceList[i].mat) continue;
 
 			if (!faceList[j].e[AB])
 			{
