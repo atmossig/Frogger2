@@ -24,6 +24,7 @@
 #include <ultra64.h>
 #include "incs.h"
 
+//#include <stdarg.h>
 
 TRIGGERLIST triggerList;
 
@@ -35,8 +36,10 @@ TRIGGERLIST triggerList;
 	Returns 	: Created trigger structure
 	Info 		:
 */
-TRIGGER * MakeTrigger( int (*func) (), unsigned int numargs, ...)
+TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void ** args )
 {
+	//va_list args;
+	int i;
 	TRIGGER *trigger = (TRIGGER *)JallocAlloc(sizeof(TRIGGER),YES,"Trigger");
 	
 	trigger->prev = trigger->next = NULL;
@@ -44,11 +47,17 @@ TRIGGER * MakeTrigger( int (*func) (), unsigned int numargs, ...)
 	InitEventList( trigger->events );
 	
 	trigger->func = func;
-	trigger->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
+	trigger->data = args;
+	
+	/*trigger->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
 
-	/*
-	* Get each argument using va_arg, and assign to array.
-	*/
+	// Get variable number of arguments
+	va_start( args, numargs );
+
+	for( i=0; i < numargs; i++ )
+		trigger->data[i] = va_arg(args,void*);
+
+	va_end( args );*/
 
 	return trigger;
 }
@@ -61,18 +70,26 @@ TRIGGER * MakeTrigger( int (*func) (), unsigned int numargs, ...)
 	Returns 	: Event structure
 	Info 		:
 */
-EVENT * MakeEvent( void (*func) (), unsigned int numargs, ...)
+EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args )
 {
+	//va_list args;
+	int i = 0;
 	EVENT *event = (EVENT *)JallocAlloc(sizeof(EVENT),YES,"Event");
 	
 	event->prev = event->next = NULL;
 
 	event->func = func;
-	event->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
+	event->data = args;
+	
+	/*event->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
 
-	/*
-	* Get each argument using va_arg, and assign to array.
-	*/
+	// Get variable number of arguments
+	va_start( args, numargs );
+
+	for( i=0; i < numargs; i++ )
+		event->data[i] = va_arg(args,void*);
+
+	va_end( args );*/
 
 	return event;
 }
@@ -229,11 +246,11 @@ void UpdateEvents( )
 	for( trigger = triggerList.head.next; trigger != &triggerList.head; trigger = trigger->next )
 	{
 		/* Check if the trigger condition(s) are true */
-		if( trigger->func() )
+		if( trigger->func(trigger) )
 		{
 			/* If so, do correct responses */
 			for( event = trigger->events.head.next; event != &trigger->events.head; event = event->next )
-				event->func();
+				event->func(event);
 		}
 	}
 }

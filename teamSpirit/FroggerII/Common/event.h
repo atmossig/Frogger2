@@ -49,8 +49,8 @@ extern TRIGGERLIST triggerList;
 
 /*----- [ PROTOTYPES ] ------------------------------------------------------------------------*/
 
-TRIGGER * MakeTrigger( int (*func) (), unsigned int numargs, ...);
-EVENT * MakeEvent( void (*func) (), unsigned int numargs, ...);
+TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args );
+EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args );
 void AttachEvent( TRIGGER *trigger, EVENT *event );
 void InitTriggerList( );
 void InitEventList( );
