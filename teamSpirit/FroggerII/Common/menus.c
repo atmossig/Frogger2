@@ -135,6 +135,10 @@ void RunTitleScreen()
 					// level select menu
 					FreeMenuItems();
 					gameState.menuMode = LEVELSELECT_MODE;
+
+					if(gameState.multi != MULTIREMOTE)
+						gameState.multi = SINGLEPLAYER;
+
 					frameCount = 0;
 					lastbutton = 0;
 					break;
