@@ -159,7 +159,10 @@ void PickupCollectable(GARIB *garib, int pl)
 
 			player[pl].numSpawn++;
 			if((gameState.multi == SINGLEPLAYER) && (player[pl].numSpawn == 25))
+			{
 				arcadeHud.coinsOver->tex = FindTexture("COINMEDAL");
+				PlayVoice(pl,"frogokay");
+			}
 
 
 			// we need to get the up vector for this collectable...

@@ -599,7 +599,7 @@ void RunGameLoop (void)
 		SetTimeForLevel();
 		PrepareSong ( AUDIOTRK_LEVELCOMPLETE, NO );
 		actorAnimate(frog[0]->actor,FROG_ANIM_VICTORY,NO,NO,100,NO);
-		actorAnimate(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,50,NO);
+		actorAnimate(frog[0]->actor,FROG_ANIM_DANCE4,YES,YES,70,NO);
 		return;
 	}
 	else

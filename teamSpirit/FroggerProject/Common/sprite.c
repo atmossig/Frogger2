@@ -246,7 +246,6 @@ int Print3DSprite( SPRITE *spr )
 	return 1;
 }
 
-
 int Print3DSpriteRotating( SPRITE *spr )
 {
 	POLY_FT4 *pp;
@@ -288,7 +287,7 @@ int Print3DSpriteRotating( SPRITE *spr )
 
 	// Scaled height of sprite. This is different from width - probably due to screen res.
 	// NOTE: Random multiply that looks more or less OK :)
-	height = (spr->scaleY*SCALEY) / spritez;
+	height = (spr->scaleY*SCALEX) / spritez;
 
 	atbdx = pp->x0 - 2048;
 	atbdy = pp->y0 - ((120+PALMODE*8)*(17-PALMODE));
@@ -306,22 +305,22 @@ int Print3DSpriteRotating( SPRITE *spr )
 	newX = FMul(pp->x0,cosine) + FMul(pp->y0,sine);
 	newY = FMul(pp->y0,cosine) - FMul(pp->x0,sine);
 	pp->x0 = newX + atbdx;
-	pp->y0 = newY + atbdy;
+	pp->y0 = ((newY - height)>>1) + atbdy;
 
 	newX = FMul(pp->x1,cosine) + FMul(pp->y1,sine);
 	newY = FMul(pp->y1,cosine) - FMul(pp->x1,sine);
 	pp->x1 = newX + atbdx;
-	pp->y1 = newY + atbdy;
+	pp->y1 = ((newY - height)>>1) + atbdy;
 
 	newX = FMul(pp->x2,cosine) + FMul(pp->y2,sine);
 	newY = FMul(pp->y2,cosine) - FMul(pp->x2,sine);
 	pp->x2 = newX + atbdx;
-	pp->y2 = newY + atbdy;
+	pp->y2 = ((newY - height)>>1) + atbdy;
 
 	newX = FMul(pp->x3,cosine) + FMul(pp->y3,sine);
 	newY = FMul(pp->y3,cosine) - FMul(pp->x3,sine);
 	pp->x3 = newX + atbdx;
-	pp->y3 = newY + atbdy;
+	pp->y3 = ((newY - height)>>1) + atbdy;
 
 	*(USHORT*)&pp->u0=			*(USHORT*)&((TextureType*)spr->texture)->u0;	// u0,v0, and clut info
 	*(USHORT*)&pp->u1=			*(USHORT*)&((TextureType*)spr->texture)->u1;	// u1,v1, and tpage info
