@@ -161,8 +161,12 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 		dprintf"Could not load wave file\n"));
 		return NULL;
 	}
+
+	// Sample starts and don't stop
+	if( file[0] == 'l' && file[1] == 'p' && file[2] == '_' )
+		sfx->flags |= SFXFLAGS_LOOP;
 	
-	if( sfx->flags & FLAGS_3D_SAMPLE )
+	if( sfx->flags & SFXFLAGS_3D_SAMPLE )
 	{
 		dprintf"Getting 3D Interface\n"));
 //		Get3DInterface ( sfx->lpdsBuffer, sfx->lpds3DBuffer );
@@ -197,7 +201,7 @@ int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pi
 
 	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
 
-	if( sample->flags & FLAGS_3D_SAMPLE )
+	if( sample->flags & SFXFLAGS_3D_SAMPLE )
 	{
 		if( sample->lpds3DBuffer )
 		{
@@ -213,8 +217,14 @@ int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pi
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = Magnitude( &diff );
 		if( dist > att )
+		{
+			// If looping sample then stop when out of range
+			if( sample->flags & SFXFLAGS_LOOP )
+				sample->lpdsBuffer->lpVtbl->Stop( sample->lpdsBuffer );
+
 			return 0;
-		
+		}
+
 		vol *= (att-dist)/att;
 
 		//work out pan
@@ -222,10 +232,20 @@ int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pi
 		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 	}
 
-	// Now test if the sample is playing if it is then make an instance of it to play.
+	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
 	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
-	if( bufStatus & DSBSTATUS_PLAYING )
+	if( sample->flags & SFXFLAGS_LOOP )
+	{
+		sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, pitch*PITCH_STEP );
+		sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
+		sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
+
+		// Only play if not looping already
+		if( !(bufStatus & DSBSTATUS_LOOPING) )
+			sample->lpdsBuffer->lpVtbl->Play( sample->lpdsBuffer, 0, 0, DSBPLAY_LOOPING );
+	}
+	else if( bufStatus & DSBSTATUS_PLAYING )
 	{
 		/*	What we need to do here is create an instance of the buffer and store it in the buffer list.
 			Have a clean buffer function that will go though and check if the sample is playing or not,
@@ -760,7 +780,7 @@ void LoadSfxMapping( int world, int level )
 		default: num = 0; break;
 		}
 
-		for( i=0; i<=num; i++ )
+		for( i=0; i<num; i++ )
 		{
 			// Locate samples by their uids
 			sfx_anim_map[index++] = FindSample( MEMGETINT(&in) );
@@ -795,7 +815,8 @@ SAMPLE **FindSfxMapping( unsigned long uid )
 	do
 	{
 		// Return a run of samples if we've found the actor
-		if( act == uid ) return &sfx_anim_map[index+1];
+		if( act == uid )
+			return &sfx_anim_map[index+1];
 
 		// Advance cursor by number depending on actor type
 		type = (unsigned long)sfx_anim_map[index++];

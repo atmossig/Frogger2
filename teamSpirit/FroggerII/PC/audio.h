@@ -16,8 +16,8 @@
 // Defines
 
 // Hmm - two flags. Worth it?
-#define FLAGS_NONE			0
-#define FLAGS_3D_SAMPLE		(1 << 0)
+#define SFXFLAGS_3D_SAMPLE		(1<<0)
+#define SFXFLAGS_LOOP			(1<<1)
 
 
 enum
