@@ -105,18 +105,27 @@ GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d )
 	return res;
 }
 
-void DamageFrog( int num )
+void NMEDamageFrog( int num, ENEMY *nme )
 {
+	if( !nme || num < 0 || num > 2) 
+		return;
+
 	frog[num]->action.healthPoints--;
 	
 	if(frog[num]->action.healthPoints != 0)
 	{
+		/* 
+		Check for NME flags and do different effects
+		*/
 		cameraShake = 25;
 		PlaySample(42,NULL,192,128);
 		frog[num]->action.safe = 25;
 	}
 	else
 	{
+		/* 
+		Check for NME flags and do different effects
+		*/
 		PlaySample(110,NULL,192,128);
 		AnimateActor(frog[num]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
 		frog[num]->action.dead = 50;
@@ -133,7 +142,6 @@ void DamageFrog( int num )
 	Returns			: void
 	Info			: 
 */
-#define SNAPPER_TIME 10
 float rotLimit = 0.7;
 
 void UpdateEnemies()
@@ -229,25 +237,23 @@ void UpdateEnemies()
 			
 			ScaleVector(&fwd,length);
 			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
+			MakeUnit (&fwd);
 
 			if (cur->flags & ENEMY_NEW_PUSHESFROG)
 			{
-				if( cur->nmeActor->distanceFromFrog < 30 )
+				if( DistanceBetweenPointsSquared(&cur->nmeActor->actor->pos,&frog[0]->actor->pos) < (frog[0]->radius*frog[0]->radius) )
 				{
 					GAMETILE *tile = NULL;
-					AddVector( &frog[0]->actor->pos, &frog[0]->actor->pos, &fwd );
+					
+					SetVector( &moveVec, &fwd );
+					ScaleVector( &moveVec, frog[0]->radius );
 
-					tile = FindNearestTile( frog[0]->actor->pos );
+					AddVector( &frog[0]->actor->pos, &cur->nmeActor->actor->pos, &moveVec );
 
-					if( tile != currTile[0] )
-					{
-						currTile[0] = tile;
-						destTile[0] = currTile[0];
-					}
+					currTile[0] = FindNearestTile( frog[0]->actor->pos );
+					destTile[0] = currTile[0];
 				}
 			}
-
-			MakeUnit (&fwd);
 
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
 
@@ -346,7 +352,7 @@ void UpdateEnemies()
 						cur->path->startFrame = actFrameCount;
 						cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[0].waitTime * waitScale);
 
-						cur->isSnapping = SNAPPER_TIME;
+						cur->isSnapping = 2;
 					}
 					break;
 
@@ -359,10 +365,10 @@ void UpdateEnemies()
 					cur->isSnapping = 0;
 
 					if( (tile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) ) // If frog is still on the target tile
-						DamageFrog(0);
+						NMEDamageFrog(0,cur);
 					break;
 
-				case SNAPPER_TIME: 				// Snap animation
+				case 2: 				// Snap animation
 					if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
 						break;
 
@@ -394,7 +400,7 @@ void UpdateEnemies()
 
 					cur->path->startFrame = actFrameCount;
 					cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
-					cur->isSnapping = SNAPPER_TIME;
+					cur->isSnapping = 2;
 					break;
 
 				case 1:
@@ -407,10 +413,10 @@ void UpdateEnemies()
 
 					// If the frog is on our current target tile
 					if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )//FindNearestTile(frog[0]->actor->pos) )
-						DamageFrog(0);
+						NMEDamageFrog(0,cur);
 					break;
 
-				case SNAPPER_TIME:
+				case 2:
 					if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
 					{
 						GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
@@ -432,6 +438,19 @@ void UpdateEnemies()
 
 				switch( cur->isSnapping )
 				{
+				case -2:
+					path->startFrame = actFrameCount;
+					path->endFrame = actFrameCount + (60*cur->nmeActor->radius);
+
+					cur->isSnapping = -1;
+					break;
+
+				case -1:
+					if( actFrameCount > path->endFrame )
+						cur->isSnapping = 0;
+
+					break;
+
 				case 0: // Start timer
 					// Delay until fire
 					path->startFrame = actFrameCount;
@@ -474,7 +493,7 @@ void UpdateEnemies()
 					// Check for collision with frog, and do damage
 					for( i=0; i < path->numNodes; i++ )
 						if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )
-							DamageFrog(0);
+							NMEDamageFrog(0,cur);
 
 					break;
 				}
@@ -698,88 +717,18 @@ void UpdateEnemies()
 				// perform radius collision check between frog and current enemy
 				if((!frog[0]->action.dead) && (!frog[0]->action.safe) && ActorsHaveCollided(frog[0],cur->nmeActor))
 				{
-					frog[0]->action.healthPoints--;
-					if(frog[0]->action.healthPoints != 0)
-					{
-						cameraShake = 25;
-						PlaySample(42,NULL,192,128);
-						frog[0]->action.safe = 25;
-					}
-					else
-					{
-						PlaySample(110,NULL,192,128);
-						AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-						frog[0]->action.dead = 50;
-						frog[0]->action.healthPoints = 3;
-				
-						switch(cur->nmeActor->actor->type)
-						{
-							case NMETYPE_CAR:
-							case NMETYPE_TRUCK:
-							case NMETYPE_FORK:
-								cameraShake = 50;
-								frog[0]->action.deathBy = DEATHBY_RUNOVER;
-								PlaySample(31,NULL,192,128);
-								break;
-
-							default:
-								frog[0]->action.deathBy = DEATHBY_NORMAL;
-						}
-				
-						player[0].frogState |= FROGSTATUS_ISDEAD;
-					}
+					NMEDamageFrog(0,cur);
 				}
 			}
-			
 			// check if frog has been 'killed' by current enemy - tile based collision
 			else if((currTile[0] == cur->inTile) && (!frog[0]->action.dead) &&
 					(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 					(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE))
 			{
-				frog[0]->action.healthPoints--;
-				if(frog[0]->action.healthPoints != 0)
-				{
-					cameraShake = 25;
-					PlaySample(42,NULL,192,128);
-					frog[0]->action.safe = 25;
-				}
-				else
-				{
-					PlaySample(110,NULL,192,128);
-					AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-					frog[0]->action.dead = 50;
-					frog[0]->action.healthPoints = 3;
-				
-					switch(cur->nmeActor->actor->type)
-					{
-						case NMETYPE_CAR:
-						case NMETYPE_TRUCK:
-						case NMETYPE_FORK:
-							cameraShake = 50;
-							frog[0]->action.deathBy = DEATHBY_RUNOVER;
-							PlaySample(31,NULL,192,128);
-							break;
-
-						default:
-							frog[0]->action.deathBy = DEATHBY_NORMAL;
-					}
-				
-					player[0].frogState |= FROGSTATUS_ISDEAD;
-				}
+				NMEDamageFrog(0,cur);
 			}
 		}
-		// process enemies (update anims, etc.)
-		/*
-		switch(cur->nmeActor->actor->type)
-		{
-			case NMETYPE_MOLE:
-				ProcessNMEMole(cur);
-				break;
-			case NMETYPE_MOWER:
-				ProcessNMEMower(cur->nmeActor);
-				break;
-		}
-		*/
+
 		if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
 		{
 			long r;
@@ -924,27 +873,22 @@ void FreeEnemyLinkedList()
 }
 
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags )
 {
 	int enemyType = 0;
 	float shadowRadius = 0;
+	int initFlags;
 
 	ENEMY *newItem = (ENEMY *)JallocAlloc(sizeof(ENEMY),YES,"NME");
 	AddEnemy(newItem);
+	newItem->flags = flags;
 
-	enemyType = NMETYPE_WASP;
-
-	// check nme type and assign shadow if necessary
-
-//	if( !(initFlags & INIT_SWARM) )
-//	{
+	if( !(flags & ENEMY_NEW_SWARM) )
+	{
 		initFlags |= INIT_ANIMATION;
-		if(enemyType == NMETYPE_WASP)
-		{
-			initFlags |= INIT_SHADOW;
-			shadowRadius = 20;
-		}
-//	}
+		initFlags |= INIT_SHADOW;
+		shadowRadius = 20;
+	}
 
 	// create and add the nme actor
 	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
@@ -957,45 +901,15 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
 			newItem->nmeActor->actor->shadow->radius = shadowRadius;
 
 	// specify enemy radius if the enemy is radius based
-	if(initFlags & ENEMY_NEW_RADIUSBASEDCOLLISION)
+	if( flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
 		newItem->nmeActor->radius = 15.0F; 	// set a default collision radius
 	else
 		newItem->nmeActor->radius = 0.0F;	// set radius to zero - not used for collision detection
 
-	// set animation depending on enemy type
-	/*
-	if(enemyType > NMETYPE_NONE)
-	{
-		switch(enemyType)
-		{
-			case NMETYPE_MOLE:
-				AnimateActor(newItem->nmeActor->actor,3,NO,NO,0.1F*newItem->nmeActor->animSpeed, 0, 0);
-				newItem->nmeActor->actor->status = NMESTATE_MOLE_IDLE;
-				newItem->nmeActor->actor->scale.v[X] = 0.0075F;
-				newItem->nmeActor->actor->scale.v[Y] = 0.0075F;
-				newItem->nmeActor->actor->scale.v[Z] = 0.0075F;
-				newItem->isIdle = Random(500);
-				break;
-
-			case NMETYPE_MOWER:
-			case NMETYPE_ROLLER:
-				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F*newItem->nmeActor->animSpeed, 0, 0);
-				newItem->nmeActor->actor->status = NMESTATE_MOWER_IDLE;
-				break;
-			case NMETYPE_WASP:*/
 	AnimateActor(newItem->nmeActor->actor,0,YES,NO,newItem->nmeActor->animSpeed, 0, 0);
-	//newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
 	newItem->nmeActor->actor->scale.v[X] = 1.5F;
 	newItem->nmeActor->actor->scale.v[Y] = 1.5F;
 	newItem->nmeActor->actor->scale.v[Z] = 1.5F;
-				/*
-				break;
-		}
-
-		newItem->nmeActor->actor->type = enemyType;
-		newItem->nmeActor->action.dead = 30;
-	}
-	*/
 
 	newItem->active			= 1;
 	
@@ -1005,54 +919,50 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
 	newItem->speed			= 1.0F;
 	newItem->startSpeed		= 1.0F;
 	newItem->accel			= 0.0F;
-	newItem->isSnapping 	= 0;
+
+	if( flags & ENEMY_NEW_VENT )
+		newItem->isSnapping = 2;
+	else
+		newItem->isSnapping = 0;
 
 	return newItem;
 }
 
-void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags)
+void AssignPathToEnemy(ENEMY *nme,PATH *path,unsigned long pathFlags)
 {
 	int i;
 	VECTOR enemyStartPos;
 
-	// assign the path to this enemy
-	nme->flags		|= enemyFlags;
-	nme->path		= path;
-
-	//dprintf"Add enemy path : "));
+	nme->path = path;
 
 	// check if pathnode indices need converting to game tile pointers
 	if(pathFlags & PATH_MAKENODETILEPTRS)
-	{
 		for(i=0; i<path->numNodes; i++)
-		{
-			// convert integer to a valid game tile
-			//dprintf"%d, ",(unsigned long)path->nodes[i].worldTile));
 			nme->path->nodes[i].worldTile = &firstTile[(unsigned long)path->nodes[i].worldTile];
-		}
-	}
 
 	// set the start position for the enemy
 	nme->path->fromNode	= nme->path->startNode;
 
-	if(enemyFlags & ENEMY_NEW_FORWARDS)
+	if(nme->flags & ENEMY_NEW_FORWARDS)
 	{
 		// this enemy moves forward thru path nodes
-		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
+		nme->flags |= ENEMY_NEW_FOLLOWPATH;
 		nme->path->toNode = nme->path->fromNode + 1;
+
 		if(nme->path->toNode > GET_PATHLASTNODE(path))
 			nme->path->toNode = 0;
 	}
-	else if(enemyFlags & ENEMY_NEW_BACKWARDS)
+	else if(nme->flags & ENEMY_NEW_BACKWARDS)
 	{
 		// this enemy moves backward thru path nodes
-		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
+		nme->flags |= ENEMY_NEW_FOLLOWPATH;
 		nme->path->toNode = nme->path->fromNode - 1;
+
 		if(nme->path->toNode < 0)
 			nme->path->toNode = GET_PATHLASTNODE(path);
 	}
-	else if((enemyFlags & ENEMY_NEW_MOVEUP) ||
-			(enemyFlags & ENEMY_NEW_MOVEDOWN))
+	else if((nme->flags & ENEMY_NEW_MOVEUP) ||
+			(nme->flags & ENEMY_NEW_MOVEDOWN))
 	{
 		// this enemy moves up or down
 		nme->path->fromNode = nme->path->toNode = 0;
@@ -1073,8 +983,6 @@ void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned l
 	nme->path->endFrame = (actFrameCount+(60*nme->speed));
 
 	CalcEnemyNormalInterps(nme);
-
-	//dprintf"\n"));
 }
 
 

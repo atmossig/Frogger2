@@ -8,7 +8,7 @@
 
 /*	-------------------------------------------------------------------------------- */
 
-#define MEMLOAD_ENTITY_VERSION 11
+#define MEMLOAD_ENTITY_VERSION 12
 #define MEMLOAD_SCRIPT_VERSION 2
 
 typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE } CREATETYPE;
@@ -138,12 +138,9 @@ int MemLoadEntities(const void* data, long size)
 			switch (thing)
 			{
 			case CREATE_ENEMY:
-//				if( flags & ENEMY_NEW_SWARM )
-//					enemy = CreateAndAddEnemy(type,INIT_SWARM);
-//				else
-					enemy = CreateAndAddEnemy(type,0);
+				enemy = CreateAndAddEnemy(type,flags);
 				enemy->uid = ID;
-				AssignPathToEnemy(enemy, flags, path, 0);
+				AssignPathToEnemy(enemy,path,0);
 				act = enemy->nmeActor;
 //				if( flags & ENEMY_NEW_SWARM )
 //					CreateAndAddFXSwarm( SWARM_TYPE_CROWS, &act->actor->pos, 32, 65535, 0 );

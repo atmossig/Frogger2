@@ -12,71 +12,6 @@
 #ifndef ENEMIES_H_INCLUDED
 #define ENEMIES_H_INCLUDED
 
-// Enemy actor types
-enum
-{
-	NMETYPE_NONE,
-	NMETYPE_SNAPPER,
-	NMETYPE_WASP,
-	NMETYPE_SNAKE,
-	NMETYPE_CAR,
-	NMETYPE_TRUCK,
-
-	NMETYPE_FORK,
-	NMETYPE_RAT,
-	NMETYPE_DOG,
-	NMETYPE_GULL,
-	NMETYPE_SHARK,
-
-	NMETYPE_MOWER,
-	NMETYPE_ROLLER,
-
-	NMETYPE_MOLE,
-
-};
-
-// Enemy actor state types
-enum
-{
-	NMESTATE_NONE,
-
-	NMESTATE_SNAPPER_IDLE,
-	NMESTATE_SNAPPER_READYTOSNAP,
-	NMESTATE_SNAPPER_SNAPPING,
-
-	NMESTATE_MOLE_IDLE,
-	NMESTATE_MOLE_SNAPPING,
-	NMESTATE_MOLE_UNDER_GROUND,
-	NMESTATE_MOLE_LOOK,
-	NMESTATE_MOLE_SCRATCH,
-
-
-	NMESTATE_WASP_IDLE,
-	NMESTATE_WASP_MOVING,
-
-	NMESTATE_SNAKE_IDLE,
-	NMESTATE_SNAKE_MOVING,
-	NMESTATE_SNAKE_ATTACKING,
-
-	NMESTATE_CAR_IDLE,
-	NMESTATE_CAR_MOVING,
-
-	NMESTATE_TRUCK_IDLE,
-	NMESTATE_TRUCK_MOVING,
-
-	NMESTATE_DOG_IDLE,
-	NMESTATE_DOG_SNAPPING,
-	NMESTATE_DOG_YAP,
-	NMESTATE_DOG_RETURN,
-
-	NMESTATE_SHARK_IDLE,
-
-	NMESTATE_MOWER_IDLE,
-	NMESTATE_ROLLER_IDLE,
-
-};
-
-
 //----- [ ENEMY FLAGS ] ---------------------------------------------------------------------//
 
 #define ENEMY_NEW_NONE					0
@@ -150,20 +85,12 @@ void AddEnemy(ENEMY *enemy);
 void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
-void DamageFrog( int num );
+void NMEDamageFrog( int num, ENEMY *nme );
 
-/*
-void ProcessNMEMole ( ENEMY *nme );
-
-void ProcessNMESnapperPlant(ACTOR2 *nme);
-void ProcessNMECar(ACTOR2 *nme);
-void ProcessNMEDog(ACTOR2 *nme);
-void ProcessNMEMower(ACTOR2 *nme);
-*/
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags);
-void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags);
+void AssignPathToEnemy(ENEMY *nme,PATH *path,unsigned long pathFlags);
 BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);
 void CalcEnemyNormalInterps(ENEMY *nme);
