@@ -12,10 +12,12 @@
 #define PCMISC_H_INCLUDED
 
 
-//#ifdef __cplusplus
-//extern "C"
-//{
-//#endif
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#include <ddraw.h>
 
 extern short mouseX;
 extern short mouseY;
@@ -31,10 +33,11 @@ void StartTimer(int number,char *name);
 void EndTimer(int number);
 void PrintTimers(void);
 void HoldTimers(void);
+LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char*);
 
-//#ifdef __cplusplus
-//}
-//#endif
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

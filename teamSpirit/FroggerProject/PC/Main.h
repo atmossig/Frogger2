@@ -29,7 +29,7 @@ extern "C"
 
 
 //#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
-#define MALLOC0(S)	calloc((S),1)
+#define MALLOC0(S)	calloc(1,(S))
 
 
 
