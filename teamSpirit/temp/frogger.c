@@ -189,7 +189,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 			currPlatform[i] = NULL;
 
 			if( gameState.multi == SINGLEPLAYER )
-				CreateFrogActor( (gTStart[i]?gTStart[i]:gTStart[i]), frogPool[num].singleModel, i);
+				CreateFrogActor( (gTStart[i]?gTStart[i]:gTStart[0]), frogPool[num].singleModel, i);
 			else
 				CreateFrogActor( ((gTStart[i])?(gTStart[i]):(gTStart[0])), frogPool[num].multiModel, i );
 		}
