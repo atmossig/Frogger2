@@ -18,11 +18,11 @@ void DrawFXLightning( SPECFX * );
 
 
 //croak effect stuff
-#define NUM_PSX_CROAK_VTX 24
-extern SVECTOR *psxCroakVtx;
-void CreatePsxCroakVtx(void);
-void UpdatePsxCroak(SPECFX *ring);
-void DrawPsxCroak(SPECFX *ring);
+//#define NUM_PSX_CROAK_VTX 24
+//extern SVECTOR *psxCroakVtx;
+//void CreatePsxCroakVtx(void);
+//void UpdatePsxCroak(SPECFX *ring);
+//void DrawPsxCroak(SPECFX *ring);
 
 
 
