@@ -259,6 +259,11 @@ void DeInitMouseControl()
 	Returns		: void
 	Info		: 
 */
+extern float nearClip;
+extern float farClip;
+
+extern float horizClip;
+extern float vertClip;
 
 void ProcessUserInput(HWND hWnd)
 {
@@ -317,6 +322,20 @@ void ProcessUserInput(HWND hWnd)
 	
 	if (KEYPRESS(DIK_ESCAPE))
 		controllerdata[0].button |= CONT_START;
+
+	if (KEYPRESS(DIK_NUMPAD7))
+	{
+		farClip*=1.5;
+		horizClip*=1.5;
+		vertClip*=1.5;
+	}
+
+	if (KEYPRESS(DIK_NUMPAD9))
+	{
+		farClip/=1.5;
+		horizClip/=1.5;
+		vertClip/=1.5;
+	}
 
 	if (KEYPRESS(DIK_NUMPAD4))
 		controllerdata[0].button |= CONT_C;

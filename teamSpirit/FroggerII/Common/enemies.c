@@ -1423,7 +1423,10 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
 
 	// set shadow radius (if applicable)
 	if(shadowRadius)
-		newItem->nmeActor->actor->shadow->radius = shadowRadius;
+	{
+		if (newItem->nmeActor->actor->shadow)
+			newItem->nmeActor->actor->shadow->radius = shadowRadius;
+	}
 
 	// specify enemy radius if the enemy is radius based
 	if(initFlags & ENEMY_NEW_RADIUSBASEDCOLLISION)
