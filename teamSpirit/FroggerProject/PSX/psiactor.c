@@ -165,6 +165,14 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 		actor->psiData.flags = ACTOR_BONED;
 
 		//ScalePsi(actor->psiData.object->meshdata);
+// 		#define PSI_SCALED_FLAG (1<<30)
+// 		if( ! (actor->psiData.flags&&PSI_SCALED_FLAG) )
+// 		{
+// 			ScalePsi(actor->psiData.object->meshdata);
+// 			actor->radius *= 10;
+// 			psiInitSortList(actor->radius*2+8);
+// 			actor->psiData.flags |= PSI_SCALED_FLAG;
+// 		}
 	}
 
 	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
