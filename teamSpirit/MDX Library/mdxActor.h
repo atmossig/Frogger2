@@ -60,7 +60,7 @@ extern void (*StartAnim)(MDX_ACTOR *me);
 
 MDX_ACTOR *CreateActor(char *name, unsigned long flags);
 void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed);
-void XformActor(MDX_ACTOR *actor);
+void XformActor(MDX_ACTOR *actor,long v);
 void DrawActor(MDX_ACTOR *actor);
 MDX_OBJECT *FindActorSubObject(MDX_ACTOR *me, char *subName);
 void AttachActorToSubobject(MDX_OBJECT *dest, MDX_ACTOR *src);

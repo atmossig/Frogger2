@@ -141,7 +141,7 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 MDX_LANDSCAPE *ConvertActorToLandscape(MDX_ACTOR *actor)
 {
 	// Calculate the object matrices for each sub object (We'll pre-transform them)
-	XformActor(actor);
+	XformActor(actor,1);
 	return ConvertObjectToLandscape(actor->objectController->object);
 }
 

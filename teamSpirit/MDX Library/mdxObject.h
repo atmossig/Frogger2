@@ -266,7 +266,7 @@ typedef struct
 #define OBJECT_FLAGS_FADEOUT				   	(1<<9)		// 512
 #define OBJECT_FLAGS_FACE_COLOUR			   	(1<<10)		// 1024
 #define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)		// 2048
-#define OBJECT_FLAGS_TEXTURE_BLEND_ENV		   	(1<<12)		// 4096
+#define OBJECT_FLAGS_FLATSHADOW				   	(1<<12)		// 4096
 #define OBJECT_FLAGS_SUBDIVIDED				   	(1<<13)		// 8192
 #define OBJECT_FLAGS_GLOW					  	(1<<14)		// 16384
 
@@ -277,6 +277,7 @@ void SlideObjectTextures(MDX_OBJECT *obj,long speed);
 void FindObject(MDX_OBJECT_CONTROLLER **objCPtr, int objID, char *name);
 void LoadObjBank(char *bank, char *baseDir);
 void TransformObject(MDX_OBJECT *obj, float time);
+void TransformObjectQuick(MDX_OBJECT *obj, float time);
 void SubdivideObject(MDX_OBJECT *me);
 extern WORD fpuState;
 void FreeObjectBank(long i);

@@ -1002,8 +1002,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
 	InitWater(waterFile);
 
-	SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
-	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);
+	/*SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
+	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);*/
 	InitTiming(60.0);
 
 	InitEditor();

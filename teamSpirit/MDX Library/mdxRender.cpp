@@ -385,9 +385,11 @@ void SetupDOF(long min, long max, float range)
 	}
 }
 
+
+
 void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {
-	float f[4][4],oozd;
+	float f[4][4],oozd,*g;
 	MDX_VECTOR *in;
 	MDX_VECTOR *vTemp2;
 	long i;
@@ -397,25 +399,20 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	
 	vTemp2 = tV;
-	
-	for (i=0; i<obj->mesh->numVertices; i++)
-	{
-		vTemp2->vx = (f[0][0]*in->vx)+(f[1][0]*in->vy)+(f[2][0]*in->vz)+(f[3][0]);
-		vTemp2->vy = (f[0][1]*in->vx)+(f[1][1]*in->vy)+(f[2][1]*in->vz)+(f[3][1]);
-		vTemp2->vz = (f[0][2]*in->vx)+(f[1][2]*in->vy)+(f[2][2]*in->vz)+(f[3][2]);
+	g = (float *)f;
 
+	for (i = obj->mesh->numVertices; i; i--)
+	{
+		
+		vTemp2->vz = (*(g+2)*in->vx)+(*(g+4+2)*in->vy)+(*(g+8+2)*in->vz)+*(g+12+2);
+		
 		if (((vTemp2->vz+DIST)>nearClip) &&
-			(((vTemp2->vz+DIST)<farClip || noClip) &&
-			(((vTemp2->vx)>-horizClip) &&
-			((vTemp2->vx)<horizClip) &&
-			((vTemp2->vy)>-vertClip) &&
-			((vTemp2->vy)<vertClip) || (noClipping))))
+			(((vTemp2->vz+DIST)<farClip || noClip)))
 		{
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
-			
-			vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
-			vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
-//			vTemp2->vz *= 0.00025F;
+		
+			vTemp2->vx = halfWidth + ((*(g)*in->vx)+(*(g+4)*in->vy)+(*(g+8)*in->vz)+*(g+12))*oozd;
+			vTemp2->vy = halfHeight + ((*(g+1)*in->vx)+(*(g+4+1)*in->vy)+(*(g+8+1)*in->vz)+*(g+12+1))*oozd;		
 		}
 		else
 			vTemp2->vz = 0;
@@ -629,6 +626,50 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	}
 }
 
+void PCPrepareSkinnedFlatObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
+{
+	float f[16],*g;
+	MDX_VECTOR *in;
+	MDX_VECTOR *vTemp2;
+	MDX_VECTOR *vtxS = mesh->vertices;
+	long i,j;
+	long x,*eV;
+	float oozd,tFog;
+
+	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
+	eV = ((long *)(obj->effectedVerts));
+
+	g = ((float *)vMatrix.matrix);
+	// Go thru the affected vertices, and xfm the corresponding vertices
+	for (i=obj->numVerts; i; i--)
+	{
+		j = *eV++;
+		
+		vTemp2 = tV+j;
+		in = vtxS+j;
+
+		vTemp2->vx = (f[0]*in->vx)+(f[4]*in->vy)+(f[8]*in->vz)+(f[12]);
+		vTemp2->vy = -55;
+		vTemp2->vz = (f[2]*in->vx)+(f[6]*in->vy)+(f[10]*in->vz)+(f[14]);
+		
+		oozd = vTemp2->vz+DIST; 
+		// Transform to screen space
+		if ((oozd>nearClip) &&
+			((oozd<farClip) &&
+			((vTemp2->vx)>-horizClip) &&
+			((vTemp2->vx)<horizClip) &&
+			((vTemp2->vy)>-vertClip) &&
+			((vTemp2->vy)<vertClip)))
+		{
+			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
+			vTemp2->vx = halfWidth + (vTemp2->vx * oozd);
+			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd);			
+		}
+		else
+			vTemp2->vz = 0;
+	}
+}
+
 
 void PCPrepareSkinnedObjectOutline(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 {
@@ -667,7 +708,7 @@ void PCPrepareSkinnedObjectOutline(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 			vTemp2->vx = halfWidth + (vTemp2->vx * oozd)+2;
 			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd)-1;
-			vTemp2->vz+=5;
+			vTemp2->vz+=6;
 		}
 		else
 			vTemp2->vz = 0;
@@ -1059,7 +1100,12 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 	if (skinned)
 	{
 		if (skinned<3)
-			PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
+		{
+			if (obj->flags & OBJECT_FLAGS_FLATSHADOW)
+				PCPrepareSkinnedFlatObject(obj, masterMesh,  obj->objMatrix.matrix);
+			else
+				PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
+		}
 		else
 			PCPrepareSkinnedObjectOutline(obj, masterMesh,  obj->objMatrix.matrix);
 
@@ -1090,7 +1136,7 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 				
 				if (obj->phong)
 				{
-					//phong = obj->phong;
+					phong = obj->phong;
 					PCPrepareObjectNormals(obj, obj->mesh,  obj->objMatrix.matrix);
 					PCRenderObjectPhong(obj);
 				}
@@ -2033,26 +2079,18 @@ void PCRenderObjectOutline (MDX_OBJECT *obj)
 void PCRenderObject (MDX_OBJECT *obj)
 {
 	long i;//,j;
-	//unsigned short fce[3] = {0,1,2};		
-	//MDX_QUATERNION *c1,*c2,*c3;
-	//D3DTLVERTEX v[3],*vTemp;
 	MDX_SHORTVECTOR *facesIdx;
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
-	//unsigned long v0,v1,v2;
 	unsigned long v0a,v1a,v2a;
-	//long alphaVal;
 	MDX_TEXENTRY *tex;
 	MDX_TEXENTRY **tex2;
 	MDX_VECTOR *tV0,*tV1,*tV2;
 	D3DTLVERTEX *dVtx;
 	float tFog;
-	//MDX_QUATERNION *cols;
 	
 	dVtx = obj->mesh->d3dVtx;
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
-	//cols = obj->mesh->gouraudColors;
-	//alphaVal = (long)(globalXLU2*255.0);
 
 	if (overrideTex)
 	{
@@ -2124,45 +2162,42 @@ void PCRenderObject (MDX_OBJECT *obj)
 		}
 	}
 	else
+	{
+		if (obj->mesh->numFaces)
+		{
+			tV1 = tV+*(((short *)facesIdx->v));
+			tFog = FOG(tV1->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+		}
+				
 		for (i=obj->mesh->numFaces; i; i--)
 		{
-									
 			tV0 = tV+*(((short *)facesIdx->v));
 			tV1 = tV+*(((short *)facesIdx->v)+1);
 			tV2 = tV+*(((short *)facesIdx->v)+2);
-
+		
 			tex = (MDX_TEXENTRY *)(*tex2);
 			
 			// If we are to be drawn.
 			if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
 			{
-				tFog = FOG(tV0->vz);
-				if (tFog>1) tFog = 1;
-				if (tFog<0) tFog = 0;
+		
 				(dVtx)->specular = FOGVAL(tFog);			
 				(dVtx)->sx = tV0->vx;
 				(dVtx)->sy = tV0->vy;
 				(dVtx)->sz = tV0->vz * 0.00025F;
-				(dVtx)->rhw = 1;///(dVtx)->sz;
-
-				tFog = FOG(tV1->vz);
-				if (tFog>1) tFog = 1;
-				if (tFog<0) tFog = 0;
+	
 				(dVtx+1)->specular = FOGVAL(tFog);			
 				(dVtx+1)->sx = tV1->vx;
 				(dVtx+1)->sy = tV1->vy;
 				(dVtx+1)->sz = tV1->vz * 0.00025F;
-				(dVtx+1)->rhw = 1;///(dVtx+1)->sz;
-
-				tFog = FOG(tV2->vz);
-				if (tFog>1) tFog = 1;
-				if (tFog<0) tFog = 0;
+	
 				(dVtx+2)->specular = FOGVAL(tFog);			
 				(dVtx+2)->sx = tV2->vx;
 				(dVtx+2)->sy = tV2->vy;
 				(dVtx+2)->sz = tV2->vz * 0.00025F;
-				(dVtx+2)->rhw = 1;///(dVtx+2)->sz;
-
+		
 				y1on = BETWEEN(tV0->vy,cly0,cly1) +
 					   BETWEEN(tV1->vy,cly0,cly1) +
 					   BETWEEN(tV2->vy,cly0,cly1);
@@ -2176,15 +2211,12 @@ void PCRenderObject (MDX_OBJECT *obj)
 					if (x1on)
 					{
 						if ((x1on+y1on==6))
-						{
-							PushPolys(dVtx,3,facesON,3,tex);
-						}
+							{PushPolys(dVtx,3,facesON,3,tex);}
 						else
-						{
-							Clip3DPolygon(dVtx,tex);
-						}
+							{Clip3DPolygon(dVtx,tex);}
 					}
 				}
+		
 			}
 			
 			// Update our pointers
@@ -2192,6 +2224,7 @@ void PCRenderObject (MDX_OBJECT *obj)
 			tex2++;
 			dVtx+=3;
 		}
+	}
 }
 
 #ifdef __cplusplus

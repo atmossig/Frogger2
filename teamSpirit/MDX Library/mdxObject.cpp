@@ -38,8 +38,8 @@ MDX_OBJECT_BANK objectBanks[MAX_OBJECT_BANKS];
 WORD fpuState;
 unsigned long drawThisObjectsSprites = 1;
 unsigned long numFreed = 0;
-#define ANIMSNAP_THRESHHOLD 0.15
-
+#define ANIMSNAP_THRESHHOLD 0.25
+#define ROTATESNAP_MULT 2
 
 D3DTLVERTEX *vtxPointers[500];
 unsigned long numVtxPointers = 0;
@@ -402,7 +402,7 @@ void TransformObject(MDX_OBJECT *obj, float time)
 		FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys,obj->lastRKey);
 		obj->lastRKey = fromKey;
 	
-		if ((obj->rotateKeys[toKey].time - time) < ANIMSNAP_THRESHHOLD)
+		if ((obj->rotateKeys[toKey].time - time) < ANIMSNAP_THRESHHOLD * ROTATESNAP_MULT)
 			QuaternionToMatrix(&obj->rotateKeys[toKey].quat, (MDX_MATRIX *)rotmat);		
 		else
 		{
@@ -494,6 +494,59 @@ void TransformObject(MDX_OBJECT *obj, float time)
 		obj->flags &= ~OBJECT_FLAGS_CLIPPED;
 	
 
+	PopMatrix();	
+
+	if(obj->children)
+	{
+		parentScaleStackLevel++;
+		SetVector(&parentScaleStack[parentScaleStackLevel],&scale);
+		TransformObject(obj->children, time);
+		parentScaleStackLevel--;
+	}
+
+	PopMatrix();
+
+	if(obj->next)
+	{
+		TransformObject(obj->next, time);
+	}
+}
+
+
+void TransformObjectQuick(MDX_OBJECT *obj, float time)
+{
+	MDX_VECTOR translation,scale;
+	MDX_SPRITE	*sprite;
+	int i;
+	float	interp;
+	short	fromKey, toKey;
+	short	xluVal;
+//	unsigned long wasHed;
+	MDX_QUATERNION	tempQuat;
+	float rotmat[4][4];
+	float scalemat[4][4];
+
+
+	SetVector(&translation,&obj->moveKeys[obj->lastMKey].vect);
+	SetVector(&scale,&obj->scaleKeys[obj->lastSKey].vect);
+	QuaternionToMatrix(&obj->rotateKeys[obj->lastRKey].quat, (MDX_MATRIX *)rotmat);		
+	
+	rotmat[3][0] = translation.vx * actorScale->vx * parentScaleStack[parentScaleStackLevel].vx;
+	rotmat[3][1] = translation.vy * actorScale->vy * parentScaleStack[parentScaleStackLevel].vy;
+	rotmat[3][2] = translation.vz * actorScale->vz * parentScaleStack[parentScaleStackLevel].vz;
+
+	PushMatrix(rotmat);
+	guScaleF(scalemat, scale.vx * actorScale->vx, scale.vy * actorScale->vy, scale.vz * actorScale->vz);
+
+	PushMatrix(scalemat);
+
+	MatrixSet (&obj->objMatrix.matrix,&matrixStack.stack[matrixStack.stackPosition]);
+
+	if ((obj->bBox) && CheckBoundingBox(obj->bBox,&obj->objMatrix) && (!noClip))
+		obj->flags |= OBJECT_FLAGS_CLIPPED;
+	else
+		obj->flags &= ~OBJECT_FLAGS_CLIPPED;
+	
 	PopMatrix();	
 
 	if(obj->children)
@@ -674,7 +727,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 			obj->mesh->d3dVtx[x].tu = obj->mesh->faceTC[x].v[0] * 0.000975F;
 			obj->mesh->d3dVtx[x].tv = obj->mesh->faceTC[x].v[1] * 0.000975F;
 			obj->mesh->d3dVtx[x].color = D3DRGBA(r,g,b,a);
-			obj->mesh->d3dVtx[x].specular = 0;
+			obj->mesh->d3dVtx[x].specular = D3DRGBA(0,0,0,1);
 			obj->mesh->d3dVtx[x].rhw = 1;			
 		}
 

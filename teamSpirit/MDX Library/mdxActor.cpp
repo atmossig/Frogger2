@@ -86,7 +86,7 @@ void ActorListDraw(void)
 	//f (((where.vx > -50) && (where.vx<640+50)) &&
 	//((where.vy > -50) && (where.vy<480+50)))
 		{	
-			XformActor(cur);		
+			XformActor(cur,0);		
 			if (cur->draw)
 				DrawActor(cur);
 		}
@@ -128,14 +128,19 @@ void DrawActor(MDX_ACTOR *actor)
 		{
 			DrawObject(objectC->object, TRUE, objectC->object->mesh);
 			PCRenderObject(objectC->object);
-			DrawObject(objectC->object, 3, objectC->object->mesh);
-			PCRenderObjectOutline(objectC->object);
-			AdjustObjectOutline();
-			PCRenderObjectOutline(objectC->object);
+			if (!(objectC->object->flags & OBJECT_FLAGS_FLATSHADOW))
+			{
+	//			DrawObject(objectC->object, 3, objectC->object->mesh);
+	//			PCRenderObjectOutline(objectC->object);
+	//			AdjustObjectOutline();
+	//			PCRenderObjectOutline(objectC->object);
+			}
 		}
 	}
 	else
+	{
 		DrawObject(objectC->object, FALSE, objectC->object->mesh);		
+	}
 }
 
 void QueueFlush(MDX_ACTOR *myActor)
@@ -439,7 +444,9 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 	return 0;
 }
 */
-void XformActor(MDX_ACTOR *actor)
+
+long halve = 0;
+void XformActor(MDX_ACTOR *actor,long v)
 {
 	MDX_OBJECT_CONTROLLER *objectC = actor->objectController;
 	float transmat[4][4];
@@ -469,10 +476,10 @@ void XformActor(MDX_ACTOR *actor)
 	PushMatrix(rotmat);
 
 	
-	
 	if(objectC->object)
-		TransformObject(objectC->object, animTime);
-
+			TransformObject(objectC->object, animTime);
+	
+	halve++;
 
   	parentScaleStackLevel = 0;
 	parentScaleStack[parentScaleStackLevel].vx = parentScaleStack[parentScaleStackLevel].vy = parentScaleStack[parentScaleStackLevel].vz = 1;
