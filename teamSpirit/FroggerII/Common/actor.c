@@ -741,7 +741,7 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 		GetQuaternionFromRotation(&q3,&q);
 
 		SetVector( &forward, &dir );
-		b = sqrt(forward.v[X]*forward.v[X]+forward.v[Z]*forward.v[Z]);
+		b = sqrtf(forward.v[X]*forward.v[X]+forward.v[Z]*forward.v[Z]);
 		
 		forward.v[X] = 0;
 		forward.v[Z] = b;
