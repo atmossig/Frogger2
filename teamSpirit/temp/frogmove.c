@@ -1360,10 +1360,9 @@ void CheckForFroggerLanding(long pl)
 			OrientateSS( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
 
 			// DON'T set frog to centre of tile - ds
-			if ((state != TILESTATE_FALL) /*&& !(state & TILESTATE_CONVEYOR)*/)
+			if( (state != TILESTATE_FALL) /*&& (state < TILESTATE_CONVEYOR)*/ )
 				SetVectorSS(&frog[pl]->actor->position, &tile->centre);
 		}
-
 
 		player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSLIDING |
 			FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISFLOATING | FROGSTATUS_ISSAFE);
@@ -1406,8 +1405,8 @@ void CheckForFroggerLanding(long pl)
 			}
 			if (state == TILESTATE_FALL)
 				player[pl].jumpTime = overrun;
-			else if (destTile[pl] && (state & TILESTATE_CONVEYOR || state == TILESTATE_ICE))
-				player[pl].jumpTime = overrun-4096;
+//			else if (destTile[pl] && (state & TILESTATE_CONVEYOR || state == TILESTATE_ICE))
+//				player[pl].jumpTime = overrun-4096;
 		}
 
 		// Next, check if frog has landed on a collectable
