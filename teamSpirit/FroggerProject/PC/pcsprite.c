@@ -269,16 +269,21 @@ void PrintSpriteOverlays(long num)
 				cur->currFrame = rand() % cur->numFrames;
 			}
 			
-			if( !(tEntry = ((MDX_TEXENTRY *)cur->frames[cur->currFrame])) )
+			if (cur->numFrames)
 			{
-				cur = cur->next;
-				continue;
+				if (!(tEntry = ((MDX_TEXENTRY *)cur->frames[cur->currFrame])))
+				{
+					cur = cur->next;
+					continue;
+				}
 			}
+			else
+				tEntry = NULL;	// untextured sprite (rect)
 			
-			numSprites++;
-
 			if (cur->flags & SPRITE_ADDITIVE)
 				D3DSetupRenderstates(xluAddRS);
+			else if (cur->flags & SPRITE_SUBTRACTIVE)
+				D3DSetupRenderstates(xluSubRS);
 			else
 				D3DSetupRenderstates(xluSemiRS);
 			
@@ -286,6 +291,7 @@ void PrintSpriteOverlays(long num)
 				tEntry,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 
 			D3DSetupRenderstates(xluSemiRS);
+			numSprites++;
 		}
 
 		cur = cur->next;
