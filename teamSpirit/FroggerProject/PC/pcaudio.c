@@ -1024,6 +1024,7 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
     MCI_OPEN_PARMS mciOpenParms;
     MCI_SET_PARMS mciSetParms;
     MCI_PLAY_PARMS mciPlayParms;
+	DWORD flags;
 
 	if( !mciDevice )
 	{
@@ -1069,7 +1070,13 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
     mciPlayParms.dwFrom		= MCI_MAKE_TMSF ( bTrack, 0, 0, 0 );
     mciPlayParms.dwTo		= MCI_MAKE_TMSF ( bTrack + 1, 0, 0, 0 );
     mciPlayParms.dwCallback = ( DWORD ) hWndNotify;
-    if ( dwReturn = mciSendCommand ( wDeviceID, MCI_PLAY,MCI_FROM | MCI_TO | MCI_NOTIFY, (DWORD)(LPVOID) &mciPlayParms ) )
+
+	if( bTrack != LEVELCOMPLETELOOP_CDAUDIO )
+		flags = MCI_FROM | MCI_TO | MCI_NOTIFY;
+	else
+		flags = MCI_FROM | MCI_NOTIFY;
+
+    if ( dwReturn = mciSendCommand ( wDeviceID, MCI_PLAY, flags, (DWORD)(LPVOID) &mciPlayParms ) )
     {
 		utilPrintf("Couldn't play cd track %i\n",bTrack);
 
