@@ -62,6 +62,13 @@ char *DIKStrings[256] =
 	"Grave",
 	"Left Shift",
 	"Backslash",
+	"Z",
+	"X",
+	"C",
+	"V",
+	"B",
+	"N",
+	"M",
 	",",				// 50
 	".",
 	"/",
