@@ -379,9 +379,8 @@ void FreeActor(MDX_ACTOR **toFree)
 		actorList = a->next;
 
 	delete a->animation;
-	//delete (*toFree)->shadow;
+	if( a->shadow ) delete a->shadow;
 	delete a;
-
 
 	*toFree = 0;
 }
