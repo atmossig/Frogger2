@@ -258,7 +258,7 @@ ACTOR2 *BabyFrogIsInTongueRange()
 	Returns			: void
 	Info			: used to check if Frogger has jumped on a collectable item
 */
-void CheckTileForCollectable(GAMETILE *tile)
+void CheckTileForCollectable(GAMETILE *tile, long pl)
 {
 	GARIB *garib;
 	int i;
@@ -271,7 +271,7 @@ void CheckTileForCollectable(GAMETILE *tile)
 		if(garib->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
-		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
+		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[pl]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
 		{
 			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib);
@@ -284,7 +284,7 @@ void CheckTileForCollectable(GAMETILE *tile)
 	while(i--)
 	{
 		if ( babies[i] )
-			if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
+			if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog[pl]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
 			{
 				PickupBabyFrog(babies[i]);
 				return;

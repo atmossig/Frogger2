@@ -1236,7 +1236,7 @@ void SlurpFroggerPosition(int whereTo,long pl)
 			if (frog[pl])
 				if (frog[pl]->actor->animation->animTime > 10)
 					frog[pl]->actor->animation->animTime = 10;
-			CheckTileForCollectable(destTile[pl]);
+			CheckTileForCollectable(destTile[pl],pl);
 		} else if ( player[pl].frogState & FROGSTATUS_ISSPRINGING )
 		{
 			player[pl].frogState &= ~FROGSTATUS_ISSTANDING;		
@@ -1260,7 +1260,7 @@ void SlurpFroggerPosition(int whereTo,long pl)
 			if (frog[pl])
 				if (frog[pl]->actor->animation->animTime > 10)
 					frog[pl]->actor->animation->animTime = 10;
-			CheckTileForCollectable(destTile[pl]);
+			CheckTileForCollectable(destTile[pl],pl);
 		}
 		else
 		{
@@ -1406,7 +1406,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			frog[pl]->actor->scale.v[Y] = 0.09F;
 			frog[pl]->actor->scale.v[Z] = 0.09F;
 
-			CheckTileForCollectable(NULL);
+			CheckTileForCollectable(NULL,0);
 		}
 	}
 	else
@@ -1450,9 +1450,12 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					FROGSTATUS_ISFLOATING);
 
 				// Next, check if Frogger has landed on a collectable, too....
-				CheckTileForCollectable(destTile[pl]);
+				CheckTileForCollectable(destTile[pl],pl);
 				currTile[pl] = destTile[pl];
-				camFacing = nextCamFacing;
+				
+				if (pl == 0)
+					camFacing = nextCamFacing;
+
 				frogFacing[pl] = nextFrogFacing[pl];
 
 				landRadius = 20.0f;

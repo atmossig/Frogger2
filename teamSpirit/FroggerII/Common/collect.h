@@ -102,7 +102,7 @@ extern GARIB *GaribIsInTongueRange();
 extern ACTOR2 *BabyFrogIsInTongueRange();
 extern GAMETILE *GrapplePointInTongueRange();
 
-extern void CheckTileForCollectable(GAMETILE *tile);
+extern void CheckTileForCollectable(GAMETILE *tile,long pl);
 
 extern void ProcessCollectables();
 extern void PickupCollectable(GARIB *garib);
