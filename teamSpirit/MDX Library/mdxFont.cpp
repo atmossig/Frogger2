@@ -422,6 +422,8 @@ long WrapStringToArray(const char* str, long maxWidth, char* buffer, long buffer
 				}
 				else
 				{
+					while (lines < arraySize)
+						(array[lines++]) = *line + lineChars;
 					break;	// we're done!
 				}
 			}
