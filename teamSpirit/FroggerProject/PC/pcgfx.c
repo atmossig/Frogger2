@@ -359,7 +359,7 @@ void DrawFXDecal( SPECFX *fx )
 
 void DrawFXRing( SPECFX *fx )
 {
-	unsigned long vx, i, j;
+	unsigned long vx, i, j, vxj;
 	D3DTLVERTEX vT[5];
 	MDX_TEXENTRY *tEntry;
 	MDX_VECTOR tempVect, m, scale, normal, pos;
@@ -377,8 +377,8 @@ void DrawFXRing( SPECFX *fx )
 	ScaleVector( &scale, 0.1 );
 	ScaleVector( &pos, 0.1 );
 
-	vT[0].tu = 1;
-	vT[0].tv = 1;
+	vT[0].tu = 0;
+	vT[0].tv = 0;
 	vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
@@ -387,8 +387,8 @@ void DrawFXRing( SPECFX *fx )
 	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
-	vT[2].tu = 0;
-	vT[2].tv = 0;
+	vT[2].tu = 1;
+	vT[2].tv = 1;
 	vT[2].color = vT[0].color;
 	vT[2].specular = vT[0].specular;
 	
@@ -421,16 +421,17 @@ void DrawFXRing( SPECFX *fx )
 	if( fx->type == FXTYPE_CROAK )
 		SwapFrame(3);
 
-	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=4 )
+	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=2 )
 	{
 		// Transform to proper coords
 		for( j=0; j<4; j++ )
 		{
-			vT[j].sx = ringVtx[vx+j].vx*0.000244;
-			vT[j].sy = ringVtx[vx+j].vy*0.000244;
-			vT[j].sz = ringVtx[vx+j].vz*0.000244;
+			vxj = (vx+j)%(NUM_RINGSEGS<<1);
+			vT[j].sx = ringVtx[vxj].vx*0.000244;
+			vT[j].sy = ringVtx[vxj].vy*0.000244;
+			vT[j].sz = ringVtx[vxj].vz*0.000244;
 			// Slant the polys
-			tilt = (float)((j < 2) ? fx->tilt : 4096)/4096;
+			tilt = (float)((i&1)?((j==0||j==3) ? fx->tilt : 4096):((j==1||j==2) ? fx->tilt : 4096))/4096;
 			// Scale and push
 			guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
 			PushMatrix( sMtrx );
