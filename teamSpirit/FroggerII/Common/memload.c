@@ -173,7 +173,7 @@ int MemLoadEntities(const void* data, long size)
 					break;
 
 				case CREATE_PLACEHOLDER:
-					enemy = JallocAlloc(sizeof(ENEMY), YES, "place");
+					enemy = (ENEMY *)JallocAlloc(sizeof(ENEMY), YES, "place");
 					enemy->path = path;
 					enemy->active = 0;
 					enemy->uid = ID;
