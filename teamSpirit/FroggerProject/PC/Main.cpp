@@ -363,7 +363,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SPRITECLIPRIGHT		=ROTSPRITECLIPRIGHT	= clx1;
 	SPRITECLIPBOTTOM	=ROTSPRITECLIPBOTTOM = cly1;
 
-	EXCEPTION_HANDLE(RunWindowsLoop(&LoopFunc););
+	
+	
+	
+	RunWindowsLoop(&LoopFunc);
 
 	// Byeeeeeeeeeee
 	ShutdownEditor();

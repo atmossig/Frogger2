@@ -277,8 +277,11 @@ void PrintSpriteOverlays(long num)
 			
 			numSprites++;
 
-			D3DSetupRenderstates(xluAddRS);
-
+			if (cur->flags & SPRITE_ADDITIVE)
+				D3DSetupRenderstates(xluAddRS);
+			else
+				D3DSetupRenderstates(xluSemiRS);
+			
 			DrawAlphaSprite( cur->xPos*OVERLAY_X, cur->yPos*OVERLAY_Y, 0, cur->width*OVERLAY_X, cur->height*OVERLAY_Y, 0, 0, 1, 1, 
 				tEntry,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 
@@ -317,7 +320,8 @@ void PrintSprite(SPRITE *sprite)
 		disty *= (sprite->scaleY/(64.0));
 		numSprites++;
 
-		D3DSetupRenderstates(xluAddRS);
+		if (sprite->flags & SPRITE_ADDITIVE)
+			D3DSetupRenderstates(xluAddRS);
 
 /*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
