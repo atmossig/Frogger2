@@ -283,6 +283,10 @@ void GameProcessController(long pl)
 				currTile[pl] = old;
 				camFacing = oldCamFacing;
 				player[pl].canJump = 0;
+				
+				CalculateFrogJump(
+					&frog[pl]->actor->pos, &destTile[pl]->centre, &destTile[pl]->normal,
+					10, doubleHopFrames, pl);
 			}
 
 			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
