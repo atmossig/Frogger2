@@ -467,25 +467,24 @@ void DrawSoftwarePolys (void)
 			f2 = cur->f[1];
 			f3 = cur->f[2];
 
-			v[0].x = (long)softV[f1].sx >> 1;
-			v[0].y = (long)softV[f1].sy >> 1;
-			
-			v[0].r = RGBA_GETRED(softV[f1].color)>>1;
-			v[0].g = RGBA_GETGREEN(softV[f1].color)>>1;
-			v[0].b = RGBA_GETBLUE(softV[f1].color)>>1;
-			
-			v[1].x = (long)softV[f2].sx >> 1;
-			v[1].y = (long)softV[f2].sy >> 1;
-			v[1].r = RGBA_GETRED(softV[f2].color)>>1;
-			v[1].g = RGBA_GETGREEN(softV[f2].color)>>1;
-			v[1].b = RGBA_GETBLUE(softV[f2].color)>>1;
-			
-			v[2].x = (long)softV[f3].sx >> 1;
-			v[2].y = (long)softV[f3].sy >> 1;
-			v[2].r = RGBA_GETRED(softV[f3].color)>>1;
-			v[2].g = RGBA_GETGREEN(softV[f3].color)>>1;
-			v[2].b = RGBA_GETBLUE(softV[f3].color)>>1;
-						
+			v[0].x = (long)softV[f1].sx;
+			v[0].y = (long)softV[f1].sy;
+			v[0].r = RGBA_GETRED(softV[f1].color);
+			v[0].g = RGBA_GETGREEN(softV[f1].color);
+			v[0].b = RGBA_GETBLUE(softV[f1].color);
+
+			v[1].x = (long)softV[f2].sx;
+			v[1].y = (long)softV[f2].sy;
+			v[1].r = RGBA_GETRED(softV[f2].color);
+			v[1].g = RGBA_GETGREEN(softV[f2].color);
+			v[1].b = RGBA_GETBLUE(softV[f2].color);
+
+			v[2].x = (long)softV[f3].sx;
+			v[2].y = (long)softV[f3].sy;
+			v[2].r = RGBA_GETRED(softV[f3].color);
+			v[2].g = RGBA_GETGREEN(softV[f3].color);
+			v[2].b = RGBA_GETBLUE(softV[f3].color);
+
 			if (cur->t)
 			{
 
@@ -939,28 +938,25 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 			f1 = lpwIndices[i+0];
 			f2 = lpwIndices[i+1];
 			f3 = lpwIndices[i+2];
-			
-			v[0].x = (long)verts[f1].sx >> 1;
-			v[0].y = (long)verts[f1].sy >> 1;
-			
-			v[1].x = (long)verts[f2].sx >> 1;
-			v[1].y = (long)verts[f2].sy >> 1;
-			
-			v[2].x = (long)verts[f3].sx >> 1;
-			v[2].y = (long)verts[f3].sy >> 1;
-			
-			v[0].r = RGBA_GETRED(verts[f1].color)>>1;
-			v[0].g = RGBA_GETGREEN(verts[f1].color)>>1;
-			v[0].b = RGBA_GETBLUE(verts[f1].color)>>1;
-			
-			v[1].r = RGBA_GETRED(verts[f2].color)>>1;
-			v[1].g = RGBA_GETGREEN(verts[f2].color)>>1;
-			v[1].b = RGBA_GETBLUE(verts[f2].color)>>1;
-			
-			v[2].r = RGBA_GETRED(verts[f3].color)>>1;
-			v[2].g = RGBA_GETGREEN(verts[f3].color)>>1;
-			v[2].b = RGBA_GETBLUE(verts[f3].color)>>1;
-						
+
+			v[0].x = (long)softV[f1].sx;
+			v[0].y = (long)softV[f1].sy;
+			v[0].r = RGBA_GETRED(softV[f1].color);
+			v[0].g = RGBA_GETGREEN(softV[f1].color);
+			v[0].b = RGBA_GETBLUE(softV[f1].color);
+
+			v[1].x = (long)softV[f2].sx;
+			v[1].y = (long)softV[f2].sy;
+			v[1].r = RGBA_GETRED(softV[f2].color);
+			v[1].g = RGBA_GETGREEN(softV[f2].color);
+			v[1].b = RGBA_GETBLUE(softV[f2].color);
+
+			v[2].x = (long)softV[f3].sx;
+			v[2].y = (long)softV[f3].sy;
+			v[2].r = RGBA_GETRED(softV[f3].color);
+			v[2].g = RGBA_GETGREEN(softV[f3].color);
+			v[2].b = RGBA_GETBLUE(softV[f3].color);
+
 			if (cTexture)
 			{
 
