@@ -364,13 +364,13 @@ void UpdateFXSmoke( SPECFX *fx )
 
 	if( fx->type == FXTYPE_EXHAUSTSMOKE )
 	{
-		fx->sprites->scaleX += 4;
-		fx->sprites->scaleY += 4;
+		fx->sprites->scaleX += gameSpeed;
+		fx->sprites->scaleY += gameSpeed;
 	}
 	else if( fx->type == FXTYPE_JUMPBLUR )
 	{
-		fx->sprites->scaleX--;
-		fx->sprites->scaleY--;
+		fx->sprites->scaleX-=gameSpeed/2;
+		fx->sprites->scaleY-=gameSpeed/2;
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
