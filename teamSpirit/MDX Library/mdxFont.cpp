@@ -305,7 +305,8 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 						break;
 				}
 
-				cx += DrawFontStringAtLoc(cx,y,str,color,font,scale,0,0);
+				DrawFontStringAtLoc(cx,y,str,color,font,scale,0,0);
+				cx += CalcStringWidth(str,font,scale);
 				c++;
 				break;
 

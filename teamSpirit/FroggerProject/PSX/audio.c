@@ -70,6 +70,8 @@ char *musicNames[] = { "CD3.XA",//
 //#define VOLUME_PERCENT (VOLUME_MIN/100)
 //#define PITCH_STEP		(DSBFREQUENCY_MAX/256)
  
+SAMPLE voiceArray[4][MAX_VOICES];
+
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 // SAMPLE **sfx_anim_map = NULL;
 
@@ -199,6 +201,7 @@ void InitSampleList( )
 {
 	//Init the sample list for the real samples.
 
+	int i;
 	if(soundList.genericBank)
 	{
 		sfxUnloadSampleBank(soundList.genericBank);
@@ -217,9 +220,17 @@ void InitSampleList( )
 		sfxRemoveSampleBank(soundList.loopBank,1);
 		soundList.loopBank = NULL;
 	}
+	for(i = 0;i < 4;i++)
+	{
+		if(soundList.voiceBank[i])
+		{
+			sfxUnloadSampleBank(soundList.voiceBank[i]);
+			sfxRemoveSampleBank(soundList.voiceBank[i],1);
+			soundList.voiceBank[i] = NULL;
+		}
+	}
 
 	soundList.count = 0;
-	soundList.blocks = MAX_SAMPLES;
 }
 
 
@@ -230,22 +241,24 @@ void InitSampleList( )
 	Returns			: Success
 	Info			: 
 */
-int LoadSfxSet( char *path, int generic )
+int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *count)
 {
 	int i;
-	SfxBankType *sfxBank=0;
+//	SfxBankType *sfxBank=0;
 	SfxSampleType *snd;
 
-	sfxBank = sfxLoadSampleBank(path);	
-	if(!sfxBank)
+	*sfxBank = 0;
+
+	*sfxBank = sfxLoadSampleBank(path);	
+	if(!(*sfxBank))
 	{
 	 	utilPrintf("Can't load sound bank %s\n", path);
 		return 0;
 	}
 
-	snd =(SfxSampleType *) sfxBank->sample;
+	snd =(SfxSampleType *) (*sfxBank)->sample;
 
-	for  ( i=0; i<sfxBank->numSamples; i++)
+	for  ( i=0; i<(*sfxBank)->numSamples; i++)
 	{
 		if (!snd)
 		{
@@ -253,17 +266,19 @@ int LoadSfxSet( char *path, int generic )
 			continue;
 		}
 		snd = sfxDownloadSample(snd);
-		CreateAndAddSample(snd,generic == -1 ? SFXFLAGS_LOOP : 0);
+		CreateAndAddSample(snd,flags,array,count);
 
 		*snd++;
 	}
+/*
 	if (generic > 0)
 		soundList.genericBank = sfxBank;
 	else if(generic < 0)
 		soundList.loopBank = sfxBank;
 	else
 		soundList.levelBank = sfxBank;
- 	sfxDestroySampleBank( sfxBank );		
+*/
+ 	sfxDestroySampleBank( *sfxBank );		
 
 	return 1;
 }
@@ -279,10 +294,11 @@ int LoadSfxSet( char *path, int generic )
 	Returns			: Success?
 	Info			: 
 */
+short voiceCount[4];
 int LoadSfx( unsigned long worldID )
 {
 	char *path;
-	int len;
+	int len,j;
 	
  	len = strlen(SFX_BASE);
  	path = (char *)MALLOC0( len+32 );
@@ -292,7 +308,7 @@ int LoadSfx( unsigned long worldID )
 	// Load all generic samples first and put in array
 	strcat( path, "GENERIC\\SFX" );
 
-	LoadSfxSet(path, 1);
+	LoadSfxSet(path, &soundList.genericBank,0,&soundList.array[0],&soundList.count);
 
 	genSfx[GEN_FROG_HOP] = FindSample(utilStr2CRC("hopongrass"));
 	genSfx[GEN_SUPER_HOP] = FindSample(utilStr2CRC("hop2"));
@@ -336,6 +352,18 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHELECTRIC] = FindSample(utilStr2CRC("electrocute"));
 	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));
 
+	
+	
+
+	for(j = 0;j < NUM_FROGS;j++)
+	{
+		path[len] = '\0';
+		voiceCount[j] = 0;
+		strcat(path,frogPool[player[j].character].name);
+		strcat(path,"\\SFX");
+		LoadSfxSet(path, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
+	}
+
 	path[len] = '\0';
 
 
@@ -368,7 +396,7 @@ int LoadSfx( unsigned long worldID )
 
 	strcat( path, "SFX" );
 
-	LoadSfxSet( path, 0 );
+	LoadSfxSet(path, &soundList.levelBank,0,&soundList.array[0],&soundList.count);
 
 
 // JH: Quite Possibly fix it!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -381,7 +409,7 @@ int LoadSfx( unsigned long worldID )
 
 	strcat( path, "LOOP" );
 
-	LoadSfxSet( path, -1 );
+	LoadSfxSet(path, &soundList.loopBank,SFXFLAGS_LOOP,&soundList.array[0],&soundList.count);
 
 	FREE( path );
 
@@ -398,11 +426,11 @@ int LoadSfx( unsigned long worldID )
 	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateAndAddSample( SfxSampleType *snd, int flags )
+SAMPLE *CreateAndAddSample(SfxSampleType *snd,int flags,SAMPLE *array,short *count)
 {
 	SAMPLE *newItem;
 	
-	if ( ( soundList.count >= soundList.blocks ) || ( !( newItem = &soundList.array [ soundList.count ] ) ) )
+	if(( soundList.count >= MAX_SAMPLES ) || ( !( newItem = array + *count)))
 		return NULL;
 
 	//sfx = (SAMPLE *)MALLOC0(sizeof(SAMPLE));
@@ -411,7 +439,7 @@ SAMPLE *CreateAndAddSample( SfxSampleType *snd, int flags )
 	newItem->snd = snd;
 	newItem->flags = flags;
 
-	soundList.count++;
+	(*count)++;
 
 	return newItem;
 }
@@ -443,7 +471,6 @@ SAMPLE *FindSample( unsigned long uid )
 void FreeSampleBlock( )
 {
 	soundList.count = 0;
-	soundList.blocks = 0;
 }
 
 
@@ -503,7 +530,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 	if( pos )
 	{
-		GetSoundVols(pos,&vl,&vr,radius,volume);
+		if(GetSoundVols(pos,&vl,&vr,radius,volume) == -1)
+			return -1;
 	}
 	else
 	{
@@ -516,7 +544,10 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	vs = VSync(1);
 	while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
 
-	lastSound =	sfxPlaySample( sample->snd, vl,vr, pitch);
+	if(sample->flags)
+		utilPrintf("playing looping sample the wrong way!!!!!!!!\n");
+	
+	sample->handle = lastSound = sfxPlaySample( sample->snd, vl,vr, pitch);
 	if(lastSound<0)
 		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",lastSound);
 	return lastSound;
@@ -576,7 +607,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	ambientSound->volume = vol;
  	ambientSound->sample = sample;
  	ambientSound->pitch = pitch;
- 	ambientSound->radius = radius * SCALE;//does this need scaling????
+ 	ambientSound->radius = radius;// * SCALE;//does this need scaling????
  
  	ambientSound->freq = freq*60;
  	ambientSound->randFreq = randFreq*60;
@@ -819,7 +850,7 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	if(vol == 0)
 		return -1;
 
-	att = (radius)?radius/SCALE:DEFAULT_SFX_DIST;
+	att = (radius)?radius/*/SCALE*/:DEFAULT_SFX_DIST;
 	att = att<<12;
 
 	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
@@ -861,3 +892,22 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	}
 }
 
+SAMPLE *FindVoice( unsigned long uid, int pl )
+{
+	int j;
+
+	for(j = 0;j < voiceCount[pl];j++)
+		if(voiceArray[pl][j].uid == uid)
+			return &voiceArray[pl][j];
+
+	return NULL;
+}
+
+void StopSample(SAMPLE *sample)
+{
+	if((sample) && (sample->handle != -1))
+	{
+		sfxStopChannel(sample->handle);
+		sample->handle = -1;
+	}
+}

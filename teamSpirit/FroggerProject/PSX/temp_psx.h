@@ -11,7 +11,7 @@
 #define RunDesignWorkViewer()
 #define StartControllerView()
 #define RunControllerView()
-#define StopSample(x)
+//#define StopSample(x)
 
 
 

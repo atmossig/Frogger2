@@ -105,21 +105,23 @@ typedef struct _SAMPLE
 	unsigned long			uid;
 
 	SfxSampleType			*snd;
+	int						handle;
 } SAMPLE;
 
  
 extern SAMPLE **sfx_anim_map;
 
 #define MAX_SAMPLES 100
+#define MAX_VOICES 12
  
 typedef struct _SOUNDLIST
 {
 	SfxBankType		*genericBank;
 	SfxBankType		*levelBank;
 	SfxBankType		*loopBank;
+	SfxBankType		*voiceBank[4];
 
 	short count;
-	short blocks;
 
 	SAMPLE			array[MAX_SAMPLES];
 } SOUNDLIST;
@@ -156,6 +158,7 @@ typedef struct
 }AMBIENT_SOUND_LIST; 
  
  extern SAMPLE *genSfx[];
+void StopSample(SAMPLE *sample);
  
  
 extern SAMPLE *FindSample( unsigned long uid );
@@ -164,7 +167,13 @@ extern SAMPLE *FindSample( unsigned long uid );
 void MAIN_PrintXAData ( const XAFileType * const XATrack );
 
 #define InitVoices(path, len) 0
-#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1)
-#define FindVoice(uid, pl) FindSample(uid)
+
+
+
+SAMPLE *FindVoice( unsigned long uid, int pl );
+//#define FindVoice(uid, pl) FindSample(uid)
+#define PlayVoice(pl, sound) PlaySample(FindVoice(utilStr2CRC(sound),pl), NULL, 0, SAMPLE_VOLUME, -1)
+
+//#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1)
 
 #endif
