@@ -115,6 +115,10 @@ extern float fGSh;
 extern float fGShHalf;
 extern float fGShLimit;
 
+// *ASL* 11/08/2000 - Transformation floats
+extern float fTransVector[3];
+extern float fRotMatrix[3][3];
+
 extern MATRIX RotMatrix;
 
 extern short ls0[3];
@@ -179,6 +183,11 @@ extern KMSTRIPHEAD		StripHead_GT4_FMA_Alpha;
 extern KMSTRIPCONTEXT	StripContext_GT4_FMA_Add;
 extern KMSTRIPHEAD		StripHead_GT4_FMA_Add;
 extern KMVERTEX_03		vertices_GT4_FMA[];
+
+// *ASL* 07/08/2000 - Vertex4 strips
+extern KMSTRIPHEAD		StripHead_GT4_FMA_Vertex4;
+extern KMSTRIPHEAD		StripHead_GT4_FMA_Alpha_Vertex4;
+extern KMVERTEX_04		vertices_GT4_FMA_Vertex4[];
 
 extern KMSTRIPCONTEXT	StripContext_GT3_FMA_Trans;
 extern KMSTRIPHEAD		StripHead_GT3_FMA_Trans;

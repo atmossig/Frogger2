@@ -3346,88 +3346,8 @@ void DrawBoundingBox(ACTOR *actor)
 }
 */
 
-void transformVertexListA(VERT *verts, long numverts, long *transformedVerts, long *transformedDepths)
-{
-	register short 	*tfv = (short*)transformedVerts;
-	register long	*tfd = transformedDepths;
-	register float calc1;
-	register unsigned short ustempz;
-	register short	r0vx, r0vy, r0vz;
-	register float	screenvx, screenvy, screenvz;
-		
-	while(numverts--)
-	{
-		r0vx = verts->vx;
-		r0vy = verts->vy;
-		r0vz = verts->vz;
-		verts++;
 
-		// 1st calculation
-		screenvx = ((((RotMatrix.m[0][0] * r0vx) + (RotMatrix.m[0][1] * r0vy)
-			+ (RotMatrix.m[0][2] * r0vz)) >> 12) + TransVector.vx);
-		screenvy = ((((RotMatrix.m[1][0] * r0vx) + (RotMatrix.m[1][1] * r0vy)
-			+ (RotMatrix.m[1][2] * r0vz)) >> 12) + TransVector.vy);
-		screenvz = ((((RotMatrix.m[2][0] * r0vx) + (RotMatrix.m[2][1] * r0vy)
-			+ (RotMatrix.m[2][2] * r0vz)) >> 12) + TransVector.vz);
-
-		// LimA1S, A2S, A3S
-		if(screenvx < -32768)
-			screenvx = -32768;
-		if(screenvy < -32768)
-			screenvy = -32768;
-		if(screenvz < -32768)
-			screenvz = -32768;
-		if(screenvx > 32767)
-			screenvx = 32767;
-		if(screenvy > 32767)
-			screenvy = 32767;
-		if(screenvz > 32767)
-			screenvz = 32767;
-
-		// Convert to unsigned short
-		ustempz  = (unsigned short)screenvz;
-
-		// limC
-		if(ustempz < 0)
-			ustempz = 0;
-		if(ustempz > 65535)
-			ustempz = 65535;
-
-		screenvz = (short)ustempz;
-		if(screenvz < 0)
-			screenvz = 0;
-		if(screenvz > 32767)
-			screenvz = 32767;
-
-		// PLAYSTATION INACCURACY!!
-		if((float)screenvz < (GSh/2))
-			calc1 = (GSh/(GSh/2));
-		else
-			calc1 = (GSh/(float)screenvz);
-
-		// 2nd calculation
-		screenvx = (float)(GSx + (screenvx * calc1));
-		screenvy = (float)(GSy + (screenvy * calc1));
-
-		opz = (dqb + (dqa * (GSh/(float)screenvz))*4096)*16;
-
-		// limD1 and D2
-
-		if(screenvx < -1024) 
-			screenvx = -1024;
-		if(screenvx > 1023) 
-			screenvx = 1023;
-		if(screenvy < -1024) 	
-			screenvy = -1024;
-		if(screenvy > 1023) 
-			screenvy = 1023;		
-			
-	 	*tfv++ = (short)screenvx;
-	 	*tfv++ = (short)screenvy;			
-		*tfd++ = (((short)screenvz)>>2);
-	}
-}
-
+/*
 void transformVertexListB(VERT *verts, long numverts, long *transformedVerts, float *transformedDepths)
 {
 	register short 	*tfv = (short*)transformedVerts;
@@ -3509,6 +3429,174 @@ void transformVertexListB(VERT *verts, long numverts, long *transformedVerts, fl
 		*tfd++ = 1.0 / ((float)((short)screenvz>>2));
 	}
 }
+*/
+
+
+
+/* ---------------------------------------------------------
+   Function : transformVertexListA
+   Purpose : transform vertices under PSX emulation
+   Parameters : input vertices, number of vertices, transformed vertices, transformed depths
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
+#if 1
+// ** Hopefully optimised PSX emulation transform
+void transformVertexListA(VERT *verts, long numverts, long *transformedVerts, long *transformedDepths)
+{
+	// push all fixed vars onto stack for faster access
+	float			_fGShHalf = fGShHalf, _fGShLimit = fGShLimit, _fGSh = fGSh, _fGSx = fGSx, _fGSy = fGSy;
+
+	register short 	*tfv = (short*)transformedVerts;
+	register long	*tfd = transformedDepths;
+
+	register float	tx,ty,tz, rvx,rvy,rvz, screenvx,screenvy,screenvz;
+	register float	ps, psz;
+
+	tx = (float)TransVector.vx;
+	ty = (float)TransVector.vy;
+	tz = (float)TransVector.vz;
+
+	while (numverts--)
+	{
+		rvx = (float)verts->vx;
+		rvy = (float)verts->vy;
+		rvz = (float)verts->vz;
+
+		// transform vertex into view space
+		screenvx = (fRotMatrix[0][0] * rvx) + (fRotMatrix[0][1] * rvy) + (fRotMatrix[0][2] * rvz);
+		screenvy = (fRotMatrix[1][0] * rvx) + (fRotMatrix[1][1] * rvy) + (fRotMatrix[1][2] * rvz);
+		screenvz = (fRotMatrix[2][0] * rvx) + (fRotMatrix[2][1] * rvy) + (fRotMatrix[2][2] * rvz);
+
+		verts++;
+
+		screenvz += tz;
+		screenvy += ty;
+		screenvx += tx;
+
+		// limit perpspective calculation
+		if (screenvz < _fGShHalf)
+		{
+			ps = _fGShLimit;
+			psz = _fGSh / screenvz;
+		}
+		else
+		{
+			ps = psz = _fGSh / screenvz;
+		}
+
+		// calculate PSX opz
+		opz = (dqb + (dqa * psz) * 4096.0f) * 16.0f;
+
+		// perspective calculation
+		screenvx *= ps;
+		screenvy *= ps;
+		screenvx += _fGSx;
+		screenvy += _fGSy;
+
+		// limit the short output.. !!really need to store floats!!
+		if (screenvx < -1024.0f)
+			screenvx = -1024.0f;
+		else if (screenvx > 1023.0f)
+			screenvx = 1023.0f;
+		if (screenvy < -1024.0f)
+			screenvy = -1024.0f;
+		else if (screenvy > 1023.0f)
+			screenvy = 1023.0f;
+
+		// output transformed vertex
+	 	*tfv++ = (short)screenvx;
+	 	*tfv++ = (short)screenvy;			
+		*tfd++ = (((short)screenvz)>>2);
+	}
+}
+
+#else
+
+// ** Original Transform
+void transformVertexListA(VERT *verts, long numverts, long *transformedVerts, long *transformedDepths)
+{
+	register short 	*tfv = (short*)transformedVerts;
+	register long	*tfd = transformedDepths;
+	register float calc1;
+	register unsigned short ustempz;
+	register short	r0vx, r0vy, r0vz;
+	register float	screenvx, screenvy, screenvz;
+		
+	while(numverts--)
+	{
+		r0vx = verts->vx;
+		r0vy = verts->vy;
+		r0vz = verts->vz;
+		verts++;
+
+		// 1st calculation
+		screenvx = ((((RotMatrix.m[0][0] * r0vx) + (RotMatrix.m[0][1] * r0vy)
+			+ (RotMatrix.m[0][2] * r0vz)) >> 12) + TransVector.vx);
+		screenvy = ((((RotMatrix.m[1][0] * r0vx) + (RotMatrix.m[1][1] * r0vy)
+			+ (RotMatrix.m[1][2] * r0vz)) >> 12) + TransVector.vy);
+		screenvz = ((((RotMatrix.m[2][0] * r0vx) + (RotMatrix.m[2][1] * r0vy)
+			+ (RotMatrix.m[2][2] * r0vz)) >> 12) + TransVector.vz);
+
+		// LimA1S, A2S, A3S
+		if(screenvx < -32768)
+			screenvx = -32768;
+		if(screenvy < -32768)
+			screenvy = -32768;
+		if(screenvz < -32768)
+			screenvz = -32768;
+		if(screenvx > 32767)
+			screenvx = 32767;
+		if(screenvy > 32767)
+			screenvy = 32767;
+		if(screenvz > 32767)
+			screenvz = 32767;
+
+		// Convert to unsigned short
+		ustempz  = (unsigned short)screenvz;
+
+		// limC
+		if(ustempz < 0)
+			ustempz = 0;
+		if(ustempz > 65535)
+			ustempz = 65535;
+
+		screenvz = (short)ustempz;
+		if(screenvz < 0)
+			screenvz = 0;
+		if(screenvz > 32767)
+			screenvz = 32767;
+
+		// PLAYSTATION INACCURACY!!
+		if((float)screenvz < (GSh/2))
+			calc1 = (GSh/(GSh/2));
+		else
+			calc1 = (GSh/(float)screenvz);
+
+		// 2nd calculation
+		screenvx = (float)(GSx + (screenvx * calc1));
+		screenvy = (float)(GSy + (screenvy * calc1));
+
+		opz = (dqb + (dqa * (GSh/(float)screenvz))*4096)*16;
+
+		// limD1 and D2
+
+		if(screenvx < -1024) 
+			screenvx = -1024;
+		if(screenvx > 1023) 
+			screenvx = 1023;
+		if(screenvy < -1024) 	
+			screenvy = -1024;
+		if(screenvy > 1023) 
+			screenvy = 1023;		
+			
+	 	*tfv++ = (short)screenvx;
+	 	*tfv++ = (short)screenvy;			
+		*tfd++ = (((short)screenvz)>>2);
+	}
+}
+#endif
 
 
 // *ASL* 10/08/2000 - SH4 XD functions

@@ -11,6 +11,11 @@
 #include "psitypes.h"
 #include "sprite.h"
 
+
+// 1/4096.0f
+#define	INV4096	(0.000244140625f)
+
+
 // -------
 // Globals
 
@@ -64,8 +69,15 @@ float fGSh = 950.0f;
 float fGShHalf = 950.0f * 0.5f;
 float fGShLimit = 950.0f / (950.0f * 0.5f);
 
+// *ASL* 11/08/2000 - Transformation floats
+float fTransVector[3];
+float fRotMatrix[3][3];
+
 // Rotation matrix
 MATRIX RotMatrix;
+
+// Trans matrix
+VECTOR TransVector;
 
 // Light Source Vectors
 short ls0[3];
@@ -74,8 +86,6 @@ short ls2[3];
 
 int LMode = 0;
 
-// Trans matrix
-VECTOR TransVector;
 
 // Far color
 VECTOR farc;
@@ -559,7 +569,52 @@ void gte_stsxy3_gt4(POLY_GT4 *packet)
 	packet->y2 = screenxy[2].vy;
 }
 
-// Set and define the rotation matrix
+
+
+
+/* ---------------------------------------------------------
+   Function : gte_SetRotMatrix
+   Purpose : PSX gte emulation set rotate matrix
+   Parameters : MATRIX structure pointer
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
+#if 1
+// ** Float version
+void gte_SetRotMatrix(MATRIX *m)
+{
+	register float div = INV4096;
+
+	RotMatrix.m[0][0] = m->m[0][0];
+	RotMatrix.m[0][1] = m->m[0][1];
+	RotMatrix.m[0][2] = m->m[0][2];
+
+	RotMatrix.m[1][0] = m->m[1][0];
+	RotMatrix.m[1][1] = m->m[1][1];
+	RotMatrix.m[1][2] = m->m[1][2];
+
+	RotMatrix.m[2][0] = m->m[2][0];
+	RotMatrix.m[2][1] = m->m[2][1];
+	RotMatrix.m[2][2] = m->m[2][2];
+
+	// also set in floats
+	fRotMatrix[0][0] = ((float)m->m[0][0]) * div;
+	fRotMatrix[0][1] = ((float)m->m[0][1]) * div;
+	fRotMatrix[0][2] = ((float)m->m[0][2]) * div;
+
+	fRotMatrix[1][0] = ((float)m->m[1][0]) * div;
+	fRotMatrix[1][1] = ((float)m->m[1][1]) * div;
+	fRotMatrix[1][2] = ((float)m->m[1][2]) * div;
+
+	fRotMatrix[2][0] = ((float)m->m[2][0]) * div;
+	fRotMatrix[2][1] = ((float)m->m[2][1]) * div;
+	fRotMatrix[2][2] = ((float)m->m[2][2]) * div;
+}
+
+#else
+
+// ** Original PSX version
 void gte_SetRotMatrix(MATRIX *m)
 {
 	RotMatrix.m[0][0] = m->m[0][0];
@@ -574,14 +629,41 @@ void gte_SetRotMatrix(MATRIX *m)
 	RotMatrix.m[2][1] = m->m[2][1];
 	RotMatrix.m[2][2] = m->m[2][2];
 }
+#endif
 
-// Set and define the translation matrix
+
+/* ---------------------------------------------------------
+   Function : gte_SetTransMatrix
+   Purpose : PSX gte emulation set translation matrix
+   Parameters : MATRIX structure pointer
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
+#if 1
+// ** Float version
+void gte_SetTransMatrix(MATRIX *m)
+{
+	TransVector.vx = m->t[0];
+	TransVector.vy = m->t[1];
+	TransVector.vz = m->t[2];
+
+	fTransVector[0] = (float)TransVector.vx;
+	fTransVector[1] = (float)TransVector.vy;
+	fTransVector[2] = (float)TransVector.vz;
+}
+
+#else
+
+// ** Original PSX version
 void gte_SetTransMatrix(MATRIX *m)
 {
 	TransVector.vx = m->t[0];
 	TransVector.vy = m->t[1];
 	TransVector.vz = m->t[2];
 }
+#endif
+
 
 // Set the far colour with RGB values
 void gte_SetFarColor(u_char rfc, u_char gfc, u_char bfc)
@@ -845,7 +927,68 @@ void gte_ld_intpol_sv1(VOID *v)
 	sv.vz = ((SVECTOR *)v)->vz;
 }
 
+
+/* ---------------------------------------------------------
+   Function : gte_rtps
+   Purpose : PSX gte emulation transform to screen function
+   Parameters : internal vars
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 // (rt * v0) + tr
+#if 1
+// ** Hopefully optimised PSX emulation transform
+void gte_rtps(void)
+{
+	register float vrx = (float)vr0.vx, vry = (float)vr0.vy, vrz = (float)vr0.vz;
+	register float tx = fTransVector[0], ty = fTransVector[1], tz = fTransVector[2];
+	register float screenvx, screenvy, screenvz;
+	register float ps, psz;
+
+	// vector transform
+	screenvx = (fRotMatrix[0][0] * vrx) + (fRotMatrix[0][1] * vry) + (fRotMatrix[0][2] * vrz) + tx;
+	screenvy = (fRotMatrix[1][0] * vrx) + (fRotMatrix[1][1] * vry) + (fRotMatrix[1][2] * vrz) + ty;
+	screenvz = (fRotMatrix[2][0] * vrx) + (fRotMatrix[2][1] * vry) + (fRotMatrix[2][2] * vrz) + tz;
+
+	// limit perpspective calculation
+	if (screenvz < fGShHalf)
+	{
+		ps = fGShLimit;
+		psz = fGSh / screenvz;
+	}
+	else
+	{
+		ps = psz = fGSh / screenvz;
+	}
+
+	// calculate PSX opz
+	opz = (dqb + (dqa * psz) * 4096.0f) * 16.0f;
+
+	// perspective calculation
+	screenvx *= ps;
+	screenvy *= ps;
+	screenvx += fGSx;
+	screenvy += fGSy;
+
+	// limit the short output.. !!really need to store floats!!
+	if (screenvx < -1024.0f)
+		screenvx = -1024.0f;
+	else if (screenvx > 1023.0f)
+		screenvx = 1023.0f;
+	if (screenvy < -1024.0f)
+		screenvy = -1024.0f;
+	else if (screenvy > 1023.0f)
+		screenvy = 1023.0f;
+
+	screenxy[2].vx = (short)screenvx;
+	screenxy[2].vy = (short)screenvy;
+	screenxy[2].vz = (short)screenvz;
+}
+
+#else
+
+// ** Original Transform
 void gte_rtps(void)
 {	
 	register float calc1;
@@ -905,6 +1048,7 @@ void gte_rtps(void)
 	screenxy[2].vy = (short)fscreenvy;
 	screenxy[2].vz = (short)fscreenvz;		
 }
+#endif
 
 // Same with no nop
 void gte_rtps_b(void)
@@ -1603,17 +1747,28 @@ void gte_ncs_b(void)
 	gte_ncs();
 }
 
+
 // Extras
 void GsSetProjection(int h)
 {
 	GSh = h;
+
+	// *ASL* 26/07/2000 - Floating point projection values
+	fGSh = (float)GSh;
+	fGShHalf = fGSh * 0.5f;
+	fGShLimit = fGSh / fGShHalf;
 }
 
 void SetGeomOffset(int x, int y)
 {
 	GSx = x;
 	GSy = y;
+
+	// *ASL* 26/07/2000 - Floating point offset vales;
+	fGSx = (float)GSx;
+	fGSy = (float)GSy;
 }
+
 
 void GsSetAmbient(int r, int g, int b)
 {
@@ -2293,6 +2448,18 @@ KMVERTEX_03		vertices_GT4[] =
 { KM_VERTEXPARAM_ENDOFSTRIP, 0,0, 1.0f, 1.0f, 0.0f, RGBA(255,255,255,255), 0 }
 };
 
+// *ASL* 07/08/2000 - Vertex4 strips
+KMSTRIPHEAD		StripHead_GT4_FMA_Vertex4;
+KMSTRIPHEAD		StripHead_GT4_FMA_Alpha_Vertex4;
+KMVERTEX_04		vertices_GT4_FMA_Vertex4[] =
+{
+{ KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0, 0, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0, 0, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 1, 0, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_ENDOFSTRIP, 0,0, 1.0f, 1, 0, RGBA(255,255,255,255), 0 }
+};
+
+
 KMSTRIPCONTEXT	StripContext_TF4SPR;
 KMSTRIPHEAD		StripHead_TF4SPR;
 KMSTRIPCONTEXT	StripContext_TF4SPR_Alpha;
@@ -2872,6 +3039,10 @@ void initialisePsxStrips()
 	StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT4_FMA,&StripContext_GT4_FMA);
 
+	// *ASL* 07/08/2000 - GT4 FMA Vertex4 strip
+	memset(&StripHead_GT4_FMA_Vertex4, 0, sizeof(StripHead_GT4_FMA_Vertex4));
+	kmGenerateStripHead04(&StripHead_GT4_FMA_Vertex4, &StripContext_GT4_FMA);
+
 
 	// GT4 FMA Alpha strip
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT4_FMA_Alpha);
@@ -2899,6 +3070,11 @@ void initialisePsxStrips()
     StripContext_GT4_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
 	StripContext_GT4_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT4_FMA_Alpha,&StripContext_GT4_FMA_Alpha);
+
+	// *ASL* 07/08/2000 - GT4 FMA Alpha Vertex4 strip
+	memset(&StripHead_GT4_FMA_Alpha_Vertex4, 0, sizeof(StripHead_GT4_FMA_Alpha_Vertex4));
+	kmGenerateStripHead04(&StripHead_GT4_FMA_Alpha_Vertex4, &StripContext_GT4_FMA_Alpha);
+
 
 	// GT4 FMA Add strip
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT4_FMA_Add);

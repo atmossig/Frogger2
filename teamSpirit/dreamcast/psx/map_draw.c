@@ -226,18 +226,6 @@ static int dcNoofWorldMeshes = 0;
 static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMesh);
 
 
-/* ---------------------------------------------------------
-   Function : MapDraw_Dreamcast_SetMatrix
-   Purpose : set map draw matrix
-   Parameters : FMA_MESH_HEADER structure pointer, position x,y,z
-   Returns : 
-   Info : 
-*/
-
-static void MapDraw_Dreamcast_SetMatrix(FMA_MESH_HEADER *mesh, float posx, float posy, float posz);
-
-
-
 
 // ===================================================
 // New, mega-optimised landscape plotter
@@ -379,8 +367,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 				vertices_GT4_FMA[3].fV = opgt4->v3 / 127.0;		
 				vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(opgt4->r3,opgt4->g3,opgt4->b3,255);
 				
-//				if(tex->animated)
-//				{
+				if(tex->animated)
+				{
 					// check to see if alpha channel is to be used
 					if(tex->colourKey)
 					{
@@ -402,11 +390,11 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 						}
 						kmStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);	
 					}
-//				}
-//				else
-//				{								
-//					kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
-//				}
+				}
+				else
+				{								
+					kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+				}
 				
 				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
@@ -809,15 +797,17 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 	{
 		if ( (*mesh)->flags & DRAW_SEGMENT )
 		{
+			// set this meshes transform matrix
 			MapDraw_SetMatrix(*mesh, (*mesh)->posx, (*mesh)->posy, (*mesh)->posz);
-//			MapDraw_DreamCast_SetMatrix(*mesh, (*mesh)->posx, (*mesh)->posy, (*mesh)->posz);
+			// *ASL* 27/07/2000 - Them set mine..
+			PSIDC_SH4XD_SetMatrix(&RotMatrix, &TransVector);
 
 			if(MapDraw_ClipCheck(*mesh))
 			{
 				// *ASL* 20/07/2000 - Draw the dreamcast world segment mesh
-//				if (dcNoofWorldMeshes > 0 && dcWorldMeshes != NULL)
-//					MapDraw_Dreamcast_DrawMesh(*mesh, &dcWorldMeshes[world->n_meshes-i]);
-//				else
+				if (dcNoofWorldMeshes > 0 && dcWorldMeshes != NULL)
+					MapDraw_Dreamcast_DrawMesh(*mesh, &dcWorldMeshes[world->n_meshes-i]);
+				else
 					MapDraw_DrawFMA_Mesh2(*mesh);
 			// ENDIF
 			}
@@ -1134,7 +1124,7 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 	{
 		// ** Convert all SVECTOR vertices
 
-		// allocate aligned memory for mesh vertices - (allow an possible extra 2 entries for the interleaved transform)
+		// allocate aligned memory for mesh vertices - (allow a possible extra 2 entries for the interleaved transform)
 		dcWorldMeshes[i].noofVerts = (*mesh)->n_verts;
 		dcWorldMeshes[i].vertices = (TDCVector4 *)MALLOC0(((((*mesh)->n_verts +1) &-2) +1) * sizeof(TDCVector4));
 
@@ -1155,7 +1145,7 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 
 		// allocate quad vertices
 		dcWorldMeshes[i].noofQuadPolys = (*mesh)->n_gt4s;
-		dcWorldMeshes[i].quadVerts = (KMDWORD *)MALLOC0(((*mesh)->n_gt4s * 4) * 2 * sizeof(KMDWORD));
+		dcWorldMeshes[i].quadVerts = (KMDWORD *)MALLOC0(((*mesh)->n_gt4s * 4) * 3 * sizeof(KMDWORD));
 		// allocate quad indices and strip header
 		dcWorldMeshes[i].quadIndices = (int *)MALLOC0(((*mesh)->n_gt4s * 8) * sizeof(int));
 
@@ -1166,24 +1156,20 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 		{
 			// vertex0
 			*vp++ = (KMDWORD)RGBA(psxQuads->r0, psxQuads->g0, psxQuads->b0, 255);
-			f.f[1] = (KMFLOAT)psxQuads->u0 / 127.0f;
-			f.f[0] = (KMFLOAT)psxQuads->v0 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->v0 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->u0 / 127.0f; vp++;
 			// vertex1
 			*vp++ = (KMDWORD)RGBA(psxQuads->r1, psxQuads->g1, psxQuads->b1, 255);
-			f.f[1] = (KMFLOAT)psxQuads->u1 / 127.0f;
-			f.f[0] = (KMFLOAT)psxQuads->v1 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->v1 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->u1 / 127.0f; vp++;
 			// vertex2
 			*vp++ = (KMDWORD)RGBA(psxQuads->r2, psxQuads->g2, psxQuads->b2, 255);
-			f.f[1] = (KMFLOAT)psxQuads->u2 / 127.0f;
-			f.f[0] = (KMFLOAT)psxQuads->v2 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->v2 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->u2 / 127.0f; vp++;
 			// vertex3
 			*vp++ = (KMDWORD)RGBA(psxQuads->r3, psxQuads->g3, psxQuads->b3, 255);
-			f.f[1] = (KMFLOAT)psxQuads->u3 / 127.0f;
-			f.f[0] = (KMFLOAT)psxQuads->v3 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->v3 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxQuads->u3 / 127.0f; vp++;
 
 			// polygon indices and strip header.. 1 32byte cache line
 			map = &DCKtextureList[psxQuads->tpage];
@@ -1205,7 +1191,7 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 
 		// allocate tri vertices
 		dcWorldMeshes[i].noofTriPolys = (*mesh)->n_gt3s;
-		dcWorldMeshes[i].triVerts = (KMDWORD *)MALLOC0(((*mesh)->n_gt3s*3) * 2 * sizeof(KMDWORD));
+		dcWorldMeshes[i].triVerts = (KMDWORD *)MALLOC0(((*mesh)->n_gt3s * 3) * 3 * sizeof(KMDWORD));
 		// allocate tri indices and strip header
 		dcWorldMeshes[i].triIndices = (int *)MALLOC0(((*mesh)->n_gt3s * 8) * sizeof(int));
 
@@ -1216,19 +1202,16 @@ void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
 		{
 			// vertex0
 			*vp++ = (KMDWORD)RGBA(psxTris->r0, psxTris->g0, psxTris->b0, 255);
-			f.f[1] = (KMFLOAT)psxTris->u0 / 127.0f;
-			f.f[0] = (KMFLOAT)psxTris->v0 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->v0 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->u0 / 127.0f; vp++;
 			// vertex1
 			*vp++ = (KMDWORD)RGBA(psxTris->r1, psxTris->g1, psxTris->b1, 255);
-			f.f[1] = (KMFLOAT)psxTris->u1 / 127.0f;
-			f.f[0] = (KMFLOAT)psxTris->v1 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->v1 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->u1 / 127.0f; vp++;
 			// vertex2
 			*vp++ = (KMDWORD)RGBA(psxTris->r2, psxTris->g2, psxTris->b2, 255);
-			f.f[1] = (KMFLOAT)psxTris->u2 / 127.0f;
-			f.f[0] = (KMFLOAT)psxTris->v2 / 127.0f;
-			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->v2 / 127.0f; vp++;
+			*((PKMFLOAT)vp) = (KMFLOAT)psxTris->u2 / 127.0f; vp++;
 
 			// polygon indices and strip header.. 1 32byte cache line
 			map = &DCKtextureList[psxTris->tpage];
@@ -1313,7 +1296,6 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 		// float registers
 		register float		zmin, zmax, fr0, fr1;
 
-
 		// force first strip set
 		shLast = 0;
 
@@ -1361,7 +1343,7 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			// z clip check
 			if (fr0 < zmin || fr0 > zmax)
 			{
-				kmvs += 8;
+				kmvs += 12;
 				continue;
 			}
 
@@ -1381,7 +1363,7 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			if ((x0 > 640.0f && x1 > 640.0f && x2 > 640.0f && x3 > 640.0f) ||
 				(x0 <   0.0f && x1 <   0.0f && x2 <   0.0f && x3 <   0.0f))
 			{
-				kmvs += 8;
+				kmvs += 12;
 				continue;
 			}
 
@@ -1395,7 +1377,7 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			if ((y0 > 480.0f && y1 > 480.0f && y2 > 480.0f && y3 > 480.0f) ||
 				(y0 <   0.0f && y1 <   0.0f && y2 <   0.0f && y3 <   0.0f))
 			{
-				kmvs += 8;
+				kmvs += 12;
 				continue;
 			}
 
@@ -1420,9 +1402,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			pkmCurrentPtr += 8;
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z0;
 			*(PKMFLOAT)--pkmCurrentPtr = y0;
 			*(PKMFLOAT)--pkmCurrentPtr = x0;
@@ -1434,9 +1417,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			r0 = *kmvs++;										// ->rgb
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z1;
 			*(PKMFLOAT)--pkmCurrentPtr = y1;
 			*(PKMFLOAT)--pkmCurrentPtr = x1;
@@ -1448,9 +1432,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			r0 = *kmvs++;										// ->rgb
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z2;
 			*(PKMFLOAT)--pkmCurrentPtr = y2;
 			*(PKMFLOAT)--pkmCurrentPtr = x2;
@@ -1462,9 +1447,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			r0 = *kmvs++;										// ->rgb
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z3;
 			*(PKMFLOAT)--pkmCurrentPtr = y3;
 			*(PKMFLOAT)--pkmCurrentPtr = x3;
@@ -1512,7 +1498,7 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			// z clip check
 			if (fr0 < zmin || fr0 > zmax)
 			{
-				kmvs += 6;
+				kmvs += 9;
 				continue;
 			}
 
@@ -1530,7 +1516,7 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			if ((x0 > 640.0f && x1 > 640.0f && x2 > 640.0f) ||
 				(x0 <   0.0f && x1 <   0.0f && x2 <   0.0f))
 			{
-				kmvs += 6;
+				kmvs += 9;
 				continue;
 			}
 
@@ -1544,7 +1530,7 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			if ((y0 > 480.0f && y1 > 480.0f && y2 > 480.0f) ||
 				(y0 <   0.0f && y1 <   0.0f && y2 <   0.0f))
 			{
-				kmvs += 6;
+				kmvs += 9;
 				continue;
 			}
 
@@ -1568,9 +1554,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			pkmCurrentPtr += 8;
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z0;
 			*(PKMFLOAT)--pkmCurrentPtr = y0;
 			*(PKMFLOAT)--pkmCurrentPtr = x0;
@@ -1582,9 +1569,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			r0 = *kmvs++;										// ->rgb
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z1;
 			*(PKMFLOAT)--pkmCurrentPtr = y1;
 			*(PKMFLOAT)--pkmCurrentPtr = x1;
@@ -1596,9 +1584,10 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 			r0 = *kmvs++;										// ->rgb
 			*--pkmCurrentPtr = r0;
 			*--pkmCurrentPtr = r0;
-			r0 = *kmvs++;										// ->uv
-			--pkmCurrentPtr;
-			*--pkmCurrentPtr = r0;
+			fr0 = *((float *)kmvs); kmvs++;						// ->v
+			fr1 = *((float *)kmvs); kmvs++;						// ->u
+			*(PKMFLOAT)--pkmCurrentPtr = fr0;
+			*(PKMFLOAT)--pkmCurrentPtr = fr1;
 			*(PKMFLOAT)--pkmCurrentPtr = z2;
 			*(PKMFLOAT)--pkmCurrentPtr = y2;
 			*(PKMFLOAT)--pkmCurrentPtr = x2;
@@ -1608,17 +1597,4 @@ static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMe
 		}
 	}
 	kmxxReleaseCurrentPtr(&vertexBufferDesc);
-}
-
-
-/* ---------------------------------------------------------
-   Function : MapDraw_Dreamcast_SetMatrix
-   Purpose : set map draw matrix
-   Parameters : FMA_MESH_HEADER structure pointer, position x,y,z
-   Returns : 
-   Info : 
-*/
-
-static void MapDraw_Dreamcast_SetMatrix(FMA_MESH_HEADER *mesh, float posx, float posy, float posz)
-{
 }

@@ -975,13 +975,13 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 	// pre generate strip
 	if(texPtr->colourKey)
 	{
-		memcpy(&texPtr->stripHead,&StripHead_GT4_FMA_Alpha,sizeof(StripHead_GT4_FMA_Alpha));
-		kmChangeStripTextureSurface(&texPtr->stripHead,KM_IMAGE_PARAM1,&texPtr->surface);
+		memcpy(&texPtr->stripHead,&StripHead_GT4_FMA_Alpha, sizeof(StripHead_GT4_FMA_Alpha));
+		kmChangeStripTextureSurface(&texPtr->stripHead, KM_IMAGE_PARAM1, &texPtr->surface);
 	}
 	else
 	{
 		memcpy(&texPtr->stripHead,&StripHead_GT4_FMA,sizeof(StripHead_GT4_FMA));
-		kmChangeStripTextureSurface(&texPtr->stripHead,KM_IMAGE_PARAM1,&texPtr->surface);
+		kmChangeStripTextureSurface(&texPtr->stripHead, KM_IMAGE_PARAM1, &texPtr->surface);
 	}
 
 	DCKnumTextures++;
