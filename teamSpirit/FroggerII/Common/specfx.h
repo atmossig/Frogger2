@@ -144,7 +144,7 @@ extern void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned 
 extern void SetAttachedFXColour( SPECFX *fx, int effects );
 extern void ProcessAttachedEffects( void *entity, int type );
 
-extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal );
+extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short b );
 
 #endif
 

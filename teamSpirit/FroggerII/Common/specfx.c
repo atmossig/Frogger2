@@ -54,6 +54,8 @@ void AddTrailElement( SPECFX *fx, int i );
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
 D3DTLVERTEX *ringVtx = NULL;
+#else
+Vtx *ringVtx = NULL;
 #endif
 
 /*	--------------------------------------------------------------------------------
@@ -1358,5 +1360,9 @@ void CreateBlastRing( )
 		ringVtx[v+3].tu = 1;
 		ringVtx[v+3].tv = 0;
 	}
+}
+#else
+void CreateBlastRing( )
+{
 }
 #endif
