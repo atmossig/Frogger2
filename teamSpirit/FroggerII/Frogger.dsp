@@ -1079,6 +1079,10 @@ SOURCE=.\Editor\editor.c
 
 SOURCE=.\Editor\editor.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\Editor\toolbars.h
+# End Source File
 # End Group
 # End Target
 # End Project
