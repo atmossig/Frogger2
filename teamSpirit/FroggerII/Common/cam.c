@@ -271,10 +271,12 @@ extern long initialCamera;
 
 void SlurpCamPosition(long cam)
 {
-	float s1 = camSpeed * transCamSpeedMult,
-		s2 = camSpeed2 * transCamSpeedMult,
-		s3 = camSpeed3 * transCamSpeedMult,
-		s4 = camSpeed4 * transCamSpeedMult;
+	float s1,s2,s3,s4;
+	
+	s1 = camSpeed * transCamSpeedMult,
+	s2 = camSpeed2 * transCamSpeedMult,
+	s3 = camSpeed3 * transCamSpeedMult,
+	s4 = camSpeed4 * transCamSpeedMult;
 
 	while( lastActFrameCount < actFrameCount )
 	{
