@@ -403,6 +403,7 @@ void UpdateFroggerPos(long pl)
 				player[pl].deathBy = DEATHBY_DROWNING;
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				player[pl].isSinking = 0;
+				
 				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 			}
 		}
@@ -1064,7 +1065,13 @@ void CheckForFroggerLanding(long pl)
 				SPECFX *fx;
 				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
 				player[pl].deathBy = DEATHBY_DROWNING;
-				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
+
+				// TODO: MORE DEADLY TILE STATES? ('n remove this cludge :o)
+
+				if (player[0].worldNum == WORLDID_SPACE)
+					AnimateActor(frog[pl]->actor,FROG_ANIM_PUFF,YES,NO,0.25F,0,0);
+				else
+					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				GTInit( &player[pl].dead, 3 );
