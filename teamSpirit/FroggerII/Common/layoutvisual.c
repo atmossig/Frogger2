@@ -540,8 +540,10 @@ void FreeAllObjectBanks()
 	Parameters	: unsigned long , unsigned long
 	Returns		: void 
 */
+long initialCamera = 0;
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
+	int i;
 	StopDrawing("initlev");
 
 	// prepare screen for fade in
@@ -575,7 +577,11 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	/* Whoever it is, stop fucking well deleting this line */
 	LoadLevelScript(worldID, levelID);
 #endif
-	
+
+	i=0;
+	initialCamera = 1;
+	SetVector(&(currCamSource[i]),&outVec);
+	SetVector(&(currCamTarget[i]),&inVec);
 	//InitCameosForLevel ( worldID, levelID );
 		
 	CreateFrogger(1,1,1,1); // This also creates the babies

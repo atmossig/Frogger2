@@ -657,8 +657,8 @@ void RunGameLoop (void)
 				FreeAllLists();
 
 #ifdef MBR_DEMO
-				player[0].levelNum = 0;
-				player[0].worldNum = WORLDID_LABORATORY;
+				player[0].levelNum = LEVELID_FRONTEND5;
+				player[0].worldNum = WORLDID_LANGUAGE;
 				player[0].frogState &= ~FROGSTATUS_ISDEAD;
 				InitLevel ( player[0].worldNum, player[0].levelNum );
 				SetFroggerStartPos(gTStart[0],0);

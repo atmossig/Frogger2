@@ -49,9 +49,64 @@ float RES_DIFF2 = 2;
 float fStart = 0.3;
 float fEnd = 0.6;
 
-extern long numPixelsDrawn;
-#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs(((x1-x3)*(y2-y3) - (y1-y3)*(x2-x3))*0.5)
+extern long numPixelsDrawn; 
 
+
+#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs((fabs(x3-x1)*fabs(y3-y2) - fabs(y3-y1)*fabs(x3-x2))*0.5)
+/*
+float TriangleArea(float x1,float y1,float x2,float y2,float x3,float y3)
+{
+	float height;
+	float ang,lA,lB,lC;
+	VECTOR a,b,c;
+	a.v[X] = x1-x3;
+	a.v[Y] = y1-y3; 
+	b.v[X] = x2-x3;
+	b.v[Y] = y2-y3; 
+	c.v[X] = x1-x2;
+	c.v[Y] = y1-y2;
+	a.v[Z] = b.v[Z] = c.v[Z] = 0;
+
+	lA = fabs(Magnitude(&a));
+	lB = fabs(Magnitude(&b));
+	lC = fabs(Magnitude(&c));
+	
+	MakeUnit(&a);
+	MakeUnit(&b);
+	MakeUnit(&c);
+
+	// A is longest side
+	if ((lA>=lB) && (lA>=lC))
+	{
+		ang = acos(DotProduct(&a,&c));
+		height = (lC * sin(ang)) * (lA/2);
+	}
+
+	// B is longest side
+	if ((lB>=lA) && (lB>=lC))
+	{
+		ang = acos(DotProduct(&b,&c));
+		height = (lC * sin(ang)) * (lB/2);
+
+	}
+	
+	// C is longest side
+	if ((lC>=lA) && (lC>=lB))
+	{
+		ang = acos(DotProduct(&c,&a));
+		height = (lA * sin(ang)) * (lC/2);
+	}
+
+	if (lA<0.00009)
+		return 0;
+	if (lB<0.00009)
+		return 0;
+	if (lC<0.00009)
+		return 0;
+
+	return height;
+}
+*/
 HWND win;
 
 LPDIRECTDRAW			pDirectDraw;
@@ -1324,7 +1379,10 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	if (drawTimers)
 		for (i=0; i<fC; i+=3)
 		{
-			numPixelsDrawn += TriangleArea(v[i].sx,v[i].sy,v[i+1].sx,v[i+1].sy,v[i+2].sx,v[i+2].sy);
+			float t = TriangleArea( v[i+0].sx,v[i+0].sy,
+									v[i+1].sx,v[i+1].sy,
+									v[i+2].sx,v[i+2].sy);
+			numPixelsDrawn += t;
 		}
 	
 	if (pDirect3DDevice->DrawIndexedPrimitive(

@@ -21,6 +21,8 @@ extern float RES_DIFF;
 extern float RES_DIFF2;
 extern long runHardware;
 long numSprites;
+void Clip3DPolygon (D3DTLVERTEX in[3], long texture);
+
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
 	Purpose			: used to print the backdrops
@@ -443,18 +445,18 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 	if (m[2].v[Z])
 	if (m[3].v[Z])
 	{
-		vT[0].sx = m[0].v[X];
-		vT[0].sy = m[0].v[Y];
-		vT[0].sz = (m[0].v[Z]+DIST)/2000;///2000;
-		vT[0].tu = tu;
+		vT[0].sx = m[1].v[X];
+		vT[0].sy = m[1].v[Y];
+		vT[0].sz = (m[1].v[Z]+DIST)/2000;///2000;
+		vT[0].tu = tu+1;
 		vT[0].tv = tv;
 		vT[0].color = D3DRGBA(0,0,0,1);
 		vT[0].specular = D3DRGB(0,0,0);
 
-		vT[1].sx = m[1].v[X];
-		vT[1].sy = m[1].v[Y];
-		vT[1].sz = (m[1].v[Z]+DIST)/2000;///2000;
-		vT[1].tu = tu+1;
+		vT[1].sx = m[0].v[X];
+		vT[1].sy = m[0].v[Y];
+		vT[1].sz = (m[0].v[Z]+DIST)/2000;///2000;
+		vT[1].tu = tu;
 		vT[1].tv = tv;
 		vT[1].color = D3DRGBA(0,0,0,1);
 		vT[1].specular = D3DRGB(0,0,0);
@@ -467,7 +469,6 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 		vT[2].color = D3DRGBA(0,0,0,1);
 		vT[2].specular = 0;
 		vT[2].specular = D3DRGB(0,0,0);
-
 		
 		vT[3].sx = m[3].v[X];
 		vT[3].sy = m[3].v[Y];
@@ -479,7 +480,10 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 		vT[3].specular = D3DRGB(0,0,0);
 
 		if (runHardware)
-			DrawAHardwarePoly(vT,4,f,6,tex);
+		{
+			Clip3DPolygon (&vT[0],tex);
+			Clip3DPolygon (&vT[1],tex);
+		}
 	}
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
@@ -781,20 +785,21 @@ void DrawFXRipples()
 		if (m[2].v[Z])
 		if (m[3].v[Z])
 		{
-			vT[0].sx = m[0].v[X];
-			vT[0].sy = m[0].v[Y];
-			vT[0].sz = (m[0].v[Z]+DIST)/2000;
-			vT[0].tu = 1;
+
+			vT[0].sx = m[1].v[X];
+			vT[0].sy = m[1].v[Y];
+			vT[0].sz = (m[1].v[Z]+DIST)/2000;
+			vT[0].tu = 0;
 			vT[0].tv = 0;
-			vT[0].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,ripple->alpha/256.0);
+			vT[0].color = 	vT[0].color;
 			vT[0].specular = D3DRGB(0,0,0);
 
-			vT[1].sx = m[1].v[X];
-			vT[1].sy = m[1].v[Y];
-			vT[1].sz = (m[1].v[Z]+DIST)/2000;
-			vT[1].tu = 0;
+			vT[1].sx = m[0].v[X];
+			vT[1].sy = m[0].v[Y];
+			vT[1].sz = (m[0].v[Z]+DIST)/2000;
+			vT[1].tu = 1;
 			vT[1].tv = 0;
-			vT[1].color = 	vT[0].color;
+			vT[1].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,ripple->alpha/256.0);
 			vT[1].specular = D3DRGB(0,0,0);
 
 			vT[2].sx = m[2].v[X];
@@ -815,7 +820,11 @@ void DrawFXRipples()
 
 			tEntry = ((TEXENTRY *)ripple->txtr);
 			if (tEntry)
-				DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
+			{
+				Clip3DPolygon (&vT[0],tEntry->hdl);
+				Clip3DPolygon (&vT[1],tEntry->hdl);
+			}
+			//	DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
 		}
 	}
 

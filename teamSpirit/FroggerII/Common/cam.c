@@ -267,6 +267,8 @@ void CameraLookAtFrog(void)
 	Parameters	: (void)
 	Returns		: void 
 */
+extern long initialCamera;
+
 void SlurpCamPosition(long cam)
 {
 	float s1 = camSpeed * transCamSpeedMult,
@@ -276,18 +278,36 @@ void SlurpCamPosition(long cam)
 
 	while( lastActFrameCount < actFrameCount )
 	{
-		currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/s1;
-		currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/s1;
-		currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/s1;
+		if (!initialCamera)
+		{
+			currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/s1;
+			currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/s1;
+			currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/s1;
 
-		currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/s3;
-		currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/s3;
-		currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/s3;
+			currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/s3;
+			currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/s3;
+			currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/s3;
+		
+			currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/s4;
+			currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/s4;
+			currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/s4;
+		}
+		else
+		{
+			currCamSource[cam].v[0] = camSource[cam].v[0];
+			currCamSource[cam].v[1] = camSource[cam].v[1];
+			currCamSource[cam].v[2] = camSource[cam].v[2];
 
-		currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/s4;
-		currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/s4;
-		currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/s4;
-
+			currCamTarget[cam].v[0] = camTarget[cam].v[0];
+			currCamTarget[cam].v[1] = camTarget[cam].v[1];
+			currCamTarget[cam].v[2] = camTarget[cam].v[2];
+		
+			currCamDist.v[0] = camDist.v[0]*scaleV;
+			currCamDist.v[1] = camDist.v[1]*scaleV;
+			currCamDist.v[2] = camDist.v[2]*scaleV;
+			initialCamera = 0;
+		}
+		
 		if ( gameState.mode != CAMEO_MODE )
 		{
 			VECTOR t = { 0,0,0 };
