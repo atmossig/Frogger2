@@ -30,7 +30,7 @@ FMV_DATA fmv[NUM_FMV_SEQUENCES] =
 	"",0,
 	"HASBROS",273,		//	FMV_HASBRO_LOGO,            
 	"BLITZS",118,		//	FMV_BLITZ_LOGO,            
-	"01S",1299,			//	FMV_INTRO,
+	"01S",886,			//	FMV_INTRO,
 	"02S",1299,			//	FMV_FROGGER_LILLIE_BABIES, 
 	"03S",859,			//	FMV_SWAMPY_PLAN,           
 	"04S",836,			//	FMV_SWAMPY_ESCAPES,        
