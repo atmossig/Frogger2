@@ -306,16 +306,17 @@ void UpdateBabies( )
 			{
 				if( dist < BABY_ACTIVE_RADIUS*0.25 )
 				{
-					StartAnimateActor( act, BABY_ANIM_HOP, YES, NO, 0.6, 0,0 );
+					StartAnimateActor( act, BABY_ANIM_HOP, YES, YES, 0.6, 0,0 );
 				}
 				else
 				{
 					// Randomly play attract animation
-					AnimateActor( act, Random(3)+2, NO, NO, 0.4, 0,0 );
+					AnimateActor( act, Random(3)+2, NO, YES, 0.4, 0,0 );
 					AnimateActor( act, BABY_ANIM_SNOOZE, YES, YES, 0.4, 0,0 );
 					babyList[i].idle = BABY_IDLE_TIME + Random(BABY_IDLE_TIME);
 				}
 			}
 		}
+		else StartAnimateActor( act, BABY_ANIM_SNOOZE, YES, YES, 0.4, 0,0 );
 	}
 }
