@@ -1365,6 +1365,8 @@ James Hubbard:
 		started a while back. Ran into problems with bloody orientation again.
 
 		Also changed the zwriteenable flag for sprites sp they work again.
+		And in the course of splatting the frog I found that SitAndFace was being called every frame,
+		which is plainly silly. So now it doesn't, it's called when the frog jumps.
 
 
 James Healey:
