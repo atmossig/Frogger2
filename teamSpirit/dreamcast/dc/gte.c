@@ -79,6 +79,83 @@ SVECTOR sv;
 // 32 Bit general/universal vector
 VECTOR lv;
 
+//ARM: cos & sin look up tables used in RotMatrixYXZ_gte(SVECTOR *r,MATRIX *m)
+int		acos_table_init = 0;
+short	acos_table[4096];
+int		asin_table_init = 0;
+short	asin_table[4096];
+
+//ARM: cos & sin look up tables used in rsin(int num) and rcos(int num)
+int		rcos_table_init = 0;
+int		rcos_table[4096];
+int		rsin_table_init = 0;
+int		rsin_table[4096];
+
+/**************************************************************************
+	FUNCTION:	MATHSPC_ACos
+	PURPOSE:	returns cos value from table, creates table on 1st call
+	PARAMETERS:	
+	RETURNS:	
+**************************************************************************/
+short MATHSPC_ACos(short angleIn)
+{
+	int		i;
+	int		angle=angleIn;
+
+	if(angle<0)
+	{
+		angle= 4096-((-angle)&4095);
+	}
+	else
+	{
+		angle&=4095;
+	}
+
+	if(!acos_table_init)
+	{
+		for(i=0; i<4096; i++)
+		{
+			acos_table[i] = (short)(cos((float)i*0.0015347f) * 4096);
+		}
+		acos_table_init = 1;
+	}
+
+	return(acos_table[angle]);
+
+}
+
+/**************************************************************************
+	FUNCTION:	MATHSPC_ASin
+	PURPOSE:	returns sin value from table, creates table on 1st call
+	PARAMETERS:	
+	RETURNS:	
+**************************************************************************/
+short MATHSPC_ASin(short angleIn)
+{
+	int		i;
+	int		angle=angleIn;
+
+	if(angle<0)
+	{
+		angle= 4096-((-angle)&4095);
+	}
+	else
+	{
+		angle&=4095;
+	}
+
+	if(!asin_table_init)
+	{
+		for(i=0; i<4096; i++)
+		{
+			asin_table[i] = (short)(sin((float)i*0.0015347f) * 4096);
+		}
+		asin_table_init = 1;
+	}
+
+	return(asin_table[angle]);
+
+}
 // ************************************************
 
 // Load values to vertex register 0
@@ -460,6 +537,7 @@ void gte_stsxy3_gt3(POLY_GT3 *packet)
 	packet->x2 = screenxy[2].vx;
 	packet->y2 = screenxy[2].vy;
 }
+
 
 // Store screen XY coordinates to POLY_GT4 type
 void gte_stsxy3_gt4(POLY_GT4 *packet)
@@ -1874,7 +1952,8 @@ VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1)
 // CS: I'm afraid I've spent a few minutes knocking this up - it's not fully tested!
 //PP: seems to work OK now - I just construct the matrix the other way round, ie [0][0] -> [2][2] etc
 //			This matches the way RotMatrixZYX does it.
-extern MATRIX *RotMatrixZ(long r,MATRIX *m)
+
+MATRIX *RotMatrixZ(long r,MATRIX *m)
 {
 //ARM:	changed to use look up tables for sin/cos
 //		this function has speeded up alot, but feel free to improve on it !
@@ -1926,19 +2005,21 @@ VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1)
 	return v1;
 }
 
+MATRIX	zmatrix;
+
 int GsSetRefView2(GsRVIEW2 *pv)
 {
 	float 	xAxis[3], yAxis[3], zAxis[3];
 	float 	transCo[3];
 	double 	res;
-	float	zangle;
+	long	zangle;
 	
-	zangle = pv->rz / 4096;
-	zangle += 4096.0 / (float)(pv->rz & 0xfff);
+//	zangle = pv->rz / 4096;
+//	zangle += 4096.0 / (float)(pv->rz & 0xfff);
 	
 	// Default world-up position
 	yAxis[0] = 0;
-	yAxis[1] = 1;//*rsin(pv->rz/4096);
+	yAxis[1] = 1;
 	yAxis[2] = 0;
 
 	// *rsin(pv->rz/4096)
@@ -2004,6 +2085,11 @@ int GsSetRefView2(GsRVIEW2 *pv)
 	GsWSMATRIX.t[0] = -pv->vpx;
 	GsWSMATRIX.t[1] = -pv->vpy;
 	GsWSMATRIX.t[2] = -pv->vpz;
+	
+	// multiply z twist by matrix
+//	RotMatrixZ(pv->rz,&zmatrix);
+//	RotMatrixZ(zangle,&zmatrix);
+//	gte_MulMatrix0(&zmatrix, &GsWSMATRIX, &GsWSMATRIX);
 
 	// Multiply matrix by translation vector
 	transCo[0] = (((GsWSMATRIX.m[0][0] * GsWSMATRIX.t[0]) + 
@@ -2013,6 +2099,10 @@ int GsSetRefView2(GsRVIEW2 *pv)
 	transCo[2] = (((GsWSMATRIX.m[2][0] * GsWSMATRIX.t[0]) + 
 		(GsWSMATRIX.m[2][1] * GsWSMATRIX.t[1]) + (GsWSMATRIX.m[2][2] * GsWSMATRIX.t[2])) >> 12);
 
+//	// multiply z twist by matrix
+//	RotMatrixZ(pv->rz,&zmatrix);
+//	gte_MulMatrix0(&zmatrix, &GsWSMATRIX, &GsWSMATRIX);
+
 	GsWSMATRIX.t[0] = (short)transCo[0];
 	GsWSMATRIX.t[1] = (short)transCo[1];
 	GsWSMATRIX.t[2] = (short)transCo[2];
@@ -2020,16 +2110,62 @@ int GsSetRefView2(GsRVIEW2 *pv)
 	return 0;
 }
 
-int rsin(int num)
+int rsin(int angleIn)
 {
-	return (int)((sinf((double)num * 0.001533981)) * 4096);
+	//ARM: changed to use table i created
+	return (int)((sin((double)angleIn * 0.001533981)) * 4096);			// NC: Reverted back to this...for now
+	/*int		i;
+	int		angle=angleIn;
+
+	if(angle<0)
+	{
+		angle= -(-angle&4095);
+	}
+	else
+	{
+		angle&=4095;
+	}
+
+	if(!rsin_table_init)
+	{
+		for(i=0; i<4096; i++)
+		{
+			rsin_table[i] = (short)(sin((float)i*0.001533981f)*4096);
+		}
+		rsin_table_init = 1;
+	}
+
+	return(rsin_table[angle]);*/
 }
 
-int rcos(int num)
-{
-	return (int)((cosf((double)num * 0.001533981)) * 4096);
-}
 
+int rcos(int angleIn)
+{
+	//ARM: changed to use table i created
+	return (int)((cos((double)angleIn * 0.001533981)) * 4096);		// NC: Reverted back to this.....for now
+	/*int		i;
+	int		angle=angleIn;
+
+	if(angle<0)
+	{
+		angle= -(-angle&4095);
+	}
+	else
+	{
+		angle&=4095;
+	}
+
+	if(!rcos_table_init)
+	{
+		for(i=0; i<4096; i++)
+		{
+			rcos_table[i] = (short)(cos((float)i*0.001533981f)*4096);
+		}
+		rcos_table_init = 1;
+	}
+
+	return(rcos_table[angle]);*/
+}
 void gte_OuterProduct0(VECTOR *v0, VECTOR *v1, VECTOR *v2)
 {
 	v2->vx = (long)((float)v0->vy * v1->vz - v0->vz * v1->vy);
