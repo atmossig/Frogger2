@@ -446,10 +446,8 @@ void UpdateCameraPosition(long cam)
 					{
 						if (camFacing == prevCamFacing)
 							camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[0]);
-
-						prevCamFacing = camFacing;
 					}
-
+					prevCamFacing = camFacing;
 					lastTile = currTile[0];
 				}
 
