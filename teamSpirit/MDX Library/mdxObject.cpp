@@ -497,7 +497,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 			obj->mesh->textureIDs[x] = GetTexEntryFromCRC( (long)obj->mesh->textureIDs[x]);
 			if (obj->mesh->textureIDs[x])
 			{
-				if (obj->mesh->textureIDs[x]->type == TEXTURE_NORMAL)
+			/*	if (obj->mesh->textureIDs[x]->type == TEXTURE_NORMAL)
 				{
 					obj->mesh->faceTC[x*3+0].v[0]/=textureAdjustDivider;
 					obj->mesh->faceTC[x*3+0].v[1]/=textureAdjustDivider;
@@ -516,7 +516,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 
 					obj->mesh->faceTC[x*3+2].v[0]+=((obj->mesh->textureIDs[x]->xPos)*1024)/256;
 					obj->mesh->faceTC[x*3+2].v[1]+=((obj->mesh->textureIDs[x]->yPos)*1024)/256;
-				}
+				}*/
 			} 
 		}
 		

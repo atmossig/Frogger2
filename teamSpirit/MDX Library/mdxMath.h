@@ -71,7 +71,7 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 #define SetVector(v1,v2)	(*(v1)) = (*(v2))
 #define MatrixSet(m1,m2) (*((MDX_MATRIX *)m1)) = (*((MDX_MATRIX *)m2))
 #define LinearInterp(result,from,to,interp) {(result)->vx = (from)->vx + (((to)->vx - (from)->vx) * interp);(result)->vy = (from)->vy + (((to)->vy - (from)->vy) * interp);(result)->vz = (from)->vz + (((to)->vz - (from)->vz) * interp);}
-#define AddToVector(res,v1) {(res)->vx += (v1)->vx;(res)->vy += (v1)->vy;(res)->vz += (v1)->vz;}
+#define mdxAddToVector(res,v1) {(res)->vx += (v1)->vx;(res)->vy += (v1)->vy;(res)->vz += (v1)->vz;}
 #define SubVector(res,v1,v2) {(res)->vx = (v1)->vx - (v2)->vx;(res)->vy = (v1)->vy - (v2)->vy;(res)->vz = (v1)->vz - (v2)->vz;}
 #define AddVector(res,v1,v2) {(res)->vx = (v1)->vx + (v2)->vx;(res)->vy = (v1)->vy + (v2)->vy;(res)->vz = (v1)->vz + (v2)->vz;}
 #define ScaleVector(v1,scale) {(v1)->vx *= scale;(v1)->vy *= scale;(v1)->vz *= scale;}

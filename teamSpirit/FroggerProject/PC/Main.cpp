@@ -205,7 +205,7 @@ long LoopFunc(void)
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
-			((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = (c->actor->qRot.w / 4096.0) * 6.28;
+			((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = c->actor->qRot.w / 4096.0;
 		}
 
 		c = c->next;
