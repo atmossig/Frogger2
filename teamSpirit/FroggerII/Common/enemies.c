@@ -173,37 +173,44 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
-	{
 		player[num].healthPoints = 0;
-	}
 	else
-	{
 		player[num].healthPoints--;
 
-		#ifdef N64_VERSION
-		StartRumble(120,1.5,5,ActiveController);
-		#endif
-	}
+#ifdef N64_VERSION
+	StartRumble(120,1.5,5,ActiveController);
+#endif
 	
 	if(player[num].healthPoints != 0)
 	{
-		/* 
-		Check for NME flags and do different effects
-		*/
-		AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
-		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
-//		PlaySample(42,NULL,192,128);
 		GTInit( &player[num].safe, 2 );
 		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 
-		// Hop the frog up in the air and do a somersault
-		/*CalculateFrogJump(&frog[num]->actor->pos, &currTile[num]->centre, &currTile[num]->normal,
-			hurtJumpHeight, hurtJumpTime, num);
+		// Check for NME flags and do different effects
+		if( nme->flags & ENEMY_NEW_VENT )
+		{
+			// Smoke effect and ass clutch
+			CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &frog[num]->actor->pos, &currTile[num]->normal, 50, 0.5, 0, 2 );
+			AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+		}
+		else
+		{
+			// Generic jump and ouch
+			AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+			CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
+			// Hop the frog up in the air and do a somersault
+			/*CalculateFrogJump(&frog[num]->actor->pos, &currTile[num]->centre, &currTile[num]->normal,
+				hurtJumpHeight, hurtJumpTime, num);
 
-		player[num].canJump = 0;*/
+			player[num].canJump = 0;*/
+		}
 	}
 	else
 	{
+		player[num].healthPoints = 3;
+		player[num].frogState |= FROGSTATUS_ISDEAD;
+
+		// Special deaths that interact with the enemy
 		if (nme->reactiveNumber!=-1)
 		{
 			if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
@@ -220,28 +227,32 @@ void NMEDamageFrog( int num, ENEMY *nme )
 
 			GTInit( &player[num].dead, 5 );
 		}
+		// Effects dependent on nme type
+		else if( nme->nmeActor->effects & EF_LIGHTNING )
+		{
+			// Electrocute
+			player[num].deathBy = DEATHBY_ELECTRICSHOCK;
+			CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &frog[num]->actor->pos, &currTile[num]->normal, 5, 40, 0.25, 0.5 );
+			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+			GTInit( &player[num].dead, 3 );
+		}
+		else if( nme->flags & ENEMY_NEW_VENT )
+		{
+			// Burn baby
+			player[num].deathBy = DEATHBY_FIRE;
+			AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+
+			BounceFrog( num, 100, 50 );
+
+			GTInit( &player[num].dead, 3 );
+		}
 		else
 		{
-			GTInit( &player[num].dead, 3 );
-		
+			// Generic
+			player[num].deathBy = DEATHBY_NORMAL;
 			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+			GTInit( &player[num].dead, 3 );
 		}
-
-		player[num].healthPoints = 3;
-		player[num].deathBy = DEATHBY_NORMAL;
-		player[num].frogState |= FROGSTATUS_ISDEAD;
-
-		/* 
-		Check for NME flags and do different effects
-//		PlaySample(110,NULL,192,128);
-		AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
-		GTInit( &player[num].dead, 2 );
-		player[num].healthPoints = 3;
-		player[num].deathBy = DEATHBY_NORMAL;
-		player[num].frogState |= FROGSTATUS_ISDEAD;
-		PlaySample(GEN_FROG_DEATH,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
-*/
-
 	}
 }
 
@@ -605,7 +616,15 @@ void UpdateSnapper( ENEMY *cur )
 			SetVector( &source, &cur->currNormal );
 			ScaleVector( &source, path->nodes[0].offset2 );
 			AddToVector( &source, &act->pos );
-			fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 15, 40, 0.2, cur->nmeActor->value1 );
+
+			if( cur->nmeActor->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.2 );
+			if( cur->nmeActor->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.8 );
+			else
+				fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.5 );
+
+			fx->tilt = cur->nmeActor->value1; // Branching factor
 			SetAttachedFXColour( fx, cur->nmeActor->effects );
 		}
 

@@ -113,6 +113,7 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl);
 void HopFrogToTile(GAMETILE *tile, long pl);
 void SpringFrogToTile(GAMETILE *tile, float height, float time, long pl);
 void ThrowFrogAtScreen(long pl);
+void BounceFrog( int pl, float height, long time );
 
 void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float height, long time, long player);
 

@@ -406,24 +406,13 @@ void UpdateFroggerPos(long pl)
 	
 	if( NUM_FROGS == 1 && (player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
-		//CheckForFroggerLanding(pl);
-		player[pl].jumpTime = -1;
+		CheckForFroggerLanding(pl);
 		KillFrog(pl);
 		return;
 	}
 	
 	// update frog tongue
 	UpdateFrogTongue(pl);
-
-	if(player[pl].frogState & FROGSTATUS_ISFREEFALLING)
-	{
-		dprintf"FROGSTATUS_ISFREEFALLING\n"));
-
-		// frog is free-falling under gravity
-		CheckForFroggerLanding(pl);
-
-		return;
-	}
 
 	// frog is croaking
 	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
@@ -887,8 +876,8 @@ void CheckForFroggerLanding(long pl)
 	//if (pl == 0)
 	//	camFacing = nextCamFacing;
 
-	player[pl].deathBy = -1;
-	GTInit( &player[pl].dead, 0 );
+//	player[pl].deathBy = -1;
+//	GTInit( &player[pl].dead, 0 );
 
 	player[pl].canJump = 1;
 	player[pl].isSuperHopping = 0;
@@ -1028,6 +1017,14 @@ void CheckForFroggerLanding(long pl)
 				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
 		}
+		else if( player[pl].frogState & FROGSTATUS_ISDEAD )
+		{
+			// We're bouncing along the ground
+			if( player[pl].deathBy == DEATHBY_FIRE )
+				BounceFrog( pl, 50, 30 );
+
+			AnimateActor( frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0 );
+		}
 /*		else if (player[pl].heightJumped < -DROP_HURT_HEIGHT)
 		{
 			// TODO: Hurt frog?
@@ -1045,8 +1042,6 @@ void CheckForFroggerLanding(long pl)
 
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				GTInit( &player[pl].dead, 3 );
-
-				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
 			return;
 		}
@@ -1244,15 +1239,25 @@ BOOL KillFrog(long pl)
 			break;
 
 		case DEATHBY_DROWNING:
-			// create some ripples round the drowing frog
-//			if(!(actFrameCount & 31))
-//				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 15, 1, 0.1, 2.5 );
+			if( !(actFrameCount % 5) )
+			{
+				VECTOR up;
+				SPECFX *fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &frog[pl]->actor->pos, &currTile[pl]->normal, 8, 0.8, 0, 0.6 );
+
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				SetVector( &up, &currTile[pl]->normal );
+				SetVector( &fx->rebound->normal, &up );
+				ScaleVector( &up, 30 );
+				AddVector( &fx->rebound->point, &frog[pl]->actor->pos, &up );
+			}
 			break;
 
 		case DEATHBY_SQUASHED:
 			break;
 
 		case DEATHBY_FIRE:
+			if( !(actFrameCount % 5) )
+				CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &frog[pl]->actor->pos, &currTile[pl]->normal, 50, 0.5, 0, 1.5 );
 			break;
 
 		case DEATHBY_ELECTRICSHOCK:
@@ -1497,4 +1502,28 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	pl->jumpMultiplier = m;
 	pl->jumpTime = 0;
 	pl->heightJumped = diff;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: BounceFrog
+	Purpose			: Jump in current direction
+	Parameters		: player number, height, time
+	Returns			: void
+*/
+void BounceFrog( int pl, float height, long time )
+{
+	GAMETILE *bounceTo;
+	VECTOR dir;
+
+	// Frog forward vector
+	RotateVectorByQuaternion( &dir, &inVec, &frog[pl]->actor->qRot );
+	ScaleVector( &dir, 30 );
+	AddToVector( &dir, &frog[pl]->actor->pos );
+
+	// And a tile to bounce to
+	bounceTo = FindNearestJoinedTile( currTile[pl], &dir );
+	CalculateFrogJump( &frog[pl]->actor->pos, &bounceTo->centre, &currTile[pl]->normal, height, time, pl );
+
+	destTile[pl] = bounceTo;
 }

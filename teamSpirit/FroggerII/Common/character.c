@@ -240,7 +240,36 @@ void ProcessCharacters( )
 // Orientate to direction
 void CharFaceDir( CHARACTER *ch )
 {
+	/*
+	QUATERNION q1, q2, q3;
+	VECTOR fwd, to;
+	ACTOR *act = ch->act->actor;
+	float t;
 
+	// Original rotation
+	SetQuaternion( &q1, &act->qRot );
+
+	// Find destination rotation
+	SetVector( (VECTOR *)&q3, &ch->inTile->normal );
+
+	GetRotationFromQuaternion( &q2, &q1 );
+	q2.w += ch->command->offset;
+
+	// If sufficiently incident, stop turning
+	RotateVectorByRotation( &fwd, &inVec, &q2 );
+	RotateVectorByRotation( &to, &inVec, &
+	t = DotProduct( &fwd, &to );
+	if( t > 0.99 )
+	{
+		ch->command->flags |= AICOMFLAG_COMPLETE;
+		return;
+	}
+
+	// Else slerp towards destination
+	speed = ch->command->speed * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
+	*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -294,7 +323,7 @@ void CharFlyToTile( CHARACTER *ch )
 	LocateAIPathNode( &to, ch->node, ch->command->offset );
 
 	// Set target node
-	if( DistanceBetweenPointsSquared(&act->pos,&to) < 10 )
+	if( DistanceBetweenPointsSquared(&act->pos,&to) < 50 )
 		ch->node = ch->node->next;
 
 	// We have arrived - command is finished
