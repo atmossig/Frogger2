@@ -37,7 +37,7 @@ unsigned long longHopFrames		= 24;
 unsigned long quickHopFrames	= 4;
 unsigned long floatFrames       = 30;
 unsigned long iceFrames			= 10;
-unsigned long conveyorFrames[3] = { 24, 18, 12 };
+unsigned long conveyorFrames[3] = { 60, 30, 15 };
 
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
@@ -411,7 +411,6 @@ void UpdateFroggerPos(long pl)
 
 	if ((actFrameCount < player[pl].jumpEndFrame))
 	{
-		FX_OBJECTBLUR *blur;
 		VECTOR newPos;
 		float t,s,a;
 
@@ -492,16 +491,16 @@ void UpdateFroggerPos(long pl)
 	// frog is croaking
 	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
 	{
-		FX_RIPPLE *rip;
+		SPECFX *fx;
 
 		if((frog[pl]->action.isCroaking & 3) == 0)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 15;
-			rip = CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&effectPos,&currTile[pl]->normal,15,2,1,15);
-			rip->r = 191;
-			rip->g = 255;
-			rip->b = 0;
+			fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &effectPos, &currTile[pl]->normal, 20, 15, 1, 1.5 );
+			fx->r = 191;
+			fx->g = 255;
+			fx->b = 0;
 		}
 
 		frog[pl]->action.isCroaking--;
@@ -512,10 +511,10 @@ void UpdateFroggerPos(long pl)
 			// check for nearest baby frog - do radius check ????
 			if(nearestBaby = GetNearestBabyFrog())
 			{
-				rip = CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&nearestBaby->actor->pos,&upVec,15,2,3,20);
-				rip->r = nearestBaby->action.fxColour[R];
-				rip->g = nearestBaby->action.fxColour[G];
-				rip->b = nearestBaby->action.fxColour[B];
+				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &nearestBaby->actor->pos, &upVec, 15, 15, 1, 1.2 );
+				fx->r = nearestBaby->action.fxColour[R];
+				fx->g = nearestBaby->action.fxColour[G];
+				fx->b = nearestBaby->action.fxColour[B];
 			}
 		}
 	}
@@ -542,7 +541,7 @@ void UpdateFroggerPos(long pl)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 25;
-			CreateAndAddFXSmoke(&effectPos,128,30);
+			CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &effectPos, &currTile[pl]->normal, 30, 5, 0, 2.5 );
 		}
 	}
 }
@@ -1070,11 +1069,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			{
 				if(!frog[pl]->action.dead)
 				{
-					PLANE2 rebound;
-					SetVector(&rebound.point,&destTile[pl]->centre);
-					SetVector(&rebound.normal,&destTile[pl]->normal);
-
-					CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 0.8 );
 					frog[pl]->action.deathBy = DEATHBY_NORMAL;
 					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 
@@ -1136,23 +1131,18 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				{
 					if(!frog[pl]->action.dead)
 					{
-						PLANE2 rebound;
-						SetVector(&rebound.point,&destTile[pl]->centre);
-						SetVector(&rebound.normal,&destTile[pl]->normal);
-
 						if(destTile[pl]->state == TILESTATE_DEADLY)
 						{
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SPLASH,&destTile[pl]->centre,&destTile[pl]->normal,5,30,&rebound,25);
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SPLASH,&destTile[pl]->centre,&destTile[pl]->normal,8,30,&rebound,30);
+							CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 5, 10, 0, 1.5 );
+							CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 8, 10, 0, 1.0 );
 
-							CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,30);
+							CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 3.0 );
 							frog[pl]->action.deathBy = DEATHBY_DROWNING;
 							AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 						}
 						else
 						{
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,6,30,&rebound,25);
-							CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
+							CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 1 );
 							frog[pl]->action.deathBy = DEATHBY_NORMAL;
 							AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 						}
@@ -1303,13 +1293,7 @@ BOOL KillFrog(long pl)
 			// throw some stars about
 			if(!(actFrameCount & 31))
 			{
-				FX_EXPLODEPARTICLE *fxPtcle;
-				PLANE2 rebound;
-
-				SetVector(&rebound.point,&destTile[pl]->centre);
-				SetVector(&rebound.normal,&destTile[pl]->normal);
-
-				fxPtcle = CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,6,30,&rebound,20);
+				CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 6, 15, 0, 2 );
 			}
 			break;
 
@@ -1319,7 +1303,7 @@ BOOL KillFrog(long pl)
 		case DEATHBY_DROWNING:
 			// create some ripples round the drowing frog
 			if(!(actFrameCount & 31))
-				CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&destTile[pl]->normal,15,1,0.1,25);
+				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 15, 1, 0.1, 2.5 );
 			break;
 
 		case DEATHBY_SQUASHED:

@@ -568,20 +568,7 @@ Vis:
 			player[fNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL other flags
 			FrogLeavePlatform(fNum);	// bah
 
-			fadeDir		= FADE_OUT;
-			fadeOut		= 1;
-			fadeStep	= 8;
-			doScreenFade = 63;
-
-			SetVector(&telePos,&frog[fNum]->actor->pos);
-			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
-			telePos.v[Y] += 20;
-			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
-			telePos.v[Y] += 40;
-			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
-			telePos.v[Y] += 60;
-			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
-			PlaySample(88,NULL,255,128);
+			CreateTeleportEffect( &frog[fNum]->actor->pos, &upVec );
 
 			param = AllocArgs(1);
 			param[0] = (void *)time;

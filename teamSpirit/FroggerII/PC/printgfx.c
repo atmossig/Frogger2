@@ -146,7 +146,7 @@ void PrintSprite(SPRITE *sprite)
 		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
 		numSprites++;
 		if (runHardware)
-			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,
+			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,m.v[Z]/2000.0,32*distx,32*disty,
 				0,
 				0,
 				1,
@@ -302,8 +302,14 @@ void DrawSpecialFX()
 		 ( gameState.mode == CAMEO_MODE ) )
 	{
 		ProcessShadows();
-		if(rippleFXList.numEntries)
-			DrawFXRipples();
+		
+		if( specFXList.numEntries )
+		{
+			SPECFX *fx;
+			for( fx = specFXList.head.next; fx != &specFXList.head; fx = fx->next )
+				if( fx->Draw )
+					fx->Draw( fx );
+		}
 	}
 }
 
@@ -726,12 +732,11 @@ BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int
 }
 
 
-void DrawFXRipples()
+void DrawFXRipple( SPECFX *ripple )
 {
-	FX_RIPPLE *ripple,*ripple2;
 	TEXENTRY *tEntry;
 	long i;
-	D3DTLVERTEX vT[4];
+	D3DTLVERTEX vT[4], vT2[3];
 	VECTOR tempVect[4], m[4];
 	static short f[6] = {0,1,2,0,2,3};
 	QUATERNION q;
@@ -741,90 +746,87 @@ void DrawFXRipples()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	
-	// go through list and draw ripples
-	for(ripple = rippleFXList.head.next; ripple != &rippleFXList.head; ripple = ripple2)
+	if(ripple->deadCount)
+		return;
+
+	tempVect[0].v[X] = -ripple->size;
+	tempVect[0].v[Y] = 0;
+	tempVect[0].v[Z] = ripple->size;
+
+	tempVect[1].v[X] = ripple->size;
+	tempVect[1].v[Y] = 0;
+	tempVect[1].v[Z] = ripple->size;
+
+	tempVect[2].v[X] = ripple->size;
+	tempVect[2].v[Y] = 0;
+	tempVect[2].v[Z] = -ripple->size;
+
+	tempVect[3].v[X] = -ripple->size;
+	tempVect[3].v[Y] = 0;
+	tempVect[3].v[Z] = -ripple->size;
+
+	if(	ripple->type == FXTYPE_GARIBCOLLECT )
 	{
-		ripple2 = ripple->next;
-		if(ripple->deadCount)
-			continue;
+		q.x = ripple->normal.v[X];
+		q.y = ripple->normal.v[Y];
+		q.z = ripple->normal.v[Z];
 
-		tempVect[0].v[X] = -ripple->radius;
-		tempVect[0].v[Y] = 0;
-		tempVect[0].v[Z] = ripple->radius;
+		for( i=0; i<4; i++ )
+			RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
+	}
 
-		tempVect[1].v[X] = ripple->radius;
-		tempVect[1].v[Y] = 0;
-		tempVect[1].v[Z] = ripple->radius;
+	for(i=0; i<4; i++)
+	{
+		AddVector( &tempVect[i], &tempVect[i], &ripple->origin );
+		XfmPoint (&m[i],&tempVect[i]);
+	}
+	
+	if (m[0].v[Z])
+	if (m[1].v[Z])
+	if (m[2].v[Z])
+	if (m[3].v[Z])
+	{
 
-		tempVect[2].v[X] = ripple->radius;
-		tempVect[2].v[Y] = 0;
-		tempVect[2].v[Z] = -ripple->radius;
+		vT[0].sx = m[1].v[X];
+		vT[0].sy = m[1].v[Y];
+		vT[0].sz = (m[1].v[Z]+DIST)/2000;
+		vT[0].tu = 0;
+		vT[0].tv = 0;
+		vT[0].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,ripple->a/256.0);
+		vT[0].specular = D3DRGB(0,0,0);
 
-		tempVect[3].v[X] = -ripple->radius;
-		tempVect[3].v[Y] = 0;
-		tempVect[3].v[Z] = -ripple->radius;
+		vT[1].sx = m[0].v[X];
+		vT[1].sy = m[0].v[Y];
+		vT[1].sz = (m[0].v[Z]+DIST)/2000;
+		vT[1].tu = 1;
+		vT[1].tv = 0;
+		vT[1].color = vT[0].color;
+		vT[1].specular = D3DRGB(0,0,0);
 
-		if(	ripple->rippleType == RIPPLE_TYPE_PICKUP )
+		vT[2].sx = m[2].v[X];
+		vT[2].sy = m[2].v[Y];
+		vT[2].sz = (m[2].v[Z]+DIST)/2000;
+		vT[2].tu = 0;
+		vT[2].tv = 1;
+		vT[2].color = vT[0].color;
+		vT[2].specular = D3DRGB(0,0,0);
+
+		vT[3].sx = m[3].v[X];
+		vT[3].sy = m[3].v[Y];
+		vT[3].sz = (m[3].v[Z]+DIST)/2000;
+		vT[3].tu = 1;
+		vT[3].tv = 1;
+		vT[3].color = vT[0].color;
+		vT[3].specular = D3DRGB(0,0,0);
+
+		tEntry = ((TEXENTRY *)ripple->tex);
+		if (tEntry)
 		{
-			q.x = ripple->normal.v[X];
-			q.y = ripple->normal.v[Y];
-			q.z = ripple->normal.v[Z];
-
-			for( i=0; i<4; i++ )
-				RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
-		}
-
-		for(i=0; i<4; i++)
-		{
-			AddVector( &tempVect[i], &tempVect[i], &ripple->origin );
-			XfmPoint (&m[i],&tempVect[i]);
-		}
-		
-		if (m[0].v[Z])
-		if (m[1].v[Z])
-		if (m[2].v[Z])
-		if (m[3].v[Z])
-		{
-
-			vT[0].sx = m[1].v[X];
-			vT[0].sy = m[1].v[Y];
-			vT[0].sz = (m[1].v[Z]+DIST)/2000;
-			vT[0].tu = 0;
-			vT[0].tv = 0;
-			vT[0].color = 	vT[0].color;
-			vT[0].specular = D3DRGB(0,0,0);
-
-			vT[1].sx = m[0].v[X];
-			vT[1].sy = m[0].v[Y];
-			vT[1].sz = (m[0].v[Z]+DIST)/2000;
-			vT[1].tu = 1;
-			vT[1].tv = 0;
-			vT[1].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,ripple->alpha/256.0);
-			vT[1].specular = D3DRGB(0,0,0);
-
-			vT[2].sx = m[2].v[X];
-			vT[2].sy = m[2].v[Y];
-			vT[2].sz = (m[2].v[Z]+DIST)/2000;
-			vT[2].tu = 0;
-			vT[2].tv = 1;
-			vT[2].color = vT[0].color;
-			vT[2].specular = D3DRGB(0,0,0);
-
-			vT[3].sx = m[3].v[X];
-			vT[3].sy = m[3].v[Y];
-			vT[3].sz = (m[3].v[Z]+DIST)/2000;
-			vT[3].tu = 1;
-			vT[3].tv = 1;
-			vT[3].color = vT[0].color;
-			vT[3].specular = D3DRGB(0,0,0);
-
-			tEntry = ((TEXENTRY *)ripple->txtr);
-			if (tEntry)
-			{
-				//Clip3DPolygon (&vT[0],tEntry->hdl);
-				//Clip3DPolygon (&vT[1],tEntry->hdl);
-			}
-			//	DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
+			memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
+			memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
+			memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
+			Clip3DPolygon( vT, tEntry->hdl );
+			Clip3DPolygon( vT2, tEntry->hdl );
 		}
 	}
 

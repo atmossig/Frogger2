@@ -11,6 +11,7 @@
 #ifndef PRINTGFX_H_INCLUDED
 #define PRINTGFX_H_INCLUDED
 
+#include "specfx.h"
 
 #define G_CC_DECALRGB_MODULATEPRIMA 0,0,0,TEXEL0,TEXEL0,0,PRIMITIVE,0
 #define G_CC_MODULATEPRIMRGBA TEXEL0,0,PRIMITIVE,0,TEXEL0,0,PRIMITIVE,0
@@ -63,7 +64,7 @@ void PrintOverlays();
 void PrintSpriteOverlays();
 
 void DrawSpecialFX();
-void DrawFXRipples();
+void DrawFXRipple( SPECFX *ripple );
 
 void ProcessShadows();
 void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv);

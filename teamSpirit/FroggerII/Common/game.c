@@ -836,7 +836,7 @@ void RunGameLoop (void)
 
 	UpdatePlatforms();
 	UpdateEnemies();
-	UpdateSpecialFX();
+	UpdateSpecialEffects();
 	UpdateEvents();
 
 	//UpdateAmbientSounds();
@@ -971,8 +971,6 @@ void RunLevelCompleteSequence()
 		for ( i = 0; i < 3; i++ )
 			sprHeart[i]->draw = 0;
 	}
-
-	testA = 220;
 
 	scoreTextOver->xPos -= ((float)scoreTextOver->xPos - (100.0F)) / 15.0F;
 	scoreTextOver->yPos -= ((float)scoreTextOver->yPos - (110.0F)) / 16.0F;

@@ -171,6 +171,7 @@ void RefreshMPFrogs( )
 int MPAddFrog( int i )
 {
 	VECTOR telePos;
+	SPECFX *fx;
 	long j;
 
 	if( i>=MAX_MULTIPLAYERS || i<1 || gameState.mode != GAME_MODE ) // Not found
@@ -185,15 +186,7 @@ int MPAddFrog( int i )
 
 	frog[i]->draw = TRUE; // Make it visible
 
-	SetVector(&telePos,&frog[i]->actor->pos);
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
-	telePos.v[Y] += 20;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
-	telePos.v[Y] += 40;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
-	telePos.v[Y] += 60;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
-	PlaySample(88,NULL,255,128);
+	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[0]->normal );
 
 	return 1;
 }
@@ -226,15 +219,7 @@ int MPRemoveFrog( int i )
 
 	frog[i]->draw = FALSE; // Make it invisible
 
-	SetVector(&telePos,&frog[i]->actor->pos);
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
-	telePos.v[Y] += 20;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
-	telePos.v[Y] += 40;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
-	telePos.v[Y] += 60;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
-	PlaySample(88,NULL,255,128);
+	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[0]->normal );
 
 	return 1;
 }

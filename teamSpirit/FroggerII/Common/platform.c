@@ -338,11 +338,11 @@ void UpdatePlatforms()
 								SetVector(&rebound.point,&cur->inTile->centre);
 								SetVector(&rebound.normal,&cur->inTile->normal);
 								cur->regen = cur->regenTime;	//0;
-								CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,6,16,&rebound,30);
-								CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,12,32,&rebound,40);
+								CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile->normal, 30, 6, 0, 1 );
+								CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile->normal, 24, 12, 0, 1.5 );
 							}
 
-							CreateAndAddFXSmoke(&cur->pltActor->actor->pos,128,30);
+							CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->pltActor->actor->pos, &cur->inTile->normal, 32, 10, 0, 2 );
 							
 							SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
 							FlipVector(&frog[0]->actor->vel);
@@ -425,9 +425,9 @@ void UpdatePlatforms()
 			if( !(actFrameCount%r) )
 			{
 				if( cur->flags & PLATFORM_NEW_FOLLOWPATH ) // More of a wake effect when moving
-					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 30, cur->currSpeed, 1, 5 );
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, cur->currSpeed, 1, 5 );
 				else // Gentle ripples
-					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
 			}
 		}
 		if( cur->pltActor->effects & EF_SMOKE_CLOUDS )
@@ -439,7 +439,7 @@ void UpdatePlatforms()
 				r = 10;
 
 			if( !(actFrameCount%r) )
-				CreateAndAddFXSmoke(&cur->pltActor->actor->pos,80,20);
+				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->pltActor->actor->pos, &cur->currNormal, 24, 5, 0, 2 );
 		}
 		if( cur->pltActor->effects & EF_SPARK_BURSTS )
 		{
@@ -453,7 +453,7 @@ void UpdatePlatforms()
 			{
 				SetVector(&rebound.point,&cur->inTile->centre);
 				SetVector(&rebound.normal,&cur->inTile->normal);
-				CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->pltActor->actor->pos, &cur->currNormal, 5, 30, &rebound, 20 );
+				CreateAndAddSpecialEffect( FXTYPE_SPLASH, &cur->pltActor->actor->pos, &cur->currNormal, 10, 5, 0, 2 );
 			}
 		}
 	}

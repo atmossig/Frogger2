@@ -17,141 +17,95 @@
 #define FADE_IN				0
 #define FADE_OUT			1
 
-enum
-{
-	RIPPLE_TYPE_CROAK,
-	RIPPLE_TYPE_SOLIDCROAK,
-	RIPPLE_TYPE_WATER,
-	RIPPLE_TYPE_PICKUP,
-	RIPPLE_TYPE_RING,
-	RIPPLE_TYPE_BLASTRING,
-	RIPPLE_TYPE_TELEPORT,
-	RIPPLE_TYPE_NUMTYPES,
-};
-
-enum
-{
-	EXPLODEPARTICLE_TYPE_NORMAL,
-	EXPLODEPARTICLE_TYPE_SMOKEBURST,
-	EXPLODEPARTICLE_TYPE_SPLASH,
-};
-
-
-
-//----- [ RIPPLE SPECIAL FX ] -----//
-
-typedef struct TAGFX_RIPPLELIST
-{
-	int					numEntries;
-	FX_RIPPLE			head;
-
-} FX_RIPPLELIST;
-
-
-//----- [ SMOKE SPECIAL FX ] -----//
-
-typedef struct TAGFX_SMOKELIST
-{
-	int					numEntries;
-	FX_SMOKE			head;
-
-} FX_SMOKELIST;
-
-
-//----- [ SWARM SPECIAL FX ] -----//
-
-typedef struct TAGFX_SWARMLIST
-{
-	int					numEntries;
-	FX_SWARM			head;
-
-} FX_SWARMLIST;
-
-
-//----- [ PARTICLE EXPLODE SPECIAL FX ] -----//
-
-typedef struct TAGFX_EXPLODEPARTICLELIST
-{
-	int					numEntries;
-	FX_EXPLODEPARTICLE	head;
-
-} FX_EXPLODEPARTICLELIST;
-
-
-//----- [ OBJECT BLUR SPECIAL FX ] -----//
-
-typedef struct TAGFX_OBJECTBLURLIST
-{
-	int					numEntries;
-	FX_OBJECTBLUR		head;
-
-} FX_OBJECTBLURLIST;
-
-
-//----- [ GLOBALS ] -----------------------------------------------------------------------------//
-
-extern FX_RIPPLELIST rippleFXList;
-extern FX_SMOKELIST smokeFXList;
-extern FX_SWARMLIST swarmFXList;
-extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
-extern FX_OBJECTBLURLIST objectBlurFXList;
-
-//----- [ TEXTURES USED FOR SPECIAL FX ] -----//
-
-extern TEXTURE *txtrRipple;
-extern TEXTURE *txtrStar;
-extern TEXTURE *solidRing;
-extern TEXTURE *txtrSmoke;
-extern TEXTURE *txtrWaterDrop;
-extern TEXTURE *txtrBlastRing;
-
 extern char doScreenFade;
 extern char	fadeDir;
 extern short fadeOut;
 extern short fadeStep;
 
 extern char pauseMode;
-extern UBYTE testR,testG,testB,testA;
 
 
-//----- [ FUNCTION PROTOTYPES ] -----------------------------------------------------------------//
-
-extern FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,float size,float velocity,float acceleration,float lifetime);
-extern void FreeFXRippleLinkedList();
-extern void AddFXRipple(FX_RIPPLE *ripple);
-extern void SubFXRipple(FX_RIPPLE *ripple);
-extern void UpdateFXRipples();
-
-extern FX_SMOKE *CreateAndAddFXSmoke(VECTOR *origin,short size,float lifetime);
-extern void FreeFXSmokeLinkedList();
-extern void AddFXSmoke(FX_SMOKE *smoke);
-extern void SubFXSmoke(FX_SMOKE *smoke);
-extern void UpdateFXSmoke();
-
-extern FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset);
-extern void FreeFXSwarmLinkedList();
-extern void AddFXSwarm(FX_SWARM *swarm);
-extern void SubFXSwarm(FX_SWARM *swarm);
-extern void UpdateFXSwarm();
-
-extern FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origin,VECTOR *normal,float maxSpeed,short size,PLANE2 *reboundPlane,float lifetime);
-extern void FreeFXExplodeParticleLinkedList();
-extern void AddFXExplodeParticle(FX_EXPLODEPARTICLE *explode);
-extern void SubFXExplodeParticle(FX_EXPLODEPARTICLE *explode);
-extern void UpdateFXExplodeParticle();
-
-extern FX_OBJECTBLUR *CreateAndAddFXObjectBlur(VECTOR *origin,short size,short startFade,float lifetime);
-extern void FreeFXObjectBlurLinkedList();
-extern void AddFXObjectBlur(FX_OBJECTBLUR *blur);
-extern void SubFXObjectBlur(FX_OBJECTBLUR *blur);
-extern void UpdateFXObjectBlur();
+// These are used in the editor and translated into effect parameters later
+#define EF_RIPPLE_RINGS					(1 << 0)	// Lillypad thing
+#define EF_SMOKE_CLOUDS					(1 << 1)	// As for mowers
+#define EF_SPARK_BURSTS					(1 << 2)	// 
+#define EF_FLAMEBURST					(1 << 3)	// Vent up
+#define EF_TINTRED						(1 << 4)
+#define EF_TINTGREEN					(1 << 5)
+#define EF_TINTBLUE						(1 << 6)
 
 
-extern void InitFXLinkedLists();
-extern void UpdateSpecialFX();
+// Preset types. Any other can be made by selecting custom and specifying all the stucture members by hand
+enum
+{
+	FXTYPE_CUSTOM,
+	FXTYPE_WATERRIPPLE,
+	FXTYPE_GARIBCOLLECT,
+	FXTYPE_JUMPBLUR,
+	FXTYPE_FROGSTUN,
+	FXTYPE_EXHAUSTSMOKE,
+	FXTYPE_BASICRING,
+	FXTYPE_SPLASH,
+	FXTYPE_SMOKEBURST,
+	FXTYPE_FIREVENT,
 
-extern void CalcBounce(VECTOR *vel,VECTOR *normal);
+	FXTYPE_NUMTYPES
+};
+
+typedef struct
+{
+	VECTOR pos, vel;
+	unsigned char r, g, b, a, bounce;
+
+} PARTICLE;
 
 
+typedef struct TAGSPECFX
+{
+	struct TAGSPECFX *next, *prev;
+
+	VECTOR normal, origin, vel;
+	PLANE2 *rebound;
+	PARTICLE *particles;						// For swarm, explosions etc.
+
+	Vtx *verts;									// Persistent vertices on N64
+
+	short type, fade;
+	float speed, accn, size;
+	long lifetime, deadCount, numP;				// numP is number of particles
+
+	unsigned char r, g, b, a;
+
+	SPRITE *sprites;
+	TEXTURE *tex;
+
+	int (*Update) ();							// Just like C++
+	void (*Draw) ();							// Update and draw functions, specified for different types.
+
+} SPECFX;
+
+
+typedef struct
+{
+	SPECFX head;
+	int numEntries;
+
+} SPECFXLIST;
+
+
+extern SPECFXLIST specFXList;
+
+
+extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, int size, float speed, float accn, float lifetime );
+
+extern void UpdateSpecialEffects( );
+
+extern void AddSpecFX( SPECFX *fx );
+extern void SubSpecFX( SPECFX *fx );
+extern void InitSpecFXList( );
+extern void FreeSpecFXList( );
+
+extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal );
 
 #endif
+

@@ -410,12 +410,7 @@ void UpdateScreenSpawn(void)
 
 void PickupCollectable(GARIB *garib, int pl)
 {
-	FX_RIPPLE *rip;
-
-	rip = CreateAndAddFXRipple(RIPPLE_TYPE_PICKUP,&garib->sprite.pos,&upVec,20,0,0,25);
-	rip->r = 255;
-	rip->g = 255;
-	rip->b = 0;
+	CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->sprite.pos, &upVec, 50, 0, 0, 1.5 );
 
 	switch(garib->type)
 	{

@@ -184,7 +184,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 void RunBabySavedSequence(ACTOR2 *baby)
 {
 	static VECTOR pos,pos2;
-	FX_SMOKE *smoke;
+	SPECFX *fx;
 	int i;
 
 	babySaved--;
@@ -211,13 +211,14 @@ void RunBabySavedSequence(ACTOR2 *baby)
 		{
 			pos.v[Y] += 6;
 			pos2.v[Y] -= 4;
-			CreateAndAddFXRipple(RIPPLE_TYPE_RING,&pos,&upVec,0.5,1,0.1,15);
-			CreateAndAddFXRipple(RIPPLE_TYPE_RING,&pos2,&upVec,0.5,1,0.25,20);
+			
+			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 15, 1.5, 0.1, 1.5 );
+			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 25, 1, 0.1, 1 );
 
-			smoke = CreateAndAddFXSmoke(&baby->actor->pos,64,35);
-			smoke->sprite.r = baby->action.fxColour[R];
-			smoke->sprite.g = baby->action.fxColour[G];
-			smoke->sprite.b = baby->action.fxColour[B];
+			fx = CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &baby->actor->pos, &upVec, 64, 0, 0, 2 );
+			fx->sprites->r = baby->action.fxColour[R];
+			fx->sprites->g = baby->action.fxColour[G];
+			fx->sprites->b = baby->action.fxColour[B];
 		}
 	}
 }
