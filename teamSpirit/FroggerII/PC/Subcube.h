@@ -15,7 +15,12 @@ extern void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, i
 extern void InitActorStructures(ACTOR *tempActor, int initFlags);
 extern void InitActorList();
 extern void LoadTexture(TEXTURE *texture);
-
+extern void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4]);
+extern void PCPrepareWaterObject(OBJECT *obj, MESH *mesh, float m[4][4]);
+extern void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4]);
+extern void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
+extern void PCRenderObject(OBJECT *obj);
+extern void PCRenderObjectFast (OBJECT *obj);
 extern void WriteObjectDisplayListGouraud(OBJECT *obj);
 extern void WriteObjectDisplayListFlat(OBJECT *obj);
 extern void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short animEnd);

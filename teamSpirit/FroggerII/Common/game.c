@@ -460,6 +460,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		}
 		else
 		{
+
 			theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION);
 			dprintf"Added actor '%s'\n",ts->name));
 

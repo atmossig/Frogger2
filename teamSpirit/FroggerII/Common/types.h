@@ -444,8 +444,11 @@ typedef struct OBJECT
 	short		numRotateKeys;
 
 	COLOUR		colour;
+#ifndef PCVERSION
 	void		*renderData;
-
+#else
+	D3DTLVERTEX *renderData;
+#endif
 	short		flags;
 
 	short		numChildren;

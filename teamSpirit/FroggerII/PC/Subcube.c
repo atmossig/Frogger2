@@ -31,11 +31,6 @@ float hedSpeed = 0.2;
 void TransformObject(OBJECT *obj, float time);
 void PCDrawObject(OBJECT *obj, float m[4][4]);
 
-void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4]);
-void PCPrepareWaterObject(OBJECT *obj, MESH *mesh, float m[4][4]);
-void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4]);
-void PCRenderObject(OBJECT *obj);
-void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 long useNear = 0;
 
 ACTOR2 *hat[MAX_FROGS];
@@ -320,15 +315,24 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 			
 			// We are a water object, if so modge the vertices like water
 			if ((waterObject))
+			{
 				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
+
+				// Draw it, evebtually water will need it's own optimised draw function!
+				PCRenderObject(obj);
+			}
 			else // Or we can modge just the vertices
 				if (modgyObject) 
+				{
 					PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
+					// Same as for water objects
+					PCRenderObject(obj);
+				}
 				else // Or maybe we can't
+				{
 					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
-
-			// Draw it.
-			PCRenderObject(obj);
+					PCRenderObject(obj);
+				}
 		}
 	}
 
@@ -1533,7 +1537,66 @@ void PCRenderObject (OBJECT *obj)
 	
 }
 
+// Essentially the pushpoly macro optimised into the data filling algorithm - NEED TO ADD CLIPPING! (Arrrgh)!
+void PCRenderObjectFast (OBJECT *obj)
+{
+	MESH *mesh = obj->mesh;							// Pointer to the mesh to avoid multiple dereferencing.
+	D3DTLVERTEX *vtxList = obj->renderData;			// Again avoiding multiple dereferencing of obj->renderdata.
+	VECTOR *vecList = tV;							// A pointer we can modify for the vector list.
+	unsigned long i;								// Loop counter.
+	unsigned short i1,i2,i3;						// Face indices.
+	unsigned short *f1,*f2,*f3;						// Face pointers.
+	unsigned short *startF, *fIndex;				// More face pointer.
+	
+	// Store the start so that we dont have to increment the count every frame.
+	startF = cFInfo->cF;
+	vecList = tV;
+	fIndex = mesh->faceIndex;
 
+	// For every face
+	i = mesh->numFaces;
+
+	// If there are no faces then we cannot draw this object!
+	if (!i)
+		return;
+
+	// Otherwise, we can!
+	while (--i)
+	{	
+		// Copy the information from the list of VECTOR's to the list of D3DTLVERTEX's, the actual setting could go in the if, once it's working.
+		SetVector((VECTOR *)(vtxList  ),(vecList+(i1 = *(fIndex  ))));
+		SetVector((VECTOR *)(vtxList+1),(vecList+(i2 = *(fIndex+1))));
+		SetVector((VECTOR *)(vtxList+2),(vecList+(i3 = *(fIndex+2))));
+		fIndex+=3;
+		
+		// If all the vertices can be drawn?
+		if (*(((unsigned long *)vtxList)+2) && 
+			*(((unsigned long *)vtxList+1)+2) && 
+			*(((unsigned long *)vtxList+2)+2))
+		{	// Add it to the face list! And update the pointer
+			*(cFInfo->cF) = i1;
+			*(cFInfo->cF+1) = i2;
+			*(cFInfo->cF+2) = i3;
+			cFInfo->cF += 3;			
+		}
+
+		vtxList+=3;
+	}
+
+	// Copy the vertices onto the vertex list
+	i = mesh->numFaces*3;
+	memcpy (cFInfo->cV,obj->renderData,i*sizeof(D3DTLVERTEX));
+	
+	// For now they can all have the same texture coordinate
+	memset (cFInfo->cH,0,(cFInfo->cF - startF)*sizeof(unsigned long));
+
+	// Update the figures!
+	cFInfo->nV += i;
+	cFInfo->cH += (cFInfo->cF - startF);				
+	cFInfo->nF += (cFInfo->cF - startF);
+
+	// All done!
+}
 
 
 
