@@ -839,6 +839,7 @@ int InitCDaudio()
 
 int ShutdownCDaudio()
 {
+	StopSong( );
 	SetCDVolume(auxVolume);
 	return 0;
 }
