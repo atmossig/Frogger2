@@ -317,6 +317,14 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Morning:
+		Rewrote sinking tile state. Bug fixes to procedural textures,
+		and a fix to FindJoinedTileByDirection so it can span join tiles.
+		May have to put it back again if it breaks other things.
+
+	Afternoon:
+		
+
 
 James Healey:
 ------------------------------------------------
