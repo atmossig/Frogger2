@@ -628,12 +628,12 @@ static void saveMenuFull()
 
 /* NO CARD PAGE ********************************************************************************************************/
 
+int memtemp = 1;
 static void saveMenuNoCard()
 {
 	int choice;
 
 	choice = ChooseOption(GAMESTRING(STR_MCARD_NOCARD), GAMESTRING(STR_MCARD_RECHECK), GAMESTRING(STR_MCARD_PROCEED_WITHOUT_SAVE));
-//		ChooseOption(GAMESTRING(STR_MCARD_NOCARD), GAMESTRING(STR_MCARD_SAVEGAME), GAMESTRING(STR_MCARD_CANCELSAVE));
 	switch(choice)
 	{
 	case 3:

@@ -141,6 +141,20 @@ long DrawLoop(void)
 {
 	POINT	t;
 
+	if(gameState.mode == ARTVIEWER_MODE)
+	{
+		BeginDraw();
+		DrawBackdrop();
+		DrawScreenTransition();
+		EndDraw();
+		DDrawFlip();
+		return 0;
+	}
+
+
+
+
+
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
 	StartTimer (2,"Viewing, bg, fog");

@@ -104,7 +104,7 @@ extern USHORT EXPLORE_black_CLUT;
 
 GsRVIEW2	camera;
 unsigned long	RAMstart, RAMsize;
-static RECT VRAMarea = {0,0,1024,512};
+RECT VRAMarea = {0,0,1024,512};
 extern char __bss_orgend[];
 displayPageType displayPage[2], *currentDisplayPage;
 psFont *font = NULL;
@@ -118,6 +118,8 @@ long textEntry = 0;
 char textString[255] = "A--";
 
 long drawGame = 1;
+
+int artback = 0;
 
 //fixed gameSpeed = 4096;
 //char quitMainLoop;
@@ -662,13 +664,20 @@ int main ( )
 
 
 			// JH:  Main Draw Function That Runs All The Draw Functions.
-			if ( !objViewer )
-				MainDrawFunction();
+			if(gameState.mode == ARTVIEWER_MODE)
+			{
+				DrawBackDrop(0, artback);
+				DrawScreenTransition();
+			}
+			else
+			{
+				if ( !objViewer )
+					MainDrawFunction();
 
 
-			TIMER_START0(TIMER_UPDATETEXANIM);
-			UpdateTextureAnimations();
-			TIMER_STOP0(TIMER_UPDATETEXANIM);
+				TIMER_START0(TIMER_UPDATETEXANIM);
+				UpdateTextureAnimations();
+				TIMER_STOP0(TIMER_UPDATETEXANIM);
 
 	
 #if GOLDCD == NO
@@ -676,10 +685,12 @@ int main ( )
 				DisplayOnScreenInfo();
 			// ENDIF
 #endif
-
+			}
+			
 			/*if ( ++animFrame == 8 )
 				animFrame = 0;*/
 
+			
 			TIMER_START0(TIMER_DRAWSYNC);
 			DrawSync(0);
 			TIMER_STOP0(TIMER_DRAWSYNC);
