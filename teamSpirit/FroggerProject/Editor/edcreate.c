@@ -27,6 +27,7 @@
 #include "event.h"
 #include "pcmisc.h"
 
+#include "layout.h"
 
 /*	--------------------------------------------------------------------------------
 	Function		: EditorCreateEntities
@@ -64,6 +65,8 @@ void EditorCreateEntities(void)
 	InitSpriteSortArray( );
 	FreeParticleList( );
 	InitParticleList( );
+
+	actFrameCount = 0;
 
 	// count up each of our entity types
 
@@ -207,4 +210,8 @@ void EditorCreateEntities(void)
 
 	sprintf(statusMessage, "Created %d enemies, %d plats, %d garibs, %d cam trans, %d placeholders",
 		counts[0], counts[1], counts[2], counts[3], counts[4]);
+
+	InitTiming(60);
+	UpdateEnemies();
+	UpdatePlatforms();
 }
