@@ -116,7 +116,7 @@ void GameProcessController(long pl)
 
 	player[pl].hasJumped = 0;
 
-	if( multiplayerMode == MULTIMODE_BATTLE )
+	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
 		return;
 	
 	// check if frog is using extended hop ability
