@@ -392,7 +392,7 @@ int SaveControllerSetup(void)
 				RegSetValueEx(hkey, name, NULL, REG_SZ, (unsigned char*)value, 8);
 			}
 
-			KeyboardDump(hkey, 1);
+			//KeyboardDump(hkey, 1);
 		}
 		RegCloseKey(hkey);
 	}
