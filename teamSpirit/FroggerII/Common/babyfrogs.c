@@ -15,17 +15,20 @@
 
 #include "incs.h"
 
+BABY babyList[NUM_BABIES];
+ACTOR2 *babies[NUM_BABIES];
+ACTOR *babyFollow[NUM_BABIES];
 
 GAMETILE **bTStart;
 
-ACTOR2 *babies[NUM_BABIES];
-ACTOR2 *nearestBaby		= NULL;
-ACTOR2 *lastBabySaved	= NULL;
-ACTOR *babyFollow[NUM_BABIES];
+int nearestBaby		= NULL;
+int lastBabySaved	= NULL;
 
 SPRITEOVERLAY *babyIcons[NUM_BABIES];
 
 unsigned long numBabies = 0;
+
+const char* baby_filenames[NUM_BABIES] = { "frog", "ylfrg", "blfrog", "prfrg", "rdfrg" };
 
 
 void CreateBabies(unsigned long createActors,unsigned long createOverlays)
@@ -47,7 +50,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 
 			InitActorAnim(babies[i]->actor);
 			AnimateActor(babies[i]->actor,0,YES,NO,0.5F,0,0);
-			babies[i]->action.isSaved = 0;
+			babyList[i].isSaved = 0;
 
 			SetVector( &babies[i]->actor->pos, &bTStart[i]->centre );
 
@@ -58,38 +61,38 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 			{
 				case 0:
 					// green frog
-					babies[i]->action.fxColour[R] = 0;
-					babies[i]->action.fxColour[G] = 255;
-					babies[i]->action.fxColour[B] = 0;
-					babies[i]->action.fxColour[A] = 255;
+					babyList[i].fxColour[R] = 0;
+					babyList[i].fxColour[G] = 255;
+					babyList[i].fxColour[B] = 0;
+					babyList[i].fxColour[A] = 255;
 					break;
 				case 1:
 					// yellow frog
-					babies[i]->action.fxColour[R] = 255;
-					babies[i]->action.fxColour[G] = 255;
-					babies[i]->action.fxColour[B] = 0;
-					babies[i]->action.fxColour[A] = 255;
+					babyList[i].fxColour[R] = 255;
+					babyList[i].fxColour[G] = 255;
+					babyList[i].fxColour[B] = 0;
+					babyList[i].fxColour[A] = 255;
 					break;
 				case 2:
 					// blue frog
-					babies[i]->action.fxColour[R] = 0;
-					babies[i]->action.fxColour[G] = 0;
-					babies[i]->action.fxColour[B] = 255;
-					babies[i]->action.fxColour[A] = 255;
+					babyList[i].fxColour[R] = 0;
+					babyList[i].fxColour[G] = 0;
+					babyList[i].fxColour[B] = 255;
+					babyList[i].fxColour[A] = 255;
 					break;
 				case 3:
 					// purple frog
-					babies[i]->action.fxColour[R] = 255;
-					babies[i]->action.fxColour[G] = 0;
-					babies[i]->action.fxColour[B] = 255;
-					babies[i]->action.fxColour[A] = 255;
+					babyList[i].fxColour[R] = 255;
+					babyList[i].fxColour[G] = 0;
+					babyList[i].fxColour[B] = 255;
+					babyList[i].fxColour[A] = 255;
 					break;
 				case 4:
 					// red frog
-					babies[i]->action.fxColour[R] = 255;
-					babies[i]->action.fxColour[G] = 0;
-					babies[i]->action.fxColour[B] = 0;
-					babies[i]->action.fxColour[A] = 255;
+					babyList[i].fxColour[R] = 255;
+					babyList[i].fxColour[G] = 0;
+					babyList[i].fxColour[B] = 0;
+					babyList[i].fxColour[A] = 255;
 					break;
 			}
 		}
@@ -99,72 +102,22 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	{
 		for(i=0; i<numBabies; i++)
 		{
-			switch(i)
+			char fn[14];
+
+			sprintf(fn, "%s001.bmp", baby_filenames[i]);
+			
+			babyIcons[i] = CreateAndAddSpriteOverlay(
+				(short)(280-(i*20)), 205,
+				fn,
+				16,16,255,255,255,91,
+				(short)(ANIMATION_FORWARDS|ANIMATION_CYCLE));
+
+			// Add animation frames
+
+			for (j=2; j<=8; j++)
 			{
-				case 0:
-					babyIcons[i] = CreateAndAddSpriteOverlay(280-(i*20),205,"frog001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-					AddFrameToSpriteOverlay(babyIcons[i],"frog002.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog003.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog004.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog005.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog006.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog007.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog008.bmp");
-					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
-					babyIcons[i]->animTime = i;
-					break;
-
-				case 1:
-					babyIcons[i] = CreateAndAddSpriteOverlay(280-(i*20),205,"ylfrg001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg002.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg003.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg004.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg005.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg006.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg007.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"ylfrg008.bmp");
-					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
-					babyIcons[i]->animTime = i;
-					break;
-
-				case 2:
-					babyIcons[i] = CreateAndAddSpriteOverlay(280-(i*20),205,"blfrog001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog002.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog003.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog004.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog005.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog006.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog007.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"blfrog008.bmp");
-					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
-					babyIcons[i]->animTime = i;
-					break;
-
-				case 3:
-					babyIcons[i] = CreateAndAddSpriteOverlay(280-(i*20),205,"prfrg001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg002.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg003.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg004.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg005.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg006.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg007.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"prfrg008.bmp");
-					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
-					babyIcons[i]->animTime = i;
-					break;
-
-				case 4:
-					babyIcons[i] = CreateAndAddSpriteOverlay(280-(i*20),205,"rdfrg001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg002.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg003.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg004.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg005.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg006.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg007.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"rdfrg008.bmp");
-					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
-					babyIcons[i]->animTime = i;
-					break;
+				sprintf(fn, "%s%03d.bmp", baby_filenames[i], j);
+				AddFrameToSpriteOverlay(babyIcons[i], fn);
 			}
 		}
 	}
@@ -178,17 +131,16 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	Returns			: void
 	Info			: 
 */
-void RunBabySavedSequence(ACTOR2 *baby)
+void RunBabySavedSequence(int i)
 {
-	static VECTOR pos,pos2;
+	static VECTOR pos,pos2;		// yuck
 	SPECFX *fx;
-	int i;
 
 	babySaved--;
 	if(!babySavedText->draw)
 	{
 		EnableTextOverlay(babySavedText);
-		SetVector(&pos,&baby->actor->pos);
+		SetVector(&pos,&babies[i]->actor->pos);
 		SetVector(&pos2,&pos);
 		pos2.v[Y] += 48;
 	}
@@ -212,10 +164,10 @@ void RunBabySavedSequence(ACTOR2 *baby)
 			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 5, 1, 0.05, 0.6 );
 			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 10, 0.8, 0.05, 0.3 );
 
-			fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &baby->actor->pos, &upVec, 64, 0, 0, 2 );
-			fx->sprites->r = baby->action.fxColour[R];
-			fx->sprites->g = baby->action.fxColour[G];
-			fx->sprites->b = baby->action.fxColour[B];
+			fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &babies[i]->actor->pos, &upVec, 64, 0, 0, 2 );
+			fx->sprites->r = babyList[i].fxColour[R];
+			fx->sprites->g = babyList[i].fxColour[G];
+			fx->sprites->b = babyList[i].fxColour[B];
 		}
 	}
 }
@@ -228,30 +180,30 @@ void RunBabySavedSequence(ACTOR2 *baby)
 	Returns			: ACTOR2 *
 	Info			: used for, say, determining
 */
-ACTOR2 *GetNearestBabyFrog()
+int GetNearestBabyFrog()
 {
-	ACTOR2 *nearest = NULL;
+	int nearest = -1;
 	float t,distance = 99999;
 	int i;
 
 	i = numBabies;
 	while(i--)
 	{
-		if(!babies[i]->action.isSaved)
+		if(!babyList[i].isSaved)
 		{
 			t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
 			if(t < distance)
 			{
 				distance	= t;
-				nearest		= babies[i];
+				nearest		= i;
 			}
 		}
 	}
 
 	if(nearest && (distance < CROAK_SOUND_RANGE))
-		PlaySample(218,&nearest->actor->pos,255,128 + (128 - (distance / 4)));
+		PlaySample(218, &babies[nearest]->actor->pos, 255, (short)(128 + (128 - (distance / 4))));
 
-	return nearest;
+	return i;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -272,7 +224,7 @@ void FaceBabiesTowardsFrog(long pl)
 	{
 		if(babies[i])
 		{
-			if(!(babies[i]->action.isSaved))
+			if(!(babyList[i].isSaved))
 			{
 				if(bTStart[i])
 				{
@@ -286,7 +238,7 @@ void FaceBabiesTowardsFrog(long pl)
 					babies[i]->actor->pos.v[Y] = 0;
 					babies[i]->actor->pos.v[Z] = 0;
 				}
-				babies[i]->action.isSaved = 0;
+				babyList[i].isSaved = 0;
 			}
 
 			// face baby towards frog

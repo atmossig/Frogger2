@@ -17,9 +17,17 @@
 
 extern GAMETILE **bTStart;
 
+// baby stuff
+typedef struct TAGBABY
+{
+	unsigned long isSaved;
+	unsigned char fxColour[4];
+} BABY;
+
+extern BABY babyList[NUM_BABIES];
 extern ACTOR2 *babies[NUM_BABIES];
-extern ACTOR2 *nearestBaby;
-extern ACTOR2 *lastBabySaved;
+extern int nearestBaby;
+extern int lastBabySaved;
 extern ACTOR *babyFollow[NUM_BABIES];
 
 extern SPRITEOVERLAY *babyIcons[NUM_BABIES];
@@ -27,9 +35,9 @@ extern unsigned long babiesSaved;
 extern unsigned long numBabies;
 
 void CreateBabies(unsigned long createActors,unsigned long createOverlays);
-void RunBabySavedSequence(ACTOR2 *baby);
+void RunBabySavedSequence(int);
 
-ACTOR2 *GetNearestBabyFrog();
+int GetNearestBabyFrog();
 void FaceBabiesTowardsFrog(long pl);
 
 

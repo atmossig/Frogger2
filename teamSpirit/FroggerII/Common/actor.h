@@ -36,10 +36,6 @@ typedef struct TAGACTION
 {	
 //	QUATERNION rot;
 	
-	// baby stuff
-	unsigned long isSaved;
-	unsigned char fxColour[4];
-
 	// non-baby stuff
 	unsigned long safe;
 	unsigned long stun;

@@ -105,7 +105,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	{
 		if ( babies[i] )
 		{
-			if(!babies[i]->action.isSaved)
+			if(!babyList[i].isSaved)
 			{
 				if ( bTStart[i] )
 				{
@@ -413,10 +413,13 @@ void UpdateFroggerPos(long pl)
 			// check for nearest baby frog - do radius check ????
 			if(nearestBaby = GetNearestBabyFrog())
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &nearestBaby->actor->pos, &upVec, 15, 1, 0.1, 1.2 );
-				fx->r = nearestBaby->action.fxColour[R];
-				fx->g = nearestBaby->action.fxColour[G];
-				fx->b = nearestBaby->action.fxColour[B];
+				fx = CreateAndAddSpecialEffect(
+					FXTYPE_POLYRING, &babies[nearestBaby]->actor->pos,
+					&upVec, 15, 1, 0.1, 1.2 );
+
+				fx->r = babyList[nearestBaby].fxColour[R];
+				fx->g = babyList[nearestBaby].fxColour[G];
+				fx->b = babyList[nearestBaby].fxColour[B];
 			}
 		}
 	}

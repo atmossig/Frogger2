@@ -181,7 +181,7 @@ ACTOR2 *BabyFrogIsInTongueRange()
 		for(i=0; i<numBabies; i++)
 		{
 			if ( babies[i] )
-				if((!babies[i]->action.isSaved) && (babies[i]->distanceFromFrog < (tongueRadius * tongueRadius)))
+				if((!babyList[i].isSaved) && (babies[i]->distanceFromFrog < (tongueRadius * tongueRadius)))
 				{
 					mags[numInRange]		= babies[i]->distanceFromFrog;
 					inRange[numInRange++]	= babies[i];
@@ -299,7 +299,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 	{
 		if( babies[i] )
 		if( DistanceBetweenPointsSquared(&babies[i]->actor->pos, &frog[pl]->actor->pos) < PICKUP_RADIUS_SQUARED)
-			PickupBabyFrog(babies[i]);
+			PickupBabyFrog(i);
 	}
 }
 
@@ -499,36 +499,31 @@ void PutFrogOnGrapplePoint( GAMETILE *tile )
 	Returns			: void
 	Info			:
 */
-void PickupBabyFrog(ACTOR2 *baby)
+void PickupBabyFrog(int b)
 {
-	int babyFrogIndex = numBabies;
+	ACTOR2 *baby = babies[b];
 
 	// check if this baby has been collected
-	if(baby->action.isSaved)
+	if(babyList[b].isSaved)
 		return;
 
-	while(babyFrogIndex--)
-		if(babies[babyFrogIndex] == baby)
-			break;
-
-	baby->action.isSaved	= 1;
-//	baby->flags	ACTOR2			= ACTOR_DRAW_NEVER;
+	babyList[b].isSaved	= 1;
 	baby->actor->xluOverride = 0;
 	baby->draw				= 0;
 
-	lastBabySaved = baby;
+	lastBabySaved = b;
 
-	babyIcons[babyFrogIndex]->a = 255;
-	babyIcons[babyFrogIndex]->animSpeed = 1.0F;
+	babyIcons[b]->a = 255;
+	babyIcons[b]->animSpeed = 1.0F;
 	babiesSaved++;
 	
 	// make baby position the new start position ?
 	if(carryOnBabies)
-		gTStart[0] = bTStart[babyFrogIndex];
+		gTStart[0] = bTStart[b];
 							  
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
-	PlaySample(147,&baby->actor->pos,192,128);
+	PlaySample(147, &baby->actor->pos, 192, 128);
 }
 
 //-------------------------------------------------------------------------------------------------

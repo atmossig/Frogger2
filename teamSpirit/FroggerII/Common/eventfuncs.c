@@ -315,9 +315,9 @@ void ToggleTileLink( EVENT *event )
 */
 void PlaySFX( EVENT *event )
 {
-	int snum = *(int *)event->data[0];
-	int vol = *(int *)event->data[1];
-	int pitch = *(int *)event->data[2];
+	short snum = *(int *)event->data[0];
+	short vol = *(int *)event->data[1];
+	short pitch = *(int *)event->data[2];
 	VECTOR *point = (VECTOR *)event->data[3];
 	float radius = *(float *)event->data[4];
 
@@ -336,11 +336,11 @@ void PlaySFX( EVENT *event )
 void EvAnimateActor( EVENT *event )
 {
 	ACTOR *actor = (ACTOR *)event->data[0];
-	int anim = *(int*)event->data[1];
-	int flags = *(int*)event->data[2];
+	short anim = *(int*)event->data[1];
+	short flags = *(int*)event->data[2];
 	float speed = *(float*)event->data[3];
 
-	AnimateActor(actor, anim, (flags & 1) != 0, (flags & 2) != 0, speed, 0, 0);
+	AnimateActor(actor, anim, (char)(flags & 1), (char)(flags & 2), speed, 0, 0);
 }
 
 
