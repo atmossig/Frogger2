@@ -332,13 +332,11 @@ void DrawFXDecal( SPECFX *fx )
 		Clip3DPolygon( vT, tEntry->surf );
 		Clip3DPolygon( &vT[2], tEntry->surf );
 
+		// If we want a pseudo-cheaty-bumpmap effect, shift vertices slightly and draw another, additive, copy.
 		if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
 		{
 			for( i=0; i<4; i++ )
-			{
 				vT[i].sx += 3;
-				vT[i].color = D3DRGBA(fx->r/255.0,fx->g/255.0,fx->b/255.0,fx->a/255.0);
-			}
 
 			SwapFrame(3);
 			Clip3DPolygon( vT, tEntry->surf );
@@ -359,7 +357,6 @@ void DrawFXRing( SPECFX *fx )
 	MDX_TEXENTRY *tEntry;
 	MDX_VECTOR tempVect, m, scale, normal, pos;
 	MDX_QUATERNION q1, q2, q3, cross;
-	DWORD colour = D3DRGBA(fx->r/255.0,fx->g/255.0,fx->b/255.0,fx->a/255.0);
 	float tilt, t;
 	int zeroZ = 0;
 
@@ -373,13 +370,33 @@ void DrawFXRing( SPECFX *fx )
 	ScaleVector( &scale, 0.1 );
 	ScaleVector( &pos, 0.1 );
 
+	vT[0].tu = 1;
+	vT[0].tv = 1;
+	vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
+	vT[0].specular = D3DRGB(0,0,0);
+
+	vT[1].tu = 0;
+	vT[1].tv = 1;
+	vT[1].color = vT[0].color;
+	vT[1].specular = vT[0].specular;
+
+	vT[2].tu = 0;
+	vT[2].tv = 0;
+	vT[2].color = vT[0].color;
+	vT[2].specular = vT[0].specular;
+	
+	vT[3].tu = 1;
+	vT[3].tv = 0;
+	vT[3].color = vT[0].color;
+	vT[3].specular = vT[0].specular;
+
 	// Translate to current fx pos and push
 	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
 
 	// Rotate around axis
 	SetVector( (MDX_VECTOR *)&q1, &normal );
-	q1.w = fx->angle;
+	q1.w = fx->angle/57.6;
 	GetQuaternionFromRotation( &q2, &q1 );
 
 	// Rotate to be around normal
@@ -395,18 +412,18 @@ void DrawFXRing( SPECFX *fx )
 	PushMatrix( rMtrx );
 
 	if( fx->type == FXTYPE_CROAK )
-	{
 		SwapFrame(3);
-	}
 
 	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=4 )
 	{
-		memcpy( vT, &ringVtx[vx], sizeof(D3DTLVERTEX)*4 );
 		// Transform to proper coords
 		for( j=0; j<4; j++ )
 		{
+			vT[j].sx = ringVtx[vx+j].vx*0.000244;
+			vT[j].sy = ringVtx[vx+j].vy*0.000244;
+			vT[j].sz = ringVtx[vx+j].vz*0.000244;
 			// Slant the polys
-			tilt = (j < 2) ? fx->tilt : 1;
+			tilt = (float)((j < 2) ? fx->tilt : 4096)/4096;
 			// Scale and push
 			guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
 			PushMatrix( sMtrx );
@@ -422,8 +439,6 @@ void DrawFXRing( SPECFX *fx )
 			vT[j].sy = m.vy;
 			if( !m.vz ) zeroZ++;
 			else vT[j].sz = (m.vz+DIST)*0.00025;
-
-			vT[j].color = colour;
 
 			PopMatrix( ); // Pop scale
 		}
@@ -442,9 +457,7 @@ void DrawFXRing( SPECFX *fx )
 	PopMatrix( ); // Translation
 
 	if( fx->type == FXTYPE_CROAK )
-	{
 		SwapFrame(0);
-	}
 }
 
 
