@@ -41,16 +41,19 @@ extern "C"
 int Eval_Exception (int n_except,LPEXCEPTION_POINTERS exceptinf)
 {
 	MSG msg;
-	
-	ShowWindow(mdxWinInfo.hWndMain,SW_SHOWMINIMIZED);
 
-    while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+	if (rFullscreen)
 	{
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg);
+		ShowWindow(mdxWinInfo.hWndMain,SW_SHOWMINIMIZED);
+
+		while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+		{
+			TranslateMessage(&msg); 
+			DispatchMessage(&msg);
+		}
+		pDirectDraw7->SetCooperativeLevel(mdxWinInfo.hWndMain, DDSCL_NORMAL);
+		pDirectDraw7->Release();
 	}
-	pDirectDraw7->SetCooperativeLevel(mdxWinInfo.hWndMain, DDSCL_NORMAL);
-	pDirectDraw7->Release();
 
 	return EXCEPTION_CONTINUE_SEARCH;
 }

@@ -558,13 +558,13 @@ void ProcessUserInput()
 	if (consoleDraw)
 		return;
 
-	//if (keyInput)
-	//{
+	if (windowActive)
+	{
 		// read keyboard data
 		hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
 		if(FAILED(hRes))
 			return;
-	//}
+	}
 
 	//----- [ KEYBOARD CONTROL ] -----//
 

@@ -41,6 +41,7 @@ WNDPROC userWndProc;
 unsigned long consoleDraw = 0;
 unsigned long timerDraw = 0;
 char winAppName[128];
+long windowActive;
 
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
@@ -98,6 +99,13 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		case WM_RBUTTONUP:
 			break;
 
+		case WM_ACTIVATE:
+			if (wParam == WA_INACTIVE)
+				windowActive = 0;
+			else
+				windowActive = 1;
+			break;
+
 		default:
 		    return DefWindowProc(hWnd,message,wParam,lParam);
 	}
@@ -133,14 +141,14 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 
 	// create the window
     mdxWinInfo.hWndMain = CreateWindowEx(
-		WS_EX_TOPMOST,
+		0,
         appName,
         appName,
-		WS_OVERLAPPED,//_POPUP,
+		WS_OVERLAPPED | WS_SYSMENU | WS_THICKFRAME,//_POPUP,
 		0,
 		0,
-		GetSystemMetrics(SM_CXSCREEN), 
-		GetSystemMetrics(SM_CYSCREEN), 
+		640,//GetSystemMetrics(SM_CXSCREEN), 
+		480,//GetSystemMetrics(SM_CYSCREEN), 
         NULL,				// parent window
         NULL,				// menu handle
         hInstance,			// program handle

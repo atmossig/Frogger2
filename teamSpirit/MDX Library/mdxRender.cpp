@@ -53,7 +53,7 @@ MDX_VECTOR tN[MAX_OBJECT_VERTICES];
 short facesON[3] = {0,1,2};
 
 float nearClip = 1;
-float farClip = 2500;
+float farClip = 700;
 
 float horizClip = 3000;
 float vertClip = 2500;
@@ -531,9 +531,10 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 		
 		vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
 		vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
-		vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2+DIST;
+		vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2 + DIST;
 
 		if (vTemp2->sz>nearClip)
+		if (vTemp2->sz<farClip)
 		{
 			x = (long)vTemp2->sz;
 			oozd = -FOV * *(oneOver+x);

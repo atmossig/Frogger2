@@ -23,7 +23,7 @@
 #include "commctrl.h"
 #include "majikPR.h"
 
-#include "resource.h"
+#include "..\froggerproject\resource.h"
 #ifdef __cplusplus
 extern "C"
 {
@@ -31,7 +31,7 @@ extern "C"
 
 LPDIRECTDRAW7			pDirectDraw7;
 LPDIRECTDRAWCLIPPER		pClipper;
-unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale, rFlipOK = 1;
+unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen = 1, rScale = 1, rFlipOK = 1;
 HWND					rWin;
 
 LPDIRECTDRAWSURFACE7	surface[NUM_SRF] = {NULL,NULL,NULL};
@@ -184,6 +184,12 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 						if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
 							selIdx = i;
 
+					if (SendMessage (GetDlgItem(hwndDlg,IDC_WINDOW),BM_GETCHECK,0,0) == BST_CHECKED)
+					{
+						dp("Running Windowed!\n");
+						rFullscreen = 0;
+					}
+
 					EndDialog ( hwndDlg, TRUE );
 					break;
 				}
@@ -228,7 +234,8 @@ unsigned long DDrawInitObject (GUID *guid)
 	if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
 		return 0;
 
-	ShowCursor(0);
+	if (rFullscreen)
+		ShowCursor(0);
 
 	for (i=0; i<dxNumDevices; i++)
 		if ((dxDeviceList[i].idx == selIdx) && ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) || (dxDeviceList[i].guid == (GUID *)-1)))
@@ -295,8 +302,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 	rYRes = yRes;
 
 	// To run fullscreen - exclusive, ensure bitdepth is nonzero
-	rFullscreen = 0;
-	if (rBitDepth)
+	if (rFullscreen)
 	{
 		ShowWindow(mdxWinInfo.hWndMain,SW_SHOWMAXIMIZED);
 
@@ -315,7 +321,6 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			ddShowError(res);
 			return 0;
 		}
-		rFullscreen = 1;
 	
 		// Create a primary surface
 		DDINIT(ddsd);
@@ -341,6 +346,8 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 	}
 	else
 	{
+			ShowWindow(mdxWinInfo.hWndMain,SW_SHOW);
+
 		if ((res = pDirectDraw7->SetCooperativeLevel(window, DDSCL_NORMAL)) != DD_OK)
 		{
 			dp("Failed setting cooperative level. (Fullscreen Mode)\n");
@@ -435,7 +442,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 	}
 	
 */	
-	DDrawSetupWindow (window,FALSE);
+	DDrawSetupWindow (window,TRUE);
 
 	return 1;
 }
