@@ -817,6 +817,22 @@ void SoundUp(void)
 		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 		soundSwapTime = actFrameCount;
 	}
+#ifdef DREAMCAST_VERSION
+	else if( !options.soundSelection )
+	{
+		// Disable both the sliders
+		options.soundIcons[0]->r = options.soundIcons[0]->g = options.soundIcons[0]->b = 64;
+		options.soundIcons[1]->r = options.soundIcons[1]->g = options.soundIcons[1]->b = 64;
+		options.soundBar[0]->r = options.soundBar[0]->g = options.soundBar[0]->b = 255;
+		options.soundBar[1]->r = options.soundBar[1]->g = options.soundBar[1]->b = 255;
+
+		options.stereoSelectText[0]->a = options.stereoSelectText[1]->a = 255;
+
+		options.soundSelection--;
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		soundSwapTime = actFrameCount;
+	}
+#endif
 }
 
 
@@ -824,14 +840,19 @@ void SoundDown(void)
 {
 	if(options.soundSelection < 1)
 	{
-		options.soundIcons[0]->r = options.soundIcons[0]->g = options.soundIcons[0]->b = 64;
-		options.soundIcons[1]->r = options.soundIcons[1]->g = options.soundIcons[1]->b = 255;
-
-		options.soundBar[0]->r = options.soundBar[0]->g = options.soundBar[0]->b = 255;
-		options.soundBar[1]->r = 255;
-		options.soundBar[1]->g = options.soundBar[1]->b = 0;
+#ifdef DREAMCAST_VERSION
+		options.stereoSelectText[0]->a = options.stereoSelectText[1]->a = 128;
+#endif
 
 		options.soundSelection++;
+
+		options.soundIcons[1-options.soundSelection]->r = options.soundIcons[1-options.soundSelection]->g = options.soundIcons[1-options.soundSelection]->b = 64;
+		options.soundIcons[options.soundSelection]->r = options.soundIcons[options.soundSelection]->g = options.soundIcons[options.soundSelection]->b = 255;
+
+		options.soundBar[1-options.soundSelection]->r = options.soundBar[1-options.soundSelection]->g = options.soundBar[1-options.soundSelection]->b = 255;
+		options.soundBar[options.soundSelection]->r = 255;
+		options.soundBar[options.soundSelection]->g = options.soundBar[options.soundSelection]->b = 0;
+
 		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 		soundSwapTime = actFrameCount;
 	}
@@ -842,6 +863,11 @@ void SoundLeft(void)
 {
 	switch(options.soundSelection)
 	{
+#ifdef DREAMCAST_VERSION
+		case -1:
+			ToggleStereo( );
+			break;
+#endif
 		case 0:
 			if(globalMusicVol)
 			{
@@ -868,6 +894,11 @@ void SoundRight(void)
 {
 	switch(options.soundSelection)
 	{
+#ifdef DREAMCAST_VERSION
+		case -1: 
+			ToggleStereo( );
+			break;
+#endif
 		case 0:
 			if(globalMusicVol < MAX_SOUND_VOL)
 			{
@@ -1135,6 +1166,10 @@ void OptionBack(void)
 				options.soundIcons[i]->draw = options.soundIcons[i]->a = 0;
 				options.soundBar[i]->draw = options.soundBar[i]->a = 0;
 				options.soundBak[i]->draw = options.soundBak[i]->a = 0;
+
+#ifdef DREAMCAST_VERSION
+				options.stereoSelectText[i]->draw = 0;
+#endif
 			}
 
 			for (i=0; i<numExtrasAvailable; i++)
@@ -1221,6 +1256,17 @@ void CreateOptionsObjects(void)
 	options.soundInstrText[1] = CreateAndAddTextOverlay(1700,3370,GAMESTRING(STR_SOUND_INSTR_1),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 	options.soundInstrText[0]->draw = 0;
 	options.soundInstrText[1]->draw = 0;
+#ifdef DREAMCAST_VERSION
+	options.stereo = 0;
+	options.stereoSelectText[0] = CreateAndAddTextOverlay(1650,1024,GAMESTRING(STR_SOUNDMONO),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+	options.stereoSelectText[1] = CreateAndAddTextOverlay(2250,1024,GAMESTRING(STR_SOUNDSTEREO),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+	options.stereoSelectText[0]->draw = 0;
+	options.stereoSelectText[1]->draw = 0;
+
+	options.stereoSelectText[1-options.stereo]->r = options.stereoSelectText[1-options.stereo]->g = options.stereoSelectText[1-options.stereo]->b = 255;
+	options.stereoSelectText[options.stereo]->r = 255;
+	options.stereoSelectText[options.stereo]->g = options.stereoSelectText[options.stereo]->b = 0;
+#endif
 
 	for(i = 0;i < 4;i++)
 	{
@@ -1393,13 +1439,13 @@ void OptionsProcessController(void)
 	if((button & PAD_UP) && !(optionsLastButton & PAD_UP) && options.controls[C_UP])
 		options.controls[C_UP]();
 
-	if((button & PAD_RIGHT) && ((!(optionsLastButton & PAD_RIGHT)) || (options.mode == OP_SOUND)) && options.controls[C_RIGHT])
+	if((button & PAD_RIGHT) && ((!(optionsLastButton & PAD_RIGHT)) || (options.mode == OP_SOUND && options.soundSelection != -1)) && options.controls[C_RIGHT])
 		options.controls[C_RIGHT]();
 
 	if((button & PAD_DOWN) && !(optionsLastButton & PAD_DOWN) && options.controls[C_DOWN])
 		options.controls[C_DOWN]();
 
-	if((button & PAD_LEFT) && ((!(optionsLastButton & PAD_LEFT)) || (options.mode == OP_SOUND)) && options.controls[C_LEFT])
+	if((button & PAD_LEFT) && ((!(optionsLastButton & PAD_LEFT)) || (options.mode == OP_SOUND && options.soundSelection != -1)) && options.controls[C_LEFT])
 		options.controls[C_LEFT]();
 
 	// Currently unimplemented
@@ -1533,6 +1579,11 @@ void RunOptionsMenu(void)
 			options.sfxText[0]->draw = 1;
 			options.sfxText[1]->draw = 1;
 
+#ifdef DREAMCAST_VERSION
+			if( options.stereo > 1 || options.stereo < 0 )
+				options.stereo = 0;
+#endif
+
 			options.sfxText[0]->r = options.soundBar[0]->r;
 			options.sfxText[0]->g = options.soundBar[0]->g;
 			options.sfxText[0]->b = options.soundBar[0]->b;
@@ -1543,9 +1594,12 @@ void RunOptionsMenu(void)
 
 			DEC_ALPHA(options.selectText);
 #ifdef PC_VERSION
-			options.soundIcons[options.soundSelection]->angle = FMul(rsin((actFrameCount - soundSwapTime)*soundwobble),soundwobblefac);
-			options.soundIcons[1 - options.soundSelection]->angle *= 4;
-			options.soundIcons[1 - options.soundSelection]->angle /= 5;
+			if( options.soundSelection > 0 )
+			{
+				options.soundIcons[options.soundSelection]->angle = FMul(rsin((actFrameCount - soundSwapTime)*soundwobble),soundwobblefac);
+				options.soundIcons[1 - options.soundSelection]->angle *= 4;
+				options.soundIcons[1 - options.soundSelection]->angle /= 5;
+			}
 #endif
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
 			INC_ALPHA(options.title,255);
@@ -1559,6 +1613,9 @@ void RunOptionsMenu(void)
 				INC_ALPHA(options.soundIcons[i],255);
 				INC_ALPHA(options.soundBar[i],255);
 				INC_ALPHA(options.soundBak[i],128);
+#ifdef DREAMCAST_VERSION
+				options.stereoSelectText[i]->draw = 1;
+#endif
 			}
 			break;
 
@@ -2960,3 +3017,21 @@ void RunTeaserScreens( )
 		}
 	}
 }
+
+
+#ifdef DREAMCAST_VERSION
+void ToggleStereo( )
+{
+	options.stereoSelectText[options.stereo]->r = options.stereoSelectText[options.stereo]->g = options.stereoSelectText[options.stereo]->b = 255;
+
+	options.stereo = 1-options.stereo;
+
+	options.stereoSelectText[options.stereo]->r = 255;
+	options.stereoSelectText[options.stereo]->g = options.stereoSelectText[options.stereo]->b = 0;
+
+	if( options.stereo )
+	{
+		// JIM: Martin, do your funky sound stuff here, m'kay?
+	}
+}
+#endif
