@@ -365,6 +365,10 @@ typedef struct TAGSPRITE
 
 	char kill;
 
+	VECTOR sc;
+	float angle;
+	float angleInc;
+
 }SPRITE;
 
 typedef struct OBJECTSPRITE

@@ -9,7 +9,6 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -238,7 +237,7 @@ void FreeAnimationList ( void )
 
 FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS] =
 {
-	{ NULL,0,0,"coin00"},				// SPAWN_ANIM			//0
+	{ NULL,0,0,"coin00"},			// SPAWN_ANIM			//0
 	{ NULL,0,0,"spa" },				// EXTRAHEALTH_ANIM		//1
 	{ NULL,0,0,"spa" },				// EXTRALIFE_ANIM		//2
 	{ NULL,0,0,"spa" },				// AUTOHOP_ANIM			//3
@@ -252,9 +251,13 @@ FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS] =
 
 
 SPRITELIST spriteList;
+SPRITE *testSpr = NULL;
+
 BACKDROPLIST backdropList;
 
-SPRITE *testSpr = NULL;
+int numSortArraySprites = 0;
+SPRITE spriteSortArray[500];
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitSpriteLinkedList
@@ -641,3 +644,65 @@ SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,sho
 
 	return sprite;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SpriteZCompare
+	Purpose			: function to compare transformed sprite z-values for sorting
+	Parameters		: const void *,const void *
+	Returns			: int
+	Info			: -1 if less than, 0 if equal to, 1 if greater than
+*/
+int SpriteZCompare(const void *arg1,const void *arg2)
+{
+	SPRITE *s1 = (SPRITE *)arg1;
+	SPRITE *s2 = (SPRITE *)arg2;
+
+	if(s1->sc.v[Z] < s2->sc.v[Z])
+		return -1;
+	else if(s1->sc.v[Z] == s2->sc.v[Z])
+		return 0;
+	else
+		return 1;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ZSortSpriteList
+	Purpose			: sorts the sprites based on z-distance
+	Parameters		: 
+	Returns			: void
+	Info			: list to sort is specified in srcList
+*/
+
+#define SPRITE_ZSORT_DRAWDISTANCE	450
+
+void ZSortSpriteList()
+{
+	SPRITE *cur,*next;
+	VECTOR frogXfm;
+		
+	if(spriteList.numEntries < 2)
+		return;
+
+	XfmPoint(&frogXfm,&frog[0]->actor->pos);
+
+	// uses a quick sort
+
+	// traverse through sprite list and create the sort array
+	numSortArraySprites = 0;
+	for(cur = spriteList.head.next; cur != &spriteList.head; cur = next)
+	{
+		next = cur->next;
+
+		// the static array should be large enough to enough sprites (currently 500)
+		if((cur->sc.v[Z] - frogXfm.v[Z]) < SPRITE_ZSORT_DRAWDISTANCE)
+		{
+			spriteSortArray[numSortArraySprites] = *(cur);
+			numSortArraySprites++;
+		}
+	}
+
+	qsort(&spriteSortArray[0],numSortArraySprites,sizeof(SPRITE),SpriteZCompare);
+}
+

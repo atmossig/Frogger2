@@ -158,19 +158,25 @@ char IsPointVisible(VECTOR *p)
 
 SPRITE *PrintSpritesOpaque()
 {
+	int i;
 	SPRITE *cur,*next;
 	
 	spriteList.lastTexture = NULL;
 	spriteList.xluMode = NO;
 
-//	if(!pauseMode)
-//	{
-		for(cur = spriteList.head.next; (cur != &spriteList.head); cur = next)
-		{
-			next = cur->next;
-			PrintSprite(cur);
-		}
-//	}
+	// transform sprites to screen coords ready for sorting
+	for(cur = spriteList.head.next; (cur != &spriteList.head); cur = next)
+	{
+		next = cur->next;
+		XfmPoint(&cur->sc,&cur->pos);
+	}
+
+	ZSortSpriteList();
+
+	// draw from the newly sorted static array
+	i = numSortArraySprites;
+	while(i--)
+		PrintSprite(&spriteSortArray[i]);
 
 	return cur;
 }
@@ -298,7 +304,7 @@ void PrintSpriteOverlays()
 
 void PrintSprite(SPRITE *sprite)
 {
-	VECTOR m,sc;
+	VECTOR m;
 	VECTOR s = {1,1,0};
 	float distx,disty;
 	TEXENTRY *tEntry;
@@ -306,22 +312,26 @@ void PrintSprite(SPRITE *sprite)
 	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
 		return;
 
-	XfmPoint (&m,&sprite->pos);
-	
-	if (m.v[Z])
+	if (sprite->sc.v[Z])
 	{
 		tEntry = ((TEXENTRY *)sprite->texture);
-		distx = disty = (FOV)/(m.v[Z]+DIST);
+		distx = disty = (FOV)/(sprite->sc.v[Z]+DIST);
 		distx *= (sprite->scaleX/(64.0))*RES_DIFF;
 		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
 		numSprites++;
 		if (runHardware)
-			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,m.v[Z]*0.00025,32*distx,32*disty,
-				0,
-				0,
-				1,
-				1,
-				tEntry->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
+		{
+			if(sprite->flags & SPRITE_FLAGS_ROTATE)
+			{
+				DrawAlphaSpriteRotating(&sprite->sc.v[0],sprite->angle,sprite->sc.v[X]+sprite->offsetX*distx,sprite->sc.v[Y]+sprite->offsetY*disty,sprite->sc.v[Z]*0.00025,32*distx,32*disty,
+				0,0,1,1,tEntry->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
+			}
+			else
+			{
+				DrawAlphaSprite(sprite->sc.v[X]+sprite->offsetX*distx,sprite->sc.v[Y]+sprite->offsetY*disty,sprite->sc.v[Z]*0.00025,32*distx,32*disty,
+				0,0,1,1,tEntry->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
+			}
+		}
 	}
 }
 

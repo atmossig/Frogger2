@@ -161,6 +161,9 @@ extern void FreeAnimationList (void );
 #define SPRITE_FLAGS_PAUSE						(1 << 9)
 #define SPRITE_FLAGS_NOZB						(1 << 10)
 
+#define SPRITE_FLAGS_ROTATE						(1 << 11)
+
+
 #define MAX_OVERLAYS	260
 
 
@@ -197,7 +200,11 @@ extern FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS];
 
 extern SPRITE *testSpr;
 
+extern int numSortArraySprites;
+extern SPRITE spriteSortArray[500];
+
 extern SPRITELIST spriteList;
+
 extern float printSpritesProj[4][4][4];
 
 void InitSpriteLinkedList();
@@ -212,6 +219,9 @@ void InitSpriteAnimation(SPRITE *sprite,SPRITE_ANIMATION_TEMPLATE *temp,USHORT l
 void InitSpriteFrameLists();
 
 SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,short flags);
+
+int SpriteZCompare(const void *arg1,const void *arg2);
+void ZSortSpriteList();
 
 
 #endif

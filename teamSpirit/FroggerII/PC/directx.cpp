@@ -1895,3 +1895,107 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to)
 		}
 	}
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawAlphaSpriteRotating
+	Purpose			: clips and draws a rotating sprite
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, DWORD colour )
+{
+	D3DTLVERTEX verts[6];
+	int numVerts;
+	float x2 = (x+xs), y2 = (y+ys);
+	float fogAmt;
+
+	float xp[4],yp[4],u[4],v[4];
+	float sine,cosine;
+	float newX,newY;
+	int i;
+
+	xp[0] = x - pos[X];
+	xp[1] = x2 - pos[X];
+	xp[2] = x2 - pos[X];
+	xp[3] = x - pos[X];
+
+	yp[0] = y - pos[Y];
+	yp[1] = y - pos[Y];
+	yp[2] = y2 - pos[Y];
+	yp[3] = y2 - pos[Y];
+
+	u[0] = u1;	u[1] = u2;	u[2] = u2;	u[3] = u1;
+	v[0] = v1;	v[1] = v1;	v[2] = v2;	v[3] = v2;
+
+	// get rotation
+	cosine	= cosf(angle);
+	sine	= sinf(angle);
+
+	// rotate the 4 vertices comprising the sprite
+	i = 4;
+	while(i--)
+	{
+		newX = (xp[i] * cosine) + (yp[i] * sine);
+		newY = (yp[i] * cosine) - (xp[i] * sine);
+
+		xp[i] = newX + pos[X];
+		yp[i] = newY + pos[Y];
+
+		if(xp[i] < SPRITECLIPLEFT)
+			return;
+		if(xp[i] >= SPRITECLIPRIGHT)
+			return;
+		if(yp[i] < SPRITECLIPTOP)
+			return;
+		if(yp[i] >= SPRITECLIPBOTTOM)
+			return;
+	}
+
+	fogAmt = FOGADJ(z);
+	if (fogAmt<0)
+		fogAmt=0;
+	if (fogAmt>1)
+		fogAmt=1;
+
+	// clip the rotated sprite here...
+
+	i = numVerts = 4;
+	while(i--)
+	{
+		verts[i].sx			= xp[i];
+		verts[i].sy			= yp[i];
+		verts[i].sz			= z;
+		verts[i].rhw		= 0;
+		verts[i].color		= colour;
+		verts[i].specular	= FOGVAL(fogAmt);
+		verts[i].tu			= u[i];
+		verts[i].tv			= v[i];
+	}
+
+	if (h!=lastH)
+	{
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
+		lastH = h;
+	}
+
+	if ((z>0.01) || (z<-0.01))
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
+	else
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+
+	if (pDirect3DDevice->DrawPrimitive(
+		D3DPT_TRIANGLEFAN,
+		D3DVT_TLVERTEX,
+		verts,
+		numVerts,
+		D3DDP_DONOTCLIP 
+			| D3DDP_DONOTLIGHT 
+			| D3DDP_DONOTUPDATEEXTENTS 
+			/*| D3DDP_WAIT*/)!=D3D_OK)
+	{
+		dp("Could not print sprite\n");
+		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
+	}
+}
