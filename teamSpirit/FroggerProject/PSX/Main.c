@@ -46,7 +46,7 @@
 #include "Eff_Draw.h"
 #include "World_Eff.h"
 //#include "sfx.h"//mmsound
-//#include "audio.h" //mmsfx
+#include "audio.h" //mmsfx
 
 
 void customDrawPrimitives2(int);
@@ -513,7 +513,8 @@ int main ( )
 		CommonInit();
 
 #ifdef PSX_VERSION
-//		InitSound();//mmsfx
+		InitSound();//mmsfx
+		LoadSfx(WORLDID_GENERIC);//mmsfx
 #endif
 
 
