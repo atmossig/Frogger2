@@ -855,6 +855,24 @@ char tmpBuffer[16];
 long carryOnBabies = 1;
 long clearTiles = 0;
 
+void KillMPFrog(int num)
+{
+	int j;
+	for (j=0; j<NUM_FROGS; j++)
+	{
+		if (IsPointVisible(&frog[j]->actor->pos))
+		{
+			TeleportActorToTile(frog[num],currTile[j],num);
+			destTile[num] = currTile[j];
+		}
+	}
+
+	frog[num]->action.stun = 50;
+	frog[num]->action.safe = 80;
+	
+	if (frog[num]->action.lives > 0)
+		sprHeart[num*3+(--frog[num]->action.lives)]->draw = 0;
+}
 
 void RunGameLoop (void)
 {	    	
@@ -1214,9 +1232,11 @@ void RunGameLoop (void)
 			}
 		}
 
-		if (frog[i]->action.safe == 0)
+		if (NUM_FROGS != 1)
+		if ((frog[i]->action.safe == 0) && (frameCount > 20))
 		if (!IsPointVisible(&frog[i]->actor->pos))
-		{
+			KillMPFrog(i);
+		/*{
 			int j;
 			for (j=0; j<NUM_FROGS; j++)
 			{
@@ -1233,23 +1253,29 @@ void RunGameLoop (void)
 	
 			if (frog[i]->action.lives > 0)
 				sprHeart[i*3+(--frog[i]->action.lives)]->draw = 0;
-		}
+		}*/
 	}
 	
 	UpDateOnScreenInfo();
 
-	if(player[0].frogState & FROGSTATUS_ISSTANDING)
+	for (i= 0; i<NUM_FROGS; i++)
+	if(player[i].frogState & FROGSTATUS_ISSTANDING)
 	{
-		if((currTile[0]->state == TILESTATE_DEADLY) && !(player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
+		if((currTile[i]->state == TILESTATE_DEADLY) && !(player[i].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
 		{
-			if(!frog[0]->action.dead)
+			if(!frog[i]->action.dead)
 			{
-				CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&currTile[0]->centre,&upVec,25,1,0.1,30);
+				CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&currTile[i]->centre,&upVec,25,1,0.1,30);
 
-				frog[0]->action.deathBy = DEATHBY_DROWNING;
-				player[0].frogState |= FROGSTATUS_ISDEAD;
-				frog[0]->action.dead = 75;
-				PlaySample ( 2,NULL,255,128 );
+				if (NUM_FROGS==1)
+				{
+					frog[i]->action.deathBy = DEATHBY_DROWNING;
+					player[i].frogState |= FROGSTATUS_ISDEAD;
+					frog[i]->action.dead = 75;
+					PlaySample ( 2,NULL,255,128 );
+				}
+				else
+					KillMPFrog(i);
 			}
 		}
 	} 

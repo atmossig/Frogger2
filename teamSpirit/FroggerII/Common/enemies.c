@@ -855,11 +855,71 @@ void UpdateEnemies()
 			}
 		}
 
-		// check if frog has been 'killed' by current enemy - radius based collision
-		if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
+		if (NUM_FROGS!=0)
 		{
-			// perform radius collision check between frog and current enemy
-			if((!frog[0]->action.dead) && (!frog[0]->action.safe) && ActorsHaveCollided(frog[0],cur->nmeActor))
+			long p;
+
+			for (p=0; p<NUM_FROGS; p++)
+			{
+				if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
+				{
+					if((!frog[p]->action.safe) && ActorsHaveCollided(frog[p],cur->nmeActor))
+						KillMPFrog(p);
+				}
+				else
+					if((currTile[p] == cur->inTile) && 	(!frog[p]->action.safe) && (!(player[p].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+						/*(!currPlatform[0]) &&*/ !(player[p].frogState & FROGSTATUS_ISFLOATING))
+							KillMPFrog(p);
+			}
+		}
+		else
+		{
+			// check if frog has been 'killed' by current enemy - radius based collision
+			if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
+			{
+				// perform radius collision check between frog and current enemy
+				if((!frog[0]->action.dead) && (!frog[0]->action.safe) && ActorsHaveCollided(frog[0],cur->nmeActor))
+				{
+					frog[0]->action.lives--;
+					if(frog[0]->action.lives != 0)
+					{
+						cameraShake = 25;
+						PlaySample(42,NULL,192,128);
+						frog[0]->action.safe = 25;
+		
+						CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,25,35);
+						CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,35,10);
+					}
+					else
+					{
+						PlaySample(110,NULL,192,128);
+						AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
+						frog[0]->action.dead = 50;
+						frog[0]->action.lives = 3;
+				
+						switch(cur->nmeActor->actor->type)
+						{
+							case NMETYPE_CAR:
+							case NMETYPE_TRUCK:
+							case NMETYPE_FORK:
+								cameraShake = 50;
+								frog[0]->action.deathBy = DEATHBY_RUNOVER;
+								PlaySample(31,NULL,192,128);
+								break;
+
+							default:
+								frog[0]->action.deathBy = DEATHBY_NORMAL;
+						}
+				
+						player[0].frogState |= FROGSTATUS_ISDEAD;
+					}
+				}
+			}
+			
+			// check if frog has been 'killed' by current enemy - tile based collision
+			else if((currTile[0] == cur->inTile) && (!frog[0]->action.dead) &&
+					(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+					(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING))
 			{
 				frog[0]->action.lives--;
 				if(frog[0]->action.lives != 0)
@@ -867,7 +927,7 @@ void UpdateEnemies()
 					cameraShake = 25;
 					PlaySample(42,NULL,192,128);
 					frog[0]->action.safe = 25;
-	
+
 					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,25,35);
 					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,35,10);
 				}
@@ -877,7 +937,7 @@ void UpdateEnemies()
 					AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
 					frog[0]->action.dead = 50;
 					frog[0]->action.lives = 3;
-			
+				
 					switch(cur->nmeActor->actor->type)
 					{
 						case NMETYPE_CAR:
@@ -891,52 +951,11 @@ void UpdateEnemies()
 						default:
 							frog[0]->action.deathBy = DEATHBY_NORMAL;
 					}
-			
+				
 					player[0].frogState |= FROGSTATUS_ISDEAD;
 				}
 			}
 		}
-		
-		// check if frog has been 'killed' by current enemy - tile based collision
-		else if((currTile[0] == cur->inTile) && (!frog[0]->action.dead) &&
-				(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-				(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING))
-		{
-			frog[0]->action.lives--;
-			if(frog[0]->action.lives != 0)
-			{
-				cameraShake = 25;
-				PlaySample(42,NULL,192,128);
-				frog[0]->action.safe = 25;
-
-				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,25,35);
-				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,35,10);
-			}
-			else
-			{
-				PlaySample(110,NULL,192,128);
-				AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
-				frog[0]->action.dead = 50;
-				frog[0]->action.lives = 3;
-			
-				switch(cur->nmeActor->actor->type)
-				{
-					case NMETYPE_CAR:
-					case NMETYPE_TRUCK:
-					case NMETYPE_FORK:
-						cameraShake = 50;
-						frog[0]->action.deathBy = DEATHBY_RUNOVER;
-						PlaySample(31,NULL,192,128);
-						break;
-
-					default:
-						frog[0]->action.deathBy = DEATHBY_NORMAL;
-				}
-			
-				player[0].frogState |= FROGSTATUS_ISDEAD;
-			}
-		}
-
 		// process enemies (update anims, etc.)
 		switch(cur->nmeActor->actor->type)
 		{

@@ -614,9 +614,28 @@ void GetNextTile(unsigned long direction,long pl)
 	unsigned long newCamFacing = camFacing;
 
 	GAMETILE *joiningTile = NULL;
-	VECTOR vecUp,newVec;
+	VECTOR vecUp,newVec,direct;
 	float t2,at2;
 	
+	if (pl == 0)
+		destTile[pl] = currTile[pl]->tilePtrs[ (direction + camFacing + 2) & 3 ]; // hmm...
+	else
+	{
+		distance = 0;
+			
+		for (j=0; j<4; j++)
+		{	
+			t = DotProduct(&(currTile[0]->dirVector[ (direction + camFacing + 2) & 3]),
+						   &(currTile[pl]->dirVector[j]));
+			if (t>distance)
+			{
+				distance = t;
+				destTile[pl] = currTile[pl]->tilePtrs[j];					
+			}
+		}
+	}	
+
+	/*
 	if (pl == 0)
 		destTile[pl] = currTile[pl]->tilePtrs[ (direction + camFacing + 2) & 3 ]; // hmm...
 	else // do this horrible bit of code. blech.
@@ -663,7 +682,7 @@ void GetNextTile(unsigned long direction,long pl)
 			}
 		}
 	}
-
+*/
 	if(destTile[pl])
 	{
 		joiningTile = destTile[pl];
