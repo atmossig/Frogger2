@@ -700,6 +700,9 @@ James Hubbard:
 James Healey:
 ------------------------------------------------
 
+	Spent most of the day, getting object fading to work.
+	The fading works, but the rgb colors, don't look very good.
+
 
 Mike Movel:
 ------------------------------------------------
@@ -766,6 +769,9 @@ James Hubbard:
 James Healey:
 ------------------------------------------------
 
+	Finally got it working, scott lamb missed a few things out.
+
+	Going to try it with Freds map drawing next.
 
 Mike Movel:
 ------------------------------------------------
