@@ -527,9 +527,10 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 				for( i=0; i<4; i++ )
 					tmp[i] = ts->name[i];
 				tmp[4] = '\0';
-				
-				if (rHardware || gstrcmp( tmp, "wat_\0" ))
-				{
+
+// JIM: This line of code basically says 'don't add water objects in software mode'. WHY?
+//				if (rHardware || gstrcmp( tmp, "wat_\0" ))
+//				{
 					if( !(theActor = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION)) )
 					{
 						ts = ts->next;
@@ -624,7 +625,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					theActor->actor->size.vy = 4096;
 					theActor->actor->size.vz = 4096;
 					actCount++;
-				}
+//				}
 			}
 		}
 		ts = ts->next;
