@@ -423,23 +423,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		}
 		else
 		{
-/*
-#ifdef N64_VERSION
-			for( i=0; i<4; i++ )
-				tmp[i] = ts->name[i];
-			tmp[4] = '\0';
-
-			if(!gstrcmp(tmp,"wat_\0"))
-			{
-				ts = ts->next;
-			}
-
-			if(!gstrcmp(tmp,"spl_\0"))
-			{
-				ts = ts->next;
-			}
-#endif
-*/			
 			theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 			dprintf"Added actor '%s'\n",ts->name));
 
