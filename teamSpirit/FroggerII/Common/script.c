@@ -17,6 +17,7 @@
 #include "memload.h"
 
 #define DEBUG_SCRIPTING
+#define SCRIPT_FEV_VERSION	3
 
 /* --------------------------------------------------------------------------------- */
 
@@ -349,15 +350,12 @@ TRIGGER *LoadTrigger(UBYTE **p)
     Function		: ExecuteCommand
 	Parameters		: UBYTE*
 	Returns			: TRUE if successful, FALSE otherwise
+
+	NOTE! (*p) MUST now be incremented to the start of the next command
 */
-BOOL ExecuteCommand(UBYTE *buffer)
+BOOL ExecuteCommand(UBYTE **p)
 {
-	UBYTE **p;
-	UBYTE command;
-	
-	p = &buffer;
-	
-	command = MEMGETBYTE(p);
+	UBYTE command = MEMGETBYTE(p);
 
 	switch (command)
 	{
@@ -368,8 +366,9 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			int len;
 
 			len = MEMGETBYTE(p);
-			memcpy(string, buffer, len);
+			memcpy(string, (*p), len);
 			string[len] = 0;
+			(*p) += len;
 
 			PrintScriptDebugMessage(string);
 			break;
@@ -527,15 +526,20 @@ Vis:
 		{
 			TRIGGER *t;
 			EVENT *e;
-			int flags;
+			int flags, size;
 			void **param = AllocArgs(1);
 
 			if (t = LoadTrigger(p))
 			{
 				flags = MEMGETBYTE(p);
+				
+				size = MEMGETINT(p); 
 				param[0] = *p;
+
 				e = MakeEvent( InterpretEvent, param );
 				AttachEvent(t, e, (short)flags, 0);
+
+				(*p) += size;	// skip block of code!
 			}
 			else
 				return 0;
@@ -548,7 +552,14 @@ Vis:
 
 			if (t = LoadTrigger(p))
 			{
-				if (t->func(t)) Interpret(*p);
+				UBYTE *q = (*p);
+				int size = MEMGETINT(q);
+
+				if (t->func(t))
+					Interpret(q);
+				else
+					(*p) += size;
+
 				SubTrigger(t);
 			}
 			else return 0;
@@ -801,17 +812,15 @@ Vis:
 int Interpret(const UBYTE *buffer)
 {
 	UBYTE *p, *q;
-	int events, size;
+	int events;
 
 	p = (UBYTE*)buffer;
 
-	events = MEMGETINT(&p);
+	events = MEMGETWORD(&p);
 
 	while (events--)
 	{
-		size = MEMGETINT(&p);
-		q = p;
-		if (!ExecuteCommand(q))
+		if (!ExecuteCommand(&p))
 		{
 #ifdef DEBUG_SCRIPTING
 			if (lineNumber)
@@ -819,7 +828,6 @@ int Interpret(const UBYTE *buffer)
 #endif
 			return 0;
 		}
-		p += size;
 	}
 
 	return 1;
@@ -827,9 +835,9 @@ int Interpret(const UBYTE *buffer)
 
 
 /*	--------------------------------------------------------------------------------
-    Function		: Interpret
-	Parameters		: UBYTE*
-	Returns			: TRUE if success, FALSE otherwise
+    Function		: LoadTestScript
+	Parameters		: const char*
+	Returns			: 
 */
 #ifdef PC_VERSION
 void LoadTestScript(const char* filename)
@@ -874,24 +882,19 @@ int InitLevelScript(void *buffer)
 
 	scriptBuffer = buffer;
 	
-	if (*scriptBuffer != 0x02)
+	if (*scriptBuffer != SCRIPT_FEV_VERSION)
 	{
 #ifdef DEBUG_SCRIPTING
 		dprintf"Script failed version check\n"));
 #endif
 		err = 1;
 	}
-	else if (!Interpret(scriptBuffer + 1))
+	else if (!Interpret(scriptBuffer + 1 + 4))	// block starts after header + outer block size
 		err = 1;
 
 	if (err)
 	{
-#ifdef PC_VERSION
-		JallocFree(&scriptBuffer);
-#else
-		JallocFree((UBYTE**)scriptBuffer);
-#endif
-
+		JallocFree((UBYTE**)&scriptBuffer);
 		scriptBuffer = NULL;
 		return 0;
 	}
@@ -903,12 +906,7 @@ int FreeLevelScript(void)
 {
 	if(scriptBuffer)
 	{
-#ifdef PC_VERSION
-		JallocFree(&scriptBuffer);
-#else
-		JallocFree((UBYTE**)scriptBuffer);
-#endif
-
+		JallocFree((UBYTE**)&scriptBuffer);
 		scriptBuffer = NULL;
 	}
 
