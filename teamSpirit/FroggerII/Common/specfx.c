@@ -1123,7 +1123,7 @@ void ProcessAttachedEffects( void *entity, int type )
 	// For timings value1 has to round down to a non-zero integer
 	if( (int)act->value1 )
 	{
-		if( flags & EF_RANDOMCREATE )
+		if( act->effects & EF_RANDOMCREATE )
 			r = Random(act->value1)+1;
 		else
 			r = act->value1;
