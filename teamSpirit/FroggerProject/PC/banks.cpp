@@ -441,9 +441,9 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			backGnd->actor->size.vx = ToFixed(5);
 			backGnd->actor->size.vy = ToFixed(5);
 			backGnd->actor->size.vz = ToFixed(5);
-			actList = actList->next;
-			if (actList)
-				actList->prev = NULL;
+//			actList = actList->next;
+//			if (actList)
+//				actList->prev = NULL;
 		}
 		else
 		{

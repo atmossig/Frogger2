@@ -447,6 +447,9 @@ void DrawBackground(void)
 	
 	float oF = farClip;
 //	float oFs = fStart, oFe = fEnd;
+	if (!drawGame)
+		return;
+
 	SwapFrame(0);
 	backGnd->actor->visible = 1;
 	
