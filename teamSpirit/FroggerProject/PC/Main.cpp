@@ -661,6 +661,11 @@ long LoopFunc(void)
 			if (slideVal)
 				SlideObjectTextures(a->objectController->object,slideSpeeds[slideVal]);
 
+			if( a->objectController->object->flags & OBJECT_FLAGS_CLIPPED )
+				c->clipped = 1;
+			else
+				c->clipped = 0;
+
 			if (!c->draw)
 			{
 				a->visible = 0;
