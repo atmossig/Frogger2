@@ -786,6 +786,7 @@ void TransformObject(OBJECT *obj, float time)
 		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
 	}
 
+/*	frog head is broken
 
 	wasHed = 0;
 	if (strncmp(obj->name,"fghed",5) == 0)
@@ -832,6 +833,7 @@ void TransformObject(OBJECT *obj, float time)
 			SetVector(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
 		}
 	}
+*/
 
 	rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];
 	rotmat[3][1] = translation.v[Y] * actorScale->v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
@@ -916,7 +918,7 @@ void TransformObject(OBJECT *obj, float time)
 				sprite->offsetY = -16;
 
 				/*
-					TEMPORARY SPRITE FIX - Dave
+					"TEMPORARY" SPRITE FIX (ahahaha..) - Dave
 
 					I'm not sure why this works; clearly the sprite's z-value is the
 					negative of what it should be. Where does this negative creep in? 
