@@ -108,6 +108,14 @@ James Hubbard:
 James Healey:
 ------------------------------------------------
 
+	Bloody Memory!!!!
+	Fixed a memory bug with file allocation, which was'nt being
+	freed, I think most things are now being freed.
+	
+	Front end fully working and loading levels.
+
+	Might dive into some special fx.
+	
 
 Mike Movel:
 ------------------------------------------------
