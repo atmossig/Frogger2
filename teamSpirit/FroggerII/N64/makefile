@@ -40,9 +40,6 @@ snmain.obj: snmain.s
 %.fla: %.ntb
         fpack textures\\$(patsubst textures%,%,$<)
 
-#ccn64 -c -O0 $<.c
-#psylink /c /p $<.obj,$<.nib
-
 %.nob: %.c2
 	copy $(patsubst objects/%,objects\\%,$<) $(patsubst objects/%.c2,objects\\%.c,$<)
 	ccn64 -c -O0 -I c:/work/n64/include $(patsubst objects/%.c2,objects/%.c,$<)
@@ -51,10 +48,6 @@ snmain.obj: snmain.s
 	copy $(patsubst objects/%.c2,objects\\%.fla,$<) $(patsubst objects/%.c2,objects\\%.nob,$<)
 	fpack $(patsubst objects/%.c2,objects\\%.nib,$<)
 	del $(patsubst objects/%.c2,objects\\%.c,$<)
-
-
-# $(c_obj_files): $(c_files)
-#	$(compiler) $(compile_opt) $(c_files)
 
 %.obj: %.c
 	$(compiler) $(compile_opt) $<
