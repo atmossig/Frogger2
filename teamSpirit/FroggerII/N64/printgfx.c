@@ -1407,13 +1407,13 @@ void DrawScreenGrab( unsigned long flags )
 	Returns			: 
 	Info			: 
 */
-extern long enviromentMapped;
+extern long environmentMapped;
 
 Mtx	nomatrix;
 
 void SetRendermodeForEnviroment(void)
 {
-	if (enviromentMapped)
+	if (environmentMapped)
 	{
 		gSPSetGeometryMode(glistp++,G_TEXTURE_GEN);
 	}

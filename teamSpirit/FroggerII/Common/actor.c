@@ -42,7 +42,7 @@ char uniqueEnemyCount[20];
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numUniqueActors = 0;
 
-long enviromentMapped = 0;
+long environmentMapped = 0;
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -188,7 +188,7 @@ void DrawActorList()
 		{
 			if(cur->draw && !(cur->flags & ACTOR_DRAW_LAST) )
 			{
-				enviromentMapped = 0;
+				environmentMapped = 0;
 
 				DrawActor(cur->actor);
 			}
@@ -213,29 +213,35 @@ void DrawCameraSpaceActorList()
 			{
 				if( cur->flags & ACTOR_LEVEL_TROPHY )
 				{
-					TEXTURE *tex;
-					enviromentMapped = 1;
-					gDPLoadSync(glistp++);
+					static TEXTURE *tex;
+					static short lastA = -1;
+
+					environmentMapped = 1;
 					gDPSetTextureLUT(glistp++,G_TT_NONE);
 
-					switch( award )
+					if( lastA != award )
 					{
-					case 0:
-						FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
-						break;
-					case 1:
-						FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
-						break;
-					case 2:
-						FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
-						break;
+						lastA = award;
+
+						switch( award )
+						{
+						case 0:
+							FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
+							break;
+						case 1:
+							FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
+							break;
+						case 2:
+							FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
+							break;
+						}
 					}
 
 					gSPTexture(glistp++,32<<6,32<<6,0,G_TX_RENDERTILE, G_ON);
-					LoadTexture(tex);
 					gDPLoadTextureBlock(glistp++,tex->data,G_IM_FMT_RGBA,G_IM_SIZ_16b,tex->sx,tex->sy,
 											0,G_TX_WRAP,G_TX_WRAP,5,5,G_TX_NOLOD,G_TX_NOLOD);
 				}
+
 				DrawActor(cur->actor);
 			}
 		}
