@@ -962,29 +962,49 @@ void MapDraw_SetMatrix(FMA_MESH_HEADER *mesh, short posx, short posy, short posz
 
 void MapDraw_SetScenicMatrix(FMA_MESH_HEADER* mesh, SCENICOBJ* sc)
 {
-	MATRIX tx,r;
-
-//	gte_MulMatrix0(&GsWSMATRIX,&sc->matrix,&r);
+	MATRIX tx, rY;
 
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_SetTransMatrix(&GsWSMATRIX);
 
-	mesh->posx =  sc->matrix.t[0];
+	mesh->posx = -sc->matrix.t[0];
 	mesh->posy = -sc->matrix.t[1];
-	mesh->posz =  sc->matrix.t[2];
+	mesh->posz = sc->matrix.t[2];
 
 	// Unnecessary maths for landscape segments, where pos is always zero.
 	gte_ldlvl( &mesh->posx);
 	gte_rtirtr();
 	gte_stlvl(&tx.t);
 
-
-
 //	gte_SetRotMatrix(&GsWSMATRIX);
-	gte_MulMatrix0(&GsWSMATRIX, &sc->matrix, &r);
-	gte_SetRotMatrix(&r);
+//	gte_SetTransMatrix(&tx);
+
+	
+	gte_MulMatrix0(&GsWSMATRIX, &sc->matrix, &tx);
+	rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = 4096;
+	rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+	RotMatrixY(2048, &rY);
+	gte_MulMatrix0(&tx, &rY, &tx);
+	gte_SetRotMatrix(&tx);
 	gte_SetTransMatrix(&tx);
 
+/*
+	MATRIX t1;
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+ 
+	mesh->posx =  sc->matrix.t[0];
+	mesh->posy = -sc->matrix.t[1];
+	mesh->posz =  sc->matrix.t[2];
+
+	gte_ldlvl(&mesh->posx);
+	gte_rtirtr();
+	gte_stlvl(&t1.t);
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&t1);
+*/
 }
 
 
