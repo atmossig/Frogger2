@@ -241,8 +241,9 @@ void UpdatePlatforms()
 
 							//utilPrintf("And Maybe Here : %d\n", pl); - wtf? - ds
 
-							CalculateFrogJumpS(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
-								t+1, pl);
+							if (!(player[pl].frogState & FROGSTATUS_ISDEAD))
+								CalculateFrogJumpS(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
+									t+1, pl);
 						}
 					}
 

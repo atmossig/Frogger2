@@ -532,7 +532,7 @@ void FroggerHop(int pl)
 		// We also need to check if we're trying to jump under a 'don't jump under' platform
 		// (since checking beforehand is unreliable)
 
-		if (!destPlatform[pl])
+		if (!destPlatform[pl] && !(player[pl].frogState & FROGSTATUS_ISDEAD))
 		{
 			int checked = 0;
 			// find nearest platform
