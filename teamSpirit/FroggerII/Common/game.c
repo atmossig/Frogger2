@@ -481,7 +481,7 @@ void InitCamera ( unsigned long worldID, unsigned long levelID )
 extern long multiplayerRun;
 void CameraLookAtFrog(void)
 {
-	if(frog[0] && !controlCamera)
+	if(frog[0] && !fixedDir)
 	{
 	
 		float afx,afy,afz;
@@ -589,7 +589,7 @@ void UpdateCameraPosition(long cam)
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
-	if ( gameState.mode != CAMEO_MODE && !fixedSource )
+	if ( gameState.mode != CAMEO_MODE && !fixedPos )
 	{
 		float afx,afy,afz;
 		float afx2,afy2,afz2;
