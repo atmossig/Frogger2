@@ -164,6 +164,8 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
 
+	PlaySample( genSfx[GEN_COLLECT_BABY], &baby->actor->pos, 0, SAMPLE_VOLUME, -1 );
+
 	SetVector( &normal, &gTStart[0]->normal );
 
 	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 50, 3, 0, 5 )) )

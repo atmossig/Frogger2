@@ -128,8 +128,6 @@ void UpdateRace( )
 			GTInit( &multiTimer, 3 );
 			started = 1;
 		}
-
-		if( !started ) return;
 	}
 
 	// When all players are ready, start a countdown
@@ -150,7 +148,6 @@ void UpdateRace( )
 				racer[i].lasttile = TILESTATE_FROGGER1AREA;
 			}
 		}
-		else return;
 	}
 	else if( endTimer.time ) // If finished the race then wait before replaying
 	{
@@ -175,34 +172,37 @@ void UpdateRace( )
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		// Check for frog off screen - death
-		if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) && (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
+		if( started )
 		{
-			KillMPFrog(i);
-			RaceRespawn(i);
-		}
-		else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA )
-		{
-			// If last tile state was type 4 and this is type 1 then we've got around another lap
-			if( currTile[i]->state == TILESTATE_FROGGER1AREA && racer[i].lasttile == TILESTATE_FROGGER4AREA )
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) && (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
 			{
-				racer[i].lap++;
-				racer[i].lasttile = currTile[i]->state;
-				racer[i].check = 0;
-
-				// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
-				if( racer[i].lap >= MULTI_RACE_NUMLAPS )
-				{
-					sprintf( timeTextOver->text, "P%i won", i );
-					GTInit( &endTimer, 5 );
-					return;
-				}
+				KillMPFrog(i);
+				if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
+					RaceRespawn(i);
 			}
-			// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
-			else if( currTile[i]->state == racer[i].lasttile+1 || (racer[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
+			else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA )
 			{
-				timeTextOver->text[0] = '\0';
-				racer[i].check++;
-				racer[i].lasttile = currTile[i]->state;
+				// If last tile state was type 4 and this is type 1 then we've got around another lap
+				if( currTile[i]->state == TILESTATE_FROGGER1AREA && racer[i].lasttile == TILESTATE_FROGGER4AREA )
+				{
+					racer[i].lap++;
+					racer[i].lasttile = currTile[i]->state;
+					racer[i].check = 0;
+
+					// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
+					if( racer[i].lap >= MULTI_RACE_NUMLAPS )
+					{
+						sprintf( timeTextOver->text, "P%i won", i );
+						GTInit( &endTimer, 5 );
+					}
+				}
+				// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
+				else if( currTile[i]->state == racer[i].lasttile+1 || (racer[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
+				{
+					timeTextOver->text[0] = '\0';
+					racer[i].check++;
+					racer[i].lasttile = currTile[i]->state;
+				}
 			}
 		}
 
@@ -335,12 +335,30 @@ void RaceRespawn( int pl )
 	SubVector( &diff, &frog[pl]->actor->pos, &frog[respawn]->actor->pos );
 	MakeUnit(&diff);
 
-	// Find a tile to teleport to - first try a tile next to the target, then on the target if that fails
+	// Find a tile to teleport to - first try a tile next to the target, then on the nearest "safe" tile, then on the target frog if that fails
 	if( !(tile = FindJoinedTileByDirection( currTile[respawn], &diff )) )
 	{
-		if( currPlatform[respawn] ) currPlatform[pl] = currPlatform[respawn];
-		
-		tile = currTile[respawn];
+		GAMETILE *t, *target = NULL;
+		long dist, best = 99999999;
+
+		for( t = firstTile; t != NULL; t = t->next )
+			if( t->state == TILESTATE_SAFE )
+			{
+				dist = DistanceBetweenPointsSquared( &frog[pl]->actor->pos, &t->centre );
+				if( dist < best )
+				{
+					target = t;
+					best = dist;
+				}
+			}
+
+		if( target )
+			tile = target;
+		else
+		{
+			if( currPlatform[respawn] ) currPlatform[pl] = currPlatform[respawn];
+			tile = currTile[respawn];
+		}
 	}
 
 	TeleportActorToTile(frog[pl],tile,pl);
@@ -406,14 +424,13 @@ void KillMPFrog(int num)
 {
 	int i=0;
 	GTInit( &player[num].stun, 2 );
-	GTInit( &player[num].safe, 3 );
+	GTInit( &player[num].safe, 5 );
 	
-	if (player[num].healthPoints > 0)
-	{
-		i=num*3+(--player[num].healthPoints);
-		if( sprHeart[i] ) sprHeart[i]->draw = 0;
-	}
-	else
+	player[num].healthPoints--;
+	i=num*3+player[num].healthPoints;
+	if( sprHeart[i] ) sprHeart[i]->draw = 0;
+
+	if( !player[num].healthPoints )
 	{
 		player[num].deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;

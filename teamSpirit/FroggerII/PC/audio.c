@@ -107,8 +107,9 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_FROG_HOP] = FindSample(UpdateCRC("hopongrass.wav"));
 	genSfx[GEN_SUPER_HOP] = FindSample(UpdateCRC("hop2.wav"));
 	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("FroggerB.wav"));
-	genSfx[GEN_BABY_FROG] = FindSample(UpdateCRC("baby.wav"));
+	genSfx[GEN_COLLECT_BABY] = FindSample(UpdateCRC("getbabyfrog.wav"));
 	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("FroggerF.wav"));
+	genSfx[GEN_COLLECT_COIN] = FindSample(UpdateCRC("pickupcoin.wav"));
 
 	path[len] = '\0';
 

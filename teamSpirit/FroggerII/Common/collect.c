@@ -171,7 +171,8 @@ void PickupCollectable(GARIB *garib, int pl)
 				player[pl].numSpawn = 0;
 				player[pl].numCredits++;
 			}
-			//PlaySample(0,&garib->pos,192,118 + (player[pl].spawnScoreLevel * 10));
+
+			PlaySample( genSfx[GEN_COLLECT_COIN], &garib->pos, 0, SAMPLE_VOLUME, -1 );
 			break;
 
 		case EXTRAHEALTH_GARIB:
