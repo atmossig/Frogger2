@@ -158,8 +158,8 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case EXTRAHEALTH_GARIB:
-			if( player[pl].healthPoints < 1 )
-				player[pl].healthPoints++;
+			if( player[pl].lives < 99 )
+				player[pl].lives++;
 
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 )) )
 			{
@@ -310,7 +310,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		SPECFX *fx;
 		if( (garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 )) )
 		{
-			garib->fx->gravity = -0.5;
+//			garib->fx->gravity = -0.5;
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 )) )
 			{
 				fx->follow = garib->fx->act[0]->actor;
