@@ -64,6 +64,7 @@ static RECT VRAMarea = {0,0,1024,512};
 extern char __bss_orgend[];
 displayPageType displayPage[2], *currentDisplayPage;
 psFont *font;
+psFont *fontSmall;
 
 
 
@@ -506,6 +507,7 @@ int main ( )
 
 		VSyncCallback(&vsyncCallback);
 		font = fontLoad("FONT12.FON");
+		fontSmall = fontLoad("FONT12.FON");
 		InitCam();
 		actorInitialise();
 		InitBackdrop ( "FROGGER2.RAW" );
