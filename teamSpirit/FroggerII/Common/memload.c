@@ -230,7 +230,7 @@ int MemLoadTrigger(UBYTE** p, long size)
 	case TR_ENEMYONTILE:
 /*		params = AllocArgs(2);
 		params[0] = (void*)GetEnemyFromID(MEMGETINT(p));
-		params[1] = (void*)&firstTile[MEMGETINT(p)];
+		params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
 		trigger = MakeTrigger(EnemyOnTile, 2, params);
 */		
 		MEMGETINT(p);

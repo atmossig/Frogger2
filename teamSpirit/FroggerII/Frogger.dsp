@@ -1108,6 +1108,14 @@ SOURCE=.\Editor\edcommand.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Editor\edglobals.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Editor\edglobals.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Editor\editdefs.c
 # End Source File
 # Begin Source File
