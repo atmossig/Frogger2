@@ -82,6 +82,7 @@ void EditorCreateEntities(void)
 	AllocNmeBlock(counts[CREATE_ENEMY]+counts[CREATE_PLACEHOLDER]);
 	AllocPlatformBlock(counts[CREATE_PLATFORM]);
 	AllocCamBlock( counts[CREATE_CAMERACASE] );
+	AllocGaribBlock( counts[CREATE_GARIB] );
 
 	for (i=0; i<4; i++)
 		if (currPlatform[i])
