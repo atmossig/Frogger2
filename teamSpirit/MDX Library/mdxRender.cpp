@@ -59,7 +59,7 @@ float horizClip = 3000;
 float vertClip = 2500;
 
 long DIST=-10;
-long FOV=450 / (640.0/640.0);
+long FOV=450 / (480.0/480.0);
 float oneOver[65535];
 float posAddr[10000];
 
@@ -67,7 +67,7 @@ float posAddr[10000];
 
 float halfWidth;
 float halfHeight;
-
+unsigned long noClipping = 0;
 
 // Outcode enum
 enum {OUTCODE_LEFT, OUTCODE_RIGHT, OUTCODE_TOP, OUTCODE_BOTTOM};
@@ -692,7 +692,7 @@ void __fastcall PCPrepareLandscape3 (MDX_LANDSCAPE *me)
 			y = *(posAddr+x);
 			vTemp2->sx = halfWidth+(vTemp2->sx * oozd) - y;
 			vTemp2->sy =/* y -*/ halfHeight+(vTemp2->sy * oozd) - y;
-		
+			vTemp2->specular = D3DRGBA(0,0,0,1);
 		}
 		else
 			vTemp2->sz = 0;

@@ -58,6 +58,15 @@ short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
 float flareScales[MA_MAX_HALOS];
 float flareScales2[MA_MAX_HALOS];
+unsigned long haloColor[MA_MAX_HALOS];
+unsigned long haloSize[MA_MAX_HALOS];
+
+MDX_TEXENTRY *haloHandle = 0;
+MDX_TEXENTRY *haloHandle2 = 0;
+MDX_TEXENTRY *haloHandle3 = 0;
+
+
+
 MDX_TEXENTRY *cTexture = NULL;
 unsigned long sortMode = 0;
 short sortFaces[32000];
@@ -1214,7 +1223,26 @@ void DrawHalos(void)
 	{
 		if (haloPoints[i].vz)
 		{
-			rec.left = haloPoints[i].vx - 60;
+			unsigned long c,size,size2;
+			size = haloSize[i];
+			size2 = size/2;
+			
+			DrawAlphaSprite(haloPoints[i].vx - size2,haloPoints[i].vy - size2, 0,size,size, 0,0,1,1,haloHandle,haloColor[i]);
+			
+			c = haloColor[i];
+			c &= 0x00ffffff;
+			
+			size = fabs(haloSize[i] * 2 * flareScales[i]);
+			size2 = 40+fabs(20 * flareScales[i]);
+
+	//		DrawAlphaSpriteRotating(&(haloPoints[i].vx),0,haloPoints[i].vx - size2/2,haloPoints[i].vy - size/2, 0,size2,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
+			size = fabs(haloSize[i] * 1.5 * flareScales2[i]);
+	//		DrawAlphaSpriteRotating(&(haloPoints[i].vx),0.5,haloPoints[i].vx - 20,haloPoints[i].vy - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
+			size = fabs(haloSize[i] * flareScales[i] * flareScales2[i]);
+			
+	//		DrawAlphaSpriteRotating(&(haloPoints[i].vx),-0.7,haloPoints[i].vx - 20,haloPoints[i].vy - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
+
+			/*rec.left = haloPoints[i].vx - 60;
 			rec.right = haloPoints[i].vx + 60;
 
 			rec.top = haloPoints[i].vy - 60;
@@ -1225,7 +1253,7 @@ void DrawHalos(void)
 			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(200 * flareScales[i]),60 * (fabs(flareScales[i])),D3DRGBA(r,g,b,0.8-fabs(flareScales[i])*0.5),flareS,FULL_TEXTURE,1.57);
 			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(150 * flareScales2[i]),20,D3DRGBA(r,g,b,1-fabs(flareScales2[i])*0.5),flareS,FULL_TEXTURE,1);
 			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales2[i]),30+fabs(80 * flareScales2[i]),D3DRGBA(r,g,b,1-fabs(flareScales2[i])),flareS2,FULL_TEXTURE,3*flareScales2[i]);
-			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales[i]),30+fabs(80 * flareScales[i]),D3DRGBA(r,g,b,1-fabs(flareScales[i])),flareS2,FULL_TEXTURE,0);			
+			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales[i]),30+fabs(80 * flareScales[i]),D3DRGBA(r,g,b,1-fabs(flareScales[i])),flareS2,FULL_TEXTURE,0);			*/
 		}
 	}
 

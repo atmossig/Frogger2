@@ -379,6 +379,48 @@ void CalcViewMatrix(void)
 		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE);
 }
 
+void DrawBackground(void)
+{
+	
+	float oF = farClip;
+//	float oFs = fStart, oFe = fEnd;
+	SwapFrame(0);
+	backGnd->actor->visible = 1;
+	
+	noClipping = 1;
+	farClip = 124000;
+	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vx = 0;//-currCamSource.vx / 4096.0;
+	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vy = 0;//-currCamSource.vy / 4096.0;
+	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vz = 0;//-currCamSource.vz / 4096.0;
+		
+	XformActor(((MDX_ACTOR *)backGnd->actor->actualActor));
+	DrawActor(((MDX_ACTOR *)backGnd->actor->actualActor));
+	farClip = oF;
+	noClipping = 0;
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);
+	//pDirect3DDevice->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);	// clamp textures
+	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);//D3DFILTER_LINEAR);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAREF,0);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAFUNC,D3DCMP_NOTEQUAL);
+	
+	DrawBatchedPolys();
+	
+	// Draw the second mavis frame set, Transparent objects (non water objects)
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,FALSE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,TRUE);
+	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);	// wrap textures
+	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	
+	BlankFrame;
+}
+
+
 long DrawLoop(void)
 {
 	POINT t;
@@ -391,6 +433,8 @@ long DrawLoop(void)
 
 	CalcViewMatrix();
 
+	if (backGnd)
+		DrawBackground();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 
@@ -401,6 +445,7 @@ long DrawLoop(void)
 		DrawLandscape(world);
 
 	StartTimer(1,"Actors");
+	
 	ActorListDraw();
 	EndTimer(1);
 
