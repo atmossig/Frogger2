@@ -442,7 +442,9 @@ void UpdatePlatforms()
 					if(!cur->visible)
 					{
 						cur->pltActor->actor->xluOverride = 0;
-						//cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
+						cur->pltActor->draw = 0;
+						
+					//cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
 					//	cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
 				//		cur->pltActor->flags |= ACTOR_DRAW_NEVER;
 
