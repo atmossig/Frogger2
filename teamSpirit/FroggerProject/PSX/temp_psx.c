@@ -800,7 +800,7 @@ void Actor2ClipCheck(ACTOR2* act)
 	#define CLIP_BOTT	120
 	#define CLIP_LEFT	-256
 
-//	#define CLIP_FAR	3000
+	#define CLIP_FAR	7000
 
 //test
 // 	#define CLIP_TOP	-50
@@ -841,8 +841,8 @@ void Actor2ClipCheck(ACTOR2* act)
 // 	}
 
 
-	//too close to screen?
-	if(sz>0)
+	//not too close/far
+	if(sz>0 && sz<CLIP_FAR)
 	{
 		sx = (short)(sxy&0xffff);
 		sy = (short)(sxy>>16);
