@@ -1049,6 +1049,9 @@ have had some bugs in them. (silly errors)
 This has made the initial stages take longer than hoped.
 Hope the further stages go smoother!
 
+Afternoon:
+Scaling up world (*10)
+
 
 Chris Wilson:
 ------------------------------------------------
