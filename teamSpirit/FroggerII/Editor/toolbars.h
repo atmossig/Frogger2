@@ -1,0 +1,171 @@
+/*	-----------------------------------------------------------------------------------------------
+	Toolbar defs
+*/
+
+enum TOOLBARCOMMANDS
+{
+	TB_NONE = 0,
+	TB_SAVE,
+	TB_LOAD,
+	TB_CLEARLISTS,
+	TB_CLEAR_GARIBS,
+	TB_CLEAR_ENEMIES,
+	TB_CLEAR_PLATFORMS,
+	TB_CLEAR_CREATEENEMY,
+	TB_CLEAR_CREATEPLATFORM,
+	TB_DELETE_SELECTED,
+	TB_TEST,
+	TB_TEST2,
+	TB_PLACEFLAG,
+	TB_CLEARPATH,
+	TB_PICKENTITY,
+	TB_PICKFLAG,
+	TB_PICKGARIB,
+	TB_UNDO,
+	TB_PLACEGARIB,
+	TB_PREV,
+	TB_NEXT,
+	TB_PLACEENEMY,
+	TB_PLACEPLATFORM,
+	TB_AUTOCAMERA,
+	TB_SET_SPEED,
+	TB_SET_OFFSET,
+	TB_SET_OFFSET2,
+	TB_SET_WAIT,
+	TB_SET_ID,
+	TB_SETPATHSPEED,
+	TB_SET_ENTITYTYPE
+};
+
+#define TOOLBARBUTTONS_LENGTH 22
+
+int TOOLBARBUTTONS[TOOLBARBUTTONS_LENGTH][2] =
+{
+	{ 8,	TB_SAVE },
+	{ 9,	TB_LOAD },
+	{ 10,	TB_TEST },
+	{ 21,	TB_CLEARLISTS },
+	{ 15,	TB_UNDO },
+	{ -1, 0 }, // SEPARATOR
+	{ 29,	TB_PICKFLAG },
+	{ 14,	TB_PICKENTITY },
+	{ 30,	TB_PICKGARIB },
+	{ -1, 0 },
+	{ 11,	TB_PLACEFLAG },
+	{ 13,	TB_CLEARPATH },
+	{ 19,	TB_PLACEENEMY },
+	{ 20,	TB_PLACEPLATFORM },
+	{ -1, 0 },
+	{ 16,	TB_PLACEGARIB },
+	{ 17,	TB_PREV },
+	{ 18,	TB_NEXT },
+	{ -1, 0 },
+	{ 23,	TB_AUTOCAMERA },
+	{ -1, 0 },
+	{ 10,	TB_TEST2 }
+};
+
+#define TOOLBAR_SUBMENU_SIZE 16
+#define TBFLAG 0x80000000
+#define TB_ON  0x8000
+typedef int TOOLBAR_SUBMENU[TOOLBAR_SUBMENU_SIZE][2];
+
+TOOLBAR_SUBMENU TOOLBAR_ENEMY =
+{
+	{ 32 + TB_ON,	TB_SET_ENTITYTYPE },
+	{ 21 + TB_ON,	TB_DELETE_SELECTED },
+	{ 39 + TB_ON,	TB_SET_ID },
+	{ -1, 0 },
+	{ 33 + TB_ON,	TBFLAG  + PLATFORM_NEW_FORWARDS },
+	{ 34,			TBFLAG + PLATFORM_NEW_BACKWARDS },
+	{ 35,			TBFLAG + PLATFORM_NEW_CYCLE },
+	{ 36,			TBFLAG + PLATFORM_NEW_PINGPONG },
+	{ 37,			TBFLAG + PLATFORM_NEW_MOVEUP },
+	{ 38,			TBFLAG + PLATFORM_NEW_MOVEDOWN },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 }	// end of list
+};
+
+TOOLBAR_SUBMENU TOOLBAR_PLATFORM =
+{
+	{ 32 + TB_ON,	TB_SET_ENTITYTYPE },
+	{ 21 + TB_ON,	TB_DELETE_SELECTED },
+	{ 39 + TB_ON,	TB_SET_ID },
+	{ -1, 0 },
+	{ 33 + TB_ON,	TBFLAG + PLATFORM_NEW_FORWARDS },
+	{ 34,			TBFLAG + PLATFORM_NEW_BACKWARDS },
+	{ 35,			TBFLAG + PLATFORM_NEW_CYCLE },
+	{ 36,			TBFLAG + PLATFORM_NEW_PINGPONG },
+	{ 37,			TBFLAG + PLATFORM_NEW_MOVEUP },
+	{ 38,			TBFLAG + PLATFORM_NEW_MOVEDOWN },
+	{ -1, 0 },
+	{ 40,			TBFLAG + PLATFORM_NEW_STEPONACTIVATED },
+	{ 41,			TBFLAG + PLATFORM_NEW_CRUMBLES },
+	{ 42,			TBFLAG + PLATFORM_NEW_REGENERATES },
+	{ 43,			TBFLAG + PLATFORM_NEW_NOWALKUNDER },
+	{ -1, 0 }	// end of list
+};
+
+TOOLBAR_SUBMENU TOOLBAR_CLEAR =
+{
+	{ 16 + 0x8000, TB_CLEAR_GARIBS  },
+	{ 19 + 0x8000, TB_CLEAR_ENEMIES },
+	{ 20 + 0x8000, TB_CLEAR_PLATFORMS },
+	{ 5 + 0x8000, TB_CLEAR_CREATEENEMY },
+	{ 6 + 0x8000, TB_CLEAR_CREATEPLATFORM },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 }	// end of list
+};
+
+TOOLBAR_SUBMENU TOOLBAR_GARIB =
+{
+	{ 21 + TB_ON,	TB_DELETE_SELECTED  },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 }	// end of list
+};
+TOOLBAR_SUBMENU TOOLBAR_FLAG =
+{
+	{ 25 + TB_ON,	TB_SET_SPEED },
+	{ 26 + TB_ON,	TB_SET_OFFSET },
+	{ 27 + TB_ON,	TB_SET_OFFSET2 },
+	{ 24 + TB_ON,	TB_SET_WAIT },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ 28 + TB_ON,	TB_SETPATHSPEED },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 },
+	{ -1, 0 }
+};
+
