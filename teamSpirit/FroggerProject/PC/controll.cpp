@@ -1219,9 +1219,20 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 			SendMessage(list, LB_SETTABSTOPS, 1, (LPARAM)&tabstop);
 
+
 			for( i=0; i<NUM_CONTROLS; i++ )
 			{
-				strcpy( itmTxt, controlDesc[i].name );
+				switch(i)
+				{
+				case 0: strcpy( itmTxt, GAMESTRING(STR_UP) ); break;
+				case 1: strcpy( itmTxt, GAMESTRING(STR_DOWN) ); break;
+				case 2: strcpy( itmTxt, GAMESTRING(STR_LEFT) ); break;
+				case 3: strcpy( itmTxt, GAMESTRING(STR_RIGHT) ); break;
+				case 4: strcpy( itmTxt, GAMESTRING(STR_SUPERHOP) ); break;
+				case 5: strcpy( itmTxt, GAMESTRING(STR_CROAK) ); break;
+				case 6: strcpy( itmTxt, GAMESTRING(STR_START) ); break;
+				case 7: strcpy( itmTxt, GAMESTRING(STR_TONGUE) ); break;
+				}
 				strcat( itmTxt, "\t" );
 				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key][gameTextLang] );
 				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
