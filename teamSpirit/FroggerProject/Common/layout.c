@@ -1165,7 +1165,7 @@ void FreeAllLists()
 
 	if (gameState.mode == FRONTEND_MODE)
 	{
-		InitTextOverlayLinkedList(250);
+		InitTextOverlayLinkedList(400);
 	}
 	else
 	{
