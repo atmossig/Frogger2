@@ -9,9 +9,12 @@
 ---------------------------------------------------------------------------- */
 
 
+#include <stdio.h>
+
 #include "edittypes.h"
 #include "edglobals.h"
 #include "editdefs.h"
+#include "edmaths.h"
 
 #include "specfx.h"
 #include "collect.h"
@@ -20,7 +23,6 @@
 #include "cam.h"
 #include "babyfrog.h"
 #include "event.h"
-
 
 
 /*	--------------------------------------------------------------------------------
