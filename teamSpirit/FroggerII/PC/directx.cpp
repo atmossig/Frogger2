@@ -1219,7 +1219,7 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 void BeginDrawHardware (void)
 {
 	pDirect3DDevice->BeginScene();
-	BlankFrame();
+	BlankFrame(meatballs);
 	
 }
 

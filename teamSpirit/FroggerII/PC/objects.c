@@ -149,7 +149,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
 			TEXENTRY *me;
-			me = obj->mesh->textureIDs[x] = (long)GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
+			me = obj->mesh->textureIDs[x] = GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
 			
 			if (me)
 				if (me->type == TEXTURE_AI)

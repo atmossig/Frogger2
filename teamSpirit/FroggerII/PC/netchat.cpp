@@ -340,13 +340,13 @@ void DrawChatBuffer( int left, int top, int right, int bottom )
 
 	TruncateChatBuffer( );
 
-	SetTextAlign( hdc, TA_LEFT );
-	SetBkMode(hdc, TRANSPARENT);
-	SetTextColor(hdc, RGB(255,255,255));
-
 	res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 	if (res == DD_OK)
 	{
+		SetTextAlign( hdc, TA_LEFT );
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, RGB(255,255,255));
+
 		for( count=0,cstring = chatBuffer.head.next; cstring; cstring = cstring->next,count++ )
 			TextOut( hdc, r.left+5, r.bottom-5-(20*(count+1)), cstring->msg, cstring->msgLen );
 

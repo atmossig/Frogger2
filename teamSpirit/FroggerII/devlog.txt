@@ -823,6 +823,10 @@ James Hubbard:
 	I'm preparing to deal with a barrage of complaints from artists that the animations
 	don't work like they used to (i.e. they animate), so lots of tweaking there.
 
+	Made homing enemies avoid each other. Another lovely tilestate, mmm mmm mmm.
+	Turned compiler warnings back on and fixed loads of warnings, including a few bugs
+	that no-one knew about.
+
 
 James Healey:
 ------------------------------------------------

@@ -205,7 +205,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
 }
 
-long InitOneOverTable(void);
+void InitOneOverTable(void);
 extern float camSideOfs;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
@@ -813,7 +813,7 @@ void DrawGraphics()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
 
 	DrawBatchedPolys();
-	BlankFrame();
+	BlankFrame(spaghetti);
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 	
@@ -825,12 +825,12 @@ void DrawGraphics()
 
 
 	DrawBatchedPolys();
-	BlankFrame();
+	BlankFrame(bolognese);
 
 
 	DrawSpecialFX();
 	DrawBatchedPolys();
-	BlankFrame();
+	BlankFrame(parmesan);
 	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
@@ -845,11 +845,11 @@ void DrawGraphics()
 	if (editorOk)
 	{
 		DrawBatchedPolys();
-		BlankFrame();
+		BlankFrame(margerine);
 	
 		DrawEditor();
 		DrawBatchedPolys();
-		BlankFrame();
+		BlankFrame(basil);
 	}
 
 
@@ -867,7 +867,7 @@ void DrawGraphics()
 		Print3DText( );
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 		DrawBatchedPolys();
-		BlankFrame();
+		BlankFrame(kidneybeans);
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	}
 

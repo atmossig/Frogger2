@@ -235,7 +235,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	{
 		if( isAnim == 2 )
 		{
-			CreateAndAddProceduralTexture( newE, mys );
+			CreateAndAddProceduralTexture( (TEXTURE *)newE, mys );
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
 			newE->type = TEXTURE_AI;
 		}
@@ -413,7 +413,7 @@ void FindTexture(TEXTURE **texPtr, int texID, BOOL report)
 	TEXTURE *tex;
 	char *temp;
 			
-	*texPtr = GetTexEntryFromCRC(texID);
+	*texPtr = (TEXTURE *)GetTexEntryFromCRC(texID);
 
 	return;
 }

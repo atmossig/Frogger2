@@ -178,6 +178,8 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP *sampleMap )
 	SetSampleFormat( newItem );
 
 	AddSample( newItem );
+
+	return newItem;
 }
 
 
@@ -598,6 +600,8 @@ DWORD stopCDTrack ( HWND hWndNotify )
 
 	// Close device
 	mciSendCommand(mciDevice, MCI_CLOSE, MCI_NOTIFY, (DWORD)(LPMCI_GENERIC_PARMS)&parms);
+
+	return TRUE;
 }
 
 // Plays a specified audio track using MCI_OPEN, MCI_PLAY. Returns as 

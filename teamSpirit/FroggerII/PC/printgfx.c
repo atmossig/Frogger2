@@ -185,7 +185,8 @@ SPRITE *PrintSpritesOpaque()
 void PrintSpriteOverlays()
 {
 	SPRITEOVERLAY *cur;
-	short *texture,x,y;
+	short x,y;
+	unsigned long texture;
 	TEXENTRY *tEntry;
 
 

@@ -80,7 +80,7 @@ long numPixelsDrawn;
 extern float RES_DIFF;
 
 float oneOver[65535];
-long InitOneOverTable(void)
+void InitOneOverTable(void)
 {
 	int i;
 	for(i=1; i<65535; i++)
@@ -1404,7 +1404,7 @@ void PCRenderObject (OBJECT *obj)
 
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
-	cols = ((VECTOR *)obj->mesh->vertexNormals);
+	cols = (VECTOR *)obj->mesh->vertexNormals;
 	alphaVal = (xl*255.0);
 
 	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)

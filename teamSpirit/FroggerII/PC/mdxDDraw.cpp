@@ -162,6 +162,8 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 
 	DDrawAttachSurface (PRIMARY_SRF,RENDER_SRF);
 	DDrawAttachSurface (RENDER_SRF,ZBUFFER_SRF);
+
+	return 1;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -181,6 +183,8 @@ unsigned long DDrawAttachSurface(unsigned long srfA, unsigned long srfB)
 		ddShowError(res);
 		return FALSE;
 	}
+
+	return TRUE;
 }
 
 /*	--------------------------------------------------------------------------------
