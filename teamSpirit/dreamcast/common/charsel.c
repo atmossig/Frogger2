@@ -107,13 +107,15 @@ void StartCharacterSelectMode(CHARSELOPTIONS* char1, CHARSELOPTIONS* char2)
 
 	CreateFrogActor(0, frogPool[char1->character].singleModel, 0);
 	frog[0]->actor->position.vx = -625;
-	frog[0]->actor->shadow->draw = 0;
+	if( frog[0]->actor->shadow )
+		frog[0]->actor->shadow->draw = 0;
 	actorAnimate(frog[0]->actor, FROG_ANIM_DANCE1, YES, NO, 64, NO);
 
 	CreateFrogActor(0, frogPool[char2->character].singleModel, 1);
 	frog[1]->actor->position.vx = 625;
 	frog[1]->actor->position.vz = -512;
-	frog[0]->actor->shadow->draw = 0;
+	if( frog[0]->actor->shadow )
+		frog[0]->actor->shadow->draw = 0;
 	actorAnimate(frog[1]->actor, FROG_ANIM_BREATHE, YES, NO, 64, NO);
 
 	// spotlights

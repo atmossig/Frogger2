@@ -8,6 +8,9 @@
 #include "include.h"
 #include "islxa.h"
 #include "main.h"
+#include "menus.h"
+#include "options.h"
+
 //#include "sound.h"
 
 //#define XAROOT	"\\"
@@ -266,6 +269,29 @@ void XAplayChannelOffset(XAFileType *xaF, int offset, int channel, int loop, int
 	xaF->vol	= vol;							// volume to play the ADX at 
 
 	ADXT_StartFname(xaF->adxt, xaF->fileInfo);	// Start playing the XDA using the middlware
+
+	if(options.stereo)
+	{
+		// set streaming audio to stereo
+		ADXT_SetOutPan(xaF->adxt,0,ADXT_PAN_LEFT);
+		ADXT_SetOutPan(xaF->adxt,1,ADXT_PAN_RIGHT);
+
+		// set sfx to stereo
+		acSystemDelay(500000);
+		acSystemSetStereoOrMono(0);
+		acSystemDelay(500000);
+	}
+	else
+	{
+		// set streaming audio to mono
+		ADXT_SetOutPan(xaF->adxt,0,ADXT_PAN_CENTER);
+		ADXT_SetOutPan(xaF->adxt,1,ADXT_PAN_CENTER);
+
+		// set sfx to mono
+		acSystemDelay(500000);
+		acSystemSetStereoOrMono(1);
+		acSystemDelay(500000);
+	}
 }
 
 

@@ -2452,7 +2452,7 @@ int StartVideoPlayback(int num, int allowQuit)
 		if(current[channel].sample)
 		{
 			if(current[channel].sound.isPlaying)
-				amSoundSetVolume(&current[channel].sound,0);
+//ma				amSoundSetVolume(&current[channel].sound,0);
 		}
 	}
 */

@@ -30,6 +30,7 @@
 #include <ac.h>
 #include <a64thunk.h>
 #include <am.h>
+#include "newsfx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +48,7 @@ KTBOOL bpAmAllocateSfxInstance(AM_SOUND **theSound);
 KTBOOL bpAmInstallEffectsPatch(AM_BANK_PTR theBank,
 	KTU32 effectsProgramBankIndex, KTU32 effectsOutputBankIndex);
 
-AM_SOUND *bpAmPlaySoundEffect(AM_BANK_PTR theBank, AM_SOUND *theSound, KTU32 soundNumber, KTU32 volume, KTU32 pan);
+AM_SOUND *bpAmPlaySoundEffect(SfxSampleType *sample, AM_BANK_PTR theBank, AM_SOUND *theSound, KTU32 soundNumber, KTU32 volume, KTU32 pan);
 
 AM_SOUND *bpAmPlaySoundEffectFx(AM_BANK_PTR theBank, KTU32 soundNumber,
 	KTU32 volume, KTU32 pan, KTU32 effectSourceMix, KTBOOL qSoundOnOrOff);

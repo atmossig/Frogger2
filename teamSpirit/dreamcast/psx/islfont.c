@@ -366,6 +366,10 @@ int fontExtentWScaled(psFont *font, char *text,int scale)
 	unsigned char	*strPtr, c;
 	int		loop, x, maxW = 0;
 
+	// trap null text pointer
+	if (text == NULL)
+		return 0;
+
 	strPtr = (unsigned char *)text;
 	x = 0;
 	while(*strPtr)

@@ -11,7 +11,7 @@
 #ifndef AUDIO_H_INCLUDED
 #define AUDIO_H_INCLUDED
  
-
+#define	MAX_CHANNELS	48
 
 #include "newsfx.h" 
 #include "types.h"
@@ -146,11 +146,14 @@ typedef struct {
 	AM_SOUND			sound;
 	SfxSampleType		*sample;
 	int					volume;
+	int					pan;
 } CurrentData;
  
 extern SAMPLE *genSfx[];
 
-extern CurrentData   current[24];
+extern CurrentData   current[MAX_CHANNELS];
+
+extern AMBIENT_SOUND_LIST	ambientSoundList;
 
 //***********************************
 // Function Prototypes
@@ -190,6 +193,8 @@ extern CurrentData   current[24];
 
 #define PlayVoice(pl, sound) PlaySample(FindVoice(utilStr2CRC(sound),pl), NULL, 0, SAMPLE_VOLUME, -1)
 
+void audioError();
+
 void StartSound();
 void StopSound();
 void InitSampleList( );
@@ -220,6 +225,13 @@ void sfxSetChannelVolume(int channel, int volL, int volR);
 void sfxStartSound();
 void StopSample(SAMPLE *sample);
 void sfxStopSound();
+
+void UpdateAmbientSoundsVolume();
+void UpdateAmbientSoundsPlay();
+
+void StartAmbientSoundsPlay();
+
+int PlaySampleNoSoundSet( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch );
 
 
 #endif

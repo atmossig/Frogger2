@@ -105,6 +105,9 @@ extern unsigned long USE_MENUS;
 extern long startCam;
 extern TIMER endLevelTimer;
 
+extern AC_ERROR_PTR		acErr;
+extern AM_ERROR			*amErr;
+
 unsigned long worldNum;
 unsigned long levelNum;
 
@@ -552,6 +555,27 @@ WORLD_VISUAL_DATA origWorldVisualData[MAX_WORLDS] =
 #endif
 
 
+// debug print. wait for start button pressed before we continue
+void PrintDebugMessage(char *message)
+{
+	int	i;
+
+	for(i=0;i<120;i++)
+	{
+		kmBeginScene(&kmSystemConfig);
+		kmBeginPass(&vertexBufferDesc);
+
+		fontPrint(font, 10-256,0, message, 255,255,255);
+
+		kmEndPass(&vertexBufferDesc);
+					
+		kmRender(KM_RENDER_FLIP);
+		kmEndScene(&kmSystemConfig);
+	}
+}
+
+
+
 WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS];
 
 /*	--------------------------------------------------------------------------------
@@ -617,8 +641,8 @@ void InitLoadingScreen( const char *filename )
 	SetProgressBar(0);
 
 	// JH: Lets load up the backdrop before we do any thing
-	InitBackdrop ( "LOADINGUS" );
-//	InitBackdrop ( "ARTWORK00" );
+	InitBackdrop(filename);
+//	InitBackdrop("ARTWORK00");
 
 	SetCurrentDisplayPage ( 1, 0 );
 
@@ -671,6 +695,10 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	GAMETILE 	*tempTile;
 	PSIMODEL 	*psiModel;
 	char		buffer[32];
+
+	acSystemDelay(500000);
+	acSystemSetMasterVolume(15);
+	acSystemDelay(500000);
 
 	// *ASL* 17/08/2000 - Make sure the game quitting level is zero
 	quittingLevel = 0;
@@ -730,9 +758,11 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	
 //	memoryShow();
 
-//#ifndef PSX_VERSION
-	InitLoadingScreen( "LOADING01" );
-//#endif
+#ifdef NTSC_VERSION
+	InitLoadingScreen( "LOADINGUS" );
+#else
+	InitLoadingScreen( "LOADINGEU" );
+#endif
 
 	UpdateLoadingScreen( 10 );
 
@@ -879,8 +909,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	InitInGameTextOverlays(worldID,levelID);
 
-
-
 //	ResetCamera( );
 //	InitCamera();
 
@@ -940,7 +968,14 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	drawLandscape = 1;
 
 	UpdateLoadingScreen( 100 );
+
+		// debug
+//ma		PrintDebugMessage("Before Free Loading Screen");
+
 	FreeLoadingScreen( );
+
+		// debug
+//ma		PrintDebugMessage("Done Free Loading Screen");
 
 #ifdef PC_VERSION
 	ScreenFade(0,0,1);
@@ -962,48 +997,114 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if(useAudio)
 		PrepareSong((short)worldID, 1);		// loop track
 #else
-	bb_InitXA();
-	if(useAudio && XAgetStatus())
-		PrepareSong((short)worldID,1);
-	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
+//	bb_InitXA();
+//	if(useAudio && XAgetStatus())
+//		PrepareSong((short)worldID,1);
+//	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
 #endif
 
 	//memoryShow();
 	//memoryShowStats();
+
+		// debug
+//ma		PrintDebugMessage("Before UnPauseAudio");
+
 	UnPauseAudio();
+
+		// debug
+//ma		PrintDebugMessage("After UnPauseAudio");
+
 	SetMusicVolume();
+
+		// debug
+//ma		PrintDebugMessage("After SetMusicVolume");
 
 	player[0].oldLives = player[0].lives;
 
 #ifdef PSX_VERSION
 	//sb wait for screen to fade to black!!
 //ma	while(fadingOut)
-	{
-		IQUATERNION squat = {0,0,0,1};
-		MATRIX dmatrix;
-
-		quaternionGetMatrix(&squat,&dmatrix);
-	}
+//	{
+//		IQUATERNION squat = {0,0,0,1};
+//		MATRIX dmatrix;
+//
+//		quaternionGetMatrix(&squat,&dmatrix);
+//	}
 //ma	loadingFree();
 #endif
+
+		// debug
+//ma		PrintDebugMessage("Before ScreenFade");
+
 	ScreenFade(0,255,30);
+
+		// debug
+//ma		PrintDebugMessage("After ScreenFade");
+
 	keepFade = 0;
 	startCam = 1;
+
+		// debug
+//ma		PrintDebugMessage("Before GTInit");
+
 	GTInit( &endLevelTimer, 0 );
 
 	if( gameState.multi != SINGLEPLAYER )
 	{
+		// debug
+//ma		PrintDebugMessage("Before ReInitialiseBeforeMultiplayer");
+
 		ReinitialiseMultiplayer( );
+
+		// debug
+//ma		PrintDebugMessage("Before ResetMultiPlayer");
+
 		ResetMultiplayer( );
+
+		// debug
+//ma		PrintDebugMessage("After ResetMultiPlayer");
 	}
 
+		// debug
+//ma		PrintDebugMessage("Before ResetCamera");
+
 	ResetCamera( );
+
+		// debug
+//ma		PrintDebugMessage("Before InitCamera");
+
 	InitCamera();
+
+		// debug
+//ma		PrintDebugMessage("Before UpdateEnemies");
 	
 	UpdateEnemies();
+
+		// debug
+//ma		PrintDebugMessage("Before UpdatePlatforms");
+
 	UpdatePlatforms();
-		
+
+		// debug
+//ma		PrintDebugMessage("Before UpdateEvents");
+	
 	UpdateEvents();
+
+		// debug
+//ma		PrintDebugMessage("Before StartAmbientSoundsPlay");
+
+	StartAmbientSoundsPlay();
+
+	if(useAudio)
+	{
+		// debug
+//ma		PrintDebugMessage("Before PrepareSong");
+
+		PrepareSong((short)worldID,1);
+	}
+
+	// debug
+//ma	PrintDebugMessage("Before ShowLCDLogo");
 
 	ShowLCDLogo();
 }
@@ -1036,6 +1137,19 @@ void FreeAllLists()
 
 	FreeAmbientSoundList();
 	FreeSampleList();
+
+
+	// pump all remaining queued commands..
+//ma - err	amErr->number = 0;
+	while (qfxPumpCommands() == 0)
+	{
+		// acknowledge the error
+		acSystemDelay(500000);
+//ma - err		amErr->number = 0;
+	}
+	// then flush..
+	qfxFlush();
+
 
 	FreeTriggerList();
 	//KillAllTriggers();

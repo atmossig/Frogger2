@@ -771,8 +771,8 @@ void RunGameLoop (void)
 	TIMER_STOP_ADD3(TIMER_UP_EVEN);
 
 	TIMER_START3(TIMER_UP_AMBI);
-	if( gameState.mode != PAUSE_MODE )
-		UpdateAmbientSounds();
+//	if( gameState.mode != PAUSE_MODE )
+//		UpdateAmbientSounds();
 	TIMER_STOP_ADD3(TIMER_UP_AMBI);
 
 	TIMER_START3(TIMER_COLLECT);

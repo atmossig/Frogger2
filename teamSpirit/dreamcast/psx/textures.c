@@ -88,7 +88,7 @@ void LoadTextureAnimBank ( int textureBank )
 		default: return;
 	}
 
-	textureAnims = (TEXTUREANIM*)FindStakFileInAllBanks ( titFileName, &fileLength );
+	textureAnims = (unsigned long *)FindStakFileInAllBanks ( titFileName, &fileLength );
 
 	if ( !textureAnims )
 		return;
@@ -191,9 +191,11 @@ TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 	// ENDIF
 
 	textureAnim->animation->dest = FindTexture2(crc);
-	textureAnim->animation->dest->animated = TRUE;
-	if(textureAnim->animation->dest == NULL)
+	// find texture failed.. use default anim texture..
+	if (textureAnim->animation->dest == NULL)
 		textureAnim->animation->dest = &DCKtextureList[0];
+	textureAnim->animation->dest->animated = TRUE;
+
 	textureAnim->animation->anim = (TextureType **)((unsigned char *)textureAnim->animation + sizeof(TextureAnimType));
 	textureAnim->animation->waitTimes = (short *)MALLOC0( sizeof(short)*numframes );
 

@@ -63,6 +63,8 @@
 //ma#include "font.h"
 #endif
 #include "layout.h"
+#include "islxa.h"
+#include <cri_adxt.h>
 
 extern GAMETILE *lastTitleTile;
 extern FVECTOR storeCurrCamSource;
@@ -80,6 +82,8 @@ extern int lastArcade;
 extern RECT clipBox1;
 extern RECT clipBox2;
 #endif
+
+#include "QueueSfx.h"
 
 char warnStr[256];
 char diffStr[128];
@@ -1567,6 +1571,9 @@ void InitOptionsMenu(void)
 	}
 	else	
 	{
+		// force to music volume selection
+		options.soundSelection = 0;
+
 		CreateOptionsObjects();
 		options.numPText->draw = options.numPText2->draw = 0;
 		options.mpText->draw = 0;
@@ -2254,20 +2261,41 @@ void RunOptionsMenu(void)
 #ifdef PSX_VERSION
 					// *ASL* 16/08/2000 - Temporarily mute all the ambient sounds while we play the FMV
 					int		c;
-					for (c=0; c<24; c++)
+					for (c=0; c<MAX_CHANNELS; c++)
 						if (current[c].sound.isPlaying)
 						{
-							amSoundSetVolume(&current[c].sound, 0);
+							{
+								// queue up our volume
+								TqfxEntry fx;
+								fx.command = QFXCMD_SETVOLUME;
+								fx.volume = 0;
+								fx.channel = c;
+								qfxAddEntry(&fx);
+							}
+//							amSoundSetVolume(&current[c].sound, 0);
+							audioError();
 						}
 #endif
 					// *ASL* 12/08/2000 - Force allow quit on video playback
 					StartVideoPlayback(options.fmvNum + 3, 1);
 #ifdef PSX_VERSION
 					// *ASL* 16/08/2000 - Restore the ambient sounds
-					for (c=0; c<24; c++)
+					for (c=0; c<MAX_CHANNELS; c++)
 						if (current[c].sound.isPlaying)
 						{
-							amSoundSetVolume(&current[c].sound, current[c].volume);
+							if(current[c].volume > 127)
+								current[c].volume = 127;
+
+							{
+								// queue up our volume
+								TqfxEntry fx;
+								fx.command = QFXCMD_SETVOLUME;
+								fx.volume = current[c].volume;
+								fx.channel = c;
+								qfxAddEntry(&fx);
+							}
+//ma							amSoundSetVolume(&current[c].sound, current[c].volume);
+							audioError();
 						}
 #endif
 				}
@@ -3062,10 +3090,21 @@ void RunArtViewer()
 	int		channel;
 	char	name[32];
 
-	for(channel=0; channel<24; channel++)
+	for(channel=0; channel<MAX_CHANNELS; channel++)
 	{
 		if(current[channel].sound.isPlaying)
-			amSoundSetVolume(&current[channel].sound,0);
+		{
+			{
+				// queue up our volume
+				TqfxEntry fx;
+				fx.command = QFXCMD_SETVOLUME;
+				fx.volume = 0;
+				fx.channel = channel;
+				qfxAddEntry(&fx);
+			}
+//ma			amSoundSetVolume(&current[channel].sound,0);
+			audioError();
+		}
 	}
 
 	if(padData.debounce[0] & (PAD_START | PAD_TRIANGLE))
@@ -3135,11 +3174,15 @@ void RunTeaserScreens( )
 }
 
 
+extern XAFileType	*curXA;
+
 #ifdef DREAMCAST_VERSION
+
 void ToggleStereo( )
 {
 	void	*pbuf;
 	Sint32	soundMode;
+	long	panl,panr;
 
 	options.stereoSelectText[options.stereo]->r = options.stereoSelectText[options.stereo]->g = options.stereoSelectText[options.stereo]->b = 255;
 
@@ -3155,6 +3198,49 @@ void ToggleStereo( )
 		syCfgSetSoundMode(SYD_CFG_STEREO);
 	else
 		syCfgSetSoundMode(SYD_CFG_MONO);
+
+	if(options.stereo)
+	{
+		// stereo
+		if(curXA)
+		{
+			if(curXA->adxt)
+			{
+				// set streaming audio to stereo
+				ADXT_SetOutPan(curXA->adxt,ADXT_CH_L,ADXT_PAN_LEFT);
+				ADXT_SetOutPan(curXA->adxt,ADXT_CH_R,ADXT_PAN_RIGHT);
+
+				panl = ADXT_GetOutPan(curXA->adxt,ADXT_CH_L);
+				panr = ADXT_GetOutPan(curXA->adxt,ADXT_CH_R);
+
+				// set sfx to stereo
+				acSystemDelay(500000);
+				acSystemSetStereoOrMono(0);
+				acSystemDelay(500000);
+			}
+		}
+	}
+	else
+	{
+		// mono
+		if(curXA)
+		{
+			if(curXA->adxt)
+			{
+				// set streaming audio to mono
+				ADXT_SetOutPan(curXA->adxt,ADXT_CH_L,ADXT_PAN_CENTER);
+				ADXT_SetOutPan(curXA->adxt,ADXT_CH_R,ADXT_PAN_CENTER);
+
+				panl = ADXT_GetOutPan(curXA->adxt,ADXT_CH_L);
+				panr = ADXT_GetOutPan(curXA->adxt,ADXT_CH_R);
+
+				// set sfx to mono
+				acSystemDelay(500000);
+				acSystemSetStereoOrMono(1);
+				acSystemDelay(500000);
+			}
+		}
+	}
 
 	syCfgGetSoundMode(&soundMode);
 	syCfgExit();

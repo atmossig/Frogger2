@@ -77,4 +77,8 @@ extern struct			gameStateStruct gameState;
 
 extern int				skipSpecFX;
 
+int numSfxPlaying();
+
+extern int	startAudio;
+
 #endif

@@ -70,6 +70,8 @@ extern int cursPos;
 extern int useMemCard;
 #endif
 
+#include "QueueSfx.h"
+
 int numExtra;
 
 extern int restartingLevel;
@@ -114,6 +116,8 @@ TEXTOVERLAY *removeControllerText3;
 
 // main.c - used to abort the game
 extern unsigned int globalAbortFlag;
+
+char	specialTextbuffer[256];
 
 TEXTOVERLAY *theEndText = NULL;
 TIMER theEndTimer;
@@ -162,7 +166,9 @@ extern long creditsUserQuit;
 
 void GameLoop(void)
 {
-	int i;
+	int		i;
+	char	*bufPtr;
+	int		y, loop, numLines;
 
 	// set default special effects skip flag
 	skipSpecFX = FALSE;
@@ -276,8 +282,13 @@ void GameLoop(void)
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 0;
 
-				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				// get number of lines and setup text overlay
+				numLines = fontFitToWidth(fontSmall, 420, GAMESTRING(STR_DC_PAD_NOT_PRESENT), specialTextbuffer);
+				bufPtr = specialTextbuffer;
+
+				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				bufPtr += strlen(bufPtr)+1;
+				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 				controllerRemoved = TRUE;
 			}
@@ -306,8 +317,12 @@ void GameLoop(void)
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 0;
 
-				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				numLines = fontFitToWidth(fontSmall, 420, GAMESTRING(STR_DC_PAD_NOT_PRESENT), specialTextbuffer);
+				bufPtr = specialTextbuffer;
+
+				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				bufPtr += strlen(bufPtr)+1;
+				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 				controllerRemoved = TRUE;
 			}
@@ -359,8 +374,13 @@ void GameLoop(void)
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 
-			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			// get number of lines and setup text overlay
+			numLines = fontFitToWidth(fontSmall, 420, GAMESTRING(STR_DC_PAD_NOT_PRESENT), specialTextbuffer);
+			bufPtr = specialTextbuffer;
+
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			bufPtr += strlen(bufPtr)+1;
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			controllerRemoved = TRUE;
 		}
@@ -554,12 +574,23 @@ void RunGameOver( )
 	int channel;
 
 	// reset sfx volume
-	for(channel=0; channel<24; channel++)
+	for(channel=0; channel<MAX_CHANNELS; channel++)
 	{
 		if(current[channel].sample)
 		{
 			if(current[channel].sound.isPlaying)
-				amSoundSetVolume(&current[channel].sound,0);
+			{
+				{
+					// queue up our volume
+					TqfxEntry fx;
+					fx.command = QFXCMD_SETVOLUME;
+					fx.volume = 0;
+					fx.channel = channel;
+					qfxAddEntry(&fx);
+				}
+//ma				amSoundSetVolume(&current[channel].sound,0);
+				audioError();
+			}
 		}
 	}
 
@@ -1603,7 +1634,7 @@ void StartLevelComplete()
 	actorAnimate(frog[0]->actor,froganimnum,NO,NO,froganimspeed,NO);
 	drawLandscape = 0;
 
-	for(i=0;i<24;i++)
+	for(i=0;i<MAX_CHANNELS;i++)
 		sfxStopChannel(i);
 }
 
@@ -1654,16 +1685,16 @@ void RunLevelComplete()
 	SPRITEOVERLAY *coinOver;
 	char tempChar;
 
-	// reset sfx volume
-	for(channel=0; channel<24; channel++)
+/*	// reset sfx volume
+	for(channel=0; channel<MAX_CHANNELS; channel++)
 	{
 		if(current[channel].sample)
 		{
 			if(current[channel].sound.isPlaying)
-				amSoundSetVolume(&current[channel].sound,0);
+//ma				amSoundSetVolume(&current[channel].sound,0);
 		}
 	}
-
+*/
 	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	drawLandscape = 0;
 

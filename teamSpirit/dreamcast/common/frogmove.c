@@ -168,8 +168,10 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 
 	if( frog[p]->actor->shadow ) 
 #ifdef PC_VERSION
+	if( frog[p]->actor->shadow )
 		frog[p]->actor->shadow->draw = 1;
 #else
+	if( frog[p]->actor->shadow )
 		frog[p]->actor->shadow->draw = 0;
 #endif
 
@@ -669,12 +671,14 @@ void FroggerHop(int pl)
 	}
 
 	if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
-		frog[pl]->actor->shadow->draw = 1;
+		if( frog[pl]->actor->shadow )
+			frog[pl]->actor->shadow->draw = 1;
 
 	if( currTile[pl]->state >= TILESTATE_CONVEYOR || currTile[pl]->state == TILESTATE_ICE )
 	{
 #ifdef PSX_VERSION
-		frog[pl]->actor->shadow->draw = 0;
+		if( frog[pl]->actor->shadow )
+			frog[pl]->actor->shadow->draw = 0;
 #else
 		if( !rHardware ) frog[pl]->actor->shadow->draw = 0;
 #endif
@@ -1249,7 +1253,8 @@ void CheckForFroggerLanding(long pl)
 #ifdef PC_VERSION
 		if( !rHardware ) frog[pl]->actor->shadow->draw = 0;
 #else
-		frog[pl]->actor->shadow->draw = 0;
+		if( frog[pl]->actor->shadow )
+			frog[pl]->actor->shadow->draw = 0;
 #endif
 
 	// Assume for now that if we've landed after being on another frogs head then we're no longer on it.
@@ -1388,7 +1393,8 @@ void CheckForFroggerLanding(long pl)
 
 					player[pl].frogState |= FROGSTATUS_ISDEAD;
 					GTInit( &player[pl].dead, 3 );
-					frog[pl]->actor->shadow->draw = 0;
+					if( frog[pl]->actor->shadow )
+						frog[pl]->actor->shadow->draw = 0;
 				}
 
 				PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);
@@ -1475,7 +1481,8 @@ void CheckForFroggerLanding(long pl)
 
 						player[pl].frogState |= FROGSTATUS_ISDEAD;
 						GTInit( &player[pl].dead, 3 );
-						frog[pl]->actor->shadow->draw = 0;
+						if( frog[pl]->actor->shadow )
+							frog[pl]->actor->shadow->draw = 0;
 					}
 
 					PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);

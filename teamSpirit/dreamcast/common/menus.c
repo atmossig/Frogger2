@@ -194,6 +194,7 @@ int pauseFrameCount;
 int pauseFaded = 0;
 long pauseFadeTimer;
 
+extern char	specialTextbuffer[256];
 
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
@@ -234,7 +235,7 @@ void StartPauseMenu()
 //#else
 //	currentPauseSelection = 1;
 //#endif
-//ma	EnableTextOverlay ( xselectText );
+	EnableTextOverlay ( xselectText );
 
 	if(gameState.multi == SINGLEPLAYER)
 	{
@@ -411,8 +412,11 @@ TEXTOVERLAY *yesText = NULL;
 TEXTOVERLAY *noText = NULL;
 void RunPauseMenu()
 {
-	int exitPause = FALSE;
-	int i;
+	int		exitPause = FALSE;
+	int		i;
+	char	*bufPtr;
+	int		y, loop, numLines;
+	char	buffer[256];
 
 	// removed controller
 	if(controllerRemoved)
@@ -475,13 +479,18 @@ void RunPauseMenu()
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 
-			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			// get number of lines and setup text overlay
+			numLines = fontFitToWidth(fontSmall, 420, GAMESTRING(STR_DC_PAD_NOT_PRESENT), specialTextbuffer);
+			bufPtr = specialTextbuffer;
+
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			bufPtr += strlen(bufPtr)+1;
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			controllerRemoved = TRUE;
 
 			DisableTextOverlay ( continueText );
-//ma			DisableTextOverlay ( xselectText );
+			DisableTextOverlay ( xselectText );
 			DisableTextOverlay ( pauseTitleText );
 			DisableTextOverlay ( restartText );
 			DisableTextOverlay ( quitText );
@@ -511,13 +520,18 @@ void RunPauseMenu()
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 
-			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			// get number of lines and setup text overlay
+			numLines = fontFitToWidth(fontSmall, 420, GAMESTRING(STR_DC_PAD_NOT_PRESENT), specialTextbuffer);
+			bufPtr = specialTextbuffer;
+
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			bufPtr += strlen(bufPtr)+1;
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, bufPtr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			controllerRemoved = TRUE;
 
 			DisableTextOverlay ( continueText );
-//ma			DisableTextOverlay ( xselectText );
+			DisableTextOverlay ( xselectText );
 			DisableTextOverlay ( pauseTitleText );
 			DisableTextOverlay ( restartText );
 			DisableTextOverlay ( quitText );
@@ -731,7 +745,7 @@ void RunPauseMenu()
 		continueText->draw = 1;
 //#endif
 	}
-	if(/* (padData.debounce[pauseController]&PAD_CROSS) || */(padData.debounce[pauseController]&PAD_START) || (exitPause))
+	if( (padData.debounce[pauseController]&PAD_CROSS) || (padData.debounce[pauseController]&PAD_START) || (exitPause))
 	{
 //		DisableTextOverlay ( controllerText );
 //		DisableTextOverlay ( continueText );
@@ -740,7 +754,7 @@ void RunPauseMenu()
 
 		pauseMode = 0;
 
-/*		if(padData.debounce[pauseController]&PAD_START)
+		if(padData.debounce[pauseController]&PAD_START)
 		{
 			currentPauseSelection = 0;
 			if(pauseConfirmMode)
@@ -751,13 +765,13 @@ void RunPauseMenu()
 			}
 			quittingLevel = 0;
 		}
-*/
+
 		switch(currentPauseSelection)
 		{
 			case 0:   // continue game
 			{
 				DisableTextOverlay ( continueText );
-//ma				DisableTextOverlay ( xselectText );
+				DisableTextOverlay ( xselectText );
 				DisableTextOverlay ( pauseTitleText );
 				DisableTextOverlay ( restartText );
 				DisableTextOverlay ( quitText );
@@ -870,7 +884,6 @@ void RunPauseMenu()
 				keepFade = 1;
 				break;
 		}
-
 	}
 
 	if(pauseConfirmMode)
@@ -1928,8 +1941,8 @@ void RunFrontendGameLoop (void)
 	UpdateEnemies();
 	UpdateSpecialEffects();
 	UpdateEvents();
-	if( gameState.mode != PAUSE_MODE )
-		UpdateAmbientSounds();
+//	if( gameState.mode != PAUSE_MODE )
+//		UpdateAmbientSounds();
 
 	ProcessCollectables();
 

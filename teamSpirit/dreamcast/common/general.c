@@ -329,7 +329,7 @@ void LoadSfxMapping( int world, int level )
 	char filename[128], wnum[6];
 	long num, /*read, */index, type, i, count, uid;
 	int size;
-
+	SAMPLE *sample;
 
 // JIM: UUuuuuurrrrrrrghhhhhhh - Random!
 /*
@@ -445,7 +445,11 @@ void LoadSfxMapping( int world, int level )
 		// If a tile based sample, skip the normal mapping load and just make an ambient
 		if( type == 4 && uid < tileCount )
 		{
-			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 12000, AMBIENT_VOLUME, -1, 0, 0, NULL );
+			// find sample first and then add it to the list
+			sample = FindSample(MEMGETINT(&in));
+			if(sample)
+				AddAmbientSound(sample , &firstTile[uid].centre, 12000, AMBIENT_VOLUME, -1, 0, 0, NULL );
+//			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 12000, AMBIENT_VOLUME, -1, 0, 0, NULL );
 			count+=4;
 			continue;
 		}

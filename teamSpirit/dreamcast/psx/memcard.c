@@ -215,10 +215,23 @@ int FontInSpace(int x, int y, char *str, int w, int l, uchar r, uchar g, uchar b
 {
 	char	buf[200], *bufPtr;
 	int		loop, numLines;
+	char	port[8],expans[8];
 
 //	fontSmall->alpha = 255;
 
-	sprintf(memmessage,str,slotNumStr);
+	// set port to A,B,C, or D
+	port[0] = slotNumStr[0];
+	port[1] = 0;
+
+	// set expansion to 1,2,3, or 4
+	expans[0] = slotNumStr[1];
+	expans[1] = 0;
+
+	sprintf(memmessage,str,port,expans);
+
+	// how it use to be A1
+//ma	sprintf(memmessage,str,slotNumStr);
+
 
 	numLines = fontFitToWidth(fontSmall, w, memmessage, buf);
 	if (numLines<l)
@@ -241,9 +254,21 @@ void SimpleMessage(char *msg, uchar rgb)
 	int		y, loop, numLines;
 	POLY_F4	*f4;
 	DR_MODE	*dm;
+	char	port[8],expans[8];
 
+//	fontSmall->alpha = 255;
 
-	sprintf(memmessage,msg,slotNumStr);
+	// set port to A,B,C, or D
+	port[0] = slotNumStr[0];
+	port[1] = 0;
+
+	// set expansion to 1,2,3, or 4
+	expans[0] = slotNumStr[1];
+	expans[1] = 0;
+
+	sprintf(memmessage,msg,port,expans);
+
+//	sprintf(memmessage,msg,slotNumStr);
 
 	numLines = fontFitToWidth(fontSmall, 420, memmessage, optStr);
 	bufPtr = optStr;

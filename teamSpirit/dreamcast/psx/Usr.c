@@ -162,6 +162,7 @@ void UsrInitSound(void)
 	KTBOOL ret;
 	AM_SOUND	amsnd[8];
 	KTU32		port[8], i;
+
 	volatile KTU32	*sndram=KTNULL;
 
 #ifdef USE_MIDIDA
