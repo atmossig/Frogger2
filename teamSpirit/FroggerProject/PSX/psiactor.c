@@ -1137,7 +1137,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	ACTOR *newActor;
 	PSIMODEL *newModel;
 	char newName[16];
-	int i;
+	int i=0;
 
 	while( model[i] != '.' && model[i] != '\0' )
 	{
