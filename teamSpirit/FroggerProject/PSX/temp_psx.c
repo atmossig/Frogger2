@@ -58,6 +58,13 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
 									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
 									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "torch" ) )||
+									( compare = strstr ( cur->name, "framea" ) )|| ( compare = strstr ( cur->name, "frameb" ) )||
+									( compare = strstr ( cur->name, "framec" ) )|| ( compare = strstr ( cur->name, "framed" ) )||
+									( compare = strstr ( cur->name, "levels" ) )|| ( compare = strstr ( cur->name, "players" ) )||
+									( compare = strstr ( cur->name, "babyfrog" ) )|| ( compare = strstr ( cur->name, "froggr" ) )||
+									( compare = strstr ( cur->name, "hopper" ) )|| ( compare = strstr ( cur->name, "lillie" ) )||
+									( compare = strstr ( cur->name, "wart" ) )|| ( compare = strstr ( cur->name, "twee" ) )||
+									( compare = strstr ( cur->name, "swampy" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
 					CreateAndAddScenicObject(cur);
