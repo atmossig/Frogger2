@@ -628,7 +628,7 @@ void ProcessUserInput()
 	//----- [ KEYBOARD CONTROL ] -----//
 
 	if(KEYPRESS(DIK_F12))
-		PostMessage(mdxWinInfo.hWndMain, WM_CLOSE, 0, 0);
+		PostMessage(mdxWinInfo.hWndMain,WM_QUIT, 0, 0);
 	
 	if ( chatFlags & CHAT_INPUT)
 		return;
