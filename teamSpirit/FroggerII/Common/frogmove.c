@@ -333,7 +333,11 @@ void UpdateFroggerPos(long pl)
 				~(FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|
 				FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD);
 		}
-		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
+
+		//nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
+		
+		nextFrogFacing[pl] = (nextFrogFacing[pl] + dir) & 3;
+
 //		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
@@ -527,6 +531,20 @@ void GetNextTile(unsigned long direction,long pl)
 		}
 
 		nextCamFacing = newCamFacing;
+
+		distance = -1000;
+		
+		for(i=0; i<4; i++)
+		{
+			t = DotProduct(&currTile[pl]->dirVector[frogFacing[pl]],&destTile[pl]->dirVector[i]);
+			if(t > distance)
+			{
+				distance = t;
+				newCamFacing = i;			
+			}
+		}
+
+		nextFrogFacing[pl] = newCamFacing;
 
 		//----------------------------------------------------------------------------------------
 
@@ -1095,10 +1113,11 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				// Next, check if frog has landed on a collectable
 				CheckTileForCollectable(destTile[pl],pl);
 
+				frogFacing[pl] = nextFrogFacing[pl];
+
 				if (pl == 0)
 					camFacing = nextCamFacing;
 
-				frogFacing[pl] = nextFrogFacing[pl];
 
 				// check if the tile is a teleport tile
 /*				if(IsATeleportTile(destTile[pl]))
