@@ -223,12 +223,14 @@ void StartPauseMenu()
 	PauseAudio( );
 
 //	EnableTextOverlay ( controllerText );
-#ifndef DREAMCAST_VERSION
+
+// *ASL* 13/08/2000 - Use PSX pause mode
+//#ifndef DREAMCAST_VERSION
 	currentPauseSelection = 0;
 	EnableTextOverlay ( continueText );
-#else
-	currentPauseSelection = 1;
-#endif
+//#else
+//	currentPauseSelection = 1;
+//#endif
 	EnableTextOverlay ( xselectText );
 
 	if(gameState.multi == SINGLEPLAYER)
@@ -667,11 +669,12 @@ void RunPauseMenu()
 		if(padData.debounce[pauseController]&PAD_UP)
 		{
 			if (currentPauseSelection ==
-#ifdef DREAMCAST_VERSION
-				(pauseConfirmMode?0:1)
-#else
+// *ASL* 13/08/2000 - Use PSX pause mode
+//#ifdef DREAMCAST_VERSION
+//				(pauseConfirmMode?0:1)
+//#else
 				0
-#endif
+//#endif
 				)
 			{
 				if((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode))
@@ -688,11 +691,12 @@ void RunPauseMenu()
 		{
 			if((((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode)) && (currentPauseSelection == 1)) || (currentPauseSelection == 2))
 				currentPauseSelection =
-#ifdef DREAMCAST_VERSION
-				(pauseConfirmMode?0:1)
-#else
+// *ASL* 13/08/2000 - Use PSX pause mode
+//#ifdef DREAMCAST_VERSION
+//				(pauseConfirmMode?0:1)
+//#else
 				0
-#endif
+//#endif
 				;
 			else
 				currentPauseSelection++;
@@ -719,9 +723,10 @@ void RunPauseMenu()
 		if(gameState.oldMode != FRONTEND_MODE)
 			restartText->draw = 1;
 		quitText->draw = 1;
-#ifndef DREAMCAST_VERSION
+// *ASL* 13/08/2000 - Use PSX pause mode
+//#ifndef DREAMCAST_VERSION
 		continueText->draw = 1;
-#endif
+//#endif
 	}
 	if( (padData.debounce[pauseController]&PAD_CROSS) || (padData.debounce[pauseController]&PAD_START) || (exitPause))
 	{
@@ -815,9 +820,10 @@ void RunPauseMenu()
 					}
 
 
-#ifndef DREAMCAST_VERSION
+// *ASL* 13/08/2000 - Use PSX pause mode
+//#ifndef DREAMCAST_VERSION
 					continueText->draw = 1;
-#endif
+//#endif
 					quitText->draw = 1;
 					quittingLevel = 0;
 					break;
@@ -1483,7 +1489,6 @@ void RunFrontendGameLoop (void)
 	// *ASL* 12/08/2000 - Fade off logo after moving from start tile or active time finished
 	if (fadingLogos == 0 && ((currTileNum != TILENUM_START) || (frogLogoTimer.time <= 0)))
 		fadingLogos = 1;
-
 	if (fadingLogos)
 	{
 	  	DEC_ALPHA(frogLogo);
