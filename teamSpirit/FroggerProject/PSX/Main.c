@@ -1,3 +1,6 @@
+#define NUM_16COLOURPALS	500
+#define NUM_256COLOURPALS	60
+
 #define VRAM_STARTX			512
 #define VRAM_PAGECOLS		8
 #define VRAM_PAGEROWS		2
@@ -405,8 +408,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		RAMsize = (0x1fff00 - RAMstart)-8192;
-		//RAMsize = 6291264;
+		//RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 #endif
 
 		memset((void *)0x1f8000,0,0x8000);
@@ -455,7 +458,7 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		textureInitialise ( 490, 50);
+		textureInitialise ( NUM_16COLOURPALS, NUM_256COLOURPALS );
 
 //		sfxInitialise();
 //		sfxStartSound();
@@ -668,7 +671,7 @@ int main ( )
 
 	
 #if GOLDCD == NO
-			if ( padData.digital[1] & PAD_L1 )
+			//if ( padData.digital[1] & PAD_L1 )
 				DisplayOnScreenInfo();
 			// ENDIF
 #endif
@@ -1017,8 +1020,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-	RAMsize = (0x1fff00 - RAMstart)-8192;
-	//RAMsize = 6291264;
+	//RAMsize = (0x1fff00 - RAMstart)-8192;
+	RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
@@ -1043,7 +1046,7 @@ void MainReset ( void )
 //		MemCardStart();
 //		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 2400, 0 );
-		textureInitialise ( 490, 50);
+		textureInitialise ( NUM_16COLOURPALS, NUM_256COLOURPALS );
 }
 
 
@@ -1051,7 +1054,7 @@ void DisplayOnScreenInfo ( void )
 {
 	static char whichSegment = 0;
 
-	int i;
+	int i, x, y, z = 0;
 	char r, g, b;
 	char tempText[128];
 
@@ -1074,28 +1077,47 @@ void DisplayOnScreenInfo ( void )
 
 	fontPrint ( fontSmall, 20, -90, tempText, r, g, b );
 
+	r = 255;
+	g = 255;
+	b = 255;
 
+	fontPrint ( fontSmall, -220, -80, "OBJECT POSITION", r, g, b );
 
-	if ( padData.debounce[1] & PAD_R2 )
+	r = 100;
+	g = 100;
+	b = 255;
+
+ 	sprintf ( tempText, "%d : %d : %d", x, y, z ); 
+
+	fontPrint ( fontSmall, 20, -80, tempText, r, g, b );
+
+	if ( (padData.digital[0] & PAD_TRIANGLE) && (padData.debounce[0] & PAD_L2) )
 	{
 		for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
 		{
 			(*mesh)->flags &= ~DRAW_SEGMENT;
 
 			if ( whichSegment == i )
+			{
 				(*mesh)->flags |= DRAW_SEGMENT;
+				x = (*mesh)->posx;
+				y = (*mesh)->posy;
+				z = (*mesh)->posz;
+			}
 		}
 		// ENDFOR
 
 		whichSegment++;
 
 		if ( whichSegment > fma_world->n_meshes )
+		{
 			whichSegment = fma_world->n_meshes;
+		}
 		
 	}
 	// ENDIF
 
-	if ( padData.debounce[1] & PAD_L2 )
+	if ( ( padData.digital[0] & PAD_TRIANGLE) && ( padData.debounce[0] & PAD_R2))
 	{
 		whichSegment--;
 
@@ -1107,7 +1129,12 @@ void DisplayOnScreenInfo ( void )
 			(*mesh)->flags &= ~DRAW_SEGMENT;
 
 			if ( whichSegment == i )
+			{
 				(*mesh)->flags |= DRAW_SEGMENT;
+				x = (*mesh)->posx;
+				y = (*mesh)->posy;
+				z = (*mesh)->posz;
+			}
 		}
 		// ENDFOR
 
