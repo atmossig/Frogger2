@@ -195,12 +195,15 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 	
 	if(player[pl].healthPoints != 0)
 	{
-//		SPECFX *fx;
+		SPECFX *fx;
+		VECTOR pos;
 
 		GTInit( &player[pl].safe, 2 );
 
-//		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 2 );
-//		fx->follow = frog[pl]->actor;
+		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 35, 0, 0, 2 );
+		fx->follow = frog[pl]->actor;
+		fx->tilt = 0.8;
+		fx->spin = 0.05;
 
 		// Special hurt anim
 		if( (nme->reactiveNumber != -1) && !(reactiveAnims[nme->reactiveNumber].type & ANI_REACTIVE) )
@@ -1503,6 +1506,12 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 				babyList[i].baby = newItem->nmeActor;
 				break;
 			}
+
+		newItem->nmeActor->effects |= (EF_RIPPLE_RINGS | EF_SLOW);
+		newItem->nmeActor->value1 = 1.07;
+		if( babyList[i].fxColour[0] ) newItem->nmeActor->effects |= EF_TINTRED;
+		if( babyList[i].fxColour[1] ) newItem->nmeActor->effects |= EF_TINTGREEN;
+		if( babyList[i].fxColour[2] ) newItem->nmeActor->effects |= EF_TINTBLUE;
 	}
 
 	return newItem;

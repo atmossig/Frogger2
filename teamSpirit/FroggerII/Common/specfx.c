@@ -125,6 +125,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = DrawFXRipple;
 
 		break;
+	case FXTYPE_FROGSHIELD:
 	case FXTYPE_POLYRING:
 		if( !ringVtx )
 			CreateBlastRing( );
@@ -136,44 +137,16 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->scale.v[Y] /= 8;
 		effect->tilt = 0.9;
 
-#ifdef PC_VERSION
-		effect->tex = txtrBlank;
-#else
-		effect->tex = txtrRing;
-#endif
+		if( effect->type == FXTYPE_FROGSHIELD )
+			effect->tex = txtrFlash;
+		else
+			effect->tex = txtrBlank;
+
 		effect->Update = UpdateFXRing;
 		effect->Draw = DrawFXRing;
 
 		break;
-	case FXTYPE_FROGSHIELD:
-		effect->numP = 1;
 
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "shield" );
-
-		InitSpriteAnimation( effect->sprites, &garibAnimation[INVULNERABILITY_GARIB], 0 );
-
-		effect->sprites->r = 255;
-		effect->sprites->g = 255;
-		effect->sprites->b = 255;
-		effect->sprites->a = 60;
-
-		effect->sprites->offsetX	= -16;
-		effect->sprites->offsetY	= -16;
-		effect->sprites->flags = SPRITE_TRANSLUCENT | SPRITE_FLAGS_NOZB;
-
-		SetVector( &effect->sprites->pos, &effect->origin );
-
-		effect->sprites->scaleX = effect->sprites->scaleY = size;
-			//= effect->sprites->anim.startScale = effect->sprites->anim.endScale = size;
-
-		
-		AddSprite( effect->sprites, NULL );
-
-		effect->fade = effect->sprites->a / life;
-
-		effect->Update = UpdateFXBolt;
-
-		break;
 	case FXTYPE_LASER:
 		if( !ringVtx )
 			CreateBlastRing( );
@@ -1473,8 +1446,8 @@ void ProcessAttachedEffects( void *entity, int type )
 	if( fxDist < ACTOR_DRAWDISTANCEOUTER && actFrameCount > act->fxCount )
 	{
 		// Restart effect timer
-		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 45;
-		else if( (int)act->value1 )
+/*		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 45;
+		else */if( (int)act->value1 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
 				r = 60/(Random((int)act->value1)+1);

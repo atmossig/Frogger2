@@ -213,8 +213,11 @@ int MemLoadEntities(const void* data, long size)
 					act->actor->scale.v[Y] = scale;
 					act->actor->scale.v[Z] = scale;
 					act->animSpeed = animSpeed;
-					act->value1 = value1;
-					act->effects = effects;
+					if( thing == CREATE_ENEMY && !(enemy->flags & ENEMY_NEW_BABYFROG) )
+					{
+						act->value1 = value1;
+						act->effects = effects;
+					}
 				}
 
 				break;
