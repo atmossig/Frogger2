@@ -422,8 +422,8 @@ void DrawFXRing( SPECFX *fx )
 
 	// Rotate around axis
 	SetVector( (MDX_VECTOR *)&q1, &normal );
-	q1.w = fx->angle/57.6;
-	GetQuaternionFromRotation( &q2, &q1 );
+//	q1.w = fx->angle/57.6;
+//	GetQuaternionFromRotation( &q2, &q1 );
 
 	// Rotate to be around normal
 	CrossProduct( (MDX_VECTOR *)&cross, (MDX_VECTOR *)&q1, &upV );
@@ -433,7 +433,7 @@ void DrawFXRing( SPECFX *fx )
 	GetQuaternionFromRotation( &q3, &cross );
 
 	// Combine the rotations and push
-	QuaternionMultiply( &q1, &q3, &q2 );
+//	QuaternionMultiply( &q1, &q3, &q2 );
 	QuaternionToMatrix( &q3,(MDX_MATRIX *)rMtrx);
 	PushMatrix( rMtrx );
 
