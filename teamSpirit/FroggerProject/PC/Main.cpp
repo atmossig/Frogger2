@@ -460,6 +460,12 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function	: WinMain
+	Purpose		: Application startup and shutdown
+	Parameters	: the usual...
+	Returns		: success
+*/
 void TextInput( char c )
 {
 	long numc;
@@ -611,6 +617,12 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 #define CAMVECTSCALE (1.0f/40960.0f)
 
+/*	--------------------------------------------------------------------------------
+	Function	: WinMain
+	Purpose		: Application startup and shutdown
+	Parameters	: the usual...
+	Returns		: success
+*/
 void CalcViewMatrix(long uDate)
 {
 	guLookAtF (vMatrix.matrix,
@@ -623,6 +635,12 @@ void CalcViewMatrix(long uDate)
 //	sheenCam.vz = currCamSource.vz*CAMVECTSCALE;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function	: WinMain
+	Purpose		: Application startup and shutdown
+	Parameters	: the usual...
+	Returns		: success
+*/
 void DrawBackground(void)
 {
 	
@@ -673,6 +691,12 @@ void DrawBackground(void)
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function	: WinMain
+	Purpose		: Application startup and shutdown
+	Parameters	: the usual...
+	Returns		: success
+*/
 long DrawLoop(void)
 {
 	POINT t;
@@ -924,6 +948,12 @@ long beenPaused = 0;
 long lastFrames,lastTicks;
 
 
+/*	--------------------------------------------------------------------------------
+	Function	: LoopFunc
+	Purpose		: Application main loop
+	Parameters	: void
+	Returns		: success
+*/
 long LoopFunc(void)
 {
 	ACTOR2 *c;
@@ -1098,6 +1128,12 @@ long LoopFunc(void)
 	return 0;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function	: WinMain
+	Purpose		: Application startup and shutdown
+	Parameters	: the usual...
+	Returns		: success
+*/
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
 	MDX_TEXENTRY *t;
@@ -1137,39 +1173,51 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	InitInputDevices();
 
-	// Init DDraw Object
-	if (!DDrawInitObject (NULL))
-		return 1;
-
-	switch(resolution)
+	while (1)
 	{
-		case 1:
-			xRes = 640; yRes = 480; break;
-		case 2:
-			xRes = 800; yRes = 600; break;
-		case 3:
-			xRes = 1024; yRes = 768; break;
-		case 4:
-			xRes = 1280; yRes = 1024; break;
-		default:
-			xRes = 640; yRes = 480; break;
-	}
+		// Init DDraw Object
+		if (DDrawInitObject (NULL) == -1)
+			return 1;
 
-	OVERLAY_X = xRes/4096.0;
-	OVERLAY_Y = yRes/4096.0;
-	// Setup our sufaces
-	if (!DDrawCreateSurfaces (mdxWinInfo.hWndMain, xRes, yRes, 16,TRUE, 16))
-		return 2;
+		switch(resolution)
+		{
+			case 1:
+				xRes = 640; yRes = 480; break;
+			case 2:
+				xRes = 800; yRes = 600; break;
+			case 3:
+				xRes = 1024; yRes = 768; break;
+			case 4:
+				xRes = 1280; yRes = 1024; break;
+			default:
+				xRes = 640; yRes = 480; break;
+		}
+
+		OVERLAY_X = xRes/4096.0;
+		OVERLAY_Y = yRes/4096.0;
+		
+		// Setup our sufaces and Direct3D, break out of check loop on success
+		if (DDrawCreateSurfaces (mdxWinInfo.hWndMain, xRes, yRes, 16,TRUE, 16))
+		{
+			// Setup D3D
+			if (D3DInit())
+				break;
+		}
+
+		// we must have failed .. shut things down and loop around
+		// we really want to print a helpful message here, but, er, right now I don't.
+		// Might be nice to dim out modes that failed too, if I can be bothered
+		D3DShutdown();
+		DDrawShutdown();
+
+		ShowWindow(mdxWinInfo.hWndMain, 0);
+	}
 
 	// Setup the renderer
 	SetupRenderer(xRes, yRes);
 
 	// Setup the profiler
 	InitProfile();
-
-	// Setup D3D
-	if (!D3DInit())
-		return 3;
 
 	// Command line arguments
 	GetArgs(lpCmdLine);
@@ -1249,6 +1297,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SaveGame();
 
 	// Byeeeeeeeeeee
+
+	FreeAllLists();
 	fxFreeBlur( );
 	ShutdownEditor();
 	DeInitInputDevices();

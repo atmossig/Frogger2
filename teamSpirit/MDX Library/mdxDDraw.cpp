@@ -25,14 +25,16 @@
 #include "mdxException.h"
 #include "resource.h"
 
+const char *softwareString = "Software Rendering";
+const char *softwareDriver = "Blitz Games SoftStation";
+
 LPDIRECTDRAW7			pDirectDraw7;
 LPDIRECTDRAWCLIPPER		pClipper;
 unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen = 1, rScale = 1, rFlipOK = 1;
 HWND					rWin;
 char					rVideoDevice[256];
 
-LPDIRECTDRAWSURFACE7	surface[NUM_SRF] = {NULL,NULL,NULL};
-
+LPDIRECTDRAWSURFACE7	surface[NUM_SRF] = {NULL,NULL,NULL,NULL};
 LPDIRECTDRAWSURFACE7	backdrop = NULL;
 
 WNDPROC userDlgProc = NULL;
@@ -228,13 +230,9 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	Function	: DDrawInitObject
 	Purpose		: Initialise Directdraw objects
 	Parameters	: Guid of device
-	Returns		: success
+	Returns		: error code
 	Info		: 
 */
-
-char *softwareString = "Software Rendering";
-char *softwareDriver = "majikPR";
-
 
 unsigned long DDrawInitObject (GUID *guid)
 {
@@ -242,22 +240,22 @@ unsigned long DDrawInitObject (GUID *guid)
 	DDCAPS		ddCaps;
 	int i;
 
-	// Create a base DirectDraw object
-	DirectDrawEnumerateEx(EnumDDDevices, guid, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
+	if (dxNumDevices == 0)
+	{
+		// Create a base DirectDraw object
+		DirectDrawEnumerateEx(EnumDDDevices, guid, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
 
-	dxDeviceList[dxNumDevices].desc = (char *) AllocMem(sizeof(char)*(strlen (softwareString)+1));
-	dxDeviceList[dxNumDevices].name = (char *) AllocMem(sizeof(char)*(strlen (softwareDriver)+1));
-	
-	strcpy(dxDeviceList[dxNumDevices].desc, softwareString);
-	strcpy(dxDeviceList[dxNumDevices].name, softwareDriver);
+		dxDeviceList[dxNumDevices].desc = (char *) AllocMem(sizeof(char)*(strlen (softwareString)+1));
+		dxDeviceList[dxNumDevices].name = (char *) AllocMem(sizeof(char)*(strlen (softwareDriver)+1));
+		
+		strcpy(dxDeviceList[dxNumDevices].desc, softwareString);
+		strcpy(dxDeviceList[dxNumDevices].name, softwareDriver);
 
-	dxDeviceList[dxNumDevices++].guid = (GUID *)-1;
+		dxDeviceList[dxNumDevices++].guid = (GUID *)-1;
+	}
 
 	if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
-		return 0;
-
-	if (rFullscreen)
-		ShowCursor(0);
+		return -1;
 
 	for (i=0; i<dxNumDevices; i++)
 		if ((dxDeviceList[i].idx == selIdx) && ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) || (dxDeviceList[i].guid == (GUID *)-1)))
@@ -274,7 +272,7 @@ unsigned long DDrawInitObject (GUID *guid)
 		{
 			dp("Failed creating DirectDraw object.\n");
 			ddShowError(res);
-			return 0;
+			return 1;
 		}
 		
 //		MPR_Init();
@@ -288,7 +286,7 @@ unsigned long DDrawInitObject (GUID *guid)
 		{
 			dp("Failed creating DirectDraw object.\n");
 			ddShowError(res);
-			return 0;
+			return 1;
 		}
 	}
 
@@ -297,11 +295,14 @@ unsigned long DDrawInitObject (GUID *guid)
 	{
 		dp("Failed getting DirectDraw4 caps.\n");
 		ddShowError(res);
-		return 0;
+		return 1;
 	}
 	
-	// We now have a valid object!
-	return 1;
+	if (rFullscreen)
+		ShowCursor(0);
+
+	// We now have a valid object! zero for success!
+	return 0;
 }
 
 
@@ -504,20 +505,31 @@ unsigned long DDrawShutdown (void)
 		ddShowError(res);
 	}
 
-	// Delete primary (And implicitly the render) surfaces
-	surface[PRIMARY_SRF]->Release();
-	surfacesMade--;
-	
-	if (surface[SPARE_SRF])
-	{
-		surface[SPARE_SRF]->Release();
-		surfacesMade--;
-	}
 	if (surface[ZBUFFER_SRF])
 	{
 		surface[ZBUFFER_SRF]->Release();
 		surfacesMade--;
 	}
+
+	if (surface[SPARE_SRF])
+	{
+		surface[SPARE_SRF]->Release();
+		surfacesMade--;
+	}
+
+	// Delete primary (And implicitly the render, if we're using flipping) surfaces
+	if (surface[PRIMARY_SRF])
+	{
+		surface[PRIMARY_SRF]->Release();
+		surfacesMade--;
+	}
+
+	if (!rFullscreen && surface[RENDER_SRF])
+	{
+		surface[RENDER_SRF]->Release();
+		surfacesMade--;
+	}
+
 	pDirectDraw7->Release();
 	return 1;
 }

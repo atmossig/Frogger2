@@ -199,8 +199,8 @@ unsigned long D3DShutdown(void)
 {
 	if (rHardware)
 	{
-		pDirect3DDevice->Release();
-		pDirect3D->Release();
+		if (pDirect3DDevice) pDirect3DDevice->Release();
+		if (pDirect3D) pDirect3D->Release();
 	}
 	return 1;
 }
