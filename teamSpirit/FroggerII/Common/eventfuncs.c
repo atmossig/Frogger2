@@ -317,9 +317,8 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 
 			event = MakeEvent( ScreenGrab, 0, NULL );
 
-			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
+			AttachEvent( trigger, event, TRIGGER_ALWAYS, 0 );
 			*/
-
 			/*// This should change to level when you hop onto the first platform
 			args = AllocArgs(2);
 			args[0] = (void *)frog[0];
