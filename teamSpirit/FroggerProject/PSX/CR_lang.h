@@ -7,7 +7,8 @@
 #ifndef __LANGUAGE_H__
 #define __LANGUAGE_H__
 
-#include "gametext.h"
+//#include "gametext.h"
+#include "lang.h"
 #include <isltex.h>
 
 #define BONUS_FLAGS	13

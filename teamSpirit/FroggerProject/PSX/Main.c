@@ -505,7 +505,7 @@ int main ( )
 			textureDestroyBank(genBank);
 
 			fontInitButtonSprites();
-			gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUM_LANGUAGES, gameTextLang);
+			gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 			InitTiledBackdrop("LOGO");
 			memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
 			ScreenFade(0,255,20);

@@ -9,36 +9,6 @@
 #define _GAMETEXT_H_
 
 
-enum {
-/*	LANG_UK,
-	LANG_FRENCH,
-	LANG_GERMAN,
-	LANG_SPANISH,
-	LANG_ITALIAN,
-	LANG_DUTCH,
-	LANG_SWEDISH,
-*/
-	LANG_UK,		// (United Kingdom)
-	LANG_F,			// (France)
-	LANG_D,			// (Germany)
-	LANG_E,			// (Spain)
-	LANG_IT,		// (Italy)
-	LANG_NL,		// (Netherlands)
-	LANG_SW,		// (Swedish)
-	LANG_FIN,		// (Finland)
-	LANG_N,			// (Norway)
-	LANG_DK,		// (Denmark)
-	LANG_US,		// (United States)
-
-	LANG_NUMLANGS
-};
-
-#if PALMODE==1
-	#define LANG_DEFAULT LANG_UK
-#else
-	#define LANG_DEFAULT LANG_US
-#endif
-
 
 enum {
 	TEXTSTR_LANGNAME,
