@@ -153,7 +153,6 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
-/*
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,12,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
 
@@ -187,9 +186,6 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath18,35,35,4,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath19,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-*/
-
-			testEnemy = CreateAndAddEnemy("wasp.ndo",debug_nmePath,35,35,0,2,ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL | ENEMY_RADIUSBASEDCOLLISION);
 
 		} else if ( levelID == LEVELID_GARDENMAZE )
 		{
@@ -775,7 +771,7 @@ void UpdateEnemies()
 		GetActiveTile(cur);
 
 		// check if frog has been 'killed' by current enemy - tile based collision
-		if ( !(cur->flags & ENEMY_RADIUSBASEDCOLLISION) && ( currTile == cur->inTile ) && ( !frog->action.dead ) &&
+		if ( ( currTile == cur->inTile ) && ( !frog->action.dead ) &&
 			 (!frog->action.safe) && (!(frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NOJUMPOVER) ) &&
 			 (! currPlatform ) && !( frogState & FROGSTATUS_ISFLOATING ) )
 		{
@@ -878,8 +874,10 @@ void UpdateEnemies()
 
 		if(cur->flags & ENEMY_RADIUSBASEDCOLLISION)
 		{
+			cur->nmeActor->radius = 15;
+
 			// perform radius collision check between frog and current enemy
-			if(ActorsHaveCollided(frog->actor,cur->nmeActor))
+			if(ActorsHaveCollided(frog,cur->nmeActor))
 			{
 				dprintf"COLLIDED !\n"));
 			}
