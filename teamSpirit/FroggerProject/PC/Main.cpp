@@ -1116,8 +1116,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
 	pcFontSmall = InitFont(path);
 
-	//pcFontSmall = InitFont("FontB",baseDirectory);
-	//pcFontWhite = InitFont("FontC",baseDirectory);
+	sprintf(path, "%stextures\\font\\monofont.bmp", baseDirectory);
+	pcFontWhite = InitFont(path);
+
 	LoadTexBank("Phong",baseDirectory);
 
 	if (t = GetTexEntryFromCRC(UpdateCRC("phong.bmp")))
