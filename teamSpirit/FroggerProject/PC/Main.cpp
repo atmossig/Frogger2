@@ -218,6 +218,10 @@ void GetArgs(char *arglist)
 						e3multi = !e3multi;
 						break;
 
+					case 'E': case 'e':
+						showMemDebug = !showMemDebug;
+						break;
+
 					case ' ':
 					case 0:
 						cmdMode = 0;
