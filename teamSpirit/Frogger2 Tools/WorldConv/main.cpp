@@ -42,7 +42,8 @@ enum
 
 enum
 {
-	NORMAL = 0,
+	INVALID = 0,
+	NORMAL,
 	FROG,
 	FROG0,
 	FROG1,
@@ -67,6 +68,7 @@ enum
 
 const char* materialnames[NUM_MATERIALS] =
 {
+	"",
 	"normal",
 	"froggerstart",
 	"frogger1start",
@@ -87,8 +89,6 @@ const char* materialnames[NUM_MATERIALS] =
 	"conveyor2",
 	"conveyor3",
 };
-
-unsigned long mat[200];
 
 unsigned long numFrogs = 0;
 unsigned long numBabys = 0;
@@ -139,6 +139,8 @@ struct square
 #define BC 1
 #define CA 2
 
+unsigned long mat[10000];
+
 vtx vertexList [20000];
 unsigned long nVtx = 0;
 
@@ -156,7 +158,7 @@ Lookup materialLookup;
 
 void InitTables(void)
 {
-	for (int i=0; i<NUM_MATERIALS; i++)
+	for (int i=1; i<NUM_MATERIALS; i++)
 		materialLookup.AddEntry(materialnames[i], i);
 }
 
@@ -744,13 +746,16 @@ void ProcessLine(char *in)
 	{
 		char material[20];
 		char *i = in + 16, *j = material;
+		int m;
 
 		while(*i && (*i != '\"'))
 			*(j++) = *(i++);
 
 		*j = 0;
 
-		mat[cMat] = materialLookup.GetEntry(material);
+		m = materialLookup.GetEntry(material);
+
+		if (m) mat[cMat] = m;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
