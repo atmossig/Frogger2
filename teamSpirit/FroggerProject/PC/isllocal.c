@@ -55,7 +55,7 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 			if ((*bufPtr==13)||(*bufPtr==10))
 				bufPtr++;
 			if (lang==currLang)
-				len += strlen(gameTextStr[loop]);
+				len += strlen(gameTextStr[loop])+1;	// add 1 for null terminator! - ds
 		}
 	}
 
