@@ -381,7 +381,7 @@ int LoadSfx(long worldID )
 
 //load the looping level samples
 
-	if(worldID != -1)
+/*	if(worldID != -1)
 	{
 		len = strlen(path);
 
@@ -389,7 +389,7 @@ int LoadSfx(long worldID )
 
 		LoadSfxSet(path, &soundList.loopBank,SFXFLAGS_LOOP,&soundList.array[0],&soundList.count);
 	}
-			
+*/			
 	FREE( path );
 
 	return 1;
@@ -635,7 +635,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  //		else	//PUT BACK IN?!?!
  			pos = &amb->pos;
  
-		if(amb->sample->flags & SFXFLAGS_LOOP)
+		if(amb->sample->snd->pad & 1)
 			UpdateLoopingSample(amb);
 		else
 			PlaySample(amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
