@@ -207,29 +207,6 @@ void GameProcessController(long pl)
 			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 		}
 
-		if((player[pl].isLongHopping) && (player[pl].heightJumped > -125.0F))
-		{
-			float t;
-
-			// player is longhopping - make frog double jump
-			t = longHopFrames;
-
-			if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
-			{
-				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
-			}
-			else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
-			{
-				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destPlatform[pl]->pltActor->actor->pos,
-									&destPlatform[pl]->inTile->normal,t,pl);
-			}
-
-			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,1.0F,0,0);
-			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
-		}
-
 		if((longHop) && !(player[pl].isLongHopping) && !(player[pl].inputPause))
 		{
 			// frog is wanting longhop
