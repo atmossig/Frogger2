@@ -2801,6 +2801,9 @@ static void psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame)
 	while(world)
 	{
 		mesh = world->meshdata;
+		if ( !mesh )
+			return;
+
 		tmprotatekeys = mesh->rotatekeys;
 		
 		if ((!frame) || (mesh->numRotateKeys<=1))
@@ -2899,6 +2902,9 @@ static void psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame)
 	while(world)
 	{
 		mesh = world->meshdata;
+		if ( !mesh )
+			return;
+
 		tmpscalekeys = mesh->scalekeys;
 
 		if ((!frame) || (mesh->numScaleKeys<=1))
@@ -3012,6 +3018,10 @@ static void psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame)
 	{
 
 		mesh = world->meshdata;
+
+		if ( !mesh )
+			return;
+
 		tmpmovekeys = mesh->movekeys;//+frame;
 
 		if ((!frame) || (mesh->numMoveKeys<=1) )
@@ -3132,6 +3142,9 @@ static void psiSetRotateKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 	while(world)
 	{
 		mesh = world->meshdata;
+
+		if ( !mesh )
+			return;
 
 		for(loop = 0; loop < 2; loop ++)
 		{
@@ -3351,6 +3364,9 @@ static void psiSetScaleKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, 
 	{
 		mesh = world->meshdata;
 
+		if ( !mesh )
+			return;
+
 		for(loop = 0; loop < 2; loop ++)
 		{
 			tmpscalekeys = mesh->scalekeys;
@@ -3490,6 +3506,9 @@ static void psiSetMoveKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, U
 
 		mesh = world->meshdata;
 
+		if ( !mesh )
+			return;
+
 		for(loop = 0; loop < 2; loop ++)
 		{
 			tmpmovekeys = mesh->movekeys;//+frame;
@@ -3623,6 +3642,9 @@ static void psiSetRotateKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 	while(world)
 	{
 		mesh = world->meshdata;
+
+		if ( !mesh )
+			return;
 
 		for(loop = 0; loop < 2; loop ++)
 		{
@@ -3838,6 +3860,9 @@ static void psiSetScaleKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, 
 	{
 		mesh = world->meshdata;
 
+		if ( !mesh )
+			return;
+
 		for(loop = 0; loop < 2; loop ++)
 		{
 			tmpscalekeys = mesh->scalekeys;
@@ -3973,6 +3998,9 @@ static void psiSetMoveKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, U
 	{
 
 		mesh = world->meshdata;
+
+		if ( !mesh )
+			return;
 
 		for(loop = 0; loop < 2; loop ++)
 		{

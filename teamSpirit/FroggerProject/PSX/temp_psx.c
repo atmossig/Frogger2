@@ -1226,9 +1226,9 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		MATRIX tx, rY;
 
 		//need to do this to transform points
-		oldStackPointer = SetSp(0x1f800400);
-		QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
-		SetSp(oldStackPointer);
+		//oldStackPointer = SetSp(0x1f800400);
+		//QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+		//SetSp(oldStackPointer);
 
 		act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 		act->actor->bffMatrix.t[1] = act->actor->position.vy;
@@ -1286,9 +1286,9 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		MATRIX tx, rY;
 
 		//need to do this to transform points
-		oldStackPointer = SetSp(0x1f800400);
+		//oldStackPointer = SetSp(0x1f800400);
 		QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
-		SetSp(oldStackPointer);
+		//SetSp(oldStackPointer);
 
 		act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 		act->actor->bffMatrix.t[1] = act->actor->position.vy;
