@@ -251,7 +251,7 @@ ACTOR2 *GetNearestBabyFrog()
 	}
 
 	if(nearest && (distance < CROAK_SOUND_RANGE))
-		PlaySample(218,NULL,255,128 + (128 - (distance / 4)));
+		PlaySample(218,&nearest->actor->pos,255,128 + (128 - (distance / 4)));
 
 	return nearest;
 }
