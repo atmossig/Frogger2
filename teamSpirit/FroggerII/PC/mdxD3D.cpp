@@ -110,6 +110,8 @@ unsigned long D3DInit(void)
 
 	if (pDirect3DDevice->SetCurrentViewport(pDirect3DViewport) != D3D_OK) 
 		return FALSE;
+
+	return TRUE;
 }
 
 /*	--------------------------------------------------------------------------------

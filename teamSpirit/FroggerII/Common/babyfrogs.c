@@ -110,7 +110,7 @@ void InitBabyList( unsigned char createOverlays )
 
 void ResetBabies( )
 {
-	int i;
+	unsigned long i;
 
 	for( i=0; i<numBabies; i++ )
 	{
@@ -132,7 +132,7 @@ void ResetBabies( )
 */
 int PickupBabyFrog( ACTOR2 *baby )
 {
-	int i;
+	unsigned long i;
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
 

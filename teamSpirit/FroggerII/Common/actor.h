@@ -70,7 +70,7 @@ extern char dprintbuf[255];
 extern int uniqueActorCRC[];
 extern char numUniqueActors;
 
-ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode);
+ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags);
 void DrawActorList();
 void FreeActorList();
 

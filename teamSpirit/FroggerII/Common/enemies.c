@@ -60,7 +60,7 @@ void UpdateRandomMoveNME( ENEMY *cur );
 void UpdateTileHomingNME( ENEMY *cur );
 
 
-long hurtJumpTime		= 70;
+long hurtJumpTime		= 30;
 float hurtJumpHeight	= 50.0f;
 
 /*	--------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ long GetReactiveAnimNumber(char *name)
 
 ENEMY *GetEnemyFromUID (long uid)
 {
-	ENEMY *cur,*next;
+	ENEMY *cur;
 
 	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next)
 		if (cur->uid == uid)
@@ -255,7 +255,6 @@ void NMEDamageFrog( int num, ENEMY *nme )
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
-	long i;
 
 	if(enemyList.numEntries == 0)
 		return;
@@ -365,7 +364,7 @@ void RotateWaitingNME( ENEMY *cur )
 */
 void UpdatePathNME( ENEMY *cur )
 {
-	VECTOR fromPosition,toPosition, fwd, moveVec;
+	VECTOR fromPosition,toPosition, fwd;
 	float length;
 	
 	// first, update the enemy position
@@ -444,7 +443,7 @@ void UpdatePathNME( ENEMY *cur )
 void UpdateSlerpPathNME( ENEMY *cur )
 {
 	QUATERNION q1, q2, q3;
-	VECTOR fromPosition,toPosition, fwd, moveVec;
+	VECTOR fromPosition,toPosition, fwd;
 	PATH *path = cur->path;
 	ACTOR *act = cur->nmeActor->actor;
 	float speed, t;
@@ -726,7 +725,6 @@ void UpdateTileSnapper( ENEMY *cur )
 */
 void UpdateVent( ENEMY *cur )
 {
-	PLANE2 rebound;
 	PATH *path = cur->path;
 	SPECFX *fx;
 	ACTOR2 *act = cur->nmeActor;
@@ -884,7 +882,7 @@ void UpdateRotatePathNME( ENEMY *cur )
 		toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
 		toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z];
 	}
-	else if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
+	else// if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
 	{
 		toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
 		toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * sinf(length));
@@ -923,7 +921,7 @@ void UpdateRotatePathNME( ENEMY *cur )
 void UpdateHomingNME( ENEMY *cur )
 {
 	GAMETILE *chTile;
-	VECTOR nmeup, tVec, moveVec;
+	VECTOR tVec, moveVec;
 	float distance=10000, best=-2;
 	short bFlag = 0;
 	unsigned long i;
@@ -1395,7 +1393,6 @@ void SlerpWaitingFlappyThing( ENEMY *cur )
 
 ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed )
 {
-	int enemyType = 0;
 	float shadowRadius = 0;
 	int initFlags,i;
 
@@ -1412,7 +1409,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	}
 
 	// create and add the nme actor
-	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
+	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags);
 	if(newItem->nmeActor->actor->objectController)
 		InitActorAnim(newItem->nmeActor->actor);
 	
@@ -1615,7 +1612,6 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 void UpdateEnemyPathNodes(ENEMY *nme)
 {
 	VECTOR nmePos;
-	int wait;
 	PATH *path = nme->path;
 	unsigned long flags = nme->flags;
 	

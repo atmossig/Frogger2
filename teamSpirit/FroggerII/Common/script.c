@@ -824,7 +824,7 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_SFX_TILE:
 		{
-			int type;
+			short type;
 			float a, b, c, d;
 			GAMETILE *tile;
 

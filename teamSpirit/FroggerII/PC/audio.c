@@ -87,7 +87,7 @@ SAMPLE *CreateAndAddSample( SAMPLEMAP *sampleMap );
 void SetSampleFormat ( SAMPLE *sample );
 void CleanBufferSamples( void );
 
-void PrepareSong( char num );
+void PrepareSong( char num, char slot );
 void StopSong( );
 DWORD playCDTrack( HWND hWndNotify, BYTE bTrack );
 DWORD stopCDTrack( HWND hWndNotify );
@@ -113,11 +113,11 @@ void LoadSfx( unsigned long worldID )
 	{
 		case WORLDID_GARDEN: 
 			numSfx = NUM_GARDEN_SFX; 
-			mapping = &gardenMapping; 
+			mapping = gardenMapping; 
 			break;
 		case WORLDID_SPACE: 
 			numSfx = NUM_SPACE_SFX;
-			mapping = &spaceMapping;
+			mapping = spaceMapping;
 			break;
 		default: 
 			numSfx = 0;
@@ -338,7 +338,7 @@ void CleanBufferSamples ( void )
 	Returns 	: 
 	Info 		:
 */
-AMBIENT_SOUND *AddAmbientSound(int num, VECTOR *pos, long radius, int vol, short pitch, float freq, float randFreq, ACTOR *follow )
+AMBIENT_SOUND *AddAmbientSound(short num, VECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, ACTOR *follow )
 {
 	AMBIENT_SOUND *ptr = &ambientSoundList.head;
 	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
@@ -576,7 +576,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 	Returns			: void
 	Info			: 
 */
-void PrepareSong( char num )
+void PrepareSong( char num, char slot )
 {
 	// play cd audio track here....
 	playCDTrack ( winInfo.hWndMain, num );

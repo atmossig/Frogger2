@@ -121,6 +121,8 @@ int UpdateRace( )
 				}
 		}
 	}
+
+	return TRUE;
 }
 
 

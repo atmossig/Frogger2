@@ -136,7 +136,7 @@ typedef struct _SOUNDLIST
 // What is the point of these? A basic sample has a buffer anyway... Maybe I just don't understand
 typedef struct _BUFSAMPLE
 {
-	struct _SAMPLE *next, *prev;
+	struct _BUFSAMPLE *next, *prev;
 	LPDIRECTSOUNDBUFFER lpdsBuffer; // Is this a global? If so, why is it here?
 
 } BUFSAMPLE;

@@ -106,11 +106,11 @@ int ActorWithinRadius( TRIGGER *trigger )
 
 int OnTimeout( TRIGGER *trigger )
 {
-	int time = (int)trigger->data[0];
+	unsigned long time = (int)trigger->data[0];
 
 	if (actFrameCount >= time)
 	{
-		(int)trigger->data[0] = actFrameCount + (int)trigger->data[1];
+		(unsigned long)trigger->data[0] = actFrameCount + (unsigned long)trigger->data[1];
 		return TRUE;
 	}
 	else
@@ -147,7 +147,6 @@ int LogicalAND( TRIGGER *trigger )
 {
 	int numT = (int)trigger->data[0];
 	long i;
-	short fireFlag = 1;
 	TRIGGER *t;
 
 	for( i=0; i<numT; i++ )
@@ -172,7 +171,6 @@ int LogicalOR( TRIGGER *trigger )
 {
 	int numT = (int)trigger->data[0];
 	long i;
-	short fireFlag = 0;
 	TRIGGER *t;
 
 	for( i=0; i<numT; i++ )
@@ -340,7 +338,7 @@ void PlaySFX( EVENT *event )
 	VECTOR *point = (VECTOR *)event->data[3];
 	float radius = *(float *)event->data[4];
 
-//		PlaySample( snum, point, radius, vol, pitch );
+	PlaySample( snum, point, radius, vol, pitch );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -396,30 +394,4 @@ void TeleportFrog( EVENT *event )
 
 	TeleportActorToTile(frog[fNum],tile,fNum);
 	CreateTeleportEffect(&frog[fNum]->actor->pos,&upVec,255,255,255);
-}
-
-/*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
-
-/*	--------------------------------------------------------------------------------
-	Function 	: InitEventsForLevel
-	Purpose 	: Adds all triggers and events for the current level
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
-{
-	void **args;
-	TRIGGER *trigger;
-	EVENT *event;
-	VECTOR *pos = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
-	VECTOR *scale = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
-	float *fnum;
-	int *inum;
-
-	InitTriggerList( );
-
-	if ( worldID == WORLDID_GARDEN )
-	{
-	} // etc
 }

@@ -329,7 +329,7 @@ void MakeTextLine( TEXT3D *t3d )
 
 		for( i=0; i<len; i++ )
 		{
-			xPa = xPb = xPc = xPc = 0;
+			xPa = xPb = xPc = xPd = 0;
 			pB = i*tS;
 			v = i*4;
 			

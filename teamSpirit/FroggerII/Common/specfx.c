@@ -259,9 +259,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		while( i-- )
 		{
 			if( effect->type == FXTYPE_BATSWARM )
-				effect->act[i] = CreateAndAddActor( "bat.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+				effect->act[i] = CreateAndAddActor( "bat.obe", 0,0,0, INIT_ANIMATION);
 			else if( effect->type == FXTYPE_BUTTERFLYSWARM )
-				effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+				effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION);
 
 			if( effect->act[i]->actor->objectController )
 				InitActorAnim( effect->act[i]->actor );
@@ -284,7 +284,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->numP = 1;
 		effect->act = (ACTOR2 **)JallocAlloc( sizeof(ACTOR2 *), YES, "Actor2s" );
 
-		effect->act[0] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+		effect->act[0] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION);
 
 		if( effect->act[0]->actor->objectController )
 			InitActorAnim( effect->act[0]->actor );
@@ -1278,7 +1278,7 @@ void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b 
 	Returns			: 
 	Info			: 
 */
-void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short b )
+void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, unsigned char r, unsigned char g, unsigned char b )
 {
 	VECTOR telePos;
 	SPECFX *fx;

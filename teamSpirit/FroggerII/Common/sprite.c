@@ -132,15 +132,12 @@ ANIM_STRUCTURE *CreateAnimation ( char *textID[], int numFrames, int numAnimFram
 			(char*) newItem->textID[c] = textID[c];
 			(int)   newItem->ID[c]     = -1;
 		}
-		// endfor
 	else
 		for ( c = 0; c < numFrames; c++ )
 		{
 			(char*) newItem->textID[c] = textID[c];
 			(int)   newItem->ID[c]     = -1;
 		}
-		// endfor
-	// endelseif
 
 	for ( c = 0; c <= numTextures; c++ )
 	{
@@ -152,9 +149,7 @@ ANIM_STRUCTURE *CreateAnimation ( char *textID[], int numFrames, int numAnimFram
 				{
 					(int)   newItem->ID[i] = c;
 				}
-				// endif
 			}
-			// endfor
 		else
 			for ( i = 0; i < numAnimFrames; i++ )
 			{
@@ -162,13 +157,8 @@ ANIM_STRUCTURE *CreateAnimation ( char *textID[], int numFrames, int numAnimFram
 				{
 					(int)   newItem->ID[i] = c;
 				}
-				// endif
 			}
-			// endfor
-		// endelseif
 	}
-	// endfor
-
 
 	newItem->active			= active;
 	newItem->animated		= animated;
@@ -211,6 +201,7 @@ ANIM_STRUCTURE *CreateAnimation ( char *textID[], int numFrames, int numAnimFram
 	newItem->next	   = animationList;
 	animationList	   = newItem;
 
+	return newItem;
 }
 
 

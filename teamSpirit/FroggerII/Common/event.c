@@ -38,7 +38,6 @@ TRIGGERLIST triggerList;
 */
 TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), void **args )
 {
-	int i;
 	TRIGGER *trigger = (TRIGGER *)JallocAlloc(sizeof(TRIGGER),YES,"Trigger");
 	
 	trigger->prev = trigger->next = NULL;

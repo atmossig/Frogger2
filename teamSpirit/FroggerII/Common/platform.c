@@ -392,7 +392,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 	}
 
 	// create and add platform actor
-	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,initFlags,0,0);
+	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,initFlags);
 	newItem->pltActor->animSpeed = animSpeed;
 
 	if(newItem->pltActor->actor->objectController)

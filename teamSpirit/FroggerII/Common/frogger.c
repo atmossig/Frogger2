@@ -63,7 +63,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
 	ACTOR2 *me;
 
-	me = frog[p] = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+	me = frog[p] = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW);
 /*	
 	hat[p] = CreateAndAddActor("hat-top.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 	

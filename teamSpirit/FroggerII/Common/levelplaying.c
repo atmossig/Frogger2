@@ -72,6 +72,8 @@ u16 GetCurrentRecordKey ( void )
 
 		cur = cur->nextAction;
 	}
+
+	return 0;
 }
 
 

@@ -404,8 +404,6 @@ long prevCamFacing = 0;
 
 void UpdateCameraPosition(long cam)
 {
-	VECTOR result;
-
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	

@@ -557,7 +557,7 @@ void FreeActorList()
 	Parameters	: 
 	Returns		: ACTOR2 *
 */
-ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode)
+ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags)
 {
 	ACTOR2 *newItem;
 	
@@ -802,11 +802,9 @@ void FreeObjectSprites(OBJECT *obj)
 
 void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
 {
-	short i;
 	Vtx *vtxa;
 	Vtx *vtxb;
 	Vtx *oldVtxa, *oldVtxb;
-	int offset;
 
 	oldVtxa = objC->vtx[0];
 	oldVtxb = objC->vtx[1];
@@ -834,7 +832,7 @@ OBJECT *MakeUniqueObject(OBJECT *object)
 {
 	OBJECT	*obj;	
 	OBJECTSPRITE **spr, *tempSpr;
-	int		i;
+//	int		i;
 		
 	obj = object;
 	object = (OBJECT *)JallocAlloc(sizeof(OBJECT), YES, "UniqObj");
@@ -965,7 +963,6 @@ void RemoveUniqueObject(OBJECT *object)
 {
 	OBJECT	*obj;	
 	OBJECTSPRITE **spr;
-	int		i;
 		
 	obj = object;
 
@@ -1090,8 +1087,6 @@ void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 	VECTOR fwdVec = { 0,0,1 };
 	VECTOR dirn2;
 	QUATERNION rotn,q;
-	float frogMatrix[4][4];
-	float frogMatrix2[4][4];
 	float dp,m;
 	
 	CalculateQuatForPlane2(0,&me->actor->qRot,&tile->normal);
