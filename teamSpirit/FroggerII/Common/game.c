@@ -23,6 +23,7 @@
 TEXTOVERLAY *tileNum = NULL;
 unsigned long currTileNum = 0;
 #endif
+TEXTOVERLAY *faceNum = NULL;
 
 //----------------------------------------------------------------------
 
@@ -41,6 +42,8 @@ long hopAmt = 10;
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
 char tileString[16];
+char faceString[16];
+
 long award = 2;
 short showEndLevelScreen = 1;
 
@@ -579,6 +582,7 @@ void RunGameLoop (void)
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,NO,255,255,255,255,smallFont,0,0,0);
 #endif
+		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,NO,255,255,255,255,smallFont,0,0,0);
 
 		if(clearTiles)
 		{
@@ -898,6 +902,10 @@ void RunGameLoop (void)
 		currTileNum++;
 	}
 	
+	if (faceNum)
+		if (faceNum->text)
+			sprintf(faceNum->text,"%d",camFacing);
+
 	if (tileNum)
 	if (tileNum->text)
 	{
