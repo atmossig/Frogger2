@@ -1132,7 +1132,7 @@ void CheckForFroggerLanding(long pl)
 				{
 					speed = 2;
 					StartAnimateActor(frog[pl]->actor, FROG_ANIM_ICE1, YES, NO, 0.2f, NO, NO);
-					currTile[pl] = destTile[pl];
+					player[pl].canJump = FALSE;
 				}
 				else if (state >= TILESTATE_CONVEYOR_FAST)
 					speed = 2;
