@@ -812,6 +812,44 @@ BOOL ExecuteCommand(UBYTE **p)
 			break;
 		}
 
+	case EV_SFX_TILE:
+		{
+			int type;
+			float a, b, c, d;
+			GAMETILE *tile;
+
+			tile = GetTileFromNumber(MEMGETWORD(p));
+			if (!tile) return 0;
+
+			type = MEMGETBYTE(p);
+			a = MEMGETFLOAT(p);
+			b = MEMGETFLOAT(p);
+			c = MEMGETFLOAT(p);
+			d = MEMGETFLOAT(p);
+
+			CreateAndAddSpecialEffect(type, &tile->centre, &tile->normal, a, b, c, d);
+			break;
+		}
+
+	case EV_SFX_PLATFORM:
+	case EV_SFX_ENEMY:
+		(*p) += 2 + 1 + 4*4;
+		PrintScriptDebugMessage("Enemy/Platform sfx not quite available");
+		break;
+/*
+	case EV_HURTFROG:
+		{
+			int player, anim_hurt, anim_die;
+			
+			player = MEMGETBYTE(p);
+			anim_hurt = MEMGETBYTE(p);
+			anim_die = MEMGETBYTE(p);
+
+			if ((--frog[player]->action.healthPoints) == 0)
+				AnimateActor(frog[player], anim_hurt, NO, NO, 
+		}
+*/
+
 #ifdef DEBUG_SCRIPTING
 	case C_DEBUG:
 		MEMGETWORD(p);	// blank
