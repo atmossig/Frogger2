@@ -763,7 +763,7 @@ void CheckForAttachedNMEs( ENEMY *e, int flag )
 		if( (--i) < 0 ) 
 			i = p->numNodes-1;
 
-		if( !(nme = FindEnemyAtNode(e,&p->nodes[i])) )
+		if( !(nme = FindEnemyAtNode(e,i)) )
 			break;
 
 		if( nme->uid )
@@ -786,7 +786,7 @@ void CheckForAttachedNMEs( ENEMY *e, int flag )
 		if( (++i) >= p->numNodes ) 
 			i = 0;
 
-		if( !(nme = FindEnemyAtNode(e,&p->nodes[i])) )
+		if( !(nme = FindEnemyAtNode(e,i)) )
 			break;
 
 		if( nme->uid )

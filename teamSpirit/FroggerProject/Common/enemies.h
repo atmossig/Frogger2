@@ -164,7 +164,7 @@ int MoveEnemyToNode(ENEMY *nme, int node);
 void SetEnemyVisible(ENEMY *nme, int visible);
 void SetEnemyMoving(ENEMY *nme, int moving);
 
-ENEMY *FindEnemyAtNode( ENEMY *nme, PATHNODE *node );
+ENEMY *FindEnemyAtNode( ENEMY *nme, int n );
 
 //------------------------------------------------------------------------------------------------
 

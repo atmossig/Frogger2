@@ -2795,15 +2795,27 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 	Purpose			: Search enemy list for an enemy that is on this node
 	Parameters		: Node to compare
 	Returns			: Found enemy or NULL
-	Info			: nme is an optional parameter to allow for exclusions to the search
+	Info			: nme is an optional parameter to allow for exclusions to the search. Also, enemies must share paths
 */
-ENEMY *FindEnemyAtNode( ENEMY *nme, PATHNODE *node )
+ENEMY *FindEnemyAtNode( ENEMY *nme, int n )
 {
 	ENEMY *e;
+	PATH *p = nme->path;
+	int nn, pn, node;
+
+	nn = n+1;
+	if( nn >= p->numNodes ) nn = 0;
+	pn = n-1;
+	if( pn < 0 ) pn = p->numNodes-1;
 
 	for( e = enemyList.head.next; e != &enemyList.head; e = e->next )
-		if( (nme && e != nme) && e->active && ((&e->path->nodes[e->path->toNode] == node) || (&e->path->nodes[e->path->fromNode] == node) || (e->inTile == node->worldTile)) )
+	{
+		node = e->path->toNode;
+
+		if( (nme && e != nme) && e->active && 
+			((&e->path->nodes[node] == &p->nodes[nn]) || (&e->path->nodes[node] == &p->nodes[pn]) || (&e->path->nodes[node] == &p->nodes[n])) )
 			return e;
+	}
 
 	return NULL;
 }
