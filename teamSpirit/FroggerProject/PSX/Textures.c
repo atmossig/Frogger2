@@ -359,8 +359,16 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 	for ( counter = 0; counter < textureAnim->numFrames; counter++ )
 	{
 		utilPrintf("Counter : %d\n", counter );
-		sprintf( type, "%s0%d", fileName, counter );
+
+		if ( counter < 10 )
+			sprintf( type, "%s0%d", fileName, counter );
+		else
+			sprintf( type, "%s%d", fileName, counter );
+
 		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
+
+		if ( !textureAnim->animation->anim [ counter ] )
+			utilPrintf("Could Not Find Texture : %s", type );
 	}
 	// ENDIF
 
@@ -388,7 +396,7 @@ void UpdateTextureAnimations ( void )
 		// ENDIF
 
 
-		utilPrintf("Wait Time : %d\n", cur->waitTime );
+		//utilPrintf("Wait Time : %d\n", cur->waitTime );
 
 		moveRect.x = VRAM_CALCVRAMX(cur->animation->anim[cur->waitTime]->handle);
 		moveRect.y = VRAM_CALCVRAMY(cur->animation->anim[cur->waitTime]->handle);

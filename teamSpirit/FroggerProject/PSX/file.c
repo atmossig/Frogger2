@@ -474,6 +474,7 @@ static unsigned char *fileCDLoad(char *fName, int *length)
 				return (unsigned char *)buffer;
 		}		
 		printf("Problem reading file - retry\n");
+		//return NULL;
 	}
 	return (unsigned char *)buffer;
 }
