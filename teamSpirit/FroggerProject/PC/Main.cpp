@@ -745,9 +745,9 @@ long LoopFunc(void)
 	}
 */
 
-	StartTimer(13,"WaterUpdate");
-	UpdateWater();
-	EndTimer(13);
+//	StartTimer(13,"WaterUpdate");
+//	UpdateWater();
+//	EndTimer(13);
 
 	DrawLoop();
 
@@ -800,8 +800,8 @@ int GameStartup()
 	
 	fxInitBlur();
 
-	sprintf(path,"%stextures\\ProcData\\",baseDirectory);
-	InitWater(path);
+//	sprintf(path,"%stextures\\ProcData\\",baseDirectory);
+	//InitWater(path);
 
 	/*SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
 	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);*/
