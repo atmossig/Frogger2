@@ -359,7 +359,7 @@ void UpdatePlatforms()
 							{
 								if (!(player[0].frogState & FROGSTATUS_ISDEAD))
 								{
-									AnimateActor(frog[0]->actor,2,NO,NO,0.35F, 0, 0);
+									AnimateActor(frog[0]->actor,2,NO,NO,0.35F, 0);
 									frog[0]->action.deathBy = DEATHBY_DROWNING;
 									player[0].frogState |= FROGSTATUS_ISDEAD;
 									frog[0]->action.dead = 50;
@@ -939,7 +939,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName)
 	if(newItem->pltActor->actor->objectController)
 	{
 		InitActorAnim(newItem->pltActor->actor);
-		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F, 0, 0);
+		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F, 0);
 	}
 
 	// currently set all surrounding platform ptrs to null
@@ -986,22 +986,54 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	// set the start position for the platform
 	pform->path->fromNode = pform->path->startNode;
 	
-	
 	if(platformFlags & PLATFORM_NEW_FORWARDS)
 	{
-		// this platform moves forward thru path nodes
-		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
-		pform->path->toNode = pform->path->fromNode + 1;
-		if(pform->path->toNode > GET_PATHLASTNODE(path))
-			pform->path->toNode = 0;
+		if (path->numNodes < 2)
+			pform->flags &= ~PLATFORM_NEW_FORWARDS;
+		else // this platform moves forward thru path nodes
+		{
+			pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
+			pform->path->toNode = pform->path->fromNode + 1;
+			if(pform->path->toNode > GET_PATHLASTNODE(path))
+			{
+				if (platformFlags & PLATFORM_NEW_PINGPONG)
+				{
+					pform->flags &= ~PLATFORM_NEW_FORWARDS;
+					pform->flags |= PLATFORM_NEW_BACKWARDS;
+					pform->path->toNode = GET_PATHLASTNODE(path)-1;
+				}
+				else
+				{
+					pform->path->fromNode = 0;
+					pform->path->toNode = 1;
+				}
+			}
+		}
 	}
 	else if(platformFlags & PLATFORM_NEW_BACKWARDS)
 	{
-		// this platform moves backward thru path nodes
-		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
-		pform->path->toNode = pform->path->fromNode - 1;
-		if(pform->path->toNode < 0)
-			pform->path->toNode = GET_PATHLASTNODE(path);
+		if (path->numNodes < 2)
+			pform->flags &= ~PLATFORM_NEW_BACKWARDS;
+		else // this platform moves backward thru path nodes
+		{
+			pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
+			pform->path->toNode = pform->path->fromNode - 1;
+			if(pform->path->toNode < 0)
+			{
+				if (platformFlags & PLATFORM_NEW_PINGPONG)
+				{
+					pform->flags &= ~PLATFORM_NEW_BACKWARDS;
+					pform->flags |= PLATFORM_NEW_FORWARDS;
+					pform->path->toNode = 1;
+					pform->path->fromNode = 0;
+				}
+				else
+				{
+					pform->path->fromNode = GET_PATHLASTNODE(path);
+					pform->path->toNode = GET_PATHLASTNODE(path)-1;
+				}
+			}
+		}
 	}
 	else if(platformFlags & PLATFORM_NEW_MOVEUP)
 	{
