@@ -529,6 +529,8 @@ void RunGameLoop (void)
 		lastActFrameCount = 0;
 		actFrameCount = 0;
 
+		ChangeCameraSetting();
+
 		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,255,255,255,0);
 		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,255,255,255,0);
 		bronzeCup[2] = CreateAndAddSpriteOverlay(230,52,"bronz003.bmp",32,32,255,255,255,255,0);
