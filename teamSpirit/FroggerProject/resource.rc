@@ -155,8 +155,8 @@ BEGIN
     EDITTEXT        IDC_CHATENTER,7,184,125,14,ES_AUTOHSCROLL
     LTEXT           "Chat:",IDC_STATIC,7,7,156,8
     CONTROL         "",IDC_RICHCHAT,"RICHEDIT",ES_MULTILINE | ES_AUTOVSCROLL | 
-                    ES_AUTOHSCROLL | ES_READONLY | WS_DISABLED | WS_BORDER | 
-                    WS_VSCROLL,7,19,156,163
+                    ES_READONLY | WS_DISABLED | WS_BORDER | WS_VSCROLL,7,19,
+                    156,163
     GROUPBOX        "Players",IDC_STATIC,169,18,186,68
     LISTBOX         IDC_PLAYERLIST,175,28,173,51,LBS_SORT | 
                     LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL | 
@@ -267,9 +267,10 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
+IDI_HASBROI             ICON    DISCARDABLE     "hasbroi.ico"
 IDI_FROGGER2            ICON    DISCARDABLE     "frogger2.ico"
-IDI_ATARI               ICON    DISCARDABLE     "atari.ico"
 IDI_BLITZ               ICON    DISCARDABLE     "blitz.ico"
+IDI_GAMES               ICON    DISCARDABLE     "games.ico"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
