@@ -1282,10 +1282,10 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
 	{
-		frog[pl]->actor->animation->animTime = 0;
+		//frog[pl]->actor->animation->animTime = 0;
 
-		AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed,0,0);
-		AnimateActor(frog[pl]->actor,3,YES,YES,1.0F,0,0);
+		AnimateActor(frog[pl]->actor,0,NO,NO,1.8,0,0);
+		AnimateActor(frog[pl]->actor,1,YES,YES,1.0F,0,0);
 	}
 	// ENDIF
 	numHops_TOTAL++;
@@ -1397,9 +1397,9 @@ void SlurpFroggerPosition(int whereTo,long pl)
 		}
 
 		frogScale = jumpAmt[pl] * 0.001F;
-		frog[pl]->actor->scale.v[X] = 0.09F + frogScale;
-		frog[pl]->actor->scale.v[Y] = 0.09F + frogScale;
-		frog[pl]->actor->scale.v[Z] = 0.09F + frogScale;
+		frog[pl]->actor->scale.v[X] = 0.0075F + frogScale;
+		frog[pl]->actor->scale.v[Y] = 0.0075F + frogScale;
+		frog[pl]->actor->scale.v[Z] = 0.0075F + frogScale;
 	}
 	
 	if (isLong)
@@ -1419,9 +1419,9 @@ void SlurpFroggerPosition(int whereTo,long pl)
 		}
 
 		frogScale = longAmt * 0.001F;
-		frog[pl]->actor->scale.v[X] = 0.09F + frogScale;
-		frog[pl]->actor->scale.v[Y] = 0.09F + frogScale;
-		frog[pl]->actor->scale.v[Z] = 0.09F + frogScale;
+		frog[pl]->actor->scale.v[X] = 0.0075F + frogScale;
+		frog[pl]->actor->scale.v[Y] = 0.0075F + frogScale;
+		frog[pl]->actor->scale.v[Z] = 0.0075F + frogScale;
 	}
 	
 	for (i=0; i<numBabies; i++)
@@ -1492,9 +1492,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
 			currPlatform[pl] = destPlatform[pl];
 
-			frog[pl]->actor->scale.v[X] = 0.09F;
-			frog[pl]->actor->scale.v[Y] = 0.09F;
-			frog[pl]->actor->scale.v[Z] = 0.09F;
+			frog[pl]->actor->scale.v[X] = 0.0075F;
+			frog[pl]->actor->scale.v[Y] = 0.0075F;
+			frog[pl]->actor->scale.v[Z] = 0.0075F;
 		}
 	}
 	else
@@ -1551,9 +1551,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 				landRadius = 20.0f;
 
-				frog[pl]->actor->scale.v[X] = 0.09F;
-				frog[pl]->actor->scale.v[Y] = 0.09F;
-				frog[pl]->actor->scale.v[Z] = 0.09F;
+				frog[pl]->actor->scale.v[X] = 0.0075F;
+				frog[pl]->actor->scale.v[Y] = 0.0075F;
+				frog[pl]->actor->scale.v[Z] = 0.0075F;
 
 				// check if the tile is a teleport tile
 				if(IsATeleportTile(currTile[pl]))
