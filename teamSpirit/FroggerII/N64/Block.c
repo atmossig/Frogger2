@@ -139,6 +139,8 @@ float			TicksPerSec;
 
 int dontClearScreen = 0;
 
+short dontDoAnims = 0;
+
 // ------------------------------------------------
 
 u64				dram_stack[SP_DRAM_STACK_SIZE64+2];	// For RSP tasks - used for matrix stack
@@ -889,7 +891,7 @@ static void ClearFrameBuffer()
 	Returns			: none
 	Info			:
 */
-static void InitDisplayLists()
+void InitDisplayLists(void)
 {
 	// Initialize RDP / RSP state
 	InitRDP();
@@ -1104,7 +1106,9 @@ void DrawGraphics(void *arg)
 					//***********************************
 
 					AnimateSprites();
-					XformActorList();
+					if ( !dontDoAnims )
+						XformActorList();
+					// ENDIF
 
 					switch (playMode)
 					{	
@@ -1251,7 +1255,7 @@ static void doPoly(void *arg)
 	// ENDELSEIF
   
 	gameState.mode		= FRONTEND_MODE;
-	frontEndState.mode	= TITLE_MODE;
+	frontEndState.mode	= OBJVIEW_MODE;
 
 	while(1) 
 	{
@@ -1265,6 +1269,9 @@ static void doPoly(void *arg)
 			
 			// Actually handle the game loop
 			GameLoop();
+
+
+			DoubleBufferSkinVtx();
 		}
 	}
 }
@@ -1364,6 +1371,7 @@ static void main_(void *arg)
 	ComputeClockSpeed();
 	InitCRCTable();
 	InitMatrixStack();
+	InitRMatrixStack();
 
 	dprintf"main_() - Initialising...\n"));
 	dprintf"   InitMatrixStack()\n"));
