@@ -734,7 +734,18 @@ Andy Eder:
 David Swift:
 ------------------------------------------------
 
-
+	Further frog movement stuff (frogmove.c):
+	
+	+ Frog falling from heights goes *splat* properly, and there's a little
+	  code (commented) in case we want to hurt the frog on long drops
+	+ Moved frog sound stuff into a structure - just makes it a bit tider, that's all
+	+ Hopping to platforms now has a proper height check (oops!)
+	+ Added macros for hop height etc.
+	
+	On a sidenote, I came up with this clever new way of storing objects,
+	except after a little thought it turned out I'd just invented BSP trees
+	again. Rats.
+	
 James Hubbard:
 ------------------------------------------------
 
