@@ -51,10 +51,11 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "slu_" ) ) || ( compare = strstr ( cur->name, "spm_" ) )||
 									( compare = strstr ( cur->name, "log" ) )|| ( compare = strstr ( cur->name, "cfence" ) )||
 									( compare = strstr ( cur->name, "bar" ) )|| ( compare = strstr ( cur->name, "submush" ) )||
-									( compare = strstr ( cur->name, "bar" ) )|| ( compare = strstr ( cur->name, "spf_" ) )||
+									( compare = strstr ( cur->name, "pylon" ) )|| ( compare = strstr ( cur->name, "spf_" ) )||
 									( compare = strstr ( cur->name, "gunk" ) )|| ( compare = strstr ( cur->name, "mini" ) )||
 									( compare = strstr ( cur->name, "plat" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
-									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
+									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
+									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
 									( compare = strstr ( cur->name,  "tcone" ))|| ( compare = strstr ( cur->name, "bin" ) )  ) 
 				{
 //					CreateAndAddScenicObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
