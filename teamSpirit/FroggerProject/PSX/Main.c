@@ -319,7 +319,7 @@ void InitCam(void)
 
 
 	// Set up a simple camera
-	GsSetProjection(350);	//default distance of projection; alters perspective
+	GsSetProjection(400);	//default distance of projection; alters perspective
 	SetGeomOffset(0,0);				//camera focused on middle of screen
 
 //	camera.vpx = 0; camera.vpy = -0x1000; camera.vpz = -0x1200;
@@ -1006,7 +1006,7 @@ void ResetDrawingEnvironment ( void )
   	displayPage[0].drawenv.ofs[1] = 120+PALMODE*8;
 	displayPage[1].drawenv.ofs[1] = 256+120+PALMODE*8;
 	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 0;
-	GsSetProjection(350);
+	GsSetProjection(400);
 	SetDispMask(1);
 	VSync(0);
 	SetGeomOffset(0,0);				//camera focused on middle of screen
