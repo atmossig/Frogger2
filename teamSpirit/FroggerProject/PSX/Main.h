@@ -47,4 +47,6 @@ void MainReset ( void );
 
 void DisplayErrorMessage ( char *message );
 
+void DisplayOnScreenInfo ( void );
+
 #endif

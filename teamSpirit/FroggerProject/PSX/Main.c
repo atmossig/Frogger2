@@ -77,6 +77,7 @@
 
 #include "objviewer.h"
 #include "platform.h"
+#include "snapshot.h"
 
 long turbo = 4096;
 
@@ -159,7 +160,7 @@ void DisplayErrorMessage ( char *message )
 #define SCREENOFF  SetDispMask(0);   
 #define SCREENON   SetDispMask(1);     
 //////////////////////////////////////////////////////////////////////
-extern void MAIN_Flicker(const int num_flickers)
+void MAIN_Flicker(const int num_flickers)
 {
 	int i;
 	for (i=0;i<num_flickers;i++)
@@ -427,7 +428,7 @@ int main ( )
 
 		MemCardInit(1);
 		MemCardStart();
-		padInitialise(0); // 0 = No multi tap support
+		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
 
 //		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
@@ -517,6 +518,14 @@ int main ( )
 			actorCount = 0;
 
 
+			worldPolyCount = 0;
+
+
+	if ( padData.debounce[0] & PAD_TRIANGLE )
+	{
+		SnapShot("C:\\");
+	}
+
 #if GOLDCD==0
 			timerDisplay();
 #endif
@@ -596,8 +605,9 @@ TIMER_STOP(TIMER_GAMELOOP);
 			if ( !objViewer )
 				MainDrawFunction();
 
-			UpdateTextureAnimations();
+//			UpdateTextureAnimations();
 
+			DisplayOnScreenInfo();
 
 			/*if ( ++animFrame == 8 )
 				animFrame = 0;*/
@@ -621,7 +631,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 
 #if GOLDCD == NO
-		/*	if ( padData.digital[1] & PAD_DOWN )
+			if ( padData.digital[1] & PAD_DOWN )
 			{
 				camDist.vy += ( 20 * gameSpeed ) >> 12;
 			}
@@ -676,23 +686,26 @@ TIMER_STOP(TIMER_GAMELOOP);
  				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 
  				sprintf(tempText, "%2df", gameSpeed>>12); 
- 				switch(gameSpeed>>12)
+ 				sprintf(tempText, "%df", totalObjs ); 
+/* 				switch(gameSpeed>>12)
 				{
-					case 2:
+					case 2:*/
 						fontPrint(fontSmall, 0,-60, tempText, 64,255,64);
-						break;
+						/*break;
 					case 3:
 						fontPrint(fontSmall, 0,-60, tempText, 64,255,255);
 						break;
 					default:
 						fontPrint(fontSmall, 0,-60, tempText, 255,64,64);
-				}
+				}*/
 				
 
-//				sprintf(tempText, "% 2d frames  % 2d actors  % 4d maxintrpt",
-// 						gameSpeed>>12, lastactorCount, maxInterpretTimer); 
-// 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+			/*	sprintf(tempText, "% 2d frames  % 2d actors  % 4d maxintrpt",
+ 						gameSpeed>>12, lastactorCount, maxInterpretTimer); 
+ 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);*/
 			}
+
+totalObjs = 0;
 #endif
 
 //			utilPrintf("countMakeUnit %d\n", countMakeUnit);
@@ -780,17 +793,17 @@ void MainDrawFunction ( void )
 	SetSp(oldStackPointer);
 	TIMER_STOP0(TIMER_PRINT_SPRITES);
 
-	//TIMER_START0(TIMER_DRAW_SCENICS);
+	TIMER_START0(TIMER_DRAW_SCENICS);
 
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawScenicObjList();
 
-//	TIMER_STOP0(TIMER_DRAW_SCENICS);
+	TIMER_STOP0(TIMER_DRAW_SCENICS);
 	
-	//TIMER_START0(TIMER_DRAW_WATER);
+	TIMER_START0(TIMER_DRAW_WATER);
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawWaterList();
-//	TIMER_STOP0(TIMER_DRAW_WATER);
+	TIMER_STOP0(TIMER_DRAW_WATER);
 
 	TIMER_START0(TIMER_ACTOR_DRAW);
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
@@ -801,9 +814,15 @@ void MainDrawFunction ( void )
 //		utilPrintf ( "Poly Count : %d\n", polyCount );
 
 	TIMER_START0(TIMER_PRINT_OVERS);
-	PrintSpriteOverlays(1);
-	PrintTextOverlays();
-	PrintSpriteOverlays(0);
+
+	if ( padData.digital[0] & PAD_CIRCLE )
+	{
+		PrintSpriteOverlays(1);
+		PrintTextOverlays();
+		PrintSpriteOverlays(0);
+	}
+	// ENDIF
+
 	TIMER_STOP0(TIMER_PRINT_OVERS);
 
 	TIMER_START0(TIMER_PROCTEX);
@@ -893,8 +912,80 @@ void MainReset ( void )
 
 		MemCardInit(1);
 		MemCardStart();
-		padInitialise(0); // 0 = No multi tap support
+		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 3000, 0 );
 		textureInitialise ( 400, 100);
 }
+
+
+void DisplayOnScreenInfo ( void )
+{
+	static char whichSegment = 0;
+
+	int i;
+	char r, g, b;
+	char tempText[128];
+
+	FMA_MESH_HEADER **mesh;
+
+	mesh = ADD2POINTER(fma_world,sizeof(FMA_WORLD));
+
+
+	r = 255;
+	g = 255;
+	b = 255;
+
+	fontPrint ( fontSmall, -220, -90, "WORLD POLY COUNT", r, g, b );
+
+	r = 100;
+	g = 100;
+	b = 255;
+
+ 	sprintf ( tempText, "%d : Objs %d : %d", worldPolyCount, whichSegment, fma_world->n_meshes ); 
+
+	fontPrint ( fontSmall, 20, -90, tempText, r, g, b );
+
+
+
+	if ( padData.debounce[1] & PAD_R2 )
+	{
+		for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
+		{
+			(*mesh)->flags &= ~DRAW_SEGMENT;
+
+			if ( whichSegment == i )
+				(*mesh)->flags |= DRAW_SEGMENT;
+		}
+		// ENDFOR
+
+		whichSegment++;
+
+		if ( whichSegment > fma_world->n_meshes )
+			whichSegment = fma_world->n_meshes;
+		
+	}
+	// ENDIF
+
+	if ( padData.debounce[1] & PAD_L2 )
+	{
+		whichSegment--;
+
+		if ( whichSegment == 255 )
+			whichSegment = 0;
+
+		for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
+		{
+			(*mesh)->flags &= ~DRAW_SEGMENT;
+
+			if ( whichSegment == i )
+				(*mesh)->flags |= DRAW_SEGMENT;
+		}
+		// ENDFOR
+
+	}
+	// ENDIF
+
+}
+
+
 
