@@ -519,8 +519,23 @@ void UpdatePlatforms()
 		// Add ripples around a platform
 		if( cur->flags & PLATFORM_NEW_MAKERIPPLES )
 		{
-			if( !(actFrameCount%10) )
-				CreateAndAddFXRipple( RIPPLE_TYPE_RING, &cur->pltActor->actor->pos, &cur->currNormal, 50, 1, 0.1, 30 );
+			long r;
+			VECTOR rPos;
+			if( cur->pltActor->value1 )
+				r = Random(cur->pltActor->value1)+1;
+			else
+				r = 10;
+
+			SetVector( &rPos, &cur->pltActor->actor->pos );
+			rPos.v[Y] = cur->inTile->centre.v[Y];
+
+			if( !(actFrameCount%r) )
+			{
+				if( cur->flags & PLATFORM_NEW_FOLLOWPATH ) // More of a wake effect when moving
+					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 30, cur->currSpeed, 1, 5 );
+				else // Gentle ripples
+					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
+			}
 		}
 	}
 }
