@@ -201,7 +201,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short 
 	fx.tex = tex;
 	fx.flags = SPRITE_SUBTRACTIVE;
 //	fx.a = alpha;
-	fx.a = 75;
+	fx.a = 60;
 	fx.zDepth = -18;	//bring the shadow closer to the camera
 
 
