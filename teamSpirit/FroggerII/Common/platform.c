@@ -249,6 +249,9 @@ void UpdatePlatforms()
 					cur->carrying = NULL;
 					cur->countdown = cur->path->nodes->waitTime;
 
+					if( cur->path->nodes->sample )
+						PlaySample( cur->path->nodes->sample, &cur->pltActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
+
 					if(cur->flags & PLATFORM_NEW_CRUMBLES)
 					{
 						//cur->countdown = cur->regenTime;	//0;
@@ -562,9 +565,6 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	pform->currSpeed = path->nodes[path->fromNode].speed;
 	pform->isWaiting = path->nodes[path->fromNode].waitTime;
 
-	if( path->nodes[path->fromNode].sample )
-		PlaySample( path->nodes[path->fromNode].sample, &pform->pltActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
-
 	// Stop overshoot when waiting on a path node
 	if (pform->isWaiting)
 	{
@@ -673,6 +673,9 @@ void CalcNextPlatformDest(PLATFORM *pform)
 				//SetVector(&pform->pltActor->actor->pos,&pformPos);
 			}
 		}
+
+		if( path->nodes[path->fromNode].sample )
+			PlaySample( path->nodes[path->fromNode].sample, &pform->pltActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
 	}
 	else if(flags & PLATFORM_NEW_BACKWARDS)
 	{
@@ -700,11 +703,19 @@ void CalcNextPlatformDest(PLATFORM *pform)
 				//SetVector(&pform->pltActor->actor->pos,&pformPos);
 			}
 		}
+
+		if( path->nodes[path->fromNode].sample )
+			PlaySample( path->nodes[path->fromNode].sample, &pform->pltActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
 	}
 	else if( flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN) )
 	{
 		if( flags & PLATFORM_NEW_PINGPONG )
+		{
 			pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);	// invert flags
+
+			if( path->nodes->sample )
+				PlaySample( path->nodes->sample, &pform->pltActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
+		}
 		/*else
 		{
 			if( flags & PLATFORM_NEW_MOVEUP )

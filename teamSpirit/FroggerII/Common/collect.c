@@ -219,6 +219,9 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 	}
 
+	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
+		numMultiItems--;
+
 	// remove the collected garib
 	SubGarib(garib);
 }

@@ -496,7 +496,8 @@ void FreeAIPathNodeList( AIPATHNODE **pl )
 	for( p = *pl; p; p = next )
 	{
 		next = p->next;
-		JallocFree( (UBYTE **)&p );
+		SubAIPathNode(p);
+		//JallocFree( (UBYTE **)&p );
 	}
 
 	*pl = NULL;
