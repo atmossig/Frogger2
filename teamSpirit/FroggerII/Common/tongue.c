@@ -634,7 +634,7 @@ void ThrowFrogDirection( int thrower, int throwee, int dir )
 	float count=0;
 
 	// Find all tiles in the direction as far as the eye can see
-	while( (tile = FindJoinedTileByDirectionConstrained(tile2,&currTile[thrower]->dirVector[dir],PI)) )
+	while( (tile = FindJoinedTileByDirectionConstrained(tile2,&currTile[thrower]->dirVector[dir],4)) )
 	{
 		if( tile3 == tile ) { tile = tile2; break; } // Oscillating between 2 tiles
 		tile3 = tile2;

@@ -216,7 +216,7 @@ void CameraLookAtFrog(void)
 
 			// Zoom in/out to keep multiplayer frogs in view
 			sc = FindMaxInterFrogDistance( );
-			if( sc != -1 ) scaleV = (sc*0.001) + 0.5;
+			if( sc != -1 ) scaleV = (sc*0.00125) + 0.6;
 		}
 		
 		if (l)
