@@ -370,20 +370,13 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 		newItem->nmeActor->action.dead = 30;
 	}
 	
-
 	newItem->speed			= eSpeed;
 	newItem->startSpeed		= eSpeed;
-	newItem->accel			= 0.01F;
+	newItem->endSpeed		= eSpeed;
+	newItem->accel			= 0.0F;
 
 	newItem->path			= NULL;
 	newItem->inTile			= &firstTile[pathIndex[startNode + 1]];
-
-	// set object for fading in/out with distance
-//	if(newItem->nmeActor->actor->objectController)
-//	{
-//		SetObjectXlu(newItem->nmeActor->actor->objectController->object);
-//		newItem->nmeActor->actor->xluOverride = 100;
-//	}
 
 	// create the ptr to the linked list of world game tiles that define the enemy's path
 	newItem->path = CreateEnemyPathFromTileList(pathIndex,offset,offset2);
