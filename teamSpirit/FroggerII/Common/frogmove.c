@@ -1424,9 +1424,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 					player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
 					player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
 				
-//					if(currPlatform)
-//						currPlatform->flags |= PLATFORM_CARRYINGFROG;
-
 					return FALSE;			
 			}
 			else if ( GameTileTooLow ( destTile[pl],pl ) && ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) ) )

@@ -357,6 +357,8 @@ void UpdatePlatforms()
 
 						cur->active = 0;
 						cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+						cur->carrying = NULL;
+						currTile[0] = cur->inTile;
 
 						if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
 						{
@@ -375,8 +377,6 @@ void UpdatePlatforms()
 
 						CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&cur->pltActor->actor->pos,128,1,0.2,40);
 						
-						currTile[0] = cur->inTile;
-						cur->carrying = NULL;
 //						SetVector(&frog[0]->actor->pos,&currTile[0]->centre);
 
 						player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
