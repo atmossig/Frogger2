@@ -692,7 +692,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	fog.r = worldVisualData[worldID].levelVisualData[levelID].fogR;
 	fog.g = worldVisualData[worldID].levelVisualData[levelID].fogG;
 	fog.b = worldVisualData[worldID].levelVisualData[levelID].fogB;
-	farClip = 	2500; //worldVisualData[worldID].levelVisualData[levelID].farDist;
+	farClip = 	1900; //worldVisualData[worldID].levelVisualData[levelID].farDist;
 	fStart = worldVisualData[worldID].levelVisualData[levelID].fogNearDist * 0.0005;
 	fEnd = 	(worldVisualData[worldID].levelVisualData[levelID].fogFarDist * 0.0005);
 #endif
