@@ -81,11 +81,11 @@ PC merge/update related
 Unassigned tasks
 ----------------
 - on screen overlays
+- baby size, colour, anim, overlays, sfx
+- frog move to baby points
 - water splits
-- baby size, colour, anim, overlays
 - city plank across building - x = sort problem
 - lab1 needs trans rotors, + sprites in.
-- debug - frog respot at baby points
 - help text (see poliver e-mail, 06/03/00)
   - infront of wall garib (x to jump high)
   - infront of river (can't swim, jump onto ... )
