@@ -46,13 +46,13 @@ void LoadTextureAnimBank ( int textureBank );
 void FreeTextureBank			( TextureBankType *textureBank );
 void FreeAllTextureBanks	( void );
 
-TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes );
+TEXTUREANIM *CreateTextureAnimation ( unsigned long crc, int numframes );
 //void CreateTextureAnimation			( char *fileName, TextureType *dummy, int numFrames );
 void InitTextureAnimLinkedList	( void );
 void FreeTextureAnimList				( void );
 void AddTextureAnim							( TEXTUREANIM *textureAnim );
 void SubTextureAnim							( TEXTUREANIM *textureAnim );
-void AddAnimFrame ( TEXTUREANIM *anim, long crc, short waitTime, int num );
+void AddAnimFrame ( TEXTUREANIM *anim, unsigned long crc, short waitTime, int num );
 
 void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette );
 

@@ -46,7 +46,7 @@ TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ] = { NULL, NULL, NULL, NULL, 
 TEXTUREANIMLIST textureAnimList;
 
 
-TextureType *CreateSpareTextureSpace ( long dummyCrc );
+TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc );
 
 void LoadTextureBank ( int textureBank )
 {
@@ -155,7 +155,7 @@ void LoadTextureAnimBank( int textureBank )
 {
 	TextureType *dummyTexture;
 	int fileLength, counter, counter1, numframes, waitTime;
-	long crc, destCrc, dummyCrc;
+	unsigned long crc, destCrc, dummyCrc;
 	char fileName[256], dummyString [ 256 ];
 	char titFileName[256];
 	unsigned long *p, *textureAnims;
@@ -212,21 +212,26 @@ void LoadTextureAnimBank( int textureBank )
 
 		if ( !dummyTexture )
 			utilPrintf("Cound Not Find Dummy Texture....\n");
+
 		
+//		CopyTexture ( dummyTexture, textureAnim->animation->dest, 0 );
+
+
+
 		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
 		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
 		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
 		moveRect.h = textureAnim->animation->dest->h;
 
 		// check for 256 colour mode
-		if(textureAnim->animation->dest->tpage & (1 << 7))
-			moveRect.w *= 2;
+		//if(textureAnim->animation->dest->tpage & (1 << 7))
+		//	moveRect.w *= 2;
 
 		// copy bit of vram
-/*		BEGINPRIM ( siMove, DR_MOVE );
-		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
-		ENDPRIM ( siMove, 1023, DR_MOVE );
-*/
+		//BEGINPRIM ( siMove, DR_MOVE );
+		//SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
+		//ENDPRIM ( siMove, 1023, DR_MOVE );
+
  		DrawSync(0);
 		MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
  		DrawSync(0);
@@ -447,7 +452,7 @@ static int LOADPAL_LoadPCPalette(char * const file,
 //////////////////////////////////////////////////////////////////
 
 
-TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
+TEXTUREANIM *CreateTextureAnimation ( unsigned long crc, int numframes )
 {
 	int fileLength, counter, n;
 
@@ -506,7 +511,7 @@ TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 }
 
 
-void AddAnimFrame( TEXTUREANIM *anim, long crc, short waitTime, int num )
+void AddAnimFrame( TEXTUREANIM *anim, unsigned long crc, short waitTime, int num )
 {
 	anim->animation->waitTimes[num] = waitTime;
 	anim->animation->anim[num] = textureFindCRCInAllBanks( crc );
@@ -599,7 +604,7 @@ void SubTextureAnim ( TEXTUREANIM *textureAnim )
 }
 
 
-TextureType *CreateSpareTextureSpace ( long dummyCrc )
+TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc )
 {
 	RECT			rect;
 	DR_MOVE *siMove;
@@ -683,7 +688,7 @@ void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 
 	moveRect.x = VRAM_CALCVRAMX(src->handle);
 	moveRect.y = VRAM_CALCVRAMY(src->handle);
-	moveRect.w = (dest->w + 3)>>2;
+	moveRect.w = (dest->w + 3)/4;
 	moveRect.h = dest->h;
 
 	// check for 256 colour mode
