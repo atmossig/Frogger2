@@ -11,8 +11,6 @@
 #ifndef NETRACE_H
 #define NETRACE_H
 
-
-
-
+extern int NetRaceRun();
 
 #endif

@@ -440,6 +440,56 @@ void UpdateEnemies()
 	UpdateBabies();
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateAllEnemies
+	Purpose			: updates ALL enemies positions; used by network play
+	Parameters		: 
+	Returns			: void
+	
+	This function updates EVERY enemy so they start in the right place. This is needed
+	for the network synchronisation stuff, where the game's timers can suddenly jump forward
+	or backwards a number of seconds as they match the host - ds
+*/
+void UpdateAllEnemies()
+{
+	ENEMY *cur,*next;
+	ENEMY_UPDATEFUNC *update;
+
+	if(enemyList.count == 0)
+		return;
+
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
+	{
+		ACTOR2 *act2 = cur->nmeActor;
+		ACTOR *act;
+		
+		next = cur->next;
+
+		if (cur->active && act2)
+			act = cur->nmeActor->actor;
+		else
+			continue;
+
+		// check if this enemy is currently 'waiting' at a node
+		if(cur->isWaiting)
+		{
+			if(cur->isWaiting == -1)
+				continue;
+
+			if(actFrameCount > cur->path->startFrame)
+				cur->isWaiting = 0;
+			else
+				continue;
+		}
+
+		// Do update functions for individual enemy types
+		for (update = cur->Update; *update; update++)
+			(*update)(cur);
+	}
+
+	UpdateBabies();
+}
+
 void RotateWaitingNME( ENEMY *cur )
 {
  	IQUATERNION q, res;

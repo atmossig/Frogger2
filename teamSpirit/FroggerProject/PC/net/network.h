@@ -30,13 +30,16 @@ enum APPMSGTYPE
 	APPMSG_PING,		// ping
 	APPMSG_PINGREPLY,	// ping reply
 	APPMSG_READY,		// this player is ready (synched etc.)
+	APPMSG_HOSTREADY,	// the host is ready to sync
 	APPMSG_DEATH,		// this player was deaded
+	APPMSG_PLAYERNUM	// you are player (x) - sent by host only
 };
 
 typedef struct _NETPLAYER
 {
 	DPID	dpid;		// DirectPlay player identifier - passed to IDirectPlay to query address stuff
-	bool	isHost;		// true if this player is the host, false otherwise
+//	bool	isHost;		// true if this player is the host, false otherwise
+	bool	isReady;
 
 	unsigned long lastUpdateMsg;	// the tick count of the last update msg
 	

@@ -146,6 +146,7 @@ void AddEnemy(ENEMY *enemy);
 void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
+void UpdateAllEnemies();	// like UpdateEnemies except ALL enemies are updated, even if they're not visible
 
 //------------------------------------------------------------------------------------------------
 

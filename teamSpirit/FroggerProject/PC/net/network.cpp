@@ -69,17 +69,18 @@ int AddNetPlayer(DPID id)
 {
 	int i;
 	NETPLAYER *player;
+	HRESULT res;
 	DPCAPS dpc;
 
 	dpc.dwSize = sizeof(dpc);
-	dplay->GetPlayerCaps(id, &dpc, 0);
+	res = dplay->GetPlayerCaps(id, &dpc, 0);
 
 	for (i=0, player = &netPlayerList[0]; i<MAX_FROGS; i++, player++)
 	{
 		if (!player->dpid)
 		{
 			player->dpid = id;
-			player->isHost = ((dpc.dwFlags & DPCAPS_ISHOST) != 0);
+			//player->isHost = ((dpc.dwFlags & DPCAPS_ISHOST) != 0);
 			//player->player = i;
 			return i;
 		}

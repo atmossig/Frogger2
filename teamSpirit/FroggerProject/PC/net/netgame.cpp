@@ -8,12 +8,16 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-// PC headers
+// Net headers
 #include "network.h"
 #include "netgame.h"
+#include "netrace.h"
+
+// PC headers
 #include "main.h"
 #include "islpad.h"
 #include "islutil.h"
+#include "fadeout.h"
 
 // Common headers
 #include "frontend.h"
@@ -23,6 +27,8 @@
 #include "cam.h"
 #include "enemies.h"
 #include "specfx.h"
+#include "overlays.h"
+#include "lang.h"
 
 #define BIT(x)	(1<<(x))
 
@@ -32,9 +38,12 @@
 #define UPDATE_PERIOD		5		// in 60ths of a second (actFrameCounts)
 #define PING_PERIOD			200		// how often we should ping once we're synchronised
 
-unsigned long nextUpdate = 0, nextPing = 0;
+#define STARTGAME_COUNT		(4*60)	// how much time we allow for the countdown
 
-bool	ready = false;
+unsigned long	nextUpdate = 0, nextPing = 0, gameStartTime = 0;
+bool			hostSync, hostReady, gameReady;
+NETGAME_LOOP	netgameLoopFunc = NULL;
+TEXTOVERLAY		*netMessage;
 
 typedef struct
 {
@@ -48,260 +57,27 @@ typedef struct
 
 struct	MSG_PING
 {
-	DWORD	appmsg_ping;
+	UBYTE appmsg_ping;
 	unsigned long time;
 };
 
 struct	MSG_PINGREPLY
 {
-	DWORD	appmsg_pingreply;
+	UBYTE appmsg_pingreply;
 	unsigned long reply, time0;
 };
 
-typedef struct
+struct	MSG_STARTGAME
 {
-	unsigned char	type;
-	DWORD			actTickCount;
-} MSG_SYNCHGAME, *LPMSG_SYNCHGAME;
+	UBYTE appmsg_start;
+	unsigned long	gameStartTime;		// when the game is due to start, according to actFrameCount
+};
 
 #define GetTileNo(t) (((DWORD)tile-(DWORD)firstTile)/sizeof(GAMETILE))
 
 int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
 int SendUpdateMessage();
 void SendPing();
-
-/*	--------------------------------------------------------------------------------
-	Function		: HandleSynchMessage
-	Purpose			: interpret a game update from the network
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-void HandleSynchMessage( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
-{
-	unsigned int i;
-	
-	if (lpMsg->actTickCount == 0)
-	{
-		if (DPInfo.bIsHost)
-		{
-			for( i=1; i<MAX_MULTIPLAYERS; i++ )
-				if( netPlayers[i] == idFrom )
-					playersReady[i] = 1;
-		}
-		else
-		{
-			serverReady = 1;
-			serverPlayer = idFrom;
-		}
-	}
-	else
-		synchedFrameCount = timeInfo.tickCount - (lpMsg->actTickCount + myLatency);	
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: HandleSynchMessage
-	Purpose			: interpret a game update from the network
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-HRESULT HandlePingMessageServer( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
-{
-	LPMSG_SYNCHGAME lpMessage = NULL;
-	HRESULT	hRes;
-	
-	// Check the DPlay device
-	if(!DPInfo.lpDP4A )
-		return DPERR_ABORTED;
-	
-	// Alloc the message
-	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
-		return DPERR_OUTOFMEMORY;
-	
-	// build message	
-	lpMessage->dwType = APPMSG_SYNCHPING;
-	lpMessage->actTickCount = lpMsg->actTickCount;
-	
-	// send this data to all other players
-	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,idFrom, 0,lpMessage,sizeof(MSG_SYNCHGAME));	//DPSEND_GUARANTEED
-
-	// Free the message.
-	GlobalFreePtr(lpMessage);
-
-	return hRes;
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: HandleSynchMessage
-	Purpose			: interpret a game update from the network
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-void HandlePingMessagePlayer( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
-{
-	myLatency = (timeInfo.tickCount - lpMsg->actTickCount)/2;
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitialPlayerSynch
-	Purpose			: Tell the server we are ready and then wait until we get a go message.
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-HRESULT InitialPlayerSynch(void)
-{
-	// *NB* Should wait for the server to send a ready message, for now we assume the server enters the game first. (Shouldn't really just wait)
-	LPMSG_SYNCHGAME lpMessage = NULL;
-	HRESULT	hRes;
-	
-	// Check the DPlay device
-	if(!DPInfo.lpDP4A )
-		return DPERR_ABORTED;
-	
-	// Alloc the message
-	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
-		return DPERR_OUTOFMEMORY;
-	
-	// build message	
-	lpMessage->dwType = APPMSG_SYNCHGAME;
-	lpMessage->actTickCount = 0;
-	
-	// send this data to all other players
-	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpMessage,sizeof(MSG_SYNCHGAME));
-	
-	// Free the message
-	GlobalFreePtr(lpMessage);
-	
-	// *NB* Wait for the GO message! (Again shouldn't really just wait, but still!) (Also add a timeout!)
-	while (!serverReady);
-
-	Sleep(600);
-
-	return hRes;
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitialServerSynch
-	Purpose			: Wait for everyone to be ready, synch clocks, and agree a start time
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-HRESULT SendPingMessage(void)
-{
-	LPMSG_SYNCHGAME lpMessage = NULL;
-	HRESULT	hRes;
-	
-	// Check the DPlay device
-	if(!DPInfo.lpDP4A )
-		return DPERR_ABORTED;
-	
-	// Alloc the message
-	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
-		return DPERR_OUTOFMEMORY;
-	
-	// build message	
-	lpMessage->dwType = APPMSG_SYNCHPING;
-	lpMessage->actTickCount = timeInfo.tickCount;
-	
-	// send this data to all other players
-	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,serverPlayer,0,lpMessage,sizeof(MSG_SYNCHGAME));
-
-	// Free the message.
-	GlobalFreePtr(lpMessage);
-
-	return hRes;		
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitialServerSynch
-	Purpose			: Wait for everyone to be ready, synch clocks, and agree a start time
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-HRESULT SendSynchMessage(void)
-{
-	LPMSG_SYNCHGAME lpMessage = NULL;
-	HRESULT	hRes;
-	
-	// Check the DPlay device
-	if(!DPInfo.lpDP4A)
-		return DPERR_ABORTED;
-		
-	// Alloc the message
-	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
-		return DPERR_OUTOFMEMORY;
-	
-	// build message	
-	lpMessage->dwType = APPMSG_SYNCHGAME;
-	lpMessage->actTickCount = timeInfo.tickCount;
-	
-	// send this data to all other players
-	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,0,lpMessage,sizeof(MSG_SYNCHGAME));	//DPSEND_GUARANTEED
-
-	// Free the message.
-	GlobalFreePtr(lpMessage);
-	
-	return hRes;		
-}
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitialServerSynch
-	Purpose			: Wait for everyone to be ready, synch clocks, and agree a start time
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-HRESULT InitialServerSynch(void)
-{
-	LPMSG_SYNCHGAME lpMessage = NULL;
-	HRESULT	hRes;
-	unsigned long everyoneReady = 0;
-	int i;
-	
-	// Check the DPlay device
-	if(!DPInfo.lpDP4A )
-		return DPERR_ABORTED;
-
-	// *NB* Wait for all the players to be ready to synch (Need a timeout!)
-	while (!everyoneReady)
-	{
-		everyoneReady = TRUE;
-		for (i=1; i<NUM_FROGS; i++)
-		if (!playersReady[i])
-			everyoneReady = 0;
-	}
-
-	// Lets try just starting them all!
-	//------
-	
-	// Alloc the message
-	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
-		return DPERR_OUTOFMEMORY;
-	
-	// build message	
-	lpMessage->dwType = APPMSG_SYNCHGAME;
-	lpMessage->actTickCount = 0;
-	
-	// send this data to all other players
-	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpMessage,sizeof(MSG_SYNCHGAME));
-
-	// Free the message.
-	GlobalFreePtr(lpMessage);
-
-	return hRes;		
-}
-*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: HandleUpdateMessage
@@ -336,6 +112,7 @@ void HandleUpdateMessage(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl)
 
 		//SetVector(&frog[i]->actor->position, &tile->centre);
 		currTile[i] = tile;
+		frog[i]->draw = 1;
 
 		if (lpMsg->flags & NETUPD_SUPERHOP)
 		{
@@ -367,15 +144,41 @@ void HandleUpdateMessage(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl)
 /*
 */
 
+void SortOutPlayerNumbers()
+{
+	int s, pl, dpid;
+	int start[4] = { -1, -1, -1, -1 };
+
+	for (s=0; s<NUM_FROGS; s++)
+	{
+		dpid = 0xFFFFFFFF;
+
+		for (pl=0; pl<NUM_FROGS; pl++)
+		{
+			if (start[pl] < 0 && netPlayerList[pl].dpid < dpid)
+			{
+				start[pl] = s;
+				dpid = netPlayerList[pl].dpid;
+			}
+		}
+	}
+
+	for (pl=0; pl<NUM_FROGS; pl++)
+	{
+		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
+		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
+	}
+}
+
 
 void NetgameStartGame()
 {
 	int pl;
-	const int temp_netchars[4] = { FROG_FROGGER, FROG_LILLIE, FROG_HOPPER, FROG_TWEE };
 	int players[4];
 
 	nextUpdate = 0;
-	ready = (isServer);
+	hostSync = hostReady = (isServer);
+	gameReady = false;
 
 	gameState.mode = INGAME_MODE;
 	gameState.multi = SINGLEPLAYER;
@@ -388,12 +191,13 @@ void NetgameStartGame()
 			break;
 
 		netPlayerList[pl].lastUpdateMsg = 0;
+		netPlayerList[pl].isReady = false;
 	}
 	NUM_FROGS = pl;
 
 	for (pl=0; pl<NUM_FROGS; pl++)
 	{
-		player[pl].character = temp_netchars[pl];
+		player[pl].character = pl;
 		//FROG_FROGGER; //(netPlayerList[pl].isHost)?FROG_FROGGER:FROG_LILLIE;
 	}
 
@@ -402,11 +206,92 @@ void NetgameStartGame()
 	GTInit( &modeTimer, 1 );
 	InitLevel(9, 3);
 
+	for (pl= isServer?1:0; pl<NUM_FROGS; pl++)
+	{
+		frog[pl]->draw = 0;
+	}
+	
+	netMessage = CreateAndAddTextOverlay(2048, 2048, "Waiting for players", YES, (char)255, font, TEXTOVERLAY_SHADOW);
+
+	if (isServer)
+	{
+		unsigned char msg;
+		
+		SortOutPlayerNumbers();
+
+		msg = APPMSG_HOSTREADY;
+		NetBroadcastUrgentMessage(&msg, 1);
+
+		msg = APPMSG_READY;
+		NetBroadcastUrgentMessage(&msg, 1);
+	}
+
+	netgameLoopFunc = NetRaceRun;
 }
 
 void NetgameRun()
 {
 	if (!dplay) return;
+
+	bool wasSync = hostSync;
+	bool wasReady = gameReady;
+
+	NetProcessMessages();
+
+	if (!hostReady)
+		return;
+
+	if (!hostSync)
+	{
+		SendPing();
+		return;
+	}
+	else if (!wasSync)
+	{
+		// We've just become synchronised, so tell everybody else
+		unsigned char msg = APPMSG_READY;
+		NetBroadcastUrgentMessage(&msg, 1);
+
+		UpdateAllEnemies();	// sync all our enemies with the host
+	}
+
+	if (!gameReady)
+	{
+		int pl;
+		gameReady = true;
+		for (pl=1; pl<NUM_FROGS; pl++)
+		{
+			if (!netPlayerList[pl].dpid) break;
+			
+			if (!netPlayerList[pl].isReady)
+			{
+				gameReady = false;
+				break;
+			}
+		}
+
+		if (!gameReady)
+			return;
+	}
+
+	if (gameReady && !wasReady)
+	{
+		netMessage->draw = 0;
+
+		if (isServer)
+		{
+			MSG_STARTGAME start;
+
+			gameStartTime = actFrameCount + STARTGAME_COUNT;
+
+			start.appmsg_start = APPMSG_START;
+			start.gameStartTime = gameStartTime;	// game starts in five seconds
+
+			NetBroadcastUrgentMessage(&start, sizeof(start));
+		}
+	}
+
+	// ... otherwise ...
 
 	// Make sure we don't send update messages EVERY frame, in case we're running at, like,
 	// 8 million frames per second, or some junk
@@ -422,45 +307,28 @@ void NetgameRun()
 		nextPing += PING_PERIOD;
 	}
 
-	bool wasReady = ready;
 
-	NetProcessMessages();
+	if (netgameLoopFunc)
+		netgameLoopFunc();
 
-	if (gameState.mode == INGAME_MODE)
+	UpdateEnemies();
+	UpdateSpecialEffects();
+
+	int i;
+
+	for (i=1; i<NUM_FROGS; i++)
 	{
-		//RunGameLoop();
-
-		UpdateCameraPosition();
-		GameProcessController(0);                                      
-		UpdateFroggerPos(0);
-		
-		// ooer missus
-		if (ready)
+		FroggerHop(i);
+		if (player[i].jumpTime > 4096)
 		{
-			UpdateEnemies();
-			UpdateSpecialEffects();
+			player[i].jumpTime = -1;
+			SetVectorSS(&frog[i]->actor->position, &currTile[i]->centre);
+			actorAnimate(frog[i]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
 		}
-
-		int i;
-
-		for (i=1; i<NUM_FROGS; i++)
-		{
-			FroggerHop(i);
-			if (player[i].jumpTime > 4096)
-			{
-				player[i].jumpTime = -1;
-				SetVectorSS(&frog[i]->actor->position, &currTile[i]->centre);
-				actorAnimate(frog[i]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
-			}
-		}
-
-		frameCount++;
-		player[0].inputPause = 0;
 	}
-	else
-	{
-		utilPrintf("PANIC PANIC PANIC PANIC PANIC!!!!!\n");
-	}
+
+	frameCount++;
+	player[0].inputPause = 0;
 }
 
 // ------------------------------------------------------------------------
@@ -493,7 +361,7 @@ void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player)
 	timeInfo.tickCount = (pingreply->reply + latency);
 	timeInfo.firstTicks = (long)currTime - (long)timeInfo.tickCount; //
 
-	ready = true;
+	hostSync = true;
 }
 
 
@@ -501,6 +369,11 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 {
 	switch (*(unsigned char*)data)
 	{
+	case APPMSG_PLAYERNUM:
+		SetFroggerStartPos(gTStart[((UBYTE*)data)[1]], 0); // umm
+		frog[0]->draw = 1;
+		return 0;
+
 	case APPMSG_UPDATE:
 		HandleUpdateMessage((LPMSG_UPDATEGAME)data, player);
 		return 0;
@@ -511,6 +384,18 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 
 	case APPMSG_PINGREPLY:
 		OnPingReply((MSG_PINGREPLY*)data, player);
+		return 0;
+
+	case APPMSG_READY:
+		player->isReady = true;
+		return 0;
+
+	case APPMSG_HOSTREADY:
+		hostReady = true;
+		return 0;
+
+	case APPMSG_START:
+		gameStartTime = ((MSG_STARTGAME*)data)->gameStartTime;
 		return 0;
 	}
 

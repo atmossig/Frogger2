@@ -52,6 +52,13 @@ MULTILEVEL multiLevels[NUM_MULTI_LEVELS] = {
 };
 
 
+struct	MSG_GAMESETUP
+{
+	UBYTE appmsg_gamesetup;
+	UBYTE characters[4];
+};
+
+
 int ChatHandler(void *data, unsigned long size, NETPLAYER *player);
 void ShowMessage(const char* string, CHAT_FORMAT f);
 

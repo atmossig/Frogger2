@@ -13,13 +13,85 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include "netrace.h"
+#include "netgame.h"
 #include "frogger.h"
 #include "frogmove.h"
 #include "cam.h"
+#include "controll.h"
+#include "game.h"
+#include "layout.h"
+#include "lang.h"
+#include "pcaudio.h"
+#include "islutil.h"
 
 long started = 0;
 
-/*	--------------------------------------------------------------------------------
+int countdown = 4;
+
+int NetRaceRun()
+{
+	static char txt[3];
+	//RunGameLoop();
+
+	UpdateCameraPosition();
+	GameProcessController(0);                                      
+
+	if (actFrameCount < gameStartTime)
+	{
+		if (gameStartTime)
+		{
+			FVECTOR fwd;
+			SetVectorFF( &fwd, &currTile[0]->dirVector[(frogFacing[0]+camFacing[0])&3] );
+			
+			int count = (gameStartTime-actFrameCount+59)/60;
+
+			if (count<4)
+			{
+				if( currTile[0]->state == TILESTATE_FROGGER1AREA )
+					player[0].canJump = 0;
+
+				if( player[0].canJump )
+					HopFrogToTile( FindJoinedTileByDirection(currTile[0],&fwd), 0);
+			}
+
+			if (count<countdown)
+			{
+				itoa(count, txt, 10);
+				countdown = count;
+				
+				netMessage->a = (char)255;
+				netMessage->draw = 1;
+				netMessage->text = txt;
+				netMessage->scale = 8192;
+				PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
+			}
+		}
+	}
+	else
+	{
+		if (lastActFrameCount < gameStartTime)
+		{
+			netMessage->text = GAMESTRING(STR_GO);
+			PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
+
+			player[0].canJump = 1;
+		}
+	}
+
+	if (netMessage->a > (gameSpeed>>10))
+		netMessage->a -= (gameSpeed>>10);
+	else
+	{
+		netMessage->a = 0;
+		netMessage->draw = 0;
+	}
+		
+	UpdateFroggerPos(0);
+
+	return 0;
+}
+
+	/*	--------------------------------------------------------------------------------
 	Function		: UpdateRace
 	Purpose			: Do game mechanics for mulitplayer race mode
 	Parameters		: 
