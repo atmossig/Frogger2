@@ -694,6 +694,7 @@ void InitCamera(void)
 
 	SetVector(&currCamSource, &camSource);
 	SetVector(&currCamTarget, &camTarget);
+	SubVector(&currCamOffset, &currCamSource, &currCamTarget);
 	
 	camVect.v[0] = 0; camVect.v[1] = 1; camVect.v[2] = 0;
 

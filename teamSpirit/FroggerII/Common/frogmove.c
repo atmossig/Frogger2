@@ -1099,6 +1099,7 @@ void CheckForFroggerLanding(long pl)
 				if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 				
 				player[pl].jumpTime = jump_overrun;
+				player[pl].jumpSpeed = 0.05f;
 				
 				fixedPos = 1;	// fix camera, keep looking at frog..
 			}
