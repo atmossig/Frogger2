@@ -912,7 +912,7 @@ void ChooseLoadSave()
 {
 	int alpha = fontSmall->alpha;
 
-	if(saveInfo.load == 0)
+	if( saveInfo.load == 0 && (saveInfo.saveStage!=SAVEMENU_COMPLETE && saveInfo.saveStage!=SAVEMENU_LOADCOMPLETE) )
 	{
 		if( !optChosen && optFrame>4 )
 		{
