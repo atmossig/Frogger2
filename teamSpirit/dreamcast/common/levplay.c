@@ -65,12 +65,17 @@ int userQuit = 0;
 // show intro pass count
 int showIntroPass = SHOW_INTRO_NOOF_PASSES;
 
+// demo screen vars
+char		demoCBuf[64];
+TEXTOVERLAY	*demoRestartText = NULL;
+
 
 // -------------------
 // Function Prototypes
 
 // *ASL* 12/08/2000 - main,c - show all legal screens and FMV
 extern void showLegalFMV(int allowQuit);
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: LoadDemoFile
@@ -117,7 +122,7 @@ void InitDemoMode()
 	curPlayKey = 0;
 
 #ifdef PSX_VERSION
-	CreateAndAddTextOverlay(2048, 512, GAMESTRING(STR_DEMO_MODE), YES, 128, NULL, 0);
+	CreateAndAddTextOverlay(2048, 200+390+390+390, GAMESTRING(STR_DEMO_MODE), YES, 128, NULL, 0);
 	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
 #else
 	CreateAndAddTextOverlay(2048, 128, GAMESTRING(STR_DEMO_MODE), YES, 128, NULL, 0);
@@ -126,6 +131,26 @@ void InitDemoMode()
 	CreateAndAddTextOverlay(2048, 3500, GAMESTRING(STR_PRESSSTART), YES, 128, NULL, 0);
 //	CreateAndAddSpriteOverlay( 3000, 2700, "BLITZGAMES", 800, 1000, 190, 0 );
 //	CreateAndAddSpriteOverlay( 250, 3200, "FROGGER2", 600, 800, 255, 0 );
+
+	// *ASL* 18/08/2000 - Show Best Time for the current playing demo level
+	{
+		TEXTOVERLAY	*bTxt;
+
+		// print level name
+		bTxt = CreateAndAddTextOverlay(2048, 200, GAMESTRING(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description_str), YES, (char)127, NULL, TEXTOVERLAY_SHADOW);
+		bTxt->r = 0;
+		bTxt->g = 255;
+		bTxt->b = 255;
+		bTxt->xPosTo = 2048;
+
+		// print level best time
+		sprintf(demoCBuf, GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
+		demoRestartText = CreateAndAddTextOverlay(2048, 200+390, demoCBuf, YES, 128, NULL, TEXTOVERLAY_SHADOW);
+		demoRestartText->r = 255;
+		demoRestartText->g = 255;
+		demoRestartText->b = 255;
+		demoRestartText->xPosTo = 2048;
+	}
 
 	GTInit(&demoTimeout, DEMO_TIMEOUT);
 
@@ -147,8 +172,20 @@ void RunDemoMode()
 	int pl;
 
 	GTUpdate(&demoTimeout, -1);
+
+	// *ASL* 18/08/2000 - Update restart text colour
+	if (demoRestartText)
+	{
+		demoRestartText->r = 127+((rsin(actFrameCount*4000)+4096)*64)/4096;
+		demoRestartText->g = 127+((rcos(actFrameCount*4000)+4096)*64)/4096;
+		demoRestartText->b = 16;
+	}
+
 	if((quittingDemo) && (fadingOut == 0))
 	{
+		// *ASL* 18/08/2000 - Clear out restart text
+		demoRestartText = NULL;
+
 		quittingDemo = NO;
 		utilPrintf("We've finished with demo, then exit..........................................\n");
 
