@@ -479,7 +479,7 @@ int main ( )
 		}
 #endif
 
-
+	
 
 		InitCam();
 
@@ -514,6 +514,8 @@ int main ( )
 
 		while ( !quitMainLoop )
 		{
+			int i;
+
 			//turn on/off timers + display
 			if(padData.debounce[0] & PAD_SELECT)
 				timerActive ^= 1;
@@ -531,6 +533,14 @@ int main ( )
 
 
 			worldPolyCount = 0;
+
+			//restore the frog's depthshifts
+			for(i=0; i<MAX_FROGS; i++)
+			{
+//				frog[i]->depthShift=0;
+				frog[i]->depthShift=-10;
+			}
+
 
 
 			if ( padData.debounce[0] & PAD_TRIANGLE )
@@ -577,11 +587,11 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 			if ( currPlatform[0] )
 			{
-				frog[0]->depthShift = 220;
-			}
-			else
-			{
-				frog[0]->depthShift = 0;
+				//bb - depthShift now zeroed each frame,
+				//and added to as needed by plats/multiplayer frogon.
+//				frog[0]->depthShift = 220;
+//				frog[0]->depthShift += 10;
+				frog[0]->depthShift -= 10;
 			}
 			// ENDIF
 
@@ -923,9 +933,10 @@ void MainReset ( void )
 	fileInitialise("\\FROGGER.DAT;1");
 #endif
 
+		padInitialise(1); // 0 = No multi tap support
 		MemCardInit(1);
 		MemCardStart();
-		padInitialise(1); // 0 = No multi tap support
+//		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 3000, 0 );
 		textureInitialise ( 400, 100);
 }
