@@ -24,10 +24,6 @@
 #include "majikPR.h"
 
 #include "resource.h"
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 LPDIRECTDRAW7			pDirectDraw7;
 LPDIRECTDRAWCLIPPER		pClipper;
@@ -35,6 +31,8 @@ unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen = 1, rScale
 HWND					rWin;
 
 LPDIRECTDRAWSURFACE7	surface[NUM_SRF] = {NULL,NULL,NULL};
+
+LPDIRECTDRAWSURFACE7	backdrop = NULL;
 
 WNDPROC userDlgProc = NULL;
 
@@ -641,7 +639,101 @@ void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fi
 	while (surface[srfN]->Blt(NULL,NULL,NULL,DDBLT_WAIT | fillType,&m)!=DD_OK);	
 }
 
-#ifdef __cplusplus
-}
-#endif
+/*	--------------------------------------------------------------------------------
+	Function	: CopyDataToSurface
+	Purpose		: Copy data (matching the screen format) from a buffer to the screen
+	Parameters	: data to copy, surface to copy to
+	Returns		: success
+	Info		: 
+*/
+void CopyDataToSurface(void *data, LPDIRECTDRAWSURFACE7 surface)
+{
+	HRESULT res;
+	DDSURFACEDESC2 ddsd;
+	DDINIT(ddsd);
 
+	res = surface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT|DDLOCK_WRITEONLY|DDLOCK_NOSYSLOCK, 0);
+	
+	if (res == DD_OK)
+	{
+		long rows = ddsd.dwHeight;
+		UCHAR *p = (UCHAR*)ddsd.lpSurface, *q = (UCHAR*)data;
+
+		while (rows--)
+		{
+			memcpy(p, q, ddsd.dwWidth);
+			
+			p += ddsd.lPitch;
+			q += ddsd.dwWidth;
+		}
+
+		surface->Unlock(NULL);
+	}
+	else
+		ddShowError(res);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: mdxDrawBackdrop
+	Purpose		: 
+	Parameters	: 
+	Returns		: 
+	Info		: 
+*/
+void mdxDrawBackdrop()
+{
+	RECT r = { 0, 0, rXRes, rYRes };
+	HRESULT res;
+	if (backdrop)
+		res = surface[RENDER_SRF]->BltFast(0, 0, backdrop, &r, DDBLTFAST_NOCOLORKEY|DDBLTFAST_WAIT);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: mdxLoadBackdrop
+	Purpose		: 
+	Parameters	: 
+	Returns		: 
+	Info		: 
+*/
+void mdxLoadBackdrop(const char* filename)
+{
+	DDSURFACEDESC2 ddsd; DDINIT(ddsd);
+	HRESULT res;
+
+	surface[PRIMARY_SRF]->GetSurfaceDesc(&ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+	
+	if (rHardware)
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+	else
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
+
+	if ((res = pDirectDraw7->CreateSurface(&ddsd, &backdrop, NULL)) != DD_OK)
+	{
+		dp("Error creating backdrop surface\n");
+		ddShowError(res);
+		return;
+	}
+	
+	int xDim,yDim;
+	int pptr = -1;
+
+	void* data = gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+
+	CopyDataToSurface(data, backdrop);
+
+	free(data);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: mdxFreeBackdrop
+	Purpose		: 
+	Parameters	: 
+	Returns		: 
+	Info		: 
+*/
+void mdxFreeBackdrop()
+{
+	if (backdrop)
+		backdrop->Release();
+}

@@ -123,6 +123,13 @@ void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fi
 
 WNDPROC SetUserVideoProc(WNDPROC proc);
 
+
+void mdxLoadBackdrop(const char* filename);
+
+void mdxDrawBackdrop();
+
+void mdxFreeBackdrop();
+
 #ifdef __cplusplus
 }
 #endif
