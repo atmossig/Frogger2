@@ -41,7 +41,7 @@
 #include "islxa.h"
 
 // needed for sfxPrintf
-#if 0
+//#if 0
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,9 +51,17 @@
 #include <sn_fcntl.h>   /* LibCross file types. */
 #include <usrsnasm.h>   /* LibCross I/O routines. */
 #include "fixed.h"
-#endif
+//#endif
 
 extern XAFileType	*curXA;
+
+// *ASL* 23/08/2000
+extern AC_ERROR_PTR	acErr;
+extern AM_ERROR		*amErr;
+
+void handleSoundError();
+
+
 
 int lastSound = -1;
 
@@ -141,8 +149,11 @@ int byteToDecibelLUT[256] =
 	-87,-81,-75,-70,-64,-58,-52,-46,-40,-34,-28,-22,-17,-11,-5,0
 };
 
-#if 0
-	//sfxPrintf("sfxPlaySample called.. bn%d, ch%d, sn%d, va%d, vp%d", sample->bankNumber, channel, sample->sampleNumber, volAverage, volPan);
+
+
+
+#if 1
+//sfxPrintf("sfxPlaySample called.. bn%d, ch%d, sn%d, va%d, vp%d", sample->bankNumber, channel, sample->sampleNumber, volAverage, volPan);
 int sfxPrintf(char* fmt, ...)
 {	
     va_list	arglist;
@@ -164,6 +175,9 @@ int sfxPrintf(char* fmt, ...)
     return len;
 }
 #endif
+
+
+
 
 int UpdateLoopingSample(AMBIENT_SOUND *sample)
 {
@@ -337,16 +351,22 @@ int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *
 	bank = &sampleBanks[numSoundBanks];
 	audio64Banks[numSoundBanks] = am_bank;
 	
-	//Allocate memory for sample data and grab data from .kat file
-	amBankGetNumberOfAssets(am_bank,(KTU32 *)&numSamples);
+	// allocate memory for sample data and grab data from .kat file
+	if (amBankGetNumberOfAssets(am_bank,(KTU32 *)&numSamples) == KTFALSE)
+	{
+		handleSoundError();
+	}
 
-	//malloc the bank all in one then fill it in
+	// malloc the bank all in one then fill it in
 	bank->numSamples = numSamples;
 	bank->sample = (SfxSampleType *) syMalloc(sizeof(SfxSampleType)*numSamples);
 
 	for(loop=0; loop<bank->numSamples; loop++)
 	{
-		amSoundFetchSample(audio64Banks[numSoundBanks],loop,&soundInfo);
+		if (amSoundFetchSample(audio64Banks[numSoundBanks],loop,&soundInfo) == KTFALSE)
+		{
+			handleSoundError();
+		}
 		bank->sample[loop].sampleSize	= soundInfo.sizeInBytes;
 		bank->sample[loop].sampleRate	= soundInfo.sampleRate;
 		bank->sample[loop].bankNumber	= numSoundBanks;
@@ -656,7 +676,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	// ** levels to prevent the game from crashing! We believe the crashes could be
 	// ** happening when >15 ambient channels are used AND we simply haven't the time
 	// ** to fix it.
-
+#if 0
 	// limit the radius on offending levels
 	if ((player[0].worldNum == WORLDID_SUBTERRANEAN && player[0].levelNum == LEVELID_SUBTERRANEAN1) ||
 		(player[0].worldNum == WORLDID_HALLOWEEN && player[0].levelNum == LEVELID_HALLOWEEN3))
@@ -665,7 +685,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		(player[0].worldNum == WORLDID_LABORATORY && player[0].levelNum == LEVELID_LABORATORY3))
 	 	ambientSound->radius = (long)(((float)radius) * 0.5f);
 	else
-	 	ambientSound->radius = radius;
+#endif
+		// *ASL* 23/08/2000 - Try and force error to occur
+	 	ambientSound->radius = (long)(((float)radius) * 1.00f);
  
  	ambientSound->freq = freq*60;
  	ambientSound->randFreq = randFreq*60;
@@ -938,30 +960,39 @@ void PauseAudio( )
 
 	ADXT_Pause(curXA->adxt,1);
 
-	for(channel=0; channel<24; channel++)
-	{
-		if(current[channel].sound.isPlaying)
-			oldVolumes[channel] = current[channel].sound.volume;
-	}
-	sfxOff();
+	// *ASL* 23/08/2000
+	acSystemSetMasterVolume(0);
+
+//	for(channel=0; channel<24; channel++)
+//	{
+//		if(current[channel].sound.isPlaying)
+//			oldVolumes[channel] = current[channel].sound.volume;
+//	}
+//	sfxOff();
 }
 
 void UnPauseAudio( )
 {
 	int	channel;
 
+	// *ASL* 23/08/2000
+	acSystemSetMasterVolume(15);
+
 	ADXT_Pause(curXA->adxt,0);
 
 	sfxOutputOn = 1;
 
-	for(channel=0; channel<24; channel++)
-	{
-		if(current[channel].sound.isPlaying)
-		{
-			current[channel].volume = oldVolumes[channel];
-			amSoundSetVolume(&current[channel].sound,oldVolumes[channel]);
-		}
-	}
+//	for(channel=0; channel<24; channel++)
+//	{
+//		if(current[channel].sound.isPlaying)
+//		{
+//			current[channel].volume = oldVolumes[channel];
+//			if (amSoundSetVolume(&current[channel].sound,oldVolumes[channel]) == KTFALSE)
+//			{
+//				handleSoundError();
+//			}
+//		}
+//	}
 }
 
 void SpuSetCommonCDVolume(int volume, int volume2)
@@ -1050,13 +1081,19 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,volAverage,volPan);
 	if (sound == KTNULL)
 	{
+		handleSoundError();
 		return -1;
 	}
 
 //	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,current[channel].volume,volPan);
 
-	if((pitch>0) && sound) 
-		amSoundSetCurrentPlaybackRate(sound,pitch);
+	if((pitch>0) && sound)
+	{
+		if (amSoundSetCurrentPlaybackRate(sound,pitch) == KTFALSE)
+		{
+			handleSoundError();
+		}
+	}
 
 	return channel;
 }
@@ -1148,7 +1185,12 @@ void sfxOn()
 	for(channel=0; channel<24; channel++)
 	{
 		if(current[channel].sound.isPlaying)
-			amSoundSetVolume(&current[channel].sound,current[channel].volume);
+		{
+			if (amSoundSetVolume(&current[channel].sound,current[channel].volume) == KTFALSE)
+			{
+				handleSoundError();
+			}
+		}
 	}
 }
 
@@ -1167,7 +1209,12 @@ void sfxOff()
 	for(channel=0; channel<24; channel++)
 	{
 		if(current[channel].sound.isPlaying)
-			amSoundSetVolume(&current[channel].sound,0);
+		{
+			if (amSoundSetVolume(&current[channel].sound,0) == KTFALSE)
+			{
+				handleSoundError();
+			}
+		}
 	}
 
 	sfxOutputOn = 0;
@@ -1197,7 +1244,12 @@ void sfxSetGlobalVolume(int vol)
 void sfxStopChannel(int channel)
 {
 	if(current[channel].sound.isPlaying)
-		amSoundStop(&current[channel].sound);
+	{
+		if (amSoundStop(&current[channel].sound) == KTFALSE)
+		{
+			handleSoundError();
+		}
+	}
 }
 
 /**************************************************************************
@@ -1209,8 +1261,13 @@ void sfxStopChannel(int channel)
 
 void sfxSetChannelPitch(int channel, int pitch)
 {
-	if(current[channel].sound.isPlaying) 
-		amSoundSetCurrentPlaybackRate(&current[channel].sound, pitch);
+	if(current[channel].sound.isPlaying)
+	{
+		if (amSoundSetCurrentPlaybackRate(&current[channel].sound, pitch) == KTFALSE)
+		{
+			handleSoundError();
+		}
+	}
 }
 
 
@@ -1248,8 +1305,15 @@ void sfxSetChannelVolume(int channel, int volL, int volR)
 	}
 
 	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
-	amSoundSetPan(&current[channel].sound,volPan);
-	amSoundSetVolume(&current[channel].sound,volAverage);
+
+	if (amSoundSetPan(&current[channel].sound,volPan) == KTFALSE)
+	{
+		handleSoundError();
+	}
+	if (amSoundSetVolume(&current[channel].sound,volAverage) == KTFALSE)
+	{
+		handleSoundError();
+	}
 }
 
 /**************************************************************************
@@ -1277,6 +1341,20 @@ void sfxStopSound()
 	for(channel=0; channel<24; channel++)
 	{
 		if(current[channel].sound.isPlaying)
-			amSoundSetVolume(&current[channel].sound,0);
+		{
+			if (amSoundSetVolume(&current[channel].sound,0) == KTFALSE)
+			{
+				handleSoundError();
+			}
+		}
 	}
+}
+
+
+
+
+// *ASL* 23/08/2000
+void handleSoundError()
+{
+	sfxPrintf("!Error! %d,%s", amErr->number, amErr->message);
 }
