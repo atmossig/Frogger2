@@ -1131,6 +1131,55 @@ void TransformAndDrawPolygon( POLYGON *p )
 	PopMatrix( ); // Translation
 }
 
+/*	THIS IS A MORE OPTIMAL VERSION OF DRAWTONGUE THAT RELIES ON QUAD DRAWING. SO IT WONT WORK YET :)
+void DrawTongue( TONGUE *t )
+{
+	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
+	D3DTLVERTEX vT1[2], vT2[2], *tmp;
+	TEXENTRY *tEntry;
+
+	if( index < 2 )
+		return;
+
+	vT1[0].specular = D3DRGB(0,0,0);
+	vT1[0].tu = 1;
+	vT1[0].tv = 1;
+	vT1[1].specular = vT1[0].specular;
+	vT1[1].tu = 0;
+	vT1[1].tv = 1;
+	vT2[0].specular = vT1[0].specular;
+	vT2[0].tu = 0;
+	vT2[0].tv = 0;
+	vT2[1].specular = vT1[0].specular;
+	vT2[1].tu = 1;
+	vT2[1].tv = 0;
+
+
+	while( i < index )
+	{
+		//********-[ First 2 points ]-*******
+		if( !(i && vT1[0].sz && vT1[1].sz) )
+			CalcTongueNodes( vT1, t, i );
+
+		//********-[ Next 2 points ]-********
+		CalcTongueNodes( vT2, t, i+1 );
+
+		//********-[ Draw the polys ]-********
+		tEntry = ((TEXENTRY *)t->tex);
+		if( tEntry && vT1[0].sz && vT1[1].sz && vT2[0].sz && vT2[1].sz )
+		{
+			Clip3DPolygon( vT, tEntry->hdl );
+			Clip3DPolygon( &vT[1], tEntry->hdl );
+		}
+
+		tmp = vT1;
+		vT1 = vT2;
+		vT2 = tmp;
+
+		i++;
+	}
+}
+*/
 void DrawTongue( TONGUE *t )
 {
 	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
