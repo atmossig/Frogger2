@@ -112,8 +112,8 @@ void InitFont()
 	char filenameBuffer[MAX_PATH];
 	
 	bigFont		= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT32");
-	smallFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT16");
-	oldeFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT8");
+	//smallFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT16");
+	//oldeFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT8");
 
 	// Initialise the 32x32 font ----------------------------------------------------
 
@@ -127,7 +127,7 @@ void InitFont()
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
 		// set spacing for individual font chars
-		bigFont->xSpacing[i] = 24;
+		bigFont->xSpacing[i] = 20;
 		bigFont->ySpacing[i] = 24;
 	}
 
