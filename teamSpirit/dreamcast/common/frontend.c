@@ -155,6 +155,11 @@ void RunTheEndMode()
 
 extern SOUNDLIST soundList;					// Actual Sound Samples List
 extern unsigned long currentPauseSelection;
+
+// *ASL* 12/08/2000 - 
+extern long creditsRunning;
+extern long creditsUserQuit;
+
 void GameLoop(void)
 {
 	int i;
@@ -179,14 +184,14 @@ void GameLoop(void)
 		else if (gameState.mode == FRONTEND_MODE)
 		{
 			// are we in the credit sequence?
-			if (
+			if (creditsRunning)
+				creditsUserQuit = 1;
+			else
 			{
-				flag to end credits.. as soon as possible
+				// set abort flag
+				globalAbortFlag = 1;
+				return;
 			}
-
-			// set abort flag
-			globalAbortFlag = 1;
-			return;
 		}
 	}
 

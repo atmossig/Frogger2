@@ -152,6 +152,9 @@ long picOffset = 230;
 
 long creditsY = 0;
 
+// *ASL* 12/08/2000 - allow user to quit the credits screen
+long creditsUserQuit = 0;
+
 #define GREEN 60,255,0
 #define WHITE 255,255,255
 #define RED 255,0,0
@@ -2840,6 +2843,9 @@ void StartCredits()
 	creditsRunning = YES;
 	endingCredits = NO;
 
+	// *ASL* 12/08/2000 - Clear user quit flag
+	creditsUserQuit = 0;
+
 	for(j = 0;;j++)
 	{
 		if( ((char*)GAMESTRING(j+STR_CREDITS_1)) [0] == '*' )
@@ -2910,10 +2916,9 @@ void DoCredits()
 		}
 	}
 
-
 	// *ASL* 12/08/2000 - End of credits from 
-
-
+	if (creditsUserQuit)
+		EndCredits();
 
 	for(j = 0;;j++)
 	{
