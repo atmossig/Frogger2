@@ -56,12 +56,6 @@ enum
 	MOVE_RIGHT
 };
 
-enum
-{
-	JUMPING_TOTILE,
-	JUMPING_TOPLATFORM,
-};
-
 // ENUM's for different ways of 'killing' Frogger
 
 enum
@@ -106,21 +100,18 @@ extern BOOL cameoMode;
 void SetFroggerStartPos(GAMETILE *startTile,long p);
 void UpdateFroggerPos(long p);
 BOOL MoveToRequestedDestination(int dir,long pl);
-void HopFrogToTile(GAMETILE *tile, long pl);
 GAMETILE *GetNextTile(unsigned long direction,long pl);
-void PushFrog(VECTOR *where, VECTOR *direction, long pl);
-
-void CheckForFroggerLanding(int whereTo,long pl);
 void SlideFroggerPosition(ACTOR2 *actor2);
-
 BOOL GameTileTooHigh(GAMETILE *tile,long pl);
-
 BOOL KillFrog(long pl);
-
 void RotateFrog(ACTOR2* frog,unsigned long fFacing);
 void AnimateFrogHop(unsigned long direction,long pl);
-
 long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next);
+void PushFrog(VECTOR *where, VECTOR *direction, long pl);
+void HopFrogToTile(GAMETILE *tile, long pl);
+void SpringFrogToTile(GAMETILE *tile, float height, float time, long pl);
+void ThrowFrogAtScreen(long pl);
+
 
 
 #endif
