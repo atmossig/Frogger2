@@ -133,6 +133,17 @@ extern D3DTLVERTEX *ringVtx;
 extern Vtx *ringVtx;
 #endif
 
+extern TEXTURE *txtrRipple;
+extern TEXTURE *txtrStar;
+extern TEXTURE *txtrSolidRing;
+extern TEXTURE *txtrSmoke;
+extern TEXTURE *txtrRing;
+extern TEXTURE *txtrFly;
+extern TEXTURE *txtrBubble;
+extern TEXTURE *txtrFire;
+extern TEXTURE *txtrBlank;
+extern TEXTURE *txtrTrail;
+
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );
 
 extern void UpdateSpecialEffects( );

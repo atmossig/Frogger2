@@ -355,8 +355,6 @@ void DrawSpecialFX()
 */
 void ProcessShadows()
 {
-	TEXTURE *theTexture;
-	TEXENTRY *tEntry;
 	VECTOR vec;
 	ENEMY *nme;
 	PLATFORM *plat;
@@ -365,9 +363,7 @@ void ProcessShadows()
 	long tex;
 	float height;
 	
-	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
-	tEntry = ((TEXENTRY *)theTexture);
-	tex = (long)tEntry->hdl;
+	tex = (long)((TEXENTRY *)txtrSolidRing)->hdl;
 
 	for( i=0; i<NUM_FROGS; i++ )
 		if( frog[i]->actor->shadow && frog[i]->draw )
