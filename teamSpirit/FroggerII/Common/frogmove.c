@@ -699,9 +699,11 @@ long speedFrameCount = 0;
 BOOL MoveToRequestedDestination(int dir,long pl)
 {
 	GAMETILE *dest, *from;
-	float t,t2,h;
+	float t,t2,h,height;
 	unsigned long tiledir;
-	
+	PLATFORM *plat; int n;
+	VECTOR v, w;
+
 /*	TODO: check if this is actually necessary
 
 //	if( tongue[pl].flags & TONGUE_BEINGUSED)
@@ -763,59 +765,62 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 
 	// ------------------------------------------------------------------------------------------
-	// If we get this far, it's a valid jump (to a tile)
+	// If we get this far, it's a valid jump to a tile
 
 	// clear all movement flags
 	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 
 	from = currTile[pl];
-	destTile[pl] = dest;
 	destPlatform[pl] = NULL;
 
-	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	// Platform tests
 
-	/* If we're just hopping, check if there's a platform to jump to
-	   This should help fix tile->platform and platform->platform jumping
+	SetVector(&v, &currTile[pl]->dirVector[tiledir]); ScaleVector(&v, -50.0f);
+	AddToVector(&v, &frog[pl]->actor->pos);
 
-	   note to the PSX guys - apart from the height check, these maths are
-	   just a simple radius check and could easily use straight integer maths
-	   and still work
-	*/
-	if (!player[pl].isSuperHopping)
+	for (n = platformList.numEntries, plat = platformList.head.next; n; n--, plat = plat->next)
 	{
-		PLATFORM *plat; int n;
-		VECTOR v, w;
-		float height;
+		if (!plat->active) continue;
 
-//		SubVector(&v, &destTile[pl]->centre, &currTile[pl]->centre);
-//		SubVector(&v, &frog[pl]->actor->pos, &currTile[pl]->dirVector[tiledir]);
-
-		SetVector(&v, &currTile[pl]->dirVector[tiledir]); ScaleVector(&v, -50.0f);
-		AddToVector(&v, &frog[pl]->actor->pos);
-
-		for (n = platformList.numEntries, plat = platformList.head.next; n; n--, plat = plat->next)
+		if (plat->inTile[0] == dest)
 		{
-			if (!plat->active) continue;
+			SubVector(&w, &plat->pltActor->actor->pos, &frog[pl]->actor->pos);
+			height = DotProduct(&w, &dest->normal);
 
-			// line 1 of this test is for platform->platform
-			// line 2 is for tile->platform
-			if ((currPlatform[pl] && (40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos)) ||
-				(plat->inTile[0] == dest))
+			if (plat->flags & PLATFORM_NEW_NOWALKUNDER)
 			{
-				// Check we're not trying to jump too high!
-				SubVector(&w, &plat->pltActor->actor->pos, &frog[pl]->actor->pos);
-				height = DotProduct(&w, &destTile[pl]->normal);
-				
-				if (height <= MAX_HOP_HEIGHT)
+				if (height > (player[pl].isSuperHopping ? MAX_SUPERHOP_HEIGHT : MAX_HOP_HEIGHT))
 				{
-					destPlatform[pl] = plat;
-					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-					player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+					player[pl].canJump = 1;
+					player[pl].isSuperHopping = 0;
+					return FALSE;
 				}
+			}
+
+			if (!player[pl].isSuperHopping && height <= MAX_HOP_HEIGHT)
+			{
+				destPlatform[pl] = plat;
 				break;
 			}
 		}
+		else
+		if (!player[pl].isSuperHopping && currPlatform[pl] &&
+			(40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos))
+		{
+			SubVector(&w, &plat->pltActor->actor->pos, &frog[pl]->actor->pos);
+			height = DotProduct(&w, &dest->normal);
+
+			// Check we're not trying to jump too high!
+			if (height <= MAX_HOP_HEIGHT)
+			{
+				if (!player[pl].isSuperHopping)
+					destPlatform[pl] = plat;
+			}
+			break;
+		}
 	}
+
+	destTile[pl] = dest;
 
 	if (currPlatform[pl])
 	{
@@ -824,27 +829,20 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		currPlatform[pl] = NULL;
 	}
 
+	player[pl].frogState |= (destPlatform[pl]) ? FROGSTATUS_ISJUMPINGTOPLATFORM : FROGSTATUS_ISJUMPINGTOTILE;
+
 	if (pl == 0)
 		nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
 
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
-	//SitAndFace(frog[pl],dest,nextFrogFacing[pl]);
 
 	if( player[pl].hasDoubleJumped )
 	{
-//		float time = (float)(actFrameCount - player[pl].jumpStartFrame)/(float)(player[pl].jumpEndFrame-player[pl].jumpStartFrame),
-//			v = player[pl].vInitialVelocity;
 		t = doubleHopFrames;
 		h = doublehopHeight;
-		// Current velocity is initial velocity of superhop + (acceleration * time)
-//		sV = v + (superGravity*time);
 	}
 	else if(player[pl].isSuperHopping)
 	{
-//		frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.0, 1 );
-//		frogTrail[pl]->follow = frog[pl]->actor;
-//		SetFXColour( frogTrail[pl], 50, 200, 50 );
-
 		t = superHopFrames;
 		h = superhopHeight;
 	}

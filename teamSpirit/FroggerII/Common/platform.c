@@ -490,8 +490,7 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 		if(pform->path->toNode < 0)
 			pform->path->fromNode = GET_PATHLASTNODE(path);
 	}
-	else if((pform->flags & PLATFORM_NEW_MOVEUP) ||
-			(pform->flags & PLATFORM_NEW_MOVEDOWN))
+	else if(pform->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 	{
 		// this platform moves up or down
 		pform->path->fromNode = pform->path->toNode = 0;
