@@ -43,6 +43,7 @@ typedef struct _NETPLAYER
 //	bool	isHost;		// true if this player is the host, false otherwise
 	bool	isReady;
 	char	start;		// starttile index to use for this player
+	char	name[16];
 
 	unsigned long lastUpdateMsg;	// the tick count of the last update msg
 	
@@ -66,6 +67,7 @@ void NetProcessMessages();
 void SetupNetPlayerList();
 
 int GetPlayerNumFromID(DPID id);
+const char* NetGetPlayerName(int pl);
 
 int NetBroadcastMessage(void *data, unsigned long size);
 int NetBroadcastUrgentMessage(void *data, unsigned long size);

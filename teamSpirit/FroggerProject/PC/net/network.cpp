@@ -152,6 +152,11 @@ int GetPlayerNumFromID(DPID id)
 	return NULL;
 }
 
+const char *NetGetPlayerName(int pl)
+{
+	return netPlayerList[pl].name;
+}
+
 int AddNetPlayer(DPID id)
 {
 	int i;
@@ -167,6 +172,19 @@ int AddNetPlayer(DPID id)
 		if (!player->dpid)
 		{
 			player->dpid = id;
+
+			DWORD size = 0;
+			dplay->GetPlayerName(id, 0, &size);
+
+			UBYTE *buf = new UBYTE[size];
+			dplay->GetPlayerName(id, buf, &size);
+
+			DPNAME *name = (DPNAME*)buf;
+
+			strncpy(player->name, name->lpszShortNameA, 15);
+
+			delete buf;
+
 			//player->isHost = ((dpc.dwFlags & DPCAPS_ISHOST) != 0);
 			//player->player = i;
 			NUM_FROGS++;
