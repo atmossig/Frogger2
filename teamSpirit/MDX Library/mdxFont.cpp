@@ -12,6 +12,7 @@
 #include <ddraw.h>
 #include <d3d.h>
 #include <gelf.h>
+#include <softstation.h>
 
 #include "mdxException.h"	// for memory allocation, OBVIOUSLY...
 #include "mgeReport.h"		// for 'reporting' stuff?
@@ -21,12 +22,15 @@
 #include "mdxFont.h"
 #include "mdxTexture.h"
 #include "mdxPoly.h"
-#include <lang.h>
+#include "mdxddraw.h"
+#include "mdxpoly.h"
+//#include <lang.h>		// no no no no no no no no no no no no. no.
 
 struct MDX_FONTCHAR
 {
 	LPDIRECTDRAWSURFACE7 surf;
 	float coords[4];
+	long softCoord;
 	short width;
 };
 
@@ -36,11 +40,11 @@ typedef struct _MDX_FONT
 	long numSurfs;
 
 	short *data;
-	long *softData[2];
+	short *softData;
 
 	MDX_FONTCHAR characters[256];
 	
-	long height;
+	long width, height;
 
 } MDX_FONT;
 
@@ -81,10 +85,11 @@ MDX_FONT *InitFont(const char *filename)
 
 	MDX_FONT *font = (MDX_FONT*)AllocMem(sizeof(MDX_FONT));
 
+	font->width = bmpWidth;
+	font->height = bmpHeight;
+
 	charSize = bmpHeight;
 	//for (charSize=1;charSize<bmpHeight;charSize<<=1);	
-
-	font->height = charSize;
 
 	scratch = (short*)AllocMem(2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
 	for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=0xf81f;
@@ -145,13 +150,13 @@ MDX_FONT *InitFont(const char *filename)
 		for (int y=0; y<bmpHeight; y++)
 			for (int x=0; x<width; x++)
 			{
-				short dt;
+				short *dt;
 				//unsigned long d,r,g,b;
-				dt = tData[(x+left)+(y*bmpWidth)];
+				dt = &tData[(x+left)+(y*bmpWidth)];
 
-				if (dt==transparent) dt = 0xf81f;
+				if (*dt==transparent) *dt = 0xf81f;
 			
-				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = dt;
+				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = *dt;
 			}
 
 		MDX_FONTCHAR *c = &font->characters[alphabet[i]];
@@ -161,6 +166,9 @@ MDX_FONT *InitFont(const char *filename)
 		c->coords[1] = charUV.y/(float)FONT_TEXTURE_SIZE;
 		c->coords[2] = (charUV.x + width)/(float)FONT_TEXTURE_SIZE;
 		c->coords[3] = (charUV.y + charSize)/(float)FONT_TEXTURE_SIZE;
+
+		c->softCoord = left; //(left << SSUV_COORDPRECISION)/bmpWidth;
+
 		c->width = width;
 
 		charUV.x += width+1;
@@ -181,6 +189,7 @@ MDX_FONT *InitFont(const char *filename)
 	font->characters[' '].width = font->characters['!'].width;
 
 	FreeMem(scratch);
+	font->softData = tData;
 	//free(tData);
 
 	dp("Font '%s' loaded, %d textures used\n", filename, currSurf);
@@ -202,25 +211,64 @@ void InitFontSystem(void)
 }
 
 
-long DrawFontCharAtLoc(long x,long y,char ch,unsigned long color, MDX_FONT *font,float scale)
+void CopyCharSoftware(MDX_FONT *font, char c, int x, int y)
 {
-	RECT r;
+	MDX_FONTCHAR *ch = &font->characters[c];
 
+	short *py = softScreen + (y<<8)+(y<<6)+(x>>1); //(y*640 + x;
+	short *cy = font->softData + ch->softCoord;
+
+	for (int i=(font->height>>1); i; i--)
+	{
+		short *px = py;
+		short *cx = cy;
+
+		for (int j=(ch->width>>1)-1; j; j--)
+		{
+			unsigned short p = (unsigned short)*cx; cx+=2;
+			if (p != 0xf81f)
+				*(px++) = p;
+		}
+
+		cy += (font->width<<1);
+		py += 640; //640;
+	}
+}
+
+
+
+long DrawFontCharAtLoc(long x,long y,char ch,unsigned long colour, MDX_FONT *font,float scale)
+{
 	if (!font)
 		return 0;
 
 	MDX_FONTCHAR *c = &font->characters[ch];
 
-	if (!c->surf) return c->width;
-	
-	r.left = x;
-	r.right = x+(c->width*scale);
-	r.top = y;
-	r.bottom = y+(font->height*scale);
+	if (rHardware)
+	{
+		RECT r;
 
-	DrawTexturedRect(r, color, c->surf, c->coords[0], c->coords[1], c->coords[2], c->coords[3]);
 
-	return c->width*scale;
+		if (!c->surf) return c->width;
+		
+		r.left = x;
+		r.right = x+(c->width*scale);
+		r.top = y;
+		r.bottom = y+(font->height*scale);
+
+		DrawTexturedRect(r, colour, c->surf, c->coords[0], c->coords[1], c->coords[2], c->coords[3]);
+
+	}
+	else
+	{
+//		ssSetTexture(font->softData, 32, 32); //font->width, font->height);
+//		softDrawTexturedRect(r, colour,
+//			c->softCoords[0], 0,
+//			c->softCoords[1], 1<<12);
+		CopyCharSoftware(font, ch, x, y);
+	}
+
+		return c->width*scale;
 }
 
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY)
@@ -237,7 +285,7 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 
 	while (*c)
 	{
-		switch(*c)
+/*		switch(*c)
 		{
 			case '@':
 				c++;
@@ -256,20 +304,22 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 						str = GAMESTRING(STR_RIGHT_SHIFT);
 						break;
 				}
-				DrawFontStringAtLoc(cx,y,str,color,font,scale,0,0);
-				cx += CalcStringWidth(str,font,scale);
+
+				cx += DrawFontStringAtLoc(cx,y,str,color,font,scale,0,0);
 				c++;
 				break;
 
-			default:
+			default:*/
 				cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
 				c++;
-				break;
-		}
+//				break;
+//		}
 	}
 
 	return cx;
 }
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -305,7 +355,7 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 	
 	while (*c)
 	{
-		switch(*c)
+/*		switch(*c)
 		{
 			case '@':
 				c++;
@@ -328,11 +378,11 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 				c++;
 				break;
 
-			default:
+			default:*/
 				width += font->characters[*c].width;
 				c++;
-				break;
-		}
+//				break;
+//		}
 	}
 
 	return width;
