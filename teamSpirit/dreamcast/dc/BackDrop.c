@@ -23,6 +23,17 @@ KMVERTEX_03		backdropVertices[] =
 { KM_VERTEXPARAM_ENDOFSTRIP, BACKDROP_WIDTH,                0, 1.0f, 1.0f, 0.0f, RGBA(255,255,255,255), 0 }
 };
 
+BACKDROP 		artBackDrop;
+KMSTRIPCONTEXT	artBackStripContext;
+KMSTRIPHEAD		artBackStripHead;
+KMVERTEX_03		artBackdropVertices[] =
+{
+{ KM_VERTEXPARAM_NORMAL,                  0,  BACKDROP_HEIGHT, 1.0f, 0.0f, 1.0f, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_NORMAL,                  0,                0, 1.0f, 0.0f, 0.0f, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_NORMAL,     BACKDROP_WIDTH,  BACKDROP_HEIGHT, 1.0f, 1.0f, 1.0f, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_ENDOFSTRIP, BACKDROP_WIDTH,                0, 1.0f, 1.0f, 0.0f, RGBA(255,255,255,255), 0 }
+};
+
 /*	--------------------------------------------------------------------------------
 	Function 	: InitBackdrop
 	Purpose 	: Load and setup a background imageg
@@ -205,4 +216,128 @@ void FreeLegalBackdrop(void)
 				
 	kmRender(KM_RENDER_FLIP);
 	kmEndScene(&kmSystemConfig);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: InitArtBackdrop
+	Purpose 	: Load and setup a atr background image
+	Parameters 	: filename
+	Returns 	: none
+	Info 		:
+*/
+
+void InitArtBackdrop(char * const filename)
+{
+	int				i,x,y;
+	char			buf[256],*headerPtr,*ptr;
+    PKMDWORD   	 	TexturePtr,TwiddledPtr;
+  	USHORT			width,height,*pixelPtr,pixel,newPixel;
+  	int				headerSize,colFormat,texFormat,texAttrib,attrib;
+	char			r,g,b,a;
+
+	artBackDrop.draw = TRUE;
+
+	sprintf(buf,"%s.pvr",filename);
+	
+	artBackDrop.init = TRUE;
+	artBackDrop.rect.x = 0;			// leave the y till the update
+	artBackDrop.rect.y = 0;
+	artBackDrop.rect.w = 640; 
+	artBackDrop.rect.h = 480;
+
+	// load the artBackDrop into a VRAM surface
+	loadPVRFileIntoSurface(buf, "backdrops", &artBackDrop.surface, FALSE);
+	artBackDrop.imageXD = artBackDrop.surface.u0.USize;
+	artBackDrop.imageYD = artBackDrop.surface.u1.VSize;
+
+	// setup (u,v) coordinates vertices
+	artBackdropVertices[0].fU = 0;
+	artBackdropVertices[0].fV = 384.0/512;	
+	artBackdropVertices[0].u.fZ = 1.0;
+
+	artBackdropVertices[1].fU = 0;
+	artBackdropVertices[1].fV = 0;	
+	artBackdropVertices[1].u.fZ = 1.0;
+	
+	artBackdropVertices[2].fU = 1.0;
+	artBackdropVertices[2].fV = 384.0/512;
+	artBackdropVertices[2].u.fZ = 1.0;
+	
+	artBackdropVertices[3].fU = 1.0;
+	artBackdropVertices[3].fV = 0;
+	artBackdropVertices[3].u.fZ = 1.0;
+	
+	// initialise strip context and head
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &artBackStripContext);
+	memset(&artBackStripContext,0,sizeof(artBackStripContext));
+	memset(&artBackStripHead,0,sizeof(artBackStripHead));
+	artBackStripContext.nSize = sizeof(KMSTRIPCONTEXT);
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &artBackStripContext);
+	artBackStripContext.StripControl.nListType		 					= KM_TRANS_POLYGON;
+	artBackStripContext.StripControl.nUserClipMode	 					= KM_USERCLIP_DISABLE;
+	artBackStripContext.StripControl.nShadowMode			 			= KM_NORMAL_POLYGON;
+	artBackStripContext.StripControl.bGouraud		 					= KM_TRUE;
+	artBackStripContext.ObjectControl.nDepthCompare			 			= KM_ALWAYS;
+	artBackStripContext.ObjectControl.nCullingMode			 			= KM_NOCULLING;
+	artBackStripContext.ObjectControl.bZWriteDisable					= KM_FALSE;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_SRCALPHA;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCALPHA;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].bSRCSelect		= KM_FALSE;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].bDSTSelect		= KM_FALSE;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].nFogMode			= KM_NOFOG;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].bColorClamp		= KM_FALSE;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].bUseAlpha			= KM_FALSE;
+	artBackStripContext.ImageControl[KM_IMAGE_PARAM1].nFilterMode		= KM_BILINEAR;
+    artBackStripContext.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc = &artBackDrop.surface;
+	kmGenerateStripHead03(&artBackStripHead,&artBackStripContext);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: DrawArtBackDrop
+	Purpose 	: Draw the current background image to the screen
+	Parameters 	: none
+	Returns 	: none
+	Info 		:
+*/
+
+void DrawArtBackDrop(int num, int i)
+{
+	int	fogFade;
+	
+	fogFade = 100;
+
+//	kmBeginScene(&kmSystemConfig);
+//	kmBeginPass(&vertexBufferDesc);
+        
+	if(artBackDrop.draw)
+	{
+		kmStartStrip(&vertexBufferDesc, &artBackStripHead);	
+		kmSetVertex(&vertexBufferDesc, &artBackdropVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &artBackdropVertices[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &artBackdropVertices[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmSetVertex(&vertexBufferDesc, &artBackdropVertices[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmEndStrip(&vertexBufferDesc);
+	}	
+	
+//	kmEndPass(&vertexBufferDesc);
+				
+//	kmRender(KM_RENDER_FLIP);
+//	kmEndScene(&kmSystemConfig);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FreeArtBackdrop
+	Purpose 	: Free the current background image
+	Parameters 	: none
+	Returns 	: none
+	Info 		:
+*/
+
+void FreeArtBackdrop(void)
+{
+	if(!artBackDrop.draw)
+		return;
+
+	artBackDrop.draw = FALSE;
+	kmFreeTexture(&artBackDrop.surface);
 }

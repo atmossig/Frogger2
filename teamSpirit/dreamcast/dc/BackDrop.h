@@ -39,6 +39,11 @@ extern KMSTRIPCONTEXT	backStripContext;
 extern KMSTRIPHEAD		backStripHead;
 extern KMVERTEX_03		backdropVertices[];
 
+extern BACKDROP 		artBackDrop;
+extern KMSTRIPCONTEXT	artBackStripContext;
+extern KMSTRIPHEAD		artBackStripHead;
+extern KMVERTEX_03		artBackdropVertices[];
+
 // ----------
 // Prototypes
 

@@ -187,12 +187,50 @@ int checkForControllerInsertedSingle()
 
 int checkForControllerRemovedMulti()
 {
-	int i,state;
+	int i,state,actualPad = 0;
 
-	for(i=firstPad;i<numPads;i++)
+	for(i=firstPad;i<4;i++)
 	{		
 		// test to see if pad still connected
-		switch(firstPad)
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+		state = TRUE;
+		if(strstr(per->info->product_name,"(none)"))
+		{
+			state = FALSE;				
+		}
+		else
+			actualPad++;
+
+		if((padStatus[i] == TRUE)&&(state == FALSE))
+			return actualPad+1;
+
+	}
+
+	return FALSE;
+}
+
+int checkForControllerInsertedMulti()
+{
+	int i,state;
+
+	for(i=firstPad;i<4;i++)
+	{		
+		// test to see if pad still connected
+		switch(i)
 		{
 			case 0:	
 				per = pdGetPeripheral(PDD_PORT_A0);
@@ -213,49 +251,12 @@ int checkForControllerRemovedMulti()
 			state = FALSE;				
 		}
 
-		if((padStatus[i] == TRUE)&&(state == FALSE))
-			return i;
+		if(padStatus[i] != state)
+			return FALSE;
 	}
 
-	return FALSE;
+	return TRUE;
 }
-
-int checkForControllerInsertedMulti()
-{
-	int i,pads[4],state;
-
-	switch(firstPad)
-	{
-		case 0:	
-			per = pdGetPeripheral(PDD_PORT_A0);
-			break;
-		case 1:	
-			per = pdGetPeripheral(PDD_PORT_B0);
-			break;
-		case 2:	
-			per = pdGetPeripheral(PDD_PORT_C0);
-			break;
-		case 3:	
-			per = pdGetPeripheral(PDD_PORT_D0);
-			break;
-	}
-	state = TRUE;				
-	if(strstr(per->info->product_name,"(none)"))
-	{
-		state = FALSE;				
-	}
-
-	return state;
-}
-
-
-/* ---------------------------------------------------------
-   Function : checkForSoftReset
-   Purpose : as user pressed soft reset?
-   Parameters : 
-   Returns : TRUE yes or FALSE
-   Info : 
-*/
 
 int checkForSoftReset()
 {
@@ -292,7 +293,6 @@ int checkForSoftReset()
 
 	return FALSE;
 }
-
 
 int checkForValidControllers()
 {
