@@ -374,7 +374,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 
-		if (!currPlatform[pl] && (currTile[pl]->state == TILESTATE_NOSUPER || currTile[pl]->state == TILESTATE_NOSUPERHOT))
+		if ((!currPlatform[pl] && currTile[pl]->state == TILESTATE_NOSUPER) || currTile[pl]->state == TILESTATE_NOSUPERHOT)
 		{
 			//OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 			player[pl].isSuperHopping = 0;
