@@ -348,8 +348,11 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 		m->flags = 0;
 
 		if (cFInfo == &frameInfo[MA_FRAME_ADDITIVE])
-			m->flags |= 1;
-	
+			m->flags |= MDXSP_ADDITIVE;
+
+		if( (currentDrawActor->flags & ACTOR_SLIDY) || (currentDrawActor->flags & ACTOR_WRAPTC) )
+			m->flags |= MDXSP_WRAPUVS;
+		
 		m->f[0] = (unsigned short)(fce[i]+numSoftVertex);
 		m->f[1] = (unsigned short)(fce[i+1]+numSoftVertex);
 		m->f[2] = (unsigned short)(fce[i+2]+numSoftVertex);
@@ -369,9 +372,9 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 		if (tEntry->type == TEXTURE_AI)
 		{
 			if ((RGBA_GETRED(v[fce[i]].color) + RGBA_GETGREEN(v[fce[i]].color) + RGBA_GETBLUE(v[fce[i]].color))<0.1)
-				m->flags |= 2;
+				m->flags |= MDXSP_SUBTRACTIVE;
 			else
-				m->flags |= 1;//softFlags | POLY_ALPHA_SUB;
+				m->flags |= MDXSP_ADDITIVE;
 		}
 		
 		if (softDepthBuffer[zVal])
@@ -529,36 +532,56 @@ void DrawSoftwarePolys (void)
 			// is this polygon textured?
 			if (polyPtr->t)
 			{
+				unsigned long uLimit, vLimit, flags=0;
+
+				if( !polyPtr->tEntry->keyed )
+					flags |= SSTEXHINT_NOTRANS;
+				if( polyPtr->flags & MDXSP_WRAPUVS )
+					flags |= SSTEXHINT_WRAPUVS;
+
+				uLimit = polyPtr->tEntry->xSize;
+				vLimit = polyPtr->tEntry->ySize;
+
 				// set texture
 				if (polyPtr->tEntry->softData)
-					ssSetTexture(polyPtr->tEntry->softData, polyPtr->tEntry->xSize, polyPtr->tEntry->ySize, polyPtr->tEntry->keyed ? 0 : SSTEXHINT_NOTRANS);
+					ssSetTexture(polyPtr->tEntry->softData, uLimit, vLimit, flags);
 				else
 					ssSetTexture(NULL, 0, 0);
 
 				// range all vertex uvs into texture size range
-				ssVerts[0].u = softV[v0].tu * polyPtr->tEntry->xSize;
-				ssVerts[0].v = softV[v0].tv * polyPtr->tEntry->ySize;
+				ssVerts[0].u = softV[v0].tu * uLimit;
+				ssVerts[0].v = softV[v0].tv * vLimit;
 
-				ssVerts[1].u = softV[v1].tu * polyPtr->tEntry->xSize;
-				ssVerts[1].v = softV[v1].tv * polyPtr->tEntry->ySize;
+				ssVerts[1].u = softV[v1].tu * uLimit;
+				ssVerts[1].v = softV[v1].tv * vLimit;
 	
-				ssVerts[2].u = softV[v2].tu * polyPtr->tEntry->xSize;
-				ssVerts[2].v = softV[v2].tv * polyPtr->tEntry->ySize;
+				ssVerts[2].u = softV[v2].tu * uLimit;
+				ssVerts[2].v = softV[v2].tv * vLimit;
+
+				// Double limit for wrapping textures
+				if( polyPtr->flags & MDXSP_WRAPUVS )
+				{
+					uLimit <<= 1;
+					vLimit <<= 1;
+				}
+
+				uLimit -= 1;
+				vLimit -= 1;
 
 				// validate all vertex uvs
-				ssVerts[0].u = min(ssVerts[0].u, polyPtr->tEntry->xSize-1);
+				ssVerts[0].u = min(ssVerts[0].u, uLimit);
 				ssVerts[0].u = max(ssVerts[0].u, 0);
-				ssVerts[0].v = min(ssVerts[0].v, polyPtr->tEntry->ySize-1);
+				ssVerts[0].v = min(ssVerts[0].v, vLimit);
 				ssVerts[0].v = max(ssVerts[0].v, 0);
 
-				ssVerts[1].u = min(ssVerts[1].u, polyPtr->tEntry->xSize-1);
+				ssVerts[1].u = min(ssVerts[1].u, uLimit);
 				ssVerts[1].u = max(ssVerts[1].u, 0);
-				ssVerts[1].v = min(ssVerts[1].v, polyPtr->tEntry->ySize-1);
+				ssVerts[1].v = min(ssVerts[1].v, vLimit);
 				ssVerts[1].v = max(ssVerts[1].v, 0);
 
-				ssVerts[2].u = min(ssVerts[2].u, polyPtr->tEntry->xSize-1);
+				ssVerts[2].u = min(ssVerts[2].u, uLimit);
 				ssVerts[2].u = max(ssVerts[2].u, 0);
-				ssVerts[2].v = min(ssVerts[2].v, polyPtr->tEntry->ySize-1);
+				ssVerts[2].v = min(ssVerts[2].v, vLimit);
 				ssVerts[2].v = max(ssVerts[2].v, 0);
 
 				// convert all vertex uvs into softstation format
@@ -578,10 +601,10 @@ void DrawSoftwarePolys (void)
 			// ** This cannot be correct?
 
 			// use additive alpha?
-			if (polyPtr->flags & 1)
+			if (polyPtr->flags & MDXSP_ADDITIVE)
 				ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_ADD);
 			// use subtractive alpha?
-			else if (polyPtr->flags & 2)
+			else if (polyPtr->flags & MDXSP_SUBTRACTIVE)
 			{
 				ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SUB);
 				// fix all rgbs to psx max
@@ -600,9 +623,9 @@ void DrawSoftwarePolys (void)
 			ssDrawPrimitive(ssVerts, 3);
 
 			// what is this!!! reset alpha mode (!!)
-			if (polyPtr->flags)
+			if (polyPtr->flags & (MDXSP_ADDITIVE | MDXSP_SUBTRACTIVE))
 				ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_NONE);
-//			}
+
 			polyPtr = polyPtr->next;
 		}
 	}

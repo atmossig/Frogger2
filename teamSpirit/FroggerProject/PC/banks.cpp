@@ -559,6 +559,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
 						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
+						((MDX_ACTOR *)(theActor->actor->actualActor))->flags |= ACTOR_SLIDY;
 						
 						if (ts->name[4]=='f')
 							theActor->flags |= ACTOR_SLIDYTEX;
@@ -568,6 +569,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_SLUDGE | ACTOR_DRAW_ALWAYS;
 						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_MODGE;
+						((MDX_ACTOR *)(theActor->actor->actualActor))->flags |= ACTOR_SLIDY;
 						if (ts->name[4]=='f')
 							theActor->flags |= ACTOR_SLIDYTEX;
 
@@ -576,6 +578,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_LEAVES | ACTOR_DRAW_ALWAYS;
 						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE;						
+						((MDX_ACTOR *)(theActor->actor->actualActor))->flags |= ACTOR_SLIDY;
 						if (ts->name[4]=='f')
 							theActor->flags |= ACTOR_SLIDYTEX;
 

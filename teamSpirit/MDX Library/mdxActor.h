@@ -60,6 +60,7 @@ typedef struct TAG_MDX_ACTOR
 #define ACTOR_NOFLAGS		0
 #define ACTOR_WRAPTC		(1<<0)
 #define ACTOR_ALWAYSDRAW	(1<<1)
+#define ACTOR_SLIDY			(1<<2)
 
 extern MDX_ACTOR  *currentDrawActor;
 extern MDX_VECTOR parentScaleStack[10];

@@ -599,6 +599,7 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 	// Yes, seriously, this is the check that has been done forever and breaks if you change it
 	if (newname[2] == '_' && newname[3]=='g')
 	{
+		MDX_ADDACTORFLAGS(newItem, ACTOR_SLIDY);
 		MDX_ADDOBJECTFLAGS(newItem, OBJECT_FLAGS_MODGE);
 		newItem->flags |= ACTOR_MODGETEX;
 		if (newname[4]=='_')
@@ -612,16 +613,19 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 			case 'l':
 				newItem->flags |= ACTOR_SLIDYTEX;
 				MDX_ADDACTORFLAGS(newItem, ACTOR_WRAPTC);
+				MDX_ADDACTORFLAGS(newItem, ACTOR_SLIDY);
 				break;
 
 			case 'm':
 				newItem->flags |= ACTOR_SLIDYTEX2;
 				MDX_ADDACTORFLAGS(newItem, ACTOR_WRAPTC);
+				MDX_ADDACTORFLAGS(newItem, ACTOR_SLIDY);
 				break;
 
 			case 'f':
 				newItem->flags |= (ACTOR_SLIDYTEX | ACTOR_SLIDYTEX2);
 				MDX_ADDACTORFLAGS(newItem, ACTOR_WRAPTC);
+				MDX_ADDACTORFLAGS(newItem, ACTOR_SLIDY);
 				break;
 		}
 		/*

@@ -634,10 +634,10 @@ void CopyActorList()
 			slideVal = ((c->flags>>5) & 3);
 			
 			if (slideVal)
-				SlideObjectTextures(a->objectController->object,slideSpeeds[slideVal]);
+				SlideObjectTextures(a->objectController->object,(slideSpeeds[slideVal]*gameSpeed)>>12);
 
 			if (c->flags&ACTOR_SLOWSLIDE)
-				SlideObjectTextures(a->objectController->object,4);
+				SlideObjectTextures(a->objectController->object,gameSpeed>>8);
 
 			if( a->objectController->object->flags & OBJECT_FLAGS_CLIPPED )
 				c->clipped = 1;

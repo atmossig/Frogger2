@@ -1216,6 +1216,9 @@ SAMPLE *FindSample( unsigned long uid )
 {
 	SAMPLE *cur;
 
+	if( !uid )
+		return NULL;
+
 	for( cur = soundList.head.next; cur != &soundList.head; cur = cur->next )
 		if( cur->uid == uid )
 			return cur;

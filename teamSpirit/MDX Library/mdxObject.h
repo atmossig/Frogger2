@@ -106,7 +106,7 @@ typedef struct
 	MDX_VECTOR			*vertices;
 	MDX_SHORTVECTOR		*faceIndex;
 	D3DTLVERTEX			*d3dVtx;
-	MDX_USHORT2DVECTOR	*faceTC;
+	MDX_SHORT2DVECTOR	*faceTC;
 	MDX_VECTOR			*vertexNormals;
 	MDX_QUATERNION		*gouraudColors;
 	char			 	*faceFlags;

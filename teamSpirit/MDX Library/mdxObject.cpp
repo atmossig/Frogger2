@@ -50,32 +50,40 @@ unsigned long numObjectsTransformed;
 
 void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 {
-	int i, f;
-	float fisp = timeInfo.speed * speed;
+	int i, f, thresh, add;
+//	float fisp = timeInfo.speed * speed;
 
-	if( !rHardware )
-		return;
-	
+	if( rHardware )
+	{
+		thresh = 4096;
+		add = 8192;
+	}
+	else
+	{
+		thresh = 0;
+		add = 1024;
+	}
+
 	// For all the faces.....
 	for (i=obj->mesh->numFaces-1; i>=0; i--)
 	{
 		f = i*3;
 		// Do the sliding.
-		obj->mesh->faceTC[f].v[1] -= fisp;
-		obj->mesh->faceTC[f+1].v[1] -= fisp;
-		obj->mesh->faceTC[f+2].v[1] -= fisp;
+		obj->mesh->faceTC[f].v[1] -= speed;
+		obj->mesh->faceTC[f+1].v[1] -= speed;
+		obj->mesh->faceTC[f+2].v[1] -= speed;
 
 		// Deal with the case when they might wrap.
-		if ((obj->mesh->faceTC[f].v[1] < 4096) || (obj->mesh->faceTC[f+1].v[1]<4096) || (obj->mesh->faceTC[f+2].v[1]<4096))
+		if ((obj->mesh->faceTC[f].v[1] < thresh) || (obj->mesh->faceTC[f+1].v[1] < thresh) || (obj->mesh->faceTC[f+2].v[1] < thresh))
 		{
-			obj->mesh->faceTC[f].v[1] += 8192;
-			obj->mesh->faceTC[f+1].v[1] += 8192;
-			obj->mesh->faceTC[f+2].v[1] += 8192;
+			obj->mesh->faceTC[f].v[1] += add;
+			obj->mesh->faceTC[f+1].v[1] += add;
+			obj->mesh->faceTC[f+2].v[1] += add;
 		}
 
-		obj->mesh->d3dVtx[f].tv = obj->mesh->faceTC[f].v[1] * 0.000975F;
-		obj->mesh->d3dVtx[f+1].tv = obj->mesh->faceTC[f+1].v[1] * 0.000975F;
-		obj->mesh->d3dVtx[f+2].tv = obj->mesh->faceTC[f+2].v[1] * 0.000975F;
+		obj->mesh->d3dVtx[f].tv = obj->mesh->faceTC[f].v[1] / 4096.0f;//* 0.000975F;
+		obj->mesh->d3dVtx[f+1].tv = obj->mesh->faceTC[f+1].v[1] / 4096.0f;//* 0.000975F;
+		obj->mesh->d3dVtx[f+2].tv = obj->mesh->faceTC[f+2].v[1] / 4096.0f;//* 0.000975F;
 	}
 
 	if (obj->children)
@@ -99,7 +107,7 @@ void SubdivideObject(MDX_OBJECT *me)
 	MDX_MESH *mesh;
 	MDX_VECTOR *newVerts,tVect;
 	MDX_SHORTVECTOR *newFace;
-	MDX_USHORT2DVECTOR *newFaceTC,tTC;
+	MDX_SHORT2DVECTOR *newFaceTC,tTC;
 	MDX_QUATERNION *newGouraudColors;
 	MDX_TEXENTRY **newTextures;
 	unsigned long i,v0,v1,v2;
@@ -112,7 +120,7 @@ void SubdivideObject(MDX_OBJECT *me)
 
 	// The face structure should be the correct size.
 	newFace = (MDX_SHORTVECTOR *) AllocMem(sizeof(MDX_SHORTVECTOR)*mesh->numFaces * 2);
-	newFaceTC = (MDX_USHORT2DVECTOR *) AllocMem(sizeof(MDX_USHORT2DVECTOR)*(mesh->numFaces*3) * 2);
+	newFaceTC = (MDX_SHORT2DVECTOR *) AllocMem(sizeof(MDX_SHORT2DVECTOR)*(mesh->numFaces*3) * 2);
 	
 	// Gouraud colors!
 	newGouraudColors = (MDX_QUATERNION *) AllocMem(sizeof(MDX_QUATERNION)*(mesh->numFaces*3) * 2);
@@ -654,7 +662,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 					{
 						MDX_QUATERNION t;
 						MDX_SHORTVECTOR t1;
-						MDX_USHORT2DVECTOR t2;
+						MDX_SHORT2DVECTOR t2;
 
 						obj->mesh->textureIDs[y] = obj->mesh->textureIDs[x];
 						obj->mesh->textureIDs[x] = (MDX_TEXENTRY *)cTex;

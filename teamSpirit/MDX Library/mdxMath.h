@@ -33,6 +33,11 @@ typedef struct
 
 typedef struct
 {
+	short	v[2];
+}MDX_SHORT2DVECTOR;
+
+typedef struct
+{
 	float	x, y, z, w;
 }MDX_QUATERNION;
 
