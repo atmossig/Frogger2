@@ -678,14 +678,8 @@ void CameraShake(float amount)
 	cam_shakiness = amount;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: InitCamera
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-*/
 
-void InitCamera(void)
+void ResetCamera( )
 {
 	VECTOR initialCamOffset = { 0,100,100 };
 	VECTOR initialCamDist = { 0,680,192 };
@@ -699,7 +693,17 @@ void InitCamera(void)
 	SetVector( &camDist, &initialCamDist );
 	ZeroVector( &currCamTarget );
 	SetVector( &cameraUpVect, &upVec );
+}
 
+/*	--------------------------------------------------------------------------------
+	Function		: InitCamera
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+*/
+
+void InitCamera(void)
+{
 	currCamBox = NULL;
 	CheckCameraBoxes();
 	

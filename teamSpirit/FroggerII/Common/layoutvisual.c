@@ -660,6 +660,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	i=0;
 	initialCamera = 2;
 
+	ResetCamera( );
 	InitCamera();
 	
 	// prepare the text overlays for the current level
