@@ -16,6 +16,7 @@ typedef struct TAG_CONFIG
 } CONFIG;
 
 extern void GetArgs(char *arglist);
+extern void ReadConfigFile (void);
 
 //
 

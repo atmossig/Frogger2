@@ -113,7 +113,7 @@ int numoftc = 0;
 void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 {
 	u32	tempInt;
-	int x;
+	int x,y;
 	char mess[16];
 
 	tempInt = (u32)obj->sprites;
@@ -128,8 +128,24 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	if (obj->mesh)
 	{
 		float r,g,b,a;
+		unsigned long dupCount = 0;
 
 		obj->renderData = JallocAlloc (sizeof(D3DTLVERTEX)*obj->mesh->numFaces*3,0,"vtxPC");
+
+		for (x=0; x<obj->mesh->numVertices; x++)
+		{
+			for (y=0; y<obj->mesh->numVertices; y++)
+			{
+				if (x!=y)
+					if (fabs(obj->mesh->vertices[x].v[0] - obj->mesh->vertices[y].v[0])<0.009)
+						if (fabs(obj->mesh->vertices[x].v[1] - obj->mesh->vertices[y].v[1])<0.009)
+							if (fabs(obj->mesh->vertices[x].v[2] - obj->mesh->vertices[y].v[2])<0.009)
+							{dupCount++; dprintf"Duplicate Vertex in %s\n",obj->name));}
+			}
+		
+		}
+
+		dprintf"Duplicates: %lu\n",dupCount));
 
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
@@ -156,6 +172,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 			((D3DTLVERTEX *)obj->renderData)[x].color = D3DRGBA(1,1,1,1);
 			((D3DTLVERTEX *)obj->renderData)[x].specular = D3DRGBA(0,0,0,0);
 		}
+
 	}
 
 	if(obj->children)

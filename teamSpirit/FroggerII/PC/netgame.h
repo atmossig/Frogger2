@@ -11,6 +11,7 @@ typedef struct
 	DWORD			dwType;			// message type (APPMSG_UPDATEGAME)
 	DWORD			data;			// controller data
 	DWORD			tileNum;		// Emergency sync
+	DWORD			tickCount;		// When in game frames this event happened.
 
 } MSG_UPDATEGAME,*LPMSG_UPDATEGAME;
 

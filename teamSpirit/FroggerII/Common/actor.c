@@ -554,7 +554,12 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	// add actor object sprites to sprite list
 	if((newItem->actor->objectController) && (newItem->actor->objectController->object))
 		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
-
+	
+	if (strncmp("ghostie",name,6)==0)
+	{
+		newItem->flags = ACTOR_WATER;
+	}
+	else
 	if(name[0] != 'x' && name[1] != 'x')
 		newItem->flags = ACTOR_DRAW_CULLED;
 	else
@@ -577,7 +582,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 		{
 			if (name[2]=='a')
 			{
-				newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX | ACTOR_SLIDYTEX;
+				newItem->flags = ACTOR_DRAW_ALWAYS;// | ACTOR_MODGETEX | ACTOR_SLIDYTEX;
 
 #ifdef N64_VERSION
 				// add support for modgy objects

@@ -812,7 +812,7 @@ void RunGameLoop (void)
 		firePos.v[Y] += 30;
 		FindTexture( &ftex, UpdateCRC("prc_watr1.bmp"), YES );
 		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
-
+		
 		firePos.v[X] += 60;
 		FindTexture( &ftex, UpdateCRC("prc_ffld1.bmp"), YES );
 		CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
@@ -821,7 +821,6 @@ void RunGameLoop (void)
 		FindTexture( &ftex, UpdateCRC("prc_fire1.bmp"), YES );
 		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 16, 32 );
 		fp->v1 = 28.0f/32.0f;
-
 	}
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)

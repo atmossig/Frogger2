@@ -114,7 +114,7 @@ void ProcessCfgLine(char *line)
 
 	// Nothing Line, or comment
 	if (!line) return;
-	if (*line = ';') return;
+	if (*line == ';') return;
 	
 	// Find length of command section
 	lenCmd=0;
@@ -131,13 +131,36 @@ void ProcessCfgLine(char *line)
 		{
 			line = &line[lenCmd];
 			
-			while ((line) && (*line!=' ') && (*line!='\t')) line++;
+			while ((line) && ((*line==' ') || (*line=='\t'))) line++;
 			
 			sscanf(line,cur->type,cur->var);
 
 			return;
 		}
 		cur++;
+	}
+}
+
+void ReadConfigFile (void)
+{
+	char filename[MAX_PATH];
+	char line[2048];
+
+	FILE *fp;
+
+	strcpy (filename,baseDirectory);
+	strcat (filename,cfg_file);
+
+	fp = fopen(filename,"rt");
+	
+	if (fp)
+	{
+		while (!feof(fp))
+		{
+			fgets(line,2048,fp);
+			ProcessCfgLine(line);
+		}	
+		fclose(fp);
 	}
 }
 

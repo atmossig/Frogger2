@@ -48,6 +48,7 @@ typedef struct tagOSContPad
 	char stick_x;
 	char stick_y;
 	unsigned char errornumber;
+	unsigned long tickOn;
 } OSContPad;
 
 extern OSContPad controllerdata[4];

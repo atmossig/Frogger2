@@ -250,7 +250,14 @@ void UpdateEnemies()
 			float angle;
 			SubVector( &moveVec, &act->actor->pos, &frog[0]->actor->pos );
 			MakeUnit( &moveVec );
-			angle = acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ));
+			angle = DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec );
+
+			if (angle<-0.9)
+				angle = -0.9;
+			if (angle>0.9)
+				angle = 0.9;
+
+			angle = acos(angle);
 			if( angle < 0.9 )
 			{
 				pOIDistance = act->distanceFromFrog;

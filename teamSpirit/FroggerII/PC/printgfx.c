@@ -217,7 +217,7 @@ void PrintSpriteOverlays()
 				{
 					// cycling forwards
 					cur->currFrame = (short)cur->animTime;
-					cur->animTime += cur->animSpeed;
+					cur->animTime += cur->animSpeed * 0.4 * gameSpeed;
 					if(cur->animTime > cur->numFrames)
 					{
 						cur->animTime = 0;
@@ -228,7 +228,7 @@ void PrintSpriteOverlays()
 				{
 					// cycling backwards
 					cur->currFrame = ROUND2SHORT(cur->animTime);
-					cur->animTime -= cur->animSpeed;
+					cur->animTime -= cur->animSpeed * 0.4 * gameSpeed;
 					if(cur->animTime < 0)
 					{
 						cur->animTime = cur->numFrames-1;
@@ -386,7 +386,10 @@ void ProcessShadows()
 
 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
-			DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
+			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
+				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
+			else
+				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->toNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
 		}
 	}
 

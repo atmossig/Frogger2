@@ -296,6 +296,7 @@ void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMs
 		if( netPlayers[i] == idFrom )
 		{
 			controllerdata[i].button = lpMsg->data;
+			controllerdata[i].tickOn = lpMsg->tickCount;
 
 			// Start of level or unseen emergency measure only
 			if( lpMsg->tileNum != (((DWORD)currTile[i] - (DWORD)firstTile) / sizeof(GAMETILE)) )
@@ -337,6 +338,7 @@ HRESULT SendUpdateMessage()
 	lpUpdateMessage->dwType = APPMSG_UPDATEGAME;
 	lpUpdateMessage->data = controllerdata[0].button;
 	lpUpdateMessage->tileNum = ((DWORD)currTile[0] - (DWORD)firstTile) / sizeof(GAMETILE);
+	lpUpdateMessage->tickCount = actTickCount;
 
 	// send this data to all other players
 	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpUpdateMessage,sizeof(MSG_UPDATEGAME));
