@@ -653,6 +653,9 @@ David Swift:
 	
 	Trying to fix the double-jump bug, but right now I'm waiting on game.c for the
 	controller processing part.
+	
+	Subtle puzzling bug in WorldConv has appeared, related to my new adjacent-tile
+	test. I'm looking into it.
 
 
 James Hubbard:
