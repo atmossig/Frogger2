@@ -389,7 +389,7 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 	EDITGROUPNODE *node;
 	int i, count;
 	int counters[5];
-	EDVECTOR v;
+//	EDVECTOR v;
 
 	int numPaths = 0;
 	EDITPATH *pathBuf[EDITOR_MAXPATH];
@@ -537,7 +537,7 @@ void WriteEditPath(EDITPATH *p, HANDLE f)
 {
 	int count;
 	EDITPATHNODE *node;
-	EDVECTOR v;
+//	EDVECTOR v;
 
 	for (count=0, node = p->nodes; node; node = node->link, count++);
 	
