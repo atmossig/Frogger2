@@ -137,7 +137,7 @@ void UpdateLoadingScreen(short addprog)
 
 	r.top = rYRes - rYRes/10;
 	r.bottom = rYRes - rYRes/15;
-	r.left = rXRes/2;
+	r.left = (float)rXRes*0.75;
 	r.right = (((rXRes-(r.left+(r.left/8)))/100) * loadProgress) + r.left;
 
 	// show fixed background screen
