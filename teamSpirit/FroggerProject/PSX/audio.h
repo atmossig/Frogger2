@@ -184,7 +184,7 @@ typedef struct _SOUNDLIST
 
 #define UpdateAmbientSounds()
 //#define PTTextureLoad()
-#define LoadSfxMapping(a,b)
+#define LoadSfxMapping(a,b)		0
 #define FreeAmbientSoundList()
 #define InitAmbientSoundList()
  
