@@ -51,15 +51,6 @@ void InitActorAnim(ACTOR *tempActor)
 
 	// Cue sounds from animations
 	tempActor->animation->sfxMapping = FindSfxMapping( tempActor->objectController->objectID );
-
-
-
-	// HAAAACCCKKK! REMOVE ASAP!
-	if( tempActor->animation->sfxMapping && tempActor->animation->sfxMapping[0] == GAR_MOWER )
-	{
-		AddAmbientSound(GAR_MOWER, &tempActor->pos, 500, 255, 30, 1.02, 0, tempActor );
-		tempActor->animation->sfxMapping = NULL;
-	}
 }
 
 /*	--------------------------------------------------------------------------------
