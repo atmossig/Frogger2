@@ -590,7 +590,7 @@ void UpdateSnapper( ENEMY *cur )
 			path->startFrame = actFrameCount;
 			path->endFrame = path->startFrame + (path->nodes[0].waitTime * waitScale);
 
-			cur->isSnapping = 2;
+			cur->isSnapping = 1;
 		}
 		break;
 
@@ -613,8 +613,8 @@ void UpdateSnapper( ENEMY *cur )
 		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 			break;
 
-		AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
-		AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
+		//AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
+		//AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
 
 		if( cur->nmeActor->effects & EF_LIGHTNING )
 		{

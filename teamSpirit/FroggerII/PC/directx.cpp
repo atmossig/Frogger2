@@ -658,7 +658,8 @@ long DirectXInit(HWND window, long hardware )
 	runHardware = hardware;
 
 	//SetupRenderstates(); 
-	
+	RES_DIFF = SCREEN_WIDTH/640.0;	
+
 	return TRUE;
 }
 
@@ -1555,36 +1556,21 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 	int x, y, linePos;
 	unsigned short pixel;
 	unsigned char col;
-	unsigned char line [ 480 * 4 ];
+	unsigned char line [ 1280 * 4 ];
 
-	char header[] =	   {0x42,0x4D,0x36,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
-						0x00,0x00,0x40,0x01,0x00,0x00,0x1E0,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
-						0x00,0x00,0x00,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-						0x00,0x00,0x00,0x00,0x00,0x00};
-
-	sprintf ( fileName, "c:\\pc%04d.raw", picnum++);
+	sprintf ( fileName, "c:\\pc-%lu-%04d.raw", SCREEN_WIDTH, picnum++);
 
 	fp = fopen ( fileName, "w" );
 	if ( fp == NULL )
 		return;
-	// ENDIF
-
-	//fwrite ( header, sizeof ( header ), 1, fp );
 
 	y = 0;
-	for ( y = 0; y < 480; y++ )
+	for ( y = 0; y < SCREEN_HEIGHT; y++ )
 	{
 		linePos = 0;
-		for(x = 0; x < 640; x++)
+		for(x = 0; x < SCREEN_WIDTH; x++)
 		{
 			pixel = ((short*)ddsd.lpSurface)[x + y * (ddsd.lPitch/2)];
-
-/*			col = ((pixel>>1)<<3)&0xFF;
-			line[linePos++] = col;
-			col = ((pixel>>6)<<3)&0xFF;
-			line[linePos++] = col;
-			col = ((pixel>>11)<<3)&0xFF;
-			line[linePos++] = col;*/
 
 			col = (int)(255.0/31.0 * ((pixel >> 11) & 0x1f));
 			line[linePos++] = col;
@@ -1594,27 +1580,8 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 
 			col = (int)(255.0/31.0 * (pixel & 0x1f));
 			line[linePos++] = col;
-/*			col = pixel;
-			col &= 0x1f;	
-		//	col *= 0xff;
-			col /= 0x1f;
-
-			line[linePos++] = col;
-		
-			col = pixel>>5;
-			col &= 0x3f;
-			col *= 0xff;
-			col /= 0x3f;
-
-			line[linePos++] = col;
-			col = pixel>>11;
-			col &= 0x1f;
-			col *= 0xff;
-			col /= 0x1f;
-			line[linePos++] = col;*/
-
 		}
-			fwrite ( line, sizeof ( line ), 1, fp );			
+		fwrite ( line, SCREEN_WIDTH*3, 1, fp );			
 	}
 
 
