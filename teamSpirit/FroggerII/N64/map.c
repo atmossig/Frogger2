@@ -96,9 +96,9 @@ void LoadCollision (int num)
 		case ANCIENTMULTI_COL:
 			break;
 		case ANCIENTLEV1_COL:
+			tnum = RUINEDCITY_COLL_BANK;
 			break;
 		case ANCIENTLEV2_COL:
-			tnum = RUINEDCITY_COLL_BANK;
 			break;
 		case ANCIENTLEV3_COL:
 			break;
@@ -280,9 +280,10 @@ void LoadScenics (int num)
 		case ANCIENTMULTI_COL:
 			break;
 		case ANCIENTLEV1_COL:
+			tnum = RUINEDCITY_COLL_BANK;
 			break;
 		case ANCIENTLEV2_COL:
-			tnum = RUINEDCITY_COLL_BANK;
+			tnum = VOTG_COLL_BANK;
 			break;
 		case ANCIENTLEV3_COL:
 			break;
