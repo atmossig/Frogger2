@@ -198,11 +198,12 @@ void CreateOverlaysFromLogo(const LOGO* logo, int x, int y)
 */
 void RunLevelComplete( )
 {
+	/*
 	if( showEndLevelScreen )
 	{
-		//RunLevelCompleteSequence();
+		RunLevelCompleteSequence();
 	}
-
+	*/
 	GTUpdate( &modeTimer, -1 );
 	if(!modeTimer.time)
 	{
@@ -211,21 +212,8 @@ void RunLevelComplete( )
 		// Only go to next level if in normal level progression.
 		if( showEndLevelScreen )
 		{
-#ifdef TOYFAIR_DEMO
-			if( player[0].worldNum == WORLDID_GARDEN )
-			{
-				player[0].worldNum = WORLDID_SPACE;
-				player[0].levelNum = LEVELID_SPACE2;
-			}
-			else if( player[0].worldNum == WORLDID_SPACE )
-			{
-				player[0].worldNum = WORLDID_FRONTEND;
-				player[0].levelNum = LEVELID_FRONTEND1;
-			}
-#else
 			player[0].worldNum = WORLDID_FRONTEND;
 			player[0].levelNum = LEVELID_FRONTEND1;
-#endif
 
 #ifndef PC_VERSION
 			StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
