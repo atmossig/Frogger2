@@ -777,6 +777,15 @@ void main()
 			UpdateTextureAnimations();
 		}
 
+		// Jim: I'm sorry...
+		if( saveInfo.saveFrame )
+		{
+			DCTIMER_START(1);
+			kmBeginScene(&kmSystemConfig);
+			kmBeginPass(&vertexBufferDesc);
+			DCTIMER_STOP(1);
+		}
+
 		// pass through game loop
 		GameLoop();
 
@@ -799,10 +808,14 @@ void main()
 			break;
 		}
 
-		DCTIMER_START(1);
-		kmBeginScene(&kmSystemConfig);
-		kmBeginPass(&vertexBufferDesc);
-		DCTIMER_STOP(1);
+		// Jim: I'm sorry...
+		if( !saveInfo.saveFrame )
+		{
+			DCTIMER_START(1);
+			kmBeginScene(&kmSystemConfig);
+			kmBeginPass(&vertexBufferDesc);
+			DCTIMER_STOP(1);
+		}
 
 		DCTIMER_START(2);		
 		DrawSpecialFX();
@@ -837,9 +850,12 @@ void main()
 			DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
 
 		DCTIMER_START(6);				
-		PrintSpriteOverlays(1);
-		PrintSpriteOverlays(0);
-		PrintTextOverlays();		
+		if( !saveInfo.saveFrame )
+		{
+			PrintSpriteOverlays(1);
+			PrintSpriteOverlays(0);
+			PrintTextOverlays();
+		}
 		DrawScreenTransition();
 		DCTIMER_STOP(6);		
 
