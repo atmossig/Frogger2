@@ -1842,14 +1842,14 @@ void DrawAllFrames(void)
 			D3DSetupRenderstates(normalAlphaCmpRS);
 
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
-			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
-			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 			SwapFrame(MA_FRAME_WRAP);
 			DrawBatchedPolys();	
 
-			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
-			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
 	
 		}
@@ -1926,7 +1926,7 @@ void DrawAllFrames(void)
 	SwapFrame(MA_FRAME_XLU);
 	DrawBatchedPolys();	
 
-	D3DSetupRenderstates(xluAddRS);	
+ 	D3DSetupRenderstates(xluAddRS);	
 	SwapFrame(MA_FRAME_ADDITIVE);
 
 	// Sort out additive for fog.

@@ -41,7 +41,7 @@ long noClip = 0;
 
 #define MAX_OBJECT_VERTICES 8000
 #define SETALPHA(rgba, x) ((((long)(x)) << 24) | ((rgba & 0x00ffffff)))
-#define MODALPHA(rgba, x) ((((long) ((x*(rgba>>24))>>8)) << 24) | ((rgba & 0x00ffffff)))
+#define MODALPHA(rgba, x) (((((long)(x*(rgba>>24))>>8)) << 24) | ((rgba & 0x00ffffff)))
 #define BETWEEN(x,a,b) ((x>a) && (x<b))
 
 float globalXLU;
@@ -1517,7 +1517,7 @@ void PCRenderModgyWaterObject (MDX_OBJECT *obj)
 			vTemp->rhw = 1/vTemp->sz;
 			
 			vTemp->color = MODALPHA(*((unsigned long *)(&(c1->x))),alphaVal);
-			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->specular = D3DRGBA(0,0,0,1);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x;
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z;
 			
@@ -1652,7 +1652,9 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->rhw = 1;///vTemp->sz;
 
 			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m1x+m1z));
+			//vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m1x+m1z));
+			vTemp->color = (*((unsigned long *)c1)&0x00FFFFFF)|(50+(unsigned long)((m1x+m1z)*400)<<24);
+
 			//vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z*0.4;
@@ -1670,7 +1672,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sz = (tV1->vz) * 0.00025F;
 			vTemp->rhw = 1;///vTemp->sz;
 			cVal = 1;//fabs((m2x+m2z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m2x+m2z));
+			//vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m2x+m2z));
+			vTemp->color = (*((unsigned long *)c2)&0x00FFFFFF)|(50+(unsigned long)((m2x+m2z)*400)<<24);
 			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z*0.4;
 			//vTemp->tv = (tN1->vy+0.5);
@@ -1686,7 +1689,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sz = (tV2->vz) * 0.00025F;
 			vTemp->rhw = 1;///vTemp->sz;
 			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m3x+m3z));
+			//vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m3x+m3z));
+			vTemp->color = (*((unsigned long *)c3)&0x00FFFFFF)|(50+(unsigned long)((m3x+m3z)*400)<<24);
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
 			//vTemp->tv = (tN2->vy+0.5);
@@ -1922,7 +1926,7 @@ void PCRenderModgyObject2(MDX_OBJECT *obj)
 			vTemp->rhw = 1;///vTemp->sz;
 
 			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
-		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
+		//	vTemp->colo5r = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
 		//	vTemp->color = D3DRGBA(cVal,cVal,1,1);
 			vTemp->color = MODALPHA(*((unsigned long *)(&(c1->x))),alphaVal);
 			//vTemp->specular = D3DRGBA(0,0,0,0);

@@ -131,9 +131,6 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 	return ret;				
 }
 
-long wacky = 0;
-
-
 MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 {
 	char mys[255],tBnk[255];
@@ -168,29 +165,6 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	newE->CRC  = UpdateCRC (mys);
 	newE->refCount = 0;
 	newE->data = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
-
-	if (wacky)
-	{
-		for (i=0; i<xDim*yDim; i++)
-		{
-			long r,g,b;
-			r = (newE->data[i] >> 10) & 0x1f;
-			g = (newE->data[i] >> 5) & 0x1f;
-			b = (newE->data[i]) & 0x1f;
-
-	/*		if (!(r==0x1f && b==0x1f && g==0))
-			{
-				
-				g*=0.8;
-				b*=0.6;
-				
-				newE->data[i] = (r<<10) | (g<<5) | b;
-			}*/
-			//	newE->data[i] = (g<<10) | (b<<5) | r;
-			//  newE->data[i] = (r<<10) | (r<<5) | r;
-			newE->data[i] = newE->data[0];
-		}
-	}
 
 	i = xDim;
 	bksCount = 0;
