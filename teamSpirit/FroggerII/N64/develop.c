@@ -170,6 +170,12 @@ void RunProcDemo()
 	static s16 stickX,stickY;
 	int j;
 	static SPRITEOVERLAY *sOv1 = NULL;
+	static SPRITEOVERLAY *sOv2 = NULL;
+	static SPRITEOVERLAY *sOv3 = NULL;
+	static SPRITEOVERLAY *sOv4 = NULL;
+	static SPRITEOVERLAY *sOv5 = NULL;
+	static SPRITEOVERLAY *sOv6 = NULL;
+	static SPRITEOVERLAY *sOv7 = NULL;
 
 	if(frameCount == 1)
 	{
@@ -177,15 +183,43 @@ void RunProcDemo()
 		
 		FreeMenuItems();
 		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
 		CreateAndAddTextOverlay(30,24,"procedural stuff",NO,255,smallFont,0,0);
 		txtTmp = CreateAndAddTextOverlay(32,26,"procedural stuff",NO,255,smallFont,0,0);
 		txtTmp->r = 0;	txtTmp->g = 0;	txtTmp->b = 0;
 
-		sOv1 = CreateAndAddSpriteOverlay(50,60,"testfire.bmp",64,64,192,0);
-		CreateAndAddProceduralTexture(sOv1->frames[0],"prc_fire1");
+		sOv1 = CreateAndAddSpriteOverlay(95,60,"prc_watr1.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv1->frames[0],"prc_watr1");
 		for(j=0; j<1024; j++)
 			sOv1->frames[0]->data[j] = 0;
+
+		sOv2 = CreateAndAddSpriteOverlay(165,60,"prc_watr2.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv2->frames[0],"prc_watr2");
+		for(j=0; j<1024; j++)
+			sOv2->frames[0]->data[j] = 0;
+
+		sOv3 = CreateAndAddSpriteOverlay(95,140,"prc_watr3.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv3->frames[0],"prc_watr3");
+		for(j=0; j<1024; j++)
+			sOv3->frames[0]->data[j] = 0;
+
+		sOv4 = CreateAndAddSpriteOverlay(165,140,"prc_watr4.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv4->frames[0],"prc_watr4");
+		for(j=0; j<1024; j++)
+			sOv4->frames[0]->data[j] = 0;
+
+		sOv5 = CreateAndAddSpriteOverlay(25,60,"prc_fire1.bmp",32,128,192,0);
+		CreateAndAddProceduralTexture(sOv5->frames[0],"prc_fire1");
+		for(j=0; j<1024; j++)
+			sOv5->frames[0]->data[j] = 0;
+
+		sOv6 = CreateAndAddSpriteOverlay(235,60,"prc_ffld1.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv6->frames[0],"prc_ffld1");
+		for(j=0; j<1024; j++)
+			sOv6->frames[0]->data[j] = 0;
+
+		sOv7 = CreateAndAddSpriteOverlay(60,60,"prc_fire1.bmp",32,96,192,0);
 
 		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,191,0);
 	}
