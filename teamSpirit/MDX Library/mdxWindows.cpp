@@ -210,7 +210,6 @@ WNDPROC mdxSetUserWndProc(WNDPROC proc)
 	return oldWndProc;
 }
 
-
 #ifdef __cplusplus
 }
 #endif

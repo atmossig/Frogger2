@@ -41,6 +41,7 @@ typedef struct TAG_MDX_ACTOR
 	MDX_ACTOR_ANIMATION			*animation;
 	unsigned char				visible;
 
+	MDX_TEXENTRY				*overrideTex;
 } MDX_ACTOR;
 
 #define	INIT_ANIMATION	(1 << 0)

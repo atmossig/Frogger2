@@ -91,7 +91,7 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 	
 	if (tData)
 	{
-		tFont->data = tData;
+		tFont->data[surf] = tData;
 
 
 		if ((tFont->surf[surf] = D3DCreateTexSurface(dim,dim, 0xf81f, 0, 1)) == NULL)
@@ -135,13 +135,13 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 				short dt;
 				unsigned long d,r,g,b;
 
-				dt = tFont->data[i+j*dim];
+				dt = tFont->data[surf][i+j*dim];
 				r = (dt>>10) & 0x1f;
 				g = (dt>>5) & 0x1f;
 				b = (dt) & 0x1f;
 				g<<=1;
 				if (r565)
-					tFont->data[i+j*dim] = (r<<11 | g<<5 | b);
+					tFont->data[surf][i+j*dim] = (r<<11 | g<<5 | b);
 			}
 
 //		gelfDefaultFree(tData);
@@ -230,7 +230,7 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 	m.bottom = y+(32*scale)*(font->dim/256.0);
 	m.right = x+(font->widths[fNum][c])*scale*(font->dim/256.0);
 
-	tTexEntry.data = font->data;
+	tTexEntry.data = font->data[fNum];
 	tTexEntry.surf = font->surf[fNum];
 	tTexEntry.xSize = font->dim;
 	tTexEntry.ySize = font->dim;

@@ -71,7 +71,10 @@ unsigned long D3DDefaultRenderstates[] =
 void D3DSetupRenderstates(unsigned long *me)
 {
 	if (!rHardware)
+	{
+		SetSoftwareState(me);
 		return;
+	}
 
 	while (*me != D3DRENDERSTATE_FORCE_DWORD)
 	{

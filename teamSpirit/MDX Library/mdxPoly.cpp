@@ -297,6 +297,10 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 		m->f[2] = fce[i+2]+numSoftVertex;
 		m->t = tEntry->surf;
 		m->tEntry = tEntry;
+		if (tEntry->type == TEXTURE_AI)
+			m->flags = softFlags | POLY_ALPHA_SUB;
+		else
+			m->flags = softFlags;
 
 		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
 		zVal += v[fce[i+1]].sz * MA_SOFTWARE_DEPTH;		
@@ -331,12 +335,12 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	{
 		if (tEntry)
 		{
-			if (tEntry->type == TEXTURE_NORMAL)
-			{
+			//if (tEntry->type == TEXTURE_NORMAL)
+			//{
 				PushPolys_Software(v,vC,fce,fC,tEntry);
 				memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
 				numSoftVertex+=vC;
-			}
+			//}
 		}
 
 		return;
@@ -437,11 +441,6 @@ void DrawSoftwarePolys (void)
 				thisTex.height = cur->tEntry->ySize;
 				thisTex.image = (unsigned short *)cur->tEntry->data;
 		
-				if (cur->tEntry->keyed) 
-					softFlags |= POLY_MAGENTAMASK; 
-				else 
-					softFlags &= ~POLY_MAGENTAMASK;
-
 				v[0].u = softV[f1].tu * thisTex.width;
 				v[0].v = softV[f1].tv * thisTex.height;
 
@@ -487,8 +486,11 @@ void DrawSoftwarePolys (void)
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				if (dPoly)
-					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
+				if (cur->tEntry->keyed) 
+					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags | POLY_MAGENTAMASK, &thisTex);
+				else
+					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,cur->flags, &thisTex);
+
 			}
 			 
 			/*pDirect3DDevice->SetTexture(0,cur->t);
@@ -646,6 +648,28 @@ void DrawBatchedPolys (void)
 	}
 }
 
+void SetSoftwareState(unsigned long *me)
+{
+	while (*me!=D3DRENDERSTATE_FORCE_DWORD)
+	{
+		switch(*me)
+		{
+			case D3DRENDERSTATE_DESTBLEND:
+				switch (*(me+1))
+				{
+					case D3DBLEND_ONE:
+						softFlags |= POLY_ALPHA_ADD; 
+						break;
+					case D3DBLEND_INVSRCALPHA:
+						softFlags &= ~POLY_ALPHA_ADD;						
+						break;
+				}
+				break;
+		}
+		me+=2;
+	}
+//	D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE,	
+}
 
 void SetTexture(MDX_TEXENTRY *me)
 {

@@ -400,8 +400,12 @@ long DrawLoop(void)
 	EndTimer(1);
 
 	BeginDraw();
-	DrawAllFrames();
-	BlankAllFrames();
+	
+	if (rHardware)
+	{
+		DrawAllFrames();
+		BlankAllFrames();
+	}
 	
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	D3DSetupRenderstates(xluZRS);
@@ -419,18 +423,28 @@ long DrawLoop(void)
 //	CheckHaloPoints();
 //	DrawHalos();
 
-	SwapFrame(0);
-	DrawBatchedPolys();
-	BlankFrame;
+	if (rHardware)
+	{
+		SwapFrame(0);
+		DrawBatchedPolys();
+		BlankFrame;
 
-	D3DSetupRenderstates(xluAddRS);
-	SwapFrame(3);
-	DrawBatchedPolys();
-	BlankFrame;
-	D3DSetupRenderstates(xluSemiRS);
-	SwapFrame(0);
+		D3DSetupRenderstates(xluAddRS);
+		SwapFrame(3);
+		DrawBatchedPolys();
+		BlankFrame;
+		D3DSetupRenderstates(xluSemiRS);
+		SwapFrame(0);
 
-	D3DSetupRenderstates(noZRS);  // And z enable
+		D3DSetupRenderstates(noZRS);  // And z enable
+	}
+	else
+	{
+//		D3DSetupRenderstates(xluAddRS);
+		
+		DrawAllFrames();
+		BlankAllFrames();
+	}
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();

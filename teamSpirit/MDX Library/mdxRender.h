@@ -25,6 +25,7 @@ extern unsigned long numObjDrawn;
 extern float clx0, cly0, clx1, cly1;
 extern long DIST, FOV;
 extern float farClip, nearClip, horizClip, vertClip;
+extern MDX_TEXENTRY *overrideTex;
 
 void InitOneOverTable(void);
 void InitDOFOneOverTable(int min, int max, int range);
@@ -44,7 +45,7 @@ void PCCalcModgeValues(MDX_OBJECT *obj);
 void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d);
 
 void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry);
-	
+
 #ifdef __cplusplus
 }
 #endif

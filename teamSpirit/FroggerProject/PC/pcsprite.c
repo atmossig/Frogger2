@@ -52,6 +52,7 @@ long	SPRITECLIPRIGHT		=630;
 long	SPRITECLIPBOTTOM	=470;
 
 short spriteIndices[] = {0,1,2,2,3,0};
+//short spriteIndices[] = {2,1,0,0,3,2};
 
 int numSprites;
 

@@ -95,6 +95,7 @@ void DrawActor(MDX_ACTOR *actor)
 	globalXLU = (float)actor->xluOverride/100.0F;
 
 	// If we are skinned then XForm all the vertices first and then draw the skin, otherwise draw it as we transform it.
+	overrideTex = actor->overrideTex;
 
 	if (objectC->isSkinned)
 	{
@@ -393,6 +394,7 @@ void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int 
 	tempActor->pos.vx = x;	tempActor->pos.vy = y;	tempActor->pos.vz = z;
 	tempActor->scale.vx = tempActor->scale.vy = tempActor->scale.vz = 1;
 	tempActor->flags = 0;
+	tempActor->overrideTex = 0;
 	ZeroQuaternion(&tempActor->qRot);
 }
 

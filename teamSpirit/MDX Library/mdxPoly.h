@@ -27,6 +27,7 @@ typedef struct TAG_SOFTPOLY
 {
 	struct TAG_SOFTPOLY *next; 
 	unsigned short f[3];
+	long flags;
 	LPDIRECTDRAWSURFACE7 t;
 	MDX_TEXENTRY *tEntry;
 } SOFTPOLY;
@@ -82,6 +83,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1);
 void BlankAllFrames(void);
 void DrawAllFrames(void);
+void SetSoftwareState(unsigned long *me);
 
 #define FULL_TEXTURE 0,0,1,1
 
