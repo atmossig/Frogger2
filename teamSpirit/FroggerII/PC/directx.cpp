@@ -2099,14 +2099,10 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 
 		p2d.verts[i].sx = newX + pos[X];
 		p2d.verts[i].sy = newY + pos[Y];
-
-		if( p2d.verts[i].sx < 0 || p2d.verts[i].sx >= SCREEN_WIDTH ||
-			p2d.verts[i].sy < 0 || p2d.verts[i].sy >= SCREEN_HEIGHT )
-			return;
 	}
 
 	// clip the rotated sprite here...
-//	SpriteClip_Do(&p2d,&drawPoly);
+	SpriteClip_Do(&p2d,&drawPoly);
 
 	if (h!=lastH)
 	{
@@ -2126,10 +2122,8 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 		D3DPT_TRIANGLEFAN,
 		D3DVT_TLVERTEX,
 
-		p2d.verts,
-		p2d.numVerts,
-//		drawPoly.verts,
-//		drawPoly.numVerts,
+		drawPoly.verts,
+		drawPoly.numVerts,
 
 		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS 
 		)!=D3D_OK)
@@ -2281,7 +2275,7 @@ void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	m		= segLen / dy;
 
 	// check if polygon edge is in viewport
-	if((v0->sy >= SPRITECLIPTOP) && (v1->sx >= SPRITECLIPTOP))
+	if((v0->sy >= SPRITECLIPTOP) && (v1->sy >= SPRITECLIPTOP))
 	{
 		poly->verts[poly->numVerts] = *(v1);
 		poly->numVerts++;
