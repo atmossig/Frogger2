@@ -1266,6 +1266,7 @@ void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
 */
 
 int quitAllVideo;
+extern ACTOR oldActor;
 void CommonInit(void)
 {
 
@@ -1277,6 +1278,9 @@ void CommonInit(void)
 #endif
 */
 
+#ifdef PSX_VERSION
+	memset((void *)&oldActor,0,sizeof(ACTOR));
+#endif
 	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 
 	frame = 0;

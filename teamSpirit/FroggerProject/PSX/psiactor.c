@@ -116,6 +116,23 @@ void actorFree(ACTOR *actor)
 	actor = NULL;
 }
 
+void actorFree2(ACTOR *actor)
+{
+	FREE(actor->psiData.objectTable);
+	actor->psiData.objectTable = NULL;
+
+	if (actor->shadow)
+		FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
+
+	actor->shadow = NULL;
+
+	actorSub(actor);
+//	FREE(actor);
+
+//	actor = NULL;
+}
+
+
 
 
 static ULONG 	*segTable;
@@ -1115,13 +1132,16 @@ void ScalePsi(PSIMESH* pMesh)
 	Returns 	: void
 	Info 		:
 */
+ACTOR *newActor = NULL;
 void *ChangeModel( ACTOR *actor, char *model )
 {
-	ACTOR *newActor;
 	PSIMODEL *newModel;
 	char newName[16];
 	int i=0;
 
+	UndoChangeModel(actor);
+	actorSub(actor);
+//	actorFree2( &oldActor );
 	//find model
 	while( model[i] != '.' && model[i] != '\0' )
 	{
@@ -1163,12 +1183,11 @@ void *ChangeModel( ACTOR *actor, char *model )
 	*actor = *newActor;
 
 
-
 	//keep some of the original data
 	actor->position = oldActor.position;
 	actor->qRot			= oldActor.qRot;
 
-	actorFree( newActor );
+//	actorFree( newActor );
 }
 
 
@@ -1192,16 +1211,21 @@ int UndoChangeModel( ACTOR *actor )
 
 	return 1;
 */
-	ACTOR *oa;
+//	ACTOR *oa;
 
 	//make sure we are resetting to a valid actor
 	if(!oldActor.psiData.object)
 		return 0;
 
-	oa = &oldActor;
+//	oa = &oldActor;
+	actorFree2( actor );
+	FREE(newActor);
 	*actor = oldActor;
+	actor->next = NULL;
+	actorAdd(actor);
+	oldActor.psiData.object = NULL;
 
-	//actorFree( oa );
+//	actorFree( &oldActor );
 
 	return 1;
 }

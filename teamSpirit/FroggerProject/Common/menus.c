@@ -446,7 +446,7 @@ void RunPauseMenu()
 		{
 			for (i = 0; cheatCombos[cheat].keyString[i] && currentCheatCombo[i]==cheatCombos[cheat].keyString[i]; i++);
 
-			if((i == currCheat) && ((cheatCombos[cheat].state == 0) || (cheatCombos[cheat].toggle >= 0)))
+			if((cheatCombos[cheat].keyString[i] == 0) && ((cheatCombos[cheat].state == 0) || (cheatCombos[cheat].toggle >= 0)))
 			{
 				ComboCheat(cheat);
 				currCheat = 0;
