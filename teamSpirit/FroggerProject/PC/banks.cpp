@@ -403,7 +403,7 @@ void LoadGame(void)
 {
 	char file[MAX_PATH];
 	void *info; int size;
-	FILE *fp;
+//	FILE *fp;
 
 	strcpy(file, baseDirectory);
 	strcat(file, "SaveData\\savegame.dat");
@@ -464,7 +464,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	// go through and add items
 	while (ts)
 	{
-		float tv;
+//		float tv;
 
 		stringChange(ts->name);
 
