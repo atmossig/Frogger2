@@ -217,7 +217,7 @@ void GameProcessController(long pl)
 			{
 				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
 									&destPlatform[pl]->pltActor->actor->pos,
-									&destPlatform[pl]->inTile->normal,t,pl,doubleGravity,NOINIT_VELOCITY);
+									&destPlatform[pl]->inTile[0]->normal,t,pl,doubleGravity,NOINIT_VELOCITY);
 			}
 
 		
