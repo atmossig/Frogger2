@@ -1,3 +1,8 @@
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
@@ -13,11 +18,13 @@ LPDIRECT3DDEVICE2		pDirect3DDevice;
 LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 
 // Some default render states
-unsigned long D3DRenderstates[] = 
+unsigned long D3DDefaultRenderstates[] = 
 {
 	//
 	D3DRENDERSTATE_TEXTUREHANDLE,		NULL,
 	D3DRENDERSTATE_TEXTUREPERSPECTIVE,	FALSE,
+	D3DRENDERSTATE_TEXTUREMAG,			D3DFILTER_NEAREST,
+	D3DRENDERSTATE_TEXTUREMIN,			D3DFILTER_NEAREST,
 	D3DRENDERSTATE_TEXTUREMAPBLEND,		D3DTBLEND_MODULATEALPHA,
 	D3DRENDERSTATE_SRCBLEND,			D3DBLEND_SRCALPHA,
 	D3DRENDERSTATE_DESTBLEND,			D3DBLEND_INVSRCALPHA,
@@ -161,9 +168,99 @@ LPDIRECTDRAWSURFACE D3DCreateTexSurface(long xs,long ys, long cKey, long alphaSu
 		DDCOLORKEY cK;
 		cK.dwColorSpaceLowValue = cKey;
 		cK.dwColorSpaceHighValue = cKey;
-		pTSurface->SetColorKey (DDCKEY_SRCBLT,&cK);
+		pSurface->SetColorKey (DDCKEY_SRCBLT,&cK);
 	}
+	return pSurface;
 }	
+
+/*	--------------------------------------------------------------------------------
+	Function	: D3DCreateTexSurface
+	Purpose		: Dimentions, 
+	Parameters	: 
+	Returns		: 
+	Info		: 
+*/
+
+unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, unsigned long nxs, unsigned long nys)
+{
+	float dX,dY,cX,cY;
+	int x,y,cXI,cYI;
+	DDSURFACEDESC		ddsd;
+	DDINIT(ddsd);
+
+	dX = (float)xs/(float)nxs;
+	dY = (float)ys/(float)nys;
+	cY = 0;
+	
+	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+
+	for (y = 0; y<nxs; y++)
+	{
+		cX = 0;
+		cYI = cY;
+
+		for (x = 0; x<nxs; x++)
+		{
+			cXI = cX;
+			((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = data[cXI+cYI*xs];
+			cX+=dX;
+		}
+		cY+=dY;
+	}
+/*
+	for (y = 1; y<nxs-1; y++)
+		for (x = 1; x<nxs-1; x++)
+		{
+			unsigned short v1, v2, v3 ,v4 ,c;
+			
+			v1 = ((short *)ddsd.lpSurface)[x+1+y*(ddsd.lPitch/2)];
+			v1 >>= 1;
+			v1 &= 0x7BEF;
+				
+			v2 = ((short *)ddsd.lpSurface)[x-1+y*(ddsd.lPitch/2)];
+			v2 >>= 1;
+			v2 &= 0x7BEF;
+
+			v3 = ((short *)ddsd.lpSurface)[x+(y-1)*(ddsd.lPitch/2)];
+			v3 >>= 1;
+			v3 &= 0x7BEF;
+				
+			v4 = ((short *)ddsd.lpSurface)[x+(y+1)*(ddsd.lPitch/2)];
+			v4 >>= 1;
+			v4 &= 0x7BEF;
+
+			c = ((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)];
+			c >>= 1;
+			c &= 0x7BEF;
+			
+			v1 = v1+v2;
+			v1 >>= 1;
+			v1 &= 0x7BEF;
+			
+			v2 = v3+v4;
+			v2 >>= 1;
+			v2 &= 0x7BEF;
+			
+			v1 = v1+v2;
+			v1 >>= 1;
+			v1 &= 0x7BEF;
+			
+			((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = v1+c;
+			
+		}
+*/	
+	pSurface->Unlock(ddsd.lpSurface);
+
+	return 1;	
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: DDrawCopyToSurface
+	Purpose		: Dimentions
+	Parameters	: 
+	Returns		: 
+	Info		: 
+*/
 
 unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys)
 {
@@ -190,3 +287,8 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short *d
 	pSurface->Unlock(ddsd.lpSurface);
 	return 1;
 }
+
+
+#ifdef __cplusplus
+}
+#endif

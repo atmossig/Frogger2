@@ -1,3 +1,8 @@
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
@@ -66,19 +71,42 @@ unsigned long DDrawInitObject (GUID *guid)
 	Info		: 
 */
 
-unsigned long DDrawCreateSurfaces(unsigned long xRes, unsigned long yRes, unsigned long bitDepth, unsigned long want3D, unsigned long zBits)
+unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long yRes, unsigned long bitDepth, unsigned long want3D, unsigned long zBits)
 {
 	DDSURFACEDESC	ddsd;
 	HRESULT			res;
 	unsigned long	l;
 	
 	rBitDepth =	bitDepth;
+	rXRes = xRes;
+	rYRes = yRes;
+	// To run fullscreen - exclusive, ensure bitdepth is nonzero
+	rFullscreen = 0;
+	if (rBitDepth)
+	{
+		// Fullscreen Exclusive
+		if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) != DD_OK)
+		{
+			dp("Failed setting cooperative level. (Fullscreen Mode)\n");
+			ddShowError(res);
+			return 0;
+		}
 
+		// Set display
+		if ((res = pDirectDraw->SetDisplayMode(rXRes, rYRes, rBitDepth)) != DD_OK)
+		{
+			dp("Failed setting display mode. (Fullscreen Mode)\n");
+			ddShowError(res);
+			return 0;
+		}
+		rFullscreen = 1;
+	}
+	
 	// Create a primary surface
 	DDINIT(ddsd);
 	ddsd.dwFlags = DDSD_CAPS;
 	ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | (rHardware?DDSCAPS_VIDEOMEMORY:DDSCAPS_SYSTEMMEMORY);
-	if (res = pDirectDraw->CreateSurface(&ddsd, &surface[PRIMARY_SRF], NULL) != DD_OK)
+	if ((res = pDirectDraw->CreateSurface(&ddsd, &surface[PRIMARY_SRF], NULL))!= DD_OK)
 	{
 		dp("Failed creating primary surface\n");
 		ddShowError(res);
@@ -103,8 +131,8 @@ unsigned long DDrawCreateSurfaces(unsigned long xRes, unsigned long yRes, unsign
 	// Create a render surface
 	DDINIT(ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-	ddsd.dwWidth = (rXRes = xRes);
-	ddsd.dwHeight = (rYRes = yRes);
+	ddsd.dwWidth = rXRes;
+	ddsd.dwHeight = rYRes;
 	ddsd.ddsCaps.dwCaps = (rHardware?DDSCAPS_BACKBUFFER | (want3D?DDSCAPS_3DDEVICE:0) : DDSCAPS_OFFSCREENPLAIN | (want3D?DDSCAPS_3DDEVICE:0) | DDSCAPS_SYSTEMMEMORY);
 	if ((res = pDirectDraw->CreateSurface(&ddsd, &surface[RENDER_SRF], NULL)) != DD_OK)
 	{
@@ -129,7 +157,11 @@ unsigned long DDrawCreateSurfaces(unsigned long xRes, unsigned long yRes, unsign
 			return 0;
 		}
 	}
+	
+	DDrawSetupWindow (window,FALSE);
 
+	DDrawAttachSurface (PRIMARY_SRF,RENDER_SRF);
+	DDrawAttachSurface (RENDER_SRF,ZBUFFER_SRF);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -171,28 +203,6 @@ unsigned long DDrawSetupWindow(HWND window, unsigned long scaled)
 	
 	rWin = window;
 	rScale = scaled;
-	
-	// To run fullscreen - exclusive, ensure bitdepth is nonzero
-	rFullscreen = 0;
-	if (rBitDepth)
-	{
-		// Fullscreen Exclusive
-		if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) != DD_OK)
-		{
-			dp("Failed setting cooperative level. (Fullscreen Mode)\n");
-			ddShowError(res);
-			return 0;
-		}
-
-		// Set display
-		if ((res = pDirectDraw->SetDisplayMode(rXRes, rYRes, rBitDepth)) != DD_OK)
-		{
-			dp("Failed setting display mode. (Fullscreen Mode)\n");
-			ddShowError(res);
-			return 0;
-		}
-		rFullscreen = 1;
-	}
 	
 	// Make a clipper
 	if ((res = pDirectDraw->CreateClipper (0,&pClipper,NULL)) !=DD_OK)
@@ -290,3 +300,8 @@ void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fi
 	// Fill it, innefecient, I would recomend not waiting!
 	while (surface[srfN]->Blt(NULL,NULL,NULL,DDBLT_WAIT | fillType,&m)!=DD_OK);	
 }
+
+#ifdef __cplusplus
+}
+#endif
+

@@ -267,7 +267,7 @@ void PrintTimers(void)
 	
 	if (drawTimers==2)
 	{
-		HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
+		HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 
 		if (res == DD_OK)
 		{
@@ -278,7 +278,7 @@ void PrintTimers(void)
 				if (tName[i])
 					TextOut(hdc, 60, 49+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
 
-			IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);	
+			IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
 		}
 	}
 

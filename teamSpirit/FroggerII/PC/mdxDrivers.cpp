@@ -1,3 +1,8 @@
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
@@ -90,6 +95,11 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	lpDD->Release();
     return DDENUMRET_OK;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
 
 
 

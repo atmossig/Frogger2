@@ -25,6 +25,8 @@
 #include "incs.h"
 
 #ifdef PC_VERSION
+#include "mdxDDraw.h"
+#include "mdxD3D.h"
 #include "mavis.h"
 #endif
 
@@ -269,7 +271,7 @@ void DrawActorList()
 	}
 
 	DrawBatchedPolys();
-	BlankFrame(_);
+	BlankFrame();
 	
 	waterObject = 1;
 	cur = actList;
@@ -291,6 +293,9 @@ void DrawActorList()
 		cur = cur->next;
 	}
 
+	DrawBatchedPolys();
+	BlankFrame();
+	
 	waterObject = 0;
 	cur = actList;
 	while(cur)
@@ -319,7 +324,10 @@ void DrawActorList()
 		cur = cur->next;
 	}
 	
+	DrawBatchedPolys();
+	BlankFrame();
 
+	
 #endif
 
 

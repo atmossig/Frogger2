@@ -1013,6 +1013,10 @@ SOURCE=.\Pc\mdxD3D.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\mdxD3D.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\mdxDDraw.cpp
 # End Source File
 # Begin Source File

@@ -26,6 +26,8 @@
 #include "pcmisc.h"
 #include "directx.h"
 //#include "dx_sound.h"
+#include "mdxDDraw.h"
+#include "mdxD3D.h"
 
 #else
 

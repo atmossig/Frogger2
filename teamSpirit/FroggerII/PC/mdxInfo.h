@@ -11,6 +11,12 @@
 #ifndef MGEINFO_H_INCLUDED
 #define MGEINFO_H_INCLUDED
 
+#ifdef __cplusplus
+
+extern "C"
+{
+#endif
+
 /*	--------------------------------------------------------------------------------
 	Function	: ddShowCaps
 	Purpose		: Prints out the capabilities held in a DDCAPS structure
@@ -30,5 +36,9 @@ void ddShowCaps(DDCAPS *me);
 */
 
 void ddShowError(HRESULT error);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -9,6 +9,12 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#ifdef __cplusplus
+
+extern "C"
+{
+#endif
+
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
@@ -308,3 +314,7 @@ void ddShowError(HRESULT error)
 	if (errSt = rptGetString (error, ddErrors))
 		dp(errSt);
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -12,6 +12,9 @@
 #include <dplobby.h>
 
 #include "network.h"
+
+#include "mdxDDraw.h"
+#include "mdxD3D.h"
 #include "netchat.h"
 
 extern "C" {
@@ -341,7 +344,7 @@ void DrawChatBuffer( int left, int top, int right, int bottom )
 	SetBkMode(hdc, TRANSPARENT);
 	SetTextColor(hdc, RGB(255,255,255));
 
-	res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
+	res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 	if (res == DD_OK)
 	{
 		for( count=0,cstring = chatBuffer.head.next; cstring; cstring = cstring->next,count++ )
@@ -351,7 +354,7 @@ void DrawChatBuffer( int left, int top, int right, int bottom )
 		if( chatFlags & CHAT_INPUT )
 			TextOut( hdc, r2.left+5, r2.top+5, chatInput.msg, chatInput.msgLen );
 
-		IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
+		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);
 	}
 }
 

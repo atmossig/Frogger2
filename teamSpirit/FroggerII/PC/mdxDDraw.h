@@ -11,6 +11,12 @@
 #ifndef MDXDDRAW_H_INCLUDED
 #define MDXDDRAW_H_INCLUDED
 
+#ifdef __cplusplus
+
+extern "C"
+{
+#endif
+
 #define RELEASE(x) if (x) {x->Release(); x=NULL;}
 #define DDINIT(x) {memset(&x,0,sizeof(x)); x.dwSize = sizeof(x);}
 
@@ -47,7 +53,7 @@ unsigned long DDrawInitObject (GUID *guid);
 	Info		: 
 */
 
-unsigned long DDrawCreateSurfaces(unsigned long xRes, unsigned long yRes, unsigned long bitDepth, unsigned long want3D = 0, unsigned long zBits = 0);
+unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long yRes, unsigned long bitDepth, unsigned long want3D, unsigned long zBits);
 
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawAttachSurface
@@ -100,6 +106,10 @@ void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fi
 //	DDrawAttachSurface (RENDER_SRF,ZBUFFER_SRF);
 //
 //	-------------------------- 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

@@ -8,6 +8,12 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#ifdef __cplusplus
+
+extern "C"
+{
+#endif
+
 #include <windows.h>
 #include <crtdbg.h>
 #include <stdio.h>
@@ -94,3 +100,7 @@ char *rptGetString(unsigned long value, VALUESTRING *me)
 	}
 	return NULL;
 }
+
+#ifdef __cplusplus
+}
+#endif

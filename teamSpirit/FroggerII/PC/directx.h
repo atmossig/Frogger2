@@ -22,12 +22,12 @@ extern "C"
 extern long SCREEN_WIDTH;
 extern long SCREEN_HEIGHT;
 
-extern LPDIRECTDRAW				pDirectDraw;
-extern LPDIRECTDRAWSURFACE		primarySrf;
-extern LPDIRECTDRAWSURFACE		hiddenSrf;
-extern LPDIRECT3D2				pDirect3D;
-extern LPDIRECT3DDEVICE2		pDirect3DDevice;
-extern LPDIRECT3DVIEWPORT2		pDirect3DViewport;
+//extern LPDIRECTDRAW				pDirectDraw;
+//extern LPDIRECTDRAWSURFACE		primarySrf;
+//extern LPDIRECTDRAWSURFACE		hiddenSrf;
+//extern LPDIRECT3D2				pDirect3D;
+//extern LPDIRECT3DDEVICE2		pDirect3DDevice;
+//extern LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 extern long a565Card;
 
 extern int dumpScreen;

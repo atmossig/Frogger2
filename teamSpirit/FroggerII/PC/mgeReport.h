@@ -11,6 +11,11 @@
 #ifndef MDBREPORT_H_INCLUDED
 #define MDBREPORT_H_INCLUDED
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 extern char debugFile[MAX_PATH];
 
 // A value, string pair for reporting purposes!
@@ -49,5 +54,9 @@ long rptShowBitfields(unsigned long value, VALUESTRING *me);
 */
 
 char *rptGetString(unsigned long value, VALUESTRING *me);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

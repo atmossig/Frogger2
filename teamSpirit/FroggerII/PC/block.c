@@ -722,7 +722,7 @@ void DrawGraphics()
 		}
 	}
 
-	if (useBilerpN)
+	/*if (useBilerpN)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	else
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
@@ -731,6 +731,7 @@ void DrawGraphics()
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_LINEAR);
 	else
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_NEAREST);
+*/
 
 //	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
 //	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
@@ -822,7 +823,7 @@ void DrawGraphics()
 		PrintTimers();
 		{	
 			HDC hdc;
-			HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
+			HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 			char speed[255];
 					
 			if (res == DD_OK)
@@ -833,7 +834,7 @@ void DrawGraphics()
 				SetTextColor(hdc, RGB(255,0,0));
 				TextOut(hdc,50,28, speed, strlen(speed));
 
-				IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
+				IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);
 			}
 		}
 	}
