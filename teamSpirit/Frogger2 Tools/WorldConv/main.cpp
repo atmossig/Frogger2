@@ -66,6 +66,7 @@ enum
 	ELECTRIC,
 	FINISH,
 	NOSUPER,
+	PANTS,
 
 	NUM_MATERIALS
 };
@@ -114,7 +115,8 @@ const char* materialnames[NUM_MATERIALS] =
 	"hot",
 	"electric",
 	"finish",
-	"nosuper"
+	"nosuper",
+	"pants",
 };
 
 int numFrogs = 0;
@@ -569,6 +571,10 @@ void TileMaterial(int mat, int nSquare)
 		case NOSUPER:
 			PutTileChar('S');
 			tileType = TILESTATE_NOSUPER;
+			break;
+		case PANTS:
+			PutTileChar('p');
+			tileType = TILESTATE_PANTS;
 			break;
 
 		case FROGGER1AREA:
