@@ -657,6 +657,8 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 
 #if GOLDCD == NO
+	if ( gameState.multi != SINGLEPLAYER )
+	{
 			if ( padData.digital[1] & PAD_DOWN )
 			{
 				camDist.vy += ( 20 * gameSpeed ) >> 12;
@@ -699,7 +701,8 @@ TIMER_STOP(TIMER_GAMELOOP);
 				objViewer ^= 1;
 			}
 			// ENDIF
-
+	}
+	// ENDIF
 #endif
 
 
