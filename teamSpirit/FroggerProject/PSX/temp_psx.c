@@ -1200,6 +1200,7 @@ void StartVideoPlayback(int num)
 		LoadCodeOverlay(VIDEO_OVERLAY);
 		ClearImage(&rect, 0,0,0);
    		sprintf(str.strName,"\\%s.STR;1",fmv[num].name);
+		utilPrintf("Playing stream %s\n",str.strName);
    		str.mode = STR_MODE24;
    		str.drawBorders = STR_BORDERS_ON;
    		str.scrWidth = 320;
