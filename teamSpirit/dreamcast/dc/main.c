@@ -631,7 +631,7 @@ void main()
 	cardInitialise();
 
 	// ????
-//	LoadGame();
+	LoadGame();
 
 	// load game from memory card
 	actFrameCount = 0;

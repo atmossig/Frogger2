@@ -166,31 +166,32 @@ void GameLoop(void)
 
 	if(checkForSoftReset())
 	{
-		if((gameState.mode != FRONTEND_MODE)&&(quittingLevel == FALSE))
+		// *ASL* 14/08/2000 - ** Cannot quit whilst saving data to VMU **
+		if (saveInfo.saveStage != SAVEMENU_SAVE)
 		{
-			player[0].worldNum = WORLDID_FRONTEND;
-			player[0].levelNum = LEVELID_FRONTEND1;
-			gameState.mode = PAUSE_MODE;
-			quittingLevel = TRUE;
-			pauseConfirmMode = 0;
-			pauseConfirmMode = 0;
-			ScreenFade(255,0,30);
-
-//			gameState.mode = FRONTEND_MODE;
-//			player[0].character = FROG_FROGGER;
-//			InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
-		}
-		// *ASL* 10/08/2000 - Abort to BootROM on user quit within front end 
-		else if (gameState.mode == FRONTEND_MODE)
-		{
-			// are we in the credit sequence?
-			if (creditsRunning)
-				creditsUserQuit = 1;
-			else
+			if ((gameState.mode != FRONTEND_MODE) && (quittingLevel == FALSE))
 			{
-				// set abort flag
-				globalAbortFlag = 1;
-				return;
+				// reset to the frontend
+				player[0].worldNum = WORLDID_FRONTEND;
+				player[0].levelNum = LEVELID_FRONTEND1;
+				gameState.mode = PAUSE_MODE;
+				quittingLevel = TRUE;
+				pauseConfirmMode = 0;
+				pauseConfirmMode = 0;
+				ScreenFade(255,0,30);
+			}
+			// *ASL* 10/08/2000 - Abort to BootROM on user quit within front end
+			else if (gameState.mode == FRONTEND_MODE)
+			{
+				// ..except if in the credit sequence
+				if (creditsRunning)
+					creditsUserQuit = 1;
+				else
+				{
+					// set abort flag
+					globalAbortFlag = 1;
+					return;
+				}
 			}
 		}
 	}
