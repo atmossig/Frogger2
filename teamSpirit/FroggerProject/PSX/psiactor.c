@@ -1207,12 +1207,15 @@ int UndoChangeModel( ACTOR *actor )
 
 	return 1;
 */
+	ACTOR *oa;
 
 	//make sure we are resetting to a valid actor
 	if(!oldActor.psiData.object)
 		return 0;
 
+	oa = &oldActor;
 	*actor = oldActor;
+	//actorFree( oa );
 
 	return 1;
 }
