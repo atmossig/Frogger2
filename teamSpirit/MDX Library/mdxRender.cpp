@@ -234,14 +234,14 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 {
 	register
-	D3DTLVERTEX		vList[10];
+//	D3DTLVERTEX		vList[10];
 	int				out0, out1;
 	D3DTLVERTEX 	*v0ptr, *v1ptr, vBuf1[8], vBuf2[8], *vIn, *vOut, *vTmp,*vOut2,*vIn2;
 	int				vInCount, vOutCount;
 	int				sideLp, vertLp, sideMask;
 	short			faceList[8*3];
 	short			*fL;
-	long			numFaces,i,j;
+	long			i,j;
 	// Set up in & out buffers											
 	
 	vIn = vBuf1;
@@ -454,7 +454,7 @@ void PCCalcModgeValues(MDX_OBJECT *obj)
 
 void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {
-	float f[4][4],*mTemp,*mTemp2,ty,oozd;
+	float f[4][4],*mTemp,ty,oozd;
 	MDX_VECTOR *in;
 	MDX_VECTOR *vTemp2;
 	long i;
@@ -504,7 +504,6 @@ MDX_USHORT2DVECTOR sheenTC[2000];
 
 void PCPrepareModgySheenObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {
-	float f[4][4],*mTemp,*mTemp2,ty,oozd;
 	MDX_VECTOR *in,vT,vT1,vT2;
 	MDX_VECTOR *vTemp2 = obj->mesh->vertices;;
 	float ang,len,mul;
@@ -562,7 +561,7 @@ void PCPrepareObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	float f[4][4];
 	MDX_VECTOR *in;
 	MDX_VECTOR *vTemp2;
-	long i,j;
+	long i;
 	
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 
@@ -595,8 +594,8 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	MDX_VECTOR *vTemp2;
 	MDX_VECTOR *vtxS = mesh->vertices;
 	long i,j;
-	long x,*eV;
-	float oozd,tFog;
+	long *eV;
+	float oozd;
 
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	eV = ((long *)(obj->effectedVerts));
@@ -633,8 +632,8 @@ void PCPrepareSkinnedFlatObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	MDX_VECTOR *vTemp2;
 	MDX_VECTOR *vtxS = mesh->vertices;
 	long i,j;
-	long x,*eV;
-	float oozd,tFog;
+	long *eV;
+	float oozd;
 
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	eV = ((long *)(obj->effectedVerts));
@@ -678,8 +677,8 @@ void PCPrepareSkinnedObjectOutline(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4
 	MDX_VECTOR *vTemp2;
 	MDX_VECTOR *vtxS = mesh->vertices;
 	long i,j;
-	long x,*eV;
-	float oozd,tFog;
+	long *eV;
+	float oozd;
 
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	eV = ((long *)(obj->effectedVerts));
@@ -747,16 +746,14 @@ void PCPrepareSkinnedObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4
 
 void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 {
-	float f[4][4];
 	MDX_VECTOR *in;
 	D3DTLVERTEX *vTemp2;
 	short *tFace;
-	long i,x,j,nFOV;
+	long i,j,nFOV;
 	float oozd;
 	float a0,b0,c0,d0;
 	float a1,b1,c1,d1;
 	float a2,b2,c2,d2,tFog;
-	float nDIST,nNear,nFar;
 	float frange;
 
 	a0 = vMatrix.matrix[0][0];
@@ -828,7 +825,6 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 
 void __fastcall PCPrepareLandscape2 (MDX_LANDSCAPE *me)
 {
-	float f[4][4];
 	MDX_VECTOR *in;
 	D3DTLVERTEX *vTemp2;
 	short *tFace;
@@ -891,7 +887,6 @@ void __fastcall PCPrepareLandscape2 (MDX_LANDSCAPE *me)
 
 void __fastcall PCPrepareLandscape3 (MDX_LANDSCAPE *me)
 {
-	float f[4][4];
 	MDX_VECTOR *in;
 	D3DTLVERTEX *vTemp2;
 	short *tFace;
@@ -956,7 +951,7 @@ void __fastcall PCPrepareLandscape3 (MDX_LANDSCAPE *me)
 
 void PCRenderLandscape(MDX_LANDSCAPE *me)
 {
-	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long x1on,y1on;
 	short facesON[3] = {0,1,2};
 	D3DTLVERTEX *v = me->xfmVert;
 	MDX_TEXENTRY **tEnt = me->tEntrys;
@@ -1082,7 +1077,7 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 
 	if (obj->flags & OBJECT_FLAGS_GLOW)
 	{
-		MDX_VECTOR v,cVect,oVect,cVect2,oVect2;
+		MDX_VECTOR v,cVect,oVect;
 		float horiz,horiz2;
 
 		v.vx = obj->objMatrix.matrix[3][0];
@@ -1731,7 +1726,7 @@ void PCRenderModgySheenObject (MDX_OBJECT *obj)
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
 	unsigned long v0,v1,v2;
 	unsigned long v0a,v1a,v2a;
-	float m1x,m2x,m3x,tFog;
+	float m1x,m2x,m3x;
 	float m1z,m2z,m3z,cVal;
 	long alphaVal;
 	MDX_TEXENTRY *tex;
@@ -2005,9 +2000,9 @@ void PCRenderObjectOutline (MDX_OBJECT *obj)
 	//MDX_QUATERNION *c1,*c2,*c3;
 	//D3DTLVERTEX v[3],*vTemp;
 	MDX_SHORTVECTOR *facesIdx;
-	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long x1on,y1on;
 	//unsigned long v0,v1,v2;
-	unsigned long v0a,v1a,v2a;
+//	unsigned long v0a,v1a,v2a;
 	//long alphaVal;
 	MDX_TEXENTRY *tex;
 	MDX_TEXENTRY **tex2;
@@ -2096,8 +2091,8 @@ void PCRenderObject (MDX_OBJECT *obj)
 {
 	long i;//,j;
 	MDX_SHORTVECTOR *facesIdx;
-	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
-	unsigned long v0a,v1a,v2a;
+	unsigned long x1on,y1on;
+//	unsigned long v0a,v1a,v2a;
 	MDX_TEXENTRY *tex;
 	MDX_TEXENTRY **tex2;
 	MDX_VECTOR *tV0,*tV1,*tV2;

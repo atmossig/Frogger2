@@ -78,9 +78,7 @@ void Normalise(MDX_VECTOR *vect)
 
 void guMtxIdent (float a[4][4])
 {
-	int i,j;
 	memcpy (a,imtx,sizeof(float)*16);
-	
 }
 
 void guScaleF(float a[4][4], float dx, float dy, float dz)

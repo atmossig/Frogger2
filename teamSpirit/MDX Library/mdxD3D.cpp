@@ -592,7 +592,7 @@ void SurfaceDraw()
 unsigned long DDrawCopyToSurface2(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long xs, unsigned long ys)
 {
 	DDSURFACEDESC2		ddsd;
-	short val,r,g,b,a,rShift,gShift,gAnd;
+	short val,rShift;
 	unsigned long texHasMagenta = 0;
 	
 	// Copy the data into the surface manually

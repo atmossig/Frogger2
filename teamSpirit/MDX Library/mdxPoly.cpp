@@ -707,9 +707,8 @@ void DrawSortedPolys (void)
 void DrawBatchedPolys (void)
 {
 	unsigned long i;
-	unsigned long nFace,nFace2,done;
+	unsigned long nFace,done;
 	LPDIRECTDRAWSURFACE7 lSurface,*cT;
-	D3DTLVERTEX *vert;
 	
 	cFInfo->cF = cFInfo->f;
 	cFInfo->cT = cFInfo->t;
@@ -751,11 +750,10 @@ void DrawBatchedPolys (void)
 void DrawBatchedOpaquePolys (void)
 {
 	unsigned long i,oi;
-	unsigned long nFace,nFace2,done;
+	unsigned long nFace,done;
 	char key,*cK;
 
 	LPDIRECTDRAWSURFACE7 lSurface,*cT;
-	D3DTLVERTEX *vert;
 	
 	cFInfo->cF = cFInfo->f;
 	cFInfo->cT = cFInfo->t;
@@ -819,11 +817,10 @@ void DrawBatchedOpaquePolys (void)
 void DrawBatchedKeyedPolys (void)
 {
 	unsigned long i;
-	unsigned long nFace,nFace2,done;
+	unsigned long nFace,done;
 	char key,*cK;
 
 	LPDIRECTDRAWSURFACE7 lSurface,*cT;
-	D3DTLVERTEX *vert;
 	
 	cFInfo->cF = cFInfo->f;
 	cFInfo->cT = cFInfo->t;
@@ -962,7 +959,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 		verts = (D3DTLVERTEX *)lpvVertices;
 		for (int i=0; i<dwIndexCount; i+=3)
 		{
-			unsigned long f1,f2,f3;
+//			unsigned long f1,f2,f3;
 			TSSVertex	v[3];		
 		
 			f1 = lpwIndices[i+0];
@@ -1822,8 +1819,8 @@ void GetHaloPoints(void)
 
 void WriteHaloPoints(void)
 {
-	DDSURFACEDESC2		ddsd;
-	MDX_VECTOR v,t;
+//	DDSURFACEDESC2		ddsd;
+//	MDX_VECTOR v,t;
 	D3DTLVERTEX verts[4] = 
 	{
 		{64,64,0,1,D3DRGB(0,0,1),0, 0,0},
@@ -1859,7 +1856,7 @@ void WriteHaloPoints(void)
 void ReadHaloPoints(void)
 {
 	DDSURFACEDESC2		ddsd;
-	MDX_VECTOR v;
+//	MDX_VECTOR v;
 	unsigned long i;
 
 	if (numHaloPoints)
@@ -1906,7 +1903,7 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned lo
 void CheckHaloPoints(void)
 {
 	DDSURFACEDESC2		ddsd;
-	MDX_VECTOR v;
+//	MDX_VECTOR v;
 	unsigned long i;
 
 	if (numHaloPoints)
@@ -1939,7 +1936,7 @@ LPDIRECTDRAWSURFACE7 flareS2;
 
 void DrawHalos(void)
 {
-	RECT rec;
+//	RECT rec;
 	D3DSetupRenderstates(xluAddRS);
 	float r = 1, g = 80/256.0, b = 10/256.0;
 	float r1 = 1, g1 = 130/256.0, b1 = 110/256.0;
@@ -2007,9 +2004,9 @@ unsigned long drawPhong = 1;
 
 void DrawAllFrames(void)
 {
-	int i;
-	D3DTLVERTEX *cV;
-	unsigned long aValue,cValue;
+//	int i;
+//	D3DTLVERTEX *cV;
+//	unsigned long aValue,cValue;
 /*	pDirect3DDevice->BeginScene();
 	DrawSoftwarePolys();
 	pDirect3DDevice->EndScene();

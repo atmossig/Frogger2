@@ -100,7 +100,7 @@ void SubdivideObject(MDX_OBJECT *me)
 	MDX_QUATERNION *newGouraudColors;
 	MDX_TEXENTRY **newTextures;
 	unsigned long i,v0,v1,v2;
-	float mag1,mag2,mag3,biggest,ut,vt;
+	float mag1,mag2,mag3,biggest;
 		
 	mesh = me->mesh;
 	
@@ -530,13 +530,6 @@ void TransformObject(MDX_OBJECT *obj, float time)
 void TransformObjectQuick(MDX_OBJECT *obj, float time)
 {
 	MDX_VECTOR translation,scale;
-	MDX_SPRITE	*sprite;
-	int i;
-	float	interp;
-	short	fromKey, toKey;
-	short	xluVal;
-//	unsigned long wasHed;
-	MDX_QUATERNION	tempQuat;
 	float rotmat[4][4];
 	float scalemat[4][4];
 

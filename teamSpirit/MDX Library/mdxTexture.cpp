@@ -304,7 +304,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 					for (int j=0; j<yDim; j++)
 					{
 						short dt;
-						unsigned long d,r,g,b;
+						unsigned long r,g,b;
 						dt = newE->data[i+j*xDim];
 						r = (dt>>10) & 0x1f;
 						g = (dt>>5) & 0x1f;
@@ -667,7 +667,7 @@ void ShowTextures(void)
 	if ((res == DD_OK))
 	{
 			char tText[256];
-			long tPC = 0,cPC;
+			long tPC = 0;
 			HFONT hfnt, hOldFont;      
 			hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
 			if (hOldFont = (HFONT)SelectObject(hdc, hfnt)) 

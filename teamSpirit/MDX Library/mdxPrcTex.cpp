@@ -67,7 +67,7 @@ void InitWater(char *file)
 void UpdateWater(void)
 {
 	long wIndex1,wIndex2;
-	long wOffset,lOffset;
+	long wOffset;//,lOffset;
 	long x,y,y1,p;
 	short *tPtr;
 	
