@@ -13,6 +13,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 // PC headers
+#include "main.h"
 #include "netrace.h"
 #include "netgame.h"
 #include "network.h"
@@ -44,6 +45,8 @@ struct MSG_RACEWON
 	DWORD frame, penalty;
 };
 
+// should be in header, but then the net code would keep making everything recompile and that's pants
+extern NET_MESSAGEHANDLER netgameHandler;	
 
 long started = 0;
 
@@ -64,6 +67,7 @@ int NetRaceInit()
 	netgameHandler	= NetRaceMessageDispatch;
 	netgameLoopFunc	= NetRaceRun;
 	multiplayerMode = MULTIMODE_RACE;
+	cameoMode = true;
 
 	return 0;
 }
@@ -157,6 +161,7 @@ int NetRaceRun()
 
 	if (actFrameCount > gameStartTime)
 	{
+		cameoMode = false;
 		UpDateMultiplayerInfo( );
 
 		if (!mpl[0].ready)
@@ -184,6 +189,7 @@ int NetRaceRun()
 			// Do overlay stuff
 			mpl[i].nameText->draw = 0;
 			mpl[i].numText->draw = 0;
+
 			if(mpl[i].penalText->draw)
 			{
 				SlideTextOverlayToPos(mpl[i].penalText,backTextX[i],backTextY[i],mpl[i].scrX,mpl[i].scrY,40);	
@@ -251,6 +257,7 @@ int NetRaceRun()
 			mpl[i].numText->yPos -= 200;
 		}
 	}
+
 	return 0;
 }
 
@@ -263,7 +270,7 @@ int NetRaceCheckWin()
 		if( !mpl[i].ready ) break;
 
 	// If all players finished, check win conditions
-	if( i==NUM_FROGS )
+	if( i==NUM_FROGS || NUM_FROGS==1)
 	{
 		unsigned long best, time, winner, draw;
 		// Find best time
@@ -294,7 +301,7 @@ int NetRaceCheckWin()
 			gameWinner = winner;
 			mpl[winner].wins++;
 
-			if( mpl[winner].wins == 3 && matchWinner == -1)
+			if( mpl[winner].wins == 3 && matchWinner == -1 || NUM_FROGS==1)
 				matchWinner = winner;
 		}
 
