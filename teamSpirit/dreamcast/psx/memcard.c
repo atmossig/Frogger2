@@ -376,11 +376,12 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 	ENDPRIM(dm, 5, DR_MODE);
 */
 
+/* JIM: Stuff at the bottom that we don't want anymore
 	if (!optChosen)
 	{
 		fontSmall->alpha = 255;
 //		x = -14*(1+(msg2!=NULL))-fontExtentWScaled(fontSmall, GAMESTRING(STR_SELECTOPTION),4096)/2-5;
-		x = (-fontExtentWScaled(fontSmall, GAMESTRING(STR_SELECTOPTION),4096)/2)+320;
+//		x = (-fontExtentWScaled(fontSmall, GAMESTRING(STR_SELECTOPTION),4096)/2)+320;
 
 		if (msg2!=NULL)
 		{
@@ -392,14 +393,16 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 		}
 //		fontDispSprite(buttonSprites[2], x,y-3, 255,255,255, 255);
 //		fontDispSprite(buttonSprites[2], x,y-1, 0,0,0, 255);
+
 		fontDispSprite(buttonSprites[2], x,y-1, 0,0,0, fontSmall->alpha, fontSmall->size);
 		fontDispSprite(buttonSprites[2], x,y-3, 255,255,255, fontSmall->alpha, fontSmall->size);
+
 		x += 28;
 		x += 10;
 		fontPrintScaled(fontSmall, x,y+2, GAMESTRING(STR_SELECTOPTION), 0,0,0,4096);
 		fontPrintScaled(fontSmall, x,y, GAMESTRING(STR_SELECTOPTION), 255,255,255,4096);
 	}
-
+*/
 	if (!optChosen)								// Make selection
 	{
 		if (optFrame>20)
