@@ -107,7 +107,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	if(!DirectXInit(winInfo.hWndMain,1))
 		ok = 0;
 	InitFont();
-	// InitEditor();
+	InitEditor();
 	
 	gameState.mode		= FRONTEND_MODE;
 	frontEndState.mode	= DEMO_MODE;
@@ -130,7 +130,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		{
 			GameLoop();
 			ProcessUserInput(winInfo.hWndMain);
-			// RunEditor();
+			RunEditor();
 			
 			DrawGraphics();
 			
@@ -278,7 +278,7 @@ void DrawGraphics()
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
 
-	// DrawEditor();
+	DrawEditor();
 
 	EndDrawHardware();
 }
