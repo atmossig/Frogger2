@@ -17,8 +17,8 @@ extern "C" {
 #endif
 
 
-int StartVideoPlayback(const char* name);
-int RunVideoPlayback(void);
+long StartVideoPlayback(const char* name);
+long RunVideoPlayback(void);
 
 
 #ifdef __cplusplus
