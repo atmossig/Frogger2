@@ -594,12 +594,22 @@ BOOL ExecuteCommand(UBYTE **p)
 		}
 
 	case EV_SETENEMY:
-		if (EnumEnemies(MEMGETWORD(p), SetEnemy, MEMGETBYTE(p)) == 0) return 0;
-		break;
+		{
+			long id = (long)MEMGETWORD(p);
+			int foo = (int)MEMGETBYTE(p);
+			if (EnumEnemies(id, SetEnemy, foo) == 0) return 0;
+
+			// if (EnumEnemies((long)MEMGETWORD(p), SetEnemy, (int)MEMGETBYTE(p)) == 0) return 0;
+			break;
+		}
 
 	case EV_SETPLATFORM:
-		if (EnumPlatforms(MEMGETWORD(p), SetPlatform, MEMGETBYTE(p)) == 0) return 0;
-		break;
+		{
+			long id = (long)MEMGETWORD(p);
+			int foo = (int)MEMGETBYTE(p);
+			if (EnumPlatforms(id, SetPlatform, foo) == 0) return 0;
+			break;
+		}
 
 	case EV_SETENEMYFLAG:
 		if (EnumEnemies(MEMGETWORD(p), SetEnemyFlag, MEMGETINT(p)) == 0) return 0;
