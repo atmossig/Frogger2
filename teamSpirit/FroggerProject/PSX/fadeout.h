@@ -13,6 +13,7 @@
 #define _FADEOUT_H
 
 extern int fadingOut, keepFade;
+extern int fadeText;
 
 void ScreenFade(int start, int end, long time);
 void DrawScreenTransition(void);

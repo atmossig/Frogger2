@@ -20,6 +20,8 @@
 long fadeoutStart, fadeoutLength;
 int fadingOut = 0, keepFade = 0;
 
+int fadeText = YES;
+
 int (*fadeProc)(void);
 
 int startIntensity = 0, endIntensity = 255;
@@ -65,6 +67,7 @@ void ScreenFade(int start, int end, long time)
 	// cause we're using subtractive
 	startIntensity = 255-start;
 	endIntensity = 255-end;
+	fadeText = YES;
 }
 
 

@@ -17,6 +17,10 @@
 long fadeoutStart, fadeoutLength;
 int fadingOut = 0, keepFade = 0;
 
+int fadedOutCount;
+
+int fadeText = YES;
+
 int (*fadeProc)(void);
 
 int startIntensity = 0, endIntensity = 255;
@@ -30,11 +34,15 @@ int DrawScreenFade(void)
 {
 //	RECT r = { 0, 0, rXRes, rYRes };
 	POLY_F4 *f4;
+	DR_MODE *dm;
 	int col;
-	int halfX=256, halfY;
+	int halfX=256, halfY,depth;
 	
 	if (actFrameCount > (fadeoutStart+fadeoutLength))
+	{
 		col = endIntensity;
+		fadedOutCount++;
+	}
 	else
 		col = startIntensity + ((endIntensity-startIntensity)*(long)(actFrameCount-fadeoutStart))/fadeoutLength;
 
@@ -50,6 +58,11 @@ int DrawScreenFade(void)
 		halfY = 120;
 	#endif
 
+	if(fadeText)
+		depth = 0;
+	else
+		depth = 4;
+
 	BEGINPRIM(f4, POLY_F4);
 	setPolyF4(f4);
 	f4->x0 = -halfX;
@@ -63,12 +76,15 @@ int DrawScreenFade(void)
 	f4->r0 = col;
 	f4->g0 = col;
 	f4->b0 = col;
-	f4->code |= 2;
-	f4->code |= 32;
-	ENDPRIM(f4, 1, POLY_F4);
+	setSemiTrans(f4,1);
+	ENDPRIM(f4, depth, POLY_F4);
+	BEGINPRIM(dm, DR_MODE);
+	SetDrawMode(dm, 0,1, ((SEMITRANS_SUB-1)<<5),0);
+	ENDPRIM(dm, depth, DR_MODE);
+
 	
 
-	return (actFrameCount > (fadeoutStart+fadeoutLength));
+	return (fadedOutCount > 1);
 }
 
 
@@ -87,6 +103,8 @@ void ScreenFade(int start, int end, long time)
 	// cause we're using subtractive
 	startIntensity = 255-start;
 	endIntensity = 255-end;
+	fadedOutCount = 0;
+	fadeText = YES;
 }
 
 

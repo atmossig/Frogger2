@@ -101,6 +101,7 @@ void fontRegisterButtonSprites(TextureType *triangle, TextureType *circle, Textu
 **************************************************************************/
 
 void fontRegisterOtherSprites(char code, TextureType *sprite);
+void fontDispSprite(TextureType *tex, short x,short y);
 
 
 #endif //__ISLFONT_H__

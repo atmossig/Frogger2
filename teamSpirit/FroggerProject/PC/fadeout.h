@@ -18,6 +18,7 @@ extern "C"
 #endif
 
 extern int fadingOut, keepFade;
+extern int fadeText;
 
 void ScreenFade(int start, int end, long time);
 void DrawScreenTransition(void);

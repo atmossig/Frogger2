@@ -42,7 +42,6 @@ unsigned char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0
 					"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
 
 
-static void fontDispSprite(TextureType *tex, short x,short y);
 
 static void fontDownload(psFont *font, char *fontdata, int character)
 {
@@ -169,7 +168,7 @@ static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, uns
 	if(alpha)
 		SETSEMIPRIM(ft4, alpha);
 	ft4->clut = tex->clut;
-	ENDPRIM(ft4, 0, POLY_FT4);
+	ENDPRIM(ft4, 2, POLY_FT4);
 }
 
 
@@ -461,7 +460,7 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 	}
 }
 
-static void fontDispSprite(TextureType *tex, short x,short y)
+void fontDispSprite(TextureType *tex, short x,short y)
 {
 	POLY_FT4 	*si;
 	USHORT		w,h;
@@ -498,7 +497,7 @@ static void fontDispSprite(TextureType *tex, short x,short y)
  	si->tpage |= 32;
 
 	setPolyFT4(si);
-	ENDPRIM(si, 0, POLY_FT4);
+	ENDPRIM(si, 2, POLY_FT4);
 }
 
 

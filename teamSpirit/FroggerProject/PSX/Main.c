@@ -74,6 +74,7 @@
 #include "ptexture.h"
 #include "cr_lang.h"
 #include "cam.h"
+#include "menus.h"
 //#include "psxtongue.h"
 
 #include "objviewer.h"
@@ -109,7 +110,6 @@ long textEntry = 0;
 char textString[255] = "";
 
 long drawGame = 1;
-
 
 //fixed gameSpeed = 4096;
 //char quitMainLoop;
@@ -460,7 +460,7 @@ int main ( )
 
 		StartSound();//mmsfx
 
-#define ENABLE_LANG_SEL 0
+#define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
 		actFrameCount = 0;
 		languageInitialise();
@@ -476,7 +476,7 @@ int main ( )
 			actFrameCount++;
 
 			DrawSync(0);
-			VSync(2);
+			VSync(0);
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
@@ -768,7 +768,7 @@ totalObjs = 0;
 
 
 
-			if(gameState.mode!=PAUSE_MODE)
+			if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
 			{
 				//bb
 				lastActFrameCount = actFrameCount;

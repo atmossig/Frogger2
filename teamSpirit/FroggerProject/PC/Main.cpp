@@ -858,11 +858,12 @@ long pFrameModifier = 0;
 long beenPaused = 0;
 long lastFrames,lastTicks;
 
+
 long LoopFunc(void)
 {
 	ACTOR2 *c;
 
-	if (gameState.mode!=PAUSE_MODE)
+	if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
 	{
 		lastActFrameCount = actFrameCount;
 		

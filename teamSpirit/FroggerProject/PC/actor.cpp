@@ -18,6 +18,7 @@
 
 #include "actor.h"
 #include "frogger.h"
+#include "enemies.h"
 #include "babyfrog.h"
 #include "game.h"
 #include "Types.h"

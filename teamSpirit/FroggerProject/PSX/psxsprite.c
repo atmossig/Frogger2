@@ -64,7 +64,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		{
 			f4->code  |= 2;
 		}
-		ENDPRIM(f4, 1, POLY_F4);
+		ENDPRIM(f4, 1+(1-spr->num)*2, POLY_F4);
 	}
 	else
 	{
@@ -109,7 +109,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
 			if(alpha)
 				SETSEMIPRIM(ft4, alpha);
-			ENDPRIM(ft4, 1, POLY_FT4);
+			ENDPRIM(ft4, 1+(1-spr->num)*2, POLY_FT4);
 		}
 		else
 		{	// Original random scaling method (slightly tidier)
@@ -149,7 +149,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
 			if(alpha)
 				SETSEMIPRIM(ft4, alpha);
-			ENDPRIM(ft4, 1, POLY_FT4);
+			ENDPRIM(ft4, 1+(1-spr->num)*2, POLY_FT4);
 		}
 	}
 }
@@ -163,11 +163,12 @@ void PrintSpriteOverlays ( char num )
 
 	while ( cur != &spriteOverlayList.head )
 	{
-		if ( cur->num != num )
+/*		if ( cur->num != num )
 		{
 			cur = cur->next;
 			continue;
 		}
+*/
 		// ENDIF
 
 

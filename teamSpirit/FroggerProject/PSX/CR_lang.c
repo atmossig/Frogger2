@@ -11,6 +11,9 @@
 #include <islpad.h>
 #include "main.h"
 #include <islmem.h>
+#include "fadeout.h"
+#include "textures.h"
+#include "layout.h"
 //#include "menu.h"
 
 #define FLAGPOINTS 36
@@ -18,12 +21,15 @@
 
 LanguageDataType languageData;
 
-//extern int	gameTextLang;
-//int gameTextLang = -1;
-int gameTextLang = 0;
-
 //bb
 int DoneLangSel = 0;
+
+static char *buttonName[] = 
+{
+	"CONTROLL",
+	"CONTROLR",
+	"CONTROL2",
+};
 
 static char *flagName[] =
 {
@@ -166,8 +172,8 @@ static void languageDrawPolys()
 			gt4->u3 = textureU[loop1][loop2][3];
 			gt4->v3 = textureV[loop1][loop2][3];
 
-			setSemiTrans(gt4, 1);
-			SETSEMIPRIM(gt4, SEMITRANS_SEMI);
+//			setSemiTrans(gt4, 1);
+//			SETSEMIPRIM(gt4, SEMITRANS_SEMI);
 
 			ENDPRIM(gt4,100, POLY_GT4);
 		}
@@ -217,6 +223,11 @@ TextureType face;
 void languageInitialise()
 {
 	long loop,loop1,loop2;
+
+	ScreenFade(0,255,30);
+	keepFade = 0;
+
+	font = fontLoad("BIGFONT.FON");
 
 	imagePtr=0;
 	tex.x = 960;
@@ -294,7 +305,12 @@ void languageFrame()
 {
 	long loop1,loop2,temp;
 		
-	utilPrintf("Frame\n");
+				if( (padData.debounce[0] & PAD_L1))
+				{
+					froggerShowVRAM(1);
+				}
+
+//	utilPrintf("Frame\n");
 	wind[0] += utilRandomInt(800)-100+rsin(languageData.frame*200)/15;
 	wind[0] = wind[0]/2;
 	for(loop1 = FLAGPOINTS*2-1; loop1 > 0; loop1 --)
@@ -354,6 +370,11 @@ void languageFrame()
 	if (gameTextLang < LANG_NUMLANGS)
 	{
 		fontPrint(font,-fontExtentW(font,langName[gameTextLang])/2,75,langName[gameTextLang],128,128,128);
+
+		fontDispSprite(FindTexture(buttonName[0]),-80, 80);
+		fontDispSprite(FindTexture(buttonName[1]), 80, 80);
+		fontDispSprite(FindTexture(buttonName[2]),  0,100);
+
 //		mapScreenDispSquare(gameInfo.buttons[4],-80,80,128,128,128,0,0,4096,-1,0);
 //		mapScreenDispSquare(gameInfo.buttons[5],80,80,128,128,128,0,0,4096,-1,0);
 //		if ((temp = ((gameInfo.frame<<3) & 255))>127)
@@ -364,21 +385,20 @@ void languageFrame()
 
 	languageData.frame++;
 
-	if (padData.debounce[0] & PAD_CROSS || finishing) 
+	if(finishing)
+		finishing += 2;
+	else if(padData.debounce[0] & PAD_CROSS)
 	{
-		finishing+=2;
-//		gameInfo.destFadeLevel = -finishing*2;
-//		gameInfo.fadeLevel = -finishing*2;
+		finishing += 2;
+		ScreenFade(255,0,30);
+		keepFade = 1;
 	}
 
-	if (finishing > 126)
+	if((finishing > 0) && (fadingOut == 0))
 	{
 		if (gameTextLang > LANG_NUMLANGS)
 		gameTextLang = LANG_UK;
 		languageDestroy();
-//		memoryShow();
-//		menuStart();
-		//bb
 		DoneLangSel=1;
 	}
 }

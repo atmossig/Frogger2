@@ -753,7 +753,6 @@ enum {
 
 
 extern void	*gameTextStr[TEXTSTR_MAX];
-extern int	gameTextLang, *gameTextTimings;
 
 
 /**************************************************************************
