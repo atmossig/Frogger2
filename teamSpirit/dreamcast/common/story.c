@@ -16,7 +16,6 @@
 #include "define.h"
 #include "game.h"
 #include "frontend.h"
-#include "charsel.h"
 #include "story.h"
 
 #include <stdio.h>
@@ -26,21 +25,21 @@
 #include <mdxddraw.h>
 #endif
 
-#define NUM_CHAPTERS 7
 #define IMAGETIME_SECONDS 10
 
-char chapterNumImages[NUM_CHAPTERS] = 
-{	5,3,3,4,2,6,3,	};
-
-unsigned long levelToPlay[NUM_CHAPTERS][2] = 
+FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
-	{WORLDID_GARDEN,LEVELID_GARDEN1},	
-	{WORLDID_GARDEN,LEVELID_GARDEN1},
-	{WORLDID_GARDEN,LEVELID_GARDEN1},
-	{WORLDID_GARDEN,LEVELID_GARDEN1},
-	{WORLDID_GARDEN,LEVELID_GARDEN1},
-	{WORLDID_GARDEN,LEVELID_GARDEN1},
-	{WORLDID_GARDEN,LEVELID_GARDEN1},	
+	"",0,
+	"TREX",2143,
+	"INTRO",1640,
+	"TREX",2143,
+	"TREX",2143,
+	"TREX",2143,
+	"TREX",2143,
+	"TREX",2143,
+	"TREX",2143,
+	"TREX",2143,
+	"TREX",2143,
 };
 
 GAME_LEVEL storySequence[] = 
@@ -75,7 +74,6 @@ GAME_LEVEL storySequence[] =
 
 unsigned long currentChapter = 1;
 unsigned long currentSubChapter = 1;
-unsigned long chaptersOpen = 1;
 
 unsigned long finishTime = 0;
 
@@ -112,13 +110,7 @@ long ShowChapterFMV(void)
 {
 	if (actFrameCount>finishTime)
 	{
-		if (chapterNumImages[currentChapter-1]>currentSubChapter)
-		{
-			currentSubChapter++;
-			LoadCurrentFMVImage();			
-		}
-		else
-			return 0;
+		return 1;
 	}
 
 	if (screenInfo)
@@ -127,7 +119,7 @@ long ShowChapterFMV(void)
 		//CopyShortDataToScreen(screenInfo);
 	}
 
-	return 1;
+	return 0;
 }
 
 long DoneChapterFMV(void)
@@ -135,8 +127,6 @@ long DoneChapterFMV(void)
 	screenInfo = 0;
 	finishTime = 0;
 
-	player[0].worldNum = levelToPlay[currentChapter-1][0];
-	player[0].levelNum = levelToPlay[currentChapter-1][1];			
 	gameState.single = STORY_MODE;
 					
 	lastActFrameCount = actFrameCount;
@@ -147,15 +137,7 @@ long DoneChapterFMV(void)
 	return 1;
 }
 
-void RunFMVMode(void)
-{
-	if (!screenInfo)
-		InitChapterFMV();
 	
-	if (!ShowChapterFMV())
-		DoneChapterFMV();
-}	
-
 /*	--------------------------------------------------------------------------------
     Function		: StoryStartLevel
 	Parameters		: void

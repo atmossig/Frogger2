@@ -4,6 +4,8 @@
 #include "types.h"
 #include "define.h"
 
+#define DEBUG_SCRIPTING
+
 extern int InitScripting(void);
 
 extern void LoadTestScript(const char* filename);

@@ -311,43 +311,4 @@ long utilCalcAngle(long adj,long opp)
 	angle = ((atan2(adj,opp) / 6.283185308) * 4096.0);
 	
 	return angle;
-
-/*
-	long hyp,xsgn,ysgn,sine,quadrant;
-//	long adjsq,oppsq;
-
-	while ((adj>32767)||(opp>32767)||(adj<-32767)||(opp<-32767))
-	{
-		adj /= 2;
-		opp /= 2;
-	}
-
-	xsgn = (adj < 0);									// +/-
-	ysgn = (opp < 0);									// +/-
-
-	quadrant = (xsgn * 2) + ysgn;							//
-													  
-//	adjsq = adj * adj;
-//	oppsq = opp * opp;	//
-//	hyp = utilSqrt(adjsq + oppsq);	//
-	hyp = utilSqrt(adj * adj + opp * opp);	//
-	ysgn=((hyp & 0xffff) > 0x7fff);
-
-	sine = abs(opp) << 10;
-	xsgn = ((hyp >> 16) + ysgn) & 0xffff;
-
-	if(xsgn)
-		sine = abs(sine / xsgn);
-
-	sine = acostable[sine];
-	
-	if(quads[quadrant])
-		sine = 1024 - sine;
-
-	sine = ((sine + quadrants[quadrant]) + 4096) & 4095;
-	
-	sine |= (hyp & 0xffff0000);
-	
-	return sine;	
-*/	
 }

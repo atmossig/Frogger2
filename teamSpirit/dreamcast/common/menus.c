@@ -53,6 +53,9 @@
 //ma#include "memcard.h"
 #endif
 
+
+#define LONG_DEMO_WAIT 300
+
 int reverseMode = 0;
 int fogStore;
 int quittingLevel = 0;
@@ -74,7 +77,7 @@ FVECTOR storeCurrCamOffset;
 FVECTOR storeCamVect;
 
 
-#define TILENUM_START	245
+#define TILENUM_START	197
 #define TILENUM_OPTIONS 1
 #define TILENUM_CHOICE	2
 #define TILENUM_MULTI	3
@@ -84,15 +87,21 @@ FVECTOR storeCamVect;
 
 
 
+SPRITEOVERLAY *frogLogo = NULL;
 SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 SPRITEOVERLAY *blitzLogo = NULL;
+int fadingLogos = NO;
 //SPRITEOVERLAY *flogo[10];
 
 void GameProcessController(long pl);
 
 
+#ifdef FINAL_MASTER
+char playDemos = 1;
+#else
 char playDemos = 0;
+#endif
 
 #ifdef PC_VERSION
  char debugKeys = 0;
@@ -125,6 +134,8 @@ CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] =
 	{{PAD_DOWN, PAD_DOWN, PAD_DOWN, PAD_DOWN,  0},0,1},	//CHEAT_INFINITE_LIVES
 	{{PAD_LEFT, PAD_LEFT, PAD_LEFT, PAD_LEFT,  0},0,0},	//CHEAT_OPEN_ALL_CHARS
 	{{PAD_RIGHT,PAD_RIGHT,PAD_RIGHT,PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
+	{{PAD_LEFT, PAD_LEFT, PAD_RIGHT,PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
+	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    0},0,0},//CHEAT_SKIP_LEVEL
 };
 
 long currentCheatCombo[8];
@@ -151,7 +162,7 @@ char titleHudOn[5][4] =
 	0,0,1,1,
 	0,1,1,1,
 	1,1,1,1,
-	0,1,0,0,
+	0,1,1,1,
 	0,0,1,1,
 };
 
@@ -198,7 +209,7 @@ void StartPauseMenu()
 	quitText->r = quitText->b = 100;
 	quitText->g = 200;
 
-	if( gameState.multi == SINGLEPLAYER )
+//	if( gameState.multi == SINGLEPLAYER )
 		DisableHUD( );
 
 	for(i=0; i<numBabies; i++)
@@ -211,9 +222,42 @@ void StartPauseMenu()
 }
 
 
+int CheatAllowed(int cheat)
+{
+	switch(cheat)
+	{
+		case CHEAT_OPEN_ALL_LEVELS:
+			return TRUE;
+
+		case CHEAT_REVERSE_MODE:
+			return TRUE;
+
+		case CHEAT_INFINITE_LIVES:
+			return TRUE;
+
+		case CHEAT_OPEN_ALL_CHARS:
+			return TRUE;
+
+		case CHEAT_OPEN_ALL_EXTRAS:
+			return TRUE;
+
+		case CHEAT_INVULNERABILITY:
+			return (NUM_FROGS == 1);
+
+		case CHEAT_SKIP_LEVEL:
+			return ((NUM_FROGS == 1) && (gameState.mode != FRONTEND_MODE));
+		
+		default:
+			return TRUE;
+	}
+}
+
 void ComboCheat(int cheat)
 {
 	int i,j;
+
+	if(!CheatAllowed(cheat))
+		return;
 
 	PlaySample(genSfx[GEN_DEATHDROWN],NULL,0,SAMPLE_VOLUME,-1);
 	if(cheatCombos[cheat].toggle > 0)
@@ -255,6 +299,16 @@ void ComboCheat(int cheat)
 
 		case CHEAT_OPEN_ALL_EXTRAS:
 			CheckForExtras();
+			break;
+
+		case CHEAT_INVULNERABILITY:
+			GTInit(&player[0].safe,20);
+			break;
+
+		case CHEAT_SKIP_LEVEL:
+			gameState.mode = LEVELCOMPLETE_MODE;
+				
+			babiesSaved = numBabies;
 			break;
 	}
 }
@@ -539,10 +593,16 @@ long reachedPoint = 0;
 TextureType *arcadeScreenTex = NULL;
 
 int arcadeTexNum = 0;
+extern long creditsRunning;
+
+int bounce = 0;
+int bounceDir = 1;
+int bounceSpeed = 5;
+char goingToDemo = NO;
 
 void RunFrontendGameLoop (void)
 {
-	unsigned long i;
+	unsigned long i,j;
 	long hudNum,maxHud;
 	GAMETILE *cur,*testTile;
 	ENEMY *tempEnemy;
@@ -553,11 +613,47 @@ void RunFrontendGameLoop (void)
 	pointOfInterest = NULL;
 
 
+	if(goingToDemo)
+	{
+		if(fadingOut == 0)
+		{
+			goingToDemo = NO;
+			InitDemoMode();
+		}
+		return;
+	}
+
+
+	if(bounceDir > 0)
+	{
+		bounce += FMul(bounceSpeed,gameSpeed);
+		if(bounce >= 128)
+		{
+			bounceDir = -1;
+			bounce = 128;
+		}
+	}
+	else
+	{
+		bounce -= FMul(bounceSpeed,gameSpeed);
+		if(bounce <= 0)
+		{
+			bounceDir = 1;
+			bounce = 0;
+		}
+	}
 
 	camSpeed3 = 4096*20;
 	if (frameCount == 1)
 	{
 		SetMusicVolume();
+
+		fadingLogos = NO;
+#ifdef PSX_VERSION
+		frogLogo = CreateAndAddSpriteOverlay(1536,3000,"FROGLOGO",4096,1,255,0);
+#elif PC_VERSION
+		frogLogo = CreateAndAddSpriteOverlay(1024,3000,"FROGLOGO",2048,2048,255,0);
+#endif
 
 		fogStore = fog.max;
 		
@@ -584,12 +680,12 @@ void RunFrontendGameLoop (void)
 		for(i = 0;i < 4;i++)
 		{
 			titleHud[i] = CreateAndAddSpriteOverlay(titleHudX[0][i],titleHudY[0][i],titleHudName[i],300,300,0,0);
-			titleHud[i]->xPosTo = titleHudX[1][i];
-			titleHud[i]->yPosTo = titleHudY[1][i];
-			if(i < 2)
-				titleHud[i]->speed = 10*4096;
-			else
-				titleHud[i]->speed = 5*4096;
+//			titleHud[i]->xPosTo = titleHudX[1][i];
+//			titleHud[i]->yPosTo = titleHudY[1][i];
+//			if(i < 2)
+//				titleHud[i]->speed = 10*4096;
+//			else
+//				titleHud[i]->speed = 5*4096;
 		}
 
 
@@ -667,14 +763,14 @@ void RunFrontendGameLoop (void)
 			sprintf(chapterStr[0],GAMESTRING(STR_CHAPTER),options.pageNum + 1);
 			for(i = 0;i < 2;i++)
 			{
-				options.chapterText[i] = CreateAndAddTextOverlay(2150,500,chapterStr[i],NO,0,font,TEXTOVERLAY_SHADOW);
+				options.chapterText[i] = CreateAndAddTextOverlay(2150,800,chapterStr[i],NO,0,font,TEXTOVERLAY_SHADOW);
 				options.chapterText[i]->draw = 0;
-				options.chapterNameText[i][0] = CreateAndAddTextOverlay(2150,2500,GAMESTRING(STR_CHAPTER_1a + options.pageNum*2),NO,0,fontSmall,TEXTOVERLAY_SHADOW);
-				options.chapterNameText[i][1] = CreateAndAddTextOverlay(2150,2700,GAMESTRING(STR_CHAPTER_1a + options.pageNum*2 + 1),NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+				options.chapterNameText[i][0] = CreateAndAddTextOverlay(2150,2800,GAMESTRING(STR_CHAPTER_1a + options.pageNum*2),NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+				options.chapterNameText[i][1] = CreateAndAddTextOverlay(2150,3000,GAMESTRING(STR_CHAPTER_1a + options.pageNum*2 + 1),NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 				options.chapterNameText[i][0]->draw = 0;
 				options.chapterNameText[i][1]->draw = 0;
 
-				options.chapterPic[i] = CreateAndAddSpriteOverlay(2400,1200,chapterPic[options.pageNum],1024,1024,0,0);
+				options.chapterPic[i] = CreateAndAddSpriteOverlay(2400,1500,chapterPic[options.pageNum],1024,1024,0,0);
 				options.chapterPic[i]->draw = 0;
 			}
 			player[0].hasJumped = 0;
@@ -693,28 +789,25 @@ void RunFrontendGameLoop (void)
 
 		options.arcadeText = CreateAndAddTextOverlay(2048,170,GAMESTRING(STR_ARCADEMODE),YES,255,font,0); 
 		options.selectText = CreateAndAddTextOverlay(2048,476,GAMESTRING(STR_SELECT_LEVEL),YES,255,fontSmall,0); 
-		options.worldText = CreateAndAddTextOverlay(356,1105,worldStr,NO,255,fontSmall,0);
+		options.worldText = CreateAndAddTextOverlay(356,1105,worldStr,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
-		options.parText[0] = CreateAndAddTextOverlay(2100,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,0);		
-		options.parText[1] = CreateAndAddTextOverlay(2600,1105,GAMESTRING(STR_SET_BY),NO,255,fontSmall,0);		
-		options.parText[2] = CreateAndAddTextOverlay(3200,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,0);		
+		options.parText[0] = CreateAndAddTextOverlay(2100,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[1] = CreateAndAddTextOverlay(2600,1105,GAMESTRING(STR_SET_BY),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[2] = CreateAndAddTextOverlay(3200,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
 		options.worldText->r = options.parText[0]->r = options.parText[1]->r = options.parText[2]->r = 255;
 		options.worldText->g = options.parText[0]->g = options.parText[1]->g = options.parText[2]->g = 200;
 		options.worldText->b = options.parText[0]->b = options.parText[1]->b = options.parText[2]->b = 0;
 
-		options.selectText->r = 0;
-		options.selectText->g = 0xff;
-		options.selectText->b = 10;
 		for (i=0; i<MAX_LEVELSTRING; i++)
 		{
-			options.levelText[i] = CreateAndAddTextOverlay(356,(short)(1445+i*170),levelStr[i],NO,(char)0,fontSmall,0);		
+			options.levelText[i] = CreateAndAddTextOverlay(356,(short)(1445+i*170),levelStr[i],NO,(char)0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelText[i]->draw = 0;
-			options.levelParText[i] = CreateAndAddTextOverlay(2100,(short)(1445+i*170),levelParStr[i],NO,0,fontSmall,0);
+			options.levelParText[i] = CreateAndAddTextOverlay(2100,(short)(1445+i*170),levelParStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelParText[i]->draw = 0;
-			options.levelSetByText[i] = CreateAndAddTextOverlay(2600,(short)(1445+i*170),levelSetByStr[i],NO,0,fontSmall,0);
+			options.levelSetByText[i] = CreateAndAddTextOverlay(2600,(short)(1445+i*170),levelSetByStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelSetByText[i]->draw = 0;
-			options.levelCoinText[i] = CreateAndAddTextOverlay(3350,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,0);
+			options.levelCoinText[i] = CreateAndAddTextOverlay(3350,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelCoinText[i]->draw = 0;
 			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3332,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
 			options.levelCoinMedal[i]->draw = 0;
@@ -744,25 +837,50 @@ void RunFrontendGameLoop (void)
 		CheckForDynamicCameraChange(currTile[0],0); // TEMPORARY FIX!!
 		lastActFrameCount = 0;
 
-		GTInit(&frontendTimer, 10);	// 10 seconds
+		GTInit(&frontendTimer, 16);	// 10 seconds
+	}
+
+	currTileNum = 0;
+
+	cur = firstTile + 1;
+	for ( i = 0; i < tileCount; i++, cur++ )
+	{
+		if(cur == currTile[0])
+		{
+			currTileNum++;
+			break;
+		}
+		currTileNum++;
 	}
 
 	if (padData.debounce[0])
-		frontendTimer.time = 0;
+	{
+		if(currTileNum == TILENUM_START)
+		{
+			GTInit(&frontendTimer, 16);
+		}
+		else
+		{
+			GTInit(&frontendTimer, LONG_DEMO_WAIT);
+		}
+	}
+
 
 	if( frontendTimer.time > 0 && playDemos )
 	{
+		if((currTileNum == TILENUM_START) && (frontendTimer.time > 16))
+			GTInit(&frontendTimer,16);
 		GTUpdate(&frontendTimer, -1);
 		if (!frontendTimer.time)
 		{
 			utilPrintf("Front-end idle timer ran out.. run demo mode!\n");
 			// run a demo here
 
-			InitDemoMode(WORLDID_GARDEN, LEVELID_GARDEN1);
-			return;
+			goingToDemo = YES;
+			ScreenFade(255,0,30);
+			keepFade = 0;
 		}
 	}
-
 
 	if((!doneTraining) || (staticFlash))
 	{
@@ -866,31 +984,17 @@ void RunFrontendGameLoop (void)
 		tileNum = CreateAndAddTextOverlay(2048,1024,tileString,YES,(char)255,font,0);
 
 	// displays the tile numbers
-	cur = &firstTile[0];
-	currTileNum = 0;
-	while(cur)
-	{
-		cur = cur->next;
-		if(cur == currTile[0])
-		{
-			currTileNum++;
-			break;
-		}
-		currTileNum++;
-	}
 	
 	if((frameCount == 1) && (lastArcade))
 	{
-		testTile = &firstTile[0];
-		while(testTile)
+		testTile = firstTile + 1;
+		for ( i = 0; i < tileCount; i++, testTile++ )
 		{
-			testTile = testTile->next;
-
-			cur = &firstTile[0];
+			cur = firstTile + 1;
 			currTileNum = 0;
-			while(cur)
+
+			for ( j = 0; j < tileCount; j++, cur++ )
 			{
-				cur = cur->next;
 				if(cur == testTile)
 				{
 					currTileNum++;
@@ -898,12 +1002,14 @@ void RunFrontendGameLoop (void)
 				}
 				currTileNum++;
 			}
+
 			if(currTileNum == TILENUM_ARCADE)
 			{
 				currTile[0] = lastTile[0] = testTile;
 				break;
 			}
 		}
+
 		lastArcade = 0;
 		SetVectorFF(&currCamSource,&storeCurrCamSource);
 		SetVectorFF(&camSource,&storeCamSource);
@@ -916,8 +1022,17 @@ void RunFrontendGameLoop (void)
 		SetVectorFF(&camVect,&storeCamVect);
 		SetVectorSS(&frog[0]->actor->position,&currTile[0]->centre);
 		camFacing[0] = 1;
+		fadingLogos = 1;
+		frogLogo->draw = 0;
 	}
 
+	if((fadingLogos == NO) && (currTileNum != TILENUM_START))
+		fadingLogos = 1;
+
+	if(fadingLogos)
+	{
+	  	DEC_ALPHA(frogLogo);
+	}
 
 	maxHud = 4;
 	if(player[0].canJump)
@@ -937,6 +1052,7 @@ void RunFrontendGameLoop (void)
 
 			case TILENUM_CHOICE:
 				//close off multiplayer and arcade machine if training not completed
+				titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
 #ifdef FINAL_MASTER
 				if(doneTraining == 0)
 				{
@@ -961,6 +1077,13 @@ void RunFrontendGameLoop (void)
 					hudNum = 4;
 				break;
 
+			case TILENUM_ARCADE:
+				if(options.mode == OP_ARCADE)
+					hudNum = 4;
+				else
+					hudNum = -1;
+				break;
+
 			default:
 				hudNum = -1;
 				break;
@@ -969,19 +1092,21 @@ void RunFrontendGameLoop (void)
 	else
 		hudNum = -1;
 
-	for(i = 0;i < 4;i++)
-	{
-		if((titleHud[i]->xPos == titleHud[i]->xPosTo) && (titleHud[i]->yPos == titleHud[i]->yPosTo))
-		{
-			titleDir[i] = 1 - titleDir[i];
-			titleHud[i]->xPosTo = titleHudX[titleDir[i]][i];
-			titleHud[i]->yPosTo = titleHudY[titleDir[i]][i];
-			if(i < 2)
-				titleHud[i]->speed = 10*4096;
-			else
-				titleHud[i]->speed = 5*4096;
-		}
-	}
+
+#ifdef PSX_VERSION
+	titleHud[0]->yPos = bounce*2 + 96*2;
+	titleHud[1]->yPos = 4096 - titleHud[0]->height - bounce*2 - 96*2;
+
+	titleHud[2]->xPos = bounce + 96;
+	titleHud[3]->xPos = 4096 - titleHud[3]->width - bounce - 96*2;
+#elif PC_VERSION
+	titleHud[0]->yPos = bounce;
+	titleHud[1]->yPos = 4096 - titleHud[0]->height - bounce;
+
+	titleHud[2]->xPos = bounce;
+	titleHud[3]->xPos = 4096 - titleHud[3]->width - bounce;
+#endif
+
 
 	if(hudNum == -1)
 	{
@@ -998,7 +1123,37 @@ void RunFrontendGameLoop (void)
 			}
 			else if(i < maxHud)
 			{
-				INC_ALPHA(titleHud[i],255);
+				if(currTileNum == TILENUM_BOOK)
+				{
+					if(i == 2)
+					{
+						if(options.pageNum == 0)
+						{
+							DEC_ALPHA(titleHud[i]);
+						}
+						else
+						{
+							INC_ALPHA(titleHud[i],255);
+						}
+					}
+					else if(i == 3)
+					{
+						if(options.pageNum == options.maxPageAllowed)
+						{
+							DEC_ALPHA(titleHud[i]);
+						}
+						else
+						{
+							INC_ALPHA(titleHud[i],255);
+						}
+					}
+					else
+					{
+						INC_ALPHA(titleHud[i],255);
+					}
+				}
+				else
+					INC_ALPHA(titleHud[i],255);
 				titleHud[i]->tex = FindTexture(titleHudName[i]);
 			}
 		}
@@ -1030,7 +1185,8 @@ void RunFrontendGameLoop (void)
 		DEC_ALPHA(options.parText[1]);
 		DEC_ALPHA(options.parText[2]);
 		
-		DEC_ALPHA(options.selectText);
+		if((currTileNum != TILENUM_OPTIONS) || (creditsRunning) || (player[0].canJump == 0))
+			DEC_ALPHA(options.selectText);
 		DEC_ALPHA(options.worldText);
 		DEC_ALPHA(options.worldBak);
 
@@ -1060,7 +1216,10 @@ void RunFrontendGameLoop (void)
 		if(!reachedPoint)
 			reachedPoint = 1;
 		if(options.mode == -1)
+		{
 			options.mode = OP_GLOBALMENU;
+			GTInit(&frontendTimer,LONG_DEMO_WAIT);
+		}
 		RunOptionsMenu();
 		if(gameState.mode == ARTVIEWER_MODE)
 			return;
@@ -1096,7 +1255,10 @@ void RunFrontendGameLoop (void)
 		if (reachedPoint)
 		{					
 			if (options.mode == -1)
+			{
 				options.mode = OP_MULTIPLAYERNUMBER;
+				GTInit(&frontendTimer,LONG_DEMO_WAIT);
+			}
 			RunOptionsMenu();
 			if (gameState.mode == INGAME_MODE)
 			{
@@ -1111,6 +1273,7 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_ARCADE;
+			GTInit(&frontendTimer,LONG_DEMO_WAIT);
 			ScreenFade(255,210,30);
 			keepFade = YES;
 			fadeText = NO;
@@ -1122,7 +1285,11 @@ void RunFrontendGameLoop (void)
 
 	if((currTileNum == TILENUM_BOOK) && (player[0].hasJumped == 0))
 	{
-		options.mode = OP_BOOK;
+		if(options.mode == -1)
+		{
+			options.mode = OP_BOOK;
+			GTInit(&frontendTimer,LONG_DEMO_WAIT);
+		}
 		RunOptionsMenu();
 		if(gameState.mode != FRONTEND_MODE)
 			return;
@@ -1154,7 +1321,7 @@ void RunFrontendGameLoop (void)
 		{
 			if(player[0].canJump)
 				CheckForDynamicCameraChange(currTile[0],0);
-			if(((currTileNum != TILENUM_OPTIONS) || (player[0].canJump == 0)) && (currTileNum != TILENUM_MULTI) && ((currTileNum != TILENUM_CHOICE) || (player[0].extendedHopDir != 1)))
+			if(((currTileNum != TILENUM_OPTIONS) || (player[0].canJump == 0)) && (currTileNum != TILENUM_MULTI) && ((currTileNum != TILENUM_CHOICE) || (player[0].canJump) || (player[0].extendedHopDir != 1)))
 				UpdateCameraPosition();
 		}
 	}
@@ -1205,7 +1372,7 @@ void RunFrontendGameLoop (void)
 	UpDateOnScreenInfo();
 
 #ifndef E3_DEMO
-#ifdef SHOW_ME_THE_TILE_NUMBERS
+/*#ifdef SHOW_ME_THE_TILE_NUMBERS
 	cur = &firstTile[0];
 	currTileNum = 0;
 	while(cur)
@@ -1229,7 +1396,7 @@ void RunFrontendGameLoop (void)
  			else
 				sprintf(tileString,"");
  		}
-#endif
+#endif*/
 #endif
 }
 
@@ -1292,15 +1459,10 @@ void DoArcadeMenu()
 	INC_ALPHA(options.subTitle,255);
 	INC_ALPHA(options.statusBak,128);
 	for(i = 0;i < 2;i++)
-		options.leftRightSprite[i]->yPos = options.leftRightSprite[i]->yPosTo = options.subTitle->yPos;// + 64;
+		titleHud[i + 2]->yPos = titleHud[i + 2]->yPosTo = options.subTitle->yPos;
 
 	if(!CheckCamStill())
 		return;
-
-	for(i = 0;i < 2;i++)
-	{
-		INC_ALPHA(options.leftRightSprite[i],255);
-	}
 
 	strcpy (worldStr,GAMESTRING(worldVisualData[cWorld].description_str));
 	
@@ -1331,33 +1493,33 @@ void DoArcadeMenu()
 		options.levelText[1]->g = 255;
 		options.levelText[1]->r = 255;
 
-		sprintf(levelSetByStr[0],"%s",worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].parName);
-		options.levelSetByText[0]->b = 255;
-		options.levelSetByText[0]->g = 255;
-		options.levelSetByText[0]->r = 255;
+//		sprintf(levelSetByStr[0],"%s",worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].parName);
+//		options.levelSetByText[0]->b = 255;
+//		options.levelSetByText[0]->g = 255;
+//		options.levelSetByText[0]->r = 255;
 
 		sprintf(levelSetByStr[1],"%s",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parName);
 		options.levelSetByText[1]->b = 255;
 		options.levelSetByText[1]->g = 255;
 		options.levelSetByText[1]->r = 255;
 
-		sprintf(levelParStr[0],"%lu:%02i",worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].parTime/60,worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].parTime%60);
-		options.levelParText[0]->b = 255;
-		options.levelParText[0]->g = 255;
-		options.levelParText[0]->r = 255;
+//		sprintf(levelParStr[0],"%lu:%02i",worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].parTime/60,worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].parTime%60);
+//		options.levelParText[0]->b = 255;
+//		options.levelParText[0]->g = 255;
+//		options.levelParText[0]->r = 255;
 
 		sprintf(levelParStr[1],"%lu:%02i",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/60,worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime%60);
 		options.levelParText[1]->b = 255;
 		options.levelParText[1]->g = 255;
 		options.levelParText[1]->r = 255;
 
-		sprintf(levelCoinStr[0],"%d",worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].maxCoins);
-		options.levelCoinMedal[0]->b = 255;
-		options.levelCoinMedal[0]->g = 255;
-		options.levelCoinMedal[0]->r = 255;
-		options.levelCoinText[0]->b = 255;
-		options.levelCoinText[0]->g = 255;
-		options.levelCoinText[0]->r = 255;
+//		sprintf(levelCoinStr[0],"%d",worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].maxCoins);
+//		options.levelCoinMedal[0]->b = 255;
+//		options.levelCoinMedal[0]->g = 255;
+//		options.levelCoinMedal[0]->r = 255;
+//		options.levelCoinText[0]->b = 255;
+//		options.levelCoinText[0]->g = 255;
+//		options.levelCoinText[0]->r = 255;
 
 		sprintf(levelCoinStr[1],"%d",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].maxCoins);
 		options.levelCoinMedal[1]->b = 255;
@@ -1424,7 +1586,7 @@ void DoArcadeMenu()
 
 
 	frogFacing[0] = 3;
-	Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+	OrientateSS( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
 
 	
 	INC_ALPHA(options.arcadeText,0xff);

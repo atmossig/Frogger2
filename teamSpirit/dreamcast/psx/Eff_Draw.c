@@ -417,6 +417,8 @@ void DrawFXRing(SPECFX *fx)
 
 	vTPrev[0].vz = 0;
 	vTPrev[1].vz = 0;
+	vTPrev[2].vz = 0;
+	vTPrev[3].vz = 0;
 		
 	SetVectorFF(&scale, &fx->scale);
 	
@@ -533,9 +535,11 @@ void DrawFXRing(SPECFX *fx)
 				gte_ldlv0(&tempVect);
 				gte_rtps();
 				gte_stsxy(&m.vx);
-				gte_stszotz(&otz);				//asl
-				m.vz = (short)otz;				//asl
-				m.vz>>=2;
+//ma			gte_stszotz(&otz);				//asl
+//ma			m.vz = (short)otz;				//asl
+//ma			m.vz>>=2;
+				m.vz = (screenxy[2].vz >> 2);
+
 //ma			gte_stflg(&flg);				// screen z/4 as otz
 
 				// Assign back to vT array
@@ -608,7 +612,7 @@ void DrawFXRing(SPECFX *fx)
 			{
 				SPECFX *trail;
 
-				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
+				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 2048)))
 				{
 					trail->tilt = 8192;
 					if(i&2)
@@ -644,6 +648,9 @@ void DrawFXTrail( SPECFX *trail )
 	colour = trail->r>>1;
 	colour += (trail->g>>1)<<8;
 	colour += (trail->b>>1)<<16; 
+ 
+ 	vTPrev[0].vz = 0;
+ 	vTPrev[1].vz = 0;
  
  	do
  	{

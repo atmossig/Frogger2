@@ -38,6 +38,7 @@
 #include "options.h"
 #include "story.h"
 #include "fadeout.h"
+#include "tongue.h"
 
 #ifdef PC_VERSION
 #include <pcmisc.h>
@@ -46,6 +47,7 @@
 #include <Main.h>
 #include <banks.h>
 #include <backdrop.h>
+#include <video.h>
 #else PSX_VERSION
 #include "Textures.h"
 #include "temp_psx.h"
@@ -65,6 +67,8 @@ extern FVECTOR storeCamOffset;
 extern FVECTOR storeCurrCamOffset;
 extern FVECTOR storeCamVect;
 
+
+char playingFMV = NO;
 // JH: A list of CRCs that define the char textures.
 unsigned long frogTexturePool[FROG_NUMFROGS] = 
 {
@@ -100,7 +104,7 @@ long numExtrasAvailable = NUM_BASIC_EXTRAS;
 long SOUND_SCALE = 15;
 
 int chestOpenAnim = 1;
-int artCount = 0;
+TIMER artTimer;
 
 OPTIONSOBJECTS options = 
 {
@@ -131,125 +135,133 @@ long picOffset = 230;
 
 long creditsY = 0;
 
+#define GREEN 60,255,0
 #define WHITE 255,255,255
 #define RED 255,0,0
 
 CREDIT_DATA creditData[] = 
 {
-	0,WHITE,
-	2,WHITE,
+	0,GREEN,
+	2,GREEN,
 	0,RED,
 
+	2,RED,		//managing director
+	0,GREEN,
+
+	2,RED,		//technical director
+	0,GREEN,
+
 	2,RED,		//project manager
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//programming
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//additional programming
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//level design and editing
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//lead artist
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//concept art and illustration
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//character building
 	0,RED,		//and animation
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//additional animation
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//lead texture artist
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//additional textures
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 
 	2,RED,		//3D modelling
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//music and sound
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//video
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//voices
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//special thanks
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//published by
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//producer
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//executive producer
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//lead tester
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//testers
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//shadow ...
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//localisation
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//packaging
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//product manager US
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
 
 	2,RED,		//product manager ROW
-	0,WHITE,
+	0,GREEN,
 
 	2,RED,		//special thanks
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
-	0,WHITE,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 };
 
 #ifdef PSX_VERSION
@@ -930,8 +942,11 @@ void ExtraSelect(void)
 						{
 							frogPool[i].active = 0;
 #ifdef PSX_VERSION
-							CopyTexture ( textureFindCRCInAllBanks ( frogTexturePool[i] ),
-											textureFindCRCInAllBanks ( utilStr2CRC ( "MULTIHIDDEN" ) ), 1 );
+//ma							CopyTexture ( textureFindCRCInAllBanks ( frogTexturePool[i] ),
+//ma											textureFindCRCInAllBanks ( utilStr2CRC ( "MULTIHIDDEN" ) ), 1 );
+							CopyTexture ( FindTexture2( frogTexturePool[i] ),
+											FindTexture("MULTIHIDDEN"), 1 );
+
 #elif PC_VERSION
 							((MDX_ACTOR *)portraitActor[i]->actor->actualActor)->overrideTex = GetTexEntryFromCRC(UpdateCRC("multihidden.bmp"));
 #endif
@@ -954,7 +969,8 @@ void ExtraSelect(void)
 				}
 				break;
 
-			case EXTRA_HAT:
+			case EXTRA_FEEDING_FRENZY:
+				eatEverythingMode = options.extrasState[options.extraSelection];
 				break;
 
 			case EXTRA_MINI:
@@ -988,29 +1004,36 @@ void OptionBack(void)
 	}
 	else
 	{
-
-		if(options.mode == OP_EXTRA)
+		if(confirmMode)
 		{
-			if(options.chestLid)
+			options.extraSelection = confirmMode;
+			confirmMode = NO;
+		}
+		else
+		{
+			if(options.mode == OP_EXTRA)
 			{
-				actorAnimate(options.chestLid->actor,chestOpenAnim,NO,NO,-40,NO);
-//				actorAnimate(options.chestLid->actor,0,YES,YES,40,NO);
+				if(options.chestLid)
+				{
+					actorAnimate(options.chestLid->actor,chestOpenAnim,NO,NO,-40,NO);
+	//				actorAnimate(options.chestLid->actor,0,YES,YES,40,NO);
+				}
 			}
-		}
 
-		options.mode = OP_GLOBALMENU;
+			options.mode = OP_GLOBALMENU;
 
-		// Disable all overlays (Yes... even ones not for this menu, but not that slow and neater.)
-		for (i=0; i<2; i++)
-		{
-			options.soundIcons[i]->draw = options.soundIcons[i]->a = 0;
-			options.soundBar[i]->draw = options.soundBar[i]->a = 0;
-			options.soundBak[i]->draw = options.soundBak[i]->a = 0;
-		}
+			// Disable all overlays (Yes... even ones not for this menu, but not that slow and neater.)
+			for (i=0; i<2; i++)
+			{
+				options.soundIcons[i]->draw = options.soundIcons[i]->a = 0;
+				options.soundBar[i]->draw = options.soundBar[i]->a = 0;
+				options.soundBak[i]->draw = options.soundBak[i]->a = 0;
+			}
 
-		for (i=0; i<numExtrasAvailable; i++)
-		{
-			options.extras[i]->draw = 0;	
+			for (i=0; i<numExtrasAvailable; i++)
+			{
+				options.extras[i]->draw = 0;	
+			}
 		}
 	}
 	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
@@ -1037,10 +1060,6 @@ void CreateOptionsObjects(void)
 	options.yesNoText[1] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_NO),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
 	options.yesNoText[0]->draw = options.yesNoText[1]->draw = 0;
 
-
-	options.leftRightSprite[0] = CreateAndAddSpriteOverlay(128,0,"BUT_LEFT",256,256,0,0);
-	options.leftRightSprite[1] = CreateAndAddSpriteOverlay(4096 - 256 - 128,0,"BUT_RIGH",256,256,0,0);
-	options.leftRightSprite[0]->draw = options.leftRightSprite[1]->draw = 0;
 
 	// Main title
 	options.title = CreateAndAddTextOverlay(2048,170,options.titleStr,YES,0,font,TEXTOVERLAY_SHADOW);
@@ -1083,6 +1102,11 @@ void CreateOptionsObjects(void)
 	options.soundIcons[options.soundSelection]->r = options.soundIcons[options.soundSelection]->g = options.soundIcons[options.soundSelection]->b = 255;
 	options.soundIcons[1-options.soundSelection]->r = options.soundIcons[1-options.soundSelection]->g = options.soundIcons[1-options.soundSelection]->b = 64;
 
+	options.sfxText[0] = CreateAndAddTextOverlay(2350,1400,GAMESTRING(STR_MUS_VOL),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+	options.sfxText[1] = CreateAndAddTextOverlay(2350,2220,GAMESTRING(STR_SFX_VOL),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+
+	options.sfxText[0]->draw = 0;
+	options.sfxText[1]->draw = 0;
 
 	for (i=0; i<NUM_EXTRAS; i++)
 	{
@@ -1144,9 +1168,14 @@ void CreateOptionsObjects(void)
 			}
 		}
 
+//ma		if(frogPool[i].active == 0)
+//ma				CopyTexture ( textureFindCRCInAllBanks ( frogTexturePool[i] ),
+//ma											textureFindCRCInAllBanks ( utilStr2CRC ( "MULTIHIDDEN" ) ), 1 );
+
 		if(frogPool[i].active == 0)
-				CopyTexture ( textureFindCRCInAllBanks ( frogTexturePool[i] ),
-											textureFindCRCInAllBanks ( utilStr2CRC ( "MULTIHIDDEN" ) ), 0 );
+				CopyTexture ( FindTexture2 ( frogTexturePool[i] ),
+											FindTexture ( "MULTIHIDDEN"), 1 );
+		
 	}
 #endif
 }
@@ -1173,7 +1202,7 @@ void InitOptionsMenu(void)
 		options.extrasToggle[EXTRA_CREDITS] = NO;
 		options.extrasToggle[EXTRA_RESET_BEST_TIMES] = NO;
 		options.extrasToggle[EXTRA_RESET_STORY_MODE] = NO;
-		options.extrasToggle[EXTRA_HAT] = YES;
+		options.extrasToggle[EXTRA_FEEDING_FRENZY] = YES;
 		options.extrasToggle[EXTRA_VIEW_ART] = NO;
 		options.extrasToggle[EXTRA_MINI] = YES;
 		gameSelected = 0;
@@ -1196,7 +1225,6 @@ void DoneOptionsMenu(void)
 {
 	// Sub text, initially for multiplayer, but maybe for options too.
 	options.mpText->draw = 0;
-	options.leftRightSprite[0]->draw = options.leftRightSprite[1]->draw = 0;
 	
 	// Number of players text
 	options.numPText->draw = options.numPText2->draw = 0; 
@@ -1302,20 +1330,25 @@ void RunOptionsMenu(void)
 
 	int oldTime;
 
+	options.numPText->font = font;
+	options.numPText2->font = font;
+
+	options.sfxText[0]->draw = 0;
+	options.sfxText[1]->draw = 0;
+
 #ifdef PSX_VERSION
-/*ma	if(saveInfo.saveFrame)
+/*ma
+	if(saveInfo.saveFrame)
 	{
 		skipTextOverlaysSpecFX = YES;
 		ChooseLoadSave();
 		return;
-	}	
+	}
 	skipTextOverlaysSpecFX = NO;
 */
 #endif
 
 	camStill = FALSE;
-
-	options.leftRightSprite[0]->draw = options.leftRightSprite[1]->draw = 0;
 
 	numExtrasAvailable = NUM_BASIC_EXTRAS;
 	for(i = 2;i < NUM_EXTRAS;i++)
@@ -1344,6 +1377,18 @@ void RunOptionsMenu(void)
 	switch (options.mode)
 	{
 		case OP_SOUND:			
+			options.sfxText[0]->draw = 1;
+			options.sfxText[1]->draw = 1;
+
+			options.sfxText[0]->r = options.soundBar[0]->r;
+			options.sfxText[0]->g = options.soundBar[0]->g;
+			options.sfxText[0]->b = options.soundBar[0]->b;
+			options.sfxText[1]->r = options.soundBar[1]->r;
+			options.sfxText[1]->g = options.soundBar[1]->g;
+			options.sfxText[1]->b = options.soundBar[1]->b;
+
+
+			DEC_ALPHA(options.selectText);
 #ifdef PC_VERSION
 			options.soundIcons[options.soundSelection]->angle = FMul(rsin((actFrameCount - soundSwapTime)*soundwobble),soundwobblefac);
 			options.soundIcons[1 - options.soundSelection]->angle *= 4;
@@ -1368,6 +1413,7 @@ void RunOptionsMenu(void)
 			break;
 
 		case OP_EXTRA:
+			INC_ALPHA(options.selectText,0xff);
 			if(chestTimer.time)
 			{
 				oldTime = chestTimer.time;
@@ -1375,13 +1421,15 @@ void RunOptionsMenu(void)
 				
 				if((chestTimer.time == 2) && (oldTime == 3))
 				{
+					FVECTOR up;
+					SetVectorFF( &up, &currTile[0]->normal );
 					PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
 					for(i = 0;i < 5;i++)
 					{
 						tempVect2.vx = tempVect.vx + Random(101) - 50;
 						tempVect2.vy = tempVect.vy;
 						tempVect2.vz = tempVect.vz + Random(101) - 50;
-						fx = CreateSpecialEffectDirect(FXTYPE_SPARKLYTRAIL,&tempVect2,&currTile[0]->normal,16384*12,16384/2,0,16384);
+						fx = CreateSpecialEffectDirect(FXTYPE_SPARKLYTRAIL,&tempVect2,&up,16384*12,16384/2,0,16384);
 						if(fx)
 							SetFXColour(fx,Random(256),Random(256),Random(256));
 					}
@@ -1395,6 +1443,7 @@ void RunOptionsMenu(void)
 				DoCredits();
 				DEC_ALPHA(options.subTitle);
 				DEC_ALPHA(options.statusBak);
+				DEC_ALPHA(options.selectText);
 			}
 			else
 			{
@@ -1447,9 +1496,9 @@ void RunOptionsMenu(void)
 					for (i=0; i<numExtrasAvailable; i++)
 					{
 						options.extras[i]->draw = 1;
+						INC_ALPHA(options.extras[i],255);
 						if (i==options.extraSelection)
 						{
-							INC_ALPHA(options.extras[i],255);
 							options.extras[i]->r = 127+((rsin(actFrameCount*4000)+4096)*64)/4096;
 							options.extras[i]->g = 127+((rcos(actFrameCount*4000)+4096)*64)/4096;
 							options.extras[i]->b = 10;
@@ -1463,14 +1512,14 @@ void RunOptionsMenu(void)
 							}
 							else
 								options.extras[i]->r = options.extras[i]->g = options.extras[i]->b = 255;
-							if(options.extras[i]->a <= 150)
-							{
-								INC_ALPHA(options.extras[i],150);
-							}
-							else
-							{
-								DEC_ALPHA(options.extras[i]);
-							}
+//							if(options.extras[i]->a <= 150)
+//							{
+//								INC_ALPHA(options.extras[i],150);
+//							}
+//							else
+//							{
+//								DEC_ALPHA(options.extras[i]);
+//							}
 						}
 					}
 				}
@@ -1478,6 +1527,8 @@ void RunOptionsMenu(void)
 			break;
 
 		case OP_GLOBALMENU:						
+			options.selectText->text = GAMESTRING(STR_X_SELECT_OPTION);
+			INC_ALPHA(options.selectText,0xff);
 			INC_ALPHA(options.title,255);
 			INC_ALPHA(options.titleBak,128);
 			DEC_ALPHA(options.subTitle);
@@ -1511,8 +1562,10 @@ void RunOptionsMenu(void)
 			strcpy(options.titleStr,GAMESTRING(STR_MULTIPLAYER));
 			strcpy(options.mpStr,GAMESTRING(STR_SELECT_NUM_PLAYERS));
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
-			if(maxPlayers == 1)
+			if(maxPlayers <= 1)
 			{
+				options.numPText->font = fontSmall;
+				options.numPText2->font = fontSmall;
 				sprintf(options.numPStr,GAMESTRING(STR_NEED_PADS1));
 				sprintf(options.numPStr2,GAMESTRING(STR_NEED_PADS2));
 			}
@@ -1690,10 +1743,10 @@ void RunOptionsMenu(void)
 			break;
 
 		case OP_ARCADE:
+			options.selectText->text = GAMESTRING(STR_SELECT_LEVEL);
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
 			DEC_ALPHA(options.title);
 			options.numPText->draw = options.numPText2->draw = 0;
-//			options.leftRightSprite[0]->draw = options.leftRightSprite[1]->draw = 1;
 			DoArcadeMenu();
 			break;
 
@@ -1735,6 +1788,13 @@ void RunOptionsMenu(void)
 			break;
 
 		case OP_FMV:
+			if((playingFMV) && (fadingOut == 0))
+			{
+//ma				StartVideoPlayback(options.fmvNum + 1);
+				playingFMV = NO;
+				ScreenFade(0,255,30);
+				keepFade = 0;
+			}
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
 			INC_ALPHA(options.title,255);
 			INC_ALPHA(options.titleBak,128);
@@ -1768,11 +1828,15 @@ void RunOptionsMenu(void)
 		{
 			FreeAllLists();
 			gameState.mode = ARTVIEWER_MODE;
+			GTInit(&artTimer,10);
 			currentArt = 0;
 			goingToArtViewer = 0;
+#ifdef PC_VERSION
+			pFrameModifier = 0;
+#endif
 		}
 	}
-	else
+	else if(!playingFMV)
 		OptionsProcessController();
 }
 
@@ -1832,7 +1896,7 @@ void SetActorGouraudValues(FMA_MESH_HEADER *mesh, int r,int g,int b)
 {
 	int i;
 
-	register char *opcd;// asm("$18");
+	register char *opcd;//ma asm("$18");
 
 #define op ((FMA_GT4 *)opcd)
 
@@ -1958,11 +2022,11 @@ void BookStart()
 	gameState.single = STORY_MODE;
 
 	gameState.storySequenceLevel = pageToStoryLevel[options.pageNum];
-//	if((options.pageNum == options.maxPageAllowed) && (storySequence[gameState.storySequenceLevel].another))
-//	{
-//		if((worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen) && (worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel + 1].levelNum].levelOpen))
-//			gameState.storySequenceLevel++;
-//	}
+	if((options.pageNum == options.maxPageAllowed) && (storySequence[gameState.storySequenceLevel].another))
+	{
+		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel].levelNum].levelCompleted)
+			gameState.storySequenceLevel++;
+	}
 
 	player[0].worldNum = (unsigned char)storySequence[gameState.storySequenceLevel].worldNum;
 	player[0].levelNum = (unsigned char)storySequence[gameState.storySequenceLevel].levelNum;
@@ -2156,7 +2220,7 @@ void ArcadeSelect()
 	options.worldBak->xPos = options.worldBak->xPosTo = 1000;
 	options.worldBak->yPos = options.worldBak->yPosTo += 250;
 	options.worldBak->width = 4096 - 2*options.worldBak->xPos;
-	options.selectText->text = GAMESTRING(STR_SELECT_CHAR);
+	options.selectText->text = GAMESTRING(STR_X_SELECT_CHAR);
 
 	for(i = 0;i < MAX_LEVELSTRING;i++)
 	{
@@ -2295,6 +2359,8 @@ void ArcadeBack(void)
 	ScreenFade(210,255,30);
 	fadeText = NO;
 	keepFade = NO;
+
+
 	DoneOptionsMenu();
 }
 
@@ -2318,7 +2384,7 @@ void StartCredits()
 
 		spacing += creditData[j].spacing;
 #ifdef PSX_VERSION
-		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,font,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
+		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,font,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
 #else
 		creditsText[j] = CreateAndAddTextOverlay(2048,min(10000,4096 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,font,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
 #endif	 
@@ -2351,7 +2417,7 @@ void DoCredits()
 	long spacing = 0;
 
 #ifdef PSX_VERSION
-	creditsY--;
+	creditsY -= 1;
 #else
 	creditsY -= (8*gameSpeed)/4096;
 #endif
@@ -2381,10 +2447,15 @@ void DoCredits()
 		spacing += creditData[j].spacing;
 
 #ifdef PSX_VERSION
-		creditsText[j]->yPos = creditsText[j]->yPosTo = max(-100,min(400,240 + (j + spacing)*CREDIT_SPACING + creditsY));
+		creditsText[j]->yPos = creditsText[j]->yPosTo = max(-100,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING + creditsY));
+		if((creditsText[j]->yPos < -20) || (creditsText[j]->yPos > 256))
+			creditsText[j]->draw = 0;
+		else
+			creditsText[j]->draw = 1;
 #else
 		creditsText[j]->yPos = creditsText[j]->yPosTo = max(-10000,min(10000,4096 + (j + spacing)*CREDIT_SPACING + creditsY));
 #endif
+
 
 		if( ((char*)GAMESTRING(j+STR_CREDITS_1+1)) [0] == '*' )
 		{
@@ -2416,7 +2487,10 @@ void FMVDown(void)
 
 void FMVSelect(void)
 {
-	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	ScreenFade(255,0,30);
+	playingFMV = YES;
+	keepFade = 0;
+//	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 void FMVBack(void)
@@ -2437,18 +2511,29 @@ void SetMusicVolume()
 #ifdef PC_VERSION
 	SetCDVolume((globalMusicVol * 65535)/MAX_SOUND_VOL);
 #else PSX_VERSION
-//ma	SpuSetCommonCDVolume((0x7fff*globalMusicVol)/MAX_SOUND_VOL, (0x7fff*globalMusicVol)/MAX_SOUND_VOL);
+	SpuSetCommonCDVolume((0x7fff*globalMusicVol)/MAX_SOUND_VOL, (0x7fff*globalMusicVol)/MAX_SOUND_VOL);
 #endif
 }
 
 
-#define MAX_ARTWORK 2
+#define MAX_ARTWORK 21
+
+#ifdef PSX_VERSION
+// on the PSX everything is read from CD .. we just want to do this specially
+// on the PC so we don't eat hard drive. Considerate, like. - ds
+#define InitCDBackdrop(name)	InitBackdrop(name)
+#endif
 
 void RunArtViewer()
 {
 	char name[32];
 
-	if((artCount++ == 200) || ((!fadingOut) && (padData.digital[0])))
+	if(padData.digital[0] & PAD_START)
+		currentArt = MAX_ARTWORK;
+
+	GTUpdate(&artTimer,-1);
+	
+	if((artTimer.time == 0) || ((!fadingOut) && (padData.digital[0])))
 	{
 		ScreenFade(255,0,30);
 		keepFade = YES;
@@ -2469,8 +2554,8 @@ void RunArtViewer()
 			InitBackdrop(name);
 			currentArt++;
 			ScreenFade(0,255,30);
+			GTInit(&artTimer,10);
 			keepFade = NO;
-			artCount = 0;
 		}
 	}
 }

@@ -33,9 +33,7 @@
 #include <pcaudio.h>
 #endif
 
-fixed hedRotAmt = 0;
-
-
+		  
 void DeathVanish( int pl )
 {
 	if( frogPool[player[pl].character].anim < FANIM_ALL )
@@ -71,7 +69,17 @@ void DeathRunOver( int pl )
 
 void DeathDrowning( int pl )
 {
-	GTInit( &player[pl].dead, 4 );
+//	TRIGGER *t;
+
+	// Make vanish so psx doesn't look dodgy
+//	if( frogPool[player[pl].character].anim == FANIM_ALL )
+//	{
+//		ChangeModel( frog[pl]->actor, frogPool[player[pl].character].singleModel );
+//		t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 120), NULL, NULL, NULL );
+//		AttachEvent( t, TRIGGER_ONCE, 0, DeathAnim, (void *)pl, (void *)DeathVanish, NULL, NULL );
+//	}
+
+	GTInit( &player[pl].dead, 3 );
 	player[pl].deathBy = DEATHBY_DROWNING;
 	player[pl].frogState |= FROGSTATUS_ISDEAD;
 	player[pl].isSinking = 0;
@@ -125,7 +133,7 @@ void DeathFire( int pl )
 void DeathElectric( int pl )
 {
 	SPECFX *fx;
-	FVECTOR pos;
+	FVECTOR pos, up;
 	SVECTOR tp;
 	TRIGGER *t;
 
@@ -149,13 +157,14 @@ void DeathElectric( int pl )
 	ScaleVector( &pos, 50 );
 	AddToVectorFS( &pos, &currTile[pl]->centre );
 	SetVectorSF( &tp, &pos );
+	SetVectorFF( &up, &currTile[pl]->normal );
 
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &tp, &currTile[pl]->normal, 163840, 8192, 0, 20480 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &tp, &up, 163840, 8192, 0, 20480 )) )
 	{
 		fx->gravity = 4096;
 		SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
 	}
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &tp, &currTile[pl]->normal, 163840, 8192, 0, 20480 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &tp, &up, 163840, 8192, 0, 20480 )) )
 	{
 		fx->gravity = 4096;
 		SetFXColour( fx, 220, 60, 60 );
@@ -210,7 +219,7 @@ void DeathInflation( int pl )
 		actorAnimate( frog[pl]->actor, 3, YES, YES, 51, 0 );
 	}
 
-	GTInit( &player[pl].dead, 5 );
+	GTInit( &player[pl].dead, 3 );
 
 	PlayVoice(pl, "frogdeath");
 }
@@ -218,11 +227,13 @@ void DeathInflation( int pl )
 void DeathPoison( int pl )
 {
 	SPECFX *fx;
+	FVECTOR up;
 
 	player[pl].deathBy = DEATHBY_POISON;
 	actorAnimate(frog[pl]->actor, FROG_ANIM_STUNG, NO, NO, 128, 0);
+	SetVectorFF( &up, &currTile[pl]->normal );
 
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 16384, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 16384, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 0 );
 		fx->gravity = 4100;
@@ -236,6 +247,7 @@ void DeathPoison( int pl )
 void DeathSlicing( int pl )
 {
 	SPECFX *fx;
+	FVECTOR up;
 
 	if( frogPool[player[pl].character].anim < FANIM_ALL )
 	{
@@ -252,18 +264,19 @@ void DeathSlicing( int pl )
 	ChangeModel( frog[pl]->actor, "dth-half" );
 
 	actorAnimate( frog[pl]->actor, 0, NO, NO, 64, 0 );
+	SetVectorFF( &up, &currTile[pl]->normal );
 
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 16384, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 16384, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 0 );
 		fx->gravity = 4100;
 	}
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 12288, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 12288, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 130 );
 		fx->gravity = 4100;
 	}
-	if( (fx = CreateSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->position, &currTile[pl]->normal, 163840, 0, 0, 8192 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->position, &up, 163840, 0, 0, 8192 )) )
 	{
 		SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
 		fx->tex = txtrSolidRing;
@@ -277,6 +290,7 @@ void DeathExplosion( int pl )
 {
 	TRIGGER *t;
 	SPECFX *fx;
+	FVECTOR up;
 
 	if( frogPool[player[pl].character].anim < FANIM_ALL )
 	{
@@ -294,18 +308,19 @@ void DeathExplosion( int pl )
 
 	actorAnimate( frog[pl]->actor, 0, NO, NO, 51, 0 );
 	actorAnimate( frog[pl]->actor, 2, YES, YES, 51, 0 );
+	SetVectorFF( &up, &currTile[pl]->normal );
 
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 16384, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 16384, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 0 );
 		fx->gravity = 4100;
 	}
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 12288, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 12288, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 130 );
 		fx->gravity = 4100;
 	}
-	if( (fx = CreateSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->position, &currTile[pl]->normal, 163840, 0, 0, 8192 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->position, &up, 163840, 0, 0, 8192 )) )
 	{
 		SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
 		fx->tex = txtrSolidRing;
@@ -322,6 +337,7 @@ void DeathExplosion( int pl )
 void DeathGibbing( int pl )
 {
 	SPECFX *fx;
+	FVECTOR up;
 
 	if( frogPool[player[pl].character].anim < FANIM_ALL )
 	{
@@ -339,18 +355,19 @@ void DeathGibbing( int pl )
 
 	actorAnimate( frog[pl]->actor, 1, NO, NO, 51, 0 );
 	actorAnimate( frog[pl]->actor, 3, YES, YES, 51, 0 );
+	SetVectorFF( &up, &currTile[pl]->normal );
 
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 16384, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 16384, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 0 );
 		fx->gravity = 4100;
 	}
-	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 81920, 12288, 0, 20480 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->position, &up, 81920, 12288, 0, 20480 )) )
 	{
 		SetFXColour( fx, 255, 255, 130 );
 		fx->gravity = 4100;
 	}
-	if( (fx = CreateSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->position, &currTile[pl]->normal, 163840, 0, 0, 8192 )) )
+	if( (fx = CreateSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->position, &up, 163840, 0, 0, 8192 )) )
 	{
 		SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
 		fx->tex = txtrSolidRing;
@@ -365,6 +382,7 @@ void DeathGibbing( int pl )
 
 void DeathIncinerate( int pl )
 {
+	FVECTOR up;
 	if( frogPool[player[pl].character].anim < FANIM_ALL )
 	{
 		DeathNormal(pl);
@@ -381,8 +399,9 @@ void DeathIncinerate( int pl )
 
 	actorAnimate( frog[pl]->actor, 0, NO, NO, 80, 0 );
 	actorAnimate( frog[pl]->actor, 1, YES, YES, 80, 0 );
+	SetVectorFF( &up, &currTile[pl]->normal );
 
-	CreateSpecialEffect( FXTYPE_SMOKEBURST, &frog[pl]->actor->position, &currTile[pl]->normal, 204800, 8192, 0, 6963 );
+	CreateSpecialEffect( FXTYPE_SMOKEBURST, &frog[pl]->actor->position, &up, 204800, 8192, 0, 6963 );
 
 	GTInit( &player[pl].dead, 3 );
 
@@ -423,7 +442,7 @@ void DeathSpiked( int pl )
 	actorAnimate(frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 128, 0 );
 	PlayVoice(pl, "frogdeath");
 
-	CalculateFrogJump( &frog[pl]->actor->position, &currTile[pl]->centre, &currTile[pl]->normal, 5000000, 40, pl );
+	CalculateFrogJumpS( &frog[pl]->actor->position, &currTile[pl]->centre, &currTile[pl]->normal, 5000000, 40, pl );
 
 	GTInit( &player[pl].dead, 3 );
 
@@ -433,22 +452,8 @@ void DeathSpiked( int pl )
 
 void DeathMulti( int pl )
 {
-	SPECFX *fx;
-	FVECTOR pos;
-	SVECTOR tp;
-
 	// A standard multiplayer death
-	SetVectorFF( &pos, &currTile[pl]->normal );
-	ScaleVector( &pos, 50 );
-	AddToVectorFS( &pos, &currTile[pl]->centre );
-	SetVectorSF( &tp, &pos );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &currTile[pl]->normal, 262144, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &currTile[pl]->normal, 327680, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &tp, &currTile[pl]->normal, 81920, 410, 205, 2048 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+	CreateRespawnEffect( currTile[pl], pl );
 
 	PlaySample( genSfx[GEN_DEATHEXPLODE], NULL, 0, SAMPLE_VOLUME, -1 );
 
@@ -460,24 +465,25 @@ void DeathMulti( int pl )
 void DeathLightning( int pl )
 {
 	SPECFX *fx;
-	FVECTOR pos;
+	FVECTOR pos, up;
 	SVECTOR tp;
 
+	SetVectorFF( &up, &currTile[pl]->normal );
 	SetVectorFF( &pos, &currTile[pl]->normal );
 	ScaleVector( &pos, 50 );
-	AddToVectorFS( &pos, &currTile[pl]->centre );
+	AddToVectorFS( &pos, &frog[pl]->actor->position );//&currTile[pl]->centre );
 	SetVectorSF( &tp, &pos );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &currTile[pl]->normal, 262144, 8192, 410, 6963 );
+	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &up, 262144, 8192, 410, 6963 );
 	SetFXColour( fx, 200, 200, 255 );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &currTile[pl]->normal, 327680, 8192, 410, 6963 );
+	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &up, 327680, 8192, 410, 6963 );
 	SetFXColour( fx, 255, 255, 255 );
 
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKBURST, &tp, &currTile[pl]->normal, 72200, 8192, 0, 20480 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKBURST, &tp, &up, 72200, 8192, 0, 20480 )) )
 	{
 		fx->gravity = 4096;
 		SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
 	}
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKBURST, &tp, &currTile[pl]->normal, 61149, 8192, 0, 20480 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKBURST, &tp, &up, 61149, 8192, 0, 20480 )) )
 	{
 		fx->gravity = 4096;
 		SetFXColour( fx, 220, 60, 60 );

@@ -67,7 +67,7 @@ extern void RunLevelCompleteSequence();
 
 extern ACTOR2 *backGnd;
 
-extern unsigned char swingCam;
+//extern unsigned char swingCam;
 
 //extern unsigned long creditsActive;
 //extern unsigned long fadingLogos;

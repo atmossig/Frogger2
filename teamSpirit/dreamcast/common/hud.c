@@ -121,9 +121,9 @@ void InitArcadeHUD(void)
 		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(2900,3700,timeStringMin,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		arcadeHud.timeTextSec =		CreateAndAddTextOverlay(2900+200,3700,timeStringSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(2900+450,3700,timeStringHSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		arcadeHud.timeTextHSec->scale = 2048;
+		arcadeHud.timeTextHSec->scale = 3072;
 	}
-
+	
 #ifdef E3_DEMO
 	arcadeHud.helpOver =		CreateAndAddSpriteOverlay(3370,1200,"HELPOVER",4096,(128*4096)/480,180,0);
 #endif
@@ -164,7 +164,7 @@ void InitArcadeHUD(void)
 		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(3100,3700,timeStringMin,NO,255,0,0);
 		arcadeHud.timeTextSec =		CreateAndAddTextOverlay(3100+200,3700,timeStringSec,NO,255,0,0);
 		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(3100+450,3700,timeStringHSec,NO,255,0,0);
-		arcadeHud.timeTextHSec->scale = 2048;
+		arcadeHud.timeTextHSec->scale = 3072;
 	}
 
 #ifdef E3_DEMO
@@ -225,12 +225,12 @@ void InitArcadeHUD(void)
 	if (gameState.mode == INGAME_MODE)
 		polysText = CreateAndAddTextOverlay(200,600,polyString,NO,255,fontSmall,0);
 
-	arcadeHud.timeOutText = CreateAndAddTextOverlay(2048,180,GAMESTRING(STR_OUTOFTIME),YES,255,0,0);
-	arcadeHud.timeOutText->r = 0xff;
-	arcadeHud.timeOutText->g = 0;
-	arcadeHud.timeOutText->b = 0;
-	arcadeHud.timeOutText->a = 0;
-	DisableTextOverlay(arcadeHud.timeOutText);
+//	arcadeHud.timeOutText = CreateAndAddTextOverlay(2048,180,GAMESTRING(STR_OUTOFTIME),YES,255,0,0);
+//	arcadeHud.timeOutText->r = 0xff;
+//	arcadeHud.timeOutText->g = 0;
+//	arcadeHud.timeOutText->b = 0;
+//	arcadeHud.timeOutText->a = 0;
+//	DisableTextOverlay(arcadeHud.timeOutText);
 
 	arcadeHud.timedOut = 0;
 
@@ -290,7 +290,7 @@ void InitMultiHUD()
 		multiHud.timeTextMin = CreateAndAddTextOverlay(1536-102,160+64,timeStringMin,NO,255,font,TEXTOVERLAY_SHADOW);
 		multiHud.timeTextSec = CreateAndAddTextOverlay(1536+410-102,160+64,timeStringSec,NO,255,font,TEXTOVERLAY_SHADOW);
 		multiHud.timeTextHSec = CreateAndAddTextOverlay(1536+410+410-102,160+64,timeStringHSec,NO,255,font,TEXTOVERLAY_SHADOW);
-//		multiHud.timeTextHSec->scale = 3072;
+		multiHud.timeTextHSec->scale = 3072;
 		break;
 	}
 
@@ -340,6 +340,7 @@ void DisableMultiHUD( )
 	for (i = 0; i<NUM_FROGS; i++)
 	{
 		DisableSpriteOverlay( multiHud.backChars[i] );
+		DisableSpriteOverlay( multiHud.penalOver[i] );
 		DisableTextOverlay( multiHud.penaliseText[i] );
 		for(j = 0;j < 3;j++)
 			DisableSpriteOverlay(multiHud.trophies[i][j]);
@@ -363,7 +364,11 @@ void EnableMultiHUD( )
 	for (i = 0; i<NUM_FROGS; i++)
 	{
 		EnableSpriteOverlay( multiHud.backChars[i] );
+		EnableSpriteOverlay( multiHud.penalOver[i] );
 		EnableTextOverlay( multiHud.penaliseText[i] );
+		multiHud.penaliseText[i]->a = 255;
+		multiHud.penaliseText[i]->xPos = multiHud.penaliseText[i]->xPosTo = backTextX[i];
+		multiHud.penaliseText[i]->yPos = multiHud.penaliseText[i]->yPosTo = backTextY[i];
 		for(j = 0;j < mpl[i].wins;j++)
 			EnableSpriteOverlay(multiHud.trophies[i][j]);
 	}
@@ -398,6 +403,13 @@ void SparkleBabies(void)
 void DisableHUD(void)
 {
 	int i;
+
+	if( gameState.multi != SINGLEPLAYER )
+	{
+		DisableMultiHUD();
+		return;
+	}
+
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 0;
 
@@ -413,7 +425,7 @@ void DisableHUD(void)
 	if( gameState.single != STORY_MODE )
 	{
 		arcadeHud.timeHeadOver->draw = arcadeHud.timeHandOver->draw = arcadeHud.timeFaceOver->draw = 0;
-		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = arcadeHud.timeOutText->draw = arcadeHud.timeTextHSec->draw = 0;
+		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = /*arcadeHud.timeOutText->draw = */arcadeHud.timeTextHSec->draw = 0;
 	}
 
 	for(i=0; i<numBabies; i++)
@@ -451,7 +463,7 @@ void EnableHUD(void)
 	if((gameState.single != STORY_MODE ) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		arcadeHud.timeHeadOver->draw = arcadeHud.timeHandOver->draw = arcadeHud.timeFaceOver->draw = 1;
-		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = arcadeHud.timeOutText->draw = arcadeHud.timeTextHSec->draw = 1;
+		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = /*arcadeHud.timeOutText->draw =*/ arcadeHud.timeTextHSec->draw = 1;
 	}
 
 	for(i=0; i<numBabies; i++)
@@ -475,7 +487,7 @@ void UpDateMultiplayerInfo( void )
 		if( multiTimer.time<5)
 		{
 			sprintf(countdownString,"%lu",multiTimer.time-1);
-			multiHud.centreText->scale = 8192;
+			multiHud.centreText->scale = 6144;
 			switch (multiTimer.time)
 			{
 				case 4:
@@ -531,11 +543,13 @@ void UpDateMultiplayerInfo( void )
 		sprintf(timeStringMin,"%2i:",((int)timeFrames/(60*60))%60);	
 
 #ifdef PSX_VERSION
-		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentW(multiHud.timeTextSec->font,multiHud.timeTextSec->text)*8 + 2*8;
-		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentW(multiHud.timeTextMin->font,multiHud.timeTextMin->text)*8 - 2*8;
+//ma		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentWScaled(multiHud.timeTextSec->font,multiHud.timeTextSec->text,multiHud.timeTextSec->scale)*8 + 2*8;
+//ma		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentWScaled(multiHud.timeTextMin->font,multiHud.timeTextMin->text,multiHud.timeTextMin->scale)*8 - 2*8;
+		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentW(multiHud.timeTextSec->font,multiHud.timeTextSec->text) + 2*8;
+		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentW(multiHud.timeTextMin->font,multiHud.timeTextMin->text) - 2*8;
 #elif PC_VERSION
-		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + (float)(CalcStringWidth(multiHud.timeTextSec->text,(MDX_FONT *)multiHud.timeTextSec->font,multiHud.timeTextSec->scale) + 2) / OVERLAY_X;
-		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - (float)(CalcStringWidth(multiHud.timeTextMin->text,(MDX_FONT *)multiHud.timeTextMin->font,multiHud.timeTextMin->scale) + 2) / OVERLAY_X;
+		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + (float)(CalcStringWidth(multiHud.timeTextSec->text,(MDX_FONT *)multiHud.timeTextSec->font,((float)multiHud.timeTextSec->scale)/4096.0) + 2) / OVERLAY_X;
+		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - (float)(CalcStringWidth(multiHud.timeTextMin->text,(MDX_FONT *)multiHud.timeTextMin->font,((float)multiHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
 #endif
 		break;
 	case MULTIMODE_BATTLE:
@@ -683,15 +697,15 @@ void UpDateOnScreenInfo ( void )
 			if (!arcadeHud.timedOut)
 			{
 				lastSecs = 0;
-				arcadeHud.timeOutText->a = 0xff;
-				arcadeHud.timeOutText->draw = 1;
+//				arcadeHud.timeOutText->a = 0xff;
+//				arcadeHud.timeOutText->draw = 1;
 				arcadeHud.timeTextHSec->draw = 0;
 
 				PlaySample( FindSample(utilStr2CRC("alarm")), NULL, 0, SAMPLE_VOLUME, -1 );
 			}
 		
-			if( (arcadeHud.timeOutText->a<<12) > gameSpeed )
-				arcadeHud.timeOutText->a -= max(gameSpeed>>11, 1);
+//			if( (arcadeHud.timeOutText->a<<12) > gameSpeed )
+//				arcadeHud.timeOutText->a -= max(gameSpeed>>11, 1);
 
 			arcadeHud.timedOut = 1;
 			arcadeHud.timeTextMin->r = arcadeHud.timeTextSec->r = 255;
@@ -755,11 +769,12 @@ void UpDateOnScreenInfo ( void )
 			arcadeHud.timeHeadOver->angle = rsin(arcadeHud.timeHandOver->angle)>>2;
 		}
 #ifdef PSX_VERSION
-//		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + fontExtentW(arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->text)*8 + 2*8;
-		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentW(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text)*8 - 2*8;
+//		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + fontExtentWScaled(arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->text)*8 + 2*8;
+//ma		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentWScaled(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text,arcadeHud.timeTextMin->scale)*8 - 2*8;
+		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentW(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text) - 2*8;
 #elif PC_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + (float)(CalcStringWidth(arcadeHud.timeTextSec->text,(MDX_FONT *)arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->scale) + 2) / OVERLAY_X;
-		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - (float)(CalcStringWidth(arcadeHud.timeTextMin->text,(MDX_FONT *)arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->scale) + 2) / OVERLAY_X;
+		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - (float)(CalcStringWidth(arcadeHud.timeTextMin->text,(MDX_FONT *)arcadeHud.timeTextMin->font,((float)arcadeHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
 #endif
 	}	
 	

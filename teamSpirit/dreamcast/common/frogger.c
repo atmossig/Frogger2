@@ -28,10 +28,42 @@
 #include "overlays.h"
 #include "platform.h"
 #include "layout.h"
+#include "particle.h"
 //#include "newstuff.h"
 #ifndef PSX_VERSION
 #include <stdio.h>
 #endif
+
+PLATFORMLIST platformList;								// the platform list
+PLATFORM *destPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
+PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
+fixed waitScale = 5<<12;
+
+FOG fog = {120,120,160,FOG_OFF,995,5000};
+
+SPRITEOVERLAYLIST spriteOverlayList;		// the sprite overlay list
+
+SPRITELIST sprList;
+
+TEXTOVERLAYLIST	textOverlayList;			// the text overlay linked list
+
+unsigned int xseed = (7789<<16)+13399;	
+
+VECTOR zero = {0, 0, 0};
+//FLVECTOR flZero = {0, 0, 0};
+//QUATERNION zeroQuat = {0,0,0,1};
+//QUATERNION vertQ = {0,1,0,0};
+IQUATERNION vertQ = {0,4096,0,0};
+// MATRIXSTACK	matrixStack;
+// MATRIXSTACK	rMatrixStack;
+
+int PFX_NUMPARTICLES = 25;
+PARTICLELIST partList;
+
+FVECTOR upVec	= {0,4096,0};
+FVECTOR inVec	= {0,0,4096};
+FVECTOR outVec	= {0,0,-4096};
+FVECTOR rightVec= {4096,0,0};
 
 SVECTOR *pointOfInterest;
 fixed pOIDistance = 20000<<12;
@@ -129,8 +161,8 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 		currTile[p] = NULL;
 
 	player[p].healthPoints	= 1;
-	player[p].frogon		= (char)-1;
-	player[p].frogunder		= (char)-1;
+	player[p].frogon		= -1;
+	player[p].frogunder		= -1;
 	player[p].jumpTime		= -1;
 	player[p].numSpawn		= 0;
 

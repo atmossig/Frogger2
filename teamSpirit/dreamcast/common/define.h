@@ -95,6 +95,7 @@ enum
 	TILESTATE_DEADLYFALL,
 	TILESTATE_HOT,
 	TILESTATE_ELECTRIC,
+	TILESTATE_NOSUPER,
 	TILESTATE_OCCUPIED,
 
 	TILESTATE_CONVEYOR0SLOW = 0x20,
@@ -126,14 +127,16 @@ enum
 typedef struct _GAMETILE
 {
 	struct _GAMETILE	*tilePtrs[4];		// north, south, east and west
-	struct _GAMETILE	*next;				// next tile in linked list
+	//struct _GAMETILE	*next;				// next tile in linked list
 	
 	unsigned long		state;				// state of tile
 	
 	SVECTOR		centre;						// centre position
-	FVECTOR		normal;						// face normal
+	//JH : Changed from FVECTOR to SVECTOR to save mem
+	SVECTOR		normal;						// face normal
 
-	FVECTOR		dirVector[4];				// the 4 possible camera vectors for this tile
+	//JH : Changed from FVECTOR to SVECTOR to save mem
+	SVECTOR		dirVector[4];				// the 4 possible camera vectors for this tile
 
 } GAMETILE;
 

@@ -121,9 +121,11 @@ void UpdateRace( )
 			}
 			else
 			{
+				FVECTOR fwd;
+				SetVectorFF( &fwd, &currTile[i]->dirVector[(frogFacing[i]+camFacing[i])&3] );
 				// Hop forward to starting line 
 				if( player[i].canJump )
-					HopFrogToTile( FindJoinedTileByDirection( currTile[i], &currTile[i]->dirVector[(frogFacing[i]+camFacing[i])&3] ), i );
+					HopFrogToTile( FindJoinedTileByDirection(currTile[i],&fwd), i );
 			}
 
 		GTInit( &multiTimer, 0);
@@ -306,9 +308,14 @@ void UpdateBattle( )
 	if( !started )
 	{
 		ENEMY *nme;
-		for( nme=enemyList.head.next; nme!=&enemyList.head; nme=nme->next )
+		int count;
+		for( count=1,nme=enemyList.head.next; nme!=&enemyList.head; nme=nme->next )
 			if( nme->flags & ENEMY_NEW_BATTLEMODE )
+			{
+				MoveEnemyToNode( nme, count );
 				nme->isWaiting = -1;
+				count++;
+			}
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
@@ -342,12 +349,23 @@ void UpdateBattle( )
 				for( nme=enemyList.head.next; nme!=&enemyList.head; nme=nme->next )
 					if( nme->flags & ENEMY_NEW_BATTLEMODE )
 						nme->isWaiting = 0;
-					else 
-						nme->path->nodes->worldTile->state = TILESTATE_BARRED;
+//					else 
+//						nme->path->nodes->worldTile->state = TILESTATE_BARRED;
 			}
 		}
 		else if( !multiTimer.time )
+//		{
+//			// JH: OK!!! This has been put here because the line above which sets the TILESTATE, kills the frog
+//			// in battle mode.
+//			ENEMY *nme;
+//			for( nme=enemyList.head.next; nme!=&enemyList.head; nme=nme->next )
+//				if( nme->flags & ENEMY_NEW_BATTLEMODE )
+//					nme->isWaiting = 0;
+//				else 
+//					nme->path->nodes->worldTile->state = TILESTATE_NORMAL;
+
 			PlayVoice( Random(NUM_FROGS), "frogletsgo" );
+//		}
 		else if( multiTimer.time != oldTime && multiTimer.time < 5 )
 		{
 			PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
@@ -550,7 +568,7 @@ void UpdateBattle( )
 		}
 		else
 		{
-			PlayVoice( i, "frogokay" );
+			PlayVoice( gameWinner, "frogokay" );
 			mpl[gameWinner].wins++;
 		}
 
@@ -741,9 +759,7 @@ void RaceRespawn( int pl )
 {
 	int j, respawn=0,noGood;
 	GAMETILE *tile;
-	FVECTOR diff, pos;
-	SVECTOR tp;
-	SPECFX *fx;
+	FVECTOR diff;
 
 	player[pl].deathBy = 0;
 	player[pl].frogState &= ~FROGSTATUS_ISDEAD;
@@ -778,12 +794,14 @@ void RaceRespawn( int pl )
 	if( !tile )
 	{
 		GAMETILE *t, *target = NULL;
-		long dist, best = 99999999;
+		long dist, best = 99999999, i;
 
-		for( t = firstTile; t != NULL; t = t->next )
+		t = firstTile;
+		for ( i = 0; i < tileCount; i++, t++ )
+		//for( t = firstTile; t != NULL; t = t->next )
 		{
 			noGood = NO;
-			if(t->state == TILESTATE_SAFE)
+			if((t->state == TILESTATE_SAFE) || (t->state == TILESTATE_NORMAL) || (t->state == TILESTATE_FROGGER1AREA) || (t->state == TILESTATE_FROGGER2AREA) || (t->state == TILESTATE_FROGGER3AREA) || (t->state == TILESTATE_FROGGER4AREA))
 			{
 				for(j = 0;j < NUM_FROGS;j++)
 				{
@@ -795,7 +813,7 @@ void RaceRespawn( int pl )
 				}
 				if(noGood)
 					continue;
-				dist = DistanceBetweenPointsSS( &frog[pl]->actor->position, &t->centre );
+				dist = DistanceBetweenPointsSS( &frog[respawn]->actor->position, &t->centre ) + DistanceBetweenPointsSS( &frog[pl]->actor->position, &t->centre );
 				if( dist < best && IsPointVisible(&t->centre) )
 				{
 					target = t;
@@ -810,19 +828,13 @@ void RaceRespawn( int pl )
 			tile = currTile[respawn];
 	}
 
+	camFacing[pl] = camFacing[respawn];
+	frogFacing[pl] = frogFacing[respawn];
+	prevCamFacing[pl] = prevCamFacing[respawn];
+
 	TeleportActorToTile(frog[pl],tile,pl);
 
-	SetVectorFF( &pos, &tile->normal );
-	ScaleVector( &pos, 50 );
-	AddToVectorFS( &pos, &tile->centre );
-	SetVectorSF( &tp, &pos );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &tile->normal, 262144, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &tile->normal, 327680, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &tp, &tile->normal, 81920, 410, 205, 2048 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+	CreateRespawnEffect( tile, pl );
 
 	// Update progress info
 	mpl[pl].check = mpl[respawn].check;
@@ -833,10 +845,6 @@ void RaceRespawn( int pl )
 		mpl[pl].lasttile = TILESTATE_FROGGER4AREA;		
 	else
 		mpl[pl].lasttile = mpl[respawn].lasttile;
-
-	camFacing[pl] = camFacing[respawn];
-	frogFacing[pl] = frogFacing[respawn];
-	prevCamFacing[pl] = prevCamFacing[respawn];
 
 	lastTile[pl] = tile;
 	destTile[pl] = tile;
@@ -854,27 +862,13 @@ void RaceRespawn( int pl )
 */
 void CollectRespawn( int pl )
 {
-	SPECFX *fx;
-	FVECTOR pos;
-	SVECTOR tp;
-
 	TeleportActorToTile(frog[pl],gTStart[pl],pl);
 	actorAnimate( frog[pl]->actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0 );
 
 	lastTile[pl] = gTStart[pl];
 	destTile[pl] = gTStart[pl];
 
-	SetVectorFF( &pos, &gTStart[pl]->normal );
-	ScaleVector( &pos, 50 );
-	AddToVectorFS( &pos, &gTStart[pl]->centre );
-	SetVectorSF( &tp, &pos );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &gTStart[pl]->normal, 262144, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &gTStart[pl]->normal, 327680, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &tp, &gTStart[pl]->normal, 81920, 410, 205, 2048 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+	CreateRespawnEffect( gTStart[pl], pl );
 }
 
 
@@ -1001,7 +995,7 @@ void FaceFrogToCentre(int pl, int toggle)
 	}
 
 	frogFacing[pl] = facing;
-	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+	OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 }
 
 
@@ -1048,24 +1042,10 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 */
 void KillMPFrog(int pl)
 {
-	SPECFX *fx;
-	FVECTOR pos;
-	SVECTOR tp;
-
 	player[pl].frogState |= FROGSTATUS_ISDEAD;
 
 	// A standard multiplayer death
-	SetVectorFF( &pos, &currTile[pl]->normal );
-	ScaleVector( &pos, 50 );
-	AddToVectorFS( &pos, &currTile[pl]->centre );
-	SetVectorSF( &tp, &pos );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &currTile[pl]->normal, 262144, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &currTile[pl]->normal, 327680, 8192, 410, 6963 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
-
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &tp, &currTile[pl]->normal, 81920, 410, 205, 2048 );
-	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+	CreateRespawnEffect( currTile[pl], pl );
 
 	PlaySample( genSfx[GEN_DEATHEXPLODE], NULL, 0, SAMPLE_VOLUME, -1 );
 
@@ -1393,14 +1373,15 @@ void CalcRaceCircuitCamera( FVECTOR *target )
 void CalcRaceStraightCamera( FVECTOR *target )
 {
 	int i, bestLap=0, bestCheck=0, num, bestZ=999999999;
-	fixed dist;
+	fixed dist, scale;
 
-	ZeroVector( target );
+	target->vx = target->vz = 0;
 
 	if( gameWinner != -1 && gameWinner != MULTI_ROUND_DRAW )
 	{
 		playerFocus = gameWinner;
-		SetVectorFS( target, &frog[gameWinner]->actor->position );
+		target->vx = frog[gameWinner]->actor->position.vx<<12;
+		target->vz = frog[gameWinner]->actor->position.vz<<12;
 		return;
 	}
 
@@ -1424,17 +1405,21 @@ void CalcRaceStraightCamera( FVECTOR *target )
 				FVECTOR v;
 				SetVectorFF(&v, &player[i].jumpFwdVector);
 				ScaleVectorFF(&v, player[i].jumpTime);
-				AddToVectorFS(target, &player[i].jumpOrigin);
-				AddToVectorFF(target, &v);
+
+				target->vx += (player[i].jumpOrigin.vx<<12) + v.vx;
+				target->vz += (player[i].jumpOrigin.vz<<12) + v.vz;
 			}										
 			else
 			{
-				AddToVectorFS( target, &frog[i]->actor->position );
+				target->vx += frog[i]->actor->position.vx<<12;
+				target->vz += frog[i]->actor->position.vz<<12;
 			}
 		}
 	}
 
-	ScaleVectorFF( target, 4096/(max(num,1)) );
+	scale = 4096/(max(num,1));
+	target->vx = FMul( target->vx, scale );
+	target->vz = FMul( target->vz, scale );
 }
 
 
@@ -1517,6 +1502,8 @@ void CalcCollectCamera( FVECTOR *target )
 	Returns			: 
 	Info			: 
 */
+int battleCamFac = 3000;
+int battleCamPlus = 5000;
 void CalcBattleCamera( FVECTOR *target )
 {
 	FVECTOR v;
@@ -1570,11 +1557,12 @@ void CalcBattleCamera( FVECTOR *target )
 	
 	// Zoom in/out to keep multiplayer frogs in view
 	sc = FindMaxInterFrogDistance( );
-	if( sc != -4096 ) 
+	if( sc > 0 )
 	{
-		scv = (sc/3000) + 4000;
+		scv = (sc/battleCamFac) + battleCamPlus;
 
-		if( scv > scaleV ) 
+		//if( scv > scaleV ) 
+		// JH:  Commented out so the camera can go back in!!!, Please Check Jim
 			scaleV = scv;
 	}
 

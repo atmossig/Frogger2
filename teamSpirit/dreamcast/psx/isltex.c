@@ -52,7 +52,7 @@ extern char texurestring[32];
 TextureBankType *textureLoadBank(char *sFile)
 {
  	TextureBankType	*newBank = NULL;
-	int				loop,j;
+	int				loop,j,i;
 	ULONG			tempCRC;
 	int				filelength;
 	int				num,width,height;
@@ -67,16 +67,7 @@ TextureBankType *textureLoadBank(char *sFile)
 		if(pNSprite	== NULL)
 			retry++;
 	}
-	
-	if(pNSprite == NULL)
-	{
-		if(strcmp("TEXTURES\\GENERIC.SPT",sFile)==0)
-			sprintf(texurestring,"can't load");
-		return NULL;
-	}
-	if(strcmp("TEXTURES\\GENERIC.SPT",sFile)==0)
-		sprintf(texurestring,"load %d",filelength);
-	
+
 	numTextures = textureSetSPRPointers(pNSprite,&maxWidth,&maxHeight);
 
 	bitmapPtr = Align32Malloc(maxWidth*maxHeight*sizeof(USHORT));
@@ -88,10 +79,13 @@ TextureBankType *textureLoadBank(char *sFile)
 		if(utilStr2CRC("AI_CIRCLE") == pNSprite[loop].crc)
 		{
 			pNSprite[loop].flags |= NALPHA;
-		}			
-		loadNSPRITEIntoSurface(&pNSprite[loop]);
+		}	
+		if(!((pNSprite[loop].flags & NSPLIT)||(pNSprite[loop].flags & NBITSTREAM)))
+			loadNSPRITEIntoSurface(&pNSprite[loop]);
+		else
+			utilPrintf("Split texture !");
 	}
-
+		
 	Align32Free(pNSprite);	
 	Align32Free(bitmapPtr);
 	Align32Free(twiddlePtr);

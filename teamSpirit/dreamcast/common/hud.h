@@ -66,7 +66,7 @@ typedef struct TAG_ARCADE_HUD
 
 	SPRITEOVERLAY *coins;
 
-	TEXTOVERLAY   *timeOutText;
+//	TEXTOVERLAY   *timeOutText;
 	unsigned long timedOut;
 	SPRITEOVERLAY *coinZoom;
 } ARCADE_HUD;

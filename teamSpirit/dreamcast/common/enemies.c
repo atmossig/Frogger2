@@ -90,9 +90,9 @@ typedef struct _NMEHACK {
 
 NMEHACK enemyAnimHack[] = {
 #ifdef DREAMCAST_VERSION
-#include "x:\teamspirit\pcversion\nmehack.txt"
+#include "w:\teamspirit\pcversion\nmehack.txt"
 #else
-#include "x:/teamspirit/pcversion/nmehack.txt"
+#include "w:/teamspirit/pcversion/nmehack.txt"
 #endif
 };
 
@@ -108,9 +108,9 @@ NMEHACK enemyAnimHack[] = {
 
 REACTIVEANIM reactiveAnims[] = {
 #ifdef DREAMCAST_VERSION
-#include "x:\teamspirit\pcversion\reactive.txt"
+#include "w:\teamspirit\pcversion\reactive.txt"
 #else
-#include "x:/teamspirit/pcversion/reactive.txt"
+#include "w:/teamspirit/pcversion/reactive.txt"
 #endif
 };
 
@@ -296,7 +296,7 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 			FVECTOR fwd;
 			SubVectorFSS( &fwd, &nme->nmeActor->actor->position, &frog[pl]->actor->position );
 			MakeUnit( &fwd );
-			Orientate( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
+			OrientateFS( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
 		}
 		else if( reactiveAnims[nme->reactiveNumber].type & ANI_FACECAMERA )
 		{
@@ -306,7 +306,7 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 			MakeUnit( &fwd );
 
 			SetVectorFF( &fwd, FindClosestTileVector(currTile[pl], &fwd) );
-			Orientate( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
+			OrientateFS( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
 		}
 		
 		if (reactiveAnims[nme->reactiveNumber].type & ANI_CENTRE)
@@ -476,7 +476,7 @@ void RotateWaitingNME( ENEMY *cur )
 void UpdateBobbingEnemy(ENEMY *nme)
 {
 	SVECTOR foo;
-	FVECTOR normal;
+	SVECTOR normal;
 	fixed bob;
 
 	//nme->animVal = (nme->animVal + gameSpeed) & 0xFFFFFF;
@@ -505,7 +505,7 @@ void UpdateBobbingEnemy(ENEMY *nme)
 void UpdateJigglingEnemy(ENEMY *nme)
 {
 	SVECTOR foo;
-	FVECTOR normal;
+	SVECTOR normal;
 	fixed bob;
 
 #ifdef PSX_VERSION
@@ -534,7 +534,7 @@ void UpdateJigglingEnemy(ENEMY *nme)
 void UpdateGallopingEnemy(ENEMY *nme)
 {
 	FVECTOR foo;
-	FVECTOR normal, fwd;
+	SVECTOR normal, fwd;
 	fixed clam, x, y;
 
 	clam = ((actFrameCount-nme->path->startFrame)<<12)/(nme->path->endFrame-nme->path->startFrame)*2;
@@ -729,9 +729,11 @@ void UpdatePathNME( ENEMY *cur )
 		if( (cur->flags & ENEMY_NEW_PUSHESFROG) && (cur->flags & ENEMY_NEW_PINGPONG) )
 		{
 			for( i=0; i<=path->toNode; i++ )
-				path->nodes[i].worldTile->state = TILESTATE_BARRED;
+				if( path->nodes[i].worldTile->state == TILESTATE_NORMAL )
+					path->nodes[i].worldTile->state = TILESTATE_BARRED;
 			for( ; i<path->numNodes; i++ )
-				path->nodes[i].worldTile->state = TILESTATE_NORMAL;
+				if( path->nodes[i].worldTile->state == TILESTATE_BARRED )
+					path->nodes[i].worldTile->state = TILESTATE_NORMAL;
 		}
 	}
 
@@ -769,7 +771,7 @@ void UpdatePathNME( ENEMY *cur )
 				}
 				else // Need to do this so normals still work
 				{
-					Orientate(&act->actor->qRot, &path->nodes->worldTile->dirVector[cur->facing],  &cur->currNormal);
+					OrientateSF(&act->actor->qRot, &path->nodes->worldTile->dirVector[cur->facing],  &cur->currNormal);
 				}
 			}
 		}
@@ -1111,7 +1113,7 @@ void UpdateVent( ENEMY *cur )
 	PATH *path = cur->path;
 	SPECFX *fx;
 	ACTOR2 *act = cur->nmeActor;
-	FVECTOR pos;
+	FVECTOR pos, up;
 	int i, j, progress;
 	unsigned long t;
 
@@ -1144,14 +1146,16 @@ void UpdateVent( ENEMY *cur )
 			// If halway through waiting cycle, trigger some warning effect
 			if( actFrameCount > path->startFrame + ((path->endFrame-path->startFrame)>>1) )
 			{
+				SetVectorFF( &up, &path->nodes->worldTile->normal );
+
 				if( cur->nmeActor->effects & EF_FIERYSMOKE ) // Pilot light type thing
 				{
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &path->nodes->worldTile->normal, 65536, 2048, 1024, 4096 );
+					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 65536, 2048, 1024, 4096 );
 					SetFXColour( fx, 255, 255, 255 );
 				}
 				else if( cur->nmeActor->effects & EF_SMOKEBURST )
 				{
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &path->nodes->worldTile->normal, 65536, 2048, 1024, 4096 );
+					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 65536, 2048, 1024, 4096 );
 					SetAttachedFXColour( fx, act->effects );
 				}
 				else if( (cur->nmeActor->effects & EF_LIGHTNING) && !cur->isIdle ) // TODO: make this better!
@@ -1161,12 +1165,18 @@ void UpdateVent( ENEMY *cur )
 
 					SubVectorFSS( &normal, &path->nodes[path->numNodes-1].worldTile->centre, &path->nodes->worldTile->centre );
 					MakeUnit( &normal );
-					fx = CreateSpecialEffectDirect( FXTYPE_DECAL, &act->actor->position, &normal, 131072, 0, 0, time );
-					SetAttachedFXColour( fx, act->effects );
+					if( (fx = CreateSpecialEffect( FXTYPE_TWINKLE, &act->actor->position, &normal, 163840, 0, 0, time )) )
+					{
+						fx->tilt = 8192;
+						SetAttachedFXColour( fx, act->effects );
+					}
 
 					ScaleVector( &normal, -1 );
-					fx = CreateSpecialEffectDirect( FXTYPE_DECAL, &path->nodes[path->numNodes-1].worldTile->centre, &normal, 131072, 0, 0, time );
-					SetAttachedFXColour( fx, act->effects );
+					if( (fx = CreateSpecialEffect( FXTYPE_TWINKLE, &path->nodes[path->numNodes-1].worldTile->centre, &normal, 163840, 0, 0, time )) )
+					{
+						fx->tilt = 8192;
+						SetAttachedFXColour( fx, act->effects );
+					}
 
 					cur->isIdle = 1;
 				}
@@ -1205,19 +1215,20 @@ void UpdateVent( ENEMY *cur )
 		{
 			fixed scale = (path->nodes[0].offset2)?(path->nodes[0].offset2/SCALE):4096;
 			act->fxCount++;
+			SetVectorFF( &up, &path->nodes->worldTile->normal );
 
 			if( cur->nmeActor->effects & EF_FIERYSMOKE )
 			{
-				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &path->nodes->worldTile->normal, 204800, (act->animSpeed<<3)*path->numNodes, scale, 8192 );
+				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 8192 );
 			}
 			else if( cur->nmeActor->effects & EF_LASER )
 			{
-				fx = CreateSpecialEffect( FXTYPE_LASER, &act->actor->position, &path->nodes->worldTile->normal, 61440, act->animSpeed<<3, 0, 2048*path->numNodes );
+				fx = CreateSpecialEffect( FXTYPE_LASER, &act->actor->position, &up, 61440, act->animSpeed<<3, 0, 2048*path->numNodes );
 				SetAttachedFXColour( fx, act->effects );
 			}
 			else if( cur->nmeActor->effects & EF_SMOKEBURST )
 			{
-				fx = CreateSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->position, &path->nodes->worldTile->normal, 204800, (act->animSpeed<<3)*path->numNodes, scale, 6963 );
+				fx = CreateSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 6963 );
 				SetAttachedFXColour( fx, act->effects );
 			}
 			else if( cur->nmeActor->effects & EF_LIGHTNING ) // Make a big lighning thing between first and last nodes
@@ -1395,7 +1406,7 @@ void UpdateRotatePathNME( ENEMY *cur )
 		//anyway, fwd is set up with son and cos, so may be a unit.
 		FVECTOR fwdCopy = fwd;
 		MakeUnit(&fwdCopy);
-		Orientate( &cur->nmeActor->actor->qRot, &fwdCopy, &cur->path->nodes->worldTile->normal );
+		OrientateFS( &cur->nmeActor->actor->qRot, &fwdCopy, &cur->path->nodes->worldTile->normal );
 	}
 
 	SetVectorSS(&cur->nmeActor->actor->position, &toPosition);
@@ -1514,7 +1525,7 @@ void UpdateTileHomingNME( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS) && cur->visible)
-			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
+			OrientateFS(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVectorFF(&up, &cur->inTile->normal);
@@ -1611,7 +1622,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS) && cur->visible)
-			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
+			OrientateFS(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVectorFF(&up, &cur->inTile->normal);
@@ -1699,7 +1710,7 @@ void UpdateRandomMoveNME( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS) && cur->visible)
-			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
+			OrientateFS(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVectorFF(&up, &cur->inTile->normal);
@@ -1924,7 +1935,7 @@ void UpdateBattleEnemy( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS) && cur->visible)
-			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
+			OrientateFS(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVectorFF(&up, &cur->inTile->normal);
@@ -2031,13 +2042,13 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 	{
 		newItem->Update[0] = UpdateSlerpPathNME;
 		actorAnimate(newItem->nmeActor->actor,NMEANIM_PATH_WALK1,YES,NO,animSpeed, 0);
-		Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if( newItem->flags & ENEMY_NEW_FOLLOWPATH )
 	{
 		newItem->Update[0] = UpdatePathNME;
 		actorAnimate(newItem->nmeActor->actor,NMEANIM_PATH_WALK1,YES,NO,animSpeed, 0);
-		Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if( newItem->flags & ENEMY_NEW_WATCHFROG )
 		newItem->Update[0] = UpdateFrogWatcher;
@@ -2056,12 +2067,12 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 	{
 		newItem->isSnapping = -2;
 		newItem->Update[0] = UpdateVent;
-		Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if( (newItem->flags & ENEMY_NEW_MOVEUP) || (newItem->flags & ENEMY_NEW_MOVEDOWN) )
 	{
 		newItem->Update[0] = UpdateMoveVerticalNME;
-		Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if( (newItem->flags & ENEMY_NEW_ROTATEPATH_XZ ) || (newItem->flags & ENEMY_NEW_ROTATEPATH_XY) || (newItem->flags & ENEMY_NEW_ROTATEPATH_ZY) )
 	{
@@ -2096,7 +2107,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 	else // No update function - probably single flag nme
 	{
 		if( newItem->nmeActor->actor && newItem->path && newItem->path->nodes )
-			Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+			OrientateSS( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
@@ -2477,8 +2488,8 @@ void SubEnemy(ENEMY *enemy)
 */
 void FreeEnemyLinkedList()
 {
-	if(enemyList.count)
-		utilPrintf("Freeing linked list : ENEMY : (%d elements)\n",enemyList.count);
+//	if(enemyList.count)
+//		utilPrintf("Freeing linked list : ENEMY : (%d elements)\n",enemyList.count);
 
 	// traverse enemy list and free elements
 	while( enemyList.head.next && enemyList.head.next != &enemyList.head )
@@ -2616,13 +2627,19 @@ int MoveEnemyToNode(ENEMY *nme, int node)
 {
 	ENEMY_UPDATEFUNC *update;
 	// Gratuitous hack to make move-on-move enemies work
-	if( nme->flags & ENEMY_NEW_MOVEONMOVE )
+	if( (nme->flags & ENEMY_NEW_MOVEONMOVE) || (nme->flags & ENEMY_NEW_BATTLEMODE) )
 	{
 		ENEMY *ph = GetEnemyFromUID(node);
 
 		if( ph )
 		{
 			nme->path->nodes[0].worldTile = ph->path->nodes[0].worldTile;
+			if( nme->flags & ENEMY_NEW_BATTLEMODE )
+			{
+				nme->path->nodes[1].worldTile = ph->path->nodes[1].worldTile;
+				nme->path->nodes[2].worldTile = ph->path->nodes[2].worldTile;
+			}
+
 			GetPositionForPathNode( &nme->nmeActor->actor->position, &nme->path->nodes[0] );
 			nme->isSnapping = 0;
 		}

@@ -445,10 +445,10 @@ void SetupCollisionTiles(void **buffer)
 				cur->tilePtrs[d] = 0;
 		}
 		
-		if (c == (tileCount-1))
-			cur->next = 0;
-		else
-			cur->next = &firstTile[c+1];
+		//if (c == (tileCount-1))
+			//cur->next = 0;
+		//else
+			//cur->next = &firstTile[c+1];
 		
 		ScaleVector(&cur->centre, SCALE);
 	}

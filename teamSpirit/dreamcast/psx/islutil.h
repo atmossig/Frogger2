@@ -118,5 +118,4 @@ unsigned long utilSqrt(unsigned long num);
 
 long utilCalcAngle(long adj,long opp);
 
-
 #endif

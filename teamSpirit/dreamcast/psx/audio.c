@@ -718,13 +718,16 @@ int PlayVoice(int player, char *name)
 	Returns			: void
 	Info			: 
 */
-void PrepareSong(short worldID)
+void PrepareSong(short worldID,int loop)
 {
 	KTU32	memfreeBefore,memfreeAfter;
 	int 	chan;
 	int 	xaNum = 0;
 	char	buffer[32];
 
+	if(!bpAmStreamDone(gStream))
+		StopSong();
+	
 	amHeapGetFree(&memfreeBefore);
 	
 	switch ( worldID )
@@ -788,4 +791,12 @@ void UnPauseAudio( )
 void SpuSetCommonCDVolume(int volume, int volume2)
 {
 
+}
+
+int IsSongPlaying()
+{
+	if(bpAmStreamDone(gStream))
+		return TRUE;
+		
+	return	FALSE;
 }

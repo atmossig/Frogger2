@@ -339,7 +339,10 @@ void CheckForDynamicCameraChange(GAMETILE *tile, int pl)
 			}
 
 			if (cur->dirCamMustFace)
+			{
 				camFacing[pl] = cur->dirCamMustFace - 1;
+				player[pl].extendedHopDir = (frogFacing[pl] - camFacing[pl])&3;
+			}
 
 			if(cur->speed!=0)
 				transCamSpeedMult = cur->speed;
@@ -688,25 +691,25 @@ void UpdateCameraPosition( )
 	// edge spacing should probably related to tan(FOV/2)
 	cam_edge_spacing = FMul( DistanceBetweenPointsFF(&currCamSource,&currCamTarget) , 3072);
 
-	if( swingCam )
-	{
-		// if the player is on their last life - give the swaying camera more 'urgency' - subtle
-		// bunch of arse, more like
-		if(player[0].lives < 3)
-		{
-			swayModifier	= 3<<12;
-			sideSwayAmt		= 25<<12;
-		}
-		else
-		{
-			swayModifier	= 1<<12;
-			sideSwayAmt		= 50<<12;
-		}
+//	if( swingCam )
+//	{
+//		// if the player is on their last life - give the swaying camera more 'urgency' - subtle
+//		// bunch of arse, more like
+//		if(player[0].lives < 3)
+//		{
+//			swayModifier	= 3<<12;
+//			sideSwayAmt		= 25<<12;
+//		}
+//		else
+//		{
+//			swayModifier	= 1<<12;
+//			sideSwayAmt		= 50<<12;
+//		}
 
 //		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed*swayModifier)*sideSwayAmt) * camDist.vz) / 350.0;
 //		camSideOfs = FDiv( FMul(rsin(actFrameCount*FMul(sideSwaySpeed,swayModifier)),sideSwayAmt)*camDist.vz, 350<<12);
-		camSideOfs = (FMul(rsin(actFrameCount*FMul(sideSwaySpeed,swayModifier)),sideSwayAmt)*camDist.vz) / 350;
-	}
+//		camSideOfs = (FMul(rsin(actFrameCount*FMul(sideSwaySpeed,swayModifier)),sideSwayAmt)*camDist.vz) / 350;
+//	}
 }
 
 void ResetCamera( )
@@ -836,6 +839,42 @@ int camrotval8 = 1;
 void SetCamFF(FVECTOR src, FVECTOR tar)
 {
 #ifdef PSX_VERSION
+#ifdef DREAMCAST_VERSION
+	FVECTOR view,rotUp;
+	fixed angle,camX,camY,len;
+
+	static short tempAng = 0;
+
+	SubVectorFFF(&view,&src,&tar);
+	camY = ((atan2(-view.vx,view.vz) / 6.283185308) * 4096.0);
+	camY &=  0xfff;
+	len = Magnitude2DF(&view);
+	camX = ((atan2(view.vy,len) / 6.283185308) * 4096.0);
+	camX &=  0xfff;
+
+	RotateVector2D(&rotUp,&camVect,camY);
+	RotateVector2DX(&rotUp,&rotUp,camX);
+
+	angle = ((atan2(rotUp.vx,rotUp.vy) / 6.283185308) * 4096.0);
+	angle &= 0xfff;
+	angle *= 360;
+
+	camera.vpx = -src.vx>>12;
+	camera.vpy = -src.vy>>12;
+	camera.vpz = src.vz>>12;
+
+	camera.vrx = -tar.vx>>12;
+	camera.vry = -tar.vy>>12;
+	camera.vrz = tar.vz>>12;
+
+	camera.rz  = angle;
+	
+	GsSetRefView2(&camera);
+
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+#else
 	FVECTOR view,rotUp;
 	fixed angle,camX,camY,len;
 
@@ -860,12 +899,15 @@ void SetCamFF(FVECTOR src, FVECTOR tar)
 	camera.vrz = tar.vz>>12;
 
 	camera.rz  = angle;
+
+//	utilPrintf( "%i\n", angle );
 	
 	GsSetRefView2(&camera);
 
 
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_SetTransMatrix(&GsWSMATRIX);
+#endif
 #endif
 }
 

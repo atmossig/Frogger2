@@ -73,6 +73,7 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 
 	mesh->gt3s = ADD2POINTER(mesh,(int)mesh->gt3s);
 	mesh->gt4s = ADD2POINTER(mesh,(int)mesh->gt4s);
+	mesh->sprs = ADD2POINTER(mesh,(int)mesh->sprs);	
 	mesh->verts = ADD2POINTER(mesh,(int)mesh->verts);
 
 	if(mesh->n_verts > biggestVertexModel)
@@ -116,8 +117,11 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 	// into a clut & a tpage. They also need their tu and tv adjusting.
 	for(i = 0; i < mesh->n_gt3s; i++)
 	{	
-		mesh->gt3s[i].tpage = FindTextureCRC((unsigned long)tmaps[mesh->gt3s[i].tpage]);
-		
+		mesh->gt3s[i].tpage = FindTextureCRC((unsigned long)tmaps[mesh->gt3s[i].tpage]);	
+
+		if((mesh->gt3s[i].pad2 & 32)||(mesh->gt3s[i].pad2 & 64))
+			continue;
+			
 		// r0
 		r = mesh->gt3s[i].r0 << 1;
 		if(r < 255)
@@ -201,6 +205,9 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 	for(i = 0; i < mesh->n_gt4s; i++)
 	{
 		mesh->gt4s[i].tpage = FindTextureCRC((unsigned long)tmaps[mesh->gt4s[i].tpage]);
+
+		if((mesh->gt4s[i].pad2 & 32)||(mesh->gt4s[i].pad2 & 64))
+			continue;
 		
 		// r0
 		r = mesh->gt4s[i].r0 << 1;
@@ -299,6 +306,52 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 //			mesh->gt4s[i].vert3 *= 4;
 //		}
 	}
+
+	for(i = 0; i < mesh->n_sprs; i++)
+	{
+		mesh->sprs[i].tpage = FindTextureCRC((unsigned long)tmaps[mesh->sprs[i].tpage]);
+
+		// r0
+		r = mesh->sprs[i].r0 << 1;
+		if(r < 255)
+			mesh->sprs[i].r0 = r;
+		else
+			mesh->sprs[i].r0 = 255;
+		
+		g = mesh->sprs[i].g0 << 1;
+		if(g < 255)
+			mesh->sprs[i].g0 = g;
+		else
+			mesh->sprs[i].g0 = 255;
+			
+		b = mesh->sprs[i].b0 << 1;
+		if(b < 255)
+			mesh->sprs[i].b0 = b;
+		else
+			mesh->sprs[i].b0 = 255;
+
+/*		tmap = tmaps [ mesh->sprs[i].tpage ];
+		if ( tmap )
+		{
+			mesh->sprs[i].clut = tmap->clut;
+			mesh->sprs[i].tpage = tmap->tpage;
+
+
+			mesh->sprs[i].u0 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u0);
+			mesh->sprs[i].v0 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v0);
+			mesh->sprs[i].u1 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u1);
+			mesh->sprs[i].v1 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v1);
+			mesh->sprs[i].u2 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u2);
+			mesh->sprs[i].v2 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v2);
+			mesh->sprs[i].u3 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u3);
+			mesh->sprs[i].v3 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v3);
+//			mesh->gt4s[i].vert0 *= 4;
+//			mesh->gt4s[i].vert1 *= 4;
+//			mesh->gt4s[i].vert2 *= 4;
+//			mesh->gt4s[i].vert3 *= 4;
+		}
+*/
+	}	
 /*
 // Tra-la. The BFF memory-image is now a usable, drawable, thing.
 */
@@ -362,40 +415,6 @@ BFF_Header *BFF_FindObject(int id, unsigned long crc)
 		}
 	}
 	return NULL;	// yes there are occasions when we need to try to find things that aren't there
-}
-
-BFF_Header *BFF_FindNamedObject(int id, char *name)
-{
-	int i;
-	unsigned long crc;
-
-	BFF_Header *work;
-
-	crc = utilStr2CRC(name);
-	for(i = 0; i < MAX_BFF_FILES; i++)
-	{
-		if(BFF_Pointers[i])
-		{
-//			printf(" scanning bff %d",i);
-			work = BFF_Pointers[i];
-			for(;;)
-			{
-
-//				printf(".");
-				if(work->id == id && (crc == 0 || work->crc == crc))
-				{
-//					printf("\n");
-					return work;
-				}
-				if(work->len & 0x80000000)
-					break;
-				work = ADD2POINTER(work,work->len);
-			}
-//			printf("\n");
-		}
-	}
-//	printf("null\n");
-	return 0;	// yes there are occasions when we need to try to find things that aren't there
 }
 
 BFF_Header *BFF_LoadFile(char *filename)
@@ -528,4 +547,36 @@ int BFF_IsInBFF(void *addr)
 	return 0;
 }
 
+BFF_Header *BFF_FindNamedObject(int id, char *name)
+{
+	int i;
+	unsigned long crc;
 
+	BFF_Header *work;
+
+	crc = utilStr2CRC(name);
+	for(i = 0; i < MAX_BFF_FILES; i++)
+	{
+		if(BFF_Pointers[i])
+		{
+//			printf(" scanning bff %d",i);
+			work = BFF_Pointers[i];
+			for(;;)
+			{
+
+//				printf(".");
+				if(work->id == id && (crc == 0 || work->crc == crc))
+				{
+//					printf("\n");
+					return work;
+				}
+				if(work->len & 0x80000000)
+					break;
+				work = ADD2POINTER(work,work->len);
+			}
+//			printf("\n");
+		}
+	}
+//	printf("null\n");
+	return 0;	// yes there are occasions when we need to try to find things that aren't there
+}

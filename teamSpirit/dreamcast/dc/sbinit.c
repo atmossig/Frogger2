@@ -50,7 +50,7 @@ extern Uint8* _BSG_END;   /* End of BSG/BSG32 section (start of free memory). */
 /* Total memory capacity available for syMalloc() is 4MB in this sample heap definition. */
 /* Define HEAP_SIZE only if heap not located at end of Section B. */
 #if !USE_B_END
-#define HEAP_SIZE 0x00400000
+#define HEAP_SIZE 0x00500000
 #endif
 
 /* Declaration of global work area for Maple (control pads). */
@@ -187,7 +187,7 @@ void sbInitSystem (Int mode, Int frame, Int count)
     /* Enable all interrupts. */
     set_imask(0);
 
-#if USE_GDFS
+//#if USE_GDFS
     /* GD Filesystem initialization. */
     {
         Uint8* wk;
@@ -220,7 +220,7 @@ void sbInitSystem (Int mode, Int frame, Int count)
             syBtExit();
         }
     }
-#endif
+//#endif
 
     /* Additional user initialization goes here. */
 	;

@@ -45,6 +45,8 @@
 #define TONGUE_OFFSET_UP			150
 #define TONGUE_OFFSET_FWD			100
 
+unsigned char eatEverythingMode = 0;
+
 TONGUE tongue[MAX_FROGS];
 
 void StartTongue(unsigned char type, SVECTOR *dest, int pl);
@@ -126,7 +128,7 @@ void StartTongue(unsigned char type, SVECTOR *dest, int pl)
 	FVECTOR to;
 	int i, no=0;
 
-	if( !tongue[pl].canTongue || !player[pl].canJump )
+	if( (!tongue[pl].canTongue) || (!player[pl].canJump) )
 	{
 		tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
 		tongue[pl].thing = NULL;
@@ -346,6 +348,7 @@ void UpdateFrogTongue( int pl )
 				else if( tongue[pl].type == TONGUE_GET_SCENIC )
 				{
 					ENEMY *e = (ENEMY *)tongue[pl].thing;
+					ScaleVectorFF( &e->nmeActor->actor->size, 4096-((128*gameSpeed)>>12) );
 					SetVectorSS( &e->nmeActor->actor->position, &tongue[pl].pos );
 				}
 			}
@@ -368,10 +371,9 @@ void UpdateFrogTongue( int pl )
 
 					t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 45), NULL, NULL, NULL );
 
-//					if( actFrameCount&1) arg1 = (void *)FindVoice(utilStr2CRC("frogbelch1"),pl);
+//					if( actFrameCount&1) 
+						arg1 = (void *)FindVoice(utilStr2CRC("frogbelch1"),pl);
 //					else arg1 = (void *)FindVoice(utilStr2CRC("frogbelch2"),pl);
-					
-					arg1 = (void *)FindVoice(utilStr2CRC("frogbelch2"),pl);
 
 					AttachEvent( t, TRIGGER_ONCE, 0, PlaySFX, arg1, (void *)(&frog[pl]->actor->position), NULL, NULL );
 
@@ -391,6 +393,14 @@ void UpdateFrogTongue( int pl )
 						e->active = 0;
 						e->visible = 0;
 						e->nmeActor->draw = 0;
+
+						if( eatEverythingMode )
+						{
+							FVECTOR up;
+							SetVectorFF( &up, &currTile[pl]->normal );
+
+							CreateExplodeEffect( &frog[pl]->actor->position, &up );
+						}
 					}
 				}
 
@@ -426,12 +436,20 @@ void UpdateFrogTongue( int pl )
 				break;
 			}
 		}
-		else if( (tongue[pl].thing = (void *)ScenicIsInRange(tongue[pl].radius,pl)) )
+		
+		if( !tongue[pl].thing )
 		{
-			ENEMY *e = (ENEMY *)tongue[pl].thing;
-			// Stop fish making bubbles when held - butterflies can carry on doing something
-			e->nmeActor->effects &= ~EF_BUBBLES;
-			StartTongue( TONGUE_GET_SCENIC, &e->nmeActor->actor->position, pl );
+			if( (tongue[pl].thing = (void *)ScenicIsInRange(tongue[pl].radius,pl)) )
+			{
+				ENEMY *e = (ENEMY *)tongue[pl].thing;
+				// Stop fish making bubbles when held - butterflies can carry on doing something
+				StartTongue( TONGUE_GET_SCENIC, &e->nmeActor->actor->position, pl );
+				if( tongue[pl].thing )
+				{
+					e->nmeActor->effects &= ~EF_BUBBLES;
+					e->active = 0;
+				}
+			}
 		}
 
 		if( !tongue[pl].thing ) // Go to a point out in front and wave about a bit
@@ -500,6 +518,20 @@ void CalculateTongue( int pl )
 void RemoveFrogTongue( int pl )
 {
 	tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
+	if( tongue[pl].thing )
+	{
+		switch( tongue[pl].type )
+		{
+		case TONGUE_GET_SCENIC: 
+			{
+				ENEMY *nme = (ENEMY *)tongue[pl].thing;
+				nme->visible = 1;
+				nme->active = 1;
+				break;
+			}
+		}
+	}
+
 	tongue[pl].thing = NULL;
 	tongue[pl].radius = ToFixed(TONGUE_RADIUSNORMAL);
 	tongue[pl].type = 0;
@@ -521,45 +553,23 @@ void RemoveFrogTongue( int pl )
 */
 GARIB *GaribIsInRange( fixed radius, int pl )
 {
-	GARIB *garib,*nearest;
-	GARIB *inRange[8];
-	fixed dist,mags[8];
-	SVECTOR *pos;
-	int i = 0,numInRange = 0;
-		
-	for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
+	GARIB *g, *nearest=NULL;
+	fixed dist, best=radius;
+
+	for( g=garibList.head.next; g != &garibList.head; g=g->next )
 	{
-		// only check for garibs in visual range
-		pos = garib->fx ? &garib->pos/*fx->act[0]->actor->position*/ : &garib->sprite->pos;
-		dist = DistanceBetweenPointsSS(&frog[pl]->actor->position,pos);
- 		if( dist > radius )
- 			continue;
- 
-		if( (garib->active) && (numInRange < 8))
+		if( !g->fx || !g->active )
+			continue;
+
+		dist = DistanceBetweenPointsSS( &frog[pl]->actor->position, &g->fx->act[0]->actor->position );
+		if( dist < best )
 		{
-			mags[numInRange]		= dist;
-			inRange[numInRange++]	= garib;
+			best = dist;
+			nearest = g;
 		}
 	}
 
-	if(numInRange)
-	{
-		// return closest item
-		dist	= mags[0];
-		nearest	= inRange[0];
-		for(i=1; i<numInRange; i++)
-		{
-			if(mags[i] < dist)
-			{
-				dist	= mags[i];
-				nearest	= inRange[i];
-			}
-		}
-
-		return nearest;
-	}
-
-	return NULL;
+	return nearest;
 }
 
 
@@ -572,52 +582,24 @@ GARIB *GaribIsInRange( fixed radius, int pl )
 */
 ENEMY *BabyFrogIsInRange( fixed radius, int pl )
 {
-	ACTOR2 *nearest;
-	ACTOR2 *inRange[4];
-	ENEMY *nme;
-	fixed dist,mags[4];
-	int i = 0,numInRange = 0;
+	ENEMY *nearest=NULL;
+	fixed dist, best=radius;
+	int i;
 
-	if(numBabies)
+	for( i=0; i<numBabies; i++ )
 	{
-		for(i=0; i<numBabies; i++)
+		if( !babyList[i].baby || !babyList[i].enemy || babyList[i].isSaved )
+			continue;
+
+		dist = DistanceBetweenPointsSS( &frog[pl]->actor->position, &babyList[i].baby->actor->position );
+		if( dist < best )
 		{
-			if( babyList[i].baby )
-			{
-				dist = DistanceBetweenPointsSS(&frog[pl]->actor->position,&babyList[i].baby->actor->position);
-
-				if((!babyList[i].isSaved) && dist < radius)
-				{
-					mags[numInRange]		= dist;
-					inRange[numInRange++]	= babyList[i].baby;
-				}
-			}
-		}
-
-		if(numInRange)
-		{
-			// return closest baby frog
-			dist	= mags[0];
-			nearest	= inRange[0];
-			for(i=1; i<numInRange; i++)
-			{
-				if(mags[i] < dist)
-				{
-					dist	= mags[i];
-					nearest	= inRange[i];
-				}
-			}
-
-			for( nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
-				if( nme->nmeActor == nearest )
-					break;
-
-			return nme;
+			best = dist;
+			nearest = babyList[i].enemy;
 		}
 	}
 
-	// no baby frog in range
-	return NULL;
+	return nearest;
 }
 
 
@@ -635,8 +617,16 @@ ENEMY *ScenicIsInRange( fixed radius, int pl )
 		
 	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next)
 	{
-		if( !(cur->flags & ENEMY_NEW_FLAPPYTHING) || !cur->active || !cur->visible )
-			continue;
+		if( !eatEverythingMode )
+		{
+			if( !(cur->flags & ENEMY_NEW_FLAPPYTHING) || !cur->active || !cur->visible )
+				continue;
+		}
+		else
+		{
+			if( (cur->flags & ENEMY_NEW_BABYFROG) || !cur->active || !cur->visible || cur->uid ) 
+				continue;
+		}
 
 		dist = DistanceBetweenPointsSS( &frog[pl]->actor->position, &cur->nmeActor->actor->position );
 		if( dist < best )
@@ -690,9 +680,11 @@ void ThrowFrogDirection( int thrower, int throwee, int dir )
 {
 	GAMETILE *tile = NULL, *tile2 = currTile[thrower], *tile3 = NULL;
 	fixed count=0;
+	FVECTOR fwd;
 
+	SetVectorFF( &fwd, &currTile[thrower]->dirVector[dir] );
 	// Find all tiles in the direction as far as the eye can see
-	while( (tile = FindJoinedTileByDirectionConstrained(tile2,&currTile[thrower]->dirVector[dir],1024)) )
+	while( (tile = FindJoinedTileByDirectionConstrained(tile2,&fwd,1024)) )
 	{
 		if( tile3 == tile ) { tile = tile2; break; } // Oscillating between 2 tiles
 		tile3 = tile2;

@@ -35,7 +35,7 @@
 
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
-PDS_PERIPHERAL 	*per;
+const PDS_PERIPHERAL 	*per;
 
 KMSTRIPCONTEXT 	stripContext00;
 KMSTRIPHEAD 	stripHead00;
@@ -102,8 +102,7 @@ int 			myVsyncCounter = 0;
 long 			turbo = 4096;
 
 unsigned short 	globalClut;
-signed char 	actorShiftDepth;
-
+short			actorShiftDepth;
 short			timerBars = OFF;
 
 AC_ERROR_PTR	acErr;
@@ -302,7 +301,16 @@ extern int psiActorCount;
 extern int fmaActorCount;
 extern int numTextureBanks;
 
-char texurestring[64];
+char texurestring[256];
+char texurestring2[256];
+
+
+extern KTU32 *gTransferBuffer;
+extern KTU32 *gPlayBuffer;
+extern KTU32 *gHeaderBuffer;
+extern KTU32 gTransferBufferSize;
+
+int	texViewer = 0;
 
 void main()
 {
@@ -334,6 +342,28 @@ void main()
 			break;
 	}
 
+	for(i = 0;i < 4;i++)
+	{
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+		padData.present[i] = TRUE;				
+		if(strstr(per->info->product_name,"(none)"))
+			padData.present[i] = FALSE;				
+	}
+	
     // Check malloc alignment
     Init32Malloc();
 
@@ -354,9 +384,14 @@ void main()
 	// Setup the file system
 	a64FileInit();
 
-	// setup heap buffer
-//	amHeapAlloc(&gPlayBuffer, gPlayBufferSize, 32,	AM_PURGABLE_MEMORY,KTNULL);
-		
+////////
+	
+	amHeapAlloc(&gPlayBuffer, gPlayBufferSize, 32,	AM_PURGABLE_MEMORY,KTNULL);
+	gTransferBuffer = (KTU32*)syMalloc(gTransferBufferSize);
+	gHeaderBuffer = (KTU32*)syMalloc(AM_FILE_BLOCK_SIZE);
+
+/////////
+	
 	// setup my vb interrupt
 	VblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
 
@@ -439,7 +474,7 @@ void main()
 					per = pdGetPeripheral(PDD_PORT_D0);
 					break;
 			}
-			
+
 			// temp pad emulation
 			padData.debounce[i] = 0;
 			if(per->press & PDD_DGT_KU)
@@ -560,13 +595,15 @@ void main()
 
 			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
 
+			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
+
 //			sprintf(textbuffer,"polyCount: %d",polyCount);
 //			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
 
 //			sprintf(textbuffer,"Actors: %d (%d,%d)",(psiActorCount+fmaActorCount),psiActorCount, fmaActorCount);
 //			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 
-			sprintf(textbuffer,"DCK: %d",DCKnumTextures);
+			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
 			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
 //			sprintf(textbuffer,"Map: %d",mapCount);
@@ -578,6 +615,55 @@ void main()
 
 //			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
 //			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
+
+			if(per->press & PDD_DGT_TR)
+			{
+				if(texViewer < DCKnumTextures)
+					texViewer++;
+			}
+				
+			if(per->press & PDD_DGT_TL)
+			{
+				if(texViewer > 0)
+					texViewer--;
+			}
+			
+			vertices_GT4[0].fX = 32;
+			vertices_GT4[0].fY = 32;
+			vertices_GT4[0].u.fZ = 10;
+			vertices_GT4[0].fU = (float)0;
+			vertices_GT4[0].fV = (float)0;
+			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(255,255,255,255);	
+
+			vertices_GT4[1].fX = 32+256;
+			vertices_GT4[1].fY = 32;
+			vertices_GT4[1].u.fZ = 10;
+			vertices_GT4[1].fU = (float)1;
+			vertices_GT4[1].fV = (float)0;
+			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+
+			vertices_GT4[2].fX = 32;
+			vertices_GT4[2].fY = 32+256;
+			vertices_GT4[2].u.fZ = 10;
+			vertices_GT4[2].fU = (float)0;
+			vertices_GT4[2].fV = (float)1;
+			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+
+			vertices_GT4[3].fX = 32+256;
+			vertices_GT4[3].fY = 32+256;
+			vertices_GT4[3].u.fZ = 10;
+			vertices_GT4[3].fU = (float)1;
+			vertices_GT4[3].fV = (float)1;
+			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+
+			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,&DCKtextureList[texViewer].surface);
+			
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmEndStrip(&vertexBufferDesc);
 		}
 	
 		kmEndPass(&vertexBufferDesc);

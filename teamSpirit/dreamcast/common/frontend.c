@@ -62,13 +62,27 @@
 #include "psxsprite.h"
 //ma#include "memcard.h"
 //ma#include <libspu.h>
+extern int useMemCard;
 #endif
 
+
+int eolTrackComplete;
+int levCompleteState;
+enum
+{
+	LEV_COMPLETE_DROPPING_FROGS,
+	LEV_COMPLETE_COUNTING_COINS,
+	LEV_COMPLETE_SLIDING_TROPHY,
+	LEV_COMPLETE_ENTER_NAME,
+	LEV_COMPLETE_MENU,
+	LEV_COMPLETE_FADING_OUT,
+};
 
 //------ [ GLOBALS ] ---------------------------------------------------------------------------//
 
 extern SPRITEOVERLAY *babyFlash;
 int frameCount			= 0;
+int timeForLevel;
 
 //int	frameCount2			= 0;
 //int dispFrameCount		= 0;
@@ -113,6 +127,11 @@ void GameLoop(void)
 	{
 	case INGAME_MODE:
 		RunGameLoop();
+
+#ifdef PSX_VERSION
+		if(padData.present[0] == 0)
+			StartPauseMenu();
+#endif
 		break;
 
 	case DEMO_MODE:
@@ -125,6 +144,10 @@ void GameLoop(void)
 
 	case TRAINING_MODE:
 		RunTrainingMode();
+#ifdef PSX_VERSION
+		if(padData.present[0] == 0)
+			StartPauseMenu();
+#endif
 		break;
 
 	case LEVELCOMPLETE_MODE:
@@ -238,11 +261,22 @@ char initialName[64] = "";
 long waitFrame = 0;
 long grade,moreCoins,levelOpened;
 long cOption = 0;
-long goFrontend;
+long goFrontend = 1;
 TEXTOVERLAY *tText,*coinText,*nameText,*newBestText,*extraText;
-TEXTOVERLAY *nText,*oText[2];
+TEXTOVERLAY *nText,*oText[2],*oldBestText;
 SPRITEOVERLAY *extraIcon,*coinIcon,*bIcon;
 char coinStr[64];
+char oldBestStr[64];
+
+char levTimeText[64];
+
+char *trophyName[3] = 
+{
+	"TRPHYGOLD",
+	"TRPHYSILV",
+	"TRPHYBRONZ",
+};
+
 
 void LevelCompleteProcessController(long pl)
 {
@@ -254,20 +288,34 @@ void LevelCompleteProcessController(long pl)
 	if(button[pl] & PAD_UP)
 	{
 		if (cOption>0)
+		{
 			cOption--;
+			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
+		}
 	}	    
 	else if(button[pl] & PAD_DOWN)
 	{
 		if ((cOption<1) && (oText[1]))
+		{
 			cOption++;
+			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
+		}
 	}
 
-	if(button[pl] & (PAD_CROSS|PAD_START))
+	if(button[pl] & (PAD_CROSS))
     {
+		PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		showEndLevelScreen = -1;
+
+		levCompleteState = LEV_COMPLETE_FADING_OUT;
+
+		if((grade == 0) || (moreCoins) || (levelOpened))
+			SaveGame();
 
 		if (cOption == 1)
 			goFrontend = 1;
+		else
+			goFrontend = 0;
 	}
 }
 
@@ -275,534 +323,6 @@ fixed eolcamspeed = 4096*30;
 
 int coinsMissed;
 int coinCounter = 0;
-void RunLevelComplete( )
-{	
-	long i;
-	FVECTOR v1,v2,seUp;
-	SPECFX *fx;
-	IQUATERNION q;
-	fixed slerp = 250;
-	int exitAllowed = YES;
-	SPRITEOVERLAY *coinOver;
-	SPRITE *cur,*next;
-
-	drawLandscape = 0;
-
-#ifdef PSX_VERSION
-/*ma	if(saveInfo.saveFrame)
-	{
-		frog[0]->draw = 0;
-		skipTextOverlaysSpecFX = YES;
-		if(!fadingOut)
-			ChooseLoadSave();
-		return;
-	}
-	skipTextOverlaysSpecFX = NO;
-*/	
-#endif
-
-	frog[0]->draw = 1;
-	if ((nText == NULL) && (keepFade == 0) && (showEndLevelScreen == -1))
-	{
-		ScreenFade(255,0,30);
-		keepFade = YES;
-//		GTInit(&modeTimer, 10);
-	}
-
-//	GTUpdate( &modeTimer, -1 );		
-	babyFlash->draw = 0;
-
-	if(!showEndLevelScreen || ((keepFade) && (fadingOut == 0)))
-	{
-		short wld = player[0].worldNum, lvl = player[0].levelNum;
-
-		if ((levelTime/60) < worldVisualData[wld].levelVisualData[lvl].parTime && !dkPressed)
-			worldVisualData[wld].levelVisualData[lvl].parTime = (levelTime/60);
-
-		FreeTiledBackdrop();
-//bb - don't want to save after retry/quit.
-//moved further down, to save before retry/quit
-//		SaveGame();
-
-#ifdef E3_DEMO
-
-		if (goFrontend)
-		{
-			StartE3LevelSelect();
-			return;
-		}
-		else
-			gameState.mode = INGAME_MODE;
-
-#else
-		if (goFrontend)
-		{
-			gameState.mode = FRONTEND_MODE;
-			player[0].worldNum = WORLDID_FRONTEND;
-			player[0].levelNum = LEVELID_FRONTEND1;
-			player[0].character = FROG_FROGGER;
-		}
-		else if (gameState.single == STORY_MODE)
-		{
-			// otherwise we don't do something special at the end of this level...
-			gameState.mode = INGAME_MODE;
-
-			if( gameState.storySequenceLevel > 16 )
-			{
-				gameState.storySequenceLevel = 0;
-				player[0].worldNum = WORLDID_FRONTEND;
-				player[0].levelNum = LEVELID_FRONTEND1;
-				gameState.mode = FRONTEND_MODE;
-			}
-			else
-			{
-				player[0].worldNum = storySequence[gameState.storySequenceLevel].worldNum;
-				player[0].levelNum = storySequence[gameState.storySequenceLevel].levelNum;
-			}
-		}
-		else
-		{
-			// todo: place Frogger 
-			gameState.mode = INGAME_MODE;
-		}
-#endif // E3_DEMO
-
-		FreeAllLists();
-		frameCount = 0;
-
-//		spawnCounter = 0;
-
-		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
-		InitLevel(player[0].worldNum,player[0].levelNum);
-
-		showEndLevelScreen = 1; // Normal level progression is default
-		frameCount = 0;		
-	}
-	else
-	{
-		Orientate( &q, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
-		IQuatSlerp(&frog[0]->actor->qRot,&q,slerp,&frog[0]->actor->qRot);
-
-		SetVectorFS(&v1, &frog[0]->actor->position);
-		SetVectorFF(&v2, &currTile[0]->normal);
-		ScaleVectorFF(&v2, ToFixed(300));
-		AddToVectorFF(&v1,&v2);
-
-		SlideVectorToVectorFF(&camTarget,&v1,eolcamspeed);
-		SetVectorFF(&currCamTarget,&camTarget);
-
-		SetVectorFS(&v1, &frog[0]->actor->position);
-		SetVectorFF(&v2, &currTile[0]->dirVector[frogFacing[0]]);
-		ScaleVectorFF(&v2, ToFixed(1000));
-		AddToVectorFF(&v1,&v2);
-		SetVectorFF(&v2, &currTile[0]->normal);
-		ScaleVectorFF(&v2, ToFixed(300));
-		AddToVectorFF(&v1,&v2);
-
-		SlideVectorToVectorFF(&camSource,&v1,eolcamspeed);
-		SetVectorFF(&currCamSource,&camSource);
-		
-		SetCamFF(currCamSource,currCamTarget);
-
-		if(player[0].numSpawn != garibList.maxCoins)
-		{
-			if(nText)
-				nText->draw = 0;
-			exitAllowed = NO;
-			if(coinText->xPos == coinText->xPosTo)
-			{
-				if(coinsMissed < garibList.maxCoins - player[0].numSpawn)
-				{
-					if(padData.digital[0] & PAD_CROSS)
-						coinCounter += 10;
-					else
-						coinCounter += actFrameCount-lastActFrameCount;
-			
-					if(coinCounter > 10)
-					{
-						coinsMissed++;
-						sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),coinsMissed);//,garibList.maxCoins - player[0].numSpawn);
-						coinCounter = 0;
-						PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
-						coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
-						coinOver->xPosTo += 10000;
-						coinOver->speed = 4096*50;
-					}
-				}
-				else
-				{
-					arcadeHud.coinsOver->draw = 0;
-					if((grade == 0) && (nText) && (textEntry == -1) && (!(padData.digital[0] & PAD_CROSS)))
-					{
-						textEntry = NAME_LENGTH;
-					}
-					if(nText)
-						nText->draw = 1;
-					exitAllowed = YES;
-				}
-			}
-		}
-		else if((grade == 0) && (nText) && (textEntry == -1) && (!(padData.digital[0] & PAD_CROSS)))
-			textEntry = NAME_LENGTH;
-
-		if(grade == 0)
-		{
-			tText->r = 127+((rsin(actFrameCount*4200)+4096)*64)/4096;
-			tText->g = 127+((rcos(actFrameCount*4300)+4096)*64)/4096;
-			tText->b = 127+((rcos(actFrameCount*4400)+4096)*64)/4096;
-			tText->a = 128+32+((rcos(actFrameCount*4000)+4096)*31)/4096;
-
-			if (createTime<actFrameCount)
-			{
-				SetVectorFF(&seUp, &currTile[0]->normal);	
-			
-				if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[0]->actor->position, &seUp, 90960, Random(8192)+8192, 0, 16192 )) )
-				{
-					SetFXColour(fx,255,Random(255),Random(255));
-					SetVectorSS(&fx->rebound->point, &frog[0]->actor->position);
-					SetVectorFF(&fx->rebound->normal, &seUp);
-					fx->gravity = 8190;
-				}
-
-				createTime = actFrameCount + createFrames;
-			}	
-
-			tText->r;
-			tText->g;
-			tText->b;
-			tText->a;
-		}
-
-		
-		fixedPos = 1;
-		fixedDir = 1;
-
-#ifndef E3_DEMO
-		if(nText)
-		{
-			#ifdef PSX_VERSION
-				PsxNameEntryFrame();	//sets texEntry to 0 when done
-			#endif
-
-			if (textEntry==0)
-			{
-				nText->draw = 0;
-				nText = NULL;
-				cOption = 0;
-				oText[0]->draw = 1;
-				if(oText[1])
-					oText[1]->draw = 1;
-				if (grade==0)
-				{
-					strcpy(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,textString);
-					SaveGame();
-#ifdef PSX_VERSION
-/*ma					if(saveInfo.saveFrame)
-					{
-						for ( cur = sprList.head.next; ( cur != &sprList.head ); cur = next)
-						{
-							next = cur->next;
-							cur->draw = 0;
-						}
-					}
-*/					
-#endif
-				}
-			}
-
-			sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
-		}
-		else
-#endif
-		{
-			waitFrame++;
-			if((waitFrame>10) && (exitAllowed))
-				LevelCompleteProcessController(0);
-		
-			for (i=0; i<2; i++)
-			{
-				if(oText[i])
-				{
-					oText[i]->r = 128;
-					oText[i]->g = 128;
-					oText[i]->b = 128;
-				}
-			}
-
-			oText[cOption]->r = 127+((rsin(actFrameCount*4200)+4096)*64)/4096;
-			oText[cOption]->g = 127+((rcos(actFrameCount*4300)+4096)*64)/4096;
-			oText[cOption]->b = 127+((rcos(actFrameCount*4400)+4096)*64)/4096;
-		}
-
-
-//		SlurpCamPosition();
-		UpdateSpecialEffects();	
-
-	}
-}
-
-//char *levText = "Level complete";
-//char *levText2[4] = {"You beat the time!","Fantastic!","Good","Average"};
-//char levTimeTemp[64] = "You took %imin %isec";
-//char levTimeTemp2[64] = "You took %isec";
-char levTimeText[64];
-
-char *trophyName[3] = 
-{
-	"TRPHYGOLD",
-	"TRPHYSILV",
-	"TRPHYBRONZ",
-};
-
-
-void StartLevelComplete()
-{
-	ACTOR2 *c;
-	SPRITE *cur,*next;
-	int loop,i,num;
-	FVECTOR tempVect;
-	fixed dp,mindp;
-	unsigned long time;
-	
-
-#ifdef PSX_VERSION
-//ma	SpuSetKey(SPU_OFF,0xffffff);
-#endif
-	if(train)
-	{
-		if(train->bg)
-		{
-			train->bg->draw = 0;
-			train->bg = 0;
-		}
-		if(train->txtover[0])
-		{
-			train->txtover[0]->draw = 0;
-			train->txtover[0] = 0;
-		}
-		if(train->txtover[1])
-		{
-			train->txtover[1]->draw = 0;
-			train->txtover[1] = 0;
-		}
-	}
-
-	coinsMissed = coinCounter = 0;
-	arcadeHud.collectText->draw = 0;
-
-	FreeAmbientSoundList();
-	ScreenFade(0,255,20);
-	keepFade = NO;
-	flashScreen = YES;
-
-	levelOpened = 0;
-	arcadeHud.collectText->draw = 0;
-
-	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted == 0)
-		levelOpened = 1;
-	worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
-
-	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS))
-	{
-		gameState.storySequenceLevel++;
-		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen == WORLD_CLOSED)
-			levelOpened = 1;
-		worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen = WORLD_OPEN;
-		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel].levelNum].levelOpen == LEVEL_CLOSED)
-			levelOpened = 1;
-		worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel].levelNum].levelOpen = LEVEL_OPEN;
-	}
-
-	cOption = 0;
-	DisableHUD();
-
-
-//#ifdef PSX_VERSION
-	//FreeTextureAnimList();
-	//FreeWaterObjectList();
-	//FreeScenicObjectList();
-//#endif
-
-
-	InitTiledBackdrop ("LOGO");
-
-	
-	for(loop=0; loop<numBabies; loop++)
-		babyIcons[loop]->draw = 0;
-	babyFlash->draw = 0;
-
-
-	if(!train)
-	{
-#ifdef PSX_VERSION
-		PsxNameEntryInit();
-#else
-		PcNameEntryInit();
-#endif
-	}
-
-	for (c = actList; c; c = c->next)
-		c->draw = 0;
-	
-	
-	for ( cur = sprList.head.next; ( cur != &sprList.head ); cur = next)
-	{
-		next = cur->next;
-		cur->draw = 0;
-	}
-
-	createTime = actFrameCount + createFrames;
-
-
-	time = actFrameCount/60;
-
-
-	moreCoins = 0;
-
-	if(garibList.maxCoins)
-	{
-		if(player[0].numSpawn == garibList.maxCoins)
-		{
-			coinText = CreateAndAddTextOverlay(2048+4096,980+300,GAMESTRING(STR_GOT_ALL_COINS),YES,255,font,TEXTOVERLAY_SHADOW);
-			coinText->xPosTo = 2048;
-			coinText->speed = 4096*75;
-			coinIcon = CreateAndAddSpriteOverlay(2048 - 256 - 4096,980+600,"COINMEDAL",512,512,255,0);
-			coinIcon->xPosTo = 2048-256;
-			coinIcon->speed = 4096*75;
-			if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
-			{
-				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
-				moreCoins = 1;
-				for(i = 1,num = 0;i < NUM_STORY_LEVELS;i++)
-				{
-					if(worldVisualData[storySequence[i].worldNum].levelVisualData[storySequence[i].levelNum].maxCoins == 25)
-						num++;
-				}
-
-		 		extraText = CreateAndAddTextOverlay(2048+4096+4096,980+1050,GAMESTRING(STR_OPENED_EXTRA_1 + num - 1),YES,255,font,TEXTOVERLAY_SHADOW);
-				extraText->xPosTo = 2048;
-				extraText->speed = 4096*75;
-				extraIcon = CreateAndAddSpriteOverlay(2048-256-4096-4096,980+1350,storySequence[num].iconName,512,512,255,0);
-				extraIcon->xPosTo = 2048-256;
-				extraIcon->speed = 4096*75;
-			}
-		}
-		else
-		{
-			sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),0);//,garibList.maxCoins - player[0].numSpawn);
-			coinText = CreateAndAddTextOverlay(2048+4096,980+300,coinStr,YES,255,font,TEXTOVERLAY_SHADOW);
-			coinText->xPosTo = 2048;
-			coinText->speed = 4096*75;
-	 		extraText = CreateAndAddTextOverlay(2048+4096+4096,980+700,GAMESTRING(STR_NO_BONUS),YES,255,font,TEXTOVERLAY_SHADOW);
-			extraText->xPosTo = 2048;
-			extraText->speed = 4096*75;
-			arcadeHud.coinsOver->draw = 1;
-			arcadeHud.coinsOver->xPos = 3200 + 4096;
-			arcadeHud.coinsOver->xPosTo = 3200;
-			arcadeHud.coinsOver->speed = 4096*75;
-			arcadeHud.coinsOver->yPosTo = arcadeHud.coinsOver->yPos = 980+350;
-		}
-	}
-
-	if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
-	{
-		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
-		moreCoins = 1;
-	}
-
-	if(train)
-	{
-		grade = 3;
-		coinText = CreateAndAddTextOverlay(2048+4096,980+300,GAMESTRING(STR_TRAINING_COMPLETE),YES,255,font,TEXTOVERLAY_SHADOW);
-		coinText->xPosTo = 2048;
-		coinText->speed = 4096*75;
-	}
-	else
-	{
-		if(time < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)
-			grade = 0;
-		else if(time < (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 3)/2)
-			grade = 1;
-		else if(time < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 2)
-			grade = 2;
-	}
-
-
-	waitFrame = 0;
-	goFrontend = 0;
-
-	if (grade==0)
-	{
-		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime = time;
-		newBestText = CreateAndAddTextOverlay(2048,2900,GAMESTRING(STR_NEW_BEST_TIME),YES,255,font,TEXTOVERLAY_SHADOW);
-	}
-
-	if(train)
-		sprintf(levTimeText,"");
-	else
-		sprintf(levTimeText,GAMESTRING(STR_YOUTOOKTIMEMIN),((int)time/60)%60,((int)time)%60);
-
-	
-	CreateAndAddTextOverlay(2048, 200+210,
-		GAMESTRING(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description_str),
-		YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-	
-	if(grade < 3)
-	{
-		tText = CreateAndAddTextOverlay(2048-512, 850, levTimeText, YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-		bIcon = CreateAndAddSpriteOverlay(1024*3-512+4096,770,trophyName[grade],512,512,255,0);
-		bIcon->speed = 4096*75;
-		bIcon->xPosTo = 1024*3-512;
-	}
-
-	if(gameState.single == STORY_MODE)
-	{
-		oText[0] = CreateAndAddTextOverlay(2048, 3220, GAMESTRING(STR_PRESS_X_TO_CONTINUE), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-		oText[1] = NULL;
-	}
-	else
-	{
-		oText[0] = CreateAndAddTextOverlay(2048, 3220, GAMESTRING(STR_RESTARTLEVEL), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-		oText[1] = CreateAndAddTextOverlay(2048, 3610, GAMESTRING(STR_QUIT), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-	}
-	nText = NULL;
-	
-	if (grade==0)
-	{
-		nText = CreateAndAddTextOverlay(200, 3610, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
-		textEntry = -1;
-
-		oText[0]->draw = 0;
-		if(oText[1])
-			oText[1]->draw = 0;
-	}
-	else
-		nText = 0;
-
-	actorAnimate(frog[0]->actor,FROG_ANIM_DANCE1,YES,NO,80,0);
-
-	SetVectorFF(&camTarget,&currCamTarget);
-	SetVectorFF(&camSource,&currCamSource);
-
-	SubVectorFFF(&tempVect,&camTarget,&camSource);
-
-	for(i = 0;i < 4;i++)
-	{
-		dp = DotProductFF(&tempVect,&currTile[0]->dirVector[i]);
-		if((i == 0) || (dp < mindp))
-		{
-			frogFacing[0] = i;
-			mindp = dp;
-		}
-	}
-	if((grade != 0) && ((moreCoins) || (levelOpened)))
-		SaveGame();
-	if(train)
-	{
-		FREE(train);
-		train = 0;
-	}
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunWorldComplete
@@ -879,12 +399,13 @@ void RunGameIntro( )
 void StartGameOver()
 {
 	gameState.mode = GAMEOVER_MODE;
-	GTInit( &modeTimer, 3 );
+	GTInit( &modeTimer, 9 );
 
 //	FreeAllGameLists();
 
 	CreateAndAddTextOverlay(2048, 1980, GAMESTRING(STR_GAMEOVER), YES, (char)255, font, TEXTOVERLAY_SHADOW);
 	frog[0]->draw = 0;
+	PrepareSong(AUDIOTRK_GAMEOVER,NO);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1014,11 +535,11 @@ void SlideSpriteOverlayToPos(SPRITEOVERLAY *s,long x,long y,long fromX,long from
 
 	MakeUnit(&vect);
 
-	if(fabs(s->xPos - x) <= speed/numFrames)
+	if(abs(s->xPos - x) <= speed/numFrames)
 		s->xPos = x;
 	else
 		s->xPos += FMul(vect.vx,speed/numFrames);
-	if(fabs(s->yPos - y) <= speed/numFrames)
+	if(abs(s->yPos - y) <= speed/numFrames)
 		s->yPos = y;
 	else
 		s->yPos += FMul(vect.vy,speed/numFrames);
@@ -1044,11 +565,11 @@ void SlideTextOverlayToPos(TEXTOVERLAY *s,long x,long y,long fromX,long fromY,lo
 
 	MakeUnit(&vect);
 
-	if(fabs(s->xPos - x) <= speed/numFrames)
+	if(abs(s->xPos - x) <= speed/numFrames)
 		s->xPos = x;
 	else
 		s->xPos += FMul(vect.vx,speed/numFrames);
-	if(fabs(s->yPos - y) <= speed/numFrames)
+	if(abs(s->yPos - y) <= speed/numFrames)
 		s->yPos = y;
 	else
 		s->yPos += FMul(vect.vy,speed/numFrames);
@@ -1149,9 +670,12 @@ void RunMultiWinRace( )
 	{
 		if(modeTimer.time)
 		{
-			multiHud.backChars[gameWinner]->r = multiHud.penaliseText[gameWinner]->r = mgWin->countTextOver[gameWinner]->r = 255;
-			multiHud.backChars[gameWinner]->g = multiHud.penaliseText[gameWinner]->g = mgWin->countTextOver[gameWinner]->g = 255;
-			multiHud.backChars[gameWinner]->b = multiHud.penaliseText[gameWinner]->b = mgWin->countTextOver[gameWinner]->b = 255;
+			if( gameWinner != MULTI_ROUND_DRAW )
+			{
+				multiHud.backChars[gameWinner]->r = multiHud.penaliseText[gameWinner]->r = mgWin->countTextOver[gameWinner]->r = 255;
+				multiHud.backChars[gameWinner]->g = multiHud.penaliseText[gameWinner]->g = mgWin->countTextOver[gameWinner]->g = 255;
+				multiHud.backChars[gameWinner]->b = multiHud.penaliseText[gameWinner]->b = mgWin->countTextOver[gameWinner]->b = 255;
+			}
 			if(matchWinner != -1)
 			{
 				for( i=0; i<NUM_FROGS; i++ )
@@ -1503,5 +1027,765 @@ void DoEndMulti()
 		DEC_ALPHA(menuText[0]);
 		DEC_ALPHA(menuText[1]);
 	}
+#endif
+}
+
+SVECTOR frogPos[6] = 
+{
+	{500,0,1000},
+	{300,0,1200},
+	{0,0,1500},
+	{-300,0,1200},
+	{-500,0,1000},
+	{0,0,1000},
+};
+
+int babyFrogY[5] = 
+{
+	3500,3800,4096,3800,3500
+};
+int babyFrogW[5] = 
+{
+	-1000,-400,0,400,1000
+};
+
+
+int frogY = 1000;
+int babyY = 1000;
+int frogYStep = 500;
+int babyscale = 1400;
+int froganimnum = FROG_ANIM_FALL;
+int froganimspeed = 100;
+int froganimnum2 = FROG_ANIM_FALLLAND;
+int froganimspeed2 = 150;
+int froganimnum3 = FROG_ANIM_DANCE1;
+int froganimspeed3 = 100;
+int froganimnum4 = FROG_ANIM_BREATHE;
+int froganimspeed4 = 100;
+TEXTOVERLAY *levName;
+void StartLevelComplete()
+{
+	int i,num,w;
+	ACTOR2 *c;
+	SPRITE *cur,*next;
+
+#ifdef PSX_VERSION
+//ma	SpuSetKey(SPU_OFF,0xffffff);
+#endif
+
+//	PrepareSong(AUDIOTRK_LEVELCOMPLETE,NO);
+
+	eolTrackComplete = 0;
+	if(train)
+	{
+		if(train->bg)
+		{
+			train->bg->draw = 0;
+			train->bg = 0;
+		}
+		if(train->txtover[0])
+		{
+			train->txtover[0]->draw = 0;
+			train->txtover[0] = 0;
+		}
+		if(train->txtover[1])
+		{
+			train->txtover[1]->draw = 0;
+			train->txtover[1] = 0;
+		}
+	}
+
+	coinsMissed = coinCounter = 0;
+	arcadeHud.collectText->draw = 0;
+
+	FreeAmbientSoundList();
+	ScreenFade(0,255,20);
+	keepFade = NO;
+	flashScreen = YES;
+
+	levelOpened = 0;
+	arcadeHud.collectText->draw = 0;
+
+	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted == 0)
+		levelOpened = 1;
+	worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
+
+	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS))
+	{
+		gameState.storySequenceLevel++;
+		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen == WORLD_CLOSED)
+			levelOpened = 1;
+		worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen = WORLD_OPEN;
+		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel].levelNum].levelOpen == LEVEL_CLOSED)
+			levelOpened = 1;
+		worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel].levelNum].levelOpen = LEVEL_OPEN;
+	}
+
+	cOption = 0;
+	DisableHUD();
+
+	InitTiledBackdrop ("LOGO");
+	
+	for(i = 0;i< numBabies;i++)
+		babyIcons[i]->draw = 0;
+	babyFlash->draw = 0;
+
+
+	if(!train)
+	{
+#ifdef PSX_VERSION
+		PsxNameEntryInit();
+#else
+		PcNameEntryInit();
+#endif
+	}
+
+	for (c = actList; c; c = c->next)
+		c->draw = 0;
+	
+	
+	for ( cur = sprList.head.next; ( cur != &sprList.head ); cur = next)
+	{
+		next = cur->next;
+		cur->draw = 0;
+	}
+
+	createTime = actFrameCount + createFrames;
+
+
+	timeForLevel = actFrameCount/60;
+
+
+	moreCoins = 0;
+
+	arcadeHud.coinsOver->xPos = 3200 + 4096;
+	coinText = NULL;
+	coinIcon = NULL;
+	extraText = NULL;
+	extraIcon = NULL;
+	if(garibList.maxCoins)
+	{
+		if(player[0].numSpawn == garibList.maxCoins)
+		{
+			coinText = CreateAndAddTextOverlay(2048+4096,850,GAMESTRING(STR_GOT_ALL_COINS),YES,255,font,TEXTOVERLAY_SHADOW);
+			coinText->xPosTo = 2048;
+			coinIcon = CreateAndAddSpriteOverlay(2048 - 256 - 4096,850+300,"COINMEDAL",512,512,255,0);
+			coinIcon->xPosTo = 2048-256;
+			if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
+			{
+				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
+				moreCoins = 1;
+				for(i = 1,num = 0;i < NUM_STORY_LEVELS;i++)
+				{
+					if(worldVisualData[storySequence[i].worldNum].levelVisualData[storySequence[i].levelNum].maxCoins == 25)
+						num++;
+				}
+
+		 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+750,GAMESTRING(STR_OPENED_EXTRA_1 + num - 1),YES,255,font,TEXTOVERLAY_SHADOW);
+				extraText->xPosTo = 2048;
+				extraIcon = CreateAndAddSpriteOverlay(2048-256-4096-4096,850+1050,storySequence[num].iconName,512,512,255,0);
+				extraIcon->xPosTo = 2048-256;
+			}
+			arcadeHud.coinsOver->draw = 0;
+		}
+		else
+		{
+			sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),0);//,garibList.maxCoins - player[0].numSpawn);
+			coinText = CreateAndAddTextOverlay(2048+4096,850,coinStr,YES,255,font,TEXTOVERLAY_SHADOW);
+			coinText->xPosTo = 2048;
+			coinIcon = NULL;
+	 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+300,GAMESTRING(STR_NO_BONUS),YES,255,font,TEXTOVERLAY_SHADOW);
+			extraText->xPosTo = 2048;
+			extraIcon = NULL;
+			arcadeHud.coinsOver->draw = 1;
+			arcadeHud.coinsOver->xPosTo = 3200;
+			arcadeHud.coinsOver->yPosTo = arcadeHud.coinsOver->yPos = 850+50;
+		}
+	}
+
+	if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
+	{
+		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
+		moreCoins = 1;
+	}
+
+	if(train)
+	{
+		grade = 3;
+		coinText = CreateAndAddTextOverlay(2048+4096,980+300,GAMESTRING(STR_TRAINING_COMPLETE),YES,255,font,TEXTOVERLAY_SHADOW);
+		coinText->xPosTo = 2048;
+	}
+	else
+	{
+		if(timeForLevel < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)
+			grade = 0;
+		else if(timeForLevel < (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 3)/2)
+			grade = 1;
+		else
+			grade = 2;
+	}
+
+	if (grade==0)
+	{
+		newBestText = CreateAndAddTextOverlay(2048+4096,850+800,GAMESTRING(STR_NEW_BEST_TIME),YES,255,font,TEXTOVERLAY_SHADOW);
+		newBestText->r = 255;
+		newBestText->g = 255;
+		newBestText->b = 0;
+		newBestText->xPosTo = 2048;
+	}
+	else
+		newBestText = NULL;
+
+	if(train)
+		sprintf(levTimeText,"");
+	else
+		sprintf(levTimeText,GAMESTRING(STR_YOUTOOKTIMEMIN),((int)timeForLevel/60)%60,((int)timeForLevel)%60);
+
+	
+	levName = CreateAndAddTextOverlay(2048, 200+210,
+		GAMESTRING(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description_str),
+		YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+
+	levName->r = 0;
+	levName->g = 255;
+	levName->b = 255;
+	
+	if(grade < 3)
+	{
+		tText = CreateAndAddTextOverlay(2048+4096, 850, levTimeText, YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+		tText->xPosTo = 2048;
+		bIcon = CreateAndAddSpriteOverlay(2048-256+4096,1150,trophyName[grade],512,512,255,0);
+		bIcon->xPosTo = 2048 - 256;
+		oldBestText = CreateAndAddTextOverlay(2048 + 4096,1950,oldBestStr,YES,255,font,TEXTOVERLAY_SHADOW);
+		oldBestText->xPosTo = 2048;
+		sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/60)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%60);
+	}
+	else
+	{
+		tText = NULL;
+		bIcon = NULL;
+	}
+
+	if(gameState.single == STORY_MODE)
+	{
+		oText[0] = CreateAndAddTextOverlay(2048+4096, 3420, GAMESTRING(STR_PRESS_X_TO_CONTINUE), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+		oText[0]->xPosTo = 2048;
+		oText[1] = NULL;
+	}
+	else
+	{
+		oText[0] = CreateAndAddTextOverlay(2048+4096, 3220, GAMESTRING(STR_RESTARTLEVEL), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+		oText[1] = CreateAndAddTextOverlay(2048-4096, 3610, GAMESTRING(STR_QUIT), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+		oText[0]->xPosTo = 2048;
+		oText[1]->xPosTo = 2048;
+	}
+	nText = NULL;
+	
+	if (grade==0)
+	{
+		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
+		nText = CreateAndAddTextOverlay(4096, 3610, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+#ifdef PSX_VERSION
+//ma		w = fontExtentWScaled(nText->font,nText->text,4096)*4;
+		w = fontExtentW(nText->font,nText->text);
+		nText->xPosTo = 2048 - w;
+		nText->xPos = nText->xPosTo + 4096;
+#elif PC_VERSION
+		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) / (OVERLAY_X * 2);
+		nText->xPosTo = 2048 - w;
+		nText->xPos = nText->xPosTo + 4096;
+#endif
+	}
+	else
+		nText = NULL;
+
+	actorAnimate(frog[0]->actor,FROG_ANIM_DANCE1,YES,NO,80,0);
+
+//	if((grade != 0) && ((moreCoins) || (levelOpened)))
+//		SaveGame();
+
+	levCompleteState = LEV_COMPLETE_DROPPING_FROGS;
+
+	currCamSource.vx = 0;
+	currCamSource.vy = 500<<12;
+	currCamSource.vz = 0;
+
+	currCamTarget.vx = 0;
+	currCamTarget.vy = 0;
+	currCamTarget.vz = 3000<<12;
+
+	camVect.vx = 0;
+	camVect.vy = 4096;
+	camVect.vz = 0;
+
+	SetCamFF(currCamSource,currCamTarget);
+
+	for(i = 0;i < numBabies;i++)
+	{
+		babyList[i].baby->draw = 1;
+		babyList[i].baby->depthShift = 0;
+		SetVectorSS(&babyList[i].baby->actor->position,&frogPos[i]);
+		babyList[i].baby->actor->position.vy = frogY+babyY+i*frogYStep;
+		babyList[i].baby->actor->qRot.x = 0;
+		babyList[i].baby->actor->qRot.y = babyFrogY[i];
+		babyList[i].baby->actor->qRot.z = 0;
+		babyList[i].baby->actor->qRot.w = babyFrogW[i];
+
+		babyList[i].baby->actor->size.vx = babyList[i].baby->actor->size.vy = babyList[i].baby->actor->size.vz = babyscale;
+
+		actorAnimate(babyList[i].baby->actor,BABY_ANIM_COLLECTHOLD,YES,NO,100,NO);
+	}
+
+	SetVectorSS(&frog[0]->actor->position,&frogPos[5]);
+	frog[0]->actor->position.vy = frogY;
+	frog[0]->actor->qRot.x = 0;
+	frog[0]->actor->qRot.y = 4096;
+	frog[0]->actor->qRot.z = 0;
+	frog[0]->actor->qRot.w = 0;
+	frog[0]->draw = 1;
+	actorAnimate(frog[0]->actor,froganimnum,NO,NO,froganimspeed,NO);
+	drawLandscape = 0;
+}
+
+int dropSpeed = 40;
+int babyanimnum = 1;
+int babyanimspeed = 180;
+int babyanimspeed2 = 100;
+#ifdef PSX_VERSION
+int babyanimy = 100;
+#else
+int babyanimy = 300;
+#endif
+
+#define NUM_CELEBRATE_ANIMS 6
+
+int celebrateAnim[NUM_CELEBRATE_ANIMS] = 
+{
+	FROG_ANIM_HOPWHOOHOO,
+	FROG_ANIM_DANCE1,
+	FROG_ANIM_DANCE2,
+	FROG_ANIM_DANCE3,
+	FROG_ANIM_DANCE4,
+	FROG_ANIM_HANDSPRING,
+};
+
+TIMER eolTimer;
+
+void RunLevelComplete()
+{
+	int i,dropped = FMul(dropSpeed,gameSpeed);
+	SPRITEOVERLAY *coinOver;
+
+	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/60)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%60);
+	drawLandscape = 0;
+
+	if(IsSongPlaying())
+	{
+		if(eolTrackComplete == 0)
+			eolTrackComplete = 1;
+	}
+	else if(eolTrackComplete == 1)
+	{
+		PrepareSong(AUDIOTRK_LEVELCOMPLETELOOP,YES);
+		eolTrackComplete = 2;
+	}
+
+#ifdef PSX_VERSION
+/*ma	if(saveInfo.saveFrame)
+	{
+		frog[0]->draw = 0;
+		for(i = 0;i < numBabies;i++)
+			babyList[i].baby->draw = 0;
+		skipTextOverlaysSpecFX = YES;
+		if(!fadingOut)
+			ChooseLoadSave();
+		return;
+	}
+	skipTextOverlaysSpecFX = NO;
+*/
+#endif
+
+//	if(padData.digital[0] & PAD_CROSS)
+//		StartLevelComplete();
+
+	switch(levCompleteState)
+	{
+		case LEV_COMPLETE_DROPPING_FROGS:
+			if(fadingOut)
+				return;
+			if(frog[0]->actor->position.vy > 0)
+				frog[0]->actor->position.vy -= dropped;
+			if(frog[0]->actor->position.vy <= 0)
+			{
+				frog[0]->actor->position.vy = 0;
+				if((GetAnimNum(frog[0]) == froganimnum) && (ReachedEndOfAnim(frog[0])))
+				{
+					actorAnimate(frog[0]->actor,froganimnum2,NO,NO,froganimspeed2,NO);
+					actorAnimate(frog[0]->actor,froganimnum3 + Random(4),NO,YES,froganimspeed3,NO);
+					actorAnimate(frog[0]->actor,froganimnum4,YES,YES,froganimspeed4,NO);
+				}
+			}
+
+			
+			for(i = 0;i < numBabies;i++)
+			{
+				if(babyList[i].baby->actor->position.vy > 0)
+				{
+					babyList[i].baby->actor->position.vy -= dropped;
+
+					if((babyList[i].baby->actor->position.vy <= babyanimy) && (babyList[i].baby->actor->position.vy + dropped > babyanimy))
+					{
+						actorAnimate(babyList[i].baby->actor,BABY_ANIM_COLLECT,NO,NO,-babyanimspeed,NO);
+						actorAnimate(babyList[i].baby->actor,BABY_ANIM_HOP,YES,YES,babyanimspeed2,NO);
+					}
+				}
+			}
+
+			break;
+
+		case LEV_COMPLETE_COUNTING_COINS:
+			if(coinText)
+				coinText->speed = 4096*75;
+			if(coinIcon)
+				coinIcon->speed = 4096*75;
+			if(extraText)
+				extraText->speed = 4096*75;
+			if(extraIcon)
+				extraIcon->speed = 4096*75;
+			arcadeHud.coinsOver->speed = 4096*75;
+
+			if(coinText->xPos == coinText->xPosTo)
+			{
+				if(eolTimer.time)
+				{
+					GTUpdate(&eolTimer,-1);
+					if((!eolTimer.time) || (padData.debounce[0] & PAD_CROSS))
+					{
+						eolTimer.time = 0;
+						if(train)
+							levCompleteState = LEV_COMPLETE_MENU;
+						else
+						{
+							levCompleteState = LEV_COMPLETE_SLIDING_TROPHY;
+							GTInit(&eolTimer,3);
+							if(coinText)
+							{
+								coinText->speed = 4096*75;
+								coinText->xPosTo = -4096;
+							}
+							if(coinIcon)
+							{
+								coinIcon->speed = 4096*75;
+								coinIcon->xPosTo = -4096;
+							}
+							if(extraText)
+							{
+								extraText->speed = 4096*75;
+								extraText->xPosTo = -4096;
+							}
+							if(extraIcon)
+							{
+								extraIcon->speed = 4096*75;
+								extraIcon->xPosTo = -4096;
+							}
+						}
+					}
+				}
+
+
+				if(player[0].numSpawn != garibList.maxCoins)
+				{
+					if(coinsMissed < garibList.maxCoins - player[0].numSpawn)
+					{
+						if(padData.digital[0] & PAD_CROSS)
+							coinCounter += 10;
+						else
+							coinCounter += actFrameCount-lastActFrameCount;
+			
+						if(coinCounter > 10)
+						{
+							coinsMissed++;
+							sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),coinsMissed);//,garibList.maxCoins - player[0].numSpawn);
+							coinCounter = 0;
+							PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
+							coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
+							coinOver->xPosTo += 10000;
+							coinOver->speed = 4096*50;
+						}
+					}
+					else
+					{
+						arcadeHud.coinsOver->draw = 0;
+						if(eolTimer.time == 0)
+							GTInit(&eolTimer,2);
+					}
+				}
+				else if(eolTimer.time == 0)
+					GTInit(&eolTimer,4);
+			}
+
+			break;
+
+		case LEV_COMPLETE_SLIDING_TROPHY:
+			if(tText)
+				tText->speed = 4096*75;
+			if(bIcon)
+				bIcon->speed = 4096*75;
+			if(oldBestText)
+				oldBestText->speed = 4096*75;
+
+			if(newBestText)
+				newBestText->speed = 4096*75;
+			if(nText)
+			{
+				nText->speed = 4096*75;
+
+				if(nText->xPos == nText->xPosTo)
+				{
+					levCompleteState = LEV_COMPLETE_ENTER_NAME;
+					textEntry = NAME_LENGTH;
+				}
+			}
+
+			if(!nText)
+			{
+				if(eolTimer.time)
+				{
+					GTUpdate(&eolTimer,-1)
+					if((!eolTimer.time) || (padData.debounce[0] & PAD_CROSS))
+					{
+						levCompleteState = LEV_COMPLETE_MENU;
+						eolTimer.time = 0;
+					}
+				}
+			}
+
+			break;
+
+		case LEV_COMPLETE_ENTER_NAME:
+			if(nText)
+			{
+#ifdef PSX_VERSION
+				PsxNameEntryFrame();	//sets texEntry to 0 when done
+#endif
+				if(textEntry == 0)
+				{
+					nText->draw = 0;
+					nText = NULL;
+					cOption = 0;
+
+					if(grade==0)
+					{
+						strcpy(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,textString);
+						worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime = timeForLevel;
+//						SaveGame();
+					}
+					levCompleteState = LEV_COMPLETE_MENU;
+				}
+				sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
+			}
+			break;
+
+		case LEV_COMPLETE_MENU:
+			if(oText[0])
+				oText[0]->speed = 4096*75;
+			if(oText[1])
+				oText[1]->speed = 4096*75;
+
+			if(oText[0]->xPos == oText[0]->xPosTo)
+				LevelCompleteProcessController(0);
+
+			for (i=0; i<2; i++)
+			{
+				if(oText[i])
+				{
+					oText[i]->r = 128;
+					oText[i]->g = 128;
+					oText[i]->b = 128;
+				}
+			}
+
+			oText[cOption]->r = 127+((rsin(actFrameCount*4200)+4096)*64)/4096;
+			oText[cOption]->g = 127+((rcos(actFrameCount*4300)+4096)*64)/4096;
+			oText[cOption]->b = 127+((rcos(actFrameCount*4400)+4096)*64)/4096;
+			break;
+
+		case LEV_COMPLETE_FADING_OUT:
+			if(fadingOut == 0)
+			{
+				if(keepFade == 0)
+				{
+					ScreenFade(255,0,30);
+					keepFade = YES;
+					break;
+				}
+				if(train)
+				{
+					FREE(train);
+					train = 0;
+				}
+
+				FreeTiledBackdrop();
+				if (goFrontend)
+				{
+					gameState.mode = FRONTEND_MODE;
+					player[0].worldNum = WORLDID_FRONTEND;
+					player[0].levelNum = LEVELID_FRONTEND1;
+					player[0].character = FROG_FROGGER;
+				}
+				else if (gameState.single == STORY_MODE)
+				{
+					gameState.mode = INGAME_MODE;
+
+					if( gameState.storySequenceLevel > 16 )
+					{
+						gameState.storySequenceLevel = 0;
+						player[0].worldNum = WORLDID_FRONTEND;
+						player[0].levelNum = LEVELID_FRONTEND1;
+						gameState.mode = FRONTEND_MODE;
+					}
+					else
+					{
+						player[0].worldNum = storySequence[gameState.storySequenceLevel].worldNum;
+						player[0].levelNum = storySequence[gameState.storySequenceLevel].levelNum;
+					}
+				}
+				else
+				{
+					// todo: place Frogger 
+					gameState.mode = INGAME_MODE;
+				}
+				FreeAllLists();
+				frameCount = 0;
+
+				InitLevel(player[0].worldNum,player[0].levelNum);
+
+				showEndLevelScreen = 1; // Normal level progression is default
+				frameCount = 0;		
+				return;
+			}
+			break;
+	}
+#ifdef PSX_VERSION
+		if((levCompleteState == LEV_COMPLETE_FADING_OUT)/*ma && (useMemCard)*/ && ((grade == 0) || (moreCoins) || (levelOpened)))
+		{
+			frog[0]->draw = 0;
+			for(i = 0;i < numBabies;i++)
+				babyList[i].baby->draw = 0;
+//ma			skipTextOverlaysSpecFX = YES;
+			return;
+		}
+#endif
+	for(i = 0;i < numBabies;i++)
+	{
+		babyList[i].baby->draw = 1;
+		babyList[i].baby->actor->qRot.x = 0;
+		babyList[i].baby->actor->qRot.y = babyFrogY[i];
+		babyList[i].baby->actor->qRot.z = 0;
+		babyList[i].baby->actor->qRot.w = babyFrogW[i];
+
+		if(babyList[i].baby->actor->position.vy <= 0)
+		{
+			if((i == 4) && (levCompleteState == LEV_COMPLETE_DROPPING_FROGS))
+			{
+				if(player[0].worldNum == WORLDID_SUPERRETRO)
+				{
+					levCompleteState = LEV_COMPLETE_SLIDING_TROPHY;
+					GTInit(&eolTimer,3);
+				}
+				else
+				{
+					levCompleteState = LEV_COMPLETE_COUNTING_COINS;
+					GTInit(&eolTimer,0);
+				}
+			}
+			babyList[i].baby->actor->position.vy = 0;
+
+			if(GetAnimNum(babyList[i].baby) == BABY_ANIM_HOP)
+			{
+				if(GetAnimLoop(babyList[i].baby))
+				{
+					if(Random(1000) <= 20)
+					{
+						SetAnimLoop(babyList[i].baby,0);
+						actorAnimate(babyList[i].baby->actor,BABY_ANIM_WAVE + Random(7),NO,YES,100,NO);
+						actorAnimate(babyList[i].baby->actor,BABY_ANIM_HOP,YES,YES,babyanimspeed2,NO);
+					}
+				}
+			}
+		}
+	}
+	frog[0]->draw = 1;
+	if(frog[0]->actor->position.vy <= 0)
+	{
+		if((numBabies == 0) && (levCompleteState == LEV_COMPLETE_DROPPING_FROGS))
+		{
+			levCompleteState = LEV_COMPLETE_COUNTING_COINS;
+			// ds - do animations from above somewhere
+			actorAnimate(frog[0]->actor,froganimnum2,NO,NO,froganimspeed2,NO);
+			actorAnimate(frog[0]->actor,froganimnum3 + Random(4),NO,YES,froganimspeed3,NO);
+			actorAnimate(frog[0]->actor,froganimnum4,YES,YES,froganimspeed4,NO);
+		}
+		if(GetAnimNum(frog[0]) == FROG_ANIM_BREATHE)
+		{
+			if(GetAnimLoop(frog[0]))
+			{
+				if(Random(1000) <= 20)
+				{
+					SetAnimLoop(frog[0],0);
+					switch(Random(3))
+					{
+						case 0:
+							PlayVoice(0,"frogokay");
+							break;
+						case 1:
+							PlayVoice(0,"frogletsgo");
+							break;
+						case 2:
+							PlayVoice(0,"frogcroak");
+							break;
+					}
+					actorAnimate(frog[0]->actor,celebrateAnim[Random(NUM_CELEBRATE_ANIMS)],NO,YES,70,NO);
+					actorAnimate(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,babyanimspeed2,NO);
+				}
+			}
+		}
+	}
+}
+
+
+int GetAnimNum(ACTOR2 *actor)
+{
+#ifdef PSX_VERSION
+	return actor->actor->animation.currentAnimation;
+#elif PC_VERSION
+ 	return((MDX_ACTOR *)actor->actor->actualActor)->animation->currentAnimation;
+#endif
+}
+
+int GetAnimLoop(ACTOR2 *actor)
+{
+#ifdef PSX_VERSION
+	return actor->actor->animation.loopAnimation;
+#elif PC_VERSION
+ 	return((MDX_ACTOR *)actor->actor->actualActor)->animation->loopAnimation;
+#endif
+}
+
+void SetAnimLoop(ACTOR2 *actor,int loop)
+{
+#ifdef PSX_VERSION
+	actor->actor->animation.loopAnimation = loop;
+#elif PC_VERSION
+ 	((MDX_ACTOR *)actor->actor->actualActor)->animation->loopAnimation = loop;
+#endif
+}
+
+int ReachedEndOfAnim(ACTOR2 *actor)
+{
+#ifdef PSX_VERSION
+	return actor->actor->animation.reachedEndOfAnimation;
+#elif PC_VERSION
+ 	return ((MDX_ACTOR *)actor->actor->actualActor)->animation->reachedEndOfAnimation;
 #endif
 }

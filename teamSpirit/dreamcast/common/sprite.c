@@ -34,11 +34,6 @@
 #define MAX_SPRITES	512
 #endif
 
-FOG fog = {120,120,160,FOG_OFF,995,5000};
-
-SPRITELIST sprList;
-
-
 #ifdef PSX_VERSION
 int SCALEX, SCALEY;
 #endif

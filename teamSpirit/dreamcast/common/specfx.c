@@ -271,23 +271,23 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
  		effect->Update = UpdateFXRing;
 		effect->Draw = DrawFXRing;
 		break;
-	case FXTYPE_LASER:
-		if( !ringVtx )
-			CreateBlastRing( );
+//	case FXTYPE_LASER:
+//		if( !ringVtx )
+//			CreateBlastRing( );
  
- 		effect->scale.vx = 81920;
- 		effect->scale.vz = 81920;
- 		SetVectorFF(&effect->vel, &effect->normal);
- 		ScaleVectorFF( &effect->vel, effect->speed );
- 		effect->spin = 5;
- 		effect->tilt = 4096;
- 		effect->a = 128;
+// 		effect->scale.vx = 81920;
+// 		effect->scale.vz = 81920;
+// 		SetVectorFF(&effect->vel, &effect->normal);
+// 		ScaleVectorFF( &effect->vel, effect->speed );
+// 		effect->spin = 5;
+// 		effect->tilt = 4096;
+// 		effect->a = 128;
  
-		effect->tex = txtrBlank;
- 		effect->Update = UpdateFXBolt;
-		effect->Draw = DrawFXRing;
+//		effect->tex = txtrBlank;
+// 		effect->Update = UpdateFXBolt;
+//		effect->Draw = DrawFXRing;
 
-		break;
+//		break;
 //	case FXTYPE_TRAIL:
 //	case FXTYPE_BILLBOARDTRAIL:
 // 		effect->fade = effect->a/life;
@@ -314,29 +314,76 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
 //		effect->Draw = DrawFXTrail;
 
 //		break;
-	case FXTYPE_FROGSTUN:
+//	case FXTYPE_FROGSTUN:
 
- 		effect->numP = 6;
+// 		effect->numP = 6;
+// 		i = effect->numP;
+
+//		effect->tex = txtrStar;
+
+//		if( !(effect->sprites = AllocateSprites(effect->numP)) )
+//		{
+//			DeallocateFX( effect,1 );
+//			return NULL;
+//		}
+
+//		if( !(effect->particles = AllocateParticles(i)) )
+//		{
+//			DeallocateFX( effect,1 );
+//			return NULL;
+//		}
+
+//		s = effect->sprites;
+//		p = effect->particles;
+ 
+// 		while(i--)
+// 		{
+//  			s->texture = effect->tex;
+//  			SetVectorSS( &s->pos, &effect->origin );
+//  
+//  			s->scaleX = (effect->scale.vx>>12)/SCALE;
+//  			s->scaleY = (effect->scale.vy>>12)/SCALE;
+//  			s->r = effect->r;
+//  			s->g = effect->g;
+//  			s->b = effect->b;
+//  			s->a = effect->a;
+//  
+//  			s->offsetX	= -16;
+//  			s->offsetY	= -40;//mm used to be -16...why does this work?
+//  			s->flags = SPRITE_TRANSLUCENT | SPRITE_ADDITIVE;
+//  			effect->particles[i].pos.vx = -80 + Random(160);
+// 			effect->particles[i].pos.vy = -60 + Random(120);
+//  			effect->particles[i].pos.vz = -80 + Random(160);
+
+//			s = s->next;
+//			p = p->next;
+//  		}
+//  
+//  		effect->Update = UpdateFXSwarm;
+//  		effect->Draw = NULL;
+//		break;
+	case FXTYPE_BATSWARM:
+	case FXTYPE_BUTTERFLYSWARM:
+	case FXTYPE_SPACETHING1:
+ 		effect->numP = (lifetime>>12); // Nasty Nasty Nasty
  		i = effect->numP;
 
-		effect->tex = txtrStar;
-
-		if( !(effect->sprites = AllocateSprites(effect->numP)) )
+		if( !(effect->sprites = AllocateSprites(i)) )
 		{
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
-
 		if( !(effect->particles = AllocateParticles(i)) )
 		{
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
-
 		s = effect->sprites;
 		p = effect->particles;
- 
- 		while(i--)
+
+		effect->tex = txtrFlash;
+		
+ 		while( i-- )
  		{
   			s->texture = effect->tex;
   			SetVectorSS( &s->pos, &effect->origin );
@@ -349,62 +396,18 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
   			s->a = effect->a;
   
   			s->offsetX	= -16;
-  			s->offsetY	= -40;//mm used to be -16...why does this work?
+  			s->offsetY	= -16;
   			s->flags = SPRITE_TRANSLUCENT | SPRITE_ADDITIVE;
-  			effect->particles[i].pos.vx = -80 + Random(160);
- 			effect->particles[i].pos.vy = -60 + Random(120);
-  			effect->particles[i].pos.vz = -80 + Random(160);
 
-			s = s->next;
-			p = p->next;
-  		}
-  
-  		effect->Update = UpdateFXSwarm;
-  		effect->Draw = NULL;
-		break;
-	case FXTYPE_BATSWARM:
-	case FXTYPE_BUTTERFLYSWARM:
-	case FXTYPE_SPACETHING1:
- 		effect->numP = (lifetime>>12); // Nasty Nasty Nasty
- 		i = effect->numP;
- 
- 		effect->act = (ACTOR2 **)MALLOC0( sizeof(ACTOR2 *)*effect->numP);
-		if( !(effect->particles = AllocateParticles(i)) )
-		{
-			DeallocateFX( effect,1 );
-			return NULL;
-		}
-		p = effect->particles;
- 
- 		while( i-- )
- 		{
-			if( effect->type == FXTYPE_BATSWARM )
-				effect->act[i] = CreateAndAddActor( "bat.obe", 0,0,0, INIT_ANIMATION);
-			else if( effect->type == FXTYPE_BUTTERFLYSWARM )
-				effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION);
-			else if( effect->type == FXTYPE_SPACETHING1 )
-			{
-				SPECFX *fx;
-				effect->act[i] = CreateAndAddActor( "xx_saus.obe", 0,0,0, INIT_ANIMATION);
-
-				if( (fx = CreateSpecialEffect( FXTYPE_TRAIL, &effect->origin, &effect->normal, 8192, 4055, 0, 8092 )) )
-				{
-					fx->follow = effect->act[i]->actor;
-					SetFXColour( fx, 255, 100, 100 );
-				}
-			}
-
-//			if( effect->act[i]->actor->objectController )
-//				InitActorAnim( effect->act[i]->actor );
-
- 			actorAnimate( effect->act[i]->actor,0,YES,NO,255, 0);//bb??256?
- 			effect->act[i]->actor->size.vx = effect->scale.vx;
- 			effect->act[i]->actor->size.vy = effect->scale.vy;
- 			effect->act[i]->actor->size.vz = effect->scale.vz;
- 
 			p->pos.vx = -80 + Random(160);
 			p->pos.vy = -60 + Random(120);
 			p->pos.vz = -80 + Random(160);
+
+			p->vel.vx = -4096 + Random(8192);
+			p->vel.vy = -4096 + Random(8192);
+			p->vel.vz = -4096 + Random(8192);
+
+			s = s->next;
 			p = p->next;
  		}
  
@@ -647,7 +650,7 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
  
  			if( effect->type == FXTYPE_FIERYSMOKE )
  			{
-				if( i & 1 )
+				if( !(Random(3)) )
 				{
 					s->flags &= ~SPRITE_ADDITIVE;
 					s->texture = txtrSmoke2;
@@ -666,7 +669,7 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
 		break;
 	case FXTYPE_LIGHTNING:
 		effect->speed /= SCALE;
- 		effect->numP = (effect->speed/240)>>12;
+ 		effect->numP = max( ((effect->speed/240)>>12), 4 );
  		i = effect->numP;
 
 		#ifdef PSX_VERSION
@@ -996,40 +999,41 @@ void UpdateFXSmoke( SPECFX *fx )
 */
 void UpdateFXSwarm( SPECFX *fx )
 {
-	FVECTOR up;
+//	FVECTOR up;
 	SVECTOR pos;
 	int i = fx->numP;
-//bb	fixed dist, speed = max(FDiv(gameSpeed,12288), 4096)*SCALE, limit=gameSpeed*2*SCALE;
-	fixed dist, speed = max((gameSpeed/3), 4096)*SCALE, limit=gameSpeed*2*SCALE;
+	fixed /*dist, */speed, limit;
 	SPRITE *s;
 	PARTICLE *p;
   
  	if( fx->follow )
  		SetVectorSS( &fx->origin, &fx->follow->position );
 
-	if( fx->type == FXTYPE_FROGSTUN )
-	{
-		SetVectorFF( &up, &currTile[0]->normal );
-		ScaleVectorFF( &up, 20<<12 );
-		AddVectorSFS( &fx->origin, &up, &frog[0]->actor->position );
-	}
+	speed = FMul( fx->speed, gameSpeed );
+	limit = FMul( fx->accn, gameSpeed );
+//	if( fx->type == FXTYPE_FROGSTUN )
+//	{
+//		SetVectorFF( &up, &currTile[0]->normal );
+//		ScaleVectorFF( &up, 20<<12 );
+//		AddVectorSFS( &fx->origin, &up, &frog[0]->actor->position );
+//	}
 
 	s = fx->sprites;
 	p = fx->particles;
 	while(i--)
 	{
 		// Set world check position from either sprite or actor
-		if( !fx->act )
+//		if( !fx->act )
 			SetVectorSS( &pos, &s->pos );
-		else
-			SetVectorSS( &pos, &fx->act[i]->actor->position );
+//		else
+//			SetVectorSS( &pos, &fx->act[i]->actor->position );
 
 		// Fade out star stun
-		if( fx->type == FXTYPE_FROGSTUN )
-		{		
-			if( s->a > 7 ) s->a -= 8;
-			else s->a = 0;
-		}
+//		if( fx->type == FXTYPE_FROGSTUN )
+//		{		
+//			if( s->a > 7 ) s->a -= 8;
+//			else s->a = 0;
+//		}
 
 		// Update particle velocity to oscillate around the point
 		if( pos.vx > fx->origin.vx)
@@ -1062,37 +1066,37 @@ void UpdateFXSwarm( SPECFX *fx )
 		// Add velocity to local particle position
 		AddToVectorSF( &p->pos, &p->vel );
 		// Add local particle pos to swarm origin to get world coords for sprite or actor
-		if( !fx->act )
-		{
+//		if( !fx->act )
+//		{
 			AddVectorSSS( &s->pos, &fx->origin, &p->pos );
 			SetVectorSS( &pos, &s->pos );
 			s = s->next;
-		}
-		else
-		{
-			AddVectorSSS( &fx->act[i]->actor->position, &fx->origin, &p->pos );
-			SetVectorSS( &pos, &fx->act[i]->actor->position );
-		}
+//		}
+//		else
+//		{
+//			AddVectorSSS( &fx->act[i]->actor->position, &fx->origin, &p->pos );
+//			SetVectorSS( &pos, &fx->act[i]->actor->position );
+//		}
 
-		if( fx->rebound )
-		{
-			FVECTOR fRP;
-			FVECTOR fPos;
-			SetVectorFS(&fRP,&fx->rebound->point);
-			fx->rebound->J = -DotProductFF( &fRP, &fx->rebound->normal );
-			SetVectorFS(&fPos,&pos);
-			dist = -(DotProductFF(&fPos, &fx->rebound->normal) + fx->rebound->J);
+//		if( fx->rebound )
+//		{
+//			FVECTOR fRP;
+//			FVECTOR fPos;
+//			SetVectorFS(&fRP,&fx->rebound->point);
+//			fx->rebound->J = -DotProductFF( &fRP, &fx->rebound->normal );
+//			SetVectorFS(&fPos,&pos);
+//			dist = -(DotProductFF(&fPos, &fx->rebound->normal) + fx->rebound->J);
 
-			if(dist > 0 && dist < 122880)
-				CreateSpecialEffect( FXTYPE_WAKE, &pos, &fx->rebound->normal, 20480, 2048, 410, 1229 );
-		}
+//			if(dist > 0 && dist < 122880)
+//				CreateSpecialEffect( FXTYPE_WAKE, &pos, &fx->rebound->normal, 20480, 2048, 410, 1229 );
+//		}
 
 		p = p->next;
 	}
 
-	if( fx->type == FXTYPE_FROGSTUN )
-		if( actFrameCount > fx->lifetime )
-			DeallocateFX(fx, 1);
+//	if( fx->type == FXTYPE_FROGSTUN )
+//		if( actFrameCount > fx->lifetime )
+//			DeallocateFX(fx, 1);
 }							  
 
 
@@ -1466,7 +1470,7 @@ void UpdateFXFly( SPECFX *fx )
 void UpdateFXTwinkle( SPECFX *fx )
 {
 	SPRITE *s = fx->sprites;
-	int fo, dead=0;
+	int fo, dead=0, speed;
 
 	if( fx->follow )
 		SetVectorSS( &s->pos, &fx->follow->position );
@@ -1477,17 +1481,19 @@ void UpdateFXTwinkle( SPECFX *fx )
 		if( (actFrameCount-fx->tilt) > (fx->lifetime-fx->tilt)/2 )
 		{
 			fx->speed += FMul( fx->accn, gameSpeed );
+			speed = FMul( fx->speed, gameSpeed )>>12;
 
-			s->scaleX -= fx->speed>>12;
-			s->scaleY -= fx->speed>>12;
+			s->scaleX -= speed;
+			s->scaleY -= speed;
 		}
 		else
 		{
 			fx->speed -= FMul( fx->accn, gameSpeed );
 			if( fx->speed < 0 ) fx->speed = 0;
+			speed = FMul( fx->speed, gameSpeed )>>12;
 
-			s->scaleX += fx->speed>>12;
-			s->scaleY += fx->speed>>12;
+			s->scaleX += speed;
+			s->scaleY += speed;
 		}
 
 		if( actFrameCount > fx->lifetime )
@@ -1650,7 +1656,8 @@ SPECFX *AllocateFX( int number, int type )
 	short update;
 
 	// Return if allocation is impossible for any reason
-	if( (number <= 0) || (sfxList.stackPtr-number < 0) || (number >= MAX_SPECFX-sfxList.count) ) return NULL;
+	if( (number <= 0) || (sfxList.stackPtr-number < 0) || (number >= MAX_SPECFX-sfxList.count) ) 
+		return NULL;
 
 	update = updateMapping[type];
 
@@ -1870,7 +1877,7 @@ void ProcessAttachedEffects( void *entity, int type )
 
 	fxDist = DistanceBetweenPointsSS(&frog[0]->actor->position,&act->actor->position);
 
-	if( (fxDist < ACTOR_DRAWDISTANCEOUTER) && (actFrameCount > act->fxCount) )
+	if( (fxDist < (ACTOR_DRAWDISTANCEOUTER<<1)) && (actFrameCount > act->fxCount) )
 	{
 		int ran;
 		// Restart effect timer
@@ -2013,16 +2020,18 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		if( act->effects & EF_TWINKLE )
 		{
-			fx = CreateSpecialEffect( FXTYPE_TWINKLE, &act->actor->position, &normal, 81920, 0, 0, ToFixed(Random(3)+1) );
-			SetAttachedFXColour( fx, act->effects );
-			fx->follow = act->actor;
+			if( (fx = CreateSpecialEffect( FXTYPE_TWINKLE, &act->actor->position, &normal, 81920, 0, 0, ToFixed(Random(3)+1) )) )
+			{
+				SetAttachedFXColour( fx, act->effects );
+				fx->follow = act->actor;
 
-			if( act->effects & EF_FAST )
-				fx->tilt = 12288;
-			else if( act->effects & EF_MEDIUM )
-				fx->tilt = 8192;
-			else if( act->effects & EF_SLOW )
-				fx->tilt = 4096;
+				if( act->effects & EF_FAST )
+					fx->tilt = 12288;
+				else if( act->effects & EF_MEDIUM )
+					fx->tilt = 8192;
+				else if( act->effects & EF_SLOW )
+					fx->tilt = 4096;
+			}
 		}
 		if( act->effects & EF_GREENGLOOP )
 		{
@@ -2064,30 +2073,30 @@ void ProcessAttachedEffects( void *entity, int type )
 	}
 	if( (act->effects & EF_BUTTERFLYSWARM) || (act->effects & EF_BATSWARM) || (act->effects & EF_SPACETHING1) )
 	{
-		if( act->effects & EF_BATSWARM )
-		{
-			fx = CreateSpecialEffect( FXTYPE_BATSWARM, &act->actor->position, &normal, act->radius, 0, 0, act->value1 );
+//		if( act->effects & EF_BATSWARM )
+//		{
+			fx = CreateSpecialEffectDirect( FXTYPE_BATSWARM, &act->actor->position, &normal, act->radius, path->nodes->speed, path->nodes->offset2, act->value1 );
 			act->effects &= ~EF_BATSWARM;
-		}
-		else if( act->effects & EF_BUTTERFLYSWARM )
-		{
-			fx = CreateSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->position, &normal, act->radius, 0, 0, act->value1 );
-			act->effects &= ~EF_BUTTERFLYSWARM;
-			if( fx && type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
-			{
-				GetPositionForPathNode( &rPos, &path->nodes[0] );
-				if( (fx->rebound = AllocateP2()) )
-				{
-					SetVectorSS( &fx->rebound->point, &rPos );
-					SetVectorFF( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
-				}
-			}
-		}
-		else
-		{
-			fx = CreateSpecialEffect( FXTYPE_SPACETHING1, &act->actor->position, &normal, act->radius, 0, 0, act->value1 );
-			act->effects &= ~EF_SPACETHING1;
-		}
+//		}
+//		else if( act->effects & EF_BUTTERFLYSWARM )
+//		{
+//			fx = CreateSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->position, &normal, act->radius, 0, 0, act->value1 );
+//			act->effects &= ~EF_BUTTERFLYSWARM;
+//			if( fx && type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
+//			{
+//				GetPositionForPathNode( &rPos, &path->nodes[0] );
+//				if( (fx->rebound = AllocateP2()) )
+//				{
+//					SetVectorSS( &fx->rebound->point, &rPos );
+//					SetVectorFF( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
+//				}
+//			}
+//		}
+//		else
+//		{
+//			fx = CreateSpecialEffect( FXTYPE_SPACETHING1, &act->actor->position, &normal, act->radius, 0, 0, act->value1 );
+//			act->effects &= ~EF_SPACETHING1;
+//		}
 
 		if( fx ) fx->follow = act->actor;
 	}
@@ -2192,7 +2201,13 @@ void CreateGloopEffects( SPECFX *parent )
 }
 
 
-//void CreateLightningEffect( SVECTOR *p1, SVECTOR *p2, unsigned long effects, long life )
+/*	--------------------------------------------------------------------------------
+	Function		: CreateLightningEffect
+	Purpose			: Wiggly electric line between 2 points
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void CreateLightningEffect( SVECTOR *p1, SVECTOR *p2, unsigned long effects, long life, int zDepthOff)
 {
 	FVECTOR dir;
@@ -2225,6 +2240,7 @@ void CreateLightningEffect( SVECTOR *p1, SVECTOR *p2, unsigned long effects, lon
 
 	for( ; i; i-- )
 	{
+		PrepForPriorityEffect( );
 		if( (fx = CreateSpecialEffectDirect(FXTYPE_LIGHTNING, p2, &dir, 20480, distance, accn, lifetime)) )
 		{
 			SetAttachedFXColour( fx, effects );
@@ -2268,13 +2284,20 @@ void CreateBlastRing( )
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: CreatePickupEffect
+	Purpose			: Loadsa sparklies
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void CreatePickupEffect( int pl, char r1, char g1, char b1, char r2, char g2, char b2 )
 {
 	SVECTOR pos;
 	FVECTOR seUp, up;
 	SPECFX *fx;
 
-	SetVectorFS( &seUp, &currTile[pl]->normal );
+	SetVectorFF( &seUp, &currTile[pl]->normal );
 	ScaleVector( &seUp, 200 );
 	AddVectorSFS( &pos, &seUp, &frog[pl]->actor->position );
 	SetVectorFF( &up, &currTile[pl]->normal );
@@ -2300,13 +2323,21 @@ void CreatePickupEffect( int pl, char r1, char g1, char b1, char r2, char g2, ch
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateRingEffect
+	Purpose			: Teleport or invulnerabilty on a player
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void CreateRingEffect( int i )
 {
 	FVECTOR up;
 	SVECTOR pos;
 	SPECFX *fx;
 
-	SetVectorFS( &up, &currTile[i]->normal );
+	SetVectorFF( &up, &currTile[i]->normal );
 	ScaleVector( &up, (rsin(actFrameCount<<6)>>4)+250 );
 	SetVectorSF( &pos, &up );
 	AddToVectorSS( &pos, &frog[i]->actor->position );
@@ -2317,14 +2348,20 @@ void CreateRingEffect( int i )
 }
 
 
-
+/*	--------------------------------------------------------------------------------
+	Function		: BabyCollectEffect
+	Purpose			: Stack of decals at different speeds.
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void BabyCollectEffect( ACTOR2 *baby, GAMETILE *tile, int i )
 {
 	SPECFX *fx;
 	SVECTOR pos;
 	FVECTOR up, normal;
 
-	SetVectorFS( &up, &tile->normal );
+	SetVectorFF( &up, &tile->normal );
 	ScaleVector( &up, 200 );
 	AddVectorSFS( &pos, &up, &baby->actor->position );
 	SetVectorFF( &normal, &tile->normal );
@@ -2359,6 +2396,13 @@ void BabyCollectEffect( ACTOR2 *baby, GAMETILE *tile, int i )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: CreateExplodeEffect
+	Purpose			: A modest explosion of smoke, blast and sparks
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void CreateExplodeEffect( SVECTOR *pos, FVECTOR *normal )
 {
 	SPECFX *fx;
@@ -2385,3 +2429,64 @@ void CreateExplodeEffect( SVECTOR *pos, FVECTOR *normal )
 	cam_shake_falloff = 10;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateRespawnEffect
+	Purpose			: For multiplayer and swampy
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void CreateRespawnEffect( GAMETILE *tile, int pl )
+{
+	FVECTOR pos, up;
+	SVECTOR tp;
+	SPECFX *fx;
+
+	SetVectorFF( &pos, &tile->normal );
+	ScaleVector( &pos, 50 );
+	AddToVectorFS( &pos, &tile->centre );
+	SetVectorSF( &tp, &pos );
+	SetVectorFF( &up, &tile->normal );
+	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &up, 262144, 8192, 410, 6963 );
+	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+	fx = CreateSpecialEffectDirect( FXTYPE_SMOKEBURST, &tp, &up, 327680, 8192, 410, 6963 );
+	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &tp, &up, 81920, 410, 205, 2048 );
+	SetFXColour( fx, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b );
+
+	CreateSpecialEffect( FXTYPE_FLASH, &tp, &up, 0, 12384, 512, 2048 );
+}
+
+
+/*	--------------------------------------------------------------------------------
+//	Function		: PrepForPriorityEffect
+//	Purpose			: Remove a low priority effect if not enough room
+//	Parameters		: 
+//	Returns			: void
+//	Info			: 
+*/
+void PrepForPriorityEffect( )
+{
+	SPECFX *fx, *next;
+
+	if( (sfxList.stackPtr-1) )
+		return;
+
+	utilPrintf( "Freeing fx to make room\n" );
+
+	for( fx=sfxList.head.next; fx!=&sfxList.head; fx = next )
+	{
+		next = fx->next;
+
+		if( fx->type == FXTYPE_TWINKLE	|| fx->type == FXTYPE_SMOKE_STATIC	|| fx->type == FXTYPE_SMOKE_GROWS ||
+			fx->type == FXTYPE_BUBBLES	|| fx->type == FXTYPE_SPARKBURST	|| fx->type == FXTYPE_SPARKLYTRAIL || 
+			fx->type == FXTYPE_DECAL	|| fx->type == FXTYPE_SPLASH		|| fx->type == FXTYPE_WAKE )
+		{
+			DeallocateFX( fx, 1 );
+			utilPrintf( "Found fx to free\n" );
+			break;
+		}
+	}
+}

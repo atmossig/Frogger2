@@ -71,17 +71,17 @@ short scriptCounters[SCRIPT_MAX_COUNTERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 int lineNumber = 0;
 
-//#ifdef DEBUG_SCRIPTING
+#ifdef DEBUG_SCRIPTING
 
-//#define SCRIPT_VALIDATE_FLAG(x)		if ((x) < 0 || (x) > SCRIPT_MAX_FLAGS) { PrintScriptDebugMessage("Invalid toggle number"); return 0; }
-//#define SCRIPT_VALIDATE_COUNTER(x)	if ((x) < 0 || (x) > SCRIPT_MAX_COUNTERS) { PrintScriptDebugMessage("Invalid counter number"); return 0; }
+#define SCRIPT_VALIDATE_FLAG(x)		if ((x) < 0 || (x) > SCRIPT_MAX_FLAGS) { PrintScriptDebugMessage("Invalid toggle number"); return 0; }
+#define SCRIPT_VALIDATE_COUNTER(x)	if ((x) < 0 || (x) > SCRIPT_MAX_COUNTERS) { PrintScriptDebugMessage("Invalid counter number"); return 0; }
 
-//#else
+#else
 
 #define SCRIPT_VALIDATE_FLAG(x)
 #define SCRIPT_VALIDATE_COUNTER(x)
 
-//#endif
+#endif
 
 typedef struct tagRUNANIMINFO
 {
@@ -177,15 +177,27 @@ void PrintScriptDebugMessage(const char* str)
 #ifdef DEBUG_SCRIPTING
 GAMETILE* GetTileFromNumber(int number)
 {
-	GAMETILE *tile;
-	for (tile = firstTile; number && tile; number--, tile = tile->next);
+/*	GAMETILE *tile;
+
+	tile = firstTile;*/
+
+	if ( number > tileCount )
+	{
+		char buf[40];
+		sprintf(buf, "Invalid tile number: %d", number);
+		PrintScriptDebugMessage(buf);
+	}
+
+	return &firstTile[number];
+
+/*	for (tile = firstTile; number && tile; number--, tile = tile->next);
 	if (!tile)
 	{
 		char buf[40];
 		sprintf(buf, "Invalid tile number: %d", number);
 		PrintScriptDebugMessage(buf);
 	}
-	return tile;
+	return tile;*/
 }
 
 #else
@@ -393,6 +405,7 @@ int PathEffect(ENEMY *nme, int params)
 	SCRIPT_EFFECT_PARAMS *p;
 	PATHNODE *node = nme->path->nodes;
 	SVECTOR v;
+	FVECTOR up;
 	SPECFX *fx;
 	int c = nme->path->numNodes;
 	
@@ -401,12 +414,14 @@ int PathEffect(ENEMY *nme, int params)
 	while (c--)
 	{
 		GetPositionForPathNode(&v, node);
+		SetVectorFF( &up, &node->worldTile->normal );
 		if( p->clip )
-			fx = CreateSpecialEffect(p->type, &v, &node->worldTile->normal, p->size, p->speed, 0, p->lifetime);
+			fx = CreateSpecialEffect(p->type, &v, &up, p->size, p->speed, 0, p->lifetime);
 		else
-			fx = CreateSpecialEffectDirect(p->type, &v, &node->worldTile->normal, p->size, p->speed, 0, p->lifetime);
+			fx = CreateSpecialEffectDirect(p->type, &v, &up, p->size, p->speed, 0, p->lifetime);
 
 		if (fx) fx->gravity = p->accn;
+		node++;
 	}
 	return 1;
 }
@@ -415,12 +430,14 @@ int EnemyEffect(ENEMY *nme, int params)
 {
 	SCRIPT_EFFECT_PARAMS *p;
 	SPECFX *fx;
+	FVECTOR up;
+
+	SetVectorFF( &up, &nme->inTile->normal );
 	p = (SCRIPT_EFFECT_PARAMS*)params;
-		
 	if( p->clip )
-		fx = CreateSpecialEffect(p->type, &nme->nmeActor->actor->position, &nme->inTile->normal, p->size, p->speed, 0, p->lifetime);
+		fx = CreateSpecialEffect(p->type, &nme->nmeActor->actor->position, &up, p->size, p->speed, 0, p->lifetime);
 	else
-		fx = CreateSpecialEffectDirect(p->type, &nme->nmeActor->actor->position, &nme->inTile->normal, p->size, p->speed, 0, p->lifetime);
+		fx = CreateSpecialEffectDirect(p->type, &nme->nmeActor->actor->position, &up, p->size, p->speed, 0, p->lifetime);
 
 	if (fx) fx->gravity = p->accn;
 	return 1;
@@ -1021,7 +1038,8 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			TRIGGER *t;
 			int fNum, time;
-			GAMETILE *tile; 
+			GAMETILE *tile;
+			FVECTOR up;
 
 			fNum = MEMGETBYTE(p);
 			tile = GetEnemyFromUID(MEMGETWORD(p))->path->nodes->worldTile;
@@ -1042,7 +1060,8 @@ BOOL ExecuteCommand(UBYTE **p)
 			}
 #endif
 
-			CreateSpecialEffect( FXTYPE_FLASH, &frog[0]->actor->position, &currTile[0]->normal, 0, 16384, 1024, 2048 );
+			SetVectorFF( &up, &currTile[0]->normal );
+			CreateSpecialEffect( FXTYPE_FLASH, &frog[0]->actor->position, &up, 0, 12384, 512, 2048 );//16384, 1024, 2048 );
 			PlaySample( genSfx[GEN_TELEPORT], NULL, 0, SAMPLE_VOLUME, -1 );
 		
 			t = MakeTrigger( OnTimeout, (void *)(time), NULL, NULL, NULL );

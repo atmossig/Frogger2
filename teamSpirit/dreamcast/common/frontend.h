@@ -13,6 +13,7 @@
 
 
 #include "types2d.h"
+#include "actor2.h"
 
 typedef struct
 {
@@ -74,6 +75,10 @@ extern void CreateOverlaysFromLogo(const LOGO *logo, int x, int y);
 void DoEndMulti();
 void SlideSpriteOverlayToPos(SPRITEOVERLAY *s,long x,long y,long fromX,long fromY,long numFrames);
 void SlideTextOverlayToPos(TEXTOVERLAY *s,long x,long y,long fromX,long fromY,long numFrames);
+int GetAnimNum(ACTOR2 *actor);
+int GetAnimLoop(ACTOR2 *actor);
+void SetAnimLoop(ACTOR2 *actor,int loop);
+int ReachedEndOfAnim(ACTOR2 *actor);
 
 
 #ifdef __cplusplus

@@ -122,8 +122,8 @@ typedef struct _PLAYER
 	char			name[8];
 	unsigned char	character;
 
-	char			frogon;				// Which frog is on this one
-	char			frogunder;			// Which frog this one is on
+	short			frogon;				// Which frog is on this one
+	short			frogunder;			// Which frog this one is on
 
 //	unsigned long	score;
 	short			numSpawn;

@@ -506,6 +506,15 @@ enum
 	ROOBIE_STAK,
 	TANK_STAK,
 
+	MFROGGER_STAK,
+	MLILLIE_STAK,
+	MTAD_STAK,
+	MSWAMPY_STAK,
+	MTREEBY_STAK,
+	MWART_STAK,
+	MROOBIE_STAK,
+	MTANK_STAK,
+
 	GENERIC_STAK,
 
 	FRONTEND1_STAK,
@@ -643,6 +652,9 @@ extern WORLD_VISUAL_DATA	origWorldVisualData[MAX_WORLDS];
 extern unsigned char darkenedLevel;
 extern short lightIntensity;
 extern int	gameTextLang;
+
+extern short loadingDisplay;
+
 
 
 //----- [ FUNCTION PROTOTYPES ] -----

@@ -85,12 +85,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					//bb - crashes actorAnimate() when null actor
 					if(theActor)
 					{
-						if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
-						{
-							theActor->flags |= ACTOR_DRAW_ALWAYS;
-							theActor->depthShift = 0;
-						}
-
 						QuatToPSXMatrix ( &cur->rot, &theActor->actor->bffMatrix );
 						theActor->actor->qRot = cur->rot;						
 

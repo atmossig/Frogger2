@@ -56,6 +56,31 @@ void LoadObjectBank ( int objectBank )
 		case TANK_OBJ_BANK:
 					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TANK.PIL" );					
 				break;
+
+		case MFROGGER_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MFROGGER.PIL" );					
+				break;
+		case MLILLI_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MLILLI.PIL" );					
+				break;
+		case MTAD_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MTAD.PIL" );					
+				break;
+		case MSWAMPY_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MSWAMPY.PIL" );					
+				break;
+		case MTWEE_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MTWEE.PIL" );					
+				break;
+		case MWART_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MTOAD.PIL" );					
+				break;
+		case MROOBIE_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MROOBIE.PIL" );					
+				break;
+		case MTANK_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\MTANK.PIL" );					
+				break;
 	
 		case INGAMEGENERIC_OBJ_BANK:
 					sprintf ( BFFfileName, "OBJECTS\\GENERIC.BFF" );					

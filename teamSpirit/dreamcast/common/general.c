@@ -174,11 +174,12 @@ GAMETILE* FindNearestTileF(FVECTOR v)
 GAMETILE* FindNearestTileS(SVECTOR v)
 {
 	GAMETILE *t, *closest;
-	int dist, closestDist;
+	int dist, closestDist, i;
 
 	closest = NULL; closestDist = 500000;
 
-	for (t = firstTile; t != NULL; t = t->next)
+	t = firstTile;
+	for ( i = 0; i < tileCount; i++, t++ )
 	{
 		dist = DistanceBetweenPointsSS(&v, &t->centre)>>12;
 
@@ -293,10 +294,10 @@ GAMETILE *FindJoinedTileByDirectionAndType( GAMETILE *st, FVECTOR *d, int type )
 }
 
 // Which direction vector most closely matches the vector
-FVECTOR *FindClosestTileVector( GAMETILE *tile, FVECTOR *d )
+SVECTOR *FindClosestTileVector( GAMETILE *tile, FVECTOR *d )
 {
 	fixed distance = -100000, t;
-	FVECTOR *res;
+	SVECTOR *res;
 	int i;
 
 	for (i=0; i<4; i++)
@@ -329,8 +330,7 @@ void LoadSfxMapping( int world, int level )
 	long num, /*read, */index, type, i, count, uid;
 	int size;
 
-	return;
-	
+
 // JIM: UUuuuuurrrrrrrghhhhhhh - Random!
 /*
 #ifdef PSX_VERSION
@@ -374,7 +374,12 @@ void LoadSfxMapping( int world, int level )
 
 	// Directory and start of sfxmap filename
 //	strcpy( filename, baseDirectory );
+#ifdef PC_VERSION
 	strcpy( filename, "MAPS\\SFXANIM" );
+#endif
+#ifdef PSX_VERSION
+	strcpy( filename, "SFXANIM" );
+#endif
 	// World and level ids are part of the filename
 
 	// Represent level number in hex so we can have up to 16 levels instead of 10 in a world :)
@@ -408,7 +413,14 @@ void LoadSfxMapping( int world, int level )
 	CloseHandle(h);
 */
 
+#ifdef PC_VERSION
 	buffer = fileLoad(filename,&size);
+#endif
+
+#ifdef PSX_VERSION
+//ma	buffer = FindStakFileInAllBanks ( filename, &size );
+	buffer = fileLoad(filename,&size);
+#endif
 
 	if(buffer == NULL)
 		return;
@@ -464,7 +476,10 @@ void LoadSfxMapping( int world, int level )
 	sfx_anim_map[index] = NULL;
 
 //	FREE( filename );
+
+#ifdef PC_VERSION
 	FREE( buffer );
+#endif
 }
 
 

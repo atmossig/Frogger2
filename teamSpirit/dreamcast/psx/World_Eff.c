@@ -661,8 +661,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	// determine alpha value for the mesh
 	alpha = 255;
-	if((mesh->flags & ADDITIVE) || (mesh->flags & SUBTRACTIVE))
-		alpha = 128;		
+//	if((mesh->flags & ADDITIVE) || (mesh->flags & SUBTRACTIVE))
+//		alpha = 128;		
 
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
@@ -792,10 +792,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			vertices_GT4_FMA[3].fV = (float)v3 / 127.0;		
 			vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(op->r3,op->g3,op->b3,alpha);
 
-			if((tex->animated)||(alpha!=255)||(op->pad2 & 32)||(op->pad2 & 64))
+			if((tex->animated)/*||(alpha!=255)*/||(op->pad2 & 32)||(op->pad2 & 64)||(mesh->flags & ADDITIVE))
 			{
 				// check to see if alpha channel is to be used
-				if((tex->colourKey)||(alpha!=255))
+				if((tex->colourKey)/*||(alpha!=255)*/)
 				{
 					// change strip if required
 					if(op->tpage != stripGT4FMAtextureID_A)
@@ -951,10 +951,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			vertices_GT3_FMA[2].fV = v2 / 127.0;
 			vertices_GT3_FMA[2].uBaseRGB.dwPacked = RGBA(op->r2,op->g2,op->b2,alpha);
 
-			if((tex->animated)||(alpha!=255)||(op->pad2 & 32)||(op->pad2 & 64))
+			if((tex->animated)/*||(alpha!=255)*/||(op->pad2 & 32)||(op->pad2 & 64))
 			{
 				// check to see if alpha channel is to be used
-				if((tex->colourKey)||(alpha!=255))
+				if((tex->colourKey)/*||(alpha!=255)*/)
 				{
 					// change strip if required		
 					if(op->tpage != stripGT3FMAtextureID_A)

@@ -122,7 +122,7 @@ extern long TestDistanceFromFrog;
 
 #ifdef PSX_VERSION
 extern unsigned short globalClut;
-extern signed char actorShiftDepth;
+extern short actorShiftDepth;
 #endif
 extern ACTOR2 *backDropObject;
 
@@ -131,6 +131,9 @@ void DrawActorList ( void );
 void FreeActorList();
 void ResetUniqueActorList();
 void Orientate(IQUATERNION *me, FVECTOR *fd, FVECTOR *up);
+void OrientateSS(IQUATERNION *me, SVECTOR *fd, SVECTOR *up);
+void OrientateFS(IQUATERNION *me, FVECTOR *fd, SVECTOR *up);
+void OrientateSF(IQUATERNION *me, SVECTOR *fd, FVECTOR *up);
 
 void actor2Free(ACTOR2 *actor);
 

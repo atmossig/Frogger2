@@ -229,7 +229,6 @@ typedef struct
 
 // #define UpdateAmbientSounds()
 // //#define PTTextureLoad()
-#define LoadSfxMapping(a,b)		0
 // #define FreeAmbientSoundList()
 // #define InitAmbientSoundList()
 
@@ -251,9 +250,11 @@ void UpdateAmbientSounds();
 void InitAmbientSoundList();
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 void FreeAmbientSoundList( );
-void PrepareSong(short worldID);
+void PrepareSong(short worldID, int loop);
 void StopSong( );
 void PauseAudio( );
 void UnPauseAudio( );
+
+int IsSongPlaying();
 
 #endif

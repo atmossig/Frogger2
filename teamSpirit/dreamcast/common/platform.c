@@ -67,10 +67,6 @@
 #endif
 
 
-PLATFORMLIST platformList;								// the platform list
-PLATFORM *destPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
-PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
-
 void CalcNextPlatformDest(PLATFORM *plat);
 
 
@@ -112,11 +108,11 @@ PLATFORM *GetPlatformFromUID(long uid)
 	Info			: 
 */
 
-fixed waitScale = 5<<12;
+extern fixed waitScale;
 void UpdatePlatforms()
 {
 	PLATFORM *cur,*next;
-	int pl;
+	int pl,j;
 
 	if(platformList.count == 0)
 		return;
@@ -172,10 +168,22 @@ void UpdatePlatforms()
 
 				if( i<NUM_FROGS )
 				{
-					if( player[i].frogunder != (char)-1 )
-						SetVectorSS( &frog[player[i].frogunder]->actor->position, &cur->carrying->actor->position );
-					if( player[i].frogon != (char)-1 )
-						SetVectorSS( &frog[player[i].frogon]->actor->position, &cur->carrying->actor->position );
+					j = player[i].frogunder;
+					while(j != -1)
+					{
+						SetVectorSS( &frog[j]->actor->position, &cur->carrying->actor->position );
+						j = player[j].frogunder;
+					}
+					j = player[i].frogon;
+					while(j != -1)
+					{
+						SetVectorSS( &frog[j]->actor->position, &cur->carrying->actor->position );
+						j = player[j].frogon;
+					}
+//					if( player[i].frogunder != -1 )
+//						SetVectorSS( &frog[player[i].frogunder]->actor->position, &cur->carrying->actor->position );
+//					if( player[i].frogon != -1 )
+//						SetVectorSS( &frog[player[i].frogon]->actor->position, &cur->carrying->actor->position );
 				}
 			}
 		}
@@ -233,7 +241,7 @@ void UpdatePlatforms()
 
 							//utilPrintf("And Maybe Here : %d\n", pl); - wtf? - ds
 
-							CalculateFrogJump(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
+							CalculateFrogJumpS(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
 								t+1, pl);
 						}
 					}
@@ -251,8 +259,10 @@ void UpdatePlatforms()
 
 					if(cur->flags & PLATFORM_NEW_CRUMBLES)
 					{
-						CreateSpecialEffect(FXTYPE_SMOKEBURST, &act->position, &cur->inTile[0]->normal, 204800, 8192, 4096, 4096 );
-						CreateSpecialEffect(FXTYPE_SMOKEBURST, &act->position, &cur->inTile[0]->normal, 163840, 4096, 4096, 6144 );
+						FVECTOR n;
+						SetVectorFF(&n, &cur->inTile[0]->normal);
+						CreateSpecialEffect(FXTYPE_SMOKEBURST, &act->position, &n, 204800, 8192, 4096, 4096 );
+						CreateSpecialEffect(FXTYPE_SMOKEBURST, &act->position, &n, 163840, 4096, 4096, 6144 );
 					}
 				}
 			}
@@ -441,7 +451,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,fix
 	if( flags & PLATFORM_NEW_SHADOW )
 	{
 		initFlags |= INIT_SHADOW;
-		shadowRadius = 81920;
+		shadowRadius = 819200;
 	}
 
 	// create and add platform actor
@@ -507,20 +517,20 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,fix
 	if(newItem->flags & PLATFORM_NEW_FOLLOWPATH)
 	{
 		newItem->Update = UpdatePathPlatform;
-		Orientate( &newItem->pltActor->actor->qRot, &path->nodes->worldTile->dirVector[newItem->facing], &path->nodes->worldTile->normal );
+		OrientateSS( &newItem->pltActor->actor->qRot, &path->nodes->worldTile->dirVector[newItem->facing], &path->nodes->worldTile->normal );
 	}
 	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 	{
 		newItem->Update = UpdateUpDownPlatform;
-		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if(newItem->flags & PLATFORM_NEW_STEPONACTIVATED)
 	{
 		newItem->Update = UpdateStepOnActivatedPlatform;
-		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 	else if( (newItem->flags & PLATFORM_NEW_NONMOVING) || (newItem->pltActor->actor && newItem->path && newItem->path->nodes) )
-		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+		OrientateSS( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 
 	AddPlatform(newItem);
 	return newItem;
@@ -605,9 +615,9 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 	//if( !(pform->flags & PLATFORM_NEW_NOREORIENTATE) )
 	//{
 		if (!(pform->flags & PLATFORM_NEW_FACEFORWARDS))
-			Orientate(&pform->pltActor->actor->qRot, &fwd, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
+			OrientateFS(&pform->pltActor->actor->qRot, &fwd, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
 		else
-			Orientate( &pform->pltActor->actor->qRot, &pform->path->nodes->worldTile->dirVector[pform->facing], &pform->path->nodes->worldTile->normal );
+			OrientateSS( &pform->pltActor->actor->qRot, &pform->path->nodes->worldTile->dirVector[pform->facing], &pform->path->nodes->worldTile->normal );
 	//}
 
 	// set platform current 'in' tile and speeds and pause times
@@ -693,11 +703,11 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 			SubVectorFSS(&fwd, &toNode->worldTile->centre, &fromNode->worldTile->centre);
 			MakeUnit(&fwd);
 
- 			Orientate(&pform->destOrientation, &fwd, &toNode->worldTile->normal);
+ 			OrientateFS(&pform->destOrientation, &fwd, &toNode->worldTile->normal);
 		}
 		else
 		{
-			Orientate( &pform->destOrientation, &pform->path->nodes->worldTile->dirVector[pform->facing], &toNode->worldTile->normal );
+			OrientateSS( &pform->destOrientation, &pform->path->nodes->worldTile->dirVector[pform->facing], &toNode->worldTile->normal );
 		}
 	}
 }
@@ -869,10 +879,12 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 	// check if this platform has arrived at a path node
 	if( actFrameCount > plat->path->endFrame )
 	{
-		UpdatePlatformPathNodes(plat);
+		do {
+			UpdatePlatformPathNodes(plat);
 
-		plat->path->startFrame = plat->path->endFrame + ((plat->isWaiting*waitScale)>>12);
-		plat->path->endFrame = plat->path->startFrame + ((plat->currSpeed*60)>>12);
+			plat->path->startFrame = plat->path->endFrame + ((plat->isWaiting*waitScale)>>12);
+			plat->path->endFrame = plat->path->startFrame + ((plat->currSpeed*60)>>12);
+		} while (actFrameCount > plat->path->endFrame);
 
 		for( i=0; i<NUM_FROGS; i++ )
 			if( plat == currPlatform[i] )
@@ -1021,7 +1033,8 @@ void SetPlatformMoving(PLATFORM *plt, int moving)
 			plt->path->startFrame = actFrameCount;
 			plt->path->endFrame = actFrameCount + ((60*plt->currSpeed)>>12);
 		}
-		//plt->Update(plt);
+		
+		if (plt->Update) plt->Update(plt);
 	}
 	else
 	{
@@ -1072,11 +1085,11 @@ int MovePlatformToNode(PLATFORM *plt, int flag)
 				SubVectorFSS( &fwd, &plt->path->nodes[(flag+1)%plt->path->numNodes].worldTile->centre, &plt->inTile[0]->centre );
 				MakeUnit(&fwd);
 
- 				Orientate(&plt->destOrientation, &fwd, &plt->inTile[0]->normal);
+ 				OrientateFS(&plt->destOrientation, &fwd, &plt->inTile[0]->normal);
 			}
 			else
 			{
-				Orientate(&plt->destOrientation, &plt->path->nodes->worldTile->dirVector[plt->facing], &plt->inTile[0]->normal);
+				OrientateSS(&plt->destOrientation, &plt->path->nodes->worldTile->dirVector[plt->facing], &plt->inTile[0]->normal);
 			}
 
 			plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;

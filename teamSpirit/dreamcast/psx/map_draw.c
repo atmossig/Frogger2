@@ -454,7 +454,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	
 //	polyCount += mesh->n_gt3s;
 
-	return;
+//	return;
 	
 	opspr = mesh->sprs;
 	

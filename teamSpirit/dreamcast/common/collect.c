@@ -77,11 +77,14 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 {
 	GARIB *garib, *next;
 	SVECTOR *check;
+
+	if( player[pl].frogState & FROGSTATUS_ISDEAD )
+		return;
 	
 	//Allows the babies to be picked up again after the "Go to next baby" debug button is
 	//pressed. 
- 	if (!( tile[pl].state & TILESTATE_OCCUPIED) &&(player[0].frogState & FROGSTATUS_ISDEBUG)) //mmtemp
- 		player[0].frogState &= ~FROGSTATUS_ISDEBUG; //mmtemp
+// 	if (!( tile[pl].state & TILESTATE_OCCUPIED) &&(player[0].frogState & FROGSTATUS_ISDEBUG)) //mmtemp
+// 		player[0].frogState &= ~FROGSTATUS_ISDEBUG; //mmtemp
 
 	// check current tile for a garib
 	for(garib = garibList.head.next; garib != &garibList.head; garib = next)
@@ -142,7 +145,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			player[pl].numSpawn+=5;
 
 		case SILVERCOIN_GARIB:
-			if(gameState.multi == SINGLEPLAYER)
+			if(gameState.multi == SINGLEPLAYER && gameState.mode != DEMO_MODE )
 			{
 				arcadeHud.coinZoom->draw = 1;
 				arcadeHud.coinZoom->xPosTo = arcadeHud.coinsOver->xPos;
@@ -155,6 +158,9 @@ void PickupCollectable(GARIB *garib, int pl)
 			}
 
 			player[pl].numSpawn++;
+			if((gameState.multi == SINGLEPLAYER) && (player[pl].numSpawn == 25))
+				arcadeHud.coinsOver->tex = FindTexture("COINMEDAL");
+
 
 			// we need to get the up vector for this collectable...
 			SetVectorFF(&seUp, &upVec);

@@ -94,7 +94,7 @@ TIMER modeTimer;
 void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID);
 
 // Switch for irritating swingy camera
-unsigned char swingCam = 0;
+//unsigned char swingCam = 0;
 
 //SPRITEOVERLAY *flogo[10];
 ACTOR2 *backGnd;
@@ -314,7 +314,7 @@ void GameProcessController(long pl)
 
 		// ------------------- DOUBLE JUMP -------------------------
 
-		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped )
+		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped && destTile[pl]->state != TILESTATE_NOSUPER)
 		{
 			GAMETILE *old;
 			int oldCamFacing;
@@ -346,7 +346,7 @@ void GameProcessController(long pl)
 
 				// ds - MoveTo.. should set frogFacing/nextFrogFacing correctly?
 				//frogFacing[pl] = (dir+camFacing[pl]) &3;
-				Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &old->normal );
+				OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &old->normal );
 				/*nextFrogFacing[pl] =*/ 
 				player[pl].extendedHopDir = dir;
 				actorAnimate(frog[pl]->actor,FROG_ANIM_SOMERSAULT,NO,NO,75,0);
@@ -391,7 +391,7 @@ void GameProcessController(long pl)
 		{
 			// Check if the player can jump.. if not, check if we're just hopping..
 			// .. but only if we're not sliding! Good heavens.
-			if (player[pl].canJump ||
+			if (player[pl].canJump || 
 			   (player[pl].frogState & (FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM) &&
 			   !(player[pl].frogState & FROGSTATUS_ISSLIDING)))
 			{
@@ -440,6 +440,12 @@ void GameProcessController(long pl)
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 			GTInit( &player[pl].isCroaking, 2 );
 
+			if( player[pl].character != FROG_HOPPER )
+			{
+				actorAnimate( frog[pl]->actor, FROG_ANIM_BIGHEAD, NO, NO, 64, 0 );
+				actorAnimate( frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, 0 );
+			}
+
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
 			idleCamera = 0;
@@ -475,7 +481,7 @@ void GameProcessController(long pl)
 				bby %= numBabies;
 				if(bTStart[bby])
 					SetFroggerStartPos(bTStart[bby],pl);
-				player[pl].frogState |= FROGSTATUS_ISDEBUG;//mmtemp
+//				player[pl].frogState |= FROGSTATUS_ISDEBUG;//mmtemp
 			}
 		}
 	}
@@ -498,17 +504,27 @@ void GameProcessController(long pl)
 
 char* oldStackPointer;
 long startCam = 0;
+TIMER endLevelTimer;
 
 void RunGameLoop (void)
 {
 	unsigned long i;
-	GAMETILE *cur;
+//	GAMETILE *cur;
 	
+
+	if(player[0].numSpawn == 25)
+	{
+		arcadeHud.coinsOver->r = arcadeHud.coinsText->r = 127+((rsin(actFrameCount*4000)+4096)*64)/4096;
+		arcadeHud.coinsOver->g = arcadeHud.coinsText->g = 127+((rcos(actFrameCount*4000)+4096)*64)/4096;
+		arcadeHud.coinsOver->b = arcadeHud.coinsText->b = 0;
+	}
+
 	if( frameCount==2 )
 	{
 		ScreenFade(0,255,30);
 		keepFade = 0;
 		startCam = 1;
+		GTInit( &endLevelTimer, 0 );
 	}
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
@@ -546,19 +562,36 @@ void RunGameLoop (void)
 
 	TIMER_START3(TIMER_TOTAL);
 
-	if ( babiesSaved==numBabies && numBabies && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum ].multiPartLevel == NO_MULTI_LEV) )
+	if( endLevelTimer.time )
 	{
-		camDist.vx	= 0*SCALE;
-		camDist.vy	= 680*SCALE;
-		camDist.vz	= 192*SCALE;
+		GTUpdate( &endLevelTimer, -1 );
+		if( !endLevelTimer.time )
+		{
+			cheatCombos[CHEAT_SKIP_LEVEL].state = 0;
+			camDist.vx	= 0*SCALE;
+			camDist.vy	= 680*SCALE;
+			camDist.vz	= 192*SCALE;
 
-		gameState.mode = LEVELCOMPLETE_MODE;
-		
-		//bb put this line back in
-		levelTime = actFrameCount;
+			gameState.mode = LEVELCOMPLETE_MODE;
+			
+			//bb put this line back in
+			levelTime = actFrameCount;
 
-		GTInit( &modeTimer, 8 );
-		StartLevelComplete();
+			GTInit( &modeTimer, 8 );
+			StartLevelComplete();
+			return;
+		}
+
+		UpdateBabies( );
+		UpdateSpecialEffects( );
+		return;
+	}
+
+	if ((cheatCombos[CHEAT_SKIP_LEVEL].state) || ( babiesSaved==numBabies && numBabies && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum ].multiPartLevel == NO_MULTI_LEV) ))
+	{
+		GTInit( &endLevelTimer, 3 );
+		PrepareSong ( AUDIOTRK_LEVELCOMPLETE, NO );
+		return;
 	}
 	else
 	{
@@ -627,31 +660,31 @@ void RunGameLoop (void)
 
 	TIMER_START3(TIMER_UP_PLAT);
 #ifdef PSX_VERSION
-//	oldStackPointer = SetSp(0x1f800400);
+//ma	oldStackPointer = SetSp(0x1f800400);
 #endif
 	UpdatePlatforms();
 #ifdef PSX_VERSION
-//	SetSp(oldStackPointer);
+//ma	SetSp(oldStackPointer);
 #endif
 	TIMER_STOP_ADD3(TIMER_UP_PLAT);
 
 	TIMER_START3(TIMER_UP_ENEM);
 #ifdef PSX_VERSION
-//	oldStackPointer = SetSp(0x1f800400);
+//ma	oldStackPointer = SetSp(0x1f800400);
 #endif
 	UpdateEnemies();
 #ifdef PSX_VERSION
-//	SetSp(oldStackPointer);
+//ma	SetSp(oldStackPointer);
 #endif
 	TIMER_STOP_ADD3(TIMER_UP_ENEM);
 
 	TIMER_START3(TIMER_UP_SPEC);
 #ifdef PSX_VERSION
-//	oldStackPointer = SetSp(0x1f800400);
+//ma	oldStackPointer = SetSp(0x1f800400);
 #endif
 	UpdateSpecialEffects();
 #ifdef PSX_VERSION
-//	SetSp(oldStackPointer);
+//ma	SetSp(oldStackPointer);
 #endif
 	TIMER_STOP_ADD3(TIMER_UP_SPEC);
 
@@ -688,7 +721,7 @@ void RunGameLoop (void)
 //			SendUpdateMessage( );
 
 #ifndef E3_DEMO
-#ifdef SHOW_ME_THE_TILE_NUMBERS
+/*#ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers
 	TIMER_START3(TIMER_TILENUM);
 	cur = &firstTile[0];
@@ -715,7 +748,7 @@ void RunGameLoop (void)
  			else
 				sprintf(tileString,"");
  		}
-#endif
+#endif*/
 #endif
 	TIMER_STOP_ADD3(TIMER_TOTAL);
 }

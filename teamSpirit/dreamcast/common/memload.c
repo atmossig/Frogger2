@@ -95,8 +95,8 @@ int MemLoadEntities(const void* data)
 	UBYTE thing;
 	UBYTE *p = (UBYTE*)data;
 	PATH *pathList;
-	int n, count, i,
-		totalPathNodes, totalEnemies, totalPlatforms, totalGaribs, totalCameraCases, totalPlaceholders;
+	int n, count,i;
+	int totalPathNodes, totalEnemies, totalPlatforms, totalGaribs, totalCameraCases, totalPlaceholders;
 
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
@@ -199,7 +199,7 @@ int MemLoadEntities(const void* data)
 		case CREATE_PLATFORM:
 		case CREATE_PLACEHOLDER:
 			{
-				signed char type[20], depthShift, dffClipping;
+				signed char type[32], depthShift, dffClipping;
 //bb
 //				int count, flags, numNodes, startNode, n, ID, effects, pathIndex;
 				unsigned char facing;
@@ -245,7 +245,7 @@ int MemLoadEntities(const void* data)
 
 				switch (thing)
 				{
-				case CREATE_ENEMY:				
+				case CREATE_ENEMY:
 #ifdef MEMLOAD_PRINT_ENTITIES
 					utilPrintf("Enemy: %s (ID %d)..", type, ID);
 #endif
@@ -267,7 +267,7 @@ int MemLoadEntities(const void* data)
 					if (!enemy)
 						utilPrintf("failed!\n");
 					else
-						act = enemy->nmeActor;				
+						act = enemy->nmeActor;
 					break;
 
 				case CREATE_PLACEHOLDER:
@@ -339,10 +339,6 @@ int MemLoadEntities(const void* data)
 
 #ifdef MEMLOAD_PRINT_ENTITIES
 				utilPrintf("ok\n");
-#endif
-
-#ifdef PSX_VERSION
-				utilPrintf ( "Depth Shift=%d  dffClipping=%d\n", depthShift, dffClipping );
 #endif
 				break;
 			}

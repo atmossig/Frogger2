@@ -3,7 +3,7 @@
 
 #include "tongue.h"
 
-void DrawTongueSegment ( SVECTOR *vt, TextureType *tEntry );
+void DrawTongueSegment(SVECTOR *vt, TextureType *tEntry, unsigned char r, unsigned char g, unsigned char b );
 
 void CalcTongueNodes(SVECTOR *vT, int pl, int i);
 

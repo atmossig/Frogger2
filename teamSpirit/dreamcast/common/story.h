@@ -31,7 +31,16 @@ enum
 	FMV_TELEPORT_TO_EARTH,
 	FMV_ENTER_HAUNTED_HOUSE,
 	FMV_LILLIE_IN_CAGE,
+	NUM_FMV_SEQUENCES,
 };
+
+typedef struct
+{
+	char	name[16];
+	int		len;
+}FMV_DATA;
+
+extern FMV_DATA fmv[NUM_FMV_SEQUENCES];
 
 typedef struct
 {
@@ -43,7 +52,6 @@ extern GAME_LEVEL storySequence[];
 
 extern unsigned long currentChapter;
 
-void RunFMVMode(void);
 void StoryStartLevel(void);
 
 #ifdef __cplusplus

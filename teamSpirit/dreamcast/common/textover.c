@@ -33,9 +33,6 @@ long grabToTexture = 0;
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
-TEXTOVERLAYLIST	textOverlayList;			// the text overlay linked list
-
-
 //----- [ TEXTOVERLAY HANDLING ] ---------------------------------------------------------------//
 
 /*	--------------------------------------------------------------------------------
@@ -174,12 +171,12 @@ void PrintTextOverlays()
 	if(textOverlayList.numEntries == 0)
 		return;
 
-	for(cur=textOverlayList.block, n=textOverlayList.numEntries; n; cur++, n--)
+	for(cur=textOverlayList.block, n=textOverlayList.alloc; n; cur++, n--)
 	{
 
-		if((cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED)))
+		if((cur->used) && (cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED)))
 		{
-			if (cur->speed)
+			if(cur->speed)
 			{
 				fixed spd = FMul(gameSpeed, cur->speed)>>12;
 

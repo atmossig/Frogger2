@@ -76,24 +76,76 @@
 //short bb_acostable[4097];	//0->4096 inclusive. Stores PSX angles
 //short bb_acostable[8193];	//-4096->4096 inclusive. Stores PSX angles
 
-unsigned int xseed = (7789<<16)+13399;	
-
-VECTOR zero = {0, 0, 0};
-//FLVECTOR flZero = {0, 0, 0};
-//QUATERNION zeroQuat = {0,0,0,1};
-//QUATERNION vertQ = {0,1,0,0};
-IQUATERNION vertQ = {0,4096,0,0};
-// MATRIXSTACK	matrixStack;
-// MATRIXSTACK	rMatrixStack;
-
-FVECTOR upVec	= {0,4096,0};
-FVECTOR inVec	= {0,0,4096};
-FVECTOR outVec	= {0,0,-4096};
-FVECTOR rightVec= {4096,0,0};
-
 #define COPYVECTOR(U,V){	(U)->vx=(V)->vx; \
 							(U)->vy=(V)->vy; \
 							(U)->vz=(V)->vz; }
+
+void fixedRotateVectorByRotationS(FVECTOR *result, SVECTOR *vect, IQUATERNION *rot)
+{
+	fixed	m,n,sinTheta,cosTheta;
+	FVECTOR	mVec,pVec,vVec;
+
+//bbopt
+//   	m  = FMul(vect->vx, rot->x);
+//   	m += FMul(vect->vy, rot->y);
+//   	m += FMul(vect->vz, rot->z);
+  	m  = (vect->vx * rot->x) >>12;
+  	m += (vect->vy * rot->y) >>12;
+  	m += (vect->vz * rot->z) >>12;
+
+	// quats are in 4096 format
+
+//	m/=4096;	// I think this is needed
+
+//bbopt
+//   	mVec.vx = FMul(m, rot->x);
+//   	mVec.vy = FMul(m, rot->y);
+//   	mVec.vz = FMul(m, rot->z);
+  	mVec.vx = (m * rot->x) >>12;
+  	mVec.vy = (m * rot->y) >>12;
+  	mVec.vz = (m * rot->z) >>12;
+
+	SubVectorFSF(&pVec,vect,&mVec);
+	
+	// This version does scale down
+	CrossProductFFF(&vVec, (FVECTOR *)rot, &pVec);
+
+	m = MagnitudeF(&pVec);
+
+	if(m == 0)
+	{
+		COPYVECTOR(result,vect);
+	}
+	else
+	{
+		n = MagnitudeF(&vVec);
+		if(n)
+		{
+//			m = m*4096;
+//			m /= n;
+			m = FDiv(m, n);
+//			SCALEVECTOR(&vVec,m);
+			vVec.vx = FMul(vVec.vx, m);
+			vVec.vy = FMul(vVec.vy, m);
+			vVec.vz = FMul(vVec.vz, m);
+		}
+
+		cosTheta = rcos(rot->w);	// could the problem be a radians to fixed problem?
+		sinTheta = rsin(rot->w);
+
+//		result->vz = (mVec.vx + ((cosTheta * pVec.vx)/4096) + ((sinTheta * vVec.vx)/4096) );
+//		result->vy = (mVec.vy + ((cosTheta * pVec.vy)/4096) + ((sinTheta * vVec.vy)/4096) );
+//		result->vz = (mVec.vz + ((cosTheta * pVec.vz)/4096) + ((sinTheta * vVec.vz)/4096) );
+
+//bbopt
+  		result->vx = mVec.vx + FMul(cosTheta, pVec.vx) + FMul(sinTheta, vVec.vx);
+  		result->vy = mVec.vy + FMul(cosTheta, pVec.vy) + FMul(sinTheta, vVec.vy);
+  		result->vz = mVec.vz + FMul(cosTheta, pVec.vz) + FMul(sinTheta, vVec.vz);
+//  		result->vx = mVec.vx + ((cosTheta * pVec.vx)>>12) + ((sinTheta, vVec.vx)>>12);
+//  		result->vy = mVec.vy + ((cosTheta * pVec.vy)>>12) + ((sinTheta, vVec.vy)>>12);
+//  		result->vz = mVec.vz + ((cosTheta * pVec.vz)>>12) + ((sinTheta, vVec.vz)>>12);
+	}
+}
 
 void fixedQuaternionMultiply(IQUATERNION *dest,IQUATERNION *src1,IQUATERNION *src2)
 {
@@ -390,6 +442,7 @@ fixed DistanceBetweenPointsSF(SVECTOR *v1, FVECTOR *v2)
 {
 	FVECTOR tempVect;
 
+	//ScaleVectorFF ( &tempVect, 4096 );
 	SubVectorFSF(&tempVect,v1,v2);
 	return MagnitudeF(&tempVect);
 }
@@ -826,7 +879,6 @@ void MakeUnit(FVECTOR *vect)
 
 
 	ULONG x,y,z,calc;
-	ULONG l;
 	ULONG num;
 	ULONG up;
 //	ULONG s=0;
@@ -1540,7 +1592,7 @@ void Init_BB_AcosTable()
 // 	}
 }
 
-void NormalToQuaternion(IQUATERNION *q, FVECTOR *normal)
+void NormalToQuaternion(IQUATERNION *q, SVECTOR *normal)
 {
 	if(normal->vx)
 	{
@@ -1586,12 +1638,75 @@ void NormalToQuaternion(IQUATERNION *q, FVECTOR *normal)
 /*	-------------------------------------------------------------------------------------
 	Function:	NormaliseQuaternion
 
-	Really inefficient! Another 'functionality over efficiency' thing, if it's used a lot
-	it'd be worth copying the code from MakeUnit and doing it in four dimensions
+	Based on MakeUnit only in 4 dimensions!
 */
-void NormaliseQuaternion(IQUATERNION* q)
+void NormaliseQuaternion(IQUATERNION *vect)
 {
-	fixed a_sqr, drift, mg;
+	int tb,d;
+	long n;
+	long m;
+
+	ULONG x,y,z,w,calc;
+	ULONG num;
+	ULONG up;
+	int s=0;
+
+	x=Fabs(vect->x);
+	num=x;
+
+	y=Fabs(vect->y);
+	num|=y;
+
+	z=Fabs(vect->z);
+	num|=z;
+
+	w=Fabs(vect->w);
+	num|=w;
+
+	n = num;
+
+	while(num > 26754)
+	{
+		num = num>>2;
+		s+=2;
+	}
+	x=(x)>>s;
+	y=(y)>>s;
+	z=(z)>>s;
+
+	calc=x*x+y*y+z*z+w*w;
+	up=16-s;
+	m = utilSqrt(calc) >> up;
+
+	if(m != 0)
+	{
+		for(tb=31; !(n&0x80000000); tb--)
+		{
+			n<<=1;
+		}
+
+		if(tb>18)
+		{
+			s=30-tb;
+			d=tb-18;
+			vect->x= (vect->x<<s)/(m>>d);
+			vect->y= (vect->y<<s)/(m>>d);
+			vect->z= (vect->z<<s)/(m>>d);
+			vect->w= (vect->w<<s)/(m>>d);
+		}
+		else
+		{
+			vect->x= (vect->x<<12)/m;
+			vect->y= (vect->y<<12)/m;
+			vect->z= (vect->z<<12)/m;
+			vect->w= (vect->w<<12)/m;
+		}
+	}
+}
+
+/*void NormaliseQuaternion(IQUATERNION* q)
+{
+	fixed a_sqr;
 
 //	MakeUnit((FVECTOR*)&q->x);
 	
@@ -1599,22 +1714,22 @@ void NormaliseQuaternion(IQUATERNION* q)
 
 	if (a_sqr)
 	{
-		if (abs(65536-a_sqr) > 1024)	// friendly threshold
-		{
+		//if (a_sqr < (65536-256) || a_sqr > (65536+256))	// friendly threshold
+		//{
 			a_sqr = utilSqrt(a_sqr)>>12;
 
 			q->x = FDiv(q->x, a_sqr);
 			q->y = FDiv(q->y, a_sqr);
 			q->z = FDiv(q->z, a_sqr);
 			q->w = FDiv(q->w, a_sqr);
-		}
+		//}
 	}
 	else
 	{
 		q->w = 4096;
 	}
 
-/*
+
 	if (q->w < -4096)
 		q->w = -4096;
 	else if (q->w > 4096)
@@ -1628,11 +1743,11 @@ void NormaliseQuaternion(IQUATERNION* q)
 		q->y = (mg * q->y)>>12;
 		q->z = (mg * q->z)>>12;
 	}
-*/
+
 	//drift = ((q->w*q->w)>>12 + a_sqr) - 4096;
 	//q->w = FsqrtF(4096 - a_sqr);
 }
-
+*/
 
 
 #ifdef PSX_VERSION
@@ -1704,10 +1819,10 @@ void TransformPoint(SVECTOR *pos,short *scrX,short *scrY)
 	MDX_VECTOR p,scr;
 
 	SetVectorRS(&p, pos);
-	ScaleVector(&p,0.1);
+	ScaleVector(&p,0.1f);
 	XfmPoint(&scr,&p,NULL);
-	*scrX = (scr.vx*4096.0)/rXRes;
-	*scrY = (scr.vy*4096.0)/rYRes;
+	*scrX = (short)((scr.vx*4096.0f)/rXRes);
+	*scrY = (short)((scr.vy*4096.0f)/rYRes);
 }
 #else
 void TransformPoint(SVECTOR *pos,short *scrX,short *scrY)

@@ -47,6 +47,8 @@ extern int fogStore;
 
 
 extern int quittingLevel;
+extern short titleHudY[2][4];
+extern SPRITEOVERLAY *titleHud[4];
 
 typedef struct
 {
@@ -63,6 +65,8 @@ enum
 	CHEAT_INFINITE_LIVES,
 	CHEAT_OPEN_ALL_CHARS,
 	CHEAT_OPEN_ALL_EXTRAS,
+	CHEAT_INVULNERABILITY,
+	CHEAT_SKIP_LEVEL,
 	NUMCHEATCOMBOS,
 };
 

@@ -25,7 +25,7 @@ void LoadTextureBank ( int textureBank )
 	char fileName[256];
 	char titFileName[256];
 	unsigned char *p, *textureAnims;
-
+	
 	TEXTUREANIM *textureAnim;
 
 	short numAnimations = 0;
@@ -186,7 +186,7 @@ void LoadTextureAnimBank ( int textureBank )
 				sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" );
 			break;
 	}
-	// ENDSWITCH - textureBank
+	// ENDSWITCH - textureBank6
 
 	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
 

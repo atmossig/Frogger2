@@ -51,7 +51,7 @@ KTBOOL StreamSetup(char *filename, int loop)
 	gdFsChangeDir("\\");
 //	gdFsChangeDir("MUSIC");
 	
-	if (!amHeapAlloc(&gPlayBuffer, gPlayBufferSize, 32,	AM_PURGABLE_MEMORY,KTNULL))
+/*	if (!amHeapAlloc(&gPlayBuffer, gPlayBufferSize, 32,	AM_PURGABLE_MEMORY,KTNULL))
 	{
 		return (KTFALSE);
 	}
@@ -79,7 +79,7 @@ KTBOOL StreamSetup(char *filename, int loop)
 	}
 
 	// prepare the stream
-
+*/
 	gStream = bpAmStreamPrepareFile(filename, 64/*127*/,
 		AM_PAN_CENTER, gHeaderBuffer, gTransferBuffer, gTransferBufferSize,
 		gPlayBuffer, gPlayBufferSize, KTNULL);
@@ -127,12 +127,12 @@ void ReplayStream(void)
 KTBOOL StreamDestroy()
 {
 	// free sound mem buffer
-	if(gPlayBuffer)
+/*	if(gPlayBuffer)
 	{
 		amHeapFree(gPlayBuffer);
 	}
 
-/*	// free transfer buffer
+	// free transfer buffer
 	if(gTransferBuffer)
 	{
 		syFree(gTransferBuffer);
@@ -146,6 +146,8 @@ KTBOOL StreamDestroy()
 	}
 */
 	currentStreamFilename[0] = 0;
+	
+	return TRUE;
 }
 
 

@@ -108,21 +108,20 @@ void InitBabyList( unsigned char createOverlays )
 	babyFlash = NULL;
 	if ( createOverlays )
 	{
-		char name[12];
-
 #ifdef PSX_VERSION
 		babyFlash = CreateAndAddSpriteOverlay( (230+(i*200)),190+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,0,SPRITE_ADDITIVE);
 #else
+//		char name[12];
 		babyFlash = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,0,SPRITE_ADDITIVE);
 #endif
 		for(i=0; i<numBabies; i++)
 		{
-//			sprintf( name, "0%iBABYIC", i );
-			sprintf( name, "0%iBABYIC", 0 );
 #ifdef PSX_VERSION
-			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),190+BORDER,name,(4096*24)/640,(4096*24)/480,60,0);
+			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),190+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,60,0);
 #else
-			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,name,(4096*24)/640,(4096*24)/480,60,0);
+//			sprintf( name, "0%iBABYIC", i );
+//			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,name,(4096*24)/640,(4096*24)/480,60,0);
+			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,60,0);
 #endif
 			babyIcons[i]->num = 1;
 			babyIcons[i]->r = babyList[i].fxColour[R];
@@ -179,8 +178,8 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 
 	babyList[i].isSaved	= 1;
 	babyList[i].collect = 40;
-	if( babiesSaved == numBabies-1 )
-		baby->draw = 0;
+//	if( babiesSaved == numBabies-1 )
+//		baby->draw = 0;
 
 	lastBabySaved = i;
 
@@ -207,8 +206,8 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	startFrogFacing = frogFacing[0];
 
 	// Make a noise (weeble weeble) and do some snazzy effects (*zing!*)
-	PlaySample( genSfx[GEN_COLLECT_BABY], &baby->actor->position, 0, SAMPLE_VOLUME, -1 );//mmsfx
 	PlayVoice(0, "frogokay");
+	PlaySample( genSfx[GEN_COLLECT_BABY], NULL, 0, SAMPLE_VOLUME, -1 );//mmsfx
 
 	BabyCollectEffect( baby, tile, i );
  	
@@ -316,7 +315,7 @@ void UpdateBabies( )
 
 			MakeUnit( &frogV );
 			SetQuaternion(&q,&act->qRot);
-			Orientate( &act->qRot, &frogV, &currTile[0]->normal );
+			OrientateFS( &act->qRot, &frogV, &currTile[0]->normal );
 			speed = gameSpeed/5;
 			if( speed > 4090 ) speed = 4090;
 			IQuatSlerp( &q, &act->qRot, speed, &act->qRot );
@@ -352,17 +351,21 @@ void UpdateBabies( )
 			SVECTOR pos;
 
 			actorAnimate( act, BABY_ANIM_TWOWAVE, NO, NO, 102, 0 );
-			SetVectorFF( &up, &upVec );
+			SetVectorFF( &up, &babyList[i].enemy->inTile->normal );
 			ScaleVector( &up, 20 );
 			AddVectorSFS( &pos, &up, &act->position );
+			SetVectorFF( &up, &currTile[0]->normal );
 
-#ifndef PSX_VERSION
-			if( gameState.multi == SINGLEPLAYER && (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[0]->normal, 81920, 4096, 410, 6144 )) )
+			if( gameState.multi == SINGLEPLAYER )
 			{
-				fx->spin = 25;
-				SetFXColour( fx, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
+				PrepForPriorityEffect( );
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &up, 81920, 4096, 410, 6144 )) )
+				{
+					fx->spin = 25;
+					SetFXColour( fx, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
+				}
 			}
-#endif
+
 			PlaySample( genSfx[GEN_BABYCRY], NULL, 0, SAMPLE_VOLUME, -1 );
 			babyList[i].idle = 0;
 		}
@@ -398,25 +401,25 @@ void RunBabyCollect( int bby )
 	if( babyList[bby].collect < 1 )
 	{
 		SPECFX *fx;
-		if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 204800, 12288, 0, 20480 )) )
+		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 204800, 12288, 0, 20480 )) )
 		{
 			SetFXColour( fx, babyList[bby].fxColour[0], babyList[bby].fxColour[1], babyList[bby].fxColour[2] );
 			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
-		if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 163840, 1240, 0, 24576 )) )
+		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 163840, 1240, 0, 24576 )) )
 		{
 			SetFXColour( fx, 220, 220, 220 );
 			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
-		if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 122880, 8192, 0, 28672 )) )
+		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 122880, 8192, 0, 28672 )) )
 		{
 			SetFXColour( fx, babyList[bby].fxColour[0], babyList[bby].fxColour[1], babyList[bby].fxColour[2] );
 			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
-		if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 81920, 6144, 0, 32768 )) )
+		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 81920, 6144, 0, 32768 )) )
 		{
 			SetFXColour( fx, 220, 220, 220 );
 			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );

@@ -208,6 +208,10 @@ void CreatePickupEffect( int pl, char r1, char g1, char b1, char r2, char g2, ch
 void CreateLightningEffect( SVECTOR *p1, SVECTOR *p2, unsigned long effects, long life, int zDepthOff);
 void CreateRingEffect( int i );
 void BabyCollectEffect( ACTOR2 *baby, GAMETILE *tile, int i );
+void CreateExplodeEffect( SVECTOR *pos, FVECTOR *normal );
+void CreateRespawnEffect( GAMETILE *tile, int pl );
+
+void PrepForPriorityEffect( );
 
 #ifdef __cplusplus
 }

@@ -23,12 +23,14 @@
 #include "levplay.h"
 #include "overlays.h"
 #include "hud.h"
+#include "fadeout.h"
 
 #ifdef DREAMCAST_VERSION
 #include "main.h"
 #endif
 
 #define DEMO_TIMEOUT	25
+#define NUM_DEMOS		3
 
 unsigned long playKeyCount;
 unsigned long curPlayKey;
@@ -45,6 +47,17 @@ int demoLevels[NUM_DEMOS][2] = {
 
 int nextDemo = 0;
 
+void LoadDemoFile(int world, int level)
+{
+	char filename[128]; int count;
+	sprintf(filename, "DEMOS\\RECORD-%lu-%lu.KEY", world, level);
+	
+	playKeyList = (unsigned long*)fileLoad(filename, &count);
+	
+	if (playKeyList)
+		playKeyCount = count / (3*4);
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: RunDemoLoop
 	Purpose			: Runs the demo-mode game loop
@@ -53,8 +66,7 @@ int nextDemo = 0;
 */
 void InitDemoMode()
 {
-	int count, world, level;
-	char filename[128];
+	int world, level;
 
 	utilPrintf ( "Next Demo : %d\n", nextDemo );
 	world = demoLevels[nextDemo][0];
@@ -63,16 +75,14 @@ void InitDemoMode()
 	gameState.multi = SINGLEPLAYER;
 	gameState.single = ARCADE_MODE;
 	gameState.mode = DEMO_MODE;
+
+	playKeyList = NULL;
 	InitLevel(world, level);
 
-	sprintf(filename, "DEMOS\\RECORD-%lu-%lu.KEY", world, level);
-
-	playKeyList = (unsigned long*)fileLoad(filename, &count);
 	if (!playKeyList)
 	{
 		utilPrintf("DEMO MODE: Failed loading %s, returning\n"); return;
 	}
-	playKeyCount = count / (3*4);
 	curPlayKey = 0;
 
 #ifdef PSX_VERSION
@@ -82,8 +92,8 @@ void InitDemoMode()
 	CreateAndAddTextOverlay(2048, 128, "DEMO MODE", YES, 128, NULL, 0);
 #endif
 
-	CreateAndAddSpriteOverlay( 3000, 2700, "BLITZGAMES", 800, 1000, 190, 0 );
-	CreateAndAddSpriteOverlay( 250, 3200, "FROGGER2", 600, 800, 255, 0 );
+//	CreateAndAddSpriteOverlay( 3000, 2700, "BLITZGAMES", 800, 1000, 190, 0 );
+//	CreateAndAddSpriteOverlay( 250, 3200, "FROGGER2", 600, 800, 255, 0 );
 
 	GTInit(&demoTimeout, DEMO_TIMEOUT);
 
@@ -96,13 +106,15 @@ void InitDemoMode()
 	Parameters		: 
 	Returns			: 
 */
+int quittingDemo = NO;
 void RunDemoMode()
 {
 	int pl;
 
 	GTUpdate(&demoTimeout, -1);
-	if (padData.debounce[0] || curPlayKey >= playKeyCount || !demoTimeout.time)
+	if((quittingDemo) && (fadingOut == 0))
 	{
+		quittingDemo = NO;
 		utilPrintf("We've finished with demo, then exit..........................................\n");
 
 		FREE(playKeyList);
@@ -113,6 +125,9 @@ void RunDemoMode()
 #ifdef E3_DEMO
 		StartE3LevelSelect();
 #else
+		if( UndoChangeModel( frog[0]->actor ) )
+			player[0].idleEnable = 1;
+
 		gameState.mode = FRONTEND_MODE;
 		player[0].character = FROG_FROGGER;
 		InitLevel(WORLDID_FRONTEND, LEVELID_FRONTEND1);
@@ -121,6 +136,15 @@ void RunDemoMode()
 		return;
 	}
 
+	if(quittingDemo)
+		return;
+
+	if (padData.debounce[0] || curPlayKey >= playKeyCount || !demoTimeout.time)
+	{
+		quittingDemo = YES;
+		ScreenFade(255,0,30);
+		keepFade = 0;
+	}
 	for (pl=0; pl<4; pl++)
 		padData.digital[0] = padData.debounce[0] = 0;
 

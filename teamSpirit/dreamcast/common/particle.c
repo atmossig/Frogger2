@@ -22,16 +22,13 @@
 
 
 // Used for runtime scaling of particle effects
-int PFX_NUMPARTICLES = 50;//25;
 
 
 #ifdef PC_VERSION
 #define MAX_PARTICLES 512
 #else
-#define MAX_PARTICLES 512
+#define MAX_PARTICLES 168
 #endif
-
-PARTICLELIST partList;
 
 
 void UpdatePFXJet( SPECFX *fx );
@@ -89,14 +86,11 @@ SPECFX *CreateParticleEffect( SPECFX *fx )
 			DeallocateFX( fx,1 );
 			return NULL;
 		}
-		if( !(fx->rebound = AllocateP2()) )
+		if( (fx->rebound = AllocateP2()) )
 		{
-			DeallocateFX( fx,1 );
-			return NULL;
+ 			SetVectorSS( &fx->rebound->point, &fx->origin );
+ 			SetVectorFF( &fx->rebound->normal, &fx->normal );
 		}
-
- 		SetVectorSS( &fx->rebound->point, &fx->origin );
- 		SetVectorFF( &fx->rebound->normal, &fx->normal );
  
 		fx->tex = txtrSolidRing;
 // 		fx->fade = max(fx->a/life, 1);

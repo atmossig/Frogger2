@@ -1,5 +1,8 @@
 #include "include.h"
 
+extern texurestring[256];
+extern texurestring2[256];
+
 char* fileLoad(char *filename,int *bytesRead)
 {
     PKMDWORD    filePtr;
@@ -9,6 +12,10 @@ char* fileLoad(char *filename,int *bytesRead)
     char		buffer[256],*fptr;
 	Sint32		status;
 	int			retry = 0;
+	Sint32		gflag;
+	Uint32		length;
+	long		crc = 0;
+	char		*crcPtr;
 
 //	syCacheICI();
 	
@@ -57,7 +64,7 @@ char* fileLoad(char *filename,int *bytesRead)
    		filePtr = Align32Malloc(FileBlocks * 2048);
 	if(filePtr == NULL)
 		utilPrintf("Error\n");
-	
+
     // Read file to memory region (Destination address must be 32-byte aligned).
     gdFsReqRd32(gdfs, FileBlocks, filePtr);
 
@@ -69,9 +76,9 @@ char* fileLoad(char *filename,int *bytesRead)
     	{
     		utilPrintf("Error\n");
   	 		Align32Free(filePtr);
+		    gdFsClose(gdfs);
   	 		return NULL;
     	}
-
     }
 
     // Close file.

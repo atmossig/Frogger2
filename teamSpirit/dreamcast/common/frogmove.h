@@ -48,7 +48,7 @@
 #define FROGSTATUS_ISSAFE						(1 << 18)
 #define FROGSTATUS_ISSLIDING					(1 << 19)
 
-#define FROGSTATUS_ISDEBUG						(1 << 19)//mmtemp
+#define FROGSTATUS_ISDEBUG						(1 << 20)//mmtemp
 
 // FROGSTATUS_ISSTANDING		not used
 // FROGSTATUS_ISFREEFALLING		not used
@@ -144,6 +144,7 @@ void SpringFrogToTile(GAMETILE *tile, fixed height, fixed time, long pl);
 void ThrowFrogAtScreen(long pl);
 void BounceFrog( int pl, fixed height, long time );
 void CalculateFrogJump(SVECTOR *startPos, SVECTOR *endPos, FVECTOR *normal, fixed height, long time, long p);
+void CalculateFrogJumpS(SVECTOR *startPos, SVECTOR *endPos, SVECTOR *normal, fixed height, long time, long p);
 
 // Positioning Frogger
 void SetFroggerStartPos(GAMETILE *startTile,long p);

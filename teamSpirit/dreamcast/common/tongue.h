@@ -76,6 +76,7 @@ typedef struct
 extern "C" {
 #endif
 
+extern unsigned char eatEverythingMode;
 extern TONGUE tongue[MAX_FROGS];
 extern unsigned long tongueColours[];
 

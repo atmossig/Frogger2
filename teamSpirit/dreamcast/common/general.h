@@ -57,7 +57,7 @@ GAMETILE* FindNearestJoinedTile(GAMETILE *tile, SVECTOR *pos);
 GAMETILE *FindJoinedTileByDirection( GAMETILE *st, FVECTOR *d );
 GAMETILE *FindJoinedTileByDirectionConstrained(GAMETILE *st, FVECTOR *d, fixed angle);
 GAMETILE *FindJoinedTileByDirectionAndType( GAMETILE *st, FVECTOR *d, int type );
-FVECTOR *FindClosestTileVector( GAMETILE *tile, FVECTOR *d );
+SVECTOR *FindClosestTileVector( GAMETILE *tile, FVECTOR *d );
 void LoadSfxMapping( int world, int level );
 
 

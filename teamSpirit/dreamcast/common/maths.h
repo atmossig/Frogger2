@@ -113,6 +113,8 @@ void SetVectorLength(VECTOR *vect,fixed length);
 
 LONG arccos(LONG cos);
 void fixedRotateVectorByRotation(FVECTOR *result, FVECTOR *vect, IQUATERNION *rot);
+void fixedRotateVectorByRotationS(FVECTOR *result, SVECTOR *vect, IQUATERNION *rot);
+
 void fixedGetQuaternionFromRotation(IQUATERNION *destQ,IQUATERNION *srcQ);
 void fixedQuaternionMultiply(IQUATERNION *dest,IQUATERNION *src1,IQUATERNION *src2);
 
@@ -212,7 +214,7 @@ void GetQuaternionFromXZRotation(IQUATERNION *destQ, IQUATERNION *srcQ);
 void NormaliseQuaternion(IQUATERNION *quat);	// normalise to a unit quaternion
 
 void Init_BB_AcosTable(void);
-void NormalToQuaternion(IQUATERNION *q, FVECTOR *normal);
+void NormalToQuaternion(IQUATERNION *q, SVECTOR *normal);
 
 #ifdef PSX_VERSION
 #ifndef DREAMCAST_VERSION
@@ -307,6 +309,10 @@ void QuatToPSXMatrix(IQUATERNION* q, MATRIX* m);
 #define SetVectorFS(v1, v2)						   (v1)->vx = (v2)->vx<<12,\
 												   (v1)->vy = (v2)->vy<<12,\
 												   (v1)->vz = (v2)->vz<<12
+
+#define NewSetVectorFS(v1, v2)	(v1)->vx = (v2)->vx,\
+												   (v1)->vy = (v2)->vy,\
+												   (v1)->vz = (v2)->vz
 
 #define SetVectorFF(v1, v2)						   (v1)->vx = (v2)->vx,\
 												   (v1)->vy = (v2)->vy,\

@@ -16,16 +16,9 @@
 extern "C" {
 #endif
 
-#define NUM_DEMOS		3
-
-extern int demoLevels[NUM_DEMOS][2];
-
-extern int nextDemo;
-
-extern unsigned long *playKeyList;
-
 void InitDemoMode();
 void RunDemoMode();
+void LoadDemoFile(int world, int level);
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,8 @@
 #define	B	2
 #define	A	3
 
+#define PALMODE			0
+
 #define	DREAMCAST_VERSION
 #define	MALLOC0			Align32Malloc
 #define	FREE			Align32Free

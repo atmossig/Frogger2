@@ -25,10 +25,7 @@
 #include <pcmisc.h>
 #endif
 
-#define SPRITELIST_TEMP_IDONTGIVEASHIT_NUMBER	100
-
-
-SPRITEOVERLAYLIST spriteOverlayList;		// the sprite overlay list
+#define SPRITELIST_TEMP_IDONTGIVEASHIT_NUMBER	200
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddSpriteOverlay

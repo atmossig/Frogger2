@@ -68,8 +68,8 @@ TextureType* FindTexture(char *name)
 		}
 		tex++;
 	}
-	return FALSE;
-	
+//	return FALSE;
+	return DCKtextureList;	
 }
 
 /*	--------------------------------------------------------------------------------
@@ -872,7 +872,7 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 		else if(height < 64)
 			newHeight = 64;
 		else if(height < 128)
-			newHeight = 128;
+			newHeight = 128; 
 		else if(height < 256)
 			newHeight = 256;
 		else if(height < 512)
@@ -988,7 +988,6 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 						r = (palCol) & 0x1F;
 						if((r == 31)&&(g == 0)&&(b == 31))
 							*pixelPtr++ = RGBA1555(0,0,0,0);
-//							*pixelPtr++ = RGBA1555(r,g,b,0);
 						else
 							*pixelPtr++ = RGBA1555(r,g,b,1);
 					}
@@ -1036,11 +1035,6 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 					for(j=0;j<width;j++)
 					{
 						index = *dataPtr++;
-						
-//						palCol = *(palPtr+index);					
-//						b = (palCol >> 10);
-//						g = (palCol >> 4) & 0x3E;
-//						r = (palCol) & 0x1F;
 
 						palCol = *(palPtr+index);
 						b = (palCol >> 10) & 0x1F;

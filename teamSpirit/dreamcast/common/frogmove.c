@@ -1,4 +1,4 @@
-/*
+ /*
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
 
@@ -200,7 +200,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].idleEnable		= 1;
 	player[p].heightJumped		= 0;
 	player[p].jumpTime			= -1;
-	player[p].extendedHopDir	= (startFrogFacing-startCamFacing)&3;
+	//player[p].extendedHopDir	= (startFrogFacing-startCamFacing)&3;
 
 	fixedPos = 0;
 	fixedDir = 0;
@@ -221,7 +221,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 
 	camFacing[p] = startCamFacing;
 	frogFacing[p] = startFrogFacing;
-	Orientate( &frog[p]->actor->qRot, &currTile[p]->dirVector[frogFacing[p]], &currTile[p]->normal );
+	player[p].extendedHopDir = (startFrogFacing - startCamFacing)&3;
+	OrientateSS( &frog[p]->actor->qRot, &currTile[p]->dirVector[frogFacing[p]], &currTile[p]->normal );
 
 #ifdef PC_VERSION
 	FindFrogSubObjects( p );
@@ -232,38 +233,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	{
 		PSIOBJECT *obj;
 		char objName[16];
-
-//		sprintf( objName, "FGHED" );
-//				if( player[0].character == FROG_LILLIE )
-//					objName[1] = 'M';
-/*		switch(player[p].character)
-		{
-			case FROG_FROGGER:
-				sprintf( objName, "FGHED" );
-				break;
-			case FROG_LILLIE:
-				sprintf( objName, "FMHED" );
-				break;
-			case FROG_BABYFROG:
-				sprintf( objName, "BFHED" );
-				break;
-			case FROG_SWAMPY:
-				sprintf( objName, "MSPYHED" );
-				break;
-			case FROG_TWEE:
-				sprintf( objName, "TWHED" );
-				break;
-			case FROG_WART:
-				sprintf( objName, "TDHEAD" );
-				break;
-			case FROG_HOPPER:
-				sprintf( objName, "MROOHED" );
-				break;
-			case FROG_ROBOFROG:
-				sprintf( objName, "RFHED" );
-				break;
-		}
-*/
 
 		sprintf(objName, headNames[player[p].character]);
 		
@@ -382,7 +351,8 @@ BOOL UpdateFroggerControls(long pl)
 
 	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
 	{
-		int dir, jump;
+		int dir, jump = 0;
+		
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)		dir = MOVE_UP;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)	dir = MOVE_DOWN;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
@@ -392,10 +362,21 @@ BOOL UpdateFroggerControls(long pl)
 		hopTimer = 0;
 
 		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
-		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
+		if (!currPlatform[pl] && currTile[pl]->state == TILESTATE_NOSUPER)
+		{
+			//OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+			player[pl].isSuperHopping = 0;
+			player[pl].canJump = 1;
+			actorAnimate(frog[pl]->actor, FROG_ANIM_LOOKUP, NO, NO, 154, NO);
+			actorAnimate(frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
+			return TRUE;
+		}
+			
 		prevTile = currTile[pl];
-		
+		frogFacing[pl] = (camFacing[pl] + dir) & 3;
+
+		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 		jump = MoveToRequestedDestination(dir,pl);
 
 		if( !jump )
@@ -406,6 +387,7 @@ BOOL UpdateFroggerControls(long pl)
 				player[pl].hasJumped = 1;
 				player[pl].isSuperHopping = 1;
 				player[pl].canJump = 0;
+				nextFrogFacing[pl] = frogFacing[pl]; // ds
 				
 				// ds - hAck! Jump to the platform
 				if (currPlatform[pl])
@@ -413,7 +395,7 @@ BOOL UpdateFroggerControls(long pl)
 					destPlatform[pl] = currPlatform[pl];
 					player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 
-					CalculateFrogJump(
+					CalculateFrogJumpS(
 						&frog[pl]->actor->position,
 						&currPlatform[pl]->pltActor->actor->position,
 						&currTile[pl]->normal, superhopHeight, superHopFrames, pl);
@@ -421,19 +403,19 @@ BOOL UpdateFroggerControls(long pl)
 				else
 				{
 					destTile[pl] = currTile[pl];
-					CalculateFrogJump( &frog[pl]->actor->position, &currTile[pl]->centre, &currTile[pl]->normal, superhopHeight, superHopFrames, pl);
+					CalculateFrogJumpS( &frog[pl]->actor->position, &currTile[pl]->centre, &currTile[pl]->normal, superhopHeight, superHopFrames, pl);
 				}
 			}
 			else
 			{
 				frogFacing[pl] = oldFrogFacing[pl];
-				Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+				OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 			}
 		}
 
 		if((jump) || (gameState.mode != FRONTEND_MODE))
 		{
-	 		AnimateFrogHop((dir + camFacing[pl]) & 3,pl);
+	 		AnimateFrogHop((dir - camFacing[pl]) & 3,pl);
 			PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,255,-1/*64*/);
 		}
 	}
@@ -647,8 +629,10 @@ void FroggerHop(int pl)
 				else if (cur->flags & PLATFORM_NEW_NOWALKUNDER &&
 					player[pl].jumpTime > 2048 && after < 0 && cur->inTile[pl] == destTile[pl])
 				{
+
+					// Fix for accidentally jumping underneath moving platforms - ds
+
 					FVECTOR dir;
-					utilPrintf("OH NO! Error! You shouldn't be able to jump there.\n");
 
 					dir.vx = -player[pl].jumpFwdVector.vx;
 					dir.vy = -player[pl].jumpFwdVector.vy;
@@ -663,6 +647,10 @@ void FroggerHop(int pl)
 
 	if( player[pl].deathBy == DEATHBY_FALLINGFOREVER || t < (1<<12) )
 		SetVectorSS(&frog[pl]->actor->position, &pos);
+
+#ifdef PSX_VERSION
+	frog[pl]->actor->shadow->draw = 1;
+#endif
 
 /*
 	// if we've just passed the midpoint, play a falling animation
@@ -729,8 +717,7 @@ void UpdateFroggerPos(long pl)
 			// mm, try this..?
 			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 			currTile[pl] = tile;
-			
-			Orientate( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
+			OrientateSS( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
 
 			CheckTileForCollectable(tile, pl);
 		}
@@ -991,8 +978,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// clear all movement flags
 	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 	
-	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
-	
+	OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+
 	tiledir = dir;
 	dest = GetNextTile(&tiledir, pl);
 	
@@ -1106,7 +1093,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	if (currPlatform[pl])
 	{
 	//Matt - PSX fix, as in single player frogon is not -1
-		if((player[pl].frogon == (char)-1) || (NUM_FROGS==1) )
+		if((player[pl].frogon == -1) || (NUM_FROGS==1) )
 		{
 			currPlatform[pl]->carrying = NULL;
 			currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
@@ -1160,13 +1147,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
     if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
-		CalculateFrogJump(
+		CalculateFrogJumpS(
 			&frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &currTile[pl]->normal,
 			h, t, pl);
 	}
 	else
 	{	
-		CalculateFrogJump(
+		CalculateFrogJumpS(
 			&frog[pl]->actor->position, &destTile[pl]->centre, &currTile[pl]->normal,
 			h, t, pl);
 	}
@@ -1190,7 +1177,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 */
 void CheckForFroggerLanding(long pl)
 {
-	unsigned long i;
 	fixed overrun;
 	GAMETILE *tile=NULL;
 
@@ -1204,23 +1190,25 @@ void CheckForFroggerLanding(long pl)
 	player[pl].hasDoubleJumped = 0;
 	player[pl].jumpTime = ToFixed(-1);
 	doubleQueue[pl] = 0;
-
+#ifdef PSX_VERSION
+	frog[pl]->actor->shadow->draw = 0;
+#endif
 	// Assume for now that if we've landed after being on another frogs head then we're no longer on it.
 	if( gameState.multi != SINGLEPLAYER && multiplayerMode != MULTIMODE_BATTLE )
 	{
-		if( player[pl].frogon != (char)-1 )
+		if( player[pl].frogon != -1 )
 		{
 			int f = player[pl].frogon;
 
 	//bb??		GTInit( &player[f].stun, 1.5 );
 			GTInit( &player[f].stun, 1 );
 			player[f].canJump = 1;
-			player[f].frogunder = (char)-1;
-			player[pl].frogon = (char)-1;
+			player[f].frogunder = -1;
+			player[pl].frogon = -1;
 
 			player[pl].idleEnable = 1;
 
-			if( player[f].frogon == (char)-1 )
+			if( player[f].frogon == -1 )
 			{
 				player[f].idleEnable = 1;
 				actorAnimate( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0);
@@ -1243,8 +1231,13 @@ void CheckForFroggerLanding(long pl)
 	// Finish anims when floating
 	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
-		actorAnimate(frog[0]->actor, FROG_ANIM_FALLLAND, NO, NO, 128, NO);
-		actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
+		if( frogPool[player[pl].character].anim )
+		{
+			actorAnimate(frog[0]->actor, FROG_ANIM_FALLLAND, NO, NO, 128, NO);
+			actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
+		}
+		else
+			actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,FROG_BREATHE_SPEED,0);
 	}
 /*
 	else
@@ -1295,7 +1288,9 @@ void CheckForFroggerLanding(long pl)
 					KillMPFrog(pl);
 				else
 				{
-					CreateSpecialEffect( FXTYPE_DECAL, &destTile[pl]->centre, &destTile[pl]->normal, 102400, 4096, 410, 3277 );
+					FVECTOR n;
+					SetVectorFF(&n, &destTile[pl]->normal);
+					CreateSpecialEffect( FXTYPE_DECAL, &destTile[pl]->centre, &n, 102400, 4096, 410, 3277 );
 					player[pl].deathBy = DEATHBY_NORMAL;
 					actorAnimate(frog[pl]->actor,FROG_ANIM_SPLATFRAME,NO,NO,64,0);
 
@@ -1306,8 +1301,8 @@ void CheckForFroggerLanding(long pl)
 				PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);
 			}
 		}
-
-		actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
+		else
+			actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
 
 		CheckTileForCollectable(tile,pl);
 	}
@@ -1321,44 +1316,27 @@ void CheckForFroggerLanding(long pl)
 		{
 			currTile[pl] = tile = destTile[pl];
 			destTile[pl] = NULL;
-
-			// set frog to centre of tile
-			SetVectorSS(&frog[pl]->actor->position, &tile->centre);
 		}
+
+		state = tile->state;
 
 		//frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 
 		if( player[pl].deathBy != DEATHBY_WHACKING )
 		{
 			frogFacing[pl] = nextFrogFacing[pl];
-			Orientate( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
+			OrientateSS( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
+
+			// DON'T set frog to centre of tile - ds
+			if ((state != TILESTATE_FALL) /*&& !(state & TILESTATE_CONVEYOR)*/)
+				SetVectorSS(&frog[pl]->actor->position, &tile->centre);
 		}
 
-		state = tile->state;
 
 		player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 			FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISFLOATING | FROGSTATUS_ISSAFE);
 
-		if(player[pl].heightJumped < -DROP_KILL_HEIGHT || state == TILESTATE_DEADLYFALL)
-		{
-			if(!player[pl].dead.time)
-			{
-				if( gameState.multi != SINGLEPLAYER )
-					KillMPFrog(pl);
-				else
-				{
-					CreateSpecialEffect( FXTYPE_DECAL, &tile->centre, &tile->normal, 102400, 4096, 410, 3277 );
-					player[pl].deathBy = DEATHBY_NORMAL;
-					actorAnimate(frog[pl]->actor,FROG_ANIM_SPLATFRAME,NO,NO,256,0);
-
-					player[pl].frogState |= FROGSTATUS_ISDEAD;
-					GTInit( &player[pl].dead, 3 );
-				}
-
-				PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);
-			}
-		}
-		else if( player[pl].frogState & FROGSTATUS_ISDEAD )
+		if( player[pl].frogState & FROGSTATUS_ISDEAD )
 		{
 			// We're bouncing along the ground
  			if( player[pl].deathBy == DEATHBY_FIRE )
@@ -1372,6 +1350,27 @@ void CheckForFroggerLanding(long pl)
 			// check tile to see if frog has jumped onto a certain tile type
 			CheckTileState(tile, pl);
 
+			if(player[pl].heightJumped < -DROP_KILL_HEIGHT || state == TILESTATE_DEADLYFALL)
+			{
+				if(!player[pl].dead.time)
+				{
+					if( gameState.multi != SINGLEPLAYER )
+						KillMPFrog(pl);
+					else
+					{
+						FVECTOR n;
+						SetVectorFF(&n, &tile->normal);
+						CreateSpecialEffect( FXTYPE_DECAL, &tile->centre, &n, 102400, 4096, 410, 3277 );
+						player[pl].deathBy = DEATHBY_NORMAL;
+						actorAnimate(frog[pl]->actor,FROG_ANIM_SPLATFRAME,NO,NO,256,0);
+
+						player[pl].frogState |= FROGSTATUS_ISDEAD;
+						GTInit( &player[pl].dead, 3 );
+					}
+
+					PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);
+				}
+			}
 			if (state == TILESTATE_FALL)
 				player[pl].jumpTime = overrun;
 			else if (destTile[pl] && (state & TILESTATE_CONVEYOR || state == TILESTATE_ICE))
@@ -1389,7 +1388,7 @@ void CheckForFrogOn(int pl,GAMETILE *tile)
 {
 	int i;
 
-	if( gameState.multi != SINGLEPLAYER && multiplayerMode != MULTIMODE_BATTLE )
+	if((player[pl].frogunder == -1) && (gameState.multi != SINGLEPLAYER) && (multiplayerMode != MULTIMODE_BATTLE))
 	{
 		// If we've landed on another frog, sit on his head
 		for( i=(pl+1)%NUM_FROGS; i!=pl; i=(i+1)%NUM_FROGS )
@@ -1401,9 +1400,9 @@ void CheckForFrogOn(int pl,GAMETILE *tile)
 				// Face all lower frogs to our direction
 				nextFrogFacing[i] = frogFacing[i] = frogFacing[pl];
 				SetQuaternion( &frog[i]->actor->qRot, &frog[pl]->actor->qRot );
-				Orientate( &frog[i]->actor->qRot, &currTile[i]->dirVector[frogFacing[i]], &currTile[i]->normal );
+				OrientateSS( &frog[i]->actor->qRot, &currTile[i]->dirVector[frogFacing[i]], &currTile[i]->normal );
 
-				if( player[i].frogunder != (char)-1 ) continue;
+				if( player[i].frogunder != -1 ) continue;
 
 				PlaySample(genSfx[GEN_DEATHCRUSH], NULL, 0, SAMPLE_VOLUME, -1 );
 
@@ -1417,7 +1416,7 @@ void CheckForFrogOn(int pl,GAMETILE *tile)
 
 				actorAnimate( frog[pl]->actor, FROG_ANIM_PIN, YES, NO, 128, 0);
 
-				if( player[i].frogon != (char)-1 )
+				if( player[i].frogon != -1 )
 				{
 					FVECTOR up;
 					SetVectorFF(&up, &currTile[i]->normal);
@@ -1481,12 +1480,12 @@ void CheckTileState(GAMETILE *tile, int pl)
 
 			if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 			{
-				CalculateFrogJump( &frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &tile->normal, -1, conveyorFrames[speed], pl);
+				CalculateFrogJumpS( &frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &tile->normal, -1, conveyorFrames[speed], pl);
 				SubVectorFSS( &fwd, &destPlatform[pl]->pltActor->actor->position, &frog[pl]->actor->position );
 			}
 			else
 			{
-				CalculateFrogJump( &frog[pl]->actor->position, &destTile[pl]->centre, &tile->normal, -1, conveyorFrames[speed], pl);
+				CalculateFrogJumpS( &frog[pl]->actor->position, &destTile[pl]->centre, &tile->normal, -1, conveyorFrames[speed], pl);
 				SubVectorFSS( &fwd, &destTile[pl]->centre, &frog[pl]->actor->position );
 			}
 
@@ -1495,7 +1494,7 @@ void CheckTileState(GAMETILE *tile, int pl)
 			if (state >= TILESTATE_CONVEYOR_ONEWAY)
 			{
 				MakeUnit( &fwd );
-				Orientate( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
+				OrientateFS( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
 			}
 		}
 	}
@@ -1506,14 +1505,18 @@ void CheckTileState(GAMETILE *tile, int pl)
 		if(!player[pl].dead.time)
 		{
 			SPECFX *fx;
+			FVECTOR n;
+			SetVectorFF(&n, &currTile[pl]->normal);
 
-			CreateSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 81920, 3277, 410, 2458 );
-			if( (fx = CreateSpecialEffect( FXTYPE_SPLASH, &frog[pl]->actor->position, &currTile[pl]->normal, 40960, 16384, 0, 8192 )) )
+			CreateSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &n, 81920, 3277, 410, 2458 );
+			if( (fx = CreateSpecialEffect( FXTYPE_SPLASH, &frog[pl]->actor->position, &n, 40960, 16384, 0, 8192 )) )
 			{
 				fx->gravity = 8190;
-				fx->rebound = AllocateP2();
-				SetVectorFF( &fx->rebound->normal, &currTile[pl]->normal );
-				SetVectorFF( &fx->rebound->point, &frog[pl]->actor->position );
+				if( (fx->rebound = AllocateP2()) )
+				{
+					SetVectorFF( &fx->rebound->normal, &currTile[pl]->normal );
+					SetVectorFF( &fx->rebound->point, &frog[pl]->actor->position );
+				}
 			}
 
 			// If single player
@@ -1599,12 +1602,12 @@ void CheckTileState(GAMETILE *tile, int pl)
 		{
 			if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 			{
-				CalculateFrogJump( &frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &tile->normal, -1, iceFrames, pl);
+				CalculateFrogJumpS( &frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &tile->normal, -1, iceFrames, pl);
 				SubVectorFSS( &fwd, &destPlatform[pl]->pltActor->actor->position, &frog[pl]->actor->position );
 			}
 			else
 			{
-				CalculateFrogJump( &frog[pl]->actor->position, &destTile[pl]->centre, &tile->normal, -1, iceFrames, pl);
+				CalculateFrogJumpS( &frog[pl]->actor->position, &destTile[pl]->centre, &tile->normal, -1, iceFrames, pl);
 				SubVectorFSS( &fwd, &destTile[pl]->centre, &frog[pl]->actor->position );
 			}
 
@@ -1617,7 +1620,7 @@ void CheckTileState(GAMETILE *tile, int pl)
 			player[pl].frogState |= FROGSTATUS_ISSLIDING;
 
 			MakeUnit( &fwd );
-			Orientate( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
+			OrientateFS( &frog[pl]->actor->qRot, &fwd, &currTile[pl]->normal );
 		}
 		break;
 	}
@@ -1705,15 +1708,21 @@ BOOL KillFrog(long pl)
 			if( !(actFrameCount % 5) )
 			{
 				VECTOR up;
-				SPECFX *fx = CreateSpecialEffect( FXTYPE_BUBBLES, &frog[pl]->actor->position, &currTile[pl]->normal, 32768, 3277, 0, 2458 );
+				SPECFX *fx;
+				FVECTOR n;
+
+				SetVectorFF(&n, &currTile[pl]->normal);
+				fx = CreateSpecialEffect( FXTYPE_BUBBLES, &frog[pl]->actor->position, &n, 32768, 3277, 0, 2458 );
 
 				if( fx )
 				{
-					fx->rebound = AllocateP2();
 					SetVectorFF( &up, &currTile[pl]->normal );
-					SetVectorFF( &fx->rebound->normal, &up );
-					ScaleVector( &up, 30 );
-					AddVectorSSF( &fx->rebound->point, &frog[pl]->actor->position, &up );
+					if( (fx->rebound = AllocateP2()) )
+					{
+						SetVectorFF( &fx->rebound->normal, &up );
+						ScaleVector( &up, 30 );
+						AddVectorSSF( &fx->rebound->point, &frog[pl]->actor->position, &up );
+					}
 				}
 			}
 			break;
@@ -1723,7 +1732,11 @@ BOOL KillFrog(long pl)
 
 		case DEATHBY_FIRE:
 			if( !(actFrameCount % 2) )
-				CreateSpecialEffect( FXTYPE_FIERYSMOKE, &frog[pl]->actor->position, &currTile[pl]->normal, 204800, 2048, 0, 6144 );
+			{
+				FVECTOR n;
+				SetVectorFF(&n, &currTile[pl]->normal);
+				CreateSpecialEffect( FXTYPE_FIERYSMOKE, &frog[pl]->actor->position, &n, 204800, 2048, 0, 6144 );
+			}
 			break;
 
 		case DEATHBY_ELECTRIC:
@@ -1770,9 +1783,9 @@ void HopFrogToTile(GAMETILE *tile, long pl)
 	AnimateFrogHop(dir, pl);	
 	frogFacing[pl] = nextFrogFacing[pl] = (dir + 2) & 3;
 
-	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+	OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 
-	CalculateFrogJump(
+	CalculateFrogJumpS(
 		&frog[pl]->actor->position, &destTile[pl]->centre, &currTile[pl]->normal,
 		hopHeight, standardHopFrames, pl);
 }
@@ -1800,7 +1813,7 @@ void SpringFrogToTile(GAMETILE *tile, fixed height, fixed time, long pl)
 	}
 	destTile[pl] = tile;
 
-	CalculateFrogJump(
+	CalculateFrogJumpS(
 		&frog[pl]->actor->position, &destTile[pl]->centre, &currTile[pl]->normal,
 		height, t, pl);
 }
@@ -1835,7 +1848,7 @@ void PushFrog(FVECTOR *direction, long pl)
 
 	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
-		CalculateFrogJump( &frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &currTile[pl]->normal,	819200, standardHopFrames, pl );
+		CalculateFrogJumpS( &frog[pl]->actor->position, &destPlatform[pl]->pltActor->actor->position, &currTile[pl]->normal,	819200, standardHopFrames, pl );
 		currPlatform[pl] = destPlatform[pl];
 	}
 	else
@@ -1907,7 +1920,7 @@ void ThrowFrogAtScreen(long pl)
 	ScaleVector(&v, -120);
 	AddToVectorSF(&target, &v);
 
-	CalculateFrogJump(&frog[pl]->actor->position, &target, &currTile[pl]->normal, 0, 80, pl);
+	CalculateFrogJumpS(&frog[pl]->actor->position, &target, &currTile[pl]->normal, 0, 80, pl);
 
 	frogFacing[pl] = (camFacing[pl]+2)&3;
 
@@ -1997,6 +2010,15 @@ void CalculateFrogJump(SVECTOR *startPos, SVECTOR *endPos, FVECTOR *normal, fixe
 	}
 }
 
+
+void CalculateFrogJumpS(SVECTOR *startPos, SVECTOR *endPos, SVECTOR *normal, fixed height, long time, long p)
+{
+	FVECTOR F;
+
+	SetVectorFF(&F, normal);
+	CalculateFrogJump(startPos, endPos, &F, height, time, p);
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: BounceFrog
 	Purpose			: Jump in current direction
@@ -2021,7 +2043,7 @@ void BounceFrog( int pl, fixed height, long time )
 
 	SetVectorSF(&pos, &dir);
 
-	CalculateFrogJump( &frog[pl]->actor->position, &bounceTo->centre, &currTile[pl]->normal, height, time, pl );
+	CalculateFrogJumpS( &frog[pl]->actor->position, &bounceTo->centre, &currTile[pl]->normal, height, time, pl );
 
 	destTile[pl] = bounceTo;
 }

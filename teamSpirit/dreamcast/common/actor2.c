@@ -198,7 +198,7 @@ void GetHeadMatrix(ACTOR2 *cur)
 	if(cur->actor)
 	if(cur->actor->psiData.object)
 	{
-		char objName[32];
+//		char objName[32];
 		PSIOBJECT *obj;
 		extern MATRIX headMatrix, *pHeadMatrix;
 
@@ -261,7 +261,7 @@ void DrawActorList ( void )
 {
  	ACTOR2 *cur;
 	char *compare;
-	int p;
+	int p, oF;
 
  	objectMatrix = 0;
 
@@ -287,10 +287,14 @@ void DrawActorList ( void )
  	while(cur)
  	{
 		cur->distanceFromFrog = DistanceBetweenPointsSS ( &cur->actor->position, &frog[0]->actor->position );
-
+		oF = fog.max;
+		
 		//ok to draw?
 		if(cur->draw)
 		{
+			if( cur->flags & ACTOR_DRAW_ALWAYS )
+				fog.max = 32000;
+				
 			//is this a psi?
 			if(cur->actor->psiData.object)
 			{
@@ -298,13 +302,7 @@ void DrawActorList ( void )
 				
 				//screen clip
 				TIMER_START1(TIMER_PSICLIP);
-//#if GOLDCD==1
-//				oldStackPointer = SetSp(0x1f800400);
-//#endif
 				PsiActor2ClipCheck(cur);
-//#if GOLDCD==1
-//				SetSp(oldStackPointer);
-//#endif
 				TIMER_STOP_ADD1(TIMER_PSICLIP);
 
 				//on screen?
@@ -373,14 +371,14 @@ void DrawActorList ( void )
 					globalClut = cur->actor->clutOverride;
 					actorShiftDepth = cur->depthShift;
 				
-					TIMER_START1(TIMER_SPHERE);
-					if( (compare = strstr(cur->actor->psiData.modelName, "SPHERE")) )
+					//TIMER_START1(TIMER_SPHERE);
+					//if( (compare = strstr(cur->actor->psiData.modelName, "SPHERE")) )
 					{
-			 			TIMER_STOP_ADD1(TIMER_SPHERE);
-						cur = cur->next;
-						continue;
+			 			//TIMER_STOP_ADD1(TIMER_SPHERE);
+						//cur = cur->next;
+						//continue;
 					}
-					TIMER_STOP_ADD1(TIMER_SPHERE);
+					//TIMER_STOP_ADD1(TIMER_SPHERE);
 
 					mesh = ADD2POINTER(cur->bffActor, sizeof(FMA_WORLD));
 					
@@ -393,6 +391,7 @@ void DrawActorList ( void )
 		
 		}
 
+		fog.max = oF;
 
 		cur = cur->next;
 
@@ -473,6 +472,13 @@ void FreeActorList()
 // 	hat[0] = NULL;
 }
 
+#ifdef PC_VERSION
+#define MDX_ADDACTORFLAGS(a, f)		{ ((MDX_ACTOR *)((a)->actor->actualActor))->flags |= (f); }
+#define MDX_ADDOBJECTFLAGS(a, f)	{ ((MDX_ACTOR *)((a)->actor->actualActor))->objectController->object->flags |= (f); }
+#else
+#define MDX_ADDACTORFLAGS(actor2, flags)
+#define MDX_ADDOBJECTFLAGS(actor2, flags)
+#endif
 
 ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlags)
 {
@@ -497,7 +503,7 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 #ifdef PSX_VERSION
 	{
 		PSIMODEL* pPSI;
-		char *c = strstr(newname, ".obe");
+		char *c = (char*)strstr(newname, ".obe");
 		char *compare;
 
 		if (c)
@@ -515,7 +521,7 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 
 		if ( newItem->bffActor )
 		{
-			SetUpWaterMesh ( newItem->bffActor );
+//			SetUpWaterMesh ( newItem->bffActor );
 			newItem->flags |= ACTOR_NOANIMATION;
 			newItem->actor	= (ACTOR *)MALLOC0(sizeof(ACTOR));
 
@@ -524,13 +530,6 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 			sprintf(newItem->actor->psiData.modelName, "(FMA)");
 			strcat(newItem->actor->psiData.modelName, newname);
 		}
-		else
-		{
-			utilPrintf ("Could Not Create Bff Actor..................................\n");
-			//return NULL;
-		}
-
-		utilPrintf ( "LOADED FILE %s\n", newname );
 
 		if ( !newItem->bffActor )
 		{
@@ -590,72 +589,51 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 
 #endif
 
-	if(name[0] != 'a' && name[1] != 'd' && name[2] != '_')
-		newItem->flags |= ACTOR_DRAW_CULLED;
-	else
+	gstrlwr(newname);
+
+	if (newname[0] == 'a' && newname[1] == 'd')
 	{
+		MDX_ADDACTORFLAGS(newItem, ACTOR_ALWAYSDRAW);
 		newItem->flags |= ACTOR_DRAW_ALWAYS;
-		#ifdef PC_VERSION
-		((MDX_ACTOR *)(newItem->actor->actualActor))->flags |= ACTOR_ALWAYSDRAW;
-		#endif
-	}
 
-	if(name[0] != 'a' && name[1] != 'd' && name[2] != '_')
-		newItem->flags |= ACTOR_DRAW_CULLED;
+		if (newname[2]=='a')
+		{
+			newItem->flags |= ACTOR_ADDITIVE;
+			MDX_ADDOBJECTFLAGS(newItem, OBJECT_FLAGS_ADDITIVE);
+		}
+	}
 	else
+		newItem->flags |= ACTOR_DRAW_CULLED;
+
+	// Yes, seriously, this is the check that has been done forever and breaks if you change it
+	if (newname[2] == '_' && newname[3]=='g')
 	{
-		if (name[3]=='g')
-		{
-			#ifdef PC_VERSION
-			((MDX_ACTOR *)(newItem->actor->actualActor))->objectController->object->flags |= OBJECT_FLAGS_MODGE;
-			#endif
-			newItem->flags |= ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX;
-			if (name[4]=='_')
-				newItem->flags |= ACTOR_SLIDYTEX;
-		}
-		else
-		{
-			if (name[2]=='a')
-			{
-				newItem->flags |= ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
-			}
-			else
-			{
-				newItem->flags |= ACTOR_DRAW_ALWAYS;
-			}
-		}
+		MDX_ADDOBJECTFLAGS(newItem, OBJECT_FLAGS_MODGE);
+		newItem->flags |= ACTOR_MODGETEX;
+		if (newname[4]=='_')
+			newItem->flags |= ACTOR_SLIDYTEX;
 	}
 
-	if (name[0] == 's')
-	if (name[1] == 'p')
+	if (newname[0] == 's')
+	if (newname[1] == 'p')
 	{
-		switch (name[2])
+		switch (newname[2])
 		{
 			case 'l':
 				newItem->flags |= ACTOR_SLIDYTEX;
-				
-				#ifdef PC_VERSION
-				((MDX_ACTOR *)(newItem->actor->actualActor))->flags |= ACTOR_WRAPTC;
-				#endif
-
+				MDX_ADDACTORFLAGS(newItem, ACTOR_WRAPTC);
 				break;
 			case 'm':
 				newItem->flags |= ACTOR_SLIDYTEX2;
-				#ifdef PC_VERSION
-				((MDX_ACTOR *)(newItem->actor->actualActor))->flags |= ACTOR_WRAPTC;
-				#endif
-
+				MDX_ADDACTORFLAGS(newItem, ACTOR_WRAPTC);
 				break;
 			case 'f':
 				newItem->flags |= (ACTOR_SLIDYTEX | ACTOR_SLIDYTEX2);
-				#ifdef PC_VERSION
-				((MDX_ACTOR *)(newItem->actor->actualActor))->flags |= ACTOR_WRAPTC;
-				#endif
-
+				MDX_ADDACTORFLAGS(newItem, ACTOR_WRAPTC);
 				break;
 		}
 		/*
-		switch (name[2])
+		switch (newname[2])
 		{
 			case 'l':
 				newItem->flags |= ACTOR_SLIDYTEX;
@@ -673,16 +651,16 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 #ifdef PSX_VERSION
 	gstrupr(newname);
 
-	if ((strstr(newname,"CARA"))||(strstr(newname,"CARB"))||(strstr(newname,"CARC"))||(strstr(newname,"CARD"))||(strstr(newname,"CARE"))||
+	/*if ((strstr(newname,"CARA"))||(strstr(newname,"CARB"))||(strstr(newname,"CARC"))||(strstr(newname,"CARD"))||(strstr(newname,"CARE"))||
 		(strstr(newname,"LOGAA"))||(strstr(newname,"LOGBB"))||(strstr(newname,"LOGCC"))||(strstr(newname,"LORRYA"))||(strstr(newname,"LORRYB"))||
 		(strstr(newname,"TURT"))||(strstr(newname,"LOGBB"))||(strstr(newname,"LOGCC"))||(strstr(newname,"LORRYA"))||(strstr(newname,"LORRYB"))||
 		(strstr(newname,"SNAKEHED"))||(strstr(newname,"SNAKETAL"))||(strstr(newname,"LOGD"))||(strstr(newname,"LOGE"))||(strstr(newname,"LOGF")))
 	{
 		newItem->flags |= 1<<15;	// This flag should be allocated properly in common code
 		utilPrintf("*** FOUND SPRITE ACTOR'%s'\n", newname);
-	}
+	}*/
 	// HACK: Should have ad_ so it works proper.
-	else if( strstr(newname,"BACKDROP") || strstr(newname,"BOULDER") || strstr(newname, "RISER") )
+	/*else */if( strstr(newname,"BACKDROP") || strstr(newname,"BOULDER") || strstr(newname, "RISER") )
 	{
 		newItem->flags |= ACTOR_DRAW_ALWAYS;
 		newItem->depthShift = 0;
@@ -1034,6 +1012,28 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 // 	}
 // }
 
+void OrientateSS(IQUATERNION *me, SVECTOR *fd, SVECTOR *up)
+{
+	FVECTOR f, g;
+	SetVectorFF(&f, fd);
+	SetVectorFF(&g, up);
+	Orientate(me, &f, &g);
+}
+
+void OrientateFS(IQUATERNION *me, FVECTOR *fd, SVECTOR *up)
+{
+	FVECTOR f;
+	SetVectorFF(&f, up);
+	Orientate(me, fd, &f);
+}
+
+void OrientateSF(IQUATERNION *me, SVECTOR *fd, FVECTOR *up)
+{
+	FVECTOR f;
+	SetVectorFF(&f, fd);
+	Orientate(me, &f, up);
+}
+
 void Orientate(IQUATERNION *me, FVECTOR *fd, FVECTOR *up)
 {
 	IQUATERNION r1,q1,q2;
@@ -1200,7 +1200,7 @@ void actor2Free(ACTOR2 *actor)
 {
 	if (!actor) return;
 
-	utilPrintf("actor2free: %08x\n", actor);
+	//utilPrintf("actor2free: %08x\n", actor);
 	actorFree(actor->actor);
 	
 	if (actor->next)
@@ -1244,6 +1244,7 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	currPlatform[pl]	= NULL;
 	destPlatform[pl]	= NULL;
 
-	Orientate( &act->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
+	player[pl].extendedHopDir = (frogFacing[pl] - camFacing[pl])&3;
+	OrientateSS( &act->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
 }
 

@@ -277,27 +277,6 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 		}
 	}
 
-
-	if ( checkForModel )
-	{
-		if ( ( psiCheck ( actor->psiData.modelName ) ) &&
-			 ( ( compare = strstr ( actor->psiData.modelName, "ROLL" ) )  ||
-		     ( compare = strstr ( actor->psiData.modelName, "BEE" ) ) ||
-		     ( compare = strstr ( actor->psiData.modelName, "WARTHOG" ) ) ||
-	  	   ( compare = strstr ( actor->psiData.modelName, "MOA" ) ) ) )
-			 			// already loaded ?
-
-		{
-			utilPrintf("Found It................................................................\n");
-			sprintf ( globalActors [ globalCount ].modelName, psiModel->name );
-			globalActors [ globalCount ].actor	= actorCreate ( psiModel, 0, 0 );
-			globalActors [ globalCount ].done		= 0;
-			globalCount++;
-		}
-		// ENDIF
-	}
-	// ENDIF
-
 	return actor;
 }
 
@@ -1189,6 +1168,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 
 	//keep some of the original data
 	actor->position = oldActor.position;
+	actor->qRot			= oldActor.qRot;
 }
 
 
@@ -1294,12 +1274,17 @@ void actorMove(ACTOR *actor)
 			v=4;
 		}
 
-		rotcalc=utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
-							PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
+		rotcalc = ((atan2(PSImodelctrl.whichcamera->vpx - actor->position.vx,PSImodelctrl.whichcamera->vpz - actor->position.vz) / 6.283185308) * 4096.0);
+		rotcalc &= 0xffff;
+
+//ma		rotcalc=utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
+//ma							PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
 		rotate=world->rotate.vy+2048; 
 
-		i = utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
-						PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
+		i = ((atan2(PSImodelctrl.whichcamera->vpx - actor->position.vx,PSImodelctrl.whichcamera->vpz - actor->position.vz) / 6.283185308) * 4096.0);
+		i &= 0xffff;
+//ma		i = utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
+//ma						PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
 		i=((((rotcalc+rotate)&4095)/1024))&3;
 		i += v;
 		modctrl->sorttable=i;
@@ -1692,7 +1677,6 @@ void actorResetAnimation ( ACTOR *actor )
 {
 }
 
-
 int initcroakscale = 0;
 int croaklife = 6000;
 char croakDir			= 0;
@@ -1704,25 +1688,19 @@ void UpdateFrogCroak( int pl )
 	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
 	{
 		SPECFX *fx;
+		FVECTOR normal;
 
-#ifdef PC_VERSION
-		if( breastMatrix )
-		{
-			// Put code here
-		}
-#else
-#endif
-
+		SetVectorFF( &normal, &currTile[pl]->normal );
 		if( !(player[pl].isCroaking.time%2) )
 		{
 			SetVectorSS(&effectPos, &frog[pl]->actor->position);
 			specFXAlpha = 128;
-			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, initcroakscale, 4096, 410, croaklife )) )
+
+			PrepForPriorityEffect( );
+			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &normal, initcroakscale, 4096, 410, croaklife )) )
 			{
 				fx->spin = 20;
 				SetFXColour( fx, 191,255,0);
-//				fx->a = 128;
-//				fx->fade = 2;
 			}
 			specFXAlpha = 255;
 			PlayVoice( pl, "frogcroak" );
@@ -1740,35 +1718,27 @@ void UpdateFrogCroak( int pl )
 
 			if( baby != -1 )
 			{
-				FVECTOR up;
 				SVECTOR pos;
+				FVECTOR up;
 				SetVectorFF( &up, &upVec );
 				ScaleVector( &up, 20 );
 				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
 
 				specFXAlpha = 128;
-				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[pl]->normal, initcroakscale, 4096, 410, croaklife )) )
+	
+				PrepForPriorityEffect( );
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &normal, initcroakscale, 4096, 410, croaklife )) )
 				{
 					fx->spin = 25;
 					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
 				}
+				else
+					utilPrintf("Failed to create croak!!\n");
 				specFXAlpha = 255;
 
 				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
 			}
 		}
-	}
-	else
-	{
-#ifdef PC_VERSION
-		if( breastMatrix )
-		{
-			breastMatrix->m[0][0] = breastMatrix->m[1][1] = breastMatrix->m[2][2] = 1;
-
-			croakDir = 0;
-		}
-#else
-#endif
 	}
 }
 
