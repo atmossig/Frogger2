@@ -36,8 +36,10 @@ void InitPCSpecifics()
 	gelfInit();
 	InitCommonControls();
 
+#ifdef _DEBUG
 	// throw floating point exceptions!
     _controlfp(_EXC_MASK, _MCW_EM); 
+#endif
 }
 
 /*	--------------------------------------------------------------------------------
