@@ -1199,9 +1199,9 @@ Chris Wilson:
 
 Matt Cloy:
 ------------------------------------------------
-Yes Naughty people. Was off with my fucked up anckle this morning, and this 
-afternoon I'm sorting reactive animations. Will fill out more later. 
-Andy eders off all day, and kevins ill too. Oh dear. winter blues I guess.
+	Yes Naughty people. Was off with my fucked up anckle this morning, and this 
+	afternoon I'm sorting reactive animations. Will fill out more later. 
+	Andy eders off all day, and kevins ill too. Oh dear. winter blues I guess. Fixed fuzzy sliding uvs.
 
 Andy Eder:
 ------------------------------------------------
