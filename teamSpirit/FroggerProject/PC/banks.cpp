@@ -13,6 +13,9 @@
 #include "mdx.h"
 #include "layout.h"
 #include "Main.h"
+#include "actor2.h"
+#include "game.h"
+#include "define.h"
 #include <islutil.h>
 #include <stdio.h>
 
@@ -418,3 +421,143 @@ void SaveGame(void)
 
 	fclose(fp);	
 }
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateLevelObjects
+	Purpose			: creates the objects for the world / level
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
+{
+	ACTOR2 *theActor;
+	SCENIC *ts = firstScenic;
+	int actCount = 0;
+	char tmp[5];
+	long i;
+	
+	// go through and add items
+	while (ts)
+	{
+		float tv;
+
+		stringChange(ts->name);
+
+		if(gstrcmp(ts->name,"backdrop.obe") == 0)
+		{
+			backGnd = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION, 0, 0);
+			backGnd->actor->size.vx = ToFixed(5);
+			backGnd->actor->size.vy = ToFixed(5);
+			backGnd->actor->size.vz = ToFixed(5);
+			actList = actList->next;
+			if (actList)
+				actList->prev = NULL;
+		}
+		else
+		{
+
+			if(gstrcmp(ts->name,"world.obe") != 0)
+			{
+				for( i=0; i<4; i++ )
+					tmp[i] = ts->name[i];
+				tmp[4] = '\0';
+				
+				if (rHardware || gstrcmp( tmp, "wat_\0" ))
+				{
+					if( !(theActor = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION, 0, 0)) )
+					{
+						ts = ts->next;
+						continue;
+					}
+
+					dp("Added actor '%s'\n",ts->name);
+
+					/*
+					if(gstrcmp(ts->name,"world.obe") == 0)
+					{
+						theActor->flags = ACTOR_DRAW_ALWAYS;
+						globalLevelActor = theActor;
+					}*/
+
+					// If a water object, draw always
+					if( !gstrcmp( tmp, "wat_\0" ))
+					{
+						theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
+						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
+						
+						if (ts->name[4]=='f')
+							theActor->flags |= ACTOR_SLIDYTEX;
+
+					}
+
+					if( !gstrcmp( tmp, "slu_\0" ) )
+					{
+						theActor->flags = ACTOR_WATER | ACTOR_SLUDGE | ACTOR_DRAW_ALWAYS;
+
+						if (ts->name[4]=='f')
+							theActor->flags |= ACTOR_SLIDYTEX;
+
+					}
+
+					if( !gstrcmp( tmp, "lea_\0" ) )
+					{
+						theActor->flags = ACTOR_WATER | ACTOR_LEAVES | ACTOR_DRAW_ALWAYS;
+
+						if (ts->name[4]=='f')
+							theActor->flags |= ACTOR_SLIDYTEX;
+
+					}
+
+		// JH : rot is not a member
+		//			tv = ts->rot.y;
+		//			ts->rot.y = ts->rot.z;
+		//			ts->rot.z = tv;
+
+		//			GetQuaternionFromRotation (&theActor->actor->qRot,&ts->rot);
+
+					theActor->actor->qRot = ts->rot;	// rot is a quat! Yay!
+
+					actorAnimate(theActor->actor,0,YES,NO,90,0);
+					if(ts->name[0] == 'a')
+					{
+						float rMin,rMax,rNum;
+						if(ts->name[2] == '_')
+						{
+							rMin = ts->name[1] - 30;
+							if(rMin = 0) 
+								rMin = 10;
+							rMin /= 10.0;
+							actorAnimate(theActor->actor,0,YES,NO,rMin, 0);
+						}
+						else if(ts->name[3] == '_')
+						{
+							rMin = ts->name[1] - 30;
+							if(rMin == 0) 
+								rMin = 10;
+							rMin /= 10.0;
+						
+							rMax = ts->name[1] - 30;
+							if (rMax == 0) 
+								rMax = 10;
+							rMax /= 10.0;
+
+							rNum = Random(1000);
+							rNum= rMin + ((rNum * (rMax - rMin)) / 1000);
+												
+							actorAnimate(theActor->actor,0,YES,NO,rNum, 0);
+						}
+					}
+					theActor->actor->size.vx = 4096;
+					theActor->actor->size.vy = 4096;
+					theActor->actor->size.vz = 4096;
+					actCount++;
+				}
+			}
+		}
+		ts = ts->next;
+	}
+
+	utilPrintf("\n\n** ADDED %d ACTORS **\n\n",actCount);
+}
+

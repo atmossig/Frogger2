@@ -30,9 +30,10 @@ void LoadObjectBank(int objectBank);
 void LoadGame(void);
 void SaveGame(void);
 
+void CreateLevelObjects(unsigned long worldID,unsigned long levelID);
+
 #define FreeWaterObjectList()
 
-#define FreeEntityBank()
 /*
 #ifdef _______A
 #define _d(x)(*x--)
