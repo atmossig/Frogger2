@@ -155,22 +155,10 @@ BOOL UpdateFroggerControls(long pl)
 		frogFacing[pl] = (frogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-		//PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
 
-		if(!MoveToRequestedDestination(dir,pl))
-		{
-			if(currPlatform[pl])
-				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
+		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
 
-			player[pl].canJump = 1;
-
-			player[pl].frogState &=
-				~(FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|
-				FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD);
-
-			destTile[pl] = currTile[pl];
-		}
+		MoveToRequestedDestination(dir,pl);
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -187,27 +175,11 @@ BOOL UpdateFroggerControls(long pl)
 
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 
-		nextFrogFacing[pl] = nextCamFacing;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
-		if(!MoveToRequestedDestination(dir,pl))
-		{
-			if(currPlatform[pl])
-				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
+		MoveToRequestedDestination(dir,pl);
 
-			player[pl].canJump = 1;
-
-			player[pl].frogState &=
-				~(FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|
-				FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD);
-
-			destTile[pl] = currTile[pl];
-		}
-
-		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
+		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -222,23 +194,13 @@ BOOL UpdateFroggerControls(long pl)
 
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 
-		nextFrogFacing[pl] = nextCamFacing;
 		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
 		
-		if(!MoveToRequestedDestination(dir,pl))
-		{
-			if(currPlatform[pl])
-				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
+		MoveToRequestedDestination(dir,pl);
 
-			player[pl].canJump = 1;
-
-			player[pl].frogState &=
-				~(FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|
-				FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD);
-		}
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
+		
+		PlayActorBasedSample(GEN_FROG_HOP,frog[pl]->actor,255,128);
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink
@@ -337,11 +299,12 @@ void UpdateFroggerPos(long pl)
 	}
 	else if ( currTile[pl]->state & TILESTATE_CONVEYOR )
 	{
-		/*	If we're on a conveyor and can jump - i.e. we're not actually jumping -
-			consider the player on its destination tile once it goes past half-way
+		/*	If we're on a conveyor and can jump - i.e. we're not already jumping -
+			consider the player to be on its destination tile once it goes past half-way
 			along its 'jump'.
 		*/
-		if (player[pl].canJump &&
+		if (destTile[pl] &&
+			player[pl].canJump &&
 			(actFrameCount > (player[pl].jumpEndFrame + player[pl].jumpStartFrame)/2))
 		{
 			currTile[pl] = destTile[pl];
@@ -448,10 +411,10 @@ void UpdateFroggerPos(long pl)
 	if (cameoMode || !UpdateFroggerControls(pl))
 	{
 		// process frog's jump
-		if((player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE) && (destTile[pl]))
-			CheckForFroggerLanding(JUMPING_TOTILE,pl);
-		else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+		if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 			CheckForFroggerLanding(JUMPING_TOPLATFORM,pl);
+		else
+			CheckForFroggerLanding(JUMPING_TOTILE,pl);
 	}
 
 	/* ---------------------------------------------------- */
@@ -497,12 +460,11 @@ long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetNextTile(unsigned long direction)
-	Purpose			: determines the next tile
-	Parameters		:
-	Returns			:
-	Info			:
+	Purpose			: Finds the next tile in a given direction
+	Parameters		: direction, player
+	Returns			: GAMETILE*
 */
-void GetNextTile(unsigned long direction,long pl)
+GAMETILE *GetNextTile(unsigned long direction,long pl)
 {
 	VECTOR cDir;
 	unsigned long i,j,n;
@@ -510,12 +472,12 @@ void GetNextTile(unsigned long direction,long pl)
 	float distance,t;
 	unsigned long newCamFacing = camFacing;
 
-	GAMETILE *joiningTile = NULL;
+	GAMETILE *dest = NULL;
 	VECTOR vecUp;
 	float t2,at2;
 		
 	if(pl == 0)
-		destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3]; // hmm...
+		dest = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3]; // hmm...
 	else
 	{
 		/*	Alas, this only works when this player's tile and player 0's tile are orientated the same
@@ -527,153 +489,64 @@ void GetNextTile(unsigned long direction,long pl)
 		*/
 			
 		i = GetTilesMatchingDirection(currTile[0], (direction + camFacing + 2) & 3, currTile[pl]);
-		destTile[pl] = currTile[pl]->tilePtrs[i];
+		dest = currTile[pl]->tilePtrs[i];
 	}	
 
-	if(destTile[pl])
+	if (!dest)
+		return NULL;
+
+	if((dest->state == TILESTATE_SUPERHOP) || (dest->state == TILESTATE_JOIN))
 	{
-		joiningTile = destTile[pl];
+		GAMETILE *joiningTile = dest;
 
-		if((joiningTile->state == TILESTATE_SUPERHOP) || (joiningTile->state == TILESTATE_JOIN))
+		SetVector(&vecUp,&currTile[pl]->normal);
+
+		distance = -1000;
+		
+		for(i=0; i<4; i++)
 		{
-			SetVector(&vecUp,&currTile[pl]->normal);
-
-			distance = -1000;
-			
-			for(i=0; i<4; i++)
-			{
-				if(joiningTile->tilePtrs[i])
-				{					
-					t2 = DotProduct(&vecUp,&joiningTile->dirVector[i]);
-					t = Fabs(t2);
-					if(t > distance)
-					{
-						if(currTile[pl] != joiningTile->tilePtrs[i])
-						{
-							distance = t;
-							n = i;
-							at2 = t2;
-						}
-					}
-				}
-			}
-
-			destTile[pl] = joiningTile->tilePtrs[n];
-	
-			if((joiningTile->state == TILESTATE_SUPERHOP))
-			{
-				if(DotProduct(&vecUp,&joiningTile->dirVector[n]) < 0)
+			if(joiningTile->tilePtrs[i])
+			{					
+				t2 = DotProduct(&vecUp,&joiningTile->dirVector[i]);
+				t = Fabs(t2);
+				if(t > distance)
 				{
-					if(!player[pl].isSuperHopping)
+					if(currTile[pl] != joiningTile->tilePtrs[i])
 					{
-						destTile[pl] = NULL;						
-						return;
+						distance = t;
+						n = i;
+						at2 = t2;
 					}
 				}
 			}
 		}
 
-		// frog is jumping to available tile
-		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+		dest = joiningTile->tilePtrs[n];
 
-		// check if a platform is in the destination tile
-		destPlatform[pl] = JumpingToTileWithPlatform(destTile[pl],pl);
+		if((joiningTile->state == TILESTATE_SUPERHOP))
+		{
+			if(DotProduct(&vecUp,&joiningTile->dirVector[n]) < 0)
+			{
+				if(!player[pl].isSuperHopping)
+				{
+					return NULL;
+				}
+			}
+		}
 	}
 
-	if(destTile[pl])
-	{
-		GAMETILE *fromTile,*toTile;
+	// frog is jumping to available tile
+	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
-		if (player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM)
-		{
-			if (currPlatform[pl])
-				fromTile = currPlatform[pl]->inTile;
-			else
-				fromTile = currTile[pl];
-		}
-		else
-			fromTile = currTile[pl];
-
-		/*if (destTile[pl])
-			toTile = destTile[pl];
-		else
-			toTile = destPlatform[pl]->inTile;*/
-
-		nextCamFacing = GetTilesMatchingDirection(fromTile,camFacing,destTile[pl]);
-		nextFrogFacing[pl] = GetTilesMatchingDirection(fromTile,frogFacing[pl],destTile[pl]);
-
-/*		dprintf"    camFacing = %lu, (%f,%f,%f)\n",camFacing
-															,fromTile->dirVector[camFacing].v[X]
-															,fromTile->dirVector[camFacing].v[Y]
-															,fromTile->dirVector[camFacing].v[Z]));
-		dprintf"nextCamFacing = %lu, (%f,%f,%f)\n",nextCamFacing
-															,destTile[pl]->dirVector[nextCamFacing].v[X]
-															,destTile[pl]->dirVector[nextCamFacing].v[Y]
-															,destTile[pl]->dirVector[nextCamFacing].v[Z]));
-*/
-		/*distance = 0.0;
-		
-		for(i=0; i<4; i++)
-		{
-			t = DotProduct(&fromTile->dirVector[camFacing],&toTile->dirVector[i]);
-			if(t > distance)
-			{
-				distance = t;
-				newCamFacing = i;			
-			}
-		}
-
-		nextCamFacing = newCamFacing;
-
-		distance = 0.0;
-		
-		for(i=0; i<4; i++)
-		{
-			t = DotProduct(&fromTile->dirVector[frogFacing[pl]],&toTile->dirVector[i]);
-			if(t > distance)
-			{
-				distance = t;
-				newCamFacing = i;			
-			}
-		}
-
-		nextFrogFacing[pl] = newCamFacing;*/
-	}
-/*	else
-	{
-		distance = 0.0;
-		
-		for(i=0; i<4; i++)
-		{
-			t = DotProduct(&currTile[pl]->dirVector[camFacing],&destPlatform[pl]->inTile->dirVector[i]);
-			if(t > distance)
-			{
-				distance = t;
-				newCamFacing = i;			
-			}
-		}
-
-		nextCamFacing = newCamFacing;
-
-		distance = 0.0;
-		
-		for(i=0; i<4; i++)
-		{
-			t = DotProduct(&currTile[pl]->dirVector[frogFacing[pl]],&destPlatform[pl]->inTile->dirVector[i]);
-			if(t > distance)
-			{
-				distance = t;
-				newCamFacing = i;			
-			}
-		}
-
-		nextFrogFacing[pl] = newCamFacing;
-	}*/
-
-	if((destTile[pl]) && (player[pl].frogState & FROGSTATUS_ISFLOATING))
-		currTile[pl] = destTile[pl];
+	return dest;
 }
 
+/*	-------------------------------------------------------------------------
+	Function:	AnimateFrogHop
+	Purpose:	Runs the appropriate hop animation
+	Parameters:	direction, player
+	Returns:
+*/
 void AnimateFrogHop( unsigned long direction, long pl )
 {
 	switch( direction )
@@ -716,19 +589,17 @@ void AnimateFrogHop( unsigned long direction, long pl )
 
 /*	--------------------------------------------------------------------------------
 	Function		: MoveToRequestedDestination
-	Purpose			: determines if we can move to the requested destination
-	Parameters		: int
-	Returns			: TRUE if valid destination, else FALSE
-	Info			:
+	Purpose			: Moves a player in the requested destination
+	Parameters		: direction, player
+	Returns			: TRUE if we did a hop, FALSE otherwise
 */
 long speedFrameCount = 0;
 
 BOOL MoveToRequestedDestination(int dir,long pl)
 {
-	char moveLocal = 0;
-	unsigned long dirFlag = 0;
-
+	GAMETILE *dest, *from;
 	float sH,sV,t,u,a,t2;
+	unsigned long dirFlag = 0;
 
 	// clear movement request flags
 	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
@@ -749,216 +620,25 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 
 	// Select the requested destination tile based on current position and direction
-	if(!moveLocal)
+	if(player[pl].isLongHopping)
 	{
-		int i;
-
-		if(player[pl].isLongHopping)
-		{
-			switch(dir)
-			{
-				case MOVE_UP:
-					GetNextTileLongHop(0,pl);
-					break;
-				case MOVE_LEFT:
-					GetNextTileLongHop(1,pl);
-					break;
-				case MOVE_DOWN:
-					GetNextTileLongHop(2,pl);
-					break;
-				case MOVE_RIGHT:
-					GetNextTileLongHop(3,pl);
-					break;
-			}
-		}
-		else
-		{
-			if (frog[pl]->action.frogunder==-1)
-			{
-				switch(dir)
-				{
-					case MOVE_UP:
-						dirFlag = FROGSTATUS_ISWANTINGU;
-						GetNextTile(0,pl);
-						break;
-
-					case MOVE_LEFT:
-						dirFlag = FROGSTATUS_ISWANTINGL;
-						GetNextTile(1,pl);
-						break;
-
-					case MOVE_DOWN:
-						dirFlag = FROGSTATUS_ISWANTINGD;
-						GetNextTile(2,pl);
-						break;
-
-					case MOVE_RIGHT:
-						dirFlag = FROGSTATUS_ISWANTINGR;
-						GetNextTile(3,pl);
-						break;
-				}		
+		GetNextTileLongHop(dir, pl);
 		
-				if(destTile[pl] != NULL)
-				{
-					if (frog[pl]->action.frogon!=-1)
-					{
-						frog[frog[pl]->action.frogon]->action.frogunder = -1;
-						frog[pl]->action.frogon = -1;
-					}
-	
-					for (i=0; i<NUM_FROGS; i++)
-					{
-						if (currTile[i] == destTile[pl])
-						{
-							if (frog[i]->action.frogunder==-1)
-							{
-								frog[i]->action.frogunder = pl;
-								frog[pl]->action.frogon = i;
-							}
-						}
-					}
-				}
-			}
-		}
+		dest = destTile[pl];	// TODO: if possible, fix this
 	}
 	else
 	{
-		player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-	}
-
-	// check if jumping to a valid tile
-	if(destTile[pl])
-	{
-		if(currPlatform[pl])
+		if (frog[pl]->action.frogunder==-1)
 		{
-			currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
-			currPlatform[pl]->carrying = NULL;
-		}
-
-		if(destPlatform[pl])
-		{
-			// check if platform is too high to reach
-			if(PlatformTooHigh(destPlatform[pl],pl))
-			{
-				// platform too high
-				dprintf"Platform TOO HIGH\n"));
-
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-				if(destPlatform[pl]->flags & PLATFORM_NEW_NOWALKUNDER)
-				{
-					// platform cannot be walked under
-					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-					player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
-					destPlatform[pl] = NULL;
-					return FALSE;
-				}
-
-				destPlatform[pl] = NULL;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-			}
-/*
-			else if(PlatformTooLow(destPlatform[pl],pl))
-			{
-				// platform too far below
-				dprintf"Platform TOO LOW\n"));
-
-				if ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
-				{
-					player[pl].frogState |= FROGSTATUS_ISDEAD;
-					frog[pl]->action.dead = 50;
-				}
-				// ENDIF
-
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-				player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
-
-				return FALSE;
-			}
-*/
-		}
-
-		// check if gametile is too high to reach
-		
-		if(!destPlatform[pl])
-		{
-			if(GameTileTooHigh(destTile[pl],pl))
-			{			
-				// tile too high
-				dprintf"GameTile TOO HIGH\n"));
-
-				destTile[pl] = NULL;
-				destPlatform[pl] = NULL;
-
-				player[pl].isSuperHopping = 0;
-				player[pl].isLongHopping = 0;
-
-				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
-											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
-				
-				return FALSE;			
-			}
-			else if(destTile[pl]->state == TILESTATE_BARRED)
-			{
-				// Can't get into this tile at the moment
-				dprintf"GameTile BARRED\n"));
-
-				destTile[pl] = NULL;
-				destPlatform[pl] = NULL;
-				
-				player[pl].isSuperHopping = 0;
-				player[pl].isLongHopping = 0;
-
-				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
-											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
-
-				return FALSE;
-			}
-			else if(destTile[pl]->state == TILESTATE_SMASH)
-			{
-				if(!(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING))
-				{
-					dprintf"Must superhop to smash\n"));
-
-					destTile[pl] = NULL;
-					destPlatform[pl] = NULL;
-					
-					player[pl].isSuperHopping = 0;
-					player[pl].isLongHopping = 0;
-
-					player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
-												FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
-
-					return FALSE;
-				}
-				else
-				{
-					destTile[pl]->state = TILESTATE_NORMAL;
-					destTile[pl] = currTile[pl];
-					destPlatform[pl] = NULL;
-					
-					player[pl].isSuperHopping = 0;
-					player[pl].isLongHopping = 0;
-
-					player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
-												FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
-
-					return FALSE;
-				}
-			}
+			dest = GetNextTile(dir, pl);
 		}
 	}
-	else
+
+	// clear all 'wanting movement' flags
+	player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
+
+	if (!dest)
 	{
-		// clear all superhop flags
-		player[pl].frogState &= ~(	FROGSTATUS_ISWANTINGSUPERHOPU | FROGSTATUS_ISWANTINGSUPERHOPD |
-									FROGSTATUS_ISWANTINGSUPERHOPL | FROGSTATUS_ISWANTINGSUPERHOPR);
-
-		player[pl].frogState &= ~(	FROGSTATUS_ISWANTINGLONGHOPU | FROGSTATUS_ISWANTINGLONGHOPD |
-									FROGSTATUS_ISWANTINGLONGHOPL | FROGSTATUS_ISWANTINGLONGHOPR);
-
 		player[pl].canJump = 1;
 		player[pl].isSuperHopping = 0;
 		player[pl].isLongHopping = 0;
@@ -966,7 +646,135 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		return FALSE;
 	}
 
+	// check if a platform is in the destination tile
+	destPlatform[pl] = JumpingToTileWithPlatform(dest, pl);
+
+	// ---------------------------------------------------------
+	
+	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+		currTile[pl] = dest;
+
+	/*
+	
+	  TODO: Jumping on other frogs could do with re-working slightly to use
+	  player.canJump
+
+	if(dest)
+	{
+		int i;
+
+		if (frog[pl]->action.frogon!=-1)
+		{
+			frog[frog[pl]->action.frogon]->action.frogunder = -1;
+			frog[pl]->action.frogon = -1;
+		}
+
+		for (i=0; i<NUM_FROGS; i++)
+		{
+			if (currTile[i] == destTile[pl])
+			{
+				if (frog[i]->action.frogunder==-1)
+				{
+					frog[i]->action.frogunder = pl;
+					frog[pl]->action.frogon = i;
+				}
+			}
+		}
+	}
+	*/
+
+	if(currPlatform[pl])
+	{
+		currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+		currPlatform[pl]->carrying = NULL;
+	}
+
+	// ------------------ Check for valid jumps -----------------------
+
+	if(destPlatform[pl])
+	{
+		// check if platform is too high to reach
+		if(PlatformTooHigh(destPlatform[pl],pl))
+		{
+			// platform too high
+			dprintf"Platform TOO HIGH\n"));
+
+			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+
+			if(destPlatform[pl]->flags & PLATFORM_NEW_NOWALKUNDER)
+			{
+				// platform cannot be walked under
+				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+				player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
+				destPlatform[pl] = NULL;
+				return FALSE;
+			}
+
+			destPlatform[pl] = NULL;
+			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+		}
+	}
+	
+	if (!destPlatform[pl])
+	{
+		if((dest->state == TILESTATE_BARRED) || GameTileTooHigh(dest, pl))
+		{			
+			// gametile is barred or too high
+
+			player[pl].canJump = 1;
+			player[pl].isSuperHopping = 0;
+			player[pl].isLongHopping = 0;
+
+			player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
+										FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
+			
+			return FALSE;
+		}
+		else if(dest->state == TILESTATE_SMASH)
+		{
+			// smash tiles
+
+			if(!(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING))
+			{
+				dprintf"Must superhop to smash\n"));
+
+				player[pl].canJump = 1;
+				player[pl].isSuperHopping = 0;
+				player[pl].isLongHopping = 0;
+
+				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
+											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
+
+				return FALSE;
+			}
+			else
+			{
+				dest->state = TILESTATE_NORMAL;
+				
+				player[pl].canJump = 1;
+				player[pl].isSuperHopping = 0;
+				player[pl].isLongHopping = 0;
+
+				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
+											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
+
+				return FALSE;
+			}
+		}
+	}
+
 	// ------------------------------------------------------------------------------------------
+	// If we get this far, it's a valid jump! Celebrations! Fizzy pop and lime jelly all round.
+
+	destTile[pl] = dest;
+
+	if (currPlatform[pl])
+		from = currPlatform[pl]->inTile;
+	else
+		from = currTile[pl];
+
+	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
+	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
 
 	if(player[pl].isSuperHopping)
 	{
@@ -991,23 +799,21 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
-	{		CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl,t2,NOINIT_VELOCITY);
+	{	
+		CalculateFrogJump(
+			&frog[pl]->actor->pos, &currTile[pl]->normal,
+			&destTile[pl]->centre, &destTile[pl]->normal,
+			t,pl,t2,NOINIT_VELOCITY);
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
-		CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-							&destPlatform[pl]->pltActor->actor->pos,
-							&destPlatform[pl]->inTile->normal,t,pl,t2,NOINIT_VELOCITY);
+		CalculateFrogJump(
+			&frog[pl]->actor->pos, &currTile[pl]->normal,
+			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+			t,pl,t2,NOINIT_VELOCITY);
 	}
 
 	// ------------------------------------------------------------------------------------------
-
-	// clear all superhop flags
-	player[pl].frogState &= ~(	FROGSTATUS_ISWANTINGSUPERHOPU | FROGSTATUS_ISWANTINGSUPERHOPD |
-								FROGSTATUS_ISWANTINGSUPERHOPL | FROGSTATUS_ISWANTINGSUPERHOPR);
-
-	player[pl].frogState &= ~(	FROGSTATUS_ISWANTINGLONGHOPU | FROGSTATUS_ISWANTINGLONGHOPD |
-								FROGSTATUS_ISWANTINGLONGHOPL | FROGSTATUS_ISWANTINGLONGHOPR);
 
 	numHops_TOTAL++;
 	if(speedFrameCount)
@@ -1019,7 +825,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 /*	--------------------------------------------------------------------------------
 	Function		: CheckForFroggerLanding
-	Purpose			: determine if Frogger has finished his jump !
+	Purpose			: determine whether the player has finished its jump
 	Parameters		: int
 	Returns			: void
 	Info			:
@@ -1029,178 +835,170 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	VECTOR telePos;
 	unsigned long i;
 	float distance;
-	
+
+	if (actFrameCount < player[pl].jumpEndFrame) return;
+
+	frog[pl]->action.deathBy = -1;
+	frog[pl]->action.dead	 = 0;
+
+	player[pl].canJump = 1;
+	player[pl].isSuperHopping = 0;
+	player[pl].isLongHopping = 0;
+
 	if(whereTo == JUMPING_TOPLATFORM)
 	{
-		if(actFrameCount > player[pl].jumpEndFrame)
+		// Okay - Frogger has landed - snap him to the centre of the platform
+		SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
+
+		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
+		player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
+
+		destPlatform[pl]->carrying	= frog[pl];
+		
+		frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
+		frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
+		frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
+
+		player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISFLOATING |
+									FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING);
+		currPlatform[pl] = destPlatform[pl];
+
+		if(player[pl].heightJumped < -125.0F)
 		{
-			// Okay - Frogger has landed - snap him to the centre of the platform
-			SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
-			
-			frog[pl]->action.deathBy	= -1;
-			frog[pl]->action.dead		= 0;
-
-			player[pl].canJump = 1;
-			player[pl].isSuperHopping = 0;
-			player[pl].isLongHopping = 0;
-/*
-			if(player[pl].frogState & FROGSTATUS_ISDEAD)
+			if(!frog[pl]->action.dead)
 			{
-				cameraShake = 35;
-				AnimateActor(frog[pl]->actor,FROG_ANIM_FWDSOMERSAULT,NO,NO,0.367,0,0);
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 0.8 );
 				frog[pl]->action.deathBy = DEATHBY_NORMAL;
-				frog[pl]->action.dead = 35;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
+
+				player[pl].frogState |= FROGSTATUS_ISDEAD;
+				frog[pl]->action.dead = 50;
+
+				PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
-			else
-			{
-				frog[pl]->action.deathBy = -1;
-			}
-*/
-
-			destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
-			player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
-
-			destPlatform[pl]->carrying	= frog[pl];
-			
-			frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
-			frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
-			frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
-
-			player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISFLOATING |
-										FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING);
-			currPlatform[pl] = destPlatform[pl];
-/*	
-			frogFacing[pl] = nextFrogFacing[pl];
-			if (pl == 0)
-				camFacing = nextCamFacing;
-*/
-			if(player[pl].heightJumped < -125.0F)
-			{
-				if(!frog[pl]->action.dead)
-				{
-					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 0.8 );
-					frog[pl]->action.deathBy = DEATHBY_NORMAL;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
-
-					player[pl].frogState |= FROGSTATUS_ISDEAD;
-					frog[pl]->action.dead = 50;
-
-					PlayActorBasedSample(2,frog[pl]->actor,255,128);
-				}
-				return;
-			}
-
-			CheckTileForCollectable(NULL,0);
+			return;
 		}
+
+		CheckTileForCollectable(NULL,0);
 	}
 	else
 	{
-		if(destTile[pl] && actFrameCount > player[pl].jumpEndFrame)
+		GAMETILE *tile;
+		int state;
+		
+		if (!destTile[pl])
+			tile = currTile[pl];
+		else
 		{
-			int state = destTile[pl]->state;
+			// Frog has landed - set camera to new rotation, face frog correctly, blahblahblah
+			currTile[pl] = tile = destTile[pl];
+			destTile[pl] = NULL;
+
+			if (pl == 0) camFacing = nextCamFacing;
 
 			// set frog to centre of tile
-			SetVector(&frog[pl]->actor->pos,&destTile[pl]->centre);
+			SetVector(&frog[pl]->actor->pos, &tile->centre);
+		}
 
-			frog[pl]->action.deathBy = -1;
-			frog[pl]->action.dead	 = 0;
+		frogFacing[pl] = nextFrogFacing[pl];
+		state = tile->state;
 
-			player[pl].isSuperHopping = 0;
-			player[pl].isLongHopping = 0;
-			player[pl].canJump = 1;
+		frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
+		frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
+		frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
 
-			frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
-			frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
-			frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
+		player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
+			FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING |
+			FROGSTATUS_ISFLOATING);
 
-			player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
-				FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING |
-				FROGSTATUS_ISFLOATING);
 
-			// Frog has landed - set camera to new rotation, face frog correctly
-			currTile[pl] = destTile[pl];
-			frogFacing[pl] = nextFrogFacing[pl];
-			if (pl == 0)
-				camFacing = nextCamFacing;
-
-			// check tile to see if frog has jumped onto a certain tile type
-			if((state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
+		// check tile to see if frog has jumped onto a certain tile type
+		if((state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
+		{
+			if(!frog[pl]->action.dead)
 			{
-				if(!frog[pl]->action.dead)
+				if(state == TILESTATE_DEADLY)
 				{
-					if(destTile[pl]->state == TILESTATE_DEADLY)
-					{
-						CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 10, 10, 0, 2 );
-						CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 20, 10, 0, 2 );
+					CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 10, 10, 0, 2 );
+					CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 20, 10, 0, 2 );
 
-						CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 20, 0.8, 0.1, 0.6 );
-						frog[pl]->action.deathBy = DEATHBY_DROWNING;
-						AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
-					}
-					else
-					{
-						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 1 );
-						frog[pl]->action.deathBy = DEATHBY_NORMAL;
-						AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
-					}
-
-					player[pl].frogState |= FROGSTATUS_ISDEAD;
-					frog[pl]->action.dead = 50;
-
-					PlayActorBasedSample(2,frog[pl]->actor,255,128);
+					CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
+					frog[pl]->action.deathBy = DEATHBY_DROWNING;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 				}
-				return;
-			}
-			else if(state == TILESTATE_SINK)
-			{
-				player[pl].isSinking = 10;
-			}
-			if (currTile[pl]->state & TILESTATE_CONVEYOR)
-			{	
-				// -------------------------------- Conveyors ----------------------------
-
-				MoveToRequestedDestination(
-					((state & (TILESTATE_CONVEYOR-1)) - camFacing) & 3, pl);
-
-				if (destTile[pl])
+				else
 				{
-					int speed;
-					GAMETILE *fromTile = currTile[pl];
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &tile->centre, &tile->normal, 25, 1, 0.1, 1 );
+					frog[pl]->action.deathBy = DEATHBY_NORMAL;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
+				}
 
-					if (state > TILESTATE_CONVEYOR_FAST)
-						speed = 2;
-					else if (state > TILESTATE_CONVEYOR_MED)
-						speed = 1;
-					else
-						speed = 0;
+				player[pl].frogState |= FROGSTATUS_ISDEAD;
+				frog[pl]->action.dead = 50;
 
-					//if (actFrameCount > (player[pl].jumpStartFrame + player[pl].jumpEndFrame) / 2)
-					//	currTile[pl] = destTile[pl];
+				PlayActorBasedSample(2,frog[pl]->actor,255,128);
+			}
+			return;
+		}
+		else if(state == TILESTATE_SINK)
+		{
+			player[pl].isSinking = 10;
+		}
+		if (state & TILESTATE_CONVEYOR)
+		{	
+			// -------------------------------- Conveyors ----------------------------
 
+			int res = MoveToRequestedDestination(
+				((state & (TILESTATE_CONVEYOR-1)) - camFacing) & 3, pl);
+
+			if (res)
+			{
+				int speed;
+
+				if (state > TILESTATE_CONVEYOR_FAST)
+					speed = 2;
+				else if (state > TILESTATE_CONVEYOR_MED)
+					speed = 1;
+				else
+					speed = 0;
+
+				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
-						&frog[pl]->actor->pos, &fromTile->normal, 
+						&frog[pl]->actor->pos, &tile->normal,
+						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+						conveyorFrames[speed], pl, 0.0, NOINIT_VELOCITY);
+				else
+					CalculateFrogJump(
+						&frog[pl]->actor->pos, &tile->normal, 
 						&destTile[pl]->centre, &destTile[pl]->normal,
 						conveyorFrames[speed], pl, 0.0, NOINIT_VELOCITY);
-				}
 			}
-			else if (state == TILESTATE_ICE)
-			{
-				MoveToRequestedDestination((nextFrogFacing[pl] - camFacing) & 3, pl);	// sliiiiiide!
+		}
+		else if (state == TILESTATE_ICE)
+		{
+			int res = MoveToRequestedDestination((nextFrogFacing[pl] - camFacing) & 3, pl);
 
-				if (destTile[pl])
+			if (res)
+			{
+				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
-						&currTile[pl]->centre, &currTile[pl]->normal, 
-						&destTile[pl]->centre, &currTile[pl]->normal,
+						&frog[pl]->actor->pos, &tile->normal,
+						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+						iceFrames, pl, 0.0, NOINIT_VELOCITY);
+				else
+					CalculateFrogJump(
+						&frog[pl]->actor->pos, &tile->normal, 
+						&destTile[pl]->centre, &destTile[pl]->normal,
 						iceFrames, pl, 0.0, NOINIT_VELOCITY);
 
 				player[pl].canJump = FALSE;
 			}
-			// Check for camera transitions on the tile
-			CheckForDynamicCameraChange(currTile[pl]);
-
-			// Next, check if frog has landed on a collectable
-			CheckTileForCollectable(destTile[pl],pl);
 		}
+		// Check for camera transitions on the tile
+		CheckForDynamicCameraChange(tile);
+
+		// Next, check if frog has landed on a collectable
+		CheckTileForCollectable(tile, pl);
 	}
 }
 
@@ -1339,6 +1137,9 @@ BOOL KillFrog(long pl)
 	Parameters		: 
 	Returns			: 
 	Info			: 
+
+	TODO: This should just call GetNextTile twice with a few checks! Large amounts of duplicated code
+	could be removed
 */
 void GetNextTileLongHop(unsigned long direction,long pl)
 {
@@ -1631,6 +1432,7 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 	float maxdot = 0.0, dot;
 	int j, dir = 0;
 
+	// Find nearest matching direction vector
 	for(j=0; j<4; j++)
 	{	
 		dot = DotProduct(&currTile[pl]->dirVector[j], direction);
@@ -1641,15 +1443,13 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 		}
 	}
 
-	MoveToRequestedDestination((dir - camFacing) & 3, pl);
+	if (!MoveToRequestedDestination((dir - camFacing) & 3, pl)) return;
 	//dest = currTile[pl]->tilePtrs[dir];
-
-	if (!destTile[pl]) return;
 
 	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destTile[pl]->centre, &destTile[pl]->normal,
+			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
 			standardHopFrames, pl, 0.0, NOINIT_VELOCITY);
 	else
 		CalculateFrogJump(
