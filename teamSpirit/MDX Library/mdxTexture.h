@@ -56,7 +56,7 @@ typedef struct TAG_MDX_TEXPAGE
 #define TEXTURE_BASE "textures\\"
 
 extern MDX_TEXENTRY *texList;
-
+extern MDX_TEXENTRY *cDispTexture;
 extern float textureAdjustDivider;
 extern LPDIRECTDRAWSURFACE7 testS;
 
