@@ -25,6 +25,9 @@
 #include <isltex.h>
 #include <islutil.h>
 #include "timer.h"
+//#include "main.h"
+
+#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 
 extern ACTORSETANIM globalActors [ 50 ];
 
@@ -526,7 +529,7 @@ void psiInitSortList(int range)
 	if (sortedIndex)
 		FREE(sortedIndex);
 	
-	sortedIndex = (ULONG*)MALLOC( range*sizeof(ULONG));
+	sortedIndex = (ULONG*)MALLOC0( range*sizeof(ULONG));
 }
 
 
@@ -664,8 +667,8 @@ void psiInitialise(int maxModels)
 	customDrawFunction = 0;
 	customDrawFunction2 = 0;
 
-	psiModelList = MALLOC(sizeof(PSIMODEL *) * maxModels);
-	psiModelListCRC =MALLOC(sizeof(long) * maxModels);
+	psiModelList = MALLOC0(sizeof(PSIMODEL *) * maxModels);
+	psiModelListCRC =MALLOC0(sizeof(long) * maxModels);
 	MAXMODELS = maxModels;
 }
 
@@ -1362,9 +1365,9 @@ PSIMODEL *psiFixup(char *addr)
 
 void psiAllocWorkspace()
 {
-	transformedVertices = (long*)MALLOC( (biggestVertexModel + 2) * sizeof(long) );
-	transformedDepths = (long*)MALLOC( (biggestVertexModel + 2) * sizeof(long) );
-	transformedNormals = (VERT*)MALLOC( (biggestVertexModel + 2) * sizeof(VERT));
+	transformedVertices = (long*)MALLOC0( (biggestVertexModel + 2) * sizeof(long) );
+	transformedDepths = (long*)MALLOC0( (biggestVertexModel + 2) * sizeof(long) );
+	transformedNormals = (VERT*)MALLOC0( (biggestVertexModel + 2) * sizeof(VERT));
 }
 
 

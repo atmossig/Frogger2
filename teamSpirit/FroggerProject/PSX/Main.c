@@ -448,7 +448,7 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		textureInitialise ( 450, 80);
+		textureInitialise ( 500, 30);
 
 //		sfxInitialise();
 //		sfxStartSound();
@@ -853,7 +853,7 @@ void MainDrawFunction ( void )
 		DrawActorList();
 	TIMER_STOP0(TIMER_ACTOR_DRAW);
 
-	if( gameState.multi == SINGLEPLAYER )
+	//if( gameState.multi == SINGLEPLAYER )
 	{
 		UpdateFrogTongue(0);
 		UpdateFrogCroak(0);
@@ -962,7 +962,7 @@ void MainReset ( void )
 		MemCardStart();
 //		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 2500, 0 );
-		textureInitialise ( 450, 80);
+		textureInitialise ( 500, 30);
 }
 
 

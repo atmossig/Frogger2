@@ -201,7 +201,7 @@ void LoadTextureAnimBank ( int textureBank )
 			break;
 
 		case SUPERRETRO_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\SUPER.TIT" );
+				sprintf ( titFileName, "TEXTURES\\RETRO.TIT" );
 			break;
 
 		case FRONTEND_TEX_BANK:
@@ -217,7 +217,6 @@ void LoadTextureAnimBank ( int textureBank )
 			break;
 	}
 	// ENDSWITCH - textureBank
-
 
 	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
 

@@ -236,7 +236,7 @@ static void fileCDInitialise(char *fileSystem)
 	strcpy(FILEIO_CDINDEX, fileSystem);
 	CdInit();
 
-	fileIO.index = MALLOC(8*2048);
+	fileIO.index = MALLOC0(8*2048);
 
 	while(fileCDreadIndex(FILEIO_CDINDEX))
 	{
@@ -395,7 +395,7 @@ static unsigned long *fileCDloadDATfile(char *fName, int *length)
 
 	if (lPtr[0]==FLA_MAGIC)												// Check compression
 	{																	// Compressed file
-		buffer = MALLOC(lPtr[1]+2048);
+		buffer = MALLOC0(lPtr[1]+2048);
 		
 		if (!buffer)
 		{
@@ -426,7 +426,7 @@ static unsigned long *fileCDloadDATfile(char *fName, int *length)
 	}
 	else
 	{																	// Uncompressed file
-		if ((buffer = MALLOC(((sz>>11)+1)<<11))==NULL)			// Get RAM
+		if ((buffer = MALLOC0(((sz>>11)+1)<<11))==NULL)			// Get RAM
 		{
 			printf("Load file: Not enough RAM\n");
 			return NULL;

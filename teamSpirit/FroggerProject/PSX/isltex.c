@@ -43,6 +43,8 @@ static int	VRAM_256PALETTES;
 #define VRAM_CALCVRAMX(HND)	(512+((VRAM_GETPAGE(HND)%(VRAM_PAGECOLS))*64)+(VRAM_GETX(HND)*2))
 #define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
 
+#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
+
 TextureBankType *texBank[MAXTEXBANKS];
 
 unsigned char	VRAMblock[VRAM_PAGES][VRAM_PAGEW*VRAM_PAGEH];
@@ -204,7 +206,7 @@ void textureInitialise(int num16Cluts, int num256Cluts)
 		mallocSize = (sizeof(unsigned short) * num16Cluts) + (sizeof(int) * (num16Cluts / 32)) +
 			(sizeof(unsigned short) * num16Cluts) + (sizeof(unsigned long) * num16Cluts);
 		
-		VRAMpalBlock = MALLOC(mallocSize);
+		VRAMpalBlock = MALLOC0(mallocSize);
 		VRAMpalHandle = (int *)((unsigned char *)VRAMpalBlock + (sizeof(unsigned short) * num16Cluts));
 		VRAMpalCLUT = (unsigned short *)((unsigned char *)VRAMpalHandle + (sizeof(int) * (num16Cluts / 32)));
 		VRAMpalCRC = (unsigned long *)((unsigned char *)VRAMpalCLUT + (sizeof(unsigned short) * num16Cluts));
@@ -234,7 +236,7 @@ void textureInitialise(int num16Cluts, int num256Cluts)
 		mallocSize = (sizeof(unsigned short) * num256Cluts) + (sizeof(unsigned long) * num256Cluts) +
 			(sizeof(unsigned long) * num256Cluts);
 
-		VRAMpal256Block = MALLOC(mallocSize);
+		VRAMpal256Block = MALLOC0(mallocSize);
 		VRAMpal256CLUT = (unsigned long *)((unsigned char *)VRAMpal256Block + (sizeof(unsigned short) * num256Cluts));
 		VRAMpal256CRC = (unsigned long *)((unsigned char *)VRAMpal256CLUT + (sizeof(unsigned long) * num256Cluts));
 
@@ -780,7 +782,7 @@ TextureBankType *textureLoadBank(char *sFile)
 	
 	mallocSize = (sizeof(TextureBankType)) + (numTextures*4+((numTextures+7)/8)) + (sizeof(TextureType)*numTextures);
 
-	newBank = MALLOC(mallocSize);
+	newBank = MALLOC0(mallocSize);
 
 	for(loop=0; loop<MAXTEXBANKS; loop++)
 	{
@@ -976,7 +978,7 @@ TextureBankType *textureReallocTextureBank(TextureBankType *txBank)
 
 	mallocSize = (sizeof(TextureBankType)) + (txBank->numTextures*4+((txBank->numTextures+7)/8)) + (sizeof(TextureType)*txBank->numTextures);
 
-	textureBank = MALLOC(mallocSize);	
+	textureBank = MALLOC0(mallocSize);	
 	
 	//textureBank = MALLOC(sizeof(TextureBankType));
 	textureBank->numTextures = txBank->numTextures;
@@ -1322,7 +1324,7 @@ TextureAnimType *textureCreateAnimation(TextureType *dummy, TextureType **anim, 
 
 	mallocSize = sizeof(TextureAnimType) + (sizeof(TextureType *) * numFrames);
 
-	texAnim = MALLOC(mallocSize);
+	texAnim = MALLOC0(mallocSize);
 
 	texAnim->dest = dummy;
 

@@ -41,6 +41,7 @@ static int			numOtherSprites;
 unsigned char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
 					"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
 
+#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
 
 
 static void fontDownload(psFont *font, char *fontdata, int character)
@@ -98,7 +99,7 @@ psFont *fontLoad(char *fontname)
 
 	numOtherSprites = 0;
 
-	font = (psFont *)MALLOC(sizeof(psFont));
+	font = (psFont *)MALLOC0(sizeof(psFont));
 	if ((fontdata = fileLoad(fontname, NULL))==NULL)
 		return NULL;
 
@@ -109,7 +110,7 @@ psFont *fontLoad(char *fontname)
 
 	fontptr = (int *)fontdata + 10;
 
-	font->txPtr = (TextureType *)MALLOC(sizeof(TextureType)*font->numchars);
+	font->txPtr = (TextureType *)MALLOC0(sizeof(TextureType)*font->numchars);
 	memset(font->charlookup, -1, 256);
 /*	str = "àèìòùÀÈÌÒÙáéíóúıÁÉÍÓÚİâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜåÅæÆçÇğĞøØ¿¡ß";
 	for(loop=0; loop<strlen(str); loop++)
