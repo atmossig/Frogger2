@@ -531,8 +531,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->sprites->scaleY = size;
 		SetVector( &effect->sprites->pos, &effect->origin );
 
-		AddSprite( effect->sprites, NULL );
-
 		effect->fade = effect->sprites->a / life;
 
 		effect->Update = UpdateFXTwinkle;
@@ -567,8 +565,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->sprites->offsetX = -16;
 		effect->sprites->offsetY = -16;
 		effect->sprites->flags = SPRITE_TRANSLUCENT;
-
-		AddSprite( effect->sprites, NULL );
 
 		effect->Update = UpdateFXSmoke;
 		effect->Draw = NULL;
