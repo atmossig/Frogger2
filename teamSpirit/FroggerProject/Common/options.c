@@ -861,6 +861,7 @@ void ExtraDown(void)
 //-----------------------------------------------------------------------------------------------------------
 // Extras Select
 //-----------------------------------------------------------------------------------------------------------
+char fmvStr[NUM_FMV_SEQUENCES][64];
 void ExtraSelect(void)
 {
 	int i,j,switchVal;
@@ -904,7 +905,13 @@ void ExtraSelect(void)
 					numFMVOpen++;
 				for(i = 0;i < numFMVOpen;i++)
 				{
-					options.fmvText[i] = CreateAndAddTextOverlay(2048,(2048-(numFMVOpen/2)*E_HEIGHT)+(i*E_HEIGHT),GAMESTRING(STR_FMV_1 + i),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+					if(i == 0)
+						sprintf(fmvStr[i],GAMESTRING(STR_FMV_1));
+					else if(i == NUM_FMV_SEQUENCES - 1)
+						sprintf(fmvStr[i],GAMESTRING(STR_FMV_2));
+					else
+						sprintf(fmvStr[i],"%d - %s %s",i,GAMESTRING(STR_CHAPTER_1a + (i-1)*2),GAMESTRING(STR_CHAPTER_1b + (i-1)*2));
+					options.fmvText[i] = CreateAndAddTextOverlay(2048,(2048-(numFMVOpen/2)*E_HEIGHT)+(i*E_HEIGHT),fmvStr[i],YES,255,fontSmall,TEXTOVERLAY_SHADOW);
 					options.fmvText[i]->r = options.fmvText[i]->g = options.fmvText[i]->b = 200;
 				}
 				break;
