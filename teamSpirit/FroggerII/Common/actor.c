@@ -167,18 +167,10 @@ void DrawActorList()
 	ACTOR2	*cur;
 
 
-	vtxPtr = &(objectsVtx[draw_buffer][0]);
-
 	InitDisplayLists();
 	SetRenderMode();
 	SetupViewing();
 
-	if(fog.mode)
-	{
-	   gDPSetFogColor(glistp++, fog.r, fog.g, fog.b, 255);
-
-	   gSPFogPosition(glistp++, fog.min, fog.max);
-	}
 /*	ACTOR2 *cur,*next;
 	float distance;
 		
@@ -205,8 +197,6 @@ void DrawActorList()
 void DrawCameraSpaceActorList()
 {
 	ACTOR2	*cur;
-
-	vtxPtr = &(objectsVtx[draw_buffer][0]);
 
 	cur = actList;
 	while(cur)
