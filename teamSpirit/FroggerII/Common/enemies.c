@@ -1264,7 +1264,7 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 		if( flags & ENEMY_NEW_PINGPONG )
 			nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
 		else if( flags & ENEMY_NEW_CYCLE )
-			SetVector( &nme->nmeActor->actor->pos, &path->nodes[path->fromNode].worldTile->centre );
+			GetPositionForPathNode(&nme->nmeActor->actor->pos,&path->nodes[path->fromNode]);
 	}
 
 	nme->speed		= path->nodes[path->fromNode].speed;
