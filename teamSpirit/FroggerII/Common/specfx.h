@@ -119,6 +119,7 @@ typedef struct TAGSPECFX
 	TEXTURE *tex;
 	ACTOR *follow;								// Go where it goes
 
+	char updateType;							// Index into lastAdded
 	void (*Update) (struct TAGSPECFX*);			// Just like C++
 	void (*Draw) (struct TAGSPECFX*);			// Update and draw functions, specified for different types.
 
@@ -166,7 +167,7 @@ extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *no
 
 extern void UpdateSpecialEffects( );
 
-extern SPECFX *AllocateFX( int number );
+extern SPECFX *AllocateFX( int number, int type );
 extern void DeallocateFX( SPECFX *head, int number );
 extern void InitSpecFXList( );
 extern void FreeSpecFXList( );

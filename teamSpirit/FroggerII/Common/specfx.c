@@ -71,6 +71,7 @@ void CreateGloopEffects( SPECFX *parent );
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
 
+
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
 D3DTLVERTEX *ringVtx = NULL;
@@ -93,7 +94,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, origin) > ACTOR_DRAWDISTANCEOUTER-(sfxList.count*FX_CLIPSTEP) )
 		return NULL;
 
-	if( !(effect = AllocateFX(1)) )
+	if( !(effect = AllocateFX(1, type)) )
 		return NULL;
 
 	effect->type = type;
@@ -136,7 +137,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrStar;
 		effect->Update = UpdateFXDecal;
 		effect->Draw = DrawFXDecal;
-
 		break;
 	case FXTYPE_WAKE:
 		effect->a = 255;
@@ -148,7 +148,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Update = UpdateFXDecal;
 		effect->Draw = DrawFXDecal;
 		break;
-
 	case FXTYPE_DECAL:
 		effect->a = 255;
 		effect->fade = effect->a / life;
@@ -158,7 +157,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrRing;
 		effect->Update = UpdateFXDecal;
 		effect->Draw = DrawFXDecal;
-
 		break;
 	case FXTYPE_FROGSHIELD:
 	case FXTYPE_POLYRING:
@@ -179,9 +177,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXRing;
 		effect->Draw = DrawFXRing;
-
 		break;
-
 	case FXTYPE_LASER:
 		if( !ringVtx )
 			CreateBlastRing( );
@@ -201,15 +197,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXBolt;
 		effect->Draw = DrawFXRing;
-
 		break;
 	case FXTYPE_TRAIL:
 	case FXTYPE_BILLBOARDTRAIL:
-
-#ifdef N64_VERSION
-		break;		// TEMPORARY MEASURE - ANDYE
-#endif
-
 		effect->fade = effect->a / life;
 
 		effect->numP = i = NUM_TRAIL_ELEMENTS;
@@ -227,7 +217,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrTrail;
 		effect->Update = UpdateFXTrail;
 		effect->Draw = DrawFXTrail;
-
 		break;
 	case FXTYPE_FROGSTUN:
 		effect->numP = 6;
@@ -258,7 +247,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 			s->offsetX	= -16;
 			s->offsetY	= -16;
-			s->flags = SPRITE_TRANSLUCENT;
+			s->flags = SPRITE_TRANSLUCENT | XLU_ADD;
 
 			effect->particles[i].pos.v[X] = -8 + Random(16);
 			effect->particles[i].pos.v[Y] = -6 + Random(12);
@@ -311,7 +300,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXSwarm;
 		effect->Draw = NULL;
-
 		break;
 	case FXTYPE_HEALTHFLY:
 		effect->numP = 1;
@@ -341,7 +329,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXFly;
 		effect->Draw = NULL;
-
 		break;
 	case FXTYPE_SMOKE_STATIC:
 	case FXTYPE_SMOKE_GROWS:
@@ -410,7 +397,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXSmoke;
 		effect->Draw = NULL;
-		
 		break;
 	case FXTYPE_SMOKEBURST:
 	case FXTYPE_SPLASH:
@@ -454,7 +440,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 			s->offsetX = -16;
 			s->offsetY = -16;
-			s->flags = SPRITE_TRANSLUCENT;
+			s->flags = SPRITE_TRANSLUCENT | XLU_ADD;
 
 			if( effect->type == FXTYPE_SPARKBURST || effect->type == FXTYPE_SPARKLYTRAIL )
 				effect->particles[i].bounce = 1;
@@ -476,7 +462,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 			if( (effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE) )
 			{
-				s->flags |= SPRITE_FLAGS_ROTATE | XLU_ADD;
+				s->flags |= SPRITE_FLAGS_ROTATE;
 
 				s->scaleX = effect->scale.v[X] + Random(21)-10;
 				s->scaleY = effect->scale.v[Y] + Random(21)-10;
@@ -499,7 +485,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXExplode;
 		effect->Draw = NULL;
-		
 		break;
 	case FXTYPE_LIGHTNING:
 		effect->numP = speed/24;
@@ -523,7 +508,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Update = UpdateFXLightning;
 		effect->Draw = DrawFXLightning;
 		break;
-
 	case FXTYPE_GLOW:
 	case FXTYPE_TWINKLE:
 		effect->numP = 1;
@@ -551,7 +535,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->sprites->offsetX = -16;
 		effect->sprites->offsetY = -16;
-		effect->sprites->flags = SPRITE_TRANSLUCENT;
+		effect->sprites->flags = SPRITE_TRANSLUCENT | XLU_ADD;
 
 		effect->sprites->scaleX = size;
 		effect->sprites->scaleY = size;
@@ -561,7 +545,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXTwinkle;
 		break;
-
 	case FXTYPE_GREENGLOOP:
 		// Create a bubble, but the effect persists after the bubbles are gone, to create a wait time
 		// Also create several actual bubbles, but they do not spawn all the shit that this does
@@ -594,7 +577,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXSmoke;
 		effect->Draw = NULL;
-
 		break;
 	}
 
@@ -1369,17 +1351,16 @@ void InitSpecFXList( )
 
 	// get the textures used for the various special effects
 	FindTexture(&txtrRipple,UpdateCRC("ai_ripple2.bmp"),YES);
-	FindTexture(&txtrStar,UpdateCRC("ai_star.bmp"),YES);
+	FindTexture(&txtrStar,UpdateCRC("star_outline.bmp"),YES);
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
-	//FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("00smok07.bmp"),YES);
 	FindTexture(&txtrSmoke2,UpdateCRC("ai_smoke2.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
-	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
-	FindTexture(&txtrFlare,UpdateCRC("ai_flare.bmp"),YES);
+	FindTexture(&txtrFlash,UpdateCRC("flash.bmp"),YES);
+	FindTexture(&txtrFlare,UpdateCRC("flare.bmp"),YES);
 }
 
 
@@ -1418,7 +1399,7 @@ void FreeSpecFXList()
 
 	if( sfxList.lastAdded )
 	{
-		JallocFree( (UBYTE **)sfxList.lastAdded );
+		JallocFree( (UBYTE **)&sfxList.lastAdded );
 		sfxList.lastAdded = NULL;
 	}
 
@@ -1434,21 +1415,63 @@ void FreeSpecFXList()
 	Returns			: pointer to first one
 	Info			: 
 */
-SPECFX *AllocateFX( int number )
+SPECFX *AllocateFX( int number, int type )
 {
-	SPECFX *s;
+	SPECFX *s, *ptr;
+	int update;
+
 	// Return if allocation is impossible for any reason
 	if( (number <= 0) || (sfxList.stackPtr-number < 0) || (number >= MAX_SPECFX-sfxList.count) ) return NULL;
+
+	switch( type )
+	{
+	case FXTYPE_CUSTOM: update = FXUPDATE_DECAL; break;
+	case FXTYPE_WATERRIPPLE: update = FXUPDATE_DECAL; break;
+	case FXTYPE_GARIBCOLLECT: update = FXUPDATE_DECAL; break;
+	case FXTYPE_SPARKLYTRAIL: update = FXUPDATE_EXPLODE; break;
+	case FXTYPE_FROGSTUN: update = FXUPDATE_SWARM; break;
+	case FXTYPE_SMOKE_STATIC: update = FXUPDATE_SMOKE; break;
+	case FXTYPE_SMOKE_GROWS: update = FXUPDATE_SMOKE; break;
+	case FXTYPE_DECAL: update = FXUPDATE_DECAL; break;
+	case FXTYPE_SPLASH: update = FXUPDATE_EXPLODE; break;
+	case FXTYPE_SMOKEBURST: update = FXUPDATE_EXPLODE; break;
+	case FXTYPE_GREENGLOOP: update = FXUPDATE_SMOKE; break;
+	case FXTYPE_BATSWARM: update = FXUPDATE_SWARM; break;
+	case FXTYPE_BUBBLES: update = FXUPDATE_SMOKE; break;
+	case FXTYPE_SPARKBURST: update = FXUPDATE_EXPLODE; break;
+	case FXTYPE_FIERYSMOKE: update = FXUPDATE_EXPLODE; break;
+	case FXTYPE_POLYRING: update = FXUPDATE_RING; break;
+	case FXTYPE_BUTTERFLYSWARM: update = FXUPDATE_SWARM; break;
+	case FXTYPE_LASER: update = FXUPDATE_BOLT; break;
+	case FXTYPE_TRAIL: update = FXUPDATE_TRAIL; break;
+	case FXTYPE_BILLBOARDTRAIL: update = FXUPDATE_TRAIL; break;
+	case FXTYPE_LIGHTNING: update = FXUPDATE_LIGHTNING; break;
+	case FXTYPE_HEALTHFLY: update = FXUPDATE_FLY; break;
+	case FXTYPE_SPACETHING1: update = FXUPDATE_SWARM; break;
+	case FXTYPE_FROGSHIELD: update = FXUPDATE_RING; break;
+	case FXTYPE_GLOW: update = FXUPDATE_TWINKLE; break;
+	case FXTYPE_TWINKLE: update = FXUPDATE_TWINKLE; break;
+	case FXTYPE_WAKE: update = FXUPDATE_DECAL; break;
+	default: update = FXUPDATE_DECAL; break;
+	}
 
 	// Now we can go and allocate effects with gay abandon
 	while( number-- )
 	{
 		s = sfxList.stack[sfxList.stackPtr--];
 
-		s->prev	= &sfxList.head;
-		s->next	= sfxList.head.next;
-		sfxList.head.next->prev	= s;
-		sfxList.head.next = s;
+		if( sfxList.lastAdded[update] )
+			ptr = sfxList.lastAdded[update];
+		else
+			ptr = sfxList.head.next;
+
+		sfxList.lastAdded[update] = s;
+		s->updateType = update;
+
+		s->prev = ptr->prev;
+		s->next = ptr;
+		ptr->prev->next = s;
+		ptr->prev = s;
 
 		sfxList.count++;
 	}
@@ -1475,8 +1498,18 @@ void DeallocateFX( SPECFX *head, int number )
 	{
 		t = s->next;
 
-		s->prev->next	= s->next;
-		s->next->prev	= s->prev;
+		// If this is the last added effect of its type then either set the last added to be this effects sucessor if the same type,
+		// or NULL if this effect is also the last of its kind
+		if( s == sfxList.lastAdded[s->updateType] )
+		{
+			if( s->next->updateType == s->updateType )
+				sfxList.lastAdded[s->updateType] = s->next;
+			else
+				sfxList.lastAdded[s->updateType] = NULL;
+		}
+
+		s->prev->next = s->next;
+		s->next->prev = s->prev;
 
 		if( s->sprites )
 			DeallocateSprites( s->sprites, s->numP );
