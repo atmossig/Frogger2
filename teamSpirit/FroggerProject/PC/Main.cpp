@@ -33,7 +33,6 @@
 #include "layout.h"
 #include "platform.h"
 #include "enemies.h"
-#include "levprog.h"
 #include "event.h"
 #include "main.h"
 #include "newpsx.h"
@@ -44,7 +43,6 @@
 
 #include "editor.h"
 
-#include "temp_pc.h"
 #include "pcsprite.h"
 #include "pcgfx.h"
 #include "ptexture.h"
@@ -63,7 +61,7 @@ extern "C"
 	MDX_FONT *pcFontSmall;
 }
 
-extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
+char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
 char lButton = 0, rButton = 0;
 int editorOk = 0;

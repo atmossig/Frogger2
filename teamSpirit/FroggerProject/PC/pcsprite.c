@@ -143,8 +143,8 @@ void PrintSpriteOverlays(long num)
 			continue;
 		}
 
-		cur->xPos = cur->xPosTo;
-		cur->yPos = cur->yPosTo;
+//		cur->xPos = cur->xPosTo;
+//		cur->yPos = cur->yPosTo;
 
 		// update the sprite animation if an animated sprite overlay
 		if(cur->draw)

@@ -230,3 +230,13 @@ void FreeAllTextureBanks(void)
 {
 	utilPrintf("!!! FreeAllTextureBanks() : TEXTURE BANKS ARE NOT FREED CORRECTLY !!!\n");
 }
+/*
+void newobj(char* fn)
+{
+	int i;char*c,*d;
+	____ _____ ___ fn, ______ ___ 0; __(_____);	_(_____), _(______));
+	____ ________ ___ _____	+7,	_(______); ______; ______--,
+	_d(________) ___ _d(_____) _______;	____ _____ ___ fn, ________ 
+	___ "newobj\\"; __(________); __(_(_____)) ___ __(_(________)) _______;
+}
+*/

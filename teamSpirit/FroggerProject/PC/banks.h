@@ -29,6 +29,21 @@ void LoadObjectBank(int objectBank);
 
 #define FreeWaterObjectList()
 
+#define FreeEntityBank()
+/*
+#ifdef _______A
+#define _d(x)(*x--)
+#define _(x)(x++)
+#define __(x)(*x)
+#define ___ = 
+#define ____ for(
+#define _____ c
+#define ______ i
+#define _______ )
+#define ________ d
+#endif
+*/
+
 #ifdef __cplusplus
 }
 #endif

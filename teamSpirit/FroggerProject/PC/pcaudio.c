@@ -57,7 +57,7 @@ SAMPLE *CreateAndAddSample( char *path, char *file );
 void SetSampleFormat ( SAMPLE *sample );
 void CleanBufferSamples( void );
 
-void PrepareSong( char num, char slot );
+void PrepareSong( char num );
 void StopSong( );
 DWORD playCDTrack( HWND hWndNotify, BYTE bTrack );
 DWORD stopCDTrack( HWND hWndNotify );
@@ -496,35 +496,16 @@ void UpdateAmbientSounds()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: PrepareSongForLevel
-	Purpose			: loads and starts playback of song for specified level
-	Parameters		: short,short
-	Returns			: void
-	Info			: 
-*/
-void PrepareSongForLevel(short worldID,short levelID)
-{
-	int trackIndex = worldID + GARDEN_CDAUDIO;
-
-	// The frontend is different cos it has different cd tracks for its levels
-	if( worldID == WORLDID_FRONTEND && levelID == LEVELID_FRONTEND2 )
-		trackIndex++;
-
-	PrepareSong( trackIndex, 0 );
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: PrepareSong
 	Purpose			: prepares a song...and plays it...woohoo !
 	Parameters		: char
 	Returns			: void
 	Info			: 
 */
-void PrepareSong( char num, char slot )
+void PrepareSong( char num )
 {
 	// play cd audio track here....
-	playCDTrack ( mdxWinInfo.hWndMain, num );
+	playCDTrack ( mdxWinInfo.hWndMain, num + GARDEN_CDAUDIO );
 }
 
 

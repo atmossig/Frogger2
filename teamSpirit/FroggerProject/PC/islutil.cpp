@@ -1,5 +1,4 @@
 #include "islutil.h"
-#include "temp_pc.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -14,10 +13,10 @@ unsigned long utilSqrt(unsigned long num)
 }
 
 //return angle -2048 to +2048
-int utilCalcAngle(int adj, int opp)
+/*int utilCalcAngle(int adj, int opp)
 {
-	return (int)((atan2(adj,opp) / PI2) * 4096.0);
-}
+	return (int)((atan2(adj,opp) / 6.283185308) * 4096.0);
+}*/
 
 
 int utilPrintf(char* fmt, ...)				

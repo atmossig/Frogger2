@@ -168,7 +168,7 @@ void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch );
 extern void UpdateAmbientSounds();
 
 
-extern void PrepareSongForLevel( short worldID, short levelID );
+extern void PrepareSong( );
 
 #ifdef __cplusplus
 }
