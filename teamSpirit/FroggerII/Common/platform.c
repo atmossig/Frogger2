@@ -900,6 +900,7 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], nextTile);
 			currTile[pl] = plat->inTile[0];
+			SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 
 			CheckTileForCollectable( nextTile, pl );
 		}
