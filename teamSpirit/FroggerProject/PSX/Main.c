@@ -108,7 +108,7 @@ psFont *fontSmall = NULL;
 //PC has this in their main
 int drawLandscape = 1;
 long textEntry = 0;	
-char textString[255] = "";
+char textString[255] = "---";
 
 long drawGame = 1;
 

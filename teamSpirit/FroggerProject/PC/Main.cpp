@@ -78,7 +78,7 @@ MDX_FONT *pcFontWhite = 0;
 long drawLandscape = 1;
 long drawGame = 1;
 long textEntry = 0;	
-char textString[255] = "";
+char textString[255] = "---";
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 char cdromDrive[4] = "";
@@ -462,24 +462,33 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void TextInput( char c )
 {
-	long numc = strlen(textString);
+	long numc;
+
+	for(numc = 0;(textString[numc] != 0) && (textString[numc] != '-');numc++);
+
 	if (c == 8) // backspace
 	{
 		if (numc>0)
-			textString[numc-1] = 0;
+			textString[numc-1] = '-';
 	}
 	else if (c == 13) // enter
 	{
+		for(numc = 0;numc < NAME_LENGTH;numc++)
+			if(textString[numc] == '-')
+				textString[numc] = 0;
 		textEntry = 0;
 	}
 	else
 	{
 		if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || (c == ' ') || (c == '!'))
 		{
-			if (numc < textEntry)
+			if (numc < NAME_LENGTH)
 			{
 				textString[numc] = c;
-				textString[numc+1] = 0;
+				if(numc == NAME_LENGTH - 1)
+					textString[numc+1] = 0;
+				else
+					textString[numc+1] = '-';
 			}
 		}
 	}

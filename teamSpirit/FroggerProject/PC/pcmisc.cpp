@@ -22,6 +22,7 @@
 #include "ptexture.h"
 #include "islPad.h"
 #include "controll.h"
+#include "general.h"
 
 #include <stdio.h>
 
@@ -346,7 +347,13 @@ void RunDesignWorkViewer(void)
 
 void PcNameEntryInit(void)
 {
-	textString[0] = 0;
+	int j;
+
+	for(j = 0;j < NAME_LENGTH;j++)
+		if(textString[j] == 0)
+			textString[j] = '-';
+
+	textString[NAME_LENGTH] = 0;
 }
 
 void mtxSetIdent( float *m )

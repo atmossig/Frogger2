@@ -471,44 +471,60 @@ static int cursPos = 0;
 
 void PsxNameEntryInit(void)
 {
-	cursPos = 0;
+	int j;
 
-	textString[0] = 'A';
-	textString[1] = 0;
+	for(j = 0;j < NAME_LENGTH;j++)
+		if(textString[j] == 0)
+			textString[j] = '-';
+
+	textString[NAME_LENGTH] = 0;
 }
 
 void PsxNameEntryFrame(void)
 {
+	int j;
 //	padHandleInput();
 
 	//move cursor
 	if(padData.debounce[0] & PAD_LEFT)
 	{
-		if(cursPos>0)
+		if(cursPos > 0)
 		{
-			textString[cursPos] = 0;
+			textString[cursPos] = '-';
 			cursPos--;
 		}
 	}
 
 	if(padData.debounce[0] & (PAD_RIGHT | PAD_CROSS))
 	{
-		if(cursPos<8)
+		if(cursPos < NAME_LENGTH)
 		{
 			cursPos++;
 
 			textString[cursPos]='A';
-			textString[cursPos + 1] = 0;
+			if(cursPos == NAME_LENGTH - 1)
+			{
+				textString[cursPos + 1] = 0;
+			}
+			else
+				textString[cursPos + 1] = '-';
+			if(cursPos == NAME_LENGTH)
+			{
+				for(j = 0;j < NAME_LENGTH;j++)
+					if(textString[j] == '-')
+						textString[j] = 0;
+				textString[NAME_LENGTH] = 0;
+				textEntry = 0;
+				cursPos--;
+			}
 		}
-		else
-			textEntry = 0;
 	}
 
 
 	//change char under cursor
 	if(padData.debounce[0] & PAD_UP)
 	{
-		if(textString[cursPos]==' ')
+		if((textString[cursPos]==' ') || (textString[cursPos] == '-'))
 			textString[cursPos]='A';
 		else if(textString[cursPos] == 'Z')
 			textString[cursPos]=' ';
@@ -520,7 +536,7 @@ void PsxNameEntryFrame(void)
 	{
 		if(textString[cursPos]=='A')
 			textString[cursPos]=' ';
-		else if(textString[cursPos]==' ')
+		else if((textString[cursPos]==' ') || (textString[cursPos] == '-'))
 			textString[cursPos]='Z';
 		else if(textString[cursPos]>'A')
 			textString[cursPos]--;
@@ -529,6 +545,10 @@ void PsxNameEntryFrame(void)
 	//done?
 	if(padData.debounce[0]&PAD_START)
 	{
+		for(j = 0;j < NAME_LENGTH;j++)
+			if(textString[j] == '-')
+				textString[j] = 0;
+		textString[NAME_LENGTH] = 0;
 		textEntry=0;
 	}
 }
