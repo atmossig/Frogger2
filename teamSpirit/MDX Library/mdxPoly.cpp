@@ -410,7 +410,7 @@ void DrawSoftwarePolys (void)
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE, &thisTex);
+				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE | POLY_GOURAUD | POLY_NOCLIP, &thisTex);
 			
 			}
 			 
@@ -585,7 +585,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE, &thisTex);
+				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE | POLY_GOURAUD | POLY_NOCLIP, &thisTex);
 			}			
 		}
 	}
