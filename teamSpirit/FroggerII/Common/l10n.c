@@ -9,17 +9,42 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#ifdef PC_VERSION
+#include <windows.h>
+#endif
+
 #include "jalloc.h"
+
 
 #define MALLOC(size)	JallocAlloc(size, 0, "l10n")
 #define FREE(ptr)		JallocFree((UBYTE**)&(ptr))
 
 
-void		**gameTextStr;
-static void *gameTextBuffer;
+char		**gameTextStr;
+static char *gameTextBuffer;
 
 //static int		oldLang, currStr, incDelay, holdTime, bkg = 0;
 
+#ifdef PC_VERSION
+
+void *fileLoad(const char* filename, int *bytesRead)
+{
+	void *buffer;
+	int size, read;
+	HANDLE h;
+
+	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (h == INVALID_HANDLE_VALUE) return NULL;
+	size = GetFileSize(h, NULL);
+	buffer = JallocAlloc(size, 0, "entLoad");
+	ReadFile(h, buffer, size, &read, NULL);
+	CloseHandle(h);
+	
+	if (bytesRead) *bytesRead = read;
+	return buffer;
+}
+
+#endif
 
 /**************************************************************************
 	FUNCTION:	gameTextInit
@@ -34,9 +59,10 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 	int		loop, lang, len = 0;
 
 
-	gameTextStr = (void **)MALLOC(sizeof(void *) * numStrings);
+	gameTextStr = (char**)MALLOC(sizeof(void *) * numStrings);
 
 	gameTextBuffer = fileLoad(fName,0);
+
 	bufPtr = (char *)gameTextBuffer;
 	for(loop=0; loop<numStrings; loop++)
 	{
@@ -59,7 +85,7 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 	}
 
 	bufPtr = compactBuf = MALLOC(len+numStrings);
-	printf("small game text = %d\n", len+numStrings);
+//	printf("small game text = %d\n", len+numStrings);
 	for(loop=0; loop<numStrings; loop++)
 	{
 		strcpy(bufPtr, gameTextStr[loop]);
@@ -78,13 +104,6 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 	}
 	FREE(gameTextBuffer);
 	gameTextBuffer = compactBuf;
-/*
-	gameTextTimings = (int *)fileLoad("GAMETEXT.BIN");
-	len = (TEXTSTR_MAX-TEXTSTR_MISSION_CITY1A)*4;
-	compactBuf = MALLOC(len);
-	memcpy(compactBuf, ((char *)gameTextTimings)+len*currLang, len);
-	FREE(gameTextTimings);
-	gameTextTimings = compactBuf;*/
 }
 
 
@@ -99,6 +118,5 @@ void gameTextDestroy()
 {
 	FREE(gameTextBuffer);
 	FREE(gameTextStr);
-//	FREE(gameTextTimings);
 }
 

@@ -15,7 +15,7 @@
 // use this macro to access the string you want
 #define TEXTSTR(n) (gameTextStr[n])
 
-extern void	**gameTextStr;
+extern char	**gameTextStr;
 
 /**************************************************************************
 	FUNCTION:	gameTextInitFromFile
