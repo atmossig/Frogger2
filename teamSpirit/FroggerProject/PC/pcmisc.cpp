@@ -80,7 +80,7 @@ void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 		// Create static _AI_ surface you dolt
 		if( !pSurface ) pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
 		
-		while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
+		if( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 			ddShowError(res);
 
 		i=1024;

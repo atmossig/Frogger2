@@ -1221,7 +1221,7 @@ void StartLevelComplete()
 					if(worldVisualData[storySequence[i].worldNum].levelVisualData[storySequence[i].levelNum].maxCoins == 25)
 						numExtra++;
 				}
-
+#ifndef PC_DEMO
 				if(numExtra <= 9)
 				{
 			 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+750,extraOpenStr,YES,255,font,TEXTOVERLAY_SHADOW);
@@ -1232,6 +1232,7 @@ void StartLevelComplete()
 				extraText->xPosTo = 2048;
 				extraIcon = CreateAndAddSpriteOverlay(2048-256-4096-4096,850+1050,storySequence[numExtra].iconName,512,512,255,0);
 				extraIcon->xPosTo = 2048-256;
+#endif
 			}
 			arcadeHud.coinsOver->draw = 0;
 		}
