@@ -757,7 +757,7 @@ void RunGameLoop (void)
 	// Ambient Sound test
 	VECTOR ambpos = { -75,0,-375 };
 	static int ambrad = 10;
-
+	
 	if(frameCount == 1)
 	{	
 		//StopDrawing("game");
@@ -951,13 +951,21 @@ void RunGameLoop (void)
 			if(!levelIsOver)
 			{
 				StopDrawing ( "EndGame" );
+
+				// Only go to next level if in normal level progression.
+				if( showEndLevelScreen )
+				{
+					player[0].levelNum++;
+
+					StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
+
+					SaveGame(); // Write save games into eeprom
+				}
+
 				FreeAllLists();
 
 				frog[0] = NULL;
 				frameCount = 0;
-				// Only go to next level if in normal level progression.
-				if( showEndLevelScreen )
-					player[0].levelNum++;
 
 				player[0].numSpawn	= 0;
 				player[0].timeSec	= 90;
@@ -970,7 +978,7 @@ void RunGameLoop (void)
 					gameState.mode		= FRONTEND_MODE;
 				}
 
-				worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].levelOpen |= LEVEL_OPEN;
+				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
 
 				InitLevel ( player[0].worldNum, player[0].levelNum );
 				

@@ -29,8 +29,8 @@ typedef struct _PLAYER
 	short			spawnTimer;
 	short			spawnScoreLevel;
 
-	unsigned long 	worldNum;
-	unsigned long	levelNum;
+	short		 	worldNum;
+	short			levelNum;
 	unsigned long	frogState;
 
 } PLAYER;

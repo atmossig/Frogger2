@@ -119,8 +119,8 @@ void RunTitleScreen( )
 			{
 			case 0:
 				FreeAllLists();
-				worldNum = 0;
-				levelNum = 0;
+				player[0].worldNum = 0;
+				player[0].levelNum = 0;
 				InitLevel ( 0, 0 );
 
 				gameState.oldMode = FRONTEND_MODE;
@@ -156,6 +156,26 @@ void RunTitleScreen( )
 				break;
 			}
 		}			
+
+		if( (button & CONT_START) && !(lastbutton & CONT_START) )
+		{
+			StopDrawing( "Title Screen" );
+
+			FreeAllLists();
+
+			ReadSaveSlot(0, 0);
+
+			InitLevel( player[0].worldNum, player[0].levelNum );
+
+			gameState.oldMode = FRONTEND_MODE;
+			gameState.mode = GAME_MODE;
+
+			frameCount = 0;
+			lastbutton = 0;
+			PlaySample ( 2,NULL,255,128);
+
+			StartDrawing ( "Title Screen" );
+		}
 
 		switch (currentSelection)
 		{
@@ -347,12 +367,12 @@ void RunLevelSelect( )
 		// Run selected world and level
 		if ( (button & CONT_A) && !(lastbutton & CONT_A) && currentLevelSelect != 255 )
 		{
-			StopDrawing( "demo option" );
+			StopDrawing( "Title Screen" );
 
 			FreeAllLists();
 
-			worldNum = currentWorldSelect;
-			levelNum = currentLevelSelect;
+			player[0].worldNum = currentWorldSelect;
+			player[0].levelNum = currentLevelSelect;
 
 			InitLevel ( currentWorldSelect, currentLevelSelect );
 
@@ -363,7 +383,7 @@ void RunLevelSelect( )
 			lastbutton = 0;
 			PlaySample ( 2,NULL,255,128);
 
-			StartDrawing ( "demo option" );
+			StartDrawing ( "Title Screen" );
 			return;
 		}			
 	}
@@ -1580,8 +1600,8 @@ void RunLevelSelect ( void )
 			{
 //				runningDevStuff = 0;
 				FreeAllLists();
-				worldNum = currentSelection;
-				levelNum = currentLevelSelection;
+				player[0].worldNum = currentSelection;
+				player[0].levelNum = currentLevelSelection;
 				InitLevel ( currentSelection, currentLevelSelection );
 				gameState.oldMode = LEVELSELECT_MODE;
 				if ( currentSelection == 0 && currentLevelSelection == 0 )

@@ -382,9 +382,6 @@ void StoreSaveSlot( int p, int s )
 {
 	short saveFlag = 0;
 
-	int temp = sizeof(SAVE_SLOT);
-	temp = sizeof(saveSlot);
-
 	// Check if the player has reached a new world or a new level within a world
 	if( (player[p].worldNum > saveSlot[s].currentWorld) || (saveSlot[s].currentWorld > MAX_WORLDS) || (saveSlot[s].currentLevel > MAX_LEVELS) )
 	{
@@ -400,15 +397,17 @@ void StoreSaveSlot( int p, int s )
 		saveFlag = 1;
 	}
 
-	// If the player has reached a new level then remember his stats
-	if( saveFlag )
+	// If the player has reached a new level or the player is different then remember his stats
+	if( saveFlag || gstrcmp(saveSlot[s].name, player[p].name) )
 	{
 		// Lives and helth
 		saveSlot[s].livesnhealth = (player[p].lives & 63) | (frog[p]->action.lives & 192);
 		// Score
 		saveSlot[s].score = player[p].score;
 		// Name
-		gstrcpy( saveSlot[s].name, player[p].name );
+		saveSlot[s].name[0] = player[p].name[0];
+		saveSlot[s].name[1] = player[p].name[1];
+		saveSlot[s].name[2] = player[p].name[2];
 
 		saveFlag = 0;
 	}
@@ -428,11 +427,13 @@ void ReadSaveSlot( int p, int s )
 	player[p].levelNum = saveSlot[s].currentLevel;
 
 	player[p].lives = (saveSlot[s].livesnhealth & 63);
-	frog[p]->action.lives = (saveSlot[s].livesnhealth & 192);
+	//frog[p]->action.lives = (saveSlot[s].livesnhealth & 192);
 
 	player[p].score = saveSlot[s].score;
 
-	gstrcpy( player[p].name, saveSlot[s].name );
+	player[p].name[0] = saveSlot[s].name[0];
+	player[p].name[1] = saveSlot[s].name[1];
+	player[p].name[2] = saveSlot[s].name[2];
 }
 
 
