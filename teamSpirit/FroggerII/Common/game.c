@@ -332,7 +332,6 @@ void GameProcessController(long pl)
 		// want to use tongue
 		PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,SAMPLE_VOLUME,-1/*64*/);
 		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
-		player[pl].hasJumped = 1;
 
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
