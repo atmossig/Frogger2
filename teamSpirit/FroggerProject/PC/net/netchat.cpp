@@ -227,7 +227,12 @@ void UpdateChatWindow()
 	}
 
 	EnableWindow(GetDlgItem(hwndChat, IDC_LEVEL), isHost);
-	EnableWindow(GetDlgItem(hwndChat, IDC_START), isHost); // && count>=2);
+
+#ifdef _DEBUG
+	EnableWindow(GetDlgItem(hwndChat, IDC_START), isHost);
+#else
+	EnableWindow(GetDlgItem(hwndChat, IDC_START), isHost && count>=2);
+#endif
 }
 
 

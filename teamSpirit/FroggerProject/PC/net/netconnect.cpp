@@ -91,7 +91,7 @@ bool SetupNetworking()
 	{
 		DWORD len;
 
-		len = 32;
+		len = 16;
 		RegQueryValueEx(hkey, "netplayer", NULL, NULL, (unsigned char*)playerName, &len);
 
 		len = 128;
@@ -303,6 +303,7 @@ BOOL CALLBACK dlgProvider(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
 			hctrl = GetDlgItem(hdlg, IDC_PLAYERNAME);
 			SetWindowText(hctrl, playerName);
 			SendMessage(hctrl, EM_SETSEL, 0, -1);
+			SendMessage(hctrl, EM_LIMITTEXT, 15, 0);
 
 			SetWindowText(hdlg, GAMESTRING(STR_NET_NETWORKGAME));
 
@@ -668,10 +669,11 @@ BOOL CALLBACK dlgCreate(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 		SetDlgItemText(hDlg, IDC_NAME, sessionName);
+		SendDlgItemMessage(hDlg, IDC_NAME, EM_LIMITTEXT, 15, 0);
+
 		SetDlgItemText(hDlg, IDOK,		GAMESTRING(STR_PCSETUP_OK));
 		SetDlgItemText(hDlg, IDCANCEL,	GAMESTRING(STR_PCSETUP_CANCEL));
 		SetDlgItemText(hDlg, IDC_GAMENAME_LABEL,	GAMESTRING(STR_NET_GAMENAME));
-
 		SetWindowText(hDlg, GAMESTRING(STR_NET_CREATEAGAME));
 		return FALSE;
 

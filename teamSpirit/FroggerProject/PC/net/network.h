@@ -54,7 +54,7 @@ extern LPDIRECTPLAY4A dplay;
 extern DPID		dpidLocalPlayer;
 extern HANDLE	hLocalPlayerEvent;
 extern char		sessionName[256];
-extern char		playerName[32];
+extern char		playerName[16];
 extern bool		isHost;
 extern NETPLAYER netPlayerList[4];
 
