@@ -1482,7 +1482,7 @@ void StoreHaloPoints(void)
 			SetVector(&t,&haloPoints[i]);
 			XfmPoint(&v,&haloPoints[i],NULL);
 
-			if (((v.vx>0) && (v.vx<640)) && ((v.vy>0) && (v.vy<480)))
+			if (((v.vx>0) && (v.vx<rXRes)) && ((v.vy>0) && (v.vy<rYRes)))
 			{
 				haloPoints[i].vx = (unsigned long)v.vx;
 				haloPoints[i].vy = (unsigned long)v.vy;
