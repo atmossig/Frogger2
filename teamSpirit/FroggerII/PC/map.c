@@ -52,6 +52,8 @@ void FreeMapBank(void)
 		FreeLibrary(mapHandle);
 	if (sceHandle)
 		FreeLibrary(sceHandle);
+
+	cameraBoxes.numBoxes = 0;
 }
 
 /* --------------------------------------------------------------------------------
@@ -303,46 +305,52 @@ BOOL LoadCollision(int num)
 	{
 		FARPROC GetStartsAddress;
 		FARPROC GetBabiesAddress;
-		FARPROC GetSafesAddress;
-		FARPROC GetPowerupsAddress;
+		//FARPROC GetSafesAddress;
+		//FARPROC GetPowerupsAddress;
 		FARPROC GetBabiesNum;
-		FARPROC GetSafesNum;
-		FARPROC GetPowerupsNum;
+		//FARPROC GetSafesNum;
+		//FARPROC GetPowerupsNum;
 		FARPROC GetFirst; 
+		FARPROC GetCameras;
 
-		GetStartsAddress   = GetProcAddress(mapHandle, "GetStartsAddress");
-		GetBabiesAddress   = GetProcAddress(mapHandle, "GetBabiesAddress");
-		GetSafesAddress    = GetProcAddress(mapHandle, "GetSafesAddress");
-		GetPowerupsAddress = GetProcAddress(mapHandle, "GetPowerupsAddress");
-		GetBabiesNum       = GetProcAddress(mapHandle, "GetBabiesNum");
-		GetSafesNum        = GetProcAddress(mapHandle, "GetSafesNum");
-		GetPowerupsNum     = GetProcAddress(mapHandle, "GetPowerupsNum");
-		GetFirst		   = GetProcAddress(mapHandle, "GetFirst");
-		
+		GetStartsAddress	= GetProcAddress(mapHandle, "GetStartsAddress");
+		GetBabiesAddress	= GetProcAddress(mapHandle, "GetBabiesAddress");
+		//GetSafesAddress    = GetProcAddress(mapHandle, "GetSafesAddress");
+		//GetPowerupsAddress = GetProcAddress(mapHandle, "GetPowerupsAddress");
+		GetBabiesNum		= GetProcAddress(mapHandle, "GetBabiesNum");
+		//GetSafesNum        = GetProcAddress(mapHandle, "GetSafesNum");
+		//GetPowerupsNum     = GetProcAddress(mapHandle, "GetPowerupsNum");
+		GetFirst			= GetProcAddress(mapHandle, "GetFirst");
+		GetCameras			= GetProcAddress(mapHandle, "GetCameras");
+
 		if (GetStartsAddress)  
 			gTStart = (GAMETILE**)GetStartsAddress();
-		
+/*		
+	
 		if (GetBabiesAddress)   
 			bTStart = (GAMETILE**)GetBabiesAddress();   
 		
 		if (GetSafesAddress)
 			bTSafe = (GAMETILE**)GetSafesAddress();
-		
+
 		if (GetPowerupsAddress) 
 			pwrupTStart = (GAMETILE**)GetPowerupsAddress(); 
+*/		
 		
 		if (GetBabiesNum)       
 			numBabies = GetBabiesNum();       
-		
+/*		
 		if (GetSafesNum)    
 			numSafe = GetSafesNum();        
 		
 		if (GetPowerupsNum)
 			numPwrups = GetPowerupsNum();				     
-
+*/
 		if (GetFirst)
 			firstTile = (GAMETILE *)GetFirst();
-		
+
+		if (GetCameras)
+			cameraBoxes = *(CAM_BOX_LIST*)GetCameras();
 	}
 	else
 	{
