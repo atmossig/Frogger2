@@ -211,7 +211,7 @@ int SetRegistryInformation(void)
 short *loadScr;
 long startTicks;
 long curTicks;
-float turbo = 1.5;
+float turbo = 1;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow);
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
