@@ -14,6 +14,7 @@
 #include "fadeout.h"
 #include "textures.h"
 #include "layout.h"
+#include "audio.h"
 //#include "menu.h"
 
 #define FLAGPOINTS 36
@@ -319,12 +320,14 @@ void languageFrame()
 		gameTextLang = (gameTextLang+(LANG_NUMLANGS-1)-1)%(LANG_NUMLANGS-1);
 		languageData.lastFade = 1;
 		fadeDirection = -1;
+		PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 	}
 	if (padData.debounce[0] & PAD_RIGHT && !languageData.lastFade && !finishing)
 	{
 		gameTextLang = (gameTextLang+1)%(LANG_NUMLANGS-1);
 		languageData.lastFade = 1;
 		fadeDirection = 1;
+		PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 	}
 
 	if (languageData.lastFade) languageData.lastFade++;
@@ -380,6 +383,7 @@ void languageFrame()
 		finishing += 2;
 	else if((fadingOut == 0) && (padData.debounce[0] & PAD_CROSS))
 	{
+		PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		finishing += 2;
 		ScreenFade(255,0,30);
 		keepFade = 1;
