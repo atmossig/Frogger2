@@ -1077,6 +1077,14 @@ SOURCE=.\Pc\map.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\network.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\network.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\objects.c
 # End Source File
 # Begin Source File
@@ -1195,6 +1203,13 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # End Target
 # End Project
