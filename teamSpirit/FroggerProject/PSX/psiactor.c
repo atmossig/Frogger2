@@ -14,6 +14,7 @@
 #include "layout.h"
 #include "bbpsiani.h"
 #include "frogmove.h"
+#include "enemies.h"
 #include "babyfrog.h"
 #include "audio.h"
 

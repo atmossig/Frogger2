@@ -222,6 +222,8 @@ void LoadTextureAnimBank ( int textureBank )
 	p = textureAnims;
 	numAnimations = *p; p++;
 
+	froggerShowVRAM(1);
+
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
 		DR_MOVE *siMove;
@@ -233,8 +235,20 @@ void LoadTextureAnimBank ( int textureBank )
 
 		sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
 		dummyTexture = textureFindCRCInAllBanks ( utilStr2CRC ( dummyString ) );
+
+		if ( !dummyTexture )
+		{
+			utilPrintf("Cound Not Find Dummy Texture....\n");
+
+			//return NULL;
+		}
+		// ENDIF
 		
 
+		//moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
+		//moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
+		//moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
+		//moveRect.h = textureAnim->animation->dest->h;
 		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
 		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
 		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
@@ -249,22 +263,48 @@ void LoadTextureAnimBank ( int textureBank )
 		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
 		ENDPRIM ( siMove, 1023, DR_MOVE );
 
+ 		//DrawSync(0);
+		//MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
+ 		//DrawSync(0);
+
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
-			crc = *p; p++;
+			crc = *p;
+			dummyCrc = crc;
+			p++;
 			waitTime = *p; p++;
 
 			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
 
-			if ( crc == textureAnim->animation->dest->imageCRC )
+			if ( textureAnim->animation->anim [ counter1 ]->imageCRC == textureAnim->animation->dest->imageCRC )
 			{
-				textureAnim->animation->anim [ counter1 ] = dummyTexture;
+				utilPrintf("Re-Pointing To Another Texture....\n");
+				textureAnim->animation->anim [ counter1 ]->x = dummyTexture->x;
+				textureAnim->animation->anim [ counter1 ]->y = dummyTexture->y;
+				textureAnim->animation->anim [ counter1 ]->w = dummyTexture->w;
+				textureAnim->animation->anim [ counter1 ]->h = dummyTexture->h;
+				textureAnim->animation->anim [ counter1 ]->tpage = dummyTexture->tpage;
+				textureAnim->animation->anim [ counter1 ]->clut = dummyTexture->clut;
+				textureAnim->animation->anim [ counter1 ]->u0 = dummyTexture->u0;
+				textureAnim->animation->anim [ counter1 ]->v0 = dummyTexture->v0;
+				textureAnim->animation->anim [ counter1 ]->u1 = dummyTexture->u1;
+				textureAnim->animation->anim [ counter1 ]->v1 = dummyTexture->v1;
+				textureAnim->animation->anim [ counter1 ]->u2 = dummyTexture->u2;
+				textureAnim->animation->anim [ counter1 ]->v2 = dummyTexture->v2;
+				textureAnim->animation->anim [ counter1 ]->u3 = dummyTexture->u3;
+				textureAnim->animation->anim [ counter1 ]->v3 = dummyTexture->v3;
+				textureAnim->animation->anim [ counter1 ]->handle = dummyTexture->handle;
+				textureAnim->animation->anim [ counter1 ]->imageCRC = dummyTexture->imageCRC;
+				textureAnim->animation->anim [ counter1 ]->refCount = dummyTexture->refCount;
+				textureAnim->animation->anim [ counter1 ]->flags = dummyTexture->flags;
 			}
 			// ENDIF
 		}
 		// ENDFOR
+		froggerShowVRAM(1);
 	}
 	// ENDFOR
+	//froggerShowVRAM(1);
 }
 
 void FreeTextureBank ( TextureBankType *textureBank )
