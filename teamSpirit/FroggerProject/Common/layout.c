@@ -965,7 +965,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 #ifdef PC_VERSION
 
-	if( fileLoad("mullard.txt", &temp) )
+	if( fileLoad("m\\u\\l\\l\\a\\r\\d\\is_my_daddy.txt", &temp) )
 		moolardCheat = 1;
 
 	if(useAudio)
