@@ -110,12 +110,17 @@ TEXTOVERLAY *removeControllerText;
 TEXTOVERLAY *removeControllerText2;
 TEXTOVERLAY *removeControllerText3;
 
-/*	--------------------------------------------------------------------------------
-	Function		: GameLoop
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
+
+// main.c - used to abort the game
+extern unsigned int globalAbortFlag;
+
+
+/* --------------------------------------------------------------------------------
+   Function : GameLoop
+   Purpose : single pass throught game logic
+   Parameters :
+   Returns :
+   Info	:
 */
 
 extern SOUNDLIST soundList;					// Actual Sound Samples List
@@ -139,6 +144,15 @@ void GameLoop(void)
 //			gameState.mode = FRONTEND_MODE;
 //			player[0].character = FROG_FROGGER;
 //			InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+		}
+		// *ASL* 10/08/2000 - Abort to BootROM on user quit within front end 
+		else if (gameState.mode == FRONTEND_MODE)
+		{
+			// !!like to put in a screen fade here rather than just quitting!!
+
+			// set abort flag
+			globalAbortFlag = 1;
+			return;
 		}
 	}
 
