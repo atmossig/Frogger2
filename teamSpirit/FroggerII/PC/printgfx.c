@@ -728,9 +728,9 @@ void DrawFXRipples()
 	TEXENTRY *tEntry;
 	long i;
 	D3DTLVERTEX vT[4];
-	VECTOR tempVect[4], m[4], tmp;
+	VECTOR tempVect[4], m[4];
 	static short f[6] = {0,1,2,0,2,3};
-	QUATERNION q, q2;
+	QUATERNION q;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
@@ -743,41 +743,39 @@ void DrawFXRipples()
 		if(ripple->deadCount)
 			continue;
 
-		tempVect[0].v[X] = ripple->origin.v[X] - ripple->radius;
-		tempVect[0].v[Y] = ripple->origin.v[Y];
-		tempVect[0].v[Z] = ripple->origin.v[Z] + ripple->radius;
+		tempVect[0].v[X] = -ripple->radius;
+		tempVect[0].v[Y] = 0;
+		tempVect[0].v[Z] = ripple->radius;
 
-		tempVect[1].v[X] = ripple->origin.v[X] + ripple->radius;
-		tempVect[1].v[Y] = ripple->origin.v[Y];
-		tempVect[1].v[Z] = ripple->origin.v[Z] + ripple->radius;
+		tempVect[1].v[X] = ripple->radius;
+		tempVect[1].v[Y] = 0;
+		tempVect[1].v[Z] = ripple->radius;
 
-		tempVect[2].v[X] = ripple->origin.v[X] + ripple->radius;
-		tempVect[2].v[Y] = ripple->origin.v[Y];
-		tempVect[2].v[Z] = ripple->origin.v[Z] - ripple->radius;
+		tempVect[2].v[X] = ripple->radius;
+		tempVect[2].v[Y] = 0;
+		tempVect[2].v[Z] = -ripple->radius;
 
-		tempVect[3].v[X] = ripple->origin.v[X] - ripple->radius;
-		tempVect[3].v[Y] = ripple->origin.v[Y];
-		tempVect[3].v[Z] = ripple->origin.v[Z] - ripple->radius;
-/*
+		tempVect[3].v[X] = -ripple->radius;
+		tempVect[3].v[Y] = 0;
+		tempVect[3].v[Z] = -ripple->radius;
+
 		if(	ripple->rippleType == RIPPLE_TYPE_PICKUP ||
-			ripple->rippleType == RIPPLE_TYPE_DUST)
+			ripple->rippleType == RIPPLE_TYPE_DUST )
 		{
-			q2.x = ripple->normal.v[X];
-			q2.y = ripple->normal.v[Y];
-			q2.z = ripple->normal.v[Z];
-			q2.w = ripple->yRot;
-
-			GetQuaternionFromRotation( &q, &q2 );
+			q.x = ripple->normal.v[X];
+			q.y = ripple->normal.v[Y];
+			q.z = ripple->normal.v[Z];
+			q.w = ripple->yRot;
 
 			for( i=0; i<4; i++ )
-			{
-				SetVector( &tmp, &tempVect[i] );
-				RotateVectorByQuaternion( &tempVect[i], &tmp, &q );
-			}
+				RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
 		}
-*/
+
 		for(i=0; i<4; i++)
+		{
+			AddVector( &tempVect[i], &tempVect[i], &ripple->origin );
 			XfmPoint (&m[i],&tempVect[i]);
+		}
 		
 		if (m[0].v[Z])
 		if (m[1].v[Z])
