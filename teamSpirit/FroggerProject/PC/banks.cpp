@@ -244,8 +244,26 @@ void LoadObjectBank(int objectBank)
 		case RETROMASTER_OBJ_BANK:
 			strcpy(fileName,"sretromaster");
 			break;		
-		case RETROMULTI_OBJ_BANK:
-			strcpy(fileName, "sretromulti"); break;
+		case RETROMULTI1_OBJ_BANK:
+			strcpy(fileName, "sretromulti1"); break;
+		case RETROMULTI2_OBJ_BANK:
+			strcpy(fileName, "sretromulti2"); break;
+		case RETROMULTI3_OBJ_BANK:
+			strcpy(fileName, "sretromulti3"); break;
+		case RETROMULTI4_OBJ_BANK:
+			strcpy(fileName, "sretromulti4"); break;
+		case RETROMULTI5_OBJ_BANK:
+			strcpy(fileName, "sretromulti5"); break;
+		case RETROMULTI6_OBJ_BANK:
+			strcpy(fileName, "sretromulti6"); break;
+		case RETROMULTI7_OBJ_BANK:
+			strcpy(fileName, "sretromulti7"); break;
+		case RETROMULTI8_OBJ_BANK:
+			strcpy(fileName, "sretromulti8"); break;
+		case RETROMULTI9_OBJ_BANK:
+			strcpy(fileName, "sretromulti9"); break;
+		case RETROMULTI10_OBJ_BANK:
+			strcpy(fileName, "sretromulti10"); break;
 
 // Front-end
 
