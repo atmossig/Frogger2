@@ -196,7 +196,10 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 1, 0.05, 0.02, 1.8 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 
-
+	
+	AnimateActor(frog[0]->actor,FROG_ANIM_DANCE4,NO,NO,0.3F,0,0);
+	AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+   	
 	/*
 	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 50, 3, 0, 5 )) )
 	{
@@ -306,6 +309,7 @@ void UpdateBabies( )
 			{
 				if( dist < BABY_ACTIVE_RADIUS*0.25 )
 				{
+					AnimateActor( act, Random(3)+2, NO, YES, 0.4, 0,0 );
 					StartAnimateActor( act, BABY_ANIM_HOP, YES, YES, 0.6, 0,0 );
 				}
 				else
