@@ -15,6 +15,7 @@
 
 #include "incs.h"
 
+
 VECTOR cameraUpVect		= { 0,1,0 };
 VECTOR camVect;
 
@@ -686,6 +687,19 @@ void CameraShake(float amount)
 
 void InitCamera(void)
 {
+	VECTOR initialCamOffset = { 0,100,100 };
+	VECTOR initialCamDist = { 0,680,192 };
+	VECTOR initialCamSource	= { 0,569,-200 };
+	VECTOR initialCurrCamSource = { 0,100,100 };
+
+	SetVector( &camSource, &initialCamSource );
+	SetVector( &currCamSource, &initialCurrCamSource );
+	SetVector( &camOffset, &initialCamOffset );
+	SetVector( &currCamOffset, &initialCamOffset );
+	SetVector( &camDist, &initialCamDist );
+	ZeroVector( &currCamTarget );
+	SetVector( &cameraUpVect, &upVec );
+
 	currCamBox = NULL;
 	CheckCameraBoxes();
 	
