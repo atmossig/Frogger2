@@ -996,17 +996,6 @@ void DrawEditor(void)
 	// CREATE_ types
 	static const int createicons[5] = { 5, 6, 7, 63, 79 };
 
-/*
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_ZENABLE, D3DZB_FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_COLORKEYENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCCOLOR);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_DESTBLEND,D3DBLEND_ZERO);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice, D3DRENDERSTATE_CULLMODE, D3DCULL_NONE);
-*/
-
 	// Draw "X marks the spot"
 	if (showX && (clickPos.vx != INT_MAX))
 	{
