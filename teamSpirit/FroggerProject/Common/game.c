@@ -566,6 +566,8 @@ void RunGameLoop (void)
 		}
 
 		UpdateBabies( );
+		UpdateEnemies();
+		UpdatePlatforms();
 		UpdateSpecialEffects( );
 		return;
 	}
