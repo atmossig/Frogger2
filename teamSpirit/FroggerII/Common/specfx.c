@@ -669,7 +669,7 @@ void UpdateFXRing( SPECFX *fx )
 	fx->speed += fx->accn * gameSpeed;
 	speed = fx->speed * gameSpeed;
 	fx->scale.v[X] += speed;
-	fx->scale.v[Y] += speed/8;
+	fx->scale.v[Y] += speed*0.125;
 	fx->scale.v[Z] += speed;
 	fx->angle += fx->spin * gameSpeed;
 	
@@ -754,7 +754,6 @@ void UpdateFXSmoke( SPECFX *fx )
 			s->draw = 0;
 			if (s->a>gameSpeed)
 				s->a-=gameSpeed;
-			
 		}
 
 		s->pos.v[X] += fx->vel.v[X] * gameSpeed;
@@ -776,7 +775,6 @@ void UpdateFXSmoke( SPECFX *fx )
 		{
 			s->scaleX += fx->accn*gameSpeed;
 			s->scaleY += fx->accn*gameSpeed;
-			
 		}
 		else if( fx->type == FXTYPE_BUBBLES )
 		{
@@ -848,17 +846,17 @@ void UpdateFXSwarm( SPECFX *fx )
 
 		// Update particle velocity to oscillate around the point
 		if( pos.v[X] > fx->origin.v[X])
-			fx->particles[i].vel.v[X] -= max(gameSpeed/3, 1);
+			fx->particles[i].vel.v[X] -= max(gameSpeed*0.333, 1);
 		else
-			fx->particles[i].vel.v[X] += max(gameSpeed/3, 1);
+			fx->particles[i].vel.v[X] += max(gameSpeed*0.333, 1);
 		if( pos.v[Y] > fx->origin.v[Y] )
-			fx->particles[i].vel.v[Y] -= max(gameSpeed/3, 1);
+			fx->particles[i].vel.v[Y] -= max(gameSpeed*0.333, 1);
 		else
-			fx->particles[i].vel.v[Y] += max(gameSpeed/3, 1);
+			fx->particles[i].vel.v[Y] += max(gameSpeed*0.333, 1);
 		if( pos.v[Z] > fx->origin.v[Z])
-			fx->particles[i].vel.v[Z] -= max(gameSpeed/3, 1);
+			fx->particles[i].vel.v[Z] -= max(gameSpeed*0.333, 1);
 		else
-			fx->particles[i].vel.v[Z] += max(gameSpeed/3, 1);
+			fx->particles[i].vel.v[Z] += max(gameSpeed*0.333, 1);
 
 		// Limit velocity of particles
 		if( fx->particles[i].vel.v[X] > gameSpeed*2 )
@@ -979,7 +977,7 @@ void UpdateFXExplode( SPECFX *fx )
 		// For fiery (of whatever colour) smoke, fade to black then fade out
 		if( fx->type == FXTYPE_FIERYSMOKE && (s->r || s->g || s->b) )
 		{
-			if( s->r > fo/2 ) s->r -= fo/2;
+			if( s->r > fo*0.5 ) s->r -= fo*0.5;
 			else s->r = 0;
 			if( s->g > fo ) s->g -= fo;
 			else s->g = 0;
@@ -2013,7 +2011,6 @@ void CreateLightningEffect( VECTOR *p1, VECTOR *p2, unsigned long effects, long 
 	Returns			: void
 	Info			: 
 */
-#ifdef PC_VERSION
 void CreateBlastRing( )
 {
 	float tesa, tesb, teca, tecb, pB, arcStep = PI2 / NUM_RINGSEGS;
@@ -2063,8 +2060,3 @@ void CreateBlastRing( )
 		ringVtx[v+3].tv = 0;
 	}
 }
-#else
-void CreateBlastRing()
-{
-}
-#endif
