@@ -646,7 +646,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 	levelTrophy = CreateAndAddActor("trophy.obe",0,0,100.0,0,0,0);
 	levelTrophy->draw = 0;
-	levelTrophy->flags |= ACTOR_DRAW_LAST;
+//	levelTrophy->flags |= ACTOR_DRAW_LAST;
 	levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
 	levelTrophy->flags &= ~ACTOR_DRAW_CULLED;
 	levelTrophy->actor->scale.v[0] = 0.2;
@@ -831,7 +831,7 @@ void RunGameLoop (void)
 
 		CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 
-		//firstTile[137].state = TILESTATE_SPRING;
+		firstTile[52].state = TILESTATE_ENDLEVEL;
 		//firstTile[261].state = TILESTATE_SPRING;
 		//firstTile[301].state = TILESTATE_SPRING;
 
