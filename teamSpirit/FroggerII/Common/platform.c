@@ -50,37 +50,30 @@
 /******  GARDEN MAZE LEVEL  ***********************************************************************************/
 /**************************************************************************************************************/
 
-PLATFORM *lillyList1[4];
-
-PATHNODE lilly1Nodes[]	= {	273,0,0,4,0,	115,0,0,4,0,	123,0,0,4,0,	132,0,0,4,0,
-							139,0,0,4,0,	148,0,0,4,0,	158,0,0,4,0,	167,0,0,4,0 };
-
-PATHNODE lilly2Nodes[]	= {	272,0,0,4,0,	114,0,0,4,0,	122,0,0,4,0,	131,0,0,4,0,
-							138,0,0,4,0,	147,0,0,4,0,	157,0,0,4,0,	166,0,0,4,0 };
-
-PATHNODE lilly3Nodes[]	= {	186,0,0,4,0,	188,0,0,4,0,	189,0,0,4,0,	190,0,0,4,0,
-							191,0,0,4,0,	192,0,0,4,0,	193,0,0,4,0,	194,0,0,4,0 };
-
-PATHNODE lilly4Nodes[]	= {	207,0,0,4,0,	208,0,0,4,0,	209,0,0,4,0,	210,0,0,4,0,
-							211,0,0,4,0,	212,0,0,4,0,	213,0,0,4,0,	214,0,0,4,0 };
-
-PATH lilly1Path			= { 8,0,0,0,lilly1Nodes };
-PATH lilly2Path			= { 8,0,0,0,lilly2Nodes };
-PATH lilly3Path			= { 8,0,0,0,lilly3Nodes };
-PATH lilly4Path			= { 8,0,0,0,lilly4Nodes };
-
 
 /**************************************************************************************************************/
 /******  GARDEN VEGPATCH LEVEL  *******************************************************************************/
 /**************************************************************************************************************/
 
-PLATFORM *lillyList2[2];
+PATHNODE debug_pathVegNodes1[] =
+{
+	217,0,0,4,0,	218,0,0,4,0,	219,0,0,4,0,	210,0,0,4,0,	201,0,0,4,0,	189,0,0,4,0,
+	180,0,0,4,0,	179,0,0,4,0,	178,0,0,4,0,	187,0,0,4,0,	199,0,0,4,0,	208,0,0,4,0
+};
 
-unsigned long lillyPath8[]		 = { 14,	178,187,199,208,217,226,227,228,219,210,201,189,180,179 };
-unsigned long lillyHeightPath8[] = { 14,	0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-float		  lillySpeedPath8[]  = { 14,	4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0,4.0 };
+PATHNODE debug_pathVegNodes2[] =
+{
+	201,0,0,4,0,	189,0,0,4,0,	180,0,0,4,0,	179,0,0,4,0,	178,0,0,4,0,	187,0,0,4,0,	
+	199,0,0,4,0,	208,0,0,4,0,	217,0,0,4,0,	218,0,0,4,0,	219,0,0,4,0,	210,0,0,4,0
+};
 
-	   
+PATH debug_pathVeg1 = { 12,0,0,0,debug_pathVegNodes1 };
+PATH debug_pathVeg2 = { 12,0,0,0,debug_pathVegNodes2 };
+
+
+/**************************************************************************************************************/
+
+  
 PLATFORMLIST platformList;					// the platform list
 
 PLATFORM *destPlatform[4];					// platform that frog is about to attempt to jump to
@@ -126,26 +119,19 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		{
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
-
-//			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
-//			devPlat2->currSpeed = 2.0F;
-//			AssignPathToPlatform(devPlat2,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path2,PATH_MAKENODETILEPTRS);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
 		{
-			lillyList1[0] = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(lillyList1[0],PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&lilly1Path,PATH_MAKENODETILEPTRS);
-			lillyList1[1] = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(lillyList1[1],PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_PINGPONG,&lilly2Path,PATH_MAKENODETILEPTRS);
-			lillyList1[2] = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(lillyList1[2],PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&lilly3Path,PATH_MAKENODETILEPTRS);
-			lillyList1[3] = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(lillyList1[3],PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_PINGPONG,&lilly4Path,PATH_MAKENODETILEPTRS);
 		}	   
 
 		if(levelID == LEVELID_GARDENVEGPATCH)
 		{
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_pathVeg1,PATH_MAKENODETILEPTRS);
+
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_CYCLE,&debug_pathVeg2,PATH_MAKENODETILEPTRS);
 		}
 	}
 
@@ -359,6 +345,7 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 
 		if(cur->inTile == tile)
 		{
+/*
 			// check if this platform can be walked under
 			if(cur->flags & PLATFORM_CANWALKUNDER)
 			{
@@ -370,7 +357,7 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 					return NULL;
 				}
 			}
-
+*/
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
 			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 
@@ -582,26 +569,33 @@ static void	GetActiveTile(PLATFORM *pform)
 /*	--------------------------------------------------------------------------------
 	Function		: PlatformTooHigh
 	Purpose			: checks is destination platform is too high to jump to
-	Parameters		: PLATFORM *
+	Parameters		: PLATFORM *,long
 	Returns			: BOOL
 	Info			: 
 */
-BOOL PlatformTooHigh(PLATFORM *plat)
+BOOL PlatformTooHigh(PLATFORM *plat,long pl)
 {
 	VECTOR vec;
-	float height;
+	float height,h;
+	VECTOR diff;
+		
+	SubVector(&diff,&plat->inTile->centre,&frog[pl]->actor->pos);
+	h = Magnitude(&diff);
+	MakeUnit(&diff);
+	
+	height = (h * DotProduct(&diff,&plat->inTile->normal));
 
-	height = (plat->pltActor->actor->pos.v[Y] - frog[0]->actor->pos.v[Y]);
-
-	if(height > 50.0F)
+	// too high
+	if(height > 51.0F)
 	{
-		// platform cannot be jumped up to
+		// too high - cannot be jumped up to either with or without superhop
 		return TRUE;
 	}
-	
+
+	// too high for normal hop
 	if(height > 25.0F && !superHop)
 	{
-		// platform too high - need superhop for this jump up
+		// too high - need superhop for this jump up
 		return TRUE;
 	}
 	
@@ -611,18 +605,23 @@ BOOL PlatformTooHigh(PLATFORM *plat)
 /*	--------------------------------------------------------------------------------
 	Function		: PlatformTooLow
 	Purpose			: checks is destination platform is too low to jump to
-	Parameters		: PLATFORM *
+	Parameters		: PLATFORM *,long
 	Returns			: BOOL
 	Info			: 
 */
-BOOL PlatformTooLow(PLATFORM *plat)
+BOOL PlatformTooLow(PLATFORM *plat,long pl)
 {
 	VECTOR vec;
-	float height;
+	float height,h;
+	VECTOR diff;
+		
+	SubVector(&diff,&plat->inTile->centre,&frog[pl]->actor->pos);
+	h = Magnitude(&diff);
+	MakeUnit(&diff);
+	
+	height = (h * DotProduct(&diff,&plat->inTile->normal));
 
-	height = (plat->pltActor->actor->pos.v[Y] - frog[0]->actor->pos.v[Y]);
-
-	if(height < -125.0F)
+	if(height > 125.0F)
 	{
 		// platform too far below
 		return TRUE;
@@ -1111,8 +1110,6 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	pform->deltaNormal.v[X] /= numSteps;
 	pform->deltaNormal.v[Y] /= numSteps;
 	pform->deltaNormal.v[Z] /= numSteps;
-
-	dprintf"dN = (%.4f %.4f %.4f) s:%.0f\n",pform->deltaNormal.v[X],pform->deltaNormal.v[Y],pform->deltaNormal.v[Z],numSteps));
 }
 
 

@@ -100,8 +100,8 @@ extern void UpdatePlatforms();
 extern void GetNextLocalPlatform(unsigned long direction);
 extern PLATFORM *GetPlatformForTile(GAMETILE *tile);
 
-extern BOOL PlatformTooHigh(PLATFORM *plat);
-extern BOOL PlatformTooLow(PLATFORM *plat);
+extern BOOL PlatformTooHigh(PLATFORM *plat,long pl);
+extern BOOL PlatformTooLow(PLATFORM *plat,long pl);
 
 
 PLATFORM *GetPlatformFrogIsOn(long pl);
@@ -129,6 +129,7 @@ BOOL PlatformHasArrivedAtNode(PLATFORM *pform);
 BOOL PlatformReachedTopOrBottomPoint(PLATFORM *pform);
 void UpdatePlatformPathNodes(PLATFORM *pform);
 void CalcPlatformNormalInterps(PLATFORM *pform);
+
 
 //------------------------------------------------------------------------------------------------
 
