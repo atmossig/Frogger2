@@ -14,8 +14,8 @@ typedef struct _LOADINGSCREEN
 
 extern LOADINGSCREEN loadingScreen;
 
-extern unsigned char waterimage[];
-extern unsigned short waterpal[];
+//extern unsigned char waterimage[];
+//extern unsigned short waterpal[];
 
 extern int barProgress;
 
