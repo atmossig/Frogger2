@@ -31,7 +31,7 @@ int MemLoadTrigger(UBYTE** p, long size);
 
 #define MEMGETBYTE(p) (*((*p)++))
 
-inline int MEMGETINT(uchar **p)		// get a little-endian integer
+inline int MEMGETINT(UBYTE **p)		// get a little-endian integer
 {
 	unsigned int i;
 
@@ -45,7 +45,7 @@ inline int MEMGETINT(uchar **p)		// get a little-endian integer
 
 #define MEMGETFLOAT(p) ((float)MEMGETINT(p) / (float)0x10000)
 
-inline char *MemLoadString(uchar **p)
+inline char *MemLoadString(UBYTE **p)
 {
 	char *ptr;
 	int size;
@@ -71,14 +71,14 @@ inline char *MemLoadString(uchar **p)
 int MemLoadEntities(const void* data, long size)
 {
 	int count, flags, numNodes, startNode, n, ID;
-	uchar thing;
+	UBYTE thing;
 	char type[20];
 	PATH *path;
 	PATHNODE *node;
 	VECTOR v;
 	ENEMY *enemy;
 	PLATFORM *platform;
-	uchar *p = (uchar*)data;
+	UBYTE *p = (UBYTE*)data;
 
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
@@ -164,7 +164,7 @@ int MemLoadEntities(const void* data, long size)
 int MemLoadEvents(const void* data, long size)
 {
 	int ver, s;
-	UCHAR *p = (UCHAR*)data;
+	UBYTE *p = (UBYTE*)data;
 
 	ver = MEMGETBYTE(&p);
 
