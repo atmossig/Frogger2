@@ -233,6 +233,8 @@ void FroggerHop(long pl)
 	VECTOR up, fwd, pos;
 	float p, t, delta;
 
+	if (player[pl].jumpTime < 0.0f) return;
+
 	delta = (player[pl].jumpSpeed * gameSpeed);
 
 	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
@@ -398,8 +400,7 @@ void UpdateFroggerPos(long pl)
 		Calculate frog hop
 	*/
 
-	if( player[pl].jumpTime >= 0.0f)
-		FroggerHop(pl);
+	FroggerHop(pl);
 
 	//--------------------------------------------------------------------------------------------
 	
@@ -551,7 +552,7 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 
 		SetVector(&vecUp,&currTile[pl]->normal);
 
-		distance = 0;
+		distance = -1000;
 		
 		for(i=0; i<4; i++)
 		{
@@ -1307,7 +1308,9 @@ void HopFrogToTile(GAMETILE *tile, long pl)
 	}
 
 	AnimateFrogHop(dir, pl);	
-	nextFrogFacing[pl] = (dir + 2) & 3;
+	frogFacing[pl] = nextFrogFacing[pl] = (dir + 2) & 3;
+
+	SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 
 	CalculateFrogJump(
 		&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,

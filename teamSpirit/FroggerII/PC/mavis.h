@@ -3,8 +3,8 @@
 
 //-------------------------------------------------------------
 
-#define MA_MAX_VERTICES		16000	// Maximum number of VERTICES that can be drawn
-#define MA_MAX_FACES		64000	// Maximum number of FACES that can be drawn
+#define MA_MAX_VERTICES		32000	// Maximum number of VERTICES that can be drawn
+#define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn
 
 // A type for storing all the vertices and polygons in a frame
 typedef struct TAG_FRAME_INFO	

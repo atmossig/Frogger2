@@ -83,6 +83,7 @@ void GameLoop(void)
 		case INTRO_MODE:
 			RunGameIntro( );
 			RunGameLoop();
+			frameCount++;
 			break;
 
 		case CAMEO_MODE:
@@ -377,7 +378,7 @@ void StartGameIntro()
 
 	// load frogger (for no particular reason)
 
-	//CreateFrogActor(&tile, "frogger.obe", 0);
+	CreateFrogActor(&tile, "frogger.obe", 0);
 	CameraLookAtFrog();
 	UpdateCameraPosition(0);
 
@@ -390,14 +391,6 @@ void StartGameIntro()
 	SetVector(&camVect, &upVec);
 
 	controlCamera = 1;
-
-	for (j = 0; j < 3; j++)
-		for (i = 0; i < 5; i++)
-		{
-			ACTOR2 *a = CreateAndAddActor(Random(2)?"frogger.obe":"toad.obe", (i-2)*100, (j-2)*100, 0, INIT_ANIMATION);
-
-			AnimateActor(a->actor, FROG_ANIM_DANCE1 + ((i+j)%3), YES, NO, 0.3f, NO, NO);
-		}
 
 	// set up player
 
