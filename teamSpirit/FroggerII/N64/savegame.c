@@ -76,7 +76,7 @@ short	eepromPresent = FALSE;
 
 //LEVEL_HISCORE	levelTable [ MAX_WORLDS ] [ 4 ];
 SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
-
+GAME_PROGRESS	gameProgress;
 
 //***********************************
 // Function Definitions
@@ -294,6 +294,79 @@ void EepromLoadLevelScores ( void )
 	// ENDIF
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function 	: SaveGameProgress
+	Purpose 	: Tell the controller thread to store how far the frog has got to, 
+					and which keys he has collected
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void SaveGameProgress( void )
+{
+	PostEepromMessage ( EEPROM_SAVEGAMEPROGRESS );
+	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: EepromSaveGameProgress
+	Purpose 	: Store how far the frog has got to, and which keys he has collected
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void EepromSaveGameProgress( void )
+{
+	short	res = 1;
+
+	if ( eepromPresent )
+	{
+		do
+		{
+			res = osEepromLongWrite(&controllerMsgQ, /*sizeof(LEVEL_HISCORE)+*/1, (u8 *)&gameProgress, sizeof(GAME_PROGRESS));
+			Wait(EEPROM_DELAY);
+		}while(res != 0);
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: LoadGameProgress
+	Purpose 	: Tell the controller thread to reload how far the frog has got to, 
+					and which keys he has collected
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void LoadGameProgress( void )
+{
+	PostEepromMessage ( EEPROM_LOADGAMEPROGRESS );
+	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: EepromLoadGameProgress
+	Purpose 	: Reload how far the frog has got to, and which keys he has collected
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void EepromLoadGameProgress( void )
+{
+	short	res = 1;
+
+	if ( eepromPresent )
+	{
+		do
+		{
+			res = osEepromLongRead(&controllerMsgQ, /*sizeof(LEVEL_HISCORE)+*/1, (u8 *)&gameProgress, sizeof(GAME_PROGRESS));
+			Wait(EEPROM_DELAY);
+		}while(res != 0);
+	}
+}
 
 //OSMesgQueue	eepromMsgQ;
 //OSMesg		eepromMsgBuf;

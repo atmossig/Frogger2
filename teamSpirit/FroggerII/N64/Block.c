@@ -1225,7 +1225,7 @@ static void doPoly(void *arg)
 	ActiveController = initControllers();
 
 	//
-	//InitEepromMessageQueue();
+	InitEepromMessageQueue();
 	osCreateThread(&ControllerThread, 6, ControllerProc, arg,
 		 ControllerThreadStack+SMALLSTACKSIZE/sizeof(u64), controllerPriority);
   	osStartThread(&ControllerThread); 
@@ -1240,7 +1240,7 @@ static void doPoly(void *arg)
 	osCreateThread(&drawGraphicsThread,4,DrawGraphics,arg,drawGraphicsThreadStack+STACKSIZE/sizeof(u64),graphicsPriority);
 	osStartThread(&drawGraphicsThread);
 
-//	InitEeprom();
+	InitEeprom();
 
 	if ( validEeprom )
 	{
@@ -1255,7 +1255,7 @@ static void doPoly(void *arg)
 	// ENDELSEIF
   
 	gameState.mode		= FRONTEND_MODE;
-	frontEndState.mode	= OBJVIEW_MODE;
+	frontEndState.mode	= TITLE_MODE;
 
 	while(1) 
 	{
@@ -1271,7 +1271,7 @@ static void doPoly(void *arg)
 			GameLoop();
 
 
-			DoubleBufferSkinVtx();
+			//DoubleBufferSkinVtx();
 		}
 	}
 }
@@ -1371,7 +1371,7 @@ static void main_(void *arg)
 	ComputeClockSpeed();
 	InitCRCTable();
 	InitMatrixStack();
-	InitRMatrixStack();
+	//InitRMatrixStack();
 
 	dprintf"main_() - Initialising...\n"));
 	dprintf"   InitMatrixStack()\n"));
@@ -1515,6 +1515,13 @@ void ControllerProc(void *arg)
 							case EEPROM_VALID:
 								EepromValid();
 								break;
+							case EEPROM_SAVEGAMEPROGRESS:
+								EepromSaveGameProgress();
+								break;
+							case EEPROM_LOADGAMEPROGRESS:
+								EepromLoadGameProgress();
+								break;
+								
 				/*			case EEPROM_SAVEHISCORES:
 								EepromSaveHiscoreTable();
 								break;

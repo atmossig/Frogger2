@@ -21,6 +21,8 @@
 #define EEPROM_IDLE				0
 #define EEPROM_SAVELEVELSCORES	1
 #define EEPROM_LOADLEVELSCORES	2
+#define EEPROM_SAVEGAMEPROGRESS 3
+#define EEPROM_LOADGAMEPROGRESS 4
 #define EEPROM_VALID			8
 #define EEPROM_SAVEID			9
 
@@ -45,6 +47,11 @@ typedef struct
 	int score;
 } LEVEL_HISCORE;
 
+
+typedef struct
+{
+	unsigned long worldNum, levelNum, keys;
+} GAME_PROGRESS;
 
 typedef struct
 {
@@ -146,6 +153,7 @@ extern short eepromPresent;
 
 extern LEVEL_HISCORE	levelTable [ MAX_WORLDS*3 ];
 extern SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
+extern GAME_PROGRESS	gameProgress;
 
 //***********************************
 // Function Prototypes
@@ -166,6 +174,12 @@ extern void EepromSaveLevelScores	( void );
 
 extern void LoadLevelScores			( void );
 extern void EepromLoadLevelScores	( void );
+
+extern void SaveGameProgress();
+extern void EepromSaveGameProgress();
+
+extern void LoadGameProgress();
+extern void EepromLoadGameProgress();
 
 /*
 void GetEepromMessage();
