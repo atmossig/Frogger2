@@ -70,12 +70,9 @@ typedef struct
 
 } ACTOR;
 
+
 void actorFree(ACTOR *actor);
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe);
-
-void actorDraw(ACTOR *actor);
-void actorSetAnimation(ACTOR *actor, ULONG frame);
-void actorUpdateAnimations(ACTOR *actor);
 
 void ChangeModel( ACTOR *actor, char *model );
 int UndoChangeModel( ACTOR *actor );

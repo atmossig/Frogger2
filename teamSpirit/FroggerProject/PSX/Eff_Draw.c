@@ -89,7 +89,7 @@ void ProcessShadows()
 		if( !nme->active || !nme->nmeActor )
 			continue;
 
-		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ToFixed(BBACTOR_DRAWDISTANCEINNER))
+		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER )
 		{
 			SubVectorFSS( &vec, &nme->nmeActor->actor->position, &nme->inTile->centre );
 			height = DotProductFF( &vec, &nme->inTile->normal );
@@ -109,7 +109,7 @@ void ProcessShadows()
 		if( !plat->active || !plat->pltActor )
 			continue;
 
-		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ToFixed(BBACTOR_DRAWDISTANCEINNER))
+		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER )
 		{
 			SubVectorFSS( &vec, &plat->pltActor->actor->position, &plat->inTile[0]->centre );
 			height = DotProductFF( &vec, &plat->inTile[0]->normal );
