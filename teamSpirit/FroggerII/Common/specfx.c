@@ -1593,11 +1593,11 @@ void ProcessAttachedEffects( void *entity, int type )
 		if( act->effects & EF_SMOKE_STATIC )
 		{
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 1.5, 0, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 2.5, 0, 1.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.2, 0, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.5, 0, 1.5 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.8, 0, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 1.2, 0, 1.5 );
 
 			SetAttachedFXColour( fx, act->effects );
 		}
@@ -1606,11 +1606,11 @@ void ProcessAttachedEffects( void *entity, int type )
 			float gs = (path->nodes[path->fromNode].offset2==0)?1:path->nodes[path->fromNode].offset2;
 
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.5, gs, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 2.5, gs, 1.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, gs, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.5, gs, 1.5 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.8, gs, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.2, gs, 1.5 );
 
 			SetAttachedFXColour( fx, act->effects );
 		}

@@ -19,8 +19,8 @@
 #define SFXFLAGS_3D_SAMPLE		(1<<0)
 #define SFXFLAGS_LOOP			(1<<1)
 
-#define AMBIENT_VOLUME	128
-#define SAMPLE_VOLUME	200
+#define AMBIENT_VOLUME	255
+#define SAMPLE_VOLUME	255
 
 
 enum

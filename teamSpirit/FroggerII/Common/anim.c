@@ -140,7 +140,7 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 			actorAnim->morphTo = actorAnim->animTime = anim->animStart + proportion*(float)(anim->animEnd-anim->animStart);
 
 		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
-			PlaySfxMappedSample( actor, 500, 255, -1/*128*/ );
+			PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 	}
 	else
 	{
@@ -289,7 +289,7 @@ void UpdateAnimations(ACTOR *actor)
 				*actorAnim->queueNumMorphFrames = 0;
 			}
 			if( actorAnim->sfxMapping )
-				PlaySfxMappedSample( actor, 500, 255, -1/*128*/ );
+				PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 		}
 	}
 	else
@@ -302,7 +302,7 @@ void UpdateAnimations(ACTOR *actor)
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
 
 			if( actorAnim->sfxMapping )
-				PlaySfxMappedSample( actor, 500, 100, -1/*128*/ );
+				PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 
 		}
 		else if(actorAnim->animTime < anim->animStart)
