@@ -1091,6 +1091,8 @@ void StartLevelComplete()
 	SpuSetKey(SPU_OFF,0xffffff);
 #endif
 
+	utilPrintf("StartLevelComplete 1\n");
+
 //	PrepareSong(AUDIOTRK_LEVELCOMPLETE,NO);
 
 	eolTrackComplete = 0;
@@ -1113,6 +1115,8 @@ void StartLevelComplete()
 		}
 	}
 
+	utilPrintf("StartLevelComplete 2\n");
+
 	coinsMissed = coinCounter = 0;
 	arcadeHud.collectText->draw = 0;
 
@@ -1120,6 +1124,8 @@ void StartLevelComplete()
 	ScreenFade(0,255,20);
 	keepFade = NO;
 	flashScreen = YES;
+
+	utilPrintf("StartLevelComplete 3\n");
 
 	levelOpened = 0;
 	levelBeaten = 0;
@@ -1140,10 +1146,14 @@ void StartLevelComplete()
 		worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].levelVisualData[storySequence[gameState.storySequenceLevel].levelNum].levelOpen = LEVEL_OPEN;
 	}
 
+	utilPrintf("StartLevelComplete 4\n");
+
 	cOption = 0;
 	DisableHUD();
 
+	utilPrintf("StartLevelComplete 5\n");
 	InitTiledBackdrop ("LOGO");
+	utilPrintf("StartLevelComplete 6\n");
 	
 	for(i = 0;i< numBabies;i++)
 		babyIcons[i]->draw = 0;
@@ -1159,6 +1169,7 @@ void StartLevelComplete()
 #endif
 	}
 
+	utilPrintf("StartLevelComplete 7\n");
 	for (c = actList; c; c = c->next)
 		c->draw = 0;
 	
@@ -1178,16 +1189,19 @@ void StartLevelComplete()
 	coinIcon = NULL;
 	extraText = NULL;
 	extraIcon = NULL;
+	utilPrintf("StartLevelComplete 8\n");
 	if(garibList.maxCoins)
 	{
 		if(player[0].numSpawn == garibList.maxCoins)
 		{
+			utilPrintf("StartLevelComplete 9\n");
 			coinText = CreateAndAddTextOverlay(2048+4096,850,GAMESTRING(STR_GOT_ALL_COINS),YES,255,font,TEXTOVERLAY_SHADOW);
 			coinText->xPosTo = 2048;
 			coinIcon = CreateAndAddSpriteOverlay(2048 - 256 - 4096,850+300,"COINMEDAL",512,512,255,0);
 			coinIcon->xPosTo = 2048-256;
 			if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
 			{
+				utilPrintf("StartLevelComplete 10\n");
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
 				moreCoins = 1;
 				for(i = 1,numExtra = 0;i < NUM_STORY_LEVELS;i++)
@@ -1196,6 +1210,7 @@ void StartLevelComplete()
 						numExtra++;
 				}
 
+				utilPrintf("StartLevelComplete 11\n");
 				if(numExtra <= 9)
 				{
 			 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+750,extraOpenStr,YES,255,font,TEXTOVERLAY_SHADOW);
@@ -1211,6 +1226,7 @@ void StartLevelComplete()
 		}
 		else
 		{
+			utilPrintf("StartLevelComplete 12\n");
 			sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),0);//,garibList.maxCoins - player[0].numSpawn);
 			coinText = CreateAndAddTextOverlay(2048+4096,850,coinStr,YES,255,font,TEXTOVERLAY_SHADOW);
 			coinText->xPosTo = 2048;
@@ -1224,12 +1240,14 @@ void StartLevelComplete()
 		}
 	}
 
+	utilPrintf("StartLevelComplete 13\n");
 	if(player[0].numSpawn > worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins)
 	{
 		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
 		moreCoins = 1;
 	}
 
+	utilPrintf("StartLevelComplete 14\n");
 	if(train)
 	{
 		grade = 3;
@@ -1261,6 +1279,7 @@ void StartLevelComplete()
 		}
 	}
 
+	utilPrintf("StartLevelComplete 15\n");
 	if (grade==0)
 	{
 		newBestText = CreateAndAddTextOverlay(2048+4096,850+800,GAMESTRING(STR_NEW_BEST_TIME),YES,255,font,TEXTOVERLAY_SHADOW);
@@ -1278,6 +1297,7 @@ void StartLevelComplete()
 		sprintf(levTimeText,GAMESTRING(STR_YOUTOOKTIMEMIN),((int)timeForLevel/60)%60,((int)timeForLevel)%60);
 
 	
+	utilPrintf("StartLevelComplete 16\n");
 	levName = CreateAndAddTextOverlay(2048, 200+210,
 		GAMESTRING(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description_str),
 		YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
@@ -1302,6 +1322,7 @@ void StartLevelComplete()
 		bIcon = NULL;
 	}
 
+	utilPrintf("StartLevelComplete 17\n");
 	if((gameState.single == STORY_MODE) && (arcadeHud.timeOutText->draw == 0))
 	{
 		oText[0] = CreateAndAddTextOverlay(2048+4096, 3420, GAMESTRING(STR_PRESS_X_TO_CONTINUE), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
@@ -1317,6 +1338,7 @@ void StartLevelComplete()
 	}
 	nText = NULL;
 	
+	utilPrintf("StartLevelComplete 18\n");
 	if (grade==0)
 	{
 		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
@@ -1353,6 +1375,7 @@ void StartLevelComplete()
 	camVect.vy = 4096;
 	camVect.vz = 0;
 
+	utilPrintf("StartLevelComplete 19\n");
 	SetCamFF(currCamSource,currCamTarget);
 
 	for(i = 0;i < numBabies;i++)
@@ -1371,6 +1394,7 @@ void StartLevelComplete()
 		actorAnimate(babyList[i].baby->actor,BABY_ANIM_COLLECTHOLD,YES,NO,100,NO);
 	}
 
+	utilPrintf("StartLevelComplete 20\n");
 	SetVectorSS(&frog[0]->actor->position,&frogPos[5]);
 	frog[0]->actor->position.vy = frogY;
 	frog[0]->actor->qRot.x = 0;
@@ -1380,6 +1404,7 @@ void StartLevelComplete()
 	frog[0]->draw = 1;
 	actorAnimate(frog[0]->actor,froganimnum,NO,NO,froganimspeed,NO);
 	drawLandscape = 0;
+	utilPrintf("StartLevelComplete 21\n");
 }
 
 int dropSpeed = 40;

@@ -751,6 +751,7 @@ void bb_InitXA(void)
 	Returns			: void
 	Info			: 
 */
+int songPlaying = 0;
 void PrepareSong ( short worldID,  short loop )
 {
 #if GOLDCD==1
@@ -769,7 +770,9 @@ void PrepareSong ( short worldID,  short loop )
 	chan = musicList  [ worldID ];
 
 
+	StopSong();
 	XAstart(1);
+	songPlaying = 1;
 	utilPrintf			( "World ID : %d \n", worldID );
 	XAplayChannel		( xaFileData[xaNum], chan, loop, 100 );
 	//MAIN_PrintXAData	( xaFileData [ 0 ] );
@@ -783,7 +786,11 @@ void PrepareSong ( short worldID,  short loop )
 void StopSong( )
 {
 #if GOLDCD==1
-	XAstop();
+	if(songPlaying)
+	{
+		XAstop();
+		songPlaying = 0;
+	}
 #endif
 }
 
