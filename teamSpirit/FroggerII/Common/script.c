@@ -8,6 +8,15 @@
 
 /* --------------------------------------------------------------------------------- */
 
+#define FS_SET_MOVE			1
+#define FS_SET_STOP			2
+#define FS_SET_TOGGLEMOVE	3
+#define FS_SET_INVIS		4
+#define FS_SET_VIS			5
+#define FS_SET_TOGGLEVIS	6
+
+/* --------------------------------------------------------------------------------- */
+
 //int Interpret(const UBYTE *buffer);
 TRIGGER *LoadTrigger(UBYTE **p);
 BOOL ExecuteCommand(UBYTE *buffer);
@@ -87,6 +96,18 @@ void InterpretEvent( EVENT *e )
 	Interpret(buffer);
 }
 
+int ANDtrigger(TRIGGER *t)
+{
+	TRIGGER *a = (TRIGGER*)t->data[0], *b = (TRIGGER*)t->data[1];
+	return a->func(a) && b->func(b);
+}
+
+int ORtrigger(TRIGGER *t)
+{
+	TRIGGER *a = (TRIGGER*)t->data[0], *b = (TRIGGER*)t->data[1];
+	return a->func(a) || b->func(b);
+}
+
 /*	--------------------------------------------------------------------------------
     Function		: LoadTrigger
 	Parameters		: UBYTE*
@@ -115,7 +136,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 	case TR_FROGONTILE:
 		{
 			params = AllocArgs(2);
-			params[0] = (void*)JallocAlloc(sizeof(int), NO, "int");	*(int*)params[0] = MEMGETINT(p);
+			params[0] = (void*)MEMGETINT(p);
 			params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
 			trigger = MakeTrigger(FrogOnTile, 2, params);
 		}
@@ -191,6 +212,38 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 
+	case TR_OR:
+		{
+			TRIGGER *a, *b;
+
+			a = LoadTrigger(p);
+			if (!a) return 0;
+
+			b = LoadTrigger(p);
+			if (!b) return 0;
+
+			params = AllocArgs(2);
+			params[0] = (void*)a; params[1] = (void*)b;
+			trigger = MakeTrigger(ORtrigger, 2, params);
+		}
+		break;
+
+	case TR_AND:
+		{
+			TRIGGER *a, *b;
+
+			a = LoadTrigger(p);
+			if (!a) return 0;
+
+			b = LoadTrigger(p);
+			if (!b) return 0;
+
+			params = AllocArgs(2);
+			params[0] = (void*)a; params[1] = (void*)b;
+			trigger = MakeTrigger(ANDtrigger, 2, params);
+		}
+		break;
+
 	default:
 		dprintf"Unrecognised trigger type %02x, skipping\n", token));
 		return NULL;
@@ -245,6 +298,35 @@ BOOL ExecuteCommand(UBYTE *buffer)
 		}
 		break;
 
+	case EV_SETENEMY:
+		{
+			ENEMY *nme;
+			nme = GetEnemyFromUID(MEMGETINT(p));
+			if (!nme) return 0;
+
+			switch (MEMGETINT(p))
+			{
+			case FS_SET_MOVE:
+				nme->isWaiting = 0;
+				nme->path->startFrame = actFrameCount;
+				nme->path->endFrame = nme->path->startFrame + (60*nme->speed);
+				break;
+			case FS_SET_STOP:
+				nme->isWaiting = -1; break;
+			case FS_SET_TOGGLEMOVE:
+				if (nme->isWaiting)
+				{
+					nme->isWaiting = 0;
+					nme->path->startFrame = nme->path->endFrame;
+					nme->path->endFrame = nme->path->startFrame + (60*nme->speed);
+				}
+				else
+					nme->isWaiting = -1;
+				break;
+			}
+		}
+		break;
+
 	case EV_ON:
 		{
 			TRIGGER *t;
@@ -259,6 +341,8 @@ BOOL ExecuteCommand(UBYTE *buffer)
 				e = MakeEvent( InterpretEvent, 1, param );
 				AttachEvent(t, e, (short)flags, 0);
 			}
+			else
+				return 0;
 		}
 		break;
 
@@ -309,6 +393,8 @@ void LoadTestScript(const char* filename)
 	UBYTE* buffer;
 	UBYTE version;
 	
+	dprintf"Testing script %s\n", filename));
+
 	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -318,12 +404,15 @@ void LoadTestScript(const char* filename)
 	}
 
 	size = GetFileSize(h, NULL);
-	buffer = JallocAlloc(size, NO, "entLoad");	// memory leak! Heh heh heh
+	buffer = JallocAlloc(size, NO, "entLoad");
+
 	ReadFile(h, buffer, size, &read, NULL);
 	CloseHandle(h);
 
-	if (buffer[0] != 0x02) return;
-	Interpret(buffer + 1);
+	if (!InitLevelScript(buffer))
+	{
+		dprintf"Failed initialising script\n", filename)); return;
+	}
 }
 
 int InitLevelScript(void *buffer)

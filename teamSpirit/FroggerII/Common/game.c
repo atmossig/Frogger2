@@ -1165,6 +1165,9 @@ void RunGameLoop (void)
 						AnimateActor(babies[i]->actor,0,YES,NO,1.0);
 					}
 					// ENDIF
+
+					CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
+
 					CameraLookAtFrog();
 					UpdateCameraPosition(0);
 					for (i=0; i<4; i++)
