@@ -37,8 +37,9 @@
 #define ENEMY_NEW_SNAPTILES				(1 << 19)	// Snap at a tilelist
 #define ENEMY_NEW_MOVEONMOVE			(1 << 20)	// Move towards frog when it moves
 #define ENEMY_NEW_FOLLOWFROG			(1 << 21)	// Follow where the frog has been
-#define ENEMY_NEW_VENT					(1 << 22)	// Like a geyser - one tile
+#define ENEMY_NEW_VENT					(1 << 22)	// Gush particles up from a tile.
 #define ENEMY_NEW_NODAMAGE				(1 << 23)	// Don't hurt the frog on collision
+#define ENEMY_NEW_FLAPPYTHING			(1 << 24)	// Environmental effect - sets NODAMAGE flag. Can be used with swarm
 
 typedef struct TAGENEMY
 {
@@ -86,6 +87,7 @@ void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
 void NMEDamageFrog( int num, ENEMY *nme );
+void UpdateFlappyThing( ENEMY *nme );
 
 //------------------------------------------------------------------------------------------------
 

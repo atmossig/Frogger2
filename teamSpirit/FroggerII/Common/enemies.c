@@ -691,6 +691,10 @@ void UpdateEnemies()
 				AddVector( &cur->nmeActor->actor->pos, &cur->nmeActor->actor->pos, &up );
 			}
 		}
+		else if( cur->flags & ENEMY_NEW_FLAPPYTHING )
+		{
+			UpdateFlappyThing(cur);
+		}
 
 		if (NUM_FROGS!=1)
 		{
@@ -781,6 +785,79 @@ void UpdateEnemies()
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFlappyThing
+	Purpose			: Make the enemy fly around in a box
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateFlappyThing( ENEMY *nme )
+{
+	PATH *path = nme->path;
+	ACTOR *act = nme->nmeActor->actor;
+	VECTOR fwd;
+	QUATERNION q1, q2, q3;
+	float t;
+		
+	// If nme is very close to destination (stored in nmeactor->actor->rotaim) then choose a new destination.
+	if( (DistanceBetweenPointsSquared(&act->pos,&act->rotaim) < 300) || !Magnitude(&act->rotaim) ) // 10 units apart
+	{
+		VECTOR p1, p2;
+		int dX, dY, dZ;
+
+		SetVector( &up, &path->nodes[0].worldTile->normal );
+		ScaleVector( &up, path->nodes[0].offset );
+		AddVector( &p1, &path->nodes[0].worldTile->centre, &up );
+
+		SetVector( &up, &path->nodes[1].worldTile->normal );
+		ScaleVector( &up, path->nodes[1].offset );
+		AddVector( &p2, &path->nodes[1].worldTile->centre, &up );
+
+		// Get dimensions of the box we can move in.
+		dX = Fabs(p2.v[0] - p1.v[0]);
+		dY = Fabs(p2.v[1] - p1.v[1]);
+		dZ = Fabs(p2.v[2] - p1.v[2]);
+
+		p1.v[0] = min(p2.v[0], p1.v[0]);
+		p1.v[1] = min(p2.v[1], p1.v[1]);
+		p1.v[2] = min(p2.v[2], p1.v[2]);
+
+		// Random destination within the valid box
+		act->rotaim.v[0] = p1.v[0]+Random(dX);
+		act->rotaim.v[1] = p1.v[1]+Random(dY);
+		act->rotaim.v[2] = p1.v[2]+Random(dZ);
+	}
+
+	// Store current orientation
+	SetQuaternion( &q1, &act->qRot );
+	
+	// Set direction to desired point
+	SubVector(&fwd,&act->rotaim,&act->pos);
+	MakeUnit(&fwd);
+
+	// Skewer a line to rotate around, and make a rotation
+	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	t = DotProduct(&inVec,&fwd);
+	if (t<-0.999)
+		t=-0.999;
+	if (t>0.999)
+		t = 0.999;
+	q3.w=acos(t);
+	// Duh.
+	GetQuaternionFromRotation(&q2,&q3);
+
+	// Slerp between current and desired orientation
+	QuatSlerp( &q1, &q2, path->nodes[0].speed, &act->qRot );
+
+	// Move forwards a bit in direction of facing
+	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+	ScaleVector( &fwd, path->nodes[1].speed );
+	AddVector( &act->pos, &fwd, &act->pos );
+
+	nme->flags |= ENEMY_NEW_NODAMAGE;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitEnemyLinkedList

@@ -801,8 +801,8 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 		
 		forward.v[X] = 0;
 		forward.v[Z] = b;
-
 		MakeUnit(&forward);
+
 		a = DotProduct(&forward,&upVec);
 		q.x = 1;
 		q.y = 0;
