@@ -15,7 +15,6 @@
 
 #include "incs.h"
 
-
 ACTOR	camera;
 
 VECTOR	cameraUpVect = { 0,1,0 };
@@ -26,6 +25,8 @@ VECTOR	currCamTarget[4] = {{ 0,0,0 },{ 0,0,0 },{ 0,0,0 },{ 0,0,0 }};
 
 VECTOR	actualCamSource[2][4];
 VECTOR	actualCamTarget[2][4];
+
+VECTOR currCamDist = {0,0,10};
 
 float	xValuesFOV[4]		= { 1.333333F,1.333333F,1.333333F,1.333333F };
 float	yValuesFOV[4]		= { 45.0F,45.0F,45.0F,45.0F };
@@ -203,4 +204,191 @@ void ChangeCameraSetting()
 	{
 		scaleV = 1.1F;
 	}
+}
+
+
+/* --------------------------------------------------------------------------------
+	Programmer	: Matthew Cloy
+	Function	: CameraLookAtFrog
+
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
+void CameraLookAtFrog(void)
+{
+	if(frog[0] && !fixedDir && !controlCamera)
+	{
+	
+		float afx,afy,afz;
+		int i,l;
+		afx = afy = afz = 0;
+		l = 0;
+		for (i=0; i<NUM_FROGS; i++)
+		{
+			if (frog[i]->action.healthPoints > 0)
+			{
+				afx += frog[i]->actor->pos.v[0];
+				afy += frog[i]->actor->pos.v[1];
+				afz += frog[i]->actor->pos.v[2];
+				l++;
+			}
+		}
+		
+		if (l)
+		{
+			afx/=l;
+			afy/=l;
+			afz/=l;
+		}
+
+		{
+			camTarget[0].v[0] = afx+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0];	
+			camTarget[0].v[1] = afy+currTile[0]->dirVector[camFacing].v[1]*camLookOfs + currTile[0]->normal.v[1];	
+			camTarget[0].v[2] = afz+currTile[0]->dirVector[camFacing].v[2]*camLookOfs + currTile[0]->normal.v[2];
+		}
+		
+	}
+	
+}
+
+
+/* --------------------------------------------------------------------------------
+	Programmer	: Matthew Cloy
+	Function	: SlurpCamPosition
+
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
+
+float fovSpd = 2;
+float camSpeed4 = 8;
+
+void SlurpCamPosition(long cam)
+{
+	float cam1 = camSpeed,
+		cam2 = camSpeed3,
+		cam3 = camSpeed4;
+
+	while( lastActFrameCount < actFrameCount )
+	{
+		currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cam1;
+		currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cam1;
+		currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cam1;
+
+		currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cam2;
+		currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cam2;
+		currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cam2;
+
+		currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cam3;
+		currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cam3;
+		currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cam3;
+
+		if ( gameState.mode != CAMEO_MODE )
+		{
+			VECTOR t = { 0,0,0 };
+			int i;
+		
+			for (i=0; i<NUM_FROGS; i++)
+			{
+				if (frog[i]->action.healthPoints > 0)
+				{
+					t.v[0]+=currTile[i]->normal.v[0];
+					t.v[1]+=currTile[i]->normal.v[1];
+					t.v[2]+=currTile[i]->normal.v[2];
+				}
+			}
+
+			MakeUnit (&t);
+			
+			camVect.v[0] -= (camVect.v[0] - t.v[0])/camSpeed2;
+			camVect.v[1] -= (camVect.v[1] - t.v[1])/camSpeed2;
+			camVect.v[2] -= (camVect.v[2] - t.v[2])/camSpeed2;
+			
+		}
+
+		xFOV		-= (xFOV - xFOVNew) / (camSpeed*fovSpd);
+		yFOV		-= (yFOV - yFOVNew) / (camSpeed*fovSpd);
+		camLookOfs	-= (camLookOfs - camLookOfsNew) / camSpeed;
+
+		if(cameraShake)
+		{
+			currCamSource[cam].v[0] += (-16 + Random(32));
+			currCamSource[cam].v[1] += (-16 + Random(32));
+			currCamSource[cam].v[2] += (-16 + Random(32));
+			cameraShake--;
+		}
+		else
+		{
+	//		osMotorStop ( &rumble );
+		}
+
+		lastActFrameCount+=2;
+	}
+}
+
+
+/* --------------------------------------------------------------------------------
+	Programmer	: Matthew Cloy
+	Function	: UpdateCameraPosition
+
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
+void UpdateCameraPosition(long cam)
+{
+	VECTOR result;
+
+	if(!frog[0] || !currTile[0] || controlCamera)
+		return;
+	
+	if ( gameState.mode != CAMEO_MODE && !fixedPos )
+	{
+		float afx,afy,afz;
+		float afx2,afy2,afz2;
+
+		int i,l;
+		afx = afy = afz = 0;
+		afx2 = afy2 = afz2 = 0;
+		l=0;
+		for (i=0; i<NUM_FROGS; i++)
+		{
+			if (frog[i]->action.healthPoints > 0)
+			{
+
+				afx += frog[i]->actor->pos.v[0];
+				afy += frog[i]->actor->pos.v[1];
+				afz += frog[i]->actor->pos.v[2];
+
+				afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
+				afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
+				afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
+			
+				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
+				afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
+				afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+				l++;
+			}
+		}
+		
+		if (l)
+		{
+		
+			afx/=l;
+			afy/=l;
+			afz/=l;
+		
+			afx2/=l;
+			afy2/=l;
+			afz2/=l;
+		}
+
+		camSource[cam].v[0] = afx+afx2;
+		camSource[cam].v[1] = afy+afy2;
+		camSource[cam].v[2] = afz+afz2;
+	}
+
+	SlurpCamPosition(cam);
 }

@@ -108,7 +108,10 @@ OBJECT *MakeUniqueObject(OBJECT *object);
 void RemoveUniqueObject(OBJECT *object);
 
 void ResetUniqueActorList();
-void ActorLookAt( ACTOR *act, VECTOR *at, long flags );
 void CopyDrawlist(u8 *dest,u8 *source);
+
+void ActorLookAt( ACTOR *act, VECTOR *at, long flags );
+void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);
+void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing);
 
 #endif

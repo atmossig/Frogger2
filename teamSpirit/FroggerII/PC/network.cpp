@@ -23,6 +23,7 @@ extern "C" {
 #include "directx.h"
 #include "..\resource.h"
 #include "types.h"
+#include "define.h"
 #include "font.h"
 #include "actor.h"
 #include "overlays.h"

@@ -800,3 +800,71 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 		GetQuaternionFromRotation(&act->qRot,&q);
 	}
 }
+
+
+void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
+{
+	VECTOR dirn;
+	QUATERNION rotn,q;
+	float dp,m;
+	
+	CalculateQuatForPlane2( 0, me, up);
+	RotateVectorByQuaternion( &dirn, mfd, me);
+	dp = DotProduct( fd, &dirn );
+	CrossProduct( (VECTOR *)&rotn, &dirn, fd );
+	if(dp > -0.99)
+	{
+		m = Magnitude( (VECTOR *)&rotn );
+		if(m > 0.0001)
+		{
+			ScaleVector( (VECTOR *)&rotn, 1/m );
+
+			if (dp<0.99)
+				rotn.w = acos(dp);
+			else
+				rotn.w = 0;
+			
+			GetQuaternionFromRotation( &q, &rotn );
+			QuaternionMultiply( me, &q, me );
+		}
+	}
+	else
+	{
+		vertQ.w = PI;
+		GetQuaternionFromRotation(&q,&vertQ);
+		QuaternionMultiply(me,me,&q);
+	}
+}
+
+
+void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
+{
+	VECTOR fwdVec = { 0,0,1 };
+	VECTOR dirn2;
+	QUATERNION rotn,q;
+	float frogMatrix[4][4];
+	float frogMatrix2[4][4];
+	float dp,m;
+	
+	CalculateQuatForPlane2(0,&me->actor->qRot,&tile->normal);
+	RotateVectorByQuaternion(&dirn2,&fwdVec,&me->actor->qRot);
+	dp = DotProduct(&tile->dirVector[fFacing],&dirn2);
+	CrossProduct((VECTOR *)&rotn,&dirn2,&tile->dirVector[fFacing]);
+	if(dp > -0.99)
+	{
+		m = Magnitude((VECTOR *)&rotn);
+		if(m > 0.0001)
+		{
+			ScaleVector((VECTOR *)&rotn,1/m);
+			rotn.w = acos(dp);
+			GetQuaternionFromRotation(&q,&rotn);
+			QuaternionMultiply(&me->actor->qRot,&q,&me->actor->qRot);
+		}
+	}
+	else
+	{
+		vertQ.w = PI;
+		GetQuaternionFromRotation(&q,&vertQ);
+		QuaternionMultiply(&me->actor->qRot,&me->actor->qRot,&q);
+	}
+}
