@@ -1071,7 +1071,7 @@ int MovePlatformToNode(PLATFORM *plt, int flag)
 		plt->path->toNode = flag;
 		plt->inTile[0] = plt->path->nodes[flag].worldTile;
 		plt->path->endFrame = actFrameCount;
-		plt->Update();
+		plt->Update(plt);
 
 		plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
 	}
