@@ -1,24 +1,23 @@
 BUG------------ Sprites aren't sorted
-COMPLETION BY-- Jan 28th
-INSTANCE-------	
-SENT BY-------- Dave
-RESPONSIBILTY-- Matt
-FIXED NOTES---- lack of sorting also affects the square-edge bug above
+COMPLETION BY-- Jan 28th - COMPLETED
+PRIORITY------- Medium
+RESPONSIBILTY-- Andy
+NOTES---------- lack of sorting also affects the square-edge bug above
 
 TASK----------- Rotating sprites
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Jan 28th - COMPLETED
 PRIORITY------- Medium
-RESPONSIBILTY-- Matt
+RESPONSIBILTY-- Andy
 NOTES---------- For smoke especially
 
 TASK----------- Static Sprite List
 COMPLETION BY-- Jan 28th
 PRIORITY------- Medium
-RESPONSIBILTY-- Matt
+RESPONSIBILTY-- Andy
 NOTES---------- For smoke especially
 
 TASK----------- Framerate independant sprites (3D animating sprites)
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Jan 28th - COMPLETED
 PRIORITY------- Medium
-RESPONSIBILTY-- Matt
+RESPONSIBILTY-- Andy
 NOTES---------- For smoke especially
