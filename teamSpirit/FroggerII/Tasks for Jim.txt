@@ -19,6 +19,11 @@ SENT BY-------- Brucie Baby
 RESPONSIBILTY-- Jim
 FIXED NOTES---- Fixed - someone put in a check for canJump, so it didn't work when the frog was jumping. Hmm.
 
+
+
+
+
+
 TASK----------- Hub character
 COMPLETION BY-- Feb 15th
 PRIORITY------- Medium
@@ -42,6 +47,11 @@ COMPLETION BY-- Feb 15th
 PRIORITY------- Medium
 RESPONSIBILTY-- Jim 
 NOTES---------- 
+
+
+
+
+
 
 TASK----------- Different shadow types, and scale and fade depending on height
 COMPLETION BY-- Feb 28th
