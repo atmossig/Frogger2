@@ -161,8 +161,12 @@ void LoadObjectBank(int objectBank)
 		case LABORATORYBOSSC_OBJ_BANK:
 			strcpy (fileName, "labbossc"); break;
 
-		case LABORATORYMULTI_OBJ_BANK:
-			strcpy(fileName, "labmulti"); break;
+		case LABORATORYMULTI1_OBJ_BANK:
+			strcpy(fileName, "labmulti1"); break;
+		case LABORATORYMULTI2_OBJ_BANK:
+			strcpy(fileName, "labmulti2"); break;
+		case LABORATORYMULTI3_OBJ_BANK:
+			strcpy(fileName, "labmulti3"); break;
 
 // Halloween
 
