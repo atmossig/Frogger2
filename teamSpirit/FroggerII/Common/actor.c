@@ -339,7 +339,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 			if((obj->sprites[i].flags & SPRITE_DONE) == 0)
 			{
 				obj->sprites[i].flags |= SPRITE_DONE;
-				switch(sprite->texture->sx)
+/*				switch(sprite->texture->sx)
 				{
 					case 8:
 						obj->sprites[i].sx /= 2;
@@ -361,7 +361,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 					case 32:
 						break;
 				}
-			}
+*/			}
 
 			sprite->r = sprite->g = sprite->b = 255;
 			sprite->a = 128;
@@ -372,8 +372,8 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 
 			sprite->flags |= flags;
 
-			sprite->offsetX = -sprite->texture->sx / 2;
-			sprite->offsetY = -sprite->texture->sy / 2;
+			sprite->offsetX = -16; // -sprite->texture->sx / 2;
+			sprite->offsetY = -16; // -sprite->texture->sy / 2;
 
 			AddSprite(sprite,NULL);
 			obj->sprites[i].sprite = sprite;

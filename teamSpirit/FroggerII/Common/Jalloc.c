@@ -558,6 +558,45 @@ ShowJalloc()
 	dprintf"%d bytes used; %d bytes wasted\n",sizeUsed,sizeEmpty));
 }
 
+/**********************************************************************************
+	Function:	ListJallocBlocks
+	Programmer:	David Swift
+		
+	ListJallocBlocks() displays a list of blocks that the given address lies in
+	It should obviously only return one, except in the case of nasty memory overrides!
+*/
+
+void ListJallocBlocks(UBYTE **blk)
+{
+	int count;
+	LONG	l, k;
+	JALLOCTYPE *jp = &jallocControl;
+	jallocentType *block;
+
+	count = 0;
+
+	dprintf"--- Checking jalloc lists for address 0x%08x ---\n", *blk));
+
+	for(l = 0, block = jp->blocks; l <= jp->lastUsedStatic; l++, block++)
+	{
+		if((*blk >= block->address) && (*blk < (block->address + block->size)))
+		{
+			dprintf"Static: %08x (%+d) '%s'\n", block->address, *blk - block->address, block->name));
+			count++;
+		}
+	}
+	
+	for(l = MAXJALLOCS-1, block = &jp->blocks[l]; l >= jp->lastUsedDynamic; l--, block--)
+	{
+		if((*blk >= block->address) && (*blk < (block->address + block->size)))
+		{
+			dprintf"Dynamic: %08x (%+d) '%s'\n", block->address, *blk - block->address, block->name));
+			count++;
+		}
+	}
+
+	dprintf"--- Found %d block%s of memory ---\n", count, (count==1)?"":"s"));
+}
 
 
 #ifndef PC_VERSION

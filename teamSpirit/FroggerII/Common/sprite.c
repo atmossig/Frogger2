@@ -630,8 +630,8 @@ SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,sho
 	sprite->b			= 255;
 	sprite->a			= 255;
 
-	sprite->offsetX		= -sprite->texture->sx / 2;
-	sprite->offsetY		= -sprite->texture->sy / 2;
+	sprite->offsetX		= -16; //-sprite->texture->sx / 2;
+	sprite->offsetY		= -16; //-sprite->texture->sy / 2;
 	sprite->flags		= flags;
 
 	sprite->scaleX		= size;

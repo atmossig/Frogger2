@@ -159,6 +159,8 @@ void RunTitleScreen( )
 				PlaySample ( 2,NULL,255,128);
 				break;
 			}
+
+			return;		// DON'T try to do any menu stuff! Duh
 		}			
 
 		if( (button & CONT_B) && !(lastbutton & CONT_B) )

@@ -52,6 +52,7 @@ void ShowJalloc();
 void memclear(char *data, int size);
 void DMAMemory(char *, u32 ROMStart, u32 ROMEnd);
 u32 DMAGetSize(u32 ROMStart, u32 ROMEnd);
+void ListJallocBlocks(UBYTE **blk);
 
 extern JALLOCTYPE	jallocControl;
 
