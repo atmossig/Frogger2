@@ -107,7 +107,7 @@ DWORD stopCDTrack( HWND hWndNotify );
 void LoadSfx( unsigned long worldID )
 {
 	int numSfx, i;
-	SAMPLEMAP *mapping;
+	SAMPLEMAP *mapping = NULL;
 
 	for( i = NUM_GENERIC_SFX-1; i>=0; i-- )
 		CreateAndAddSample( &genericMapping[i] );

@@ -93,7 +93,7 @@ enum
 	END_SPACE_SFX,
 };
 
-#define NUM_SPACE_SFX ( END_SPACE_SFX - NUM_GENERIC_SFX )
+#define NUM_SPACE_SFX ( END_SPACE_SFX - END_GARDEN_SFX )
 
 
 //***********************************

@@ -245,6 +245,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitialiseWindows(hInstance,nCmdShow))
 		ok = 0;
 
+#ifndef DONTUSEJALLOC
 	// create area for memory Jalloc's
 	// 16MB () for now - ANDYE
 	memSizeInBytes = (16 * 1024 * 1024);
@@ -260,6 +261,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		JallocInit((long)memPtr,memSizeInBytes);
 		dprintf"DONE !\n"));
 	}
+#endif
 
 	// initialisation...
 	dprintf"Init CRC table...\n"));
@@ -288,7 +290,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	InitSampleList();
 
 	InitFont();
+#ifdef USE_EDITOR
 	InitEditor();
+#endif
 	
 	frameCount = 1;
 	actTickCount = GetTickCount();
@@ -406,12 +410,14 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 //				if( KEYPRESS(DIK_F8) )
 //				fog.mode = 1;//!(fog.mode);
 
+#ifdef USE_EDITOR
 				if( KEYPRESS(DIK_F10) )
 				{
 					editorOk = !editorOk; 
 					keyDelay = 20;
 				}
-			
+#endif
+				
 				if (KEYPRESS(DIK_F5))
 				{
 					if (drawTimers<3)
@@ -440,12 +446,14 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 */			}
 			else
 				keyDelay-=gameSpeed;
-			
+
+#ifdef USE_EDITOR
 			if (editorOk)
 			{
 				SetupViewMatrix();
 				RunEditor();
 			}
+#endif
 
 			if( gameState.multi == MULTIREMOTE && gameState.mode == INGAME_MODE )
 				RefreshMPFrogs( );
@@ -539,7 +547,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	FreeAllLists();
 	DeInitPCSpecifics();
 	DeInitInputDevices();
+#ifdef USE_EDITOR
 	ShutdownEditor();
+#endif
 	UnInitMPDirectPlay();
 
 	free(memPtr);
@@ -896,6 +906,7 @@ void DrawGraphics()
 	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 
+#ifdef USE_EDITOR
 	if (editorOk)
 	{
 		DrawBatchedPolys();
@@ -905,7 +916,7 @@ void DrawGraphics()
 		DrawBatchedPolys();
 		BlankFrame(basil);
 	}
-
+#endif
 
 	if( chatFlags && gameState.mode == INGAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
