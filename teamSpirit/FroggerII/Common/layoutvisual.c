@@ -217,8 +217,8 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 	WORLD_OPEN,
 	2,						// number of levels
 		{ 
-		"language",		LEVELID_FRONTEND1,FRONTEND1_OBJ_BANK,0,FRONTEND1_COL,LEVEL_OPEN,-1,0,
-		"start",		LEVELID_FRONTEND2,FRONTEND2_OBJ_BANK,0,FRONTEND2_COL,LEVEL_OPEN,-1,0,
+		"title",		LEVELID_FRONTEND1,FRONTEND1_OBJ_BANK,0,FRONTEND1_COL,LEVEL_OPEN,-1,0,
+		"languagef",		LEVELID_FRONTEND2,FRONTEND2_OBJ_BANK,0,FRONTEND2_COL,LEVEL_OPEN,-1,0,
 		},
 	}
 
@@ -282,15 +282,24 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	Returns			: void
 	Info			: 
 */
+
+void FreeObjectBank(long i);
+
 void FreeAllObjectBanks()
 {
 	unsigned long i;
+	
+	for(i=0; i<MAX_OBJECT_BANKS; i++)
+		FreeObjectBank(i);
+
+/*
 
 	for(i=0; i<MAX_OBJECT_BANKS; i++)
 	{
 		if(objectBanks[i].freePtr)
 			JallocFree((UBYTE**)&objectBanks[i].freePtr);
 	}
+*/
 }
 
 
@@ -355,7 +364,7 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	switch ( worldID )
 	{
 		case WORLDID_GARDEN:
-			switch ( levelID )
+			switch (levelID)
 			{
 				case LEVELID_GARDENLAWN:
 					camFacing = ((camFacing+2)%4);

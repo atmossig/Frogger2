@@ -172,6 +172,9 @@ void RunTmpTitle()
 	lastbutton = button;  
 }
 
+extern SPRITEOVERLAY *atari;
+extern SPRITEOVERLAY *konami;
+
 void CreateOverlays ( void )
 {
 	// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
@@ -185,8 +188,11 @@ void CreateOverlays ( void )
 	sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
+	
+	konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
+	atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
 
-	sprOver = CreateAndAddSpriteOverlay(24,150,"haslg001.bmp",32,32,255,255,255,127,0);
+/*	sprOver = CreateAndAddSpriteOverlay(24,150,"haslg001.bmp",32,32,255,255,255,127,0);
 	sprOver = CreateAndAddSpriteOverlay(56,150,"haslg002.bmp",32,32,255,255,255,127,0);
 	sprOver = CreateAndAddSpriteOverlay(24,182,"haslg003.bmp",32,32,255,255,255,127,0);
 	sprOver = CreateAndAddSpriteOverlay(56,182,"haslg004.bmp",32,32,255,255,255,127,0);
@@ -194,6 +200,6 @@ void CreateOverlays ( void )
 	sprOver = CreateAndAddSpriteOverlay(200,185,"isl1.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(232,185,"isl2.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(264,185,"isl3.bmp",32,32,255,255,255,255,0);
-
+*/
 //	CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 }

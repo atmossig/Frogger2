@@ -232,6 +232,10 @@ void LoadCollision (int num)
 		case RETROMASTER_COL:
 			strcat(file,"retromaster");
 			break;
+		
+		case FRONTEND1_COL:
+			strcat(file,"title");
+			break;
 
 		default:
 			dprintf"ERROR: no valid map bank specified....\n"));
@@ -472,6 +476,11 @@ case GARDENMASTER_COL:
 		case RETROMASTER_COL:
 			strcat(file,"retromaster");
 			break;
+
+		case FRONTEND1_COL:
+			strcat(file,"title");
+			break;
+
 		default:
 			dprintf"ERROR: no valid map bank specified....\n"));
 			for(;;);

@@ -1485,7 +1485,6 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 		}
 		else
 		{
-//			gDPSetPrimColor(glistp++,0,0,/*r*/255,/*g*/255,/*b*/255,obj->xlu);
 		}
 
 
@@ -1493,7 +1492,6 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 	if((calcMtx == TRUE) || (staticObj == FALSE))
 	{
 		ComputeResultMatrix();
-//->		guMtxF2L(matrixStack.result, &dynamicp->modeling4[objectMatrix]);
 	
 
 		//store the static mtx
@@ -1501,33 +1499,19 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 		{
 			if(staticObjectMtx)
 			{
-//				SetMatrix((float *)staticObjectMtx, (float *)&dynamicp->modeling4[objectMatrix]);
-//				guMtxF2L(matrixStack.result, staticObjectMtx);
 			}
 		}
-	
-//  gSPMatrix(glistp++, 
-//		 OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-//		 G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		
 		matrixStackCount++;
 	}
 	else
 	{
-//		guMtxF2L(unitMatrix, &dynamicp->modeling4[objectMatrix]);
-//->		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)staticObjectMtx);
-//		memcpy(&dynamicp->modeling4[objectMatrix], staticObjectMtx, sizeof(Mtx));
-
-//	    gSPMatrix(glistp++, 
-//		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-//		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
 		matrixStackCount++;
 
 	}
 
 	if(obj->mesh->numFaces)
 	{
-		if (!TestDistanceFromFrog)
+		if (1)//!TestDistanceFromFrog)
 		{
 			xl = xluFact / 256.0;
 			PCDrawObject (obj,matrixStack.result);

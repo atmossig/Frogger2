@@ -293,11 +293,11 @@ void LoadObjectBank(int num)
 			strcat (file,"ancientsmulti");
 			break;
 	
-	case LABORATORYMASTER_OBJ_BANK:
+		case LABORATORYMASTER_OBJ_BANK:
 			strcat (file,"labmaster");
 			break;
 	
-	case LABORATORYLEV1_OBJ_BANK:
+		case LABORATORYLEV1_OBJ_BANK:
 			strcat (file,"lab1");
 			break;
 			
@@ -305,9 +305,13 @@ void LoadObjectBank(int num)
 			strcat (file,"haloween");
 			break;
 
+		case FRONTEND1_OBJ_BANK:
+			strcat(file,"title");
+			break;
+
 		default:
 			dprintf"ERROR: no object bank specified....\n"));
-			for(;;);
+			return;
 			break;
 	}
 
@@ -357,6 +361,11 @@ void LoadObjectBank(int num)
 
 }
 
+void FreeObjectBank(long i)
+{
+	FreeLibrary(objectBanks[i].freePtr);
+	objectBanks[i].freePtr = NULL;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: 

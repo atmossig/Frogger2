@@ -863,8 +863,11 @@ void RunGameLoop (void)
 		gameIsOver = 0;
 		levelIsOver = 0;
 
-//		LoadTextureBank ( SYSTEM_TEX_BANK );
+//		LoadTextureBank ( SYSTEM_TEX_BANK )
 		//LoadObjectBank  ( SYSTEM_OBJ_BANK );
+		
+		// If we are in the titkescreen.
+		
 
 		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,255,255,255,0);
 		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,255,255,255,0);
@@ -907,13 +910,25 @@ void RunGameLoop (void)
 		backPanel->b		= 255;
 		backPanel->a		= 0;
 
+		if (player[0].worldNum==9)
+		{
+			CreateOverlays();
+			timeTextOver->draw = 0;
+			livesTextOver->draw = 0;
+			backPanel->draw = 0;
+			countdownTimer = 0;
+			i = 3;
+			while(i--)
+				sprHeart[i]->draw = 0;			
+		}
+
 //		sp = AddNewSpriteToList(firstTile[],firstTile[],firstTile[],0,"wholekey.bmp",0);
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 		tileNum = CreateAndAddTextOverlay(0,35,"TILENUM",YES,NO,255,255,255,255,oldeFont,0,0,0);
 #endif
 
-		CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
+		//CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 
 		//firstTile[137].state = TILESTATE_SPRING;
 		//firstTile[261].state = TILESTATE_SPRING;

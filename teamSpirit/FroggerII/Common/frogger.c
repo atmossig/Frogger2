@@ -82,7 +82,10 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 	{
 		CreateBabies(createBabyActors, createBabyOverlays );
 		for (i=0; i<MAX_FROGS; i++)
-			CreateFrogActor (gTStart[0],"frogger.ndo",i);
+			if (gTStart[i])
+				CreateFrogActor (gTStart[i],"frogger.ndo",i);
+			else
+				CreateFrogActor (gTStart[0],"frogger.ndo",i);
 		
 		for (i=4; i>NUM_FROGS; i--)
 			frog[i-1]->actor->xluOverride = 0;
