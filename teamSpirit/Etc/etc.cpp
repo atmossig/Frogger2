@@ -43,10 +43,11 @@
 
 typedef unsigned char UBYTE;
 
+#define MAX_PATH 256
 #define OUTPUT_FILE_EXT ".fev"
 #define ETC_VERSION 2
 
-bool hold = false, save = true, verbose = false;
+bool hold = false, save = true, verbose = false, quiet = false; 
 
 int line, files = 0, triggers = 0, events = 0;
 char error[80];
@@ -77,6 +78,14 @@ Address *addList = NULL;
 Lookup SubLookup;
 */
 
+struct FileList
+{
+	char filename[MAX_PATH];
+	FileList *next;
+};
+
+FileList *filenames = NULL;
+
 /*-------------------------------------------------------------------------*/
 
 bool AddEvent(Buffer &buffer);
@@ -89,18 +98,20 @@ bool AddParamsToBuffer(Buffer &buffer, ParamType* params);
 bool LoadCommandTable(const char* filename, ScriptTokenList &list)
 {
 	bool err = false;
-	double v;
+	int i;
 
 	ParamType params[10];
 	
 	if (!OpenFile(filename)) return false;
 	
-	SetVariable("p_special", "0");
-	SetVariable("p_integer", "1");
-	SetVariable("p_float", "2");
-	SetVariable("p_string", "3");
-	SetVariable("p_trigger", "4");
-	SetVariable("p_block", "5");
+	SetVariable("p_special",	"0");
+	SetVariable("p_byte",		"1");
+	SetVariable("p_word",		"2");
+	SetVariable("p_integer",	"3");
+	SetVariable("p_float",		"4");
+	SetVariable("p_string",		"5");
+	SetVariable("p_trigger",	"6");
+	SetVariable("p_block",		"7");
 
 	while (!err)
 	{
@@ -108,13 +119,13 @@ bool LoadCommandTable(const char* filename, ScriptTokenList &list)
 		int tokenVal;
 		int pnum = 0;
 		
-		if (!GetNumberToken(&v))
+		if (!GetIntegerToken(&i))
 		{
 			if (tokenType == T_NONE) break; // end of file! we can break out.
 
 			Error("Expected token number"); err = true; break;
 		}
-		tokenVal = (int)v;
+		tokenVal = i;
 
 		if (tokenVal < 0 || tokenVal > 255)
 		{
@@ -141,12 +152,12 @@ bool LoadCommandTable(const char* filename, ScriptTokenList &list)
 
 		while (!err)
 		{
-			if (!GetNumberToken(&v))
+			int i;
+			if (!GetIntegerToken(&i))
 			{
 				Error("Expecting param type"); err = true; break;
 			}
 
-			int i = (int)v;
 			if (i < 0 || i >= NUMPARAMTYPE)
 			{
 				Error("Param type out of range"); err = true; break;
@@ -186,7 +197,7 @@ bool InitTables(const char* exename)
 
 	if (!LoadCommandTable(filename, triggerList))
 	{
-		fprintf(stderr, "Error loading trigger table from %s", filename);
+		fprintf(stderr, "Error loading trigger table from %s\n", filename);
 		return false;	
 	} 
 
@@ -197,7 +208,7 @@ bool InitTables(const char* exename)
 
 	if (!LoadCommandTable(filename, commandList))
 	{
-		fprintf(stderr, "Error loading command table from %s", filename);
+		fprintf(stderr, "Error loading command table from %s\n", filename);
 		return false;	
 	} 
 
@@ -220,7 +231,7 @@ bool AddParamsToBuffer(Buffer &b, ParamType* params)
 	ParamType *type;
 	
 	const char *c;
-	double v;
+	double v; int i;
 
 	//AddIntToBuffer(SizeOfParams(params), buffer);
 
@@ -241,10 +252,32 @@ bool AddParamsToBuffer(Buffer &b, ParamType* params)
 			break;
 
 		case PARAM_INT:
-			if (!GetNumberToken(&v)) {
-				Error("Expecting number"); return false;
+			if (!GetIntegerToken(&i)) {
+				Error("Expecting integer"); return false;
 			}
-			b.AddInt((int)v);
+			b.AddInt(i);
+			break;
+
+		case PARAM_BYTE:
+			if (!GetIntegerToken(&i)) {
+				Error("Expecting integer"); return false;
+			}
+			else if (i < 0 || i > 0xFF)
+			{
+				Error("Integer out of range (0-255)"); return false;
+			}
+			b.AddUchar(i);
+			break;
+
+		case PARAM_WORD:
+			if (!GetIntegerToken(&i)) {			
+				Error("Expecting integer"); return false;
+			}
+			else if (i < -0xFFFF || i > 0xFFFF)
+			{
+				Error("Integer out of range (-65535 to 65535)"); return false;
+			}
+			b.AddWord(i);
 			break;
 
 		case PARAM_FLOAT:
@@ -369,15 +402,15 @@ bool AddEvent(Buffer &buffer)
 		}
 	case C_ON:
 		{
-			double v;
+			int v;
 
 			buffer.AddChar(C_ON);
 			if (!AddTrigger(buffer)) return false;
 
-			if (!GetNumberToken(&v)) {
+			if (!GetIntegerToken(&v) || v < 0 || v > 255) {
 				Error("Expecting trigger flags"); return false;
 			}
-			buffer.AddInt((int)v);
+			buffer.AddUchar(v);
 
 			return AddBlock(buffer);
 		}
@@ -436,7 +469,7 @@ bool AddBlock(Buffer &buffer)
 	if (tokenType != T_SYMBOL)
 	{
 		if (!AddEvent(b)) return false;
-		if (!b.Size())
+		if (!b.Size() && !quiet)
 			Error("Warning: Command does nothing in interpreter");
 		buffer.AddInt(1);
 		buffer.AddInt(b.Size());
@@ -532,8 +565,6 @@ bool compile(const char* filename, bool save)
 	Buffer buffer;
 	line = 0;
 	
-	puts(filename);
-
 	if (!OpenFile(filename))
 	{
 		fprintf(stderr, "Couldn't read '%s'\n", filename);
@@ -580,6 +611,7 @@ bool compile(const char* filename, bool save)
 			printf("Saved %s (%d bytes)\n", outfile, size);
 	}
 
+	if (!quiet) puts(filename);
 	files++;
 	return true;
 }
@@ -615,17 +647,34 @@ void show_splash()
 		"(c) 1999 Interactive Studios Ltd.\n");
 }
 
-int interpretCmdLine(int argc, char **argv)
+void show_helpscreen()
 {
-	int i, errors = 0;
-	char param[80];
+	puts(
+		"Usage: etc [-ptv] [-hfilename] filename ...\n"
+		"\n"
+		"  filename  Specifies a file or list of files to be compiled.\n"
+		"  -h        Output a C/C++ header file from the command tables for use in\n"
+		"            the interpreter.\n"
+		"  -p        Pause after compiling.\n"
+		"  -q        Quiet compile, do not output anything except on errors.\n"
+		"  -t        Test compile, do not save any files.\n"
+		"  -v        Produce verbose output.");
+}
+
+bool interpretCmdLine(int argc, char **argv)
+{
+	int i;
+	char *param;
 	char *p;
+
+	FileList *fn = NULL;
 
 	if (argc>1)
 	{
 		for (i=1; i<argc; i++)
 		{
-			strcpy(param, argv[i]);
+			//strcpy(param, argv[i]);
+			param = argv[i];
 
 			if (param[0] == '-')
 				for (p = param + 1; *p; p++)
@@ -639,7 +688,10 @@ int interpretCmdLine(int argc, char **argv)
 						save = false; break;
 
 					case 'v':
-						verbose = true; break;
+						verbose = true; quiet = false; break;
+
+					case 'q':
+						quiet = true; verbose = false; break;
 
 					case 'h':
 						p++;
@@ -654,37 +706,73 @@ int interpretCmdLine(int argc, char **argv)
 							p = NULL;
 						}
 						break;
+
+					default:
+						fprintf(stderr, "Unrecognised switch '%c'\n", *p);
+						return false;
 					}
 					if (!p) break;
 				}
 			else
-				if (!compile(param, save)) errors++;
+			{
+				FileList *entry = new FileList;
+				strcpy(entry->filename, param);
+				entry->next = NULL;
+
+				if (fn) fn->next = entry; else filenames = entry;
+
+				fn = entry;
+
+				//if (!compile(param, save)) errors++;
+			}
 		}
 	}
-	else
-		puts("Usage: etc [ -p ] filename ...");
+
+	if (!quiet)
+	{
+		show_splash();
+		if (!fn) show_helpscreen();
+	}
+
+	return true;
+}
+
+int CompileList(void)
+{
+	int errors = 0;
+
+	FileList *n, *f;
+
+	for (f = filenames; f; f = n)
+	{
+		n = f->next;
+
+		if (!compile(f->filename, save)) errors++;
+		delete f;
+	}
 
 	return errors;
 }
 
 int main(int argc, char **argv)
 {
-	int errors = 0;
-	show_splash();
+	int errors;
 
-	if (InitTables(argv[0]))
+	if (interpretCmdLine(argc, argv) && InitTables(argv[0]))
 	{
-		errors = interpretCmdLine(argc, argv);
+		errors = CompileList();
+		
+		if (errors)
+			printf("\n%d errors & warnings\n", errors);
+		else if (verbose)
+			printf("\nCompiled %d trigger%s and %d event%s in %d file%s\n",
+				triggers, s(triggers), events, s(events), files, s(files));
+		
+		if (!save)
+			printf("-t was used, so no files were saved\n");
 	}
-	
-	if (errors)
-		printf("\n%d errors & warnings\n", errors);
-	else if (verbose)
-		printf("\nCompiled %d trigger%s and %d event%s in %d file%s\n",
-			triggers, s(triggers), events, s(events), files, s(files));
-	
-	if (!save)
-		printf("-t was used, so no files were saved\n");
+	else
+		errors = 1;
 
 	if (hold)
 	{

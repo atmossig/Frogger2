@@ -14,7 +14,8 @@ void CloseCurrFile();
 void CloseAllFiles();
 int NextToken();
 const char *GetStringToken(void);
-bool GetNumberToken(double *value);
+bool GetNumberToken(double *);
+bool GetIntegerToken(int *);
 
 void Error(const char* message);
 const char* CurrentFilename();

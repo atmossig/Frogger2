@@ -62,6 +62,21 @@ void Buffer::AddChar(char c)
 	AddData(&c, 1);
 }
 
+void Buffer::AddUchar(unsigned char c)
+{
+	AddData(&c, 1);
+}
+
+void Buffer::AddWord(int value)
+{
+	unsigned char foo[2];
+
+	foo[0] = (value & 0xFF);			// Little-endian
+	foo[1] = (value >> 8) & 0xFF;
+
+	AddData(foo, 2);
+}
+
 void Buffer::AddInt(int value)
 {
 	unsigned char foo[4];

@@ -266,7 +266,28 @@ bool GetNumberToken(double *value)
 	return true;
 }
 
+bool GetIntegerToken(int *value)
+{
+	NextToken();
 
+	if (tokenType == T_VARIABLE)
+	{
+		char *c, *p;
+		p = (char*)GetVariable(token);
+		if (!p) return false;
+		c = p;
+		if (*c == '-') c++;
+		while (*c >= '0' && *c <= '9') c++;
+		if (*c) return false;
+
+		*value = atoi(p);
+		return true;
+	}
+	if (tokenType != T_NUMBER) return false;
+
+	*value = atoi(token);
+	return true;
+}
 
 void CloseAllFiles(void)
 {

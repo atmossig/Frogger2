@@ -14,6 +14,8 @@ public:
 	void Clear();
 	void AddData(const void *data, int size);
 	void AddChar(char);
+	void AddUchar(unsigned char);
+	void AddWord(int);
 	void AddInt(int);
 	void AddString(const char*);
 	void AddFloat(float);

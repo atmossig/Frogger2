@@ -8,6 +8,8 @@ typedef unsigned char BYTE;
 enum ParamTypeEnum
 {
 	PARAM_NONE = 0,
+	PARAM_BYTE,
+	PARAM_WORD,
 	PARAM_INT,
 	PARAM_FLOAT,
 	PARAM_STRING,
