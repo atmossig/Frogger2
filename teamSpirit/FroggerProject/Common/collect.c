@@ -33,6 +33,7 @@
 #include "multi.h"
 #include "frogmove.h"
 #include "lang.h"
+#include "menus.h"
 
 #ifdef PC_VERSION
 #include <pcaudio.h>
@@ -519,7 +520,10 @@ GARIB *CreateNewGarib(SVECTOR pos,int type)
 		garib->sprite->pos.vy = pos.vy;
 		garib->sprite->pos.vz = pos.vz;
 
-		garib->sprite->texture = FindTexture("SCOIN0001");
+		if(cheatCombos[CHEAT_MAD_GARIBS].state)
+			garib->sprite->texture = FindTexture("RGARIB01");
+		else
+			garib->sprite->texture = FindTexture("SCOIN0001");
 
 		if( type == GOLDCOIN_GARIB )
 		{

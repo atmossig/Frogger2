@@ -1387,7 +1387,7 @@ void StartLevelComplete()
 		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
 		nText = CreateAndAddTextOverlay(4096, 3350, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
 #ifdef PSX_VERSION
-		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*4 + fontExtentWScaled(nText->font,"AAAAA",4096)*4;
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*4 + fontExtentWScaled(nText->font,"AAAAAA",4096)*4;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #elif PC_VERSION
@@ -1603,7 +1603,11 @@ void RunLevelComplete()
 							sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),coinsMissed);//,garibList.maxCoins - player[0].numSpawn);
 							coinCounter = 0;
 							PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
-							coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
+							
+							if(cheatCombos[CHEAT_MAD_GARIBS].state)
+								coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"RGARIB01",205,273,0xff,0);
+							else
+								coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
 							coinOver->xPosTo += 10000;
 							coinOver->speed = 4096*50;
 						}

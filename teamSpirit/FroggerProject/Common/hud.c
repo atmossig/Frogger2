@@ -173,9 +173,15 @@ void InitArcadeHUD(void)
 
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3400,300,"HUD_BGR",4096,460,0xff,0);
 	arcadeHud.livesText =		CreateAndAddTextOverlay(370,3550,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
-	arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
+	if(cheatCombos[CHEAT_MAD_GARIBS].state)
+		arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3524,290,"RGARIB01",205,273,0xff,0);
+	else
+		arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinsOver->num = 1;
-	arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
+	if(cheatCombos[CHEAT_MAD_GARIBS].state)
+		arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3524,290,"RGARIB01",205,273,0xff,0);
+	else
+		arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinZoom->draw = 0;
 	arcadeHud.coinZoom->num = 1;
 
@@ -222,9 +228,15 @@ void InitArcadeHUD(void)
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3520,130,"HUD_BGR",450,460,0xff,0);
 	arcadeHud.coinsBack->num = 0;
 	arcadeHud.livesText =		CreateAndAddTextOverlay(520,3650,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
-	arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
+	if(cheatCombos[CHEAT_MAD_GARIBS].state)
+		arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3624,130,"RGARIB01",205,273,0xff,0);
+	else
+		arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinsOver->num = 1;
-	arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
+	if(cheatCombos[CHEAT_MAD_GARIBS].state)
+		arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3624,130,"RGARIB01",205,273,0xff,0);
+	else
+		arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinZoom->draw = 0;
 	arcadeHud.coinZoom->num = 1;
 

@@ -133,6 +133,7 @@ CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] =
 	{{PAD_RIGHT,PAD_UP,   PAD_UP,   PAD_DOWN,  PAD_RIGHT, PAD_RIGHT, PAD_DOWN,  PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
 	{{PAD_LEFT, PAD_LEFT, PAD_UP,   PAD_LEFT,  PAD_DOWN,  PAD_RIGHT, PAD_RIGHT, PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
 	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    PAD_UP,    PAD_RIGHT, PAD_LEFT,  PAD_LEFT,  0},0,0},//CHEAT_SKIP_LEVEL
+	{{PAD_RIGHT,PAD_LEFT, PAD_RIGHT,PAD_LEFT,  PAD_UP,    PAD_UP,    PAD_LEFT,  PAD_RIGHT, 0},0,1},//CHEAT_MAD_GARIBS
 	{{PAD_UP,PAD_UP,PAD_DOWN,PAD_DOWN,PAD_LEFT,PAD_RIGHT,0},0,0},//CHEAT_EXTRA_LEVELS
 };
 
@@ -270,6 +271,9 @@ int CheatAllowed(int cheat)
 		case CHEAT_SKIP_LEVEL:
 			return ((NUM_FROGS == 1) && (gameState.mode != FRONTEND_MODE));
 		
+		case CHEAT_MAD_GARIBS:
+			return TRUE;
+
 		case CHEAT_EXTRA_LEVELS:
 #ifdef PC_VERSION
 			return TRUE;
@@ -286,6 +290,7 @@ void ComboCheat(int cheat)
 {
 	extern NUM_ARCADE_WORLDS;
 	int i,j;
+	GARIB *garib;
 
 	if(!CheatAllowed(cheat))
 		return;
@@ -336,6 +341,33 @@ void ComboCheat(int cheat)
 			gameState.mode = LEVELCOMPLETE_MODE;
 				
 			babiesSaved = numBabies;
+			break;
+
+		case CHEAT_MAD_GARIBS:
+			if(cheatCombos[cheat].state)
+			{
+				for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
+				{
+					if(garib->type == SILVERCOIN_GARIB)
+						garib->sprite->texture = FindTexture("RGARIB01");
+				}
+				if(arcadeHud.coinsOver)
+					arcadeHud.coinsOver->tex = FindTexture("RGARIB01");
+				if(arcadeHud.coinZoom)
+					arcadeHud.coinZoom->tex = FindTexture("RGARIB01");
+			}
+			else
+			{
+				for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
+				{
+					if(garib->type == SILVERCOIN_GARIB)
+						garib->sprite->texture = FindTexture("SCOIN0001");
+				}
+				if(arcadeHud.coinsOver)
+					arcadeHud.coinsOver->tex = FindTexture("SCOIN0001");
+				if(arcadeHud.coinZoom)
+					arcadeHud.coinZoom->tex = FindTexture("SCOIN0001");
+			}
 			break;
 
 		case CHEAT_EXTRA_LEVELS:
