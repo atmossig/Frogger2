@@ -240,5 +240,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 void DrawGraphics()
 {
 	XformActorList();
-	DrawActorList();							
+	BeginDrawHardware();
+	DrawActorList();
+	EndDrawHardware();
 }
