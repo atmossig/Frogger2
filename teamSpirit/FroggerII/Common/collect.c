@@ -59,7 +59,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		garib != &garibCollectableList.head; garib = garib->next, i--)
 	{
 		// process only garibs in visual range
-		if( DistanceBetweenPointsSquared(&garib->pos, &frog[0]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
+		if( DistanceBetweenPointsSquared(&garib->pos, &frog[pl]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
 		// Also don't pickup garibs that the frog is trying to tongue
@@ -68,13 +68,13 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 
 		// Health garibs are buzzy flies
 		if( garib->type == EXTRAHEALTH_GARIB )
-			check = &garib->fx->act[0]->actor->pos;
+			check = &garib->fx->act[pl]->actor->pos;
 		else
 			check = &garib->pos;
 
-		if( DistanceBetweenPointsSquared( check, &frog[0]->actor->pos ) < PICKUP_RADIUS_SQUARED)
+		if( DistanceBetweenPointsSquared( check, &frog[pl]->actor->pos ) < PICKUP_RADIUS_SQUARED)
 		{
-			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
+			garibStoreList[player[pl].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib,pl);
 			return;
 		}
@@ -120,19 +120,46 @@ void PickupCollectable(GARIB *garib, int pl)
 	switch(garib->type)
 	{
 		case SPAWN_GARIB:
-			if(player[pl].spawnTimer)
+			if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
 			{
-				VECTOR m;
-				// increase player score bonus
-				if(player[pl].spawnScoreLevel < 5)
-					player[pl].spawnScoreLevel++;
-
-				XfmPoint (&m,&garib->pos);
+				mpl[pl].trail++;
 			}
+			else
+			{
+				if(player[pl].spawnTimer)
+				{
+					VECTOR m;
+					// increase player score bonus
+					if(player[pl].spawnScoreLevel < 5)
+						player[pl].spawnScoreLevel++;
 
-			player[pl].spawnTimer = SPAWN_SCOREUPTIMER;
+					XfmPoint (&m,&garib->pos);
+				}
 
-			CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
+				player[pl].spawnTimer = SPAWN_SCOREUPTIMER;
+
+				CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
+
+				if(player[pl].spawnScoreLevel == 5)
+				{
+					if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 50, 4, 0, 6 )) )
+					{
+						SetFXColour(fx,0,255,255);
+						SetVector(&fx->rebound->point,&garib->pos);
+						SetVector(&fx->rebound->normal,&seUp);
+						fx->gravity = 0.15;
+					}
+				}
+
+				player[pl].score += (player[pl].spawnScoreLevel * 10);
+				player[pl].numSpawn++;
+
+				if (player[pl].numSpawn>100)
+				{
+					player[pl].numSpawn = 0;
+					player[pl].numCredits++;
+				}
+			}
 
 			// we need to get the up vector for this collectable...
 			SetVector(&seUp,&upVec);
@@ -151,25 +178,6 @@ void PickupCollectable(GARIB *garib, int pl)
 				SetVector(&fx->rebound->point,&garib->pos);
 				SetVector(&fx->rebound->normal,&seUp);
 				fx->gravity = 0.1;
-			}
-			if(player[pl].spawnScoreLevel == 5)
-			{
-				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 50, 4, 0, 6 )) )
-				{
-					SetFXColour(fx,0,255,255);
-					SetVector(&fx->rebound->point,&garib->pos);
-					SetVector(&fx->rebound->normal,&seUp);
-					fx->gravity = 0.15;
-				}
-			}
-
-			player[pl].score += (player[pl].spawnScoreLevel * 10);
-			player[pl].numSpawn++;
-
-			if (player[pl].numSpawn>100)
-			{
-				player[pl].numSpawn = 0;
-				player[pl].numCredits++;
 			}
 
 			PlaySample( genSfx[GEN_COLLECT_COIN], &garib->pos, 0, SAMPLE_VOLUME, -1 );
