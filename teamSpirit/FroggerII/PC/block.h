@@ -18,9 +18,11 @@
 #define TEXTURE_BASE	"textures\\"
 #define ENTITY_BASE		"maps\\"
 
+#ifndef __cplusplus
 #define sinf(x)			((float)sin(x))
 #define cosf(x)			((float)cos(x))
 #define sqrtf(x)		((float)sqrt(x))
+#endif
 
 typedef struct TAGWININFO
 {
