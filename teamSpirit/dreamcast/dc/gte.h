@@ -262,5 +262,4 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2);
 
 //void setPolyGT3(POLY_FT4 *packet);
 
-
 #endif
