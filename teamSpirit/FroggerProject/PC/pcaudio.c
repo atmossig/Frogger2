@@ -765,7 +765,7 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 void FreeSampleList( void )
 {
 	SAMPLE *cur,*next;
-	unsigned long stat;
+	unsigned long stat, i;
 
 	// check if any elements in list
 	if( !soundList.numEntries )
@@ -786,6 +786,9 @@ void FreeSampleList( void )
 
 		RemoveSample( cur );
 	}
+
+	for( i=0; i<NUM_GENERIC_SFX; i++ )
+		genSfx[i] = NULL;
 
 	if( sfx_anim_map ) FREE( sfx_anim_map );
 	sfx_anim_map = NULL;
