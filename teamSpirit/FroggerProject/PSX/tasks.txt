@@ -78,7 +78,26 @@ Suggestions/other:
 
 - Thoughts on optimisation
 
-  - check loops are counting down
+  - check loops are counting down for clear/copy mem
+
+  - check for copying 2 shorts as 1 long e.t.c
+
+  - check for 4 or less params
+
+  - check we use our own memcpy/strcpy
+
+  - order if statements
+
+  - look for more funcs to make macros
+
+  - look to put shifts in
+
+  - reduce the structure contaiment depth where poss.
+    - consider putting all of actor 2 into actor
+
+  - look to put in conditional calls, instead of conditional returns
+
+  - look to keep few local vars
 
   - no dynamic MALLOCs
     - use static array with stack of free pointers
