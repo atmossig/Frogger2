@@ -334,22 +334,23 @@ void ProcessShadows()
 	TEXENTRY *tEntry;
 	VECTOR vec;
 	ENEMY *nme,*nme2;
-	PLATFORM *plat;
+	PLATFORM *plat, *plat2;
 	GARIB *garib;
 	int i;
 	long tex;
+	float height;
 	
 	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
 	tEntry = ((TEXENTRY *)theTexture);
 	tex = (long)tEntry->hdl;
 
-	if(frog[0]->actor->shadow)
-	{
-		vec.v[X] = frog[0]->actor->pos.v[X];
-		vec.v[Y] = currTile[0]->centre.v[Y];
-		vec.v[Z] = frog[0]->actor->pos.v[Z];
-		DrawShadow( &vec, &currTile[0]->normal, frog[0]->actor->shadow->radius, 1, frog[0]->actor->shadow->alpha, tex );
-	}
+	for( i=0; i<NUM_FROGS; i++ )
+		if(frog[i]->actor->shadow)
+		{
+			SubVector( &vec, &frog[i]->actor->pos, &currTile[i]->centre );
+			height = DotProduct( &vec, &currTile[i]->normal );
+			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius, -height+1, frog[i]->actor->shadow->alpha, tex );
+		}
 
 	//------------------------------------------------------------------------------------------------
 
@@ -360,15 +361,20 @@ void ProcessShadows()
 
 		if(nme->nmeActor->actor->shadow && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
-			vec.v[X] = nme->nmeActor->actor->pos.v[X];
-			vec.v[Y] = nme->inTile->centre.v[Y];
-			vec.v[Z] = nme->nmeActor->actor->pos.v[Z];
-			DrawShadow( &vec, &nme->currNormal, nme->nmeActor->actor->shadow->radius, 1, nme->nmeActor->actor->shadow->alpha, tex );
+			DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
 		}
 	}
 
 	// process platform shadows
-	// to be done !!!
+	for(plat = platformList.head.next; plat != &platformList.head; plat = plat2)
+	{
+		plat2 = plat->next;
+
+		if(plat->pltActor->actor->shadow && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+		{
+			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius, -plat->path->nodes[plat->path->fromNode].offset+1, plat->pltActor->actor->shadow->alpha, tex );
+		}
+	}
 
 	// process garib shadows
 /*	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)

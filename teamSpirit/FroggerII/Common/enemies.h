@@ -42,6 +42,7 @@
 #define ENEMY_NEW_SLERPPATH				(1 << 24)	// Smooth interpolation between path nodes
 #define ENEMY_NEW_BABYFROG				(1 << 25)	// Babies are everyones enemies
 #define ENEMY_NEW_RANDOMMOVE			(1 << 26)	// Go to a random adjacent tile
+#define ENEMY_NEW_SHADOW				(1 << 27)	// Has a shadow
 
 
 typedef struct TAGENEMY
@@ -100,6 +101,7 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);
 void CalcEnemyNormalInterps(ENEMY *nme);
 ENEMY *GetEnemyFromUID (long uid);
+void PickupBabyFrogMulti( ACTOR2 *baby);//, int pl );
 
 //------------------------------------------------------------------------------------------------
 
