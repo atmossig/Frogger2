@@ -2140,7 +2140,7 @@ void gte_ncs(void)
 */
 
 // Kernel of NormalColor3
-#if 1
+#if 0
 // ** Hopefully optimised PSX emulation matrix multiply
 void gte_nct(void)
 {
@@ -2151,6 +2151,18 @@ void gte_nct(void)
 	SVECTOR tempcr1;
 	SVECTOR tempcr2;
 
+	
+short ls0[3];
+short ls1[3];
+short ls2[3];
+
+short vr0.vx, vy, vz
+
+
+
+
+
+
 	// Same as above but for all three colour registers
 	sv1.vx = (((ls0[0] * vr0.vx) + (ls0[1] * vr0.vy) 
 		+ (ls0[2] * vr0.vz)) >> 12);
@@ -2159,6 +2171,7 @@ void gte_nct(void)
 	sv1.vz = (((ls2[0] * vr0.vx) + (ls2[1] * vr0.vy) 
 		+ (ls2[2] * vr0.vz)) >> 12);
 
+
 	//Limit number
 	if (sv1.vx < 0)
 		sv1.vx = 0;
@@ -2166,13 +2179,6 @@ void gte_nct(void)
 		sv1.vy = 0;
 	if (sv1.vz < 0)
 		sv1.vz = 0;
-
-	if (sv1.vx > 32767)
-		sv1.vx = 32767;
-	if (sv1.vy > 32767)
-		sv1.vy = 32767;
-	if (sv1.vz > 32767)
-		sv1.vz = 32767;
 
 	sv2.vx = (((ls0[0] * vr1.vx) + (ls0[1] * vr1.vy) 
 		+ (ls0[2] * vr1.vz)) >> 12);
@@ -2189,13 +2195,6 @@ void gte_nct(void)
 	if (sv2.vz < 0)
 		sv2.vz = 0;
 
-	if (sv2.vx > 32767)
-		sv2.vx = 32767;
-	if (sv2.vy > 32767)
-		sv2.vy = 32767;
-	if (sv2.vz > 32767)
-		sv2.vz = 32767;
-
 	sv3.vx = (((ls0[0] * vr2.vx) + (ls0[1] * vr2.vy) 
 		+ (ls0[2] * vr2.vz)) >> 12);
 	sv3.vy = (((ls1[0] * vr2.vx) + (ls1[1] * vr2.vy) 
@@ -2211,13 +2210,6 @@ void gte_nct(void)
 	if (sv3.vz < 0)
 		sv3.vz = 0;
 
-	if (sv3.vx > 32767)
-		sv3.vx = 32767;
-	if (sv3.vy > 32767)
-		sv3.vy = 32767;
-	if (sv3.vz > 32767)
-		sv3.vz = 32767;
-
 	tempcr0.vx = ((((sv1.vx * lcr0[0]) + (sv1.vy * lcr1[0]) + (sv1.vz * lcr2[0])) >> 12) + cbk[0]);
 	tempcr0.vy = ((((sv1.vx * lcr0[1]) + (sv1.vy * lcr1[1]) + (sv1.vz * lcr2[1])) >> 12) + cbk[1]);
 	tempcr0.vz = ((((sv1.vx * lcr0[2]) + (sv1.vy * lcr1[2]) + (sv1.vz * lcr2[2])) >> 12) + cbk[2]);
@@ -2229,6 +2221,7 @@ void gte_nct(void)
 		tempcr0.vy = 0;
 	if (tempcr0.vz < 0)
 		tempcr0.vz = 0;
+
 
 	if (tempcr0.vx > 255)
 		tempcr0.vx = 255;

@@ -582,9 +582,13 @@ void StartGameOver()
 {
 	TEXTOVERLAY *gameOverText;
 	gameState.mode = GAMEOVER_MODE;
-	GTInit( &modeTimer, 9 );
+	GTInit( &modeTimer, 9);
 
 //	FreeAllGameLists();
+
+	// *ASL* 19/08/2000 - Mute all ambient sounds
+	sfxStopSound();
+	keepFade = 0;
 
 	gameOverText = CreateAndAddTextOverlay(2048, 1980, GAMESTRING(STR_GAMEOVER), YES, (char)255, font, TEXTOVERLAY_SHADOW);
 	gameOverText->g = gameOverText->b = 0;

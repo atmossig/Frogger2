@@ -804,12 +804,20 @@ void PrepareSong(short worldID,int loop)
 
 	switch ( worldID )
 	{
-		case AUDIOTRK_GAMEOVER:				worldID = 10; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETE:		worldID = 9; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 11; xaNum = 1; break;
+		case AUDIOTRK_GAMEOVER:
+			chan = 10;
+			break;
+		case AUDIOTRK_LEVELCOMPLETE:
+			chan = 9;
+			break;
+		case AUDIOTRK_LEVELCOMPLETELOOP:
+			chan = 11;
+			break;
+		// use re-order lookup for correct track number
+		default:
+			chan = musicList[ worldID ] + 1;
+			break;
 	}
-
-	chan = musicList  [ worldID ] + 1;
 
 	if(chan < 10)
 		sprintf(buffer,"track0%d.adx",chan);
