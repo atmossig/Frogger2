@@ -256,7 +256,7 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 	txtCamDist = CreateAndAddTextOverlay(30,40,"************************************************",NO,NO,255,255,255,255,smallFont,0,0,0);
 	DisableTextOverlay(txtCamDist);
 
-	switch(worldID)
+/*	switch(worldID)
 	{
 		case WORLDID_CITY:
 			switch(levelID)
@@ -329,7 +329,7 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 						CreateAndAddTransCamera(&firstTile[gardenLawnSetting4[i++]],0,gardenLawnCam4.v[0],gardenLawnCam4.v[1],gardenLawnCam4.v[2]);
 					break;
 			}
-	}
+	} */
 }
 
 
