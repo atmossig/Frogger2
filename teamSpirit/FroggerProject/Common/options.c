@@ -2993,7 +2993,7 @@ void RunTeaserScreens( )
 
 	GTUpdate(&artTimer,-1);
 	
-	if( !artTimer.time || ((!fadingOut) && (padData.digital[0])) )
+	if( !artTimer.time || ((!fadingOut) && (padData.debounce[0])) )
 	{
 		ScreenFade(255,0,30);
 		keepFade = YES;
