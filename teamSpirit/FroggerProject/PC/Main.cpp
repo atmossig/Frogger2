@@ -193,7 +193,6 @@ void GetArgs(char *arglist)
 
 					case 'K': case 'k':
 						debugKeys = !debugKeys;
-						displayDebugInfo = !displayDebugInfo;
 						utilPrintf("Debug keys %s\n",debugKeys?"enabled":"disabled");
 						break;
 
@@ -398,12 +397,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			switch (wParam)
 			{
 			case VK_F10:
-				if( debugKeys )
-				{
-					editorOk = !editorOk;
-					keysEnabled = !keysEnabled;
-				}
-				return 0;
+				editorOk = !editorOk; keysEnabled = !keysEnabled; break;
 			default:
 				return 1;
 			}
@@ -415,11 +409,13 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				TextInput((char)wParam);
 			}
+			else
 			if( chatFlags & CHAT_INPUT )
 			{
 				ChatInput((char)wParam);
 				return 0;
 			}
+			else
 			if (editorOk)	// only when editor is set up to "grab" keyboard data
 			{
 				EditorKeypress((char)wParam);
@@ -647,14 +643,13 @@ long DrawLoop(void)
 	camZ = t.x*8;
 	camY = t.y*8;
 
-	CleanBufferSamples( );
-
 	StartTimer(19,"PText");
 	if( gameState.mode != PAUSE_MODE )
 		ProcessProcTextures( );
 	EndTimer(19);
 	
 //	AnimateTexturePointers();
+	UpdateAnimatingTextures();
 
 	return 0;
 }

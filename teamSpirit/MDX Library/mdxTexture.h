@@ -35,6 +35,12 @@ typedef struct TAG_MDX_TEXENTRY
 	long xSize,ySize;
 	long refCount;
 
+	unsigned long lastFrame;
+	unsigned long lastGameFrame;
+	unsigned long numFrames;	
+	float *frameTimes;
+	LPDIRECTDRAWSURFACE7 *frames;
+
 	struct TAG_MDX_TEXENTRY *next,*prev;	
 } MDX_TEXENTRY;
 
@@ -60,6 +66,7 @@ void InitWater(char *file);
 void UpdateWater(void);
 void ShowTextures(void);
 void mdxSetBackdropToTex(MDX_TEXENTRY *t);
+void UpdateAnimatingTextures(void);
 
 #ifdef __cplusplus
 }

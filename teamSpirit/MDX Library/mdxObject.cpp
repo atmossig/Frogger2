@@ -535,7 +535,8 @@ void FindObject(MDX_OBJECT_CONTROLLER **objCPtr, int objID, char *name)
 void RestoreObjectPointers(MDX_OBJECT *obj)
 {
 	int x,y;
-	
+
+	obj->flags &= ~(OBJECT_FLAGS_MODGE | OBJECT_FLAGS_WAVE | OBJECT_FLAGS_ADDITIVE);
 	obj->attachedActor = NULL;
 	
 	obj->lastRKey = obj->lastMKey = obj->lastSKey = 0;

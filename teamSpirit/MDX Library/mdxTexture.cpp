@@ -127,7 +127,7 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 	return ret;				
 }
 
-void AddTextureToTexList(char *file, char *shortn, long finalTex)
+MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 {
 	char mys[255],tBnk[255];
 	MDX_TEXENTRY *newE;
@@ -195,6 +195,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	strncpy(newE->bank,tBnk,60);
 
 	newE->keyed = 0;
+	newE->numFrames = 1;
 	if (newE->data)
 	{
 		LPDIRECTDRAWSURFACE7 temp;
@@ -207,7 +208,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 					
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1)) == NULL)
-					return;
+					return NULL;
 
 				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,0);
 				newE->surf->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);
@@ -225,7 +226,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			{
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
-					return;
+					return NULL;
 
 				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim,0);			
 				newE->surf = temp;
@@ -240,7 +241,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			{
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
-					return;
+					return NULL;
 
 				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim,0);			
 				newE->surf = temp;
@@ -256,7 +257,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				// Create a temporary surface to hold the texture.
 
 				if ((temp = D3DCreateSurface(xDim,yDim, 0xf81f, 0)) == NULL)
-					return;
+					return NULL;
 
 				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,1);
 				newE->surf = temp;
@@ -270,7 +271,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			{
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
-					return;
+					return NULL;
 
 				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,2,xDim,yDim,0);			
 				newE->surf = temp;
@@ -313,16 +314,23 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		
 					}
 			}
+
+		return newE;
 	}
 	else
 		dp("Cannot load texture %s\n",shortn);
+
+	return NULL;
 }
 
 unsigned long LoadTexBank(char *bank, char *baseDir)
 {
 	char	fName[MAX_PATH];
 	char	fPath[MAX_PATH];
-
+	char	fAnim[MAX_PATH];
+	MDX_TEXENTRY *me;
+	MDX_TEXENTRY *tex;
+		
 	WIN32_FIND_DATA fData;
 	HANDLE			fHandle;
 
@@ -344,6 +352,7 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 		long ret;
 		char finalFile[MAX_PATH];
 		char finalShort[MAX_PATH];
+		FILE *animFp;
 
 		numTextures = 0;
 		do
@@ -351,9 +360,46 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 			strcpy (finalFile,fPath);
 			strcat (finalFile,fData.cFileName);
 			strcpy (finalShort,fData.cFileName);
-			ret = FindNextFile (fHandle,&fData);
+			ret = FindNextFile (fHandle,&fData);					
+			
+			me = AddTextureToTexList (finalFile,finalShort,!ret);			
 
-			AddTextureToTexList (finalFile,finalShort,!ret);			
+			if ((me) && (finalShort[0] == '0'))
+			{
+				strcpy (fAnim,fPath);
+				strcat (fAnim,finalShort);
+				
+				for (int i=0; i<strlen(fAnim); i++)
+					if (fAnim[i]=='.')
+						fAnim[i] = 0;
+				
+				strcat(fAnim,".txt");
+				
+				if (animFp = fopen(fAnim,"rt"))
+				{
+					char line[255];
+					char tempName[255];
+
+					fgets(line,255,animFp);
+					sscanf(line,"%lu",&me->numFrames);					
+					dp("texFrames: %s %lu",me->name,me->numFrames);
+					
+					me->frameTimes = new float[me->numFrames];
+					me->frames = new LPDIRECTDRAWSURFACE7[me->numFrames];
+					me->lastGameFrame = me->lastFrame = 0;
+
+					for (int i=0; i<me->numFrames; i++)
+					{
+						fgets(line,255,animFp);
+						sscanf(line,"%s",tempName);
+						fgets(line,255,animFp);
+						sscanf(line,"%f",&(me->frameTimes[i]));										
+						me->frames[i] = (LPDIRECTDRAWSURFACE7)UpdateCRC(tempName);	
+					}
+					fclose(animFp);
+				}
+
+			}
 			numTextures++;
 		}
 		while (ret);
@@ -363,7 +409,39 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 	else
 		dp("Could not load bank %s\n",fName);
 
+	
+	// Update CRC's in framelists with relevant surfaces (Will need to add the softdata, when software is implemented!)
+	
+	for( me = texList; me; me = me->next)
+		if (me->numFrames>1)
+			for (int i=0; i<me->numFrames; i++)
+				if (tex = GetTexEntryFromCRC((long)me->frames[i]))
+					me->frames[i] = tex->surf;
+				else
+					me->frames[i] = NULL;
 	return 1;
+}
+
+void UpdateAnimatingTextures(void)
+{
+	MDX_TEXENTRY *me;
+	for( me = texList; me; me = me->next)
+	{
+		if (me->numFrames>1)
+		{
+			while ((me->lastGameFrame+me->frameTimes[me->lastFrame])<timeInfo.frameCount)
+			{
+				me->lastGameFrame+=me->frameTimes[me->lastFrame];
+				
+				me->lastFrame++;
+				if (me->lastFrame>=me->numFrames)
+					me->lastFrame = 0;
+			}
+			
+			me->surf = me->frames[me->lastFrame];
+		}
+	}
+	
 }
 
 extern MDX_TEXENTRY *haloHandle;
@@ -376,9 +454,9 @@ void FreeAllTextureBanks()
 	for( cur = texList, numTextures = 0; cur; cur = next, numTextures++ )
 	{
 		next = cur->next;
-		
-		if( cur->surf )	cur->surf->Release();
 
+		
+		
 /* Pending animated textures
 
 		cur2 = cur->nextFrame;
@@ -390,6 +468,16 @@ void FreeAllTextureBanks()
 */
 		if( cur->data ) delete cur->data;
 		if( cur->softData ) delete cur->softData;
+
+		if (cur->numFrames > 1)
+		{
+			// Reset the frame to the origional.
+			cur->surf = cur->frames[0];
+			delete cur->frameTimes;
+			delete cur->frames;
+		}
+
+		if( cur->surf )	cur->surf->Release();
 
 		delete cur;
 	}
