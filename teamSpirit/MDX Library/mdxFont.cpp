@@ -495,7 +495,7 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 				break;
 
 			default:
-				width += font->characters[*c].width;
+				width += font->characters[*c].width*scale;
 				c++;
 				break;
 		}
