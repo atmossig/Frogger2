@@ -8,7 +8,7 @@
 
 /* --------------------------------------------------------------------------------- */
 
-int Interpret(const UBYTE *buffer);
+//int Interpret(const UBYTE *buffer);
 TRIGGER *LoadTrigger(UBYTE **p);
 BOOL ExecuteCommand(UBYTE *buffer);
 
