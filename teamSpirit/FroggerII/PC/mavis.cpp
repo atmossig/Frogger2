@@ -50,7 +50,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, long h )
 	short *mfce = fce;
 
 	// discard excess polys
-	if (frameInfo.nv + vC > MA_MAX_VERTICES || frameInfo.nF + fC > MA_MAX_FACES)
+	if ((frameInfo.nV + vC) > MA_MAX_VERTICES || (frameInfo.nF + fC) > MA_MAX_FACES)
 		return;
 
 	for (cnt=0;cnt<fC; cnt++)
