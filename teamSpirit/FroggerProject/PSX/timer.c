@@ -82,7 +82,7 @@ void timerDisplay()
 			fontPrint(fontSmall, x,y, timerName[loop], 90,90,90);
 			sprintf(str, "%d", prevTimer[loop]);
 //			fontPrint(fontSmall, x+300,y, str, (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
-			fontPrint(fontSmall, x+300,y, str, 90,90,90);
+			fontPrint(fontSmall, x+300,y, str, 90,90,255);
 			dispGraph(x+180,y+4, (100*prevTimer[loop])/(1+prevTimer[TIMER_TOTAL]),2, (loop&1)?(100):(200),(loop&1)?(100):(200),0);
 			dispGraph(x+178,y+2, 104,6, 0,0,0);
 			subtotal += prevTimer[loop];

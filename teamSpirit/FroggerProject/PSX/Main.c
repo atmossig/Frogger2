@@ -515,7 +515,6 @@ int main ( )
 
 
 			TIMER_STOP(TIMER_TOTAL);
-
 			TIMER_ENDFRAME;
 			TIMER_ZERO;
 

@@ -54,7 +54,7 @@ void customDrawPrimitives2(int depth)
 	long				clipflag;
 	PSIMODELCTRL		*modctrl = &PSImodelctrl;
 	VERT				*vp = modctrl->VertTop;
-	int					prims,primsleft,lightmode;
+	int					prims,primsleft;
 	USHORT				*sorts;
 //	long				*tfd = transformedDepths;
 	
@@ -67,7 +67,6 @@ void customDrawPrimitives2(int depth)
 	prims = (int)modctrl->PrimTop;
 	sorts = modctrl->SortOffs;
 	primsleft = modctrl->PrimLeft;
-	lightmode = modctrl->lighting;
 
 	polyCount += primsleft;	
 
@@ -99,25 +98,9 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
 				gte_stsxy3_ft3(si);
 			
-				switch (lightmode)
-				{
-					case DIRECTIONAL:
-						gte_ldrgb(&op->r0);
-						gte_ldv0(&tfn[op->v0]);
-						gte_nccs();			
-						gte_strgb(&si->r0);
-						break;
-					case DIRECTIONONLY:
-						gte_ldv0(&tfn[op->v0]);
-						gte_ncs();			
-						gte_strgb(&si->r0);
-						break;
-					case COLOURIZE:
-						*(u_long *)  (&si->r0) = *(u_long *) (&modctrl->col);
-						break;
-					default:
-						*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
-		 		}
+				//no lighting
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+
 				setPolyFT3(si);
 				if ( globalClut )
 				{
@@ -155,25 +138,9 @@ void customDrawPrimitives2(int depth)
 
 				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
 
-				switch (lightmode)
-				{
-					case DIRECTIONAL:
-						gte_ldrgb(&op->r0);
-						gte_ldv0(&tfn[op->v0]);
-						gte_nccs();			
-						gte_strgb(&si->r0);
-						break;
-					case DIRECTIONONLY:
-						gte_ldv0(&tfn[op->v0]);
-						gte_ncs();			
-						gte_strgb(&si->r0);
-						break;
-					case COLOURIZE:
-						*(u_long *)  (&si->r0) = *(u_long *) (&modctrl->col);
-						break;
-					default:
-						*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
-				}
+				//no lighting
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+
 				*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
 				*(u_long *)  (&si->u3) = *(u_long *) (&op->tu3);
 
@@ -216,29 +183,11 @@ void customDrawPrimitives2(int depth)
 
 				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
 
-				switch (lightmode)
-				{
-					case DIRECTIONAL:
-						gte_ldrgb3(&op->r0, &op->r1, &op->r2);
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_ncct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
-						break;
-					case DIRECTIONONLY:
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_nct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
-						break;
-					case COLOURIZE:
-						*(u_long *)  (&si->r0) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r1) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r2) = *(u_long *) (&modctrl->col);
-						break;
-					default:
-						*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-						*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-						*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-				}
+				//no lighting
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
 				setPolyGT3(si);
 				if ( globalClut )
 				{
@@ -283,40 +232,12 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
 		
 		
-				switch (lightmode)
-				{
-					case DIRECTIONAL:
-						gte_ldrgb3(&op->r0, &op->r1, &op->r2);
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_ncct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
-						
-						gte_ldrgb(&op->r3);
-						gte_ldv0(&tfn[op->v3]);
-						gte_nccs();			// NormalColorCol
-						gte_strgb(&si->r3);
-						break;
-					case DIRECTIONONLY:
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_nct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
+				//no lighting
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-						gte_ldv0(&tfn[op->v3]);
-						gte_ncs();			
-						gte_strgb(&si->r3);
-						break;
-					case COLOURIZE:
-						*(u_long *)  (&si->r0) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r1) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r2) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r3) = *(u_long *) (&modctrl->col);
-						break;
-					default:
-						*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-						*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-						*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-						*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
-				}
 		
 				modctrl->polysdrawn++;
 			
@@ -401,40 +322,12 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_g4(si);
 
 
-				switch (lightmode)
-				{
-					case DIRECTIONAL:
-						gte_ldrgb3(&op->r0, &op->r1, &op->r2);
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_ncct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
-						
-						gte_ldrgb(&op->r3);
-						gte_ldv0(&tfn[op->v3]);
-						gte_nccs();			// NormalColorCol
-						gte_strgb(&si->r3);
-						break;
-					case DIRECTIONONLY:
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_nct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
+				//no lighting
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-						gte_ldv0(&tfn[op->v3]);
-						gte_ncs();			
-						gte_strgb(&si->r3);
-						break;
-					case COLOURIZE:
-						*(u_long *)  (&si->r0) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r1) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r2) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r3) = *(u_long *) (&modctrl->col);
-						break;
-					default:
-						*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-						*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-						*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-						*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
-				}
 
 				setPolyG4(si);
 				if ( globalClut )
@@ -474,28 +367,9 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_g3(si);
 
 
-				switch (lightmode)
-				{
-					case DIRECTIONAL:
-						gte_ldrgb3(&op->r0, &op->r1, &op->r2);
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_ncct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
-						break;
-					case DIRECTIONONLY:
-						gte_ldv3(&tfn[op->v0], &tfn[op->v1], &tfn[op->v2]);
-						gte_nct();
-						gte_strgb3(&si->r0, &si->r1, &si->r2);
-						break;
-					case COLOURIZE:
-						*(u_long *)  (&si->r0) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r1) = *(u_long *) (&modctrl->col);
-						*(u_long *)  (&si->r2) = *(u_long *) (&modctrl->col);
-						break;
-					default:
-						*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-						*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-				}
+				//no lighting
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
 
 				modctrl->polysdrawn++;

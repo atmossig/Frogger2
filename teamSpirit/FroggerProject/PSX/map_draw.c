@@ -266,8 +266,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // "!=0" is also marginally faster than ">0" here.
 // n_gt4s CAN be zero. Otherwise,a (do,while) loop would be ever-so-slightly faster.than the (for...) one.
 
-	TIMER_START ( TIMER_GTFOR );
-
 	polyCount += mesh->n_gt4s;
 
 	for(i = mesh->n_gt4s; i != 0; i--,op++)
@@ -360,14 +358,10 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 #undef si
 #undef op
 
-	TIMER_STOP_ADD ( TIMER_GTFOR );
-
 // That's the quads done, now let's do the triangles...
 
 #define si ((POLY_GT3*)packet)
 #define op ((FMA_GT3 *)opcd)
-
-	TIMER_START ( TIMER_GTTHREE );
 
 	polyCount += mesh->n_gt3s;
 
@@ -446,11 +440,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 #undef op
 #undef xy
 
-	TIMER_STOP_ADD ( TIMER_GTTHREE );
-
-
 	currentDisplayPage->primPtr = (char *)packet;
-
 }
 
 void SetUpWaterMesh(FMA_WORLD *pFMA)

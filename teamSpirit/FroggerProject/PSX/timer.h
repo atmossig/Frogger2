@@ -8,6 +8,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+
 enum {
 	TIMER_TOTAL,
 	TIMER_GAMELOOP,
@@ -22,9 +23,6 @@ enum {
 	TIMER_PROCTEX,
 	TIMER_DRAWSYNC,
 	TIMER_TIMERS,
-	TIMER_TRANSFORM,
-	TIMER_GTFOR,
-	TIMER_GTTHREE,
 
 	TIMER_NUMTIMERS
 };
@@ -42,11 +40,47 @@ enum {
 						"PRINT_OVERS", \
 						"PROCTEX", \
 						"DRAWSYNC", \
-						"TIMERS", \
-						"TRANSFORM", \
-						"GT4", \
-						"GT3"
+						"TIMERS"
 
+
+
+/*
+//for RunGameLoop
+enum {
+	TIMER_TOTAL,
+	TIMER_PROC_CONT,
+	TIMER_CAM_POS,
+	TIMER_SET_CAM,
+	TIMER_FROG_POS,
+	TIMER_UP_PLAT,
+	TIMER_UP_ENEM,
+	TIMER_UP_SPEC,
+	TIMER_UP_EVEN,
+	TIMER_UP_AMBI,
+	TIMER_COLLECT,
+	TIMER_ONSCREEN,
+	TIMER_TILENUM,
+	TIMER_TIMERS,
+
+	TIMER_NUMTIMERS
+};
+
+
+#define TIMER_NAMES	   	"TOTAL", \
+						"PROC_CONT", \
+						"CAM_POS", \
+						"SET_CAM", \
+						"fROG_POS", \
+						"UP_PLAT", \
+						"UP_ENEM", \
+						"UP_SPEC", \
+						"UP_EVEN", \
+						"UP_AMBI", \
+						"COLLECT", \
+						"ONSCREEN", \
+						"TILENUM", \
+						"TIMERS"
+*/						
 
 
 
