@@ -126,34 +126,6 @@ char IsPointVisible(VECTOR *p)
 	return 1;
 }
 
-void PrintSprite(SPRITE *sprite)
-{
-	VECTOR m,sc;
-	VECTOR s = {1,1,0};
-	float distx,disty;
-	TEXENTRY *tEntry;
-
-	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
-		return;
-
-	XfmPoint (&m,&sprite->pos);
-	
-	if (m.v[Z])
-	{
-		tEntry = ((TEXENTRY *)sprite->texture);
-		distx = disty = (FOV)/(m.v[Z]+DIST);
-		distx *= (sprite->scaleX/(64.0))*RES_DIFF;
-		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
-		numSprites++;
-		if (runHardware)
-			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,m.v[Z]/2000.0,32*distx,32*disty,
-				0,
-				0,
-				1,
-				1,
-				tEntry->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
-	}
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -288,6 +260,37 @@ void PrintSpriteOverlays()
 	}
 
 }
+
+
+void PrintSprite(SPRITE *sprite)
+{
+	VECTOR m,sc;
+	VECTOR s = {1,1,0};
+	float distx,disty;
+	TEXENTRY *tEntry;
+
+	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
+		return;
+
+	XfmPoint (&m,&sprite->pos);
+	
+	if (m.v[Z])
+	{
+		tEntry = ((TEXENTRY *)sprite->texture);
+		distx = disty = (FOV)/(m.v[Z]+DIST);
+		distx *= (sprite->scaleX/(64.0))*RES_DIFF;
+		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
+		numSprites++;
+		if (runHardware)
+			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,m.v[Z]/2000.0,32*distx,32*disty,
+				0,
+				0,
+				1,
+				1,
+				tEntry->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
+	}
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: DrawSpecialFX
