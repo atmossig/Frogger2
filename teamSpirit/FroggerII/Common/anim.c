@@ -242,7 +242,7 @@ void UpdateAnimations(ACTOR *actor)
 	actorAnim->reachedEndOfAnimation = FALSE;
 	actorAnim->animTime += (actorAnim->animationSpeed) * gameSpeed;	// * GAME_SPEED);
 
-	if((actorAnim->animTime > anim->animEnd) || (actorAnim->animTime < anim->animStart)) // && (actorAnim->loopAnimation == NO))
+	if (((actorAnim->animTime > anim->animEnd) || (actorAnim->animTime < anim->animStart)) && (actorAnim->loopAnimation == NO))
 	{
 		actorAnim->animTime = Bound(actorAnim->animTime,anim->animStart,anim->animEnd);
 		actorAnim->reachedEndOfAnimation = actorAnim->currentAnimation+1;
