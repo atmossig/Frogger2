@@ -903,8 +903,8 @@ void CreatePsxCroakVtx(void)
 		psxCroakVtx[i].vz = rcos(ang);
 
 		//set radius to 512 (1 tile)
-		psxCroakVtx[i].vx /= 8;
-		psxCroakVtx[i].vz /= 8;
+		psxCroakVtx[i].vx >>= 3;
+		psxCroakVtx[i].vz >>= 3;
 
 		ang += angStep;
 	}
