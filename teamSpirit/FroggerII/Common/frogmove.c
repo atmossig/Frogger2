@@ -724,12 +724,28 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
-				
+
+				// if frog was on platform, place back on the platform
+				if(currPlatform[pl])
+				{
+					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+					currPlatform[pl]->carrying = frog[pl];
+				}
+
 				destPlatform[pl] = NULL;
 				return FALSE;
 			}
 
 			destPlatform[pl] = NULL;
+
+			// if frog was on platform, place back on the platform
+			if(currPlatform[pl])
+			{
+				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+				currPlatform[pl]->carrying = frog[pl];
+				return FALSE;
+			}
+
 			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 		}
 	}
@@ -739,13 +755,19 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		if(GameTileTooHigh(dest, pl))
 		{			
 			// gametile is too high
-
 			player[pl].canJump = 1;
 			player[pl].isSuperHopping = 0;
 			player[pl].isLongHopping = 0;
 
 			player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 										FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
+
+			// if frog was on platform, place back on the platform
+			if(currPlatform[pl])
+			{
+				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+				currPlatform[pl]->carrying = frog[pl];
+			}
 			
 			return FALSE;
 		}
@@ -764,6 +786,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
 
+				// if frog was on platform, place back on the platform
+				if(currPlatform[pl])
+				{
+					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+					currPlatform[pl]->carrying = frog[pl];
+				}
+
 				return FALSE;
 			}
 			else
@@ -776,6 +805,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
 											FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING);
+
+				// if frog was on platform, place back on the platform
+				if(currPlatform[pl])
+				{
+					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+					currPlatform[pl]->carrying = frog[pl];
+				}
 
 				return FALSE;
 			}
