@@ -30,4 +30,10 @@ extern short	xluFact;
 extern char		changeRenderMode;
 extern long		DIST;
 
+extern float nearClip;
+extern float farClip;
+
+extern float horizClip;
+extern float vertClip;
+
 #endif

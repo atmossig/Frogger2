@@ -35,15 +35,10 @@ unsigned short screenNum = 0;
 GAMETILE *firstTile;
 GAMETILE **gTStart;
 
-float rZ = 0,rX = 0 ,rY = 0;
 long hopAmt = 10;
-
-float seed = 0.0F;
 
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
-
-unsigned long num = 0;
 
 long award = 2;
 short showEndLevelScreen = 1;
@@ -345,12 +340,9 @@ void GameProcessController(long pl)
 */
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
-	unsigned long flags = 0;
-		
-	ACTOR2 *theActor,*skyActor;
+	ACTOR2 *theActor;//,*skyActor;
 	SCENIC *ts = Sc_000;
 	int actCount = 0;
-	OBJECT_CONTROLLER *objCont;
 	char tmp[5];
 	long i;
 	
@@ -364,11 +356,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	while (ts)
 	{
 		float tv;
-		//flags = 0;
 
-//#ifndef PC_VERSION
 		stringChange(ts->name);
-//#endif
 
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
@@ -443,10 +432,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 */
 
 long playMode = NORMAL_PMODE;
-long multiplayerRun;
-
-char tmpBuffer[16];
-
 long carryOnBabies = 1;
 long clearTiles = 0;
 
@@ -470,19 +455,9 @@ void KillMPFrog(int num)
 }
 
 void RunGameLoop (void)
-{	    	
-	VECTOR fvec = { 0,0,1 };
-	VECTOR v1;
-	QUATERNION q;
+{
 	unsigned long i,j;
 	GAMETILE *cur;
-	FX_SMOKE *smoke;
-
-	ACTOR2 *bee;
-
-	// Ambient Sound test
-	VECTOR ambpos = { -75,0,-375 };
-	static int ambrad = 10;
 	
 	// Setup for frogger point of interest
 	pOIDistance = 50000.0;
@@ -490,14 +465,6 @@ void RunGameLoop (void)
 
 	if(frameCount == 1)
 	{	
-		//StopDrawing("game");
-		
-		if (multiplayerRun)
-			playMode = 1;
-
-		currCamSetting = 1;
-		ChangeCameraSetting();
-
 		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
 		{
 			player[0].lives				= 3;
@@ -506,18 +473,11 @@ void RunGameLoop (void)
 			player[0].spawnTimer		= 0;
 			player[0].spawnScoreLevel	= 1;
 		}
-		// ENDIF
 
 		gameIsOver = 0;
 		levelIsOver = 0;
 		lastActFrameCount = 0;
 		actFrameCount = 0;
-
-//		LoadTextureBank ( SYSTEM_TEX_BANK )
-		//LoadObjectBank  ( SYSTEM_OBJ_BANK );
-		
-		// If we are in the titkescreen.
-		
 
 		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,255,255,255,0);
 		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,255,255,255,0);
@@ -571,12 +531,6 @@ void RunGameLoop (void)
 
 		//CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
 
-		//firstTile[137].state = TILESTATE_SPRING;
-		//firstTile[261].state = TILESTATE_SPRING;
-		//firstTile[301].state = TILESTATE_SPRING;
-
-//		firstTile[0].state = TILESTATE_LEVELCHANGE;
-
 		if (clearTiles)
 		{
 			cur = firstTile;
@@ -587,11 +541,7 @@ void RunGameLoop (void)
 			}
 		}
 
-//		runningWaterStuff = 0;
 		ChangeCameraSetting();
-
-		//AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
-
 	}
 
 	if(keyFound)
@@ -634,8 +584,6 @@ void RunGameLoop (void)
 				StartDrawing ( "game over" );
 				return;
 			}
-
-			seed += 0.5F;
 		}
 		else
 		{
@@ -889,9 +837,6 @@ void RunGameLoop (void)
 void RunLevelCompleteSequence()
 {
 	long i;
-	extern long numHops_TOTAL;
-	extern long speedHops_TOTAL;
-	extern long numHealth_TOTAL;
 
 	DisableTextOverlay(livesTextOver);
 	DisableTextOverlay(timeTextOver);

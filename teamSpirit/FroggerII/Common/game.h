@@ -42,8 +42,6 @@ extern unsigned long INPUT_POLLPAUSE;
 extern VECTOR *pointOfInterest;
 extern float	pOIDistance;
 
-//extern long timeMin,timeSec;
-//extern long score,lives;
 extern long gameIsOver;
 extern long levelIsOver;
 extern short showEndLevelScreen;
@@ -55,9 +53,7 @@ extern unsigned long recordKeying;
 
 extern long move;
 extern long playMode;
-extern long multiplayerRun;
-
-extern unsigned long num;
+//extern long multiplayerRun;
 
 extern GAMETILE *firstTile;
 extern GAMETILE **gTStart;
@@ -71,6 +67,10 @@ extern long hopAmt;
 
 extern long babySaved;
 extern long award;
+
+extern long numHops_TOTAL;
+extern long speedHops_TOTAL;
+extern long numHealth_TOTAL;
 
 extern void RunGameLoop (void);
 extern void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);

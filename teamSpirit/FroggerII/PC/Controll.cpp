@@ -26,7 +26,6 @@ extern "C"
 #include "stdio.h"
 #include "incs.h"
 
-extern long winMode;
 OSContPad controllerdata[4];
 long DEAD_ZONE = 50;
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
@@ -335,13 +334,6 @@ void DeInitMouseControl()
 	Returns		: void
 	Info		: 
 */
-extern float nearClip;
-extern float farClip;
-
-extern float horizClip;
-extern float vertClip;
-extern long keyInput;
-
 void ProcessUserInput(HWND hWnd)
 {
 	HRESULT hRes;

@@ -116,8 +116,6 @@ GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
 	Info			: 
 */
 #define SNAPPER_TIME 10
-
-extern float waitScale;
 float rotLimit = 0.7;
 
 void UpdateEnemies()

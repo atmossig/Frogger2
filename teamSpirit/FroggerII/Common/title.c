@@ -161,9 +161,6 @@ void RunTmpTitle()
 	lastbutton = button;  
 }
 
-extern SPRITEOVERLAY *atari;
-extern SPRITEOVERLAY *konami;
-
 void CreateOverlays ( void )
 {
 	// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....

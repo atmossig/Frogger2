@@ -23,8 +23,6 @@ int frameCount			= 0;
 int	frameCount2			= 0;
 int dispFrameCount		= 0;
 
-long multiplayerRun		= 0;
-
 char ActiveController	= 0;
 
 
@@ -38,7 +36,6 @@ void RunFrontEndStates( )
 		RunTitleScreen();
 		break;
 	case LEVELSELECT_MODE:
-		multiplayerRun = 0;
 		RunLevelSelect();
 		break;
 	case HISCORE_MODE:

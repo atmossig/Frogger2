@@ -19,6 +19,8 @@ typedef struct LEVELNAMESTRUCT
 } LNAMESTRUCT;
 
 extern SPRITE *sp;
+extern SPRITEOVERLAY *atari;
+extern SPRITEOVERLAY *konami;
 
 extern void RunTitleScreen ( void );
 extern void RunLevelSelect ( void );
