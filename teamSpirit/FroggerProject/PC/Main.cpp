@@ -700,6 +700,11 @@ long DrawLoop(void)
 		ActorListDraw(1);
 		EndTimer(1);
 
+		if( gameState.multi == SINGLEPLAYER )
+		{
+			UpdateFrogTongue(0);
+			UpdateFrogCroak(0);
+		}
 		
 		StartTimer(15,"DAF");
 		if (rHardware)
