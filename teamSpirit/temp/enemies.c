@@ -193,7 +193,7 @@ void DoEnemyCollision( ENEMY *cur )
 {
 	ACTOR2 *act = cur->nmeActor;
 
-	if( (cur->flags & ENEMY_NEW_VENT) || (cur->flags & ENEMY_NEW_MOVEONMOVE) || (cur->flags & ENEMY_NEW_PUSHESFROG) ) 
+	if( (cur->flags & ENEMY_NEW_VENT) /*|| (cur->flags & ENEMY_NEW_MOVEONMOVE)*/ || (cur->flags & ENEMY_NEW_PUSHESFROG) ) 
 		return;
 
 	if (gameState.multi==SINGLEPLAYER)

@@ -342,7 +342,7 @@ void RunPauseMenu()
 	int i;
 
 
-	pauseFrameCount += pauseGameSpeed>>12;
+	pauseFrameCount += max((pauseGameSpeed>>12),1);
 	if((quittingLevel) && (pauseConfirmMode == 0))
 	{
 		if(fadingOut == 0)
