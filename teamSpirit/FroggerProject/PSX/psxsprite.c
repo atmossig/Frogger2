@@ -21,7 +21,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 #define si ((POLY_FT4*)packet)
 
 	atbdx = (spr->xPos/8)-256;
-#ifdef PALMODE==1
+#if PALMODE==1
 	atbdy = (spr->yPos/16)-120;
 #else
 	atbdy = (spr->yPos/17)-128;
@@ -38,7 +38,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			si->y1 = atbdy;
 
 			si->x2 = atbdx;
-#ifdef PALMODE==1
+#if PALMODE==1
 	si->y2 = atbdy + (spr->height/16);
 #else
 	si->y2 = atbdy + (spr->height/17);
@@ -46,7 +46,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			//si->y2 = atbdy + (spr->height);
 
 			si->x3 = atbdx + (spr->width/8);
-#ifdef PALMODE==1
+#if PALMODE==1
 	si->y3 = atbdy + (spr->height/16);
 #else
 	si->y3 = atbdy + (spr->height/17);
