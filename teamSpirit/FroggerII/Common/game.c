@@ -309,19 +309,27 @@ void GameProcessController(long pl)
 
 	if((button[0] & CONT_F) && !(lastbutton[0] & CONT_F))
     {
-		camFacing--;
-		camFacing &= 3;
-		if ( recordKeying )
-			AddPlayingActionToList ( CAMERA_LEFT, frameCount );
+		if ( !controlCamera )
+		{
+			camFacing--;
+			camFacing &= 3;
+			if ( recordKeying )
+				AddPlayingActionToList ( CAMERA_LEFT, frameCount );
+		}
+		// ENDIF
 
 	}
 
 	if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
     {
-		camFacing++;
-		camFacing &= 3;		
-		if ( recordKeying )
-			AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
+		if ( !controlCamera )
+		{
+			camFacing++;
+			camFacing &= 3;		
+			if ( recordKeying )
+				AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
+		}
+		// ENDIF
 	}
 
 	// Croak and Croak Float
@@ -549,7 +557,7 @@ void UpdateCameraPosition(long cam)
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
-	if ( gameState.mode != CAMEO_MODE )
+	if ( gameState.mode != CAMEO_MODE && !controlCamSource )
 	{
 		float afx,afy,afz;
 		int i;
