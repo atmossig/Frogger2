@@ -792,10 +792,10 @@ MDX_OBJECT *FindObj(MDX_OBJECT *me, char *name)
 	if (strcmp((const char *)me->name,name)==0)
 		return me;
 
-	if (me->next)
-		t = FindObj(me->next,name);
-	if (me->children)
-		t = FindObj(me->children,name);
+	if( me->next && (t = FindObj(me->next,name)) )
+		return t;
+	if( me->children && (t = FindObj(me->children,name)) )
+		return t;
 
 	return t;
 }
