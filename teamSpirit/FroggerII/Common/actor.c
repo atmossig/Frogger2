@@ -441,7 +441,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 	Returns			: 
 	Info			: 
 */
-void RemoveObjectSprites(OBJECT *obj,BOOL free)
+void RemoveObjectSprites(OBJECT *obj,BOOL f)
 {
 	int i;
 
@@ -457,10 +457,10 @@ void RemoveObjectSprites(OBJECT *obj,BOOL free)
 	}
 
 	if(obj->children)
-		RemoveObjectSprites(obj->children,free);
+		RemoveObjectSprites(obj->children, f);
 	
 	if(obj->next)
-		RemoveObjectSprites(obj->next,free);
+		RemoveObjectSprites(obj->next, f);
 }
 
 /*	--------------------------------------------------------------------------------

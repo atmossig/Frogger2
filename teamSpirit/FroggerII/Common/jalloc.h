@@ -13,6 +13,28 @@ typedef unsigned char 	uchar;
 //typedef unsigned short 	ushort;
 typedef unsigned long	ulong;
 
+#ifdef DONTUSEJALLOC
+
+#ifndef PC_VERSION
+#error Must use Jalloc except in PC version!
+#endif 
+
+#include <malloc.h>
+
+#define JallocAlloc(size, clear, name) ((UBYTE) clear? calloc(1, size): malloc(size))
+#define JallocAllocDynamic JallocAlloc
+#define JallocAllocStatic JallocAlloc
+#define JallocFree(addrptr) free(*addrptr)
+
+#define ShowJalloc()
+#define CheckJalloc();
+#define JallocInit(base, size);
+#define JallocReset();
+#define ShowJalloc();
+#define ListJallocBlocks(block);
+
+#else
+
 #ifndef PC_VERSION
 #define MAXJALLOCS	1600	//1280
 #else
@@ -38,7 +60,6 @@ typedef struct
 	int			dynamicUsed;
 } JALLOCTYPE;
 
-
 void CheckJalloc();
 void JallocInit(ULONG base,ULONG size);
 UBYTE *JallocAlloc(LONG size, int clear,char *name);
@@ -55,5 +76,7 @@ u32 DMAGetSize(u32 ROMStart, u32 ROMEnd);
 void ListJallocBlocks(UBYTE **blk);
 
 extern JALLOCTYPE	jallocControl;
+
+#endif
 
 #endif
