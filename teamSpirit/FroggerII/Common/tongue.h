@@ -31,6 +31,7 @@ enum
 {
 	TONGUE_GET_BABY,
 	TONGUE_GET_GARIB,
+	TONGUE_GET_GRAPPLE,
 };
 
 
@@ -45,7 +46,7 @@ enum
 #define TONGUE_HASITEMINMOUTH	(1 << 5)
 #define TONGUE_THROWING			(1 << 6)
 #define TONGUE_SEARCHING		(1 << 7)
-#define TONGUE_PULLFROG         (1 << 8)
+#define TONGUE_GRAPPLE          (1 << 8)
 
 //----- [ GLOBALS ] --------------------------------------------------------
 

@@ -42,6 +42,7 @@ char tongueToCollect		= 0;
 
 GARIB *nearestColl			= NULL;
 ACTOR2 *nearestBabyFrog		= NULL;
+GAMETILE *nearestGrapple    = NULL;
 
 float tongueMag				= 0;
 float tongueMagStep			= 0;
@@ -127,43 +128,47 @@ void UpdateFrogTongue()
 			else
 			{
 				tongueState = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_INCOMING | TONGUE_HASITEMONIT;
+				if( tongueToCollect == TONGUE_GET_GRAPPLE ) tongueSegment = 0;
 				return;
 			}
 		}
 		
 		if(tongueState & TONGUE_INCOMING)
 		{
-			tongueSegment--;
-
-			tongueState |= TONGUE_PULLFROG;
-
-			if( tongueState & TONGUE_PULLFROG )
-				SetVector(&frog[0]->actor->pos,&tongueCoords[tongueSegment]);
-			else if(tongueToCollect == TONGUE_GET_GARIB)
+			if(tongueToCollect == TONGUE_GET_GARIB)
 			{
+				tongueSegment--;
 				SetVector(&nearestColl->sprite.pos,&tongueCoords[tongueSegment]);
 				nearestColl->scale *= 0.9;
 				nearestColl->scale *= 0.9;
 				nearestColl->scale *= 0.9;
 			}
-			else
+			else if( tongueToCollect == TONGUE_GET_BABY )
 			{
+				tongueSegment--;
 				SetVector(&nearestBabyFrog->actor->pos,&tongueCoords[tongueSegment]);
 				nearestBabyFrog->actor->scale.v[X] *= 0.9;
 				nearestBabyFrog->actor->scale.v[Y] *= 0.9;
 				nearestBabyFrog->actor->scale.v[Z] *= 0.9;
 			}
+			else // TONGUE_GET_GRAPPLE
+			{
+				SetVector(&frog[0]->actor->pos,&tongueCoords[tongueSegment]);
+				tongueSegment++;
+			}
 
 			RemoveTongueSegment(tongueSegment);
 
-			if(tongueSegment < 1)
+			if(tongueSegment < 1 || tongueSegment > MAX_TONGUENODES )
 			{
 				PlaySample(111,NULL,192,128);
-		
+
 				if(tongueToCollect == TONGUE_GET_GARIB)
 					PickupCollectable(nearestColl);
-				else
+				else if( tongueToCollect == TONGUE_GET_BABY )
 					PickupBabyFrog(nearestBabyFrog);
+				else
+					PutFrogOnGrapplePoint(nearestGrapple);
 
 				// Check if frog has something in his mouth
 				player[0].frogState |= FROGSTATUS_ISSTANDING;
@@ -250,6 +255,52 @@ void UpdateFrogTongue()
 			{
 				SubVector(&p,&nearestBabyFrog->actor->pos,&tongueCoords[0]);
 			}
+
+			tongueMag = Magnitude(&p);
+			MakeUnit(&p);
+
+			// Calculate angle through which the tongue needs to rotate
+			dp = DotProduct(&ff,&p);
+			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
+			{
+				player[0].frogState	|= FROGSTATUS_ISSTANDING;
+				tongueState = TONGUE_NONE | TONGUE_IDLE;
+			}
+			else
+			{
+				tongueMagStep = tongueMag / numTongueNodes;
+
+				// Determine the tongue up vector about which the tongue rotates
+				CrossProduct(&tongueUpVector,&ff,&p);
+
+				tongueRotateAngle = acos(dp);
+				tongueRotateStep = tongueRotateAngle / numTongueNodes;
+
+				// Create tongue segments
+				while(numTongueNodes--)
+					CreateTongueSegment(tongueCoordIndex);
+
+				// Set frog mouth open animation, and the speed
+				frog[0]->actor->animation->animTime = 0;
+				AnimateActor(frog[0]->actor,1,NO,NO,0.5/*, 10, 0*/);
+				frog[0]->actor->animation->animationSpeed = 0.25;
+
+				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
+			}
+		}
+		else if( nearestGrapple = GrapplePointInTongueRange( ) )
+		{
+			// Grapple towards point
+			InitTongue(TONGUE_GET_GRAPPLE);
+
+			// Get first tongue position (tongueCoordIndex == 0)
+			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
+			tongueCoordIndex++;
+
+			// Calculate the vector to the collectable item and its magnitude
+			SubVector(&p,&nearestGrapple->centre,&tongueCoords[0]);
 
 			tongueMag = Magnitude(&p);
 			MakeUnit(&p);
