@@ -1772,7 +1772,7 @@ Chris Wilson:
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
-21/01/00 - Tuesday
+21/01/00 - Friday
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 Matt Cloy:
@@ -1789,6 +1789,15 @@ David Swift:
 
 James Hubbard:
 ------------------------------------------------
+
+	Morning:
+		Trying to fix crash bug in CreateTextureSurface. On the eveidence so far it
+		might be, partially at least, caused by WinCrop that saves 64x64 textures
+		into out textures directory, apparently at random. Or so Alex says.
+
+		Also resized baby icons, put motion trails in Space3 with an offset cos the
+		pivot for platforms has to be on top and trails shouldn't be, and generally
+		made sure that everything's working.
 
 
 James Healey:
