@@ -108,7 +108,13 @@ int OnTimeout( TRIGGER *trigger )
 {
 	int time = (int)trigger->data[0];
 
-	return (actFrameCount >= time);
+	if (actFrameCount >= time)
+	{
+		(int)trigger->data[0] = actFrameCount + (int)trigger->data[1];
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 
 
@@ -380,60 +386,36 @@ void TeleportFrog( EVENT *event )
 
 void SpringFrog( EVENT *event )
 {
-	int fNum = (int)event->data[0],
-		tNum = (int)event->data[1];
+	SPRINGINFO *info = (SPRINGINFO*)event->data[0];
+	TRIGGER *trigger = (TRIGGER *)event->data[1];
+	int f = info->frog;
 
-	float t,
-		ht = (int)event->data[3] / (float)0x10000,
-		time = ((int)event->data[2] / (float)0x10000) * 60;
-
-	TRIGGER *trigger = (TRIGGER *)event->data[4];
-
-	static int start = 0, end = 0;
-
-	GAMETILE *tile = GetTileFromNumber(tNum);
-	static VECTOR D, H, sPos;
-	VECTOR dd, dh;
-
-	if( !end )
+	if( actFrameCount >= info->end )	// if we've gone past the end frame
 	{
-		start = actFrameCount;
-		end = start + time;
-
-		// Calculate frog position from height, tile positions and actFrameCount.
-		SubVector( &D, &tile->centre, &currTile[fNum]->centre );
-		AddVector( &H, &tile->normal, &currTile[fNum]->normal );
-		MakeUnit( &H );
-		ScaleVector( &H, ht );
-
-		SetVector( &sPos, &frog[fNum]->actor->pos );
-	}
-
-	if( actFrameCount > end )	// if we've gone past the end frame
-	{
-		currTile[fNum] = tile;
-		SetVector( &frog[fNum]->actor->pos, &tile->centre );
-		player[fNum].frogState &= ~FROGSTATUS_ISTELEPORTING;
-		player[fNum].frogState |= FROGSTATUS_ISSTANDING;
+		currTile[f] = info->dest;
+		SetVector( &(frog[f]->actor->pos), &(info->dest->centre) );
+		player[f].frogState &= ~FROGSTATUS_ISTELEPORTING;
+		player[f].frogState |= FROGSTATUS_ISSTANDING;
 
 		//CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&frog[fNum]->actor->pos,128,0,0.5,15);
 
-		start = 0;
-		end = 0;
+		JallocFree((UBYTE**)&info);
 
 		trigger->flags = TRIGGER_ONCE;	// Make the trigger delete itself!
 	}
 	else
 	{
-		t = (float)(actFrameCount-start) / (float)(end-start);
+		VECTOR dh, dd;
 
-		SetVector( &dh, &H );
+		float t = (float)(actFrameCount-info->start) / (float)(info->end-info->start);
+
+		SetVector( &dh, &info->H );
 		ScaleVector( &dh, 1.0 - (((2.0 * t) - 1.0) * ((2.0 * t) - 1.0)) );
-		SetVector( &dd, &D );
+		SetVector( &dd, &info->V );
 		ScaleVector( &dd, t );
 
-		AddVector( &frog[fNum]->actor->pos, &sPos, &dd );
-		AddVector( &frog[fNum]->actor->pos, &frog[fNum]->actor->pos, &dh );
+		AddVector( &(frog[f]->actor->pos), &info->S, &dd );
+		AddVector( &(frog[f]->actor->pos), &(frog[f]->actor->pos), &dh );
 
 		// TODO: Slurp frog orientation between source and destination tiles
 	}

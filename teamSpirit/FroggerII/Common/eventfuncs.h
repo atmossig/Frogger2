@@ -12,6 +12,12 @@
 #ifndef EVENTFUNCS_H_INCLUDED
 #define EVENTFUNCS_H_INCLUDED
 
+typedef struct TAG_SPRINGINFO
+{
+	VECTOR S, V, H;
+	GAMETILE *dest;
+	int start, end, frog;
+} SPRINGINFO;
 
 /*----- [ TRIGGER PROTOTYPES ] -----------------------------------------------------------------*/
 extern int EnemyOnTile( TRIGGER *trigger );

@@ -98,6 +98,8 @@ int ORtrigger(TRIGGER *t)
 	return a->func(a) || b->func(b);
 }
 
+int AlwaysTrigger(TRIGGER *t) { return TRUE; }
+
 /*	--------------------------------------------------------------------------------
     Function		: LoadTrigger
 	Parameters		: UBYTE*
@@ -238,8 +240,9 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		{
 			float time = MEMGETFLOAT(p);
 
-			params = AllocArgs(1);
+			params = AllocArgs(2);
 			(int)params[0] = actFrameCount + (int)(60.0 * time);
+			(int)params[1] = (int)(60.0 * time);
 			trigger = MakeTrigger(OnTimeout, params);
 		}
 		break;
@@ -495,28 +498,41 @@ Vis:
 		{
 			TRIGGER *t;
 			EVENT *e;
-			int fNum = MEMGETBYTE(p),
-				tNum = MEMGETINT(p),
-				ht = MEMGETINT(p),
-				time = MEMGETINT(p);
 			void **param;
+			SPRINGINFO *info;
+			GAMETILE *tile;
+			int frogNum, tileNum;
+			float height, time;
 
-			player[fNum].frogState &= ~FROGSTATUS_ISSTANDING;
-			player[fNum].frogState |= FROGSTATUS_ISTELEPORTING;
+			frogNum = MEMGETBYTE(p);
+			tileNum = MEMGETINT(p);
+			height = MEMGETFLOAT(p);
+			time = MEMGETFLOAT(p);
+
+			player[frogNum].frogState &= ~FROGSTATUS_ISSTANDING;
+			player[frogNum].frogState |= FROGSTATUS_ISTELEPORTING;
+
+			info = (SPRINGINFO*)JallocAlloc(sizeof(SPRINGINFO), NO, "spring");
+
+			info->frog = frogNum;
+			tile = GetTileFromNumber(tileNum);
+			info->dest = tile;
+			SetVector(&info->S, &frog[frogNum]->actor->pos);
+			SubVector(&info->V, &tile->centre, &info->S);
+			SetVector(&info->H, &tile->normal);
+			ScaleVector(&info->H, height);
+
+			info->start = actFrameCount;
+			info->end = actFrameCount + (time * 60.0);
+
+			t = MakeTrigger( AlwaysTrigger, NULL );
 
 			param = AllocArgs(2);
-			param[0] = (void *)&player[fNum].frogState;
-			param[1] = (void *)FROGSTATUS_ISTELEPORTING;
-			t = MakeTrigger( BitCheck, param );
+			param[0] = (void*)info;
+			param[1] = (void*)t;
 
-			param = AllocArgs(5);
-			param[0] = (void *)fNum;
-			param[1] = (void *)tNum;
-			param[2] = (void *)time;
-			param[3] = (void *)ht;
-			param[4] = (void *)t;
 			e = MakeEvent( SpringFrog, param );
-
+			
 			AttachEvent( t, e, TRIGGER_ALWAYS, 0 );
 
 			break;
