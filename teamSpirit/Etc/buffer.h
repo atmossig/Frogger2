@@ -20,7 +20,7 @@ public:
 	void CopyData(void **data);
 	void Append(Buffer &b);
 	inline int Size()	{ return size; };
-	inline void *Data()	{ return p; };
+	inline const void *Data()	{ return p; };
 };
 
 #endif

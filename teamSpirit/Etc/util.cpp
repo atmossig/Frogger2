@@ -219,7 +219,7 @@ void ScriptTokenList::OutputDefines(FILE *f)
 
 	for (t = list; t; t = t->next)
 	{
-		if (t->define) fprintf(f, "#define %s %d\n", t->define, t->token);
+		if (t->define) fprintf(f, "#define %-24s %d\n", t->define, t->token);
 	}
 }
 

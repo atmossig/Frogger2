@@ -95,6 +95,7 @@ bool LoadCommandTable(const char* filename, ScriptTokenList &list)
 	
 	if (!OpenFile(filename)) return false;
 	
+	SetVariable("p_special", "0");
 	SetVariable("p_integer", "1");
 	SetVariable("p_float", "2");
 	SetVariable("p_string", "3");
@@ -366,6 +367,20 @@ bool AddEvent(Buffer &buffer)
 			SetVariable(name, token);
 			return true;
 		}
+	case C_ON:
+		{
+			double v;
+
+			buffer.AddChar(C_ON);
+			if (!AddTrigger(buffer)) return false;
+
+			if (!GetNumberToken(&v)) {
+				Error("Expecting trigger flags"); return false;
+			}
+			buffer.AddInt((int)v);
+
+			return AddBlock(buffer);
+		}
 
 /*	case C_SUB:
 		{
@@ -421,12 +436,15 @@ bool AddBlock(Buffer &buffer)
 	if (tokenType != T_SYMBOL)
 	{
 		if (!AddEvent(b)) return false;
+		if (!b.Size())
+			Error("Warning: Command does nothing in interpreter");
 		buffer.AddInt(1);
 		buffer.AddInt(b.Size());
 		buffer.Append(b);
 	}
 	else if (token[0] = '{')
 	{
+		Buffer bb;
 		int e = 0;
 		while (true)
 		{
@@ -435,13 +453,22 @@ bool AddBlock(Buffer &buffer)
 				break;
 			else
 			{
-				Buffer bb;
+				bb.Clear();
 				if (!AddEvent(bb)) return false;
-				b.AddInt(bb.Size());
-				b.Append(bb);
-				e++;
+				if (bb.Size())
+				{
+					b.AddInt(bb.Size());
+					b.Append(bb);
+					e++;
+				}
+				else
+					Error("fuzzy");
 			}
 		}
+		
+		if (!e)
+			Error("Warning: Block contains no commands");
+
 		buffer.AddInt(e);
 		buffer.Append(b);
 	}
@@ -517,12 +544,15 @@ bool compile(const char* filename, bool save)
 	{
 		Buffer b;
 		if (!AddEvent(b)) return false;
-		buffer.AddInt(b.Size());
-		buffer.Append(b);
-		e++;
+		if (b.Size())
+		{
+			buffer.AddInt(b.Size());
+			buffer.Append(b);
+			e++;
+		}
 	}
 
-	if (save && e)
+	if (save)
 	{
 		char outfile[255];
 		GetFilenameStart(outfile, filename);
@@ -648,7 +678,7 @@ int main(int argc, char **argv)
 	}
 	
 	if (errors)
-		printf("\n%d errors\n", errors);
+		printf("\n%d errors & warnings\n", errors);
 	else if (verbose)
 		printf("\nCompiled %d trigger%s and %d event%s in %d file%s\n",
 			triggers, s(triggers), events, s(events), files, s(files));

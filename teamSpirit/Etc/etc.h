@@ -4,6 +4,7 @@
 //#include "codes.h"
 #include "type.h"
 
+#define C_ON		0x40		// special!
 #define C_CALL		0x7F		// special!
 
 #define	C_INCLUDE	0x100

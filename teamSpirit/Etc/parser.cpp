@@ -55,7 +55,7 @@ const char *GetVariable(const char* key)
 	if (e)
 		return e->GetValue();
 	else
-		return "";
+		return NULL;
 }
 
 void SetVariable(const char* key, const char *value)
@@ -179,7 +179,7 @@ int NextToken(void)
 
 	else if (strchr("0123456789+-", c))
 	{
-		while (c >= '0' && c <= '9') { *(t++) = c; c = NextChar(); }
+		do { *(t++) = c; c = NextChar(); } while (c >= '0' && c <= '9');
 		if (c == '.')
 			do { *(t++) = c; c = NextChar(); } while ((c >= '0' && c <= '9'));
 		
@@ -249,9 +249,12 @@ bool GetNumberToken(double *value)
 	if (tokenType == T_VARIABLE)
 	{
 		char *c, *p;
-		c = p = (char*)GetVariable(token);
+		p = (char*)GetVariable(token);
+		if (!p) return false;
+		c = p;
+		if (*c == '-') c++;
 		while (*c >= '0' && *c <= '9') c++;
-		if (*c == '.') while ((*c >= '0' && *c <= '9')) c++;
+		if (*c == '.') do c++; while (*c >= '0' && *c <= '9');
 		if (*c) return false;
 
 		*value = atof(p);
