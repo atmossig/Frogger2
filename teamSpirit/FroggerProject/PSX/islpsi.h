@@ -26,6 +26,8 @@ enum
 #define ACTOR_BONED			4
 #define ACTOR_MOTIONBONE	8
 #define PSIACTOR_TRANSPARENT 16
+//bb
+#define PSIACTOR_SCALED		32
 
 
 // keyframe data structures

@@ -260,13 +260,17 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel )
 
 	actor->clutOverride = NULL;
 
-	if (psiModel->flags & 1)
+	//scale skinned objects (if not already scaled)
+	if(psiModel->flags & 1)
 	{
-		ScalePsi(actor->psiData.object->meshdata);
-		actor->radius *= 10;
-		psiInitSortList((actor->radius*2)+8);
+		if( !(actor->psiData.flags&PSIACTOR_SCALED) )
+		{
+			ScalePsi(actor->psiData.object->meshdata);
+			actor->radius *= 10;
+			psiInitSortList((actor->radius*2)+8);
+			actor->psiData.flags |= PSIACTOR_SCALED;
+		}
 	}
-	// ENDIF
 
 
 	if ( checkForModel )
