@@ -1566,11 +1566,6 @@ Chris Wilson:
 
 
 
-
-
-
-
-
 ------------------------------------------------------------------------------------------------------------------------------------------------
 13/01/00 - Thursday
 ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1589,6 +1584,16 @@ David Swift:
 
 James Hubbard:
 ------------------------------------------------
+
+	Still trying to fix that JallocFree silliness, and along the way I fixed 
+	a few other bugs. Which was nice. What wasn't was that I while I can get
+	one JallocFree to work, theres still a subtle memory bug which means that
+	the file buffer can't be freed properly. So I'm not freeing it at all fir
+	now, with a reminder to go back and fix it when I hate it less.
+
+	Discussed camera restictions with Dave, and how to reduce the vast amounts
+	of black space visible around the level. We've come up with a workable idea
+	(probably).
 
 
 James Healey:
