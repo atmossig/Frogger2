@@ -1,3 +1,12 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+
+	File		: script.c
+	Programmer	: David Swift
+
+----------------------------------------------------------------------------------------------- */
 
 
 #include "ultra64.h"
@@ -5,6 +14,8 @@
 #include "codes.h"
 #include "stdio.h"
 #include "script.h"
+
+#define DEBUG_SCRIPTING
 
 /* --------------------------------------------------------------------------------- */
 
@@ -244,8 +255,20 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 
+	case TR_WAIT:
+		{
+			float time = MEMGETFLOAT(p);
+
+			params = AllocArgs(1);
+			(int)params[0] = actFrameCount + (int)(60.0 * time);
+			trigger = MakeTrigger(OnTimeout, params);
+		}
+		break;
+
 	default:
+#ifdef DEBUG_SCRIPTING
 		dprintf"Unrecognised trigger type %02x, skipping\n", token));
+#endif
 		return NULL;
 	}
 
@@ -278,9 +301,61 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			string[len] = 0;
 
 			dprintf"[Interpreter Debug] %s\n", string));
+			break;
 		}
-		break;
+		
+	case EV_SETTILE:
+		{
+			int tile, state;
+			
+			tile = MEMGETINT(p);
+			state = MEMGETINT(p);
 
+			firstTile[tile].state = (unsigned char)state;
+			break;
+		}
+
+	case EV_SETENEMYFLAG:
+		{
+			ENEMY *nme;
+			int flag;
+			if (!(nme = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			flag = MEMGETINT(p);
+			nme->flags |= flag;
+			break;
+		}
+		
+	case EV_RESETENEMYFLAG:
+		{
+			ENEMY *nme;
+			int flag;
+			if (!(nme = GetEnemyFromUID(MEMGETINT(p)))) return 0;
+			flag = MEMGETINT(p);
+			nme->flags &= ~flag;
+			break;
+		}
+
+
+	case EV_SETPLATFLAG:
+		{
+			PLATFORM *plt;
+			int flag;
+			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			flag = MEMGETINT(p);
+			plt->flags |= flag;
+			break;
+		}
+
+	case EV_RESETPLATFLAG:
+		{
+			PLATFORM *plt;
+			int flag;
+			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
+			flag = MEMGETINT(p);
+			plt->flags &= ~flag;
+			break;
+		}
+		
 	case EV_ANIMATEACTOR:
 		{
 			ACTOR2 *actor;
@@ -294,9 +369,9 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			flags = MEMGETINT(p);
 			speed = MEMGETFLOAT(p);
 
-			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed,0,0);
+			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed); //,0,0);
+			break;
 		}
-		break;
 
 	case EV_SETENEMY:
 		{
@@ -309,7 +384,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			case FS_SET_MOVE:
 				nme->isWaiting = 0;
 				nme->path->startFrame = actFrameCount;
-				nme->path->endFrame = nme->path->startFrame + (60*nme->speed);
+				nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
 				break;
 			case FS_SET_STOP:
 				nme->isWaiting = -1; break;
@@ -317,15 +392,44 @@ BOOL ExecuteCommand(UBYTE *buffer)
 				if (nme->isWaiting)
 				{
 					nme->isWaiting = 0;
-					nme->path->startFrame = nme->path->endFrame;
-					nme->path->endFrame = nme->path->startFrame + (60*nme->speed);
+					nme->path->startFrame = actFrameCount;
+					nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
 				}
 				else
 					nme->isWaiting = -1;
 				break;
 			}
+			break;
 		}
-		break;
+
+	case EV_SETPLATFORM:
+		{
+			PLATFORM *plt;
+			plt = GetPlatformFromUID(MEMGETINT(p));
+			if (!plt) return 0;
+
+			switch (MEMGETINT(p))
+			{
+			case FS_SET_MOVE:
+				plt->isWaiting = 0;
+				plt->path->startFrame = actFrameCount;
+				plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
+				break;
+			case FS_SET_STOP:
+				plt->isWaiting = -1; break;
+			case FS_SET_TOGGLEMOVE:
+				if (plt->isWaiting)
+				{
+					plt->isWaiting = 0;
+					plt->path->startFrame = actFrameCount;
+					plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
+				}
+				else
+					plt->isWaiting = -1;
+				break;
+			}
+			break;
+		}
 
 	case EV_ON:
 		{
@@ -343,8 +447,21 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			}
 			else
 				return 0;
+			break;
 		}
-		break;
+
+	case EV_IF:
+		{
+			TRIGGER *t;
+
+			if (t = LoadTrigger(p))
+			{
+				if (t->func(t)) Interpret(*p);
+				SubTrigger(t);
+			}
+			else return 0;
+			break;
+		}
 
 	case EV_TELEPORT:
 		{
@@ -400,12 +517,87 @@ BOOL ExecuteCommand(UBYTE *buffer)
 
 				break;
 			}
-			
+			break;
 		}
-		break;
+
+	case EV_MOVEENEMY:
+		{
+			ENEMY *nme;
+			int flag;
+
+			nme = GetEnemyFromUID(MEMGETINT(p));
+			if (!nme) return 0;
+
+			flag = MEMGETINT(p);
+			if (flag > 0 && flag < nme->path->numNodes)
+			{
+				nme->path->fromNode = nme->path->toNode = flag;
+			}
+			break;
+		}
+
+	case EV_MOVEPLAT:
+		{
+			PLATFORM *plt;
+			int flag;
+
+			plt = GetPlatformFromUID(MEMGETINT(p));
+			if (!plt) return 0;
+
+			flag = MEMGETINT(p);
+			if (flag > 0 && flag < plt->path->numNodes)
+			{
+				plt->path->fromNode = plt->path->toNode = flag;
+			}
+			break;
+		}
+
+	case EV_DROPGARIB:
+		{
+			GARIB *garib;
+			GAMETILE *tile;
+			int g, t;
+
+			g = MEMGETINT(p);
+			t = MEMGETINT(p);
+
+			if (g < 0 || g > garibCollectableList.numEntries || t < 0) return 0;
+
+			for (garib = garibCollectableList.head.next; g; garib = garib->next, g--);
+			tile = GetTileFromNumber(t);
+
+			garib->gameTile = tile;
+			garib->dropSpeed = 0.0;
+			break;
+		}
+
+	case EV_CHANGEVOLUME:
+		{
+			float delta, amount;
+			int n;
+			PLATFORM *plt;
+			VECTOR u, v;
+
+			delta = MEMGETFLOAT(p);
+			n = MEMGETINT(p);
+			plt = GetPlatformFromUID(MEMGETINT(p));
+			if (!plt) return 0;
+
+			amount = 0.5; //ChangeVolume(n, delta);
+
+			GetPositionForPathNode(&u, &plt->path->nodes[plt->path->toNode]);
+			GetPositionForPathNode(&v, &plt->path->nodes[plt->path->fromNode]);
+
+			ScaleVector(&u, amount);
+			ScaleVector(&v, 1.0-amount);
+			AddVector(&plt->pltActor->actor->pos, &u, &v);
+			plt->isWaiting = -1;
+		}
 
 	default:
+#ifdef DEBUG_SCRIPTING
 		dprintf"[Interpreter] Unrecognised command\n"));
+#endif
 		return 0;
 	}
 
@@ -421,7 +613,6 @@ int Interpret(const UBYTE *buffer)
 {
 	UBYTE *p, *q;
 	int events, size;
-	UBYTE command;
 
 	p = (UBYTE*)buffer;
 
@@ -444,13 +635,12 @@ int Interpret(const UBYTE *buffer)
 	Parameters		: UBYTE*
 	Returns			: TRUE if success, FALSE otherwise
 */
+#ifdef PC_VERSION
 void LoadTestScript(const char* filename)
 {
-#ifdef PC_VERSION
 	HANDLE h;
 	long size, read;
 	UBYTE* buffer;
-	UBYTE version;
 	
 	dprintf"Testing script %s\n", filename));
 
@@ -472,16 +662,28 @@ void LoadTestScript(const char* filename)
 	{
 		dprintf"Failed initialising script\n", filename)); return;
 	}
-#endif
 }
+#endif
 
 int InitLevelScript(void *buffer)
 {
+	int err = 0;
+
 	FreeLevelScript();
 
 	scriptBuffer = buffer;
 	
-	if (!(*scriptBuffer == 0x02 && Interpret(scriptBuffer + 1)))
+	if (*scriptBuffer != 0x02)
+	{
+#ifdef DEBUG_SCRIPTING
+		dprintf"Script failed version check\n"));
+#endif
+		err = 1;
+	}
+	else if (!Interpret(scriptBuffer + 1))
+		err = 1;
+
+	if (err)
 	{
 		JallocFree(&scriptBuffer); scriptBuffer = NULL;
 		return 0;
@@ -492,7 +694,7 @@ int InitLevelScript(void *buffer)
 
 int FreeLevelScript(void)
 {
-	JallocFree(&scriptBuffer); scriptBuffer = NULL;
+	JallocFree(&scriptBuffer); scriptBuffer = NULL; return 1;
 }
 
 
