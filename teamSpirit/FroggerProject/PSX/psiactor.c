@@ -1178,6 +1178,9 @@ void *ChangeModel( ACTOR *actor, char *model )
 int UndoChangeModel( ACTOR *actor )
 {
 
+	if ( !oldModel.object )
+		return 0;
+
 	actor->psiData = oldModel;
 
 	//actor->psiData = psiCheck ( "frogger.psi" );
@@ -1185,6 +1188,8 @@ int UndoChangeModel( ACTOR *actor )
 	actorInitAnim ( actor );										// initialise animation structure
 
 	actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
+
+	return 1;
 
 /*	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
 
