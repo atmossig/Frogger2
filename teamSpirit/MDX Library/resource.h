@@ -6,16 +6,18 @@
 #define ID_SETUP                        3
 #define ID_DEFAULT                      4
 #define IDD_VIDEODEVICE                 101
-#define IDB_SPLASH                      103
-#define IDD_CONNECTION                  104
+#define IDB_SPLASH                      102
+#define IDD_CONNECTION                  103
 #define IDD_MULTI_CONNECT               104
 #define IDD_KEYMAPBOX                   105
-#define IDI_FROGGER2                    105
-#define IDD_MULTI_GAMES                 107
-#define IDD_MULTI_START                 108
-#define IDD_CONTROLS                    109
-#define IDD_MULTI_CREATE                110
-#define IDD_KEYPRESS                    112
+#define IDD_MULTI_GAMES                 106
+#define IDD_MULTI_START                 107
+#define IDD_CONTROLS                    108
+#define IDD_MULTI_CREATE                109
+#define IDD_KEYPRESS                    110
+#define IDI_FROGGER2                    200
+#define IDI_ATARI                       201
+#define IDI_BLITZ                       202
 #define IDC_LIST2                       1001
 #define IDC_WINDOW                      1002
 #define IDC_LANGUAGE                    1003
@@ -61,7 +63,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        112
+#define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1052
 #define _APS_NEXT_SYMED_VALUE           101
