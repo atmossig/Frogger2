@@ -206,6 +206,9 @@ int SaveRegistryInformation(void)
 	Returns			: int
 	Info			: 
 */
+
+short *loadScr;
+
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow);
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
@@ -221,6 +224,7 @@ extern float camSideOfs;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+	char filename[MAX_PATH];
 	SYSTEMTIME currTime;
 	ULONG memSizeInBytes = 0;
 	UBYTE *memPtr = NULL;
@@ -305,6 +309,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 	lastActFrameCount = actFrameCount = (GetTickCount()/(1000.0/60.0));
 	InitOneOverTable();	
+	
+    strcpy (filename,baseDirectory);	
+	strcat (filename,TEXTURE_BASE);
+	strcat (filename,"loading.bmp");
+	loadScr = GetGelfBmpDataAsShortPtr(filename);
 	
 	if (!runHardware)
 		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
