@@ -48,6 +48,12 @@ char	staticObj;
 void DrawObject(OBJECT *obj);
 
 short texture[256*256];
+float nearClip = 200;
+float farClip = 900;
+
+float horizClip = 400;
+float vertClip = 300;
+
 
 long InitTex(void)
 {
@@ -107,34 +113,34 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 			totalLen = v1->sx-v0->sx;
 			vt = segLen/totalLen;
 			vOut->sx = cx0;
-			vOut->sy = v0->sy+((v1->sy-v0->sy)*segLen)/totalLen;
+			vOut->sy = v0->sy+((v1->sy-v0->sy)*vt);
 			break;
 		case OUTCODE_RIGHT:
 			segLen = cx1-v0->sx;
 			totalLen = v1->sx-v0->sx;
 			vt = segLen/totalLen;
 			vOut->sx = cx1;
-			vOut->sy = v0->sy+((v1->sy-v0->sy)*segLen)/totalLen;
+			vOut->sy = v0->sy+((v1->sy-v0->sy)*vt);
 			break;
 		case OUTCODE_TOP:
 			segLen = cy0-v0->sy;
 			totalLen = v1->sy-v0->sy;
 			vt = segLen/totalLen;
-			vOut->sx = v0->sx+((v1->sx-v0->sx)*segLen)/totalLen;
+			vOut->sx = v0->sx+((v1->sx-v0->sx)*vt);
 			vOut->sy = cy0;
 			break;
 		case OUTCODE_BOTTOM:
 			segLen = cy1-v0->sy;
 			totalLen = v1->sy-v0->sy;
 			vt = segLen/totalLen;
-			vOut->sx = v0->sx+((v1->sx-v0->sx)*segLen)/totalLen;
+			vOut->sx = v0->sx+((v1->sx-v0->sx)*vt);
 			vOut->sy = cy1;
 			break;		
 	}
 			
-	vOut->tu = (v0->tu+((v1->tu-v0->tu)*segLen)/totalLen);
-    vOut->tv = (v0->tv+((v1->tv-v0->tv)*segLen)/totalLen);	
-	vOut->sz = (v0->sz+((v1->sz-v0->sz)*segLen)/totalLen);				
+	vOut->tu = (v0->tu+((v1->tu-v0->tu)*vt));
+    vOut->tv = (v0->tv+((v1->tv-v0->tv)*vt));
+	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
 	
 	a1 = RGBA_GETALPHA(v0->color);
 	r1 = RGBA_GETRED(v0->color);
@@ -190,8 +196,12 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 		sideMask = 1<<sideLp;
 		for(vertLp=0; vertLp<vInCount; vertLp++)
 		{
-			v0ptr = &vIn[vertLp];	
-			v1ptr = &vIn[(vertLp+1)%vInCount];
+			v0ptr = &vIn[vertLp];
+			if ((vertLp+1)<vInCount)
+				v1ptr = &vIn[(vertLp+1)];
+			else
+				v1ptr = vIn;
+
 			out0 = CALC_OUTCODE(v0ptr->sx,v0ptr->sy, clx0,cly0,clx1,cly1);
 			out1 = CALC_OUTCODE(v1ptr->sx,v1ptr->sy, clx0,cly0,clx1,cly1);
 			if ((out0 & sideMask)==0)		// v0 on
@@ -258,34 +268,49 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 
 void PCDrawObject(OBJECT *obj, float m[4][4])
 {
-	VECTOR *in;
+	short fce[3] = {0,1,2};		
+	D3DTLVERTEX v[3],*vTemp;
+	VECTOR *in,*c1,*c2,*c3,*vTemp2;
 	float c[4][4];
 	float f[4][4];
 	int i;
+	long drawme;
 	
 	in = obj->mesh->vertices;
 	
 	guLookAtF(c,
-			camSource[screenNum].v[X],camSource[screenNum].v[Y],camSource[screenNum].v[Z],
-			camTarget[screenNum].v[X],camTarget[screenNum].v[Y],camTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
 			//stx,sty,stz,
 			//ctx,cty,ctz,
 			0,1,0);
 			//camVect.v[X],camVect.v[Y],camVect.v[Z]);
 	
 	guMtxCatF(m,c,f);
+	
+	vTemp2 = tV;
 
 	for (i=0; i<obj->mesh->numVertices; i++)
 	{
-		guMtxXFMF(f,in[i].v[X],in[i].v[Y],in[i].v[Z],
-		&(tV[i].v[X]),&(tV[i].v[Y]),&(tV[i].v[Z]));
+		guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
+		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
 	
-		if ((tV[i].v[Z]+DIST)>0)
+		if  (((vTemp2->v[Z]+DIST)>nearClip) &&
+			((vTemp2->v[Z]+DIST)<farClip) &&
+			((vTemp2->v[X])>-horizClip) &&
+			((vTemp2->v[X])<horizClip) &&
+			((vTemp2->v[Y])>-vertClip) &&
+			((vTemp2->v[Y])<vertClip))
 		{
-			float oozd = -1/(tV[i].v[Z]+DIST);
-			tV[i].v[X] = 320+((tV[i].v[X] * FOV) * oozd);
-			tV[i].v[Y] = 220+((tV[i].v[Y] * FOV) * oozd);
+			float oozd = -1/(vTemp2->v[Z]+DIST);
+			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
+			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
 		}
+		else
+			vTemp2->v[Z] = 0;
+
+		vTemp2++;
+		in++;
 	}
 	
 	
@@ -299,45 +324,70 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 		v1a = v0a+1;
 		v2a = v1a+1;
 
-		if (tV[v0].v[Z]+DIST>0)
-		if (tV[v1].v[Z]+DIST>0)
-		if (tV[v2].v[Z]+DIST>0)
+		if (tV[v0].v[Z])
+		if (tV[v1].v[Z])
+		if (tV[v2].v[Z])
 		{
-			D3DTLVERTEX v[3];
-			VECTOR *c1 = &(((VECTOR *)obj->mesh->vertexNormals)[v0a]);
-			VECTOR *c2 = &(((VECTOR *)obj->mesh->vertexNormals)[v1a]);
-			VECTOR *c3 = &(((VECTOR *)obj->mesh->vertexNormals)[v2a]);
+			c1 = &(((VECTOR *)obj->mesh->vertexNormals)[v0a]);
+			c2 = &(((VECTOR *)obj->mesh->vertexNormals)[v1a]);
+			c3 = &(((VECTOR *)obj->mesh->vertexNormals)[v2a]);
+			
+			drawme = 1;
 
+			vTemp = v;
+			
+			vTemp->specular = 0;
+			vTemp->sx = tV[v0].v[X];
+			vTemp->sy = tV[v0].v[Y];
+			vTemp->sz = (tV[v0].v[Z]+DIST)/2000;///2000;
+			vTemp->tu = obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0);
+			vTemp->tv = obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0);
+			vTemp->color = D3DRGB(c1->v[0],c1->v[1],c1->v[2]);
+			
+			vTemp++;
 
-			short fce[3] = {0,1,2};
-			v[0].sx = tV[v0].v[X];
-			v[0].sy = tV[v0].v[Y];
-			v[0].sz = (tV[v0].v[Z]+DIST)/2000;
-			v[0].rhw = 1/v[0].sz;
-			v[0].tu = obj->mesh->faceTC[v0a].v[0]/1024.0;
-			v[0].tv = obj->mesh->faceTC[v0a].v[1]/1024.0;
-			v[0].color = D3DRGB(c1->v[0],c1->v[1],c1->v[2]);
-			v[0].specular = D3DRGB(0,0,0);
+			vTemp->specular = 0;
+			vTemp->sx = tV[v1].v[X];
+			vTemp->sy = tV[v1].v[Y];
+			vTemp->sz = (tV[v1].v[Z]+DIST)/2000;//2000;
+			vTemp->tu = obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0);
+			vTemp->tv = obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0);
+			vTemp->color = D3DRGB(c2->v[0],c2->v[1],c2->v[2]);
+		
+			vTemp++;
 
-			v[1].sx = tV[v1].v[X];
-			v[1].sy = tV[v1].v[Y];
-			v[1].sz = (tV[v1].v[Z]+DIST)/2000;
-			v[1].rhw = 1/v[1].sz;
-			v[1].tu = obj->mesh->faceTC[v1a].v[0]/1024.0;
-			v[1].tv = obj->mesh->faceTC[v1a].v[1]/1024.0;
-			v[1].color = D3DRGB(c2->v[0],c2->v[1],c2->v[2]);
-			v[1].specular = D3DRGB(0,0,0);
+			vTemp->specular = 0;
+			vTemp->sx = tV[v2].v[X];
+			vTemp->sy = tV[v2].v[Y];
+			vTemp->sz = (tV[v2].v[Z]+DIST)/2000;///2000;
+			vTemp->tu = obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0);
+			vTemp->tv = obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0);
+			vTemp->color = D3DRGB(c3->v[0],c3->v[1],c3->v[2]);
+			
+		
 
-			v[2].sx = tV[v2].v[X];
-			v[2].sy = tV[v2].v[Y];
-			v[2].sz = (tV[v2].v[Z]+DIST)/2000;
-			v[2].rhw = 1/v[2].sz;
-			v[2].tu = obj->mesh->faceTC[v2a].v[0]/1024.0;
-			v[2].tv = obj->mesh->faceTC[v2a].v[1]/1024.0;
-			v[2].color = D3DRGB(c3->v[0],c3->v[1],c3->v[2]);
-			v[2].specular = D3DRGB(0,0,0);
-	
-			Clip3DPolygon(v,obj->mesh->textureIDs[i]);
+			if (v[0].sx <0)
+				if (v[1].sx<0)
+					if (v[2].sx<0)
+						drawme = 0;
+			
+			if (v[0].sy <0)
+				if (v[1].sy<0)
+					if (v[2].sy<0)
+						drawme = 0;
+
+			if (v[0].sx >640)
+				if (v[1].sx>640)
+					if (v[2].sx>640)
+						drawme = 0;
+			
+			if (v[0].sy >480)
+				if (v[1].sy>480)
+					if (v[2].sy>480)
+						drawme = 0;
+
+			if (drawme)
+				Clip3DPolygon(v,obj->mesh->textureIDs[i]);
 		
 		/*	SetTexture (obj->mesh->textureIDs[i]);
 			if (obj->mesh->textureIDs[i])
