@@ -918,7 +918,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 								break;
 
 							// Set DInput key in keymap
-							keymap[keyIndex].key = code;
+							keymap[keyIndex+i].key = code;
 
 							// Reset and remake the key list
 							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
@@ -998,6 +998,9 @@ BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam
             
 			SetTimer( hDlg, 0, 100, NULL );	// poll every 100ms
 			return TRUE;
+
+		case WM_KEYDOWN:
+			// fall through..
 
 		case WM_TIMER:
 			if (lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable) == DI_OK)
