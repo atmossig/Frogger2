@@ -24,7 +24,7 @@ char frogModel[4][16] =
 	"frogger.obe",
 	"toad.obe",
 	"femfrog.obe",
-	"frogger.obe"
+	"twee.obe"
 };
 
 //----------------------------------------------------------------------------//
