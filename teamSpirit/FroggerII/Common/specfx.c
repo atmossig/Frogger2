@@ -1148,7 +1148,7 @@ void ProcessAttachedEffects( void *entity, int type )
 
 		act = plt->pltActor;
 		SetVector( &normal, &plt->inTile[0]->normal );
-		tile = plt->inTile;
+		tile = plt->inTile[0];
 		flags = plt->flags;
 		path = plt->path;
 	}
@@ -1383,7 +1383,7 @@ void CreateBlastRing( )
 	}
 }
 #else
-void CreateBlastRing( )
+void CreateBlastRing()
 {
 	float tesa, tesb, teca, tecb, pB, arcStep = PI2 / NUM_RINGSEGS;
 	unsigned long i, v;
@@ -1404,7 +1404,7 @@ void CreateBlastRing( )
 		teca = cosf(pB);
 		tecb = cosf(pB + arcStep);
 
-		vRPtr = ringVtx;
+		vRPtr = &ringVtx[i];
 
 		V(vRPtr++,tesa,0.5,teca,0,1024,1024,255,255,255,255);
 		V(vRPtr++,tesb,0.5,tecb,0,0,1024,255,255,255,255);
