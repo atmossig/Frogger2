@@ -597,7 +597,7 @@ void main()
 	backDrop.draw = FALSE;
 
 	// show all legal screens and FMV
-	showLegalFMV(1);	//0);
+	showLegalFMV(0);
 
 	CommonInit();
 
