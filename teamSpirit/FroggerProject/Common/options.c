@@ -2655,7 +2655,7 @@ void SetMusicVolume()
 }
 
 
-#define MAX_ARTWORK 22
+#define MAX_ARTWORK 21
 
 #ifdef PSX_VERSION
 // on the PSX everything is read from CD .. we just want to do this specially
