@@ -29,7 +29,7 @@ static float frogAnimSpeed2		= 0.9F;
 int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
 
-unsigned long standardHopFrames = 8;
+unsigned long standardHopFrames = 7;
 unsigned long superHopFrames	= 32;
 unsigned long doubleHopFrames	= 44;
 unsigned long quickHopFrames	= 4;
