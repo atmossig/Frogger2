@@ -91,6 +91,33 @@ PLATFORM *GetPlatformFromUID(long uid)
 	return NULL;
 }
 
+long KillFrogReactive(long num,ENEMY *nme)
+{
+		long enemyType;
+
+		enemyType = 0;
+		
+		if (gstrcmp(nme->nmeActor->actor->objectController->object->name,"rolhrt")==0)
+			enemyType = 1;
+
+		switch (enemyType)
+		{
+			case 0:
+				AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+				frog[num]->action.dead = 50;
+				break;
+			case 1:
+				AnimateActor(frog[num]->actor, FROG_ANIM_ROLLERDEATH, NO, NO, 0.25F, 0, 0);
+				frog[num]->action.dead = 100;
+				break;
+		}
+		
+
+		frog[num]->action.healthPoints = 3;
+		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		player[num].frogState |= FROGSTATUS_ISDEAD;
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: InitPlatformsForLevel
 	Purpose			: initialise platforms and their movement for specified level

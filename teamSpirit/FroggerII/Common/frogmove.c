@@ -113,6 +113,16 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	Returns			: void
 	Info			:
 */
+
+unsigned long lastHopOn;
+unsigned long freq = 128;
+
+unsigned long frogPitchTime = 15;
+unsigned long frogPitchAddr = 2;
+unsigned long frogPitchSubr = 8;
+unsigned long frogPitchMax = 128;
+unsigned long frogPitchMin = 110;
+
 BOOL UpdateFroggerControls(long pl)
 {
 	/* ----------------------- Frog wants to HOP u/d/l/r ----------------------------- */
@@ -120,6 +130,7 @@ BOOL UpdateFroggerControls(long pl)
 	if(player[pl].frogState & (FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD))
 	{
 		int dir;
+		long actF;
 
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGU)		dir = MOVE_UP;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGD)	dir = MOVE_DOWN;
@@ -130,9 +141,20 @@ BOOL UpdateFroggerControls(long pl)
 		frogFacing[pl] = (camFacing + dir) & 3;
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-
-		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,255,128);
-
+		
+		
+		if ((actFrameCount-lastHopOn)<frogPitchTime)
+		{
+			if (freq<frogPitchMax)
+				freq+=frogPitchAddr;
+		}
+		else
+			freq = frogPitchMin;
+		
+		actF = freq+Random(10);
+		
+		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
+		lastHopOn = actFrameCount;
 		MoveToRequestedDestination(dir,pl);
 	}
 
@@ -522,6 +544,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		anim = FROG_ANIM_STDJUMP;
 		speed = frogAnimSpeed;
 		speed2 = frogAnimSpeed2;
+		
 	}
 
 	switch( direction )
