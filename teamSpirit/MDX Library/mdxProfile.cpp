@@ -238,8 +238,8 @@ void PrintTimers(void)
 	int i;
 	HDC hdc;
 
-	if (pDirect3DDevice->GetInfo(D3DDEVINFOID_TEXTUREMANAGER ,&t2,sizeof(t2))==S_FALSE)
-		dp("Release D3D installed, couldn't retrieve texture info\n");
+	pDirect3DDevice->GetInfo(D3DDEVINFOID_TEXTUREMANAGER ,&t2,sizeof(t2));
+//		dp("Release D3D installed, couldn't retrieve texture info\n");
 
 	if (t2.bThrashing)
 		thrashes++;
