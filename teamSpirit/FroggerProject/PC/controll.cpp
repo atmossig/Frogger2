@@ -1339,6 +1339,21 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 						in.close();
 					}
+					else
+					{
+//						if (MessageBox(hDlg, GAMESTRING(STR_PCSETUP_DEFAULTKEYS), GAMESTRING(STR_PCSETUP_CONTROLS), MB_ICONQUESTION|MB_YESNO) == IDYES)
+//						{
+							ResetControllerSetup();
+							for (int player = 0; player < 4; player++)
+							{
+								HWND combo = GetDlgItem(hDlg, IDC_PLAYER1 + player);
+								if (controllers[player] == KEYBOARD)
+									SendMessage(combo, CB_SETCURSEL, 0, 0);
+								else
+									SendMessage(combo, CB_SETCURSEL, (controllers[player]&(GAMEPAD-1))+1, 0);
+							}
+//						}
+					}
 
 					keyIndex = 0;
 					EndDialog(hDlg,FALSE);
