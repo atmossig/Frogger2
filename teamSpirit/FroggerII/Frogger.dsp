@@ -927,11 +927,19 @@ SOURCE=.\Backtile.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=".\Completed Tasks.txt"
+# End Source File
+# Begin Source File
+
 SOURCE=.\f2logo.bmp
 # End Source File
 # Begin Source File
 
 SOURCE=.\icon1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=X:\TeamSpirit\pcversion\reactive.txt
 # End Source File
 # Begin Source File
 
@@ -948,15 +956,7 @@ SOURCE=X:\TeamSpirit\pcversion\buglist.txt
 # End Source File
 # Begin Source File
 
-SOURCE=".\Completed Tasks.txt"
-# End Source File
-# Begin Source File
-
 SOURCE=.\devlog.txt
-# End Source File
-# Begin Source File
-
-SOURCE=X:\TeamSpirit\pcversion\reactive.txt
 # End Source File
 # Begin Source File
 
