@@ -92,6 +92,7 @@ extern unsigned long xluZRS[];
 extern unsigned long xluSubRS[];
 extern unsigned long xluAddRS[];
 extern unsigned long xluSemiRS[];
+extern unsigned long noZRS[];
 
 extern long softScreen[640*480];
 
