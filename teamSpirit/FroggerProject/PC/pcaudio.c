@@ -116,9 +116,9 @@ void LoadSfx( unsigned long worldID )
 
 	genSfx[GEN_FROG_HOP] = FindSample(UpdateCRC("hopongrass"));
 	genSfx[GEN_SUPER_HOP] = FindSample(UpdateCRC("hop2"));
-	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("FroggerB"));
+	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("doublehop"));
 	genSfx[GEN_COLLECT_BABY] = FindSample(UpdateCRC("getbabyfrog"));
-	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("FroggerF"));
+	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("tongue"));
 	genSfx[GEN_COLLECT_COIN] = FindSample(UpdateCRC("pickupcoin"));
 	genSfx[GEN_CROAK] = FindSample(UpdateCRC("frogcroak"));
 	genSfx[GEN_DROWN] = FindSample(UpdateCRC("frogdrown"));
@@ -126,6 +126,7 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYSAD] = FindSample(UpdateCRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(UpdateCRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(UpdateCRC("babyreply"));
+	genSfx[GEN_DEATH] = FindSample(UpdateCRC("frogdeath"));
 
 	path[len] = '\0';
 
