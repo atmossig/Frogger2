@@ -179,6 +179,29 @@ void LoadObjectBank(int objectBank)
 		case HALLOWEENMULTI_OBJ_BANK:
 			strcpy(fileName, "halloweenmulti"); break;
 
+// Swampys world
+
+		case SWAMPYWORLDMASTER_OBJ_BANK:
+			strcpy(fileName, "halloweenmaster"); break;
+
+		case SWAMPYWORLDLEV1_OBJ_BANK:
+			strcpy(fileName, "halloween1"); break;
+
+		case SWAMPYWORLDLEV2_OBJ_BANK:
+			strcpy(fileName, "halloween2"); break;
+
+		case SWAMPYWORLDLEV3_OBJ_BANK:
+			strcpy(fileName, "halloween3"); break;
+
+		case SWAMPYWORLDBOSS_OBJ_BANK:
+			strcpy(fileName, "halloweenboss"); break;
+
+		case SWAMPYWORLDBOSSB_OBJ_BANK:
+			strcpy(fileName, "halloweenbossb");	break;
+
+		case SWAMPYWORLDMULTI_OBJ_BANK:
+			strcpy(fileName, "halloweenmulti"); break;
+
 // Super-retro
 		case RETROLEV1_OBJ_BANK:
 			strcpy(fileName,"sretro1");
@@ -278,6 +301,10 @@ void LoadTextureBank(int textureBank)
 
 		case HALLOWEEN_TEX_BANK:
 			strcpy(fileName, "Halloween");
+			break;
+
+		case SWAMPYWORLD_TEX_BANK:
+			strcpy(fileName, "SwampyWorld");
 			break;
 		
 		case SUPERRETRO_TEX_BANK:
