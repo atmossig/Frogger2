@@ -72,7 +72,7 @@ char	newDesiredFrameRate = 2;
 
 int		appActive		= 0;
 
-#define REGISTRY_KEY "Software\\Hasbro Interactive\\Frogger 2"
+#define REGISTRY_KEY "Software\\Atari\\Frogger2"
 
 static GUID     guID;
 
