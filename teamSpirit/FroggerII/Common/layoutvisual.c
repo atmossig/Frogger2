@@ -392,6 +392,7 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	InitInGameTextOverlays(worldID,levelID);
 
 #ifdef PC_VERSION
+	LoadSfx ( worldID );
 //	LoadDemoSamples();
 #endif
 
