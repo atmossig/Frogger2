@@ -797,6 +797,8 @@ void DrawGraphics()
 	StartTimer(3,"DrawActorList");
 	DrawActorList();	
 	EndTimer(3);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 
 	DrawBatchedPolys();
 	BlankFrame();
@@ -815,12 +817,13 @@ void DrawGraphics()
 	BlankFrame();
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
-
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
+
 
 	DrawBatchedPolys();
 	BlankFrame();
