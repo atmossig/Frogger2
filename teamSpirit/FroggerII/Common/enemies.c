@@ -353,26 +353,8 @@ void UpdateEnemies()
 					cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[0].waitTime * waitScale);
 					cur->isSnapping = 0;
 
-					if( tile == FindNearestTile(frog[0]->actor->pos) ) // If frog is still on the target tile
-					{
-						frog[0]->action.healthPoints--;
-						
-						if(frog[0]->action.healthPoints != 0)
-						{
-							cameraShake = 25;
-							PlaySample(42,NULL,192,128);
-							frog[0]->action.safe = 25;
-						}
-						else
-						{
-							PlaySample(110,NULL,192,128);
-							AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-							frog[0]->action.dead = 50;
-							frog[0]->action.healthPoints = 3;
-							frog[0]->action.deathBy = DEATHBY_NORMAL;
-							player[0].frogState |= FROGSTATUS_ISDEAD;
-						}
-					}
+					if( (tile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) ) // If frog is still on the target tile
+						DamageFrog(0);
 					break;
 
 				case SNAPPER_TIME: 				// Snap animation
@@ -420,26 +402,8 @@ void UpdateEnemies()
 					cur->isSnapping = 0;
 
 					// If the frog is on our current target tile
-					if( cur->path->nodes[cur->path->fromNode].worldTile == currTile[0] )//FindNearestTile(frog[0]->actor->pos) )
-					{
-						frog[0]->action.healthPoints--;
-						
-						if(frog[0]->action.healthPoints != 0)
-						{
-							cameraShake = 25;
-							PlaySample(42,NULL,192,128);
-							frog[0]->action.safe = 25;
-						}
-						else
-						{
-							PlaySample(110,NULL,192,128);
-							AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-							frog[0]->action.dead = 50;
-							frog[0]->action.healthPoints = 3;
-							frog[0]->action.deathBy = DEATHBY_NORMAL;
-							player[0].frogState |= FROGSTATUS_ISDEAD;
-						}
-					}
+					if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )//FindNearestTile(frog[0]->actor->pos) )
+						DamageFrog(0);
 					break;
 
 				case SNAPPER_TIME:
@@ -451,7 +415,7 @@ void UpdateEnemies()
 					break;
 				}
 			}
-			else if( cur->flags & ENEMY_NEW_VENT_UP ) // Speed on flag is how long the vent fires for, waittime is delay between bursts
+			else if( cur->flags & ENEMY_NEW_VENT ) // Speed on flag is how long the vent fires for, waittime is delay between bursts
 			{
 				PATH *path = cur->path;
 
@@ -485,13 +449,20 @@ void UpdateEnemies()
 					}
 
 					// Create fx
+					/* TODO: Options for different types of effects specified in the effects thing. Need effects first...
+					if( cur->nmeActor->effects & EF_FLAMEBURST_UP )
+					{
+
+					}
+					else if...
+					*/
 					SetVector(&rebound.point,&cur->inTile->centre);
 					SetVector(&rebound.normal,&cur->inTile->normal);
-					CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, 10*path->numNodes, 30, &rebound, 10*path->numNodes );
+					CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, cur->nmeActor->animSpeed*path->numNodes, 30, &rebound, cur->nmeActor->value1*path->numNodes );
 
 					// Check for collision with frog, and do damage
 					for( i=0; i < path->numNodes; i++ )
-						if( path->nodes[i].worldTile == currTile[0] )
+						if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )
 							DamageFrog(0);
 
 					break;

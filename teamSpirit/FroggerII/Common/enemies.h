@@ -102,9 +102,8 @@ enum
 #define ENEMY_NEW_SNAPTILES				(1 << 19)	// Snap at a tilelist
 #define ENEMY_NEW_MOVEONMOVE			(1 << 20)	// Move towards frog when it moves
 #define ENEMY_NEW_FOLLOWFROG			(1 << 21)	// Follow where the frog has been
-#define ENEMY_NEW_VENT_UP				(1 << 22)	// Like a geyser - one tile
-#define ENEMY_NEW_VENT_ACROSS			(1 << 23)	// Like a flamethrower - path
-#define ENEMY_NEW_NODAMAGE				(1 << 24)	// Don't hurt the frog on collision
+#define ENEMY_NEW_VENT					(1 << 22)	// Like a geyser - one tile
+#define ENEMY_NEW_NODAMAGE				(1 << 23)	// Don't hurt the frog on collision
 
 typedef struct TAGENEMY
 {
