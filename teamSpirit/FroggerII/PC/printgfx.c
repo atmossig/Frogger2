@@ -25,8 +25,12 @@ long numSprites;
 float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 
 void Clip3DPolygon (D3DTLVERTEX in[3], long texture);
+
 void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i );
+void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
+
 void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex );
+void DrawTongue( TONGUE *t );
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
@@ -345,6 +349,8 @@ void PrintSprite(SPRITE *sprite)
 */
 void DrawSpecialFX()
 {
+	int i;
+
 	if ( ( gameState.mode == INGAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
 		 ( gameState.mode == CAMEO_MODE ) )
 	{
@@ -357,6 +363,10 @@ void DrawSpecialFX()
 				if( fx->Draw )
 					fx->Draw( fx );
 		}
+
+		for( i=0; i<NUM_FROGS; i++ )
+			if( tongue[i].flags & TONGUE_BEINGUSED )
+				DrawTongue( &tongue[i] );
 	}
 }
 
@@ -433,101 +443,6 @@ void ProcessShadows()
 		}
 	}*/
 }
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: DrawTongue
-	Purpose			: er, draw Frogger's tongue.....
-	Parameters		:
-	Returns			:
-	Info			:
-*/
-
-void DrawTongue()
-{
-/*
-	Vtx *tongueVtxPtr	= NULL;
-	Vtx *tongueVtxPtr2	= NULL;
-	unsigned long i = 0,tv = 0;
-	int x,y,z;
-	
-	if(tongueSegment < 1)
-		return;
-
-	gDPPipeSync(glistp++);
-	gSPClearGeometryMode(glistp++,G_CULL_BACK);
-
-	tongueVtxPtr	= &tongueVtx[0];
-	tongueVtxPtr2	= &tongueVtx2[0];
-	for(i=0; i<tongueSegment-1; i++)
-	{
-		x = tongueCoords[i].v[X] + (2 * fu.v[X]);
-		y = tongueCoords[i].v[Y] + (2 * fu.v[Y]);
-		z = tongueCoords[i].v[Z] + (2 * fu.v[Z]);
-		V((tongueVtxPtr),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr++;
-
-		x = tongueCoords[i].v[X] - (2 * fu.v[X]);
-		y = tongueCoords[i].v[Y] - (2 * fu.v[Y]);
-		z = tongueCoords[i].v[Z] - (2 * fu.v[Z]);
-		V((tongueVtxPtr),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr++;
-
-		x = tongueCoords[i+1].v[X] + (2 * fu.v[X]);
-		y = tongueCoords[i+1].v[Y] + (2 * fu.v[Y]);
-		z = tongueCoords[i+1].v[Z] + (2 * fu.v[Z]);
-		V((tongueVtxPtr),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr++;
-
-		x = tongueCoords[i+1].v[X] - (2 * fu.v[X]);
-		y = tongueCoords[i+1].v[Y] - (2 * fu.v[Y]);
-		z = tongueCoords[i+1].v[Z] - (2 * fu.v[Z]);
-		V((tongueVtxPtr),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr++;
-
-//-----------------------------------------
-
-		x = tongueCoords[i].v[X] + (2 * fr.v[X]);
-		y = tongueCoords[i].v[Y] + (2 * fr.v[Y]);
-		z = tongueCoords[i].v[Z] + (2 * fr.v[Z]);
-		V((tongueVtxPtr2),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr2++;
-
-		x = tongueCoords[i].v[X] - (2 * fr.v[X]);
-		y = tongueCoords[i].v[Y] - (2 * fr.v[Y]);
-		z = tongueCoords[i].v[Z] - (2 * fr.v[Z]);
-		V((tongueVtxPtr2),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr2++;
-
-		x = tongueCoords[i+1].v[X] + (2 * fr.v[X]);
-		y = tongueCoords[i+1].v[Y] + (2 * fr.v[Y]);
-		z = tongueCoords[i+1].v[Z] + (2 * fr.v[Z]);
-		V((tongueVtxPtr2),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr2++;
-
-		x = tongueCoords[i+1].v[X] - (2 * fr.v[X]);
-		y = tongueCoords[i+1].v[Y] - (2 * fr.v[Y]);
-		z = tongueCoords[i+1].v[Z] - (2 * fr.v[Z]);
-		V((tongueVtxPtr2),x,y,z,0,1024,1024,255,0,0,255);
-		tongueVtxPtr2++;
-
-//-----------------------------------------
-
-		gSPVertex(glistp++,&(tongueVtx[tv]),4,0);
-		gSP2Triangles(glistp++,0,1,2,0,0,3,2,0);
-
-		gSPVertex(glistp++,&(tongueVtx2[tv]),4,0);
-		gSP2Triangles(glistp++,0,1,2,0,0,3,2,0);
-
-		tv += 4;
-	}
-
-	gDPPipeSync(glistp++);
-	gSPSetGeometryMode(glistp++,G_CULL_BACK);
-*/
-}
-
-
 
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
@@ -1211,6 +1126,105 @@ void TransformAndDrawPolygon( POLYGON *p )
 		Clip3DPolygon( vT, tex );
 		Clip3DPolygon( &vT[2], tex );
 	}
+
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
+}
+
+
+void DrawTongue( TONGUE *t )
+{
+	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
+	D3DTLVERTEX vT[4], vTPrev[2];
+	TEXENTRY *tEntry;
+
+	if( index < 2 )
+		return;
+
+	vT[0].specular = D3DRGB(0,0,0);
+	vT[0].tu = 1;
+	vT[0].tv = 1;
+	vT[1].specular = vT[0].specular;
+	vT[1].tu = 0;
+	vT[1].tv = 1;
+	vT[2].specular = vT[0].specular;
+	vT[2].tu = 0;
+	vT[2].tv = 0;
+	vT[3].specular = vT[0].specular;
+	vT[3].tu = 1;
+	vT[3].tv = 0;
+
+
+	while( i < index )
+	{
+		/*********-[ First 2 points ]-********/
+		if( i && vTPrev[0].sz && vTPrev[1].sz )
+			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
+		else
+			CalcTongueNodes( vT, t, i );
+
+		/*********-[ Next 2 points ]-********/
+		CalcTongueNodes( &vT[2], t, i+1 );
+		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 ); 			// Store first 2 vertices of the next segment
+
+		/*********-[ Draw the polys ]-********/
+		tEntry = ((TEXENTRY *)t->tex);
+		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
+		{
+			Clip3DPolygon( vT, tEntry->hdl );
+			Clip3DPolygon( &vT[1], tEntry->hdl );
+		}
+
+		i++;
+	}
+}
+
+
+void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
+{
+	QUATERNION q, cross;
+	float p;
+	VECTOR pos, m, normal;
+
+	SetVector( &pos, &t->segment[i] );
+	// Translate to current fx pos and push
+	guTranslateF( tMtrx, pos.v[X], pos.v[Y], pos.v[Z] );
+	PushMatrix( tMtrx );
+
+	SubVector( &normal, &currCamSource[0], &pos );
+	MakeUnit( &normal );
+	CrossProduct( (VECTOR *)&cross, &normal, &upVec );
+	MakeUnit( (VECTOR *)&cross );
+	p = DotProduct( &normal, &upVec );
+	cross.w = acos(p);
+	GetQuaternionFromRotation( &q, &cross );
+	QuaternionToMatrix( &q, (MATRIX *)rMtrx );
+
+	// Precalculated rotation
+	PushMatrix( (MATRIX *)rMtrx );
+
+	vT[0].sx = 5;
+	vT[0].sy = 0;
+	vT[0].sz = 0;
+	vT[0].color = D3DRGBA(1,1,1,1);
+	vT[1].sx = -5;
+	vT[1].sy = 0;
+	vT[1].sz = 0;
+	vT[1].color = vT[0].color;
+
+	// Transform point by combined matrix
+	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+
+	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
+	XfmPoint( &m, &pos );
+	vT[0].sx = m.v[X];
+	vT[0].sy = m.v[Y];
+	vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
+	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
+	XfmPoint( &m, &pos );
+	vT[1].sx = m.v[X];
+	vT[1].sy = m.v[Y];
+	vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
