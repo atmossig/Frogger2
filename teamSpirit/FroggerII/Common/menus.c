@@ -149,7 +149,7 @@ void RunTitleScreen( )
 			case 3:
 				FreeAllLists();
 				gameState.oldMode = FRONTEND_MODE;
-				//gameState.mode = DEVELOPMENTMENU_MODE;
+				frontEndState.mode = DEVELOPMENTMENU_MODE;
 				frameCount = 0;
 				lastbutton = 0;
 				PlaySample ( 2,NULL,255,128);
