@@ -464,6 +464,7 @@ void StartMultiWinGame( )
 
 	mgWin = (MULTIGAMEWIN *)MALLOC0(sizeof(MULTIGAMEWIN));
 
+	multiHud.centreText->yPos = 1600;
 	switch( multiplayerMode )
 	{
 	case MULTIMODE_RACE:
@@ -496,7 +497,6 @@ void StartMultiWinGame( )
 		{
 			sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
 		}
-		multiHud.centreText->yPos = 1600;
 		multiHud.centreText->a = 0;
 		multiHud.centreText->scale = 4096;
 		gameState.mode = MULTI_WINCOLLECT_MODE;
@@ -993,6 +993,7 @@ void DoEndMulti()
 #ifdef PC_VERSION
 				checkMenuKeys = 0;
 #endif
+				multiHud.centreText->yPos = 900;
 				RestartMulti();
 				gameState.mode = INGAME_MODE;
 				menuText[0]->draw = menuText[1]->draw = 0;
