@@ -487,6 +487,14 @@ void DrawBatchedPolys (void)
 
 }
 
+void SetTexture(MDX_TEXENTRY *me)
+{
+	if (me)
+		pDirect3DDevice->SetTexture(0,me->surf);
+	else
+		pDirect3DDevice->SetTexture(0,0);
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: DrawFlatRect
 	Purpose			: draw a flat rectangle
