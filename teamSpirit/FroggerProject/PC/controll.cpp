@@ -795,6 +795,8 @@ BOOL InitKeyboardControl()
 	return TRUE;
 }
 
+int menuKey[7] = {DIK_UP,DIK_DOWN,DIK_LEFT,DIK_RIGHT,DIK_RETURN,0,DIK_ESCAPE};
+int checkMenuKeys = 0;
 void ProcessKeyboardInput()
 {
 
@@ -845,6 +847,16 @@ void ProcessKeyboardInput()
 			//controllerdata[keymap[i].player].button |= keymap[i].button;
 			padData.digital[keymap[i].player] |= keymap[i].button;
 		}
+
+	if(checkMenuKeys)
+	{
+		for(i = 0;i < 7;i++)
+		{
+			if((menuKey[i]) && (KEYPRESS(menuKey[i])))
+				padData.digital[0] |= keymap[i].button;
+		}
+	}
+
 
 	if( debugKeys )
 	{

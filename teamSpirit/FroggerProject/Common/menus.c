@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <pcaudio.h>
 #include <Main.h>
+#include <controll.h>
 #else
 #include "Textures.h"
 #include "temp_psx.h"
@@ -182,6 +183,9 @@ void StartPauseMenu()
 {
 	int i;
 
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
 	pauseFrameCount = 0;
 	quittingLevel = NO;
 	pauseConfirmMode = NO;
@@ -342,6 +346,9 @@ void RunPauseMenu()
 	{
 		if(fadingOut == 0)
 		{
+#ifdef PC_VERSION
+			checkMenuKeys = 0;
+#endif
 			if(quittingLevel == 1)
 			{
 				if( UndoChangeModel( frog[0]->actor ) )
@@ -528,6 +535,9 @@ void RunPauseMenu()
 				}
 				else
 				{
+#ifdef PC_VERSION
+					checkMenuKeys = 0;
+#endif
 					if( player[0].worldNum == WORLDID_FRONTEND && player[0].levelNum == LEVELID_FRONTEND1 )
 					{
 						gameState.mode = FRONTEND_MODE;
@@ -777,6 +787,9 @@ void RunFrontendGameLoop (void)
 	// ENDIF
 #endif
 
+#ifdef PC_VERSION
+	checkMenuKeys = 0;
+#endif
 	if(goingToDemo)
 	{
 		if(fadingOut == 0)

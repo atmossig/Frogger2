@@ -48,6 +48,7 @@
 #include <banks.h>
 #include <backdrop.h>
 #include <video.h>
+#include <controll.h>
 #elif PSX_VERSION
 #include "backdrop.h"
 #include "Textures.h"
@@ -1464,6 +1465,9 @@ void RunOptionsMenu(void)
 
 	int oldTime;
 
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
 	options.numPText->text = options.numPStr;
 	options.numPText2->text = options.numPStr2;
 
