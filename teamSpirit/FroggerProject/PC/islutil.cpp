@@ -5,6 +5,8 @@
 #include <math.h>
 #include <windows.h>
 
+#define DEBUG_FILE "C:\\frogger2.log"
+
 //returns fixed format
 unsigned long utilSqrt(unsigned long num)
 {
@@ -27,6 +29,13 @@ int utilPrintf(char* fmt, ...)
 	vsprintf(buffer, fmt, args);
 	
 	OutputDebugString(buffer);
+
+	FILE *f = fopen(DEBUG_FILE, "a+ct");
+	if (f)
+	{
+		fputs(buffer, f);
+		fclose(f);
+	}
 
 	return 0;
 }
