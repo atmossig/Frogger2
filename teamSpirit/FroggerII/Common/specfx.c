@@ -98,9 +98,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->spin = 0.15;
 		effect->fade = effect->a / life;
 
-		effect->origin.v[X] += (effect->normal.v[X] * 10);
-		effect->origin.v[Y] += (effect->normal.v[Y] * 10);
-		effect->origin.v[Z] += (effect->normal.v[Z] * 10);
+		effect->origin.v[X] += (effect->normal.v[X] * 5);
+		effect->origin.v[Y] += (effect->normal.v[Y] * 5);
+		effect->origin.v[Z] += (effect->normal.v[Z] * 5);
 
 		effect->tex = txtrStar;
 		effect->Update = UpdateFXRipple;
@@ -163,6 +163,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		{
 			effect->particles[i].poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
 			effect->particles[i].a = (i+1)*(255/effect->numP);
+			SetVector( &effect->particles[i].pos, &effect->origin );
 			effect->particles[i].rMtrx = (float *)JallocAlloc( sizeof(float)*16, YES, "Mtx" );
 		}
 
@@ -268,9 +269,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	case FXTYPE_SMOKE_STATIC:
 	case FXTYPE_SMOKE_GROWS:
 	case FXTYPE_BUBBLES:
-		effect->vel.v[X] = (-2 + Random(4))*speed;
-		effect->vel.v[Y] = (Random(4) + 2)*speed;
-		effect->vel.v[Z] = (-2 + Random(4))*speed;
+		// Velocity is normal scaled by speed, plus a random offset scaled by speed
+		SetVector( &effect->vel, &effect->normal );
+		ScaleVector( &effect->vel, speed );
+		effect->vel.v[X] += (-1 + Random(2))*speed;
+		effect->vel.v[Y] += (-1 + Random(2))*speed;
+		effect->vel.v[Z] += (-1 + Random(2))*speed;
 		effect->fade = 180 / life;
 
 		effect->numP = 1;
@@ -362,9 +366,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			else
 				effect->particles[i].bounce = 0;
 
-			effect->particles[i].vel.v[X] = (effect->speed * effect->normal.v[X]) + (speed*(-2 + Random(4)));
-			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + (speed*Random(2));
-			effect->particles[i].vel.v[Z] = (effect->speed * effect->normal.v[Z]) + (speed*(-2 + Random(4)));
+			// Velocity is normal scaled by speed, plus a random offset scaled by speed
+			SetVector( &effect->particles[i].vel, &effect->normal );
+			ScaleVector( &effect->particles[i].vel, effect->speed );
+			effect->particles[i].vel.v[X] += (-1 + Random(2))*effect->speed;
+			effect->particles[i].vel.v[Y] += (-1 + Random(2))*effect->speed;
+			effect->particles[i].vel.v[Z] += (-1 + Random(2))*effect->speed;
 		}
 
 		effect->Update = UpdateFXExplode;
@@ -523,8 +530,8 @@ void UpdateFXBolt( SPECFX *fx )
 */
 void UpdateFXSmoke( SPECFX *fx )
 {
-	int fo;
-	float dist;
+	int fo, i;
+	float dist, vS = 1;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -549,10 +556,10 @@ void UpdateFXSmoke( SPECFX *fx )
 	fx->sprites->pos.v[X] += fx->vel.v[X] * gameSpeed;
 	fx->sprites->pos.v[Y] += fx->vel.v[Y] * gameSpeed;
 	fx->sprites->pos.v[Z] += fx->vel.v[Z] * gameSpeed;
-	
-	fx->vel.v[X] *= 0.95;
-	fx->vel.v[Y] *= 0.85;
-	fx->vel.v[Z] *= 0.95;
+
+	// Slow down gameSpeed times
+	for( i=0; i<(int)gameSpeed; i++, vS*=0.95 );
+	ScaleVector( &fx->vel, vS );
 
 	if( fx->type == FXTYPE_SMOKE_GROWS )
 	{
@@ -698,8 +705,8 @@ void UpdateFXSwarm( SPECFX *fx )
 */
 void UpdateFXExplode( SPECFX *fx )
 {
-	float dist;
-	int i = fx->numP, fo, ele;
+	float dist, vS;
+	int i = fx->numP, j, fo, ele;
 	VECTOR up;
 
 	if( fx->deadCount )
@@ -712,12 +719,15 @@ void UpdateFXExplode( SPECFX *fx )
 	if( fx->follow )
 		SetVector( &fx->origin, &fx->follow->pos );
 
+	// Slow down gameSpeed times
+	for( j=0; j<(int)gameSpeed; j++, vS*=0.95 );
+
 	while(i--)
 	{
 		if( fx->particles[i].bounce == 2 )
 			return;
 
-		ScaleVector( &fx->particles[i].vel, 0.98 );
+		ScaleVector( &fx->particles[i].vel, vS );
 
 		if( fx->gravity != 0 )
 		{
@@ -885,7 +895,6 @@ void AddTrailElement( SPECFX *fx, int i )
 		SubVector( &fx->particles[i].vel, &fx->particles[i].pos, &fx->particles[j].pos );
 		ScaleVector( &fx->particles[i].vel, fx->accn );
 	}
-	else SetVector( &fx->particles[i].vel, &zero );
 
 	// Rotate to be around normal
 	GetRotationFromQuaternion( &q, &fx->follow->qRot );
@@ -1090,7 +1099,8 @@ void ProcessAttachedEffects( void *entity, int type )
 	unsigned long flags, t;
 	PATH *path;
 
-	if( type == 1 ) // Thing is an enemy
+	// Nasty casting - should use generic structure for enemies and platforms"
+	if( type == ENTITY_ENEMY )
 	{
 		ENEMY *nme = (ENEMY *)entity;
 
@@ -1100,7 +1110,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		flags = nme->flags;
 		path = nme->path;
 	}
-	else
+	else if( type == ENTITY_PLATFORM )
 	{
 		PLATFORM *plt = (PLATFORM *)entity;
 
@@ -1141,22 +1151,22 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_SMOKE_STATIC )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.4, 0, 1.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 1.5, 0, 1.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.1, 0, 1.5 );
-				else // EF_MEDIUM
 					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.2, 0, 1.5 );
+				else // EF_MEDIUM
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.8, 0, 1.5 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}
 			if( act->effects & EF_SMOKE_GROWS )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.4, 0, 1.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.5, 0, 1.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.1, 0, 1.5 );
-				else // EF_MEDIUM
 					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, 0, 1.5 );
+				else // EF_MEDIUM
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.8, 0, 1.5 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}
@@ -1180,7 +1190,7 @@ void ProcessAttachedEffects( void *entity, int type )
 				if( act->effects & EF_FAST )
 					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 3, 0, 1.7 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.5, 0, 1.7 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.6, 0, 1.7 );
 				else // EF_MEDIUM
 					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 1.5, 0, 1.7 );
 
@@ -1189,11 +1199,11 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_FIERYSMOKE )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.0, 0, 2.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2, 0, 2.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.2, 0, 2.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.6, 0, 2.5 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.5, 0, 2.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.5, 0, 2.5 );
 
 //				SetAttachedFXColour( fx, act->effects );
 			}
@@ -1211,11 +1221,11 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_BUBBLES )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.5, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 1.5, 0, 0.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.1, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.2, 0, 0.5 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.3, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.6, 0, 0.5 );
 
 				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
 				SetVector( &up, &path->nodes[0].worldTile->normal );

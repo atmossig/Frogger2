@@ -188,7 +188,7 @@ void UpdateEnemies()
 
 		// Do Special Effects attached to enemies
 		if( cur->nmeActor->effects && !(cur->flags & ENEMY_NEW_VENT) )
-			ProcessAttachedEffects( (void *)cur, 1 );
+			ProcessAttachedEffects( (void *)cur, ENTITY_ENEMY );
 	}
 }
 
