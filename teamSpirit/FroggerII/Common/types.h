@@ -34,9 +34,12 @@
 
 #define BYTE	signed char
 #define UBYTE	unsigned char
-#define DWORD	int
+
+#ifndef PC_VERSION
+#define DWORD	unsigned long
 #define USHORT	unsigned short
 #define SHORT	short
+#endif
 
 #define MOD		%
 
@@ -66,8 +69,10 @@
 #define Max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 #define Min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
 
+#ifndef min
 #define min Min
 #define max Max
+#endif
 
 #define BOOL	int
 
