@@ -637,9 +637,9 @@ void CreateProceduralTexture ( char *name )
 	PROCTEXTURE *pt = (PROCTEXTURE *)MALLOC0( sizeof(PROCTEXTURE) );
 
 	// Set proc texture members
-	if ( !(pt->tex = textureFindCRCInAllBanks ( utilStr2CRC ( name ) ) )
+	if ( !(pt->tex = textureFindCRCInAllBanks ( utilStr2CRC ( name ) ) ) )
 	{
-		utilPrintf("Could Not Find Texture : %s", name);
+		utilPrintf("Could Not Find Texture : %s\n", name);
 		FREE ( pt );
 		return;
 	}
