@@ -11,6 +11,8 @@ extern SCENIC		*firstScenic;
 extern GAMETILE *firstTile;
 extern GAMETILE *gTStart[4];
 
+extern int numBabies;
+
 void LoadLevelEntities ( int worldID, int levelID );
 
 void LoadMapBank			( int collBank );
