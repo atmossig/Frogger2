@@ -35,6 +35,7 @@ unsigned long	playerInputPause;
 unsigned long	playerInputPause2;
 
 
+long joyAvail = 1;
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
 	Purpose		: initialises input devices
@@ -58,8 +59,7 @@ BOOL InitInputDevices()
 
 	if(!InitJoystickControl())
 	{
-		DeInitInputDevices();
-		return FALSE;
+		joyAvail = 0;
 	}
 
 	return TRUE;
@@ -76,7 +76,8 @@ void DeInitInputDevices()
 {
 	DeInitKeyboardControl();
 	DeInitMouseControl();
-	DeInitJoystick();
+	if (joyAvail)
+		DeInitJoystick();
 
 	if(lpDI)
 	{
@@ -267,14 +268,17 @@ void ProcessUserInput(HWND hWnd)
 	hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
 	if(FAILED(hRes))
 		return;
+	
+	if (joyAvail)
+	{
+		hRes = lpJoystick2->Poll();
+		if(FAILED(hRes))
+			return;
 
-	hRes = lpJoystick2->Poll();
-    if(FAILED(hRes))
-		return;
-
-	hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
-	if(FAILED(hRes))
-		return;
+		hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
+		if(FAILED(hRes))
+			return;
+	}
 
 	//----- [ KEYBOARD CONTROL ] -----//
 
@@ -308,7 +312,7 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_RIGHT) | (joy.lX > DEAD_ZONE))
 		controllerdata[0].button |= CONT_RIGHT;
 	
-	if (KEYPRESS(DIK_INSERT ))
+	if (KEYPRESS(DIK_INSERT ) | (joy.rgbButtons[0]))
 		controllerdata[0].button |= CONT_A;
 	
 	if (KEYPRESS(DIK_DELETE))
@@ -352,8 +356,8 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_Q))
 		controllerdata[1].button |= CONT_A;
 	
-//	if (KEYPRESS(DIK_A))
-//		controllerdata[1].button |= CONT_B;
+	//if (KEYPRESS(DIK_A))
+	//	controllerdata[1].button |= CONT_B;
 
 }
 
