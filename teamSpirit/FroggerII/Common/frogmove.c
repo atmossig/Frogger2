@@ -25,13 +25,13 @@ GAMETILE *longHopDestTile		= NULL;
 GAMETILE *currTile[4]			= {0,0,0,0};
 GAMETILE *prevTile				= NULL;
 
-static float frogAnimSpeed		= 0.5F;
+static float frogAnimSpeed		= 0.4F;
 static float frogAnimSpeed2		= 0.9F;
 
 int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
 
-unsigned long standardHopFrames = 7;
+unsigned long standardHopFrames = 8;
 unsigned long superHopFrames	= 18;
 unsigned long longHopFrames		= 24;
 unsigned long quickHopFrames	= 4;
@@ -40,7 +40,7 @@ unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 unsigned long longHopJumpDownDivisor		= 12;
 
-float frogGravity		= -4.0F;
+float frogGravity		= -5.0F;
 
 
 /*	--------------------------------------------------------------------------------
