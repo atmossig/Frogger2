@@ -390,6 +390,11 @@ int GetControllerSetup(void)
 		}
 		RegCloseKey(hkey);
 	}
+	else
+	{
+		// set default keymap
+		memcpy(keymap, defaultKeymap, 56*sizeof(KEYENTRY));
+	}
 
 	return 1;
 }
