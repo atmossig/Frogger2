@@ -208,6 +208,24 @@ void GameProcessController(long pl)
 
 	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
     {
+		int dir = player[pl].extendedHopDir;
+
+		if( button[pl] & CONT_UP )
+			dir = MOVE_UP;
+		else if( button[pl] & CONT_DOWN )
+			dir = MOVE_DOWN;
+		else if( button[pl] & CONT_LEFT )
+			dir = MOVE_LEFT;
+		else if( button[pl] & CONT_RIGHT )
+			dir = MOVE_RIGHT;
+
+//		frogFacing[pl] = nextFrogFacing[pl];
+		camFacing = nextCamFacing;
+
+		nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
+		player[pl].extendedHopDir = dir;
+		SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
+
 		if ( gameState.mode == CAMEO_MODE )
 			gameState.mode = INGAME_MODE;
 
@@ -217,24 +235,11 @@ void GameProcessController(long pl)
 
 		if( ((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && !(player[pl].hasDoubleJumped) )
 		{
-			int dir = player[pl].extendedHopDir;
 			GAMETILE *old;
 			PlaySample(GEN_FROG_DOUBLEHOP,&frog[pl]->actor->pos,0,200,60);
 
-			if( button[pl] & CONT_UP )
-				dir = MOVE_UP;
-			else if( button[pl] & CONT_DOWN )
-				dir = MOVE_DOWN;
-			else if( button[pl] & CONT_LEFT )
-				dir = MOVE_LEFT;
-			else if( button[pl] & CONT_RIGHT )
-				dir = MOVE_RIGHT;
-
 			old = currTile[pl];
-
 			currTile[pl] = destTile[pl];
-			frogFacing[pl] = nextFrogFacing[pl];
-			camFacing = nextCamFacing;
 
 			// player is superhopping - make frog double jump
 			if (MoveToRequestedDestination( dir, pl ))
@@ -251,8 +256,6 @@ void GameProcessController(long pl)
 
 			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
 			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
-			// To enable endless double jumping
-			//player[pl].hasDoubleJumped = 0;
 #ifdef N64_VERSION
 			StartRumble(100,1,3,ActiveController);
 #endif
