@@ -160,54 +160,6 @@ GARIB *GaribIsInTongueRange()
 	return NULL;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: BabyFrogIsInTongueRange
-	Purpose			: indicates if a baby frog is in range when tongueing
-	Parameters		: 
-	Returns			: ACTOR2 *
-	Info			: returns ptr to the nearest baby frog (if in range)
-*/
-ACTOR2 *BabyFrogIsInTongueRange()
-{
-	ACTOR2 *act,*nearest;
-	ACTOR2 *inRange[4];
-	float dist,mags[4];
-	int i = 0,numInRange = 0;
-
-	if(numBabies)
-	{
-		for(i=0; i<numBabies; i++)
-		{
-			if( babyList[i].baby )
-				if((!babyList[i].isSaved) && (babyList[i].baby->distanceFromFrog < (tongueRadius * tongueRadius)))
-				{
-					mags[numInRange]		= babyList[i].baby->distanceFromFrog;
-					inRange[numInRange++]	= babyList[i].baby;
-				}
-		}
-
-		if(numInRange)
-		{
-			// return closest baby frog
-			dist	= mags[0];
-			nearest	= inRange[0];
-			for(i=1; i<numInRange; i++)
-			{
-				if(mags[i] < dist)
-				{
-					dist	= mags[i];
-					nearest	= inRange[i];
-				}
-			}
-
-			return nearest;
-		}
-	}
-
-	// no baby frog in range
-	return NULL;
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: ScenicIsInTongueRange

@@ -247,6 +247,10 @@ BOOL LoadObjectBank(int num)
 			strcat (file,"submaster");
 			break;
 
+		case SUBTERRANEANMULTI_OBJ_BANK:
+			strcat( file, "submulti" );
+			break;
+
 		case SUBTERRANEANBOSS_OBJ_BANK:
 			strcat (file, "subboss");
 			break;

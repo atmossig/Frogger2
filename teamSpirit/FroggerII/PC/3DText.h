@@ -58,9 +58,9 @@ typedef struct _TEXT3DLIST
 extern TEXT3DLIST text3DList;
 
 
-extern void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, 
-							   short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, 
-							   long xO, long yO, long zO, float sinA, float sinS, float twA );
+extern TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, 
+									short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, 
+									long xO, long yO, long zO, float sinA, float sinS, float twA );
 extern void Print3DText( );
 extern void Calculate3DText( );
 extern void Init3DTextList( );

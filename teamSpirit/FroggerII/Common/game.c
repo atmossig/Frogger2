@@ -347,12 +347,13 @@ void GameProcessController(long pl)
 		{
 			livesTextOver->oa = livesTextOver->a;
 			scoreTextOver->oa = scoreTextOver->a;
-			timeTextOver->oa = timeTextOver->a;
 
 			livesTextOver->a = 0;
 			scoreTextOver->a = 0;
-			timeTextOver->a = 0;
 		}
+
+		timeTextOver->oa = timeTextOver->a;
+		timeTextOver->a = 0;
 
 		if (NUM_FROGS == 1)
 		{
@@ -510,7 +511,7 @@ void RunGameLoop (void)
 		{
 			player[0].lives				= 3;
 			player[0].score				= 0;
-			player[0].timeSec			= (90*30);
+			player[0].timeSec			= 90;
 			player[0].spawnTimer		= 0;
 			player[0].spawnScoreLevel	= 1;
 		}
@@ -633,10 +634,10 @@ void RunGameLoop (void)
 			if (NUM_FROGS == 1)
 			{
 				DisableTextOverlay(livesTextOver);
-				DisableTextOverlay(timeTextOver);
 				DisableTextOverlay(scoreTextOver);
 			}
 //				livesIcon->active = 0;
+			DisableTextOverlay(timeTextOver);
 
 
 			RunGameOverSequence();
@@ -740,13 +741,6 @@ void RunGameLoop (void)
 					levelIsOver		= 400;	
 
 //					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
-
-				
-					/*for ( i = 0; i < 3; i++ )
-					{
-						if ( 90 - ( player[0].timeSec/30 ) < worldHiScoreData[player[0].worldNum].levelScoreData[ player[0].levelNum ].scoreData[i].time )
-							EnableTextOverlay ( newLevelScore );		
-					}*/
 				}
 			}
 			else
@@ -798,21 +792,21 @@ void RunGameLoop (void)
 			}
 		}
 	}
-	
-	if( gameState.multi != SINGLEPLAYER )
+
+	if( gameState.multi == SINGLEPLAYER )
+		UpDateOnScreenInfo();
+	else
 	{
 		switch( player[0].worldNum )
 		{
 		case WORLDID_GARDEN:
 			UpdateRace( );
 			break;
-		case WORLDID_LABORATORY:
+		case WORLDID_SUBTERRANEAN:
 			UpdateCTF( );
 			break;
 		}
 	}
-
-	UpDateOnScreenInfo();
 
 	for (i=0; i<NUM_FROGS; i++)
 	{
@@ -982,7 +976,7 @@ void RunLevelCompleteSequence()
 
 	sprintf ( spawnCollected->text, "%d / 150", spawnCounter );
 
-	sprintf ( timeTemp, "%i secs", 90-(player[0].timeSec/30) );
+	sprintf ( timeTemp, "%i secs", 90-player[0].timeSec );
 
 	i = numBabies;
 	while(i--)

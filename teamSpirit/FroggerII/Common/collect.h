@@ -99,7 +99,6 @@ void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID);
 void CreateLevelCollectables(unsigned long *tileList, int type);
 
 GARIB *GaribIsInTongueRange();
-ACTOR2 *BabyFrogIsInTongueRange();
 GAMETILE *GrapplePointInTongueRange();
 ACTOR2 *ScenicIsInTongueRange();
 

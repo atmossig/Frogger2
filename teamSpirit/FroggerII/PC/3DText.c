@@ -12,10 +12,9 @@ TEXT3DLIST text3DList;
 	Returns			: 
 	Info			: Uses TEXT3D structure
 */
-void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, long xO, long yO, long zO, float sinA, float sinS, float twA )
+TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, long xO, long yO, long zO, float sinA, float sinS, float twA )
 {
-	TEXT3D *t;
-	TEXT3D *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
+	TEXT3D *t, *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
 	unsigned long len = strlen(str);
 	float tmp = PI2; // Don't ask why I have to do this, it's due to N64 remedial maths
 
@@ -71,7 +70,7 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	}
 
 	t3d->yOffs = yO;
-	t3d->zOffs = -zO;
+	t3d->zOffs = zO;
 
 	//t3d->timer = T360_TIMER; // Default value
 
@@ -86,6 +85,8 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	text3DList.numEntries++;
 
 	t3d->motion |= T3D_CREATED;
+
+	return t3d;
 }
 
 
@@ -101,15 +102,16 @@ void Print3DText( )
 {
 	TEXT3D *t3d;
 	unsigned long vx, c, len, i;
+	D3DTLVERTEX vT2[3];
 
 	VECTOR m, tmp;
 	float u, v, u2, v2;
-	short letterID;
-	static short f[6] = {0,1,2,0,2,3};
+	short letterID, zeroZ=0;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
@@ -148,16 +150,20 @@ void Print3DText( )
 				XfmPoint( &m, &tmp );
 				t3d->vT[vx+i].sx = m.v[0];
 				t3d->vT[vx+i].sy = m.v[1];
-				t3d->vT[vx+i].sz = m.v[2];
+				t3d->vT[vx+i].sz = (m.v[2]+DIST)*0.0005;
+				if( !m.v[2] ) zeroZ++;
 			}
 
-			DrawAHardwarePoly(&t3d->vT[vx],4,f,6,bigFont->hdl);
+			if( !zeroZ )
+			{
+				memcpy( &vT2[0], &t3d->vT[vx], sizeof(D3DTLVERTEX) );
+				memcpy( &vT2[1], &t3d->vT[vx+2], sizeof(D3DTLVERTEX) );
+				memcpy( &vT2[2], &t3d->vT[vx+3], sizeof(D3DTLVERTEX) );
+				Clip3DPolygon( &t3d->vT[vx], bigFont->hdl );
+				Clip3DPolygon( vT2, bigFont->hdl );
+			}
 		}
 	}
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -241,22 +247,22 @@ void MakeTextCircle( TEXT3D *t3d )
 
 		t3d->vT[v+0].sx = tesa;
 		t3d->vT[v+0].sy = yPa;
-		t3d->vT[v+0].sz = (teca+DIST)/2000;
+		t3d->vT[v+0].sz = teca;
 		t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+0].specular = D3DRGB(0,0,0);
 		t3d->vT[v+1].sx = tesb;
 		t3d->vT[v+1].sy = yPb;
-		t3d->vT[v+1].sz = (tecb+DIST)/2000;
+		t3d->vT[v+1].sz = tecb;
 		t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+1].specular = D3DRGB(0,0,0);
 		t3d->vT[v+2].sx = tesb;
 		t3d->vT[v+2].sy = yPc;
-		t3d->vT[v+2].sz = (tecb+DIST)/2000;
+		t3d->vT[v+2].sz = tecb;
 		t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+2].specular = D3DRGB(0,0,0);
 		t3d->vT[v+3].sx = tesa;
 		t3d->vT[v+3].sy = yPd;
-		t3d->vT[v+3].sz = (teca+DIST)/2000;
+		t3d->vT[v+3].sz = teca;
 		t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+3].specular = D3DRGB(0,0,0);
 	}
@@ -348,22 +354,22 @@ void MakeTextLine( TEXT3D *t3d )
 			}
 
 			t3d->vT[v+0].sx = pB+t3d->xOffs;
-			t3d->vT[v+0].sz = (zPa+DIST)/2000;
+			t3d->vT[v+0].sz = zPa;
 			t3d->vT[v+0].sy = yPa;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
 			t3d->vT[v+1].sx = pB-tS+t3d->xOffs;
-			t3d->vT[v+1].sz = (zPb+DIST)/2000;
+			t3d->vT[v+1].sz = zPb;
 			t3d->vT[v+1].sy = yPb;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
 			t3d->vT[v+2].sx = pB-tS+t3d->xOffs;
-			t3d->vT[v+2].sz = (zPc+DIST)/2000;
+			t3d->vT[v+2].sz = zPc;
 			t3d->vT[v+2].sy = yPc;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
 			t3d->vT[v+3].sx = pB+t3d->xOffs;
-			t3d->vT[v+3].sz = (zPd+DIST)/2000;
+			t3d->vT[v+3].sz = zPd;
 			t3d->vT[v+3].sy = yPd;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
@@ -466,22 +472,22 @@ void MakeTextLine( TEXT3D *t3d )
 			*/
 			t3d->vT[v+0].sx = xPa;
 			t3d->vT[v+0].sy = yPa;
-			t3d->vT[v+0].sz = (zPa+DIST)/2000;
+			t3d->vT[v+0].sz = zPa;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
 			t3d->vT[v+1].sx = xPb;
 			t3d->vT[v+1].sy = yPb;
-			t3d->vT[v+1].sz = (zPb+DIST)/2000;
+			t3d->vT[v+1].sz = zPb;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
 			t3d->vT[v+2].sx = xPc;
 			t3d->vT[v+2].sy = yPc;
-			t3d->vT[v+2].sz = (zPc+DIST)/2000;
+			t3d->vT[v+2].sz = zPc;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
 			t3d->vT[v+3].sx = xPd;
 			t3d->vT[v+3].sy = yPd;
-			t3d->vT[v+3].sz = (zPd+DIST)/2000;
+			t3d->vT[v+3].sz = zPd;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
@@ -807,19 +813,15 @@ void Free3DTextList( )
 {
 	TEXT3D *t3d, *t;
 
-	for( t3d = text3DList.head.next; t3d != &text3DList.head; )
+	for( t3d = text3DList.head.next; t3d && t3d != &text3DList.head; t3d = t->next)
 	{
-		if( t3d != NULL )
-		{
-			Sub3DText( t3d );
+		t = t3d->next;
 
-			JallocFree( (UBYTE **)&t3d->string );
-			JallocFree( (UBYTE **)&t3d->vT );
+		Sub3DText( t3d );
 
-			t = t3d->next;
-			JallocFree( (UBYTE **)&t3d );
-			t3d = t;
-		}
+		JallocFree( (UBYTE **)&t3d->string );
+		JallocFree( (UBYTE **)&t3d->vT );
+		JallocFree( (UBYTE **)&t3d );
 	}
 }
 

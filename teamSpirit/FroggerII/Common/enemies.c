@@ -107,7 +107,8 @@ void DoEnemyCollision( ENEMY *cur )
 				(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
-					PickupBabyFrogMulti( cur, i );
+				{}
+//					PickupBabyFrogMulti( cur, i );
 				else
 					KillMPFrog(i);
 			}
@@ -116,7 +117,8 @@ void DoEnemyCollision( ENEMY *cur )
 					!(player[i].frogState & FROGSTATUS_ISFLOATING))
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
-					PickupBabyFrogMulti( cur, i );
+				{}
+//					PickupBabyFrogMulti( cur, i );
 				else
 					KillMPFrog(i);
 			}
@@ -1010,7 +1012,8 @@ void UpdateRandomMoveNME( ENEMY *cur )
 			else rVec.v[Z] = -1;
 			path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &rVec );
 
-			cur->isWaiting = path->nodes[0].waitTime;
+			if( !(Random((int)act->value1+1)) )
+				cur->isWaiting = Random((int)path->nodes[0].waitTime);
 
 			if( cur->flags & ENEMY_NEW_BABYFROG )
 			{

@@ -18,7 +18,7 @@
 
 char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
-char timeText[32]	= "00:00";
+char timeText[32]	= "00:00      ";
 char spawnText[8];
 
 char timeTemp[6];
@@ -65,24 +65,26 @@ void UpDateOnScreenInfo ( void )
 {
 	int i;
 	static char tickTock = 0;
+	static long lastCount = 0;
 
 	sprintf(livesText,"*%lu",player[0].lives);	
 	sprintf(scoreText,"%lu",player[0].score);
 
-	if (NUM_FROGS == 1)
+	if(scoreTextOver->a && !levelIsOver)
 	{
-		if(scoreTextOver->a && !levelIsOver)
-		{
-			scoreTextOver->a -= 8;
-			if(scoreTextOver->a < 8)
-				scoreTextOver->a = 0;
-		}
+		scoreTextOver->a -= 8;
+		if(scoreTextOver->a < 8)
+			scoreTextOver->a = 0;
 	}
-
 
 	if(countdownTimer)
 	{
-		player[0].timeSec--;
+		if( actFrameCount > (lastCount+60) )
+		{
+			lastCount = actFrameCount;
+			player[0].timeSec--;
+		}
+
 		if (player[0].timeSec < 0)
 		{
 			countdownTimer = 0;
@@ -92,7 +94,7 @@ void UpDateOnScreenInfo ( void )
 				timeTextOver->draw = 50;
 		}
 
-		if((player[0].timeSec < (11*30)) && ((player[0].timeSec%30) == 0))
+		if((player[0].timeSec < 11) && !(player[0].timeSec%2) )
 		{
 			if ( tickTock )
 			{
@@ -105,33 +107,27 @@ void UpDateOnScreenInfo ( void )
 				tickTock = 1;
 			}
 		}
-		// ENDIF
 								   
 		if(player[0].timeSec >= 0)
-			sprintf(timeText,"%02lu",(player[0].timeSec/30));
+			sprintf(timeText,"%02lu",player[0].timeSec);
 	}
 	else
-		if (NUM_FROGS==1)
-		{
-			if(timeTextOver->draw)
-				timeTextOver->draw--;
-			timeTextOver->a -= 16;
-			timeTextOver->a &= 255;
-		} 
-
-
-	if (NUM_FROGS == 1)
 	{
-		i = 3;
-		while(i--)
+		if(timeTextOver->draw)
+			timeTextOver->draw-=gameSpeed;
+		timeTextOver->a -= 16*gameSpeed;
+		timeTextOver->a &= 255;
+	}
+
+	i = 3;
+	while(i--)
+	{
+		if ( frog[0] )
 		{
-			if ( frog[0] )
-			{
-				if(frog[0]->action.healthPoints <= i)
-					sprHeart[i]->a = 64;
-				else
-					sprHeart[i]->a = 255;
-			}
+			if(frog[0]->action.healthPoints <= i)
+				sprHeart[i]->a = 64;
+			else
+				sprHeart[i]->a = 255;
 		}
 	}
 }
@@ -178,9 +174,9 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	if (NUM_FROGS == 1)
 	{
 		livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,NO,255,255,255,255,currFont,0,0,0);
-		timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,NO,255,255,255,255,currFont,0,0,0);
 		scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,NO,255,255,255,255,currFont,0,0,0);
 	}
+	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,NO,255,255,255,255,currFont,0,0,0);
 
 	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
 	DisableTextOverlay(gameOver1);

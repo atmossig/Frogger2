@@ -597,6 +597,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
 	InitTriggerList();
+	Init3DTextList( );
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;
@@ -679,7 +680,7 @@ void FreeAllLists()
 	FreeEnemyLinkedList();
 	FreePlatformLinkedList();
 	FreePathList();
-
+	Free3DTextList( );
 	FreeAnimationList();
 	FreeTextureList();
 	FreeAllObjectBanks();

@@ -12,6 +12,7 @@
 #define F3DEX_GBI_2
 
 #include <ultra64.h>
+#include <limits.h>
 
 #include "incs.h"
 
@@ -126,6 +127,9 @@ void RunTitleScreen()
 					if(gameState.multi != MULTIREMOTE)
 						gameState.multi = SINGLEPLAYER;
 
+					ACTOR_DRAWDISTANCEINNER = 100000;
+					ACTOR_DRAWDISTANCEOUTER = 150000;
+
 					NUM_FROGS = 1;
 					frameCount = 0;
 					lastbutton = 0;
@@ -137,7 +141,13 @@ void RunTitleScreen()
 					gameState.menuMode = LEVELSELECT_MODE;
 
 					if(gameState.multi != MULTIREMOTE)
+					{
+						NUM_FROGS = 1;
 						gameState.multi = SINGLEPLAYER;
+					}
+
+					ACTOR_DRAWDISTANCEINNER = 100000;
+					ACTOR_DRAWDISTANCEOUTER = 150000;
 
 					frameCount = 0;
 					lastbutton = 0;
@@ -148,6 +158,8 @@ void RunTitleScreen()
 					FreeMenuItems();
 					gameState.multi = MULTILOCAL;
 					gameState.menuMode = LEVELSELECT_MODE;
+					ACTOR_DRAWDISTANCEINNER = ULONG_MAX-1;
+					ACTOR_DRAWDISTANCEOUTER = ULONG_MAX;
 					frameCount = 0;
 					lastbutton = 0;
 					NUM_FROGS = numPlayers;
@@ -402,9 +414,12 @@ void RunPauseMenu()
 				long i;
 				gameState.mode	= INGAME_MODE;
 
-				livesTextOver->a = livesTextOver->oa;
+				if( NUM_FROGS == 1 )
+				{
+					livesTextOver->a = livesTextOver->oa;
+					scoreTextOver->a = scoreTextOver->oa;
+				}
 				timeTextOver->a = timeTextOver->oa;
-				scoreTextOver->a = scoreTextOver->oa;
 
 				for ( i = 0; i < 3; i++ )
 					sprHeart[i]->draw = 1;
