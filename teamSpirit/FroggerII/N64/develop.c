@@ -36,9 +36,12 @@ void RunDevelopmentMenu()
 
 	if(frameCount == 1)
 	{
+		SPRITEOVERLAY *sprOv;
+
 		FreeAllLists();
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
 		dev = CreateAndAddTextOverlay(30,24,"DEVELOPMENT MENU",NO,255,smallFont,0,0);
 		dev = CreateAndAddTextOverlay(32,26,"DEVELOPMENT MENU",NO,255,smallFont,0,0);
@@ -50,7 +53,8 @@ void RunDevelopmentMenu()
 		prcView	= CreateAndAddTextOverlay(40,120,"procedural stuff",NO,255,smallFont,0,0);
 
 		// top pane
-		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,191,0);
+		sprOv = CreateAndAddSpriteOverlay(25,20,"prc_watrd.bmp",270,25,191,0);
+		CreateAndAddProceduralTexture(sprOv->frames[0],"prc_watrd");
 
 		ResetParameters();
 	}

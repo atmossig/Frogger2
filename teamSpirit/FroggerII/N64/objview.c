@@ -94,6 +94,7 @@ void SelectObjectBank()
 	
 	if(frameCount == 1)
 	{	
+		SPRITEOVERLAY *sprOv;
 		char msgTmp[4];
 
 		FreeMenuItems();
@@ -108,7 +109,8 @@ void SelectObjectBank()
 		CreateAndAddTextOverlay(30,65,"left and right selects level",NO,255,oldeFont,0,0);
 
 		// top pane
-		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,191,0);
+		sprOv = CreateAndAddSpriteOverlay(25,20,"prc_watrd.bmp",270,25,191,0);
+		CreateAndAddProceduralTexture(sprOv->frames[0],"prc_watrd");
 		
 		for(i=0; i<MAX_LEVELS; i++)
 		{
