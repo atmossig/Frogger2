@@ -414,7 +414,8 @@ int main ( )
 
 #if GOLDCD == NO
 	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
-	XAsetStatus(CdInit());
+	//fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
+	//XAsetStatus(CdInit());
 #else
 	fileInitialise("\\FROGGER.DAT;1");
 	XAsetStatus(CdInit());
@@ -436,7 +437,7 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		textureInitialise ( 400, 12);
+		textureInitialise ( 400, 100);
 
 //		sfxInitialise();
 //		sfxStartSound();
@@ -729,7 +730,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 				if(gameSpeed > (5<<12))
 					gameSpeed = (5<<12);
 
- 				actFrameCount += vsyncCounter;
+ 				actFrameCount += gameSpeed>>12;
  				vsyncCounter = 0;
 			}
 
@@ -894,6 +895,6 @@ void MainReset ( void )
 		MemCardStart();
 		padInitialise(0); // 0 = No multi tap support
 		videoInit ( 1024, 3000, 0 );
-		textureInitialise ( 400, 12);
+		textureInitialise ( 400, 100);
 }
 

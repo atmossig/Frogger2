@@ -236,4 +236,7 @@ typedef struct
 // #define FreeAmbientSoundList()
 // #define InitAmbientSoundList()
  
+void MAIN_PrintXAData ( const XAFileType * const XATrack );
+
+
 #endif

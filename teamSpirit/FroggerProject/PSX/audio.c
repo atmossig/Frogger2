@@ -39,10 +39,10 @@ char *musicNames[] = { "CD3.XA",//
 					   "CD4.XA",
 					   "CD3.XA",//
 					   "CD3.XA",//
-					   "CD3.XA",//
-					   "CD8.XA",
-					   "CD3.XA",//
-					   "CD3.XA",//
+					   "CD4.XA",//
+					   "CD4.XA",
+					   "CD4.XA",//
+					   "CD4.XA",//
 					   "CD3.XA"};//
 
 
@@ -502,7 +502,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	}
 //end of stuff
 
-	utilPrintf("Pitch : %d\n", pitch );
+	//utilPrintf("Pitch : %d\n", pitch );
 
 	if( pos )
 	{
@@ -702,6 +702,27 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 
 
+void MAIN_PrintXAData(const XAFileType * const XATrack)
+{
+	if (XATrack->status)
+	{
+		utilPrintf("endpos = %d\n",XATrack->endPos);
+		utilPrintf("loop = %d\n",XATrack->loop);
+		utilPrintf("startpos = %d\n",XATrack->startPos);
+		utilPrintf("status = %d\n",XATrack->status);
+		utilPrintf("volume = %d\n",XATrack->vol);
+		utilPrintf("cdpos %d, %d, %d, %d\n",XATrack->fileInfo.pos.minute,
+										XATrack->fileInfo.pos.second,
+										XATrack->fileInfo.pos.sector,
+										XATrack->fileInfo.pos.track);
+		utilPrintf("xa size = %d\n",XATrack->fileInfo.size);
+		utilPrintf("xa name = %s\n",XATrack->fileInfo.name);
+	}
+	else
+	{
+		utilPrintf("No XA file currently being played.\n");
+	}
+}
 
 
 
@@ -712,8 +733,6 @@ void bb_InitXA(void)
 #if GOLDCD==1
 	int i=0;
 	
-	XAsetStatus(CdInit());
-
 	for(i=0; i<MUSIC_NUM_TRACKS; i++)
 		xaFileData[i] = XAgetFileInfo(musicNames[i]);
 #endif
@@ -747,7 +766,9 @@ void PrepareSong(short worldID)
 
 #if GOLDCD==1
 	XAstart(1);
-	XAplayChannel(xaFileData[worldID], 0,0,100);
+	utilPrintf ( "World ID : %d \n", worldID );
+	XAplayChannel(xaFileData[worldID], 0,1,100);
+	MAIN_PrintXAData ( xaFileData [ worldID ] );
 #endif
 }
 
