@@ -158,7 +158,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);
 
-				while (newE->surf->BltFast(texXCoords[page->numTex],texYCoords[page->numTex],temp,NULL,NULL)!=DD_OK);
+				newE->surf->BltFast(texXCoords[page->numTex],texYCoords[page->numTex],temp,NULL,DDBLTFAST_WAIT);
 				newE->xPos = texXCoords[page->numTex];
 				newE->yPos = texYCoords[page->numTex];
 				
