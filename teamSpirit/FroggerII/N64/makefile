@@ -10,8 +10,8 @@ assembler = asmn64
 ;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DNO_ENTITIES -I c:/n642/include
 ;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -I c:/n642/include
 
-compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DUSE_AUDIO -DNO_SCRIPTS -DNO_ENTITIES -DUSE_MENUS -I c:/n642/include
-;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DUSE_AUDIO -DNO_SCRIPTS -DUSE_MENUS -I c:/n642/include
+;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DUSE_AUDIO -DNO_SCRIPTS -DNO_ENTITIES -DUSE_MENUS -I c:/n642/include
+compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DUSE_AUDIO -DNO_SCRIPTS -DUSE_MENUS -I c:/n642/include
 ;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DUSE_AUDIO -DUSE_MENUS -I c:/n642/include
 assemble_opt = /l
 

@@ -54,7 +54,6 @@ void RunWaterDemo()
 		
 		FreeMenuItems();
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 		LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 
 		CreateAndAddTextOverlay(30,20,"water stuff",NO,255,smallFont,0,0);
@@ -62,7 +61,6 @@ void RunWaterDemo()
 		txtTmp->r = 0;	txtTmp->g = 0;	txtTmp->b = 0;
 
 		// add the water actor
-//		watActor = CreateAndAddActor("aeder.obe",0,0,100,0,0,0);
 		watActor = CreateAndAddActor("wat_stop.obe",0,0,100,0,0,0);
 		watActor->flags = ACTOR_WATER;
 
@@ -183,22 +181,43 @@ void UpdateWater(ACTOR *wAct)
 	Returns			: void
 	Info			: 
 */
-float modi1 = 0.075;	//0.05;
+float modi1 = 0.065;
 float modi2 = 1.29;
 float modi3 = 2.5;
+float modi4 = 96.0;
 
 int modc1 = 128;
-int modc2 = 190;
+int modc2 = 150;
 int modc3 = 8;
+
+short mTC[512][2];
 
 void UpdateWater2(ACTOR *wAct)
 {
+	static int firstTime = 1;
+
 	// update the water - assumes drawlisted and skinned object....
 	if(wAct)
 	{
-		float t,t2,xval,zval;
+		float t,t2,xval,zval,mV;
 		Vtx *in = NULL;
 		int i,colMod;
+
+		if(firstTime)
+		{
+			// copy texture co-ords to temp array
+			in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
+			i = wAct->objectController->numVtx;
+			
+			while(i--)
+			{
+				mTC[i][0] = in->v.tc[0];
+				mTC[i][1] = in->v.tc[1];
+				in++;
+			}
+
+			firstTime = 0;
+		}
 
 		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
 		i = wAct->objectController->numVtx;
@@ -210,6 +229,9 @@ void UpdateWater2(ACTOR *wAct)
 			zval = in->v.ob[Z] * modi2;
 
 			t2 = sinf(t + xval * zval * 0.5) - cosf(t + xval * 0.3 * zval);
+
+			mV = t2 * modi4;
+
 			in->v.ob[Y] += t2 * modi3;
 
 			colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
@@ -222,6 +244,9 @@ void UpdateWater2(ACTOR *wAct)
 			in->v.cn[1] = colMod;
 			in->v.cn[2] = colMod;
 			in->v.cn[3] = colMod;
+
+			in->v.tc[0] = mTC[i][0] + mV;
+			in->v.tc[1] = mTC[i][1] + mV;
 
 			in++;
 		}

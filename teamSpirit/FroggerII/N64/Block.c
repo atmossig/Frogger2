@@ -843,7 +843,11 @@ void InitRDP()
 	gDPSetTextureLUT(glistp++, G_TT_NONE);
 	gDPSetTextureDetail(glistp++, G_TD_CLAMP);
 	gDPSetTexturePersp(glistp++, G_TP_PERSP);
+#ifdef NOFILTER
+	gDPSetTextureFilter(glistp++, G_TF_POINT);
+#else
 	gDPSetTextureFilter(glistp++, G_TF_BILERP);
+#endif
 	gDPSetTextureConvert(glistp++, G_TC_FILT);
 	gDPSetCombineKey(glistp++, G_CK_NONE);
     gDPSetAlphaCompare(glistp++, G_AC_NONE);
@@ -944,7 +948,11 @@ void InitDisplayLists(void)
 
 	if(renderMode.useTextureMode)
 	{
+#ifdef NOFILTER
+		gDPSetTextureFilter(glistp++, G_TF_POINT);
+#else
 		gDPSetTextureFilter(glistp++, G_TF_BILERP);
+#endif
 
 		if (renderMode.useTextureMode == 2)
 		{

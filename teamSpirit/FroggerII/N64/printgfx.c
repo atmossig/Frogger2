@@ -608,7 +608,7 @@ SPRITE *PrintSpritesOpaque()
 void PrintSpritesTranslucent(SPRITE *sprite)
 {
 	Mtx temp;
-	
+
 	spriteList.lastTexture = NULL;
 
 	gSPDisplayList(glistp++,rspInitForSprites_dl);

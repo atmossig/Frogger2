@@ -2027,7 +2027,8 @@ _levData_10_1_SegmentRomEnd   alias _levData101_orgend
 
         section.16       levData101.data,levData101
 
-levDat101  incbin "leveldata/entity-9-0.cef",levData101.data, 32
+;levDat101  incbin "leveldata/entity-9-0.cef",levData101.data, 32
+levDat101  incbin "c:/levtemp/entity-9-0.dat",levData101.data, 32
 
 ; [ FRONTEND 2 ] >>>>>
 

@@ -108,13 +108,13 @@ float acos(float val)
     if(val > 1.000001)
 	{
 //		dprintf"\n%f\n",val));
-//		Crash("ACOS");
+		Crash("acos");
 		val = 1.000000F;
 	}
 	if(val < -1.000001)
 	{
 //		dprintf"\n%f\n",val));
-//		Crash("ACOS");
+		Crash("acos");
 		val = -1.000000F;
 	}
 

@@ -78,8 +78,6 @@ TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace
 void CheckForDynamicCameraChange(GAMETILE *tile);
 void FreeTransCameraList();
 
-void ChangeCameraSetting();
-
 void CameraLookAtFrog();
 void SlurpCameraPosition( long cam );
 void UpdateCameraPosition( long cam );

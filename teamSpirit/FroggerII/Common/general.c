@@ -179,7 +179,7 @@ GAMETILE *FindJoinedTileByDirectionConstrained( GAMETILE *st, VECTOR *d, float a
 	for (i=0; i<4; i++)
 	{
 		t = DotProduct( d, &st->dirVector[i] );
-		if( (t < distance) && (t < cos(angle)) && st->tilePtrs[i] )
+		if( (t < distance) && (t < cosf(angle)) && st->tilePtrs[i] )
 		if( (st->tilePtrs[i]->state != TILESTATE_DEADLY) && (st->tilePtrs[i]->state != TILESTATE_SINK) && (st->tilePtrs[i]->state != TILESTATE_BARRED) && (st->tilePtrs[i]->state != TILESTATE_JOIN) )
 		{
 			distance = t;

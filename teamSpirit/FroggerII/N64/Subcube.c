@@ -570,53 +570,19 @@ void TransformObject(OBJECT *obj, float time)
 			sprite = obj->sprites[i].sprite;
 			if(sprite)
 			{
-/*
-				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
-					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//				sprite->r = (float)obj->sprites[i].r*inShadow;
-//				sprite->g = (float)obj->sprites[i].g*inShadow;
-//				sprite->b = (float)obj->sprites[i].b*inShadow;
-				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
-				{
-					sprite->red2 = obj->colour.r;
-					sprite->green2 = obj->colour.g;
-					sprite->blue2 = obj->colour.b;
-					sprite->alpha2 = obj->colour.a;
-					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND;
-				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT)
-				{
-					sprite->red2 = obj->colour.r;
-					sprite->green2 = obj->colour.g;
-					sprite->blue2 = obj->colour.b;
-					sprite->alpha2 = obj->colour.a;
-					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-*/
 				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
 				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
 				xluVal = ((int)(obj->xlu * xluOverride))/100;
 				if(xluOverride <= 10)
 					xluVal = 0;
-/*				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
-				{
-					obj->sprites[i].sprite->r = 0;
-					obj->sprites[i].sprite->g = 0;
-					obj->sprites[i].sprite->b = 0;
-					obj->sprites[i].sprite->a = 254;
-				}
-				else*/
-					obj->sprites[i].sprite->a = Min(255,xluVal);
+
+				obj->sprites[i].sprite->a = Min(255,xluVal);
+				
 				if(obj->sprites[i].sprite->a >= 255)
 					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 				else
 					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
-				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
+				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, -obj->sprites[i].z,
 												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
 				if(renderMode.pixelOut)
 				{
@@ -855,53 +821,17 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 			sprite = obj->sprites[i].sprite;
 			if(sprite)
 			{
-//				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
-//					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//				sprite->r = (float)obj->sprites[i].r*inShadow;
-//				sprite->g = (float)obj->sprites[i].g*inShadow;
-//				sprite->b = (float)obj->sprites[i].b*inShadow;
-/*
-				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
-				{
-					sprite->red2 = obj->colour.r;
-					sprite->green2 = obj->colour.g;
-					sprite->blue2 = obj->colour.b;
-					sprite->alpha2 = obj->colour.a;
-					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND;
-				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT)
-				{
-					sprite->red2 = obj->colour.r;
-					sprite->green2 = obj->colour.g;
-					sprite->blue2 = obj->colour.b;
-					sprite->alpha2 = obj->colour.a;
-					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-*/
 				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
 				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
 				xluVal = ((int)(obj->xlu * xluOverride))/100;
-/*
-				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
-				{
-					obj->sprites[i].sprite->r = 0;
-					obj->sprites[i].sprite->g = 0;
-					obj->sprites[i].sprite->b = 0;
-					obj->sprites[i].sprite->a = 254;
-				}
-				else
-					obj->sprites[i].sprite->a = Min(255,xluVal);
+
+				obj->sprites[i].sprite->a = Min(255,xluVal);
 				if(obj->sprites[i].sprite->a >= 255)
 					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 				else
 					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
-*/
-				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
+
+				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, -obj->sprites[i].z,
 												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
 				if(renderMode.pixelOut)
 				{
