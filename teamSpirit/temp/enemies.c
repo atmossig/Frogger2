@@ -2182,9 +2182,9 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 		if( babyList[i].fxColour[1] ) newItem->nmeActor->effects |= EF_TINTGREEN;
 		if( babyList[i].fxColour[2] ) newItem->nmeActor->effects |= EF_TINTBLUE;
 
-		babyIcons[n]->r = babyList[n].fxColour[0];
-		babyIcons[n]->g = babyList[n].fxColour[1];
-		babyIcons[n]->b = babyList[n].fxColour[2];
+		babyIcons[i]->r = babyList[i].fxColour[0];
+		babyIcons[i]->g = babyList[i].fxColour[1];
+		babyIcons[i]->b = babyList[i].fxColour[2];
 	}
 
 	AddEnemyModelUpdates(eActorName, newItem);
