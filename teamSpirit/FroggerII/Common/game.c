@@ -753,19 +753,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			MakeTeleportTile(&firstTile[389],&firstTile[292],TELEPORT_ONEWAY);
 			MakeTeleportTile(&firstTile[573],&firstTile[388],TELEPORT_ONEWAY);
 		}
-		else if(levelID == LEVELID_GARDENMAZE)
-		{
-			FindObject(&objCont,UpdateCRC("mazewater.ndo"),"mazewater.ndo",YES);
-			watert = objCont->object;
-		}
-	}
-	else if(worldID == WORLDID_CITY)
-	{
-		if(levelID == LEVELID_CITYDOCKS)
-		{
-			FindObject(&objCont,UpdateCRC("dockswater.ndo"),"dockswater.ndo",YES);
-			watert = objCont->object;
-		}
 	}
 
 	// Go through and add them!
@@ -776,43 +763,15 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,enemyType,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
 
-		if ( gstrcmp ( ts->name, "docksa.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "rottnpier.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "flatwrld.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "warehouse.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "undrwrld.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "venice.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "retro1.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "cstreets.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		
 		if ( gstrcmp ( ts->name, "world.ndo" ) == 0 )
 			flags |= ACTOR_DRAW_ALWAYS;
 		
-		if ( gstrcmp ( ts->name, "maze.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "vegpatch.ndo" ) == 0 )
-			flags |= ACTOR_DRAW_ALWAYS;
-		if ( gstrcmp ( ts->name, "citybon.ndo" ) == 0 )
-		{
-			flags |= ACTOR_DRAW_ALWAYS;
-			croakFloat = 90;
-		}
-
 		theActor->flags = flags;
 
 		// ----- FOR DEMO PURPOSES - ANDYE -----
 		if(gstrcmp(ts->name,"tug.ndo") == 0)
 			demoTug = theActor;
 		// ----- FOR DEMO PURPOSES - ANDYE -----
-
 
 		tv = ts->rot.y;
 		ts->rot.y = ts->rot.z;

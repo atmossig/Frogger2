@@ -589,9 +589,6 @@ void FreeAllLists ( void )
 	FreeAllTextureBanks();
 	FreeCameoList();
 
-//	InitSpriteLinkedList();
-	
-	watert		= NULL;
 	myBackdrop	= NULL;
 
 	testPause		= 0;

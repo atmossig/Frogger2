@@ -12,7 +12,6 @@
 //----- [ INCLUDE FILES FOR FROGGER 2 ] -----------------------------------------------------//
 
 
-#include "tokens.h"
 #include "types.h"
 #include "define.h"
 #include "maths.h"
@@ -38,8 +37,6 @@
 #include "printgfx.h"
 #include "specfx.h"
 #include "anim.h"
-#include "collide.h"
-#include "water.h"
 
 #include "path.h"
 #include "enemies.h"
@@ -49,7 +46,6 @@
 #include "game.h"
 #include "objects.h"
 #include "texture.h"
-#include "backgnd.h"
 #include "collect.h"
 #include "path.h"
 #include "platform.h"

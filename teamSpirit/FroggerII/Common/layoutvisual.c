@@ -423,7 +423,6 @@ void FreeLevel(void)
 	InitSpriteOverlayLinkedList();
 	InitSpriteLinkedList();
 	
-	watert		= NULL;
 	myBackdrop	= NULL;
 
 	testPause		= 0;
