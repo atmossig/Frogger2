@@ -95,8 +95,9 @@ enum
 #define ENEMY_NEW_MOVEDOWN				(1 << 6)	// enemy moves down (1 node paths only)
 #define ENEMY_NEW_NOJUMPOVER			(1 << 7)	// enemy cannot be jumped over
 #define ENEMY_NEW_RADIUSBASEDCOLLISION	(1 << 8)	// enemy collision based on radius
-#define ENEMY_NEW_WATCHFROG				(1 << 9)	// enemy faces frogger
-#define ENEMY_NEW_SNAPFROG				(1 << 10)	// enemy snaps at frogger
+#define ENEMY_NEW_WATCHFROG				(1 << 9)	// enemy faces frogger (1 node paths only)
+#define ENEMY_NEW_SNAPFROG				(1 << 10)	// enemy snaps at frogger (watching enemies only)
+#define ENEMY_NEW_RANDOMSPEED			(1 << 11)	// enemy has random fluctuations in its speed
 
 
 
@@ -116,6 +117,7 @@ typedef struct TAGENEMY
 
 	UBYTE					active;					// enemy active state
 	short					isWaiting;				// enemy pause time at node
+	long					isSnapping;				// enemy is snapping (snapping time left)
 
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
 	PATH					*path;					// ptr to enemy path data
