@@ -24,6 +24,8 @@ char pauseMode		= 0;
 
 #define NUM_TRAIL_ELEMENTS 32
 
+
+
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
 
@@ -68,7 +70,7 @@ Vtx *ringVtx = NULL;
 SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime )
 {
 	SPECFX *effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
-	long i;
+	long i,n;
 	float life = lifetime*60;
 
 	effect->type = type;
@@ -1531,4 +1533,6 @@ void CreateBlastRing()
 		V(vRPtr++,tesa,-0.5,teca,0,1024,0,255,255,255,255);
 	}
 }
+
+
 #endif
