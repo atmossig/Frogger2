@@ -1291,7 +1291,9 @@ GAMETILE *FindClickedTile(int x, int y)
 		if (!v.vz) continue;
 
 		v.vx -= x; v.vy -= y; //v.vz = 0;
-		
+
+		if (v.vx > 100 || v.vx < -100 || v.vy > 100 || v.vy < -100) continue;
+
 		dist = v.vx*v.vx + v.vy*v.vy;
 
 		if (dist < closestDist)
