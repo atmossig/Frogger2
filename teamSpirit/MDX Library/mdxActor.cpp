@@ -560,7 +560,7 @@ void FreeUniqueObject(MDX_OBJECT *object)
 		if(object->next)
 			FreeUniqueObject(object->next);	
 		
-		FreeMem (object);		
+		FreeMem (object);
 	}
 }
 
