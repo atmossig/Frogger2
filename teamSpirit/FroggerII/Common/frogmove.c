@@ -347,6 +347,8 @@ void UpdateFroggerPos(long pl)
 			tongue[pl].radius = TONGUE_RADIUSNORMAL;
 	}
 
+	player[pl].frogState &= ~FROGSTATUS_ISSAFE;
+
 	// But first... platforms
 	if (currPlatform[pl])
 	{
@@ -1221,6 +1223,7 @@ void CheckForFroggerLanding(long pl)
 		// Next, check if frog has landed on a collectable
 		CheckTileForCollectable(tile, pl);
 	}
+
 	/*else
 	{
 		VECTOR pos;
