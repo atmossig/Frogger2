@@ -428,7 +428,7 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 
 	return 0;
 }
-
+/*
 enum {
 	SAVEMENU_CHECK,
 	SAVEMENU_FULL,
@@ -448,7 +448,7 @@ enum {
 	SAVEMENU_OVERWRITE,
 	SAVEMENU_FORMATCOMPLETE,
 };
-
+*/
 
 void StartChooseLoadSave(int load)
 {
@@ -870,14 +870,14 @@ void ChooseLoadSave()
 		}
 		VSync(0);
 	}
-
+/*
 	if( vmuBeepStopTimer )
 	{
 		vmuBeepStopTimer--;
 		if( !vmuBeepStopTimer )
 			cardBeep( 0, NO );
 	}
-
+*/
 	if(waitCheck < MEMWAIT)
 	{
 		waitCheck++;
