@@ -375,6 +375,7 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 	SetDrawMode(dm, 0,1, (SEMITRANS_SUB-1)<<5,0);
 	ENDPRIM(dm, 5, DR_MODE);
 
+/*
 	if (!optChosen)
 	{
 		x = -14*(1+(msg2!=NULL))-fontExtentWScaled(fontSmall, GAMESTRING(STR_SELECTOPTION),4096)/2-5;
@@ -393,6 +394,7 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 		fontPrintScaled(fontSmall, x,y+2, GAMESTRING(STR_SELECTOPTION), 128,128,128,4096);
 		fontSmall->alpha = 2;
 	}
+*/
 
 	if (!optChosen)								// Make selection
 	{
@@ -622,7 +624,7 @@ static void saveMenuSave()
 
 static void saveMenuComplete()
 {
-	if (((options.mode == -1) && (delayTimer++ > DELAY_TIME)) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (((options.mode == -1)/* && (delayTimer++ > DELAY_TIME)*/) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 	{
 		saveInfo.saveFrame = 0;
 		cardChanged = NO;
@@ -631,13 +633,13 @@ static void saveMenuComplete()
 
 static void saveMenuLoadComplete()
 {
-	if ((delayTimer++ > DELAY_TIME) || (ChooseOption(GAMESTRING(STR_MCARD_LOADCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (/*(delayTimer++ > DELAY_TIME) || */(ChooseOption(GAMESTRING(STR_MCARD_LOADCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 		saveInfo.saveFrame = 0;
 }
 
 static void saveMenuFormatComplete()
 {
-	if ((delayTimer++ > DELAY_TIME) || (ChooseOption(GAMESTRING(STR_MCARD_FORMATCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (/*(delayTimer++ > DELAY_TIME) ||*/ (ChooseOption(GAMESTRING(STR_MCARD_FORMATCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 	{
 		saveInfo.saveStage = SAVEMENU_SAVEYN;
 		StartChooseOption();
