@@ -293,7 +293,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
 		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
-	   	gte_avsz4();
+	  gte_avsz4();
 		gte_stotz_cpu ( depth );
 
 		if ( depth > min_depth && depth < max_depth )

@@ -77,6 +77,7 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 
 	mesh->gt3s = ADD2POINTER(mesh,(int)mesh->gt3s);
 	mesh->gt4s = ADD2POINTER(mesh,(int)mesh->gt4s);
+	mesh->sprs = ADD2POINTER(mesh,(int)mesh->sprs);
 	mesh->verts = ADD2POINTER(mesh,(int)mesh->verts);
 
 	if(mesh->n_verts > biggestVertexModel)

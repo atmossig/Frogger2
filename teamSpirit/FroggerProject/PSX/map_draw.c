@@ -464,9 +464,114 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 #undef si
 #undef op
 
-
-
 	currentDisplayPage->primPtr = (char *)packet;
+
+#define si ((POLY_F4*)packet)
+#define op ((FMA_SPR *)opcd)
+
+//	polyCount += mesh->n_gt3s;
+
+	op = mesh->sprs;
+
+	count = 0;
+
+	//utilPrintf ( "Number Of Sprite : %d\n", mesh->n_sprs );
+
+	for(i = mesh->n_sprs; i != 0; i--,op++)
+	{
+		LONG spritez, width, height;
+		VERT tempVect;
+
+		BEGINPRIM(si, POLY_FT4);
+
+		setPolyF4(si);
+
+		//utilPrintf ( "Sprite Position : %d : %d : %d\n", op->x, op->y, op->z );
+
+		tempVect.vx = op->x;
+		tempVect.vy = op->y;
+		tempVect.vz = op->z;
+
+		gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
+
+		width = 32;
+
+		gte_ldv0(&tempVect);
+		gte_SetLDDQA(width);	// shove sprite width into control reg (C2_DQA)
+		gte_rtps();				// do the rtps
+		gte_stsxy(&si->x0);		// get screen x and y
+		gte_stsz(&spritez);		// get screen z
+
+		width = (50*900) / spritez;
+
+ 		si->x1 = si->x3 = si->x0 + width;
+ 		si->x0 = si->x2 = si->x0 - width;
+
+		height = (50*512) / spritez;
+
+		si->y2 = si->y3 = si->y0 + height;
+		si->y1 = si->y0 = si->y0 - height;
+
+		si->r0 = 128;
+		si->g0 = 0;
+		si->b0 = 128;
+
+		si->code = GPU_COM_F4;
+
+		ENDPRIM(si, 1, POLY_F4);
+
+
+/*		LONG spritez, width;
+		VERT tempVect;
+
+		utilPrintf ( "Sprite Position : %d : %d : %d\n", op->x, op->y, op->z );
+
+		tempVect.vx = op->x;
+		tempVect.vy = op->y;
+		tempVect.vz = op->z;
+
+	 	//setPolyF4 ( si );
+ 		//setRGB0 ( si, op->r0, op->g0, op->b0 );
+
+		width = 32;
+		//gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
+
+		//gte_ldv0(&tempVect);
+		//gte_SetLDDQA(width);	// shove sprite width into control reg (C2_DQA)
+		//gte_rtps();				// do the rtps
+		//gte_stsxy(&si->x0);		// get screen x and y
+		//gte_stsz(&spritez);		// get screen z
+
+		addPrimLen ( ot + ( 1 ), ( si ), 12, t2 );
+
+ 	si->x0 = 0;
+ 	si->x0 = 0;
+
+ 	si->x1 = si->x3 = si->x0 + 32;
+ 	si->x0 = si->x2 = si->x0 - 32;
+
+
+	si->y2 = si->y3 = si->y0 + 32;
+	si->y1 = si->y0 = si->y0 - 32;
+
+	si->r0 = 128;
+	si->g0 = 0;
+	si->b0 = 128;
+
+	si->code = GPU_COM_F4;
+
+ 	//addPrim(currentDisplayPage->ot+(spritez>>4), pp);
+
+ 	//currentDisplayPage->primPtr += sizeof(POLY_FT4);
+
+		packet = ADD2POINTER(packet,sizeof(POLY_F4));*/
+
+	}
+
+#undef si
+#undef op
+
+
 }
 
 void SetUpWaterMesh(FMA_WORLD *pFMA)
