@@ -82,10 +82,10 @@ enum {OUTCODE_LEFT, OUTCODE_RIGHT, OUTCODE_TOP, OUTCODE_BOTTOM};
 						 (((x)<=(x0))<<OUTCODE_LEFT))
 
 // The 2D clip Volume.
-float clx0 = 1,//320-160,
-      cly0 = 1,//240-120,
-	  clx1 = 639,//320+160,
-	  cly1 = 479;//240+120;
+float clx0 = 10,//320-160,
+      cly0 = 10,//240-120,
+	  clx1 = 630,//320+160,
+	  cly1 = 470;//240+120;
 
 // Subtracted Square!
 //#define sbsqr(x,y) ((x-y)*(x-y))
@@ -531,12 +531,16 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 		
 		vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
 		vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
-		vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2 + DIST;
+		vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2;
 
-		if (vTemp2->sz>nearClip)
-		if (vTemp2->sz<farClip)
-		{
-			x = (long)vTemp2->sz;
+		if (((vTemp2->sz+DIST)>nearClip) &&
+		(((vTemp2->sz+DIST)<farClip) &&
+		((vTemp2->sx)>-horizClip) &&
+		((vTemp2->sx)<horizClip) &&
+		((vTemp2->sy)>-vertClip) &&
+		((vTemp2->sy)<vertClip)))
+			{
+			x = (long)vTemp2->sz + DIST;
 			oozd = -FOV * *(oneOver+x);
 			
 			vTemp2->sx = halfWidth+(vTemp2->sx * oozd);

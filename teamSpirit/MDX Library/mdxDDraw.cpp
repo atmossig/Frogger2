@@ -114,6 +114,10 @@ LV_ITEM i1 = {LVIF_TEXT,0,0,0,0,NULL,255};
 LV_COLUMN c1 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH,LVCFMT_LEFT,700,col1txt,255,0};
 LV_COLUMN c2 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM,LVCFMT_LEFT,500,col0txt,255,1};
 
+#define NUM_LANGUAGES 5
+
+char *languageText[NUM_LANGUAGES] = {"English","Franch","German","Italian","Martian"};
+
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	HWND list;
@@ -132,7 +136,12 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 			ShowWindow(hwndDlg,SW_SHOW);
 			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 			list = GetDlgItem(hwndDlg,IDC_LIST2);
+		
+			for (i=NUM_LANGUAGES; i>0; i--)
+				SendMessage ( GetDlgItem(hwndDlg,IDC_LANGUAGE),LB_INSERTSTRING,0,(unsigned int)languageText[i-1]);
 			
+			SendMessage ( GetDlgItem(hwndDlg,IDC_LANGUAGE),LB_SETCURSEL,0,0);
+
 			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&c1);
 			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&c2);
 				
@@ -371,7 +380,10 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
 		ddsd.dwWidth  = 640;
 		ddsd.dwHeight = 480; 
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+		if (rHardware)
+			ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+		else
+			ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 		if ((res = pDirectDraw7->CreateSurface(&ddsd, &surface[RENDER_SRF], NULL))!= DD_OK)
 		{
 			dp("Failed creating hidden surface\n");
