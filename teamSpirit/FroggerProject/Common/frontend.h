@@ -59,9 +59,7 @@ extern void StartGameOver();
 // Run routines
 extern void	RunLevelComplete( );
 extern void	RunWorldComplete( );
-extern void	RunGameComplete( );
 extern void	RunGameOver( );
-extern void RunGameIntro( );
 
 extern void RunMultiWinRace( );
 extern void RunMultiWinCollect( );

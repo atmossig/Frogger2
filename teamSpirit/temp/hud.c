@@ -236,6 +236,8 @@ void InitArcadeHUD(void)
 	
 
 	arcadeHud.collectText =		CreateAndAddTextOverlay(4096+2048, 2048, collectString,YES, 255, font, TEXTOVERLAY_SHADOW );
+	arcadeHud.collectText->b = 0;
+	arcadeHud.collectText->g = 128;
 	arcadeHud.collectText->draw = 1;
 	GTInit(&pauseTimer,0);
 	pauseFlag = 0;
@@ -1084,9 +1086,6 @@ void UpDateOnScreenInfo ( void )
 	Returns			: void
 	Info			: 
 */
-char levelCompleteText[32];
-char gameOverText[32];
-
 void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, font, 0, 0, 0 );

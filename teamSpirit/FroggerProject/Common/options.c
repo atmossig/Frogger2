@@ -1122,6 +1122,7 @@ void CreateOptionsObjects(void)
 
 	// Main title
 	options.title = CreateAndAddTextOverlay(2048,270,options.titleStr,YES,0,font,TEXTOVERLAY_SHADOW);
+	options.title->b = 0;
 	options.title->draw = 0;
 
 	// Sub text, initially for multiplayer, but maybe for options too.
@@ -1399,6 +1400,10 @@ char *warnPtr;
 //-----------------------------------------------------------------------------------------------------------
 // Actually do the options stuff
 //-----------------------------------------------------------------------------------------------------------
+
+char levNameColR[] = {255,255,0,  0,  0,  255,255,255};
+char levNameColG[] = {0,  0  ,255,255,255,255,255,255};
+
 void RunOptionsMenu(void)
 {
 	int i;
@@ -1416,6 +1421,7 @@ void RunOptionsMenu(void)
 	options.sfxText[0]->draw = 0;
 	options.sfxText[1]->draw = 0;
 
+	options.numPText->r = options.numPText->g = options.numPText->b = 255;
 #ifdef PSX_VERSION
 	if(saveInfo.saveFrame)
 	{
@@ -1713,6 +1719,10 @@ void RunOptionsMenu(void)
 			strcpy(options.mpStr,GAMESTRING(STR_SELECT_LEVEL));
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
 			strcpy(options.numPStr, GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str));
+	
+			options.numPText->r = levNameColR[options.levelSelection];
+			options.numPText->g = levNameColG[options.levelSelection];
+			options.numPText->b = 0;
 			
 			temp.vx = -9890938;
 			temp.vy = 8859623;  
@@ -2668,16 +2678,11 @@ void RunArtViewer()
 {
 	char name[32];
 
-	if(padData.digital[0] & PAD_START)
+	if(padData.debounce[0] & PAD_START)
 		currentArt = MAX_ARTWORK;
 
 	GTUpdate(&artTimer,-1);
 	
-	if((artTimer.time == 0) || ((!fadingOut) && (padData.digital[0])))
-	{
-		ScreenFade(255,0,30);
-		keepFade = YES;
-	}
 	if((!fadingOut) && (keepFade))
 	{
 		FreeBackdrop();
@@ -2697,5 +2702,10 @@ void RunArtViewer()
 			GTInit(&artTimer,10);
 			keepFade = NO;
 		}
+	}
+	if((artTimer.time == 0) || ((!fadingOut) && (padData.debounce[0])))
+	{
+		ScreenFade(255,0,30);
+		keepFade = YES;
 	}
 }

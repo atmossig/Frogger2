@@ -776,7 +776,7 @@ int main ( )
 				if ( !objViewer )
 					MainDrawFunction();
 
-				if( gameState.mode != PAUSE_MODE )
+				if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
 				{
 					TIMER_START0(TIMER_UPDATETEXANIM);
 					UpdateTextureAnimations();

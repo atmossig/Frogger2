@@ -163,22 +163,10 @@ void GameLoop(void)
 		RunLevelComplete( );
 		break;
 
-	case WORLDCOMPLETE_MODE:
-		RunWorldComplete( );
-		break;
-
-	case GAMECOMPLETE_MODE:
-		RunGameComplete( );
-		break;
-
 	case GAMEOVER_MODE:
 		RunGameOver( );
 		break;
 		
-	case INTRO_MODE:
-		RunGameIntro( );
-		break;
-	
 	case CAMEO_MODE:
 	case PAUSE_MODE:
 		RunPauseMenu();
@@ -329,36 +317,8 @@ void LevelCompleteProcessController(long pl)
 	}
 }
 
-fixed eolcamspeed = 4096*30;
-
 int coinsMissed;
 int coinCounter = 0;
-
-/*	--------------------------------------------------------------------------------
-	Function		: RunWorldComplete
-	Purpose			: What happens at the end of a world
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void RunWorldComplete( )
-{
-
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: RunGameComplete
-	Purpose			: The final complete screen
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void RunGameComplete( )
-{
-
-}
-
 
 short numLives[3] = 
 {
@@ -402,11 +362,6 @@ void RunGameOver( )
 
 
 
-void RunGameIntro( )
-{
-	// todo?
-}
-
 /*	--------------------------------------------------------------------------------
 	Function		: StartGameOver
 	Purpose			: Die, froggy! Wuaahahahahahahaha
@@ -415,12 +370,14 @@ void RunGameIntro( )
 */
 void StartGameOver()
 {
+	TEXTOVERLAY *gameOverText;
 	gameState.mode = GAMEOVER_MODE;
 	GTInit( &modeTimer, 9 );
 
 //	FreeAllGameLists();
 
-	CreateAndAddTextOverlay(2048, 1980, GAMESTRING(STR_GAMEOVER), YES, (char)255, font, TEXTOVERLAY_SHADOW);
+	gameOverText = CreateAndAddTextOverlay(2048, 1980, GAMESTRING(STR_GAMEOVER), YES, (char)255, font, TEXTOVERLAY_SHADOW);
+	gameOverText->g = gameOverText->b = 0;
 	frog[0]->draw = 0;
 	PrepareSong(AUDIOTRK_GAMEOVER,NO);
 }

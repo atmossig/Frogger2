@@ -241,7 +241,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	int sldSpd;
 	unsigned long period1, period2, fr;
 
-	if( gameState.mode != PAUSE_MODE )
+	if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
 	{
 		pcStyleSlide = ((flags>>10)&3);
 

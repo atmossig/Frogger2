@@ -476,7 +476,7 @@ void PrintSprites ( void )
 		}
 		else
 		{
-			if( gameState.mode != PAUSE_MODE )
+			if((gameState.mode != PAUSE_MODE) && (gameState.mode != GAMEOVER_MODE))
 			{
 				cur->angle += (cur->angleInc * gameSpeed)>>12;
 				if( cur->angle >= 4096 ) 

@@ -909,6 +909,7 @@ void RunFrontendGameLoop (void)
 		}
 
 		options.arcadeText = CreateAndAddTextOverlay(2048,270,GAMESTRING(STR_ARCADEMODE),YES,255,font,0); 
+		options.arcadeText->b = 0;
 		options.selectText = CreateAndAddTextOverlay(2048,576,GAMESTRING(STR_SELECT_LEVEL),YES,255,fontSmall,0); 
 		options.worldText = CreateAndAddTextOverlay(306,1105,worldStr,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		

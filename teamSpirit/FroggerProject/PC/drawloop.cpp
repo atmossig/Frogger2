@@ -378,7 +378,7 @@ long DrawLoop(void)
 	CleanBufferSamples();
 
 	StartTimer(19,"PText");
-	if( gameState.mode != PAUSE_MODE )
+	if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
 		ProcessProcTextures( );
 	EndTimer(19);
 	

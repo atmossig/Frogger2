@@ -528,7 +528,7 @@ void actorUpdateAnimations(ACTOR *actor)
 	ANIMATION *anim;
 	int i;
 
-	if( gameState.mode == PAUSE_MODE )
+	if((gameState.mode == PAUSE_MODE ) || (gameState.mode == GAMEOVER_MODE))
 		return;
 
 	//reject all objects which have no animation
