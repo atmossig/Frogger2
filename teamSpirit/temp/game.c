@@ -428,7 +428,7 @@ void GameProcessController(long pl)
 		}
 	}
 
-	if( gameState.multi == SINGLEPLAYER )
+	if((gameState.multi == SINGLEPLAYER ) && (player[pl].canJump))
 	{
 //#ifdef PC_VERSION
 		if((padData.debounce[pl] & PAD_CIRCLE) && (tongue[pl].flags & TONGUE_IDLE))
