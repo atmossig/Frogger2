@@ -140,5 +140,5 @@ void FreeBackdrop ( void )
 
 	backDrop.data = NULL;
 
-	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
+//	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
 }

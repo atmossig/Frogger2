@@ -123,11 +123,77 @@ char objViewer = 0;
 
 int vsyncCounter = 0;
 
+
+
+void DisplayErrorMessage ( char *message )
+{
+ 		currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+ 		ClearOTagR(currentDisplayPage->ot, 1024);
+ 		currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+
+ 		DrawSync(0);
+ 		VSync(2);
+ 		PutDispEnv(&currentDisplayPage->dispenv);
+ 		PutDrawEnv(&currentDisplayPage->drawenv);
+ 		DrawOTag(currentDisplayPage->ot+(1024-1));
+
+
+		fontPrint(font, -80,0, message, 64,16,16);
+
+ 		currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+ 		ClearOTagR(currentDisplayPage->ot, 1024);
+ 		currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+
+ 		DrawSync(0);
+ 		VSync(2);
+ 		PutDispEnv(&currentDisplayPage->dispenv);
+ 		PutDrawEnv(&currentDisplayPage->drawenv);
+ 		DrawOTag(currentDisplayPage->ot+(1024-1));
+}
+
+
+#define SCREENOFF  SetDispMask(0);   
+#define SCREENON   SetDispMask(1);     
+//////////////////////////////////////////////////////////////////////
+extern void MAIN_Flicker(const int num_flickers)
+{
+	int i;
+	for (i=0;i<num_flickers;i++)
+	{
+		SCREENOFF;
+		MAIN_Delay(100000);
+		SCREENON;
+		MAIN_Delay(100000);
+	}
+
+	// but now do a long pause
+	MAIN_Delay(1000000);
+}
+//////////////////////////////////////////////////////////////////////
+static void MAIN_Delay(const int t)
+{
+	int i=0;
+	int j=0;
+
+	while (i != t)
+	{	// CS: do some shite to slow the PSX down
+		j += i;
+		j += utilSqrt(i);
+		i++;
+	}
+}
+//////////////////////////////////////////////////////////////////////
+
+
+
+
 static void vsyncCallback()
 {
 	frame++;
 	vsyncCounter++;
-	//SpuFlush(SPU_EVENT_ALL);
+	SpuFlush(SPU_EVENT_ALL);
 #if GOLDCD==0
 	asm("break 1024");
 #endif
@@ -332,24 +398,31 @@ int main ( )
 //		RAMsize = 6291264;
 #endif
 
+		memset((void *)0x1f8000,0,0x8000);
+
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 4096);
-
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 
 		ResetCallback();
-		memset((void *)0x1f8000,0,0x8000);
 
 		utilInitCRC();
 		utilSeedRandomInt(398623);
 
+
 #if GOLDCD == NO
 	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
-		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 #else
 	fileInitialise("\\FROGGER.DAT;1");
-		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 #endif
+
+		//Init_BB_AcosTable();
+
+		MemCardInit(1);
+		MemCardStart();
+		padInitialise(0); // 0 = No multi tap support
+		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
+
 //		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
 //#if GOLDCD==0
 //		XAenable = CdInit();
@@ -357,143 +430,19 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		Init_BB_AcosTable();
-
-		MemCardInit(1);
-		MemCardStart();
-		padInitialise(0); // 0 = No multi tap support
-		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
-		textureInitialise ( 600, 24);
-
+		textureInitialise ( 400, 12);
 
 //		sfxInitialise();
 //		sfxStartSound();
 
 		// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
-		EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
+		//EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
 
 		VSyncCallback(&vsyncCallback);
-//		font = fontLoad("FONT12.FON");
-// 		fontSmall = fontLoad("FONT12.FON");
-
-		//font = fontLoad("FONTL.FON");
-		//fontSmall = fontLoad("FONTS.FON");
-
-
-/*		//bb xa test
-		{
-			XAFileType *xaInfo;
-
-			XAsetStatus(CdInit());
-			xaInfo = XAgetFileInfo("CD2.XA");
-//			XAstart(0);
-			XAstart(1);//'speed' flag
-			XAplayChannel(xaInfo, 0,0,100);
-		}
-
-		//don't do the rest of the game
-		while(1)
-		{
-		}
-*/
 
 		bb_InitXA();
 
-/*
-		//bb xa test
-		{
-			enum {SINGLE_SPEED, DOUBLE_SPEED};
-
-			int curSpeed=SINGLE_SPEED;
-			int curTrack=0;
-			char tempText[64];
-
-			padHandler();
-			XAstart(curSpeed);
-			XAplayChannel(xaFileData[curTrack], 0,0,100);
-			
-			while( !(padData.debounce[0]&PAD_START) )
-			{
-				padHandler();
-
-				if(padData.debounce[0]&PAD_L1)
-				{
-					curSpeed ^= 1;
-					
-					XAstop();
-					XAstart(curSpeed);
-					XAplayChannel(xaFileData[curTrack], 0,0,100);
-				}
-
-				if(padData.debounce[0]&PAD_RIGHT)
-				{
-					curTrack++;
-					if(curTrack>=MUSIC_NUM_TRACKS)
-						curTrack=MUSIC_NUM_TRACKS-1;
-
-					XAstop();
-					XAstart(curSpeed);
-					XAplayChannel(xaFileData[curTrack], 0,0,100);
-				}
-
-				if(padData.debounce[0]&PAD_LEFT)
-				{
-					curTrack--;
-					if(curTrack<0)
-						curTrack=0;
-
-					XAstop();
-					XAstart(curSpeed);
-					XAplayChannel(xaFileData[curTrack], 0,0,100);
-				}
-
-
-				//display
- 				currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
- 				ClearOTagR(currentDisplayPage->ot, 1024);
- 				currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
-
- 				DrawSync(0);
- 				VSync(2);
- 				PutDispEnv(&currentDisplayPage->dispenv);
- 				PutDrawEnv(&currentDisplayPage->drawenv);
- 				DrawOTag(currentDisplayPage->ot+(1024-1));
-
-				sprintf(tempText, "Cur Track %d", curTrack);
-				fontPrint(font, -50,-50, tempText, 64,192,192);
-				sprintf(tempText, "%s Speed", curSpeed?"Double":"Single");
-				fontPrint(font, -50,-70, tempText, 64,192,192);
-				sprintf(tempText, "Press Start To Exit");
-				fontPrint(font, -50,-90, tempText, 64,192,192);
-
- 				currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
- 				ClearOTagR(currentDisplayPage->ot, 1024);
- 				currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
-
- 				DrawSync(0);
- 				VSync(2);
- 				PutDispEnv(&currentDisplayPage->dispenv);
- 				PutDrawEnv(&currentDisplayPage->drawenv);
- 				DrawOTag(currentDisplayPage->ot+(1024-1));
-
-
-			}//end while
-
-			//allow normal access after this
-			XAstop();
-		}
-*/
-
-
-
-
-
-
-
-
-		
 		StartSound();//mmsfx
-
 
 #define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
@@ -539,25 +488,11 @@ int main ( )
 
 		actorInitialise();
 
-
 		CommonInit();
 
-
-//		InitWater();
-//		LoadSfx(WORLDID_GENERIC);//mmsfx
-
-
-		
-//		TIMER_START(TIMER_TOTAL);
-
-		
 		//*****************//
 		//*** MAIN LOOP ***//
 		//*****************//
-
-//		currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[0]):(&displayPage[1]);
-//		ClearOTagR(currentDisplayPage->ot, 1024);
-		//currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
 		while ( !quitMainLoop )
 		{
@@ -930,8 +865,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-//		RAMsize = (0x1fff00 - RAMstart)-8192;
-		RAMsize = 6291264;
+		RAMsize = (0x1fff00 - RAMstart)-8192;
+//		RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
@@ -940,7 +875,7 @@ void MainReset ( void )
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 
 		ResetCallback();
-		memset((void *)0x1f8000,0,0x8000);
+//		memset((void *)0x1f8000,0,0x8000);
 
 		utilInitCRC();
 		utilSeedRandomInt(398623);
@@ -953,10 +888,8 @@ void MainReset ( void )
 
 		MemCardInit(1);
 		MemCardStart();
-		padInitialise(1); // 0 = No multi tap support
+		padInitialise(0); // 0 = No multi tap support
 		videoInit ( 1024, 3000, 0 );
-		textureInitialise ( 600, 24);
-
-
+		textureInitialise ( 400, 12);
 }
 

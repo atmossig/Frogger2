@@ -44,4 +44,6 @@ void ResetDrawingEnvironment ( void );
 
 void MainReset ( void );
 
+void DisplayErrorMessage ( char *message );
+
 #endif

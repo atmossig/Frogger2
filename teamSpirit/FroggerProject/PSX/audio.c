@@ -289,14 +289,36 @@ int LoadSfx( unsigned long worldID )
 
 	LoadSfxSet( path, 0 );
 
-//load the looping level samples
+
+// JH: Quite Possibly fix it!!!!!!!!!!!!!!!!!!!!!!!!!!
 	path[len] = '\0';
 
+	switch( worldID )
+	{
+		case WORLDID_GARDEN: strcat( path, "GARDEN\\" ); break;
+		case WORLDID_ANCIENT: strcat( path, "ANCIENTS\\" ); break;
+		case WORLDID_SPACE: strcat( path, "SPACE\\" ); break;
+		case WORLDID_CITY: strcat( path, "CITY\\" ); break;
+		case WORLDID_SUBTERRANEAN: strcat( path, "SUB\\" ); break;
+		case WORLDID_LABORATORY: strcat( path, "LAB\\" ); break;
+		case WORLDID_HALLOWEEN: strcat( path, "HALLOWEEN\\" ); break;
+		case WORLDID_SWAMPYWORLD: strcat( path, "SWAMPYWORLD\\" ); break;
+		case WORLDID_SUPERRETRO: strcat( path, "SUPERRETRO\\" ); break;
+		case WORLDID_FRONTEND: strcat( path, "FRONTEND\\" ); break;
+	}
+
+//load the looping level samples
+	//path[len] = '\0';
+
+ 	len = strlen(path);
+
 	strcat( path, "LOOP" );
+
 	LoadSfxSet( path, 0 );
 
 
 	FREE( path );
+
 	return 1;
 }
 

@@ -27,7 +27,7 @@
 !if $(PAL) == 1
 !if $(MASTER) == 1
 OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++ 
-LIBISL = c:\psx\isl\lib\release
+LIBISL = c:\ps\psx\library\lib\release
 !endif
 !endif
 
@@ -36,7 +36,7 @@ LIBISL = c:\psx\isl\lib\release
 !if $(MASTER) == 0
 #OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O0 -mgpopt -G32 -g -X0$00018000 -comments-c++ -Wall -Wno-unused 
 OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O0 -mgpopt -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
-LIBISL = c:\psx\isl\lib\debug
+LIBISL = c:\ps\psx\library\lib\debug
 !endif
 !endif
 
@@ -44,7 +44,7 @@ LIBISL = c:\psx\isl\lib\debug
 !if $(PAL) == 0
 !if $(MASTER) == 1
 OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
-LIBISL = c:\psx\isl\lib\release
+LIBISL = c:\ps\psx\library\lib\release
 !endif
 !endif
 
@@ -57,7 +57,7 @@ LIBISL = c:\psx\isl\lib\release
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++
-LIBISL = c:\psx\isl\lib\debug
+LIBISL = c:\ps\psx\library\lib\debug
 !endif
 !endif
 
@@ -75,7 +75,7 @@ LIBISL = c:\psx\isl\lib\debug
 # 
 
 frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj collect.obj\
-				custom.obj custom2.obj audio.obj\
+				custom.obj custom2.obj audio.obj file.obj\
 				defdata.obj enemies.obj event.obj evenfunc.obj fixed.obj frogger.obj frogmove.obj \
 				frontend.obj game.obj general.obj hud.obj language.obj layout.obj \
 				levplay.obj levprog.obj maths.obj map_draw.obj memload.obj menus.obj multi.obj overlays.obj \
@@ -83,7 +83,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 				tongue.obj types.obj newpsx.obj map.obj objects.obj textures.obj main.obj world.obj water.obj \
 				bbtimer.obj backdrop.obj eff_draw.obj temp_psx.obj world_eff.obj acostab.obj particle.obj \
 				psxsprite.obj ptexture.obj charsel.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
-				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj file.obj font.obj \
+				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj font.obj \
 				objviewer.obj
 
 			
