@@ -1169,6 +1169,8 @@ void *ChangeModel( ACTOR *actor, char *model )
 	newActor->size.vy = globalFrogScale;
 	newActor->size.vz = globalFrogScale;
 
+	if( player[0].character == FROG_BABYFROG )
+		ScaleVectorFF( &newActor->size, 3072 );
 //bb
 //	actor->psiData = newActor->psiData;
 //	actorInitAnim ( actor );				// initialise animation structure
