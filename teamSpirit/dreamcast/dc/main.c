@@ -588,7 +588,7 @@ void main()
 	initCheckForSoftReset();
 
 	// show all legal screens and FMV
-//	showLegalFMV(0);
+	showLegalFMV(0);
 
 	CommonInit();
 

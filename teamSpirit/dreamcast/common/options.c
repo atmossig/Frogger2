@@ -1646,8 +1646,10 @@ void OptionsProcessController(void)
 		return;
 	}
 
-	// Currently unimplemented
-	if((button & PAD_CROSS) && !(optionsLastButton & PAD_CROSS) && options.controls[C_SELECT])
+	// *ASL* 14/08/2000 - Allow START button to act as the A button on all frontend options
+	//if((button & PAD_CROSS) && !(optionsLastButton & PAD_CROSS) && options.controls[C_SELECT])
+	if((button & PAD_CROSS || button & PAD_START) && !(optionsLastButton & PAD_CROSS) && !(optionsLastButton & PAD_START) && options.controls[C_SELECT])
+
 	{
 		options.controls[C_SELECT]();
 		optionsLastButton = button;
