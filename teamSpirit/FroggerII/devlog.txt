@@ -1860,6 +1860,13 @@ James Hubbard:
 James Healey:
 ------------------------------------------------
 
+	Morning:
+
+		Fixed the custom routine for drawing actors, so that they sort correctly with the world.
+
+	Afternoon:
+		
+		Scenics now load in.
 
 Mike Movel:
 ------------------------------------------------
@@ -1878,3 +1885,41 @@ To work on next:
 	timers.
 
 
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+25/01/00 - Tuesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+
+James Healey:
+------------------------------------------------
+
+	Morning:
+
+		Found a s**t load of speed from the game, ok so I forgot to
+		uncomment the clipping from the world drawing.
+
+		Actors now have the distance from frog check and a ".0f" was taken
+		and killed, floating point emulation, nasty stuff.
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
