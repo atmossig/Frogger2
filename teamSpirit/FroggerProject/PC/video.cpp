@@ -9,27 +9,30 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include <islutil.h>
+#include "story.h"
+
+#ifdef USE_BINK_VIDEO
 #include <windows.h>
 #include <d3d.h>
 #include <mdx.h>
-#include <islutil.h>
+#include <stdio.h>
 
+#include "layout.h"
 #include "video.h"
 #include "islpad.h"
 #include "controll.h"
 #include "pcaudio.h"
 #include "dx_sound.h"
-#include "story.h"
-
+#include "main.h"
 #include "game.h"
-#include "layout.h"
-
-#ifdef USE_BINK_VIDEO
 #include <bink.h>
 
 static HBINK bink=0;
 static s32 surfacetype=0;
 bool blitVideo = 0;
+
+#define VIDEOPATH "Video\\"
 
 long (*oldLoop)() = 0;
 
@@ -152,18 +155,28 @@ long RunVideoPlayback()
 
 long StartVideoPlayback(int num)
 {
+	char path[MAX_PATH];
+
+	if (!cdromDrive[0])
+	{
+		utilPrintf("No Frogger2 CD-ROM detected; skipping video playback\n");
+		return 0;
+	}
+
 	BinkSoundUseDirectSound(lpDS);
 
-	bink = BinkOpen(fmv[num].name,0);
+	sprintf(path, "%s" VIDEOPATH "%s", cdromDrive, fmv[num].name);
+
+	bink = BinkOpen(path, 0);
 	if (!bink)
 	{
-		utilPrintf("StartVideoPlayback(): Bink failed opening '%s'\n", name);
+		utilPrintf("StartVideoPlayback(): Bink failed opening '%s'\n", path);
 		gameState.mode = INGAME_MODE;	// bail out
 		return 0;
 	}
 	else
 	{
-		utilPrintf("StartVideoPlayback(): Starting video: '%s'\n", name);
+		utilPrintf("StartVideoPlayback(): Starting video: '%s'\n", path);
 	}
 
 	surfacetype = BinkDDSurfaceType(videoSurface);
