@@ -64,6 +64,7 @@ extern long numHealth_TOTAL;
 
 extern void RunGameLoop (void);
 extern void RunLevelCompleteSequence();
+extern void GameProcessController(long player);
 
 extern ACTOR2 *backGnd;
 

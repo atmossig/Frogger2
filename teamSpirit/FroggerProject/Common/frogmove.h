@@ -48,8 +48,6 @@
 #define FROGSTATUS_ISSAFE						(1 << 18)
 #define FROGSTATUS_ISSLIDING					(1 << 19)
 
-#define FROGSTATUS_ISDEBUG						(1 << 20)//mmtemp
-
 // FROGSTATUS_ISSTANDING		not used
 // FROGSTATUS_ISFREEFALLING		not used
 
@@ -113,11 +111,9 @@ extern unsigned long doubleHopFrames;
 extern unsigned long quickHopFrames;
 extern unsigned long slowHopFrames;
 extern unsigned long floatFrames;
-extern fixed superGravity;
-extern fixed hopGravity;
-extern fixed frogGravity;
-extern fixed doubleGravity;
-extern fixed floatGravity;
+extern fixed hopHeight;
+extern fixed superhopHeight;
+extern fixed doublehopHeight;
 
 extern fixed frogAnimSpeed;
 extern fixed frogAnimSpeed2;
