@@ -1394,34 +1394,39 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 	}
 }
 
+#define SPRITECLIPLEFT		0
+#define SPRITECLIPTOP		0
+#define SPRITECLIPRIGHT		SCREEN_WIDTH
+#define SPRITECLIPBOTTOM	SCREEN_WIDTH
+
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, float alpha)
 {
 	float x2 = x + xs, y2 = y + ys;
 
 	// Really crap clipping
-	if (x < 0)
+	if (x < SPRITECLIPLEFT)
 	{
-		u1 += (u2-u1) * (-x/xs);	// clip u
-		xs += x; x = 0;
+		u1 += (u2-u1) * (SPRITECLIPLEFT-x)/xs;	// clip u
+		xs += x+SPRITECLIPLEFT; x = SPRITECLIPLEFT;
 	}
-	if (x2 > SCREEN_WIDTH)
+	if (x2 > SPRITECLIPRIGHT)
 	{
-		u2 += (u2-u1) * (SCREEN_WIDTH-x2)/xs;	// clip u
-		xs -= (x-SCREEN_WIDTH);
-		x2 = SCREEN_WIDTH;
+		u2 += (u2-u1) * (SPRITECLIPRIGHT-x2)/xs;	// clip u
+		xs -= (x-SPRITECLIPRIGHT);
+		x2 = SPRITECLIPRIGHT;
 	}
 	if (xs < 0) return;
 
-	if (y < 0)
+	if (y < SPRITECLIPTOP)
 	{
-		v1 += (v2-v1) * (-y/(ys));	// clip v
-		ys += y; y = 0;
+		v1 += (v2-v1) * (SPRITECLIPTOP-y)/ys;	// clip v
+		ys += y+SPRITECLIPTOP; y = SPRITECLIPTOP;
 	}
-	if (y2 > SCREEN_HEIGHT)
+	if (y2 > SPRITECLIPBOTTOM)
 	{
-		v2 += (v2-v1) * (SCREEN_HEIGHT-y2)/ys;	// clip v
-		ys -= (y-SCREEN_HEIGHT);
-		y2 = SCREEN_HEIGHT;
+		v2 += (v2-v1) * (SPRITECLIPBOTTOM-y2)/ys;	// clip v
+		ys -= (y-SPRITECLIPBOTTOM);
+		y2 = SPRITECLIPBOTTOM;
 	}
 	if (ys < 0) return;
 
