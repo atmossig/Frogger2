@@ -31,6 +31,8 @@ void InitDOFOneOverTable(int min, int max, int range);
 void SwapOneOver(long num);
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh);
 void DrawLandscape(MDX_LANDSCAPE *me);
+void DrawLandscape2(MDX_LANDSCAPE *me);
+void SetupDOF(long min, long max, float range);
 
 void PCRenderObject (MDX_OBJECT *obj);
 void PCRenderModgyObject (MDX_OBJECT *obj);

@@ -61,8 +61,9 @@ float vertClip = 2500;
 long DIST=-10;
 long FOV=450 / (640.0/640.0);
 float oneOver[65535];
+float posAddr[10000];
 
-#define MAX_BLUR_PELS 3
+#define MAX_ADDER 4
 
 float halfWidth;
 float halfHeight;
@@ -283,6 +284,26 @@ void InitOneOverTable(void)
 		oneOver[i] = (rDiff)/(float)i;
 	halfWidth = rXRes/2.0F;
 	halfHeight = rYRes/2.0F;
+}
+
+void SetupDOF(long min, long max, float range)
+{
+	unsigned long i;
+	for (i=0; i<10000; i++)
+	{
+		float adder = MAX_ADDER;
+		if ((i>min) && (i<max))
+		{
+			adder = 0;
+			if (i<min+range)
+				adder = (((min+range)-i)*MAX_ADDER)/range;
+
+			if (i>max-range)
+				adder = ((i-(max-range))*MAX_ADDER)/range;
+		}
+
+		posAddr[i] = adder;
+	}
 }
 
 void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
@@ -556,6 +577,69 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 	}
 }
 
+void __fastcall PCPrepareLandscape2 (MDX_LANDSCAPE *me)
+{
+	float f[4][4];
+	MDX_VECTOR *in;
+	D3DTLVERTEX *vTemp2;
+	short *tFace;
+	long i,x,j;
+	float oozd;
+	float a0,b0,c0,d0;
+	float a1,b1,c1,d1;
+	float a2,b2,c2,d2;
+
+	a0 = vMatrix.matrix[0][0];
+	a1 = vMatrix.matrix[0][1];
+	a2 = vMatrix.matrix[0][2];
+
+	b0 = vMatrix.matrix[1][0];
+	b1 = vMatrix.matrix[1][1];
+	b2 = vMatrix.matrix[1][2];
+
+	c0 = vMatrix.matrix[2][0];
+	c1 = vMatrix.matrix[2][1];
+	c2 = vMatrix.matrix[2][2];
+
+	d0 = vMatrix.matrix[3][0];
+	d1 = vMatrix.matrix[3][1];
+	d2 = vMatrix.matrix[3][2];
+
+	in = me->vertices;
+	vTemp2 = me->xfmVert;
+	tFace = me->faceIndex;
+	
+	for (i=0,j=me->numFaces*3; j>0; i++,j--)
+	{
+		in = &me->vertices[*tFace];
+		
+		vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
+		vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
+		vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2;
+
+		if (((vTemp2->sz+DIST)>nearClip) &&
+		(((vTemp2->sz+DIST)<farClip) &&
+		((vTemp2->sx)>-horizClip) &&
+		((vTemp2->sx)<horizClip) &&
+		((vTemp2->sy)>-vertClip) &&
+		((vTemp2->sy)<vertClip)))
+			{
+			x = (long)vTemp2->sz + DIST;
+			oozd = -FOV * *(oneOver+x);
+			
+			vTemp2->sx = halfWidth+(vTemp2->sx * oozd);
+			vTemp2->sy = halfHeight+(vTemp2->sy * oozd);
+		
+		}
+		else
+			vTemp2->sz = 0;
+
+		vTemp2++;
+		tFace++;
+		in++;
+	}
+}
+
 void PCRenderLandscape(MDX_LANDSCAPE *me)
 {
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
@@ -597,6 +681,7 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 }
 
 unsigned long numObjDrawn;
+
 void DrawLandscape(MDX_LANDSCAPE *me)
 {
 	if (CheckBoundingBox(me->bBox,&me->objMatrix)==0)
@@ -608,6 +693,25 @@ void DrawLandscape(MDX_LANDSCAPE *me)
 		StartTimer(9,"Render landscape");	
 		PCRenderLandscape(me);
 		EndTimer(9);
+		numObjDrawn++;
+	}
+
+	if (me->next)
+		DrawLandscape(me->next);
+
+	if (me->children)
+		DrawLandscape(me->children);
+
+
+}
+
+void DrawLandscape2(MDX_LANDSCAPE *me)
+{
+	if (CheckBoundingBox(me->bBox,&me->objMatrix)==0)
+	{
+		PCPrepareLandscape2(me);
+		PCRenderLandscape(me);
+		
 		numObjDrawn++;
 	}
 
