@@ -77,6 +77,7 @@ void RunTitleScreen( )
 		StartDrawing ( "Title Screen" );
 
 #ifdef MBR_DEMO
+#ifdef PC_VERSION
 		FreeAllLists();
 		player[0].worldNum = WORLDID_LANGUAGE;
 		player[0].levelNum = LEVELID_FRONTEND5;
@@ -90,6 +91,7 @@ void RunTitleScreen( )
 		PlaySampleNot3D(0,0,0,0);
 		NUM_FROGS = 1;
 		return;
+#endif
 #endif
 	}
 

@@ -7,8 +7,8 @@ c_obj_files = $(patsubst %.c,%.obj,$(wildcard *.c)) $(patsubst %.c,%.obj,$(wildc
 compiler = ccn64
 assembler = asmn64
 
-;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DNO_CAMCASES -DNO_ENTITIES -I c:/n642/include
-;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DNO_CAMCASES -I c:/n642/include
+;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DNO_ENTITIES -I c:/n642/include
+;compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -DNO_ENTITIES -DNO_CAMCASES -I c:/n642/include
 compile_opt = -g -c -O0 -G0 -DN64_VERSION -DN64_VERSION_ONLY -I c:/n642/include
 assemble_opt = /l
 

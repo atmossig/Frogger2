@@ -599,7 +599,6 @@ void ObjViewReadControllerGeom()
 	if((button & CONT_B) && !(lastbutton & CONT_B))
 	{
 		// Toggle on/off antialiasing
-//		UseAAMode ^= 1;
 	}
 
 	if((button & CONT_A) && !(lastbutton & CONT_A))

@@ -12,10 +12,15 @@
 #ifndef SNDVIEW_H_INCLUDED
 #define SNDVIEW_H_INCLUDED
 
+extern void RunSndView ( void );
+
+
+#ifdef N64_VERSION
+
 extern unsigned long sfxNum;
 extern unsigned long musNum;
 
-extern void RunSndView ( void );
+#endif
 
 
 #endif

@@ -402,6 +402,13 @@ void LoadObjectBank(int num)
 
 	switch(num)
 	{
+		// GAMEGENERIC OBJECTS -------------------------------------------------------------------
+		case INGAMEGENERIC_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_g_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_g_0_SegmentRomEnd;
+			dprintf"GENERIC GAME OBJECT BANK - "));
+			break;
+
 		// FRONTEND OBJECTS ----------------------------------------------------------------------
 		case FRONTEND_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank_0_0_SegmentRomStart;

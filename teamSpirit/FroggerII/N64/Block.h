@@ -21,12 +21,16 @@ extern char _staticSegmentStart[];
 extern char __zbufferSegmentStart[];
 extern char _cfbSegmentStart[];
 
-extern char *_texBank1SegmentRomStart;	// SYSTEM TEXTURE BANK
+extern char *_texBank1SegmentRomStart;		// SYSTEM TEXTURE BANK
 extern char *_texBank1SegmentRomEnd;
-extern char *_texBank2SegmentRomStart;	// TITLE SCREENS TEXTURE BANK
+extern char *_texBank2SegmentRomStart;		// TITLE SCREENS TEXTURE BANK
 extern char *_texBank2SegmentRomEnd;
-extern char *_texBank3SegmentRomStart;	// IN GAME GENERIC TEXTURE BANK
+extern char *_texBank3SegmentRomStart;		// IN GAME GENERIC TEXTURE BANK
 extern char *_texBank3SegmentRomEnd;
+
+extern char *_objBank_g_0_SegmentRomStart;	// IN GAME GENERIC OBJECT BANK
+extern char *_objBank_g_0_SegmentRomEnd;
+
 
 //----- [ WORLD OBJECT / TEXTURE / ENTITY BANKS ] ------------------------------------------------
 
@@ -598,12 +602,6 @@ typedef struct
 {
 	Mtx	projection[4];
 
-	Mtx RotationX;
-	Mtx RotationY;
-
-	Mtx Translation;
-
-	Mtx TranslateIn;
 	Mtx TranslateOut;
 
 	Mtx modelling;
@@ -611,6 +609,7 @@ typedef struct
     
 	Mtx viewing[4];
 	Mtx noViewing;
+	Mtx noProjection;
 	Mtx identity;
 	Gfx glist[GLIST_LEN];
 
@@ -673,15 +672,6 @@ extern int					ScreenWidth;
 extern int					ScreenWidthDelta;
 extern int					UseUCode;
 extern int					OutLen;
-
-//extern char					UseTextureMode;
-//extern char					UseAAMode;
-//extern char					UseZMode;
-extern char					UseWireframeMode;
-
-//extern char					transparentSurf;
-//extern char					xluSurf;
-//extern char					aiSurf;
 
 extern char					mirrorTextures;
 

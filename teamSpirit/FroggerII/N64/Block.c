@@ -60,7 +60,7 @@ OSMesg			dummyMesg;
 
 char			outputMessageBuffer[256];
 
-char			ShadingMode         =  LIGHTING;
+char			ShadingMode         =  GOURAUD;
 int             UseGlobalTransforms =  0;
 int             ChangeVideoModes    =  0;
 char			numtasks			=  1;
@@ -69,11 +69,6 @@ int             ScreenWidth         =  SCREEN_WD;
 int             ScreenWidthDelta    =  0;
 int				UseUCode            =  3;
 int				OutLen              =  RDP_OUTPUT_BUF_LEN;
-
-char			UseTextureMode		= 1;
-char			UseAAMode           = 0;
-char			UseZMode            = 1;
-char			UseWireframeMode	= 0;
 
 char			transparentSurf		= 0;
 char			xluSurf				= 0;
@@ -838,6 +833,13 @@ void SetScissor()
 	gDPPipeSync(glistp++);
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: InitRDP()
+	Purpose			: inits. the RDP state for rendering
+	Parameters		: none
+	Returns			: none
+	Info			:
+*/
 void InitRDP()
 {
 	gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
@@ -847,25 +849,16 @@ void InitRDP()
 	gDPSetTextureLUT(glistp++, G_TT_NONE);
 	gDPSetTextureDetail(glistp++, G_TD_CLAMP);
 	gDPSetTexturePersp(glistp++, G_TP_PERSP);
-
 	gDPSetTextureFilter(glistp++, G_TF_BILERP);
-	
 	gDPSetTextureConvert(glistp++, G_TC_FILT);
 	gDPSetCombineKey(glistp++, G_CK_NONE);
     gDPSetAlphaCompare(glistp++, G_AC_NONE);
-
-//  gDPSetAlphaCompare(glistp++, G_AC_THRESHOLD);
-
 	gDPSetBlendColor(glistp++, 255, 255, 255, 0);
-
-//	gDPSetColorDither(glistp++, G_CD_MAGICSQ);
 	gDPSetColorDither(glistp++, G_CD_DISABLE);
-	
 	gDPSetMaskImage(glistp++, zbuffer);
-//	gDPSetPrimColor(glistp++, 0, 0, 0, 0, 64, 255);
 	gDPSetPrimColor(glistp++, 0, 0, 0, 0, 0, 255);
 	gDPSetDepthSource(glistp++,G_ZS_PIXEL);
-//	gDPSetRenderMode(glistp++,G_RM_AA_ZB_OPA_SURF,G_RM_AA_ZB_OPA_SURF2);
+
 	gDPPipeSync(glistp++);
 }
 
@@ -876,13 +869,13 @@ void InitRDP()
 	Returns			: none
 	Info			:
 */
-
 void InitRSP()
 {
 	gSPViewport(glistp++,&dynamicp->vp[screenNum]);
 
-    gSPClearGeometryMode(glistp++,G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
-								  G_TEXTURE_GEN_LINEAR | G_LOD | G_ZBUFFER);
+    gSPClearGeometryMode(glistp++,G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG |
+									G_LIGHTING | G_TEXTURE_GEN |
+									G_TEXTURE_GEN_LINEAR | G_LOD | G_ZBUFFER);
 
 	gSPClipRatio(glistp++,FRUSTRATIO_4);
 
@@ -955,11 +948,11 @@ void InitDisplayLists(void)
 	InitRDP();
 	InitRSP();
 
-	if(UseTextureMode)
+	if(renderMode.useTextureMode)
 	{
 		gDPSetTextureFilter(glistp++, G_TF_BILERP);
 
-		if (UseTextureMode == 2)
+		if (renderMode.useTextureMode == 2)
 		{
 			gSPTexture(glistp++, 0xffff, 0xffff, 5, G_TX_RENDERTILE, G_ON);
 			gDPSetTextureDetail(glistp++, G_TD_CLAMP);      
@@ -978,7 +971,7 @@ void InitDisplayLists(void)
 			if (ShadingMode == PRIMCOLOR)
 				gDPSetCombineMode(glistp++, G_CC_DECALRGB, G_CC_DECALRGB)
 			else
-				gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGB);  	  
+				gDPSetCombineMode(glistp++, G_CC_MODULATERGBA, G_CC_MODULATERGBA);
 		}
 	}
 	else
@@ -1077,7 +1070,7 @@ void DrawGraphics(void *arg)
 	short *msg_type = NULL;
 	int ucodeType = 0;
 	int i;
-		
+
 	while(1)
 	{
 		osRecvMesg(&gfx_msgQ,(OSMesg *)&msg_type,OS_MESG_BLOCK);
@@ -1129,8 +1122,8 @@ void DrawGraphics(void *arg)
 //				PrintBackdrops();
 //				CleanupAndSendDisplayList(UCODE_POLY,0);
 
-				if(onlyDrawBackdrops)
-					goto cleanup;
+//				if(onlyDrawBackdrops)
+//					goto cleanup;
 
 				InitDisplayLists();
 
@@ -1145,7 +1138,7 @@ void DrawGraphics(void *arg)
 
 				//***********************************
 	
-//				SetRenderMode();
+				SetRenderMode();
 				ApplyGlobalTransformations();
 
 				// turn off AA for now on N64....AndyE
@@ -1166,9 +1159,6 @@ void DrawGraphics(void *arg)
 
 				DrawSpecialFX();
 
-				// for non-transforming stuff...
-				ClearViewing();
-
 				oldFogMode = fog.mode;
 				fog.mode = 0;
 				SetRenderMode();
@@ -1187,8 +1177,6 @@ void DrawGraphics(void *arg)
 					// twice to simulate doing a vertex wodge over the normal level.
 					DrawScreenGrab( MOTION_BLUR | USE_GRAB_BUFFER | BLUR_INWARD | OVERLAY_SOLID | RECALC_VTX );
 					DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | BLUR_LIGHT );
-
-					DrawSwirlFX( );
 				}
 				else if( grabData.afterEffect == PAUSE_EXIT )
 					DrawScreenGrab( MOTION_BLUR | TINT_BLUE | TILE_SHRINK_HORZ | TILE_SHRINK_VERT );
@@ -1200,17 +1188,11 @@ void DrawGraphics(void *arg)
 				if( gameState.mode == GAME_MODE && text3DList.numEntries )
 					Print3DText( );					
 
-				if(darkenedLevel)
-					DrawDarkenedLevel();
-
 				if(displayOverlays)
 				{
 					PrintSpriteOverlays();
 					PrintTextOverlays();
 				}
-
-				if(doScreenFade)
-					ScreenFade(fadeDir,fadeStep);
 
 cleanup:
 				TIMER_PrintTimers();
@@ -1460,24 +1442,16 @@ void ClearViewing()
 	u16 perspNorm;
 
     gDPPipeSync(glistp++);
-	guPerspective(&dynamicp->projection[screenNum],&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
+	guPerspective(&dynamicp->noProjection,&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
 
-	guLookAtReflect(&(dynamicp->noViewing),&(dynamicp->lookat[screenNum]),
-			0,0,0,
-			0,0,1,
-			0,1,0);			
+	guLookAt(&dynamicp->noViewing,
+		0,0,0,
+		0,0,1,
+		0,1,0);
 	
-	//guLookAt(&dynamicp->noViewing,
-	//	0,0,0,
-	//	0,0,1,
-	//	0, 1, 0);
-	
-	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->projection[screenNum])),G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
-	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->noViewing)),G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);  
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->noProjection)),G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->noViewing)),G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);  
 	gSPPerspNormalize(glistp++,perspNorm);
-
-	gSPLight (glistp++,&diffuseL1,1);
-	gSPNumLights (glistp++,NUMLIGHTS_0);
 }
 
 /*	--------------------------------------------------------------------------------

@@ -66,7 +66,6 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		/* 
 		Check for NME flags and do different effects
 		*/
-		cameraShake = 25;
 		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
 		PlaySample(42,NULL,192,128);
 		frog[num]->action.safe = 25;

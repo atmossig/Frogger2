@@ -71,11 +71,8 @@ RENDER_MODE renderMode =
 	0,	//	UBYTE	objectColour;   
 	0,	//	UBYTE	actorColour;    
 	0,	//	UBYTE	pixelOut;       
-	1,	//	UBYTE	phongAllowed;   
+	0,	//	UBYTE	phongAllowed;   
 };
-
-
-//void DrawObject(OBJECT *obj);
 
 
 /*	--------------------------------------------------------------------------------

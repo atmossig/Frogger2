@@ -479,74 +479,25 @@ void PrintSpriteOverlays()
 */
 void DrawSpecialFX()
 {
-	if(rippleFXList.numEntries)
-		DrawFXRipples();
-
-	if ( ( gameState.mode == GAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
-		 ( gameState.mode == CAMEO_MODE ) )
-		ProcessShadows();
+	if(specFXList.numEntries)
+	{
+		SPECFX *fx;
+		for(fx = specFXList.head.next; fx!=&specFXList.head; fx=fx->next)
+			if(fx->Draw)
+				fx->Draw(fx);
+	}
 }
 
 
 /*	--------------------------------------------------------------------------------
 	Function		: DrawFXRipples
 	Purpose			: draws the ripple based FX
-	Parameters		: 
+	Parameters		: SPECFX *
 	Returns			: void
 	Info			: 
 */
-void DrawFXRipples()
+void DrawFXRipple(SPECFX *ripple)
 {
-	FX_RIPPLE *ripple,*ripple2;
-	TEXTURE *theTexture;
-	unsigned long i;
-	float r,tc;
-	QUATERNION q;
-	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-	
-	gSPDisplayList(glistp++,croakRing_dl);
-
-	// go through list and draw ripples
-	for(ripple = rippleFXList.head.next; ripple != &rippleFXList.head; ripple = ripple2)
-	{
-		ripple2 = ripple->next;
-		if(ripple->deadCount)
-			continue;
-
-		// build matrices
-		NormalToQuaternion(&q,&ripple->normal);
-		QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-
-		guTranslateF(transMtx,ripple->origin.v[X],ripple->origin.v[Y],ripple->origin.v[Z]);
-		guMtxCatF(rotMtx,transMtx,tempMtx);
-
-		guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-		gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-					G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-		r = ripple->radius;
-
-		tc = 1024;
-		if(ripple->rippleType == RIPPLE_TYPE_BLASTRING)
-			tc = 2048;
-
-		V((&ripple->verts[0]),-r,0,r,0,0,tc,ripple->r,ripple->g,ripple->b,ripple->alpha);
-		V((&ripple->verts[1]),r,0,r,0,tc,tc,ripple->r,ripple->g,ripple->b,ripple->alpha);
-		V((&ripple->verts[2]),r,0,-r,0,tc,0,ripple->r,ripple->g,ripple->b,ripple->alpha);
-		V((&ripple->verts[3]),-r,0,-r,0,0,0,ripple->r,ripple->g,ripple->b,ripple->alpha);
-
-		theTexture = ripple->txtr;
-		gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,
-							theTexture->sx,theTexture->sy,0,
-							G_TX_MIRROR,G_TX_MIRROR,
-							theTexture->TCScaleX,theTexture->TCScaleY,
-							G_TX_NOLOD,G_TX_NOLOD);
-
-		gSPVertex(glistp++,&ripple->verts[0],4,0);
-		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
-
-		gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
-	}
 }
 
 
@@ -559,83 +510,6 @@ void DrawFXRipples()
 */
 void ProcessShadows()
 {
-	TEXTURE *theTexture;
-	VECTOR vec;
-	ENEMY *nme,*nme2;
-	PLATFORM *plat;
-	GARIB *garib;
-	int i;
-			
-	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
-
-	gDPSetRenderMode(glistp++,G_RM_ZB_CLD_SURF,G_RM_ZB_CLD_SURF2);
-	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
-
-	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
-	gDPSetTextureLUT(glistp++,G_TT_NONE);
-	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,
-						G_TX_CLAMP,G_TX_CLAMP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
-
-//------------------------------------------------------------------------------------------------
-	// process frogs and babies shadows
-
-	i = NUM_FROGS;
-	while(i--)
-	{
-		if(frog[i]->actor->shadow)
-		{
-			vec.v[X] = frog[i]->actor->pos.v[X];
-			vec.v[Y] = currTile[i]->centre.v[Y] + 1;
-			vec.v[Z] = frog[i]->actor->pos.v[Z];
-			DrawShadow(&vec,NULL,frog[i]->actor->shadow->radius,0,frog[i]->actor->shadow->alpha,frog[i]->actor->shadow->vert,NULL);
-		}
-	}
-
-//------------------------------------------------------------------------------------------------
-
-	i = numBabies;
-	while(i--)
-	{
-		if(!babies[i]->action.isSaved)
-		{
-			if(babies[i]->actor->shadow && babies[i]->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
-			{
-				vec.v[X] = bTStart[i]->centre.v[X];
-				vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
-				vec.v[Z] = bTStart[i]->centre.v[Z];
-				DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL);
-			}
-		}
-	}
-
-	// process enemy shadows
-	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme2)
-	{
-		nme2 = nme->next;
-
-		if(nme->nmeActor->actor->shadow && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
-		{
-			vec.v[X] = nme->nmeActor->actor->pos.v[X];
-			vec.v[Y] = nme->inTile->centre.v[Y] + 1;
-			vec.v[Z] = nme->nmeActor->actor->pos.v[Z];
-			DrawShadow(&vec,NULL,nme->nmeActor->actor->shadow->radius,0,nme->nmeActor->actor->shadow->alpha,nme->nmeActor->actor->shadow->vert,NULL);
-		}
-	}
-
-	// process platform shadows
-	// to be done !!!
-
-	// process garib shadows
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
-	{
-		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
-		{
-			vec.v[X] = garib->sprite.pos.v[X];
-			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
-			vec.v[Z] = garib->sprite.pos.v[Z];
-			DrawShadow(&vec,NULL,garib->shadow.radius,0,garib->shadow.alpha,garib->shadow.vert,NULL);
-		}
-	}
 }
 
 
@@ -648,197 +522,6 @@ void ProcessShadows()
 */
 void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir)
 {
-	QUATERNION q;
-	float rotMtx[4][4],scaleMtx[4][4],transMtx[4][4],tempMtx[4][4];
-	float scale;
-	int i;
-	VECTOR tempVect;
-	VECTOR normal = { 0,1,0 };
-	
-	scale = size;
-	gDPSetPrimColor(glistp++,0,0,0,0,0,alpha);
-	if(vert != shadowVtx)
-	{
-		for(i=0; i<4; i++)
-		{
-			vert[i].v.cn[3] = alpha;
-		}
-	}
-
-	NormalToQuaternion(&q,&normal);
-	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-
-	tempVect.v[X] = pos->v[X];
-	tempVect.v[Y] = pos->v[Y];
-	tempVect.v[Z] = pos->v[Z];
-
-	guTranslateF(transMtx,tempVect.v[X],tempVect.v[Y],tempVect.v[Z]);
-	guScaleF(scaleMtx,scale,1,scale);
-	guMtxCatF(rotMtx,transMtx,tempMtx);
-	guMtxCatF(scaleMtx,tempMtx,tempMtx);
-	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-
-	// push onto matrix stack
-	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	gSPVertex(glistp++,vert,4,0);
-	gSP2Triangles(glistp++,0,1,2,2,0,2,3,2);
-	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: DrawSwirlFX
-	Purpose			: Draws a swirling black overlay
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-
-short testDim = 7;
-
-void DrawSwirlFX()
-{
-	TEXTURE *theTexture;
-	float d;
-	QUATERNION q;
-	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-	float newRotMtx[4][4];
-	static float angle = 0;
-						
-	gSPDisplayList(glistp++,croakRing_dl);
-
-	// draw screen-aligned quad
-	NormalToQuaternion(&q,&inVec);
-	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-
-	guRotateF(newRotMtx,angle,0,0,1);
-
-	guTranslateF(transMtx,0,0,10);
-	guMtxCatF(rotMtx,newRotMtx,tempMtx);
-	guMtxCatF(tempMtx,transMtx,tempMtx);
-
-	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	d = testDim;
-	V((&verts[0]),-d,0,d,0,1024,1024,testR,testG,testB,testA);
-	V((&verts[1]),d,0,d,0,0,1024,testR,testG,testB,testA);
-	V((&verts[2]),d,0,-d,0,0,0,testR,testG,testB,testA);
-	V((&verts[3]),-d,0,-d,0,1024,0,testR,testG,testB,testA);
-
-	FindTexture(&theTexture,UpdateCRC("ai_pausef.bmp"),YES);
-	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
-
-	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
-
-	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
-
-	angle += 2;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ScreenFade
-	Purpose			: fades the screen in or out
-	Parameters		: UBYTE,UBYTE
-	Returns			: void
-	Info			: 
-*/
-void ScreenFade(UBYTE dir,UBYTE step)
-{
-	TEXTURE *theTexture;
-	float d;
-	QUATERNION q;
-	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-						
-	gSPDisplayList(glistp++,croakRing_dl);
-
-	NormalToQuaternion(&q,&inVec);
-	// draw screen-aligned quad
-	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-
-	guTranslateF(transMtx,0,0,10);
-	guMtxCatF(rotMtx,transMtx,tempMtx);
-
-	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	d = testDim;
-	V((&verts[0]),-d,0,d,0,1024,1024,testR,testG,testB,fadeOut);
-	V((&verts[1]),d,0,d,0,0,1024,testR,testG,testB,fadeOut);
-	V((&verts[2]),d,0,-d,0,0,0,testR,testG,testB,fadeOut);
-	V((&verts[3]),-d,0,-d,0,1024,0,testR,testG,testB,fadeOut);
-
-	FindTexture(&theTexture,UpdateCRC("ai_fullwhite.bmp"),YES);
-	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
-
-	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
-
-	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
-
-	if(dir)
-	{
-		fadeOut += step;
-		if(fadeOut > 255)
-			fadeOut = 255;
-	}
-	else
-	{
-		fadeOut -= step;
-		if(fadeOut < 0)
-			fadeOut = 0;
-	}
-
-	doScreenFade--;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: DrawDarkenedLevel
-	Purpose			: draws alpha intensity 'darkness' over a level
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void DrawDarkenedLevel()
-{
-	TEXTURE *theTexture;
-	float d;
-	QUATERNION q;
-	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-						
-	gSPDisplayList(glistp++,croakRing_dl);
-
-	// draw screen-aligned quad
-	NormalToQuaternion(&q,&inVec);
-	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-
-	guTranslateF(transMtx,-0.5,-0.5,10);
-	guMtxCatF(rotMtx,transMtx,tempMtx);
-
-	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	d = testDim;
-	V((&verts[0]),-d,0,d,0,1024,1024,testR,testG,testB,lightIntensity);
-	V((&verts[1]),d,0,d,0,0,1024,testR,testG,testB,lightIntensity);
-	V((&verts[2]),d,0,-d,0,0,0,testR,testG,testB,lightIntensity);
-	V((&verts[3]),-d,0,-d,0,1024,0,testR,testG,testB,lightIntensity);
-
-	FindTexture(&theTexture,UpdateCRC("ai_bigcircle.bmp"),YES);
-	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
-
-	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
-
-	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
 

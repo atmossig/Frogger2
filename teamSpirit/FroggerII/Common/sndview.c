@@ -9,6 +9,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#define F3DEX_GBI_2
+
 //----------------------------------------------------------------------------------------------//
 //----- SYSTEM INCLUDES ------------------------------------------------------------------------//
 //----------------------------------------------------------------------------------------------//
@@ -378,21 +380,25 @@ TEXTOVERLAY *sfxName,*musName;
 
 unsigned long sfxNum	= 0;
 unsigned long musNum	= 0;
-
 unsigned long sfx		= 1;
 unsigned long mus		= 0;
-
 int sfxRes				= 0;
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunSndView
+	Purpose			: runs the sound viewer
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void RunSndView()
 {
-	unsigned long counter;
 	static TEXTOVERLAY *title,*titleShadow,*titleSfx,*titleMus;
 	static u16 button,lastbutton;
 	static s16 stickX,stickY;
 	static SPRITEOVERLAY *curPane;
 	SPRITEOVERLAY *sprPane;
-	static float sndSeed = 0.0F;
 	
 	if(frameCount == 1)
 	{
@@ -447,6 +453,7 @@ void RunSndView()
 		sfxRes	= 0;
 	}
 
+	// read controller
 	button = controllerdata[ActiveController].button;
 	stickX = controllerdata[ActiveController].stick_x;
 	stickY = controllerdata[ActiveController].stick_y;
@@ -627,10 +634,6 @@ void RunSndView()
 	}
 
 	curPane->a = 255 * Fabs(sinf(frameCount/12.5));
-
-	title->xPos = 30 + (sinf(sndSeed) * 5);
-	titleShadow->xPos = 32 - (sinf(sndSeed) * 5);
-	sndSeed += 0.2F;
 }
 
 #endif

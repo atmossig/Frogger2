@@ -209,6 +209,20 @@ _cfbSegmentEnd          alias   _cfb_objend
 
 ;----- [ OBJECTS ] -------------------------------------------------------------------------------
 
+
+; [ GAME GENERIC OBJECTS ] -----------------------------------------------------------------------
+
+objBankg0       group   obj()
+objBankg0bss    group   obj(),bss
+
+_objBank_g_0_SegmentRomStart        alias   _objBankg0_org
+_objBank_g_0_SegmentRomEnd          alias   _objBankg0_orgend
+
+        section.16      objBankg0.data,objBankg0
+
+oBankg0  incbin  "objects/gamegeneric.nob",objBankg0.data,64
+
+
 ; [ FRONTEND WORLD MASTER ] ----------------------------------------------------------------------
 
 objBank00       group   obj()

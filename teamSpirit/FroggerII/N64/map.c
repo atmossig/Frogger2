@@ -1148,8 +1148,5 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	frog[pl]->actor->scale.v[Y] = globalFrogScale;
 	frog[pl]->actor->scale.v[Z] = globalFrogScale;
 
-	while(i--)
-		CreateAndAddFXSmoke(&tile->centre,64,30);
-
 	drawScreenGrab = 0;
 }

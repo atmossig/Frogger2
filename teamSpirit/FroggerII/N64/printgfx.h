@@ -82,15 +82,10 @@ void PrintOverlays();
 void PrintSpriteOverlays();
 
 void DrawSpecialFX();
-void DrawFXRipples();
+void DrawFXRipple(SPECFX *ripple);
 
 void ProcessShadows();
 void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir);
-
-void DrawSwirlFX();
-void ScreenFade(UBYTE dir,UBYTE step);
-
-void DrawDarkenedLevel();
 
 
 SPRITE *PrintSpritesOpaque();

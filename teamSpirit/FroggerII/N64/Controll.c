@@ -107,13 +107,8 @@ void ResetParameters()
 //	camera.rot.v[1]		= 0;	
 //	camera.rot.v[2]		= 0;
 
-	ShadingMode         = LIGHTING;
+	ShadingMode         = GOURAUD;
 	UseGlobalTransforms = 0;
-
-//	UseTextureMode		= 1;
-//	UseAAMode			= 0;
-//	UseZMode			= 1;
-	UseWireframeMode	= 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -309,12 +304,6 @@ void ReadDebugPad()
 
 	if((button & CONT_L) && !(lastbutton & CONT_L))
     {
-#ifndef ROM_BUILD
-		if(UseWireframeMode)
-			UseWireframeMode = 0;
-		else
-			UseWireframeMode = 1;
-#endif
 	}
 
 	if((button & CONT_R) && !(lastbutton & CONT_R))
