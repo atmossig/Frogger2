@@ -18,12 +18,12 @@
 #include "layout.h"
 #include "flatpack.h"
 
-#ifdef PSX_VERSION
-#include <libcrypt.h>
-#endif
+//#ifdef PSX_VERSION
+//#include <libcrypt.h>
+//#endif
 
 
-#define DECRYPTION 0
+//#define DECRYPTION 0
 
 int numStakFiles = 0;
 
@@ -297,14 +297,14 @@ void LoadStakFile ( int stakBank )
 		FREE ( stakFiles [ numStakFiles ].stakFile );
 
 	stakFiles [ numStakFiles++ ].stakFile = (char*)fileLoad ( file, &fileLength);
-#ifdef PSX_VERSION
-#if PAL_MODE==1
-#if DECRYPTION==1
-#if GOLDCD==1
-	if(stakBank == FRONTEND1_STAK)
-	{
-		Decrypt(stakFiles[numStakFiles - 1].stakFile);
-	}
+//#ifdef PSX_VERSION
+//#if PAL_MODE==1
+//#if DECRYPTION==1
+//#if GOLDCD==1
+//	if(stakBank == FRONTEND1_STAK)
+//	{
+//		Decrypt(stakFiles[numStakFiles - 1].stakFile);
+//	}
 /*
 #else
 	if(stakBank == FRONTEND1_STAK)
@@ -315,10 +315,10 @@ void LoadStakFile ( int stakBank )
 		}
 	}
 */
-#endif
-#endif
-#endif
-#endif
+//#endif
+//#endif
+//#endif
+//#endif
 }
 
 

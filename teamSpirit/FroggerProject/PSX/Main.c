@@ -36,7 +36,7 @@
 #include <libetc.h>
 #include <libapi.h>
 #include <libspu.h>
-#include <libcrypt.h>
+//#include <libcrypt.h>
 
 #include <inline_c.h>
 #include <gtemac.h>
@@ -563,11 +563,11 @@ int main ( )
 				LoadCodeOverlay(VIDEO_OVERLAY);
 				actFrameCount = 180 - 32;
 				ScreenFade(255,0,30);
-#if GOLDCD==1		
-#if PALMODE==1
-				initialiseCrypt();
-#endif
-#endif
+//#if GOLDCD==1		
+//#if PALMODE==1
+//				initialiseCrypt();
+//#endif
+//#endif
 			}
 
 
@@ -1226,21 +1226,21 @@ void DisplayOnScreenInfo ( void )
 
 
 
-void initialiseCrypt()
-{
-	unsigned char result[8];
+//void initialiseCrypt()
+//{
+//	unsigned char result[8];
 
-	utilPrintf("Reading crypt key\n");
-	InitCrypt();
-	result[0] = CdlModeSize1;
-	CdControlB(CdlSetmode, result, result);
-	VSync(0);
-	VSync(4);
-	VSync(4);
-	VSync(4);
-	VSync(4);
-	ReadCrypt();
-	while(!GOTKEY)
-		VSync(1);
-	utilPrintf("Obtained crypt key\n");
-}
+//	utilPrintf("Reading crypt key\n");
+//	InitCrypt();
+//	result[0] = CdlModeSize1;
+//	CdControlB(CdlSetmode, result, result);
+//	VSync(0);
+//	VSync(4);
+//	VSync(4);
+//	VSync(4);
+//	VSync(4);
+//	ReadCrypt();
+//	while(!GOTKEY)
+//		VSync(1);
+//	utilPrintf("Obtained crypt key\n");
+//}

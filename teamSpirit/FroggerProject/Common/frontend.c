@@ -771,8 +771,10 @@ void RunMultiWinRace( )
 		{
 			if (gameState.multi == MULTILOCAL)
 				sprintf(countdownString,GAMESTRING(STR_MULTI_WINMATCH),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
+#ifdef PC_VERSION
 			else
 				sprintf(countdownString,GAMESTRING(STR_MULTI_WINMATCH),NetGetPlayerName(gameWinner));
+#endif
 		}
 		else if( gameWinner == MULTI_ROUND_DRAW )
 		{
@@ -782,8 +784,10 @@ void RunMultiWinRace( )
 		{
 			if (gameState.multi == MULTILOCAL)
 				sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
+#ifdef PC_VERSION
 			else
 				sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),NetGetPlayerName(gameWinner));
+#endif
 		}
 
 		multiHud.centreText->text = countdownString;
