@@ -506,10 +506,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 #ifdef USE_EDITOR
 			if (editorOk)
-			{
-				SetupViewMatrix();
 				RunEditor();
-			}
 #endif
 
 			DrawGraphics();
@@ -651,20 +648,25 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
+				newTickCount = GetTickCount()-actTickCountModifier;
+
 				if (gameState.mode == PAUSE_MODE)
 				{
-					newTickCount = GetTickCount()-actTickCountModifier;
 					pauseGameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
 					actTickCount = newTickCount;
 					gameSpeed = 0;					
 				}
 				else
 				{
-					newTickCount = GetTickCount()-actTickCountModifier;
-					gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
+#ifdef FIX_FRAME_TIME
+					gameSpeed = 3;
+					actTickCount += 3*60;
+					actFrameCount += 3;
+#else
+					gameSpeed = (newTickCount-actTickCount)*(60.0/1000.0);
 					actTickCount = newTickCount;
-					actFrameCount = (actTickCount/(1000.0/60.0));
-
+					actFrameCount = actTickCount*(60.0/1000.0);
+#endif
 /*					if( gameSpeed < targetSpeed ) farClip+=10;
 					else farClip-=10;
 
