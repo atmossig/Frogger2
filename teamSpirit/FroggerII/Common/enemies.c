@@ -508,7 +508,7 @@ void UpdateSlerpPathNME( ENEMY *cur )
 	QuatSlerp( &q1, &q2, speed, &act->qRot );
 
 	// Move forwards a bit in direction of facing
-	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+//	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
 	if( cur->flags & ENEMY_NEW_RANDOMSPEED )
 	{
 		ScaleVector( &fwd, cur->speed*gameSpeed*((float)Random(100)/100.0F) );
@@ -1406,7 +1406,7 @@ void UpdateFlappyThing( ENEMY *nme )
 	QuatSlerp( &q1, &q2, speed, &act->qRot );
 
 	// Move forwards a bit in direction of facing
-	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+//	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
 	ScaleVector( &fwd, path->nodes[1].speed*gameSpeed );
 	AddVector( &act->pos, &fwd, &act->pos );
 

@@ -1250,14 +1250,14 @@ void UpdateFXFly( SPECFX *fx )
 	QuatSlerp( &q1, &q2, speed, &act->qRot );
 
 	// Forward motion
-	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+//	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
 	ScaleVector( &fwd, fx->speed*gameSpeed );
 	AddToVector( &fx->vel, &fwd );
 
 	// Gravity
-	SetVector( &down, &fx->normal );
-	ScaleVector( &down, fx->gravity );
-	AddToVector( &fx->vel, &down );
+//	SetVector( &down, &fx->normal );
+//	ScaleVector( &down, fx->gravity );
+//	AddToVector( &fx->vel, &down );
 
 	// World coordinates
 	AddVector( &act->pos, &fx->vel, &fx->origin );
