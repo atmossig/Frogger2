@@ -775,32 +775,28 @@ void FreeSampleList( void )
 	SAMPLE *cur,*next;
 	unsigned long stat, i;
 
-	if( sfx_anim_map ) FREE( sfx_anim_map );
-
-	// check if any elements in list
-	if( !soundList.numEntries )
-		return;
+	if( sfx_anim_map ) 
+	{
+		FREE( sfx_anim_map );
+		sfx_anim_map = NULL;
+	}
 
 	FreeBufSampleList( );
 
 	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
 
 	// traverse enemy list and free elements
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	while( soundList.head.next && soundList.head.next != &soundList.head )
 	{
-		next = cur->next;
-
-		cur->lpdsBuffer->lpVtbl->GetStatus( cur->lpdsBuffer, &stat );
+		soundList.head.next->lpdsBuffer->lpVtbl->GetStatus( soundList.head.next->lpdsBuffer, &stat );
 		if( stat & DSBSTATUS_PLAYING )
-			cur->lpdsBuffer->lpVtbl->Stop( cur->lpdsBuffer );
+			soundList.head.next->lpdsBuffer->lpVtbl->Stop( soundList.head.next->lpdsBuffer );
 
-		RemoveSample( cur );
+		RemoveSample( soundList.head.next );
 	}
 
 	for( i=0; i<NUM_GENERIC_SFX; i++ )
 		genSfx[i] = NULL;
-
-	sfx_anim_map = NULL;
 
 	dispSample = NULL;
 
@@ -814,22 +810,16 @@ void FreeBufSampleList ( void )
 	unsigned long stat;
 	BUFSAMPLE *cur,*next;
 
-	// check if any elements in list
-	if( !bufferList.numEntries )
-		return;
-
 	utilPrintf("Freeing linked list : BUFSAMPLE : (%d elements)\n",bufferList.numEntries);
 
 	// traverse enemy list and free elements
-	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
+	while( bufferList.head.next && bufferList.head.next != &bufferList.head )
 	{
-		next = cur->next;
-	
-		cur->lpdsBuffer->lpVtbl->GetStatus( cur->lpdsBuffer, &stat );
+		bufferList.head.next->lpdsBuffer->lpVtbl->GetStatus( bufferList.head.next->lpdsBuffer, &stat );
 		if( stat & DSBSTATUS_PLAYING )
-			cur->lpdsBuffer->lpVtbl->Stop( cur->lpdsBuffer );
+			bufferList.head.next->lpdsBuffer->lpVtbl->Stop( bufferList.head.next->lpdsBuffer );
 
-		RemoveBufSample( cur );
+		RemoveBufSample( bufferList.head.next );
 	}
 
 	// initialise list for future use
