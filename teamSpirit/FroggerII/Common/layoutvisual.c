@@ -642,7 +642,6 @@ void FreeAllLists()
 	FreeTextureList();
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();
-	FreeCameoList();
 	FreeTransCameraList();
 #ifndef PC_VERSION
 	FreeLevelEntitys();
