@@ -10,6 +10,9 @@
 #ifndef __ISLLOCAL_H_
 #define __ISLLOCAL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // use this macro to access the string you want
 #define TEXTSTR(n) (gameTextStr[n])
@@ -38,6 +41,9 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang);
 
 void gameTextDestroy();
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
