@@ -28,13 +28,13 @@ CREATEENTITY *EditorAddCameraCase(EDITGROUP *selection, unsigned long flags, EDV
 	int count;
 	
 	// stick icon at the "middle" (mean average) position
-	ZeroVector(v);
+	ZeroVector(&avg);
 
 	for (node = selection->nodes, count = 0; node; node = node->link, count++)
 	{
-		EDVECTOR v;
-		GetTilePos(&v, (GAMETILE*)node->thing);
-		AddToVector(&avg, &v);
+		EDVECTOR tv;
+		GetTilePos(&tv, (GAMETILE*)node->thing);
+		AddToVector(&avg, &tv);
 	}
 
 	if( count )
