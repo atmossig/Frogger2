@@ -202,7 +202,7 @@ void GameProcessController(long pl)
 
 		if( ((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && !(player[pl].hasDoubleJumped) )
 		{
-			int dir=-1;
+			int dir = player[pl].extendedHopDir;
 
 			if( button[pl] & CONT_UP )
 				dir = MOVE_UP;
@@ -213,22 +213,19 @@ void GameProcessController(long pl)
 			else if( button[pl] & CONT_RIGHT )
 				dir = MOVE_RIGHT;
 
-			if( dir != -1 )
-			{
-				// player is superhopping - make frog double jump
-				player[pl].hasDoubleJumped = 1;
-				player[pl].canJump = 0;
-				currTile[pl] = destTile[pl];
-				frogFacing[pl] = nextFrogFacing[pl];
-				camFacing = nextCamFacing;
+			// player is superhopping - make frog double jump
+			player[pl].hasDoubleJumped = 1;
+			player[pl].canJump = 0;
+			currTile[pl] = destTile[pl];
+			frogFacing[pl] = nextFrogFacing[pl];
+			camFacing = nextCamFacing;
 
-				MoveToRequestedDestination( dir, pl );
-				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
-				player[pl].extendedHopDir = dir;
+			MoveToRequestedDestination( dir, pl );
+			nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
+			player[pl].extendedHopDir = dir;
 
-				AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
-				AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
-			}
+			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
+			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 			// To enable endless double jumping
 			//player[pl].hasDoubleJumped = 0;
 		}
