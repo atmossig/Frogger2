@@ -13,6 +13,9 @@
 #include "incs.h"
 
 
+// #define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
+
+
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
 TEXTURE *tempTexture;
 
@@ -41,8 +44,7 @@ void FreeAllTextureBanks()
 	{
 		next = cur->next;
 
-		if (cur->surf)
-			ReleaseSurface(cur->surf);
+		ReleaseSurface(cur->surf);
 		JallocFree((BYTE**)&cur->data);
 //		JallocFree((BYTE**)&tme->hdl);
 		JallocFree((BYTE**)&cur);
@@ -118,7 +120,9 @@ short *GetTexDataFromCRC (long CRC)
 		me=me->next;
 	}
 
+#ifdef PRINT_TEXTURE_DEBUG
 	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
+#endif
 	return NULL;
 }
 
@@ -134,7 +138,9 @@ D3DTEXTUREHANDLE GetTexHandleFromCRC (long CRC)
 		me=me->next;
 	}
 
+#ifdef PRINT_TEXTURE_DEBUG
 	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
+#endif
 	return NULL;
 }
 
@@ -150,7 +156,9 @@ TEXENTRY *GetTexEntryFromCRC (long CRC)
 		me=me->next;
 	}
 
+#ifdef PRINT_TEXTURE_DEBUG
 	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
+#endif
 	return NULL;
 }
 
@@ -290,7 +298,9 @@ void LoadTextureBank(int num)
 
 	strcpy (Sfilename,filename);
 	strcat (Sfilename,"*.bmp");
+#ifdef PRINT_TEXTURE_DEBUG
 	dprintf"Loading %s from %s\n",message,filename));
+#endif
 	fHandle = FindFirstFile (Sfilename,&fData);
 
 	if (fHandle != INVALID_HANDLE_VALUE)
@@ -305,7 +315,9 @@ void LoadTextureBank(int num)
 			strcpy (finalFile,filename);
 			strcat (finalFile,fData.cFileName);
 			strcpy (finalShort,fData.cFileName);
+#ifdef PRINT_TEXTURE_DEBUG
 			dprintf"Loading %s %s\n",finalFile,fData.cFileName));
+#endif
 			ret = FindNextFile (fHandle,&fData);
 
 			AddTextureToTexList (finalFile,finalShort,!ret);			
