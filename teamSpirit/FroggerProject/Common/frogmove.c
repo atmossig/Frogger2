@@ -720,7 +720,7 @@ void UpdateFroggerPos(long pl)
 
 	if (cameoMode)
 	{
-		player[pl].frogState &= FROGSTATUS_ALLHOPFLAGS;
+		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 //			~(FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD |
 //			FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR);
 		//player[pl].canJump = 0;
