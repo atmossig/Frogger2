@@ -1146,7 +1146,7 @@ int WriteShort(FILE *f, short s)
 	return rit;
 }
 
-#define RECORDSIZE		92
+#define RECORDSIZE		64
 
 #define WRITEINT(v)		WriteInt(f, (int)(v))
 #define WRITEINDEX(v)	WriteInt(f, ((v)==-1) ? -1 : (v)*RECORDSIZE)
@@ -1172,7 +1172,7 @@ void WritePSXTileData(FILE *f)
 		for (i=0; i<4; i++)
 			WRITEINT(squareList[tile].adj[i]);
 
-		WRITEINT(tile+1);	// next
+		//WRITEINT(tile+1);	// next
 
 		WRITEINT(squareList[tile].status);
 		
@@ -1181,15 +1181,18 @@ void WritePSXTileData(FILE *f)
 		WRITESHORT(squareList[tile].centre.z);
 		WRITESHORT(0);
 
-		WRITEINT(squareList[tile].vn.x * 4096);
-		WRITEINT(squareList[tile].vn.y * 4096);
-		WRITEINT(squareList[tile].vn.z * 4096);
+		WRITESHORT(squareList[tile].vn.x * 4096);
+		WRITESHORT(squareList[tile].vn.y * 4096);
+		WRITESHORT(squareList[tile].vn.z * 4096);
+		WRITESHORT(0);
 		
 		for (i=0; i<4; i++)
 		{
-			WRITEINT(squareList[tile].n[(i+1)%4].x * 4096);
-			WRITEINT(squareList[tile].n[(i+1)%4].y * 4096);
-			WRITEINT(squareList[tile].n[(i+1)%4].z * 4096);
+			// JH: Changed from WRITEINT to WRITESHORT so that we can save memory.
+			WRITESHORT(squareList[tile].n[(i+1)%4].x * 4096);
+			WRITESHORT(squareList[tile].n[(i+1)%4].y * 4096);
+			WRITESHORT(squareList[tile].n[(i+1)%4].z * 4096);
+			WRITESHORT(0);
 		}
 	}
 }
