@@ -462,7 +462,7 @@ void UpdateFXExplode( SPECFX *fx )
 				fx->sprites[i].a = 1;
 				fx->particles[i].bounce = 1;
 
-				ring = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0,1, 0.3 );
+				ring = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
 				continue;
 			}
 		}
