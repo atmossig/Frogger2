@@ -62,7 +62,6 @@ unsigned long lawnPath17[] = { 7,	583,580,526,527,528,574,577 };
 unsigned long lawnPath18[] = { 13,	532,533,534,535,536,541,546,551,571,554,553,552,570 };
 unsigned long lawnPath19[] = { 8,	538,539,540,545,550,549,548,543 };
 
-unsigned long debug_path1[]	= { 4,	33,34,35,36 };
 
 
 /**************************************************************************************************************/
@@ -153,6 +152,7 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
+/*
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,12,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
 
@@ -186,8 +186,7 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath18,35,35,4,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath19,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-
-			testEnemy = CreateAndAddEnemy("wasp.ndo",debug_path1,35,35,0,4,ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL | ENEMY_RADIUSBASEDCOLLISION);
+*/
 
 		} else if ( levelID == LEVELID_GARDENMAZE )
 		{
