@@ -35,7 +35,7 @@ TRIGGERLIST triggerList;
 	Returns 	: Created trigger structure
 	Info 		:
 */
-TRIGGER * CreateTrigger( int (*func) (), unsigned int numargs, ...)
+TRIGGER * MakeTrigger( int (*func) (), unsigned int numargs, ...)
 {
 	TRIGGER *trigger = (TRIGGER *)JallocAlloc(sizeof(TRIGGER),YES,"Trigger");
 	
@@ -61,7 +61,7 @@ TRIGGER * CreateTrigger( int (*func) (), unsigned int numargs, ...)
 	Returns 	: Event structure
 	Info 		:
 */
-EVENT * CreateEvent( void (*func) (), unsigned int numargs, ...)
+EVENT * MakeEvent( void (*func) (), unsigned int numargs, ...)
 {
 	EVENT *event = (EVENT *)JallocAlloc(sizeof(EVENT),YES,"Event");
 	
