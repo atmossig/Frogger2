@@ -114,7 +114,7 @@ void ProcessShadows()
 		if( !nme->active || !nme->nmeActor )
 			continue;
 
-		if( nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER )
+		if( nme->nmeActor->actor->shadow && nme->inTile && !nme->nmeActor->clipped )
 		{
 			SetVectorRS( &tilePos, &nme->inTile->centre );
 			SetVectorRS( &pos, &nme->nmeActor->actor->position );
@@ -138,7 +138,7 @@ void ProcessShadows()
 		if( !plat->active || !plat->pltActor )
 			continue;
 
-		if( plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER )
+		if( plat->pltActor->actor->shadow && plat->inTile && !plat->pltActor->clipped )
 		{
 			SetVectorRS( &tilePos, &plat->inTile[0]->centre );
 			SetVectorRS( &pos, &plat->pltActor->actor->position );
