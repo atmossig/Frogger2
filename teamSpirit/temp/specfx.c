@@ -1551,7 +1551,11 @@ void InitSpecFXList( )
 	txtrStar = FindTexture("STAR_OUTLINE");
 	txtrSolidRing = FindTexture("AI_CIRCLE");
 	txtrSmoke =	FindTexture("00SMOK07");
+#ifdef PSX_VERSION
 	txtrFire =	FindTexture("00FIRE07");
+#else
+	txtrFire =	FindTexture("00SMOK07");
+#endif
 	txtrSmoke2 = FindTexture("AI_SMOKE");
 	txtrRing = FindTexture("AI_RING");
 	txtrBubble = FindTexture("WATDROP");
