@@ -46,7 +46,7 @@ BYTE keyTable[256];
 
 // Gamepad
 
-long DEAD_ZONE = 100;
+long DEAD_ZONE = 500;
 
 char keyFileName[] = "frogkeys.map";
 
@@ -583,9 +583,6 @@ void ProcessUserInput(HWND hWnd)
 		horizClip/=1.2;
 		vertClip/=1.2;
 	}
-
-	if (KEYPRESS(DIK_X))
-		ThrowFrogAtScreen(0);
 
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
