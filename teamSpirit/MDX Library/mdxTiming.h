@@ -24,6 +24,8 @@ typedef struct
 	unsigned long tickCount;
 	unsigned long frameCount;
 
+	long tickModifier;
+
 	float frameSpeed;
 	float speed;
 
