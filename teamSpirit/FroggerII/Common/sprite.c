@@ -307,7 +307,12 @@ void AddSprite(SPRITE *sprite,SPRITE *after)
 		if(after)
 			ptr = after;
 		else
-			ptr = &spriteList.head;
+		{
+			if( sprite->flags & SPRITE_TRANSLUCENT )
+				ptr = &spriteList.head.prev;
+			else
+				ptr = &spriteList.head;
+		}
 
 		sprite->kill	= 0;
 
