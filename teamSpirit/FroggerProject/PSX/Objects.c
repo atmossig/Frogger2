@@ -63,32 +63,15 @@ void LoadObjectBank ( int objectBank )
 					sprintf ( PILfileName, "OBJECTS\\GENERIC.PIL" );					
 				break;
 
-		case GARDENMASTER_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\GARDEN.PIL" );					
-				break;
-
 		case GARDENLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\GARDEN\\GARDEN1.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\GARDEN\\GARDEN1.PIL" );
 			break;
-
-		case GARDENLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\GARDEN\\GARDEN2.BFF" );
-			break;
-
-// Not used becuase we are trying to save money!!!!!!
-//		case ANCIENTMASTER_OBJ_BANK:
-//					sprintf ( PILfileName, "OBJECTS\\ANCIENTS.PIL" );
-//				break;
 
 		case ANCIENTLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.PIL" );
 			break;
-
-// Not used in the game
-//		case ANCIENTLEV2_OBJ_BANK:
-//				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTS2.BFF" );
-//			break;
 
 		case ANCIENTLEV3_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTS3.BFF" );
@@ -100,12 +83,9 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTSBOSS.PIL" );
 			break;
 
-		case SPACEMASTER_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\SPACE.PIL" );					
-				break;
-
 		case SPACELEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE1.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SPACE\\SPACE1.PIL" );
 			break;
 
 		case SPACELEV2_OBJ_BANK:
@@ -137,6 +117,10 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB2.PIL" );
 			break;
 
+		case SUBTERRANEANLEV3_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB3.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB3.PIL" );
+			break;
 
 		case LABORATORYMASTER_OBJ_BANK:
 					sprintf ( PILfileName, "OBJECTS\\LAB.PIL" );					
