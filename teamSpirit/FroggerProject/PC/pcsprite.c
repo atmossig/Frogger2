@@ -175,7 +175,8 @@ void PrintSpriteOverlays(long num)
 				}
 			}
 
-			if( (tEntry = ((MDX_TEXENTRY *)cur->tex)) )
+			tEntry = ((MDX_TEXENTRY *)cur->tex);
+//			if( (tEntry = ((MDX_TEXENTRY *)cur->tex)) )
 			{
 				if (cur->flags & SPRITE_ADDITIVE)
 					D3DSetupRenderstates(xluAddRS);

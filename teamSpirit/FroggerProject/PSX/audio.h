@@ -29,7 +29,7 @@
 #define SFXFLAGS_LOOP			(1<<2)
 
  
-// #define AMBIENT_VOLUME	255
+#define AMBIENT_VOLUME	255
 #define SAMPLE_VOLUME	255
  
 /* 
@@ -173,6 +173,7 @@ typedef struct _SAMPLE
 } SAMPLE;
 
  
+extern SAMPLE **sfx_anim_map;
  
 typedef struct _SOUNDLIST
 {
@@ -216,6 +217,7 @@ typedef struct TAG_AMBIENT_SOUND
 	long		freq;
 	long		randFreq;
 	long		counter;
+	int			handle;
 
 }AMBIENT_SOUND;
  
@@ -232,7 +234,6 @@ typedef struct
 //***********************************
 // Function Prototypes
  
-// extern void LoadSfxMapping( int world, int level );
 // extern SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor );
  
 // extern void LoadSfx( unsigned long worldID );
@@ -245,7 +246,7 @@ typedef struct
  
 // extern void FreeBufSampleList( );
  
-// extern SAMPLE *FindSample( unsigned long uid );
+extern SAMPLE *FindSample( unsigned long uid );
  
 // extern void CleanBufferSamples ( void );
 // extern void SetSampleFormat ( SAMPLE *sample );
@@ -262,14 +263,13 @@ typedef struct
 
 // #define UpdateAmbientSounds()
 // //#define PTTextureLoad()
-#define LoadSfxMapping(a,b)		0
 // #define FreeAmbientSoundList()
 // #define InitAmbientSoundList()
  
 void MAIN_PrintXAData ( const XAFileType * const XATrack );
 
 #define InitVoices(path, len) 0
-#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), NULL, 0, SAMPLE_VOLUME, -1)
+#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1)
 
 void *FindVoice ( long, int );
 

@@ -478,11 +478,8 @@ void PsxNameEntryInit(void)
 {
 	cursPos = 0;
 
-	//create new character under cursor?
-	if(textString[cursPos]==0)
-	{
-		textString[cursPos]='A';
-	}
+	textString[0] = 'A';
+	textString[1] = 0;
 }
 
 void PsxNameEntryFrame(void)
@@ -494,22 +491,22 @@ void PsxNameEntryFrame(void)
 	{
 		if(cursPos>0)
 		{
+			textString[cursPos] = 0;
 			cursPos--;
 		}
 	}
 
-	if(padData.debounce[0] & PAD_RIGHT)
+	if(padData.debounce[0] & (PAD_RIGHT | PAD_CROSS))
 	{
 		if(cursPos<8)
 		{
 			cursPos++;
 
-			//create new character under cursor?
-			if(textString[cursPos]==0)
-			{
-				textString[cursPos]='A';
-			}
+			textString[cursPos]='A';
+			textString[cursPos + 1] = 0;
 		}
+		else
+			textEntry = 0;
 	}
 
 
@@ -518,7 +515,8 @@ void PsxNameEntryFrame(void)
 	{
 		if(textString[cursPos]==' ')
 			textString[cursPos]='A';
-
+		else if(textString[cursPos] == 'Z')
+			textString[cursPos]=' ';
 		else if(textString[cursPos]<'Z')
 			textString[cursPos]++;
 	}
@@ -527,7 +525,8 @@ void PsxNameEntryFrame(void)
 	{
 		if(textString[cursPos]=='A')
 			textString[cursPos]=' ';
-
+		else if(textString[cursPos]==' ')
+			textString[cursPos]='Z';
 		else if(textString[cursPos]>'A')
 			textString[cursPos]--;
 	}
@@ -538,6 +537,8 @@ void PsxNameEntryFrame(void)
 		textEntry=0;
 	}
 }
+
+
 
 
 

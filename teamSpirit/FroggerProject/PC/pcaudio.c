@@ -44,7 +44,6 @@ int SAMPLE_VOLUME = 255;
 
 SAMPLE voices[4];
 SAMPLE *genSfx[NUM_GENERIC_SFX];
-SAMPLE **sfx_anim_map = NULL;
 
 UINT mciDevice = 0;
 
@@ -1280,106 +1279,6 @@ void FreeAmbientSoundList( )
 	InitAmbientSoundList();
 }
 
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: LoadSfxMapping
-	Purpose 	: Load a mapping of animations to sound effects for a list of actors
-	Parameters 	: world and level ID's
-	Returns 	: Pointer to mapping array
-	Info 		: 
-*/
-void LoadSfxMapping( int world, int level )
-{
-	unsigned char *in;
-	void *buffer;
-	HANDLE h;
-	char *filename, wnum[3], lnum[3];
-	long num, size, read, index, type, i, count, uid;
-
-	index = strlen(baseDirectory) + 24;
-	filename = (char *)MALLOC0( index );
-
-	// Directory and start of sfxmap filename
-	strcpy( filename, baseDirectory );
-	strcat( filename, "maps\\sfxanim" );
-	// World and level ids are part of the filename
-	_itoa( world, wnum, 10 );
-	strcat( filename, wnum );
-	_itoa( level, lnum, 10 );
-	strcat( filename, lnum );
-	// Extension
-	strcat( filename, ".sam" );
-
-	// Open input file
-	h = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-	if (h == INVALID_HANDLE_VALUE)
-	{
-		utilPrintf("Couldn't load sfx map file %s\n", filename);
-		FREE( filename );
-		return;
-	}
-
-	// Get file info and data
-	size = GetFileSize(h, NULL);
-	buffer = MALLOC0( size );
-	ReadFile( h, buffer, size, &read, NULL );
-	CloseHandle(h);
-
-	in = (unsigned char *)buffer;
-	sfx_anim_map = (SAMPLE **)MALLOC0( size+8 );
-
-	index=0;
-	count=0;
-
-	// Read data from buffer into mapping array
-	while( count < size-4 )
-	{
-		// Actor uid
-		uid = MEMGETINT(&in);
-		count+=4;
-
-		// Actor type
-		type = MEMGETINT(&in);
-		count+=4;
-
-		// If a tile based sample, skip the normal mapping load and just make an ambient
-		if( type == 4 && uid < tileCount )
-		{
-			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 12000, AMBIENT_VOLUME, -1, 0, 0, NULL );
-			count+=4;
-			continue;
-		}
-
-		// If not tile based, store the previously loaded stuff in the sample map
-		sfx_anim_map[index++] = (SAMPLE *)uid;
-		sfx_anim_map[index++] = (SAMPLE *)type;
-
-		switch( type )
-		{
-		case 0: num = NUM_FROG_ANIMS; break;
-		case 1: num = MULTI_NUM_ANIMS; break;
-		case 2: num = NUM_NME_ANIMS; break;
-		case 3: num = 1; break; // NUM_SCENIC_ANIMS
-		case 4: num = 1; break; // NUM_SCENIC_ANIMS
-		default: num = 0; break;
-		}
-
-		for( i=0; i<num; i++ )
-		{
-			// Locate samples by their uids
-			sfx_anim_map[index++] = FindSample( MEMGETINT(&in) );
-			count+=4;
-		}
-	}
-
-	// Signal end of list
-	sfx_anim_map[index] = NULL;
-
-	FREE( filename );
-	FREE( buffer );
-}
 
 
 /*	--------------------------------------------------------------------------------

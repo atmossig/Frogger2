@@ -53,7 +53,7 @@ char *musicNames[] = { "CD3.XA",//
 
  
 //#define MAX_AMBIENT_SFX		50
-#define DEFAULT_SFX_DIST	500*SCALE
+#define DEFAULT_SFX_DIST	700*SCALE
 
 //This value means the pitch can go up to 100000Hz like the PC. This might be a 
 //problem for the PSX but I don't think it goes much above 20000Hz, which seems alright. May
@@ -84,7 +84,44 @@ AMBIENT_SOUND_LIST	ambientSoundList;
 // void RemoveBufSample( BUFSAMPLE *sample );
  
 // void SubAmbientSound(AMBIENT_SOUND *ambientSound);
-// int UpdateLoopingSample( AMBIENT_SOUND *sample );
+
+
+int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol);
+
+int UpdateLoopingSample(AMBIENT_SOUND *sample)
+{
+	int vl,vr;
+	short pitch;
+	
+	if(GetSoundVols(&sample->pos,&vl,&vr,sample->radius,sample->volume) == -1)
+	{
+		if(sample->handle >= 0)
+		{
+			sfxStopChannel(sample->handle);
+			sample->handle = -1;
+		}
+		return;
+	}
+	
+	if(sample->pitch == -1)
+	{
+		pitch = 0;
+	}
+	else
+	{
+		pitch = sample->pitch * PITCH_STEP;
+	}
+
+	if(sample->handle == -1)
+	{
+ 		sample->handle = sfxPlaySample(sample->sample->snd, vl,vr, pitch);
+		return;
+	}
+
+	if(pitch)
+		sfxSetChannelPitch(sample->handle,pitch);
+	sfxSetChannelVolume(sample->handle, vl, vr);
+}
  
 // SAMPLE *CreateAndAddSample( char *path, char *file );
  
@@ -197,11 +234,11 @@ int LoadSfxSet( char *path, int generic )
 			continue;
 		}
 		snd = sfxDownloadSample(snd);
-		CreateAndAddSample(snd);
+		CreateAndAddSample(snd,generic == -1 ? SFXFLAGS_LOOP : 0);
 
 		*snd++;
 	}
-	if (generic)
+	if (generic > 0)
 		soundList.genericBank = sfxBank;
 	else
 		soundList.levelBank = sfxBank;
@@ -327,7 +364,7 @@ int LoadSfx( unsigned long worldID )
 
 	strcat( path, "LOOP" );
 
-	LoadSfxSet( path, 0 );
+	LoadSfxSet( path, -1 );
 
 
 	FREE( path );
@@ -345,7 +382,7 @@ int LoadSfx( unsigned long worldID )
 	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateAndAddSample( SfxSampleType *snd )
+SAMPLE *CreateAndAddSample( SfxSampleType *snd, int flags )
 {
 	SAMPLE *sfx;
 	
@@ -353,6 +390,7 @@ SAMPLE *CreateAndAddSample( SfxSampleType *snd )
 
 	sfx->uid = snd->nameCRC;
 	sfx->snd = snd;
+	sfx->flags = flags;
 
 	AddSample( sfx );
 
@@ -473,7 +511,6 @@ void FreeSampleList( )
 								 
 
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: PlaySample
 	Purpose			: plays a sample
@@ -483,20 +520,14 @@ void FreeSampleList( )
 */
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
-	unsigned long vol=(volume * globalSoundVol)/MAX_SOUND_VOL;
-	fixed att, dist;
-	SVECTOR diff;
  	int vl,vr;
 	int i;
 
-	//bbdebug crash bug
-//	return 0;
 	if(!sample)
 	{
 		utilPrintf("Sample Not Valid!!!!!!\n");
 		return 0;
 	}
-	// ENDIF
 
 
 //Stuff to ensure calls to PlaySample can be the same for PC and PSX
@@ -510,39 +541,18 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	}
 //end of stuff
 
-	//utilPrintf("Pitch : %d\n", pitch );
-
 	if( pos )
 	{
-		att = (radius)?radius:DEFAULT_SFX_DIST;
-		att = att<<12;
-
-		SubVectorSSS( &diff, pos, &frog[0]->actor->position );
-		// Volume attenuation - check also for radius != 0 and use instead of default
-		dist = MagnitudeS( &diff );
-		if( dist > (att) )
-			return FALSE;
-
-//bb	vol = FMul((vol<<12), FDiv(((att<<12)-(dist<<12)),att<<12))>>12;
-		vol = (FDiv(att-dist,att)*vol)>>12;
-//bb look out, this may have been badly optimised
-//		vol = (vol * (((att-dist)<<12)/att)) >>12;
+		GetSoundVols(pos,&vl,&vr,radius,volume);
+	}
+	else
+	{
+		vr = vl = (volume*globalSoundVol)/MAX_SOUND_VOL;
 	}
 
-
- 	
-// 	vl = (volume>>8)&0xff;
-// 	vr = volume&0xff;	
-	vl = vol;
-	vr = vol;
-
-// 	return sfxPlaySample( sample, vl,vr, pitch);
-//	i =	sfxPlaySample( sample->snd, vl,vr, pitch*10);
 	i =	sfxPlaySample( sample->snd, vl,vr, pitch);
 	if(i<0)
 		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",i);
-//	else
-//		utilPrintf("SOUND PLAYED ON CHANNEL %i\n",i);		
 	return i;
 }
 
@@ -610,6 +620,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	ptr->next->prev = ambientSound;
  	ptr->next = ambientSound;
  	ambientSoundList.numEntries++;
+
+	ambientSound->handle = -1;
  
  	return ambientSound;
  }
@@ -646,7 +658,10 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  //		else	//PUT BACK IN?!?!
  			pos = &amb->pos;
  
- 		PlaySample( amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
+		if(amb->sample->flags & SFXFLAGS_LOOP)
+			UpdateLoopingSample(amb);
+		else
+			PlaySample(amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
  
  		// Freq and randFreq are cunningly pre-multiplied by 60
  		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
@@ -793,3 +808,65 @@ void StopSong( )
 void *FindVoice ( long crc, int pl )
 {
 }
+
+
+long PAN_MAX = 4096*10;
+int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
+{
+	fixed att, dist;
+	SVECTOR diff;
+	long pan = 0;
+	SVECTOR m;
+	SVECTOR tempSvect;
+
+	
+	vol = (vol * globalSoundVol)/MAX_SOUND_VOL;
+
+	if(vol == 0)
+		return -1;
+
+	att = (radius)?radius/SCALE:DEFAULT_SFX_DIST;
+	att = att<<12;
+
+	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
+	// Volume attenuation - check also for radius != 0 and use instead of default
+	dist = MagnitudeS( &diff );
+	if( dist > (att) )
+		return -1;
+
+//bb	vol = FMul((vol<<12), FDiv(((att<<12)-(dist<<12)),att<<12))>>12;
+	vol = (FDiv(att-dist,att)*vol)>>12;
+//bb look out, this may have been badly optimised
+//		vol = (vol * (((att-dist)<<12)/att)) >>12;
+
+	tempSvect.vx = -pos->vx;
+	tempSvect.vy = -pos->vy;
+	tempSvect.vz = pos->vz;
+
+	gte_ldv0(&tempSvect);
+	gte_rtps();
+	gte_stsxy((long *)&m.vx);
+	gte_stsz(&m.vz);	//screen z/4 as otz
+	m.vz >>= 2;
+
+	dist = MagnitudeS(&m);
+	if(dist)
+	{
+		pan = (m.vx*PAN_MAX)/dist;
+		pan *= 4096;
+	}
+	else
+		pan = 0;
+
+	if(pan >= 0)
+	{
+		*vl = ((PAN_MAX - pan)*vol)/PAN_MAX;
+		*vr = vol;
+	}
+	else
+	{
+		*vl = vol;
+		*vr = ((PAN_MAX + pan)*vol)/PAN_MAX;
+	}
+}
+

@@ -121,6 +121,7 @@ typedef struct _SAMPLE
 
 } SAMPLE;
 
+extern SAMPLE **sfx_anim_map;
 
 typedef struct _SOUNDLIST
 {
@@ -185,7 +186,6 @@ extern int oldVolume;	// previously set value for volume
 //***********************************
 // Function Prototypes
 
-extern void LoadSfxMapping( int world, int level );
 extern void FindSfxMapping( unsigned long uid, ACTOR *actor );
 
 extern void LoadSfx( unsigned long worldID );

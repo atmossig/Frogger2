@@ -807,7 +807,7 @@ void MainDrawFunction ( void )
 {
 	TIMER_START0(TIMER_DRAW_WORLD);
 
-//	if ( drawLandscape && drawGame )
+	if ( drawLandscape && drawGame )
 		DrawWorld();
 
 	TIMER_STOP0(TIMER_DRAW_WORLD);
@@ -826,13 +826,15 @@ void MainDrawFunction ( void )
 
 	TIMER_START0(TIMER_DRAW_SCENICS);
 
-	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
+	if ( drawLandscape && drawGame )
+//	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawScenicObjList();
 
 	TIMER_STOP0(TIMER_DRAW_SCENICS);
 	
 	TIMER_START0(TIMER_DRAW_WATER);
-	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
+	if ( drawLandscape && drawGame )
+//	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawWaterList();
 	TIMER_STOP0(TIMER_DRAW_WATER);
 
