@@ -87,10 +87,10 @@ void actorSub(ACTOR *actor)
 void actorFree(ACTOR *actor)
 {
 	FREE(actor->psiData.objectTable);
-//	if (actor->shadow)
-//	{
-//		FREE((UBYTE **)&actor->shadow);//IF SHADOWS ARE ADDED...mm
-//	}
+	if (actor->shadow)
+	{
+		FREE((UBYTE **)&actor->shadow);//IF SHADOWS ARE ADDED...mm
+	}
 	actorSub(actor);
 	FREE(actor);
 }
