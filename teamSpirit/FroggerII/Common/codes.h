@@ -1,46 +1,36 @@
 /*
-
 	Trigger and event codes used by Frogger2 scripting system
 
 	Programmer: David Swift
-
-	NOTE: This file is SHARED in sourcesafe between the Frogger2/Common
-	project	and the ETC (Compiler) project. 
 */
 
 #ifndef _INCLUDED_CODES_H
 #define _INCLUDED_CODES_H
 
-enum EVENTTYPES
-{
-	EV_DEBUG = 0,
-	EV_TOGGLEPLATFORMMOVE,
-	EV_TOGGLEENEMYMOVE,
-	EV_TOGGLETILELINK,
-	EV_PLAYSFX,
-	EV_CHANGELEVEL,
-	EV_ANIMATEACTOR,
-	EV_SETENEMY,
-	EV_SETPLATFORM,
-	EV_TELEPORT,
-	EV_ON = 0x40,
-};
+// Commands ("Events")
 
-enum TRIGGERTYPES
-{
-	TR_ENEMYONTILE = 0,
-	TR_FROGONTILE,
-	TR_FROGONPLATFORM,
-	TR_PLATNEARPOINT,
-	TR_ENEMYNEARPOINT,
-	TR_FROGNEARPOINT,
-	TR_FROGNEARPLAT,
-	TR_FROGNEARENEMY,
-	TR_ENEMYATFLAG,
-	TR_PLATATFLAG,
+#define EV_DEBUG			0
+#define EV_ANIMATEACTOR		6
+#define EV_SETENEMY			7
+#define EV_SETPLATFORM		8
+#define EV_TELEPORT			9
 
-	TR_AND = 0x40,
-	TR_OR
-};
+#define EV_ON 64
+
+// Triggers
+
+#define TR_ENEMYONTILE		0
+#define TR_FROGONTILE		1
+#define TR_FROGONPLATFORM	2
+#define TR_PLATNEARPOINT	3
+#define TR_ENEMYNEARPOINT	4
+#define TR_FROGNEARPOINT	5
+#define TR_FROGNEARPLATFORM	6
+#define TR_FROGNEARENEMY	7
+#define TR_ENEMYATFLAG		8
+#define TR_PLATATFLAG		9
+
+#define TR_AND	64
+#define TR_OR	65
 
 #endif
