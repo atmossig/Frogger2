@@ -234,7 +234,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
 //	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
-	int max_depth = fog.max;//worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip + mesh->extra_depth;
+	int max_depth = fog.max/*worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip*/ + mesh->extra_depth;
 
 
 	/*if(mesh->n_verts <= 255)	// Yes, 255. TransformVerts rounds up to nearest 3, remember
@@ -723,7 +723,7 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 			check|=OFFFRONT;
 
 //		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
-		if((transformedDepths[v]) >= fog.max/*(worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip*/<<(2+MAP_SCALE_DEPTH_DOWN)))
+		if((transformedDepths[v]) >= (/*worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip*/fog.max<<(2+MAP_SCALE_DEPTH_DOWN)))
 			check |= OFFBACK;
 #else
 	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<2))
