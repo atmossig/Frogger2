@@ -27,5 +27,6 @@ void PsxNameEntryFrame(void);
 void SaveGame(void);
 void LoadGame(void);
 void Actor2ClipCheck(ACTOR2* act);
+void asciiStringToSJIS(unsigned char *string, unsigned char *dest);
 
 #endif

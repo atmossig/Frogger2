@@ -485,7 +485,7 @@ void PsxNameEntryInit(void)
 
 void PsxNameEntryFrame(void)
 {
-	padHandler();
+//	padHandler();
 
 	//move cursor
 	if(padData.debounce[0] & PAD_LEFT)
@@ -973,6 +973,8 @@ void LoadGame(void)
 int tempUseCard = 1;
 int tempNoLoad = 0;
 
+#define SAVE_FILENAME "BESLES-00000FROGGER2"
+
 void SaveGame(void)
 {
 //	char file[MAX_PATH];
@@ -1000,10 +1002,13 @@ void SaveGame(void)
 //		return;
 //	}
 
+	//n.b the beginning of this data is a PsxCardHeaderType struct,
+	//followed by the game specific data (save game header, level info)
 	MakeSaveGameBlock(&info, &size);
 //	fwrite(info, size, 1, fp);
 	utilPrintf("Saving %d\n", size);
-	res = cardWrite("frogger2", info, size);
+//	res = cardWrite("frogger2", info, size);
+	res = cardWrite(SAVE_FILENAME, info, size);
 
 	switch(res)
 	{
@@ -1063,7 +1068,9 @@ void LoadGame(void)
 
 	//check for save game, NOT loading yet
 	utilPrintf("Checking Save Game\n");
-	res = cardRead("frogger2", 0, SAVEGAME_SIZE); //checking, not loading
+//	res = cardRead("frogger2", 0, SAVEGAME_SIZE); //checking, not loading
+//	res = cardRead("frogger2", 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
+	res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
 	switch(res)
 	{
 		case CARDREAD_OK:
@@ -1118,7 +1125,8 @@ void LoadGame(void)
 	if(tempUseCard && !tempNoLoad)
 	{
 		//make buffer
-		info = MALLOC0(SAVEGAME_SIZE);
+//		info = MALLOC0(SAVEGAME_SIZE);
+		info = MALLOC0(SAVEGAME_SIZE+PSXCARDHEADER_SIZE);
 		if(!info)
 		{
 			utilPrintf("\n\nMALLOC ERROR DURING LOAD\n\n");
@@ -1126,8 +1134,16 @@ void LoadGame(void)
 			return;
 		}
 
-		utilPrintf("Loading Save Game %d\n", SAVEGAME_SIZE);
-		res = cardRead("frogger2", info, SAVEGAME_SIZE);
+//		utilPrintf("Loading Save Game %d\n", SAVEGAME_SIZE);
+//		res = cardRead("frogger2", info, SAVEGAME_SIZE);
+		utilPrintf("Loading Save Game %d\n", SAVEGAME_SIZE+PSXCARDHEADER_SIZE);
+//		res = cardRead("frogger2", info, SAVEGAME_SIZE+PSXCARDHEADER_SIZE);
+		res = cardRead(SAVE_FILENAME, info, SAVEGAME_SIZE+PSXCARDHEADER_SIZE);
+
+		//bb - skip over PsxCardHeader
+		//NO - responsibility of updated LoadSaveGameBlock (like MakeSaveGameBlock).
+//		info = ((char*)info) + PSXCARDHEADER_SIZE;
+
 		switch(res)
 		{
 			case CARDREAD_OK:
@@ -1182,4 +1198,107 @@ void LoadGame(void)
 	}
 
 //	utilPrintf("Loaded game from %s", file);
+}
+
+
+static unsigned short ascii_table[3][2] = {		// LookUp Tables for the Ascii to Sjis Function.
+	{0x824f, 0x30},	// 0-9 
+	{0x8260, 0x41},	// A-Z 
+	{0x8281, 0x61},	// a-z 
+};
+
+static unsigned short ascii_k_table[] = {		// ASCII code to Shift-JIS code transfer table (kigou)
+	0x8140,		//   //
+	0x8149,		// ! //
+	0x8168,		// " //
+	0x8194,		// # //
+	0x8190,		// $ //
+	0x8193,		// % //
+	0x8195,		// & //
+	0x8166,		// ' //
+	0x8169,		// ( //
+	0x816a,		// ) //
+	0x8196,		// * //
+	0x817b,		// + //
+	0x8143,		// , //
+	0x817c,		// - //
+	0x8144,		// . //
+	0x815e,		// / //
+	0x8146,		// : //
+	0x8147,		// ; //
+	0x8171,		// < //
+	0x8181,		// = //
+	0x8172,		// > //
+	0x8148,		// ? //
+	0x8197,		// @ //
+	0x816d,		// [ //
+	0x818f,		// \ //
+	0x816e,		// ] //
+	0x814f,		// ^ //
+	0x8151,		// _ //
+	0x8165,		// ` //
+	0x816f,		// { //
+	0x8162,		// | //
+	0x8170,		// } //
+	0x8150,		// ~ //
+};
+
+void asciiStringToSJIS(unsigned char *string, unsigned char *dest) 
+{
+	int	i;
+	
+	int sjis_code;
+	int ascii_code;
+	
+	unsigned char stmp;
+	unsigned char stmp2;
+
+	unsigned char *dest2;
+						   
+	dest2 = dest;
+
+	for( i=0; i<32; i++ )
+	{
+		*dest2++ = 0x81;				  
+		*dest2++ = 0x40;
+	}
+	
+							    
+	while(*string) {
+		stmp2 = 0;
+		ascii_code = *string++;
+		if ((ascii_code >= 0x20) && (ascii_code <= 0x2f))
+			stmp2 = 1;
+		else
+		if ((ascii_code >= 0x30) && (ascii_code <= 0x39))
+			stmp = 0;
+		else
+		if ((ascii_code >= 0x3a) && (ascii_code <= 0x40))
+			stmp2 = 11;
+		else
+		if ((ascii_code >= 0x41) && (ascii_code <= 0x5a))
+			stmp = 1;
+		else
+		if ((ascii_code >= 0x5b) && (ascii_code <= 0x60))
+			stmp2 = 37;
+		else
+		if ((ascii_code >= 0x61) && (ascii_code <= 0x7a))
+			stmp = 2;
+		else
+		if ((ascii_code >= 0x7b) && (ascii_code <= 0x7e))
+			stmp2 = 63;
+		else {
+			printf("bad ASCII code 0x%x\n", ascii_code);
+			exit(1);
+		}
+
+		if(stmp2)
+			sjis_code = ascii_k_table[ascii_code - 0x20 - (stmp2 - 1)];
+		else
+			sjis_code = ascii_table[stmp][0] + ascii_code - ascii_table[stmp][1];
+
+		// Write sjis
+		*dest++ = (sjis_code&0xff00)>>8;
+		*dest++ = (sjis_code&0xff);
+	}
 }

@@ -125,7 +125,7 @@ char objViewer = 0;
 
 
 int vsyncCounter = 0;
-
+char *saveicon = NULL;
 
 
 void DisplayErrorMessage ( char *message )
@@ -425,11 +425,20 @@ int main ( )
 
 
 		//Init_BB_AcosTable();
-
+		
+		//bb - MUST INIT PAD BEFORE MEM CARD - SONY RULES!
 		MemCardInit(1);
 		MemCardStart();
 		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
+
+		saveicon = fileLoad("saveicon.tim", NULL);
+		if(!saveicon)
+		{
+			utilPrintf("ERROR! Could not load save icon\n");
+			for(;;)
+			{}
+		}
 
 //		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
 //#if GOLDCD==0
@@ -496,7 +505,8 @@ int main ( )
 
 		CommonInit();
 
-		LoadGame();
+//		loaded in CommonInit
+//		LoadGame();
 
 		//*****************//
 		//*** MAIN LOOP ***//
