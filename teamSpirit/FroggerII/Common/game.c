@@ -916,6 +916,7 @@ void RunGameLoop (void)
 	UpdateEvents();
 	UpdateAmbientSounds();
 
+	ProcessCharacters( );
 	ProcessCollectables();
 
 	for( i=0; i<NUM_FROGS; i++ )

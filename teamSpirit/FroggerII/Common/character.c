@@ -64,6 +64,8 @@ CHARACTER *CreateAndAddCharacter( char *name, GAMETILE *start, float offset, uns
 	ScaleVector( &pos, offset );
 	AddToVector( &pos, &start->centre );
 
+	SetVector( &ch->normal, &upVec );
+
 	// create the actor
 	ch->act = CreateAndAddActor( name, pos.v[X], pos.v[Y], pos.v[Z], INIT_ANIMATION | INIT_SHADOW );
 
@@ -188,6 +190,10 @@ void StartAICommand( CHARACTER *ch )
 		}
 		break;
 
+	case AICOM_FACE_DIR:
+		ch->Update = CharFaceDir;
+		break;
+
 	case AICOM_STOP:
 		FreeAIPathNodeList( &ch->path );
 		FreeAICommandList( &ch->command );
@@ -240,36 +246,32 @@ void ProcessCharacters( )
 // Orientate to direction
 void CharFaceDir( CHARACTER *ch )
 {
-	/*
-	QUATERNION q1, q2, q3;
-	VECTOR fwd, to;
+	QUATERNION q, res;
 	ACTOR *act = ch->act->actor;
 	float t;
+	unsigned long start;
 
-	// Original rotation
-	SetQuaternion( &q1, &act->qRot );
+	// Initialise end limit
+	if( !ch->command->end )
+		ch->command->end = actFrameCount + ch->command->time;
 
-	// Find destination rotation
-	SetVector( (VECTOR *)&q3, &ch->inTile->normal );
-
-	GetRotationFromQuaternion( &q2, &q1 );
-	q2.w += ch->command->offset;
-
-	// If sufficiently incident, stop turning
-	RotateVectorByRotation( &fwd, &inVec, &q2 );
-	RotateVectorByRotation( &to, &inVec, &
-	t = DotProduct( &fwd, &to );
-	if( t > 0.99 )
+	// Turning time over
+	if( actFrameCount > ch->command->end )
 	{
 		ch->command->flags |= AICOMFLAG_COMPLETE;
 		return;
 	}
 
-	// Else slerp towards destination
-	speed = ch->command->speed * gameSpeed;
-	if( speed > 0.999 ) speed = 0.999;
-	QuatSlerp( &q1, &q2, speed, &act->qRot );
-	*/
+	// Fraction of turning complete
+	start = ch->command->end - ch->command->time;
+	t = 1.0 - (float)(actFrameCount-start)/(float)(ch->command->time);
+
+	// Find destination quat
+	Orientate( &q, &ch->command->dir, &inVec, &ch->normal );
+
+	// Slerp between current and destination quaternion
+	QuatSlerp(&q, &act->qRot, t, &res);
+	SetQuaternion(&act->qRot, &res);
 }
 
 /*	--------------------------------------------------------------------------------

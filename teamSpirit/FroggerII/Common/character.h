@@ -19,6 +19,7 @@ enum
 	AICOM_IDLE,
 	AICOM_GOTO_TILE,
 	AICOM_POINT_DIR,
+	AICOM_FACE_DIR,
 	AICOM_STOP,
 };
 
@@ -58,7 +59,7 @@ typedef struct _AICOMMAND
 	struct _AICOMMAND *next;		// List pointer
 
 	unsigned char type;				// Go to tile, point, etc.
-	unsigned long time;				// How long to do this for
+	unsigned long time,end;			// How long to do this for
 	unsigned short flags;			// Instant, queued, etc.
 	float offset;					// Prefered height above tile
 	float speed;					// How fast to do this command
