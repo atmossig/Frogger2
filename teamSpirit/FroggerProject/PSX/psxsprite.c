@@ -587,7 +587,7 @@ void InitTiledBackdrop(char *filename)
 
 int xTile = 5;
 int yTile = 4;
-void DrawTiledBackdrop()
+void DrawTiledBackdrop(int scroll)
 {
 	int x,y;
 	int			atbdx,atbdy, w,h;
@@ -645,13 +645,15 @@ void DrawTiledBackdrop()
 */
 		}
 	}
-	xScroll++;//= FMul(gameSpeed,xScrollSpeed);
-	if(xScroll > (xRes/xTile))
-		xScroll -= (xRes/xTile);
-	yScroll++;//= FMul(gameSpeed,yScrollSpeed);
-	if(yScroll > (yRes/yTile))
-		yScroll -= (yRes/yTile);
-
+	if(scroll)
+	{
+		xScroll++;//= FMul(gameSpeed,xScrollSpeed);
+		if(xScroll > (xRes/xTile))
+			xScroll -= (xRes/xTile);
+		yScroll++;//= FMul(gameSpeed,yScrollSpeed);
+		if(yScroll > (yRes/yTile))
+			yScroll -= (yRes/yTile);
+	}
 }
 
 void FreeTiledBackdrop()

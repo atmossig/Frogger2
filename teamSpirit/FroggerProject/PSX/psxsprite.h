@@ -3,7 +3,7 @@
 
 void PrintSpriteOverlays ( char num );
 void InitTiledBackdrop(char *filename);
-void DrawTiledBackdrop();
+void DrawTiledBackdrop(int scroll);
 void FreeTiledBackdrop();
 
 extern  TextureType *tileTexture;

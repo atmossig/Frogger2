@@ -16,6 +16,7 @@
 #include "timer.h"
 #include "memcard.h"
 #include "lang.h"
+#include "audio.h"
 #include <Libmcrd.h>
 
 #define MIN min
@@ -27,7 +28,12 @@ int framePause = 0;
 static int	optChosen, optFrame, optSaveAlready, optSaveSlot;
 static char	optStr[256];
 
-int tempUseCard = 1;
+#ifdef FINAL_MASTER
+int useMemCard = 1;
+#else
+int useMemCard = 0;
+#endif
+
 
 
 SAVE_INFO saveInfo;
@@ -338,7 +344,7 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 	fontDispSprite(buttonSprites[2], x-50,y+1, f2*2,f2*2,f2*2, 2);
 	if(f2 > 120)
 		fontDispSprite(buttonSprites[2], x-50,y+3, 0,0,0, 1);
-	y += 35;
+	y += 40;
 												// Help buttons
 	BEGINPRIM(f4, POLY_F4);
 	if(msg2)
@@ -362,12 +368,12 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 		x = -14*(1+(msg2!=NULL))-fontExtentW(fontSmall, GAMESTRING(STR_SELECTOPTION))/2-5;
 		if (msg2!=NULL)
 		{
-			fontDispSprite(buttonSprites[0], x,y-2, 255,255,255, 2);
-			fontDispSprite(buttonSprites[0], x,y, 0,0,0, 1);
+			fontDispSprite(buttonSprites[0], x,y-3, 255,255,255, 2);
+			fontDispSprite(buttonSprites[0], x,y-1, 0,0,0, 1);
 			x += 28;
 		}
-		fontDispSprite(buttonSprites[2], x,y-2, 255,255,255, 2);
-		fontDispSprite(buttonSprites[2], x,y, 0,0,0, 1);
+		fontDispSprite(buttonSprites[2], x,y-3, 255,255,255, 2);
+		fontDispSprite(buttonSprites[2], x,y-1, 0,0,0, 1);
 		x += 28;
 		x += 10;
 		fontPrint(fontSmall, x,y, GAMESTRING(STR_SELECTOPTION), 128,128,128);
@@ -384,11 +390,13 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 			{
 				optChosen = 2;
 				optFrame = 25;
+				PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 			}
 			if (padData.debounce[0] & PAD_CROSS)
 			{
 				optChosen = 3;
 				optFrame = 25;
+				PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 			}
 		}
 	}
@@ -593,7 +601,7 @@ static void saveMenuFull()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		tempUseCard = 0;
+		useMemCard = 0;
 		break;
 	}
 	switch(gameSaveGetCardStatus())
@@ -623,7 +631,7 @@ static void saveMenuNoCard()
 	case 2:
 		saveInfo.saveFrame = 0;
 		if(saveInfo.load)
-			tempUseCard = 0;
+			useMemCard = 0;
 		break;
 	}
 /*
@@ -752,7 +760,7 @@ static void saveMenuLoadError()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		tempUseCard = 0;
+		useMemCard = 0;
 		break;
 	}
 }
@@ -835,7 +843,7 @@ static void saveMenuChanged()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		tempUseCard = 0;
+		useMemCard = 0;
 		break;
 	}
 }
@@ -851,7 +859,7 @@ static void saveMenuSaveYN()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		tempUseCard = 0;
+		useMemCard = 0;
 		break;
 	}
 	switch(gameSaveGetCardStatus())
@@ -916,7 +924,7 @@ void saveMenuNeedFormat()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		tempUseCard = 0;
+		useMemCard = 0;
 		break;
 	}
 	switch(gameSaveGetCardStatus())
@@ -1007,7 +1015,7 @@ void ChooseLoadSave()
 
 void SaveGame(void)
 {
-	if(tempUseCard)
+	if(useMemCard)
 		StartChooseLoadSave(NO);
 }
 

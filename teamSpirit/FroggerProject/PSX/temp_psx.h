@@ -24,8 +24,6 @@ static void froggerVRAMdrawPalette(unsigned long clut, int y);
 static void froggerVRAMdrawPalette256(unsigned long clut, int y);
 void PsxNameEntryInit(void);
 void PsxNameEntryFrame(void);
-void SaveGame(void);
-void LoadGame(void);
 void Actor2ClipCheck(ACTOR2* act);
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest);
 

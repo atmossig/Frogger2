@@ -81,6 +81,9 @@
 #include "platform.h"
 #include "snapshot.h"
 #include "psxsprite.h"
+#include "memcard.h"
+#include "lang.h"
+#include "fadeout.h"
 
 long turbo = 4096;
 
@@ -106,6 +109,7 @@ psFont *fontSmall = NULL;
 
 
 //PC has this in their main
+int skipTextOverlaysSpecFX = NO;
 int drawLandscape = 1;
 long textEntry = 0;	
 char textString[255] = "---";
@@ -390,6 +394,7 @@ char* oldStackPointer;
 int main ( )
 {
 	static int frameAdvance = 0;
+	TextureBankType *genBank;
 
 	while ( 1 )
 	{
@@ -430,9 +435,9 @@ int main ( )
 		//Init_BB_AcosTable();
 		
 		//bb - MUST INIT PAD BEFORE MEM CARD - SONY RULES!
+		padInitialise(1); // 0 = No multi tap support
 		MemCardInit(1);
 		MemCardStart();
-		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 2400, VIDEO_INIT_AND_MALLOC );
 
 		saveicon = fileLoad("saveicon.tim", NULL);
@@ -462,9 +467,9 @@ int main ( )
 
 		StartSound();//mmsfx
 
+		actFrameCount = 0;
 #define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
-		actFrameCount = 0;
 		languageInitialise();
 		while(!DoneLangSel)
 		{
@@ -485,7 +490,45 @@ int main ( )
 		}
 		actFrameCount = 0;
 #endif
+		fontSmall = fontLoad("FONT12.FON");
+		genBank = textureLoadBank("TEXTURES\\GENERIC.SPT");
+		textureDownloadBank(genBank);
+		textureDestroyBank(genBank);
 
+		fontInitButtonSprites();
+		gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUM_LANGUAGES, gameTextLang);
+		InitTiledBackdrop("FROGTILE");
+		memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
+		LoadGame();
+		ScreenFade(0,255,20);
+		keepFade = NO;
+		while((saveInfo.saveFrame) || (fadingOut))
+		{
+			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+			ClearOTagR(currentDisplayPage->ot, 1024);
+			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+			padHandleInput();
+
+			if(actFrameCount > 20)
+				ChooseLoadSave();
+			DrawTiledBackdrop(NO);
+			DrawScreenTransition();
+			actFrameCount++;
+
+			DrawSync(0);
+			VSync(0);
+			PutDispEnv(&currentDisplayPage->dispenv);
+			PutDrawEnv(&currentDisplayPage->drawenv);
+			DrawOTag(currentDisplayPage->ot+(1024-1));
+			
+			if((saveInfo.saveFrame == 0) && (keepFade == 0))
+			{
+				ScreenFade(255,0,20);
+				keepFade = YES;
+			}
+		}
+		FreeTiledBackdrop();
 	
 
 		InitCam();
@@ -822,7 +865,7 @@ totalObjs = 0;
 		XAsetStatus(0);
 		StopSound();
 
-		SaveGame();
+//		SaveGame();
 
 		utilPrintf("\nFROGGER2 QUIT/RESET\n");
 		DrawSync(0);
@@ -854,11 +897,14 @@ void MainDrawFunction ( void )
 
 	TIMER_STOP0(TIMER_DRAW_WORLD);
 
-	TIMER_START0(TIMER_DRAW_SPECFX);
-	oldStackPointer = SetSp(0x1f800400);
-	DrawSpecialFX();
-	SetSp(oldStackPointer);
-	TIMER_STOP0(TIMER_DRAW_SPECFX);
+	if(!skipTextOverlaysSpecFX)
+	{
+		TIMER_START0(TIMER_DRAW_SPECFX);
+		oldStackPointer = SetSp(0x1f800400);
+		DrawSpecialFX();
+		SetSp(oldStackPointer);
+		TIMER_STOP0(TIMER_DRAW_SPECFX);
+	}
 
 	TIMER_START0(TIMER_PRINT_SPRITES);
 	oldStackPointer = SetSp(0x1f800400);
@@ -904,10 +950,11 @@ void MainDrawFunction ( void )
 	TIMER_START0(TIMER_PRINT_OVERS);
 
 	if(tileTexture)
-		DrawTiledBackdrop();
+		DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
 
 //	PrintSpriteOverlays(1);
 	//if ( padData.digital[0] == PAD_TRIANGLE )
+	if(!skipTextOverlaysSpecFX)
 	{
 		PrintTextOverlays();
 		PrintSpriteOverlays(0);
@@ -1003,9 +1050,9 @@ void MainReset ( void )
 	fileInitialise("\\FROGGER.DAT;1");
 #endif
 
-		padInitialise(1); // 0 = No multi tap support
-		MemCardInit(1);
-		MemCardStart();
+//		padInitialise(1); // 0 = No multi tap support
+//		MemCardInit(1);
+//		MemCardStart();
 //		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 2400, 0 );
 		textureInitialise ( 490, 50);

@@ -752,7 +752,7 @@ enum {
 #define TEXTSTR(n) (gameTextStr[n])
 
 
-extern void	*gameTextStr[TEXTSTR_MAX];
+//extern void	*gameTextStr[TEXTSTR_MAX];
 
 
 /**************************************************************************

@@ -9,6 +9,7 @@
 
 #define VIDEO_INIT_AND_MALLOC 1
 
+extern int skipTextOverlaysSpecFX;
 extern long turbo;
 
 extern GsRVIEW2	camera;

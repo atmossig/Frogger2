@@ -32,7 +32,7 @@
 
 #define ANG2FIX(a)		(((a)*4096)/360)
 
-static TextureType	*buttonSprites[4];
+TextureType	*buttonSprites[6];
 
 static TextureType	*otherSprites[16];
 static char			otherChars[16];

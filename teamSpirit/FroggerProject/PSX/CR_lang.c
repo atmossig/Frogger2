@@ -367,9 +367,9 @@ void languageFrame()
 	{
 		fontPrint(font,-fontExtentW(font,langName[gameTextLang])/2,70,langName[gameTextLang],128,128,128);
 
-		fontDispSprite(FindTexture(buttonName[0]),-200, 75);
-		fontDispSprite(FindTexture(buttonName[1]), 180, 75);
-		fontDispSprite(FindTexture(buttonName[2]), -16, 95);
+		fontDispSprite(FindTexture(buttonName[0]),-200, 75,128,128,128,font->alpha);
+		fontDispSprite(FindTexture(buttonName[1]), 180, 75,128,128,128,font->alpha);
+		fontDispSprite(FindTexture(buttonName[2]), -16, 95,128,128,128,font->alpha);
 
 //		mapScreenDispSquare(gameInfo.buttons[4],-80,80,128,128,128,0,0,4096,-1,0);
 //		mapScreenDispSquare(gameInfo.buttons[5],80,80,128,128,128,0,0,4096,-1,0);
