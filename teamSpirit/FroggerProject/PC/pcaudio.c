@@ -845,7 +845,7 @@ void LoadSfxMapping( int world, int level )
 		count+=4;
 
 		// If a tile based sample, skip the normal mapping load and just make an ambient
-		if( type == 4 )
+		if( type == 4 && uid < tileCount )
 		{
 			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 12000, AMBIENT_VOLUME, -1, 0, 0, NULL );
 			count+=4;
