@@ -19,7 +19,7 @@ asm(\
 }
 
 
-void DrawTongueSegment(SVECTOR *vt, TextureType *tEntry)
+void DrawTongueSegment(SVECTOR *vt, TextureType *tEntry, unsigned char r, unsigned char g, unsigned char b )
 {
 	long *tfv;
 	long *tfd;
@@ -66,9 +66,9 @@ void DrawTongueSegment(SVECTOR *vt, TextureType *tEntry)
 	f4->y2 = vt[2].vy;
 	f4->x3 = vt[3].vx;
 	f4->y3 = vt[3].vy;
-	f4->r0 = 200;
-	f4->g0 = 48;
-	f4->b0 = 48;
+	f4->r0 = r;
+	f4->g0 = g;
+	f4->b0 = b;
 //	ENDPRIM(f4, 1, POLY_F4);
 	ENDPRIM(f4, (vt[0].vz+vt[1].vz+vt[2].vz+vt[3].vz)>>4, POLY_F4);
 }
@@ -145,11 +145,16 @@ void DrawTongue( int pl )
 	unsigned long i=0, index = (tongue[pl].progress*(MAX_TONGUENODES-1)>>12);
 	SVECTOR vT[4], vTPrev[2];
 	TextureType *tEntry;
+	unsigned char r, g, b;
 
 	tEntry = tongue[pl].tex;
 
 	if(/*!tEntry ||*/ index<2)
 		return;
+
+	r = (tongueColours[player[pl].character]>>16) & 0xff;
+	g = (tongueColours[player[pl].character]>>8) & 0xff;
+	b = (tongueColours[player[pl].character]) & 0xff;
 
 	while(i < index)
 	{
@@ -166,7 +171,7 @@ void DrawTongue( int pl )
 		//********-[ Draw the polys ]-********
 		if(vT[0].vz && vT[1].vz && vT[2].vz && vT[3].vz)
 		{
-			DrawTongueSegment(vT, tEntry);
+			DrawTongueSegment(vT, tEntry, r, g, b);
 		}
 
 		i++;
