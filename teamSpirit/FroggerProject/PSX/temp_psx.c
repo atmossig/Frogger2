@@ -57,6 +57,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
 									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
 									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
+									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
 									( compare = strstr ( cur->name,  "tcone" ))|| ( compare = strstr ( cur->name, "bin" ) )  ) 
 				{
 //					CreateAndAddScenicObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
