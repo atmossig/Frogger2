@@ -12,7 +12,7 @@
 
 #define BONUS_FLAGS	13
 
-extern int gameTextLang;
+extern int DoneLangSel;
 
 typedef struct _LanguageDataType
 {

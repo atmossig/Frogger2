@@ -19,7 +19,11 @@
 LanguageDataType languageData;
 
 //extern int	gameTextLang;
-int gameTextLang = -1;
+//int gameTextLang = -1;
+int gameTextLang = 0;
+
+//bb
+int DoneLangSel = 0;
 
 static char *flagName[] =
 {
@@ -374,6 +378,8 @@ void languageFrame()
 		languageDestroy();
 //		memoryShow();
 //		menuStart();
+		//bb
+		DoneLangSel=1;
 	}
 }
 
