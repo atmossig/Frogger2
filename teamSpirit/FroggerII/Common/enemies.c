@@ -635,7 +635,7 @@ void UpdateEnemies()
 		{
 			SubVector( &moveVec, &cur->nmeActor->actor->pos, &frog[0]->actor->pos );
 			MakeUnit( &moveVec );
-			if( abs(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec )) < 0.9 )
+			if( abs(acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ))) < 0.9 )
 			{
 				pOIDistance = cur->nmeActor->distanceFromFrog;
 				pointOfInterest = &cur->nmeActor->actor->pos;
