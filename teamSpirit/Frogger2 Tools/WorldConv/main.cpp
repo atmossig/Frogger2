@@ -8,8 +8,9 @@
 ----------------------------------------------------------------------------------------------- */
 
 
-#include <windows.h>
 #include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
 #include "math.h"
 
 #include "lookup.h"
@@ -447,9 +448,6 @@ void BuildSquareList(void)
 	
 	for (i=0; i<nFace; i++)
 	{
-		if ((i % 50) == 0)
-			PrintSpinner();
-
 		long tri1[3], tri2[3];
 
 		//long p1, p2;
@@ -598,26 +596,59 @@ void FindAdjacentEdge(long edge, long i)
 {
 	long j, k;
 	long v1, v2;
+	long best = -1, best_e, join = -1, join_e;
 
 	if (squareList[i].adj[edge] != -1) return;
 
 	v1 = squareList[i].ed[edge], v2 = squareList[i].ed[(edge+1) % 4];
 
+	// Go through and check with every square
+	// treat join tiles and normal tiles seperately
+
 	for (j=0; j<nSquare; j++)
 	{
 		if (j == i) continue;
+		if (squareList[i].adj[edge] != -1) continue;
 
 		for (k = 0; k<4; k++)
 		{
 			if ((squareList[j].ed[k] == v2) && (squareList[j].ed[(k+1) % 4] == v1))
 			{
-				squareList[i].adj[edge] = j;
-				squareList[j].adj[k] = i;
-				return;
+				if (squareList[j].status == TILESTATE_JOIN)
+				{
+					join = j;
+					join_e = k;
+				}
+				else
+				{
+					best = j;
+					best_e = k;
+				}
+				break;
 			}
 		}
+
+		if (join != -1 && best != -1) break;
 	}
 
+	// if we've found an adjacent tile, set the pointers in either direction
+
+	if (best != -1)
+	{
+		squareList[i].adj[edge] = best;
+		squareList[best].adj[best_e] = i;
+	}
+
+	// if we've found a join tile, set its pointers
+	// if we didn't find any other adjacent tile, set this as adjacent
+
+	if (join != -1)
+	{
+		if (best == -1)
+			squareList[i].adj[edge] = join;
+
+		squareList[join].adj[join_e] = i;
+	}
 
 /*
 		numSame = 0;
@@ -652,7 +683,7 @@ void CalculateAdj(void)
 	//Step thru squares to find adjacent ones.
 	for (i=0; i<nSquare; i++)
 	{
-		if ((i%20) == 0) PrintSpinner();
+		if (i%20==0) PrintSpinner();
 
 		for (edge=0; edge<4; edge++)
 			FindAdjacentEdge(edge, i);
