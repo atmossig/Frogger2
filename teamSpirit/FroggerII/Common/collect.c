@@ -13,33 +13,9 @@
 
 #include "incs.h"
 
-#define storeListLength  16
 
-SCREENSPAWN *spawnList = NULL;
+GARIBLIST garibList;
 
-unsigned long autoHop			= 0;
-unsigned long longTongue		= 0;
-unsigned long superFrog			= 0;
-unsigned long croakFloat		= 0;
-
-unsigned char garibStoreList [4][storeListLength ];
-
-unsigned char garibListPos = 0;
-
-int reset = 0;
-
-//----- [ TEMPLATES FOR GARIB SPRITE ANIMATIONS ] -----//
-/*SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
-{
-	{ &spriteFrameList[SPAWN_ANIM],0,SPRITE_ANIM_CYCLE_RANDOM,255,255,GARIB_SCALE,GARIB_SCALE,SPRITE_TRANSLUCENT },
-	{ &spriteFrameList[EXTRAHEALTH_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[EXTRALIFE_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[AUTOHOP_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[LONGTONGUE_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[QUICKHOP_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[INVULNERABILITY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-};
-*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: CheckTileForCollectable
@@ -56,8 +32,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 	VECTOR *check;
 	
 	// check current tile for a garib
-	for(garib = garibCollectableList.head.next, i = garibCollectableList.numEntries-1;
-		garib != &garibCollectableList.head; garib = garib->next, i--)
+	for(garib = garibList.head.next, i = garibList.count-1; garib != &garibList.head; garib = garib->next, i--)
 	{
 		// Location of actual position of garib depends on type
 		if( garib->fx && garib->type == EXTRAHEALTH_GARIB ) check = &garib->fx->act[pl]->actor->pos;
@@ -76,13 +51,11 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		// Now we can actually check for collection
 		if( dist < PICKUP_RADIUS_SQUARED)
 		{
-			garibStoreList[player[pl].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib,pl);
 			return;
 		}
 	}
 }
-
 
 
 /*	--------------------------------------------------------------------------------
@@ -140,8 +113,6 @@ void PickupCollectable(GARIB *garib, int pl)
 				}
 
 				player[pl].spawnTimer = SPAWN_SCOREUPTIMER;
-
-//				CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
 
 				if(player[pl].spawnScoreLevel == 5)
 				{
@@ -216,8 +187,6 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case INVULNERABILITY_GARIB:
-//			fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 10 );
-//			fx->follow = frog[pl]->actor;
 			GTInit( &player[pl].safe, 10 );
 			break;
 	}
@@ -225,38 +194,24 @@ void PickupCollectable(GARIB *garib, int pl)
 	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
 		numMultiItems--;
 
-	// remove the collected garib
 	SubGarib(garib);
 }
 
-//-------------------------------------------------------------------------------------------------
-
-
-//----- [ GARIB RELATED ] -----//
-
-GARIBLIST garibCollectableList;
-
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitGaribLinkedList
+	Function		: InitGaribList
 	Purpose			: initialises the garib linked list
 	Parameters		: 
 	Returns			: void
 	Info			: 
 */
-void InitGaribLinkedList()
+void InitGaribList()
 {
-	garibCollectableList.numEntries = 0;
-	garibCollectableList.head.next = garibCollectableList.head.prev = &garibCollectableList.head;
-
-	if ( !reset )
-	{
-		memset ( garibStoreList, 0xff, storeListLength*4 );
-		reset = 1;
-	}
-
-	garibListPos = 0;
+	garibList.count = 0;
+	garibList.total = 0;
+	garibList.head.next = garibList.head.prev = &garibList.head;
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: AddGarib
@@ -269,13 +224,16 @@ void AddGarib(GARIB *garib)
 {
 	if(garib->next == NULL)
 	{
-		garibCollectableList.numEntries++;
-		garib->prev = &garibCollectableList.head;
-		garib->next = garibCollectableList.head.next;
-		garibCollectableList.head.next->prev = garib;
-		garibCollectableList.head.next = garib;
+		garibList.count++;
+		garibList.total++;
+
+		garib->prev = &garibList.head;
+		garib->next = garibList.head.next;
+		garibList.head.next->prev = garib;
+		garibList.head.next = garib;
 	}
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: SubGarib
@@ -286,7 +244,7 @@ void AddGarib(GARIB *garib)
 */
 void SubGarib(GARIB *garib)
 {
-	if(garib->next == NULL || garibCollectableList.numEntries<0)
+	if(garib->next == NULL || garibList.count<=0 )
 	{
 		dprintf"GARIB ERROR: invalid SubGarib()\n"));
 		return;
@@ -298,7 +256,7 @@ void SubGarib(GARIB *garib)
 	garib->prev->next = garib->next;
 	garib->next->prev = garib->prev;
 	garib->next = NULL;
-	garibCollectableList.numEntries--;
+	garibList.count--;
 
 	JallocFree((UBYTE **)&garib);
 }
@@ -311,25 +269,17 @@ void SubGarib(GARIB *garib)
 	Returns			: void
 	Info			: 
 */
-void FreeGaribLinkedList()
+void FreeGaribList()
 {
 	GARIB *cur,*next;
 
-	if (garibCollectableList.numEntries < 0)
-	{
-		dprintf"GARIB ERROR: numentries < 0!\n"));
-		return;
-	}
-
-	if(garibCollectableList.numEntries == 0)
+	if(garibList.count <= 0)
 		return;
 
-	dprintf"Freeing linked list : GARIB : (%d elements)\n",garibCollectableList.numEntries));
+	dprintf"Freeing linked list : GARIB : (%d elements)\n",garibList.count));
 
-	while (garibCollectableList.numEntries)
-	{
-		SubGarib(garibCollectableList.head.next);
-	}
+	while( garibList.count )
+		SubGarib(garibList.head.next);
 }
 
 
@@ -342,42 +292,18 @@ void FreeGaribLinkedList()
 */
 GARIB *CreateNewGarib(VECTOR pos,int type)
 {
-	static indexPos = 0;
-	unsigned char value;
 	GARIB *garib;
-
-	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
-	{
-		value = garibStoreList[player[0].levelNum-3][garibListPos / 8] & (1 << (garibListPos & 7));   // position to retrive from
-		garibListPos++;
-
-		if ( value == 0 )
-		{
-			dprintf"Returned, did not  garib ( %d : %d : %d )\n",value, garibListPos-1, player[0].levelNum-3));
-			return NULL;
-		}
-	}
 
 	garib = (GARIB *)JallocAlloc(sizeof(GARIB),YES,"garib");
 	AddGarib(garib);
 
 	SetVector(&garib->pos,&pos);
 
-//	garib->gameTile = gameTile;
-//	garib->dropSpeed = dropSpeed;
 	garib->type = type;
 	garib->active = 1;
 	garib->scale = 0;
 	garib->scaleAim = 1;
 
-//#ifndef PC_VERSION
-//	memcpy(&garib->shadow.vert,shadowVtx,sizeof(Vtx) * 4);
-//#endif
-//	garib->shadow.altitude	= 0;
-//	garib->shadow.radius	= 20;
-//	garib->shadow.alpha		= 192;
-
-	
 	if( garib->type == EXTRAHEALTH_GARIB )
 	{
 		SPECFX *fx;
@@ -394,10 +320,10 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	else
 	{
 		// initialise garib sprite
-		garib->sprite = AllocateSprites(1);//(SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"garspr");
+		garib->sprite = AllocateSprites(1);
 		SetVector(&garib->sprite->pos,&pos);
-		//InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
 		FindTexture( &garib->sprite->texture, UpdateCRC("coin0001.bmp"), NO );
+
 		garib->sprite->r = 255;
 		garib->sprite->g = 255;
 		garib->sprite->b = 255;
@@ -405,8 +331,8 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite->scaleX = garib->sprite->scaleY = 0;
 
 		// ok - make the spawn garib a rotating sprite - ANDYE
-		garib->sprite->flags	|= SPRITE_FLAGS_ROTATE;
-		garib->sprite->angle	= 1 / (1 + (rand() % 10));
+		garib->sprite->flags |= SPRITE_FLAGS_ROTATE;
+		garib->sprite->angle = 1 / (1 + (rand() % 10));
 		garib->sprite->angleInc = 0.1f;
 		
 #ifndef PC_VERSION
@@ -418,14 +344,14 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite->offsetY = -16;
 		garib->sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 #endif
-//		if(garib->active)
-//			AddSprite(garib->sprite,NULL);
+
 		garib->sprite->flags |= SPRITE_TRANSLUCENT;
 		garib->sprite->a = 200;
 	}
 
 	return garib;
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateGaribs
@@ -437,20 +363,18 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 void UpdateGaribs()
 {
 	GARIB *garib = NULL;
-	float radius;
 	float scale;
 	VECTOR fwd;
 	VECTOR actualPos;
 
 	// update garib scales and calculate distance from Frog
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
 	{
 		if(garib->active == NO)
 			continue;
 		else if(garib->active > 1)
 			garib->active--;
 
-		radius = 10;
 		scale = garib->scale;
 		scale -= (scale - garib->scaleAim) / 5;
 		garib->scale = scale;
@@ -465,13 +389,12 @@ void UpdateGaribs()
 		}
 
 		// Drop Garibs.............
-
 		if ( garib->gameTile )
 		{			
-			SetVector ( &actualPos, &garib->gameTile->centre );
+			SetVector( &actualPos, &garib->gameTile->centre );
 			actualPos.v[Y] += 20;
-			SubVector ( &fwd, &actualPos, &garib->pos );
-			MakeUnit  ( &fwd );
+			SubVector( &fwd, &actualPos, &garib->pos );
+			MakeUnit( &fwd );
 			garib->pos.v[X] += ( fwd.v[X] * garib->dropSpeed );
 			garib->pos.v[Y] += ( fwd.v[Y] * garib->dropSpeed );
 			garib->pos.v[Z] += ( fwd.v[Z] * garib->dropSpeed );
@@ -480,45 +403,6 @@ void UpdateGaribs()
 	}
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: 
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
-{
-	char bmpBuff[16];
-
-	SPRITE *sprite = AllocateSprites(1);//(SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"SPRITE");
-
-	SetVector(&sprite->pos,pos);
-
-	sprite->scaleX		= 16;
-	sprite->scaleY		= 16;
-
-//	sprite->anim.type	= SPRITE_ANIM_SPAWNSCORE;
-
-	sprite->r			= 255;
-	sprite->g			= 255;
-	sprite->b			= 255;
-	sprite->a			= 255;
-
-//	sprite->kill		= 0;	// commented out to matched glover 2 structures
-	sprite->flags		= SPRITE_TRANSLUCENT | SPRITE_FLAGS_ROTATE;
-	sprite->angle		= 0.0f;
-	sprite->angleInc	= 0.2f;
-
-	sprintf(bmpBuff,"spnu%d.bmp",(scoreType * 10));
-	FindTexture(&sprite->texture,UpdateCRC(bmpBuff),YES);
-	
-	sprite->offsetX = -16;
-	sprite->offsetY = -16;
-
-//	AddSprite(sprite,NULL);
-}
 
 void DropGaribToTile(GARIB *garib, GAMETILE *tile, float dropSpeed)
 {

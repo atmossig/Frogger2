@@ -253,7 +253,8 @@ void EditorCreateEntities(void)
 	ResetBabies();
 	FreePlatformList();
 	FreeEnemyList();
-	FreeGaribLinkedList();
+	FreeGaribList();
+	InitGaribList();
 	FreeTransCameraList();
 	FreePathList();
 	KillAllTriggers( );

@@ -1208,7 +1208,7 @@ GARIB *FindGarib(int x, int y)
 
 	closest = NULL; closestDist = 0x10000;
 
-	for( garib=garibCollectableList.head.next, i=garibCollectableList.numEntries; i; garib=garib->next, i--)
+	for( garib=garibList.head.next, i=garibList.count; i; garib=garib->next, i--)
 	{
 		EdXfmPoint(&v, &garib->pos );
 		if (!v.v[Z]) continue;

@@ -539,14 +539,13 @@ void InitGameLists()
 	// initialise the various lists
 	InitSpriteList( );
 	InitSpriteSortArray(MAX_ARRAY_SPRITES);
-	//InitSpriteFrameLists();
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
 	InitSpecFXList();
 	InitBabyList(YES); // MUST BE DONE BEFORE ENEMY INITS!
 	InitEnemyLinkedList();
 	InitPlatformLinkedList();
-	InitGaribLinkedList();
+	InitGaribList();
 	InitTriggerList();
 	Init3DTextList( );
 	InitTongues( );
@@ -584,7 +583,7 @@ void FreeAllGameLists()
 	FreeTongues();
 
 	// Entities and collision
-	FreeGaribLinkedList();
+	FreeGaribList();
 	FreeEnemyLinkedList();
 	FreePlatformLinkedList();
 	FreePathList();

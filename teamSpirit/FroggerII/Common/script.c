@@ -822,9 +822,9 @@ BOOL ExecuteCommand(UBYTE **p)
 			g = MEMGETWORD(p);
 			t = MEMGETWORD(p);
 
-			if (g < 0 || g > garibCollectableList.numEntries || t < 0) return 0;
+			if (g < 0 || g > garibList.count || t < 0) return 0;
 
-			for (garib = garibCollectableList.head.next; g; garib = garib->next, g--);
+			for (garib = garibList.head.next; g; garib = garib->next, g--);
 			tile = GetTileFromNumber(t);
 
 			garib->gameTile = tile;

@@ -697,8 +697,8 @@ void ResetMultiplayer( )
 			SetFroggerStartPos( gTStart[i], i );
 		}
 
-		FreeGaribLinkedList();
-		InitGaribLinkedList();
+		FreeGaribList();
+		InitGaribList();
 		InitSpriteSortArray(MAX_ARRAY_SPRITES);
 		numMultiItems = 0;
 		break;

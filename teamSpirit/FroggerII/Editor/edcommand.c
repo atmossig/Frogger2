@@ -264,7 +264,8 @@ void ToolbarSelect(int command)
 		break;
 
 	case TB_CLEAR_GARIBS:
-		FreeGaribLinkedList();
+		FreeGaribList();
+		InitGaribList();
 		strcpy(statusMessage, "Emptied garib list");
 		break;
 
@@ -574,7 +575,8 @@ void ToolbarSelect(int command)
 		FreeBufSampleList();
 //		FreeSampleList();
 
-		FreeGaribLinkedList( );
+		FreeGaribList( );
+		InitGaribList();
 		FreeEnemyList( );
 		FreePlatformList( );
 		RemoveEntities( CREATE_ENEMY );

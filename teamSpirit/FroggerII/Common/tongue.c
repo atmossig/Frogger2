@@ -491,7 +491,7 @@ GARIB *GaribIsInRange( float radius, int pl )
 	float dist,mags[8];
 	int i = 0,numInRange = 0;
 		
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
 	{
 		// only check for garibs in visual range
 		SetVector( &pos, ((garib->type == EXTRAHEALTH_GARIB && garib->fx)?(&garib->fx->act[0]->actor->pos):(&garib->pos)) );
