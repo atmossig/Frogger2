@@ -6,7 +6,7 @@
 ************************************************************************************/
 
 // JH: Define this so that we can turn on and off the dcache usage
-#define DCACHE_OPTIMISATION
+#define _DCACHE_OPTIMISATION
 #define DCACHE 0x1f800000
 
 #include <stddef.h>
@@ -2660,6 +2660,7 @@ void psiDrawSegments(PSIDATA *psiData)
 
 		gte_stszotz(&world->depth);
 
+//		utilPrintf("Bloody Actors : %s  !!!\n", psiData->modelName);
 		transformVertexListA(world->meshdata->vertop, world->meshdata->vern, tfv, tfd );
 
 		if (modctrl->lighting)

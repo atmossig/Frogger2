@@ -657,7 +657,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 
 #if GOLDCD == NO
-	if ( gameState.multi != SINGLEPLAYER )
+	if ( gameState.multi == SINGLEPLAYER )
 	{
 			if ( padData.digital[1] & PAD_DOWN )
 			{

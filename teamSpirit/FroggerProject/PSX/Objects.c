@@ -303,18 +303,18 @@ void LoadObjectBank ( int objectBank )
 			if ( !fma_world )
 			{
 				utilPrintf("World Object Not Found\n");
-				return;
 			}
-
-			mesh = ADD2POINTER(fma_world,sizeof(FMA_WORLD));
-			
-			for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
+			else
 			{
-				(*mesh)->flags |= DRAW_SEGMENT;
-			}
 
-//			ASSERT(fma_world);
-//			chrisSetUpWaterMesh(fma_world);
+				mesh = ADD2POINTER(fma_world,sizeof(FMA_WORLD));
+				
+				for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
+				{
+					(*mesh)->flags |= DRAW_SEGMENT;
+				}
+			}
+			// ENDIF
 		}
 		else
 		{

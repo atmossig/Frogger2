@@ -271,6 +271,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		max_depth = 1024-mesh->extra_depth;
 
 	//bbopt - get a version with depth>>=2
+	//utilPrintf("Draw World Mesh!!!\n");
 	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 
 // This should really by in the (or an alternative) transformvertexlist function
@@ -696,6 +697,7 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
 		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
 	}
+	//utilPrintf("Map Clip Check!!!\n");
 	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
 
 

@@ -150,11 +150,13 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
 		}
 		// ENDFOR
-		
+
+		//utilPrintf("Jiggle Water!!!\n");
 		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else
 	{
+		//utilPrintf("Do Not Jiggle Water!!!\n");
 		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 	}
 	// ENDELSEIF
@@ -379,6 +381,222 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
+		}
+	}
+
+#undef si
+#undef op
+
+#define si ((POLY_GT3*)packet)
+#define op ((FMA_GT3 *)opcd)
+
+	polyCount += mesh->n_gt3s;
+
+	op = mesh->gt3s;
+
+	for ( i = mesh->n_gt3s; i != 0; i--, op++ )
+	{
+		char u,v;
+
+		gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
+   	gte_avsz3();
+		gte_stotz_cpu ( depth );
+
+//		depth = depth >> 2;
+
+		if ( depth > min_depth && depth < max_depth )
+		{
+			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
+			{
+				continue;
+			}
+			// ENDIF
+
+			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
+
+				addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
+			// ENDELSEIF
+
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						u = op->u0 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						u = op->u0 - ( ( frame / 2 ) % 32 );
+					// ENDELSEIF
+					v = op->v0;
+
+				}
+				else if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v0 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						v = op->v0 - ( ( frame / 2 ) % 32 );
+
+					u = op->u0;
+				}
+				else
+				{
+					u = op->u0;
+					v = op->v0;
+				}
+				// ENDELSEIF
+
+
+			if ( mesh->flags & MODGY )
+				t1 = WATERANIM_1A;
+			else
+				t1 = WATERANIM_1;
+
+
+			if ( mesh->flags & ADDATIVE )
+				t1 |= ( op->clut << 16 ) | WATER_TRANS_CLUT;
+			else
+				t1 |= ( op->clut << 16 ) | 0;
+
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						u = op->u1 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						u = op->u1 - ( ( frame / 2 ) % 32 );
+					// ENDELSEIF
+					v = op->v1;
+				}
+				else if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v1 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						v = op->v1 - ( ( frame / 2 ) % 32 );
+					u = op->u1;
+				}
+				else
+				{
+					u = op->u1;
+					v = op->v1;
+				}
+				// ENDELSEIF
+
+	//		t2 = WATERANIM_1 | ( op->tpage << 16 );
+
+
+			if ( mesh->flags & MODGY )
+			{
+				t2 = WATERANIM_2B | ( op->tpage << 16 );
+			}
+			else
+			{
+				t2 = WATERANIM_1 | ( op->tpage << 16 );
+			}
+			// ENDELSEIF
+
+
+			*(u_long *)  (&si->u0) = t1;
+			*(u_long *)  (&si->u1) = t2;
+
+			gte_stsxy3_gt4 ( si );	// The first 3 x's & y's are already in the gte, so we may as well use 'em
+
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						u = op->u2 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						u = op->u2 - ( ( frame / 2 ) % 32 );
+					v = op->v2;
+				}
+				else if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v2 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						v = op->v2 - ( ( frame / 2 ) % 32 );
+					u = op->u2;
+				}
+				else
+				{
+					u = op->u2;
+					v = op->v2;
+				}
+				// ENDELSEIF
+
+			//t1 = WATERANIM_2;
+
+			if ( mesh->flags & MODGY )
+				t1 = WATERANIM_1A;
+			else
+				t1 = WATERANIM_2;
+
+			/*	if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						u = op->u3 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						u = op->u3 - ( ( frame / 2 ) % 32 );
+					v = op->v3;
+				}
+				else if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v3 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINUSSLIDDING )
+						v = op->v3 - ( ( frame / 2 ) % 32 );
+					u = op->u3;
+				}
+				else
+				{
+					u = op->u3;
+					v = op->v3;
+				}
+				// ENDELSEIF
+
+			if ( mesh->flags & MODGY )
+			{
+				t2 = WATERANIM_2B;
+			}
+			else
+			{
+				t2 = WATERANIM_2;
+			}
+			// ENDELSEIF*/
+
+			//t2 = WATERANIM_2;
+
+			*(u_long *)  (&si->u2) = t1;
+//			*(u_long *)  (&si->u3) = t2;
+
+//			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
+
+			if ( mesh->flags & ADDATIVE )
+				t1 = ( *( u_long *) ( &op->r0 ) ) | WATER_TRANS_CODE;
+			else
+				t1 = ( *( u_long *) ( &op->r0 ) ) | 0;
+			// ENDIF
+
+			t2 = *(u_long *) (&op->r1);
+
+			*(u_long *)  (&si->r0) = t1;
+			*(u_long *)  (&si->r1) = t2;
+
+			t1 = *(u_long *) (&op->r2);
+//			t2 = *(u_long *) (&op->r3);
+
+			*(u_long *)  (&si->r2) = t1;
+//			*(u_long *)  (&si->r3) = t2;
+
+
+			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
 		}
 	}
 
@@ -659,10 +877,12 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		}
 		// ENDFOR
 		
+		//utilPrintf("Jiggle Scenic!!!\n");
 		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else
 	{
+		//utilPrintf("Do Not Jiggle Scenic!!!\n");
 		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 	}
 	// ENDELSEIF
