@@ -29,6 +29,7 @@ LPDIRECTDRAW7			pDirectDraw7;
 LPDIRECTDRAWCLIPPER		pClipper;
 unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen = 1, rScale = 1, rFlipOK = 1;
 HWND					rWin;
+char					rVideoDevice[256];
 
 LPDIRECTDRAWSURFACE7	surface[NUM_SRF] = {NULL,NULL,NULL};
 
@@ -124,7 +125,7 @@ LV_COLUMN c2 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM,LVCFMT_LEFT,500
 
 #define NUM_LANGUAGES 5
 
-char *languageText[NUM_LANGUAGES] = {"English","French","German","Italian","Hungarian"};
+char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","Svenska"};
 
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -251,7 +252,6 @@ unsigned long DDrawInitObject (GUID *guid)
 
 	dxDeviceList[dxNumDevices++].guid = (GUID *)-1;
 
-
 	if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
 		return 0;
 
@@ -261,8 +261,9 @@ unsigned long DDrawInitObject (GUID *guid)
 	for (i=0; i<dxNumDevices; i++)
 		if ((dxDeviceList[i].idx == selIdx) && ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) || (dxDeviceList[i].guid == (GUID *)-1)))
 			break;
-	
 	dp ("%s\n%s\n",dxDeviceList[i].name,dxDeviceList[i].desc);
+
+	strcpy(rVideoDevice, dxDeviceList[i].desc);
 
 	if (dxDeviceList[i].guid == (GUID *)-1)
 	{
