@@ -39,7 +39,7 @@ TEXTOVERLAY *continueText;
 TEXTOVERLAY *quitText;
 TEXTOVERLAY *garibCount, *creditCount;
 TEXTOVERLAY *time;
-TEXTOVERLAY *build;
+//TEXTOVERLAY *build;
 TEXTOVERLAY *posText;
 TEXTOVERLAY *levelnameText;
 
@@ -182,11 +182,13 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	}
 	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
 
+/*
 	build = CreateAndAddTextOverlay(40,230,"Toy Fair Demo Build      In Development",NO,255,smallFont,0,0);
 	build->r			= 55;
 	build->g			= 235;
 	build->b			= 55;
 	build->a			= 210;
+*/
 
 	/* Garib and Credit counters */
 
