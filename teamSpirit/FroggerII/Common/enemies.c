@@ -1671,7 +1671,13 @@ void CalcEnemyNormalInterps(ENEMY *nme)
 */
 void SetSoundEffectsForEnemy( ENEMY *nme )
 {
-	ACTOR *act = nme->nmeActor->actor;
+	ACTOR *act;
+	
+	if (!nme->nmeActor) return;
+		
+	act = nme->nmeActor->actor;
+
+	if (!act->objectController) return;
 
 	if( !gstrcmp("lomoahrt", act->objectController->object->name) )
 		AddAmbientSound( GEN_CLOCK_TOCK, &act->pos, 1000, 100, 100, 3, 0, act );
