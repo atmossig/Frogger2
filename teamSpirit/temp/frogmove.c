@@ -1568,7 +1568,10 @@ void CheckTileState(GAMETILE *tile, int pl)
 	case TILESTATE_PANTS:
 	{
 		if(!player[pl].dead.time)
+		{
+			player[pl].frogState |= FROGSTATUS_ISDEAD;
 			DeathPoison(pl);
+		}
 		break;
 	}
 	
