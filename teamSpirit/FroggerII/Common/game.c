@@ -580,7 +580,7 @@ void UpdateCameraPosition(long cam)
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
-	if ( gameState.mode != CAMEO_MODE )
+	if ( gameState.mode != CAMEO_MODE && !fixedSource )
 	{
 		float afx,afy,afz;
 		int i;
@@ -917,6 +917,7 @@ void RunGameLoop (void)
 			gameIsOver--;
 			if(!gameIsOver)
 			{
+
 				StopDrawing ( "game over" );
 				FreeAllLists();
 				gameState.mode = FRONTEND_MODE;
@@ -1276,7 +1277,7 @@ void RunLevelCompleteSequence()
 
 void DoHiscores( )
 {
-	HISCORE *hs = &worldHiScoreData[player[0].worldNum][player[0].levelNum];
+/*	HISCORE *hs = &worldHiScoreData[player[0].worldNum][player[0].levelNum];
 	long i, place = MAX_HISCORE_SLOTS;
 	
 	// TEST
@@ -1312,5 +1313,5 @@ void DoHiscores( )
 		hiScoreData[place].name[2] = player[0].name[2];
 		hiScoreData[place].time = player[0].timeSec;
 		hiScoreData[place].cup = award;
-	}
+	}*/
 }

@@ -56,6 +56,7 @@ float scaleV				= 1.1F;
 short cameraShake			= 0;
 
 char controlCamera			= 0;
+char fixedSource			= 0;
 
 TRANSCAMERA *transCameraList = NULL;
 
@@ -188,7 +189,7 @@ VECTOR dCam11 = { 0,540,7 };
 
 int gardenLawnSetting1[] = 
 {
-	12,13,14,15,108,109,110,111,112,113,114,115,116,292,
+	12,
 
 
 
@@ -256,9 +257,9 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 	txtCamDist = CreateAndAddTextOverlay(30,40,"************************************************",NO,NO,255,255,255,255,smallFont,0,0,0);
 	DisableTextOverlay(txtCamDist);
 
-/*	switch(worldID)
+	switch(worldID)
 	{
-		case WORLDID_CITY:
+		/*case WORLDID_CITY:
 			switch(levelID)
 			{
 				case LEVELID_CITYDOCKS:
@@ -310,15 +311,15 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 					break;
 			}
 			break;
-
+*/
 		case WORLDID_GARDEN:
 			switch(levelID)
 			{
 				case LEVELID_GARDENLAWN:
 					i=0;
 					while(gardenLawnSetting1[i] != -1)
-						CreateAndAddTransCamera(&firstTile[gardenLawnSetting1[i++]],0,gardenLawnCam1.v[0],gardenLawnCam1.v[1],gardenLawnCam1.v[2]);
-					i=0;
+						CreateAndAddTransCamera(&firstTile[gardenLawnSetting1[i++]],0,gardenLawnCam1.v[0],gardenLawnCam1.v[1],gardenLawnCam1.v[2], FIXED_SOURCE);
+					/*i=0;
 					while(gardenLawnSetting2[i] != -1)
 						CreateAndAddTransCamera(&firstTile[gardenLawnSetting2[i++]],0,gardenLawnCam2.v[0],gardenLawnCam2.v[1],gardenLawnCam2.v[2]);
 					i=0;
@@ -327,9 +328,9 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 					i=0;
 					while(gardenLawnSetting4[i] != -1)
 						CreateAndAddTransCamera(&firstTile[gardenLawnSetting4[i++]],0,gardenLawnCam4.v[0],gardenLawnCam4.v[1],gardenLawnCam4.v[2]);
-					break;
+					*/break;
 			}
-	} */
+	} 
 }
 
 
@@ -340,7 +341,7 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 	Returns			: TRANSCAMERA *
 	Info			: 
 */
-TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ)
+TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ, unsigned long flags)
 {
 	TRANSCAMERA *newItem = (TRANSCAMERA *)JallocAlloc(sizeof(TRANSCAMERA),YES,"TRNSCAM");
 
@@ -349,6 +350,7 @@ TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace
 	newItem->camOffset.v[X]	= offsetX;
 	newItem->camOffset.v[Y]	= offsetY;
 	newItem->camOffset.v[Z]	= offsetZ;
+	newItem->flags			= flags;
 
 	newItem->next			= transCameraList;
 	transCameraList			= newItem;
@@ -378,14 +380,26 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 	{
 		if(cur->tile == tile)
 		{
-			// frog on tile where camera change is needed
-			// check if camera if facing right direction for the change
-//			if(camFacing == cur->dirCamMustFace)
+			if ( cur->flags == LOOK_AT_FROG )
+
+				// frog on tile where camera change is needed
+				// check if camera if facing right direction for the change
+	//			if(camFacing == cur->dirCamMustFace)
 			{
-				// ok - move the camera to the new position
-				SetVector(&camDist,&cur->camOffset);
-				specialCaseTile = 1;
+					// ok - move the camera to the new position
+					SetVector(&camDist,&cur->camOffset);
+					specialCaseTile = 1;
 			}
+			else if ( cur->flags == STATIC_CAMERA )
+			{
+				controlCamera = 1;
+			}
+			else if ( cur->flags == FIXED_SOURCE )
+			{
+				fixedSource = 1;
+			}
+			// ENDELSEIF
+			
 		}
 		cur = cur->next;
 	}
