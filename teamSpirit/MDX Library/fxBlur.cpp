@@ -84,7 +84,7 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE7 from, LPDIRECTDRAWSURFACE7 *to)
 	DDSURFACEDESC ddsd,ddsd2; 
 	POINT t = {0,0};
 	
-	unsigned long *hdl;
+	unsigned long *hdl=0;
 	HRESULT res;
 	RECT rect,r2;
 
