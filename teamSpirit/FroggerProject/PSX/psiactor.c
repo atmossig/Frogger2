@@ -204,7 +204,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	// set prim counter
 	actor->psiData.noofPrims = psiModel->noofPrims;
 
-	utilPrintf ( "Name : %s, Number of polys: %d", actor->psiData.modelName, actor->psiData.noofPrims );
+//	utilPrintf ( "Name : %s, Number of polys: %d", actor->psiData.modelName, actor->psiData.noofPrims );
 
 	actor->psiData.noofVerts = psiModel->noofVerts;
 

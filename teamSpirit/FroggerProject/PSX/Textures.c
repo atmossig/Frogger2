@@ -360,10 +360,10 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 	{
 		utilPrintf("Counter : %d\n", counter );
 
-		if ( counter < 10 )
-			sprintf( type, "%s0%d", fileName, counter );
+		if ( counter < 9 )
+			sprintf( type, "%s0%d\n", fileName, counter+1 );
 		else
-			sprintf( type, "%s%d", fileName, counter );
+			sprintf( type, "%s%d\n", fileName, counter+1 );
 
 		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
 
