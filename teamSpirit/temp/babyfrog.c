@@ -213,7 +213,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	PlayVoice(0, "frogokay");
 	PlaySample( genSfx[GEN_COLLECT_BABY], NULL, 0, SAMPLE_VOLUME, -1 );
 
-	BabyCollectEffect( baby, tile, i );
+	BabyCollectEffect( baby, tile, n );
  	
 	return TRUE;
 }
