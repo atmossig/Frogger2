@@ -266,20 +266,21 @@ void SubTrigger( TRIGGER *t )
 */
 void UpdateEvents( )
 {
-	TRIGGER *trigger;
+	TRIGGER *trigger, *next;
 	EVENT *event;
 	int count;
 	
-	for( trigger = triggerList.head.next, count = triggerList.numEntries; count--; trigger = trigger->next)
+	for( trigger = triggerList.head.next, count = 0; count < triggerList.numEntries; trigger = next, count++)
 	{
+		next = trigger->next;
+
 		/* Check if the trigger condition(s) are true and the trigger is allowed to fire */
-		if( !(((trigger->flags & TRIGGER_ONCE) || (trigger->flags & TRIGGER_DELAY)) && trigger->count) &&
-			trigger->func(trigger) )
+		if( !((trigger->flags & TRIGGER_DELAY) && trigger->count) && trigger->func(trigger) )
 		{
 			/* If so, do correct responses */
 
 			/* rising-edge triggers fire when the trigger is not previously fired */
-			if (!(trigger->flags & TRIGGER_RISING) || !(trigger->flags & TRIGGER_FIRED))
+			if (!(trigger->flags & TRIGGER_RISING && trigger->flags & TRIGGER_FIRED))
 			{
 				for( event = trigger->events.head.next; event != &trigger->events.head; event = event->next )
 					event->func(event);
@@ -287,16 +288,18 @@ void UpdateEvents( )
 
 			trigger->flags |= TRIGGER_FIRED; // Flag for other triggers to check if needed
 
-			// Set counters for once only and delayed triggers
-			if( trigger->flags & TRIGGER_ONCE ) 
-				trigger->count = 1;
+			if( trigger->flags & TRIGGER_ONCE ) // if "trigger once", kill this trigger
+			{
+				SubTrigger(trigger);
+				KillAllEvents( &trigger->events );
+				JallocFree( (UBYTE **)&trigger );
+			}
 			else if( trigger->flags & TRIGGER_DELAY ) 
 				trigger->count = trigger->delay;
 		}
 		else
 		{
-			if( (trigger->flags & TRIGGER_DELAY) && trigger->count ) 
-				trigger->count--;
+			if (trigger->count) trigger->count--;
 
 			trigger->flags &= ~TRIGGER_FIRED;
 		}
