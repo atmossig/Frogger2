@@ -30,18 +30,31 @@ asm(\
 	*(unsigned long *)(p) = tempvar; \
 }
 */
-void DrawSpecialFX ( void )
+
+
+// *ASL* 28/06/2000
+/* --------------------------------------------------------------------------------
+   Function : DrawSpecialFX
+   Purpose : draw all effects from sfxlist
+   Parameters : 
+   Returns : 
+   Info : 
+*/
+
+void DrawSpecialFX(void)
 {
-	int	i;
-	
+	SPECFX	*fx;
+
 	ProcessShadows();
-	
-	if( sfxList.count )
+
+	// draw all special effects from list
+	if (sfxList.count > 0)
 	{
-		SPECFX *fx;
-		for( fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next )
-			if( fx->Draw )
-				fx->Draw( fx );
+		for (fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next)
+		{
+			if (fx->Draw)
+				fx->Draw(fx);
+		}
 	}
 
 //	for( i=0; i<NUM_FROGS; i++ )
@@ -307,7 +320,7 @@ void DrawFXRing(SPECFX *fx)
 	fixed tilt, tilt2, t;
 	int zeroZ = 0;
 	int r,g,b;
-
+	
 	MATRIX tMtrx, rMtrx, sMtrx, tempMtrx;
 
 	if( !(tEntry = fx->tex) )
@@ -407,9 +420,20 @@ void DrawFXRing(SPECFX *fx)
 				gte_ldlv0(&tempVect);
 				gte_rtps();
 				gte_stsxy(&m.vx);
-				gte_stszotz(&m.vz);	//screen z/4 as otz
+				
+				// *ASL* 28/06/2000
+				// ** gte_stszotz expects an aligned long rather than a short and definately not a void pointer!
+				// ** The compiler can align memory properly if it knows what types are being passed around. The void pointer
+				// ** will just break this convention and cause memory alignment exceptions.
+				
+				{
+					long	lz;
+					gte_stszotz(&lz);
+					m.vz = (short)lz;
+				}
+				
 				m.vz>>=2;
-//ma				gte_stflg(&flg);	//screen z/4 as otz
+//ma			gte_stflg(&flg);				// screen z/4 as otz
 
 				// Assign back to vT array
 				vT[j].vx = m.vx;
