@@ -293,6 +293,7 @@ long LoopFunc(void)
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+	MDX_TEXENTRY *t;
 	char waterFile[MAX_PATH];
 
 	// Init common controls
@@ -344,10 +345,18 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	pcFont = InitFont("FontA",baseDirectory);
 	pcFontSmall = InitFont("FontB",baseDirectory);
+	LoadTexBank("Phong",baseDirectory);
+
+	if (t = GetTexEntryFromCRC(UpdateCRC("phong.bmp")))
+		phong = t;
+
+	if (t = GetTexEntryFromCRC(UpdateCRC("light.bmp")))
+		lightMap = t;
 
 	font = (psFont *)pcFont;
 	fontSmall = (psFont *)pcFontSmall;
 
+	
 	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
 	InitWater(waterFile);
 

@@ -103,7 +103,7 @@ void DrawActor(MDX_ACTOR *actor)
 	
 		if (objectC->object->phong)
 		{
-			phong = objectC->object->phong;
+			//phong = objectC->object->phong;
 			DrawObject(objectC->object, 2, objectC->object->mesh);
 			PCRenderObjectPhong(objectC->object);
 		}
