@@ -68,10 +68,41 @@ PATH debug_lawnWasp4 = { 8,0,0,0,debug_lawnWaspNodes4 };
 PATH debug_lawnWasp5 = { 8,0,0,0,debug_lawnWaspNodes5 };
 
 
+//unsigned long lawnPath1[] = { 17,	287,284,42,43,44,45,46,47,48,49,50,51,52,53,54,278,281 };
+PATHNODE debug_lawnRollNodes1[] =
+{
+	287,0,0,5,0,	284,0,0,5,0,	42,0,0,5,0,		43,0,0,5,0,		44,0,0,5,0,		45,0,0,5,0,
+	46,0,0,5,0,		47,0,0,5,0,		48,0,0,5,0,		49,0,0,5,0,		50,0,0,5,0,		51,0,0,5,0,
+	52,0,0,5,0,		53,0,0,5,0,		54,0,0,5,0,		278,0,0,5,0,	281,0,0,5,0
+};
+
+//unsigned long lawnPath2[] = { 17,	288,285,68,69,70,71,72,73,74,75,76,77,78,79,80,279,282 };
+PATHNODE debug_lawnRollNodes2[] =
+{
+	288,0,0,5,0,	285,0,0,5,0,	68,0,0,5,0,		69,0,0,5,0,		70,0,0,5,0,		71,0,0,5,0,
+	72,0,0,5,0,		73,0,0,5,0,		74,0,0,5,0,		75,0,0,5,0,		76,0,0,5,0,		77,0,0,5,0,
+	78,0,0,5,0,		79,0,0,5,0,		80,0,0,5,0,		279,0,0,5,0,	282,0,0,5,0
+};
+
+
+PATH debug_lawnRoll1 = { 17,0,0,0,debug_lawnRollNodes1 };
+PATH debug_lawnRoll2 = { 17,0,0,0,debug_lawnRollNodes2 };
+
+
+//unsigned long lawnPath3[] = { 17,	289,286,94,95,96,97,98,99,100,101,102,103,104,105,106,280,283 };
+PATHNODE debug_lawnMowNodes1[] =
+{
+	289,0,0,5,0,	286,0,0,5,0,	94,0,0,5,0,		95,0,0,5,0,		96,0,0,5,0,		97,0,0,5,0,
+	98,0,0,5,0,		99,0,0,5,0,		100,0,0,5,0,	101,0,0,5,0,	102,0,0,5,0,	103,0,0,5,0,
+	104,0,0,5,0,	105,0,0,5,0,	106,0,0,5,0,	280,0,0,5,0,	283,0,0,5,0
+};
+
+
+PATH debug_lawnMow1 = { 17,0,0,0,debug_lawnMowNodes1 };
+
+
+
 /*
-unsigned long lawnPath1[] = { 17,	287,284,42,43,44,45,46,47,48,49,50,51,52,53,54,278,281 };
-unsigned long lawnPath2[] = { 17,	288,285,68,69,70,71,72,73,74,75,76,77,78,79,80,279,282 };
-unsigned long lawnPath3[] = { 17,	289,286,94,95,96,97,98,99,100,101,102,103,104,105,106,280,283 };
 
 unsigned long lawnPath4[] = { 55,	141,142,143,144,145,146,147,148,149,150,
 									151,152,153,166,179,178,177,176,175,174,
@@ -185,6 +216,7 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
+			// wasps
 			devNME1 = CreateAndAddEnemy("wasp.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp1,PATH_MAKENODETILEPTRS);
 
@@ -199,6 +231,17 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			devNME1 = CreateAndAddEnemy("wasp.ndo");
 			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp5,PATH_MAKENODETILEPTRS);
+
+			// rollers
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll1,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("roll.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnRoll2,PATH_MAKENODETILEPTRS);
+
+			// mowers
+			devNME1 = CreateAndAddEnemy("moa.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS,&debug_lawnMow1,PATH_MAKENODETILEPTRS);
 
 /*
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
@@ -536,7 +579,7 @@ void ProcessNMEMower(ACTOR2 *nme)
 		AnimateActor(nme->actor,0,YES,NO,1.5F);
 
 	if((nme->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) && (frameCount & 3) == 0)
-		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&nme->actor->pos,128,1,1,8);
+		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&nme->actor->pos,128,1,1,15);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -814,7 +857,7 @@ void ProcessNMECar(ACTOR2 *nme)
 	{
 		SetVector(&smokePos,&frog[0]->actor->pos);
 		smokePos.v[Y] -= 10;
-		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&smokePos,128,1,1,8);
+		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&smokePos,128,1,1,15);
 	}
 }
 
