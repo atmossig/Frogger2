@@ -573,6 +573,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
 
+	LoadDemoSamples();
 	StartDrawing("initlev");
 
 #ifndef PC_VERSION

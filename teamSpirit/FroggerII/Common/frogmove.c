@@ -351,7 +351,7 @@ void UpdateFroggerPos(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -385,7 +385,7 @@ void UpdateFroggerPos(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -415,7 +415,7 @@ void UpdateFroggerPos(long pl)
 				FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD);
 		}
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
 	/* ---------------------------------------------------- */

@@ -532,7 +532,7 @@ void PickupBabyFrog(ACTOR2 *baby)
 							  
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
-//	PlaySample(GEN_TARGET_COM,0,0,0); // 147
+	PlaySample(GEN_TARGET_COM,0,0,0); // 147
 }
 
 //-------------------------------------------------------------------------------------------------
