@@ -234,10 +234,6 @@ void GameProcessController(long pl)
 		}
 		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{
-			frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.1, 1 );
-			frogTrail[pl]->follow = frog[pl]->actor;
-			SetFXColour( frogTrail[pl], 50, 200, 50 );
-
 			// frog is wanting superhop
 			player[pl].isSuperHopping = 1;
 			player[pl].hasJumped = 1;
