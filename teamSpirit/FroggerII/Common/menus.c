@@ -469,19 +469,8 @@ void RunPauseMenu( )
 		{
 			case 0:   // Continue Game
 			{
-				long i;
 				gameState.mode	= GAME_MODE;
-
-				livesTextOver->a = livesTextOver->oa;
-				timeTextOver->a = timeTextOver->oa;
-				scoreTextOver->a = scoreTextOver->oa;
-
-				for ( i = 0; i < 3; i++ )
-					sprHeart[i]->draw = 1;
-
-				for(i=0; i<numBabies; i++)
-					babyIcons[i]->draw = 1;
-
+				EnableHUD( );
 				grabData.afterEffect = PAUSE_EXIT;
 				return;
 			}
