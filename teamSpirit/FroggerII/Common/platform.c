@@ -685,6 +685,8 @@ BOOL PlatformTooHigh(PLATFORM *plat,long pl)
 	
 	height = (h * DotProduct(&diff,&plat->inTile->normal));
 
+	dprintf"Height to platform is %f\n",height));
+
 	// too high
 	if(height > 51.0F)
 	{
