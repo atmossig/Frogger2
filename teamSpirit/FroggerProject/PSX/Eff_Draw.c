@@ -2,7 +2,6 @@
 #include "specfx.h"
 #include "Eff_Draw.h"
 #include "cam.h"
-#include "maths.h"
 
 
 
@@ -22,8 +21,14 @@ void DrawSpecialFX()
 				if( fx->Draw )
 					fx->Draw( fx );
 		}
+
+// 		for( i=0; i<NUM_FROGS; i++ )
+// 			if( tongue[i].flags & TONGUE_BEINGUSED )
+// 				DrawTongue( &tongue[i] );
 	}
 }
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessShadows
@@ -34,7 +39,7 @@ void DrawSpecialFX()
 */
 void ProcessShadows()
 {
-// 	SVECTOR vec;
+// 	VECTOR vec;
 // 	ENEMY *nme;
 // 	PLATFORM *plat;
 // 	GARIB *garib;
@@ -45,20 +50,11 @@ void ProcessShadows()
 // 	tex = (long)((TEXENTRY *)txtrSolidRing)->hdl;
 // 
 // 	for( i=0; i<NUM_FROGS; i++ )
-// 		if( frog[i]->actor->shadow && frog[i]->draw )
+// 		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
 // 		{
-// 			SubVectorSSS( &vec, &frog[i]->actor->pos, &currTile[i]->centre );
-// //bb
-// //			height = DotProduct( &vec, &currTile[i]->normal );
-// 			FVECTOR fVec;
-// 			SetVectorFS(&fVec,&vec);
-// //bb
-// //			height = DotProduct( &fVec, &currTile[i]->normal );
-// 			height = DotProduct( &fVec, &currTile[i]->normal )/4096.0f;
-// 
-// //bb
-// //			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius, -height+1, frog[i]->actor->shadow->alpha, tex );
-// 			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius/4096.0F, -height+1, frog[i]->actor->shadow->alpha, tex );
+// 			SubVector( &vec, &frog[i]->actor->pos, &currTile[i]->centre );
+// 			height = DotProduct( &vec, &currTile[i]->normal );
+// 			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius/max(height*0.02, 1), -height+1, frog[i]->actor->shadow->alpha/max(height*0.02, 1), tex );
 // 		}
 // 
 // 	//------------------------------------------------------------------------------------------------
@@ -69,13 +65,15 @@ void ProcessShadows()
 // 		if( !nme->active || !nme->nmeActor )
 // 			continue;
 // 
-// //bb
-// //		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER)
-// 		if(nme->nmeActor->actor->shadow && nme->inTile && (nme->nmeActor->distanceFromFrog>>12) < BBACTOR_DRAWDISTANCEINNER)
+// 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 // 		{
-// //bb
-// //			DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
-// 			DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/4096.0F, -nme->path->nodes[nme->path->fromNode].offset>>12+1, nme->nmeActor->actor->shadow->alpha, tex );
+// 			SubVector( &vec, &nme->nmeActor->actor->pos, &nme->inTile->centre );
+// 			height = DotProduct( &vec, &nme->inTile->normal );
+// 
+// 			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
+// 				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/max(height*0.02, 1), -height+1, nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1), tex );
+// 			else
+// 				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/max(height*0.02, 1), -height+1, nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1), tex );
 // 		}
 // 	}
 // 
@@ -85,9 +83,11 @@ void ProcessShadows()
 // 		if( !plat->active || !plat->pltActor )
 // 			continue;
 // 
-// 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ToFixed(BBACTOR_DRAWDISTANCEINNER))
+// 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 // 		{
-// 			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius/4096.0F, (-plat->path->nodes[plat->path->fromNode].offset+ToFixed(1))/4096.0F, plat->pltActor->actor->shadow->alpha, tex );
+// 			SubVector( &vec, &plat->pltActor->actor->pos, &plat->inTile[0]->centre );
+// 			height = DotProduct( &vec, &plat->inTile[0]->normal );
+// 			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius/max(height*0.02, 1), -height+1, plat->pltActor->actor->shadow->alpha/max(height*0.02, 1), tex );
 // 		}
 // 	}
 // 
@@ -103,60 +103,15 @@ void ProcessShadows()
 // 		}
 // 	}*/
 }
+
+
+
+
  
  
-// /*	--------------------------------------------------------------------------------
-// 	Function		: DrawTongue
-// 	Purpose			: er, draw Frogger's tongue.....
-// 	Parameters		:
-// 	Returns			:
-// 	Info			:
-// */
-// 
-// {
-// 	if(backdrop == NULL)
-// 		backdrop = (BACKDROP *)JallocAlloc(sizeof(BACKDROP),YES,"backdrop");
-// 	backdrop->scaleX = scalex;
-// 	backdrop->scaleY = scaley;
-// 	backdrop->xPos = sourceX;
-// 	backdrop->yPos = sourceY;
-// //	backdrop->zPos = z;
-// 	backdrop->draw = 1;
-// //	backdrop->flags = flags;
-// 	backdrop->r = backdrop->g = backdrop->b = backdrop->a = 255;
-// 	FindTexture(&backdrop->texture,texID,YES);
-// /*
-// 	backdrop->background.s.imageX = sourceX<<5;
-// 	backdrop->background.s.imageY = sourceY<<5;
-// 	backdrop->background.s.imageW = (backdrop->texture->sx+1)<<2;
-// 	backdrop->background.s.imageH = backdrop->texture->sy<<2;
-// 	backdrop->background.s.frameX = destX<<2;
-// 	backdrop->background.s.frameY = destY<<2;
-// 	backdrop->background.s.frameW = destWidth<<2;
-// 	backdrop->background.s.frameH = destHeight<<2;
-// 	backdrop->background.s.imagePtr = (u64*)backdrop->texture->data;
-// 	backdrop->background.s.imageLoad = G_BGLT_LOADTILE;
-// 	backdrop->background.s.imageFmt = backdrop->texture->format;
-// 	backdrop->background.s.imageSiz = backdrop->texture->pixSize;
-// 	backdrop->background.s.imagePal = 0;
-// 	backdrop->background.s.imageFlip = 0;
-// 	backdrop->background.s.scaleW = (1024*1024)/scalex;
-// 	backdrop->background.s.scaleH = (1024*1024)/scaley;
-// 	backdrop->background.s.imageYorig = 0<<5;
-// 
-// 	osWritebackDCache(&backdrop->background, sizeof(uObjBg));
-// */
-// 	AddBackdrop(backdrop);
-// 
-// 	return backdrop;
-// }
-// 
-// 
-// void DrawShadow( SVECTOR *pos, FVECTOR *normal, float size, float offset, short alpha, long tex )
-// {
-// 	SVECTOR tempVect;
-// 	FLVECTOR fwd;
-// 	SVECTOR m;
+void DrawShadow( FVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short alpha, long tex )
+{
+// 	VECTOR tempVect, m, fwd;
 // 	D3DTLVERTEX vT[5];
 // 	QUATERNION cross, q, up;
 // 	long i, zeroZ=0;
@@ -199,9 +154,9 @@ void ProcessShadows()
 // 	PushMatrix( tMtrx );
 // 
 // 	// Rotate to be around normal
-// 	CrossProductFlFF((FLVECTOR *)&cross, normal, &upVec);
-// 	fl_MakeUnit((FLVECTOR *)&cross );
-// 	t = DotProduct( normal, &upVec )/4096.0F;
+// 	CrossProduct( (VECTOR *)&cross, normal, &upVec );
+// 	MakeUnit( (VECTOR *)&cross );
+// 	t = DotProduct( normal, &upVec );
 // 	cross.w = -acos(t);
 // 	GetQuaternionFromRotation( &q, &cross );
 // 	QuaternionToMatrix( &q,(MATRIX *)rMtrx);
@@ -219,7 +174,7 @@ void ProcessShadows()
 // 		vT[i].sx = m.v[X];
 // 		vT[i].sy = m.v[Y];
 // 		if( !m.v[Z] ) zeroZ++;
-// 		else vT[i].sz = (m.v[Z]+DIST+4)*BBZMOD;
+// 		else vT[i].sz = (m.v[Z]+DIST+4)*0.00025;
 // 	}
 // 
 // 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
@@ -232,14 +187,10 @@ void ProcessShadows()
 // 
 // 	PopMatrix( ); // Rotation
 // 	PopMatrix( ); // Translation
-// }
+}
 
 
-
-
-
-
-
+		   
 void DrawFXRipple( SPECFX *ripple )
 {
 	FVECTOR tempV[4];
@@ -247,6 +198,7 @@ void DrawFXRipple( SPECFX *ripple )
 	IQUATERNION q1, q2, q3;
 	fixed t;
 	unsigned long colour;
+	long i;
 
 	if(ripple->deadCount)
 		return;
@@ -281,7 +233,7 @@ void DrawFXRipple( SPECFX *ripple )
 	t = DotProductFF( &ripple->normal, &upVec );			  	   
 	q1.w = -arccos(t);								   
 	fixedGetQuaternionFromRotation( &q2, &q1 );		   
-													   
+
 	if( ripple->type == FXTYPE_GARIBCOLLECT )		   
 	{												   
 		// Rotate around axis						   
@@ -293,41 +245,25 @@ void DrawFXRipple( SPECFX *ripple )
 	else SetQuaternion( &q1, &q2 );					   
 
 
-	SetVectorFS(&tempV[0],&vT[0]);
-	SetVectorFS(&tempV[1],&vT[1]);
-	SetVectorFS(&tempV[2],&vT[2]);
-	SetVectorFS(&tempV[3],&vT[3]);
+	for( i=3; i>=0; i-- )
+	{
 
-	RotateVectorByQuaternionFF(&tempV[0],&tempV[0],&q1);
-	RotateVectorByQuaternionFF(&tempV[1],&tempV[1],&q1);
-	RotateVectorByQuaternionFF(&tempV[2],&tempV[2],&q1);
-	RotateVectorByQuaternionFF(&tempV[3],&tempV[3],&q1);
+		SetVectorFS(&tempV[i],&vT[i]);
+	   	RotateVectorByQuaternionFF(&tempV[i],&tempV[i],&q1);
+	  	SetVectorSF(&vT[i],&tempV[i]);								
 
-	SetVectorSF(&vT[0],&tempV[0]);
-	SetVectorSF(&vT[1],&tempV[1]);
-	SetVectorSF(&vT[2],&tempV[2]);
-	SetVectorSF(&vT[3],&tempV[3]);
+	//add world coords 
+		vT[i].vx += ripple->origin.vx;
+		vT[i].vy += ripple->origin.vy;
+		vT[i].vz += ripple->origin.vz;
 
-
-//add world coords 
-	vT[0].vx += ripple->origin.vx;
-	vT[0].vy += ripple->origin.vy;
-	vT[0].vz += ripple->origin.vz;
-
-	vT[1].vx += ripple->origin.vx;
-	vT[1].vy += ripple->origin.vy;
-	vT[1].vz += ripple->origin.vz;
-
-	vT[2].vx += ripple->origin.vx;
-	vT[2].vy += ripple->origin.vy;
-	vT[2].vz += ripple->origin.vz;
-
-	vT[3].vx += ripple->origin.vx;
-	vT[3].vy += ripple->origin.vy;
-	vT[3].vz += ripple->origin.vz;
+	}
 
 	Print3D3DSprite ( ripple->tex, vT, colour );
 }
+
+
+
 
 void DrawFXRing( SPECFX *ring )
 {
@@ -357,7 +293,7 @@ void DrawFXRing( SPECFX *ring )
 	t = DotProductFF( (FVECTOR *)&q1, &upVec );
 	cross.w = -arccos(t);
  	fixedGetQuaternionFromRotation( &q3, &cross );
- 
+
 // Combine the rotations
  	fixedQuaternionMultiply( &q1, &q2, &q3 );
  
@@ -390,6 +326,7 @@ void DrawFXRing( SPECFX *ring )
 
 
 
+
 void DrawFXTrail( SPECFX *trail )
 {
  	unsigned long colour, i = trail->start;
@@ -416,13 +353,23 @@ void DrawFXTrail( SPECFX *trail )
  		CalcTrailPoints( &vT[2], trail, (i+1)%trail->numP );
  		memcpy( vTPrev, &vT[2], sizeof(SVECTOR)*2 ); 			// Store first 2 vertices of the next segment
  
- 		/*********-[ Draw the polys ]-********/
-// 		tEntry = ((TEXENTRY *)trail->tex);
-// 		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
-// 		{
-// 			Clip3DPolygon( vT, tEntry->hdl );
-// 			Clip3DPolygon( &vT[1], tEntry->hdl );
-// 		}					   
+//add world coords 
+		vT[0].vx += trail->origin.vx;
+		vT[0].vy += trail->origin.vy;
+		vT[0].vz += trail->origin.vz;
+
+		vT[1].vx += trail->origin.vx;
+		vT[1].vy += trail->origin.vy;
+		vT[1].vz += trail->origin.vz;
+
+		vT[2].vx += trail->origin.vx;
+		vT[2].vy += trail->origin.vy;
+		vT[2].vz += trail->origin.vz;
+
+		vT[3].vx += trail->origin.vx;
+		vT[3].vy += trail->origin.vy;
+		vT[3].vz += trail->origin.vz;
+
 		Print3D3DSprite ( trail->tex, vT, colour );
  
  		if( ++i >= trail->numP ) i=0;
@@ -432,58 +379,37 @@ void DrawFXTrail( SPECFX *trail )
 
 
 
+
 void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
 {
- 
- 	SVECTOR pos;//, m;
 	FVECTOR tempV[2];
-	IQUATERNION q;
- 
+	IQUATERNION q = {0,0,0,4096};
+	SVECTOR pos;
 
- 	AddVectorSSS( &pos, &trail->origin, &trail->particles[i].pos );
-// 	// Translate to current fx pos and push
-// 	guTranslateF( tMtrx, pos.v[X], pos.v[Y], pos.v[Z] );
-// 	PushMatrix( tMtrx );
+	AddVectorSSS( &pos, &trail->origin, &trail->particles[i].pos );
 
-	vT[0].vx = pos.vx;
-	vT[0].vy = pos.vy;
-	vT[0].vz = pos.vz;
+	if( trail->type == FXTYPE_BILLBOARDTRAIL )	// Calculate screen align rotation
+	{
+		FVECTOR normal;
+		IQUATERNION cross;
+		fixed t;
 
-	vT[1].vx = pos.vx;
-	vT[1].vy = pos.vy;
-	vT[1].vz = pos.vz;
+		SubVectorFFS( &normal, &currCamSource[0], &pos );
+		MakeUnit( &normal );
+		CrossProductFFF( (FVECTOR *)&cross, &normal, &upVec );
+		MakeUnit( (FVECTOR *)&cross );
+		t = DotProductFF( &normal, &upVec );
+		cross.w = arccos(t);
+		fixedGetQuaternionFromRotation( &q, &cross );
+	}
 
- 
- 	if( trail->type == FXTYPE_BILLBOARDTRAIL )	// Calculate screen align rotation
- 	{
- 		FVECTOR normal;
- 		IQUATERNION cross;
- 		fixed t;
- 
- 		SubVectorFFS( &normal, &currCamSource[0], &pos );	  //FFS??
- 		MakeUnit( &normal );
- 		CrossProductFFF( (FVECTOR *)&cross, &normal, &upVec );
- 		MakeUnit( (FVECTOR *)&cross );
- 		t = DotProductFF( &normal, &upVec );
- 		cross.w = arccos(t);
- 		fixedGetQuaternionFromRotation( &q, &cross );
-// 		QuaternionToMatrix( &q, (MATRIX *)trail->particles[i].rMtrx );
- 	}
- 
-// 	// Precalculated rotation
-// //	PushMatrix( (MATRIX *)trail->particles[i].rMtrx );
-// //bb??
-// 	float tempFix[4][4];
-// 	memcpy(tempFix, trail->particles[i].rMtrx, sizeof(float)*16);
-// 	PushMatrix( tempFix );
- 
-// 	vT[0].sx = trail->particles[i].poly[0].v[X];
-// 	vT[0].sy = trail->particles[i].poly[0].v[Y];
-// 	vT[0].sz = trail->particles[i].poly[0].v[Z];
+	vT[0].vx = trail->particles[i].poly[0].vx;
+	vT[0].vy = trail->particles[i].poly[0].vy;
+	vT[0].vz = trail->particles[i].poly[0].vz;
+	vT[1].vx = trail->particles[i].poly[1].vx;
+	vT[1].vy = trail->particles[i].poly[1].vy;
+	vT[1].vz = trail->particles[i].poly[1].vz;
 
-// 	vT[1].sx = trail->particles[i].poly[1].v[X];
-// 	vT[1].sy = trail->particles[i].poly[1].v[Y];
-// 	vT[1].sz = trail->particles[i].poly[1].v[Z];
 
 	SetVectorFS(&tempV[0], &vT[0]);
 
@@ -497,26 +423,14 @@ void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
 
 	SetVectorSF(&vT[1],&tempV[1]);
 
- 
-// 	// Transform point by combined matrix
-// 	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
- 
-// 	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
-// 	XfmPoint( &m, &pos );
-// 	vT[0].sx = m.v[X];
-// 	vT[0].sy = m.v[Y];
-// 	vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
-// 	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
-// 	XfmPoint( &m, &pos );
-// 	vT[1].sx = m.v[X];
-// 	vT[1].sy = m.v[Y];
-// 	vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
- 
-// 	PopMatrix( ); // Rotation
-// 	PopMatrix( ); // Translation
+ 	ScaleVector(&vT[0],SCALE);
+ 	ScaleVector(&vT[1],SCALE);
 
 }
 
+
+
+							   
 
 void DrawFXLightning( SPECFX *fx )
 {
