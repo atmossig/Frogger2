@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include <fstream.h>
 #include <islutil.h>
+#include <dplay.h>
+#include <dplobby.h>
 //#include "..\resource.h"
 
 #include "Main.h"
@@ -25,7 +27,8 @@
 #include "islpad.h"
 #include "mdx.h"
 #include "layout.h"
-
+#include "..\network.h"
+#include "..\netchat.h"
 /*	------------------------------------------------------------------------
 	Global stuff
 */
@@ -555,7 +558,7 @@ void ProcessUserInput()
 	
 	unsigned short oldDigital[8];
 
-	if (consoleDraw)
+	if (consoleDraw )
 		return;
 
 	if (windowActive)
@@ -571,6 +574,8 @@ void ProcessUserInput()
 	if(KEYPRESS(DIK_F12))
 		PostMessage(mdxWinInfo.hWndMain, WM_CLOSE, 0, 0);
 	
+	if ( chatFlags & CHAT_INPUT)
+		return;
 	// reset states
 	for (i=0; i<8; i++)
 	{
