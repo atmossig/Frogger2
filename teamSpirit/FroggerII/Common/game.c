@@ -375,7 +375,7 @@ void GameProcessController(long pl)
     {
 		bby++;
 		bby %= numBabies;
-		if ( babies[bby] )
+		if ( bTStart[bby] )
 			SetFroggerStartPos(bTStart[bby],frog[pl],0);
     }
 
@@ -1076,11 +1076,11 @@ void RunGameLoop (void)
 
 				spawnCounter = 0;
 
-				if ( player[0].levelNum == 4 )
+				/*if ( player[0].levelNum == 4 )
 				{
 					frontEndState.mode	= TITLE_MODE;
 					gameState.mode		= FRONTEND_MODE;
-				}
+				}*/
 
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
 

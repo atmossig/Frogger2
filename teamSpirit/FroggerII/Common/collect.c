@@ -24,7 +24,11 @@ unsigned long croakFloat		= 0;
 unsigned long babiesSaved		= 0;
 extern long carryOnBabies;
 
-unsigned char garibStoreList [ 256 ];
+unsigned char garibStoreList [4][16 ];
+
+unsigned char garibListPos = 0;
+
+int reset = 0;
 
 //----- [ TEMPLATES FOR GARIB SPRITE ANIMATIONS ] -----//
 
@@ -256,7 +260,8 @@ void CheckTileForCollectable(GAMETILE *tile)
 	int i;
 	
 	// check current tile for a garib
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	for(garib = garibCollectableList.head.next, i = garibCollectableList.numEntries-1;
+		garib != &garibCollectableList.head; garib = garib->next, i--)
 	{
 		// process only garibs in visual range
 		if(garib->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
@@ -264,6 +269,7 @@ void CheckTileForCollectable(GAMETILE *tile)
 
 		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[0]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
 		{
+			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib);
 			return;
 		}
@@ -533,7 +539,14 @@ void InitGaribLinkedList()
 {
 	garibCollectableList.numEntries = 0;
 	garibCollectableList.head.next = garibCollectableList.head.prev = &garibCollectableList.head;
-	memset ( garibStoreList, 0xff, 256 );
+
+	if ( !reset )
+	{
+		memset ( garibStoreList, 0xff, 128*4 );
+		reset = 1;
+	}
+	// ENDIF
+	garibListPos = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -648,16 +661,24 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 
 	GARIB *garib;
 
-/*	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
+	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
 	{
-		value = garibStoreList[0] >> 1;
+		value = garibStoreList[player[0].levelNum-3][garibListPos / 8] & (1 << (garibListPos & 7));   // position to retrive from
+		garibListPos++;
+
+		if ( value == 0 )
+		{
+			dprintf"Returned, did not create garib ( %d : %d : %d )\n",value, garibListPos-1, player[0].levelNum-3));
+			return NULL;
+		}
+		// ENDIF
 
 //		if ( 
 //		{
 //		}
 		// ENDIF
 	}
-	// ENDIF*/
+	// ENDIF
 
 	garib = (GARIB *)JallocAlloc(sizeof(GARIB),YES,"garib");
 	AddGarib(garib);
@@ -711,6 +732,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite.a = 200;
 	}
 
+//	garibListPos++;
 
 	return garib;
 }

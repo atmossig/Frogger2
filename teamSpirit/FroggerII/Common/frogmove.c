@@ -84,6 +84,7 @@ long moveVal = 20;
 void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 {
 	unsigned long i;
+	VECTOR tmpVec;
 
 	// Change frog's position to reflect that of the start tile
 	act->actor->pos.v[X] = startTile->centre.v[X];
@@ -142,10 +143,24 @@ void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 		if ( babies[i] )
 			if(!babies[i]->action.isSaved)
 			{
-				babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-				babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-				babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
-				NormalToQuaternion(&babies[i]->actor->qRot,&bTStart[i]->normal);
+				if ( bTStart[i] )
+				{
+					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+					NormalToQuaternion(&babies[i]->actor->qRot,&bTStart[i]->normal);
+				}
+				else
+				{
+					babies[i]->actor->pos.v[X] = 0;
+					babies[i]->actor->pos.v[Y] = 0;
+					babies[i]->actor->pos.v[Z] = 0;
+					tmpVec.v[X] = 0;
+					tmpVec.v[Y] = 0;
+					tmpVec.v[Z] = 0;
+					NormalToQuaternion(&babies[i]->actor->qRot,&tmpVec);
+				}
+				// ENDIF
 
 				InitActorAnim(babies[i]->actor);
 				AnimateActor(babies[i]->actor,0,YES,NO,1.0F);
@@ -1393,9 +1408,19 @@ void SlurpFroggerPosition(int whereTo,long pl)
 		{
 			if(!(babies[i]->action.isSaved))
 			{
-				babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-				babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-				babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				if ( bTStart[i] )
+				{
+					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				}
+				else
+				{
+					babies[i]->actor->pos.v[X] = 0;
+					babies[i]->actor->pos.v[Y] = 0;
+					babies[i]->actor->pos.v[Z] = 0;
+				}
+				// ENDIF
 				babies[i]->action.isSaved = 0;
 			}
 

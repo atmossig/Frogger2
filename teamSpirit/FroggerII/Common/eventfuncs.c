@@ -47,7 +47,7 @@ int EnemyOnTile( TRIGGER *trigger )
 */
 int FrogOnTile( TRIGGER *trigger )
 {
-	int frognum = *(int *)trigger->data[0];
+	int frognum = ( int ) trigger->data[0];
 	GAMETILE *tile = (GAMETILE *)trigger->data[1];
 
 	if( currTile[frognum] == tile )
@@ -359,9 +359,16 @@ void ChangeLevel( EVENT *event )
 	player[0].worldNum = wNum;
 	player[0].levelNum = lNum;
 	
+/*	StopDrawing ( "changelevel" );
+	FreeAllLists();
+	InitLevel ( player[0].worldNum, player[0].levelNum );
+	StartDrawing ( "changelevel" );
+	frameCount = 0;
+	NUM_FROGS = 1;*/
 
-//	levelIsOver = 400;
-//	showEndLevelScreen = 0;
+
+	levelIsOver = 400;
+	showEndLevelScreen = 0;
 }
 
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
@@ -507,13 +514,12 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );
 			*/
 		}
-		//else if( levelID == LEVELID_GARDENTREETOPSA )
-		//{
-			/*// This should change to level when you hop onto the first platform
+		else if( levelID == LEVELID_GARDENBOSSA )
+		{
 			args = AllocArgs(2);
-			args[0] = (void *)frog[0];
-			args[1] = (void *)platformList.head.next;
-			trigger = MakeTrigger( FrogOnPlatform, 2, args );
+			args[0] = (void *)0;
+			args[1] = (void *)&firstTile[511];
+			trigger = MakeTrigger( FrogOnTile, 2, args );
 
 			args = AllocArgs(2);
 
@@ -522,14 +528,36 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			args[0] = (void *)inum;
 
 			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 2;
+			*inum = 4;
 			args[1] = (void *)inum;
 
 			event = MakeEvent( ChangeLevel, 2, args );
 
 			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
-			*/
+			
+		}
+		else if( levelID == LEVELID_GARDENBOSSB )
+		{
+			args = AllocArgs(2);
+			args[0] = (void *)0;
+			args[1] = (void *)&firstTile[99];
+			trigger = MakeTrigger( FrogOnTile, 2, args );
 
-		//}
+			args = AllocArgs(2);
+
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 0;
+			args[0] = (void *)inum;
+
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 3;
+			args[1] = (void *)inum;
+
+			event = MakeEvent( ChangeLevel, 2, args );
+
+			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
+			
+
+		}
 	} // etc
 }

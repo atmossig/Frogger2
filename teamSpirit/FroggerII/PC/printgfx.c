@@ -344,9 +344,19 @@ void ProcessShadows()
 			{
 				if(babies[i]->actor->shadow && babies[i]->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 				{
-					vec.v[X] = bTStart[i]->centre.v[X];
-					vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
-					vec.v[Z] = bTStart[i]->centre.v[Z];
+					if ( bTStart[i] )
+					{
+						vec.v[X] = bTStart[i]->centre.v[X];
+						vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
+						vec.v[Z] = bTStart[i]->centre.v[Z];
+					}
+					else
+					{
+						vec.v[X] = 0;
+						vec.v[Y] = 0 + 1;
+						vec.v[Z] = 0;
+					}
+					// ENDIF
 					DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL,0,0);
 				}
 			}
@@ -566,7 +576,7 @@ void DrawTongue()
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
-BACKDROPLIST backdropList;
+//BACKDROPLIST backdropList;
 
 
 //----- [ BACKDROP HANDLING ] ------------------------------------------------------------------//
@@ -581,8 +591,8 @@ BACKDROPLIST backdropList;
 */
 void InitBackdropLinkedList()
 {
-	backdropList.head.next = backdropList.head.prev = &backdropList.head;
-	backdropList.numEntries = 0;
+//	backdropList.head.next = backdropList.head.prev = &backdropList.head;
+//	backdropList.numEntries = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -594,7 +604,7 @@ void InitBackdropLinkedList()
 */
 void AddBackdrop(BACKDROP *backdrop)
 {
-	BACKDROP *ptr;	 
+/*	BACKDROP *ptr;	 
 
 	if(backdrop->next == NULL)
 	{
@@ -611,7 +621,7 @@ void AddBackdrop(BACKDROP *backdrop)
 		ptr->prev = backdrop;
 		backdropList.numEntries++;
 		backdrop->draw = 1;
-	}
+	}*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -623,14 +633,14 @@ void AddBackdrop(BACKDROP *backdrop)
 */
 void SubBackdrop(BACKDROP *backdrop)
 {
-	if(backdrop->next == NULL)
+/*	if(backdrop->next == NULL)
 		return;
 
 	backdrop->prev->next = backdrop->next;
 	backdrop->next->prev = backdrop->prev;
 
 	backdrop->next = NULL;
-	backdropList.numEntries--;
+	backdropList.numEntries--;*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -642,7 +652,7 @@ void SubBackdrop(BACKDROP *backdrop)
 */
 void FreeBackdropLinkedList()
 {
-	BACKDROP *cur,*next;	 
+/*	BACKDROP *cur,*next;	 
 
 	if(backdropList.numEntries == 0)
 		return;
@@ -653,7 +663,7 @@ void FreeBackdropLinkedList()
 		next = cur->next;
 
 		SubBackdrop(cur);
-	}
+	}*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -671,9 +681,9 @@ BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int
 	backdrop->scaleY = scaley;
 	backdrop->xPos = sourceX;
 	backdrop->yPos = sourceY;
-	backdrop->zPos = z;
+//	backdrop->zPos = z;
 	backdrop->draw = 1;
-	backdrop->flags = flags;
+//	backdrop->flags = flags;
 	backdrop->r = backdrop->g = backdrop->b = backdrop->a = 255;
 	FindTexture(&backdrop->texture,texID,YES);
 /*
