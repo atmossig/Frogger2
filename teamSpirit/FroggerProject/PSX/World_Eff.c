@@ -274,6 +274,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	{
 		int period1 = frameCount<<5, period2 = frameCount<<7;
 
+		// Interesting. The framecount shift controls the periiod of oscillation,
+		// and the downshift at the end decreases the amplitude from huge.
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
 			jiggledVerts[i].vx = mesh->verts[i].vx + (rcos(period1 + (mesh->verts[i].vx & mesh->verts[i].vz))>>8);
