@@ -127,20 +127,19 @@ void DoEnemyCollision( ENEMY *cur )
 	{
 		if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
 		{
-			if (!player[0].dead.time && !player[0].safe.time &&
-				(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
+			if (!player[0].dead.time && (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{
 					if( PickupBabyFrog( cur->nmeActor, cur->inTile ) )
 						cur->active = 0;
 				}
-				else NMEDamageFrog(0,cur);
+				else if( !player[0].safe.time ) NMEDamageFrog(0,cur);
 			}
 		}
 		else
 		{
-			if( (currTile[0] == cur->inTile) && !player[0].dead.time && !player[0].safe.time && 
+			if( (currTile[0] == cur->inTile) && !player[0].dead.time && 
 				(!(player[0].isSuperHopping) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 				!(player[0].frogState & FROGSTATUS_ISFLOATING) )
 			{
@@ -149,7 +148,7 @@ void DoEnemyCollision( ENEMY *cur )
 					if( PickupBabyFrog( cur->nmeActor, cur->inTile ) )
 						cur->active = 0;
 				}
-				else NMEDamageFrog(0,cur);
+				else if( !player[0].safe.time ) NMEDamageFrog(0,cur);
 			}
 		}
 	}
@@ -157,23 +156,22 @@ void DoEnemyCollision( ENEMY *cur )
 	{
 		int i;
 		for (i=0; i<NUM_FROGS; i++)
-			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !player[i].safe.time &&
-				(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
+			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && (DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{}
 //					PickupBabyFrogMulti( cur, i );
-				else
+				else if( !player[i].safe.time )
 					KillMPFrog(i);
 			}
-			else if( (currTile[i] == cur->inTile) && !player[i].safe.time && 
+			else if( (currTile[i] == cur->inTile) && !player[i].dead.time && 
 					(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 					!(player[i].frogState & FROGSTATUS_ISFLOATING))
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{}
 //					PickupBabyFrogMulti( cur, i );
-				else
+				else if( !player[i].safe.time )
 					KillMPFrog(i);
 			}
 	}
