@@ -63,6 +63,7 @@ TEXTOVERLAY *wholeKeyText = NULL;
 void UpDateOnScreenInfo ( void )
 {
 	int i;
+	static char tickTock = 0;
 
 	sprintf(livesText,"*%lu",player[0].lives);	
 	sprintf(scoreText,"%lu",player[0].score);
@@ -84,14 +85,26 @@ void UpDateOnScreenInfo ( void )
 		if (player[0].timeSec < 0)
 		{
 			countdownTimer = 0;
-			PlaySample(28,NULL,255,128);
+			PlaySample(GEN_TIME_OUT,0,0,0);
 			sprintf(timeText,"NO BONUS !");
 			if (NUM_FROGS==1)
 				timeTextOver->draw = 50;
 		}
 
 		if((player[0].timeSec < (11*30)) && ((player[0].timeSec%30) == 0))
-			PlaySample(93,NULL,255,128);
+		{
+			if ( tickTock )
+			{
+				PlaySample(GEN_CLOCK_TOCK,0,0,0);
+				tickTock = 0;
+			}
+			else
+			{
+				PlaySample(GEN_CLOCK_TICK,0,0,0);
+				tickTock = 1;
+			}
+		}
+		// ENDIF
 								   
 		if(player[0].timeSec >= 0)
 			sprintf(timeText,"%02lu",(player[0].timeSec/30));

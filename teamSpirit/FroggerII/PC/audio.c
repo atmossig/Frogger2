@@ -13,9 +13,12 @@
 #include "incs.h"
 
 
-SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\froghop.wav",	2, 22050, 16, GEN_FROG_HOP,
+SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\timeout.wav",	2, 22050, 16, GEN_TIME_OUT,
+								"x:\\teamspirit\\pcversion\\clocktock.wav", 2, 22050, 16, GEN_CLOCK_TOCK,
+								"x:\\teamspirit\\pcversion\\clocktick.wav", 2, 22050, 16, GEN_CLOCK_TICK,
+								"x:\\teamspirit\\pcversion\\froghop.wav",	2, 22050, 16, GEN_FROG_HOP,
 								"x:\\teamspirit\\pcversion\\superhop.wav",	2, 22050, 16, GEN_SUPER_HOP,
-								"x:\\teamspirit\\pcversion\\babyfrog.wav",	2, 11025, 16, GEN_BABY_FROG };
+								"x:\\teamspirit\\pcversion\\babyfrog.wav",	2, 22050, 16, GEN_BABY_FROG };
 
 //***********************************
 // Function Prototypes
@@ -23,7 +26,7 @@ SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\froghop.wav",	2, 2205
 SOUNDLIST soundList;
 
 //***********************************
-// Forward Dec
+// Forward Dech
 
 int Makebuffer ( SAMPLE *sample );
 
