@@ -335,9 +335,10 @@ void FreeObjectSprites(OBJECT *obj)
 
 /* --------------------------------------------------------------------------------
 	Function	: ActorsHaveCollided
-	Purpose		:
-	Parameters	: 
+	Purpose		: determines is two actors have collided
+	Parameters	: ACTOR2 *,ACTOR2 *
 	Returns		: BOOL 
+	Info		:
 */
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2)
 {
@@ -352,4 +353,16 @@ BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2)
 		return TRUE;
 
 	return FALSE;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetActorCollisionRadius
+	Purpose			: sets the specified actor's collision radius
+	Parameters		: ACTOR2 *,float
+	Returns			: void
+	Info			: 
+*/
+void SetActorCollisionRadius(ACTOR2 *act,float radius)
+{
+	act->radius = radius;
 }

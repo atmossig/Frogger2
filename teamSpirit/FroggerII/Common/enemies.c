@@ -62,6 +62,8 @@ unsigned long lawnPath17[] = { 7,	583,580,526,527,528,574,577 };
 unsigned long lawnPath18[] = { 13,	532,533,534,535,536,541,546,551,571,554,553,552,570 };
 unsigned long lawnPath19[] = { 8,	538,539,540,545,550,549,548,543 };
 
+unsigned long debug_path1[]	= { 4,	33,34,35,36 };
+
 
 /**************************************************************************************************************/
 /******  GARDEN MAZE LEVEL  ***********************************************************************************/
@@ -126,7 +128,7 @@ unsigned long waspPath17[] = { 8,	179,194,203,204,205,195,181,180 };
 unsigned long waspPath18[] = { 8,	10,20,33,34,35,22,12,11 };
 unsigned long waspPath19[] = { 4,	130,140,141,131 };
 unsigned long waspPath20[] = { 5,	100,101,109,118,119 };
-  */
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////
 unsigned long gatePath1[]    = { 1,		12};
@@ -184,6 +186,8 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath18,35,35,4,10.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath19,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
+
+			testEnemy = CreateAndAddEnemy("wasp.ndo",debug_path1,35,35,0,4,ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL | ENEMY_RADIUSBASEDCOLLISION);
 
 		} else if ( levelID == LEVELID_GARDENMAZE )
 		{
@@ -321,12 +325,12 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	if(initFlags & ENEMY_RADIUSBASEDCOLLISION)
 	{
 		// set a default collision radius
-		newItem->nmeActor->radius = 15.0F;
+		SetActorCollisionRadius(newItem->nmeActor,15.0F);
 	}
 	else
 	{
 		// set radius to zero - not used for collision detection
-		newItem->nmeActor->radius = 0.0F;
+		SetActorCollisionRadius(newItem->nmeActor,0.0F);
 	}
 
 	// set animation depending on enemy type
@@ -768,8 +772,62 @@ void UpdateEnemies()
 		oldTile = currTile[0];
 		GetActiveTile(cur);
 
+
+		// check if frog has been 'killed' by current enemy - radius based collision
+		if(cur->flags & ENEMY_RADIUSBASEDCOLLISION)
+		{
+			// perform radius collision check between frog and current enemy
+			if((!frog[0]->action.dead) && (!frog[0]->action.safe) && ActorsHaveCollided(frog[0],cur->nmeActor))
+			{
+				frog[0]->action.lives--;
+				if(frog[0]->action.lives != 0)
+				{
+					cameraShake = 25;
+					PlaySample(42,NULL,192,128);
+					frog[0]->action.safe = 25;
+	
+					SetVector(&swarmPos,&frog[0]->actor->pos);
+					swarmPos.v[Y] += 35;
+					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,25);
+					swarmPos.v[Y] += 10;
+					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,35);
+
+					switch(cur->nmeActor->actor->type)
+					{
+						case NMETYPE_CAR:
+						case NMETYPE_TRUCK:
+						case NMETYPE_FORK:
+							cameraShake = 25;
+							break;
+					}
+				}
+				else
+				{
+					PlaySample(110,NULL,192,128);
+					AnimateActor(frog[0]->actor,2,NO,NO,0.367);
+					frog[0]->action.dead = 50;
+					frog[0]->action.lives = 3;
+			
+					switch(cur->nmeActor->actor->type)
+					{
+						case NMETYPE_CAR:
+						case NMETYPE_TRUCK:
+						case NMETYPE_FORK:
+							cameraShake = 50;
+							frog[0]->action.deathBy = DEATHBY_RUNOVER;
+							PlaySample(31,NULL,192,128);
+							break;
+
+						default:
+							frog[0]->action.deathBy = DEATHBY_NORMAL;
+					}
+			
+					player[0].frogState |= FROGSTATUS_ISDEAD;
+				}
+			}
+		}
 		// check if frog has been 'killed' by current enemy - tile based collision
-		if ( ( currTile[0] == cur->inTile ) && ( !frog[0]->action.dead ) &&
+		else if ( ( currTile[0] == cur->inTile ) && ( !frog[0]->action.dead ) &&
 			(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NOJUMPOVER) ) &&
 			 (! currPlatform ) && !(player[0].frogState & FROGSTATUS_ISFLOATING ) )
 		{
@@ -869,15 +927,6 @@ void UpdateEnemies()
 			cur->speed += cur->accel;
 		else if(cur->flags & ENEMY_DECELERATECONST)
 			cur->speed -= cur->accel;
-
-		if(cur->flags & ENEMY_RADIUSBASEDCOLLISION)
-		{
-			// perform radius collision check between frog and current enemy
-			if(ActorsHaveCollided(frog[0],cur->nmeActor))
-			{
-				dprintf"COLLIDED !\n"));
-			}
-		}
 	}
 }
 
