@@ -304,7 +304,6 @@ int LoadWav( SAMPLE *sample )
 	// create the sound buffer
 
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbd, &sample->lpdsBuffer, NULL );
-	dp("Createing Sample Buffer = (&%x) FileName : %s", sample->lpdsBuffer, sample->idName);
 	if ( dsrVal != DS_OK )
 	{
 		dp("CreateSoundBuffer failed on file '%s' - '%s'\n", sample->idName, DSoundErrorToString(dsrVal));

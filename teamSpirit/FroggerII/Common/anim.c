@@ -26,6 +26,8 @@ float hedRotAmt = 0;
 */
 void InitActorAnim(ACTOR *tempActor)
 {
+	int i;
+
 	if( !tempActor->objectController )
 		return;
 	
@@ -44,6 +46,9 @@ void InitActorAnim(ACTOR *tempActor)
 
 	// Cue sounds from animations
 	tempActor->animation->sfxMapping = FindSfxMapping( tempActor->objectController->objectID );
+	// Clear all loopflags
+	for( i=0; i<NUM_NME_ANIMS; i++ )
+		tempActor->animation->loopFlags[i] = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -135,7 +140,7 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 			actorAnim->morphTo = actorAnim->animTime = anim->animStart + proportion*(float)(anim->animEnd-anim->animStart);
 
 		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
-			PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 48 );
+			PlaySfxMappedSample( actor, 500, 255, 128 );
 	}
 	else
 	{
@@ -283,7 +288,7 @@ void UpdateAnimations(ACTOR *actor)
 				*actorAnim->queueNumMorphFrames = 0;
 			}
 			if( actorAnim->sfxMapping )
-				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
+				PlaySfxMappedSample( actor, 500, 255, 128 );
 		}
 	}
 	else
@@ -296,7 +301,7 @@ void UpdateAnimations(ACTOR *actor)
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
 
 			if( actorAnim->sfxMapping )
-				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
+				PlaySfxMappedSample( actor, 500, 100, 128 );
 
 		}
 		else if(actorAnim->animTime < anim->animStart)

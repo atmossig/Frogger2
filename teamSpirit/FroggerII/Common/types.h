@@ -298,6 +298,7 @@ typedef struct
 	float		morphTo;
 	float		morphFrom;
 
+	char		loopFlags[5];		// NOTE: This assumes that frogger will never have looping sounds on animations
 	struct _SAMPLE **sfxMapping;	// Cue these sound effects off the animations
 
 }ACTOR_ANIMATION;

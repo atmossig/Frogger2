@@ -102,6 +102,7 @@ typedef struct TAG_AMBIENT_SOUND
 	ACTOR		*follow;
 
 	struct _SAMPLE *sample;
+	LPDIRECTSOUNDBUFFER		lpdsBuffer;
 
 	short		volume;
 	short		pitch;
@@ -147,6 +148,7 @@ extern void SetSampleFormat ( SAMPLE *sample );
 
 
 extern int PlaySample(SAMPLE *sample,VECTOR *pos,long radius,short volume,short pitch);
+void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch );
 extern AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,VECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,ACTOR *follow);
 extern void UpdateAmbientSounds();
 

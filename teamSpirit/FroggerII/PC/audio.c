@@ -36,6 +36,7 @@ void AddBufSample( BUFSAMPLE *sample );
 void RemoveBufSample( BUFSAMPLE *sample );
 
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
+int UpdateLoopingSample( AMBIENT_SOUND *sample );
 
 SAMPLE *CreateAndAddSample( char *path, char *file );
 
@@ -193,11 +194,13 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 */
 int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pitch )
 {
-	BUFSAMPLE *bufSample;
+	BUFSAMPLE *bufSample=NULL;
 	unsigned long bufStatus, vol=volume;
 	long pan;
 	float att, dist;
 	VECTOR diff;
+	unsigned long flags=0;
+	LPDIRECTSOUNDBUFFER lpdsBuffer;
 
 	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
 
@@ -217,13 +220,101 @@ int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pi
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = Magnitude( &diff );
 		if( dist > att )
-		{
-			// If looping sample then stop when out of range
-			if( sample->flags & SFXFLAGS_LOOP )
-				sample->lpdsBuffer->lpVtbl->Stop( sample->lpdsBuffer );
+			return FALSE;
 
-			return 0;
+		vol *= (att-dist)/att;
+
+		//work out pan
+		dist = Aabs(atan2(diff.v[X], diff.v[Z]));
+		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
+	}
+
+	if( sample->flags & SFXFLAGS_LOOP )
+		flags |= DSBPLAY_LOOPING;
+
+	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
+	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
+
+	//	What we need to do here is create an instance of the buffer and store it in the buffer list.
+	//	Have a clean buffer function that will go though and check if the sample is playing or not,
+	//	if the sample is not playing then remove it from the list.
+	if( bufStatus & DSBSTATUS_PLAYING )
+	{
+		if( !(bufSample = (BUFSAMPLE *)JallocAlloc(sizeof(BUFSAMPLE), YES, "BUFSAM" )) ) return NULL;
+
+		lpDS->lpVtbl->DuplicateSoundBuffer( lpDS, sample->lpdsBuffer, &(bufSample->lpdsBuffer) );
+
+		AddBufSample( bufSample );
+		lpdsBuffer = bufSample->lpdsBuffer;
+	}
+	else
+	{
+		lpdsBuffer = sample->lpdsBuffer;
+	}
+
+	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, pitch*PITCH_STEP );
+	lpdsBuffer->lpVtbl->SetVolume( lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
+	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
+	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
+
+	// HAAACCK! Bwahahahahahah!
+	return (int)lpdsBuffer;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: PlaySample
+	Purpose			: plays a sample
+	Parameters		: ID, position, radius, volume, pitch
+	Returns			: success?
+	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
+*/
+void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch )
+{
+	SAMPLE *sample = act->animation->sfxMapping[act->animation->currentAnimation];
+
+	if( !sample ) return;
+
+	// If looping, add ambient sound and remove sample from mapping
+	if( sample->flags & SFXFLAGS_LOOP )
+	{
+		if( !act->animation->loopFlags[act->animation->currentAnimation] )
+		{
+			AddAmbientSound( sample, &act->pos, radius, volume, pitch, 0, 0, act );
+			act->animation->loopFlags[act->animation->currentAnimation] = 1;
 		}
+		return;
+	}
+
+	PlaySample( sample, &act->pos, radius, volume, pitch );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: PlaySample
+	Purpose			: plays a sample
+	Parameters		: ID, position, radius, volume, pitch
+	Returns			: success?
+	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
+*/
+int UpdateLoopingSample( AMBIENT_SOUND *sample )
+{
+	unsigned long bufStatus, vol=sample->volume;
+	long pan;
+	float att, dist;
+	VECTOR diff;
+
+	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
+
+	if( MagnitudeSquared(&sample->pos) )
+	{
+		att = (sample->radius)?sample->radius:DEFAULT_SFX_DIST;
+
+		SubVector( &diff, &sample->pos, &frog[0]->actor->pos );
+		// Volume attenuation - check also for radius != 0 and use instead of default
+		dist = Magnitude( &diff );
+		if( dist > att )
+			vol=0;
 
 		vol *= (att-dist)/att;
 
@@ -235,42 +326,9 @@ int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pi
 	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
 	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
-	if( sample->flags & SFXFLAGS_LOOP )
-	{
-		sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, pitch*PITCH_STEP );
-		sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
-		sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
-
-		// Only play if not looping already
-		if( !(bufStatus & DSBSTATUS_LOOPING) )
-			sample->lpdsBuffer->lpVtbl->Play( sample->lpdsBuffer, 0, 0, DSBPLAY_LOOPING );
-	}
-	else if( bufStatus & DSBSTATUS_PLAYING )
-	{
-		/*	What we need to do here is create an instance of the buffer and store it in the buffer list.
-			Have a clean buffer function that will go though and check if the sample is playing or not,
-			if the sample is not playing then remove it from the list.
-		*/
-
-		// Create the buffer sample.
-		if( !(bufSample = (BUFSAMPLE *)JallocAlloc(sizeof(BUFSAMPLE), YES, "BUFSAM" )) ) return NULL;
-
-		lpDS->lpVtbl->DuplicateSoundBuffer( lpDS, sample->lpdsBuffer, &(bufSample->lpdsBuffer) );
-
-		AddBufSample( bufSample );
-
-		bufSample->lpdsBuffer->lpVtbl->SetFrequency( bufSample->lpdsBuffer, pitch*PITCH_STEP );
-		bufSample->lpdsBuffer->lpVtbl->SetVolume( bufSample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
-		bufSample->lpdsBuffer->lpVtbl->SetPan( bufSample->lpdsBuffer, pan );
-		bufSample->lpdsBuffer->lpVtbl->Play( bufSample->lpdsBuffer, 0, 0, 0 );
-	}
-	else
-	{
-		sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, pitch*PITCH_STEP );
-		sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
-		sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
-		sample->lpdsBuffer->lpVtbl->Play( sample->lpdsBuffer, 0, 0, 0 );
-	}
+	sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, sample->pitch*PITCH_STEP );
+	sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
+	sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
 
 	return TRUE;
 }
@@ -397,7 +455,10 @@ void UpdateAmbientSounds()
 		else
 			pos = &amb->pos;
 
-		PlaySample( amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
+		if( (amb->sample->flags & SFXFLAGS_LOOP) && amb->lpdsBuffer )
+			UpdateLoopingSample( amb );
+		else
+			amb->lpdsBuffer = (LPDIRECTSOUNDBUFFER)PlaySample( amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
 
 		// Freq and randFreq are cunningly pre-multiplied by 60
 		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
@@ -682,6 +743,9 @@ void FreeBufSampleList ( void )
 
 void SubAmbientSound(AMBIENT_SOUND *ambientSound)
 {
+	if( ambientSound->sample && ambientSound->lpdsBuffer )
+		ambientSound->lpdsBuffer->lpVtbl->Stop( ambientSound->lpdsBuffer );
+
 	ambientSound->prev->next = ambientSound->next;
 	ambientSound->next->prev = ambientSound->prev;
 	ambientSoundList.numEntries--;

@@ -116,6 +116,11 @@ void GetArgs(char *arglist)
 						dprintf"Screenshot mode, using old flip style\n"));
 						break;
 
+					case 'D': case 'd':
+						playDemos = !playDemos;
+						dprintf"Demo mode DISABLED!\n"));
+						break;
+
 					case ' ':
 					case 0:
 						cmdMode = 0;
