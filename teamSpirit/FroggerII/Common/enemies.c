@@ -767,6 +767,8 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
 	if( (path->nodes[2].worldTile) && (actFrameCount > path->endFrame) )
 	{
+		cur->inTile = FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
+
 		path->nodes[1].worldTile = path->nodes[2].worldTile;
 		path->nodes[2].worldTile = NULL;
 	}
@@ -795,8 +797,6 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
 			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
-
-		cur->inTile = FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
 
 		// Elevate above gametile
 		SetVector( &up, &cur->inTile->normal );
