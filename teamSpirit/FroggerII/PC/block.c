@@ -93,6 +93,8 @@ int		appActive		= 0;
 
 static GUID     guID;
 extern TEXTURE *frogEyeOpen,*frogEyeClosed;
+extern long showActorNames;
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: debugPrintf(int num)
@@ -361,7 +363,12 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				if (KEYPRESS(DIK_LCONTROL))
 					dumpScreen = 1;
 				else
-					displayingTile=!displayingTile;
+				{
+					if (KEYPRESS(DIK_LSHIFT))
+						showActorNames = 1;
+					else
+						displayingTile=!displayingTile;
+				}
 			}
 
 			if (keyDelay<1)

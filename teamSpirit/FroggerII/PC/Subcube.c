@@ -309,27 +309,30 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 
 void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 {
+	// If we are a skinned object then we just need to prepare all the skinned vertices, so do that for this sub-object.
 	if (skinned)
-	{
 		PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
-	}
 	else
-	{
+	{ // Otherwise we need to prepare AND DRAW this sub-object
 		if (obj->mesh)
 		{
 			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
+			
+			// We are a water object, if so modge the vertices like water
 			if ((waterObject))
 				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
-			else
-				if (modgyObject)
+			else // Or we can modge just the vertices
+				if (modgyObject) 
 					PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
-				else
+				else // Or maybe we can't
 					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
 
+			// Draw it.
 			PCRenderObject(obj);
 		}
 	}
 
+	// Recurse.
 	if(obj->children)
 		DrawObject(obj->children, obj->children->drawList, skinned, masterMesh);
 
@@ -692,7 +695,7 @@ void TransformObject(OBJECT *obj, float time)
 	short	xluVal;
 	unsigned long wasHed;
 
-//handle position keyframes
+	//handle position keyframes
 	if((obj->numMoveKeys > 1) && (currentDrawActor->animation))
 	{
 		if(currentDrawActor->animation->numMorphFrames)
@@ -719,6 +722,8 @@ void TransformObject(OBJECT *obj, float time)
 	{
 		SetVector(&translation,&obj->moveKeys[0].vect);
 	}
+
+	// Handle Scale Keyframes
 	if((obj->numScaleKeys > 1) && (currentDrawActor->animation))
 	{
 		if(currentDrawActor->animation->numMorphFrames)
@@ -745,6 +750,7 @@ void TransformObject(OBJECT *obj, float time)
 	{
 		SetVector(&scale,&obj->scaleKeys[0].vect);
 	}
+
 	// handle rotation keyframes
 	if((obj->numRotateKeys > 1) && (currentDrawActor->animation))
 	{
@@ -958,51 +964,18 @@ void TransformObject(OBJECT *obj, float time)
 
 void DrawActor(ACTOR *actor)
 {
+	// Optimisation.
 	OBJECT_CONTROLLER *objectC = actor->objectController;
-	int col;
-	float animTime;
 
+	// I can't see you...
 	if(actor->visible == FALSE)
 		return;
 
-	if( fog.mode )
-	{
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGENABLE,TRUE);
-		//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
-	}
-
-	staticObjectMtx = actor->matrix;
-
+	// xluOverride is used in the sprite engine, and xl is used within the main polygon engine.
 	xluOverride = actor->xluOverride;
 	xl = (float)xluOverride/100.0F;
 
-	currentDrawActor = actor;
-	actorScale = &actor->scale;
-
-	if((actor->animation) && (actor->animation->anims))
-		animTime = actor->animation->animTime;
-	else
-		animTime = 0;
-
-	/* MATT
-	//quick draw
-	if(objectC->objectSize == 1)
-	{
-		SetupRenderModeForObject(objectC->object);
-		gSPDisplayList(glistp++, objectC->object->drawList);
-	}
-	else
-	{
-		if(objectC->drawList)	//if object is skinned, draw mesh now
- 		{
-			gSPSegment(glistp++, 1, objectC->vtx[objectC->vtxBuf]);
-			DrawObject(objectC->object, objectC->drawList, TRUE);
-		}
-		else
-			DrawObject(objectC->object, objectC->object->drawList, FALSE);
-	}
-	*/
-
+	// If we are skinned then XForm all the vertices first and then draw the skin, otherwise draw it as we transform it.
 	if (objectC->vtxBuf)
 	{
 		DrawObject(objectC->object, objectC->object->drawList, TRUE, objectC->object->mesh);
@@ -1010,8 +983,6 @@ void DrawActor(ACTOR *actor)
 	}
 	else
 		DrawObject(objectC->object, objectC->object->drawList, FALSE, objectC->object->mesh);
-
-	//DrawObject(objectC->object, objectC->object->drawList, FALSE);
 }
 
 

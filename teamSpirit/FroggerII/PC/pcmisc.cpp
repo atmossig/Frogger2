@@ -265,7 +265,7 @@ void PrintTimers(void)
 	DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
 
 	
-	if (drawTimers==2)
+//	if (drawTimers==2)
 	{
 		HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 

@@ -32,17 +32,21 @@
 #endif
 
 #define MAX_UNIQUE_ACTORS	50
-
+void XformActor(ACTOR *ptr);
 
 unsigned long ACTOR_DRAWDISTANCEINNER = 250000;
 unsigned long ACTOR_DRAWDISTANCEOUTER = 500000;
 
+float bFOV = 450.0;
+float texSlideSpeed = 40;
+extern float fStart,fEnd, FOV;
+extern long noClipping;
 
 #define WATER_XLU 70
 long waterObject = 0;
 long modgyObject = 0;
 int objectMatrix = 0;
-
+long showActorNames = 0;
 ACTOR2 *actList = NULL;				// entire actor list
 ACTOR2 *backGnd = NULL;
 ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
@@ -53,31 +57,29 @@ ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numUniqueActors = 0;
 extern ACTOR2 *hat[MAX_FROGS];
+float ACTOR_DRAWFADERANGE;
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
-	Function    : DrawActorList
-
+	Function    : 
 	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
+	Parameters	: 
+	Returns		: 
 */
-void XformActor(ACTOR *ptr);
-float texSlideSpeed = 40;
+
 void SlideObjectTextures(OBJECT *obj)
 {
 	int i;
-/*	
-	for (i=0; i<obj->mesh->numFaces*3; i++)
-		obj->mesh->faceTC[i].v[Y] -= (gameSpeed * texSlideSpeed);
-*/
-
+	
+	// For all the faces.....
 	for (i=0; i<obj->mesh->numFaces; i++)
 	{
+		// Do the sliding.
 		obj->mesh->faceTC[(i*3)].v[Y] -= (gameSpeed * texSlideSpeed);		
 		obj->mesh->faceTC[(i*3)+1].v[Y] -= (gameSpeed * texSlideSpeed);		
 		obj->mesh->faceTC[(i*3)+2].v[Y] -= (gameSpeed * texSlideSpeed);		
 
+		// Deal with the case when they might wrap.
 		if ((obj->mesh->faceTC[(i*3)].v[Y] < 4096) || (obj->mesh->faceTC[(i*3)+1].v[Y]<4096) || (obj->mesh->faceTC[(i*3)+2].v[Y]<4096))
 		{
 			obj->mesh->faceTC[(i*3)].v[Y] += 8192;		
@@ -85,7 +87,6 @@ void SlideObjectTextures(OBJECT *obj)
 			obj->mesh->faceTC[(i*3)+2].v[Y] += 8192;		
 		}
 	}
-
 }
 
 /*	--------------------------------------------------------------------------------
@@ -95,6 +96,7 @@ void SlideObjectTextures(OBJECT *obj)
 	Returns			: 
 	Info			: 
 */
+
 void XformActorList()
 {
 	ACTOR2 *cur;
@@ -117,7 +119,6 @@ void XformActorList()
 			XformActor(cur->actor);
 		}
 
-
 		cur = cur->next;
 	}
 }
@@ -129,10 +130,292 @@ void XformActorList()
 	Returns			: void
 	Info			: 
 */
-float bFOV = 450.0;
-extern float fStart,fEnd, FOV;
-extern long noClipping;
-void DrawActorList()
+
+void DrawBackground(void)
+{
+	float oFs = fStart, oFe = fEnd;
+	
+	waterObject = modgyObject = 0;
+	fStart = 7000.0;	fEnd = 7001.0;
+	backGnd->actor->visible = 1;
+	
+	noClipping = 1;
+
+	SetVector (&(backGnd->actor->pos),&(currCamSource[0]));
+	XformActor(backGnd->actor);
+	DrawActor(backGnd->actor);
+
+	noClipping = 0;
+
+	fStart = oFs;	fEnd = oFe;
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);	// clamp textures
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	
+	DrawBatchedPolys();
+	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);	// wrap textures
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	
+	BlankFrame(_);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawActorList
+	Purpose			: draws the actors in the actor list....doh !!
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+
+void DrawAttachedObjects(void)
+{
+	if (hat[0])
+	{
+		XformActor(hat[0]->actor);
+		DrawActor(hat[0]->actor);	
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: RenderObjects
+	Purpose			: 
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+
+void RenderObjects(void)
+{
+	// Draw the first frame-set, opaque objects.
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
+	
+	DrawBatchedPolys();
+	BlankFrame(_);
+	
+	// Draw the second mavis frame set, Transparent objects (non water objects)
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	
+	SwapFrame(1);
+	DrawBatchedPolys();
+	BlankFrame(_);
+
+	// Draw Additive frameset (num 3)
+	SwapFrame(3);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+
+	DrawBatchedPolys();
+	BlankFrame(_);
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+	
+	// Draw the third mavis frame set, Transparent objects (non water objects)
+	SwapFrame(2);
+	DrawBatchedPolys();
+	BlankFrame(_);
+	
+	// We could take this out, I doubt it really matters which frame we use (Unless I put in varying poly counts, might be worth it.... Dunno)
+	// SwapFrame(0);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawObjects
+	Purpose			: 
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+
+float slideSpeeds[4] = {0,16,32,64};
+
+void DrawObjects(void)
+{
+	ACTOR2 *cur;
+	unsigned long slideVal;
+	
+	// Init for Stuff.
+	SwapFrame(0);
+
+	// The loop that fills out mavis frame info (The complex bit)
+	for (cur = actList; cur; cur = cur->next)
+		if (cur->actor->objectController)
+		{
+			// Slide Texture Coordinates if appropriate
+			slideVal = ((cur->flags>>5) & 3);
+			if (slideVal)
+			{
+				texSlideSpeed = slideSpeeds[slideVal];
+
+				SlideObjectTextures(cur->actor->objectController->object);
+			}
+			
+			// Do we modge?
+			modgyObject = (cur->flags & ACTOR_MODGETEX);
+			 
+			// Main Draw bit, only draw if we are within range.
+			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER || cur->flags & ACTOR_DRAW_ALWAYS)
+			{
+				if (cur->flags & ACTOR_WATER)
+				{
+					// Draw a waterbased object, this does the setting, and setting back of states since it is called far less frequently
+					waterObject = 1;
+					SwapFrame(2);
+
+					DrawActor(cur->actor);
+
+					SwapFrame(0);
+					waterObject = 0;
+				}
+				else
+				{
+					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
+					{
+						// Draw transparent objects.
+						if (cur->flags & ACTOR_ADDITIVE)
+						{
+							// Additive-Xlu
+							SwapFrame(3);
+							DrawActor(cur->actor);
+						}
+						else
+						{			
+							// Semi-Xlu
+							SwapFrame(1);
+							DrawActor(cur->actor);
+						}
+						SwapFrame(0);
+					}
+					else
+					{
+						// Opaque objects are a piece of piss.
+						DrawActor(cur->actor);
+					}
+				}
+			}
+		}
+	
+	// Draw the hats (Would be much better if we had an "attached" object field in the OBJECT structure, 
+	DrawAttachedObjects();
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawActorList
+	Purpose			: 
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+
+void DrawActorList(void)
+{
+	// Kill any left over frame information
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	BlankFrame(_);
+	
+	// Draw our background object, if applicable
+	if (backGnd)
+		DrawBackground();
+
+	// Calculate our actor fade range!
+	ACTOR_DRAWFADERANGE = sqrtf((float)ACTOR_DRAWDISTANCEOUTER - (float)ACTOR_DRAWDISTANCEINNER);	
+
+	// Draws all the objects (Have added to mavis, support for multiple frames allowing all the objects to be drawn in one go.)
+	DrawObjects();
+
+	// Renders the Mavis Set
+	RenderObjects();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawActorList
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void DrawActorListOLD()
 {
 	/****************************************************************************************/
 	// IMPORTANT NOTE FROM SHARKY...
@@ -150,65 +433,11 @@ void DrawActorList()
 	/****************************************************************************************/
 
 #ifdef PC_VERSION
-	float ACTOR_DRAWFADERANGE = sqrtf((float)ACTOR_DRAWDISTANCEOUTER - (float)ACTOR_DRAWDISTANCEINNER);
-	
-	BlankFrame(_);
-
-	if (backGnd)
-	{
-		float oFs = fStart, oFe = fEnd;
 		
-		waterObject = 0;
-		modgyObject = 0;
-
-		fStart = 7000.0;
-		fEnd = 7001.0;
-
-		backGnd->actor->visible = 1;
-		
-		noClipping = 1;
-
-		SetVector (&(backGnd->actor->pos),&(currCamSource[0]));
-		XformActor(backGnd->actor);
-		DrawActor(backGnd->actor);
-
-		noClipping = 0;
-
-		fStart = oFs;
-		fEnd = oFe;
-
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,FALSE);
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);	// clamp textures
-//		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_WRAPV, 0);	// wrap textures
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-		
-		DrawBatchedPolys();
-		BlankFrame(_);
-
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);	// wrap textures
-	}
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
-		
-	waterObject = 0;
-
-	BlankFrame(_);
-
-	/* Draw normal actors */
-
-	for (cur = actList; cur; cur = cur->next)
-	{
-		float slideSpeed = 0;
-
-		if (!cur->draw || cur->flags & ACTOR_WATER || !cur->actor->objectController)
+/*
+	if (!cur->draw || cur->flags & ACTOR_WATER || !cur->actor->objectController)
 			continue;
-		
-		waterObject = 0;
-		modgyObject = 0;
-
+	
 		if ((cur->flags & ACTOR_SLIDYTEX))
 		{
 			if ((cur->flags & ACTOR_SLIDYTEX2))
@@ -219,23 +448,9 @@ void DrawActorList()
 		else
 			if ((cur->flags & ACTOR_SLIDYTEX2))
 				slideSpeed = 32;
-
+		*/
 	
-		if (slideSpeed>1)
-		{
-			texSlideSpeed = slideSpeed;
-			if (cur->actor->objectController)
-				SlideObjectTextures(cur->actor->objectController->object);
-		}
-
-		if (cur->flags & ACTOR_MODGETEX)
-			modgyObject = 1;
-		else
-			modgyObject = 0;
-
-		if( (cur->flags & ACTOR_DRAW_CULLED) &&
-			(cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) &&
-			!(cur->flags & ACTOR_DRAW_ALWAYS) )
+/*		if( (cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS))
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
@@ -257,41 +472,42 @@ void DrawActorList()
 				cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
 			}
 
-			/*if(gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
-			   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
-			   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
-			{*/
-
 			if( cur->draw && !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
 			{
 				DrawActor(cur->actor);
 			}
 		}
-	}
-	
-//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
-
-	if (hat[0])
-	{
-		XformActor(hat[0]->actor);
-		DrawActor(hat[0]->actor);	
-	}
-
-	DrawBatchedPolys();
-	BlankFrame(x);
-
+*/	
 	/* Water objects */
-	
+	#ifndef RELEASE_BUILD
+	if (showActorNames)
+		dprintf"-------------------------------------------------------------\n"));
+	#endif
+
 	waterObject = 1;
 	for (cur = actList; cur; cur = cur->next)
 	{
+		#ifndef RELEASE_BUILD
+		if (showActorNames)
+		{
+			if (cur->actor->objectController)
+				dprintf"--- %s ---\n",cur->actor->objectController->object->name));
+			else
+				dprintf"*** nocontroll ***\n",cur->actor->objectController->object->name));
+		}
+		#endif
+
 		if(cur->flags & ACTOR_WATER && cur->actor->objectController)
 			DrawActor(cur->actor);
 	}
+	
+	#ifndef RELEASE_BUILD
+	if (showActorNames)
+	{
+		dprintf"-------------------------------------------------------------\n"));
+		showActorNames = 0;
+	}
+	#endif
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
@@ -455,6 +671,17 @@ void DrawActorList()
 
 #endif
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* --------------------------------------------------------------------------------

@@ -40,7 +40,8 @@ extern "C"
 #include "mavis.h"
 
 // Instance of FRAME_INFO, for storing... Surprisingly.. The frame information./
-FRAME_INFO frameInfo;
+FRAME_INFO frameInfo[MAX_FRAMES];
+FRAME_INFO *cFInfo = &frameInfo[0];
 
 #ifdef _DEBUG
 
@@ -50,23 +51,23 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, long h )
 	short *mfce = fce;
 
 	// discard excess polys
-	if ((frameInfo.nV + vC) > MA_MAX_VERTICES || (frameInfo.nF + fC) > MA_MAX_FACES)
+	if ((cFInfo->nV + vC) > MA_MAX_VERTICES || (cFInfo->nF + fC) > MA_MAX_FACES)
 		return;
 
 	for (cnt=0;cnt<fC; cnt++)
 	{
-		*frameInfo.cF = (*mfce) + frameInfo.nV;
-		*frameInfo.cH = h;
-		frameInfo.cF++;
-		frameInfo.cH++;
+		*cFInfo->cF = (*mfce) + cFInfo->nV;
+		*cFInfo->cH = h;
+		cFInfo->cF++;
+		cFInfo->cH++;
 		mfce++;
 	}
 
-	memcpy(frameInfo.cV,v,vC*sizeof(D3DTLVERTEX));
+	memcpy(cFInfo->cV,v,vC*sizeof(D3DTLVERTEX));
 	
-	frameInfo.cV+=vC;
-	frameInfo.nV+=vC;
-	frameInfo.nF+=fC;
+	cFInfo->cV+=vC;
+	cFInfo->nV+=vC;
+	cFInfo->nF+=fC;
 }
 
 #endif
@@ -87,21 +88,21 @@ void DrawBatchedPolys (void)
 	unsigned long i;
 	unsigned long lHandle,nFace;
 
-	frameInfo.cF = frameInfo.f;
-	frameInfo.cH = frameInfo.h;
+	cFInfo->cF = cFInfo->f;
+	cFInfo->cH = cFInfo->h;
 	StartTimer(4,"Mavis");
 	
 
 	nFace = 3;
 	i=0;
-	totalFacesDrawn+=frameInfo.nF/3;
+	totalFacesDrawn+=cFInfo->nF/3;
 
-	while (i<frameInfo.nF)
+	while (i<cFInfo->nF)
 	{
-		lHandle = *frameInfo.cH;
+		lHandle = *cFInfo->cH;
 		nFace = 0;
 
-		while (((*(frameInfo.cH)) == lHandle) && (i<frameInfo.nF))
+		while (((*(cFInfo->cH)) == lHandle) && (i<cFInfo->nF))
 		{
 
 #ifdef SHOW_OUTLINES
@@ -109,33 +110,33 @@ void DrawBatchedPolys (void)
 			{
 				pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,0);
 
-				lx1 = frameInfo.v[frameInfo.f[i]].sx;
-				ly1 = frameInfo.v[frameInfo.f[i]].sy;
+				lx1 = cFInfo->v[cFInfo->f[i]].sx;
+				ly1 = cFInfo->v[cFInfo->f[i]].sy;
 				
-				lx2 = frameInfo.v[frameInfo.f[i+1]].sx;
-				ly2 = frameInfo.v[frameInfo.f[i+1]].sy;
-				
-				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
-
-				lx1 = frameInfo.v[frameInfo.f[i+1]].sx;
-				ly1 = frameInfo.v[frameInfo.f[i+1]].sy;
-				
-				lx2 = frameInfo.v[frameInfo.f[i+2]].sx;
-				ly2 = frameInfo.v[frameInfo.f[i+2]].sy;
+				lx2 = cFInfo->v[cFInfo->f[i+1]].sx;
+				ly2 = cFInfo->v[cFInfo->f[i+1]].sy;
 				
 				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
 
-				lx1 = frameInfo.v[frameInfo.f[i]].sx;
-				ly1 = frameInfo.v[frameInfo.f[i]].sy;
+				lx1 = cFInfo->v[cFInfo->f[i+1]].sx;
+				ly1 = cFInfo->v[cFInfo->f[i+1]].sy;
 				
-				lx2 = frameInfo.v[frameInfo.f[i+2]].sx;
-				ly2 = frameInfo.v[frameInfo.f[i+2]].sy;
+				lx2 = cFInfo->v[cFInfo->f[i+2]].sx;
+				ly2 = cFInfo->v[cFInfo->f[i+2]].sy;
+				
+				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
+
+				lx1 = cFInfo->v[cFInfo->f[i]].sx;
+				ly1 = cFInfo->v[cFInfo->f[i]].sy;
+				
+				lx2 = cFInfo->v[cFInfo->f[i+2]].sx;
+				ly2 = cFInfo->v[cFInfo->f[i+2]].sy;
 				
 				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
 			}
 	#endif
 
-			frameInfo.cH+=3;
+			cFInfo->cH+=3;
 			nFace+=3;
 			i+=3;
 		}
@@ -145,16 +146,16 @@ void DrawBatchedPolys (void)
 		if (pDirect3DDevice->DrawIndexedPrimitive(
 			D3DPT_TRIANGLELIST,
 			D3DVT_TLVERTEX,
-			frameInfo.v,
-			frameInfo.nV,
-			frameInfo.cF,
+			cFInfo->v,
+			cFInfo->nV,
+			cFInfo->cF,
 			nFace,
 				D3DDP_DONOTCLIP |
 				D3DDP_DONOTLIGHT |
 				D3DDP_DONOTUPDATEEXTENTS) !=D3D_OK) dp("!");
 		
 		
-		frameInfo.cF+=nFace;
+		cFInfo->cF+=nFace;
 	}
 
 	EndTimer(4);

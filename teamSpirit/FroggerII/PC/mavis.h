@@ -3,8 +3,12 @@
 
 //-------------------------------------------------------------
 
-#define MA_MAX_VERTICES		32000	// Maximum number of VERTICES that can be drawn
-#define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn
+#ifdef RELEASE_BUILD
+#error
+#endif
+#define MA_MAX_VERTICES		32000	// Maximum number of VERTICES that can be drawn in a frame
+#define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn in a frame
+#define MA_MAX_FRAMES		4		// Maximum number of frames that may be active at once.
 
 // A type for storing all the vertices and polygons in a frame
 typedef struct TAG_FRAME_INFO	
@@ -26,12 +30,16 @@ typedef struct TAG_FRAME_INFO
 
 //--------------------------------------------------------------
 
-extern FRAME_INFO frameInfo;
+extern FRAME_INFO frameInfo[MAX_FRAMES];
+extern FRAME_INFO *cFInfo;
 
 // Blanks out current frame
 #define BlankFrame(x) {\
-frameInfo.nV = frameInfo.nF = 0;	frameInfo.cV = frameInfo.v;	frameInfo.cF = frameInfo.f;	frameInfo.cH = frameInfo.h;\
+cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFInfo->cH = cFInfo->h;\
 }
+
+// Swap to a different frameset
+#define SwapFrame(to) {cFInfo = &frameInfo[to];}
 
 // Push a poly onto the buffers
 #ifdef _DEBUG
@@ -45,13 +53,13 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, long h );
 	short *mfce = fce;\
 	for (cnt=0;cnt<fC; cnt++)\
 	{\
-		*frameInfo.cF = (*mfce) + frameInfo.nV;\
-		*frameInfo.cH = h;\
-		frameInfo.cF++;\
-		frameInfo.cH++;\
+		*cFInfo->cF = (*mfce) + cFInfo->nV;\
+		*cFInfo->cH = h;\
+		cFInfo->cF++;\
+		cFInfo->cH++;\
 		mfce++;\
 	}\
-	memcpy(frameInfo.cV,v,vC*sizeof(D3DTLVERTEX)); frameInfo.cV+=vC; frameInfo.nV+=vC; frameInfo.nF+=fC;\
+	memcpy(cFInfo->cV,v,vC*sizeof(D3DTLVERTEX)); cFInfo->cV+=vC; cFInfo->nV+=vC; cFInfo->nF+=fC;\
 }
 
 #endif
