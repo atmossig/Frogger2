@@ -108,7 +108,8 @@ unsigned char letters_spacing[] =
 void InitFont()
 {
 	unsigned int i,j,currTile;
-
+	char filenameBuffer[MAX_PATH];
+	
 	bigFont		= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT32");
 	smallFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT16");
 	oldeFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT8");
@@ -116,10 +117,11 @@ void InitFont()
 	// Initialise the 32x32 font ----------------------------------------------------
 
 	dprintf"Initialising 32x32 font..."));
+	sprintf(filenameBuffer,"%s%sfont\\font32x32.bmp",baseDirectory,TEXTURE_BASE);
 
 	bigFont->width		= 32;
 	bigFont->height		= 32;
-	bigFont->data		= GetGelfBmpDataAsShortPtr(".\\bmp\\font32x32.bmp");
+	bigFont->data		= GetGelfBmpDataAsShortPtr(filenameBuffer);
 
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
@@ -167,10 +169,11 @@ void InitFont()
 	// Initialise the 16x16 font ----------------------------------------------------
 
 	dprintf"Initialising 16x16 font..."));
+	sprintf(filenameBuffer,"%s%sfont\\font16x16.bmp",baseDirectory,TEXTURE_BASE);
 
 	smallFont->width	= 16;
 	smallFont->height	= 16;
-	smallFont->data		= GetGelfBmpDataAsShortPtr(".\\bmp\\font16x16.bmp");
+	smallFont->data		= GetGelfBmpDataAsShortPtr(filenameBuffer);
 
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
@@ -205,7 +208,7 @@ void InitFont()
 
 	// Initialise the 8x8 font ----------------------------------------------------
 
-	dprintf"Initialising 8x8 font..."));
+	dprintf"Initialising 8x8 font...(NOT USED YET !)"));
 
 	dprintf"OK !\n"));
 
