@@ -27,7 +27,7 @@ TEXTURE_STRUCTURE   *textureList	 = NULL;
 ANIM_STRUCTURE		*animationList	 = NULL;
 
 
-FOG fog = {180,180,220,FOG_OFF,995,5000};
+FOG fog = {120,120,160,FOG_OFF,995,5000};
 
 	/***********************************************************************************
 	/********* TEXTURE LIST FUNCTIONS **************************************************
