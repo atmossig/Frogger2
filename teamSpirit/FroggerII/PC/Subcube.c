@@ -507,6 +507,8 @@ void XfmPoint (VECTOR *vTemp2, VECTOR *in)
 {
 
 	guMtxXFMF(vMatrix,in->v[X],in->v[Y],in->v[Z],
+
+		
 		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
 	
 		if  (((vTemp2->v[Z]+DIST)>nearClip) &&
