@@ -81,8 +81,6 @@ char *GetDirectPlayErrStr(HRESULT hRes);
 HRESULT ConnectUsingLobby(LPDPLAYINFO lpDPInfo);
 HRESULT ConnectUsingDialog(HINSTANCE hInstance,LPDPLAYINFO lpDPInfo);
 
-//BOOL CALLBACK DLGChatWndProc(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
-
 #ifdef __cplusplus
 }
 #endif

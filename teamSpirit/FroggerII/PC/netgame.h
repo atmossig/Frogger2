@@ -21,6 +21,11 @@ extern HRESULT SendUpdateMessage( ); // Called to send game updates - need forma
 extern void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo );
 extern void InitMPGameData( );
 
+extern void RefreshMPFrogs( );
+extern int MPAddFrog( int i );
+extern int MPRemoveFrog( int i );
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -297,6 +297,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			if (editorOk)
 				RunEditor();
 
+			if( NUM_FROGS > 1 && gameState.mode == GAME_MODE )
+				RefreshMPFrogs( );
+
 			StartTimer(4,"GameLoop");
 			GameLoop();
 			EndTimer(4);

@@ -1,8 +1,6 @@
-extern "C" {
 
 #include <windows.h>
 #include <windowsx.h>
-#include <wtypes.h>
 #include <crtdbg.h>
 #include <commctrl.h>
 #include <cguid.h>
@@ -13,6 +11,11 @@ extern "C" {
 #include <dplay.h>
 #include <dplobby.h>
 
+#include "network.h"
+#include "netchat.h"
+
+extern "C" {
+
 #include <ultra64.h>
 #include "block.h"
 #include "directx.h"
@@ -22,9 +25,6 @@ extern "C" {
 #include "general.h"
 
 }
-
-#include "network.h"
-#include "netchat.h"
 
 
 CHATBUFFER chatBuffer;

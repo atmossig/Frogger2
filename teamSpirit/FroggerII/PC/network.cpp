@@ -1,10 +1,7 @@
 #define INITGUID
 
-extern "C" {
-
 #include <windows.h>
 #include <windowsx.h>
-#include <wtypes.h>
 #include <crtdbg.h>
 #include <commctrl.h>
 #include <cguid.h>
@@ -15,16 +12,24 @@ extern "C" {
 #include <dplay.h>
 #include <dplobby.h>
 
+#include "network.h"
+#include "netchat.h"
+#include "netgame.h"
+
+extern "C" {
+
 #include <ultra64.h>
 #include "block.h"
 #include "directx.h"
 #include "..\resource.h"
+#include "types.h"
+#include "font.h"
+#include "actor.h"
+#include "overlays.h"
+#include "frogger.h"
 
 }
 
-#include "network.h"
-#include "netchat.h"
-#include "netgame.h"
 
 HANDLE ghReceiveThread			= NULL;			// handle of receive thread
 DWORD gidReceiveThread			= 0;			// id of receive thread
@@ -965,20 +970,17 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 			LPSTR lpszPlayerName;
 			LPSTR szDisplayFormat = "\"%s\" has joined";
 
-			dp( "DP Player Create: DPID %d\n", lp->dpId );
-
-			// Assign a player number mapping to the new players DPID
 			for( i=1; i<MAX_MULTIPLAYERS; i++ )
-			{
 				if( netPlayers[i] == -1 )
 				{
 					netPlayers[i] = lp->dpId;
 					break;
 				}
-			}
 
-			if( i==MAX_MULTIPLAYERS ) // No spare network places
+			if( i==MAX_MULTIPLAYERS )
 				return;
+
+			RefreshMPFrogs( );
 
 			// get pointer to player name
 			if(lp->dpnName.lpszShortNameA)
@@ -1002,18 +1004,17 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 			LPSTR lpszPlayerName;
 			LPSTR szDisplayFormat = "\"%s\" has left";
 
-			// Unassign the mapping
-			for( i=0; i<MAX_MULTIPLAYERS; i++ )
-			{
+			for( i=1; i<MAX_MULTIPLAYERS; i++ )
 				if( netPlayers[i] == lp->dpId )
 				{
 					netPlayers[i] = -1;
 					break;
 				}
-			}
 
-			if( i==MAX_MULTIPLAYERS ) // Player does not exist in the game, for some reason
+			if( i==MAX_MULTIPLAYERS )
 				return;
+
+			RefreshMPFrogs( );
 
 			// get pointer to player name
 			if(lp->dpnName.lpszShortNameA)
@@ -1306,8 +1307,6 @@ BOOL WINAPI EnumPlayersCallback( DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName
 
 	if( dwPlayerType == DPPLAYERTYPE_PLAYER && count < MAX_MULTIPLAYERS )
 		netPlayers[count++] = dpId;
-
-	dp( "Enumerated player number %d\n", count );
 
 	return TRUE;
 }
