@@ -150,7 +150,7 @@ int CheckFiles(const char* path)
 int WriteOutData(const char* out)
 {
 	FILE *f;
-	short n;
+	long n;
 	unsigned long l;
 	int anim, frame;
 
@@ -159,12 +159,12 @@ int WriteOutData(const char* out)
 		return 0;
 
 	n = numAnims;
-	fwrite(&n, 2, 1, f);
+	fwrite(&n, 4, 1, f);
 
 	for (anim=0; anim<numAnims; anim++)
 	{
 		n = anims[anim].numFrames;
-		fwrite(&n, 2, 1, f);
+		fwrite(&n, 4, 1, f);
 
 		l = anims[anim].CRC;
 		fwrite(&l, 4, 1, f);
@@ -175,7 +175,7 @@ int WriteOutData(const char* out)
 			n = (short)anims[anim].frames[frame].time;
 
 			fwrite(&l, 4, 1, f);
-			fwrite(&n, 2, 1, f);
+			fwrite(&n, 4, 1, f);
 		}
 	}
 
