@@ -19,7 +19,7 @@
 char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
 char timeText[32]	= "00:00      ";
-char spawnText[8];
+char garibText[8], creditText[8];
 
 char timeTemp[6];
 
@@ -43,7 +43,7 @@ TEXTOVERLAY *keyCollected;
 
 TEXTOVERLAY *continueText;
 TEXTOVERLAY *quitText;
-TEXTOVERLAY *spawnCollected;
+TEXTOVERLAY *garibCount, *creditCount;
 TEXTOVERLAY *time;
 TEXTOVERLAY *nextLev1;
 TEXTOVERLAY *nextLev2;
@@ -59,8 +59,18 @@ void UpDateOnScreenInfo ( void )
 	static char tickTock = 0;
 	static long lastCount = 0;
 
-	sprintf(livesText,"*%lu",player[0].lives);	
-	sprintf(scoreText,"%lu",player[0].score);
+/*	if( player[0].worldNum == WORLDID_SUPERRETRO ) // credits are lives in super retro
+	{
+		sprintf(livesText,"*%lu",player[0].numCredits);	
+		sprintf(scoreText,"%lu",player[0].score);
+	}
+	else
+	{
+*/		sprintf(livesText,"*%lu",player[0].lives);	
+		sprintf(scoreText,"%lu",player[0].score);
+		sprintf(garibText,"*%lu",player[0].numSpawn);	
+		sprintf(creditText,"%lu",player[0].numCredits);
+//	}
 
 	if(scoreTextOver->a && !(gameState.mode==LEVELCOMPLETE_MODE && modeTimer.time) )
 	{
@@ -192,9 +202,8 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	levelComplete2 = CreateAndAddTextOverlay ( 0, 38, "complete", YES, 255, currFont, 0, 0 );
 	DisableTextOverlay(levelComplete2);
 
-	spawnCollected = CreateAndAddTextOverlay ( 100, 130, spawnText, NO, 255, currFont, 0, 0 );
-	sprintf ( spawnCollected->text, "%d", player[0].numSpawn );
-	DisableTextOverlay ( spawnCollected );
+	garibCount = CreateAndAddTextOverlay ( 100, 205, garibText, NO, 255, currFont, 0, 0 );
+	creditCount = CreateAndAddTextOverlay ( 150, 205, creditText, NO, 255, currFont, 0, 0 );
 
 	time = CreateAndAddTextOverlay ( 100, 160, timeTemp, NO, 255, currFont, 0, 0 );
 	DisableTextOverlay ( time );

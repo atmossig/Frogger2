@@ -40,7 +40,7 @@ extern TEXTOVERLAY  *keyCollected;
 
 extern TEXTOVERLAY *continueText;
 extern TEXTOVERLAY *quitText;
-extern TEXTOVERLAY *spawnCollected;
+extern TEXTOVERLAY *garibCount, *creditCount;
 extern TEXTOVERLAY *time;
 
 extern TEXTOVERLAY *nextLev1;

@@ -691,6 +691,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	//	CreateOverlays();
 		timeTextOver->draw = 0;
 		livesTextOver->draw = 0;
+		garibCount->draw = 0;
+		creditCount->draw = 0;
 		countdownTimer = 0;
 		i = 3;
 		while(i--)

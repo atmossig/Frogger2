@@ -930,6 +930,8 @@ void RunLevelCompleteSequence()
 	DisableTextOverlay(timeTextOver);
 	//DisableTextOverlay(scoreTextOver);
 	DisableTextOverlay(babySavedText);
+	DisableTextOverlay(garibCount);
+	DisableTextOverlay(creditCount);
 
 	if(carryOnBabies)
 	{					
@@ -942,8 +944,6 @@ void RunLevelCompleteSequence()
 #ifdef PC_VERSION
 	clock->draw = 1;
 	spawn->draw = 1;
-	
-	spawnCollected->draw = 1;
 	time->draw = 1;
 #endif
 
@@ -958,14 +958,7 @@ void RunLevelCompleteSequence()
 
 	scoreTextOver->xPos -= ((float)scoreTextOver->xPos - (100.0F)) / 15.0F;
 	scoreTextOver->yPos -= ((float)scoreTextOver->yPos - (110.0F)) / 16.0F;
-/*	
-	if ( spawnCounter != player[0].numSpawn )
-	{
-		spawnCounter++;
-	}
 
-	sprintf ( spawnCollected->text, "%d / 150", spawnCounter );
-*/
 	sprintf ( timeTemp, "%i secs", 90-scoreTimer.time );
 
 	i = numBabies;
