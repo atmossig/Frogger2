@@ -1680,6 +1680,9 @@ BOOL KillFrog(ACTOR2 *frogAct,long pl)
 		currCamSetting = 1;
 		ChangeCameraSetting();
 
+		grabData.fxTimer = 100;
+		grabData.alpha = 255;
+
 		return FALSE;
 	}
 

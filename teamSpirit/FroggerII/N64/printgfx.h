@@ -76,10 +76,13 @@
 #define DES_REP_MODE		(1<<6)	// Tile image bizarrely, in a Designers Republic stylee
 #define BARS_HORZ			(1<<7)	// Horizontal glass bars
 #define BARS_VERT			(1<<8)  // Vertical
+#define RECALC_VTX			(1<<9)	// User wants vertices recalculating anyway.
+#define USE_GRAB_BUFFER		(1<<10)	// Use a static buffer instead of screen. Created by Screen2Texture
 
 #define BLUR_HEAVY			(1<<20)	// High alpha on overlay
 #define BLUR_MEDIUM			(1<<21) // Medium
 #define BLUR_LIGHT			(1<<22) // Low
+#define OVERLAY_SOLID		(1<<23) // No translucency
 
 #define BLUR_CENTRE			(1<<23) // Blur only when moving
 #define BLUR_INWARD			(1<<24) // Constant blur towards screen centre
@@ -88,10 +91,12 @@
 #define TINT_RED			(1<<26) // Red tint overlay
 #define TINT_GREEN			(1<<27) // Green
 #define TINT_BLUE			(1<<28) // Blue
-
+#define TINT_SHADE			(1<<29) // Dark
 
 #define NO_EFFECT			0
 #define PAUSE_EXIT			1       // Shrinking screen out after pause
+#define FROG_DEATH_OUT		2		// Fade to red when frog is dead
+#define FROG_DEATH_IN		3		// Go back to game when frog respawns
 
 typedef struct TAGGRABSTRUCT
 {
@@ -105,6 +110,7 @@ typedef struct TAGGRABSTRUCT
 	short calcVtx;         // Recalculate vertices?
 	short dynVtx;          // Determines the setting of calcVtx
 	short afterEffect;     // Lets effects run over into game time after pause screen, for example
+	long fxTimer;		   // Random timer for stuff
 	unsigned long flags;
 	// For vertex wodging
 	float sinAmt;          // Amount to wodge

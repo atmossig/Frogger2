@@ -1177,6 +1177,8 @@ void SetGrabData( )
 			grabData.alpha = 220;
 		else if( grabData.flags & BLUR_LIGHT )
 			grabData.alpha = 128;
+		else if( grabData.flags & OVERLAY_SOLID )
+			grabData.alpha = 255;
 		else
 			grabData.alpha = 170;
 
@@ -1188,6 +1190,8 @@ void SetGrabData( )
 			grabData.vG = 0xB4;
 		else if( grabData.flags & TINT_BLUE )
 			grabData.vB = 0xB4;
+		else if( grabData.flags & TINT_SHADE )
+			grabData.vR = grabData.vG = grabData.vB = 0x50;
 
 		grabData.pR = grabData.pG = grabData.pB = 0xff;
 		grabData.eR = grabData.eG = grabData.eB = 0x80;
@@ -1210,6 +1214,11 @@ void SetGrabData( )
 		grabData.scale = 0.07;
 		grabData.maxScale = 0;
 		grabData.speedScale = 0;
+		grabData.dynVtx = 1;
+	}
+	if( (grabData.flags & RECALC_VTX) ||
+		(grabData.flags & SHRINK_TO_POINT) )
+	{
 		grabData.dynVtx = 1;
 	}
 }
@@ -1241,6 +1250,9 @@ void DrawScreenGrab( unsigned long flags )
 		SetGrabData( );
 	}
 
+	if( grabData.fxTimer )
+		grabData.fxTimer--;
+
 	// Recalc vertices every frame
 	if( grabData.calcVtx )
 	{
@@ -1261,11 +1273,9 @@ void DrawScreenGrab( unsigned long flags )
 			if( grabData.xTS )
 				grabData.xTS--;
 
-			if( !grabData.xTS && !grabData.yTS )
+			if( !grabData.xTS || !grabData.yTS )
 			{
 				grabData.flags &= ~SHRINK_TO_POINT;
-				grabData.xTS = grabData.maxxTS;
-				grabData.yTS = grabData.maxyTS;
 				grabData.afterEffect = NO_EFFECT;
 			}
 		}
@@ -1362,7 +1372,7 @@ void DrawScreenGrab( unsigned long flags )
 
 		for( vStep=0; vStep<32; vStep+=4 )
 		{
-			if( !grabFlag )
+			if( !(grabData.flags & USE_GRAB_BUFFER) )
 			{
 				gDPLoadTextureTile( glistp++,&(((short *)cfb_ptrs[1-draw_buffer])[cx+cy]),G_IM_FMT_RGBA,G_IM_SIZ_16b,320,32,0,0,63,31,0,G_TX_CLAMP,G_TX_CLAMP,G_TX_NOMASK,G_TX_NOMASK,G_TX_NOLOD,G_TX_NOLOD );
 			}
@@ -1414,8 +1424,6 @@ void Screen2Texture( )
 			grab[yTex] = 0;
 
 		yTex = 0;
-		drawScreenGrab = 1;
-		grabFlag = 0;
 	}
 
 	lmemcpy( (unsigned long *)&grab[0], (unsigned long *)&screen[0], 38400 );

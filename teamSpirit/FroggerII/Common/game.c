@@ -389,19 +389,7 @@ void GameProcessController(long pl)
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
 
-		livesTextOver->oa = livesTextOver->a;
-		scoreTextOver->oa = scoreTextOver->a;
-		timeTextOver->oa = timeTextOver->a;
-
-		livesTextOver->a = 0;
-		scoreTextOver->a = 0;
-		timeTextOver->a = 0;
-	
-		for ( i = 0; i < 3; i++ )
-			sprHeart[i]->draw = 0;
-
-		for(i=0; i<numBabies; i++)
-			babyIcons[i]->draw = 0;
+		DisableHUD( );
 
 		lastbutton[pl] = button[pl];
 /*		
@@ -894,7 +882,13 @@ void RunGameLoop (void)
 
 	if(babySaved && !gameIsOver && !levelIsOver)
 		RunBabySavedSequence(lastBabySaved);
-	
+
+	if( grabData.afterEffect == FROG_DEATH_OUT && !grabData.fxTimer )
+	{
+		grabData.afterEffect = FROG_DEATH_IN;
+		EnableHUD( );
+	}
+
 	if(player[0].frogState & FROGSTATUS_ISDEAD)
 	{
 		if(gameIsOver)
@@ -922,7 +916,14 @@ void RunGameLoop (void)
 		}
 		else
 		{
-			//osMotorStop ( &rumble );
+			if( !grabData.fxTimer )
+				Screen2Texture( );
+
+			if( grabData.afterEffect != FROG_DEATH_OUT )
+			{
+				grabData.afterEffect = FROG_DEATH_OUT;
+				DisableHUD( );
+			}
 		}
 		 
 		camDist.v[Y] -= (camDist.v[Y] - 100) / 10.0F;
