@@ -115,8 +115,10 @@ typedef struct
 
 
 extern SPECFXLIST specFXList;
-extern D3DTLVERTEX *ringVtx;
 
+#ifdef PC_VERSION
+extern D3DTLVERTEX *ringVtx;
+#endif
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, int size, float speed, float accn, float lifetime );
 

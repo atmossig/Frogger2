@@ -414,6 +414,7 @@ void UpdateFXRipple( SPECFX *fx )
 
 	fx->speed += fx->accn * gameSpeed;
 	fx->scale.v[X] += fx->speed * gameSpeed;
+	fx->scale.v[Z] += fx->speed * gameSpeed;
 	
 	if( fx->type == FXTYPE_GARIBCOLLECT )
 	{
@@ -1091,6 +1092,7 @@ void SetAttachedFXColour( SPECFX *fx, int effects )
 	Returns			: void
 	Info			: 
 */
+#ifdef PC_VERSION
 void CreateBlastRing( )
 {
 	float tesa, tesb, teca, tecb, pB, arcStep = PI2 / NUM_RINGSEGS;
@@ -1140,3 +1142,4 @@ void CreateBlastRing( )
 		ringVtx[v+3].tv = 0;
 	}
 }
+#endif
