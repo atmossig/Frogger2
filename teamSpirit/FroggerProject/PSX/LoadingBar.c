@@ -149,7 +149,13 @@ void loadingInitText(int worldID, int levelID)
 		recordStr[0] = 0;
 	else if(gameState.multi == SINGLEPLAYER) 
 	{
-		if((gameState.single == ARCADE_MODE) && (worldID != WORLDID_FRONTEND))
+		if(gameState.mode == DEMO_MODE)
+		{
+			backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+			backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
+			sprintf(recordStr,GAMESTRING(STR_DEMO_MODE));
+		}
+		else if((gameState.single == ARCADE_MODE) && (worldID != WORLDID_FRONTEND))
 		{
 			sprintf(recordStr,GAMESTRING(STR_RECORD),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/600)%600,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/10)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%10);
 			if(worldID == WORLDID_SUPERRETRO)
@@ -192,7 +198,7 @@ void loadingInitText(int worldID, int levelID)
 		coinStr[0] = 0;
 	else if(gameState.multi == SINGLEPLAYER)
 	{
-		if((gameState.single == ARCADE_MODE) && (worldID != WORLDID_FRONTEND) && (worldID != WORLDID_SUPERRETRO))
+		if((gameState.mode != DEMO_MODE) && (gameState.single == ARCADE_MODE) && (worldID != WORLDID_FRONTEND) && (worldID != WORLDID_SUPERRETRO))
 			sprintf ( coinStr, "%s: %d",GAMESTRING(STR_COINS), worldVisualData[worldID].levelVisualData[levelID].maxCoins );
 		else
 			coinStr[0] = 0;
