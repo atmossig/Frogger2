@@ -477,7 +477,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				if( gameState.multi == MULTIREMOTE )
 				{
 					if (DPInfo.bIsHost)
-						InitialPlayerSynch();
+						InitialServerSynch();
 					else
 						InitialPlayerSynch();
 				}
