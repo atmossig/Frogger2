@@ -174,7 +174,7 @@ void GameLoop(void)
 #ifdef PC_DEMO
 			gameState.mode = INGAME_MODE;
 #else
-//			StartVideoPlayback(FMV_ATARI_LOGO);
+			StartVideoPlayback(FMV_HASBRO_LOGO);
 			if(quitAllVideo == 0)
 			{
 				StartVideoPlayback(FMV_BLITZ_LOGO);
