@@ -238,5 +238,7 @@ typedef struct
  
 void MAIN_PrintXAData ( const XAFileType * const XATrack );
 
+#define InitVoices(path, len) 0
+#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), NULL, 0, SAMPLE_VOLUME, -1)
 
 #endif
