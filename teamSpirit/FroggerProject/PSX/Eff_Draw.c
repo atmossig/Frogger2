@@ -453,11 +453,11 @@ void DrawFXRing(SPECFX *fx)
  			ft4->tpage |= 32;//add
 			ENDPRIM(ft4, 1, POLY_FT4);
 			
-			if((i&1) && (actFrameCount&1))
+			if(((actFrameCount MOD 2) == 0) && (i&1))
 			{
 				SPECFX *trail;
 
-				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
+				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 2048)))
 				{
 					trail->tilt = 8192;
 					if(i&2)

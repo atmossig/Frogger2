@@ -1714,6 +1714,8 @@ void UpdateFrogCroak( int pl )
 					fx->spin = 25;
 					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
 				}
+				else
+					utilPrintf("Failed to create croak!!\n");
 				specFXAlpha = 255;
 
 				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
