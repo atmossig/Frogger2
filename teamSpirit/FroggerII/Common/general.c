@@ -128,7 +128,7 @@ inline int MEMGETINT(uchar **p)		// get a little-endian integer
 
 int MemLoadEntities(const void* data, long size)
 {
-	int count, flags, numNodes, startNode, n;
+	int count, flags, numNodes, startNode, n, ID;
 	uchar thing;
 	char type[20];
 	PATH *path;
@@ -141,8 +141,8 @@ int MemLoadEntities(const void* data, long size)
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
 	
-	if (n != 2) {
-		dprintf"ERROR: Attempting to load incorrect version (%03d) of level file (should be 002)\n", n));
+	if (n != 3) {
+		dprintf"ERROR: Attempting to load incorrect version (%03d) of level file (should be 003)\n", n));
 		return 0;
 	}
 
@@ -154,6 +154,7 @@ int MemLoadEntities(const void* data, long size)
 		n = MEMGETBYTE(&p);
 		memcpy(type, p, n); type[n] = 0; p+= n;
 		flags = MEMGETINT(&p);
+		ID = MEMGETINT(&p);
 		thing = MEMGETBYTE(&p);
 		
 		numNodes = MEMGETINT(&p);
