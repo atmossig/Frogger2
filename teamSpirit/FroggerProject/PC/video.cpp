@@ -37,7 +37,6 @@ bool blitVideo = 0;
 long (*oldLoop)() = 0;
 
 #define videoSurface surface[PRIMARY_SRF]
-
 long RunVideoPlayback()
 {
 	if (!BinkWait(bink))
@@ -141,6 +140,8 @@ long RunVideoPlayback()
 			// end playback mode..
 			BinkClose(bink); bink=NULL;
 
+			if(padData.debounce[0] & PAD_START)
+				quitAllVideo = YES;
 			AppLoop = oldLoop;
 			return 0;
 		}
