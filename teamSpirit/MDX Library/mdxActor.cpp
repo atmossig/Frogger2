@@ -140,7 +140,7 @@ void ActorListDraw(long i)
 {
 	MDX_ACTOR *cur = actorList;	
 	MDX_VECTOR where,tPos,tPos2;
-	float radius,scale;
+	float radius,scale,depth;
 	MDX_MATRIX rotmat;
 	char drawOverride = 0;
 
@@ -174,7 +174,9 @@ void ActorListDraw(long i)
 			radius = cur->radius * scale;
 		}
 
-		if( drawOverride || tPos2.vz+DIST+radius > nearClip )
+		depth = tPos2.vz+DIST;
+
+		if( drawOverride || (depth+radius>nearClip && depth-radius<farClip) )
 		{
 			if( where.vz > nearClip )
 				radius = (FOV * radius * (rXRes*(1.0f/640.0f))) / (where.vz+DIST);
@@ -449,7 +451,7 @@ void UpdateAnims(MDX_ACTOR *actor)
 	Returns		: clipped?
 	Info		: 
 */
-enum { TOP=0x1, BOTTOM=0x2, LEFT=0x4, RIGHT=0x8, INWARD=0x10 };
+enum { TOP=0x1, BOTTOM=0x2, LEFT=0x4, RIGHT=0x8, INWARD=0x10, OUTWARD=0x20 };
 
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
@@ -465,6 +467,9 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 			ocs[o] |= INWARD;
 		else
 		{
+			if( r->vz > farClip )
+				ocs[o] |= OUTWARD;
+
 			if( r->vx < 0 )
 				ocs[o] |= LEFT;
 			else if( r->vx > rXRes )
