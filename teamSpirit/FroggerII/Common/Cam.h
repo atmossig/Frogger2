@@ -61,9 +61,9 @@ extern float	yValuesFOV[4];
 extern float	camValuesLookOfs[4];
 extern VECTOR	camValuesDist[4];
 extern short	currCamSetting;
-extern float	xFOV;
+extern float	xFOV;				// actually the SCREEN RATIO, i.e. 4/3
 extern float	xFOVNew;
-extern float	yFOV;
+extern float	yFOV;				// THIS is the field of view
 extern float	yFOVNew;
 extern float	precScaleFactor;
 
@@ -75,6 +75,7 @@ extern short	cameraShake;
 extern char		controlCamera;
 extern char		fixedDir;
 extern char		fixedPos;
+extern char		firstPerson;
 
 extern TRANSCAMERA *transCameraList;
 

@@ -58,6 +58,7 @@ short cameraShake			= 0;
 char controlCamera			= 0;
 char fixedDir = 0;
 char fixedPos = 0;
+char firstPerson = 0;
 
 TRANSCAMERA *transCameraList = NULL;
 
