@@ -229,6 +229,7 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	// load the relevant master object / texture banks
 	dprintf"Loading...\n"));
 	LoadTextureBank(SYSTEM_TEX_BANK);
+	LoadTextureBank ( GENERIC_TEX_BANK );
 	LoadTextureBank(texBankToUse);
 	LoadObjectBank(objBankToUse);
 
@@ -323,17 +324,17 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
 	
-	InitPlatformsForLevel(worldID,levelID);
-	InitEnemiesForLevel(worldID,levelID);
+	//InitPlatformsForLevel(worldID,levelID);
+	//InitEnemiesForLevel(worldID,levelID);
 	InitCollectablesForLevel(worldID,levelID);
 	InitCameraForLevel(worldID,levelID);
 	//InitCameosForLevel ( worldID, levelID );
 		
 	CreateFrogger(1,1,1,1); // This also creates the babies
 
-	InitEventsForLevel(worldID, levelID);
+	//InitEventsForLevel(worldID, levelID);
 
-	LoadTextureBank ( SYSTEM_TEX_BANK );
+	//LoadTextureBank ( SYSTEM_TEX_BANK );
 	switch ( worldID )
 	{
 		case WORLDID_GARDEN:
