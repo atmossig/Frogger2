@@ -550,6 +550,7 @@ void FreeUniqueObject(MDX_OBJECT *object)
 {
 	if (object)
 	{
+		
 		if (object->numSprites)
 			FreeMem (object->sprites);
 
@@ -558,8 +559,8 @@ void FreeUniqueObject(MDX_OBJECT *object)
 
 		if(object->next)
 			FreeUniqueObject(object->next);	
-
-		FreeMem (object);
+		
+		FreeMem (object);		
 	}
 }
 
@@ -572,6 +573,7 @@ void FreeActor(MDX_ACTOR **toFree)
 	if (a->objectController)
 		FreeUniqueObject(a->objectController->object);
 
+	FreeMem (a->objectController);
 
 	if (a->next) a->next->prev = a->prev;
 	if (a->prev)
@@ -640,6 +642,7 @@ void MakeUniqueActor(MDX_ACTOR *actor,int type)
 			break;
 		}
 	}
+	
 	//if actor is not in list
 	if(unique == TRUE)
 	{
@@ -649,17 +652,7 @@ void MakeUniqueActor(MDX_ACTOR *actor,int type)
 	objCont = actor->objectController;
 	actor->objectController = (MDX_OBJECT_CONTROLLER *) AllocMem(sizeof(MDX_OBJECT_CONTROLLER));
 	memcpy(actor->objectController, objCont, sizeof(MDX_OBJECT_CONTROLLER));
-	actor->objectController->object = MakeUniqueObject(actor->objectController->object);
-	
-	if(unique == FALSE)
-	{
-		//if actor is skinned, duplicate Vtx's
-		if(actor->objectController->drawList)
-		{
-//			MakeUniqueVtx(actor->objectController);
-//			XformActor(actor);
-		}
-	}
+	actor->objectController->object = MakeUniqueObject(actor->objectController->object);	
 }
 
 MDX_ACTOR *CreateActor(char *name, unsigned long flags)

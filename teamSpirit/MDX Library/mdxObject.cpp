@@ -35,8 +35,13 @@ extern "C"
 MDX_OBJECT_BANK objectBanks[MAX_OBJECT_BANKS];
 WORD fpuState;
 unsigned long drawThisObjectsSprites = 1;
-
+unsigned long numFreed = 0;
 #define ANIMSNAP_THRESHHOLD 0.15
+
+
+D3DTLVERTEX *vtxPointers[500];
+unsigned long numVtxPointers = 0;
+
 void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 {
 	int i;
@@ -557,12 +562,17 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 		float r,g,b,a;
 		unsigned long dupCount = 0;
 
-		obj->mesh->d3dVtx = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX)*obj->mesh->numFaces * 3);
-	
+		
+		obj->mesh->d3dVtx = 0;
+
 		// Sort object by texture for speedy drawing! OPTIMISE! Put in bankmanager!
 		if (obj->mesh->numFaces)
 		{
 			unsigned long cTex = (unsigned long)obj->mesh->textureIDs[0];
+			
+			numFreed++;
+			obj->mesh->d3dVtx = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX)*obj->mesh->numFaces*3);
+			vtxPointers[numVtxPointers++] = obj->mesh->d3dVtx;
 
 			for (x=0; x<obj->mesh->numFaces; x++)
 			{
@@ -758,30 +768,17 @@ void LoadObjBank(char *bank, char *baseDir)
 	return;
 }
 
-void FreeObjectData(MDX_OBJECT *obj)
-{
-	if (obj->mesh)
-		FreeMem(obj->mesh->d3dVtx);
-
-	if(obj->children)
-		FreeObjectData(obj->children);
-	if(obj->next)
-		FreeObjectData(obj->next);
-}
 
 void FreeObjectBank(long i)
 {
 	long y = 0;
 
-	for (y=0; y<objectBanks[i].numObjects; y++)
-	{		
-		if (objectBanks[i].freePtr)			   
-			FreeObjectData(objectBanks[i].objList[y].objCont->object);
-		y++;
-	}
 
-	FreeLibrary((HINSTANCE)(objectBanks[i].freePtr));
-	objectBanks[i].freePtr = NULL;
+	if (objectBanks[i].freePtr)
+	{
+		FreeLibrary((HINSTANCE)(objectBanks[i].freePtr));
+		objectBanks[i].freePtr = NULL;
+	}
 }
 
 void FreeAllObjectBanks()
@@ -790,6 +787,12 @@ void FreeAllObjectBanks()
 	
 	for(i=0; i<MAX_OBJECT_BANKS; i++)
 		FreeObjectBank(i);
+
+	for (i=0; i<numVtxPointers; i++)
+		FreeMem(vtxPointers[i]);
+
+	numVtxPointers = 0;
+	dp("========================================================================================= %lu \n",numFreed);
 }
 
 #ifdef __cplusplus

@@ -69,6 +69,7 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 	me->faceIndex = 0;	
 	me->xfmVert = 0;
 	me->textures = 0;
+	me->tEntrys = 0;
 
 	strcpy(me->name,(const char *)obj->name);
 
@@ -93,7 +94,7 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 		//me->clipFlags = new long[me->numFaces * 3];
 		me->xfmVert = (D3DTLVERTEX *) AllocMem(sizeof(D3DTLVERTEX) * me->numFaces * 3);
 		me->textures = (LPDIRECTDRAWSURFACE7 *) AllocMem(sizeof(LPDIRECTDRAWSURFACE7)*me->numFaces);
-		me->tEntrys = (MDX_TEXENTRY **) AllocMem (sizeof(MDX_TEXENTRY *)*me->numFaces);
+		me->tEntrys = (MDX_TEXENTRY **) AllocMem (sizeof(MDX_TEXENTRY *)*me->numFaces * 3);
 
 		memcpy (me->faceIndex,obj->mesh->faceIndex,sizeof(short)*me->numFaces*3);
 
@@ -161,6 +162,9 @@ void FreeLandscape(MDX_LANDSCAPE **me)
 		FreeMem ((*me)->xfmVert);
 	if ((*me)->textures)
 		FreeMem ((*me)->textures);
+	if ((*me)->tEntrys)
+		FreeMem ((*me)->tEntrys);
+
 	FreeMem (*me);
 	*me = NULL;
 
