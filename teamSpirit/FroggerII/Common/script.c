@@ -34,39 +34,31 @@ BOOL ExecuteCommand(UBYTE *buffer);
 
 UBYTE* scriptBuffer;
 
+float volTest = 0.5;
+
+float ChangeVolume(int a, float delta)
+{
+	volTest += delta;
+	return volTest;
+}
+
 /* --------------------------------------------------------------------------------- */
 
-#define MEMGETBYTE(p) (*((*p)++))
-/*
-inline int MEMGETINT(UBYTE **p)		// get a little-endian integer
+#define MEMGETFLOAT(p)	((float)MEMGETINT(p) / (float)0x10000)
+#define MEMGETBYTE(p)	(*((*p)++))
+//#define MEMGETWORD(p)	((int)*((*p)++) + ((int)*((*p)++) << 8))
+//#define MEMGETINT(p)	((int)*((*p)++) + ((int)*((*p)++) << 8) + ((int)*((*p)++) << 16) + ((int)*((*p)++) << 24))
+
+short MEMGETWORD(UBYTE **p)		// get a little-endian word
 {
-	unsigned int i;
+	unsigned short i;
 
 	i = (unsigned int)*((*p)++);
 	i += ((unsigned int)*((*p)++) << 8);
-	i += ((unsigned int)*((*p)++) << 16);
-	i += ((unsigned int)*((*p)++) << 24);
 
-	return i;
+	return (short)i;
 }
-*/
-#define MEMGETFLOAT(p) ((float)MEMGETINT(p) / (float)0x10000)
-/*
-inline char *MemLoadString(UBYTE **p)
-{
-	char *ptr;
-	int size;
-	
-	size = MEMGETBYTE(p);
-	ptr = JallocAlloc(size + 1, NO, "str");
-	memcpy(ptr, *p, size);
-	ptr[size] = 0;
 
-	(*p) += size;
-
-	return ptr;
-}
-*/
 ACTOR2 *GetActorFromUID(int UID)
 {
 	ENEMY *e;
@@ -147,7 +139,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 	case TR_FROGONTILE:
 		{
 			params = AllocArgs(2);
-			params[0] = (void*)MEMGETINT(p);
+			params[0] = (void*)MEMGETBYTE(p);
 			params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
 			trigger = MakeTrigger(FrogOnTile, params);
 		}
@@ -158,7 +150,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			PLATFORM *platform;
 
 			params = AllocArgs(2);
-			params[0] = (void*)frog[MEMGETINT(p)];
+			params[0] = (void*)frog[MEMGETBYTE(p)];
 			if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
 			params[1] = (void*)platform;
 			trigger = MakeTrigger(FrogOnPlatform, params);
@@ -206,7 +198,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			params = AllocArgs(2);
 			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			params[0] = enemy->path;
-			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
+			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
 			trigger = MakeTrigger(PathAtFlag, params);
 		}
 		break;
@@ -218,7 +210,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			params = AllocArgs(2);
 			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			params[0] = enemy->path;
-			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
+			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
 			trigger = MakeTrigger(PathAtFlag, params);
 		}
 		break;
@@ -309,7 +301,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			int tile, state;
 			
 			tile = MEMGETINT(p);
-			state = MEMGETINT(p);
+			state = MEMGETBYTE(p);
 
 			firstTile[tile].state = (unsigned char)state;
 			break;
@@ -359,14 +351,14 @@ BOOL ExecuteCommand(UBYTE *buffer)
 	case EV_ANIMATEACTOR:
 		{
 			ACTOR2 *actor;
-			int anim, flags;
+			char anim, flags;
 			float speed;
 
 			actor = GetActorFromUID(MEMGETINT(p));
 			if (!actor) return 0;
 
-			anim = MEMGETINT(p);
-			flags = MEMGETINT(p);
+			anim = MEMGETBYTE(p);
+			flags = MEMGETBYTE(p);
 			speed = MEMGETFLOAT(p);
 
 			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed); //,0,0);
@@ -379,7 +371,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			nme = GetEnemyFromUID(MEMGETINT(p));
 			if (!nme) return 0;
 
-			switch (MEMGETINT(p))
+			switch (MEMGETBYTE(p))
 			{
 			case FS_SET_MOVE:
 				nme->isWaiting = 0;
@@ -408,7 +400,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			plt = GetPlatformFromUID(MEMGETINT(p));
 			if (!plt) return 0;
 
-			switch (MEMGETINT(p))
+			switch (MEMGETBYTE(p))
 			{
 			case FS_SET_MOVE:
 				plt->isWaiting = 0;
@@ -440,7 +432,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 
 			if (t = LoadTrigger(p))
 			{
-				flags = MEMGETINT(p);
+				flags = MEMGETBYTE(p);
 				*param = *p;
 				e = MakeEvent( InterpretEvent, param );
 				AttachEvent(t, e, (short)flags, 0);
@@ -543,7 +535,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			nme = GetEnemyFromUID(MEMGETINT(p));
 			if (!nme) return 0;
 
-			flag = MEMGETINT(p);
+			flag = MEMGETWORD(p);
 			if (flag > 0 && flag < nme->path->numNodes)
 			{
 				nme->path->fromNode = nme->path->toNode = flag;
@@ -559,7 +551,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			plt = GetPlatformFromUID(MEMGETINT(p));
 			if (!plt) return 0;
 
-			flag = MEMGETINT(p);
+			flag = MEMGETWORD(p);
 			if (flag > 0 && flag < plt->path->numNodes)
 			{
 				plt->path->fromNode = plt->path->toNode = flag;
@@ -589,24 +581,26 @@ BOOL ExecuteCommand(UBYTE *buffer)
 	case EV_CHANGEVOLUME:
 		{
 			float delta, amount;
-			int n;
+			int n, platnum;
 			PLATFORM *plt;
 			VECTOR u, v;
 
+			n = MEMGETBYTE(p);
 			delta = MEMGETFLOAT(p);
-			n = MEMGETINT(p);
-			plt = GetPlatformFromUID(MEMGETINT(p));
-			if (!plt) return 0;
+			platnum = MEMGETINT(p);
+			amount = ChangeVolume(n, delta);
 
-			amount = 0.5; //ChangeVolume(n, delta);
+			plt = GetPlatformFromUID(platnum);
+			if (!plt || (plt->path->numNodes != 2)) return 0;
 
-			GetPositionForPathNode(&u, &plt->path->nodes[plt->path->toNode]);
-			GetPositionForPathNode(&v, &plt->path->nodes[plt->path->fromNode]);
+			GetPositionForPathNode(&u, &plt->path->nodes[1]);
+			GetPositionForPathNode(&v, &plt->path->nodes[0]);
 
 			ScaleVector(&u, amount);
 			ScaleVector(&v, 1.0-amount);
 			AddVector(&plt->pltActor->actor->pos, &u, &v);
 			plt->isWaiting = -1;
+			break;
 		}
 
 	default:
