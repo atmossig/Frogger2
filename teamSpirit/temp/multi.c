@@ -219,6 +219,12 @@ void UpdateRace( )
 				else continue;
 			}
 
+			// Initialise quickhop for everyone but the lead player
+			if( i != playerFocus )
+			{
+				GTInit( &player[i].quickhop, 3 );
+			}
+
 			// Kill frogs that have fallen off screen
 			if( (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->position)) )
 			{
