@@ -38,20 +38,23 @@ struct ScriptToken
 {
 	int token;
 	ParamType *params;
+	char* define;
 	ScriptToken *next;
 };
 
 class ScriptTokenList
 {
 	ScriptToken *list;
-	Lookup lookup;
 
 public:
+	Lookup lookup;
+
 	ScriptTokenList();
 	~ScriptTokenList();
 	
-	bool AddEntry(const char* name, int token, const ParamType *params, int n);
+	bool AddEntry(const char* name, const char* define, int token, const ParamType *params, int n);
 	ScriptToken *GetEntry(const char* name);
+	void OutputDefines(FILE *);
 };
 
 /*	----------------------------------------------------------------------- */

@@ -57,8 +57,6 @@ class LookupEntry
 
 	void Add(LookupEntry*);
 
-	void LookupEntry::debug();
-
 	friend class Lookup;
 };
 
@@ -164,7 +162,7 @@ ScriptTokenList::ScriptTokenList()
 	list = NULL;
 }
 
-bool ScriptTokenList::AddEntry(const char* name, int token, const ParamType *params, int numParams)
+bool ScriptTokenList::AddEntry(const char* name, const char* define, int token, const ParamType *params, int numParams)
 {
 	ScriptToken *t;
 
@@ -180,6 +178,16 @@ bool ScriptTokenList::AddEntry(const char* name, int token, const ParamType *par
 	t->params = new ParamType[numParams + 1];
 	memcpy(t->params, params, numParams * sizeof(ParamType));
 	t->params[numParams] = 0;
+
+	if (define)
+	{
+		int len = strlen(define);
+		t->define = new char[len + 1];
+		memcpy(t->define, define, len);
+		t->define[len] = 0;
+	}
+	else
+		t->define = NULL;
 	
 	t->next = list;
 	list = t;
@@ -195,6 +203,7 @@ ScriptTokenList::~ScriptTokenList()
 	{
 		n = t->next;
 		delete [] t->params;
+		delete [] t->define;
 		delete t;
 	}
 }
@@ -202,6 +211,17 @@ ScriptTokenList::~ScriptTokenList()
 ScriptToken *ScriptTokenList::GetEntry(const char* name)
 {
 	return (ScriptToken*)lookup.GetEntry(name);
+}
+
+
+void ScriptTokenList::OutputDefines(FILE *f)
+{
+	ScriptToken *t;
+
+	for (t = list; t; t = t->next)
+	{
+		if (t->define) fprintf(f, "#define %s %d\n", t->define, t->token);
+	}
 }
 
 /*	----------------------------------------------------------------------- */
@@ -239,3 +259,5 @@ void GetFilenameStart(char *str, const char *filename)
 	memcpy(str, filename, length);
 	str[length] = 0;
 }
+
+
