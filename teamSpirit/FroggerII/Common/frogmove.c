@@ -129,6 +129,9 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].heightJumped		= 0;
 	player[p].jumpTime			= -1;
 
+	fixedPos = 0;
+	fixedDir = 0;
+
 	CheckForDynamicCameraChange(currTile[p]);
 	lastTile = NULL; // force camera recalculation
 
@@ -875,30 +878,11 @@ void CheckForFroggerLanding(long pl)
 {
 	VECTOR telePos;
 	unsigned long i, j;
-	float distance;
+	float distance, jump_overrun;
 
-	if (player[pl].jumpTime < 0) return;	// we're not even jumping. Duh.
+	if (player[pl].jumpTime < 1) return;	// we haven't landed yet.
 
-/*		
-		// ...yep - check for presence of a platform in the destination tile
-		destPlatform[pl] = CheckDestForPlatform(destTile[pl],pl);
-		if(!destPlatform[pl])
-		{
-			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-		}
-	}
-*/
-
-	if (player[pl].jumpTime < 1) return; // cause we're still jumping
-
-	// Frog has landed - set camera to new rotation, face frog correctly, blahblahblah
-
-	//if (pl == 0)
-	//	camFacing = nextCamFacing;
-
-//	player[pl].deathBy = -1;
-//	GTInit( &player[pl].dead, 0 );
+	jump_overrun = player[pl].jumpTime;
 
 	player[pl].canJump = 1;
 	player[pl].isSuperHopping = 0;
@@ -931,12 +915,6 @@ void CheckForFroggerLanding(long pl)
 		currPlatform[pl] = NULL;
 	}
 
-/*	if( frogTrail[pl] && frogTrail[pl]->follow )
-	{
-		frogTrail[pl]->follow = NULL;
-		frogTrail[pl] = NULL;
-	}
-*/
 	// Finish anims
 	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
@@ -1025,7 +1003,7 @@ void CheckForFroggerLanding(long pl)
 			destTile[pl] = NULL;
 
 			// set frog to centre of tile
-			SetVector(&frog[pl]->actor->pos, &tile->centre);
+			//SetVector(&frog[pl]->actor->pos, &tile->centre);
 		}
 
 		//frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
@@ -1035,7 +1013,7 @@ void CheckForFroggerLanding(long pl)
 		state = tile->state;
 
 		frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
-		frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
+		frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;	// wtf?
 		frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
 
 		player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
@@ -1078,15 +1056,27 @@ void CheckForFroggerLanding(long pl)
 				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
 				player[pl].deathBy = DEATHBY_DROWNING;
 
-				// TODO: MORE DEADLY TILE STATES? ('n remove this cludge :o)
-
-				if (player[0].worldNum == WORLDID_SPACE)
-					AnimateActor(frog[pl]->actor,FROG_ANIM_PUFF,YES,NO,0.25F,0,0);
-				else
-					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				GTInit( &player[pl].dead, 3 );
+			}
+			return;
+		}
+		else if (state == TILESTATE_FALL)
+		{
+			if (!player[pl].dead.time)
+			{
+				//AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
+				
+				player[pl].deathBy = DEATHBY_FALLINGFOREVER;
+				player[pl].frogState |= FROGSTATUS_ISDEAD;
+				GTInit( &player[pl].dead, 3 );
+				
+				player[pl].jumpSpeed *= 0.01f;
+				player[pl].jumpMultiplier *= 50;
+				player[pl].jumpTime = jump_overrun * 0.02f;
+				fixedPos = 1;	// fix camera, keep looking at frog..
 			}
 			return;
 		}
@@ -1120,6 +1110,8 @@ void CheckForFroggerLanding(long pl)
 					CalculateFrogJump(
 						&frog[pl]->actor->pos, &destTile[pl]->centre, &tile->normal, 
 						0, conveyorFrames[speed], pl);
+
+				player[pl].jumpTime = jump_overrun - 1;
 			}
 		}
 		else if (state == TILESTATE_ICE)
@@ -1140,6 +1132,7 @@ void CheckForFroggerLanding(long pl)
 				StartAnimateActor(frog[pl]->actor, FROG_ANIM_ICE3, YES, NO, 0.2f, NO, NO);
 
 				player[pl].canJump = FALSE;
+				player[pl].jumpTime = jump_overrun - 1;
 			}
 		}
 

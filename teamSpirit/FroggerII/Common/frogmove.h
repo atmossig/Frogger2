@@ -73,6 +73,7 @@ enum
 	DEATHBY_SLICING,			// Frogs with axes, spinning blades etc,
 	DEATHBY_EXPLOSION,			// Gibs rain down from the sky, and the very sun goes cold...
 	DEATHBY_GIBBING,			// Like an explosion but smaller
+	DEATHBY_FALLINGFOREVER,		// Falling down a really really really really (really) deep hole
 
 	NUM_DEATHTYPES,
 };
