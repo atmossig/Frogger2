@@ -2033,8 +2033,7 @@ _levData_10_1_SegmentRomEnd   alias _levData101_orgend
 
         section.64       levData101.data,levData101
 
-;levDat101  incbin "leveldata/entity-9-0.cef",levData101.data, 32
-levDat101  incbin "c:/levtemp/entity-9-0.dat",levData101.data, 32
+levDat101  incbin "leveldata/entity-9-0.cef",levData101.data, 32
 
 ; [ FRONTEND 2 ] >>>>>
 
@@ -2327,7 +2326,7 @@ _scrData_3_3_SegmentRomEnd   alias _scrData33_orgend
 
         section.64       scrData33.data,scrData33
 
-scrDat33  incbin "leveldata/dummy.csf",scrData33.data, 32
+scrDat33  incbin "leveldata/script-2-2.csf",scrData33.data, 32
 
 ; [ SPACE BOSS ] >>>>>
 
@@ -2911,7 +2910,8 @@ _pbank2SegmentRomStart alias _pbank2_org
 _pbank2SegmentRomEnd   alias _pbank2_orgend
 
         section.64       pbank2.data,pbank2
-pbnk2	incbin "sfx/sfx.ptr",pbank2.data, 32
+;pbnk2	incbin "sfx/sfx.ptr",pbank2.data, 32
+pbnk2	incbin "sfx/n64st1.ptr",pbank2.data, 32
 
 
 
@@ -2934,7 +2934,8 @@ _wbank2SegmentRomStart alias _wbank2_org
 _wbank2SegmentRomEnd   alias _wbank2_orgend
 
         section.64       wbank2.data,wbank2
-wbnk2   incbin "sfx/sfx.wbk",wbank2.data, 32
+;wbnk2   incbin "sfx/sfx.wbk",wbank2.data, 32
+wbnk2   incbin "sfx/n64st1.wbk",wbank2.data, 32
 
 ;--
 sbank1        group   obj()
@@ -3006,3 +3007,13 @@ _mBank6SegmentRomStart alias _mBank6_org
 _mBank6SegmentRomEnd   alias _mBank6_orgend
         section.64       mBank6.data,mBank6
 mbnk6  incbin "music/new/halloween/halloween.bin",mBank6.data, 32
+
+; [ TEST7_TRACK ] >>>>>
+
+mBank7        group   obj()
+mBank7bss     group   obj(),bss
+
+_mBank7SegmentRomStart alias _mBank7_org
+_mBank7SegmentRomEnd   alias _mBank7_orgend
+        section.64       mBank7.data,mBank7
+mbnk7  incbin "music/new/space/space.bin",mBank7.data, 32

@@ -23,6 +23,7 @@
 
 TEXTLIST2 *textList = NULL;
 
+FONT *bigFont		= NULL;
 FONT *smallFont		= NULL;
 FONT *oldeFont		= NULL;
 FONT *currFont		= NULL;
@@ -85,6 +86,8 @@ void InitFont()
 		
 	smallFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT16");
 	oldeFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT8");
+
+	bigFont		= smallFont;
 
 	// Initialise the 16x16 font ----------------------------------------------------
 

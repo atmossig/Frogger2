@@ -527,6 +527,18 @@ void DrawFXTrail(SPECFX *trail)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: DrawFXLightning
+	Purpose			: draws the lightning based FX
+	Parameters		: SPECFX *
+	Returns			: void
+	Info			: 
+*/
+void DrawFXLightning(SPECFX *fx)
+{
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: ProcessShadows
 	Purpose			: processes the shadows
 	Parameters		: 
@@ -643,6 +655,9 @@ void DrawShadow(VECTOR *pos,VECTOR *normal,float size,float offset,short alpha,V
 	// push onto matrix stack
 	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
 				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+	// set primitive colour
+	gDPSetPrimColor(glistp++,0,0,0,0,0,alpha);
 
 	// load vertices into vertex cache
 	gSPVertex(glistp++,sVtx,4,0);

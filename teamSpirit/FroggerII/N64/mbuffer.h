@@ -3,7 +3,8 @@
 
 
 // permanent RAM buffers 
-#define AUDIO_HEAP_SIZE	235520
+//#define AUDIO_HEAP_SIZE	235520
+#define AUDIO_HEAP_SIZE	115360
 #define MUSIC_DATA_SIZE	100000
 
 
@@ -35,6 +36,8 @@ extern char _mBank5SegmentRomStart[];
 extern char _mBank5SegmentRomEnd[];
 extern char _mBank6SegmentRomStart[];
 extern char _mBank6SegmentRomEnd[];
+extern char _mBank7SegmentRomStart[];
+extern char _mBank7SegmentRomEnd[];
 
 
 // 'dream' generate labels 

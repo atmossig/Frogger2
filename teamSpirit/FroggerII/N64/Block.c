@@ -1127,9 +1127,10 @@ void DrawGraphics(void *arg)
 
 				//***********************************
 	
-				SetRenderMode();
 				// turn off AA for now on N64....AndyE
 				renderMode.useAAMode = myAA;
+
+				SetRenderMode();
 
 				//***********************************
 

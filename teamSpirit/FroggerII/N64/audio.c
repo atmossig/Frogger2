@@ -18,6 +18,7 @@
 #define MAX_AMBIENT_SFX		50
 #define DEFAULT_SFX_DIST	500
 
+
 AUDIOCONTROL audioCtrl;
 int MAX_SFX_DIST = 500;
 BOOL reverbOn = 0;
@@ -34,6 +35,7 @@ TUNE_DATA_BANK gameSongs[] =
 	_mBank4SegmentRomStart,_mBank4SegmentRomEnd,"toyshop toon",		//	TEST4_TRACK		4
 	_mBank5SegmentRomStart,_mBank5SegmentRomEnd,"city toon",		//	TEST5_TRACK		5
 	_mBank6SegmentRomStart,_mBank6SegmentRomEnd,"halloween toon",	//	TEST6_TRACK		6
+	_mBank7SegmentRomStart,_mBank7SegmentRomEnd,"space toon",		//	TEST7_TRACK		7
 };
 
 
@@ -181,18 +183,13 @@ int PlaySample(short num,VECTOR *pos,long radius,short tempVol,short pitch)
 		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 	}
 
-	if(num != FX_NULL)
-	{
-//		vol *= 1.8;
-		if(vol > 255)
-			vol = 255;
+//	vol *= 1.8;
+	if(vol > 255)
+		vol = 255;
 
-		result = MusStartEffect2(num,(u8)vol,scale,0,-1);
-		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
-		MusHandleSetTempo(result,pitch);
-	}
-	else
-		result = 0;
+	result = MusStartEffect2(num,(u8)vol,scale,0,-1);
+	MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
+	MusHandleSetTempo(result,pitch);
   
 	if(reverbOn)
 		MusHandleSetReverb(result,30);
@@ -234,17 +231,13 @@ int PlaySampleRadius(short num, VECTOR *pos, short tempVol,short pitch,float rad
 //	scale *= 255/PI;
 
 
-	if(num != FX_NULL)
-	{
-		vol *= 1.8;
-		if(vol > 255)
-			vol = 255;
+	vol *= 1.8;
+	if(vol > 255)
+		vol = 255;
 
-		result = MusStartEffect2(num, vol, scale, 0, -1);
-		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
-		MusHandleSetTempo(result,pitch);
-	}
-	else	result = 0;
+	result = MusStartEffect2(num, vol, scale, 0, -1);
+	MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
+	MusHandleSetTempo(result,pitch);
 
 	if(reverbOn)
 		MusHandleSetReverb(result, 30);
@@ -625,18 +618,13 @@ int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch)
 
 	scale *= 255/PI;
 
-	if(num != FX_NULL)
-	{
+	vol *= 1.8;
+	if(vol > 255)
+		vol = 255;
 
-		vol *= 1.8;
-		if(vol > 255)
-			vol = 255;
-
-		result = MusStartEffect2(num, (u8)vol, scale, 0, -1);
-		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
-		MusHandleSetTempo(result,pitch);
-	}
-	else	result = 0;
+	result = MusStartEffect2(num, (u8)vol, scale, 0, -1);
+	MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
+	MusHandleSetTempo(result,pitch);
   
 	if(reverbOn)
 		MusHandleSetReverb(result,30);

@@ -44,6 +44,7 @@ typedef struct _TEXTLIST2
 
 extern TEXTLIST2 *textList;
 
+extern FONT *bigFont;
 extern FONT *smallFont;
 extern FONT *oldeFont;
 extern FONT	*currFont;

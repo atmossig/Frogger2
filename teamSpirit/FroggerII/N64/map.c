@@ -101,11 +101,11 @@ void LoadCollision(short cNum)
 		// GARDEN --------------------------------------------------------------------------------
 
 		case GARDENMASTERA_COL:
-			tnum = GARDENBOSSA_COLL_BANK;
+			tnum = -1;	//GARDENBOSSA_COLL_BANK;
 			sprintf(message,"GARDEN BOSS A");
 			break;
 		case GARDENMASTERB_COL:
-			tnum = GARDENBOSSB_COLL_BANK;
+			tnum = -1;	//GARDENBOSSB_COLL_BANK;
 			sprintf(message,"GARDEN BOSS B");
 			break;
 		case GARDENLEV1_COL:
@@ -117,7 +117,7 @@ void LoadCollision(short cNum)
 			sprintf(message,"GARDEN 2");
 			break;
 		case GARDENLEV3_COL:
-			tnum = GARDEN3_COLL_BANK;
+			tnum = -1;	//GARDEN3_COLL_BANK;
 			sprintf(message,"GARDEN 3");
 			break;
 		case GARDENBONUS_COL:
@@ -505,11 +505,11 @@ void LoadScenics(short sNum)
 		// GARDEN --------------------------------------------------------------------------------
 
 		case GARDENMASTERA_COL:
-			tnum = GARDENBOSSA_COLL_BANK;
+			tnum = -1;	//GARDENBOSSA_COLL_BANK;
 			sprintf(message,"GARDEN BOSS A");
 			break;
 		case GARDENMASTERB_COL:
-			tnum = GARDENBOSSB_COLL_BANK;
+			tnum = -1;	//GARDENBOSSB_COLL_BANK;
 			sprintf(message,"GARDEN BOSS B");
 			break;
 		case GARDENLEV1_COL:
@@ -521,7 +521,7 @@ void LoadScenics(short sNum)
 			sprintf(message,"GARDEN 2");
 			break;
 		case GARDENLEV3_COL:
-			tnum = GARDEN3_COLL_BANK;
+			tnum = -1;	//GARDEN3_COLL_BANK;
 			sprintf(message,"GARDEN 3");
 			break;
 		case GARDENBONUS_COL:
@@ -971,7 +971,7 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
-/*			case SPACELEV1_ENT:
+			case SPACELEV1_ENT:
 					bankRomStart	= (u32)&_levData_3_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_levData_3_1_SegmentRomEnd;
 					sprintf(message, "SPC_ENT1");				
@@ -988,7 +988,7 @@ void LoadLevelEntities(short worldID,short levelID)
 					bankRomEnd		= (u32)&_levData_3_3_SegmentRomEnd;
 					sprintf(message, "SPC_ENT3");				
 				break;
-
+/*
 			case SPACEBOSSA_ENT:
 					bankRomStart	= (u32)&_levData_3_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_levData_3_4_SegmentRomEnd;
@@ -1256,7 +1256,6 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
-/*
 			case SPACELEV1_ENT:
 					bankRomStart	= (u32)&_scrData_3_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_1_SegmentRomEnd;
@@ -1266,19 +1265,19 @@ void LoadLevelScript(int worldID,int levelID)
 			case SPACELEV2_ENT:
 					bankRomStart	= (u32)&_scrData_3_2_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_2_SegmentRomEnd;
-					sprintf(message, "SPC_SCR1");				
+					sprintf(message, "SPC_SCR2");				
 				break;
-
+/*
 			case SPACELEV3_ENT:
-					bankRomStart	= (u32)&_scrData_3_2_SegmentRomStart;
-					bankRomEnd		= (u32)&_scrData_3_2_SegmentRomEnd;
-					sprintf(message, "SPC_SCR1");				
+					bankRomStart	= (u32)&_scrData_3_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_3_3_SegmentRomEnd;
+					sprintf(message, "SPC_SCR3");				
 				break;
 
 			case SPACEBOSSA_ENT:
 					bankRomStart	= (u32)&_scrData_3_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_4_SegmentRomEnd;
-					sprintf(message, "SPC_SCR3");				
+					sprintf(message, "SPC_SCR4");				
 				break;
 */
 			default:

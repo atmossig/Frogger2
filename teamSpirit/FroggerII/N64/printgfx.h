@@ -74,6 +74,7 @@ void DrawSpecialFX();
 void DrawFXRipple(SPECFX *ripple);
 void DrawFXRing(SPECFX *ring);
 void DrawFXTrail(SPECFX *trail);
+void DrawFXLightning(SPECFX *fx);
 
 void ProcessShadows();
 void DrawShadow(VECTOR *pos,VECTOR *normal,float size,float offset,short alpha,Vtx *sVtx);

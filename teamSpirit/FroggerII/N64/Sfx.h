@@ -5,349 +5,310 @@
 extern char *libmus_sfx_list[];
 extern int libmus_priority_list[];
 
-#define FX_NULL                 0
-#define FX_SHIRLEYSWIM__FINS    1
-#define FX_SHIRLEY_LAND         2
-#define FX_SHIRLEY_LAUNCH       3
-#define FX_MALLET_WALK_LEFT     4
-#define FX_MALLET_WALK_RIGHT    5
-#define FX_MALLET_STAMPEDE      6
-#define FX_MALLET_WAIT          7
-#define FX_GERERALWU_WALK_LEFT  8
-#define FX_GERERALWU_WALK_RIGHT 9
-#define FX_GENERALWU_DIVESNAP   10
-#define FX_GENERALWU_HITGROUND  11
-#define FX_SELWYNJOFF_ATTACK    12
-#define FX_SELWYNJOFF_LAND      13
-#define FX_SELWYNJOFF_FLAP_L    14
-#define FX_SELWYNJOFF_FLAP_R    15
-#define FX_SELWYNCANCER_ATTACK  16
-#define FX_SELWYNKIRK_FLY       17
-#define FX_DENNIS_WALK          18
-#define FX_DENNIS_LAUNCH        19
-#define FX_DENNIS_LAND          20
-#define FX_CHUCK_CALL           21
-#define FX_CHUCK_ATTACK         22
-#define FX_CHUCK_JUGGLE         23
-#define FX_CHUCK_WALK           24
-#define FX_BUGLE_CALL           25
-#define FX_BUGLE_ATTACK         26
-#define FX_BUGLE_DEATH          27
-#define FX_KLOSET_CALL          28
-#define FX_KLOSET_WALK_LEFT     29
-#define FX_KLOSET_WALK_RIGHT    30
-#define FX_KLOSET_ATTACK        31
-#define FX_KLOSET_SPINFLOOR     32
-#define FX_KLOSET_BOXINGGLOVE   33
-#define FX_KLOSET_BOMB          34
-#define FX_CRUMPET_FLY          35
-#define FX_CRUMPET_ATTACK       36
-#define FX_CRUMPET_CALL         37
-#define FX_TRACY_DANCING        38
-#define FX_TRACY_CALL           39
-#define FX_TRACY_WALK_LEFT      40
-#define FX_TRACY_WALK_RIGHT     41
-#define FX_TRACY_LAND           42
-#define FX_TRACY_CHARGE         43
-#define FX_TREX_CALL            44
-#define FX_TREX_ATTACK          45
-#define FX_TREX_FOOTSTEP_LEFT   46
-#define FX_TREX_FOOTSTEP_RIGHT  47
-#define FX_FLANNEL_WINGFLAP     48
-#define FX_FLANNEL_CALL         49
-#define FX_THRICE_ATTACK        50
-#define FX_THRICE_IDLE          51
-#define FX_MIKE_WALK_LEFT       52
-#define FX_MIKE_WALK_RIGHT      53
-#define FX_MIKE_ATTACK          54
-#define FX_FUMBLE_CALL          55
-#define FX_FUMBLE_WALK          56
-#define FX_ETHEL_CALL           57
-#define FX_ETHEL_WIND           58
-#define FX_ETHEL_ATTACK         59
-#define FX_FRANKIE_ATTACK_LOOPED 60
-#define FX_FRANKIE_ATTACK       61
-#define FX_FRANKIE_ATTACK2      62
-#define FX_FRANKIE_GENERALHUM   63
-#define FX_FRANKIE_WALK_LEFT    64
-#define FX_FRANKIE_WALK_RIGHT   65
-#define FX_FRANKIE_CALL         66
-#define FX_FRANKIE_DEATH        67
-#define FX_REGGIE_WALK          68
-#define FX_REGGIE_DEATH         69
-#define FX_SWISH_WALK_LEFT      70
-#define FX_SWISH_WALK_RIGHT     71
-#define FX_SWISH_ATTACK         72
-#define FX_KEG_CALL             73
-#define FX_KEG_WALK             74
-#define FX_CHESTER_ATTACK       75
-#define FX_CHESTER_WALK         76
-#define FX_CHESTER_CALL         77
-#define FX_SPANK_CALL_1         78
-#define FX_SPANK_CALL_2         79
-#define FX_SPANK_SWING          80
-#define FX_SPANK_ATTACK         81
-#define FX_SPANK_DROP           82
-#define FX_YOOFOW_FLY           83
-#define FX_YOOFOW_ATTACK        84
-#define FX_OPEC_IDLE            85
-#define FX_OPEC_ATTACK_LOOP     86
-#define FX_OPEC_ATTACK_SINGLE   87
-#define FX_CYMON_GENERAL        88
-#define FX_CYMON_WALK_LEFT      89
-#define FX_CYMON_WALK_RIGHT     90
-#define FX_SUCKER_ATTACK_LOOP   91
-#define FX_SUCKER_ATTACK        92
-#define FX_SUCKER_SPIT          93
-#define FX_SUCKER_CALL_1        94
-#define FX_SUCKER_CALL_2        95
-#define FX_SUCKER_CALL_3        96
-#define FX_SUCKER_CRYSTAL       97
-#define FX_ROBOT_WALK           98
-#define FX_ROBOT_ATTACK         99
-#define FX_ROBOT_GENERAL        100
-#define FX_BOVVA_GENERAL        101
-#define FX_BOVVA_ATTACK         102
-#define FX_CANNONBALL_WALK      103
-#define FX_SAMTEX_WALK          104
-#define FX_SAMTEX_FUSE          105
-#define FX_SAMTEX_EXPLODE       106
-#define FX_CHICKEN_CLUCKNORMAL  107
-#define FX_CHICKEN_CLUCKHALFMAD 108
-#define FX_CHICKEN_CLUCKMAD     109
-#define FX_CHICKEN_FART         110
-#define FX_CHICKEN_BELCH        111
-#define FX_SCUTTLE_GENERIC_1    112
-#define FX_SCUTTLE_GENERIC_2    113
-#define FX_SCUTTLE_GENERIC_3    114
-#define FX_SPANK_CALL_3         115
-#define FX_SPANK_CALL_4         116
-#define FX_SPANK_OOF            117
-#define FX_CHESTER_GROWL        118
-#define FX_ROBOT_GENERAL_2      119
-#define FX_ROBOT_GENERAL_3      120
-#define FX_ROBOT_GENERAL_4      121
-#define FX_ROBOT_GENERAL_5      122
-#define FX_GENERALWU_PULLUP     123
-#define FX_CHUCK_JUGGLE_ENDING  124
-#define FX_TRACEY_JUMP          125
-#define FX_TREX_PANTING_LOOP    126
-#define FX_FUMBLE_SPOTBALL      127
-#define FX_FUMBLE_KEEPBALANCE   128
-#define FX_FUMBLE_PANTING_LOOP  129
-#define FX_KLOSET_PIANOFALL     130
-#define FX_BALLBOUNCE_RUBBER    131
-#define FX_BALLBOUNCE_BOWLING   132
-#define FX_BALLBOUNCE_POWER     133
-#define FX_BALLBOUNCE_BEARING   134
-#define FX_BALLBOUNCE_BEACH     135
-#define FX_BALLBOUNCE_SNOW      136
-#define FX_BALLBOUNCE_CRYSTAL   137
-#define FX_BALLBOUNCE_CRYSTAL_SMASH 138
-#define FX_BALL_BURST           139
-#define FX_COLLECT_BONUS_1      140
-#define FX_COLLECT_BONUS_1_ECHO 141
-#define FX_COLLECT_BONUS_2      142
-#define FX_COLLECT_POWERUP_1    143
-#define FX_COLLECT_POWERUP_2    144
-#define FX_COLLECT_POWERUP_3    145
-#define FX_COLLECT_POWERUP_4    146
-#define FX_COLLECT_POWERUP_5    147
-#define FX_HAND_FOOTSTEP_LEFT   148
-#define FX_HAND_FOOTSTEP_RIGHT  149
-#define FX_HAND_SKID            150
-#define FX_HAND_SKID_LOOP       151
-#define FX_HAND_JUMP_SMALL      152
-#define FX_HAND_JUMP_BIG        153
-#define FX_HAND_LAND            154
-#define FX_HAND_HURT_1          155
-#define FX_HAND_HURT_2          156
-#define FX_HAND_HURT_3          157
-#define FX_HAND_PUSH_1          158
-#define FX_HAND_PUSH_2          159
-#define FX_HAND_FALL            160
-#define FX_HAND_DIE_1           161
-#define FX_HAND_DIE_2           162
-#define FX_HAND_FINGERTAP_1     163
-#define FX_HAND_FINGERTAP_2     164
-#define FX_HAND_FINGERCLICK     165
-#define FX_HAND_FISTSLAM        166
-#define FX_HAND_THROW_1         167
-#define FX_HAND_THROW_2         168
-#define FX_HAND_THROW_3         169
-#define FX_HAND_THROW_4_LOOP    170
-#define FX_HAND_WHACKBALL       171
-#define FX_HAND_BOUNCETAP_1     172
-#define FX_HAND_BOUNCETAP_2     173
-#define FX_CAST_SPELL_1         174
-#define FX_CAST_SPELL_2         175
-#define FX_CAST_SPELL_3         176
-#define FX_POINT_DIRECTION_1    177
-#define FX_POINT_DIRECTION_2    178
-#define FX_GENERIC_BLEEP_1      179
-#define FX_GENERIC_BLEEP_2      180
-#define FX_GENERIC_BLEEP_3      181
-#define FX_GENERIC_BLEEP_4      182
-#define FX_ROLLING_SNOWBALL     183
-#define FX_IMPACT_STONE_SMALL   184
-#define FX_IMPACT_STONE_MEDIUM  185
-#define FX_IMPACT_STONE_LARGE   186
-#define FX_IMPACT_WOOD_SMALL    187
-#define FX_IMPACT_WOOD_MEDIUM   188
-#define FX_IMPACT_WOOD_LARGE    189
-#define FX_IMPACT_METAL_SMALL   190
-#define FX_IMPACT_METAL_MEDIUM  191
-#define FX_IMPACT_METAL_LARGE   192
-#define FX_IMPACT_SAND_SMALL    193
-#define FX_IMPACT_SAND_MEDIUM   194
-#define FX_IMPACT_SAND_LARGE    195
-#define FX_IMPACT_SNOW_SMALL    196
-#define FX_IMPACT_SNOW_MEDIUM   197
-#define FX_IMPACT_SNOW_LARGE    198
-#define FX_IMPACT_MUD_SMALL     199
-#define FX_IMPACT_MUD_MEDIUM    200
-#define FX_IMPACT_MUD_LARGE     201
-#define FX_STONE_SCAPE_LARGE    202
-#define FX_STONE_SCAPE_SMALL    203
-#define FX_METAL_SCRAPE_LARGE   204
-#define FX_METAL_SCRAPE_SMALL   205
-#define FX_WOOD_SCRAPE_LARGE    206
-#define FX_WOOD_SCRAPE_SMALL    207
-#define FX_ICE_SCRAPE_LARGE     208
-#define FX_ICE_SCRAPE_SMALL     209
-#define FX_SWITCH_1             210
-#define FX_SWITCH_2             211
-#define FX_SWITCH_3             212
-#define FX_SWITCH_4             213
-#define FX_SWITCH_5             214
-#define FX_SWITCH_6             215
-#define FX_SWITCH_7             216
-#define FX_SWITCH_8             217
-#define FX_FROG_CALL            218
-#define FX_TROUSERS_FALLDOWN    219
-#define FX_IMPACT_WATER_SMALL   220
-#define FX_IMPACT_WATER_MEDIUM  221
-#define FX_IMPACT_WATER_LARGE   222
-#define FX_EERIE_WIND           223
-#define FX_BIRD_TWEET_1         224
-#define FX_BIRD_TWEET_2         225
-#define FX_BIRD_TWEET_3         226
-#define FX_BIRD_TWEET_4         227
-#define FX_BIRD_TWEET_5         228
-#define FX_BIRD_TWEET_6         229
-#define FX_WATERFALL            230
-#define FX_WATERFALL_STEREO     231
-#define FX_LAVA_1               232
-#define FX_LAVA_2               233
-#define FX_BAT_WINGFLAP         234
-#define FX_BAT_CALL             235
-#define FX_BAT_CALL_ECHO        236
-#define FX_DRIPING_WATER        237
-#define FX_FOUNTAIN_1           238
-#define FX_FOUNTAIN_2           239
-#define FX_FOUNTAIN_STEREO      240
-#define FX_SEA_WAVES_1          241
-#define FX_SEA_WAVES_2          242
-#define FX_SEA_OFF_EDGE         243
-#define FX_HEAVY_SWITCH         244
-#define FX_BADGLOVE_LAUGH_1     245
-#define FX_RAIN                 246
-#define FX_RAIN_HEAVY           247
-#define FX_THUNDER              248
-#define FX_HAND2_JUMP1          249
-#define FX_HAND2_JUMP2          250
-#define FX_HAND2_JUMP3          251
-#define FX_HAND2_JUMP4          252
-#define FX_HAND2_RUNJUMP1       253
-#define FX_HAND2_RUNJUMP2       254
-#define FX_HAND2_RUNJUMP3       255
-#define FX_HAND2_RUNJUMP4       256
-#define FX_HAND2_PUSH1          257
-#define FX_HAND2_PUSH2          258
-#define FX_HAND2_PUSH3          259
-#define FX_HAND2_PUSH4          260
-#define FX_HAND2_HURT1          261
-#define FX_HAND2_HURT2          262
-#define FX_HAND2_HURT3          263
-#define FX_HAND2_HURT4          264
-#define FX_HAND2_SPELL1         265
-#define FX_HAND2_SPELL2         266
-#define FX_HAND2_SPELL3         267
-#define FX_HAND2_SPELL4         268
-#define FX_HAND2_VICTORY1       269
-#define FX_HAND2_VICTORY2       270
-#define FX_HAND2_VICTORY3       271
-#define FX_HAND2_VICTORY4       272
-#define FX_HAND2_DIE1           273
-#define FX_HAND2_DIE2           274
-#define FX_HAND2_DIE3           275
-#define FX_HAND2_FALL           276
-#define FX_BUBBLES_1            277
-#define FX_BUBBLES_2            278
-#define FX_BUBBLES_3            279
-#define FX_COLLECT_BONUS_3      280
-#define FX_COLLECT_BONUS_4      281
-#define FX_COLLECT_BONUS_5      282
-#define FX_CAST_SPELL_4         283
-#define FX_CAST_SPELL_5         284
-#define FX_HAND2_WOW            285
-#define FX_BIGSPELL             286
-#define FX_INTRO_BUBBLES        287
-#define FX_INTRO_THUNDER        288
-#define FX_INTRO_HANDOFF        289
-#define FX_INTRO_SPLASH         290
-#define FX_INTRO_HANDOUTWINDOW  291
-#define FX_INTRO_FLOORBREAK     292
-#define FX_INTRO_WIZARDFALL     293
-#define FX_INTRO_RUMBLE         294
-#define FX_INTRO_EXPLOSION      295
-#define FX_INTRO_WIND           296
-#define FX_INTRO_CHANGETOBALL   297
-#define FX_INTRO_BALLBOUNCE     298
-#define FX_INTRO_HANDHITGROUND  299
-#define FX_INTRO_HANDOUCH       300
-#define FX_INTRO_HANDGETUP      301
-#define FX_INTRO_HANDYEAH       302
-#define FX_INTRO_BADGLOVELAUGH  303
-#define FX_PORTCULLIS1          304
-#define FX_PORTCULLIS2          305
-#define FX_WATER_LAPPING_1      306
-#define FX_WATER_LAPPING_2      307
-#define FX_SPLASH_SMALL1        308
-#define FX_SPLASH_SMALL2        309
-#define FX_SPLASH_SMALL3        310
-#define FX_SPLASH_SMALL4        311
-#define FX_ROTORBLADE           312
-#define FX_SUCKER               313
-#define FX_ROCK_SMASH_1         314
-#define FX_ROCK_SMASH_2         315
-#define FX_ROCK_SMASH_3         316
-#define FX_TELEPORT_1           317
-#define FX_TELEPORT_2           318
-#define FX_ENTRO_WIND           319
-#define FX_ENTRO_WHOOSH         320
-#define FX_ENTRO_STONELAND      321
-#define FX_ENTRO_FSTEP          322
-#define FX_ENTRO_BIRD1          323
-#define FX_ENTRO_BIRD2          324
-#define FX_ENTRO_WHAA           325
-#define FX_ENTRO_WHOA           326
-#define FX_ENTRO_BGFALL         327
-#define FX_ENTRO_BGLAND         328
-#define FX_ENTRO_JUMP           329
-#define FX_ENTRO_HANDATTACH     330
-#define FX_ENTRO_BGRUN          331
-#define FX_ENTRO_CASTSPELL      332
-#define FX_ENTRO_SPELLHIT       333
-#define FX_ENTRO_TRANSFORM      334
-#define FX_ENTRO_CHANGE         335
-#define FX_ENTRO_BLOW           336
-#define FX_ENTRO_WIZWALK        337
-#define FX_ENGINE_FAIL          338
-#define FX_ENGINE_START         339
-#define FX_ENGINE_RUNNING       340
-#define FX_ENGINE_FAIL2         341
-#define FX_JETPACK              342
+#define SMP_ORG4THHI            0x0000
+#define SMP_ORG3RDVH            0x0001
+#define SMP_SINE                0x0002
+#define SMP_SINEHI              0x0003
+#define SMP_ATCHORD1            0x0004
+#define SMP_SWIM_L              0x0005
+#define SMP_LAND_0              0x0006
+#define SMP_BOUNCE              0x0007
+#define SMP_LAND_1              0x0008
+#define SMP_LAUNVH2             0x0009
+#define SMP_CALL_6              0x000a
+#define SMP_DEATH_3             0x000b
+#define SMP_ATTACK2_0           0x000c
+#define SMP_BOMBBL2             0x000d
+#define SMP_BOXING              0x000e
+#define SMP_SPIN_2              0x000f
+#define SMP_FLY2                0x0010
+#define SMP_ATTACK2_1           0x0011
+#define SMP_CALL2               0x0012
+#define SMP_FOOTST1             0x0013
+#define SMP_LAND2               0x0014
+#define SMP_TREX_A1             0x0015
+#define SMP_TREX_C2             0x0016
+#define SMP_ATTACK_0            0x0017
+#define SMP_IDLE_1              0x0018
+#define SMP_WALKAT1             0x0019
+#define SMP_WIND                0x001a
+#define SMP_ATTACK_1            0x001b
+#define SMP_ATTACK_2            0x001c
+#define SMP_ATTACK2_2           0x001d
+#define SMP_DULL_HUM            0x001e
+#define SMP_DEATH               0x001f
+#define SMP_ATTACK_3            0x0020
+#define SMP_SWFOOT              0x0021
+#define SMP_ROLL                0x0022
+#define SMP_ATTACK_4            0x0023
+#define SMP_SWING               0x0024
+#define SMP_SPIT                0x0025
+#define SMP_ATTACK_5            0x0026
+#define SMP_FUSE2               0x0027
+#define SMP_CALLA               0x0028
+#define SMP_CALLB               0x0029
+#define SMP_CALLC               0x002a
+#define SMP_BURP                0x002b
+#define SMP_FART                0x002c
+#define SMP_CALL_A2             0x002d
+#define SMP_CALL_C2             0x002e
+#define SMP_RUBBER3             0x002f
+#define SMP_BEARING             0x0030
+#define SMP_POWERB1             0x0031
+#define SMP_BEARING3            0x0032
+#define SMP_BEACHB1             0x0033
+#define SMP_SNOWBALL            0x0034
+#define SMP_CRYSTAL             0x0035
+#define SMP_SMASH               0x0036
+#define SMP_BELL1               0x0037
+#define SMP_FOOTSTEP            0x0038
+#define SMP_SKID2               0x0039
+#define SMP_HUP1                0x003a
+#define SMP_HUP2                0x003b
+#define SMP_LBREATH             0x003c
+#define SMP_OOF1_2              0x003d
+#define SMP_OOF2_2              0x003e
+#define SMP_OOF5_2              0x003f
+#define SMP_PUSH1_2             0x0040
+#define SMP_PUSH2_2             0x0041
+#define SMP_FALL1               0x0042
+#define SMP_FINGERCL            0x0043
+#define SMP_FINGERTA            0x0044
+#define SMP_SLAPBALL            0x0045
+#define SMP_WHOOSH              0x0046
+#define SMP_SANDIMP             0x0047
+#define SMP_STONEI1             0x0048
+#define SMP_WOODIMP             0x0049
+#define SMP_METALSLI            0x004a
+#define SMP_STONESLI            0x004b
+#define SMP_SWPART1             0x004c
+#define SMP_SWPART2             0x004d
+#define SMP_SW2                 0x004e
+#define SMP_TROUSERS_0          0x004f
+#define SMP_FROG                0x0050
+#define SMP_BAT                 0x0051
+#define SMP_BIRD1               0x0052
+#define SMP_BIRD2A              0x0053
+#define SMP_BIRD2B              0x0054
+#define SMP_BIRD2C              0x0055
+#define SMP_BIRD3A              0x0056
+#define SMP_BIRD3BL             0x0057
+#define SMP_DRIP                0x0058
+#define SMP_FOUNTAIN            0x0059
+#define SMP_LAVA1               0x005a
+#define SMP_LAVA2               0x005b
+#define SMP_WATERFAL            0x005c
+#define SMP_STONEI2             0x005d
+#define SMP_PICKUP1             0x005e
+#define SMP_BURST11             0x005f
+#define SMP_BADLAUGH            0x0060
+#define SMP_BADLAUG2            0x0061
+#define SMP_RAIN2               0x0062
+#define SMP_THUNDER             0x0063
+#define SMP_DIE1                0x0064
+#define SMP_DIE2                0x0065
+#define SMP_DIE3                0x0066
+#define SMP_FALL_1              0x0067
+#define SMP_JUMP1               0x0068
+#define SMP_JUMP2               0x0069
+#define SMP_JUMP3               0x006a
+#define SMP_JUMP4               0x006b
+#define SMP_OW1                 0x006c
+#define SMP_OW2                 0x006d
+#define SMP_OW3                 0x006e
+#define SMP_OW4                 0x006f
+#define SMP_PUSH1               0x0070
+#define SMP_PUSH2               0x0071
+#define SMP_PUSH3               0x0072
+#define SMP_PUSH4               0x0073
+#define SMP_RUNJUMP1            0x0074
+#define SMP_RUNJUMP2            0x0075
+#define SMP_RUNJUMP3            0x0076
+#define SMP_RUNJUMP4            0x0077
+#define SMP_SPELL1              0x0078
+#define SMP_SPELL2              0x0079
+#define SMP_SPELL3              0x007a
+#define SMP_SPELL4              0x007b
+#define SMP_VICTORY1            0x007c
+#define SMP_VICTORY2            0x007d
+#define SMP_VICTORY3            0x007e
+#define SMP_VICTORY4            0x007f
+#define SMP_PICKUP3             0x0080
+#define SMP_PICKUP4             0x0081
+#define SMP_SPELL               0x0082
+#define SMP_WOW                 0x0083
+#define SMP_LAPPING             0x0084
+#define SMP_PORTCUL2            0x0085
+#define SMP_PORTCULL            0x0086
+#define SMP_ROTOR               0x0087
+#define SMP_SPLASH2             0x0088
+#define SMP_SPLASH3             0x0089
+#define SMP_SPLASH4             0x008a
+#define SMP_SUCK                0x008b
+#define SMP_ROCKSMSH            0x008c
+#define SMP_TELEPORT            0x008d
+#define SMP_ENGINE              0x008e
+#define SMP_EGGCRACK            0x008f
+#define SMP_TROUSERS_1          0x0090
+#define SMP_ATTACK              0x0091
+#define SMP_WALK_1              0x0092
+#define SMP_ATTACK2             0x0093
+
+
+/*
+
+Tuning Info :-
+
+org4thhi       Coarse  12,  Fine   0
+org3rdvh       Coarse  12,  Fine   0
+sine           Coarse   7,  Fine   0
+sinehi         Coarse   7,  Fine   0
+atchord1       Coarse  12,  Fine   0
+swim_l         Coarse   0,  Fine   0
+land           Coarse   0,  Fine   0
+bounce         Coarse   0,  Fine   0
+land           Coarse   0,  Fine   0
+launvh2        Coarse   0,  Fine   0
+call_#6        Coarse   0,  Fine   0
+death_#3       Coarse   0,  Fine   0
+attack2        Coarse   0,  Fine   0
+bombbl~2       Coarse   0,  Fine   0
+boxing         Coarse   0,  Fine   0
+spin_#2        Coarse   0,  Fine   0
+fly2           Coarse   0,  Fine   0
+attack2        Coarse   0,  Fine   0
+call2          Coarse   0,  Fine   0
+footst~1       Coarse   0,  Fine   0
+land2          Coarse   0,  Fine   0
+trex_a~1       Coarse   0,  Fine   0
+trex_c~2       Coarse   0,  Fine   0
+attack         Coarse   0,  Fine   0
+idle_#1        Coarse   0,  Fine   0
+walkat~1       Coarse   0,  Fine   0
+wind           Coarse   0,  Fine   0
+attack         Coarse   0,  Fine   0
+attack         Coarse   0,  Fine   0
+attack2        Coarse   0,  Fine   0
+dull_hum       Coarse   0,  Fine   0
+death          Coarse   0,  Fine   0
+attack         Coarse   0,  Fine   0
+swfoot         Coarse   0,  Fine   0
+roll           Coarse   0,  Fine   0
+attack         Coarse   0,  Fine   0
+swing          Coarse   0,  Fine   0
+spit           Coarse   0,  Fine   0
+attack         Coarse   0,  Fine   0
+fuse2          Coarse   0,  Fine   0
+calla          Coarse   0,  Fine   0
+callb          Coarse   0,  Fine   0
+callc          Coarse   0,  Fine   0
+burp           Coarse   0,  Fine   0
+fart           Coarse   0,  Fine   0
+call_a2        Coarse   7,  Fine   0
+call_c2        Coarse   7,  Fine   0
+rubber#3       Coarse   0,  Fine   0
+bearing        Coarse   0,  Fine   0
+powerb~1       Coarse   0,  Fine   0
+bearing3       Coarse   0,  Fine   0
+beachb~1       Coarse   0,  Fine   0
+snowball       Coarse   0,  Fine   0
+crystal        Coarse   0,  Fine   0
+smash          Coarse   0,  Fine   0
+bell#1         Coarse   0,  Fine   0
+footstep       Coarse   0,  Fine   0
+skid2          Coarse   0,  Fine   0
+hup1           Coarse   0,  Fine   0
+hup2           Coarse   0,  Fine   0
+lbreath        Coarse   0,  Fine   0
+oof1_2         Coarse   0,  Fine   0
+oof2_2         Coarse   0,  Fine   0
+oof5_2         Coarse   0,  Fine   0
+push1_2        Coarse   0,  Fine   0
+push2_2        Coarse   0,  Fine   0
+fall#1         Coarse   0,  Fine   0
+fingercl       Coarse   0,  Fine   0
+fingerta       Coarse   0,  Fine   0
+slapball       Coarse   0,  Fine   0
+whoosh         Coarse   0,  Fine   0
+sandimp        Coarse   0,  Fine   0
+stonei~1       Coarse   0,  Fine   0
+woodimp        Coarse   0,  Fine   0
+metalsli       Coarse   0,  Fine   0
+stonesli       Coarse   0,  Fine   0
+swpart1        Coarse   0,  Fine   0
+swpart2        Coarse   0,  Fine   0
+sw2            Coarse   0,  Fine   0
+trousers       Coarse   0,  Fine   0
+frog           Coarse   0,  Fine   0
+bat            Coarse   0,  Fine   0
+bird#1         Coarse   0,  Fine   0
+bird#2a        Coarse   0,  Fine   0
+bird#2b        Coarse   0,  Fine   0
+bird#2c        Coarse   0,  Fine   0
+bird#3a        Coarse   0,  Fine   0
+bird#3bl       Coarse   0,  Fine   0
+drip           Coarse   0,  Fine   0
+fountain       Coarse   0,  Fine   0
+lava1          Coarse   0,  Fine   0
+lava2          Coarse   0,  Fine   0
+waterfal       Coarse   0,  Fine   0
+stonei~2       Coarse   0,  Fine   0
+pickup#1       Coarse   0,  Fine   0
+burst11        Coarse   0,  Fine   0
+badlaugh       Coarse   0,  Fine   0
+badlaug2       Coarse   0,  Fine   0
+rain#2         Coarse   0,  Fine   0
+thunder        Coarse   0,  Fine   0
+die1           Coarse   0,  Fine   0
+die2           Coarse   0,  Fine   0
+die3           Coarse   0,  Fine   0
+fall1          Coarse   0,  Fine   0
+jump1          Coarse   0,  Fine   0
+jump2          Coarse   0,  Fine   0
+jump3          Coarse   0,  Fine   0
+jump4          Coarse   0,  Fine   0
+ow1            Coarse   0,  Fine   0
+ow2            Coarse   0,  Fine   0
+ow3            Coarse   0,  Fine   0
+ow4            Coarse   0,  Fine   0
+push1          Coarse   0,  Fine   0
+push2          Coarse   0,  Fine   0
+push3          Coarse   0,  Fine   0
+push4          Coarse   0,  Fine   0
+runjump1       Coarse   0,  Fine   0
+runjump2       Coarse   0,  Fine   0
+runjump3       Coarse   0,  Fine   0
+runjump4       Coarse   0,  Fine   0
+spell1         Coarse   0,  Fine   0
+spell2         Coarse   0,  Fine   0
+spell3         Coarse   0,  Fine   0
+spell4         Coarse   0,  Fine   0
+victory1       Coarse   0,  Fine   0
+victory2       Coarse   0,  Fine   0
+victory3       Coarse   0,  Fine   0
+victory4       Coarse   0,  Fine   0
+pickup3        Coarse   0,  Fine   0
+pickup4        Coarse   0,  Fine   0
+spell          Coarse   0,  Fine   0
+wow            Coarse   0,  Fine   0
+lapping        Coarse   0,  Fine   0
+portcul2       Coarse   0,  Fine   0
+portcull       Coarse   0,  Fine   0
+rotor          Coarse   0,  Fine   0
+splash2        Coarse   0,  Fine   0
+splash3        Coarse   0,  Fine   0
+splash4        Coarse   0,  Fine   0
+suck           Coarse   0,  Fine   0
+rocksmsh       Coarse   0,  Fine   0
+teleport       Coarse   0,  Fine   0
+engine         Coarse   0,  Fine   0
+EggCrack       Coarse   0,  Fine   0
+trousers       Coarse -12,  Fine   0
+Attack         Coarse   0,  Fine   0
+Walk_#1        Coarse -12,  Fine   0
+Attack2        Coarse   0,  Fine   0
+
+*/
 
 
 /* End Of File */
