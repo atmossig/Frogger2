@@ -438,10 +438,15 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
 
-		if (gstrcmp(ts->name,"world.ndo") == 0 || gstrcmp(ts->name,"world.obe") == 0)
+		if(gstrcmp(ts->name,"world.obe") == 0)
 		{
 			theActor->flags = ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
+		}
+		else if(gstrcmp(ts->name,"nothing.obe") == 0)
+		{
+			// null object - never drawn - placeholder
+			theActor->flags = ACTOR_DRAW_NEVER;
 		}
 
 		for( i=0; i<4; i++ )
@@ -813,6 +818,7 @@ void RunGameLoop (void)
 
 					CameraLookAtFrog();
 					UpdateCameraPosition(0);
+
 					for (i=0; i<NUM_FROGS; i++)
 					{
 					
