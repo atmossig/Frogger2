@@ -171,7 +171,8 @@ struct square
 {
 	vtx	centre; //Centrepoint
 	vtx   n[4]; //normals to squares
-	vtx   ed[4]; //Edges
+	//vtx   ed[4]; //Edges
+	long ed[4];
 	vtx	  vn;
 	unsigned long adj[4];
 	char parent[100];
@@ -197,12 +198,13 @@ unsigned long nFace = 0;
 unsigned long fUsed[10000];
 
 square squareList[10000];
-unsigned long nSquare = 0;
+long nSquare = 0;
 
 Lookup materialLookup;
 
 char wiz[5] = "|/-\\";
 int spinner = 0;
+int tile_x = 64;
 
 void PrintSpinner(void)
 {
@@ -214,8 +216,14 @@ void PrintSpinner(void)
 
 void PutTileChar(char c)
 {
+	if (tile_x == 64)
+	{
+		tile_x = 0;
+		printf("\n\t");
+	}
 	putchar(c);
-	putchar('\b');
+	tile_x++;
+	//putchar('\b');
 }
 
 /* -------------------------------------------------------------------------------- */
@@ -236,9 +244,9 @@ void CalculateNormal (square *me)
 	
 	for(unsigned long l = 0; l < 3; l++)
 	{
-		ox[l] = me->ed[l].x;
-		oy[l] = me->ed[l].y;
-		oz[l] = me->ed[l].z;
+		ox[l] = vertexList[me->ed[l]].x;
+		oy[l] = vertexList[me->ed[l]].y;
+		oz[l] = vertexList[me->ed[l]].z;
 	}
 
 	/* Perform cross-product */
@@ -429,14 +437,16 @@ void BuildSquareList(void)
 		if ((i % 50) == 0)
 			PrintSpinner();
 
-		long p1, p2;
+		long tri1[3], tri2[3];
+
+		//long p1, p2;
 		vtx e1, e2, e3;
 
 		if (fUsed[i]) continue;
 
 		/*	let AB = invisible edge of this triangle
 			
-			p1 and p2 are the indices of A and B
+			tri1[0] and tri1[1] are the indices of A and B
 			
 			e1 = co-ords of B
 			e2 = co-ords of A	} I'd prefer to use indices for these
@@ -445,30 +455,21 @@ void BuildSquareList(void)
 
 		if (!faceList[i].e[AB])
 		{
-			p1 = faceList[i].i[A];
-			p2 = faceList[i].i[B];
-
-			e1 = vertexList[p2];
-			e2 = vertexList[faceList[i].i[C]];
-			e3 = vertexList[p1];
+			tri1[0] = faceList[i].i[A];
+			tri1[1] = faceList[i].i[B];
+			tri1[2] = faceList[i].i[C];
 		}
 		else if (!faceList[i].e[BC])
 		{
-			p1 = faceList[i].i[B];
-			p2 = faceList[i].i[C];
-
-			e1 = vertexList[p2];
-			e2 = vertexList[faceList[i].i[A]];
-			e3 = vertexList[p1];
+			tri1[0] = faceList[i].i[B];
+			tri1[1] = faceList[i].i[C];
+			tri1[2] = faceList[i].i[A];
 		}
 		else if (!faceList[i].e[CA])
 		{
-			p1 = faceList[i].i[A];
-			p2 = faceList[i].i[C];
-
-			e1 = vertexList[p1];
-			e2 = vertexList[faceList[i].i[B]];
-			e3 = vertexList[p2];
+			tri1[0] = faceList[i].i[C];
+			tri1[1] = faceList[i].i[A];
+			tri1[2] = faceList[i].i[B];
 		}
 		else // It's just a triangle!
 		{
@@ -483,9 +484,9 @@ void BuildSquareList(void)
 			squareList[nSquare].centre.y = (e1.y + e2.y + e3.y) * 1/3.0f;
 			squareList[nSquare].centre.z = (e1.z + e2.z + e3.z) * 1/3.0f;
 
-			squareList[nSquare].ed[0] = e1;
-			squareList[nSquare].ed[1] = e2;
-			squareList[nSquare].ed[2] = squareList[nSquare].ed[3] = e3;
+			squareList[nSquare].ed[0] = faceList[i].i[A];
+			squareList[nSquare].ed[1] = faceList[i].i[B];
+			squareList[nSquare].ed[2] = squareList[nSquare].ed[3] = faceList[i].i[C];
 			
 			//squareList[nSquare].ed[3].x = squareList[nSquare].ed[3].y = squareList[nSquare].ed[3].z = 100000.0; // nice out of range value
 
@@ -502,44 +503,74 @@ void BuildSquareList(void)
 					
 		fUsed[i]=1;
 
+		e1 = vertexList[tri1[1]];
+		e2 = vertexList[tri1[2]];
+		e3 = vertexList[tri1[0]];
+
 		for (j=(i+1); j<nFace; j++)
 		{
-			long p3, p4;
+			//long tri2[3], tri2[3];
 			vtx te1, te2, te3;
 
 			if (fUsed[j]) continue;
 
 			if (!faceList[j].e[AB])
 			{
-				p3 = faceList[j].i[A];
-				p4 = faceList[j].i[B];
-
-				te1 = vertexList[p4];
-				te2 = vertexList[faceList[j].i[C]];
-				te3 = vertexList[p3];
+				tri2[0] = faceList[j].i[A];
+				tri2[1] = faceList[j].i[B];
+				tri2[2] = faceList[j].i[C];
 			}
 			else if (!faceList[j].e[BC])
 			{
-				p3 = faceList[j].i[B];
-				p4 = faceList[j].i[C];
-
-				te1 = vertexList[p4];
-				te2 = vertexList[faceList[j].i[A]];
-				te3 = vertexList[p3];
+				tri2[0] = faceList[j].i[B];
+				tri2[1] = faceList[j].i[C];
+				tri2[2] = faceList[j].i[A];
 			}
 			else if (!faceList[j].e[CA])
 			{
-				p3 = faceList[j].i[A];
-				p4 = faceList[j].i[C];
-
-				te1 = vertexList[p3];
-				te2 = vertexList[faceList[j].i[B]];
-				te3 = vertexList[p4];
+				tri2[0] = faceList[j].i[C];
+				tri2[1] = faceList[j].i[A];
+				tri2[2] = faceList[j].i[B];
 			}
 			else
 				continue;
+
+			te1 = vertexList[tri2[0]];
+			te2 = vertexList[tri2[2]];
+			te3 = vertexList[tri2[1]];
+/*
+			if (!faceList[j].e[AB])
+			{
+				tri2[0] = faceList[j].i[A];
+				tri2[1] = faceList[j].i[B];
+
+				te1 = vertexList[tri2[1]];
+				te2 = vertexList[faceList[j].i[C]];
+				te3 = vertexList[tri2[0]];
+			}
+			else if (!faceList[j].e[BC])
+			{
+				tri2[0] = faceList[j].i[B];
+				tri2[1] = faceList[j].i[C];
+
+				te1 = vertexList[tri2[1]];
+				te2 = vertexList[faceList[j].i[A]];
+				te3 = vertexList[tri2[0]];
+			}
+			else if (!faceList[j].e[CA])
+			{
+				tri2[0] = faceList[j].i[A];
+				tri2[1] = faceList[j].i[C];
+
+				te1 = vertexList[tri2[0]];
+				te2 = vertexList[faceList[j].i[B]];
+				te3 = vertexList[tri2[1]];
+			}
+			else
+				continue;
+*/
 			
-			unsigned long numSame = (p1 == p3) + (p1 == p4) + (p2 == p3) + (p2 == p4);
+			unsigned long numSame = (tri1[0] == tri2[0]) + (tri1[0] == tri2[1]) + (tri1[1] == tri2[0]) + (tri1[1] == tri2[1]);
 
 			if (numSame == 2)
 			{						
@@ -551,11 +582,11 @@ void BuildSquareList(void)
 				squareList[nSquare].centre.y = (e1.y+e2.y+e3.y+te2.y)/4;
 				squareList[nSquare].centre.z = (e1.z+e2.z+e3.z+te2.z)/4;
 
-				squareList[nSquare].ed[0] = e1;
-				squareList[nSquare].ed[1] = e2;
-				squareList[nSquare].ed[2] = e3;
-				squareList[nSquare].ed[3] = te2;
-				
+				squareList[nSquare].ed[0] = tri1[1];
+				squareList[nSquare].ed[1] = tri1[2];
+				squareList[nSquare].ed[2] = tri2[1];
+				squareList[nSquare].ed[3] = tri2[2];
+
 				for (int a=0; a<4; a++)
 					squareList[nSquare].adj[a] = -1;
 
@@ -572,24 +603,21 @@ void BuildSquareList(void)
 		}
 	}
 
-	printf("done\n");
+	printf(" done\n");
 }
 
 
 
 /* --------------------------------------------------------------------------------
-	Function	: CalculateAdj 
+	Function	: CheckSquare
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
-*/
 
 void CheckSquare(unsigned long a, unsigned long i,float x1, float y1, float z1, float x2, float y2, float z2)
 {
 
-/*
-	This test is insanely, ludicrously inefficient and it's no wonder it takes so long
-*/
+	//This test is insanely, ludicrously inefficient and it's no wonder it takes so long
 	
 	unsigned long j;
 	for (j=0; j<nSquare; j++)
@@ -628,6 +656,30 @@ void CheckSquare(unsigned long a, unsigned long i,float x1, float y1, float z1, 
 		}
 	}
 }
+*/
+
+void FindAdjacentEdge(long a, long i, long v1, long v2)
+{
+	long j, k, numSame;
+	for (j=0; j<nSquare; j++)
+	{
+		if (j == i) continue;
+
+		numSame = 0;
+
+		for (k = 0; k<4; k++)
+		{
+			numSame += (squareList[j].ed[k] == v1);
+			numSame += (squareList[j].ed[k] == v2);
+		}
+
+		if (numSame >= 2)	// I'm not sure this is 100% safe...
+		{
+			squareList[i].adj[a] = j;
+			return;
+		}
+	}		
+}
 
 float Magnitude(vtx *vect)
 {
@@ -649,26 +701,27 @@ void Normalise(vtx *vect)
 
 void CalculateAdj(void)
 {
-	unsigned long i;
+	long i;
 
 	printf("Calculating adjacent squares.. ");
 
-	/*	This is now the worst part of the program, using a brute force search,
-		floating point comparisons on points and hundreds of duplicate checks
+	/*	This is now the worst part of the program, using a brute force search
+		and lots of duplicate checks.
 		
 		- For every quad:
 		- For all four edges:
 		- Compare with all four edges of every other quad
 		- TWICE to cater for edges in opposite directions...
 
-		This is a good example of how NOT to code this test
+		This is a good example of how NOT to code this test. It's fast enough
+		though, given the relatively small size of our maps.
 	*/
 
 	//Step thru squares to find adjacent ones.
 	for (i=0; i<nSquare; i++)
 	{
 		if ((i%20) == 0) PrintSpinner();
-
+/*
 		vtx a, b;
 
 		a = squareList[i].ed[0];
@@ -686,23 +739,29 @@ void CalculateAdj(void)
 		a = squareList[i].ed[3];
 		b = squareList[i].ed[0];
 		CheckSquare (3,i,a.x,a.y,a.z,b.x,b.y,b.z);
+*/
+		FindAdjacentEdge(0, i, squareList[i].ed[0], squareList[i].ed[1]);
+		FindAdjacentEdge(1, i, squareList[i].ed[1], squareList[i].ed[2]);
+		FindAdjacentEdge(2, i, squareList[i].ed[2], squareList[i].ed[3]);
+		FindAdjacentEdge(3, i, squareList[i].ed[3], squareList[i].ed[0]);
 	}
 	
 	// Fill out the "normals", aka direction vectors
 	for (i=0; i<nSquare; i++)
 	{
 		vtx t[4];
+		square *s = &squareList[i];
 		
 		// Average east & west EDGE vectors to find north DIRECTION vector
-		t[0].x = (squareList[i].ed[1].x-squareList[i].ed[0].x) + (squareList[i].ed[2].x-squareList[i].ed[3].x);
-		t[0].y = (squareList[i].ed[1].y-squareList[i].ed[0].y) + (squareList[i].ed[2].y-squareList[i].ed[3].y);
-		t[0].z = (squareList[i].ed[1].z-squareList[i].ed[0].z) + (squareList[i].ed[2].z-squareList[i].ed[3].z);
+		t[0].x = (vertexList[s->ed[1]].x-vertexList[s->ed[0]].x) + (vertexList[s->ed[2]].x-vertexList[s->ed[3]].x);
+		t[0].y = (vertexList[s->ed[1]].y-vertexList[s->ed[0]].y) + (vertexList[s->ed[2]].y-vertexList[s->ed[3]].y);
+		t[0].z = (vertexList[s->ed[1]].z-vertexList[s->ed[0]].z) + (vertexList[s->ed[2]].z-vertexList[s->ed[3]].z);
 		Normalise (&t[0]);
 		
 		// Average north & south edge vectors to find east direction vector
-		t[1].x = (squareList[i].ed[2].x-squareList[i].ed[1].x) + (squareList[i].ed[3].x-squareList[i].ed[0].x);
-		t[1].y = (squareList[i].ed[2].y-squareList[i].ed[1].y) + (squareList[i].ed[3].y-squareList[i].ed[0].y);
-		t[1].z = (squareList[i].ed[2].z-squareList[i].ed[1].z) + (squareList[i].ed[3].z-squareList[i].ed[0].z);
+		t[1].x = (vertexList[s->ed[2]].x-vertexList[s->ed[1]].x) + (vertexList[s->ed[3]].x-vertexList[s->ed[0]].x);
+		t[1].y = (vertexList[s->ed[2]].y-vertexList[s->ed[1]].y) + (vertexList[s->ed[3]].y-vertexList[s->ed[0]].y);
+		t[1].z = (vertexList[s->ed[2]].z-vertexList[s->ed[1]].z) + (vertexList[s->ed[3]].z-vertexList[s->ed[0]].z);
 		Normalise (&t[1]);
 
 		// south is opposite of north
@@ -904,11 +963,11 @@ bool ReadData(void)
 
 void WriteTiles (FILE *fp)
 {
-	unsigned int j = 0;
+	int j = 0;
 
 	fprintf (fp, "\n\nGAMETILE tiles[%u] = {\n", nSquare);
 
-	for (unsigned int i=0; i<nSquare; i++)
+	for (int i=0; i<nSquare; i++)
 	{
 		if (squareList[i].parent[0]==0)
 		{
