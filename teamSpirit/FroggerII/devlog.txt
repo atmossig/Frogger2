@@ -12,7 +12,7 @@ Andy Eder:
 ------------------------------------------------
 
 
-Dave Swift:
+David Swift:
 ------------------------------------------------
 
 
@@ -63,8 +63,17 @@ Andy Eder:
 ------------------------------------------------
 
 
-Dave Swift:
+David Swift:
 ------------------------------------------------
+	Fixed problems with Frogger facing the wrong direction on platforms (added a call to GetTilesMatchingDirection in CheckForFroggerLanding)
+
+		\/  \/
+		 \__/    Merry Christmas
+		  ..   / 
+		 /o \____
+		 \_./    \
+		   l ___ l\
+		   LLl LLl
 
 
 James Hubbard:
