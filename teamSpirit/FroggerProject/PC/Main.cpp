@@ -285,6 +285,7 @@ long LoopFunc(void)
 	if (editorOk)
 		RunEditor();
 
+	UpdateWater();
 	DrawLoop();
 
 	return 0;
@@ -292,6 +293,8 @@ long LoopFunc(void)
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+	char waterFile[MAX_PATH];
+
 	// Init common controls
 	InitCommonControls();
 
@@ -344,6 +347,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	font = (psFont *)pcFont;
 	fontSmall = (psFont *)pcFontSmall;
+
+	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
+	InitWater(waterFile);
 
 	InitTiming(60.0);
 

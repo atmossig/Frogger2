@@ -20,6 +20,8 @@
 #include "Main.h"
 #include "pcmisc.h"
 #include "ptexture.h"
+#include "mdx.h"
+#include "mdxTexture.h"
 
 int drawOverlays = 1;
 
@@ -89,8 +91,15 @@ void PTTextureLoad( )
 
 	// List search
 	for( t = texList; t; t = t->next )
+	{
 		if( t->name[0]=='p' && t->name[1]=='r' && t->name[2]=='c' )
-			CreateProceduralTexture( (TextureType *)t, t->name );
+			CreateProceduralTexture( (TextureType *)t, t->name );		
+	}
+
+	t = GetTexEntryFromCRC(UpdateCRC("00wate04.bmp"));
+	if (t)
+		testS = t->surf;
+
 }
 
 

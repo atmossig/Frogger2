@@ -47,6 +47,9 @@ extern MDX_TEXENTRY *texList;
 MDX_TEXENTRY *GetTexEntryFromCRC (long CRC);
 unsigned long LoadTexBank(char *bank, char *baseDir);
 extern float textureAdjustDivider;
+void InitWater(char *file);
+void UpdateWater(void);
+extern LPDIRECTDRAWSURFACE7 testS;
 
 #ifdef __cplusplus
 }

@@ -338,8 +338,8 @@ void PCCalcModgeValues(MDX_OBJECT *obj)
 
 	for (i=0; i<obj->mesh->numVertices; i++)
 	{
-		*mTemp  = (sinf((in->vz*(1.5/35)+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/56.0)))+timeInfo.frameCount*(1.5/70.0))+1)*0.1;
-		*mTemp2 = (cosf((in->vx*(1.5/49)+sinf((in->vz*(1.3/29))+timeInfo.frameCount*(1.0/66.0)))+timeInfo.frameCount*(1.5/66.0))+1)*0.1;
+		*mTemp  = (sinf((in->vz*(1.5/35)+sinf((in->vx*(1.3/49))+timeInfo.frameCount*(2.0/56.0)))+timeInfo.frameCount*(1.5/70.0))+1)*0.1;
+		*mTemp2 = (cosf((in->vx*(1.5/49)+cosf((in->vz*(1.3/29))+timeInfo.frameCount*(2.0/66.0)))+timeInfo.frameCount*(1.5/66.0))+1)*0.1;
 		*mTemp3 = (sinf(	(in->vz*(1.2/26))+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/26.0))+timeInfo.frameCount*(1.0/26.0))+1)*5;
 		mTemp++;
 		mTemp2++;
@@ -1144,7 +1144,7 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sz = (tV0->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
 
-			cVal = 1;//(m1x-m1z)*2.5;		
+			cVal = fabs((m1x+m1z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,(m1x+m1z)*2.5);
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
@@ -1158,7 +1158,7 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sy = tV1->vy;
 			vTemp->sz = (tV1->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
-			cVal = 1;//(m2x-m2z)*2.5;			
+			cVal = fabs((m2x+m2z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,(m2x+m2z)*2.5);
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
@@ -1171,7 +1171,7 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sy = tV2->vy;
 			vTemp->sz = (tV2->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
-			cVal = 1;//(m3x-m3z)*2.5;			
+			cVal = fabs((m3x+m3z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,(m3x+m3z)*2.5);
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
