@@ -72,7 +72,7 @@
 #include "cam.h"
 #include "tongue.h"
 #include "event.h"
-#include "eventfuncs.h"
+//#include "eventfuncs.h"	doesn't need to be global! - Dave
 
 #ifndef PC_VERSION
 #include "develop.h"
