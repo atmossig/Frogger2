@@ -337,6 +337,11 @@ void RunGameOver( )
 */
 void StartGameIntro()
 {
+	InitLevel(WORLDID_FRONTEND, LEVELID_FRONTEND1);
+	gameState.mode = FRONTEND_MODE;
+	gameState.multi = SINGLEPLAYER;
+}
+/*
 	int i, j;
 	GAMETILE *tile, *ptile = NULL;
 
@@ -381,21 +386,7 @@ void StartGameIntro()
 
 		ptile = tile;
 	}
-/*
-	// load frogger (for no particular reason)
 
-	CreateFrogActor(&tile, "frogger.obe", 0);
-	CameraLookAtFrog();
-	UpdateCameraPosition();
-
-	CreateVector(&currCamSource, 0, 0, 200);
-	SetVector(&camSource, &currCamSource);
-
-	CreateVector(&currCamTarget, 0, 0, 0);
-	SetVector(&camTarget, &currCamTarget);
-
-	SetVector(&camVect, &upVec);
-*/
 	controlCamera = 1;
 
 	// set up player
@@ -422,7 +413,7 @@ void StartGameIntro()
 
 	lastActFrameCount = 0;
 }
-
+*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -437,35 +428,6 @@ void RunGameIntro( )
 {
 	long t = actFrameCount - intro->timer;
 	int alpha, i;
-/*
-	//CameraLookAtFrog();
-	UpdateCameraPosition(0);
-
-	FroggerHop(0);	// just run the movement part of the frog jump code..
-
-	if (player[0].jumpTime >= 1.0f)
-	{
-		if (destTile[0])
-		{
-			currTile[0] = destTile[0];
-			destTile[0] = NULL;
-		}
-
-		SetVector(&frog[0]->actor->pos, &currTile[0]->centre);
-		player[0].jumpTime = -1;
-		AnimateActor(frog[0]->actor, FROG_ANIM_BREATHE, YES, YES, 1.0f, NO, NO);
-	}
-
-	if (player[0].jumpTime < 0 && Random(40) == 0)
-	{
-		if ((Random(2) == 1) && currTile[0]->tilePtrs[2])
-			HopFrogToTile(currTile[0]->tilePtrs[2], 0);
-		else if (currTile[0]->tilePtrs[0])
-			HopFrogToTile(currTile[0]->tilePtrs[0], 0);
-	}
-
-	//CheckForFroggerLanding(0);
-*/
 
 	switch (intro->stage)
 	{
@@ -514,21 +476,12 @@ void RunGameIntro( )
 			}
 			else
 			{
-/*				
-				intro->stage = 1;
-				intro->timer = actFrameCount;
-				intro->text[0]->draw = 1;
-				intro->text[0]->a = 255;
-				for (i=1;i<=3;i++)
-					intro->text[i]->draw = 0;
-*/
 				JallocFree((UBYTE**)&intro);
+				controlCamera = 0;
 
 				player[0].worldNum = WORLDID_FRONTEND;
 				player[0].levelNum = LEVELID_FRONTEND1;
 				
-				controlCamera = 0;
-
 				gameState.mode = LEVELCOMPLETE_MODE;
 				gameState.multi = SINGLEPLAYER;
 				GTInit( &modeTimer, 1 );

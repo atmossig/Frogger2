@@ -550,6 +550,13 @@ long DirectXInit(HWND window, long hardware )
 	D3DInit();
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 
+	// Init mavis frame buffers
+	for (int i=0; i<MAX_FRAMES; i++)
+	{
+		SwapFrame(i);
+		BlankFrame(i);
+	}
+
 	a565Card = r565;
 
 	runHardware = hardware;

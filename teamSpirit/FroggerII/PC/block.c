@@ -311,7 +311,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	frameCount = 1;
 	actTickCount = GetTickCount();
 
-	lastActFrameCount = actFrameCount = (GetTickCount()/(1000.0/60.0));
+	lastActFrameCount = actFrameCount = (GetTickCount()*(60.0f/1000.0f));
 	InitOneOverTable();	
 	
     //strcpy (filename);	

@@ -14,7 +14,7 @@
 #include "gelf.h"
 #include <commctrl.h>
 #include <ddraw.h>
-
+#include <stdio.h>
 short mouseX = 20;
 short mouseY = 20;
 
