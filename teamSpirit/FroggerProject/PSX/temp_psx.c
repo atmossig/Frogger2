@@ -16,6 +16,8 @@
 #include "timer.h"
 #include "memcard.h"
 
+FVECTOR fmaActorScale;
+
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	short i;
@@ -902,7 +904,8 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		gte_MulMatrix0(&tx, &rY, &tx);
 		gte_SetRotMatrix(&tx);
 		gte_SetTransMatrix(&tx);
-		
+
+		SetVectorFF( &fmaActorScale, &act->actor->size );
 		
 		
 		if(FmaActor_ClipCheck(*mesh))

@@ -14,7 +14,7 @@
 //#define StopSample(x)
 
 
-
+extern FVECTOR fmaActorScale;
 
 void CreateLevelObjects ( unsigned long worldID,unsigned long levelID );
 void froggerShowVRAM(unsigned char palMode);
