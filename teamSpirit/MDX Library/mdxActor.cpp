@@ -77,14 +77,14 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 void ActorListDraw(void)
 {
 	MDX_ACTOR *cur = actorList;	
-	MDX_VECTOR where;
+	MDX_VECTOR where,tPos;
 	float radius,scale;
 
 	while (cur)
 	{
 		drawThisObjectsSprites = cur->draw;
-		
-		XfmPoint(&where,&cur->pos,NULL);
+		AddVector(&tPos,&cur->pos,&cur->trueCentre);
+		XfmPoint(&where,&tPos,NULL);
 
 		if (where.vz>10)
 		{
@@ -721,11 +721,26 @@ void CalculateTrueCentreAndRadius(MDX_ACTOR *t)
 
 	PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(t->objectController->object);
 
+
+	t->trueCentre.vx = (minX+maxX)/2;
+	t->trueCentre.vy = (minY+maxY)/2;
+	t->trueCentre.vz = (minZ+maxZ)/2;
+
+	// Make the radius, but make it slightly smaller so we draw less (Cheat)
+	
+	// MC - Based on calculated "true" centrepoint
+
+	radius.vx = maxX-t->trueCentre.vx;
+	radius.vy = maxY-t->trueCentre.vy;
+	radius.vz = maxZ-t->trueCentre.vz;
+	
+	/*
+	// MC - Based on object centrepoint
 	radius.vx = ((-minX)>(maxX))?-minX:maxX;
 	radius.vy = ((-minY)>(maxY))?-minY:maxY;
 	radius.vz = ((-minZ)>(maxZ))?-minZ:maxZ;
+	*/
 
-	// Make the radius, but make it slightly smaller so we draw less (Cheat)
 	t->radius = mdxMagnitude(&radius) * RADIUS_SCALE;
 }
 
