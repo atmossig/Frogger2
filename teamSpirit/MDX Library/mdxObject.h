@@ -68,7 +68,7 @@ typedef struct TAG_MDXSPRITE
 	short scaleY;
 	short flags;
 	unsigned char r,g,b,a;
-	unsigned char red2,green2,blue2,alpha2;
+//	unsigned char red2,green2,blue2,alpha2;
 	char  offsetX;
 	char  offsetY;
 
