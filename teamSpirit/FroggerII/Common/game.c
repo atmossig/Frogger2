@@ -740,7 +740,8 @@ void RunGameLoop (void)
 	pointOfInterest = NULL;
 		
 	if(frameCount == 1)
-	{	
+	{
+		VECTOR firePos;
 		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
 		{
 			player[0].lives				= 3;
@@ -802,6 +803,8 @@ void RunGameLoop (void)
 
 		lastActFrameCount = 0;
 
+		SetVector( &firePos, &frog[0]->actor->pos );
+		firePos.v[Y] += 30;
 		CreateAndAddRandomPoly( prcTexList->tex, &frog[0]->actor->pos, &inVec, 32, 32 );
 	}
 	// FINISH FIRST FRAME STUFF

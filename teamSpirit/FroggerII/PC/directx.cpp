@@ -1643,13 +1643,15 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, short *pal )
 {
 	DDSURFACEDESC ddsd;
 	HRESULT res;
-	long i=1023;
+	long i;
 	DDINIT(ddsd);
 
 	static LPDIRECTDRAWSURFACE pSurface = D3DCreateTexSurface(32,32,0xf81f, 0,0);
 	
 	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 		ddShowError(res);
+
+	i=928;
 
 	while( i-- ) ((short *)ddsd.lpSurface)[i] = (short)pal[(unsigned char)buf[i]];
 
