@@ -244,6 +244,7 @@ void GameProcessController(long pl)
 
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 				player[pl].extendedHopDir = dir;
+				SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 			}
 			else
 				currTile[pl] = old;

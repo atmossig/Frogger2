@@ -685,6 +685,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 	}
 */
+	SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 
 	tiledir = dir;
 	dest = GetNextTile(&tiledir, pl);
@@ -932,7 +933,8 @@ void CheckForFroggerLanding(long pl)
 	else if( player[pl].deathBy == DEATHBY_WHACKING )
 	{
 		VECTOR up, fwd, side;
-		// Now find the forward and up vectors for camera
+
+		// Find the forward and up vectors for camera
 		SubVector( &fwd, &currCamSource[0], &currCamTarget[0] );
 		MakeUnit( &fwd );
 
@@ -940,8 +942,8 @@ void CheckForFroggerLanding(long pl)
 		CrossProduct( &up, &side, &fwd );
 		MakeUnit( &up );
 
+		// Orientate to camera
 		Orientate( &frog[pl]->actor->qRot, &fwd, &inVec, &up );
-	//	ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
 	}
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
@@ -1504,8 +1506,6 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	pl->jumpMultiplier = m;
 	pl->jumpTime = 0;
 	pl->heightJumped = diff;
-
-	SitAndFace(frog[p],currTile[p],frogFacing[p]);
 }
 
 

@@ -402,19 +402,9 @@ void UpdatePathNME( ENEMY *cur )
 
 	if (!cur->doNotMove)
 		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
-		{
-//			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-			CrossProduct( &cross, &cur->currNormal, &fwd );
-			CrossProduct( &dir, &cross, &cur->currNormal );
-			ScaleVector( &dir, 50 );
-
-			AddToVector( &dir, &cur->nmeActor->actor->pos );
-			ActorLookAt( cur->nmeActor->actor, &dir, LOOKAT_ANYWHERE );
-		}
+			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 		else // Need to do this so normals still work
-		{
 			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
-		}
 
 	// check if this enemy has arrived at a path node
 	if( actFrameCount > cur->path->endFrame )
