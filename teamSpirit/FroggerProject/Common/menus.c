@@ -78,6 +78,7 @@ FVECTOR storeCamOffset;
 FVECTOR storeCurrCamOffset;
 FVECTOR storeCamVect;
 
+int oldDiffMode = 0;
 
 
 int pauseConfirmMode;
@@ -879,6 +880,10 @@ void RunFrontendGameLoop (void)
 	{
 		if(fadingOut == 0)
 		{
+			oldDiffMode = gameState.difficulty;
+
+			gameState.difficulty = DIFFICULTY_NORMAL;
+
 			goingToDemo = NO;
 			InitDemoMode();
 		}

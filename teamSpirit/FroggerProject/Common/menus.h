@@ -36,6 +36,8 @@ extern int fogStore;
 extern int pauseConfirmMode;
 extern int pauseGameSpeed;
 
+extern int oldDiffMode;
+
 #define DEC_ALPHA(x) \
 {													\
 	tValue = FMul(gameSpeed,fadeSpeed)>>12;			\

@@ -25,6 +25,7 @@
 #include "hud.h"
 #include "fadeout.h"
 #include "lang.h"
+#include "menus.h"
 
 #ifdef DREAMCAST_VERSION
 #include "main.h"
@@ -129,6 +130,11 @@ void RunDemoMode()
 #else
 		if( UndoChangeModel( frog[0]->actor ) )
 			player[0].idleEnable = 1;
+
+		gameState.difficulty = oldDiffMode;
+
+		oldDiffMode = gameState.difficulty;
+
 
 		gameState.mode = FRONTEND_MODE;
 		player[0].character = FROG_FROGGER;
