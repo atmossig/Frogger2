@@ -245,7 +245,6 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	// load the relevant master object / texture banks
 	dprintf"Loading...\n"));
 	LoadTextureBank(SYSTEM_TEX_BANK);
-	LoadTextureBank (TITLES_TEX_BANK );
 	LoadTextureBank(texBankToUse);
 	LoadObjectBank(objBankToUse);
 
