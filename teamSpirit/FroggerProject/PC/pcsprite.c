@@ -55,6 +55,7 @@ short spriteIndices[] = {0,1,2,2,3,0};
 //short spriteIndices[] = {2,1,0,0,3,2};
 float OVERLAY_X;
 float OVERLAY_Y;
+float spriteMul;
 
 int numSprites;
 
@@ -359,6 +360,8 @@ void PrintSprite(SPRITE *sprite)
 		distx = disty = (FOV)/(sc.vz+DIST);
 		distx *= (sprite->scaleX/(64.0));
 		disty *= (sprite->scaleY/(64.0));
+		distx *= spriteMul;
+		disty *= spriteMul;
 		numSprites++;
 
 		if (sprite->flags & SPRITE_ADDITIVE)
@@ -516,6 +519,8 @@ void InitSpriteSortArray( )
 	
 	while( i-- ) spriteSortArray[i] = NULL;
 	numSortArraySprites = 0;
+
+	spriteMul = (float)rXRes/(float)640.0;
 }
 
 

@@ -50,6 +50,7 @@ short spIndices[] = {0,1,2,2,3,0};
 
 unsigned long numHaloPoints;
 long limTex = 0;
+unsigned long fogging = 0;
 
 //long softFlags = POLY_TEXTURE | POLY_MAGENTAMASK;
 
@@ -774,9 +775,6 @@ void DrawBatchedKeyedPolys (void)
 		
 		cFInfo->cF+=nFace;
 
-		totalFacesDrawn+=nFace/3;	// Idle Time
-		
-		
 	}
 }
 
@@ -1065,6 +1063,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+		
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,FALSE);
 
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
@@ -1072,7 +1071,8 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
 
-		//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+		if (fogging)
+			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
 
 
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
@@ -1158,7 +1158,9 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
-//		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+
+		if (fogging)
+			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
 			
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
@@ -1667,6 +1669,9 @@ unsigned long drawPhong = 1;
 
 void DrawAllFrames(void)
 {
+	int i;
+	D3DTLVERTEX *cV;
+	unsigned long aValue,cValue;
 /*	pDirect3DDevice->BeginScene();
 	DrawSoftwarePolys();
 	pDirect3DDevice->EndScene();
@@ -1766,6 +1771,19 @@ void DrawAllFrames(void)
 
 	D3DSetupRenderstates(xluAddRS);	
 	SwapFrame(MA_FRAME_ADDITIVE);
+
+	// Sort out additive for fog.
+	i = 0;
+	cV = cFInfo->v;
+	while ((i<cFInfo->nV))
+	{
+		cValue = cV->color;
+		aValue =  ((cValue>>24) * (cV->specular>>24))>>8;		
+		cV->color = (cValue&0x00ffffff) | (aValue << 24);
+		cV++;
+		i++;
+	}
+		
 	DrawBatchedPolys();	
 	
 	SwapFrame(MA_FRAME_OVERLAY);

@@ -90,6 +90,8 @@ unsigned long synchRecovery = 1;
 long resolution;
 long slideSpeeds[4] = {0,16,32,64};
 
+long fogEnable = 0;
+
 void GetArgs(char *arglist);
 
 /*	--------------------------------------------------------------------------------
@@ -450,13 +452,13 @@ void DrawBackground(void)
 	
 	noClipping = 1;
 	farClip = 124000;
-	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vx = 0;//-currCamSource.vx / 4096.0;
-	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vy = 0;//-currCamSource.vy / 4096.0;
-	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vz = 0;//-currCamSource.vz / 4096.0;
+	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vx = currCamSource.vx / 40960.0;
+	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vy = currCamSource.vy / 40960.0;
+	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vz = currCamSource.vz / 40960.0;
 		
 	XformActor(((MDX_ACTOR *)backGnd->actor->actualActor));
 	DrawActor(((MDX_ACTOR *)backGnd->actor->actualActor));
-	farClip = oF;
+
 	noClipping = 0;
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
@@ -464,15 +466,18 @@ void DrawBackground(void)
 	//pDirect3DDevice->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);	// clamp textures
 	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);//D3DFILTER_LINEAR);
 
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,TRUE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAREF,0);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAFUNC,D3DCMP_NOTEQUAL);
-	
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,TRUE);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAREF,0);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHAFUNC,D3DCMP_NOTEQUAL);
+
+	//D3DSetupRenderstates(xluAddRS);
+
 	DrawBatchedPolys();
-	
+	//D3DSetupRenderstates(xluSemiRS);
+
 	// Draw the second mavis frame set, Transparent objects (non water objects)
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,FALSE);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,FALSE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,TRUE);
 	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);	// wrap textures
@@ -486,8 +491,6 @@ long DrawLoop(void)
 {
 	POINT t;
 	D3DSetupRenderstates(D3DDefaultRenderstates);
-	
-	SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0);
 	// Just to get functionality... ;)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();
@@ -499,10 +502,20 @@ long DrawLoop(void)
 
 	//	changedView = 1;
 
+	SetupFogParams(fog.min,0,0,0,0);
+	
 	DrawBackdrop();
 
-	//if (backGnd)
-	//	DrawBackground();
+	if (backGnd)
+		DrawBackground();
+
+	farClip = fog.max;
+	if (fog.min>0)
+	{
+		SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0,1);
+		fogEnable = 1;
+	}
+	
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 	EndTimer(2);

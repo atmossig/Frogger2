@@ -96,7 +96,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long 
 void D3DClearView(void);
 void BeginDraw(void);
 void EndDraw(void);
-void SetupFogParams(float fStart,float fR,float fG,float fB);
+void SetupFogParams(float fStart,float fR,float fG,float fB,long enable);
 
 
 #ifdef __cplusplus

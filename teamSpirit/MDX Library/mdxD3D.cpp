@@ -28,6 +28,7 @@ extern "C"
 {
 #endif
 
+
 LPDIRECT3D7				pDirect3D;
 LPDIRECT3DDEVICE7		pDirect3DDevice;
 LPDIRECT3DVIEWPORT2		pDirect3DViewport;
@@ -143,9 +144,8 @@ void D3DClearView(void)
 {
 	if (rHardware)
 	{
-//		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , D3DRGB(fogR,fogG,fogB),1, 0L );
-//		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR,D3DRGB(fogR,fogG,fogB));
-		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , 0,1, 0L );
+		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , D3DRGB(fogR,fogG,fogB),1, 0L );
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR,D3DRGB(fogR,fogG,fogB));
 	}
 	else
 		memset(softScreen,0,640*480*sizeof(long));
@@ -159,11 +159,13 @@ void D3DClearView(void)
 	Info		: 
 */
 
-void SetupFogParams(float fStart,float fR,float fG,float fB)
+void SetupFogParams(float fStart,float fR,float fG,float fB,long enable)
 {
 	fogStart = fStart;
-	fogRange = 1.0/((farClip-fogStart));
+	fogRange = 1.0/(((farClip)-fogStart));
 	fogR = fR; fogG = fG; fogB = fB;
+	fogging = enable;
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,enable);		
 }
 
 /*	--------------------------------------------------------------------------------

@@ -201,7 +201,7 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
 	vOut->rhw = 1;///vOut->sz;
 	
-	vOut->specular = ((long)(((long)v0->specular>>24)+((((long)v1->specular>>24)-((long)v0->specular>>24))*vt)))<<24;
+	vOut->specular = v0->specular;//((long)(((long)v0->specular>>24)+((((long)v1->specular>>24)-((long)v0->specular>>24))*vt)))<<24;
 	
 	
 	vOut->color = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
@@ -392,10 +392,10 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 
 		if (((vTemp2->vz+DIST)>nearClip) &&
 			(((vTemp2->vz+DIST)<farClip) &&
-			((vTemp2->vx)>-horizClip) &&
+			(((vTemp2->vx)>-horizClip) &&
 			((vTemp2->vx)<horizClip) &&
 			((vTemp2->vy)>-vertClip) &&
-			((vTemp2->vy)<vertClip)))
+			((vTemp2->vy)<vertClip) || (noClipping))))
 		{
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 			
@@ -930,7 +930,7 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 	}
 	else
 	{ 
-		if (!(obj->flags & OBJECT_FLAGS_CLIPPED))
+		if (!(obj->flags & OBJECT_FLAGS_CLIPPED) || (noClipping))
 		{
 			if (obj->mesh)
 			{

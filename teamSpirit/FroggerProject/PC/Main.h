@@ -77,7 +77,7 @@ extern psFont *font;
 extern psFont *fontSmall;
 extern MDX_FONT *pcFont;
 extern MDX_FONT *pcFontSmall;
-
+extern long fogEnable;
 void debugPrintf(int num);
 void Crash(char *mess);
 

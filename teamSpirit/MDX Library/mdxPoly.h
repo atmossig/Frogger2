@@ -148,6 +148,7 @@ extern unsigned long cullCWRS[];
 extern unsigned long cullCCWRS[];
 extern unsigned long sortMode;
 extern unsigned long numSeperates;
+extern unsigned long fogging;
 
 extern short softScreen[640*480];
 
