@@ -113,17 +113,17 @@ void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID)
 			switch(levelID)
 			{
 				case LEVELID_GARDENLAWN:
-//					CreateLevelCollectables (gardenLawnSpawn, SPAWN_GARIB);
-//					CreateLevelCollectables (gardenLawnWholeKey, WHOLEKEY_GARIB);
+					CreateLevelCollectables (gardenLawnSpawn, SPAWN_GARIB);
+					//CreateLevelCollectables (gardenLawnWholeKey, WHOLEKEY_GARIB);
 					break;
 
 				case LEVELID_GARDENMAZE:
 					CreateLevelCollectables (gardenMazeSpawn, SPAWN_GARIB);
-					CreateLevelCollectables (gardenMazeWholeKey, WHOLEKEY_GARIB);
+					//CreateLevelCollectables (gardenMazeWholeKey, WHOLEKEY_GARIB);
 					break;
 				case LEVELID_GARDENVEGPATCH:
 					CreateLevelCollectables (gardenVegPatch, SPAWN_GARIB);
-					CreateLevelCollectables (gardenVegWholeKey, WHOLEKEY_GARIB);
+					//CreateLevelCollectables (gardenVegWholeKey, WHOLEKEY_GARIB);
 					break;
 			}
 			break;
