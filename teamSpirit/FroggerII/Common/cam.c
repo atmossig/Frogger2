@@ -689,16 +689,16 @@ void InitCamera(void)
 	currCamBox = NULL;
 	CheckCameraBoxes();
 	
+	lastTile = 0;
+
 	CheckForDynamicCameraChange(currTile[0]);
-	//UpdateCameraPosition();
+	SubVector(&currCamOffset, &camTarget, &camSource);
+
+	UpdateCameraPosition();
 
 	SetVector(&currCamSource, &camSource);
 	SetVector(&currCamTarget, &camTarget);
-	SubVector(&currCamOffset, &currCamSource, &currCamTarget);
-	
-	camVect.v[0] = 0; camVect.v[1] = 1; camVect.v[2] = 0;
-
-	cam_shakiness = 0;
+	SetVector(&currCamOffset, &camOffset);
 }
 
 

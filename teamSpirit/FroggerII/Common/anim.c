@@ -386,10 +386,17 @@ void DamageNormal( int pl )
 	// jump in air thing
 	if (!currPlatform[pl])
 	{
-		CalculateFrogJump(
-			&frog[pl]->actor->pos, &currTile[pl]->centre, &currTile[pl]->normal,
-			100, 50, pl);
-		destTile[pl] = currTile[pl];
+		if (destTile[pl])
+			CalculateFrogJump(
+				&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
+				100, 50, pl);
+		else
+		{
+			CalculateFrogJump(
+				&frog[pl]->actor->pos, &currTile[pl]->centre, &currTile[pl]->normal,
+				100, 50, pl);
+			destTile[pl] = currTile[pl];
+		}
 		player[pl].canJump = 0;
 	}
 }
