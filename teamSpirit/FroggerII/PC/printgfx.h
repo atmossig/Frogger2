@@ -69,7 +69,6 @@ void DrawFXRing( SPECFX *ring );
 void DrawFXTrail( SPECFX *trail );
 
 void ProcessShadows();
-void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv);
 
 void DrawSwirlFX();
 void ScreenFade(UBYTE dir,UBYTE step);

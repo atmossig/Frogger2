@@ -21,8 +21,12 @@ extern float RES_DIFF;
 extern float RES_DIFF2;
 extern long runHardware;
 long numSprites;
+
+float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
+
 void Clip3DPolygon (D3DTLVERTEX in[3], long texture);
 void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i );
+void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex );
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
@@ -324,29 +328,27 @@ void DrawSpecialFX()
 	Returns			: void
 	Info			: 
 */
-long tex;
-
 void ProcessShadows()
 {
 	TEXTURE *theTexture;
+	TEXENTRY *tEntry;
 	VECTOR vec;
 	ENEMY *nme,*nme2;
 	PLATFORM *plat;
 	GARIB *garib;
 	int i;
-	TEXENTRY *tEntry;
+	long tex;
 	
 	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
 	tEntry = ((TEXENTRY *)theTexture);
-	tex = (long)tEntry->hdl;	
+	tex = (long)tEntry->hdl;
 
-//	dprintf"%x",tex));
 	if(frog[0]->actor->shadow)
 	{
 		vec.v[X] = frog[0]->actor->pos.v[X];
-		vec.v[Y] = currTile[0]->centre.v[Y] + 1;
+		vec.v[Y] = currTile[0]->centre.v[Y];
 		vec.v[Z] = frog[0]->actor->pos.v[Z];
-		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL,0,0);
+		DrawShadow( &vec, &currTile[0]->normal, frog[0]->actor->shadow->radius, 1, frog[0]->actor->shadow->alpha, tex );
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -359,9 +361,9 @@ void ProcessShadows()
 		if(nme->nmeActor->actor->shadow && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
 			vec.v[X] = nme->nmeActor->actor->pos.v[X];
-			vec.v[Y] = nme->inTile->centre.v[Y] + 1;
+			vec.v[Y] = nme->inTile->centre.v[Y];
 			vec.v[Z] = nme->nmeActor->actor->pos.v[Z];
-			DrawShadow(&vec,NULL,nme->nmeActor->actor->shadow->radius,0,nme->nmeActor->actor->shadow->alpha,nme->nmeActor->actor->shadow->vert,NULL,0,0);
+			DrawShadow( &vec, &nme->currNormal, nme->nmeActor->actor->shadow->radius, 1, nme->nmeActor->actor->shadow->alpha, tex );
 		}
 	}
 
@@ -369,109 +371,16 @@ void ProcessShadows()
 	// to be done !!!
 
 	// process garib shadows
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+/*	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
 	{
 		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
 		{
 			vec.v[X] = garib->sprite.pos.v[X];
 			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
 			vec.v[Z] = garib->sprite.pos.v[Z];
-			DrawShadow(&vec,NULL,garib->shadow.radius,0,garib->shadow.alpha,garib->shadow.vert,NULL,0,0);
+			DrawShadow( &vec, &garib->gameTile->normal, garib->shadow.radius, 0, garib->shadow.alpha, tex );
 		}
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: DrawShadow
-	Purpose			: draws a shadow
-	Parameters		: VECTOR *,PLANE *,float,float,short,Vtx *,VECTOR *
-	Returns			: 
-	Info			: 
-*/
-
-float sscale = 1.2;
-
-void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv)
-{
-	VECTOR tempVect[4],m[4];
-	D3DTLVERTEX vT[4];
-	short f[6] = {0,1,2,0,2,3};
-	long i;
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-
-	tempVect[0].v[X] = pos->v[X]-size*sscale;
-	tempVect[0].v[Y] = pos->v[Y];
-	tempVect[0].v[Z] = pos->v[Z]-size*sscale;
-
-	tempVect[1].v[X] = pos->v[X]+size*sscale;
-	tempVect[1].v[Y] = pos->v[Y];
-	tempVect[1].v[Z] = pos->v[Z]-size*sscale;
-
-	tempVect[2].v[X] = pos->v[X]+size*sscale;
-	tempVect[2].v[Y] = pos->v[Y];
-	tempVect[2].v[Z] = pos->v[Z]+size*sscale;
-
-	tempVect[3].v[X] = pos->v[X]-size*sscale;
-	tempVect[3].v[Y] = pos->v[Y];
-	tempVect[3].v[Z] = pos->v[Z]+size*sscale;
-
-	for(i=0; i<4; i++)
-		XfmPoint (&m[i],&tempVect[i]);
-	
-	if (m[0].v[Z])
-	if (m[1].v[Z])
-	if (m[2].v[Z])
-	if (m[3].v[Z])
-	{
-		vT[0].sx = m[1].v[X];
-		vT[0].sy = m[1].v[Y];
-		vT[0].sz = (m[1].v[Z]+DIST)/2000;///2000;
-		vT[0].tu = tu+1;
-		vT[0].tv = tv;
-		vT[0].color = D3DRGBA(0,0,0,1);
-		vT[0].specular = D3DRGB(0,0,0);
-
-		vT[1].sx = m[0].v[X];
-		vT[1].sy = m[0].v[Y];
-		vT[1].sz = (m[0].v[Z]+DIST)/2000;///2000;
-		vT[1].tu = tu;
-		vT[1].tv = tv;
-		vT[1].color = D3DRGBA(0,0,0,1);
-		vT[1].specular = D3DRGB(0,0,0);
-
-		vT[2].sx = m[2].v[X];
-		vT[2].sy = m[2].v[Y];
-		vT[2].sz = (m[2].v[Z]+DIST)/2000;///2000;
-		vT[2].tu = tu+1;
-		vT[2].tv = tv+1;
-		vT[2].color = D3DRGBA(0,0,0,1);
-		vT[2].specular = 0;
-		vT[2].specular = D3DRGB(0,0,0);
-		
-		vT[3].sx = m[3].v[X];
-		vT[3].sy = m[3].v[Y];
-		vT[3].sz = (m[3].v[Z]+DIST)/2000;///2000;
-		vT[3].tu = tu;
-		vT[3].tv = tv+1;
-		vT[3].color = D3DRGBA(0,0,0,1);
-		vT[3].specular = 0;
-		vT[3].specular = D3DRGB(0,0,0);
-
-		if (runHardware)
-		{
-			//Clip3DPolygon (&vT[0],tex);
-			//Clip3DPolygon (&vT[1],tex);
-		}
-	}
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	}*/
 }
 
 
@@ -709,6 +618,96 @@ BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int
 }
 
 
+void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex )
+{
+	VECTOR tempVect, m;
+	D3DTLVERTEX vT[4], vT2[3];
+	QUATERNION cross, q;
+	long i, zeroZ=0;
+	float t;
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+
+	vT[0].sx = -size;
+	vT[0].sy = offset;
+	vT[0].sz = -size;
+	vT[0].tu = 0;
+	vT[0].tv = 0;
+	vT[0].color = D3DRGBA(0,0,0,alpha/255.0);
+	vT[0].specular = D3DRGB(0,0,0);
+
+	vT[1].sx = size;
+	vT[1].sy = offset;
+	vT[1].sz = -size;
+	vT[1].tu = 1;
+	vT[1].tv = 0;
+	vT[1].color = D3DRGBA(0,0,0,alpha/255.0);
+	vT[1].specular = D3DRGB(0,0,0);
+
+	vT[2].sx = size;
+	vT[2].sy = offset;
+	vT[2].sz = size;
+	vT[2].tu = 1;
+	vT[2].tv = 1;
+	vT[2].color = D3DRGBA(0,0,0,alpha/255.0);
+	vT[2].specular = D3DRGB(0,0,0);
+	
+	vT[3].sx = -size;
+	vT[3].sy = offset;
+	vT[3].sz = size;
+	vT[3].tu = 0;
+	vT[3].tv = 1;
+	vT[3].color = D3DRGBA(0,0,0,alpha/255.0);
+	vT[3].specular = D3DRGB(0,0,0);
+
+	// Translate to current fx pos and push
+	guTranslateF( tMtrx, pos->v[X], pos->v[Y], pos->v[Z] );
+	PushMatrix( tMtrx );
+
+	// Rotate to be around normal
+	CrossProduct( (VECTOR *)&cross, &normal, &upVec );
+	MakeUnit( (VECTOR *)&cross );
+	t = DotProduct( normal, &upVec );
+	if( cross.x >= 0 )
+		cross.w = acos(t);
+	else
+		cross.w = -acos(t);
+	GetQuaternionFromRotation( &q, &cross );
+	QuaternionToMatrix( &q,(MATRIX *)rMtrx);
+	PushMatrix( rMtrx );
+
+	// Transform point by combined matrix
+	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+
+	for( i=0; i<4; i++ )
+	{
+		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.v[X], &tempVect.v[Y], &tempVect.v[Z] );
+		XfmPoint( &m, &tempVect );
+
+		// Assign back to vT array
+		vT[i].sx = m.v[X];
+		vT[i].sy = m.v[Y];
+		vT[i].sz = (m.v[Z]+DIST+5)*0.0005;
+		if( !m.v[Z] ) zeroZ++;
+	}
+
+	if( tex && !zeroZ )
+	{
+		memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
+		memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
+		memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
+		Clip3DPolygon( vT, tex );
+		Clip3DPolygon( vT2, tex );
+	}
+
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
+}
+
+
+
 void DrawFXRipple( SPECFX *ripple )
 {
 	TEXENTRY *tEntry;
@@ -721,10 +720,8 @@ void DrawFXRipple( SPECFX *ripple )
 	if(ripple->deadCount)
 	return;
 
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	
 	tempVect[0].v[X] = -ripple->scale.v[X];
@@ -766,7 +763,7 @@ void DrawFXRipple( SPECFX *ripple )
 
 		vT[0].sx = m[1].v[X];
 		vT[0].sy = m[1].v[Y];
-		vT[0].sz = (m[1].v[Z]+DIST)/2000;
+		vT[0].sz = (m[1].v[Z]+DIST)*0.0005;
 		vT[0].tu = 0;
 		vT[0].tv = 0;
 		vT[0].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
@@ -774,7 +771,7 @@ void DrawFXRipple( SPECFX *ripple )
 
 		vT[1].sx = m[0].v[X];
 		vT[1].sy = m[0].v[Y];
-		vT[1].sz = (m[0].v[Z]+DIST)/2000;
+		vT[1].sz = (m[0].v[Z]+DIST)*0.0005;
 		vT[1].tu = 1;
 		vT[1].tv = 0;
 		vT[1].color = vT[0].color;
@@ -782,7 +779,7 @@ void DrawFXRipple( SPECFX *ripple )
 
 		vT[2].sx = m[2].v[X];
 		vT[2].sy = m[2].v[Y];
-		vT[2].sz = (m[2].v[Z]+DIST)/2000;
+		vT[2].sz = (m[2].v[Z]+DIST)*0.0005;
 		vT[2].tu = 0;
 		vT[2].tv = 1;
 		vT[2].color = vT[0].color;
@@ -790,7 +787,7 @@ void DrawFXRipple( SPECFX *ripple )
 
 		vT[3].sx = m[3].v[X];
 		vT[3].sy = m[3].v[Y];
-		vT[3].sz = (m[3].v[Z]+DIST)/2000;
+		vT[3].sz = (m[3].v[Z]+DIST)*0.0005;
 		vT[3].tu = 1;
 		vT[3].tv = 1;
 		vT[3].color = vT[0].color;
@@ -808,7 +805,6 @@ void DrawFXRipple( SPECFX *ripple )
 	}
 }
 
-float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 void DrawFXRing( SPECFX *ring )
 {
 	unsigned long vx, i, j;
@@ -819,6 +815,9 @@ void DrawFXRing( SPECFX *ring )
 	DWORD colour = D3DRGBA(ring->r/255.0,ring->g/255.0,ring->b/255.0,ring->a/255.0);
 	float tilt, t;
 	int zeroZ = 0;
+
+	if( ring->deadCount )
+		return;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
@@ -869,8 +868,8 @@ void DrawFXRing( SPECFX *ring )
 			// Assign back to vT array
 			vT[j].sx = m.v[X];
 			vT[j].sy = m.v[Y];
-			vT[j].sz = m.v[Z];
-			if( !vT[j].sz ) zeroZ++;
+			vT[j].sz = (m.v[Z]+DIST)*0.0005;
+			if( !m.v[Z] ) zeroZ++;
 
 			vT[j].color = colour;
 
@@ -890,10 +889,6 @@ void DrawFXRing( SPECFX *ring )
 
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 }
 
 
@@ -902,6 +897,9 @@ void DrawFXTrail( SPECFX *trail )
 	unsigned long i = trail->start;
 	D3DTLVERTEX vT[4], vTPrev[2];
 	TEXENTRY *tEntry;
+
+	if( trail->deadCount )
+		return;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
@@ -943,10 +941,6 @@ void DrawFXTrail( SPECFX *trail )
 		if( ++i >= trail->numP ) i=0;
 
 	} while( i != trail->end );
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 }
 
 
@@ -978,12 +972,12 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 	XfmPoint( &m, &pos );
 	vT[0].sx = m.v[X];
 	vT[0].sy = m.v[Y];
-	vT[0].sz = m.v[Z];
+	vT[0].sz = (m.v[Z]+DIST)*0.0005;
 	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
 	XfmPoint( &m, &pos );
 	vT[1].sx = m.v[X];
 	vT[1].sy = m.v[Y];
-	vT[1].sz = m.v[Z];
+	vT[1].sz = (m.v[Z]+DIST)*0.0005;
 
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
