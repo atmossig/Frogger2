@@ -442,29 +442,8 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 
 void DrawSoftwarePolys (void)
 {
-/*
-	vertices[0].x = 320+x;
-	vertices[0].y = 240-y;
-	vertices[0].u = SSMAKEUV(63);
-	vertices[0].v = SSMAKEUV(0);
-	vertices[0].r = 255;
-	vertices[0].g = 128;
-	vertices[0].b = 0;
-	
-ssBeginScene(surfacePtr, surfacePitch);
-
-
-ssSetTexture(pixeldata, width, height)
-ssDrawPrimitive(vertices, 3 or 4);
-	.
-	.
-	.
-ssDrawPrimitive(vertices, 3 or 4);
-ssEndScene();
-*/
 	SOFTPOLY *cur;
 	
-	ssBeginScene(softScreen, 1280);
 	ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
 	ssSetRenderState(SSRENDERSTATE_SHADEMODE,SSSHADEMODE_GOURAUD);
 	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
@@ -596,8 +575,6 @@ ssEndScene();
 			cur = cur->next;
 		}
 	}
-	
-	ssEndScene();	
 }
 
 
