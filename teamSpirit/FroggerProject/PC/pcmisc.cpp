@@ -174,7 +174,10 @@ void CreateProceduralTexture( TextureType *tex, char *name )
 	if( name[4]=='f' && name[5]=='i' && name[6]=='r' && name[7]=='e' )
 		pt->Update = ProcessPTFire;
 	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
+	{
 		pt->Update = ProcessPTForcefield;
+		dissolveTex = pt;
+	}
 	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
 	{
 		if( name[8]=='r' )
@@ -189,14 +192,16 @@ void CreateProceduralTexture( TextureType *tex, char *name )
 			pt->Update = ProcessPTWaterWaves;
 	}
 	else if( name[4]=='s' && name[5]=='t' && name[6]=='e' && name[7]=='a' )
+	{
 		pt->Update = ProcessPTSteam;
+		pt->active = 0;
+	}
 	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
 		pt->Update = ProcessPTCandle;
-	else if( name[4]=='d' && name[5]=='s' && name[6]=='l' && name[8]=='v' )
+	else if( name[4]=='d' && name[5]=='s' && name[6]=='l' && name[7]=='v' )
 	{
 		pt->Update = ProcessPTDissolve;
 		pt->active = 0;
-		dissolveTex = pt;
 	}
 }
 
