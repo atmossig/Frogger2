@@ -52,7 +52,7 @@ PadDataType padData;	// PSX-Combatibuuule
 	Controll-specific stuff
 */
 
-#define NUM_CONTROLS	7		// number of in-game controls needed
+#define NUM_CONTROLS	8		// number of in-game controls needed
 #define DEAD_ZONE		500		// threshold at which we consider a joypad 'pressed', since PC pads are all analogue
 #define MAXJOYPADS 4			// Support at most 4 joypads
 #define MAXBUTTONS 6			// max buttons used on joypad ... hmm...
@@ -77,7 +77,8 @@ CONTROLSETUP controlDesc[NUM_CONTROLS] =
 	{ "Right",		3 },
 	{ "Superhop",	4 },
 	{ "Croak",		5 },
-	{ "Start",		6 }
+	{ "Start",		6 },
+	{ "Tongue",		7 }
 };
 
 //	"Camera Left",

@@ -398,7 +398,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			switch (LOWORD(wParam))
 			{
 				case IDC_CONTROLS:
-					SetupControllers(mdxWinInfo.hWndMain);
+					SetupControllers(hWnd);
 					return TRUE;
 
 				case IDC_MULTI:
