@@ -331,6 +331,8 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 		
 	CreateFrogger(1,1,1,1); // This also creates the babies
 
+	InitEventsForLevel(worldID, levelID);
+
 	LoadTextureBank ( SYSTEM_TEX_BANK );
 	switch ( worldID )
 	{

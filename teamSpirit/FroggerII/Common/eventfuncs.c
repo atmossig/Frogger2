@@ -118,8 +118,16 @@ void ChangeActorScale( EVENT *event )
 	Returns 	: 
 	Info 		:
 */
-void SetupEventsForLevel( )
+void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 {
+	if ( worldID == WORLDID_GARDEN )
+	{
+		if ( levelID == LEVELID_GARDENLAWN )
+		{
+		}
+	} // etc
+
+/* ***********EXAMPLE***********
 	void **args;
 	TRIGGER *trigger;
 	EVENT *event;
@@ -157,4 +165,5 @@ void SetupEventsForLevel( )
 
 	// Attach event to trigger
 	AttachEvent( trigger, event );
+	*/
 }

@@ -919,8 +919,6 @@ void RunGameLoop (void)
 //		runningWaterStuff = 0;
 		ChangeCameraSetting();
 
-		SetupEventsForLevel( );
-
 		/* Ambient Sound test */
 		//InitAmbientSoundList( );
 

@@ -24,6 +24,6 @@ extern void ChangeActorScale( EVENT *event );
 
 
 /*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
-extern void SetupEventsForLevel( );
+extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );
 
 #endif
