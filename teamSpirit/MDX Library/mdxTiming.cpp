@@ -9,6 +9,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
+#include <mmsystem.h>
 #include <ddraw.h>
 #include <d3d.h>
 #include <crtdbg.h>
