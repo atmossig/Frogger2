@@ -1096,39 +1096,37 @@ void CheckForFroggerLanding(long pl)
 		for( i=(pl+1)%NUM_FROGS; i!=pl; i=(i+1)%NUM_FROGS )
 			if( currTile[i] == tile )
 			{
-				// Check if the frog has another frog already on its head
-				j=i;
-				while( frog[j]->action.frogunder != -1 )
-				{
-					nextFrogFacing[j] = frogFacing[j] = frogFacing[pl];
-					SitAndFace( frog[j], currTile[j], frogFacing[j] );
-					j = (j+1)%NUM_FROGS;
-				}
-				if( j==pl ) break;
-				if( DistanceBetweenPointsSquared( &frog[pl]->actor->pos, &frog[j]->actor->pos ) > 20*20 ) break;
+				if( DistanceBetweenPointsSquared( &frog[pl]->actor->pos, &frog[i]->actor->pos ) > 20*20 ) continue;
 
-				player[j].canJump = 0;
+				// Face all lower frogs to our direction
+				nextFrogFacing[i] = frogFacing[i] = frogFacing[pl];
+				SetQuaternion( &frog[i]->actor->qRot, &frog[pl]->actor->qRot );
+				SitAndFace( frog[i], currTile[i], frogFacing[i] );
 
-				frog[pl]->action.frogon = j;
-				frog[j]->action.frogunder = pl;
+				if( frog[i]->action.frogunder != -1 ) continue;
+
+				player[i].canJump = 0;
+
+				frog[pl]->action.frogon = i;
+				frog[i]->action.frogunder = pl;
 
 				player[pl].idleEnable = 0;
-				player[j].idleEnable = 0;
+				player[i].idleEnable = 0;
 
 				StartAnimateActor( frog[pl]->actor, FROG_ANIM_PINLOOP, YES, NO, 0.5, 0,0 );
 
-				if( frog[j]->action.frogon != -1 )
+				if( frog[i]->action.frogon != -1 )
 				{
 					VECTOR up;
-					SetVector( &up, &currTile[j]->normal );
+					SetVector( &up, &currTile[i]->normal );
 					ScaleVector( &up, 10 );
-					AddVector( &frog[j]->actor->pos, &frog[frog[j]->action.frogon]->actor->pos, &up );
+					AddVector( &frog[i]->actor->pos, &frog[frog[i]->action.frogon]->actor->pos, &up );
 				}
 
-				SetVector( &frog[pl]->actor->pos, &frog[j]->actor->pos );
+				SetVector( &frog[pl]->actor->pos, &frog[i]->actor->pos );
 
-				AnimateActor( frog[j]->actor, FROG_ANIM_PINNED, NO, NO, 1.0, 0,0 );
-				StartAnimateActor( frog[j]->actor, FROG_ANIM_PINNEDLOOP, YES, YES, 0.5, 0,0 );
+				AnimateActor( frog[i]->actor, FROG_ANIM_PINNED, NO, NO, 1.0, 0,0 );
+				StartAnimateActor( frog[i]->actor, FROG_ANIM_PINNEDLOOP, YES, YES, 0.5, 0,0 );
 			}
 
 		// Check for camera transitions on the tile
