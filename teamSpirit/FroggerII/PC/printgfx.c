@@ -11,13 +11,15 @@
 #include <ultra64.h>
 
 #include "incs.h"
-
+#include "software.h"
 
 //GRABSTRUCT grabData;
 
 short drawScreenGrab = 0;
 short grabFlag = 0;
-
+extern float RES_DIFF;
+extern float RES_DIFF2;
+extern long runHardware;
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
@@ -85,7 +87,8 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			u = tOver->font->offset[letterID].v[X];
 			v = tOver->font->offset[letterID].v[Y];
 			
-			DrawAlphaSprite (x*2,y*2,0,tOver->font->height*2,tOver->font->width*2,
+			if (runHardware)
+				DrawAlphaSprite (x*RES_DIFF2,y*RES_DIFF2,0,tOver->font->height*RES_DIFF2,tOver->font->width*RES_DIFF2,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width-1)/256.0,
 				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,tOver->a/256.0);
@@ -135,9 +138,10 @@ void PrintSprite(SPRITE *sprite)
 	{
 		tEntry = ((TEXENTRY *)sprite->texture);
 		distx = disty = (FOV)/(m.v[Z]+DIST);
-		distx *= sprite->scaleX/64.0;
-		disty *= sprite->scaleY/64.0;
-		DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,
+		distx *= (sprite->scaleX/(64.0))*RES_DIFF;
+		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
+		if (runHardware)
+			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,
 				0,
 				0,
 				1,
@@ -265,7 +269,8 @@ void PrintSpriteOverlays()
 			
 			//tEntry->xo = 7 * (32.0/256.0);
 			//tEntry->yo = 3 * (32.0/256.0);
-			DrawAlphaSprite (cur->xPos*2,cur->yPos*2,0,cur->width*2,cur->height*2,
+			if (runHardware)
+				DrawAlphaSprite (cur->xPos*RES_DIFF2,cur->yPos*RES_DIFF2,0,cur->width*RES_DIFF2,cur->height*RES_DIFF2,
 				0,
 				0,
 				1,
@@ -471,7 +476,8 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 		vT[3].specular = 0;
 		vT[3].specular = D3DRGB(0,0,0);
 
-		DrawAHardwarePoly(vT,4,f,6,tex);
+		if (runHardware)
+			DrawAHardwarePoly(vT,4,f,6,tex);
 	}
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
@@ -808,7 +814,8 @@ void DrawFXRipples()
 			vT[3].specular = D3DRGB(0,0,0);
 
 			tEntry = ((TEXENTRY *)ripple->txtr);
-			DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
+			if (runHardware)
+				DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
 		}
 	}
 

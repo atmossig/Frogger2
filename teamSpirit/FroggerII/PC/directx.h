@@ -13,13 +13,14 @@
 #define RELEASE(x) if (x) {x->Release(); x=NULL;}
 #define DDINIT(x) {memset(&x,0,sizeof(x)); x.dwSize = sizeof(x);}
 
-#define SCREEN_WIDTH	640		// 320
-#define SCREEN_HEIGHT	480		// 240
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+extern long SCREEN_WIDTH;
+extern long SCREEN_HEIGHT;
 
 extern LPDIRECTDRAW				pDirectDraw;
 extern LPDIRECTDRAWSURFACE		primarySrf;

@@ -20,6 +20,9 @@
 
 VECTOR pointVec = {0,0,1};
 
+extern long HALF_WIDTH,HALF_HEIGHT;
+extern long runHardware;
+
 float hedSpeed = 0.2;
 void TransformObject(OBJECT *obj, float time);
 void PCDrawObject(OBJECT *obj, float m[4][4]);
@@ -64,13 +67,14 @@ float sofs = 5;
 long noClipping = 0;
 long numFacesDrawn;
 long numPixelsDrawn;
+extern float RES_DIFF;
 
 float oneOver[65535];
 long InitOneOverTable(void)
 {
 	int i;
 	for(i=1; i<65535; i++)
-		oneOver[i] = 1.0/(float)i;
+		oneOver[i] = (RES_DIFF)/(float)i;
 }
 
 
@@ -295,7 +299,9 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	{
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-		DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
+
+		if (runHardware)
+			DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
 	}
 }
 
@@ -492,9 +498,12 @@ void XfmPoint (VECTOR *vTemp2, VECTOR *in)
 			((vTemp2->v[Y])>-vertClip) &&
 			((vTemp2->v[Y])<vertClip))
 		{
-			float oozd = -1/(vTemp2->v[Z]+DIST);
-			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
-			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
+			long x = vTemp2->v[Z]+DIST;
+			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
+		//	float oozd = -1/(vTemp2->v[Z]+DIST);
+						
+			vTemp2->v[X] = HALF_WIDTH+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = HALF_HEIGHT+(vTemp2->v[Y] * oozd);			
 		}
 		else
 			vTemp2->v[Z] = 0;
@@ -1086,8 +1095,8 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 			long x = vTemp2->v[Z]+DIST;
 			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
 			
-			vTemp2->v[X] = 320+(vTemp2->v[X] * oozd);
-			vTemp2->v[Y] = 220+(vTemp2->v[Y] * oozd);
+			vTemp2->v[X] = HALF_WIDTH+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = HALF_HEIGHT+(vTemp2->v[Y] * oozd);
 		}
 		else
 		{
@@ -1136,8 +1145,8 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 			long x = vTemp2->v[Z]+DIST;
 			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
 			
-			vTemp2->v[X] = 320+(vTemp2->v[X] * oozd);
-			vTemp2->v[Y] = 220+(vTemp2->v[Y] * oozd);
+			vTemp2->v[X] = HALF_WIDTH+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = HALF_HEIGHT+(vTemp2->v[Y] * oozd);
 		}
 		else
 			vTemp2->v[Z] = 0;
@@ -1251,19 +1260,21 @@ void PCRenderObject (OBJECT *obj)
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
 			vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
 			
-			x1on = BETWEEN(v[0].sx,0,640);
-			x2on = BETWEEN(v[1].sx,0,640);
-			x3on = BETWEEN(v[2].sx,0,640);
-			y1on = BETWEEN(v[0].sy,0,480);
-			y2on = BETWEEN(v[1].sy,0,480);
-			y3on = BETWEEN(v[2].sy,0,480);
+			x1on = BETWEEN(v[0].sx,0,SCREEN_WIDTH);
+			x2on = BETWEEN(v[1].sx,0,SCREEN_WIDTH);
+			x3on = BETWEEN(v[2].sx,0,SCREEN_WIDTH);
+			y1on = BETWEEN(v[0].sy,0,SCREEN_HEIGHT);
+			y2on = BETWEEN(v[1].sy,0,SCREEN_HEIGHT);
+			y3on = BETWEEN(v[2].sy,0,SCREEN_HEIGHT);
 
 			if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 				numFacesDrawn++;
-				DrawAHardwarePoly(v,3,facesON,3,tex->hdl);
+				
+				if (runHardware)
+					DrawAHardwarePoly(v,3,facesON,3,tex->hdl);
 			}
 			else
 			{

@@ -30,14 +30,20 @@
 #include <memory.h>
 #include <winbase.h>
 
-#define SCREEN_WIDTH	640	//320
-#define SCREEN_HEIGHT	480	//240
+
 #define SCREEN_BITS		16
 
 extern "C"
 {
 #include <ultra64.h>
 #include "incs.h"
+
+long SCREEN_WIDTH=320;	//320
+long SCREEN_HEIGHT=240;	//240
+long HALF_WIDTH = 160;
+long HALF_HEIGHT = 120;
+float RES_DIFF = 1;
+float RES_DIFF2 = 2;
 
 HWND win;
 
@@ -53,6 +59,7 @@ LPDIRECTDRAWCLIPPER		pClipper;
 
 extern long winMode;
 extern long scaleMode;
+long runHardware;
 
 struct dxDevice
 {
@@ -69,6 +76,9 @@ dxDevice dxDeviceList[100];
 unsigned long dxNumDevices = 0;
 long selIdx = 0;
 long a565Card = 0;
+
+extern float clx1,cly1;
+
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
@@ -494,6 +504,8 @@ char col1txt[] = "Description";
 char col2txt[] = "Caps";
 char hwText[] = "3D Hardware Accelerated";
 char swText[] = "Software Renderer";
+char swName[] = "ISL Software Engine";
+char swDesc[] = "Always3D Software Renderer";
 
 BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
 				LPSTR lpszDrvName, LPVOID lpContext )
@@ -533,6 +545,8 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 		{
 			RECT meR;
 			LV_COLUMN clm;
+			LV_ITEM itm;
+				
 			ifstream in;
 
 			in.open( keyFileName, ios::nocreate, filebuf::sh_read );
@@ -571,7 +585,6 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 			for (i=0; i<dxNumDevices; i++)
 			{
-				LV_ITEM itm;
 				
 				itm.mask = LVIF_TEXT ;
 				itm.iItem = i; 
@@ -613,6 +626,52 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				SendMessage (list,LVM_SETITEM,0,(long)&itm);
 				
 			}
+			///////////////////////////////////////////////////////////////////////////////
+
+
+
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.iSubItem = 0;
+				itm.state = 0;
+				itm.stateMask = 0; 
+				
+				itm.pszText = swDesc;
+
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				
+				dxDeviceList[i].idx = SendMessage (list,LVM_INSERTITEM,0,(long)&itm);
+
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.state = 0;
+				itm.stateMask = 0; 
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				itm.iSubItem = 1;
+				itm.pszText = swName;
+
+				SendMessage (list,LVM_SETITEM,0,(long)&itm);
+				
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.state = 0;
+				itm.stateMask = 0; 
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				itm.iSubItem = 2;
+
+				itm.pszText = swText;
+
+				SendMessage (list,LVM_SETITEM,0,(long)&itm);
+				
+
+
+			///////////////////////////////////////////////////////////////////////////////
 
 			ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
 
@@ -633,6 +692,15 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				EndDialog( hwndDlg, TRUE );
 				return( TRUE );
 			}
+
+			hCombo = GetDlgItem( hwndDlg, IDC_COMBO1);
+
+		    ComboBox_AddString( hCombo, "320 x 240");
+		    ComboBox_AddString( hCombo, "640 x 480");
+		    ComboBox_AddString( hCombo, "800 x 600");
+		    ComboBox_AddString( hCombo, "1024 x 768");
+		    ComboBox_AddString( hCombo, "1280 x 1024");
+			ComboBox_SetCurSel( hCombo, 1 );
 
  			return TRUE;
 		}
@@ -699,6 +767,34 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 						EndDialog ( hwndDlg, TRUE );
 					else
 						EndDialog( hwndDlg, FALSE );
+
+					switch(ComboBox_GetCurSel(GetDlgItem( hwndDlg, IDC_COMBO1)))
+					{
+						case 0:
+							SCREEN_WIDTH = 320;
+							SCREEN_HEIGHT = 240;
+							break;
+						case 1:
+							SCREEN_WIDTH = 640;
+							SCREEN_HEIGHT = 480;
+							break;
+						case 2:
+							SCREEN_WIDTH = 800;
+							SCREEN_HEIGHT = 600;
+							break;
+						case 3:
+							SCREEN_WIDTH = 1024;
+							SCREEN_HEIGHT = 768;
+							break;
+						case 4:
+							SCREEN_WIDTH = 1280;
+							SCREEN_HEIGHT = 1024;
+							break;
+					}
+					HALF_WIDTH = SCREEN_WIDTH/2;
+					HALF_HEIGHT = SCREEN_HEIGHT/2;
+					clx1 = SCREEN_WIDTH-1;
+					cly1 = SCREEN_HEIGHT-1;
 
 
 //					EndDialog(hwndDlg,0);
@@ -840,7 +936,10 @@ long DirectXInit(HWND window, long hardware )
 			return FALSE;
 		}
 
-//	if (hardware)
+	RES_DIFF = SCREEN_WIDTH/640.0;
+	RES_DIFF2 = 2*RES_DIFF;
+
+	if (hardware)
 	{
 		// Create a z-buffer and attach it to the backbuffer
 		ddsd.dwSize = sizeof(ddsd);
@@ -926,7 +1025,9 @@ long DirectXInit(HWND window, long hardware )
 		  l >>= 1;
 	
 	a565Card = !(l == 31);
-	
+
+	runHardware = hardware;
+
 	if (hardware)
 		SetupRenderstates(); 
 	
@@ -971,11 +1072,11 @@ void DirectXFlip(void)
 		
 		if (!scaleMode)
 		{
-			if (clientR.right>640)
-				clientR.right = 640;
+			if (clientR.right>SCREEN_WIDTH)
+				clientR.right = SCREEN_HEIGHT;
 
-			if (clientR.bottom>480)
-				clientR.bottom = 480;
+			if (clientR.bottom>SCREEN_WIDTH)
+				clientR.bottom = SCREEN_HEIGHT;
 		
 			windowR.top+=GetSystemMetrics(SM_CYCAPTION)+GetSystemMetrics(SM_CYSIZEFRAME);
 			windowR.left+=GetSystemMetrics(SM_CXSIZEFRAME);
@@ -992,8 +1093,8 @@ void DirectXFlip(void)
 			windowR.bottom-=GetSystemMetrics(SM_CYSIZEFRAME);
 			windowR.right-=GetSystemMetrics(SM_CXSIZEFRAME);
 			
-			clientR.right = 640;
-			clientR.bottom = 480;
+			clientR.right = SCREEN_WIDTH;
+			clientR.bottom = SCREEN_HEIGHT;
 			while (primarySrf->Blt(&windowR,hiddenSrf,&clientR,NULL,NULL)!=DD_OK);
 		
 		}
@@ -1004,10 +1105,13 @@ void DirectXFlip(void)
 	DDINIT(m);
 	m.dwFillColor = D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
 	while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
-	DDINIT(m);
-	m.dwFillDepth = -1;//D3DRGB(0,0,0);
-	while (srfZBuffer->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_DEPTHFILL,&m)!=DD_OK);
-
+	
+	if (runHardware)
+	{
+		DDINIT(m);
+		m.dwFillDepth = -1;//D3DRGB(0,0,0);
+		while (srfZBuffer->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_DEPTHFILL,&m)!=DD_OK);
+	}
 	numFacesDrawn = 0;
 }
 

@@ -24,6 +24,7 @@
 #include "..\resource.h"
 #include "network.h"
 #include "netchat.h"
+#include "software.h"
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
@@ -40,6 +41,7 @@ BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
 extern long numFacesDrawn;
 extern long numPixelsDrawn;
+extern long runHardware;
 long keyInput = 1;
 
 long winMode = 1;
@@ -218,7 +220,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		currTime.wHour, currTime.wMinute, currTime.wSecond));
 
 	GetRegistryInformation();
-	InitOneOverTable();	
 	// create and initialise app window
 	if(!InitialiseWindows(hInstance,nCmdShow))
 		ok = 0;
@@ -274,6 +275,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	actTickCount = GetTickCount();
 
 	lastActFrameCount = actFrameCount = (GetTickCount()/(1000.0/60.0));
+	InitOneOverTable();	
+	
+	if (!runHardware)
+		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
     while(ok)
 	{
