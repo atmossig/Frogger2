@@ -83,7 +83,7 @@ void RunTitleScreen()
 		if( currentSelection > 0 )
 		{
 			currentSelection--;
-			PlaySampleNot3D(237,192,128,128);
+//			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	    
@@ -92,7 +92,7 @@ void RunTitleScreen()
 		if( currentSelection < 3 )
 		{
 			currentSelection++;
-			PlaySampleNot3D(237,192,128,128);
+//			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	

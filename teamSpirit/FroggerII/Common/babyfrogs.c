@@ -200,8 +200,8 @@ int GetNearestBabyFrog()
 		}
 	}
 
-	if(nearest && (distance < CROAK_SOUND_RANGE))
-		PlaySample(218, &babies[nearest]->actor->pos, 255, (short)(128 + (128 - (distance / 4))));
+//	if(nearest && (distance < CROAK_SOUND_RANGE))
+//		PlaySample( GEN_BABY_FROG, &babies[nearest]->actor->pos, 0, 255, (short)(128+(128-(distance/4))) );
 
 	return i;
 }

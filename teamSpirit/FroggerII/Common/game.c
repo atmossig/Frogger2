@@ -286,7 +286,7 @@ void GameProcessController(long pl)
 		{
 			frog[pl]->action.isCroaking	= 15;
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
-			PlayActorBasedSample(218,frog[pl]->actor,255,128);
+//			PlayActorBasedSample(218,frog[pl]->actor,255,128);
 
 			// update player idleTime
 			player[pl].idleTime = MAX_IDLE_TIME;
@@ -778,20 +778,14 @@ void RunGameLoop (void)
 						if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
 				}	  
 			}
-			// ENDIF 
 		}
-		// endif
-
 	}
-	// ENDELSEIF
 
 	UpdatePlatforms();
 	UpdateEnemies();
 	UpdateSpecialEffects();
 	UpdateEvents();
-
-	//UpdateAmbientSounds();
-	//	UpdateWater();
+	UpdateAmbientSounds();
 
 	ProcessCollectables();
 

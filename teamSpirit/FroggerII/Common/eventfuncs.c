@@ -321,10 +321,7 @@ void PlaySFX( EVENT *event )
 	VECTOR *point = (VECTOR *)event->data[3];
 	float radius = *(float *)event->data[4];
 
-	if( point )
-		PlaySampleRadius( snum, point, vol, pitch, radius );
-	else
-		PlaySample( snum, point, vol, pitch );
+//		PlaySample( snum, point, radius, vol, pitch );
 }
 
 /*	--------------------------------------------------------------------------------

@@ -551,7 +551,7 @@ void RunSndView()
 		if(sfx)
 		{
 			MusHandleStop(audioCtrl.musicHandle[0],0);
-			sfxRes = PlaySampleNot3D(sfxNum,255,128,128);
+//			sfxRes = PlaySampleNot3D(sfxNum,255,128,128);
 		}
 		// play currently selected music track
 		else

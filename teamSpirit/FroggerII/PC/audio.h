@@ -15,10 +15,12 @@
 //***********************************
 // Defines
 
-//#define USE_AUDIO
+// Because CD playing pisses me off
+#define USE_AUDIO
 
+// Hmm - two flags. Worth it?
 #define FLAGS_NONE			0
-#define FLAGS_3D_SAMPLE		( 1 << 0 )
+#define FLAGS_3D_SAMPLE		(1 << 0)
 
 
 enum
@@ -54,7 +56,9 @@ enum
 	NUM_GENERIC_SFX,
 };
 
-// All Garden sfx
+// All Garden sfx - could this not be based on 100?
+// e.g. Have enum for each world/level, which starts right after NUM_GENERIC_SFX.
+// Depends how the samples are loaded and stored, I suppose. This seems a bit silly though
 enum
 {
 	GAR_MOWER = 100,
@@ -62,6 +66,7 @@ enum
 };
 
 #define NUM_GARDEN_SFX ( END_GARDEN_SFX - 100 )
+
 
 //***********************************
 // Type Defines
@@ -79,19 +84,16 @@ typedef struct _SAMPLEMAP
 typedef struct _SAMPLE
 {
 	struct _SAMPLE		*next, *prev;
-	
-	char				idName[32];
-	char				numChannels;
-	int					sampleRate;
-	char				bitsPerSample;
-	unsigned char		sampleID;
-	unsigned long		flags;
 
+	struct _SAMPLEMAP	*map;
+	char				idName[128];
 
+	// Not keen on the windows specifics
 	LPWAVEFORMATEX			lpWavFmt;
-	BYTE					*Data;
-	DWORD					Len;
-	LPDIRECTSOUND			lpDSound;
+	BYTE					*data;
+	DWORD					len;
+
+//	LPDIRECTSOUND			lpDSound;
 	LPDIRECTSOUNDBUFFER		lpdsBuffer;	
     LPDIRECTSOUND3DBUFFER   lpds3DBuffer;	// DirectSound 3D buffer interface
 } SAMPLE;
@@ -100,65 +102,92 @@ typedef struct _SOUNDLIST
 {
 	int				numEntries;
 	SAMPLE			head;
+
 } SOUNDLIST;
 
+
+// What is the point of these? A basic sample has a buffer anyway... Maybe I just don't understand
 typedef struct _BUFSAMPLE
 {
-	struct _SAMPLE		*next, *prev;
-	LPDIRECTSOUNDBUFFER lpdsBuffer;
+	struct _SAMPLE *next, *prev;
+	LPDIRECTSOUNDBUFFER lpdsBuffer; // Is this a global? If so, why is it here?
+
 } BUFSAMPLE;
 
 typedef struct _BUFFERLIST
 {
 	int			numEntries;
 	BUFSAMPLE	head;
+
 } BUFFERLIST;
 
-extern SOUNDLIST soundList;
+
+typedef struct TAG_AMBIENT_SOUND
+{
+	struct TAG_AMBIENT_SOUND *next,*prev;
+
+	VECTOR		pos;
+	ACTOR		*follow;
+
+	int			num;
+
+	short		volume;
+	short		pitch;
+	long		radius;
+
+	long		freq;
+	long		randFreq;
+	long		counter;
+
+}AMBIENT_SOUND;
 
 
-extern SAMPLEMAP genericMapping [ NUM_GENERIC_SFX ];
-extern SAMPLEMAP gardenMapping  [ NUM_GARDEN_SFX ];
+typedef struct
+{
+	AMBIENT_SOUND head;
+	int numEntries;
+
+}AMBIENT_SOUND_LIST;
+
 
 //***********************************
 // Function Prototypes
 
-//***************
-// Sound list functions.
+extern void LoadSfx( unsigned long worldID );
 
-extern void LoadSfx ( unsigned long worldID );
+extern void InitSampleList( );
+extern void FreeSampleList( );
 
-extern void InitSampleList				( void );
-extern void FreeSampleList				( void );
-extern void AddSampleToList				( SAMPLE *sample );
-extern void RemoveSampleFromList		( SAMPLE *sample );
+extern void InitAmbientSoundList( );
+extern void FreeAmbientSoundList( );
 
-extern SAMPLE *CreateAndAddSample		( SAMPLEMAP sampleMap );
-extern SAMPLE *GetEntryFromSampleList	( int num );
+extern void FreeBufSampleList( );
 
 
-extern void FreeBufSampleList		( void );
-extern void AddBufSampleToList		( BUFSAMPLE *bufSample );
-extern void RemoveBufSampleFromList ( BUFSAMPLE *bufSample );
-
-
+// What does this do?
 extern void CleanBufferSamples ( void );
-
-
-
-
-
-extern int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch );
-extern int PlayActorBasedSample( short num, ACTOR* act, short tempVol, short pitch );
-extern int PlaySampleNot3D( short num, UBYTE vol, short tempVol, short pitch );
-
+// Eh?
 extern void SetSampleFormat ( SAMPLE *sample );
 
-extern int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius);
-extern void PrepareSong(char num);
+
+extern int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch );
+extern AMBIENT_SOUND *AddAmbientSound( short num, VECTOR *pos, long radius, short volume, short pitch, float freq, float rFreq, ACTOR *follow );
+void UpdateAmbientSounds();
+
+
 extern void PrepareSongForLevel( short worldID, short levelID );
 
-extern DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack );
-extern DWORD stopCDTrack ( HWND hWndNotify );
-
 #endif
+
+
+// Probably don't need to be available for other files
+//extern AMBIENT_SOUND_LIST ambientSoundList;
+//extern SOUNDLIST soundList;
+//extern SAMPLEMAP genericMapping [ NUM_GENERIC_SFX ];
+//extern SAMPLEMAP gardenMapping  [ NUM_GARDEN_SFX ];
+//extern void AddBufSampleToList		( BUFSAMPLE *bufSample );
+//extern void RemoveBufSampleFromList ( BUFSAMPLE *bufSample );
+//extern void AddSample( SAMPLE *sample );
+//extern void RemoveSample( SAMPLE *sample );
+//extern SAMPLE *CreateAndAddSample( SAMPLEMAP sampleMap );
+//extern SAMPLE *FindSample( int num );

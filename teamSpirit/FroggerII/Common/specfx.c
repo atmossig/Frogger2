@@ -1074,7 +1074,7 @@ void CreateTeleportEffect( VECTOR *pos, VECTOR *normal )
 	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 20, 0, 0, 1 );
 	telePos.v[Y] += 60;
 	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 15, 0, 0, 1 );
-	PlaySample(88,NULL,255,128);
+//	PlaySample(88,NULL,255,128);
 }
 
 

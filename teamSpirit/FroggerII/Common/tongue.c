@@ -173,7 +173,7 @@ void UpdateFrogTongue()
 
 			if(tongueSegment < 1 || tongueSegment > MAX_TONGUENODES )
 			{
-				PlaySample(111,NULL,192,128);
+//				PlaySample(111,NULL,192,128);
 
 				if(tongueToCollect == TONGUE_GET_GARIB)
 					PickupCollectable(nearestColl,0);

@@ -3,7 +3,7 @@
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
 	File		: audio.c
-	Programmer	: James Healey
+	Programmer	: Random Healey
 	Date		: 28/06/99 10:37:45
 
 ----------------------------------------------------------------------------------------------- */
@@ -13,8 +13,14 @@
 #include "incs.h"
 
 //#define MYDEBUG	- stop printing all that CRAP, man!
+#define MAX_AMBIENT_SFX		50
+#define DEFAULT_SFX_DIST	500
 
-SAMPLEMAP genericMapping [] = {
+#define VOLUME_MIN		-5000
+#define VOLUME_PERCENT VOLUME_MIN/100
+
+SAMPLEMAP genericMapping[] = 
+{
 	"generic\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,	FLAGS_NONE,
 	"generic\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,	FLAGS_NONE,
 	"generic\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,		FLAGS_NONE,
@@ -22,49 +28,41 @@ SAMPLEMAP genericMapping [] = {
 	"generic\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,	FLAGS_NONE,
 	"generic\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,		FLAGS_NONE,
 	"generic\\superhop.wav",		2, 22050, 16, GEN_SUPER_HOP,	FLAGS_NONE,
-	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE };
+	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE
+};
 
-SAMPLEMAP gardenMapping [] = {
-	"generic\\babyfrog.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE };
 
+SAMPLEMAP gardenMapping[] =
+{
+	"generic\\babyfrog.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE,
+};
 
 
 UINT mciDevice = 0;
 
-//***********************************
-// Function Prototypes
-
 SOUNDLIST soundList;					// Actual Sound Samples List
-			
+AMBIENT_SOUND_LIST	ambientSoundList;
 BUFFERLIST bufferList;					// Buffered Sound Samples List
 
-//***********************************
-// Function Prototypes
 
-/*	--------------------------------------------------------------------------------
-	Function		: LoadWorldSfx
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void LoadWorldSfx ( SAMPLEMAP mapping[], char numSfx  )
-{
-	int i;
+SAMPLE *FindSample( int num );
+void AddSample( SAMPLE *sample );
+void RemoveSample( SAMPLE *sample );
+void AddBufSample( BUFSAMPLE *sample );
+void RemoveBufSample( BUFSAMPLE *sample );
 
-#ifdef MYDEBUG
-	dprintf"NUM_SAMPLE : %d\n", numSfx));
-#endif
-	for ( i = numSfx - 1; i >= 0; i-- )
-	{
-#ifdef MYDEBUG
-		dprintf"numSfx : %d - i : %d \n", numSfx, i));
-		dprintf"mapping[%d] - sampleFileName : %s\n", i, mapping[i].sampleFileName));
-#endif
-		CreateAndAddSample ( mapping [ i ] );
-	}
-	// ENDFOR
-}
+void SubAmbientSound(AMBIENT_SOUND *ambientSound);
+
+SAMPLE *CreateAndAddSample( SAMPLEMAP *sampleMap );
+
+void SetSampleFormat ( SAMPLE *sample );
+void CleanBufferSamples( void );
+
+void PrepareSong( char num );
+void StopSong( );
+DWORD playCDTrack( HWND hWndNotify, BYTE bTrack );
+DWORD stopCDTrack( HWND hWndNotify );
+
 
 
 /*	--------------------------------------------------------------------------------
@@ -72,71 +70,64 @@ void LoadWorldSfx ( SAMPLEMAP mapping[], char numSfx  )
 	Purpose			: 
 	Parameters		: 
 	Returns			: 
-	Info			: 
+	Info			: MERGE THESE FUNCTIONS?
 */
-void LoadSfx ( unsigned long worldID )
+void LoadSfx( unsigned long worldID )
 {
+	int numSfx, i;
+	SAMPLEMAP *mapping;
 
-	LoadWorldSfx ( genericMapping, NUM_GENERIC_SFX );
+	for( i = NUM_GENERIC_SFX-1; i>=0; i-- )
+		CreateAndAddSample( &genericMapping[i] );
 
 	switch ( worldID )
 	{
-		case WORLDID_GARDEN:
-				LoadWorldSfx ( gardenMapping, NUM_GARDEN_SFX );	
-			break;
+	case WORLDID_GARDEN: numSfx = NUM_GARDEN_SFX; mapping = &gardenMapping; break;
+		//etc...
+	default: numSfx = 0; break;
 	}
-	// ENDSWITCH
+
+	if( numSfx )
+		for( i=numSfx-1; i>=0; i-- )
+			CreateAndAddSample( &mapping[i] );
 }
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
+	Function		: CreateAndAddSample
+	Purpose			: Make a sample from a mapping
+	Parameters		: 
+	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
+SAMPLE *CreateAndAddSample ( SAMPLEMAP *sampleMap )
 {
 	SAMPLE *newItem;
-	HRESULT dsrVal;
 	
-	if ( !lpDS )
+	if( !lpDS )
 	{
-#ifdef MYDEBUG
 		dprintf"Returned from Create Sample, because lpDS was NULL!!!!!!!!\n"));
-#endif
 		return NULL;
 	}
-	// ENDIF
-	if ( ( newItem = ( SAMPLE * ) JallocAlloc ( sizeof ( SAMPLE ), YES, "SAM" ) ) == NULL )
+
+	if( (newItem = (SAMPLE *)JallocAlloc(sizeof(SAMPLE),YES,"SAM")) == NULL )
 	{
-#ifdef MYDEBUG
 		dprintf"CreateAndAddSample : newItem : NULL value from JallocAlloc\n"));
-#endif
 		return NULL;
 	}
-	// ENDIF
 
-	newItem->flags = sampleMap.flags;
+	newItem->map = sampleMap;
 
-	sprintf ( newItem->idName, "%s%s%s", baseDirectory, SFX_BASE, sampleMap.sampleFileName );
+	// Create full name
+	sprintf( newItem->idName, "%s%s%s", baseDirectory, SFX_BASE, sampleMap->sampleFileName );
 
-	newItem->lpDSound = lpDS;
-
-
-
-	if ( LoadWav		( newItem->idName, newItem ) == 0 )
+	if( !LoadWav( newItem->idName, newItem ) )
 	{
-#ifdef MYDEBUG
 		dprintf"Returned from LoadWav\n"));
-#endif
 		return NULL;
 	}
-	// ENDIF
-
 	
-	if ( newItem->flags & FLAGS_3D_SAMPLE )
+	if( sampleMap->flags & FLAGS_3D_SAMPLE )
 	{
 		dprintf"Getting 3D Interface\n"));
 //		Get3DInterface ( newItem->lpdsBuffer, newItem->lpds3DBuffer );
@@ -145,270 +136,63 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 			dprintf"3D Buffer Ok\n"));
 		else
 			dprintf"Error On Interface, No 3D Buffer\n"));
-
-
 	}
-	// ENDIF
 
+	SetSampleFormat( newItem );
 
-	newItem->numChannels	= sampleMap.numChannels;
-	newItem->sampleRate		= sampleMap.sampleRate;
-	newItem->bitsPerSample	= sampleMap.bitsPerSample;
-	newItem->sampleID		= sampleMap.sampleID;
-
-	SetSampleFormat ( newItem );
-
-#ifdef MYDEBUG
-	dprintf"Calling : AddSampleToList\n"));
-#endif
-	AddSampleToList ( newItem );
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void InitSampleList ( void )
-{
-	//Init the sample list for the real samples.
-	soundList.numEntries	= 0;
-	soundList.head.next		= soundList.head.prev = &soundList.head;
-
-	// Init the buffer list for samples that are playing
-	bufferList.numEntries	= 0;
-	bufferList.head.next	= bufferList.head.prev = &bufferList.head;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void AddSampleToList ( SAMPLE *sample )
-{
-#ifdef MYDEBUG
-	dprintf"Adding Sample To List - sample->next : (&%x)\n", sample->next));
-#endif
-	if ( sample->next == NULL )
-	{
-#ifdef MYDEBUG
-		dprintf"Adding Sample To List\n"));
-#endif
-		soundList.numEntries++;
-		sample->prev				= &soundList.head;
-		sample->next				= soundList.head.next;
-		soundList.head.next->prev	= sample;
-		soundList.head.next			= sample;
-	}
-	// ENDIF
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void AddBufSampleToList ( BUFSAMPLE *bufSample )
-{
-#ifdef MYDEBUG
-	dprintf"Adding Buffer Sample To List - bufSample->next : (&%x)\n", bufSample->next));
-#endif
-	if ( bufSample->next == NULL )
-	{
-#ifdef MYDEBUG
-		dprintf"Adding Buffer Sample To List\n"));
-#endif
-		bufferList.numEntries++;
-		bufSample->prev				= &bufferList.head;
-		bufSample->next				= bufferList.head.next;
-		bufferList.head.next->prev	= bufSample;
-		bufferList.head.next		= bufSample;
-	}
-	// ENDIF
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void RemoveSampleFromList ( SAMPLE *sample )
-{
-	if ( sample->next == NULL )
-		return;
-
-	sample->prev->next	= sample->next;
-	sample->next->prev	= sample->prev;
-	sample->next		= NULL;
-	soundList.numEntries--;
-
-	JallocFree ( ( UBYTE ** ) &sample );
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void RemoveBufSampleFromList ( BUFSAMPLE *bufSample )
-{
-	if ( bufSample->next == NULL )
-		return;
-
-	bufSample->prev->next	= bufSample->next;
-	bufSample->next->prev	= bufSample->prev;
-	bufSample->next		= NULL;
-	bufferList.numEntries--;
-
-	ReleaseBuffer ( bufSample->lpdsBuffer );
-
-//	bufSample->lpdsBuffer->lpVtbl->Release ( bufSample->lpdsBuffer );
-
-	JallocFree ( ( UBYTE ** ) &bufSample );
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void FreeSampleList ( void )
-{
-	SAMPLE *cur,*next;
-
-	// check if any elements in list
-	if ( soundList.numEntries == 0 )
-		return;
-
-	dprintf"Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries));
-
-	// traverse enemy list and free elements
-	for ( cur = soundList.head.next; cur != &soundList.head; cur = next )
-	{
-		next = cur->next;
-
-		RemoveSampleFromList ( cur );
-	}
-	// ENDFOR
-
-	// initialise list for future use
-	InitSampleList();
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-void FreeBufSampleList ( void )
-{
-	BUFSAMPLE *cur,*next;
-
-	// check if any elements in list
-	if ( bufferList.numEntries == 0 )
-		return;
-
-	dprintf"Freeing linked list : BUFSAMPLE : (%d elements)\n",bufferList.numEntries));
-
-	// traverse enemy list and free elements
-	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
-	{
-		next = cur->next;
-
-		RemoveBufSampleFromList ( cur );
-	}
-	// ENDFOR
-
-	// initialise list for future use
-	InitSampleList();
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-SAMPLE *GetEntryFromSampleList ( int num )
-{
-	SAMPLE *next, *cur;
-
-	for ( cur = soundList.head.next; cur != &soundList.head; cur = next )
-	{
-		next = cur->next;
-		
-		if ( cur->sampleID == num )
-		{
-			dprintf"cur->sampleID %d - num %d\n", cur->sampleID, num));
-			return cur;
-		}
-		// ENDIF
-	}
-	// ENDFOR
-
-#ifdef MYDEBUG
-	dprintf"sampleID : %d - numEntries : %d\n", cur->sampleID, soundList.numEntries));
-#endif
-	return NULL;
+	AddSample( newItem );
 }
 
 
 /*	--------------------------------------------------------------------------------
 	Function		: PlaySample
-	Purpose			: plays a sample....doh !
-	Parameters		: short,VETOR,short,short
-	Returns			: int
-	Info			: 
+	Purpose			: plays a sample
+	Parameters		: ID, position, radius, volume, pitch
+	Returns			: success?
+	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
 */
-int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
+int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch )
 {
 	SAMPLE *sample;
-
 	BUFSAMPLE *bufSample;
+	unsigned long bufStatus, vol=volume;
+	long pan;
+	float att, dist;
+	VECTOR diff;
 
-	unsigned long bufStatus;
+	if(!lpDS) return FALSE;	// No DirectSound object!
 
-	if (!lpDS) return 0;	// No DirectSound object!
+	if( !(sample = FindSample(num)) ) return FALSE; // Sfx not in bank
 
-	if (!(sample = GetEntryFromSampleList ( num ))) return 0;
-
-	if (sample->flags & FLAGS_3D_SAMPLE)
+	if( sample->map->flags & FLAGS_3D_SAMPLE )
 	{
-		if ( sample->lpds3DBuffer )
+		if( sample->lpds3DBuffer )
 		{
 			sample->lpds3DBuffer->lpVtbl->SetMode ( sample->lpds3DBuffer, DS3DMODE_NORMAL, DS3D_IMMEDIATE );
 			Set3DPosition ( sample->lpds3DBuffer, pos->v[X], pos->v[Y], pos->v[Z] );
 		}
 	}
+	else if( pos )
+	{
+		att = (radius)?radius:DEFAULT_SFX_DIST;
+
+		SubVector2D( &diff, pos, &frog[0]->actor->pos );
+		// Volume attenuation - check also for radius != 0 and use instead of default
+		dist = Magnitude( &diff );
+		if( dist > att )
+			return 0;
+		
+		vol *= (att-dist)/att;
+
+		//work out pan
+		dist = Aabs(atan2(diff.v[X], diff.v[Z]));
+		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
+	}
 
 	// Now test if the sample is playing if it is then make an instance of it to play.
+	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
-	sample->lpdsBuffer->lpVtbl->GetStatus ( sample->lpdsBuffer, &bufStatus );
-
-	if ( bufStatus & DSBSTATUS_PLAYING	)
+	if( bufStatus & DSBSTATUS_PLAYING )
 	{
 		/*	What we need to do here is create an instance of the buffer and store it in the buffer list.
 			Have a clean buffer function that will go though and check if the sample is playing or not,
@@ -416,44 +200,24 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 		*/
 
 		// Create the buffer sample.
-		if ( !(bufSample = (BUFSAMPLE *) JallocAlloc(sizeof(BUFSAMPLE), YES, "BUFSAM" )) )
-		{
-			return NULL;
-		}
+		if( !(bufSample = (BUFSAMPLE *)JallocAlloc(sizeof(BUFSAMPLE), YES, "BUFSAM" )) ) return NULL;
 
-		lpDS->lpVtbl->DuplicateSoundBuffer ( lpDS, sample->lpdsBuffer, &(bufSample->lpdsBuffer ) );
+		lpDS->lpVtbl->DuplicateSoundBuffer( lpDS, sample->lpdsBuffer, &(bufSample->lpdsBuffer) );
 
-		AddBufSampleToList ( bufSample );
+		AddBufSample( bufSample );
 
-		bufSample->lpdsBuffer->lpVtbl->Play ( bufSample->lpdsBuffer, 0, 0, 0 );
+		bufSample->lpdsBuffer->lpVtbl->SetVolume( bufSample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
+		bufSample->lpdsBuffer->lpVtbl->SetPan( bufSample->lpdsBuffer, pan );
+		bufSample->lpdsBuffer->lpVtbl->Play( bufSample->lpdsBuffer, 0, 0, 0 );
 	}
 	else
 	{
-		sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
+		sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
+		sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
+		sample->lpdsBuffer->lpVtbl->Play( sample->lpdsBuffer, 0, 0, 0 );
 	}
-}
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: PlayActorBasedSample
-	Purpose			: 
-	Parameters		: sample num, actor, volume, pitch
-	Returns			: 
-*/
-int PlayActorBasedSample( short num, ACTOR* act, short tempVol, short pitch )
-{
-	return 0;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: PlayActorBasedSample
-	Purpose			: 
-	Parameters		: sample num, playback volume, volume, pitch
-	Returns			: 
-*/
-int PlaySampleNot3D( short num, UBYTE vol, short tempVol, short pitch )
-{
-	return 0;
+	return TRUE;
 }
 
 
@@ -464,15 +228,15 @@ int PlaySampleNot3D( short num, UBYTE vol, short tempVol, short pitch )
 	Returns			: void
 	Info			: 
 */
-void SetSampleFormat ( SAMPLE *sample )
+void SetSampleFormat( SAMPLE *sample )
 {
 	WAVEFORMATEX	wfx;
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
 	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
-	wfx.nChannels		= sample->numChannels; 
-	wfx.nSamplesPerSec	= sample->sampleRate; 
-	wfx.wBitsPerSample	= sample->bitsPerSample; 
+	wfx.nChannels		= sample->map->numChannels; 
+	wfx.nSamplesPerSec	= sample->map->sampleRate; 
+	wfx.wBitsPerSample	= sample->map->bitsPerSample; 
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
@@ -487,28 +251,10 @@ void SetSampleFormat ( SAMPLE *sample )
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: PlaySampleRadius
-	Purpose			: 
-	Parameters		: short,VECTOR,short,short,float
-	Returns			: int
-	Info			: 
-*/
-int PlaySampleRadius ( short num, VECTOR *pos, short vol, short pitch, float radius )
-{
-/*	SAMPLE *sample;
-
-	sample = GetEntryFromSampleList ( num );
-
-	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );*/
-}
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: PlaySampleRadius
-	Purpose			: 
-	Parameters		: short,VECTOR,short,short,float
-	Returns			: int
+	Function		: Clean Buffer Samples
+	Purpose			: I have no idea
+	Parameters		: 
+	Returns			: 
 	Info			: 
 */
 void CleanBufferSamples ( void )
@@ -524,14 +270,12 @@ void CleanBufferSamples ( void )
 #endif
 		return;
 	}
-	// ENDIF
 
 	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
 	{
 		next = cur->next;
 
 		// Check if sample is playing
-
 		cur->lpdsBuffer->lpVtbl->GetStatus ( cur->lpdsBuffer, &bufStatus );
 
 		if ( !( bufStatus & DSBSTATUS_PLAYING )	)
@@ -539,24 +283,88 @@ void CleanBufferSamples ( void )
 #ifdef MYDEBUG
 			dprintf"Releasing Buffered Sample\n"));
 #endif
-//			cur->lpdsBuffer->lpVtbl->Release( cur->lpdsBuffer );
-			RemoveBufSampleFromList ( cur );
+			RemoveBufSample( cur );
 
 			if ( bufferList.numEntries == 0 )
 				return;
-			// ENDIF
 		}
-		else
-		{
-#ifdef MYDEBUG
-			dprintf"Sample Still Playing\n"));
-#endif
-		}
-		// ENDIF
 	}
-	// ENDFOR
+}
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: AddAmbientSound
+	Purpose 	: Create an ambient sound
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+AMBIENT_SOUND *AddAmbientSound(int num, VECTOR *pos, long radius, int vol, short pitch, float freq, float randFreq, ACTOR *follow )
+{
+	AMBIENT_SOUND *ptr = &ambientSoundList.head;
+	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
+	
+	if( pos ) SetVector( &ambientSound->pos, pos );
+	if( follow ) ambientSound->follow = follow;
+
+	ambientSound->volume = vol;
+	ambientSound->num = num;
+	ambientSound->pitch = pitch;
+	ambientSound->radius = radius;
+
+	ambientSound->freq = freq*60;
+	ambientSound->randFreq = randFreq*60;
+
+	ambientSound->prev = ptr;
+	ambientSound->next = ptr->next;
+	ptr->next->prev = ambientSound;
+	ptr->next = ambientSound;
+	ambientSoundList.numEntries++;
+
+	return ambientSound;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: UpdateAmbientSounds
+	Purpose 	: Start sound effect if close enough, if timeout, etc
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void UpdateAmbientSounds()
+{
+	AMBIENT_SOUND *amb,*amb2;
+	VECTOR *pos;
+
+	// Silence ambients if paused or level over?
+	if((gameState.mode == PAUSE_MODE) || levelIsOver )
+		return;
+
+	// Update each ambient in turn
+	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
+	{
+		amb2 = amb->next;
+
+		// Timeout, so play a new sound
+		if( actFrameCount < amb->counter )
+			continue;
+
+		// If it is attached to a platform, make ambient follow that platform
+		if( amb->follow )
+			SetVector( &amb->pos, &amb->follow->pos );
+
+		// If sound doesn't have a source
+		if( !MagnitudeSquared(&amb->pos) )
+			pos = NULL;
+		else
+			pos = &amb->pos;
+
+		PlaySample( amb->num, &amb->pos, amb->radius, amb->volume, amb->pitch );
+
+		// Freq and randFreq are cunningly pre-multiplied by 60
+		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
+	}
 }
 
 
@@ -733,10 +541,16 @@ void PrepareSongForLevel(short worldID,short levelID)
 	Returns			: void
 	Info			: 
 */
-void PrepareSong ( char num )
+void PrepareSong( char num )
 {
 	// play cd audio track here....
 	playCDTrack ( winInfo.hWndMain, num );
+}
+
+
+void StopSong( )
+{
+	stopCDTrack( winInfo.hWndMain );
 }
 
 
@@ -771,7 +585,6 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
         // Failed to open device. Don't close it; just return error.
         return dwReturn;
     }
-	// ENDIF
 
     // The device opened successfully; get the device ID.
     wDeviceID = mciOpenParms.wDeviceID;
@@ -784,7 +597,6 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
         mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
 		return dwReturn;
     }
-	// ENDIF
 	
 	// Begin playback from the given track and play until the beginning 
     // of the next track. The window procedure function for the parent 
@@ -800,7 +612,6 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
         mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
         return dwReturn;
     }
-	// ENDIF
 
 	mciDevice = wDeviceID;
 
@@ -808,4 +619,188 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: FindSample
+	Purpose			: Search the list for the required sound
+	Parameters		: ID
+	Returns			: Sample or NULL
+	Info			: 
+*/
+SAMPLE *FindSample( int num )
+{
+	SAMPLE *next, *cur;
+
+	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	{
+		next = cur->next;
+		
+		if( cur->map->sampleID == num )
+			return cur;
+	}
+
+	return NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: DULL LIST FUNCTIONS
+	Purpose			: Init, Add, Sub, Free etc...
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void InitSampleList( )
+{
+	//Init the sample list for the real samples.
+	soundList.numEntries	= 0;
+	soundList.head.next		= soundList.head.prev = &soundList.head;
+
+	// Init the buffer list for samples that are playing
+	bufferList.numEntries	= 0;
+	bufferList.head.next	= bufferList.head.prev = &bufferList.head;
+}
+
+
+void InitAmbientSoundList()
+{
+	ambientSoundList.head.next = ambientSoundList.head.prev = &ambientSoundList.head;
+	ambientSoundList.numEntries = 0;
+}
+
+
+void AddSample( SAMPLE *sample )
+{
+#ifdef MYDEBUG
+	dprintf"Adding Sample To List - sample->next : (&%x)\n", sample->next));
+#endif
+	if( !sample->next )
+	{
+		soundList.numEntries++;
+		sample->prev				= &soundList.head;
+		sample->next				= soundList.head.next;
+		soundList.head.next->prev	= sample;
+		soundList.head.next			= sample;
+	}
+}
+
+
+void AddBufSample( BUFSAMPLE *bufSample )
+{
+#ifdef MYDEBUG
+	dprintf"Adding Buffer Sample To List - bufSample->next : (&%x)\n", bufSample->next));
+#endif
+	if( !bufSample->next )
+	{
+		bufferList.numEntries++;
+		bufSample->prev				= &bufferList.head;
+		bufSample->next				= bufferList.head.next;
+		bufferList.head.next->prev	= bufSample;
+		bufferList.head.next		= bufSample;
+	}
+}
+
+
+void RemoveSample( SAMPLE *sample )
+{
+	if( !sample->next )
+		return;
+
+	sample->prev->next	= sample->next;
+	sample->next->prev	= sample->prev;
+	sample->next		= NULL;
+	soundList.numEntries--;
+
+	JallocFree ( ( UBYTE ** ) &sample );
+}
+
+
+void RemoveBufSample( BUFSAMPLE *bufSample )
+{
+	if( !bufSample->next )
+		return;
+
+	bufSample->prev->next	= bufSample->next;
+	bufSample->next->prev	= bufSample->prev;
+	bufSample->next		= NULL;
+	bufferList.numEntries--;
+
+	ReleaseBuffer ( bufSample->lpdsBuffer );
+
+	JallocFree ( ( UBYTE ** ) &bufSample );
+}
+
+
+void FreeSampleList( void )
+{
+	SAMPLE *cur,*next;
+
+	// check if any elements in list
+	if( !soundList.numEntries )
+		return;
+
+	dprintf"Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries));
+
+	// traverse enemy list and free elements
+	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	{
+		next = cur->next;
+
+		RemoveSample( cur );
+	}
+
+	// initialise list for future use
+	InitSampleList();
+}
+
+
+void FreeBufSampleList ( void )
+{
+	BUFSAMPLE *cur,*next;
+
+	// check if any elements in list
+	if( !bufferList.numEntries )
+		return;
+
+	dprintf"Freeing linked list : BUFSAMPLE : (%d elements)\n",bufferList.numEntries));
+
+	// traverse enemy list and free elements
+	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
+	{
+		next = cur->next;
+
+		RemoveBufSample( cur );
+	}
+
+	// initialise list for future use
+	InitSampleList();
+}
+
+
+void SubAmbientSound(AMBIENT_SOUND *ambientSound)
+{
+	ambientSound->prev->next = ambientSound->next;
+	ambientSound->next->prev = ambientSound->prev;
+	ambientSoundList.numEntries--;
+}
+
+
+void FreeAmbientSoundList( )
+{
+	AMBIENT_SOUND *cur,*next;
+
+	// check if any elements in list
+	if( !ambientSoundList.numEntries )
+		return;
+
+	// traverse enemy list and free elements
+	for( cur = ambientSoundList.head.next; cur != &ambientSoundList.head; cur = next )
+	{
+		next = cur->next;
+
+		SubAmbientSound( cur );
+	}
+
+	// initialise list for future use
+	InitAmbientSoundList();
+}
 

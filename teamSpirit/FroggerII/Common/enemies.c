@@ -73,7 +73,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		*/
 		AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
 		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
-		PlaySample(42,NULL,192,128);
+//		PlaySample(42,NULL,192,128);
 		frog[num]->action.safe = 25;
 	}
 	else
@@ -81,7 +81,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		/* 
 		Check for NME flags and do different effects
 		*/
-		PlaySample(110,NULL,192,128);
+//		PlaySample(110,NULL,192,128);
 		AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
 		frog[num]->action.dead = 50;
 		frog[num]->action.healthPoints = 3;
