@@ -908,10 +908,7 @@ void AddTrailElement( SPECFX *fx, int i )
 		CrossProduct( (VECTOR *)&cross, (VECTOR *)&q, &upVec );
 		MakeUnit( (VECTOR *)&cross );
 		t = DotProduct( (VECTOR *)&q, &upVec );
-		if( cross.x >= 0 )
-			cross.w = acos(t);
-		else
-			cross.w = -acos(t);
+		cross.w = -acos(t);
 		GetQuaternionFromRotation( &q, &cross );
 		QuaternionToMatrix( &q, (MATRIX *)fx->particles[i].rMtrx );
 	}

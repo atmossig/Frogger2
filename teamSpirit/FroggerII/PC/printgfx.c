@@ -649,9 +649,9 @@ BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int
 
 void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex )
 {
-	VECTOR tempVect, m;
+	VECTOR tempVect, m, fwd;
 	D3DTLVERTEX vT[4], vT2[3];
-	QUATERNION cross, q;
+	QUATERNION cross, q, up;
 	long i, zeroZ=0;
 	float t;
 
@@ -672,37 +672,34 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 	vT[1].sz = -size;
 	vT[1].tu = 1;
 	vT[1].tv = 0;
-	vT[1].color = D3DRGBA(0,0,0,alpha/255.0);
-	vT[1].specular = D3DRGB(0,0,0);
+	vT[1].color = vT[0].color;
+	vT[1].specular = vT[0].specular;
 
 	vT[2].sx = size;
 	vT[2].sy = offset;
 	vT[2].sz = size;
 	vT[2].tu = 1;
 	vT[2].tv = 1;
-	vT[2].color = D3DRGBA(0,0,0,alpha/255.0);
-	vT[2].specular = D3DRGB(0,0,0);
+	vT[2].color = vT[0].color;
+	vT[2].specular = vT[0].specular;
 	
 	vT[3].sx = -size;
 	vT[3].sy = offset;
 	vT[3].sz = size;
 	vT[3].tu = 0;
 	vT[3].tv = 1;
-	vT[3].color = D3DRGBA(0,0,0,alpha/255.0);
-	vT[3].specular = D3DRGB(0,0,0);
+	vT[3].color = vT[0].color;
+	vT[3].specular = vT[0].specular;
 
 	// Translate to current fx pos and push
 	guTranslateF( tMtrx, pos->v[X], pos->v[Y], pos->v[Z] );
 	PushMatrix( tMtrx );
 
 	// Rotate to be around normal
-	CrossProduct( (VECTOR *)&cross, &normal, &upVec );
+	CrossProduct( (VECTOR *)&cross, normal, &upVec );
 	MakeUnit( (VECTOR *)&cross );
 	t = DotProduct( normal, &upVec );
-	if( cross.x >= 0 )
-		cross.w = acos(t);
-	else
-		cross.w = -acos(t);
+	cross.w = -acos(t);
 	GetQuaternionFromRotation( &q, &cross );
 	QuaternionToMatrix( &q,(MATRIX *)rMtrx);
 	PushMatrix( rMtrx );
@@ -718,8 +715,8 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 		// Assign back to vT array
 		vT[i].sx = m.v[X];
 		vT[i].sy = m.v[Y];
-		vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
 		if( !m.v[Z] ) zeroZ++;
+		else vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
 	}
 
 	if( tex && !zeroZ )
@@ -739,99 +736,103 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 
 void DrawFXRipple( SPECFX *ripple )
 {
-	TEXENTRY *tEntry;
-	long i;
+	VECTOR tempVect, m, fwd;
 	D3DTLVERTEX vT[4], vT2[3];
-	VECTOR tempVect[4], m[4];
-	static short f[6] = {0,1,2,0,2,3};
-	QUATERNION q;
+	TEXENTRY *tEntry;
+	QUATERNION q1, q2, q3;
+	long i, zeroZ=0;
+	float t;
 
 	if(ripple->deadCount)
-	return;
+		return;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+
+	vT[0].sx = ripple->scale.v[X];
+	vT[0].sy = 0;
+	vT[0].sz = ripple->scale.v[Z];
+	vT[0].tu = 0;
+	vT[0].tv = 0;
+	vT[0].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
+	vT[0].specular = D3DRGB(0,0,0);
+
+	vT[1].sx = -ripple->scale.v[X];
+	vT[1].sy = 0;
+	vT[1].sz = ripple->scale.v[Z];
+	vT[1].tu = 1;
+	vT[1].tv = 0;
+	vT[1].color = vT[0].color;
+	vT[1].specular = vT[0].specular;
+
+	vT[2].sx = ripple->scale.v[X];
+	vT[2].sy = 0;
+	vT[2].sz = -ripple->scale.v[Z];
+	vT[2].tu = 0;
+	vT[2].tv = 1;
+	vT[2].color = vT[0].color;
+	vT[2].specular = vT[0].specular;
 	
-	tempVect[0].v[X] = -ripple->scale.v[X];
-	tempVect[0].v[Y] = 0;
-	tempVect[0].v[Z] = ripple->scale.v[Z];
+	vT[3].sx = -ripple->scale.v[X];
+	vT[3].sy = 0;
+	vT[3].sz = -ripple->scale.v[Z];
+	vT[3].tu = 1;
+	vT[3].tv = 1;
+	vT[3].color = vT[0].color;
+	vT[3].specular = vT[0].specular;
 
-	tempVect[1].v[X] = ripple->scale.v[X];
-	tempVect[1].v[Y] = 0;
-	tempVect[1].v[Z] = ripple->scale.v[Z];
+	// Translate to current fx pos and push
+	guTranslateF( tMtrx, ripple->origin.v[X], ripple->origin.v[Y], ripple->origin.v[Z] );
+	PushMatrix( tMtrx );
 
-	tempVect[2].v[X] = ripple->scale.v[X];
-	tempVect[2].v[Y] = 0;
-	tempVect[2].v[Z] = -ripple->scale.v[Z];
-
-	tempVect[3].v[X] = -ripple->scale.v[X];
-	tempVect[3].v[Y] = 0;
-	tempVect[3].v[Z] = -ripple->scale.v[Z];
+	// Rotate to be around normal
+	CrossProduct( (VECTOR *)&q1, &ripple->normal, &upVec );
+	MakeUnit( (VECTOR *)&q1 );
+	t = DotProduct( &ripple->normal, &upVec );
+	q1.w = -acos(t);
+	GetQuaternionFromRotation( &q2, &q1 );
 
 	if( ripple->type == FXTYPE_GARIBCOLLECT )
 	{
-		SetVector( (VECTOR *)&q, &ripple->normal );
-		q.w = ripple->angle;
-
-		for( i=0; i<4; i++ )
-			RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
+		// Rotate around axis
+		SetVector( (VECTOR *)&q1, &ripple->normal );
+		q1.w = ripple->angle;
+		GetQuaternionFromRotation( &q3, &q1 );
+		QuaternionMultiply( &q1, &q2, &q3 );
 	}
-
-	for(i=0; i<4; i++)
-	{
-		AddToVector( &tempVect[i], &ripple->origin );
-		XfmPoint (&m[i],&tempVect[i]);
-	}
+	else SetQuaternion( &q1, &q2 );
 	
-	if (m[0].v[Z])
-	if (m[1].v[Z])
-	if (m[2].v[Z])
-	if (m[3].v[Z])
+	QuaternionToMatrix( &q1,(MATRIX *)rMtrx);
+	PushMatrix( rMtrx );
+
+	// Transform point by combined matrix
+	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+
+	for( i=0; i<4; i++ )
 	{
+		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.v[X], &tempVect.v[Y], &tempVect.v[Z] );
+		XfmPoint( &m, &tempVect );
 
-		vT[0].sx = m[1].v[X];
-		vT[0].sy = m[1].v[Y];
-		vT[0].sz = (m[1].v[Z]+DIST)*0.0005;
-		vT[0].tu = 0;
-		vT[0].tv = 0;
-		vT[0].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
-		vT[0].specular = D3DRGB(0,0,0);
-
-		vT[1].sx = m[0].v[X];
-		vT[1].sy = m[0].v[Y];
-		vT[1].sz = (m[0].v[Z]+DIST)*0.0005;
-		vT[1].tu = 1;
-		vT[1].tv = 0;
-		vT[1].color = vT[0].color;
-		vT[1].specular = D3DRGB(0,0,0);
-
-		vT[2].sx = m[2].v[X];
-		vT[2].sy = m[2].v[Y];
-		vT[2].sz = (m[2].v[Z]+DIST)*0.0005;
-		vT[2].tu = 0;
-		vT[2].tv = 1;
-		vT[2].color = vT[0].color;
-		vT[2].specular = D3DRGB(0,0,0);
-
-		vT[3].sx = m[3].v[X];
-		vT[3].sy = m[3].v[Y];
-		vT[3].sz = (m[3].v[Z]+DIST)*0.0005;
-		vT[3].tu = 1;
-		vT[3].tv = 1;
-		vT[3].color = vT[0].color;
-		vT[3].specular = D3DRGB(0,0,0);
-
-		tEntry = ((TEXENTRY *)ripple->tex);
-		if (tEntry)
-		{
-			memcpy( &vT2[0], &vT[2], sizeof(D3DTLVERTEX) );
-			memcpy( &vT2[1], &vT[1], sizeof(D3DTLVERTEX) );
-			memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
-			Clip3DPolygon( vT, tEntry->hdl );
-			Clip3DPolygon( vT2, tEntry->hdl );
-		}
+		// Assign back to vT array
+		vT[i].sx = m.v[X];
+		vT[i].sy = m.v[Y];
+		if( !m.v[Z] ) zeroZ++;
+		else vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
 	}
+
+	tEntry = ((TEXENTRY *)ripple->tex);
+	if( tEntry && !zeroZ )
+	{
+		memcpy( &vT2[0], &vT[2], sizeof(D3DTLVERTEX) );
+		memcpy( &vT2[1], &vT[1], sizeof(D3DTLVERTEX) );
+		memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
+		Clip3DPolygon( vT, tEntry->hdl );
+		Clip3DPolygon( vT2, tEntry->hdl );
+	}
+
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
 }
 
 void DrawFXRing( SPECFX *ring )
@@ -865,10 +866,7 @@ void DrawFXRing( SPECFX *ring )
 	CrossProduct( (VECTOR *)&cross, (VECTOR *)&q1, &upVec );
 	MakeUnit( (VECTOR *)&cross );
 	t = DotProduct( (VECTOR *)&q1, &upVec );
-	if( cross.x >= 0 )
-		cross.w = acos(t);
-	else
-		cross.w = -acos(t);
+	cross.w = -acos(t);
 	GetQuaternionFromRotation( &q3, &cross );
 
 	// Combine the rotations and push
@@ -897,8 +895,8 @@ void DrawFXRing( SPECFX *ring )
 			// Assign back to vT array
 			vT[j].sx = m.v[X];
 			vT[j].sy = m.v[Y];
-			vT[j].sz = (m.v[Z]+DIST)*0.0005;
 			if( !m.v[Z] ) zeroZ++;
+			else vT[j].sz = (m.v[Z]+DIST)*0.0005;
 
 			vT[j].color = colour;
 
@@ -906,7 +904,7 @@ void DrawFXRing( SPECFX *ring )
 		}
 
 		tEntry = ((TEXENTRY *)ring->tex);
-		if( tEntry && !zeroZ)
+		if( tEntry && !zeroZ )
 		{
 			memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
 			memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
@@ -993,10 +991,7 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 		CrossProduct( (VECTOR *)&cross, &normal, &upVec );
 		MakeUnit( (VECTOR *)&cross );
 		t = DotProduct( &normal, &upVec );
-		if( cross.x >= 0 )
-			cross.w = acos(t);
-		else
-			cross.w = -acos(t);
+		cross.w = -acos(t);
 		GetQuaternionFromRotation( &q, &cross );
 		QuaternionToMatrix( &q, (MATRIX *)trail->particles[i].rMtrx );
 	}
