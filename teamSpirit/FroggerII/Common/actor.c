@@ -127,7 +127,7 @@ void DrawActorList()
 							else
 								TestDistanceFromFrog = 0;
 							
-							if (cur->flags & ~ACTOR_DRAW_NEVER)
+						//	if (cur->flags & ~ACTOR_DRAW_NEVER)
 								DrawActor(cur->actor);
 
 							EndTimer(6);
