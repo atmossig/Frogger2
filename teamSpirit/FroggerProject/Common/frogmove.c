@@ -671,7 +671,8 @@ void FroggerHop(int pl)
 			frog[pl]->draw = 0;
 	}
 
-	frog[pl]->actor->shadow->draw = 1;
+	if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
+		frog[pl]->actor->shadow->draw = 1;
 
 	if( currTile[pl]->state >= TILESTATE_CONVEYOR || currTile[pl]->state == TILESTATE_ICE )
 	{
@@ -1664,7 +1665,6 @@ void CheckTileState(GAMETILE *tile, int pl)
 				fixedPos = 1;
 				fixedDir = 1;
 				SetVectorFF(&camSource, &currCamSource);
-				frog[pl]->actor->shadow->draw = 0;
 			}
 			else
 				KillMPFrog(pl);
