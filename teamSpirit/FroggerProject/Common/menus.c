@@ -1504,7 +1504,8 @@ void RunFrontendGameLoop (void)
 #elif PC_VERSION
 	titleHudText[0]->yPos = titleHudY[0][0] + 400;
 	titleHudText[1]->yPos = titleHudY[0][1] - 400;
-	titleHudText[3]->xPos = titleHudX[0][3] + 100 - CalcStringWidth(titleHudText[3]->text,(MDX_FONT *)fontSmall,1)*6.4;
+	titleHudText[3]->xPos = titleHudX[0][3] + 100 - CalcStringWidth(titleHudText[3]->text,(MDX_FONT *)fontSmall,1)*
+		6.4*((!rHardware&& rXRes < 640)*2);
 #endif
 
 	if(hudNum == 5)
