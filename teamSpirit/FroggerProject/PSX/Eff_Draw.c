@@ -2,6 +2,7 @@
 #include "specfx.h"
 #include "Eff_Draw.h"
 #include "cam.h"
+#include "maths.h"
 
 
 
@@ -277,7 +278,7 @@ void DrawFXRipple( SPECFX *ripple )
 // Rotate to be around normal
 	CrossProductFFF((FVECTOR *)&q1, &ripple->normal, &upVec ); 
 	MakeUnit((FVECTOR *)&q1 );								   
-	t = DotProduct( &ripple->normal, &upVec );			  	   
+	t = DotProductFF( &ripple->normal, &upVec );			  	   
 	q1.w = -arccos(t);								   
 	fixedGetQuaternionFromRotation( &q2, &q1 );		   
 													   
@@ -353,7 +354,7 @@ void DrawFXRing( SPECFX *ring )
 // Rotate to be around normal
  	CrossProductFFF((FVECTOR *)&cross, (FVECTOR *)&q1, &upVec );
  	MakeUnit((FVECTOR *)&cross );
-	t = DotProduct( (FVECTOR *)&q1, &upVec );
+	t = DotProductFF( (FVECTOR *)&q1, &upVec );
 	cross.w = -arccos(t);
  	fixedGetQuaternionFromRotation( &q3, &cross );
  
@@ -461,9 +462,9 @@ void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
  
  		SubVectorFFS( &normal, &currCamSource[0], &pos );	  //FFS??
  		MakeUnit( &normal );
- 		CrossProduct( (FVECTOR *)&cross, &normal, &upVec );
+ 		CrossProductFFF( (FVECTOR *)&cross, &normal, &upVec );
  		MakeUnit( (FVECTOR *)&cross );
- 		t = DotProduct( &normal, &upVec );
+ 		t = DotProductFF( &normal, &upVec );
  		cross.w = arccos(t);
  		fixedGetQuaternionFromRotation( &q, &cross );
 // 		QuaternionToMatrix( &q, (MATRIX *)trail->particles[i].rMtrx );

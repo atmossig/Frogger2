@@ -577,7 +577,7 @@ int main ( )
 		//	texture = textureFindCRCInAllBanks ( CRC );  // Testing........
 
 
-		InitNewBabyAnim();
+//		InitNewBabyAnim();
 
 
 		while ( !quitMainLoop )
