@@ -28,13 +28,20 @@ extern long SCREEN_HEIGHT;
 //extern LPDIRECT3DDEVICE2		pDirect3DDevice;
 //extern LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 extern long a565Card;
-
 extern int dumpScreen;
 extern int prim;
-
 extern unsigned char doKeyMap;
 extern DWORD keyIndex;
 extern long kMapSet;
+extern float fStart;
+extern float fEnd;
+extern D3DTLVERTEX *screenVtxList;
+extern unsigned long screenGrabbed;
+extern LPDIRECTDRAWSURFACE *screenTextureList2;
+extern LPDIRECTDRAWSURFACE *screenTextureList;
+extern unsigned long screenTexList[1000];
+
+void ShowLoadScreen(void);
 
 long DirectXInit(HWND window, long hardware );
 void SetupRenderstates(void);
@@ -54,18 +61,11 @@ void DrawBatchedPolys(void);
 extern void ReleaseSurface(LPDIRECTDRAWSURFACE surf);
 
 extern void dp(char *format, ...);
-extern float fStart;
-extern float fEnd;
 
 extern void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *pal );
 extern LPDIRECTDRAWSURFACE *InitScreenTextureList(void);
 void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, unsigned long *tex);
-extern LPDIRECTDRAWSURFACE *screenTextureList;
 extern D3DTLVERTEX *InitScreenVertexList(void);
-extern D3DTLVERTEX *screenVtxList;
-extern unsigned long screenGrabbed;
-extern LPDIRECTDRAWSURFACE *screenTextureList2;
-extern unsigned long screenTexList[1000];
 extern void ShowDesignScreen(char *filename);
 void PrintTextureInfo(void);
 

@@ -1,40 +1,22 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+
+	File		: config.cpp
+	Programmer	:
+	Date		: 
+
+----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
-#include <windowsx.h>
-#include <crtdbg.h>
-#include <commctrl.h>
-#include <cguid.h>
-#include <ddraw.h>
-#include <d3d.h>
-#include <dsound.h>
-#include <dinput.h>
-#include <dplay.h>
-#include <dplobby.h>
 #include <stdio.h>
-#include "network.h"
-#include "netchat.h"
-#include "netgame.h"
-#include "config.h"
-#include "mdxDDraw.h"
 
 extern "C" {
 
-#include <ultra64.h>
-#include "block.h"
-#include "directx.h"
-#include "controll.h"
-#include "types.h"
-#include "define.h"
-#include "font.h"
-#include "actor.h"
-#include "overlays.h"
-#include "frogger.h"
-#include "maths.h"
-#include "babyfrogs.h"
-#include "game.h"
-#include "specfx.h"
-#include "audio.h"
-#include "frogmove.h"
+#include "ultra64.h"
+#include "incs.h"
+#include "config.h"
 
 extern unsigned long USE_MENUS;
 extern long winMode;
@@ -45,6 +27,7 @@ extern unsigned long synchRecovery;
 extern unsigned long rKeying;
 extern unsigned long rPlaying;
 extern int audioEnabled;
+}
 
 CONFIG cfgOptList[] = 
 {
@@ -56,6 +39,7 @@ CONFIG cfgOptList[] =
 };
 
 const char *cfg_file = "frogcfg.txt";
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetArgs
@@ -140,7 +124,7 @@ void GetArgs(char *arglist)
 
 void ProcessCfgLine(char *line)
 {
-	unsigned long lenCmd,ccmd;
+	unsigned long lenCmd;
 	CONFIG *cur;
 
 	// Skip leading spaces and comments
@@ -198,4 +182,3 @@ void ReadConfigFile (void)
 	}
 }
 
-}

@@ -43,6 +43,8 @@ extern "C"
 #include "software.h"
 #include "mavis.h"
 
+short *loadScr;
+
 long SCREEN_WIDTH=640;	//320
 long SCREEN_HEIGHT=480;	//240
 long HALF_WIDTH = 320;
@@ -55,6 +57,9 @@ float fEnd = 0.6;
 LPDIRECTDRAWSURFACE *screenTextureList;
 LPDIRECTDRAWSURFACE *screenTextureList2;
 D3DTLVERTEX *screenVtxList;
+unsigned long screenGrabbed = 0;
+
+D3DTEXTUREHANDLE lastH = NULL;
 
 long is565;
 void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRECTDRAWSURFACE *to2);
@@ -64,121 +69,6 @@ extern long numPixelsDrawn;
 
 #define FOGADJ(x) (1.0-((x-fStart)*fEnd))
 #define FOGVAL(y) (((unsigned long)(255*y) << 24))
-
-//#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs((fabs(x3-x1)*fabs(y3-y2) - fabs(y3-y1)*fabs(x3-x2))*0.5)
-extern long numFacesDrawn; 
-
-float TriangleArea(float x1,float y1,float x2,float y2,float x3,float y3)
-{
-	float height;
-	float ang;
-	float lA,lB,lC;
-	float lAs,lBs,lCs;
-	float lAsr,lBsr,lCsr;
-	float dp;
-
-	VECTOR a,b,c;
-	a.v[X] = (int)(x1-x3);
-	a.v[Y] = (int)(y1-y3); 
-	b.v[X] = (int)(x2-x3);
-	b.v[Y] = (int)(y2-y3); 
-	c.v[X] = (int)(x1-x2);
-	c.v[Y] = (int)(y1-y2);
-	a.v[Z] = b.v[Z] = c.v[Z] = 0;
-	
-	if (numFacesDrawn==130)
-		numFacesDrawn=130;
-
-	if (fabs(a.v[X]+a.v[Y])<1)
-		return 0;
-	if (fabs(b.v[X]+b.v[Y])<1)
-		return 0;
-	if (fabs(c.v[X]+c.v[Y])<1)
-		return 0;
-
-	lAs = MagnitudeSquared(&a);
-	lBs = MagnitudeSquared(&b);
-	lCs = MagnitudeSquared(&c);
-
-	lAsr = sqrtf(lAs);
-	lBsr = sqrtf(lBs);
-	lCsr = sqrtf(lCs);
-
-	lA = fabs(lAsr);
-	lB = fabs(lBsr);
-	lC = fabs(lCsr);
-
-	if (lA<1)
-		return 0;
-	if (lB<1)
-		return 0;
-	if (lC<1)
-		return 0;
-
-	MakeUnit(&a);
-	MakeUnit(&b);
-	MakeUnit(&c);
-
-	// A is longest side
-	if ((lA>=lB) && (lA>=lC))
-	{
-		dp = DotProduct(&a,&c);
-		
-		if (dp>0.9999)
-			dp = 0.9999;
-		
-		if (dp<-0.9999)
-			dp = -0.9999;
-
-		ang = acos(dp);
-	
-		if (ang>PI_OVER_2)
-			ang=PI-ang;
-
-		height = (lC * sin(ang)) * (lA/2);
-	}
-
-	// B is longest side
-	if ((lB>=lA) && (lB>=lC))
-	{
-		dp = DotProduct(&b,&a);
-		
-		if (dp>0.9999)
-			dp = 0.9999;
-		
-		if (dp<-0.9999)
-			dp = -0.9999;
-
-		ang = acos(dp);
-
-		if (ang>PI_OVER_2)
-			ang=PI-ang;
-
-		height = (lA * sin(ang)) * (lB/2);
-
-	}
-	
-	// C is longest side
-	if ((lC>=lA) && (lC>=lB))
-	{
-		dp = DotProduct(&c,&a);
-		
-		if (dp>0.9999)
-			dp = 0.9999;
-		
-		if (dp<-0.9999)
-			dp = -0.9999;
-
-		ang = acos(dp);
-
-		if (ang>PI_OVER_2)
-			ang=PI-ang;
-
-		height = (lA * sin(ang)) * (lC/2);
-	}
-	
-	return height;
-}
 
 HWND win;
 
@@ -207,7 +97,6 @@ struct dxDevice
 
 dxDevice dxDeviceList[100];
 unsigned long dxNumDevices = 0;
-long selIdx = 0;
 long a565Card = 0;
 
 extern float clx1,cly1;
@@ -222,13 +111,23 @@ int prim = 0;
 
 extern long numFacesDrawn;
 
-GUID guID;
+}	// extern "C"
 
-// TODO: Tidy tidy tidy!
-char videoCardName[256];	// which card we want
-int foundDesiredVideo = 0;
 
-//static GUID     guID;
+struct DXSETUPINFO
+{
+	GUID	guidDDraw, *lpguidDDraw;
+	GUID	guidDSound, *lpguidDSound;
+};
+
+// added by ANDYE to facilitate (<- ooh, good word !) Sutherland-Hodgman clipping algorhythmicallythingy
+typedef struct TAGPOLYCLIP
+{
+	int numVerts;
+	D3DTLVERTEX verts[10];
+
+} POLYCLIP;
+
 
 void ScreenShot ( DDSURFACEDESC ddsd );
 
@@ -359,169 +258,233 @@ void DisplayReadme(HWND hwnd)
 	}
 }
 
-BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+
+/*  --------------------------------------------------------------------------------
+    Function      : InitSetupDialog
+	Purpose       :	initialises the controls in the setup dialog
+	Parameters    : dialog HWND
+	Returns       : TRUE for success
+*/
+BOOL InitSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 {
-	long i;
+	RECT meR;
+	LV_COLUMN clm;
+	LV_ITEM itm;
 	HWND list;
 
+	GetWindowRect(hwndDlg, &meR);
+	
+	clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+	clm.fmt = LVCFMT_LEFT;
+	clm.cx = 400;
+	clm.pszText = col2txt;
+	clm.cchTextMax = 255; 
+	clm.iSubItem = 0; 
+
+	list = GetDlgItem(hwndDlg,IDC_LIST2);
+
+	SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+	clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+	clm.pszText = col1txt;
+	clm.cx = 120;
+	clm.iSubItem = 1; 
+	SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+	
+	clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+	clm.pszText = col0txt;
+	clm.cx = 200;
+	clm.iSubItem = 2; 
+	SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+	SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_SETTEXT,0,(long)baseDirectory);
+
+	for (int i=0; i<dxNumDevices; i++)
+	{
+		itm.mask = LVIF_TEXT ;
+		itm.iItem = i; 
+		itm.state = 0;
+		itm.stateMask = 0; 
+		itm.cchTextMax = 255; 
+		itm.iImage = NULL; 
+		itm.lParam = i; 
+
+		itm.iSubItem = 0;
+		itm.pszText = dxDeviceList[i].desc;
+		dxDeviceList[i].idx = SendMessage (list,LVM_INSERTITEM,0,(long)&itm);
+
+		itm.iSubItem = 1;
+		itm.pszText = dxDeviceList[i].name;
+		SendMessage (list,LVM_SETITEM,0,(long)&itm);
+		
+		itm.iSubItem = 2;
+		itm.pszText = (dxDeviceList[i].caps.dwCaps & DDCAPS_3D)?hwText:swText;
+		SendMessage (list,LVM_SETITEM,0,(long)&itm);
+		
+	}
+	
+	// ------- Add item for software renderer ------
+
+	itm.mask = LVIF_TEXT ;
+	itm.iItem = i; 
+	itm.state = 0;
+	itm.stateMask = 0; 
+	itm.cchTextMax = 255; 
+	itm.iImage = NULL; 
+	itm.lParam = i; 
+	
+	itm.iSubItem = 0;
+	itm.pszText = swDesc;
+	dxDeviceList[i].idx = SendMessage (list,LVM_INSERTITEM,0,(long)&itm);
+
+	itm.iSubItem = 1;
+	itm.pszText = swName;
+	SendMessage (list,LVM_SETITEM,0,(long)&itm);
+	
+	itm.iSubItem = 2;
+	itm.pszText = swText;
+	SendMessage (list,LVM_SETITEM,0,(long)&itm);
+
+	///////////////////////////////////////////////////////////////////////////////
+
+	ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
+
+	SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+
+	HWND hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
+
+	if( DirectSoundEnumerate( (LPDSENUMCALLBACK)DSEnumProc, &hCombo ) != DS_OK )
+	{
+		EndDialog( hwndDlg, FALSE );
+		return( TRUE );
+	}
+
+	if( ComboBox_GetCount( hCombo ))
+		ComboBox_SetCurSel( hCombo, 0 );
+	else
+	{
+		EndDialog( hwndDlg, FALSE );
+		return( TRUE );
+	}
+
+	hCombo = GetDlgItem( hwndDlg, IDC_COMBO1);
+
+	ComboBox_AddString( hCombo, "320 x 240");
+	ComboBox_AddString( hCombo, "640 x 480");
+	ComboBox_AddString( hCombo, "800 x 600");
+	ComboBox_AddString( hCombo, "1024 x 768");
+	ComboBox_AddString( hCombo, "1280 x 1024");
+	ComboBox_SetCurSel( hCombo, 1 );
+
+	info->lpguidDDraw = NULL;
+	info->lpguidDSound = NULL;
+
+ 	return TRUE;
+}
+
+
+/*  --------------------------------------------------------------------------------
+    Function      : CloseSetupDialog
+	Purpose       :	Closes and retrieves the contents of the setup dialog
+	Parameters    : dialog HWND
+	Returns       : TRUE for success
+*/
+
+BOOL CloseSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
+{
+	LPGUID lpTemp;
+	int i;
+
+	if (!winMode)
+		ShowCursor(0);
+	
+	// Get selected video driver
+
+	for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
+		if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
+		{
+			if (dxDeviceList[i].guid)
+			{
+				memcpy(&info->guidDDraw, dxDeviceList[i].guid, sizeof(GUID));
+				info->lpguidDDraw = &info->guidDDraw;
+			}
+			else
+				info->lpguidDDraw = NULL;
+		}
+
+	
+	SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_GETTEXT,MAX_PATH,(long)baseDirectory);
+
+	// Get selected sound driver........
+	HWND hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
+
+	i = ComboBox_GetCurSel ( hCombo );
+	if (lpTemp = (LPGUID)ComboBox_GetItemData ( hCombo, i ))
+	{
+		memcpy(&info->guidDSound, lpTemp, sizeof(GUID));
+		info->lpguidDSound = &info->guidDSound;
+	}
+
+	for ( i = 0; i < ComboBox_GetCount ( hCombo ); i++ )
+	{
+		lpTemp = (LPGUID)ComboBox_GetItemData(hCombo, i);
+		if ( lpTemp )
+			LocalFree ( lpTemp );
+	}
+
+	switch(ComboBox_GetCurSel(GetDlgItem( hwndDlg, IDC_COMBO1)))
+	{
+		case 0:
+			SCREEN_WIDTH = 320;
+			SCREEN_HEIGHT = 240;
+			break;
+		case 1:
+			SCREEN_WIDTH = 640;
+			SCREEN_HEIGHT = 480;
+			break;
+		case 2:
+			SCREEN_WIDTH = 800;
+			SCREEN_HEIGHT = 600;
+			break;
+		case 3:
+			SCREEN_WIDTH = 1024;
+			SCREEN_HEIGHT = 768;
+			break;
+		case 4:
+			SCREEN_WIDTH = 1280;
+			SCREEN_HEIGHT = 1024;
+			break;
+	}
+	HALF_WIDTH = SCREEN_WIDTH/2;
+	HALF_HEIGHT = SCREEN_HEIGHT/2;
+	clx1 = SCREEN_WIDTH-1;
+	cly1 = SCREEN_HEIGHT-1;
+
+
+//					EndDialog(hwndDlg,0);
+	runQuit = 0;
+	return TRUE;
+}
+
+/*  --------------------------------------------------------------------------------
+    Function      : SetupDialogProc
+	Purpose       :	dialog proc for setup dialog
+	Parameters    : the usual
+	Returns       : 
+*/
+BOOL CALLBACK SetupDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	long i;
     static HWND   hCombo;
-    static LPGUID lpGUID;
+    //static LPGUID lpGUID;
+	static DXSETUPINFO *info;
     LPGUID        lpTemp;
 
     switch(uMsg)
 	{
 		case WM_INITDIALOG:
-		{
-			RECT meR;
-			LV_COLUMN clm;
-			LV_ITEM itm;
-				
-			GetWindowRect(hwndDlg, &meR);
-			
-			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
-			clm.fmt = LVCFMT_LEFT;
-			clm.cx = 400;
-			clm.pszText = col2txt;
-			clm.cchTextMax = 255; 
-			clm.iSubItem = 0; 
+			//lpGUID = (LPGUID)lParam;
+			info = (DXSETUPINFO*)lParam;
+			return InitSetupDialog(hwndDlg, info);
 
-			list = GetDlgItem(hwndDlg,IDC_LIST2);
-
-			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
-			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-			clm.pszText = col1txt;
-			clm.cx = 120;
-			clm.iSubItem = 1; 
-			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
-			
-			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-			clm.pszText = col0txt;
-			clm.cx = 200;
-			clm.iSubItem = 2; 
-			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
-			SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_SETTEXT,0,(long)baseDirectory);
-
-			for (i=0; i<dxNumDevices; i++)
-			{
-				
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.iSubItem = 0;
-				itm.state = 0;
-				itm.stateMask = 0; 
-				
-				itm.pszText = dxDeviceList[i].desc;
-
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				
-				dxDeviceList[i].idx = SendMessage (list,LVM_INSERTITEM,0,(long)&itm);
-
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.state = 0;
-				itm.stateMask = 0; 
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				itm.iSubItem = 1;
-				itm.pszText = dxDeviceList[i].name;
-
-				SendMessage (list,LVM_SETITEM,0,(long)&itm);
-				
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.state = 0;
-				itm.stateMask = 0; 
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				itm.iSubItem = 2;
-
-				itm.pszText = (dxDeviceList[i].caps.dwCaps & DDCAPS_3D)?hwText:swText;
-
-				SendMessage (list,LVM_SETITEM,0,(long)&itm);
-				
-			}
-			///////////////////////////////////////////////////////////////////////////////
-
-
-
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.iSubItem = 0;
-				itm.state = 0;
-				itm.stateMask = 0; 
-				
-				itm.pszText = swDesc;
-
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				
-				dxDeviceList[i].idx = SendMessage (list,LVM_INSERTITEM,0,(long)&itm);
-
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.state = 0;
-				itm.stateMask = 0; 
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				itm.iSubItem = 1;
-				itm.pszText = swName;
-
-				SendMessage (list,LVM_SETITEM,0,(long)&itm);
-				
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.state = 0;
-				itm.stateMask = 0; 
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				itm.iSubItem = 2;
-
-				itm.pszText = swText;
-
-				SendMessage (list,LVM_SETITEM,0,(long)&itm);
-				
-
-
-			///////////////////////////////////////////////////////////////////////////////
-
-			ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
-
-			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
-
-			hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
-			lpGUID = (LPGUID)lParam;
-
-			if( DirectSoundEnumerate( (LPDSENUMCALLBACK)DSEnumProc, &hCombo ) != DS_OK )
-			{
-				EndDialog( hwndDlg, TRUE );
-				return( TRUE );
-			}
-			if( ComboBox_GetCount( hCombo ))
-				ComboBox_SetCurSel( hCombo, 0 );
-			else
-			{
-				EndDialog( hwndDlg, TRUE );
-				return( TRUE );
-			}
-
-			hCombo = GetDlgItem( hwndDlg, IDC_COMBO1);
-
-		    ComboBox_AddString( hCombo, "320 x 240");
-		    ComboBox_AddString( hCombo, "640 x 480");
-		    ComboBox_AddString( hCombo, "800 x 600");
-		    ComboBox_AddString( hCombo, "1024 x 768");
-		    ComboBox_AddString( hCombo, "1280 x 1024");
-			ComboBox_SetCurSel( hCombo, 1 );
-
- 			return TRUE;
-		}
         case WM_CLOSE:
 			PostQuitMessage(0);
 			runQuit = 1;
@@ -552,84 +515,10 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				break;
 */
 			case IDOK:
-			{
-				if (!winMode)
-					ShowCursor(0);
-				
-				for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
-					if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
-						selIdx = i;
-				
-				SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_GETTEXT,MAX_PATH,(long)baseDirectory);
-
-				if (selIdx == LB_ERR)
-				{
-					PostQuitMessage(0);
-					runQuit = 1;
-					return TRUE;
-				}
-
-				// Get selected sound driver........
-
-
-				for ( i = 0; i < ComboBox_GetCount ( hCombo ); i++ )
-				{
-					(GUID*) lpTemp = ( LPGUID ) ComboBox_GetItemData ( hCombo, i );
-					if ( i == ComboBox_GetCurSel ( hCombo ) )
-					{
-						if ( lpTemp != NULL )
-							memcpy ( lpGUID, lpTemp, sizeof ( GUID ) );
-						else
-							lpGUID = NULL;
-					}
-					if ( lpTemp )
-						LocalFree ( lpTemp );
-				}
-				// ENDFOR
-
-				// If we got the NULL GUID, then we want to open the default
-				// sound driver, so return with an error and the init code
-				// will know not to pass in the guID and will send NULL
-				// instead.
-				if ( lpGUID == NULL )
-					EndDialog ( hwndDlg, TRUE );
+				if (CloseSetupDialog(hwndDlg, info))
+					EndDialog(hwndDlg, TRUE);
 				else
-					EndDialog( hwndDlg, FALSE );
-
-				switch(ComboBox_GetCurSel(GetDlgItem( hwndDlg, IDC_COMBO1)))
-				{
-					case 0:
-						SCREEN_WIDTH = 320;
-						SCREEN_HEIGHT = 240;
-						break;
-					case 1:
-						SCREEN_WIDTH = 640;
-						SCREEN_HEIGHT = 480;
-						break;
-					case 2:
-						SCREEN_WIDTH = 800;
-						SCREEN_HEIGHT = 600;
-						break;
-					case 3:
-						SCREEN_WIDTH = 1024;
-						SCREEN_HEIGHT = 768;
-						break;
-					case 4:
-						SCREEN_WIDTH = 1280;
-						SCREEN_HEIGHT = 1024;
-						break;
-				}
-			HALF_WIDTH = SCREEN_WIDTH/2;
-				HALF_HEIGHT = SCREEN_HEIGHT/2;
-				clx1 = SCREEN_WIDTH-1;
-				cly1 = SCREEN_HEIGHT-1;
-
-
-//					EndDialog(hwndDlg,0);
-				runQuit = 0;
-				break;
-			}
-
+					EndDialog(hwndDlg, FALSE);
 		}
 		break;
 	}
@@ -637,47 +526,36 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 
 
+
 // It's DirectX, innit?
 long DirectXInit(HWND window, long hardware )
 {
-	D3DVIEWPORT				viewport;
-	D3DFINDDEVICERESULT		result;
-	D3DFINDDEVICESEARCH		search;
-	DDSURFACEDESC			ddsd;
-	DDSURFACEDESC			sdesc;
-	DDCAPS					ddCaps;
 	HRESULT					res;
 	int						l;
+	GUID videoguid, *vguid;
+
+	DXSETUPINFO info;
 
 	win = window;
 
-	GUID guID;
-	GUID videoguid, *vguid;
+	EnumDXObjects(NULL);
 
-	EnumDXObjects(&videoguid);
-	if (!videoguid.Data1)
-		vguid = NULL; // todo: do this a LOT better
-
-	if (!foundDesiredVideo)
-	{
-		DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
-		
-		if (dxDeviceList[selIdx].guid)
-		{
-			memcpy(&videoguid, dxDeviceList[selIdx].guid, sizeof(GUID));
-			vguid = &videoguid;
-		}
-		else
-			vguid = NULL;
-
-		strcpy(videoCardName, dxDeviceList[selIdx].desc);
-	}
-
-	if (runQuit)
+	if (!DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1), window,
+		(DLGPROC)SetupDialogProc, (LPARAM)&info))
 		return 0;
 
+/*	
+	if (dxDeviceList[selIdx].guid)
+	{
+		memcpy(&videoguid, dxDeviceList[selIdx].guid, sizeof(GUID));
+		vguid = &videoguid;
+	}
+	else
+		vguid = NULL;
+*/
+
 	// Initialise DirectDraw
-	DDrawInitObject (vguid);
+	DDrawInitObject (info.lpguidDDraw);
 	
 	// Setup our sufaces
 	DDrawCreateSurfaces (window, SCREEN_WIDTH, SCREEN_HEIGHT, 16, TRUE, 16); 
@@ -694,233 +572,14 @@ long DirectXInit(HWND window, long hardware )
 	RES_DIFF = SCREEN_WIDTH/640.0;	
 
 	// Initialise DSound!
-	InitDirectSound ( &guID, winInfo.hInstance, winInfo.hWndMain, prim );
+	InitDirectSound ( info.lpguidDSound, winInfo.hInstance, winInfo.hWndMain, prim );
 
 	return TRUE;
 }
 
 
+/* ------------------------------------------------------------------------------------------ */
 
-/*
-long DirectXInit(HWND window, long hardware )
-{
-	D3DVIEWPORT				viewport;
-	D3DFINDDEVICERESULT		result;
-	D3DFINDDEVICESEARCH		search;
-	DDSURFACEDESC			ddsd;
-	DDSURFACEDESC			sdesc;
-	DDCAPS					ddCaps;
-	HRESULT					res;
-	int						l;
-
-	win = window;
-
-	GUID guID;
-
-	EnumDXObjects();
-
-	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
-
-	if (runQuit)
-		return 0;
-
-	InitDirectSound ( &guID, winInfo.hInstance, winInfo.hWndMain, prim );
-
-	isHardware = (dxDeviceList[selIdx].caps.dwCaps & DDCAPS_3D);
-	hardware = isHardware;
-
-	if ((res = DirectDrawCreate(dxDeviceList[selIdx].guid, &pDirectDraw, NULL)) != DD_OK)
-	{
-		dp("Failed creating DirectDraw object: %s\n", ddError2String(res));
-		return FALSE;
-	}
-
-	if ((res = pDirectDraw->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDirectDraw4)) != S_OK)
-	{
-		dp("Failed getting DirectDraw4 interface: %s\n", ddError2String(res));
-		return FALSE;
-	}
-
-	dp ("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	dp ("%s - %s \n",dxDeviceList[selIdx].name,dxDeviceList[selIdx].desc);
-	dp ("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	memset (&ddCaps,0,sizeof(DDCAPS));
-	ddCaps.dwSize = sizeof(DDCAPS);
-
-	if ((res = pDirectDraw4->GetCaps(&ddCaps,NULL)) != S_OK)
-	{
-		dp("Failed getting DirectDraw4 caps: %s\n", ddError2String(res));
-		return FALSE;
-	}
-
-	PrintCaps (&ddCaps);	
-	dp ("--------------------------------------------------------------------------------------------------------------------------------------------------\n");
-
-	if (winMode)
-	{
-		if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_NORMAL)) != DD_OK)
-		{
-			dp("Failed setting cooperative level: %s\n", ddError2String(res));
-			return FALSE;
-		}
-	}
-	else
-	{
-		if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX)) != DD_OK)
-		{
-			dp("Failed setting cooperative level: %s\n", ddError2String(res));
-			return FALSE;
-		}
-
-		if ((res = pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS)) != DD_OK)
-		{
-			dp("Failed setting display mode: %s\n", ddError2String(res));
-			return FALSE;
-		}
-	}
-
-	// Get the primary display surface
-	DDINIT(ddsd);
-	ddsd.dwFlags = DDSD_CAPS;
-
-	if (hardware)
-	 ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY;
-	else
-	 ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_SYSTEMMEMORY;
-	
-	if (pDirectDraw->CreateSurface(&ddsd, &surface[PRIMARY_SRF], NULL) != DD_OK)
-	 return FALSE;
-
-	// Create a back buffer and attach it to the primary display surface to make a flippable surface
-	DDINIT(ddsd);
-	ddsd.dwSize = sizeof(ddsd);
-	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-	ddsd.dwWidth = SCREEN_WIDTH;
-	ddsd.dwHeight = SCREEN_HEIGHT;
-
-	if (hardware)
-	 ddsd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_3DDEVICE;// | DDSCAPS_VIDEOMEMORY;
-	else
-	 ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_SYSTEMMEMORY;
-	
-	if ((res = pDirectDraw->CreateSurface(&ddsd, &surface[RENDER_SRF], NULL)) != DD_OK)
-	{
-		dp("Error creating backbuffer: %s\n", ddError2String(res));
-		return FALSE;
-	}
-
-	if (!winMode)
-		if ((res = surface[PRIMARY_SRF]->AddAttachedSurface(surface[RENDER_SRF])) != DD_OK)
-		{
-			dp("Error attaching backbuffer: %s\n", ddError2String(res));
-			return FALSE;
-		}
-
-	RES_DIFF = SCREEN_WIDTH/640.0;
-	RES_DIFF2 = 2*RES_DIFF;
-
-	if (hardware)
-	{
-		// Create a z-buffer and attach it to the backbuffer
-		ddsd.dwSize = sizeof(ddsd);
-		ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_ZBUFFERBITDEPTH;
-		ddsd.dwWidth = SCREEN_WIDTH;
-		ddsd.dwHeight = SCREEN_HEIGHT;
-		ddsd.dwZBufferBitDepth = 16;
-		if (hardware)
-			ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
-		else
-			ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_SYSTEMMEMORY;
-		if ((res = pDirectDraw->CreateSurface(&ddsd, &surface[ZBUFFER_SRF], NULL)) != DD_OK)
-		{
-			dp("Error creating Z-buffer: %s\n", ddError2String(res));
-			return FALSE;
-		}
-		if ((res = surface[RENDER_SRF]->AddAttachedSurface(surface[ZBUFFER_SRF])) != DD_OK)
-		{
-			dp("Error attaching Z-buffer: %s\n", ddError2String(res));
-			return FALSE;
-		}
-	}
-
-	if (pDirectDraw->QueryInterface(IID_IDirect3D2, (LPVOID *)&pDirect3D) != S_OK)
-		return FALSE;
-
-	// Find a device we can use
-
-	DDINIT(search);
-	DDINIT(result);
-
-	search.dwFlags = D3DFDS_HARDWARE | D3DFDS_COLORMODEL;
-	search.bHardware = hardware;
-	search.dcmColorModel = D3DCOLOR_RGB;
-	//search.dcmColorModel = D3DCOLOR_MONO;  
-
-	if (pDirect3D->FindDevice(&search, &result) != D3D_OK) 
-		return FALSE;
-
-	// Create the D3D device
-	if (pDirect3D->CreateDevice(result.guid, surface[RENDER_SRF], &pDirect3DDevice) != D3D_OK)
-	 return FALSE;
-
-	// Create a viewport
-	DDINIT (viewport);
-
-	viewport.dwWidth = SCREEN_WIDTH;
-	viewport.dwHeight = SCREEN_HEIGHT;
-	viewport.dvScaleX = (SCREEN_WIDTH / 2.0f);
-	viewport.dvScaleY = (SCREEN_HEIGHT / 2.0f);
-	viewport.dvMaxX = D3DVAL(1.0);
-	viewport.dvMaxY = D3DVAL(1.0);
-	viewport.dvMinZ = D3DVAL(0.0);
-	viewport.dvMaxZ = D3DVAL(1.0);
-	if (pDirect3D->CreateViewport(&pDirect3DViewport, NULL) != D3D_OK) 
-		return FALSE;
-	if (pDirect3DDevice->AddViewport(pDirect3DViewport) != D3D_OK) 
-		return FALSE;
-	if (pDirect3DViewport->SetViewport(&viewport) != D3D_OK) 
-		return FALSE;
-	if (pDirect3DDevice->SetCurrentViewport(pDirect3DViewport) != D3D_OK) 
-		return FALSE;
-	
-
-	if (winMode)
-	{
-		if (pDirectDraw->CreateClipper (0,&pClipper,NULL))
-			return FALSE;
-	
-		if (pClipper->SetHWnd (0,win)!=DD_OK) 
-			return FALSE;
-	
-		if (surface[PRIMARY_SRF]->SetClipper (pClipper)!=DD_OK)
-			return FALSE;
-	}
-
-	memset (&sdesc,0,sizeof (sdesc));
-	sdesc.dwSize=sizeof (sdesc);
-
-	surface[PRIMARY_SRF]->GetSurfaceDesc(&sdesc);
-	l = (int)sdesc.ddpfPixelFormat.dwGBitMask;
-	while ((l&1) == 0)
-		  l >>= 1;
-	
-	a565Card = !(l == 31);
-
-	runHardware = hardware;
-
-	if (hardware)
-		SetupRenderstates(); 
-	
-	return TRUE;
-}
-*/
-
-float bRed = 0, bGreen = 0, bBlue = 0;
-
-extern short *loadScr;
-short backScr[1280*1024];
-unsigned long sTime = (1000 * 5);
-unsigned long screenGrabbed = 0;
 
 void ShowLoadScreen(void)
 {
@@ -930,18 +589,21 @@ void ShowLoadScreen(void)
 	long startTicks;
 	long curTicks;
 	float sVal,fVal;
+	HRESULT res;
 
+	DDINIT(ddsd);
+/*	
 	dp("--ShowLoadScreen---------------------------------------\n");
 	PrintTextureInfo();
 	dp("-------------------------------------------------------\n");
-	
-	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
+
+  GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
 	
 	startTicks = GetTickCount();
 	do
 	{
 		curTicks = GetTickCount();
-		DDINIT(ddsd);
+		
 		
 		while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 		
@@ -984,12 +646,18 @@ void ShowLoadScreen(void)
 	dp("--ShowLoadScreen---------------------------------------\n");
 	PrintTextureInfo();
 	dp("-------------------------------------------------------\n");
+*/	
+	res = surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT|DDLOCK_WRITEONLY, 0);
 	
-	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
-	for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
-		memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
-	surface[RENDER_SRF]->Unlock(NULL);
-	DDrawFlip();	
+	if (res == DD_OK)
+	{
+		for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
+			memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
+		surface[RENDER_SRF]->Unlock(NULL);
+		DDrawFlip();
+	}
+	else
+		ddShowError(res);
 
 	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
 
@@ -1384,15 +1052,13 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 //	capsResult = pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
 //	dp ( "After Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
 	return pTSurface;
-}
+
 */
 
 void ReleaseSurface(LPDIRECTDRAWSURFACE surf)
 {
 	RELEASE(surf);
 }
-
-D3DTEXTUREHANDLE lastH = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //PolyBatchStuff
@@ -1740,7 +1406,6 @@ D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)
 	return textureHandle;
 }
 
-}
 
 void ScreenShot ( DDSURFACEDESC ddsd )
 {

@@ -156,9 +156,6 @@ void Crash(char *mess)
 	Info			: Gets setup stuff (e.g. install dir) from the registry
 */
 
-// TODO: put a nicer interface on this, PLEASE
-extern char videoCardName[256];
-
 int GetRegistryInformation(void)
 {
 	HKEY hkey;
@@ -179,7 +176,6 @@ int GetRegistryInformation(void)
 			dprintf"Couldn't read InstallDir value from registry\n"));
 
 		len = 255;
-		RegQueryValueEx(hkey, "VideoCard", NULL, NULL, videoCardName, &len);
 
 		RegCloseKey(hkey);
 	}
@@ -199,7 +195,7 @@ int SetRegistryInformation(void)
 	else
 	{
 		RegSetValueEx(hkey, "InstallDir", NULL, REG_SZ, baseDirectory, strlen(baseDirectory) + 1);
-		RegSetValueEx(hkey, "VideoCard", NULL, REG_SZ, videoCardName, strlen(videoCardName) + 1);
+//		RegSetValueEx(hkey, "VideoCard", NULL, REG_SZ, videoCardName, strlen(videoCardName) + 1);
 		RegCloseKey(hkey);
 	}
 
@@ -570,7 +566,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
-				if (pauseMode)
+				/*if (pauseMode)
 				{
 					for (i=0; i<numRequired * 4; i++)
 						screenVtxList[i].color = D3DRGBA(1,1,1,0.8);
@@ -578,7 +574,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					DrawScreenOverlays();
 					GrabScreenTextures(surface[RENDER_SRF], screenTextureList, screenTextureList2);					
 					//FreeScreenTextures(screenTextureList);
-				}
+				}*/
 				if( !shotMode )				
 					DDrawFlip();
 				else
