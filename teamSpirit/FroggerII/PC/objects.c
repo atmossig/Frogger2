@@ -359,6 +359,34 @@ BOOL LoadObjectBank(int num)
 			strcat (file,"sretro3");
 			break;
 
+		case RETROLEV4_OBJ_BANK:
+			strcat (file,"sretro4");
+			break;
+
+		case RETROLEV5_OBJ_BANK:
+			strcat (file,"sretro5");
+			break;
+
+		case RETROLEV6_OBJ_BANK:
+			strcat (file,"sretro6");
+			break;
+
+		case RETROLEV7_OBJ_BANK:
+			strcat (file,"sretro7");
+			break;
+
+		case RETROLEV8_OBJ_BANK:
+			strcat (file,"sretro8");
+			break;
+
+		case RETROLEV9_OBJ_BANK:
+			strcat (file,"sretro9");
+			break;
+
+		case RETROLEV10_OBJ_BANK:
+			strcat (file,"sretro10");
+			break;
+
 		case RETROBONUS_OBJ_BANK:
 			strcat (file,"sretrobonus");
 			break;

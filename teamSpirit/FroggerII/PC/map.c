@@ -249,6 +249,27 @@ BOOL LoadCollision(int num)
 		case RETROLEV3_COL:
 			strcat(file,"sretro3");
 			break;
+		case RETROLEV4_COL:
+			strcat(file,"sretro4");
+			break;
+		case RETROLEV5_COL:
+			strcat(file,"sretro5");
+			break;
+		case RETROLEV6_COL:
+			strcat(file,"sretro6");
+			break;
+		case RETROLEV7_COL:
+			strcat(file,"sretro7");
+			break;
+		case RETROLEV8_COL:
+			strcat(file,"sretro8");
+			break;
+		case RETROLEV9_COL:
+			strcat(file,"sretro9");
+			break;
+		case RETROLEV10_COL:
+			strcat(file,"sretro10");
+			break;
 		case RETROMASTER_COL:
 			strcat(file,"sretroboss");
 			break;
@@ -522,6 +543,27 @@ BOOL LoadScenics (int num)
 		case RETROLEV3_COL:
 			strcat(file,"sretro3");
 			break;
+		case RETROLEV4_COL:
+			strcat(file,"sretro4");
+			break;
+		case RETROLEV5_COL:
+			strcat(file,"sretro5");
+			break;
+		case RETROLEV6_COL:
+			strcat(file,"sretro6");
+			break;
+		case RETROLEV7_COL:
+			strcat(file,"sretro7");
+			break;
+		case RETROLEV8_COL:
+			strcat(file,"sretro8");
+			break;
+		case RETROLEV9_COL:
+			strcat(file,"sretro9");
+			break;
+		case RETROLEV10_COL:
+			strcat(file,"sretro10");
+			break;
 		case RETROMASTER_COL:
 			strcat(file,"sretroboss");
 			break;
@@ -534,7 +576,7 @@ BOOL LoadScenics (int num)
 			break;
 		case FRONTEND3_COL:
 			strcat(file,"levelb");
-			break;
+ 			break;
 		case FRONTEND4_COL:
 			strcat(file,"multisel");
 			break;
