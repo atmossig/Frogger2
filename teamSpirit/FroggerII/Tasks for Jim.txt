@@ -3,9 +3,10 @@ COMPLETION BY-- Jan 28th
 INSTANCE-------	Space1
 SENT BY-------- Lauren
 RESPONSIBILTY-- Jim
-FIXED NOTES----
+FIXED NOTES---- Probably it's that the baby doesn't have a tile in the collision mesh, so it doesn't get added to the baby list.
+				Have to wait for Lauren to try adding one first.
 
-TASK----------- Sound stuff, including sfx loading/mapping rewrite and doppler effects and CD track calculation
+TASK----------- Sound stuff, including sfx loading/mapping rewrite and CD track calculation
 COMPLETION BY-- Jan 28th - *******Completed*******
 PRIORITY------- Medium
 RESPONSIBILTY-- Jim
