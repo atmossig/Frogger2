@@ -99,6 +99,8 @@ void SlideObjectTextures(OBJECT *obj)
 	Info			: 
 */
 
+extern ACTOR2 *currentDrawActor2;
+
 void XformActorList()
 {
 	ACTOR2 *cur;
@@ -106,6 +108,7 @@ void XformActorList()
 	cur = actList;
 	while(cur)
 	{
+		currentDrawActor2 = cur;
 		if (gameState.mode == INGAME_MODE)
 		{
 			// calculate the distance between the camera and this actor
@@ -144,6 +147,7 @@ void DrawBackground(void)
 	noClipping = 1;
 
 	SetVector (&(backGnd->actor->pos),&(currCamSource));
+	currentDrawActor2 = backGnd;
 	XformActor(backGnd->actor);
 	DrawActor(backGnd->actor);
 
@@ -185,6 +189,8 @@ void DrawAttachedObjects(void)
 {
 	if (hat[0])
 	{
+		currentDrawActor2 = hat[0];
+
 		XformActor(hat[0]->actor);
 		DrawActor(hat[0]->actor);	
 	}
@@ -813,7 +819,8 @@ void FreeActorList()
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags)
 {
 	ACTOR2 *newItem;
-	
+	currentDrawActor2 = NULL;
+
 	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"ACTOR2");
 	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"ACTOR");
 
@@ -1165,6 +1172,7 @@ void MakeUniqueActor(ACTOR *actor,int type)
 		if(actor->objectController->drawList)
 		{
 			MakeUniqueVtx(actor->objectController);
+			
 			XformActor(actor);
 		}
 

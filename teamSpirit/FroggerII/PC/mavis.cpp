@@ -31,6 +31,8 @@
 #include <memory.h>
 #include <winbase.h>
 
+float TriangleArea(float x1,float y1,float x2,float y2,float x3,float y3);
+
 extern "C"
 {
 
@@ -82,6 +84,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, long h )
 extern long totalFacesDrawn;
 float lx1,ly1,lx2,ly2;
 extern long drawTimers;
+extern long numPixelsDrawn; 
 
 void DrawBatchedPolys (void)
 {
@@ -97,6 +100,7 @@ void DrawBatchedPolys (void)
 	i=0;
 	totalFacesDrawn+=cFInfo->nF/3;
 
+
 	while (i<cFInfo->nF)
 	{
 		lHandle = *cFInfo->cH;
@@ -104,7 +108,9 @@ void DrawBatchedPolys (void)
 
 		while (((*(cFInfo->cH)) == lHandle) && (i<cFInfo->nF))
 		{
-
+			numPixelsDrawn+=TriangleArea(cFInfo->v[cFInfo->f[i]].sx,cFInfo->v[cFInfo->f[i]].sy,
+						 cFInfo->v[cFInfo->f[i+1]].sx,cFInfo->v[cFInfo->f[i+1]].sy,
+						 cFInfo->v[cFInfo->f[i+2]].sx,cFInfo->v[cFInfo->f[i+2]].sy);
 #ifdef SHOW_OUTLINES
 			if (drawTimers==3)
 			{

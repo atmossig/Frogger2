@@ -126,6 +126,117 @@ typedef struct TAGPOLYCLIP
 
 } POLYCLIP;
 
+float TriangleArea(float x1,float y1,float x2,float y2,float x3,float y3)
+{
+	float height;
+	float ang;
+	float lA,lB,lC;
+	float lAs,lBs,lCs;
+	float lAsr,lBsr,lCsr;
+	float dp;
+
+	VECTOR a,b,c;
+	a.v[X] = (int)(x1-x3);
+	a.v[Y] = (int)(y1-y3); 
+	b.v[X] = (int)(x2-x3);
+	b.v[Y] = (int)(y2-y3); 
+	c.v[X] = (int)(x1-x2);
+	c.v[Y] = (int)(y1-y2);
+	a.v[Z] = b.v[Z] = c.v[Z] = 0;
+	
+	if (numFacesDrawn==130)
+		numFacesDrawn=130;
+
+	if (fabs(a.v[X]+a.v[Y])<1)
+		return 0;
+	if (fabs(b.v[X]+b.v[Y])<1)
+		return 0;
+	if (fabs(c.v[X]+c.v[Y])<1)
+		return 0;
+
+	lAs = MagnitudeSquared(&a);
+	lBs = MagnitudeSquared(&b);
+	lCs = MagnitudeSquared(&c);
+
+	lAsr = sqrtf(lAs);
+	lBsr = sqrtf(lBs);
+	lCsr = sqrtf(lCs);
+
+	lA = fabs(lAsr);
+	lB = fabs(lBsr);
+	lC = fabs(lCsr);
+
+	if (lA<1)
+		return 0;
+	if (lB<1)
+		return 0;
+	if (lC<1)
+		return 0;
+
+	MakeUnit(&a);
+	MakeUnit(&b);
+	MakeUnit(&c);
+
+	// A is longest side
+	if ((lA>=lB) && (lA>=lC))
+	{
+		dp = DotProduct(&a,&c);
+		
+		if (dp>0.9999)
+			dp = 0.9999;
+		
+		if (dp<-0.9999)
+			dp = -0.9999;
+
+		ang = acos(dp);
+	
+		if (ang>PI_OVER_2)
+			ang=PI-ang;
+
+		height = (lC * sin(ang)) * (lA/2);
+	}
+
+	// B is longest side
+	if ((lB>=lA) && (lB>=lC))
+	{
+		dp = DotProduct(&b,&a);
+		
+		if (dp>0.9999)
+			dp = 0.9999;
+		
+		if (dp<-0.9999)
+			dp = -0.9999;
+
+		ang = acos(dp);
+
+		if (ang>PI_OVER_2)
+			ang=PI-ang;
+
+		height = (lA * sin(ang)) * (lB/2);
+
+	}
+	
+	// C is longest side
+	if ((lC>=lA) && (lC>=lB))
+	{
+		dp = DotProduct(&c,&a);
+		
+		if (dp>0.9999)
+			dp = 0.9999;
+		
+		if (dp<-0.9999)
+			dp = -0.9999;
+
+		ang = acos(dp);
+
+		if (ang>PI_OVER_2)
+			ang=PI-ang;
+
+		height = (lA * sin(ang)) * (lC/2);
+	}
+	
+	return height;
+}
 
 void ScreenShot ( DDSURFACEDESC ddsd );
 

@@ -49,6 +49,10 @@ TEXTOVERLAY *wholeKeyText = NULL;
 char levelString[] = "Levelname Goes in here";
 char posString[] = "-----------------------";
 
+extern long totalFacesDrawn;
+extern long numPixelsDrawn;
+extern long numSprites;
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 #define MAX_HUD_SPARKLES 20
@@ -90,6 +94,10 @@ char timeStringMin[8]	= "00";
 char timeStringSec[8]	= "00";
 char coinsText[32] = "00 of 32";
 char timeOutString[64] = "Out of time";
+
+TEXTOVERLAY   *polysText;
+char polyString[256] = "";
+
  
 void InitHUD(void)
 {
@@ -121,6 +129,8 @@ void InitHUD(void)
 	arcadeHud.timeOutText->g = 0;
 	arcadeHud.timeOutText->b = 0;
 	arcadeHud.timeOutText->a = 0;
+
+	polysText = CreateAndAddTextOverlay(2,2,polyString,NO,255,smallFont,0,0);
 
 	arcadeHud.timedOut = 0;
 
@@ -176,7 +186,51 @@ void UpDateOnScreenInfo( void )
 	long i;
 	long xPos,yPos;
 	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 60;
-		
+	long frameCheck = 0;
+	long r,g,b,a,h;
+
+	sprintf(polyString,"%lu tri  %lu spr  %lu kpixels  %lu pc ovdrw",totalFacesDrawn,numSprites,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
+	
+	if (totalFacesDrawn>2000)
+		if (totalFacesDrawn>2500)
+			if (totalFacesDrawn>2800)
+				frameCheck = 3;
+			else
+				frameCheck = 2;
+		else
+			frameCheck = 1;
+	
+	switch(frameCheck)
+	{
+		case 0:
+			r=g=b=0xff;
+			a = 100;
+			break;
+		case 1:
+			r=255;
+			g=180;
+			b=0;
+			a = 200;
+			break;
+		case 2:
+			r=255;
+			g=0;
+			b=0;
+			a = 255;
+			break;
+		case 3:
+			r=255;
+			g=0;
+			b=0;
+			a = 128+ (64 * (1+sinf(actFrameCount / 5.0)));			
+			break;
+	}
+
+	polysText->r = r;
+	polysText->g = g;
+	polysText->b = b;
+	polysText->a = a;
+	
 	timeFrames -=actFrameCount;
 	if (timeFrames<0)
 	{

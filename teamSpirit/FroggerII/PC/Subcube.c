@@ -699,6 +699,7 @@ void XformActor(ACTOR *actor)
 */
 QUATERNION	tempQuat,morphFromQuat,morphToQuat,morphResultQuat;
 MATRIX hatMat[4];
+ACTOR2 *currentDrawActor2;
 
 void TransformObject(OBJECT *obj, float time)
 {
@@ -886,6 +887,10 @@ void TransformObject(OBJECT *obj, float time)
 		for(i = 0; i < obj->numSprites; i++)
 		{
 			sprite = obj->sprites[i].sprite;
+
+			if (currentDrawActor2)
+				sprite->draw = currentDrawActor2->draw;					 
+						
 			if(sprite)
 			{
 				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
