@@ -33,6 +33,7 @@ extern "C"
 
 MDX_OBJECT_BANK objectBanks[MAX_OBJECT_BANKS];
 WORD fpuState;
+unsigned long drawThisObjectsSprites = 1;
 
 void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 {
@@ -418,7 +419,7 @@ void TransformObject(MDX_OBJECT *obj, float time)
 			sprite = obj->sprites[i].sprite;
 
 			//MC - if (currentDrawActor2)
-			//	sprite->draw = currentDrawActor2->draw;					 
+			sprite->draw = drawThisObjectsSprites;					 
 						
 			if(sprite)
 			{

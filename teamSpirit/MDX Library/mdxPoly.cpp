@@ -529,6 +529,9 @@ void DrawSortedPolys (void)
 
 	if (sortMode == MA_SORTBACKFRONT)
 	{
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);
+
 		for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
 		{
 			cur = (SOFTPOLY *)softDepthBuffer[i];
@@ -540,6 +543,7 @@ void DrawSortedPolys (void)
 					pDirect3DDevice->SetTexture(0,cur->t);
 					last=cur->t;
 				}
+
 			
 				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,D3DDP_WAIT)!=D3D_OK)
 				{
@@ -556,7 +560,13 @@ void DrawSortedPolys (void)
 	else
 	{
 		numSeperates = 0;
-		pDirect3DDevice->SetTexture(0,cTexture->surf);
+
+		if (cTexture)
+			pDirect3DDevice->SetTexture(0,cTexture->surf);
+		
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);
+
 		for (int i=0; i<MA_SOFTWARE_DEPTH;)
 		{
 			cur = (SOFTPOLY *)softDepthBuffer[i++];
@@ -586,7 +596,8 @@ void DrawSortedPolys (void)
 				pDirect3DDevice->SetTexture(0,last);
 		
 				numSeperates++;
-							
+				
+
 				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,(unsigned short *)sortFaces,numSortFaces,D3DDP_WAIT)!=D3D_OK)
 				{					
 				}							

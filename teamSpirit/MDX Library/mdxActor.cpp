@@ -74,8 +74,12 @@ void ActorListDraw(void)
 	MDX_ACTOR *cur = actorList;	
 	while (cur)
 	{
+		drawThisObjectsSprites = cur->draw;
 		XformActor(cur);
-		DrawActor(cur);
+		
+		if (cur->draw)
+			DrawActor(cur);
+	
 		cur = cur->next;
 	}
 }

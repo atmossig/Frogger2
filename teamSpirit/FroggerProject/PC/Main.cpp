@@ -199,6 +199,10 @@ void GetArgs(char *arglist)
 						utilPrintf("All level access mode is %s\n",levelAccess?"enabled":"disabled");
 						break;
 
+					case 'S': case 's':
+						sortMode = MA_SORTBACKFRONT;
+						break;
+
 					case ' ':
 					case 0:
 						cmdMode = 0;
@@ -557,14 +561,17 @@ long LoopFunc(void)
 			if (slideVal)
 				SlideObjectTextures(a->objectController->object,slideSpeeds[slideVal]);
 
-			
 			if (!c->draw)
 			{
 				a->visible = 0;
+				a->draw = 0;
 				continue;
 			}
 			else
+			{
 				a->visible = 1;
+				a->draw = 1;
+			}
 
 			a->pos.vx = c->actor->position.vx * 0.1f;
 			a->pos.vy = c->actor->position.vy * 0.1f;
@@ -573,7 +580,8 @@ long LoopFunc(void)
 			a->scale.vx = c->actor->size.vx * (1.0f/4096.0f);
 			a->scale.vy = c->actor->size.vy * (1.0f/4096.0f);
 			a->scale.vz = c->actor->size.vz * (1.0f/4096.0f);
-
+	
+			
 			if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
 			{
 				a->qRot.x = c->actor->qRot.x * (1.0f/4096.0f);
@@ -686,7 +694,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		return 1;
 
 	// Setup our sufaces
-	if (!DDrawCreateSurfaces (mdxWinInfo.hWndMain, 640, 480, 16,TRUE, 16))
+	if (!DDrawCreateSurfaces (mdxWinInfo.hWndMain, 1024, 768, 16,TRUE, 16))
 		return 2;
 
 	// Setup D3D

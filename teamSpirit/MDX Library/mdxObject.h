@@ -279,6 +279,7 @@ void SubdivideObject(MDX_OBJECT *me);
 extern WORD fpuState;
 void FreeObjectBank(long i);
 void FreeAllObjectBanks();
+extern unsigned long drawThisObjectsSprites;
 
 #ifdef __cplusplus
 }
