@@ -1127,6 +1127,7 @@ int WriteShort(FILE *f, short s)
 #define WRITEINT(v)		WriteInt(f, (int)(v))
 #define WRITEINDEX(v)	WriteInt(f, ((v)==-1) ? -1 : (v)*RECORDSIZE)
 #define WRITESHORT(v)	WriteShort(f, (short)(v))
+#define WRITEFIXED(v)	WriteInt(f, (int)((v)*4096));
 
 void WritePSXTileData(FILE *f)
 {
@@ -1169,7 +1170,31 @@ void WritePSXTileData(FILE *f)
 	}
 }
 
+void WritePSXCameraBoxes(FILE *f)
+{
+	int i;
+	camera_box *box;
+	cam_plane *p;
 
+	WRITESHORT(num_cam_planes);
+
+	for (i = 0, p = camera_planes; i < num_cam_planes; i++, p++)
+	{
+		WRITEFIXED(p->normal.x);
+		WRITEFIXED(p->normal.y);
+		WRITEFIXED(p->normal.z);
+		WRITEINT(p->k);
+		WRITEINT(p->status);
+	}
+
+	WRITESHORT(num_cam_boxes);
+	
+	for (i = 0, box = camera_boxes; i < num_cam_boxes; i++, box++)
+	{
+		WRITESHORT(box->num_planes);
+		WRITESHORT(box->firstplane);
+	}
+}
 
 /* --------------------------------------------------------------------------------
 	Function	: WriteData
@@ -1476,6 +1501,7 @@ int WritePSXData(const char* outF)
 		return 0;
 	}
 	WritePSXTileData(f);
+	WritePSXCameraBoxes(f);
 	fclose(f);
 	printf ("done\n");
 
