@@ -166,6 +166,7 @@ typedef struct
 {
 	VECTOR	normal;
 	float	J;
+/*
 	VECTOR	vertex[3];
 	VECTOR	edge[3];
 	float	edgeLen[3];
@@ -177,7 +178,7 @@ typedef struct
 	UBYTE	terrain;
 	UBYTE	i[2];
 	UBYTE	space;
-
+*/
 }PLANE;
 
 typedef struct
