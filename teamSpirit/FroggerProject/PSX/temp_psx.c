@@ -1232,7 +1232,7 @@ void StartVideoPlayback(int num)
    		str.width = 320;
    		str.height = 192;
    		str.endFrame = fmv[num].len;
-   		str.vlcBufSize = 50000;
+   		str.vlcBufSize = 70000;
    		str.volume = 127;
    		videoPlayStream(&str, PALMODE, videoKeyPress);
 		LoadCodeOverlay(GAME_OVERLAY);
