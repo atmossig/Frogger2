@@ -22,6 +22,8 @@ SPRITE *spriteSortArray = NULL;
 
 SPRITELIST sprList;
 
+int spriteMax = 0;
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: AllocateSprites
@@ -47,6 +49,12 @@ SPRITE *AllocateSprites( int number )
 		sprList.head.next = s;
 
 		sprList.count++;
+	}
+
+	if( sprList.count > spriteMax )
+	{
+		spriteMax = sprList.count;
+		dprintf"New sprite record - %i\n",spriteMax));
 	}
 
 	return sprList.stack[sprList.stackPtr+1];
