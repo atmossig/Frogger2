@@ -96,6 +96,29 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 
 	wSeed += 0.1;
 }
+void XfmPoint (VECTOR *vTemp2, VECTOR *in);
+
+extern long FOV,DIST;
+
+void PrintSprite(SPRITE *sprite)
+{
+	VECTOR m,sc;
+	VECTOR s = {1,1,0};
+	float distx,disty;
+	
+	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
+		return;
+
+	XfmPoint (&m,&sprite->pos);
+	
+	if (m.v[Z])
+	{
+		distx = disty = (FOV)/(m.v[Z]+DIST);
+		distx *= sprite->scaleX/64.0;
+		disty *= sprite->scaleY/64.0;
+		DrawASprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,32*distx,32*disty,0,0,0.99,0.99,sprite->texture);
+	}
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -114,11 +137,10 @@ SPRITE *PrintSpritesOpaque()
 
 	if(!testPause)
 	{
-		for(cur = spriteList.head.next; (cur != &spriteList.head) && ((cur->flags & SPRITE_TRANSLUCENT) == 0); cur = next)
+		for(cur = spriteList.head.next; (cur != &spriteList.head); cur = next)
 		{
 			next = cur->next;
-
-			//PrintSprite(cur);
+			PrintSprite(cur);
 		}
 	}
 

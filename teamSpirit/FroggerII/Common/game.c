@@ -1098,8 +1098,6 @@ void RunGameLoop (void)
 						CameraLookAtFrog();
 					}
 					// ENDIF
-					for (i=0; i<4; i++)
-						UpdateCameraPosition(i);
 					
 					if ( !( frogState & FROGSTATUS_ISFLOATING ) )
 						SitAndFace(frog,currTile,frogFacing);
@@ -1111,7 +1109,8 @@ void RunGameLoop (void)
 					}
 					// ENDELSEIF
 					SitAndFace(frog2,currTile2,frogFacing2);
-
+					
+					
 				}	  
 			}
 			// ENDIF 
@@ -1152,7 +1151,7 @@ void RunGameLoop (void)
 		}
 	} 
 
-// ----- FOR DEMO PURPOSES - ANDYE -----
+	// ----- FOR DEMO PURPOSES - ANDYE -----
 	if(actList && demoTug)
 	{
 		demoTug->actor->pos.v[Y] = (demoTug->actor->oldpos.v[Y] - 20.0F) + (sinf(demoTugSeed) * demoTugAmp);
@@ -1189,6 +1188,10 @@ void RunGameLoop (void)
 		} 
 	}  
 
+	if (frog)
+		for (i=0; i<4; i++)
+			UpdateCameraPosition(i);
+					
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers

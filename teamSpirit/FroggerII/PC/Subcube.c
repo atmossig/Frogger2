@@ -266,6 +266,35 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 
 }
 
+void XfmPoint (VECTOR *vTemp2, VECTOR *in)
+{
+	float c[4][4];
+	guLookAtF(c,
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			//stx,sty,stz,
+			//ctx,cty,ctz,
+			0,1,0);
+			//camVect.v[X],camVect.v[Y],camVect.v[Z]);
+	guMtxXFMF(c,in->v[X],in->v[Y],in->v[Z],
+		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+	
+		if  (((vTemp2->v[Z]+DIST)>nearClip) &&
+			((vTemp2->v[Z]+DIST)<farClip) &&
+			((vTemp2->v[X])>-horizClip) &&
+			((vTemp2->v[X])<horizClip) &&
+			((vTemp2->v[Y])>-vertClip) &&
+			((vTemp2->v[Y])<vertClip))
+		{
+			float oozd = -1/(vTemp2->v[Z]+DIST);
+			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
+			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
+		}
+		else
+			vTemp2->v[Z] = 0;
+	
+}
+
 void PCDrawObject(OBJECT *obj, float m[4][4])
 {
 	short fce[3] = {0,1,2};		
