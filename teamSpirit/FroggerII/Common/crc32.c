@@ -14,6 +14,7 @@
 
 static unsigned long CRCtable[256];
 
+unsigned long objectCRC = 0;
 
 /*	--------------------------------------------------------------------------------
 	Function : InitCRCTable
@@ -63,12 +64,10 @@ unsigned long UpdateCRC(char *ptr)
 	int size = strlen(ptr);
 	unsigned long CRCaccum = 0;
 
-	/* If the first byte is a "magic number" the string is already a CRC, encoded in the
-	   next (sizeof(int)) bytes */
+	/* If the first byte is a "magic number", return the global CRC value thing */
 	if (*ptr == CRC_MAGIC_NUMBER)
 	{
-		sscanf(ptr+1, "%x", &code);
-		return code;
+		return objectCRC;
 	}
 	else
 	{
