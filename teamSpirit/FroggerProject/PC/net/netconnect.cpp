@@ -29,6 +29,12 @@
 
 LPDIRECTPLAY4A dplay		= NULL;
 
+DPID	dpidLocalPlayer;
+HANDLE	hLocalPlayerEvent;
+
+char	sessionName[256]	= "Frogger2";
+char	playerName[32]		= "Player";
+
 // {D0D2A940-5803-11d4-8832-00A0244E2381}
 static const GUID Frogger2_GUID =
 { 0xd0d2a940, 0x5803, 0x11d4, { 0x88, 0x32, 0x0, 0xa0, 0x24, 0x4e, 0x23, 0x81 } };
@@ -38,6 +44,7 @@ static const GUID Frogger2_GUID =
 bool SetupNetworking(HWND hwnd);
 bool SelectProvider(HWND hwnd);
 bool FindNetGame(HWND hwnd);
+bool CreateNetGame(HWND hDlg);
 bool CheckLobby(HWND hwnd);
 
 /*	--------------------------------------------------------------------------------
@@ -177,6 +184,12 @@ BOOL CALLBACK dlgProvider(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
 			HWND hctrl = GetDlgItem(hdlg, IDC_CONNECTIONLIST);
 			dplay->EnumConnections(&Frogger2_GUID, EnumConnections, (void*)hctrl,
 				DPCONNECTION_DIRECTPLAY | DPCONNECTION_DIRECTPLAYLOBBY);
+
+			SendMessage(GetDlgItem(hdlg, IDC_CONNECTIONLIST), LB_SETCURSEL, 0, 0);
+
+			hctrl = GetDlgItem(hdlg, IDC_PLAYERNAME);
+			SetWindowText(hctrl, playerName);
+			SendMessage(hctrl, EM_SETSEL, 0, -1);
 		}		
 		return 0;
 
@@ -203,6 +216,14 @@ BOOL CALLBACK dlgProvider(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
 		case IDCANCEL:
 			EndDialog(hdlg, false);
 			return true;
+
+		case IDC_PLAYERNAME:
+			if (HIWORD(wParam) == EN_CHANGE)
+			{
+				int len = SendMessage((HWND)lParam, WM_GETTEXT, 32, (LPARAM)&playerName);
+				EnableWindow(GetDlgItem(hdlg, IDOK), (len>0));
+				return true;
+			}
 		}
 		break;
 
@@ -234,9 +255,205 @@ bool SelectProvider(HWND hwnd)
 	Parameters	: 
 	Returns		: success
 */
-bool FindNetGame(HWND hwnd)
+
+BOOL CALLBACK EnumSessions(const DPSESSIONDESC2 *lpdpsd, LPDWORD lptimeout, DWORD flags, LPVOID context)
 {
-	return false;
-	//return DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_GAMES), hwnd, dlgProvider);
+	if (flags & DPESC_TIMEDOUT)
+		return FALSE;
+
+	HWND hlist = (HWND)context;
+	int item = SendMessage(hlist, LB_ADDSTRING, 0, (LPARAM)lpdpsd->lpszSessionNameA);
+
+	return TRUE;
 }
 
+bool ShowNetGames(HWND hdlg, bool start)
+{
+	DPSESSIONDESC2 dpsd;
+	HWND hlist = GetDlgItem(hdlg, IDC_GAMELIST);
+
+	if (start)
+		SendMessage(hlist, LB_RESETCONTENT, 0, 0);
+
+	ZeroMemory(&dpsd, sizeof(DPSESSIONDESC2));
+	dpsd.dwSize = sizeof(DPSESSIONDESC2);
+	dpsd.guidApplication = Frogger2_GUID;
+
+	dplay->EnumSessions(&dpsd, 0, &EnumSessions, GetDlgItem(hdlg, IDC_GAMELIST),
+		(start)?DPENUMSESSIONS_ASYNC|DPENUMSESSIONS_ALL:DPENUMSESSIONS_STOPASYNC);
+
+	return true;
+}
+
+BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
+{
+    HRESULT hr;
+	static searching;
+
+    switch( msg )
+    {
+        case WM_INITDIALOG:
+            {
+                searching = FALSE;
+                SetDlgItemText( hDlg, IDC_SEARCH, "Start Search" );
+//				DPConnect_SessionsDlgInitListbox( hDlg );
+            }
+            break;
+
+        case WM_TIMER:
+			ShowNetGames(hDlg, true);
+            break;
+
+        case WM_COMMAND:
+            switch( LOWORD(wParam) )
+            {
+                case IDC_SEARCH:
+                    searching = !searching;
+
+
+                    if (searching)
+                    {
+                        // Start the timer, and start the async enumeratation
+                        SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
+                        SetTimer( hDlg, 1, 250, NULL );
+
+						ShowNetGames(hDlg, true);
+                    }
+                    else
+                    {
+                        // Stop the timer, and stop the async enumeration
+                        KillTimer( hDlg, 1 );
+						ShowNetGames(hDlg, false);
+                        SetDlgItemText( hDlg, IDC_SEARCH, "Start Search" );
+                    }
+                    break;
+
+
+                case IDC_GAMELIST:
+                    if( HIWORD(wParam) != LBN_DBLCLK )
+                        break;
+                    // Fall through
+
+                case IDC_JOIN:
+/*                    if( FAILED( hr = DPConnect_SessionsDlgJoinGame( hDlg ) ) )
+                    {
+                        MessageBox( hDlg, TEXT("Unable to join game."),
+                                    TEXT("DirectPlay Sample"), 
+                                    MB_OK | MB_ICONERROR );
+                    }    
+*/					
+                    break;
+
+                case IDC_CREATE:
+					CreateNetGame(hDlg);
+                    break;
+
+                case IDCANCEL: // The close button was press
+                    EndDialog(hDlg, -1);
+                    break;
+/*
+                case IDC_BACK: // "Cancel" button was pressed
+                    EndDialog(hDlg, 1);
+                    break;
+*/
+                default:
+                    return FALSE; // Message not handled
+            }
+            break;
+        
+        case WM_DESTROY:
+            KillTimer(hDlg, 1);
+            //DPConnect_SessionsDlgCleanup();
+            break;
+
+        default:
+            return FALSE; // Message not handled
+    }
+
+    // Message was handled
+    return TRUE; 
+}
+
+
+bool FindNetGame(HWND hwnd)
+{
+	return (DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_GAMES), hwnd, dlgSession) == 0);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: CreateNetGame
+	Purpose		: Creates a network game of Frogger2
+	Parameters	: 
+	Returns		: success
+*/
+
+
+BOOL CALLBACK dlgCreate(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	int len;
+
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		SetDlgItemText(hDlg, IDC_NAME, "Frogger2");
+		return FALSE;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+			if ((len = GetDlgItemText(hDlg, IDC_NAME, sessionName, 256)) > 0)
+				EndDialog(hDlg, 0);
+			break;
+
+		case IDCANCEL:
+			EndDialog(hDlg, -1);
+			break;
+
+		default:
+			return FALSE;
+		}
+		break;
+
+	default:
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+bool CreateNetGame(HWND hwnd)
+{
+    DPSESSIONDESC2	dpsd;
+    DPNAME			dpname;
+	HRESULT			res;
+
+	if (DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_CREATE), hwnd, dlgCreate) != 0)
+		return false;
+
+    ZeroMemory( &dpsd, sizeof(dpsd) );
+    dpsd.dwSize           = sizeof(dpsd);
+    dpsd.guidApplication  = Frogger2_GUID;
+    dpsd.lpszSessionNameA = sessionName;
+    dpsd.dwMaxPlayers     = 4;
+    dpsd.dwFlags          = DPSESSION_KEEPALIVE|DPSESSION_MIGRATEHOST|DPSESSION_DIRECTPLAYPROTOCOL;
+
+	if (dplay->Open(&dpsd, DPOPEN_CREATE) != DP_OK)
+	{
+		utilPrintf("CreateNetGame(): dplay->Open() failed\n");
+		return false;
+	}
+
+	ZeroMemory(&dpname, sizeof(dpname));
+	dpname.dwSize			= sizeof(dpname);
+	dpname.lpszShortNameA	= playerName;
+
+	if (dplay->CreatePlayer(&dpidLocalPlayer, &dpname, 0, NULL, 0, DPPLAYER_SERVERPLAYER) != DP_OK)
+	{
+		dplay->Close();
+		utilPrintf("CreateNetGame(): Failed creating player\n");
+		return false;
+	}
+
+	return true;
+}
