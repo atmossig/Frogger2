@@ -3,6 +3,7 @@
 
 #include <memory.h>
 
+#define MALLOC(x) malloc(x)
 #define FREE(x) free(x),(x)=NULL
 #define memoryAllocateZero(size, file, line) calloc((size), 1)
 #define memoryShow()
