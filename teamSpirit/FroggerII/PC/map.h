@@ -24,6 +24,7 @@ enum
 extern char *mapBank;
 extern unsigned long numSafe;
 extern unsigned long numPwrups;
+extern unsigned long numTiles;
 
 extern GAMETILE **bTSafe;
 extern GAMETILE **pwrupTStart;

@@ -22,6 +22,7 @@ char *aLevBank = NULL;
 
 unsigned long numSafe = 1;
 unsigned long numPwrups = 3;
+unsigned long numTiles;
 
 GAMETILE *firstTile;
 
@@ -71,6 +72,7 @@ BOOL LoadCollision(int num)
 {
 	char message[256];
 	char    file[MAX_PATH]; 
+	GAMETILE *tile;
 
 	mapHandle = NULL;
     strcpy (file,baseDirectory);	
@@ -348,6 +350,9 @@ BOOL LoadCollision(int num)
 */
 		if (GetFirst)
 			firstTile = (GAMETILE *)GetFirst();
+
+		for( tile = firstTile, numTiles=0; tile; tile=tile->next )
+			numTiles++;
 
 		if (GetCameras)
 			cameraBoxes = *(CAM_BOX_LIST*)GetCameras();
