@@ -1,4 +1,5 @@
 
+
 #include "sonylibs.h"
 #include <islutil.h>
 #include "shell.h"
@@ -10,6 +11,7 @@
 #include "world_eff.h"
 #include "layout.h"
 #include "frogger.h"
+
 
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
@@ -236,20 +238,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 //	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
 	int max_depth = fog.max + mesh->extra_depth;
 //	int max_depth = worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip + mesh->extra_depth;
-
-
-	/*if(mesh->n_verts <= 255)	// Yes, 255. TransformVerts rounds up to nearest 3, remember
-	{
-		tfv = (void *)dcache;
-		tfd = transformedDepths;
-	}
-	else
-	{
-		tfv = transformedVertices;
-		tfd = transformedDepths;
-	}*/
-
-//#define DCACHE  0x1f800000
 		
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
@@ -267,37 +255,19 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		tfd = transformedDepths;
 	}
 
-	//tfv = (long*)transformedVertices;
-	//tfd = (long*)transformedDepths;
-
 	if(max_depth > 1024-mesh->extra_depth)
 		max_depth = 1024-mesh->extra_depth;
 
-	//bbopt - get a version with depth>>=2
-	//utilPrintf("Draw World Mesh!!!\n");
 	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 
 // This should really by in the (or an alternative) transformvertexlist function
 // It scales the OTZ's down so that they actually fit into the size of the ordering table.
 
-//	for(i = 0; i < mesh->n_verts; i++)
-//		tfd[i] = tfd[i] >> 2;
-	// ENDFOR
-
-
 	packet = (PACKET *)currentDisplayPage->primPtr;
-
-
-
-
-
 
 // The MapDraw stores a count+list of quads and one of tris,
 // rather than checking a "type" element for every polygon.
 // (coz it only has those two types. No transparent. No double sided. No nothing)
-
-
-
 
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
@@ -493,7 +463,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 #undef si
 #undef op
-#undef xy
+
+
 
 	currentDisplayPage->primPtr = (char *)packet;
 }
