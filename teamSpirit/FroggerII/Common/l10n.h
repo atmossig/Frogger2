@@ -12,28 +12,23 @@
 #ifndef _L10N_H_INCLUDED
 #define _L10N_H_INCLUDED
 
+typedef enum {
+	LANG_ENGLISH,
+	LANG_FRENCH,
+	LANG_GERMAN,
+	LANG_SPANISH,
+	LANG_ITALIAN,
+	LANG_SWEDIAN,
+	NUM_LANGUAGES
+} LANGUAGE;
+
+
 // use this macro to access the string you want
 #define TEXTSTR(n) (gameTextStr[n])
 
 extern char	**gameTextStr;
 
-/**************************************************************************
-	FUNCTION:	gameTextInitFromFile
-	PURPOSE:	Read in the text from a gametext file
-	PARAMETERS:	Filename, num strings, number of languages, current language
-	RETURNS:	
-**************************************************************************/
-
 void gameTextInit(char *fName, int numStrings, int numLang, int currLang);
-
-
-/**************************************************************************
-	FUNCTION:	gameTextDestroy
-	PURPOSE:	Free up text
-	PARAMETERS:	
-	RETURNS:	
-**************************************************************************/
-
 void gameTextDestroy();
 
 #endif
