@@ -60,9 +60,9 @@ extern void CreateProceduralTexture( TextureType *tex, char *name );
 												   (v1)->vy = (short)(v2)->vy,\
 												   (v1)->vz = (short)(v2)->vz
 
-#define SetVectorRF(v1, v2)						   (v1)->vx = (float)((unsigned int)(v2)->vx>>12),\
-												   (v1)->vy = (float)((unsigned int)(v2)->vy>>12),\
-												   (v1)->vz = (float)((unsigned int)(v2)->vz>>12)
+#define SetVectorRF(v1, v2)						   (v1)->vx = (float)((int)(v2)->vx>>12),\
+												   (v1)->vy = (float)((int)(v2)->vy>>12),\
+												   (v1)->vz = (float)((int)(v2)->vz>>12)
 
 #define SetVectorFR(v1, v2)						   (v1)->vx = (int)((v2)->vx<<12),\
 												   (v1)->vy = (int)((v2)->vy<<12),\
