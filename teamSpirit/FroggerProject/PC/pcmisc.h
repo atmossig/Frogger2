@@ -23,8 +23,11 @@ extern "C"
 extern short mouseX;
 extern short mouseY;
 
-
 extern int drawOverlays;
+
+#define OVERLAY_X 640/4096
+#define OVERLAY_Y 480/4096
+
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
