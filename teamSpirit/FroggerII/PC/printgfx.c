@@ -482,6 +482,7 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 
 		DrawAHardwarePoly(vT,4,f,6,tex);
 	}
+
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 }
