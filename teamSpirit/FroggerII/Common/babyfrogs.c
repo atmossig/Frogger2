@@ -125,7 +125,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 {
 	unsigned long i;
 	SPECFX *fx;
-	VECTOR normal;
+	VECTOR pos, up;
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
 
@@ -163,8 +163,35 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 
 	PlaySample( genSfx[GEN_COLLECT_BABY], &baby->actor->pos, 0, SAMPLE_VOLUME, -1 );
 
-	SetVector( &normal, &gTStart[0]->normal );
+	// Ring 1
+	SetVector( &up, &tile->normal );
+	ScaleVector( &up, 20 );
+	AddVector( &pos, &up, &baby->actor->pos );
+	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 16, 1, 0.02, 1 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 
+	// Ring 2
+	AddToVector( &pos, &up );
+	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 8, 0.5, 0.02, 1.2 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+
+	// Ring 3
+	AddToVector( &pos, &up );
+	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 4, 0.3, 0.02, 1.4 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+	
+	// Ring 4
+	AddToVector( &pos, &up );
+	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 2, 0.1, 0.02, 1.6 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+
+	// Ring 5
+	AddToVector( &pos, &up );
+	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 1, 0.05, 0.02, 1.8 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+
+
+	/*
 	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 50, 3, 0, 5 )) )
 	{
 		SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
@@ -192,7 +219,8 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 		SetVector( &fx->rebound->point, &baby->actor->pos );
 		SetVector( &fx->rebound->normal, &normal );
 		fx->gravity = 0.07;
-	}	
+	}
+	*/
 	return TRUE;
 }
 

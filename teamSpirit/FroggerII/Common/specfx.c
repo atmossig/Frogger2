@@ -785,7 +785,7 @@ void UpdateFXSmoke( SPECFX *fx )
 
 				if(dist > 0 && dist < 10)
 				{
-					CreateAndAddSpecialEffect( FXTYPE_DECAL, &s->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
+					CreateAndAddSpecialEffect( FXTYPE_WAKE, &s->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
 					JallocFree( (UBYTE **)&fx->rebound );
 					fx->rebound = NULL;
 				}
@@ -893,7 +893,7 @@ void UpdateFXSwarm( SPECFX *fx )
 			dist = -(DotProduct(&pos, &fx->rebound->normal) + fx->rebound->J);
 
 			if(dist > 0 && dist < 3)
-				CreateAndAddSpecialEffect( FXTYPE_DECAL, &pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.3 );
+				CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.3 );
 		}
 	}
 
@@ -961,7 +961,7 @@ void UpdateFXExplode( SPECFX *fx )
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
 					if( dist < 5 )
-						CreateAndAddSpecialEffect( FXTYPE_DECAL, &s->pos, &fx->rebound->normal, 5, 0.2, 0.1, 0.3 );
+						CreateAndAddSpecialEffect( FXTYPE_WAKE, &s->pos, &fx->rebound->normal, 5, 0.2, 0.1, 0.3 );
 			}
 		}
 
