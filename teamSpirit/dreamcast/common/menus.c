@@ -1545,26 +1545,40 @@ void RunFrontendGameLoop (void)
 				break;
 
 			case TILENUM_CHOICE:
-				//close off multiplayer and arcade machine if training not completed
+
+				// default all on
+				hudNum = 2;
 				titleHudText[0]->draw = 1;
 				titleHudText[1]->draw = 1;
 				titleHudText[2]->draw = 1;
-				titleHudText[3]->draw = doneTraining;
+				titleHudText[3]->draw = 1;
 				titleHudText[0]->text = GAMESTRING(STR_STORYMODE);
 				titleHudText[1]->text = GAMESTRING(STR_OPTIONS);
 				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
 				titleHudText[3]->text = GAMESTRING(STR_ARCADEMODE);
 				titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
+
+				// need to print arcade text?
+				if (doneTraining == 0)
+				{
+					titleHudText[3]->draw = 0;
+					maxHud = 3;
+				}
+				else
+					maxHud = 4;
+
 #ifdef FINAL_MASTER
 				if(doneTraining == 0)
 				{
 					currTile[0]->tilePtrs[0] = NULL;
 					currTile[0]->tilePtrs[2] = NULL;
-					maxHud = 2;
+					// *ASL* 16/08/2000 - Seems to be invalid
+					//maxHud = 2
 				}
 				GTInit( &modeTimer, 5 );
 #endif
-				maxHud = 3;
+				// *ASL* 16/08/2000 - Seems to be invalid
+				//maxHud = 3
 				break;
 
 			case TILENUM_BOOK:
