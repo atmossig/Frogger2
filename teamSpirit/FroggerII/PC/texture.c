@@ -248,6 +248,8 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		dprintf"Cannot find texture %s\n",shortn));
 }
 
+void PrintTextureInfo(void);
+
 void LoadTextureBank(int num)
 {
 	char			message[255];
@@ -259,7 +261,9 @@ void LoadTextureBank(int num)
 
     strcpy (filename,baseDirectory);	
 	strcat (filename,TEXTURE_BASE);
-
+	
+	PrintTextureInfo();
+	
 	switch(num)
 	{
 		case SYSTEM_TEX_BANK:
@@ -381,6 +385,9 @@ void LoadTextureBank(int num)
 
 		FindClose (fHandle);
 	}
+
+	PrintTextureInfo();
+
 }
 
 /*	--------------------------------------------------------------------------------

@@ -26,7 +26,8 @@ extern LPDIRECTDRAW			pDirectDraw;
 extern LPDIRECTDRAW4		pDirectDraw4;
 extern LPDIRECTDRAWCLIPPER	pClipper;
 extern LPDIRECTDRAWSURFACE	surface[NUM_SRF];
-extern unsigned long		rXRes, rYRes, rBitDepth, r565 ,rHardware;
+extern unsigned long		rXRes, rYRes, rBitDepth, r565 ,rHardware, rFullscreen, rScale;
+extern HWND					rWin;
 
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawInitObject
@@ -61,12 +62,32 @@ unsigned long DDrawAttachSurface(unsigned long srfA, unsigned long srfB);
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawSetupWindow
 	Purpose		: Setup for widowing
+	Parameters	: The window that will contain the view of the primary surface, and whether to scale to that window if not fullscreen
+	Returns		: success
+	Info		: 
+*/
+
+unsigned long DDrawSetupWindow(HWND window, unsigned long scaled);
+
+/*	--------------------------------------------------------------------------------
+	Function	: DDrawSetupWindow
+	Purpose		: Setup for widowing
 	Parameters	: The window that will contain the view of the primary surface
 	Returns		: success
 	Info		: 
 */
 
-unsigned long DDrawSetupWindow(HWND window);
+void DDrawFlip(void);
+
+/*	--------------------------------------------------------------------------------
+	Function	: ClearSurface
+	Purpose		: Clear a surface (Depth or color)
+	Parameters	: Surface Number, value to fill with, DDBLT_DEPTHFILL or DDBLT_COLORFILL
+	Returns		: success
+	Info		: 
+*/
+
+void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fillType);
 
 //	-------------------------- Example
 //

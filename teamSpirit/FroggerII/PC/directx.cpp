@@ -1447,6 +1447,14 @@ long DirectXInit(HWND window, long hardware )
 }
 
 float bRed = 0, bGreen = 0, bBlue = 0;
+
+void PrintTextureInfo(void)
+{
+	DDCAPS ddCaps;
+	DDINIT(ddCaps);													// Init caps struct
+	pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
+	dp ( "Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
+}
  
 void DirectXFlip(void)
 {

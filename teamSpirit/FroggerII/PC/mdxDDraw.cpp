@@ -11,7 +11,8 @@
 LPDIRECTDRAW			pDirectDraw;		// Our Direct Draw Object
 LPDIRECTDRAW4			pDirectDraw4;		// A modern view of our direct draw object
 LPDIRECTDRAWCLIPPER		pClipper;
-unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware;
+unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale;
+HWND					rWin;
 
 LPDIRECTDRAWSURFACE	surface[NUM_SRF] = {NULL,NULL,NULL};
 
@@ -158,16 +159,21 @@ unsigned long DDrawAttachSurface(unsigned long srfA, unsigned long srfB)
 	Info		: 
 */
 
-unsigned long DDrawSetupWindow(HWND window)
+unsigned long DDrawSetupWindow(HWND window, unsigned long scaled)
 {
 	HRESULT res;
+	
 	if (!surface[0])
 	{
 		dp("Cannot setup window before you create at least one surface");
 		return 0;
 	}
-
+	
+	rWin = window;
+	rScale = scaled;
+	
 	// To run fullscreen - exclusive, ensure bitdepth is nonzero
+	rFullscreen = 0;
 	if (rBitDepth)
 	{
 		// Fullscreen Exclusive
@@ -185,6 +191,7 @@ unsigned long DDrawSetupWindow(HWND window)
 			ddShowError(res);
 			return 0;
 		}
+		rFullscreen = 1;
 	}
 	
 	// Make a clipper
@@ -214,9 +221,72 @@ unsigned long DDrawSetupWindow(HWND window)
 	return 1;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function	: DDrawSetupWindow
+	Purpose		: Setup for widowing
+	Parameters	: The window that will contain the view of the primary surface
+	Returns		: success
+	Info		: 
+*/
 
+void DDrawFlip(void)
+{
+	D3DRECT			rect;
+	RECT			r,a;
+	DDSURFACEDESC	ddsd;
 
+	
+	// Flip the back buffer to the primary surface
+	if (rFullscreen)
+		surface[PRIMARY_SRF]->Flip(NULL,DDFLIP_WAIT);
+	else
+	{
+		RECT clientR,windowR;
 
+		// Or if we are windowed, copy it.. Since thay won't be attached
+		GetClientRect(rWin,&clientR);
+		GetWindowRect(rWin,&windowR);
+		
+		windowR.top+=GetSystemMetrics(SM_CYCAPTION)+GetSystemMetrics(SM_CYSIZEFRAME);
+		windowR.left+=GetSystemMetrics(SM_CXSIZEFRAME);
+			
+		// Setup for scaling
+		if (rScale)
+		{
+			windowR.bottom-=GetSystemMetrics(SM_CYSIZEFRAME);
+			windowR.right-=GetSystemMetrics(SM_CXSIZEFRAME);
+			clientR.right = rXRes;
+			clientR.bottom = rYRes;
+		}
+		else
+		{
+			windowR.bottom = clientR.bottom+windowR.top;
+			windowR.right = clientR.right+windowR.left;
+			if (clientR.right>rXRes) clientR.right = rXRes;
+			if (clientR.bottom>rYRes) clientR.bottom = rYRes;
+		}
 
+		// Blt it, I suppose if we aren't scaling I could used BltFast, but is it worth it? I dont think so
+		while (surface[PRIMARY_SRF]->Blt(&windowR,surface[RENDER_SRF],&clientR,NULL,NULL)!=DD_OK);
+	}
+}
 
+/*	--------------------------------------------------------------------------------
+	Function	: ClearSurface
+	Purpose		: Clear a surface (Depth or color)
+	Parameters	: Surface Number, value to fill with, DDBLT_DEPTHFILL or DDBLT_COLORFILL
+	Returns		: success
+	Info		: 
+*/
 
+void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fillType)
+{
+	DDBLTFX			m;
+	DDINIT(m);
+
+	// Setup, unsure if setting both will work, if this is still here then I guess it does.
+	m.dwFillDepth = m.dwFillColor = value;
+
+	// Fill it, innefecient, I would recomend not waiting!
+	while (surface[srfN]->Blt(NULL,NULL,NULL,DDBLT_WAIT | fillType,&m)!=DD_OK);	
+}
