@@ -17,7 +17,7 @@ typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE } 
 
 #define MEMGETBYTE(p) (*((*p)++))
 
-inline int MEMGETINT(UBYTE **p)		// get a little-endian integer
+int MemLoadInt(UBYTE **p)		// get a little-endian integer
 {
 	unsigned int i;
 
@@ -29,9 +29,17 @@ inline int MEMGETINT(UBYTE **p)		// get a little-endian integer
 	return i;
 }
 
-#define MEMGETFLOAT(p) ((float)MEMGETINT(p) / (float)0x10000)
+short MemLoadWord(UBYTE **p)		// get a little-endian word
+{
+	unsigned short i;
 
-inline char *MemLoadString(UBYTE **p)
+	i = (unsigned int)*((*p)++);
+	i += ((unsigned int)*((*p)++) << 8);
+
+	return (short)i;
+}
+
+char *MemLoadString(UBYTE **p)
 {
 	char *ptr;
 	int size;
@@ -146,6 +154,7 @@ int MemLoadEntities(const void* data, long size)
 				AssignPathToPlatform(platform, flags, path, 0);
 				act = platform->pltActor;
 
+#ifdef PLATFORM_NEW_SHAKABLESCENIC
 				// check for platforms that are 'shakable' scenics - TESTING - ANDYE
 				if(	gstrcmp(type,"appltree.obe") == 0 || gstrcmp(type,"appltree.ndo") == 0 ||
 					gstrcmp(type,"barrel.obe") == 0 || gstrcmp(type,"barrel.ndo") == 0 ||
@@ -156,7 +165,7 @@ int MemLoadEntities(const void* data, long size)
 					SetVector(&platform->pltActor->actor->oldpos,&platform->pltActor->actor->pos);
 					platform->flags |= PLATFORM_NEW_SHAKABLESCENIC;
 				}
-
+#endif
 				break;
 			}
 
