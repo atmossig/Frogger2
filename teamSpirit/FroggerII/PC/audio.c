@@ -844,7 +844,7 @@ void LoadSfxMapping( int world, int level )
 		// If a tile based sample, skip the normal mapping load and just make an ambient
 		if( type == 4 )
 		{
-			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 1200, 50, -1, 0, 0, NULL );
+			AddAmbientSound( FindSample(MEMGETINT(&in)), &firstTile[uid].centre, 1200, AMBIENT_VOLUME, -1, 0, 0, NULL );
 			count+=4;
 			continue;
 		}
@@ -905,7 +905,7 @@ SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 			if( type == 3 )
 			{
 				// Make an ambient sound if we've attached a sound to a scenic
-				AddAmbientSound( sfx_anim_map[index], &actor->pos, 1200, 50, -1/*128*/, 0, 0, actor );
+				AddAmbientSound( sfx_anim_map[index], &actor->pos, 1200, AMBIENT_VOLUME, -1/*128*/, 0, 0, actor );
 				return NULL;
 			}
 			else
