@@ -66,7 +66,7 @@ void CalcNextPlatformDest(PLATFORM *plat);
 //----- [ PLATFORM UPDATE FUNCTIONS ] ------------------------------------------------------------
 
 void UpdatePathPlatform(PLATFORM *plat);
-void UpdateSlerpPathPlatform(PLATFORM *plat);
+void UpdatePathUpDownPlatform(PLATFORM *plat);
 void UpdateUpDownPlatform(PLATFORM *plat);
 void UpdateNonMovingPlatform(PLATFORM *plat);
 void UpdateStepOnActivatedPlatform(PLATFORM *plat);
@@ -704,8 +704,6 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path)
 	// determine relevant platform update function
 	if(newItem->flags & PLATFORM_NEW_FOLLOWPATH)
 		newItem->Update = UpdatePathPlatform;
-	else if(newItem->flags & PLATFORM_NEW_SLERPPATH)
-		newItem->Update = UpdateSlerpPathPlatform;
 	else if((newItem->flags & PLATFORM_NEW_MOVEUP) || (newItem->flags & PLATFORM_NEW_MOVEDOWN))
 		newItem->Update = UpdateUpDownPlatform;
 	else if(newItem->flags & PLATFORM_NEW_NONMOVING)
@@ -853,7 +851,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	VECTOR pformPos;
 	PATH *path = pform->path;
 	unsigned long flags = pform->flags;
-	
+
 	path->fromNode = path->toNode;
 
 	CalcNextPlatformDest(pform);
@@ -1236,18 +1234,6 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 		plat->inTile[1] = NULL;
 	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: UpdateSlerpPathPlatform
-	Purpose			: updates platforms that follow a path with a slerp
-	Parameters		: PLATFORM *
-	Returns			: void
-	Info			: 
-*/
-void UpdateSlerpPathPlatform(PLATFORM *plat)
-{
 }
 
 
