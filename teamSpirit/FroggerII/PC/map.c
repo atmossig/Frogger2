@@ -103,7 +103,7 @@ void LoadCollision (int num)
 			break;
 
 		case ANCIENTMASTER_COL:
-			strcat(file,"ancientsmaster");
+			strcat(file,"ancientsboss");
 			break;
 		case ANCIENTLEV1_COL:
 			strcat(file,"ancients1");
@@ -141,7 +141,7 @@ void LoadCollision (int num)
 			break;
 
 		case CITYMASTER_COL:
-			strcat(file,"citymaster");
+			strcat(file,"cityboss");
 			break;
 		case CITYLEV1_COL:
 			strcat(file,"city1");
@@ -160,7 +160,7 @@ void LoadCollision (int num)
 			break;
 
 		case SUBTERRANEANMASTER_COL:
-			strcat(file,"submaster");
+			strcat(file,"subboss");
 			break;
 		case SUBTERRANEANLEV1_COL:
 			strcat(file,"sub1");
@@ -179,7 +179,7 @@ void LoadCollision (int num)
 			break;
 
 		case LABORATORYMASTER_COL:
-			strcat(file,"labmaster");
+			strcat(file,"labboss");
 			break;
 		case LABORATORYLEV1_COL:
 			strcat(file,"lab1");
@@ -198,7 +198,7 @@ void LoadCollision (int num)
 			break;
 
 		case TOYSHOPMASTER_COL:
-			strcat(file,"toymaster");
+			strcat(file,"toyboss");
 			break;
 		case TOYSHOPLEV1_COL:
 			strcat(file,"toy1");
@@ -217,7 +217,7 @@ void LoadCollision (int num)
 			break;
 
 		case HALLOWEENMASTER_COL:
-			strcat(file,"halloweenmaster");
+			strcat(file,"halloweenboss");
 			break;
 		case HALLOWEENLEV1_COL:
 			strcat(file,"halloween1");
@@ -236,7 +236,7 @@ void LoadCollision (int num)
 			break;
 
 		case RETROMASTER_COL:
-			strcat(file,"retromaster");
+			strcat(file,"retroboss");
 			break;
 		
 		case FRONTEND1_COL:
@@ -350,7 +350,7 @@ void LoadScenics (int num)
 			break;
 
 		case ANCIENTMASTER_COL:
-			strcat(file,"ancientsmaster");
+			strcat(file,"ancientsboss");
 			break;
 		case ANCIENTLEV1_COL:
 			strcat(file,"ancients1");
@@ -388,7 +388,7 @@ void LoadScenics (int num)
 			break;
 
 		case CITYMASTER_COL:
-			strcat(file,"citymaster");
+			strcat(file,"cityboss");
 			break;
 		case CITYLEV1_COL:
 			strcat(file,"city1");
@@ -407,7 +407,7 @@ void LoadScenics (int num)
 			break;
 
 		case SUBTERRANEANMASTER_COL:
-			strcat(file,"submaster");
+			strcat(file,"subboss");
 			break;
 		case SUBTERRANEANLEV1_COL:
 			strcat(file,"sub1");
@@ -426,7 +426,7 @@ void LoadScenics (int num)
 			break;
 
 		case LABORATORYMASTER_COL:
-			strcat(file,"labmaster");
+			strcat(file,"labboss");
 			break;
 		case LABORATORYLEV1_COL:
 			strcat(file,"lab1");
@@ -445,7 +445,7 @@ void LoadScenics (int num)
 			break;
 
 		case TOYSHOPMASTER_COL:
-			strcat(file,"toymaster");
+			strcat(file,"toyboss");
 			break;
 		case TOYSHOPLEV1_COL:
 			strcat(file,"toy1");
@@ -464,7 +464,7 @@ void LoadScenics (int num)
 			break;
 
 		case HALLOWEENMASTER_COL:
-			strcat(file,"halloweenmaster");
+			strcat(file,"halloweenboss");
 			break;
 		case HALLOWEENLEV1_COL:
 			strcat(file,"halloween1");
@@ -483,7 +483,7 @@ void LoadScenics (int num)
 			break;
 
 		case RETROMASTER_COL:
-			strcat(file,"retromaster");
+			strcat(file,"retroboss");
 			break;
 
 		case FRONTEND1_COL:

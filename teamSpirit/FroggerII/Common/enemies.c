@@ -170,7 +170,35 @@ void UpdateEnemies()
 			if(actFrameCount > cur->path->startFrame)
 				cur->isWaiting = 0;
 			else
+			{
+				// if enemy is following a path, do a slerp so it'll rotate nicely
+				// (except the way I do it is a bit poo - Dave)
+
+				if (cur->flags & ENEMY_NEW_FOLLOWPATH && !(cur->flags & ENEMY_NEW_FACEFORWARDS))
+				{
+					QUATERNION q, res;
+					float t;
+					long start_t, end_t, time;
+					
+					end_t = cur->path->startFrame;
+					time = cur->isWaiting*waitScale;
+					start_t = end_t - time;
+
+					t = 1.0 - (float)(actFrameCount-start_t)/(float)(time);
+
+					GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
+					GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
+					
+					SubVector(&fwd,&toPosition,&fromPosition);
+
+					Orientate(&q,&fwd,&inVec,&cur->currNormal);
+
+					QuatSlerp(&q, &cur->nmeActor->actor->qRot, t, &res);
+
+					SetQuaternion(&cur->nmeActor->actor->qRot, &res);
+				}
 				continue;
+			}
 		}
 
 		if ( cur->isIdle )
@@ -355,8 +383,8 @@ void UpdateEnemies()
 						cur->path->toNode++;
 					}
 
-					cur->speed		= GetSpeedFromIndexedNode(cur->path,cur->path->fromNode);
-					cur->isWaiting	= GetWaitTimeFromIndexedNode(cur->path,cur->path->fromNode);
+					cur->speed = cur->path->nodes[cur->path->fromNode].speed;
+					cur->isWaiting = cur->path->nodes[cur->path->fromNode].waitTime;
 
 					GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
 					ActorLookAt( cur->nmeActor->actor, &toPosition );
@@ -1368,11 +1396,11 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 		nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
 	}
 
-	nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
+	nme->speed		= path->nodes[path->fromNode].speed;
+	nme->isWaiting	= path->nodes[path->fromNode].waitTime;
 
 	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
 
-	nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
 	CalcEnemyNormalInterps(nme);
 }
 
