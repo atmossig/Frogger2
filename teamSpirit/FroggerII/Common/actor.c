@@ -569,8 +569,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 					newItem->flags |= ACTOR_SLIDYTEX2;
 					break;
 				case 'f':
-					newItem->flags |= ACTOR_SLIDYTEX;
-					newItem->flags |= ACTOR_SLIDYTEX2;
+					newItem->flags |= (ACTOR_SLIDYTEX | ACTOR_SLIDYTEX2);
 					break;
 			}
 		}
