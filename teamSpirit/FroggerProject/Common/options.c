@@ -2224,6 +2224,27 @@ void SetActorGouraudValuesPlus(FMA_MESH_HEADER *mesh, int r,int g,int b)
 	}
 #undef op
 }
+
+
+void GetObjectGouraudValues ( FMA_MESH_HEADER *mesh )
+{
+	int i;
+
+	register char *opcd asm("$18");
+
+#define op ((FMA_GT4 *)opcd)
+
+	op = mesh->gt4s;
+
+	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
+	{
+		if ( op->r0 < op->r0 + r )
+			op->r0 += r; else op->r0 = 255;
+	}
+#undef op
+}
+
+
 #endif
 
 void BookLeft(void)
