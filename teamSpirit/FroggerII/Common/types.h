@@ -47,21 +47,21 @@
 #define	INIT_SHADOW		(1 << 1)
 
 //object flags
-#define OBJECT_FLAGS_GOURAUD_SHADED			   	(1<<0)
-#define OBJECT_FLAGS_XLU					   	(1<<1)
-#define OBJECT_FLAGS_TRANSPARENT			   	(1<<2)
-#define OBJECT_FLAGS_PRELIT					   	(1<<3)
-#define OBJECT_FLAGS_MIP_MAP				   	(1<<4)
-#define OBJECT_FLAGS_MODGE					   	(1<<5)
-#define OBJECT_FLAGS_TEXTURE_BLEND			   	(1<<6)
-#define OBJECT_FLAGS_IA						   	(1<<7)
-#define OBJECT_FLAGS_PHONG					   	(1<<8)
-#define OBJECT_FLAGS_FADEOUT				   	(1<<9)
-#define OBJECT_FLAGS_FACE_COLOUR			   	(1<<10)
-#define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)
-#define OBJECT_FLAGS_TEXTURE_BLEND_ENV		   	(1<<12)
-#define OBJECT_FLAGS_COLOUR_BLEND			   	(1<<13)
-#define OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT   	(1<<14)
+#define OBJECT_FLAGS_GOURAUD_SHADED			   	(1<<0)		// 1
+#define OBJECT_FLAGS_XLU					   	(1<<1)		// 2
+#define OBJECT_FLAGS_TRANSPARENT			   	(1<<2)		// 4
+#define OBJECT_FLAGS_PRELIT					   	(1<<3)		// 8
+#define OBJECT_FLAGS_MIP_MAP				   	(1<<4)		// 16
+#define OBJECT_FLAGS_MODGE					   	(1<<5)		// 32
+#define OBJECT_FLAGS_TEXTURE_BLEND			   	(1<<6)		// 64
+#define OBJECT_FLAGS_IA						   	(1<<7)		// 128
+#define OBJECT_FLAGS_PHONG					   	(1<<8)		// 256
+#define OBJECT_FLAGS_FADEOUT				   	(1<<9)		// 512
+#define OBJECT_FLAGS_FACE_COLOUR			   	(1<<10)		// 1024
+#define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)		// 2048
+#define OBJECT_FLAGS_TEXTURE_BLEND_ENV		   	(1<<12)		// 4096
+#define OBJECT_FLAGS_COLOUR_BLEND			   	(1<<13)		// 8192
+#define OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT   	(1<<14)		// 16384
 
 
 //--------------
@@ -611,39 +611,7 @@ typedef struct TAGACTOR
 //	CLUSTER						*cluster;
 	int							visible;
 
-
-/*	struct TAGACTOR				*next;
-
-	Mtx							*matrix;
-	SHORT						type;
-	unsigned long				status;
-	short						lifetime;
-	short						xluOverride;
-	int							flags;
-
-	VECTOR						pos;
-	VECTOR						oldpos;
-	VECTOR						vel;
-	VECTOR						oldVel;
-	float						velInertia;
-	float						speed;
-	VECTOR						rot;
-	VECTOR						rotaim;
-								
-	QUATERNION					qRot;
-	QUATERNION					qRotVel;
-												
-	VECTOR	  					scale;
-
-	OBJECT_CONTROLLER			*objectController;
-	ACTOR_ANIMATION				*animation;
-	ACTOR_SHADOW				*shadow;
-	PLANE  						*planes;
-	BYTEVECTOR					color;
-	BYTEVECTOR					currentcolor;
-	unsigned long	loopCount;
-	int rotateAboutY; */
-}ACTOR;
+} ACTOR;
 
 typedef struct TAGTEXT
 {

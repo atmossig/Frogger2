@@ -1217,7 +1217,25 @@ float Aabs(float angle)
 float SineWave(float freq,float phase,int base)
 {
 	float temp = base + phase;
-	return (sinf(temp/freq));
+	return (sinf(temp / freq));
+}
+
+float SineWave2(float freq,float phase)
+{
+	return (sinf((2 * PI * phase) / freq));
+}
+
+
+void SetVectorLength(VECTOR *vect,float length)
+{
+	float m = Magnitude(vect)/length;
+
+	if(m != 0)
+	{
+		vect->v[X] /= m;
+		vect->v[Y] /= m;
+		vect->v[Z] /= m;
+	}
 }
 
 

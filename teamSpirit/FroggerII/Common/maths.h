@@ -175,6 +175,8 @@ void SetVector2D(VECTOR *v1,VECTOR *v2);
 void AddVector2D(VECTOR *result,VECTOR *operand1,VECTOR *operand2);
 void AddScaledVector2D(VECTOR *result,VECTOR *operand1,float scale1,VECTOR *operand2,float scale2);
 float SineWave(float freq,float phase,int base);
+float SineWave2(float freq,float phase);
+void SetVectorLength(VECTOR *vect,float length);
 BOOL SphereIntersectsBox(BOX *box,VECTOR *pos,float radius);
 BOOL IsPointWithinBox2D(BOX *box, VECTOR *pos);
 

@@ -54,7 +54,8 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
-	(*me)->flags	|= ACTOR_DRAW_ALWAYS;
+//	(*me)->flags	|= ACTOR_DRAW_ALWAYS;
+	(*me)->flags	= ACTOR_DRAW_ALWAYS;
 	
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
