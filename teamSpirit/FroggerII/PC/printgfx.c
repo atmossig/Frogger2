@@ -386,10 +386,13 @@ void ProcessShadows()
 
 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
+			SubVector( &vec, &nme->nmeActor->actor->pos, &nme->inTile->centre );
+			height = DotProduct( &vec, &nme->inTile->normal );
+
 			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
-				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
+				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -height+1, nme->nmeActor->actor->shadow->alpha, tex );
 			else
-				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->toNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
+				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -height+1, nme->nmeActor->actor->shadow->alpha, tex );
 		}
 	}
 
@@ -401,7 +404,9 @@ void ProcessShadows()
 
 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
-			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius, -plat->path->nodes[plat->path->fromNode].offset+1, plat->pltActor->actor->shadow->alpha, tex );
+			SubVector( &vec, &plat->pltActor->actor->pos, &plat->inTile[0]->centre );
+			height = DotProduct( &vec, &plat->inTile[0]->normal );
+			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius, -height+1, plat->pltActor->actor->shadow->alpha, tex );
 		}
 	}
 
