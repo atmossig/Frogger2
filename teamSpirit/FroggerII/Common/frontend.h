@@ -12,6 +12,14 @@
 #define FRONTEND_H_INCLUDED
 
 
+typedef struct TAG_LOGO
+{
+	char *texname;
+	unsigned short width, height;
+	unsigned short tiles[];
+} LOGO;
+
+
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
 extern int frameCount;
@@ -27,5 +35,7 @@ extern void GameLoop();
 
 extern void RunLevelSelect();
 extern void RunTitleScreen();
+
+extern void CreateOverlaysFromLogo(const LOGO *logo, int x, int y);
 
 #endif

@@ -24,6 +24,17 @@ SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 SPRITEOVERLAY *sprOver = NULL;
 
+/* LOGO information for Frogger 2 logo */
+
+LOGO Frogger2Logo =
+{
+	"flogo", 4, 3,
+	{
+		1, 2, 3, 4,
+		5, 6, 7, 8,
+		0, 0, 9, 10
+	}
+};
 
 /*	--------------------------------------------------------------------------------
 	Function 	: RunTitleScreen
@@ -69,7 +80,7 @@ void RunTitleScreen()
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,192,0 );
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
 
-		CreateOverlays();
+		CreateOverlaysFromLogo(&Frogger2Logo, 98, 20);
 		ResetParameters();
 	}
 
@@ -469,30 +480,6 @@ void RunPauseMenu()
 
 	lastbutton = button;
 }
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: CreateOverlays
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void CreateOverlays()
-{
-	// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
-	sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(130,20,"flogo02.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(162,20,"flogo03.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(194,20,"flogo04.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(98,52,"flogo05.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(130,52,"flogo06.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(162,52,"flogo07.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,0);
-	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,0);
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: FreeMenuItems

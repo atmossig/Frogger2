@@ -122,3 +122,32 @@ void GameLoop(void)
 		if(player[i].inputPause > 0)
 			player[i].inputPause = 0;
 }
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateOverlaysFromLogo
+	Purpose			: Creates a series of sprite overlays from a LOGO, at screen resolution
+	Parameters		: LOGO*, left, top
+	Returns			: 
+	Info			: 
+*/
+
+void CreateOverlaysFromLogo(const LOGO* logo, int x, int y)
+{
+	int i, j;
+	char texture[32];
+	unsigned short *tex, t;
+
+	tex = (short*)logo->tiles;
+
+	for (i = 0; i < logo->height; i++)
+		for (j = 0; j < logo->width; j++)
+		{
+			if (t = *(tex++))
+			{
+				sprintf(texture, "%s%02d.bmp", logo->texname, t);
+				CreateAndAddSpriteOverlay(x + j*32, y + i*32, texture, 32, 32, 255, 0);
+			}
+		}
+}

@@ -4,7 +4,7 @@
 
 
 	File		: menus.h
-	Programmer	: James Healey
+	Programmer	: James (Random) Healey
 	Date		: 27/05/99
 
 ----------------------------------------------------------------------------------------------- */
@@ -26,36 +26,6 @@ extern SPRITEOVERLAY *sprOver;
 void RunTitleScreen();
 void RunLevelSelect();
 void RunPauseMenu();
-void CreateOverlays();
 void FreeMenuItems();
 
 #endif
-
-/*
-enum
-{
-	OPTION_MODE,
-	SLOT_MODE,
-	YESNO_MODE,
-	NAME_MODE,
-};
-
-struct slotSelectStateStruct
-{
-	unsigned long mode;
-};
-
-extern struct slotSelectStateStruct slotSelectState;
-
-extern void RunDemoOption	( void );
-
-extern void RunSaveLoadSelect ( void );
-
-extern void RunSelectAllLevels( void );
-
-extern void RunGameMode ( void );
-
-extern void RunOptionsMode ( void );
-extern void RunHiScoresMode ( void );
-
-*/
