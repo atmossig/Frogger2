@@ -42,7 +42,7 @@ void DrawWaterList ( void )
 		next = cur->next;
 
 		if ( cur->fma_water )
-			MapDraw_DrawFMA_Water ( cur->fma_water, cur->position.vx, cur->position.vy, cur->position.vz );
+			MapDraw_DrawFMA_Water ( cur->fma_water, -cur->position.vx, cur->position.vy, cur->position.vz );
 		// ENDIF
 	    
 

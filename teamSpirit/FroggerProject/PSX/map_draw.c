@@ -21,11 +21,14 @@
 //#define WATERANIM_1 (u+((rcos(frame<<6)+4096)>>11))|((v+((rsin(frame<<6)+4096)>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6)+4096)>>11))|((v+((rcos(frame<<6)+4096)>>11))<<8)
 
+#define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
+#define WATERANIM_2  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
+
 
 extern int polyCount;
 
-#define WATERANIM_1	(u|(v<<8))
-#define WATERANIM_2	WATERANIM_1
+//#define WATERANIM_1	(u|(v<<8))
+//#define WATERANIM_2	WATERANIM_1
 
 // Scale-Depth-Down deals with shifting large depth-coordinates in a scaled-up map,
 // shifting down to a smaller range of OT positions.
@@ -896,9 +899,14 @@ void MapDraw_DrawFMA_Mesh2Water(FMA_MESH_HEADER *mesh)
 	{
 //		if(mesh->verts[i].pad>2)
 		{
-			jiggledVerts[i].vx=mesh->verts[i].vx+(rsin((frame<<6)+(mesh->verts[i].vx&(mesh->verts[i].vz)))>>8);
-			jiggledVerts[i].vy=mesh->verts[i].vy+(rsin((frame<<6)+(mesh->verts[i].vx|(mesh->verts[i].vz)))>>8);
-			jiggledVerts[i].vz=mesh->verts[i].vz+(rsin((frame<<6)+(mesh->verts[i].vx^(mesh->verts[i].vz)))>>8);
+//			jiggledVerts[i].vx=mesh->verts[i].vx+(rsin((frame<<6)+(mesh->verts[i].vx&(mesh->verts[i].vz)))>>1);
+//			jiggledVerts[i].vy=mesh->verts[i].vy+(rsin((frame<<6)+(mesh->verts[i].vx|(mesh->verts[i].vz)))>>1);
+//			jiggledVerts[i].vz=mesh->verts[i].vz+(rsin((frame<<6)+(mesh->verts[i].vx^(mesh->verts[i].vz)))>>1);
+
+			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
+			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+
 		}
 //		else
 //		{
@@ -999,11 +1007,11 @@ void MapDraw_DrawFMA_Mesh2Water(FMA_MESH_HEADER *mesh)
 				addPrimLen(ot+(depth), (si),12,t2);
 // Copy the polygon data over into the OT
 //#ifdef TEMP_STORE
-				u=op->u0;
+				u=op->u0+ ((frame/2)%32);
 				v=op->v0;
 				t1 = WATERANIM_1|(op->clut<<16)|WATER_TRANS_CLUT;
 
-				u=op->u1;
+				u=op->u1 + ((frame/2)%32);
 				v=op->v1;
 				t2 = WATERANIM_1|(op->tpage<<16);
 
@@ -1011,11 +1019,11 @@ void MapDraw_DrawFMA_Mesh2Water(FMA_MESH_HEADER *mesh)
 				*(u_long *)  (&si->u1) = t2;
 				gte_stsxy3_gt4(si);	// The first 3 x's & y's are already in the gte, so we may as well use 'em
 
-				u=op->u2;
+				u=op->u2+ ((frame/2)%32);
 				v=op->v2;
 				t1 = WATERANIM_2;
 
-				u=op->u3;
+				u=op->u3+ ((frame/2)%32);
 				v=op->v3;
 				t2 = WATERANIM_2;
 

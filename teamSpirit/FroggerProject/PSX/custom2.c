@@ -1582,3 +1582,391 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 //	TimerStop(&poly);
 //	utilPrintf("Timer Taken To Draw Polys : %d\n", poly.total);
 }
+
+
+
+void DrawSortedPrimitivesFaded ( int depth )
+{
+	register PACKET			*packet, *packetNext;
+	register long			*tfv = transformedVertices;
+	register long			*tfd = transformedDepths;
+//	VERT 							*tfn = transformedNormals;
+	register TMD_P_GT4I		*opcd;
+	PSIMODELCTRL			*modctrl = &PSImodelctrl;
+	int						primsleft;//,lightmode;
+	ULONG					*sorts = sortedIndex;
+//	ULONG					*sorts = modctrl->SortOffs;
+	ULONG					sortBucket = 0;
+//	VERT					*vp = modctrl->VertTop;
+//	LONG					fogdepth;
+	unsigned short			oldtpage;
+//	long					fogFade;
+//	DR_MODE					*dr_mode;
+//	u_long t1;
+
+	int						gteH;
+
+
+	gte_ReadGeomScreen(&gteH);
+
+	depth=depth>>2;
+
+	// SL: work out the fog fade. in advance. It's the same for the whole model, so this is fine here.
+//	fogFade=globalFadeVal;
+
+	// SL: shift everythang into the same rez as the landscape, etc...
+	//	depth = (depth >> LSCAPE_Data.depthshift) & MAXDEPTH;
+
+	
+	primsleft = sortCount;
+	if (!primsleft)
+		return;
+
+	polyCount += primsleft;	
+
+	opcd = 0;
+
+	while(primsleft)
+	{
+		if (opcd==0)
+		{
+			(int)opcd = sorts[sortBucket++];
+			continue;
+		}
+
+		primsleft--;
+
+		switch (opcd->cd & (0xff-2))
+		{
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_FT3*)packet)
+#define siNext ((POLY_FT3*)packetNext)
+#define op ((TMD_P_FT3I*)opcd)
+
+			case GPU_COM_TF3:
+				BEGINPRIM(si, POLY_FT3);
+
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+			
+				*(u_long *) (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *) (&si->u1) = *(u_long *) (&op->tu1);
+				*(u_long *) (&si->u2) = *(u_long *) (&op->tu2);
+
+				gte_stsxy3_ft3(si);
+			
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);
+
+ 				// SL: modge the RGBs accordingly
+ 				si->r0 = ((globalFadeVal*(short)si->r0)/255);
+ 				si->g0 = ((globalFadeVal*(short)si->g0)/255);
+ 				si->b0 = ((globalFadeVal*(short)si->b0)/255);
+
+ 				// SL: put in the additive poly...
+ 				setPolyFT3(si);
+ 				// SL: store the pre-modification tpage...
+ 				oldtpage = si->tpage;
+ 				// make it additive...
+ 				si->code |= 2;
+ 				si->tpage |= 32;
+ 				// SL: put it in t' table
+ 				ENDPRIM(si, depth, POLY_FT3);
+
+ 				// SL: hokay, setup the next poly...
+
+ 				BEGINPRIM(siNext, POLY_FT3);
+
+ 				// SL: copy in all the values using long copies...
+ 				*(u_long *)  (&siNext->x0) = *(u_long *) (&si->x0);
+ 				*(u_long *)  (&siNext->x1) = *(u_long *) (&si->x1);
+ 				*(u_long *)  (&siNext->x2) = *(u_long *) (&si->x2);
+ 				*(u_long *)  (&siNext->u0) = *(u_long *) (&si->u0);		// Texture coords
+ 				*(u_long *)  (&siNext->u1) = *(u_long *) (&si->u1);
+ 				*(u_long *)  (&siNext->u2) = *(u_long *) (&si->u2);
+ 				*(u_long *)  (&siNext->r0) = *(u_long *) (&si->r0);			// SL: RGBs
+
+ 				// SL: set it as the right type
+ 				setPolyFT3(siNext);
+ 				// SL: make it subtractive
+ 				siNext->clut = EXPLORE_black_CLUT;
+ 				siNext->code |= 2;
+ 				siNext->tpage = oldtpage | 64;
+
+ 				// SL: put it in t' table
+ 				ENDPRIM(siNext, depth, POLY_FT3);
+
+				op = op->next;
+				break;
+#undef si
+#undef siNext
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_FT4*)packet)
+#define siNext ((POLY_FT4*)packetNext)
+#define op ((TMD_P_FT4I*)opcd)
+				
+			case GPU_COM_TF4:
+
+				BEGINPRIM(si, POLY_FT4);
+   			
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+			
+				*(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
+
+				gte_stsxy3_ft4(si);
+
+				*(u_long *) (&si->x3) = *(u_long *) (&tfv[op->v3]);
+
+				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+
+				*(u_long *) (&si->u2) = *(u_long *) (&op->tu2);
+				*(u_long *) (&si->u3) = *(u_long *) (&op->tu3);
+
+ 				// SL: modge the RGBs accordingly
+ 				si->r0 = ((globalFadeVal*(short)si->r0)/255);
+ 				si->g0 = ((globalFadeVal*(short)si->g0)/255);
+ 				si->b0 = ((globalFadeVal*(short)si->b0)/255);
+
+ 				// SL: put in the additive poly...
+ 				setPolyFT4(si);
+ 				// SL: store the pre-modification tpage...
+ 				oldtpage = si->tpage;
+ 				// make it additive...
+ 				si->code |= 2;
+ 				si->tpage |= 32;
+ 				// SL: put it in t' table
+ 				ENDPRIM(si, depth, POLY_FT4);
+
+ 				// SL: hokay, setup the next poly...
+ 				BEGINPRIM(siNext, POLY_FT4);
+
+ 				// SL: copy in all the values using long copies...
+ 				*(u_long *)  (&siNext->x0) = *(u_long *) (&si->x0);
+ 				*(u_long *)  (&siNext->x1) = *(u_long *) (&si->x1);
+ 				*(u_long *)  (&siNext->x2) = *(u_long *) (&si->x2);
+ 				*(u_long *)  (&siNext->x3) = *(u_long *) (&si->x3);
+ 				*(u_long *)  (&siNext->u0) = *(u_long *) (&si->u0);		// Texture coords
+ 				*(u_long *)  (&siNext->u1) = *(u_long *) (&si->u1);
+ 				*(u_long *)  (&siNext->u2) = *(u_long *) (&si->u2);
+ 				*(u_long *)  (&siNext->u3) = *(u_long *) (&si->u3);
+ 				*(u_long *)  (&siNext->r0) = *(u_long *) (&si->r0);			// SL: RGBs
+
+ 				// SL: set it as the right type
+ 				setPolyFT4(siNext);
+ 				// SL: make it subtractive
+ 				siNext->clut = EXPLORE_black_CLUT;
+ 				siNext->code |= 2;
+ 				siNext->tpage = oldtpage | 64;
+
+ 				// SL: put it in t' table
+ 				ENDPRIM(siNext, depth, POLY_FT4);
+
+    		op = op->next;
+				break;
+#undef si
+#undef siNext
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_GT3*)packet)
+#define siNext ((POLY_GT3*)packetNext)
+#define op ((TMD_P_GT3I*)opcd)
+
+			case GPU_COM_TG3:
+
+				BEGINPRIM(si, POLY_GT3);
+
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+				
+				*(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
+
+				gte_stsxy3_gt3(si);
+
+				*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
+
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
+ 				// SL: modge the RGBs accordingly
+ 				si->r0 = ((globalFadeVal*(short)si->r0)/255);
+ 				si->g0 = ((globalFadeVal*(short)si->g0)/255);
+ 				si->b0 = ((globalFadeVal*(short)si->b0)/255);
+ 				si->r1 = ((globalFadeVal*(short)si->r1)/255);
+ 				si->g1 = ((globalFadeVal*(short)si->g1)/255);
+ 				si->b1 = ((globalFadeVal*(short)si->b1)/255);
+ 				si->r2 = ((globalFadeVal*(short)si->r2)/255);
+ 				si->g2 = ((globalFadeVal*(short)si->g2)/255);
+ 				si->b2 = ((globalFadeVal*(short)si->b2)/255);
+
+ 				// SL: put in the additive poly...
+ 				setPolyGT3(si);
+ 				// SL: store the pre-modification tpage...
+ 				oldtpage = si->tpage;
+ 				// make it additive...
+ 				si->code |= 2;
+ 				si->tpage |= 32;
+ 				// SL: put it in t' table
+ 				ENDPRIM(si, depth, POLY_GT3);
+
+ 				// SL: hokay, setup the next poly...
+ 				BEGINPRIM(siNext, POLY_GT3);
+
+ 				// SL: copy in all the values using long copies...
+ 				*(u_long *)  (&siNext->x0) = *(u_long *) (&si->x0);
+ 				*(u_long *)  (&siNext->x1) = *(u_long *) (&si->x1);
+ 				*(u_long *)  (&siNext->x2) = *(u_long *) (&si->x2);
+ 				*(u_long *)  (&siNext->u0) = *(u_long *) (&si->u0);		// Texture coords
+ 				*(u_long *)  (&siNext->u1) = *(u_long *) (&si->u1);
+ 				*(u_long *)  (&siNext->u2) = *(u_long *) (&si->u2);
+ 				*(u_long *)  (&siNext->r0) = *(u_long *) (&si->r0);			// SL: RGBs
+ 				*(u_long *)  (&siNext->r1) = *(u_long *) (&si->r1);			// SL: RGBs
+ 				*(u_long *)  (&siNext->r2) = *(u_long *) (&si->r2);			// SL: RGBs
+
+ 				// SL: set it as the right type
+ 				setPolyGT3(siNext);
+ 				// SL: make it subtractive
+ 				siNext->clut = EXPLORE_black_CLUT;
+ 				siNext->code |= 2;
+ 				siNext->tpage = oldtpage | 64;
+
+ 				// SL: put it in t' table
+ 				ENDPRIM(siNext, depth, POLY_GT3);
+				op = op->next;
+				break;
+#undef si
+#undef siNext
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_GT4*)packet)
+#define siNext ((POLY_GT4*)packetNext)
+#define op opcd
+
+			case GPU_COM_TG4:
+				BEGINPRIM(si, POLY_GT4);
+
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+				
+				*(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
+					
+				gte_stsxy3_gt4(si);
+				
+						
+				*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
+				*(u_long *)  (&si->u3) = *(u_long *) (&op->tu3);
+
+				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
+		
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+		
+ 				// SL: modge the RGBs accordingly
+ 				si->r0 = ((globalFadeVal*(short)si->r0)/255);
+ 				si->g0 = ((globalFadeVal*(short)si->g0)/255);
+ 				si->b0 = ((globalFadeVal*(short)si->b0)/255);
+ 				si->r1 = ((globalFadeVal*(short)si->r1)/255);
+ 				si->g1 = ((globalFadeVal*(short)si->g1)/255);
+ 				si->b1 = ((globalFadeVal*(short)si->b1)/255);
+ 				si->r2 = ((globalFadeVal*(short)si->r2)/255);
+ 				si->g2 = ((globalFadeVal*(short)si->g2)/255);
+ 				si->b2 = ((globalFadeVal*(short)si->b2)/255);
+ 				si->r3 = ((globalFadeVal*(short)si->r3)/255);
+ 				si->g3 = ((globalFadeVal*(short)si->g3)/255);
+ 				si->b3 = ((globalFadeVal*(short)si->b3)/255);
+
+ 				// SL: put in the additive poly...
+ 				setPolyGT4(si);
+ 				// SL: store the pre-modification tpage...
+ 				oldtpage = si->tpage;
+ 				// make it additive...
+ 				si->code |= 2;
+ 				si->tpage |= 32;
+ 				// SL: put it in t' table
+ 				ENDPRIM(si, depth, POLY_GT4);
+
+ 				// SL: hokay, setup the next poly...
+ 				BEGINPRIM(siNext, POLY_GT4);
+
+ 				// SL: copy in all the values using long copies...
+ 				*(u_long *)  (&siNext->x0) = *(u_long *) (&si->x0);
+ 				*(u_long *)  (&siNext->x1) = *(u_long *) (&si->x1);
+ 				*(u_long *)  (&siNext->x2) = *(u_long *) (&si->x2);
+ 				*(u_long *)  (&siNext->x3) = *(u_long *) (&si->x3);
+ 				*(u_long *)  (&siNext->u0) = *(u_long *) (&si->u0);		// Texture coords
+ 				*(u_long *)  (&siNext->u1) = *(u_long *) (&si->u1);
+ 				*(u_long *)  (&siNext->u2) = *(u_long *) (&si->u2);
+ 				*(u_long *)  (&siNext->u3) = *(u_long *) (&si->u3);
+ 				*(u_long *)  (&siNext->r0) = *(u_long *) (&si->r0);			// SL: RGBs
+ 				*(u_long *)  (&siNext->r1) = *(u_long *) (&si->r1);			// SL: RGBs
+ 				*(u_long *)  (&siNext->r2) = *(u_long *) (&si->r2);			// SL: RGBs
+ 				*(u_long *)  (&siNext->r3) = *(u_long *) (&si->r3);			// SL: RGBs
+
+ 				// SL: set it as the right type
+ 				setPolyGT4(siNext);
+ 				// SL: make it subtractive
+ 				siNext->clut = EXPLORE_black_CLUT;
+ 				siNext->code |= 2;
+ 				siNext->tpage = oldtpage | 64;
+
+ 				// SL: put it in t' table
+ 				ENDPRIM(siNext, depth, POLY_GT4);
+
+				(int)op = op->next;
+				break;
+
+#undef si
+#undef siNext
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+
+#define si ((POLY_FT4*)packet)
+#define op ((TMD_P_FT4I*)opcd)
+
+			case GPU_COM_TF4SPR :
+
+				if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
+				{
+					int			width, height;
+
+					BEGINPRIM(si, POLY_FT4);
+
+	/*
+		We can't use the "quick" scaling method in psi objects, since we don't know which
+		bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
+		so we have to do the scaling based on the distance ourselves.
+	*/
+
+					width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
+
+	 				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
+					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
+					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
+					*(u_long *)&si->u2 = *(u_long *)&op->tu2;
+					*(u_long *)&si->u3 = *(u_long *)&op->tu3;
+
+					si->x1 = si->x3 = ((DVECTOR *)tfv)[op->v0].vx + width;
+					si->x0 = si->x2 = ((DVECTOR *)tfv)[op->v0].vx - width;
+			 	
+					si->y2 = si->y3 = ((DVECTOR *)tfv)[op->v0].vy + height;
+					si->y0 = si->y1 = ((DVECTOR *)tfv)[op->v0].vy - height;
+					setPolyFT4(si);
+
+					si->code |= modctrl->semitrans;
+			
+	 				ENDPRIM(si, depth & 1023, POLY_FT4);
+					op = op->next;
+				}
+				break;
+#undef si
+#undef op
+			default:
+				break;
+		}
+	}
+//	TimerStop(&poly);
+//	utilPrintf("Timer Taken To Draw Polys : %d\n", poly.total);
+}

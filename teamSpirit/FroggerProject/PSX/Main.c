@@ -602,8 +602,8 @@ int main ( )
 			GameLoop();
 			TimerStop(&tGameLoop);
 			
-			if(spriteList.numEntries)
-				AnimateSprites();
+	//		if(spriteList.numEntries)
+	//			AnimateSprites();
 			
 
 			TimerStart(&tDrawWorld);
@@ -612,10 +612,10 @@ int main ( )
 				DrawWorld();
 			TimerStop(&tDrawWorld);
 
-			DrawSpecialFX();
+	//		DrawSpecialFX();
 
 			TimerStart(&tPrintSprites);
-			PrintSprites();
+	//		PrintSprites();
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);
