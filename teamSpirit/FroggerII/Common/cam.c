@@ -77,6 +77,7 @@ float cam_shake_falloff = 0.1f;
 float FindMaxInterFrogDistance( );
 void CameraSetSource(void);
 int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge);
+void CalcSPCamera( VECTOR *target );
 
 /*	--------------------------------------------------------------------------------
 	Function		: CameraBoundPosition
@@ -378,46 +379,12 @@ void CameraLookAtFrog(void)
 	if(frog[0] && !fixedDir && !controlCamera)
 	{
 		// Average frog position	
-		VECTOR target, v;
-		float sc, t;
-		int i,l;
-		l = 0;
+		VECTOR target;
 
-		ZeroVector(&target);
-
-		for (i=0; i<NUM_FROGS; i++)
-		{
-			if( player[i].healthPoints )
-			{
-				t = player[i].jumpTime;
-				
-				if (t > 0)	// jumping; calculate linear position
-				{
-					AddToVector(&target, &player[i].jumpOrigin);
-
-					// horizontal
-					SetVector(&v, &player[i].jumpFwdVector);
-					ScaleVector(&v, t);
-					AddToVector(&target, &v);
-
-					// vertical
-					//SetVector(&v, &player[i].jumpUpVector);
-					//ScaleVector(&v, player[i].heightJumped);
-					//AddToVector(&target, &v);
-				}										
-				else
-					AddToVector(&target, &frog[i]->actor->pos);
-
-				l++;
-			}
-
-			// Zoom in/out to keep multiplayer frogs in view
-			sc = FindMaxInterFrogDistance( );
-			if( sc != -1 ) scaleV = (sc*0.00115) + 0.6;
-		}
-		
-		if (l > 1)
-			ScaleVector(&target, 1.0f/l);
+		if( gameState.multi == SINGLEPLAYER )
+			CalcSPCamera( &target );
+		else
+			CalcMPCamera( &target );
 
 /*		if (!idleCamera)
 		{
@@ -430,6 +397,29 @@ void CameraLookAtFrog(void)
 		SetVector(&camTarget[0], &target);
 	}
 	
+}
+
+void CalcSPCamera( VECTOR *target )
+{
+	VECTOR v;
+	float t = player[0].jumpTime;
+	
+	if (t > 0)	// jumping; calculate linear position
+	{
+		SetVector(target, &player[0].jumpOrigin);
+
+		// horizontal
+		SetVector(&v, &player[0].jumpFwdVector);
+		ScaleVector(&v, t);
+		AddToVector(target, &v);
+
+		// vertical
+		//SetVector(&v, &player[i].jumpUpVector);
+		//ScaleVector(&v, player[i].heightJumped);
+		//AddToVector(&target, &v);
+	}										
+	else
+		SetVector(target, &frog[0]->actor->pos);
 }
 
 

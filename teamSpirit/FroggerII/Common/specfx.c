@@ -358,8 +358,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->texture = txtrSmoke;
 
 			SetVector( &s->pos, &effect->origin );
-			s->scaleX = effect->scale.v[X] + Random(21)-10;
-			s->scaleY = effect->scale.v[Y] + Random(21)-10;
 
 			s->r = effect->r;
 			s->g = effect->g;
@@ -372,11 +370,19 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 			if( effect->type == FXTYPE_SMOKE_GROWS || effect->type == FXTYPE_SMOKE_STATIC )
 			{
+				s->scaleX = effect->scale.v[X] + Random(21)-10;
+				s->scaleY = effect->scale.v[Y] + Random(21)-10;
+
 				s->flags |= SPRITE_FLAGS_ROTATE;
 				s->angle = 0.0f;
 				s->angleInc = 1.0 / (float)(12 + (rand() % 16));
 				if(i == 0)
 					s->angleInc *= -1;
+			}
+			else
+			{
+				s->scaleX = effect->scale.v[X];
+				s->scaleY = effect->scale.v[Y];
 			}
 
 			s = s->next;
@@ -426,15 +432,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			s->b = effect->b;
 			s->a = effect->a;
 
-			if( effect->type == FXTYPE_FIERYSMOKE )
-			{
-				s->g = 180;
-				s->b = 0;
-			}
-
-			s->scaleX = effect->scale.v[X] + Random(21)-10;
-			s->scaleY = effect->scale.v[Y] + Random(21)-10;
-
 			s->offsetX = -16;
 			s->offsetY = -16;
 			s->flags = SPRITE_TRANSLUCENT;
@@ -453,6 +450,15 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 			if( (effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE) && !(Random(4)) )
 			{
+				if( effect->type == FXTYPE_FIERYSMOKE )
+				{
+					s->g = 180;
+					s->b = 0;
+				}
+
+				s->scaleX = effect->scale.v[X] + Random(21)-10;
+				s->scaleY = effect->scale.v[Y] + Random(21)-10;
+
 				s->texture = (Random(2))?txtrSmoke:txtrSmoke2;
 				s->flags |= SPRITE_FLAGS_ROTATE;
 				s->angle = 0.0f;
@@ -462,6 +468,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			}
 			else
 			{
+				s->scaleX = effect->scale.v[X];
+				s->scaleY = effect->scale.v[Y];
 				s->texture = effect->tex;
 			}
 
