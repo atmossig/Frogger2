@@ -169,7 +169,7 @@ struct face
 
 struct square
 {
-	float p[3]; //Centrepoint
+	vtx	centre; //Centrepoint
 	vtx   n[4]; //normals to squares
 	vtx   ed[4]; //Edges
 	vtx	  vn;
@@ -201,6 +201,23 @@ unsigned long nSquare = 0;
 
 Lookup materialLookup;
 
+char wiz[5] = "|/-\\";
+int spinner = 0;
+
+void PrintSpinner(void)
+{
+	putchar(wiz[spinner]);
+	putchar('\b');
+	
+	if (++spinner > 3) spinner = 0;
+}
+
+void PutTileChar(char c)
+{
+	putchar(c);
+	putchar('\b');
+}
+
 /* -------------------------------------------------------------------------------- */
 
 void InitTables(void)
@@ -223,6 +240,8 @@ void CalculateNormal (square *me)
 		oy[l] = me->ed[l].y;
 		oz[l] = me->ed[l].z;
 	}
+
+	/* Perform cross-product */
 	
 	ax = ox[1]-ox[0];
 	ay = oy[1]-oy[0];
@@ -235,9 +254,11 @@ void CalculateNormal (square *me)
 	ony = az*bx - ax*bz;
 	onz = ax*by - ay*bx;
 	
+	/* Normalise */
+	
 	len = (float)sqrt((onx*onx)+(ony*ony)+(onz*onz));
 	
-	if (len != ((float)0.0))
+	if (len)
 	{
 		len = 1.0f/len;
 		onx *= len;
@@ -257,15 +278,6 @@ void CalculateNormal (square *me)
 }
 
 
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: ProcessData
-
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-*/
-
 #define FACE_THRESH 0.1
 
 
@@ -280,20 +292,125 @@ void CalculateNormal (square *me)
 
 unsigned long fCmp(float x1, float y1, float z1, float x2, float y2, float z2)
 {
-	unsigned long diff = 1;
-	if (fabs(x1-x2)>FACE_THRESH)
-		diff = 0;
-	if (fabs(y1-y2)>FACE_THRESH)
-		diff = 0;
-	if (fabs(z1-z2)>FACE_THRESH)
-		diff = 0;
-	return diff;
+	if (fabs(x1-x2)>FACE_THRESH) return 0;
+	if (fabs(y1-y2)>FACE_THRESH) return 0;
+	if (fabs(z1-z2)>FACE_THRESH) return 0;
+
+	return 1;
 }
 
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: BuildSquareList
 
+/* --------------------------------------------------------------------------------
+	Function	: TileMaterial
+	Purpose		: Assigns materials to gametiles
+	Parameters	: material, square#
+	Returns		:
+*/
+void TileMaterial(int mat, int nSquare)
+{
+	int tileType = TILESTATE_NORMAL;
+
+	switch (mat)
+	{
+		case FROG:
+			frogs[numFrogs++] = nSquare;
+			PutTileChar('f');
+			break;
+		case FROG0:
+			frogs[0] = nSquare;
+			PutTileChar('1');
+			break;
+		case FROG1:
+			frogs[1] = nSquare;
+			if (numFrogs<2) numFrogs = 2;
+			PutTileChar('2');
+			break;
+		case FROG2:
+			frogs[2] = nSquare;
+			if (numFrogs<3) numFrogs = 3;
+			PutTileChar('3');
+			break;
+		case FROG3:
+			frogs[3] = nSquare;
+			if (numFrogs<4) numFrogs = 4;
+			PutTileChar('4');
+			break;
+		case BABY:
+			babys[numBabys++] = nSquare;
+			PutTileChar('b');
+			break;
+		case AUTOHOP:
+			powers[numPowers++] = nSquare;
+			PutTileChar('a');
+			break;
+		case DEADLY:
+			PutTileChar(',');
+			tileType = TILESTATE_DEADLY;
+			break;
+		case SINK:
+			PutTileChar('v');
+			tileType = TILESTATE_SINK;
+			break;
+		case SAFE:
+			PutTileChar('s');
+			tileType = TILESTATE_SAFE;
+			break;
+		case ICE:
+			PutTileChar('i');
+			tileType = TILESTATE_ICE;
+			break;
+		case SUPERHOP:
+			PutTileChar('@');
+			tileType = TILESTATE_SUPERHOP;
+			break;
+		case JOIN:
+			PutTileChar('#');
+			tileType = TILESTATE_JOIN;
+			break;
+		case BARRED:
+			PutTileChar('£');
+			tileType = TILESTATE_BARRED;
+			break;
+
+		case FROGGER1AREA:
+		case FROGGER2AREA:
+		case FROGGER3AREA:
+		case FROGGER4AREA:
+			PutTileChar('1'+(mat-FROGGER1AREA));
+			tileType = TILESTATE_FROGGER1AREA+(mat-FROGGER1AREA);
+			break;
+
+		case CONV0:
+		case CONV1:
+		case CONV2:
+		case CONV3:
+			PutTileChar('<');
+			tileType = mat - CONV0 + TILESTATE_CONVEYOR_MED;
+			break;
+
+		case CONV0SLOW:
+		case CONV1SLOW:
+		case CONV2SLOW:
+		case CONV3SLOW:
+			PutTileChar('>');
+			tileType = mat - CONV0SLOW + TILESTATE_CONVEYOR_SLOW;
+			break;
+
+		case CONV0FAST:
+		case CONV1FAST:
+		case CONV2FAST:
+		case CONV3FAST:
+			PutTileChar('^');
+			tileType = mat - CONV0FAST + TILESTATE_CONVEYOR_FAST;
+			break;
+	}
+
+	squareList[nSquare].status = tileType;
+}
+
+
+/* --------------------------------------------------------------------------------
+	Function	: BuildSquareList
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
@@ -304,316 +421,164 @@ void BuildSquareList(void)
 	unsigned long i=0,j=0;
 	for (i=0; i<nFace; i++)
 		fUsed[i]=0;
+
+	printf("Building tile list.. ");
 	
 	for (i=0; i<nFace; i++)
 	{
 		if ((i % 50) == 0)
-		{
-			printf(".");
-		}
+			PrintSpinner();
 
-		float p1x,p1y,p1z,p2x,p2y,p2z,e1x,e1y,e1z,e2x,e2y,e2z,e3x,e3y,e3z;
+		long p1, p2;
+		vtx e1, e2, e3;
 
-		if (!fUsed[i])
-		{
-			if (!faceList[i].e[AB])
-			{
-				p1x = vertexList[faceList[i].i[A]].x;
-				p1y = vertexList[faceList[i].i[A]].y;
-				p1z = vertexList[faceList[i].i[A]].z;
+		if (fUsed[i]) continue;
 
-				p2x = vertexList[faceList[i].i[B]].x;
-				p2y = vertexList[faceList[i].i[B]].y;
-				p2z = vertexList[faceList[i].i[B]].z;
-
-				e1x = p2x;
-				e1y = p2y;
-				e1z = p2z;
-				e2x = vertexList[faceList[i].i[C]].x;
-				e2y = vertexList[faceList[i].i[C]].y;
-				e2z = vertexList[faceList[i].i[C]].z;
-				e3x = p1x;
-				e3y = p1y;
-				e3z = p1z;
-			}
-		
-			if (!faceList[i].e[BC])
-			{
-				p1x = vertexList[faceList[i].i[B]].x;
-				p1y = vertexList[faceList[i].i[B]].y;
-				p1z = vertexList[faceList[i].i[B]].z;
-
-				p2x = vertexList[faceList[i].i[C]].x;
-				p2y = vertexList[faceList[i].i[C]].y;
-				p2z = vertexList[faceList[i].i[C]].z;
-
-				e1x = p2x;
-				e1y = p2y;
-				e1z = p2z;
-				e2x = vertexList[faceList[i].i[A]].x;
-				e2y = vertexList[faceList[i].i[A]].y;
-				e2z = vertexList[faceList[i].i[A]].z;
-				e3x = p1x;
-				e3y = p1y;
-				e3z = p1z;
-			}
-		
-			if (!faceList[i].e[CA])
-			{
-				p1x = vertexList[faceList[i].i[A]].x;
-				p1y = vertexList[faceList[i].i[A]].y;
-				p1z = vertexList[faceList[i].i[A]].z;
-
-				p2x = vertexList[faceList[i].i[C]].x;
-				p2y = vertexList[faceList[i].i[C]].y;
-				p2z	= vertexList[faceList[i].i[C]].z;
-
-				e1x = p1x;
-				e1y = p1y;
-				e1z = p1z;
-				e2x = vertexList[faceList[i].i[B]].x;
-				e2y = vertexList[faceList[i].i[B]].y;
-				e2z = vertexList[faceList[i].i[B]].z;
-				e3x = p2x;
-				e3y = p2y;
-				e3z = p2z;
-			}
+		/*	let AB = invisible edge of this triangle
 			
-			fUsed[i]=1;
+			p1 and p2 are the indices of A and B
+			
+			e1 = co-ords of B
+			e2 = co-ords of A	} I'd prefer to use indices for these
+			e3 = co-ords of C
+		*/
 
-			for (j=0; j<nFace; j++)
+		if (!faceList[i].e[AB])
+		{
+			p1 = faceList[i].i[A];
+			p2 = faceList[i].i[B];
+
+			e1 = vertexList[p2];
+			e2 = vertexList[faceList[i].i[C]];
+			e3 = vertexList[p1];
+		}
+		else if (!faceList[i].e[BC])
+		{
+			p1 = faceList[i].i[B];
+			p2 = faceList[i].i[C];
+
+			e1 = vertexList[p2];
+			e2 = vertexList[faceList[i].i[A]];
+			e3 = vertexList[p1];
+		}
+		else if (!faceList[i].e[CA])
+		{
+			p1 = faceList[i].i[A];
+			p2 = faceList[i].i[C];
+
+			e1 = vertexList[p1];
+			e2 = vertexList[faceList[i].i[B]];
+			e3 = vertexList[p2];
+		}
+		else // It's just a triangle!
+		{
+			e1 = vertexList[faceList[i].i[A]];
+			e2 = vertexList[faceList[i].i[B]];
+			e3 = vertexList[faceList[i].i[C]];
+
+			fUsed[i] = 1;
+			TileMaterial(faceList[i].mat, nSquare);
+
+			squareList[nSquare].centre.x = (e1.x + e2.x + e3.x) * 1/3.0f;
+			squareList[nSquare].centre.y = (e1.y + e2.y + e3.y) * 1/3.0f;
+			squareList[nSquare].centre.z = (e1.z + e2.z + e3.z) * 1/3.0f;
+
+			squareList[nSquare].ed[0] = e1;
+			squareList[nSquare].ed[1] = e2;
+			squareList[nSquare].ed[2] = squareList[nSquare].ed[3] = e3;
+			
+			//squareList[nSquare].ed[3].x = squareList[nSquare].ed[3].y = squareList[nSquare].ed[3].z = 100000.0; // nice out of range value
+
+			for (int a=0; a<4; a++)
+				squareList[nSquare].adj[a] = -1;
+
+			CalculateNormal(&squareList[nSquare]);	// safe since it only uses AB and AC (CD is zero)
+
+			strcpy(squareList[nSquare].parent,faceList[i].parent);
+
+			nSquare++;
+			continue;
+		}
+					
+		fUsed[i]=1;
+
+		for (j=(i+1); j<nFace; j++)
+		{
+			long p3, p4;
+			vtx te1, te2, te3;
+
+			if (fUsed[j]) continue;
+
+			if (!faceList[j].e[AB])
 			{
-				float p3x,p3y,p3z,p4x,p4y,p4z,te1x,te1y,te1z,te2x,te2y,te2z,te3x,te3y,te3z;
-				if (!fUsed[j])
-				{
-		
-					if (!faceList[j].e[AB])
-					{
-						p3x = vertexList[faceList[j].i[A]].x;
-						p3y = vertexList[faceList[j].i[A]].y;
-						p3z = vertexList[faceList[j].i[A]].z;
-						
-						p4x = vertexList[faceList[j].i[B]].x;
-						p4y = vertexList[faceList[j].i[B]].y;
-						p4z = vertexList[faceList[j].i[B]].z;
+				p3 = faceList[j].i[A];
+				p4 = faceList[j].i[B];
 
-						te1x = p4x;
-						te1y = p4y;
-						te1z = p4z;
-						te2x = vertexList[faceList[j].i[C]].x;
-						te2y = vertexList[faceList[j].i[C]].y;
-						te2z = vertexList[faceList[j].i[C]].z;
-						te3x = p3x;
-						te3y = p3y;
-						te3z = p3z;
-					}
-					
-					if (!faceList[j].e[BC])
-					{
-						p3x = vertexList[faceList[j].i[B]].x;
-						p3y = vertexList[faceList[j].i[B]].y;
-						p3z = vertexList[faceList[j].i[B]].z;
-						
-						p4x = vertexList[faceList[j].i[C]].x;
-						p4y = vertexList[faceList[j].i[C]].y;
-						p4z = vertexList[faceList[j].i[C]].z;
-
-						te1x = p4x;
-						te1y = p4y;
-						te1z = p4z;
-						te2x = vertexList[faceList[j].i[A]].x;
-						te2y = vertexList[faceList[j].i[A]].y;
-						te2z = vertexList[faceList[j].i[A]].z;
-						te3x = p3x;
-						te3y = p3y;
-						te3z = p3z;
-					}
-					
-					if (!faceList[j].e[CA])
-					{
-						p3x = vertexList[faceList[j].i[A]].x;
-						p3y = vertexList[faceList[j].i[A]].y;
-						p3z = vertexList[faceList[j].i[A]].z;
-						
-						p4x = vertexList[faceList[j].i[C]].x;
-						p4y = vertexList[faceList[j].i[C]].y;
-						p4z	= vertexList[faceList[j].i[C]].z;
-
-						te1x = p3x;
-						te1y = p3y;
-						te1z = p3z;
-						te2x = vertexList[faceList[j].i[B]].x;
-						te2y = vertexList[faceList[j].i[B]].y;
-						te2z = vertexList[faceList[j].i[B]].z;
-						te3x = p4x;
-						te3y = p4y;
-						te3z = p4z;
-					}
-					
-					unsigned long numSame = 0;
-
-					if (fCmp(p1x,p1y,p1z,p3x,p3y,p3z))
-						numSame++;
-
-					if (fCmp(p1x,p1y,p1z,p4x,p4y,p4z))
-						numSame++;
-
-					if (fCmp(p2x,p2y,p2z,p3x,p3y,p3z))
-						numSame++;
-
-					if (fCmp(p2x,p2y,p2z,p4x,p4y,p4z))
-						numSame++;
-
-					if (numSame == 2)
-					{						
-						fUsed[j]=1;
-
-						squareList[nSquare].status = 0;
-
-						switch (faceList[j].mat)
-						{
-							case NORMAL:
-								break;
-							case FROG:
-								frogs[numFrogs++] = nSquare;
-								printf("f");
-								break;
-							case FROG0:
-								frogs[0] = nSquare;
-								printf("1");
-								break;
-							case FROG1:
-								frogs[1] = nSquare;
-								if (numFrogs<2) numFrogs = 2;
-								printf("2");
-								break;
-							case FROG2:
-								frogs[2] = nSquare;
-								if (numFrogs<3) numFrogs = 3;
-								printf("3");
-								break;
-							case FROG3:
-								frogs[3] = nSquare;
-								if (numFrogs<4) numFrogs = 4;
-								printf("4");
-								break;
-							case BABY:
-								babys[numBabys++] = nSquare;
-								printf("b");
-								break;
-							case AUTOHOP:
-								powers[numPowers++] = nSquare;
-								printf("a");
-								break;
-							case DEADLY:
-								printf(",");
-								squareList[nSquare].status = TILESTATE_DEADLY;
-								break;
-							case SINK:
-								printf("v");
-								squareList[nSquare].status = TILESTATE_SINK;
-								break;
-							case SAFE:
-								printf("s");
-								squareList[nSquare].status = TILESTATE_SAFE;
-								break;
-							case ICE:
-								printf("i");
-								squareList[nSquare].status = TILESTATE_ICE;
-								break;
-							case SUPERHOP:
-								printf("@");
-								squareList[nSquare].status = TILESTATE_SUPERHOP;
-								break;
-							case JOIN:
-								printf("#");
-								squareList[nSquare].status = TILESTATE_JOIN;
-								break;
-							case BARRED:
-								printf("£");
-								squareList[nSquare].status = TILESTATE_BARRED;
-								break;
-
-							case FROGGER1AREA:
-							case FROGGER2AREA:
-							case FROGGER3AREA:
-							case FROGGER4AREA:
-								putchar('1'+(faceList[j].mat-FROGGER1AREA));
-								squareList[nSquare].status = TILESTATE_FROGGER1AREA+(faceList[j].mat-FROGGER1AREA);
-								break;
-
-							case CONV0:
-							case CONV1:
-							case CONV2:
-							case CONV3:
-								printf("<");
-								squareList[nSquare].status = faceList[j].mat - CONV0 + TILESTATE_CONVEYOR_MED;
-								break;
-
-							case CONV0SLOW:
-							case CONV1SLOW:
-							case CONV2SLOW:
-							case CONV3SLOW:
-								printf(">");
-								squareList[nSquare].status = faceList[j].mat - CONV0SLOW + TILESTATE_CONVEYOR_SLOW;
-								break;
-
-							case CONV0FAST:
-							case CONV1FAST:
-							case CONV2FAST:
-							case CONV3FAST:
-								printf("^");
-								squareList[nSquare].status = faceList[j].mat - CONV0FAST + TILESTATE_CONVEYOR_FAST;
-								break;
-						}
-						
-						squareList[nSquare].p[0] = (p1x+p2x)/2;
-						squareList[nSquare].p[1] = (p1y+p2y)/2;
-						squareList[nSquare].p[2] = (p1z+p2z)/2;
-
-						squareList[nSquare].ed[0].x = e1x;
-						squareList[nSquare].ed[0].y = e1y;
-						squareList[nSquare].ed[0].z = e1z;
-
-						squareList[nSquare].ed[1].x = e2x;
-						squareList[nSquare].ed[1].y = e2y;
-						squareList[nSquare].ed[1].z = e2z;
-						
-						squareList[nSquare].ed[2].x = e3x;
-						squareList[nSquare].ed[2].y = e3y;
-						squareList[nSquare].ed[2].z = e3z;
-						
-						squareList[nSquare].ed[3].x = te2x;
-						squareList[nSquare].ed[3].y = te2y;
-						squareList[nSquare].ed[3].z = te2z;
-						
-						squareList[nSquare].adj[0] = -1;
-						squareList[nSquare].adj[1] = -1;
-						squareList[nSquare].adj[2] = -1;
-						squareList[nSquare].adj[3] = -1;
-
-						CalculateNormal (&squareList[nSquare]);
-						
-						strcpy(squareList[nSquare].parent,faceList[j].parent);
-						
-						nSquare++;
-					}
-					if (numSame>2)
-						printf ("Error - Face with more than 2 of same Vtx!\n");
-				}
+				te1 = vertexList[p4];
+				te2 = vertexList[faceList[j].i[C]];
+				te3 = vertexList[p3];
 			}
+			else if (!faceList[j].e[BC])
+			{
+				p3 = faceList[j].i[B];
+				p4 = faceList[j].i[C];
 
+				te1 = vertexList[p4];
+				te2 = vertexList[faceList[j].i[A]];
+				te3 = vertexList[p3];
+			}
+			else if (!faceList[j].e[CA])
+			{
+				p3 = faceList[j].i[A];
+				p4 = faceList[j].i[C];
+
+				te1 = vertexList[p3];
+				te2 = vertexList[faceList[j].i[B]];
+				te3 = vertexList[p4];
+			}
+			else
+				continue;
+			
+			unsigned long numSame = (p1 == p3) + (p1 == p4) + (p2 == p3) + (p2 == p4);
+
+			if (numSame == 2)
+			{						
+				fUsed[j]=1;
+
+				TileMaterial(faceList[j].mat, nSquare);
+
+				squareList[nSquare].centre.x = (e1.x+e2.x+e3.x+te2.x)/4;
+				squareList[nSquare].centre.y = (e1.y+e2.y+e3.y+te2.y)/4;
+				squareList[nSquare].centre.z = (e1.z+e2.z+e3.z+te2.z)/4;
+
+				squareList[nSquare].ed[0] = e1;
+				squareList[nSquare].ed[1] = e2;
+				squareList[nSquare].ed[2] = e3;
+				squareList[nSquare].ed[3] = te2;
+				
+				for (int a=0; a<4; a++)
+					squareList[nSquare].adj[a] = -1;
+
+				CalculateNormal (&squareList[nSquare]);
+				
+				strcpy(squareList[nSquare].parent,faceList[j].parent);
+				
+				nSquare++;
+
+				break;
+			}
+			if (numSame>2)
+				printf ("Error - Face with more than 2 of same Vtx!\n");
 		}
 	}
-	
+
+	printf("done\n");
 }
 
 
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: CalculateAdj 
-
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
@@ -621,6 +586,11 @@ void BuildSquareList(void)
 
 void CheckSquare(unsigned long a, unsigned long i,float x1, float y1, float z1, float x2, float y2, float z2)
 {
+
+/*
+	This test is insanely, ludicrously inefficient and it's no wonder it takes so long
+*/
+	
 	unsigned long j;
 	for (j=0; j<nSquare; j++)
 	{
@@ -650,8 +620,11 @@ void CheckSquare(unsigned long a, unsigned long i,float x1, float y1, float z1, 
 			if (fCmp(x2,y2,z2,squareList[j].ed[3].x,squareList[j].ed[3].y,squareList[j].ed[3].z))
 				numSame++;
 			
-			if (numSame == 2)
+			if (numSame >= 2)	// I'm not sure this is 100% safe...
+			{
 				squareList[i].adj[a] = j;
+				return;
+			}
 		}
 	}
 }
@@ -667,9 +640,10 @@ void Normalise(vtx *vect)
 
 	if(m != 0)
 	{
-		vect->x /= m;
-		vect->y /= m;
-		vect->z /= m;
+		m = 1.0f/m;
+		vect->x *= m;
+		vect->y *= m;
+		vect->z *= m;
 	}
 }
 
@@ -677,49 +651,41 @@ void CalculateAdj(void)
 {
 	unsigned long i;
 
+	printf("Calculating adjacent squares.. ");
+
+	/*	This is now the worst part of the program, using a brute force search,
+		floating point comparisons on points and hundreds of duplicate checks
+		
+		- For every quad:
+		- For all four edges:
+		- Compare with all four edges of every other quad
+		- TWICE to cater for edges in opposite directions...
+
+		This is a good example of how NOT to code this test
+	*/
+
 	//Step thru squares to find adjacent ones.
 	for (i=0; i<nSquare; i++)
 	{
-		if ((i%20) == 0)
-			printf (".");
+		if ((i%20) == 0) PrintSpinner();
 
-		float x1,x2,y1,y2,z1,z2;
+		vtx a, b;
 
-		x1 = squareList[i].ed[0].x;
-		y1 = squareList[i].ed[0].y;
-		z1 = squareList[i].ed[0].z;
-
-		x2 = squareList[i].ed[1].x;
-		y2 = squareList[i].ed[1].y;
-		z2 = squareList[i].ed[1].z;
-		CheckSquare (0,i,x1,y1,z1,x2,y2,z2);
+		a = squareList[i].ed[0];
+		b = squareList[i].ed[1];
+		CheckSquare (0,i,a.x,a.y,a.z,b.x,b.y,b.z);
 		
-		x1 = squareList[i].ed[1].x;
-		y1 = squareList[i].ed[1].y;
-		z1 = squareList[i].ed[1].z;
-
-		x2 = squareList[i].ed[2].x;
-		y2 = squareList[i].ed[2].y;
-		z2 = squareList[i].ed[2].z;
-		CheckSquare (1,i,x1,y1,z1,x2,y2,z2);
+		a = squareList[i].ed[1];
+		b = squareList[i].ed[2];
+		CheckSquare (1,i,a.x,a.y,a.z,b.x,b.y,b.z);
 		
-		x1 = squareList[i].ed[2].x;
-		y1 = squareList[i].ed[2].y;
-		z1 = squareList[i].ed[2].z;
+		a = squareList[i].ed[2];
+		b = squareList[i].ed[3];
+		CheckSquare (2,i,a.x,a.y,a.z,b.x,b.y,b.z);
 
-		x2 = squareList[i].ed[3].x;
-		y2 = squareList[i].ed[3].y;
-		z2 = squareList[i].ed[3].z;
-		CheckSquare (2,i,x1,y1,z1,x2,y2,z2);
-
-		x1 = squareList[i].ed[3].x;
-		y1 = squareList[i].ed[3].y;
-		z1 = squareList[i].ed[3].z;
-
-		x2 = squareList[i].ed[0].x;
-		y2 = squareList[i].ed[0].y;
-		z2 = squareList[i].ed[0].z;
-		CheckSquare (3,i,x1,y1,z1,x2,y2,z2);
+		a = squareList[i].ed[3];
+		b = squareList[i].ed[0];
+		CheckSquare (3,i,a.x,a.y,a.z,b.x,b.y,b.z);
 	}
 	
 	// Fill out the "normals", aka direction vectors
@@ -755,7 +721,8 @@ void CalculateAdj(void)
 		squareList[i].n[3] = t[3];
 
 	}
-	
+
+	printf("done\n");
 }
 
 /* --------------------------------------------------------------------------------
@@ -832,10 +799,7 @@ void ProcessLine(char *in)
 	if (!inObj)
 	{
 		lineNo++;
-		if ((lineNo % 50) == 0)
-		{
-			printf(".");
-		}
+		if ((lineNo % 50) == 0) PrintSpinner();
 
 		if (strncmp(in,"*MESH_VERTEX ",13) == 0)
 		{
@@ -908,7 +872,7 @@ bool ReadData(void)
 	FILE *in;
 	char inStr[255];
 
-	printf ("Reading: %s \n",inF);
+	printf ("Reading %s.. ",inF);
 	in = fopen (inF,"rt");
 	
 	if (!in)
@@ -925,6 +889,7 @@ bool ReadData(void)
 	}
 		
 	fclose (in);
+	printf("done\n");
 	return true;
 }
 
@@ -962,7 +927,12 @@ void WriteTiles (FILE *fp)
 			fprintf (fp,"	%s%3i,\n",(i==(nSquare-1))?"":"tiles+",(i==(nSquare-1))?0:i+1);
 			fprintf (fp,"	0,\n");
 			fprintf (fp,"	%lu,\n",squareList[i].status);
-			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].p[0],squareList[i].p[2],squareList[i].p[1]);
+			
+			fprintf (fp,"	{%f,%f,%f},\n",
+				squareList[i].centre.x,
+				squareList[i].centre.z,
+				squareList[i].centre.y);
+			
 			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].vn.x,squareList[i].vn.z,squareList[i].vn.y);
 			
 			fprintf (fp,"	{{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},{%f,%f,%f}},\n",
@@ -1015,10 +985,16 @@ void WriteExterns(FILE *fp)
 
 void WriteHeaders (FILE *fp)
 {
+	if (numFrogs == 0)
+	{
+		puts("Error: No start tiles");
+		exit(1);
+	}
+
 	if (numFrogs>4)
 	{
-		printf("WARNING more than 4 frogs detected - Please rectify");
-		exit (128);
+		puts("Error: More than 4 start tiles");
+		exit (1);
 	}
 	
 	unsigned long i;
@@ -1040,27 +1016,11 @@ void WriteHeaders (FILE *fp)
 
 	fprintf(fp,"\nunsigned long t_numBabies = %i;\n",numBabys);
 
-	if (pc)
-	{
-		if (numBabys)
-		{
-			fprintf(fp,"GAMETILE *t_bTStart[%i] = {",numBabys);		
+	fprintf(fp,"GAMETILE *t_bTStart[%i] = {",numBabys);		
 
-			for (i=0; i<numBabys; i++)
-				fprintf(fp,"tiles+%i,",babys[i]);
-			fprintf(fp,"};\n");
-		}
-		else
-			fprintf(fp,"GAMETILE *t_bTStart[1];",numBabys);		
-	}
-	else
-	{
-		fprintf(fp,"GAMETILE *t_bTStart[%i] = {",numBabys);	
-
-		for (i=0; i<numBabys; i++)
-			fprintf(fp,"tiles+%i, ",babys[i]);
-		fprintf(fp,"};\n");
-	}
+	for (i=0; i<numBabys; i++)
+		fprintf(fp,"tiles+%i,",babys[i]);
+	fprintf(fp,"};\n");
 
 	fprintf(fp,"\nunsigned long t_numSafe = %i;\n",numSafes);
 	if (pc)
@@ -1103,7 +1063,6 @@ void WriteHeaders (FILE *fp)
 			fprintf(fp,"tiles+%i, ",powers[i]);
 		fprintf(fp,"};\n");		
 	}
-	
 }
 
 /* --------------------------------------------------------------------------------
@@ -1118,7 +1077,7 @@ void WriteHeaders (FILE *fp)
 void WriteData(void)
 {
 	FILE *out;
-	printf ("Writing: %s \n",outF);
+	printf ("Writing %s..",outF);
 	out = fopen (outF,"wt");
 
 	fprintf(out,"/* Squares: %04lu  Faces:%4lu */\n\n",nSquare,nFace);
@@ -1184,7 +1143,7 @@ void WriteData(void)
 
 	
 	fclose (out);
-		
+	printf("done\n");
 }
 
 /* --------------------------------------------------------------------------------
@@ -1220,12 +1179,8 @@ int main (int argc, char *argv[])
 	strcpy (inF,argv[1]);
 	strcpy (outF,argv[2]);
 	if (!ReadData()) return 1;
-
-	printf("\n");
 	BuildSquareList();
-	printf("\n");
 	CalculateAdj();
-	printf("\n");
 	WriteData();
 
 	return 0;
