@@ -145,6 +145,10 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	}
 */
 
+#ifdef PC_VERSION
+	if( !rHardware )
+		me->depthShift += -50;
+#endif
 	
 	me->actor->shadow->radius = ToFixed(globalFrogScale/8);//mmshadow
 	me->actor->shadow->alpha = 191;//mmshadow

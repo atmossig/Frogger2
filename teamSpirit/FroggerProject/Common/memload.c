@@ -49,7 +49,7 @@ int memload_fast = 0;
 char *sortHackNames[] = 
 {
 	"ada_info", "lillies", "gator", "turtle2", "turtle3", "plt4log", "plt5log",
-	"barup", "baruptwo", "barupthree", "beetle", "roach", "louse", "pkin"
+	"barup", "baruptwo", "barupthree", "beetle", "roach", "louse", "pltpump"
 };
 #endif
 

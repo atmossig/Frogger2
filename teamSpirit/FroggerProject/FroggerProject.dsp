@@ -2360,6 +2360,15 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 

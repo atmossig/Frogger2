@@ -2263,6 +2263,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 #ifdef PC_VERSION
 		if( !rHardware )
 		{
+			babyList[i].baby->depthShift -= 50;
+
 			babyIcons[i]->r /= 2;
 			babyIcons[i]->g /= 2;
 			babyIcons[i]->b /= 2;
