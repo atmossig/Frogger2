@@ -90,7 +90,7 @@ XAFileType *XAgetFileInfo(char *fileName)
 	xaf = (XAFileType *)MALLOC0(sizeof(XAFileType));				//
 	memset(xaf, 0, sizeof(*xaf));								//
 
-	xaf->fileInfo		= fileName;								//
+	sprintf(xaf->fileInfo,fileName);
 	xaf->startPos		= 0;									//
 	xaf->endPos			= 0;									//
 	xaf->status			= 0;									//
@@ -126,7 +126,6 @@ void XAstop()
 	if (curXA)						// Is there an adx currently playing ?
 	{								// yup, so........
 		ADXT_Destroy(curXA->adxt);		// Tell middleware to quit playing it......
-//		ADXT_Stop(curXA->adxt);		// Tell middleware to quit playing it......
 		curXA = NULL;
 	} // end-if
 }

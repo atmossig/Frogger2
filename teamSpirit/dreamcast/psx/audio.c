@@ -733,7 +733,7 @@ void PrepareSong(short worldID,int loop)
 }
 
 void StopSong( )
-{
+{ 
 	KTU32	memfreeBefore,memfreeAfter;
 
 	XAstop();
@@ -837,9 +837,6 @@ void SpuSetCommonCDVolume(int volume, int volume2)
 {
 	float	newVolume;
 	
-//	newVolume = (float)globalMusicVol * (2.55);
-//	bpAmStreamSetVolume(gStream, (int)newVolume);
-
 	newVolume = (100 - globalMusicVol) * -10;
 	ADXT_SetOutVol(curXA->adxt,newVolume);
 }

@@ -15,7 +15,7 @@
 #include	<cri_adxt.h>
 
 typedef struct _XAFileType {
-	char *			fileInfo;			// This will actually point to the filename of the ADX file
+	char 			fileInfo[32];			// This will actually point to the filename of the ADX file
 	int				startPos;			//
 	int				endPos;				//
 	unsigned char	status;				// Playing, paused or stopped
