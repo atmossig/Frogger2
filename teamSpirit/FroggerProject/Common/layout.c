@@ -897,7 +897,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// ------ Reset miscellaneous pieces of data ------------
 
 	// Stuff that used to be in RunGameLoop
-	if((gameState.single != STORY_MODE) && (gameState.mode != FRONTEND_MODE))
+	if((gameState.mode != DEMO_MODE) && (gameState.single != STORY_MODE) && (gameState.mode != FRONTEND_MODE))
 		player[0].lives = numLives[gameState.difficulty];
 
 //	player[0].score				= 0;
