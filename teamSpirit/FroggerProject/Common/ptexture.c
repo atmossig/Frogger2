@@ -27,7 +27,7 @@
 #include "layout.h"
 #include "ptexture.h"
 
-PROCTEXTURE *dissolveTex;
+PROCTEXTURE *dissolveTex=NULL;
 
 PROCTEXTURE *prcTexList = NULL;
 
@@ -471,6 +471,8 @@ void FreeProcTextures( )
 	PROCTEXTURE *pt;
 
 	if( !prcTexList ) return;
+
+	dissolveTex = NULL;
 
 	for( pt=prcTexList; pt; pt=prcTexList )
 	{
