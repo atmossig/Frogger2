@@ -487,13 +487,8 @@ void FindToFromQKeys(QKEYFRAME *keys,short *from,short *to,float *interp,float t
 
 void XfmPoint (VECTOR *vTemp2, VECTOR *in)
 {
-	float c[4][4];
-	guLookAtF(c,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			camVect.v[X],camVect.v[Y],camVect.v[Z]);
 
-	guMtxXFMF(c,in->v[X],in->v[Y],in->v[Z],
+	guMtxXFMF(vMatrix,in->v[X],in->v[Y],in->v[Z],
 		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
 	
 		if  (((vTemp2->v[Z]+DIST)>nearClip) &&
@@ -1061,17 +1056,12 @@ void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4])
 
 void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 {
-	float c[4][4];
 	float f[4][4];
 	VECTOR *in;
 	VECTOR *vTemp2;
 	unsigned long i,j;
-	guLookAtF(c,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			camVect.v[X],camVect.v[Y],camVect.v[Z]);
 	
-	guMtxCatF(m,c,f);
+	guMtxCatF(m,vMatrix,f);
 
 	// Go thru the affected vertices, and xfm the corresponding vertices
 	for (i=0; i<obj->numVerts; i++)
@@ -1107,7 +1097,6 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 
 void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 {
-	float c[4][4];
 	float f[4][4];
 	VECTOR *in;
 	VECTOR *vTemp2;
@@ -1115,15 +1104,7 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 
 	in = obj->mesh->vertices;
 
-	guLookAtF(c,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			//stx,sty,stz,
-			//ctx,cty,ctz,
-			//0,1,0);
-			camVect.v[X],camVect.v[Y],camVect.v[Z]);
-	
-	guMtxCatF(m,c,f);
+	guMtxCatF(m,vMatrix,f);
 	
 	vTemp2 = tV;
 	
@@ -1183,7 +1164,6 @@ float modi6 = 5; // Small value for calculating normals.
 
 void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 {
-	float c[4][4];
 	float f[4][4];
 	VECTOR *in;
 	VECTOR *vTemp2,*vTemp4;
@@ -1192,15 +1172,8 @@ void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 
 	in = obj->mesh->vertices;
 
-	guLookAtF(c,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			//stx,sty,stz,
-			//ctx,cty,ctz,
-			//0,1,0);
-			camVect.v[X],camVect.v[Y],camVect.v[Z]);
 	
-	guMtxCatF(m,c,f);
+	guMtxCatF(m,vMatrix,f);
 	
 	vTemp2 = tV;
 	vTemp4 = nV;
@@ -1254,7 +1227,6 @@ void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 
 void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4])
 {
-	float c[4][4];
 	float f[4][4];
 	VECTOR *in;
 	VECTOR *vTemp2,*vTemp4;
@@ -1262,16 +1234,8 @@ void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4])
 	unsigned long i;
 
 	in = obj->mesh->vertices;
-
-	guLookAtF(c,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			//stx,sty,stz,
-			//ctx,cty,ctz,
-			//0,1,0);
-			camVect.v[X],camVect.v[Y],camVect.v[Z]);
 	
-	guMtxCatF(m,c,f);
+	guMtxCatF(m,vMatrix,f);
 	
 	vTemp2 = tV;
 	vTemp4 = nV;

@@ -929,7 +929,8 @@ void DirectXFlip(void)
 
 	// Flip the back buffer to the primary surface
 	if (!winMode)
-		surface[PRIMARY_SRF]->Flip(NULL,DDFLIP_WAIT);
+		while (surface[PRIMARY_SRF]->Blt(NULL,surface[RENDER_SRF],NULL,NULL,NULL)!=DD_OK);
+		//surface[PRIMARY_SRF]->Flip(NULL,0);
 	else
 	{
 		RECT clientR,windowR;

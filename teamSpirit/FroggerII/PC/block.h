@@ -51,6 +51,7 @@ extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
 extern int runQuit;
 extern float gameSpeed;
+extern float vMatrix[4][4];
 
 void debugPrintf(int num);
 void Crash(char *mess);

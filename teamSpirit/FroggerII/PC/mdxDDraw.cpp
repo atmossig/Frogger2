@@ -16,7 +16,7 @@ extern "C"
 LPDIRECTDRAW			pDirectDraw;		// Our Direct Draw Object
 LPDIRECTDRAW4			pDirectDraw4;		// A modern view of our direct draw object
 LPDIRECTDRAWCLIPPER		pClipper;
-unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale;
+unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale, rFlipOK = 0;
 HWND					rWin;
 
 LPDIRECTDRAWSURFACE	surface[NUM_SRF] = {NULL,NULL,NULL};
@@ -252,7 +252,12 @@ void DDrawFlip(void)
 	
 	// Flip the back buffer to the primary surface
 	if (rFullscreen)
-		surface[PRIMARY_SRF]->Flip(NULL,DDFLIP_WAIT);
+	{
+		if (rFlipOK)
+			surface[PRIMARY_SRF]->Flip(NULL,DDFLIP_WAIT);
+		else
+			while (surface[PRIMARY_SRF]->Blt(NULL,surface[RENDER_SRF],NULL,NULL,NULL)!=DD_OK);
+	}
 	else
 	{
 		RECT clientR,windowR;
@@ -298,7 +303,7 @@ void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fi
 	DDBLTFX			m;
 	DDINIT(m);
 
-	// Setup, unsure if setting both will work, if this is still here then I guess it does.
+	// Setup, fillDepth and fill color ar currently a union to the same four bytes, but it may not stay that way forever!
 	m.dwFillDepth = m.dwFillColor = value;
 
 	// Fill it, innefecient, I would recomend not waiting!

@@ -248,7 +248,7 @@ void DrawObjects(void)
 
 	// The loop that fills out mavis frame info (The complex bit)
 	for (cur = actList; cur; cur = cur->next)
-		if (cur->actor->objectController)
+		if ((cur->actor->objectController) && (cur->draw))
 		{
 			// Slide Texture Coordinates if appropriate
 			slideVal = ((cur->flags>>5) & 3);

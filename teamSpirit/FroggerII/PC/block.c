@@ -57,6 +57,8 @@ extern unsigned long USE_MENUS;
 extern unsigned long rKeying;
 extern unsigned long rPlaying;
 extern long synchedFrameCount;
+
+float vMatrix[4][4];
 long keyInput = 1;
 
 extern long displayingTile;
@@ -454,7 +456,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			//if (speedKill)
 			//	Sleep(speedKill);
 
-			DirectXFlip();
+			//DirectXFlip();
+			DDrawFlip();
+			
+			DDrawClearSurface(RENDER_SRF, 0, DDBLT_COLORFILL);
+			DDrawClearSurface(ZBUFFER_SRF, -1, DDBLT_DEPTHFILL);
 
 			CleanBufferSamples();
 
@@ -727,14 +733,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: DrawGraphics
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
 
-*/
 VECTOR oldCCSource, oldCCTarget;
 extern long numSprites;
 extern long numPixelsDrawn;
@@ -753,6 +752,32 @@ unsigned long blinkRand = 5;
 
 unsigned long blinkSpeed2 = 10;
 unsigned long blinkRand2 = 300;
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetupViewMatrix
+	Purpose			: Put together a view matrix.
+	Parameters		: 
+	Returns			: 
+	Info			: 
+
+*/
+
+void SetupViewMatrix(void)
+{
+ 	guLookAtF(vMatrix,
+			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			camVect.v[X],camVect.v[Y],camVect.v[Z]);	
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawGraphics
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+
+*/
 
 void DrawGraphics() 
 {
@@ -805,6 +830,8 @@ void DrawGraphics()
 
 	numPixelsDrawn=0;
 	numSprites = 0;
+	
+	SetupViewMatrix();
 
 	currentFrameTime = timeGetTime();
 	
