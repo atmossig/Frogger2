@@ -8,7 +8,7 @@ typedef struct{
 
 
 //debug
-#define COUNT_OBJECTS
+//#define COUNT_OBJECTS
 
 #ifdef COUNT_OBJECTS
 int rotatedObjects;
@@ -182,8 +182,15 @@ static void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame)
 			}//end if !quickFound
 
 
+#ifdef LAST_KEY_CHECK
+
+			//bbopt - store a pointer to the key instead.
+			//also, can;t seem to wroite to these without
+			//causing a bug.
+
 			//bbopt - part of anim optimisation
-			mesh->lastrotatekey = (tmprotatekeys - mesh->rotatekeys) / sizeof(SQKEYFRAME);
+			mesh->lastrotatekey = (((int)tmprotatekeys)-((int)mesh->rotatekeys)) / sizeof(SQKEYFRAME);
+#endif
 
 			////////////////////////////////////////////
 	
@@ -380,8 +387,10 @@ static void bb_psiSetScaleKeyFrames(PSIOBJECT *world, ULONG frame)
 	 			}
 			}
 
+#ifdef LAST_KEY_CHECK
 			//bbopt - part of anim optimisation
 			mesh->lastscalekey = (tmpscalekeys - mesh->scalekeys) / sizeof(SVKEYFRAME);
+#endif
 
 			////////////////////////////////////////////
 
@@ -590,9 +599,10 @@ static void bb_psiSetMoveKeyFrames(PSIOBJECT *world, ULONG frame)
 	 			}
 			}
 
-
+#ifdef LAST_KEY_CHECK
 			//bbopt - part of anim optimisation
 			mesh->lastmovekey = (tmpmovekeys - mesh->movekeys) / sizeof(SVKEYFRAME);
+#endif
 
 			////////////////////////////////////////////
 
