@@ -55,8 +55,8 @@ SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 */
 void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID)
 {
-	VECTOR v = { firstTile[1].centre.v[X], 1000, firstTile[1].centre.v[Z] };
-	CreateNewGarib ( v, 0, &firstTile[1] );
+	VECTOR v = { firstTile[15].centre.v[X], 3000, firstTile[15].centre.v[Z] };
+	CreateNewGarib ( v, 0, &firstTile[15], 5.0f );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 	{
 		v = firstTile[tileList[i+1]].centre;
 		v.v[Y] += 20;
-		garib = CreateNewGarib(v, type);
+//		garib = CreateNewGarib(v, type);
 	}
 }
 
@@ -545,7 +545,7 @@ void InitGaribLinkedList()
 
 	if ( !reset )
 	{
-		memset ( garibStoreList, 0xff, 128*4 );
+		memset ( garibStoreList, 0xff, 16*4 );
 		reset = 1;
 	}
 	// ENDIF
@@ -656,11 +656,11 @@ void InitGaribSprite(GARIB *garib)
 	Returns			: GARIB *
 	Info			: 
 */
-GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile )
+GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile, float dropSpeed )
 {
 	static indexPos = 0;
 
-	char value;
+	unsigned char value;
 
 	GARIB *garib;
 
@@ -688,7 +688,8 @@ GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile )
 
 	SetVector(&garib->sprite.pos,&pos);
 
-//	garib->gameTile = gameTile;
+	garib->gameTile = gameTile;
+	garib->dropSpeed = dropSpeed;
 	garib->type = type;
 	garib->active = 1;
 	garib->scale = 0;
@@ -775,19 +776,19 @@ void UpdateGaribs()
 
 		// Drop Garibs.............
 
-/*		if ( garib->gameTile != NULL )
+		if ( garib->gameTile != NULL )
 		{			
 			SetVector ( &actualPos, &garib->gameTile->centre );
 			actualPos.v[Y] += 20;
 			SubVector ( &fwd, &actualPos, &garib->sprite.pos );
 			MakeUnit  ( &fwd );
-			garib->sprite.pos.v[X] += ( fwd.v[X] * 5 );
-			garib->sprite.pos.v[Y] += ( fwd.v[Y] * 5 );
-			garib->sprite.pos.v[Z] += ( fwd.v[Z] * 5 );
+			garib->sprite.pos.v[X] += ( fwd.v[X] * garib->dropSpeed );
+			garib->sprite.pos.v[Y] += ( fwd.v[Y] * garib->dropSpeed );
+			garib->sprite.pos.v[Z] += ( fwd.v[Z] * garib->dropSpeed );
 
 		}
 		// ENDIF
-*/
+
 	}
 }
 
