@@ -2132,6 +2132,7 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 	}
 
 	// for testing...this draws the wireframe outline of the sprite polygon ---------------------
+/*
 	for(i=0; i<drawPoly.numVerts; i++)
 	{
 		j = i + 1;
@@ -2140,6 +2141,7 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 
 		DrawALine(drawPoly.verts[i].sx,drawPoly.verts[i].sy,drawPoly.verts[j].sx,drawPoly.verts[j].sy,0xffffffff);
 	}
+*/
 	//-------------------------------------------------------------------------------------------
 }
 

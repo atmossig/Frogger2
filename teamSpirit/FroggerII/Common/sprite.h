@@ -235,6 +235,7 @@ void InitSpriteArray(int numElements);
 void FreeSpriteArray();
 SPRITE *AssignSpriteToArray();
 void SubSpriteFromArray(SPRITE *sprite);
+SPRITE *AddNewSpriteToArray(float x,float y,float z,short size,char *txtrName,short flags);
 
 //-----------------------------------------------------------------------------------------------
 

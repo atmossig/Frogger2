@@ -688,6 +688,7 @@ void InitSpriteSortArray(int numElements)
 	if(spriteSortArray)
 		FreeSpriteSortArray();
 
+	dp("<< Allocating sprite sort array >>\n");
 	spriteSortArray = JallocAlloc(sizeof(SPRITE) * numElements,YES,"sprSort");
 
 	numSortArraySprites = 0;
@@ -704,7 +705,10 @@ void InitSpriteSortArray(int numElements)
 void FreeSpriteSortArray()
 {
 	if(spriteSortArray)
+	{
+		dp("<< Freeing sprite sort array >>\n");
 		JallocFree((UBYTE**)&spriteSortArray);
+	}
 
 	spriteSortArray = NULL;
 }
@@ -786,13 +790,19 @@ SPRITE *spriteArrayPtr	= NULL;
 */
 void InitSpriteArray(int numElements)
 {
+	int n = numElements;
+
 	// check if sprite array already exists
 	if(spriteArray)
 		FreeSpriteArray();
 
 	// allocate memory for sprite array
+	dp("<< Allocating static sprite array >>\n");
 	spriteArray = (SPRITE *)JallocAlloc(sizeof(SPRITE)*numElements,YES,"sprArr");
 	spriteArrayPtr	= NULL;
+
+	while(n--)
+		spriteArray[n].arrayIndex = -1;
 }
 
 
@@ -806,7 +816,10 @@ void InitSpriteArray(int numElements)
 void FreeSpriteArray()
 {
 	if(spriteArray)
+	{
+		dp("<< Freeing static sprite array >>\n");
 		JallocFree((UBYTE**)&spriteArray);
+	}
 
 	spriteArray		= NULL;
 	spriteArrayPtr	= NULL;
@@ -814,7 +827,7 @@ void FreeSpriteArray()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: AssignToArray
+	Function		: AssignSpriteToArray
 	Purpose			: returns a pointer to a free sprite slot in the sprite array
 	Parameters		: 
 	Returns			: SPRITE *
@@ -822,7 +835,18 @@ void FreeSpriteArray()
 */
 SPRITE *AssignSpriteToArray()
 {
-	return NULL;
+	int n = 0;
+
+	// search for available 'slot'
+	spriteArrayPtr = &spriteArray[0];
+	while(spriteArrayPtr->arrayIndex > -1)
+	{
+		n++;
+		spriteArrayPtr++;
+	}
+
+	spriteArrayPtr->arrayIndex = n;
+	return spriteArrayPtr;
 }
 
 
@@ -835,4 +859,41 @@ SPRITE *AssignSpriteToArray()
 */
 void SubSpriteFromArray(SPRITE *sprite)
 {
+	spriteArray[sprite->arrayIndex].arrayIndex = -1;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddNewSpriteToArray
+	Purpose			: adds a sprite to the array
+	Parameters		: float,float,float,short,char *,short
+	Returns			: SPRITE *
+	Info			: 
+*/
+SPRITE *AddNewSpriteToArray(float x,float y,float z,short size,char *txtrName,short flags)
+{
+/*
+	FindTexture(&spriteArray[0].texture,UpdateCRC(txtrName),YES);
+
+	spriteArray[0].pos.v[X]	= x;
+	spriteArray[0].pos.v[Y]	= y;
+	spriteArray[0].pos.v[Z]	= z;
+
+	spriteArray[0].r			= 255;
+	spriteArray[0].g			= 255;
+	spriteArray[0].b			= 255;
+	spriteArray[0].a			= 255;
+
+	spriteArray[0].offsetX		= -16; //-sprite->texture->sx / 2;
+	spriteArray[0].offsetY		= -16; //-sprite->texture->sy / 2;
+	spriteArray[0].flags		= flags;
+
+	spriteArray[0].scaleX		= size;
+	spriteArray[0].scaleY		= size;
+
+	spriteArray[0].anim.type	= SPRITE_ANIM_NONE;
+
+	return &spriteArray[0];
+*/
+	return NULL;
 }

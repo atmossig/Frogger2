@@ -366,7 +366,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		// ok - make the spawn garib a rotating sprite - ANDYE
 		garib->sprite->flags	|= SPRITE_FLAGS_ROTATE;
 		garib->sprite->angle	= 0;
-		garib->sprite->angleInc = 0.075f;
+		garib->sprite->angleInc = 0.05f;
 		
 #ifndef PC_VERSION
 		garib->sprite->offsetX = -garib->sprite->texture->sx / 2;
@@ -416,8 +416,8 @@ void UpdateGaribs()
 
 		if( garib->sprite )
 		{
-			garib->sprite->scaleX = (64 + (SineWave(2,frameCount + garib->type * 2,0) * 10)) * scale;
-			garib->sprite->scaleY = (64 + (SineWave(2,frameCount + garib->type * 2,0) * 10)) * scale;
+			garib->sprite->scaleX = 64;
+			garib->sprite->scaleY = 64;
 
 			// rotate the little blighters
 			garib->sprite->angle += (garib->sprite->angleInc * gameSpeed);
