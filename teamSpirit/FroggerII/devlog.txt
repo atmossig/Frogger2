@@ -1923,3 +1923,8 @@ Mike Movel:
 
 Byron Blay:
 ------------------------------------------------
+	Damn, gotta get PSX video working for demo disk.
+	(Could have done without that, Friday's milestone is tight)
+	
+
+
