@@ -848,7 +848,7 @@ void UpdateVent( ENEMY *cur )
 
 				GetPositionForPathNode( &p1, &path->nodes[0] );
 				GetPositionForPathNode( &p2, &path->nodes[path->numNodes-1] );
-				CreateLightningEffect( &p1, &p2, act->effects, (60*path->nodes[0].speed)/(act->value1+1) );
+				CreateLightningEffect( &p1, &p2, act->effects, (60*path->nodes[0].speed)/((act->value1==0)?1:act->value1) );
 			}
 		}
 
