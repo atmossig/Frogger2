@@ -36,7 +36,7 @@
 	moves back and forth along a path		PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG
 	(>1 node) in a ping-pong movement.		PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_PINGPONG
 
-	is a non-moving platform (static)		PLATFORM_NEW_NONMOVING
+	is a non-moving platform (single node)	PLATFORM_NEW_NONMOVING
 
 
 ----------------------------------------------------------------------------------------------- */
