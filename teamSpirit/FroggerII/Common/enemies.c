@@ -16,15 +16,9 @@
 #include "incs.h"
 
 
-ENEMY *testEnemy			= NULL;			// test enemy
-
 ENEMYLIST enemyList;						// the enemy linked list
 
-VECTOR snapPos;
-
-
 #define ENEMY_RANDOMNESS (0.5 + (Random(100)/100.0))	// returns a value from 0.5 to 1.5
-
 
 static void GetEnemyActiveTile(ENEMY *enemy);
 
@@ -46,18 +40,6 @@ ENEMY *GetEnemyFromUID (long uid)
 	dprintf"GetEnemyFromUID: Couldn't find enemy %d\n", uid));
 	return NULL;
 }
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitEnemiesForLevel
-	Purpose			: initialise enemies and their movement for the specified level
-	Parameters		: unsigned long
-	Returns			: void
-	Info			:
-*/
-void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
-{
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetEnemyActiveGameTile
@@ -135,8 +117,6 @@ GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
 */
 #define SNAPPER_TIME 10
 
-float snapRadius = 75;
-long snapTime = 50;
 extern float waitScale;
 float rotLimit = 0.7;
 
@@ -253,19 +233,6 @@ void UpdateEnemies()
 
 			MakeUnit (&fwd);
 
-//			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
-//				if (Random(1))
-//					cur->path->endFrame += (Random(100)/1000.0)*cur->speed;
-
-//					cur->speed = (Random(100)/100.0)*cur->path->nodes[cur->path->fromNode].speed;
-				
-//			cur->nmeActor->actor->pos.v[X] += (cur->speed * fwd.v[X]);
-//			cur->nmeActor->actor->pos.v[Y] += (cur->speed * fwd.v[Y]);
-//			cur->nmeActor->actor->pos.v[Z] += (cur->speed * fwd.v[Z]);
-			
-			
-//--------------------->
-
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
 
 			if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
@@ -279,15 +246,18 @@ void UpdateEnemies()
 				MakeUnit( &moveVec );
 				Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
-//--------------------->
 
 			// check if this enemy has arrived at a path node
-			if(EnemyHasArrivedAtNode(cur))
+			if( actFrameCount > cur->path->endFrame )
 			{
 				UpdateEnemyPathNodes(cur);
 
 				cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
-				cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+
+				if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+					cur->path->endFrame = cur->path->startFrame + (60*((float)Random(100)/100.0F) );
+				else
+					cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
 			}
 		}
 		else
@@ -295,7 +265,6 @@ void UpdateEnemies()
 				ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos, LOOKAT_ANYWHERE );
 			else if (cur->flags & ENEMY_NEW_SNAPFROG)
 			{
-				VECTOR v1, v2, v3;
 				static GAMETILE *tile = NULL;
 				float angle;
 
@@ -322,7 +291,7 @@ void UpdateEnemies()
 					ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos, LOOKAT_2D );
 
 					// If the snapper has just spotted the frog, set snap time
-					if( cur->nmeActor->distanceFromFrog < (snapRadius*snapRadius) )
+					if( cur->nmeActor->distanceFromFrog < 5625 ) // 75*75
 					{
 						tile = FindNearestTile( frog[0]->actor->pos );
 						ActorLookAt( cur->nmeActor->actor, &tile->centre, LOOKAT_2D );
@@ -521,7 +490,7 @@ void UpdateEnemies()
 		if( cur->flags & ENEMY_NEW_HOMING )
 		{
 			GAMETILE *chTile;
-			VECTOR nmeup, tVec, v2, v3;
+			VECTOR nmeup, tVec;
 			float distance=10000, best=-2;
 			short bFlag = 0;
 
@@ -563,19 +532,19 @@ void UpdateEnemies()
 
 		if (NUM_FROGS!=1)
 		{
-			long p;
-
-			for (p=0; p<NUM_FROGS; p++)
+			for (i=0; i<NUM_FROGS; i++)
 			{
 				if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
 				{
-					if((!frog[p]->action.safe) && ActorsHaveCollided(frog[p],cur->nmeActor))
-						KillMPFrog(p);
+					if((!frog[i]->action.safe) && ActorsHaveCollided(frog[i],cur->nmeActor))
+						KillMPFrog(i);
 				}
 				else
-					if((currTile[p] == cur->inTile) && 	(!frog[p]->action.safe) && (!(player[p].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-						/*(!currPlatform[0]) &&*/ !(player[p].frogState & FROGSTATUS_ISFLOATING))
-							KillMPFrog(p);
+					if((currTile[i] == cur->inTile) && 	(!frog[i]->action.safe) && (!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+						!(player[i].frogState & FROGSTATUS_ISFLOATING))
+					{
+						KillMPFrog(i);
+					}
 			}
 		}
 		else
@@ -657,6 +626,7 @@ void UpdateEnemies()
 			}
 		}
 		// process enemies (update anims, etc.)
+		/*
 		switch(cur->nmeActor->actor->type)
 		{
 			case NMETYPE_MOLE:
@@ -666,7 +636,7 @@ void UpdateEnemies()
 				ProcessNMEMower(cur->nmeActor);
 				break;
 		}
-
+		*/
 		if( cur->flags & ENEMY_NEW_MAKERIPPLES )
 		{
 			long r;
@@ -718,6 +688,529 @@ void UpdateEnemies()
 		}
 	}
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitEnemyLinkedList
+	Purpose			: initialises the enemy linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitEnemyLinkedList()
+{
+	enemyList.numEntries = 0;
+	enemyList.head.next = enemyList.head.prev = &enemyList.head;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddEnemy
+	Purpose			: adds an enemy to the linked list
+	Parameters		: ENEMY *
+	Returns			: void
+	Info			: 
+*/
+void AddEnemy(ENEMY *enemy)
+{
+	if(enemy->next == NULL)
+	{
+		enemyList.numEntries++;
+		enemy->prev = &enemyList.head;
+		enemy->next = enemyList.head.next;
+		enemyList.head.next->prev = enemy;
+		enemyList.head.next = enemy;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubEnemy
+	Purpose			: removes an enemy from the linked list
+	Parameters		: ENEMY *
+	Returns			: void
+	Info			: 
+*/
+void SubEnemy(ENEMY *enemy)
+{
+	if(enemy->next == NULL)
+		return;
+
+	if(enemy->path)
+	{
+		if(enemy->path->nodes)
+			JallocFree((UBYTE**)&enemy->path->nodes);
+
+		JallocFree((UBYTE**)&enemy->path);
+	}
+
+	enemy->prev->next = enemy->next;
+	enemy->next->prev = enemy->prev;
+	enemy->next = NULL;
+	enemyList.numEntries--;
+
+	JallocFree((UBYTE **)&enemy);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeEnemyLinkedList
+	Purpose			: frees the enemy linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeEnemyLinkedList()
+{
+	ENEMY *cur,*next;
+
+	// check if any elements in list
+	if(enemyList.numEntries == 0)
+		return;
+
+	dprintf"Freeing linked list : ENEMY : (%d elements)\n",enemyList.numEntries));
+
+	// traverse enemy list and free elements
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubEnemy(cur);
+	}
+
+	// initialise list for future use
+	InitEnemyLinkedList();
+}
+
+
+ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
+{
+	int enemyType = 0;
+	float shadowRadius = 0;
+
+	ENEMY *newItem = (ENEMY *)JallocAlloc(sizeof(ENEMY),YES,"NME");
+	AddEnemy(newItem);
+
+	enemyType = NMETYPE_WASP;
+
+	// check nme type and assign shadow if necessary
+
+	if( !(initFlags & INIT_SWARM) )
+	{
+		initFlags |= INIT_ANIMATION;
+		if(enemyType == NMETYPE_WASP)
+		{
+			initFlags |= INIT_SHADOW;
+			shadowRadius = 20;
+		}
+	}
+
+	// create and add the nme actor
+	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
+	if(newItem->nmeActor->actor->objectController)
+		InitActorAnim(newItem->nmeActor->actor);
+
+	// set shadow radius (if applicable)
+	if(shadowRadius)
+		if (newItem->nmeActor->actor->shadow)
+			newItem->nmeActor->actor->shadow->radius = shadowRadius;
+
+	// specify enemy radius if the enemy is radius based
+	if(initFlags & ENEMY_NEW_RADIUSBASEDCOLLISION)
+		newItem->nmeActor->radius = 15.0F; 	// set a default collision radius
+	else
+		newItem->nmeActor->radius = 0.0F;	// set radius to zero - not used for collision detection
+
+	// set animation depending on enemy type
+	/*
+	if(enemyType > NMETYPE_NONE)
+	{
+		switch(enemyType)
+		{
+			case NMETYPE_MOLE:
+				AnimateActor(newItem->nmeActor->actor,3,NO,NO,0.1F*newItem->nmeActor->animSpeed, 0, 0);
+				newItem->nmeActor->actor->status = NMESTATE_MOLE_IDLE;
+				newItem->nmeActor->actor->scale.v[X] = 0.0075F;
+				newItem->nmeActor->actor->scale.v[Y] = 0.0075F;
+				newItem->nmeActor->actor->scale.v[Z] = 0.0075F;
+				newItem->isIdle = Random(500);
+				break;
+
+			case NMETYPE_MOWER:
+			case NMETYPE_ROLLER:
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F*newItem->nmeActor->animSpeed, 0, 0);
+				newItem->nmeActor->actor->status = NMESTATE_MOWER_IDLE;
+				break;
+			case NMETYPE_WASP:*/
+	AnimateActor(newItem->nmeActor->actor,0,YES,NO,newItem->nmeActor->animSpeed, 0, 0);
+	//newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
+	newItem->nmeActor->actor->scale.v[X] = 1.5F;
+	newItem->nmeActor->actor->scale.v[Y] = 1.5F;
+	newItem->nmeActor->actor->scale.v[Z] = 1.5F;
+				/*
+				break;
+		}
+
+		newItem->nmeActor->actor->type = enemyType;
+		newItem->nmeActor->action.dead = 30;
+	}
+	*/
+
+	newItem->active			= 1;
+	
+	newItem->path			= NULL;
+	newItem->inTile			= NULL;
+	
+	newItem->speed			= 1.0F;
+	newItem->startSpeed		= 1.0F;
+	newItem->accel			= 0.0F;
+	newItem->isSnapping 	= 0;
+
+	return newItem;
+}
+
+void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags)
+{
+	int i;
+	VECTOR enemyStartPos;
+
+	// assign the path to this enemy
+	nme->flags		|= enemyFlags;
+	nme->path		= path;
+
+	//dprintf"Add enemy path : "));
+
+	// check if pathnode indices need converting to game tile pointers
+	if(pathFlags & PATH_MAKENODETILEPTRS)
+	{
+		for(i=0; i<path->numNodes; i++)
+		{
+			// convert integer to a valid game tile
+			//dprintf"%d, ",(unsigned long)path->nodes[i].worldTile));
+			nme->path->nodes[i].worldTile = &firstTile[(unsigned long)path->nodes[i].worldTile];
+		}
+	}
+
+	// set the start position for the enemy
+	nme->path->fromNode	= nme->path->startNode;
+
+	if(enemyFlags & ENEMY_NEW_FORWARDS)
+	{
+		// this enemy moves forward thru path nodes
+		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
+		nme->path->toNode = nme->path->fromNode + 1;
+		if(nme->path->toNode > GET_PATHLASTNODE(path))
+			nme->path->toNode = 0;
+	}
+	else if(enemyFlags & ENEMY_NEW_BACKWARDS)
+	{
+		// this enemy moves backward thru path nodes
+		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
+		nme->path->toNode = nme->path->fromNode - 1;
+		if(nme->path->toNode < 0)
+			nme->path->toNode = GET_PATHLASTNODE(path);
+	}
+	else if((enemyFlags & ENEMY_NEW_MOVEUP) ||
+			(enemyFlags & ENEMY_NEW_MOVEDOWN))
+	{
+		// this enemy moves up or down
+		nme->path->fromNode = nme->path->toNode = 0;
+	}
+
+	// set enemy position to relevant point on path
+	GetPositionForPathNode(&enemyStartPos,&path->nodes[nme->path->fromNode]);
+	SetVector(&nme->nmeActor->actor->pos,&enemyStartPos);
+	NormalToQuaternion(&nme->nmeActor->actor->qRot,&path->nodes[nme->path->fromNode].worldTile->normal);
+
+	// set enemy current 'in' tile and speeds and pause times
+	nme->inTile		= path->nodes[nme->path->fromNode].worldTile;
+	nme->speed		= path->nodes[nme->path->fromNode].speed;
+	nme->startSpeed	= path->nodes[nme->path->fromNode].speed;
+	nme->isWaiting	= path->nodes[nme->path->fromNode].waitTime;
+
+	nme->path->startFrame = actFrameCount;
+	nme->path->endFrame = (actFrameCount+(60*nme->speed));
+
+	CalcEnemyNormalInterps(nme);
+
+	//dprintf"\n"));
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: EnemyReachedTopOrBottomPoint
+	Purpose			: checks if an enemy has arrived at top or bottom point (1 node based)
+	Parameters		: ENEMY *
+	Returns			: BOOL - TRUE if node reached, else FALSE
+	Info			: 
+*/
+BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
+{
+	VECTOR toPos;
+	PATH *path = nme->path;
+
+	// check if path extreme point is reached
+	if(nme->flags & ENEMY_NEW_MOVEUP)
+	{
+		// moving up
+		GetPositionForPathNodeOffset2(&toPos,&path->nodes[0]);
+
+		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (nme->speed * nme->speed))
+			return TRUE;
+	}
+	else if(nme->flags & ENEMY_NEW_MOVEDOWN)
+	{
+		// moving down
+		GetPositionForPathNode(&toPos,&path->nodes[0]);
+
+		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (nme->speed * nme->speed))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateEnemyPathNodes
+	Purpose			: updates enemy path move status
+	Parameters		: ENEMY *
+	Returns			: void
+	Info			: 
+*/
+void UpdateEnemyPathNodes(ENEMY *nme)
+{
+	VECTOR nmePos;
+	int wait;
+	PATH *path = nme->path;
+	unsigned long flags = nme->flags;
+	
+	if(flags & ENEMY_NEW_FORWARDS)	// enemy moves forward through path nodes
+	{
+		if(path->toNode >= GET_PATHLASTNODE(path))	// reached end of path nodes
+		{
+			if(flags & ENEMY_NEW_PINGPONG)		// this enemy has ping-pong movement
+			{
+				nme->flags		^= (ENEMY_NEW_FORWARDS | ENEMY_NEW_BACKWARDS);	// reverse enemy path movement
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= GET_PATHLASTNODE(path) - 1;
+			}
+			else if(flags & ENEMY_NEW_CYCLE) 	// enemy has cyclic movement
+			{
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= 0;
+			}
+			else
+			{
+				path->fromNode	= 0;
+				path->toNode	= 1;
+				GetPositionForPathNode(&nmePos,&path->nodes[0]);
+				SetVector(&nme->nmeActor->actor->pos,&nmePos);
+			}
+		}
+		else
+		{
+			path->fromNode = path->toNode;
+			path->toNode++;
+		}
+	}
+	else if(flags & ENEMY_NEW_BACKWARDS) // enemy moves backwards through path nodes
+	{
+		if(path->toNode <= 0)
+		{
+			// reached beginning of path nodes
+			// check if this enemy has ping-pong movement
+			if(flags & ENEMY_NEW_PINGPONG)
+			{
+				// reverse enenmy path movement
+				nme->flags		^= (ENEMY_NEW_FORWARDS | ENEMY_NEW_BACKWARDS);	// reverse enemy path movement
+				path->fromNode	= 0;
+				path->toNode	= 1;
+			}
+			else if(flags & ENEMY_NEW_CYCLE)
+			{
+				// enenmy has cyclic movement
+				path->fromNode	= 0;
+				path->toNode	= GET_PATHLASTNODE(path);
+			}
+			else
+			{
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= GET_PATHLASTNODE(path) - 1;
+				GetPositionForPathNode(&nmePos,&path->nodes[GET_PATHLASTNODE(path)]);
+				SetVector(&nme->nmeActor->actor->pos,&nmePos);
+			}
+		}
+		else
+		{
+			path->fromNode = path->toNode;
+			path->toNode--;
+		}
+
+	}
+	else if((flags & ENEMY_NEW_PINGPONG) && flags & (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN))
+	{
+		nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
+	}
+
+	nme->speed		= path->nodes[path->fromNode].speed;
+	nme->isWaiting	= path->nodes[path->fromNode].waitTime;
+
+	// Stop overshoot when waiting on a path node
+	if (nme->isWaiting)
+	{
+		GetPositionForPathNode(&nmePos, &path->nodes[path->fromNode]);
+		SetVector(&nme->nmeActor->actor->pos, &nmePos);
+	}
+
+	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
+
+	
+	CalcEnemyNormalInterps(nme);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CalcEnemyNormalInterps
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void CalcEnemyNormalInterps(ENEMY *nme)
+{
+	PATH *path;
+	PATHNODE *fromNode,*toNode;
+	float numSteps;
+	VECTOR destNormal,fromPos,toPos;
+
+	path = nme->path;
+	if(path->numNodes < 2)
+		return;
+
+	fromNode	= &path->nodes[path->fromNode];
+	toNode		= &path->nodes[path->toNode];
+
+	// set the current enemy normal to that of the 'from' node and get the dest normal
+	SetVector(&nme->currNormal,&fromNode->worldTile->normal);
+	SetVector(&destNormal,&toNode->worldTile->normal);
+
+	// calculate deltas for linear interpolation of enemy normal during movement
+	SubVector(&nme->deltaNormal,&destNormal,&nme->currNormal);
+
+	// determine number of 'steps' over which to interpolate
+	GetPositionForPathNode(&fromPos,fromNode);
+	GetPositionForPathNode(&toPos,toNode);
+	
+	numSteps = DistanceBetweenPoints(&fromPos,&toPos);
+	if(numSteps == 0)
+		numSteps = 1;
+	numSteps /= nme->speed;
+
+	nme->deltaNormal.v[X] /= numSteps;
+	nme->deltaNormal.v[Y] /= numSteps;
+	nme->deltaNormal.v[Z] /= numSteps;
+}
+
+
+//------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef OLDNMESTUFF
 
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessNMEMole
@@ -1012,472 +1505,4 @@ void ProcessNMECar(ACTOR2 *nme)
 	}
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitEnemyLinkedList
-	Purpose			: initialises the enemy linked list
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void InitEnemyLinkedList()
-{
-	enemyList.numEntries = 0;
-	enemyList.head.next = enemyList.head.prev = &enemyList.head;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddEnemy
-	Purpose			: adds an enemy to the linked list
-	Parameters		: ENEMY *
-	Returns			: void
-	Info			: 
-*/
-void AddEnemy(ENEMY *enemy)
-{
-	if(enemy->next == NULL)
-	{
-		enemyList.numEntries++;
-		enemy->prev = &enemyList.head;
-		enemy->next = enemyList.head.next;
-		enemyList.head.next->prev = enemy;
-		enemyList.head.next = enemy;
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: SubEnemy
-	Purpose			: removes an enemy from the linked list
-	Parameters		: ENEMY *
-	Returns			: void
-	Info			: 
-*/
-void SubEnemy(ENEMY *enemy)
-{
-	if(enemy->next == NULL)
-		return;
-
-	if(enemy->path)
-	{
-		if(enemy->path->nodes)
-			JallocFree((UBYTE**)&enemy->path->nodes);
-
-		JallocFree((UBYTE**)&enemy->path);
-	}
-
-	enemy->prev->next = enemy->next;
-	enemy->next->prev = enemy->prev;
-	enemy->next = NULL;
-	enemyList.numEntries--;
-
-	JallocFree((UBYTE **)&enemy);
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeEnemyLinkedList
-	Purpose			: frees the enemy linked list
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void FreeEnemyLinkedList()
-{
-	ENEMY *cur,*next;
-
-	// check if any elements in list
-	if(enemyList.numEntries == 0)
-		return;
-
-	dprintf"Freeing linked list : ENEMY : (%d elements)\n",enemyList.numEntries));
-
-	// traverse enemy list and free elements
-	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
-	{
-		next = cur->next;
-
-		SubEnemy(cur);
-	}
-
-	// initialise list for future use
-	InitEnemyLinkedList();
-}
-
-
-
-
-//------------------------------------------------------------------------------------------------
-// NEW ENEMY CODE - UNDER DEVELOPMENT - ANDYE - NEW ENEMY CODE - UNDER DEVELOPMENT - ANDYE -
-//------------------------------------------------------------------------------------------------
-
-ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags )
-{
-	int i,enemyType = 0;
-	float shadowRadius = 0;
-
-	ENEMY *newItem = (ENEMY *)JallocAlloc(sizeof(ENEMY),YES,"NME");
-	AddEnemy(newItem);
-
-	enemyType = NMETYPE_WASP;
-
-	// check nme type and assign shadow if necessary
-
-	if( !(initFlags & INIT_SWARM) )
-	{
-		initFlags |= INIT_ANIMATION;
-		if(enemyType == NMETYPE_WASP)
-		{
-			initFlags |= INIT_SHADOW;
-			shadowRadius = 20;
-		}
-	}
-	/*
-	else
-	{
-		if( !gstrcmp( eActorName, "crow_swarm" ) )
-			enemyType = NMETYPE_SWARM_CROWS;
-		//etc
-	}*/
-
-	// create and add the nme actor
-	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
-	if(newItem->nmeActor->actor->objectController)
-//	{
-		InitActorAnim(newItem->nmeActor->actor);
-//		AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.0F);
-//	}
-
-	// set shadow radius (if applicable)
-	if(shadowRadius)
-	{
-		if (newItem->nmeActor->actor->shadow)
-			newItem->nmeActor->actor->shadow->radius = shadowRadius;
-	}
-
-	// specify enemy radius if the enemy is radius based
-	if(initFlags & ENEMY_NEW_RADIUSBASEDCOLLISION)
-		newItem->nmeActor->radius = 15.0F; 	// set a default collision radius
-	else
-		newItem->nmeActor->radius = 0.0F;	// set radius to zero - not used for collision detection
-
-	// set animation depending on enemy type
-	if(enemyType > NMETYPE_NONE)
-	{
-
-		switch(enemyType)
-		{
-			case NMETYPE_MOLE:
-					AnimateActor(newItem->nmeActor->actor,3,NO,NO,0.1F*newItem->nmeActor->animSpeed, 0, 0);
-					newItem->nmeActor->actor->status = NMESTATE_MOLE_IDLE;
-					newItem->nmeActor->actor->scale.v[X] = 0.0075F;
-					newItem->nmeActor->actor->scale.v[Y] = 0.0075F;
-					newItem->nmeActor->actor->scale.v[Z] = 0.0075F;
-					newItem->isIdle = Random(500);
-				break;
-
-			case NMETYPE_MOWER:
-			case NMETYPE_ROLLER:
-				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F*newItem->nmeActor->animSpeed, 0, 0);
-				newItem->nmeActor->actor->status = NMESTATE_MOWER_IDLE;
-				break;
-			case NMETYPE_WASP:
-				AnimateActor(newItem->nmeActor->actor,0,YES,NO,2.0F*newItem->nmeActor->animSpeed, 0, 0);
-				newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
-				newItem->nmeActor->actor->scale.v[X] = 1.5F;
-				newItem->nmeActor->actor->scale.v[Y] = 1.5F;
-				newItem->nmeActor->actor->scale.v[Z] = 1.5F;
-				break;
-		}
-
-		newItem->nmeActor->actor->type = enemyType;
-		newItem->nmeActor->action.dead = 30;
-	}
-	
-	// set the platform to be active (i.e. is updated)
-	newItem->active			= 1;
-	
-	newItem->path			= NULL;
-	newItem->inTile			= NULL;
-	
-	newItem->speed			= 1.0F;
-	newItem->startSpeed		= 1.0F;
-	newItem->accel			= 0.0F;
-	newItem->isSnapping 	= 0;
-
-	return newItem;
-}
-
-void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags)
-{
-	int i;
-	VECTOR enemyStartPos;
-
-	// assign the path to this enemy
-	nme->flags		|= enemyFlags;
-	nme->path		= path;
-
-	//dprintf"Add enemy path : "));
-
-	// check if pathnode indices need converting to game tile pointers
-	if(pathFlags & PATH_MAKENODETILEPTRS)
-	{
-		for(i=0; i<path->numNodes; i++)
-		{
-			// convert integer to a valid game tile
-			//dprintf"%d, ",(unsigned long)path->nodes[i].worldTile));
-			nme->path->nodes[i].worldTile = &firstTile[(unsigned long)path->nodes[i].worldTile];
-		}
-	}
-
-	// set the start position for the enemy
-	nme->path->fromNode	= nme->path->startNode;
-
-	if(enemyFlags & ENEMY_NEW_FORWARDS)
-	{
-		// this enemy moves forward thru path nodes
-		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
-		nme->path->toNode = nme->path->fromNode + 1;
-		if(nme->path->toNode > GET_PATHLASTNODE(path))
-			nme->path->toNode = 0;
-	}
-	else if(enemyFlags & ENEMY_NEW_BACKWARDS)
-	{
-		// this enemy moves backward thru path nodes
-		nme->flags				|= ENEMY_NEW_FOLLOWPATH;
-		nme->path->toNode = nme->path->fromNode - 1;
-		if(nme->path->toNode < 0)
-			nme->path->toNode = GET_PATHLASTNODE(path);
-	}
-	else if((enemyFlags & ENEMY_NEW_MOVEUP) ||
-			(enemyFlags & ENEMY_NEW_MOVEDOWN))
-	{
-		// this enemy moves up or down
-		nme->path->fromNode = nme->path->toNode = 0;
-	}
-
-	// set enemy position to relevant point on path
-	GetPositionForPathNode(&enemyStartPos,&path->nodes[nme->path->fromNode]);
-	SetVector(&nme->nmeActor->actor->pos,&enemyStartPos);
-	NormalToQuaternion(&nme->nmeActor->actor->qRot,&path->nodes[nme->path->fromNode].worldTile->normal);
-
-	// set enemy current 'in' tile and speeds and pause times
-	nme->inTile		= path->nodes[nme->path->fromNode].worldTile;
-	nme->speed		= path->nodes[nme->path->fromNode].speed;
-	nme->startSpeed	= path->nodes[nme->path->fromNode].speed;
-	nme->isWaiting	= path->nodes[nme->path->fromNode].waitTime;
-
-	nme->path->startFrame = actFrameCount;
-	nme->path->endFrame = (actFrameCount+(60*nme->speed));
-
-	CalcEnemyNormalInterps(nme);
-
-	//dprintf"\n"));
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: EnemyHasArrivedAtNode
-	Purpose			: checks if an enemy has arrived at a node
-	Parameters		: ENEMY *
-	Returns			: BOOL - TRUE if node reached, else FALSE
-	Info			: 
-*/
-BOOL EnemyHasArrivedAtNode(ENEMY *nme)
-{
-	VECTOR nodePos;
-	PATH *path = nme->path;
-
-	if (actFrameCount>path->endFrame)
-	{
-		return TRUE;
-	}
-
-	// check if path node is reached
-/*	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
-	if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&nodePos) <  ((nme->speed + 0.1F) * (nme->speed + 0.1F)))
-	{
-		dprintf""));
-		return TRUE;
-	}
-*/
-	return FALSE;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: EnemyReachedTopOrBottomPoint
-	Purpose			: checks if an enemy has arrived at top or bottom point (1 node based)
-	Parameters		: ENEMY *
-	Returns			: BOOL - TRUE if node reached, else FALSE
-	Info			: 
-*/
-BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
-{
-	VECTOR toPos;
-	PATH *path = nme->path;
-
-	// check if path extreme point is reached
-	if(nme->flags & ENEMY_NEW_MOVEUP)
-	{
-		// moving up
-		GetPositionForPathNodeOffset2(&toPos,&path->nodes[0]);
-
-		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (nme->speed * nme->speed))
-			return TRUE;
-	}
-	else if(nme->flags & ENEMY_NEW_MOVEDOWN)
-	{
-		// moving down
-		GetPositionForPathNode(&toPos,&path->nodes[0]);
-
-		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (nme->speed * nme->speed))
-			return TRUE;
-	}
-
-	return FALSE;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: UpdateEnemyPathNodes
-	Purpose			: updates enemy path move status
-	Parameters		: ENEMY *
-	Returns			: void
-	Info			: 
-*/
-void UpdateEnemyPathNodes(ENEMY *nme)
-{
-	VECTOR nmePos;
-	int wait;
-	PATH *path = nme->path;
-	unsigned long flags = nme->flags;
-	
-	if(flags & ENEMY_NEW_FORWARDS)	// enemy moves forward through path nodes
-	{
-		if(path->toNode >= GET_PATHLASTNODE(path))	// reached end of path nodes
-		{
-			if(flags & ENEMY_NEW_PINGPONG)		// this enemy has ping-pong movement
-			{
-				nme->flags		^= (ENEMY_NEW_FORWARDS | ENEMY_NEW_BACKWARDS);	// reverse enemy path movement
-				path->fromNode	= GET_PATHLASTNODE(path);
-				path->toNode	= GET_PATHLASTNODE(path) - 1;
-			}
-			else if(flags & ENEMY_NEW_CYCLE) 	// enemy has cyclic movement
-			{
-				path->fromNode	= GET_PATHLASTNODE(path);
-				path->toNode	= 0;
-			}
-			else
-			{
-				path->fromNode	= 0;
-				path->toNode	= 1;
-				GetPositionForPathNode(&nmePos,&path->nodes[0]);
-				SetVector(&nme->nmeActor->actor->pos,&nmePos);
-			}
-		}
-		else
-		{
-			path->fromNode = path->toNode;
-			path->toNode++;
-		}
-	}
-	else if(flags & ENEMY_NEW_BACKWARDS) // enemy moves backwards through path nodes
-	{
-		if(path->toNode <= 0)
-		{
-			// reached beginning of path nodes
-			// check if this enemy has ping-pong movement
-			if(flags & ENEMY_NEW_PINGPONG)
-			{
-				// reverse enenmy path movement
-				nme->flags		^= (ENEMY_NEW_FORWARDS | ENEMY_NEW_BACKWARDS);	// reverse enemy path movement
-				path->fromNode	= 0;
-				path->toNode	= 1;
-			}
-			else if(flags & ENEMY_NEW_CYCLE)
-			{
-				// enenmy has cyclic movement
-				path->fromNode	= 0;
-				path->toNode	= GET_PATHLASTNODE(path);
-			}
-			else
-			{
-				path->fromNode	= GET_PATHLASTNODE(path);
-				path->toNode	= GET_PATHLASTNODE(path) - 1;
-				GetPositionForPathNode(&nmePos,&path->nodes[GET_PATHLASTNODE(path)]);
-				SetVector(&nme->nmeActor->actor->pos,&nmePos);
-			}
-		}
-		else
-		{
-			path->fromNode = path->toNode;
-			path->toNode--;
-		}
-
-	}
-	else if((flags & ENEMY_NEW_PINGPONG) && flags & (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN))
-	{
-		nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
-	}
-
-	nme->speed		= path->nodes[path->fromNode].speed;
-	nme->isWaiting	= path->nodes[path->fromNode].waitTime;
-
-	// Stop overshoot when waiting on a path node
-	if (nme->isWaiting)
-	{
-		GetPositionForPathNode(&nmePos, &path->nodes[path->fromNode]);
-		SetVector(&nme->nmeActor->actor->pos, &nmePos);
-	}
-
-	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
-
-	
-	CalcEnemyNormalInterps(nme);
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: CalcEnemyNormalInterps
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void CalcEnemyNormalInterps(ENEMY *nme)
-{
-	PATH *path;
-	PATHNODE *fromNode,*toNode;
-	float numSteps;
-	VECTOR destNormal,fromPos,toPos;
-
-	path = nme->path;
-	if(path->numNodes < 2)
-		return;
-
-	fromNode	= &path->nodes[path->fromNode];
-	toNode		= &path->nodes[path->toNode];
-
-	// set the current enemy normal to that of the 'from' node and get the dest normal
-	SetVector(&nme->currNormal,&fromNode->worldTile->normal);
-	SetVector(&destNormal,&toNode->worldTile->normal);
-
-	// calculate deltas for linear interpolation of enemy normal during movement
-	SubVector(&nme->deltaNormal,&destNormal,&nme->currNormal);
-
-	// determine number of 'steps' over which to interpolate
-	GetPositionForPathNode(&fromPos,fromNode);
-	GetPositionForPathNode(&toPos,toNode);
-	
-	numSteps = DistanceBetweenPoints(&fromPos,&toPos);
-	if(numSteps == 0)
-		numSteps = 1;
-	numSteps /= nme->speed;
-
-	nme->deltaNormal.v[X] /= numSteps;
-	nme->deltaNormal.v[Y] /= numSteps;
-	nme->deltaNormal.v[Z] /= numSteps;
-}
-
-
-//------------------------------------------------------------------------------------------------
+#endif

@@ -143,12 +143,7 @@ typedef struct TAGENEMYLIST
 
 extern ENEMYLIST enemyList;
 
-extern ENEMY *testEnemy;
-
-
 // FUNCTION PROTOTYPES
-
-void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID);
 
 void InitEnemyLinkedList();
 void FreeEnemyLinkedList();
@@ -157,19 +152,18 @@ void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
 
-
+/*
 void ProcessNMEMole ( ENEMY *nme );
 
 void ProcessNMESnapperPlant(ACTOR2 *nme);
 void ProcessNMECar(ACTOR2 *nme);
 void ProcessNMEDog(ACTOR2 *nme);
 void ProcessNMEMower(ACTOR2 *nme);
-
+*/
 //------------------------------------------------------------------------------------------------
 
 ENEMY *CreateAndAddEnemy(char *eActorName, int initFlags);
 void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
-BOOL EnemyHasArrivedAtNode(ENEMY *nme);
 BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);
 void CalcEnemyNormalInterps(ENEMY *nme);

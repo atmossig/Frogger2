@@ -754,11 +754,9 @@ void RemoveUniqueActor(ACTOR *actor,int type)
 void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 {
 	VECTOR forward, dir;
-	QUATERNION q,q2,q3,planeQuat;
+	QUATERNION q,q2,q3;
 	float a,b;
 	
-//	CalculateQuatForPlane2(0,&planeQuat,&upVec)
-
 	SubVector( &dir, &act->pos, at );
 
 	SetVector( &forward, &dir );
@@ -773,7 +771,6 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 	else
 		q.w = -acos(a);
 
-	
 	if( flags == LOOKAT_ANYWHERE )
 	{
 		GetQuaternionFromRotation(&q3,&q);
