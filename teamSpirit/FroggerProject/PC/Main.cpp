@@ -1137,9 +1137,10 @@ long LoopFunc(void)
 
 int GameStartup()
 {
-	SetupRenderer(xRes, yRes);
+	MDX_TEXENTRY *t;
+	char path[MAX_PATH];
+
 	InitProfile();
-	GetArgs(lpCmdLine);
 	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
 	InitMaths();
 	gelfInit();
@@ -1203,6 +1204,8 @@ int GameShutdown()
 	gelfShutdown();
 
 	SetRegistryInformation();
+
+	return 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1213,8 +1216,6 @@ int GameShutdown()
 */
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
-	MDX_TEXENTRY *t;
-	char path[MAX_PATH];
 	long xRes,yRes;
 	
 	SYSTEMTIME currTime;
@@ -1278,7 +1279,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		{
 			// Setup D3D
 			if (D3DInit())
+			{
+				SetupRenderer(xRes, yRes);
 				break;
+			}
 		}
 
 		// we must have failed .. shut things down and loop around
@@ -1298,6 +1302,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			MB_ICONEXCLAMATION|MB_OK);
 	}
 
+	GetArgs(lpCmdLine);
 	GameStartup();
 	CommonInit();
 	
