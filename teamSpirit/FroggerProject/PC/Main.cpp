@@ -510,6 +510,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					editorOk = !editorOk;
 					keysEnabled = !keysEnabled;
+					dkPressed += editorOk;
 				}
 				return 0;
 			default:
