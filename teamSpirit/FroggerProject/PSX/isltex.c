@@ -1044,17 +1044,17 @@ TextureBankType *textureReallocTextureBank(TextureBankType *txBank)
 
 static void VRAMviewNormal(DISPENV *dispenv, int *xOffs,int *yOffs, unsigned char palMode)
 {
-	if (padData.digital[4] & PAD_LEFT)
+	if (padData.digital[0] & PAD_LEFT)
 		*xOffs -= 6;
-	if (padData.digital[4] & PAD_RIGHT)
+	if (padData.digital[0] & PAD_RIGHT)
 		*xOffs += 6;
 	if (*xOffs<0)
 		*xOffs = 0;
 	if (*xOffs>1024-512)
 		*xOffs = 1024-512;
-	if (padData.digital[4] & PAD_UP)
+	if (padData.digital[0] & PAD_UP)
 		*yOffs -= 4;
-	if (padData.digital[4] & PAD_DOWN)
+	if (padData.digital[0] & PAD_DOWN)
 		*yOffs += 4;
 	if (*yOffs<0)
 		*yOffs = 0;
@@ -1266,27 +1266,27 @@ static void VRAMviewTextures(int *currTex)
 
 	if (padDelay==0)
 	{
-		if ((padData.digital[4] & (PAD_LEFT|PAD_UP)) && (*currTex>0))
+		if ((padData.digital[0] & (PAD_LEFT|PAD_UP)) && (*currTex>0))
 		{
 			*currTex = (*currTex)-1;
 			padDelay = 3;
-			if (padData.debounce[4] & (PAD_LEFT|PAD_UP))
+			if (padData.debounce[0] & (PAD_LEFT|PAD_UP))
 				padDelay = 20;
 		}
-		if (padData.digital[4] & (PAD_RIGHT|PAD_DOWN))
+		if (padData.digital[0] & (PAD_RIGHT|PAD_DOWN))
 		{
 			if(textureFindTextureN(*currTex+1))
 			{
 				*currTex = (*currTex)+1;
 				padDelay = 3;
-				if (padData.debounce[4] & (PAD_RIGHT|PAD_DOWN))
+				if (padData.debounce[0] & (PAD_RIGHT|PAD_DOWN))
 					padDelay = 20;
 			}
 		}
 	}
 	else
 	{
-		if ((padData.digital[4] & (PAD_LEFT|PAD_RIGHT|PAD_UP|PAD_DOWN))==0)
+		if ((padData.digital[0] & (PAD_LEFT|PAD_RIGHT|PAD_UP|PAD_DOWN))==0)
 			padDelay = 0;
 		if (padDelay>0)
 			padDelay--;
@@ -1309,7 +1309,7 @@ void textureShowVRAM(unsigned char palMode)
 	yOffs = 0;
 	viewMode = 0;
 	SetDefDispEnv(&dispenv, 0,0, 512,256);
-	while ((padData.digital[4] & PAD_START)==0)
+	while ((padData.digital[0] & PAD_START)==0)
 	{
 		myPadHandleInput();
 		switch(viewMode)
@@ -1321,7 +1321,7 @@ void textureShowVRAM(unsigned char palMode)
 			VRAMviewTextures(&currTex);
 			break;
 		}
-		if (padData.debounce[4] & PAD_SELECT)
+		if (padData.debounce[0] & PAD_SELECT)
 			viewMode = (viewMode+1) % 2;
 	}
 }
