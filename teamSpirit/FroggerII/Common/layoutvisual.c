@@ -20,6 +20,14 @@
 unsigned long worldNum;
 unsigned long levelNum;
 
+// WHY are these variables here?
+
+long initialCamera = 0;
+TEXTOVERLAY *demoText = NULL;
+const char *demoStr = "Demo Mode";
+extern long rPlaying;
+
+
 // world visual data - for texture and object banks
 WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS];
 
@@ -555,21 +563,91 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID)
 	if (levelID<3)
 		worldVisualData[worldID].levelVisualData[levelID+1].levelOpen = LEVEL_OPEN;
 }
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitLevelLists
+	Purpose			: Initialises in-game lists
+	Parameters		: 
+	Returns			: void
+*/
+void InitGameLists()
+{
+	// initialise the various lists
+	InitSpriteFrameLists();
+	InitSpriteOverlayLinkedList();
+	InitTextOverlayLinkedList();
+	InitSpecFXList();
+	InitBabyList( TRUE ); // MUST BE DONE BEFORE ENEMY INITS!
+	InitEnemyLinkedList();
+	InitPlatformLinkedList();
+	InitGaribLinkedList();
+	InitTriggerList();
+	Init3DTextList( );
+	InitTongues( );
+
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeAllGameLists
+	Purpose			: Frees all in-game lists but NOT textures, objects etc.
+	Parameters		: 
+	Returns			: 
+*/
+void FreeAllGameLists()
+{
+	dprintf"-- freeing in-game lists <--\n"));
+
+#ifdef N64_VERSION
+	MusHandleStop(audioCtrl.musicHandle[0],0);
+	audioCtrl.currentTrack[0] = 0;
+#endif
+
+#ifdef PC_VERSION
+	StopSong( );
+	FreeSampleList();
+#endif
+
+	KillAllTriggers();
+	FreeAmbientSoundList();
+	ResetBabies( );
+	FreeTransCameraList();
+	FreeTongues();
+
+	// Entities and collision
+
+	FreeGaribLinkedList();
+	FreeEnemyLinkedList();
+	FreePlatformLinkedList();
+	FreePathList();
+	FreeLevelScript();
+
+	// Graphics-related
+
+	FreeSpecFXList( );
+	FreeSpriteFrameLists();
+	Free3DTextList();
+	FreeTextOverlayLinkedList();
+	FreeSpriteOverlayLinkedList();
+	FreeSpriteLinkedList();
+
+	InitTextOverlayLinkedList();
+	InitSpriteOverlayLinkedList();
+	InitSpriteLinkedList();
+
+	dprintf"-->\n"));
+}
+
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: InitLevel
 	Purpose		:
 	Parameters	: unsigned long , unsigned long
 	Returns		: void 
 */
-long initialCamera = 0;
-TEXTOVERLAY *demoText = NULL;
-const char *demoStr = "Demo Mode";
-extern long rPlaying;
-
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
+
+	InitLevelLists();
 
 #ifdef PC_VERSION
 	actFrameCount = 0;
@@ -594,19 +672,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadSfx(worldID);
 #endif
 #endif
-
-	// initialise the various lists
-	InitSpriteFrameLists();
-	InitSpriteOverlayLinkedList();
-	InitTextOverlayLinkedList();
-	InitSpecFXList();
-	InitBabyList( TRUE ); // MUST BE DONE BEFORE ENEMY INITS!
-	InitEnemyLinkedList();
-	InitPlatformLinkedList();
-	InitGaribLinkedList();
-	InitTriggerList();
-	Init3DTextList( );
-	InitTongues( );
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;
@@ -731,57 +796,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 	lastActFrameCount = 0;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeAllGameLists
-	Purpose			: Frees all in-game lists but NOT textures, objects etc.
-	Parameters		: 
-	Returns			: 
-*/
-void FreeAllGameLists()
-{
-	dprintf"-- freeing in-game lists <--\n"));
-
-#ifdef N64_VERSION
-	MusHandleStop(audioCtrl.musicHandle[0],0);
-	audioCtrl.currentTrack[0] = 0;
-#endif
-
-#ifdef PC_VERSION
-	StopSong( );
-	FreeSampleList();
-#endif
-
-	KillAllTriggers();
-	FreeAmbientSoundList();
-	ResetBabies( );
-	FreeTransCameraList();
-	FreeTongues();
-
-	// Entities and collision
-
-	FreeGaribLinkedList();
-	FreeEnemyLinkedList();
-	FreePlatformLinkedList();
-	FreePathList();
-	FreeLevelScript();
-
-	// Graphics-related
-
-	FreeSpecFXList( );
-	FreeSpriteFrameLists();
-	Free3DTextList();
-	FreeTextOverlayLinkedList();
-	FreeSpriteOverlayLinkedList();
-	FreeSpriteLinkedList();
-
-	InitTextOverlayLinkedList();
-	InitSpriteOverlayLinkedList();
-	InitSpriteLinkedList();
-
-	dprintf"-->\n"));
 }
 
 

@@ -736,6 +736,9 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID);
 void FreeAllTextureBanks();
 void FreeAllObjectBanks();
 
+void InitGameLists();
+void FreeAllGameLists();
+
 void InitLevel(unsigned long worldID,unsigned long levelID);
 void FreeAllLists();
 
