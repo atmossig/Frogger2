@@ -140,6 +140,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Update = UpdateFXRing;
 		effect->Draw = DrawFXRing;
 		break;
+	case FXTYPE_LASER:
+		if( !ringVtx )
+			CreateBlastRing( );
+
+		effect->scale.v[X] *= 2;
+		break;
 	case FXTYPE_JUMPBLUR:
 		effect->numP = 1;
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
@@ -296,12 +302,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		if( effect->type == FXTYPE_SPLASH )
 		{
 			effect->tex = txtrBubble;
-			effect->gravity = 1;
+			effect->gravity = 0.5;
 		}
 		else if( effect->type == FXTYPE_SPARKBURST )
 		{
 			effect->tex = txtrSolidRing;
-			effect->gravity = 1;
+			effect->gravity = 0.5;
 		}
 		else if( effect->type == FXTYPE_FLAMES )
 		{
@@ -638,7 +644,8 @@ void UpdateFXSwarm( SPECFX *fx )
 void UpdateFXExplode( SPECFX *fx )
 {
 	float dist;
-	int i = fx->numP, fo;
+	int i = fx->numP, fo, ele;
+	VECTOR up;
 
 	if( fx->deadCount)
 		if( !(--fx->deadCount) )
@@ -652,18 +659,14 @@ void UpdateFXExplode( SPECFX *fx )
 		if( fx->particles[i].bounce == 2 )
 			continue;
 
-		// update particle velocities
-		fx->particles[i].vel.v[X] *= 0.95F;
-		fx->particles[i].vel.v[Z] *= 0.95F;
+		ScaleVector( &fx->particles[i].vel, 0.98 );
 
-		if( fx->gravity )
-			fx->particles[i].vel.v[Y] += -1.1F;
-		else
-			fx->particles[i].vel.v[Y] *= 0.95F;
-
-		fx->sprites[i].pos.v[X] += fx->particles[i].vel.v[X];
-		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y];
-		fx->sprites[i].pos.v[Z] += fx->particles[i].vel.v[Z];
+		if( fx->gravity != 0 )
+		{
+			SetVector( &up, &fx->normal );
+			ScaleVector( &up, fx->gravity*gameSpeed );
+			SubFromVector( &fx->particles[i].vel, &up );
+		}
 
 		if( fx->rebound )
 		{
@@ -673,13 +676,10 @@ void UpdateFXExplode( SPECFX *fx )
 			// check if particle has hit (or passed through) the plane
 			if(dist > 0)
 			{
-				SubFromVector( &fx->sprites[i].pos, &fx->particles[i].vel );
-
 				if( fx->particles[i].bounce )
-				{
 					fx->particles[i].vel.v[Y] *= -0.95;
-					AddToVector( &fx->sprites[i].pos, &fx->particles[i].vel );
-				}
+				else
+					SetVector( &fx->particles[i].vel, &zero );
 
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
@@ -691,6 +691,8 @@ void UpdateFXExplode( SPECFX *fx )
 				}
 			}
 		}
+
+		AddToVector( &fx->sprites[i].pos, &fx->particles[i].vel );
 
 		fo = (Random(4) + fx->fade) * gameSpeed ;
 
@@ -916,7 +918,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		ENEMY *nme = (ENEMY *)entity;
 
 		act = nme->nmeActor;
-		SetVector( &normal, &nme->currNormal );
+		SetVector( &normal, &nme->inTile->normal );
 		tile = nme->inTile;
 		flags = nme->flags;
 		path = nme->path;
@@ -926,7 +928,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		PLATFORM *plt = (PLATFORM *)entity;
 
 		act = plt->pltActor;
-		SetVector( &normal, &plt->currNormal );
+		SetVector( &normal, &plt->inTile->normal );
 		tile = plt->inTile;
 		flags = plt->flags;
 		path = plt->path;
@@ -948,9 +950,9 @@ void ProcessAttachedEffects( void *entity, int type )
 				SetVector( &rPos, &act->actor->pos );
 				rPos.v[Y] = tile->centre.v[Y];
 				if( flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 30, 0.3, 0.1, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
 				else // Gentle ripples
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 40, 0.1, 0.1, 0.8 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.1, 0.1, 0.8 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}
@@ -979,25 +981,26 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_SPARKBURST )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2.0, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2.0, 0, 2 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.2, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.2, 0, 2 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 1.0, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 1.0, 0, 2 );
 
 				SetVector( &fx->rebound->point, &tile->centre );
 				SetVector( &fx->rebound->point, &tile->normal );
+				fx->gravity = act->radius;
 
 				SetAttachedFXColour( fx, act->effects );
 			}
 			if( act->effects & EF_SMOKEBURST )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 3, 0, 0.7 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 3, 0, 1.7 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.5, 0, 0.7 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.5, 0, 1.7 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 1.5, 0, 0.7 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 1.5, 0, 1.7 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}

@@ -38,7 +38,9 @@ extern char pauseMode;
 #define EF_SMOKEBURST					(1 << 7)	// Explosion of smoke
 #define EF_FIERYSMOKE					(1 << 8)	// Red at base, goes black
 #define EF_BUTTERFLYSWARM				(1 << 9)	// Swarm of butterflies. Uses models
+#define EF_LASER						(1 << 10)	// Straight bolt
 
+#define EF_RANDOMCREATE					(1 << 25)
 #define EF_FAST							(1 << 26)
 #define EF_MEDIUM						(1 << 27)
 #define EF_SLOW							(1 << 28)
@@ -67,6 +69,7 @@ enum
 	FXTYPE_FIERYSMOKE,
 	FXTYPE_POLYRING,
 	FXTYPE_BUTTERFLYSWARM,
+	FXTYPE_LASER,
 
 	FXTYPE_NUMTYPES
 };
@@ -91,10 +94,10 @@ typedef struct TAGSPECFX
 	Vtx *verts;									// Persistent vertices on N64
 
 	short type, fade;
-	float speed, accn, angle, spin, tilt;
+	float speed, accn, angle, spin, tilt, gravity;
 	long lifetime, deadCount, numP;				// numP is number of particles
 
-	unsigned char r, g, b, a, gravity;
+	unsigned char r, g, b, a;
 
 	SPRITE *sprites;
 	TEXTURE *tex;
