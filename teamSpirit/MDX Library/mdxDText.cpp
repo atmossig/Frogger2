@@ -29,6 +29,7 @@
 #include "mdxWindows.h"
 #include "fxBlur.h"
 #include "gelf.h"
+#include "stdio.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -24,6 +24,7 @@
 #include "mdxCRC.h"
 #include "mgeReport.h"
 #include "gelf.h"
+#include "math.h"
 
 #ifdef __cplusplus
 extern "C"
