@@ -2155,6 +2155,9 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 					n = ((path->nodes->offset2>>12)/SCALE)-1;
 				else
 					n = i;
+
+				if( n > numBabies )
+					n = 0;
 #ifdef PC_VERSION
 				sprintf(name,"bfg0%lu.bmp",n+1);
 				((MDX_ACTOR*)newItem->nmeActor->actor->actualActor)->overrideTex = GetTexEntryFromCRC(UpdateCRC(name));
