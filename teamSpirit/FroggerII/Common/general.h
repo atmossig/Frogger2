@@ -23,6 +23,5 @@ inline extern void lmemcpy( unsigned long *a, unsigned long *b, unsigned long si
 inline extern void cmemcpy( char *a, char *b, unsigned long size );
 
 extern GAMETILE* FindNearestTile(VECTOR v);
-extern int MemLoadEntities(const void* data, long size);
 
 #endif
