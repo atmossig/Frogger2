@@ -24,48 +24,6 @@ SPRITELIST sprList;
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: AddSprites
-	Purpose			: Find a number of sprites and return a sublist
-	Parameters		: number of sprites
-	Returns			: pointer to first one
-	Info			: 
-*/
-void AddSprite( SPRITE *sprite, SPRITE *after )
-{
-	SPRITE *ptr;
-
-	if( sprite->next ) return;
-
-	// Add after either the explicit "after" pointer or after the head of the list
-	if(after) ptr = after;
-	else ptr = &sprList.head;
-
-	sprite->prev	= ptr;
-	sprite->next	= ptr->next;
-	ptr->next->prev	= sprite;
-	ptr->next		= sprite;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: SubSprite
-	Purpose			: Remove a sprite from the list structure but not from the array
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void SubSprite( SPRITE *sprite )
-{
-	if( !sprite->next )	return;
-
-	sprite->prev->next	= sprite->next;
-	sprite->next->prev	= sprite->prev;
-
-	sprite->next = NULL;
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: AllocateSprites
 	Purpose			: Find a number of sprites and return a sublist
 	Parameters		: number of sprites
@@ -74,13 +32,20 @@ void SubSprite( SPRITE *sprite )
 */
 SPRITE *AllocateSprites( int number )
 {
+	SPRITE *s;
 	// Return if allocation is impossible for any reason
 	if( (number <= 0) || (sprList.stackPtr-number < 0) || (number >= MAX_SPRITES-sprList.count) ) return NULL;
 
 	// Now we can go and allocate sprites with gay abandon
 	while( number-- )
 	{
-		AddSprite( sprList.stack[sprList.stackPtr--], NULL );
+		s = sprList.stack[sprList.stackPtr--];
+
+		s->prev	= &sprList.head;
+		s->next	= sprList.head.next;
+		sprList.head.next->prev	= s;
+		sprList.head.next = s;
+
 		sprList.count++;
 	}
 
@@ -99,14 +64,16 @@ void DeallocateSprites( SPRITE *head, int number )
 {
 	SPRITE *s=head, *t;
 
-	if( !s || (number<=0) || (sprList.stackPtr+number >= MAX_SPRITES) )
-		return;
+	if( !s || (number<=0) || (sprList.stackPtr+number >= MAX_SPRITES) ) return;
 
 	while( number-- )
 	{
 		t = s->next;
 
-		SubSprite( s );
+		s->prev->next	= s->next;
+		s->next->prev	= s->prev;
+		s->next = NULL;
+
 		sprList.count--;
 		sprList.stack[++sprList.stackPtr] = s;
 
@@ -130,7 +97,13 @@ void FreeSpriteList( )
 	{
 		// Remove all sprites in array from sprite list so they don't get removed after deallocation
 		for( i=0; i<MAX_SPRITES; i++ )
-			SubSprite( &sprList.array[i] );
+		{
+			if( !sprList.array[i].next ) continue;
+
+			sprList.array[i].prev->next	= sprList.array[i].next;
+			sprList.array[i].next->prev	= sprList.array[i].prev;
+			sprList.array[i].next = NULL;
+		}
 
 		JallocFree( (UBYTE **)&sprList.array );
 		sprList.array = NULL;

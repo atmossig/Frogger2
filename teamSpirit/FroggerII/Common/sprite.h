@@ -64,9 +64,6 @@ typedef struct
 extern SPRITELIST sprList;
 
 
-void AddSprite(SPRITE *sprite,SPRITE *after);
-void SubSprite(SPRITE *sprite);
-
 SPRITE *AllocateSprites( int number );
 void DeallocateSprites( SPRITE *head, int number );
 
