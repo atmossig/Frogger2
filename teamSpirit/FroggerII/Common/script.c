@@ -1010,7 +1010,7 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_SETTILE_P:
 		{
-			int id = MEMGETFLOAT(p), state = MEMGETFLOAT(p);
+			int id = MEMGETWORD(p), state = MEMGETBYTE(p);
 			EnumPlaceholderTiles(id, SetTile, state);
 			break;
 		}

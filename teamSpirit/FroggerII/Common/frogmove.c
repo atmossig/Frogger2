@@ -99,6 +99,12 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 
 	if( frog[p]->actor->shadow ) frog[p]->actor->shadow->draw = 1;
 
+	if (currPlatform[p])
+	{
+		currPlatform[p]->carrying = 0;
+		currPlatform[p]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+	}
+
 	currTile[p]		= startTile;
 
 	destTile[p]		= NULL;
