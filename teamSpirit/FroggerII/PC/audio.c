@@ -147,7 +147,7 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 {
 	
 	SAMPLE *sample;
-//	return 0;
+	return 0;
 //	if ( num != 0
 	sample = GetEntryFromSampleList ( num );
 
@@ -160,6 +160,7 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 		return 0;
 	}
 	// ENDIF
+
 
 	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
 	dprintf"Played Sample Ok"));
