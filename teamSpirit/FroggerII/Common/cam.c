@@ -82,16 +82,15 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 	Returns			: TRANSCAMERA *
 	Info			: 
 */
-TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ, unsigned long flags)
+TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace, VECTOR *v, unsigned long flags)
 {
 	TRANSCAMERA *newItem = (TRANSCAMERA *)JallocAlloc(sizeof(TRANSCAMERA),YES,"TRNSCAM");
 
 	newItem->tile			= tile;
 	newItem->dirCamMustFace	= dirCamMustFace;
-	newItem->camOffset.v[X]	= offsetX;
-	newItem->camOffset.v[Y]	= offsetY;
-	newItem->camOffset.v[Z]	= offsetZ;
+	SetVector(&newItem->camOffset, v);
 	newItem->flags			= flags;
+	newItem->FOV			= 45.0;
 
 	newItem->next			= transCameraList;
 	transCameraList			= newItem;
@@ -148,6 +147,10 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 
 			if (cur->dirCamMustFace)
 				camFacing = cur->dirCamMustFace - 1;
+
+			yFOVNew = cur->FOV;
+
+			break;
 		}
 		cur = cur->next;
 	}

@@ -204,8 +204,7 @@ int MemLoadEntities(const void* data, long size)
 				w.v[X] = MEMGETFLOAT(&p);
 				w.v[Y] = MEMGETFLOAT(&p);
 				w.v[Z] = MEMGETFLOAT(&p);
-				CreateAndAddTransCamera(FindNearestTile(w), 0,
-					w.v[X], w.v[Y], w.v[Z], flags);
+				CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &w, flags & 0xFFFF);
 			}
 			break;
 		}
