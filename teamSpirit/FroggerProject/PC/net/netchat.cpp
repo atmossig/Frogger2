@@ -56,7 +56,7 @@ struct	MSG_GAMESETUP
 
 	struct {
 		DPID dpid;
-		UBYTE character, flags;
+		UBYTE character, flags, start;
 	} players[4];
 
 	short world, level;
@@ -77,8 +77,10 @@ void StartPlayers(HWND hDlg)
 		msg.players[s].dpid = netPlayerList[s].dpid;
 		msg.players[s].character = s;
 		msg.players[s].flags = 0;
+		msg.players[s].start = s;
 
 		player[s].character = s;
+		netPlayerList[s].start = s;
 	}
 
 	int level;
@@ -107,9 +109,10 @@ void SetupPlayers(MSG_GAMESETUP *msg)
 	for (pl=0; pl<4; pl++)
 	{
 		for (i=0; i<4; i++)
-			if (msg->players[pl].dpid == netPlayerList[i].dpid)
+			if (msg->players[i].dpid == netPlayerList[pl].dpid)
 			{
 				player[pl].character = msg->players[i].character;
+				netPlayerList[pl].start = msg->players[i].start;
 				break;
 			}
 	}

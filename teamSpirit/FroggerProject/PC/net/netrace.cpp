@@ -157,6 +157,8 @@ int NetRaceRun()
 
 	if (actFrameCount > gameStartTime)
 	{
+		UpDateMultiplayerInfo( );
+
 		if (!mpl[0].ready)
 			mpl[0].timer = actFrameCount - gameStartTime;
 
@@ -231,11 +233,8 @@ int NetRaceRun()
 			}
 		}
 
-		UpDateMultiplayerInfo( );
-	}
-
-	//if (isHost)
 		NetRaceCheckWin();
+	}
 
 	return 0;
 }
@@ -279,6 +278,9 @@ int NetRaceCheckWin()
 			PlayVoice( winner, "frogokay" );
 			gameWinner = winner;
 			mpl[winner].wins++;
+
+			if( mpl[winner].wins == 3 && matchWinner == -1)
+				matchWinner = winner;
 		}
 
 		GTInit( &endTimer, 2 );

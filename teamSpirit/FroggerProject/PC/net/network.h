@@ -41,6 +41,7 @@ typedef struct _NETPLAYER
 	DPID	dpid;		// DirectPlay player identifier - passed to IDirectPlay to query address stuff
 //	bool	isHost;		// true if this player is the host, false otherwise
 	bool	isReady;
+	char	start;		// starttile index to use for this player
 
 	unsigned long lastUpdateMsg;	// the tick count of the last update msg
 	

@@ -114,7 +114,6 @@ void OnDeath(NETPLAYER *player);
 void NetgameStartGame()
 {
 	int pl;
-	int players[4];
 
 	nextUpdate = 0;
 	hostSync = hostReady = (isHost);
@@ -143,15 +142,23 @@ void NetgameStartGame()
 	GTInit( &modeTimer, 1 );
 	InitLevel(player[0].worldNum, player[0].levelNum);
 
+	// Reorder start tiles for the players
+	
+	GAMETILE *startTiles[4];
+	memcpy(startTiles, gTStart, sizeof(GAMETILE*)*4);
+
+	for (pl=0; pl<NUM_FROGS; pl++)
+	{
+		gTStart[pl] = startTiles[netPlayerList[pl].start];
+		SetFroggerStartPos(gTStart[pl], pl);
+	}
+
 	netMessage = CreateAndAddTextOverlay(2048, 2048, "Waiting for players", YES, (char)255, font, TEXTOVERLAY_SHADOW);
 
 	if (isHost)
 	{
 		unsigned char msg;
 		
-		// See comment at the top of the file - ds
-		//SortOutPlayerNumbers();
-
 		msg = APPMSG_HOSTREADY;
 		NetBroadcastUrgentMessage(&msg, 1);
 
