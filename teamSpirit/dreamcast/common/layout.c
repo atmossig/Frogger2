@@ -12,7 +12,7 @@
 #define F3DEX_GBI_2
 
 // *ASL* 12/08/2000 - Seconds the frog logo is active in the frontend
-#define FROG_LOGO_ACTIVE_SECS	3
+#define FROG_LOGO_ACTIVE_SECS	5
 
 
 #include "prefix_dc.h"
