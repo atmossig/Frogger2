@@ -12,7 +12,7 @@
 #include "..\resource.h"
 #include "incs.h"
 
-#define MYDEBUG
+#define _MYDEBUG
 
 SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\sfx\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,
 								"x:\\teamspirit\\pcversion\\sfx\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,
@@ -72,13 +72,17 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 	
 	if ( !lpDS )
 	{
+#ifdef MYDEBUG
 		dprintf"Returned from Create Sample, because lpDS was NULL!!!!!!!!"));
+#endif
 		return NULL;
 	}
 	// ENDIF
 	if ( ( newItem = ( SAMPLE * ) JallocAlloc ( sizeof ( SAMPLE ), YES, "SAM" ) ) == NULL )
 	{
+#ifdef MYDEBUG
 		dprintf"CreateAndAddSample : newItem : NULL value from JallocAlloc\n"));
+#endif
 		return NULL;
 	}
 	// ENDIF
@@ -89,7 +93,9 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 
 	if ( LoadWav		( newItem->idName, newItem ) == 0 )
 	{
+#ifdef MYDEBUG
 		dprintf"Returned from LoadWav\n"));
+#endif
 		return NULL;
 	}
 	// ENDIF
@@ -333,7 +339,9 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 
 	if ( !lpDS )
 	{
+#ifdef MYDEBUG
 		dprintf"Returned From PlaySample Because lpDS is NULL!!!!!!!!!\n"));
+#endif
 		return 0;
 	}
 	// ENDIF
@@ -347,8 +355,10 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 	{
 		if ( !sample )
 		{
+#ifdef MYDEBUG
 			dprintf"Could Not Find Sample : %d\n", num));	//  I will leave this, cos if you enter a
 															// sample number and it's not there then you will not get a sound.
+#endif
 		}
 		// ENDIF
 		return 0;
@@ -371,11 +381,15 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 			if the sample is not playing then remove it from the list.
 		*/
 		
+#ifdef MYDEBUG
 		dprintf"Buffering Sample %d\n", num));
+#endif
 		// Create the buffer sample.
 		if ( ( bufSample = ( BUFSAMPLE * ) JallocAlloc ( sizeof ( BUFSAMPLE ), YES, "BUFSAM" ) ) == NULL )
 		{
+#ifdef MYDEBUG
 			dprintf"PlaySample : bufSample : NULL value from JallocAlloc\n"));
+#endif
 			return NULL;
 		}
 		// ENDIF
@@ -387,7 +401,9 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 		bufSample->lpdsBuffer->lpVtbl->Play ( bufSample->lpdsBuffer, 0, 0, 0 );
 
 
+#ifdef MYDEBUG
 		dprintf"Sorry Sound Playing : %d\n", num));
+#endif
 	}
 	else
 	{
@@ -458,7 +474,9 @@ void CleanBufferSamples ( void )
 
 	if ( bufferList.numEntries == 0)
 	{
+#ifdef MYDEBUG
 		dprintf"No Samples in Buffer List\n"));
+#endif
 		return;
 	}
 	// ENDIF
@@ -473,7 +491,9 @@ void CleanBufferSamples ( void )
 
 		if ( !( bufStatus & DSBSTATUS_PLAYING )	)
 		{
+#ifdef MYDEBUG
 			dprintf"Releasing Buffered Sample\n"));
+#endif
 //			cur->lpdsBuffer->lpVtbl->Release( cur->lpdsBuffer );
 			RemoveBufSampleFromList ( cur );
 
@@ -483,7 +503,9 @@ void CleanBufferSamples ( void )
 		}
 		else
 		{
+#ifdef MYDEBUG
 			dprintf"Sample Still Playing\n"));
+#endif
 		}
 		// ENDIF
 	}
