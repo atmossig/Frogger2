@@ -917,8 +917,17 @@ void RunGameLoop (void)
 			{
 				StopDrawing ( "game over" );
 				FreeAllLists();
+
+#ifdef MBR_DEMO
+				player[0].levelNum = 0;
+				player[0].worldNum = WORLDID_LABORATORY;
+				player[0].frogState &= ~FROGSTATUS_ISDEAD;
+				InitLevel ( player[0].worldNum, player[0].levelNum );
+				SetFroggerStartPos(gTStart[0],0);
+#else
 				gameState.mode = FRONTEND_MODE;
 				frontEndState.mode = TITLE_MODE;
+#endif
 				frameCount = 0;
 				StartDrawing ( "game over" );
 				return;
@@ -1134,7 +1143,7 @@ void RunGameLoop (void)
 				if ((frameCount % 2)==0)
 					frog[i]->draw = 0;
 				frog[i]->action.safe--;
-			}  
+			}
 
 			// play some ambient effects
 			if(Random(50) > 48)
