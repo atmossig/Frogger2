@@ -13,7 +13,17 @@
 #include "editor.h"
 #include <crtdbg.h>
 #include <stdio.h>
+#include <windows.h>
+#include <windowsx.h>
+#include <wtypes.h>
+#include <crtdbg.h>
+#include <commctrl.h>
+#include <cguid.h>
+#include <dplay.h>
+#include <dplobby.h>
 #include "..\resource.h"
+#include "network.h"
+#include "netchat.h"
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
@@ -251,6 +261,22 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if (!keyDelay)
 			{
+				if( KEYPRESS(DIK_F7) && chatFlags )
+				{
+					if( chatFlags & CHAT_INPUT )
+					{
+						chatFlags &= ~CHAT_INPUT;
+					}
+					else
+					{
+						if( !chatInput.msg )
+							chatInput.msg = (char *)JallocAlloc(MAX_CSLENGTH,YES,"string");
+
+						chatInput.msgLen = 0;
+						chatFlags |= CHAT_INPUT;
+						keyDelay = 20;
+					}
+				}
 
 				if KEYPRESS(DIK_F10)
 				{
@@ -275,9 +301,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			GameLoop();
 			EndTimer(4);
 
-			keysEnabled = !editorOk;
+			keysEnabled = !(editorOk || (chatFlags & CHAT_INPUT));
 			ProcessUserInput(winInfo.hWndMain);
-			
+
 			DrawGraphics();
 			
 			StartTimer(3,"Flip");
@@ -286,9 +312,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			CleanBufferSamples();
 			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
 			actFrameCount = (GetTickCount()/(1000/60));
-			
-			// THIS IS A SPRITE OVERLAY. ASSIGNING A TIME TO IT IS BAD.
-			//clock = timeGetTime();
 		}
 	}
 
@@ -296,13 +319,13 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	DeInitPCSpecifics();
 	DeInitInputDevices();
 	ShutdownEditor();
+	UnInitMPDirectPlay();
 
 	free(memPtr);
 	memPtr = NULL;
 
     return msg.wParam;
 }
-
 
 
 /*	--------------------------------------------------------------------------------
@@ -439,7 +462,12 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			break;
 
 		case WM_CHAR:
-			if (editorOk)	// only when editor is set up to "grab" keyboard data
+			if( chatFlags & CHAT_INPUT )
+			{
+				ChatInput((char)wParam);
+				return 0;
+			}
+			else if (editorOk)	// only when editor is set up to "grab" keyboard data
 			{
 				EditorKeypress((char)wParam);
 				return 0;
@@ -516,7 +544,10 @@ void DrawGraphics()
 
 	if (editorOk)
 		DrawEditor();
-	
+
+	if( chatFlags && gameState.mode == GAME_MODE )
+		DrawChatBuffer( 100, 20, 540, 150 );
+
 	EndTimer(0);
 
 	/* CAMERA SPACE STUFF */
