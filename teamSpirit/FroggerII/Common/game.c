@@ -418,19 +418,13 @@ void GameProcessController(long pl)
 */
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
-	ACTOR2 *theActor;	//,*testFGActor;
+	ACTOR2 *theActor;
 	SCENIC *ts = Sc_000;
 	int actCount = 0;
 	char tmp[5];
 	long i;
 	
-/*	
-	testFGActor = CreateAndAddActor("beetle.obe",0,0,50,INIT_ANIMATION,0,0);
-	AnimateActor(testFGActor->actor,0,YES,NO,0.5F,0,0);
-	testFGActor->flags = ACTOR_DRAW_LAST;
-*/
-	
-	// Go through and add them!
+	// go through and add items
 	while (ts)
 	{
 		float tv;
