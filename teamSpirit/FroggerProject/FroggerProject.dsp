@@ -71,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W2 /Gm /GX /ZI /Od /I "pc" /I "common" /I "editor" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "PC_VERSION" /D "PC_DEMO" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MTd /W2 /Gm /GX /ZI /Od /I "pc" /I "common" /I "editor" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "PC_VERSION" /FR /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -1925,8 +1925,6 @@ SOURCE=.\Pc\Main.cpp
 
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
-# SUBTRACT CPP /D "PC_DEMO"
-
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
 
 !ENDIF 
@@ -2362,15 +2360,6 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
-
-!IF  "$(CFG)" == "FroggerProject - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
