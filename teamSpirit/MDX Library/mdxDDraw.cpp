@@ -125,7 +125,7 @@ LV_COLUMN c2 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM,LVCFMT_LEFT,500
 
 #define NUM_LANGUAGES 5
 
-char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","Svenska"};
+char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","Svierge"};
 
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
