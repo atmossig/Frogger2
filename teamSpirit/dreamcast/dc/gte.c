@@ -2012,10 +2012,7 @@ int GsSetRefView2(GsRVIEW2 *pv)
 	float 	xAxis[3], yAxis[3], zAxis[3];
 	float 	transCo[3];
 	double 	res;
-	long	zangle;
-	
-//	zangle = pv->rz / 4096;
-//	zangle += 4096.0 / (float)(pv->rz & 0xfff);
+	SVECTOR	vec;
 	
 	// Default world-up position
 	yAxis[0] = 0;
@@ -2086,11 +2083,6 @@ int GsSetRefView2(GsRVIEW2 *pv)
 	GsWSMATRIX.t[1] = -pv->vpy;
 	GsWSMATRIX.t[2] = -pv->vpz;
 	
-	// multiply z twist by matrix
-//	RotMatrixZ(pv->rz,&zmatrix);
-//	RotMatrixZ(zangle,&zmatrix);
-//	gte_MulMatrix0(&zmatrix, &GsWSMATRIX, &GsWSMATRIX);
-
 	// Multiply matrix by translation vector
 	transCo[0] = (((GsWSMATRIX.m[0][0] * GsWSMATRIX.t[0]) + 
 		(GsWSMATRIX.m[0][1] * GsWSMATRIX.t[1]) + (GsWSMATRIX.m[0][2] * GsWSMATRIX.t[2])) >> 12);
@@ -2099,13 +2091,21 @@ int GsSetRefView2(GsRVIEW2 *pv)
 	transCo[2] = (((GsWSMATRIX.m[2][0] * GsWSMATRIX.t[0]) + 
 		(GsWSMATRIX.m[2][1] * GsWSMATRIX.t[1]) + (GsWSMATRIX.m[2][2] * GsWSMATRIX.t[2])) >> 12);
 
-//	// multiply z twist by matrix
-//	RotMatrixZ(pv->rz,&zmatrix);
-//	gte_MulMatrix0(&zmatrix, &GsWSMATRIX, &GsWSMATRIX);
-
 	GsWSMATRIX.t[0] = (short)transCo[0];
 	GsWSMATRIX.t[1] = (short)transCo[1];
 	GsWSMATRIX.t[2] = (short)transCo[2];
+
+	// rotate the view according to rz
+	vec.vx = 0;
+	vec.vy = 0;
+	vec.vz = -(pv->rz / 360);
+	RotMatrixYXZ_gte(&vec,&zmatrix);
+	gte_MulMatrix0(&zmatrix,&GsWSMATRIX,&GsWSMATRIX);
+
+	gte_SetRotMatrix(&zmatrix);
+	gte_ldlvl(&GsWSMATRIX.t);
+	gte_rtir();
+	gte_stlvl(&GsWSMATRIX.t);
 
 	return 0;
 }
@@ -2316,6 +2316,8 @@ KMSTRIPCONTEXT	StripContext_GT4_FMA;
 KMSTRIPHEAD		StripHead_GT4_FMA;
 KMSTRIPCONTEXT	StripContext_GT4_FMA_Alpha;
 KMSTRIPHEAD		StripHead_GT4_FMA_Alpha;
+KMSTRIPCONTEXT	StripContext_GT4_FMA_Add;
+KMSTRIPHEAD		StripHead_GT4_FMA_Add;
 KMVERTEX_03		vertices_GT4_FMA[] =
 {
 { KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0.0f, 1.0f, RGBA(255,255,255,255), 0 },
@@ -2346,6 +2348,8 @@ KMVERTEX_03		vertices_Sprites[] =
 
 KMSTRIPCONTEXT	StripContext_Sprites_Add;
 KMSTRIPHEAD		StripHead_Sprites_Add;
+KMSTRIPCONTEXT	StripContext_Sprites_Sub;
+KMSTRIPHEAD		StripHead_Sprites_Sub;
 KMVERTEX_03		vertices_Sprites_Add[] =
 {
 { KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0.0f, 1.0f, RGBA(255,255,255,255), 0 },
@@ -2402,6 +2406,7 @@ int	stripGT3FMAtextureID_A = -1;
 
 int	stripGT4FMAtextureID = -1;
 int	stripGT4FMAtextureID_A = -1;
+int	stripGT4FMAtextureID_Add = -1;
 
 int	stripTF4SPRtextureID = -1;
 int	stripTF4SPRtextureID_A = -1;
@@ -2853,6 +2858,33 @@ void initialisePsxStrips()
 	StripContext_GT4_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT4_FMA_Alpha,&StripContext_GT4_FMA_Alpha);
 
+	// GT4 FMA Add strip
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT4_FMA_Add);
+	memset(&StripContext_GT4_FMA_Add,0,sizeof(StripContext_GT4_FMA_Add));
+	memset(&StripHead_GT4_FMA_Add,0,sizeof(StripHead_GT4_FMA_Add));
+	StripContext_GT4_FMA_Add.nSize = sizeof(KMSTRIPCONTEXT);
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT4_FMA_Add);
+    
+	StripContext_GT4_FMA_Add.StripControl.nListType		 						= KM_TRANS_POLYGON;
+	StripContext_GT4_FMA_Add.StripControl.nUserClipMode	 						= KM_USERCLIP_DISABLE;
+	StripContext_GT4_FMA_Add.StripControl.nShadowMode			 				= KM_NORMAL_POLYGON;
+	StripContext_GT4_FMA_Add.StripControl.bGouraud		 						= KM_TRUE;
+	StripContext_GT4_FMA_Add.ObjectControl.nDepthCompare				 		= KM_GREATER;
+	StripContext_GT4_FMA_Add.ObjectControl.nCullingMode			 				= KM_CULLCW;
+	StripContext_GT4_FMA_Add.ObjectControl.bZWriteDisable						= KM_FALSE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode		= KM_ONE;	
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode		= KM_ONE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].nFogMode				= KM_NOFOG;//KM_FOGTABLE;	
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].bColorClamp			= KM_FALSE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].bUseAlpha			= KM_FALSE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].bIgnoreTextureAlpha	= KM_TRUE;
+	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;
+    StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
+//	StripContext_GT4_FMA_Add.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
+	kmGenerateStripHead03(&StripHead_GT4_FMA_Add,&StripContext_GT4_FMA_Add);
+
 	// GT3 FMA Trans strip
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT3_FMA_Trans);
 	memset(&StripHead_GT3_FMA_Trans,0,sizeof(StripContext_GT3_FMA_Trans));
@@ -2954,6 +2986,31 @@ void initialisePsxStrips()
     StripContext_Sprites_Add.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc = &DCKtextureList[0].surface;
 	StripContext_Sprites_Add.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_Sprites_Add,&StripContext_Sprites_Add);
+
+	// initialise subtractive sprite strip context and head
+	memset(&StripContext_Sprites_Sub,0,sizeof(StripContext_Sprites_Sub));
+	memset(&StripHead_Sprites_Sub,0,sizeof(StripHead_Sprites_Sub));
+	StripContext_Sprites_Sub.nSize = sizeof(KMSTRIPCONTEXT);
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_Sprites_Sub);
+	StripContext_Sprites_Sub.StripControl.nListType		 						= KM_TRANS_POLYGON;
+	StripContext_Sprites_Sub.StripControl.nUserClipMode	 						= KM_USERCLIP_DISABLE;
+	StripContext_Sprites_Sub.StripControl.nShadowMode			 				= KM_NORMAL_POLYGON;
+	StripContext_Sprites_Sub.StripControl.bGouraud		 						= KM_TRUE;
+	StripContext_Sprites_Sub.ObjectControl.nDepthCompare			 			= KM_GREATER;
+	StripContext_Sprites_Sub.ObjectControl.nCullingMode			 				= KM_NOCULLING;
+	StripContext_Sprites_Sub.ObjectControl.bZWriteDisable						= KM_FALSE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode		= KM_ONE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode		= KM_ONE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nFogMode				= KM_NOFOG;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bColorClamp			= KM_FALSE;	
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bUseAlpha			= KM_TRUE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bIgnoreTextureAlpha	= KM_FALSE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;
+    StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc = &DCKtextureList[0].surface;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
+	kmGenerateStripHead03(&StripHead_Sprites_Sub,&StripContext_Sprites_Sub);
 
 	// initialise sprite with no texture strip context and head
 	memset(&StripContext_SpritesNoTex,0,sizeof(StripContext_SpritesNoTex));
