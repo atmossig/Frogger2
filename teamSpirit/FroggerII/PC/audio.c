@@ -718,15 +718,15 @@ void FreeAmbientSoundList( )
 	Returns 	: Pointer to mapping array
 	Info 		: 
 */
-void LoadSfxMapping( int world, int level )
+void LoadSfxMapping( int world )
 {
 	unsigned char *in;
 	void *buffer;
 	HANDLE h;
-	char *filename, wnum[3], lnum[3];
+	char *filename, wnum[3];
 	long num, size, read, index, type, i, count;
 
-	index = strlen(baseDirectory) + 25;
+	index = strlen(baseDirectory) + 24;
 	filename = (char *)JallocAlloc( index, YES, "fname" );
 
 	// Directory and start of sfxmap filename
@@ -734,9 +734,7 @@ void LoadSfxMapping( int world, int level )
 	strcat( filename, "maps\\sfxanim" );
 	// World and level ids are part of the filename
 	_itoa( world, wnum, 10 );
-	_itoa( level, lnum, 10 );
 	strcat( filename, wnum );
-	strcat( filename, lnum );
 	// Extension
 	strcat( filename, ".sam" );
 

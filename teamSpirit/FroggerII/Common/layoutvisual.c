@@ -643,7 +643,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if (audioEnabled)
 	{
 		LoadSfx(worldID);
-		LoadSfxMapping(worldID, levelID);
+		LoadSfxMapping(worldID);
 	}
 #endif
 
