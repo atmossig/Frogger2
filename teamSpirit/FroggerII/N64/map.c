@@ -92,8 +92,9 @@ void LoadCollision (int num)
 
 	//store a pointer to the object bank so it may be free'd at a later date	
 	
-	mapBank = &objectBank[36];
-	
+	//mapBank = &objectBank[36];
+	mapBank = &objectBank[0];
+
 	x = 0;
 
 	// relocate GAMETILE *gTStart[4] = {&gT_141,&gT_015,0,0};
@@ -189,7 +190,8 @@ void LoadScenics (int num)
 
 	//store a pointer to the object bank so it may be free'd at a later date	
 	
-	levBank = &objectBank[36];
+	//levBank = &objectBank[36];
+	levBank = &objectBank[0];
 	
 	x = 0;
 
