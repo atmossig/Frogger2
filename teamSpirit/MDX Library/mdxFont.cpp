@@ -207,7 +207,7 @@ MDX_FONT *InitFont(const char *filename)
 
 
 		// *ASL* 15/06/2000
-		// ** Now we initialise the software texture font. Each character entry
+		// ** Now we initialise the software texture font. For each character entry
 		// ** we hold a pointer to its corresponding 24bit rgb data.
 
 		if (!rHardware)
