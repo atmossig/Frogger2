@@ -85,7 +85,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 				psxsprite.obj ptexture.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
 				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj font.obj \
 				objviewer.obj options.obj snapshot.obj training.obj fadeout.obj isltex.obj savegame.obj \
-				memcard.obj
+				memcard.obj flatpack.obj
 
 			
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
