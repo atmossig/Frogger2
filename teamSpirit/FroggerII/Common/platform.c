@@ -835,6 +835,8 @@ void UpdatePathPlatform(PLATFORM *plat)
 	
 		plat->path->startFrame = plat->path->endFrame + plat->isWaiting * waitScale;
 		plat->path->endFrame = plat->path->startFrame + (60*plat->currSpeed);
+	
+		if (plat->isWaiting) return;
 	}
 	else if (actFrameCount > ((plat->path->startFrame + plat->path->endFrame) / 2))
 	{
