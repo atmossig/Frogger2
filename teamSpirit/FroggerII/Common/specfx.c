@@ -398,7 +398,7 @@ void UpdateFXSmoke()
 	Returns			: FX_SWARM *
 	Info			: 
 */
-FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime)
+FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset)
 {
 	int i = MAX_SWARM_ELEMENTS;
 	FX_SWARM *swarm;
@@ -407,8 +407,7 @@ FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float l
 	swarm = (FX_SWARM *)JallocAlloc(sizeof(FX_SWARM),YES,"FX_SWM");
 	AddFXSwarm(swarm);
 
-	SetVector(&swarm->centroid,centroid);
-
+	swarm->centroid = centroid;
 	swarm->swarmType	= swarmType;
 
 	switch(swarmType)
@@ -417,6 +416,7 @@ FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float l
 			FindTexture(&theTexture,UpdateCRC("star.bmp"),YES,"star.bmp");
 			break;
 
+		case SWARM_TYPE_CROWS:
 		case SWARM_TYPE_FLIES:
 			FindTexture(&theTexture,UpdateCRC("fly1.bmp"),YES,"fly1.bmp");
 			break;
@@ -426,6 +426,8 @@ FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float l
 	{
 		swarm->sprite[i].texture	= theTexture;
 		SetVector(&swarm->sprite[i].pos,centroid);
+		SetVector(&swarm->swarmOffs[i],&zero);
+		swarm->swarmOffs[i].v[Y] += offset;
 
 		swarm->sprite[i].scaleX		= size;
 		swarm->sprite[i].scaleY		= size;
@@ -560,7 +562,8 @@ void UpdateFXSwarm()
 
 		if(swarm->lifetime)
 		{
-			swarm->lifetime--;
+			if( swarm->lifetime != 65535 )
+				swarm->lifetime--;
 
 			if(swarm->swarmType == SWARM_TYPE_STARSTUN)
 			{
@@ -580,24 +583,26 @@ void UpdateFXSwarm()
 			i = MAX_SWARM_ELEMENTS;
 			while(i--)
 			{
-				if(swarm->sprite[i].pos.v[X] > swarm->centroid.v[X])
+				if(swarm->sprite[i].pos.v[X] > swarm->centroid->v[X])
 					swarm->xVelocity[i] -= 1.0F;
 				else
 					swarm->xVelocity[i] += 1.0F;
 
-				if(swarm->sprite[i].pos.v[Y] > swarm->centroid.v[Y])
+				if(swarm->sprite[i].pos.v[Y] > swarm->centroid->v[Y])
 					swarm->yVelocity[i] -= 1.0F;
 				else
 					swarm->yVelocity[i] += 1.0F;
 
-				if(swarm->sprite[i].pos.v[Z] > swarm->centroid.v[Z])
+				if(swarm->sprite[i].pos.v[Z] > swarm->centroid->v[Z])
 					swarm->zVelocity[i] -= 1.0F;
 				else
 					swarm->zVelocity[i] += 1.0F;
 
-				swarm->sprite[i].pos.v[X] += swarm->xVelocity[i];
-				swarm->sprite[i].pos.v[Y] += swarm->yVelocity[i];
-				swarm->sprite[i].pos.v[Z] += swarm->zVelocity[i];
+				swarm->swarmOffs[i].v[X] += swarm->xVelocity[i];
+				swarm->swarmOffs[i].v[Y] += swarm->yVelocity[i];
+				swarm->swarmOffs[i].v[Z] += swarm->zVelocity[i];
+
+				AddVector( &swarm->sprite[i].pos, swarm->centroid, &swarm->swarmOffs[i] );
 			}
 
 			if(!swarm->lifetime)

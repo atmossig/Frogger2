@@ -520,7 +520,7 @@ void UpdateEnemies()
 {
 	ENEMY *cur,*next;
 	VECTOR fromPosition,toPosition;
-	VECTOR fwd,swarmPos;
+	VECTOR fwd;
 	VECTOR moveVec;
 	float length;
 	long i;
@@ -711,11 +711,8 @@ void UpdateEnemies()
 									cur->isSnapping = 0;
 									frog[0]->action.lives--;
 									
-									SetVector(&swarmPos,&frog[0]->actor->pos);
-									swarmPos.v[Y] += 35;
-									CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,25);
-									swarmPos.v[Y] += 10;
-									CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,35);
+									CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,25,35);
+									CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,35,10);
 
 									if(frog[0]->action.lives != 0)
 									{
@@ -776,7 +773,7 @@ void UpdateEnemies()
 
 					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 ));
 					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 ));
-					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y];
+					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + cur->path->nodes->offset;
 
 					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
 					{
@@ -859,11 +856,8 @@ void UpdateEnemies()
 					PlaySample(42,NULL,192,128);
 					frog[0]->action.safe = 25;
 	
-					SetVector(&swarmPos,&frog[0]->actor->pos);
-					swarmPos.v[Y] += 35;
-					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,25);
-					swarmPos.v[Y] += 10;
-					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,35);
+					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,25,35);
+					CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,35,10);
 				}
 				else
 				{
@@ -903,11 +897,8 @@ void UpdateEnemies()
 				PlaySample(42,NULL,192,128);
 				frog[0]->action.safe = 25;
 
-				SetVector(&swarmPos,&frog[0]->actor->pos);
-				swarmPos.v[Y] += 35;
-				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,25);
-				swarmPos.v[Y] += 10;
-				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&swarmPos,64,35);
+				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,25,35);
+				CreateAndAddFXSwarm(SWARM_TYPE_STARSTUN,&frog[0]->actor->pos,64,35,10);
 			}
 			else
 			{

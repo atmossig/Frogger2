@@ -164,8 +164,9 @@ typedef struct TAGFX_SWARM
 
 	unsigned char		swarmType;
 	SPRITE				sprite[MAX_SWARM_ELEMENTS];
+	VECTOR				swarmOffs[MAX_SWARM_ELEMENTS];
 
-	VECTOR				centroid;
+	VECTOR				*centroid;
 	
 	float				xVelocity[MAX_SWARM_ELEMENTS];
 	float				yVelocity[MAX_SWARM_ELEMENTS];

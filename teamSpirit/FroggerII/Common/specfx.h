@@ -40,6 +40,7 @@ enum
 {
 	SWARM_TYPE_STARSTUN,
 	SWARM_TYPE_FLIES,
+	SWARM_TYPE_CROWS,
 };
 
 enum
@@ -125,7 +126,7 @@ extern void AddFXSmoke(FX_SMOKE *smoke);
 extern void SubFXSmoke(FX_SMOKE *smoke);
 extern void UpdateFXSmoke();
 
-extern FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime);
+extern FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset);
 extern void FreeFXSwarmLinkedList();
 extern void AddFXSwarm(FX_SWARM *swarm);
 extern void SubFXSwarm(FX_SWARM *swarm);
