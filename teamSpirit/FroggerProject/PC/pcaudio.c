@@ -20,6 +20,8 @@
 
 #include "enemies.h"
 #include "frogger.h"
+#include "frogmove.h"
+#include "platform.h"
 #include "memload.h"
 #include "Main.h"
 #include "dx_sound.h"
@@ -132,6 +134,8 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_FROGSLIDE] = FindSample(UpdateCRC("frogslide2"));
 	genSfx[GEN_FROGHAPPY] = FindSample(UpdateCRC("frogokay"));
 	genSfx[GEN_FROGSCARED] = FindSample(UpdateCRC("froguhoh"));
+	genSfx[GEN_FROGBORED] = FindSample(UpdateCRC("frogbored"));
+	genSfx[GEN_FROGLETSGO] = FindSample(UpdateCRC("frogletsgo"));
 
 	genSfx[GEN_DEATHNORMAL] = FindSample(UpdateCRC("frogdeath"));
 	genSfx[GEN_DEATHDROWN1] = FindSample(UpdateCRC("frogdrown1"));
@@ -140,6 +144,7 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHEXPLODE] = FindSample(UpdateCRC("frogexplode"));
 	genSfx[GEN_DEATHFALL] = FindSample(UpdateCRC("frogfall"));
 	genSfx[GEN_DEATHGIB] = FindSample(UpdateCRC("frogmowed"));
+	genSfx[GEN_DEATHCHOP] = FindSample(UpdateCRC("frogchop"));
 
 	path[len] = '\0';
 
@@ -249,7 +254,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	unsigned long bufStatus, vol=volume;
 	long pan;
 	float att, dist;
-	SVECTOR diff;
+	SVECTOR diff, check;
 	unsigned long flags=0;
 	LPDIRECTSOUNDBUFFER lpdsBuffer;
 
@@ -266,8 +271,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	else if( pos )
 	{
 		att = (radius)?radius:DEFAULT_SFX_DIST;
+		SetVectorSS( &check, currPlatform[0]?&currPlatform[0]->pltActor->actor->position:&currTile[0]->centre );
 
-		SubVectorSSS( &diff, pos, &frog[0]->actor->position );
+		SubVectorSSS( &diff, pos, &check );
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = (float)MagnitudeS( &diff )/4096.0;
 		if( dist > att )
@@ -277,7 +283,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 		//work out pan
 		dist = Aabs(atan2(diff.vx, diff.vz));
-		pan = (255/PI) * (FindShortestAngle(Fabs(frog[0]->actor->position.vy+PI/2)*4096,dist*4096)/4096.0);
+		pan = (255/PI) * (FindShortestAngle(Fabs(check.vy+PI/2)*4096,dist*4096)/4096.0);
 	}
 
 	if( sample->flags & SFXFLAGS_LOOP )

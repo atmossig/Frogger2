@@ -253,6 +253,8 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_FROGSLIDE] = FindSample(utilStr2CRC("frogslide2"));
 	genSfx[GEN_FROGHAPPY] = FindSample(utilStr2CRC("frogokay"));
 	genSfx[GEN_FROGSCARED] = FindSample(utilStr2CRC("froguhoh"));
+	genSfx[GEN_FROGBORED] = FindSample(utilStr2CRC("frogbored"));
+	genSfx[GEN_FROGLETSGO] = FindSample(utilStr2CRC("frogletsgo"));
 
 	genSfx[GEN_DEATHNORMAL] = FindSample(utilStr2CRC("frogdeath"));
 	genSfx[GEN_DEATHDROWN1] = FindSample(utilStr2CRC("frogdrown1"));
@@ -261,6 +263,7 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHEXPLODE] = FindSample(utilStr2CRC("frogexplode"));
 	genSfx[GEN_DEATHFALL] = FindSample(utilStr2CRC("frogfall"));
 	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frogmowed"));
+	genSfx[GEN_DEATHCHOP] = FindSample(utilStr2CRC("frogchop"));
 
 	path[len] = '\0';
 
