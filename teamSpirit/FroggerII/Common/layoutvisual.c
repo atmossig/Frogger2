@@ -540,6 +540,7 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID)
 void InitGameLists()
 {
 	// initialise the various lists
+	InitSpriteArray(MAX_ARRAY_SPRITES);
 	InitSpriteSortArray(MAX_ARRAY_SPRITES);
 	InitSpriteFrameLists();
 	InitSpriteOverlayLinkedList();
@@ -604,6 +605,7 @@ void FreeAllGameLists()
 	FreeSpriteLinkedList();
 
 	FreeSpriteSortArray();
+	FreeSpriteArray();
 
 	InitTextOverlayLinkedList();
 	InitSpriteOverlayLinkedList();

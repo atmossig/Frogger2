@@ -769,3 +769,92 @@ void ZSortSpriteList()
 
 	qsort(&spriteSortArray[0],numSortArraySprites,sizeof(SPRITE),SpriteZCompare);
 }
+
+//----- [ used for static sprite list ] ---------------------------------------------------------
+
+//int numArraySprites		= 0;
+SPRITE *spriteArray		= NULL;
+SPRITE *spriteArrayPtr	= NULL;
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSpriteArray
+	Purpose			: alocates memory for the static sprite array
+	Parameters		: int
+	Returns			: void
+	Info			: 
+*/
+void InitSpriteArray(int numElements)
+{
+	int i;
+
+	// check if sprite array already exists
+	if(spriteArray)
+		FreeSpriteArray();
+
+	// allocate memory for sprite array
+//	numArraySprites = 0;
+	spriteArrayPtr	= NULL;
+	spriteArray = (SPRITE *)JallocAlloc(sizeof(SPRITE)*numElements,YES,"sprArr");
+
+	for(i=0; i<numElements; i++)
+		spriteArray[i].arrayIndex = -1;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeSpriteArray
+	Purpose			: frees the memory used for the sprite array
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeSpriteArray()
+{
+	if(spriteArray)
+		JallocFree((UBYTE**)&spriteArray);
+
+	spriteArray		= NULL;
+	spriteArrayPtr	= NULL;
+//	numArraySprites = 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AssignToArray
+	Purpose			: returns a pointer to a free sprite slot in the sprite array
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void AssignSpriteToArray(SPRITE *sprite)
+{
+	int n = 0;
+	spriteArrayPtr = &spriteArray[0];
+	
+	// search for a free slot
+	while(spriteArrayPtr->arrayIndex > -1)
+	{
+		spriteArrayPtr++;
+		n++;
+	}
+
+	sprite->kill = 0;
+	sprite->arrayIndex = n;
+	spriteArrayPtr = sprite;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubSpriteFromArray
+	Purpose			: 'removes' a sprite from the sprite array
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void SubSpriteFromArray(SPRITE *sprite)
+{
+	spriteArrayPtr = &spriteArray[sprite->arrayIndex];
+	sprite->arrayIndex = -1;
+	spriteArrayPtr->arrayIndex = -1;
+}

@@ -216,7 +216,7 @@ void InitSpriteFrameLists();
 SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,short flags);
 
 
-//----- used for sorting sprite list - ANDYE ----------------------------------------------------
+//----- [ used for sorting sprite list ] --------------------------------------------------------
 
 extern int numSortArraySprites;
 extern SPRITE *spriteSortArray;
@@ -225,6 +225,16 @@ void InitSpriteSortArray(int numElements);
 void FreeSpriteSortArray();
 int SpriteZCompare(const void *arg1,const void *arg2);
 void ZSortSpriteList();
+
+//----- [ used for static sprite list ] ---------------------------------------------------------
+
+//extern int numArraySprites;
+extern SPRITE *spriteArray;
+
+void InitSpriteArray(int numElements);
+void FreeSpriteArray();
+void AssignSpriteToArray(SPRITE *sprite);
+void SubSpriteFromArray(SPRITE *sprite);
 
 //-----------------------------------------------------------------------------------------------
 

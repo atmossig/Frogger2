@@ -1986,6 +1986,7 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRE
 }
 
 
+
 /*	--------------------------------------------------------------------------------
 	Function		: DrawAlphaSpriteRotating
 	Purpose			: clips and draws a rotating sprite
@@ -1993,54 +1994,31 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRE
 	Returns			: void
 	Info			: 
 */
+
+typedef struct POLYCLIP
+{
+	int numVerts;
+	D3DTLVERTEX verts[8];
+};
+
+POLYCLIP tempPoly;
+
+void SpriteClip_Do(POLYCLIP *polyIn,POLYCLIP *polyOut);
+void SpriteClip_Left(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
+void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
+void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
+void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
+
+
 void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, DWORD colour )
 {
-	D3DTLVERTEX verts[6];
-	int numVerts;
+	POLYCLIP p2d,drawPoly;
 	float x2 = (x+xs), y2 = (y+ys);
 	float fogAmt;
 
-	float xp[4],yp[4],u[4],v[4];
 	float sine,cosine;
 	float newX,newY;
-	int i;
-
-	xp[0] = x - pos[X];
-	xp[1] = x2 - pos[X];
-	xp[2] = x2 - pos[X];
-	xp[3] = x - pos[X];
-
-	yp[0] = y - pos[Y];
-	yp[1] = y - pos[Y];
-	yp[2] = y2 - pos[Y];
-	yp[3] = y2 - pos[Y];
-
-	u[0] = u1;	u[1] = u2;	u[2] = u2;	u[3] = u1;
-	v[0] = v1;	v[1] = v1;	v[2] = v2;	v[3] = v2;
-
-	// get rotation
-	cosine	= cosf(angle);
-	sine	= sinf(angle);
-
-	// rotate the 4 vertices comprising the sprite
-	i = 4;
-	while(i--)
-	{
-		newX = (xp[i] * cosine) + (yp[i] * sine);
-		newY = (yp[i] * cosine) - (xp[i] * sine);
-
-		xp[i] = newX + pos[X];
-		yp[i] = newY + pos[Y];
-
-		if(xp[i] < SPRITECLIPLEFT)
-			return;
-		if(xp[i] >= SPRITECLIPRIGHT)
-			return;
-		if(yp[i] < SPRITECLIPTOP)
-			return;
-		if(yp[i] >= SPRITECLIPBOTTOM)
-			return;
-	}
+	int i,j;
 
 	fogAmt = FOGADJ(z);
 	if (fogAmt<0)
@@ -2048,20 +2026,50 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 	if (fogAmt>1)
 		fogAmt=1;
 
-	// clip the rotated sprite here...
+	// populate our structure ready for transforming and clipping the sprite
+	p2d.numVerts = 4;
+	p2d.verts[0].sx = x - pos[X];
+	p2d.verts[1].sx = x2 - pos[X];
+	p2d.verts[2].sx = x2 - pos[X];
+	p2d.verts[3].sx = x - pos[X];
 
-	i = numVerts = 4;
+	p2d.verts[0].sy = y - pos[Y];
+	p2d.verts[1].sy = y - pos[Y];
+	p2d.verts[2].sy = y2 - pos[Y];
+	p2d.verts[3].sy = y2 - pos[Y];
+
+	p2d.verts[0].tu = u1;	p2d.verts[0].tv = v1;
+	p2d.verts[1].tu = u2;	p2d.verts[1].tv = v1;
+	p2d.verts[2].tu = u2;	p2d.verts[2].tv = v2;
+	p2d.verts[3].tu = u1;	p2d.verts[3].tv = v2;
+
+	// populate remaining data members
+	i = p2d.numVerts;
 	while(i--)
 	{
-		verts[i].sx			= xp[i];
-		verts[i].sy			= yp[i];
-		verts[i].sz			= z;
-		verts[i].rhw		= 0;
-		verts[i].color		= colour;
-		verts[i].specular	= FOGVAL(fogAmt);
-		verts[i].tu			= u[i];
-		verts[i].tv			= v[i];
+		p2d.verts[i].sz			= z;
+		p2d.verts[i].rhw		= 0;
+		p2d.verts[i].color		= colour;
+		p2d.verts[i].specular	= FOGVAL(fogAmt);
 	}
+
+	// get rotation angle
+	cosine	= cosf(angle);
+	sine	= sinf(angle);
+
+	// rotate the vertices comprising the sprite
+	i = p2d.numVerts;
+	while(i--)
+	{
+		newX = (p2d.verts[i].sx * cosine) + (p2d.verts[i].sy * sine);
+		newY = (p2d.verts[i].sy * cosine) - (p2d.verts[i].sx * sine);
+
+		p2d.verts[i].sx = newX + pos[X];
+		p2d.verts[i].sy = newY + pos[Y];
+	}
+
+	// clip the rotated sprite here...
+	SpriteClip_Do(&p2d,&drawPoly);
 
 	if (h!=lastH)
 	{
@@ -2077,14 +2085,233 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 	if (pDirect3DDevice->DrawPrimitive(
 		D3DPT_TRIANGLEFAN,
 		D3DVT_TLVERTEX,
-		verts,
-		numVerts,
-		D3DDP_DONOTCLIP 
-			| D3DDP_DONOTLIGHT 
-			| D3DDP_DONOTUPDATEEXTENTS 
-			/*| D3DDP_WAIT*/)!=D3D_OK)
+
+		drawPoly.verts,
+		drawPoly.numVerts,
+
+		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS 
+		)!=D3D_OK)
 	{
-		dp("Could not print sprite\n");
-		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
+		dp("Poo-poo!\n");
+	}
+}
+
+// use Sutherland - Hodgman edge clipping algorithm thingyjob - ANDYE
+
+void SpriteClip_Do(POLYCLIP *polyIn,POLYCLIP *polyOut)
+{
+	int v,d;
+
+	polyOut->numVerts = 0;
+	tempPoly.numVerts = 0;
+
+	for(v=0; v<polyIn->numVerts; v++)
+	{
+		d = v + 1;
+		if(d == polyIn->numVerts) d = 0;
+		SpriteClip_Left(&tempPoly,&polyIn->verts[v],&polyIn->verts[d]);
+	}
+
+	for(v=0; v<tempPoly.numVerts; v++)
+	{
+		d = v + 1;
+		if(d == tempPoly.numVerts) d = 0;
+		SpriteClip_Right(polyOut,&tempPoly.verts[v],&tempPoly.verts[d]);
+	}
+
+	tempPoly.numVerts = 0;
+	for(v=0; v<polyOut->numVerts; v++)
+	{
+		d = v + 1;
+		if(d == polyOut->numVerts) d = 0;
+		SpriteClip_Top(&tempPoly,&polyOut->verts[v],&polyOut->verts[d]);
+	}
+
+	polyOut->numVerts = 0;
+	for(v=0; v<tempPoly.numVerts; v++)
+	{
+		d = v + 1;
+		if(d == tempPoly.numVerts) d = 0;
+		SpriteClip_Bottom(polyOut,&tempPoly.verts[v],&tempPoly.verts[d]);
+	}
+}
+
+void SpriteClip_Left(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
+{
+	float dx,dy,m,segLen;
+	float du,dv;
+
+	dx		= v1->sx - v0->sx;
+	dy		= v1->sy - v0->sy;
+	du		= v1->tu - v0->tu;
+	dv		= v1->tv - v0->tv;
+	segLen	= SPRITECLIPLEFT - v0->sx;
+	m		= segLen / dx;
+
+	// check if polygon edge is in viewport
+	if((v0->sx >= SPRITECLIPLEFT) && (v1->sx >= SPRITECLIPLEFT))
+	{
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is leaving viewport
+	if((v0->sx >= SPRITECLIPLEFT) && (v1->sx < SPRITECLIPLEFT))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = SPRITECLIPLEFT;
+		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is entering viewport
+	if((v0->sx < SPRITECLIPLEFT) && (v1->sx >= SPRITECLIPLEFT))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = SPRITECLIPLEFT;
+		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+}
+
+void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
+{
+	float dx,dy,m,segLen;
+	float du,dv;
+
+	dx		= v1->sx - v0->sx;
+	dy		= v1->sy - v0->sy;
+	du		= v1->tu - v0->tu;
+	dv		= v1->tv - v0->tv;
+	segLen	= SPRITECLIPRIGHT - 1 - v0->sx;
+	m		= segLen / dx;
+
+	// check if polygon edge is in viewport
+	if((v0->sx < SPRITECLIPRIGHT) && (v1->sx < SPRITECLIPRIGHT))
+	{
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is leaving viewport
+	if((v0->sx < SPRITECLIPRIGHT) && (v1->sx >= SPRITECLIPRIGHT))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = SPRITECLIPRIGHT - 1;
+		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is entering viewport
+	if((v0->sx >= SPRITECLIPRIGHT) && (v1->sx < SPRITECLIPRIGHT))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = SPRITECLIPRIGHT - 1;
+		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+}
+
+void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
+{
+	float dx,dy,m,segLen;
+	float du,dv;
+
+	dx		= v1->sx - v0->sx;
+	dy		= v1->sy - v0->sy;
+	du		= v1->tu - v0->tu;
+	dv		= v1->tv - v0->tv;
+	segLen	= SPRITECLIPTOP - v0->sy;
+	m		= segLen / dy;
+
+	// check if polygon edge is in viewport
+	if((v0->sy >= SPRITECLIPTOP) && (v1->sx >= SPRITECLIPTOP))
+	{
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is leaving viewport
+	if((v0->sy >= SPRITECLIPTOP) && (v1->sy < SPRITECLIPTOP))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
+		poly->verts[poly->numVerts].sy = SPRITECLIPTOP;
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is entering viewport
+	if((v0->sy < SPRITECLIPTOP) && (v1->sy >= SPRITECLIPTOP))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
+		poly->verts[poly->numVerts].sy = SPRITECLIPTOP;
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+}
+
+void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
+{
+	float dx,dy,m,segLen;
+	float du,dv;
+
+	dx		= v1->sx - v0->sx;
+	dy		= v1->sy - v0->sy;
+	du		= v1->tu - v0->tu;
+	dv		= v1->tv - v0->tv;
+	segLen	= SPRITECLIPBOTTOM - 1 - v0->sy;
+	m		= segLen / dy;
+
+	// check if polygon edge is in viewport
+	if((v0->sy < SPRITECLIPBOTTOM) && (v1->sy < SPRITECLIPBOTTOM))
+	{
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is leaving viewport
+	if((v0->sy < SPRITECLIPBOTTOM) && (v1->sy >= SPRITECLIPBOTTOM))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
+		poly->verts[poly->numVerts].sy = SPRITECLIPBOTTOM - 1;
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+	}
+
+	// check if polygon edge is entering viewport
+	if((v0->sy >= SPRITECLIPBOTTOM) && (v1->sy < SPRITECLIPBOTTOM))
+	{
+		poly->verts[poly->numVerts] = *(v0);
+		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
+		poly->verts[poly->numVerts].sy = SPRITECLIPBOTTOM - 1;
+		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
+		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
+		poly->numVerts++;
+
+		poly->verts[poly->numVerts] = *(v1);
+		poly->numVerts++;
 	}
 }

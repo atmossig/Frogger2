@@ -352,8 +352,9 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	}
 	else
 	{
-		// Initialise garib sprite
+		// initialise garib sprite
 		garib->sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"garspr");
+
 		SetVector(&garib->sprite->pos,&pos);
 		InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
 		garib->sprite->r = 255;
