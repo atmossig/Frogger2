@@ -25,6 +25,7 @@ struct AnimFrame
 
 struct Anim
 {
+	unsigned long CRC;
 	AnimFrame frames[50];
 	int numFrames;
 };
@@ -71,12 +72,21 @@ int loadTextureTxt(const char* filename)
 {
 	FILE *animFp;
 	int numFrames;
+	char tempName[255], *c;
+
+	strcpy(tempName, filename);
+
+	for (c = tempName; *c && (*c!='.'); c++)
+		*c = toupper(*c);
+	*c = 0;
+
 	Anim* anim = &anims[numAnims];
+
+	anim->CRC = utilStr2CRC(tempName);
 
 	if (animFp = fopen(filename,"rt"))
 	{
 		char line[255];
-		char tempName[255];
 
 		fgets(line,255,animFp);
 		sscanf(line,"%d", &numFrames);
@@ -84,6 +94,9 @@ int loadTextureTxt(const char* filename)
 		printf("Animated texture: %s (%d frames)\n", filename, numFrames);
 		
 		anim->numFrames = numFrames;
+		
+		
+		anim->CRC;
 		
 		for (int i=0; i<numFrames; i++)
 		{
@@ -152,6 +165,10 @@ int WriteOutData(const char* out)
 	{
 		n = anims[anim].numFrames;
 		fwrite(&n, 2, 1, f);
+
+		l = anims[anim].CRC;
+		fwrite(&l, 4, 1, f);
+
 		for (frame=0; frame<anims[anim].numFrames; frame++)
 		{
 			l = anims[anim].frames[frame].CRC;
