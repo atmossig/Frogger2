@@ -79,8 +79,8 @@ typedef struct TAGACTOR2
 } ACTOR2;
 
 
-extern float ACTOR_DRAWDISTANCEINNER;
-extern float ACTOR_DRAWDISTANCEOUTER;
+extern unsigned long ACTOR_DRAWDISTANCEINNER;
+extern unsigned long ACTOR_DRAWDISTANCEOUTER;
 
 extern int objectMatrix;
 

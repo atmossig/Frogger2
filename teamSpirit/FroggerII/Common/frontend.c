@@ -89,6 +89,10 @@ void GameLoop(void)
 							RunSndView();
 							break;
 
+						case WATERVIEW_MODE:
+							RunWaterDemo();
+							break;
+
 						default:
 							RunDevelopmentMenu();
 					}

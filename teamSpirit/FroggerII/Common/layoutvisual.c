@@ -681,7 +681,7 @@ void FreeAllLists()
 	FreeEnemyLinkedList();
 	FreePlatformLinkedList();
 	FreePathList();
-	Free3DTextList( );
+	Free3DTextList();
 	FreeAnimationList();
 	FreeTextureList();
 	FreeAllObjectBanks();

@@ -457,24 +457,6 @@ void RunSndView()
 		// bottom pane
 		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,255,255,255,191,0);
 
-		// add the water actor
-		watActor = CreateAndAddActor("eleven.obe",0,0,20,0,0,0);
-		watActor->flags = ACTOR_DRAW_ALWAYS;
-
-		watActor->actor->qRot.x = -1;
-		watActor->actor->qRot.y = 0;
-		watActor->actor->qRot.z = 0;
-		watActor->actor->qRot.w = 1;
-
-		// set all vertex normals (Gouraud colours) to max.
-		i = watActor->actor->objectController->object->mesh->numVertices;
-		while(i--)
-		{
-			watActor->actor->objectController->object->mesh->vertexNormals[i].v[X] = 0;//255;
-			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Y] = 0;//255;
-			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Z] = 0;//255;
-		}
-
 		sfxNum	= 0;
 		musNum	= 0;
 		sfxRes	= 0;
@@ -675,49 +657,6 @@ void RunSndView()
 	}
 
 	curPane->a = 255 * Fabs(sinf(frameCount/12.5));
-
-	// update the water
-	if(watActor)
-	{
-		// assuming non-drawlisted object
-		VECTOR *wv;
-		BYTEVECTOR *wvn;
-		float dp;
-		int k,i = watActor->actor->objectController->object->mesh->numVertices;
-		int x,y;
-
-		waterF = 0.6F;
-		waterWaveHeightAmp[0] = 40;		waterWaveHeightAmp[1] = 30;
-		waterWaveHeightFreq[0] = 201;	waterWaveHeightFreq[1] = 202;
-
-		while(i--)
-		{
-			wv	= &watActor->actor->objectController->object->mesh->vertices[i];
-			wvn = &watActor->actor->objectController->object->mesh->vertexNormals[i];
-
-			for(j=0; j<2; j++)
-			{
-				AddVector2D(&tempVect,wv,&waterCentre[j]);
-				dist[j] = Magnitude2D(&tempVect);
-			}
-
-			wv->v[Y] =	wv->v[Y] * (1 - waterF) + 
-					(	SineWave2(waterFreq[0],frameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
-						SineWave2(waterFreq[1],frameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
-
-
-			// simple lighting effects
-			wvn->v[X] = 31 + Fabs(wv->v[Y] * 2);
-			wvn->v[Y] = wvn->v[X];
-			wvn->v[Z] = wvn->v[X];
-		}
-
-		for(j = 0;j < 2;j++)
-		{
-			waterWaveHeight[j] = SineWave2(waterWaveHeightFreq[j],frameCount)*waterWaveHeightAmp[j] + waterWaveHeightBase[j];
-			RotateVector2D(&waterCentre[j],&waterCentre[j],watRot[j]);
-		}
-	}
 }
 
 #endif

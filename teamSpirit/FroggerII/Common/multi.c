@@ -55,7 +55,8 @@ void UpdateCTF( )
 		return;
 	}
 
-	_itoa( multiTimer, timeTextOver->text, 10 );
+//	_itoa( multiTimer, timeTextOver->text, 10 );
+	sprintf(timeTextOver->text,"%d",multiTimer);
 }
 
 
