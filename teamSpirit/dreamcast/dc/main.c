@@ -689,6 +689,7 @@ void main()
 			kmRender(KM_RENDER_FLIP);
 			kmEndScene(&kmSystemConfig);
 		}
+		afterSaveFlag = 0;
 		FreeTiledBackdrop();
 	}
 
