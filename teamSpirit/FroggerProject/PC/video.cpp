@@ -105,14 +105,14 @@ long RunVideoPlayback()
 				return 1;
 			}
 
-			BinkCopyToBuffer(bink, ddsd.lpSurface, ddsd.lPitch, bink->Height,
+			BinkCopyToBuffer(bink, ddsd.lpSurface, ddsd.lPitch, rYRes,//bink->Height,
 				0, 0, surfacetype);
 
 			RECT sr;
 			sr.left = 0;
-			sr.right = bink->Width;
+			sr.right = rXRes;//bink->Width;
 			sr.top = 0;
-			sr.bottom = bink->Height;
+			sr.bottom = rYRes;//bink->Height;
 
 			surface[RENDER_SRF]->Unlock(NULL);
 
