@@ -170,8 +170,6 @@ void UpdateRace( )
 		{
 			frameCount = 2; // Not 0, because 0 and 1 are used to trigger initialisation stuff elsewhere
 			ResetMultiplayer( );
-			for( i=0; i < NUM_FROGS; i++ )
-				SetFroggerStartPos( gTStart[i], i );
 		}
 		return;
 	}
@@ -273,8 +271,6 @@ void UpdateBattle( )
 		{
 			frameCount = 2;
 			ResetMultiplayer( );
-			for( i=0; i < NUM_FROGS; i++ )
-				SetFroggerStartPos( gTStart[i], i );
 		}
 		return;
 	}
@@ -356,6 +352,13 @@ void UpdateBattle( )
 
 				node = temp;
 			}
+
+			for( j=0; j<NUM_FROGS; j++ )
+				if( i!=j && (currTile[j] == currTile[i] || (destTile[j] && destTile[i] && destTile[j] == destTile[i]) ) )
+				{
+					player[i].frogState |= FROGSTATUS_ISDEAD;
+					player[j].frogState |= FROGSTATUS_ISDEAD;
+				}
 		}
 
 		if( player[i].frogState & FROGSTATUS_ISDEAD )
@@ -682,6 +685,7 @@ void ResetMultiplayer( )
 				node = temp;
 			}
 			mpl[i].path = NULL;
+			SetFroggerStartPos( gTStart[i], i );
 		}
 		FreeGaribLinkedList();
 		InitGaribLinkedList();
@@ -698,6 +702,7 @@ void ResetMultiplayer( )
 			sprHeart[i*3]->draw = 1;
 			sprHeart[(i*3)+1]->draw = 1;
 			sprHeart[(i*3)+2]->draw = 1;
+			SetFroggerStartPos( gTStart[i], i );
 		}
 		break;
 	}

@@ -560,7 +560,7 @@ void GetRotationFromQuaternion(QUATERNION *destQ,QUATERNION *srcQ)
 	{
         destQ->w = 2.0*acos(srcQ->w);
 		SetVector((VECTOR *)&destQ,(VECTOR *)&srcQ);
-		MakeUnit((VECTOR *)&destQ,(VECTOR *)&srcQ);
+		MakeUnit((VECTOR *)&destQ);
 	}
 	else
 	{
