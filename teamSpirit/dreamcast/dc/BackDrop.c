@@ -209,21 +209,17 @@ void DrawBackDrop(int num, int i)
 //	kmEndScene(&kmSystemConfig);
 }
 
-/*	--------------------------------------------------------------------------------
-	Function 	: FreeBackdrop
-	Purpose 	: Free the current background image
-	Parameters 	: none
-	Returns 	: none
-	Info 		:
+/* --------------------------------------------------------------------------------
+   Function	: FreeBackdrop
+   Purpose : Free the current background image
+   Parameters : 
+   Returns : 
+   Info : release the backdrop
 */
 
 void FreeBackdrop(void)
 {
-	if(backDrop.draw == FALSE)
-		return;
-		
-	backDrop.draw = FALSE;
-//	kmFreeTexture(&backDrop.surface);
+	FreeLegalBackdrop();
 }
 
 

@@ -597,7 +597,7 @@ void main()
 	backDrop.draw = FALSE;
 
 	// show all legal screens and FMV
-	showLegalFMV(0);
+	showLegalFMV(1);	//0);
 
 	CommonInit();
 
@@ -1038,6 +1038,9 @@ void showLegalFMV(int allowQuit)
 		return;
 	// play our FMV
 	if (StartVideoPlayback(FMV_BLITZ_LOGO, allowQuit) == 1)
+		return;
+	// play our intro
+	if (StartVideoPlayback(FMV_INTRO, 1) == 1)
 		return;
 
 	// show SoftDec screen
