@@ -246,6 +246,40 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface(long xs,long ys, long cKey, long alphaS
 	return pSurface;
 }	
 
+LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam)
+{ 
+	LPDIRECTDRAWSURFACE7 pSurface,pTSurface = NULL;
+	DDSURFACEDESC2		ddsd;
+	HRESULT				me;
+
+	//Create the surface
+	DDINIT(ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;//(alphaSurf?DDSD_PIXELFORMAT:0);
+	ddsd.dwWidth = xs;
+	ddsd.dwHeight = ys;
+	ddsd.ddpfPixelFormat.dwSize = sizeof (DDPIXELFORMAT);
+
+		
+	ddsd.ddsCaps.dwCaps = videoRam?DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM:DDSCAPS_SYSTEMMEMORY;
+	//ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+
+	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
+	{
+		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		ddShowError(me);
+		RELEASE(pSurface); 
+		return NULL;
+	}
+
+	DDCOLORKEY cK;
+	cK.dwColorSpaceLowValue = cKey;
+	cK.dwColorSpaceHighValue = cKey;
+	pSurface->SetColorKey (DDCKEY_SRCBLT,&cK);
+
+	return pSurface;
+}	
+
+
 LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long texSrf)
 { 
 	LPDIRECTDRAWSURFACE7 pSurface,pTSurface = NULL;
@@ -384,58 +418,76 @@ void EndDraw(void)
 	Info		: 
 */
 
-unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys)
+unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, long convert)
 {
 	DDSURFACEDESC2		ddsd;
-	short val;
+	short val,r,g,b,rShift,gShift;
 	unsigned long texHasMagenta = 0;
 	
 	// Copy the data into the surface manually
 	DDINIT(ddsd);
 	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 
-	// Could be faster
-	if (IAlpha)
+	if (convert)
 	{
-		for (unsigned int y=0;y<ys;y++)
-			for (unsigned int x=0;x<xs;x++)
-				((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = (data[x+y*xs] & (0x1f << 11)) | 0x0fff;
-	}
-	else
-	{
+		rShift = r565?11:10; 
+		gShift = r565?6:5;
 		for (unsigned int y=0;y<ys;y++)
 			for (unsigned int x=0;x<xs;x++)
 			{
 				val  = data[x+y*xs];
-				if (val!=(0x1f | 0x1f<<10))
-					val |= 0x8000;
-				else
-				{
-					texHasMagenta = 1;
-				/*	// Stop magenta "halos"
-					short c;
-					long val2;
-					c = 0;
-					for (int i=-1; i<=1; i++)
-						for (int j=-1; j<=1; j++)
-						{
-							val2 = (x+i)+(y+j)*xs;
-							if (val2<0)
-								val2 = 0;
-							if (val2>xs*ys)
-								val2 = 0;
-							
-							c = data[val2];
-							if (c!=(0x1f | 0x1f<<10))
-								val = c;
-							c = 0;
-						}					*/
-				}
-
-				((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
+				r = (val>>10) & 0x1f;
+				g = (val>>5) & 0x1f;
+				b = val & 0x1f;
+				((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = ((r<<rShift) | (g<<gShift) | (b));
 			}
+	
 	}
+	else
+	{
+	
+		// Could be faster
+		if (IAlpha)
+		{
+			for (unsigned int y=0;y<ys;y++)
+				for (unsigned int x=0;x<xs;x++)
+					((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = ((data[x+y*xs] & 0x1f) << 11) | 0x0fff;
+		}
+		else
+		{
+			for (unsigned int y=0;y<ys;y++)
+				for (unsigned int x=0;x<xs;x++)
+				{
+					val  = data[x+y*xs];
+					if (val!=(0x1f | 0x1f<<10))
+						val |= 0x8000;
+					else
+					{
+						texHasMagenta = 1;
+					/*	// Stop magenta "halos"
+						short c;
+						long val2;
+						c = 0;
+						for (int i=-1; i<=1; i++)
+							for (int j=-1; j<=1; j++)
+							{
+								val2 = (x+i)+(y+j)*xs;
+								if (val2<0)
+									val2 = 0;
+								if (val2>xs*ys)
+									val2 = 0;
+								
+								c = data[val2];
+								if (c!=(0x1f | 0x1f<<10))
+									val = c;
+								c = 0;
+							}					*/
+					}
 
+					((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
+				}
+		}
+	}
 	pSurface->Unlock(NULL);
 	return texHasMagenta;
 }

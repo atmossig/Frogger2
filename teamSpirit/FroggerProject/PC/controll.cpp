@@ -580,7 +580,7 @@ void ProcessUserInput()
 	
 	unsigned short oldDigital[8];
 
-	if (consoleDraw )
+	if (consoleDraw || textureDraw)
 		return;
 
 	if (windowActive)

@@ -19,11 +19,12 @@ extern "C"
 #define TEXTURE_NORMAL 0
 #define TEXTURE_AI	1
 #define TEXTURE_PROCEDURAL 2
-
+#define TEXTURE_NOTEXTURE 3
 typedef struct TAG_MDX_TEXENTRY
 {
 	long CRC;
 	char name[32];
+	char bank[64];
 	short *data;
 	long *softData;
 	char keyed;
@@ -31,8 +32,9 @@ typedef struct TAG_MDX_TEXENTRY
 	LPDIRECTDRAWSURFACE7 surf;
 	float xPos,yPos;
 	long xSize,ySize;
+	long refCount;
 
-	struct TAG_MDX_TEXENTRY *next;	
+	struct TAG_MDX_TEXENTRY *next,*prev;	
 } MDX_TEXENTRY;
 
 typedef struct TAG_MDX_TEXPAGE
@@ -55,6 +57,8 @@ unsigned long LoadTexBank(char *bank, char *baseDir);
 void FreeAllTextureBanks( );
 void InitWater(char *file);
 void UpdateWater(void);
+void ShowTextures(void);
+void mdxSetBackdropToTex(MDX_TEXENTRY *t);
 
 #ifdef __cplusplus
 }

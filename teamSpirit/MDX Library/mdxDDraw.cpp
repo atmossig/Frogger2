@@ -688,6 +688,12 @@ void mdxDrawBackdrop()
 		res = surface[RENDER_SRF]->Blt(NULL, backdrop, NULL, DDBLT_WAIT, &m);
 }
 
+void mdxSetBackdropToTex(MDX_TEXENTRY *t)
+{
+	if (t)
+		backdrop = t->surf;
+}
+
 /*	--------------------------------------------------------------------------------
 	Function	: mdxLoadBackdrop
 	Purpose		: 

@@ -26,6 +26,7 @@ typedef struct TAG_MDX_WININFO
 extern MDX_WININFO mdxWinInfo;
 extern unsigned long consoleDraw;
 extern unsigned long timerDraw;
+extern unsigned long textureDraw;
 extern long windowActive;
 
 int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode);

@@ -97,7 +97,7 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 		if ((tFont->surf[surf] = D3DCreateTexSurface(dim,dim, 0xf81f, 0, 1)) == NULL)
 			return false;
 
-		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim);
+		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim,0);
 
 		tFont->vPtrs[surf] = new D3DTLVERTEX[FONT_NUM32*FONT_NUM32];
 		tFont->widths[surf] = new long [FONT_NUM32*FONT_NUM32];

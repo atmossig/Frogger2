@@ -829,6 +829,8 @@ unsigned long numObjDrawn;
 
 void DrawLandscape(MDX_LANDSCAPE *me)
 {
+
+	
 	if (CheckBoundingBox(me->bBox,&me->objMatrix)==0)
 	{
 		PCPrepareLandscape(me);

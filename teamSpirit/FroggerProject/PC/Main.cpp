@@ -590,10 +590,14 @@ long DrawLoop(void)
 	//CopySoftScreenToSurface(surface[RENDER_SRF]);
 
 	EndTimer(0);
+	
+	if (textureDraw)
+		ShowTextures();
 	if (consoleDraw)
 		PrintConsole();
 	if (timerDraw)
 		PrintTimers();
+	
 	ClearTimers();
 	StartTimer(0,"Everything");
 	

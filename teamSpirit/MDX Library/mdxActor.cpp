@@ -286,9 +286,11 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
 	MDX_VECTOR t[8];
 	MDX_VECTOR *r = t;
+	unsigned long pointOn;
+
 	unsigned long left,right,top,bottom;
 	left = top = right = bottom = 0;
-
+	
 	for (int i=8; i; i--)
 	{
 		XfmPoint(r,bBox,m);

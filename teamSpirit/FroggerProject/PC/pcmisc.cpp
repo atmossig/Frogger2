@@ -43,7 +43,7 @@ LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
 
 	// Create surface and blit
 	temp = D3DCreateTexSurface(xDim, yDim, 0xf81f, 0, 1);
-	DDrawCopyToSurface(temp,(unsigned short *)textureData, 0, xDim, yDim);
+	DDrawCopyToSurface(temp,(unsigned short *)textureData, 0, xDim, yDim,0);
 
 	//res = D3DCreateTexSurface(xDim, yDim, 0xf81f, 0, 1);
 	//res->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);

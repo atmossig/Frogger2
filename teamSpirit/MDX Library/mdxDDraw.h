@@ -127,7 +127,6 @@ WNDPROC SetUserVideoProc(WNDPROC proc);
 void mdxLoadBackdrop(const char* filename);
 
 void mdxDrawBackdrop();
-
 void mdxFreeBackdrop();
 
 #ifdef __cplusplus

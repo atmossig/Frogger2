@@ -615,7 +615,11 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
-			obj->mesh->textureIDs[x] = GetTexEntryFromCRC( (long)obj->mesh->textureIDs[x]);
+			MDX_TEXENTRY *cText;
+			cText = GetTexEntryFromCRC( (long)obj->mesh->textureIDs[x]);
+			obj->mesh->textureIDs[x] = cText;
+			if (cText)
+				cText->refCount++;
 			/*
 			if (obj->mesh->textureIDs[x])
 			{

@@ -35,11 +35,14 @@ extern "C"
 {
 #endif
 
+extern MDX_TEXENTRY *cDispTexture;
+
 MDX_WININFO mdxWinInfo;
 WNDPROC userWndProc;
 
 unsigned long consoleDraw = 0;
 unsigned long timerDraw = 0;
+unsigned long textureDraw = 0;
 char winAppName[128];
 long windowActive;
 
@@ -77,7 +80,30 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 					consoleDraw = !consoleDraw;
 					break;
 				case VK_F6:
-					timerDraw = !timerDraw;
+					timerDraw++;
+					if (timerDraw>2)
+						timerDraw=0;
+					break;
+				case VK_F7:
+					cDispTexture = NULL;
+					textureDraw = !textureDraw;
+					break;
+
+				case VK_UP:
+					if (textureDraw)
+					{
+						for (int i=0; i<8; i++)
+							if (cDispTexture->prev)
+								cDispTexture = cDispTexture->prev;
+					}
+					break;
+				case VK_DOWN:
+					if (textureDraw)
+					{
+						for (int i=0; i<8; i++)
+							if (cDispTexture->next)
+								cDispTexture = cDispTexture->next;
+					}
 					break;
 			}
 		
@@ -144,7 +170,8 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 		0,
         appName,
         appName,
-		WS_OVERLAPPED | (rFullscreen? WS_POPUP : WS_SYSMENU|WS_THICKFRAME),//_POPUP,
+		//WS_OVERLAPPED | (rFullscreen? WS_POPUP : WS_SYSMENU|WS_THICKFRAME),//_POPUP,
+		WS_OVERLAPPED | WS_SYSMENU | WS_THICKFRAME,
 		0,
 		0,
 		640,//GetSystemMetrics(SM_CXSCREEN), 

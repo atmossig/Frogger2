@@ -70,7 +70,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long te
 	Info		: 
 */
 
-unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys);
+unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, long convert);
 
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawCopyToSurface
@@ -89,6 +89,8 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 	Returns		: 
 	Info		: 
 */
+
+LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam);
 
 void D3DClearView(void);
 void BeginDraw(void);
