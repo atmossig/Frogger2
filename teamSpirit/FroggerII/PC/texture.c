@@ -13,7 +13,7 @@
 #include "incs.h"
 
 
-#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
+//#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
 
 
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
