@@ -52,10 +52,10 @@ enum
 	CONV1FAST,
 	CONV2FAST,
 	CONV3FAST,
-	FROGGER1AREA,
-	FROGGER2AREA,
-	FROGGER3AREA,
-	FROGGER4AREA,
+//	FROGGER1AREA,
+//	FROGGER2AREA,
+//	FROGGER3AREA,
+//	FROGGER4AREA,
 
 	NUM_MATERIALS
 };
@@ -92,10 +92,10 @@ const char* materialnames[NUM_MATERIALS] =
 	"conveyor1fast",
 	"conveyor2fast",
 	"conveyor3fast",
-	"frogger1area",
-	"frogger2area",
-	"frogger3area",
-	"frogger4area"
+//	"frogger1area",
+//	"frogger2area",
+//	"frogger3area",
+//	"frogger4area"
 };
 
 int numFrogs = 0;
@@ -857,6 +857,7 @@ int ProcessFaceInfo(face *f, char *in)
 {
 	int a;
 	while (*(++in) != ':');
+	in++;
 
 	// Get vertex numbers	
 	for (a=0; a<3; a++)
@@ -900,8 +901,6 @@ int ProcessMeshInfo(char *in, vtx* verts, int *nv, face* faces, int *nf)
 
 		sscanf (in,"%f%f%f",&x,&y,&z);
 
-		printf("%f %f %f\n", x, y, z);
-		
 		verts[*nv].x = x;
 		verts[*nv].y = z;		// convert to our coord space
 		verts[*nv].z = -y;
@@ -945,7 +944,6 @@ void FinishObject()
 
 void ProcessLine(char *in)
 {
-	char *cPos = in;
 	static int cMat = 0;
 
 	// Munch whitespace
@@ -993,7 +991,7 @@ void ProcessLine(char *in)
 
 			num = in;
 			
-			while (*in>'0' && *in<'9') in++;
+			while (*in>='0' && *in<='9') in++;
 			*in = 0;
 
 			cMat = atoi(num);
@@ -1016,7 +1014,8 @@ void ProcessLine(char *in)
 
 			m = materialLookup.GetEntry(material);
 
-			if (m) mat[cMat] = m;
+			if (m && cMat) mat[cMat] = m;
+
 			return;
 		}
 	}
