@@ -420,9 +420,23 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 					keyDelay = 20;
 				}
+/*
+				if( KEYPRESS(DIK_SPACE) )
+				{
+					AICOMMAND *com = (AICOMMAND *)JallocAlloc(sizeof(AICOMMAND), YES, "aicom");
 
+					if( !hubChar )
+						hubChar = CreateAndAddCharacter( "bfly.obe", gTStart[0], 40, CHAR_HUB );
 
-			}
+					com->time = 60;
+					com->flags = AICOMFLAG_QUEUED;
+					com->type = AICOM_FACE_DIR;
+					SubVector( &com->dir, &frog[0]->actor->pos, &hubChar->act->actor->pos );
+					MakeUnit( &com->dir );
+
+					IssueAICommand( hubChar, com );
+				}
+*/			}
 			else
 				keyDelay-=gameSpeed;
 			
