@@ -484,6 +484,7 @@ long DrawLoop(void)
 	POINT t;
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	
+	SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0);
 	// Just to get functionality... ;)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();

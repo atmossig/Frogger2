@@ -93,6 +93,8 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 void D3DClearView(void);
 void BeginDraw(void);
 void EndDraw(void);
+void SetupFogParams(float fStart,float fR,float fG,float fB);
+
 
 #ifdef __cplusplus
 }

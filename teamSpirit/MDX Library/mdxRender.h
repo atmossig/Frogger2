@@ -26,6 +26,8 @@ extern float clx0, cly0, clx1, cly1;
 extern long DIST, FOV;
 extern float farClip, nearClip, horizClip, vertClip;
 extern MDX_TEXENTRY *overrideTex;
+extern float fogStart;
+extern float fogRange;
 
 void InitOneOverTable(void);
 void InitDOFOneOverTable(int min, int max, int range);
