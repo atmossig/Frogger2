@@ -1399,6 +1399,21 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 					return FALSE;			
 			}
+			else if( destTile[pl]->state == TILESTATE_BARRED )
+			{
+				// Can't get into this tile at the moment
+				dprintf"GameTile BARRED\n"));
+
+				destTile[pl] = NULL;
+				destPlatform[pl] = NULL;
+				isJump[pl] = 0;
+				superHop = 0;
+
+				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+				player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
+				player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
+			}
 			else if( destTile[pl]->state & TILESTATE_SMASH )
 			{
 				if( !(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING) )
