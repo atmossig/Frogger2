@@ -620,6 +620,23 @@ long DrawLoop(void)
 		if (world && drawLandscape)
 			DrawLandscape(world);
 		EndTimer(14);
+
+		// Draw shadows between landscape and actors so we don't get z-buffer artifacts
+		if( !backdrop )
+		{
+			// Draw landscape
+			DrawAllFrames();
+			BlankAllFrames();
+
+			D3DSetupRenderstates(xluZRS);
+			D3DSetupRenderstates(normalAlphaCmpRS);
+			ProcessShadows();
+			DrawBatchedPolys();
+			BlankAllFrames();
+			D3DSetupRenderstates(normalZRS);
+			SwapFrame(0);
+		}
+
 		StartTimer(1,"Actors");
 		
 		ActorListDraw();

@@ -50,9 +50,6 @@ void DrawSpecialFX()
 
 	SwapFrame(0);
 
-	if( !backdrop )
-		ProcessShadows();
-	
 	if( sfxList.count )
 	{
 		SPECFX *fx;
