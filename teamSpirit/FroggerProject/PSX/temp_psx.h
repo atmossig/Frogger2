@@ -4,5 +4,6 @@
 #include "types.h"
 
 void CreateLevelObjects ( unsigned long worldID,unsigned long levelID );
+#define PostQuitMessage(x)
 
 #endif

@@ -180,5 +180,12 @@ typedef struct _SOUNDLIST
  
  
 // extern void PrepareSongForLevel( short worldID, short levelID );
+
+
+#define UpdateAmbientSounds()
+//#define PTTextureLoad()
+#define LoadSfxMapping(a,b)
+#define FreeAmbientSoundList()
+#define InitAmbientSoundList()
  
 #endif
