@@ -475,9 +475,10 @@ SAMPLE *FindSample( unsigned long uid )
 			return cur;
 	}
 
-	return FindSample ( utilStr2CRC ( "hopongrass" ) );
+	// WHY???
+//	return FindSample ( utilStr2CRC ( "hopongrass" ) );
 
-//	return NULL;	
+	return NULL;	
 }
  
 
@@ -815,11 +816,6 @@ void StopSong( )
 #if GOLDCD==1
 	XAstop();
 #endif
-}
-
-
-void *FindVoice ( long crc, int pl )
-{
 }
 
 

@@ -269,8 +269,7 @@ extern SAMPLE *FindSample( unsigned long uid );
 void MAIN_PrintXAData ( const XAFileType * const XATrack );
 
 #define InitVoices(path, len) 0
-#define PlayVoice(pl, sound) //PlaySample(FindSample(utilStr2CRC(sound)), &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1)
-
-void *FindVoice ( long, int );
+#define PlayVoice(pl, sound) PlaySample(FindSample(utilStr2CRC(sound)), &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1)
+#define FindVoice(uid, pl) FindSample(uid)
 
 #endif
