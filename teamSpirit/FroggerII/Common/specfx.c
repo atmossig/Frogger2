@@ -22,6 +22,8 @@ short fadeStep		= 4;
 
 char pauseMode		= 0;
 
+#define NUM_TRAIL_ELEMENTS 32
+
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
 
@@ -34,6 +36,8 @@ TEXTURE *txtrFly		= NULL;
 TEXTURE *txtrBubble		= NULL;
 TEXTURE *txtrFire		= NULL;
 TEXTURE *txtrBlank		= NULL;
+TEXTURE *txtrTrail		= NULL;
+
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -155,7 +159,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	case FXTYPE_BILLBOARDTRAIL:
 		effect->fade = effect->a / life;
 
-		effect->numP = i = 8;
+		effect->numP = i = NUM_TRAIL_ELEMENTS;
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*i, YES, "P" );
 		effect->particles[0].bounce = 1;
 
@@ -167,7 +171,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			effect->particles[i].rMtrx = (float *)JallocAlloc( sizeof(float)*16, YES, "Mtx" );
 		}
 
-		effect->tex = txtrBlank;
+		effect->tex = txtrTrail;
 		effect->Update = UpdateFXTrail;
 		effect->Draw = DrawFXTrail;
 
@@ -929,6 +933,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
 	FindTexture(&txtrFire,UpdateCRC("ai_flame3.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
+	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 }
 
 
@@ -1061,19 +1066,26 @@ void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b 
 	Returns			: 
 	Info			: 
 */
-void CreateTeleportEffect( VECTOR *pos, VECTOR *normal )
+void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short b )
 {
 	VECTOR telePos;
 	SPECFX *fx;
 
 	SetVector( &telePos, pos );
 	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 30, 0, 0, 1 );
+	SetFXColour( fx, r, g, b );
+
 	telePos.v[Y] += 20;
 	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 25, 0, 0, 1 );
+	SetFXColour( fx, r, g, b );
+
 	telePos.v[Y] += 40;
 	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 20, 0, 0, 1 );
+	SetFXColour( fx, r, g, b );
+
 	telePos.v[Y] += 60;
 	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 15, 0, 0, 1 );
+	SetFXColour( fx, r, g, b );
 //	PlaySample(88,NULL,255,128);
 }
 

@@ -204,7 +204,8 @@ void UpdateFrogTongue( int pl )
 			if( DistanceBetweenPointsSquared(&tongue[pl].target,&tongue[pl].interp) > TONGUE_STICKYRADIUS*TONGUE_STICKYRADIUS )
 			{
 				// Extend the tongue a bit more
-				tongue[pl].progress += TONGUE_FRACTION;
+				tongue[pl].progress += TONGUE_FRACTION*gameSpeed*(1.5-tongue[pl].progress);
+				if( tongue[pl].progress > 1 ) tongue[pl].progress = 1;
 				LinearInterp( &tongue[pl].interp, &tongue[pl].source, &tongue[pl].target, tongue[pl].progress );
 				CalculateTongue( pl );
 
@@ -247,7 +248,8 @@ void UpdateFrogTongue( int pl )
 			}
 
 			// Retract tongue a bit
-			tongue[pl].progress -= TONGUE_FRACTION;
+			tongue[pl].progress -= TONGUE_FRACTION*gameSpeed*(1.5-tongue[pl].progress);
+			if( tongue[pl].progress < 0 ) tongue[pl].progress = 0;
 			LinearInterp( &tongue[pl].interp, &tongue[pl].source, &tongue[pl].target, tongue[pl].progress );
 			CalculateTongue( pl );
 
@@ -269,14 +271,11 @@ void UpdateFrogTongue( int pl )
 						SetVector( &((ACTOR2 *)tongue[pl].thing)->actor->pos, &((ACTOR2 *)tongue[pl].thing)->actor->oldpos );
 				}
 
-				player[pl].frogState &= ~FROGSTATUS_ISTONGUEING;
-				tongue[pl].flags = TONGUE_IDLE;
+				RemoveFrogTongue(pl);
 
 				// Set frog idle animation
 				frog[pl]->actor->animation->animTime = 0;
 				AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
-
-				RemoveFrogTongue(pl);
 			}
 		}
 	}

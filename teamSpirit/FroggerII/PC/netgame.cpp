@@ -186,7 +186,7 @@ int MPAddFrog( int i )
 
 	frog[i]->draw = TRUE; // Make it visible
 
-	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal );
+	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal, 255, 255, 255 );
 
 	return 1;
 }
@@ -219,7 +219,7 @@ int MPRemoveFrog( int i )
 
 	frog[i]->draw = FALSE; // Make it invisible
 
-	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal );
+	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal, 255, 255, 255 );
 
 	return 1;
 }

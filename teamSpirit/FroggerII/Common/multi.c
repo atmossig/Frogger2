@@ -47,11 +47,10 @@ void UpdateCTF( )
 			}
 
 		if( !best )
-			sprintf( timeTextOver->text, "No winner", winner );
+			sprintf( timeTextOver->text, "No winner" );
 		else
-			sprintf( timeTextOver->text, "P%i won!", winner );
+			sprintf( timeTextOver->text, "P%i won", winner );
 
-//		multiTimer = -1;
 		return;
 	}
 
@@ -125,6 +124,7 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 
 		if( baby->flags & ENEMY_NEW_RANDOMMOVE )
 		{
+			CreateTeleportEffect( &baby->nmeActor->actor->pos, &baby->currNormal, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
 			// Baby teleports to froggers base
 			path->nodes[0].worldTile = path2->nodes[0].worldTile;
 			path->nodes[1].worldTile = path2->nodes[1].worldTile;
@@ -132,6 +132,7 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 			baby->isSnapping = 0;
 
 			// Teleport frog back to base too
+			CreateTeleportEffect( &frog[pl]->actor->pos, &currTile[pl]->normal, 255, 255, 255 );
 			TeleportActorToTile( frog[pl], gTStart[pl], pl );
 			destTile[pl] = gTStart[pl];
 		}
