@@ -177,8 +177,14 @@ BOOL LoadCollision(int num)
 			strcat(file,"submulti");
 			break;
 
-		case LABORATORYMASTER_COL:
-			strcat(file,"labboss");
+		case LABORATORYMASTERA_COL:
+			strcat(file,"labbossa");
+			break;
+		case LABORATORYMASTERB_COL:
+			strcat(file,"labbossb");
+			break;
+		case LABORATORYMASTERC_COL:
+			strcat(file,"labbossc");
 			break;
 		case LABORATORYLEV1_COL:
 			strcat(file,"lab1");
@@ -444,8 +450,14 @@ BOOL LoadScenics (int num)
 			strcat(file,"submulti");
 			break;
 
-		case LABORATORYMASTER_COL:
-			strcat(file,"labboss");
+		case LABORATORYMASTERA_COL:
+			strcat(file,"labbossa");
+			break;
+		case LABORATORYMASTERB_COL:
+			strcat(file,"labbossb");
+			break;
+		case LABORATORYMASTERC_COL:
+			strcat(file,"labbossc");
 			break;
 		case LABORATORYLEV1_COL:
 			strcat(file,"lab1");

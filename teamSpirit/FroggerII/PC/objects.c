@@ -350,7 +350,19 @@ BOOL LoadObjectBank(int num)
 		case LABORATORYMASTER_OBJ_BANK:
 			strcat (file,"labmaster");
 			break;
+
+		case LABORATORYBOSSA_OBJ_BANK:
+			strcat (file, "labbossa");
+			break;
 	
+		case LABORATORYBOSSB_OBJ_BANK:
+			strcat (file, "labbossb");
+			break;
+
+		case LABORATORYBOSSC_OBJ_BANK:
+			strcat (file, "labbossc");
+			break;
+
 		case LABORATORYLEV1_OBJ_BANK:
 			strcat (file,"lab1");
 			break;
