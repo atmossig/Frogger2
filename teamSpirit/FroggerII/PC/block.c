@@ -305,7 +305,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		if(appActive)
 		{
 			
-#ifndef MBR_DEMO
 			StartTimer(9,"Before");
 
 			if (KEYPRESS(DIK_F1))
@@ -349,8 +348,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
-				if( KEYPRESS(DIK_F8) )
-					fog.mode = !(fog.mode);
+//				if( KEYPRESS(DIK_F8) )
+//				fog.mode = 1;//!(fog.mode);
 
 				if( KEYPRESS(DIK_F10) )
 				{
@@ -378,7 +377,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if( gameState.multi == MULTIREMOTE && gameState.mode == GAME_MODE )
 				RefreshMPFrogs( );
-#endif
 
 			StartTimer(4,"GameLoop");
 			GameLoop();
@@ -631,9 +629,9 @@ void DrawGraphics()
 {
 //	if( fog.mode )
 	{
-		fog.r = fR;
-		fog.g = fG;
-		fog.b = fB;
+		//fog.r = fR;
+		//fog.g = fG;
+	//	fog.b = fB;
 
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );

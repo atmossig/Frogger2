@@ -15,6 +15,9 @@
 
 #define LODDist (700 * 700)
 
+#define FOGADJ(x) (1.0-((x-fStart)*fEnd))
+#define FOGVAL(y) (((unsigned long)(255*y) << 24))
+
 #define BETWEEN(x,a,b) ((x>a) && (x<b))
 
 VECTOR pointVec = {0,0,1};
@@ -40,8 +43,8 @@ float farClip = 1100;
 float horizClip = 600;
 float vertClip = 550;
 
-long DIST=0;
-long FOV=512;
+long DIST=-10;
+long FOV=450;
 
 #define IsNotClipped(vTemp2) (((vTemp2->v[Z]+DIST)>nearClip) && ((noClipping) || (((vTemp2->v[Z]+DIST)<farClip) && ((vTemp2->v[X])>-horizClip) && ((vTemp2->v[X])<horizClip) && ((vTemp2->v[Y])>-vertClip) && ((vTemp2->v[Y])<vertClip))))
 
@@ -133,7 +136,7 @@ float   rCol,gCol,bCol;
 
 int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
 {
-	float segLen, totalLen, vt;
+	float segLen, totalLen, vt,fogAmt;
 	long r1,g1,b1,a1;
 	long r2,g2,b2,a2;
 
@@ -176,7 +179,13 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 	vOut->tu = (v0->tu+((v1->tu-v0->tu)*vt));
     vOut->tv = (v0->tv+((v1->tv-v0->tv)*vt));
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
-	vOut->specular = D3DRGBA(0,0,0,1.0-vOut->sz);
+	
+	fogAmt = FOGADJ(vOut->sz);
+	if (fogAmt<0)
+		fogAmt=0;
+	if (fogAmt>1)
+		fogAmt=1;
+	vOut->specular = FOGVAL(fogAmt);
 	
 	a1 = RGBA_GETALPHA(v0->color);
 	r1 = RGBA_GETRED(v0->color);
@@ -1164,7 +1173,6 @@ float modi1 = 0.07;
 float modi2 = 2;
 float modi3 = 2;
 float modi4 = 0.05;
-
 void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 {
 	float c[4][4];
@@ -1238,11 +1246,13 @@ void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 
 
 
-
-
-#define FOGVAL(x) ((unsigned long)(255*x) << 24)
+float fogMulSpeed = 0.05;
+float fogMulAmt = 0.15;
+float fogMulBase = 0.7;
 
 short facesON[3] = {0,1,2};
+
+#define SETALPHA(rgba, x) (((x) << 24) | ((rgba & 0x00ffffff)))
 
 void PCRenderObject (OBJECT *obj)
 {
@@ -1254,10 +1264,11 @@ void PCRenderObject (OBJECT *obj)
 	unsigned long drawme,x1on,x2on,x3on,y1on,y2on,y3on;
 	unsigned long v0,v1,v2;
 	unsigned long v0a,v1a,v2a;
+	long alphaVal;
 	TEXENTRY *tex;
 	TEXTURE **tex2;
 	VECTOR *tV0,*tV1,*tV2,*cols;
-
+	float t1,t2,t3,fogAmt;
 	if (xl<0.99)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 	else
@@ -1267,6 +1278,7 @@ void PCRenderObject (OBJECT *obj)
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
 	cols = ((VECTOR *)obj->mesh->vertexNormals);
+	alphaVal = (xl*256.0);
 
 	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
 	{
@@ -1274,6 +1286,7 @@ void PCRenderObject (OBJECT *obj)
 		v0 = facesIdx->v[0];
 		v1 = facesIdx->v[1];
 		v2 = facesIdx->v[2];
+		
 		
 		tV0 = &tV[v0];
 		tV1 = &tV[v1];
@@ -1301,8 +1314,15 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV0->v[X];
 				vTemp->sy = tV0->v[Y];
 				vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
-				vTemp->specular = FOGVAL(1.0-vTemp->sz);
-				vTemp->color = *((long *)(c1->v)); //,c1->v[1],c1->v[2],xl);
+				
+				fogAmt = FOGADJ(vTemp->sz);
+				if (fogAmt<0)
+					fogAmt=0;
+				if (fogAmt>1)
+					fogAmt=1;
+				vTemp->specular = FOGVAL(fogAmt);
+				
+				vTemp->color = SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
@@ -1320,10 +1340,14 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV1->v[X];
 				vTemp->sy = tV1->v[Y];
 				vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
-				vTemp->specular = FOGVAL(1.0-vTemp->sz);
-				vTemp->color = *((long *)(c2->v)); //,c1->v[1],c1->v[2],xl);
-
-//				vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
+				fogAmt = FOGADJ(vTemp->sz);
+				if (fogAmt<0)
+					fogAmt=0;
+				if (fogAmt>1)
+					fogAmt=1;
+				vTemp->specular = FOGVAL(fogAmt);
+				vTemp->color = SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
@@ -1334,16 +1358,20 @@ void PCRenderObject (OBJECT *obj)
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
 					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
 				}
-
 				
 				vTemp++;
 				
 				vTemp->sx = tV2->v[X];
 				vTemp->sy = tV2->v[Y];
 				vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
-				vTemp->specular = FOGVAL(1.0-vTemp->sz);
-				vTemp->color = *((long *)(c3->v)); //,c1->v[1],c1->v[2],xl);
-//				vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
+
+				fogAmt = FOGADJ(vTemp->sz);
+				if (fogAmt<0)
+					fogAmt=0;
+				if (fogAmt>1)
+					fogAmt=1;
+				vTemp->specular = FOGVAL(fogAmt);
+				vTemp->color = SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];

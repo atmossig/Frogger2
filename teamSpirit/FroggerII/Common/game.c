@@ -351,7 +351,6 @@ void GameProcessController(long pl)
 		player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
 	}
 
-#ifndef MBR_DEMO
 
 	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
 	{
@@ -401,8 +400,6 @@ void GameProcessController(long pl)
 
 		lastbutton[pl] = button[pl];
     }
-
-#endif
 
 	lastbutton[pl] = button[pl];
 	lastStickX[pl] = stickX[pl];

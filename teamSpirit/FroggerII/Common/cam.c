@@ -249,9 +249,9 @@ void CameraLookAtFrog(void)
 		}
 
 		{
-			camTarget[0].v[0] = afx+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0];	
-			camTarget[0].v[1] = afy+currTile[0]->dirVector[camFacing].v[1]*camLookOfs + currTile[0]->normal.v[1];	
-			camTarget[0].v[2] = afz+currTile[0]->dirVector[camFacing].v[2]*camLookOfs + currTile[0]->normal.v[2];
+			camTarget[0].v[0] = afx+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs + currTile[0]->normal.v[0];	
+			camTarget[0].v[1] = afy+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs + currTile[0]->normal.v[1];	
+			camTarget[0].v[2] = afz+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs + currTile[0]->normal.v[2];
 		}
 		
 	}
@@ -410,9 +410,9 @@ void UpdateCameraPosition(long cam)
 			afz2/=l;
 		}
 
-		camSource[cam].v[0] = afx+afx2;
-		camSource[cam].v[1] = afy+afy2;
-		camSource[cam].v[2] = afz+afz2;
+		camSource[cam].v[0] = afx+afx2+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
+		camSource[cam].v[1] = afy+afy2+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
+		camSource[cam].v[2] = afz+afz2+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
 	}
 
 	SlurpCamPosition(cam);

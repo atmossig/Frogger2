@@ -49,6 +49,8 @@ float RES_DIFF2 = 2;
 float fStart = 0.3;
 float fEnd = 0.6;
 
+long is565;
+
 extern long numPixelsDrawn; 
 
 
@@ -1216,8 +1218,26 @@ void DirectXFlip(void)
 	
 	if (runHardware)
 	{
+		long r,g,b;
 		DDINIT(m);
-		m.dwFillColor = D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0);
+		if (a565Card)
+		{
+			r = (fog.r*0x1f)/256.0 ;
+			g = (fog.g*0x3f)/256.0 ;
+			b = (fog.b*0x1f)/256.0 ;
+
+			
+			m.dwFillColor = r<<11 | g<<5 | b;
+		}
+		else
+		{
+			r = (fog.r*0x1f)/256.0 ;
+			g = (fog.g*0x1f)/256.0 ;
+			b = (fog.b*0x1f)/256.0 ;
+
+			
+			m.dwFillColor = r<<10 | g<<5 | b;
+		}
 		//D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
 		while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
 	
@@ -1252,7 +1272,7 @@ void SetupRenderstates(void)
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
 
 	//Pixel Fog
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_LINEAR );
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_NONE);//
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
 
