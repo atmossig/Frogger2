@@ -599,7 +599,8 @@ int main ( )
 //			if (padData.debounce[0] & PAD_L1)
 			if( (padData.debounce[0] & PAD_L1))
 			{
-				textureShowVRAM(1); // 1 = PAL mode
+//				textureShowVRAM(1); // 1 = PAL mode
+				froggerShowVRAM(1);
 				continue;
 			}
 #endif
