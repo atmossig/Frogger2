@@ -487,119 +487,119 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int i;
 	switch (msg)
 	{
-		case WM_ACTIVATEAPP:
-			if(wParam)
+	case WM_ACTIVATEAPP:
+		if(wParam)
+		{
+			winActive = 1;
+			for(i = 0;i < NUM_SRF;i++)
+				if(surface[i])
+					surface[i]->Restore();
+		}
+		else
+			winActive = 0;
+		break;
+
+	case WM_LBUTTONDOWN:
+		lButton = 1;
+		break;
+	
+	case WM_LBUTTONUP:
+		lButton = 0;
+		break;
+
+	case WM_RBUTTONDOWN:
+		rButton = 1;
+		break;
+	
+	case WM_RBUTTONUP:
+		rButton = 0;
+		break;
+
+	case WM_SYSKEYDOWN:
+	case WM_KEYDOWN:
+		if (debugKeys)
+		{
+			if (wParam == VK_F11)
 			{
-				winActive = 1;
-				for(i = 0;i < NUM_SRF;i++)
-					if(surface[i])
-						surface[i]->Restore();
-			}
-			else
-				winActive = 0;
-			break;
-
-		case WM_LBUTTONDOWN:
-			lButton = 1;
-			break;
-		
-		case WM_LBUTTONUP:
-			lButton = 0;
-			break;
-
-		case WM_RBUTTONDOWN:
-			rButton = 1;
-			break;
-		
-		case WM_RBUTTONUP:
-			rButton = 0;
-			break;
-
-		case WM_SYSKEYDOWN:
-		case WM_KEYDOWN:
-			if (debugKeys)
-			{
-				if (wParam == VK_F11)
-				{
-					showSounds = !showSounds;
-					return 0;
-				}
-				
-				if (wParam == VK_NUMLOCK)
-				{
-					WriteTexturesToFile();
-					return 0;
-				}
-
-				if( showSounds )
-				{
-					if( dispSample )
-					{
-						if( wParam == VK_UP )
-							dispSample = dispSample->prev;
-						else if( wParam == VK_DOWN )
-							dispSample = dispSample->next;
-					}
-
-					if( wParam == VK_RETURN )
-						siPlaySound = 1;
-
-					if( dispSample == &soundList.head )
-						dispSample = soundList.head.next;
-
-					return 0;
-				}
-
-#ifndef FINAL_MASTER
-				if (wParam == VK_F10)
-				{
-					editorOk = !editorOk;
-					keysEnabled = !keysEnabled;
-					dkPressed += editorOk;
-				}
-#endif
-			}
-			break;
-
-		case WM_CHAR:
-
-			if (textEntry > 0)
-			{
-				TextInput((char)wParam);
-			}
-/*
-			if( chatFlags & CHAT_INPUT )
-			{
-				ChatInput((char)wParam);
+				showSounds = !showSounds;
 				return 0;
 			}
+			
+			if (wParam == VK_NUMLOCK)
+			{
+				WriteTexturesToFile();
+				return 0;
+			}
+
+			if( showSounds )
+			{
+				if( dispSample )
+				{
+					if( wParam == VK_UP )
+						dispSample = dispSample->prev;
+					else if( wParam == VK_DOWN )
+						dispSample = dispSample->next;
+				}
+
+				if( wParam == VK_RETURN )
+					siPlaySound = 1;
+
+				if( dispSample == &soundList.head )
+					dispSample = soundList.head.next;
+
+				return 0;
+			}
+
+#ifndef FINAL_MASTER
+			if (wParam == VK_F10)
+			{
+				editorOk = !editorOk;
+				keysEnabled = !keysEnabled;
+				dkPressed += editorOk;
+			}
+#endif
+		}
+		break;
+
+	case WM_CHAR:
+
+		if (textEntry > 0)
+		{
+			TextInput((char)wParam);
+		}
+/*
+		if( chatFlags & CHAT_INPUT )
+		{
+			ChatInput((char)wParam);
+			return 0;
+		}
 */
 
 #ifndef FINAL_MASTER
-			if (editorOk)	// only when editor is set up to "grab" keyboard data
-			{
-				EditorKeypress((char)wParam);
-				return 0;
-			}
-#endif
-			return 1;
-			break;
-
-		case MM_MCINOTIFY:
+		if (editorOk)	// only when editor is set up to "grab" keyboard data
 		{
-			// Loop cd track when it finishes
-			switch( (int)wParam )
-			{
-			case MCI_NOTIFY_SUCCESSFUL:
-				LoopSong();
-				break;
-			}
+			EditorKeypress((char)wParam);
+			return 0;
+		}
+#endif
+		return 1;
+		break;
 
+	case MM_MCINOTIFY:
+	{
+		// Loop cd track when it finishes
+		switch( (int)wParam )
+		{
+		case MCI_NOTIFY_SUCCESSFUL:
+			LoopSong();
 			break;
 		}
 
-		default:
-			return 1;
+		break;
+	}
+
+	default:
+		return 1;
 	}
 
 	return 0;
@@ -921,9 +921,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Init network game, then do a weirdass check - ds
 	res = StartNetworkGame(mdxWinInfo.hWndMain, networkGame);
 
-	if (networkGame && !res)
+	if ((networkGame && res==0) || res == -1)
 		return 1;
-	else if (res)
+	else if (res == 1)
 		networkGame = 1;
 
 	InitInputDevices();

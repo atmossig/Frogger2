@@ -148,7 +148,7 @@ BEGIN
 END
 
 IDD_MULTI_START DIALOG DISCARDABLE  0, 0, 362, 206
-STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Frogger2 Multiplayer: Start the game!"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -267,8 +267,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_HASBROI             ICON    DISCARDABLE     "hasbroi.ico"
 IDI_FROGGER2            ICON    DISCARDABLE     "frogger2.ico"
+IDI_HASBROI             ICON    DISCARDABLE     "hasbroi.ico"
 IDI_BLITZ               ICON    DISCARDABLE     "blitz.ico"
 IDI_GAMES               ICON    DISCARDABLE     "games.ico"
 
