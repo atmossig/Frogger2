@@ -647,7 +647,7 @@ int ToggleRectFlagSelection(int ax, int ay, int bx, int by, EDITGROUP *selection
 int GetSelectionTileState(EDITGROUP *group)
 {
 	EDITGROUPNODE *node;
-	int state;
+	unsigned int state;
 
 	if (!group->nodes) return -1;
 
