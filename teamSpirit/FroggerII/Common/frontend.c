@@ -47,9 +47,6 @@ void RunFrontEnd ( void )
 		case DEVELOPMENTMENU_MODE:
 				RunDevelopmentMenu();
 			break;
-		case OBJVIEW_MODE:
-				RunObjectViewer();
-			break;
 
 		case SNDVIEW_MODE:
 				RunSndView();
