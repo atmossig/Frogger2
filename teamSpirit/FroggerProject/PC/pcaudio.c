@@ -290,8 +290,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		vol *= (att-dist)/att;
 
 		//work out pan
-		dist = Aabs(atan2(diff.vx, diff.vz));
-		pan = (255/PI) * (FindShortestAngle(Fabs(check.vy+PI/2)*4096,dist*4096)/4096.0);
+		dist = Fabs(atan2((float)diff.vx, (float)diff.vz));
+		pan = (255.0/PI) * (FindShortestAngle( (fixed)(Fabs(check.vy+PI/2)*4096), (fixed)(dist*4096) )/4096.0);
 	}
 
 	if( sample->flags & SFXFLAGS_LOOP )
@@ -400,12 +400,27 @@ int UpdateLoopingSample( AMBIENT_SOUND *sample )
 	unsigned long bufStatus, vol=sample->volume;
 	long pan;
 	float att, dist;
-	MDX_VECTOR diff;
+	SVECTOR diff, check;
 
 	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
 
-	if( mdxMagnitudeSquared(&sample->pos) )
+	if( sample->pos.vx || sample->pos.vy || sample->pos.vz )
 	{
+		att = (sample->radius)?sample->radius:DEFAULT_SFX_DIST;
+		SetVectorSS( &check, currPlatform[0]?&currPlatform[0]->pltActor->actor->position:&currTile[0]->centre );
+
+		SubVectorSSS( &diff, &sample->pos, &check );
+		// Volume attenuation - check also for radius != 0 and use instead of default
+		dist = (float)MagnitudeS( &diff )/4096.0;
+		if( dist > att )
+			vol=0; //return FALSE;
+
+		vol *= (att-dist)/att;
+
+		//work out pan
+		dist = Fabs(atan2((float)diff.vx, (float)diff.vz));
+		pan = (255.0/PI) * (FindShortestAngle( (fixed)(Fabs(check.vy+PI/2)*4096), (fixed)(dist*4096) )/4096.0);
+/*
 		att = (sample->radius)?sample->radius:DEFAULT_SFX_DIST;
 
 		SubVector( &diff, &sample->pos, &frog[0]->actor->position );
@@ -419,6 +434,7 @@ int UpdateLoopingSample( AMBIENT_SOUND *sample )
 		//work out pan
 		dist = Aabs(atan2(diff.vx, diff.vz));
 		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->position.vy+PI/2),dist);
+		*/
 	}
 
 	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
@@ -605,7 +621,7 @@ void UpdateAmbientSounds()
 		}
 
 		// If sound doesn't have a source
-		if( !mdxMagnitudeSquared(&amb->pos) )
+		if( !(amb->pos.vx || amb->pos.vy || amb->pos.vz) )
 			pos = NULL;
 		else
 			pos = &amb->pos;
