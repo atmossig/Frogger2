@@ -18,7 +18,8 @@
 
 
 char inF[255],outF[255];
-char pc = 0;
+
+enum { pc_source, psx_data } outputVersion;
 
 enum
 {
@@ -52,10 +53,14 @@ enum
 	CONV1FAST,
 	CONV2FAST,
 	CONV3FAST,
-//	FROGGER1AREA,
-//	FROGGER2AREA,
-//	FROGGER3AREA,
-//	FROGGER4AREA,
+	CONV0ONEWAY,
+	CONV1ONEWAY,
+	CONV2ONEWAY,
+	CONV3ONEWAY,
+	FROGGER1AREA,
+	FROGGER2AREA,
+	FROGGER3AREA,
+	FROGGER4AREA,
 
 	NUM_MATERIALS
 };
@@ -92,10 +97,14 @@ const char* materialnames[NUM_MATERIALS] =
 	"conveyor1fast",
 	"conveyor2fast",
 	"conveyor3fast",
-//	"frogger1area",
-//	"frogger2area",
-//	"frogger3area",
-//	"frogger4area"
+	"slide0",
+	"slide1",	// short names for slidey conveyors
+	"slide2",
+	"slide3",
+	"frogger1area",
+	"frogger2area",
+	"frogger3area",
+	"frogger4area"
 };
 
 int numFrogs = 0;
@@ -131,11 +140,11 @@ struct face
 
 struct square
 {
-	vtx	centre; //Centrepoint
-	vtx   n[4]; //normals to squares
-	//vtx   ed[4]; //Edges
+	vtx	centre;		// Centrepoint
+	vtx   n[4];		// camera vectors to adjacent squares
+	//vtx   ed[4];	// Edges
 	long ed[4];
-	vtx	  vn;
+	vtx	  vn;		// Normal (up vector)
 	int adj[4];
 	char status;
 };
@@ -146,6 +155,7 @@ struct cam_plane
 {
 	vtx normal;
 	float k;
+	unsigned long status;
 };
 
 #define MAX_CAM_VERTS	20
@@ -410,7 +420,7 @@ void CalcCameraBox(void)
 {
 	vtx normal, v[3];
 	float k;
-	int i;
+	int i, num_bounding = 0;
 
 	build_camera_box *box = &testcambox;
 
@@ -436,13 +446,21 @@ void CalcCameraBox(void)
 
 		p->normal = normal;	p->k = k;
 		
+		if (box->triangles[i].mat == JOIN)
+			p->status = 0;
+		else
+		{
+			p->status = 1;
+			num_bounding++;
+		}
+		
 		num_cam_planes++, p++;
 		b->num_planes++;
 	}
 
 	num_cam_boxes++;
 
-	printf("(%d planes)", b->num_planes);
+	printf("(%d planes, %d bounding)", b->num_planes, num_bounding);
 }
 
 
@@ -522,7 +540,7 @@ void TileMaterial(int mat, int nSquare)
 			PutTileChar('£');
 			tileType = TILESTATE_BARRED;
 			break;
-/*
+
 		case FROGGER1AREA:
 		case FROGGER2AREA:
 		case FROGGER3AREA:
@@ -530,7 +548,7 @@ void TileMaterial(int mat, int nSquare)
 			PutTileChar('1'+(mat-FROGGER1AREA));
 			tileType = TILESTATE_FROGGER1AREA+(mat-FROGGER1AREA);
 			break;
-*/
+
 		case CONV0:
 		case CONV1:
 		case CONV2:
@@ -553,6 +571,14 @@ void TileMaterial(int mat, int nSquare)
 		case CONV3FAST:
 			PutTileChar('^');
 			tileType = mat - CONV0FAST + TILESTATE_CONVEYOR_FAST;
+			break;
+
+		case CONV0ONEWAY:
+		case CONV1ONEWAY:
+		case CONV2ONEWAY:
+		case CONV3ONEWAY:
+			PutTileChar('/');
+			tileType = mat - CONV0FAST + TILESTATE_CONVEYOR_ONEWAY;
 			break;
 	}
 
@@ -869,6 +895,8 @@ int ProcessFaceInfo(face *f, char *in)
 
 	//while ((in[0]!=0) && (strncmp(in,"*MESH_MTLID",11)!=0))in++;
 
+	f->used = false;
+
 	while (1)
 	{
 		while (*in && (*in != '*')) in++;
@@ -964,6 +992,9 @@ void ProcessLine(char *in)
 			if (strncmp(name, "cam_", 4) == 0)
 			{
 				inObj = cam_box;
+				testcambox.num_triangles = 0;
+				testcambox.num_vertices = 0;
+				
 				printf("\n\t+ %s ", name);
 			}
 			else if (strcmp(name, "collision") == 0)
@@ -1066,6 +1097,79 @@ bool ReadData(void)
 
 	return true;
 }
+
+
+/* --------------------------------------------------------------------------------
+	Function	: WriteData2
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
+
+int WriteInt(FILE *f, int i)
+{
+	int rit = fwrite(&i, 4, 1, f);
+	if (rit != 1)
+		printf("Bugger!\n");
+	return rit;
+}
+
+int WriteShort(FILE *f, short s)
+{
+	int rit = fwrite(&s, 2, 1, f);
+	if (rit != 1)
+		printf("Bugger!\n");
+	return rit;
+}
+
+#define RECORDSIZE		92
+
+#define WRITEINT(v)		WriteInt(f, (int)(v))
+#define WRITEINDEX(v)	WriteInt(f, ((v)==-1) ? -1 : (v)*RECORDSIZE)
+#define WRITESHORT(v)	WriteShort(f, (short)(v))
+
+void WritePSXTileData(FILE *f)
+{
+	int i, tile;
+
+	WRITEINT(nSquare);
+	WRITEINDEX(frogs[0]);
+	WRITEINT(numBabys);
+
+	for (i=0; i<numBabys; i++)
+		WRITEINT(babys[i]);
+
+	for (tile = 0; tile<nSquare; tile++)
+	{
+		for (i=0; i<4; i++)
+			WRITEINDEX(squareList[tile].adj[i]);
+
+		if (tile == nSquare-1)
+			WRITEINDEX(-1);
+		else
+			WRITEINDEX(tile+1);
+
+		WRITEINT(squareList[tile].status);
+		
+		WRITESHORT(squareList[tile].centre.x);
+		WRITESHORT(squareList[tile].centre.y);
+		WRITESHORT(squareList[tile].centre.z);
+		WRITESHORT(0);
+
+		WRITEINT(squareList[tile].vn.x * 4096);
+		WRITEINT(squareList[tile].vn.y * 4096);
+		WRITEINT(squareList[tile].vn.z * 4096);
+		
+		for (i=0; i<4; i++)
+		{
+			WRITEINT(squareList[tile].n[i].x * 4096);
+			WRITEINT(squareList[tile].n[i].y * 4096);
+			WRITEINT(squareList[tile].n[i].z * 4096);
+		}
+	}
+}
+
+
 
 /* --------------------------------------------------------------------------------
 	Function	: WriteData
@@ -1264,7 +1368,9 @@ void WriteCameras(FILE *f)
 
 	for (i = 0, p = camera_planes; i < num_cam_planes; i++, p++)
 	{
-		fprintf(f, "\t{ { %f, %f, %f }, %0.2f, 0 }", p->normal.x, p->normal.y, p->normal.z, p->k);
+		fprintf(f, "\t{ { %f, %f, %f }, %0.2f, %d }",
+			p->normal.x, p->normal.y, p->normal.z,
+			p->k, p->status);
 		
 		if (i<(num_cam_planes-1)) putc(',', f);
 		putc('\n', f);
@@ -1284,43 +1390,20 @@ void WriteCameras(FILE *f)
 
 	fprintf(f, "};\n\n");
 
-	fprintf(f, "CAM_BOX_LIST camera_list = { %d, camera_boxes };\n\n");
+	fprintf(f, "CAM_BOX_LIST camera_list = { %d, camera_boxes };\n\n", num_cam_boxes);
 }
 
-/* --------------------------------------------------------------------------------
-	Function	: WriteData
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-*/
-
-int WriteData(void)
+int WritePCSource(const char* outF)
 {
 	FILE *out;
 
-	if (numFrogs == 0)
-	{
-		puts("Error: No start tiles");
-		return 0;
-	}
-
-	if (numFrogs>4)
-	{
-		puts("Error: More than 4 start tiles");
-		return 0;
-	}
-	
-	printf ("Writing %s..",outF);
+	printf ("Writing C source file %s..",outF);
 	out = fopen (outF,"wt");
 
 	fprintf(out,"/* Squares: %04lu  Faces:%4lu */\n\n",nSquare,nFace);
 
 	fputs (CFILE_HEADER,out);
-	if (pc)
-		fputs (CFILEPC_INCLUDES,out);
-	else
-		fputs (CFILE_INCLUDES,out);
-
+	fputs (CFILEPC_INCLUDES,out);
 	fputs (CFILE_BREAK,out);
 
 	WriteExterns (out);
@@ -1331,7 +1414,6 @@ int WriteData(void)
 
 	WriteCameras (out);
 	
-	if (pc)
 	fprintf(out,"\n"
 		"#define EXPORT extern \"C\" __declspec( dllexport )\n"
 		"\n"
@@ -1382,6 +1464,51 @@ int WriteData(void)
 	return 1;
 }
 
+int WritePSXData(const char* outF)
+{
+	FILE *f;
+
+	printf ("Writing PSX data file %s..",outF);
+	f = fopen(outF, "wb");
+	if (!f)
+	{
+		fprintf(stderr, "Couldn't open file!\n");
+		return 0;
+	}
+	WritePSXTileData(f);
+	fclose(f);
+	printf ("done\n");
+
+	return 1;
+}
+
+/* --------------------------------------------------------------------------------
+	Function	: WriteData
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void 
+*/
+
+int WriteData(void)
+{
+	if (numFrogs == 0)
+	{
+		puts("Error: No start tiles");
+		return 0;
+	}
+
+	if (numFrogs>4)
+	{
+		puts("Error: More than 4 start tiles");
+		return 0;
+	}
+	
+	if (outputVersion == psx_data)
+		return WritePSXData(outF);
+	else
+		return WritePCSource(outF);
+}
+
 /* --------------------------------------------------------------------------------
 	Function	: main 
 	Purpose		:
@@ -1398,13 +1525,19 @@ int main (int argc, char *argv[])
 	
 	if (argc < 3)
 	{		
-		printf("Parameters: [Infile] [OutFile]\n");
+		printf(
+			"Parameters: [Infile] [OutFile]\n"
+			"/pc\tOutput C source\n"
+			"/psx\tOutput PSX-compatible raw data\n"
+		);
 		exit (1);
 	}
 	else if (argc > 3)
 	{
-		if (!_strnicmp("/PC", argv[3], 3))
-			pc = 1;
+		if (strcmp("/pc", argv[3]) == 0)
+			outputVersion = pc_source;
+		else if (strcmp("/psx", argv[3]) == 0)
+			outputVersion = psx_data;
 		else
 		{
 			printf("Unrecognised parameter\n");
