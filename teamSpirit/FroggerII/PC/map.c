@@ -30,9 +30,6 @@ GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;
 
-#define LOADWITHEDITOR
-
-
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadMapBank

@@ -66,10 +66,10 @@ int FrogOnTile( TRIGGER *trigger )
 */
 int FrogOnPlatform( TRIGGER *trigger )
 {
-	ACTOR2 *frog = (ACTOR2 *)trigger->data[0];
-	PLATFORM *plt = (PLATFORM *)trigger->data[1];
+	int pl = (int)trigger->data[0];
+	int id = (int)trigger->data[1];
 
-	if( plt->carrying == frog )
+	if (currPlatform[pl] && (currPlatform[pl]->uid == id))
 		return 1;
 
 	return 0;

@@ -185,6 +185,48 @@ int OnCounterEquals(TRIGGER *t)
 	return (scriptCounters[c] == v);
 }
 
+
+/*	--------------------------------------------------------------------------------
+    Function	: EnumPlatforms
+	Purpose		: Calls a function for every platform with a given UID
+	Parameters	: 
+	Returns		: 
+
+	func takes two params, the platform and the 'param' passed to EnumPlatforms
+*/
+
+int EnumPlatforms(long id, int (*func)(PLATFORM*, int), int param)
+{
+	PLATFORM *cur;
+	int count;
+
+	for(cur = platformList.head.next; cur != &platformList.head; cur = cur->next, count++)
+	{
+		if (!id || cur->uid == id)
+		{
+			if (!func(cur, param)) break;
+		}
+	}
+
+	return count;
+}
+
+int EnumEnemies(long id, int (*func)(ENEMY*, int), int param)
+{
+	ENEMY *cur;
+	int count;
+
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next, count++)
+	{
+		if (!id || cur->uid == id)
+		{
+			if (!func(cur, param)) break;
+		}
+	}
+
+	return count;
+}
+
 /*	--------------------------------------------------------------------------------
     Function		: LoadTrigger
 	Parameters		: UBYTE*
@@ -224,13 +266,12 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			PLATFORM *platform;
 
 			params = AllocArgs(2);
-			params[0] = (void*)frog[MEMGETBYTE(p)];
-			if (!(platform = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
-			params[1] = (void*)platform;
+			(int)params[0] = MEMGETBYTE(p);
+			(int)params[1] = MEMGETWORD(p);
 			trigger = MakeTrigger(FrogOnPlatform, params);
 		}
 		break;
-
+/*
 	case TR_PLATNEARPOINT:
 		{
 			PLATFORM *platform; VECTOR *v;
@@ -264,7 +305,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			trigger = MakeTrigger(ActorWithinRadius, params);
 		}
 		break;
-
+*/
 	case TR_ENEMYATFLAG:
 		{
 			ENEMY *enemy;
@@ -394,7 +435,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 	Parameters		: ENEMY*, int
 	Returns			: 
 */
-void SetEnemy(ENEMY *nme, int v)
+int SetEnemy(ENEMY *nme, int v)
 {
 	switch (v)
 	{
@@ -427,6 +468,8 @@ Vis:
 	case FS_SET_TOGGLEVIS:
 		if (nme->active) goto Invis; else goto Vis;
 	}
+
+	return 1;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -434,7 +477,7 @@ Vis:
 	Parameters		: PLATFORM*, int
 	Returns			: 
 */
-void SetPlatform(PLATFORM *plt, int v)
+int SetPlatform(PLATFORM *plt, int v)
 {
 	switch (v)
 	{
@@ -467,7 +510,18 @@ Vis:
 	case FS_SET_TOGGLEVIS:
 		if (plt->active) goto Invis; else goto Vis;
 	}
+
+	return 1;
 }
+
+/*	-------------------------------------------------------------------------------- */
+
+
+int SetEnemyFlag(ENEMY *e, int flag)	{ e->flags |= flag; return 1; }
+int ResetEnemyFlag(ENEMY *e, int flag)	{ e->flags &= ~flag; return 1; }
+
+int SetPlatformFlag(PLATFORM *p, int flag)		{ p->flags |= flag;	RecalculatePlatform(p); return 1; }
+int ResetPlatformFlag(PLATFORM *p, int flag)	{ p->flags &= ~flag; RecalculatePlatform(p); return 1; }
 
 /*	--------------------------------------------------------------------------------
     Function		: ExecuteCommand
@@ -509,50 +563,35 @@ BOOL ExecuteCommand(UBYTE **p)
 			break;
 		}
 
-	case EV_SETENEMYFLAG:
+	case EV_SETENEMY:
 		{
-			ENEMY *nme;
-			int flag;
-			if (!(nme = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
-			flag = MEMGETINT(p);
-			nme->flags |= flag;
-
-			break;
+			int id = MEMGETWORD(p), f = MEMGETBYTE(p);
+			if (EnumEnemies(id, SetEnemy, f) == 0) return 0;
 		}
+		break;
+
+	case EV_SETPLATFORM:
+		{
+			int id = MEMGETWORD(p), f = MEMGETBYTE(p);
+			if (EnumPlatforms(id, SetPlatform, f) == 0) return 0;
+		}
+		break;
+
+	case EV_SETENEMYFLAG:
+		if (EnumEnemies(MEMGETWORD(p), SetEnemyFlag, MEMGETINT(p)) == 0) return 0;
+		break;
 		
 	case EV_RESETENEMYFLAG:
-		{
-			ENEMY *nme;
-			int flag;
-			if (!(nme = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
-			flag = MEMGETINT(p);
-			nme->flags &= ~flag;
-
-			break;
-		}
-
+		if (EnumEnemies(MEMGETWORD(p), ResetEnemyFlag, MEMGETINT(p)) == 0) return 0;
+		break;
 
 	case EV_SETPLATFLAG:
-		{
-			PLATFORM *plt;
-			int flag;
-			if (!(plt = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
-			flag = MEMGETINT(p);
-			plt->flags |= flag;
-			RecalculatePlatform(plt);
-			break;
-		}
+		if (EnumPlatforms(MEMGETWORD(p), SetPlatformFlag, MEMGETINT(p)) == 0) return 0;
+		break;
 
 	case EV_RESETPLATFLAG:
-		{
-			PLATFORM *plt;
-			int flag;
-			if (!(plt = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
-			flag = MEMGETINT(p);
-			plt->flags &= ~flag;
-			RecalculatePlatform(plt);
-			break;
-		}
+		if (EnumPlatforms(MEMGETWORD(p), ResetPlatformFlag, MEMGETINT(p)) == 0) return 0;
+		break;
 		
 	case EV_ANIMATEACTOR:
 		{
@@ -568,26 +607,6 @@ BOOL ExecuteCommand(UBYTE **p)
 			speed = MEMGETFLOAT(p);
 
 			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed,0,0);
-			break;
-		}
-
-	case EV_SETENEMY:
-		{
-			ENEMY *nme;
-			nme = GetEnemyFromUID(MEMGETWORD(p));
-			if (!nme) return 0;
-
-			SetEnemy(nme, MEMGETBYTE(p));
-			break;
-		}
-
-	case EV_SETPLATFORM:
-		{
-			PLATFORM *plt;
-			plt = GetPlatformFromUID(MEMGETWORD(p));
-			if (!plt) return 0;
-
-			SetPlatform(plt, MEMGETBYTE(p));
 			break;
 		}
 
