@@ -204,7 +204,7 @@ int cardRead(char *memCardName, void *gSaveData, int gameSaveDataSize)
 	cardDisplay(LCD_loading);
 	while(!pdVmsLcdIsReady(vmuPortToUse))
 	{
-		if(timeOut++ > 1000)
+		if(timeOut++ > 100)
 			return 	CARDREAD_NOCARD;
 	}
 
@@ -217,7 +217,7 @@ int cardRead(char *memCardName, void *gSaveData, int gameSaveDataSize)
 		switch (gState)
 		{
 		case S_NOT_READY:
-			if(timeOut++ > 1000)
+			if(timeOut++ > 100)
 				return 	CARDREAD_NOCARD;
 
 			if (binfo->Ready)
