@@ -312,20 +312,18 @@ void UpdatePathNME( ENEMY *cur )
 
 	if (cur->flags & ENEMY_NEW_PUSHESFROG)
 	{
-		GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
+		//GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
 
-/*		VECTOR v;
+		VECTOR v;
 		AddVector(&v, &cur->nmeActor->actor->pos, &fwd);
 		SubFromVector(&v, &frog[0]->actor->pos);
-*/
 
-
-//		if (MagnitudeSquared(&v) < 50*50)
-
-		if (tile == currTile[0])
+		if (MagnitudeSquared(&v) < 1000 && player[0].canJump)
+		//if (tile == currTile[0])
 		{
 			PushFrog(&cur->nmeActor->actor->pos, &fwd, 0);
 			player[0].canJump = 0;
+			AnimateActor(frog[0]->actor, FROG_ANIM_FORWARDSOMERSAULT, NO, NO, 0.6f, 0, 0);
 
 /*
 			if (cur->path->toNode < (cur->path->numNodes - 1))

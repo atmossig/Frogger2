@@ -37,7 +37,7 @@ unsigned long longHopFrames		= 24;
 unsigned long quickHopFrames	= 4;
 unsigned long floatFrames       = 30;
 unsigned long iceFrames			= 10;
-unsigned long conveyorFrames	= 15;
+unsigned long conveyorFrames[3] = { 24, 18, 12 };
 
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
@@ -1091,7 +1091,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	}
 	else
 	{
-		if(actFrameCount > player[pl].jumpEndFrame)
+		if(destTile[pl] && actFrameCount > player[pl].jumpEndFrame)
 		{
 			// set frog to centre of tile
 			SetVector(&frog[pl]->actor->pos,&destTile[pl]->centre);
@@ -1172,13 +1172,20 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				{	
 					// -------------------------------- Conveyors ----------------------------
 
-					int dir = currTile[pl]->state & (TILESTATE_CONVEYOR-1);
-
-					MoveToRequestedDestination((dir - camFacing) & 3, pl);
+					MoveToRequestedDestination(
+						((state & (TILESTATE_CONVEYOR-1)) - camFacing) & 3, pl);
 
 					if (destTile[pl])
 					{
+						int speed;
 						GAMETILE *fromTile = currTile[pl];
+
+						if (state > TILESTATE_CONVEYOR_FAST)
+							speed = 2;
+						else if (state > TILESTATE_CONVEYOR_MED)
+							speed = 1;
+						else
+							speed = 0;
 
 						//if (actFrameCount > (player[pl].jumpStartFrame + player[pl].jumpEndFrame) / 2)
 						//	currTile[pl] = destTile[pl];
@@ -1186,7 +1193,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 						CalculateFrogJump(
 							&frog[pl]->actor->pos, &fromTile->normal, 
 							&destTile[pl]->centre, &currTile[pl]->normal,
-							conveyorFrames, pl, 0.0, NOINIT_VELOCITY);
+							conveyorFrames[speed], pl, 0.0, NOINIT_VELOCITY);
 
 					}
 				}
