@@ -741,9 +741,9 @@ void RunGameLoop (void)
 		
 	if(frameCount == 1)
 	{
-//		POLYGON *fp;
-//		TEXTURE *ftex;
-//		VECTOR firePos;
+		POLYGON *fp;
+		TEXTURE *ftex;
+		VECTOR firePos;
 
 		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
 		{
@@ -807,19 +807,16 @@ void RunGameLoop (void)
 		lastActFrameCount = 0;
 
 		// Temporary test for procedural textures
-		/*
 		SetVector( &firePos, &frog[0]->actor->pos );
 
 		firePos.v[Y] += 30;
 		FindTexture( &ftex, UpdateCRC("prc_fire1.bmp"), YES );
-		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
+		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 16, 32 );
 		fp->v1 = 28.0f/32.0f;
 
-		firePos.v[Y] += 30;
 		firePos.v[X] += 60;
 		FindTexture( &ftex, UpdateCRC("prc_ffld1.bmp"), YES );
 		CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
-		*/
 	}
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)

@@ -56,7 +56,7 @@ extern void dp(char *format, ...);
 extern float fStart;
 extern float fEnd;
 
-extern void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, short *pal );
+extern void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *pal );
 
 
 #ifdef __cplusplus

@@ -26,9 +26,8 @@ POLYGON *rpList = NULL;
 */
 void ProcessPTFire( PROCTEXTURE *pt )
 {
-	unsigned long i = 1024,j;
+	unsigned long i,j,t;
 	unsigned char *tmp;
-	unsigned long t;
 	short p;
 
 	// Copy resultant buffer into texture
@@ -79,9 +78,10 @@ void ProcessPTFire( PROCTEXTURE *pt )
 */
 void ProcessPTForcefield( PROCTEXTURE *pt )
 {
-	unsigned long i = 1024,j;
+	unsigned long i,j;
 	unsigned char *tmp;
 	unsigned long t;
+	unsigned short res;
 	short p;
 
 	// Copy resultant buffer into texture
@@ -93,23 +93,18 @@ void ProcessPTForcefield( PROCTEXTURE *pt )
 	// N64 surface blit
 #endif
 
-	for( i=0; i<9; i++ )
+	p = ((Random(30)+1)*32) + Random(30)+1;
+	pt->buf1[p] = 0xff;
+	pt->buf1[p+1] = 0xff;
+	pt->buf1[p-1] = 0xff;
+	pt->buf1[p-32] = 0xff;
+	pt->buf1[p+32] = 0xff;
+
+	for (i=0; i<1024; i++)
 	{
-		p = ((Random(30)+1)*32) + Random(30)+1;
-		pt->buf1[p] = 0xff;
-		pt->buf1[p+1] = 0xff;
-		pt->buf1[p-1] = 0xff;
-		pt->buf1[p-32] = 0xff;
-		pt->buf1[p+32] = 0xff;
+		res = (pt->buf1[i] + pt->buf1[(i-32)&1023] + pt->buf1[(i-1)&1023]-2)>>2;
+		pt->buf2[i] = (unsigned char)res;
 	}
-	
-	// Smooth, move up and fade
-	for( i=30; i; i-- )
-		for( j=30; j; j-- )
-		{
-			p = (i<<5)+j;
-			pt->buf2[p] = (pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p-32] + pt->buf1[p+32])>>2;
-		}
 
 	// Swap buffers
 	tmp = pt->buf1;
@@ -177,7 +172,7 @@ void FreeProcTextures( )
 void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 {
 	unsigned long i;
-	unsigned long rVand,gVand,bVand,rVshr;
+	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
 	unsigned short newCol,nR,nG,nB,nA;
 #ifdef PC_VERSION
 	TEXENTRY *tx = (TEXENTRY *)tex;
@@ -195,7 +190,7 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	pt->tex = tex;
 	pt->buf1 = (unsigned char *)JallocAlloc( 1024, YES, "ptdata" );  // sizeof(char)*32*32
 	pt->buf2 = (unsigned char *)JallocAlloc( 1024, YES, "ptdata" );  // sizeof(char)*32*32
-	pt->palette = (short *)JallocAlloc( 512, NO, "ptpal" );  // sizeof(short)*256
+	pt->palette = (unsigned short *)JallocAlloc( 512, NO, "ptpal" );  // sizeof(short)*256
 
 	// Convert palette to 4444 format
 	if (a565Card)
@@ -204,6 +199,8 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		gVand = 0x3f;
 		bVand = 0x1f;
 		rVshr = 11;
+		gVshr = 5;
+		bVshr = 0;
 	}
 	else
 	{
@@ -211,15 +208,16 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		gVand = 0x1f;
 		bVand = 0x1f;
 		rVshr = 10;
+		gVshr = 5;
+		bVshr = 0;
 	}
 
-	i=0xff;
-	while( i-- )
+	for( i=0; i<256; i++ )
 	{
 		nR = ((unsigned short *)tx->data)[i] >> rVshr;
-		nG = ((unsigned short *)tx->data)[i] >> 5;
-		nB = ((unsigned short *)tx->data)[i];
-		nA = ((unsigned short *)tx->data)[i+0xff];
+		nG = ((unsigned short *)tx->data)[i] >> gVshr;
+		nB = ((unsigned short *)tx->data)[i] >> bVshr;
+		nA = ((unsigned short *)tx->data)[i+256] >> bVshr;
 		
 		nR &= rVand;
 		nG &= gVand;
