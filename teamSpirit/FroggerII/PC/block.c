@@ -179,7 +179,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	test->lpdsBuffer->lpVtbl->Play ( test->lpdsBuffer, 0, 0, 0 );
 	//InitSaveData();
 
-	playCDTrack ( winInfo.hWndMain, 1 )
+	playCDTrack ( winInfo.hWndMain, 1 );
 
 	gameState.mode		= FRONTEND_MODE;
 	//frontEndState.mode	= TITLE_MODE;
