@@ -1040,6 +1040,7 @@ void DrawGraphics(void *arg)
 
 					if(codeDrawingRequest == FALSE)
 						gfxIsDrawing = FALSE;
+					DoubleBufferSkinVtx();
 				}
 
 				if ( dontClearScreen )
@@ -1066,6 +1067,8 @@ void DrawGraphics(void *arg)
 				ClearFrameBuffer();				
 				
 				SetScissor();
+
+				objectMatrix = 0;
 
 				EndTimer(1,"GRAPHICS");
 
@@ -1106,8 +1109,7 @@ void DrawGraphics(void *arg)
 					//***********************************
 
 					AnimateSprites();
-					if ( !dontDoAnims )
-						XformActorList();
+					XformActorList();
 					// ENDIF
 
 					switch (playMode)
@@ -1151,8 +1153,8 @@ void DrawGraphics(void *arg)
 
 					ClearViewing();
 
-					if(drawScreenGrab)
-						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE );
+//					if(drawScreenGrab)
+//						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE );
 
 					if(testPause)
 						DrawPauseFX();
@@ -1204,8 +1206,8 @@ void DrawGraphics(void *arg)
 				if (!gfxTasks)
 				{
 					StartTimer(3,"GRABB");
-					if(gameState.mode == GAME_MODE && grabFlag )
-						Screen2Texture( );
+//					if(gameState.mode == GAME_MODE && grabFlag )
+//						Screen2Texture( );
 					EndTimer(3);
 				}
 
