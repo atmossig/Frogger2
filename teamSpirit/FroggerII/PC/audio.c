@@ -787,12 +787,12 @@ void FreeAmbientSoundList( )
 	Returns 	: Pointer to mapping array
 	Info 		: 
 */
-void LoadSfxMapping( int world )
+void LoadSfxMapping( int world, int level )
 {
 	unsigned char *in;
 	void *buffer;
 	HANDLE h;
-	char *filename, wnum[3];
+	char *filename, wnum[3], lnum[3];
 	long num, size, read, index, type, i, count, uid;
 
 	index = strlen(baseDirectory) + 24;
@@ -804,6 +804,8 @@ void LoadSfxMapping( int world )
 	// World and level ids are part of the filename
 	_itoa( world, wnum, 10 );
 	strcat( filename, wnum );
+	_itoa( level, lnum, 10 );
+	strcat( filename, lnum );
 	// Extension
 	strcat( filename, ".sam" );
 
