@@ -143,7 +143,6 @@ void ProcessPTWater( PROCTEXTURE *pt )
 		pt->buf1[p] = (pt->buf1[p]>100) ? pt->buf1[p]-100 : 0;
 	}
 
-	// Smooth, move up and fade
 	for( i=30; i; i-- )
 		for( j=30; j; j-- )
 		{
@@ -239,7 +238,13 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	pt->palette = (unsigned short *)JallocAlloc( 512, NO, "ptpal" );  // sizeof(short)*256
 
 	// Convert palette to 4444 format
-	if (a565Card)
+	if (
+#ifdef PC_VERSION
+		a565Card
+#else
+		TRUE
+#endif
+		)
 	{
 		rVand = 0x1f;
 		gVand = 0x3f;
