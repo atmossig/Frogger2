@@ -30,6 +30,9 @@
 #define FS_SET_INVIS		4
 #define FS_SET_VIS			5
 #define FS_SET_TOGGLEVIS	6
+#define FS_SET_DRAW			7
+#define FS_SET_NODRAW		8
+#define FS_SET_TOGGLEDRAW	9
 
 #define SCRIPT_MAX_FLAGS	64
 #define SCRIPT_FLAGS_BYTES	(SCRIPT_MAX_FLAGS/8)
@@ -193,7 +196,10 @@ int FrogOnPath(TRIGGER *t)
 	PATH *p;
 	
 	pl = (int)t->data[0];
-	if (!player[pl].canJump) return 0;
+	
+	// if true, we're either going to land on the tile shortly,
+	// or we're double-jumping over it - skip the test
+	if (player[pl].isSuperHopping) return 0;	
 
 	p = (PATH*)t->data[1];
 
@@ -284,6 +290,18 @@ int SetEnemy(ENEMY *nme, int v)
 	case FS_SET_TOGGLEVIS:
 		SetEnemyVisible(nme, !nme->active);
 		break;
+
+	case FS_SET_DRAW:
+		nme->nmeActor->draw = 1;
+		break;
+
+	case FS_SET_NODRAW:
+		nme->nmeActor->draw = 0;
+		break;
+
+	case FS_SET_TOGGLEDRAW:
+		nme->nmeActor->draw = !nme->nmeActor->draw;
+		break;
 	}
 
 	return 1;
@@ -320,6 +338,18 @@ int SetPlatform(PLATFORM *plt, int v)
 
 	case FS_SET_TOGGLEVIS:
 		SetPlatformVisible(plt, !plt->active);
+		break;
+
+	case FS_SET_DRAW:
+		plt->pltActor->draw = 1;
+		break;
+
+	case FS_SET_NODRAW:
+		plt->pltActor->draw = 0;
+		break;
+
+	case FS_SET_TOGGLEDRAW:
+		plt->pltActor->draw = !plt->pltActor->draw;
 		break;
 	}
 
