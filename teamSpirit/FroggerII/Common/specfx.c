@@ -1042,7 +1042,6 @@ void InitSpecFXList( )
 	FindTexture(&txtrFire,UpdateCRC("ai_flame3.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
-	FindTexture(&txtrLightning,UpdateCRC("ai_electric.bmp"),YES);
 }
 
 
