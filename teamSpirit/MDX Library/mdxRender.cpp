@@ -82,10 +82,10 @@ enum {OUTCODE_LEFT, OUTCODE_RIGHT, OUTCODE_TOP, OUTCODE_BOTTOM};
 						 (((x)<=(x0))<<OUTCODE_LEFT))
 
 // The 2D clip Volume.
-float clx0 = 10,
-      cly0 = 10,
-	  clx1 = 629,
-	  cly1 = 469;
+float clx0 = 1,
+      cly0 = 1,
+	  clx1 = 639,
+	  cly1 = 479;
 
 // Subtracted Square!
 //#define sbsqr(x,y) ((x-y)*(x-y))
@@ -165,7 +165,7 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
 
-void Clip3DPolygon (D3DTLVERTEX in[3], LPDIRECTDRAWSURFACE7 texture)
+void Clip3DPolygon (D3DTLVERTEX in[3], LPDIRECTDRAWSURFACE7 texture,MDX_TEXENTRY *tEntry)
 {
 	D3DTLVERTEX		vList[10];
 	int				out0, out1;
@@ -238,7 +238,7 @@ void Clip3DPolygon (D3DTLVERTEX in[3], LPDIRECTDRAWSURFACE7 texture)
 	
 	if (numFaces)
 	{
-		PushPolys(vIn,vInCount,faceList,j,texture);
+		PushPolys(vIn,vInCount,faceList,j,texture,tEntry);
 	}
 }
 
@@ -493,7 +493,7 @@ void PCPrepareSkinnedObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4
 	}
 }
 
-__fastcall void PCPrepareLandscape (MDX_LANDSCAPE *me)
+void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 {
 	float f[4][4];
 	MDX_VECTOR *in;
@@ -557,6 +557,7 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 	short facesON[3] = {0,1,2};
 	D3DTLVERTEX *v = me->xfmVert;
 	LPDIRECTDRAWSURFACE7 *tex = me->textures;
+	MDX_TEXENTRY **tEnt = me->tEntrys;
 
 	for (int i=0; i<me->numFaces; i++)
 	{
@@ -578,14 +579,17 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,*tex);
+					SampleGraph(i>>1);		
+					PushPolys(v,3,facesON,3,*tex,*tEnt);
 				}
 				else
 				{
-					Clip3DPolygon(v,*tex);
+					SampleGraph(i<<1);		
+					Clip3DPolygon(v,*tex,*tEnt);
 				}
 			}	
 		}
+			tEnt++;
 			tex++;
 			v+=3;		
 	}
@@ -792,11 +796,11 @@ void PCRenderObject (MDX_OBJECT *obj)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,tex->surf);
+					PushPolys(v,3,facesON,3,tex->surf,tex);
 				}
 				else
 				{
-					Clip3DPolygon(v,tex->surf);
+					Clip3DPolygon(v,tex->surf,tex);
 				}
 			}
 		}
@@ -911,7 +915,7 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,tex->surf);
+					PushPolys(v,3,facesON,3,tex->surf,tex);
 
 					// Push Lightmap polys - only for single pass cards.
 					vTemp = v;
@@ -930,14 +934,14 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 					
 					SaveFrame;
 					SwapFrame(MA_FRAME_PHONG);
-					PushPolys(v,3,facesON,3,phong->surf);					
+					PushPolys(v,3,facesON,3,phong->surf,phong);					
 					SwapFrame(MA_FRAME_LIGHTMAP);
-					PushPolys(v,3,facesON,3,lightMap->surf);					
+					PushPolys(v,3,facesON,3,lightMap->surf,phong);					
 					RestoreFrame;
 				}
 				else
 				{
-					Clip3DPolygon(v,tex->surf);
+					Clip3DPolygon(v,tex->surf,tex);
 				}
 			}
 		}
@@ -1061,11 +1065,11 @@ void PCRenderModgyWaterObject (MDX_OBJECT *obj)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,tex->surf);
+					PushPolys(v,3,facesON,3,tex->surf,tex);
 				}
 				else
 				{
-					Clip3DPolygon(v,tex->surf);
+					Clip3DPolygon(v,tex->surf,tex);
 				}
 			}
 		}
@@ -1189,9 +1193,9 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
-					PushPolys(v,3,facesON,3,tex->surf);
+					PushPolys(v,3,facesON,3,tex->surf,tex);
 				else
-					Clip3DPolygon(v,tex->surf);
+					Clip3DPolygon(v,tex->surf,tex);
 			}
 		}
 		

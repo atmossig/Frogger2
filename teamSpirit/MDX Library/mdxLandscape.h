@@ -22,6 +22,7 @@ typedef struct TAG_MDX_LANDSCAPE
 	MDX_VECTOR *vertices;
 	D3DTLVERTEX *xfmVert;	
 	LPDIRECTDRAWSURFACE7 *textures;
+	MDX_TEXENTRY **tEntrys;
 
 	MDX_VECTOR bBox[8];
 	MDX_MATRIX objMatrix;

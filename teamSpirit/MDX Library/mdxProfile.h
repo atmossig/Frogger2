@@ -16,6 +16,10 @@ extern "C"
 {
 #endif
 
+void StartGraph(void);
+void EndGraph(long maxVal);
+void SampleGraph(long value);
+
 void ClearTimers(void);
 void HoldTimers(void);
 void StartTimer(int number,char *name);

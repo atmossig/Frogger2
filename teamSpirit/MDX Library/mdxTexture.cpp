@@ -197,10 +197,28 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				
 				newE->type = TEXTURE_AI;
 				break;
-			}			
-
+			}								
 		}
 
+			newE->xSize = xDim;
+			newE->ySize = yDim;
+			newE->softData = new long[yDim*xDim];
+
+			for (int i=0; i<xDim; i++)
+				for (int j=0; j<yDim; j++)
+				{
+					short dt;
+					unsigned long d,r,g,b;
+					dt = newE->data[i+j*xDim];
+					r = (dt>>10) & 0x1f;
+					g = (dt>>5) & 0x1f;
+					b = (dt) & 0x1f;
+					r<<=3;
+					g<<=3;
+					b<<=3;
+					newE->softData[i+j*xDim] = (r<<16 | g<<8 | b);
+
+				}
 	}
 	else
 		dp("Cannot load texture %s\n",shortn);

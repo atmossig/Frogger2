@@ -42,6 +42,42 @@ long tHold[MAX_TIMERS];
 char *tName[MAX_TIMERS];
 float timerscale = 0.4;
 
+#define MAX_SAMPLES 32000
+
+long graphSTimes[MAX_SAMPLES];
+long graphSValues[MAX_SAMPLES];
+long graphNumPoints;
+long graphMax;
+long graphStart;
+long graphEnd;
+
+void StartGraph(void)
+{
+	LARGE_INTEGER c;
+	QueryPerformanceCounter(&c);
+	graphNumPoints = 0;
+	graphStart = c.QuadPart;
+}
+
+void EndGraph(long maxVal)
+{
+	LARGE_INTEGER c;
+	QueryPerformanceCounter(&c);
+	
+	graphEnd = c.QuadPart;
+	graphMax = maxVal;
+}
+
+void SampleGraph(long value)
+{
+	LARGE_INTEGER c;
+	QueryPerformanceCounter(&c);
+	
+
+	graphSTimes[graphNumPoints] = c.QuadPart;
+	graphSValues[graphNumPoints++] = value;
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: 
 	Purpose			: 
@@ -148,14 +184,19 @@ void PrintTimers(void)
 	RECT r;
 	int i;
 	HDC hdc;
+
+	BeginDraw();
 	
-	pDirect3DDevice->BeginScene();
+	float gMult = 560.0/(graphEnd-graphStart);
+	float gVMult = 100.0/graphMax;
+	
 	
 	r.top = timeY+50-(200/MAX_TIMERS);
 	r.bottom = timeY+49+((MAX_TIMERS+2)*(200/MAX_TIMERS));
 	r.left = 40;
 	r.right = 600;
 	DrawFlatRect(r, D3DRGBA(0,0.1,0,0.8));
+
 
 	r.right = 45;
 	DrawFlatRect(r, D3DRGBA(0,0,1,0.8));
@@ -173,7 +214,56 @@ void PrintTimers(void)
 	r.bottom = timeY+49+((MAX_TIMERS+2)*(200/MAX_TIMERS));
 	r.top = r.bottom - 5;
 	DrawFlatRect(r, D3DRGBA(0,0,1,0.8));
+
+	if (graphNumPoints>3)
+		for (i=0; i<graphNumPoints-1; i++)
+		{
+			long xAim = 40+((graphSTimes[i+1] - graphStart) * gMult);
+			long xVal = 40+((graphSTimes[i] - graphStart) * gMult);
+			
+			r.left = xVal;
+			r.right = xAim;
+			r.bottom = timeY+49+((MAX_TIMERS+2)*(200/MAX_TIMERS));
+
+			if ((graphSValues[i]*gVMult) > graphMax)
+				r.top = r.bottom - graphMax;
+			else
+				r.top = r.bottom - (graphSValues[i]*gVMult);
+			float c = (r.bottom-r.top)/(float)graphMax;
+			
+			DrawFlatRect(r, D3DRGBA(1,c,0,0.5));			
+		}
+
 	
+
+	EndDraw();
+
+	HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
+
+	if (res == DD_OK)
+	{
+		HFONT hfnt, hOldFont;      
+		hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
+		if (hOldFont = (HFONT)SelectObject(hdc, hfnt)) 
+		{
+			SetBkMode(hdc, TRANSPARENT);
+				
+			for (i=0; i<MAX_TIMERS; i++)
+				if (tName[i])
+				{			
+					SetTextColor(hdc, RGB(55,0,0));
+					TextOut(hdc, 61, timeY+49+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
+					SetTextColor(hdc, RGB(255,255,255));
+					TextOut(hdc, 60, timeY+48+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
+				}
+
+			SelectObject(hdc, hOldFont); 
+		}
+
+		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
+	}
+
+	BeginDraw();
 	for ( i=0; i<MAX_TIMERS; i++)
 	{
 		r.top = timeY+50+(i*(200/MAX_TIMERS));
@@ -213,33 +303,8 @@ void PrintTimers(void)
 	r.left = (50+(1000/7)/timerscale);;
 	r.right = (52+(1000/7)/timerscale);
 	DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
-
-	pDirect3DDevice->EndScene();
-
-	HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
-
-	if (res == DD_OK)
-	{
-		HFONT hfnt, hOldFont;      
-		hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
-		if (hOldFont = (HFONT)SelectObject(hdc, hfnt)) 
-		{
-			SetBkMode(hdc, TRANSPARENT);
-				
-			for (i=0; i<MAX_TIMERS; i++)
-				if (tName[i])
-				{			
-					SetTextColor(hdc, RGB(55,0,0));
-					TextOut(hdc, 61, timeY+49+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
-					SetTextColor(hdc, RGB(255,255,255));
-					TextOut(hdc, 60, timeY+48+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
-				}
-
-			SelectObject(hdc, hOldFont); 
-		}
-
-		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
-	}
+	
+	EndDraw();
 	
 }
 

@@ -82,6 +82,7 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 		me->faceIndex = new short[me->numFaces * 3];
 		me->xfmVert = new D3DTLVERTEX[me->numFaces * 3];
 		me->textures = new LPDIRECTDRAWSURFACE7[me->numFaces];
+		me->tEntrys = new MDX_TEXENTRY *[me->numFaces];
 
 		memcpy (me->faceIndex,obj->mesh->faceIndex,sizeof(short)*me->numFaces*3);
 
@@ -93,11 +94,18 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 			me->xfmVert[i].tv = obj->mesh->faceTC[i].v[1] * 0.000975F;
 			me->xfmVert[i].rhw = 0;
 			me->xfmVert[i].specular = D3DRGBA(0,0,0,0);
-			me->xfmVert[i].color = *((long *)(&(obj->mesh->gouraudColors[i].x)));
+			me->xfmVert[i].color = (*((long *)(&(obj->mesh->gouraudColors[i].x))));//0x00ffffff) | D3DRGBA(0,0,0,0.5);
+			
 			if (obj->mesh->textureIDs[i/3])
+			{
 				me->textures[i/3] = obj->mesh->textureIDs[i/3]->surf;
+				me->tEntrys[i/3] = obj->mesh->textureIDs[i/3];
+			}
 			else
+			{
 				me->textures[i/3] = NULL;
+				me->tEntrys[i/3] = NULL;
+			}
 			tFace++;
 		}
 	}

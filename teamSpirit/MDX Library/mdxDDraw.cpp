@@ -139,7 +139,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 			for (i=0; i<dxNumDevices; i++)
 			{
 				
-				if ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D))
+				if ((dxDeviceList[i].guid == (GUID *)-1) || (dxDeviceList[i].caps.dwCaps & DDCAPS_3D))
 				{
 					i1.iItem = i; 
 					i1.pszText = dxDeviceList[i].desc;
@@ -156,6 +156,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					SendMessage (list,LVM_SETITEM,lastIdx,(long)&itm);
 				}
 			}
+
 	
 			ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
 
@@ -202,6 +203,10 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	Info		: 
 */
 
+char *softwareString = "Software Rendering";
+char *softwareDriver = "majikPR";
+
+
 unsigned long DDrawInitObject (GUID *guid)
 {
 	HRESULT		res;
@@ -211,22 +216,50 @@ unsigned long DDrawInitObject (GUID *guid)
 	// Create a base DirectDraw object
 	DirectDrawEnumerateEx(EnumDDDevices, guid, DDENUM_ATTACHEDSECONDARYDEVICES | DDENUM_DETACHEDSECONDARYDEVICES | DDENUM_NONDISPLAYDEVICES);
 
+	dxDeviceList[dxNumDevices].desc = new char [strlen (softwareString)+1];
+	dxDeviceList[dxNumDevices].name = new char [strlen (softwareDriver)+1];
+	
+	strcpy(dxDeviceList[dxNumDevices].desc, softwareString);
+	strcpy(dxDeviceList[dxNumDevices].name, softwareDriver);
+
+	dxDeviceList[dxNumDevices++].guid = (GUID *)-1;
+
+
 	if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
 		return 0;
 
 	ShowCursor(0);
 
 	for (i=0; i<dxNumDevices; i++)
-		if (dxDeviceList[i].idx == selIdx)
+		if ((dxDeviceList[i].idx == selIdx) && ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) || (dxDeviceList[i].guid == (GUID *)-1)))
 			break;
 	
 	dp ("%s\n%s\n",dxDeviceList[i].name,dxDeviceList[i].desc);
 
-	if ((res = DirectDrawCreateEx(dxDeviceList[i].guid, (LPVOID *)&pDirectDraw7,IID_IDirectDraw7, NULL)) != DD_OK)
+	if (dxDeviceList[i].guid == (GUID *)-1)
 	{
-		dp("Failed creating DirectDraw object.\n");
-		ddShowError(res);
-		return 0;
+		rHardware = 0;
+
+		if ((res = DirectDrawCreateEx(NULL, (LPVOID *)&pDirectDraw7,IID_IDirectDraw7, NULL)) != DD_OK)
+		{
+			dp("Failed creating DirectDraw object.\n");
+			ddShowError(res);
+			return 0;
+		}
+		
+		MPR_Init();
+	
+	}
+	else
+	{
+		rHardware = 1;
+
+		if ((res = DirectDrawCreateEx(dxDeviceList[i].guid, (LPVOID *)&pDirectDraw7,IID_IDirectDraw7, NULL)) != DD_OK)
+		{
+			dp("Failed creating DirectDraw object.\n");
+			ddShowError(res);
+			return 0;
+		}
 	}
 
 	DDINIT(ddCaps);													
@@ -236,9 +269,7 @@ unsigned long DDrawInitObject (GUID *guid)
 		ddShowError(res);
 		return 0;
 	}
-	rHardware = (ddCaps.dwCaps & DDCAPS_3D);
-
-	MPR_Init();
+	
 	// We now have a valid object!
 	return 1;
 }
@@ -300,7 +331,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		
 		
 		DDINIT(ddsd);
-		ddsd.ddsCaps.dwCaps =  DDSCAPS_BACKBUFFER | DDSCAPS_3DDEVICE;
+		ddsd.ddsCaps.dwCaps =  DDSCAPS_BACKBUFFER | rHardware?DDSCAPS_3DDEVICE:0;
 		if ((res = surface[PRIMARY_SRF]->GetAttachedSurface (&ddsd.ddsCaps, &surface[RENDER_SRF])) != DD_OK)
 		{
 			dp("Failed getting render surface\n");
@@ -363,7 +394,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 	// Create a render surface
 	
 	// Create a zbuffer if asked
-	if (zBits)
+	if (zBits && rHardware)
 	{
 		DDINIT(ddsd);
 		ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;

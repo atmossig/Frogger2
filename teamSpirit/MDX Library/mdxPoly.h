@@ -24,6 +24,7 @@ typedef struct TAG_SOFTPOLY
 	struct TAG_SOFTPOLY *next; 
 	unsigned short f[3];
 	LPDIRECTDRAWSURFACE7 t;
+	MDX_TEXENTRY *tEntry;
 } SOFTPOLY;
 
 // A type for storing all the vertices and polygons in a frame
@@ -69,7 +70,7 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB);
 // Push a poly onto the buffers
 
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
-void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf );
+void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf,MDX_TEXENTRY *tEntry );
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);
 void BlankAllFrames(void);
@@ -82,9 +83,17 @@ extern unsigned long drawPhong;
 extern LPDIRECTDRAWSURFACE7 haloS;
 extern LPDIRECTDRAWSURFACE7 flareS;
 extern LPDIRECTDRAWSURFACE7 flareS2;
-unsigned long xluSubRS[]; 
-unsigned long xluAddRS[];
-unsigned long xluSemiRS[]; 
+
+extern unsigned long lightingMapRS[];
+extern unsigned long normalAlphaCmpRS[];
+extern unsigned long tightAlphaCmpRS[];
+extern unsigned long normalZRS[];
+extern unsigned long xluZRS[];
+extern unsigned long xluSubRS[];
+extern unsigned long xluAddRS[];
+
+unsigned long xluSemiRS[] = 
+extern long softScreen[640*480];
 
 #ifdef __cplusplus
 }

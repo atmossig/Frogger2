@@ -91,6 +91,8 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 */
 
 void D3DClearView(void);
+void BeginDraw(void);
+void EndDraw(void);
 
 #ifdef __cplusplus
 }

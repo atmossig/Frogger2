@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 #include <windows.h>
 #include <ddraw.h>
@@ -10,8 +6,27 @@ extern "C"
 #include <stdio.h>
 
 #include "mgeReport.h"
-#include "mdxInfo.h"
 #include "mdxDDraw.h"
+#include "mdxD3D.h"
+#include "mdxMath.h"
+#include "mdxTexture.h"
+#include "mdxObject.h"
+#include "mdxActor.h"
+#include "mdxCRC.h"
+#include "mdxTiming.h"
+#include "mgeReport.h"
+#include "gelf.h"
+#include "mdxLandscape.h"
+#include "mdxRender.h"
+#include "mdxPoly.h"
+#include "mdxProfile.h"
+#include "mdxiNFO.h"
+#include "math.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 LPDIRECT3D7				pDirect3D;
 LPDIRECT3DDEVICE7		pDirect3DDevice;
@@ -55,6 +70,9 @@ unsigned long D3DDefaultRenderstates[] =
 
 void D3DSetupRenderstates(unsigned long *me)
 {
+	if (!rHardware)
+		return;
+
 	while (*me != D3DRENDERSTATE_FORCE_DWORD)
 	{
 		pDirect3DDevice->SetRenderState((D3DRENDERSTATETYPE)*me,*(me+1));
@@ -74,6 +92,9 @@ unsigned long D3DInit(void)
 {
 	HRESULT			res;
     D3DVIEWPORT7	vp = {0, 0, 640, 480, 0.0f, 1.0f};
+
+	if (!rHardware)
+		return TRUE;
 
 	if ((res = pDirectDraw7->QueryInterface(IID_IDirect3D7, (LPVOID *)&pDirect3D)) != S_OK)
 	{
@@ -111,7 +132,10 @@ unsigned long D3DInit(void)
 
 void D3DClearView(void)
 {
-	pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , 0,1, 0L );
+	if (rHardware)
+		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , 0,1, 0L );
+	else
+		memset(softScreen,0,640*480*sizeof(long));
 }
 
 /*	--------------------------------------------------------------------------------
@@ -124,8 +148,11 @@ void D3DClearView(void)
 
 unsigned long D3DShutdown(void)
 {
-	pDirect3DDevice->Release();
-	pDirect3D->Release();
+	if (rHardware)
+	{
+		pDirect3DDevice->Release();
+		pDirect3D->Release();
+	}
 	return 1;
 }
 
@@ -305,6 +332,20 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 	pSurface->Unlock(NULL);
 
 	return 1;	
+}
+
+
+void BeginDraw(void)
+{
+	if (rHardware)
+		pDirect3DDevice->BeginScene();
+
+}
+
+void EndDraw(void)
+{
+	if (rHardware)
+		pDirect3DDevice->EndScene();
 }
 
 /*	--------------------------------------------------------------------------------
