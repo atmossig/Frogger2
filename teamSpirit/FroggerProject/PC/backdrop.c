@@ -26,13 +26,23 @@ int CheckUS();
 	Returns 	: 
 	Info 		:
 */
-int InitBackdrop(const char *filename)
+int InitBackdrop( const char *filename )
 {
 	char path[MAX_PATH];
 
 	strcpy(path, baseDirectory);
 	strcat(path, "textures\\");
 	strcat(path, filename);
+
+#ifdef PC_DEMO
+	if( !gstrcmp(filename,"TITLES") )
+	{
+		if( CheckUS() )
+			strcat( path, "US" );
+		else
+			strcat( path, "EU" );
+	}
+#endif
 
 	strcat(path, ".fla");	// load flatpacker compressed data
 
@@ -46,6 +56,7 @@ int InitBackdrop(const char *filename)
 	
 	return 1;
 }
+
 
 int InitCDBackdrop(const char *filename)
 {

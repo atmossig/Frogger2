@@ -1317,7 +1317,7 @@ void CommonInit(void)
 #ifdef PC_VERSION
 	gameState.mode = STARTUP_MODE;
 	ScreenFade(0,255,30);
-	InitBackdrop("FR2LEGAL");
+	InitBackdrop("TITLES");
 	GTInit(&modeTimer,4);
 #else
 	gameState.mode = FRONTEND_MODE;
