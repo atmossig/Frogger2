@@ -42,8 +42,9 @@ typedef struct FMA_GT3
 	u_char	u1, v1;	u_short	tpage;
 	u_char	r2, g2, b2, p2;
 	u_char	u2, v2;	u_short	pad2;
-	int vert0,vert1,vert2;
+	short vert0,vert1,vert2, pad3;
 }FMA_GT3;
+
 typedef struct FMA_GT4
 {
 	u_char	r0, g0, b0, code;
@@ -54,21 +55,19 @@ typedef struct FMA_GT4
 	u_char	u2, v2;	u_short	pad2;
 	u_char	r3, g3, b3, p3;
 	u_char	u3, v3;	u_short	pad3;
-	int vert0,vert1,vert2,vert3;
+	short vert0,vert1,vert2,vert3;
 }FMA_GT4;
 
 typedef struct FMA_SPR
 {
 	u_char	r0, g0, b0, code;
-  int	x;
-	int y;
-	int z;
-	int u0, v0;
-	int u1, v1;
-	int u2, v2;
-	int u3, v3;
-  u_short clut; u_char w, h;
+  short	x, y, z;
   u_short	tpage;
+	u_char u0, v0;
+	u_char u1, v1;
+	u_char u2, v2;
+	u_char u3, v3;
+  u_short clut; u_char w, h;
 
 
 	/*u_char	r0, g0, b0, code;
