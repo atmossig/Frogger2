@@ -877,6 +877,7 @@ void DrawEditorIcon(int x, int y, int n, BOOL disabled)
 void DrawAllTiles(void)
 {
 	GAMETILE *cur;
+	D3DCOLOR col;
 	EDVECTOR tmp,v,v2,v3;
 	int i;
 
@@ -894,10 +895,15 @@ void DrawAllTiles(void)
 				if (drawLinks)
 					if (cur->tilePtrs[i])
 					{
+						if (cur->state == TILESTATE_JOIN || cur->tilePtrs[i]->state == TILESTATE_JOIN)
+							col = D3DRGB(0.0,0.4,1.0);
+						else
+							col = D3DRGB(1,0.2,0.4);
+
 						GetTilePos(&tmp, cur->tilePtrs[i]);
 						EdXfmPoint(&v2, &tmp);
 						if (v2.vz)
-							DrawEditorArrow(v.vx, v.vy,v2.vx, v2.vy, 0.05f, D3DRGB(1,0.2,0.4));
+							DrawEditorArrow(v.vx, v.vy,v2.vx, v2.vy, 0.05f, col);
 					}
 				
 				if (drawVectors)

@@ -23,7 +23,7 @@
 #include "commctrl.h"
 #include "majikPR.h"
 
-#include "..\froggerproject\resource.h"
+#include "resource.h"
 #ifdef __cplusplus
 extern "C"
 {
