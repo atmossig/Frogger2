@@ -1,0 +1,60 @@
+#ifndef __3DTEXT_H
+#define __3DTEXT_H
+
+
+#define T3D_CIRCLE		1
+#define T3D_HORIZONTAL	2
+#define T3D_VERTICAL	3
+
+#define T3D_MOVE_NONE	(1<<0)
+#define T3D_MOVE_SPIN	(1<<1)
+#define T3D_MOVE_LEFT	(1<<2)
+#define T3D_MOVE_RIGHT	(1<<3)
+#define T3D_MOVE_UP		(1<<4)
+#define T3D_MOVE_DOWN	(1<<5)
+#define T3D_MOVE_IN		(1<<6)
+#define T3D_MOVE_OUT	(1<<7)
+
+#define T3D_CALCULATED	(1<<29)
+#define T3D_PATH_BOUNCE	(1<<30)
+#define T3D_PATH_LOOP	(1<<31)
+
+typedef struct _TEXT3D
+{
+	struct _TEXT3D *next, *prev;
+	Vtx *vT;				// Store polygon vertices
+	char *string;			// Text string on which the 3DText is based
+	char vR, vG, vB, vA;    // Vertex rgb
+	short type;				// Line, circle, etc
+	unsigned long motion;	// Static, spin, move from left
+	float angle, scale, radius;
+	long width, xOffs, yOffs, zOffs, oldXOffs, oldYOffs, oldZOffs;
+	VECTOR vel;             // Velocity vector
+	float rSpeed;			// Speed of rotation
+	unsigned int tileSize;	// Scaled size of each tile
+
+} TEXT3D;
+
+
+typedef struct _TEXT3DLIST
+{
+	TEXT3D head;
+	unsigned long numEntries;
+
+} TEXT3DLIST;
+
+
+extern TEXT3DLIST text3DList;
+
+
+extern void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO );
+extern void Print3DText( );
+extern void Calculate3DText( );
+extern void Init3DTextList( );
+extern void Free3DTextList( );
+extern void Sub3DText( TEXT3D *t );
+extern void MakeTextCircle( TEXT3D *t3d );
+extern void MakeTextLine( TEXT3D *t3d );
+extern void UpdateT3DMotion( TEXT3D *t3d );
+
+#endif

@@ -1343,6 +1343,8 @@ void DrawScreenGrab( unsigned long flags )
 			grabData.calcVtx = 0;
 	}
 
+	gDPPipeSync(glistp++);
+
 	gSPDisplayList(glistp++,polyNoZ_dl);
 	
 	gDPSetPrimColor(glistp++,0,0,grabData.pR,grabData.pG,grabData.pB,255);
@@ -1393,6 +1395,8 @@ void DrawScreenGrab( unsigned long flags )
 		}
 	}
 	
+	gDPPipeSync(glistp++);
+
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 

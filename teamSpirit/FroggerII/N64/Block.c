@@ -1513,6 +1513,9 @@ void DrawGraphics(void *arg)
 					if( drawScreenGrab && gameState.mode == GAME_MODE )
 						DrawScreenGrab( MOTION_BLUR );
 
+					if( drawScreenGrab && gameState.mode == GAME_MODE )
+						DrawScreenGrab( MOTION_BLUR );
+
 					if( pauseMode == PM_PAUSE )
 						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
 					else if( pauseMode == PM_ENDLEVEL )
@@ -1574,6 +1577,11 @@ void DrawGraphics(void *arg)
 			case NN_SC_DONE_MSG:
 				gfxTasks--;
 
+				if( !gfxTasks )
+				{
+					if( gameState.mode && text3DList.numEntries )
+						Calculate3DText( );					
+				}
 				break;
 		}
 	}
