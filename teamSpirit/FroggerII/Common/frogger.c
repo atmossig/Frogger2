@@ -63,9 +63,9 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		frog->actor->scale.v[2] = 0.09;
 		CreateBabies(createBabyActors, createBabyOverlays );
 		SetFroggerStartPos ( gTStart[0], frog );
-
 		frog->action.lives		= 3;
 		frog->action.isOnFire	= 0;
+		frog->radius = 20;
 
 		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog2->actor->shadow->radius = 30;
@@ -79,6 +79,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		frog2->actor->scale.v[2] = 0.09;
 		SetFroggerStartPos ( gTStart[0], frog2);
 		frog2->action.lives = 3;
+		frog2->radius = 20;
 	}
 	// ENIF
 
