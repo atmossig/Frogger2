@@ -102,16 +102,16 @@ void actorSub(ACTOR *actor)
 
 void actorFree(ACTOR *actor)
 {
-//	FREE(actor->psiData.objectTable);
+	FREE(actor->psiData.objectTable);
 	actor->psiData.objectTable = NULL;
 
-	//if (actor->shadow)
-		//FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
+	if (actor->shadow)
+		FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
 
 	actor->shadow = NULL;
 
 	actorSub(actor);
-	//FREE(actor);
+	FREE(actor);
 
 	actor = NULL;
 }
@@ -196,9 +196,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 
 	//utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 
-#if CDGOLD==0
 	actor->psiData.modelName = psiModel->name;
-#endif
 
 	//utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 
@@ -1169,6 +1167,8 @@ void *ChangeModel( ACTOR *actor, char *model )
 	//keep some of the original data
 	actor->position = oldActor.position;
 	actor->qRot			= oldActor.qRot;
+
+	actorFree( newActor );
 }
 
 
@@ -1200,6 +1200,7 @@ int UndoChangeModel( ACTOR *actor )
 
 	oa = &oldActor;
 	*actor = oldActor;
+
 	//actorFree( oa );
 
 	return 1;
