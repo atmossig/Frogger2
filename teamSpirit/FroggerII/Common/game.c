@@ -1114,7 +1114,6 @@ void RunGameLoop (void)
 	//UpdateAmbientSounds();
 	//	UpdateWater();
 	
-	dprintf"%lu %lu\n",player[0].frogState,player[1].frogState));
 	//*****************//
 
 	ProcessCollectables();
