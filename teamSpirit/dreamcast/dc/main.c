@@ -612,7 +612,7 @@ void main()
 	backDrop.draw = FALSE;
 
 	// show all legal screens and FMV
-	showLegalFMV(0);
+//	showLegalFMV(0);
 
 	// default world data.. needs to be called before CommonInit
 	memcpy((char*)worldVisualData,(char*)origWorldVisualData,sizeof(worldVisualData));
