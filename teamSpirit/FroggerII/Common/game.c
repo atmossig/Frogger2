@@ -272,7 +272,7 @@ void GameProcessController(long pl)
 			else
 			{
 				player[pl].isSuperHopping = 1;
-				if (MoveToRequestedDestination( (dir+2)&3, pl )) // Try to backflip
+				if( player[pl].jumpTime > 0.6 && (MoveToRequestedDestination((dir+2)&3, pl)) ) // Try to backflip
 				{
 					dir = (dir+2)&3;
 					player[pl].hasDoubleJumped = 1;
