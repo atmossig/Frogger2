@@ -304,7 +304,6 @@ CREDIT_DATA creditData[] =
 	0,RED,
 	0,GREEN,
 	0,GREEN,
-	0,GREEN,
 	
 	3,RED,		//localisation
 	0,RED,		//localisation
@@ -384,6 +383,12 @@ CREDIT_DATA creditData[] =
 
 	3,RED,		//QA Testing Managers
 	0,RED,
+	0,GREEN,
+	0,GREEN,
+
+	3,RED,		//testers
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
@@ -2993,7 +2998,7 @@ void DoCredits()
 	long spacing = 0;
 
 #ifdef PSX_VERSION
-	creditsY -= 1;
+	creditsY -= 2;
 #else
 	creditsY -= (8*gameSpeed)/4096;
 #endif
