@@ -13,6 +13,7 @@
 #include "frogger.h"
 #include "game.h"
 #include "psxsprite.h"
+#include "temp_psx.h"
 
 #include "World_Eff.h"
 
@@ -528,7 +529,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		if ( spritez <= 0 || spritez >= fog.max ) 
 			continue;
 
-		width = ( op->w * SCALEX ) / spritez;
+		width = ((op->w * SCALEX * fmaActorScale.vx)>>12) / spritez;
 		if(width < 2 || width > 256)
 			continue;
 
@@ -537,7 +538,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
    		if (si->x1<=-256) continue;
    		if (si->x0>=256) continue;
 
-		height = ( op->h * SCALEY ) / spritez;
+		height = ((op->h * SCALEY * fmaActorScale.vx)>>12) / spritez;
 
 		si->y2 = si->y3 = si->y0 + height;
 		si->y0 = si->y1 = si->y0 - height;
