@@ -57,7 +57,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
 	InitActorAnim ( (*me)->actor );
-	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667 );
+	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667, 10, 0 );
 	
 	(*me)->actor->scale.v[0] = 0.09;
 	(*me)->actor->scale.v[1] = 0.09;
@@ -111,7 +111,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		frog2->flags |= ACTOR_DRAW_ALWAYS;
 		frog2->draw = 1;
 		InitActorAnim ( frog2->actor );
-		AnimateActor  ( frog2->actor, 0, YES, NO, 0.667 );
+		AnimateActor  ( frog2->actor, 0, YES, NO, 0.667, 10, 0 );
 		frog2->actor->scale.v[0] = 0.09;
 		frog2->actor->scale.v[1] = 0.09;
 		frog2->actor->scale.v[2] = 0.09;
