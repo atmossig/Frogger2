@@ -580,7 +580,7 @@ void UpdateSnapper( ENEMY *cur )
 			QuatSlerp( &q1, &q2, speed, &act->qRot );
 
 			path->startFrame = actFrameCount;
-			path->endFrame = path->startFrame + (path->nodes[0].waitTime * waitScale);
+			path->endFrame = path->startFrame + (cur->nmeActor->radius*60);
 
 			cur->isSnapping = 2;
 		}
@@ -594,7 +594,7 @@ void UpdateSnapper( ENEMY *cur )
 		path->endFrame = path->startFrame + (path->nodes[0].waitTime * waitScale);
 		cur->isSnapping = 0;
 
-		if( (DistanceBetweenPointsSquared(&act->rotaim,&frog[0]->actor->pos)<900) && 
+		if( (DistanceBetweenPointsSquared(&act->rotaim,&frog[0]->actor->pos)<400) && 
 			!player[0].dead.time && !player[0].safe.time ) // If frog is within hitting distance
 		{
 			NMEDamageFrog(0,cur);

@@ -1,3 +1,46 @@
+
+
+TASK----------- Hub character
+COMPLETION BY-- Feb 15th
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Implement coin / credit system
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- Mostly there, needs uncommenting and testing
+
+TASK----------- Health flies and other bonuses
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Mostly done, need sprites / models and approval
+
+TASK----------- Network and Multiplayer testing, bug fix and completion
+COMPLETION BY-- Feb 15th
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim 
+NOTES---------- 
+
+
+
+
+
+TASK----------- Environmental effects including fog (diffuse and fudged volumetric), rain and small miscellaneous critters
+COMPLETION BY--	Feb 28th
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+
+
+
+/********** DONE ***********/
+
+
+
 TASK----------- Automapping babies in the editor crashes it.
 PRIORITY------- (High, Medium or Low) High - ******Completed******
 INSTANCE-------	Everywhere
@@ -40,40 +83,3 @@ COMPLETION BY-- Feb 28th - *******Completed********
 PRIORITY------- Low
 RESPONSIBILTY-- Jim
 NOTES---------- Kind of. I don't think we'll be having different types, because then they have to turn etc.
-
-
-
-TASK----------- Hub character
-COMPLETION BY-- Feb 15th
-PRIORITY------- Medium
-RESPONSIBILTY-- Jim
-NOTES---------- 
-
-TASK----------- Implement coin / credit system
-COMPLETION BY-- Feb 15th
-PRIORITY------- Low
-RESPONSIBILTY-- Jim
-NOTES---------- Mostly there, needs uncommenting and testing
-
-TASK----------- Health flies and other bonuses
-COMPLETION BY-- Feb 15th
-PRIORITY------- Low
-RESPONSIBILTY-- Dave
-NOTES---------- Invent some bonuses first
-
-TASK----------- Network and Multiplayer testing, bug fix and completion
-COMPLETION BY-- Feb 15th
-PRIORITY------- Medium
-RESPONSIBILTY-- Jim 
-NOTES---------- 
-
-
-
-
-
-TASK----------- Environmental effects including fog (diffuse and fudged volumetric), rain and small miscellaneous critters
-COMPLETION BY--	Feb 28th
-PRIORITY------- Low
-RESPONSIBILTY-- Jim
-NOTES---------- 
-
