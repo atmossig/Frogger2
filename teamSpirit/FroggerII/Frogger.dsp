@@ -344,6 +344,14 @@ SOURCE=.\Common\platform.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\script.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\script.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\sndview.c
 # End Source File
 # Begin Source File
@@ -1187,13 +1195,6 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project
