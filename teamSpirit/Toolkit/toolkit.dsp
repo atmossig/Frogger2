@@ -86,11 +86,39 @@ SOURCE=.\dynarray.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\list.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\matrix.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\matrix.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\quat.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\quat.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\sysprocess.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\sysprocess.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\vertex.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\vertex.h
 # End Source File
 # End Target
 # End Project
