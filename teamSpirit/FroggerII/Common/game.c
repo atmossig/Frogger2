@@ -481,7 +481,7 @@ void InitCamera ( unsigned long worldID, unsigned long levelID )
 extern long multiplayerRun;
 void CameraLookAtFrog(void)
 {
-	if(frog[0] && !fixedDir)
+	if(frog[0] && !fixedDir && !controlCamera)
 	{
 	
 		float afx,afy,afz;
