@@ -36,32 +36,25 @@ typedef struct
 
 #define KEYPRESS(keyDIK)	(keyTable[keyDIK] & 0x80)
 
-#define MAXJOYPADS 4
-#define MAXBUTTONS 6
-
 extern BYTE keyTable[256];
-extern DIMOUSESTATE mouseState;
-
-extern KEYENTRY keymap[56];
 
 extern unsigned rKeying;
 extern unsigned rPlaying;
 
-extern LPDIRECTINPUT lpDI;
-extern LPDIRECTINPUTDEVICE lpKeyb;
-extern LPDIRECTINPUTDEVICE lpMouse;
-
 /* ---------- Function prototypes ------------------- */
 
-extern BOOL InitInputDevices();
-extern void DeInitInputDevices();
-extern void ProcessUserInput();
-extern void ResetParameters();
-extern BOOL SetupControllers(HWND hwnd);
-extern void MakeKeyMap( );
-extern void RecordKeyInit(unsigned long worldNum, unsigned long levelNum);
-extern void PlayKeyInit(unsigned long worldNum, unsigned long levelNum);
-extern void PlayKeyDone(void);
+BOOL InitInputDevices();
+void DeInitInputDevices();
+void ProcessUserInput();
+void ResetParameters();
+BOOL SetupControllers(HWND hwnd);
+void MakeKeyMap( );
+void RecordKeyInit(unsigned long worldNum, unsigned long levelNum);
+void PlayKeyInit(unsigned long worldNum, unsigned long levelNum);
+void PlayKeyDone(void);
+
+void StartControllerView();
+void RunControllerView();
 
 /* -------------------------------------------------- */
 

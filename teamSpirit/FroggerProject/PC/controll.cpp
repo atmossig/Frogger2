@@ -33,6 +33,9 @@
 #include "layout.h"
 #include "..\network.h"
 #include "..\netchat.h"
+#include "pcgfx.h"
+
+#include "hud.h"
 
 /*	------------------------------------------------------------------------
 	Global stuff
@@ -56,12 +59,12 @@ char keyFileName[] = "frogkeys.map";
 
 char *controlDesc[] = 
 {
-	"Up",
-	"Down",
+	"Fowards",
+	"Backwards",
 	"Left",
 	"Right",
-	"A",
-	"B",
+	"Superhop",
+	"Croak",
 	"Start",
 	"Camera Left",
 	"Camera Down",
@@ -87,10 +90,23 @@ unsigned rPlayOK = 0;
 long rEndFrame;
 // -------------------------------------------------
 
+extern DIMOUSESTATE mouseState;
+
+extern KEYENTRY keymap[56];
+
+extern unsigned rKeying;
+extern unsigned rPlaying;
+
+extern LPDIRECTINPUT lpDI;
+extern LPDIRECTINPUTDEVICE lpKeyb;
+extern LPDIRECTINPUTDEVICE lpMouse;
+
 int numJoypads = 0;
 
-// 14 buttons per controller, 4 controllers.
-// Need to store DIK, controller number and controller command
+#define MAXJOYPADS 4
+#define MAXBUTTONS 6	// max buttons used on joypad ... hmm...
+
+
 KEYENTRY keymap[56] = 
 {
 	{ 0, PAD_UP, DIK_UP },
@@ -1084,4 +1100,66 @@ int GetButtonDialog(LPDIRECTINPUTDEVICE lpDID, HWND hParent)
 	DialogBoxParam(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_KEYPRESS), hParent, ButtonDialogProc, (LPARAM)&button);
 
 	return button;
+}
+
+
+// todo: move these
+
+typedef struct {
+	TEXTOVERLAY *control[14];
+	TEXTOVERLAY *button[14];
+} CONTROLVIEWSTUFF;
+
+CONTROLVIEWSTUFF* ctv;
+
+/*	--------------------------------------------------------------------------------
+	Function		: StartControllerView
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+*/
+
+void StartControllerView()
+{
+	int ctrl;
+
+	gameState.mode = CONTROLLERVIEW_MODE;
+	DisableHUD();
+	drawGame = 0;
+
+	InitBackdrop("CONTROLS");
+
+	ctv = (CONTROLVIEWSTUFF*)MALLOC0(sizeof(CONTROLVIEWSTUFF));
+
+	for (ctrl=0; ctrl<14; ctrl++)
+	{
+		ctv->control[ctrl] = CreateAndAddTextOverlay(
+			450, ctrl*150+800,
+			controlDesc[ctrl],
+			NO, 255, fontSmall, 0, 0);
+
+		ctv->button[ctrl] =  CreateAndAddTextOverlay(
+			2500, ctrl*150+800,
+			DIKStrings[keymap[ctrl].key],
+			NO, 255, fontSmall, 0, 0);
+	}
+}
+
+
+void RunControllerView()
+{
+	if (padData.debounce[0])
+	{
+		for (int ctrl=0; ctrl<14; ctrl++)
+		{
+			SubTextOverlay(ctv->control[ctrl]);
+			SubTextOverlay(ctv->button[ctrl]);
+		}
+
+		FreeBackdrop();
+		gameState.mode = INGAME_MODE;
+		EnableHUD();
+		drawGame = 1;
+		return;
+	}
 }
