@@ -1718,9 +1718,9 @@ void ProcessAttachedEffects( void *entity, int type )
 		else if( act->value1 > 0.0001 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
-				r = 60000/(Random( (int)(max((act->value1*1000),1000)) ));
+				r = 60000/(max( Random((int)(max(act->value1*1000,1000))), 1000 ));
 			else
-				r = 60000/(act->value1*1000);
+				r = 60000/(max(act->value1*1000,1000));
 		}
 		else r = 60;
 

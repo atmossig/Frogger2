@@ -869,15 +869,15 @@ void UpdateVent( ENEMY *cur )
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
 		{
-			if( (path->nodes[i].worldTile == currTile[0]) && (!player[0].dead.time) && (!player[0].safe.time) )
+			if( ((path->nodes[i].worldTile == currTile[0]) || (path->nodes[i].worldTile == destTile[0])) && (!player[0].dead.time) && (!player[0].safe.time) )
 			{
-				if( cur->nmeActor->effects & EF_LIGHTNING )
+				if( cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION )// cur->nmeActor->effects & EF_LIGHTNING )
 				{
 					// Get position in the beam to check for
 					SetVector( &pos, &path->nodes[i].worldTile->normal );
 					ScaleVector( &pos, path->nodes[i].offset );
 					AddToVector( &pos, &path->nodes[i].worldTile->centre );
-					if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, &pos) > 400 )
+					if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, &pos) > 1600 )
 						continue;
 				}
 				
