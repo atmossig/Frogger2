@@ -222,7 +222,7 @@ void LoadTextureAnimBank ( int textureBank )
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
 		numframes = *(short*)p;	p += 2;
-		crc = *(long*)p; p += 2;
+		crc = *(long*)p; p += 4;
 		
 		textureAnim = CreateTextureAnimation( crc, numframes );
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
