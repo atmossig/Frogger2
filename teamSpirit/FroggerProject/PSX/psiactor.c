@@ -11,6 +11,7 @@
 #include "actor2.h"
 #include "Main.h"
 #include "Shell.h"
+#include "layout.h"
 
 ACTORLIST	actorList;
 
@@ -639,7 +640,10 @@ void actorUpdateAnimations(ACTOR *actor)
 	anim = (ANIMATION*) (actor->animSegments + (actorAnim->currentAnimation*2));
 	
 	actorAnim->reachedEndOfAnimation = 0;
-	actorAnim->animTime += actorAnim->animationSpeed;
+
+//bb
+//	actorAnim->animTime += actorAnim->animationSpeed;
+	actorAnim->animTime += (actorAnim->animationSpeed*gameSpeed)>>12;
 
 	actorAnim->frame = actorAnim->animTime >> ANIMSHIFT;
 	
