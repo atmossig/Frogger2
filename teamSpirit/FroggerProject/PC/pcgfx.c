@@ -165,6 +165,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 	vT[0].sz = size;
 	vT[0].tu = 0;
 	vT[0].tv = 0;
+	vT[0].rhw = 1;
 	vT[0].color = D3DRGBA(0,0,0,alpha/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
@@ -173,6 +174,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 	vT[1].sz = -size;
 	vT[1].tu = 0;
 	vT[1].tv = 1;
+	vT[1].rhw = 1;
 	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
@@ -181,6 +183,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 	vT[2].sz = -size;
 	vT[2].tu = 1;
 	vT[2].tv = 1;
+	vT[2].rhw = 1;
 	vT[2].color = vT[0].color;
 	vT[2].specular = vT[0].specular;
 	
@@ -189,6 +192,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 	vT[3].sz = size;
 	vT[3].tu = 1;
 	vT[3].tv = 0;
+	vT[3].rhw = 1;
 	vT[3].color = vT[0].color;
 	vT[3].specular = vT[0].specular;
 
@@ -257,6 +261,7 @@ void DrawFXDecal( SPECFX *fx )
 	vT[0].sz = scale.vz;
 	vT[0].tu = 0;
 	vT[0].tv = 0;
+	vT[0].rhw = 1;
 	vT[0].specular = D3DRGB(0,0,0);
 
 	vT[1].sx = scale.vx;
@@ -264,6 +269,7 @@ void DrawFXDecal( SPECFX *fx )
 	vT[1].sz = -scale.vz;
 	vT[1].tu = 0;
 	vT[1].tv = 1;
+	vT[1].rhw = 1;
 	vT[1].specular = vT[0].specular;
 
 	vT[2].sx = -scale.vx;
@@ -271,6 +277,7 @@ void DrawFXDecal( SPECFX *fx )
 	vT[2].sz = -scale.vz;
 	vT[2].tu = 1;
 	vT[2].tv = 1;
+	vT[2].rhw = 1;
 	vT[2].specular = vT[0].specular;
 	
 	vT[3].sx = -scale.vx;
@@ -278,6 +285,7 @@ void DrawFXDecal( SPECFX *fx )
 	vT[3].sz = scale.vz;
 	vT[3].tu = 1;
 	vT[3].tv = 0;
+	vT[3].rhw = 1;
 	vT[3].specular = vT[0].specular;
 
 	// Translate to current fx pos and push
@@ -380,21 +388,25 @@ void DrawFXRing( SPECFX *fx )
 
 	vT[0].tu = 0;
 	vT[0].tv = 1;
+	vT[0].rhw = 1;
 	vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
 	vT[1].tu = 0;
 	vT[1].tv = 0;
+	vT[1].rhw = 1;
 	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
 	vT[2].tu = 1;
 	vT[2].tv = 0;
+	vT[2].rhw = 1;
 	vT[2].color = vT[0].color;
 	vT[2].specular = vT[0].specular;
 	
 	vT[3].tu = 1;
 	vT[3].tv = 1;
+	vT[3].rhw = 1;
 	vT[3].color = vT[0].color;
 	vT[3].specular = vT[0].specular;
 
@@ -509,15 +521,19 @@ void DrawFXTrail( SPECFX *fx )
 	vT[0].specular = D3DRGB(0,0,0);
 	vT[0].tu = 1;
 	vT[0].tv = 1;
+	vT[0].rhw = 1;
 	vT[1].specular = vT[0].specular;
 	vT[1].tu = 0;
 	vT[1].tv = 1;
+	vT[1].rhw = 1;
 	vT[2].specular = vT[0].specular;
 	vT[2].tu = 0;
 	vT[2].tv = 0;
+	vT[2].rhw = 1;
 	vT[3].specular = vT[0].specular;
 	vT[3].tu = 1;
 	vT[3].tv = 0;
+	vT[3].rhw = 1;
 
 	SwapFrame(3);
 
@@ -636,6 +652,7 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect, NULL );
 			vT[0].sx = m.vx;
 			vT[0].sy = m.vy;
+			vT[0].rhw = 1;
 			vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
 
@@ -645,6 +662,7 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect, NULL );
 			vT[1].sx = m.vx;
 			vT[1].sy = m.vy;
+			vT[1].rhw = 1;
 			vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 			vT[1].color = vT[0].color;
 		}
@@ -656,6 +674,7 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect, NULL );
 		vT[2].sx = m.vx;
 		vT[2].sy = m.vy;
+		vT[2].rhw = 1;
 		vT[2].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 		vT[2].color = vT[0].color;
 
@@ -665,6 +684,7 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect, NULL );
 		vT[3].sx = m.vx;
 		vT[3].sy = m.vy;
+		vT[3].rhw = 1;
 		vT[3].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 		vT[3].color = vT[0].color;
 
@@ -733,15 +753,19 @@ void DrawTongue( int pl )
 			vT[0].specular = D3DRGB(0,0,0);
 			vT[0].tu = 1;
 			vT[0].tv = 1;
+			vT[0].rhw = 1;
 			vT[1].specular = vT[0].specular;
 			vT[1].tu = 0;
 			vT[1].tv = 1;
+			vT[1].rhw = 1;
 			vT[2].specular = vT[0].specular;
 			vT[2].tu = 0;
 			vT[2].tv = 0;
+			vT[2].rhw = 1;
 			vT[3].specular = vT[0].specular;
 			vT[3].tu = 1;
 			vT[3].tv = 0;
+			vT[3].rhw = 1;
 
 			Clip3DPolygon( vT, tEntry );
 			Clip3DPolygon( &vT[1], tEntry );

@@ -312,19 +312,19 @@ void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1,
 
 	v[0].sx = x; v[0].sy = y; v[0].sz = z; v[0].rhw = 0;
 	v[0].color = colour; v[0].specular = D3DRGBA(0,0,0,1);
-	v[0].tu = u1; v[0].tv = v1;
+	v[0].tu = u1; v[0].tv = v1;	v[0].rhw = 1;
 
 	v[1].sx = x2; v[1].sy = y; v[1].sz = z; v[1].rhw = 0;
 	v[1].color = v[0].color; v[1].specular = v[0].specular;
-	v[1].tu = u2; v[1].tv = v1;
+	v[1].tu = u2; v[1].tv = v1;	v[1].rhw = 1;
 	
 	v[2].sx = x2; v[2].sy = y2; v[2].sz = z; v[2].rhw = 0;
 	v[2].color = v[0].color; v[2].specular = v[0].specular;
-	v[2].tu = u2; v[2].tv = v2;
+	v[2].tu = u2; v[2].tv = v2;	v[2].rhw = 1;
 
 	v[3].sx = x; v[3].sy = y2; v[3].sz = z; v[3].rhw = 0;
 	v[3].color = v[0].color; v[3].specular = v[0].specular;
-	v[3].tu = u1; v[3].tv = v2;
+	v[3].tu = u1; v[3].tv = v2;	v[3].rhw = 1;
 
 	SetTexture(tex);
 
