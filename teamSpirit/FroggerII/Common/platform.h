@@ -35,6 +35,7 @@
 #define PLATFORM_NEW_REGENERATES		(1 << 14)	// platform regenerates after specified time
 #define PLATFORM_NEW_NOWALKUNDER		(1 << 15)	// platform cannot be walked under
 #define PLATFORM_NEW_KILLSFROG			(1 << 16)	// platform kills when it moves over frog
+#define PLATFORM_NEW_MAKERIPPLES		(1 << 17)	// generate ripples under the platform
 
 
 typedef struct TAGPLATFORM
