@@ -18,50 +18,12 @@ extern "C"
 {
 #endif
 
+/* -------------------------------------------------------------------- */
+
 extern unsigned long	playerInputPause;
 extern unsigned long	playerInputPause2;
 
 extern BOOL keysEnabled;
-
-//----- [ PC RELATED ] -------------------------------------------------------------------------//
-
-typedef struct
-{
-	short player;
-	DWORD button;
-	DWORD key;
-
-} KEYENTRY;
-
-
-#define KEYPRESS(keyDIK)	(keyTable[keyDIK] & 0x80)
-
-extern BYTE keyTable[256];
-extern DIMOUSESTATE mouseState;
-
-extern KEYENTRY keymap[56];
-
-extern LPDIRECTINPUT lpDI;
-extern LPDIRECTINPUTDEVICE lpKeyb;
-extern LPDIRECTINPUTDEVICE lpMouse;
-
-//----- [ FUNCTION PROTOTYPES ] -----//
-
-extern BOOL InitInputDevices();
-extern void DeInitInputDevices();
-
-extern BOOL InitKeyboardControl();
-extern void DeInitKeyboardControl();
-
-extern BOOL InitJoystickControl();
-extern void DeInitJoystick();
-
-extern BOOL InitMouseControl();
-extern void DeInitMouseControl();
-
-extern void ProcessUserInput(HWND hWnd);
-
-extern void ResetParameters();
 
 #define CONT_UP     0x0001
 #define CONT_DOWN   0x0002
@@ -78,6 +40,7 @@ extern void ResetParameters();
 #define CONT_L		0x0800
 #define CONT_R		0x1000
 #define CONT_START	0x2000
+#define CONT_SHIFT	0x4000
 
 typedef struct tagOSContPad 
 {
@@ -89,7 +52,39 @@ typedef struct tagOSContPad
 
 extern OSContPad controllerdata[4];
 
+typedef struct
+{
+	short player;
+	DWORD button;
+	DWORD key;
+
+} KEYENTRY;
+
+#define KEYPRESS(keyDIK)	(keyTable[keyDIK] & 0x80)
+
+#define MAXJOYPADS 4
+#define MAXBUTTONS 6
+
+extern BYTE keyTable[256];
+extern DIMOUSESTATE mouseState;
+
+extern KEYENTRY keymap[56];
+extern unsigned long joypadMap[MAXJOYPADS][MAXBUTTONS];
+
+extern LPDIRECTINPUT lpDI;
+extern LPDIRECTINPUTDEVICE lpKeyb;
+extern LPDIRECTINPUTDEVICE lpMouse;
+
+/* ---------- Function prototypes ------------------- */
+
+extern BOOL InitInputDevices();
+extern void DeInitInputDevices();
+extern void ProcessUserInput(HWND hWnd);
+extern void ResetParameters();
+extern BOOL SetupControllers(HWND hwnd);
 extern void MakeKeyMap( );
+
+/* -------------------------------------------------- */
 
 #ifdef __cplusplus
 }

@@ -24,12 +24,11 @@
 #include "commctrl.h"
 #include "network.h"
 
-#include <fstream.h>
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <memory.h>
 #include <winbase.h>
-
+#include <fstream.h>
 
 #define SCREEN_BITS		16
 
@@ -71,8 +70,6 @@ struct dxDevice
 	long idx;
 };
 
-char keyFileName[] = "frogkeys.map";
-
 dxDevice dxDeviceList[100];
 unsigned long dxNumDevices = 0;
 long selIdx = 0;
@@ -92,24 +89,6 @@ int prim = 0;
 extern long numFacesDrawn;
 
 GUID guID;
-
-char *controlDesc[] = 
-{
-	"Up",
-	"Down",
-	"Left",
-	"Right",
-	"A",
-	"B",
-	"Start",
-	"Camera Left",
-	"Camera Down",
-	"Camera Up",
-	"Camera Right",
-	"Trigger",
-	"Left Shoulder",
-	"Right Shoulder"
-};
 
 //static GUID     guID;
 
@@ -548,17 +527,6 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 			LV_COLUMN clm;
 			LV_ITEM itm;
 				
-			ifstream in;
-
-			in.open( keyFileName, ios::nocreate, filebuf::sh_read );
-			if( in.is_open() )
-			{
-				for( i=0; i<56; i++ )
-					in >> keymap[i].key;
-
-				in.close();
-			}
-			
 			GetWindowRect(hwndDlg, &meR);
 			
 			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
@@ -721,9 +689,15 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				case IDC_MPLAYER:
 					InitMPDirectPlay(winInfo.hInstance); // Pop up multiplayer select dialogue box
 					break;
+
+				case IDC_CONTROLS:
+					SetupControllers(hwndDlg);
+					break;
+/*
 				case IDC_KEYMAP:
 					DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX),winInfo.hWndMain,(DLGPROC)DLGKeyMapDialogue, (LPARAM)&DPInfo );
 					break;
+*/
 				case IDOK:
 				{
 					if (!winMode)
@@ -1632,163 +1606,3 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: MakeKeyMap
-	Purpose			: Make a dialogue that maps command to keys
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-char listText1[] = "Command";
-char listText2[] = "Key";
-
-BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
-{
-	long i;
-	HRESULT hRes;
-	char itmTxt[64];
-	MSG pMsg;
-	HWND list;
-	static DWORD keyIndex = 0;
-	static long kMapSet = 0;
-
-    switch(msg)
-	{
-		case WM_INITDIALOG:
-		{
-			RECT meR;
-			
-			GetWindowRect(hDlg, &meR);
-			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-
-			for( i=0; i<14; i++ )
-			{
-				strcpy( itmTxt, controlDesc[i] );
-				strcat( itmTxt, " -> " );
-				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
-				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
-			}
-
-			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
-
- 			return TRUE;
-		}
-
-        case WM_CLOSE:
-			keyIndex = 0;
-			kMapSet = 0;
-			EndDialog(hDlg,TRUE);
-            return TRUE;
-
-		case WM_COMMAND:
-			switch (LOWORD(wParam))
-			{
-				case IDC_KEYMAPLIST:
-					switch(HIWORD(wParam))
-					{
-						case LBN_SELCHANGE:
-							// Get index of new selection
-							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
-							if(i == LB_ERR || i < 0 || i > 14 )
-								break;
-
-							kMapSet = i;
-							i=256;
-
-							// Wait for a key to be pressed
-							while( i==256 && IDirectInputDevice_GetDeviceState(lpKeyb, sizeof(keyTable),&keyTable) == DI_OK )
-							{
-								for( i=1; i<256; i++ )
-								{
-									if( KEYPRESS( i ) )
-									{
-										break;
-									}
-								}
-							}
-
-							// Dispense with windows message cack - we don't care
-							while( PeekMessage(&pMsg, hDlg, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE) );
-        
-							// Set DInput key in keymap
-							keymap[keyIndex+kMapSet].key = i;
-
-							// Reset and remake the key list
-							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-							SendMessage( list,LB_RESETCONTENT,(WPARAM)0,(LPARAM)0 );
-
-							for( i=0; i<14; i++ )
-							{
-								strcpy( itmTxt, controlDesc[i] );
-								strcat( itmTxt, " -> " );
-								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
-								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
-							}
-
-							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
-
-							kMapSet = 0;
-							break;
-					}
-					break;
-
-				case IDC_CONTROLLER1:
-					// Set pointer to correct part of keymap and refresh display
-					keyIndex = 0;
-					kMapSet = 0;
-					break;
-				case IDC_CONTROLLER2:
-					keyIndex = 14;
-					kMapSet = 0;
-					break;
-				case IDC_CONTROLLER3:
-					keyIndex = 28;
-					kMapSet = 0;
-					break;
-				case IDC_CONTROLLER4:
-					keyIndex = 42;
-					kMapSet = 0;
-					break;
-
-				case IDCANCEL:
-				{
-					ifstream in;
-					in.open( keyFileName, ios::nocreate, filebuf::sh_read );
-					if( in.is_open() )
-					{
-						for( i=0; i<56; i++ )
-							in >> keymap[i].key;
-
-						in.close();
-					}
-
-					keyIndex = 0;
-					kMapSet = 0;
-					EndDialog(hDlg,FALSE);
-					break;
-				}
-
-				case IDOK:
-				{
-					ofstream out;
-					out.open( keyFileName, ios::out, filebuf::sh_read );
-					if( out.is_open() )
-					{
-						for( i=0; i<56; i++ )
-							out << keymap[i].key << ' ';
-
-						out.close( );
-					}
-
-					keyIndex = 0;
-					kMapSet = 0;
-					EndDialog(hDlg,TRUE);
-					break;
-				}
-			}
-
-			return TRUE;
-	}
-
-	return FALSE;
-}

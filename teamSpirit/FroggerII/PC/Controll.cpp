@@ -25,17 +25,55 @@ extern "C"
 #include <ultra64.h>
 #include "stdio.h"
 #include "incs.h"
+}	// extern "C" end
+
+#include <fstream.h>
+
+#include "..\resource.h"
+
+/*	------------------------------------------------------------------------
+	Global stuff
+*/
 
 OSContPad controllerdata[4];
+BYTE keyTable[256];
+
+
+/*	------------------------------------------------------------------------
+	Controll-specific stuff
+*/
+
+
+// Gamepad
+
 long DEAD_ZONE = 50;
-//----- [ PC RELATED ] -------------------------------------------------------------------------//
 
+char keyFileName[] = "frogkeys.map";
 
-LPDIRECTINPUT lpDI			= NULL;
-LPDIRECTINPUTDEVICE lpKeyb	= NULL;
-LPDIRECTINPUTDEVICE lpJoystick = NULL;
-LPDIRECTINPUTDEVICE2 lpJoystick2 = NULL;
-LPDIRECTINPUTDEVICE lpMouse	= NULL;
+char *controlDesc[] = 
+{
+	"Up",
+	"Down",
+	"Left",
+	"Right",
+	"A",
+	"B",
+	"Start",
+	"Camera Left",
+	"Camera Down",
+	"Camera Up",
+	"Camera Right",
+	"Trigger",
+	"Left Shoulder",
+	"Right Shoulder"
+};
+
+LPDIRECTINPUT			lpDI		= NULL;
+LPDIRECTINPUTDEVICE		lpKeyb		= NULL;
+LPDIRECTINPUTDEVICE2	lpJoystick[4] = { NULL, NULL, NULL, NULL };
+LPDIRECTINPUTDEVICE		lpMouse		= NULL;
+
+int numJoypads = 0;
 
 // 14 buttons per controller, 4 controllers.
 // Need to store DIK, controller number and controller command
@@ -102,15 +140,62 @@ KEYENTRY keymap[56] =
 	{ 3, CONT_R, 0 }
 };
 
-BYTE keyTable[256];
-DIMOUSESTATE mouseState;
-DIJOYSTATE joy;
+unsigned long joymap[MAXJOYPADS][MAXBUTTONS] =
+{
+	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
+	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
+	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
+	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
+};
+
+// controller type for each player
+#define KEYBOARD 0x200
+#define GAMEPAD	 0x100		// controller # in low byte
+
+struct CONTROLLERINFO
+{
+	char name[80];
+	unsigned short id;
+};
+
+CONTROLLERINFO *controllerInfo;	// allocated and deallocated by controller dialog
+
+unsigned short controllers[4];	// used by controller setup to decide which thing is what
 
 unsigned long	playerInputPause;
 unsigned long	playerInputPause2;
 
 BOOL keysEnabled = TRUE;
-long joyAvail = 1;
+
+/*	------------------------------------------------------------------------
+	Forward declarations
+*/
+
+BOOL InitKeyboardControl();
+BOOL InitJoystickControl();
+void DeInitKeyboardControl();
+void DeInitJoystick();
+BOOL SetupControllerDlg(HWND hdlg);
+BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
+
+/*	------------------------------------------------------------------------ */
+
+const char* DIErrorStr(HRESULT err)
+{
+	switch(err)
+	{
+	case DIERR_INPUTLOST:
+		return "Access to the input device has been lost";
+	case DIERR_NOTACQUIRED:
+		return "The operation cannot be performed unless the device is acquired.";
+	case DIERR_NOTINITIALIZED:
+		return "This object has not been initialized.";
+	}
+
+	return "Unrecognised error code";
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
 	Purpose		: initialises input devices
@@ -134,9 +219,22 @@ BOOL InitInputDevices()
 
 	if(!InitJoystickControl())
 	{
-		joyAvail = 0;
+		DeInitJoystick();
 	}
 
+	// Read control map
+
+	ifstream in;
+
+	in.open( keyFileName, ios::nocreate, filebuf::sh_read );
+	if( in.is_open() )
+	{
+		for( int i=0; i<56; i++ )
+			in >> keymap[i].key;
+
+		in.close();
+	}
+	
 	return TRUE;
 }
 
@@ -150,9 +248,7 @@ BOOL InitInputDevices()
 void DeInitInputDevices()
 {
 	DeInitKeyboardControl();
-	DeInitMouseControl();
-	if (joyAvail)
-		DeInitJoystick();
+	DeInitJoystick();
 
 	if(lpDI)
 	{
@@ -193,8 +289,30 @@ BOOL InitKeyboardControl()
 }
 
 /*	--------------------------------------------------------------------------------
-	Function	: InitKeyboardControl();
-	Purpose		: initialises DirectInput keyboard control
+	Function	: EnumJoypadProc
+	Purpose		: Enumerates DI devices to find a gamepad (for now gets the first instance)
+	Parameters	: 
+	Returns		:
+*/
+BOOL CALLBACK EnumJoypadProc(LPCDIDEVICEINSTANCE dev, LPVOID foundDev)
+{
+	LPCDIDEVICEINSTANCE found;
+
+	dprintf"Found device: %s\n", dev->tszInstanceName));
+
+	found = ((LPCDIDEVICEINSTANCE)foundDev) + numJoypads;
+
+	memcpy((void*)found, dev, sizeof(DIDEVICEINSTANCE));
+	
+	numJoypads++;
+
+	return DIENUM_STOP;
+}
+ 
+
+/*	--------------------------------------------------------------------------------
+	Function	: InitJoystickControl();
+	Purpose		: initialises DirectInput joystick/pad control
 	Parameters	: none
 	Returns		: TRUE on success - else FALSE
 	Info		: 
@@ -203,43 +321,64 @@ BOOL InitKeyboardControl()
 BOOL InitJoystickControl()
 {
 	HRESULT hRes;
+	DIDEVICEINSTANCE dev[4];
+	LPDIRECTINPUTDEVICE lpJoy1;
+	LPDIRECTINPUTDEVICE2 lpJoy;
+	int j;
 
-	hRes = lpDI->CreateDevice(GUID_Joystick,&lpJoystick,NULL);
-	if(FAILED(hRes))
-		return FALSE;
+	ZeroMemory(&dev, sizeof(dev));
+	
+	lpDI->EnumDevices(DIDEVTYPE_JOYSTICK, EnumJoypadProc, (void*)&dev, DIEDFL_ATTACHEDONLY);
 
-	lpJoystick->QueryInterface( IID_IDirectInputDevice2,(LPVOID *)&lpJoystick2 );
+	for (j = 0; j < numJoypads; j++)
+	{
+		if (!dev[j].dwSize) break;
 
-	hRes = lpJoystick->SetDataFormat(&c_dfDIJoystick);
-	if(FAILED(hRes))
-		return FALSE;
+		hRes = lpDI->CreateDevice(dev[j].guidInstance, &lpJoy1, NULL);
+		if(FAILED(hRes))
+			return FALSE;
 
-	hRes = lpJoystick->SetCooperativeLevel(winInfo.hWndMain,DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-	if(FAILED(hRes))
-		return FALSE;
+		hRes = lpJoy1->QueryInterface( IID_IDirectInputDevice2,(LPVOID *)&lpJoy);
+		if (FAILED(hRes))
+		{
+			dprintf"Error retrieving DirectInputDevice2 interface\n"));
+			return FALSE;
+		}
 
-	hRes = lpJoystick->Acquire();
-	if(FAILED(hRes))
-		return FALSE;
+		lpJoy1->Release();
 
-	 // set the range of the joystick axis
-    DIPROPRANGE diprg; 
+		hRes = lpJoy->SetDataFormat(&c_dfDIJoystick);
+		if(FAILED(hRes))
+		{
+			dprintf"Error setting data format\n"));
+			return FALSE;
+		}
 
-    diprg.diph.dwSize       = sizeof(DIPROPRANGE); 
-    diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
-    diprg.diph.dwHow        = DIPH_BYOFFSET; 
-    diprg.lMin              = -1000; 
-    diprg.lMax              = +1000; 
+		hRes = lpJoy->SetCooperativeLevel(winInfo.hWndMain,DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+		if(FAILED(hRes))
+			return FALSE;
 
-    diprg.diph.dwObj = DIJOFS_X;    // set the x-axis range
-    hRes = lpJoystick->SetProperty( DIPROP_RANGE, &diprg.diph );
-    if ( FAILED(hRes) ) 
-        return FALSE;
+		 // set the range of the joystick axis
+		DIPROPRANGE diprg; 
 
-    diprg.diph.dwObj = DIJOFS_Y;    // set the y-axis range
-    hRes = lpJoystick->SetProperty( DIPROP_RANGE, &diprg.diph );
-    if ( FAILED(hRes) ) 
-        return FALSE;
+		diprg.diph.dwSize       = sizeof(DIPROPRANGE); 
+		diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
+		diprg.diph.dwHow        = DIPH_BYOFFSET; 
+		diprg.lMin              = -1000; 
+		diprg.lMax              = +1000; 
+
+		diprg.diph.dwObj = DIJOFS_X;    // set the x-axis range
+		hRes = lpJoy->SetProperty( DIPROP_RANGE, &diprg.diph );
+		if ( FAILED(hRes) ) 
+			return FALSE;
+
+		diprg.diph.dwObj = DIJOFS_Y;    // set the y-axis range
+		hRes = lpJoy->SetProperty( DIPROP_RANGE, &diprg.diph );
+		if ( FAILED(hRes) ) 
+			return FALSE;
+
+		lpJoystick[j] = lpJoy;
+	}
 
 	return TRUE;
 }
@@ -264,67 +403,23 @@ void DeInitKeyboardControl()
 
 
 /*	--------------------------------------------------------------------------------
-	Function	: DeInitKeyboardControl()
-	Purpose		: cleans up DirectInput
+	Function	: DeInitJoystick
+	Purpose		: Releases joystick(s)
 	Parameters	: none
 	Returns		: none
 	Info		: 
 */
 void DeInitJoystick()
 {
-	if(lpJoystick)
-	{
-		lpJoystick->Unacquire();
-		lpJoystick->Release();
-		lpJoystick = NULL;
-	}
-}
-/*	--------------------------------------------------------------------------------
-	Function	: InitMouseControl();
-	Purpose		: initialises DirectInput mouse control
-	Parameters	: none
-	Returns		: TRUE on success - else FALSE
-	Info		: 
-*/
-
-BOOL InitMouseControl()
-{
-	HRESULT hRes;
-
-	hRes = lpDI->CreateDevice(GUID_SysMouse,&lpMouse,NULL);
-	if(FAILED(hRes))
-		return FALSE;
-
-	hRes = lpMouse->SetDataFormat(&c_dfDIMouse);
-	if(FAILED(hRes))
-		return FALSE;
-
-	hRes = lpMouse->SetCooperativeLevel(winInfo.hWndMain,DISCL_EXCLUSIVE | DISCL_FOREGROUND);
-	if(FAILED(hRes))
-		return FALSE;
-
-	hRes = lpMouse->Acquire();
-	if(FAILED(hRes))
-		return FALSE;
-
-	return TRUE;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function	: DeInitMouseControl()
-	Purpose		: cleans up DirectInput
-	Parameters	: none
-	Returns		: none
-	Info		: 
-*/
-void DeInitMouseControl()
-{
-	if(lpMouse)
-	{
-		lpMouse->Unacquire();
-		lpMouse->Release();
-		lpMouse = NULL;
-	}
+	int j;
+	
+	for (j=0; j<MAXJOYPADS; j++)
+		if(lpJoystick[j])
+		{
+			lpJoystick[j]->Unacquire();
+			lpJoystick[j]->Release();
+			lpJoystick[j] = NULL;
+		}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -346,18 +441,6 @@ void ProcessUserInput(HWND hWnd)
 		if(FAILED(hRes))
 			return;
 	}
-
-//	if (joyAvail)
-//	{
-//		hRes = lpJoystick2->Poll();
-//		if(FAILED(hRes))
-//		{joyAvail = 0;
-//		return;}
-//		hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
-//		if(FAILED(hRes))
-//		{joyAvail = 0;
-//		return;}
-//	}
 
 	//----- [ KEYBOARD CONTROL ] -----//
 
@@ -397,6 +480,49 @@ void ProcessUserInput(HWND hWnd)
 	for( i=0; i < NUM_FROGS*14; i++ )
 		if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
 			controllerdata[keymap[i].player].button |= keymap[i].button;
+
+	for ( j =0; j < MAXJOYPADS; j++)
+	{
+		LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[j];
+		DIJOYSTATE joy;
+
+		if (!lpJoy) break;
+
+		lpJoy->Acquire();
+
+		hRes = lpJoy->Poll();
+		if (hRes == DD_OK || hRes == DI_NOEFFECT)
+		{
+			hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
+			if (FAILED(hRes))
+			{
+				dprintf"GetDeviceState() failed\n"));
+				return;
+			}
+
+			unsigned long b = 0;
+
+			for (int m=0; m < MAXBUTTONS; m++)
+				if (joy.rgbButtons[m]) b |= joymap[j][m];
+			
+			if (joy.lX < -DEAD_ZONE)
+				b |= (b & CONT_SHIFT) ? CONT_C : CONT_LEFT;		// if shift rotate L else hop L
+			else if (joy.lX > DEAD_ZONE)
+				b |= (b & CONT_SHIFT) ? CONT_F : CONT_RIGHT;	// if shift rotate R else hop R
+
+			//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
+			//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
+
+			if (joy.lY < -DEAD_ZONE)
+				b |= (b & CONT_SHIFT) ? 0 : CONT_UP;
+			else if (joy.lY > DEAD_ZONE)
+				b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
+
+			controllerdata[0].button |= b;
+
+			//lpJoystick->UnAcquire();
+		}
+	}
 }
 
 
@@ -412,4 +538,282 @@ void ResetParameters()
 }
 
 
-}	// extern "C" end
+BOOL SetupControllerDlg(HWND hdlg)
+{
+	int n = numJoypads + 1;
+	HWND combo;
+
+	controllerInfo = (CONTROLLERINFO*)malloc(sizeof(CONTROLLERINFO) * n);
+
+	strcpy(controllerInfo[0].name, "Keyboard");
+	controllerInfo[0].id = KEYBOARD;
+
+	for (int c = 0; c < numJoypads && lpJoystick[c]; c++)
+	{
+		DIDEVICEINSTANCE di;
+		di.dwSize = sizeof(DIDEVICEINSTANCE);
+
+		lpJoystick[c]->GetDeviceInfo(&di);
+
+		strcpy(controllerInfo[c+1].name, di.tszInstanceName);
+		controllerInfo[c+1].id = GAMEPAD + c;
+	}
+
+	for (int player = 0; player < 4; player++)
+	{
+		combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+		for (int i = 0; i < n; i++)
+			SendMessage(combo, CB_ADDSTRING, 0, (LPARAM)controllerInfo[i].name);
+
+		SendMessage(combo, CB_SETCURSEL, 0, 0);
+	}
+
+	return TRUE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function	: ControllerDlgProc
+	Purpose		: Dialog procedure for controller setup
+	Parameters	: 
+	Returns		: 
+	Info		: 
+*/
+
+BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		return SetupControllerDlg(hdlg);
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDOK:
+			// Set appropriate controller data
+
+			// fall through...
+		case IDCANCEL:
+			EndDialog(hdlg, wParam);
+			free(controllerInfo);
+			return TRUE;
+
+		case ID_SETUP:
+			// Run Jim's keymap dialog
+			DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX), hdlg,
+				(DLGPROC)DLGKeyMapDialogue);
+			return TRUE;
+		}
+
+		// When selection changes, make sure no other combo boxes have this controller
+		// selected (unless KEYBOARD is selected)
+		case CBN_SELENDOK:
+			{
+				HWND combo;
+				int cb, controller, id;
+				
+				cb = LOWORD(wParam) - IDC_PLAYER1;
+				controller = SendMessage((HWND)lParam, CB_GETCURSEL, 0, 0);
+				id = controllerInfo[controller].id;
+
+				if (id == KEYBOARD)
+				{
+					EnableWindow(GetDlgItem(hdlg, ID_SETUP), 1);
+					return TRUE;
+				}
+				else
+					EnableWindow(GetDlgItem(hdlg, ID_SETUP), 0);
+
+				for (int player=0; player<4; player++)
+				{
+					if (player == cb) continue;
+					combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+					int s = SendMessage(combo, CB_GETCURSEL, 0, 0);
+
+					if (id == controllerInfo[s].id)
+						SendMessage(combo, CB_SETCURSEL, 0, 0);
+				}
+
+				return TRUE;
+			}
+
+	}
+
+	return FALSE;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: SetupControllers
+	Purpose		: Set up control devices
+	Parameters	: 
+	Returns		: TRUE unless something goes horribly wrong
+	Info		: 
+*/
+BOOL SetupControllers(HWND hwnd)
+{
+	return DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_CONTROLS), hwnd,
+		(DLGPROC)ControllerDlgProc);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: MakeKeyMap
+	Purpose			: Make a dialogue that maps command to keys
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+char listText1[] = "Command";
+char listText2[] = "Key";
+
+BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+{
+	long i;
+	HRESULT hRes;
+	char itmTxt[64];
+	MSG pMsg;
+	HWND list;
+	static DWORD keyIndex = 0;
+	static long kMapSet = 0;
+
+    switch(msg)
+	{
+		case WM_INITDIALOG:
+		{
+			RECT meR;
+			
+			GetWindowRect(hDlg, &meR);
+			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+
+			for( i=0; i<14; i++ )
+			{
+				strcpy( itmTxt, controlDesc[i] );
+				strcat( itmTxt, " -> " );
+				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
+			}
+
+			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+
+ 			return TRUE;
+		}
+
+        case WM_CLOSE:
+			keyIndex = 0;
+			kMapSet = 0;
+			EndDialog(hDlg,TRUE);
+            return TRUE;
+
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				case IDC_KEYMAPLIST:
+					switch(HIWORD(wParam))
+					{
+						case LBN_SELCHANGE:
+							// Get index of new selection
+							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
+							if(i == LB_ERR || i < 0 || i > 14 )
+								break;
+
+							kMapSet = i;
+							i=256;
+
+							// Wait for a key to be pressed
+							while( i==256 && IDirectInputDevice_GetDeviceState(lpKeyb, sizeof(keyTable),&keyTable) == DI_OK )
+							{
+								for( i=1; i<256; i++ )
+								{
+									if( KEYPRESS( i ) )
+									{
+										break;
+									}
+								}
+							}
+
+							// Dispense with windows message cack - we don't care
+							while( PeekMessage(&pMsg, hDlg, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE) );
+        
+							// Set DInput key in keymap
+							keymap[keyIndex+kMapSet].key = i;
+
+							// Reset and remake the key list
+							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+							SendMessage( list,LB_RESETCONTENT,(WPARAM)0,(LPARAM)0 );
+
+							for( i=0; i<14; i++ )
+							{
+								strcpy( itmTxt, controlDesc[i] );
+								strcat( itmTxt, " -> " );
+								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
+							}
+
+							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
+
+							kMapSet = 0;
+							break;
+					}
+					break;
+
+				case IDC_CONTROLLER1:
+					// Set pointer to correct part of keymap and refresh display
+					keyIndex = 0;
+					kMapSet = 0;
+					break;
+				case IDC_CONTROLLER2:
+					keyIndex = 14;
+					kMapSet = 0;
+					break;
+				case IDC_CONTROLLER3:
+					keyIndex = 28;
+					kMapSet = 0;
+					break;
+				case IDC_CONTROLLER4:
+					keyIndex = 42;
+					kMapSet = 0;
+					break;
+
+				case IDCANCEL:
+				{
+					ifstream in;
+					in.open( keyFileName, ios::nocreate, filebuf::sh_read );
+					if( in.is_open() )
+					{
+						for( i=0; i<56; i++ )
+							in >> keymap[i].key;
+
+						in.close();
+					}
+
+					keyIndex = 0;
+					kMapSet = 0;
+					EndDialog(hDlg,FALSE);
+					break;
+				}
+
+				case IDOK:
+				{
+					ofstream out;
+					out.open( keyFileName, ios::out, filebuf::sh_read );
+					if( out.is_open() )
+					{
+						for( i=0; i<56; i++ )
+							out << keymap[i].key << ' ';
+
+						out.close( );
+					}
+
+					keyIndex = 0;
+					kMapSet = 0;
+					EndDialog(hDlg,TRUE);
+					break;
+				}
+			}
+
+			return TRUE;
+	}
+
+	return FALSE;
+}
