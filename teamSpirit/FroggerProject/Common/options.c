@@ -3203,6 +3203,20 @@ void RunTeaserScreens( )
 		{
 			PostQuitMessage(0);
 		}
+		else if( currentArt == MAX_TEASERS-1 )
+		{
+			strcpy( name, "LOADING" );
+			if( CheckUS() )
+				strcat( name, "US" );
+			else
+				strcat( name, "EU" );
+
+			InitBackdrop(name);
+			currentArt++;
+			ScreenFade(0,255,30);
+			GTInit(&artTimer,6);
+			keepFade = NO;
+		}
 		else
 		{
 			sprintf(name,"TEASER%d",currentArt);
