@@ -1722,10 +1722,20 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
-	Spent the last few days manically fixing bugs for the toy fair, and just a few minutes ago
-	we found a new one. Or several. Bugger.
+	Morning:
+		Spent the last few days manically fixing bugs for the toy fair, and just a few minutes ago
+		we found a new one. Or several. Bugger.
 
-	Rewriting sound effect loading code completely, which is fun too.
+		Started rewriting sound effect loading code completely, which is fun too.
+
+	Afternoon:
+		Finished rewriting sound code. It no longer does a list search EVERY TIME it plays a sample
+		(well except for frog hop, and possibly the generic effects will have a list of pointers all 
+		to themselves)
+
+		We also have some people from Storm playtesting the toy fair demo release, which is nice.
+
+		And yeah, DEVLOGS PLEASE... (in a deep Joff voice)
 
 
 James Healey:
