@@ -2145,37 +2145,31 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
 	{
+		char name[32];
+		int n;
+
 		for( i=0; i<numBabies; i++ )
 			if( !babyList[i].baby )
 			{
+				if( path->nodes->offset2 )
+					n = ((path->nodes->offset2>>12)/SCALE)-1;
+				else
+					n = i;
 #ifdef PC_VERSION
-				char name[32];
-				sprintf(name,"bfg0%lu.bmp",i+1);
+				sprintf(name,"bfg0%lu.bmp",n+1);
 				((MDX_ACTOR*)newItem->nmeActor->actor->actualActor)->overrideTex = GetTexEntryFromCRC(UpdateCRC(name));
 #endif
+
 #ifdef PSX_VERSION
-//				newItem->nmeActor->actor->clutOverride = FindTexture(palNames[i]);
 #ifndef DREAMCAST_VERSION
-				switch ( i )
+				switch ( n )
 				{
-					case 0:
-							newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( greenpal );
-						break;
-					case 1:
-							newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( yellowpal );
-						break;
-					case 2:
-							newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( bluepal );
-						break;
-					case 3:
-							newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( pinkpal );
-						break;
-					case 4:
-							newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( redpal );
-						break;
+					case 0: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( greenpal ); break;
+					case 1: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( yellowpal ); break;
+					case 2:	newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( bluepal ); break;
+					case 3:	newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( pinkpal ); break;
+					case 4: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( redpal ); break;
 				}
-				// ENDSWITCH
-				//newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( palNames [ i ] );
 #endif				
 #endif
 				babyList[i].baby = newItem->nmeActor;
@@ -2187,6 +2181,10 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 		if( babyList[i].fxColour[0] ) newItem->nmeActor->effects |= EF_TINTRED;
 		if( babyList[i].fxColour[1] ) newItem->nmeActor->effects |= EF_TINTGREEN;
 		if( babyList[i].fxColour[2] ) newItem->nmeActor->effects |= EF_TINTBLUE;
+
+		babyIcons[n]->r = babyList[n].fxColour[0];
+		babyIcons[n]->g = babyList[n].fxColour[1];
+		babyIcons[n]->b = babyList[n].fxColour[2];
 	}
 
 	AddEnemyModelUpdates(eActorName, newItem);
