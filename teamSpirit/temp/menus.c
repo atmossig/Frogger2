@@ -85,7 +85,7 @@ int pauseGameSpeed;
 
 
 SPRITEOVERLAY *frogLogo = NULL;
-SPRITEOVERLAY *atari = NULL;
+//SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 SPRITEOVERLAY *blitzLogo = NULL;
 int fadingLogos = NO;

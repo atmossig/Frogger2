@@ -89,7 +89,7 @@ typedef struct LEVELNAMESTRUCT
 extern SPRITE *sp;
 extern SPRITEOVERLAY *sprOver;
 
-extern SPRITEOVERLAY *atari;
+//extern SPRITEOVERLAY *atari;
 extern SPRITEOVERLAY *konami;
 extern SPRITEOVERLAY *blitzLogo;
 //extern SPRITEOVERLAY *flogo[];

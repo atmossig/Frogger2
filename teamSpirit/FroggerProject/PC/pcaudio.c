@@ -781,6 +781,9 @@ void UnPauseAudio( )
 	for( a=ambientSoundList.head.next; a!=&ambientSoundList.head; a=a->next )
 		a->lpdsBuffer = NULL;
 
+#ifdef PC_DEMO
+	PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME, -1 );
+#else
 	if( mciDevice )
 	{
 		MCI_PLAY_PARMS mciPlayParms;
@@ -788,6 +791,7 @@ void UnPauseAudio( )
 		mciPlayParms.dwCallback = (DWORD)mdxWinInfo.hWndMain;
 		mciSendCommand(mciDevice, MCI_PLAY, MCI_NOTIFY, (DWORD)&mciPlayParms);
 	}
+#endif
 }
 
 
