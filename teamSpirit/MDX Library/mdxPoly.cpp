@@ -845,7 +845,18 @@ void DrawBatchedKeyedPolys (void)
 				
 		if (key)
 		{
-			HRESULT res = pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0);
+			HRESULT res;
+			
+			res = pDirect3DDevice->DrawIndexedPrimitive(
+				D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX,
+				cFInfo->v, cFInfo->nV, cFInfo->cF, nFace, 0);
+
+			
+			if (res != D3D_OK)
+			{
+				ddShowError(res);
+				break;
+			}
 
 /*			Beware the monkey
 
