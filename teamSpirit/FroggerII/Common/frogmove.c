@@ -157,7 +157,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
+//		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
 
 		MoveToRequestedDestination(dir,pl);
 	}
@@ -180,7 +180,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		MoveToRequestedDestination(dir,pl);
 
-		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
+//		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -201,7 +201,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
 		
-		PlayActorBasedSample(GEN_FROG_HOP,frog[pl]->actor,255,128);
+//		PlayActorBasedSample(GEN_FROG_HOP,frog[pl]->actor,255,128);
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink
@@ -648,7 +648,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 
 	// check if a platform is in the destination tile
-	destPlatform[pl] = JumpingToTileWithPlatform(dest, pl);
+	dprintf"Checking for destination platform..."));
+	destPlatform[pl] = JumpingToTileWithPlatform(dest,pl);
 
 	// ---------------------------------------------------------
 	
@@ -694,6 +695,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if(destPlatform[pl])
 	{
+		dprintf"detected\n"));
+
 		// check if platform is too high to reach
 		if(PlatformTooHigh(destPlatform[pl],pl))
 		{
@@ -718,6 +721,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	
 	if (!destPlatform[pl])
 	{
+		dprintf"NOT detected\n"));
 		if((dest->state == TILESTATE_BARRED) || GameTileTooHigh(dest, pl))
 		{			
 			// gametile is barred or too high
@@ -848,7 +852,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 	if(whereTo == JUMPING_TOPLATFORM)
 	{
-		// Okay - Frogger has landed - snap him to the centre of the platform
+		// ok - frog has landed
 		SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 
 		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
