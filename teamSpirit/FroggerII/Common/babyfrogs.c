@@ -212,8 +212,8 @@ void RunBabySavedSequence(ACTOR2 *baby)
 			pos.v[Y] += 6;
 			pos2.v[Y] -= 4;
 			
-			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 15, 1.5, 0.1, 1.5 );
-			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 25, 1, 0.1, 1 );
+			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 5, 1, 0.05, 0.6 );
+			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 10, 0.8, 0.05, 0.3 );
 
 			fx = CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &baby->actor->pos, &upVec, 64, 0, 0, 2 );
 			fx->sprites->r = baby->action.fxColour[R];

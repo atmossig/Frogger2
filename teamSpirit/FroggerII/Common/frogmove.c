@@ -1199,10 +1199,10 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				{
 					if(destTile[pl]->state == TILESTATE_DEADLY)
 					{
-						CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 5, 10, 0, 1.5 );
-						CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 8, 10, 0, 1.0 );
+						CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 10, 10, 0, 2 );
+						CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 20, 10, 0, 2 );
 
-						CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 3.0 );
+						CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 20, 0.8, 0.1, 0.6 );
 						frog[pl]->action.deathBy = DEATHBY_DROWNING;
 						AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 					}
@@ -1367,8 +1367,8 @@ BOOL KillFrog(long pl)
 
 		case DEATHBY_DROWNING:
 			// create some ripples round the drowing frog
-			if(!(actFrameCount & 31))
-				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 15, 1, 0.1, 2.5 );
+//			if(!(actFrameCount & 31))
+//				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &destTile[pl]->centre, &destTile[pl]->normal, 15, 1, 0.1, 2.5 );
 			break;
 
 		case DEATHBY_SQUASHED:

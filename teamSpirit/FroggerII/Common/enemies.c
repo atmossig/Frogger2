@@ -210,7 +210,7 @@ void UpdateEnemies()
 				r = 10;
 
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 80, 0, 0, 3 );
+				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0, 0, 1.5 );
 		}
 		if( cur->nmeActor->effects & EF_SPARK_BURSTS )
 		{
@@ -723,6 +723,9 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	PATH *path = cur->path;
 	float length;
 
+	if( path->numNodes < 3 )
+		return;
+
 	if( cur->nmeActor->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
 	{
 		cur->isIdle = 0;
@@ -731,19 +734,11 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	}
 
 	// Check if the enemy has 3 path nodes. Allocate if not ( first time through )
-	if( cur->path->numNodes < 3 )
+	if( !cur->isSnapping )
 	{
-		PATHNODE n;
-
-		memcpy( &n, path->nodes, sizeof(PATHNODE) );
-		JallocFree( (UBYTE **)&path->nodes );
-		path->nodes = (PATHNODE *)JallocAlloc( sizeof(PATHNODE)*3,YES,"Path" );
-		path->numNodes = 3;
-		memcpy( path->nodes, &n, sizeof(PATHNODE) );
-
-		// Find initial move for enemy to make
 		path->nodes[1].worldTile = NULL;
 		path->nodes[2].worldTile = path->nodes[0].worldTile;
+		cur->isSnapping = 1; // This is a completely random misuse of isSnapping. And I don't care.
 	}
 
 	// If frog has moved

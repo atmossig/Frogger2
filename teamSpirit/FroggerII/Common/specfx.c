@@ -57,9 +57,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 	switch( type )
 	{
 	case FXTYPE_WATERRIPPLE:
-		effect->r = 128;
-		effect->g = 128;
-		effect->b = 180;
+		effect->r = 200;
+		effect->g = 200;
+		effect->b = 255;
 		effect->a = 255;
 		
 		effect->size = size;
