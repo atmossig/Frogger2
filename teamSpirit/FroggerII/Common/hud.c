@@ -39,8 +39,13 @@ TEXTOVERLAY *continueText;
 TEXTOVERLAY *quitText;
 TEXTOVERLAY *garibCount, *creditCount;
 TEXTOVERLAY *time;
+TEXTOVERLAY *posText;
+TEXTOVERLAY *levelnameText;
 
 TEXTOVERLAY *wholeKeyText = NULL;
+
+char levelString[] = "Levelname Goes in here";
+char posString[] = "-----------------------";
 
 void UpDateOnScreenInfo ( void )
 {
@@ -146,6 +151,9 @@ void UpdateScore(ACTOR2 *act,long scoreUpdate)
 char levelCompleteText[32];
 char gameOverText[32];
 
+extern char levelString[];
+extern char posString[];
+
 void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 	currFont = currFont;
@@ -155,9 +163,14 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, currFont, 0, 0, 0 );
 	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, 255, currFont, 0,0 );
 	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, 255, currFont, 0,0 );
-//	DisableTextOverlay ( pauseTitle );
+	posText			= CreateAndAddTextOverlay ( 50, 50, posString, YES, 255, smallFont, 0, 0);
+	levelnameText	= CreateAndAddTextOverlay ( 50, 70, levelString, YES, 255, smallFont, 0, 0);
+
+	//	DisableTextOverlay ( pauseTitle );
 	DisableTextOverlay ( continueText );
 	DisableTextOverlay ( quitText );
+	DisableTextOverlay ( posText );
+	DisableTextOverlay ( levelnameText );
 
 	/* Lives and score */
 

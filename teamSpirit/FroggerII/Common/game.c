@@ -65,6 +65,11 @@ extern TEXTURE *frogEyeOpen,*frogEyeClosed;
 extern unsigned long rPlaying;
 extern TEXTOVERLAY *demoText;
 
+extern TEXTOVERLAY *posText;
+extern TEXTOVERLAY *levelnameText;
+extern char levelString[];
+extern char posString[];
+
 // Switch for irritating swingy camera
 unsigned char swingCam = 1;
 
@@ -376,9 +381,13 @@ void GameProcessController(long pl)
 		
 	//		grabData.afterEffect = NO_EFFECT;
 	//		EnableTextOverlay ( pauseTitle );
-
+			sprintf(levelString,"%s",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description);
+			sprintf(posString,"Pos %04li %04li %04li",(int)(frog[0]->actor->pos.v[0]/10),(int)(frog[0]->actor->pos.v[1]/10),(int)(frog[0]->actor->pos.v[2]/10));
+			
 			EnableTextOverlay ( continueText );
 			EnableTextOverlay ( quitText );
+			EnableTextOverlay ( posText );
+			EnableTextOverlay ( levelnameText );
 
 			if (NUM_FROGS == 1)
 			{

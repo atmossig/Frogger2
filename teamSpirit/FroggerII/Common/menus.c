@@ -19,6 +19,8 @@
 TEXTOVERLAY *worldNames	[ MAX_WORLDS ];
 TEXTOVERLAY *levelN		[ MAX_LEVELS ];
 TEXTOVERLAY *closed;
+TEXTOVERLAY *posText;
+TEXTOVERLAY *levelnameText;
 
 SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
@@ -420,6 +422,9 @@ void RunPauseMenu()
 //		DisableTextOverlay ( pauseTitle );
 		DisableTextOverlay ( continueText );
 		DisableTextOverlay ( quitText );
+		DisableTextOverlay ( posText );
+		DisableTextOverlay ( levelnameText );
+
 		pauseMode = 0;
 
 		switch(currentSelection)

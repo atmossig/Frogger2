@@ -201,7 +201,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	winMode = 0;
 	scaleMode = 0;
 	GetArgs(lpCmdLine);
-//	ReadConfigFile();
+	ReadConfigFile();
 	WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
 }
 
@@ -299,7 +299,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (!USE_MENUS)
 	{
 		FreeAllLists();
-		StartGameIntro();
+	//	StartGameIntro();
 
 /*		FreeAllLists();
 		InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);

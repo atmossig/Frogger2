@@ -124,7 +124,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 
 	// Test the green mask to see how many bits it is.
 	l = (int)ddsd.ddpfPixelFormat.dwGBitMask;
-	while ( ((l&1) == 0) & (l) )
+	while ( (!(l&1)) && (l) )
 		  l >>= 1;
 	r565 = (l != 31);
 	
