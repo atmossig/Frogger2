@@ -327,3 +327,44 @@ void FreeObjectSprites(OBJECT *obj)
 		FreeObjectSprites(obj->next);
 }
 
+
+
+
+/* --------------------------------------------------------------------------------
+	Function	: CollideSphereToSphere 
+	Purpose		:
+	Parameters	: (COLLSPHERE *a, COLLSPHERE *b, VECTOR *oa, VECTOR *ob)
+	Returns		: BOOL 
+*/
+BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2)
+{
+/*
+	VECTOR result,va,vb;	
+	float crad = (a->radius+b->radius);
+
+	AddVector (&va,&a->center,oa);
+	AddVector (&vb,&b->center,ob);
+
+	SubVector (&result,&va,&vb);
+
+	if ((Fabs(result.v[0])<crad)	
+	  &&(Fabs(result.v[1])<crad)
+	  &&(Fabs(result.v[2])<crad))
+		return TRUE;
+
+	return FALSE;
+*/
+
+	VECTOR result,aVec,bVec;
+	float cRad;
+
+	cRad = act1->radius + act2->radius;
+	SubVector(&result,&act1->actor->pos,&act2->actor->pos);
+
+	if ((Fabs(result.v[X]) < cRad) &&
+		(Fabs(result.v[Y]) < cRad) &&
+		(Fabs(result.v[Z]) < cRad))
+		return TRUE;
+
+	return FALSE;
+}

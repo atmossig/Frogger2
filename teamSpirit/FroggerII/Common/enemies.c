@@ -879,6 +879,10 @@ void UpdateEnemies()
 		if(cur->flags & ENEMY_RADIUSBASEDCOLLISION)
 		{
 			// perform radius collision check between frog and current enemy
+			if(ActorsHaveCollided(frog->actor,cur->nmeActor))
+			{
+				dprintf"COLLIDED !\n"));
+			}
 		}
 	}
 }

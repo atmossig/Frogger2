@@ -77,5 +77,7 @@ extern void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags);
 extern void RemoveObjectSprites(OBJECT *obj,BOOL free);
 extern void FreeObjectSprites(OBJECT *obj);
 
+BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
+
 
 #endif
