@@ -2,15 +2,30 @@
 // Microsoft Developer Studio generated include file.
 // Used by resource.rc
 //
+#define IDC_JOINBUTTON                  3
 #define IDD_DIALOG1                     101
 #define IDB_BACKGROUND                  102
 #define IDD_SOUNDDRIVER                 103
 #define IDD_DIALOG2                     104
+#define IDD_CONNECTION                  104
+#define IDD_CHAT                        106
+#define IDB_FROGBMP                     114
+#define IDB_LOGOBMP                     116
+#define IDC_HOSTBUTTON                  1000
 #define IDC_LIST2                       1001
 #define IDC_EDIT                        1002
+#define IDC_CONNECTION                  1002
 #define IDC_SOUNDCOMBO                  1004
 #define ID_SOUNDOK                      1005
 #define ID_SOUNDCANCEL                  1006
+#define IDC_SESSIONLIST                 1007
+#define IDC_LOGEDIT                     1009
+#define IDC_FROGPIC                     1014
+#define IDC_LOGOPIC                     1016
+#define IDC_UPBUTTON                    1017
+#define IDC_DOWNBUTTON                  1018
+#define IDC_LEFTBUTTON                  1019
+#define IDC_RIGHTBUTTON                 1020
 
 // Next default values for new objects
 // 
