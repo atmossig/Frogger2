@@ -37,7 +37,7 @@
 #define PLATFORM_NEW_FACEFORWARDS		(1 << 17)	// face same direction
 
 #define PLATFORM_NEW_SHAKABLESCENIC		(1 << 18)	// platform is actually a shakable scenic
-
+#define PLATFORM_NEW_SHADOW				(1 << 19)	// Has a shadow
 
 typedef struct TAGPLATFORM
 {

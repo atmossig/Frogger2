@@ -591,8 +591,12 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path)
 	newItem->flags = flags;
 
 	initFlags |= INIT_ANIMATION;
-	initFlags |= INIT_SHADOW;
-	shadowRadius = 20;
+
+	if( flags & PLATFORM_NEW_SHADOW )
+	{
+		initFlags |= INIT_SHADOW;
+		shadowRadius = 20;
+	}
 
 	// create and add platform actor
 	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,initFlags,0,0);
