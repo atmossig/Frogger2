@@ -690,7 +690,7 @@ void InitCamera(void)
 	CheckCameraBoxes();
 	
 	CheckForDynamicCameraChange(currTile[0]);
-	UpdateCameraPosition();
+	//UpdateCameraPosition();
 
 	SetVector(&currCamSource, &camSource);
 	SetVector(&currCamTarget, &camTarget);

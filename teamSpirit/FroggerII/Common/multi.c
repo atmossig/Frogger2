@@ -245,8 +245,6 @@ void UpdateBattle( )
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			VECTOR dir;
-			float dp;
 			if( (controllerdata[i].button & CONT_A) && !(controllerdata[i].lastbutton & CONT_A) ) mpl[i].ready = 1;
 			if( mpl[i].ready ) count++;
 			player[i].idleEnable = 0;
