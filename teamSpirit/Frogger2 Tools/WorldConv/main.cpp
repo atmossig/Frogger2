@@ -15,6 +15,7 @@
 
 #include "lookup.h"
 
+
 char inF[255],outF[255];
 char pc = 0;
 
@@ -548,9 +549,10 @@ void BuildSquareList(void)
 			te2 = vertexList[tri2[2]];
 			te3 = vertexList[tri2[1]];
 			
-			unsigned long numSame = (tri1[0] == tri2[0]) + (tri1[0] == tri2[1]) + (tri1[1] == tri2[0]) + (tri1[1] == tri2[1]);
+			//unsigned long numSame = (tri1[0] == tri2[0]) +  + (tri1[1] == tri2[1]);
 
-			if (numSame == 2)
+			// verts are always numbered in the same direction for triangles facing the same way
+			if ((tri1[0] == tri2[1]) && (tri1[1] == tri2[0]))	
 			{						
 				fUsed[j]=1;
 
@@ -576,8 +578,8 @@ void BuildSquareList(void)
 
 				break;
 			}
-			if (numSame>2)
-				printf ("Error - Face with more than 2 of same Vtx!\n");
+			//if (numSame>2)
+			//	printf ("Error - Face with more than 2 of same Vtx!\n");
 		}
 	}
 
@@ -592,79 +594,68 @@ void BuildSquareList(void)
 	Returns		: void
 */
 
-void FindAdjacentEdge(long edge, long i)
+struct adj_match
+{
+	long tile;
+	int edge;
+};
+
+void FindAdjacentEdge(long edge, long tile)
 {
 	long j, k;
 	long v1, v2;
-	long best = -1, best_e, join = -1, join_e;
+	adj_match join, closest;
 
-	if (squareList[i].adj[edge] != -1) return;
+	join.tile = -1;
+	closest.tile = -1;
 
-	v1 = squareList[i].ed[edge], v2 = squareList[i].ed[(edge+1) % 4];
+	if (squareList[tile].adj[edge] != -1) return;
+
+	v1 = squareList[tile].ed[edge], v2 = squareList[tile].ed[(edge+1) % 4];
 
 	// Go through and check with every square
-	// treat join tiles and normal tiles seperately
 
 	for (j=0; j<nSquare; j++)
 	{
-		if (j == i) continue;
-		if (squareList[i].adj[edge] != -1) continue;
+		if (j == tile) continue;
 
 		for (k = 0; k<4; k++)
 		{
-			if ((squareList[j].ed[k] == v2) && (squareList[j].ed[(k+1) % 4] == v1))
+			//if (squareList[j].adj[k] != -1) continue;
+
+			if (squareList[j].ed[k] == v2 && squareList[j].ed[(k+1) % 4] == v1)
 			{
 				if (squareList[j].status == TILESTATE_JOIN)
 				{
-					join = j;
-					join_e = k;
+					join.tile = j;
+					join.edge = k;
 				}
 				else
 				{
-					best = j;
-					best_e = k;
+					closest.tile = j;
+					closest.edge = k;
 				}
-				break;
+
+/*				squareList[tile].adj[edge] = j;
+				
+				if (squareList[j].adj[k] != -1)
+					squareList[j].adj[k] = tile;
+				return;
+*/
 			}
 		}
-
-		if (join != -1 && best != -1) break;
 	}
 
-	// if we've found an adjacent tile, set the pointers in either direction
+	// We want to always accept normal tiles above join tiles
 
-	if (best != -1)
+	if (closest.tile != -1)
 	{
-		squareList[i].adj[edge] = best;
-		squareList[best].adj[best_e] = i;
+		squareList[tile].adj[edge] = closest.tile;
 	}
-
-	// if we've found a join tile, set its pointers
-	// if we didn't find any other adjacent tile, set this as adjacent
-
-	if (join != -1)
+	else if (join.tile != -1)
 	{
-		if (best == -1)
-			squareList[i].adj[edge] = join;
-
-		squareList[join].adj[join_e] = i;
+		squareList[tile].adj[edge] = join.tile;
 	}
-
-/*
-		numSame = 0;
-
-		for (k = 0; k<4; k++)
-		{
-			numSame += (squareList[j].ed[k] == v1);
-			numSame += (squareList[j].ed[k] == v2);
-		}
-
-		if (numSame >= 2)	// I'm not sure this is 100% safe...
-		{
-			squareList[i].adj[edge] = j;
-			return;
-		}
-*/
 }
 
 /* --------------------------------------------------------------------------------
@@ -742,7 +733,7 @@ void ProcessLine(char *in)
 	static char par[100];
 	static unsigned char inObj = 0;
 	static unsigned long cMat = 0;
-	
+
 	while ((in[0]!='*') && (in[0]!=0))in++;	
 	
 	if (inObj == 1)
@@ -780,7 +771,7 @@ void ProcessLine(char *in)
 
 	if (strncmp(in,"*MATERIAL_NAME \"",16) == 0)
 	{
-		char material[20];
+		char material[80];
 		char *i = in + 16, *j = material;
 		int m;
 
@@ -792,6 +783,8 @@ void ProcessLine(char *in)
 		m = materialLookup.GetEntry(material);
 
 		if (m) mat[cMat] = m;
+
+		return;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -805,7 +798,7 @@ void ProcessLine(char *in)
 		{
 			float x,y,z;
 			in+=18;
-			sscanf (in,"%f	%f	%f",&x,&y,&z);
+			sscanf (in,"%f%f%f",&x,&y,&z);
 			vertexList[nVtx].x = x;
 			vertexList[nVtx].y = -y;
 			vertexList[nVtx].z = z;
@@ -816,30 +809,30 @@ void ProcessLine(char *in)
 		if (strncmp(in,"*MESH_FACE ",11) == 0)
 		{
 			long a,b,c,ab,bc,ca;			
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-			sscanf (in,"%i",&a);
+			while (*(++in) != ':');
+			while (*(++in) != ':');
+			while ((*in < '0') || (*in > '9')) in++;
+			a = atoi(in);
 			
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-			sscanf (in,"%i",&b);
+			while (*(++in) != ':');
+			while ((*in < '0') || (*in > '9')) in++;
+			b = atoi(in);
 			
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-			sscanf (in,"%i",&c);
+			while (*(++in) != ':');
+			while ((*in < '0') || (*in > '9')) in++;
+			c = atoi(in);
 			
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-			sscanf (in,"%i",&ab);
+			while (*(++in) != ':');
+			while ((*in < '0') || (*in > '9')) in++;
+			ab = atoi(in);
 			
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-			sscanf (in,"%i",&bc);
+			while (*(++in) != ':');
+			while ((*in < '0') || (*in > '9')) in++;
+			bc = atoi(in);
 			
-			while ((in[0]!=':') && (in[0]!=0))in++;
-			while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-			sscanf (in,"%i",&ca);
+			while (*(++in) != ':');
+			while ((*in < '0') || (*in > '9')) in++;
+			ca = atoi(in);
 			
 			faceList[nFace].i[A]=a;
 			faceList[nFace].i[B]=b;
@@ -881,11 +874,9 @@ bool ReadData(void)
 		return false;
 	}
 
-	fgets(inStr,200,in);
-	while (!feof(in))
+	while (fgets(inStr,200,in))
 	{	
 		ProcessLine (inStr);
-		fgets(inStr,200,in);
 	}
 		
 	fclose (in);
@@ -1149,7 +1140,11 @@ void WriteData(void)
 
 int main (int argc, char *argv[])
 {
-	printf("Frogger 2 World Converter (built "__DATE__") - Interactive Studios Ltd \n\n");
+	printf(
+		"Frogger 2 World Converter (built "__DATE__") - Interactive Studios Ltd \n"
+		"IN DEVELOPMENT! Please report any problems to dswift@intstudios.co.uk\n\n"
+	);
+	
 	if (argc < 3)
 	{		
 		printf("Parameters: [Infile] [OutFile]\n");
