@@ -1385,10 +1385,11 @@ static void main_(void *arg)
 	ComputeClockSpeed();
 	InitCRCTable();
 	InitMatrixStack();
-	//InitRMatrixStack();
+	InitRMatrixStack();
 
 	dprintf"main_() - Initialising...\n"));
 	dprintf"   InitMatrixStack()\n"));
+	dprintf"   InitRMatrixStack()\n"));
 	
 	InitFont();
 
