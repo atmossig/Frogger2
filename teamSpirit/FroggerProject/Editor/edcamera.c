@@ -13,11 +13,6 @@
 #include "edglobals.h"
 #include "edcamera.h"
 
-#ifdef NEW_EDITOR
-#else
-#include "incs.h"
-#endif
-
 #define FLOAT2INT(x) ((int)(0x10000 * (x)))
 
 CREATEENTITY *EditorAddCameraCase(EDITGROUP *selection, unsigned long flags, EDVECTOR *v)

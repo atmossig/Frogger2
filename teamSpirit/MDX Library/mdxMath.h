@@ -91,6 +91,8 @@ void MatrixToQuaternion(MDX_MATRIX *smatrix, MDX_QUATERNION *dquat);
 void RotateVectorByRotation(MDX_VECTOR *result,MDX_VECTOR *vect,MDX_QUATERNION *rot);
 void GetRotationFromQuaternion(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ);
 
+float mdxFindShortestAngle(float val1, float val2);
+
 extern MDX_QUATERNION zeroQuat;
 
 void MatrixStackInitialise();

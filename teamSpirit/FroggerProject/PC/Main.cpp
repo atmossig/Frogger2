@@ -19,9 +19,7 @@
 #include <stdio.h>
 
 #include "game.h"
-//#include "netgame.h"
 #include "types2d.h"
-//#include "controll.h"
 #include "frogger.h"
 #include "levplay.h"
 #include "frogmove.h"
@@ -30,18 +28,13 @@
 #include "babyfrog.h"
 #include "hud.h"
 #include "frontend.h"
-//#include "objects.h"
 #include "textover.h"
-//#include "3dtext.h"
 #include "multi.h"
 #include "layout.h"
 #include "platform.h"
 #include "enemies.h"
-//#include "audio.h"
-//#include "ptexture.h"
 #include "levprog.h"
 #include "event.h"
-//#include "newstuff.h"
 #include "main.h"
 #include "newpsx.h"
 #include "Main.h"
@@ -55,6 +48,7 @@
 #include "pcsprite.h"
 #include "pcgfx.h"
 #include "ptexture.h"
+#include "dx_sound.h"
 
 #include "controll.h"
 
@@ -307,7 +301,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Setup D3D
 	if (!D3DInit())
 		return 3;
-	
+
+	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
+
 	// Initialise the matrix stack
 	MatrixStackInitialise();
 	

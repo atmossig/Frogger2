@@ -424,6 +424,34 @@ void MatrixToQuaternion(MDX_MATRIX *smatrix, MDX_QUATERNION *dquat)
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: FindShortestAngle()
+	Purpose 	: returns the smallest angle between 2 directions (rads)
+	Parameters 	: angle1, angle2
+	Returns 	: angle
+	Info 		:
+*/
+float mdxFindShortestAngle(float val1, float val2)
+{
+	float temp;
+
+	if(abs(val1-val2) > 0.5)
+	{
+		if(val1 > val2)
+			temp = val2 - val1;
+		else
+			temp = val1 - val2;
+
+		temp ++;
+		return temp;
+	}
+	else
+	{
+	   return abs(val1 - val2);
+	}
+}
+
+
 #ifdef __cplusplus
 }
 #endif

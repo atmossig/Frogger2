@@ -12,15 +12,19 @@
 //***********************************
 // System Includes
 
-#include <ultra64.h>
-#include <windowsx.h>
-#include <stdio.h>
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <dsound.h>
+
+#include <islutil.h>
+#include "pcaudio.h"
+#include "dx_sound.h"
 
 //***********************************
 // User Includes
 
 #include "..\resource.h"
-#include "incs.h"
 
 
 //***********************************
@@ -90,30 +94,17 @@ static char *DSoundErrorToString ( int dxerror )
 }
 
 
-/*int DSoundEnumerate ( LPGUID lpGUID, HINSTANCE hInst,  HWND hWndMain )
-{
-  /*  if ( DialogBoxParam ( hInst, MAKEINTRESOURCE ( IDD_SOUNDDRIVER ), hWndMain, (DLGPROC)DSEnumDlgProc, ( LPARAM ) lpGUID ))
-		return TRUE;
-	// ENDIF
-*/
-   /* return FALSE;
-}*/
-
-
-int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
+int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 {
 	WAVEFORMATEX	wfx;
 	DSBUFFERDESC	dsbdesc;
 	HRESULT			dsrVal;
 
-	if ( prim )
-		dsrVal = DirectSoundCreate ( guid, &lpDS, NULL );
-	else
-		dsrVal = DirectSoundCreate ( NULL, &lpDS, NULL );
+	dsrVal = DirectSoundCreate ( NULL, &lpDS, NULL );
 
 	if ( dsrVal != DS_OK )
 	{
-		dp("DirectSound Create failed - '%s'\n", DSoundErrorToString(dsrVal));
+		utilPrintf("DirectSound Create failed - '%s'\n", DSoundErrorToString(dsrVal));
 		lpDS = NULL;
 		return 0;
 	}
@@ -122,7 +113,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 
 	if ( dsrVal != DS_OK )
 	{
-		dp("Set Cooperative Level failed - '%s'\n", DSoundErrorToString(dsrVal));
+		utilPrintf("Set Cooperative Level failed - '%s'\n", DSoundErrorToString(dsrVal));
 		lpDS->Release();
 		lpDS = NULL;
 		return 0;
@@ -136,7 +127,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbdesc, &lpdsbPrimary, NULL ) ;
 	if ( dsrVal != DS_OK )
 	{
-		dp("Create Sound Buffer failed - '%s'\n", DSoundErrorToString(dsrVal));
+		utilPrintf("Create Sound Buffer failed - '%s'\n", DSoundErrorToString(dsrVal));
 		lpDS->Release();
 		lpDS = NULL;
 		return 0;
@@ -154,7 +145,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 
 	if ( dsrVal != DS_OK )
 	{
-		dp("Set Format failed - '%s'\n", DSoundErrorToString(dsrVal));
+		utilPrintf("Set Format failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
 
@@ -162,7 +153,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 
 	if ( dsrVal != DS_OK )
 	{
-		dp("Query Interface For 3d Listener Failed - '%s'\n", DSoundErrorToString(dsrVal));
+		utilPrintf("Query Interface For 3d Listener Failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
 
@@ -175,7 +166,7 @@ void ShutDownDirectSound ( void )
 }
 
 
-int LoadWav( SAMPLE *sample )
+int LoadWav( SAMPLE *sample, char *name )
 {
 	HRESULT			dsrVal;
 	HMMIO 			hwav;    // handle to wave file
@@ -195,9 +186,9 @@ int LoadWav( SAMPLE *sample )
 	DSBUFFERDESC		dsbd;           // directsound description
 
 	// open the WAV file
-	if( (hwav = mmioOpen( sample->idName, NULL, MMIO_READ | MMIO_ALLOCBUF )) == NULL )
+	if( (hwav = mmioOpen( name, NULL, MMIO_READ | MMIO_ALLOCBUF )) == NULL )
 	{
-		dp("RETURNING : LoadWavFile - Opening Wav File.\n");
+		utilPrintf("RETURNING : LoadWavFile - Opening Wav File.\n");
 		return 0;
 	}
 
@@ -306,7 +297,7 @@ int LoadWav( SAMPLE *sample )
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbd, &sample->lpdsBuffer, NULL );
 	if ( dsrVal != DS_OK )
 	{
-		dp("CreateSoundBuffer failed on file '%s' - '%s'\n", sample->idName, DSoundErrorToString(dsrVal));
+		utilPrintf("CreateSoundBuffer failed on file '%s' - '%s'\n", name, DSoundErrorToString(dsrVal));
 
 		// release memory
 		free ( snd_buffer );

@@ -22,11 +22,6 @@
 #include "islutil.h"
 #include "collect.h"
 
-#ifdef NEW_EDITOR
-#else
-#include "incs.h"
-#endif
-
 const UBYTE fileVersion = 14;
 const UBYTE releaseVersion = 100;
 

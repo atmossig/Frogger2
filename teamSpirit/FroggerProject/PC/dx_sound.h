@@ -12,6 +12,12 @@
 #ifndef DSOUND_H_INCLUDED
 #define DSOUND_H_INCLUDED
 
+#include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <dsound.h>
+
+#include "pcaudio.h"
 
 
 #ifdef __cplusplus
@@ -23,9 +29,9 @@ extern LPDIRECTSOUND			lpDS;
 extern LPDIRECTSOUNDBUFFER		lpdsbPrimary;
 extern LPDIRECTSOUND3DLISTENER	lpds3DListener;
 
-extern int LoadWav( SAMPLE *sample );
+extern int LoadWav( SAMPLE *sample, char *name );
 
-extern int InitDirectSound ( LPGUID guid, HINSTANCE hInst,  HWND hWndMain, int prim );
+extern int InitDirectSound( HINSTANCE hInst,  HWND hWndMain );
 
 extern void Update3DListener ( float sourceX, float sourceY, float sourceZ  );
 extern void Get3DInterface ( LPDIRECTSOUNDBUFFER lpdsBuffer, LPDIRECTSOUND3DBUFFER lpds3DBuffer );

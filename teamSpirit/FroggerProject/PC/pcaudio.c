@@ -23,7 +23,7 @@
 #include "memload.h"
 #include "Main.h"
 #include "dx_sound.h"
-#include "audio.h"
+#include "pcaudio.h"
 
 
 #define MAX_AMBIENT_SFX		50
@@ -167,6 +167,7 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 		i++;
 	}
 	name[i] = '\0';
+	strlwr(name);
 
 	sfx->uid = UpdateCRC(name);
 

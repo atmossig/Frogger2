@@ -34,6 +34,7 @@
 #include "collect.h"
 #include "cam.h"
 #include "layout.h"
+#include "pcaudio.h"
 
 /* --------------------------------------------------------------
 	Forward declarations
@@ -600,8 +601,8 @@ void ToolbarSelect(int command)
 		break;
 
 	case TB_KILL_EVERYTHING:
-		//TODO: FreeAmbientSoundList();
-		//TODO: FreeBufSampleList();
+		FreeAmbientSoundList();
+		FreeBufSampleList();
 
 		FreeSpecFXList( );
 		InitSpecFXList( );
@@ -1087,15 +1088,15 @@ void UpdateFlagSelection( )
 	{
 		int f;
 		EDITPATHNODE *node, *n;
-		//TODO: SAMPLE *sample;
+		SAMPLE *sample;
 
 		node = (EDITPATHNODE *)selectionList->nodes->thing;
 		
 		for (f = 0, n = editPath->nodes; n; n = n->link, f++) if (node == n) break;
 		
-//TODO: if( (sample = FindSample(node->sample)) )
-//			sprintf( statusMessage, "Flag #%d: Speed %.2f, Offset %.2f, Offset2 %.2f, Wait %i, Sample %s", f, node->speed, node->offset, node->offset2, node->waitTime, sample->idName );
-//		else
+		if( (sample = FindSample(node->sample)) )
+			sprintf( statusMessage, "Flag #%d: Speed %.2f, Offset %.2f, Offset2 %.2f, Wait %i, Sample %i", f, node->speed, node->offset, node->offset2, node->waitTime, sample->uid );
+		else
 			sprintf( statusMessage, "Flag #%d: Speed %.2f, Offset %.2f, Offset2 %.2f, Wait %i", f, node->speed, node->offset, node->offset2, node->waitTime );
 	}
 
@@ -1217,6 +1218,7 @@ void SetFlagSound(const char* str)
 		count++;
 	}
 	name[count] = '\0';
+	strlwr(name);
 
 	uid = utilStr2CRC(name);
 

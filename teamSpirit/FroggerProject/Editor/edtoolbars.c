@@ -10,13 +10,6 @@
 
 #include <ultra64.h>
 
-#ifdef NEW_EDITOR
-#else
-#include "gelf.h"
-#include "directx.h"
-#include "mavis.h"	// ick
-#endif
-
 #include "edtoolbars.h"
 #include "platform.h"
 #include "enemies.h"

@@ -5,8 +5,6 @@
 #include "define.h"
 #include "math.h"
 
-#ifdef NEW_EDITOR
-
 #define GAMEFLOAT(f)	(fixed)((f)*4096)
 #define EDFLOAT(x)		(float)((x)*(1.0f/4096.0f))
 
@@ -29,7 +27,6 @@
 #define FSetVector(v,v2)	((v)->vx=(fixed)((v2)->vx*4096)),(v)->vy=(fixed)((v2)->vy*4096),(v)->vz=((fixed)(v2)->vz*4096))
 #define SSetVector(v,v2)	(v)->vx=(short)((v2)->vx),(v)->vy=(short)((v2)->vy),(v)->vz=(short)((v2)->vz)
 
-#endif // NEW_EDITOR
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,10 +34,8 @@ extern "C" {
 
 void GetTilePos(EDVECTOR *v, GAMETILE *tile);
 
-#ifdef NEW_EDITOR
 float DistanceBetweenPointsSquared(EDVECTOR *v1, EDVECTOR *v2);
 void EdMakeUnit(EDVECTOR *v);
-#endif
 
 #ifdef __cplusplus
 }

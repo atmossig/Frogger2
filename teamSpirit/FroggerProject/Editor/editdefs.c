@@ -25,6 +25,7 @@
 #include "platform.h"
 #include "specfx.h"
 #include "cam.h"
+#include "pcaudio.h"
 
 /*	------------------------------------------------------------------------
 	Function		: EditorAddFlag
@@ -221,19 +222,11 @@ CREATEENTITY *EditorAddCreateNode(const char *id, int flags, int ID, CREATETYPE 
 	
 	GetTilePos(&iconPos, node->tile);
 
-#ifdef NEW_EDITOR
 	iconPos.vz += 10;
-#else
-	iconPos.v[Z] += 10;
-#endif
 
 	for (p = createList->nodes; p; p = p->link)
 		if( DistanceBetweenPointsSquared(&iconPos, &p->pos) < 20 )
-#ifdef NEW_EDITOR
 			iconPos.vz += 10;
-#else
-			iconPos.v[Z] += 10;
-#endif
 
 	AddGroupMember(newNode, &iconPos, createList);
 	
@@ -288,11 +281,7 @@ PATH *EditorPathMake(const EDITPATH *editPath, int startnode)
 		node->offset	= GAMEFLOAT(path->offset)*10;
 		node->offset2	= GAMEFLOAT(path->offset2)*10;
 		node->waitTime  = path->waitTime;
-#ifdef NEW_EDITOR
-		//TODO: node->sample	= FindSample(path->sample);
-#else
 		node->sample	= FindSample(path->sample);
-#endif
 
 		//if (path->start) newPath->startNode = i;
 	}
@@ -342,11 +331,7 @@ EDITPATH *EditorGetPath(const PATH *path)
 		newPath->start = (i == path->startNode) ? TRUE : FALSE;
 		newPath->waitTime = path->nodes[i].waitTime;
 
-#ifdef NEW_EDITOR
-		//TODO: newPath->sample = (path->nodes[i].sample)?(path->nodes[i].sample->uid):0;
-#else
 		newPath->sample = (path->nodes[i].sample)?(path->nodes[i].sample->uid):0;
-#endif
 
 		newPath->link = NULL;
 		prev = newPath;
@@ -460,13 +445,9 @@ EDITGROUP *MakePathEditGroup(EDITPATH *path)
 
 	for (pn = path->nodes; pn; pn = pn->link)
 	{
-#ifdef NEW_EDITOR
 		EDVECTOR v;
 		SetVectorF(&v, &pn->tile->centre);
 		AddGroupMember(pn, &v, group);
-#else
-		AddGroupMember(pn, &pn->tile->centre, group);
-#endif
 	}
 
 	return group;
