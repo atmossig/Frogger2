@@ -72,7 +72,7 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB);
 // Push a poly onto the buffers
 
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
-void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf,MDX_TEXENTRY *tEntry );
+void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry );
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);
 void BlankAllFrames(void);

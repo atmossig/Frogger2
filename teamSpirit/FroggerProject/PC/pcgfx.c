@@ -31,7 +31,7 @@ float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i );
 void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
 
-void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, long tex );
+void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, MDX_TEXENTRY *tex );
 void DrawTongue( TONGUE *t );
 
 
@@ -79,11 +79,11 @@ void ProcessShadows()
 	PLATFORM *plat;
 	GARIB *garib;
 	int i;
-	long tex;
+	MDX_TEXENTRY *tex;
 	short alpha;
 	float height, size;
 	
-	tex = (long)((MDX_TEXENTRY *)txtrSolidRing)->surf;
+	tex = (MDX_TEXENTRY *)txtrSolidRing;
 
 	for( i=0; i<NUM_FROGS; i++ )
 		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
@@ -149,7 +149,7 @@ void ProcessShadows()
 }
 
 
-void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, long tex )
+void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, MDX_TEXENTRY *tex )
 {
 	MDX_VECTOR tempVect, m, fwd;
 	D3DTLVERTEX vT[5];
@@ -224,8 +224,8 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 
 	if( tex && !zeroZ )
 	{
-		Clip3DPolygon( vT, (LPDIRECTDRAWSURFACE7)tex );
-		Clip3DPolygon( &vT[2], (LPDIRECTDRAWSURFACE7)tex );
+		Clip3DPolygon( vT, tex );
+		Clip3DPolygon( &vT[2], tex );
 	}
 
 	PopMatrix( ); // Rotation
@@ -329,8 +329,8 @@ void DrawFXDecal( SPECFX *fx )
 	if( !zeroZ )
 	{
 		SwapFrame(0);
-		Clip3DPolygon( vT, tEntry->surf );
-		Clip3DPolygon( &vT[2], tEntry->surf );
+		Clip3DPolygon( vT, tEntry );
+		Clip3DPolygon( &vT[2], tEntry );
 
 		// If we want a pseudo-cheaty-bumpmap effect, shift vertices slightly and draw another, additive, copy.
 		if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
@@ -339,8 +339,8 @@ void DrawFXDecal( SPECFX *fx )
 				vT[i].sx += 3;
 
 			SwapFrame(3);
-			Clip3DPolygon( vT, tEntry->surf );
-			Clip3DPolygon( &vT[2], tEntry->surf );
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[2], tEntry );
 			SwapFrame(0);
 		}
 	}
@@ -448,8 +448,8 @@ void DrawFXRing( SPECFX *fx )
 			memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
 			memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
 			memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
-			Clip3DPolygon( vT, tEntry->surf );
-			Clip3DPolygon( vT2, tEntry->surf );
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( vT2, tEntry );
 		}
 	}
 
@@ -499,8 +499,8 @@ void DrawFXTrail( SPECFX *fx )
 		/*********-[ Draw the polys ]-********/
 		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
-			Clip3DPolygon( vT, tEntry->surf );
-			Clip3DPolygon( &vT[1], tEntry->surf );
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[1], tEntry );
 		}
 
 		if( ++i >= fx->numP ) i=0;
@@ -651,8 +651,8 @@ void DrawFXLightning( SPECFX *fx )
 		// Draw polys, if they're not clipped
 		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
-			Clip3DPolygon( vT, tEntry->surf );
-			Clip3DPolygon( &vT[2], tEntry->surf );
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[2], tEntry );
 		}
 
 		i++;
@@ -677,7 +677,7 @@ void TransformAndDrawPolygon( POLYGON *p )
 	D3DTLVERTEX vT[5];
 	MDX_QUATERNION cross, q1, q2, q3, up;
 	long i, zeroZ=0;
-	unsigned long tex;
+	MDX_TEXENTRY *tex;
 	float t;
 
 	vT[0].sx = p->vT[0].vx;
@@ -750,12 +750,12 @@ void TransformAndDrawPolygon( POLYGON *p )
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 
-	tex = ((MDX_TEXENTRY *)p->tex)->surf;
+	tex = (MDX_TEXENTRY *)p->tex;
 
 	if( tex && !zeroZ )
 	{
-		Clip3DPolygon( vT, (LPDIRECTDRAWSURFACE7)tex );
-		Clip3DPolygon( &vT[2], (LPDIRECTDRAWSURFACE7)tex );
+		Clip3DPolygon( vT, tex );
+		Clip3DPolygon( &vT[2], tex );
 	}
 
 	PopMatrix( ); // Rotation
@@ -800,8 +800,8 @@ void DrawTongue( TONGUE *t )
 		tEntry = ((TEXENTRY *)t->tex);
 		if( tEntry && vT1[0].sz && vT1[1].sz && vT2[0].sz && vT2[1].sz )
 		{
-			Clip3DPolygon( vT, tEntry->surf );
-			Clip3DPolygon( &vT[1], tEntry->surf );
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[1], tEntry );
 		}
 
 		tmp = vT1;
@@ -814,7 +814,7 @@ void DrawTongue( TONGUE *t )
 */
 void DrawTongue( TONGUE *t )
 {
-	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
+	unsigned long i=0, index = ((t->progress>>12)*(MAX_TONGUENODES-1));
 	D3DTLVERTEX vT[4], vTPrev[2];
 	MDX_TEXENTRY *tEntry;
 
@@ -851,8 +851,8 @@ void DrawTongue( TONGUE *t )
 		//********-[ Draw the polys ]-********
 		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
-			Clip3DPolygon( vT, tEntry->surf );
-			Clip3DPolygon( &vT[1], tEntry->surf );
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[1], tEntry );
 		}
 
 		i++;

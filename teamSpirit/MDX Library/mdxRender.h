@@ -39,7 +39,7 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4]);
 void PCCalcModgeValues(MDX_OBJECT *obj);
 void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d);
 
-void Clip3DPolygon (D3DTLVERTEX in[3], LPDIRECTDRAWSURFACE7 texture,MDX_TEXENTRY *tEntry);
+void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry);
 	
 #ifdef __cplusplus
 }

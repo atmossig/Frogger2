@@ -152,12 +152,11 @@ long DrawLoop(void)
 
 	CalcViewMatrix();
 
-//	pDirect3DDevice->BeginScene();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+	D3DSetupRenderstates(cullCWRS);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 
 	if (world)
 		DrawLandscape(world);
@@ -166,14 +165,13 @@ long DrawLoop(void)
 	ActorListDraw();
 	EndTimer(1);
 
+	BeginDraw();
 	DrawAllFrames();
 	BlankAllFrames();
 	
-	pDirect3DDevice->BeginScene();
-
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	D3DSetupRenderstates(xluZRS);
+	D3DSetupRenderstates(cullNoneRS);
 	
 	// Draw Sprites
 	if(sprList.count)
@@ -190,30 +188,23 @@ long DrawLoop(void)
 	DrawBatchedPolys();
 	BlankFrame;
 
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+	D3DSetupRenderstates(xluAddRS);
 	SwapFrame(3);
 	DrawBatchedPolys();
 	BlankFrame;
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+	D3DSetupRenderstates(xluSemiRS);
 	SwapFrame(0);
 
-	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
-
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	
-//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
-//	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+	D3DSetupRenderstates(xluZRS); // Turn off z write enable
+	D3DSetupRenderstates(noZRS);  // And z enable
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
 	PrintSpriteOverlays(1);	
 	if (editorOk)
 		DrawEditor();
-	pDirect3DDevice->EndScene();
+
+	EndDraw();
 
 
 	EndTimer(0);

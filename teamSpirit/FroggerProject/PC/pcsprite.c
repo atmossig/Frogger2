@@ -46,6 +46,8 @@ void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
 void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
 void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
 
+short spriteIndices[] = {0,1,2,2,3,0};
+
 int numSprites;
 
 void AddObjectsSpritesToSpriteList(MDX_OBJECT *obj,short flags)
@@ -274,20 +276,13 @@ void PrintSpriteOverlays(long num)
 			}
 			
 			numSprites++;
-			if (cur->flags & SPRITE_ADDITIVE)
-			{
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
-			}
+
+			D3DSetupRenderstates(xluAddRS);
 
 			DrawAlphaSprite( cur->xPos*OVERLAY_X, cur->yPos*OVERLAY_Y, 0, cur->width*OVERLAY_X, cur->height*OVERLAY_Y, 0, 0, 1, 1, 
-				tEntry->surf,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
+				tEntry,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 
-			if (cur->flags & SPRITE_ADDITIVE)
-			{
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
-			}
+			D3DSetupRenderstates(xluSemiRS);
 		}
 
 		cur = cur->next;
@@ -322,28 +317,20 @@ void PrintSprite(SPRITE *sprite)
 		disty *= (sprite->scaleY/(64.0));
 		numSprites++;
 
-		if (sprite->flags & SPRITE_ADDITIVE)
-		{
-			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
-		}
+		D3DSetupRenderstates(xluAddRS);
 
 /*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
 			DrawAlphaSpriteRotating( &sc,(float)sprite->angle/57.6,sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
-				0,0,1,1,tEntry->surf,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
+				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 		else*/
 		{
 			DrawAlphaSprite(sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
-				0,0,1,1,tEntry->surf,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
+				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 
-		if (sprite->flags & SPRITE_ADDITIVE)
-		{
-			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
-		}
+		D3DSetupRenderstates(xluSemiRS);
 	}
 }
 
@@ -368,19 +355,15 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 			0.0, 0.0
 		}
 	};
-
-	if (pDirect3DDevice->lpVtbl->DrawPrimitive(pDirect3DDevice,
-		D3DPT_LINESTRIP,
+/*
+	if ( DrawPoly( D3DPT_LINESTRIP,
 		D3DFVF_TLVERTEX,
-		v,
-		2,
-		D3DDP_DONOTCLIP 
-			| D3DDP_DONOTLIGHT 
-			| D3DDP_DONOTUPDATEEXTENTS 
-			/*| D3DDP_WAIT*/)!=D3D_OK)
+		v, 2,
+		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
 	{
 		dp("COULDN'T DRAW LINE");
 	}
+	*/
 }
 
 
@@ -390,7 +373,7 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 	Returns			: 
 	Purpose			: Draw a non-alpha, non-rotating sprite
 */
-void DrawASprite(float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h,DWORD colour)
+void DrawASprite(float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour)
 {
 	float x2 = (x+xs), y2 = (y+ys);
 	D3DTLVERTEX v[4];
@@ -439,23 +422,19 @@ void DrawASprite(float x, float y, float xs, float ys, float u1, float v1, float
 	v[3].color = v[0].color; v[3].specular = v[0].specular;
 	v[3].tu = u1; v[3].tv = v2;
 
-	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,h);
+	SetTexture(tex);
 
-	if (pDirect3DDevice->lpVtbl->DrawPrimitive(pDirect3DDevice,
-		D3DPT_TRIANGLEFAN,
+	if (DrawPoly( D3DPT_TRIANGLEFAN,
 		D3DFVF_TLVERTEX,
-		v,
-		4,
-		D3DDP_DONOTCLIP 
-			| D3DDP_DONOTLIGHT 
-			| D3DDP_DONOTUPDATEEXTENTS 
-			/*| D3DDP_WAIT*/)!=D3D_OK)
+		v, 4,
+		spriteIndices, 6,
+		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
 	{
 		dp("Could not print sprite\n");
 		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
 	}
 
-	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,0);
+	SetTexture(NULL);
 }
 
 
@@ -465,7 +444,7 @@ void DrawASprite(float x, float y, float xs, float ys, float u1, float v1, float
 	Returns			: 
 	Purpose			: Draw an alpha-ed, non-rotating sprite
 */
-void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h, DWORD colour )
+void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
 {
 	D3DTLVERTEX v[4];
 	float x2 = (x+xs), y2 = (y+ys);
@@ -523,28 +502,25 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 
 	if (v[0].sx>1000)
 		dp("p{%f,%f   %f,%f   %f,%f   %f,%f}\n",v[0].sx,v[0].sy,v[1].sx,v[1].sy,v[2].sx,v[2].sy,v[3].sx,v[3].sy);
-	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,h);
+
+	SetTexture(tex);
 
 	if ((z>0.01) || (z<-0.01))
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+		D3DSetupRenderstates(noZRS);
 	else
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
+		D3DSetupRenderstates(normalZRS);
 
-	if (pDirect3DDevice->lpVtbl->DrawPrimitive(pDirect3DDevice,
-		D3DPT_TRIANGLEFAN,
+	if (DrawPoly( D3DPT_TRIANGLEFAN,
 		D3DFVF_TLVERTEX,
-		v,
-		4,
-		D3DDP_DONOTCLIP 
-			| D3DDP_DONOTLIGHT 
-			| D3DDP_DONOTUPDATEEXTENTS 
-			/*| D3DDP_WAIT*/)!=D3D_OK)
+		v, 4,
+		spriteIndices, 6,
+		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
 	{
 		dp("Could not print sprite\n");
 		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
 	}
 
-	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,0);
+	SetTexture(NULL);
 }
 
 
@@ -555,7 +531,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	Returns			: void
 	Info			: 
 */
-void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h, DWORD colour )
+void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
 {
 	POLYCLIP p2d,drawPoly;
 	float x2 = (x+xs), y2 = (y+ys);
@@ -620,40 +596,23 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 	if(drawPoly.numVerts < 3)
 		return;
 
-	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,h);
+	SetTexture(tex);
 
 	if ((z>0.01) || (z<-0.01))
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+		D3DSetupRenderstates(normalZRS);
 	else
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
+		D3DSetupRenderstates(noZRS);
 
-	if (pDirect3DDevice->lpVtbl->DrawPrimitive(pDirect3DDevice,
-		D3DPT_TRIANGLEFAN,
+	if (DrawPoly( D3DPT_TRIANGLEFAN,
 		D3DFVF_TLVERTEX,
-
-		drawPoly.verts,
-		drawPoly.numVerts,
-
-		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS 
-		)!=D3D_OK)
+		drawPoly.verts,	drawPoly.numVerts,
+		spriteIndices, 6,
+		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
 	{
 		dp("Poo-poo!\n");
 	}
 
-	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,0);
-
-	// for testing...this draws the wireframe outline of the sprite polygon ---------------------
-/*
-	for(i=0; i<drawPoly.numVerts; i++)
-	{
-		j = i + 1;
-		if(j == drawPoly.numVerts)
-			j = 0;
-
-		DrawALine(drawPoly.verts[i].sx,drawPoly.verts[i].sy,drawPoly.verts[j].sx,drawPoly.verts[j].sy,0xffffffff);
-	}
-*/
-	//-------------------------------------------------------------------------------------------
+	SetTexture(NULL);
 }
 
 // use Sutherland - Hodgman edge clipping algorithm thingyjob - ANDYE

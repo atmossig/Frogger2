@@ -165,7 +165,7 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
 
-void Clip3DPolygon (D3DTLVERTEX in[3], LPDIRECTDRAWSURFACE7 texture,MDX_TEXENTRY *tEntry)
+void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 {
 	D3DTLVERTEX		vList[10];
 	int				out0, out1;
@@ -238,7 +238,7 @@ void Clip3DPolygon (D3DTLVERTEX in[3], LPDIRECTDRAWSURFACE7 texture,MDX_TEXENTRY
 	
 	if (numFaces)
 	{
-		PushPolys(vIn,vInCount,faceList,j,texture,tEntry);
+		PushPolys(vIn,vInCount,faceList,j,tEntry);
 	}
 }
 
@@ -556,7 +556,6 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
 	short facesON[3] = {0,1,2};
 	D3DTLVERTEX *v = me->xfmVert;
-	LPDIRECTDRAWSURFACE7 *tex = me->textures;
 	MDX_TEXENTRY **tEnt = me->tEntrys;
 
 	for (int i=0; i<me->numFaces; i++)
@@ -580,17 +579,16 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
 					SampleGraph(i>>1);		
-					PushPolys(v,3,facesON,3,*tex,*tEnt);
+					PushPolys(v,3,facesON,3,*tEnt);
 				}
 				else
 				{
 					SampleGraph(i<<1);		
-					Clip3DPolygon(v,*tex,*tEnt);
+					Clip3DPolygon(v,*tEnt);
 				}
 			}	
 		}
 			tEnt++;
-			tex++;
 			v+=3;		
 	}
 }
@@ -796,11 +794,11 @@ void PCRenderObject (MDX_OBJECT *obj)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,tex->surf,tex);
+					PushPolys(v,3,facesON,3,tex);
 				}
 				else
 				{
-					Clip3DPolygon(v,tex->surf,tex);
+					Clip3DPolygon(v,tex);
 				}
 			}
 		}
@@ -915,7 +913,7 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,tex->surf,tex);
+					PushPolys(v,3,facesON,3,tex);
 
 					// Push Lightmap polys - only for single pass cards.
 					vTemp = v;
@@ -934,14 +932,14 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 					
 					SaveFrame;
 					SwapFrame(MA_FRAME_PHONG);
-					PushPolys(v,3,facesON,3,phong->surf,phong);					
+					PushPolys(v,3,facesON,3,phong);
 					SwapFrame(MA_FRAME_LIGHTMAP);
-					PushPolys(v,3,facesON,3,lightMap->surf,phong);					
+					PushPolys(v,3,facesON,3,lightMap);
 					RestoreFrame;
 				}
 				else
 				{
-					Clip3DPolygon(v,tex->surf,tex);
+					Clip3DPolygon(v,tex);
 				}
 			}
 		}
@@ -1065,11 +1063,11 @@ void PCRenderModgyWaterObject (MDX_OBJECT *obj)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,tex->surf,tex);
+					PushPolys(v,3,facesON,3,tex);
 				}
 				else
 				{
-					Clip3DPolygon(v,tex->surf,tex);
+					Clip3DPolygon(v,tex);
 				}
 			}
 		}
@@ -1193,9 +1191,9 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
-					PushPolys(v,3,facesON,3,tex->surf,tex);
+					PushPolys(v,3,facesON,3,tex);
 				else
-					Clip3DPolygon(v,tex->surf,tex);
+					Clip3DPolygon(v,tex);
 			}
 		}
 		

@@ -233,7 +233,7 @@ void InitFrames(void)
 	Info          : -
 */
 
-void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf,MDX_TEXENTRY *tEntry)
+void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry)
 {
 	long i,zVal;
 	SOFTPOLY *m;
@@ -268,7 +268,7 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDR
 	Info          : -
 */
 
-void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf,MDX_TEXENTRY *tEntry )
+void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry )
 {
 	long cnt;
 	short *mfce = fce;
@@ -277,7 +277,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE
 	
 	if (!rHardware)
 	{
-		PushPolys_Software(v,vC,fce,fC,tSrf,tEntry);
+		PushPolys_Software(v,vC,fce,fC,tEntry);
 		memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
 		numSoftVertex+=vC;
 

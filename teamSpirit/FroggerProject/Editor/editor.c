@@ -37,6 +37,7 @@
 #include "controll.h"
 #include "mdx.h"
 #include "pcmisc.h"
+#include "pcsprite.h"
 
 /* ----------------------------------------------------------------------------------------------- */
 
@@ -838,9 +839,11 @@ void DrawEditorArrow(int x1, int y1, int x2, int y2, float width, D3DCOLOR col)
 
 	//PushPolys(vtx, 3, &arse, 1, 0);
 	//PushPolys(v,vC,fce,fC,h)	Clip3DPolygon(vtx, 0);
-	pDirect3DDevice->lpVtbl->DrawPrimitive(pDirect3DDevice,
-		D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX,
-		vtx, 3, D3DDP_WAIT);
+	DrawPoly( D3DPT_TRIANGLELIST, 
+		D3DFVF_TLVERTEX,
+		vtx, 3, 
+		spriteIndices, 6,
+		D3DDP_WAIT);
 }
 
 /*	--------------------------------------------------------------------------------

@@ -28,6 +28,7 @@ typedef struct TAGPOLYCLIP
 } POLYCLIP;
 
 extern int numSprites;
+extern short spriteIndices[];
 
 void PrintSpriteOverlays(long);
 void PrintSprites();
@@ -35,9 +36,9 @@ void PrintSprite(SPRITE *sprite);
 
 // PC Sprite drawing stuff
 void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color);
-void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h,DWORD colour);
-void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h, DWORD colour );
-void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h, DWORD colour );
+void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex,DWORD colour);
+void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
+void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
 //void AddObjectsSpritesToSpriteList(MDX_OBJECT *obj,short flags);
 
 
