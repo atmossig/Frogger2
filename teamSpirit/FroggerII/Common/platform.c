@@ -133,8 +133,8 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path3,PATH_MAKENODETILEPTRS);
 
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING,&debug_path4,PATH_MAKENODETILEPTRS);
+			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat2,PLATFORM_NEW_NONMOVING,&debug_path4,PATH_MAKENODETILEPTRS);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
@@ -199,9 +199,14 @@ void UpdatePlatforms()
 			continue;
 
 		// check if this platform is currently 'waiting' at a node
-		if((cur->isWaiting) && (cur->isWaiting != -1))
+
+		if(cur->isWaiting)
 		{
-			cur->isWaiting--;
+			if(cur->isWaiting == -1)
+				continue;
+			else
+				cur->isWaiting--;
+			
 			continue;
 		}
 
