@@ -410,7 +410,7 @@ void UpdatePathNME( ENEMY *cur )
 		AddVector(&v, &cur->nmeActor->actor->pos, &fwd);
 		SubFromVector(&v, &frog[0]->actor->pos);
 
-		if ((MagnitudeSquared(&v) < 1000) && player[0].canJump)
+		if( MagnitudeSquared(&v) < 1000 )
 		{
 			PushFrog(&cur->nmeActor->actor->pos, &fwd, 0);
 			player[0].canJump = 0;
