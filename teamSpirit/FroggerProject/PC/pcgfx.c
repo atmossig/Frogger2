@@ -353,7 +353,7 @@ void DrawFXDecal( SPECFX *fx )
 		if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
 		{
 			vT[0].color = D3DRGBA((float)fx->r*ONEOVER255,(float)fx->g*ONEOVER255,(float)fx->b*ONEOVER255,(float)fx->a*ONEOVER255);
-			for( i=0; i<4; i++ )
+			for( i=0; i<5; i++ )
 			{
 				vT[i].sx += 3;			
 				vT[i].color = vT[0].color;
