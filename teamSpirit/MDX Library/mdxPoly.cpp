@@ -785,13 +785,20 @@ void DrawBatchedOpaquePolys (void)
 		
 		if (!key)
 		{
-		
-			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0)!=D3D_OK)
+			HRESULT res;
+
+			res = pDirect3DDevice->DrawIndexedPrimitive(
+				D3DPT_TRIANGLELIST, D3DFVF_TLVERTEX,
+				cFInfo->v, cFInfo->nV, cFInfo->cF, nFace, 0);
+
+			// Fucking monkey
+/*			while((!=D3D_OK)
 			{
 				StartTimer(4,"DIP");
 				Sleep(10);
 				EndTimer(4);
 			}
+*/
 		}
 		
 		pDirect3DDevice->SetTexture(0,0);
