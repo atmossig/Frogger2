@@ -21,6 +21,11 @@ NOTES----------
 |-----------------------------------------------------------------------------------|
 
 
+TASK----------- Rotating sprites
+PRIORITY------- Medium
+RESPONSIBILTY-- Matt
+NOTES---------- For smoke especially
+
 TASK----------- Interchanging objects (drop in replacement models)
 PRIORITY------- Low
 RESPONSIBILTY-- Matt
@@ -51,7 +56,7 @@ PRIORITY------- Medium
 RESPONSIBILTY-- Jim
 NOTES---------- 
 
-TASK----------- Better effects, e.g. fire, smoke, glows, cosmic stuff, SPARKLIES
+TASK----------- Better effects, e.g. fire, smoke, glows, cosmic stuff, SPARKLIES, wraparound proc fire, heat haze
 PRIORITY------- Low
 RESPONSIBILTY-- Jim / Matt
 NOTES---------- 
@@ -66,7 +71,7 @@ PRIORITY------- Medium
 RESPONSIBILTY-- 
 NOTES---------- 
 
-TASK----------- Different shadow types
+TASK----------- Different shadow types, and scale and fade depending on height
 PRIORITY------- Low
 RESPONSIBILTY-- Jim
 NOTES---------- 
