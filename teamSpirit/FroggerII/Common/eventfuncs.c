@@ -231,13 +231,13 @@ void ToggleTileLink( EVENT *event )
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: PlaySound
-	Purpose 	: Play an SFX, either sourceless or at a point
+	Function 	: PlaySFX
+	Purpose 	: Play a sound, either sourceless or at a point
 	Parameters 	: Pointer to event structure
 	Returns 	: 
 	Info 		: 
 */
-void PlaySound( EVENT *event )
+void PlaySFX( EVENT *event )
 {
 	int snum = *(int *)event->data[0];
 	int vol = *(int *)event->data[1];
@@ -395,7 +395,7 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			*fnum = 10;
 			args[4] = (void *)fnum;
 
-			event = MakeEvent( PlaySound, 5, args );
+			event = MakeEvent( PlaySFX, 5, args );
 
 			// Attach event to trigger
 			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );

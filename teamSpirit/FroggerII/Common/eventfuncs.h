@@ -28,7 +28,7 @@ extern void AssignIntToInt( EVENT *event );
 extern void TogglePlatformMove( EVENT *event );
 extern void ToggleEnemyMove( EVENT *event );
 extern void ToggleTileLink( EVENT *event );
-extern void PlaySound( EVENT *event );
+extern void PlaySFX( EVENT *event );
 
 /*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
 extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );
