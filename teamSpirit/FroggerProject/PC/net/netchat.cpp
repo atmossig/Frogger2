@@ -36,8 +36,9 @@
 COLORREF systemColor = RGB(0,0x80,0);	// green
 COLORREF errorColor = RGB(0xFF,0,0);		// red
 HWND hwndChat, hwndChatEdit;
+HICON chatIcon, bigChatIcon;
 
-#define NUM_MULTI_LEVELS 6
+#define NUM_MULTI_LEVELS 4
 
 struct MULTILEVEL { int world, level; };
 
@@ -46,8 +47,6 @@ MULTILEVEL multiLevels[NUM_MULTI_LEVELS] = {
 	{ WORLDID_TEST, 1 },
 	{ WORLDID_TEST, 2 },
 	{ WORLDID_TEST, 3 },
-	{ WORLDID_TEST, 4 },
-	{ WORLDID_TEST, 5 }
 };
 
 
@@ -145,7 +144,7 @@ bool SetupChatDialog(HWND hdlg)
 	for (i=0; i<NUM_MULTI_LEVELS; i++)
 	{
 		LEVEL_VISUAL_DATA *data;
-		char levelname[8];
+		char *levelname; //[8];
 		int index;
 
 		// get level names from worldvisualdata
@@ -154,14 +153,18 @@ bool SetupChatDialog(HWND hdlg)
 
 		if (data->levelOpen)
 		{
-			sprintf(levelname, "%d:%d", multiLevels[i].world, multiLevels[i].level);
-			//levelname = GAMESTRING(data->description_str);
+			//sprintf(levelname, "%d:%d", multiLevels[i].world, multiLevels[i].level);
+			levelname = GAMESTRING(data->description_str);
 
 			index = SendMessage(hList, CB_ADDSTRING, 0, (DWORD)levelname);
 			SendMessage(hList, CB_SETITEMDATA, index, i);
 		}
 	}
 
+	chatIcon = (HICON)LoadImage(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDI_FROGGER2), IMAGE_ICON, 16, 16, 0);
+	SendMessage(hdlg, WM_SETICON, ICON_SMALL, (LPARAM)chatIcon);
+	bigChatIcon = (HICON)LoadImage(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDI_FROGGER2), IMAGE_ICON, 32, 32, 0);
+	SendMessage(hdlg, WM_SETICON, ICON_BIG, (LPARAM)bigChatIcon);
 
 	SendMessage(hList, CB_SETCURSEL, 0, 0);
 
@@ -285,6 +288,8 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 		KillTimer(hDlg, 1);
+		DestroyIcon(chatIcon);
+		DestroyIcon(bigChatIcon);
 		return TRUE;
 	}
 

@@ -146,13 +146,15 @@ int StartNetworkGame(HWND hwnd, int flag)
 	if (connected)
 	{
 		SetupNetPlayerList();
-		return RunNetChatWindow(hwnd);
+		if (RunNetChatWindow(hwnd))
+			return 1;
+		else
+			return -1;
 	}
-	else
-	{
-		ShutdownNetworkGame();
-		return 0;
-	}
+
+	// otherwise, fail
+	ShutdownNetworkGame();
+	return 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -202,6 +204,11 @@ bool CheckLobby(HWND hwnd)
 			0, 0, dplConnection ) ) )
 		return false;
 
+	if (dplConnection->dwFlags == DPLCONNECTION_CREATESESSION)
+	{
+		isHost = TRUE;
+	}
+
 	if ( FAILED( hr = dpLobby->ConnectEx( 0, IID_IDirectPlay4A, 
         (VOID**)&dplay, NULL ) ) )
     return false;
@@ -211,7 +218,7 @@ bool CheckLobby(HWND hwnd)
 	memcpy(&dpname, dplConnection->lpPlayerName, sizeof(DPNAME));
 	
 	if ( FAILED( hr = dplay->CreatePlayer( &dpidLocalPlayer, &dpname, 
-			NULL, NULL, 0, 0 ) ) )
+		NULL, NULL, 0, isHost?DPPLAYER_SERVERPLAYER:0) ) )
 		return hr;
 	
 	delete dplConnection;
