@@ -1453,24 +1453,24 @@ void *psiLoadPIL(char *pilName)
 	i = (int)*addr;
 	(char*)table = addr+4;
 
-	utilPrintf("%d models in this library.\n",i);
+	//utilPrintf("%d models in this library.\n",i);
 
 	while (i)
 	{
 
 		i--;
 		psiM = *(table++);
-		utilPrintf("#%d $%x (%s)\n",i,psiM,(psiM+(int)addr));
+		//utilPrintf("#%d $%x (%s)\n",i,psiM,(psiM+(int)addr));
 		psiM += (int)addr;
 		PSIname = (char*)(psiM);
 		(char*)crcs = (char*)(psiM+16);
-		utilPrintf("CRC=%x\n",*crcs);
+		//utilPrintf("CRC=%x\n",*crcs);
 		psiFixup( (char*)(psiM+20) );
 	}
 	
 	pilLibraryList[pilLibraryLen] = (long*)addr;
 	pilLibraryLen++;
-	utilPrintf("Libray Loaded\n");
+	//utilPrintf("Libray Loaded\n");
 
 	return NULL;
 	

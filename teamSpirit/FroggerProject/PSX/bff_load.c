@@ -331,14 +331,14 @@ BFF_Header *BFF_LoadFile(char *filename)
 	for(;;)
 	{
 
-				utilPrintf("Linking BFF class %d (%c%c%c%d)\n",
+/*				utilPrintf("Linking BFF class %d (%c%c%c%d)\n",
 					work->id,
 					((char *)(&work->id))[0],
 					((char *)(&work->id))[1],
 					((char *)(&work->id))[2],
 					(int)(((char *)(&work->id))[3])
 					);
-
+*/
 
 		switch(work->id)
 		{
@@ -350,13 +350,13 @@ BFF_Header *BFF_LoadFile(char *filename)
 				break;
 
 			default:
-				utilPrintf("Unknown or out-of-date BFF class %d (%c%c%c%d)\n",
+/*				utilPrintf("Unknown or out-of-date BFF class %d (%c%c%c%d)\n",
 					work->id,
 					((char *)(&work->id))[0],
 					((char *)(&work->id))[1],
 					((char *)(&work->id))[2],
 					(int)(((char *)(&work->id))[3])
-					);
+					);*/
 				CRASH;
 		}
 

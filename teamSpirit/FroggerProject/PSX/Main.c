@@ -259,6 +259,22 @@ static void vsyncCallback()
 #if GOLDCD==0
 	asm("break 1024");
 #endif
+
+	if ( loadingDisplay )
+	{
+		currentDisplayPage					= (currentDisplayPage == displayPage) ? (&displayPage[1]):(&displayPage[0]);
+		ClearOTagR ( currentDisplayPage->ot, 1024 );
+		currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+		//loadingFrame();
+		//loadingDisplay++;
+
+		DrawSync		(0);
+		PutDispEnv	( &currentDisplayPage->dispenv );
+		PutDrawEnv	( &currentDisplayPage->drawenv );
+		DrawOTag		( currentDisplayPage->ot + ( 1024 - 1 ) );
+	}
+	// ENDIF
 }
 
 

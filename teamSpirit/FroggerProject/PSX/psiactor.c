@@ -116,22 +116,21 @@ static PSIOBJECT *psiobNext;
 
 static void actorSetTree(PSIOBJECT *obj,PSIMESH *mesh)
 {
+	*segTable = (ULONG)obj;
+	segTable++;
 
-		*segTable = (ULONG)obj;
-		segTable++;
+	obj->meshdata = mesh;
 
-		obj->meshdata = mesh;
-
-		if (mesh->child)
-		{
-			obj->child	  = psiobNext;
-	   		actorSetTree(psiobNext++,mesh->child);
-		}
-		if (mesh->next)
-		{
-			obj->next  = psiobNext;
-			actorSetTree(psiobNext++,mesh->next);
-		}
+	if (mesh->child)
+	{
+		obj->child	  = psiobNext;
+		actorSetTree(psiobNext++,mesh->child);
+	}
+	if (mesh->next)
+	{
+		obj->next  = psiobNext;
+		actorSetTree(psiobNext++,mesh->next);
+	}
 }
 
 
@@ -188,13 +187,13 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 		actor->psiData.flags |= ACTOR_DYNAMICSORT;
 	}
 
-	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
+	//utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 
 #if CDGOLD==0
 	actor->psiData.modelName = psiModel->name;
 #endif
 
-	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
+	//utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 
 	actor->psiData.numObjects = parts;
 
@@ -235,7 +234,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 
 	actor->animFrames = psiModel->animEnd;						// total noof frames of animation
 
-	utilPrintf("actor->animFrames, %d\n", actor->animFrames);
+	//utilPrintf("actor->animFrames, %d\n", actor->animFrames);
 
 	actor->radius = psiModel->radius;
 	
@@ -254,7 +253,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 
 //	actor->psiData.flags |= ACTOR_DYNAMICSORT;							// by default
 
-	actorSetBoundingRotated(actor,0,0,0,0);						// fill in bounding box info
+	//actorSetBoundingRotated(actor,0,0,0,0);						// fill in bounding box info
 
 	actor->clutOverride = NULL;
 
@@ -269,27 +268,6 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 			actor->psiData.flags |= PSIACTOR_SCALED;
 		}
 	}
-
-
-	/*if ( checkForModel )
-	{
-		if ( ( psiCheck ( actor->psiData.modelName ) ) &&
-			 ( ( compare = strstr ( actor->psiData.modelName, "ROLL" ) )  ||
-		     ( compare = strstr ( actor->psiData.modelName, "BEE" ) ) ||
-		     ( compare = strstr ( actor->psiData.modelName, "WARTHOG" ) ) ||
-	  	   ( compare = strstr ( actor->psiData.modelName, "MOA" ) ) ) )
-			 			// already loaded ?
-
-		{
-			utilPrintf("Found It................................................................\n");
-			sprintf ( globalActors [ globalCount ].modelName, psiModel->name );
-			globalActors [ globalCount ].actor	= actorCreate ( psiModel, 0, 0 );
-			globalActors [ globalCount ].done		= 0;
-			globalCount++;
-		}
-		// ENDIF
-	}
-	// ENDIF*/
 
 	return actor;
 }
