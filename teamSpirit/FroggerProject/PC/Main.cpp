@@ -253,6 +253,44 @@ void GetArgs(char *arglist)
 }
 
 
+int InstallChecker(HWND hParent)
+{
+	char path[MAX_PATH];
+	char *c; int n;
+	GetModuleFileName(NULL, path, MAX_PATH);
+
+	for (c=path,n=0; *c; c++,n++);
+	for (c--;n;n--,c--)	if (*c == '\\') break;
+	*(c++) = '\\'; *c = 0;
+
+	if (stricmp(baseDirectory, path) != 0)
+	{
+		if (strncmp(path, "X:\\", 3) == 0)
+		{
+			if (MessageBox(hParent,
+				"You are running Frogger2 from the X: drive while a version is installed on your hard drive. "
+				"Do you want to use X:\\TeamSpirit\\pcversion as your base directory for this session?",
+				"Warning", MB_YESNO | MB_ICONQUESTION) == IDYES)
+			{
+				strcpy(baseDirectory, "X:\\TeamSpirit\\pcversion\\");
+			}
+		}
+#ifndef _DEBUG
+		else if (MessageBox(hParent,
+			"You are running Frogger2 from a different directory to where it was installed. "
+			"This will often cause unexpected results and we recommend you re-install Frogger2 "
+			"before playing\n\n"
+			"Are you sure you want to continue?",
+			"Warning",
+			MB_YESNO | MB_ICONQUESTION) != IDYES)
+				return 0;
+#endif
+	}
+
+	return 1;
+}
+
+
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
 	Params:		As WNDPROC
@@ -272,6 +310,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_INITDIALOG:
 		{
+/*
 			strcpy (fPath,baseDirectory);
 			strcpy (fName,fPath);
 			strcat (fName,"*.fsg");
@@ -307,7 +346,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				dp("No savegames",fName);
 
 			SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_SETCURSEL,0,0);
-/*			
+
 			strcpy (fName,fPath);
 			strcat (fName,"setup.fsc");
 			fp = fopen(fName,"rb");
@@ -334,6 +373,9 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 
 			SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,!rFullscreen,0);
+
+			if (!InstallChecker(hWnd))
+				EndDialog(hWnd, 0);
 
 			return FALSE;			
 		}		
