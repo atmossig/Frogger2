@@ -256,11 +256,11 @@ BOOL LoadObjectBank(int num)
 			break;
 		
 		case SUBTERRANEANLEV2_OBJ_BANK:
-			strcat (file, "sub1");
+			strcat (file, "sub2");
 			break;
 		
 		case SUBTERRANEANLEV3_OBJ_BANK:
-			strcat (file, "sub1");
+			strcat (file, "sub3");
 			break;
 		
 		case CITYMASTER_OBJ_BANK:
