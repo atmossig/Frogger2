@@ -871,7 +871,8 @@ void UpdateVent( ENEMY *cur )
 		{
 			if( ((path->nodes[i].worldTile == currTile[0]) || (path->nodes[i].worldTile == destTile[0])) && (!player[0].dead.time) && (!player[0].safe.time) )
 			{
-				if( cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION )// cur->nmeActor->effects & EF_LIGHTNING )
+				// If radius based, do a cylindrical type collision on the vent beam
+				if( cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION )
 				{
 					// Get position in the beam to check for
 					SetVector( &pos, &path->nodes[i].worldTile->normal );
