@@ -110,6 +110,7 @@ typedef struct TAGSPECFX
 	unsigned char r, g, b, a;
 
 	SPRITE *sprites;
+
 	TEXTURE *tex;
 	ACTOR *follow;								// Go where it goes
 
@@ -160,6 +161,7 @@ extern void SetAttachedFXColour( SPECFX *fx, int effects );
 extern void ProcessAttachedEffects( void *entity, int type );
 
 extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short b );
+
 
 #endif
 
