@@ -48,42 +48,37 @@ void customDrawPrimitives2(int);
 void customDrawSortedPrimitives(int);
 void LSCAPE_DrawSortedPrimitives(int);
 
-extern USHORT EXPLORE_black_ref_palette[16];
+#define PROJECTION 0x220
 
+extern USHORT EXPLORE_black_ref_palette[16];
 extern USHORT EXPLORE_black_CLUT;
 
-
-
 GsRVIEW2	camera;
+unsigned long	RAMstart, RAMsize;
+static RECT VRAMarea = {0,0,1024,512};
+extern char __bss_orgend[];
+displayPageType displayPage[2], *currentDisplayPage;
+psFont *font;
 
-fixed gameSpeed = 4096;
-unsigned long actFrameCount = 0;
-unsigned long lastActFrameCount = 0;
+
+
+//fixed gameSpeed = 4096;
+//char quitMainLoop;
+//unsigned long actFrameCount = 0;
+//unsigned long lastActFrameCount = 0;
+//ULONG	frame;
+//VECTOR bbsrc, bbtar;
+extern fixed gameSpeed = 4096;
+extern char quitMainLoop;
+extern unsigned long actFrameCount = 0;
+extern unsigned long lastActFrameCount = 0;
+extern ULONG	frame;
+extern VECTOR bbsrc, bbtar;
+
 char UseAAMode = 0;
 char UseZMode = 1;
 
 
-
-
-
-#define PROJECTION 0x220
-
-//char baseDirectory[256] = "x:\\teamspirit\\psxversion\\";
-
-char quitMainLoop;
-unsigned long	RAMstart, RAMsize;
-
-static RECT VRAMarea = {0,0,1024,512};
-
-extern char __bss_orgend[];
-
-displayPageType displayPage[2], *currentDisplayPage;
-
-psFont *font;
-
-ULONG	frame;
-
-VECTOR bbsrc, bbtar;
 
 
 static void vsyncCallback()
@@ -481,7 +476,6 @@ int main ( )
 
 #if GOLDCD == NO
 	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
-//	fileInitialise("c:\\psx\\frogge~2\\CD\\");
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 #else
 	fileInitialise("\\FROGGER.DAT;1");
@@ -497,87 +491,21 @@ int main ( )
 //		MemCardInit(1);
 //		MemCardStart();
 		padInitialise(0); // 0 = No multi tap support
-
 		videoInit(1024, 3000);
-
 		textureInitialise(500, 20);
-
 		sfxInitialise();
 //		sfxStartSound();
 
-	//	psiInitialise();
-//		psiInitialise(100);
-//		psiInitLights();
+		// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
+		EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
 
-//		psiRegisterDrawFunction(LSCAPE_DrawSortedPrimitives);
-
-	// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
-	EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
-
-//		psiRegisterDrawFunction2(customDrawPrimitives2);
-//		psiRegisterDrawFunction(customDrawSortedPrimitives);
-
-//		psiSetAmbient(128,128,128);
-
-
-		frameCount=1;
-//		lastActFrameCount = actFrameCount = 0;
-		lastActFrameCount = actFrameCount = 1;
-
-		frame = 0;
 		VSyncCallback(&vsyncCallback);
-
-
-		/*sfxLoadBank("AM");*/
-//		memoryShow();
-
-//		font = fontLoad("\\FONTS\\FONT12.FON");
 		font = fontLoad("FONT12.FON");
-
-		quitMainLoop = 0;
-
 		InitCam();
-
 		actorInitialise();
-		InitMatrixStack();
-
 		InitBackdrop ( "FROGGER2.RAW" );
 
-
-
-//		transformedVertices = MALLOC0(sizeof(SVECTOR)*700);
-//		transformedDepths = MALLOC0(sizeof(long)*700);
-
-
-//		InitLevel ( 4, 0 );
-// 		gameState.mode = GAME_MODE;
-// 		gameState.mode = MENU_MODE;
-// 		gameState.menuMode = TITLE_MODE;
-
-		USE_MENUS=1;
- 		if (!USE_MENUS)
- 		{
- 			FreeAllLists();
-// 			InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
-			InitLevel ( 0, 0 );
-	 		gameState.mode = INGAME_MODE;
- 		}
- 		else
- 		{
- 			gameState.mode = MENU_MODE;
- 			gameState.menuMode = TITLE_MODE;
- 		}
-
-
-//		actorAnimate(frog[0]->actor, FROG_ANIM_LOOKLEFTANDRIGHT, YES, NO, 819, NO);
-
-
-		//	CRC = utilStr2CRC ( "00WATE04" );			// Testing........
-
-		//	texture = textureFindCRCInAllBanks ( CRC );  // Testing........
-
-
-//		InitNewBabyAnim();
+		CommonInit();
 
 
 		while ( !quitMainLoop )

@@ -1172,3 +1172,19 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 {
 }
 
+
+
+void actorDraw(ACTOR *actor)						
+{
+	return;
+}
+
+void actorSetAnimation(ACTOR *actor, ULONG frame)	
+{
+	return;
+}
+
+void actorUpdateAnimations(ACTOR *actor)			
+{
+	return;
+}

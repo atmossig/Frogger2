@@ -16,15 +16,8 @@
 #include <islutil.h>
 #include <islpad.h>
 
-#ifdef PSX_VERSION
-#include "map.h"
-#include "map_draw.h"
-#include "world.h"
-#include "water.h"
-#else
 #include <anim.h>
 #include <stdio.h>
-#endif
 
 #include "game.h"
 //#include "netgame.h"
@@ -57,13 +50,14 @@
 #include "bbtimer.h"
 #include "maths.h"
 
-#ifndef PSX_VERSION
 #include <temp_pc.h>
-#endif
+
+psFont *font;
+
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
-	//CommonInit();
+	CommonInit();
 
 	while (0);
 		GameLoop();

@@ -501,7 +501,7 @@ void customDrawPrimitives2(int depth)
 }
 
 
-long globalFadeVal;
+extern long globalFadeVal;
 
 // void LSCAPE_DrawSortedPrimitives(int depth)
 // {

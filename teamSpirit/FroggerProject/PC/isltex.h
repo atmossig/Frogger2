@@ -22,11 +22,11 @@ typedef struct
 } TextureAnimType;
 
 
-TextureBankType *textureLoadBank(char *sFile)									{return NULL;}
-TextureType *textureFindCRCInAllBanks(unsigned long crc)						{return NULL;}
-void textureDownloadBank(TextureBankType *bank)									{return;}
-void textureDestroyBank(TextureBankType *bank)									{return;}
-TextureType *textureFindCRCInBank(TextureBankType *bank, unsigned long crc)		{return NULL;}
-TextureAnimType *textureCreateAnimation(TextureType *dummy, TextureType **anim, int numFrames) {return NULL;}
+TextureBankType *textureLoadBank(char *sFile);
+TextureType *textureFindCRCInAllBanks(unsigned long crc);
+void textureDownloadBank(TextureBankType *bank);
+void textureDestroyBank(TextureBankType *bank);
+TextureType *textureFindCRCInBank(TextureBankType *bank, unsigned long crc);
+TextureAnimType *textureCreateAnimation(TextureType *dummy, TextureType **anim, int numFrames);
 
 #endif

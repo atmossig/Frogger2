@@ -46,8 +46,8 @@ typedef struct _PadDataType {
 // extern declaration of pad data structure
 extern PadDataType		padData;
 
-void padInitialise(unsigned char multiTap)	{return;}
-void padHandler()							{return;}
+void padInitialise(unsigned char multiTap);
+void padHandler();
 
 
 #endif

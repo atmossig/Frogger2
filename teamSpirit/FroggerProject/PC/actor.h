@@ -66,9 +66,9 @@ typedef struct
 void actorFree(ACTOR *actor);
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe);
 
-void actorDraw(ACTOR *actor)						{return;}
-void actorSetAnimation(ACTOR *actor, ULONG frame)	{return;}
-void actorUpdateAnimations(ACTOR *actor)			{return;}
+void actorDraw(ACTOR *actor);
+void actorSetAnimation(ACTOR *actor, ULONG frame);
+void actorUpdateAnimations(ACTOR *actor);
 
 
 #endif
