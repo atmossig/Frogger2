@@ -266,9 +266,9 @@ long LoopFunc(void)
 			a->pos.vy = c->actor->position.vy * 0.1f;
 			a->pos.vz = c->actor->position.vz * 0.1f;
 
-			a->scale.vx = 1;//c->actor->size.vx * (1.0f/4096.0f);
-			a->scale.vy = 1;//c->actor->size.vy * (1.0f/4096.0f);
-			a->scale.vz = 1;//c->actor->size.vz * (1.0f/4096.0f);
+			a->scale.vx = c->actor->size.vx * (1.0f/4096.0f);
+			a->scale.vy = c->actor->size.vy * (1.0f/4096.0f);
+			a->scale.vz = c->actor->size.vz * (1.0f/4096.0f);
 
 			if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
 			{

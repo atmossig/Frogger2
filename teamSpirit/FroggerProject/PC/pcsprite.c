@@ -28,10 +28,10 @@
 
 //----- [ PRINTING STUFF ] -----------------------------------------------------------------------
 
-#define SPRITECLIPLEFT		0
-#define SPRITECLIPTOP		0
-#define SPRITECLIPRIGHT		640
-#define SPRITECLIPBOTTOM	480
+#define SPRITECLIPLEFT		10
+#define SPRITECLIPTOP		10
+#define SPRITECLIPRIGHT		630
+#define SPRITECLIPBOTTOM	470
 
 #define ROTSPRITECLIPLEFT	0
 #define ROTSPRITECLIPTOP	0
@@ -61,14 +61,23 @@ void PrintSprites()
 	
 	// transform sprites to screen coords ready for sorting
 	for(cur = sprList.head.next; cur != &sprList.head && numSortArraySprites < MAX_ARRAY_SPRITES; cur = cur->next)
-		XfmPoint((MDX_VECTOR *)&cur->sc,(MDX_VECTOR *)&cur->pos,NULL);
-
+	{
+		MDX_VECTOR tVect;
+		tVect.vx = cur->pos.vx*(1.0/10);
+		tVect.vy = cur->pos.vy*(1.0/10);
+		tVect.vz = cur->pos.vz*(1.0/10);
+		XfmPoint(&cur->sc,&tVect,NULL);
+	//cur->sc.vz*=0.00025F;
+	}
 	ZSortSpriteList();
 
 	// draw from the newly sorted static array
 	
 	i = numSortArraySprites;
-	while(i--) if( spriteSortArray[i].draw ) PrintSprite(&spriteSortArray[i]);
+	while(i--) if( spriteSortArray[i].draw ) 
+	{
+		PrintSprite(&spriteSortArray[i]);
+	}
 }
 
 
@@ -280,12 +289,12 @@ void PrintSprite(SPRITE *sprite)
 			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
 		}
 
-		if(sprite->flags & SPRITE_FLAGS_ROTATE)
+/*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
 			DrawAlphaSpriteRotating( (MDX_VECTOR *)&sprite->sc,(float)sprite->angle/57.6,sprite->sc.vx+sprite->offsetX*distx,sprite->sc.vy+sprite->offsetY*disty,sprite->sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry->surf,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
-		else
+		else*/
 		{
 			DrawAlphaSprite(sprite->sc.vx+sprite->offsetX*distx,sprite->sc.vy+sprite->offsetY*disty,sprite->sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry->surf,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
@@ -473,6 +482,8 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	v[3].color = v[0].color; v[3].specular = v[0].specular;
 	v[3].tu = u1; v[3].tv = v2;
 
+	if (v[0].sx>1000)
+		dp("p{%f,%f   %f,%f   %f,%f   %f,%f}\n",v[0].sx,v[0].sy,v[1].sx,v[1].sy,v[2].sx,v[2].sy,v[3].sx,v[3].sy);
 	pDirect3DDevice->lpVtbl->SetTexture(pDirect3DDevice,0,h);
 
 	if ((z>0.01) || (z<-0.01))
