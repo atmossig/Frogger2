@@ -21,10 +21,6 @@
 #define TRIGGER_RISING		(1<<4)
 
 
-// Different ways of teleporting to another tile
-#define TELEPORT_TELEPORT	1
-#define TELEPORT_SPRING		2
-
 /*----- [ STRUCTURES ] -------------------------------------------------------------------------*/
 
 typedef struct TAGEVENT

@@ -192,6 +192,19 @@ int PathAtFlag( TRIGGER *trigger )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: BitCheck
+	Purpose 	: Checks if a bit is set in a variable
+	Parameters 	: 
+	Returns 	: 
+	Info 		: data[0] is a pointer to an existing integer.
+					data[1] is a value that is and-ed with the first thing
+*/
+int BitCheck( TRIGGER *trigger )
+{
+	return( *(int *)trigger->data[0] & (int)trigger->data[1] );
+}
+
 /*----- [ EVENT FUNCTIONS ] --------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
@@ -355,22 +368,74 @@ void ChangeLevel( EVENT *event )
 void TeleportFrog( EVENT *event )
 {
 	int fNum = (int)event->data[0],
-		tNum = (int)event->data[1],
-		type = (int)event->data[2];
+		tNum = (int)event->data[1];
 	GAMETILE *tile = GetTileFromNumber(tNum);
 
-	switch( type )
-	{
-	case TELEPORT_TELEPORT:
-		TeleportActorToTile(frog[fNum],tile,fNum);
-		fadeDir		= FADE_IN;
-		fadeOut		= 255;
-		fadeStep	= 8;
-		doScreenFade = 63;
-		break;
-	case TELEPORT_SPRING:
+	TeleportActorToTile(frog[fNum],tile,fNum);
+	fadeDir		= FADE_IN;
+	fadeOut		= 255;
+	fadeStep	= 8;
+	doScreenFade = 63;
+}
 
-		break;
+void SpringFrog( EVENT *event )
+{
+	int fNum = (int)event->data[0],
+		tNum = (int)event->data[1],
+		time = (int)event->data[2];
+
+	float t, ht = (int)event->data[3] / (float)0x10000;
+
+	TRIGGER *trigger = (TRIGGER *)event->data[4];
+
+	static int start = 0, end = 0;
+
+	GAMETILE *tile = GetTileFromNumber(tNum);
+	static VECTOR D, H, sPos;
+	VECTOR dd, dh;
+
+	if( !end )
+	{
+		start = actFrameCount;
+		end = start + ((time / (float)0x10000) * 60 );
+
+		// Calculate frog position from height, tile positions and actFrameCount.
+		SubVector( &D, &tile->centre, &currTile[fNum]->centre );
+		AddVector( &H, &tile->normal, &currTile[fNum]->normal );
+		MakeUnit( &H );
+		ScaleVector( &H, ht );
+
+		SetVector( &sPos, &frog[fNum]->actor->pos );
+	}
+
+	t = (float)(actFrameCount-start) / (float)(end-start);
+
+	SetVector( &dh, &H );
+	ScaleVector( &dh, 1.0 - (((2.0 * t) - 1.0) * ((2.0 * t) - 1.0)) );
+	SetVector( &dd, &D );
+	ScaleVector( &dd, t );
+
+	AddVector( &frog[fNum]->actor->pos, &sPos, &dd );
+	AddVector( &frog[fNum]->actor->pos, &frog[fNum]->actor->pos, &dh );
+
+	// TODO: Slurp frog orientation between source and destination tiles
+
+	// Check if position is close enough to destination tile. If it's landed, set currTile and cancel this event
+	if( DistanceBetweenPoints(&tile->centre,&frog[fNum]->actor->pos) < 5 )
+	{
+		currTile[fNum] = tile;
+		SetVector( &frog[fNum]->actor->pos, &tile->centre );
+		player[fNum].frogState &= ~FROGSTATUS_ISTELEPORTING;
+		player[fNum].frogState |= FROGSTATUS_ISSTANDING;
+
+		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&frog[fNum]->actor->pos,128,0,0.5,15);
+
+		start = 0;
+		end = 0;
+
+		// Delete this trigger/event pair
+		SubTrigger( trigger );
+		JallocFree( trigger );
 	}
 }
 
