@@ -220,7 +220,7 @@ void froggerShowVRAM(unsigned char palMode)
 	SetDefDispEnv(&dispenv, 0,0, 512,256);
 	while ((padData.digital[0] & PAD_START)==0)
 	{
-		padHandleInput();
+		myPadHandleInput();
 		switch(viewMode)
 		{
 		case 0:
@@ -491,7 +491,7 @@ void PsxNameEntryInit(void)
 void PsxNameEntryFrame(void)
 {
 	int j;
-//	padHandleInput();
+//	myPadHandleInput();
 
 	//move cursor
 	if(padData.debounce[0] & PAD_LEFT)
@@ -1158,5 +1158,16 @@ void asciiStringToSJIS(unsigned char *string, unsigned char *dest)
 		// Write sjis
 		*dest++ = (sjis_code&0xff00)>>8;
 		*dest++ = (sjis_code&0xff);
+	}
+}
+
+void myPadHandleInput()
+{
+	padHandleInput();
+	if((padData.present[1] == 0) || (padData.numPads[0] != 4))
+	{
+		padData.present[1] = padData.present[4];
+		padData.digital[1] = padData.digital[4];
+		padData.debounce[1] = padData.debounce[4];
 	}
 }

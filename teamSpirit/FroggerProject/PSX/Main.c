@@ -480,7 +480,7 @@ int main ( )
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
-			padHandleInput();
+			myPadHandleInput();
 			languageFrame();
 			DrawScreenTransition();
 			actFrameCount++;
@@ -493,7 +493,7 @@ int main ( )
 		}
 		actFrameCount = 0;
 #endif
-		padHandleInput();
+		myPadHandleInput();
 		LoadGame();
 		
 		if(saveInfo.saveFrame)
@@ -516,7 +516,7 @@ int main ( )
 				ClearOTagR(currentDisplayPage->ot, 1024);
 				currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
-				padHandleInput();
+				myPadHandleInput();
 
 				if(actFrameCount > 20)
 					ChooseLoadSave();
@@ -806,7 +806,7 @@ totalObjs = 0;
 				}
 			}
 #endif
-			padHandleInput();
+			myPadHandleInput();
 			if (padData.digital[4] == (PAD_SELECT|PAD_START|PAD_L1|PAD_R1|PAD_L2|PAD_R2))
 				quitMainLoop = 1;
 
@@ -821,7 +821,7 @@ totalObjs = 0;
 			{
 				while ( frameAdvance )
 				{
-					padHandleInput();
+					myPadHandleInput();
 
 					if ( padData.digital[0] == PAD_SELECT )
 					{

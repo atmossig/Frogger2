@@ -436,6 +436,7 @@ enum {
 	SAVEMENU_SAVEYN,
 	SAVEMENU_CHANGED,
 	SAVEMENU_OVERWRITE,
+	SAVEMENU_FORMATCOMPLETE,
 };
 
 
@@ -761,6 +762,15 @@ static void saveMenuLoadComplete()
 		saveInfo.saveFrame = 0;
 }
 
+static void saveMenuFormatComplete()
+{
+	if ((delayTimer++ > DELAY_TIME) || (ChooseOption(GAMESTRING(STR_MCARD_FORMATCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	{
+		saveInfo.saveStage = SAVEMENU_SAVEYN;
+		StartChooseOption();
+	}
+}
+
 static void saveMenuLoadError()
 {
 	switch(ChooseOption(GAMESTRING(STR_MCARD_LOADERROR), GAMESTRING(STR_MCARD_RECHECK), GAMESTRING(STR_MCARD_PROCEED_WITHOUT_SAVE)))
@@ -897,7 +907,8 @@ static void saveMenuFormat()
 		}
 		else
 		{
-			saveInfo.saveStage = SAVEMENU_CHECK;
+			saveInfo.saveStage = SAVEMENU_FORMATCOMPLETE;
+			delayTimer = 0;
 			StartChooseOption();
 		}
 	}
@@ -907,7 +918,7 @@ static void saveMenuFormat()
 
 static void saveMenuFormatFail()
 {
-	if (ChooseOption(GAMESTRING(STR_MCARD_FORMATERROR), GAMESTRING(STR_MCARD_RETRYSAVE), NULL))
+	if (ChooseOption(GAMESTRING(STR_MCARD_FORMATERROR), GAMESTRING(STR_MCARD_RECHECK), NULL))
 	{
 		saveInfo.saveStage = SAVEMENU_CHECK;
 		StartChooseOption();
@@ -1020,6 +1031,9 @@ void ChooseLoadSave()
 	case SAVEMENU_OVERWRITE:
 		saveMenuOverwrite();
 		break;
+	case SAVEMENU_FORMATCOMPLETE:
+		saveMenuFormatComplete();
+		break;	
 	}
 	fontSmall->alpha = alpha;
 }
