@@ -425,6 +425,7 @@ void ToolbarSelect(int command)
 		if (selectionList)
 		{
 			SetVectorS(&edv, &camDist);
+			ScaleVector(&edv, 0.1f);
 			EditorAddCameraCase(selectionList, LOOK_AT_FROG, &edv);
 			UpdateSelection( );
 		}
@@ -434,6 +435,7 @@ void ToolbarSelect(int command)
 		if (selectionList)
 		{
 			SetVectorS(&edv, &camDist);
+			ScaleVector(&edv, 0.1f);
 			EditorAddCameraCase(selectionList, LOOK_AT_FROG_NOTILT, &edv);
 			UpdateSelection( );
 		}
@@ -443,6 +445,7 @@ void ToolbarSelect(int command)
 		if (selectionList)
 		{
 			SetVectorF(&edv, &currCamSource);
+			ScaleVector(&edv, 0.1f);
 			EditorAddCameraCase(selectionList, FIXED_SOURCE, &edv);
 			UpdateSelection( );
 		}
@@ -452,6 +455,7 @@ void ToolbarSelect(int command)
 		if (selectionList)
 		{
 			SetVectorF(&edv, &currCamSource);
+			ScaleVector(&edv, 0.1f);
 			EditorAddCameraCase(selectionList, STATIC_CAMERA, &edv);
 			UpdateSelection( );
 		}
@@ -461,6 +465,7 @@ void ToolbarSelect(int command)
 		if (selectionList)
 		{
 			SetVectorF(&edv, &currCamSource);
+			ScaleVector(&edv, 0.1f);
 			EditorAddCameraCase(selectionList, LOOK_AT_TILE, &edv);
 			UpdateSelection( );
 		}
@@ -473,6 +478,7 @@ void ToolbarSelect(int command)
 			CREATEENTITY *cam;
 			
 			SetVectorF(&edv, &currCamSource);
+			ScaleVector(&edv, 0.1f);
 			cam = EditorAddCameraCase(selectionList, LOOK_IN_DIR, &edv);
 			
 			SetVectorF(&a, &currCamTarget);
