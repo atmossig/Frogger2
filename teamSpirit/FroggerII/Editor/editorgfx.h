@@ -1,6 +1,0 @@
-#ifndef EDITORGFX_H_INCLUDED
-#define EDITORGFX_H_INCLUDED
-
-
-
-#endif
