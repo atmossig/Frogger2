@@ -86,7 +86,9 @@ extern int objectMatrix;
 extern ACTOR2 *actList;
 extern ACTOR2 *globalLevelActor;
 
-extern char uniqueEnemyCount[20];
+extern char dprintbuf[255];
+
+//extern char uniqueEnemyCount[20];
 extern int uniqueActorCRC[];
 extern char numUniqueActors;
 

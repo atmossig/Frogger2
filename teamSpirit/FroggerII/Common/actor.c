@@ -44,7 +44,7 @@ ACTOR2 *actList = NULL;				// entire actor list
 ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
 
 //used to keep a count of how many of each enemy are present at the same time
-char uniqueEnemyCount[20];
+//char uniqueEnemyCount[20];
 
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numUniqueActors = 0;
@@ -57,8 +57,6 @@ char numUniqueActors = 0;
 	Parameters	: (void)
 	Returns		: void 
 */
-float meMod;
-
 void XformActor(ACTOR *ptr);
 
 void XformActorList()
@@ -718,39 +716,6 @@ void RemoveUniqueObject(OBJECT *object)
 	Returns 	: void
 	Info 		:
 */
-
-extern char dprintbuf[255];
-
-void RemoveUniqueActor(ACTOR *actor,int type)
-{
-/*
-	if((actor->objectController) && (actor->objectController->object))
-	{
-		if((type < 0) || ((type >= 0) && (type < CAMEO_ACTOR)))
-		{
-			SubActor(actor);
-			FreeObjectSprites(actor->objectController->object);
-
-			if(actor->objectController->drawList)
-			{
-				JallocFree((UBYTE **)&actor->objectController->Vtx[0]);
-				JallocFree((UBYTE **)&actor->objectController->drawList);
-			}
-
-
-			RemoveUniqueObject(actor->objectController->object);
-			JallocFree((UBYTE **)&actor->objectController);
-		
-			if((actor->LODObjectController) && (actor->LODObjectController->object))
-			{
-				RemoveUniqueObject(actor->LODObjectController->object);
-				JallocFree((UBYTE **)&actor->LODObjectController);
-			}
-		}
-	}
-*/
-}
-
 void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 {
 	VECTOR forward, dir;
@@ -868,3 +833,39 @@ void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 		QuaternionMultiply(&me->actor->qRot,&me->actor->qRot,&q);
 	}
 }
+
+
+
+
+
+
+/*
+
+void RemoveUniqueActor(ACTOR *actor,int type)
+{
+	if((actor->objectController) && (actor->objectController->object))
+	{
+		if((type < 0) || ((type >= 0) && (type < CAMEO_ACTOR)))
+		{
+			SubActor(actor);
+			FreeObjectSprites(actor->objectController->object);
+
+			if(actor->objectController->drawList)
+			{
+				JallocFree((UBYTE **)&actor->objectController->Vtx[0]);
+				JallocFree((UBYTE **)&actor->objectController->drawList);
+			}
+
+
+			RemoveUniqueObject(actor->objectController->object);
+			JallocFree((UBYTE **)&actor->objectController);
+		
+			if((actor->LODObjectController) && (actor->LODObjectController->object))
+			{
+				RemoveUniqueObject(actor->LODObjectController->object);
+				JallocFree((UBYTE **)&actor->LODObjectController);
+			}
+		}
+	}
+}
+*/
