@@ -1158,7 +1158,12 @@ void RunGameLoop (void)
 	ProcessCollectables();
 
 	for (i=0; i<4; i++)
+	{
 		UpdateFroggerPos(i);
+		if (!IsPointVisible(&frog[i]->actor->pos))
+			KillFrog (frog[i],i);
+	}
+
 	
 	UpdateFroggerPos2();
 

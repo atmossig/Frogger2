@@ -53,5 +53,6 @@ extern void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int sc
 extern void PrintSprite(SPRITE *sprite);
 
 extern void ScreenShot();
+char IsPointVisible(VECTOR *p);
 
 #endif

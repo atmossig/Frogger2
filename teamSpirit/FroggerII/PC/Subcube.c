@@ -375,7 +375,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->tu = obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0);
 			vTemp->color = D3DRGB(c1->v[0],c1->v[1],c1->v[2]);
-			vTemp->specular = (rCol,gCol,bCol);
+			vTemp->specular = D3DRGB(rCol,gCol,bCol);
 			
 			vTemp++;
 
@@ -386,7 +386,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->tu = obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0);
 			vTemp->color = D3DRGB(c2->v[0],c2->v[1],c2->v[2]);
-			vTemp->specular = (rCol,gCol,bCol);
+			vTemp->specular = D3DRGB(rCol,gCol,bCol);
 
 			vTemp++;
 
@@ -397,7 +397,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->tu = obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0);
 			vTemp->color = D3DRGB(c3->v[0],c3->v[1],c3->v[2]);
-			vTemp->specular = (rCol,gCol,bCol);
+			vTemp->specular = D3DRGB(rCol,gCol,bCol);
 			
 		
 
@@ -992,9 +992,9 @@ void DrawActor(ACTOR *ptr)
 
 	QUATERNION tempQ;
 	
-	rCol = ptr->currentcolor.v[0]/256.0;
-	gCol = ptr->currentcolor.v[1]/256.0;
-	bCol = ptr->currentcolor.v[2]/256.0;
+	rCol = (((float)ptr->currentcolor.v[0])/256.0);
+	gCol = (((float)ptr->currentcolor.v[0])/256.0);
+	bCol = (((float)ptr->currentcolor.v[0])/256.0);
 
 	ptr->matrix = NULL;
 	if(dispFrameCount == 1)

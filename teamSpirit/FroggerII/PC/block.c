@@ -19,6 +19,7 @@ long lButton = 0;
 
 char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
 char editorOk = 0;
+long drawTimers = 0;
 char keyDelay;
 
 char outputMessageBuffer[256];
@@ -130,15 +131,28 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 		if(appActive)
 		{
-			if KEYPRESS(DIK_F10)
+			if (!keyDelay)
 			{
-				if (!keyDelay)
-				{editorOk = !editorOk; keyDelay = 20;}
-				else
-					keyDelay--;
-			}
+				if KEYPRESS(DIK_F10)
+				{
+					editorOk = !editorOk; 
+					keyDelay = 20;
+				}
+			
+				if (KEYPRESS(DIK_F5))
+				{
+					drawTimers = !drawTimers;;
+					keyDelay = 20;
+				}
 
+			}
+			else
+				keyDelay--;
+			
+			StartTimer(4,"GameLoop");
 			GameLoop();
+			EndTimer(4);
+
 			ProcessUserInput(winInfo.hWndMain);
 			if (editorOk)
 				RunEditor();
@@ -146,8 +160,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			
 			DrawGraphics();
 			
-
+			StartTimer(3,"Flip");
 			DirectXFlip();
+			EndTimer(3);
+
 		}
 	}
 
@@ -272,7 +288,10 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 
 void DrawGraphics() 
 {
+	StartTimer(0,"DrawGfx");
+
 	XformActorList();
+
 	
 	if(spriteList.numEntries)
 		AnimateSprites();
@@ -281,17 +300,33 @@ void DrawGraphics()
 	// Actual stuff that draws
 	BeginDrawHardware();
 	
-	DrawActorList();	
+	StartTimer(1,"Draw Actor List");
 
+	DrawActorList();	
 	
+	EndTimer(1);
+	StartTimer(2,"Draw Sprites");
+
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
 		
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
 	
+	EndTimer(2);
+
 	if (editorOk)
 		DrawEditor();
+	
+	EndTimer(0);
 
+	if (drawTimers)
+		PrintTimers();
+
+	if (KEYPRESS(DIK_F6))
+		HoldTimers();
+
+			
+	ClearTimers();
 	EndDrawHardware();
 }

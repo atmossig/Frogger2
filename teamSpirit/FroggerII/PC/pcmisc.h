@@ -26,6 +26,11 @@ void InitPCSpecifics();
 void DeInitPCSpecifics();
 short *GetGelfBmpDataAsShortPtr(char *filename);
 void FreeGelfData(void *me);
+void ClearTimers(void);
+void StartTimer(int number,char *name);
+void EndTimer(int number);
+void PrintTimers(void);
+void HoldTimers(void);
 
 #ifdef __cplusplus
 }

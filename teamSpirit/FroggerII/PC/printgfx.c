@@ -100,6 +100,23 @@ void XfmPoint (VECTOR *vTemp2, VECTOR *in);
 
 extern long FOV,DIST;
 
+char IsPointVisible(VECTOR *p)
+{
+	VECTOR m;
+	XfmPoint (&m,p);
+	if (m.v[3]==0)
+		return 0;
+	if (m.v[0]<0) 
+		return 0;
+	if (m.v[0]>640) 
+		return 0;
+	if (m.v[1]<0) 
+		return 0;
+	if (m.v[1]>480)
+		return 0;
+	return 1;
+}
+
 void PrintSprite(SPRITE *sprite)
 {
 	VECTOR m,sc;
