@@ -103,7 +103,7 @@ typedef struct
 	short			numVertices;
 	MDX_VECTOR			*vertices;
 	MDX_SHORTVECTOR		*faceIndex;
-	MDX_BYTEVECTOR		*notUsed;//faceNormals;
+	MDX_VECTOR			*faceTC2;
 	MDX_USHORT2DVECTOR	*faceTC;
 	MDX_VECTOR			*vertexNormals;
 	MDX_QUATERNION		*gouraudColors;

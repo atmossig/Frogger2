@@ -70,14 +70,42 @@ void DrawBatchedPolys (void);
 void InitFrames(void);
 void SetTexture(MDX_TEXENTRY *me);
 HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags);
-
+//void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry );
 // Add a halo point to be tested at draw time/
 void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size);
+
+
+#define PushPolys(v,vC,fce,fC,tEntry)\
+{\
+	long cnt;\
+	short *mfce = fce;\
+	LPDIRECTDRAWSURFACE7 tH = (tEntry ? tEntry->surf : 0);\
+\
+	if ((cFInfo->nV + vC) < MA_MAX_VERTICES && (cFInfo->nF + fC) < MA_MAX_FACES)\
+	{\
+	\
+		for (cnt=fC;cnt; cnt--)\
+		{\
+			*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);\
+			*cFInfo->cT = tH;\
+			cFInfo->cF++;\
+			cFInfo->cT++;\
+			mfce++;\
+		}\
+	\
+		memcpy(cFInfo->cV,v,vC*sizeof(D3DTLVERTEX));\
+		\
+		cFInfo->cV+=vC;\
+		cFInfo->nV+=vC;\
+		cFInfo->nF+=fC;\
+	}\
+}
+
 
 // Push a poly onto the buffers
 
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
-void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry );
+
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);
 void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1);

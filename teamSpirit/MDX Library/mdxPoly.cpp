@@ -341,10 +341,12 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 	Info          : -
 */
 
+/*
 void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry )
 {
 	long cnt;
 	short *mfce = fce;
+	LPDIRECTDRAWSURFACE7 tH = (tEntry ? tEntry->surf : 0);
 
 	// Push for software/sorting...
 	
@@ -352,12 +354,9 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	{
 		if (tEntry)
 		{
-			//if (tEntry->type == TEXTURE_NORMAL)
-			//{
-				PushPolys_Software(v,vC,fce,fC,tEntry);
-				memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
-				numSoftVertex+=vC;
-			//}
+			PushPolys_Software(v,vC,fce,fC,tEntry);
+			memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
+			numSoftVertex+=vC;
 		}
 
 		return;
@@ -381,10 +380,10 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	if ((cFInfo->nV + vC) > MA_MAX_VERTICES || (cFInfo->nF + fC) > MA_MAX_FACES)
 		return;
 
-	for (cnt=0;cnt<fC; cnt++)
+	for (cnt=fC;cnt; cnt--)
 	{
 		*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);
-		*cFInfo->cT = tEntry ? tEntry->surf : 0;
+		*cFInfo->cT = tH;
 		cFInfo->cF++;
 		cFInfo->cT++;
 		mfce++;
@@ -396,7 +395,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	cFInfo->nV+=vC;
 	cFInfo->nF+=fC;
 }
-
+*/
 //#endif
 
 /*  --------------------------------------------------------------------------------
@@ -633,8 +632,7 @@ void DrawBatchedPolys (void)
 		while ((((*(cFInfo->cT)) == lSurface) || (limTex)) && (i<cFInfo->nF)) 
 		{
 			cFInfo->cT+=3;
-			nFace+=3;
-			
+			nFace+=3;			
 			i+=3;
 		}
 		

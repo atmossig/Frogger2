@@ -44,6 +44,8 @@ typedef struct TAG_MDX_ACTOR
 	MDX_TEXENTRY				*overrideTex;
 
 	long						draw;
+	long						xform;
+
 } MDX_ACTOR;
 
 #define	INIT_ANIMATION	(1 << 0)

@@ -75,6 +75,8 @@ void ActorListDraw(void)
 	while (cur)
 	{
 		drawThisObjectsSprites = cur->draw;
+		
+		//if (cur->xform)
 		XformActor(cur);
 		
 		if (cur->draw)
@@ -309,6 +311,10 @@ void XformActor(MDX_ACTOR *actor)
 
 	if (!objectC)
 		return;
+
+	if (objectC->object)
+		if ((objectC->object->bBox) && CheckBoundingBox(objectC->object->bBox,&objectC->object->objMatrix))
+			return;
 
 	UpdateAnims(actor);
 

@@ -35,6 +35,7 @@ MDX_OBJECT_BANK objectBanks[MAX_OBJECT_BANKS];
 WORD fpuState;
 unsigned long drawThisObjectsSprites = 1;
 
+#define ANIMSNAP_THRESHHOLD 0.15
 void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 {
 	int i;
@@ -356,7 +357,11 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	{
 		FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,time,obj->numMoveKeys,obj->lastMKey);
 		obj->lastMKey = fromKey;
-		LinearInterp(&translation,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+		
+		if ((obj->moveKeys[toKey].time - time) < ANIMSNAP_THRESHHOLD)
+			SetVector(&translation,&obj->moveKeys[toKey].vect);
+		else
+			LinearInterp(&translation,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
 	}
 	else
 	{
@@ -368,7 +373,11 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	{
 		FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,time,obj->numScaleKeys,obj->lastSKey);
 		obj->lastSKey = fromKey;
-		LinearInterp(&scale,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+
+		if ((obj->scaleKeys[toKey].time - time) < ANIMSNAP_THRESHHOLD)
+			SetVector(&scale,&obj->scaleKeys[toKey].vect);
+		else
+			LinearInterp(&scale,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
 	}
 	else
 	{
@@ -380,10 +389,16 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	{
 		FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys,obj->lastRKey);
 		obj->lastRKey = fromKey;
-		QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
+	
+		if ((obj->rotateKeys[toKey].time - time) < ANIMSNAP_THRESHHOLD)
+			QuaternionToMatrix(&obj->rotateKeys[toKey].quat, (MDX_MATRIX *)rotmat);		
+		else
+		{
+			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
 			
-		// convert back to rotation matrix
-		QuaternionToMatrix(&tempQuat, (MDX_MATRIX *)rotmat);
+			// convert back to rotation matrix
+			QuaternionToMatrix(&tempQuat, (MDX_MATRIX *)rotmat);
+		}
 
 	}
 	else
@@ -530,7 +545,9 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 	{
 		float r,g,b,a;
 		unsigned long dupCount = 0;
-		
+	
+		obj->mesh->faceTC2 = new MDX_VECTOR[obj->mesh->numFaces * 3];
+	
 		// Sort object by texture for speedy drawing! OPTIMISE! Put in bankmanager!
 		if (obj->mesh->numFaces)
 		{
@@ -538,6 +555,15 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 
 			for (x=1; x<obj->mesh->numFaces; x++)
 			{
+				obj->mesh->faceTC2[x*3].vx = obj->mesh->faceTC[x*3].v[0] * 0.000975F;
+				obj->mesh->faceTC2[x*3].vy = obj->mesh->faceTC[x*3].v[1] * 0.000975F;
+
+				obj->mesh->faceTC2[x*3+1].vx = obj->mesh->faceTC[x*3+1].v[0] * 0.000975F;
+				obj->mesh->faceTC2[x*3+1].vy = obj->mesh->faceTC[x*3+1].v[1] * 0.000975F;
+
+				obj->mesh->faceTC2[x*3+2].vx = obj->mesh->faceTC[x*3+2].v[0] * 0.000975F;
+				obj->mesh->faceTC2[x*3+2].vy = obj->mesh->faceTC[x*3+2].v[1] * 0.000975F;
+
 				if ((unsigned long)obj->mesh->textureIDs[x] != cTex)
 				{
 					for (y=x; y<obj->mesh->numFaces; y++)

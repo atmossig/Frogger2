@@ -448,44 +448,49 @@ void PCPrepareObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	}
 }
 
+#define BIAS 127
+
+
+#define fftol(v) (((((*((long *)v))&0x007fffff)<<8)|0x80000000)>>((BIAS-(((*((long *)v))&0x7f800000)>>23))+31))
+
+
 
 void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 {
-	float f[4][4];
+	float f[16];
 	MDX_VECTOR *in;
 	MDX_VECTOR *vTemp2;
+	MDX_VECTOR *vtxS = mesh->vertices;
 	long i,j;
-	
+	long x,*eV;
+	float oozd;
+
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
+	eV = ((long *)(obj->effectedVerts));
 
 	// Go thru the affected vertices, and xfm the corresponding vertices
-	for (i=0; i<obj->numVerts; i++)
+	for (i=obj->numVerts; i; i--)
 	{
-		j = ((long *)(obj->effectedVerts))[i];
-		if (j==0)
-			j=0;
-		// Setup Our pointers
-		vTemp2 = &tV[j];
-		in = &mesh->vertices[j];
+		j = *eV++;
+		
+		vTemp2 = tV+j;
+		in = vtxS+j;
 
-		// Transform by our matrix
-		vTemp2->vx = (f[0][0]*in->vx)+(f[1][0]*in->vy)+(f[2][0]*in->vz)+(f[3][0]);
-		vTemp2->vy = (f[0][1]*in->vx)+(f[1][1]*in->vy)+(f[2][1]*in->vz)+(f[3][1]);
-		vTemp2->vz = (f[0][2]*in->vx)+(f[1][2]*in->vy)+(f[2][2]*in->vz)+(f[3][2]);
-
+		vTemp2->vx = (f[0]*in->vx)+(f[4]*in->vy)+(f[8]*in->vz)+(f[12]);
+		vTemp2->vy = (f[1]*in->vx)+(f[5]*in->vy)+(f[9]*in->vz)+(f[13]);
+		vTemp2->vz = (f[2]*in->vx)+(f[6]*in->vy)+(f[10]*in->vz)+(f[14]);
+		oozd = vTemp2->vz+DIST; 
 		// Transform to screen space
-		if (((vTemp2->vz+DIST)>nearClip) &&
-			(((vTemp2->vz+DIST)<farClip) &&
+		if ((oozd>nearClip) &&
+			((oozd<farClip) &&
 			((vTemp2->vx)>-horizClip) &&
 			((vTemp2->vx)<horizClip) &&
 			((vTemp2->vy)>-vertClip) &&
 			((vTemp2->vy)<vertClip)))
 		{
-			long x = (long)vTemp2->vz+DIST;
-			float oozd = -FOV * oneOver[x];
-			
-			vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
-			vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
+			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
+			vTemp2->vx = halfWidth + (vTemp2->vx * oozd);
+			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd);
 		}
 		else
 			vTemp2->vz = 0;
@@ -549,38 +554,46 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 	d1 = vMatrix.matrix[3][1];
 	d2 = vMatrix.matrix[3][2];
 
-	in = me->vertices;
-	vTemp2 = me->xfmVert;
-	tFace = me->faceIndex;
-	
-	for (i=0,j=me->numFaces*3; j>0; i++,j--)
+	if (changedView)
 	{
-		in = &me->vertices[*tFace];
-		
-		vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
-		vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
-		vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2;
-
-		if (((vTemp2->sz+DIST)>nearClip) &&
-		(((vTemp2->sz+DIST)<farClip) &&
-		((vTemp2->sx)>-horizClip) &&
-		((vTemp2->sx)<horizClip) &&
-		((vTemp2->sy)>-vertClip) &&
-		((vTemp2->sy)<vertClip)))
-			{
-			x = (long)vTemp2->sz + DIST;
-			oozd = -FOV * *(oneOver+x);
+		in = me->vertices;
+		vTemp2 = me->xfmVert;
+		tFace = me->faceIndex;
+	
+		for (i=0,j=me->numFaces*3; j>0; i++,j--)
+		{
+			in = &me->vertices[*tFace];
 			
-			vTemp2->sx = halfWidth+(vTemp2->sx * oozd);
-			vTemp2->sy = halfHeight+(vTemp2->sy * oozd);
-		
-		}
-		else
-			vTemp2->sz = 0;
+			vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
+			vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
+			vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2;
 
-		vTemp2++;
-		tFace++;
-		in++;
+			if (((vTemp2->sz+DIST)>nearClip) &&
+			(((vTemp2->sz+DIST)<farClip) &&
+			((vTemp2->sx)>-horizClip) &&
+			((vTemp2->sx)<horizClip) &&
+			((vTemp2->sy)>-vertClip) &&
+			((vTemp2->sy)<vertClip)))
+				{
+				oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
+
+	//			x = (long)vTemp2->sz + DIST;
+	//			oozd = -FOV * *(oneOver+x);
+				
+				vTemp2->sx = halfWidth+(vTemp2->sx * oozd);
+				vTemp2->sy = halfHeight+(vTemp2->sy * oozd);
+			
+			}
+			else
+				vTemp2->sz = 0;
+
+			vTemp2->sz *= 0.00025F;
+			vTemp2->rhw = 1;
+			
+			vTemp2++;
+			tFace++;
+			in++;
+		}
 	}
 }
 
@@ -726,17 +739,11 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 			y1on = BETWEEN(v[0].sy,cly0,cly1);
 			y2on = BETWEEN(v[1].sy,cly0,cly1);
 			y3on = BETWEEN(v[2].sy,cly0,cly1);
-			v[0].sz *= 0.00025F;
-			v[1].sz *= 0.00025F;
-			v[2].sz *= 0.00025F;
-			v[0].rhw = 1/v[0].sz;
-			v[1].rhw = 1/v[1].sz;
-			v[2].rhw = 1/v[2].sz;
 			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					PushPolys(v,3,facesON,3,*tEnt);
+					PushPolys(v,3,facesON,3,(*tEnt));
 				}
 				else
 				{
@@ -901,7 +908,7 @@ MDX_TEXENTRY *phong;
 MDX_TEXENTRY *lightMap;
 MDX_TEXENTRY *overrideTex;
 
-void PCRenderObject (MDX_OBJECT *obj)
+void PCRenderObjectSlow (MDX_OBJECT *obj)
 {
 	long i,j;
 	unsigned short fce[3] = {0,1,2};		
@@ -1404,7 +1411,9 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
 					PushPolys(v,3,facesON,3,tex);
+				}
 				else
 					Clip3DPolygon(v,tex);
 			}
@@ -1415,6 +1424,117 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 		tex2++;
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PCRenderObject (MDX_OBJECT *obj)
+{
+	long i,j;
+	unsigned short fce[3] = {0,1,2};		
+	MDX_QUATERNION *c1,*c2,*c3;
+	D3DTLVERTEX v[3],*vTemp;
+	MDX_SHORTVECTOR *facesIdx;
+	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long v0,v1,v2;
+	unsigned long v0a,v1a,v2a;
+	long alphaVal;
+	MDX_TEXENTRY *tex;
+	MDX_TEXENTRY **tex2;
+	MDX_VECTOR *tV0,*tV1,*tV2, *tN0,*tN1,*tN2,*fTC;
+	MDX_QUATERNION *cols;
+	
+	fTC = obj->mesh->faceTC2;
+	facesIdx = obj->mesh->faceIndex;
+	tex2 = obj->mesh->textureIDs;
+	cols = obj->mesh->gouraudColors;
+	alphaVal = (long)(globalXLU2*255.0);
+
+	for (j=0, i=obj->mesh->numFaces; i; i--, j+=3)
+	{
+		// Get information from the mesh!
+		v0 = facesIdx->v[0];
+		v1 = facesIdx->v[1];
+		v2 = facesIdx->v[2];
+				
+		tV0 = tV+v0;
+		tV1 = tV+v1;
+		tV2 = tV+v2;
+
+		tex = (MDX_TEXENTRY *)(*tex2);
+		
+		// If we are to be drawn.
+		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+		{
+			// Get rest of info from mesh
+			v0a = j;
+			v1a = j+1;
+			v2a = j+2;
+
+			c1 = cols+v0a;
+			c2 = cols+v1a;
+			c3 = cols+v2a;
+			
+			// Fill out D3DVertices...
+			vTemp = v;
+				
+			vTemp->sx = tV0->vx;
+			vTemp->sy = tV0->vy;
+			vTemp->sz = (tV0->vz) * 0.00025F;
+			vTemp->rhw = 1;
+			
+			vTemp->color = *((unsigned long *)c1);
+			vTemp->specular = 0;
+			vTemp->tu = fTC[v0a].vx;
+			vTemp->tv = fTC[v0a].vy;
+			vTemp++;
+
+			vTemp->sx = tV1->vx;
+			vTemp->sy = tV1->vy;
+			vTemp->sz = (tV1->vz) * 0.00025F;
+			vTemp->rhw = 1;
+
+			vTemp->color = *((unsigned long *)c2);
+			vTemp->specular = 0;
+			vTemp->tu = fTC[v1a].vx;
+			vTemp->tv = fTC[v1a].vy;
+			vTemp++;
+			
+			vTemp->sx = tV2->vx;
+			vTemp->sy = tV2->vy;
+			vTemp->sz = (tV2->vz) * 0.00025F;
+			vTemp->rhw = 1;
+			
+			vTemp->color = *((unsigned long *)c3);
+			vTemp->specular = 0;
+			vTemp->tu = fTC[v2a].vx;
+			vTemp->tv = fTC[v2a].vy;
+
+			x1on = BETWEEN(v[0].sx,clx0,clx1);
+			x2on = BETWEEN(v[1].sx,clx0,clx1);
+			x3on = BETWEEN(v[2].sx,clx0,clx1);
+			y1on = BETWEEN(v[0].sy,cly0,cly1);
+			y2on = BETWEEN(v[1].sy,cly0,cly1);
+			y3on = BETWEEN(v[2].sy,cly0,cly1);
+
+			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			{
+				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
+					PushPolys(v,3,facesON,3,tex);
+				}
+				else
+				{
+					Clip3DPolygon(v,tex);
+				}
+			}
+		}
+		
+		// Update our pointers
+		facesIdx++;
+		tex2++;
+	}
+}
+
 
 #ifdef __cplusplus
 }

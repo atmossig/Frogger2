@@ -56,10 +56,57 @@ extern MDX_MATRIXSTACK	matrixStack;
 extern MDX_VECTOR upV, rightV, inV;
 
 void guTranslateF(float a[4][4], float dx, float dy, float dz);
-void guMtxCatF(float *b, float *a, float *ret);
+//void guMtxCatF(float *b, float *a, float *ret);
+//void guMtxCatF(float *b, float *a, float *ret);
+
+#define guMtxCatF(a,b,ret) {\
+	(ret)[ 0] = *((a)+0) * *((b)+0) + *((a)+1) * *((b)+4) + *((a)+2) * *((b)+8); \
+	(ret)[ 1] = *((a)+0) * *((b)+1) + *((a)+1) * *((b)+5) + *((a)+2) * *((b)+9); \
+	(ret)[ 2] = *((a)+0) * *((b)+2) + *((a)+1) * *((b)+6) + *((a)+2) * *((b)+10); \
+	(ret)[ 3] = 0; \
+	(ret)[ 4] = *((a)+4) * *((b)+0) + *((a)+5) * *((b)+4) + *((a)+6) * *((b)+8); \
+	(ret)[ 5] = *((a)+4) * *((b)+1) + *((a)+5) * *((b)+5) + *((a)+6) * *((b)+9); \
+	(ret)[ 6] = *((a)+4) * *((b)+2) + *((a)+5) * *((b)+6) + *((a)+6) * *((b)+10); \
+	(ret)[ 7] = 0; \
+	(ret)[ 8] = *((a)+8) * *((b)+0) + *((a)+9) * *((b)+4) + *((a)+10) * *((b)+8); \
+	(ret)[ 9] = *((a)+8) * *((b)+1) + *((a)+9) * *((b)+5) + *((a)+10) * *((b)+9); \
+	(ret)[10] = *((a)+8) * *((b)+2) + *((a)+9) * *((b)+6) + *((a)+10) * *((b)+10); \
+	(ret)[11] = 0;\
+	(ret)[12] = *((a)+12) * *((b)+0) + *((a)+13) * *((b)+4) + *((a)+14) * *((b)+8) + *((b)+12);\
+	(ret)[13] = *((a)+12) * *((b)+1) + *((a)+13) * *((b)+5) + *((a)+14) * *((b)+9) + *((b)+13);\
+	(ret)[14] = *((a)+12) * *((b)+2) + *((a)+13) * *((b)+6) + *((a)+14) * *((b)+10) + *((b)+14);\
+	(ret)[15] = 1;\
+}
+
+#define PushMatrix(matrix)\
+{ \
+	float *ret,*a,*b;\
+	ret = (float *)matrixStack.stack[matrixStack.stackPosition+1];\
+	a = (float *)matrix;\
+	b = (float *)matrixStack.stack[matrixStack.stackPosition];\
+	(ret)[ 0] = *((a)+0) * *((b)+0) + *((a)+1) * *((b)+4) + *((a)+2) * *((b)+8); \
+	(ret)[ 1] = *((a)+0) * *((b)+1) + *((a)+1) * *((b)+5) + *((a)+2) * *((b)+9); \
+	(ret)[ 2] = *((a)+0) * *((b)+2) + *((a)+1) * *((b)+6) + *((a)+2) * *((b)+10); \
+	(ret)[ 3] = 0; \
+	(ret)[ 4] = *((a)+4) * *((b)+0) + *((a)+5) * *((b)+4) + *((a)+6) * *((b)+8); \
+	(ret)[ 5] = *((a)+4) * *((b)+1) + *((a)+5) * *((b)+5) + *((a)+6) * *((b)+9); \
+	(ret)[ 6] = *((a)+4) * *((b)+2) + *((a)+5) * *((b)+6) + *((a)+6) * *((b)+10); \
+	(ret)[ 7] = 0; \
+	(ret)[ 8] = *((a)+8) * *((b)+0) + *((a)+9) * *((b)+4) + *((a)+10) * *((b)+8); \
+	(ret)[ 9] = *((a)+8) * *((b)+1) + *((a)+9) * *((b)+5) + *((a)+10) * *((b)+9); \
+	(ret)[10] = *((a)+8) * *((b)+2) + *((a)+9) * *((b)+6) + *((a)+10) * *((b)+10); \
+	(ret)[11] = 0;\
+	(ret)[12] = *((a)+12) * *((b)+0) + *((a)+13) * *((b)+4) + *((a)+14) * *((b)+8) + *((b)+12);\
+	(ret)[13] = *((a)+12) * *((b)+1) + *((a)+13) * *((b)+5) + *((a)+14) * *((b)+9) + *((b)+13);\
+	(ret)[14] = *((a)+12) * *((b)+2) + *((a)+13) * *((b)+6) + *((a)+14) * *((b)+10) + *((b)+14);\
+	(ret)[15] = 1;\
+	matrixStack.stackPosition++; \
+}
+
 void guScaleF(float a[4][4], float dx, float dy, float dz);
 void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp);
 void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float *destY,float *destZ);
+
 
 #define EPSILON		((float)0.00001)
 #define HALFPI		((float)1.570796326794895)
@@ -73,7 +120,7 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 #define Bound(a,x,b) Min(b,Max(a,x))
 #define Max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 #define Min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
-#define PushMatrix(matrix)	{ guMtxCatF((float *)(matrix), (float *)matrixStack.stack[matrixStack.stackPosition], (float *)matrixStack.stack[matrixStack.stackPosition+1]); matrixStack.stackPosition++; }
+
 #define PopMatrix() (matrixStack.stackPosition--)
 #define SetVector(v1,v2)	(*(v1)) = (*(v2))
 #define MatrixSet(m1,m2) (*((MDX_MATRIX *)m1)) = (*((MDX_MATRIX *)m2))
@@ -90,6 +137,7 @@ void QuaternionMultiply(MDX_QUATERNION *dest,MDX_QUATERNION *src1,MDX_QUATERNION
 void MatrixToQuaternion(MDX_MATRIX *smatrix, MDX_QUATERNION *dquat);
 void RotateVectorByRotation(MDX_VECTOR *result,MDX_VECTOR *vect,MDX_QUATERNION *rot);
 void GetRotationFromQuaternion(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ);
+void InitMaths(void);
 
 float mdxFindShortestAngle(float val1, float val2);
 
@@ -99,6 +147,7 @@ extern MDX_QUATERNION zeroQuat;
 
 void MatrixStackInitialise();
 void Normalise(MDX_VECTOR *vect);
+extern long changedView;
 
 #ifdef __cplusplus
 }

@@ -39,12 +39,34 @@ MDX_QUATERNION zeroQuat = {0,0,0,1};
 MDX_MATRIXSTACK	matrixStack;
 MDX_VECTOR curAt;
 MDX_VECTOR curEye;
+long changedView = 0;
+#define MOVE_THRESH 0.1
+float sinTable[4096];
+float acosTable[4096];
+
+#define sinFast(x) (sinTable[((long)(x * (4096.0/PI2)))&4095])
+#define acosFast(x) (acosTable[((long)((x*2048)+2048))&4095])
+
+float imtx[4][4]={1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+	
+void InitMaths(void)
+{
+	int i;
+	// Initialise the matrix stack
+	MatrixStackInitialise();
+
+	// Init tables
+	for (i=0; i<4096; i++)
+		acosTable[i] = acos((i-2048)/2048.0);
+	for (i=0; i<4096; i++)
+		sinTable[i] = sinf((i*PI2)/4096.0);		
+}
+
 
 void Normalise(MDX_VECTOR *vect)
 {
 	float m = mdxMagnitude(vect);
 	
-
 	if(m != 0)
 	{
 		vect->vx /= m;
@@ -56,9 +78,8 @@ void Normalise(MDX_VECTOR *vect)
 void guMtxIdent (float a[4][4])
 {
 	int i,j;
-	for (i=0; i<4; i++)
-		for (j=0; j<4; j++)
-			a[i][j] = (i==j) ? 1.0f : 0.0f;
+	memcpy (a,imtx,sizeof(float)*16);
+	
 }
 
 void guScaleF(float a[4][4], float dx, float dy, float dz)
@@ -80,31 +101,29 @@ void guTranslateF(float a[4][4], float dx, float dy, float dz)
 }
 
 
-void guMtxCatF(float *b, float *a, float *ret)
+
+/*void guMtxCatF(float *a, float *b, float *ret)
 {
-	float adj[4][4]={0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
-	float *p,*o,*n,*m = (float *)adj;
-	long i,j,k,l;
-	
-	i=4;
+	ret[ 0] = a[ 0] * b[ 0] + a[ 1] * b[ 4] + a[ 2] * b[ 8]; 
+	ret[ 1] = a[ 0] * b[ 1] + a[ 1] * b[ 5] + a[ 2] * b[ 9]; 
+	ret[ 2] = a[ 0] * b[ 2] + a[ 1] * b[ 6] + a[ 2] * b[10]; 
+	ret[ 3] = 0; 
+	ret[ 4] = a[ 4] * b[ 0] + a[ 5] * b[ 4] + a[ 6] * b[ 8]; 
+	ret[ 5] = a[ 4] * b[ 1] + a[ 5] * b[ 5] + a[ 6] * b[ 9]; 
+	ret[ 6] = a[ 4] * b[ 2] + a[ 5] * b[ 6] + a[ 6] * b[10]; 
+	ret[ 7] = 0; 
+	ret[ 8] = a[ 8] * b[ 0] + a[ 9] * b[ 4] + a[10] * b[ 8]; 
+	ret[ 9] = a[ 8] * b[ 1] + a[ 9] * b[ 5] + a[10] * b[ 9]; 
+	ret[10] = a[ 8] * b[ 2] + a[ 9] * b[ 6] + a[10] * b[10]; 
+	ret[11] = 0;
+	ret[12] = a[12] * b[ 0] + a[13] * b[ 4] + a[14] * b[ 8] + b[12];
+	ret[13] = a[12] * b[ 1] + a[13] * b[ 5] + a[14] * b[ 9] + b[13];
+	ret[14] = a[12] * b[ 2] + a[13] * b[ 6] + a[14] * b[10] + b[14];
+	ret[15] = 1;
 
- 	while(i--)
-	{		
-		for (j=0; j<4; j++) 
-		{
-			n = a+j;
-			o = m+j;
-			p = b;
-			k=4;
-			while(k--) *o += *n * *p++, n+=4;
-			
-		}
-		m+=4;
-		b+=4;		
-	}
-
-	memcpy (ret,adj,sizeof(float)*16);
-}
+ //   dp("a = \n[ %.2f,%.2f,%.2f,%.2f\n  %.2f,%.2f,%.2f,%.2f\n  %.2f,%.2f,%.2f,%.2f\n  %.2f,%.2f,%.2f,%.2f] \n ",a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8],a[9],a[10],a[11],a[12],a[13],a[14],a[15]);  
+ //   dp("b = \n[ %.2f,%.2f,%.2f,%.2f\n  %.2f,%.2f,%.2f,%.2f\n  %.2f,%.2f,%.2f,%.2f\n  %.2f,%.2f,%.2f,%.2f] \n", b[0],b[1],b[2],b[3],b[4],b[5],b[6],b[7],b[8],b[9],b[10],b[11],b[12],b[13],b[14],b[15]);  
+}*/
 
 void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float *destY,float *destZ)
 {
@@ -114,11 +133,21 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 }
 
 
+
 void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp)
 {
     MDX_VECTOR  up, right, view_dir,world_up,from;
 
 	guMtxIdent (m);
+
+	changedView = 1;
+	if ((fabs(curAt.vx - xAt)<MOVE_THRESH) &&
+		(fabs(curAt.vy - yAt)<MOVE_THRESH) &&
+		(fabs(curAt.vz - zAt)<MOVE_THRESH) &&
+		(fabs(curEye.vx - xEye)<MOVE_THRESH) &&
+		(fabs(curEye.vy - yEye)<MOVE_THRESH) &&
+		(fabs(curEye.vz - zEye)<MOVE_THRESH))
+		changedView = 0;
 	
 	curAt.vx = xAt;
 	curAt.vy = yAt;
@@ -266,6 +295,7 @@ void QuaternionToMatrix(MDX_QUATERNION *squat, MDX_MATRIX *dmatrix)
 	*/
 }
 
+
 void QuatSlerp(MDX_QUATERNION *src1, MDX_QUATERNION *sp2, float t, MDX_QUATERNION *dquat)
 {
 	float			omega, cosom, sinom, sclp, sclq, pdist,ndist;
@@ -305,10 +335,10 @@ void QuatSlerp(MDX_QUATERNION *src1, MDX_QUATERNION *sp2, float t, MDX_QUATERNIO
 	{
 		if ((((float)1.0)-cosom) > EPSILON)
 		{
-			omega = (float)acos(cosom);
-			sinom = (float)1.0/sinf(omega);
-			sclp = (float)sinf(((float)1.0-t)*omega)*sinom;
-			sclq = (float)sinf(t*omega)*sinom;
+			omega = (float)acosFast(cosom);
+			sinom = (float)1.0/sinFast(omega);			
+			sclp = (float)sinFast(((float)1.0-t)*omega)*sinom;
+			sclq = (float)sinFast(t*omega)*sinom;
 		}
 		else
 		{
@@ -326,8 +356,8 @@ void QuatSlerp(MDX_QUATERNION *src1, MDX_QUATERNION *sp2, float t, MDX_QUATERNIO
 		dquat->y = src1->x;
 		dquat->z = -src1->w;
 		dquat->w = src1->z;
-		sclp = (float)sinf(((float)1.0-t)*HALFPI);
-		sclq = (float)sinf(t*HALFPI);
+		sclp = (float)sinFast(((float)1.0-t)*HALFPI);
+		sclq = (float)sinFast(t*HALFPI);
 		dquat->x = sclp*src1->x + sclq*dquat->x;
 		dquat->y = sclp*src1->y + sclq*dquat->y;
 		dquat->z = sclp*src1->z + sclq*dquat->z;
@@ -353,17 +383,45 @@ void GetRotationFromQuaternion(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ)
 
 void QuaternionMultiply(MDX_QUATERNION *dest,MDX_QUATERNION *src1,MDX_QUATERNION *src2)
 {
-	float dp;
-	MDX_QUATERNION temp;
+	//float dp;
+	//MDX_QUATERNION temp;
+	float tmp_00,tmp_01,tmp_02,tmp_03,tmp_04,tmp_05,tmp_06,tmp_07,tmp_08,tmp_09;
+	float a,b,c,d,x,y,z,w;
 
-	dp = src1->x*src2->x + src1->y*src2->y + src1->z*src2->z;
+	a = src1->x;
+	b = src1->y;
+	c = src1->z;
+	d = src1->w;
+
+	x = src2->x;
+	y = src2->y;
+	z = src2->z;
+	w = src2->w;
+
+	tmp_00 = (d - c) * (z - w);
+	tmp_01 = (a + b) * (x + y);
+	tmp_02 = (a - b) * (z + w);
+	tmp_03 = (c + d) * (x - y);
+	tmp_04 = (d - b) * (y - z);
+	tmp_05 = (d + b) * (y + z);
+	tmp_06 = (a + c) * (x - w);
+	tmp_07 = (a - c) * (x + w);
+	tmp_08 = tmp_05 + tmp_06 + tmp_07;
+	tmp_09 = 0.5 * (tmp_04 + tmp_08);
+
+	dest->x = tmp_00 + tmp_09 - tmp_05;
+	dest->y = tmp_01 + tmp_09 - tmp_08;
+	dest->z = tmp_02 + tmp_09 - tmp_07;
+    dest->w = tmp_03 + tmp_09 - tmp_06;
+
+/*	dp = src1->x*src2->x + src1->y*src2->y + src1->z*src2->z;
 
 	temp.w = src1->w*src2->w - dp;
 	temp.x = src1->w*src2->x + src2->w*src1->x + src1->y*src2->z - src1->z*src2->y;
 	temp.y = src1->w*src2->y + src2->w*src1->y + src1->z*src2->x - src1->x*src2->z;
 	temp.z = src1->w*src2->z + src2->w*src1->z + src1->x*src2->y - src1->y*src2->x;
 
-	memcpy(dest,&temp,sizeof(MDX_QUATERNION));
+	memcpy(dest,&temp,sizeof(MDX_QUATERNION));*/
 }
 
 /*	--------------------------------------------------------------------------------

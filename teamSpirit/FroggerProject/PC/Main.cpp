@@ -782,7 +782,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
 
 	// Initialise the matrix stack
-	MatrixStackInitialise();
+	InitMaths();
 	
 	// Initialise Johns BMP loader
 	gelfInit();
