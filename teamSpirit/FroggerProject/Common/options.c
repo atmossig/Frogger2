@@ -262,6 +262,7 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
+	0,GREEN,
 
 	3,RED,		//for Hasbro Interactive Europe
 	0,RED,
