@@ -67,10 +67,25 @@ float texSlideSpeed = 40;
 void SlideObjectTextures(OBJECT *obj)
 {
 	int i;
+/*	
 	for (i=0; i<obj->mesh->numFaces*3; i++)
-	{
 		obj->mesh->faceTC[i].v[Y] -= (gameSpeed * texSlideSpeed);
+*/
+
+	for (i=0; i<obj->mesh->numFaces; i++)
+	{
+		obj->mesh->faceTC[(i*3)].v[Y] -= (gameSpeed * texSlideSpeed);		
+		obj->mesh->faceTC[(i*3)+1].v[Y] -= (gameSpeed * texSlideSpeed);		
+		obj->mesh->faceTC[(i*3)+2].v[Y] -= (gameSpeed * texSlideSpeed);		
+
+		if ((obj->mesh->faceTC[(i*3)].v[Y] < 4096) || (obj->mesh->faceTC[(i*3)+1].v[Y]<4096) || (obj->mesh->faceTC[(i*3)+2].v[Y]<4096))
+		{
+			obj->mesh->faceTC[(i*3)].v[Y] += 8192;		
+			obj->mesh->faceTC[(i*3)+1].v[Y] += 8192;
+			obj->mesh->faceTC[(i*3)+2].v[Y] += 8192;		
+		}
 	}
+
 }
 
 /*	--------------------------------------------------------------------------------
