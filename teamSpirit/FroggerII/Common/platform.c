@@ -45,6 +45,7 @@
 
 #include "incs.h"
 
+
 /**************************************************************************************************************/
 /******  GARDEN MAZE LEVEL  ***********************************************************************************/
 /**************************************************************************************************************/
@@ -63,10 +64,10 @@ PATHNODE lilly3Nodes[]	= {	186,0,0,4,0,	188,0,0,4,0,	189,0,0,4,0,	190,0,0,4,0,
 PATHNODE lilly4Nodes[]	= {	207,0,0,4,0,	208,0,0,4,0,	209,0,0,4,0,	210,0,0,4,0,
 							211,0,0,4,0,	212,0,0,4,0,	213,0,0,4,0,	214,0,0,4,0 };
 
-PATH lilly1Path[]		= { 8,0,0,0,lilly1Nodes };
-PATH lilly2Path[]		= { 8,0,0,0,lilly2Nodes };
-PATH lilly3Path[]		= { 8,0,0,0,lilly3Nodes };
-PATH lilly4Path[]		= { 8,0,0,0,lilly4Nodes };
+PATH lilly1Path			= { 8,0,0,0,lilly1Nodes };
+PATH lilly2Path			= { 8,0,0,0,lilly2Nodes };
+PATH lilly3Path			= { 8,0,0,0,lilly3Nodes };
+PATH lilly4Path			= { 8,0,0,0,lilly4Nodes };
 
 
 /**************************************************************************************************************/
@@ -92,21 +93,15 @@ PLATFORM *devPlat1	= NULL;
 PLATFORM *devPlat2	= NULL;
 
 
-
 PATHNODE debug_pathNodes1[] =					// TEST PATH - ANDYE
 { 
-	20,20,0,6,0,	33,20,0,6,0,	46,20,0,6,0,	59,20,0,6,0,	72,20,0,6,0,	85,20,0,6,0,
-	98,20,0,6,0,	111,20,0,6,0,	112,20,0,6,0,	113,20,0,6,0,	502,20,0,6,0,	499,20,0,6,0,	
-	500,20,0,6,0,	501,20,0,6,0,	504,20,0,6,0,	114,20,0,6,0,	115,20,0,6,0,	105,20,0,6,0,
-	92,20,0,6,0,	79,20,0,6,0,	66,20,0,6,0,	65,20,0,6,0,	64,20,0,6,0,	51,20,0,6,0,
-	38,20,0,6,0,	37,20,0,6,0,	36,20,0,6,0,	23,20,0,6,0,	15,20,0,6,0,	11,20,0,6,0,
-	10,20,0,6,0,	9,20,0,6,0,		8,20,0,6,0,		12,20,0,6,0
+	20,20,0,2,0,	21,40,0,2,0,	22,40,0,2,0,	23,20,0,2,0
 };
 
-PATH debug_path1 = { 34,0,0,0,debug_pathNodes1 };
+PATH debug_path1 = { 4,0,0,0,debug_pathNodes1 };
 
-PATHNODE debug_pathNodes2[] = { 14,5,45,1,0 };	// TEST PATH - ANDYE
-PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
+PATHNODE debug_pathNodes2[] = { 34,20,0,1,0,	35,20,0,1,0 };	// TEST PATH - ANDYE
+PATH debug_path2 = { 2,0,0,0,debug_pathNodes2 };
 
 
 static void	GetActiveTile(PLATFORM *pform);
@@ -130,12 +125,11 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		if(levelID == LEVELID_GARDENLAWN)
 		{
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			devPlat1->currSpeed = 6.0F;
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path1,PATH_MAKENODETILEPTRS);
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
 
-			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
-			devPlat2->currSpeed = 2.0F;
-			AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_STEPONACTIVATED,&debug_path2,PATH_MAKENODETILEPTRS);
+//			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
+//			devPlat2->currSpeed = 2.0F;
+//			AssignPathToPlatform(devPlat2,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path2,PATH_MAKENODETILEPTRS);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
@@ -192,6 +186,10 @@ void UpdatePlatforms()
 	VECTOR moveVec;
 	float lowest,t;
 	int i,newCamFacing,newFrogFacing;
+
+	float m,n,qrspd;
+	QUATERNION q1,destQ;
+	VECTOR pltUp,v1,v2;
 		
 	if(platformList.numEntries == 0)
 		return;
@@ -222,6 +220,13 @@ void UpdatePlatforms()
 			cur->pltActor->actor->pos.v[X] += (cur->currSpeed * fwd.v[X]);
 			cur->pltActor->actor->pos.v[Y] += (cur->currSpeed * fwd.v[Y]);
 			cur->pltActor->actor->pos.v[Z] += (cur->currSpeed * fwd.v[Z]);
+
+//--------------------->
+
+			AddToVector(&cur->currNormal,&cur->deltaNormal);
+			NormalToQuaternion(&cur->pltActor->actor->qRot,&cur->currNormal);
+
+//--------------------->
 
 			// check if this platform has arrived at a path node
 			if(PlatformHasArrivedAtNode(cur))
@@ -309,6 +314,7 @@ void UpdatePlatforms()
 			currTile[0] = cur->inTile;
 			cur->carrying = frog[0];
 			SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
+			SetQuaternion(&frog[0]->actor->qRot,&cur->pltActor->actor->qRot);
 		}
 	}
 }
@@ -814,11 +820,14 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	// set platform position to relevant point on path
 	GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
 	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
+	NormalToQuaternion(&pform->pltActor->actor->qRot,&path->nodes[pform->path->fromNode].worldTile->normal);
 
 	// set platform current 'in' tile and speeds and pause times
 	pform->inTile		= path->nodes[pform->path->fromNode].worldTile;
 	pform->currSpeed	= path->nodes[pform->path->fromNode].speed;
 	pform->isWaiting	= path->nodes[pform->path->fromNode].waitTime;
+
+	CalcPlatformNormalInterps(pform);
 
 	dprintf"\n"));
 }
@@ -895,7 +904,9 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	int nextToNode,nextFromNode;
 	PATH *path = pform->path;
 	unsigned long flags = pform->flags;
-
+	
+	VECTOR *n1,*n2;
+	
 	// determine to/from nodes for the current platform
 
 	if(flags & PLATFORM_NEW_FORWARDS)
@@ -917,6 +928,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+				CalcPlatformNormalInterps(pform);
 				return;
 			}
 			else if(flags & PLATFORM_NEW_CYCLE)
@@ -927,6 +939,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 				
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+				CalcPlatformNormalInterps(pform);
 				return;
 			}
 
@@ -935,6 +948,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+			CalcPlatformNormalInterps(pform);
 
 			GetPositionForPathNode(&pformPos,&path->nodes[0]);
 			SetVector(&pform->pltActor->actor->pos,&pformPos);
@@ -950,6 +964,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+				CalcPlatformNormalInterps(pform);
 				return;
 			}
 			
@@ -958,6 +973,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+			CalcPlatformNormalInterps(pform);
 		}
 	}
 	else if(flags & PLATFORM_NEW_BACKWARDS)
@@ -979,6 +995,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+				CalcPlatformNormalInterps(pform);
 				return;
 			}
 			else if(flags & PLATFORM_NEW_CYCLE)
@@ -989,6 +1006,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+				CalcPlatformNormalInterps(pform);
 				return;
 			}
 
@@ -997,6 +1015,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+			CalcPlatformNormalInterps(pform);
 
 			GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
 			SetVector(&pform->pltActor->actor->pos,&pformPos);
@@ -1012,6 +1031,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+				CalcPlatformNormalInterps(pform);
 				return;
 			}
 
@@ -1020,6 +1040,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+			CalcPlatformNormalInterps(pform);
 		}
 	}
 	else if(flags & PLATFORM_NEW_MOVEUP)
@@ -1052,6 +1073,46 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 			return;
 		}
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CalcPlatformNormalInterps
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void CalcPlatformNormalInterps(PLATFORM *pform)
+{
+	PATH *path;
+	PATHNODE *fromNode,*toNode;
+	float numSteps;
+	VECTOR destNormal,fromPos,toPos;
+	
+	path		= pform->path;
+	fromNode	= &path->nodes[path->fromNode];
+	toNode		= &path->nodes[path->toNode];
+
+	// set the current platform normal to that of the 'from' node and get the dest normal
+	SetVector(&pform->currNormal,&fromNode->worldTile->normal);
+	SetVector(&destNormal,&toNode->worldTile->normal);
+
+	// calculate deltas for linear interpolation of platform normal during movement
+	SubVector(&pform->deltaNormal,&destNormal,&pform->currNormal);
+
+	// determine number of 'steps' over which to interpolate
+	GetPositionForPathNode(&fromPos,fromNode);
+	GetPositionForPathNode(&toPos,toNode);
+	
+	numSteps = DistanceBetweenPoints(&fromPos,&toPos);
+	numSteps /= pform->currSpeed;
+
+	pform->deltaNormal.v[X] /= numSteps;
+	pform->deltaNormal.v[Y] /= numSteps;
+	pform->deltaNormal.v[Z] /= numSteps;
+
+	dprintf"dN = (%.4f %.4f %.4f) s:%.0f\n",pform->deltaNormal.v[X],pform->deltaNormal.v[Y],pform->deltaNormal.v[Z],numSteps));
 }
 
 

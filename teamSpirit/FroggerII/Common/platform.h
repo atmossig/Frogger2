@@ -62,10 +62,11 @@ typedef struct TAGPLATFORM
 	float					currSpeed;				// platform current speed
 	short					isWaiting;				// platform node pause time
 
+	VECTOR					currNormal;				// platform current normal
+	VECTOR					deltaNormal;			// platform delta normal (for linear interp)
+
 	GAMETILE				*inTile;				// tile platform is currently 'in'
-
 	PATH					*path;					// ptr to platform path data
-
 	ACTOR2					*carrying;				// current actor platform is carrying
 
 } PLATFORM;
@@ -86,6 +87,7 @@ extern PLATFORM *destPlatform[4];		// platform that frog is about to attempt to 
 extern PLATFORM *currPlatform[4];		// platform that frog is currently on
 
 extern GAMETILE	*oldTile[4];
+
 
 extern void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
 
@@ -126,6 +128,7 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 BOOL PlatformHasArrivedAtNode(PLATFORM *pform);
 BOOL PlatformReachedTopOrBottomPoint(PLATFORM *pform);
 void UpdatePlatformPathNodes(PLATFORM *pform);
+void CalcPlatformNormalInterps(PLATFORM *pform);
 
 //------------------------------------------------------------------------------------------------
 
