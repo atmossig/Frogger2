@@ -194,7 +194,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		if (nme->reactiveNumber!=-1)
 		{
 			// Special damage type
-			if( reactiveAnims[nme->reactiveNumber].type & 0xFF )
+			if( reactiveAnims[nme->reactiveNumber].type == 0xFF )
 				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (num);
 		}
 		else deathAnims[0] (num); // Normal damage
@@ -206,7 +206,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 
 		if (nme->reactiveNumber!=-1)
 		{
-			if( reactiveAnims[nme->reactiveNumber].type & 0xFF )
+			if( reactiveAnims[nme->reactiveNumber].type == 0xFF )
 				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (num);
 			else
 			{
