@@ -195,7 +195,8 @@ int MemLoadEntities(const void* data, long size)
 				if(gstrcmp(type,"nothing.obe") == 0)
 				{
 					// null object - do not display
-					act->flags = ACTOR_DRAW_NEVER;
+					//act->flags = ACTOR_DRAW_NEVER;
+					act->draw = 0;
 				}
 
 				if (act)
