@@ -1,17 +1,3 @@
-#define DEBUG_INFO1
-
-#define ADDATIVE			( 1 << 0 ) //1
-#define SUBTRACTIVE		( 1 << 1 ) //2
-#define USLIDDING			( 1 << 4 ) //16
-#define VSLIDDING			( 1 << 5 ) //32
-#define PLUSSLIDDING  ( 1 << 6 ) //64
-#define MINUSSLIDDING ( 1 << 7 ) //128
-#define JIGGLE        ( 1 << 8 ) //256
-#define MODGY         ( 1 << 9 ) //512
-
-
-
-
 #include "sonylibs.h"
 #include <islutil.h>
 #include <isltex.h>
@@ -22,10 +8,21 @@
 #include "actor2.h"
 #include "maths.h"
 #include "layout.h"
-
-#include "World_Eff.h"
 #include "frontend.h"
 
+#include "World_Eff.h"
+
+// JH: Let's define a name so that we can use sprite's in the scenic drawing routines.
+#define NEW_SPRITE_MAPS
+
+#define ADDATIVE			( 1 << 0 ) //1
+#define SUBTRACTIVE		( 1 << 1 ) //2
+#define USLIDDING			( 1 << 4 ) //16
+#define VSLIDDING			( 1 << 5 ) //32
+#define PLUSSLIDDING  ( 1 << 6 ) //64
+#define MINUSSLIDDING ( 1 << 7 ) //128
+#define JIGGLE        ( 1 << 8 ) //256
+#define MODGY         ( 1 << 9 ) //512
 
 #define VRAM_STARTX			512
 #define VRAM_PAGECOLS		8
@@ -931,9 +928,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 					si->u0 -= ( ( frame / 2 ) % 32 );
 					si->u1 -= ( ( frame / 2 ) % 32 );
 				}
-				// ENDELSEIF
-//					v = op->v0;
-
+				// ENDIF
 			}
 			else if ( mesh->flags & VSLIDDING )
 			{
@@ -949,9 +944,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 					si->v1 -= ( ( frame / 2 ) % 32 );
 				}
 
-				//u = op->u0;
 			}
-			// ENDIF
+			// ENDELSEIF
 			
 
 			if ( mesh->flags & MODGY )
@@ -959,17 +953,17 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				u = si->u0;
 				v = si->v0;
 			
-				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 10 ) );
-				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 10 ) ) );
+				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 11 ) );
+				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 11 ) ) );
 
 
 				u = si->u1;
 				v = si->v1;
 
-				si->u1 = (u+((rsin(frame<<6)+4096)>>11));
-				si->v1 = ((v+((rcos(frame<<6)+4096)>>11)));
+				si->u1 = ( u + ( (rsin(frame<<6) + 4096) >> 11 ) );
+				si->v1 = ( v + ( (rcos(frame<<6) + 4096) >> 11 ) );
 			}
-			// ENDIF*/
+			// ENDIF*
 			
 			gte_stsxy3_gt4(si);
 								
@@ -1041,7 +1035,13 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
 
-			if ( mesh->flags & ADDATIVE )
+			//si->code	= op->code;
+			//si->tpage = op->tpage;
+
+			si->code	= op->code | ( op->pad2 & 2 );
+			si->tpage = op->tpage | ( op->pad2 & 96 );
+
+/*			if ( mesh->flags & ADDATIVE )
 			{
 				si->code  |= 2;
  				si->tpage |= 32;
@@ -1053,7 +1053,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				si->code  |= 2;
  				si->tpage = si->tpage | 64;
 			}
-			// ENDIF
+			// ENDIF*/
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
 
@@ -1178,36 +1178,27 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 								
 
 			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
-//			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
 
-				if ( mesh->flags & USLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						si->u2 += ( ( frame / 2 ) % 32 );
+			if ( mesh->flags & USLIDDING )
+			{
+				if ( mesh->flags & PLUSSLIDDING )
+					si->u2 += ( ( frame / 2 ) % 32 );
 
-					if ( mesh->flags & MINUSSLIDDING )
-						si->u2 -= ( ( frame / 2 ) % 32 );
-					// ENDELSEIF
-					//v = op->v2;
-				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-						si->v2 += ( ( frame / 2 ) % 32 );
-
-					if ( mesh->flags & MINUSSLIDDING )
-						si->v2 -= ( ( frame / 2 ) % 32 );
-					//u = op->u2;
-				}
-				else
-				{
-					//u = op->u2;
-					//v = op->v2;
-				}
+				if ( mesh->flags & MINUSSLIDDING )
+					si->u2 -= ( ( frame / 2 ) % 32 );
 				// ENDELSEIF
+				//v = op->v2;
+			}
+			else if ( mesh->flags & VSLIDDING )
+			{
+				if ( mesh->flags & PLUSSLIDDING )
+					si->v2 += ( ( frame / 2 ) % 32 );
 
-			//*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
-//			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
+				if ( mesh->flags & MINUSSLIDDING )
+					si->v2 -= ( ( frame / 2 ) % 32 );
+				//u = op->u2;
+			}
+			// ENDELSEIF
 
 			if ( mesh->flags & MODGY )
 			{
@@ -1217,41 +1208,22 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
 				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
 
-				//u = si->u3;
-				//v = si->v3;
-
-				//si->u3 = (u+((rcos(frame<<6)+4096)>>11));
-				//si->v3 = ((v+((rsin(frame<<6)+4096)>>11)));
 			}
 			// ENDIF
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
 			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-			//*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-			//*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
-
-			if ( mesh->flags & ADDATIVE )
-			{
-				si->code  |= 2;
- 				si->tpage |= 32;
-			}
-			// ENDIF
-
-			if ( mesh->flags & SUBTRACTIVE )
-			{
-				si->code  |= 2;
- 				si->tpage = si->tpage | 64;
-			}
-			// ENDIF
+			si->code	= op->code | ( op->pad2 & 2 );
+			si->tpage = op->tpage | ( op->pad2 & 96 );
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
 
 		}
 	}
 #undef op
-#undef si*/
+#undef si
 
 	currentDisplayPage->primPtr = (char *)packet;
 
