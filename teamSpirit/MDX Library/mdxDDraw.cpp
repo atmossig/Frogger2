@@ -343,7 +343,8 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			return 0;
 		}
 	
-		// Create a primary surface
+		SetWindowPos(window,HWND_TOP,0,0,rXRes,rYRes,SWP_SHOWWINDOW);
+  		// Create a primary surface
 		DDINIT(ddsd);
 		ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
 		ddsd.ddsCaps.dwCaps = DDSCAPS_COMPLEX | DDSCAPS_FLIP | DDSCAPS_3DDEVICE | DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
