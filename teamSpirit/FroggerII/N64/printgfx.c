@@ -490,12 +490,12 @@ void ProcessShadows()
 						G_TX_CLAMP,G_TX_CLAMP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	// process frogs and babies shadows
-	if(frog->actor->shadow)
+	if(frog[0]->actor->shadow)
 	{
-		vec.v[X] = frog->actor->pos.v[X];
+		vec.v[X] = frog[0]->actor->pos.v[X];
 		vec.v[Y] = currTile->centre.v[Y] + 1;
-		vec.v[Z] = frog->actor->pos.v[Z];
-		DrawShadow(&vec,NULL,frog->actor->shadow->radius,0,frog->actor->shadow->alpha,frog->actor->shadow->vert,NULL);
+		vec.v[Z] = frog[0]->actor->pos.v[Z];
+		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL);
 	}
 
 	i = numBabies;
