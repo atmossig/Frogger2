@@ -430,12 +430,15 @@ void TextInput( char c )
 	{
 		textEntry = 0;
 	}
-	else if(c != 96) // weird ¬ key fucks things up
+	else
 	{
-		if (numc < textEntry)
+		if(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || ((c >= '0') && (c <= '9')) || (c == ' ') || (c == '!'))
 		{
-			textString[numc] = c;
-			textString[numc+1] = 0;
+			if (numc < textEntry)
+			{
+				textString[numc] = c;
+				textString[numc+1] = 0;
+			}
 		}
 	}
 }
