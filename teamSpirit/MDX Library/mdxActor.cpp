@@ -432,7 +432,7 @@ MDX_OBJECT *MakeUniqueObject(MDX_OBJECT *object)
 	if(obj->numSprites)
 	{
 		spr = &object->sprites;
-		tempSpr = new MDX_OBJECTSPRITE;
+		tempSpr = new MDX_OBJECTSPRITE[obj->numSprites];
 		memcpy(tempSpr, *spr, sizeof(MDX_OBJECTSPRITE) * obj->numSprites);
 		*spr = tempSpr;
 	}
