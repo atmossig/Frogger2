@@ -44,8 +44,13 @@ transformVertexListA
 	swc2	r13,4(a2)
 	swc2	r14,8(a2)
 
+	;srl		r17,2
 	swc2	r17,(a3)	; store screen depths
+
+	;srl		r18,2
 	swc2	r18,4(a3)
+
+	;srl		r19,2
 	swc2	r19,8(a3)
 
 	addu	a2,12

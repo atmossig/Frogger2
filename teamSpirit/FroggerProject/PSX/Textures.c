@@ -19,7 +19,7 @@
 #include "Ultra64.h"
 #include <stdio.h>
 
-#include <isltex.h>
+#include "isltex.h"
 #include <islutil.h>
 #include <islmem.h>
 
@@ -44,51 +44,67 @@ TEXTUREANIMLIST textureAnimList;
 
 void LoadTextureBank ( int textureBank )
 {
+	int fileLength, counter, counter1;
 	char fileName[256];
+	char titFileName[256];
+	unsigned char *p, *textureAnims;
+
+	TEXTUREANIM *textureAnim;
+
+	short numAnimations = 0;
 
 	switch ( textureBank )
 	{
 		case GARDEN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\GARDEN.SPT" );
+				sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" );
 			break;
 
 		case ANCIENT_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\ANCIENTS.SPT" );
+				sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" );
 			break;
 
 		case SPACE_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SPACE.SPT" );
+				sprintf ( titFileName, "TEXTURES\\SPACE.TIT" );
 			break;
 
 		case CITY_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\CITY.SPT" );
+				sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
 			break;
 
 		case SUBTERRANEAN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SUB.SPT" );
+				sprintf ( titFileName, "TEXTURES\\SUB.TIT" );
 			break;
 
 		case LABORATORY_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\LAB.SPT" );
+				sprintf ( titFileName, "TEXTURES\\LAB.TIT" );
 			break;
 
 		case HALLOWEEN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" );
+				sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" );
 			break;
 
 		case SUPERRETRO_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SUPER.SPT" );
+				sprintf ( titFileName, "TEXTURES\\SUPER.TIT" );
 			break;
 
 		case FRONTEND_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\HUB.SPT" );
+				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
 			break;
 
 		case INGAMEGENERIC_TEX_BANK:
-		textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
+				textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
 
-		textureDownloadBank ( textureBanks [ numTextureBanks ]   );
-		textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
+				textureDownloadBank ( textureBanks [ numTextureBanks ]   );
+				textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
 				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 //				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 			break;
@@ -113,8 +129,115 @@ void LoadTextureBank ( int textureBank )
 		utilPrintf("Error Loading: %s, Max Texture Banks Reached", fileName );
 	}
 	// ENDELSEIF - 	if ( numTextureBanks < MAX_TEXTURE_BANKS )
+	
+	/*textureAnims = (unsigned char *)fileLoad ( titFileName, &fileLength );
+
+	if ( !textureAnims )
+		return;
+	
+	p = ( unsigned char* ) textureAnims;
+	numAnimations = (short)*p;
+	p += 2;
+
+	for ( counter = 0; counter < (short*)p; counter++ )
+	{
+		p += 2;
+
+		textureAnim = CreateTextureAnimation( ( long ) *p+2, ( short ) *p );
+		p += 2;
+		for ( counter1 = 0; counter1 < ( short ) *p-2; counter1 )
+		{
+			AddAnimFrame ( textureAnim, (long*)p, (short*)p+4, counter1 );			
+			p += 6;
+		}
+		// ENDFOR
+	}
+	// ENDFOR*/
 }
 
+void LoadTextureAnimBank ( int textureBank )
+{
+	int fileLength, counter, counter1, numframes, waitTime;
+	long crc;
+	char fileName[256];
+	char titFileName[256];
+	unsigned char *p, *textureAnims;
+
+	TEXTUREANIM *textureAnim;
+
+	short numAnimations = 0;
+
+	switch ( textureBank )
+	{
+		case GARDEN_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" );
+			break;
+
+		case ANCIENT_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" );
+			break;
+
+		case SPACE_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\SPACE.TIT" );
+			break;
+
+		case CITY_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
+			break;
+
+		case SUBTERRANEAN_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\SUB.TIT" );
+			break;
+
+		case LABORATORY_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\LAB.TIT" );
+			break;
+
+		case HALLOWEEN_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" );
+			break;
+
+		case SUPERRETRO_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\SUPER.TIT" );
+			break;
+
+		case FRONTEND_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
+			break;
+
+		case TITLES_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\TITLES.TIT" );
+			break;
+	}
+	// ENDSWITCH - textureBank
+
+	textureAnims = (unsigned char *)fileLoad ( titFileName, &fileLength );
+
+	if ( !textureAnims )
+		return;
+	
+	p = ( unsigned char* ) textureAnims;
+	numAnimations = (short)*p;
+
+	for ( counter = 0; counter < numAnimations; counter++ )
+	{
+		p += 2;
+		numframes = *(short*)p;
+		p += 2;
+		crc = *(long*)p;
+		textureAnim = CreateTextureAnimation( crc, numframes );
+		for ( counter1 = 0; counter1 < numframes; counter1++ )
+		{
+			crc = *(long*)p;
+			p+=4;
+			waitTime = *(short*)p;
+			p+=2;
+			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
+		}
+		// ENDFOR
+	}
+	// ENDFOR
+}
 
 void FreeTextureBank ( TextureBankType *textureBank )
 {
@@ -315,7 +438,7 @@ static int LOADPAL_LoadPCPalette(char * const file,
 //////////////////////////////////////////////////////////////////
 
 
-void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames )
+TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 {
 	int fileLength, counter, n;
 
@@ -339,7 +462,7 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 
 	AddTextureAnim ( textureAnim );
 
-	textureAnim->numFrames = numFrames;
+	textureAnim->numFrames = numframes;
 	textureAnim->waitTime = 0;
 
 	textureAnim->animation = MALLOC0 ( sizeof(TextureAnimType) + (sizeof(TextureType *) * textureAnim->numFrames ) );
@@ -352,11 +475,11 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 	}
 	// ENDIF
 
-	textureAnim->animation->dest = dummy;
+	textureAnim->animation->dest = textureFindCRCInAllBanks ( crc );
 
 	textureAnim->animation->anim = (TextureType **)((unsigned char *)textureAnim->animation + sizeof(TextureAnimType));
 
-	for ( counter = 0; counter < textureAnim->numFrames; counter++ )
+	/*for ( counter = 0; counter < textureAnim->numFrames; counter++ )
 	{
 		utilPrintf("Counter : %d\n", counter );
 
@@ -368,14 +491,22 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 		utilPrintf("Trying To Load Texture : %s\n", type );
 //		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
 
-		textureAnim->animation->anim [ counter ] = FindTexture ( type );
-
 		if ( !textureAnim->animation->anim [ counter ] )
 			utilPrintf("Could Not Find Texture : %s\n", type );
 	}
-	// ENDIF
+	// ENDIF*/
 
 	return textureAnim;
+}
+
+
+void AddAnimFrame ( TEXTUREANIM *anim, long crc, short waitTime, int num )
+{
+	anim->animation->waitTime = waitTime;
+	anim->animation->anim [ num ] = textureFindCRCInAllBanks ( crc );
+	if ( !anim->animation->anim [ num ] )
+		utilPrintf("Could Not Find Texture : %lu\n", crc );
+	// ENDIF
 }
 
 void UpdateTextureAnimations ( void )

@@ -42,14 +42,17 @@ extern char *palNames [ 5 ];
 #define FindTexture(x) textureFindCRCInAllBanks(utilStr2CRC(x))
 
 void LoadTextureBank			( int textureBank );
+void LoadTextureAnimBank ( int textureBank );
 void FreeTextureBank			( TextureBankType *textureBank );
 void FreeAllTextureBanks	( void );
 
-void CreateTextureAnimation			( char *fileName, TextureType *dummy, int numFrames );
+TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes );
+//void CreateTextureAnimation			( char *fileName, TextureType *dummy, int numFrames );
 void InitTextureAnimLinkedList	( void );
 void FreeTextureAnimList				( void );
 void AddTextureAnim							( TEXTUREANIM *textureAnim );
 void SubTextureAnim							( TEXTUREANIM *textureAnim );
+void AddAnimFrame ( TEXTUREANIM *anim, long crc, short waitTime, int num );
 
 
 
