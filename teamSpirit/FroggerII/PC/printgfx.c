@@ -94,7 +94,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 				DrawAlphaSprite (x*RES_DIFF2,y*RES_DIFF2,0,tOver->font->height*RES_DIFF2,tOver->font->width*RES_DIFF2,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width-1)/256.0,
-				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,tOver->a/256.0);
+				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,D3DRGBA(1,1,1,tOver->a/255.0));
 			}
 	
 			x += tOver->font->xSpacing[letterID];
@@ -151,7 +151,7 @@ void PrintSprite(SPRITE *sprite)
 				0,
 				1,
 				1,
-				tEntry->hdl,sprite->a/255.0);
+				tEntry->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 	}
 }
 
@@ -281,7 +281,7 @@ void PrintSpriteOverlays()
 				0,
 				1,
 				1,
-				texture,cur->a/255.0);
+				texture,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 		}
 
 		cur = cur->next;

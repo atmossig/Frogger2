@@ -45,8 +45,8 @@ extern  LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, B
 extern D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf);
 void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h);
 void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color);
-void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h);
-void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, float alpha);
+void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h,DWORD colour);
+void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, DWORD colour );
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void BeginDrawHardware (void);
 void EndDrawHardware (void);

@@ -1510,27 +1510,27 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 	}
 }
 
-void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h)
+void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h,DWORD colour)
 {
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,0,0,
-			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,1),
 			u1,v1
 		},
 		{
 			x+xs,y,0,0,
-			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,1),
 			u2,v1
 		},
 		{
 			x+xs,y+ys,0,0,
-			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,1),
 			u2,v2
 		},
 		{
 		x,y+ys,0,0,
-			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,1),
 			u1,v2
 	}};
 
@@ -1565,7 +1565,7 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 #define SPRITECLIPRIGHT		SCREEN_WIDTH
 #define SPRITECLIPBOTTOM	SCREEN_WIDTH
 
-void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, float alpha)
+void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, DWORD colour )
 {
 	float x2 = x + xs, y2 = y + ys;
 	float fogAmt;
@@ -1607,22 +1607,22 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,z,0,
-			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
+			/*D3DRGBA(1,1,1,alpha)*/colour,FOGVAL(fogAmt),
 			u1,v1
 		},
 		{
 			x2,y,z,0,
-			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
+			colour,FOGVAL(fogAmt),
 			u2,v1
 		},
 		{
 			x2,y2,z,0,
-			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
+			colour,FOGVAL(fogAmt),
 			u2,v2
 		},
 		{
 			x,y2,z,0,
-			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
+			colour,FOGVAL(fogAmt),
 			u1,v2
 	}};
 
