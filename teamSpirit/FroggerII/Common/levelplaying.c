@@ -112,7 +112,7 @@ void LevelPlayingProcessController ( void )
 		levelPlaying = 0;
 
 		frog[0] = NULL;
-		gameState.mode = TITLE_MODE;	
+		gameState.mode = FRONTEND_MODE;	
 		frameCount = 0;
 		lastbutton = 0;
 

@@ -13,8 +13,20 @@
 #define MENUS_H_INCLUDED
 
 
+typedef struct LEVELNAMESTRUCT
+{
+	char name[64];
+} LNAMESTRUCT;
 
+extern SPRITE *sp;
 
+extern void RunTitleScreen ( void );
+extern void RunLevelSelect ( void );
+extern void RunPauseMenu ( void );
+
+#endif
+
+/*
 enum
 {
 	OPTION_MODE,
@@ -28,20 +40,12 @@ struct slotSelectStateStruct
 	unsigned long mode;
 };
 
-typedef struct LEVELNAMESTRUCT
-{
-	char name[64];
-} LNAMESTRUCT;
-
 extern struct slotSelectStateStruct slotSelectState;
-
-extern SPRITE *sp;
 
 extern void RunDemoOption	( void );
 
 extern void RunSaveLoadSelect ( void );
-extern void RunTitleScreen ( void );
-extern void RunLevelSelect ( void );
+
 extern void RunSelectAllLevels( void );
 
 extern void RunGameMode ( void );
@@ -49,6 +53,4 @@ extern void RunGameMode ( void );
 extern void RunOptionsMode ( void );
 extern void RunHiScoresMode ( void );
 
-extern void RunPauseMenu ( void );
-
-#endif
+*/

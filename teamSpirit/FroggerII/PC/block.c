@@ -103,7 +103,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		ok = 0;
 
 	gameState.mode		= FRONTEND_MODE;
-	frontEndState.mode	= TITLE_MODE;
+	//frontEndState.mode	= TITLE_MODE;
 
 	// initialise PC stuff and DirectX / Direct3D
 	InitPCSpecifics();
@@ -113,7 +113,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	InitEditor();
 	
 	gameState.mode		= FRONTEND_MODE;
-	frontEndState.mode	= DEMO_MODE;
+	//frontEndState.mode	= DEMO_MODE;
 
     while(ok)
 	{

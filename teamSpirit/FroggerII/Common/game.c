@@ -983,8 +983,7 @@ void RunGameLoop (void)
 				StopDrawing ( "game over" );
 				FreeAllLists();
 				gameState.mode = FRONTEND_MODE;
-				frontEndState.mode = DEMO_MODE;
-//				runningDevStuff = 0;
+				frontEndState.mode = TITLE_MODE;
 				frameCount = 0;
 				StartDrawing ( "game over" );
 				return;
@@ -1051,7 +1050,7 @@ void RunGameLoop (void)
 
 				if ( player[0].levelNum == 4 )
 				{
-					frontEndState.mode	= DEMO_MODE;
+					frontEndState.mode	= TITLE_MODE;
 					gameState.mode		= FRONTEND_MODE;
 				}
 				// ENDIF
@@ -1160,8 +1159,8 @@ void RunGameLoop (void)
 	for (i=0; i<4; i++)
 	{
 		UpdateFroggerPos(i);
-		if (!IsPointVisible(&frog[i]->actor->pos))
-			KillFrog (frog[i],i);
+//		if (!IsPointVisible(&frog[i]->actor->pos))
+//			KillFrog (frog[i],i);
 	}
 
 	

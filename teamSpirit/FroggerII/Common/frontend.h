@@ -15,28 +15,9 @@
 enum frontEndModes
 {
 	//  Frontend / Title screen Modes
-	DEMO_MODE,
-
-	SLOT_SELECT_MODE,	
-		
-	TITLE_MODE,	
-
-	GAMETYPE_MODE,
+	TITLE_MODE,
 	LEVELSELECT_MODE,
-	ALL_LEVELSELECT_MODE,
-
-	OPTIONS_MODE,
-	SOUNDADJUST_MODE,
-	CONTROLCONFIG_MODE,
-	HIGHSCORE_MODE,
-
-	DEVELOPMENTMENU_MODE,
-	OBJVIEW_MODE,
-	SNDVIEW_MODE,
-	DEVELOPMENT_MODE,
-	MULTIPLAYER_MODE,
-
-LANGUAGE_SELECT_MODE,
+	OBJVIEW_MODE
 };
 
 struct frontEndStateStruct
@@ -61,5 +42,7 @@ extern char	ActiveController;
 void RunFrontEnd();
 void GameLoop();
 
+void RunLevelSelect();
+void RunTitleScreen();
 
 #endif

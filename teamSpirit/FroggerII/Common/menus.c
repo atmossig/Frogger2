@@ -15,32 +15,6 @@
 
 #include "incs.h"
 
-typedef struct _s
-{
-	char scoreTxt[32];
-	char worldTxt[32];
-	char levelTxt[32];
-} s;
-
-
-unsigned char enteredName[3] = "000";
-
-char let1;
-char let2;
-char let3;
-
-s slots[NUM_SAVE_SLOTS];
-
-typedef struct _lscores
-{
-	char scoreTxt[32];
-} lscores;
-
-lscores scoresTxt[3];
-
-TEXTOVERLAY *scoreNames [ 3 ];
-TEXTOVERLAY *scores		[ 3 ];
-
 TEXTOVERLAY *worldNames	[ MAX_WORLDS ];
 TEXTOVERLAY *levelN		[ MAX_LEVELS ];
 TEXTOVERLAY *closed;
@@ -48,64 +22,61 @@ TEXTOVERLAY *closed;
 SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 
-SPRITEOVERLAY *soundIcon		= NULL;
-SPRITEOVERLAY *controllerIcon	= NULL;
-
-static VECTOR vecPos;
-
-TEXTOVERLAY *tablePosition	[ MAX_HISCORE_SLOTS ];
-TEXTOVERLAY *tableNames		[ MAX_HISCORE_SLOTS ];
-TEXTOVERLAY *tableScores	[ MAX_HISCORE_SLOTS ];
-
-
-
-
-
 SPRITE *sp = NULL;
 
-void RunDemoOption ( void )
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RunTitleScreen
+	Purpose 	: The first menu
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void RunTitleScreen( )
 {
 	static unsigned long currentSelection = 0;
 	static u16 button;
 	static u16 lastbutton;
 
-	static TEXTOVERLAY *demoText;
+	static TEXTOVERLAY *startText;
+	static TEXTOVERLAY *selectText;
+	static TEXTOVERLAY *multiText;
 
 	int i = 0,xPos,j;
 
 	if ( frameCount == 1 )
 	{
-		StopDrawing ( "demo option" );
-
+		StopDrawing ( "Title Screen" );
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLES_TEX_BANK);
 
-		myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
+		//myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
 
-//		currFont	= smallFont;
-		//demoText	= CreateAndAddTextOverlay(100,122,"play demo world",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,6,0);
+		currFont	= smallFont;
+		startText = CreateAndAddTextOverlay(100,112,"Start Game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		selectText = CreateAndAddTextOverlay(100,132,"Level Select",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		multiText = CreateAndAddTextOverlay(100,152,"Multiplayer",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 
-		//konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
+		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
+		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
 
-		//atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
+		CreateOverlays();
+		ResetParameters();
 
-		//CreateOverlays();
-
-		//ResetParameters();
-
-//		runningDevStuff = 1;
-
-		StartDrawing ( "demo option" );
+		StartDrawing ( "Title Screen" );
 	}
-	// ENDIF
 
-/*	button = controllerdata [ ActiveController ].button;
+	startText->a = 100;
+	selectText->a = 100;
+	multiText->a = 100;
+
+	button = controllerdata [ ActiveController ].button;
 
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
     {
-		if(currentSelection > 0)
+		if( currentSelection > 0 )
 		{
 			currentSelection--;
 			PlaySample ( 237, NULL, 255, 128 );
@@ -114,7 +85,7 @@ void RunDemoOption ( void )
 	    
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
-		if(currentSelection < 0)
+		if( currentSelection < 2 )
 		{
 			currentSelection++;
 			PlaySample ( 237, NULL, 255, 128 );
@@ -123,74 +94,66 @@ void RunDemoOption ( void )
 	
 	if(frameCount > 15)
 	{
-		if( (button & CONT_START) && !(lastbutton & CONT_START) )
-		{
-//			runningDevStuff = 0;
-			FreeAllLists();
-			frameCount = 0;
-			lastbutton = 0;
-//			frontEndState.mode	= ALL_LEVELSELECT_MODE;
-			PlaySample ( 2,NULL,255,128);
-		}
-
-		if( (button & CONT_B) && !(lastbutton & CONT_B) )
-		{
-//			runningDevStuff = 0;
-			FreeAllLists();
-			frameCount = 0;
-			lastbutton = 0;
-			frontEndState.mode	= SLOT_SELECT_MODE;
-			PlaySample ( 2,NULL,255,128);
-			return;
-		}
-		// ENDIF
-
 		if( (button & CONT_A) && !(lastbutton & CONT_A) )
 		{
-		//	osMotorStart ( &rumble );
+			//osMotorStart ( &rumble );
 
-//			runningDevStuff = 0;
 			switch ( currentSelection )
 			{
-				case 0:   // British
-//				runningDevStuff = 0;
+			case 0:
 				FreeAllLists();
 				worldNum = 0;
 				levelNum = 0;
-				//	osMotorStop ( &rumble );
+				//osMotorStop ( &rumble );
 				InitLevel ( 0, 0 );
-				gameState.oldMode = LEVELSELECT_MODE;
-				/*if ( currentSelection == 0 && currentLevelSelection == 0 )
-					gameState.mode	  = CAMEO_MODE;
-				else*/
-/*					gameState.mode	  = GAME_MODE;
-				// ENDELSEIF
+
+				gameState.oldMode = FRONTEND_MODE;
+				gameState.mode = GAME_MODE;
+
 				frameCount = 0;
 				lastbutton = 0;
 				PlaySample ( 2,NULL,255,128);
-					/*FreeAllLists();
-					frameCount			= 0;
-					lastbutton			= 0;
-					frontEndState.mode	= SLOT_SELECT_MODE;
-					PlaySample ( 2, NULL, 255, 128 ); */
-/*					return;
+				break;
+			case 1:
+				FreeAllLists();
+				frameCount = 0;
+				lastbutton = 0;
+				frontEndState.mode = LEVELSELECT_MODE;
+				PlaySample ( 2,NULL,255,128);
+				break;
+			case 2:
+				FreeAllLists();
+				frameCount = 0;
+				lastbutton = 0;
+
+				gameState.oldMode = FRONTEND_MODE;
+				gameState.mode = GAME_MODE;
+
+				PlaySample ( 2,NULL,255,128);
+				break;
 			}
 		}			
 	
 		switch (currentSelection)
 		{
-			case 0:
-				//demoText->waveAmplitude = 6.0F;
-				//demoText->r = demoText->g = demoText->b = 255;
-				break;
+			case 0: startText->a = 255; break;
+			case 1: selectText->a = 255; break;
+			case 2: multiText->a = 255; break;
 		}
 	}
 
-	lastbutton = button;*/
+	lastbutton = button;
 }
 
 
-void RunSelectAllLevels ( void )
+/*	--------------------------------------------------------------------------------
+	Function 	: RunLevelSelect
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void RunLevelSelect( )
 {
 	static u16 button;
 	static u16 lastbutton;
@@ -203,13 +166,10 @@ void RunSelectAllLevels ( void )
 	static unsigned long currentWorldSelect = 0;	// Which world
 	static unsigned long currentLevelSelect = 0;	// Which level
 
-//	static LNAMESTRUCT lNames[MAX_LEVELS];
+	static LNAMESTRUCT lNames[MAX_LEVELS];
 
 	unsigned int i,j;
 
-/*
-*	Initialise this screen
-*/
 	if ( frameCount == 1 )
 	{
 		StopDrawing ( "demo option" );
@@ -219,11 +179,11 @@ void RunSelectAllLevels ( void )
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLES_TEX_BANK);
 
-		currFont = oldeFont;
+		currFont = smallFont;
 
 		// Draw list of worlds on left
 		for( i=0; i < MAX_WORLDS; i++ )
-			worldSelText[i] = CreateAndAddTextOverlay( 30, (i*20)+30,
+			worldSelText[i] = CreateAndAddTextOverlay( 20, (i*20)+30,
 														worldVisualData[i].description,
 														NO,NO,255,255,255,100,
 														currFont, TEXTOVERLAY_NORMAL,0,0 );
@@ -231,16 +191,14 @@ void RunSelectAllLevels ( void )
 		// Draw list of levels in current selected world on right
 		for( i=0; i < MAX_LEVELS; i++ )
 		{
-			//sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
-			//levelSelText[i] = CreateAndAddTextOverlay( 180, (i*20)+30,
-			//											lNames[i].name,
-			//											NO,NO,255,255,255,100,		
-			//											currFont,TEXTOVERLAY_NORMAL,0,0);
+			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
+			levelSelText[i] = CreateAndAddTextOverlay( 160, (i*20)+30,
+														lNames[i].name,
+														NO,NO,255,255,255,100,		
+														currFont,TEXTOVERLAY_NORMAL,0,0);
 		}
 
 		ResetParameters();
-
-//		runningDevStuff = 1;
 
 		StartDrawing ( "demo option" );
 	}
@@ -342,8 +300,8 @@ void RunSelectAllLevels ( void )
 	if( currentWorldSelect != oldWorldSelect )
 	{
 		// Change old level textovers
-//		for( i=0; i < MAX_LEVELS; i++ )
-//			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
+		for( i=0; i < MAX_LEVELS; i++ )
+			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
 	}
 
 /*
@@ -351,26 +309,22 @@ void RunSelectAllLevels ( void )
 */
 	if(frameCount > 15)
 	{
-		// Move back in menus?
+		// Move back in menus
 		if ((button & CONT_B) && !(lastbutton & CONT_B))
 		{
-//			runningDevStuff = 0;
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
-			frontEndState.mode	= SLOT_SELECT_MODE;
+			frontEndState.mode	= TITLE_MODE;
 			PlaySample ( 2,NULL,255,128);
 			return;
 		}
 
 		// Run selected world and level
-		if ( (((button & CONT_A) && !(lastbutton & CONT_A)) ||
-			((button & CONT_START) && !(lastbutton & CONT_START))) &&
-			currentLevelSelect != 255 )
+		if ( (button & CONT_A) && !(lastbutton & CONT_A) && currentLevelSelect != 255 )
 		{
 			StopDrawing( "demo option" );
 
-//			runningDevStuff = 0;
 			FreeAllLists();
 
 			worldNum = currentWorldSelect;
@@ -378,7 +332,7 @@ void RunSelectAllLevels ( void )
 
 			InitLevel ( currentWorldSelect, currentLevelSelect );
 
-//			gameState.oldMode = ALL_LEVELSELECT_MODE;
+			gameState.oldMode = FRONTEND_MODE;
 			gameState.mode = GAME_MODE;
 
 			frameCount = 0;
@@ -405,6 +359,280 @@ void RunSelectAllLevels ( void )
 	lastbutton = button;
 	oldWorldSelect = currentWorldSelect;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RunPauseMenu
+	Purpose 	: In game screen that appears when start is pressed.
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void RunPauseMenu( )
+{
+	static unsigned long currentSelection = 0;
+	static u16 button,lastbutton = 0;
+
+	button = controllerdata[ActiveController].button;
+
+	pauseTitle->a -= 16;
+
+	if((button & CONT_UP) && !(lastbutton & CONT_UP))
+    {
+		if(currentSelection > 0)
+		{
+			currentSelection--;
+			PlaySample ( 237,NULL,255,128);
+		}
+	}
+
+	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+    {
+		if(currentSelection < 1)
+		{
+			currentSelection++;
+			PlaySample ( 237,NULL,255,128);
+		}
+	}
+
+	if( (button & CONT_A) && !(lastbutton & CONT_A) )
+	{
+		lastbutton = button;
+		PlaySample(2,NULL,255,128);
+
+		DisableTextOverlay ( pauseTitle );
+		DisableTextOverlay ( continueText );
+		DisableTextOverlay ( quitText );
+		testPause = 0;
+
+		if(backPanel)
+		{
+			backPanel->xPos		= 50;
+			backPanel->yPos		= 83;
+			backPanel->width	= 220;
+			backPanel->height	= 50;
+			backPanel->r		= 15;
+			backPanel->g		= 63;
+			backPanel->b		= 255;
+			backPanel->a		= 127;
+			backPanel->draw		= 0;
+		}
+
+		switch (currentSelection)
+		{
+			case 0:   // Continue Game
+				gameState.mode	= GAME_MODE;
+				return;
+			case 1:   // Quit Game
+				StopDrawing("Quit Game");
+				FreeAllLists();
+				gameState.mode = FRONTEND_MODE;
+				frameCount = 0;
+				StartDrawing("Quit Game");
+				return;
+		}
+
+	}
+
+	switch (currentSelection)
+	{
+		case 0:
+//			continueText->a = 255 * fabs(sinf(frameCount/12.5));
+//			continueText->waveAmplitude = 6.0F;
+			continueText->a = 255;
+			continueText->r = continueText->g = continueText->b = 255;
+
+			quitText->a = 91; //255;
+			quitText->r = quitText->b = 255;
+			quitText->g = 255;
+
+			//if(quitText->waveAmplitude > 1)
+			//	quitText->waveAmplitude -= 0.10F;
+			break;
+		
+		case 1:
+			//quitText->a = 255 * fabs(sinf(frameCount/12.5));
+			//quitText->waveAmplitude = 6.0F;
+			quitText->a = 255;
+			quitText->r = quitText->g = quitText->b = 255;
+
+			continueText->a = 91; //255;
+			continueText->r = continueText->b = 255;
+			continueText->g = 255;
+
+			//if(continueText->waveAmplitude > 1)
+			//	continueText->waveAmplitude -= 0.10F;
+			break;
+
+	}
+
+	lastbutton = button;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*********************************************
+********** This stuff is no longer used !*****
+*********************************************/
+
+#ifdef OLDMENUSTUFF
+
+typedef struct _s
+{
+	char scoreTxt[32];
+	char worldTxt[32];
+	char levelTxt[32];
+} s;
+
+
+unsigned char enteredName[3] = "000";
+
+char let1;
+char let2;
+char let3;
+
+s slots[NUM_SAVE_SLOTS];
+
+typedef struct _lscores
+{
+	char scoreTxt[32];
+} lscores;
+
+lscores scoresTxt[3];
+
+TEXTOVERLAY *scoreNames [ 3 ];
+TEXTOVERLAY *scores		[ 3 ];
+
+SPRITEOVERLAY *soundIcon		= NULL;
+SPRITEOVERLAY *controllerIcon	= NULL;
+
+static VECTOR vecPos;
+
+TEXTOVERLAY *tablePosition	[ MAX_HISCORE_SLOTS ];
+TEXTOVERLAY *tableNames		[ MAX_HISCORE_SLOTS ];
+TEXTOVERLAY *tableScores	[ MAX_HISCORE_SLOTS ];
 
 
 struct slotSelectStateStruct slotSelectState;
@@ -1352,206 +1580,6 @@ void RunLevelSelect ( void )
 	lastbutton = button;
 }
 
-void RunGameMode()
-{
-	static unsigned long currentSelection = 0;
-	static u16 button,lastbutton;
-	static TEXTOVERLAY *single,*multi,*classic;
-	SPRITEOVERLAY *sprOver = NULL;
-	int i = 0,xPos,j;
-
-	if(frameCount == 1)
-	{	
-		StopDrawing("gamemode");
-		FreeAllLists();
-
-//		recordKeying = 0;
-
-		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
-
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-
-		currFont = smallFont;
-		single	= CreateAndAddTextOverlay(100,122,"single player",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
-		multi	= CreateAndAddTextOverlay(90,140,"multiplayer",YES,NO,255,255,200,255,currFont,TEXTOVERLAY_WAVECHARS,1,3.14/2);
-		classic	= CreateAndAddTextOverlay(80,158,"classic frogger",YES,NO,255,255,200,255,currFont,TEXTOVERLAY_WAVECHARS,1,3.14/4);
-
-		// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
-		sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(130,20,"flogo02.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(162,20,"flogo03.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(194,20,"flogo04.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(98,52,"flogo05.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(130,52,"flogo06.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(162,52,"flogo07.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
-		sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
-
-		sprOver = CreateAndAddSpriteOverlay(24,150,"haslg001.bmp",32,32,255,255,255,127,0);
-		sprOver = CreateAndAddSpriteOverlay(56,150,"haslg002.bmp",32,32,255,255,255,127,0);
-		sprOver = CreateAndAddSpriteOverlay(24,182,"haslg003.bmp",32,32,255,255,255,127,0);
-		sprOver = CreateAndAddSpriteOverlay(56,182,"haslg004.bmp",32,32,255,255,255,127,0);
-
-		sprOver = CreateAndAddSpriteOverlay(200,185,"isl1.bmp",32,32,255,255,255,128,0);
-		sprOver = CreateAndAddSpriteOverlay(232,185,"isl2.bmp",32,32,255,255,255,128,0);
-		sprOver = CreateAndAddSpriteOverlay(264,185,"isl3.bmp",32,32,255,255,255,128,0);
-
-		ResetParameters();
-
-//		runningDevStuff = 1;
-
-		StartDrawing("gamemode");
-	}	
-
-		
-	button = controllerdata[ActiveController].button;
-
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
-    {
-		if (currentSelection>0)
-			currentSelection--;
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-		PlaySample ( 237,NULL,255,128);
-	}
-	    
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
-    {
-		if (currentSelection<(3-1))
-			currentSelection++;
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-		PlaySample ( 237,NULL,255,128);
-	}
-	
-	if(frameCount > 15)
-	{
-		if((button & CONT_B) && !(lastbutton & CONT_B))
-		{
-			FreeAllLists();
-			frontEndState.mode = TITLE_MODE;
-			frameCount = 0;
-			lastbutton = 0;
-//			runningDevStuff = 0;
-		}
-
-		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
-		   ((button & CONT_START) && !(lastbutton & CONT_START)))
-		{
-//			runningDevStuff = 0;
-			switch (currentSelection)
-			{
-				case 0:   // Single Player Mode
-					FreeAllLists();
-					frameCount		= 0;
-					lastbutton		= 0;
-					frontEndState.mode	= LEVELSELECT_MODE;
-					PlaySample ( 2, NULL, 255, 128 );
-					return;
-				case 1:  // Multiplayer Mode
-					FreeAllLists();
-					frameCount		= 0;
-					lastbutton		= 0;
-					frontEndState.mode	= MULTIPLAYER_MODE;
-					PlaySample ( 2, NULL, 255, 128 );
-					return;
-				case 2:	 // Classic Frogger Menu Mode
-					FreeAllLists();
-					frameCount		= 0;
-					lastbutton		= 0;
-					gameState.mode	= OLDEFROGGER_MODE;
-					PlaySample ( 2,NULL,255,128);
-					return;
-			}
-		}			
-	
-		switch (currentSelection)
-		{
-			case 0:
-				single->a = 255 * fabs(sinf(frameCount/12.5));
-				single->waveAmplitude = 6.0F;
-				multi->a = 91; //255;
-				classic->a = 91; //255;				
-				multi->r = multi->b = 200;
-				multi->g = 255;
-				classic->r = classic->b = 200;
-				classic->g = 255;
-				single->r = single->g = single->b = 255;
-
-				if(multi->waveAmplitude > 1)
-					multi->waveAmplitude -= 0.10F;
-				if(classic->waveAmplitude > 1)
-					classic->waveAmplitude -= 0.10F;
-				break;
-			case 1:
-				multi->a = 255 * fabs(sinf(frameCount/12.5));
-				multi->waveAmplitude = 6.0F;
-				single->a = 91; //255;				
-				classic->a = 91; //255;				
-				single->r = single->b = 200;
-				single->g = 255;
-				classic->r = classic->b = 200;
-				classic->g = 255;
-				multi->r = multi->g = multi->b = 255;
-
-				if(single->waveAmplitude > 1)
-					single->waveAmplitude -= 0.10F;
-				if(classic->waveAmplitude > 1)
-					classic->waveAmplitude -= 0.10F;
-				break;
-
-			case 2:
-				classic->a = 255  * fabs(sinf(frameCount/12.5));				
-				classic->waveAmplitude = 6.0F;
-				single->a = 91; //255;				
-				multi->a = 91; //255;				
-				single->r = single->b = 200;
-				single->g = 255;
-				multi->r = multi->b = 200;
-				multi->g = 255;
-				classic->r = classic->g = classic->b = 255;
-
-				if(single->waveAmplitude > 1)
-					single->waveAmplitude -= 0.10F;
-				if(multi->waveAmplitude > 1)
-					multi->waveAmplitude -= 0.10F;
-				break;
-
-
-		}
-/*		levelPlayingTimer--;
-		if ( levelPlayingTimer == 0 )
-		{
-			FreeActorList();
-			FreePlatformList();
-			FreeEnemyList();
-			FreeSpriteOverlayList();
-//			FreeTextOverlayList();
-			FreeAnimationList();
-			FreeTextureList();
-			FreeBackdrop(myBackdrop);
-			myBackdrop = NULL;
-			FreeLevel();
-			FreeAllObjectBanks();
-			FreeAllTextureBanks();
-
-			frameCount = 0;
-			lastbutton = 0;
-
-			InitLevel ( 2,0 );
-			gameState.mode = LEVELPLAYING_MODE;
-			autoPlaying = 1;
-			FreeBackdrop(myBackdrop);
-			myBackdrop = NULL;
-			return;
-
-		}
-*/		// endif - levelPlayingTimer == 0
-	}
-
-	lastbutton = button;
-}
-
 
 void RunOptionsMode()
 {
@@ -1868,112 +1896,6 @@ void RunSoundAdjust()
 }
 
 
-
-void RunPauseMenu ( void )
-{
-	static unsigned long currentSelection = 0;
-	static u16 button,lastbutton = 0;
-
-	button = controllerdata[ActiveController].button;
-
-	pauseTitle->a -= 16;
-
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
-    {
-		if(currentSelection > 0)
-		{
-			currentSelection--;
-			PlaySample ( 237,NULL,255,128);
-		}
-	}
-
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
-    {
-		if(currentSelection < 1)
-		{
-			currentSelection++;
-			PlaySample ( 237,NULL,255,128);
-		}
-	}
-
-	if( ((button & CONT_START) && !(lastbutton & CONT_START)) ||
-		((button & CONT_A) && !(lastbutton & CONT_A)))
-	{
-		lastbutton = button;
-		PlaySample(2,NULL,255,128);
-
-		DisableTextOverlay ( pauseTitle );
-		DisableTextOverlay ( continueText );
-		DisableTextOverlay ( quitText );
-		testPause = 0;
-
-		if(backPanel)
-		{
-			backPanel->xPos		= 50;
-			backPanel->yPos		= 83;
-			backPanel->width	= 220;
-			backPanel->height	= 50;
-			backPanel->r		= 15;
-			backPanel->g		= 63;
-			backPanel->b		= 255;
-			backPanel->a		= 127;
-			backPanel->draw		= 0;
-		}
-
-		switch (currentSelection)
-		{
-			case 0:   // Continue Game
-				gameState.mode	= GAME_MODE;
-				return;
-			case 1:   // Quit Game
-				StopDrawing("Quit Game");
-				FreeAllLists();
-				gameState.mode		= FRONTEND_MODE;
-				frontEndState.mode	= DEMO_MODE;
-				frameCount = 0;
-				StartDrawing("Quit Game");
-				return;
-		}
-
-	}
-
-	switch (currentSelection)
-	{
-		case 0:
-//			continueText->a = 255 * fabs(sinf(frameCount/12.5));
-//			continueText->waveAmplitude = 6.0F;
-			continueText->a = 255;
-			continueText->r = continueText->g = continueText->b = 255;
-
-			quitText->a = 91; //255;
-			quitText->r = quitText->b = 255;
-			quitText->g = 255;
-
-			//if(quitText->waveAmplitude > 1)
-			//	quitText->waveAmplitude -= 0.10F;
-			break;
-		
-		case 1:
-			//quitText->a = 255 * fabs(sinf(frameCount/12.5));
-			//quitText->waveAmplitude = 6.0F;
-			quitText->a = 255;
-			quitText->r = quitText->g = quitText->b = 255;
-
-			continueText->a = 91; //255;
-			continueText->r = continueText->b = 255;
-			continueText->g = 255;
-
-			//if(continueText->waveAmplitude > 1)
-			//	continueText->waveAmplitude -= 0.10F;
-			break;
-
-	}
-
-	lastbutton = button;
-}
-
-
-
 typedef struct _HISCORETABLE
 {
 	char positionTxt[32];
@@ -2039,3 +1961,209 @@ void RunHiScoreMode ( void )
 
 	lastbutton = button;
 }
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RunGameMode
+	Purpose 	: In game
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void RunGameMode()
+{
+	static unsigned long currentSelection = 0;
+	static u16 button,lastbutton;
+	static TEXTOVERLAY *single,*multi,*classic;
+	SPRITEOVERLAY *sprOver = NULL;
+	int i = 0,xPos,j;
+
+	if(frameCount == 1)
+	{	
+		StopDrawing("gamemode");
+		FreeAllLists();
+
+//		recordKeying = 0;
+
+		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(TITLES_TEX_BANK);
+
+//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
+
+		currFont = smallFont;
+		single	= CreateAndAddTextOverlay(100,122,"single player",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
+		multi	= CreateAndAddTextOverlay(90,140,"multiplayer",YES,NO,255,255,200,255,currFont,TEXTOVERLAY_WAVECHARS,1,3.14/2);
+		classic	= CreateAndAddTextOverlay(80,158,"classic frogger",YES,NO,255,255,200,255,currFont,TEXTOVERLAY_WAVECHARS,1,3.14/4);
+
+		// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
+		sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(130,20,"flogo02.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(162,20,"flogo03.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(194,20,"flogo04.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(98,52,"flogo05.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(130,52,"flogo06.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(162,52,"flogo07.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
+		sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
+
+		sprOver = CreateAndAddSpriteOverlay(24,150,"haslg001.bmp",32,32,255,255,255,127,0);
+		sprOver = CreateAndAddSpriteOverlay(56,150,"haslg002.bmp",32,32,255,255,255,127,0);
+		sprOver = CreateAndAddSpriteOverlay(24,182,"haslg003.bmp",32,32,255,255,255,127,0);
+		sprOver = CreateAndAddSpriteOverlay(56,182,"haslg004.bmp",32,32,255,255,255,127,0);
+
+		sprOver = CreateAndAddSpriteOverlay(200,185,"isl1.bmp",32,32,255,255,255,128,0);
+		sprOver = CreateAndAddSpriteOverlay(232,185,"isl2.bmp",32,32,255,255,255,128,0);
+		sprOver = CreateAndAddSpriteOverlay(264,185,"isl3.bmp",32,32,255,255,255,128,0);
+
+		ResetParameters();
+
+		StartDrawing("gamemode");
+	}	
+
+		
+	button = controllerdata[ActiveController].button;
+
+	if((button & CONT_UP) && !(lastbutton & CONT_UP))
+    {
+		if (currentSelection>0)
+			currentSelection--;
+//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
+		PlaySample ( 237,NULL,255,128);
+	}
+	    
+	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+    {
+		if (currentSelection<(3-1))
+			currentSelection++;
+//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
+		PlaySample ( 237,NULL,255,128);
+	}
+	
+	if(frameCount > 15)
+	{
+		if((button & CONT_B) && !(lastbutton & CONT_B))
+		{
+			FreeAllLists();
+			frontEndState.mode = TITLE_MODE;
+			frameCount = 0;
+			lastbutton = 0;
+		}
+
+		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
+		   ((button & CONT_START) && !(lastbutton & CONT_START)))
+		{
+			switch (currentSelection)
+			{
+				case 0:   // Single Player Mode
+					FreeAllLists();
+					frameCount		= 0;
+					lastbutton		= 0;
+					frontEndState.mode	= LEVELSELECT_MODE;
+					PlaySample ( 2, NULL, 255, 128 );
+					return;
+				case 1:  // Multiplayer Mode
+					FreeAllLists();
+					frameCount		= 0;
+					lastbutton		= 0;
+					frontEndState.mode	= MULTIPLAYER_MODE;
+					PlaySample ( 2, NULL, 255, 128 );
+					return;
+				case 2:	 // Classic Frogger Menu Mode
+					FreeAllLists();
+					frameCount		= 0;
+					lastbutton		= 0;
+					gameState.mode	= OLDEFROGGER_MODE;
+					PlaySample ( 2,NULL,255,128);
+					return;
+			}
+		}			
+	
+		switch (currentSelection)
+		{
+			case 0:
+				single->a = 255 * fabs(sinf(frameCount/12.5));
+				single->waveAmplitude = 6.0F;
+				multi->a = 91; //255;
+				classic->a = 91; //255;				
+				multi->r = multi->b = 200;
+				multi->g = 255;
+				classic->r = classic->b = 200;
+				classic->g = 255;
+				single->r = single->g = single->b = 255;
+
+				if(multi->waveAmplitude > 1)
+					multi->waveAmplitude -= 0.10F;
+				if(classic->waveAmplitude > 1)
+					classic->waveAmplitude -= 0.10F;
+				break;
+			case 1:
+				multi->a = 255 * fabs(sinf(frameCount/12.5));
+				multi->waveAmplitude = 6.0F;
+				single->a = 91; //255;				
+				classic->a = 91; //255;				
+				single->r = single->b = 200;
+				single->g = 255;
+				classic->r = classic->b = 200;
+				classic->g = 255;
+				multi->r = multi->g = multi->b = 255;
+
+				if(single->waveAmplitude > 1)
+					single->waveAmplitude -= 0.10F;
+				if(classic->waveAmplitude > 1)
+					classic->waveAmplitude -= 0.10F;
+				break;
+
+			case 2:
+				classic->a = 255  * fabs(sinf(frameCount/12.5));				
+				classic->waveAmplitude = 6.0F;
+				single->a = 91; //255;				
+				multi->a = 91; //255;				
+				single->r = single->b = 200;
+				single->g = 255;
+				multi->r = multi->b = 200;
+				multi->g = 255;
+				classic->r = classic->g = classic->b = 255;
+
+				if(single->waveAmplitude > 1)
+					single->waveAmplitude -= 0.10F;
+				if(multi->waveAmplitude > 1)
+					multi->waveAmplitude -= 0.10F;
+				break;
+
+
+		}
+
+/*		levelPlayingTimer--;
+		if ( levelPlayingTimer == 0 )
+		{
+			FreeActorList();
+			FreePlatformList();
+			FreeEnemyList();
+			FreeSpriteOverlayList();
+//			FreeTextOverlayList();
+			FreeAnimationList();
+			FreeTextureList();
+			FreeBackdrop(myBackdrop);
+			myBackdrop = NULL;
+			FreeLevel();
+			FreeAllObjectBanks();
+			FreeAllTextureBanks();
+
+			frameCount = 0;
+			lastbutton = 0;
+
+			InitLevel ( 2,0 );
+			gameState.mode = LEVELPLAYING_MODE;
+			autoPlaying = 1;
+			FreeBackdrop(myBackdrop);
+			myBackdrop = NULL;
+			return;
+
+		}
+*/		// endif - levelPlayingTimer == 0
+	}
+
+	lastbutton = button;
+}
+
+#endif

@@ -30,73 +30,19 @@ char ActiveController	= 0;
 
 //------ [ FUNCTION IMPLEMENTATION ] -----------------------------------------------------------//
 
-void RunFrontEnd ( void )
+void RunFrontEnd( )
 {
 	switch ( frontEndState.mode )
 	{
-		case DEMO_MODE:
-				RunDemoOption();
-			break;
-
-		case SLOT_SELECT_MODE:
-				RunSaveLoadSelect();
-			break;
-
-		case TITLE_MODE:
-				RunTitleScreen();
-			break;
-
-		case GAMETYPE_MODE:
-				RunGameMode();
-			break;
-
-		case ALL_LEVELSELECT_MODE:
+	case TITLE_MODE:
+			RunTitleScreen();
+		break;
+	case LEVELSELECT_MODE:
 			multiplayerRun = 0;
-			RunSelectAllLevels( );
-			break;
-
-		case LEVELSELECT_MODE:
-				multiplayerRun = 0;
-				RunLevelSelect();
-			break;
-
-		case DEVELOPMENTMENU_MODE:
-//				RunDevelopmentMenu();
-			break;
-
-		case SNDVIEW_MODE:
-				RunSndView();
-			break;
-
-		case MULTIPLAYER_MODE:	
-				multiplayerRun = 1;
-				RunLevelSelect();
-			break;
-		
-		case OPTIONS_MODE:
-				RunOptionsMode();
-			break;
-
-		case SOUNDADJUST_MODE:
-				RunSoundAdjust();
-			break;
-
-		case CONTROLCONFIG_MODE:
-//				RunHiScoresMode();
-			break;
-
-		case HIGHSCORE_MODE:
-				RunHiScoreMode();
-			break;
-
-		case DEVELOPMENT_MODE:
-//				RunDevelopmentRoutines();
-			break;
-
-	};
-	// ENDIF - frontEndState.mode
-
-};
+			RunLevelSelect();
+		break;
+	}
+}
 
 
 /* --------------------------------------------------------------------------------
@@ -114,57 +60,46 @@ void GameLoop(void)
 {
 	switch (gameState.mode)
 	{
-		case GAME_MODE:
-			desiredFrameRate = newDesiredFrameRate = ingameRate;
-//			runningWaterStuff = 1;
-			//currFont = bigFont;
-			if(frameCount == 15)
-				StartDrawing("gameloop");
+	case GAME_MODE:
+		desiredFrameRate = newDesiredFrameRate = ingameRate;
+		//runningWaterStuff = 1;
+		if(frameCount == 15)
+			StartDrawing("gameloop");
 
-			UseAAMode = 2;
-			UseZMode = 1;
-		
-			RunGameLoop();
-			frameCount++;
-			break;
-		case CAMEO_MODE:
-		case PAUSE_MODE:
-			desiredFrameRate = newDesiredFrameRate = ingameRate;
-//			runningWaterStuff = 1;
-			//currFont = bigFont;
-			if(frameCount == 15)
-				StartDrawing("gameloop");
-
-			RunPauseMenu();
-			frameCount++;
-			break;
+		UseAAMode = 2;
+		UseZMode = 1;
 	
-		//case 
+		RunGameLoop();
+		frameCount++;
+		break;
+	case CAMEO_MODE:
+	case PAUSE_MODE:
+		desiredFrameRate = newDesiredFrameRate = ingameRate;
+		//runningWaterStuff = 1;
+		if(frameCount == 15)
+			StartDrawing("gameloop");
 
+		RunPauseMenu();
+		frameCount++;
+		break;
+	case FRONTEND_MODE:
+		desiredFrameRate = newDesiredFrameRate = 1;
+		if ( frameCount == 15 )
+			StartDrawing ( "gameloop" );
 
+		RunFrontEnd();
+		frameCount++;
+		break;
+	case OLDEFROGGER_MODE:
+		// olde original 2D Frogger mode
+		/*desiredFrameRate = newDesiredFrameRate = 1;
+		currFont = bigFont;
+		if(frameCount == 15)
+			StartDrawing("gameloop");
 
-		case FRONTEND_MODE:
-//			currFont = bigFont;
-			desiredFrameRate = newDesiredFrameRate = 1;
-			if ( frameCount == 15 )
-				StartDrawing ( "gameloop" );
-			// ENDIF - frameCount == 15
-			RunFrontEnd();
-			frameCount++;
-			break;
-
-		case OLDEFROGGER_MODE:
-
-/*			// olde original 2D Frogger mode
-			desiredFrameRate = newDesiredFrameRate = 1;
-			currFont = bigFont;
-			if(frameCount == 15)
-				StartDrawing("gameloop");
-
-			RunOldeFrogger();
-
-			frameCount++;*/
-			gameState.mode = FRONTEND_MODE;
-			break;
+		RunOldeFrogger();
+		frameCount++;*/
+		gameState.mode = FRONTEND_MODE;
+		break;
 	}
 }
