@@ -175,14 +175,17 @@ void LoadCodeOverlay(int num)
 	switch(num)
 	{
 		case GAME_OVERLAY:
+			utilPrintf("Loading Code Overlay Game\n");
 			while(fileLoadBinary("GAME.BIN", _video_obj));
 			break;
 
 		case VIDEO_OVERLAY:
+			utilPrintf("Loading Code Overlay Video\n");
 			while(fileLoadBinary("VIDEO.BIN", _video_obj));
 			break;
 
 		case LANG_OVERLAY:
+			utilPrintf("Loading Code Overlay Lang\n");
 			while(fileLoadBinary("LANG.BIN", _video_obj));
 			break;
 	}
@@ -573,13 +576,17 @@ int main ( )
 			StartVideoPlayback(FMV_BLITZ_LOGO);
 			if(quitAllVideo == 0)
 				StartVideoPlayback(FMV_INTRO);
+			utilPrintf("Finished FMV\n");
 		}
 		loadCodeOverlays = YES;
 
+			utilPrintf("Lang Select 1\n");
 #if PALMODE==1
 #define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
+			utilPrintf("Lang Select 2\n");
 		LoadCodeOverlay(LANG_OVERLAY);
+			utilPrintf("Lang Init\n");
 		languageInitialise();
 		while(!DoneLangSel)
 		{
