@@ -185,7 +185,7 @@ void UpdateEnemies()
 		}
 
 		// Do Special Effects attached to enemies
-		if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
+		if( cur->nmeActor->effects )
 		{
 			long r;
 			VECTOR rPos;
@@ -195,40 +195,26 @@ void UpdateEnemies()
 			else
 				r = 10;
 
-			SetVector( &rPos, &cur->nmeActor->actor->pos );
-			rPos.v[Y] = cur->inTile->centre.v[Y];
-
 			fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos);
 
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
 			{
-				if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
-					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, 1/cur->speed, 0.3, 2 );
-				else // Gentle ripples
-					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 1, 0.1, 3 );
+				if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
+				{
+					SetVector( &rPos, &cur->nmeActor->actor->pos );
+					rPos.v[Y] = cur->inTile->centre.v[Y];
+					if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
+						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, 1/cur->speed, 0.3, 2 );
+					else // Gentle ripples
+						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 1, 0.1, 3 );
+				}
+				if( cur->nmeActor->effects & EF_SMOKE_CLOUDS )
+					CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0, 0, 1.5 );
+				if( cur->nmeActor->effects & EF_SPARK_BURSTS )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 4, 0, 2 );
+//				if( cur->nmeActor->effects & EF_FLYSWARM )
+//					CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &cur->nmeActor->actor->pos, &cur->currNormal, 25, 0, 0, -1 );
 			}
-		}
-		if( cur->nmeActor->effects & EF_SMOKE_CLOUDS )
-		{
-			long r;
-			if( cur->nmeActor->value1 )
-				r = Random(cur->nmeActor->value1)+1;
-			else
-				r = 10;
-
-			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0, 0, 1.5 );
-		}
-		if( cur->nmeActor->effects & EF_SPARK_BURSTS )
-		{
-			long r;
-			if( cur->nmeActor->value1 )
-				r = Random(cur->nmeActor->value1)+1;
-			else
-				r = 10;
-
-			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-				CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 4, 0, 2 );
 		}
 	}
 }
@@ -1094,12 +1080,9 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
 	AddEnemy(newItem);
 	newItem->flags = flags;
 
-	if( !(flags & ENEMY_NEW_SWARM) )
-	{
-		initFlags |= INIT_ANIMATION;
-		initFlags |= INIT_SHADOW;
-		shadowRadius = 20;
-	}
+	initFlags |= INIT_ANIMATION;
+	initFlags |= INIT_SHADOW;
+	shadowRadius = 20;
 
 	// create and add the nme actor
 	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);

@@ -30,18 +30,16 @@
 #define ENEMY_NEW_FACEFORWARDS			(1 << 12)	// enemy faces forwards
 #define ENEMY_NEW_PUSHESFROG			(1 << 13)	// enemy pushes the frog, (Doesn't harm him!)
 #define ENEMY_NEW_HOMING				(1 << 14)	// No path, moves blindly towards frog
-#define ENEMY_NEW_SWARM					(1 << 15)	// No different mechanics, but does swarming thing about centre
-#define ENEMY_NEW_ROTATEPATH_XZ			(1 << 16)	// Move in a circle around a point. Use tiles though.
-#define ENEMY_NEW_ROTATEPATH_XY			(1 << 17)	// Move in a circle around a point. Use tiles though.
-#define ENEMY_NEW_ROTATEPATH_ZY			(1 << 18)	// Move in a circle around a point. Use tiles though.
-#define ENEMY_NEW_SNAPTILES				(1 << 19)	// Snap at a tilelist
-#define ENEMY_NEW_MOVEONMOVE			(1 << 20)	// Move towards frog when it moves
-#define ENEMY_NEW_FOLLOWFROG			(1 << 21)	// Follow where the frog has been
-#define ENEMY_NEW_VENT					(1 << 22)	// Gush particles up from a tile.
-#define ENEMY_NEW_NODAMAGE				(1 << 23)	// Don't hurt the frog on collision
-#define ENEMY_NEW_FLAPPYTHING			(1 << 24)	// Environmental effect - sets NODAMAGE flag. Can be used with swarm
-#define ENEMY_NEW_ONEHITKILL			(1 << 25)	// Don't just damage the frog, kill it right off
-#define ENEMY_NEW_SLERPPATH				(1 << 26)	// Smooth interpolation between path nodes
+#define ENEMY_NEW_ROTATEPATH_XZ			(1 << 15)	// Move in a circle around a point. Use tiles though.
+#define ENEMY_NEW_ROTATEPATH_XY			(1 << 16)	// Move in a circle around a point. Use tiles though.
+#define ENEMY_NEW_ROTATEPATH_ZY			(1 << 17)	// Move in a circle around a point. Use tiles though.
+#define ENEMY_NEW_SNAPTILES				(1 << 18)	// Snap at a tilelist
+#define ENEMY_NEW_MOVEONMOVE			(1 << 19)	// Move towards frog when it moves
+#define ENEMY_NEW_VENT					(1 << 20)	// Gush particles up from a tile.
+#define ENEMY_NEW_NODAMAGE				(1 << 21)	// Don't hurt the frog on collision
+#define ENEMY_NEW_FLAPPYTHING			(1 << 22)	// Environmental effect - sets NODAMAGE flag. Can be used with swarm
+#define ENEMY_NEW_ONEHITKILL			(1 << 23)	// Don't just damage the frog, kill it right off
+#define ENEMY_NEW_SLERPPATH				(1 << 24)	// Smooth interpolation between path nodes
 
 
 typedef struct TAGENEMY

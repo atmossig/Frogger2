@@ -30,9 +30,11 @@ extern char pauseMode;
 #define EF_SMOKE_CLOUDS					(1 << 1)	// As for mowers
 #define EF_SPARK_BURSTS					(1 << 2)	// 
 #define EF_FLAMEBURST					(1 << 3)	// Vent up
-#define EF_TINTRED						(1 << 4)
-#define EF_TINTGREEN					(1 << 5)
-#define EF_TINTBLUE						(1 << 6)
+#define EF_FLYSWARM						(1 << 4)
+
+#define EF_TINTRED						(1 << 29)
+#define EF_TINTGREEN					(1 << 30)
+#define EF_TINTBLUE						(1 << 31)
 
 
 // Preset types. Any other can be made by selecting custom and specifying all the stucture members by hand
@@ -48,6 +50,7 @@ enum
 	FXTYPE_SPLASH,
 	FXTYPE_SMOKEBURST,
 	FXTYPE_FIREVENT,
+	FXTYPE_FLYSWARM,
 
 	FXTYPE_NUMTYPES
 };
