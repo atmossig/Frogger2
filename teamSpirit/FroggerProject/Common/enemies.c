@@ -2802,7 +2802,7 @@ ENEMY *FindEnemyAtNode( ENEMY *nme, PATHNODE *node )
 	ENEMY *e;
 
 	for( e = enemyList.head.next; e != &enemyList.head; e = e->next )
-		if( (nme && e != nme) && e->active && ((&e->path->nodes[e->path->toNode] == node) || (&e->path->nodes[e->path->fromNode] == node)) )
+		if( (nme && e != nme) && e->active && ((&e->path->nodes[e->path->toNode] == node) || (&e->path->nodes[e->path->fromNode] == node) || (e->inTile == node->worldTile)) )
 			return e;
 
 	return NULL;

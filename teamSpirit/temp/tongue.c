@@ -766,6 +766,9 @@ void CheckForAttachedNMEs( ENEMY *e, int flag )
 		if( !(nme = FindEnemyAtNode(e,&p->nodes[i])) )
 			break;
 
+		if( nme->uid )
+			continue;
+
 		if( flag )
 		{
 			ACTIVATEENEMY( nme );
@@ -785,6 +788,9 @@ void CheckForAttachedNMEs( ENEMY *e, int flag )
 
 		if( !(nme = FindEnemyAtNode(e,&p->nodes[i])) )
 			break;
+
+		if( nme->uid )
+			continue;
 
 		if( flag )
 		{
