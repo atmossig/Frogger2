@@ -7,6 +7,7 @@
 #include "fixed.h"
 #include "sonylibs.h"
 #include "islfont.h"
+#include "layout.h"
 #include <malloc.h>
 
 #ifdef __cplusplus

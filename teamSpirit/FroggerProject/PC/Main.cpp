@@ -54,6 +54,7 @@
 #include "temp_pc.h"
 #include "pcsprite.h"
 #include "pcgfx.h"
+#include "ptexture.h"
 
 #include "controll.h"
 
@@ -229,8 +230,8 @@ long DrawLoop(void)
 	camZ = t.x*8;
 	camY = t.y*8;
 
-//	if( gameState.mode == INGAME_MODE )
-//		ProcessProcTextures( );
+	if( gameState.mode == INGAME_MODE )
+		ProcessProcTextures( );
 	
 //	AnimateTexturePointers();
 

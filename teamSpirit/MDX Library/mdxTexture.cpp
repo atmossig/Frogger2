@@ -126,7 +126,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	strlwr (mys);
 	
 	texType = TEXTURE_NORMAL;
-	if (strncmp(mys,"ai_",3)==0)
+	if (strncmp(mys,"ai_",3)==0 || strncmp(mys,"prc",3)==0)
 		texType = TEXTURE_AI;
 
 	newE = new MDX_TEXENTRY;

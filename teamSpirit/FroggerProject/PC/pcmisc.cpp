@@ -17,6 +17,7 @@
 
 #include "Main.h"
 #include "pcmisc.h"
+#include "ptexture.h"
 
 int drawOverlays = 1;
 
@@ -71,3 +72,22 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE7 to, unsigned char *buf, unsigned short 
 	if ((res = to->BltFast(0,0,pSurface,NULL,0))!=DD_OK)
 		ddShowError(res);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: PTTextureLoad
+	Purpose 	: Scan the texture list and convert any textures named "prc*" into procedurals
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void PTTextureLoad( )
+{
+	MDX_TEXENTRY *t;
+
+	// List search
+	for( t = texList; t; t = t->next )
+		if( t->name[0]=='p' && t->name[1]=='r' && t->name[2]=='c' )
+			CreateProceduralTexture( (TextureType *)t, t->name );
+}
+

@@ -40,6 +40,7 @@ void HoldTimers(void);
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char*);
 
 void PTSurfaceBlit( LPDIRECTDRAWSURFACE7 to, unsigned char *buf, unsigned short *pal );
+void PTTextureLoad( );
 
 //----- [ FLOAT VECTOR MACROS ] ----------------------------------------------------------------//
 // Note: 'R' denoted real-valued (i.e. PC floating point) vectors
