@@ -181,7 +181,6 @@ void DrawActorList()
 				if( cur->draw )
 				if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
 				{
-					dprintf"DRAWACTOR1\n"));
 					DrawActor(cur->actor);
 				}
 			}
@@ -208,7 +207,6 @@ void DrawActorList()
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
-			dprintf"WATER\n"));
 			DrawActor(cur->actor);
 		}
 		
@@ -231,7 +229,6 @@ void DrawActorList()
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
-			dprintf"DRAWACTOR2\n"));
 			DrawActor(cur->actor);
 		}
 		
