@@ -320,16 +320,16 @@ BOOL LoadCollision(int num)
 		GetFirst		   = GetProcAddress(mapHandle, "GetFirst");
 		
 		if (GetStartsAddress)  
-			gTStart = (GAMETILE *)GetStartsAddress();
+			gTStart = (GAMETILE**)GetStartsAddress();
 		
 		if (GetBabiesAddress)   
-			bTStart = (GAMETILE *)GetBabiesAddress();   
+			bTStart = (GAMETILE**)GetBabiesAddress();   
 		
 		if (GetSafesAddress)
-			bTSafe = (GAMETILE *)GetSafesAddress();
+			bTSafe = (GAMETILE**)GetSafesAddress();
 		
 		if (GetPowerupsAddress) 
-			pwrupTStart = GetPowerupsAddress(); 
+			pwrupTStart = (GAMETILE**)GetPowerupsAddress(); 
 		
 		if (GetBabiesNum)       
 			numBabies = GetBabiesNum();       
@@ -600,7 +600,7 @@ BOOL LoadScenics (int num)
 		GetSc000Address   = GetProcAddress(sceHandle, "GetSC000Address");
 		
 		if (GetSc000Address)
-			Sc_000 = GetSc000Address();
+			Sc_000 = (SCENIC*)GetSc000Address();
 	}
 	else
 		return FALSE;
@@ -644,17 +644,6 @@ void LoadLevelEntities(int worldID, int levelID)
 
 	sprintf(file, "%s%sentity-%d-%d.dat", baseDirectory, ENTITY_BASE, worldID, levelID);
 
-#ifdef LOADWITHEDITOR
-	dprintf"Loading %s with EDITOR loader\n", file));
-	
-	FreeCreateList();
-
-	if (LoadCreateList(file))
-		EditorCreateEntities();
-
-	FreeCreateList();
-
-#else
 	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -674,10 +663,20 @@ void LoadLevelEntities(int worldID, int levelID)
 	if (!MemLoadEntities(buffer, size))
 	{
 		dprintf"MemLoadEntities failed\n"));
+
+	#ifdef LOADWITHEDITOR
+		dprintf"Using Editor loader instead...\n", file));
+		
+		FreeCreateList();
+
+		if (LoadCreateList(file))
+			EditorCreateEntities();
+
+		FreeCreateList();
+	#endif
 	}
 
 	JallocFree((UBYTE**)&buffer);
-#endif
 }
 
 void LoadLevelScript(int worldID, int levelID)

@@ -674,6 +674,7 @@ void FreeAllLists()
 	FreeSpriteLinkedList();
 	FreeEnemyLinkedList();
 	FreePlatformLinkedList();
+	FreePathList();
 
 	FreeAnimationList();
 	FreeTextureList();

@@ -121,6 +121,8 @@ int MemLoadEntities(const void* data, long size)
 			
 			node++;
 		}
+
+		AddPathNodesToList(path->nodes);
 	}
 
 	count = MEMGETWORD(&p);

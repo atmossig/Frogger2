@@ -15,6 +15,49 @@
 
 #include "incs.h"
 
+typedef struct TAG_PATHNODESTORE
+{
+	PATHNODE *nodes;
+	struct TAG_PATHNODESTORE *next;
+} PATHNODESTORE;
+
+PATHNODESTORE *pathNodeList = NULL;
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddPathNodesToList
+	Purpose			: Adds an array of pathnodes to a global list
+	Parameters		: PATHNODE *first, int count
+	Returns			: 
+*/
+
+void AddPathNodesToList(PATHNODE *first)
+{
+	PATHNODESTORE *newNode;
+
+	newNode = JallocAlloc(sizeof(PATHNODESTORE), NO, "pnode_s");
+	newNode->nodes = first;
+	newNode->next = pathNodeList;
+	pathNodeList = newNode;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreePathList
+	Purpose			: Free the global list of PATHs
+	Parameters		: void
+*/
+void FreePathList(void)
+{
+	PATHNODESTORE *node, *next;
+
+	for (node = pathNodeList; node; node = next)
+	{
+		next = node->next;
+		JallocFree((UBYTE**)&node->nodes);
+		JallocFree((UBYTE**)&node);
+	}
+
+	pathNodeList = NULL;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetPositionForPathNode
@@ -147,7 +190,7 @@ void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause)
 {
 	int i = path->numNodes;
 	while(i--)
-		SetPathNodeWaitTime(&path->nodes[i],Random(maxPause) + minPause);
+		SetPathNodeWaitTime(&path->nodes[i], (short)(Random(maxPause)+minPause));
 }
 
 /*	--------------------------------------------------------------------------------

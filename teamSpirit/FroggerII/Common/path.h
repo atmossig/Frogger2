@@ -73,4 +73,7 @@ void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause);
 
 void ScalePathSpeed(PATH *path, float scale);
 
+void AddPathNodesToList(PATHNODE*);
+void FreePathList(void);
+
 #endif
