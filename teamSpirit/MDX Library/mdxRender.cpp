@@ -63,7 +63,12 @@ long FOV=450 / (480.0/480.0);
 float oneOver[65535];
 float posAddr[10000];
 
+float fogStart = 400;
+float fogRange = 1.0/((1200.0-400.0));
 #define MAX_ADDER 1
+
+#define FOG(x) (1.0- (x-fogStart)*fogRange) 
+#define FOGVAL(x) (((long)(x*0xff))<<24)
 
 float halfWidth;
 float halfHeight;
@@ -196,13 +201,15 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
 	vOut->rhw = 1;///vOut->sz;
 	
-	vOut->specular = 0;//D3DRGBA(0,0,0,0);
+	vOut->specular = ((long)(((long)v0->specular>>24)+((((long)v1->specular>>24)-((long)v0->specular>>24))*vt)))<<24;
 	
 	
 	vOut->color = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
 
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
+
+
 
 void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 {
@@ -394,7 +401,7 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 			
 			vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
 			vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
-			vTemp2->vz *= 0.00025F;
+//			vTemp2->vz *= 0.00025F;
 		}
 		else
 			vTemp2->vz = 0;
@@ -513,7 +520,7 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	MDX_VECTOR *vtxS = mesh->vertices;
 	long i,j;
 	long x,*eV;
-	float oozd;
+	float oozd,tFog;
 
 	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	eV = ((long *)(obj->effectedVerts));
@@ -540,9 +547,7 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 		{
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 			vTemp2->vx = halfWidth + (vTemp2->vx * oozd);
-			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd);
-			vTemp2->vz *= 0.00025F;
-
+			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd);			
 		}
 		else
 			vTemp2->vz = 0;
@@ -588,7 +593,7 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 	float oozd;
 	float a0,b0,c0,d0;
 	float a1,b1,c1,d1;
-	float a2,b2,c2,d2;
+	float a2,b2,c2,d2,tFog;
 
 	a0 = vMatrix.matrix[0][0];
 	a1 = vMatrix.matrix[0][1];
@@ -638,6 +643,13 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 			}
 			else
 				vTemp2->sz = 0;
+
+			tFog = FOG(vTemp2->sz);
+
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+
+			vTemp2->specular = FOGVAL(tFog);
 
 			vTemp2->sz *= 0.00025F;
 			vTemp2->rhw = 1;
@@ -819,13 +831,8 @@ void DrawLandscape(MDX_LANDSCAPE *me)
 {
 	if (CheckBoundingBox(me->bBox,&me->objMatrix)==0)
 	{
-//		StartTimer(8,"Prepare landscape");	
 		PCPrepareLandscape(me);
-//		EndTimer(8);
-
-//		StartTimer(9,"Render landscape");	
 		PCRenderLandscape(me);
-//		EndTimer(9);
 		numObjDrawn++;
 	}
 
@@ -1366,7 +1373,7 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
 	unsigned long v0,v1,v2;
 	unsigned long v0a,v1a,v2a;
-	float m1x,m2x,m3x;
+	float m1x,m2x,m3x,tFog;
 	float m1z,m2z,m3z,cVal;
 	long alphaVal;
 	MDX_TEXENTRY *tex;
@@ -1418,7 +1425,12 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			
 			// Fill out D3DVertices...
 			vTemp = v;
-				
+			
+			tFog = FOG(tV0->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			vTemp->specular = FOGVAL(tFog);			
+						
 			vTemp->sx = tV0->vx;
 			vTemp->sy = tV0->vy;
 			vTemp->sz = (tV0->vz) * 0.00025F;
@@ -1426,7 +1438,7 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 
 			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
-			vTemp->specular = D3DRGBA(0,0,0,0);
+			//vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z*0.4;
 			
@@ -1434,26 +1446,32 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			//vTemp->tu = (tN0->vx+0.5);
 			vTemp++;
 
+			tFog = FOG(tV1->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			vTemp->specular = FOGVAL(tFog);			
 			vTemp->sx = tV1->vx;
 			vTemp->sy = tV1->vy;
 			vTemp->sz = (tV1->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
 			cVal = 1;//fabs((m2x+m2z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m2x+m2z)*2);
-			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z*0.4;
 			//vTemp->tv = (tN1->vy+0.5);
 			//vTemp->tu = (tN1->vx+0.5);
 			vTemp++;
 			
+			tFog = FOG(tV2->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			vTemp->specular = FOGVAL(tFog);			
 			vTemp->sx = tV2->vx;
 			vTemp->sy = tV2->vy;
 			vTemp->sz = (tV2->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
 			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m3x+m3z)*2);
-			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
 			//vTemp->tv = (tN2->vy+0.5);
@@ -1500,6 +1518,7 @@ void PCRenderObject (MDX_OBJECT *obj)
 	MDX_TEXENTRY **tex2;
 	MDX_VECTOR *tV0,*tV1,*tV2;
 	D3DTLVERTEX *dVtx;
+	float tFog;
 	//MDX_QUATERNION *cols;
 	
 	dVtx = obj->mesh->d3dVtx;
@@ -1520,17 +1539,29 @@ void PCRenderObject (MDX_OBJECT *obj)
 		// If we are to be drawn.
 		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
 		{
+			tFog = FOG(tV0->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			(dVtx)->specular = FOGVAL(tFog);			
 			(dVtx)->sx = tV0->vx;
 			(dVtx)->sy = tV0->vy;
-			(dVtx)->sz = tV0->vz;
+			(dVtx)->sz = tV0->vz * 0.00025F;
 			
+			tFog = FOG(tV1->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			(dVtx+1)->specular = FOGVAL(tFog);			
 			(dVtx+1)->sx = tV1->vx;
 			(dVtx+1)->sy = tV1->vy;
-			(dVtx+1)->sz = tV1->vz;
+			(dVtx+1)->sz = tV1->vz * 0.00025F;
 			
+			tFog = FOG(tV2->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			(dVtx+2)->specular = FOGVAL(tFog);			
 			(dVtx+2)->sx = tV2->vx;
 			(dVtx+2)->sy = tV2->vy;
-			(dVtx+2)->sz = tV2->vz;
+			(dVtx+2)->sz = tV2->vz * 0.00025F;
 			
 			y1on = BETWEEN(tV0->vy,cly0,cly1) +
 				   BETWEEN(tV1->vy,cly0,cly1) +

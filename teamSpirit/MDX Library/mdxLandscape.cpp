@@ -69,6 +69,8 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 	me->xfmVert = 0;
 	me->textures = 0;
 
+	strcpy(me->name,(const char *)obj->name);
+
 	// Copy the vertices and the faces
 	if (me->numVertices = obj->mesh->numVertices)
 	{

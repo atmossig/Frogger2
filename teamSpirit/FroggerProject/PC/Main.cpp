@@ -488,11 +488,14 @@ long DrawLoop(void)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();
 
-	CalcViewMatrix(1);
-
 	if (editorOk)
-		changedView = 1;
+		CalcViewMatrix(0);
+	else
+		CalcViewMatrix(1);
 
+	//	changedView = 1;
+
+	
 
 	//if (backGnd)
 	//	DrawBackground();
@@ -602,8 +605,8 @@ long DrawLoop(void)
 	camY = t.y*8;
 
 	StartTimer(19,"PText");
-	//if( gameState.mode != PAUSE_MODE )
-	//	ProcessProcTextures( );
+	if( gameState.mode != PAUSE_MODE )
+		ProcessProcTextures( );
 	EndTimer(19);
 	
 //	AnimateTexturePointers();

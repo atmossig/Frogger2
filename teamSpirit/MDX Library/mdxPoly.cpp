@@ -627,12 +627,13 @@ void DrawSortedPolys (void)
 */
 
 
+
 void DrawBatchedPolys (void)
 {
 	unsigned long i;
 	unsigned long nFace,nFace2,done;
 	LPDIRECTDRAWSURFACE7 lSurface,*cT;
-
+	D3DTLVERTEX *vert;
 	
 	cFInfo->cF = cFInfo->f;
 	cFInfo->cT = cFInfo->t;
@@ -643,7 +644,8 @@ void DrawBatchedPolys (void)
 	numSeperates = 0;
 	done=0;
 	cT = cFInfo->cT;
-		
+
+	
 	while ((i<cFInfo->nF))
 	{				
 		lSurface = *cT;
@@ -929,22 +931,22 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 	D3DLVERTEX v[4] = {
 		{
 			r.left,r.top,0,0,
-			colour,D3DRGBA(0,0,0,0),
+			colour,D3DRGBA(0,0,0,1),
 			u0,v0
 		},
 		{
 			r.left,r.bottom,0,0,
-			colour,D3DRGBA(0,0,0,0),
+			colour,D3DRGBA(0,0,0,1),
 			u0,v1
 			},
 		{
 			r.right,r.bottom,0,0,
-			colour,D3DRGBA(0,0,0,0),
+			colour,D3DRGBA(0,0,0,1),
 			u1,v1
 		},
 		{
 			r.right,r.top,0,0,
-			colour,D3DRGBA(0,0,0,0),
+			colour,D3DRGBA(0,0,0,1),
 			u1,v0
 	}};
 
@@ -957,12 +959,14 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,FALSE);
+
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
-			
+
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
@@ -1040,11 +1044,13 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,FALSE);
 	
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
 			
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);

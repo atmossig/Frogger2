@@ -79,21 +79,14 @@ void ActorListDraw(void)
 	{
 		drawThisObjectsSprites = cur->draw;
 		XfmPoint(&where,&cur->pos,NULL);
-		if (((where.vx > -50) && (where.vx<640+50)) &&
-			((where.vy > -50) && (where.vy<480+50)))
-		{
-
-//	StartTimer(3,"Xform actor");
+	//f (((where.vx > -50) && (where.vx<640+50)) &&
+	//((where.vy > -50) && (where.vy<480+50)))
+		{	
 			XformActor(cur);		
-//	EndTimer(3);
 			if (cur->draw)
-			{
-//		StartTimer(4,"Draw Actor");
 				DrawActor(cur);
-//		EndTimer(4);
-			}
 		}
-	
+
 		cur = cur->next;
 	}
 }
@@ -291,38 +284,151 @@ void UpdateAnims(MDX_ACTOR *actor)
 
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
+	MDX_VECTOR t[8];
+	MDX_VECTOR *r = t;
+	unsigned long left,right,top,bottom;
+	left = top = right = bottom = 0;
+
+	for (int i=8; i; i--)
+	{
+		XfmPoint(r,bBox,m);
+
+		if (r->vx>rXRes || r->vz<10)
+			right++;
+
+		if (r->vx<0 || r->vz<10)		
+			left++;			
+
+		if (r->vy>rYRes || r->vz<10)
+			bottom++;
+
+		if (r->vy<0 || r->vz<10)
+			top++;				
+
+		r++;
+		bBox++;
+	}
+	
+	if ((left|right|top|bottom) & (~7))
+		return 1;
+	//if ((left>7) || (right>7) || (top>7) || (bottom>7))
+	
+	return 0;
+}
+/*
+MDX_TEXENTRY *temp = 0;
+
+unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
+{
 	MDX_VECTOR r[8];
+	D3DTLVERTEX v[3];
+	
 	unsigned long left,right,top,bottom,in;
 	left = top = right = bottom = in = 0;
 	
+	if (!temp)
+		temp = GetTexEntryFromCRC(UpdateCRC("dock4.bmp"));
+
+
 	for (int i=0; i<8; i++)
 	{
 		XfmPoint(&r[i],&bBox[i],m);
 
-		if (r[i].vz == 0)
-			in++;
-		else
-		{
+	//	if (r[i].vz < 10)
+	//		in++;
+	//	else
+	//	{
 
-			if (r[i].vx>rXRes)
-				right++;
+		if (r[i].vx>rXRes || r[i].vz<10)
+			right++;
 
-			if (r[i].vx<0)		
-				left++;			
+		if (r[i].vx<0 || r[i].vz<10)		
+			left++;			
 
-			if (r[i].vy>rYRes)
-				bottom++;
+		if (r[i].vy>rYRes || r[i].vz<10)
+			bottom++;
 
-			if (r[i].vy<0)
-				top++;				
-		}
+		if (r[i].vy<0 || r[i].vz<10)
+			top++;				
+	//	}
 	}
 	
-	if ((left==8) || (right==8) || (top==8) || (bottom==8) || (in==8))
+	if ((left>7) || (right>7) || (top>7) || (bottom>7) || (in>7))
 		return 1;
+	
+	dp("left %lu   right %lu   up %lu   down %lu   z%lu   \n",left,right,top,bottom,in);
+	for (i=0; i<24; i++)
+	{
+		long vals[] =	{
+							2,1,0, 
+							3,2,0,
+							
+							4,5,6,
+							4,6,7,
+
+							1,2,5, 
+							2,6,5,
+
+							4,3,0, 
+							7,3,4,
+
+							5,4,1, 
+							1,4,0,
+
+							7,6,3, 
+							6,2,3,
+				
+
+							0,1,2, 
+							0,2,3,
+							
+							6,5,4,
+							7,6,4,
+
+							5,2,1, 
+							5,6,2,
+
+							0,3,4, 
+							4,3,7,
+
+							1,4,5, 
+							0,4,1,
+
+							3,6,7, 
+							3,2,6,				
+						};
+		v[0].sx = r[vals[i*3]].vx;
+		v[0].sy = r[vals[i*3]].vy;
+		v[0].sz = r[vals[i*3]].vz*0.00025;
+		v[1].sx = r[vals[i*3+1]].vx;
+		v[1].sy = r[vals[i*3+1]].vy;
+		v[1].sz = r[vals[i*3+1]].vz*0.00025;
+		v[2].sx = r[vals[i*3+2]].vx;
+		v[2].sy = r[vals[i*3+2]].vy;
+		v[2].sz = r[vals[i*3+2]].vz*0.00025;
+		v[0].color = (((long)bBox)&0x00ffffff) | D3DRGBA(1,1,0,0.2);
+		v[1].color = (((long)bBox)&0x00ffffff) | D3DRGBA(1,1,0,0.2);
+		v[2].color = (((long)bBox)&0x00ffffff) | D3DRGBA(1,1,0,0.2);
+		v[0].specular = 0;
+		v[1].specular = 0;
+		v[2].specular = 0;
+		v[0].tu = 0;
+		v[0].tv = 0;
+		v[1].tu = 1;
+		v[1].tv = 0;
+		v[2].tu = 1;
+		v[2].tv = 1;
+
+		SwapFrame(MA_FRAME_XLU);
+
+		if (v[0].sz && v[1].sz && v[2].sz)
+			Clip3DPolygon(v,temp);
+		
+		SwapFrame(MA_FRAME_NORMAL);
+	}
 	return 0;
 }
-
+*/
 void XformActor(MDX_ACTOR *actor)
 {
 	MDX_OBJECT_CONTROLLER *objectC = actor->objectController;

@@ -31,6 +31,7 @@ typedef struct TAG_MDX_LANDSCAPE
 	
 	unsigned long numVertices;
 	unsigned long numFaces;
+	char name[64];
 
 	struct TAG_MDX_LANDSCAPE *next,*children;
 } MDX_LANDSCAPE;

@@ -41,6 +41,7 @@ MDX_VECTOR curAt;
 MDX_VECTOR curEye;
 long changedView = 0;
 #define MOVE_THRESH 0.1
+#define ROTATE_THRESH 0.01
 float sinTable[4096];
 float acosTable[4096];
 
@@ -144,9 +145,9 @@ void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, floa
 	
 	if (updateView)
 	{
-		if ((fabs(curAt.vx - xAt)<MOVE_THRESH) &&
-			(fabs(curAt.vy - yAt)<MOVE_THRESH) &&
-			(fabs(curAt.vz - zAt)<MOVE_THRESH) &&
+		if ((fabs(curAt.vx - xAt)<ROTATE_THRESH) &&
+			(fabs(curAt.vy - yAt)<ROTATE_THRESH) &&
+			(fabs(curAt.vz - zAt)<ROTATE_THRESH) &&
 			(fabs(curEye.vx - xEye)<MOVE_THRESH) &&
 			(fabs(curEye.vy - yEye)<MOVE_THRESH) &&
 			(fabs(curEye.vz - zEye)<MOVE_THRESH))
