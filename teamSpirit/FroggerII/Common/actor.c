@@ -37,7 +37,7 @@ float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
 #endif
 
 #define WATER_XLU 70
-long waterObject;
+long waterObject = 0;
 int objectMatrix = 0;
 
 ACTOR2 *actList = NULL;				// entire actor list
@@ -141,9 +141,11 @@ void DrawActorList()
 	waterObject = 0;
 	while(cur)
 	{
+#ifdef PC_VERSION // TEMPORARY MEASURE UNTIL N64 CAN USE NON-DRAWLISTED OBJECTS...ANDYE
 		if(cur->flags & ACTOR_SLIDYTEX)
 			if (cur->actor->objectController)
 				SlideObjectTextures(cur->actor->objectController->object);
+#endif
 	
 		if( ((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
 		{
@@ -178,13 +180,16 @@ void DrawActorList()
 			{
 				if( cur->draw )
 				if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
+				{
+					dprintf"DRAWACTOR1\n"));
 					DrawActor(cur->actor);
+				}
 			}
 		}
 	
 		cur = cur->next;
 	}
-	
+
 #ifdef PC_VERSION
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 #endif
@@ -203,6 +208,7 @@ void DrawActorList()
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
+			dprintf"WATER\n"));
 			DrawActor(cur->actor);
 		}
 		
@@ -225,6 +231,7 @@ void DrawActorList()
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
+			dprintf"DRAWACTOR2\n"));
 			DrawActor(cur->actor);
 		}
 		

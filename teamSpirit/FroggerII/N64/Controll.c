@@ -344,10 +344,4 @@ void ReadController()
 
 	ReadControllerData();
 	ReadDebugPad();
-
-	while(i--)
-	{
-		if(player[i].inputPause)
-			player[i].inputPause--;
-	}
 }

@@ -32,20 +32,19 @@ GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;
 
-char message[256];
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadMapBank
 
 	Purpose		:
-	Parameters	: (int num)
+	Parameters	: 
 	Returns		: void 
 */
-void LoadMapBank(short worldID,short levelID)
+void LoadMapBank(short num)
 {
-	LoadCollision(worldID,levelID);
-	LoadScenics(worldID,levelID);
+	LoadCollision(num);
+	LoadScenics(num);
 }
 
 void FreeMapBank()
@@ -60,228 +59,311 @@ void FreeMapBank()
 	Programmer	: Matthew Cloy
 	Function	: LoadCollision 
 	Purpose		:
-	Parameters	: short,short
+	Parameters	: short
 	Returns		: void 
 */
 
-void LoadCollision(short worldID,short levelID)
+void LoadCollision(short cNum)
 {
 	int					tnum = -1;
 	char				*objectBank;
 	u32					bankRomStart, bankRomEnd, bankSize;
 	short				y, x;
 	GAMETILE			*cgT;
+	char				message[64];
 
-	switch(worldID)
+	switch(cNum)
 	{
-		case WORLDID_GARDEN:
-			switch(levelID)
-			{
-				case LEVELID_GARDENLEV1:
-					tnum = GARDEN1_COLL_BANK;
-					break;
-				case LEVELID_GARDENLEV2:
-					tnum = GARDEN2_COLL_BANK;
-					break;
-				case LEVELID_GARDENLEV3:
-					tnum = GARDEN3_COLL_BANK;
-					break;
-				case LEVELID_GARDENBOSSA:
-					tnum = GARDENBOSSA_COLL_BANK;
-					break;
-				case LEVELID_GARDENBOSSB:
-					tnum = GARDENBOSSB_COLL_BANK;
-					break;
-				case LEVELID_GARDENBONUS:
-					tnum = GARDENBONUS_COLL_BANK;
-					break;
-				case LEVELID_GARDENMULTI:
-					tnum = GARDENMULTI_COLL_BANK;
-					break;
-			}
+		// FRONTEND ------------------------------------------------------------------------------
+
+		case FRONTEND1_COL:
+			tnum = START_COLL_BANK;
+			sprintf(message,"FRONTEND 1");
+			break;
+		case FRONTEND2_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 2");
+			break;
+		case FRONTEND3_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 3");
+			break;
+		case FRONTEND4_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 4");
+			break;
+		case FRONTEND5_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 5");
 			break;
 
-		case WORLDID_ANCIENT:
-			switch(levelID)
-			{
-				case LEVELID_ANCIENTLEV1:
-					tnum = ANCIENTS1_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTLEV2:
-					tnum = ANCIENTS2_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTLEV3:
-					tnum = ANCIENTS3_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTBOSSA:
-					tnum = ANCIENTSBOSS_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTBOSSB:
-					break;
-				case LEVELID_ANCIENTBOSSC:
-					break;
-				case LEVELID_ANCIENTBOSSD:
-					break;
-				case LEVELID_ANCIENTBONUS:
-					break;
-				case LEVELID_ANCIENTMULTI:
-					break;
-			}
+		// GARDEN --------------------------------------------------------------------------------
+
+		case GARDENMASTERA_COL:
+			tnum = GARDENBOSSA_COLL_BANK;
+			sprintf(message,"GARDEN BOSS A");
+			break;
+		case GARDENMASTERB_COL:
+			tnum = GARDENBOSSB_COLL_BANK;
+			sprintf(message,"GARDEN BOSS B");
+			break;
+		case GARDENLEV1_COL:
+			tnum = GARDEN1_COLL_BANK;
+			sprintf(message,"GARDEN 1");
+			break;
+		case GARDENLEV2_COL:
+			tnum = GARDEN2_COLL_BANK;
+			sprintf(message,"GARDEN 2");
+			break;
+		case GARDENLEV3_COL:
+			tnum = GARDEN3_COLL_BANK;
+			sprintf(message,"GARDEN 3");
+			break;
+		case GARDENBONUS_COL:
+			tnum = GARDENBONUS_COLL_BANK;
+			sprintf(message,"GARDEN BONUS");
+			break;
+		case GARDENMULTI_COL:
+			tnum = GARDENMULTI_COLL_BANK;
+			sprintf(message,"GARDEN MULTI");
 			break;
 
-		case WORLDID_SPACE:
-			switch(levelID)
-			{
-				case LEVELID_SPACELEV1:
-					tnum = SPACE1_COLL_BANK;
-					break;
-				case LEVELID_SPACELEV2:
-					tnum = SPACE2_COLL_BANK;
-					break;
-				case LEVELID_SPACELEV3:
-					tnum = SPACE3_COLL_BANK;
-					break;
-				case LEVELID_SPACEBOSSA:
-					tnum = SPACEBOSS_COLL_BANK;
-					break;
-				case LEVELID_SPACEBONUS:
-					break;
-				case LEVELID_SPACEMULTI:
-					break;
-			}
+		// ANCIENTS ------------------------------------------------------------------------------
+
+		case ANCIENTMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS A");
 			break;
-	
-		case WORLDID_CITY:
-			switch(levelID)
-			{
-				case LEVELID_CITYLEV1:
-					tnum = CITY1_COLL_BANK;
-					break;
-				case LEVELID_CITYLEV2:
-					tnum = CITY2_COLL_BANK;
-					break;
-				case LEVELID_CITYLEV3:
-					tnum = CITY3_COLL_BANK;
-					break;
-				case LEVELID_CITYBOSSA:
-					break;
-				case LEVELID_CITYBONUS:
-					tnum = CITYBONUS_COLL_BANK;
-					break;
-				case LEVELID_CITYMULTI:
-					break;
-			}
+		case ANCIENTMASTERB_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS B");
+			break;
+		case ANCIENTMASTERC_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS C");
+			break;
+		case ANCIENTMASTERD_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS D");
+			break;
+		case ANCIENTLEV1_COL:
+			tnum = ANCIENTS1_COLL_BANK;
+			sprintf(message,"ANCIENTS 1");
+			break;
+		case ANCIENTLEV2_COL:
+			tnum = ANCIENTS2_COLL_BANK;
+			sprintf(message,"ANCIENTS 2");
+			break;
+		case ANCIENTLEV3_COL:
+			tnum = ANCIENTS3_COLL_BANK;
+			sprintf(message,"ANCIENTS 3");
+			break;
+		case ANCIENTBONUS_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BONUS");
+			break;
+		case ANCIENTMULTI_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS MULTI");
 			break;
 
-		case WORLDID_SUBTERRANEAN:
-			switch(levelID)
-			{
-				case LEVELID_SUBTERRANEANLEV1:
-					break;
-				case LEVELID_SUBTERRANEANLEV2:
-					break;
-				case LEVELID_SUBTERRANEANLEV3:
-					break;
-				case LEVELID_SUBTERRANEANBOSSA:
-					break;
-				case LEVELID_SUBTERRANEANBONUS:
-					break;
-				case LEVELID_SUBTERRANEANMULTI:
-					break;
-			}
+		// SPACE ---------------------------------------------------------------------------------
+
+		case SPACEMASTERA_COL:
+			tnum = SPACEBOSS_COLL_BANK;
+			sprintf(message,"SPACE BOSS A");
+			break;
+		case SPACELEV1_COL:
+			tnum = SPACE1_COLL_BANK;
+			sprintf(message,"SPACE 1");
+			break;
+		case SPACELEV2_COL:
+			tnum = SPACE2_COLL_BANK;
+			sprintf(message,"SPACE 2");
+			break;
+		case SPACELEV3_COL:
+			tnum = SPACE3_COLL_BANK;
+			sprintf(message,"SPACE 3");
+			break;
+		case SPACEBONUS_COL:
+			tnum = -1;
+			sprintf(message,"SPACE BONUS");
+			break;
+		case SPACEMULTI_COL:
+			tnum = -1;
+			sprintf(message,"SPACE MULTI");
 			break;
 
-		case WORLDID_LABORATORY:
-			switch(levelID)
-			{
-				case LEVELID_LABORATORYLEV1:
-					tnum = LAB1_COLL_BANK;
-					break;
-				case LEVELID_LABORATORYLEV2:
-					tnum = LAB2_COLL_BANK;
-					break;
-				case LEVELID_LABORATORYLEV3:
-					tnum = LAB3_COLL_BANK;
-					break;
-				case LEVELID_LABORATORYBOSSA:
-					break;
-				case LEVELID_LABORATORYBONUS:
-					break;
-				case LEVELID_LABORATORYMULTI:
-					break;
-			}
+		// CITY ----------------------------------------------------------------------------------
+
+		case CITYMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"CITY BOSS A");
 			break;
-		
-		case WORLDID_TOYSHOP:
-			switch(levelID)
-			{
-				case LEVELID_TOYSHOPLEV1:
-					break;
-				case LEVELID_TOYSHOPLEV2:
-					break;
-				case LEVELID_TOYSHOPLEV3:
-					break;
-				case LEVELID_TOYSHOPBOSSA:
-					break;
-				case LEVELID_TOYSHOPBONUS:
-					break;
-				case LEVELID_TOYSHOPMULTI:
-					break;
-			}
+		case CITYLEV1_COL:
+			tnum = CITY1_COLL_BANK;
+			sprintf(message,"CITY 1");
 			break;
-		
-		case WORLDID_HALLOWEEN:
-			switch(levelID)
-			{
-				case LEVELID_HALLOWEENLEV1:
-					break;
-				case LEVELID_HALLOWEENLEV2:
-					break;
-				case LEVELID_HALLOWEENLEV3:
-					break;
-				case LEVELID_HALLOWEENBOSSA:
-					break;
-				case LEVELID_HALLOWEENBONUS:
-					break;
-				case LEVELID_HALLOWEENMULTI:
-					break;
-			}
+		case CITYLEV2_COL:
+			tnum = CITY2_COLL_BANK;
+			sprintf(message,"CITY 2");
 			break;
-		
-		case WORLDID_SUPERRETRO:
-			switch(levelID)
-			{
-				case LEVELID_SUPERRETROLEV1:
-					break;
-				case LEVELID_SUPERRETROLEV2:
-					break;
-				case LEVELID_SUPERRETROLEV3:
-					break;
-				case LEVELID_SUPERRETROBOSSA:
-					break;
-				case LEVELID_SUPERRETROBONUS:
-					break;
-				case LEVELID_SUPERRETROMULTI:
-					break;
-			}
+		case CITYLEV3_COL:
+			tnum = CITY3_COLL_BANK;
+			sprintf(message,"CITY 3");
+			break;
+		case CITYBONUS_COL:
+			tnum = CITYBONUS_COLL_BANK;
+			sprintf(message,"CITY BONUS");
+			break;
+		case CITYMULTI_COL:
+			tnum = -1;
+			sprintf(message,"CITY MULTI");
 			break;
 
-		case WORLDID_FRONTEND:
-			switch(levelID)
-			{
-				case LEVELID_FRONTEND1:
-					tnum = START_COLL_BANK;
-					break;
-				case LEVELID_FRONTEND2:
-					break;
-				case LEVELID_FRONTEND3:
-					break;
-				case LEVELID_FRONTEND4:
-					break;
-				case LEVELID_FRONTEND5:
-					break;
-			}
+		// SUBTERRANEAN --------------------------------------------------------------------------
+
+		case SUBTERRANEANMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN BOSS A");
 			break;
+		case SUBTERRANEANLEV1_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN 1");
+			break;
+		case SUBTERRANEANLEV2_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN 2");
+			break;
+		case SUBTERRANEANLEV3_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN 3");
+			break;
+		case SUBTERRANEANBONUS_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN BONUS");
+			break;
+		case SUBTERRANEANMULTI_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN BOSS");
+			break;
+
+		// LABORATORY ----------------------------------------------------------------------------
+
+		case LABORATORYMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"LABORATORY BOSS A");
+			break;
+		case LABORATORYLEV1_COL:
+			tnum = LAB1_COLL_BANK;
+			sprintf(message,"LABORATORY 1");
+			break;
+		case LABORATORYLEV2_COL:
+			tnum = LAB2_COLL_BANK;
+			sprintf(message,"LABORATORY 2");
+			break;
+		case LABORATORYLEV3_COL:
+			tnum = LAB3_COLL_BANK;
+			sprintf(message,"LABORATORY 3");
+			break;
+		case LABORATORYBONUS_COL:
+			tnum = -1;
+			sprintf(message,"LABORATORY BONUS");
+			break;
+		case LABORATORYMULTI_COL:
+			tnum = -1;
+			sprintf(message,"LABORATORY MULTI");
+			break;
+
+		// TOYSHOP -------------------------------------------------------------------------------
+
+		case TOYSHOPMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP BOSS A");
+			break;
+		case TOYSHOPLEV1_COL:
+			tnum = TOY1_COLL_BANK;
+			sprintf(message,"TOYSHOP 1");
+			break;
+		case TOYSHOPLEV2_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP 2");
+			break;
+		case TOYSHOPLEV3_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP 3");
+			break;
+		case TOYSHOPBONUS_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP BONUS");
+			break;
+		case TOYSHOPMULTI_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP MULTI");
+			break;
+
+		// HALLOWEEN -----------------------------------------------------------------------------
+
+		case HALLOWEENMASTERA_COL:
+			tnum = HALLOWEENBOSS_COLL_BANK;
+			sprintf(message,"HALLOWEEN BOSS A");
+			break;
+		case HALLOWEENLEV1_COL:
+			tnum = HALLOWEEN1_COLL_BANK;
+			sprintf(message,"HALLOWEEN 1");
+			break;
+		case HALLOWEENLEV2_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN 2");
+			break;
+		case HALLOWEENLEV3_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN 3");
+			break;
+		case HALLOWEENBONUS_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN BONUS");
+			break;
+		case HALLOWEENMULTI_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN MULTI");
+			break;
+
+		// SUPER RETRO ---------------------------------------------------------------------------
+
+		case RETROMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO BOSS A");
+			break;
+		case RETROLEV1_COL:
+			tnum = SRETRO1_COLL_BANK;
+			sprintf(message,"SUPERRETRO 1");
+			break;
+		case RETROLEV2_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO 2");
+			break;
+		case RETROLEV3_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO 3");
+			break;
+		case RETROBONUS_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO BONUS");
+			break;
+		case RETROMULTI_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO MULTI");
+			break;
+
+		default:
+			tnum = -1;
+	}
+
+	if(tnum == -1)
+	{
+		dprintf"NO COLLISION BANK SPECIFIED FOR %s\n",message));
+		return;
 	}
 	
 	bankRomStart	= (u32)collBanksStart[tnum];
@@ -295,10 +377,10 @@ void LoadCollision(short worldID,short levelID)
 	DMAMemory(objectBank, bankRomStart, bankRomEnd);
 
 	if(objectBank)
-		dprintf"Loaded map bank %i (size %d)\n",tnum,(int)bankSize));
+		dprintf"Loaded collision bank %i (size %d) for %s\n",tnum,(int)bankSize,message));
 	else
 	{
-		dprintf"Unable to load map bank %s\n",message));
+		dprintf"Unable to load collision bank for %s\n",message));
 		return;
 	}
 
@@ -368,11 +450,11 @@ void LoadCollision(short worldID,short levelID)
 	Programmer	: Matthew Cloy
 	Function	: LoadScenics 
 	Purpose		:
-	Parameters	: (int num)
+	Parameters	: short
 	Returns		: void 
 */
 
-void LoadScenics(short worldID,short levelID)
+void LoadScenics(short sNum)
 {
 	int					tnum = -1;
 	char				*objectBank;
@@ -381,216 +463,298 @@ void LoadScenics(short worldID,short levelID)
 	SCENIC				*cSc;
 	char				message[64];
 
-	switch(worldID)
+	switch(sNum)
 	{
-		case WORLDID_GARDEN:
-			switch(levelID)
-			{
-				case LEVELID_GARDENLEV1:
-					tnum = GARDEN1_COLL_BANK;
-					break;
-				case LEVELID_GARDENLEV2:
-					tnum = GARDEN2_COLL_BANK;
-					break;
-				case LEVELID_GARDENLEV3:
-					tnum = GARDEN3_COLL_BANK;
-					break;
-				case LEVELID_GARDENBOSSA:
-					tnum = GARDENBOSSA_COLL_BANK;
-					break;
-				case LEVELID_GARDENBOSSB:
-					tnum = GARDENBOSSB_COLL_BANK;
-					break;
-				case LEVELID_GARDENBONUS:
-					tnum = GARDENBONUS_COLL_BANK;
-					break;
-				case LEVELID_GARDENMULTI:
-					tnum = GARDENMULTI_COLL_BANK;
-					break;
-			}
+		// FRONTEND ------------------------------------------------------------------------------
+
+		case FRONTEND1_COL:
+			tnum = START_COLL_BANK;
+			sprintf(message,"FRONTEND 1");
+			break;
+		case FRONTEND2_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 2");
+			break;
+		case FRONTEND3_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 3");
+			break;
+		case FRONTEND4_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 4");
+			break;
+		case FRONTEND5_COL:
+			tnum = -1;
+			sprintf(message,"FRONTEND 5");
 			break;
 
-		case WORLDID_ANCIENT:
-			switch(levelID)
-			{
-				case LEVELID_ANCIENTLEV1:
-					tnum = ANCIENTS1_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTLEV2:
-					tnum = ANCIENTS2_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTLEV3:
-					tnum = ANCIENTS3_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTBOSSA:
-					tnum = ANCIENTSBOSS_COLL_BANK;
-					break;
-				case LEVELID_ANCIENTBOSSB:
-					break;
-				case LEVELID_ANCIENTBOSSC:
-					break;
-				case LEVELID_ANCIENTBOSSD:
-					break;
-				case LEVELID_ANCIENTBONUS:
-					break;
-				case LEVELID_ANCIENTMULTI:
-					break;
-			}
+		// GARDEN --------------------------------------------------------------------------------
+
+		case GARDENMASTERA_COL:
+			tnum = GARDENBOSSA_COLL_BANK;
+			sprintf(message,"GARDEN BOSS A");
+			break;
+		case GARDENMASTERB_COL:
+			tnum = GARDENBOSSB_COLL_BANK;
+			sprintf(message,"GARDEN BOSS B");
+			break;
+		case GARDENLEV1_COL:
+			tnum = GARDEN1_COLL_BANK;
+			sprintf(message,"GARDEN 1");
+			break;
+		case GARDENLEV2_COL:
+			tnum = GARDEN2_COLL_BANK;
+			sprintf(message,"GARDEN 2");
+			break;
+		case GARDENLEV3_COL:
+			tnum = GARDEN3_COLL_BANK;
+			sprintf(message,"GARDEN 3");
+			break;
+		case GARDENBONUS_COL:
+			tnum = GARDENBONUS_COLL_BANK;
+			sprintf(message,"GARDEN BONUS");
+			break;
+		case GARDENMULTI_COL:
+			tnum = GARDENMULTI_COLL_BANK;
+			sprintf(message,"GARDEN MULTI");
 			break;
 
-		case WORLDID_SPACE:
-			switch(levelID)
-			{
-				case LEVELID_SPACELEV1:
-					tnum = SPACE1_COLL_BANK;
-					break;
-				case LEVELID_SPACELEV2:
-					tnum = SPACE2_COLL_BANK;
-					break;
-				case LEVELID_SPACELEV3:
-					tnum = SPACE3_COLL_BANK;
-					break;
-				case LEVELID_SPACEBOSSA:
-					tnum = SPACEBOSS_COLL_BANK;
-					break;
-				case LEVELID_SPACEBONUS:
-					break;
-				case LEVELID_SPACEMULTI:
-					break;
-			}
+		// ANCIENTS ------------------------------------------------------------------------------
+
+		case ANCIENTMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS A");
 			break;
-	
-		case WORLDID_CITY:
-			switch(levelID)
-			{
-				case LEVELID_CITYLEV1:
-					tnum = CITY1_COLL_BANK;
-					break;
-				case LEVELID_CITYLEV2:
-					tnum = CITY2_COLL_BANK;
-					break;
-				case LEVELID_CITYLEV3:
-					tnum = CITY3_COLL_BANK;
-					break;
-				case LEVELID_CITYBOSSA:
-					break;
-				case LEVELID_CITYBONUS:
-					tnum = CITYBONUS_COLL_BANK;
-					break;
-				case LEVELID_CITYMULTI:
-					break;
-			}
+		case ANCIENTMASTERB_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS B");
+			break;
+		case ANCIENTMASTERC_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS C");
+			break;
+		case ANCIENTMASTERD_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BOSS D");
+			break;
+		case ANCIENTLEV1_COL:
+			tnum = ANCIENTS1_COLL_BANK;
+			sprintf(message,"ANCIENTS 1");
+			break;
+		case ANCIENTLEV2_COL:
+			tnum = ANCIENTS2_COLL_BANK;
+			sprintf(message,"ANCIENTS 2");
+			break;
+		case ANCIENTLEV3_COL:
+			tnum = ANCIENTS3_COLL_BANK;
+			sprintf(message,"ANCIENTS 3");
+			break;
+		case ANCIENTBONUS_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS BONUS");
+			break;
+		case ANCIENTMULTI_COL:
+			tnum = -1;
+			sprintf(message,"ANCIENTS MULTI");
 			break;
 
-		case WORLDID_SUBTERRANEAN:
-			switch(levelID)
-			{
-				case LEVELID_SUBTERRANEANLEV1:
-					break;
-				case LEVELID_SUBTERRANEANLEV2:
-					break;
-				case LEVELID_SUBTERRANEANLEV3:
-					break;
-				case LEVELID_SUBTERRANEANBOSSA:
-					break;
-				case LEVELID_SUBTERRANEANBONUS:
-					break;
-				case LEVELID_SUBTERRANEANMULTI:
-					break;
-			}
+		// SPACE ---------------------------------------------------------------------------------
+
+		case SPACEMASTERA_COL:
+			tnum = SPACEBOSS_COLL_BANK;
+			sprintf(message,"SPACE BOSS A");
+			break;
+		case SPACELEV1_COL:
+			tnum = SPACE1_COLL_BANK;
+			sprintf(message,"SPACE 1");
+			break;
+		case SPACELEV2_COL:
+			tnum = SPACE2_COLL_BANK;
+			sprintf(message,"SPACE 2");
+			break;
+		case SPACELEV3_COL:
+			tnum = SPACE3_COLL_BANK;
+			sprintf(message,"SPACE 3");
+			break;
+		case SPACEBONUS_COL:
+			tnum = -1;
+			sprintf(message,"SPACE BONUS");
+			break;
+		case SPACEMULTI_COL:
+			tnum = -1;
+			sprintf(message,"SPACE MULTI");
 			break;
 
-		case WORLDID_LABORATORY:
-			switch(levelID)
-			{
-				case LEVELID_LABORATORYLEV1:
-					tnum = LAB1_COLL_BANK;
-					break;
-				case LEVELID_LABORATORYLEV2:
-					tnum = LAB2_COLL_BANK;
-					break;
-				case LEVELID_LABORATORYLEV3:
-					tnum = LAB3_COLL_BANK;
-					break;
-				case LEVELID_LABORATORYBOSSA:
-					break;
-				case LEVELID_LABORATORYBONUS:
-					break;
-				case LEVELID_LABORATORYMULTI:
-					break;
-			}
+		// CITY ----------------------------------------------------------------------------------
+
+		case CITYMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"CITY BOSS A");
 			break;
-		
-		case WORLDID_TOYSHOP:
-			switch(levelID)
-			{
-				case LEVELID_TOYSHOPLEV1:
-					break;
-				case LEVELID_TOYSHOPLEV2:
-					break;
-				case LEVELID_TOYSHOPLEV3:
-					break;
-				case LEVELID_TOYSHOPBOSSA:
-					break;
-				case LEVELID_TOYSHOPBONUS:
-					break;
-				case LEVELID_TOYSHOPMULTI:
-					break;
-			}
+		case CITYLEV1_COL:
+			tnum = CITY1_COLL_BANK;
+			sprintf(message,"CITY 1");
 			break;
-		
-		case WORLDID_HALLOWEEN:
-			switch(levelID)
-			{
-				case LEVELID_HALLOWEENLEV1:
-					break;
-				case LEVELID_HALLOWEENLEV2:
-					break;
-				case LEVELID_HALLOWEENLEV3:
-					break;
-				case LEVELID_HALLOWEENBOSSA:
-					break;
-				case LEVELID_HALLOWEENBONUS:
-					break;
-				case LEVELID_HALLOWEENMULTI:
-					break;
-			}
+		case CITYLEV2_COL:
+			tnum = CITY2_COLL_BANK;
+			sprintf(message,"CITY 2");
 			break;
-		
-		case WORLDID_SUPERRETRO:
-			switch(levelID)
-			{
-				case LEVELID_SUPERRETROLEV1:
-					break;
-				case LEVELID_SUPERRETROLEV2:
-					break;
-				case LEVELID_SUPERRETROLEV3:
-					break;
-				case LEVELID_SUPERRETROBOSSA:
-					break;
-				case LEVELID_SUPERRETROBONUS:
-					break;
-				case LEVELID_SUPERRETROMULTI:
-					break;
-			}
+		case CITYLEV3_COL:
+			tnum = CITY3_COLL_BANK;
+			sprintf(message,"CITY 3");
+			break;
+		case CITYBONUS_COL:
+			tnum = CITYBONUS_COLL_BANK;
+			sprintf(message,"CITY BONUS");
+			break;
+		case CITYMULTI_COL:
+			tnum = -1;
+			sprintf(message,"CITY MULTI");
 			break;
 
-		case WORLDID_FRONTEND:
-			switch(levelID)
-			{
-				case LEVELID_FRONTEND1:
-					tnum = START_COLL_BANK;
-					break;
-				case LEVELID_FRONTEND2:
-					break;
-				case LEVELID_FRONTEND3:
-					break;
-				case LEVELID_FRONTEND4:
-					break;
-				case LEVELID_FRONTEND5:
-					break;
-			}
+		// SUBTERRANEAN --------------------------------------------------------------------------
+
+		case SUBTERRANEANMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN BOSS A");
 			break;
+		case SUBTERRANEANLEV1_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN 1");
+			break;
+		case SUBTERRANEANLEV2_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN 2");
+			break;
+		case SUBTERRANEANLEV3_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN 3");
+			break;
+		case SUBTERRANEANBONUS_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN BONUS");
+			break;
+		case SUBTERRANEANMULTI_COL:
+			tnum = -1;
+			sprintf(message,"SUBTERRANEAN BOSS");
+			break;
+
+		// LABORATORY ----------------------------------------------------------------------------
+
+		case LABORATORYMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"LABORATORY BOSS A");
+			break;
+		case LABORATORYLEV1_COL:
+			tnum = LAB1_COLL_BANK;
+			sprintf(message,"LABORATORY 1");
+			break;
+		case LABORATORYLEV2_COL:
+			tnum = LAB2_COLL_BANK;
+			sprintf(message,"LABORATORY 2");
+			break;
+		case LABORATORYLEV3_COL:
+			tnum = LAB3_COLL_BANK;
+			sprintf(message,"LABORATORY 3");
+			break;
+		case LABORATORYBONUS_COL:
+			tnum = -1;
+			sprintf(message,"LABORATORY BONUS");
+			break;
+		case LABORATORYMULTI_COL:
+			tnum = -1;
+			sprintf(message,"LABORATORY MULTI");
+			break;
+
+		// TOYSHOP -------------------------------------------------------------------------------
+
+		case TOYSHOPMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP BOSS A");
+			break;
+		case TOYSHOPLEV1_COL:
+			tnum = TOY1_COLL_BANK;
+			sprintf(message,"TOYSHOP 1");
+			break;
+		case TOYSHOPLEV2_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP 2");
+			break;
+		case TOYSHOPLEV3_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP 3");
+			break;
+		case TOYSHOPBONUS_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP BONUS");
+			break;
+		case TOYSHOPMULTI_COL:
+			tnum = -1;
+			sprintf(message,"TOYSHOP MULTI");
+			break;
+
+		// HALLOWEEN -----------------------------------------------------------------------------
+
+		case HALLOWEENMASTERA_COL:
+			tnum = HALLOWEENBOSS_COLL_BANK;
+			sprintf(message,"HALLOWEEN BOSS A");
+			break;
+		case HALLOWEENLEV1_COL:
+			tnum = HALLOWEEN1_COLL_BANK;
+			sprintf(message,"HALLOWEEN 1");
+			break;
+		case HALLOWEENLEV2_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN 2");
+			break;
+		case HALLOWEENLEV3_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN 3");
+			break;
+		case HALLOWEENBONUS_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN BONUS");
+			break;
+		case HALLOWEENMULTI_COL:
+			tnum = -1;
+			sprintf(message,"HALLOWEEN MULTI");
+			break;
+
+		// SUPER RETRO ---------------------------------------------------------------------------
+
+		case RETROMASTERA_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO BOSS A");
+			break;
+		case RETROLEV1_COL:
+			tnum = SRETRO1_COLL_BANK;
+			sprintf(message,"SUPERRETRO 1");
+			break;
+		case RETROLEV2_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO 2");
+			break;
+		case RETROLEV3_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO 3");
+			break;
+		case RETROBONUS_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO BONUS");
+			break;
+		case RETROMULTI_COL:
+			tnum = -1;
+			sprintf(message,"SUPERRETRO MULTI");
+			break;
+
+		default:
+			tnum = -1;
+	}
+
+	if(tnum == -1)
+	{
+		dprintf"NO SCENIC BANK SPECIFIED FOR %s\n",message));
+		return;
 	}
 
 	bankRomStart	= (u32)scenBanksStart[tnum];
@@ -604,10 +768,10 @@ void LoadScenics(short worldID,short levelID)
 	DMAMemory(objectBank, bankRomStart, bankRomEnd);
 
 	if(objectBank)
-		dprintf"Loaded scee bank %i (size %d)\n",tnum,(int)bankSize));
+		dprintf"Loaded scenic bank %i (size %d) for %s\n",tnum,(int)bankSize,message));
 	else
 	{
-		dprintf"Unable to load map bank %s\n",message));
+		dprintf"Unable to load scenic bank %s\n",message));
 		return;
 	}
 
@@ -654,6 +818,7 @@ void LoadLevelEntities(short worldID,short levelID)
 {
 	char	*entityDat;
 	u32		bankRomStart,bankRomEnd,bankSize;
+	char	message[16];
 
 	// DEBUGGING ONLY ! ANDYE !!
 	return;
@@ -861,6 +1026,11 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
+			case SRETROLEV1_ENT:
+					bankRomStart	= (u32)&_levData_9_1_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_9_1_SegmentRomEnd;
+					sprintf(message, "SUP_ENT1");				
+				break;
 		}
 	}
 	else if(worldID == WORLDID_FRONTEND)

@@ -571,7 +571,9 @@ void FindTexture(TEXTURE **texPtr, int texID, BOOL report)
 	}
 	*texPtr = NULL;
 	if(report)
+	{
 		dprintf"Whoops, texture '%X' not found!\n",texID));
+	}
 
 //	(*texPtr) = &fadeTexture;
 	return;

@@ -38,14 +38,14 @@ extern SCENIC *Sc_000;
 
 #include "levbanks\\levext.h"
 
-void LoadMapBank(short worldID,short levelID);
+void LoadMapBank(short num);
 void FreeMapBank();
 
 void LoadLevelEntities(short worldID,short levelID);
 void FreeLevelEntitys();
 
-void LoadCollision(short worldID,short levelID);
-void LoadScenics(short worldID,short levelID);
+void LoadCollision(short cNum);
+void LoadScenics(short sNum);
 
 void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType);
 BOOL IsATeleportTile(GAMETILE *tile);
