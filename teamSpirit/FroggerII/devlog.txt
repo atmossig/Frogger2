@@ -1151,6 +1151,9 @@ James Hubbard:
 
 	What the hell is this gibberish on my screen?
 
+	This morning I more or less finished my search routine, apart from a small bug with the depth
+	limit not working properly.
+
 
 James Healey:
 ------------------------------------------------
