@@ -894,19 +894,24 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 		}
 	}
 
+	// set the start position for the platform
+	pform->path->fromNode = pform->path->startNode;
+
 	if(platformFlags & PLATFORM_NEW_FORWARDS)
 	{
 		// this platform moves forward thru path nodes
 		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
-		pform->path->fromNode	= 0;
-		pform->path->toNode		= 1;
+		pform->path->toNode = pform->path->fromNode + 1;
+		if(pform->path->toNode > GET_PATHLASTNODE(path))
+			pform->path->toNode = 0;
 	}
 	else if(platformFlags & PLATFORM_NEW_BACKWARDS)
 	{
 		// this platform moves backward thru path nodes
 		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
-		pform->path->fromNode	= GET_PATHLASTNODE(path);
-		pform->path->toNode		= GET_PATHLASTNODE(path) - 1;
+		pform->path->toNode = pform->path->fromNode - 1;
+		if(pform->path->toNode < 0)
+			pform->path->toNode = GET_PATHLASTNODE(path);
 	}
 	else if(platformFlags & PLATFORM_NEW_MOVEUP)
 	{
