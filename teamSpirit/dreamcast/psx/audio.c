@@ -40,6 +40,19 @@
 #include "options.h"
 #include "islxa.h"
 
+// needed for sfxPrintf
+#if 0
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+//#include <malloc.h>
+#include <stdarg.h>
+//#include <libsn.h>
+#include <sn_fcntl.h>   /* LibCross file types. */
+#include <usrsnasm.h>   /* LibCross I/O routines. */
+#include "fixed.h"
+#endif
+
 extern XAFileType	*curXA;
 
 int lastSound = -1;
@@ -128,6 +141,30 @@ int byteToDecibelLUT[256] =
 	-87,-81,-75,-70,-64,-58,-52,-46,-40,-34,-28,-22,-17,-11,-5,0
 };
 
+#if 0
+	//sfxPrintf("sfxPlaySample called.. bn%d, ch%d, sn%d, va%d, vp%d", sample->bankNumber, channel, sample->sampleNumber, volAverage, volPan);
+int sfxPrintf(char* fmt, ...)
+{	
+    va_list	arglist;
+    long	r1, r2, r3, r4, r5, r6;
+    int		len;
+	static	char buffer[260];
+
+	va_start(arglist, fmt);
+    r1 = va_arg(arglist, long);
+    r2 = va_arg(arglist, long);
+    r3 = va_arg(arglist, long);
+    r4 = va_arg(arglist, long);
+    r5 = va_arg(arglist, long);
+    r6 = va_arg(arglist, long);
+	va_end(arglist);
+    len = sprintf(buffer, fmt, r1, r2, r3, r4, r5, r6);
+
+	debug_printf(buffer);
+    return len;
+}
+#endif
+
 int UpdateLoopingSample(AMBIENT_SOUND *sample)
 {
 	int vl,vr,vs;
@@ -139,7 +176,7 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 		return;
 	}
 	
-	if(GetSoundVols(&sample->pos,&vl,&vr,sample->radius,sample->volume) == -1)
+	if(GetSoundVols(&sample->pos,&vl,&vr,sample->radius ,sample->volume) == -1)
 	{
 		if(sample->handle >= 0)
 		{
@@ -165,9 +202,19 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 //		vs = VSync(1);
 //		while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
 
+//	sfxPrintf("sfxPlaySample recalled.. id%s, vl%d, vr%d, ph%d", sample->sample->idName, vl, vr, pitch);
  		lastSound = sample->handle = sfxPlaySample(sample->sample->snd, vl,vr, pitch);
+//	sfxPrintf("sfxPlaySample recalled returned.. %d", lastSound);
 		return;
 	}
+
+	// invalid samples..
+	if (sample->handle == -1)
+		return -1;
+	if (sample->sample == NULL)
+		return -1;
+	if (sample->sample->snd == NULL)
+		return -1;
 
 	if(pitch)
 		sfxSetChannelPitch(sample->handle,pitch);
@@ -592,8 +639,6 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	AMBIENT_SOUND *ptr;
  	AMBIENT_SOUND *ambientSound;
  
-	return NULL;
-
  	if( !sample )
  		return NULL;
  
@@ -606,7 +651,18 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	ambientSound->volume = vol;
  	ambientSound->sample = sample;
  	ambientSound->pitch = pitch;
- 	ambientSound->radius = radius;// * SCALE;//does this need scaling????
+
+	// ** We need to limit the radius of the ambient sound effects for the following
+	// ** levels to prevent the game from crashing! We believe the crashes could be
+	// ** happening when >15 ambient channels are used AND we simply haven't the time
+	// ** to fix it.
+
+	// limit the radius on offending levels
+	if ((player[0].worldNum == WORLDID_SUBTERRANEAN && player[0].levelNum == LEVELID_SUBTERRANEAN1) ||
+		(player[0].worldNum == WORLDID_LABORATORY && player[0].levelNum == LEVELID_LABORATORY3))
+	 	ambientSound->radius = (long)(((float)radius) * 0.65f);
+	else
+	 	ambientSound->radius = radius;
  
  	ambientSound->freq = freq*60;
  	ambientSound->randFreq = randFreq*60;
@@ -634,8 +690,6 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  {
  	AMBIENT_SOUND *amb,*amb2;
  	SVECTOR *pos;
-
-	return;
 
  	// Update each ambient in turn
  	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
@@ -948,15 +1002,13 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 	AM_SOUND	*sound;
 	int			volAverage,volPan,channel;
 	
-//	return;
-
 	for(channel=0; channel<24; channel++)
 	{
 		if(!current[channel].sound.isPlaying)
 			break;
 	}
-
-	if(channel==24) return;
+	if(channel==24)
+		return -1;
 
 	if(volL||volR)
 	{
@@ -985,8 +1037,13 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 //	volAverage = current[channel].volume;
 
 	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,volAverage,volPan);
+	if (sound == KTNULL)
+	{
+		return -1;
+	}
+
 //	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,current[channel].volume,volPan);
-	
+
 	if((pitch>0) && sound) 
 		amSoundSetCurrentPlaybackRate(sound,pitch);
 
@@ -1142,7 +1199,7 @@ void sfxStopChannel(int channel)
 void sfxSetChannelPitch(int channel, int pitch)
 {
 	if(current[channel].sound.isPlaying) 
-		amSoundSetCurrentPlaybackRate(&current[channel].sound,pitch);
+		amSoundSetCurrentPlaybackRate(&current[channel].sound, pitch);
 }
 
 
