@@ -458,7 +458,7 @@ void UpdateFroggerPos(long pl)
 	
 	if( player[pl].frogState & FROGSTATUS_ISDEAD )
 	{
-		if( NUM_FROGS == 1 )
+		if( gameState.multi == SINGLEPLAYER )
 		{
 			CheckForFroggerLanding(pl);
 			KillFrog(pl);
@@ -950,7 +950,7 @@ void CheckForFroggerLanding(long pl)
 		VECTOR up, fwd, side;
 
 		// Find the forward and up vectors for camera
-		SubVector( &fwd, &currCamSource[0], &currCamTarget[0] );
+		SubVector( &fwd, &currCamSource, &currCamTarget );
 		MakeUnit( &fwd );
 
 		CrossProduct( &side, &fwd, &upVec );
@@ -1486,12 +1486,12 @@ void ThrowFrogAtScreen(long pl)
 	float dist, time, screenDist = 60.0f;
 
 	// Calculate the point to throw the frog to
-	SubVector(&v, &currCamTarget[0], &currCamSource[0]);	// v points from screen to screen target
+	SubVector(&v, &currCamTarget, &currCamSource);	// v points from screen to screen target
 	dist = Magnitude(&v);
 	ScaleVector(&v, 1.0f/dist);
 	SetVector(&w, &v);
 	ScaleVector(&w,	screenDist);
-	AddVector(&target, &w, &currCamSource[0]);
+	AddVector(&target, &w, &currCamSource);
 
 	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal, 0, 80, pl);
 

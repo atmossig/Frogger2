@@ -905,7 +905,7 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 		QUATERNION q, cross;
 		float t;
 
-		SubVector( &normal, &currCamSource[0], &pos );
+		SubVector( &normal, &currCamSource, &pos );
 		MakeUnit( &normal );
 		CrossProduct( (VECTOR *)&cross, &normal, &upVec );
 		MakeUnit( (VECTOR *)&cross );
@@ -1239,7 +1239,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	guTranslateF( tMtrx, pos.v[X], pos.v[Y], pos.v[Z] );
 	PushMatrix( tMtrx );
 
-	SubVector( &normal, &currCamSource[0], &pos );
+	SubVector( &normal, &currCamSource, &pos );
 	MakeUnit( &normal );
 	CrossProduct( (VECTOR *)&cross, &normal, &upVec );
 	MakeUnit( (VECTOR *)&cross );

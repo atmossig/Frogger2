@@ -72,16 +72,16 @@ extern float	camLookOfs;
 extern int		camFacing;
 extern int		nextCamFacing;
 
-extern VECTOR	camSource[4];
-extern VECTOR	camTarget[4];
-extern VECTOR	currCamSource[4];
-extern VECTOR	currCamTarget[4];
+extern VECTOR	camSource;
+extern VECTOR	camTarget;
+extern VECTOR	currCamSource;
+extern VECTOR	currCamTarget;
 
 extern VECTOR	currCamDist;
-
+/*
 extern VECTOR	actualCamSource[2];
 extern VECTOR	actualCamTarget[2];
-
+*/
 extern float	xFOV;				// actually the SCREEN RATIO, i.e. 4/3
 extern float	yFOV;				// THIS is the field of view
 extern float	precScaleFactor;
@@ -106,8 +106,7 @@ void CheckForDynamicCameraChange(GAMETILE *tile);
 void FreeTransCameraList();
 
 void CameraLookAtFrog();
-void SlurpCameraPosition( long cam );
-void UpdateCameraPosition( long cam );
+void UpdateCameraPosition( );
 
 void InitCamera(void);
 

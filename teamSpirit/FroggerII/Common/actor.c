@@ -143,7 +143,7 @@ void DrawBackground(void)
 	
 	noClipping = 1;
 
-	SetVector (&(backGnd->actor->pos),&(currCamSource[0]));
+	SetVector (&(backGnd->actor->pos),&(currCamSource));
 	XformActor(backGnd->actor);
 	DrawActor(backGnd->actor);
 

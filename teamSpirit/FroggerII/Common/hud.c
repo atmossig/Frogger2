@@ -83,7 +83,7 @@ void UpDateOnScreenInfo ( void )
 			countdownTimer = 0;
 //			PlaySample(GEN_TIME_OUT,0,0,0);
 			sprintf(timeText,"NO BONUS !");
-			if (NUM_FROGS==1)
+			if (gameState.multi==SINGLEPLAYER)
 				timeTextOver->draw = 50;
 		}
 
@@ -134,7 +134,7 @@ void UpDateOnScreenInfo ( void )
 */
 void UpdateScore(ACTOR2 *act,long scoreUpdate)
 {
-	if (NUM_FROGS == 1)
+	if (gameState.multi == SINGLEPLAYER)
 	{
 		player[0].score += scoreUpdate;
 		scoreTextOver->a = 255;
@@ -171,7 +171,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	/* Lives and score */
 
-	if (NUM_FROGS == 1)
+	if (gameState.multi==SINGLEPLAYER)
 	{
 		livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,255,currFont,0,0);
 		scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,255,currFont,0,0);

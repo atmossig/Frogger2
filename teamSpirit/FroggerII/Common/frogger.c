@@ -115,7 +115,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 		}
 	}
 
-	if (NUM_FROGS == 1)
+	if (gameState.multi == SINGLEPLAYER)
 	{
 		if(createFrogOverlays)
 		{

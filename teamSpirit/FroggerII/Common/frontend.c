@@ -387,13 +387,13 @@ void StartGameIntro()
 
 	CreateFrogActor(&tile, "frogger.obe", 0);
 	CameraLookAtFrog();
-	UpdateCameraPosition(0);
+	UpdateCameraPosition();
 
-	CreateVector(&currCamSource[0], 0, 0, 200);
-	SetVector(&camSource[0], &currCamSource[0]);
+	CreateVector(&currCamSource, 0, 0, 200);
+	SetVector(&camSource, &currCamSource);
 
-	CreateVector(&currCamTarget[0], 0, 0, 0);
-	SetVector(&camTarget[0], &currCamTarget[0]);
+	CreateVector(&currCamTarget, 0, 0, 0);
+	SetVector(&camTarget, &currCamTarget);
 
 	SetVector(&camVect, &upVec);
 */

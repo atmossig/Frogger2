@@ -535,7 +535,7 @@ void RunPauseMenu()
 				long i;
 				gameState.mode	= INGAME_MODE;
 
-				if( NUM_FROGS == 1 )
+				if( gameState.multi==SINGLEPLAYER )
 				{
 					livesTextOver->a = livesTextOver->oa;
 					scoreTextOver->a = scoreTextOver->oa;
@@ -612,7 +612,7 @@ void RunPauseMenu()
 	lastbutton = button;
 
 	gameSpeed = pauseGameSpeed;
-	UpdateCameraPosition(0);
+	UpdateCameraPosition();
 	gameSpeed = 0;
 			
 }

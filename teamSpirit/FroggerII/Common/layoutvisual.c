@@ -804,6 +804,8 @@ void FreeAllLists()
 
 	StopDrawing("FREELIST");
 
+	ResetMultiplayer( );
+
 	FreeAllGameLists();
 	
 	FreeMapBank();

@@ -426,23 +426,20 @@ void GameProcessController(long pl)
 			EnableTextOverlay ( posText );
 			EnableTextOverlay ( levelnameText );
 #endif
-			if (NUM_FROGS == 1)
+			if (gameState.multi==SINGLEPLAYER)
 			{
 				livesTextOver->oa = livesTextOver->a;
 				scoreTextOver->oa = scoreTextOver->a;
 
 				livesTextOver->a = 0;
 				scoreTextOver->a = 0;
+
+				for ( i = 0; i < 3; i++ )
+					sprHeart[i]->draw = 0;
 			}
 
 			timeTextOver->oa = timeTextOver->a;
 			timeTextOver->a = 0;
-
-			if (NUM_FROGS == 1)
-			{
-				for ( i = 0; i < 3; i++ )
-					sprHeart[i]->draw = 0;
-			}
 
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
@@ -977,7 +974,7 @@ void RunGameLoop (void)
 					}
 		}
 
-		UpdateCameraPosition(0);
+		UpdateCameraPosition();
 	}
 
 	UpdatePlatforms();

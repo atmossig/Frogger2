@@ -93,9 +93,6 @@ void LevelPlayingProcessController ( void )
 		frameCount = 0;
 		lastbutton = 0;
 
-//		currCamSource.v[0] = 0;	currCamSource.v[1] = 0;	currCamSource.v[2] = -100;
-//		currCamTarget.v[0] = 0;	currCamTarget.v[1] = 0;	currCamTarget.v[2] = 0;
-
 		ShowJalloc();
 		return;
     }

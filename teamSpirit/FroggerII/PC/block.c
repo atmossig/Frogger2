@@ -934,8 +934,8 @@ unsigned long blinkRand2 = 300;
 void SetupViewMatrix(void)
 {
  	guLookAtF(vMatrix,
-			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
-			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			currCamTarget.v[X],currCamTarget.v[Y],currCamTarget.v[Z],
+			currCamSource.v[X],currCamSource.v[Y],currCamSource.v[Z],
 			camVect.v[X],camVect.v[Y],camVect.v[Z]);	
 }
 
@@ -1079,8 +1079,8 @@ void DrawGraphics()
 	
 	/* CAMERA SPACE STUFF */
 	// Back up currCamSource and currCamTarget
-	oldCCSource = currCamSource[screenNum];
-	oldCCTarget = currCamTarget[screenNum];
+	oldCCSource = currCamSource;
+	oldCCTarget = currCamTarget;
 	
 	if( text3DList.numEntries )
 	{
@@ -1093,13 +1093,12 @@ void DrawGraphics()
 	}
 
 	// Set them so we don't do any modelling transforms
-	currCamSource[screenNum] = zero;
-	currCamTarget[screenNum] = inVec;
-	
+//	currCamSource = zero;
+//	currCamTarget = inVec;
 	
 	// Restore currCam vectors
-	currCamSource[screenNum] = oldCCSource;
-	currCamTarget[screenNum] = oldCCTarget;
+	currCamSource = oldCCSource;
+	currCamTarget = oldCCTarget;
 	/* END CAMERA SPACE STUFF */
 	EndTimer(1);
 	EndTimer(0);

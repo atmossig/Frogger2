@@ -15,16 +15,19 @@
 
 #include "incs.h"
 
-VECTOR	cameraUpVect = { 0,1,0 };
-VECTOR	camVect;
+VECTOR cameraUpVect		= { 0,1,0 };
+VECTOR camVect;
 
-VECTOR	currCamSource[4] = {{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 }};
-VECTOR	currCamTarget[4] = {{ 0,0,0 },{ 0,0,0 },{ 0,0,0 },{ 0,0,0 }};
+VECTOR currCamSource	= { 0,0,-100 };
+VECTOR currCamTarget	= { 0,0,0 };
+VECTOR currCamDist		= { 0,0,10 };
+VECTOR camSource		= { 0,569,-200 };
+VECTOR camTarget;
 
+/*
 VECTOR	actualCamSource[2];
 VECTOR	actualCamTarget[2];
-
-VECTOR currCamDist = {0,0,10};
+*/
 
 // in floaty camera mode, the offset of the camera from the player
 VECTOR currCamOffset, camOffset = {0,100,100};		
@@ -35,8 +38,6 @@ float	xFOV				= 320.0F / 240.0F;
 float	yFOV				= 45.0F;
 float	precScaleFactor		= 1.0F;
 
-VECTOR camSource[4]			= {{ 0,569,-200 },{ 0,569,-200 },{ 0,569,-200 },{ 0,569,-200 }};
-VECTOR camTarget[4];
 float camLookOfs			= 50;
 float camLookOfsNew			= 50;
 
@@ -81,6 +82,7 @@ float FindMaxInterFrogDistance( );
 void CameraSetSource(void);
 int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge);
 void CalcSPCamera( VECTOR *target );
+void SlurpCamPosition( );
 
 /*	--------------------------------------------------------------------------------
 	Function		: CameraBoundPosition
@@ -203,7 +205,7 @@ int IsPointInCameraBox(VECTOR v, CAM_BOX *box)
 
 void CheckCameraBoxes(void)
 {
-	if (!currCamBox || !IsPointInCameraBox(camTarget[0], currCamBox))
+	if (!currCamBox || !IsPointInCameraBox(camTarget, currCamBox))
 	{
 		CAM_BOX *box = cameraBoxes.boxes;
 		int b, c;
@@ -215,7 +217,7 @@ void CheckCameraBoxes(void)
 	
 		for (b = cameraBoxes.numBoxes, c = 0; b; b--, c++, box++)
 		{
-			if (IsPointInCameraBox(camTarget[0], box))
+			if (IsPointInCameraBox(camTarget, box))
 			{
 				currCamBox = box;
 				dprintf"Frogger enters cam box #%d (%08x)\n", c, box));
@@ -289,33 +291,33 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 				break;
 
 			case STATIC_CAMERA:
-				SetVector(&camSource[0], &cur->camOffset);
+				SetVector(&camSource, &cur->camOffset);
 				fixedDir = 1;
 				fixedPos = 1;
 				fixedUp = 0;
 				break;
 
 			case FIXED_SOURCE:
-				SetVector(&camSource[0], &cur->camOffset);
+				SetVector(&camSource, &cur->camOffset);
 				fixedDir = 0;
 				fixedPos = 1;
 				fixedUp = 0;
 			break;
 
 			case LOOK_AT_TILE:
-				SetVector(&camSource[0], &cur->camOffset);
-				SetVector(&camTarget[0], &tile->centre );
+				SetVector(&camSource, &cur->camOffset);
+				SetVector(&camTarget, &tile->centre );
 				fixedDir = 1;
 				fixedPos = 1;
 				fixedUp = 0;
 				break;
 
 			case LOOK_IN_DIR:
-				SetVector(&camSource[0], &cur->camOffset );
+				SetVector(&camSource, &cur->camOffset );
 				
-				SetVector(&camTarget[0],&cur->camLookAt);
-				ScaleVector(&camTarget[0],200);
-				AddToVector(&camTarget[0], &camSource[0]);
+				SetVector(&camTarget,&cur->camLookAt);
+				ScaleVector(&camTarget,200);
+				AddToVector(&camTarget, &camSource);
 				
 				fixedDir = 1;
 				fixedPos = 1;
@@ -397,7 +399,7 @@ void CameraLookAtFrog(void)
 			AddToVector(&target, v);
 		}
 */
-		SetVector(&camTarget[0], &target);
+		SetVector(&camTarget, &target);
 	}
 	
 }
@@ -476,7 +478,7 @@ void CameraSetOffset(void)
 	}
 */
 
-	SetVector(&avgFrogPos, &camTarget[0]);
+	SetVector(&avgFrogPos, &camTarget);
 
 	afx2 = currTile[0]->normal.v[0]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
 	afy2 = currTile[0]->normal.v[1]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
@@ -494,7 +496,7 @@ void CameraSetOffset(void)
 		ScaleVector(&avgFrogPos, scale);
 	}
 
-	//SetVector(&camSource[0], &avgFrogPos);
+	//SetVector(&camSource, &avgFrogPos);
 
 	camOffset.v[0] = afx2+afx3;
 	camOffset.v[1] = afy2+afy3;
@@ -508,7 +510,7 @@ void CameraSetOffset(void)
 	Parameters	: (void)
 	Returns		: void 
 */
-void SlurpCamPosition(long cam)
+void SlurpCamPosition( )
 {
 	float s1,s2,s3,s4;
 	VECTOR v, w;
@@ -555,13 +557,13 @@ void SlurpCamPosition(long cam)
 
 	// Cam target
 
-	SubVector(&v, &camTarget[cam], &currCamTarget[cam]);
+	SubVector(&v, &camTarget, &currCamTarget);
 	ScaleVector(&v, s3);
-	AddToVector(&currCamTarget[cam], &v);
+	AddToVector(&currCamTarget, &v);
 
-	GetCamLimitVector(&v, &currCamTarget[cam], currCamBox, cam_edge_spacing);
+	GetCamLimitVector(&v, &currCamTarget, currCamBox, cam_edge_spacing);
 	ScaleVector(&v, s3);
-	AddToVector(&currCamTarget[cam], &v);
+	AddToVector(&currCamTarget, &v);
 
 	if (!fixedPos)
 	{
@@ -572,20 +574,20 @@ void SlurpCamPosition(long cam)
 		ScaleVector(&v, s3);
 		AddToVector(&currCamOffset, &v);
 
-		AddVector(&currCamSource[cam], &currCamTarget[cam], &currCamOffset);
+		AddVector(&currCamSource, &currCamTarget, &currCamOffset);
 	}
 	else
 	{
 		// .. otherwise interpolate source independantly
-		SubVector(&v, &camSource[cam], &currCamSource[cam]);
+		SubVector(&v, &camSource, &currCamSource);
 		ScaleVector(&v, s3);
-		AddToVector(&currCamSource[cam], &v);
+		AddToVector(&currCamSource, &v);
 
 		// do we actually WANT to limit the camera source?
 		// duuhh...
-		GetCamLimitVector(&v, &currCamSource[cam], currCamBox, cam_edge_spacing);
+		GetCamLimitVector(&v, &currCamSource, currCamBox, cam_edge_spacing);
 		ScaleVector(&v, s3);
-		AddToVector(&currCamSource[cam], &v);
+		AddToVector(&currCamSource, &v);
 	}
 
 	// camVect (up vector)
@@ -646,7 +648,7 @@ void SlurpCamPosition(long cam)
 	Parameters	: (void)
 	Returns		: void 
 */
-void UpdateCameraPosition(long cam)
+void UpdateCameraPosition( )
 {
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
@@ -677,7 +679,7 @@ void UpdateCameraPosition(long cam)
 		camVect.v[2] = 0;
 	}*/
 
-	SlurpCamPosition(0);
+	SlurpCamPosition();
 
 	// Handle shaky camera nonsense
 	
@@ -686,14 +688,14 @@ void UpdateCameraPosition(long cam)
 		int i;
 		for (i = 0; i < 3; i++)
 		{
-			currCamTarget[0].v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
-			currCamSource[0].v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
+			currCamTarget.v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
+			currCamSource.v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
 		}
 		cam_shakiness -= cam_shake_falloff * gameSpeed;
 	}
 
 	// edge spacing should probably related to tan(FOV/2)
-	cam_edge_spacing = DistanceBetweenPoints(&currCamSource[0], &currCamTarget[0]) * 0.75f;
+	cam_edge_spacing = DistanceBetweenPoints(&currCamSource, &currCamTarget) * 0.75f;
 
 	if( swingCam )
 	{
@@ -733,10 +735,10 @@ void InitCamera(void)
 	CheckCameraBoxes();
 	
 	CheckForDynamicCameraChange(currTile[0]);
-	UpdateCameraPosition(0);
+	UpdateCameraPosition();
 
-	SetVector(&currCamSource[0], &camSource[0]);
-	SetVector(&currCamTarget[0], &camTarget[0]);
+	SetVector(&currCamSource, &camSource);
+	SetVector(&currCamTarget, &camTarget);
 
 	cam_shakiness = 0;
 }
