@@ -1,4 +1,5 @@
 
+#include "particle.h"
 #include "specfx.h"
 #include "Eff_Draw.h"
 #include "cam.h"

@@ -170,7 +170,7 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		case FRONTEND_OBJ_BANK:
-				sprintf ( PILfileName, "OBJECTS\\HUB.PIL" );
+				sprintf ( PILfileName, "OBJECTS\\HUB\\HUB.PIL" );
 			break;
 
 		case FRONTEND1_OBJ_BANK:

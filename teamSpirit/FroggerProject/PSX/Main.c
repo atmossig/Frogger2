@@ -579,9 +579,9 @@ int main ( )
 
 //			utilPrintf ( "Poly Count : %d\n", polyCount );
 
-			PrintSpriteOverlays(1);
+//			PrintSpriteOverlays(1);
 			PrintTextOverlays();
-			PrintSpriteOverlays(0);
+	//		PrintSpriteOverlays(0);
 
 
 			ProcessProcTextures( );
