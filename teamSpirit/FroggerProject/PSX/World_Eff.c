@@ -427,7 +427,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
    	gte_avsz4();
 		gte_stotz_cpu ( depth );
 
-		if ( depth > min_depth && depth < max_depth )
+	/*	if ( depth > min_depth && depth < max_depth )
 		{
 			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
 					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
@@ -435,7 +435,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
 			{
 				continue;
-			}
+			}*/
 			// ENDIF
 
 
@@ -480,15 +480,22 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				si->code  |= 2;
 			// ENDIF
 
-			if ( flags & SUBTRACTIVE )
+
+			if ( flags & ADDATIVE )
 			{
  				si->tpage |= 32;
 			}
 			// ENDIF
 
+			if ( flags & SUBTRACTIVE )
+			{
+ 				si->tpage = si->tpage | 64;
+			}
+			// ENDIF
+
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
 
-		}
+	//	}
 	}
 #undef op
 #undef si
