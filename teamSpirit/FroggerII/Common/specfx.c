@@ -114,7 +114,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = DrawFXRipple;
 
 		break;
-	case FXTYPE_BASICRING:
+	case FXTYPE_DECAL:
 		effect->a = 200;
 		effect->fade = effect->a / life;
 
@@ -687,7 +687,7 @@ void UpdateFXSmoke( SPECFX *fx )
 
 			if(dist > 0 && dist < 10)
 			{
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
+				CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
 				JallocFree( (UBYTE **)&fx->rebound );
 				fx->rebound = NULL;
 			}
@@ -790,7 +790,7 @@ void UpdateFXSwarm( SPECFX *fx )
 			dist = -(DotProduct(&pos, &fx->rebound->normal) + fx->rebound->J);
 
 			if(dist > 0 && dist < 3)
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.3 );
+				CreateAndAddSpecialEffect( FXTYPE_DECAL, &pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.3 );
 		}
 	}
 
@@ -856,7 +856,7 @@ void UpdateFXExplode( SPECFX *fx )
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
 					if( dist < 5 )
-						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.3, 0.05, 0.3 );
+						CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.3, 0.05, 0.3 );
 			}
 		}
 
@@ -1388,7 +1388,7 @@ void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, unsigned char r, unsigne
 	SetVector(&telePos,pos);
 	while(i--)
 	{
-		fx = CreateAndAddSpecialEffect(FXTYPE_BASICRING,&telePos,&upVec,30 - (i * 2),0,0,1);
+		fx = CreateAndAddSpecialEffect(FXTYPE_DECAL,&telePos,&upVec,30 - (i * 2),0,0,1);
 		SetFXColour(fx,r,g,b);
 		telePos.v[Y] += 5;
 	}
@@ -1461,11 +1461,11 @@ void ProcessAttachedEffects( void *entity, int type )
 			SetVector( &rPos, &act->actor->pos );
 			rPos.v[Y] = tile->centre.v[Y];
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
 			else
-				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
 
 			SetAttachedFXColour( fx, act->effects );
 		}

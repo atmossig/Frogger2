@@ -553,8 +553,9 @@ void InitActorStructures(ACTOR *tempActor, int initFlags)
 	{
 		tempActor->shadow = (ACTOR_SHADOW *)JallocAlloc(sizeof(ACTOR_SHADOW),YES,"ACTSHAD");
 		//memcpy(tempActor->shadow->vert,shadowVtx,sizeof(Vtx) * 4);
-		tempActor->shadow->alpha = tempActor->shadow->alphaAim = 255;
-		tempActor->shadow->alphaAimSpeed = 10;
+		tempActor->shadow->alpha/* = tempActor->shadow->alphaAim */= 255;
+		tempActor->shadow->draw = 1;
+//		tempActor->shadow->alphaAimSpeed = 10;
 	}
 
 	tempActor->status = ACTIVE;

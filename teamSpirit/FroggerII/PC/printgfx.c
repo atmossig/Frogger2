@@ -380,7 +380,7 @@ void ProcessShadows()
 	tex = (long)((TEXENTRY *)txtrSolidRing)->hdl;
 
 	for( i=0; i<NUM_FROGS; i++ )
-		if( frog[i]->actor->shadow && frog[i]->draw )
+		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
 		{
 			SubVector( &vec, &frog[i]->actor->pos, &currTile[i]->centre );
 			height = DotProduct( &vec, &currTile[i]->normal );

@@ -262,16 +262,16 @@ typedef struct
 
 typedef struct
 {
-//	float			altitude;
-//	PLANE			*altPlane;
 	float			radius;
 	UBYTE			alpha;
-	UBYTE			alphaAim;
-	UBYTE			alphaAimSpeed;
-//	char			collSphere;
+	char			draw;
+//	UBYTE			alphaAim;
+//	UBYTE			alphaAimSpeed;
+/*
 #ifndef PC_VERSION
 	Vtx				vert[4];
 #endif
+*/
 } ACTOR_SHADOW;
 
 

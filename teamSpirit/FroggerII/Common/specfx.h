@@ -65,7 +65,7 @@ enum
 	FXTYPE_FROGSTUN,
 	FXTYPE_SMOKE_STATIC,
 	FXTYPE_SMOKE_GROWS,
-	FXTYPE_BASICRING,
+	FXTYPE_DECAL,
 	FXTYPE_SPLASH,
 	FXTYPE_SMOKEBURST,
 	FXTYPE_FLAMES,
@@ -107,8 +107,8 @@ typedef struct TAGSPECFX
 	PARTICLE *particles;						// For swarm, explosions etc.
 	ACTOR2 **act;								// For models
 
-	short type, fade, start, end;
-	float speed, accn, angle, spin, tilt, gravity, startLife;
+	short type, start, end;
+	float fade, speed, accn, angle, spin, tilt, gravity, startLife;
 	long lifetime, deadCount, numP;				// numP is number of particles
 
 	unsigned char r, g, b, a;

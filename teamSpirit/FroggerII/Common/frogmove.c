@@ -103,6 +103,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	InitActorAnim(frog[p]->actor);
 	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.25F,0,0);
 
+	if( frog[p]->actor->shadow ) frog[p]->actor->shadow->draw = 1;
+
 	currTile[p]		= startTile;
 
 	destTile[p]		= NULL;
@@ -973,7 +975,7 @@ void CheckForFroggerLanding(long pl)
 		{
 			if(!player[pl].dead.time)
 			{
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 0.8 );
+				CreateAndAddSpecialEffect( FXTYPE_DECAL, &destTile[pl]->centre, &destTile[pl]->normal, 25, 1, 0.1, 0.8 );
 				player[pl].deathBy = DEATHBY_NORMAL;
 				AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 
@@ -1003,7 +1005,7 @@ void CheckForFroggerLanding(long pl)
 			destTile[pl] = NULL;
 
 			// set frog to centre of tile
-			//SetVector(&frog[pl]->actor->pos, &tile->centre);
+			SetVector(&frog[pl]->actor->pos, &tile->centre);
 		}
 
 		//frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
@@ -1023,7 +1025,7 @@ void CheckForFroggerLanding(long pl)
 		{
 			if(!player[pl].dead.time)
 			{
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &tile->centre, &tile->normal, 25, 1, 0.1, 0.8 );
+				CreateAndAddSpecialEffect( FXTYPE_DECAL, &tile->centre, &tile->normal, 25, 1, 0.1, 0.8 );
 				player[pl].deathBy = DEATHBY_NORMAL;
 				AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,1.0f,0,0);
 
@@ -1072,6 +1074,8 @@ void CheckForFroggerLanding(long pl)
 				player[pl].deathBy = DEATHBY_FALLINGFOREVER;
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				GTInit( &player[pl].dead, 3 );
+
+				if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 				
 				player[pl].jumpSpeed *= 0.01f;
 				player[pl].jumpMultiplier *= 50;

@@ -364,9 +364,6 @@ void DamageNormal( int pl )
 	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 );
 	SetFXColour( fx, 255, 255, 255 );
 	fx->gravity = 0.1;
-	
-//	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 0.2, 0.1, 0.7 );
-//	SetFXColour( fx, 255, 0, 0 );
 }
 
 void DamageRunOver( int pl )
@@ -484,6 +481,8 @@ void DeathFalling( int pl )
 
 void DeathWhacking( int pl )
 {
+	if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
+
 	player[pl].deathBy = DEATHBY_WHACKING;
 	ThrowFrogAtScreen( pl );
 	GTInit( &player[pl].dead, 5 );
@@ -507,6 +506,8 @@ void DeathSlicing( int pl )
 
 	player[pl].deathBy = DEATHBY_SLICING;
 
+	if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
+
 	// Drop in replacement model and animate halves falling apart
 	frog[pl]->actor->LODObjectController = frog[pl]->actor->objectController;
 	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-half.obe"), "dth-half.obe", NO );
@@ -522,12 +523,18 @@ void DeathSlicing( int pl )
 	SetFXColour( fx, 255, 255, 130 );
 	fx->gravity = 0.1;
 
+	fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 );
+	SetFXColour( fx, 50, 200, 50 );
+	fx->tex = txtrSolidRing;
+
 	GTInit( &player[pl].dead, 3 );
 }
 
 void DeathExplosion( int pl )
 {
 	SPECFX *fx;
+
+	if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 
 	player[pl].deathBy = DEATHBY_EXPLOSION;
 	player[pl].idleEnable = 0;
@@ -547,12 +554,18 @@ void DeathExplosion( int pl )
 	SetFXColour( fx, 255, 255, 130 );
 	fx->gravity = 0.1;
 
+	fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 );
+	SetFXColour( fx, 50, 200, 50 );
+	fx->tex = txtrSolidRing;
+
 	GTInit( &player[pl].dead, 3 );
 }
 
 void DeathGibbing( int pl )
 {
 	SPECFX *fx;
+
+	if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 
 	player[pl].deathBy = DEATHBY_GIBBING;
 	player[pl].idleEnable = 0;
@@ -571,6 +584,10 @@ void DeathGibbing( int pl )
 	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
 	SetFXColour( fx, 255, 255, 130 );
 	fx->gravity = 0.1;
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 );
+	SetFXColour( fx, 50, 200, 50 );
+	fx->tex = txtrSolidRing;
 
 	GTInit( &player[pl].dead, 3 );
 }
