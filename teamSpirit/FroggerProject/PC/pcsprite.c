@@ -506,9 +506,9 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	SetTexture(tex);
 
 	if ((z>0.01) || (z<-0.01))
-		D3DSetupRenderstates(noZRS);
-	else
 		D3DSetupRenderstates(normalZRS);
+	else
+		D3DSetupRenderstates(noZRS);
 
 	if (DrawPoly( D3DPT_TRIANGLEFAN,
 		D3DFVF_TLVERTEX,

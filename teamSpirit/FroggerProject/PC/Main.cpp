@@ -195,7 +195,6 @@ long DrawLoop(void)
 	D3DSetupRenderstates(xluSemiRS);
 	SwapFrame(0);
 
-	D3DSetupRenderstates(xluZRS); // Turn off z write enable
 	D3DSetupRenderstates(noZRS);  // And z enable
 
 	PrintSpriteOverlays(0);	
