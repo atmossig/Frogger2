@@ -25,8 +25,8 @@ int DoneLangSel = 0;
 
 static char *buttonName[] = 
 {
-	"CONTROLL",
-	"CONTROLR",
+	"BUT_LEFT",
+	"BUT_RIGH",
 	"CONTROL2",
 };
 
@@ -35,13 +35,8 @@ static char *flagName[] =
 	"UK",
 	"FRENCH",
 	"GERMANY",
-	"SPAIN",
 	"ITALY",
 	"DUTCH",
-	"SWEDEN",
-	"FINLAND",
-	"NORWAY",
-	"DENMARK",
 };
 
 
@@ -49,13 +44,8 @@ static char *langName[] = {
 	"English",
 	"Français",
 	"Deutsch",
-	"Español",
 	"Italiano",
 	"Nederlands",
-	"Svenska",
-	"Suomi",
-	"Norsk",
-	"Dansk",
 };
 
 static VERT flagPoints[FLAGPOINTS][FLAGPOINTS];
