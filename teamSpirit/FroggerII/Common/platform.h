@@ -61,11 +61,10 @@ typedef struct TAGPLATFORM
 	VECTOR					currNormal;				// platform current normal
 	VECTOR					deltaNormal;			// platform delta normal (for linear interp)
 
-	short					visibleTime;			// platforms time visible if it disappears
-	short					visible;				// platforms current visibility counter
+	float					visibleTime;			// platforms time visible if it disappears
+	float					regenTime;				// platforms regeneration time
 
-	short					regenTime;				// platforms regeneration time
-	short					regen;					// platforms current regeneration counter
+	float					countdown;				// countdown for disappear/regenerate
 
 	GAMETILE				*inTile[2];				// tile(s) platform is(are) currently 'in'
 	PATH					*path;					// ptr to platform path data

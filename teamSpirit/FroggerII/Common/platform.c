@@ -146,7 +146,6 @@ float waitScale = 5;
 void UpdatePlatforms()
 {
 	PLATFORM *cur,*next;
-	PLANE2 rebound;
 	VECTOR fromPosition;
 	int pl;
 
@@ -172,23 +171,20 @@ void UpdatePlatforms()
 
 		// check if platform is active
 		if(!cur->active)
-			continue;
-
-		// update regenerating platforms
-		if(cur->flags & PLATFORM_NEW_REGENERATES)
 		{
-			if(cur->regen)
+			// update regenerating platforms
+			if(cur->flags & PLATFORM_NEW_REGENERATES)
 			{
-				cur->regen--;
-				if(!cur->regen)
+				if((cur->countdown -= gameSpeed) < 0)
 				{
-					cur->pltActor->actor->xluOverride = 100;
+					//cur->pltActor->actor->xluOverride = 100;
 					cur->pltActor->draw = 1;
-
 					cur->active	= 1;
-					cur->visible = cur->visibleTime;
+					cur->countdown = -1;
 				}
+				else continue;
 			}
+			else continue;
 		}
 
 		// call update function for individual platform type
@@ -222,88 +218,75 @@ void UpdatePlatforms()
 		}
 
 		// update frog if on the current platform
-		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
+		if (cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
+			// move frog with platform
+			//SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
 
-			if(!cur->carrying)
+			if(!cur->flags & PLATFORM_NEW_NONMOVING)
+				SetQuaternion(&cur->carrying->actor->qRot,&cur->pltActor->actor->qRot);
+		}
+
+		// check if this is a disappearing or crumbling platform
+		if(cur->flags & (PLATFORM_NEW_DISAPPEARWITHFROG| PLATFORM_NEW_CRUMBLES))
+		{
+			if (cur->countdown < 0)
 			{
-				// DEBUG CHECK !!!!
-				dprintf"Platform is NOT carrying but flag is set!\n"));
-				cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+				if (cur->flags & PLATFORM_NEW_CARRYINGFROG)
+					cur->countdown = cur->visibleTime;
 			}
-			else
+			else	// we're counting down...
 			{
-				// check if this is a disappearing or crumbling platform
-				if((cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG) || (cur->flags & PLATFORM_NEW_CRUMBLES))
-				{
-					if(cur->visible)
-					{
-						// give some visual indication that this platform is about to vanish
-						if(cur->visible < 30)
-						{
-							SetVector(&cur->pltActor->actor->pos,&frog[0]->actor->pos);
-							cur->pltActor->actor->pos.v[X] += (-2 + Random(5));
-							cur->pltActor->actor->pos.v[Y] += (-2 + Random(5));
-							cur->pltActor->actor->pos.v[Z] += (-2 + Random(5));
-						}
+				// Wibble platform
+				GetPositionForPathNode(&cur->pltActor->actor->pos, &cur->path->nodes[0]);
+				cur->pltActor->actor->pos.v[X] += (-2 + Random(5));
+				cur->pltActor->actor->pos.v[Y] += (-2 + Random(5));
+				cur->pltActor->actor->pos.v[Z] += (-2 + Random(5));
 
-						cur->visible--;
-						if(!cur->visible)
+				cur->countdown -= gameSpeed;
+
+				if(cur->countdown <= 0)	// .. timer has reached zero; collapse
+				{
+					int i;
+
+					if (cur->flags & PLATFORM_NEW_CARRYINGFROG)
+					{
+						// What frog are we carrying?
+						for (i = 0, pl = -1; i<MAX_FROGS; i++)
+							if (frog[i] == cur->carrying)
+							{
+								pl = i; break;
+							}
+
+						if (pl != -1)
 						{
-							cur->pltActor->actor->xluOverride = 0;
-							cur->pltActor->draw = 0;
-							
-							cur->active = 0;
 							cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 							cur->carrying = NULL;
-							currTile[0] = cur->inTile[0];
-
-							if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
-							{
-								// platform disappears and will regenerate
-								cur->regen = cur->regenTime;
-							}
-							else
-							{
-								// platform crumbles and will not regenerate
-								SetVector(&rebound.point,&cur->inTile[0]->centre);
-								SetVector(&rebound.normal,&cur->inTile[0]->normal);
-								cur->regen = cur->regenTime;	//0;
-								CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 30, 6, 0, 1 );
-								CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 24, 12, 0, 1.5 );
-							}
-
-//							CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 32, 10, 0, 2 );
-							
-							SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
-							FlipVector(&frog[0]->actor->vel);
-
-							GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
-							SetVector(&cur->pltActor->actor->pos,&fromPosition);
-
-							// frog is free-falling - check for platform below the frog
-							destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile[0],0);
-							player[0].frogState |= FROGSTATUS_ISFREEFALLING;
+							currTile[pl] = destTile[pl] = cur->inTile[0];
+							CalculateFrogJump(&frog[pl]->actor->pos, &destTile[pl]->centre, &destTile[pl]->normal, 0, 20, pl);
 						}
 					}
 
-				}
-				else
-				{
-	
-					// move frog with platform
-					SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
+					//cur->pltActor->actor->xluOverride = 0;
+					cur->pltActor->draw = 0;
+					cur->active = 0;
+					cur->carrying = NULL;
+					cur->countdown = cur->regenTime;
 
-					if(!cur->flags & PLATFORM_NEW_NONMOVING)
-						SetQuaternion(&cur->carrying->actor->qRot,&cur->pltActor->actor->qRot);
+					if(cur->flags & PLATFORM_NEW_CRUMBLES)
+					{
+						cur->countdown = cur->regenTime;	//0;
+						CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 50, 4, 0, 1 );
+						CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 40, 2, 0, 1.5 );
+					}
 				}
 			}
 		}
 		else
 		{
 			// platform is not carrying a frog
-			if(cur->visible < cur->visibleTime)
-				cur->visible++;
+			if(cur->countdown < cur->visibleTime)
+				cur->countdown += gameSpeed;
 		}
 
 		// special fx associated with platform
@@ -319,7 +302,7 @@ void UpdatePlatforms()
 	Parameters		: unsigned long
 	Returns			: void
 	Info			: 
-*/
+
 void GetNextLocalPlatform(unsigned long direction)
 {
 	VECTOR cDir;
@@ -374,7 +357,7 @@ void GetNextLocalPlatform(unsigned long direction)
 
 	camFacing = newCamFacing;
 }
-
+*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -746,9 +729,10 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 
 	pform->path->startFrame = actFrameCount;
 	pform->path->endFrame = (actFrameCount+(60*pform->currSpeed));
+	pform->countdown = -1;
 
 	if(pform->flags & PLATFORM_NEW_CRUMBLES)
-		pform->visible = pform->visibleTime = path->nodes[pform->path->fromNode].waitTime;
+		pform->visibleTime = pform->regenTime = path->nodes[pform->path->fromNode].waitTime;
 
 	CalcPlatformNormalInterps(pform);
 }
@@ -920,33 +904,6 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	pform->deltaNormal.v[Y] /= numSteps;
 	pform->deltaNormal.v[Z] /= numSteps;
 }
-
-/*	--------------------------------------------------------------------------------
-	Function		: SetPlatformVisibleTime
-	Purpose			: sets the visible time for disappearing / crumbling platforms
-	Parameters		: PLATFORM *,short
-	Returns			: void
-	Info			: 
-*/
-void SetPlatformVisibleTime(PLATFORM *pform,short time)
-{
-	pform->visibleTime	= time;
-	pform->visible		= time;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: SetPlatformRegenerateTime
-	Purpose			: sets the regeneration time for a platform
-	Parameters		: PLATFORM *,short
-	Returns			: void
-	Info			: 
-*/
-void SetPlatformRegenerateTime(PLATFORM *pform,short time)
-{
-	pform->regenTime	= time;
-	pform->regen		= time;
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetNearestPlatformBelowFrog
@@ -1282,13 +1239,16 @@ void UpdatePathPlatform(PLATFORM *plat)
 	{
 		Orientate(&plat->pltActor->actor->qRot,&fwd,&inVec,&plat->currNormal);
 	}
-	else
+
+/*	else	// if we orientate the platform correctly at the start of the path,
+			// we shouldn't ever need to re-orientate it. Er. I think.
 	{
 		SubVector(&moveVec,&plat->path->nodes[plat->path->startNode+1].worldTile->centre, &plat->path->nodes[plat->path->startNode].worldTile->centre );
 		if (plat->flags & PLATFORM_NEW_BACKWARDS) ScaleVector (&fwd,-1);
 		MakeUnit(&moveVec);
 		Orientate(&plat->pltActor->actor->qRot,&moveVec,&inVec,&plat->currNormal);
 	}
+*/
 
 	// check if this platform has arrived at a path node
 	if(actFrameCount > plat->path->endFrame)
@@ -1434,7 +1394,10 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 		{
 			AddToVector(&plat->pltActor->actor->pos, &moveVec);
 		}
-		
+/*		
+
+		TODO: generalise for multiplayer
+
 		if(offs < 0 && plat->flags & PLATFORM_NEW_KILLSFROG)
 		{
 			if (!(player[0].frogState & FROGSTATUS_ISDEAD))
@@ -1445,6 +1408,7 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 				frog[0]->action.dead = 50;
 			}
 		}
+*/
 	}
 	else
 	{
