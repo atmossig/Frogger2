@@ -11,7 +11,7 @@
 
 #define F3DEX_GBI_2
 
-//#define N64_PLAY_SONG
+#define N64_PLAY_SONG
 
 #include <ultra64.h>
 
@@ -20,7 +20,6 @@
 
 unsigned long worldNum;
 unsigned long levelNum;
-
 
 // world visual data - for texture and object banks
 WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS];
@@ -579,9 +578,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	StartDrawing("initlev");
 
 #ifndef PC_VERSION
-	MusSetMasterVolume(MUSFLAG_SONGS,16500);
+	MusSetMasterVolume(MUSFLAG_SONGS,32000);
 #ifdef N64_PLAY_SONG
-	PrepareSong(1);
+	PrepareSong(TEST1_TRACK,0);
 #endif
 
 #endif
