@@ -1,3 +1,4 @@
+#define BILERP_DEFAULT
 
 #include <windows.h>
 #include <ddraw.h>
@@ -128,8 +129,20 @@ unsigned long D3DInit(void)
     if ((res = pDirect3DDevice->SetViewport(&vp)) != D3D_OK)
         return FALSE;
 
+#ifdef BILERP_DEFAULT
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+	
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
+	
+#else
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
+
+#endif
+
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_MODULATE);
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
@@ -564,9 +577,9 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 					if (val!=(0x1f | 0x1f<<10))
 						val |= 0x8000;
 					else
-			//		{
+					{
 						texHasMagenta = 1;
-					/*	// Stop magenta "halos"
+						// Stop magenta "halos"
 						short c;
 						long val2;
 						c = 0;
@@ -574,17 +587,17 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 							for (int j=-1; j<=1; j++)
 							{
 								val2 = (x+i)+(y+j)*xs;
-								if (val2<0)
-									val2 = 0;
-								if (val2>xs*ys)
-									val2 = 0;
-								
-								c = data[val2];
-								if (c!=(0x1f | 0x1f<<10))
-									val = c;
-								c = 0;
-							}					*/
-			//		}
+								if ((val2>0)&&(val2<xs*ys))
+								{
+									c = data[val2];
+									if (c!=(0x1f | 0x1f<<10))
+										val = c;
+									c = 0;
+								}
+								else
+									val = (0x1f | 0x1f<<10);
+							}				
+					}
 
 					((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
 				}

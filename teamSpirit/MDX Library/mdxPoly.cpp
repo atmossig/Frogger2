@@ -48,6 +48,7 @@ SOFTPOLY *softDepthBuffer[MA_SOFTWARE_DEPTH];
 D3DTLVERTEX softV[MA_MAX_VERTICES];
 short softScreen[640*480];
 short spIndices[] = {0,1,2,2,3,0};
+short Indices[6] = {0,1,2,0,2,3};
 
 unsigned long numHaloPoints;
 long limTex = 0;
@@ -72,6 +73,8 @@ MDX_TEXENTRY *cTexture = NULL;
 unsigned long sortMode = 0;
 short sortFaces[32000];
 long numSortFaces;
+
+long curMode = 0;
 
 unsigned long lightingMapRS[] = 
 {
@@ -731,7 +734,7 @@ void DrawBatchedPolys (void)
 		lSurface = *cT;
 		nFace = 0;
 		while ((((*(cT)) == lSurface) || (limTex)) && (i<cFInfo->nF)) 
-		{
+		{			
 			cT+=3;
 			nFace+=3;			
 			i+=3;
@@ -1145,8 +1148,8 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-
-		if (pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK)
+	
+		if (DrawPoly(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,v,4,(unsigned short *)Indices, 6,D3DDP_WAIT)!=D3D_OK)
 			dp("Could not draw flat rectangle\n");
 	}
 /*	else
@@ -1282,7 +1285,6 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 	Info			: 
 */
 
-short Indices[6] = {0,1,2,0,2,3};
 	
 void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, float v1)
 {
@@ -1318,22 +1320,22 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 
 	D3DTLVERTEX v[4] = {
 		{
-			r.left,r.top,0,0,
+			r.left,r.top,0,1,
 			colour,D3DRGBA(0,0,0,0),
 			u0,v0
 		},
 		{
-			r.left,r.bottom,0,0,
+			r.left,r.bottom,0,1,
 			colour,D3DRGBA(0,0,0,0),
 			u0,v1
 			},
 		{
-			r.right,r.bottom,0,0,
+			r.right,r.bottom,0,1,
 			colour,D3DRGBA(0,0,0,0),
 			u1,v1
 		},
 		{
-			r.right,r.top,0,0,
+			r.right,r.top,0,1,
 			colour,D3DRGBA(0,0,0,0),
 			u1,v0
 	}};
@@ -1877,7 +1879,7 @@ void DrawAllFrames(void)
 
 	// Draw Normal Polys
 	D3DSetupRenderstates(xluSemiRS);
-	D3DSetupRenderstates(normalAlphaCmpRS);
+	D3DSetupRenderstates(tightAlphaCmpRS);
 	SwapFrame(MA_FRAME_NORMAL);
 
 	if (!rHardware)
@@ -1891,10 +1893,18 @@ void DrawAllFrames(void)
 		{
 			DrawBatchedOpaquePolys();
 			DrawBatchedKeyedPolys();
+			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
+			
+			SwapFrame(MA_FRAME_WRAP);
+			DrawBatchedPolys();	
+	
+			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
+	
 		}
 		else
 			DrawSortedPolys();
 	
+	D3DSetupRenderstates(normalAlphaCmpRS);
 	D3DSetupRenderstates(xluEnableRS);
 	if (numHaloPoints)
 	{
@@ -1959,6 +1969,8 @@ void DrawAllFrames(void)
 	D3DSetupRenderstates(xluZRS);
 	D3DSetupRenderstates(xluSemiRS);
 
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
+
 	SwapFrame(MA_FRAME_XLU);
 	DrawBatchedPolys();	
 
@@ -1978,7 +1990,7 @@ void DrawAllFrames(void)
 	}
 		
 	DrawBatchedPolys();	
-	
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
 	SwapFrame(MA_FRAME_OVERLAY);
 
 	EndDraw();

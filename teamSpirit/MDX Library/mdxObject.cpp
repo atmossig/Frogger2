@@ -731,6 +731,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 			((long *)(& ((MDX_QUATERNION *)obj->mesh->gouraudColors)[x].x))[0] = D3DRGBA(r,g,b,a);			
 			obj->mesh->d3dVtx[x].tu = obj->mesh->faceTC[x].v[0] * 0.000975F;
 			obj->mesh->d3dVtx[x].tv = obj->mesh->faceTC[x].v[1] * 0.000975F;
+
 			obj->mesh->d3dVtx[x].color = D3DRGBA(r,g,b,a);
 			obj->mesh->d3dVtx[x].specular = D3DRGBA(0,0,0,1);
 			obj->mesh->d3dVtx[x].rhw = 1;			

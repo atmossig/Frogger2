@@ -264,7 +264,7 @@ typedef struct
 #define OBJECT_FLAGS_WAVE					   	(1<<7)		// 128
 #define OBJECT_FLAGS_PHONG					   	(1<<8)		// 256
 #define OBJECT_FLAGS_FADEOUT				   	(1<<9)		// 512
-#define OBJECT_FLAGS_FACE_COLOUR			   	(1<<10)		// 1024
+#define OBJECT_FLAGS_CARTOON				   	(1<<10)		// 1024
 #define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)		// 2048
 #define OBJECT_FLAGS_FLATSHADOW				   	(1<<12)		// 4096
 #define OBJECT_FLAGS_SUBDIVIDED				   	(1<<13)		// 8192
