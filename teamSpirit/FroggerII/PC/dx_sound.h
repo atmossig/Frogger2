@@ -21,11 +21,9 @@ extern "C"
 
 extern LPDIRECTSOUND           lpDS;
 
-//extern int Makebuffer ( SAMPLE *sample );
-extern int LoadWav ( LPSTR lpFile, SAMPLE *sample );
+extern int LoadWav ( char *fileName, SAMPLE *sample );
 
 extern int InitDirectSound ( LPGUID guid, HINSTANCE hInst,  HWND hWndMain, int prim );
-//extern BOOL CALLBACK DSEnumDlgProc( HWND , UINT , WPARAM , LPARAM );
 extern int DSoundEnumerate ( LPGUID lpGUID, HINSTANCE hInst,  HWND hWndMain );
 
 #ifdef __cplusplus
