@@ -609,6 +609,9 @@ void SaveGame(void)
 	FREE(saveBuf);
 }
 
+
+int tempNoLoad = 0;
+
 void LoadGame(void)
 {
 	//N.B this is the first version of this function.
@@ -623,30 +626,11 @@ void LoadGame(void)
 
 	int w,l;
 
-	//loop through all worlds,
-	//counting how many levels there are
-	//(so we can work out the total load file size)
-	//N.B we will count the levels as we read them, to check for discrepency
-	for(w=0; w<MAX_WORLDS; w++)
-	{
-		totalLevels += worldVisualData[w].numLevels;
-	}
-	loadSize = (MAX_WORLDS*4) + (totalLevels*20);
-
-
-	//make buffer
-	loadBuf = MALLOC0(loadSize);
-	if(!loadBuf)
-	{
-		utilPrintf("\n\nMALLOC ERROR DURING LOAD\n\n");
-		tempUseCard = 0;
-		return;
-	}
 	
-	//load into buffer
-	utilPrintf("Loading %d\n", loadSize);
-	res = cardRead("frogger2", loadBuf, loadSize);
-
+	//check for save game
+	utilPrintf("Checking Save Game %d\n", loadSize);
+//	res = cardRead("frogger2", loadBuf, loadSize);
+	res = cardRead("frogger2", 0, loadSize);
 	switch(res)
 	{
 		case CARDREAD_OK:
@@ -675,13 +659,15 @@ void LoadGame(void)
 		case CARDREAD_NOTFOUND:
 		{
 			utilPrintf("No game save data found\n");
-			tempUseCard = 0;
+//			tempUseCard = 0;
+			tempNoLoad = 1;
 			break;
 		}
 		case CARDREAD_CORRUPT:
 		{
 			utilPrintf("Game save data corrupted\n");
 			tempUseCard = 0;
+//			tempNoLoad = 1;
 			break;
 		}
 		case CARDREAD_NOTFOUNDANDFULL:
@@ -693,9 +679,84 @@ void LoadGame(void)
 	} //end 
 
 
-	//extract data?
-	if(tempUseCard)
+
+	//load data?
+	if(tempUseCard && !tempNoLoad)
 	{
+		//loop through all worlds,
+		//counting how many levels there are
+		//(so we can work out the total load file size)
+		//N.B we will count the levels as we read them, to check for discrepency
+		for(w=0; w<MAX_WORLDS; w++)
+		{
+			totalLevels += worldVisualData[w].numLevels;
+		}
+		loadSize = (MAX_WORLDS*4) + (totalLevels*20);
+
+
+		//make buffer
+		loadBuf = MALLOC0(loadSize);
+		if(!loadBuf)
+		{
+			utilPrintf("\n\nMALLOC ERROR DURING LOAD\n\n");
+			tempUseCard = 0;
+			return;
+		}
+
+
+
+		utilPrintf("Loading Save Game %d\n", loadSize);
+		res = cardRead("frogger2", loadBuf, loadSize);
+		switch(res)
+		{
+			case CARDREAD_OK:
+			{
+				utilPrintf("No errors\n");
+				break;
+			}
+			case CARDREAD_NOCARD:
+			{
+				utilPrintf("No card in slot\n");
+				tempUseCard = 0;
+				break;
+			}
+			case CARDREAD_BADCARD:
+			{
+				utilPrintf("Bad card in slot\n");
+				tempUseCard = 0;
+				break;
+			}
+			case CARDREAD_NOTFORMATTED:
+			{
+				utilPrintf("Card unformatted\n");
+				tempUseCard = 0;
+				break;
+			}
+			case CARDREAD_NOTFOUND:
+			{
+				utilPrintf("No game save data found\n");
+//				tempUseCard = 0;
+				tempNoLoad = 1;
+				break;
+			}
+			case CARDREAD_CORRUPT:
+			{
+				utilPrintf("Game save data corrupted\n");
+				tempUseCard = 0;
+//				tempNoLoad = 1;
+				break;
+			}
+			case CARDREAD_NOTFOUNDANDFULL:
+			{
+				utilPrintf("No game save data found and card is full\n");
+				tempUseCard = 0;
+				break;
+			}
+		} //end 
+
+
+
+		//extract data
 		loadPtr = loadBuf;
 
 		for(w=0; w<MAX_WORLDS; w++)
