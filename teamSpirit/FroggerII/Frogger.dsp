@@ -384,6 +384,14 @@ SOURCE=.\Common\types.h
 
 SOURCE=.\Common\types2dgfx.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\Common\water.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\water.h
+# End Source File
 # End Group
 # Begin Group "N64"
 

@@ -83,7 +83,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			u = tOver->font->offset[letterID].v[X];
 			v = tOver->font->offset[letterID].v[Y];
 			
-			DrawAlphaSprite (x*2,y*2,tOver->font->height*2,tOver->font->width*2,
+			DrawAlphaSprite (x*2,y*2,0,tOver->font->height*2,tOver->font->width*2,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width-1)/256.0,
 				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,tOver->a/256.0);
@@ -133,7 +133,7 @@ void PrintSprite(SPRITE *sprite)
 		distx = disty = (FOV)/(m.v[Z]+DIST);
 		distx *= sprite->scaleX/64.0;
 		disty *= sprite->scaleY/64.0;
-		DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,32*distx,32*disty,0,0,0.99,0.99,sprite->texture,sprite->a/255.0);
+		DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,0,0,0.99,0.99,sprite->texture,sprite->a/255.0);
 	}
 }
 
@@ -249,13 +249,191 @@ void PrintSpriteOverlays()
 			}
 
 			texture = cur->frames[cur->currFrame];
-			DrawAlphaSprite (cur->xPos*2,cur->yPos*2,cur->width*2,cur->height*2,0,0,0.99,0.99,texture,cur->a/255.0);
+			DrawAlphaSprite (cur->xPos*2,cur->yPos*2,0,cur->width*2,cur->height*2,0,0,0.99,0.99,texture,cur->a/255.0);
 
 		}
 
 		cur = cur->next;
 	}
 
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawSpecialFX
+	Purpose			: updates and draws the various special FX
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void DrawSpecialFX()
+{
+//	if(rippleFXList.numEntries)
+//		DrawFXRipples();
+
+	if ( ( gameState.mode == GAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
+		 ( gameState.mode == CAMEO_MODE ) )
+		ProcessShadows();
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessShadows
+	Purpose			: processes the shadows
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+long tex;
+
+void ProcessShadows()
+{
+	TEXTURE *theTexture;
+	VECTOR vec;
+	ENEMY *nme,*nme2;
+	PLATFORM *plat;
+	GARIB *garib;
+	int i;
+			
+	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
+	tex = (long)theTexture;	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+
+//	dprintf"%x",tex));
+	if(frog[0]->actor->shadow)
+	{
+		vec.v[X] = frog[0]->actor->pos.v[X];
+		vec.v[Y] = currTile[0]->centre.v[Y] + 1;
+		vec.v[Z] = frog[0]->actor->pos.v[Z];
+		DrawShadow(&vec,NULL,frog[0]->actor->shadow->radius,0,frog[0]->actor->shadow->alpha,frog[0]->actor->shadow->vert,NULL);
+	}
+
+	//------------------------------------------------------------------------------------------------
+
+	i = numBabies;
+	while(i--)
+	{
+		if(!babies[i]->action.isSaved)
+		{
+			if(babies[i]->actor->shadow && babies[i]->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+			{
+				vec.v[X] = bTStart[i]->centre.v[X];
+				vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
+				vec.v[Z] = bTStart[i]->centre.v[Z];
+				DrawShadow(&vec,NULL,babies[i]->actor->shadow->radius,0,babies[i]->actor->shadow->alpha,babies[i]->actor->shadow->vert,NULL);
+			}
+		}
+	}
+
+	// process enemy shadows
+	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme2)
+	{
+		nme2 = nme->next;
+
+		if(nme->nmeActor->actor->shadow && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+		{
+			vec.v[X] = nme->nmeActor->actor->pos.v[X];
+			vec.v[Y] = nme->inTile->centre.v[Y] + 1;
+			vec.v[Z] = nme->nmeActor->actor->pos.v[Z];
+			DrawShadow(&vec,NULL,nme->nmeActor->actor->shadow->radius,0,nme->nmeActor->actor->shadow->alpha,nme->nmeActor->actor->shadow->vert,NULL);
+		}
+	}
+
+	// process platform shadows
+	// to be done !!!
+
+	// process garib shadows
+	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	{
+		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
+		{
+			vec.v[X] = garib->sprite.pos.v[X];
+			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
+			vec.v[Z] = garib->sprite.pos.v[Z];
+			DrawShadow(&vec,NULL,garib->shadow.radius,0,garib->shadow.alpha,garib->shadow.vert,NULL);
+		}
+	}
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawShadow
+	Purpose			: draws a shadow
+	Parameters		: VECTOR *,PLANE *,float,float,short,Vtx *,VECTOR *
+	Returns			: 
+	Info			: 
+*/
+
+float sscale = 1.2;
+
+void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir)
+{
+	VECTOR tempVect[4],m[4];
+	D3DTLVERTEX vT[4];
+	short f[6] = {0,1,2,0,2,3};
+	long i;
+
+	tempVect[0].v[X] = pos->v[X]-size*sscale;
+	tempVect[0].v[Y] = pos->v[Y];
+	tempVect[0].v[Z] = pos->v[Z]-size*sscale;
+
+	tempVect[1].v[X] = pos->v[X]+size*sscale;
+	tempVect[1].v[Y] = pos->v[Y];
+	tempVect[1].v[Z] = pos->v[Z]-size*sscale;
+
+	tempVect[2].v[X] = pos->v[X]+size*sscale;
+	tempVect[2].v[Y] = pos->v[Y];
+	tempVect[2].v[Z] = pos->v[Z]+size*sscale;
+
+	tempVect[3].v[X] = pos->v[X]-size*sscale;
+	tempVect[3].v[Y] = pos->v[Y];
+	tempVect[3].v[Z] = pos->v[Z]+size*sscale;
+
+	for(i=0; i<4; i++)
+		XfmPoint (&m[i],&tempVect[i]);
+	
+	if (m[0].v[Z])
+	if (m[1].v[Z])
+	if (m[2].v[Z])
+	if (m[3].v[Z])
+	{
+		vT[0].sx = m[0].v[X];
+		vT[0].sy = m[0].v[Y];
+		vT[0].sz = (m[0].v[Z]+DIST)/2000;///2000;
+		vT[0].tu = 0;
+		vT[0].tv = 0;
+		vT[0].color = D3DRGBA(0,0,0,1);
+		vT[0].specular = D3DRGB(0,0,0);
+
+		vT[1].sx = m[1].v[X];
+		vT[1].sy = m[1].v[Y];
+		vT[1].sz = (m[1].v[Z]+DIST)/2000;///2000;
+		vT[1].tu = 1;
+		vT[1].tv = 0;
+		vT[1].color = D3DRGBA(0,0,0,1);
+		vT[1].specular = D3DRGB(0,0,0);
+
+		vT[2].sx = m[2].v[X];
+		vT[2].sy = m[2].v[Y];
+		vT[2].sz = (m[2].v[Z]+DIST)/2000;///2000;
+		vT[2].tu = 1;
+		vT[2].tv = 1;
+		vT[2].color = D3DRGBA(0,0,0,1);
+		vT[2].specular = 0;
+		vT[2].specular = D3DRGB(0,0,0);
+
+		vT[3].sx = m[3].v[X];
+		vT[3].sy = m[3].v[Y];
+		vT[3].sz = (m[3].v[Z]+DIST)/2000;///2000;
+		vT[3].tu = 0;
+		vT[3].tv = 1;
+		vT[3].color = D3DRGBA(0,0,0,1);
+		vT[3].specular = 0;
+		vT[3].specular = D3DRGB(0,0,0);
+
+		DrawAHardwarePoly(vT,4,f,6,tex);
+	}
 }
 
 

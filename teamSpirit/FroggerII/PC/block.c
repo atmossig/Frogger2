@@ -358,9 +358,11 @@ void DrawGraphics()
 	EndTimer(1);
 	StartTimer(2,"Draw Sprites");
 
+	DrawSpecialFX();
+
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
-		
+
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
 	

@@ -217,8 +217,8 @@ void InitFont()
 	
 	dprintf"Initialising font texture surfaces\n"));
 
-	bigFont->srf		= CreateTextureSurface (256,256,bigFont->data,1,0);
-	smallFont->srf		= CreateTextureSurface (256,256,smallFont->data,1,0);
+	bigFont->srf		= CreateTextureSurface (256,256,bigFont->data,1,0,0);
+	smallFont->srf		= CreateTextureSurface (256,256,smallFont->data,1,0,0);
 	bigFont->hdl		= ConvertSurfaceToTexture (bigFont->srf);
 	smallFont->hdl	= ConvertSurfaceToTexture (smallFont->srf);
 

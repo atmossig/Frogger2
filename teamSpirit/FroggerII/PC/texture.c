@@ -134,8 +134,18 @@ void AddTextureToTexList(char *file, char *shortn)
 	newE->data = GetGelfBmpDataAsShortPtr(file);
 	if (newE->data)
 	{
-		newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f);
-		newE->hdl = ConvertSurfaceToTexture(newE->surf);
+		if (((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
+		{
+			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
+			newE->hdl = ConvertSurfaceToTexture(newE->surf);
+			dprintf"%x\n",newE->hdl));
+
+		}
+		else
+		{
+			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,0);
+			newE->hdl = ConvertSurfaceToTexture(newE->surf);
+		}
 		if (newE->hdl==0)
 			dprintf"De-bugger\n"));
 	}

@@ -65,6 +65,8 @@ long InitTex(void)
 }
 
 VECTOR tV[4000];
+float mV[4000];
+
 long DIST=450;
 long FOV=450;
 
@@ -301,10 +303,24 @@ void XfmPoint (VECTOR *vTemp2, VECTOR *in)
 	
 }
 
+float sinSpeedWater = 0.2;
+float sinSpeedWater2 = 0.1;
+float sinSpeedVert = 0.4;
+float sinSpeedVert2 = 0.4;
+float scVC = 0.02;
+float valWater = 2;
+float rval = 50000;
+float rval2 = 15;
+float svall = 0.03;
+float fmody = 0.4,fmody2 = 0.9;
+float sclW = 1;
+float thresh = 900;
+float sofs = 5;
 void PCDrawObject(OBJECT *obj, float m[4][4])
 {
 	short fce[3] = {0,1,2};		
 	D3DTLVERTEX v[3],*vTemp;
+	float *mTemp;
 	VECTOR *in,*c1,*c2,*c3,*vTemp2;
 	float c[4][4];
 	float f[4][4];
@@ -330,11 +346,61 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 	guMtxCatF(m,c,f);
 	
 	vTemp2 = tV;
-
+	
 	for (i=0; i<obj->mesh->numVertices; i++)
 	{
-		guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
-		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+		if (xl<0.99)
+		{
+			if (player[0].frogState & FROGSTATUS_ISDEAD)
+			{
+				player[0].lives = 5;
+				if (frog[0]->action.deathBy & DEATHBY_DROWNING)
+				{
+					float val;
+					VECTOR me,me2;
+					me.v[X] = in->v[X]*sclW;
+					me.v[Y] = in->v[Y]*sclW;
+					me.v[Z] = in->v[Z]*sclW;
+
+					guMtxXFMF(m,me.v[X],me.v[Y],me.v[Z],
+								&me2.v[0],&me2.v[1],&me2.v[2]); 
+					
+					val = 1+DistanceBetweenPoints2DSquared(&destTile[0]->centre,&me2);
+					if (val<thresh)
+						val = thresh;
+					val = rval / (val/rval2);
+
+					val = (1+sinf(val*fmody2+frameCount*fmody)) * val * svall;
+					if (frog[0]->action.dead>sofs)
+						val *= ((frog[0]->action.dead-sofs) / 75.0);
+					else
+						val*=0;
+
+					val += (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
+					
+					mV[i] = (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
+
+					guMtxXFMF(f,in->v[X],in->v[Y] - val, in->v[Z],
+
+					&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+				}
+			}
+			else
+			{
+				mV[i] =(	(2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2))) + 
+					(2+(sin((in->v[Z]+50)*sinSpeedVert+frameCount*sinSpeedWater)+cos((in->v[X]+50)*sinSpeedVert2+frameCount*sinSpeedWater2)))
+					)*valWater/2;
+				guMtxXFMF(f,in->v[X],in->v[Y]-
+				mV[i]
+				,in->v[Z],
+				&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+			}
+		}
+		else
+		{
+			guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
+			&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+		}
 	
 		if  (((vTemp2->v[Z]+DIST)>nearClip) &&
 			((vTemp2->v[Z]+DIST)<farClip) &&
@@ -352,8 +418,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 
 		vTemp2++;
 		in++;
+		mV[i]*=scVC;
 	}
-	
 	
 	for (i=0; i<obj->mesh->numFaces; i++)
 	{
@@ -383,9 +449,16 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sz = (tV[v0].v[Z]+DIST)/2000;///2000;
 			vTemp->tu = obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0);
-			vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
-			vTemp->specular = D3DRGB(rCol,gCol,bCol);
-			
+			vTemp->color = D3DRGBA(c1->v[2],c1->v[1],c1->v[0],xl);
+			if (xl<0.99)
+			{
+				vTemp->specular = D3DRGB(mV[v0],mV[v0],mV[v0]);
+			}
+			else
+			{
+				vTemp->specular = D3DRGB(rCol,gCol,bCol);
+			}
+
 			vTemp++;
 
 			vTemp->specular = 0;
@@ -394,8 +467,15 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sz = (tV[v1].v[Z]+DIST)/2000;//2000;
 			vTemp->tu = obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0);
-			vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
-			vTemp->specular = D3DRGB(rCol,gCol,bCol);
+			vTemp->color = D3DRGBA(c2->v[2],c2->v[1],c2->v[0],xl);
+			if (xl<0.99)
+			{
+				vTemp->specular = D3DRGB(mV[v1],mV[v1],mV[v1]);
+			}
+			else
+			{
+				vTemp->specular = D3DRGB(rCol,gCol,bCol);
+			}
 
 			vTemp++;
 
@@ -405,9 +485,15 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sz = (tV[v2].v[Z]+DIST)/2000;///2000;
 			vTemp->tu = obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0);
-			vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
-			vTemp->specular = D3DRGB(rCol,gCol,bCol);
-			
+			vTemp->color = D3DRGBA(c3->v[2],c3->v[1],c3->v[0],xl);
+			if (xl<0.99)
+			{
+				vTemp->specular = D3DRGB(mV[v2],mV[v2],mV[v2]);
+			}
+			else
+			{
+				vTemp->specular = D3DRGB(rCol,gCol,bCol);
+			}
 		
 
 			if (v[0].sx <0)

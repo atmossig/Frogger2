@@ -458,12 +458,18 @@ static void GetEnemyActiveTile(ENEMY *nme)
 	Returns			: void
 	Info			: 
 */
+
+float snapRadius = 75;
+long snapTime = 50;
+
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd,swarmPos;
 	VECTOR moveVec;
+
+	float tileRadiusSquared = snapRadius * snapRadius;
 
 	if(enemyList.numEntries == 0)
 		return;
@@ -496,10 +502,15 @@ void UpdateEnemies()
 			SubVector(&fwd,&toPosition,&cur->nmeActor->actor->pos);
 			MakeUnit(&fwd);
 
+			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+				if (Random(100)>50)
+					cur->speed = (Random(100)/100.0)*cur->path->nodes[cur->path->fromNode].speed;
+				
 			cur->nmeActor->actor->pos.v[X] += (cur->speed * fwd.v[X]);
 			cur->nmeActor->actor->pos.v[Y] += (cur->speed * fwd.v[Y]);
 			cur->nmeActor->actor->pos.v[Z] += (cur->speed * fwd.v[Z]);
-
+			
+			
 //--------------------->
 
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
@@ -516,31 +527,86 @@ void UpdateEnemies()
 				UpdateEnemyPathNodes(cur);
 		}
 		else
-		{
-			// process enemies that are based on a single node
-
-			// get up vector for this enemy
-			SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
-			
-			moveVec.v[X] *= cur->speed;
-			moveVec.v[Y] *= cur->speed;
-			moveVec.v[Z] *= cur->speed;
-
-			// check if this enemy is moving up or down
-			if(cur->flags & ENEMY_NEW_MOVEUP)
+			if(cur->flags & ENEMY_NEW_WATCHFROG)
 			{
-				// enemy is moving up
-				AddToVector(&cur->nmeActor->actor->pos,&moveVec);
+				VECTOR vfd	= { 0,0,1 };
+				VECTOR vup	= { 0,1,0 };
+
+				VECTOR v1,v2,v3,nmeup;
+				
+				// Face enemy towards frog
+				SubVector(&v1,&cur->nmeActor->actor->pos,&frog[0]->actor->pos);
+				MakeUnit(&v1);
+
+				RotateVectorByQuaternion(&nmeup,&vup,&cur->nmeActor->actor->qRot);
+				CrossProduct(&v2,&v1,&nmeup);
+				CrossProduct(&v3,&v2,&nmeup);
+
+				Orientate(&cur->nmeActor->actor->qRot,&v3,&vfd,&nmeup);
+
+				// Test for snap range!
+								
+				if (cur->isSnapping > 1)
+					cur->isSnapping--;
+				else
+				{
+					if (cur->flags & ENEMY_NEW_SNAPFROG)
+						if (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos) < tileRadiusSquared)
+						{
+							if (cur->isSnapping == 0)
+								cur->isSnapping = cur->path->nodes[0].waitTime;
+							else
+								if (cur->isSnapping == 1)
+								{
+									cur->isSnapping = 0;
+									frog[0]->action.lives--;
+									if(frog[0]->action.lives != 0)
+									{
+										cameraShake = 25;
+										PlaySample(42,NULL,192,128);
+										frog[0]->action.safe = 25;
+									}
+									else
+									{
+										PlaySample(110,NULL,192,128);
+										AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
+										frog[0]->action.dead = 50;
+										frog[0]->action.lives = 3;
+										frog[0]->action.deathBy = DEATHBY_NORMAL;
+										player[0].frogState |= FROGSTATUS_ISDEAD;
+									}
+								}
+						}
+						else
+							cur->isSnapping = 0;
+				}
 			}
-			else if(cur->flags & ENEMY_NEW_MOVEDOWN)
+			else
 			{
-				// enemy is moving down
-				SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
-			}
+				// process enemies that are based on a single node
 	
-			if(EnemyReachedTopOrBottomPoint(cur))
-				UpdateEnemyPathNodes(cur);
-		}
+				// get up vector for this enemy
+				SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
+			
+				moveVec.v[X] *= cur->speed;
+				moveVec.v[Y] *= cur->speed;
+				moveVec.v[Z] *= cur->speed;
+
+				// check if this enemy is moving up or down
+				if(cur->flags & ENEMY_NEW_MOVEUP)
+				{
+					// enemy is moving up
+					AddToVector(&cur->nmeActor->actor->pos,&moveVec);
+				}
+				else if(cur->flags & ENEMY_NEW_MOVEDOWN)
+				{
+					// enemy is moving down
+					SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
+				}
+		
+				if(EnemyReachedTopOrBottomPoint(cur))
+					UpdateEnemyPathNodes(cur);
+			}
 
 		// determine which world tile the enemy is currently 'in'
 		oldTile[0] = currTile[0];
@@ -1074,10 +1140,11 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 	
 	newItem->path			= NULL;
 	newItem->inTile			= NULL;
-
+	
 	newItem->speed			= 1.0F;
 	newItem->startSpeed		= 1.0F;
 	newItem->accel			= 0.0F;
+	newItem->isSnapping 	= 0;
 
 	return newItem;
 }

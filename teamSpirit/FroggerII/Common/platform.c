@@ -177,14 +177,14 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		if(levelID == LEVELID_GARDENVEGPATCH)
 		{
 		}
-		if(levelID == LEVELID_GARDENTREETOPSA)
+/*		if(levelID == LEVELID_GARDENTREETOPSA)
 		{
 			devPlat1 = CreateAndAddPlatform("plank.obe");
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path6,PATH_MAKENODETILEPTRS);
 
 			devPlat1 = CreateAndAddPlatform("plank.obe");
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path7,PATH_MAKENODETILEPTRS);
-		}
+		}*/
 	}
 
 	else if(worldID == WORLDID_SUPERRETRO)
@@ -437,7 +437,23 @@ void UpdatePlatforms()
 			}
 			else
 			{
+				float distance;
+				long nCamFac = 0, j = 0;
+
+				distance = -10000;
+			
+				for(j=0; j<4; j++)
+				{
+					float t = DotProduct(&(cur->inTile->dirVector[j]),&(currTile[0]->dirVector[camFacing]));
+					if(t > distance)
+					{
+						distance = t;
+						nCamFac = j;
+					}
+				}		
+	
 				currTile[0] = cur->inTile;
+				camFacing = nCamFac;
 				cur->carrying = frog[0];
 				SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
 
@@ -870,7 +886,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName)
 	PLATFORM *newItem = (PLATFORM *)JallocAlloc(sizeof(PLATFORM),YES,"PLAT");
 	AddPlatform(newItem);
 
-	stringChange ( pActorName );
+	//stringChange ( pActorName );
 
 	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,INIT_ANIMATION,0,0);
 	if(newItem->pltActor->actor->objectController)
