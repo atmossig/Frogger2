@@ -7,6 +7,36 @@
 	Programmer	: Andrew Eder
 	Date		: 1/21/99
 
+	NOTES FOR PLATFORM USAGE: (or the platform bible according to Sharky) (_|_) <- ass
+
+	Examples of simple platform usage....
+
+	Platform that...						Flags
+	--------------------------------------------------------------------------
+
+	moves up and down on the spot			PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG
+											PLATFORM_NEW_MOVEDOWN | PLATFORM_NEW_PINGPONG
+
+	moves up on the spot (rises) when a		PLATFORM_NEW_STEPONACTIVATED | PLATFORM_NEW_MOVEUP
+	frog is on it, and returns to start		
+	position otherwise
+
+	moves down on the spot (sinks) when a	PLATFORM_NEW_STEPONACTIVATED | PLATFORM_NEW_MOVEDOWN
+	frog is on it, and returns to start
+	position otherwise
+
+	moves along a path (>1 node) and		PLATFORM_NEW_FORWARDS
+	returns immediately to start of path
+	when the last node has been reached
+
+	moves along a path (>1 node) and		PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE
+	continues to cycle through all nodes	PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_CYCLE
+	in a 'closed' path fashion
+
+	moves back and forth along a path		PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG
+	(>1 node) in a ping-pong movement.		PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_PINGPONG
+
+
 ----------------------------------------------------------------------------------------------- */
 
 #define F3DEX_GBI
@@ -218,7 +248,7 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 
 			devPlat2 = NEW_CreateAndAddPlatform("pltlilly.ndo");
 			devPlat2->currSpeed = 2.0F;
-			NEW_AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path2,PATH_MAKENODETILEPTRS);
+			NEW_AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_STEPONACTIVATED,&debug_path2,PATH_MAKENODETILEPTRS);
 		}
 
 		if ( levelID == LEVELID_GARDENMAZE )
@@ -1309,7 +1339,7 @@ void UpdatePlatforms()
 
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
-			currTile[i] = cur->inTile;
+			currTile[0] = cur->inTile;
 			cur->carrying = frog[0];
 			SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
 		}
@@ -1861,7 +1891,7 @@ BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform)
 	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
 	if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&nodePos) <  ((pform->currSpeed + 0.1F) * (pform->currSpeed + 0.1F)))
 	{
-		dprintf"%d\n",path->fromNode));
+		dprintf""));
 		return TRUE;
 	}
 
