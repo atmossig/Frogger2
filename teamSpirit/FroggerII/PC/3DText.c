@@ -130,7 +130,7 @@ void Print3DText( )
 				t3d->vT[vx+i].sz = m.v[2];
 			}
 
-			DrawAHardwarePoly(&t3d->vT[vx],4,f,6,(long)bigFont->hdl);
+			DrawAHardwarePoly(t3d->vT,4,f,6,bigFont->hdl);
 		}
 	}
 
