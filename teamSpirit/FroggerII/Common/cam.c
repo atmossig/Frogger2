@@ -61,6 +61,10 @@ VECTOR idleCamDist	= { 0,100,102 };
 
 float sideSwaySpeed = 0.005,sideSwayAmt=50;
 
+float camSideOfs = 0;
+GAMETILE *lastTile = NULL;
+long prevCamFacing = 0;
+
 float FindMaxInterFrogDistance( );
 
 
@@ -200,6 +204,7 @@ void FreeTransCameraList()
 	}
 
 	transCameraList = NULL;
+	lastTile = NULL;
 
 	fixedDir = 0;
 	fixedPos = 0;
@@ -398,10 +403,6 @@ void SlurpCamPosition(long cam)
 	Parameters	: (void)
 	Returns		: void 
 */
-float camSideOfs = 0;
-GAMETILE *lastTile = NULL;
-long prevCamFacing = 0;
-
 void UpdateCameraPosition(long cam)
 {
 	if(!frog[0] || !currTile[0] || controlCamera)
