@@ -20,8 +20,54 @@
 #include "audio.h"
 
 SCENICOBJ *lightBeam;
+FMA_GT4 *lightBeamGouraudValues = NULL;
 
 FVECTOR fmaActorScale;
+
+void GetObjectGouraudValues ( FMA_MESH_HEADER *mesh, FMA_GT4 *gouraudList )
+{
+	int i;
+
+	FMA_GT4 *gList;
+
+	register char *opcd asm("$18");
+
+#define op ((FMA_GT4 *)opcd)
+
+	op = mesh->gt4s;
+
+	gList = gouraudList;
+
+	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
+	{
+		*gouraudList = *op;
+		gouraudList++;
+	}
+#undef op
+}
+
+void SetObjectGouraudValues ( FMA_MESH_HEADER *mesh, FMA_GT4 *gouraudList )
+{
+	int i;
+
+	FMA_GT4 *gList;
+
+	register char *opcd asm("$18");
+
+#define op ((FMA_GT4 *)opcd)
+
+	op = mesh->gt4s;
+
+	gList = gouraudList;
+
+	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
+	{
+		*op = *gouraudList;
+		gouraudList++;
+	}
+#undef op
+}
+
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
@@ -102,7 +148,19 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 					if ( thisistheone )
 					{
+						FMA_MESH_HEADER **mesh;
+
 						lightBeam = obj;
+
+						if ( lightBeam )
+						{
+							mesh = ADD2POINTER(lightBeam->fmaObj,sizeof(FMA_WORLD));
+
+							lightBeamGouraudValues = MALLOC0(sizeof(FMA_GT4) * (*mesh)->n_gt4s );
+
+							GetObjectGouraudValues ( *mesh, lightBeamGouraudValues );
+						}
+						// ENDIF
 					}
 					// ENDIF
 				}

@@ -43,6 +43,8 @@ extern SCENICOBJLIST scenicObjList;
 extern SVECTOR jiggledVerts[250];
 
 
+extern FMA_GT4 *lightBeamGouraudValues;
+
 //void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags );
 SCENICOBJ *CreateAndAddScenicObject(SCENIC *sc);
 
@@ -67,5 +69,6 @@ void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal );
 
 void PrintStaticBackdrop( FMA_MESH_HEADER *mesh );
 
+void SetObjectGouraudValues ( FMA_MESH_HEADER *mesh, FMA_GT4 *gouraudList );
 
 #endif

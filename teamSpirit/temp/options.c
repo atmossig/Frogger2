@@ -2181,9 +2181,11 @@ void SetActorGouraudValuesMinus(FMA_MESH_HEADER *mesh, int r,int g,int b)
 }
 
 
-void SetActorGouraudValuesPlus(FMA_MESH_HEADER *mesh, int r,int g,int b)
+void SetActorGouraudValuesPlus(FMA_MESH_HEADER *mesh, int r,int g,int b, FMA_GT4 *gouraudList )
 {
 	int i;
+	
+	FMA_GT4 *gList;
 
 	register char *opcd asm("$18");
 
@@ -2191,59 +2193,44 @@ void SetActorGouraudValuesPlus(FMA_MESH_HEADER *mesh, int r,int g,int b)
 
 	op = mesh->gt4s;
 
-	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
-	{
-		if ( op->r0 < op->r0 + r )
-			op->r0 += r; else op->r0 = 255;
-		if ( op->g0 < op->g0 + r )
-			op->g0 += g; else op->g0 = 255;
-		if ( op->b0 < op->b0 + r )
-			op->b0 += b; else op->b0 = 255;
-
-		if ( op->r1 < op->r1 + r )
-			op->r1 += r; else op->r1 = 255;
-		if ( op->g1 < op->g1 + r )
-			op->g1 += g; else op->g1 = 255;
-		if ( op->b1 < op->b1 + r )
-			op->b1 += b; else op->b1 = 255;
-
-		if ( op->r2 < op->r2 + r )
-			op->r2 += r; else op->r2 = 255;
-		if ( op->g2 < op->g2 + r )
-			op->g2 += g; else op->g2 = 255;
-		if ( op->b2 < op->b2 + r )
-			op->b2 += b; else op->b2 = 255;
-
-		if ( op->r3 < op->r3 + r )
-			op->r3 += r; else op->r3 = 255;
-		if ( op->g3 < op->g3 + r )
-			op->g3 += g; else op->g3 = 255;
-		if ( op->b3 < op->b3 + r )
-			op->b3 += b; else op->b3 = 255;
-
-	}
-#undef op
-}
-
-
-void GetObjectGouraudValues ( FMA_MESH_HEADER *mesh )
-{
-	int i;
-
-	register char *opcd asm("$18");
-
-#define op ((FMA_GT4 *)opcd)
-
-	op = mesh->gt4s;
+	gList = gouraudList;
 
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
-//		if ( op->r0 < op->r0 + r )
-//			op->r0 += r; else op->r0 = 255;
+		if ( op->r0 < gList->r0 + r )
+			op->r0 += r;
+
+		if ( ( op->g0 < gList->g0 + g ) )
+			op->g0 += g;
+
+		if ( ( op->b0 < gList->b0 + b ) )
+			op->b0 += b;
+
+		if ( ( op->r1 < gList->r1 + r ) )
+			op->r1 += r;
+		if ( ( op->g1 < gList->g1 + g ) )
+			op->g1 += g;
+		if ( ( op->b1 < gList->b1 + b ) )
+			op->b1 += b;
+
+		if ( ( op->r2 < gList->r2 + r ) )
+			op->r2 += r;
+		if ( ( op->g2 < gList->g2 + g ) )
+			op->g2 += g;
+		if ( ( op->b2 < gList->b2 + b ) )
+			op->b2 += b;
+
+		if ( ( op->r3 < gList->r3 + r ) )
+			op->r3 += r;
+		if ( ( op->g3 < gList->g3 + g ) )
+			op->g3 += g;
+ 		if ( ( op->b3 < gList->b3 + b ) )
+			op->b3 += b;
+
+		gList++;
 	}
 #undef op
 }
-
 
 #endif
 

@@ -757,8 +757,8 @@ void RunFrontendGameLoop (void)
 	}
 	// ENDIF
 
-	if (	( &firstTile[ TILENUM_BOOK ]		== currTile[0] ) &&
-				( &firstTile[ TILENUM_CHOICE ]	== destTile[0] ) )
+	if (	( &firstTile[ TILENUM_CHOICE ]	== destTile[0] ) &&
+				( &firstTile[ TILENUM_BOOK ]	== currTile[0] ) )
 	{
 		FMA_MESH_HEADER **mesh;
 
@@ -766,7 +766,9 @@ void RunFrontendGameLoop (void)
 		{
 			mesh = ADD2POINTER(lightBeam->fmaObj,sizeof(FMA_WORLD));
 
-			SetActorGouraudValuesPlus	(	*mesh, 5, 5, 5 );
+			SetActorGouraudValuesPlus ( *mesh, 5, 5, 5, lightBeamGouraudValues );
+
+			//SetObjectGouraudValues ( *mesh, lightBeamGouraudValues );
 		}
 		// ENDIF
 	}
