@@ -78,7 +78,7 @@ FVECTOR storeCurrCamOffset;
 FVECTOR storeCamVect;
 
 
-#define TILENUM_START	197
+#define TILENUM_START	198
 #define TILENUM_OPTIONS 1
 #define TILENUM_CHOICE	2
 #define TILENUM_MULTI	3
@@ -865,8 +865,8 @@ void RunFrontendGameLoop (void)
 			sparkles[i]->num = 1;
 		}
 
-		options.arcadeText = CreateAndAddTextOverlay(2048,170,GAMESTRING(STR_ARCADEMODE),YES,255,font,0); 
-		options.selectText = CreateAndAddTextOverlay(2048,476,GAMESTRING(STR_SELECT_LEVEL),YES,255,fontSmall,0); 
+		options.arcadeText = CreateAndAddTextOverlay(2048,270,GAMESTRING(STR_ARCADEMODE),YES,255,font,0); 
+		options.selectText = CreateAndAddTextOverlay(2048,576,GAMESTRING(STR_SELECT_LEVEL),YES,255,fontSmall,0); 
 		options.worldText = CreateAndAddTextOverlay(456,1105,worldStr,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
 		options.parText[0] = CreateAndAddTextOverlay(2100,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
@@ -902,7 +902,7 @@ void RunFrontendGameLoop (void)
 
 		CopyTexture ( arcadeScreenTex, FindTexture("GARDEN1"), 1 );
 
-		options.titleBak = CreateAndAddSpriteOverlay(0,0,"",4096,665,0,SPRITE_SUBTRACTIVE);
+		options.titleBak = CreateAndAddSpriteOverlay(0,0,"",4096,800,0,SPRITE_SUBTRACTIVE);
 
 		options.statusBak = CreateAndAddSpriteOverlay(0,3660,"",4096,500,0,SPRITE_SUBTRACTIVE);
 

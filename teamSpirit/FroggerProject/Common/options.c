@@ -1068,13 +1068,13 @@ void CreateOptionsObjects(void)
 
 
 	// Main title
-	options.title = CreateAndAddTextOverlay(2048,170,options.titleStr,YES,0,font,TEXTOVERLAY_SHADOW);
+	options.title = CreateAndAddTextOverlay(2048,270,options.titleStr,YES,0,font,TEXTOVERLAY_SHADOW);
 	options.title->draw = 0;
 
 	// Sub text, initially for multiplayer, but maybe for options too.
 	options.subTitle = CreateAndAddTextOverlay(2048,4096-400,options.subTitleStr,YES,0,fontSmall,TEXTOVERLAY_SHADOW);
 	options.subTitle->draw = 0;
-	options.mpText = CreateAndAddTextOverlay(2048,450,options.mpStr,YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+	options.mpText = CreateAndAddTextOverlay(2048,550,options.mpStr,YES,255,fontSmall,TEXTOVERLAY_SHADOW);
 	
 	// Number of players text
 	options.numPText = CreateAndAddTextOverlay(2048,2048,options.numPStr,YES,255,font,0);
