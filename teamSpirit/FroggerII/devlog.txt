@@ -1022,6 +1022,12 @@ James Hubbard:
 
 	Enough ranting for this morning, I have to type up the focus test notes.
 
+	Afternoon:
+		Typed up focus test notes, made a design thing for the behaviour of the hub
+		character. It should also let us have more free-form behaviour, in case we
+		add other characters.
+
+
 
 James Healey:
 ------------------------------------------------
@@ -1055,3 +1061,44 @@ Scaling up world (*10)
 
 Chris Wilson:
 ------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+22/12/99 - Wednesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Last day today! I need a holiday.
+
+	Made a silly cartoon smoke thing, after watching Yellow Submarine last night.
+	
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
+
