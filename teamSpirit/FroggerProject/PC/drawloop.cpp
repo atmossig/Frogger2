@@ -43,9 +43,11 @@
 #include "fxBlur.h"
 #include "game.h"
 
+/*
 #include "..\network.h"
 #include "..\netchat.h"
 #include "..\netgame.h"
+*/
 
 #include "editor.h"
 
@@ -310,8 +312,9 @@ long DrawLoop(void)
 		DrawEditor();
 #endif
 
-	if( chatFlags && gameState.mode == INGAME_MODE )
-		DrawChatBuffer( 100, 20, 540, 150 );
+//	ds - COPY **ALL** NETWORK-SPECIFIC STUFF TO NETWORK-SPECIFIC FILES!
+//	if( chatFlags && gameState.mode == INGAME_MODE )
+//		DrawChatBuffer( 100, 20, 540, 150 );
 
 	EndDraw();
 	EndTimer(16);

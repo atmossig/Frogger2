@@ -33,8 +33,6 @@
 #include "islpad.h"
 #include "mdx.h"
 #include "layout.h"
-#include "..\network.h"
-#include "..\netchat.h"
 #include "backdrop.h"
 #include "dx_sound.h"
 #include "hud.h"
@@ -934,8 +932,11 @@ void ProcessUserInput()
 	if (rKeying && gameState.mode == INGAME_MODE && frameCount == 2)
 		RecordKeyInit(player[0].worldNum, player[0].levelNum);
 
-	if ( chatFlags & CHAT_INPUT)
-		return;
+// ds - COPY **ALL** NETWORK-SPECIFIC STUFF TO NETWORK-SPECIFIC FILES!
+
+//	if ( chatFlags & CHAT_INPUT)
+//		return;
+
 	// reset states
 	for (i=0; i<8; i++)
 	{

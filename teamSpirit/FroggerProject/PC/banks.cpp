@@ -339,6 +339,13 @@ void LoadObjectBank(int objectBank)
 		case FRONTEND5_OBJ_BANK:
 			strcpy(fileName, "language"); break;
 
+		case TEST1_OBJ_BANK: strcpy(fileName, "test1"); break;
+		case TEST2_OBJ_BANK: strcpy(fileName, "test2"); break;
+		case TEST3_OBJ_BANK: strcpy(fileName, "test3"); break;
+		case TEST4_OBJ_BANK: strcpy(fileName, "test4"); break;
+		case TEST5_OBJ_BANK: strcpy(fileName, "test5"); break;
+		case TEST6_OBJ_BANK: strcpy(fileName, "test6"); break;
+
 		default:
 			utilPrintf("Didn't load object bank '%d'\n", objectBank);
 			return;
