@@ -1639,7 +1639,7 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 	Returns 	: 
 	Info 		:
 */
-void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, char *buf, short *pal )
+void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, short *pal )
 {
 	DDSURFACEDESC ddsd;
 	HRESULT res;
@@ -1651,7 +1651,7 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, char *buf, short *pal )
 	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 		ddShowError(res);
 
-	while( i-- ) ((short *)ddsd.lpSurface)[i] = pal[buf[i]];
+	while( i-- ) ((short *)ddsd.lpSurface)[i] = (short)pal[(unsigned char)buf[i]];
 
 	pSurface->Unlock(ddsd.lpSurface);
 

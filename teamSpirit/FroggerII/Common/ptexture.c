@@ -26,9 +26,10 @@ POLYGON *rpList = NULL;
 */
 void ProcessPTFire( PROCTEXTURE *pt )
 {
-	long i = 1024,j,c,p;
-	char *tmp;
-	unsigned short res;
+	long i = 1024,j;
+	unsigned char *tmp;
+	short res, c, p;
+	static short pp[8] = {961, 965, 969, 973, 977, 981, 985, 989 };
 
 	// Copy resultant buffer into texture
 #ifdef PC_VERSION
@@ -39,35 +40,36 @@ void ProcessPTFire( PROCTEXTURE *pt )
 	// N64 surface blit
 #endif
 
-	// Set the bottom line to be white-ish
 	for( i=992; i<1024; i++ )
-		pt->buf1[i] = Random(31)+224;
+		pt->buf1[i] = 50;
 
 	// Make a few blocks of nine white things
-	j = Random(3);
-	for( i=0; i<j; i++ )
+	pp[Random(8)] = (short)(960+Random(32));
+
+	for( i=0; i<8; i++ )
 	{
-		c=Random(31)+224;
-		p = 960+Random(32);
-		pt->buf1[p] = c;
-		pt->buf1[p-1] = c;
-		pt->buf1[p+1] = c;
-		pt->buf1[p-32] = c;
-		pt->buf1[p-33] = c;
-		pt->buf1[p-31] = c;
+		c = (unsigned char)Random(31)+224;
+		pt->buf1[pp[i]] = c;
+		pt->buf1[pp[i]-1] = c;
+		pt->buf1[pp[i]+1] = c;
+		pt->buf1[pp[i]-32] = c;
+		pt->buf1[pp[i]-33] = c;
+		pt->buf1[pp[i]-31] = c;
+		pt->buf1[pp[i]+32] = c;
+		pt->buf1[pp[i]+33] = c;
+		pt->buf1[pp[i]+31] = c;
 	}
 
 	// Smooth, move up and fade
-	for( i=0; i<32; i++ )
-		for( j=0; j<32; j++ )
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
 		{
-			p = (i*32)+j;
-			res = (pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+32] + pt->buf1[p-32])>>2;
-			if( res > 0 ) res--;
+			p = (i<<5)+j;
+			res = ( pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-32] + pt->buf1[p+64] )>>2;
+
+			if( res ) res--;
 			pt->buf2[p] = res;
 		}
-
-	pt->buf2[600] = 254;
 
 	// Swap buffers
 	tmp = pt->buf1;

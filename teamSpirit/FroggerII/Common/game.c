@@ -802,7 +802,7 @@ void RunGameLoop (void)
 
 		lastActFrameCount = 0;
 
-//		CreateAndAddRandomPoly( prcTexList->tex, &frog[0]->actor->pos, &inVec, 32, 32 );
+		CreateAndAddRandomPoly( prcTexList->tex, &frog[0]->actor->pos, &inVec, 32, 32 );
 	}
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)
