@@ -40,7 +40,7 @@ VECTOR fr;		// frog right vector
 char tongueToCollect		= 0;
 
 GARIB *nearestColl			= NULL;
-ACTOR2 *nearestBabyFrog		= NULL;
+ENEMY *nearestBabyFrog		= NULL;
 GAMETILE *nearestGrapple    = NULL;
 ACTOR2 *nearestScenic		= NULL;
 
@@ -53,6 +53,8 @@ float tongueRotateStep		= 0;
 SPRITE tongueSprite[MAX_TONGUENODES];
 
 TEXTURE *txtrTongue = NULL;
+
+ENEMY *BabyFrogIsInTongueRange();
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitTongue
@@ -152,10 +154,10 @@ void UpdateFrogTongue()
 			else if( tongueToCollect == TONGUE_GET_BABY )
 			{
 				tongueSegment--;
-				SetVector(&nearestBabyFrog->actor->pos,&tongueCoords[tongueSegment]);
-				nearestBabyFrog->actor->scale.v[X] *= 0.9;
-				nearestBabyFrog->actor->scale.v[Y] *= 0.9;
-				nearestBabyFrog->actor->scale.v[Z] *= 0.9;
+				SetVector(&nearestBabyFrog->nmeActor->actor->pos,&tongueCoords[tongueSegment]);
+				nearestBabyFrog->nmeActor->actor->scale.v[X] *= 0.9;
+				nearestBabyFrog->nmeActor->actor->scale.v[Y] *= 0.9;
+				nearestBabyFrog->nmeActor->actor->scale.v[Z] *= 0.9;
 			}
 			else if( tongueToCollect == TONGUE_GET_SCENIC )
 			{
@@ -179,7 +181,12 @@ void UpdateFrogTongue()
 				if(tongueToCollect == TONGUE_GET_GARIB)
 					PickupCollectable(nearestColl,0);
 				else if( tongueToCollect == TONGUE_GET_BABY )
-					PickupBabyFrog(nearestBabyFrog);
+				{
+					if( gameState.multi == SINGLEPLAYER )
+						PickupBabyFrog(nearestBabyFrog->nmeActor);
+					else
+						PickupBabyFrogMulti(nearestBabyFrog, 0);
+				}
 				else if( tongueToCollect == TONGUE_GET_SCENIC )
 					SetVector(&nearestScenic->actor->pos,&nearestScenic->actor->oldpos);
 				else
@@ -219,7 +226,7 @@ void UpdateFrogTongue()
 			tongueCoordIndex++;
 
 			// Calculate the vector to the collectable item and its magnitude
-			SubVector(&p,&nearestBabyFrog->actor->pos,&tongueCoords[0]);
+			SubVector(&p,&nearestBabyFrog->nmeActor->actor->pos,&tongueCoords[0]);
 			tongueMag = Magnitude(&p);
 			MakeUnit(&p);
 
@@ -267,7 +274,7 @@ void UpdateFrogTongue()
 			}
 			else
 			{
-				SubVector(&p,&nearestBabyFrog->actor->pos,&tongueCoords[0]);
+				SubVector(&p,&nearestBabyFrog->nmeActor->actor->pos,&tongueCoords[0]);
 			}
 
 			tongueMag = Magnitude(&p);
@@ -502,6 +509,14 @@ void RemoveFrogTongue()
 		tongueSprite[i].scaleX = tongueSprite[i].scaleY = 0;
 	}
 
+	if( nearestBabyFrog )
+	{
+		nearestBabyFrog->nmeActor->actor->scale.v[X] = 1;
+		nearestBabyFrog->nmeActor->actor->scale.v[Y] = 1;
+		nearestBabyFrog->nmeActor->actor->scale.v[Z] = 1;
+		nearestBabyFrog = NULL;
+	}
+
 	tongueCoordIndex	= 0;
 	tongueSegment		= 0;
 	numTongueNodes		= MAX_TONGUENODES;
@@ -510,3 +525,56 @@ void RemoveFrogTongue()
 	tongueState = TONGUE_IDLE;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: BabyFrogIsInTongueRange
+	Purpose			: indicates if a baby frog is in range when tongueing
+	Parameters		: 
+	Returns			: 
+	Info			: returns ptr to the nearest baby frog (if in range)
+*/
+ENEMY *BabyFrogIsInTongueRange()
+{
+	ACTOR2 *act,*nearest;
+	ACTOR2 *inRange[4];
+	ENEMY *nme;
+	float dist,mags[4];
+	int i = 0,numInRange = 0;
+
+	if(numBabies)
+	{
+		for(i=0; i<numBabies; i++)
+		{
+			if( babyList[i].baby )
+				if((!babyList[i].isSaved) && (babyList[i].baby->distanceFromFrog < (tongueRadius * tongueRadius)))
+				{
+					mags[numInRange]		= babyList[i].baby->distanceFromFrog;
+					inRange[numInRange++]	= babyList[i].baby;
+				}
+		}
+
+		if(numInRange)
+		{
+			// return closest baby frog
+			dist	= mags[0];
+			nearest	= inRange[0];
+			for(i=1; i<numInRange; i++)
+			{
+				if(mags[i] < dist)
+				{
+					dist	= mags[i];
+					nearest	= inRange[i];
+				}
+			}
+
+			for( nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
+				if( nme->nmeActor == nearest )
+					break;
+
+			return nme;
+		}
+	}
+
+	// no baby frog in range
+	return NULL;
+}
