@@ -59,7 +59,7 @@ unsigned long D3DDefaultRenderstates[] =
 	D3DRENDERSTATE_ALPHAREF,			0,
 	D3DRENDERSTATE_ALPHAFUNC,			D3DCMP_NOTEQUAL,
 
-    D3DRENDERSTATE_FOGENABLE,           TRUE,
+    D3DRENDERSTATE_FOGENABLE,           FALSE,
 //	D3DRENDERSTATE_FOGCOLOR,			D3DRGB(0,0,0),
 
 	//
@@ -143,8 +143,9 @@ void D3DClearView(void)
 {
 	if (rHardware)
 	{
-		pDirect3DDevice->Clear(0,0,/*D3DCLEAR_TARGET |*/ D3DCLEAR_ZBUFFER , D3DRGB(fogR,fogG,fogB),1, 0L );
-		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR,D3DRGB(fogR,fogG,fogB));
+//		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , D3DRGB(fogR,fogG,fogB),1, 0L );
+//		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR,D3DRGB(fogR,fogG,fogB));
+		pDirect3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER , 0,1, 0L );
 	}
 	else
 		memset(softScreen,0,640*480*sizeof(long));

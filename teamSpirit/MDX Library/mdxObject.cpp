@@ -55,6 +55,10 @@ void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 			obj->mesh->faceTC[(i*3)+1].v[0] += 8192;
 			obj->mesh->faceTC[(i*3)+2].v[0] += 8192;		
 		}
+
+		obj->mesh->d3dVtx[(i*3)].tu = obj->mesh->faceTC[(i*3)].v[0] * 0.000975F;
+		obj->mesh->d3dVtx[(i*3)+1].tu = obj->mesh->faceTC[(i*3)].v[0] * 0.000975F;
+		obj->mesh->d3dVtx[(i*3)+2].tu = obj->mesh->faceTC[(i*3)].v[0] * 0.000975F;
 	}
 
 	if (obj->children)

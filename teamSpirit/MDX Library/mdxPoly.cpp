@@ -668,7 +668,7 @@ void DrawBatchedPolys (void)
 		pDirect3DDevice->SetTexture(0,0);
 		
 		cFInfo->cF+=nFace;
-		//totalFacesDrawn+=nFace/3;	// Idle Time
+		totalFacesDrawn+=nFace/3;	// Idle Time
 		
 		
 	}
@@ -966,7 +966,9 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
 
-		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+		//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+
+
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
@@ -1050,7 +1052,7 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
 		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
-		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+//		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
 			
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
@@ -1450,7 +1452,7 @@ void DrawAllFrames(void)
 	BeginDraw();
 	
 	// Draw Normal Polys
-	D3DSetupRenderstates(xluNoneRS);
+	D3DSetupRenderstates(xluSemiRS);
 	SwapFrame(MA_FRAME_NORMAL);
 
 	if (!rHardware)
