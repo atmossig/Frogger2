@@ -202,7 +202,6 @@ void SubScenicObject ( SCENICOBJ *scenicObj )
 	FREE(scenicObj);
 }
 
-
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 {
 	char u,v;
@@ -268,16 +267,18 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		tfd = transformedDepths;
 	}
 
-	if ( max_depth > 1024 - mesh->extra_depth )
+	if( max_depth > 1024 - mesh->extra_depth )
 		max_depth = 1024 - mesh->extra_depth;
 	
-	if ( mesh->flags & JIGGLE )
+	if( mesh->flags & JIGGLE )
 	{
+		int period1 = frameCount<<5, period2 = frameCount<<7;
+
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
-			jiggledVerts[i].vx = mesh->verts[i].vx + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx & mesh->verts[i].vz ) ) >> 7 );
-			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frameCount << 7 ) + ( mesh->verts[i].vx ^ mesh->verts[i].vz ) ) >> 6 );
-			jiggledVerts[i].vz = mesh->verts[i].vz + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx | mesh->verts[i].vz ) ) >> 7 );
+			jiggledVerts[i].vx = mesh->verts[i].vx + (rcos(period1 + (mesh->verts[i].vx & mesh->verts[i].vz))>>8);
+			jiggledVerts[i].vy = mesh->verts[i].vy + (rsin(period2 + (mesh->verts[i].vx ^ mesh->verts[i].vz))>>7);
+			jiggledVerts[i].vz = mesh->verts[i].vz + (rcos(period1 + (mesh->verts[i].vx | mesh->verts[i].vz))>>8);
 		}
 
 		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
