@@ -594,15 +594,15 @@ void UpdateVent( ENEMY *cur )
 		{
 			act->fxCount++;
 			if( cur->nmeActor->effects & EF_FIERYSMOKE )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 2.0*path->numNodes );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 2.0 );
 			else if( cur->nmeActor->effects & EF_LASER )
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_LASER, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 15, cur->nmeActor->animSpeed, 0, 1.5*path->numNodes );
+				fx = CreateAndAddSpecialEffect( FXTYPE_LASER, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 15, cur->nmeActor->animSpeed, 0, 0.5*path->numNodes );
 				SetAttachedFXColour( fx, cur->nmeActor->effects );
 			}
 			else if( cur->nmeActor->effects & EF_SMOKEBURST )
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 1.7*path->numNodes );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 1.7 );
 				SetAttachedFXColour( fx, cur->nmeActor->effects );
 			}
 		}
