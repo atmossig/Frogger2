@@ -65,13 +65,12 @@ void GameProcessController(long pl)
 	static u16 button[4],lastbutton[4];
 	static s16 stickX[4], stickY[4],lastStickX[4],lastStickY[4];
     
-	VECTOR fwd = { 0,0,1 };
-	VECTOR vec;
-
 	button[pl] = controllerdata[pl].button;
 	stickX[pl] = controllerdata[pl].stick_x;
 	stickY[pl] = controllerdata[pl].stick_y;
 		
+	player[pl].hasJumped = 0;
+
 	if ( autoPlaying )
 	{
 		LevelPlayingProcessController();
@@ -104,6 +103,7 @@ void GameProcessController(long pl)
 			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
+			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGU;
 
 			if ( recordKeying )
@@ -120,6 +120,7 @@ void GameProcessController(long pl)
 			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
+			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGR;
 
 			if ( recordKeying )
@@ -136,6 +137,7 @@ void GameProcessController(long pl)
 			UpdateScore(frog[pl],hopAmt);
 	    	
 			player[pl].canJump = 0;
+			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGD;
 
 			if ( recordKeying )
@@ -152,6 +154,7 @@ void GameProcessController(long pl)
 			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
+			player[pl].hasJumped = 1;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGL;
 			
 			if ( recordKeying )
@@ -170,6 +173,7 @@ void GameProcessController(long pl)
 		{
 			// frog is wanting longhop
 			player[pl].isLongHopping = 1;
+			player[pl].hasJumped = 1;
 
 			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
@@ -195,6 +199,7 @@ void GameProcessController(long pl)
 		{
 			// frog is wanting superhop
 			player[pl].isSuperHopping = 1;
+			player[pl].hasJumped = 1;
 
 			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
@@ -221,6 +226,7 @@ void GameProcessController(long pl)
     {
 		// want to use tongue
 		tongueState	= TONGUE_NONE | TONGUE_SEARCHING;
+		player[pl].hasJumped = 1;
 	}
 
 	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))

@@ -193,8 +193,8 @@ void UpdateEnemies()
 			}
 		}
 
-		if ( cur->isIdle )
-			cur->isIdle--;
+//		if ( cur->isIdle )
+//			cur->isIdle--;
 		// ENDIF
 
 		if(cur->flags & ENEMY_NEW_FOLLOWPATH)
@@ -548,6 +548,73 @@ void UpdateEnemies()
 				}
 				if( distance < 35 || !bFlag )
 					cur->nmeActor->actor->pos = tVec;
+			}
+		}
+		else if( cur->flags & ENEMY_NEW_MOVEONMOVE )
+		{
+			VECTOR frogVec, up;
+			PATH *path = cur->path;
+
+			if( cur->nmeActor->distanceFromFrog > 100000 )
+				continue;
+
+			// Check if the enemy has 3 path nodes. Allocate if not ( first time through )
+			if( cur->path->numNodes < 3 )
+			{
+				PATHNODE n;
+
+				memcpy( &n, path->nodes, sizeof(PATHNODE) );
+				JallocFree( (UBYTE **)&path->nodes );
+				path->nodes = (PATHNODE *)JallocAlloc( sizeof(PATHNODE)*3,YES,"Path" );
+				path->numNodes = 3;
+				memcpy( path->nodes, &n, sizeof(PATHNODE) );
+
+				// Find initial move for enemy to make
+				path->nodes[1].worldTile = NULL;
+				path->nodes[2].worldTile = path->nodes[0].worldTile;
+			}
+
+			// If frog has moved
+			cur->isIdle += player[0].hasJumped;
+
+			// If enemy is on the next path node, set startnode worldtile and the next to zero
+			if( (path->nodes[2].worldTile) && (actFrameCount > path->endFrame) )
+			{
+				path->nodes[1].worldTile = path->nodes[2].worldTile;
+				path->nodes[2].worldTile = NULL;
+			}
+
+			// If we need a new destination tile, find it by the direction to the frog
+			if( cur->isIdle && !path->nodes[2].worldTile )
+			{
+				SubVector( &frogVec, &currTile[0]->centre, &cur->nmeActor->actor->pos ); 
+				path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
+
+				path->startFrame = actFrameCount;
+				path->endFrame = path->startFrame + (60*path->nodes[0].speed);
+				cur->isIdle--;
+			}
+
+			// Move towards next node
+			if( path->nodes[1].worldTile && path->nodes[2].worldTile )
+			{
+				// Move towards frog
+				SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
+				length = (float)(actFrameCount - path->startFrame)/(float)(path->endFrame - path->startFrame);
+				ScaleVector(&fwd,length);
+				AddVector(&cur->nmeActor->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
+
+				// Orientate to direction of travel
+				MakeUnit( &fwd );
+				if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
+					Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+
+				cur->inTile = FindNearestTile( cur->nmeActor->actor->pos );
+
+				// Elevate above gametile
+				SetVector( &up, &cur->inTile->normal );
+				ScaleVector( &up, path->nodes[0].offset );
+				AddVector( &cur->nmeActor->actor->pos, &cur->nmeActor->actor->pos, &up );
 			}
 		}
 
@@ -1130,400 +1197,3 @@ void CalcEnemyNormalInterps(ENEMY *nme)
 	nme->deltaNormal.v[Y] /= numSteps;
 	nme->deltaNormal.v[Z] /= numSteps;
 }
-
-
-//------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifdef OLDNMESTUFF
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMEMole
-	Purpose			: 
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMEMole(ENEMY *nme)
-{
-	switch ( nme->nmeActor->actor->status )
-	{
-		case NMESTATE_MOLE_IDLE:
-			break;
-		case NMESTATE_MOLE_SNAPPING:
-			break;
-		case NMESTATE_MOLE_UNDER_GROUND:
-				if ( ( nme->isIdle ) && ( nme->nmeActor->actor->animation->currentAnimation == 0 ) )
-					nme->nmeActor->actor->animation->animTime = 1;
-				else
-				{
-					if ( nme->nmeActor->actor->animation->reachedEndOfAnimation )
-					{	
-						if ( Random(2) == 1 )
-						{
-							nme->nmeActor->actor->status = NMESTATE_MOLE_LOOK;
-							AnimateActor ( nme->nmeActor->actor, 5, NO, NO, 0.01F*nme->nmeActor->animSpeed, 10, 0 );
-						}
-						else
-						{
-							nme->nmeActor->actor->status = NMESTATE_MOLE_SCRATCH;
-							AnimateActor ( nme->nmeActor->actor, 6, NO, NO, 0.01F*nme->nmeActor->animSpeed, 10, 0 );
-						}
-						// ENDIF
-					}
-					// ENDIF
-				}
-				// ENDIF
-			break;
-		case NMESTATE_MOLE_LOOK:
-				if ( nme->nmeActor->actor->animation->reachedEndOfAnimation )
-				{	
-					AnimateActor ( nme->nmeActor->actor, 2, NO, NO, 0.01F*nme->nmeActor->animSpeed, 10, 1 );
-//					AnimateActor ( nme->nmeActor->actor, 0, NO, YES, 0.5F, 5, 1 );
-//					nme->nmeActor->actor->status = NMESTATE_MOLE_UNDER_GROUND;
-//					nme->isIdle = Random(500);
-				}
-				// ENDIF
-				
-			break;
-
-		case NMESTATE_MOLE_SCRATCH:
-				if ( nme->nmeActor->actor->animation->reachedEndOfAnimation )
-				{	
-					AnimateActor ( nme->nmeActor->actor, 2, NO, NO, 0.01F*nme->nmeActor->animSpeed,10, 0 );
-//					AnimateActor ( nme->nmeActor->actor, 0, NO, YES, 0.5F, 5, 1 );
-//					nme->nmeActor->actor->status = NMESTATE_MOLE_UNDER_GROUND;
-//					nme->isIdle = Random(500);
-
-				}
-				// ENDIF
-				
-			break;
-
-	}
-	// ENDSWITCH
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMEMower
-	Purpose			: process mower enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMEMower(ACTOR2 *nme)
-{
-	if((nme->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) && (frameCount & 3) == 0)
-		CreateAndAddFXSmoke(&nme->actor->pos,128,15);
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function			: ProcessNMEDog
-	Purpose			   : 
-	Parameters		 : 
-	Returns				: void
-	Info					: 
-*/
-void ProcessNMEDog ( ACTOR2 *nme )
-{
-	switch ( nme->actor->status )
-	{
-		case NMESTATE_DOG_IDLE:
-
-			ActorLookAt( nme->actor, &frog[0]->actor->pos, LOOKAT_2D );
-
-			snapPos = frog[0]->actor->pos;
-
-			// check if frog is in snapping range
-			if(DistanceBetweenPointsSquared(&snapPos,&nme->actor->pos) < 6400.0F)
-			{
-				// frog is in snapping range - prepare for him to snap at frog
-				nme->actor->status	= NMESTATE_DOG_SNAPPING;
-				AnimateActor ( nme->actor, 1, NO, NO, 1.5F*nme->animSpeed, 0, 0);
-			}
-			else
-			{
-				if(nme->actor->animation->reachedEndOfAnimation)
-				{
-					// Choose an idle animation at random
-					AnimateActor(nme->actor,0,NO,NO,1.0F*nme->animSpeed, 0, 0);
-				}
-			}
-							
-
-			break;
-
-		case NMESTATE_DOG_SNAPPING:
-
-			if((nme->actor->animation->animTime > 200.0F) && (nme->actor->animation->animTime < 240.0F))
-			{
-				// Check if frog is still in snapping range
-				if ( ( DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 6400.0F ) && ( !frog[0]->action.dead ) )
-				{
-					if ( ( DistanceBetweenPointsSquared(&snapPos,&frog[0]->actor->pos) == 0.0F ) )
-					{
-						// kill frog
-						AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-						frog[0]->action.deathBy = DEATHBY_NORMAL;
-						player[0].frogState |= FROGSTATUS_ISDEAD;
-						frog[0]->action.dead = 50;
-						PlaySample ( 75,NULL,192,128);
-					}
-					// ENDIF
-				}
-				else
-				{
-					if(nme->actor->animation->reachedEndOfAnimation)
-					{
-						nme->actor->status	= NMESTATE_DOG_YAP;
-						AnimateActor(nme->actor,3,NO,NO,1.0F*nme->animSpeed, 0, 0);
-						PlaySample ( 75,NULL,192,128);
-					}
-				}
-				// ENDIF
-			}
-			// ENDIF
-			if(nme->actor->animation->reachedEndOfAnimation)
-			{
-				nme->actor->status	= NMESTATE_DOG_RETURN;
-				AnimateActor(nme->actor,2,NO,NO,1.0F*nme->animSpeed, 0, 0);
-			}
-						   
-			break;
-		case NMESTATE_DOG_YAP:
-/*				if ( nme->actor->loopCount == 70 )
-				{
-					nme->actor->animation->loopAnimation = 0;
-					nme->actor->loopCount = 0;
-				}
-				// ENDIF*/
-
-// Commented out for skinning
-
-
-				if(nme->actor->animation->reachedEndOfAnimation)
-				{
-					nme->actor->status	= NMESTATE_DOG_RETURN;
-					AnimateActor(nme->actor,2,NO,NO,1.0F*nme->animSpeed, 0, 0);
-				}
-			break;
-		case NMESTATE_DOG_RETURN:
-				if(nme->actor->animation->reachedEndOfAnimation)
-				{
-					nme->actor->status	= NMESTATE_DOG_IDLE;
-					AnimateActor(nme->actor,0,NO,NO,1.0F*nme->animSpeed, 0, 0);
-				}	  
-			break;
-
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMESnapperPlant
-	Purpose			: process snapper plant enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMESnapperPlant(ACTOR2 *nme)
-{
-	VECTOR vfd	= { 0,0,1 };
-	VECTOR vup	= { 0,1,0 };
-	VECTOR snapup;
-	VECTOR v1,v2,v3;
-
-/*switch ( nme->actor->status )
-{
-case NMESTATE_SNAPPER_IDLE:
-	snapPos = frog->actor->pos;
-	ActorLookAt( nme->actor, &frog[0]->actor->pos );
-	break;
-case NMESTATE_SNAPPER_READYTOSNAP:
-	//SubVector(&v1,&nme->actor->pos,&snapPos);
-	break;
-case NMESTATE_SNAPPER_SNAPPING:
-//	SubVector(&v1,&nme->actor->pos,&snapPos);
-	break;
-};
-
-*/	
-	switch(nme->actor->status)
-	{
-		case NMESTATE_SNAPPER_IDLE:
-
-			// check if frog is in snapping range
-			if(DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 3600.0F)
-			{
-				// frog is in snapping range - prepare for him to snap at frog
-				nme->actor->status	= NMESTATE_SNAPPER_READYTOSNAP;
-				nme->action.dead	= 5;
-//				snapPos = frog->actor->pos;
-			}
-			else
-			{
-				if(nme->actor->animation->reachedEndOfAnimation)
-				{
-					// Choose an idle animation at random
-					AnimateActor(nme->actor,Random(3)+1,NO,NO,0.75F*nme->animSpeed, 0, 0);
-				}
-			}
-
-			break;
-
-		case NMESTATE_SNAPPER_READYTOSNAP:
-
-			if(nme->action.dead)
-				nme->action.dead--;
-			else
-			{
-				nme->action.dead	= 5;
-				nme->actor->status	= NMESTATE_SNAPPER_SNAPPING;
-				AnimateActor(nme->actor,0,NO,NO,1.0F*nme->animSpeed, 0, 0);
-			}
-
-			break;
-
-		case NMESTATE_SNAPPER_SNAPPING:
-
-			if((nme->actor->animation->animTime > 11.0F) && (nme->actor->animation->animTime < 13.0F))
-			{
-				// Check if frog is still in snapping range
-				if(DistanceBetweenPoints(&snapPos,&nme->actor->pos) < 3600.0F && (!frog[0]->action.dead))
-				{
-					// kill frog
-					AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-					frog[0]->action.deathBy = DEATHBY_NORMAL;
-					player[0].frogState |= FROGSTATUS_ISDEAD;
-					frog[0]->action.dead = 50;
-				}
-			}
-
-			if(nme->actor->animation->reachedEndOfAnimation)
-			{
-				nme->actor->status	= NMESTATE_SNAPPER_IDLE;
-				AnimateActor(nme->actor,1,NO,NO,0.75F*nme->animSpeed, 0, 0);
-			}
-
-			break;
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMECar
-	Purpose			: process car enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMECar(ACTOR2 *nme)
-{
-	VECTOR smokePos;
-
-	if((frameCount & 1) == 0)
-	{
-		SetVector(&smokePos,&frog[0]->actor->pos);
-		smokePos.v[Y] -= 10;
-		CreateAndAddFXSmoke(&smokePos,128,15);
-	}
-}
-
-#endif
