@@ -73,6 +73,7 @@
 #define NME_ROLL_Z		3
 #define NME_BOUNCY		4
 #define NME_ROLL		5
+#define NME_ROLL2		6
 
 void UpdateBobbingEnemy(ENEMY *cur);
 void UpdateJigglingEnemy(ENEMY *cur);
@@ -80,9 +81,10 @@ void UpdateGallopingEnemy(ENEMY *cur);
 void UpdateRollZEnemy(ENEMY *cur);
 void UpdateBouncingEnemy(ENEMY *cur);
 void UpdateRollEnemy(ENEMY *cur);
+void UpdateRoll2Enemy(ENEMY *cur);
 
 void (*hackFuncs[])(ENEMY*) =
-	{ UpdateJigglingEnemy, UpdateBobbingEnemy, UpdateGallopingEnemy, UpdateRollZEnemy, UpdateBouncingEnemy, UpdateRollEnemy };
+	{ UpdateJigglingEnemy, UpdateBobbingEnemy, UpdateGallopingEnemy, UpdateRollZEnemy, UpdateBouncingEnemy, UpdateRollEnemy, UpdateRoll2Enemy };
 
 typedef struct _NMEHACK {
 	char *modelname; short flags;
@@ -667,8 +669,6 @@ void UpdateRollEnemy(ENEMY *nme)
 		&p->nodes[p->toNode].worldTile->centre,
 		&p->nodes[p->fromNode].worldTile->centre);
 
-	MakeUnit(&fwd);
-
 	t = (gameSpeed*nme->speed)/nme->nmeActor->radius;
 	
 	// rotate around z axis with a quaternion.. oogly
@@ -676,9 +676,9 @@ void UpdateRollEnemy(ENEMY *nme)
 	c = rsin(t);
 
 	q.w = rcos(t);
-	q.x = (c*fwd.vz/500);
+	q.x = (c*fwd.vz)/500;
 	q.y = 0;
-	q.z = (-c*fwd.vx/500);
+	q.z = (-c*fwd.vx)/500;
 
 	NormaliseQuaternion(&nme->nmeActor->actor->qRot); // testing..
 
@@ -688,6 +688,36 @@ void UpdateRollEnemy(ENEMY *nme)
 
 }
 
+void UpdateRoll2Enemy(ENEMY *nme)
+{
+	fixed t;
+	IQUATERNION q;
+	SVECTOR fwd;
+	PATH *p = nme->path;
+
+	nme->flags |= ENEMY_NEW_NOREORIENTATE|ENEMY_NEW_FACEFORWARDS;
+
+//	Does this work? Does it? Hmm?
+
+	t = ((actFrameCount-p->startFrame)<<12)/(p->endFrame-p->startFrame);
+
+	if (nme->flags & ENEMY_NEW_BACKWARDS)
+		t -= ((p->fromNode-p->startNode)%12)*171;
+	else
+		t += ((p->fromNode-p->startNode)%12)*171;
+		
+	t >>= 2;
+	t += ((p->fromNode & 1)<<10);
+
+	// rotate around z axis with a quaternion, hoorah
+
+	q.w = rcos(t);
+	q.x = rsin(t);
+	q.y = 0;
+	q.z = 0;
+
+	nme->nmeActor->actor->qRot = q;
+}
 /*	--------------------------------------------------------------------------------
 	Function		: UpdatePathNME
 	Purpose			: update enemies that move along a path
