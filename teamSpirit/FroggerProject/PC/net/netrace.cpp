@@ -57,6 +57,7 @@ int NetRaceCheckWin();
 int NetRaceRun();
 
 int NetRaceMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
+void NetRaceRespawn();
 
 // ------------------------------------------------------------------
 // NetRaceInit()
@@ -151,18 +152,19 @@ int NetRaceRun()
 	UpdateCameraPosition();
 	GameProcessController(0);                                      
 
-	if (multiHud.centreText->a > (gameSpeed>>10))
-		multiHud.centreText->a -= (gameSpeed>>10);
-	else
-	{
-		multiHud.centreText->a = 0;
-		multiHud.centreText->draw = 0;
-	}
 		
 	UpdateFroggerPos(0);
 
 	if (actFrameCount > gameStartTime)
 	{
+		if (multiHud.centreText->a > (gameSpeed>>10))
+			multiHud.centreText->a -= (gameSpeed>>10);
+		else
+		{
+			multiHud.centreText->a = 0;
+			multiHud.centreText->draw = 0;
+		}
+
 		cameoMode = false;
 		UpDateMultiplayerInfo( );
 
@@ -176,7 +178,7 @@ int NetRaceRun()
 			// from multi.c
 			if( !player[0].dead.time )
 			{
-				RaceRespawn(0);
+				NetRaceRespawn();
 				frog[0]->draw = 1;
 				GTInit( &player[0].safe, 3 );
 			}
@@ -245,6 +247,10 @@ int NetRaceRun()
 
 				mpl[0].ready = 1;
 				player[0].canJump = 0;
+
+				multiHud.centreText->text = GAMESTRING(STR_NET_FINISHED);
+				multiHud.centreText->a = 255;
+				multiHud.centreText->draw = 1;
 			}
 		}
 
@@ -272,7 +278,12 @@ int NetRaceCheckWin()
 		if( !mpl[i].ready ) break;
 
 	// If all players finished, check win conditions
+
+#ifdef _DEBUG	
+	if (i==NUM_FROGS)
+#else
 	if( i==NUM_FROGS || NUM_FROGS==1)
+#endif
 	{
 		unsigned long best, time, winner, draw;
 		// Find best time
@@ -336,4 +347,112 @@ int NetRaceMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 	};
 
 	return -1;
+}
+
+
+
+void NetRaceRespawn()
+{
+	int j, respawn=0,noGood;
+	GAMETILE *tile;
+	FVECTOR diff;
+
+	player[0].deathBy = 0;
+	player[0].frogState &= ~FROGSTATUS_ISDEAD;
+	actorAnimate( frog[0]->actor, FROG_ANIM_BREATHE, YES, NO, 64, 0 );
+
+/*
+	if( playerFocus != 0 && !(player[playerFocus].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[playerFocus]->actor->position) )
+		respawn = playerFocus;
+	else
+		for( j=0; j<NUM_FROGS; j++ )
+			if( j != 0 && j != playerFocus && !(player[j].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[j]->actor->position) )
+			{
+				respawn = j;
+				break;
+			}
+*/
+	float la_la_i_dont_care = frog[0]->actor->position.vz;
+	for( j=1; j<NUM_FROGS; j++ )
+		if (!(player[j].frogState & FROGSTATUS_ISDEAD) && frog[j]->actor->position.vz < la_la_i_dont_care)
+		{
+			la_la_i_dont_care = frog[j]->actor->position.vz;
+			respawn = j;
+		}
+
+	SubVectorFSS( &diff, &frog[0]->actor->position, &frog[respawn]->actor->position );
+	MakeUnit(&diff);
+
+	// Find a tile to teleport to - first try a tile next to the target, then on the nearest "safe" tile, then on the target frog if that fails
+	tile = FindJoinedTileByDirectionAndType( currTile[respawn], &diff, TILESTATE_NORMAL );
+	if(tile)
+	{
+		for(j = 0;j < NUM_FROGS;j++)
+		{
+			if((j != 0) && (currTile[j] == tile))
+			{
+				tile = NULL;
+				break;
+			}
+		}
+	}
+	if( !tile )
+	{
+		GAMETILE *t, *target = NULL;
+		long dist, best = 99999999, i;
+
+		t = firstTile;
+		for ( i = 0; i < tileCount; i++, t++ )
+		//for( t = firstTile; t != NULL; t = t->next )
+		{
+			noGood = NO;
+			if((t->state == TILESTATE_SAFE) || (t->state == TILESTATE_NORMAL) || (t->state == TILESTATE_FROGGER1AREA) || (t->state == TILESTATE_FROGGER2AREA) || (t->state == TILESTATE_FROGGER3AREA) || (t->state == TILESTATE_FROGGER4AREA))
+			{
+				for(j = 0;j < NUM_FROGS;j++)
+				{
+					if((j != 0) && (currTile[j] == t))
+					{
+						noGood = YES;
+						break;
+					}
+				}
+				if(noGood)
+					continue;
+				dist = DistanceBetweenPointsSS( &frog[respawn]->actor->position, &t->centre ) + DistanceBetweenPointsSS( &frog[0]->actor->position, &t->centre );
+				if( dist < best && IsPointVisible(&t->centre) )
+				{
+					target = t;
+					best = dist;
+				}
+			}
+		}
+
+		if( target )
+			tile = target;
+		else
+			tile = currTile[respawn];
+	}
+
+	camFacing[0] = camFacing[respawn];
+	frogFacing[0] = frogFacing[respawn];
+	prevCamFacing[0] = prevCamFacing[respawn];
+
+	TeleportActorToTile(frog[0],tile,0);
+
+	CreateRespawnEffect( tile, 0 );
+
+	// Update progress info
+	mpl[0].check = mpl[respawn].check;
+	mpl[0].lap = mpl[respawn].lap;
+
+	// If other frog has finished then we have to be 1 checkpoint behind
+	if( mpl[respawn].ready )
+		mpl[0].lasttile = TILESTATE_FROGGER4AREA;		
+	else
+		mpl[0].lasttile = mpl[respawn].lasttile;
+
+	lastTile[0] = tile;
+	destTile[0] = tile;
+
+	CheckForFrogOn(0,tile);
 }

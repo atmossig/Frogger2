@@ -1258,7 +1258,7 @@ void CheckForFroggerLanding(long pl)
 #endif
 
 	// Assume for now that if we've landed after being on another frogs head then we're no longer on it.
-	if( gameState.multi != SINGLEPLAYER && multiplayerMode != MULTIMODE_BATTLE )
+	if( gameState.multi == MULTILOCAL && multiplayerMode != MULTIMODE_BATTLE )
 	{
 		if( player[pl].frogon != -1 )
 		{
@@ -1502,7 +1502,7 @@ void CheckForFrogOn(int pl,GAMETILE *tile)
 {
 	int i;
 
-	if(((player[pl].frogunder == -1)/* || (player[player[pl].frogunder].canJump == 0)*/) && (gameState.multi != SINGLEPLAYER) && (multiplayerMode != MULTIMODE_BATTLE))
+	if(((player[pl].frogunder == -1)/* || (player[player[pl].frogunder].canJump == 0)*/) && (gameState.multi == MULTILOCAL) && (multiplayerMode != MULTIMODE_BATTLE))
 	{
 		// If we've landed on another frog, sit on his head
 		for( i=(pl+1)%NUM_FROGS; i!=pl; i=(i+1)%NUM_FROGS )
