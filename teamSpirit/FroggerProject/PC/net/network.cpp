@@ -1,55 +1,14 @@
-#define INITGUID
-
 #include <windows.h>
-#include <math.h>
-#include <windowsx.h>
-#include <crtdbg.h>
-#include <commctrl.h>
-#include <cguid.h>
-#include <ddraw.h>
-#include <d3d.h>
-#include <dsound.h>
-#include <dinput.h>
 #include <dplay.h>
 #include <dplobby.h>
+
+#include "main.h"
+#include "islutil.h"
+#include "resource.h"
 
 #include "network.h"
 #include "netchat.h"
 #include "netgame.h"
-
-extern "C" {
-
-#include <islutil.h>
-#include <islpad.h>
-
-#include <anim.h>
-#include <stdio.h>
-
-#include "game.h"
-#include "types2d.h"
-#include "frogger.h"
-#include "levplay.h"
-#include "frogmove.h"
-#include "cam.h"
-#include "tongue.h"
-#include "hud.h"
-#include "frontend.h"
-#include "textover.h"
-#include "multi.h"
-#include "layout.h"
-#include "platform.h"
-#include "enemies.h"
-#include "babyfrog.h"
-#include "event.h"
-#include "main.h"
-#include "newpsx.h"
-#include "Main.h"
-#include "actor2.h"
-#include "bbtimer.h"
-#include "maths.h"
-#include "..\resource.h"
-}
-
 
 HANDLE ghReceiveThread			= NULL;			// handle of receive thread
 DWORD gidReceiveThread			= 0;			// id of receive thread
@@ -63,6 +22,9 @@ const DWORD APPMSG_SYNCHPING	= 3;			// message type for ping message
 const DWORD	MAX_STRLEN			= 200;			// max size of a temporary string
 unsigned long networkPlay = 0;
 DPLAYINFO DPInfo;
+
+// {37097B21-5635-11d3-8FA8-00A0C9DB6D13}
+static const GUID DPCHAT_GUID = { 0x37097b21, 0x5635, 0x11d3, { 0x8f, 0xa8, 0x0, 0xa0, 0xc9, 0xdb, 0x6d, 0x13 } };
 
 //----- [ FUNCTION IMPLEMENTATIONS ] -------------------------------------------------------------
 
@@ -82,7 +44,7 @@ int InitMPDirectPlay( HINSTANCE hInstance )
 
 	InitChatBuffer( );
 	chatFlags = CHAT_SHOW;
-	gameState.multi = MULTIREMOTE;
+	//gameState.multi = MULTIREMOTE;
 	networkPlay = 1;
 	return iResult;
 }
@@ -345,7 +307,7 @@ BOOL CALLBACK DLGChooseServiceProvider(HWND hDlg,UINT msg,WPARAM wParam,LPARAM l
 */
 int ChooseServiceProvider(HINSTANCE hInst,HWND hWndMain)
 {
-	dp("\nChoose service provider...");
+	utilPrintf("\nChoose service provider...");
     if(DialogBox(hInst,MAKEINTRESOURCE(IDD_CONNECTION),hWndMain,(DLGPROC)DLGChooseServiceProvider))
 		return 1;
 
@@ -407,7 +369,7 @@ BOOL FAR PASCAL DirectPlayEnumConnectionsCallback(LPCGUID lpguidSP,LPVOID lpConn
 		goto FAILURE;
 
 	// make space for connection shortcut
-	lpConnectionBuffer = GlobalAllocPtr(GHND,dwConnectionSize);
+	lpConnectionBuffer = AllocMem(dwConnectionSize);
 	if(lpConnectionBuffer == NULL)
 		goto FAILURE;
 
@@ -443,7 +405,7 @@ void DeleteSessionInstanceList(HWND hWnd)
 		if(lpData == 0)					// no data to delete
 			continue;
 
-		GlobalFreePtr((LPVOID)lpData);
+		FreeMem((LPVOID)lpData);
 		i += 1;
 	}
 
@@ -473,7 +435,7 @@ void DeleteConnectionList(HWND hWnd)
 			break;
 
 		if(lpData != 0)					// no data to delete
-			GlobalFreePtr((LPVOID)lpData);
+			FreeMem((LPVOID)lpData);
 
 		i += 1;
 	}
@@ -696,7 +658,7 @@ HRESULT EnumSessions(HWND hWnd,LPDIRECTPLAY4A lpDirectPlay4A)
 		return DPERR_INVALIDOBJECT;
 
 	// get guid of currently selected session
-	guidSessionInstance = GUID_NULL;
+	//guidSessionInstance = GUID_NULL;
 	hRes = GetSessionInstanceGuid(hWnd,&guidSessionInstance);
 
 	// delete existing session list
@@ -742,7 +704,7 @@ BOOL FAR PASCAL EnumSessionsCallback(LPCDPSESSIONDESC2 lpSessionDesc,LPDWORD lpd
 		goto FAILURE;
 
 	// make space for session instance guid
-	lpGuid = (LPGUID)GlobalAllocPtr(GHND,sizeof(GUID));
+	lpGuid = (LPGUID)AllocMem(sizeof(GUID));
 	if(lpGuid == NULL)
 		goto FAILURE;
 
@@ -925,8 +887,8 @@ HRESULT ReceiveMessage(LPDPLAYINFO lpDPInfo)
 			if(hRes == DPERR_BUFFERTOOSMALL)
 			{
 				if(lpvMsgBuffer)
-					GlobalFreePtr(lpvMsgBuffer);
-				lpvMsgBuffer = GlobalAllocPtr(GHND,dwMsgBufferSize);
+					FreeMem(lpvMsgBuffer);
+				lpvMsgBuffer = AllocMem(dwMsgBufferSize);
 				if(lpvMsgBuffer == NULL)
 					hRes = DPERR_OUTOFMEMORY;
 			}
@@ -946,7 +908,7 @@ HRESULT ReceiveMessage(LPDPLAYINFO lpDPInfo)
 
 	// free any memory allocated
 	if(lpvMsgBuffer)
-		GlobalFreePtr(lpvMsgBuffer);
+		FreeMem(lpvMsgBuffer);
 
 	return DP_OK;
 }
@@ -1014,8 +976,10 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 			if( i==MAX_MULTIPLAYERS )
 				return;
 
+/*
 			player[i].healthPoints = 1;
 			player[i].lives = 3;
+*/
 
 			RefreshMPFrogs( );
 
@@ -1026,13 +990,13 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 				lpszPlayerName = "unknown";
 
 			// allocate space for string
-			lpszStr = (LPSTR)GlobalAllocPtr(GHND,lstrlen(szDisplayFormat) + lstrlen(lpszPlayerName) + 1);
+			lpszStr = (LPSTR)AllocMem(lstrlen(szDisplayFormat) + lstrlen(lpszPlayerName) + 1);
 			if(lpszStr == NULL)
 				break;
 
 			// build string
 			wsprintf(lpszStr,szDisplayFormat,lpszPlayerName);
-			dp(lpszStr);
+			utilPrintf(lpszStr);
 		}
 		break;
 
@@ -1061,7 +1025,7 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 				lpszPlayerName = "unknown";
 
 			// allocate space for string
-			lpszStr = (LPSTR)GlobalAllocPtr(GHND,lstrlen(szDisplayFormat) + lstrlen(lpszPlayerName) + 1);
+			lpszStr = (LPSTR)AllocMem(lstrlen(szDisplayFormat) + lstrlen(lpszPlayerName) + 1);
 			if(lpszStr == NULL)
 				break;
 
@@ -1094,7 +1058,7 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 			LPSTR szDisplayFormat = "You have become the host";
 
 			// allocate space for string
-			lpszStr = (LPSTR)GlobalAllocPtr(GHND,lstrlen(szDisplayFormat) + 1);
+			lpszStr = (LPSTR)AllocMem(lstrlen(szDisplayFormat) + 1);
 			if(lpszStr == NULL)
 				break;
 
@@ -1243,7 +1207,7 @@ HRESULT ConnectUsingLobby(LPDPLAYINFO lpDPInfo)
 		goto FAILURE;
 
 	// allocate memory for the connection setttings
-	lpConnectionSettings = (LPDPLCONNECTION)GlobalAllocPtr(GHND,dwSize);
+	lpConnectionSettings = (LPDPLCONNECTION)AllocMem(dwSize);
 	if(NULL == lpConnectionSettings)
 	{
 		hRes = DPERR_OUTOFMEMORY;
@@ -1295,7 +1259,7 @@ FAILURE:
 		lpDPlayLobby3A->Release();
 
 	if(lpConnectionSettings)
-		GlobalFreePtr(lpConnectionSettings);
+		FreeMem(lpConnectionSettings);
 
 	return hRes;
 }

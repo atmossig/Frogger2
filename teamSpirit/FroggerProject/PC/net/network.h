@@ -9,8 +9,7 @@ extern "C"
 #endif
 //----- [ MACROS / DEFINES / CONSTANTS ] ---------------------------------------------------------
 
-// {37097B21-5635-11d3-8FA8-00A0C9DB6D13}
-DEFINE_GUID(DPCHAT_GUID, 0x37097b21, 0x5635, 0x11d3, 0x8f, 0xa8, 0x0, 0xa0, 0xc9, 0xdb, 0x6d, 0x13);
+extern const GUID DPCHAT_GUID;
 
 #define INIT(X) { memset(&X,0,sizeof(X)); (X).dwSize = sizeof(X); }
 
