@@ -364,8 +364,9 @@ void RotateWaitingNME( ENEMY *cur )
 */
 void UpdatePathNME( ENEMY *cur )
 {
-	VECTOR fromPosition,toPosition, fwd;
-	float length;
+	VECTOR fromPosition,toPosition, fwd, dir, cross;
+	QUATERNION q;
+	float length, dp;
 	
 	// first, update the enemy position
 	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
@@ -386,9 +387,19 @@ void UpdatePathNME( ENEMY *cur )
 
 	if (!cur->doNotMove)
 		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
-			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+		{
+//			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+			CrossProduct( &cross, &cur->currNormal, &fwd );
+			CrossProduct( &dir, &cross, &cur->currNormal );
+			ScaleVector( &dir, 50 );
+
+			AddToVector( &dir, &cur->nmeActor->actor->pos );
+			ActorLookAt( cur->nmeActor->actor, &dir, LOOKAT_ANYWHERE );
+		}
 		else // Need to do this so normals still work
+		{
 			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
+		}
 
 	// check if this enemy has arrived at a path node
 	if( actFrameCount > cur->path->endFrame )
@@ -1705,7 +1716,7 @@ void CalcEnemyNormalInterps(ENEMY *nme)
 	numSteps = DistanceBetweenPoints(&fromPos,&toPos);
 	if(numSteps == 0)
 		numSteps = 1;
-	numSteps /= nme->speed;
+	numSteps *= nme->speed;
 
 	nme->deltaNormal.v[X] /= numSteps;
 	nme->deltaNormal.v[Y] /= numSteps;
