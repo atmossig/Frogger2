@@ -727,6 +727,7 @@ void UpdateSlerpPathPlatform( PLATFORM *cur )
 	PATH *path = cur->path;
 	ACTOR *act = cur->pltActor->actor;
 	float speed, t;
+	long i;
 	
 	// Find the position of the current 2 nodes
 	GetPositionForPathNode(&toPosition,&path->nodes[path->toNode]);
@@ -779,6 +780,13 @@ void UpdateSlerpPathPlatform( PLATFORM *cur )
 		cur->inTile[0] = path->nodes[path->fromNode].worldTile;
 	else
 		cur->inTile[0] = path->nodes[path->toNode].worldTile;
+
+	// We need to find which frog we're carrying (yeeeeeesh)
+	for (i=0; i<4; i++)
+		if (frog[i] == cur->carrying)
+			break;
+
+	if( i!=4 ) CheckTileForCollectable( cur->inTile[0], i );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -864,11 +872,11 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], nextTile);
 			currTile[pl] = plat->inTile[0];
+
+			CheckTileForCollectable( nextTile, pl );
 		}
-		// TODO]
 
 		plat->inTile[0] = nextTile;
-
 	}
 }
 
