@@ -1389,7 +1389,12 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 		{
 			// no destination - frog is effectively just superhopping
 			t = superHopFrames;
-			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
+			
+			if(destPlatform[pl])
+				CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destPlatform[pl]->pltActor->actor->pos,&destPlatform[pl]->inTile->normal,t,pl);
+			else
+				CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
+
 			AnimateFrogHop(direction,pl);
 			return;
 		}
@@ -1458,7 +1463,12 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 		nextCamFacing = newCamFacing;
 		
 		t = longHopFrames;
-		CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&longHopDest->centre,&longHopDest->normal,t,pl);
+
+		if(longHopPlat)
+			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&longHopPlat->pltActor->actor->pos,&longHopPlat->inTile->normal,t,pl);
+		else
+			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
+
 		AnimateFrogHop(direction,pl);
 
 		destTile[pl] = longHopDest;
