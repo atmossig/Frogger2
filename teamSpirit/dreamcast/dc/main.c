@@ -705,7 +705,7 @@ void main()
 //	syCacheInit(SYD_CACHE_FORM_OC_ENABLE | SYD_CACHE_FORM_IC_ENABLE | SYD_CACHE_FORM_OC_RAM);
 
 
-	// ** Render loop
+	// ** Main loop
 
 	// *ASL* 08/08/2000 - Until user quits or opens the lid
 	while (globalAbortFlag == 0)
@@ -807,8 +807,17 @@ void main()
 		{
 			UpdateTextureAnimations();
 		}
-				
+
+
+		// pass through game loop
 		GameLoop();
+
+		// *ASL* 10/08/2000 - Immediately abort the loop on user quit
+		if (globalAbortFlag == 1)
+		{
+			break;
+		}
+
 		DCTIMER_STOP(1);		
 	
 		kmBeginScene(&kmSystemConfig);
