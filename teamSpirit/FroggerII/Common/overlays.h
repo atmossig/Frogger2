@@ -65,7 +65,7 @@ extern void DisableSpriteOverlay(SPRITEOVERLAY *sOver);
 extern void InitSpriteOverlayLinkedList();
 extern void FreeSpriteOverlayLinkedList();
 extern void AddSpriteOverlay();
-extern void SubSpriteOverlay();
+extern void SubSpriteOverlay(SPRITEOVERLAY *sOver);
 
 
 #endif
