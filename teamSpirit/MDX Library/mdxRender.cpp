@@ -59,7 +59,7 @@ float horizClip = 3000;
 float vertClip = 2500;
 
 long DIST=-10;
-long FOV=450;
+long FOV=450 / (640.0/320.0);
 float oneOver[65535];
 float halfWidth;
 float halfHeight;
@@ -82,10 +82,10 @@ enum {OUTCODE_LEFT, OUTCODE_RIGHT, OUTCODE_TOP, OUTCODE_BOTTOM};
 						 (((x)<=(x0))<<OUTCODE_LEFT))
 
 // The 2D clip Volume.
-float clx0 = 1,
-      cly0 = 1,
-	  clx1 = 639,
-	  cly1 = 479;
+float clx0 = 320-160,
+      cly0 = 240-120,
+	  clx1 = 320+160,
+	  cly1 = 240+120;
 
 // Subtracted Square!
 //#define sbsqr(x,y) ((x-y)*(x-y))

@@ -50,6 +50,8 @@ long softScreen[640*480];
 unsigned long numHaloPoints;
 long limTex = 0;
 
+long softFlags = POLY_TEXTURE | POLY_GOURAUD | POLY_NOCLIP;
+//long softFlags = POLY_GOURAUD | POLY_NOCLIP;
 short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
 float flareScales[MA_MAX_HALOS];
@@ -410,7 +412,7 @@ void DrawSoftwarePolys (void)
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE | POLY_GOURAUD | POLY_NOCLIP, &thisTex);
+				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
 			
 			}
 			 
@@ -585,7 +587,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE | POLY_GOURAUD | POLY_NOCLIP, &thisTex);
+				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
 			}			
 		}
 	}

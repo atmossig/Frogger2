@@ -53,6 +53,16 @@ void FreeSpriteSortArray();
 int SpriteZCompare(const void *arg1,const void *arg2);
 void ZSortSpriteList();
 
+extern long	SPRITECLIPLEFT		;
+extern long	SPRITECLIPTOP		;
+extern long	SPRITECLIPRIGHT		;
+extern long	SPRITECLIPBOTTOM	;
+
+extern long	ROTSPRITECLIPLEFT	;
+extern long	ROTSPRITECLIPTOP	;
+extern long	ROTSPRITECLIPRIGHT	;
+extern long	ROTSPRITECLIPBOTTOM	;
+
 #ifdef __cplusplus
 }
 #endif

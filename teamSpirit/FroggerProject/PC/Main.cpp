@@ -206,6 +206,7 @@ long DrawLoop(void)
 
 	EndDraw();
 
+	CopySoftScreenToSurface(surface[RENDER_SRF]);
 
 	EndTimer(0);
 	if (consoleDraw)
@@ -356,6 +357,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	InitEditor();
 
 	mdxSetUserWndProc(MainWndProc);
+	SPRITECLIPLEFT		=ROTSPRITECLIPLEFT	= clx0;
+	SPRITECLIPTOP		=ROTSPRITECLIPTOP	= cly0;
+	SPRITECLIPRIGHT		=ROTSPRITECLIPRIGHT	= clx1;
+	SPRITECLIPBOTTOM	=ROTSPRITECLIPBOTTOM = cly1;
 
 	RunWindowsLoop(&LoopFunc);
 
