@@ -161,6 +161,9 @@ BOOL LoadCollision(int num)
 		case SUBTERRANEANMASTER_COL:
 			strcat(file,"subboss");
 			break;
+		case SUBTERRANEANMASTERB_COL:
+			strcat(file,"subtest");		// <--- interesting, new, fragrant
+			break;
 		case SUBTERRANEANLEV1_COL:
 			strcat(file,"sub1");
 			break;
@@ -454,6 +457,9 @@ BOOL LoadScenics (int num)
 
 		case SUBTERRANEANMASTER_COL:
 			strcat(file,"subboss");
+			break;
+		case SUBTERRANEANMASTERB_COL:
+			strcat(file,"subtest");	//   <-- NOTE! Different, interesting.
 			break;
 		case SUBTERRANEANLEV1_COL:
 			strcat(file,"sub1");

@@ -251,6 +251,10 @@ BOOL LoadObjectBank(int num)
 			strcat (file, "subboss");
 			break;
 
+		case SUBTERRANEANBOSSB_OBJ_BANK:
+			strcat (file, "subtest");		// <----- NOTE! Interesting, different, new.
+			break;
+
 		case SUBTERRANEANLEV1_OBJ_BANK:
 			strcat (file, "sub1");
 			break;

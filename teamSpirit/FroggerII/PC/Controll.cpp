@@ -473,6 +473,8 @@ void ProcessUserInput(HWND hWnd)
 		vertClip/=1.2;
 	}
 
+	if (KEYPRESS(DIK_X))
+		ThrowFrogAtScreen(0);
 
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
