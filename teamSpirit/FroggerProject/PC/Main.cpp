@@ -30,6 +30,7 @@
 #include "babyfrog.h"
 #include "hud.h"
 #include "frontend.h"
+#include "menus.h"
 #include "textover.h"
 #include "multi.h"
 #include "layout.h"
@@ -86,6 +87,65 @@ unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
 
 long slideSpeeds[4] = {0,16,32,64};
+
+void GetArgs(char *arglist);
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetArgs
+	Purpose			: Process Cmd Line Args
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void GetArgs(char *arglist)
+{
+	char cmdMode;
+
+	do
+	{
+		if (*arglist=='+' || *arglist=='-' || *arglist=='/')
+		{
+			cmdMode = 1;
+			while (cmdMode)
+				switch(*(++arglist))
+				{
+					case 'C': case 'c':
+						swingCam = !swingCam;
+						utilPrintf("Swinging camera %s\n",swingCam?"enabled":"disabled");
+						break;
+
+					case 'R': case 'r':
+						rKeying = 1;
+						break;
+
+					case 'P': case 'p':
+						rPlaying = 1;
+						break;
+
+					case 'a': case 'A':
+						useAudio = !useAudio;
+						utilPrintf("Audio %s\n",useAudio?"enabled":"disabled");
+						break;
+
+					case 'D': case 'd':
+						playDemos = !playDemos;
+						utilPrintf("Demos %s\n",playDemos?"enabled":"disabled");
+						break;
+
+					case 'K': case 'k':
+						debugKeys = !debugKeys;
+						utilPrintf("Debug keys %s\n",debugKeys?"enabled":"disabled");
+						break;
+
+					case ' ':
+					case 0:
+						cmdMode = 0;
+						break;
+				}
+		}
+	} while ((*arglist)++);
+}
+
 
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
@@ -501,6 +561,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	if (!D3DInit())
 		return 3;
 
+	// Command line arguments
+	GetArgs(lpCmdLine);
+
+	// Setup the sound device
 	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
 
 	// Initialise the matrix stack

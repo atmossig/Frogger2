@@ -22,6 +22,7 @@
 
 #include "cam.h"
 #include "Main.h"
+#include "menus.h"
 #include "frogger.h"
 #include "language.h"
 #include "controll.h"
@@ -587,43 +588,44 @@ void ProcessUserInput()
 	if (!keysEnabled) return;
 
 
-#ifdef _DEBUG
-	if (KEYPRESS(DIK_NUMPAD7))
+	if( debugKeys )
 	{
-		farClip*=1.2;
-		horizClip*=1.2;
-		vertClip*=1.2;
+		if (KEYPRESS(DIK_NUMPAD7))
+		{
+			farClip*=1.2;
+			horizClip*=1.2;
+			vertClip*=1.2;
+		}
+
+		if (KEYPRESS(DIK_NUMPAD9))
+		{
+			farClip/=1.2;
+			horizClip/=1.2;
+			vertClip/=1.2;
+		}
+
+		if (KEYPRESS(DIK_F1))
+			camDist.vy+=(20*gameSpeed)>>12;
+
+		if (KEYPRESS(DIK_F2))
+			camDist.vy-=(20*gameSpeed)>>12;
+
+		if (KEYPRESS(DIK_F3))
+		{
+			if (KEYPRESS(DIK_LCONTROL))
+				camSideOfs+=20*gameSpeed;
+			else
+				camDist.vz+=(20*gameSpeed)>>12;
+		}
+
+		if (KEYPRESS(DIK_F4))
+		{
+			if (KEYPRESS(DIK_LCONTROL))
+				camSideOfs-=20*gameSpeed;
+			else
+				camDist.vz-=(20*gameSpeed)>>12;
+		}
 	}
-
-	if (KEYPRESS(DIK_NUMPAD9))
-	{
-		farClip/=1.2;
-		horizClip/=1.2;
-		vertClip/=1.2;
-	}
-
-	if (KEYPRESS(DIK_F1))
-		camDist.vy+=(20*gameSpeed)>>12;
-
-	if (KEYPRESS(DIK_F2))
-		camDist.vy-=(20*gameSpeed)>>12;
-
-	if (KEYPRESS(DIK_F3))
-	{
-		if (KEYPRESS(DIK_LCONTROL))
-			camSideOfs+=20*gameSpeed;
-		else
-			camDist.vz+=(20*gameSpeed)>>12;
-	}
-
-	if (KEYPRESS(DIK_F4))
-	{
-		if (KEYPRESS(DIK_LCONTROL))
-			camSideOfs-=20*gameSpeed;
-		else
-			camDist.vz-=(20*gameSpeed)>>12;
-	}
-#endif
 
 	if (rPlayOK)
 	{
