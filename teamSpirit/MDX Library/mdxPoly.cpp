@@ -625,10 +625,7 @@ void DrawSortedPolys (void)
 				}
 
 			
-				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,D3DDP_WAIT)!=D3D_OK)
-				{
-				}
-
+				pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,0);
 				
 				cur = cur->next;
 			}
@@ -677,9 +674,7 @@ void DrawSortedPolys (void)
 		
 				numSeperates++;
 				
-				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,(unsigned short *)sortFaces,numSortFaces,D3DDP_WAIT)!=D3D_OK)
-				{					
-				}							
+				pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,(unsigned short *)sortFaces,numSortFaces,0);
 			}
 		
 		}				
@@ -731,9 +726,7 @@ void DrawBatchedPolys (void)
 		
 		numSeperates++;
 				
-		while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0)!=D3D_OK)
-		{
-		}
+		pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0);
 
 		pDirect3DDevice->SetTexture(0,0);
 		
@@ -852,12 +845,17 @@ void DrawBatchedKeyedPolys (void)
 				
 		if (key)
 		{
-			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0)!=D3D_OK)
+			HRESULT res = pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0);
+
+/*			Beware the monkey
+
+			while(!=D3D_OK)
 			{
 				StartTimer(4,"DIP");
 				Sleep(10);
 				EndTimer(4);
 			}
+*/
 		}
 
 		pDirect3DDevice->SetTexture(0,0);
@@ -1332,7 +1330,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
-		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+		pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,0);
 
 		if (fogging)
 			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
@@ -1430,7 +1428,7 @@ void mdxPolyDrawTextureRect(RECT rc, D3DCOLOR colour, MDX_TEXENTRY *mdxTexture, 
 		
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE, FALSE);
 
-		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+		pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT);
 
 		if (fogging)
 			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
@@ -1569,7 +1567,7 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
-		while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+		pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT);
 
 		if (fogging)
 			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
@@ -1654,7 +1652,7 @@ void DrawTexturedRectRotated(float x, float y, float width, float height, D3DCOL
 	
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
-	while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+	pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT);
 			
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
@@ -1806,7 +1804,7 @@ void WriteHaloPoints(void)
 				verts[2].sx = haloPoints[i].vx+5;
 				verts[2].sy = haloPoints[i].vy+5;
 				verts[2].sz = haloPoints[i].vz * 0.00025;
-				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,verts,3,(unsigned short *)faces,3,D3DDP_WAIT)!=D3D_OK);
+				pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,verts,3,(unsigned short *)faces,3,0);
 			}			
 		}
 	}
