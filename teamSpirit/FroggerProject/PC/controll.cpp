@@ -131,7 +131,7 @@ KEYENTRY keymap[56] =
 	{ 1, PAD_CROSS, DIK_TAB },
 	{ 1, PAD_SQUARE, DIK_LSHIFT },
 	{ 1, PAD_START, 0 },
-	{ 1, PAD_CIRCLE, 0 },
+	{ 1, PAD_CIRCLE, DIK_Q },
 	{ 1, PAD_TRIANGLE, 0 },
 	{ 1, PAD_L2, 0 },
 	{ 1, PAD_R2, 0 },
