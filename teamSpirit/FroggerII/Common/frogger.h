@@ -108,7 +108,6 @@ typedef struct _PLAYER
 	unsigned char	hasDoubleJumped;
 	unsigned char	isSuperHopping;
 	unsigned char	isSinking;
-	unsigned char	isQuickHopping;
 
 	unsigned char	extendedHopDir;
 
@@ -117,6 +116,9 @@ typedef struct _PLAYER
 	TIMER			dead;
 	TIMER			isCroaking;
 	TIMER			isOnFire;
+	TIMER			autohop;
+	TIMER			longtongue;
+	TIMER			quickhop;
 
 	//	Parabolic curve variables
 	//	See frogmove.c for a longwinded and esoteric explanation

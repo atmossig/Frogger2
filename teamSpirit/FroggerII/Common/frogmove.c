@@ -94,10 +94,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	// Change frog's position to reflect that of the start tile
 	SetVector(&frog[p]->actor->pos,&startTile->centre);
 
-	autoHop			= 0;
-	longTongue		= 0;
-
-	//camFacing		= 0;
 	controlCamera	= 0;
 
 	InitActorAnim(frog[p]->actor);
@@ -117,6 +113,9 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	GTInit( &player[p].stun, 0 );
 	GTInit( &player[p].safe, 0 );
 	GTInit( &player[p].dead, 0 );
+	GTInit( &player[p].autohop, 0 );
+	GTInit( &player[p].longtongue, 0 );
+	GTInit( &player[p].quickhop, 0 );
 
 	// set frog action movement variables
 	ZeroVector(&frog[p]->actor->vel);
@@ -125,7 +124,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].frogState			= 0;
 	player[p].isSuperHopping	= 0;
 	player[p].isSinking			= 0;
-	player[p].isQuickHopping	= 0;
 	player[p].idleTime			= MAX_IDLE_TIME;
 	player[p].idleEnable		= 1;
 	player[p].heightJumped		= 0;
@@ -335,14 +333,16 @@ void UpdateFroggerPos(long pl)
 		//player[pl].canJump = 0;
 	}
 	
-	if( player[pl].isQuickHopping )
-		player[pl].isQuickHopping--;
-
-	/*	--------------------------------------------------------------------------------------------
-		Consider effects of special tile types
-	*/
-
-//	player[pl].frogState &= ~FROGSTATUS_ISSAFE;
+	if( player[pl].autohop.time )
+		GTUpdate( &player[pl].autohop, -1 );
+	if( player[pl].quickhop.time )
+		GTUpdate( &player[pl].quickhop, -1 );
+	if( player[pl].longtongue.time )
+	{
+		GTUpdate( &player[pl].longtongue, -1 );
+		if( !player[pl].longtongue.time )
+			tongue[pl].radius = TONGUE_RADIUSNORMAL;
+	}
 
 	// But first... platforms
 	if (currPlatform[pl])
@@ -833,7 +833,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		t = superHopFrames;
 		h = superhopHeight;
 	}
-	else if(player[pl].isQuickHopping)
+	else if(player[pl].quickhop.time)
 	{
 		t = quickHopFrames;
 		h = hopHeight;

@@ -119,6 +119,9 @@ void GameProcessController(long pl)
 	if(player[pl].isSuperHopping)
 		player[pl].canJump = 0;
 
+	if( player[pl].autohop.time )
+		lastbutton[pl] &= ~(CONT_UP | CONT_DOWN | CONT_LEFT | CONT_RIGHT);
+
 	if(player[pl].hasDoubleJumped)
 	{
 		if ((button[pl] & CONT_A) && (player[pl].jumpTime > 0.5f*player[pl].jumpMultiplier))

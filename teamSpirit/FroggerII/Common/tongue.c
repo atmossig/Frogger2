@@ -16,20 +16,6 @@
 #include "incs.h"
 
 
-#define	MAX_TONGUENODES				12
-#define TONGUE_FRACTION				(1/(float)MAX_TONGUENODES)
-
-#define TONGUE_RADIUSNORMAL			125.0F
-#define TONGUE_RADIUSLONG			225.0F
-
-#define TONGUE_STICKYRADIUS			5.0
-
-#define TONGUE_OFFSET_UP			-15.0
-#define TONGUE_OFFSET_FORWARD		5.0
-
-#define TONGUE_WRAPAROUNDTHRESHOLD	-0.2
-
-
 TONGUE tongue[MAX_FROGS];
 
 void StartTongue( unsigned char type, VECTOR *dest, int pl );
@@ -360,10 +346,10 @@ void UpdateFrogTongue( int pl )
 //			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
 		else if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
 		{
-			if( ((GARIB *)tongue[pl].thing)->type == SPAWN_GARIB )
-				StartTongue( TONGUE_GET_GARIB, &((GARIB *)tongue[pl].thing)->pos, pl );
-			else if( ((GARIB *)tongue[pl].thing)->type == EXTRAHEALTH_GARIB )
+			if( ((GARIB *)tongue[pl].thing)->type == EXTRAHEALTH_GARIB )
 				StartTongue( TONGUE_GET_HEALTH, &((GARIB *)tongue[pl].thing)->fx->act[0]->actor->pos, pl );
+			else
+				StartTongue( TONGUE_GET_GARIB, &((GARIB *)tongue[pl].thing)->pos, pl );
 		}
 		else if( tongue[pl].thing = (void *)ScenicIsInRange(tongue[pl].radius,pl) )
 			StartTongue( TONGUE_GET_SCENIC, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
@@ -548,10 +534,10 @@ GARIB *GaribIsInRange( float radius, int pl )
 	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
 	{
 		// only check for garibs in visual range
-		if( garib->type == SPAWN_GARIB )
-			dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->pos);
-		else if( garib->type == EXTRAHEALTH_GARIB )
+		if( garib->type == EXTRAHEALTH_GARIB )
 			dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->fx->act[0]->actor->pos);
+		else
+			dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->pos);
 
 		if( dist > (radius * radius) )
 			continue;

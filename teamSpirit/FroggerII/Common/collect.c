@@ -29,18 +29,15 @@ unsigned char garibListPos = 0;
 int reset = 0;
 
 //----- [ TEMPLATES FOR GARIB SPRITE ANIMATIONS ] -----//
-
 SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 {
 	{ &spriteFrameList[SPAWN_ANIM],0,SPRITE_ANIM_CYCLE_RANDOM,255,255,GARIB_SCALE,GARIB_SCALE,SPRITE_TRANSLUCENT },
 	{ &spriteFrameList[EXTRAHEALTH_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 	{ &spriteFrameList[EXTRALIFE_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 	{ &spriteFrameList[AUTOHOP_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[LONGHOP_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 	{ &spriteFrameList[LONGTONGUE_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[WHOLEKEY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[HALFLKEY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
-	{ &spriteFrameList[HALFRKEY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
+	{ &spriteFrameList[QUICKHOP_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
+	{ &spriteFrameList[INVULNERABILITY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 };
 
 
@@ -69,10 +66,11 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		if( garib == (GARIB *)tongue[pl].thing )
 			continue;
 
-		if( garib->type == SPAWN_GARIB )
-			check = &garib->pos;
-		else if( garib->type == EXTRAHEALTH_GARIB )
+		// Health garibs are buzzy flies
+		if( garib->type == EXTRAHEALTH_GARIB )
 			check = &garib->fx->act[0]->actor->pos;
+		else
+			check = &garib->pos;
 
 		if( DistanceBetweenPointsSquared( check, &frog[0]->actor->pos ) < PICKUP_RADIUS_SQUARED)
 		{
@@ -96,14 +94,8 @@ void ProcessCollectables()
 {
 	UpdateGaribs();
 	
-	// update state of powerups
-	if(autoHop)
-		autoHop--;
-	if(longTongue)
-		longTongue--;
-
 	// update players (for spawn counters / score bonus)
-	if(player[0].spawnTimer)
+	if(player[0].spawnTimer && gameState.multi == SINGLEPLAYER)
 	{
 		player[0].spawnTimer--;
 		if(!player[0].spawnTimer)
@@ -125,65 +117,64 @@ void PickupCollectable(GARIB *garib, int pl)
 	switch(garib->type)
 	{
 		case SPAWN_GARIB:
-			if(player[0].spawnTimer)
+			if(player[pl].spawnTimer)
 			{
 				VECTOR m;
 				// increase player score bonus
-				if(player[0].spawnScoreLevel < 5)
-					player[0].spawnScoreLevel++;
+				if(player[pl].spawnScoreLevel < 5)
+					player[pl].spawnScoreLevel++;
 
 				XfmPoint (&m,&garib->pos);
 			}
 
-			player[0].spawnTimer = SPAWN_SCOREUPTIMER;
+			player[pl].spawnTimer = SPAWN_SCOREUPTIMER;
 
-			CreateAndAddSpawnScoreSprite(&garib->pos,player[0].spawnScoreLevel);
+			CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
 
 			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->pos, &upVec, 25, 0.0, 0.0, 2.0 );
 
-			player[0].score += (player[0].spawnScoreLevel * 10);
-			player[0].numSpawn++;
+			player[pl].score += (player[pl].spawnScoreLevel * 10);
+			player[pl].numSpawn++;
 
-			if (player[0].numSpawn>100)
+			if (player[pl].numSpawn>100)
 			{
-				player[0].numSpawn = 0;
-				player[0].numCredits++;
+				player[pl].numSpawn = 0;
+				player[pl].numCredits++;
 			}
-			//PlaySample(0,&garib->pos,192,118 + (player[0].spawnScoreLevel * 10));
+			//PlaySample(0,&garib->pos,192,118 + (player[pl].spawnScoreLevel * 10));
 			break;
 
 		case EXTRAHEALTH_GARIB:
-			if( player[0].healthPoints < 3 )
-				player[0].healthPoints++;
+			if( player[pl].healthPoints < 3 )
+				player[pl].healthPoints++;
 
-			fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[0]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 );
 			SetFXColour( fx, 30, 240, 30 );
 			SubSpecFX( garib->fx );
 			break;
 
 		case EXTRALIFE_GARIB:
-			if( player[0].healthPoints < 3 )
-				player[0].healthPoints++;
+			if( player[pl].lives < 100 )
+				player[pl].lives++;
 			break;
 
 		case AUTOHOP_GARIB:
-			autoHop	= 150;
-			break;
-
-		case QUICKHOP_GARIB:
-			player[pl].isQuickHopping = 150;
+			GTInit( &player[pl].autohop, 10 );
 			break;
 
 		case LONGTONGUE_GARIB:
-			longTongue = 150;
+			GTInit( &player[pl].longtongue, 30 );
+			tongue[pl].radius = TONGUE_RADIUSLONG;
 			break;
-		case WHOLEKEY_GARIB:
-//			wholeKeyText->draw = 1;
-//			keyFound = 85;
+
+		case QUICKHOP_GARIB:
+			GTInit( &player[pl].quickhop, 10 );
 			break;
-		case HALFLKEY_GARIB:
-			break;
-		case HALFRKEY_GARIB:
+
+		case INVULNERABILITY_GARIB:
+			fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 10 );
+			fx->follow = frog[pl]->actor;
+			GTInit( &player[pl].safe, 10 );
 			break;
 	}
 
@@ -251,11 +242,8 @@ void SubGarib(GARIB *garib)
 	if(garib->next == NULL)
 		return;
 
-	if( garib->type == SPAWN_GARIB && garib->sprite )
+	if( garib->type != EXTRAHEALTH_GARIB && garib->sprite )
 		SubSprite( garib->sprite );
-	// Special effects get freed separately
-//	else if( garib->type == EXTRAHEALTH_GARIB && garib->fx )
-//		SubSpecFX( garib->fx );
 
 	garib->prev->next = garib->next;
 	garib->next->prev = garib->prev;
@@ -337,7 +325,17 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 //	garib->shadow.alpha		= 192;
 
 	
-	if(garib->type == SPAWN_GARIB)
+	if( garib->type == EXTRAHEALTH_GARIB )
+	{
+		SPECFX *fx;
+		garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 );
+		garib->fx->gravity = -0.5;
+
+		fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 );
+		fx->follow = garib->fx->act[0]->actor;
+		SetFXColour( fx, 0, 128, 255 );
+	}
+	else
 	{
 		// Initialise garib sprite
 		garib->sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "GSprite" );
@@ -353,7 +351,6 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite->flags |= SPRITE_FLAGS_ROTATE;
 		garib->sprite->angle = (rand()%16) / 10;
 		garib->sprite->angleInc = 0.05f;
-
 		
 #ifndef PC_VERSION
 		garib->sprite->offsetX = -garib->sprite->texture->sx / 2;
@@ -366,31 +363,6 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 #endif
 		if(garib->active)
 			AddSprite( garib->sprite, NULL );
-		garib->sprite->flags |= SPRITE_TRANSLUCENT;
-		garib->sprite->a = 200;
-	}
-	else if( garib->type == EXTRAHEALTH_GARIB )
-	{
-		SPECFX *fx;
-		garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 );
-		garib->fx->gravity = -0.5;
-
-		fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 );
-		fx->follow = garib->fx->act[0]->actor;
-		SetFXColour( fx, 0, 128, 255 );
-	}
-	else if(garib->type == WHOLEKEY_GARIB)
-	{
-		garib->sprite->flags |= SPRITE_TRANSLUCENT;
-		garib->sprite->a = 200;
-	}
-	else if(garib->type == HALFLKEY_GARIB)
-	{
-		garib->sprite->flags |= SPRITE_TRANSLUCENT;
-		garib->sprite->a = 200;
-	}
-	else if(garib->type == HALFRKEY_GARIB)
-	{
 		garib->sprite->flags |= SPRITE_TRANSLUCENT;
 		garib->sprite->a = 200;
 	}

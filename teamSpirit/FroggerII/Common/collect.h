@@ -68,28 +68,19 @@ typedef struct TAG_SCREENSPAWN
 
 enum
 {
-	SPAWN_GARIB,			//0
-	EXTRAHEALTH_GARIB,		//1
-	EXTRALIFE_GARIB,		//2
-	AUTOHOP_GARIB,			//3
-	LONGHOP_GARIB,			//4
-	LONGTONGUE_GARIB,		//5
-	WHOLEKEY_GARIB,			//6
-	HALFLKEY_GARIB,			//7
-	HALFRKEY_GARIB,			//8
-	QUICKHOP_GARIB,			//9
+	SPAWN_GARIB,
+	EXTRAHEALTH_GARIB,
+	EXTRALIFE_GARIB,
+	AUTOHOP_GARIB,
+	LONGTONGUE_GARIB,
+	QUICKHOP_GARIB,
+	INVULNERABILITY_GARIB,
 
 	NUM_GARIB_TYPES
 };
 
 
 // ----- [ GLOBAL VARIABLES ] --------------- //
-
-extern unsigned long autoHop;
-extern unsigned long longTongue;
-extern unsigned long superFrog;
-extern unsigned long croakFloat;
-
 
 extern SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES];
 

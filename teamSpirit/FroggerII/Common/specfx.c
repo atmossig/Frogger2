@@ -164,6 +164,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->sprites->scaleY = size;
 		SetVector( &effect->sprites->pos, &effect->origin );
 
+		InitSpriteAnimation( effect->sprites, &garibAnimation[INVULNERABILITY_GARIB], 0 );
 		AddSprite( effect->sprites, NULL );
 
 		effect->fade = effect->sprites->a / life;

@@ -241,11 +241,9 @@ FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS] =
 	{ NULL,0,0,"spa" },				// EXTRAHEALTH_ANIM		//1
 	{ NULL,0,0,"spa" },				// EXTRALIFE_ANIM		//2
 	{ NULL,0,0,"spa" },				// AUTOHOP_ANIM			//3
-	{ NULL,0,0,"spa" },				// LONGHOP_ANIM			//4
-	{ NULL,0,0,"spa" },				// LONGTONGUE_ANIM		//5
-	{ NULL,0,0,"wholekey" },		// WHOLEKEY_ANIM		//6
-	{ NULL,0,0,"halflkey" },		// WHOLEKEY_ANIM		//7
-	{ NULL,0,0,"halfrkey" },		// WHOLEKEY_ANIM		//8
+	{ NULL,0,0,"spa" },				// LONGTONGUE_ANIM		//4
+	{ NULL,0,0,"spa" },				// QUICKHOP_ANIM		//5
+	{ NULL,0,0,"spa" },				// INVULNERABILITY_ANIM	//6
 };
 
 
