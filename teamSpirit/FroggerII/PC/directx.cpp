@@ -1650,3 +1650,37 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *
 	res = to->BltFast(0,0,pSurface,NULL,0);
 	ddShowError(res);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: GrabScreenTextures
+	Purpose 	: Grab the screen from a surface into a series of square textures
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to)
+{
+	int i, j;
+	LPDIRECTDRAWSURFACE surface, *dds;
+	HRESULT res;
+	RECT rect;
+
+	dds = &to[0];
+
+	for (rect.top = 0, rect.bottom = 31; rect.bottom < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
+	{
+		for (rect.left = 0, rect.right = 31; rect.right < SCREEN_HEIGHT; rect.left += 32, rect.right += 32)
+		{
+			if (!*dds)
+				*dds = surface =  D3DCreateTexSurface(32,32,0xf81f, 0,0);
+			else
+				surface = *dds;
+
+			res = from->BltFast(0, 0, surface, &rect, DDBLTFAST_NOCOLORKEY);
+
+			dds++;
+		}
+	}
+}
