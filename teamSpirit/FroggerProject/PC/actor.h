@@ -57,7 +57,8 @@ typedef struct
 	SVECTOR					rotaim;
 	FVECTOR					size;
 	FVECTOR					vel;
-	ACTOR_ANIMATION animation;
+	ACTOR_ANIMATION			animation;
+	ACTOR_SHADOW			*shadow;
 
 	//bb
 	IQUATERNION qRot;
