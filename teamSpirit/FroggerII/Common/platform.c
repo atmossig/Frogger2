@@ -1003,7 +1003,11 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	}
 
 	// set platform position to relevant point on path
-	GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
+	if (platformFlags & PLATFORM_NEW_MOVEDOWN)
+		GetPositionForPathNodeOffset2(&platformStartPos,&path->nodes[pform->path->fromNode]);
+	else
+		GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
+
 	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
 	NormalToQuaternion(&pform->pltActor->actor->qRot,&path->nodes[pform->path->fromNode].worldTile->normal);
 
@@ -1114,7 +1118,11 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	// Stop overshoot when waiting on a path node
 	if (pform->isWaiting)
 	{
-		GetPositionForPathNode(&pformPos, &path->nodes[path->fromNode]);
+		if (pform->flags & PLATFORM_NEW_MOVEDOWN)
+			GetPositionForPathNodeOffset2(&pformPos, &path->nodes[path->fromNode]);
+		else
+			GetPositionForPathNode(&pformPos, &path->nodes[path->fromNode]);
+
 		SetVector(&pform->pltActor->actor->pos, &pformPos);
 	}
 
