@@ -1152,7 +1152,7 @@ void RunGameLoop (void)
 
 					levelIsOver		= 400;	
 
-					PlaySample ( GEN_TARGET_COM, 0, 0, 0 );
+					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
 
 				
 					/*for ( i = 0; i < 3; i++ )

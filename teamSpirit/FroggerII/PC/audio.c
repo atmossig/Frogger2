@@ -14,7 +14,8 @@
 
 #define MYDEBUG
 
-SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\sfx\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,
+SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\sfx\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,
+								"x:\\teamspirit\\pcversion\\sfx\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,
 								"x:\\teamspirit\\pcversion\\sfx\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,
 								"x:\\teamspirit\\pcversion\\sfx\\clocktock.wav",		2, 22050, 16, GEN_CLOCK_TOCK,
 								"x:\\teamspirit\\pcversion\\sfx\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,
