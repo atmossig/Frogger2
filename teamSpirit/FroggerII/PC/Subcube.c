@@ -250,7 +250,8 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	
 	if (numFaces)
 	{
-	
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 		DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
 	}
 

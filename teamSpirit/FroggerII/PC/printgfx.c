@@ -418,6 +418,9 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 	short f[6] = {0,1,2,0,2,3};
 	long i;
 
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+
 	tempVect[0].v[X] = pos->v[X]-size*sscale;
 	tempVect[0].v[Y] = pos->v[Y];
 	tempVect[0].v[Z] = pos->v[Z]-size*sscale;
@@ -479,6 +482,8 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vt
 
 		DrawAHardwarePoly(vT,4,f,6,tex);
 	}
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 }
 
 
@@ -721,10 +726,13 @@ void DrawFXRipples()
 	FX_RIPPLE *ripple,*ripple2;
 	TEXENTRY *tEntry;
 	long i;
+	float alpha;
 	D3DTLVERTEX vT[4];
 	VECTOR tempVect[4], m[4];
 	static short f[6] = {0,1,2,0,2,3};
 
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	
@@ -759,12 +767,14 @@ void DrawFXRipples()
 		if (m[2].v[Z])
 		if (m[3].v[Z])
 		{
+			alpha = (float)ripple->alpha/256.0;
+
 			vT[0].sx = m[0].v[X];
 			vT[0].sy = m[0].v[Y];
 			vT[0].sz = (m[0].v[Z]+DIST)/2000;
 			vT[0].tu = 1;
 			vT[0].tv = 0;
-			vT[0].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
+			vT[0].color = D3DRGBA(ripple->r,ripple->g,ripple->b,alpha);
 			vT[0].specular = D3DRGB(0,0,0);
 
 			vT[1].sx = m[1].v[X];
@@ -772,7 +782,7 @@ void DrawFXRipples()
 			vT[1].sz = (m[1].v[Z]+DIST)/2000;
 			vT[1].tu = 0;
 			vT[1].tv = 0;
-			vT[1].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
+			vT[1].color = D3DRGBA(ripple->r,ripple->g,ripple->b,alpha);
 			vT[1].specular = D3DRGB(0,0,0);
 
 			vT[2].sx = m[2].v[X];
@@ -780,22 +790,24 @@ void DrawFXRipples()
 			vT[2].sz = (m[2].v[Z]+DIST)/2000;
 			vT[2].tu = 0;
 			vT[2].tv = 1;
-			vT[2].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
-			vT[2].specular = 0;
+			vT[2].color = D3DRGBA(ripple->r,ripple->g,ripple->b,alpha);
 			vT[2].specular = D3DRGB(0,0,0);
 
-			
 			vT[3].sx = m[3].v[X];
 			vT[3].sy = m[3].v[Y];
 			vT[3].sz = (m[3].v[Z]+DIST)/2000;
 			vT[3].tu = 1;
 			vT[3].tv = 1;
-			vT[3].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
-			vT[3].specular = 0;
+			vT[3].color = D3DRGBA(ripple->r,ripple->g,ripple->b,alpha);
 			vT[3].specular = D3DRGB(0,0,0);
 
 			tEntry = ((TEXENTRY *)ripple->txtr);
 			DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
 		}
 	}
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 }

@@ -1035,8 +1035,8 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 		lastH = h;
 	}
 	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
+	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
+	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
 	
 	if (pDirect3DDevice->DrawIndexedPrimitive(
