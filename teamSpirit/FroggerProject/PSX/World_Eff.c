@@ -9,6 +9,7 @@
 #include "maths.h"
 #include "layout.h"
 #include "frontend.h"
+#include "sprite.h"
 
 #include "World_Eff.h"
 
@@ -48,7 +49,6 @@
 long slideSpeeds[] = {0, 1, 2, 4};
 
 SVECTOR jiggledVerts[250];
-
 
 SCENICOBJLIST scenicObjList;
 
@@ -478,10 +478,155 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 }
 
 
+// For space - NOT a bitmap!
+void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
+{
+	register u_long t1 asm("$16");
+	register u_long t2 asm("$20");
 
+	register PACKET * packet asm("$17");
 
+	register char *opcd asm("$18");
 
+	long *tfv;
+	long *tfd;
 
+	#define GETX(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->x )
+	#define GETY(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->y )
+	#define GETV(n)(  *(u_long *)( (int)(tfv) +(n) ) )
+	#define GETD(n)(  *(u_long *)( (int)(tfd) +(n) ) )
 
+	register long depth asm("$16");
 
+	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth, min_depth = MIN_MAP_DEPTH, max_depth = fog.max>>2;
 
+	int i, j;
+
+	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = (void *)(0x1f800000 + 512);
+	}
+	else if(mesh->n_verts <= 255)	// Not 256. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = transformedDepths;
+	}
+	else
+	{
+		tfv = transformedVertices;
+		tfd = transformedDepths;
+	}
+
+	if( max_depth > 1024 - mesh->extra_depth )
+		max_depth = 1024 - mesh->extra_depth;
+
+	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
+
+#define si ((POLY_GT4*)packet)
+#define op ((FMA_GT4 *)opcd)
+
+	op = mesh->gt4s;
+	packet = (PACKET *)currentDisplayPage->primPtr;
+	polyCount += mesh->n_gt4s;
+
+	for( i = mesh->n_gt4s; i != 0; i--, op++ )
+	{
+		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
+	   	gte_avsz4();
+		gte_stotz_cpu ( depth );
+
+		if( depth > max_depth )
+			depth = max_depth-1;
+
+		if( depth > min_depth )
+		{
+			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
+			{
+				continue;
+			}
+
+			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
+
+			addPrimLen ( ot + ( depth + mesh->shift), si, 12, t2 );
+
+			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
+			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
+
+			
+			gte_stsxy3_gt4(si);
+								
+			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
+			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
+			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+			*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+
+			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
+
+			si->code	= op->code | ( op->pad2 & 2 );
+			si->tpage = op->tpage | ( op->pad2 & 96 );
+			if( globalClut ) si->clut = globalClut;
+
+			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
+		}
+	}
+#undef op
+#undef si
+
+#define si ((POLY_GT3*)packet)
+#define op ((FMA_GT3 *)opcd)
+
+	op = mesh->gt3s;
+
+	polyCount += mesh->n_gt3s;
+
+	for ( i = mesh->n_gt3s; i != 0; i--, op++ )
+	{
+		gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
+	   	gte_avsz3();
+		gte_stotz_cpu ( depth );
+
+		if( depth > max_depth )
+			depth = max_depth-1;
+
+		if ( depth > min_depth )
+		{
+			if(
+			((GETV(op->vert0) & 0xff80ff00) + 0x00800100)
+			&
+			((GETV(op->vert1) & 0xff80ff00) + 0x00800100)
+			&
+			((GETV(op->vert2) & 0xff80ff00) + 0x00800100)
+			& 0x01000200
+			)
+			continue;
+
+			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
+			addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
+
+			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);
+			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
+
+			gte_stsxy3_gt3(si);
+			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
+
+			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
+			si->code	= op->code | ( op->pad2 & 2 );
+			si->tpage = op->tpage | ( op->pad2 & 96 );
+
+			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
+		}
+	}
+#undef op
+#undef si
+
+	currentDisplayPage->primPtr = (char *)packet;
+}
