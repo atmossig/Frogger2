@@ -22,6 +22,9 @@
 #include <libcrypt.h>
 #endif
 
+
+#define DECRYPTION 0
+
 int numStakFiles = 0;
 
 STAKFILE stakFiles [ NUM_STAKFILES ] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
@@ -295,6 +298,7 @@ void LoadStakFile ( int stakBank )
 
 	stakFiles [ numStakFiles++ ].stakFile = (char*)fileLoad ( file, &fileLength);
 #ifdef PSX_VERSION
+#if DECRYPTION==1
 #if GOLDCD==1
 	if(stakBank == FRONTEND1_STAK)
 	{
@@ -310,6 +314,7 @@ void LoadStakFile ( int stakBank )
 		}
 	}
 */
+#endif
 #endif
 #endif
 }
