@@ -1031,7 +1031,6 @@ void DrawGraphics(void *arg)
 		{
 			case NN_SC_GFX_RETRACE_MSG:
 				
-		
 				ClearTimers();
 
 				if(gfxTasks == 0)
@@ -1152,6 +1151,9 @@ void DrawGraphics(void *arg)
 
 					ClearViewing();
 
+					if(drawScreenGrab)
+						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE );
+
 					if(testPause)
 						DrawPauseFX();
 
@@ -1195,13 +1197,18 @@ void DrawGraphics(void *arg)
 
 				EndTimer(1);
 
-			
-
-
 				break;
 
 			case NN_SC_DONE_MSG:
 				gfxTasks--;
+				if (!gfxTasks)
+				{
+					StartTimer(3,"GRABB");
+					if(gameState.mode == GAME_MODE && grabFlag )
+						Screen2Texture( );
+					EndTimer(3);
+				}
+
 				break;
 		}
 	}

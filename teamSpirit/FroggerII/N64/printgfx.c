@@ -162,6 +162,7 @@ Gfx croakRing_dl[] =
 	gsSPClearGeometryMode(G_CULL_BOTH | G_FOG),
 	gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH),
 	gsSPSetGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
+
 	gsDPSetCombineMode(G_CC_MODULATERGBA,G_CC_MODULATERGBA),
 	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF,G_RM_AA_ZB_XLU_SURF2),
 	gsDPSetCycleType(G_CYC_1CYCLE),
@@ -176,10 +177,46 @@ Gfx croakRing_dl[] =
 	gsSPEndDisplayList()
 };
 
+//#define G_CC_FUNNY TEXEL0,0,SHADE,0,TEXEL0,0,SHADE,0
+
+#define G_CC_MOTIONBLUR TEXEL0,ENVIRONMENT,PRIMITIVE,SHADE,  TEXEL0,0,SHADE,0
+
+// For polygons that overlay the screen
+Gfx polyNoZ_dl[] =
+{
+	gsDPPipeSync(),
+	gsSPClearGeometryMode( G_ZBUFFER | G_CULL_BOTH | G_FOG ),
+	gsSPSetGeometryMode( G_SHADE | G_SHADING_SMOOTH ),
+	gsSPSetGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
+	
+	gsDPSetCombineMode(G_CC_MOTIONBLUR,G_CC_MOTIONBLUR),
+
+	gsDPSetRenderMode(G_RM_AA_XLU_SURF,G_RM_AA_XLU_SURF2),
+	gsDPSetCycleType(G_CYC_1CYCLE),
+
+	gsSPTexture(0xffff,0xffff,0,G_TX_RENDERTILE,G_ON),
+
+    gsDPPipelineMode(G_PM_NPRIMITIVE),
+	gsDPSetColorDither(G_CD_DISABLE),
+	gsDPSetTexturePersp(G_TP_PERSP),
+	gsDPSetTextureLOD(G_TL_TILE),
+	gsDPSetTextureFilter(G_TF_POINT),
+	gsDPSetTextureConvert(G_TC_FILT),
+	gsDPSetTextureLUT(G_TT_NONE),
+	gsSPEndDisplayList()
+};
 
 Vtx verts[32];
+Vtx *fsVerts = NULL;
 Vtx *vPtr = NULL;
 
+unsigned short *grab = NULL;
+unsigned short *scrTexGrab = NULL;
+
+GRABSTRUCT grabData;
+
+short drawScreenGrab = 0;
+short grabFlag = 1;
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrop
@@ -345,7 +382,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintSpriteOverlays
-	Purpose			: draws overlays - icons, etc....
+	Purpose		.	: draws overlays - icons, etc....
 	Parameters		: none
 	Returns			: void
 	Info			:
@@ -1115,92 +1152,171 @@ void PrintSprite(SPRITE *sprite)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: DrawScreenGrab
+	Purpose			: Draws the texture array made in Screen2Texture
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void DrawScreenGrab( long flags )
+{
+	QUATERNION q;
+	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
+	long x, y, xTex, v, x1, y1, x2, y2;
+
+	if( !fsVerts )
+	{
+		grabData.flags = flags;
+		fsVerts = (Vtx *)JallocAlloc( sizeof(Vtx)*320, NO, "Vtx Array" );
+		vPtr = &fsVerts[0];
+		grab = scrTexGrab;
+
+		grabData.flags |= CALC_VTX;
+
+		if( grabData.flags & MOTION_BLUR )
+		{
+			grabData.tSize = 36;
+			grabData.xOff = 35;
+			grabData.yOff = 45;
+			grabData.zOff = 316;
+			grabData.alpha = 128;
+			grabData.vR = grabData.vG = grabData.vB = 0xff;
+			grabData.pR = grabData.pG = grabData.pB = 0xff;
+			grabData.eR = grabData.eG = grabData.eB = 0xff;
+		}
+		if( grabData.flags & VERTEX_WODGE )
+		{
+			grabData.sinAmt = 3;
+			grabData.sinSpeed = 0.2;
+
+			grabData.flags |= DYNAMIC_VTX;
+		}
+	}
+
+	// Recalc vertices every frame
+	if( grabData.flags & CALC_VTX )
+	{
+		for (y=0; y<8; y++)
+			for (x=0; x<10; x++)
+			{
+				v = (x+(y*10))*4;
+				
+				x1 = ((5-x)*grabData.tSize)-grabData.xOff;
+				y1 = ((4-y)*grabData.tSize)-grabData.yOff;
+
+				x2 = ((6-x)*grabData.tSize)-grabData.xOff;
+				y2 = ((5-y)*grabData.tSize)-grabData.yOff;
+
+				if( grabData.flags & VERTEX_WODGE )
+				{
+					if (x!=0)
+						x1+=sinf((x1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
+					if (x!=9)
+						x2+=sinf((x2+frameCount*grabData.sinSpeed))*grabData.sinAmt;
+					if (y!=0)
+						y1+=sinf((y1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
+					if (y!=7)
+						y2+=sinf((y2+frameCount*grabData.sinSpeed))*grabData.sinAmt;
+				}
+
+				V((&vPtr[v+0]),x1,grabData.zOff,y1,0,1024,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+1]),x2,grabData.zOff,y1,0,0   ,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+2]),x2,grabData.zOff,y2,0,0   ,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+3]),x1,grabData.zOff,y2,0,1024,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+			}
+
+		if( !(grabData.flags & DYNAMIC_VTX) )
+			grabData.flags &= ~CALC_VTX;
+	}
+	
+	gDPLoadSync(glistp++);
+	gDPPipeSync(glistp++);
+
+	gSPDisplayList(glistp++,polyNoZ_dl);
+	
+	gDPSetPrimColor(glistp++,0,0,grabData.pR,grabData.pG,grabData.pB,255);
+	gDPSetEnvColor(glistp++,grabData.eR,grabData.eG,grabData.eB,255);
+
+	gDPLoadSync(glistp++);
+	gDPPipeSync(glistp++);
+
+	// draw screen-aligned quad
+	NormalToQuaternion(&q,&inVec);
+	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
+
+	guTranslateF(transMtx,-0.5,-0.5,10);
+	guMtxCatF(rotMtx,transMtx,tempMtx);
+
+	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+	for( x=0,xTex=0; x<320; x+=4,xTex+=1024 )
+	{
+		gDPLoadSync(glistp++);
+
+		gDPLoadTextureBlock(glistp++,&grab[xTex],G_IM_FMT_RGBA,G_IM_SIZ_16b,32,32,0,G_TX_WRAP,G_TX_WRAP,G_TX_NOMASK,G_TX_NOMASK,G_TX_NOLOD,G_TX_NOLOD);
+
+		gSPVertex(glistp++,&vPtr[x],4,0);
+		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+	}
+
+	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
+
+	gDPPipeSync(glistp++);
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: Screen2Texture
 	Purpose			: Grabs primary frame buffer into a 2D array of 32x32 textures
 	Parameters		: 
-	Returns			: Pointer to the created array of textures
+	Returns			: 
 	Info			:	10240 is the number of pixels for one row of 32x32 textures.
 						81920 is the number of pixels in the whole screen, including the unused
 						half a row at the bottom.
 */
-//#define DUMP_FILE 1  // Uncomment this to write a bmp file of the texture array
-
-short *Screen2Texture( )
+void Screen2Texture( )
 {
-	u16 *screen = cfb_16_a;
-	unsigned short *grab;
-	int xTex = 0, yTex = 0, tStep = 0, x = 0, y = 81919;
-	
-	// Write standard bmp header for this image size
-	#ifdef DUMP_FILE
-	int file;
-	char header[] ={0x42,0x4D,0x36,0xC0,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
-					0x00,0x00,0x20,0x00,0x00,0x00,0x00,0x0A,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
-					0x00,0x00,0x00,0xC0,0x03,0x00,0x12,0x0B,0x00,0x00,0x12,0x0B,0x00,0x00,0x00,0x00,
-					0x00,0x00,0x00,0x00,0x00,0x00};
-	char *writeData;
-	#endif
+	u16 *screen = cfb_ptrs[draw_buffer];
+	static unsigned short *grab = NULL;
+	unsigned long xTex = 0, yTex = 0, tStep = 0, x = 0, yPos = 0;
+	long y = 76800;
 
-	//StopDrawing( "TGrab" );
-	dontClearScreen = TRUE;
-
-	#ifdef DUMP_FILE
-	file = PCcreat( "d:\\FroggerDump.bmp", 0);
-	if(file == -1)
+	// Initialise grab buffer first time through
+	if( !scrTexGrab )
 	{
-		StartDrawing( "TGrab" );
-		dprintf"FILEERROR:could not open file:\n"));
-		return;
+		grab = scrTexGrab = (unsigned short *)JallocAlloc(163840,NO,"TGrab"); //sizeof(short)*81920
+
+		// Because the screen ends halfway down a row of textures, fill up the rest with blanks
+		for( yTex=81919; yTex>71360; yTex-- )
+			grab[yTex] = 0;
+
+		yTex = 0;
+		drawScreenGrab = 1;
 	}
-	PCwrite(file, header, sizeof(header));
-	#endif
-
-	grab = (unsigned short *)JallocAlloc(16384,NO,"TGrab"); //sizeof(short)*81920
-
-	// Because the screen ends halfway down a row of textures, fill up the rest with blanks
-	for( ; y > 76480; y-- )
-		grab[y] = 0;
 
 	while( y >= 0 )
 	{
 		while( x < SCREEN_WD )
 		{
-			memcpy( &grab[tStep+xTex+yTex], &screen[x+y], 64 ); // 32 * sizeof(short)
+			lmemcpy( &grab[xTex+yPos], &screen[x+y], 16 );
 			x += 32;
 			xTex += 1024;
 		}
 
 		y -= SCREEN_WD;
 		tStep += 32;
-		x = 0;
-		xTex = 0;
+		x = xTex = 0;
 
 		if( tStep >= 1024 )
 		{
 			tStep = 0;
 			yTex += 10240;
 		}
+
+		yPos = yTex + tStep;
 	}
-
-	#ifdef DUMP_FILE
-	writeData = (char *)JallocAlloc(3072,NO,"Image Line"); //sizeof(char)*3072
-	for( y=0; y<81920; y+=1024 )
-	{
-		for( x=0,xTex=0; x<1024; x++,xTex+=3 )
-		{
-			writeData[xTex] = (char)((grab[x+y]>>1)<<3)&0xFF;
-			writeData[xTex+1] = (char)((grab[x+y]>>6)<<3)&0xFF;
-			writeData[xTex+2] = (char)((grab[x+y]>>11)<<3)&0xFF;
-		}
-		PCwrite( file, writeData, 3072 );
-	}
-	PCclose( file );
-	#endif
-
-	dontClearScreen = FALSE;
-	//StartDrawing( "TGrab" );
-
-	return grab;
 }
 
 /*	--------------------------------------------------------------------------------

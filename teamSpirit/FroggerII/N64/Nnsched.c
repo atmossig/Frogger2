@@ -389,7 +389,8 @@ void nnScExecuteGraphics(NNSched *sc)
 
 	osRecvMesg(&sc->rdpMQ, &msg, OS_MESG_BLOCK);
 	EndTimer(9);
-	
+
+
 //	StartTimer(7,"MODGE");
 //	UpdateClouds ();
 //	EndTimer(7);

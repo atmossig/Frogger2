@@ -67,9 +67,31 @@
 #define G_CC_DECALI_MODULATEA_PRIM    TEXEL0, 0, 1, SHADE, TEXEL0, 0, PRIMITIVE, 0
 
 
+#define CALC_VTX		(1<<0)
+#define DYNAMIC_VTX		(1<<1)
+#define MOTION_BLUR		(1<<2)
+#define VERTEX_WODGE	(1<<3)
+
+typedef struct TAGGRABSTRUCT
+{
+	long tSize, xOff, yOff, zOff;
+	char vR, vG, vB,
+		pR, pG, pB,
+		eR, eG, eB,
+		alpha;
+	long flags;
+	float sinAmt;
+	float sinSpeed;
+
+} GRABSTRUCT;
+
 extern Vtx shadowVtx[4];
 extern Sprite template_sprite;
 
+extern short drawScreenGrab;
+extern short grabFlag;
+
+extern GRABSTRUCT grabData;
 
 extern Gfx rspInitForSprites_dl[];
 extern Gfx rdpInitForSprites_dl[];
@@ -98,5 +120,7 @@ extern void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int sc
 extern void PrintSprite(SPRITE *sprite);
 
 extern void ScreenShot();
+extern void Screen2Texture();
+extern void DrawScreenGrab();
 
 #endif
