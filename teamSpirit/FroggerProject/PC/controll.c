@@ -10,32 +10,27 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
-#include <windowsx.h>
-#include <wtypes.h>
-#include <crtdbg.h>
-#include <commctrl.h>
-#include <cguid.h>
-#include <dplay.h>
-#include <dplobby.h>
-#include "network.h"
-#include "netgame.h"
-
-extern "C"
-{
-#include <ultra64.h>
-#include "stdio.h"
-#include "incs.h"
-}	// extern "C" end
-
+#include <stdio.h>
 #include <fstream.h>
-
 #include "..\resource.h"
+
+#include <math.h>
+
+extern "C" {
+
+#include "Main.h"
+#include "islutil.h"
+#include "frogger.h"
+#include "controll.h"
+#include "language.h"
+
+}
 
 /*	------------------------------------------------------------------------
 	Global stuff
 */
 
-OSContPad controllerdata[4];
+//OSContPad controllerdata[4];
 BYTE keyTable[256];
 
 
@@ -414,7 +409,7 @@ BOOL CALLBACK EnumJoypadProc(LPCDIDEVICEINSTANCE dev, LPVOID foundDev)
 {
 	LPCDIDEVICEINSTANCE found;
 
-	dprintf"Found device: %s\n", dev->tszInstanceName));
+	utilPrintf("Found device: %s\n", dev->tszInstanceName);
 
 	found = ((LPCDIDEVICEINSTANCE)foundDev) + numJoypads;
 
@@ -457,7 +452,7 @@ BOOL InitJoystickControl()
 		hRes = lpJoy1->QueryInterface( IID_IDirectInputDevice2,(LPVOID *)&lpJoy);
 		if (FAILED(hRes))
 		{
-			dprintf"Error retrieving DirectInputDevice2 interface\n"));
+			utilPrintf("Error retrieving DirectInputDevice2 interface\n");
 			return FALSE;
 		}
 
@@ -466,7 +461,7 @@ BOOL InitJoystickControl()
 		hRes = lpJoy->SetDataFormat(&c_dfDIJoystick);
 		if(FAILED(hRes))
 		{
-			dprintf"Error setting data format\n"));
+			utilPrintf("Error setting data format\n");
 			return FALSE;
 		}
 
@@ -554,7 +549,7 @@ TIMER idletimer;
 void ProcessUserInput(HWND hWnd)
 {
 	HRESULT hRes;
-	long i,j;
+	long i;
 	int pressed = 0;
 	
 	if (keyInput)
@@ -581,25 +576,6 @@ void ProcessUserInput(HWND hWnd)
 	controllerdata[3].button = 0;
 
 	if (!keysEnabled) return;
-
-#ifdef _DEBUG
-	if (KEYPRESS(DIK_NUMPAD7))
-	{
-		farClip*=1.2;
-		horizClip*=1.2;
-		vertClip*=1.2;
-	}
-
-	if (KEYPRESS(DIK_NUMPAD9))
-	{
-		farClip/=1.2;
-		horizClip/=1.2;
-		vertClip/=1.2;
-	}
-
-	if (KEYPRESS(DIK_Z))
-		ShowJalloc();
-#endif
 
 	if (rPlayOK)
 	{
@@ -634,12 +610,12 @@ void ProcessUserInput(HWND hWnd)
 				lpJoy->Acquire();
 
 				hRes = lpJoy->Poll();
-				if (hRes == DD_OK || hRes == DI_NOEFFECT)
+				if (hRes == DI_OK || hRes == DI_NOEFFECT)
 				{
 					hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
 					if (FAILED(hRes))
 					{
-						dprintf"GetDeviceState() failed\n"));
+						utilPrintf("GetDeviceState() failed\n");
 						return;
 					}
 
@@ -856,9 +832,7 @@ int SetupKeyboardDialog(int player, HWND hParent)
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
 	long i;
-	HRESULT hRes;
 	char itmTxt[64];
-	MSG pMsg;
 	HWND list;
 	static DWORD keyIndex = 0;
 	static long kMapSet = 0;
