@@ -195,7 +195,7 @@ void EditorCreateEntities(void)
 				v = create->camera;
 				ScaleVector(&v, 10);
 				SSetVector(&camv, &v);
-				c = CreateAndAddTransCamera((GAMETILE*)cam->thing, create->flags >> 16, &camv, create->flags & 0xFFFF);
+				c = CreateAndAddTransCamera((GAMETILE*)cam->thing, (unsigned char)(create->flags >> 16), &camv, (unsigned char)(create->flags & 0xFF));
 
 				c->FOV = GAMEFLOAT(create->scale);
 				c->speed = GAMEFLOAT(create->animSpeed);
