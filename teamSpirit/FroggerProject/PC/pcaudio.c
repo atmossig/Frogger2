@@ -923,8 +923,12 @@ int InitCDaudio()
 
 int ShutdownCDaudio()
 {
-	StopSong( );
-	SetCDVolume(auxVolume);
+	if( mciDevice )
+	{
+		StopSong( );
+		SetCDVolume(auxVolume);
+	}
+
 	return 0;
 }
 
