@@ -78,7 +78,7 @@ void DrawActorList();
 void FreeActorList();
 
 void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags);
-void RemoveObjectSprites(OBJECT *obj,BOOL free);
+//void RemoveObjectSprites(OBJECT *obj,BOOL free);
 void FreeObjectSprites(OBJECT *obj);
 
 void MakeUniqueActor(ACTOR *actor,int type);
@@ -91,7 +91,6 @@ void RemoveUniqueObject(OBJECT *object);
 void ResetUniqueActorList();
 
 void ActorLookAt( ACTOR *act, VECTOR *at, long flags );
-void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);
-void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing);
+void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *up);
 
 #endif

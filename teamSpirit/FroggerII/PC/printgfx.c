@@ -160,20 +160,14 @@ char IsPointVisible(VECTOR *p)
 	Info			: 
 */
 
-SPRITE *PrintSpritesOpaque()
+SPRITE *PrintSprites()
 {
 	int i;
-	SPRITE *cur,*next;
+	SPRITE *cur;
 	
-	spriteList.lastTexture = NULL;
-	spriteList.xluMode = NO;
-
 	// transform sprites to screen coords ready for sorting
-	for(cur = spriteList.head.next; (cur != &spriteList.head); cur = next)
-	{
-		next = cur->next;
+	for(cur = sprList.head.next; cur != &sprList.head && numSortArraySprites < MAX_ARRAY_SPRITES; cur = cur->next)
 		XfmPoint(&cur->sc,&cur->pos);
-	}
 
 	ZSortSpriteList();
 

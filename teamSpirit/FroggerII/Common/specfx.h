@@ -113,7 +113,7 @@ typedef struct TAGSPECFX
 
 	unsigned char r, g, b, a;
 
-	SPRITE *sprites;
+	struct TAGSPRITE *sprites;
 
 	TEXTURE *tex;
 	ACTOR *follow;								// Go where it goes

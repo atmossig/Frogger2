@@ -540,9 +540,9 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID)
 void InitGameLists()
 {
 	// initialise the various lists
-	InitSpriteArray(MAX_ARRAY_SPRITES);
+	InitSpriteList( );
 	InitSpriteSortArray(MAX_ARRAY_SPRITES);
-	InitSpriteFrameLists();
+	//InitSpriteFrameLists();
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
 	InitSpecFXList();
@@ -587,7 +587,6 @@ void FreeAllGameLists()
 	FreeTongues();
 
 	// Entities and collision
-
 	FreeGaribLinkedList();
 	FreeEnemyLinkedList();
 	FreePlatformLinkedList();
@@ -596,20 +595,13 @@ void FreeAllGameLists()
 	FreeCharacterList();
 
 	// Graphics-related
-
 	FreeSpecFXList( );
-	FreeSpriteFrameLists();
 	Free3DTextList();
 	FreeTextOverlayLinkedList();
 	FreeSpriteOverlayLinkedList();
-	FreeSpriteLinkedList();
-
-	FreeSpriteSortArray();
-	FreeSpriteArray();
 
 	InitTextOverlayLinkedList();
 	InitSpriteOverlayLinkedList();
-	InitSpriteLinkedList();
 
 	dprintf"-->\n"));
 }
@@ -636,7 +628,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	// load the system and in-game generic texture banks
 	LoadTextureBank(SYSTEM_TEX_BANK);
-//	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
 	// load relevant collison, texture and object banks
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
@@ -815,12 +806,10 @@ void FreeAllLists()
 	FreeAllGameLists();
 	
 	FreeMapBank();
-	FreeAnimationList();
 	FreeProcTextures( );
 #ifdef PC_VERSION
 	FreeRandomPolyList( );
 #endif
-	FreeTextureList();
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();
 #ifndef PC_VERSION
@@ -829,6 +818,8 @@ void FreeAllLists()
 #endif
 
 	FreeActorList();
+	FreeSpriteSortArray();
+	FreeSpriteList();
 
 #ifndef PC_VERSION
 	// global ptrs

@@ -29,7 +29,7 @@ unsigned char garibListPos = 0;
 int reset = 0;
 
 //----- [ TEMPLATES FOR GARIB SPRITE ANIMATIONS ] -----//
-SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
+/*SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 {
 	{ &spriteFrameList[SPAWN_ANIM],0,SPRITE_ANIM_CYCLE_RANDOM,255,255,GARIB_SCALE,GARIB_SCALE,SPRITE_TRANSLUCENT },
 	{ &spriteFrameList[EXTRAHEALTH_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
@@ -39,7 +39,7 @@ SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 	{ &spriteFrameList[QUICKHOP_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 	{ &spriteFrameList[INVULNERABILITY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 };
-
+*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: CheckTileForCollectable
@@ -141,7 +141,7 @@ void PickupCollectable(GARIB *garib, int pl)
 
 				player[pl].spawnTimer = SPAWN_SCOREUPTIMER;
 
-				CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
+//				CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
 
 				if(player[pl].spawnScoreLevel == 5)
 				{
@@ -290,10 +290,7 @@ void SubGarib(GARIB *garib)
 		return;
 
 	if( garib->type != EXTRAHEALTH_GARIB && garib->sprite )
-	{
-		SubSprite( garib->sprite );
-		JallocFree( (UBYTE **)&garib->sprite );
-	}
+		DeallocateSprites( garib->sprite, 1 );
 
 	garib->prev->next = garib->next;
 	garib->next->prev = garib->prev;
@@ -389,9 +386,10 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	else
 	{
 		// initialise garib sprite
-		garib->sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"garspr");
+		garib->sprite = AllocateSprites(1);//(SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"garspr");
 		SetVector(&garib->sprite->pos,&pos);
-		InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
+		//InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
+		FindTexture( &garib->sprite->texture, UpdateCRC("coin0001.bmp"), NO );
 		garib->sprite->r = 255;
 		garib->sprite->g = 255;
 		garib->sprite->b = 255;
@@ -412,8 +410,8 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite->offsetY = -16;
 		garib->sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 #endif
-		if(garib->active)
-			AddSprite(garib->sprite,NULL);
+//		if(garib->active)
+//			AddSprite(garib->sprite,NULL);
 		garib->sprite->flags |= SPRITE_TRANSLUCENT;
 		garib->sprite->a = 200;
 	}
@@ -485,14 +483,15 @@ void UpdateGaribs()
 void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 {
 	char bmpBuff[16];
-	SPRITE *sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"SPRITE");
+
+	SPRITE *sprite = AllocateSprites(1);//(SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"SPRITE");
 
 	SetVector(&sprite->pos,pos);
 
 	sprite->scaleX		= 16;
 	sprite->scaleY		= 16;
 
-	sprite->anim.type	= SPRITE_ANIM_SPAWNSCORE;
+//	sprite->anim.type	= SPRITE_ANIM_SPAWNSCORE;
 
 	sprite->r			= 255;
 	sprite->g			= 255;
@@ -510,7 +509,7 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 	sprite->offsetX = -16;
 	sprite->offsetY = -16;
 
-	AddSprite(sprite,NULL);
+//	AddSprite(sprite,NULL);
 }
 
 void DropGaribToTile(GARIB *garib, GAMETILE *tile, float dropSpeed)

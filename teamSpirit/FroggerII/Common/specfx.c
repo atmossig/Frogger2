@@ -19,15 +19,6 @@ char pauseMode		= 0;
 
 #define NUM_TRAIL_ELEMENTS 32
 
-// Defines and data for the static sprite list
-#define MAX_FXSPRITES	512
-SPRITE *fxSpriteList = NULL;
-short fxsCount=0;
-
-// Defines and data for the sprite allocation stack
-SPRITE *fxSpriteStack[MAX_FXSPRITES];
-short fxsStackPtr=0;
-
 
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
@@ -60,9 +51,6 @@ void UpdateFXTwinkle( SPECFX *fx );
 void CreateGloopEffects( SPECFX *parent );
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
-
-SPRITE *AllocateSprites( int number );
-void DeallocateSprites( SPRITE *head, int number );
 
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
@@ -1317,8 +1305,6 @@ void UpdateFXTwinkle( SPECFX *fx )
 */
 void InitSpecFXList( )
 {
-	int i;
-
 	specFXList.head.next = specFXList.head.prev = &specFXList.head;
 	specFXList.numEntries = 0;
 
@@ -1335,16 +1321,6 @@ void InitSpecFXList( )
 	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
 	FindTexture(&txtrElectric,UpdateCRC("ai_electric.bmp"),YES);
 	FindTexture(&txtrFlare,UpdateCRC("ai_flare.bmp"),YES);
-
-	// Allocate a big bunch of sprites
-	if( !fxSpriteList ) fxSpriteList = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_FXSPRITES, YES, "FXSprites" );
-	fxsCount = 0;
-
-	// Initially, all sprites are available
-	for( i=0; i<MAX_FXSPRITES; i++ )
-		fxSpriteStack[i] = &fxSpriteList[i];
-
-	fxsStackPtr = i-1;
 }
 
 
@@ -1366,19 +1342,6 @@ void FreeSpecFXList()
 	{
 		next = cur->next;
 		SubSpecFX(cur);
-	}
-
-	if( fxSpriteList )
-	{
-		int i;
-		// Remove all sprites in array from sprite list so they don't get removed after deallocation
-		for( i=0; i<MAX_FXSPRITES; i++ )
-			SubSprite( &fxSpriteList[i] );
-
-		JallocFree( (UBYTE **)&fxSpriteList );
-		fxSpriteList = NULL;
-		fxsCount = 0;
-		fxsStackPtr = 0;
 	}
 }
 
@@ -1971,58 +1934,3 @@ void CreateBlastRing()
 {
 }
 #endif
-
-/*	--------------------------------------------------------------------------------
-	Function		: AllocateSprites
-	Purpose			: Find a number of sprites and return a sublist
-	Parameters		: number of sprites
-	Returns			: pointer to first one
-	Info			: 
-*/
-SPRITE *AllocateSprites( int number )
-{
-	// Return if allocation is impossible for any reason
-	if( (number <= 0) || (fxsStackPtr-number < 0) || (number >= MAX_FXSPRITES-fxsCount) ) return NULL;
-
-	// Now we can go and allocate sprites with gay abandon
-	while( number-- )
-	{
-		AddSprite( fxSpriteStack[fxsStackPtr--], NULL );
-		fxsCount++;
-	}
-
-	return fxSpriteStack[fxsStackPtr+1];
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: DeallocateSprites
-	Purpose			: Remove sprites from list and flag as unused
-	Parameters		: number of sprites
-	Returns			: 
-	Info			: 
-*/
-void DeallocateSprites( SPRITE *head, int number )
-{
-	SPRITE *s=head, *t;
-
-	if( !head ) return;
-
-	if( (number<=0) || (fxsStackPtr+number >= MAX_FXSPRITES) )
-	{
-		dprintf"Couldn't deallocate %i sprites to the stack!\n",number));
-		return;
-	}
-
-	while( number-- )
-	{
-		t = s->next;
-
-		SubSprite( s );
-		fxsCount--;
-		fxSpriteStack[++fxsStackPtr] = s;
-
-		s = t;
-	}
-}
-

@@ -72,7 +72,6 @@ extern long speedHops_TOTAL;
 extern long numHealth_TOTAL;
 
 extern void RunGameLoop (void);
-extern void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);
 
 extern unsigned char swingCam;
 extern char playDemos;

@@ -82,7 +82,7 @@ enum
 
 // ----- [ GLOBAL VARIABLES ] --------------- //
 
-extern SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES];
+//extern SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES];
 
 
 // ----- [ FUNCTION PROTOTYPES ] --------------- //

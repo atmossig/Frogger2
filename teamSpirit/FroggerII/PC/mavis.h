@@ -10,6 +10,8 @@
 #define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn in a frame
 #define MA_MAX_FRAMES		4		// Maximum number of frames that may be active at once.
 
+#define MAX_FRAMES	17
+
 // A type for storing all the vertices and polygons in a frame
 typedef struct TAG_FRAME_INFO	
 {

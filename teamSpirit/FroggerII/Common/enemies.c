@@ -369,7 +369,7 @@ void RotateWaitingNME( ENEMY *cur )
 	
 	SubVector(&fwd,&toPosition,&fromPosition);
 	MakeUnit( &fwd );
-	Orientate(&q,&fwd,&inVec,&cur->currNormal);
+	Orientate(&q,&fwd,&cur->currNormal);
 
 	QuatSlerp(&q, &cur->nmeActor->actor->qRot, t, &res);
 
@@ -409,9 +409,9 @@ void UpdatePathNME( ENEMY *cur )
 
 	if (!cur->doNotMove)
 		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
-			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+			Orientate(&cur->nmeActor->actor->qRot,&fwd,&cur->currNormal);
 		else // Need to do this so normals still work
-			Orientate( &cur->nmeActor->actor->qRot, &cur->path->nodes->worldTile->dirVector[cur->facing], &inVec, &cur->currNormal );
+			Orientate( &cur->nmeActor->actor->qRot, &cur->path->nodes->worldTile->dirVector[cur->facing], &cur->currNormal );
 
 	// check if this enemy has arrived at a path node
 	if( actFrameCount >= cur->path->endFrame )
@@ -987,7 +987,7 @@ void UpdateHomingNME( ENEMY *cur )
 			ActorLookAt( cur->nmeActor->actor, &at, LOOKAT_ANYWHERE );
 			//Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 		else // Need to do this so normals still work
-			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&upVec);
+			Orientate(&cur->nmeActor->actor->qRot,&inVec,&upVec);
 
 	ScaleVector( &fwd, cur->speed * gameSpeed );
 	AddVector( &cur->nmeActor->actor->pos, &fwd, &cur->nmeActor->actor->pos );
@@ -1070,7 +1070,7 @@ void UpdateTileHomingNME( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-			Orientate(&act->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVector( &up, &cur->inTile->normal );
@@ -1166,7 +1166,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-			Orientate(&act->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVector( &up, &cur->inTile->normal );
@@ -1253,7 +1253,7 @@ void UpdateRandomMoveNME( ENEMY *cur )
 		// Orientate to direction of travel
 		MakeUnit( &fwd );
 		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-			Orientate(&act->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+			Orientate(&act->actor->qRot,&fwd,&path->nodes[1].worldTile->normal);
 
 		// Elevate above gametile
 		SetVector( &up, &cur->inTile->normal );
@@ -1530,7 +1530,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	else // No update function - probably single flag nme
 	{
 		if( newItem->nmeActor->actor && newItem->path && newItem->path->nodes )
-			Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &inVec, &newItem->path->nodes->worldTile->normal );
+			Orientate( &newItem->nmeActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 	}
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )

@@ -653,7 +653,7 @@ void FreeMenuItems()
 	// free text and sprite overlays
 	FreeTextOverlayLinkedList();
 	FreeSpriteOverlayLinkedList();
-	FreeSpriteLinkedList();
+	//FreeSpriteLinkedList();
 
 	StartDrawing("FreeMenuItems");
 }

@@ -48,7 +48,7 @@ typedef struct TAGBACKDROPLIST
 
 } BACKDROPLIST;
 
-extern BACKDROPLIST backdropList;
+//extern BACKDROPLIST backdropList;
 
 extern Vtx shadowVtx[4];
 extern Sprite template_sprite;
@@ -80,8 +80,8 @@ void ScreenFade(UBYTE dir,UBYTE step);
 void DrawDarkenedLevel();
 
 
-SPRITE *PrintSpritesOpaque();
-void PrintSpritesTranslucent(SPRITE *sprite);
+SPRITE *PrintSprites();
+//void PrintSpritesTranslucent(SPRITE *sprite);
 void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
 void PrintSprite(SPRITE *sprite);
 

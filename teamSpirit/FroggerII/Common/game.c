@@ -243,7 +243,7 @@ void GameProcessController(long pl)
 
 		nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 		player[pl].extendedHopDir = dir;
-		SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
+		Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 
 		if ( gameState.mode == CAMEO_MODE )
 			gameState.mode = INGAME_MODE;
@@ -277,7 +277,7 @@ void GameProcessController(long pl)
 				//camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 				player[pl].extendedHopDir = dir;
-				SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
+				Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 			}
 			else
 			{

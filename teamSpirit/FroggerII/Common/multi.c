@@ -370,7 +370,7 @@ void UpdateBattle( )
 	}
 
 	// The last player alive wins!
-	if( dead == NUM_FROGS-1 )
+	if( NUM_FROGS > 1 && dead == NUM_FROGS-1 )
 	{
 		for( i=0; i<NUM_FROGS; i++ )
 			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
@@ -626,7 +626,7 @@ void FaceFrogInwards(int pl)
 	}
 
 	frogFacing[pl] = facing;
-	SitAndFace( frog[pl], currTile[pl], frogFacing[pl] );
+	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 }
 
 
@@ -689,6 +689,7 @@ void ResetMultiplayer( )
 		}
 		FreeGaribLinkedList();
 		InitGaribLinkedList();
+		InitSpriteSortArray(MAX_ARRAY_SPRITES);
 		numMultiItems = 0;
 		break;
 	}

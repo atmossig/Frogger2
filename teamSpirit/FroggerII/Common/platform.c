@@ -397,6 +397,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 	AddPlatform(newItem);
 	newItem->flags = flags;
 	newItem->facing = facing;
+	newItem->Update = NULL;
 
 	initFlags |= INIT_ANIMATION;
 
@@ -460,12 +461,12 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 		newItem->Update = UpdatePathPlatform;
 	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 		newItem->Update = UpdateUpDownPlatform;
-	else if(newItem->flags & PLATFORM_NEW_NONMOVING)
-		newItem->Update = UpdateNonMovingPlatform;
+//	else if(newItem->flags & PLATFORM_NEW_NONMOVING)
+//		newItem->Update = UpdateNonMovingPlatform;
 	else if(newItem->flags & PLATFORM_NEW_STEPONACTIVATED)
 		newItem->Update = UpdateStepOnActivatedPlatform;
 	else if( newItem->pltActor->actor && newItem->path && newItem->path->nodes )
-		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &inVec, &newItem->path->nodes->worldTile->normal );
+		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 
 	return newItem;
 }
@@ -510,8 +511,8 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 	}
 	else
 	{
-		// this platform does not move
-		pform->flags |= PLATFORM_NEW_NONMOVING;
+		// this platform does not move - why use this at all ever?
+//		pform->flags |= PLATFORM_NEW_NONMOVING;
 		pform->path->fromNode = pform->path->toNode = 0;
 	}
 
@@ -530,7 +531,7 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 	MakeUnit(&fwd);
 
 	if (!(pform->flags & PLATFORM_NEW_FACEFORWARDS))
-		Orientate(&pform->pltActor->actor->qRot, &fwd, &inVec, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
+		Orientate(&pform->pltActor->actor->qRot, &fwd, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
 
 	// set platform current 'in' tile and speeds and pause times
 	pform->inTile[0]	= path->nodes[pform->path->fromNode].worldTile;
@@ -606,7 +607,7 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	SubVector(&fwd, &toNode->worldTile->centre, &fromNode->worldTile->centre);
 	MakeUnit(&fwd);
 
-	Orientate(&pform->destOrientation, &fwd, &inVec, &toNode->worldTile->normal);
+	Orientate(&pform->destOrientation, &fwd, &toNode->worldTile->normal);
 
 /*	 v v v v This isn't game speed independant at ALL! v v v v
 
@@ -886,7 +887,7 @@ void UpdatePathPlatform(PLATFORM *plat)
 		QuatSlerp(&plat->srcOrientation, &plat->destOrientation, length, &plat->pltActor->actor->qRot);
 	}
 	else
-		Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &inVec, &plat->inTile[0]->normal );
+		Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->inTile[0]->normal );
 
 }
 
@@ -927,6 +928,7 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 
 	// get up vector for this platform
 	SetVector(&moveVec,&plat->path->nodes[0].worldTile->normal);
+	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
 	
 	t = (float)(actFrameCount- plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
 	ScaleVector(&moveVec, t * end_offset + (1-t) * start_offset);
@@ -943,6 +945,7 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 */
 void UpdateNonMovingPlatform(PLATFORM *plat)
 {
+	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
 }
 
 
@@ -971,6 +974,8 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 
 	ScaleVector(&moveVec, speed);
 
+	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
+	
 	// platform only moves when frog is it - otherwsie returns to start position
 	if(plat->flags & PLATFORM_NEW_CARRYINGFROG)
 	{

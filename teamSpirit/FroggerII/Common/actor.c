@@ -224,8 +224,8 @@ void RenderObjects(void)
 
 	// Draw Additive frameset (num 3)
 	SwapFrame(3);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_ZERO);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
 
 
 	DrawBatchedPolys();
@@ -923,7 +923,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 	{
 		for(i=0; i<obj->numSprites; i++)
 		{
-			sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"ObjSprite");
+			sprite = AllocateSprites( 1 );//(SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"ObjSprite");
 
 			sprite->texture = obj->sprites[i].textureID;
 			SetVector(&sprite->pos,&zero);
@@ -972,7 +972,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 			sprite->offsetX = -32 / 2;
 			sprite->offsetY = -32 / 2;
 
-			AddSprite(sprite,NULL);
+			//AddSprite(sprite,NULL);
 			obj->sprites[i].sprite = sprite;
 		}
 	}
@@ -991,6 +991,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 	Returns			: 
 	Info			: 
 */
+/*
 void RemoveObjectSprites(OBJECT *obj,BOOL f)
 {
 	int i;
@@ -1000,9 +1001,9 @@ void RemoveObjectSprites(OBJECT *obj,BOOL f)
 		for(i=0; i<obj->numSprites; i++)
 		{
 			if(obj->sprites[i].sprite)
-				SubSprite(obj->sprites[i].sprite);
-			if(f)
-				JallocFree((UBYTE**)&obj->sprites[i].sprite);
+				DeallocateSprites(obj->sprites[i].sprite, 1);
+//			if(f)
+//				JallocFree((UBYTE**)&obj->sprites[i].sprite);
 		}
 	}
 
@@ -1012,7 +1013,7 @@ void RemoveObjectSprites(OBJECT *obj,BOOL f)
 	if(obj->next)
 		RemoveObjectSprites(obj->next, f);
 }
-
+*/
 /*	--------------------------------------------------------------------------------
 	Function		: FreeObjectSprites
 	Purpose			: 
@@ -1026,16 +1027,9 @@ void FreeObjectSprites(OBJECT *obj)
 	int i;
 
 	if(obj->sprites)
-	{
 		for(i=0; i<obj->numSprites; i++)
-		{
 			if(obj->sprites[i].sprite)
-			{
-				SubSprite(obj->sprites[i].sprite);
-				JallocFree((UBYTE**)&obj->sprites[i].sprite);
-			}
-		}
-	}
+				DeallocateSprites(obj->sprites[i].sprite,1);
 
 	if(obj->children)
 		FreeObjectSprites(obj->children);
@@ -1315,188 +1309,140 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 	Returns 	: void
 	Info 		:
 */
+#define OEPSILON ((float)0.01)
 
-QUATERNION flipQuatX = {1,0,0,3.14};
-QUATERNION flipQuatY = {0,1,0,0};
-
-void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
+void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *up)
 {
 	QUATERNION r1,q1,q2;
-	VECTOR v1,v2,v3;
-	float dp;
-
+	VECTOR v1,v2,v3,v4;
+	float dp,dp2,scl;
+	float thetaOver2;
+	float sinThetaOver2;
+	long q1Unimportant = 0,q1Flip = 0;
 	
-	dp = DotProduct(up,&upVec);
+	dp = up->v[Y];
 	
-	if (dp<1-QEPSILON)
+	if (dp<1-OEPSILON)
 	{
-		if (dp>QEPSILON-1)
+		if (dp>OEPSILON-1)
 		{
+			r1.x = -up->v[Z];
+			r1.y = 0;
+			r1.z = up->v[X];
+			r1.w = acos(dp);
 
-			CrossProduct((VECTOR *)(&r1),up,&upVec);
-			MakeUnit((VECTOR *)(&r1));
-			r1.w = -acos(dp);
-			GetQuaternionFromRotation(&q1,&r1);			
+			// Normalise it (only need to do 2 coords!)
+			scl = 1.0/sqrtf((r1.x*r1.x)+(r1.z*r1.z));
+			r1.x *= scl;
+			r1.z *= scl;
+
+			RotateVectorByXZRotation(&v1,fd,&r1);
+	
+			r1.w = -r1.w;
+			v1.v[Y] = 0;
+
+			GetQuaternionFromXZRotation(&q1,&r1);
 		}
 		else
-		{			
-			SetQuaternion(&r1,&flipQuatX);			
+		{
+			// We're just fliping the X&Y coords!
+			v1.v[X] = fd->v[X];
+			v1.v[Y] = 0;
+			v1.v[Z] = -fd->v[Z];
+			q1.w = q1.y = q1.z = 0;
+			q1.x = 1;			
+
+			q1Flip = 1;			// We don't need the qMult later on!
 		}
 	}
 	else
 	{
-		SetQuaternion(&r1,&flipQuatY);		
+		v1.v[X] = fd->v[X];
+		v1.v[Y] = 0;
+		v1.v[Z] = fd->v[Z];
+		
+		q1.x = q1.y = q1.z = 0;
+		q1.w = 1;			
+
+		q1Unimportant = 1;	
 	}
-	
-	RotateVectorByRotation(&v1,mfd,&r1);
-	GetQuaternionFromRotation(&q1,&r1);
 
-	CrossProduct(&v2,fd,up);
-	CrossProduct(&v3,up,&v2);
-	MakeUnit(&v3);
+	// Again, makeunit from the two used values
+	scl = 1.0/sqrtf((v1.v[X]*v1.v[X])+(v1.v[Z]*v1.v[Z]));	
+	dp2 = v1.v[Z] * scl;
 
-	dp = DotProduct(&v3,&v1);
-
-	if (dp<1-QEPSILON)
+	if (dp2<1-OEPSILON)
 	{
-		if (dp>QEPSILON-1)
+		if (dp2>OEPSILON-1)
 		{
-			CrossProduct((VECTOR *)(&r1),&v3,&v1);
-			MakeUnit(&r1);
-//			SetVector((VECTOR *)(&r1),up);
-			r1.w = -acos(dp);
-			GetQuaternionFromRotation(&q2,&r1);			
+			
+			if (q1Unimportant)
+			{
+
+				if (v1.v[X]>0)
+					thetaOver2 = acos(dp2)*0.5;
+				else
+					thetaOver2 = acos(dp2)*-0.5;
+
+				sinThetaOver2 = sinf(thetaOver2);
+
+				me->x = me->z = 0;
+				me->w = cosf(thetaOver2);
+				me->y = sinThetaOver2;
+			}
+			else
+			{
+				SetVector((VECTOR *)(&r1),up);
+				
+				if (v1.v[X]>0)
+					r1.w = acos(dp2);
+				else
+					r1.w = -acos(dp2);
+
+				GetQuaternionFromRotation(&q2,&r1);			
+
+				if (q1Flip)
+				{
+					me->w = -q2.x;
+					me->x = q2.w;
+					me->y = q2.z;
+					me->z = -q2.y;
+				}
+				else
+					QuaternionMultiply(me,&q2,&q1);
+			}
 		}
 		else
 		{	
-			SetVector((VECTOR *)(&r1),up);
-			r1.w = -3.14;			
-			GetQuaternionFromRotation(&q2,&r1);
-		}
-	}
-	else
-	{
-		SetQuaternion(&q2,&zeroQuat);		
-	}
-	
-	QuaternionMultiply(me,&q2,&q1);
-//	SetQuaternion(me,&q1);	
-
-	/*
-	if ((dp<=1) && (dp>=-1))
-	{
-		CrossProduct((VECTOR *)&r1, fd, mfd );	
-		r1.w = acos(dp);
-	}
-	else
-	{
-		r1.x = r1.z = 0; 
-		r1.y = 1;
-		r1.z = PI;
-	}
-	*/
-
-	
-	//me->w = 1;
-	//me->x = me->y = me->z = 0;
-	/* This seems to be somewhat more expensive (and unreliable!) than it should be. */
-/*	VECTOR dirn;
-	QUATERNION rotn,q,normal;
-	float dp,m;
-	
-
-	CalculateQuatForPlane2( 0, me, up);
-
-	RotateVectorByQuaternion( &dirn, mfd, me);
-	dp = DotProduct( fd, &dirn );
-	CrossProduct( (VECTOR *)&rotn, &dirn, fd );
-	if(dp > -0.99)
-	{
-		m = Magnitude( (VECTOR *)&rotn );
-		if(m > 0.001)
-		{
-			ScaleVector( (VECTOR *)&rotn, 1/m );
-
-			if (dp<0.99)
-				rotn.w = acos(dp);
-			else
-				rotn.w = 0;
+			// This could be more optimal!
+			q2.w = 0;
+			q2.x = -up->v[X];
+			q2.y = -up->v[Y];
+			q2.z = -up->v[Z];
 			
-			GetQuaternionFromRotation( &q, &rotn );
-			QuaternionMultiply( me, &q, me );
-		}
-	}
-	else
-	{
-		vertQ.w = PI;
-		GetQuaternionFromRotation(&q,&vertQ);
-		QuaternionMultiply(me,me,&q);
-	}
-	*/
-}
-
-void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
-{
-	VECTOR fwdVec = { 0,0,1 };
-	VECTOR dirn2;
-	QUATERNION rotn,q;
-	float dp,m;
-	
-	CalculateQuatForPlane2(0,&me->actor->qRot,&tile->normal);
-	RotateVectorByQuaternion(&dirn2,&fwdVec,&me->actor->qRot);
-	dp = DotProduct(&tile->dirVector[fFacing],&dirn2);
-	CrossProduct((VECTOR *)&rotn,&dirn2,&tile->dirVector[fFacing]);
-	if(dp > -0.99)
-	{
-		m = Magnitude((VECTOR *)&rotn);
-		if(m > 0.0001)
-		{
-			ScaleVector((VECTOR *)&rotn,1/m);
-			rotn.w = acos(dp);
-			GetQuaternionFromRotation(&q,&rotn);
-			QuaternionMultiply(&me->actor->qRot,&q,&me->actor->qRot);
-		}
-	}
-	else
-	{
-		vertQ.w = PI;
-		GetQuaternionFromRotation(&q,&vertQ);
-		QuaternionMultiply(&me->actor->qRot,&me->actor->qRot,&q);
-	}
-}
-
-
-
-
-
-
-/*
-
-void RemoveUniqueActor(ACTOR *actor,int type)
-{
-	if((actor->objectController) && (actor->objectController->object))
-	{
-		if((type < 0) || ((type >= 0) && (type < CAMEO_ACTOR)))
-		{
-			SubActor(actor);
-			FreeObjectSprites(actor->objectController->object);
-
-			if(actor->objectController->drawList)
+			if (q1Unimportant)
+				SetQuaternion(me,&q2);
+			else
 			{
-				JallocFree((UBYTE **)&actor->objectController->Vtx[0]);
-				JallocFree((UBYTE **)&actor->objectController->drawList);
-			}
-
-
-			RemoveUniqueObject(actor->objectController->object);
-			JallocFree((UBYTE **)&actor->objectController);
-		
-			if((actor->LODObjectController) && (actor->LODObjectController->object))
-			{
-				RemoveUniqueObject(actor->LODObjectController->object);
-				JallocFree((UBYTE **)&actor->LODObjectController);
+				if (q1Flip)
+				{
+					me->w = -q2.x;
+					me->x = q2.w;
+					me->y = q2.z;
+					me->z = -q2.y;
+				}
+				else
+				{
+					// QuatMult of a w = 0 quaternion.
+					me->w = -q2.x*q1.x - q2.y*q1.y - q2.z*q1.z;
+					me->x = q2.x*q1.w + q2.y*q1.z - q2.z*q1.y;
+					me->y = q2.y*q1.w + q2.z*q1.x - q2.x*q1.z;
+					me->z = q2.z*q1.w + q2.x*q1.y - q2.y*q1.x;
+				}
 			}
 		}
 	}
+	else // No change, hence no need for qmult.		
+		SetQuaternion(me,&q1);			
 }
-*/
+

@@ -291,7 +291,7 @@ void CharFaceDir( CHARACTER *ch )
 	t = 1.0 - (float)(actFrameCount-start)/(float)(ch->command->time);
 
 	// Find destination quat
-	Orientate( &q, &ch->command->dir, &inVec, &ch->normal );
+	Orientate( &q, &ch->command->dir, &ch->normal );
 
 	// Slerp between current and destination quaternion
 	QuatSlerp(&q, &act->qRot, t, &res);

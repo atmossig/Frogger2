@@ -138,7 +138,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	InitCamera();
 	
 	frogFacing[p] = camFacing;
-	SitAndFace(frog[p],currTile[p],frogFacing[p]);
+	Orientate( &frog[p]->actor->qRot, &currTile[p]->dirVector[frogFacing[p]], &currTile[p]->normal );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -376,7 +376,7 @@ void UpdateFroggerPos(long pl)
 			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 			currTile[pl] = tile;
 			
-			SitAndFace(frog[pl], tile, frogFacing[pl]); // this is kinda unreliable..
+			Orientate( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
 
 			CheckTileForCollectable(tile, pl);
 		}
@@ -730,7 +730,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// clear all movement flags
 	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 	
-	SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
+	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 	
 	tiledir = dir;
 	dest = GetNextTile(&tiledir, pl);
@@ -966,7 +966,7 @@ void CheckForFroggerLanding(long pl)
 		MakeUnit( &up );
 
 		// Orientate to camera
-		Orientate( &frog[pl]->actor->qRot, &fwd, &inVec, &up );
+		Orientate( &frog[pl]->actor->qRot, &fwd, &up );
 	}
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
@@ -1037,7 +1037,7 @@ void CheckForFroggerLanding(long pl)
 		//frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 
 		frogFacing[pl] = nextFrogFacing[pl];
-		SitAndFace(frog[pl], tile, frogFacing[pl]);
+		Orientate( &frog[pl]->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
 
 		state = tile->state;
 /*
@@ -1190,7 +1190,7 @@ void CheckForFroggerLanding(long pl)
 				// Face all lower frogs to our direction
 				nextFrogFacing[i] = frogFacing[i] = frogFacing[pl];
 				SetQuaternion( &frog[i]->actor->qRot, &frog[pl]->actor->qRot );
-				SitAndFace( frog[i], currTile[i], frogFacing[i] );
+				Orientate( &frog[i]->actor->qRot, &currTile[i]->dirVector[frogFacing[i]], &currTile[i]->normal );
 
 				if( player[i].frogunder != (char)-1 ) continue;
 
@@ -1414,7 +1414,7 @@ void HopFrogToTile(GAMETILE *tile, long pl)
 	AnimateFrogHop(dir, pl);	
 	frogFacing[pl] = nextFrogFacing[pl] = (dir + 2) & 3;
 
-	SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
+	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 
 	CalculateFrogJump(
 		&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,

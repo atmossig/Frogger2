@@ -302,7 +302,7 @@ typedef struct
 	struct _SAMPLE **sfxMapping;	// Cue these sound effects off the animations
 
 }ACTOR_ANIMATION;
-
+/*
 typedef struct
 {
 	TEXTURE **texture;
@@ -342,35 +342,12 @@ typedef struct
 	float		lifetime;
 
 }SPRITE_ANIMATION;
-
-typedef struct TAGSPRITE
-{
-	struct TAGSPRITE *next,*prev;
-
-	TEXTURE *texture;
-	VECTOR pos;
-	short scaleX;
-	short scaleY;
-	short flags;
-	UBYTE r,g,b,a;
-	UBYTE red2,green2,blue2,alpha2;
-	BYTE  offsetX;
-	BYTE  offsetY;
-	SPRITE_ANIMATION anim;
-
-	char kill;
-
-	VECTOR sc;
-	float angle;
-	float angleInc;
-	short arrayIndex;
-
-}SPRITE;
+*/
 
 typedef struct OBJECTSPRITE
 {
 	TEXTURE		*textureID;
-	SPRITE		*sprite;		//actual sprite in sprite list
+	struct TAGSPRITE *sprite;		//actual sprite in sprite list
 	short		x, y, z;
 	short		sx;	//xsize - 32 is normal
 	short		sy;	//ysize - 32 is normal
@@ -380,7 +357,7 @@ typedef struct OBJECTSPRITE
 
 }OBJECTSPRITE;
 
-
+/*
 typedef struct
 {
 	FRAMELIST	*frameList;
@@ -390,7 +367,7 @@ typedef struct
 	BYTE		counter;
 
 }TEXTURE_ANIMATION;
-
+*/
 typedef struct
 {
 	s16		*verts;
@@ -421,7 +398,8 @@ typedef struct OBJECT
 	MESH		*mesh;
 	Gfx			*drawList;
 
-	TEXTURE_ANIMATION *textureAnim;
+	long textureAnim; // NOT USED - just for padding
+
 	//for skinning
 	SKINVTX		*effectedVerts;
 //	Vtx			**effectedVerts;

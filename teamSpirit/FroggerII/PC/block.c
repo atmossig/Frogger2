@@ -994,8 +994,8 @@ void DrawGraphics()
 	XformActorList();
 	EndTimer(2);
 
-	if(spriteList.numEntries)
-		AnimateSprites();
+//	if(spriteList.numEntries)
+//		AnimateSprites();
 
 	// Actual stuff that draws
 	if (runHardware)
@@ -1025,8 +1025,8 @@ void DrawGraphics()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-	if(spriteList.numEntries)
-		PrintSpritesOpaque();
+	if(sprList.count)
+		PrintSprites();
 
 	DrawBatchedPolys();
 	BlankFrame(bolognese);
