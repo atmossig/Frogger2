@@ -2,9 +2,7 @@
 
 	This file is part of Frogger2, (c) 1997 Interactive Studios Ltd.
 
-
 	File		: main.cpp
-	Programmer	: Matthew Cloy (with modifications by David Swift)
 	Date		: 16/11/98
 
 ----------------------------------------------------------------------------------------------- */
@@ -226,6 +224,23 @@ void PutTileChar(char c)
 	//putchar('\b');
 }
 
+float Magnitude(vtx *vect)
+{
+	return sqrtf(vect->x*vect->x + vect->y*vect->y + vect->z*vect->z);
+}
+
+void Normalise(vtx *vect)
+{
+	float m = Magnitude(vect);
+
+	if(m != 0)
+	{
+		m = 1.0f/m;
+		vect->x *= m;
+		vect->y *= m;
+		vect->z *= m;
+	}
+}
 /* -------------------------------------------------------------------------------- */
 
 void InitTables(void)
@@ -290,9 +305,7 @@ void CalculateNormal (square *me)
 
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: fCmp
-
 	Purpose		:
 	Parameters	: (float x1, float y1, float z1, float x2, float y2, float z2)
 	Returns		: unsigned long 
@@ -488,8 +501,6 @@ void BuildSquareList(void)
 			squareList[nSquare].ed[1] = faceList[i].i[B];
 			squareList[nSquare].ed[2] = squareList[nSquare].ed[3] = faceList[i].i[C];
 			
-			//squareList[nSquare].ed[3].x = squareList[nSquare].ed[3].y = squareList[nSquare].ed[3].z = 100000.0; // nice out of range value
-
 			for (int a=0; a<4; a++)
 				squareList[nSquare].adj[a] = -1;
 
@@ -538,37 +549,6 @@ void BuildSquareList(void)
 			te1 = vertexList[tri2[0]];
 			te2 = vertexList[tri2[2]];
 			te3 = vertexList[tri2[1]];
-/*
-			if (!faceList[j].e[AB])
-			{
-				tri2[0] = faceList[j].i[A];
-				tri2[1] = faceList[j].i[B];
-
-				te1 = vertexList[tri2[1]];
-				te2 = vertexList[faceList[j].i[C]];
-				te3 = vertexList[tri2[0]];
-			}
-			else if (!faceList[j].e[BC])
-			{
-				tri2[0] = faceList[j].i[B];
-				tri2[1] = faceList[j].i[C];
-
-				te1 = vertexList[tri2[1]];
-				te2 = vertexList[faceList[j].i[A]];
-				te3 = vertexList[tri2[0]];
-			}
-			else if (!faceList[j].e[CA])
-			{
-				tri2[0] = faceList[j].i[A];
-				tri2[1] = faceList[j].i[C];
-
-				te1 = vertexList[tri2[0]];
-				te2 = vertexList[faceList[j].i[B]];
-				te3 = vertexList[tri2[1]];
-			}
-			else
-				continue;
-*/
 			
 			unsigned long numSame = (tri1[0] == tri2[0]) + (tri1[0] == tri2[1]) + (tri1[1] == tri2[0]) + (tri1[1] == tri2[1]);
 
@@ -607,64 +587,39 @@ void BuildSquareList(void)
 }
 
 
-
 /* --------------------------------------------------------------------------------
-	Function	: CheckSquare
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-
-void CheckSquare(unsigned long a, unsigned long i,float x1, float y1, float z1, float x2, float y2, float z2)
-{
-
-	//This test is insanely, ludicrously inefficient and it's no wonder it takes so long
-	
-	unsigned long j;
-	for (j=0; j<nSquare; j++)
-	{
-		if (j!=i)
-		{
-			unsigned long numSame = 0;
-			
-			if (fCmp(x1,y1,z1,squareList[j].ed[0].x,squareList[j].ed[0].y,squareList[j].ed[0].z))
-				numSame++;
-
-			if (fCmp(x1,y1,z1,squareList[j].ed[1].x,squareList[j].ed[1].y,squareList[j].ed[1].z))
-				numSame++;
-
-			if (fCmp(x1,y1,z1,squareList[j].ed[2].x,squareList[j].ed[2].y,squareList[j].ed[2].z))
-				numSame++;
-
-			if (fCmp(x1,y1,z1,squareList[j].ed[3].x,squareList[j].ed[3].y,squareList[j].ed[3].z))
-				numSame++;
-			
-			
-			if (fCmp(x2,y2,z2,squareList[j].ed[0].x,squareList[j].ed[0].y,squareList[j].ed[0].z))
-				numSame++;
-			if (fCmp(x2,y2,z2,squareList[j].ed[1].x,squareList[j].ed[1].y,squareList[j].ed[1].z))
-				numSame++;
-			if (fCmp(x2,y2,z2,squareList[j].ed[2].x,squareList[j].ed[2].y,squareList[j].ed[2].z))
-				numSame++;
-			if (fCmp(x2,y2,z2,squareList[j].ed[3].x,squareList[j].ed[3].y,squareList[j].ed[3].z))
-				numSame++;
-			
-			if (numSame >= 2)	// I'm not sure this is 100% safe...
-			{
-				squareList[i].adj[a] = j;
-				return;
-			}
-		}
-	}
-}
+	Function	: FindAdjacentEdge
+	Purpose		: brute-force searches the square list for a shared edge
+	Parameters	: edge to check, index of square, index of vert 1, index of vert 2
+	Returns		: void
 */
 
-void FindAdjacentEdge(long a, long i, long v1, long v2)
+void FindAdjacentEdge(long edge, long i)
 {
-	long j, k, numSame;
+	long j, k;
+	long v1, v2;
+
+	if (squareList[i].adj[edge] != -1) return;
+
+	v1 = squareList[i].ed[edge], v2 = squareList[i].ed[(edge+1) % 4];
+
 	for (j=0; j<nSquare; j++)
 	{
 		if (j == i) continue;
 
+		for (k = 0; k<4; k++)
+		{
+			if ((squareList[j].ed[k] == v2) && (squareList[j].ed[(k+1) % 4] == v1))
+			{
+				squareList[i].adj[edge] = j;
+				squareList[j].adj[k] = i;
+				return;
+			}
+		}
+	}
+
+
+/*
 		numSame = 0;
 
 		for (k = 0; k<4; k++)
@@ -675,75 +630,32 @@ void FindAdjacentEdge(long a, long i, long v1, long v2)
 
 		if (numSame >= 2)	// I'm not sure this is 100% safe...
 		{
-			squareList[i].adj[a] = j;
+			squareList[i].adj[edge] = j;
 			return;
 		}
-	}		
+*/
 }
 
-float Magnitude(vtx *vect)
-{
-	return sqrtf(vect->x*vect->x + vect->y*vect->y + vect->z*vect->z);
-}
-
-void Normalise(vtx *vect)
-{
-	float m = Magnitude(vect);
-
-	if(m != 0)
-	{
-		m = 1.0f/m;
-		vect->x *= m;
-		vect->y *= m;
-		vect->z *= m;
-	}
-}
+/* --------------------------------------------------------------------------------
+	Function	: CalculateAdj
+	Purpose		: Finds the adjacent edges in the square list
+	Parameters	: 
+	Returns		: void
+*/
 
 void CalculateAdj(void)
 {
-	long i;
+	long i, edge;
 
 	printf("Calculating adjacent squares.. ");
-
-	/*	This is now the worst part of the program, using a brute force search
-		and lots of duplicate checks.
-		
-		- For every quad:
-		- For all four edges:
-		- Compare with all four edges of every other quad
-		- TWICE to cater for edges in opposite directions...
-
-		This is a good example of how NOT to code this test. It's fast enough
-		though, given the relatively small size of our maps.
-	*/
 
 	//Step thru squares to find adjacent ones.
 	for (i=0; i<nSquare; i++)
 	{
 		if ((i%20) == 0) PrintSpinner();
-/*
-		vtx a, b;
 
-		a = squareList[i].ed[0];
-		b = squareList[i].ed[1];
-		CheckSquare (0,i,a.x,a.y,a.z,b.x,b.y,b.z);
-		
-		a = squareList[i].ed[1];
-		b = squareList[i].ed[2];
-		CheckSquare (1,i,a.x,a.y,a.z,b.x,b.y,b.z);
-		
-		a = squareList[i].ed[2];
-		b = squareList[i].ed[3];
-		CheckSquare (2,i,a.x,a.y,a.z,b.x,b.y,b.z);
-
-		a = squareList[i].ed[3];
-		b = squareList[i].ed[0];
-		CheckSquare (3,i,a.x,a.y,a.z,b.x,b.y,b.z);
-*/
-		FindAdjacentEdge(0, i, squareList[i].ed[0], squareList[i].ed[1]);
-		FindAdjacentEdge(1, i, squareList[i].ed[1], squareList[i].ed[2]);
-		FindAdjacentEdge(2, i, squareList[i].ed[2], squareList[i].ed[3]);
-		FindAdjacentEdge(3, i, squareList[i].ed[3], squareList[i].ed[0]);
+		for (edge=0; edge<4; edge++)
+			FindAdjacentEdge(edge, i);
 	}
 	
 	// Fill out the "normals", aka direction vectors
@@ -785,9 +697,7 @@ void CalculateAdj(void)
 }
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: ReadData
-
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
@@ -953,9 +863,7 @@ bool ReadData(void)
 }
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: WriteData
-
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
@@ -1020,9 +928,7 @@ void WriteTiles (FILE *fp)
 }
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: WriteExterns
-
 	Purpose		:
 	Parameters	: (FILE *fp)
 	Returns		: void 
@@ -1125,9 +1031,7 @@ void WriteHeaders (FILE *fp)
 }
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: WriteData
-
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
@@ -1206,9 +1110,7 @@ void WriteData(void)
 }
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: main 
-
 	Purpose		:
 	Parameters	: (int argc, char *argv[])
 	Returns		: int 
