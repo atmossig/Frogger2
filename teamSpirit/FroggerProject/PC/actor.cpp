@@ -38,6 +38,15 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 		Animate((MDX_ACTOR *)actor->actualActor,animNum,loop,queue,speed/256.0f);
 }
 
+void actorResetAnimation(ACTOR *actor)
+{
+	MDX_ACTOR* a = (MDX_ACTOR*)actor->actualActor;
+	
+	if (a && a->animation->anims)
+		a->animation->animTime = a->animation->anims[a->animation->currentAnimation].animStart;
+}
+
+
 void actorFree(ACTOR *actor)
 {
 	if( actor->shadow )

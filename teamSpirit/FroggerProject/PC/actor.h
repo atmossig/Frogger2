@@ -73,6 +73,7 @@ typedef struct
 
 void actorFree(ACTOR *actor);
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe);
+void actorResetAnimation(ACTOR *actor);
 
 void ChangeModel( ACTOR *actor, char *model );
 int UndoChangeModel( ACTOR *actor );
