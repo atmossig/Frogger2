@@ -620,9 +620,9 @@ void UpdateCameraPosition( )
 		CheckForDynamicCameraChange(currTile[playerFocus]);
 	}
 
-	CheckCameraBoxes();
-
 	CameraLookAtFrog();
+
+	CheckCameraBoxes();
 
 	//if ( gameState.mode != CAMEO_MODE && !fixedPos )
 	//	CameraSetSource();
