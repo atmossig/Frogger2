@@ -61,8 +61,6 @@ SAMPLE *CreateAndAddSample( char *path, char *file );
 void SetSampleFormat ( SAMPLE *sample );
 void CleanBufferSamples( void );
 
-void PrepareSong( char num );
-void StopSong( );
 DWORD playCDTrack( HWND hWndNotify, BYTE bTrack );
 DWORD stopCDTrack( HWND hWndNotify );
 
@@ -561,7 +559,7 @@ void UpdateAmbientSounds()
 	Returns			: void
 	Info			: 
 */
-void PrepareSong( char num )
+void PrepareSong( short num )
 {
 	// play cd audio track here....
 	playCDTrack ( mdxWinInfo.hWndMain, num + GARDEN_CDAUDIO );

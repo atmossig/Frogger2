@@ -54,6 +54,7 @@
 #include "banks.h"
 #include "controll.h"
 #include "pcmisc.h"
+#include "pcaudio.h"
 
 #include "mdx.h"
 #include "mdxException.h"
@@ -434,8 +435,21 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			return 1;
 			break;
 
-	default:
-		return 1;
+		case MM_MCINOTIFY:
+		{
+			// Loop cd track when it finishes
+			switch( (int)wParam )
+			{
+			case MCI_NOTIFY_SUCCESSFUL:
+				PrepareSong( player[0].worldNum );
+				break;
+			}
+
+			break;
+		}
+
+		default:
+			return 1;
 	}
 
 	return 0;

@@ -186,7 +186,8 @@ void PlaySfxMappedSample( MDX_ACTOR *act );
 extern void UpdateAmbientSounds();
 
 
-extern void PrepareSong( );
+extern void PrepareSong( short num );
+extern void StopSong( );
 
 #ifdef __cplusplus
 }
