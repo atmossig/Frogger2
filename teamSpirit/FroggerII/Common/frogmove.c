@@ -146,7 +146,6 @@ BOOL UpdateFroggerControls(long pl)
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGL)	dir = MOVE_LEFT;
 		else dir = MOVE_RIGHT;
 
-		AnimateFrogHop((dir + camFacing) & 3,pl);
 		frogFacing[pl] = (camFacing + dir) & 3;
 
 		//nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
@@ -165,11 +164,14 @@ BOOL UpdateFroggerControls(long pl)
 		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
 		frogPitch.lastHopOn = actFrameCount;
 
+		AnimateFrogHop((dir + camFacing) & 3,pl);
+
 		prevTile = currTile[pl];
 		if (!MoveToRequestedDestination(dir,pl))
 		{
 			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
 		}
+
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -182,18 +184,17 @@ BOOL UpdateFroggerControls(long pl)
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
 		else dir = MOVE_RIGHT;
 
-		AnimateFrogHop((dir + camFacing) & 3,pl);
-
 		PlaySample(GEN_SUPER_HOP,&frog[pl]->actor->pos,0,255,64);
 
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
+
+		AnimateFrogHop((dir + camFacing) & 3,pl);
 
 		prevTile = currTile[pl];
 		if (!MoveToRequestedDestination(dir,pl))
 		{
 			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
 		}
-
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink
@@ -601,29 +602,33 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 */
 void AnimateFrogHop( unsigned long direction, long pl )
 {
-	if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
+/*	if( player[pl].heightJumped < -100 )
+	{
+		AnimateActor(frog[pl]->actor, FROG_ANIM_TRYTOFLY, YES, NO, 0.25, 0, 0 );
+	}
+	else */
+	
+	if(player[pl].isSuperHopping)
 	{
 		// play animation for superhopping
-		AnimateActor(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, 0.45, 0,0);
+		AnimateActor(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, 0.5, 0,0);
 		return;
 	}
+	else // Otherwise, play appropriate jump animation
+		switch ((direction - frogFacing[pl]) & 3)
+		{
+		case 1:
+			AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0);
+			break;
 
-	// Otherwise, play appropriate jump animation
+		case 3:
+			AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0);
+			break;
 
-	switch ((direction - frogFacing[pl]) & 3)
-	{
-	case 1:
-		AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0);
-		break;
-
-	case 3:
-		AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0);
-		break;
-
-	default:
-		AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
-		break;
-	}
+		default:
+			AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
+			break;
+		}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -805,9 +810,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
 			h, t, pl);
 	}
-
-	if( player[pl].heightJumped < -125 )
-		AnimateActor(frog[pl]->actor, FROG_ANIM_TRYTOFLY, YES, NO, 0.25, 0, 0 );
 
 	// ------------------------------------------------------------------------------------------
 
@@ -1463,7 +1465,7 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	if (height)
 	{
 		m = 0.5f * (1 + sqrtf(1 - diff/height));
-		pl->jumpSpeed = 1.0f/(m*(float)time); //1/(float)time; 
+		pl->jumpSpeed = 1.0f/(m*m*(float)time); //1/(float)time; 
 		//- longer jumps take longer, kind of thing
 	}
 	else

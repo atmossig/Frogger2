@@ -255,7 +255,7 @@ void GameProcessController(long pl)
 				currTile[pl] = old;
 
 			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
-			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+			//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 #ifdef N64_VERSION
 			StartRumble(100,1,3,ActiveController);
 #endif
