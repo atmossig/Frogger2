@@ -90,7 +90,7 @@ PATHNODE debug_pathNodes2[] =					// TEST PATH - ANDYE
 
 PATHNODE debug_pathNodes3[] =					// TEST PATH - ANDYE
 { 
-	347,40,0,0,0
+	347,40,80,1,0
 };
 
 PATHNODE debug_pathNodes4[] =					// TEST PATH - ANDYE
@@ -142,15 +142,13 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 			SetPlatformRegenerateTime(devPlat1,100);
 
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path3,PATH_MAKENODETILEPTRS);
-			SetPlatformVisibleTime(devPlat1,45);
-			SetPlatformRegenerateTime(devPlat1,100);
-
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path3,PATH_MAKENODETILEPTRS);
+/*
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path4,PATH_MAKENODETILEPTRS);
 			SetPlatformVisibleTime(devPlat1,45);
 			SetPlatformRegenerateTime(devPlat1,100);
-
+*/
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path5,PATH_MAKENODETILEPTRS);
 			SetPlatformVisibleTime(devPlat1,45);
@@ -202,8 +200,6 @@ void UpdatePlatforms()
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd;
 	VECTOR moveVec;
-	float lowest,t;
-	int i,newCamFacing,newFrogFacing;
 
 	if(platformList.numEntries == 0)
 		return;
