@@ -152,12 +152,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			
 			if (editorOk)
 				RunEditor();
-			else
-			{
-				StartTimer(4,"GameLoop");
-				GameLoop();
-				EndTimer(4);
-			}
+
+			StartTimer(4,"GameLoop");
+			GameLoop();
+			EndTimer(4);
 
 			ProcessUserInput(winInfo.hWndMain);
 			
@@ -173,6 +171,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// clean up
 	DeInitPCSpecifics();
 	DeInitInputDevices();
+	ShutdownEditor();
+
 	free(memPtr);
 	memPtr = NULL;
 
