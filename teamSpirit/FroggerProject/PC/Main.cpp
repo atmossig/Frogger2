@@ -503,11 +503,13 @@ long DrawLoop(void)
 	//	changedView = 1;
 
 	SetupFogParams(fog.min,0,0,0,0);
-	
+
+	BeginDraw();
 	DrawBackdrop();
 
 	if (backGnd)
 		DrawBackground();
+	EndDraw();
 
 	farClip = fog.max;
 	if (fog.min>0)
