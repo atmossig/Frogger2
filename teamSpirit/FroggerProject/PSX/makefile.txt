@@ -27,16 +27,16 @@
 !if $(PAL) == 1
 !if $(MASTER) == 1
 OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++ 
-LIBISL = c:\ps\psx\library\lib\release
+LIBISL = c:\psx\ISL\lib\release
 !endif
 !endif
 
 #pal debug
 !if $(PAL) == 1
 !if $(MASTER) == 0
-#OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O0 -mgpopt -G32 -g -X0$00018000 -comments-c++ -Wall -Wno-unused 
-OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O0 -mgpopt -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
-LIBISL = c:\ps\psx\library\lib\debug
+#OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O2 -mgpopt -G32 -g -X0$00018000 -comments-c++ -Wall -Wno-unused 
+OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
+LIBISL = c:\psx\ISL\lib\debug
 !endif
 !endif
 
@@ -44,7 +44,7 @@ LIBISL = c:\ps\psx\library\lib\debug
 !if $(PAL) == 0
 !if $(MASTER) == 1
 OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
-LIBISL = c:\ps\psx\library\lib\release
+LIBISL = c:\psx\ISL\lib\release
 !endif
 !endif
 
@@ -57,7 +57,7 @@ LIBISL = c:\ps\psx\library\lib\release
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -g -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++
-LIBISL = c:\ps\psx\library\lib\debug
+LIBISL = c:\psx\ISL\lib\debug
 !endif
 !endif
 
@@ -74,11 +74,11 @@ LIBISL = c:\ps\psx\library\lib\debug
 # MAIN TARGET
 # 
 
-frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj collect.obj\
+frogger.cpe:    actor2.obj anim.obj babyfrog.obj bff_load.obj cam.obj collect.obj\
 				custom.obj custom2.obj audio.obj\
 				defdata.obj enemies.obj event.obj evenfunc.obj fixed.obj frogger.obj frogmove.obj \
 				frontend.obj game.obj general.obj hud.obj language.obj layout.obj \
-				levplay.obj levprog.obj maths.obj map_draw.obj memload.obj menus.obj multi.obj overlays.obj \
+				levplay.obj maths.obj map_draw.obj memload.obj menus.obj multi.obj overlays.obj \
 				path.obj platform.obj psiactor.obj script.obj sndview.obj specfx.obj sprite.obj textover.obj \
 				tongue.obj types.obj newpsx.obj map.obj objects.obj textures.obj main.obj world.obj water.obj \
 				bbtimer.obj backdrop.obj eff_draw.obj temp_psx.obj world_eff.obj acostab.obj particle.obj \
@@ -96,7 +96,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 
 #				 slink /l $(LIBISL) /psx /c /wo /v /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 
-				 slink /l $(LIBISL) /psx /c /wo /v /strip @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
+				 slink /l $(LIBISL) /l c:\psx\lib.45 /psx /c /wo /v /strip @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 				 copy video.bin x:\teamspirit\psxversion\cd
 				 copy game.bin x:\teamspirit\psxversion\cd
 				 copy lang.bin x:\teamspirit\psxversion\cd
