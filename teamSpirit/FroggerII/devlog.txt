@@ -1615,3 +1615,89 @@ Current state:
 
 Chris Wilson:
 ------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+14/01/00 - Friday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Fixed that memory bug! Whee! Got sound effects cueing off anims, although along
+	the way I realised that the way we load and identify samples is a big pile of
+	willy fluff. So sometime I have to rewrite the dang thing, probably reading .wav
+	names from my sfx map thing, which means I have to change how it works, to use 
+	strings. Oh well, it keeps me off the streets.
+
+	Fixed loads of bugs for the US toy fair build, and I'll come in at the weekend to
+	finish that.
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+17/01/00 - Tuesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	I love devlog, even if no-one else does. So there.
+
+	Toy fair build is almost done, spent the day scripting, mapping and fixing bugs.
+	Down to 6 entries on the buglist! And fixed quaternion slerps thanks to the PSX
+	guys coming across a bug that isn't obvious on the PC but screws the Playstation.
+	That also seems to fix some of the orientation wierdness on PC, which is good.
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
