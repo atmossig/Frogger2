@@ -258,3 +258,51 @@ ACTOR2 *GetNearestBabyFrog()
 	return nearest;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: FaceBabiesTowardsPlayer
+	Purpose			: makes baby frogs face the frog
+	Parameters		: long
+	Returns			: void
+	Info			: 
+*/
+void FaceBabiesTowardsFrog(long pl)
+{
+	VECTOR vfd	= { 0,0,1 };
+	VECTOR babyup;
+	VECTOR v1,v2,v3;
+	unsigned long i;
+		
+	for(i=0; i<numBabies; i++)
+	{
+		if(babies[i])
+		{
+			if(!(babies[i]->action.isSaved))
+			{
+				if(bTStart[i])
+				{
+					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				}
+				else
+				{
+					babies[i]->actor->pos.v[X] = 0;
+					babies[i]->actor->pos.v[Y] = 0;
+					babies[i]->actor->pos.v[Z] = 0;
+				}
+				babies[i]->action.isSaved = 0;
+			}
+
+			// face baby towards frog
+			SubVector(&v1,&babies[i]->actor->pos,&frog[pl]->actor->pos);
+			MakeUnit(&v1);
+
+			// calculate baby up vector
+			RotateVectorByQuaternion(&babyup,&upVec,&babies[i]->actor->qRot);
+			CrossProduct(&v2,&v1,&babyup);
+			CrossProduct(&v3,&v2,&babyup);
+			Orientate(&babies[i]->actor->qRot,&v3,&vfd,&babyup);
+		}
+	}
+}
+

@@ -46,12 +46,13 @@ float globalFrogScale			= 0.6F;
 //----- FUNCTIONS ------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-//char me[100] = "frogger.obe";
-
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
+	char frogName[16];
 	ACTOR2 **me = &frog[p];
-	(*me)		 = CreateAndAddActor ("frogger.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+
+	sprintf(frogName,"frogger.obe");
+	(*me) = CreateAndAddActor(frogName,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
@@ -62,7 +63,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	InitActorAnim ((*me)->actor);
 	AnimateActor  ((*me)->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);
 
-	// set animation values for frog 'arcade-feel' factor
+	// set animation values for frog 'arcade-feel' factor - will be changing - AndyE
 	(*me)->actor->animation->anims->animStart	= 6;
 	(*me)->actor->animation->anims->animEnd		= 11;
 	

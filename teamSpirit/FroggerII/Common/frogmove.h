@@ -38,20 +38,18 @@
 #define FROGSTATUS_ISONMOVINGPLATFORM			(1 << 14)
 
 #define FROGSTATUS_ISFREEFALLING				(1 << 15)
-//#define FROGSTATUS_ISFALLINGTOGROUND			(1 << 15)
-//#define FROGSTATUS_ISFALLINGTOPLATFORM			(1 << 16)
 
-#define FROGSTATUS_ISWANTINGLONGHOPD			(1 << 17)
-#define FROGSTATUS_ISWANTINGLONGHOPU			(1 << 18)
-#define FROGSTATUS_ISWANTINGLONGHOPL			(1 << 19)
-#define FROGSTATUS_ISWANTINGLONGHOPR			(1 << 20)
-#define FROGSTATUS_ISLONGHOPPING				(1 << 21)
+#define FROGSTATUS_ISWANTINGLONGHOPD			(1 << 16)
+#define FROGSTATUS_ISWANTINGLONGHOPU			(1 << 17)
+#define FROGSTATUS_ISWANTINGLONGHOPL			(1 << 18)
+#define FROGSTATUS_ISWANTINGLONGHOPR			(1 << 19)
+#define FROGSTATUS_ISLONGHOPPING				(1 << 20)
 
-#define FROGSTATUS_ISFLOATING					(1 << 22)
-#define FROGSTATUS_ISSPRINGING					(1 << 23)
+#define FROGSTATUS_ISFLOATING					(1 << 21)
+#define FROGSTATUS_ISSPRINGING					(1 << 22)
 
-#define FROGSTATUS_ISCROAKING					(1 << 24)
-#define FROGSTATUS_ISTELEPORTING				(1 << 25)
+#define FROGSTATUS_ISCROAKING					(1 << 23)
+#define FROGSTATUS_ISTELEPORTING				(1 << 24)
 
 
 enum
@@ -106,8 +104,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p);
 void UpdateFroggerPos(long p);
 BOOL MoveToRequestedDestination(int dir,long pl);
 void GetNextTile(unsigned long direction,long pl);
-
-void SlurpFroggerPosition(int whereTo,long pl);
 
 void CheckForFroggerLanding(int whereTo,long pl);
 void SlideFroggerPosition(ACTOR2 *actor2);

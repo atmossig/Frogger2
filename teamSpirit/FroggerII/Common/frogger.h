@@ -84,8 +84,15 @@ typedef struct _PLAYER
 
 	unsigned long	isCroakFloating;
 
-	unsigned long	jumpStart;
-	unsigned long	jumpEnd;
+	unsigned long	jumpStartFrame;
+	unsigned long	jumpEndFrame;
+	float			vInitialVelocity;
+	float			hInitialVelocity;
+	VECTOR			vMotionDelta;
+	VECTOR			hMotionDelta;
+	VECTOR			jumpFwdVector;
+	VECTOR			jumpUpVector;
+
 
 } PLAYER;
 

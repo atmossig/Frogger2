@@ -29,6 +29,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays);
 void RunBabySavedSequence(ACTOR2 *baby);
 
 ACTOR2 *GetNearestBabyFrog();
+void FaceBabiesTowardsFrog(long pl);
 
 
 #endif

@@ -44,6 +44,9 @@ unsigned long gstrcmp(char *a,char *b)
 
 void stringChange ( char *name )
 {
+
+#ifdef PC_VERSION
+
 	char *c = strstr(name, ".ndo");
 	if (c)
 	{
@@ -51,6 +54,24 @@ void stringChange ( char *name )
 		strcpy(c, ".obe");
 		dprintf "%s\n", name));
 	}
+
+#else
+	
+	char *tmpName;
+
+	while ( *name != '.' )
+	{
+		dprintf"%c", *name ));
+		name++;
+	}
+
+	name[1] = 'o';
+	name[2] = 'b';
+	name[3] = 'e';
+	name[4] = '\0';
+	dprintf"%c\n", name ));
+
+#endif
 }
 
 inline void cmemcpy( char *a, char *b, unsigned long size )
