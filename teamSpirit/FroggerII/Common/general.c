@@ -121,13 +121,15 @@ GAMETILE* FindNearestJoinedTile( GAMETILE *tile, VECTOR *pos )
 	{
 		t = tile->tilePtrs[i];
 		if( t )
-		if( (t->state != TILESTATE_BARRED) && (t->state != TILESTATE_JOIN) )
 		{
-			dist = DistanceBetweenPointsSquared(pos, &t->centre);
-			if (dist < closestDist)
+			if( (t->state != TILESTATE_BARRED) && (t->state != TILESTATE_JOIN) )
 			{
-				closest = t;
-				closestDist = dist;
+				dist = DistanceBetweenPointsSquared(pos, &t->centre);
+				if (dist < closestDist)
+				{
+					closest = t;
+					closestDist = dist;
+				}
 			}
 
 			for( j=0; j<4; j++ )
