@@ -20,6 +20,11 @@
 
 #include "incs.h"
 
+#ifdef PC_VERSION
+
+void RunSndView() { }
+
+#else
 
 char *sfxNames[] =
 {
@@ -387,16 +392,14 @@ void RunSndView()
 	static TEXTOVERLAY *title,*titleSfx,*titleMus;
 	static u16 button,lastbutton;
 	static s16 stickX,stickY;
+	SPRITEOVERLAY *sprPane;
 
-#ifdef PC_VERSION
-	return;
-#endif
-	
 	if(frameCount == 1)
 	{
 		FreeAllLists();
 		
 		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
 		currFont = smallFont;
 		title = CreateAndAddTextOverlay(20,20,"sound player",NO,NO,255,255,255,255,currFont,0,0,0);
@@ -409,6 +412,8 @@ void RunSndView()
 		titleMus = CreateAndAddTextOverlay(30,130,"MUSIC TRACK",NO,NO,255,0,0,95,currFont,0,0,0);
 		musName = CreateAndAddTextOverlay(30,145,"",NO,NO,255,255,255,95,currFont,0,0,0);
 		musName->text = gameSongs[musNum].tuneName;
+
+		sprPane = CreateAndAddSpriteOverlay(15,15,"tippane.bmp",200,30,255,255,255,255,0);
 
 		sfxNum	= 0;
 		musNum	= 0;
@@ -594,3 +599,5 @@ void RunSndView()
 		titleMus->a = 255;
 	}
 }
+
+#endif
