@@ -2,6 +2,8 @@
 #define __3DTEXT_H
 
 
+//#define T360_TIMER		200
+
 #define T3D_CIRCLE		1
 #define T3D_HORIZONTAL	2
 #define T3D_VERTICAL	3
@@ -17,6 +19,7 @@
 #define T3D_MOVE_SINE	(1<<8)
 #define T3D_MOVE_TWIST	(1<<9)
 #define T3D_MOVE_SQUISH	(1<<10)
+//#define T3D_MOVE_360	(1<<11)
 
 #define T3D_CALCULATED	(1<<29)
 #define T3D_PATH_BOUNCE	(1<<30)
@@ -35,6 +38,7 @@ typedef struct _TEXT3D
 	long width, xOffs, yOffs, zOffs;
 	VECTOR vel;             // Velocity vector
 	float rSpeed;			// Speed of rotation
+	//unsigned long timer;	// For things like T3D_MOVE_360
 	unsigned int tileSize;	// Scaled size of each tile
 
 } TEXT3D;

@@ -50,6 +50,8 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->motion = motion;
 	t3d->type = type;
 
+	//t3d->timer = T360_TIMER; // Default value
+
 	t3d->vT = (Vtx *)JallocAlloc(sizeof(Vtx)*len*4, NO, "Vtx");
 
 	// Finally, add new text3D to global list
@@ -84,26 +86,29 @@ void Print3DText( )
 	gDPPipeSync(glistp++);
 
 	gSPDisplayList(glistp++,polyNoZ_dl);
+	gSPClearGeometryMode( glistp++, G_LIGHTING );
 	gDPSetTextureFilter(glistp++,G_TF_BILERP);
+	gSPSetGeometryMode( glistp++, G_ZBUFFER );
+	gDPSetRenderMode(glistp++, G_RM_ZB_XLU_SURF,G_RM_ZB_XLU_SURF2);
+
+	guTranslateF(transMtx,-0.5,-0.5,10);
+
+	NormalToQuaternion(&q,&inVec);
+	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
+	guMtxCatF(rotMtx,transMtx,tempMtx);
+
+	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+										G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+	gDPSetPrimColor(glistp++,0,0,255,255,255,255);
+	gDPSetEnvColor(glistp++,128,128,128,255);
 
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
 		if( !(t3d->motion & T3D_CALCULATED) )
 			continue;
 		
-		guTranslateF(transMtx,-0.5,-0.5,10);
-
-		NormalToQuaternion(&q,&inVec);
-		QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-		guMtxCatF(rotMtx,transMtx,tempMtx);
-
-		guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-		gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-											G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-		gDPSetPrimColor(glistp++,0,0,255,255,255,255);
-		gDPSetEnvColor(glistp++,128,128,128,255);
-
 		len = strlen(t3d->string);
 		for( c=0,v=0; c < len; c++,v+=4 )
 		{
@@ -398,6 +403,27 @@ void MakeTextLine( TEXT3D *t3d )
 				zPc = t3d->zOffs - sfz2;
 				zPd = t3d->zOffs + sfz2;
 			}
+			/*
+			if( t3d->motion & T3D_MOVE_360 && !t3d->timer )
+			{
+				float radians = t3d->angle / 57.6,
+					twa = (i*t3d->twistA)+radians,
+					twb = ((i+1)*t3d->twistA)+radians,
+					sfx1 = sinf(twa)*tS,
+					sfx2 = sinf(twb)*tS,
+					sfz1 = cosf(twa)*tS,
+					sfz2 = cosf(twb)*tS;
+
+				xPa = t3d->xOffs + sfx1;
+				xPb = t3d->xOffs - sfx1;
+				xPc = t3d->xOffs - sfx2;
+				xPd = t3d->xOffs + sfx2;
+				zPa = t3d->zOffs + sfz1;
+				zPb = t3d->zOffs - sfz1;
+				zPc = t3d->zOffs - sfz2;
+				zPd = t3d->zOffs + sfz2;
+			}
+			*/
 
 			V((&vPtr[v+0]),xPa,	zPa, yPa, 0, 0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			V((&vPtr[v+1]),xPb,	zPb, yPb, 0, 1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
@@ -436,7 +462,22 @@ void UpdateT3DMotion( TEXT3D *t3d )
 
 	if( (t3d->motion & T3D_MOVE_IN) || (t3d->motion & T3D_MOVE_OUT) )
 		t3d->zOffs += t3d->vel.v[2];
+/*
+	if( t3d->motion & T3D_MOVE_360 )
+	{
+		if( t3d->timer )
+			t3d->timer--;
+		else
+		{
+			t3d->angle += t3d->rSpeed;
 
+			if( t3d->angle >= 360 )
+				t3d->angle = 0;
+			else if( t3d->angle <= 0 )
+				t3d->angle = 360;
+		}
+	}
+*/
 	/*
 	*	The rest of the function is checking whether the text is offscreen, and
 	*	resetting parameters if it is.
