@@ -18,7 +18,7 @@
 #define FROG_NORMALJUMPHEIGHT					25.0F
 #define FROG_SUPERJUMPHEIGHT					50.0F
 
-
+#define NOINIT_VELOCITY							-100000.0
 // frog movement / action flags
 #define FROGSTATUS_NONE							0
 #define FROGSTATUS_ISDEAD						(1 << 0)
@@ -93,8 +93,16 @@ extern float frogGravity;
 
 extern unsigned long standardHopFrames;
 extern unsigned long superHopFrames;
+extern unsigned long doubleHopFrames;
 extern unsigned long longHopFrames;
 extern unsigned long quickHopFrames;
+extern unsigned long floatFrames;
+extern float superGravity;
+extern float hopGravity;
+extern float frogGravity;
+extern float doubleGravity;
+extern float floatGravity;
+
 
 
 
@@ -116,7 +124,7 @@ void GetNextTileLongHop(unsigned long direction,long pl);
 void RotateFrog(ACTOR2* frog,unsigned long fFacing);
 void AnimateFrogHop(unsigned long direction,long pl);
 
-void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl);
+void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl,float gravity, float initVelocity);
 
 
 #endif

@@ -39,7 +39,7 @@ long hopAmt = 10;
 
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
-
+char tileString[16];
 long award = 2;
 short showEndLevelScreen = 1;
 
@@ -70,7 +70,7 @@ void GameProcessController(long pl)
 	stickY[pl] = controllerdata[pl].stick_y;
 		
 	player[pl].hasJumped = 0;
-
+	
 	if ( autoPlaying )
 	{
 		LevelPlayingProcessController();
@@ -175,7 +175,33 @@ void GameProcessController(long pl)
 		}
 	}
 
+	if ((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
+	{
+			if (((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && (player[pl].hasDoubleJumped))
+			{
+			/*	float t;
 
+				// player is superhopping - make frog double jump
+				t = floatFrames;
+				player[pl].hasDoubleJumped = 1;	
+
+				if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+				{
+					CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+									&destTile[pl]->centre,&destTile[pl]->normal,t,pl,floatGravity,NOINIT_VELOCITY);
+				}
+				else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+				{
+					CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
+									&destPlatform[pl]->pltActor->actor->pos,
+									&destPlatform[pl]->inTile->normal,t,pl,floatGravity,NOINIT_VELOCITY);
+				}
+*/
+				
+
+			}
+	}
+	
 	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
     {
 		if ( gameState.mode == CAMEO_MODE )
@@ -184,27 +210,29 @@ void GameProcessController(long pl)
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
 
-		if((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F))
+		if (((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && (!player[pl].hasDoubleJumped))
 		{
 			float t;
 
 			// player is superhopping - make frog double jump
-			t = superHopFrames;
+			t = doubleHopFrames;
+			player[pl].hasDoubleJumped = 1;
 
 			if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 			{
 				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destTile[pl]->centre,&destTile[pl]->normal,t,pl);
+									&destTile[pl]->centre,&destTile[pl]->normal,t,pl,doubleGravity,NOINIT_VELOCITY);
 			}
 			else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 			{
 				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
 									&destPlatform[pl]->pltActor->actor->pos,
-									&destPlatform[pl]->inTile->normal,t,pl);
+									&destPlatform[pl]->inTile->normal,t,pl,doubleGravity,NOINIT_VELOCITY);
 			}
 
-			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,2.0F,0,0);
-			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		
+			//AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,2.0F,0,0);
+			//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 		}
 
 		if((longHop) && !(player[pl].isLongHopping) && !(player[pl].inputPause))
@@ -238,6 +266,7 @@ void GameProcessController(long pl)
 			// frog is wanting superhop
 			player[pl].isSuperHopping = 1;
 			player[pl].hasJumped = 1;
+			player[pl].hasDoubleJumped = 0;
 
 			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
@@ -583,7 +612,7 @@ void RunGameLoop (void)
 //		sp = AddNewSpriteToList(firstTile[],firstTile[],firstTile[],0,"wholekey.bmp",0);
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
-		tileNum = CreateAndAddTextOverlay(0,35,"TILENUM",YES,NO,255,255,255,255,smallFont,0,0,0);
+		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,NO,255,255,255,255,smallFont,0,0,0);
 #endif
 
 		//CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
@@ -784,11 +813,12 @@ void RunGameLoop (void)
 
 					CameraLookAtFrog();
 					UpdateCameraPosition(0);
-					for (i=0; i<4; i++)
+					for (i=0; i<NUM_FROGS; i++)
 					{
 					
 						if ( !( player[i].frogState & FROGSTATUS_ISFLOATING ) )
-							SitAndFace(frog[i],currTile[i],frogFacing[i]);
+							if (frog[i])
+								SitAndFace(frog[i],currTile[i],frogFacing[i]);
 						else if ( player[i].frogState & FROGSTATUS_ISFLOATING )
 						{
 							//SitAndFace(frog,currTile,frogFacing);

@@ -29,7 +29,7 @@ void InitActorAnim(ACTOR *tempActor)
 {
 	if( !tempActor->objectController )
 		return;
-
+	
 	memcpy(tempActor->animation, tempActor->objectController->animation, sizeof(ACTOR_ANIMATION));	
 	tempActor->animation->currentAnimation = -1;
 
@@ -42,6 +42,7 @@ void InitActorAnim(ACTOR *tempActor)
 	tempActor->animation->numberQueued = 0;
 	tempActor->animation->animTime = 0;
 	tempActor->animation->reachedEndOfAnimation = FALSE;
+	
 }
 
 /*	--------------------------------------------------------------------------------
@@ -62,11 +63,11 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 	if(actorAnim->anims == NULL)
 		return;
 
-	if((actorAnim->currentAnimation == animNum) && (queue == NO) && (actorAnim->reachedEndOfAnimation == FALSE) && (((speed == 0) && (actorAnim->animationSpeed == actorAnim->anims[animNum].speed)) || (speed == actorAnim->animationSpeed)))
-	{
-		actorAnim->loopAnimation = loop;
-		return;
-	}
+//if((actorAnim->currentAnimation == animNum) && (queue == NO) && (actorAnim->reachedEndOfAnimation == FALSE) && (((speed == 0) && (actorAnim->animationSpeed == actorAnim->anims[animNum].speed)) || (speed == actorAnim->animationSpeed)))
+//	{
+//		actorAnim->loopAnimation = loop;
+//		return;
+//	}
 
 	if(animNum > actorAnim->numAnimations)
 	{

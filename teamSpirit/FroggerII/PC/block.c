@@ -616,11 +616,28 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 	Parameters		: 
 	Returns			: 
 	Info			: 
+
 */
 VECTOR oldCCSource, oldCCTarget;
 extern long numSprites;
+extern long numPixelsDrawn;
+char fR,fG,fB;
 void DrawGraphics() 
 {
+//	if( fog.mode )
+	{
+		fog.r = fR;
+		fog.g = fG;
+		fog.b = fB;
+
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
+		//pDirect3DDevice->lpVtbl->SetLightState(pDirect3DDevice,D3DLIGHTSTATE_FOGSTART, *(DWORD *)(&fStart));
+		//pDirect3DDevice->lpVtbl->SetLightState(pDirect3DDevice,D3DLIGHTSTATE_FOGEND,   *(DWORD *)(&fEnd));
+	}
+
+	numPixelsDrawn=0;
 	numSprites = 0;
 
 	currentFrameTime = timeGetTime();
@@ -705,10 +722,7 @@ void DrawGraphics()
 				
 				if (res == DD_OK)
 				{
-					if (drawTimers == 2)
-						sprintf(speed,"%4f %4f %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn);
-					else
-						sprintf(speed,"%4f %4f %lu %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numSprites);
+					sprintf(speed,"%4f - %4f - %lu - %lu - %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numSprites,numPixelsDrawn);
 					
 					SetBkMode(hdc, TRANSPARENT);
 					SetTextColor(hdc, RGB(255,0,0));

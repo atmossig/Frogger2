@@ -128,7 +128,12 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	if (obj->mesh)
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
-			obj->mesh->textureIDs[x] = (long)GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
+			TEXENTRY *me;
+			me = obj->mesh->textureIDs[x] = (long)GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
+			
+			if (me)
+				if (me->type == TEXTURE_AI)
+					obj->flags |= OBJECT_FLAGS_XLU;
 		}
 
 	if(obj->children)

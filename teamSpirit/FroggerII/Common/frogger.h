@@ -81,6 +81,7 @@ typedef struct _PLAYER
 	// frog movement related stuff
 	unsigned char 	canJump;
 	unsigned char	hasJumped;
+	unsigned char	hasDoubleJumped;
 	unsigned char	isSuperHopping;
 	unsigned char	isLongHopping;
 	unsigned char	isSinking;

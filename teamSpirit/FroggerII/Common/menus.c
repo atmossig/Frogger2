@@ -78,8 +78,8 @@ void RunTitleScreen( )
 
 #ifdef MBR_DEMO
 		FreeAllLists();
-		player[0].worldNum = WORLDID_LABORATORY;
-		player[0].levelNum = 0;
+		player[0].worldNum = WORLDID_FRONTEND;
+		player[0].levelNum = LEVELID_FRONTEND5;
 		InitLevel( player[0].worldNum, player[0].levelNum );
 
 		gameState.oldMode = FRONTEND_MODE;

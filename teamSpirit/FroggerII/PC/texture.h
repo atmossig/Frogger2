@@ -14,6 +14,11 @@
 
 #define MAX_TEXTURE_BANKS		5
 
+enum
+{
+	TEXTURE_NORMAL,
+	TEXTURE_AI
+};
 
 typedef struct
 {
@@ -28,6 +33,7 @@ typedef struct tTEXENTRY
 	long CRC;
 	char name[32];
 	short *data;
+	long type;
 	struct tTEXENTRY *next;
 	LPDIRECTDRAWSURFACE surf;
 	D3DTEXTUREHANDLE hdl;

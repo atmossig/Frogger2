@@ -53,6 +53,8 @@ void EndDrawHardware (void);
 extern void ReleaseSurface(LPDIRECTDRAWSURFACE surf);
 
 extern void dp(char *format, ...);
+extern float fStart;
+extern float fEnd;
 
 
 #ifdef __cplusplus

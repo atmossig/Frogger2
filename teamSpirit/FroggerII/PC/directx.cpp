@@ -23,6 +23,7 @@
 #include <crtdbg.h>
 #include "commctrl.h"
 #include "network.h"
+#include "math.h"
 
 #include <windowsx.h>
 #include <mmsystem.h>
@@ -44,6 +45,12 @@ long HALF_WIDTH = 160;
 long HALF_HEIGHT = 120;
 float RES_DIFF = 1;
 float RES_DIFF2 = 2;
+
+float fStart = 0.3;
+float fEnd = 0.6;
+
+extern long numPixelsDrawn;
+#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs(((x1-x3)*(y2-y3) - (y1-y3)*(x2-x3))*0.5)
 
 HWND win;
 
@@ -1095,7 +1102,8 @@ void DirectXFlip(void)
 	if (runHardware)
 	{
 		DDINIT(m);
-		m.dwFillColor = D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
+		m.dwFillColor = D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0);
+		//D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
 		while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
 	
 		DDINIT(m);
@@ -1108,8 +1116,6 @@ void DirectXFlip(void)
 
 void SetupRenderstates(void)
 {
-	float fStart = 0.3,
-		fEnd = 0.6;
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,NULL);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE,FALSE);
@@ -1131,14 +1137,14 @@ void SetupRenderstates(void)
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
 
 	//Pixel Fog
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_LINEAR );
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEMODE, D3DFOG_LINEAR );
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
 
 	// Vertex Fog
-    pDirect3DDevice->SetLightState(D3DLIGHTSTATE_FOGMODE, D3DFOG_LINEAR);
-    pDirect3DDevice->SetLightState(D3DLIGHTSTATE_FOGSTART, *(DWORD *)(&fStart));
-    pDirect3DDevice->SetLightState(D3DLIGHTSTATE_FOGEND,   *(DWORD *)(&fEnd));
+ //   pDirect3DDevice->SetLightState(D3DLIGHTSTATE_FOGMODE, D3DFOG_LINEAR);
+//    pDirect3DDevice->SetLightState(D3DLIGHTSTATE_FOGSTART, *(DWORD *)(&fStart));
+   // pDirect3DDevice->SetLightState(D3DLIGHTSTATE_FOGEND,   *(DWORD *)(&fEnd));
 }
 
 // Split this out into two functions (CreateTextureSurface and CopyToSurface)
@@ -1300,6 +1306,7 @@ void EndDrawHardware (void)
 	pDirect3DDevice->EndScene();
 }
 
+extern long drawTimers;
 void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h)
 {
 	int i, j, v1, v2, v3, e;
@@ -1313,6 +1320,12 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
+	
+	if (drawTimers)
+		for (i=0; i<fC; i+=3)
+		{
+			numPixelsDrawn += TriangleArea(v[i].sx,v[i].sy,v[i+1].sx,v[i+1].sy,v[i+2].sx,v[i+2].sy);
+		}
 	
 	if (pDirect3DDevice->DrawIndexedPrimitive(
 		D3DPT_TRIANGLELIST,
@@ -1538,6 +1551,7 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,NULL);
 		lastH = NULL;
 	}
+
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
@@ -1577,7 +1591,6 @@ D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)
 }
 
 }
-
 
 void ScreenShot ( DDSURFACEDESC ddsd )
 {
@@ -1646,8 +1659,7 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 			line[linePos++] = col;*/
 
 		}
-			fwrite ( line, sizeof ( line ), 1, fp );//(file, line, linePos);	
-		
+			fwrite ( line, sizeof ( line ), 1, fp );			
 	}
 
 

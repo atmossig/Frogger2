@@ -188,11 +188,11 @@ void DrawActorList()
 	
 		cur = cur->next;
 	}
-
-#ifdef PC_VERSION
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-#endif
 	
+	#ifdef PC_VERSION
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	#endif
+
 	waterObject = 1;
 	cur = actList;
 	while(cur)
