@@ -208,7 +208,7 @@ char arcadeStr[64];
 char *selectStr = "select level to play";
 char *statusStr = "Cursors select   Enter confirm   Esc cancel";
 
-char *timeStr = "2 51 Matthew";
+char timeStr[64] = "2 51 Matthew";
 char *parStr =  "Par  Set By";
 
 char worldStr[64] = "WorldID";
@@ -608,6 +608,8 @@ void RunFrontendGameLoop (void)
 	if (currTileNum==5)
 	{
 		strcpy (worldStr,worldVisualData[cWorld].description);
+		
+		
 		worldBak->height = worldVisualData[cWorld].numLevels*10 + 40;
 		worldBak->xPosTo = 10;
 
@@ -626,6 +628,8 @@ void RunFrontendGameLoop (void)
 		bestText->b = levelText[cLevel]->b = 10;
 	
 		levelText[cLevel]->waveAmplitude = 4;
+		
+		sprintf(timeStr,"%lu %02i",worldVisualData[cWorld].levelVisualData[cLevel].parTime/60,worldVisualData[cWorld].levelVisualData[cLevel].parTime%60);
 
 		strcpy(arcadeStr,"Arcade Mode");
 

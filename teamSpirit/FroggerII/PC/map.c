@@ -31,7 +31,6 @@ GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;
 
-unsigned long numGaribsTotal;
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadMapBank
@@ -697,7 +696,6 @@ void LoadLevelEntities(int worldID, int levelID)
 	#endif
 	}
 	
-	numGaribsTotal = garibCollectableList.numEntries;
 	JallocFree((UBYTE**)&buffer);
 }
 

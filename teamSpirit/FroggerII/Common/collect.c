@@ -193,7 +193,8 @@ void PickupCollectable(GARIB *garib, int pl)
 
 	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
 		numMultiItems--;
-
+	
+	SparkleCoins();
 	SubGarib(garib);
 }
 

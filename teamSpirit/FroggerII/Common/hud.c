@@ -48,12 +48,16 @@ TEXTOVERLAY *wholeKeyText = NULL;
 char levelString[] = "Levelname Goes in here";
 char posString[] = "-----------------------";
 
-extern unsigned long numGaribsTotal;
-
 ///////////////////////////////////////////////////////////////////////////////////////
+
+#define MAX_HUD_SPARKLES 20
 
 typedef struct TAG_ARCADE_HUD
 {
+	SPRITEOVERLAY *sparkles[MAX_HUD_SPARKLES];
+	unsigned long sX,sY,sW,sH;
+	unsigned long sTime;
+
 	SPRITEOVERLAY *backLeft;
 	SPRITEOVERLAY *backLeftExtra;
 
@@ -84,7 +88,8 @@ char coinsText[32] = "00 of 32";
 
 void InitHUD(void)
 {
-	//timeTextOver = CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
+	int
+		i;
 	arcadeHud.livesOver = CreateAndAddSpriteOverlay(5,240-27,"hud_frog.bmp",32,32,0xff,0);
 	arcadeHud.timeOver = CreateAndAddSpriteOverlay(236,240-27,"hud_time.bmp",32,32,0xff,0);
 	arcadeHud.coinsOver = CreateAndAddSpriteOverlay(68,240-4-13,"hud_coin.bmp",12,12,0xff,0);
@@ -106,6 +111,35 @@ void InitHUD(void)
 	arcadeHud.timeTextMin = CreateAndAddTextOverlay(234+22,240-7-16,timeStringMin,NO,255,currFont,0,0);
 	arcadeHud.timeTextSec = CreateAndAddTextOverlay(234+22+32,240-7-16,timeStringSec,NO,255,currFont,0,0);
 	
+	for (i=0; i<MAX_HUD_SPARKLES; i++)
+	{
+		arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay((rand()*320 / RAND_MAX),(rand()*240 / RAND_MAX),"flash2.bmp",10,10,0xff,XLU_ADD);
+		arcadeHud.sparkles[i]->r = 200;
+		arcadeHud.sparkles[i]->g = 200;
+		arcadeHud.sparkles[i]->b = 0;
+
+		arcadeHud.sparkles[i]->a = 0;
+		arcadeHud.sparkles[i]->draw = 0;
+		arcadeHud.sparkles[i]->num = 1;
+	}
+}
+
+void SparkleCoins(void)
+{
+	arcadeHud.sX = 82;
+	arcadeHud.sY = 240-14;
+	arcadeHud.sW = 50;
+	arcadeHud.sH = 4;
+	arcadeHud.sTime = actFrameCount + 30;
+}
+
+void SparkleBabies(void)
+{
+	arcadeHud.sX = ((234)-(numBabies*15));
+	arcadeHud.sY = 240-14;
+	arcadeHud.sW = (numBabies*15)-15;
+	arcadeHud.sH = 4;
+	arcadeHud.sTime = actFrameCount + 30;
 }
 
 void DisableHUD(void)
@@ -124,10 +158,62 @@ void EnableHUD(void)
 
 void UpDateOnScreenInfo( void )
 {
+	long i;
+	long xPos,yPos;
+	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 60;
+		
+	timeFrames -=actFrameCount;
+	if (timeFrames<0)
+	{
+		timeFrames = 0;
+		arcadeHud.timeTextMin->r = arcadeHud.timeTextSec->r = 255;
+		arcadeHud.timeTextMin->g = arcadeHud.timeTextSec->g = 0;
+		arcadeHud.timeTextMin->b = arcadeHud.timeTextSec->b = 0;
+
+	}
+
 	sprintf(livesText,"%lu",player[0].lives);	
-	sprintf(timeStringSec,"%02i",((int)actFrameCount/60)%60);
-	sprintf(timeStringMin,"%2i",((int)actFrameCount/(60*60))%60);	
-	sprintf(coinsText,"%02i of %02i",numGaribsTotal-garibCollectableList.numEntries,numGaribsTotal);
+	sprintf(timeStringSec,"%02i",((int)timeFrames/60)%60);
+	sprintf(timeStringMin,"%2i",((int)timeFrames/(60*60))%60);	
+	sprintf(coinsText,"%02i of %02i",garibList.total-garibList.count,garibList.total);
+
+	if (actFrameCount<arcadeHud.sTime)
+	{
+				
+		for (i=0; i<MAX_HUD_SPARKLES; i++)
+		{
+			xPos = arcadeHud.sX + ((1+sinf(i*0.3+actFrameCount *0.05))*arcadeHud.sW)/2;
+			arcadeHud.sparkles[i]->xPosTo = arcadeHud.sparkles[i]->xPos = xPos;
+		
+
+			if (arcadeHud.sparkles[i]->a>gameSpeed*3)
+				arcadeHud.sparkles[i]->a -= gameSpeed*3;
+			else
+			{
+				SPRITEOVERLAY *me;
+				yPos = arcadeHud.sY + (rand()*arcadeHud.sH)/RAND_MAX;
+				me = arcadeHud.sparkles[i];
+				me->a = (rand()*255)/RAND_MAX;
+				me->width = 4+(rand() * 6) / RAND_MAX;
+				me->height = me->width;
+				me->yPosTo = me->yPos = yPos + 5 - me->height;			
+				
+				me->draw = 1;
+			}		
+		}
+	}
+	else
+		for (i=0; i<MAX_HUD_SPARKLES; i++)
+		{
+			xPos = arcadeHud.sX + ((1+sinf(i*0.3+actFrameCount *0.05))*arcadeHud.sW)/2;
+			arcadeHud.sparkles[i]->xPosTo = arcadeHud.sparkles[i]->xPos = xPos;
+		
+			if (arcadeHud.sparkles[i]->a>gameSpeed*3)
+				arcadeHud.sparkles[i]->a -= gameSpeed*3;
+			else
+				arcadeHud.sparkles[i]->draw = 0;
+		}
+
 }
 
 

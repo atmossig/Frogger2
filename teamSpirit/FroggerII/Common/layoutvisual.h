@@ -689,7 +689,7 @@ typedef struct TAGLEVEL_VISUAL_DATA
 	unsigned char		texCRC[16];
 	unsigned char		percent;
 	unsigned long		levelID;
-
+	
 	unsigned long		nextLevelID;
 	unsigned long		nextWorldID;
 
@@ -705,6 +705,8 @@ typedef struct TAGLEVEL_VISUAL_DATA
 	unsigned long		fogNearDist;
 	unsigned long		fogFarDist;
 	unsigned long		farDist;
+
+	unsigned long		parTime;
 
 } LEVEL_VISUAL_DATA;
 

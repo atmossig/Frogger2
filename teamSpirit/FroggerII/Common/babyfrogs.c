@@ -126,6 +126,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	unsigned long i;
 	SPECFX *fx;
 	VECTOR pos, up;
+	SparkleBabies();
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
 
