@@ -22,6 +22,7 @@ enum gameModes
 
 	GAME_MODE,
 	INGAME_MODE,
+	MENU_MODE,
 
 	CAMEO_MODE,
 
@@ -34,6 +35,9 @@ enum gameModes
 
 	SNDVIEW_MODE,
 	OBJVIEW_MODE,
+
+	TITLE_MODE,
+	LEVELSELECT_MODE,
 	DEVELOPMENT_MODE,
 };
 
@@ -46,6 +50,7 @@ struct gameStateStruct
 	unsigned char multi;
 	unsigned long mode;
 	unsigned long oldMode;
+	unsigned long menuMode;
 };
 
 //------------------------------------------------------------------------------------------------

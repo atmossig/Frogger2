@@ -62,6 +62,31 @@ void GameLoop(void)
 			frameCount++;
 			break;
 
+		// MENU MODE IS JUST INCLUDED FOR DEVELOPMENT PURPOSES - WILL BE REMOVED FOR RELEASE
+		case MENU_MODE:
+			if(frameCount == 15)
+				StartDrawing("gameloop");
+
+			switch(gameState.menuMode)
+			{
+				case TITLE_MODE:
+					RunTitleScreen();
+					break;
+
+				case LEVELSELECT_MODE:
+					RunLevelSelect();
+					break;
+
+				case DEVELOPMENT_MODE:
+					break;
+
+				default:
+					dprintf""));
+			}
+			frameCount++;
+			break;
+
+
 #ifdef N64_VERSION
 		case DEVELOPMENT_MODE:
 			if(frameCount == 15)
