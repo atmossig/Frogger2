@@ -34,6 +34,8 @@
 
 unsigned long nextUpdate = 0, nextPing = 0;
 
+bool	ready = false;
+
 typedef struct
 {
 	unsigned char	type;
@@ -373,6 +375,7 @@ void NetgameStartGame()
 	int players[4];
 
 	nextUpdate = 0;
+	ready = (isServer);
 
 	gameState.mode = INGAME_MODE;
 	gameState.multi = SINGLEPLAYER;
@@ -419,6 +422,8 @@ void NetgameRun()
 		nextPing += PING_PERIOD;
 	}
 
+	bool wasReady = ready;
+
 	NetProcessMessages();
 
 	if (gameState.mode == INGAME_MODE)
@@ -430,8 +435,11 @@ void NetgameRun()
 		UpdateFroggerPos(0);
 		
 		// ooer missus
-		UpdateEnemies();
-		UpdateSpecialEffects();
+		if (ready)
+		{
+			UpdateEnemies();
+			UpdateSpecialEffects();
+		}
 
 		int i;
 
@@ -484,6 +492,8 @@ void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player)
 
 	timeInfo.tickCount = (pingreply->reply + latency);
 	timeInfo.firstTicks = (long)currTime - (long)timeInfo.tickCount; //
+
+	ready = true;
 }
 
 

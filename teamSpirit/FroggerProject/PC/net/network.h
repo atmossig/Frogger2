@@ -18,14 +18,19 @@ extern "C"
 {
 #endif
 
+// Message identifiers - the first byte of our data packets
+// note that message size varies depending on context
+
 enum APPMSGTYPE
 {
-	APPMSG_LEVELSEL,
-	APPMSG_START,
-	APPMSG_CHAT,
-	APPMSG_UPDATE,
-	APPMSG_PING,
-	APPMSG_PINGREPLY
+	APPMSG_LEVELSEL,	// player has selected a new level (in the front-end)
+	APPMSG_START,		// start the game!
+	APPMSG_CHAT,		// chat message (text)
+	APPMSG_UPDATE,		// game update
+	APPMSG_PING,		// ping
+	APPMSG_PINGREPLY,	// ping reply
+	APPMSG_READY,		// this player is ready (synched etc.)
+	APPMSG_DEATH,		// this player was deaded
 };
 
 typedef struct _NETPLAYER
