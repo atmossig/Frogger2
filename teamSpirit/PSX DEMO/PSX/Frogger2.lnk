@@ -1,9 +1,32 @@
 
 	org	$80018000
+	regs	pc=__SN_ENTRY_POINT	; entry point
 
 text	group				; main text group
+dcache	group	obj(0x1f800000),size(0x400)
 bss	group	bss			; main data group
 
+video	group	file("video.bin")
+game	group	over(video),file("game.bin")
+lang	group	over(video),file("lang.bin")
+
+	section video.*,video
+	section videoecachedata,dcache
+
+	section game.*,game
+	section gamecachedata,dcache
+
+	section lang.*,lang
+	section langcachedata,dcache
+
+
+
+	section.4096 align4k.text,text
+   	section align4k.*,text
+   	section align4k.bss,bss
+   	section align4k.sbss,bss
+
+	section .*,text
 	section	.rdata,text	; main sections
 	section	.text,text
 	section	.data,text
@@ -11,16 +34,27 @@ bss	group	bss			; main data group
 	section	.sbss,bss
 	section	.bss,bss
 
-	include	harness.obj
+	include	"main.obj"
 
-	inclib	"none2.lib"
+    inclib "libsn.lib"                                     ;if DEVELOPMENT VERSION
+;    inclib	"none2.lib"                ;if DEMO DISC VERSION
 
-	inclib	"g:\program\psx\lib.31\libapi.lib"
-	inclib	"g:\program\psx\lib.31\libgpu.lib"
-	inclib	"g:\program\psx\lib.31\libetc.lib"
-	inclib	"g:\program\psx\lib.31\libcd.lib"
-	inclib	"g:\program\psx\lib.31\libpress.lib"
-	inclib	"g:\program\psx\lib.31\libc.lib"
+	inclib  "libapi.lib"
+	inclib  "libpad.lib"
+    inclib  "libpress.lib"
+	inclib  "libgpu.lib"
+	inclib  "libgs.lib"
+	inclib  "libgte.lib"
+	inclib  "libcd.lib"
+	inclib  "libetc.lib"
+	inclib  "libspu.lib"
+    inclib  "libmath.lib"
+	inclib  "libc2.lib"
+	inclib  "libmcrd.lib"
+	inclib  "libcard.lib"
+    inclib  "libds.lib"
 
-	regs	pc=__SN_ENTRY_POINT	; entry point
+	inclib	"islpad.lib"
+	inclib	"islutil.lib"
+	inclib	"islmem.lib"
 
