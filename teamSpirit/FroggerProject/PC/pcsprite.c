@@ -25,19 +25,13 @@
 #include "pcsprite.h"
 #include "layout.h"
 
+#define FIXED_TO_RADS				0.001525879
 
-// added by ANDYE to facilitate (<- ooh, good word !) Sutherland-Hodgman clipping algorhythmicallythingy
-typedef struct TAGPOLYCLIP
-{
-	int numVerts;
-	D3DTLVERTEX verts[10];
+#define MAX_ARRAY_SPRITES			768
+#define SPRITE_ZSORT_DRAWDISTANCE	450
 
-} POLYCLIP;
-
-#define MAX_ARRAY_SPRITES		768
-
-extern int numSortArraySprites;
-extern SPRITE *spriteSortArray;
+int numSortArraySprites = 0;
+SPRITE *spriteSortArray[MAX_ARRAY_SPRITES];
 
 int SpriteZCompare(const void *arg1,const void *arg2);
 void ZSortSpriteList();
@@ -45,9 +39,6 @@ void ZSortSpriteList();
 // PC Sprite drawing stuff
 void PrintSprite(SPRITE *sprite);
 
-
-void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color);
-void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex,DWORD colour);
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
 void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
 void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
@@ -59,19 +50,6 @@ long	SPRITECLIPLEFT		=10;
 long	SPRITECLIPTOP		=10;
 long	SPRITECLIPRIGHT		=630;
 long	SPRITECLIPBOTTOM	=470;
-
-long	ROTSPRITECLIPLEFT	=0;
-long	ROTSPRITECLIPTOP	=0;
-long	ROTSPRITECLIPRIGHT	=640;
-long	ROTSPRITECLIPBOTTOM	=480;
-
-POLYCLIP tempPoly;
-
-void SpriteClip_Do(POLYCLIP *polyIn,POLYCLIP *polyOut);
-void SpriteClip_Left(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
-void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
-void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
-void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
 
 short spriteIndices[] = {0,1,2,2,3,0};
 
@@ -141,8 +119,8 @@ void PrintSprites()
 
 	// draw from the newly sorted static array
 	i = numSortArraySprites;
-	while(i--) if( spriteSortArray[i].draw ) 
-		PrintSprite(&spriteSortArray[i]);
+	while(i--) if( spriteSortArray[i]->draw ) 
+		PrintSprite(spriteSortArray[i]);
 }
 
 
@@ -421,104 +399,26 @@ void PrintSprite(SPRITE *sprite)
 		else
 			SwapFrame(0);
 
-/*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
+		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
-			DrawAlphaSpriteRotating( &sc,(float)sprite->angle/57.6,sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
+			// rotate the little blighters
+			sprite->angle += (sprite->angleInc * gameSpeed)>>12;
+			if( sprite->angle >= 4096 ) 
+				sprite->angle -= 4096;
+			else if( sprite->angle < 0 ) 
+				sprite->angle += 4096;
+
+			DrawAlphaSpriteRotating( &sc,(float)sprite->angle*FIXED_TO_RADS,sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 		else
-*/		{
+		{
 			DrawAlphaSprite(sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 
 		D3DSetupRenderstates(xluSemiRS);
 	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-    Function		: DrawALine
-	Parameters		: point1, point2, colour
-	Returns			: 
-	Purpose			: Draw a line in screen space
-*/
-void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
-{
-	D3DTLVERTEX v[2] = {
-		{
-			x1,y1,0,0,
-			color, D3DRGBA(0,0,0,1.0),
-			0.0, 0.0
-		},
-		{
-			x2,y2,0,0,
-			color, D3DRGBA(0,0,0,1.0),
-			0.0, 0.0
-		}
-	};
-	short faces[]={0,1};
-
-	PushPolys(v,2,faces,2,NULL);
-}
-
-
-/*	--------------------------------------------------------------------------------
-    Function		: DrawASprite
-	Parameters		: 
-	Returns			: 
-	Purpose			: Draw a non-alpha, non-rotating sprite
-*/
-void DrawASprite(float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour)
-{
-	float x2 = (x+xs), y2 = (y+ys);
-	D3DTLVERTEX v[4];
-
-	if (x < SPRITECLIPLEFT)
-	{
-		if (x2 < SPRITECLIPLEFT) return;
-		u1 += (u2-u1) * (SPRITECLIPLEFT-x)/xs;	// clip u
-		xs += x-SPRITECLIPLEFT; x = SPRITECLIPLEFT;
-	}
-	if (x2 > SPRITECLIPRIGHT)
-	{
-		if (x > SPRITECLIPRIGHT) return;
-		u2 += (u2-u1) * (SPRITECLIPRIGHT-x2)/xs;	// clip u
-		xs -= (x-SPRITECLIPRIGHT);
-		x2 = SPRITECLIPRIGHT;
-	}
-
-	if (y < SPRITECLIPTOP)
-	{
-		if (y2 < SPRITECLIPTOP) return;
-		v1 += (v2-v1) * (SPRITECLIPTOP-y)/ys;	// clip v
-		ys += y-SPRITECLIPTOP; y = SPRITECLIPTOP;
-	}
-	if (y2 > SPRITECLIPBOTTOM)
-	{
-		if (y > SPRITECLIPBOTTOM) return;
-		v2 += (v2-v1) * (SPRITECLIPBOTTOM-y2)/ys;	// clip v
-		ys -= (y-SPRITECLIPBOTTOM);
-		y2 = SPRITECLIPBOTTOM;
-	}
-	
-	v[0].sx = x; v[0].sy = y; v[0].sz = 0; v[0].rhw = 0;
-	v[0].color = colour; v[0].specular = D3DRGBA(0,0,0,1);
-	v[0].tu = u1; v[0].tv = v1;
-
-	v[1].sx = x2; v[1].sy = y; v[1].sz = 0; v[1].rhw = 0;
-	v[1].color = v[0].color; v[1].specular = v[0].specular;
-	v[1].tu = u2; v[1].tv = v1;
-	
-	v[2].sx = x2; v[2].sy = y2; v[2].sz = 0; v[2].rhw = 0;
-	v[2].color = v[0].color; v[2].specular = v[0].specular;
-	v[2].tu = u2; v[2].tv = v2;
-
-	v[3].sx = x; v[3].sy = y2; v[3].sz = 0; v[3].rhw = 0;
-	v[3].color = v[0].color; v[3].specular = v[0].specular;
-	v[3].tu = u1; v[3].tv = v2;
-
-	PushPolys(v,4,spriteIndices,6,tex);
 }
 
 
@@ -588,316 +488,55 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: DrawAlphaSpriteRotating
-	Purpose			: clips and draws a rotating sprite
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
 void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
 {
-	POLYCLIP p2d,drawPoly;
-	float x2 = (x+xs), y2 = (y+ys);
-//	float fogAmt;
-
-	float sine,cosine;
-	float newX,newY;
+	D3DTLVERTEX v[5];
+	float x2 = (x+xs), y2 = (y+ys), sine, cosine, newX, newY;
 	int i,j;
-/*
-	fogAmt = FOGADJ(z);
-	if (fogAmt<0)
-		fogAmt=0;
-	if (fogAmt>1)
-		fogAmt=1;
-*/
+
+	if( !tex ) return;
+
 	// populate our structure ready for transforming and clipping the sprite
-	p2d.numVerts = 4;
-	p2d.verts[0].sx = x - pos->vx;
-	p2d.verts[1].sx = x2 - pos->vx;
-	p2d.verts[2].sx = x2 - pos->vx;
-	p2d.verts[3].sx = x - pos->vx;
+	v[0].sx = x - pos->vx;
+	v[1].sx = x2 - pos->vx;
+	v[2].sx = x2 - pos->vx;
+	v[3].sx = x - pos->vx;
 
-	p2d.verts[0].sy = y - pos->vy;
-	p2d.verts[1].sy = y - pos->vy;
-	p2d.verts[2].sy = y2 - pos->vy;
-	p2d.verts[3].sy = y2 - pos->vy;
+	v[0].sy = y - pos->vy;
+	v[1].sy = y - pos->vy;
+	v[2].sy = y2 - pos->vy;
+	v[3].sy = y2 - pos->vy;
 
-	p2d.verts[0].tu = u1;	p2d.verts[0].tv = v1;
-	p2d.verts[1].tu = u2;	p2d.verts[1].tv = v1;
-	p2d.verts[2].tu = u2;	p2d.verts[2].tv = v2;
-	p2d.verts[3].tu = u1;	p2d.verts[3].tv = v2;
-
-	// populate remaining data members
-	i = p2d.numVerts;
-	while(i--)
-	{
-		p2d.verts[i].sz			= z;
-		p2d.verts[i].rhw		= 0;
-		p2d.verts[i].color		= colour;
-		p2d.verts[i].specular	= D3DRGBA(0,0,0,1);//FOGVAL(fogAmt);
-	}
+	v[0].tu = u1;	v[0].tv = v1;
+	v[1].tu = u2;	v[1].tv = v1;
+	v[2].tu = u2;	v[2].tv = v2;
+	v[3].tu = u1;	v[3].tv = v2;
 
 	// get rotation angle
-	cosine	= cosf(angle);
-	sine	= sinf(angle);
+	cosine	= (float)rcos(angle*4096)/4096;
+	sine	= (float)rsin(angle*4096)/4096;
 
-	// rotate the vertices comprising the sprite
-	i = p2d.numVerts;
+	// populate remaining data members and rotate the vertices comprising the sprite
+	i = 4;
 	while(i--)
 	{
-		newX = (p2d.verts[i].sx * cosine) + (p2d.verts[i].sy * sine);
-		newY = (p2d.verts[i].sy * cosine) - (p2d.verts[i].sx * sine);
+		v[i].sz			= z;
+		v[i].rhw		= 0;
+		v[i].color		= colour;
+		v[i].specular	= D3DRGBA(0,0,0,1);
 
-		p2d.verts[i].sx = newX + pos->vx;
-		p2d.verts[i].sy = newY + pos->vy;
+		newX = (v[i].sx * cosine) + (v[i].sy * sine);
+		newY = (v[i].sy * cosine) - (v[i].sx * sine);
+
+		v[i].sx = newX + pos->vx;
+		v[i].sy = newY + pos->vy;
 	}
 
-	// clip the rotated sprite here...
-	SpriteClip_Do(&p2d,&drawPoly);
+	memcpy( &v[4], &v[0], sizeof(D3DTLVERTEX) );
 
-	// return if we have less than 3 vertices
-	if(drawPoly.numVerts < 3)
-		return;
-
-	SetTexture(tex);
-
-	if ((z>0.01) || (z<-0.01))
-		D3DSetupRenderstates(xluZRS);
-	else
-		D3DSetupRenderstates(noZRS);
-
-	if (DrawPoly( D3DPT_TRIANGLEFAN,
-		D3DFVF_TLVERTEX,
-		drawPoly.verts,	drawPoly.numVerts,
-		spriteIndices, 6,
-		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
-	{
-		dp("Poo-poo!\n");
-	}
-
-	SetTexture(NULL);
-}
-
-// use Sutherland - Hodgman edge clipping algorithm thingyjob - ANDYE
-
-void SpriteClip_Do(POLYCLIP *polyIn,POLYCLIP *polyOut)
-{
-	int v,d;
-
-	polyOut->numVerts = 0;
-	tempPoly.numVerts = 0;
-
-	for(v=0; v<polyIn->numVerts; v++)
-	{
-		d = v + 1;
-		if(d == polyIn->numVerts) d = 0;
-		SpriteClip_Left(&tempPoly,&polyIn->verts[v],&polyIn->verts[d]);
-	}
-
-	for(v=0; v<tempPoly.numVerts; v++)
-	{
-		d = v + 1;
-		if(d == tempPoly.numVerts) d = 0;
-		SpriteClip_Right(polyOut,&tempPoly.verts[v],&tempPoly.verts[d]);
-	}
-
-	tempPoly.numVerts = 0;
-	for(v=0; v<polyOut->numVerts; v++)
-	{
-		d = v + 1;
-		if(d == polyOut->numVerts) d = 0;
-		SpriteClip_Top(&tempPoly,&polyOut->verts[v],&polyOut->verts[d]);
-	}
-
-	polyOut->numVerts = 0;
-	for(v=0; v<tempPoly.numVerts; v++)
-	{
-		d = v + 1;
-		if(d == tempPoly.numVerts) d = 0;
-		SpriteClip_Bottom(polyOut,&tempPoly.verts[v],&tempPoly.verts[d]);
-	}
-}
-
-void SpriteClip_Left(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
-{
-	float dx,dy,m,segLen;
-	float du,dv;
-
-	dx		= v1->sx - v0->sx;
-	dy		= v1->sy - v0->sy;
-	du		= v1->tu - v0->tu;
-	dv		= v1->tv - v0->tv;
-	segLen	= ROTSPRITECLIPLEFT - v0->sx;
-	m		= segLen / dx;
-
-	// check if polygon edge is in viewport
-	if((v0->sx >= ROTSPRITECLIPLEFT) && (v1->sx >= ROTSPRITECLIPLEFT))
-	{
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is leaving viewport
-	if((v0->sx >= ROTSPRITECLIPLEFT) && (v1->sx < ROTSPRITECLIPLEFT))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = ROTSPRITECLIPLEFT;
-		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is entering viewport
-	if((v0->sx < ROTSPRITECLIPLEFT) && (v1->sx >= ROTSPRITECLIPLEFT))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = ROTSPRITECLIPLEFT;
-		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-}
-
-void SpriteClip_Right(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
-{
-	float dx,dy,m,segLen;
-	float du,dv;
-
-	dx		= v1->sx - v0->sx;
-	dy		= v1->sy - v0->sy;
-	du		= v1->tu - v0->tu;
-	dv		= v1->tv - v0->tv;
-	segLen	= ROTSPRITECLIPRIGHT - v0->sx;
-	m		= segLen / dx;
-
-	// check if polygon edge is in viewport
-	if((v0->sx < ROTSPRITECLIPRIGHT) && (v1->sx < ROTSPRITECLIPRIGHT))
-	{
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is leaving viewport
-	if((v0->sx < ROTSPRITECLIPRIGHT) && (v1->sx >= ROTSPRITECLIPRIGHT))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = ROTSPRITECLIPRIGHT;
-		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is entering viewport
-	if((v0->sx >= ROTSPRITECLIPRIGHT) && (v1->sx < ROTSPRITECLIPRIGHT))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = ROTSPRITECLIPRIGHT;
-		poly->verts[poly->numVerts].sy = v0->sy + (dy * m);
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-}
-
-void SpriteClip_Top(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
-{
-	float dx,dy,m,segLen;
-	float du,dv;
-
-	dx		= v1->sx - v0->sx;
-	dy		= v1->sy - v0->sy;
-	du		= v1->tu - v0->tu;
-	dv		= v1->tv - v0->tv;
-	segLen	= ROTSPRITECLIPTOP - v0->sy;
-	m		= segLen / dy;
-
-	// check if polygon edge is in viewport
-	if((v0->sy >= ROTSPRITECLIPTOP) && (v1->sy >= ROTSPRITECLIPTOP))
-	{
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is leaving viewport
-	if((v0->sy >= ROTSPRITECLIPTOP) && (v1->sy < ROTSPRITECLIPTOP))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = ROTSPRITECLIPTOP;
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is entering viewport
-	if((v0->sy < ROTSPRITECLIPTOP) && (v1->sy >= ROTSPRITECLIPTOP))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = ROTSPRITECLIPTOP;
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-}
-
-void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
-{
-	float dx,dy,m,segLen;
-	float du,dv;
-
-	dx		= v1->sx - v0->sx;
-	dy		= v1->sy - v0->sy;
-	du		= v1->tu - v0->tu;
-	dv		= v1->tv - v0->tv;
-	segLen	= ROTSPRITECLIPBOTTOM - v0->sy;
-	m		= segLen / dy;
-
-	// check if polygon edge is in viewport
-	if((v0->sy < ROTSPRITECLIPBOTTOM) && (v1->sy < ROTSPRITECLIPBOTTOM))
-	{
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is leaving viewport
-	if((v0->sy < ROTSPRITECLIPBOTTOM) && (v1->sy >= ROTSPRITECLIPBOTTOM))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = ROTSPRITECLIPBOTTOM;
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-	}
-
-	// check if polygon edge is entering viewport
-	if((v0->sy >= ROTSPRITECLIPBOTTOM) && (v1->sy < ROTSPRITECLIPBOTTOM))
-	{
-		poly->verts[poly->numVerts] = *(v0);
-		poly->verts[poly->numVerts].sx = v0->sx + (dx * m);
-		poly->verts[poly->numVerts].sy = ROTSPRITECLIPBOTTOM;
-		poly->verts[poly->numVerts].tu = v0->tu + (du * m);
-		poly->verts[poly->numVerts].tv = v0->tv + (dv * m);
-		poly->numVerts++;
-
-		poly->verts[poly->numVerts] = *(v1);
-		poly->numVerts++;
-	}
-}
+	Clip3DPolygon( v, tex );
+	Clip3DPolygon( &v[2], tex );
+}	
 
 
 //----- [ SORTING STUFF ] -----------------------------------------------------------------------
@@ -911,27 +550,10 @@ void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 */
 void InitSpriteSortArray( )
 {
-	if(spriteSortArray)
-		FreeSpriteSortArray();
-
-	spriteSortArray = (SPRITE *)MALLOC0( sizeof(SPRITE) * MAX_ARRAY_SPRITES );
+	int i=MAX_ARRAY_SPRITES;
+	
+	while( i-- ) spriteSortArray[i] = NULL;
 	numSortArraySprites = 0;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeSpriteSortArray
-	Purpose			: frees the sprite sort array
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void FreeSpriteSortArray()
-{
-	if(spriteSortArray)
-		FREE( spriteSortArray );
-
-	spriteSortArray = NULL;
 }
 
 
@@ -944,15 +566,16 @@ void FreeSpriteSortArray()
 */
 int SpriteZCompare(const void *arg1,const void *arg2)
 {
-	SPRITE *s1 = (SPRITE *)arg1;
-	SPRITE *s2 = (SPRITE *)arg2;
+	SPRITE *s1 = *(SPRITE **)arg1;
+	SPRITE *s2 = *(SPRITE **)arg2;
 
 	if(s1->sc.vz < s2->sc.vz)
 		return -1;
-	else if(s1->sc.vz == s2->sc.vz)
+	
+	if(s1->sc.vz == s2->sc.vz)
 		return 0;
-	else
-		return 1;
+
+	return 1;
 }
 
 
@@ -963,33 +586,23 @@ int SpriteZCompare(const void *arg1,const void *arg2)
 	Returns			: void
 	Info			: list to sort is specified in srcList
 */
-
-#define SPRITE_ZSORT_DRAWDISTANCE	450
-
 void ZSortSpriteList()
 {
 	SPRITE *cur;
 	MDX_VECTOR frogXfm;
 		
-	if(sprList.count < 2)
+	if( !sprList.count )
 		return;
 
 	XfmPoint(&frogXfm,(MDX_VECTOR *)&frog[0]->actor->position,NULL);
 
-	// uses a quick sort
-
-	// traverse through sprite list and create the sort array
+	// traverse through sprite list and create the quick sort array
 	numSortArraySprites = 0;
 	for(cur = sprList.head.next; cur != &sprList.head && numSortArraySprites < MAX_ARRAY_SPRITES; cur = cur->next)
-	{
-		// the static array should be large enough to hold sprites
 		if((cur->sc.vz - frogXfm.vz) < farClip )
-		{
-			spriteSortArray[numSortArraySprites] = *(cur);
-			numSortArraySprites++;
-		}
-	}
+			spriteSortArray[numSortArraySprites++] = cur;
 
-	qsort(spriteSortArray,numSortArraySprites,sizeof(SPRITE),SpriteZCompare);
+	if( sprList.count > 1 )
+		qsort( (void *)spriteSortArray, numSortArraySprites, sizeof(SPRITE*), SpriteZCompare );
 }
 
