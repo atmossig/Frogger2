@@ -172,6 +172,7 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 
 void ShutDownDirectSound ( void )
 {
+	lpDS->Release();
 }
 
 
