@@ -284,6 +284,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			DirectXFlip();
 			EndTimer(3);
 			CleanBufferSamples();
+			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
 			actFrameCount = (GetTickCount()/(1000/60));
 			
 			// THIS IS A SPRITE OVERLAY. ASSIGNING A TIME TO IT IS BAD.
@@ -301,6 +302,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
     return msg.wParam;
 }
+
 
 
 /*	--------------------------------------------------------------------------------
