@@ -284,6 +284,7 @@ extern long initialCamera;
 void SlurpCamPosition(long cam)
 {
 	float s1,s2,s3,s4;
+	unsigned long afc = actFrameCount;
 	
 	s1 = camSpeed * transCamSpeedMult,
 	s2 = camSpeed2 * transCamSpeedMult,
@@ -291,9 +292,9 @@ void SlurpCamPosition(long cam)
 	s4 = camSpeed4 * transCamSpeedMult;
 
 	if( !lastActFrameCount )
-		lastActFrameCount = actFrameCount-1;
+		lastActFrameCount = afc - 1;
 
-	while( lastActFrameCount < actFrameCount )
+	while( lastActFrameCount < afc )
 	{
 		if (!initialCamera)
 		{
