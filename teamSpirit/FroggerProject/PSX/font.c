@@ -233,6 +233,16 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 				strPtr++;
 				x += buttonSprites[0]->w+6;
 				break;
+			case 'L':
+			   	fontDispSprite(buttonSprites[4], x+3,y + yAdd);
+				strPtr++;
+				x += buttonSprites[4]->w+6;
+				break;
+			case 'R':
+			   	fontDispSprite(buttonSprites[5], x+3,y + yAdd);
+				strPtr++;
+				x += buttonSprites[5]->w+6;
+				break;
 			}
 
 			for(loop = 0; loop < numOtherSprites; loop ++)
@@ -308,6 +318,14 @@ int fontExtentW(psFont *font, char *text)
 			case 'T':
 				strPtr++;
 				x += buttonSprites[0]->w+6;
+				break;
+			case 'L':
+				strPtr++;
+				x += buttonSprites[4]->w+6;
+				break;
+			case 'R':
+				strPtr++;
+				x += buttonSprites[5]->w+6;
 				break;
 			}
 
@@ -516,6 +534,8 @@ void fontInitButtonSprites()
 	buttonSprites[1] = FindTexture("BUT_CIRC");
 	buttonSprites[2] = FindTexture("BUT_CROS");
 	buttonSprites[3] = FindTexture("BUT_SQUA");
+	buttonSprites[4] = FindTexture("BUT_LEFT");
+	buttonSprites[5] = FindTexture("BUT_RIGH");
 
 /*
 	buttonSprites[0] = triangle;
