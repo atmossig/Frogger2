@@ -1251,7 +1251,7 @@ static void doPoly(void *arg)
 	// ENDELSEIF
   
 	gameState.mode		= FRONTEND_MODE;
-	frontEndState.mode	= DEMO_MODE;
+	frontEndState.mode	= TITLE_MODE;
 
 	while(1) 
 	{
