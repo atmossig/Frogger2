@@ -501,10 +501,10 @@ void InitVoices( char *path, int len )
 	unsigned long numFiles, i, length;
 	char *stak, *ptr;
 
-	path[len] = '\0';
-
 	for( i=0; i<NUM_FROGS; i++ )
 	{
+		path[len] = '\0'; // ds
+
 		strcat( path, frogPool[player[i].character].fileName );
 		strcat( path, ".wus" );
 

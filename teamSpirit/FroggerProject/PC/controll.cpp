@@ -1020,7 +1020,10 @@ BOOL SetupControllerDlg(HWND hdlg)
 		for (int i = 0; i < n; i++)
 			SendMessage(combo, CB_ADDSTRING, 0, (LPARAM)controllerInfo[i].name);
 
-		SendMessage(combo, CB_SETCURSEL, 0, 0);
+		if (controllers[player] == KEYBOARD)
+			SendMessage(combo, CB_SETCURSEL, 0, 0);
+		else
+			SendMessage(combo, CB_SETCURSEL, (controllers[player]&(GAMEPAD-1))+1, 0);
 	}
 
 	return TRUE;
@@ -1280,7 +1283,7 @@ BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			button = (int*)lParam;
             
 			SetTimer( hDlg, 0, 100, NULL );	// poll every 100ms
-			return TRUE;
+			return FALSE;	// DON'T set keyboard focus - ds
 
 		case WM_KEYDOWN:
 			// fall through..
