@@ -528,7 +528,30 @@ long WrapStringToArray(const char* str, long maxWidth, char* buffer, long buffer
 	while (1)
 	{
 		unsigned char c = (unsigned char)*p;
-		long charWidth = GetCharWidth(c, font, 1.0f);
+		long charWidth;
+		
+		if(c == '@')
+		{
+			p++;
+			c = (unsigned char)*p;
+			switch(c)
+			{
+				case 'T':
+					charWidth = CalcStringWidth(GAMESTRING(STR_ESCAPE),font,1.0f);
+					break;
+				case 'X':
+					charWidth = CalcStringWidth(GAMESTRING(STR_RETURN),font,1.0f);
+					break;
+				case 'C':
+					charWidth = CalcStringWidth(GAMESTRING(STR_RIGHT_SHIFT),font,1.0f);
+					break;
+				case 'S':
+					charWidth = CalcStringWidth(GAMESTRING(STR_RIGHT_CONTROL),font,1.0f);
+					break;
+			}
+		}
+		else
+			charWidth = GetCharWidth(c, font, 1.0f);
 		
 		if (lineWidth+charWidth >= maxWidth || c == 0)
 		{

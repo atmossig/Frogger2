@@ -954,7 +954,7 @@ void RunFrontendGameLoop (void)
 		
 		options.parText[0] = CreateAndAddTextOverlay(1950,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		options.parText[1] = CreateAndAddTextOverlay(2750,1105,GAMESTRING(STR_SET_BY),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		options.parText[2] = CreateAndAddTextOverlay(3350,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[2] = CreateAndAddTextOverlay(3450,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
 		options.worldText->r = options.parText[0]->r = options.parText[1]->r = options.parText[2]->r = 255;
 		options.worldText->g = options.parText[0]->g = options.parText[1]->g = options.parText[2]->g = 200;
@@ -968,9 +968,9 @@ void RunFrontendGameLoop (void)
 			options.levelParText[i]->draw = 0;
 			options.levelSetByText[i] = CreateAndAddTextOverlay(2750,(short)(1445+i*170),levelSetByStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelSetByText[i]->draw = 0;
-			options.levelCoinText[i] = CreateAndAddTextOverlay(3500,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+			options.levelCoinText[i] = CreateAndAddTextOverlay(3600,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelCoinText[i]->draw = 0;
-			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3482,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
+			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3582,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
 			options.levelCoinMedal[i]->draw = 0;
 			options.beatenIcon[i] = CreateAndAddSpriteOverlay(150,(short)(1477+i*170)-32,"FLASH",160,160,0,SPRITE_ADDITIVE);
 			options.beatenIcon[i]->draw = 0;

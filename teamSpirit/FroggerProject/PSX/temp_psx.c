@@ -1309,7 +1309,7 @@ void StartVideoPlayback(int num)
    		str.height = 192;
    		str.endFrame = fmv[num].len;
    		str.vlcBufSize = 70000;
-   		str.volume = 127;
+   		str.volume = (127*globalMusicVol)/MAX_SOUND_VOL;
    		videoPlayStream(&str, PALMODE, videoKeyPress);
 		LoadCodeOverlay(GAME_OVERLAY);
 	}
