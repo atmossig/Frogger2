@@ -287,8 +287,11 @@ long DrawLoop(void)
 	{
 //		D3DSetupRenderstates(xluAddRS);
 
-		DrawAllFrames();
-		BlankAllFrames();
+		DrawSoftwarePolys();
+		EndDraw();
+		ClearSoftwareSortBuffer();
+//		DrawAllFrames();
+//		BlankAllFrames();
 	}
 
 	D3DSetupRenderstates(cullNoneRS);
