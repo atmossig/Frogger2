@@ -141,12 +141,12 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	parts = psiModel->noofmeshes;			// number of objects in this model
 
-	utilPrintf("Number of Objects in Model : %d\n",parts);
+//	utilPrintf("Number of Objects in Model : %d\n",parts);
 
 	len = parts * sizeof(PSIOBJECT);
 	len += sizeof (ACTOR);
 
-	utilPrintf("New actor: %d bytes\n",len);
+//	utilPrintf("New actor: %d bytes\n",len);
 	
 	sprintf(actorName,"ACTOR:%s",(char *)psiModel+4);
 
@@ -215,11 +215,11 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	if (psiObjectScan(actor->psiData.object,"MOTION"))
 	{
-		utilPrintf("motion bone found\n");
+//		utilPrintf("motion bone found\n");
 		actor->psiData.flags |= ACTOR_MOTIONBONE;
 	}
-	else
-		utilPrintf("motion bone NOT found\n");
+//	else
+//		utilPrintf("motion bone NOT found\n");
 
 	actor->psiData.flags |= ACTOR_DYNAMICSORT;							// by default
 
