@@ -64,6 +64,7 @@ void DoHiscores();
 extern float gCamDist;
 extern TEXTURE *frogEyeOpen,*frogEyeClosed;
 extern unsigned long rPlaying;
+extern long rEndFrame;
 extern TEXTOVERLAY *demoText;
 
 extern TEXTOVERLAY *posText;
@@ -828,6 +829,11 @@ void RunGameLoop (void)
 
 	if (rPlaying)
 	{
+		if (actFrameCount > rEndFrame)
+		{
+			StopKeying();
+			return;
+		}
 		demoText->oa = demoText->a = (sinf(actFrameCount*0.05)+1) * 128;
 	}
 
@@ -906,8 +912,6 @@ void RunGameLoop (void)
 						GameProcessController(i);                                      
 					}
 		}
-
-		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 		CameraLookAtFrog();
 		UpdateCameraPosition(0);
