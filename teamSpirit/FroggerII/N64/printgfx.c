@@ -798,8 +798,8 @@ void ScreenFade(UBYTE dir,UBYTE step)
 						
 	gSPDisplayList(glistp++,croakRing_dl);
 
-	// draw screen-aligned quad
 	NormalToQuaternion(&q,&inVec);
+	// draw screen-aligned quad
 	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
 
 	guTranslateF(transMtx,0,0,10);
@@ -1398,6 +1398,56 @@ void DrawScreenGrab( unsigned long flags )
 	gDPPipeSync(glistp++);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeGrabData
+	Purpose			: Delete all the stuff that DrawScreenGrab creates
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+extern long enviromentMapped;
+
+Mtx	nomatrix;
+
+void SetRendermodeForEnviroment(void)
+{
+	if (enviromentMapped)
+	{
+		gSPSetGeometryMode(glistp++,G_TEXTURE_GEN);
+	}
+	else
+	{
+		gSPClearGeometryMode(glistp++,G_TEXTURE_GEN);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeGrabData
+	Purpose			: Delete all the stuff that DrawScreenGrab creates
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeGrabData( )
+{
+	drawScreenGrab = 0;
+	pauseMode = 0;
+	grabData.afterEffect = 0;
+
+	if( fsVerts )
+	{
+		JallocFree( (UBYTE **)&fsVerts );
+		fsVerts = NULL;
+		vPtr = NULL;
+	}
+
+	if( scrTexGrab )
+	{
+		JallocFree( (UBYTE **)&scrTexGrab );
+		scrTexGrab = NULL;
+	}
 }
 
 

@@ -42,6 +42,8 @@ char uniqueEnemyCount[20];
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numUniqueActors = 0;
 
+long enviromentMapped = 0;
+
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
 	Function    : DrawActorList
@@ -186,6 +188,8 @@ void DrawActorList()
 		{
 			if(cur->draw && !(cur->flags & ACTOR_DRAW_LAST) )
 			{
+				enviromentMapped = 0;
+
 				DrawActor(cur->actor);
 			}
 		}
@@ -207,6 +211,7 @@ void DrawCameraSpaceActorList()
 		{
 			if(cur->draw && (cur->flags & ACTOR_DRAW_LAST) )
 			{
+				enviromentMapped = 1;
 				DrawActor(cur->actor);
 			}
 		}

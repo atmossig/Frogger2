@@ -281,5 +281,6 @@ extern GRABSTRUCT grabData;
 extern void Screen2Texture();
 extern void DrawScreenGrab( unsigned long flags );
 extern void SetGrabData( );
+extern void FreeGrabData( );
 
 #endif

@@ -1531,10 +1531,10 @@ void DrawGraphics(void *arg)
 					else if( grabData.afterEffect == FROG_DEATH_IN )
 						DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
 
-					if( gameState.mode && text3DList.numEntries )
-						Print3DText( );					
+					DrawCameraSpaceActorList( );
 
-					DrawCameraSpaceActorList( );					
+					if( gameState.mode == GAME_MODE && text3DList.numEntries )
+						Print3DText( );					
 
 					if(darkenedLevel)
 						DrawDarkenedLevel();
@@ -1788,16 +1788,26 @@ void ClearViewing()
 	u16 perspNorm;
 
     gDPPipeSync(glistp++);
+	
 	guPerspective(&dynamicp->projection[screenNum],&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
 
-	guLookAt(&dynamicp->noViewing,
-		0,0,0,
-		0,0,1,
-		0, 1, 0);
+	guLookAtReflect(&(dynamicp->noViewing),&(dynamicp->lookat[screenNum]),
+			0,0,0,
+			0,0,1,
+			0,1,0);			
+	
+	//guLookAt(&dynamicp->noViewing,
+	//	0,0,0,
+	//	0,0,1,
+	//	0, 1, 0);
 	
 	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->projection[screenNum])),G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
 	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->noViewing)),G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);  
 	gSPPerspNormalize(glistp++,perspNorm);
+
+	gSPLight (glistp++,&diffuseL1,1);
+	gSPNumLights (glistp++,NUMLIGHTS_0);
+
 }
 
 /*	--------------------------------------------------------------------------------
