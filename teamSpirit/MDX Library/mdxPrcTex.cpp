@@ -45,7 +45,7 @@ void InitWater(char *file)
 	char file2[MAX_PATH];
 
 	sprintf(file1,"%swater.bmp",file);
-	sprintf(file2,"%sreflect.bmp",file);0
+	sprintf(file2,"%sreflect.bmp",file);
 
 	// Load the files,
 	waterData1 = (short *)gelfLoad_BMP(file1,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
