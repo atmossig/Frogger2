@@ -194,7 +194,7 @@ struct CONTROLLERINFO
 CONTROLLERINFO *controllerInfo;	// allocated and deallocated by controller dialog
 
 // used by controller setup to decide which thing is what
-unsigned short controllers[4] = { GAMEPAD, KEYBOARD, KEYBOARD, KEYBOARD };	
+unsigned short controllers[4] = { KEYBOARD, KEYBOARD, KEYBOARD, KEYBOARD };	
 
 unsigned long	playerInputPause;
 unsigned long	playerInputPause2;
