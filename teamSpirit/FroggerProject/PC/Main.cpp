@@ -134,6 +134,7 @@ int GetRegistryInformation(void)
 			rFullscreen = val;
 
 		len = 255;
+		RegQueryValueEx(hkey, "VideoDevice", NULL, NULL, (unsigned char*)rVideoDevice, &len);
 
 		RegCloseKey(hkey);
 	}
@@ -146,10 +147,11 @@ int SetRegistryInformation(void)
 	HKEY hkey;
 	char temp[MAX_PATH];
 	DWORD val;
+	HRESULT res;
 
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_WRITE, &hkey) != ERROR_SUCCESS)
+	if ((res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, 0, 0, KEY_WRITE, NULL, &hkey, NULL)) != ERROR_SUCCESS)
 	{
-		utilPrintf("Couldn't open registry kep for writing\n"); return 0;
+		utilPrintf("Couldn't create registry key %s\n", temp); return 0;
 	}
 	else
 	{
@@ -637,8 +639,8 @@ long DrawLoop(void)
 			BeginDraw();
 			DrawBatchedPolys();
 			EndDraw();
-			BlankAllFrames();
 
+			BlankAllFrames();
 			D3DSetupRenderstates(normalZRS);
 			SwapFrame(0);
 		}
@@ -752,7 +754,6 @@ long DrawLoop(void)
 	D3DClearView();
 	EndTimer(18);
 
-
 	if (grabToTexture == 1)
 	{
 		DrawPageB();
@@ -766,7 +767,7 @@ long DrawLoop(void)
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 2;
 	}
-
+	
 	GetCursorPos(&t);
 	camZ = t.x*8;
 	camY = t.y*8;
@@ -1060,6 +1061,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	LoadGame();
 	
 	RunWindowsLoop(&LoopFunc);
+
+	SaveGame();
 
 	// Byeeeeeeeeeee
 	ShutdownEditor();
