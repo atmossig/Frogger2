@@ -504,7 +504,8 @@ void PickupBabyFrog(ACTOR2 *baby)
 			break;
 
 	baby->action.isSaved	= 1;
-	baby->flags				= ACTOR_DRAW_NEVER;
+//	baby->flags	ACTOR2			= ACTOR_DRAW_NEVER;
+	baby->actor->xluOverride = 0;
 	baby->draw				= 0;
 
 	lastBabySaved = baby;
@@ -687,7 +688,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile )
 
 	SetVector(&garib->sprite.pos,&pos);
 
-	garib->gameTile = gameTile;
+//	garib->gameTile = gameTile;
 	garib->type = type;
 	garib->active = 1;
 	garib->scale = 0;
@@ -774,7 +775,7 @@ void UpdateGaribs()
 
 		// Drop Garibs.............
 
-		if ( garib->gameTile != NULL )
+/*		if ( garib->gameTile != NULL )
 		{			
 			SetVector ( &actualPos, &garib->gameTile->centre );
 			actualPos.v[Y] += 20;
@@ -786,7 +787,7 @@ void UpdateGaribs()
 
 		}
 		// ENDIF
-
+*/
 	}
 }
 
