@@ -28,11 +28,8 @@ extern NETGAME_LOOP			netgameLoopFunc;
 
 void NetgameStartGame();
 void NetgameRun();
-
 void NetgameDeath();
-
 void NetgameHostGame();
-
 void NetgameStatusMessage(const char* msg);
 
 #ifdef __cplusplus

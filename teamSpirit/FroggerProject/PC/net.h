@@ -16,7 +16,7 @@ extern "C"
 {
 #endif
 
-int GetPlayerNumFromID(DPID id);
+const char* NetGetPlayerName(int pl);
 
 #ifdef __cplusplus
 }

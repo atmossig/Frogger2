@@ -19,6 +19,7 @@
 #include "network.h"
 #include "netchat.h"
 #include "netgame.h"
+#include "net.h"
 
 #include "frogger.h"
 #include "frogmove.h"

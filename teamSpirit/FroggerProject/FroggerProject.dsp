@@ -1936,6 +1936,10 @@ SOURCE=.\Pc\Main.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\net.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\pcaudio.c
 # End Source File
 # Begin Source File

@@ -67,8 +67,6 @@ void NetProcessMessages();
 void SetupNetPlayerList();
 
 int GetPlayerNumFromID(DPID id);
-const char* NetGetPlayerName(int pl);
-
 int NetBroadcastMessage(void *data, unsigned long size);
 int NetBroadcastUrgentMessage(void *data, unsigned long size);
 
