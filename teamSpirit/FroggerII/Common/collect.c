@@ -114,6 +114,9 @@ void ProcessCollectables()
 void PickupCollectable(GARIB *garib, int pl)
 {
 	SPECFX *fx;
+	VECTOR seUp;
+	int i;
+
 	switch(garib->type)
 	{
 		case SPAWN_GARIB:
@@ -131,7 +134,21 @@ void PickupCollectable(GARIB *garib, int pl)
 
 			CreateAndAddSpawnScoreSprite(&garib->pos,player[pl].spawnScoreLevel);
 
-			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->pos, &upVec, 25, 0.0, 0.0, 2.0 );
+			// we need to get the up vector for this collectable...
+			SetVector(&seUp,&upVec);
+			RotateVectorByQuaternion(&seUp,&seUp,&frog[pl]->actor->qRot);
+
+			fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 20, 2, 0, 2 );
+			SetFXColour(fx,255,255,255);
+			SetVector(&fx->rebound->point,&garib->pos);
+			SetVector(&fx->rebound->normal,&seUp);
+			fx->gravity = 0.2;
+
+			fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 16, 1, 0, 3 );
+			SetFXColour(fx,255,255,0);
+			SetVector(&fx->rebound->point,&garib->pos);
+			SetVector(&fx->rebound->normal,&seUp);
+			fx->gravity = 0.1;
 
 			player[pl].score += (player[pl].spawnScoreLevel * 10);
 			player[pl].numSpawn++;
