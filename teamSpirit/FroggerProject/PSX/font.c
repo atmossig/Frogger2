@@ -168,7 +168,7 @@ static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, uns
 	if(alpha)
 		SETSEMIPRIM(ft4, alpha);
 	ft4->clut = tex->clut;
-	ENDPRIM(ft4, 2, POLY_FT4);
+	ENDPRIM(ft4, 4, POLY_FT4);
 }
 
 
@@ -497,7 +497,7 @@ void fontDispSprite(TextureType *tex, short x,short y)
  	si->tpage |= 32;
 
 	setPolyFT4(si);
-	ENDPRIM(si, 2, POLY_FT4);
+	ENDPRIM(si, 4, POLY_FT4);
 }
 
 
