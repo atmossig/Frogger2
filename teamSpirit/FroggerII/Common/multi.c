@@ -171,16 +171,16 @@ void UpdateRace( )
 		}
 		return;
 	}
-	
+
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		// Check for frog off screen - death
-		if( !(player[i].frogState & FROGSTATUS_ISDEAD) && (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
+		if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) && (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
 		{
 			KillMPFrog(i);
 
 			for( j=0; j<NUM_FROGS; j++ )
-				if( !(player[j].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[j]->actor->pos) )
+				if( player[j].healthPoints && !(player[j].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[j]->actor->pos) )
 				{
 					TeleportActorToTile(frog[i],currTile[j],i);
 					racer[i].check = racer[j].check;
@@ -199,7 +199,7 @@ void UpdateRace( )
 				racer[i].check = 0;
 
 				// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
-				if( racer[i].lap > MULTI_RACE_NUMLAPS )
+				if( racer[i].lap >= MULTI_RACE_NUMLAPS )
 				{
 					sprintf( timeTextOver->text, "P%i won", i );
 					GTInit( &endTimer, 5 );
@@ -207,7 +207,7 @@ void UpdateRace( )
 				}
 			}
 			// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
-			else if( currTile[i]->state > racer[i].lasttile || (racer[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
+			else if( currTile[i]->state == racer[i].lasttile+1 || (racer[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
 			{
 				timeTextOver->text[0] = '\0';
 				racer[i].check++;
@@ -392,6 +392,7 @@ void ResetMultiplayer( )
 	int i;
 
 	started = 0;
+	playerFocus = 0;
 
 	switch( multiplayerMode )
 	{
@@ -450,6 +451,7 @@ void CalcRaceCamera( VECTOR *target )
 			lead = i;
 		}
 
+	playerFocus = lead;
 	t = player[lead].jumpTime;
 	if( t > 0 )	// jumping; calculate linear position
 	{

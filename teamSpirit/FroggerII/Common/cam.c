@@ -76,6 +76,8 @@ float cam_edge_spacing = 100;
 float cam_shakiness = 0.0f;
 float cam_shake_falloff = 0.1f;
 
+char playerFocus = 0;
+
 // functions
 
 float FindMaxInterFrogDistance( );
@@ -438,9 +440,9 @@ void CameraSetOffset(void)
 	{
 		nC = (camFacing+1)&3;
 
-		afx = currTile[0]->normal.v[0]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
-		afy = currTile[0]->normal.v[1]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
-		afz = currTile[0]->normal.v[2]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+		afx = currTile[playerFocus]->normal.v[0]*currCamDist.v[1] - currTile[playerFocus]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
+		afy = currTile[playerFocus]->normal.v[1]*currCamDist.v[1] - currTile[playerFocus]->dirVector[camFacing].v[1]*currCamDist.v[2];
+		afz = currTile[playerFocus]->normal.v[2]*currCamDist.v[1] - currTile[playerFocus]->dirVector[camFacing].v[2]*currCamDist.v[2];
 
 		camOffset.v[0] = afx + currTile[0]->dirVector[nC].v[0]*camSideOfs;
 		camOffset.v[1] = afy + currTile[0]->dirVector[nC].v[1]*camSideOfs;
@@ -466,12 +468,14 @@ void CameraSetOffset(void)
 			}
 		}
 
+		camOffset.v[0] = afx;
+		camOffset.v[1] = afy;
+		camOffset.v[2] = afz;
+
 		if (l > 1)
 		{
 			float scale = 1.0f/l;
-			camOffset.v[0] = afx * scale;
-			camOffset.v[1] = afy * scale;
-			camOffset.v[2] = afz * scale;
+			ScaleVector( &camOffset, scale );
 		}
 	}
 }
@@ -594,19 +598,19 @@ void SlurpCamPosition( )
 */
 void UpdateCameraPosition( )
 {
-	if(!frog[0] || !currTile[0] || controlCamera)
+	if(!frog[playerFocus] || !currTile[playerFocus] || controlCamera)
 		return;
 	
-	if (currTile[0] != lastTile)	//This causes lots of problems with camera transitions..
+	if (currTile[playerFocus] != lastTile)	//This causes lots of problems with camera transitions..
 	{
-		if (currTile[0] && lastTile)
+		if (currTile[playerFocus] && lastTile)
 		{
 			if (camFacing == prevCamFacing)
-				camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[0]);
+				camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[playerFocus]);
 		}
 		prevCamFacing = camFacing;
-		lastTile = currTile[0];
-		CheckForDynamicCameraChange(currTile[0]);
+		lastTile = currTile[playerFocus];
+		CheckForDynamicCameraChange(currTile[playerFocus]);
 	}
 
 	CheckCameraBoxes();

@@ -571,7 +571,7 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 		
 	direction = *pdir;
 
-	if(pl == 0)
+	if(pl == playerFocus)
 	{
 		i = (direction + camFacing + 2) & 3;
 		dest = currTile[pl]->tilePtrs[i]; // hmm...
@@ -585,8 +585,8 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 			We have to find the direction on this player's tile corresponding to the direction on
 			player 0's tile!
 		*/
-			
-		i = GetTilesMatchingDirection(currTile[0], (direction + camFacing + 2) & 3, currTile[pl]);
+		
+		i = GetTilesMatchingDirection(currTile[playerFocus], (direction + camFacing + 2) & 3, currTile[pl]);
 		dest = currTile[pl]->tilePtrs[i];
 	}	
 
@@ -836,8 +836,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	player[pl].frogState |= (destPlatform[pl]) ? FROGSTATUS_ISJUMPINGTOPLATFORM : FROGSTATUS_ISJUMPINGTOTILE;
 
-	if (pl == 0)
-		nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
+//	if (pl == 0)
+//		nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
 
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
 
@@ -970,8 +970,8 @@ void CheckForFroggerLanding(long pl)
 
 		frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 		
-		if(pl == 0)
-			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, tile);
+//		if(pl == 0)
+//			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, tile);
 
 		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
 		player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;

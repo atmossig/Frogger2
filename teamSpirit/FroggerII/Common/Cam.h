@@ -97,6 +97,8 @@ extern char		firstPerson;
 extern float cam_shakiness;
 extern float cam_shake_falloff;
 
+extern char playerFocus;
+
 extern CAM_BOX_LIST cameraBoxes;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
