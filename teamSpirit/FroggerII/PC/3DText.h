@@ -21,6 +21,7 @@
 #define T3D_MOVE_SQUISH	(1<<10)
 //#define T3D_MOVE_360	(1<<11)
 
+#define T3D_CREATED		(1<<28)
 #define T3D_CALCULATED	(1<<29)
 #define T3D_PATH_BOUNCE	(1<<30)
 #define T3D_PATH_LOOP	(1<<31)
