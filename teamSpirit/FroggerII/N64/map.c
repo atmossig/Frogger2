@@ -1281,7 +1281,7 @@ void LoadLevelScript(int worldID,int levelID)
 		switch(levelID)
 		{
 /*
-			case LEVEL:
+			case LEVELID_ANCIENT1:
 					bankRomStart	= (u32)&_scrData_2_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_2_1_SegmentRomEnd;
 					sprintf(message, "ANC_SCR1");				
@@ -1295,25 +1295,25 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
-			case SPACELEV1_ENT:
+			case LEVELID_SPACE1:
 					bankRomStart	= (u32)&_scrData_3_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_1_SegmentRomEnd;
 					sprintf(message, "SPC_SCR1");				
 				break;
 
-			case SPACELEV2_ENT:
+				case LEVELID_SPACE2:
 					bankRomStart	= (u32)&_scrData_3_2_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_2_SegmentRomEnd;
 					sprintf(message, "SPC_SCR2");				
 				break;
 /*
-			case SPACELEV3_ENT:
+			case LEVELID_SPACE3:
 					bankRomStart	= (u32)&_scrData_3_3_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_3_SegmentRomEnd;
 					sprintf(message, "SPC_SCR3");				
 				break;
 */
-			case SPACEBOSSA_ENT:
+			case LEVELID_SPACE4:
 					bankRomStart	= (u32)&_scrData_3_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_4_SegmentRomEnd;
 					sprintf(message, "SPC_SCR4");				
@@ -1328,7 +1328,7 @@ void LoadLevelScript(int worldID,int levelID)
 		switch(levelID)
 		{
 /*
-			case CITYLEV1_ENT:
+			case LEVELID_CITY1:
 					bankRomStart	= (u32)&_scrData_4_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_4_1_SegmentRomEnd;
 					sprintf(message, "CTY_SCR1");				
@@ -1342,25 +1342,25 @@ void LoadLevelScript(int worldID,int levelID)
 	{
 		switch(levelID)
 		{
-/*			case SUBLEV1_ENT:
+/*			case LEVELID_SUBTERRANEAN1:
 					bankRomStart	= (u32)&_scrData_5_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_5_1_SegmentRomEnd;
 					sprintf(message, "SUB_ENT1");				
 				break;
 
-			case SUBLEV2_ENT:
+			case LEVELID_SUBTERRANEAN2:
 					bankRomStart	= (u32)&_scrData_5_2_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_5_2_SegmentRomEnd;
 					sprintf(message, "SUB_ENT2");				
 				break;
 
-			case SUBLEV3_ENT:
+			case LEVELID_SUBTERRANEAN3:
 					bankRomStart	= (u32)&_scrData_5_3_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_5_3_SegmentRomEnd;
 					sprintf(message, "SUB_ENT3");				
 				break;
 
-			case SUBBOSSA_ENT:
+			case LEVELID_SUBTERRANEAN4:
 					bankRomStart	= (u32)&_scrData_5_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_5_4_SegmentRomEnd;
 					sprintf(message, "SUB_BOSS");				
@@ -1375,25 +1375,25 @@ void LoadLevelScript(int worldID,int levelID)
 		switch(levelID)
 		{
 /*
-			case LABORATORYLEV1_ENT:
+			case LEVELID_LABORATORY1:
 					bankRomStart	= (u32)&_scrData_6_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_6_1_SegmentRomEnd;
 					sprintf(message, "LAB_SCR1");				
 				break;
 
-			case LABORATORYLEV2_ENT:
+			case LEVELID_LABORATORY2:
 					bankRomStart	= (u32)&_scrData_6_2_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_6_2_SegmentRomEnd;
 					sprintf(message, "LAB_SCR2");				
 				break;
 
-			case LABORATORYLEV3_ENT:
+			case LEVELID_LABORATORY3:
 					bankRomStart	= (u32)&_scrData_6_3_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_6_3_SegmentRomEnd;
 					sprintf(message, "LAB_SCR3");				
 				break;
 
-			case LABORATORYBOSSA_ENT:
+			case LEVELID_LABORATORY4:
 					bankRomStart	= (u32)&_scrData_6_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_6_4_SegmentRomEnd;
 					sprintf(message, "LAB_SCR4");				
@@ -1424,52 +1424,52 @@ void LoadLevelScript(int worldID,int levelID)
 		switch(levelID)
 		{
 /*
-			case SRETROLEV1_ENT:
+			case LEVELID_SUPERRETRO1:
 					bankRomStart	= (u32)&_scrData_9_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_1_SegmentRomEnd;
 					sprintf(message, "SUP_SCR1");				
 				break;
-			case SRETROLEV2_ENT:
+			case LEVELID_SUPERRETRO2:
 					bankRomStart	= (u32)&_scrData_9_2_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_2_SegmentRomEnd;
 					sprintf(message, "SUP_SCR2");				
 				break;
-			case SRETROLEV3_ENT:
+			case LEVELID_SUPERRETRO3:
 					bankRomStart	= (u32)&_scrData_9_3_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_3_SegmentRomEnd;
 					sprintf(message, "SUP_SCR3");				
 				break;
-			case SRETROLEV4_ENT:
+			case LEVELID_SUPERRETRO4:
 					bankRomStart	= (u32)&_scrData_9_4_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_4_SegmentRomEnd;
 					sprintf(message, "SUP_SCR4");				
 				break;
-			case SRETROLEV5_ENT:
+			case LEVELID_SUPERRETRO5:
 					bankRomStart	= (u32)&_scrData_9_5_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_5_SegmentRomEnd;
 					sprintf(message, "SUP_SCR5");				
 				break;
-			case SRETROLEV6_ENT:
+			case LEVELID_SUPERRETRO6:
 					bankRomStart	= (u32)&_scrData_9_6_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_6_SegmentRomEnd;
 					sprintf(message, "SUP_SCR6");				
 				break;
-			case SRETROLEV7_ENT:
+			case LEVELID_SUPERRETRO7:
 					bankRomStart	= (u32)&_scrData_9_7_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_7_SegmentRomEnd;
 					sprintf(message, "SUP_SCR7");				
 				break;
-			case SRETROLEV8_ENT:
+			case LEVELID_SUPERRETRO8:
 					bankRomStart	= (u32)&_scrData_9_8_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_8_SegmentRomEnd;
 					sprintf(message, "SUP_SCR8");				
 				break;
-			case SRETROLEV9_ENT:
+			case LEVELID_SUPERRETRO9:
 					bankRomStart	= (u32)&_scrData_9_9_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_9_SegmentRomEnd;
 					sprintf(message, "SUP_SCR9");				
 				break;
-			case SRETROLEV10_ENT:
+			case LEVELID_SUPERRETRO10:
 					bankRomStart	= (u32)&_scrData_9_10_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_10_SegmentRomEnd;
 					sprintf(message, "SUP_SCR10");				
