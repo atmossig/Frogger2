@@ -1,26 +1,12 @@
-BUG------------ Reactive anims for croc heads are a bit weird - heads disappear afterwards
-COMPLETION BY-- Jan 28th
-INSTANCE-------	Ancients Boss
-SENT BY-------- Lauren
-RESPONSIBILTY-- Matt
-FIXED NOTES----
-
-BUG------------ Sprites aren't sorted
-COMPLETION BY-- Jan 28th
-INSTANCE-------	
-SENT BY-------- Dave
-RESPONSIBILTY-- Matt
-FIXED NOTES---- lack of sorting also affects the square-edge bug above
-
-BUG------------ Vertex alpha on chars.
-COMPLETION BY-- Jan 28th
-INSTANCE-------	
-SENT BY-------- Lauren
+BUG------------ Screen overlays are hard-coded for 640x480 mode 
+COMPLETION BY-- Jan 28th - COMPLETED
+INSTANCE-------	all title screens, in game HUD, etc.
+SENT BY-------- David
 RESPONSIBILTY-- Matt
 FIXED NOTES----
 
 BUG------------ Pause mode is a bit pants
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Jan 28th - COMPLETED
 INSTANCE-------	when you press ESC & end of levels..
 SENT BY-------- David
 RESPONSIBILTY-- Matt
@@ -29,26 +15,34 @@ FIXED NOTES---- enemies etc. should NOT be updated, gamespeed should equal zero 
 				should not be updated... Check all of these! We should be able to do a Matrix-style camera rotate in
 				the editor if it's fixed. :o)
 
-BUG------------ Screen overlays are hard-coded for 640x480 mode 
+BUG------------ Reactive anims for croc heads are a bit weird - heads disappear afterwards
+COMPLETION BY-- Jan 28th - FIXED
+INSTANCE-------	Ancients Boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- Matt
+FIXED NOTES---- Although I think there are still bugs with orientating the frog enemies... Need to speak with sandro
+
+
+
+
+
+
+
+BUG------------ Vertex alpha on chars.
 COMPLETION BY-- Jan 28th
-INSTANCE-------	all title screens, in game HUD, etc.
-SENT BY-------- David
+INSTANCE-------	
+SENT BY-------- Lauren
 RESPONSIBILTY-- Matt
 FIXED NOTES----
 
-TASK----------- Rotating sprites
-COMPLETION BY-- Feb 15th
-PRIORITY------- Medium
-RESPONSIBILTY-- Matt
-NOTES---------- For smoke especially
 
-TASK----------- Interchanging objects (drop in replacement models)
-COMPLETION BY-- Feb 15th
-PRIORITY------- Low
-RESPONSIBILTY-- Matt
-NOTES---------- Not too many cos of playstation, bu this lets us do frags and deformations and stuff
 
-TASK----------- Screen overlay port for PC, for end of level and other screens
+
+
+
+
+
+TASK----------- Screen grab port for PC, for end of level and other screens
 COMPLETION BY-- Feb 28th
 PRIORITY------- Low
 RESPONSIBILTY-- Matt?
@@ -59,18 +53,6 @@ COMPLETION BY-- Feb 28th
 PRIORITY------- Medium
 RESPONSIBILTY-- Matt
 NOTES---------- 
-
-TASK----------- Some kind of realtime lighting?
-COMPLETION BY-- Feb 28th
-PRIORITY------- Low
-RESPONSIBILTY-- Matt
-NOTES---------- 
-
-TASK----------- Generalise hats to "attach object to object"
-COMPLETION BY-- Feb 28th
-PRIORITY------- Low
-RESPONSIBILTY-- Matt
-NOTES---------- For backpack, hair, shades etc
 
 TASK----------- Optimisations for engine, static sprite list etc
 COMPLETION BY-- Mar 30th

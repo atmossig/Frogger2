@@ -391,7 +391,8 @@ void GameProcessController(long pl)
 			
 			gameState.mode = PAUSE_MODE;
 			pauseMode = 1;
-		
+			idleCamera = 1;
+
 	//		grabData.afterEffect = NO_EFFECT;
 	//		EnableTextOverlay ( pauseTitle );
 			sprintf(levelString,"%s",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description);

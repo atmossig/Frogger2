@@ -65,7 +65,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		for (c = tOver->text, width = 0; *c; c++)
 		{
 			letterID = characterMap[*c];
-			width += tOver->font->xSpacing[letterID];
+			width += tOver->font->xSpacing[letterID] * RES_DIFF;
 		}
 
 		x = (SCREEN_WIDTH-width)/2;
@@ -112,13 +112,13 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			
 			if (runHardware)
 			{
-				DrawAlphaSprite (x, y, 0, tOver->font->height, tOver->font->width,
+				DrawAlphaSprite (x, y, 0, tOver->font->height * RES_DIFF, tOver->font->width * RES_DIFF,
 				(float)u/255.0,(float)v/255.0,
 				((float)u+tOver->font->width)/255.0,
 				((float)v+tOver->font->height)/255.0,tOver->font->hdl,D3DRGBA(tOver->r/255.0,tOver->g/255.0,tOver->b/255.0,tOver->a/255.0));
 			}
 	
-			x += tOver->font->xSpacing[letterID];
+			x += tOver->font->xSpacing[letterID] * RES_DIFF;
 		}
 
 		pos++;

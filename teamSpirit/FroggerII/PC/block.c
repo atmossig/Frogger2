@@ -215,6 +215,8 @@ int SetRegistryInformation(void)
 */
 
 short *loadScr;
+long startTicks;
+long curTicks;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow);
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
@@ -324,6 +326,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	
 	dprintf"Loading screen - %s\n",filename));
 	loadScr = GetGelfBmpDataAsShortPtr(filename);
+	
+	screenTextureList = InitScreenTextureList();
+	screenVtxList = InitScreenVertexList();
 	
 	if (!runHardware)
 		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
@@ -473,7 +478,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				}
 */			}
 			else
-				keyDelay-=gameSpeed;
+				if (gameSpeed)
+					keyDelay-=gameSpeed;
+				else
+					keyDelay-=1;
 
 #ifdef USE_EDITOR
 			if (editorOk)
@@ -499,7 +507,52 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			if (actFrameCount>10)
 			{
 				// Screengrab needs old flip method
-				if( !shotMode )
+				if (screenGrabbed == 1)
+				{
+					startTicks = GetTickCount();
+					screenGrabbed = 2;
+				}
+
+				if (screenGrabbed == 2)
+				{
+					float sVal,fVal;
+					long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+
+					curTicks = GetTickCount();
+					if (curTicks>startTicks+2000)
+					{
+						FreeScreenTextures(screenTextureList);
+						screenGrabbed = 0;
+					}
+					else
+					{
+						for (i=0; i<numRequired * 4; i++)
+						{
+							sVal = (curTicks-startTicks)/100.0;
+							sVal = sinf(sVal+i)+1;
+							sVal /=2;
+							fVal = (1-(float)(curTicks-(startTicks+1000))/1000.0);
+							
+							if (fVal>1)
+							{
+								fVal -= 1;
+								sVal = fVal+(sVal*(1-fVal));
+								
+							}
+							else
+								if (fVal>0)
+									sVal *= fVal;
+								else
+									sVal = 0;
+							
+							screenVtxList[i].color = D3DRGBA(1,1,1,sVal);
+						}
+
+						DrawScreenOverlays();
+					}
+				}
+
+				if( !shotMode )				
 					DDrawFlip();
 				else
 					DirectXFlip();
@@ -566,10 +619,17 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
-				newTickCount = GetTickCount()-actTickCountModifier;
-				gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
-				actTickCount = newTickCount;
-				actFrameCount = (actTickCount/(1000.0/60.0));
+				if (gameState.mode == PAUSE_MODE)
+				{
+					gameSpeed = 0;
+				}
+				else
+				{
+					newTickCount = GetTickCount()-actTickCountModifier;
+					gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
+					actTickCount = newTickCount;
+					actFrameCount = (actTickCount/(1000.0/60.0));
+				}
 			}		
 		}
 	}

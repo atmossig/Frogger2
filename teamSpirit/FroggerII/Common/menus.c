@@ -404,6 +404,8 @@ void RunLevelSelect()
 	Returns 	: 
 	Info 		:
 */
+extern unsigned long actTickCount,actTickCountModifier;
+extern unsigned long idleCamera;
 void RunPauseMenu()
 {
 	static unsigned long currentSelection = 0;
@@ -432,6 +434,7 @@ void RunPauseMenu()
 		DisableTextOverlay ( levelnameText );
 
 		pauseMode = 0;
+		idleCamera = 0;
 
 		switch(currentSelection)
 		{
@@ -453,6 +456,7 @@ void RunPauseMenu()
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 1;
 
+				actTickCountModifier = (GetTickCount()-actTickCount);
 				return;
 			}
 			
@@ -514,6 +518,13 @@ void RunPauseMenu()
 	}
 
 	lastbutton = button;
+
+	gameSpeed = 1;
+	CameraLookAtFrog();
+	UpdateCameraPosition(0);
+	SlurpCamPosition(0);
+	gameSpeed = 0;
+			
 }
 
 /*	--------------------------------------------------------------------------------

@@ -52,8 +52,12 @@ float RES_DIFF2 = 2;
 
 float fStart = 0.3;
 float fEnd = 0.6;
+LPDIRECTDRAWSURFACE *screenTextureList;
+D3DTLVERTEX *screenVtxList;
 
 long is565;
+void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to);
+void DrawScreenOverlays(void);
 
 extern long numPixelsDrawn; 
 
@@ -915,20 +919,70 @@ float bRed = 0, bGreen = 0, bBlue = 0;
 extern short *loadScr;
 short backScr[1280*1024];
 unsigned long sTime = (1000 * 5);
+unsigned long screenGrabbed = 0;
+
 void ShowLoadScreen(void)
 {
 	long i,j,sTicks,nTicks;
+	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
 	DDSURFACEDESC ddsd;
+	long startTicks;
+	long curTicks;
+	float sVal,fVal;
 
-	DDINIT(ddsd);
-	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList);
+	
+	startTicks = GetTickCount();
+	do
+	{
+		curTicks = GetTickCount();
+		DDINIT(ddsd);
 		
+		while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+		
+		for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
+			memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
+	
+		
+		surface[RENDER_SRF]->Unlock(ddsd.lpSurface);
+
+		for (int i=0; i<numRequired * 4; i++)
+		{
+			sVal = (curTicks-startTicks)/100.0;
+			sVal = sinf(sVal+i)+1;
+			sVal /=2;
+			fVal = (1-(float)(curTicks-(startTicks+1000))/1000.0);
+			
+			if (fVal>1)
+			{
+				fVal -= 1;
+				sVal = fVal+(sVal*(1-fVal));
+				
+			}
+			else
+				if (fVal>0)
+					sVal *= fVal;
+				else
+					sVal = 0;
+			
+			screenVtxList[i].color = D3DRGBA(1,1,1,sVal);
+		}
+
+		DrawScreenOverlays();
+		DDrawFlip();	
+	
+	} while (curTicks<startTicks+1999);
+
+	
+	FreeScreenTextures(screenTextureList);
+
+	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
 		memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
-	
 	surface[RENDER_SRF]->Unlock(ddsd.lpSurface);
-	
 	DDrawFlip();	
+	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList);
+	screenGrabbed = 1;
 }
 
 void PrintTextureInfo(void)
@@ -1672,6 +1726,132 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *
 		ddShowError(res);
 }
 
+/*	--------------------------------------------------------------------------------
+	Function 	: InitScreenTextureList
+	Purpose 	: Initialise for screen textures
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+LPDIRECTDRAWSURFACE *InitScreenTextureList(void)
+{
+	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	LPDIRECTDRAWSURFACE *me = (LPDIRECTDRAWSURFACE *)JallocAlloc(numRequired * sizeof(LPDIRECTDRAWSURFACE),0,"ScrSrf");
+	for (int i=0; i<numRequired; i++)
+		me[i] = NULL;
+	return me;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: InitScreenTextureList
+	Purpose 	: Initialise for screen textures
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+D3DTLVERTEX *InitScreenVertexList(void)
+{
+	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	RECT rect;
+	D3DTLVERTEX *me = (D3DTLVERTEX *)JallocAlloc(numRequired * sizeof(D3DTLVERTEX) * 4,0,"ScrSrf");
+	for (int i=0; i<numRequired * 4; i+=4)
+	{
+		me[i].tu = 0;
+		me[i].tv = 0;
+		
+		me[i+1].tu = 1;
+		me[i+1].tv = 0;
+
+		me[i+2].tu = 1;
+		me[i+2].tv = 1;
+
+		me[i+3].tu = 0;
+		me[i+3].tv = 1;
+		
+		me[i].color = D3DRGBA(1,1,1,1);
+		me[i+1].color = D3DRGBA(1,1,1,1);
+		me[i+2].color = D3DRGBA(1,1,1,1);
+		me[i+3].color = D3DRGBA(1,1,1,1);
+
+		me[i].specular = D3DRGB(0,0,0);
+		me[i+1].specular = D3DRGB(0,0,0);
+		me[i+2].specular = D3DRGB(0,0,0);
+		me[i+3].specular = D3DRGB(0,0,0);
+		
+	}
+
+	i = 0;
+
+	for (rect.top = 0, rect.bottom = 31; rect.bottom < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
+		for (rect.left = 0, rect.right = 31; rect.right < SCREEN_WIDTH; rect.left += 32, rect.right += 32)
+		{
+			me[i+0].sx = rect.left;
+			me[i+0].sy = rect.top;
+			me[i+1].sx = rect.right+1;
+			me[i+1].sy = rect.top;
+			me[i+2].sx = rect.right+1;
+			me[i+2].sy = rect.bottom+1;
+			me[i+3].sx = rect.left;
+			me[i+3].sy = rect.bottom+1;
+
+			i+=4;
+		}
+
+	return me;
+}
+
+unsigned long texList[1000];
+
+void DrawScreenOverlays(void)
+{
+	unsigned short faces[] = {0,1,2,0,2,3};
+	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	BeginDrawHardware();
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);
+
+	for (int i=0; i<numRequired; i++)
+	{
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,texList[i]);
+
+		if (pDirect3DDevice->DrawIndexedPrimitive(
+			D3DPT_TRIANGLELIST,
+			D3DVT_TLVERTEX,
+			&screenVtxList[i*4],
+			4,
+			faces,
+			6,
+			D3DDP_DONOTCLIP |
+			D3DDP_DONOTLIGHT |
+			D3DDP_DONOTUPDATEEXTENTS) !=D3D_OK) dp("!");
+	}
+
+	EndDrawHardware();
+
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FreeScreenTextures
+	Purpose 	: Ready for next use
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void FreeScreenTextures(LPDIRECTDRAWSURFACE *where)
+{
+	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+	for (int i=0; i<numRequired; i++)
+	{
+		if (where[i])
+			where[i]->Release();		
+		where[i] = NULL;
+	}
+}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: GrabScreenTextures
@@ -1684,23 +1864,33 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *
 void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to)
 {
 	int i, j;
-	LPDIRECTDRAWSURFACE surface, *dds;
+	LPDIRECTDRAWSURFACE surface, *dds, surface2;
+	unsigned long *hdl;
 	HRESULT res;
 	RECT rect;
 
 	dds = &to[0];
-
+	hdl = texList;
+	
 	for (rect.top = 0, rect.bottom = 31; rect.bottom < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
 	{
-		for (rect.left = 0, rect.right = 31; rect.right < SCREEN_HEIGHT; rect.left += 32, rect.right += 32)
+		for (rect.left = 0, rect.right = 31; rect.right < SCREEN_WIDTH; rect.left += 32, rect.right += 32)
 		{
+			surface =  D3DCreateTexSurface(32,32,0xf81f, 0,0);
+
 			if (!*dds)
-				*dds = surface =  D3DCreateTexSurface(32,32,0xf81f, 0,0);
+				*dds = surface2 = D3DCreateTexSurface(32,32,0xf81f, 0,1);
 			else
-				surface = *dds;
+				surface2 = *dds;
 
-			res = from->BltFast(0, 0, surface, &rect, DDBLTFAST_NOCOLORKEY);
+						
+			res = surface->Blt(NULL, from, &rect, DDBLT_WAIT,NULL);
+			res = surface2->Blt(NULL,surface,NULL,DDBLT_WAIT,0);
 
+			surface->Release();
+			*hdl = ConvertSurfaceToTexture(surface2);
+			
+			hdl++;
 			dds++;
 		}
 	}

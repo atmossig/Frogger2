@@ -4,13 +4,6 @@ PRIORITY------- High
 RESPONSIBILTY-- Dave
 NOTES---------- 
 
-BUG------------ Cant select polys for placing paths etc in the editor unless the camera is a specific distance from the poly in question
-COMPLETION BY-- Jan 28th
-INSTANCE-------	Any time you want to pick a poly in the editor
-SENT BY-------- Bruce
-RESPONSIBILTY-- Dave?
-FIXED NOTES----
-
 BUG------------ Ice tiles are being weird - the whole world disappears
 COMPLETION BY--	Jan 28th
 INSTANCE-------	Space boss
@@ -20,7 +13,7 @@ FIXED NOTES----
 
 BUG------------ As below, but also with pushing off barred tiles from platforms & you 
 		can't use ESC to quit
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Feb 7th
 INSTANCE-------	Ancients 1 in croc river & other places
 SENT BY-------- Lauren
 RESPONSIBILTY-- Dave
@@ -28,7 +21,7 @@ FIXED NOTES----
 
 BUG------------ If you hit a teleporter when you die it still teleports you, except it 
 		thinks you're dead and won't let you move and won't kill you.
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Feb 7th
 INSTANCE-------	Space 1, by the vents
 SENT BY-------- Jim
 RESPONSIBILTY-- Dave
@@ -53,3 +46,9 @@ COMPLETION BY-- Feb 28th
 PRIORITY------- Medium
 RESPONSIBILTY-- Dave
 NOTES---------- 
+
+TASK----------- Interchanging objects (drop in replacement models)
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Not too many cos of playstation, but this lets us do frags and deformations and stuff
