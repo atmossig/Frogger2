@@ -332,7 +332,7 @@ int WriteShort(FILE *f, short s)
 	return rit;
 }
 
-#define RECORDSIZE		28
+#define RECORDSIZE		(4+16+8+16)
 
 void toPsi(char *str)
 {
@@ -368,10 +368,19 @@ void WritePSXData(void)
 		strcat(objList[i].name, ".psi");
 		fwrite(objList[i].name, 16, 1, f);
 
+		// SVECTOR: position
 		WriteShort(f, (short)objList[i].x);
 		WriteShort(f, (short)objList[i].z);
 		WriteShort(f, (short)-objList[i].y);
 		WriteShort(f, 0);
+
+		// IQUATERNION (4xFIXED) orientation
+		//-objList[i].rx,objList[i].ry,-objList[i].rz,objList[i].rv
+		
+		WriteInt(f, (int)(objList[i].rx * -4096.0f));
+		WriteInt(f, (int)(objList[i].ry * 4096.0f));
+		WriteInt(f, (int)(objList[i].rz * -4096.0f));
+		WriteInt(f, (int)(objList[i].rv * 4096.0f));
 	}
 
 	fclose (f);
