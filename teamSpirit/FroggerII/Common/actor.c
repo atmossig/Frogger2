@@ -306,7 +306,8 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	{
 		newItem->flags = ACTOR_DRAW_ALWAYS;
 		newItem->actor->xluOverride = WATER_XLU;
-		newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
+		if (newItem->actor->objectController)
+			newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
 	}
 
 	newItem->speed				= 18.0;
