@@ -9,12 +9,10 @@ unsigned long numMultiItems=0;
 
 TIMER powerupTimer;
 
-void UpdateCTF( );
 void UpdateRace( );
 void UpdateBattle( );
 
 void CalcBattleCamera( VECTOR *target );
-void CalcCTFCamera( VECTOR *target );
 void CalcRaceCamera( VECTOR *target );
 
 void BattleProcessController( int pl );
@@ -23,92 +21,11 @@ void FaceFrogInwards(int i);
 
 MPINFO mpl[4] = 
 {
-	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  230, 30,	0, 0, NULL },
-	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	230, 30,  30,	0, 0, NULL },
-	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	180, 180, 230,	0, 0, NULL },
-	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  30,  230,	0, 0, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  230, 30,	0, TILESTATE_FROGGER1AREA, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	230, 30,  30,	0, TILESTATE_FROGGER1AREA, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	180, 180, 230,	0, TILESTATE_FROGGER1AREA, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  30,  230,	0, TILESTATE_FROGGER1AREA, NULL },
 };
-
-/*	--------------------------------------------------------------------------------
-	Function		: UpdateCTF
-	Purpose			: Do game mechanics for Capture the Frog multiplayer mode
-	Parameters		: 
-	Returns			: 
-	Info			:
-*/
-void UpdateCTF( )
-{
-	unsigned long i;
-	static TIMER endTimer, multiTimer;
-
-	if( !started )
-	{
-		GTInit( &multiTimer, 90 );
-		GTInit( &endTimer, 0 );
-		started = 1;
-	}
-
-	if( endTimer.time )
-	{
-		GTUpdate( &endTimer, -1 );
-
-		if( !endTimer.time )
-		{
-			StopDrawing("game over");
-			FreeAllLists();
-
-			InitLevel(player[0].worldNum,player[0].levelNum);
-			gameState.mode = INGAME_MODE;
-
-			started = frameCount = 0;
-			fixedPos = fixedDir = 0;
-			StartDrawing("game over");
-		}
-		return;
-	}
-	else // Is anyone still alive?
-	{
-		for( i=0; i<NUM_FROGS; i++ )
-			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) break;
-
-		if( i==NUM_FROGS )
-		{
-			GTInit( &endTimer, 10 );
-			fixedPos = fixedDir = 1;
-		}
-	}
-
-	GTUpdate( &multiTimer, -1 );
-
-	if( !multiTimer.time )	// Check win conditions
-	{
-		GAMETILE *t;
-		ENEMY *nme;
-		short babyCount[4] = {0,0,0,0}, winner=-1, best=0;
-
-		// If on a froggers area tile, check for babies on the tile
-		for (t = firstTile; t != NULL; t = t->next)
-			if( (t->state >= TILESTATE_FROGGER1AREA) && (t->state <= TILESTATE_FROGGER4AREA) )
-				for( nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
-					if( (nme->flags & ENEMY_NEW_BABYFROG) && (t == nme->inTile) )
-						babyCount[t->state-TILESTATE_FROGGER1AREA]++;
-
-		for( i=0; i<NUM_FROGS; i++ )
-			if( babyCount[i] > best )
-			{
-				best = babyCount[i];
-				winner = i;
-			}
-
-		if( winner == -1 ) sprintf( timeTextOver->text, "No winner" );
-		else sprintf( timeTextOver->text, "P%i won", winner );
-
-		GTInit( &endTimer, 10 );
-		return;
-	}
-
-	sprintf(timeTextOver->text,"%d",multiTimer.time);
-}
 
 
 /*	--------------------------------------------------------------------------------
@@ -154,12 +71,7 @@ void UpdateRace( )
 			sprintf( timeTextOver->text, "Go" );
 
 			for( i=0; i<NUM_FROGS; i++ )
-			{
 				player[i].canJump = 1;
-				mpl[i].check = 0;
-				mpl[i].lap = 0;
-				mpl[i].lasttile = TILESTATE_FROGGER1AREA;
-			}
 		}
 	}
 	else if( endTimer.time ) // If finished the race then wait before replaying
@@ -402,11 +314,6 @@ void RunMultiplayer( )
 	case WORLDID_ANCIENT:
 		multiplayerMode = MULTIMODE_RACE_KNOCKOUT;
 		UpdateRace( );
-		break;
-	case WORLDID_SUBTERRANEAN:
-	case WORLDID_HALLOWEEN:
-		multiplayerMode = MULTIMODE_CTF;
-		UpdateCTF( );
 		break;
 	case WORLDID_LABORATORY:
 		multiplayerMode = MULTIMODE_BATTLE;
@@ -665,9 +572,6 @@ void ResetMultiplayer( )
 
 	switch( multiplayerMode )
 	{
-	case MULTIMODE_CTF:
-		break;
-
 	case MULTIMODE_BATTLE:
 	{
 		AIPATHNODE *node, *temp;
@@ -687,6 +591,7 @@ void ResetMultiplayer( )
 			mpl[i].path = NULL;
 			SetFroggerStartPos( gTStart[i], i );
 		}
+
 		FreeGaribLinkedList();
 		InitGaribLinkedList();
 		InitSpriteSortArray(MAX_ARRAY_SPRITES);
@@ -697,7 +602,7 @@ void ResetMultiplayer( )
 	case MULTIMODE_RACE_KNOCKOUT:
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			mpl[i].check = -1;
+			mpl[i].check = 0;
 			mpl[i].lap = 0;
 			mpl[i].lasttile = TILESTATE_FROGGER1AREA;
 			sprHeart[i*3]->draw = 1;
@@ -707,6 +612,8 @@ void ResetMultiplayer( )
 		}
 		break;
 	}
+
+	InitCamera();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -724,9 +631,7 @@ void CalcMPCamera( VECTOR *target )
 	case MULTIMODE_RACE_KNOCKOUT:
 		CalcRaceCamera( target );
 		break;
-	case MULTIMODE_CTF:
-		CalcCTFCamera( target );
-		break;
+
 	case MULTIMODE_BATTLE:
 		CalcBattleCamera( target );
 		break;
@@ -735,39 +640,44 @@ void CalcMPCamera( VECTOR *target )
 
 void CalcRaceCamera( VECTOR *target )
 {
-	int lead=0, i, bestLap=0, bestCheck=0;
+	int i, bestLap=0, bestCheck=0, num;
 	float t;
+
+	ZeroVector( target );
 
 	for( i=0; i<NUM_FROGS; i++ )
 		if( mpl[i].lap >= bestLap && mpl[i].check >= bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
 		{
 			bestLap = mpl[i].lap;
 			bestCheck = mpl[i].check;
-			lead = i;
+			playerFocus = i;
 		}
 
-	playerFocus = lead;
-	t = player[lead].jumpTime;
-	if( t > 0 )	// jumping; calculate linear position
+	for( i=0,num=0; i<NUM_FROGS; i++ )
 	{
-		VECTOR v;
-		SetVector(target, &player[lead].jumpOrigin);
-		SetVector(&v, &player[lead].jumpFwdVector);
-		ScaleVector(&v, t);
-		AddToVector(target, &v);
-	}										
-	else
-	{
-		SetVector( target, &frog[lead]->actor->pos );
+		if( mpl[i].lap == bestLap && mpl[i].check == bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		{
+			num++;
+			t = player[i].jumpTime;
+			if( t > 0 )	// jumping; calculate linear position
+			{
+				VECTOR v;
+				SetVector(&v, &player[i].jumpFwdVector);
+				ScaleVector(&v, t);
+				AddToVector(target, &player[i].jumpOrigin);
+				AddToVector(target, &v);
+			}										
+			else
+			{
+				AddToVector( target, &frog[i]->actor->pos );
+			}
+		}
 	}
+
+	ScaleVector( target, 1.0f/(float)(max(num,1)) );
 }
 
 void CalcBattleCamera( VECTOR *target )
-{
-	CalcCTFCamera( target );
-}
-
-void CalcCTFCamera( VECTOR *target )
 {
 	VECTOR v;
 	int i,l;
@@ -805,14 +715,9 @@ void CalcCTFCamera( VECTOR *target )
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: UpdateRace
-	Purpose			: Do game mechanics for mulitplayer race mode
-	Parameters		: 
-	Returns			: 
-	Info			:
-*/
 
+
+/*************** THE MULTIPLAYER MODE GRAVEYARD *****************/
 /*
 void UpdateDM( )
 {
@@ -871,4 +776,79 @@ void UpdateDM( )
 		}
 	}
 }
+
+void UpdateCTF( )
+{
+	unsigned long i;
+	static TIMER endTimer, multiTimer;
+
+	if( !started )
+	{
+		GTInit( &multiTimer, 90 );
+		GTInit( &endTimer, 0 );
+		started = 1;
+	}
+
+	if( endTimer.time )
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+		{
+			StopDrawing("game over");
+			FreeAllLists();
+
+			InitLevel(player[0].worldNum,player[0].levelNum);
+			gameState.mode = INGAME_MODE;
+
+			started = frameCount = 0;
+			fixedPos = fixedDir = 0;
+			StartDrawing("game over");
+		}
+		return;
+	}
+	else // Is anyone still alive?
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) break;
+
+		if( i==NUM_FROGS )
+		{
+			GTInit( &endTimer, 10 );
+			fixedPos = fixedDir = 1;
+		}
+	}
+
+	GTUpdate( &multiTimer, -1 );
+
+	if( !multiTimer.time )	// Check win conditions
+	{
+		GAMETILE *t;
+		ENEMY *nme;
+		short babyCount[4] = {0,0,0,0}, winner=-1, best=0;
+
+		// If on a froggers area tile, check for babies on the tile
+		for (t = firstTile; t != NULL; t = t->next)
+			if( (t->state >= TILESTATE_FROGGER1AREA) && (t->state <= TILESTATE_FROGGER4AREA) )
+				for( nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
+					if( (nme->flags & ENEMY_NEW_BABYFROG) && (t == nme->inTile) )
+						babyCount[t->state-TILESTATE_FROGGER1AREA]++;
+
+		for( i=0; i<NUM_FROGS; i++ )
+			if( babyCount[i] > best )
+			{
+				best = babyCount[i];
+				winner = i;
+			}
+
+		if( winner == -1 ) sprintf( timeTextOver->text, "No winner" );
+		else sprintf( timeTextOver->text, "P%i won", winner );
+
+		GTInit( &endTimer, 10 );
+		return;
+	}
+
+	sprintf(timeTextOver->text,"%d",multiTimer.time);
+}
+	
 */

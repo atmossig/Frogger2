@@ -802,7 +802,7 @@ void FreeAllLists()
 
 	StopDrawing("FREELIST");
 
-	ResetMultiplayer( );
+//	ResetMultiplayer( );
 
 	FreeAllGameLists();
 	

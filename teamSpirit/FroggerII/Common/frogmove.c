@@ -135,8 +135,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	fixedPos = 0;
 	fixedDir = 0;
 
-	InitCamera();
-	
 	frogFacing[p] = camFacing;
 	Orientate( &frog[p]->actor->qRot, &currTile[p]->dirVector[frogFacing[p]], &currTile[p]->normal );
 }
@@ -1325,6 +1323,7 @@ BOOL KillFrog(long pl)
 		}
 
 		SetFroggerStartPos(gTStart[0],pl);
+		InitCamera();
 		//currTile[pl] = gTStart[pl];
 		//SetVector(&frog[pl]->actor->pos,&startTile->centre);
 

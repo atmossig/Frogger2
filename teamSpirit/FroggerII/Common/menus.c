@@ -579,32 +579,36 @@ void RunPauseMenu()
 			}
 			
 			case 1:   // quit game
+				if( gameState.multi != SINGLEPLAYER )
+					ResetMultiplayer( );
+
 				FreeAllLists();
 
-			if (!USE_MENUS)
-			{
-				if (player[0].worldNum == WORLDID_FRONTEND)
+				if (!USE_MENUS)
 				{
-					#ifdef PC_VERSION
-						if (player[0].levelNum == LEVELID_FRONTEND1)
-							PostQuitMessage(0);
-//							DestroyWindow (winInfo.hWndMain);
-						else
-							gameState.mode = INGAME_MODE;
-							InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);						
-					#endif
+					if (player[0].worldNum == WORLDID_FRONTEND)
+					{
+						#ifdef PC_VERSION
+							if (player[0].levelNum == LEVELID_FRONTEND1)
+								PostQuitMessage(0);
+							else
+							{
+								gameState.mode = INGAME_MODE;
+								InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);						
+							}
+						#endif
+					}
+					else
+					{
+						gameState.mode = INGAME_MODE;
+						InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+					}
 				}
 				else
 				{
-					gameState.mode = INGAME_MODE;
-					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+					gameState.mode = MENU_MODE;
+					gameState.menuMode = TITLE_MODE;
 				}
-			}
-			else
-			{
-				gameState.mode = MENU_MODE;
-				gameState.menuMode = TITLE_MODE;
-			}
 
 				frameCount = 0;
 				lastbutton = 0;
