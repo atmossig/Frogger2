@@ -20,6 +20,7 @@
 #include <dplobby.h>
 //#include "..\resource.h"
 
+#include "cam.h"
 #include "Main.h"
 #include "frogger.h"
 #include "language.h"
@@ -600,8 +601,29 @@ void ProcessUserInput()
 		horizClip/=1.2;
 		vertClip/=1.2;
 	}
-#endif
 
+	if (KEYPRESS(DIK_F1))
+		camDist.vy+=(20*gameSpeed)>>12;
+
+	if (KEYPRESS(DIK_F2))
+		camDist.vy-=(20*gameSpeed)>>12;
+
+	if (KEYPRESS(DIK_F3))
+	{
+		if (KEYPRESS(DIK_LCONTROL))
+			camSideOfs+=20*gameSpeed;
+		else
+			camDist.vz+=(20*gameSpeed)>>12;
+	}
+
+	if (KEYPRESS(DIK_F4))
+	{
+		if (KEYPRESS(DIK_LCONTROL))
+			camSideOfs-=20*gameSpeed;
+		else
+			camDist.vz-=(20*gameSpeed)>>12;
+	}
+#endif
 
 	if (rPlayOK)
 	{
