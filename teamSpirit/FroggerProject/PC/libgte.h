@@ -3,8 +3,8 @@
 
 //#define rsin(x) (sin((x/4096.0)*3.14)*4096)
 //#define rcos(x) (cos((x/4096.0)*3.14)*4096)
-#define rsin(x) (sin((x/4096.0)*PI2)*4096)
-#define rcos(x) (cos((x/4096.0)*PI2)*4096)
+#define rsin(x) (fixed)(sin((x/4096.0)*PI2)*4096)
+#define rcos(x) (fixed)(cos((x/4096.0)*PI2)*4096)
 
 typedef struct
 {		/* long word type 3D vector */
