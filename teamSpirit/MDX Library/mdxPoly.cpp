@@ -65,7 +65,7 @@ MDX_TEXENTRY *haloHandle = 0;
 MDX_TEXENTRY *haloHandle2 = 0;
 MDX_TEXENTRY *haloHandle3 = 0;
 
-
+unsigned long totalFacesDrawn = 0;
 
 MDX_TEXENTRY *cTexture = NULL;
 unsigned long sortMode = 0;
@@ -127,6 +127,14 @@ unsigned long xluSubRS[] =
 	D3DRENDERSTATE_SRCBLEND,D3DBLEND_ZERO,
 	D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCCOLOR,
 	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
+unsigned long xluInvisibleRS[] =
+{
+	D3DRENDERSTATE_SRCBLEND,D3DBLEND_ZERO,
+	D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE,
+	//	
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
 
@@ -400,22 +408,6 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	Info          : -
 */
 
-void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB)
-{
-	flareScales[numHaloPoints] = flareScaleA;
-	flareScales2[numHaloPoints] = flareScaleB;
-	SetVector(&haloPoints[numHaloPoints++], point);
-	
-}
-
-/*  --------------------------------------------------------------------------------
-    Function      : DrawBatchedPolys
-	Purpose       :	-
-	Parameters    : -
-	Returns       : -
-	Info          : -
-*/
-
 
 void DrawSoftwarePolys (void)
 {
@@ -655,6 +647,7 @@ void DrawBatchedPolys (void)
 		pDirect3DDevice->SetTexture(0,0);
 		
 		cFInfo->cF+=nFace;
+		totalFacesDrawn+=nFace/3;
 	}
 }
 
@@ -709,7 +702,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 	MPR_VERT v[3];
 	D3DTLVERTEX *verts;
 	unsigned long f1,f2,f3;
-	
+	totalFacesDrawn+=dwIndexCount / 3;
 	if (rHardware)
 		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
 	else
@@ -1153,7 +1146,7 @@ void BlankAllFrames(void)
 void StoreHaloPoints(void)
 {
 	DDSURFACEDESC2		ddsd;
-	MDX_VECTOR v;
+	MDX_VECTOR v,t;
 
 	DDINIT(ddsd);
 	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
@@ -1162,16 +1155,32 @@ void StoreHaloPoints(void)
 
 	for (int i=0; i<numHaloPoints; i++)
 	{
+		SetVector(&t,&haloPoints[i]);
 		XfmPoint(&v,&haloPoints[i],NULL);
-		haloPoints[i].vx = (unsigned long)v.vx;
-		haloPoints[i].vy = (unsigned long)v.vy;
-		haloPoints[i].vz = v.vz;
-		
-		if (haloPoints[i].vz)
-			haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))];
+
+		if (((v.vx>0) && (v.vx<640)) && ((v.vy>0) && (v.vy<480)))
+		{
+			haloPoints[i].vx = (unsigned long)v.vx;
+			haloPoints[i].vy = (unsigned long)v.vy;
+			haloPoints[i].vz = v.vz;
+			
+			if (haloPoints[i].vz)
+				haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))];
+		}	
+		else
+			haloPoints[i].vz = 0;
 	}
 
 	surface[ZBUFFER_SRF]->Unlock(NULL);
+}
+
+void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size)
+{
+	flareScales[numHaloPoints] = flareScaleA;
+	flareScales2[numHaloPoints] = flareScaleB;
+	haloColor[numHaloPoints] = color;
+	haloSize[numHaloPoints] = size;
+	SetVector(&haloPoints[numHaloPoints++], point);	
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1219,6 +1228,16 @@ void DrawHalos(void)
 	D3DSetupRenderstates(xluAddRS);
 	float r = 1, g = 80/256.0, b = 10/256.0;
 	float r1 = 1, g1 = 130/256.0, b1 = 110/256.0;
+	
+	if (!haloHandle)
+	{
+		haloHandle = GetTexEntryFromCRC(UpdateCRC("glowtex.bmp"));
+		haloHandle2 = GetTexEntryFromCRC(UpdateCRC("halotex2.bmp"));
+		haloHandle3 = GetTexEntryFromCRC(UpdateCRC("halotex3.bmp"));
+		//FindTexture((TEXTURE **)&haloHandle2,UpdateCRC("halotex2.bmp"),1);
+		//FindTexture((TEXTURE **)&haloHandle3,UpdateCRC("halotex3.bmp"),1);
+	}
+
 	for (int i=0; i<numHaloPoints; i++)
 	{
 		if (haloPoints[i].vz)
@@ -1235,9 +1254,9 @@ void DrawHalos(void)
 			size = fabs(haloSize[i] * 2 * flareScales[i]);
 			size2 = 40+fabs(20 * flareScales[i]);
 
-	//		DrawAlphaSpriteRotating(&(haloPoints[i].vx),0,haloPoints[i].vx - size2/2,haloPoints[i].vy - size/2, 0,size2,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
+			DrawAlphaSpriteRotating(&haloPoints[i],0,haloPoints[i].vx - size2/2,haloPoints[i].vy - size/2, 0,size2,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales[i])));
 			size = fabs(haloSize[i] * 1.5 * flareScales2[i]);
-	//		DrawAlphaSpriteRotating(&(haloPoints[i].vx),0.5,haloPoints[i].vx - 20,haloPoints[i].vy - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
+			DrawAlphaSpriteRotating(&haloPoints[i],0.5,haloPoints[i].vx - 20,haloPoints[i].vy - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
 			size = fabs(haloSize[i] * flareScales[i] * flareScales2[i]);
 			
 	//		DrawAlphaSpriteRotating(&(haloPoints[i].vx),-0.7,haloPoints[i].vx - 20,haloPoints[i].vy - size/2, 0,40,size, 0,0,1,1,haloHandle2,c | D3DRGBA(0,0,0,1-fabs(flareScales2[i])));
@@ -1270,6 +1289,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	D3DTLVERTEX v[4];
 	float x2 = (x+xs), y2 = (y+ys);
 //	float fogAmt;
+	totalFacesDrawn++;
 
 	if (x < clx0)
 	{
@@ -1330,6 +1350,7 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 	D3DTLVERTEX v[5];
 	float x2 = (x+xs), y2 = (y+ys), sine, cosine, newX, newY;
 	int i,j;
+	totalFacesDrawn++;
 
 	if( !tex ) return;
 
@@ -1414,16 +1435,23 @@ void DrawAllFrames(void)
 	
 	
 	EndDraw();
+
+	BeginDraw();
+	EndDraw();
+
 	// Need to test the ZBuffer on these polys...
 	StoreHaloPoints();
 
 	BeginDraw();
 
 	SwapFrame(MA_FRAME_GLOW);
+	D3DSetupRenderstates(xluInvisibleRS);
 	DrawBatchedPolys();
 
 	EndDraw();
-	
+	BeginDraw();
+	EndDraw();
+
 	CheckHaloPoints();
 	
 	BeginDraw();
@@ -1466,10 +1494,16 @@ void DrawAllFrames(void)
 	SwapFrame(MA_FRAME_ADDITIVE);
 	DrawBatchedPolys();	
 	
+	SwapFrame(MA_FRAME_OVERLAY);
+	DrawHalos();
+	D3DSetupRenderstates(noZRS);
+	D3DSetupRenderstates(cullNoneRS);
+	DrawBatchedPolys();	
+	
 	D3DSetupRenderstates(normalZRS);
 	D3DSetupRenderstates(normalAlphaCmpRS);	
-
-	DrawHalos();
+	
+	
 	D3DSetupRenderstates(xluSemiRS);
 
 	pDirect3DDevice->EndScene();

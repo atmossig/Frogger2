@@ -37,6 +37,8 @@ MDX_VECTOR	upV = {0,1,0},
 
 MDX_QUATERNION zeroQuat = {0,0,0,1};
 MDX_MATRIXSTACK	matrixStack;
+MDX_VECTOR curAt;
+MDX_VECTOR curEye;
 
 void Normalise(MDX_VECTOR *vect)
 {
@@ -111,11 +113,20 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 	*destZ = (m[0][2]*srcX)+(m[1][2]*srcY)+(m[2][2]*srcZ)+(m[3][2]);
 }
 
+
 void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp)
 {
     MDX_VECTOR  up, right, view_dir,world_up,from;
 
 	guMtxIdent (m);
+	
+	curAt.vx = xAt;
+	curAt.vy = yAt;
+	curAt.vz = zAt;
+
+	curEye.vx = xEye;
+	curEye.vy = yEye;
+	curEye.vz = zEye;
 
 	view_dir.vx = xEye - xAt;
 	view_dir.vy = yEye - yAt;

@@ -818,13 +818,26 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 
 	if (obj->flags & OBJECT_FLAGS_GLOW)
 	{
-		MDX_VECTOR v;
-		
+		MDX_VECTOR v,cVect,oVect,cVect2,oVect2;
+		float horiz,horiz2;
+
 		v.vx = obj->objMatrix.matrix[3][0];
 		v.vy = obj->objMatrix.matrix[3][1];
 		v.vz = obj->objMatrix.matrix[3][2];
+					
+		SubVector(&cVect,&curAt,&curEye);
+		SubVector(&oVect,&curEye,&v);
+		cVect.vy = 0;
+		oVect.vy = 0;
+		Normalise(&cVect);
+		Normalise(&oVect);
+			
+		horiz = fabs(0.7+acos(DotProduct(&cVect,&oVect))*2.5);
+		horiz = 0.2+fabs(cosf(horiz))*0.8;
+		horiz2 = fabs(1.2+acos(DotProduct(&cVect,&oVect))*2.5);
+		horiz2 = 0.2+fabs(sinf(horiz2))*0.8;
+		AddHalo(&v,horiz,horiz2,SETALPHA(*((long *)(&(obj->mesh->gouraudColors->x))),(long)(0.8*0xff)),obj->xlu);
 		
-		AddHalo(&v,vMatrix.matrix[2][0],vMatrix.matrix[2][2]);
 		SwapFrame(MA_FRAME_GLOW);		
 	}
 

@@ -520,6 +520,9 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 		for(x = 0; x < obj->numSprites; x++)
 			obj->sprites[x].textureID = GetTexEntryFromCRC ((long)obj->sprites[x].textureID);		
 	
+	if ((obj->name[0] == 'g') && (obj->name[1] == 'l') && (obj->name[2] == '_'))
+		obj->flags |= OBJECT_FLAGS_GLOW;
+	
 	if (obj->mesh)
 	{
 		float r,g,b,a;

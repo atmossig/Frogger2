@@ -21,7 +21,7 @@ extern "C"
 #define MA_SORTFRONTBACK	1
 #define MA_SORTBACKFRONT	2
 
-enum {MA_FRAME_NORMAL,MA_FRAME_GLOW,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_MAX_FRAMES};
+enum {MA_FRAME_NORMAL,MA_FRAME_GLOW,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_FRAME_OVERLAY,MA_MAX_FRAMES};
 
 typedef struct TAG_SOFTPOLY
 {
@@ -72,7 +72,7 @@ void SetTexture(MDX_TEXENTRY *me);
 HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags);
 
 // Add a halo point to be tested at draw time/
-void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB);
+void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size);
 
 // Push a poly onto the buffers
 
@@ -90,7 +90,7 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 #define FULL_TEXTURE 0,0,1,1
 
 extern MDX_TEXENTRY *cTexture;
-
+extern unsigned long totalFacesDrawn;
 extern unsigned long drawLighting;
 extern unsigned long drawPhong;
 extern LPDIRECTDRAWSURFACE7 haloS;
