@@ -1061,12 +1061,16 @@ void ProcessNMEDog ( ACTOR2 *nme )
 						   
 			break;
 		case NMESTATE_DOG_YAP:
-				if ( nme->actor->loopCount == 70 )
+/*				if ( nme->actor->loopCount == 70 )
 				{
 					nme->actor->animation->loopAnimation = 0;
 					nme->actor->loopCount = 0;
 				}
-				// ENDIF
+				// ENDIF*/
+
+// Commented out for skinning
+
+
 				if(nme->actor->animation->reachedEndOfAnimation)
 				{
 					nme->actor->status	= NMESTATE_DOG_RETURN;
