@@ -135,56 +135,75 @@ void ap_disp_info(AP ap)
 
 /*	“®‰æ‚ÌÄ¶					*/
 /*	Playing the animation file	*/
-Sint32 ApExec(AP ap)
+
+
+
+// *ASL* 12/08/2000 - Allow user quit
+/* ---------------------------------------------------------
+   Function : ApExec
+   Purpose : playback a video stream
+   Parameters : application structure pointer, allow user quit
+   Returns : 1 if user quit the stream, else 0
+   Info : 
+*/
+
+int ApExec(AP ap, int allowQuit)
 {
 	int				i;
 	MWPLY			ply;
 	MWE_PLY_STAT	stat;
 	PDS_PERIPHERAL	*per;
 	char			*fname;
+	int				userQuit;
 
 	ply = ap->ply;
 	fname = vidStream->strName;
 
-	// use first pad connected
-	for(i=0;i<4;i++)
+	// should we allow user to quit this stream?
+	userQuit = 0;
+	if (allowQuit)
 	{
-		switch(i)
+		// use first pad connected
+		for(i=0;i<4;i++)
 		{
-			case 0:
-				per = pdGetPeripheral(PDD_PORT_A0);
-				break;
-			case 1:
-				per = pdGetPeripheral(PDD_PORT_B0);
-				break;
-				case 2:
-				per = pdGetPeripheral(PDD_PORT_C0);
-				break;
-			case 3:
-				per = pdGetPeripheral(PDD_PORT_D0);
-				break;
-		}
-		if ( per->press & PDD_DGT_ST )
-		{
-			ap->term_flag = 1;
-			quitAllVideo = TRUE;
+			switch(i)
+			{
+				case 0:
+					per = pdGetPeripheral(PDD_PORT_A0);
+					break;
+				case 1:
+					per = pdGetPeripheral(PDD_PORT_B0);
+					break;
+					case 2:
+					per = pdGetPeripheral(PDD_PORT_C0);
+					break;
+				case 3:
+					per = pdGetPeripheral(PDD_PORT_D0);
+					break;
+			}
+			if (per->press & PDD_DGT_ST)
+			{
+				ap->term_flag = 1;
+				quitAllVideo = TRUE;
+				userQuit = 1;
+			}
 		}
 	}
 
-	/*	Checking status												*/
+	/*	Checking status	*/
 	stat = mwPlyGetStat(ply);
-	if ( stat == MWE_PLY_STAT_PLAYEND )
+	if (stat == MWE_PLY_STAT_PLAYEND)
 		ap->term_flag = 1;
 //		mwPlyStartFname(ply, fname);
-	if ( stat == MWE_PLY_STAT_ERROR )
+	if (stat == MWE_PLY_STAT_ERROR)
 		for(;;);
 
-	if ( ap->disp_flag == ON )
+	if (ap->disp_flag == ON)
 		ap_disp_info(ap);
 
 	mwPlySetOutVol(ply, ap->vol);
 
-	return TRUE;
+	return userQuit;
 }
 
 /*	Callback function when an error occur in GD file system	*/
@@ -198,10 +217,19 @@ void ApGdErrFunc(void *obj, Sint32 errcode)
 }
 
 
-short videoPlayStream(StrDataType *str, int palMode, short (*keyHandler)(void))
+// *ASL* 12/08/2000 - Allow user quit
+/* ---------------------------------------------------------
+   Function : videoPlayStream
+   Purpose : playback a video stream
+   Parameters : stream pointer, PAL mode, allow user quit flag
+   Returns : 1 if user quit the stream, else 0
+   Info : 
+*/
+
+int videoPlayStream(StrDataType *str, int palMode, int allowQuit)
 {
-	AP ap=&ap_obj;
-	Bool ret;
+	int		ret;
+	AP		ap = &ap_obj;
 
 	vidStream = str;
 
@@ -215,14 +243,15 @@ short videoPlayStream(StrDataType *str, int palMode, short (*keyHandler)(void))
 	ApInitMw(ap, displayMode, frameBufferFormat, 1, 2, &vertexBufferDesc);
 
 	ApStart(ap);
-	while (1)
+	for (;;)
 	{
-		mwPlyExecTexSvr();			//	Load Texture To V-RAM			
+		mwPlyExecTexSvr();			//	Load Texture To V-RAM
 		UsrBeginDraw();
-		mwPlyExecDrawSvr();			//	Draw polygons 					
-		ret = ApExec(ap);
+		mwPlyExecDrawSvr();			//	Draw polygons
+
+		ret = ApExec(ap, allowQuit);
 		UsrEndDraw();
-		if ( ret == FALSE || ap->term_flag == ON )
+		if (ret == 1 || ap->term_flag == ON)
 			break;
 		UsrWaitVBlank();
 	}
@@ -234,7 +263,13 @@ short videoPlayStream(StrDataType *str, int palMode, short (*keyHandler)(void))
 	UsrBeginDraw();
 	BlankScreen();
 	UsrEndDraw();
+
+	return ret;
 }
+
+
+
+
 
 void videoSetAudioChannel(int channel)
 {

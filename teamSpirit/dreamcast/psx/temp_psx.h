@@ -31,6 +31,15 @@ void LoadGame(void);
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest);
 
 short videoKeyPress();
+
+/* ---------------------------------------------------------
+   Function : StartVideoPlayback
+   Purpose : playback a video stream
+   Parameters : stream number, can the user quit the stream
+   Returns : 1 if user quit the stream, else 0
+   Info : 
+*/
+
 int StartVideoPlayback(int num, int allowQuit);
 
 #endif

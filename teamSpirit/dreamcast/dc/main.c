@@ -416,13 +416,24 @@ void updatePads()
 	pdExecPeripheralServer();
 }
 
+
+
+/* ---------------------------------------------------------
+   Function : startButtonPressed
+   Purpose : has user pressed start button?
+   Parameters : 
+   Returns : 1 for start button pressed, else 0
+   Info : 
+*/
+
 int startButtonPressed()
 {
-	int	i;
+	int	i, ret;
 
-	for(i=0;i<4;i++)
+	ret = 0;
+	for (i=0; i<4; i++)
 	{
-		switch(i)
+		switch (i)
 		{
 			case 0:	
 				per = pdGetPeripheral(PDD_PORT_A0);
@@ -437,12 +448,14 @@ int startButtonPressed()
 				per = pdGetPeripheral(PDD_PORT_D0);
 				break;
 		}
-
-		if(per->press & PDD_DGT_ST)
-			return TRUE;
+		if (per->press & PDD_DGT_ST)
+		{
+			ret = 1;
+			break;
+		}
 	}
-
 	pdExecPeripheralServer();
+	return ret;
 }
 
 void main()
@@ -578,7 +591,7 @@ void main()
 	initCheckForSoftReset();
 
 	// show all legal screens and FMV
-	showLegalFMV(1);
+	showLegalFMV(0);
 
 	CommonInit();
 
@@ -950,13 +963,17 @@ void showLegalFMV(int allowQuit)
 
 	utilPrintf("Playing FMV.....\n");
 
-	// play Hasbro FMV
-	ret = StartVideoPlayback(FMV_ATARI_LOGO, allowQuit);
-	// play our FMV
-	ret = StartVideoPlayback(FMV_BLITZ_LOGO, allowQuit);
+	ret = 0;
 
 	// make sure the backdrop system is free
 	FreeLegalBackdrop();
+
+	// play Hasbro FMV
+	if (StartVideoPlayback(FMV_ATARI_LOGO, allowQuit) == 1)
+		return;
+	// play our FMV
+	if (StartVideoPlayback(FMV_BLITZ_LOGO, allowQuit) == 1)
+		return;
 
 	// show SoftDec screen
 	actFrameCount = 0;
@@ -973,11 +990,16 @@ void showLegalFMV(int allowQuit)
 			ScreenFade(255,0,20);
 			flag = 1;
 		}
-		if (!flag && allowQuit)
+		if (!flag && allowQuit && startButtonPressed() == 1)
 		{
+			ret = 1;
+			ScreenFade(255,0,20);
+			flag = 1;
 		}
 	}
 	FreeLegalBackdrop();
+	if (ret == 1)
+		return;
 
 	// show legal screen
 	actFrameCount = 0;
@@ -994,8 +1016,11 @@ void showLegalFMV(int allowQuit)
 			ScreenFade(255,0,20);
 			flag = 1;
 		}
-		if (!flag && allowQuit)
+		if (!flag && allowQuit && startButtonPressed() == 1)
 		{
+			ret = 1;
+			ScreenFade(255,0,20);
+			flag = 1;
 		}
 	}
 	FreeLegalBackdrop();

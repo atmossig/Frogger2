@@ -2410,7 +2410,7 @@ short videoKeyPress(void)
 
 StrDataType vStream = 
 {
-		"02s.SFD",					// Stream name
+		"02s.SFD",						// Stream name
 		STR_MODE24,						// 24-Bit or 16-Bit streaming
 		STR_BORDERS_ON,					// != 0 if borders on
 		640,							// Screen res width
@@ -2423,19 +2423,28 @@ StrDataType vStream =
 		127,							// Left and Right ADPCM volume. (0..127)
 };
 
+
+// *ASL* 12/08/2000 - Allow quit added
+/* ---------------------------------------------------------
+   Function : StartVideoPlayback
+   Purpose : playback a video stream
+   Parameters : stream number, can the user quit the stream
+   Returns : 1 if user quit the stream, else 0
+   Info : 
+*/
+
 int StartVideoPlayback(int num, int allowQuit)
 {
-	RECT rect;
-	StrDataType str;
+	int	ret;
 
 	StopSong();
 
 	gdFsChangeDir("\\");
 	gdFsChangeDir("FMV");	
 
-	sprintf(vStream.strName,"%s.SFD",fmv[num].name);
-	// *ASL* 21/07/2000 - Third parameter expects a callback function pointer
-	videoPlayStream(&vStream, (int)PALMODE, &videoKeyPress);
-	
+	sprintf(vStream.strName, "%s.SFD", fmv[num].name);
+	ret = videoPlayStream(&vStream, (int)PALMODE, allowQuit);
 	gdFsChangeDir("\\");
+
+	return ret;
 }

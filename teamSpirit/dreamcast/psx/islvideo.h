@@ -54,8 +54,17 @@ extern int quitAllVideo;
  * - PUBLIC FUNCTION PROTOTYPES
  * ---------------------------------------------------------------------------
  */
- 
-short videoPlayStream(StrDataType *str, int palMode, short (*keyHandler)(void));
+
+// *ASL* 12/08/2000 - Allow user quit
+/* ---------------------------------------------------------
+   Function : videoPlayStream
+   Purpose : playback a video stream
+   Parameters : stream pointer, PAL mode, allow user quit flag
+   Returns : 1 if user quit the stream, else 0
+   Info : 
+*/
+
+int videoPlayStream(StrDataType *str, int palMode, int allowQuit);
 
 void videoSetAudioChannel(int channel);
 
