@@ -26,6 +26,7 @@
 #include "pcgfx.h"
 #include "layout.h"
 
+#include "Main.h"
 
 float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 
@@ -75,7 +76,6 @@ void ProcessShadows()
 	MDX_VECTOR vec, pos, up, tilePos;
 	ENEMY *nme;
 	PLATFORM *plat;
-	GARIB *garib;
 	int i;
 	MDX_TEXENTRY *tex;
 	short alpha;
@@ -149,9 +149,9 @@ void ProcessShadows()
 
 void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, MDX_TEXENTRY *tex )
 {
-	MDX_VECTOR tempVect, m, fwd;
+	MDX_VECTOR tempVect, m;
 	D3DTLVERTEX vT[5];
-	MDX_QUATERNION cross, q, up;
+	MDX_QUATERNION cross, q;
 	long i, zeroZ=0;
 	float t;
 
@@ -233,7 +233,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 
 void DrawFXDecal( SPECFX *fx )
 {
-	MDX_VECTOR tempVect, m, fwd, scale, normal, pos;
+	MDX_VECTOR tempVect, m, scale, normal, pos;
 	D3DTLVERTEX vT[5];
 	MDX_TEXENTRY *tEntry;
 	MDX_QUATERNION q1, q2, q3;
@@ -949,3 +949,37 @@ void DrawTongue( TONGUE *t )
 	}
 }
 */
+
+/*	--------------------------------------------------------------------------------
+	Function 	: InitBackdrop
+	Purpose 	: Initialises a backdrop from a bitmap file
+	Parameters 	: char*
+	Returns 	: 
+	Info 		:
+*/
+int InitBackdrop(const char *filename)
+{
+	char path[MAX_PATH];
+
+	strcpy(path, baseDirectory);
+	strcat(path, "Backdrops\\");
+	strcat(path, filename);
+	strcat(path, ".bmp");
+
+	utilPrintf("Load backdrop: %s...", path);
+
+	mdxLoadBackdrop(path);
+
+	utilPrintf("ok!\n");
+	return 1;
+}
+
+void DrawBackdrop(void)
+{
+	mdxDrawBackdrop();
+}
+
+void FreeBackdrop(void)
+{
+	mdxFreeBackdrop();
+}
