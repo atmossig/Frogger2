@@ -42,13 +42,15 @@
 #define IDC_CREATE                      1034
 #define IDC_GAMELIST                    1037
 #define IDC_RICHCHAT                    1038
-#define IDC_PLAYERS                     1039
+#define IDC_PLAYERLIST                  1039
 #define IDC_CHATENTER                   1040
 #define IDC_LEVEL                       1042
 #define IDC_DESCRIPTION                 1043
 #define IDC_START                       1046
 #define IDC_SEARCH                      1047
 #define IDC_NAME                        1048
+#define IDC_SEND                        1049
+#define ID_SEND                         1049
 #define IDC_PLAYER1                     1100
 #define IDC_PLAYER2                     1101
 #define IDC_PLAYER3                     1102
@@ -60,7 +62,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        111
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1049
+#define _APS_NEXT_CONTROL_VALUE         1050
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
