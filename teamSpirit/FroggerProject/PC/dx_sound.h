@@ -35,7 +35,7 @@ extern SAMPLE *dispSample;
 extern void ShowSounds(void);
 
 
-extern int LoadWav( SAMPLE *sample, char *name );
+extern int LoadWav( SAMPLE *sample, char *data, int length );
 
 extern int InitDirectSound( HINSTANCE hInst,  HWND hWndMain );
 extern void ShutDownDirectSound( );

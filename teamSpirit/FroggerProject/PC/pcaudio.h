@@ -95,7 +95,7 @@ typedef struct _SAMPLE
 {
 	struct _SAMPLE			*next, *prev;
 
-	char					*idName;
+//	char					*idName;
 	unsigned long			flags;
 	unsigned long			uid;
 
@@ -161,6 +161,13 @@ typedef struct
 	int numEntries;
 
 }AMBIENT_SOUND_LIST;
+
+
+typedef struct
+{
+	unsigned long length, uid, loop;
+
+} SAMPLE_HEADER;
 
 
 extern SAMPLE *genSfx[];

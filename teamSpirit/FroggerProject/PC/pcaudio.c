@@ -61,7 +61,7 @@ AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,SVECTOR *pos,long radius,short vol
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 int UpdateLoopingSample( AMBIENT_SOUND *sample );
 
-SAMPLE *CreateSample( char *path, char *file );
+SAMPLE *CreateSample( char *data, SAMPLE_HEADER *shdr );
 
 void SetSampleFormat ( SAMPLE *sample );
 void CleanBufferSamples( void );
@@ -153,29 +153,25 @@ enum
 */
 void LoadSfxSet( char *path )
 {
-	HANDLE h;
-	WIN32_FIND_DATA fData;
-	int numSfx=0;
-	long ret;
-	char filepath[128];
+	SAMPLE_HEADER shdr;
+	unsigned long length, numFiles;
+	char *stak, *ptr;
 
-	strcpy( filepath, path );
-	strcat( filepath, "*.wav" );
+	stak = (char *)fileLoad( path, &length );
+	numFiles = (int)stak[0];
+	ptr = &stak[4];
 
-	h = FindFirstFile( filepath, &fData );
-
-	if( h == INVALID_HANDLE_VALUE ) return;
-
-	do
+	while( numFiles-- )
 	{
-		AddSample( CreateSample( path, fData.cFileName ) );
-		numSfx++;
+		// Length of the buffer, not including format info
+		memcpy( &shdr, ptr, sizeof(SAMPLE_HEADER) );
+		ptr += sizeof(SAMPLE_HEADER);
+
+		AddSample( CreateSample( ptr, &shdr) );
+
+		// Sample plus format data plus loop flag
+		ptr += shdr.length + sizeof(WAVEFORMATEX);
 	}
-	while( (ret = FindNextFile( h, &fData )) );
-
-	utilPrintf("Loaded %d Samples\n",numSfx );
-
-	FindClose( h );
 }
 
 
@@ -190,7 +186,7 @@ void LoadSfx( unsigned long worldID )
 	strcat( path, SFX_BASE );
 
 	// Load all generic samples first and put in array
-	strcat( path, "generic\\" );
+	strcat( path, "generic.wus" );
 	LoadSfxSet(path);
 
 	genSfx[GEN_FROG_HOP] = FindSample(UpdateCRC("hopongrass"));
@@ -221,22 +217,22 @@ void LoadSfx( unsigned long worldID )
 
 	if( gameState.multi != SINGLEPLAYER )
 	{
-		strcat( path, "multi\\" );
+		strcat( path, "multi.wus" );
 		LoadSfxSet( path );
 		path[len] = '\0';
 	}
 
 	switch( worldID )
 	{
-	case WORLDID_GARDEN: strcat( path, "garden\\" ); break;
-	case WORLDID_ANCIENT: strcat( path, "ancients\\" ); break;
-	case WORLDID_SPACE: strcat( path, "space\\" ); break;
-	case WORLDID_CITY: strcat( path, "city\\" ); break;
-	case WORLDID_SUBTERRANEAN: strcat( path, "sub\\" ); break;
-	case WORLDID_LABORATORY: strcat( path, "lab\\" ); break;
-	case WORLDID_HALLOWEEN: strcat( path, "halloween\\" ); break;
-	case WORLDID_SUPERRETRO: strcat( path, "superretro\\" ); break;
-	case WORLDID_FRONTEND: strcat( path, "frontend\\" ); break;
+	case WORLDID_GARDEN: strcat( path, "garden.wus" ); break;
+	case WORLDID_ANCIENT: strcat( path, "ancients.wus" ); break;
+	case WORLDID_SPACE: strcat( path, "space.wus" ); break;
+	case WORLDID_CITY: strcat( path, "city.wus" ); break;
+	case WORLDID_SUBTERRANEAN: strcat( path, "sub.wus" ); break;
+	case WORLDID_LABORATORY: strcat( path, "lab.wus" ); break;
+	case WORLDID_HALLOWEEN: strcat( path, "halloween.wus" ); break;
+	case WORLDID_SUPERRETRO: strcat( path, "superretro.wus" ); break;
+	case WORLDID_FRONTEND: strcat( path, "frontend.wus" ); break;
 	default: load = 0; break;
 	}
 
@@ -252,11 +248,10 @@ void LoadSfx( unsigned long worldID )
 	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateSample( char *path, char *file )
+SAMPLE *CreateSample( char *data, SAMPLE_HEADER *shdr )
 {
 	SAMPLE *sfx;
 	int i=0;
-	char name[32], *fileName;
 	
 	if( !lpDS )
 	{
@@ -266,54 +261,16 @@ SAMPLE *CreateSample( char *path, char *file )
 
 	sfx = (SAMPLE *)MALLOC0(sizeof(SAMPLE));
 
-	// Remove extension from filename for psx compatability
-	while( file[i] != '\0' && file[i] != '.' )
+	sfx->uid = shdr->uid;
+	if( shdr->loop ) 
+		sfx->flags |= SFXFLAGS_LOOP;
+
+	if( !(LoadWav(sfx,data,shdr->length)) )
 	{
-		name[i] = file[i];
-		i++;
-	}
-	name[i] = '\0';
-	strlwr(name);
-
-	sfx->uid = UpdateCRC(name);
-
-	sfx->idName = (char *)MALLOC0(strlen(name)+2);
-	strcpy( sfx->idName, name );
-
-	// Create full name
-	fileName = (char *)MALLOC0( (strlen(path) + strlen(file))+5 );
-	strcpy( fileName, path );
-	strcat( fileName, file );
-
-	if( !(LoadWav(sfx,fileName)) )
-	{
-		FREE( fileName );
-		FREE( sfx->idName );
 		FREE( sfx );
 		utilPrintf("Could not load wave file\n");
 		return NULL;
 	}
-
-	// Sample starts and don't stop
-	if( file[0] == 'l' && file[1] == 'p' && file[2] == '_' )
-		sfx->flags |= SFXFLAGS_LOOP;
-
-/*	
-	if( sfx->flags & SFXFLAGS_3D_SAMPLE )
-	{
-		utilPrintf("Getting 3D Interface\n");
-//		Get3DInterface ( sfx->lpdsBuffer, sfx->lpds3DBuffer );
-		sfx->lpdsBuffer->lpVtbl->QueryInterface ( sfx->lpdsBuffer, &IID_IDirectSound3DBuffer, (void**)&sfx->lpds3DBuffer );
-		if ( sfx->lpds3DBuffer )
-			utilPrintf("3D Buffer Ok\n");
-		else
-			utilPrintf("Error On Interface, No 3D Buffer\n");
-	}
-*/
-//	SetSampleFormat( sfx );
-//	AddSample( sfx );
-
-	FREE( fileName );
 
 	return sfx;
 }
@@ -538,28 +495,29 @@ int UpdateLoopingSample( AMBIENT_SOUND *sample )
 */
 void InitVoices( char *path, int len )
 {
-	HANDLE h;
-	WIN32_FIND_DATA fData;
 	SAMPLE *voice;
-	char filepath[128];
-	int i;
+	SAMPLE_HEADER shdr;
+	unsigned long numFiles, i, length;
+	char *stak, *ptr;
+
+	path[len] = '\0';
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		path[len] = '\0';
-
 		strcat( path, frogPool[player[i].character].fileName );
-		strcat( path, "\\" );
+		strcat( path, ".wus" );
 
-		// Load files from a directory
-		strcpy( filepath, path );
-		strcat( filepath, "*.wav" );
-		h = FindFirstFile( filepath, &fData );
-		if( h == INVALID_HANDLE_VALUE ) continue;
+		stak = (char *)fileLoad( path, &length );
+		numFiles = (int)stak[0];
+		ptr = &stak[4];
 
-		do
+		while( numFiles-- )
 		{
-			if( (voice = CreateSample( path, fData.cFileName )) )
+			// Length of the buffer, not including format info
+			memcpy( &shdr, ptr, sizeof(SAMPLE_HEADER) );
+			ptr += sizeof(SAMPLE_HEADER);
+
+			if( (voice = CreateSample(ptr, &shdr)) )
 			{
 				// Add to special voice list
 				voice->next = voices[i].next;
@@ -567,10 +525,10 @@ void InitVoices( char *path, int len )
 				voice->prev->next = voice;
 				voice->next->prev = voice;
 			}
-		}
-		while( FindNextFile( h, &fData ) );
 
-		FindClose( h );
+			// Sample plus format data
+			ptr += shdr.length + sizeof(WAVEFORMATEX);
+		}
 	}
 
 	path[len] = '\0';
@@ -1305,8 +1263,8 @@ void RemoveSample( SAMPLE *sample )
 	if( sample->lpdsBuffer )
 		sample->lpdsBuffer->lpVtbl->Release(sample->lpdsBuffer);
 
-	if( sample->idName )
-		FREE( sample->idName );
+//	if( sample->idName )
+//		FREE( sample->idName );
 
 	if( sample->data )
 		FREE( sample->data );
