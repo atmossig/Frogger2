@@ -1,0 +1,201 @@
+BUG------------ Cameras are slightly buggered - on respawning, the camera is the wrong
+		way round
+DATE----------- 20/1/00
+INSTANCE-------	Garden 1, Everywhere
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Croc head enemies don't hurt you until you jump off them
+DATE----------- 14/1/00
+INSTANCE-------	Ancients 1, boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES---- A strange check in the collision test caused this - it was disallowing damage if caused by an enemy on the same tile
+				as the platform the frog is sitting on. Anyone know what it was for?
+
+BUG------------ Sludge should be opaque, but appears transparent
+DATE----------- 11/1/00
+INSTANCE-------	Hall 1
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ SetEnemy() flags don't work
+DATE----------- 13/1/00
+INSTANCE-------	Scripting (Space3, Halloween 1, etc)
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
+FIXED NOTES----
+
+BUG------------ Cant select polys for placing paths etc in the editor unless the camera is a specific distance from the poly in question
+DATE-----------14/1/00	
+INSTANCE-------	Any time you want to pick a poly in the editor
+SENT BY-------- Bruce
+RESPONSIBILTY-- Dave?
+FIXED NOTES----
+
+BUG------------ Frog falls to death when double jumping a large drop
+DATE----------- 10/1/00
+INSTANCE-------	Halloween 2, lots of other places
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Frog lands tilted when jumps up over a triangular collision tile
+DATE----------- 11/1/00
+INSTANCE-------	Hall 1, on path jumping onto first bat cave from behind
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Frog sits tilted on/off slopes with non-tilt camera, but straightens
+		on second hop
+DATE----------- 13/1/00
+INSTANCE-------	Lots, ancients boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Procedural textures not doing translucency when part of a model
+DATE----------- 12/1/00
+INSTANCE-------	
+SENT BY-------- Joff, Simon
+RESPONSIBILTY-- Jim / Matt
+FIXED NOTES---- Probably something to do with the 4444 pixel format. Or it could be a vertex alpha thing 
+				(no vertex alpha so turn off alpha totally)
+
+
+BUG------------ UV's don't slide on wat_f... objects, ie. water fall doesn't work.
+DATE-----------	7/1/00
+INSTANCE-------	
+SENT BY-------- Simon
+RESPONSIBILTY-- 
+FIXED NOTES---- 
+
+BUG------------ Fuzzy sliding U-V's
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Lauren
+RESPONSIBILTY-- Matt
+FIXED NOTES----
+
+BUG------------ Spries go sqaure at edges (being Z buffered)
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Lauren
+RESPONSIBILTY-- Matt
+FIXED NOTES---- Will be that ZWRITEENABLE is set for sprites... Problem is, some of them need it to be!
+				<Jim> I turned it off and sprites work now - where do they need it? </Jim>
+
+BUG------------ facing forward enemies dont face forward
+DATE----------- 7/01/00
+INSTANCE-------	ancients 1 spikes
+SENT BY-------- Bruce
+RESPONSIBILTY-- Jim
+FIXED NOTES---- Hmm. If I make them always face along the first segment of the path, as they actually
+				did at one time, all the existing ones have to be remapped. And it breaks some kinds
+				of enemies, and may even cause some mappings to crash the game. So I'll have to leave
+				it for now, and if it becomes a problem in other places then I'll have to do something.
+
+BUG------------ Snappers crash the game when you jump on their tiles
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES---- No-one seems to remember this bug actually happening
+
+BUG------------ Turning before supperhopping too hard
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim 
+FIXED NOTES---- It's now possible at least, but it can be tricky until you know how. But maybe that's good.
+
+BUG------------ Jumping to platforms, sometimes kills frogger by falling, and then puts him on the platform
+BUG------------ Doublejump over chasms, kills frogger. Also doublejump over crumbly tile, prob. same bug
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Jim
+RESPONSIBILTY-- Dave
+FIXED NOTES---- Problem with the height checks, or lack thereof, when falling onto platforms and double-jumping
+
+BUG------------ Frog occasionally jumps to face forward of it's own accord
+DATE----------- 10/1/00
+INSTANCE------- Anywhere
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave?
+FIXED NOTES---- Joysticks in general are completely crap. Give me a proper digital pad any day of the week.
+				Basically took the dead-zone right out, since we only care about extremes anyway.
+
+BUG------------ Triggered collapsing tiles no longer disappear, but they still collapse
+DATE----------- 12/1/00
+INSTANCE-------	Halloween 2
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
+FIXED NOTES---- Actor draw toggle got left out of actor update, fixed
+
+BUG------------ Froglets don't disappear when you collect them
+DATE----------- 11/1/00
+INSTANCE-------	Halloween 1
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES---- Actor draw toggle got left out of actor update, fixed
+
+BUG------------ Can't collect a baby frog at another node in it's path
+DATE----------- 10/1/00
+INSTANCE-------	Hall 2 - in bedroom, frog moves to flag 4 in it's path to be 
+		collected, but it doesn't disappear or register as colleced.
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES---- MoveEnemy was a bit broken, it wasn't setting inTile
+
+BUG------------ Pausing the game with ESC then pressing ENTER to continue makes the frog Super Hop.
+DATE----------- 11/1/00
+INSTANCE-------	In the game.
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES---- GameProcessController had somehow been altered enough that the lastbutton
+				checking no longer actually worked, let alone sensibly.
+
+BUG------------ If you die from splatting off a high height, the frog's head still watches 
+		enemies.
+DATE----------- 10/1/00
+INSTANCE-------	End of ancients boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES---- Yuck, that looks horrible. It doesn't do it anymore.
+
+BUG------------ Pressing a direction with double hop sometimes doesn't work - esp on 
+				platforms.
+DATE----------- 11/1/00	
+INSTANCE-------	Hall 1 on platforms down the sludgy river
+SENT BY-------- Lauren	
+RESPONSIBILTY-- 
+FIXED NOTES---- Well, no-one seems to be able to replicate this. Hmm.
+
+BUG------------ Triggering collapsing tiles in scripting
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
+FIXED NOTES---- 
+
+
+BUG------------ Frog moves to incorrect tiles when using SuperHop
+DATE----------- 17/1/00
+INSTANCE-------	Subboss (While on volcanoe at the end of the level there is a section to the right
+		with on little move up platform and a snail below it. Try super hopping onto the platform and Frogger moves
+		to the side of it.
+SENT BY-------- JOFF
+RESPONSIBILTY-- DAVE
+FIXED NOTES----
+
+
+BUG------------ When Frogger jumps onto Sinking platforms and you jump to another platform , If the player goes just below super hop height he will jump through the
+		other platform. The function to prevent this does not work.
+DATE-----------14/1/00
+INSTANCE-------Subboss start section .	
+SENT BY--------JOFF 
+RESPONSIBILTY--DAVE 
+FIXED NOTES----

@@ -948,6 +948,10 @@ SOURCE=X:\TeamSpirit\pcversion\buglist.txt
 # End Source File
 # Begin Source File
 
+SOURCE=".\Completed Tasks.txt"
+# End Source File
+# Begin Source File
+
 SOURCE=.\devlog.txt
 # End Source File
 # Begin Source File
@@ -956,7 +960,19 @@ SOURCE=X:\TeamSpirit\pcversion\reactive.txt
 # End Source File
 # Begin Source File
 
-SOURCE=.\tasks.txt
+SOURCE=".\Tasks For Andy.txt"
+# End Source File
+# Begin Source File
+
+SOURCE=".\Tasks for Dave.txt"
+# End Source File
+# Begin Source File
+
+SOURCE=".\Tasks for Jim.txt"
+# End Source File
+# Begin Source File
+
+SOURCE=".\Tasks for Matt.txt"
 # End Source File
 # End Target
 # End Project

@@ -1,0 +1,206 @@
+TASK----------- Rotating sprites
+PRIORITY------- Medium
+RESPONSIBILTY-- Matt
+NOTES---------- For smoke especially
+
+TASK----------- Interchanging objects (drop in replacement models)
+PRIORITY------- Low
+RESPONSIBILTY-- Matt
+NOTES---------- Not too many cos of playstation, bu this lets us do frags and deformations and stuff
+
+TASK----------- Implement coin / credit system
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Mostly there, needs uncommenting and testing
+
+TASK----------- Health flies and other bonuses
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Invent some bonuses first
+
+TASK----------- Specify animation for enemy when it hurts / kills the frog
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Network and Multiplayer testing, bug fix and completion
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim and Matt and testers
+NOTES---------- 
+
+TASK----------- Sound stuff, including sfx loading/mapping rewrite and doppler effects and CD track calculation
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Better effects, e.g. fire, smoke, glows, cosmic stuff, SPARKLIES, wraparound proc fire, heat haze
+PRIORITY------- Low
+RESPONSIBILTY-- Jim / Matt
+NOTES---------- 
+
+TASK----------- Screen overlay port for PC, for end of level and other screens
+PRIORITY------- Low
+RESPONSIBILTY-- Matt?
+NOTES---------- 
+
+TASK----------- Frontend, including hiscores, multiplayer select and other stuff
+PRIORITY------- Medium
+RESPONSIBILTY-- Matt
+NOTES---------- 
+
+TASK----------- Different shadow types, and scale and fade depending on height
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Some kind of realtime lighting?
+PRIORITY------- Low
+RESPONSIBILTY-- Matt
+NOTES---------- 
+
+TASK----------- Camera - constrain to box
+PRIORITY------- High
+RESPONSIBILTY-- Dave
+NOTES---------- 
+
+TASK----------- Generalise hats to "attach object to object"
+PRIORITY------- Low
+RESPONSIBILTY-- Matt
+NOTES---------- For backpack, hair, shades etc
+
+TASK----------- Story, including cutscenes, hub level and hub character
+PRIORITY------- Medium
+RESPONSIBILTY-- 
+NOTES---------- 
+
+TASK----------- Environmental effects including fog (diffuse and fudged volumetric), rain and small miscellaneous critters
+PRIORITY------- Low
+RESPONSIBILTY-- Matt / Jim
+NOTES---------- 
+
+TASK----------- Write decent orientation function!
+PRIORITY------- Medium
+RESPONSIBILTY-- 
+NOTES---------- WHY can't we do this?
+
+TASK----------- Optimisations for engine, static sprite list etc
+PRIORITY------- Low
+RESPONSIBILTY-- All
+NOTES---------- 
+
+BUG------------ GeForce cards (i.e. Richs' machine) experience extreme screen corruption in game, and also in menus if rFlipOK is 1
+DATE----------- 20/1/00
+INSTANCE-------	
+SENT BY-------- Jim
+RESPONSIBILTY-- Matt
+FIXED NOTES---- See Rich
+
+BUG------------ Can't collect baby on a platform in Space 1
+DATE----------- 20/1/00
+INSTANCE-------	Space1
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Reactive anims for croc heads are a bit weird - heads disappear afterwards
+DATE----------- 20/1/00
+INSTANCE-------	Ancients Boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Ice tiles are being weird - the whole world disappears
+DATE----------- 20/1/00
+INSTANCE-------	Space boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Cant select polys for placing paths etc in the editor unless the camera is a specific distance from the poly in question
+DATE-----------14/1/00	
+INSTANCE-------	Any time you want to pick a poly in the editor
+SENT BY-------- Bruce
+RESPONSIBILTY-- Dave?
+FIXED NOTES----
+
+BUG------------ As below, but also with pushing off barred tiles from platforms & you 
+		can't use ESC to quit
+DATE----------- 18/1/00
+INSTANCE-------	Ancients 1 in croc river & other places
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ If you hit a teleporter when you die it still teleports you, except it 
+		thinks you're dead and won't let you move and won't kill you.
+DATE----------- 7/1/99
+INSTANCE-------	Space 1, by the vents
+SENT BY-------- Jim
+RESPONSIBILTY-- 
+FIXED NOTES---- 
+
+BUG------------ Sprites aren't sorted
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Dave
+RESPONSIBILTY-- 
+FIXED NOTES---- lack of sorting also affects the square-edge bug above
+
+BUG------------ Can run through line of moving enemies
+DATE-----------
+INSTANCE-------	Lab1
+SENT BY-------- Brucie Baby
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Vertex alpha on chars.
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Lauren
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Invisible enemies that have stopped for a reactive
+DATE-----------
+INSTANCE-------	
+SENT BY-------- Jim
+RESPONSIBILTY-- Matt
+FIXED NOTES----
+
+BUG------------ Push Blocks need to be Fixed so the squares they leave are barred etc.	
+DATE-----------14/1/00
+INSTANCE-------	Whereever push blocks are
+SENT BY-------- Bruce
+RESPONSIBILTY-- Dave?
+FIXED NOTES----
+
+BUG------------ The vaccuum cleaners go wrong after they have killed Frogger
+DATE-----------18/1/00
+INSTANCE-------	Lab3
+SENT BY-------- Bruce
+RESPONSIBILTY-- 
+FIXED NOTES----
+
+BUG------------ Conveyors & Ice are not very smooth - they look a bit jerky
+DATE----------- 20/1/0
+INSTANCE-------	
+SENT BY-------- David
+RESPONSIBILTY-- David
+FIXED NOTES----	don't snap to tile in CheckForFroggerLanding; account for overrun in 'jumptime'
+
+BUG------------ Pause mode is a bit pants
+DATE----------- 20/1/0
+INSTANCE-------	when you press ESC & end of levels..
+SENT BY-------- David
+RESPONSIBILTY-- 
+FIXED NOTES---- enemies etc. should NOT be updated, gamespeed should equal zero and actframecount should not advance
+				animations should not be played; texture anims and sprite anims should not play; procedural textures
+				should not be updated... Check all of these! We should be able to do a Matrix-style camera rotate in
+				the editor if it's fixed. :o)
+
+BUG------------ Screen overlays are hard-coded for 640x480 mode 
+DATE----------- 20/1/00
+INSTANCE-------	all title screens, in game HUD, etc.
+SENT BY-------- David
+RESPONSIBILTY-- 
+FIXED NOTES----
