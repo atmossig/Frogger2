@@ -661,10 +661,10 @@ void CopyDataToSurface(void *data, LPDIRECTDRAWSURFACE7 surface)
 
 		while (rows--)
 		{
-			memcpy(p, q, ddsd.dwWidth);
+			memcpy(p, q, ddsd.dwWidth*2);
 			
 			p += ddsd.lPitch;
-			q += ddsd.dwWidth;
+			q += ddsd.dwWidth*2;
 		}
 
 		surface->Unlock(NULL);
@@ -682,10 +682,10 @@ void CopyDataToSurface(void *data, LPDIRECTDRAWSURFACE7 surface)
 */
 void mdxDrawBackdrop()
 {
-	RECT r = { 0, 0, rXRes, rYRes };
+	DDBLTFX	m; DDINIT(m);
 	HRESULT res;
 	if (backdrop)
-		res = surface[RENDER_SRF]->BltFast(0, 0, backdrop, &r, DDBLTFAST_NOCOLORKEY|DDBLTFAST_WAIT);
+		res = surface[RENDER_SRF]->Blt(NULL, backdrop, NULL, DDBLT_WAIT, &m);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -700,12 +700,23 @@ void mdxLoadBackdrop(const char* filename)
 	DDSURFACEDESC2 ddsd; DDINIT(ddsd);
 	HRESULT res;
 
-	surface[PRIMARY_SRF]->GetSurfaceDesc(&ddsd);
+	int xDim,yDim;
+	int pptr = -1;
+
+	void* data = gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP565,GELF_IMAGEDATA_TOPDOWN);
+
+	surface[RENDER_SRF]->GetSurfaceDesc(&ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-	
-	if (rHardware)
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
-	else
+	ddsd.dwWidth = xDim;
+	ddsd.dwHeight = yDim;
+/*
+	DDINIT(ddsd.ddpfPixelFormat);
+	ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
+	ddsd.ddpfPixelFormat.dwRGBBitCount = 16;
+*/
+	/*	if (rHardware)
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+	else*/
 		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 
 	if ((res = pDirectDraw7->CreateSurface(&ddsd, &backdrop, NULL)) != DD_OK)
@@ -714,11 +725,6 @@ void mdxLoadBackdrop(const char* filename)
 		ddShowError(res);
 		return;
 	}
-	
-	int xDim,yDim;
-	int pptr = -1;
-
-	void* data = gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 
 	CopyDataToSurface(data, backdrop);
 
