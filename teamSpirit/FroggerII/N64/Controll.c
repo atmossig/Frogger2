@@ -251,7 +251,9 @@ void ReadDebugPad()
 
 	if((button & CONT_START) && !(lastbutton & CONT_START))
 	{
-		timerMode = !timerMode;
+//		timerMode = !timerMode;
+		timerMode++;
+		timerMode %= 3;
 	}
   
 	lastbutton = button;
