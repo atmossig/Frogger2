@@ -109,6 +109,7 @@ enum
 #define ENEMY_NEW_SNAPFROG				(1 << 10)	// enemy snaps at frogger (watching enemies only)
 #define ENEMY_NEW_RANDOMSPEED			(1 << 11)	// enemy has random fluctuations in its speed
 #define ENEMY_NEW_FACEFORWARDS			(1 << 12)	// enemy faces forwards
+#define ENEMY_NEW_PUSHESFROG			(1 << 13)	// enemy pushes the frog, (Doesn't harm him!)
 
 
 
