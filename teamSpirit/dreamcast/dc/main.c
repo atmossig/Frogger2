@@ -41,10 +41,12 @@
 #include "fadeout.h"
 #include "savegame.h"
 #include "DCK_system.h"
-
+#include "islxa.h"
 
 // -------
 // Globals
+
+extern XAFileType	*curXA;
 
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
@@ -808,6 +810,18 @@ void main()
 			UpdateTextureAnimations();
 		}
 
+		// loop the music
+		if(curXA)
+		{
+			if(curXA->adxt)
+			{
+				if(ADXT_GetStat(curXA->adxt) == ADXT_STAT_PLAYEND)
+				{
+					if(curXA->loop)
+						ADXT_StartFname(curXA->adxt, curXA->fileInfo);	// Start playing the XDA using the middlware
+				}
+			}
+		}
 
 		// pass through game loop
 		GameLoop();
