@@ -37,7 +37,6 @@ char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
-extern float hedRotAmt;
 
 char outputMessageBuffer[256];
 

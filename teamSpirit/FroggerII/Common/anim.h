@@ -11,9 +11,10 @@
 #ifndef ANIM_H_INCLUDED
 #define ANIM_H_INCLUDED
 
-
 #define ANIM_RANDOM_START	(1 << 0)
 
+// Needs using on N64
+extern float hedRotAmt;
 
 extern void UpdateAnimations(ACTOR *actor);
 extern void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed, BYTE morphs,BOOL keepProportion);
@@ -22,5 +23,7 @@ extern void SetAnimationSpeed(ACTOR *myActor, float speed);
 extern void InitActorAnim(ACTOR *tempActor);
 extern BOOL QueryAnimTime(ACTOR *actor, float time);
 
+extern float AngleToNearestNME( int fNum );
+extern void CalculateFrogLookAt( int fNum );
 
 #endif

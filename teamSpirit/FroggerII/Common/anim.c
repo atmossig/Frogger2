@@ -16,6 +16,8 @@
 #include "incs.h"
 
 
+float hedRotAmt = 0;
+
 /*	--------------------------------------------------------------------------------
 	Function 	  : 
 	Purpose 	   : 
@@ -291,3 +293,64 @@ BOOL QueryAnimTime(ACTOR *actor, float time)
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: AngleToNearestNME
+	Purpose 	: Returns the cosine of the angle to the nearest enemy within a set radius
+					and within a set field of vision
+	Parameters 	: Position to check from, ENEMY pointer to set
+	Returns 	: 
+	Info 		:
+*/
+float AngleToNearestNME( int fNum )
+{
+	VECTOR diff;
+	ENEMY *nme;
+	float dist, best = 60000, angle, retAngle = -1;
+
+	for( nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
+	{
+		dist = DistanceBetweenPointsSquared( &frog[fNum]->actor->pos, &nme->nmeActor->actor->pos );
+		if( dist < best )
+		{
+			SubVector( &diff, &nme->nmeActor->actor->pos, &frog[fNum]->actor->pos );
+			angle = DotProduct( &currTile[fNum]->dirVector[frogFacing[0]], &diff );
+			if( angle < 0.8 )
+			{
+				best = dist;
+				retAngle = angle;
+			}
+		}
+	}
+
+	return retAngle;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void CalculateFrogLookAt( fNum )
+{
+	float angle;
+
+	if( NUM_FROGS == 1 )
+	{
+		angle = AngleToNearestNME( fNum );
+
+		if( angle != -1 )
+		{
+			hedRotAmt += 0.1 * acos(angle);
+		}
+		else
+		{
+			// Look at closest baby frog and whatever else
+		}
+	}
+	else
+	{
+		// Look at closest multiplayer frog
+	}
+}

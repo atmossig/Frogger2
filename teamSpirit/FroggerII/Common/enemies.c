@@ -294,9 +294,6 @@ void UpdateEnemies()
 			else if (cur->flags & ENEMY_NEW_SNAPFROG)
 			{
 				static GAMETILE *tile = NULL;
-				VECTOR v1;
-
-				SubVector(&v1,&cur->nmeActor->actor->pos,&frog[0]->actor->pos);
 
 				if (cur->isSnapping > 1)
 					cur->isSnapping--;
@@ -319,7 +316,7 @@ void UpdateEnemies()
 				}
 
 				// If frog is on a tile by the snapper
-				if( Magnitude(&v1) < snapRadius )
+				if( Magnitude(&frogVec) < snapRadius )
 				{
 					// Snap animation
 					if (cur->isSnapping == SNAPPER_TIME)
@@ -502,7 +499,7 @@ void UpdateEnemies()
 			VECTOR nmeup, tVec, v2, v3;
 			float distance=10000, best=-2;
 			short bFlag = 0;
-			SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
+			SetVector( &moveVec, &frogVec );
 			MakeUnit( &moveVec );
 			chTile = FindNearestTile( cur->nmeActor->actor->pos );
 
