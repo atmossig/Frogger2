@@ -160,7 +160,7 @@ void EditorCreateEntities(void)
 //			act->actor->objectController->object->flags = create->objFlags;
 
 			// null object - do not display
-			if( !(gstrcmp(create->type,"TRANSOBJ.OBE")) || !(gstrcmp(create->type,"NOTHING.OBE")) || !(strncmp(create->type,"NULL_",5)) )
+			if( !(stricmp(create->type,"TRANSOBJ.OBE")) || !(stricmp(create->type,"NOTHING.OBE")) || !(strncmp(create->type,"NULL_",5)) )
 				act->draw = 0;
 
 			counts[1]++;
