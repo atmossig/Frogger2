@@ -94,7 +94,7 @@ int UndoChangeModel( ACTOR *actor )
 		a->objectController = a->LODObjectController;
 		a->LODObjectController = NULL;
 		InitAnims( a );
-		actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
+		actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0);
 		return 1;
 	}
 	return 0;
