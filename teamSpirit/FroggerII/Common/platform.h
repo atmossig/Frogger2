@@ -58,9 +58,13 @@ typedef struct TAGPLATFORM
 	float					currSpeed;				// platform current speed
 	short					isWaiting;				// platform node pause time
 
+	QUATERNION				srcOrientation;			// orientations to turn between while following a path?
+	QUATERNION				destOrientation;		
+													
+/*
 	VECTOR					currNormal;				// platform current normal
 	VECTOR					deltaNormal;			// platform delta normal (for linear interp)
-
+*/
 	float					countdown;				// countdown for disappear/regenerate
 
 	GAMETILE				*inTile[2];				// tile(s) platform is(are) currently 'in'
