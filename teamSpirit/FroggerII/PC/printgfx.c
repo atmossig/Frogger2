@@ -316,7 +316,7 @@ void PrintSprite(SPRITE *sprite)
 		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
 		numSprites++;
 		if (runHardware)
-			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,m.v[Z]/2000.0,32*distx,32*disty,
+			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,m.v[Z]*0.00025,32*distx,32*disty,
 				0,
 				0,
 				1,
@@ -724,7 +724,7 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 		vT[i].sx = m.v[X];
 		vT[i].sy = m.v[Y];
 		if( !m.v[Z] ) zeroZ++;
-		else vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
+		else vT[i].sz = (m.v[Z]+DIST+4)*0.00025;
 	}
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
@@ -821,7 +821,7 @@ void DrawFXRipple( SPECFX *ripple )
 		vT[i].sx = m.v[X];
 		vT[i].sy = m.v[Y];
 		if( !m.v[Z] ) zeroZ++;
-		else vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
+		else vT[i].sz = (m.v[Z]+DIST+4)*0.00025;
 	}
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
@@ -894,7 +894,7 @@ void DrawFXRing( SPECFX *ring )
 			vT[j].sx = m.v[X];
 			vT[j].sy = m.v[Y];
 			if( !m.v[Z] ) zeroZ++;
-			else vT[j].sz = (m.v[Z]+DIST)*0.0005;
+			else vT[j].sz = (m.v[Z]+DIST)*0.00025;
 
 			vT[j].color = colour;
 
@@ -1009,12 +1009,12 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 	XfmPoint( &m, &pos );
 	vT[0].sx = m.v[X];
 	vT[0].sy = m.v[Y];
-	vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+	vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
 	XfmPoint( &m, &pos );
 	vT[1].sx = m.v[X];
 	vT[1].sy = m.v[Y];
-	vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+	vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
@@ -1058,7 +1058,7 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect );
 			vT[0].sx = m.v[X];
 			vT[0].sy = m.v[Y];
-			vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+			vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 			vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
 
 			tempVect.v[X] = fx->particles[i].poly[1].v[X];
@@ -1067,7 +1067,7 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect );
 			vT[1].sx = m.v[X];
 			vT[1].sy = m.v[Y];
-			vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+			vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 			vT[1].color = vT[0].color;
 		}
 
@@ -1078,7 +1078,7 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect );
 		vT[2].sx = m.v[X];
 		vT[2].sy = m.v[Y];
-		vT[2].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+		vT[2].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 		vT[2].color = vT[0].color;
 
 		tempVect.v[X] = fx->particles[i+1].poly[0].v[X];
@@ -1087,7 +1087,7 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect );
 		vT[3].sx = m.v[X];
 		vT[3].sy = m.v[Y];
-		vT[3].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+		vT[3].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 		vT[3].color = vT[0].color;
 
 		// Store first 2 vertices of the next segment
@@ -1189,7 +1189,7 @@ void TransformAndDrawPolygon( POLYGON *p )
 		vT[i].sx = m.v[X];
 		vT[i].sy = m.v[Y];
 		if( !m.v[Z] ) zeroZ++;
-		else vT[i].sz = (m.v[Z]+DIST)*0.0005;
+		else vT[i].sz = (m.v[Z]+DIST)*0.00025;
 	}
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );

@@ -491,6 +491,19 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 #endif
 			}
 
+			if( !gstrcmp( tmp, "slu_\0" ) )
+			{
+				theActor->flags = ACTOR_WATER | ACTOR_SLUDGE | ACTOR_DRAW_ALWAYS;
+
+				if (ts->name[4]=='f')
+					theActor->flags |= ACTOR_SLIDYTEX;
+
+#ifdef N64_VERSION
+				AddN64WaterObjectResource(theActor->actor);
+#endif
+			}
+
+
 			tv = ts->rot.y;
 			ts->rot.y = ts->rot.z;
 			ts->rot.z = tv;

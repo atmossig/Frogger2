@@ -902,10 +902,13 @@ void ShowLoadScreen(void)
 
 void PrintTextureInfo(void)
 {
-	DDCAPS ddCaps;
-	DDINIT(ddCaps);													// Init caps struct
-	pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
-	dp ( "Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
+	DDSCAPS2 ddCaps;
+	unsigned long dwVidMemTotal, dwVidMemFree;
+
+	ddCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_TEXTURE;
+	pDirectDraw7->GetAvailableVidMem(&ddCaps, &dwVidMemTotal, &dwVidMemFree);					// Get the caps for the device
+	//pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
+	dp ( "Total Mem : %d : - Total Free : %d :\n",dwVidMemTotal, dwVidMemFree );
 }
  
 void DirectXFlip(void)
@@ -1634,8 +1637,8 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *
 
 	pSurface->Unlock(ddsd.lpSurface);
 
-	res = to->BltFast(0,0,pSurface,NULL,0);
-	ddShowError(res);
+	if ((res = to->BltFast(0,0,pSurface,NULL,0))!=DD_OK)
+		ddShowError(res);
 }
 
 

@@ -183,7 +183,7 @@ void Print3DText( )
 				XfmPoint( &m, &tmp );
 				t3d->vT[vx+i].sx = m.v[0];
 				t3d->vT[vx+i].sy = m.v[1];
-				t3d->vT[vx+i].sz = (m.v[2]+DIST)*0.0005;
+				t3d->vT[vx+i].sz = (m.v[2]+DIST)*0.00025;
 				if( !m.v[2] ) zeroZ++;
 			}
 

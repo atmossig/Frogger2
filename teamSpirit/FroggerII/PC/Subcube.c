@@ -302,14 +302,26 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	Info			: 
 */
 
+unsigned long worldObject = 0;
+unsigned long thresh = 500*500;
+
+#define DistanceFail(m1,m2) (DistanceBetweenPointsSquared(m1,m2)>thresh)
+		
 void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 {
+	long drawme;
+
+	drawme = 1;
+
 	// If we are a skinned object then we just need to prepare all the skinned vertices, so do that for this sub-object.
 	if (skinned)
 		PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
 	else
-	{ // Otherwise we need to prepare AND DRAW this sub-object
-		if (obj->mesh)
+	{ 
+		//if (worldObject && DistanceFail(&frog[0]->actor->pos,obj->))
+		//	drawme = 0;
+
+		if (obj->mesh && drawme)
 		{
 			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
 			
@@ -1382,7 +1394,7 @@ void PCRenderObject (OBJECT *obj)
 				
 				vTemp->sx = tV0->v[X];
 				vTemp->sy = tV0->v[Y];
-				vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
+				vTemp->sz = (tV[v0].v[Z]) * 0.00025F;///2000;
 				
 				fogAmt = FOGADJ(vTemp->sz);
 				if (fogAmt<0)
@@ -1423,7 +1435,7 @@ void PCRenderObject (OBJECT *obj)
 
 				vTemp->sx = tV1->v[X];
 				vTemp->sy = tV1->v[Y];
-				vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
+				vTemp->sz = (tV1->v[Z]) * 0.00025F;//2000;
 				fogAmt = FOGADJ(vTemp->sz);
 				if (fogAmt<0)
 					fogAmt=0;
@@ -1463,7 +1475,7 @@ void PCRenderObject (OBJECT *obj)
 				
 				vTemp->sx = tV2->v[X];
 				vTemp->sy = tV2->v[Y];
-				vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
+				vTemp->sz = (tV2->v[Z]) * 0.00025F;///2000;
 
 				fogAmt = FOGADJ(vTemp->sz);
 				if (fogAmt<0)
