@@ -122,7 +122,9 @@ extern long *psiModelListCRC;
 extern int	psiModelListLen;
 extern char *PSIname;
 
-extern PSIDATA oldModel;
+//reactive anims - normal frog actor store
+//extern PSIDATA oldModel;
+extern ACTOR oldActor;
 
 
 // functions

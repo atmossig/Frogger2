@@ -35,7 +35,8 @@ ACTORSETANIM globalActors [ 50 ];
 
 extern PSIMODEL *psiCheck(char *psiName);
 
-PSIDATA oldModel;
+//PSIDATA oldModel;
+ACTOR oldActor;
 
 void actorInitialise()
 {
@@ -1139,6 +1140,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	char newName[16];
 	int i=0;
 
+	//find model
 	while( model[i] != '.' && model[i] != '\0' )
 	{
 		newName[i] = model[i];
@@ -1147,7 +1149,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	newName[i] = '\0';
 	strcat( newName, ".psi" );
 
-	oldModel = actor->psiData;
+//	oldModel = actor->psiData;
 	newModel = psiCheck ( newName );
 
 	utilPrintf("Trying To Find New Model %s : %s................\n", model);
@@ -1158,13 +1160,26 @@ void *ChangeModel( ACTOR *actor, char *model )
 		return;
 	}
 
+	//create new actor
 	newActor = actorCreate ( newModel, 1, 0 );
-	//oldModel = actor->psiData;
 
-	actor->psiData = newActor->psiData;
+	newActor->size.vx = globalFrogScale;
+	newActor->size.vy = globalFrogScale;
+	newActor->size.vz = globalFrogScale;
 
-	actorInitAnim ( actor );										// initialise animation structure
-	actorSetAnimation ( actor, 0, 1 );										// initialise animation structure
+//bb
+//	actor->psiData = newActor->psiData;
+//	actorInitAnim ( actor );				// initialise animation structure
+//	actorSetAnimation ( actor, 0, 1 );		// initialise animation structure
+
+	//backup current actor
+	oldActor = *actor;
+
+	//copy over current actor
+	*actor = *newActor;
+
+	//keep some of the original data
+	actor->position = oldActor.position;
 }
 
 
@@ -1177,32 +1192,26 @@ void *ChangeModel( ACTOR *actor, char *model )
 */
 int UndoChangeModel( ACTOR *actor )
 {
-
+/*
 	if ( !oldModel.object )
 		return 0;
 
 	actor->psiData = oldModel;
 
-	//actor->psiData = psiCheck ( "frogger.psi" );
-
 	actorInitAnim ( actor );										// initialise animation structure
-
 	actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
 
 	return 1;
+*/
 
-/*	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
+	//make sure we are resetting to a valid actor
+	if(!oldActor.psiData.object)
+		return 0;
 
-	if( a->LODObjectController )
-	{
-		a->objectController = a->LODObjectController;
-		a->LODObjectController = NULL;
-		InitAnims( a );
-		actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
-		return 1;
-	}
-	return 0;
-*/}
+	*actor = oldActor;
+
+	return 1;
+}
 
 
 /*	--------------------------------------------------------------------------------
