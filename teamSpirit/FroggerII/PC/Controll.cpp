@@ -13,20 +13,23 @@ extern "C"
 {
 
 #include <ultra64.h>
-
+#include "stdio.h"
 #include "incs.h"
 
 OSContPad controllerdata[4];
-
+long DEAD_ZONE = 50;
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
 
 
 LPDIRECTINPUT lpDI			= NULL;
 LPDIRECTINPUTDEVICE lpKeyb	= NULL;
+LPDIRECTINPUTDEVICE lpJoystick = NULL;
+LPDIRECTINPUTDEVICE2 lpJoystick2 = NULL;
 LPDIRECTINPUTDEVICE lpMouse	= NULL;
 
 BYTE keyTable[256];
 DIMOUSESTATE mouseState;
+DIJOYSTATE joy;
 
 unsigned long	playerInputPause;
 unsigned long	playerInputPause2;
@@ -53,6 +56,12 @@ BOOL InitInputDevices()
 		return FALSE;
 	}
 
+	if(!InitJoystickControl())
+	{
+		DeInitInputDevices();
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -67,6 +76,7 @@ void DeInitInputDevices()
 {
 	DeInitKeyboardControl();
 	DeInitMouseControl();
+	DeInitJoystick();
 
 	if(lpDI)
 	{
@@ -107,6 +117,59 @@ BOOL InitKeyboardControl()
 }
 
 /*	--------------------------------------------------------------------------------
+	Function	: InitKeyboardControl();
+	Purpose		: initialises DirectInput keyboard control
+	Parameters	: none
+	Returns		: TRUE on success - else FALSE
+	Info		: 
+*/
+
+BOOL InitJoystickControl()
+{
+	HRESULT hRes;
+
+	hRes = lpDI->CreateDevice(GUID_Joystick,&lpJoystick,NULL);
+	if(FAILED(hRes))
+		return FALSE;
+
+	lpJoystick->QueryInterface( IID_IDirectInputDevice2,(LPVOID *)&lpJoystick2 );
+
+	hRes = lpJoystick->SetDataFormat(&c_dfDIJoystick);
+	if(FAILED(hRes))
+		return FALSE;
+
+	hRes = lpJoystick->SetCooperativeLevel(winInfo.hWndMain,DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+	if(FAILED(hRes))
+		return FALSE;
+
+	hRes = lpJoystick->Acquire();
+	if(FAILED(hRes))
+		return FALSE;
+
+	 // set the range of the joystick axis
+    DIPROPRANGE diprg; 
+
+    diprg.diph.dwSize       = sizeof(DIPROPRANGE); 
+    diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
+    diprg.diph.dwHow        = DIPH_BYOFFSET; 
+    diprg.lMin              = -1000; 
+    diprg.lMax              = +1000; 
+
+    diprg.diph.dwObj = DIJOFS_X;    // set the x-axis range
+    hRes = lpJoystick->SetProperty( DIPROP_RANGE, &diprg.diph );
+    if ( FAILED(hRes) ) 
+        return FALSE;
+
+    diprg.diph.dwObj = DIJOFS_Y;    // set the y-axis range
+    hRes = lpJoystick->SetProperty( DIPROP_RANGE, &diprg.diph );
+    if ( FAILED(hRes) ) 
+        return FALSE;
+
+	return TRUE;
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function	: DeInitKeyboardControl()
 	Purpose		: cleans up DirectInput
 	Parameters	: none
@@ -123,6 +186,23 @@ void DeInitKeyboardControl()
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function	: DeInitKeyboardControl()
+	Purpose		: cleans up DirectInput
+	Parameters	: none
+	Returns		: none
+	Info		: 
+*/
+void DeInitJoystick()
+{
+	if(lpJoystick)
+	{
+		lpJoystick->Unacquire();
+		lpJoystick->Release();
+		lpJoystick = NULL;
+	}
+}
 /*	--------------------------------------------------------------------------------
 	Function	: InitMouseControl();
 	Purpose		: initialises DirectInput mouse control
@@ -188,6 +268,14 @@ void ProcessUserInput(HWND hWnd)
 	if(FAILED(hRes))
 		return;
 
+	hRes = lpJoystick2->Poll();
+    if(FAILED(hRes))
+		return;
+
+	hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
+	if(FAILED(hRes))
+		return;
+
 	//----- [ KEYBOARD CONTROL ] -----//
 
 	if(KEYPRESS(DIK_F12))
@@ -206,17 +294,18 @@ void ProcessUserInput(HWND hWnd)
 	controllerdata[2].button = 0;
 	controllerdata[3].button = 0;
 
-	if (KEYPRESS(DIK_UP))
+	bprintf"X:%i Y:%i",joy.lX,joy.lY);
+	if (KEYPRESS(DIK_UP) | (joy.lY < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_UP;
 
-	if (KEYPRESS(DIK_DOWN))
+	if (KEYPRESS(DIK_DOWN) | (joy.lY > DEAD_ZONE))
 		controllerdata[0].button |= CONT_DOWN;
 
-	if (KEYPRESS(DIK_LEFT))
+	if (KEYPRESS(DIK_LEFT) | (joy.lX < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_LEFT;
 
 	
-	if (KEYPRESS(DIK_RIGHT))
+	if (KEYPRESS(DIK_RIGHT) | (joy.lX > DEAD_ZONE))
 		controllerdata[0].button |= CONT_RIGHT;
 	
 	if (KEYPRESS(DIK_INSERT ))
@@ -263,8 +352,8 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_Q))
 		controllerdata[1].button |= CONT_A;
 	
-	if (KEYPRESS(DIK_A))
-		controllerdata[1].button |= CONT_B;
+//	if (KEYPRESS(DIK_A))
+//		controllerdata[1].button |= CONT_B;
 
 }
 
