@@ -262,6 +262,12 @@ James Hubbard:
 James Healey:
 ------------------------------------------------
 
+	Pressie day!!!!
+
+	Had a look at why the frog is falling through the world some times, maybe it's the collision.
+	Probably the very old frog code that we have, I can recall a frog falling problem from the pc.
+
+	Will go through and fix the right anim numbers for the frog, I think animateActor is commented out!!!
 
 Mike Movel:
 ------------------------------------------------
@@ -341,6 +347,15 @@ James Hubbard:
 
 James Healey:
 ------------------------------------------------
+
+	Spent most of the day helping Chris with water, only to find out I was updating the wrong
+	texture bank, so nothing was working, we got it working and now chris is trying to modge the verts.
+
+	Also changed a few things in our obe to froggger map converter that Fred wrote, ok so we want to
+	times a float by 128 to get a psx value, but the float being read from the obe file thing was cast to
+	an int before I could use it, so 0 or 1, I don't think so.
+
+	Got upset coz we are being turfed out of this room and back I with Andrew, I will miss the lard runs, by resident lard man John!!!
 
 
 Mike Movel:
