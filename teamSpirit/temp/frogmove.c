@@ -1634,8 +1634,13 @@ void CheckTileState(GAMETILE *tile, int pl)
 	{
 		if(!player[pl].dead.time)
 		{
-			player[pl].frogState |= FROGSTATUS_ISDEAD;
-			DeathPoison(pl);
+			if( gameState.multi == SINGLEPLAYER )
+			{
+				player[pl].frogState |= FROGSTATUS_ISDEAD;
+				DeathPoison(pl);
+			}
+			else
+				KillMPFrog( pl );
 		}
 		break;
 	}
