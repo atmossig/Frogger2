@@ -521,6 +521,9 @@ void UpdateEnemies()
 					length *= PI2;
 					length += cur->path->nodes->offset2 * PI2; // Fraction of circumference it starts at
 
+					if( cur->speed < 0 )
+						length = PI2 - length;
+
 					if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
 					{
 						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
@@ -548,7 +551,7 @@ void UpdateEnemies()
 					if( actFrameCount > cur->path->endFrame )
 					{
 						cur->path->startFrame = cur->path->endFrame;
-						cur->path->endFrame = cur->path->startFrame+(60*cur->speed);
+						cur->path->endFrame = cur->path->startFrame+(60*Fabs(cur->speed));
 					}
 				}
 			}
