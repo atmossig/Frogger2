@@ -223,6 +223,6 @@ void InitFont()
 
 	//smallFont = bigFont;
 	
-	// Make 16x16 font the current font
-	currFont = smallFont;
+	// Make 32x32 font the current font
+	currFont = bigFont;
 }
