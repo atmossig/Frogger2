@@ -1119,7 +1119,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		if (MessageBox(NULL,
 			"Please insert your Frogger2 CD!", "Frogger2",
 			MB_ICONEXCLAMATION|MB_RETRYCANCEL) == IDCANCEL)
-			return -1;
+			break;
+
+		//return -1;
 	}
 #else
 	FindFrogger2CD();
