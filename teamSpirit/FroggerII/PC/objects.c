@@ -128,7 +128,9 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	if (obj->mesh)
 	{
 		float r,g,b,a;
-			
+
+		obj->renderData = JallocAlloc (sizeof(D3DTLVERTEX)*obj->mesh->numFaces*3,0,"vtxPC");
+
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
 			TEXENTRY *me;
@@ -148,6 +150,11 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 			b = ((QUATERNION *)obj->mesh->vertexNormals)[x].z;
 			a = ((QUATERNION *)obj->mesh->vertexNormals)[x].w;
 			((long *)(& ((QUATERNION *)obj->mesh->vertexNormals)[x].x))[0] = D3DRGBA(r,g,b,a);
+
+			((D3DTLVERTEX *)obj->renderData)[x].tu = (obj->mesh->faceTC[x].v[0]*0.000975F);
+			((D3DTLVERTEX *)obj->renderData)[x].tv = (obj->mesh->faceTC[x].v[1]*0.000975F);
+			((D3DTLVERTEX *)obj->renderData)[x].color = D3DRGBA(1,1,1,1);
+			((D3DTLVERTEX *)obj->renderData)[x].specular = D3DRGBA(0,0,0,0);
 		}
 	}
 

@@ -412,7 +412,7 @@ typedef struct OBJECT
 	short		numRotateKeys;
 
 	COLOUR		colour;
-	TEXTURE		*phongTex;	
+	void		*renderData;
 
 	short		flags;
 
