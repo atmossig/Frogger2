@@ -128,6 +128,16 @@ void XformActorList()
 	Returns			: void
 	Info			: 
 */
+
+float waterFreq[2] = {80,41};
+float waterFactor[2] = {0.001,0.002};
+float waterF = 0.08;
+float waterWaveHeight[2];
+VECTOR waterCentre[2] = {{1000,0,1000},{-1500,0,0}};
+float dist[2];
+VECTOR tempVect;
+
+
 void DrawActorList()
 {
 	/****************************************************************************************/
@@ -344,9 +354,26 @@ void DrawActorList()
 		// only draw xlu water objects
 		if(cur->flags & ACTOR_WATER)
 		{
-			int i;
-			OBJECT *obj = cur->actor->objectController->object;
-			SetXluInDrawList(obj->drawList,WATER_XLU);
+/* THIS IS FOR NON-DRAWLISTED OBJECTS
+			VECTOR *wv;
+			int j,i = cur->actor->objectController->object->mesh->numVertices;
+
+			while(i--)
+			{
+				wv = &cur->actor->objectController->object->mesh->vertices[i];
+
+				for(j=0; j<2; j++)
+				{
+					AddVector2D(&tempVect,wv,&waterCentre[j]);
+					dist[j] = Magnitude2D(&tempVect);
+				}
+
+				wv->v[Y] =	wv->v[Y] * (1 - waterF) + 
+						(	SineWave2(waterFreq[0],actFrameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
+							SineWave2(waterFreq[1],actFrameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
+			}
+*/
+
 			DrawActor(cur->actor);
 		}
 		
@@ -459,7 +486,7 @@ void FreeActorList()
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode)
 {
 	ACTOR2 *newItem;
-
+	
 	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"ACTOR2");
 	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"ACTOR");
 
@@ -555,10 +582,12 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 			if((obj->sprites[i].flags & SPRITE_DONE) == 0)
 			{
 				obj->sprites[i].flags |= SPRITE_DONE;
-/*				switch(sprite->texture->sx)
+
+#ifdef N64_VERSION
+				switch(sprite->texture->sx)
 				{
 					case 8:
-						obj->sprites[i].sx /= 2;
+//						obj->sprites[i].sx /= 2;
 						break;
 					case 16:
 						obj->sprites[i].sx *= 2;
@@ -577,7 +606,8 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 					case 32:
 						break;
 				}
-*/			}
+#endif
+			}
 
 			sprite->r = sprite->g = sprite->b = 255;
 			sprite->a = 128;
@@ -588,8 +618,8 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 
 			sprite->flags |= flags;
 
-			sprite->offsetX = -16; // -sprite->texture->sx / 2;
-			sprite->offsetY = -16; // -sprite->texture->sy / 2;
+			sprite->offsetX = -sprite->texture->sx / 2;
+			sprite->offsetY = -sprite->texture->sy / 2;
 
 			AddSprite(sprite,NULL);
 			obj->sprites[i].sprite = sprite;
@@ -835,12 +865,13 @@ OBJECT *MakeUniqueObject(OBJECT *object)
 */
 void MakeUniqueActor(ACTOR *actor,int type)
 {
-	OBJECT_CONTROLLER	*objCont;
+	OBJECT_CONTROLLER *objCont;
 	short	unique = TRUE;
 	short	i;
 	int		CRC;
 	
-	if (!actor->objectController) return;
+	if(!actor->objectController)
+		return;
 		
 	CRC = UpdateCRC(actor->objectController->object->name);
 
@@ -871,6 +902,14 @@ void MakeUniqueActor(ACTOR *actor,int type)
 		//if actor is skinned, duplicate Vtx's
 		if(actor->objectController->drawList)
 		{
+			MakeUniqueVtx(actor->objectController);
+			XformActor(actor);
+		}
+
+		// if actor is a water object, duplicate Vtx's
+		if(type == ACTOR_WATER)
+		{
+			dprintf"Adding water object...\n"));
 			MakeUniqueVtx(actor->objectController);
 			XformActor(actor);
 		}
