@@ -219,6 +219,8 @@ int RemoveNetPlayer(DPID id)
 				multiHud.trophies[p][0]->draw = false;
 				multiHud.trophies[p][1]->draw = false;
 				multiHud.trophies[p][2]->draw = false;
+				mpl[p].nameText->draw = false;
+				mpl[p].numText->draw = false;
 			}
 
 			q = p+1;

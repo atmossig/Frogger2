@@ -3184,6 +3184,7 @@ void RunArtViewer()
 
 #define MAX_TEASERS 6
 
+#ifdef PC_DEMO
 void RunTeaserScreens( )
 {
 	char name[32];
@@ -3228,7 +3229,7 @@ void RunTeaserScreens( )
 		}
 	}
 }
-
+#endif
 
 #ifdef DREAMCAST_VERSION
 void ToggleStereo( )

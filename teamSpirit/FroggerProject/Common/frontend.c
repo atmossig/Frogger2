@@ -264,9 +264,11 @@ void GameLoop(void)
 		break;
 #endif
 */
+#ifdef PC_DEMO
 	case TEASERSCREEN_MODE:
 		RunTeaserScreens( );
 		break;
+#endif
 	}
 
 	frameCount++;

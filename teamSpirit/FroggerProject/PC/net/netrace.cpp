@@ -182,6 +182,8 @@ int NetRaceRun()
 		for( i=0; i<NUM_FROGS; i++ )
 		{
 			// Do overlay stuff
+			mpl[i].nameText->draw = 0;
+			mpl[i].numText->draw = 0;
 			if(mpl[i].penalText->draw)
 			{
 				SlideTextOverlayToPos(mpl[i].penalText,backTextX[i],backTextY[i],mpl[i].scrX,mpl[i].scrY,40);	
@@ -240,7 +242,15 @@ int NetRaceRun()
 
 		NetRaceCheckWin();
 	}
-
+	else
+	{
+		for(i = 0;i < NUM_FROGS;i++)
+		{
+			mpl[i].nameText->draw = 1;
+			TransformPoint(&frog[i]->actor->position,&mpl[i].numText->xPos,&mpl[i].numText->yPos);
+			mpl[i].numText->yPos -= 200;
+		}
+	}
 	return 0;
 }
 
