@@ -294,15 +294,19 @@ void UpdateFroggerPos(long pl)
 		float t,s,a,hs,vs;
 
 		// If superjumping during a double jump, start floating - if button released, stop floating
-/*		if( player[pl].hasDoubleJumped )
+		if( player[pl].hasDoubleJumped )
 		{
 			if( (controllerdata[pl].button & CONT_A) && !(controllerdata[pl].lastbutton & CONT_A) )
+			{
 				player[pl].frogState |= FROGSTATUS_ISFLOATING;
+			}
 			else if( !(controllerdata[pl].button & CONT_A) && (controllerdata[pl].lastbutton & CONT_A) )
+			{
 				player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+			}
 		}
-*/
-		if( player[pl].frogState & FROGSTATUS_ISFLOATING )
+
+/*		if( player[pl].frogState & FROGSTATUS_ISFLOATING )
 		{
 			a = frogGravity*0.5;
 			hs = player[pl].hInitialVelocity * 0.5;
@@ -310,10 +314,10 @@ void UpdateFroggerPos(long pl)
 		}
 		else
 		{
-			a = frogGravity;
+*/			a = frogGravity;
 			hs = player[pl].hInitialVelocity;
 			vs = player[pl].vInitialVelocity;
-		}
+//		}
 
 		t = actFrameCount - player[pl].jumpStartFrame;
 
