@@ -36,6 +36,8 @@
 	moves back and forth along a path		PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG
 	(>1 node) in a ping-pong movement.		PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_PINGPONG
 
+	is a non-moving platform (static)		PLATFORM_NEW_NONMOVING
+
 
 ----------------------------------------------------------------------------------------------- */
 
@@ -55,20 +57,6 @@
 /******  GARDEN VEGPATCH LEVEL  *******************************************************************************/
 /**************************************************************************************************************/
 
-PATHNODE debug_pathVegNodes1[] =
-{
-	217,0,0,4,0,	218,0,0,4,0,	219,0,0,4,0,	210,0,0,4,0,	201,0,0,4,0,	189,0,0,4,0,
-	180,0,0,4,0,	179,0,0,4,0,	178,0,0,4,0,	187,0,0,4,0,	199,0,0,4,0,	208,0,0,4,0
-};
-
-PATHNODE debug_pathVegNodes2[] =
-{
-	201,0,0,4,0,	189,0,0,4,0,	180,0,0,4,0,	179,0,0,4,0,	178,0,0,4,0,	187,0,0,4,0,	
-	199,0,0,4,0,	208,0,0,4,0,	217,0,0,4,0,	218,0,0,4,0,	219,0,0,4,0,	210,0,0,4,0
-};
-
-PATH debug_pathVeg1 = { 12,0,0,0,debug_pathVegNodes1 };
-PATH debug_pathVeg2 = { 12,0,0,0,debug_pathVegNodes2 };
 
 
 /**************************************************************************************************************/
@@ -88,13 +76,32 @@ PLATFORM *devPlat2	= NULL;
 
 PATHNODE debug_pathNodes1[] =					// TEST PATH - ANDYE
 { 
-	20,20,0,2,0,	21,40,0,2,0,	22,40,0,2,0,	23,20,0,2,0
+	20,20,0,2,0,	33,20,0,2,0,	34,20,0,2,0,	35,20,0,2,0,	36,20,0,2,0,	23,20,0,2,0,
+	22,20,0,2,0,	21,20,0,2,0
 };
 
-PATH debug_path1 = { 4,0,0,0,debug_pathNodes1 };
+PATHNODE debug_pathNodes2[] =					// TEST PATH - ANDYE
+{ 
+	33,20,0,2,0,	34,20,0,2,0,	35,20,0,2,0,	36,20,0,2,0,	23,20,0,2,0,	22,20,0,2,0,
+	21,20,0,2,0,	20,20,0,2,0
+};
 
-PATHNODE debug_pathNodes2[] = { 34,20,0,1,0,	35,20,0,1,0 };	// TEST PATH - ANDYE
-PATH debug_path2 = { 2,0,0,0,debug_pathNodes2 };
+PATHNODE debug_pathNodes3[] =					// TEST PATH - ANDYE
+{ 
+	34,20,0,2,0,	35,20,0,2,0,	36,20,0,2,0,	23,20,0,2,0,	22,20,0,2,0,
+	21,20,0,2,0,	20,20,0,2,0,	33,20,0,2,0
+};
+
+PATHNODE debug_pathNodes4[] =					// TEST PATH - ANDYE
+{ 
+	14,20,0,2,0,
+};
+
+PATH debug_path1 = { 8,0,0,0,debug_pathNodes1 };
+PATH debug_path2 = { 8,0,0,0,debug_pathNodes2 };
+PATH debug_path3 = { 8,0,0,0,debug_pathNodes3 };
+PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
+
 
 
 static void	GetActiveTile(PLATFORM *pform);
@@ -118,7 +125,16 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		if(levelID == LEVELID_GARDENLAWN)
 		{
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path1,PATH_MAKENODETILEPTRS);
+
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path2,PATH_MAKENODETILEPTRS);
+
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path3,PATH_MAKENODETILEPTRS);
+
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING,&debug_path4,PATH_MAKENODETILEPTRS);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
@@ -127,11 +143,6 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 
 		if(levelID == LEVELID_GARDENVEGPATCH)
 		{
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_pathVeg1,PATH_MAKENODETILEPTRS);
-
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_CYCLE,&debug_pathVeg2,PATH_MAKENODETILEPTRS);
 		}
 	}
 
@@ -188,7 +199,7 @@ void UpdatePlatforms()
 			continue;
 
 		// check if this platform is currently 'waiting' at a node
-		if(cur->isWaiting)
+		if((cur->isWaiting) && (cur->isWaiting != -1))
 		{
 			cur->isWaiting--;
 			continue;
@@ -210,7 +221,11 @@ void UpdatePlatforms()
 //--------------------->
 
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
+
 			NormalToQuaternion(&cur->pltActor->actor->qRot,&cur->currNormal);
+//			or
+//			Orientate(&cur->pltActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+
 
 //--------------------->
 
@@ -297,10 +312,26 @@ void UpdatePlatforms()
 		// determine if platform is carrying frog
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
-			currTile[0] = cur->inTile;
-			cur->carrying = frog[0];
-			SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
-			SetQuaternion(&frog[0]->actor->qRot,&cur->pltActor->actor->qRot);
+			// check if this is a disappearing or crumbling platform
+			if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
+			{
+			}
+			else if(cur->flags & PLATFORM_NEW_CRUMBLES)
+			{
+			}
+			else
+			{
+				currTile[0] = cur->inTile;
+				cur->carrying = frog[0];
+				SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
+
+				if(!cur->flags & PLATFORM_NEW_NONMOVING)
+					SetQuaternion(&frog[0]->actor->qRot,&cur->pltActor->actor->qRot);
+			}
+		}
+		else
+		{
+			// platform is not carrying a frog
 		}
 	}
 }
@@ -778,8 +809,8 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 		for(i=0; i<path->numNodes; i++)
 		{
 			// convert integer to a valid game tile
-			dprintf"%d, ",(int)path->nodes[i].worldTile));
-			pform->path->nodes[i].worldTile = &firstTile[(int)path->nodes[i].worldTile];
+			dprintf"%d, ",(unsigned long)path->nodes[i].worldTile));
+			pform->path->nodes[i].worldTile = &firstTile[(unsigned long)path->nodes[i].worldTile];
 		}
 	}
 
@@ -814,6 +845,12 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 		// sinks under frog weight ?
 		if(platformFlags & PLATFORM_NEW_STEPONACTIVATED)
 			pform->flags |= PLATFORM_NEW_SINKWITHFROG;
+	}
+	else if(platformFlags & PLATFORM_NEW_NONMOVING)
+	{
+		// this platform does not move
+		pform->path->fromNode = pform->path->toNode = 0;
+		SetPathNodeWaitTime(&pform->path->nodes[0],-1);
 	}
 
 	// set platform position to relevant point on path
@@ -1088,8 +1125,11 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	PATHNODE *fromNode,*toNode;
 	float numSteps;
 	VECTOR destNormal,fromPos,toPos;
-	
+
 	path		= pform->path;
+	if(path->numNodes < 2)
+		return;
+
 	fromNode	= &path->nodes[path->fromNode];
 	toNode		= &path->nodes[path->toNode];
 
@@ -1112,5 +1152,18 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	pform->deltaNormal.v[Z] /= numSteps;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetPlatformVisibleTime
+	Purpose			: sets the visible time for disappearing / crumbling platforms
+	Parameters		: PLATFORM *,short
+	Returns			: void
+	Info			: 
+*/
+void SetPlatformVisibleTime(PLATFORM *pform,short time)
+{
+	pform->visibleTime	= time;
+	pform->visible		= time;
+}
 
 //------------------------------------------------------------------------------------------------

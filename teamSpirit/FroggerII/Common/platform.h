@@ -65,6 +65,9 @@ typedef struct TAGPLATFORM
 	VECTOR					currNormal;				// platform current normal
 	VECTOR					deltaNormal;			// platform delta normal (for linear interp)
 
+	short					visibleTime;			// platforms time visible if it disappears
+	short					visible;				// platforms current visibility counter
+
 	GAMETILE				*inTile;				// tile platform is currently 'in'
 	PATH					*path;					// ptr to platform path data
 	ACTOR2					*carrying;				// current actor platform is carrying
@@ -122,6 +125,10 @@ extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 #define PLATFORM_NEW_RISEWITHFROG		(1 << 9)	// platform sinks when frog is on it
 #define PLATFORM_NEW_CARRYINGFROG		(1 << 10)	// platform is carrying a frog
 
+#define PLATFORM_NEW_DISAPPEARWITHFROG	(1 << 11)	// platform disappears when frog is on it (after period of time)
+#define PLATFORM_NEW_CRUMBLES			(1 << 12)	// platform crumbles when frog is on it (after period of time)
+#define PLATFORM_NEW_NONMOVING			(1 << 13)	// platform does not move
+
 
 PLATFORM *CreateAndAddPlatform(char *pActorName);
 void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags);
@@ -130,6 +137,7 @@ BOOL PlatformReachedTopOrBottomPoint(PLATFORM *pform);
 void UpdatePlatformPathNodes(PLATFORM *pform);
 void CalcPlatformNormalInterps(PLATFORM *pform);
 
+void SetPlatformVisibleTime(PLATFORM *pform,short time);
 
 //------------------------------------------------------------------------------------------------
 
