@@ -177,17 +177,14 @@ Gfx croakRing_dl[] =
 	gsSPEndDisplayList()
 };
 
-//#define G_CC_FUNNY TEXEL0,0,SHADE,0,TEXEL0,0,SHADE,0
-
 #define G_CC_MOTIONBLUR TEXEL0,ENVIRONMENT,PRIMITIVE,SHADE,  TEXEL0,0,SHADE,0
 
-// For polygons that overlay the screen
+// For full screen blur fx and stuff
 Gfx polyNoZ_dl[] =
 {
 	gsDPPipeSync(),
 	gsSPClearGeometryMode( G_ZBUFFER | G_CULL_BOTH | G_FOG ),
 	gsSPSetGeometryMode( G_SHADE | G_SHADING_SMOOTH ),
-	gsSPSetGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
 	
 	gsDPSetCombineMode(G_CC_MOTIONBLUR,G_CC_MOTIONBLUR),
 
@@ -1164,9 +1161,10 @@ void SetGrabData( )
 
 	if( grabData.flags & MOTION_BLUR )
 	{
-		grabData.maxTSize = grabData.tSize = 36;
+		grabData.maxxTS = grabData.xTS = 72;
+		grabData.maxyTS = grabData.yTS = 36;
 		grabData.xOff = 35;
-		grabData.yOff = 45;
+		grabData.yOff = 44;
 
 		if( grabData.flags & BLUR_INWARD )
 			grabData.zOff = 330;
@@ -1223,13 +1221,23 @@ void SetGrabData( )
 	Returns			: 
 	Info			: 
 */
+long newFlag = 0;
 void DrawScreenGrab( unsigned long flags )
 {
 	QUATERNION q;
 	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-	long x, y, xTex, v, x1, y1, x2, y2, tileScale;
+	long x, y, v, x1, y1, x2, y2, tileScale, cx, cy, vStep;
 
-	flags = MOTION_BLUR;
+	if( newFlag == 1 || newFlag == 3 )
+	{
+		flags |= TILE_SHRINK_VERT;
+		flags |= BARS_HORZ;
+	}
+	if( newFlag == 2 || newFlag == 3 )
+	{
+		flags |= TILE_SHRINK_HORZ;
+		flags |= BARS_VERT;
+	}
 
 	if( !fsVerts )
 	{
@@ -1241,9 +1249,10 @@ void DrawScreenGrab( unsigned long flags )
 		grabData.flags = flags;
 		SetGrabData( );
 	}
-	else if( flags & NEW_FLAGS )
+	else if( (flags & NEW_FLAGS) || newFlag )
 	{
 		flags &= ~NEW_FLAGS;
+		newFlag = 0;
 		grabData.flags = flags;
 		SetGrabData( );
 	}
@@ -1252,38 +1261,57 @@ void DrawScreenGrab( unsigned long flags )
 	if( grabData.flags & CALC_VTX )
 	{
 		if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
-			tileScale = grabData.tSize * grabData.scale;
+			tileScale = grabData.yTS * grabData.scale;
 		
 		if( grabData.flags & SHRINK_TO_POINT )
 		{
-			if( !grabData.tSize )
-				sShrink = 0;
-			else
-				grabData.tSize--;
+			if( grabData.yTS )
+				grabData.yTS--;
+			if( grabData.xTS )
+				grabData.xTS--;
+
+			if( !grabData.xTS && !grabData.yTS )
+				grabData.flags &= ~SHRINK_TO_POINT;
 		}
 
 		for (y=0; y<8; y++)
-			for (x=0; x<10; x++)
+			for (x=0; x<5; x++)
 			{
-				v = (x+(y*10))<<2;
+				v = (x+(y*5))<<2;
 
-				x1 = ((5-x)*grabData.tSize)-grabData.xOff;
-				y1 = ((4-y)*grabData.tSize)-grabData.yOff;
+				x1 = ((2-x)*grabData.xTS)-grabData.xOff;
+				y1 = ((4-y)*grabData.yTS)-grabData.yOff;
 				
-				x2 = ((6-x)*grabData.tSize)-grabData.xOff;
-				y2 = ((5-y)*grabData.tSize)-grabData.yOff;
+				x2 = ((3-x)*grabData.xTS)-grabData.xOff;
+				y2 = ((5-y)*grabData.yTS)-grabData.yOff;
 				
 				if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
 				{
 					if( grabData.flags & TILE_SHRINK_HORZ )
 					{
-						x2 -= tileScale;
-						x1 += tileScale;
+						if( grabData.flags & BARS_VERT )
+						{
+							x2 -= tileScale;
+							x1 += tileScale;
+						}
+						else
+						{
+							x2 -= tileScale<<1;
+							x1 += tileScale<<1;
+						}
 					}
 					if( grabData.flags & TILE_SHRINK_VERT )
 					{
-						y2 -= tileScale;
-						y1 += tileScale;
+						if( grabData.flags & BARS_HORZ )
+						{
+							y2 -= tileScale>>1;
+							y1 += tileScale>>1;
+						}
+						else
+						{
+							y2 -= tileScale;
+							y1 += tileScale;
+						}
 					}
 					if (grabData.scale<grabData.maxScale)
 						grabData.scale += grabData.speedScale;
@@ -1293,7 +1321,7 @@ void DrawScreenGrab( unsigned long flags )
 				{
 					if (x!=0)
 						x1+=sinf((x1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
-					if (x!=9)
+					if (x!=4)
 						x2+=sinf((x2+frameCount*grabData.sinSpeed))*grabData.sinAmt;
 					if (y!=0)
 						y1+=sinf((y1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
@@ -1301,26 +1329,20 @@ void DrawScreenGrab( unsigned long flags )
 						y2+=sinf((y2+frameCount*grabData.sinSpeed))*grabData.sinAmt;
 				}
 
-				V((&vPtr[v+0]),x1,grabData.zOff,y1,0,1024,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
-				V((&vPtr[v+1]),x2,grabData.zOff,y1,0,0   ,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
-				V((&vPtr[v+2]),x2,grabData.zOff,y2,0,0   ,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
-				V((&vPtr[v+3]),x1,grabData.zOff,y2,0,1024,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+0]),x1,grabData.zOff,-y1,0,2048,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+1]),x2,grabData.zOff,-y1,0,0   ,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+2]),x2,grabData.zOff,-y2,0,0   ,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
+				V((&vPtr[v+3]),x1,grabData.zOff,-y2,0,2048,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
 			}
 
 		if( !(grabData.flags & DYNAMIC_VTX) )
 			grabData.flags &= ~CALC_VTX;
 	}
-	
-	gDPLoadSync(glistp++);
-	gDPPipeSync(glistp++);
 
 	gSPDisplayList(glistp++,polyNoZ_dl);
 	
 	gDPSetPrimColor(glistp++,0,0,grabData.pR,grabData.pG,grabData.pB,255);
 	gDPSetEnvColor(glistp++,grabData.eR,grabData.eG,grabData.eB,255);
-
-	gDPLoadSync(glistp++);
-	gDPPipeSync(glistp++);
 
 	// draw screen-aligned quad
 	NormalToQuaternion(&q,&inVec);
@@ -1331,21 +1353,43 @@ void DrawScreenGrab( unsigned long flags )
 
 	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
 	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	for( x=0,xTex=0; x<320; x+=4,xTex+=1024 )
+										G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+	
+	for( x=0,cx=0,cy=0; x<160; x+=32 )
 	{
-		gDPLoadSync(glistp++);
+		// Load in 32 vertices at a time
+		gSPVertex(glistp++,&vPtr[x],32,0);
+		
+		if( grabData.flags & DES_REP_MODE )
+		{
+			cx=0;
+			cy=0;
+		}
 
-		gDPLoadTextureBlock(glistp++,&grab[xTex],G_IM_FMT_RGBA,G_IM_SIZ_16b,32,32,0,G_TX_WRAP,G_TX_WRAP,G_TX_NOMASK,G_TX_NOMASK,G_TX_NOLOD,G_TX_NOLOD);
+		for( vStep=0; vStep<32; vStep+=4 )
+		{
+			if( !grabFlag )
+			{
+				gDPLoadTextureTile( glistp++,&(((short *)cfb_ptrs[1-draw_buffer])[cx+cy]),G_IM_FMT_RGBA,G_IM_SIZ_16b,320,32,0,0,63,31,0,G_TX_CLAMP,G_TX_CLAMP,G_TX_NOMASK,G_TX_NOMASK,G_TX_NOLOD,G_TX_NOLOD );
+			}
+			else
+			{
+				gDPLoadTextureTile(glistp++,&grab[cx+cy],G_IM_FMT_RGBA,G_IM_SIZ_16b,320,32,0,0,63,31,0,G_TX_CLAMP,G_TX_CLAMP,G_TX_NOMASK,G_TX_NOMASK,G_TX_NOLOD,G_TX_NOLOD);
+			}
 
-		gSPVertex(glistp++,&vPtr[x],4,0);
-		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+			gSP2Triangles(glistp++,0+vStep,1+vStep,2+vStep,0,2+vStep,3+vStep,0+vStep,0);
+
+			cx+=64;
+
+			if( cx >= 320 )
+			{
+				cy += 10240;
+				cx = 0;
+			}
+		}
 	}
-
+	
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
-
-	gDPPipeSync(glistp++);
 }
 
 
@@ -1358,9 +1402,10 @@ void DrawScreenGrab( unsigned long flags )
 						81920 is the number of pixels in the whole screen, including the unused
 						half a row at the bottom.
 */
+
 void Screen2Texture( )
 {
-	u16 *screen = cfb_ptrs[draw_buffer];
+	u16 *screen = cfb_ptrs[1-draw_buffer];
 	static unsigned short *grab = NULL;
 	unsigned long xTex = 0, yTex = 0, tStep = 0, x = 0, yPos = 0;
 	long y = 76800;
@@ -1376,8 +1421,11 @@ void Screen2Texture( )
 
 		yTex = 0;
 		drawScreenGrab = 1;
+		grabFlag = 0;
 	}
 
+	lmemcpy( (unsigned long *)&grab[0], (unsigned long *)&screen[0], 38400 );
+/*
 	while( y >= 0 )
 	{
 		while( x < SCREEN_WD )
@@ -1398,7 +1446,8 @@ void Screen2Texture( )
 		}
 
 		yPos = yTex + tStep;
-	}
+	}*/
+	
 }
 
 /*	--------------------------------------------------------------------------------

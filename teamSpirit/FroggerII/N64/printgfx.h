@@ -67,33 +67,37 @@
 #define G_CC_DECALI_MODULATEA_PRIM    TEXEL0, 0, 1, SHADE, TEXEL0, 0, PRIMITIVE, 0
 
 
-#define CALC_VTX			(1<<0)
-#define DYNAMIC_VTX			(1<<1)
+#define CALC_VTX			(1<<0)	// Recalc vertices every turn? Temporary flag
+#define DYNAMIC_VTX			(1<<1)	// Permanently determines the setting of CALC_VTX
 
-#define MOTION_BLUR			(1<<5)
-#define VERTEX_WODGE		(1<<6)
-#define TILE_SHRINK_HORZ	(1<<7)
-#define TILE_SHRINK_VERT	(1<<8)
-#define SHRINK_TO_POINT		(1<<9)
-#define MEZZOTINT			(1<<10)
+#define MOTION_BLUR			(1<<5)	// Standard effect - sets up basic blur data
+#define VERTEX_WODGE		(1<<6)  // Wibble vertices to make water / haze effect
+#define TILE_SHRINK_HORZ	(1<<7)	// Start shrinking tiles to nothing horizontally
+#define TILE_SHRINK_VERT	(1<<8)  // Vertically
+#define SHRINK_TO_POINT		(1<<9)	// Shrink whole overlay to point
+#define MEZZOTINT			(1<<10) // Scale tiles so they don't quite join - mad window effect
+#define DES_REP_MODE		(1<<11)	// Tile image bizarrely, in a Designers Republic stylee
+#define BARS_HORZ			(1<<12)	// Horizontal glass bars
+#define BARS_VERT			(1<<13) // Vertical
 
-#define BLUR_HEAVY			(1<<20)
-#define BLUR_MEDIUM			(1<<21)
-#define BLUR_LIGHT			(1<<22)
+#define BLUR_HEAVY			(1<<20)	// High alpha on overlay
+#define BLUR_MEDIUM			(1<<21) // Medium
+#define BLUR_LIGHT			(1<<22) // Low
 
-#define BLUR_CENTRE			(1<<23)
-#define BLUR_INWARD			(1<<24)
-#define BLUR_OUTWARD		(1<<25)
+#define BLUR_CENTRE			(1<<23) // Blur only when moving
+#define BLUR_INWARD			(1<<24) // Constant blur towards screen centre
+#define BLUR_OUTWARD		(1<<25) // Outwards
 
-#define TINT_RED			(1<<26)
-#define TINT_GREEN			(1<<27)
-#define TINT_BLUE			(1<<28)
+#define TINT_RED			(1<<26) // Red tint overlay
+#define TINT_GREEN			(1<<27) // Green
+#define TINT_BLUE			(1<<28) // Blue
 
-#define NEW_FLAGS			(1<<31)
+#define NEW_FLAGS			(1<<31) // Sign to recalculate data because we have new flags
 
 typedef struct TAGGRABSTRUCT
 {
-	long tSize, maxTSize,  // size and max size of texture tiles
+	long xTS, maxxTS,  // size and max size of texture tiles
+		yTS, maxyTS,
 		xOff, yOff, zOff;  // Offset of mesh on screen
 	char vR, vG, vB,       // Vertex rgb
 		pR, pG, pB,        // Primitive rgb
