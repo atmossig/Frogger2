@@ -891,7 +891,7 @@ SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 			if( type == 3 )
 			{
 				// Make an ambient sound if we've attached a sound to a scenic
-				AddAmbientSound( sfx_anim_map[index], &actor->pos, 500, 100, 128, 0, 0, actor );
+				AddAmbientSound( sfx_anim_map[index], &actor->pos, 2000, 50, 128, 0, 0, actor );
 				return NULL;
 			}
 			else
