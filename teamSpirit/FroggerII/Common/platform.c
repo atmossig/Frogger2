@@ -1147,8 +1147,8 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 	CalcNextPlatformDest(pform);
 
-	pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-	pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+	pform->currSpeed = path->nodes[path->fromNode].speed;
+	pform->isWaiting = path->nodes[path->fromNode].waitTime;
 
 	// Stop overshoot when waiting on a path node
 	if (pform->isWaiting)
@@ -1371,9 +1371,17 @@ void CalcNextPlatformDest(PLATFORM *pform)
 			}
 		}
 	}
-	else if((flags & PLATFORM_NEW_PINGPONG) && flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
+	else if( flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN) )
 	{
-		pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);
+		if( flags & PLATFORM_NEW_PINGPONG )
+			pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);
+		else if( flags & PLATFORM_NEW_CYCLE )
+		{
+			if( flags & PLATFORM_NEW_MOVEUP )
+				GetPositionForPathNode( &pform->pltActor->actor->pos, &path->nodes[path->fromNode] );
+			else
+				GetPositionForPathNodeOffset2( &pform->pltActor->actor->pos, &path->nodes[path->fromNode] );
+		}
 	}
 }
 

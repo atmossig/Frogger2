@@ -102,33 +102,6 @@ void SetAllPathNodesToSetWaitTime(PATH *pPath,short pause)
 }
 
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: GetSpeedFromIndexedNode
-	Purpose			: returns the speed associated with the specified path node
-	Parameters		: PATH *,short
-	Returns			: float
-	Info			: 
-*/
-float GetSpeedFromIndexedNode(PATH *path,short index)
-{
-	return path->nodes[index].speed;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: GetWaitTimeFromIndexedNode
-	Purpose			: returns the wait time associated with the specified path node
-	Parameters		: PATH *,short
-	Returns			: short
-	Info			: 
-*/
-short GetWaitTimeFromIndexedNode(PATH *path,short index)
-{
-	return path->nodes[index].waitTime;
-}
-
-
 /*	--------------------------------------------------------------------------------
 	Function		: CalcDirectionVectorFromNodeToNode
 	Purpose			: calculates the direction vector from one node to another
