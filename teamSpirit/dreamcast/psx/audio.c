@@ -743,8 +743,6 @@ void PrepareSong(short worldID,int loop)
 	char	buffer[32];
 	float	newVolume;
 
-	return;
-
 	XAstop();
 
 	switch ( worldID )
