@@ -165,13 +165,12 @@ long StartVideoPlayback(int num)
 
 	BinkSoundUseDirectSound(lpDS);
 
-	sprintf(path, "%s" VIDEOPATH "%s", cdromDrive, fmv[num].name);
+	sprintf(path, "%s" VIDEOPATH "%s.bik", cdromDrive, fmv[num].name);
 
 	bink = BinkOpen(path, 0);
 	if (!bink)
 	{
 		utilPrintf("StartVideoPlayback(): Bink failed opening '%s'\n", path);
-		gameState.mode = INGAME_MODE;	// bail out
 		return 0;
 	}
 	else
