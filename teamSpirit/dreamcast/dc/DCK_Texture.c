@@ -41,6 +41,13 @@ MALLOC_LIST_TYPE	mallocList;
 void *(*MallocPtr)(unsigned long) = syMalloc;   // Default allocation is syMalloc().
 void (*FreePtr)(void *) = syFree;               // Default de-allocation is syFree().
 
+
+// *ASL* 13/08/2000 - Reset to BootROM on lid being opened by the user
+extern unsigned int globalAbortFlag;
+extern void resetToBootROM();
+
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	: FindTexture
 	Purpose 	: 
@@ -415,7 +422,12 @@ PKMDWORD LoadTextureFile(char *Filename)
     gdFsReqRd32(gdfs, FileBlocks, TexturePtr);
 
     // Wait for file access to finish.
-    while(gdFsGetStat(gdfs) != GDD_STAT_COMPLETE);
+    while(gdFsGetStat(gdfs) != GDD_STAT_COMPLETE)
+	{
+		// *ASL* 13/08/2000 - Reset to BootROM on lid being opened by the user
+		if (globalAbortFlag == 1)
+			resetToBootROM();
+	}
 
     // Close file.
     gdFsClose(gdfs);

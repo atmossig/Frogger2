@@ -19,6 +19,10 @@
 extern int byteToDecibelLUT[256];
 extern long globalSoundVol;
 
+// *ASL* 13/08/2000 - 
+extern unsigned int	globalAbortFlag;
+
+
 static StrDataType *vidStream;
 
 /*	Turn over flag(ON/OFF)	*/
@@ -243,8 +247,9 @@ int videoPlayStream(StrDataType *str, int palMode, int allowQuit)
 
 	ap->term_flag = 0;
 
-	//	Entry callback function of GD file system error
-	gdFsEntryErrFuncAll((void *)ApGdErrFunc, ap);
+//	*ASL* 13/08/2000 - Commented out as we already have set this up
+//	//	Entry callback function of GD file system error
+//	gdFsEntryErrFuncAll((void *)ApGdErrFunc, ap);
 
 	// ma - must change tis !
 //	ApInitMw(ap, KM_DSPMODE_NTSCNI640x480/*displayMode*/, KM_DSPBPP_RGB888/*frameBufferFormat*/, 1, 2, &vertexBufferDesc/*vertexBuffer*/);
@@ -259,7 +264,7 @@ int videoPlayStream(StrDataType *str, int palMode, int allowQuit)
 
 		ret = ApExec(ap, allowQuit);
 		UsrEndDraw();
-		if (ret == 1 || ap->term_flag == ON)
+		if (ret == 1 || ap->term_flag == ON || globalAbortFlag == 1)
 			break;
 		UsrWaitVBlank();
 	}

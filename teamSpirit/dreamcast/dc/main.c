@@ -140,6 +140,9 @@ unsigned int globalAbortFlag = 0;
 // ----------
 // Prototypes
 
+// vblank callback
+static void vblankCallback(void *arg);
+
 // gsFs error function callback
 static void gdFsErrorCallback(void *obj, Sint32 err);
 
@@ -244,24 +247,6 @@ void InitCam(void)
 */
 	SetCam(bbsrc,bbtar);
 }
-
-static void VblCallBack(void *arg)
-{
-//	MyStreamServer();
-
-	if(vsyncCounter > lastframe)
-	{
-		lastframe = vsyncCounter;
-		myVsyncCounter = 0;
-	}
-	else
-	{
-		myVsyncCounter++;
-	}
-	frame++;
-	vsyncCounter++;	
-}
-
 
 static void EORCallBack(void *arg)
 {
@@ -503,12 +488,6 @@ void main()
 
 	Kamui_Init();
 
-
-	// *ASL* 09/09/2000
-	globalAbortFlag = 0;				// clear our abort flag
-	// set our gdFs error callback
-	gdFsEntryErrFuncAll(gdFsErrorCallback, (void *)0);
-
     // initialise our CRC table
 	InitCRCTable();	
 
@@ -527,9 +506,6 @@ void main()
 		
 	// Setup the file system
 	a64FileInit();
-
-	// setup my vb interrupt
-	vblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK, VblCallBack, 0x60, NULL);
 
 //	kmSetCullingRegister(1.0f);
 	
@@ -586,6 +562,20 @@ void main()
 
 	syCfgExit();
 	syFree(pbuf);
+
+
+	// *ASL* 09/09/2000
+
+	// ** This flag needs to be cleared before either the vblank or the
+	// ** GD error callbacks are set
+
+	globalAbortFlag = 0;
+
+	// setup our vblank callback
+	vblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK, vblankCallback, 0x60, NULL);
+
+	// set our gdFs error callback
+	gdFsEntryErrFuncAll(gdFsErrorCallback, (void *)0);
 
 	// *ASL* 12/08/2000 - Init soft reset
 	initCheckForSoftReset();
@@ -931,6 +921,39 @@ void main()
 
 
 // *ASL* 10/08/2000
+
+/* ---------------------------------------------------------
+   Function : vblankCallback
+   Purpose : vblanking callback
+   Parameters : arguments pointer
+   Returns : 
+   Info : 
+*/
+
+static void vblankCallback(void *arg)
+{
+	Sint32	gdstat;
+
+	if (vsyncCounter > lastframe)
+	{
+		lastframe = vsyncCounter;
+		myVsyncCounter = 0;
+	}
+	else
+	{
+		myVsyncCounter++;
+	}
+	frame++;
+	vsyncCounter++;	
+
+	// check if the user opened the tray..
+	gdstat = gdFsGetDrvStat();
+	if (gdstat == GDD_DRVSTAT_OPEN || gdstat == GDD_DRVSTAT_BUSY)
+	{
+		gdFsReqDrvStat();
+	}
+}
+
 /* ---------------------------------------------------------
    Function : gdFsErrorCallback
    Purpose : gsFs error function callback
@@ -941,10 +964,14 @@ void main()
 
 static void gdFsErrorCallback(void *obj, Sint32 err)
 {
-	// was the tray opened?
-	if (err == GDD_ERR_TRAYOPEND || err == GDD_ERR_UNITATTENT)
+	// check if the user opened the tray..
+	if (globalAbortFlag == 0)
 	{
-		globalAbortFlag = 1;
+		// was the tray opened?
+		if (err == GDD_ERR_TRAYOPEND || err == GDD_ERR_UNITATTENT)
+		{
+			globalAbortFlag = 1;
+		}
 	}
 }
 
@@ -1025,4 +1052,23 @@ void showLegalFMV(int allowQuit)
 		}
 	}
 	FreeLegalBackdrop();
+}
+
+
+// *ASL* 13/08/2000
+/* ---------------------------------------------------------
+   Function : resetToBootROM
+   Purpose : reset to boot rom
+   Parameters :
+   Returns : 
+   Info : 
+*/
+
+void resetToBootROM()
+{
+	bpAmShutdown();
+	syChainDeleteHandler(vblChain);
+	sbExitSystem();
+	syBtExit();
+	for (;;);
 }

@@ -8,7 +8,34 @@ extern texurestring2[256];
 char	*genericStak = NULL;
 int		genericStakSize = 0;
 
-char* fileLoad(char *filename,int *bytesRead)
+
+// *ASL* 12/08/2000 - Allow quit added
+/* ---------------------------------------------------------
+   Function : StartVideoPlayback
+   Purpose : playback a video stream
+   Parameters : stream number, can the user quit the stream
+   Returns : 1 if user quit the stream, else 0
+   Info : 
+*/
+
+static char* fileLoad2(char *filename,int *bytesRead);
+extern unsigned int globalAbortFlag;
+extern void resetToBootROM();
+
+char *fileLoad(char *filename, int *bytesRead)
+{
+	char	*ret;
+
+	ret = fileLoad2(filename, bytesRead);
+	if (ret == NULL)
+	{
+		// *ASL* 13/08/2000 - Reset to BootROM on lid being opened by the user
+		if (globalAbortFlag == 1)
+			resetToBootROM();
+	}
+	return ret;
+}
+static char* fileLoad2(char *filename,int *bytesRead)
 {
     PKMDWORD    filePtr;
     GDFS        gdfs = NULL;
@@ -54,7 +81,6 @@ char* fileLoad(char *filename,int *bytesRead)
 //		memcpy(genericStak,filePtr)
 //	}
 	
-
     // Open input file.
     while((!gdfs) && (retry < 50))
     {
@@ -65,10 +91,16 @@ char* fileLoad(char *filename,int *bytesRead)
 	if(gdfs == NULL)
     	return NULL;
 
+	FileBlocks = 0;
+
     // Get file size (in blocks/sectors).
     if(bytesRead)
 		gdFsGetFileSize(gdfs, (Sint32 *)bytesRead);
     gdFsGetFileSctSize(gdfs, (Sint32 *)&FileBlocks);
+
+	// trap zero length
+	if (FileBlocks == 0)
+		return NULL;
 
     // Allocate memory to nearest block size (2048 bytes).    
 	if((strcmp(buffer,"Sqrtable.bin") == 0)||(strcmp(buffer,"acostab.bin") == 0))
@@ -84,6 +116,10 @@ char* fileLoad(char *filename,int *bytesRead)
     // Wait for file access to finish.
     while(gdFsGetStat(gdfs) != GDD_STAT_COMPLETE)
     {
+		// *ASL* 13/08/2000 - Reset to BootROM on lid being opened by the user
+		if (globalAbortFlag == 1)
+			resetToBootROM();
+
 	    status = gdFsGetStat(gdfs);
     	if(status == GDD_STAT_ERR)
     	{
@@ -130,4 +166,3 @@ char* fileLoad(char *filename,int *bytesRead)
 */
     return (char*)filePtr;
 }
-

@@ -16,6 +16,10 @@
 
 FVECTOR fmaActorScale;
 
+// *ASL* 13/08/2000 - Reset to BootROM on lid being opened by the user
+extern unsigned int globalAbortFlag;
+extern void resetToBootROM();
+
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	short i,j;
@@ -2444,6 +2448,11 @@ int StartVideoPlayback(int num, int allowQuit)
 
 	sprintf(vStream.strName, "%s.SFD", fmv[num].name);
 	ret = videoPlayStream(&vStream, (int)PALMODE, allowQuit);
+
+	// *ASL* 13/08/2000 - Reset to BootROM on lid being opened by the user
+	if (globalAbortFlag == 1)
+		resetToBootROM();
+
 	gdFsChangeDir("\\");
 
 	return ret;
