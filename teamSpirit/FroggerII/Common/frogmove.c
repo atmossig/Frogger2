@@ -203,7 +203,7 @@ BOOL UpdateFroggerControls(long pl)
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
 		else dir = MOVE_RIGHT;
 
-		PlaySample(genSfx[GEN_SUPER_HOP],&frog[pl]->actor->pos,0,255,64);
+		PlaySample(genSfx[GEN_SUPER_HOP],&frog[pl]->actor->pos,0,255,-1/*64*/);
 
 		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
@@ -483,10 +483,12 @@ void UpdateFroggerPos(long pl)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 15;
-			fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &effectPos, &currTile[pl]->normal, 20, 1, 0.1, 1.5 );
-			fx->r = 191;
-			fx->g = 255;
-			fx->b = 0;
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &effectPos, &currTile[pl]->normal, 20, 1, 0.1, 1.5 )) )
+			{
+				fx->r = 191;
+				fx->g = 255;
+				fx->b = 0;
+			}
 		}
 
 		GTUpdate( &player[pl].isCroaking, -1 );
@@ -1318,11 +1320,14 @@ BOOL KillFrog(long pl)
 				VECTOR up;
 				SPECFX *fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &frog[pl]->actor->pos, &currTile[pl]->normal, 8, 0.8, 0, 0.6 );
 
-				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-				SetVector( &up, &currTile[pl]->normal );
-				SetVector( &fx->rebound->normal, &up );
-				ScaleVector( &up, 30 );
-				AddVector( &fx->rebound->point, &frog[pl]->actor->pos, &up );
+				if( fx )
+				{
+					fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+					SetVector( &up, &currTile[pl]->normal );
+					SetVector( &fx->rebound->normal, &up );
+					ScaleVector( &up, 30 );
+					AddVector( &fx->rebound->point, &frog[pl]->actor->pos, &up );
+				}
 			}
 			break;
 

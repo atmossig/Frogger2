@@ -255,7 +255,7 @@ void GameProcessController(long pl)
 		{
 			GAMETILE *old;
 			int oldCamFacing;
-			PlaySample(genSfx[GEN_DOUBLE_HOP],&frog[pl]->actor->pos,0,200,60);
+			PlaySample(genSfx[GEN_DOUBLE_HOP],&frog[pl]->actor->pos,0,200,-1/*60*/);
 
 			// we have to keep track here of the previous tile so if it fails we don't
 			// just sit in mid-air...
@@ -332,7 +332,7 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
     {
 		// want to use tongue
-		PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,255,64);
+		PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,255,-1/*64*/);
 		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
 		player[pl].hasJumped = 1;
 
