@@ -430,77 +430,50 @@ void CalcSPCamera( VECTOR *target )
 
 void CameraSetOffset(void)
 {
-	VECTOR avgFrogPos;
-	VECTOR avgUpVec;
-
-	//float afx,afy,afz;
-	float afx2,afy2,afz2;
-	float afx3,afy3,afz3;
+	float afx=0,afy=0,afz=0;
 	long nC;
-	int i,l;
-	//afx = afy = afz = 0;
-	afx2 = afy2 = afz2 = 0;
-	l=0;
+	int i, l=0;
 
-	ZeroVector(&avgFrogPos);
-	ZeroVector(&avgUpVec);
-
-	// Average for multiplayer
-/*
-	for (i=0; i<NUM_FROGS; i++)
+	if( gameState.multi == SINGLEPLAYER )
 	{
-		if( player[i].healthPoints )
+		nC = (camFacing+1)&3;
+
+		afx = currTile[0]->normal.v[0]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
+		afy = currTile[0]->normal.v[1]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
+		afz = currTile[0]->normal.v[2]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+
+		camOffset.v[0] = afx + currTile[0]->dirVector[nC].v[0]*camSideOfs;
+		camOffset.v[1] = afy + currTile[0]->dirVector[nC].v[1]*camSideOfs;
+		camOffset.v[2] = afz + currTile[0]->dirVector[nC].v[2]*camSideOfs;
+	}
+	else
+	{
+		nC = (camFacing+1)&3;
+	
+		for( i=0; i<NUM_FROGS; i++ )
 		{
-			AddToVector(&avgFrogPos, &frog[i]->actor->pos);
-
-			if (fixedUp)
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
 			{
-				avgUpVec.v[1] +=afx2 += 0;
-				afy2 += 1*currCamDist.v[1];
-				afz2 += 0;
+				afx += currTile[i]->normal.v[0]*currCamDist.v[1] - currTile[i]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
+				afy += currTile[i]->normal.v[1]*currCamDist.v[1] - currTile[i]->dirVector[camFacing].v[1]*currCamDist.v[2];
+				afz += currTile[i]->normal.v[2]*currCamDist.v[1] - currTile[i]->dirVector[camFacing].v[2]*currCamDist.v[2];
+
+				afx += currTile[i]->dirVector[nC].v[0]*camSideOfs;
+				afy += currTile[i]->dirVector[nC].v[1]*camSideOfs;
+				afz += currTile[i]->dirVector[nC].v[2]*camSideOfs;
+
+				l++;
 			}
-			else
+		}
 
-			{
-
-			//AddToVector(avgUpVec, &currTile[i]->normal
-				afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
-				afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
-				afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
-			}
-
-			afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
-			afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
-			afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
-
-			l++;
+		if (l > 1)
+		{
+			float scale = 1.0f/l;
+			camOffset.v[0] = afx * scale;
+			camOffset.v[1] = afy * scale;
+			camOffset.v[2] = afz * scale;
 		}
 	}
-*/
-
-	SetVector(&avgFrogPos, &camTarget);
-
-	afx2 = currTile[0]->normal.v[0]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
-	afy2 = currTile[0]->normal.v[1]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
-	afz2 = currTile[0]->normal.v[2]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
-
-	nC = (camFacing+1)&3;
-
-	afx3 = currTile[0]->dirVector[nC].v[0]*camSideOfs;
-	afy3 = currTile[0]->dirVector[nC].v[1]*camSideOfs;
-	afz3 = currTile[0]->dirVector[nC].v[2]*camSideOfs;
-
-	if (l > 1)
-	{
-		float scale = 1.0f/l;
-		ScaleVector(&avgFrogPos, scale);
-	}
-
-	//SetVector(&camSource, &avgFrogPos);
-
-	camOffset.v[0] = afx2+afx3;
-	camOffset.v[1] = afy2+afy3;
-	camOffset.v[2] = afz2+afz3;
 }
 
 
@@ -514,7 +487,6 @@ void SlurpCamPosition( )
 {
 	float s1,s2,s3,s4;
 	VECTOR v, w;
-//	unsigned long afc = actFrameCount;
 
 	if (idleCamera)
 	{
@@ -530,32 +502,6 @@ void SlurpCamPosition( )
 		s3 = gameSpeed / (camSpeed3 * transCamSpeedMult);
 		s4 = gameSpeed / (camSpeed4 * transCamSpeedMult);
 	}
-
-//	if( !lastActFrameCount )
-//		lastActFrameCount = afc - 1;
-	
-//	while( lastActFrameCount < afc )
-//	{
-		/*if (!initialCamera)
-		{
-
-			if (idleCamera)
-			{
-				currCamDist.v[0] -= s4 * (currCamDist.v[0] - idleCamDist.v[0]);
-				currCamDist.v[1] -= s4 * (currCamDist.v[1] - idleCamDist.v[1]);
-				currCamDist.v[2] -= s4 * (currCamDist.v[2] - idleCamDist.v[2]);
-			}
-			else
-			{
-				currCamDist.v[0] -= s4 * (currCamDist.v[0] - camDist.v[0]*scaleV);
-				currCamDist.v[1] -= s4 * (currCamDist.v[1] - camDist.v[1]*scaleV);
-				currCamDist.v[2] -= s4 * (currCamDist.v[2] - camDist.v[2]*scaleV);
-			}
-		}
-		else
-		{*/
-
-	// Cam target
 
 	SubVector(&v, &camTarget, &currCamTarget);
 	ScaleVector(&v, s3);
@@ -634,8 +580,6 @@ void SlurpCamPosition( )
 			camVect.v[1] = 1;
 			camVect.v[2] = 0;
 		}
-		
-		
 	}
 
 	camLookOfs	-= s1 * (camLookOfs - camLookOfsNew);
@@ -748,19 +692,22 @@ void InitCamera(void)
 
 float FindMaxInterFrogDistance( )
 {
-	int i, max=0;
+	int i, j, max=0;
 	float dist, best=-100000;
 	VECTOR sep;
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		SubVector( &sep, &frog[i]->actor->pos, &frog[0]->actor->pos );
-		dist = Magnitude( &sep );
-
-		if( dist > best )
+		for( j=0; j<NUM_FROGS; j++ )
 		{
-			max = i;
-			best = dist;
+			SubVector( &sep, &frog[i]->actor->pos, &frog[j]->actor->pos );
+			dist = Magnitude( &sep );
+
+			if( dist > best )
+			{
+				max = i;
+				best = dist;
+			}
 		}
 	}
 

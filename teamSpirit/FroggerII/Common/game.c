@@ -341,12 +341,12 @@ void GameProcessController(long pl)
 		idleCamera = 0;
 	}
 
-	if((button[0] & CONT_E) && !(lastbutton[0] & CONT_E))
+	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))
     {
 		StartDrawing("start");
 	}
 
-	if((button[0] & CONT_D) && !(lastbutton[0] & CONT_D))
+	if((button[pl] & CONT_D) && !(lastbutton[pl] & CONT_D))
     {
 		// toggle between zoom in or out camera view
 //		ChangeCameraSetting();
@@ -355,7 +355,7 @@ void GameProcessController(long pl)
 
 	if( !fixedPos && !fixedDir )
 	{
-		if((button[0] & CONT_F) && !(lastbutton[0] & CONT_F))
+		if((button[pl] & CONT_F) && !(lastbutton[pl] & CONT_F))
 		{
 			camFacing--;
 			camFacing &= 3;
