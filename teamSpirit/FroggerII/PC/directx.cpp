@@ -89,6 +89,7 @@ char *controlDesc[] =
 	"Camera Down",
 	"Camera Up",
 	"Camera Right",
+	"Trigger",
 	"Left Shoulder",
 	"Right Shoulder"
 };
@@ -1423,6 +1424,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
     static LPGUID lpGUID;
     LPGUID        lpTemp;
 	static DWORD keyIndex = 0;
+	LV_ITEM itm;
 
     switch(msg)
 	{
@@ -1430,7 +1432,6 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 		{
 			RECT meR;
 			LV_COLUMN clm;
-			LV_ITEM itm;
 			
 			GetWindowRect(hDlg, &meR);
 			
@@ -1518,6 +1519,24 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 					EndDialog(hDlg,TRUE);
 					break;
 			}
+
+			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+
+			for( i=0; i<14; i++ )
+			{
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.iSubItem = 1;
+				itm.state = 0;
+				itm.stateMask = 0; 
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+				itm.pszText = DIKStrings[keymap[keyIndex+i].key];
+
+				SendMessage( list,LVM_SETITEM,0,(long)&itm );
+			}
+
 			return TRUE;
 	}
 
