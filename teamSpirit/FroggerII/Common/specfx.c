@@ -448,6 +448,12 @@ FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float l
 			swarm->yVelocity[i] = -6 + Random(12);
 			swarm->zVelocity[i] = -8 + Random(16);
 		}
+		else if( swarmType == SWARM_TYPE_CROWS )
+		{
+			swarm->xVelocity[i] = -8 + Random(16);
+			swarm->yVelocity[i] = -8 + Random(16);
+			swarm->zVelocity[i] = -8 + Random(16);
+		}
 		else
 		{
 			swarm->xVelocity[i] = -12 + Random(24);

@@ -131,7 +131,7 @@ int MemLoadEntities(const void* data, long size)
 				AssignPathToEnemy(enemy, flags, path, 0);
 				act = enemy->nmeActor;
 				if( enemy->flags & ENEMY_NEW_SWARM )
-					CreateAndAddFXSwarm( SWARM_TYPE_CROWS, &act->actor->pos, 64, 65535, 0 );
+					CreateAndAddFXSwarm( SWARM_TYPE_CROWS, &act->actor->pos, 32, 65535, 0 );
 
 				break;
 

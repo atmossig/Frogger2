@@ -839,7 +839,7 @@ void UpdateEnemies()
 		{
 			GAMETILE *chTile;
 			VECTOR nmeup, tVec, v2, v3;
-			float distance, best=-2;
+			float distance=10000, best=-2;
 			short bFlag = 0;
 			SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 			MakeUnit( &moveVec );
@@ -867,8 +867,11 @@ void UpdateEnemies()
 				ScaleVector( &moveVec, cur->speed );
 				AddVector( &tVec, &moveVec, &cur->nmeActor->actor->pos );
 				chTile = FindNearestTile( tVec );
-				SubVector( &moveVec, &chTile->centre, &tVec );
-				distance = abs(Magnitude( &moveVec ));
+				if( bFlag )
+				{
+					SubVector( &moveVec, &chTile->centre, &tVec );
+					distance = abs(Magnitude( &moveVec ));
+				}
 				if( distance < 35 || !bFlag )
 					cur->nmeActor->actor->pos = tVec;
 			}
