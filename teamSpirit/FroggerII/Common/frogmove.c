@@ -149,7 +149,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-//		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
+		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
 
 		MoveToRequestedDestination(dir,pl);
 	}
@@ -170,7 +170,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		MoveToRequestedDestination(dir,pl);
 
-//		PlayActorBasedSample(GEN_FROG_HOP, frog[pl]->actor,255,128);
+		PlayActorBasedSample(GEN_SUPER_HOP, frog[pl]->actor,255,128);
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink

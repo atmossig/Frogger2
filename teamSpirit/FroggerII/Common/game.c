@@ -204,7 +204,7 @@ void GameProcessController(long pl)
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 				player[pl].extendedHopDir = dir;
 
-				AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.5F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
 				AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 			}
 			// To enable endless double jumping

@@ -557,27 +557,170 @@ void CleanBufferSamples ( void )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: PrepareSongForLevel
+	Purpose			: loads and starts playback of song for specified level
+	Parameters		: short,short
+	Returns			: void
+	Info			: 
+*/
+void PrepareSongForLevel(short worldID,short levelID)
+{
+	int theToon = -1;
 
+	if(worldID == WORLDID_GARDEN)
+	{
+		switch(levelID)
+		{
+			case LEVELID_GARDEN1:
+				theToon = GARDEN_CDAUDIO;
+				break;
 
+			case LEVELID_GARDEN2:
+				theToon = GARDEN_CDAUDIO;
+				break;
 
+			case LEVELID_GARDEN3:
+				theToon = GARDEN_CDAUDIO;
+				break;
 
+			default:
+				theToon = GARDEN_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_ANCIENT)
+	{
+		switch(levelID)
+		{
+			case LEVELID_ANCIENT1:
+				theToon = ANCIENTS_CDAUDIO;
+				break;
 
+			case LEVELID_ANCIENT2:
+				theToon = ANCIENTS_CDAUDIO;
+				break;
 
+			case LEVELID_ANCIENT3:
+				theToon = ANCIENTS_CDAUDIO;
+				break;
 
+			default:
+				theToon = ANCIENTS_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_SPACE)
+	{
+		switch(levelID)
+		{
+			case LEVELID_SPACE1:
+				theToon = SPACE_CDAUDIO;
+				break;
 
+			case LEVELID_SPACE2:
+				theToon = SPACE_CDAUDIO;
+				break;
 
+			case LEVELID_SPACE3:
+				theToon = SPACE_CDAUDIO;
+				break;
 
+			default:
+				theToon = SPACE_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_CITY)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = CITY_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_SUBTERRANEAN)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = SUBTERRANEAN_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_LABORATORY)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = LABORATORY_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_TOYSHOP)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = TOYSHOP_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_HALLOWEEN)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = HALLOWEEN_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_SUPERRETRO)
+	{
+		switch(levelID)
+		{
+			case LEVELID_SUPERRETRO1:
+				theToon = SUPERRETRO_CDAUDIO;
+				break;
 
+			default:
+				theToon = SUPERRETRO_CDAUDIO;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_FRONTEND)
+	{
+		switch(levelID)
+		{
+			case LEVELID_FRONTEND1:
+				theToon = FRONTEND_CDAUDIO;
+				break;
 
+			case LEVELID_FRONTEND2:
+				theToon = LEVELSELECT_CDAUDIO;
+				break;
 
+			case LEVELID_FRONTEND3:
+				theToon = FRONTEND_CDAUDIO;
+				break;
 
+			case LEVELID_FRONTEND4:
+				theToon = FRONTEND_CDAUDIO;
+				break;
 
+			case LEVELID_FRONTEND5:
+				theToon = FRONTEND_CDAUDIO;
+				break;
 
+			default:
+				theToon = FRONTEND_CDAUDIO;
+				break;
+		}
+	}
 
-
-
-
-
+	PrepareSong(theToon,0);
+}
 
 
 /*	--------------------------------------------------------------------------------

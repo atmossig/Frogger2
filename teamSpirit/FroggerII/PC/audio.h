@@ -15,12 +15,15 @@
 //***********************************
 // Defines
 
+#define PLAY_INGAMEMUSIC
+
 #define FLAGS_NONE			0
 #define FLAGS_3D_SAMPLE		( 1 << 0 )
 
 
 enum
 {
+	NOTRACK = 0,
 	GARDEN_CDAUDIO,
 	ANCIENTS_CDAUDIO,
 	SPACE_CDAUDIO,
@@ -30,6 +33,8 @@ enum
 	TOYSHOP_CDAUDIO,
 	HALLOWEEN_CDAUDIO,
 	SUPERRETRO_CDAUDIO,
+	FRONTEND_CDAUDIO,
+	LEVELSELECT_CDAUDIO,
 
 	NUM_CD_TRACKS,
 };
@@ -151,6 +156,7 @@ extern void SetSampleFormat ( SAMPLE *sample );
 
 extern int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius);
 extern void PrepareSong(char num);
+extern void PrepareSongForLevel( short worldID, short levelID );
 
 extern DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack );
 
