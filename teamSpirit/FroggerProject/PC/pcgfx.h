@@ -19,8 +19,7 @@ extern "C"
 {
 #endif
 
-//void DrawRandomPolyList( );
-//void TransformAndDrawPolygon( POLYGON *p );
+#define ONEOVERFIXED 0.00024414
 
 void DrawSpecialFX();
 void DrawFXDecal( SPECFX *fx );

@@ -31,10 +31,10 @@
 float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 
 void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i );
-void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
+void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i );
 
 void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, MDX_TEXENTRY *tex );
-void DrawTongue( TONGUE *t );
+void DrawTongue( int pl );
 
 
 /*	--------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void DrawSpecialFX()
 
 	for( i=0; i<NUM_FROGS; i++ )
 		if( tongue[i].flags & TONGUE_BEINGUSED )
-			DrawTongue( &tongue[i] );
+			DrawTongue( i );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -699,13 +699,13 @@ void DrawFXLightning( SPECFX *fx )
 	SwapFrame(0);
 }
 
-void DrawTongue( TONGUE *t )
+void DrawTongue( int pl )
 {
-	unsigned long i=0, index = (t->progress*(MAX_TONGUENODES-1)>>12);
+	unsigned long i=0, index = (tongue[pl].progress*(MAX_TONGUENODES-1)>>12);
 	D3DTLVERTEX vT[4], vTPrev[2];
 	MDX_TEXENTRY *tEntry;
 
-	tEntry = ((MDX_TEXENTRY *)t->tex);
+	tEntry = ((MDX_TEXENTRY *)tongue[pl].tex);
 
 	if( !tEntry || index < 2 )
 		return;
@@ -729,10 +729,10 @@ void DrawTongue( TONGUE *t )
 		if( i && vTPrev[0].sz && vTPrev[1].sz )
 			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
 		else
-			CalcTongueNodes( vT, t, i );
+			CalcTongueNodes( vT, pl, i );
 
 		//********-[ Next 2 points ]-********
-		CalcTongueNodes( &vT[2], t, i+1 );
+		CalcTongueNodes( &vT[2], pl, i+1 );
 		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 ); 			// Store first 2 vertices of the next segment
 
 		//********-[ Draw the polys ]-********
@@ -747,8 +747,10 @@ void DrawTongue( TONGUE *t )
 }
 
 
-void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
+void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 {
+	TONGUE *t = &tongue[pl];
+	FVECTOR p1, p2;
 	MDX_QUATERNION q, cross;
 	float p;
 	MDX_VECTOR pos, m, normal, cam;
@@ -772,13 +774,22 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	// Precalculated rotation
 	PushMatrix( (MDX_MATRIX *)rMtrx );
 
-	vT[0].sx = -5+(i*0.4);
-	vT[0].sy = 0;
-	vT[0].sz = 0;
+	p1.vx = -20480+(i*1638);
+	p1.vy = 0;
+	p1.vz = 0;
+	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
+	vT[0].sx = p2.vx*ONEOVERFIXED;
+	vT[0].sy = p2.vy*ONEOVERFIXED;
+	vT[0].sz = p2.vz*ONEOVERFIXED;
 	vT[0].color = D3DRGBA(1,0,0,1);
-	vT[1].sx = 5-(i*0.4);
-	vT[1].sy = 0;
-	vT[1].sz = 0;
+
+	p1.vx = 20480-(i*1638);
+	p1.vy = 0;
+	p1.vz = 0;
+	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
+	vT[1].sx = p2.vx*ONEOVERFIXED;
+	vT[1].sy = p2.vy*ONEOVERFIXED;
+	vT[1].sz = p2.vz*ONEOVERFIXED;
 	vT[1].color = vT[0].color;
 
 	// Transform point by combined matrix
@@ -798,107 +809,6 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
 }
-
-/*
-void DrawRandomPolyList( )
-{
-	POLYGON *p;
-
-	for( p=rpList; p; p=p->next )
-		TransformAndDrawPolygon( p );
-}
-
-void TransformAndDrawPolygon( POLYGON *p )
-{
-	MDX_VECTOR tempVect, m, fwd;
-	D3DTLVERTEX vT[5];
-	MDX_QUATERNION cross, q1, q2, q3, up;
-	long i, zeroZ=0;
-	MDX_TEXENTRY *tex;
-	float t;
-
-	vT[0].sx = p->vT[0].vx;
-	vT[0].sy = p->vT[0].vy;
-	vT[0].sz = p->vT[0].vz;
-	vT[0].tu = p->u;
-	vT[0].tv = p->v;
-	vT[0].color = D3DRGBA(p->r/255.0,p->g/255.0,p->b/255.0,p->a/255.0);
-	vT[0].specular = D3DRGB(0,0,0);
-
-	vT[1].sx = p->vT[1].vx;
-	vT[1].sy = p->vT[1].vy;
-	vT[1].sz = p->vT[1].vz;
-	vT[1].tu = p->u;
-	vT[1].tv = p->v1;
-	vT[1].color = vT[0].color;
-	vT[1].specular = vT[0].specular;
-
-	vT[2].sx = p->vT[2].vx;
-	vT[2].sy = p->vT[2].vy;
-	vT[2].sz = p->vT[2].vz;
-	vT[2].tu = p->u1;
-	vT[2].tv = p->v1;
-	vT[2].color = vT[0].color;
-	vT[2].specular = vT[0].specular;
-	
-	vT[3].sx = p->vT[3].vx;
-	vT[3].sy = p->vT[3].vy;
-	vT[3].sz = p->vT[3].vz;
-	vT[3].tu = p->u1;
-	vT[3].tv = p->v;
-	vT[3].color = vT[0].color;
-	vT[3].specular = vT[0].specular;
-
-	// Translate to current fx pos and push
-	guTranslateF( tMtrx, p->plane.point.vx, p->plane.point.vy, p->plane.point.vz );
-	PushMatrix( tMtrx );
-
-	// Rotate around axis
-	SetVector( (MDX_VECTOR *)&q1, &p->plane.normal );
-	q1.w = p->angle;
-	GetQuaternionFromRotation( &q2, &q1 );
-
-	// Rotate to be around normal
-	CrossProduct( (MDX_VECTOR *)&cross, &p->plane.normal, &upV );
-	Normalise( (MDX_VECTOR *)&cross );
-	t = DotProduct( &p->plane.normal, &upV );
-	cross.w = -acos(t);
-	GetQuaternionFromRotation( &q3, &cross );
-
-	// Combine the rotations and push
-	QuaternionMultiply( &q1, &q2, &q3 );
-	QuaternionToMatrix( &q1,(MDX_MATRIX *)rMtrx);
-	PushMatrix( rMtrx );
-
-	// Transform point by combined matrix
-	MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
-
-	for( i=0; i<4; i++ )
-	{
-		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
-		XfmPoint( &m, &tempVect, NULL );
-
-		// Assign back to vT array
-		vT[i].sx = m.vx;
-		vT[i].sy = m.vy;
-		if( !m.vz ) zeroZ++;
-		else vT[i].sz = (m.vz+DIST)*0.00025;
-	}
-
-	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
-
-	tex = (MDX_TEXENTRY *)p->tex;
-
-	if( tex && !zeroZ )
-	{
-		Clip3DPolygon( vT, tex );
-		Clip3DPolygon( &vT[2], tex );
-	}
-
-	PopMatrix( ); // Rotation
-	PopMatrix( ); // Translation
-}
-*/
 
 /*	THIS IS A MORE OPTIMAL VERSION OF DRAWTONGUE THAT RELIES ON QUAD DRAWING. SO IT WONT WORK YET :)
 void DrawTongue( TONGUE *t )
