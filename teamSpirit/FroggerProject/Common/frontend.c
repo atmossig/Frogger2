@@ -1191,7 +1191,9 @@ void StartLevelComplete()
 
 	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted == 0)
 		levelOpened = 1;
-	worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
+
+	if((gameState.difficulty != DIFFICULTY_HARD) || (arcadeHud.timeOutText->draw == 0))
+		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
 
 	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS - 1) && ((gameState.difficulty != DIFFICULTY_HARD) || (arcadeHud.timeOutText->draw == 0)))
 	{

@@ -967,8 +967,8 @@ void RunFrontendGameLoop (void)
 #ifdef PSX_VERSION
 #if GOLDCD==0
 	#ifndef FINAL_MASTER
-			if(cheatCombos[CHEAT_OPEN_ALL_LEVELS].state == 0)
-				ComboCheat(CHEAT_OPEN_ALL_LEVELS);
+//			if(cheatCombos[CHEAT_OPEN_ALL_LEVELS].state == 0)
+//				ComboCheat(CHEAT_OPEN_ALL_LEVELS);
 	#endif	
 #endif
 #else

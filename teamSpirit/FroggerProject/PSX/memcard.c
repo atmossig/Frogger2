@@ -63,7 +63,7 @@ enum {
 int waitCheck;
 int delayTimer;
 int cardChanged = NO;
-#define DELAY_TIME 200
+#define DELAY_TIME 180
 
 /* SAVE PAGE ***********************************************************************************************************/
 
@@ -71,9 +71,9 @@ int cardChanged = NO;
 static void saveMenuSave()
 {
 	if(gameState.mode == LEVELCOMPLETE_MODE)
-		SimpleMessage(GAMESTRING(STR_MCARD_AUTOSAVING), MIN(255,optFrame*60));
+		SimpleMessage(GAMESTRING(STR_MCARD_AUTOSAVING), MIN(128,optFrame*43));
 	else
-		SimpleMessage(GAMESTRING(STR_MCARD_SAVING), MIN(255,optFrame*60));
+		SimpleMessage(GAMESTRING(STR_MCARD_SAVING), MIN(128,optFrame*43));
 	if (optFrame++>4)
 	{
 		if (gameSaveHandleSave() != CARDWRITE_OK)
@@ -555,7 +555,7 @@ static void saveMenuNoCard()
 
 static void saveMenuLoad()
 {
-	SimpleMessage(GAMESTRING(STR_MCARD_LOADING), MIN(255,optFrame*60));
+	SimpleMessage(GAMESTRING(STR_MCARD_LOADING), MIN(128,optFrame*43));
 	if (optFrame++>4)
 	{
 		if (gameSaveHandleLoad(NO) != CARDREAD_OK)
@@ -574,7 +574,7 @@ static void saveMenuCheck()
 {
 	int res;
 
-	SimpleMessage(GAMESTRING(STR_MCARD_CHECK), MIN(255,optFrame*60));
+	SimpleMessage(GAMESTRING(STR_MCARD_CHECK), MIN(128,optFrame*43));
 	if (optFrame++>4)
 	{
 		switch(gameSaveHandleLoad(YES))
@@ -634,8 +634,12 @@ static void saveMenuComplete()
 
 static void saveMenuLoadComplete()
 {
-	if (/*(delayTimer++ > DELAY_TIME) || */(ChooseOption(GAMESTRING(STR_MCARD_LOADCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	SimpleMessage(GAMESTRING(STR_MCARD_LOADCOMPLETE), MIN(128,optFrame++*43));
+	if(delayTimer++ > DELAY_TIME)
 		saveInfo.saveFrame = 0;
+
+//	if (/*(delayTimer++ > DELAY_TIME) || */(ChooseOption(GAMESTRING(STR_MCARD_LOADCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+//		saveInfo.saveFrame = 0;
 }
 
 static void saveMenuFormatComplete()
@@ -671,7 +675,7 @@ static void saveMenuFail()
 		saveInfo.saveStage = SAVEMENU_CHECK;
 		StartChooseOption();
 	}
-	switch(gameSaveGetCardStatus())
+/*	switch(gameSaveGetCardStatus())
 	{
    	case McErrCardNotExist:
    	case McErrCardInvalid:
@@ -679,6 +683,7 @@ static void saveMenuFail()
 		StartChooseOption();
 		break;
 	}
+*/
 }
 
 static void saveMenuOverwrite()
@@ -773,7 +778,7 @@ static void saveMenuSaveYN()
 
 static void saveMenuFormat()
 {
-	SimpleMessage(GAMESTRING(STR_MCARD_FORMATTING), MIN(255,optFrame*60));
+	SimpleMessage(GAMESTRING(STR_MCARD_FORMATTING), MIN(128,optFrame*43));
 	if (optFrame++>4)
 	{
 		if (cardFormat())
