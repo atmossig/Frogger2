@@ -18,7 +18,7 @@
 #include "math.h"
 
 char inF[255],outF[255];
-char pc = 1;
+char pc = 0;
 
 enum
 {
@@ -49,7 +49,7 @@ unsigned long powers[100];
 
 #define CFILE_HEADER "/*\n\n    This file was generated automatically by the World Converter.\n\n---------------------------------------------------------------------*/\n\n"
 #define CFILEPC_INCLUDES "#include <ultra64.h>\n#include \"incs.h\"\n"
-#define CFILE_INCLUDES "#include \"oddballs.h\"\n#include \"define.h\"\n"
+#define CFILE_INCLUDES "#include <ultra64.h>\n#include \"incs.h\"\n#include \"define.h\"\n"
 #define CFILE_BREAK "\n// ------------------------------------------------------------------\n\n"
 #define CFILE_EXTERNDEF "extern GAMETILE "
 
@@ -808,25 +808,37 @@ void WriteTiles (FILE *fp)
 {
 	unsigned int j = 0;
 
-	
+	fprintf (fp, "\n\nGAMETILE tiles[%u] = {\n", nSquare);
 
-	for (int i=0; i<nSquare; i++)
+	for (unsigned int i=0; i<nSquare; i++)
 	{
 		if (squareList[i].parent[0]==0)
 		{
-			fprintf (fp,"\nGAMETILE gT_%03i = \n",i);
-			fprintf (fp,"{\n",i);
-			fprintf (fp,"	{%s%03i,%s%03i,%s%03i,%s%03i},\n",
-				(squareList[i].adj[0]==-1)?"":"&gT_",
+			//fprintf (fp,"\nGAMETILE gT_%03i = \n",i);
+			fprintf (fp,"  {\t// %u\n", i);
+/*			fprintf (fp,"	{%s%03i,%s%03i,%s%03i,%s%03i},\n",
+				(squareList[i].adj[0]==-1)?"":"tiles+",
 				(squareList[i].adj[0]==-1)?0:squareList[i].adj[0],
-				(squareList[i].adj[1]==-1)?"":"&gT_",
+				(squareList[i].adj[1]==-1)?"":"tiles+",
 				(squareList[i].adj[1]==-1)?0:squareList[i].adj[1],
-				(squareList[i].adj[2]==-1)?"":"&gT_",
+				(squareList[i].adj[2]==-1)?"":"tiles+",
 				(squareList[i].adj[2]==-1)?0:squareList[i].adj[2],
-				(squareList[i].adj[3]==-1)?"":"&gT_",
+				(squareList[i].adj[3]==-1)?"":"tiles+",
 				(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
-			
-			fprintf (fp,"	%s%03i,\n",(i==(nSquare-1))?"":"&gT_",(i==(nSquare-1))?0:i+1);
+*/			
+
+			fprintf(fp, "	{ %s%d, %s%d, %s%d, %s%d },\n",
+				(squareList[i].adj[0]==-1)?"":"tiles+",
+				(squareList[i].adj[0]==-1)?0:squareList[i].adj[0],
+				(squareList[i].adj[1]==-1)?"":"tiles+",
+				(squareList[i].adj[1]==-1)?0:squareList[i].adj[1],
+				(squareList[i].adj[2]==-1)?"":"tiles+",
+				(squareList[i].adj[2]==-1)?0:squareList[i].adj[2],
+				(squareList[i].adj[3]==-1)?"":"tiles+",
+				(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
+
+//			fprintf (fp,"	%s%03i,\n",(i==(nSquare-1))?"":"tiles+",(i==(nSquare-1))?0:i+1);
+			fprintf (fp,"	tiles + %i,\n",(i==(nSquare-1))?0:i+1);
 			fprintf (fp,"	0,\n");
 			fprintf (fp,"	%lu,\n",squareList[i].status);
 			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].p[0],squareList[i].p[2],squareList[i].p[1]);
@@ -849,9 +861,11 @@ void WriteTiles (FILE *fp)
 				squareList[i].n[0].y
 				);
 			
-			fprintf (fp,"};\n",i);
+			fprintf (fp,"  },\n",i);
 		}
 	}
+
+	fprintf(fp, "} // END OF ARRAY\n;");
 
 /*	for (i=0; i<nSquare; i++)
 	{
@@ -899,15 +913,16 @@ void WriteTiles (FILE *fp)
 
 void WriteExterns(FILE *fp)
 {
-	for (int i=0; i<nSquare; i++)
+/*	for (unsigned int i=0; i<nSquare; i++)
 	{
 		if (squareList[i].parent[0]==0)
 			fprintf(fp,"%sgT_%03i;\n",CFILE_EXTERNDEF,i);
 		//else
 		//	fprintf(fp,"%spT_%03i;\n",CFILE_EXTERNDEF,i);	
 	}
+*/
 
-
+	fprintf(fp, CFILE_EXTERNDEF " tiles[%u];\n", nSquare);
 }
 
 void WriteHeaders (FILE *fp)
@@ -921,17 +936,17 @@ void WriteHeaders (FILE *fp)
 	unsigned long i;
 
 	fprintf (fp,"\nGAMETILE *t_gTStart[4] = {%s%03i,%s%03i,%s%03i,%s%03i};\n",
-		(frogs[0]==-1)?"":"&gT_",
+		(frogs[0]==-1)?"":"tiles+",
 		(frogs[0]==-1)?0:frogs[0],
 
-		(frogs[1]==-1)?"":"&gT_",
+		(frogs[1]==-1)?"":"tiles+",
 		(frogs[1]==-1)?0:frogs[0],
 
-		(frogs[2]==-1)?"":"&gT_",
+		(frogs[2]==-1)?"":"tiles+",
 		(frogs[2]==-1)?0:frogs[0],
 
 
-		(frogs[3]==-1)?"":"&gT_",
+		(frogs[3]==-1)?"":"tiles+",
 		(frogs[3]==-1)?0:frogs[0]
 		);
 
@@ -944,7 +959,7 @@ void WriteHeaders (FILE *fp)
 			fprintf(fp,"GAMETILE *t_bTStart[%i] = {",numBabys);		
 
 			for (i=0; i<numBabys; i++)
-				fprintf(fp,"&gT_%03i,",babys[i]);
+				fprintf(fp,"tiles+%i,",babys[i]);
 			fprintf(fp,"};\n");
 		}
 		else
@@ -955,7 +970,7 @@ void WriteHeaders (FILE *fp)
 		fprintf(fp,"GAMETILE *t_bTStart[%i] = {",numBabys);	
 
 		for (i=0; i<numBabys; i++)
-			fprintf(fp,"&gT_%03i,",babys[i]);
+			fprintf(fp,"tiles+%03i,",babys[i]);
 		fprintf(fp,"};\n");
 	}
 
@@ -966,7 +981,7 @@ void WriteHeaders (FILE *fp)
 		{
 			fprintf(fp,"GAMETILE *t_bTSafe[%i] = {",numSafes);
 			for (i=0; i<numSafes; i++)
-				fprintf(fp,"&gT_%03i,",safes[i]);
+				fprintf(fp,"tiles+%03i,",safes[i]);
 			fprintf(fp,"};\n");
 		}
 		else
@@ -976,7 +991,7 @@ void WriteHeaders (FILE *fp)
 	{
 		fprintf(fp,"GAMETILE *t_bTSafe[%i] = {",numSafes);
 		for (i=0; i<numSafes; i++)
-			fprintf(fp,"&gT_%03i,",safes[i]);
+			fprintf(fp,"tiles+%03i,",safes[i]);
 		fprintf(fp,"};\n");
 	}
 
@@ -987,7 +1002,7 @@ void WriteHeaders (FILE *fp)
 		{
 			fprintf(fp,"GAMETILE *t_gTpow[%i] = {",numPowers);
 			for (i=0; i<numPowers; i++)
-				fprintf(fp,"&gT_%03i,",powers[i]);
+				fprintf(fp,"tiles+%03i,",powers[i]);
 			fprintf(fp,"};\n");		
 		}
 		else
@@ -997,7 +1012,7 @@ void WriteHeaders (FILE *fp)
 	{
 		fprintf(fp,"GAMETILE *t_gTpow[%i] = {",numPowers);
 		for (i=0; i<numPowers; i++)
-			fprintf(fp,"&gT_%03i,",powers[i]);
+			fprintf(fp,"tiles+%03i,",powers[i]);
 		fprintf(fp,"};\n");		
 	}
 	
@@ -1075,7 +1090,7 @@ void WriteData(void)
 		}\n\
 		extern \"C\" DllExport long GetFirst()\n\
 		{\n\
-			return (long)&gT_000;\n\
+			return (long)tiles;\n\
 		}\n\n");
 		
 
@@ -1095,11 +1110,21 @@ void WriteData(void)
 
 int main (int argc, char *argv[])
 {
-	printf("World Converter - V1.0 Matthew Cloy - Interactive Studios Ltd \n\n");
-	if (argc != 3)
+	printf("World Converter - V1.01 Matthew Cloy - Interactive Studios Ltd \n\n");
+	if (argc < 3)
 	{		
 		printf("Parameters: [Infile] [OutFile]\n");
 		exit (1);
+	}
+	else if (argc > 3)
+	{
+		if (!_strnicmp("/PC", argv[3], 3))
+			pc = 1;
+		else
+		{
+			printf("Unrecognised parameter\n");
+			exit(1);
+		}
 	}
 	strcpy (inF,argv[1]);
 	strcpy (outF,argv[2]);
@@ -1110,5 +1135,6 @@ int main (int argc, char *argv[])
 	CalculateAdj();
 	printf("\n");
 	WriteData();
-	return 1;
+
+	return 0;
 }
