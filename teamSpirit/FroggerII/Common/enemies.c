@@ -1954,6 +1954,7 @@ void SetEnemyMoving(ENEMY *nme, int moving)
 */
 int MoveEnemyToNode(ENEMY *nme, int node)
 {
+	VECTOR dest;
 	// Gratuitous hack to make move-on-move enemies work
 	if( nme->flags & ENEMY_NEW_MOVEONMOVE )
 	{
@@ -1962,6 +1963,7 @@ int MoveEnemyToNode(ENEMY *nme, int node)
 		if( ph )
 		{
 			nme->path->nodes[0].worldTile = ph->path->nodes[0].worldTile;
+			GetPositionForPathNode( &nme->nmeActor->actor->pos, &nme->path->nodes[0] );
 			nme->isSnapping = 0;
 		}
 		else
@@ -1971,6 +1973,7 @@ int MoveEnemyToNode(ENEMY *nme, int node)
 	{
 		nme->path->toNode  = node;
 		nme->inTile = nme->path->nodes[node].worldTile;
+		GetPositionForPathNode( &nme->nmeActor->actor->pos, &nme->path->nodes[node] );
 		nme->path->endFrame = actFrameCount;
 		nme->Update(nme);
 	}
