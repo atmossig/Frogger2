@@ -31,7 +31,7 @@
 #include "mavis.h"
 #endif
 
-#define MAX_UNIQUE_ACTORS	50
+#define MAX_UNIQUE_ACTORS	500
 void XformActor(ACTOR *ptr);
 
 unsigned long ACTOR_DRAWDISTANCEINNER = 300000;
@@ -57,7 +57,7 @@ ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
 //char uniqueEnemyCount[20];
 
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
-char numUniqueActors = 0;
+int numUniqueActors = 0;
 extern ACTOR2 *hat[MAX_FROGS];
 float ACTOR_DRAWFADERANGE;
 

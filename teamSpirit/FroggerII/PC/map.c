@@ -356,6 +356,8 @@ BOOL LoadCollision(int num)
 
 		if (GetCameras)
 			cameraBoxes = *(CAM_BOX_LIST*)GetCameras();
+		else
+			cameraBoxes.numBoxes = 0;
 	}
 	else
 	{

@@ -69,7 +69,7 @@ extern ACTOR2 *globalLevelActor;
 extern char dprintbuf[255];
 
 extern int uniqueActorCRC[];
-extern char numUniqueActors;
+extern int numUniqueActors;
 
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags);
 void SwapActorObject(ACTOR2 *act, const char* name);

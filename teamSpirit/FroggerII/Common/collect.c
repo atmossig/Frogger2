@@ -286,8 +286,11 @@ void AddGarib(GARIB *garib)
 */
 void SubGarib(GARIB *garib)
 {
-	if(garib->next == NULL)
+	if(garib->next == NULL || garibCollectableList.numEntries<0)
+	{
+		dprintf"GARIB ERROR: invalid SubGarib()\n"));
 		return;
+	}
 
 	if( garib->type != EXTRAHEALTH_GARIB && garib->sprite )
 		DeallocateSprites( garib->sprite, 1 );
@@ -311,6 +314,12 @@ void SubGarib(GARIB *garib)
 void FreeGaribLinkedList()
 {
 	GARIB *cur,*next;
+
+	if (garibCollectableList.numEntries < 0)
+	{
+		dprintf"GARIB ERROR: numentries < 0!\n"));
+		return;
+	}
 
 	if(garibCollectableList.numEntries == 0)
 		return;
