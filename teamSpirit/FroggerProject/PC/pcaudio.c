@@ -40,6 +40,7 @@
 int AMBIENT_VOLUME = 255;
 int SAMPLE_VOLUME = 255;
 
+SAMPLE voices[4];
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 SAMPLE **sfx_anim_map = NULL;
 
@@ -59,7 +60,7 @@ AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,SVECTOR *pos,long radius,short vol
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 int UpdateLoopingSample( AMBIENT_SOUND *sample );
 
-SAMPLE *CreateAndAddSample( char *path, char *file );
+SAMPLE *CreateSample( char *path, char *file );
 
 void SetSampleFormat ( SAMPLE *sample );
 void CleanBufferSamples( void );
@@ -109,7 +110,7 @@ void LoadSfxSet( char *path )
 
 	do
 	{
-		CreateAndAddSample( path, fData.cFileName );
+		AddSample( CreateSample( path, fData.cFileName ) );
 		numSfx++;
 	}
 	while( (ret = FindNextFile( h, &fData )) );
@@ -138,32 +139,20 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_SUPER_HOP] = FindSample(UpdateCRC("hop2"));
 	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("doublehop"));
 	genSfx[GEN_COLLECT_BABY] = FindSample(UpdateCRC("getbabyfrog"));
-	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("tongue"));
 	genSfx[GEN_COLLECT_COIN] = FindSample(UpdateCRC("pickupcoin"));
-	genSfx[GEN_CROAK] = FindSample(UpdateCRC("frogcroak"));
 	genSfx[GEN_BABYHAPPY] = FindSample(UpdateCRC("babyhappy"));
 	genSfx[GEN_BABYSAD] = FindSample(UpdateCRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(UpdateCRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(UpdateCRC("babyreply"));
-	genSfx[GEN_FROGBELCH1] = FindSample(UpdateCRC("frogbelch2"));
-	genSfx[GEN_FROGBELCH2] = FindSample(UpdateCRC("frogbelch2"));
-	genSfx[GEN_FROGANNOYED] = FindSample(UpdateCRC("frogannoyed"));
-	genSfx[GEN_FROGSLIDE] = FindSample(UpdateCRC("frogslide2"));
-	genSfx[GEN_FROGHAPPY] = FindSample(UpdateCRC("frogokay"));
-	genSfx[GEN_FROGSCARED] = FindSample(UpdateCRC("froguhoh"));
-	genSfx[GEN_FROGBORED] = FindSample(UpdateCRC("frogbored"));
-	genSfx[GEN_FROGLETSGO] = FindSample(UpdateCRC("frogletsgo"));
 
-	genSfx[GEN_DEATHNORMAL] = FindSample(UpdateCRC("frogdeath"));
-	genSfx[GEN_DEATHDROWN1] = FindSample(UpdateCRC("frogdrown1"));
-	genSfx[GEN_DEATHDROWN2] = FindSample(UpdateCRC("frogdrown2"));
+	genSfx[GEN_DEATHDROWN] = FindSample(UpdateCRC("frogdrown1"));
 	genSfx[GEN_DEATHCRUSH] = FindSample(UpdateCRC("frogcrush"));
 	genSfx[GEN_DEATHEXPLODE] = FindSample(UpdateCRC("frogexplode"));
 	genSfx[GEN_DEATHFALL] = FindSample(UpdateCRC("frogfall"));
 	genSfx[GEN_DEATHGIB] = FindSample(UpdateCRC("frogmowed"));
 	genSfx[GEN_DEATHCHOP] = FindSample(UpdateCRC("frogchop"));
 
-	path[len] = '\0';
+	InitVoices( path, len );
 
 	switch( worldID )
 	{
@@ -174,7 +163,6 @@ void LoadSfx( unsigned long worldID )
 	case WORLDID_SUBTERRANEAN: strcat( path, "sub\\" ); break;
 	case WORLDID_LABORATORY: strcat( path, "lab\\" ); break;
 	case WORLDID_HALLOWEEN: strcat( path, "halloween\\" ); break;
-//	case WORLDID_SWAMPYWORLD: strcat( path, "swampyworld\\" ); break;
 	case WORLDID_SUPERRETRO: strcat( path, "superretro\\" ); break;
 	case WORLDID_FRONTEND: strcat( path, "frontend\\" ); break;
 	default: load = 0; break;
@@ -192,7 +180,7 @@ void LoadSfx( unsigned long worldID )
 	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateAndAddSample( char *path, char *file )
+SAMPLE *CreateSample( char *path, char *file )
 {
 	SAMPLE *sfx;
 	int i=0;
@@ -250,7 +238,7 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 	}
 
 	SetSampleFormat( sfx );
-	AddSample( sfx );
+//	AddSample( sfx );
 
 	FREE( fileName );
 
@@ -438,6 +426,54 @@ int UpdateLoopingSample( AMBIENT_SOUND *sample )
 	sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
 
 	return TRUE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitVoices
+	Purpose			: Load and store voice sets for all frogs
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitVoices( char *path, int len )
+{
+	HANDLE h;
+	WIN32_FIND_DATA fData;
+	SAMPLE *voice;
+	char filepath[128];
+	int i;
+
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		path[len] = '\0';
+
+		strcat( path, frogPool[player[i].character].name );
+		strcat( path, "\\" );
+
+		// Load files from a directory
+		strcpy( filepath, path );
+		strcat( filepath, "*.wav" );
+		h = FindFirstFile( filepath, &fData );
+		if( h == INVALID_HANDLE_VALUE ) continue;
+
+		do
+		{
+			if( (voice = CreateSample( path, fData.cFileName )) )
+			{
+				// Add to special voice list
+				voice->next = voices[i].next;
+				voice->prev = &voices[i];
+				voice->prev->next = voice;
+				voice->next->prev = voice;
+			}
+		}
+		while( FindNextFile( h, &fData ) );
+
+		FindClose( h );
+	}
+
+	path[len] = '\0';
 }
 
 
@@ -961,19 +997,25 @@ void SetCDVolume(int vol)
 */
 SAMPLE *FindSample( unsigned long uid )
 {
-	SAMPLE *next, *cur;
+	SAMPLE *cur;
 
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
-	{
-		next = cur->next;
-		
+	for( cur = soundList.head.next; cur != &soundList.head; cur = cur->next )
 		if( cur->uid == uid )
 			return cur;
-	}
 
 	return NULL;
 }
 
+SAMPLE *FindVoice( unsigned long uid, int pl )
+{
+	SAMPLE *cur;
+
+	for( cur = voices[pl].next; cur != &voices[pl]; cur = cur->next )
+		if( cur->uid == uid )
+			return cur;
+
+	return NULL;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: DULL LIST FUNCTIONS
@@ -987,6 +1029,11 @@ void InitSampleList( )
 	//Init the sample list for the real samples.
 	soundList.numEntries	= 0;
 	soundList.head.next		= soundList.head.prev = &soundList.head;
+
+	voices[0].next = voices[0].prev = &voices[0];
+	voices[1].next = voices[1].prev = &voices[1];
+	voices[2].next = voices[2].prev = &voices[2];
+	voices[3].next = voices[3].prev = &voices[3];
 
 	// Init the buffer list for samples that are playing
 	bufferList.numEntries	= 0;
@@ -1008,7 +1055,7 @@ void InitAmbientSoundList()
 
 void AddSample( SAMPLE *sample )
 {
-	if( !sample->next )
+	if( sample && !sample->next )
 	{
 		soundList.numEntries++;
 		sample->prev				= &soundList.head;
@@ -1021,7 +1068,7 @@ void AddSample( SAMPLE *sample )
 
 void AddBufSample( BUFSAMPLE *bufSample )
 {
-	if( !bufSample->next )
+	if( bufSample && !bufSample->next )
 	{
 		bufferList.numEntries++;
 		bufSample->prev				= &bufferList.head;
@@ -1040,7 +1087,6 @@ void RemoveSample( SAMPLE *sample )
 	sample->prev->next	= sample->next;
 	sample->next->prev	= sample->prev;
 	sample->next		= NULL;
-	soundList.numEntries--;
 
 	if( sample->lpds3DBuffer )
 		sample->lpds3DBuffer->lpVtbl->Release(sample->lpds3DBuffer);
@@ -1094,7 +1140,15 @@ void FreeSampleList( void )
 	{
 		StopSample( soundList.head.next );
 		RemoveSample( soundList.head.next );
+		soundList.numEntries--;
 	}
+
+	for( i=0; i<NUM_FROGS; i++ )
+		while( voices[i].next && voices[i].next != &voices[i] )
+		{
+			StopSample( voices[i].next );
+			RemoveSample( voices[i].next );
+		}
 
 	for( i=0; i<NUM_GENERIC_SFX; i++ )
 		genSfx[i] = NULL;

@@ -60,32 +60,39 @@ enum
 	GEN_SUPER_HOP,
 	GEN_DOUBLE_HOP,
 	GEN_COLLECT_BABY,
-	GEN_FROG_TONGUE,
 	GEN_COLLECT_COIN,
-	GEN_CROAK,
 	GEN_BABYHAPPY,
 	GEN_BABYSAD,
 	GEN_BABYCRY,
 	GEN_BABYREPLY,
-	GEN_FROGBELCH1,
-	GEN_FROGBELCH2,
-	GEN_FROGANNOYED,
-	GEN_FROGSLIDE,
-	GEN_FROGHAPPY,
-	GEN_FROGSCARED,
-	GEN_FROGBORED,
-	GEN_FROGLETSGO,
 
-	GEN_DEATHNORMAL,
-	GEN_DEATHDROWN1,
-	GEN_DEATHDROWN2,
+	GEN_DEATHDROWN,
 	GEN_DEATHCRUSH,
 	GEN_DEATHEXPLODE,
 	GEN_DEATHFALL,
 	GEN_DEATHGIB,
 	GEN_DEATHCHOP,
 
-	NUM_GENERIC_SFX,
+	NUM_GENERIC_SFX
+};
+
+enum
+{
+	VOICE_TONGUE,
+	VOICE_CROAK,
+	VOICE_BELCH1,
+	VOICE_BELCH2,
+	VOICE_ANNOYED,
+	VOICE_SLIDE,
+	VOICE_HAPPY,
+	VOICE_SCARED,
+	VOICE_BORED,
+	VOICE_LETSGO,
+
+	VOICE_DEATHNORMAL,
+	VOICE_DEATHDROWN1,
+
+	NUM_VOICES
 };
 
 //***********************************
@@ -163,6 +170,7 @@ typedef struct
 
 
 extern SAMPLE *genSfx[];
+extern SAMPLE voices[4];
 
 extern SOUNDLIST soundList;					// Actual Sound Samples List
 
@@ -185,6 +193,7 @@ extern void FreeAmbientSoundList( );
 extern void FreeBufSampleList( );
 
 extern SAMPLE *FindSample( unsigned long uid );
+extern SAMPLE *FindVoice( unsigned long uid, int pl );
 
 extern void CleanBufferSamples ( void );
 extern void SetSampleFormat ( SAMPLE *sample );
@@ -195,6 +204,8 @@ int StopSample( SAMPLE *sample );
 void PlaySfxMappedSample( MDX_ACTOR *act );
 extern void UpdateAmbientSounds();
 
+extern void InitVoices( char *path, int len );
+#define PlayVoice(pl, sound) PlaySample(FindVoice(UpdateCRC(sound),pl), NULL, 0, SAMPLE_VOLUME, -1)
 
 extern void PrepareSong( short num );
 extern void StopSong( );
