@@ -375,7 +375,8 @@ void GameProcessController(long pl)
     {
 		bby++;
 		bby %= numBabies;
-		SetFroggerStartPos(bTStart[bby],frog[pl],0);
+		if ( babies[bby] )
+			SetFroggerStartPos(bTStart[bby],frog[pl],0);
     }
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
