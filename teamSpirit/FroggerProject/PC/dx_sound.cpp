@@ -108,6 +108,7 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 	WAVEFORMATEX	wfx;
 	DSBUFFERDESC	dsbdesc;
 	HRESULT			dsrVal;
+	DSCAPS			dsCaps;
 
 	dsrVal = DirectSoundCreate ( NULL, &lpDS, NULL );
 
@@ -128,9 +129,21 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 		return 0;
 	}
 
+	memset(&dsCaps, 0, sizeof(dsCaps));
+	dsCaps.dwSize = sizeof(DSCAPS);
+	dsrVal = lpDS->GetCaps(&dsCaps);
+	if(dsrVal != DS_OK)
+		utilPrintf("bInitSpecificWave: WARNING Could not retrieve device caps\n");
+	else
+	{
+		utilPrintf("\nDirectSound caps:\n");
+		DumpDSCaps(&dsCaps);
+		utilPrintf("\n");
+	}
+
 	ZeroMemory ( &dsbdesc, sizeof ( DSBUFFERDESC ) );
 	dsbdesc.dwSize	= sizeof ( DSBUFFERDESC );
-	dsbdesc.dwFlags = DSBCAPS_CTRL3D | DSBCAPS_PRIMARYBUFFER;
+	dsbdesc.dwFlags = /*DSBCAPS_CTRL3D |*/ DSBCAPS_PRIMARYBUFFER;
 
 	
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbdesc, &lpdsbPrimary, NULL ) ;
@@ -144,7 +157,7 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
 	wfx.wFormatTag		= WAVE_FORMAT_PCM;
-	wfx.nChannels		= 1;
+	wfx.nChannels		= 2;
 	wfx.nSamplesPerSec	= 22050; 
 	wfx.wBitsPerSample	= 16; 
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
@@ -285,7 +298,7 @@ int LoadWav( SAMPLE *sample, char *name )
 	// close the file
 	mmioClose ( hwav, 0 );
 
-	// set up the format data structure
+/*	// set up the format data structure
 	memset(&pcmwf, 0, sizeof(WAVEFORMATEX));
 
 	pcmwf.wFormatTag	  = WAVE_FORMAT_PCM;  // pulse code modulation
@@ -294,18 +307,20 @@ int LoadWav( SAMPLE *sample, char *name )
 	pcmwf.wBitsPerSample  = 16;
 	pcmwf.nBlockAlign	  = pcmwf.wBitsPerSample / 8 * pcmwf.nChannels;                
 	pcmwf.nAvgBytesPerSec = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
-
+*/
 	// prepare to create sounds buffer
 	ZeroMemory ( &dsbd, sizeof ( DSBUFFERDESC ) );
 	dsbd.dwSize			= sizeof(DSBUFFERDESC);
 	dsbd.dwFlags		= DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
-	if ( sample->flags & SFXFLAGS_3D_SAMPLE )
+/*
+    if ( sample->flags & SFXFLAGS_3D_SAMPLE )
 	{
 		dsbd.dwFlags |= DSBCAPS_CTRL3D;
 	}
-
+*/
 	dsbd.dwBufferBytes	= child.cksize;
-	dsbd.lpwfxFormat	= &pcmwf;
+//	dsbd.lpwfxFormat	= &pcmwf;
+	dsbd.lpwfxFormat	= &wfmtx;
 
 	// create the sound buffer
 
@@ -459,3 +474,70 @@ void ShowSounds(void)
 	
 	BeginDraw();
 }
+
+/*	--------------------------------------------------------------------------------
+	Function : DumpDSCaps
+	Purpose : dump the contents of a DSCAPS structure to the debug stream
+	Parameters : ptr to DSCAPS to dump
+	Returns : 
+	Info : 
+*/
+
+void DumpDSCaps(DSCAPS *caps)
+{
+	utilPrintf("Flags:\n");
+	if (caps->dwFlags & DSCAPS_CERTIFIED)
+		utilPrintf("  This driver has been tested and certified by Microsoft.\n");
+
+	if (caps->dwFlags & DSCAPS_CONTINUOUSRATE)
+		utilPrintf("  The device supports all sample rates between the dwMinSecondarySampleRate and dwMaxSecondarySampleRate member values. Typically, this means that the actual output rate will be within +/- 10 hertz (Hz) of the requested frequency.\n");
+
+	if (caps->dwFlags & DSCAPS_EMULDRIVER)
+		utilPrintf("  The device does not have a DirectSound driver installed, so it is being emulated through the waveform-audio functions. Performance degradation should be expected.\n");
+
+	if (caps->dwFlags & DSCAPS_PRIMARY16BIT)
+		utilPrintf("  The device supports primary sound buffers with 16-bit samples.\n");
+
+	if (caps->dwFlags & DSCAPS_PRIMARY8BIT)
+		utilPrintf("  The device supports primary buffers with 8-bit samples.\n");
+
+	if (caps->dwFlags & DSCAPS_PRIMARYMONO)
+		utilPrintf("  The device supports monophonic primary buffers.\n");
+
+	if (caps->dwFlags & DSCAPS_PRIMARYSTEREO)
+		utilPrintf("  The device supports stereo primary buffers.\n");
+
+	if (caps->dwFlags & DSCAPS_SECONDARY16BIT)
+		utilPrintf("  The device supports hardware-mixed secondary sound buffers with 16-bit samples.\n");
+
+	if (caps->dwFlags & DSCAPS_SECONDARY8BIT)
+		utilPrintf("  The device supports hardware-mixed secondary buffers with 8-bit samples.\n");
+
+	if (caps->dwFlags & DSCAPS_SECONDARYMONO)
+		utilPrintf("  The device supports hardware-mixed monophonic secondary buffers.\n");
+
+	if (caps->dwFlags & DSCAPS_SECONDARYSTEREO)
+		utilPrintf("  The device supports hardware-mixed stereo secondary buffers.\n");
+
+	utilPrintf("Min sample rate for secondary buffers = %d Hz\n", caps->dwMinSecondarySampleRate);
+	utilPrintf("Max sample rate for secondary buffers = %d Hz\n", caps->dwMaxSecondarySampleRate);
+	utilPrintf("Max hardware mixing buffers = %d\n", caps->dwMaxHwMixingAllBuffers);
+	utilPrintf("Max static sound buffers = %d\n", caps->dwMaxHwMixingStaticBuffers);
+	utilPrintf("Max streaming sound buffers = %d\n", caps->dwMaxHwMixingStreamingBuffers);
+	utilPrintf("Free hardware mixing buffers = %d\n", caps->dwFreeHwMixingAllBuffers);
+	utilPrintf("Free static hardware mixing buffers = %d\n", caps->dwFreeHwMixingStaticBuffers);
+	utilPrintf("Free streaming hardware mixing buffers = %d\n", caps->dwFreeHwMixingStreamingBuffers);
+	utilPrintf("Max 3D hardware buffers = %d\n", caps->dwMaxHw3DAllBuffers);
+	utilPrintf("Max 3D static hardware buffers = %d\n", caps->dwMaxHw3DStaticBuffers);
+	utilPrintf("Max 3D streaming hardware buffers = %d\n", caps->dwMaxHw3DStreamingBuffers);
+	utilPrintf("Free 3D hardware buffers = %d\n", caps->dwFreeHw3DAllBuffers);
+	utilPrintf("Free 3D static hardware buffers = %d\n", caps->dwFreeHw3DStaticBuffers);
+	utilPrintf("Free 3D streaming hardware buffers = %d\n", caps->dwFreeHw3DStreamingBuffers);
+	utilPrintf("Hardware RAM for static buffers = %.1f Kb\n", ((float)caps->dwTotalHwMemBytes)/1024.0f);
+	utilPrintf("Free hardware RAM = %.1f Kb\n", ((float)caps->dwFreeHwMemBytes)/1024.0f);
+	utilPrintf("Largest contiguous RAM = %.1f Kb\n", ((float)caps->dwMaxContigFreeHwMemBytes)/1024.0f);
+	utilPrintf("Static transfer to hardware rate = %d Kb/sec\n", caps->dwUnlockTransferRateHwBuffers);
+	utilPrintf("Software processor cost = %d%%\n", caps->dwPlayCpuOverheadSwBuffers);
+}
+
+

@@ -28,14 +28,15 @@
 #include "pcaudio.h"
 #include "pcmisc.h"
 #include "menus.h"
+#include "cam.h"
 
 #include "controll.h"
 
 #define MAX_AMBIENT_SFX		50
 #define DEFAULT_SFX_DIST	7000
 
-#define VOLUME_MIN		-5000
-#define VOLUME_PERCENT (VOLUME_MIN/100)
+#define VOLUME_MIN		-5000.0
+#define VOLUME_PERCENT (VOLUME_MIN/255.0)
 #define PITCH_STEP		(DSBFREQUENCY_MAX/256)
 
 int AMBIENT_VOLUME = 255;
@@ -86,6 +87,42 @@ static char *MCIerrorToString(int err)
 	return "DByte";
 #endif
 }
+
+long bytetoDB[256] = 
+{
+	//0-15
+   -10000,-7992,-6992,-6407,-5992,-5670,-5407,-5185,-4992,-4823,-4671,-4533,-4408,-4292,-4185,-4086,
+	//16-31
+	-3993,-3905,-3823,-3745,-3671,-3601,-3533,-3470,-3408,-3350,-3293,-3239,-3186,-3135,-3086,-3039,
+	//32-47
+	-2993,-2949,-2906,-2864,-2823,-2784,-2745,-2708,-2671,-2636,-2601,-2567,-2534,-2501,-2470,-2439,
+	//48-63
+	-2408,-2378,-2349,-2321,-2293,-2265,-2238,-2212,-2186,-2160,-2135,-2111,-2086,-2063,-2039,-2016,
+	//64-79
+	-1993,-1971,-1949,-1927,-1906,-1885,-1864,-1844,-1823,-1804,-1785,-1765,-1745,-1727,-1708,-1690,
+	//80-95
+	-1671,-1654,-1636,-1618,-1601,-1584,-1567,-1550,-1534,-1518,-1502,-1486,-1470,-1454,-1439,-1424,
+	//96-111
+	-1408,-1394,-1379,-1364,-1350,-1335,-1321,-1307,-1293,-1279,-1266,-1252,-1239,-1225,-1212,-1199,
+	//112-127
+	-1186,-1173,-1161,-1148,-1136,-1123,-1111,-1099,-1087,-1075,-1063,-1051,-1039,-1028,-1016,-1005,
+	//128-143
+	-994,-982,-971,-960,-950,-938,-928,-917,-906,-896,-885,-875,-864,-854,-844,-834,
+	//144-159
+	-824,-814,-804,-794,-784,-774,-765,-755,-746,-736,-727,-718,-708,-699,-690,-681,
+	//160-175
+	-672,-663,-654,-645,-636,-627,-619,-610,-601,-593,-585,-576,-568,-560,-551,-543,
+	//176-191
+	-535,-527,-518,-510,-502,-494,-486,-478,-471,-463,-455,-447,-440,-432,-424,-417,
+	//192-207
+	-409,-402,-394,-387,-380,-372,-365,-358,-350,-343,-336,-329,-322,-315,-308,-301,
+	//208-223
+	-294,-287,-280,-273,-266,-260,-253,-246,-240,-233,-226,-220,-213,-206,-200,-193,
+	//224-239
+	-187,-181,-174,-168,-161,-155,-149,-142,-136,-130,-124,-118,-112,-106,100,-93,
+	//240-255
+	-87,-81,-75,-70,-64,-58,-52,-46,-40,-34,-28,-22,-17,-11,-5,0
+};
 
 /*	--------------------------------------------------------------------------------
 	Function		: LoadSfx
@@ -230,7 +267,8 @@ SAMPLE *CreateSample( char *path, char *file )
 	// Sample starts and don't stop
 	if( file[0] == 'l' && file[1] == 'p' && file[2] == '_' )
 		sfx->flags |= SFXFLAGS_LOOP;
-	
+
+/*	
 	if( sfx->flags & SFXFLAGS_3D_SAMPLE )
 	{
 		utilPrintf("Getting 3D Interface\n");
@@ -241,8 +279,8 @@ SAMPLE *CreateSample( char *path, char *file )
 		else
 			utilPrintf("Error On Interface, No 3D Buffer\n");
 	}
-
-	SetSampleFormat( sfx );
+*/
+//	SetSampleFormat( sfx );
 //	AddSample( sfx );
 
 	FREE( fileName );
@@ -261,16 +299,18 @@ SAMPLE *CreateSample( char *path, char *file )
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
 	BUFSAMPLE *bufSample=NULL;
-	unsigned long bufStatus, vol = (volume*globalSoundVol)/MAX_SOUND_VOL;
-	long pan;
-	float att, dist;
-	SVECTOR diff, check;
+	unsigned long bufStatus;
+	long vol = (volume*globalSoundVol)/MAX_SOUND_VOL;
+	float pan = 0;
+	float att, dist,camAng;
+	SVECTOR diff;
 	unsigned long flags=0;
 	LPDIRECTSOUNDBUFFER lpdsBuffer;
+	FVECTOR camDir;
 
 	if(!lpDS || !sample || !vol) return FALSE;	// No DirectSound object!
 
-	if( sample->flags & SFXFLAGS_3D_SAMPLE )
+/*	if( sample->flags & SFXFLAGS_3D_SAMPLE )
 	{
 		if( sample->lpds3DBuffer )
 		{
@@ -278,29 +318,38 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 			Set3DPosition ( sample->lpds3DBuffer, pos->vx, pos->vy, pos->vz );
 		}
 	}
-	else if( pos )
+	else*/ if( pos )
 	{
 		att = (radius)?radius:DEFAULT_SFX_DIST;
-		SetVectorSS( &check, currPlatform[0]?&currPlatform[0]->pltActor->actor->position:&currTile[0]->centre );
+		att *= 2;
+//		SetVectorSS( &check, currPlatform[0]?&currPlatform[0]->pltActor->actor->position:&currTile[0]->centre );
 
-		SubVectorSSS( &diff, pos, &check );
+//		SubVectorSSS( &diff, pos, &check );
+
+		SubVectorSSF(&diff, pos, &currCamSource);
+
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = (float)MagnitudeS( &diff )/4096.0;
 		if( dist > att )
 			return FALSE;
 
+		SubVectorFFF(&camDir,&currCamSource,&currCamTarget);
+		camAng = Fabs(atan2(camDir.vz,camDir.vx));
+		
 		vol *= (att-dist)/att;
 
 		//work out pan
 		dist = Fabs(atan2((float)diff.vx, (float)diff.vz));
-		pan = (255.0/PI) * (FindShortestAngle( (fixed)(Fabs(check.vy+PI/2)*4096), (fixed)(dist*4096) )/4096.0);
+		pan = 5000*(FindShortestAngle( (fixed)(camAng*4096), (fixed)(dist*4096) )/(4096.0));
+		pan /= PI;
+		pan -= 2500;
 	}
 
 	if( sample->flags & SFXFLAGS_LOOP )
 		flags |= DSBPLAY_LOOPING;
 
 	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
-	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
+//	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
 	//	What we need to do here is create an instance of the buffer and store it in the buffer list.
 	//	Have a clean buffer function that will go though and check if the sample is playing or not,
@@ -315,16 +364,19 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		AddBufSample( bufSample );
 		lpdsBuffer = bufSample->lpdsBuffer;
 	}
-/*	else
-	{
-		lpdsBuffer = sample->lpdsBuffer;
-	}
-*/
+//	else
+//	{
+//		lpdsBuffer = sample->lpdsBuffer;
+//	}
+
+//	pan = 0;
 	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
 	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, (pitch==-1)?(DSBFREQUENCY_ORIGINAL):(pitch*PITCH_STEP) );
-	lpdsBuffer->lpVtbl->SetVolume( lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
-	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
 
+//	vol = VOLUME_MIN+(VOLUME_PERCENT*vol*-1);
+	lpdsBuffer->lpVtbl->SetVolume( lpdsBuffer, bytetoDB[vol] );
+	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
+//	lpdsBuffer->lpVtbl->GetVolume(lpdsBuffer,&vol);
 	// HAAACCK! Bwahahahahahah!
 	return (int)lpdsBuffer;
 }
@@ -399,37 +451,52 @@ void PlaySfxMappedSample( MDX_ACTOR *act )
 */
 int UpdateLoopingSample( AMBIENT_SOUND *sample )
 {
-	unsigned long bufStatus, vol=sample->volume;
-	long pan;
-	float att, dist;
-	SVECTOR diff, check;
+	unsigned long bufStatus;
+	long vol=(sample->volume*globalSoundVol)/MAX_SOUND_VOL;
+	float pan = 0;
+	float att, dist,camAng;
+	SVECTOR diff;
+	FVECTOR camDir;
 
 	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
 
 	if( sample->pos.vx || sample->pos.vy || sample->pos.vz )
 	{
 		att = (sample->radius)?sample->radius:DEFAULT_SFX_DIST;
-		SetVectorSS( &check, currPlatform[0]?&currPlatform[0]->pltActor->actor->position:&currTile[0]->centre );
+		att *= 2;
+//		SetVectorSS( &check, currPlatform[0]?&currPlatform[0]->pltActor->actor->position:&currTile[0]->centre );
 
-		SubVectorSSS( &diff, &sample->pos, &check );
+//		SubVectorSSS( &diff, &sample->pos, &check );
+
+		SubVectorSSF(&diff, &sample->pos, &currCamSource);
+
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = (float)MagnitudeS( &diff )/4096.0;
 		if( dist > att )
 			vol=0; //return FALSE;
 
+		SubVectorFFF(&camDir,&currCamSource,&currCamTarget);
+		camAng = Fabs(atan2(camDir.vz,camDir.vx));
+		
 		vol *= (att-dist)/att;
 
 		//work out pan
 		dist = Fabs(atan2((float)diff.vx, (float)diff.vz));
-		pan = (255.0/PI) * (FindShortestAngle( (fixed)(Fabs(check.vy+PI/2)*4096), (fixed)(dist*4096) )/4096.0);
+		pan = (float)(FindShortestAngle( (fixed)(camAng*4096), (fixed)(dist*4096) )/(4096.0));
+		pan *= 5000.0/PI;
+		pan -= 2500;
 	}
+
 
 	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
 	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
 
+//	pan = 0;
 	sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, (sample->pitch==-1)?(DSBFREQUENCY_ORIGINAL):(sample->pitch*PITCH_STEP) );
-	sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
+//	vol = VOLUME_MIN+(VOLUME_PERCENT*vol*-1);
+	sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, bytetoDB[vol] );
 	sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
+//	sample->lpdsBuffer->lpVtbl->GetVolume(sample->lpdsBuffer,&vol);
 
 	return TRUE;
 }

@@ -44,6 +44,7 @@ extern void Update3DListener ( float sourceX, float sourceY, float sourceZ  );
 extern void Get3DInterface ( LPDIRECTSOUNDBUFFER lpdsBuffer, LPDIRECTSOUND3DBUFFER lpds3DBuffer );
 extern void ReleaseBuffer ( LPDIRECTSOUNDBUFFER lpdsBuffer );
 extern void Set3DPosition ( LPDIRECTSOUND3DBUFFER lpds3DBuffer, float xPos, float yPos, float zPos );
+void DumpDSCaps(DSCAPS *caps);
 
 #ifdef __cplusplus
 }
