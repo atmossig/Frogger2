@@ -51,7 +51,7 @@ void EditorCreateEntities(void)
 //	ResetBabies();
 	FreePlatformLinkedList();
 	FreeEnemyLinkedList();
-	FreeGaribLinkedList();
+	FreeGaribList();
 	FreeTransCameraList();
 	FreePathList();
 	KillAllTriggers( );
@@ -88,7 +88,7 @@ void EditorCreateEntities(void)
 			path->startNode = create->startNode;
 
 #ifdef NEW_EDITOR
-			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, (fixed)(create->animSpeed*4096)); //, create->facing);
+			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, (fixed)(create->animSpeed*4096), create->facing);
 #else
 			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, create->animSpeed, create->facing);
 #endif

@@ -598,7 +598,7 @@ void ToolbarSelect(int command)
 		//TODO: FreeBufSampleList();
 		//TODO:	FreeSampleList();
 
-		FreeGaribLinkedList( );
+		FreeGaribList( );
 		//FreeEnemyList( );
 		//FreePlatformList( );
 		RemoveEntities( CREATE_ENEMY );
