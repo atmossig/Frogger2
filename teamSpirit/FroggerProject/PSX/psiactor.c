@@ -251,11 +251,11 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 
 	actor->size.vx = actor->size.vy = actor->size.vz = 4096;
 
-	if (psiObjectScan(actor->psiData.object,"MOTION"))
-	{
-		utilPrintf("motion bone found\n");
-		actor->psiData.flags |= ACTOR_MOTIONBONE;
-	}
+	//if (psiObjectScan(actor->psiData.object,"MOTION"))
+	//{
+	//	utilPrintf("motion bone found\n");
+	//	actor->psiData.flags |= ACTOR_MOTIONBONE;
+	//}
 //	else
 //		utilPrintf("motion bone NOT found\n");
 
@@ -278,7 +278,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 	}
 
 
-	if ( checkForModel )
+	/*if ( checkForModel )
 	{
 		if ( ( psiCheck ( actor->psiData.modelName ) ) &&
 			 ( ( compare = strstr ( actor->psiData.modelName, "ROLL" ) )  ||
@@ -296,7 +296,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 		}
 		// ENDIF
 	}
-	// ENDIF
+	// ENDIF*/
 
 	return actor;
 }
