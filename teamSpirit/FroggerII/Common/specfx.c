@@ -15,11 +15,6 @@
 
 SPECFXLIST specFXList;
 
-char doScreenFade	= 0;
-char fadeDir		= FADE_OUT;
-short fadeOut		= 255;
-short fadeStep		= 4;
-
 char pauseMode		= 0;
 
 #define NUM_TRAIL_ELEMENTS 32
@@ -1192,23 +1187,15 @@ void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short 
 {
 	VECTOR telePos;
 	SPECFX *fx;
+	short i = 8;
 
-	SetVector( &telePos, pos );
-	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 30, 0, 0, 1 );
-	SetFXColour( fx, r, g, b );
-
-	telePos.v[Y] += 20;
-	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 25, 0, 0, 1 );
-	SetFXColour( fx, r, g, b );
-
-	telePos.v[Y] += 40;
-	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 20, 0, 0, 1 );
-	SetFXColour( fx, r, g, b );
-
-	telePos.v[Y] += 60;
-	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &telePos, &upVec, 15, 0, 0, 1 );
-	SetFXColour( fx, r, g, b );
-//	PlaySample(88,NULL,255,128);
+	SetVector(&telePos,pos);
+	while(i--)
+	{
+		fx = CreateAndAddSpecialEffect(FXTYPE_BASICRING,&telePos,&upVec,30 - (i * 2),0,0,1);
+		SetFXColour(fx,r,g,b);
+		telePos.v[Y] += 5;
+	}
 }
 
 

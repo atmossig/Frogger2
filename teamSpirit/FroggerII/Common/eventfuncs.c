@@ -394,10 +394,7 @@ void TeleportFrog( EVENT *event )
 	GAMETILE *tile = (GAMETILE*)GetTileFromNumber(tNum);
 
 	TeleportActorToTile(frog[fNum],tile,fNum);
-	fadeDir		= FADE_IN;
-	fadeOut		= 255;
-	fadeStep	= 8;
-	doScreenFade = 63;
+	CreateTeleportEffect(&frog[fNum]->actor->pos,&upVec,255,255,255);
 }
 
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/

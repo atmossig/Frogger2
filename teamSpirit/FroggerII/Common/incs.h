@@ -78,7 +78,11 @@
 #include "multi.h"
 #include "objects.h"
 #include "texture.h"
+
+#ifdef PC_VERSION
 #include "ptexture.h"
+#endif
+
 #include "collect.h"
 #include "path.h"
 #include "platform.h"

@@ -19,11 +19,6 @@
 
 #define NUM_RINGSEGS 16
 
-extern char doScreenFade;
-extern char	fadeDir;
-extern short fadeOut;
-extern short fadeStep;
-
 extern char pauseMode;
 
 

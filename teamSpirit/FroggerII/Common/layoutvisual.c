@@ -572,12 +572,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	gameSpeed = 1;
 #endif 
 
-	// prepare screen for fade in
-	fadeOut		= 255;
-	fadeStep	= 8;
-	fadeDir		= FADE_IN;
-	doScreenFade = 63;
-
 	// load the system and in-game generic texture banks
 	LoadTextureBank(SYSTEM_TEX_BANK);
 	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
