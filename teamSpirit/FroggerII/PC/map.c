@@ -234,8 +234,17 @@ BOOL LoadCollision(int num)
 			strcat(file,"halloweenmulti");
 			break;
 
+		case RETROLEV1_COL:
+			strcat(file,"sretro1");
+			break;
+		case RETROLEV2_COL:
+			strcat(file,"sretro2");
+			break;
+		case RETROLEV3_COL:
+			strcat(file,"sretro3");
+			break;
 		case RETROMASTER_COL:
-			strcat(file,"retroboss");
+			strcat(file,"sretroboss");
 			break;
 		
 		case FRONTEND1_COL:
@@ -492,10 +501,19 @@ BOOL LoadScenics (int num)
 			strcat(file,"halloweenmulti");
 			break;
 
-		case RETROMASTER_COL:
-			strcat(file,"retroboss");
+		case RETROLEV1_COL:
+			strcat(file,"sretro1");
 			break;
-
+		case RETROLEV2_COL:
+			strcat(file,"sretro2");
+			break;
+		case RETROLEV3_COL:
+			strcat(file,"sretro3");
+			break;
+		case RETROMASTER_COL:
+			strcat(file,"sretroboss");
+			break;
+		
 		case FRONTEND1_COL:
 			strcat(file,"start");
 			break;

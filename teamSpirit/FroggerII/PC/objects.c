@@ -322,6 +322,31 @@ BOOL LoadObjectBank(int num)
 			strcat (file,"toymulti");
 			break;
 	
+
+		case RETROMASTER_OBJ_BANK:
+			strcat (file,"sretromaster");
+			break;
+		
+		case RETROLEV1_OBJ_BANK:
+			strcat (file,"sretro1");
+			break;
+
+		case RETROLEV2_OBJ_BANK:
+			strcat (file,"sretro2");
+			break;
+
+		case RETROLEV3_OBJ_BANK:
+			strcat (file,"sretro3");
+			break;
+
+		case RETROBONUS_OBJ_BANK:
+			strcat (file,"sretrobonus");
+			break;
+
+		case RETROMULTI_OBJ_BANK:
+			strcat (file,"sretromulti");
+			break;
+	
 		case LABORATORYMASTER_OBJ_BANK:
 			strcat (file,"labmaster");
 			break;
@@ -336,10 +361,6 @@ BOOL LoadObjectBank(int num)
 
 		case LABORATORYLEV3_OBJ_BANK:
 			strcat (file,"lab3");
-			break;
-
-		case RETROMASTER_OBJ_BANK:
-			strcat (file,"haloween");
 			break;
 
 		case FRONTEND_OBJ_BANK:
