@@ -53,11 +53,15 @@
 
 
 PLATFORMLIST platformList;								// the platform list
-PLATFORM *destPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
-PLATFORM *currPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
-PLATFORM *nearestPlatform[4] = { NULL,NULL,NULL,NULL };	// platform nearest to the frog
+PLATFORM *destPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
+PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
 
-float PLATFORM_GENEROSITY	= 10.0F;					// platform 'forgiveness'
+PLATFORM *nearestPlatform[MAX_FROGS];	// platform nearest to the frog
+float nearestPlatDist[MAX_FROGS];
+
+float PLATFORM_NEAREST_DIST = 35.0f;	// radius in which to check for nearest platform
+
+float PLATFORM_GENEROSITY	= 20.0f;	// platform 'forgiveness'
 
 
 void CalcNextPlatformDest(PLATFORM *plat);
@@ -93,29 +97,31 @@ PLATFORM *GetPlatformFromUID(long uid)
 
 long KillFrogReactive(long num,ENEMY *nme)
 {
-		long enemyType;
+	long enemyType;
 
-		enemyType = 0;
-		
-		if (gstrcmp(nme->nmeActor->actor->objectController->object->name,"rolhrt")==0)
-			enemyType = 1;
+	enemyType = 0;
+	
+	if (gstrcmp(nme->nmeActor->actor->objectController->object->name,"rolhrt")==0)
+		enemyType = 1;
 
-		switch (enemyType)
-		{
-			case 0:
-				AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
-				frog[num]->action.dead = 50;
-				break;
-			case 1:
-				AnimateActor(frog[num]->actor, FROG_ANIM_ROLLERDEATH, NO, NO, 0.25F, 0, 0);
-				frog[num]->action.dead = 100;
-				break;
-		}
-		
+	switch (enemyType)
+	{
+		case 0:
+			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+			frog[num]->action.dead = 50;
+			break;
+		case 1:
+			AnimateActor(frog[num]->actor, FROG_ANIM_ROLLERDEATH, NO, NO, 0.25F, 0, 0);
+			frog[num]->action.dead = 100;
+			break;
+	}
+	
 
-		frog[num]->action.healthPoints = 3;
-		frog[num]->action.deathBy = DEATHBY_NORMAL;
-		player[num].frogState |= FROGSTATUS_ISDEAD;
+	frog[num]->action.healthPoints = 3;
+	frog[num]->action.deathBy = DEATHBY_NORMAL;
+	player[num].frogState |= FROGSTATUS_ISDEAD;
+
+	return 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -142,9 +148,23 @@ void UpdatePlatforms()
 	PLATFORM *cur,*next;
 	PLANE2 rebound;
 	VECTOR fromPosition;
+	int pl;
 
 	if(platformList.numEntries == 0)
 		return;
+
+	for (pl = 0; pl < MAX_FROGS; pl++)
+	{
+		nearestPlatform[pl] = NULL;
+		// don't bother with platforms outside our sphere of generosity
+		
+		// Sphere of Generosity. Sounds almost like an RPG skill
+		// Roll 1 D12, spells less than 4 miss. 12 heals fully
+		// Sphere restores 2 D12 HP to all sentients within 10 metres
+		
+		// But I digress.
+		nearestPlatDist[pl] = (PLATFORM_NEAREST_DIST*PLATFORM_NEAREST_DIST);	
+	}
 
 	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
 	{
@@ -171,22 +191,34 @@ void UpdatePlatforms()
 			}
 		}
 
+		// call update function for individual platform type
+		if(cur->Update && !cur->isWaiting)
+			cur->Update(cur);
+
+		// keep track of nearest platforms
+		for (pl = 0; frog[pl] && pl < MAX_FROGS; pl++)
+		{
+			float dist;
+
+			// don't include the *current* plat in the check
+			if (cur == currPlatform[pl]) continue;	
+
+			dist = DistanceBetweenPointsSquared(&cur->pltActor->actor->pos, &frog[pl]->actor->pos);
+			if (dist < nearestPlatDist[pl])
+			{
+				nearestPlatform[pl] = cur;
+				nearestPlatDist[pl] = dist;
+			}
+		}
+
 		// check if this platform is currently 'waiting' at a node
 		if(cur->isWaiting)
 		{
-			if(cur->isWaiting == -1)
-				continue;
-
-			// check platform that is currently waiting at a node
-			if(actFrameCount > cur->path->startFrame)
+			if((cur->isWaiting != -1) && (actFrameCount > cur->path->startFrame))
 				cur->isWaiting = 0;
-			else
-				continue;
-		}
 
-		// call update function for individual platform type
-		if(cur->Update)
-			cur->Update(cur);
+			continue;
+		}
 
 		// update frog if on the current platform
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)

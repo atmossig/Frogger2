@@ -100,7 +100,7 @@ extern BOOL cameoMode;
 void SetFroggerStartPos(GAMETILE *startTile,long p);
 void UpdateFroggerPos(long p);
 BOOL MoveToRequestedDestination(int dir,long pl);
-GAMETILE *GetNextTile(unsigned long direction,long pl);
+GAMETILE *GetNextTile(unsigned long *pdir,long pl);
 void SlideFroggerPosition(ACTOR2 *actor2);
 BOOL GameTileTooHigh(GAMETILE *tile,long pl);
 BOOL KillFrog(long pl);

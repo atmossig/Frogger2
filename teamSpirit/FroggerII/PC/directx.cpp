@@ -1604,7 +1604,7 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, DWORD colour )
 {
-	float x2 = x + xs, y2 = y + ys;
+	float x2 = (x+xs), y2 = (y+ys);
 	float fogAmt;
 
 	// Really crap clipping

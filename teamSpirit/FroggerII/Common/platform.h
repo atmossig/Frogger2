@@ -87,8 +87,10 @@ typedef struct TAGPLATFORMLIST
 extern PLATFORMLIST platformList;
 
 
-extern PLATFORM *destPlatform[4];		// platform that frog is about to attempt to jump to
-extern PLATFORM *currPlatform[4];		// platform that frog is currently on
+extern PLATFORM *destPlatform[MAX_FROGS];		// platform that frog is about to attempt to jump to
+extern PLATFORM *currPlatform[MAX_FROGS];		// platform that frog is currently on
+extern PLATFORM *nearestPlatform[MAX_FROGS];	// Nearest platforms to frogs ...
+extern float     nearestPlatDist[MAX_FROGS];	// .. and their distance from the frogs (^2)
 
 extern float waitScale;
 

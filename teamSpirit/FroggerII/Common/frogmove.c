@@ -105,7 +105,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].isQuickHopping	= 0;
 	player[p].idleTime			= MAX_IDLE_TIME;
 	player[p].heightJumped		= 0;
-	player[p].jumpTime			= 2;
+	player[p].jumpTime			= -1;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -221,15 +221,18 @@ void UpdateFroggerPos(long pl)
 	// But first... platforms
 	if (currPlatform[pl])
 	{
+		currTile[pl] = currPlatform[pl]->inTile[0];
+	
+/*
 		PLATFORM *plat = currPlatform[pl];
 		GAMETILE *dest = plat->inTile[0];
-
 		if (dest != currTile[pl])
 		{
 			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, dest);
 			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], dest);
 			currTile[pl] = dest;
 		}
+*/
 	}
 	else if( currTile[pl]->state == TILESTATE_SINK )
 	{
@@ -293,7 +296,7 @@ void UpdateFroggerPos(long pl)
 		Calculate frog hop
 	*/
 
-	if( player[pl].jumpTime >= 0.0f && player[pl].jumpTime < 1.0f )
+	if( player[pl].jumpTime >= 0.0f)
 	{
 		VECTOR up, fwd, pos;
 		float p, t, delta;
@@ -327,22 +330,6 @@ void UpdateFroggerPos(long pl)
 		}
 
 		SetVector(&frog[pl]->actor->pos, &pos);
-
-		// NEW STUFF START - ANDYE ------------------------------------------
-
-		// check if frog is at (or passed) peak of jump
-		if((player[pl].jumpTime >= 0.75F) && (destPlatform[pl] == NULL))
-		{
-			// ...yep - check for presence of a platform in the destination tile
-			destPlatform[pl] = CheckDestForPlatform(destTile[pl],pl);
-/*			if(!destPlatform[pl])
-			{
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-			}
-*/		}
-
-		// NEW STUFF END - ANDYE --------------------------------------------
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -402,9 +389,7 @@ void UpdateFroggerPos(long pl)
 
 	if (cameoMode || !UpdateFroggerControls(pl))
 	{
-		// process frog's jump
-		if (player[pl].jumpTime > 0)
-			CheckForFroggerLanding(pl);
+		CheckForFroggerLanding(pl);
 	}
 
 	/* ---------------------------------------------------- */
@@ -454,12 +439,13 @@ long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
 	Parameters		: direction, player
 	Returns			: GAMETILE*
 */
-GAMETILE *GetNextTile(unsigned long direction,long pl)
+GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 {
 	VECTOR cDir;
 	unsigned long i,j,n;
 	unsigned long closest[4] = { -1,-1,-1,-1 };
 	float distance,t;
+	unsigned long direction = *pdir;
 	unsigned long newCamFacing = camFacing;
 
 	GAMETILE *dest = NULL;
@@ -484,6 +470,8 @@ GAMETILE *GetNextTile(unsigned long direction,long pl)
 		i = GetTilesMatchingDirection(currTile[0], (direction + camFacing + 2) & 3, currTile[pl]);
 		dest = currTile[pl]->tilePtrs[i];
 	}	
+
+	*pdir = i;
 
 	if (!dest || dest->state == TILESTATE_BARRED)
 		return NULL;
@@ -609,6 +597,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 {
 	GAMETILE *dest, *from;
 	float t,t2,h;
+	unsigned long tiledir;
 	
 	// clear movement request flags
 	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
@@ -631,7 +620,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if (frog[pl]->action.frogunder==-1)
 	{
-		dest = GetNextTile(dir, pl);
+		tiledir = dir;
+		dest = GetNextTile(&tiledir, pl);
 	}
 
 	// clear all 'wanting movement' flags
@@ -650,8 +640,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 		currPlatform[pl]->carrying = NULL;
 	}
-
-	// NEW STUFF START - ANDYE ----------------------------------------------
 
 	// check destination tile
 	if(GameTileTooHigh(dest, pl))
@@ -713,21 +701,37 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		}
 	}
 
-	// NEW STUFF END - ANDYE ------------------------------------------------
-
 	// ------------------------------------------------------------------------------------------
-	// If we get this far, it's a valid jump! Celebrations! Fizzy pop and lime jelly all round.
+	// If we get this far, it's a valid jump (to a tile)
 
+	from = currTile[pl];
 	destTile[pl] = dest;
+	currPlatform[pl] = NULL;
 
-	if (currPlatform[pl])
+	// If we're just hopping, check if there's a platform to jump to
+	// This should help fix tile->platform and platform->platform jumping
+	if (!player[pl].isSuperHopping)
 	{
-		from = currPlatform[pl]->inTile[0];
-//		currPlatform[pl] = NULL;
-	}
-	else
-	{
-		from = currTile[pl];
+		PLATFORM *plat; int n;
+		VECTOR v;
+
+//		SubVector(&v, &destTile[pl]->centre, &currTile[pl]->centre);
+//		SubVector(&v, &frog[pl]->actor->pos, &currTile[pl]->dirVector[tiledir]);
+
+		SetVector(&v, &currTile[pl]->dirVector[tiledir]); ScaleVector(&v, -50.0f);
+		AddToVector(&v, &frog[pl]->actor->pos);
+
+		for (n = platformList.numEntries, plat = platformList.head.next; n; n--, plat = plat->next)
+		{
+			if ((40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos))
+			{
+				
+				destPlatform[pl] = plat;
+				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+				break;
+			}
+		}
 	}
 
 	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
@@ -760,7 +764,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	// determine where frog is going to land...
 
-    if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+    if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+	{
+		CalculateFrogJump(
+			&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &currTile[pl]->normal,
+			h, t, pl);
+	}
+	else
 	{	
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
@@ -790,7 +800,43 @@ void CheckForFroggerLanding(long pl)
 	unsigned long i;
 	float distance;
 
-	if (player[pl].jumpTime < 1) return;
+	if (player[pl].jumpTime < 0) return;	// we're not even jumping. Duh.
+
+	// If frog is at or past peak of jump, check if he's hit a platform
+	if (!destPlatform[pl] &&
+		nearestPlatform[pl] &&
+		(player[pl].jumpTime > 0.5f))
+	{
+		float height, dist;
+		VECTOR v;
+
+		SubVector(&v, &frog[pl]->actor->pos, &nearestPlatform[pl]->pltActor->actor->pos);
+
+		height = DotProduct(&v, &currTile[pl]->normal);
+
+		dist = nearestPlatDist[pl];
+
+		if (height < 25.0f && height > -50.0f)
+		{
+			destPlatform[pl] = nearestPlatform[pl];
+			player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
+			
+			if (height < 0) player[pl].jumpTime = 1.0f;	// aaand land.
+		}
+	}
+
+/*		
+		// ...yep - check for presence of a platform in the destination tile
+		destPlatform[pl] = CheckDestForPlatform(destTile[pl],pl);
+		if(!destPlatform[pl])
+		{
+			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+		}
+	}
+*/
+
+	if (player[pl].jumpTime < 1) return; // cause we're still jumping
 
 	// Frog has landed - set camera to new rotation, face frog correctly, blahblahblah
 
@@ -807,6 +853,12 @@ void CheckForFroggerLanding(long pl)
 	player[pl].hasDoubleJumped = 0;
 	player[pl].jumpTime = -1;
 
+	if (currPlatform[pl])
+	{
+		currPlatform[pl]->carrying = NULL;
+		currPlatform[pl] = NULL;
+	}
+
 	if( frogTrail[pl] && frogTrail[pl]->follow )
 	{
 		frogTrail[pl]->follow = NULL;
@@ -814,24 +866,21 @@ void CheckForFroggerLanding(long pl)
 	}
 
 	// Finish anims
-	if (player[pl].frogState & (FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISJUMPINGTOTILE))
+	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
-		if (player[pl].frogState & FROGSTATUS_ISFLOATING)
-		{
-			AnimateActor(frog[0]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
-			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
-		}
-		else
-			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
+		AnimateActor(frog[0]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
 	}
+	else
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
 		// ok - frog has landed
 		SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 
-//		if(pl == 0)
-//			camFacing = GetTilesMatchingDirection(currTile[pl],camFacing,destPlatform[pl]->inTile[0]);
+		if(pl == 0)
+			camFacing = GetTilesMatchingDirection(currTile[pl],camFacing,destPlatform[pl]->inTile[0]);
 
 		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
 		player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
