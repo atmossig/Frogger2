@@ -169,7 +169,7 @@ void EditorCreateEntities(void)
 				SVECTOR pos;
 				pn = create->path->nodes;
 				SetVectorF(&v, &pn->tile->normal);
-				ScaleVector(&v, pn->offset);
+				ScaleVector(&v, pn->offset*SCALE);
 				AddToVector(&v, &pn->tile->centre);
 		
 				SetVectorSR(&pos, &v);

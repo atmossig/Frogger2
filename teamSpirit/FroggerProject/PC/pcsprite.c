@@ -886,12 +886,12 @@ void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1)
 	Returns			: void
 	Info			: 
 */
-void InitSpriteSortArray(int numElements)
+void InitSpriteSortArray( )
 {
 	if(spriteSortArray)
 		FreeSpriteSortArray();
 
-	spriteSortArray = (SPRITE *)MALLOC0( sizeof(SPRITE) * numElements );
+	spriteSortArray = (SPRITE *)MALLOC0( sizeof(SPRITE) * MAX_ARRAY_SPRITES );
 	numSortArraySprites = 0;
 }
 

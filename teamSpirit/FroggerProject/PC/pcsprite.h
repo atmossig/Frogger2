@@ -47,7 +47,7 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 extern int numSortArraySprites;
 extern SPRITE *spriteSortArray;
 
-void InitSpriteSortArray(int numElements);
+void InitSpriteSortArray( );
 void FreeSpriteSortArray();
 int SpriteZCompare(const void *arg1,const void *arg2);
 void ZSortSpriteList();
