@@ -1791,7 +1791,7 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_GLOBALMENU;
-			// *ASL* 15/08/2000 - Don't reset the demo idle timer
+			// *ASL* 15/08/2000 - Reset the demo idle timer
 			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 		RunOptionsMenu();
@@ -1832,7 +1832,7 @@ void RunFrontendGameLoop (void)
 			if (options.mode == -1)
 			{
 				options.mode = OP_MULTIPLAYERNUMBER;
-				// *ASL* 15/08/2000 - Don't reset the demo idle timer
+				// *ASL* 15/08/2000 - Reset the demo idle timer
 				GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 			}
 			RunOptionsMenu();
@@ -1849,7 +1849,7 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_ARCADE;
-			// *ASL* 15/08/2000 - Don't reset the demo idle timer
+			// *ASL* 15/08/2000 - Reset the demo idle timer
 			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 			ScreenFade(255,210,30);
 			keepFade = YES;
@@ -1865,7 +1865,7 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_BOOK;
-			// *ASL* 15/08/2000 - Don't reset the demo idle timer
+			// *ASL* 15/08/2000 - Reset the demo idle timer
 			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 		RunOptionsMenu();
