@@ -132,7 +132,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	fixedPos = 0;
 	fixedDir = 0;
 
-	lastTile = NULL; // force camera recalculation
 	CheckForDynamicCameraChange(currTile[p]);
 
 	frogFacing[p] = camFacing;
