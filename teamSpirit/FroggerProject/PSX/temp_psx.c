@@ -39,6 +39,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 						//flags = ACTOR_SLIDYTEX;
 					// ENDIF
 
+//					CreateAndAddScenicObject(cur);
 					CreateAndAddWaterObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
 
 				}
