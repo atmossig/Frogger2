@@ -322,13 +322,13 @@ void PrintSprite(SPRITE *sprite)
 		if (sprite->flags & SPRITE_ADDITIVE)
 			D3DSetupRenderstates(xluAddRS);
 
-		if(sprite->flags & SPRITE_FLAGS_ROTATE)
+/*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
 			DrawAlphaSpriteRotating( &sc,(float)sprite->angle/57.6,sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 		else
-		{
+*/		{
 			DrawAlphaSprite(sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
