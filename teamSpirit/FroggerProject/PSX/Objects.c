@@ -31,6 +31,48 @@ void LoadObjectBank ( int objectBank )
 
 	switch ( objectBank )
 	{
+		case FROGGER_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\FROGGER.PIL" );					
+				break;
+
+		case LILLI_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\LILLIE.PIL" );					
+				break;
+
+		case TAD_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\TAD.PIL" );					
+				break;
+
+		case SWAMPY_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\SWAMPY.PIL" );					
+				break;
+
+		case TWEE_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\TWEE.PIL" );					
+				break;
+
+		case WART_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\WART.PIL" );					
+				break;
+
+		case ROOBIE_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\ROOBIE.PIL" );					
+				break;
+
+		case TANK_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\TANK.PIL" );					
+				break;
+
+/*	// Multiplayer object banks
+	MFROGGER_OBJ_BANK,
+	MLILLI_OBJ_BANK,
+	MTAD_OBJ_BANK,
+	MSWAMPY_OBJ_BANK,
+	MTWEE_OBJ_BANK,
+	MWART_OBJ_BANK,
+	MROOBIE_OBJ_BANK,
+	MTANK_OBJ_BANK,*/
+
 		case INGAMEGENERIC_OBJ_BANK:
 					sprintf ( BFFfileName, "OBJECTS\\GENERIC.BFF" );					
 					sprintf ( PILfileName, "OBJECTS\\GENERIC.PIL" );					
