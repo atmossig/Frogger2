@@ -94,6 +94,9 @@ void LoadObjectBank(int objectBank)
 		case CITYLEV3_OBJ_BANK:
 			strcpy(fileName, "city3"); break;
 
+		case CITYMULTI_OBJ_BANK:
+			strcpy(fileName, "citymulti"); break;
+
 // Subterranean
 
 		case SUBTERRANEANMASTER_OBJ_BANK:
