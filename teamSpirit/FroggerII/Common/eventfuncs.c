@@ -98,12 +98,20 @@ int ActorWithinRadius( TRIGGER *trigger )
 
 /*	--------------------------------------------------------------------------------
 	Function 	: OnTimeout
-	Purpose 	: Trigger when counter reaches zero
+	Purpose 	: Trigger when a certain time is reached
 	Parameters 	: Pointer to trigger structure
 	Returns 	: Boolean
 	Info 		:
 */
+
 int OnTimeout( TRIGGER *trigger )
+{
+	int time = *(int*)trigger->data[0];
+
+	return (currentFrameTime >= time);
+}
+
+/*int OnTimeout( TRIGGER *trigger )
 {
 	int count = *(int *)trigger->data[0];  // Counter
 	int start = *(int *)trigger->data[1];  // Count down from this
@@ -114,7 +122,7 @@ int OnTimeout( TRIGGER *trigger )
 		return 1;
 	else
 		count--;
-}
+}*/
 
 
 /*	--------------------------------------------------------------------------------
