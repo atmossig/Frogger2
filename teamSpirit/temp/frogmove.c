@@ -493,7 +493,7 @@ void FroggerHop(int pl)
 	PLATFORM *cur, *nearestPlat;
 	long nearestPlatDist;
 
-	static landingRadius = 245;	// just less than the radius of one tile
+	static landingRadius = 220;	// just less than the radius of one tile
 	static landingHeight = 200;	// how 'thick' platforms are (duhhh.. <- not that kind of thick)
 
 	if (player[pl].jumpTime < 0) return;
