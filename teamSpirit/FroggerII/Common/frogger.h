@@ -153,6 +153,8 @@ extern char		croakR,croakG,croakB;
 
 extern void CreateFrogger ( unsigned char createFrogActor, unsigned char createFrogOverlays );
 
+extern void FroggerIdleAnim( int i );
+
 #endif
 
 

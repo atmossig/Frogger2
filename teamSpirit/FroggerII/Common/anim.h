@@ -50,7 +50,4 @@ extern void SetAnimationSpeed(ACTOR *myActor, float speed);
 extern void InitActorAnim(ACTOR *tempActor);
 extern BOOL QueryAnimTime(ACTOR *actor, float time);
 
-extern void FroggerIdleAnim( int i );
-
-
 #endif
