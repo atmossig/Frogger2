@@ -141,7 +141,7 @@ void DrawActorList()
 #ifdef PC_VERSION
 	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER);
 	
-	BlankFrame();
+	BlankFrame(hello);
 
 	if (backGnd)
 	{
@@ -169,7 +169,7 @@ void DrawActorList()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,FALSE);
 	
 	DrawBatchedPolys();
-	BlankFrame();
+	BlankFrame(tomatoes);
 	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
@@ -177,7 +177,7 @@ void DrawActorList()
 	cur = actList;
 	waterObject = 0;
 
-	BlankFrame();
+	BlankFrame(spaghetti);
 
 	while(cur)
 	{
@@ -257,8 +257,7 @@ void DrawActorList()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 
 	DrawBatchedPolys();
-	BlankFrame();
-	
+	BlankFrame("Fresh crispy side salad");
 	
 	waterObject = 1;
 	cur = actList;
