@@ -1227,6 +1227,9 @@ BOOL KillFrog(long pl)
 		return FALSE;
 	}
 
+	// Stop the frog looking around when he's dead, which is somewhat grotesque
+	pointOfInterest = NULL;
+
 	switch(player[pl].deathBy)
 	{
 		case DEATHBY_NORMAL:

@@ -205,9 +205,10 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 
 		// HACK for kevins build
-		if( nme->uid == 128 )
+/*		if( nme->uid == 128 )
 			deathAnims[DEATHBY_WHACKING+NUM_DEATHTYPES] (num);
-		else if (nme->reactiveNumber!=-1)
+		else 
+*/		if (nme->reactiveNumber!=-1)
 		{
 			if( reactiveAnims[nme->reactiveNumber].type == 0xFF )
 				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (num);
