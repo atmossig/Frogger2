@@ -669,8 +669,9 @@ void UpdateRollEnemy(ENEMY *nme)
 		&p->nodes[p->toNode].worldTile->centre,
 		&p->nodes[p->fromNode].worldTile->centre);
 
-	t = (gameSpeed*nme->speed)/nme->nmeActor->radius;
-	
+	//t = (gameSpeed*nme->speed)/nme->nmeActor->radius;
+	t = (gameSpeed<<13)/FMul(nme->nmeActor->radius, nme->speed);
+
 	// rotate around z axis with a quaternion.. oogly
 
 	c = rsin(t);
@@ -680,11 +681,11 @@ void UpdateRollEnemy(ENEMY *nme)
 	q.y = 0;
 	q.z = (-c*fwd.vx)/500;
 
-	NormaliseQuaternion(&nme->nmeActor->actor->qRot); // testing..
-
 	fixedQuaternionMultiply(
 		&nme->nmeActor->actor->qRot,
 		&q, &nme->nmeActor->actor->qRot);
+
+	NormaliseQuaternion(&nme->nmeActor->actor->qRot); // testing..
 
 }
 
