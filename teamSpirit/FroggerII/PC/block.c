@@ -187,6 +187,10 @@ void GetArgs(char *arglist)
 				case 's':
 					scaleMode = 1;
 					break;
+				case 'C':
+				case 'c':
+					swingCam = 0;
+					break;
 			}
 		}
 	}

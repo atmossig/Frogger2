@@ -77,4 +77,6 @@ extern void RunGameLoop (void);
 extern void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);
 extern void RunLevelCompleteSequence();
 
+extern unsigned char swingCam;
+
 #endif

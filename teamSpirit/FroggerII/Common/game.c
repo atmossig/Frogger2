@@ -58,6 +58,9 @@ void DoHiscores();
 extern float gCamDist;
 extern TEXTURE *frogEyeOpen,*frogEyeClosed;
 
+// Switch for irritating swingy camera
+unsigned char swingCam = 1;
+
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -231,9 +234,9 @@ void GameProcessController(long pl)
 		}
 		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{
-//			frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.05, 1 );
-//			frogTrail[pl]->follow = frog[pl]->actor;
-//			SetFXColour( frogTrail[pl], 50, 200, 50 );
+			frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0.95, 0.0, 1 );
+			frogTrail[pl]->follow = frog[pl]->actor;
+			SetFXColour( frogTrail[pl], 50, 200, 50 );
 
 			// frog is wanting superhop
 			player[pl].isSuperHopping = 1;
@@ -834,7 +837,8 @@ void RunGameLoop (void)
 	i = NUM_FROGS;
 	
 	// Had to take this out because it was driving everyone nuts
-	camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
+	if( swingCam )
+		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
 
 	while(i--)
 	{
