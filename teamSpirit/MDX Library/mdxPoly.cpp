@@ -506,12 +506,90 @@ void SetTexture(MDX_TEXENTRY *me)
 HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags)
 {
 	HRESULT res;
+	MPR_BITMAP32 thisTex;
+	MPR_POLY_VERT v[3];
+	D3DTLVERTEX *verts;
+	unsigned long f1,f2,f3;
 	
 	if (rHardware)
 		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
 	else
-		res = D3D_OK;
+	{
+		verts = (D3DTLVERTEX *)lpvVertices;
+		for (int i=0; i<dwIndexCount; i+=3)
+		{
+			f1 = lpwIndices[i+0];
+			f2 = lpwIndices[i+1];
+			f3 = lpwIndices[i+2];
 
+			v[0].x = verts[f1].sx;
+			v[0].y = verts[f1].sy;
+			v[0].rgba = verts[f1].color;
+			
+			v[1].x = verts[f2].sx;
+			v[1].y = verts[f2].sy;
+			v[1].rgba = verts[f2].color;
+
+			v[2].x = verts[f3].sx;
+			v[2].y = verts[f3].sy;
+			v[2].rgba = verts[f3].color;
+			
+			if (cTexture)
+			{
+				thisTex.width = cTexture->xSize;
+				thisTex.height = cTexture->ySize;
+				thisTex.image = (unsigned long *)cTexture->softData;
+				
+				v[0].u = verts[f1].tu * thisTex.width;
+				v[0].v = verts[f1].tv * thisTex.height;
+
+				v[1].u = verts[f2].tu * thisTex.width;
+				v[1].v = verts[f2].tv * thisTex.height;
+	
+				v[2].u = verts[f3].tu * thisTex.width;
+				v[2].v = verts[f3].tv * thisTex.height;
+
+				if (v[0].u>thisTex.width)
+					 v[0].u = thisTex.width;
+
+				if (v[0].v>thisTex.height)
+					 v[0].v = thisTex.height;
+
+				if (v[1].u>thisTex.width)
+					 v[1].u = thisTex.width;
+
+				if (v[1].v>thisTex.height)
+					 v[1].v = thisTex.height;
+
+				if (v[2].u>thisTex.width)
+					 v[2].u = thisTex.width;
+
+				if (v[2].v>thisTex.height)
+					 v[2].v = thisTex.height;
+
+				if (v[0].u<0)
+					 v[0].u = 0;
+
+				if (v[0].v<0)
+					 v[0].v = 0;
+
+				if (v[1].u<0)
+					 v[1].u = 0;
+
+				if (v[1].v<0)
+					 v[1].v = 0;
+
+				if (v[2].u<0)
+					 v[2].u = 0;
+
+				if (v[2].v<0)
+					 v[2].v = 0;
+
+				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,POLY_TEXTURE, &thisTex);
+			}			
+		}
+	}
+	
 	return res;
 }
 
