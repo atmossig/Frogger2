@@ -32,18 +32,6 @@
 
 TONGUE tongue[MAX_FROGS];
 
-float hermiteM[4][4] = 
-{
-	{	2,	-2,	1,	1	},
-	{	-3,	3,	-2,	-1	},
-	{	0,	0,	1,	0	},
-	{	1,	0,	0,	0	}
-};
-
-ENEMY *BabyFrogIsInRange(float radius, int pl);
-GARIB *GaribIsInRange(float radius, int pl);
-ACTOR2 *ScenicIsInRange(float radius, int pl);
-
 void StartTongue( unsigned char type, VECTOR *dest, int pl );
 void CalculateTongue( int pl );
 
@@ -67,6 +55,7 @@ void InitTongues( )
 		tongue[i].sprite = NULL;
 		tongue[i].tex = NULL;
 		tongue[i].type = 0;
+		tongue[i].canTongue = 1;
 	}
 }
 
@@ -83,6 +72,8 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 	float dp;
 	VECTOR to;
 	int i;
+
+	if( !tongue[pl].canTongue || !player[pl].canJump ) return;
 
 	// Determine frog's forward vector
 	RotateVectorByQuaternion( &tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot );
@@ -157,6 +148,19 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 		AnimateActor( frog[pl]->actor, FROG_ANIM_USINGTONGUE, NO, NO, 0.5F, 0, 0 );
 
 		tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
+		tongue[pl].canTongue = 0;
+
+		if( tongue[pl].type == TONGUE_GET_FROG ) // Throw frog backwards, over our head, as far as he will go
+		{
+			int i;
+			for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
+			if( i!=MAX_FROGS ) 
+			{
+				tongue[i].canTongue = 0;
+				player[i].canJump = 0;
+//				AnimateActor( frog[i]->actor, FROG_ANIM_DROWNING, YES, NO, 0.5, 0,0 );
+			}
+		}
 
 		PlaySample(GEN_FROG_TONGUE,&frog[pl]->actor->pos,0,100-Random(15),100-Random(15));
 	}
@@ -196,6 +200,7 @@ void UpdateFrogTongue( int pl )
 		case TONGUE_GET_BABY: SetVector( &tongue[pl].target, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos ); break;
 		case TONGUE_GET_GARIB: SetVector( &tongue[pl].target, &((GARIB *)tongue[pl].thing)->sprite.pos ); break;
 		case TONGUE_GET_SCENIC: SetVector( &tongue[pl].target, &((ACTOR2 *)tongue[pl].thing)->actor->pos ); break;
+		case TONGUE_GET_FROG: SetVector( &tongue[pl].target, &((ACTOR2 *)tongue[pl].thing)->actor->pos ); break;
 		}
 
 		if( tongue[pl].flags & TONGUE_OUTGOING )
@@ -211,7 +216,10 @@ void UpdateFrogTongue( int pl )
 
 				// If we have gone too far
 				if( DistanceBetweenPointsSquared(&tongue[pl].source,&tongue[pl].pos) > tongue[pl].radius*tongue[pl].radius )
+				{
 					tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_INCOMING;
+					return;
+				}
 			}
 			else // Got to target - return with item
 			{
@@ -237,6 +245,11 @@ void UpdateFrogTongue( int pl )
 					e->nmeActor->actor->scale.v[X] *= 0.9;
 					e->nmeActor->actor->scale.v[Y] *= 0.9;
 					e->nmeActor->actor->scale.v[Z] *= 0.9;
+				}
+				else if( tongue[pl].type == TONGUE_GET_FROG )
+				{
+					ACTOR2 *f = (ACTOR2 *)tongue[pl].thing;
+					SetVector( &f->actor->pos, &tongue[pl].pos );
 				}
 				else if( tongue[pl].type == TONGUE_GET_SCENIC )
 				{
@@ -267,6 +280,30 @@ void UpdateFrogTongue( int pl )
 						else
 							PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
 					}
+					else if( tongue[pl].type == TONGUE_GET_FROG ) // Throw frog as far as he will go
+					{
+						int i, dir;
+
+						// Find frog based on actor address
+						for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
+						// Chuck the frog according to control direction
+						if( controllerdata[pl].button & CONT_UP ) dir = MOVE_UP;
+						else if( controllerdata[pl].button & CONT_RIGHT ) dir = MOVE_RIGHT;
+						else if( controllerdata[pl].button & CONT_DOWN ) dir = MOVE_DOWN;
+						else if( controllerdata[pl].button & CONT_LEFT ) dir = MOVE_LEFT;
+						else
+						{
+							if( !(controllerdata[pl].button & CONT_B) ) RemoveFrogTongue(pl);
+							return;
+						}
+						// Throw the frog - no longer a frog on our tongue, so don't try to remove it later
+						if( i != MAX_FROGS )
+						{
+							ThrowFrogDirection( pl, i, (dir+camFacing) &3 );
+							tongue[pl].flags &= ~TONGUE_HASITEMONIT;
+							tongue[i].canTongue = 1;
+						}
+					}
 					else if( tongue[pl].type == TONGUE_GET_SCENIC )
 						SetVector( &((ACTOR2 *)tongue[pl].thing)->actor->pos, &((ACTOR2 *)tongue[pl].thing)->actor->oldpos );
 				}
@@ -283,7 +320,9 @@ void UpdateFrogTongue( int pl )
 	if( tongue[pl].flags & TONGUE_SEARCHING )
 	{
 		// first priority - check if baby frog is in range
-		if( tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl) )
+		if( tongue[pl].thing = (void *)FrogIsInRange(tongue[pl].radius,pl) )
+			StartTongue( TONGUE_GET_FROG, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
+		else if( tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl) )
 			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
 		else if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
 			StartTongue( TONGUE_GET_GARIB, &((GARIB *)tongue[pl].thing)->sprite.pos, pl );
@@ -368,6 +407,16 @@ void RemoveFrogTongue( int pl )
 			baby->nmeActor->actor->scale.v[Y] = 1;
 			baby->nmeActor->actor->scale.v[Z] = 1;
 		}
+		else if( tongue[pl].type == TONGUE_GET_FROG )
+		{
+			int i;
+			for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
+			if( i != MAX_FROGS )
+			{
+				tongue[i].canTongue = 1;
+				TeleportActorToTile( frog[i], FindNearestJoinedTile(currTile[pl],&frog[i]->actor->pos), i );
+			}
+		}
 	}
 
 	tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
@@ -375,6 +424,7 @@ void RemoveFrogTongue( int pl )
 	tongue[pl].radius = TONGUE_RADIUSNORMAL;
 	tongue[pl].type = 0;
 	tongue[pl].progress = 0;
+	tongue[pl].canTongue = 1;
 
 	for( i=0; i<MAX_TONGUENODES; i++ )
 		SubSprite( &tongue[pl].sprite[i] );
@@ -541,3 +591,61 @@ ACTOR2 *ScenicIsInRange( float radius, int pl )
 	return NULL;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: FrogIsInRange
+	Purpose			: Find nearest frog 
+	Parameters		: 
+	Returns			: ACTOR2 *
+	Info			: Multiplayer use only
+*/
+ACTOR2 *FrogIsInRange(float radius, int pl)
+{
+	ACTOR2 *f;
+	int i, closest=-1;
+	float dist, best=1000000;
+
+	for( i=(pl+1)%NUM_FROGS; i!=pl; i=(i+1)%NUM_FROGS )
+	{
+		dist = DistanceBetweenPointsSquared(&frog[i]->actor->pos, &frog[pl]->actor->pos);
+		if( (dist < (radius*radius)) && (dist < best) )
+		{
+			closest = i;
+			best = dist;
+		}
+	}
+
+	if( closest == -1 ) return NULL;
+
+	return frog[closest];
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ThrowFrogDirection
+	Purpose			: Hurl a frog along a tile pointer direction
+	Parameters		: 
+	Returns			: 
+	Info			: Multiplayer use only
+*/
+void ThrowFrogDirection( int thrower, int throwee, int dir )
+{
+	GAMETILE *tile = NULL, *tile2 = currTile[thrower], *tile3 = NULL;
+	float count=0;
+
+	// Find all tiles in the direction as far as the eye can see
+	while( (tile = FindJoinedTileByDirectionConstrained(tile2,&currTile[thrower]->dirVector[dir],PI)) )
+	{
+		if( tile3 == tile ) { tile = tile2; break; } // Oscillating between 2 tiles
+		tile3 = tile2;
+		tile2 = tile;
+		count++;
+	}
+
+	if( !tile ) tile = tile2;
+
+	AnimateActor( frog[throwee]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5, 0, 0 );
+	AnimateActor( frog[throwee]->actor, FROG_ANIM_TRYTOFLY, NO, YES, 0.5, 0, 0 );
+	// Spring throwee to target tile
+	SpringFrogToTile(tile, 50+(count*10), 0.1+(count*0.08), throwee);
+}

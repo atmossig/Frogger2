@@ -260,7 +260,7 @@ void GameProcessController(long pl)
 		}
 	}
 	
-	if((button[pl] & CONT_B) && (player[pl].canJump) && (tongue[pl].flags & TONGUE_IDLE))
+	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
     {
 		// want to use tongue
 		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;

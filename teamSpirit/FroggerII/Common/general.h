@@ -25,5 +25,6 @@ inline extern void cmemcpy( char *a, char *b, unsigned long size );
 extern GAMETILE* FindNearestTile(VECTOR v);
 extern GAMETILE* FindNearestJoinedTile(GAMETILE *tile, VECTOR *pos);
 extern GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d );
+extern GAMETILE *FindJoinedTileByDirectionConstrained( GAMETILE *st, VECTOR *d, float angle );
 
 #endif

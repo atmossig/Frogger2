@@ -18,7 +18,7 @@ enum
 {
 	TONGUE_GET_BABY,
 	TONGUE_GET_GARIB,
-	TONGUE_GET_GRAPPLE,
+	TONGUE_GET_FROG,
 	TONGUE_GET_SCENIC,
 };
 
@@ -29,7 +29,7 @@ typedef struct
 
 	unsigned long flags;
 	float radius, progress;
-	unsigned char type;
+	unsigned char type, canTongue;
 
 	SPRITE *sprite;
 	TEXTURE *tex;
@@ -63,5 +63,12 @@ extern TONGUE tongue[MAX_FROGS];
 extern void InitTongues( );
 extern void UpdateFrogTongue( int pl );
 extern void RemoveFrogTongue( int pl );
+
+extern ENEMY *BabyFrogIsInRange(float radius, int pl);
+extern GARIB *GaribIsInRange(float radius, int pl);
+extern ACTOR2 *ScenicIsInRange(float radius, int pl);
+extern ACTOR2 *FrogIsInRange(float radius, int pl);
+
+extern void ThrowFrogDirection( int thrower, int throwee, int dir );
 
 #endif

@@ -19,6 +19,14 @@
 VECTOR *pointOfInterest;
 float	pOIDistance = 20000.0;
 
+char frogModel[4][16] = 
+{
+	"frogger.obe",
+	"toad.obe",
+	"femfrog.obe",
+	"frogger.obe"
+};
+
 //----------------------------------------------------------------------------//
 //----- GLOBALS --------------------------------------------------------------//
 //----------------------------------------------------------------------------//
@@ -97,9 +105,9 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 	{
 		for (i=0; i<NUM_FROGS; i++)
 			if (gTStart[i])
-				CreateFrogActor (gTStart[i],"frogger.obe",i);
+				CreateFrogActor (gTStart[i],frogModel[i],i);
 			else
-				CreateFrogActor (gTStart[0],"frogger.obe",i);
+				CreateFrogActor (gTStart[0],frogModel[i],i);
 		
 		for (i=0; i<NUM_FROGS; i++)
 			frog[i]->draw = 0;
