@@ -1892,7 +1892,13 @@ void PushFrog(FVECTOR *direction, long pl)
 		MoveToRequestedDestination((res - camFacing[pl]) & 3, pl);
 	}
 
-	currTile[pl] = destTile[pl];
+	if( destTile[pl] )
+		currTile[pl] = destTile[pl];
+	else
+	{
+		player[pl].frogState |= FROGSTATUS_ISDEAD;
+		DeathNormal( pl );
+	}
 }
 
 /*	--------------------------------------------------------------------------------

@@ -635,7 +635,7 @@ ENEMY *ScenicIsInRange( fixed radius, int pl )
 		}
 		else
 		{
-			if( (cur->flags & ENEMY_NEW_BABYFROG) || !cur->active || !cur->visible || cur->uid ) 
+			if( (cur->flags & ENEMY_NEW_BABYFROG) || (cur->flags & ENEMY_NEW_PUSHESFROG) || !cur->active || !cur->visible || cur->uid ) 
 				continue;
 		}
 
