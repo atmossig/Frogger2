@@ -416,18 +416,18 @@ void GameProcessController(long pl)
 */
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
-	ACTOR2 *theActor;//,*skyActor;
+	ACTOR2 *theActor;	//,*testFGActor;
 	SCENIC *ts = Sc_000;
 	int actCount = 0;
 	char tmp[5];
 	long i;
 	
 /*	
-	skyActor = CreateAndAddActor("sky.ndo",0,0,0,0,0,0);
-	skyActor->flags |= ACTOR_DRAW_ALWAYS;
-	if (skyActor->actor->objectController)
-		skyActor->actor->objectController->object->name[0]=='_';
-*/	
+	testFGActor = CreateAndAddActor("beetle.obe",0,0,50,INIT_ANIMATION,0,0);
+	AnimateActor(testFGActor->actor,0,YES,NO,0.5F,0,0);
+	testFGActor->flags = ACTOR_DRAW_LAST;
+*/
+	
 	// Go through and add them!
 	while (ts)
 	{
@@ -654,11 +654,13 @@ void RunGameLoop (void)
 				FreeAllLists();
 
 #ifdef MBR_DEMO
+#ifdef PC_VERSION
 				player[0].levelNum = LEVELID_FRONTEND5;
 				player[0].worldNum = WORLDID_LANGUAGE;
 				player[0].frogState &= ~FROGSTATUS_ISDEAD;
 				InitLevel ( player[0].worldNum, player[0].levelNum );
 				SetFroggerStartPos(gTStart[0],0);
+#endif
 #else
 				gameState.mode = FRONTEND_MODE;
 				frontEndState.mode = TITLE_MODE;
