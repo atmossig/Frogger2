@@ -1737,6 +1737,9 @@ James Hubbard:
 
 		And yeah, DEVLOGS PLEASE... (in a deep Joff voice)
 
+	Later:
+		Can specify an animation for an enemy to do when it kills the frog. Demo build SEEMS stable.
+
 
 James Healey:
 ------------------------------------------------
