@@ -58,26 +58,22 @@ void PrintSprites()
 {
 	int i;
 	SPRITE *cur;
+	MDX_VECTOR tVect;
 	
 	// transform sprites to screen coords ready for sorting
 	for(cur = sprList.head.next; cur != &sprList.head && numSortArraySprites < MAX_ARRAY_SPRITES; cur = cur->next)
 	{
-		MDX_VECTOR tVect;
-		tVect.vx = cur->pos.vx*(1.0/10);
-		tVect.vy = cur->pos.vy*(1.0/10);
-		tVect.vz = cur->pos.vz*(1.0/10);
+		SetVectorRS( &tVect, &cur->pos );
+		ScaleVector( &tVect, 0.1 );
+
 		XfmPoint(&cur->sc,&tVect,NULL);
-	//cur->sc.vz*=0.00025F;
 	}
 	ZSortSpriteList();
 
 	// draw from the newly sorted static array
-	
 	i = numSortArraySprites;
 	while(i--) if( spriteSortArray[i].draw ) 
-	{
 		PrintSprite(&spriteSortArray[i]);
-	}
 }
 
 
@@ -238,7 +234,7 @@ void PrintSpriteOverlays(long num)
 			}
 			
 			numSprites++;
-			if (cur->flags & XLU_ADD)
+			if (cur->flags & SPRITE_ADDITIVE)
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
@@ -247,7 +243,7 @@ void PrintSpriteOverlays(long num)
 			DrawAlphaSprite( cur->xPos*2, cur->yPos*2, 0, cur->width*2, cur->height*2, 0, 0, 1, 1, 
 				tEntry->surf,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 
-			if (cur->flags & XLU_ADD)
+			if (cur->flags & SPRITE_ADDITIVE)
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
@@ -267,7 +263,7 @@ void PrintSpriteOverlays(long num)
 */
 void PrintSprite(SPRITE *sprite)
 {
-	MDX_VECTOR m;
+	MDX_VECTOR m, sc;
 	MDX_VECTOR s = {1,1,0};
 	float distx,disty;
 	MDX_TEXENTRY *tEntry;
@@ -275,15 +271,17 @@ void PrintSprite(SPRITE *sprite)
 	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
 		return;
 
-	if (sprite->sc.vz)
+	SetVector( &sc, (MDX_VECTOR *)&sprite->sc );
+
+	if( sc.vz )
 	{
 		tEntry = ((MDX_TEXENTRY *)sprite->texture);
-		distx = disty = (FOV)/(sprite->sc.vz+DIST);
+		distx = disty = (FOV)/(sc.vz+DIST);
 		distx *= (sprite->scaleX/(64.0));
 		disty *= (sprite->scaleY/(64.0));
 		numSprites++;
 
-		if (sprite->flags & XLU_ADD)
+		if (sprite->flags & SPRITE_ADDITIVE)
 		{
 			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
@@ -291,16 +289,16 @@ void PrintSprite(SPRITE *sprite)
 
 /*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
-			DrawAlphaSpriteRotating( (MDX_VECTOR *)&sprite->sc,(float)sprite->angle/57.6,sprite->sc.vx+sprite->offsetX*distx,sprite->sc.vy+sprite->offsetY*disty,sprite->sc.vz*0.00025,32*distx,32*disty,
+			DrawAlphaSpriteRotating( &sc,(float)sprite->angle/57.6,sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry->surf,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 		else*/
 		{
-			DrawAlphaSprite(sprite->sc.vx+sprite->offsetX*distx,sprite->sc.vy+sprite->offsetY*disty,sprite->sc.vz*0.00025,32*distx,32*disty,
+			DrawAlphaSprite(sc.vx+sprite->offsetX*distx,sc.vy+sprite->offsetY*disty,sc.vz*0.00025,32*distx,32*disty,
 				0,0,1,1,tEntry->surf,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/255.0) );
 		}
 
-		if (sprite->flags & XLU_ADD)
+		if (sprite->flags & SPRITE_ADDITIVE)
 		{
 			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
