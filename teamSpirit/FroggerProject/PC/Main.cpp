@@ -49,7 +49,7 @@
 #include "pcgfx.h"
 #include "ptexture.h"
 #include "dx_sound.h"
-
+#include "banks.h"
 #include "controll.h"
 
 #include "mdx.h"
@@ -85,7 +85,6 @@ unsigned long synchSpeed = 60 * 1;
 unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
 
-
 long slideSpeeds[4] = {0,16,32,64};
 
 /*	-------------------------------------------------------------------------------
@@ -100,6 +99,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	HANDLE			fHandle;
 	char	fName[MAX_PATH];
 	char	fPath[MAX_PATH];
+	long idx;
 
     switch(msg)
 	{
@@ -133,6 +133,8 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				while (ret);
 			
 				FindClose (fHandle);
+
+				SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_SETCURSEL,0,0);
 			}
 			else
 				dp("No savegames",fName);
@@ -146,7 +148,10 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				case IDC_MULTI:
 					InitMPDirectPlay(mdxWinInfo.hInstance);
-					return TRUE;
+					return TRUE;					
+				case IDOK:
+					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),WM_GETTEXT,16,(long)saveName);
+					return FALSE;				
 			}
 		}
 	}
@@ -552,9 +557,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SPRITECLIPTOP		=ROTSPRITECLIPTOP	= cly0;
 	SPRITECLIPRIGHT		=ROTSPRITECLIPRIGHT	= clx1;
 	SPRITECLIPBOTTOM	=ROTSPRITECLIPBOTTOM = cly1;
-
 	
-	
+	LoadGame();
 	
 	RunWindowsLoop(&LoopFunc);
 

@@ -15,6 +15,8 @@
 #include "Main.h"
 #include <islutil.h>
 
+char saveName[32];
+
 TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 
 void LoadObjectBank(int objectBank)					
@@ -325,3 +327,53 @@ void newobj(char* fn)
 	___ "newobj\\"; __(________); __(_(_____)) ___ __(_(________)) _______;
 }
 */
+
+void LoadGame(void)
+{
+	char file[MAX_PATH];
+	char hdr[2];
+	FILE *fp;
+
+	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
+	
+	fp = fopen(file,"rb");
+	fread(&hdr,2,1,fp);
+
+	if ((hdr[0] == 'M') && (hdr[1] == 'T'))
+	{
+		fclose(fp);
+		return;
+	}
+
+	for (int i = 0; i<MAX_WORLDS; i++)
+		for (int j=0; j<worldVisualData[i].numLevels; j++)
+		{
+			fread(&(worldVisualData[i].levelVisualData[j].levelOpen),4,1,fp);
+			fread(&(worldVisualData[i].levelVisualData[j].parTime),4,1,fp);
+			fread(&(worldVisualData[i].levelVisualData[j].parName),9,1,fp);
+		}
+
+	fclose(fp);
+}
+
+void SaveGame(void)
+{
+	char file[MAX_PATH];
+	char hdr[3] = "GD";
+	FILE *fp;
+
+	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
+	
+	fp = fopen(file,"wb");
+	fwrite(&hdr,2,1,fp);
+
+	for (int i = 0; i<MAX_WORLDS; i++)
+		for (int j=0; j<worldVisualData[i].numLevels; j++)
+		{
+			fwrite(&(worldVisualData[i].levelVisualData[j].levelOpen),4,1,fp);
+			fwrite(&(worldVisualData[i].levelVisualData[j].parTime),4,1,fp);
+			fwrite(&(worldVisualData[i].levelVisualData[j].parName),9,1,fp);
+		}
+
+	fclose(fp);	
+}
