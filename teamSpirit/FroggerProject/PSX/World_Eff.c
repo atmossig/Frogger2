@@ -109,7 +109,7 @@ void CreateAndAddScenicObject(SCENIC *sc)
 	newItem->matrix.t[1] =  sc->pos.vy;
 	newItem->matrix.t[2] =  sc->pos.vz;
 	
-	utilPrintf("Creating Scenic Object : %s\n", sc->name);
+	//utilPrintf("Creating Scenic Object : %s\n", sc->name);
 
 	newItem->fmaObj = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( sc->name ) );
 
