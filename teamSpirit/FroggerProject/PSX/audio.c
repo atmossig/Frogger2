@@ -13,6 +13,7 @@
 // #include "incs.h"
 #include <islmem.h>
 #include <libspu.h>
+#include <libsnd.h>
 
 #include "audio.h"
 
@@ -902,10 +903,21 @@ void StopSample(SAMPLE *sample)
 
 void PauseAudio( )
 {
+	// CD Pause: Possibly should check return value... Nah, can't be bothered.
+#if GOLDCD==1
+	CdControl( CdlPause, NULL, NULL );
+#endif
 
+	// Mute sound
+	SsSetMute( 1 );
 }
 
 void UnPauseAudio( )
 {
-
+	// CD Resume
+#if GOLDCD==1
+	CdControl( CdlPlay, NULL, NULL );
+#endif
+	// Unmute sound
+	SsSetMute( 0 );
 }

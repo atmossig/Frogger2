@@ -188,6 +188,7 @@ bss     group   bss
 	inclib  "libcd.lib"
 	inclib  "libetc.lib"
 	inclib  "libspu.lib"
+	inclib	"libsnd.lib"
 	inclib  "libc2.lib"
     inclib  "libds.lib"
     inclib  "libpress.lib"
