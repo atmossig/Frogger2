@@ -28,6 +28,7 @@ extern int drawOverlays;
 extern float OVERLAY_X;
 extern float OVERLAY_Y;
 
+extern LPDIRECTDRAWSURFACE7 pSurface;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 

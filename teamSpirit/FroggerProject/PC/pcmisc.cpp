@@ -20,14 +20,14 @@
 #include "Main.h"
 #include "pcmisc.h"
 #include "ptexture.h"
-#include "mdx.h"
-#include "mdxTexture.h"
 #include "islPad.h"
 #include "controll.h"
 
 #include <stdio.h>
 
 int drawOverlays = 1;
+
+LPDIRECTDRAWSURFACE7 pSurface = NULL;
 
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
 {
@@ -68,7 +68,7 @@ void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 	DDINIT(ddsd);
 
 	// Create static _AI_ surface you dolt
-	static LPDIRECTDRAWSURFACE7 pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
+	if( !pSurface ) pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
 	
 	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 		ddShowError(res);
@@ -106,6 +106,8 @@ void PTTextureLoad( )
 
 	if (t)
 		testS = t->surf;
+
+	pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
 }
 
 
@@ -187,13 +189,15 @@ void CreateProceduralTexture( TextureType *tex, char *name )
 			pt->Update = ProcessPTWaterWaves;
 	}
 	else if( name[4]=='s' && name[5]=='t' && name[6]=='e' && name[7]=='a' )
-	{
 		pt->Update = ProcessPTSteam;
-//		pt->active = 0;
-//		steamTex = pt;
-	}
 	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
 		pt->Update = ProcessPTCandle;
+	else if( name[4]=='d' && name[5]=='s' && name[6]=='l' && name[8]=='v' )
+	{
+		pt->Update = ProcessPTDissolve;
+		pt->active = 0;
+		dissolveTex = pt;
+	}
 }
 
 
