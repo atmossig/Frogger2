@@ -612,10 +612,10 @@ int main ( )
 				DrawWorld();
 			TimerStop(&tDrawWorld);
 
-	//		DrawSpecialFX();
+			DrawSpecialFX();
 
 			TimerStart(&tPrintSprites);
-	//		PrintSprites();
+			PrintSprites();
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);
@@ -664,10 +664,10 @@ int main ( )
 //			actFrameCount += 1;//(GetTickCount()/(1000/60));
 //			frameCount++;
 
-//			actFrameCount += 3;//(GetTickCount()/(1000/60));
-//			gameSpeed=3<<12;
-			actFrameCount += 4;//(GetTickCount()/(1000/60));
-			gameSpeed=4<<12;
+			actFrameCount += 3;//(GetTickCount()/(1000/60));
+			gameSpeed=3<<12;
+//			actFrameCount += 4;//(GetTickCount()/(1000/60));
+//			gameSpeed=4<<12;
 
 		}
 		// ENDWHILE
