@@ -822,11 +822,11 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Init common controls
 	InitCommonControls();
 
-	InitInputDevices();
-
 	// Init windows
 	if (!WindowsInitialise(hInstance,"Frogger2",1))
 		return 1;
+
+	InitInputDevices();
 
 	// Init DDraw Object
 	if (!DDrawInitObject (NULL))
