@@ -23,7 +23,7 @@
 #define PM_GAMEOVER	3
 
 
-#define MBR_DEMO 1
+//#define MBR_DEMO 1
 
 
 // -----------------
