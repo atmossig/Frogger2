@@ -629,6 +629,9 @@ void ProcessUserInput()
 			else
 				camDist.vz-=(20*gameSpeed)>>12;
 		}
+
+		if( KEYPRESS(DIK_F8) )
+			displayingTile = !displayingTile;
 	}
 
 	{
