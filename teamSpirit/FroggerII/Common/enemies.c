@@ -238,7 +238,7 @@ void UpdateEnemies()
 			ScaleVector(&fwd,length);
 			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
 			MakeUnit (&fwd);
-
+/*
 			if (cur->flags & ENEMY_NEW_PUSHESFROG)
 			{
 				if( DistanceBetweenPointsSquared(&cur->nmeActor->actor->pos,&frog[0]->actor->pos) < (frog[0]->radius*frog[0]->radius) )
@@ -254,7 +254,7 @@ void UpdateEnemies()
 					destTile[0] = currTile[0];
 				}
 			}
-
+*/
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
 
 			if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
