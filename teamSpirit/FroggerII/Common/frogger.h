@@ -83,7 +83,7 @@ typedef struct _PLAYER
 	unsigned long	score;
 	short			numSpawn;
 	short			numCredits;
-	unsigned char	lives;
+	short			lives;
 	unsigned char	healthPoints;
 
 	unsigned char	deathBy;
