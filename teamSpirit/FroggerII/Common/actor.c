@@ -271,8 +271,8 @@ void DrawActorList()
 		DrawActor(hat[0]->actor);	
 	}
 
-	DrawBatchedPolys();
-	BlankFrame();
+	DrawBatchedPolys(x);
+	BlankFrame(x);
 	
 	waterObject = 1;
 	cur = actList;
@@ -299,7 +299,7 @@ void DrawActorList()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 
 	DrawBatchedPolys();
-	BlankFrame();
+	BlankFrame(x);
 
 	waterObject = 0;
 	cur = actList;
@@ -334,7 +334,7 @@ void DrawActorList()
 			}
 
 			DrawBatchedPolys();
-			BlankFrame();
+			BlankFrame(x);
 
 			if (cur->flags & ACTOR_ADDITIVE)
 			{
