@@ -870,7 +870,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName)
 	if(newItem->pltActor->actor->objectController)
 	{
 		InitActorAnim(newItem->pltActor->actor);
-		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F,0,0);
+		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F*newItem->pltActor->animSpeed,0,0);
 	}
 
 	// currently set all surrounding platform ptrs to null

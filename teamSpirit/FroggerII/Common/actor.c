@@ -718,6 +718,9 @@ void RemoveUniqueObject(OBJECT *object)
 	Returns 	: void
 	Info 		:
 */
+
+extern char dprintbuf[255];
+
 void RemoveUniqueActor(ACTOR *actor,int type)
 {
 /*
@@ -748,14 +751,55 @@ void RemoveUniqueActor(ACTOR *actor,int type)
 */
 }
 
-void ActorLookAt( ACTOR *act, VECTOR *at )
+void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 {
-	VECTOR v1, v2, v3, up;
+	VECTOR forward, dir;
+	QUATERNION q,q2,q3,planeQuat;
+	float a,b;
+	
+//	CalculateQuatForPlane2(0,&planeQuat,&upVec)
 
-	SubVector( &v1, &act->pos, at );
-	MakeUnit(&v1);
-	RotateVectorByQuaternion(&up,&upVec,&act->qRot);
-	CrossProduct(&v2,&v1,&up);
-	CrossProduct(&v3,&v2,&up);
-	Orientate(&act->qRot,&v3,&inVec,&up);
+	SubVector( &dir, &act->pos, at );
+
+	SetVector( &forward, &dir );
+	forward.v[Y] = 0;
+	MakeUnit(&forward);
+	a = -DotProduct(&forward,&inVec);
+	q.x = 0;
+	q.y = 1;
+	q.z = 0;
+	if (forward.v[X]<0)
+		q.w = acos(a);
+	else
+		q.w = -acos(a);
+
+	
+	if( flags == LOOKAT_ANYWHERE )
+	{
+		GetQuaternionFromRotation(&q3,&q);
+
+		SetVector( &forward, &dir );
+		b = sqrt(forward.v[X]*forward.v[X]+forward.v[Z]*forward.v[Z]);
+		
+		forward.v[X] = 0;
+		forward.v[Z] = b;
+
+		MakeUnit(&forward);
+		a = DotProduct(&forward,&upVec);
+		q.x = 1;
+		q.y = 0;
+		q.z = 0;
+		if (forward.v[Y]<0)
+			q.w = (acos(a)-PI_OVER_2);
+		else
+			q.w = (PI_OVER_2-acos(a));
+		
+		GetQuaternionFromRotation(&q2,&q);
+
+		QuaternionMultiply (&act->qRot,&q3,&q2);
+	}
+	else
+	{
+		GetQuaternionFromRotation(&act->qRot,&q);
+	}
 }

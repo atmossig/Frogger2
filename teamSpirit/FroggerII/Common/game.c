@@ -664,31 +664,28 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 {
-	VECTOR dirn,dirn2;
+	VECTOR dirn;
 	QUATERNION rotn,q;
-	float frogMatrix[4][4];
-	float frogMatrix2[4][4];
 	float dp,m;
 	
-	CalculateQuatForPlane2(0,me,up);
-	SetVector (&dirn,mfd);
-	RotateVectorByQuaternion(&dirn2,&dirn,me);
-	dp = DotProduct(fd,&dirn2);
-	CrossProduct((VECTOR *)&rotn,&dirn2,fd);
+	CalculateQuatForPlane2( 0, me, up);
+	RotateVectorByQuaternion( &dirn, mfd, me);
+	dp = DotProduct( fd, &dirn );
+	CrossProduct( (VECTOR *)&rotn, &dirn, fd );
 	if(dp > -0.99)
 	{
-		m = Magnitude((VECTOR *)&rotn);
+		m = Magnitude( (VECTOR *)&rotn );
 		if(m > 0.0001)
 		{
-			ScaleVector((VECTOR *)&rotn,1/m);
+			ScaleVector( (VECTOR *)&rotn, 1/m );
 
 			if (dp<0.99)
 				rotn.w = acos(dp);
 			else
 				rotn.w = 0;
 			
-			GetQuaternionFromRotation(&q,&rotn);
-			QuaternionMultiply(me,&q,me);
+			GetQuaternionFromRotation( &q, &rotn );
+			QuaternionMultiply( me, &q, me );
 		}
 	}
 	else

@@ -21,6 +21,10 @@
 #define ACTOR_DRAW_LAST				(1 << 3)	//8
 
 
+#define LOOKAT_ANYWHERE		1
+#define LOOKAT_2D			2
+
+
 //------------------------------------------------------------------------------------------------
 
 
@@ -104,7 +108,7 @@ OBJECT *MakeUniqueObject(OBJECT *object);
 void RemoveUniqueObject(OBJECT *object);
 
 void ResetUniqueActorList();
-void ActorLookAt( ACTOR *act, VECTOR *at );
+void ActorLookAt( ACTOR *act, VECTOR *at, long flags );
 void CopyDrawlist(u8 *dest,u8 *source);
 
 #endif
