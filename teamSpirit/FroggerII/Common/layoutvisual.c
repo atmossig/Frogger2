@@ -176,7 +176,7 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 
 	{
 	"super retro",			// description
-	WORLDID_SPACE,		// world ID
+	WORLDID_SUPERRETRO,		// world ID
 	RETROMASTER_OBJ_BANK,	// master object bank
 	SUPERRETRO_TEX_BANK,	// master texture bank
 	WORLD_CLOSED,
