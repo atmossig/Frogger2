@@ -43,6 +43,10 @@ void UpdateFrogWatcher( ENEMY *cur );
 void UpdateRandomMoveNME( ENEMY *cur );
 void UpdateTileHomingNME( ENEMY *cur );
 
+
+long hurtJumpTime		= 70;
+float hurtJumpHeight	= 50.0f;
+
 /*	--------------------------------------------------------------------------------
 	Function		: 
 	Purpose			: 
@@ -175,6 +179,12 @@ void NMEDamageFrog( int num, ENEMY *nme )
 //		PlaySample(42,NULL,192,128);
 		GTInit( &player[num].safe, 2 );
 		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
+
+		// Hop the frog up in the air and do a somersault
+		CalculateFrogJump(&frog[num]->actor->pos, &currTile[num]->centre, &currTile[num]->normal,
+			hurtJumpHeight, hurtJumpTime, num);
+
+		player[num].canJump = 0;
 	}
 	else
 	{
