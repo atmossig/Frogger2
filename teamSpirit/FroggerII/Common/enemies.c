@@ -4,8 +4,24 @@
 
 
 	File		: enemies.c
-	Programmer	: Andrew Eder
+	Programmer	: Jim Hubbard
 	Date		: 1/12/99
+	Info		: Animation:
+					Different standards for groups of enemy types, which at the moment is
+
+					Homers:
+					Walk
+					Idle
+					Attack
+
+					Path based:
+					Walk
+					Walk
+
+					Snappers:
+					Idle
+					Full Attack
+					Any extra idles, to be played occasionally
 
 ----------------------------------------------------------------------------------------------- */
 
@@ -404,6 +420,13 @@ void UpdatePathNME( ENEMY *cur )
 		}
 	}
 
+	// Occasionally do the extra walk anim, then go back to normal
+	if( Random(1000) > 995 )
+	{
+		AnimateActor( cur->nmeActor->actor, NMEANIM_PATH_WALK2, NO, YES, cur->nmeActor->animSpeed, 0, 0 );
+		AnimateActor( cur->nmeActor->actor, NMEANIM_PATH_WALK1, YES, YES, cur->nmeActor->animSpeed, 0, 0 );
+	}
+
 	if( actFrameCount < cur->path->startFrame+(0.5*(cur->path->endFrame-cur->path->startFrame)) )
 		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
 	else
@@ -509,15 +532,11 @@ void UpdateSnapper( ENEMY *cur )
 		if( actFrameCount < path->endFrame )
 			break;
 
+		// Random Animation
 		if (Random(1000)>980)
-			AnimateActor(act,2,NO,NO,cur->nmeActor->animSpeed, 0, 0);
-	
-		if (Random(1000)>950)
 		{
-			if (Random(1000)>950)
-				AnimateActor(act,3,NO,YES,cur->nmeActor->animSpeed, 0, 0);
-			else
-				AnimateActor(act,0,NO,YES,cur->nmeActor->animSpeed, 0, 0);
+			AnimateActor( act, NMEANIM_SNAP_EXTRA1+Random(3), NO, YES, cur->nmeActor->animSpeed, 0, 0);
+			AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
 		}
 
 		// Slerp orientation towards frog
@@ -565,7 +584,8 @@ void UpdateSnapper( ENEMY *cur )
 		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 			break;
 
-		AnimateActor(act,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
+		AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
+		AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
 
 		if( cur->nmeActor->effects & EF_LIGHTNING )
 		{
@@ -687,7 +707,9 @@ void UpdateTileSnapper( ENEMY *cur )
 			}
 		}
 
-		AnimateActor( act, 1, NO, NO, cur->nmeActor->animSpeed, 0, 0 );
+		AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0 );
+		AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0 );
+
 		cur->isSnapping = 1;
 		break;
 	}
@@ -881,6 +903,13 @@ void UpdateRotatePathNME( ENEMY *cur )
 	}
 
 	cur->inTile = FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
+
+	// Occasionally do the extra walk anim, then go back to normal
+	if( Random(1000) > 995 )
+	{
+		AnimateActor( cur->nmeActor->actor, NMEANIM_PATH_WALK2, NO, YES, cur->nmeActor->animSpeed, 0, 0 );
+		AnimateActor( cur->nmeActor->actor, NMEANIM_PATH_WALK1, YES, YES, cur->nmeActor->animSpeed, 0, 0 );
+	}
 }
 
 
@@ -957,6 +986,7 @@ void UpdateTileHomingNME( ENEMY *cur )
 	{
 		cur->isIdle = 0;
 		path->nodes[2].worldTile = NULL;
+		AnimateActor( act->actor, NMEANIM_HOMER_IDLE, YES, YES, act->animSpeed, 0, 0);
 		return;
 	}
 
@@ -990,6 +1020,8 @@ void UpdateTileHomingNME( ENEMY *cur )
 
 		path->startFrame = actFrameCount;
 		path->endFrame = path->startFrame + (60*path->nodes[0].speed);
+
+		AnimateActor( act->actor, NMEANIM_HOMER_WALK, YES, YES, act->animSpeed, 0, 0);
 	}
 
 	// Move towards next node - third condition is so fwd is not scaled to zero
@@ -1036,6 +1068,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	{
 		cur->isIdle = 0;
 		path->nodes[2].worldTile = NULL;
+		AnimateActor( act->actor, NMEANIM_HOMER_IDLE, YES, YES, act->animSpeed, 0, 0);
 		return;
 	}
 	else if( dist < 33*33 && !player[0].dead.time && !player[0].safe.time ) // Trial and error value of 33
@@ -1075,6 +1108,8 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		path->startFrame = actFrameCount;
 		path->endFrame = path->startFrame + (60*path->nodes[0].speed);
 		cur->isIdle--;
+		AnimateActor( act->actor, NMEANIM_HOMER_WALK, NO, NO, act->animSpeed, 0, 0);
+		AnimateActor( act->actor, NMEANIM_HOMER_IDLE, YES, YES, act->animSpeed, 0, 0);
 	}
 
 	// Move towards next node - third condition is so fwd is not scaled to zero
@@ -1396,17 +1431,27 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	AssignPathToEnemy(newItem,path,0);
 
 	if( newItem->flags & ENEMY_NEW_SLERPPATH )
+	{
 		newItem->Update = UpdateSlerpPathNME;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_PATH_WALK1,YES,NO,animSpeed, 0, 0);
+	}
 	else if( newItem->flags & ENEMY_NEW_FOLLOWPATH )
+	{
 		newItem->Update = UpdatePathNME;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_PATH_WALK1,YES,NO,animSpeed, 0, 0);
+	}
 	else if( newItem->flags & ENEMY_NEW_WATCHFROG )
 		newItem->Update = UpdateFrogWatcher;
 	else if( newItem->flags & ENEMY_NEW_SNAPFROG )
+	{
 		newItem->Update = UpdateSnapper;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_SNAP_IDLE,YES,NO,animSpeed, 0, 0);
+	}
 	else if( newItem->flags & ENEMY_NEW_SNAPTILES )
 	{
 		newItem->isSnapping = -2;
 		newItem->Update = UpdateTileSnapper;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_SNAP_IDLE,YES,NO,animSpeed, 0, 0);
 	}
 	else if( newItem->flags & ENEMY_NEW_VENT )
 	{
@@ -1416,17 +1461,29 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	else if( (newItem->flags & ENEMY_NEW_MOVEUP) || (newItem->flags & ENEMY_NEW_MOVEDOWN) )
 		newItem->Update = UpdateMoveVerticalNME;
 	else if( (newItem->flags & ENEMY_NEW_ROTATEPATH_XZ ) || (newItem->flags & ENEMY_NEW_ROTATEPATH_XY) || (newItem->flags & ENEMY_NEW_ROTATEPATH_ZY) )
+	{
 		newItem->Update = UpdateRotatePathNME;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_PATH_WALK1,YES,NO,animSpeed, 0, 0);
+	}
 	else if( newItem->flags & ENEMY_NEW_HOMING )
+	{
 		newItem->Update = UpdateHomingNME;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_HOMER_IDLE,YES,NO,animSpeed, 0, 0);
+	}
 	else if( newItem->flags & ENEMY_NEW_MOVEONMOVE )
+	{
 		newItem->Update = UpdateMoveOnMoveNME;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_HOMER_IDLE,YES,NO,animSpeed, 0, 0);
+	}
 	else if( newItem->flags & ENEMY_NEW_FLAPPYTHING )
 		newItem->Update = UpdateFlappyThing;
 	else if( newItem->flags & ENEMY_NEW_RANDOMMOVE )
 		newItem->Update = UpdateRandomMoveNME;
 	else if( newItem->flags & ENEMY_NEW_TILEHOMING )
+	{
 		newItem->Update = UpdateTileHomingNME;
+		AnimateActor(newItem->nmeActor->actor,NMEANIM_HOMER_IDLE,YES,NO,animSpeed, 0, 0);
+	}
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
 	{

@@ -12,6 +12,20 @@
 #ifndef ENEMIES_H_INCLUDED
 #define ENEMIES_H_INCLUDED
 
+
+#define NMEANIM_HOMER_WALK		0
+#define NMEANIM_HOMER_IDLE		1
+#define NMEANIM_HOMER_ATTACK	2
+
+#define NMEANIM_PATH_WALK1		0
+#define NMEANIM_PATH_WALK2		1
+
+#define NMEANIM_SNAP_IDLE		0
+#define NMEANIM_SNAP_ATTACK		1
+#define NMEANIM_SNAP_EXTRA1		2
+#define NMEANIM_SNAP_EXTRA2		3
+
+
 //----- [ ENEMY FLAGS ] ---------------------------------------------------------------------//
 
 #define ENEMY_NEW_NONE					0
