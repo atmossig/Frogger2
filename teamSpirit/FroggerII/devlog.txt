@@ -1799,6 +1799,19 @@ James Hubbard:
 		pivot for platforms has to be on top and trails shouldn't be, and generally
 		made sure that everything's working.
 
+	Afternoon:
+		Good News - We finished the toy fair build! Hopefully for the last time, we posted a version to Kevin.
+					And as far as we can tell, the texture crash bug is gone.
+
+		Bad News -	The sound loading code I wrote yesterday has been destroyed! I copied it to another
+					directory so I could work on the old code for the demo, and after I copied it back
+					SourceSafe in a moment of supremely misguided helpfulness decided that I no longer had ANY
+					of the files I had altered and REPLACED THEM AAAAALLLLLL! GAAAAAAAHHHHHH!
+
+					< Half a page of anti-Microsoft ranting - see my docs\other directory >
+
+					OK, I'm finished now. Sorry.
+
 
 James Healey:
 ------------------------------------------------
