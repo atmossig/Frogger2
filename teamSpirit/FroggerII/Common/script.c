@@ -1177,7 +1177,7 @@ void LoadTestScript(const char* filename)
 	
 	dprintf"Testing script %s\n", filename));
 
-	if (!(buffer = (UBYTE*)loadFile(filename, 0)))
+	if (!(buffer = (UBYTE*)fileLoad(filename, 0)))
 	{
 		sprintf(statusMessage, "Couldn't load script file %s", filename);
 		dprintf "%s\n", statusMessage)); return;
