@@ -528,7 +528,7 @@ void DrawBackground(void)
 	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vy = currCamSource.vy / 40960.0;
 	((MDX_ACTOR *)backGnd->actor->actualActor)->pos.vz = currCamSource.vz / 40960.0;
 		
-	XformActor(((MDX_ACTOR *)backGnd->actor->actualActor));
+	XformActor(((MDX_ACTOR *)backGnd->actor->actualActor),1);
 	DrawActor(((MDX_ACTOR *)backGnd->actor->actualActor));
 
 	noClipping = 0;
@@ -1002,6 +1002,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
 	InitWater(waterFile);
 
+	SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
+	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);
 	InitTiming(60.0);
 
 	InitEditor();
