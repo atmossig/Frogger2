@@ -744,10 +744,9 @@ void RunGameLoop (void)
 			{
 				if ( ( frameCount > 15 ) )
 				{
-					if( !frog[0]->action.dead.time )
-					{
-						for (i=0; i<NUM_FROGS; i++)
-							if (frog[i]->action.stun.time)
+					for (i=0; i<NUM_FROGS; i++)
+						if( !frog[i]->action.dead.time )
+							if ( frog[i]->action.stun.time)
 							{
 								GTUpdate( &frog[i]->action.stun, -1 );
 							}
@@ -755,7 +754,6 @@ void RunGameLoop (void)
 							{
 								GameProcessController(i);                                      
 							}
-        			}
 				}
 
 				if(frog[0])

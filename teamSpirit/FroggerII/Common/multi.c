@@ -184,4 +184,10 @@ void KillMPFrog(int num)
 		i=num*3+(--frog[num]->action.healthPoints);
 		if( sprHeart[i] ) sprHeart[i]->draw = 0;
 	}
+	else
+	{
+		frog[num]->action.healthPoints = 3;
+		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		player[num].frogState |= FROGSTATUS_ISDEAD;
+	}
 }
