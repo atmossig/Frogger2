@@ -738,6 +738,7 @@ BOOL ExecuteCommand(UBYTE **p)
 				nme->path->toNode = flag;
 				nme->path->endFrame = actFrameCount;
 				UpdateEnemyPathNodes(nme);
+				nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
 			}
 			break;
 		}

@@ -94,13 +94,11 @@ unsigned long levelPlayList[] =
 
 void GameProcessController(long pl)
 {
-	static u16 button[4],lastbutton[4];
-	static s16 stickX[4], stickY[4],lastStickX[4],lastStickY[4];
-    
+	u16 button[4],lastbutton[4];
+
 	button[pl] = controllerdata[pl].button;
-	stickX[pl] = controllerdata[pl].stick_x;
-	stickY[pl] = controllerdata[pl].stick_y;
-		
+	lastbutton[pl] = controllerdata[pl].lastbutton;
+
 	player[pl].hasJumped = 0;
 	
 	// check if frog is using extended hop ability
@@ -416,10 +414,6 @@ void GameProcessController(long pl)
 		}
 		lastbutton[pl] = button[pl];
     }
-
-	lastbutton[pl] = button[pl];
-	lastStickX[pl] = stickX[pl];
-	lastStickY[pl] = stickY[pl];
 }
 
 

@@ -889,7 +889,7 @@ void LoadSfxMapping( int world, int level )
 	CloseHandle(h);
 
 	in = (unsigned char *)buffer;
-	sfx_anim_map = (long *)JallocAlloc( size, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
+	sfx_anim_map = (long *)JallocAlloc( size+8, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
 
 	index=0;
 	count=0;
