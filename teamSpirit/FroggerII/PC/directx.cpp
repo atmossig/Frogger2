@@ -886,7 +886,7 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	ddsd.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE;
 //	ddsd.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
 
-	if (me = pDirectDraw->CreateSurface(&ddsd, &pSurface, NULL) != DD_OK)
+	if ((me = pDirectDraw->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{
 		dp ("Failed NSurf\n");
 		dp (ddError2String(me));
@@ -927,7 +927,7 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	else
 		ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
 	
-	if (me = pDirectDraw->CreateSurface(&ddsd, &pTSurface, NULL) != DD_OK)
+	if ((me = pDirectDraw->CreateSurface(&ddsd, &pTSurface, NULL)) != DD_OK)
 	{
 		DDINIT(ddCaps);													// Init caps struct
 		capsResult = pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
