@@ -599,6 +599,9 @@ void main()
 	// show all legal screens and FMV
 	showLegalFMV(0);
 
+	// default world data.. needs to be called before CommonInit
+	memcpy((char*)worldVisualData,(char*)origWorldVisualData,sizeof(worldVisualData));
+
 	CommonInit();
 
 	// don't continue until at least 1 valid pad detected
