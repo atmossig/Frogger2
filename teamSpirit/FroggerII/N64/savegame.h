@@ -21,8 +21,8 @@
 #define EEPROM_IDLE				0
 #define EEPROM_SAVELEVELSCORES	1
 #define EEPROM_LOADLEVELSCORES	2
-#define EEPROM_SAVEGAMEPROGRESS 3
-#define EEPROM_LOADGAMEPROGRESS 4
+#define EEPROM_SAVEGAME			3
+#define EEPROM_LOADGAME			4
 #define EEPROM_VALID			8
 #define EEPROM_SAVEID			9
 
@@ -53,27 +53,17 @@ typedef struct
 	// Player
 	char	name[3];
 	long	score;
-//	char	livesnhealth; // 6-2 l-h 
-		
+	char	livesnhealth; // 6-2 l-h 
+
 	// State
-//	char	worldState[9]; // 2-2-2-2 l-l-l-B   0 = Closed; 1 = gold; 2= silv 3  = bronz... The first "closed" world is in fact open but uncompleted
+//	char	worldState[MAX_WORLDS]; // 2-2-2-2 l-l-l-B   0 = Closed; 1 = gold; 2= silv 3  = bronz... The first "closed" world is in fact open but uncompleted
 //	short 	bonuses; // Each bit is whether bonus is open
 
 
 	short	currentWorld;
 	short	currentLevel;
 
-/*	int		levelCompleted;
-	int		levelConquered;
-	int		score;
-	char	lives;
-	char	difficulty;
-	char	numWorldsCompleted;
-	char	numBallsInPlace;
-	int		levelVisited;
-	short	sfxVol;
-	short	musVol;*/
-}SAVE_SLOT;
+} SAVE_SLOT;
 
 
 
@@ -174,6 +164,10 @@ extern void EepromSaveGame();
 
 extern void LoadGame();
 extern void EepromLoadGame();
+
+extern void StoreSaveSlot( int p, int s );
+extern void ReadSaveSlot( int p, int s );
+
 
 /*
 void GetEepromMessage();

@@ -1245,8 +1245,8 @@ static void doPoly(void *arg)
 	if ( validEeprom )
 	{
 		dprintf"Valid Eeprom"));
-		//LoadLevelScores();
-		//LoadSlots();
+		LoadLevelScores();
+		LoadGame();
 	}
 	else
 	{

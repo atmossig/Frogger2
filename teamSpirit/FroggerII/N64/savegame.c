@@ -76,7 +76,6 @@ short	eepromPresent = FALSE;
 
 //LEVEL_HISCORE	levelTable [ MAX_WORLDS ] [ 4 ];
 SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
-GAME_PROGRESS	gameProgress;
 
 //***********************************
 // Function Definitions
@@ -218,7 +217,6 @@ void EepromValid ( void )
 			validEeprom = FALSE;
 
 	}
-
 }
 
 
@@ -287,7 +285,7 @@ void EepromLoadLevelScores ( void )
 	{
 		do
 		{
-			res = osEepromLongRead(&controllerMsgQ, 1, (u8 *)levelTable, sizeof ( LEVEL_HISCORE ) * (MAX_WORLDS*3) );
+			res = osEepromLongRead( &controllerMsgQ, 1, (u8 *)levelTable, sizeof ( LEVEL_HISCORE ) * (MAX_WORLDS*3) );
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
@@ -297,8 +295,7 @@ void EepromLoadLevelScores ( void )
 
 /*	--------------------------------------------------------------------------------
 	Function 	: SaveGame
-	Purpose 	: Tell the controller thread to store how far the frog has got to, 
-					and which keys he has collected
+	Purpose 	: Tell the controller thread to store save game data
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
@@ -312,7 +309,7 @@ void SaveGame()
 
 /*	--------------------------------------------------------------------------------
 	Function 	: EepromSaveGame
-	Purpose 	: Store how far the frog has got to, and which keys he has collected
+	Purpose 	: Store save game data in eeprom
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
@@ -325,7 +322,10 @@ void EepromSaveGame()
 	{
 		do
 		{
-			res = osEepromLongWrite(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
+			res = osEepromLongWrite( &controllerMsgQ, 
+									(sizeof(levelTable)/8)+1, 
+									(u8 *)saveSlot, 
+									sizeof(saveSlot) );
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
@@ -334,8 +334,7 @@ void EepromSaveGame()
 
 /*	--------------------------------------------------------------------------------
 	Function 	: LoadGame
-	Purpose 	: Tell the controller thread to reload how far the frog has got to, 
-					and which keys he has collected
+	Purpose 	: Tell the controller thread to reload save game data
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
@@ -349,7 +348,7 @@ void LoadGame()
 
 /*	--------------------------------------------------------------------------------
 	Function 	: EepromLoadGame
-	Purpose 	: Reload how far the frog has got to, and which keys he has collected
+	Purpose 	: Read save game data from eeprom
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
@@ -362,12 +361,79 @@ void EepromLoadGame()
 	{
 		do
 		{
-			res = osEepromLongRead(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
+			res = osEepromLongRead( &controllerMsgQ, 
+									(sizeof(levelTable)/8)+1, 
+									(u8 *)saveSlot, 
+									sizeof(saveSlot) );
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function 	: StoreSaveSlot
+	Purpose 	: Write current player data to save slot
+	Parameters 	: Player index, Slot index
+	Returns 	: 
+	Info 		:
+*/
+void StoreSaveSlot( int p, int s )
+{
+	short saveFlag = 0;
+
+	int temp = sizeof(SAVE_SLOT);
+	temp = sizeof(saveSlot);
+
+	// Check if the player has reached a new world or a new level within a world
+	if( (player[p].worldNum > saveSlot[s].currentWorld) || (saveSlot[s].currentWorld > MAX_WORLDS) || (saveSlot[s].currentLevel > MAX_LEVELS) )
+	{
+		saveSlot[s].currentWorld = player[p].worldNum;
+		saveSlot[s].currentLevel = player[p].levelNum;
+		saveFlag = 1;
+	}
+	else if( (player[p].worldNum == saveSlot[s].currentWorld) && 
+			((player[p].levelNum > saveSlot[s].currentLevel) ||
+			(saveSlot[s].currentLevel > MAX_LEVELS)) )
+	{
+		saveSlot[s].currentLevel = player[p].levelNum;
+		saveFlag = 1;
+	}
+
+	// If the player has reached a new level then remember his stats
+	if( saveFlag )
+	{
+		// Lives and helth
+		saveSlot[s].livesnhealth = (player[p].lives & 63) | (frog[p]->action.lives & 192);
+		// Score
+		saveSlot[s].score = player[p].score;
+		// Name
+		gstrcpy( saveSlot[s].name, player[p].name );
+
+		saveFlag = 0;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: ReadSaveSlot
+	Purpose 	: Read current player data from save slot
+	Parameters 	: Player index, Slot index
+	Returns 	: 
+	Info 		:
+*/
+void ReadSaveSlot( int p, int s )
+{
+	player[p].worldNum = saveSlot[s].currentWorld;
+	player[p].levelNum = saveSlot[s].currentLevel;
+
+	player[p].lives = (saveSlot[s].livesnhealth & 63);
+	frog[p]->action.lives = (saveSlot[s].livesnhealth & 192);
+
+	player[p].score = saveSlot[s].score;
+
+	gstrcpy( player[p].name, saveSlot[s].name );
+}
 
 
 //OSMesgQueue	eepromMsgQ;
