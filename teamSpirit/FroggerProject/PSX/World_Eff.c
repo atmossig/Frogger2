@@ -236,6 +236,8 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 	currentDisplayPage->primPtr = (char *)packet;
 
+	if ( jiggledVerts )
+		FREE ( jiggledVerts );
 }
 
 
@@ -607,6 +609,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	currentDisplayPage->primPtr = (char *)packet;
 
+	if ( jiggledVerts )
+		FREE ( jiggledVerts );
 }
 
 void PTTextureLoad ( void )
@@ -632,12 +636,18 @@ void CreateProceduralTexture ( char *name )
 
 	PROCTEXTURE *pt = (PROCTEXTURE *)MALLOC0( sizeof(PROCTEXTURE) );
 
+	// Set proc texture members
+	if ( !(pt->tex = textureFindCRCInAllBanks ( utilStr2CRC ( name ) ) )
+	{
+		utilPrintf("Could Not Find Texture : %s", name);
+		FREE ( pt );
+		return;
+	}
+	// ENDIF
+
 	// Add to procedural text list
 	pt->next = prcTexList;
 	prcTexList = pt;
-
-	// Set proc texture members
-	pt->tex = textureFindCRCInAllBanks ( utilStr2CRC ( name ) );
 
 	pt->buf1 = (unsigned char *)MALLOC0( 2048 );
 	pt->buf2 = (unsigned char *)MALLOC0( 2048 );
