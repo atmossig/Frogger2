@@ -74,6 +74,7 @@ extern FVECTOR storeCamVect;
 char warnStr[256];
 char diffStr[128];
 char playingFMV = NO;
+char onOffStr[NUM_EXTRAS][64];
 // JH: A list of CRCs that define the char textures.
 unsigned long frogTexturePool[FROG_NUMFROGS] = 
 {
@@ -706,10 +707,10 @@ void MenuSelect(void)
 		{
 			options.extras[i]->a = 0;
 
-			if(options.extrasState[i])
-				options.extras[i]->g = options.extras[i]->b = 0;
-			else
-				options.extras[i]->g = options.extras[i]->b = 255;
+//			if(options.extrasState[i])
+//				options.extras[i]->g = options.extras[i]->b = 0;
+//			else
+//				options.extras[i]->g = options.extras[i]->b = 255;
 		}
 	}
 	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
@@ -870,14 +871,17 @@ void ExtraSelect(void)
 	else
 	{
 		if(options.extrasToggle[options.extraSelection])
-			options.extrasState[options.extraSelection] = !options.extrasState[options.extraSelection];
-
-		if(options.extrasState[options.extraSelection])
 		{
-			options.extras[options.extraSelection]->g = options.extras[options.extraSelection]->b = 0;
-			options.extras[options.extraSelection]->r = 255;
+			options.extrasState[options.extraSelection] = !options.extrasState[options.extraSelection];
+			sprintf(onOffStr[options.extraSelection],GAMESTRING(STR_EXTRAS_1 + options.extraSelection),GAMESTRING(STR_OFF - options.extrasState[options.extraSelection]));
 		}
-		else
+
+//		if(options.extrasState[options.extraSelection])
+//		{
+//			options.extras[options.extraSelection]->g = options.extras[options.extraSelection]->b = 0;
+//			options.extras[options.extraSelection]->r = 255;
+//		}
+//		else
 			options.extras[options.extraSelection]->r = options.extras[options.extraSelection]->g = options.extras[options.extraSelection]->b = 255;
 
 		if(confirmMode)
@@ -1160,7 +1164,15 @@ void CreateOptionsObjects(void)
 			options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),diffStr,YES,255,fontSmall,TEXTOVERLAY_SHADOW);
 		}
 		else
-			options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),GAMESTRING(i + STR_EXTRAS_1),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+		{
+			if(options.extrasToggle[i])
+			{
+				sprintf(onOffStr[i],GAMESTRING(STR_EXTRAS_1 + i),GAMESTRING(STR_OFF - options.extrasState[i]));
+				options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),onOffStr[i],YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+			}
+			else
+				options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),GAMESTRING(i + STR_EXTRAS_1),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+		}
 		options.extras[i]->draw = 0;
 	}
 
@@ -1238,7 +1250,6 @@ void InitOptionsMenu(void)
 		options.selection = OP_SOUND;
 		options.soundVol = DEFAULT_VOLUME;
 		options.musicVol = DEFAULT_VOLUME;
-		CreateOptionsObjects();
 		options.init =1;
 		options.extraSelection = 0;
 		options.soundSelection = 0;
@@ -1250,6 +1261,7 @@ void InitOptionsMenu(void)
 		options.extrasToggle[EXTRA_FEEDING_FRENZY] = YES;
 		options.extrasToggle[EXTRA_VIEW_ART] = NO;
 		options.extrasToggle[EXTRA_MINI] = YES;
+		CreateOptionsObjects();
 		gameSelected = 0;
 	}
 	else	
@@ -1570,12 +1582,12 @@ void RunOptionsMenu(void)
 						}
 						else
 						{
-							if(options.extrasState[i])
-							{
-								options.extras[i]->g = options.extras[i]->b = 0;
-								options.extras[i]->r = 255;
-							}
-							else
+//							if(options.extrasState[i])
+//							{
+//								options.extras[i]->g = options.extras[i]->b = 0;
+//								options.extras[i]->r = 255;
+//							}
+//							else
 								options.extras[i]->r = options.extras[i]->g = options.extras[i]->b = 255;
 //							if(options.extras[i]->a <= 150)
 //							{
