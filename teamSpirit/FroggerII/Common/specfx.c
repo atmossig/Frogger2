@@ -582,18 +582,18 @@ void UpdateFXSwarm( SPECFX *fx )
 			fx->particles[i].vel.v[Z] += max(gameSpeed/3, 1);
 
 		// Limit velocity of particles
-		if( fx->particles[i].vel.v[X] > gameSpeed*3 )
-			fx->particles[i].vel.v[X] = gameSpeed*3;
-		else if( fx->particles[i].vel.v[X] < -gameSpeed*3 )
-			fx->particles[i].vel.v[X] = -gameSpeed*3;
-		if( fx->particles[i].vel.v[Y] > gameSpeed*3 )
-			fx->particles[i].vel.v[Y] = gameSpeed*3;
-		else if( fx->particles[i].vel.v[Y] < -gameSpeed*3 )
-			fx->particles[i].vel.v[Y] = -gameSpeed*3;
-		if( fx->particles[i].vel.v[Z] > gameSpeed*3 )
-			fx->particles[i].vel.v[Z] = gameSpeed*3;
-		else if( fx->particles[i].vel.v[Z] < -gameSpeed*3 )
-			fx->particles[i].vel.v[Z] = -gameSpeed*3;
+		if( fx->particles[i].vel.v[X] > gameSpeed*2 )
+			fx->particles[i].vel.v[X] = gameSpeed*2;
+		else if( fx->particles[i].vel.v[X] < -gameSpeed*2 )
+			fx->particles[i].vel.v[X] = -gameSpeed*2;
+		if( fx->particles[i].vel.v[Y] > gameSpeed*2 )
+			fx->particles[i].vel.v[Y] = gameSpeed*2;
+		else if( fx->particles[i].vel.v[Y] < -gameSpeed*2 )
+			fx->particles[i].vel.v[Y] = -gameSpeed*2;
+		if( fx->particles[i].vel.v[Z] > gameSpeed*2 )
+			fx->particles[i].vel.v[Z] = gameSpeed*2;
+		else if( fx->particles[i].vel.v[Z] < -gameSpeed*2 )
+			fx->particles[i].vel.v[Z] = -gameSpeed*2;
 
 		// Add velocity to local particle position
 		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
@@ -617,7 +617,7 @@ void UpdateFXSwarm( SPECFX *fx )
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
 			dist = -(DotProduct(&pos, &fx->rebound->normal) + fx->rebound->J);
 
-			if(dist > 0)
+			if(dist > 0 && dist < 3.5)
 				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
 		}
 	}
@@ -979,9 +979,9 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_SPARKBURST )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 1.5, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2.0, 0, 0.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.5, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.2, 0, 0.5 );
 				else // EF_MEDIUM
 					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 1.0, 0, 0.5 );
 
@@ -1056,7 +1056,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		if( act->effects & EF_BUTTERFLYSWARM )
 		{
-			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->actor->scale.v[X], 0, 0, act->value1 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
 			fx->follow = act->actor;
 			if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
 			{
