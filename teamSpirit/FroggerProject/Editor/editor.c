@@ -901,7 +901,7 @@ void DrawAllTiles(void)
 				{
 					SetVectorF(&v3, &cur->dirVector[i]);
 					ScaleVector(&v3, 20.0);
-					AddToVector(&v3, &v);
+					AddToVector(&v3, &tmp);
 					
 					EdXfmPoint(&v2, &v3);
 				
@@ -919,7 +919,7 @@ void DrawAllTiles(void)
 			{
 				SetVectorF(&v3, &cur->normal);
 				ScaleVector(&v3,20.0);
-				AddToVector(&v3, &v);
+				AddToVector(&v3, &tmp);
 
 				EdXfmPoint(&v2, &v3);
 				
