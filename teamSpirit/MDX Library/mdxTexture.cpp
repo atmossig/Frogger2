@@ -615,6 +615,8 @@ unsigned long LoadTexBankFile(char *bank, char *baseDir)
 
 	texbank->data = data = buffer = mdxFileLoad(file, path, &size);
 
+	if (!data) return 0;
+
 	num = (int)*(DWORD*)data; data += 4;
 
 	while (num--)
@@ -630,6 +632,46 @@ unsigned long LoadTexBankFile(char *bank, char *baseDir)
 		data += head->dim[0]*head->dim[1]*2;
 	}
 
+	// Animated texture info
+
+	DWORD *p = (DWORD*)data;
+	num = *(p++);
+
+	while (num--)
+	{
+		int numFrames;
+		DWORD crc, time;
+		
+		numFrames = *(p++);
+		crc = *(p++);
+
+		MDX_TEXENTRY *me = GetTexEntryFromCRC(crc);
+
+		if (!me)
+			break;
+
+		me->numFrames = numFrames;
+
+		me->frames = (void **)AllocMem(sizeof(void *)*me->numFrames);
+		me->frameTimes = (float *)AllocMem(sizeof(float)*me->numFrames);
+		me->lastGameFrame = me->lastFrame = 0;
+
+		for (int i=0; i<me->numFrames; i++)
+		{
+			crc = *(p++);
+			time = *(p++);
+
+			MDX_TEXENTRY *tex = GetTexEntryFromCRC(crc);
+
+			if (tex)
+				me->frames[i] = (rHardware) ? (void *)tex->surf : (void *)tex->softData;
+			else
+				me->frames[i] = NULL;
+
+			me->frameTimes[i] = time;
+		}
+		me->updated = 1;
+	}
 	//FreeMem(buffer);	// and relax
 
 	return 1;
