@@ -2272,6 +2272,8 @@ KMSTRIPCONTEXT	StripContext_GT4;
 KMSTRIPHEAD		StripHead_GT4;
 KMSTRIPCONTEXT	StripContext_GT4_Alpha;
 KMSTRIPHEAD		StripHead_GT4_Alpha;
+KMSTRIPCONTEXT	StripContext_GT4_Add;
+KMSTRIPHEAD		StripHead_GT4_Add;
 KMVERTEX_03		vertices_GT4[] =
 {
 { KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0.0f, 1.0f, RGBA(255,255,255,255), 0 },
@@ -2400,9 +2402,11 @@ int	stripGT4textureID = -1;
 int	stripGT4textureID_A = -1;
 int	stripGT4dsided = FALSE;
 int	stripGT4dsided_A = FALSE;
+int	stripGT4textureID_Add = -1;
 
 int	stripGT3FMAtextureID = -1;
 int	stripGT3FMAtextureID_A = -1;
+int	stripGT3textureID_Add = -1;
 
 int	stripGT4FMAtextureID = -1;
 int	stripGT4FMAtextureID_A = -1;
@@ -2422,7 +2426,6 @@ float	uvLookUpTable8bpp[128];
 void initialisePsxStrips()
 {
 	int	i;
-
 
 //	TextureType		*DCKtextureList[MAX_TEXTURE_LIST];
 
@@ -2666,6 +2669,32 @@ void initialisePsxStrips()
 	StripContext_GT4.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;
     StripContext_GT4.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
 	kmGenerateStripHead03(&StripHead_GT4,&StripContext_GT4);
+
+	// GT4 strip
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_OPAQUE_POLYGON, &StripContext_GT4_Add);
+	memset(&StripContext_GT4_Add,0,sizeof(StripContext_GT4_Add));
+	memset(&StripHead_GT4_Add,0,sizeof(StripHead_GT4_Add));
+	StripContext_GT4_Add.nSize = sizeof(KMSTRIPCONTEXT);
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_OPAQUE_POLYGON, &StripContext_GT4_Add);
+    
+	StripContext_GT4_Add.StripControl.nListType		 						= KM_OPAQUE_POLYGON;
+	StripContext_GT4_Add.StripControl.nUserClipMode	 						= KM_USERCLIP_DISABLE;
+	StripContext_GT4_Add.StripControl.nShadowMode			 				= KM_NORMAL_POLYGON;
+	StripContext_GT4_Add.StripControl.bGouraud		 						= KM_TRUE;
+	StripContext_GT4_Add.ObjectControl.nDepthCompare			 		= KM_GREATER;
+	StripContext_GT4_Add.ObjectControl.nCullingMode			 				= KM_CULLCW;
+	StripContext_GT4_Add.ObjectControl.bZWriteDisable						= KM_FALSE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode		= KM_ONE;	
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode		= KM_ONE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].nFogMode				= KM_NOFOG;	
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].bColorClamp			= KM_FALSE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].bUseAlpha			= KM_FALSE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].bIgnoreTextureAlpha	= KM_FALSE;
+	StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;
+    StripContext_GT4_Add.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
+	kmGenerateStripHead03(&StripHead_GT4_Add,&StripContext_GT4_Add);
 
 	// GT4 Alpha strip
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT4_Alpha);
@@ -3084,7 +3113,9 @@ void initialisePsxStrips()
 	StripContext_3DBackdrop.ImageControl[KM_IMAGE_PARAM1].bIgnoreTextureAlpha	= KM_FALSE;
 	StripContext_3DBackdrop.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;
     StripContext_3DBackdrop.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
+    StripContext_3DBackdrop.ImageControl[KM_IMAGE_PARAM1].nClampUV 				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_3DBackdrop,&StripContext_3DBackdrop);
+
 
 }
 
@@ -3550,7 +3581,7 @@ void my_setPolyGT4(POLY_GT4 *packet, TMD_P_GT4I *opcd)
 			}
 		}	
 		kmStartStrip(&vertexBufferDesc, &StripHead_GT4);	
-	}	
+	}
 
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
