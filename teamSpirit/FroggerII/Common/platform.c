@@ -103,11 +103,17 @@ PATHNODE debug_pathNodes5[] =					// TEST PATH - ANDYE
 	347,120,0,0,0
 };
 
+PATHNODE debug_pathNodes6[] =					// TEST PATH - ANDYE
+{ 
+	21,10,110,2,0
+};
+
 PATH debug_path1 = { 1,0,0,0,debug_pathNodes1 };
 PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
 PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
 PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
 PATH debug_path5 = { 1,0,0,0,debug_pathNodes5 };
+PATH debug_path6 = { 1,0,0,0,debug_pathNodes6 };
 
 
 
@@ -153,6 +159,9 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path5,PATH_MAKENODETILEPTRS);
 			SetPlatformVisibleTime(devPlat1,45);
 			SetPlatformRegenerateTime(devPlat1,100);
+
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path6,PATH_MAKENODETILEPTRS);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
@@ -1212,7 +1221,7 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	float numSteps;
 	VECTOR destNormal,fromPos,toPos;
 
-	path		= pform->path;
+	path = pform->path;
 	if(path->numNodes < 2)
 		return;
 

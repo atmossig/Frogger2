@@ -145,16 +145,11 @@ extern void SubEnemy(ENEMY *enemy);
 
 extern void UpdateEnemies();
 
-extern void ProcessNMEMower(ACTOR2 *nme);
-extern void ProcessNMERoller(ACTOR2 *nme);
 
 extern void ProcessNMESnapperPlant(ACTOR2 *nme);
-extern void ProcessNMEWasp(ACTOR2 *nme);
-extern void ProcessNMESnake(ACTOR2 *nme);
 extern void ProcessNMECar(ACTOR2 *nme);
-extern void ProcessNMETruck(ACTOR2 *nme);
 extern void ProcessNMEDog(ACTOR2 *nme);
-extern void ProcessNMEShark(ACTOR2 *nme);
+extern void ProcessNMEMower(ACTOR2 *nme);
 
 //------------------------------------------------------------------------------------------------
 
