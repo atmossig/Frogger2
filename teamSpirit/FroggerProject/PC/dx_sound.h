@@ -38,6 +38,7 @@ extern void ShowSounds(void);
 extern int LoadWav( SAMPLE *sample, char *name );
 
 extern int InitDirectSound( HINSTANCE hInst,  HWND hWndMain );
+extern void ShutDownDirectSound( );
 
 extern void Update3DListener ( float sourceX, float sourceY, float sourceZ  );
 extern void Get3DInterface ( LPDIRECTSOUNDBUFFER lpdsBuffer, LPDIRECTSOUND3DBUFFER lpds3DBuffer );
