@@ -656,7 +656,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 			if ( !objViewer )
 				MainDrawFunction();
 
-			//UpdateTextureAnimations();
+			UpdateTextureAnimations();
 
 
 			/*if ( ++animFrame == 8 )
