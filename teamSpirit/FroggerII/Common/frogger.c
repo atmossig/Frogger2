@@ -93,7 +93,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 				CreateFrogActor (gTStart[0],"frogger.ndo",i);
 		
 		for (i=4; i>NUM_FROGS; i--)
-			frog[i-1]->actor->xluOverride = 0;
+			frog[i-1]->draw = 0;
 	}
 
 	if (NUM_FROGS == 1)

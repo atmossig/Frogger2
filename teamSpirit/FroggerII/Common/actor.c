@@ -78,29 +78,22 @@ void XformActorList()
 			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER || cur->flags & ACTOR_DRAW_ALWAYS)
 				XformActor(cur->actor);
 
-			// determine this actor's visibility
-//#ifdef PC_VERSION
-//			cur->draw = 1;
-//#else
-//			cur->draw = 0;
-//#endif
-
-			if(cur->flags & ACTOR_DRAW_ALWAYS)
-			{
+//			if(cur->flags & ACTOR_DRAW_ALWAYS)
+//			{
 				// always draw this actor
-				cur->draw = 1;
-			}
+//				cur->draw = 1;
+//			}
 		}
 		else
 		{
 			// transform actor
 			XformActor(cur->actor);
-			cur->draw = 0;
-			if(cur->flags & ACTOR_DRAW_ALWAYS)
-			{
+//			cur->draw = 0;
+//			if(cur->flags & ACTOR_DRAW_ALWAYS)
+//			{
 				// always draw this actor
-				cur->draw = 1;
-			}
+//				cur->draw = 1;
+//			}
 		}
 
 
