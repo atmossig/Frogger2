@@ -110,7 +110,6 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		dsrVal = DirectSoundCreate ( guid, &lpDS, NULL );
 	else
 		dsrVal = DirectSoundCreate ( NULL, &lpDS, NULL );
-	// ENDELSEIF
 
 	if ( dsrVal != DS_OK )
 	{
@@ -118,7 +117,6 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		lpDS = NULL;
 		return 0;
 	}
-	// ENDIF
 
 	dsrVal = lpDS->SetCooperativeLevel ( hWndMain, DSSCL_EXCLUSIVE );
 
@@ -129,7 +127,6 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		lpDS = NULL;
 		return 0;
 	}
-	// ENDIF
 
 	ZeroMemory ( &dsbdesc, sizeof ( DSBUFFERDESC ) );
 	dsbdesc.dwSize	= sizeof ( DSBUFFERDESC );
@@ -144,8 +141,6 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		lpDS = NULL;
 		return 0;
 	}
-	// ENDIF
-
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
 	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
@@ -162,7 +157,6 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		dp("Set Format failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
-	// ENDIF
 
     dsrVal = lpdsbPrimary->QueryInterface( IID_IDirectSound3DListener, ( void** ) &lpds3DListener );
 
@@ -171,8 +165,6 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		dp("Query Interface For 3d Listener Failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
-	// ENDIF
-
 
 	return 1;
 }
@@ -183,7 +175,7 @@ void ShutDownDirectSound ( void )
 }
 
 
-int LoadWav ( char *fileName, SAMPLE *sample )
+int LoadWav( SAMPLE *sample )
 {
 	HRESULT			dsrVal;
 	HMMIO 			hwav;    // handle to wave file
@@ -203,12 +195,11 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 	DSBUFFERDESC		dsbd;           // directsound description
 
 	// open the WAV file
-	if ( ( hwav = mmioOpen ( fileName, NULL, MMIO_READ | MMIO_ALLOCBUF ) ) == NULL )
+	if( (hwav = mmioOpen( sample->idName, NULL, MMIO_READ | MMIO_ALLOCBUF )) == NULL )
 	{
 		dp("RETURNING : LoadWavFile - Opening Wav File.\n");
 		return 0;
 	}
-	// ENDIF
 
 	// descend into the RIFF 
 	parent.fccType = mmioFOURCC ( 'W', 'A', 'V', 'E' );
@@ -221,7 +212,6 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error, no wave section
 		return 0; 	
     }
-	// ENDIF
 
 	// descend to the WAVEfmt 
 	child.ckid = mmioFOURCC ( 'f', 'm', 't', ' ' );
@@ -234,7 +224,6 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error, no format section
 		return 0; 	
     }
-	// ENDIF
 
 	// now read the wave format information from file
 	if ( mmioRead ( hwav, ( char * ) &wfmtx, sizeof ( wfmtx ) ) != sizeof ( wfmtx ) )
@@ -245,7 +234,6 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error, no wave format data
 		return 0;
     }
-	// ENDIF
 
 	// make sure that the data format is PCM
 	if ( wfmtx.wFormatTag != WAVE_FORMAT_PCM )
@@ -256,7 +244,6 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error, not the right data format
 		return 0; 
     }
-	// ENDIF
 
 	// now ascend up one level, so we can access data chunk
 	if ( mmioAscend ( hwav, &child, 0 ) )
@@ -267,7 +254,6 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error, couldn't ascend
 		return 0; 	
 	}
-	// ENDIF
 
 	// descend to the data chunk 
 	child.ckid = mmioFOURCC ( 'd', 'a', 't', 'a' );
@@ -280,8 +266,6 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error, no data
 		return 0; 	
     }
-	// ENDIF
-
 
 	// finally!!!! now all we have to do is read the data in and
 	// set up the directsound buffer
@@ -309,21 +293,21 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 	ZeroMemory ( &dsbd, sizeof ( DSBUFFERDESC ) );
 	dsbd.dwSize			= sizeof(DSBUFFERDESC);
 	dsbd.dwFlags		= DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
-	if ( sample->map->flags & FLAGS_3D_SAMPLE )
+	if ( sample->flags & FLAGS_3D_SAMPLE )
 	{
 		dsbd.dwFlags |= DSBCAPS_CTRL3D;
 	}
-	// ENDIF
+
 	dsbd.dwBufferBytes	= child.cksize;
 	dsbd.lpwfxFormat	= &pcmwf;
 
 	// create the sound buffer
 
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbd, &sample->lpdsBuffer, NULL );
-	dp("Createing Sample Buffer = (&%x) FileName : %s", sample->lpdsBuffer, fileName);
+	dp("Createing Sample Buffer = (&%x) FileName : %s", sample->lpdsBuffer, sample->idName);
 	if ( dsrVal != DS_OK )
 	{
-		dp("CreateSoundBuffer failed on file '%s' - '%s'\n", fileName, DSoundErrorToString(dsrVal));
+		dp("CreateSoundBuffer failed on file '%s' - '%s'\n", sample->idName, DSoundErrorToString(dsrVal));
 
 		// release memory
 		free ( snd_buffer );
@@ -331,11 +315,10 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 		// return error
 		return ( -1 );
 	}
-	// ENDIF
 
 	// copy data into sound buffer
 	if ( sample->lpdsBuffer->Lock ( 0, child.cksize, (void **) &audio_ptr_1, &audio_length_1, (void **)&audio_ptr_2, &audio_length_2, DSBLOCK_FROMWRITECURSOR ) != DS_OK )
-									 return(0);
+		 return(0);
 
 	// copy first section of circular buffer
 	memcpy(audio_ptr_1, snd_buffer, audio_length_1);
@@ -353,11 +336,7 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 	// release the temp buffer
 	free(snd_buffer);
 
-
-
-
 	return 1;
-
 }
 
 

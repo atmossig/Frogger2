@@ -135,7 +135,7 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 		if(keepProportion)
 			actorAnim->morphTo = actorAnim->animTime = anim->animStart + proportion*(float)(anim->animEnd-anim->animStart);
 
-		if( actorAnim->sfxMapping )
+		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
 			PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 48 );
 	}
 	else

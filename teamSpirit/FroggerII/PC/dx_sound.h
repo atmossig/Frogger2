@@ -23,7 +23,7 @@ extern LPDIRECTSOUND			lpDS;
 extern LPDIRECTSOUNDBUFFER		lpdsbPrimary;
 extern LPDIRECTSOUND3DLISTENER	lpds3DListener;
 
-extern int LoadWav ( char *fileName, SAMPLE *sample );
+extern int LoadWav( SAMPLE *sample );
 
 extern int InitDirectSound ( LPGUID guid, HINSTANCE hInst,  HWND hWndMain, int prim );
 

@@ -13,7 +13,6 @@
 #include "incs.h"
 #include "memload.h"
 
-//#define MYDEBUG	- stop printing all that CRAP, man!
 #define MAX_AMBIENT_SFX		50
 #define DEFAULT_SFX_DIST	500
 
@@ -21,54 +20,8 @@
 #define VOLUME_PERCENT (VOLUME_MIN/100)
 #define PITCH_STEP		(DSBFREQUENCY_MAX/512)
 
-SAMPLEMAP genericMapping[] = 
-{
-	"generic\\levelcomp.wav",		2, 11025, 16, GEN_LEVEL_COMP,	FLAGS_NONE,
-	"generic\\targetcomplete.wav",	2, 11025, 16, GEN_TARGET_COM,	FLAGS_NONE,
-	"generic\\timeout.wav",			2, 11025, 16, GEN_TIME_OUT,		FLAGS_NONE,
-	"generic\\clocktock.wav",		2, 11025, 16, GEN_CLOCK_TOCK,	FLAGS_NONE,
-	"generic\\clocktick.wav",		2, 11025, 16, GEN_CLOCK_TICK,	FLAGS_NONE,
-	"generic\\hopongrass.wav",		2, 11025, 16, GEN_FROG_HOP,		FLAGS_NONE,
-	"generic\\froggerB.wav",		2, 11025, 16, GEN_SUPER_HOP,	FLAGS_NONE,
-	"generic\\babyfrog.wav",		2, 11025, 16, GEN_BABY_FROG,	FLAGS_NONE,
-	"generic\\froggerF.wav",		2, 11025, 16, GEN_FROG_TONGUE,	FLAGS_NONE,
-	"generic\\froggerD.wav",		2, 11025, 16, GEN_FROG_HURT,	FLAGS_NONE,
-	"generic\\froggerE.wav",		2, 11025, 16, GEN_FROG_DEATH,	FLAGS_NONE,
-	"generic\\froggerA.wav",		2, 11025, 16, GEN_FROG_DOUBLEHOP,FLAGS_NONE,
-};
-
-
-SAMPLEMAP gardenMapping[] =
-{
-	"garden\\moaA.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE,
-	"garden\\beeA.wav", 2, 22050, 16, GAR_BEE, FLAGS_NONE,
-	"garden\\moleB.wav", 2, 22050, 16, GAR_MOLE_IDLE1, FLAGS_NONE,
-	"garden\\moleA.wav", 2, 22050, 16, GAR_MOLE_ATTACK, FLAGS_NONE,
-};
-
-SAMPLEMAP spaceMapping[] =
-{
-	"space\\bbota.wav",		2, 22050, 16, SPC_BBOTA,	FLAGS_NONE,
-	"space\\bbotb.wav",		2, 22050, 16, SPC_BBOTB,	FLAGS_NONE,
-	"space\\bbotc.wav",		2, 22050, 16, SPC_BBOTC,	FLAGS_NONE,
-	"space\\bbotd.wav",		2, 22050, 16, SPC_BBOTD,	FLAGS_NONE,
-	"space\\beastA.wav",	2, 22050, 16, SPC_BEASTA,	FLAGS_NONE,
-	"space\\beastB.wav",	2, 22050, 16, SPC_BEASTB,	FLAGS_NONE,
-	"space\\beastC.wav",	2, 22050, 16, SPC_BEASTC,	FLAGS_NONE,
-	"space\\fisheadA.wav",	2, 22050, 16, SPC_FISHEADA, FLAGS_NONE,
-	"space\\fisHeadB.wav",	2, 22050, 16, SPC_FISHEADB, FLAGS_NONE,
-	"space\\muzapA.wav",	2, 22050, 16, SPC_MUZAPA,	FLAGS_NONE,
-	"space\\muzapB.wav",	2, 22050, 16, SPC_MUZAPB,	FLAGS_NONE,
-	"space\\muzapC.wav",	2, 22050, 16, SPC_MUZAPC,	FLAGS_NONE,
-	"space\\muzapD.wav",	2, 22050, 16, SPC_MUZAPD,	FLAGS_NONE,
-	"space\\seelA.wav",		2, 22050, 16, SPC_SEELA,	FLAGS_NONE,
-	"space\\seyeballA.wav", 2, 22050, 16, SPC_SEYEBALLA,FLAGS_NONE,
-	"space\\ssnail.wav",	2, 22050, 16, SPC_SSNAIL,	FLAGS_NONE,
-	"space\\spropA.wav",	2, 22050, 16, SPC_SPROPA,	FLAGS_NONE,
-	"space\\ssatA.wav",		2, 22050, 16, SPC_SSATA,	FLAGS_NONE,
-	"space\\tankA.wav",		2, 22050, 16, SPC_TANKA,	FLAGS_NONE,
-};
-
+SAMPLE *genSfx[NUM_GENERIC_SFX];
+SAMPLE **sfx_anim_map = NULL;
 
 UINT mciDevice = 0;
 
@@ -77,7 +30,6 @@ AMBIENT_SOUND_LIST	ambientSoundList;
 BUFFERLIST bufferList;					// Buffered Sound Samples List
 
 
-SAMPLE *FindSample( int num );
 void AddSample( SAMPLE *sample );
 void RemoveSample( SAMPLE *sample );
 void AddBufSample( BUFSAMPLE *sample );
@@ -85,7 +37,7 @@ void RemoveBufSample( BUFSAMPLE *sample );
 
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 
-SAMPLE *CreateAndAddSample( SAMPLEMAP *sampleMap );
+SAMPLE *CreateAndAddSample( char *path, char *file );
 
 void SetSampleFormat ( SAMPLE *sample );
 void CleanBufferSamples( void );
@@ -102,34 +54,79 @@ DWORD stopCDTrack( HWND hWndNotify );
 	Purpose			: 
 	Parameters		: 
 	Returns			: 
-	Info			: MERGE THESE FUNCTIONS?
+	Info			: 
 */
+void LoadSfxSet( char *path )
+{
+	HANDLE h;
+	WIN32_FIND_DATA fData;
+	int numSfx=0;
+	long ret;
+	char *filepath;
+
+	filepath = (char *)JallocAlloc( strlen(path)+8, YES, "path" );
+	strcpy( filepath, path );
+	strcat( filepath, "*.wav" );
+
+	h = FindFirstFile( filepath, &fData );
+
+	if( h == INVALID_HANDLE_VALUE ) return;
+
+	do
+	{
+		ret = FindNextFile( h, &fData );
+
+		CreateAndAddSample( path, fData.cFileName );
+		numSfx++;
+	}
+	while (ret);
+
+	dprintf"Loaded %d Samples\n",numSfx ));
+
+	FindClose( h );
+
+	JallocFree( (UBYTE **)&filepath );
+}
+
 void LoadSfx( unsigned long worldID )
 {
-	int numSfx, i;
-	SAMPLEMAP *mapping = NULL;
+	char *path;
+	int len;
+	
+	len = strlen(baseDirectory) + strlen(SFX_BASE);
+	path = (char *)JallocAlloc( len+32, YES, "path" );
 
-	for( i = NUM_GENERIC_SFX-1; i>=0; i-- )
-		CreateAndAddSample( &genericMapping[i] );
+	strcpy( path, baseDirectory );
+	strcat( path, SFX_BASE );
 
-	switch ( worldID )
+	// Load all generic samples first and put in array
+	strcat( path, "generic\\" );
+	LoadSfxSet(path);
+
+	genSfx[GEN_FROG_HOP] = FindSample(UpdateCRC("hopongrass.wav"));
+	genSfx[GEN_SUPER_HOP] = FindSample(UpdateCRC("hop2.wav"));
+	genSfx[GEN_DOUBLE_HOP] = FindSample(UpdateCRC("FroggerB.wav"));
+	genSfx[GEN_BABY_FROG] = FindSample(UpdateCRC("baby.wav"));
+	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("FroggerF.wav"));
+
+	path[len] = '\0';
+
+	switch( worldID )
 	{
-		case WORLDID_GARDEN: 
-			numSfx = NUM_GARDEN_SFX; 
-			mapping = gardenMapping; 
-			break;
-		case WORLDID_SPACE: 
-			numSfx = NUM_SPACE_SFX;
-			mapping = spaceMapping;
-			break;
-		default: 
-			numSfx = 0;
-			break;
+	case WORLDID_GARDEN: strcat( path, "garden\\" ); break;
+	case WORLDID_ANCIENT: strcat( path, "ancient\\" ); break;
+	case WORLDID_SPACE: strcat( path, "space\\" ); break;
+	case WORLDID_CITY: strcat( path, "city\\" ); break;
+	case WORLDID_SUBTERRANEAN: strcat( path, "sub\\" ); break;
+	case WORLDID_LABORATORY: strcat( path, "lab\\" ); break;
+	case WORLDID_HALLOWEEN: strcat( path, "halloween\\" ); break;
+	case WORLDID_SUPERRETRO: strcat( path, "superretro\\" ); break;
+	case WORLDID_FRONTEND: strcat( path, "frontend\\" ); break;
 	}
 
-	if( numSfx )
-		for( i=numSfx-1; i>=0; i-- )
-			CreateAndAddSample( &mapping[i] );
+	LoadSfxSet( path );
+
+	JallocFree( (UBYTE **)&path );
 }
 
 
@@ -140,49 +137,46 @@ void LoadSfx( unsigned long worldID )
 	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateAndAddSample ( SAMPLEMAP *sampleMap )
+SAMPLE *CreateAndAddSample( char *path, char *file )
 {
-	SAMPLE *newItem;
+	SAMPLE *sfx;
 	
 	if( !lpDS )
 	{
-		dprintf"Returned from Create Sample, because lpDS was NULL!!!!!!!!\n"));
+		dprintf"Could not create sample, no sound device\n"));
 		return NULL;
 	}
 
-	if( (newItem = (SAMPLE *)JallocAlloc(sizeof(SAMPLE),YES,"SAM")) == NULL )
-	{
-		dprintf"CreateAndAddSample : newItem : NULL value from JallocAlloc\n"));
-		return NULL;
-	}
+	sfx = (SAMPLE *)JallocAlloc(sizeof(SAMPLE),YES,"Sfx");
 
-	newItem->map = sampleMap;
+	sfx->uid = UpdateCRC(file);
 
 	// Create full name
-	sprintf( newItem->idName, "%s%s%s", baseDirectory, SFX_BASE, sampleMap->sampleFileName );
+	sfx->idName = (char *)JallocAlloc( (strlen(path) + strlen(file))+5, YES, "path" );
+	strcpy( sfx->idName, path );
+	strcat( sfx->idName, file );
 
-	if( !LoadWav( newItem->idName, newItem ) )
+	if( !LoadWav( sfx ) )
 	{
-		dprintf"Returned from LoadWav\n"));
+		dprintf"Could not load wave file\n"));
 		return NULL;
 	}
 	
-	if( sampleMap->flags & FLAGS_3D_SAMPLE )
+	if( sfx->flags & FLAGS_3D_SAMPLE )
 	{
 		dprintf"Getting 3D Interface\n"));
-//		Get3DInterface ( newItem->lpdsBuffer, newItem->lpds3DBuffer );
-		newItem->lpdsBuffer->lpVtbl->QueryInterface ( newItem->lpdsBuffer, &IID_IDirectSound3DBuffer, (void**)&newItem->lpds3DBuffer );
-		if ( newItem->lpds3DBuffer )
+//		Get3DInterface ( sfx->lpdsBuffer, sfx->lpds3DBuffer );
+		sfx->lpdsBuffer->lpVtbl->QueryInterface ( sfx->lpdsBuffer, &IID_IDirectSound3DBuffer, (void**)&sfx->lpds3DBuffer );
+		if ( sfx->lpds3DBuffer )
 			dprintf"3D Buffer Ok\n"));
 		else
 			dprintf"Error On Interface, No 3D Buffer\n"));
 	}
 
-	SetSampleFormat( newItem );
+	SetSampleFormat( sfx );
+	AddSample( sfx );
 
-	AddSample( newItem );
-
-	return newItem;
+	return sfx;
 }
 
 
@@ -193,20 +187,17 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP *sampleMap )
 	Returns			: success?
 	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
 */
-int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch )
+int PlaySample( SAMPLE *sample, VECTOR *pos, long radius, short volume, short pitch )
 {
-	SAMPLE *sample;
 	BUFSAMPLE *bufSample;
 	unsigned long bufStatus, vol=volume;
 	long pan;
 	float att, dist;
 	VECTOR diff;
 
-	if(!lpDS) return FALSE;	// No DirectSound object!
+	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
 
-	if( !(sample = FindSample(num)) ) return FALSE; // Sfx not in bank
-
-	if( sample->map->flags & FLAGS_3D_SAMPLE )
+	if( sample->flags & FLAGS_3D_SAMPLE )
 	{
 		if( sample->lpds3DBuffer )
 		{
@@ -278,19 +269,13 @@ void SetSampleFormat( SAMPLE *sample )
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
 	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
-	wfx.nChannels		= sample->map->numChannels; 
-	wfx.nSamplesPerSec	= sample->map->sampleRate; 
-	wfx.wBitsPerSample	= sample->map->bitsPerSample; 
+	wfx.nChannels		= 2;
+	wfx.nSamplesPerSec	= 22050;
+	wfx.wBitsPerSample	= 16;
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
-#ifdef MYDEBUG
-	dprintf"Setting Sample Format : Buffer = (&%x) FileName : %s\n", sample->lpdsBuffer, sample->idName));
-#endif
 	sample->lpdsBuffer->lpVtbl->SetFormat ( sample->lpdsBuffer, &wfx );
-#ifdef MYDEBUG
-	dprintf"Set Sample Format : Buffer = (&%x)\n", sample->lpdsBuffer));
-#endif
 }
 
 
@@ -308,12 +293,7 @@ void CleanBufferSamples ( void )
 	unsigned long bufStatus;
 
 	if ( bufferList.numEntries == 0)
-	{
-#ifdef MYDEBUG
-		dprintf"No Samples in Buffer List\n"));
-#endif
 		return;
-	}
 
 	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
 	{
@@ -324,9 +304,6 @@ void CleanBufferSamples ( void )
 
 		if ( !( bufStatus & DSBSTATUS_PLAYING )	)
 		{
-#ifdef MYDEBUG
-			dprintf"Releasing Buffered Sample\n"));
-#endif
 			RemoveBufSample( cur );
 
 			if ( bufferList.numEntries == 0 )
@@ -343,7 +320,7 @@ void CleanBufferSamples ( void )
 	Returns 	: 
 	Info 		:
 */
-AMBIENT_SOUND *AddAmbientSound(short num, VECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, ACTOR *follow )
+AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, VECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, ACTOR *follow )
 {
 	AMBIENT_SOUND *ptr = &ambientSoundList.head;
 	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
@@ -352,7 +329,7 @@ AMBIENT_SOUND *AddAmbientSound(short num, VECTOR *pos, long radius, short vol, s
 	if( follow ) ambientSound->follow = follow;
 
 	ambientSound->volume = vol;
-	ambientSound->num = num;
+	ambientSound->sample = sample;
 	ambientSound->pitch = pitch;
 	ambientSound->radius = radius;
 
@@ -400,7 +377,7 @@ void UpdateAmbientSounds()
 		else
 			pos = &amb->pos;
 
-		PlaySample( amb->num, &amb->pos, amb->radius, amb->volume, amb->pitch );
+		PlaySample( amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
 
 		// Freq and randFreq are cunningly pre-multiplied by 60
 		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
@@ -532,7 +509,7 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
 	Returns			: Sample or NULL
 	Info			: 
 */
-SAMPLE *FindSample( int num )
+SAMPLE *FindSample( unsigned long uid )
 {
 	SAMPLE *next, *cur;
 
@@ -540,7 +517,7 @@ SAMPLE *FindSample( int num )
 	{
 		next = cur->next;
 		
-		if( cur->map->sampleID == num )
+		if( cur->uid == uid )
 			return cur;
 	}
 
@@ -564,6 +541,8 @@ void InitSampleList( )
 	// Init the buffer list for samples that are playing
 	bufferList.numEntries	= 0;
 	bufferList.head.next	= bufferList.head.prev = &bufferList.head;
+
+	sfx_anim_map = NULL;
 }
 
 
@@ -576,9 +555,6 @@ void InitAmbientSoundList()
 
 void AddSample( SAMPLE *sample )
 {
-#ifdef MYDEBUG
-	dprintf"Adding Sample To List - sample->next : (&%x)\n", sample->next));
-#endif
 	if( !sample->next )
 	{
 		soundList.numEntries++;
@@ -592,9 +568,6 @@ void AddSample( SAMPLE *sample )
 
 void AddBufSample( BUFSAMPLE *bufSample )
 {
-#ifdef MYDEBUG
-	dprintf"Adding Buffer Sample To List - bufSample->next : (&%x)\n", bufSample->next));
-#endif
 	if( !bufSample->next )
 	{
 		bufferList.numEntries++;
@@ -616,7 +589,9 @@ void RemoveSample( SAMPLE *sample )
 	sample->next		= NULL;
 	soundList.numEntries--;
 
-	JallocFree ( ( UBYTE ** ) &sample );
+	if( sample->idName ) JallocFree( (UBYTE **)&sample->idName );
+	
+	JallocFree( (UBYTE **)&sample );
 }
 
 
@@ -632,7 +607,7 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 
 	ReleaseBuffer ( bufSample->lpdsBuffer );
 
-	JallocFree ( ( UBYTE ** ) &bufSample );
+	JallocFree( (UBYTE **) &bufSample );
 }
 
 
@@ -653,6 +628,8 @@ void FreeSampleList( void )
 
 		RemoveSample( cur );
 	}
+
+	if( sfx_anim_map ) JallocFree( (UBYTE **)&sfx_anim_map );
 
 	// initialise list for future use
 	InitSampleList();
@@ -758,7 +735,7 @@ void LoadSfxMapping( int world, int level )
 	CloseHandle(h);
 
 	in = (unsigned char *)buffer;
-	sfx_anim_map = (long *)JallocAlloc( size+8, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
+	sfx_anim_map = (SAMPLE **)JallocAlloc( size+8, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
 
 	index=0;
 	count=0;
@@ -766,11 +743,13 @@ void LoadSfxMapping( int world, int level )
 	// Read data from buffer into mapping array
 	while( count < size-4 )
 	{
-		sfx_anim_map[index++] = MEMGETINT(&in);
+		// Actor uid
+		sfx_anim_map[index++] = (SAMPLE *)MEMGETINT(&in);
 		count+=4;
 
+		// Actor type
 		type = MEMGETINT(&in);
-		sfx_anim_map[index++] = type;
+		sfx_anim_map[index++] = (SAMPLE *)type;
 		count+=4;
 
 		switch( type )
@@ -783,15 +762,54 @@ void LoadSfxMapping( int world, int level )
 
 		for( i=0; i<=num; i++ )
 		{
-			sfx_anim_map[index++] = MEMGETINT(&in);
+			// Locate samples by their uids
+			sfx_anim_map[index++] = FindSample( MEMGETINT(&in) );
 			count+=4;
 		}
 	}
 
 	// Signal end of list
-	sfx_anim_map[index-1] = 0;
+	sfx_anim_map[index-1] = NULL;
 
 	JallocFree((UBYTE**)&filename);
 	JallocFree((UBYTE**)&buffer);
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FindSfxMapping
+	Purpose 	: Load a mapping of animations to sound effects for a list of actors
+	Parameters 	: world and level ID's
+	Returns 	: Pointer to mapping array
+	Info 		: 
+*/
+SAMPLE **FindSfxMapping( unsigned long uid )
+{
+	unsigned long act, type, num, index=0;
+
+	if( !sfx_anim_map || !uid ) return NULL;
+
+	// First actor uid
+	act = (unsigned long)sfx_anim_map[index++];
+
+	do
+	{
+		// Return a run of samples if we've found the actor
+		if( act == uid ) return &sfx_anim_map[index+1];
+
+		// Advance cursor by number depending on actor type
+		type = (unsigned long)sfx_anim_map[index++];
+		switch( type )
+		{
+		case 0: index += NUM_FROG_ANIMS; break;
+//		case 1: index += NUM_MULTI_ANIMS; break;
+		case 2: index += NUM_NME_ANIMS; break;
+		}
+
+		// Get next actor uid and stop if end of list
+		act = (unsigned long)sfx_anim_map[index++];
+
+	} while( act );
+
+	return NULL;
+}

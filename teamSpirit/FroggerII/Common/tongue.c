@@ -190,7 +190,7 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 		player[i].canJump = 0;
 	}
 
-//	PlaySample(FindSample(UpdateCRC("FroggerF.wav")),&frog[pl]->actor->pos,0,100-Random(15),100-Random(15));
+	PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,100-Random(15),100-Random(15));
 }
 
 
