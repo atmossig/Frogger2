@@ -270,15 +270,15 @@ BOOL IsATeleportTile(GAMETILE *tile)
 	Returns			: void
 	Info			: 
 */
-void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile)
+void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 {
 	VECTOR telePos;
 
 	// make the teleport 'to' tile the current tile
-	currTile[0] = tile;
+	currTile[pl] = tile;
 	SetVector(&act->actor->pos,&tile->centre);
-	player[0].frogState |= FROGSTATUS_ISSTANDING;
-	player[0].frogState &= ~FROGSTATUS_ISTELEPORTING;
+	player[pl].frogState |= FROGSTATUS_ISSTANDING;
+	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
 
 	SetVector(&telePos,&act->actor->pos);
 
