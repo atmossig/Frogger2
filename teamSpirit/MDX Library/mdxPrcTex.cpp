@@ -32,7 +32,7 @@ LPDIRECTDRAWSURFACE7 testS = NULL;
 
 short *waterData1;
 short *waterData2;
-#define WATER_EFFECT_RATIO 38
+#define WATER_EFFECT_RATIO 32
 #define WATER_TEXTURE_SIZE 128
 #define WATER_TEXTURE_SIZE2 (128*128)
 #define WATER_TEXTURE_SHIFT 7
@@ -45,7 +45,7 @@ void InitWater(char *file)
 	char file2[MAX_PATH];
 
 	sprintf(file1,"%swater.bmp",file);
-	sprintf(file2,"%sreflect.bmp",file);
+	sprintf(file2,"%sreflect.bmp",file);0
 
 	// Load the files,
 	waterData1 = (short *)gelfLoad_BMP(file1,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
@@ -63,7 +63,7 @@ void InitWater(char *file)
 void UpdateWater(void)
 {
 	long wIndex1,wIndex2;
-	long wOffset;
+	long wOffset,lOffset;
 	long x,y,y1,p;
 	short *tPtr;
 	
@@ -73,8 +73,8 @@ void UpdateWater(void)
 	if (!testS)
 		return;
 
-	wOffset = timeInfo.frameCount / 2;
-
+	wOffset = timeInfo.frameCount /2;
+	
 	while (testS->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	
 	tPtr = (short *)ddsd.lpSurface;
