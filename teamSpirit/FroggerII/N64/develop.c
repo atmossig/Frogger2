@@ -16,7 +16,7 @@
 #include "incs.h"
 
 
-#define MAXMENUOPTIONS	2
+#define MAXMENUOPTIONS	3
 
 unsigned long developmentMode = 0;
 
@@ -31,26 +31,26 @@ void RunDevelopmentMenu()
 {
 	static unsigned long currentSelection = 0;
 	static u16 button, lastbutton;
-	static TEXTOVERLAY *dev,*objView,*sndView;
+	static TEXTOVERLAY *dev,*objView,*sndView,*watView;
 	int i = 0, xPos, j;
 
 	if(frameCount == 1)
 	{
-		StopDrawing("devmenu");
 		FreeAllLists();
-
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
-		currFont = smallFont;
+		dev = CreateAndAddTextOverlay(30,24,"DEVELOPMENT MENU",NO,NO,255,255,255,255,smallFont,0,0,0);
+		dev = CreateAndAddTextOverlay(32,26,"DEVELOPMENT MENU",NO,NO,0,0,0,255,smallFont,0,0,0);
 
-		dev		= CreateAndAddTextOverlay(20,20,"DEVELOPMENT MENU",NO,NO,255,255,255,255,currFont,0,0,0);
-		objView	= CreateAndAddTextOverlay(40,60,"object viewer",NO,NO,255,255,255,255,currFont,0,0,0);
-		sndView	= CreateAndAddTextOverlay(40,80,"sound player",NO,NO,255,255,255,255,currFont,0,0,0);
+		objView	= CreateAndAddTextOverlay(40,60,"object viewer",NO,NO,255,255,255,255,smallFont,0,0,0);
+		sndView	= CreateAndAddTextOverlay(40,80,"sound player",NO,NO,255,255,255,255,smallFont,0,0,0);
+		watView	= CreateAndAddTextOverlay(40,100,"water stuff",NO,NO,255,255,255,255,smallFont,0,0,0);
+
+		// top pane
+		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,255,255,255,191,0);
 
 		ResetParameters();
-
-		StartDrawing("devmenu");
 	}
 
 	button = controllerdata[ActiveController].button;
@@ -58,26 +58,24 @@ void RunDevelopmentMenu()
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
     {
 		if(currentSelection > 0)
-		{
 			currentSelection--;
-			PlaySampleNot3D(237,255,128,128);
-		}
 	}
 	    
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
 		if(currentSelection < (MAXMENUOPTIONS-1))
-		{
 			currentSelection++;
-			PlaySampleNot3D(237,255,128,128);
-		}
 	}
 
 	if(frameCount > 15)
 	{
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
-			FreeAllLists();
+			FreeMenuItems();
+			developmentMode = -1;
+			gameState.mode = MENU_MODE;
+			gameState.menuMode = TITLE_MODE;
+
 			frameCount = 0;
 			lastbutton = 0;
 			return;
@@ -93,38 +91,48 @@ void RunDevelopmentMenu()
 			{
 				case 0:   // object viewer
 					developmentMode = OBJVIEW_MODE;
-					FreeAllLists();
+					FreeMenuItems();
 					return;
 				case 1:  // sound player
 					developmentMode = SNDVIEW_MODE;
-					FreeAllLists();
+					FreeMenuItems();
+					return;
+				case 2:  // water stuff
 					return;
 			}
 		}
 
 		if ((button & CONT_G) && !(lastbutton & CONT_G))
 		{
+			FreeMenuItems();
+			developmentMode = -1;
+			gameState.mode = MENU_MODE;
+			gameState.menuMode = TITLE_MODE;
+
 			frameCount = 0;
 			lastbutton = 0;
-
-			FreeAllLists();
-			developmentMode = 0;
-			gameState.mode = TITLE_MODE;
 		}			
+	}
 
-	
-		switch(currentSelection)
-		{
-			case 0:
-				objView->a = 255;
-				sndView->a = 91;
-				break;
+	switch(currentSelection)
+	{
+		case 0:
+			objView->a = 255;
+			sndView->a = 91;
+			watView->a = 91;
+			break;
 			
-			case 1:
-				objView->a = 91;
-				sndView->a = 255;
-				break;
-		}
+		case 1:
+			objView->a = 91;
+			sndView->a = 255;
+			watView->a = 91;
+			break;
+
+		case 2:
+			objView->a = 91;
+			sndView->a = 91;
+			watView->a = 255;
+			break;
 	}
 
 	lastbutton = button;

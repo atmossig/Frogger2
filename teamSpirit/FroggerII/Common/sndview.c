@@ -405,16 +405,13 @@ void RunSndView()
 	char musNameTxt[256];
 	int j;
 	
-	static SPRITEOVERLAY *splash[8];
-
 	if(frameCount == 1)
 	{
 		float x,y,z;
 		int i;
-		FreeAllLists();
-		
+
+		FreeMenuItems();
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 		LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 
 		title = CreateAndAddTextOverlay(30,24,"sound player",NO,NO,255,255,255,255,smallFont,0,0,0);
@@ -477,11 +474,6 @@ void RunSndView()
 			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Y] = 0;//255;
 			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Z] = 0;//255;
 		}
-
-		// add sprite overlays
-		i = 8;
-		while(i--)
-			splash[i] = CreateAndAddSpriteOverlay(Random(320) - 32,Random(240) - 32,"ai_ring.bmp",32,32,255,255,255,127,0);
 
 		sfxNum	= 0;
 		musNum	= 0;
@@ -657,7 +649,11 @@ void RunSndView()
 
 		FreeAllLists();
 		developmentMode = 0;
-		gameState.mode = DEVELOPMENT_MODE;
+		gameState.mode = MENU_MODE;
+		gameState.menuMode = TITLE_MODE;
+
+		frameCount = 0;
+		lastbutton = 0;
 		return;
 	}
 
@@ -720,18 +716,6 @@ void RunSndView()
 		{
 			waterWaveHeight[j] = SineWave2(waterWaveHeightFreq[j],frameCount)*waterWaveHeightAmp[j] + waterWaveHeightBase[j];
 			RotateVector2D(&waterCentre[j],&waterCentre[j],watRot[j]);
-		}
-	}
-
-	j = 8;
-	while(j--)
-	{
-		splash[j]->a -= Random(4) + 4;
-		if(splash[j]->a <= 16)
-		{
-			splash[j]->a = 127;
-			splash[j]->xPos = Random(320) - 32;
-			splash[j]->yPos = Random(240) - 32;
 		}
 	}
 }

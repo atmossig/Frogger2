@@ -82,6 +82,7 @@ void GameLoop(void)
 					switch(developmentMode)
 					{
 						case OBJVIEW_MODE:
+							RunObjectViewer();
 							break;
 
 						case SNDVIEW_MODE:

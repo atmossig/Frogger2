@@ -784,7 +784,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 	tmp[5] = '\0';
 
 	// ...and move it if necessary
-	if(!gstrcmp(tmp,"fghed\0"))
+	if((gameState.mode == INGAME_MODE) && (!gstrcmp(tmp,"fghed\0")))
 	{
 		float rotmat2[4][4];
 		QUATERNION quat, rot = {0,1,0,0};

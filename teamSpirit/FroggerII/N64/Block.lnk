@@ -88,6 +88,7 @@ _codeSegmentEnd         alias   _code_objend
 		include "script.obj",code
 		include "objview.obj",code
 		include "memload.obj",code
+		include "multi.obj",code
 
 		include "develop.obj",code
 		include	"rdp_out0.obj",code

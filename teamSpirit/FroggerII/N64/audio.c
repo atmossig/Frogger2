@@ -195,25 +195,6 @@ int PlaySample(short num,VECTOR *pos,long radius,short tempVol,short pitch)
 		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 	}
 
-/*	
-//work out volume
-	dist = DistanceBetweenPointsSquared(&currCamSource[0],pos);
-	if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
-		return 0;
-	
-	dist = sqrtf(dist);
-	scale = MAX_SFX_DIST - dist;
-	scale = scale / MAX_SFX_DIST;
-
-	vol *= scale;
-
-//work out pan
-	SubVector2D(&tempVect, pos, &currCamSource[0]);
-	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
-	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
-
-	scale *= 255/PI;
-*/
 	if(num != FX_NULL)
 	{
 //		vol *= 1.8;

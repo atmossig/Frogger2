@@ -115,6 +115,9 @@ enum
 
 #define GEN_FROG_HOP	133
 #define GEN_SUPER_HOP	104
+#define GEN_FROG_HURT	145
+#define GEN_FROG_DEATH	162
+#define GEN_FROG_TONGUE	219
 
 extern int musresult;
 

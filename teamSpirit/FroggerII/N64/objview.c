@@ -89,32 +89,33 @@ void SelectObjectBank()
 	static unsigned long currentWorldSelection = 0;
 	static unsigned long currentLevelSelection = 0;
 	static u16 button,lastbutton;
-	static TEXTOVERLAY *tOverObjBank = NULL;
+	static TEXTOVERLAY *misc,*tOverObjBank = NULL;
 	int i = 0,j = 0;
-
-	OBJECT_DESCRIPTOR *objDesc = NULL;
-	OBJECT_CONTROLLER *objCont = NULL;
-
+	
 	if(frameCount == 1)
 	{	
-		StopDrawing("objbank");
+		char msgTmp[4];
 
-		FreeAllLists();
-
+		FreeMenuItems();
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
-		CreateAndAddTextOverlay(20,20,"object viewer",NO,NO,255,255,255,255,smallFont,0,0,0);
-		CreateAndAddTextOverlay(20,40,"left and right to select a world",NO,NO,255,255,255,95,oldeFont,0,0,0);
-		CreateAndAddTextOverlay(20,50,"up and down to select a level",NO,NO,255,255,255,95,oldeFont,0,0,0);
+		misc = CreateAndAddTextOverlay(30,24,"OBJECT VIEWER",NO,NO,255,255,255,255,smallFont,0,0,0);
+		misc = CreateAndAddTextOverlay(32,26,"OBJECT VIEWER",NO,NO,0,0,0,255,smallFont,0,0,0);
 
+		CreateAndAddTextOverlay(30,55,"up and down selects world",NO,NO,255,255,255,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(30,65,"left and right selects level",NO,NO,255,255,255,255,oldeFont,0,0,0);
+
+		// top pane
+		CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,255,255,255,191,0);
+		
 		for(i=0; i<MAX_LEVELS; i++)
 		{
-			lev[i] = CreateAndAddTextOverlay(0,130 + (i * 16),"********************",YES,NO,255,255,255,255,oldeFont,0,0,0);
-			DisableTextOverlay(lev[i]);
+			lev[i] = CreateAndAddTextOverlay(30 + (i * 24),130,"1",YES,NO,255,255,255,91,smallFont,0,0,0);
+//			DisableTextOverlay(lev[i]);
 		}
 
-		tOverObjBank = CreateAndAddTextOverlay(80,100,"************************",YES,NO,255,255,255,255,currFont,0,0,0);
+		tOverObjBank = CreateAndAddTextOverlay(70,100,"************************",YES,NO,255,255,255,255,smallFont,0,0,0);
 
 		objectViewer.currWorldID = 0;
 		sprintf(tOverObjBank->text,"%s (%d/%d)",worldVisualData[objectViewer.currWorldID].description,objectViewer.currWorldID+1,MAX_WORLDS);
@@ -126,32 +127,30 @@ void SelectObjectBank()
 
 		objectViewer.currWorldID = 0;
 		objectViewer.currLevelID = 0;
-
-		StartDrawing("objbank");
 	}
 
 	button = controllerdata[ActiveController].button;
 
 	// select previous world
-	if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
+	if((button & CONT_UP) && !(lastbutton & CONT_UP))
     {
 		if(currentWorldSelection > 0)
 			currentWorldSelection--;
 	}
 	// select next world
-	else if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
+	else if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
 		if(currentWorldSelection < (MAX_WORLDS - 1))
 			currentWorldSelection++;
 	}
 	// select previous level
-	else if((button & CONT_UP) && !(lastbutton & CONT_UP))
+	else if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
     {
 		if(currentLevelSelection > 0)
 			currentLevelSelection--;
 	}
 	// select next level
-	else if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+	else if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
     {
 		if(currentLevelSelection < (worldVisualData[objectViewer.currWorldID].numLevels - 1))
 			currentLevelSelection++;
@@ -161,27 +160,22 @@ void SelectObjectBank()
 	objectViewer.currLevelID = currentLevelSelection;
 
 	sprintf(tOverObjBank->text,"%s (%d/%d)",worldVisualData[objectViewer.currWorldID].description,objectViewer.currWorldID+1,MAX_WORLDS);
-	for(i=0; i<MAX_LEVELS; i++)
-	{
-		if(worldVisualData[objectViewer.currWorldID].levelVisualData[i].collBank != -1)
-		{
-			sprintf(lev[i]->text,"%s",worldVisualData[objectViewer.currWorldID].levelVisualData[i].description);
-			EnableTextOverlay(lev[i]);
-		}
-		else
-			DisableTextOverlay(lev[i]);
-	}
 	
 	if(frameCount > 15)
 	{
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frameCount		= 0;
-			lastbutton		= 0;
 			objectViewer.currObjNum = 0;
 			objectViewer.numObjects = 0;
+			objectViewer.mode		= SELECTOBJECTBANK_MODE;
 			viewActor = NULL;
+
+			gameState.mode			= MENU_MODE;
+			gameState.menuMode		= DEVELOPMENT_MODE;
+			developmentMode			= -1;
+			frameCount				= 0;
+			lastbutton				= 0;
 			return;
 		}
 
@@ -189,60 +183,13 @@ void SelectObjectBank()
 		   ((button & CONT_A) && !(lastbutton & CONT_A)))
 		{
 			StopDrawing("wldbanks");
+
 			// load relevant object bank and texture bank...
 			FreeAllLists();
-			//LoadTextureBank(SYSTEM_TEX_BANK);
-			//LoadTextureBank(GENERIC_TEX_BANK);
-			LoadVisualBanksForWorld(objectViewer.currWorldID,objectViewer.currLevelID);
-
-			// ...and get the object ID's from the bank
-			objectViewer.numObjects = 0;
-			for(j=0; j<MAX_OBJECT_BANKS; j++)
-			{
-				if(objectBanks[j].freePtr)
-				{
-					objectViewer.numObjects += objectBanks[j].numObjects;
-					objDesc = objectBanks[j].objList;
-					
-					for(i=0; i<objectBanks[j].numObjects; i++)
-					{
-						objCont = objDesc[i].objCont;
-						dprintf"Object ID %d : %x : %s\n",objectViewer.currObjNum,objDesc[i].objectID,objCont->object->name));
-						objIDs[objectViewer.currObjNum] = objDesc[i].objectID;
-
-						viewActor = (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"A2");
-						viewActor->actor = (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"A");
-
-						FindObject(&viewActor->actor->objectController,objIDs[objectViewer.currObjNum],"",YES);
-						viewActor->flags = ACTOR_DRAW_NEVER;
-						if(!viewActor->actor->objectController)
-							continue;
-
-						sprintf(viewActor->actor->objectController->object->name,objCont->object->name);
-						InitActorStructures(viewActor->actor,INIT_ANIMATION);
-						AnimateActor(viewActor->actor,0,YES,NO,0.5F,0,0);
-
-						MakeUniqueActor(viewActor->actor,0);
-
-						SetVector(&viewActor->actor->pos,&objectViewer.objPos);
-						viewActor->actor->scale.v[X] = viewActor->actor->scale.v[Y] = viewActor->actor->scale.v[Z] = 1;
-
-						ZeroQuaternion(&viewActor->actor->qRot);
-
-						viewActor->next = actList;
-						actList			= viewActor;
-						objectViewer.currObjNum++;
-					}
-				}
-			}
-
-			// set to the first object
-			objectViewer.currObj		= actList;
-			objectViewer.currObjNum		= 0;
-			objectViewer.currObj->flags = ACTOR_DRAW_ALWAYS;
 
 			objectViewer.mode		= VIEWOBJECTBANK_MODE;
 			objectViewer.viewMode	= OBJVIEW_GEOM;
+
 			frameCount = 0;
 			lastbutton = 0;
 
@@ -271,10 +218,70 @@ void ViewObjectBank()
 	float tempMtx[4][4];
 	int i,j;
 
+	if(frameCount == 1)
+	{
+		OBJECT_DESCRIPTOR *objDesc = NULL;
+		OBJECT_CONTROLLER *objCont = NULL;
+
+		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+		LoadVisualBanksForWorld(objectViewer.currWorldID,objectViewer.currLevelID);
+
+		// ...and get the object ID's from the bank
+		objectViewer.numObjects = 0;
+		for(j=0; j<MAX_OBJECT_BANKS; j++)
+		{
+			if(objectBanks[j].freePtr)
+			{
+				objectViewer.numObjects += objectBanks[j].numObjects;
+				objDesc = objectBanks[j].objList;
+					
+				for(i=0; i<objectBanks[j].numObjects; i++)
+				{
+					objCont = objDesc[i].objCont;
+					dprintf"Object ID %d : %x : %s\n",objectViewer.currObjNum,objDesc[i].objectID,objCont->object->name));
+					
+					if(gstrcmp(objCont->object->name,"nothing") == 0)
+						continue;
+
+					objIDs[objectViewer.currObjNum] = objDesc[i].objectID;
+
+					viewActor = (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"A2");
+					viewActor->actor = (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"A");
+
+					FindObject(&viewActor->actor->objectController,objIDs[objectViewer.currObjNum],"",YES);
+					viewActor->flags = ACTOR_DRAW_NEVER;
+					if(!viewActor->actor->objectController)
+						continue;
+
+					sprintf(viewActor->actor->objectController->object->name,objCont->object->name);
+					InitActorStructures(viewActor->actor,INIT_ANIMATION);
+					AnimateActor(viewActor->actor,0,YES,NO,0.5F,0,0);
+
+					MakeUniqueActor(viewActor->actor,0);
+
+					SetVector(&viewActor->actor->pos,&objectViewer.objPos);
+					viewActor->actor->scale.v[X] = viewActor->actor->scale.v[Y] = viewActor->actor->scale.v[Z] = 1;
+
+					ZeroQuaternion(&viewActor->actor->qRot);
+
+					viewActor->next = actList;
+					actList			= viewActor;
+					objectViewer.currObjNum++;
+				}
+			}
+		}
+
+		// set to the first object
+		objectViewer.currObj		= actList;
+		objectViewer.currObjNum		= 0;
+		objectViewer.currObj->flags = ACTOR_DRAW_ALWAYS;
+	}
+
 	if(!viewTxt)
-		viewTxt	= CreateAndAddTextOverlay(20,20,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
+		viewTxt	= CreateAndAddTextOverlay(30,25,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
 	if(!msgTxt)
-		msgTxt	= CreateAndAddTextOverlay(20,35,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
+		msgTxt	= CreateAndAddTextOverlay(30,205,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
 
 	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum+1,objectViewer.numObjects);
 	viewTxt->text = objName;
@@ -499,8 +506,10 @@ void ObjViewReadControllerGeom()
 	{
 		// exit from object viewing
 		FreeAllLists();
+		
 		frameCount = 0;
 		lastbutton = 0;
+
 		objectViewer.mode = SELECTOBJECTBANK_MODE;
 		objectViewer.numObjects = 0;
 		objectViewer.currObj = 0;
@@ -562,37 +571,37 @@ void ObjViewReadControllerGeom()
 	if((button & CONT_E) && !(button & CONT_G))
 	{
 		// Rotate about the x-axis
-		objectViewer.rotateAboutX -= 2;
+		objectViewer.rotateAboutX -= 4;
 	}
 
 	if((button & CONT_D) && !(button & CONT_G))
 	{
 		// Rotate about the x-axis
-		objectViewer.rotateAboutX += 2;
+		objectViewer.rotateAboutX += 4;
 	}
 
 	if((button & CONT_F) && !(button & CONT_G))
 	{
 		// Rotate about the y-axis
-		objectViewer.rotateAboutY += 2;
+		objectViewer.rotateAboutY += 4;
 	}
 
 	if((button & CONT_C) && !(button & CONT_G))
 	{
 		// Rotate about the y-axis
-		objectViewer.rotateAboutY -= 2;
+		objectViewer.rotateAboutY -= 4;
 	}
 
 	if((button & CONT_C) && (button & CONT_G))
 	{
 		// Rotate about the z-axis
-		objectViewer.rotateAboutZ -= 2;
+		objectViewer.rotateAboutZ -= 4;
 	}
 
 	if((button & CONT_F) && (button & CONT_G))
 	{
 		// Rotate about the z-axis
-		objectViewer.rotateAboutZ += 2;
+		objectViewer.rotateAboutZ += 4;
 	}
 
 	if((button & CONT_B) && !(lastbutton & CONT_B))
@@ -629,8 +638,10 @@ void ObjViewReadControllerAnim()
 	{
 		// exit from object viewing
 		FreeAllLists();
+		
 		frameCount = 0;
 		lastbutton = 0;
+
 		objectViewer.mode = SELECTOBJECTBANK_MODE;
 		objectViewer.numObjects = 0;
 		objectViewer.currObj = 0;
