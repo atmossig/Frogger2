@@ -1188,6 +1188,7 @@ void UpdateVent( ENEMY *cur )
 				}
 				else if( cur->nmeActor->effects & EF_SMOKEBURST )
 				{
+					PrepForPriorityEffect( );
 					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
 					SetAttachedFXColour( fx, act->effects );
 				}
@@ -1262,6 +1263,7 @@ void UpdateVent( ENEMY *cur )
 			}
 			else if( cur->nmeActor->effects & EF_SMOKEBURST )
 			{
+				PrepForPriorityEffect( );
 				fx = CreateSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 6963 );
 				SetAttachedFXColour( fx, act->effects );
 			}
@@ -1271,7 +1273,7 @@ void UpdateVent( ENEMY *cur )
 
 				GetPositionForPathNode( &p1, &path->nodes[0] );
 				GetPositionForPathNode( &p2, &path->nodes[path->numNodes-1] );
-//				CreateLightningEffect( &p1, &p2, act->effects, ((60*path->nodes->speed)>>12)/((act->value1)?(act->value1>>12):1) );
+
 				CreateLightningEffect( &p1, &p2, act->effects,
 									   ((60*path->nodes->speed)>>12)/((act->value1)?(act->value1>>12):1),
 									   act->depthShift);
@@ -2189,6 +2191,18 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 		babyIcons[i]->r = babyList[i].fxColour[0];
 		babyIcons[i]->g = babyList[i].fxColour[1];
 		babyIcons[i]->b = babyList[i].fxColour[2];
+	}
+
+	if( player[0].worldNum == WORLDID_ANCIENT )
+	{
+		if( 
+#ifdef PSX_VERSION
+			strstr(eActorName, "STNWHEEL") || strstr(eActorName, "stnwheel")
+#else
+			!(strnicmp(eActorName,"STNWHEEL",8)) || !(strnicmp(eActorName,"stnwheel",8))
+#endif
+			)
+		newItem->flags |= ENEMY_NEW_NOJUMPOVER;
 	}
 
 	AddEnemyModelUpdates(eActorName, newItem);
