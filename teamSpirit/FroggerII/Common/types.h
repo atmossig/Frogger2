@@ -363,6 +363,7 @@ typedef struct TAGSPRITE
 	VECTOR sc;
 	float angle;
 	float angleInc;
+	short arrayIndex;
 
 }SPRITE;
 

@@ -305,10 +305,9 @@ void FreeGaribLinkedList()
 GARIB *CreateNewGarib(VECTOR pos,int type)
 {
 	static indexPos = 0;
-
 	unsigned char value;
-
 	GARIB *garib;
+	SPRITE sprite;
 
 	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
 	{
@@ -355,7 +354,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	else
 	{
 		// Initialise garib sprite
-		garib->sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "GSprite" );
+		garib->sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"garspr");
 		SetVector(&garib->sprite->pos,&pos);
 		InitSpriteAnimation( garib->sprite, &garibAnimation[garib->type], 0 );
 		garib->sprite->r = 255;
@@ -379,7 +378,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		garib->sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 #endif
 		if(garib->active)
-			AddSprite( garib->sprite, NULL );
+			AddSprite(garib->sprite,NULL);
 		garib->sprite->flags |= SPRITE_TRANSLUCENT;
 		garib->sprite->a = 200;
 	}
@@ -445,13 +444,12 @@ void UpdateGaribs()
 	Function		: 
 	Purpose			: 
 	Parameters		: 
-	Returns			: frog
+	Returns			: 
 	Info			: 
 */
 void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 {
 	char bmpBuff[16];
-
 	SPRITE *sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"SPRITE");
 
 	SetVector(&sprite->pos,pos);

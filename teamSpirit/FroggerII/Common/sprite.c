@@ -253,9 +253,6 @@ SPRITE *testSpr = NULL;
 
 BACKDROPLIST backdropList;
 
-int numSortArraySprites = 0;
-SPRITE spriteSortArray[500];
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitSpriteLinkedList
@@ -411,88 +408,6 @@ void AnimateSprites()
 */
 void AnimateSprite(SPRITE *sprite)
 {
-/*
-	SPRITE_ANIMATION *anim = &sprite->anim;
-
-	if(anim->lifespan > 0)
-	{
-		anim->lifespan--;
-		if(!anim->lifespan)
-		{
-			sprite->texture = NULL;
-			anim->type		= SPRITE_ANIM_NONE;
-			return;
-		}
-	}
-
-	if(anim->type == SPRITE_ANIM_LIFETIME)
-		return;
-
-	// sort out alphas...
-	if(anim->endAlpha != anim->startAlpha)
-	{
-		if(anim->lifespan > 0)
-			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * anim->lifetime) / anim->lifespan;
-		else
-			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
-	}
-
-	// sort out scales...
-	if(anim->endScale != anim->startScale)
-	{
-		if(anim->lifespan > 0)
-			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * anim->lifetime) / anim->lifespan;
-		else
-			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
-	}
-
-	if(anim->type != SPRITE_ANIM_SCALE_ALPHA)
-	{
-		if(anim->currentFrame >= anim->frameList->numFrames)
-		{
-			if(anim->type == SPRITE_ANIM_CYCLE)
-				anim->currentFrame = 0;
-			else if(anim->type == SPRITE_ANIM_ONESHOT)
-			{
-				sprite->texture = NULL;
-				return;
-			}
-		}
-		else if((anim->type == SPRITE_ANIM_REVERSE) && (anim->currentFrame == 0))
-		{
-			sprite->texture = NULL;
-			return;
-		}
-
-		sprite->texture = *(anim->frameList->texture + anim->currentFrame);
-
-		if(anim->counter > 0)
-		{
-			anim->counter -= 32;
-		}
-		else
-		{
-			if(sprite->flags & SPRITE_REVERSING)
-				anim->currentFrame--;
-			else
-				anim->currentFrame++;
-			anim->counter += anim->delay;
-			if(anim->type == SPRITE_ANIM_FLIPFLOP)
-			{
-				if(anim->currentFrame >= anim->frameList->numFrames)
-				{
-					sprite->flags |= SPRITE_REVERSING;
-					anim->currentFrame--;
-				}
-				else if(anim->currentFrame == 0)
-				{
-					sprite->flags &= -1 - SPRITE_REVERSING;
-				}
-			}
-		}
-	}
-*/
-
 	SPRITE_ANIMATION *anim = &sprite->anim;
 	float fLifespan;
 
@@ -517,7 +432,6 @@ void AnimateSprite(SPRITE *sprite)
 	if(anim->endAlpha != anim->startAlpha)
 	{
 		if(fLifespan > 0)
-//			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * anim->lifetime) / fLifespan;
 			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha));	// * anim->lifetime) / fLifespan;
 		else
 			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
@@ -527,7 +441,6 @@ void AnimateSprite(SPRITE *sprite)
 	if(anim->endScale != anim->startScale)
 	{
 		if(fLifespan > 0)
-//			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * anim->lifetime) / fLifespan;
 			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale));	// * anim->lifetime) / fLifespan;
 		else
 			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
@@ -540,7 +453,6 @@ void AnimateSprite(SPRITE *sprite)
 		if(anim->currentFrame >= anim->frameList->numFrames)
 		{
 			if(anim->type == SPRITE_ANIM_CYCLE)
-//				anim->currentFrame = 0;
 				anim->currentFrame = ROUND2SHORT(gameSpeed) - 1;
 			else if(anim->type == SPRITE_ANIM_ONESHOT)
 			{
@@ -758,6 +670,45 @@ SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,sho
 	return sprite;
 }
 
+//----- [ SORTING STUFF ] -----------------------------------------------------------------------
+
+int numSortArraySprites = 0;
+SPRITE *spriteSortArray = NULL;
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSpriteSortArray
+	Purpose			: initialises the sprite sort array
+	Parameters		: int
+	Returns			: void
+	Info			: 
+*/
+void InitSpriteSortArray(int numElements)
+{
+	if(spriteSortArray)
+		FreeSpriteSortArray();
+
+	spriteSortArray = JallocAlloc(sizeof(SPRITE) * numElements,YES,"sprSort");
+
+	numSortArraySprites = 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeSpriteSortArray
+	Purpose			: frees the sprite sort array
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeSpriteSortArray()
+{
+	if(spriteSortArray)
+		JallocFree((UBYTE**)&spriteSortArray);
+
+	spriteSortArray = NULL;
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: SpriteZCompare
@@ -819,3 +770,68 @@ void ZSortSpriteList()
 	qsort(&spriteSortArray[0],numSortArraySprites,sizeof(SPRITE),SpriteZCompare);
 }
 
+
+//----- used for static sprite list - ANDYE -----------------------------------------------------
+
+int numArraySprites					= 0;
+int lowestFreeArraySlot				= 0;
+SPRITE_ENTRY *spriteEntryArrayPtr	= NULL;
+SPRITE_ENTRY *spriteEntryArray		= NULL;
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSpriteArray
+	Purpose			: initialises the static sprite array
+	Parameters		: int
+	Returns			: void
+	Info			: 
+*/
+void InitSpriteArray(int numElements)
+{
+	if(spriteEntryArray)
+		FreeSpriteArray();
+
+	spriteEntryArray = JallocAlloc(sizeof(SPRITE_ENTRY) * numElements,YES,"sprArray");
+
+	numArraySprites = 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeSpriteArray
+	Purpose			: frees the static sprite array
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeSpriteArray()
+{
+	if(spriteEntryArray)
+		JallocFree((UBYTE**)&spriteEntryArray);
+
+	spriteEntryArray = NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddSpriteToArray
+	Purpose			: adds a sprite to the sprite array
+	Parameters		: SPRITE *
+	Returns			: 
+	Info			: void
+*/
+void AddSpriteToArray(SPRITE *sprite)
+{
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubSpriteFromArray
+	Purpose			: removes a sprite from the sprite array
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void SubSpriteFromArray(SPRITE *sprite)
+{
+}

@@ -33,6 +33,8 @@
 #define LAND   1
 #define WATER  2
 
+#define MAX_ARRAY_SPRITES		768
+
 
 ////////   Fog related
 enum
@@ -198,9 +200,6 @@ extern FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS];
 
 extern SPRITE *testSpr;
 
-extern int numSortArraySprites;
-extern SPRITE spriteSortArray[500];
-
 extern SPRITELIST spriteList;
 
 extern float printSpritesProj[4][4][4];
@@ -213,13 +212,40 @@ void AnimateSprites();
 void AnimateSprite(SPRITE *sprite);
 void InitSpriteAnimation(SPRITE *sprite,SPRITE_ANIMATION_TEMPLATE *temp,USHORT lifespan);
 
-
 void InitSpriteFrameLists();
-
 SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,short flags);
 
+
+//----- used for sorting sprite list - ANDYE ----------------------------------------------------
+
+extern int numSortArraySprites;
+extern SPRITE *spriteSortArray;
+
+void InitSpriteSortArray(int numElements);
+void FreeSpriteSortArray();
 int SpriteZCompare(const void *arg1,const void *arg2);
 void ZSortSpriteList();
+
+//----- used for static sprite list - ANDYE -----------------------------------------------------
+
+typedef struct TAGSPRITE_ENTRY
+{
+	char used;
+	SPRITE sprite;
+
+} SPRITE_ENTRY;
+
+extern int numArraySprites;
+extern int lowestFreeArraySlot;
+extern SPRITE_ENTRY *spriteEntryArray;
+extern SPRITE_ENTRY *spriteEntryArrayPtr;
+
+void InitSpriteArray(int numElements);
+void FreeSpriteArray();
+void AddSpriteToArray(SPRITE *sprite);
+void SubSpriteFromArray(SPRITE *sprite);
+
+//-----------------------------------------------------------------------------------------------
 
 
 #endif
