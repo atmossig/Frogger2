@@ -105,7 +105,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrRipple;
 		effect->Update = UpdateFXRipple;
 		effect->Draw = DrawFXRipple;
-
+		effect->sprites->flags = XLU_ADD;
 		break;
 	case FXTYPE_GARIBCOLLECT:
 		effect->b = 0;
@@ -122,12 +122,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		break;
 	case FXTYPE_DECAL:
-		effect->a = 200;
+		effect->a = 255;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
 
-		effect->tex = txtrRing;
+		effect->tex = txtrRipple;
 		effect->Update = UpdateFXRipple;
 		effect->Draw = DrawFXRipple;
 
@@ -340,10 +340,15 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		s = effect->sprites;
 		while( i-- )
 		{
+			s->flags = SPRITE_TRANSLUCENT;
+
 			if( effect->type == FXTYPE_BUBBLES )
 				s->texture = txtrBubble;
 			else
+			{
+				s->flags |= XLU_ADD;
 				s->texture = txtrSmoke;
+			}
 
 			SetVector( &s->pos, &effect->origin );
 
@@ -354,8 +359,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 			s->offsetX = -16;
 			s->offsetY = -16;
-			s->flags = SPRITE_TRANSLUCENT;
-
+			
 			if( effect->type == FXTYPE_SMOKE_GROWS || effect->type == FXTYPE_SMOKE_STATIC )
 			{
 				s->scaleX = effect->scale.v[X] + Random(21)-10;
@@ -739,7 +743,9 @@ void UpdateFXSmoke( SPECFX *fx )
 		else
 		{
 			s->draw = 0;
-			s->a = 0;
+			if (s->a>gameSpeed)
+				s->a-=gameSpeed;
+			
 		}
 
 		s->pos.v[X] += fx->vel.v[X] * gameSpeed;
@@ -751,7 +757,11 @@ void UpdateFXSmoke( SPECFX *fx )
 		ScaleVector( &fx->vel, vS );
 
 		if(s->flags & SPRITE_FLAGS_ROTATE)
-			s->angle += (s->angleInc * gameSpeed);
+		{
+			float amul = (0.5-s->a/0xff);
+			if (amul<0) amul = 0;
+			s->angle +=  amul * (s->angleInc * gameSpeed);
+		}
 
 		if( fx->type == FXTYPE_SMOKE_GROWS )
 		{
@@ -1316,10 +1326,11 @@ void InitSpecFXList( )
 	specFXList.numEntries = 0;
 
 	// get the textures used for the various special effects
-	FindTexture(&txtrRipple,UpdateCRC("ai_ripple.bmp"),YES);
+	FindTexture(&txtrRipple,UpdateCRC("ai_ripple2.bmp"),YES);
 	FindTexture(&txtrStar,UpdateCRC("ai_star.bmp"),YES);
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
-	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
+	//FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
+	FindTexture(&txtrSmoke,UpdateCRC("00smok07.bmp"),YES);
 	FindTexture(&txtrSmoke2,UpdateCRC("ai_smoke2.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);

@@ -498,7 +498,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			// If a water object, draw always
 			if( !gstrcmp( tmp, "wat_\0" ) )
 			{
-				theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS;
+				theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
 
 				if (ts->name[4]=='f')
 					theActor->flags |= ACTOR_SLIDYTEX;
@@ -1194,7 +1194,8 @@ void RunFrontendGameLoop (void)
 		infoBak->b = worldBak->b;
 		
 		
-		titleBak = CreateAndAddSpriteOverlay(20,5,"wback.bmp",320-40,16+8+10,190,XLU_ADD);
+		//titleBak = CreateAndAddSpriteOverlay(0,0,"00mwat09.bmp",32,32,190,XLU_ADD);
+		titleBak = CreateAndAddSpriteOverlay(20,5,"wback.bmp",320-40,16+8+10,190,0);
 		titleBak->r = worldBak->r;
 		titleBak->g = worldBak->g;
 		titleBak->b = worldBak->b;

@@ -8,7 +8,7 @@
 #endif
 #define MA_MAX_VERTICES		32000	// Maximum number of VERTICES that can be drawn in a frame
 #define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn in a frame
-#define MA_MAX_FRAMES		4		// Maximum number of frames that may be active at once.
+#define MA_MAX_FRAMES		5		// Maximum number of frames that may be active at once.
 
 #define MAX_FRAMES	17
 
