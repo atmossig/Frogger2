@@ -15,6 +15,7 @@
 
 
 
+
 // NB - The structures defined in here must match those defined in the PC map compilation tool!
 
 // BFF header types for frog-map segments
@@ -116,6 +117,7 @@ typedef struct FMA_WORLD
 }FMA_WORLD;
 
 
+#include "water.h"
 
 // =========== Hurrah... Some functions! =========
 // Draw the whole world map
@@ -123,7 +125,7 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world);
 
 // Draw a platform mesh
 void MapDraw_DrawFMA_Mesh(FMA_MESH_HEADER *mesh);
-void MapDraw_DrawFMA_Water(FMA_WORLD *world, short posx, short posy, short posz);
+void MapDraw_DrawFMA_Water ( WATER *cur );
 
 int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh);
 
