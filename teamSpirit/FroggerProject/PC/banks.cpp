@@ -208,7 +208,7 @@ void LoadObjectBank(int objectBank)
 			strcpy(fileName,"sretro10");
 			break;
 		case RETROMASTER_OBJ_BANK:
-			strcpy(fileName,"sretroboss");
+			strcpy(fileName,"sretromaster");
 			break;		
 		case RETROMULTI_OBJ_BANK:
 			strcpy(fileName, "sretromulti"); break;
@@ -277,6 +277,10 @@ void LoadTextureBank(int textureBank)
 			strcpy(fileName, "Halloween");
 			break;
 		
+		case SUPERRETRO_TEX_BANK:
+			strcpy(fileName, "Super");
+			break;
+
 		case FRONT_TEX_BANK:
 			strcpy(fileName, "front");
 			break;
