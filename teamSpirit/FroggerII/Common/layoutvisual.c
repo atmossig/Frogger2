@@ -576,11 +576,6 @@ void FreeAllGameLists()
 #ifdef PC_VERSION
 	StopSong( );
 	FreeSampleList();
-	if( sfx_anim_map )
-	{
-		JallocFree((UBYTE **)&sfx_anim_map);
-		sfx_anim_map = NULL;
-	}
 #endif
 
 	KillAllTriggers();
