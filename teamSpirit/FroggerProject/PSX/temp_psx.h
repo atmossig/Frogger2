@@ -20,5 +20,6 @@ void PsxNameEntryInit(void);
 void PsxNameEntryFrame(void);
 void SaveGame(void);
 void LoadGame(void);
+void Actor2ClipCheck(ACTOR2* act);
 
 #endif

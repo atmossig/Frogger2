@@ -782,3 +782,87 @@ void LoadGame(void)
 	FREE(loadBuf);
 }
 
+void Actor2ClipCheck(ACTOR2* act)
+{
+//bbxx - PAL/NTSC specifics needed here
+ 	#define CLIP_TOP	-120
+ 	#define CLIP_RIGHT	256
+ 	#define CLIP_BOTT	120
+ 	#define CLIP_LEFT	-256
+
+	#define CLIP_FAR	3000
+
+//test
+// 	#define CLIP_TOP	-50
+// 	#define CLIP_RIGHT	100
+// 	#define CLIP_BOTT	50
+// 	#define CLIP_LEFT	-100
+
+	
+	long sxy,sz;
+	long sx, sy;//extracted from sxy
+	int distTop, distRight, distBott, distLeft;
+
+	SVECTOR pos = act->actor->position;
+	pos.vx = -pos.vx;
+	pos.vy = -pos.vy;
+
+
+	//calc screen coords of actor
+	gte_SetTransMatrix(&GsWSMATRIX);
+	gte_SetRotMatrix(&GsWSMATRIX);
+
+	gte_ldv0(&pos);
+	gte_rtps();
+	gte_stsxy(&sxy);
+	gte_stszotz(&sz);
+
+
+	sx = (short)(sxy&0xffff);
+	sy = (short)(sxy>>16);
+
+
+// 	if(act->actor->psiData.flags & ACTOR_DYNAMICSORT)
+// 	{
+// 		char tempText[128];
+// 		sprintf(tempText, "%s : %d, %d, %d", act->actor->psiData.modelName, sx, sy, sz);
+// 		fontPrint(fontSmall, -100,-90, tempText, 255,255,255);
+// 
+// 		sprintf(tempText, "X");
+// 		fontPrint(font, sx,sy, tempText, 255,255,255);
+// 	}
+
+
+
+	//calc dists from edges
+	distTop		= sy - CLIP_TOP;
+	distRight	= sx - CLIP_RIGHT;
+	distBott	= sy - CLIP_BOTT;
+	distLeft	= sx - CLIP_LEFT;
+
+
+	//clip?
+	if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>CLIP_FAR) )
+	{
+		act->clipped = 1;
+	}
+	else
+	{
+		act->clipped = 0;
+	}
+
+
+	//miles away?
+// 	if(act->clipped)
+// 	{
+// 		int debugTemp = 0;
+// 		int milesDist = 100;
+// 
+// 		if( (distTop<-milesDist) || (distRight>milesDist)
+// 		 || (distBott>milesDist) || (distLeft<-milesDist) )
+// 		{
+// 			debugTemp++;
+// 		}
+// 	}
+
+}
