@@ -20,7 +20,7 @@
 long   numHops_TOTAL = 0;
 long   speedHops_TOTAL = 0;
 long   numHealth_TOTAL = 0;
-
+long   nextCamFacing = 0;
 //GAMETILE *worldTilesList	= NULL;
 ACTOR2 *temp;
 
@@ -48,6 +48,8 @@ static float frogAnimSpeed	= 3.5F;
 float frogSlurpDivisor		= 2.0F;
 
 int	frogFacing[4]				= {0,0,0,0};
+int nextFrogFacing[4]			= {0,0,0,0};
+
 int	frogFacing2				= 0;
 
 float globalFloat			= 0.1F;
@@ -360,6 +362,7 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGU;
 		}
 		move = moveVal;
+		nextFrogFacing[pl] = nextCamFacing;
 		frogFacing[pl] = camFacing;
 		PlaySample ( 24,NULL,255,128);
 	}
@@ -391,7 +394,9 @@ void UpdateFroggerPos(long pl)
 		}
 		move = moveVal;
 		PlaySample ( 24,NULL,255,128);
+		nextFrogFacing[pl] = (nextCamFacing + 2) & 3;
 		frogFacing[pl] = (camFacing + 2) & 3;
+
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGL)
 	{
@@ -420,7 +425,9 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGL;
 		}
 		move = moveVal;
+		nextFrogFacing[pl] = (nextCamFacing + 1) & 3;		
 		frogFacing[pl] = (camFacing + 1) & 3;		
+
 		PlaySample ( 24,NULL,255,128);
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGR)
@@ -450,13 +457,14 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState &= ~FROGSTATUS_ISWANTINGR;
 		}
 		move = moveVal;
+		nextFrogFacing[pl] = (nextCamFacing + 3) & 3;		
 		frogFacing[pl] = (camFacing + 3) & 3;		
 		PlaySample ( 24,NULL,255,128);
 	}
 
 	if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPU)
 	{
-		frogFacing[pl] = camFacing;
+		nextFrogFacing[pl] = nextCamFacing;
 		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
 		// requests long hop up
 		if(!MoveToRequestedDestination(MOVE_UP,pl))
@@ -481,7 +489,7 @@ void UpdateFroggerPos(long pl)
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPD)
 	{
-		frogFacing[pl] = (camFacing + 2) & 3;
+		nextFrogFacing[pl] = (nextCamFacing + 2) & 3;
 		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
 		// requests long hop up
 		if(!MoveToRequestedDestination(MOVE_DOWN,pl))
@@ -506,7 +514,7 @@ void UpdateFroggerPos(long pl)
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPL)
 	{
-		frogFacing[pl] = (camFacing + 1) & 3;
+		nextFrogFacing[pl] = (nextCamFacing + 1) & 3;
 		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
 		// requests long hop up
 		if(!MoveToRequestedDestination(MOVE_LEFT,pl))
@@ -531,7 +539,7 @@ void UpdateFroggerPos(long pl)
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPR)
 	{
-		frogFacing[pl] = (camFacing + 3) & 3;
+		nextFrogFacing[pl] = (nextCamFacing + 3) & 3;
 		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
 		// requests long hop up
 		if(!MoveToRequestedDestination(MOVE_RIGHT,pl))
@@ -559,7 +567,7 @@ void UpdateFroggerPos(long pl)
 	if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)
 	{
 		// requests superhop up
-		frogFacing[pl] = camFacing;
+		nextFrogFacing[pl] = nextCamFacing;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 		if(!MoveToRequestedDestination(MOVE_UP,pl))
 		{
@@ -577,7 +585,7 @@ void UpdateFroggerPos(long pl)
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)
 	{
 		// requests superhop down
-		frogFacing[pl] = (camFacing + 2) & 3;
+		nextFrogFacing[pl] = (nextCamFacing + 2) & 3;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 		if(!MoveToRequestedDestination(MOVE_DOWN,pl))
 		{
@@ -595,7 +603,7 @@ void UpdateFroggerPos(long pl)
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)
 	{
 		// requests superhop left
-		frogFacing[pl] = (camFacing + 1) & 3;
+		nextFrogFacing[pl] = (nextCamFacing + 1) & 3;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 		if(!MoveToRequestedDestination(MOVE_LEFT,pl))
 		{
@@ -613,7 +621,7 @@ void UpdateFroggerPos(long pl)
 	else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPR)
 	{
 		// requests superhop right
-		frogFacing[pl] = (camFacing + 3) & 3;
+		nextFrogFacing[pl] = (nextCamFacing + 3) & 3;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 		if(!MoveToRequestedDestination(MOVE_RIGHT,pl))
 		{
@@ -782,7 +790,9 @@ void GetNextTile(unsigned long direction,long pl)
 			}
 		}
 
-		camFacing = newCamFacing;
+		//MOOOO
+		//camFacing = newCamFacing;
+		nextCamFacing = newCamFacing;
 
 		//currTile = destTile;
 	}
@@ -1536,6 +1546,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				// Next, check if Frogger has landed on a collectable, too....
 				CheckTileForCollectable(destTile[pl]);
 				currTile[pl] = destTile[pl];
+				camFacing = nextCamFacing;
+				frogFacing[pl] = nextFrogFacing[pl];
+
 				landRadius = 20.0f;
 
 				frog[pl]->actor->scale.v[X] = 0.09F;
