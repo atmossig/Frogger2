@@ -181,6 +181,12 @@ unsigned long	devPathHeight[]	= { 6,		15,15,15,15,15,15 };
 float			devPathSpeed[]	= { 6,		4,4,4,4,4,4 };
 
 
+
+PATHNODE debug_pathNodes1[] = { 20,20,0, 21,50,0, 22,20,0, 23,50,0 };
+PATH debug_path1 = { 4,0,1,0,debug_pathNodes1 };
+
+
+
 static void	GetActiveTile(PLATFORM *pform);
 
 
@@ -195,13 +201,15 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 {
 	int i,c;
 
-	dprintf"Initialising platforms for level...\n"));
+	dprintf"Initialising platforms (world %d, level %d)...\n",worldID,levelID));
 
 	if ( worldID == WORLDID_GARDEN)
 	{
 		if(levelID == LEVELID_GARDENLAWN)
 		{
-			devPlat = CreateAndAddPlatform("pltlilly.ndo",devPath,devPathHeight,0,0,0,devPathSpeed,0,PLATFORM_HASPATH | PLATFORM_PATHFORWARDS | PLATFORM_PATHBOUNCE | PLATFORM_FLATLEVEL | PLATFORM_INACTIVE);
+//			devPlat = NEW_CreateAndAddPlatform("pltlilly.ndo");
+//			devPlat->currSpeed = 2.0F;
+//			NEW_AssignPathToPlatform(devPlat,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
 		}
 
 		if ( levelID == LEVELID_GARDENMAZE )
@@ -784,6 +792,7 @@ PATH *CreatePlatformPathFromTileList(unsigned long *pIndex, unsigned long *hInde
 */
 void UpdatePlatforms()
 {
+/*
 	GAMETILE *nextTile = NULL,*fromTile,*toTile;
 	QUATERNION q1,destQ;
 	VECTOR fwd;
@@ -1178,6 +1187,41 @@ void UpdatePlatforms()
 			// ENDIF
 		}
 	}
+*/
+	
+
+	PLATFORM *cur,*next;
+	VECTOR fromPosition,toPosition;
+	VECTOR fwd;
+
+	if(platformList.numEntries == 0)
+		return;
+	
+	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
+	{
+		next = cur->next;
+
+		if(!cur->active)
+			continue;
+
+		if(cur->flags & PLATFORM_NEW_FOLLOWPATH)
+		{
+			// first, update the platform position
+			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
+			SubVector(&fwd,&toPosition,&cur->pltActor->actor->pos);
+			MakeUnit(&fwd);
+
+			cur->pltActor->actor->pos.v[X] += (cur->currSpeed * fwd.v[X]);
+			cur->pltActor->actor->pos.v[Y] += (cur->currSpeed * fwd.v[Y]);
+			cur->pltActor->actor->pos.v[Z] += (cur->currSpeed * fwd.v[Z]);
+
+			// check if this platform has arrived at a path node
+			if(NEW_PlatformHasArrivedAtNode(cur))
+			{
+				NEW_UpdatePlatformPathNodes(cur);
+			}
+		}
+	}
 }
 
 
@@ -1341,7 +1385,7 @@ void GetNextLocalPlatform(unsigned long direction)
 	int newCamFacing = camFacing;
 	int i,j;
 	unsigned long closest[4] = { -1,-1,-1,-1 };
-	int newFrogFacing = frogFacing;
+	int newFrogFacing = frogFacing[0];
 	
 	for(i=0; i<4; i++)
 	{
@@ -1707,3 +1751,186 @@ void FreePlatformLinkedList()
 	// initialise list for future use
 	InitPlatformLinkedList();
 }
+
+
+
+//------------------------------------------------------------------------------------------------
+// NEW PLATFORM CODE - UNDER DEVELOPMENT - ANDYE - NEW PLATFORM CODE - UNDER DEVELOPMENT - ANDYE -
+//------------------------------------------------------------------------------------------------
+
+PLATFORM *NEW_CreateAndAddPlatform(char *pActorName)
+{
+	int i;
+
+	PLATFORM *newItem = (PLATFORM *)JallocAlloc(sizeof(PLATFORM),YES,"PLAT");
+	AddPlatform(newItem);
+
+	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,INIT_ANIMATION,0,0);
+	if(newItem->pltActor->actor->objectController)
+	{
+		InitActorAnim(newItem->pltActor->actor);
+		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F);
+	}
+
+	// currently set all surrounding platform ptrs to null
+	for(i=0; i<4; i++)
+		newItem->pltPtrs[i] = NULL;
+
+	// set the platform to be active (i.e. is updated)
+	newItem->active			= 1;
+	
+	newItem->path			= NULL;
+	newItem->inTile			= NULL;
+
+	newItem->currSpeed		= 1.0F;
+
+	return newItem;
+}
+
+void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags)
+{
+	int i;
+	VECTOR platformStartPos;
+
+	// assign the path to this platform
+	pform->flags	|= platformFlags;
+	pform->path		= path;
+
+	dprintf"Add path : "));
+
+	// check if pathnode indices need converting to game tile pointers
+	if(pathFlags & PATH_MAKENODETILEPTRS)
+	{
+		for(i=0; i<path->numNodes; i++)
+		{
+			// convert integer to a valid game tile
+			dprintf"%d, ",(int)path->nodes[i].worldTile));
+			pform->path->nodes[i].worldTile = &firstTile[(int)path->nodes[i].worldTile];
+		}
+	}
+
+	if(platformFlags & PLATFORM_NEW_FORWARDS)
+	{
+		// this platform moves forward thru path nodes
+		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
+		pform->path->fromNode	= 0;
+		pform->path->toNode		= 1;
+	}
+	else if(platformFlags & PLATFORM_NEW_BACKWARDS)
+	{
+		// this platform moves backward thru path nodes
+		pform->flags			|= PLATFORM_NEW_FOLLOWPATH;
+		pform->path->fromNode	= GET_PATHLASTNODE(path);
+		pform->path->toNode		= GET_PATHLASTNODE(path) - 1;
+	}
+
+	// set platform position to relevant point on path
+	GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
+	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
+
+	dprintf"\n"));
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: NEW_PlatformHasArrivedAtNode
+	Purpose			: checks if a platform has arrived at a node
+	Parameters		: PLATFORM *
+	Returns			: BOOL - TRUE if node reached, else FALSE
+	Info			: 
+*/
+BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform)
+{
+	VECTOR nodePos;
+	PATH *path = pform->path;
+
+	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
+	if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&nodePos) <  ((pform->currSpeed + 0.1F) * (pform->currSpeed + 0.1F)))
+		return TRUE;
+
+	return FALSE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: NEW_UpdatePlatformPathNodes
+	Purpose			: updates platform path move status
+	Parameters		: PLATFORM *
+	Returns			: void
+	Info			: 
+*/
+void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
+{
+	VECTOR pformPos;
+	int nextNode;
+	PATH *path = pform->path;
+	unsigned long flags = pform->flags;
+
+	// determine to/from nodes for the current platform
+
+	if(flags & PLATFORM_NEW_FORWARDS)
+	{
+		// platform moves forward through path nodes
+		nextNode = path->toNode + 1;
+
+		if(nextNode > GET_PATHLASTNODE(path))
+		{
+			// reached end of path nodes
+			// check if this platform has ping-pong movement
+			if(flags & PLATFORM_NEW_PINGPONG)
+			{
+				// reverse platform path movement
+				pform->flags	&= ~PLATFORM_NEW_FORWARDS;
+				pform->flags	|= PLATFORM_NEW_BACKWARDS;
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= GET_PATHLASTNODE(path) - 1;
+				return;
+			}
+
+			path->fromNode	= 0;
+			path->toNode	= 1;
+
+			GetPositionForPathNode(&pformPos,&path->nodes[0]);
+			SetVector(&pform->pltActor->actor->pos,&pformPos);
+		}
+		else
+		{
+			path->fromNode++;
+			path->toNode++;
+		}
+	}
+	else if(flags & PLATFORM_NEW_BACKWARDS)
+	{
+		// platform moves backwards through path nodes
+		nextNode = path->toNode - 1;
+
+		if(nextNode < 0)
+		{
+			// reached beginning of path nodes
+			// check if this platform has ping-pong movement
+			if(flags & PLATFORM_NEW_PINGPONG)
+			{
+				// reverse platform path movement
+				pform->flags	&= ~PLATFORM_NEW_BACKWARDS;
+				pform->flags	|= PLATFORM_NEW_FORWARDS;
+				path->fromNode	= 0;
+				path->toNode	= 1;
+				return;
+			}
+
+			path->fromNode	= GET_PATHLASTNODE(path);
+			path->toNode	= GET_PATHLASTNODE(path) - 1;
+
+			GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
+			SetVector(&pform->pltActor->actor->pos,&pformPos);
+		}
+		else
+		{
+			path->fromNode--;
+			path->toNode--;
+		}
+	}
+}
+
+
+//------------------------------------------------------------------------------------------------
