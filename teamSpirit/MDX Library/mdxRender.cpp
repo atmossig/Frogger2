@@ -61,6 +61,9 @@ float vertClip = 2500;
 long DIST=-10;
 long FOV=450 / (640.0/640.0);
 float oneOver[65535];
+
+#define MAX_BLUR_PELS 3
+
 float halfWidth;
 float halfHeight;
 
@@ -281,9 +284,6 @@ void InitOneOverTable(void)
 	halfWidth = rXRes/2.0F;
 	halfHeight = rYRes/2.0F;
 }
-
-
-
 
 void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {

@@ -22,6 +22,7 @@
 #include "mdxCRC.h"
 #include "mgeReport.h"
 #include "mdxLandscape.h"
+#include "mdxPoly.h"
 #include "gelf.h"
 
 #ifdef __cplusplus
@@ -99,12 +100,12 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 			me->xfmVert[i].tv = obj->mesh->faceTC[i].v[1] * 0.000975F;
 			me->xfmVert[i].rhw = 0;
 			me->xfmVert[i].specular = D3DRGBA(0,0,0,0);
-			me->xfmVert[i].color = (*((long *)(&(obj->mesh->gouraudColors[i].x))));//0x00ffffff) | D3DRGBA(0,0,0,0.5);
+			me->xfmVert[i].color = (*((long *)(&(obj->mesh->gouraudColors[i].x))));// &0x00ffffff) | D3DRGBA(0,0,0,0.5);
 			
 			if (obj->mesh->textureIDs[i/3])
 			{
 				me->textures[i/3] = obj->mesh->textureIDs[i/3]->surf;
-				me->tEntrys[i/3] = obj->mesh->textureIDs[i/3];
+				me->tEntrys[i/3] = obj->mesh->textureIDs[i/3];				
 			}
 			else
 			{

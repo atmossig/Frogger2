@@ -41,6 +41,7 @@ extern "C"
 FRAME_INFO frameInfo[MA_MAX_FRAMES];
 FRAME_INFO *cFInfo = &frameInfo[0], *oFInfo = &frameInfo[1];
 
+unsigned long numSeperates;
 unsigned long numSoftPolys,numSoftVertex;
 SOFTPOLY softPolyBuffer[MA_MAX_FACES];
 SOFTPOLY *softDepthBuffer[MA_SOFTWARE_DEPTH];
@@ -57,6 +58,9 @@ MDX_VECTOR haloPoints[MA_MAX_HALOS];
 float flareScales[MA_MAX_HALOS];
 float flareScales2[MA_MAX_HALOS];
 MDX_TEXENTRY *cTexture = NULL;
+unsigned long sortMode = 0;
+short sortFaces[32000];
+long numSortFaces;
 
 unsigned long lightingMapRS[] = 
 {
@@ -296,7 +300,8 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 
 		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
 		zVal += v[fce[i+1]].sz * MA_SOFTWARE_DEPTH;		
-		zVal >>= 1;
+		zVal += v[fce[i+2]].sz * MA_SOFTWARE_DEPTH;		
+		zVal >>= 2;
 
 		if (softDepthBuffer[zVal])
 			m->next = softDepthBuffer[zVal];
@@ -324,10 +329,30 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	
 	if (!rHardware)
 	{
-		PushPolys_Software(v,vC,fce,fC,tEntry);
-		memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
-		numSoftVertex+=vC;
+		if (tEntry)
+		{
+			if (tEntry->type == TEXTURE_NORMAL)
+			{
+				PushPolys_Software(v,vC,fce,fC,tEntry);
+				memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
+				numSoftVertex+=vC;
+			}
+		}
 
+		return;
+	}
+
+	if (sortMode)
+	{
+		if (tEntry)
+		{
+			if (tEntry->type == TEXTURE_NORMAL)
+			{
+				PushPolys_Software(v,vC,fce,fC,tEntry);
+				memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
+				numSoftVertex+=vC;
+			}
+		}
 		return;
 	}
 
@@ -426,23 +451,23 @@ void DrawSoftwarePolys (void)
 				v[2].u = softV[f3].tu * thisTex.width;
 				v[2].v = softV[f3].tv * thisTex.height;
 
-				if (v[0].u>thisTex.width)
-					 v[0].u = thisTex.width;
+				if (v[0].u>thisTex.width-1)
+					 v[0].u = thisTex.width-1;
 
-				if (v[0].v>thisTex.height)
-					 v[0].v = thisTex.height;
+				if (v[0].v>thisTex.height-1)
+					 v[0].v = thisTex.height-1;
 
-				if (v[1].u>thisTex.width)
-					 v[1].u = thisTex.width;
+				if (v[1].u>thisTex.width-1)
+					 v[1].u = thisTex.width-1;
 
-				if (v[1].v>thisTex.height)
-					 v[1].v = thisTex.height;
+				if (v[1].v>thisTex.height-1)
+					 v[1].v = thisTex.height-1;
 
-				if (v[2].u>thisTex.width)
-					 v[2].u = thisTex.width;
+				if (v[2].u>thisTex.width-1)
+					 v[2].u = thisTex.width-1;
 
-				if (v[2].v>thisTex.height)
-					 v[2].v = thisTex.height;
+				if (v[2].v>thisTex.height-1)
+					 v[2].v = thisTex.height-1;
 
 				if (v[0].u<0)
 					 v[0].u = 0;
@@ -479,6 +504,7 @@ void DrawSoftwarePolys (void)
 	}
 }
 
+
 /*  --------------------------------------------------------------------------------
     Function      : DrawBatchedPolys
 	Purpose       :	-
@@ -487,7 +513,95 @@ void DrawSoftwarePolys (void)
 	Info          : -
 */
 
-unsigned long numSeperates;
+
+LPDIRECTDRAWSURFACE7 last;
+
+void DrawSortedPolys (void)
+{
+ 	SOFTPOLY *cur,*next;
+
+	last = NULL;
+	numSortFaces=0;
+
+	if (sortMode == MA_SORTBACKFRONT)
+	{
+		for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
+		{
+			cur = (SOFTPOLY *)softDepthBuffer[i];
+			while (cur)
+			{
+				if (cur->t!=last)
+				{
+					pDirect3DDevice->SetTexture(0,0);				
+					pDirect3DDevice->SetTexture(0,cur->t);
+					last=cur->t;
+				}
+			
+				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,D3DDP_WAIT)!=D3D_OK)
+				{
+				}
+
+				
+				cur = cur->next;
+			}
+		}
+
+		pDirect3DDevice->SetTexture(0,0);
+				
+	}
+	else
+	{
+		numSeperates = 0;
+		pDirect3DDevice->SetTexture(0,cTexture->surf);
+		for (int i=0; i<MA_SOFTWARE_DEPTH;)
+		{
+			cur = (SOFTPOLY *)softDepthBuffer[i++];
+			while (cur)
+			{		
+				next = cur->next;
+
+				numSortFaces = 0;
+
+				last=cur->t;
+					
+				while (cur && cur->t==last)
+				{
+					
+					next = cur->next;						
+					sortFaces[numSortFaces+0] = cur->f[0];
+					sortFaces[numSortFaces+1] = cur->f[1];
+					sortFaces[numSortFaces+2] = cur->f[2];
+					numSortFaces += 3;
+					cur = next;
+
+					while (!cur && i<MA_SOFTWARE_DEPTH)
+						cur = (SOFTPOLY *)softDepthBuffer[i++];
+				}
+
+				pDirect3DDevice->SetTexture(0,0);				
+				pDirect3DDevice->SetTexture(0,last);
+		
+				numSeperates++;
+							
+				while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,(unsigned short *)sortFaces,numSortFaces,D3DDP_WAIT)!=D3D_OK)
+				{					
+				}							
+			}
+		
+		}				
+		
+		pDirect3DDevice->SetTexture(0,0);
+	}
+}
+
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
+
 
 void DrawBatchedPolys (void)
 {
@@ -495,12 +609,7 @@ void DrawBatchedPolys (void)
 	unsigned long nFace;
 	LPDIRECTDRAWSURFACE7 lSurface;
 
-	if (!rHardware)
-	{
-		DrawSoftwarePolys();
-		return;
-	}
-
+	
 	cFInfo->cF = cFInfo->f;
 	cFInfo->cT = cFInfo->t;
 
@@ -535,7 +644,6 @@ void DrawBatchedPolys (void)
 		
 		cFInfo->cF+=nFace;
 	}
-
 }
 
 
@@ -606,23 +714,23 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				v[2].u = verts[f3].tu * thisTex.width;
 				v[2].v = verts[f3].tv * thisTex.height;
 
-				if (v[0].u>thisTex.width)
-					 v[0].u = thisTex.width;
+				if (v[0].u>thisTex.width-1)
+					 v[0].u = thisTex.width-1;
 
-				if (v[0].v>thisTex.height)
-					 v[0].v = thisTex.height;
+				if (v[0].v>thisTex.height-1)
+					 v[0].v = thisTex.height-1;
 
-				if (v[1].u>thisTex.width)
-					 v[1].u = thisTex.width;
+				if (v[1].u>thisTex.width-1)
+					 v[1].u = thisTex.width-1;
 
-				if (v[1].v>thisTex.height)
-					 v[1].v = thisTex.height;
+				if (v[1].v>thisTex.height-1)
+					 v[1].v = thisTex.height-1;
 
-				if (v[2].u>thisTex.width)
-					 v[2].u = thisTex.width;
+				if (v[2].u>thisTex.width-1)
+					 v[2].u = thisTex.width-1;
 
-				if (v[2].v>thisTex.height)
-					 v[2].v = thisTex.height;
+				if (v[2].v>thisTex.height-1)
+					 v[2].v = thisTex.height-1;
 
 				if (v[0].u<0)
 					 v[0].u = 0;
@@ -1118,16 +1226,22 @@ void DrawAllFrames(void)
 	BeginDraw();
 	
 	// Draw Normal Polys
-//D3DSetupRenderstates(xluAddRS);
+//	D3DSetupRenderstates(xluAddRS);
 	SwapFrame(MA_FRAME_NORMAL);
-	DrawBatchedPolys();
-	
+
 	if (!rHardware)
 	{
+		DrawSoftwarePolys();
 		EndDraw();
 		return;
 	}
-
+	else
+		if (!sortMode)
+			DrawBatchedPolys();
+		else
+			DrawSortedPolys();
+	
+	
 	
 /*	
 	// Need to test the ZBuffer on these polys...
@@ -1144,6 +1258,8 @@ void DrawAllFrames(void)
 	
 	pDirect3DDevice->BeginScene();
 */
+
+
 	D3DSetupRenderstates(tightAlphaCmpRS);
 
 	if (drawLighting || drawPhong)

@@ -27,6 +27,8 @@ extern long DIST, FOV;
 extern float farClip, nearClip, horizClip, vertClip;
 
 void InitOneOverTable(void);
+void InitDOFOneOverTable(int min, int max, int range);
+void SwapOneOver(long num);
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh);
 void DrawLandscape(MDX_LANDSCAPE *me);
 

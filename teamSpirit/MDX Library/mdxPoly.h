@@ -17,6 +17,10 @@ extern "C"
 #define MA_SOFTWARE_DEPTH	3000	// Maximum depth of a software polygon.
 //#define MA_MAX_FRAMES		6		// Maximum number of frames that may be active at once.
 
+#define MA_SORTNONE			0
+#define MA_SORTFRONTBACK	1
+#define MA_SORTBACKFRONT	2
+
 enum {MA_FRAME_NORMAL,MA_FRAME_GLOW,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_MAX_FRAMES};
 
 typedef struct TAG_SOFTPOLY
@@ -81,6 +85,8 @@ void DrawAllFrames(void);
 
 #define FULL_TEXTURE 0,0,1,1
 
+extern MDX_TEXENTRY *cTexture;
+
 extern unsigned long drawLighting;
 extern unsigned long drawPhong;
 extern LPDIRECTDRAWSURFACE7 haloS;
@@ -99,6 +105,8 @@ extern unsigned long noZRS[];
 extern unsigned long cullNoneRS[];
 extern unsigned long cullCWRS[];
 extern unsigned long cullCCWRS[];
+extern unsigned long sortMode;
+extern unsigned long numSeperates;
 
 extern short softScreen[640*480];
 
