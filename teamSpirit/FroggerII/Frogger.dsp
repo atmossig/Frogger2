@@ -760,6 +760,15 @@ SOURCE=.\Pc\font.h
 # Begin Source File
 
 SOURCE=.\Pc\map.c
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+# ADD CPP /D "USE_EDITOR"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
