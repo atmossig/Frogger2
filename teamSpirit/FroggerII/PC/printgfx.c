@@ -333,8 +333,8 @@ void ProcessShadows()
 	TEXTURE *theTexture;
 	TEXENTRY *tEntry;
 	VECTOR vec;
-	ENEMY *nme,*nme2;
-	PLATFORM *plat, *plat2;
+	ENEMY *nme;
+	PLATFORM *plat;
 	GARIB *garib;
 	int i;
 	long tex;
@@ -355,22 +355,18 @@ void ProcessShadows()
 	//------------------------------------------------------------------------------------------------
 
 	// process enemy shadows
-	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme2)
+	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next)
 	{
-		nme2 = nme->next;
-
-		if(nme->nmeActor->actor->shadow && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
 			DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1, nme->nmeActor->actor->shadow->alpha, tex );
 		}
 	}
 
 	// process platform shadows
-	for(plat = platformList.head.next; plat != &platformList.head; plat = plat2)
+	for(plat = platformList.head.next; plat != &platformList.head; plat = plat->next)
 	{
-		plat2 = plat->next;
-
-		if(plat->pltActor->actor->shadow && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 		{
 			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius, -plat->path->nodes[plat->path->fromNode].offset+1, plat->pltActor->actor->shadow->alpha, tex );
 		}
@@ -695,7 +691,7 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 		// Assign back to vT array
 		vT[i].sx = m.v[X];
 		vT[i].sy = m.v[Y];
-		vT[i].sz = (m.v[Z]+DIST+5)*0.0005;
+		vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
 		if( !m.v[Z] ) zeroZ++;
 	}
 
