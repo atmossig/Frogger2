@@ -10,6 +10,7 @@
 #include <libgs.h>
 #include <libetc.h>
 #include <libapi.h>
+#include <libspu.h>
 
 #include <inline_c.h>
 #include <gtemac.h>
@@ -18,7 +19,7 @@
 #include <islcard.h>
 #include <isltex.h>
 #include <islfont.h>
-#include <islsound.h>
+//mmsound #include <islsound.h>
 #include <islpad.h>
 #include <islmem.h>
 #include <islfile.h>
@@ -44,6 +45,8 @@
 #include "menus.h"
 #include "Eff_Draw.h"
 #include "World_Eff.h"
+//#include "sfx.h"//mmsound
+//#include "audio.h" //mmsfx
 
 
 void customDrawPrimitives2(int);
@@ -81,7 +84,7 @@ psFont *font;
 static void vsyncCallback()
 {
 	frame++;
-	sfxFrame();//mmsound
+	SpuFlush(SPU_EVENT_ALL);
 #if GOLDCD==0
 	asm("break 1024");
 #endif
@@ -463,8 +466,6 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 4096);
-		sfxInitialise();//mmsound
-		sfxStartSound();//mmsound
 
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 
@@ -495,7 +496,9 @@ int main ( )
 		padInitialise(0); // 0 = No multi tap support
 		videoInit(1024, 3000);
 		textureInitialise(500, 20);
-		sfxInitialise();
+
+
+//		sfxInitialise();
 //		sfxStartSound();
 
 		// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
@@ -508,6 +511,10 @@ int main ( )
 		InitBackdrop ( "FROGGER2.RAW" );
 
 		CommonInit();
+
+#ifdef PSX_VERSION
+//		InitSound();//mmsfx
+#endif
 
 
 		while ( !quitMainLoop )
@@ -615,8 +622,8 @@ int main ( )
 		DrawSync(0);
 		ClearImage2(&VRAMarea, 0,0,0);
 
-		sfxDestroy();//mmsound
-		sfxStopSound();//mmsound
+//		sfxDestroy();//mmsound
+//		sfxStopSound();//mmsound
 
 		StopCallback();
 
