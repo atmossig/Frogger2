@@ -466,7 +466,7 @@ void WriteEditPath(EDITPATH *p, HANDLE f)
 
 	for (node = p->nodes; count; node = node->link, count--)
 	{
-		SetVectorS(&v, &node->tile->centre);
+		GetTilePos(&v, node->tile);
 		WriteVector(&v, f);
 		WriteFloat(node->offset, f);
 		WriteFloat(node->offset2, f);
