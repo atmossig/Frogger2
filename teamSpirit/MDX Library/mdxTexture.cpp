@@ -189,10 +189,10 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			case TEXTURE_PROCEDURAL:
 			{
 				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
+				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
 					return;
 
-				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);			
+				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim);			
 				newE->surf = temp;
 				newE->xPos = 0;
 				newE->yPos = 0;

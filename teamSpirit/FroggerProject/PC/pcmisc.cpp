@@ -67,7 +67,8 @@ void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 	long i;
 	DDINIT(ddsd);
 
-	static LPDIRECTDRAWSURFACE7 pSurface = D3DCreateTexSurface( 32,32,0xf81f, 0,1);
+	// Create static _AI_ surface you dolt
+	static LPDIRECTDRAWSURFACE7 pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
 	
 	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
 		ddShowError(res);
@@ -78,7 +79,7 @@ void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 
 	pSurface->Unlock(NULL);
 
-	if ((res = to->BltFast(0,0,pSurface,NULL,0))!=DD_OK)
+	if ((res = to->BltFast(0,0,pSurface,NULL,DDBLTFAST_NOCOLORKEY))!=DD_OK)
 		ddShowError(res);
 }
 
@@ -137,24 +138,13 @@ void CreateProceduralTexture( TextureType *tex, char *name )
 	pt->active = 1;
 
 	// Convert palette to 4444 format
-	if( r565 )
-	{
-		rVand = 0x1f;
-		gVand = 0x3f;
-		bVand = 0x1f;
-		rVshr = 11;
-		gVshr = 5;
-		bVshr = 0;
-	}
-	else
-	{
-		rVand = 0x1f;
-		gVand = 0x1f;
-		bVand = 0x1f;
-		rVshr = 10;
-		gVshr = 5;
-		bVshr = 0;
-	}
+
+	rVand = 0x1f;
+	gVand = 0x1f;
+	bVand = 0x1f;
+	rVshr = 10;
+	gVshr = 5;
+	bVshr = 0;
 
 	for( i=0; i<256; i++ )
 	{
