@@ -357,7 +357,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		gameState.menuMode = TITLE_MODE;
 	}
 
-	ShowDesignScreen("destest");
+	//ShowDesignScreen("destest");
 
     while(ok)
 	{
@@ -1038,7 +1038,8 @@ void DrawGraphics()
 	lastH = -1;
 	PrintTextOverlays();
 	
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_COLORKEYENABLE,TRUE);
 
 #ifdef USE_EDITOR
 	if (editorOk)

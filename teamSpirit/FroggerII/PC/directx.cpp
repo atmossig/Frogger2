@@ -1197,10 +1197,17 @@ void SetupRenderstates(void)
 // Split this out into two functions (CreateTextureSurface and CopyToSurface)
 LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware, long cKey, long aiSurf)
 {
-	LPDIRECTDRAWSURFACE pSurface,pTSurface = NULL;
+	LPDIRECTDRAWSURFACE pSurface,pTSurface;
 
 	pSurface = D3DCreateTexSurface(xs,ys,cKey, aiSurf,0);
 	pTSurface = D3DCreateTexSurface(xs,ys,cKey, aiSurf,1);
+
+	if (!pSurface || !pTSurface)
+	{
+		if (pSurface) pSurface->Release();
+		if (pTSurface) pTSurface->Release();
+		return NULL;
+	}
 	
 	DDrawCopyToSurface(pSurface,(unsigned short *)data, aiSurf, xs, ys);
 

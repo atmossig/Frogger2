@@ -41,8 +41,12 @@ void FreeAllTextureBanks()
 	for (cur = texList, numTextures = 0; cur; cur = next, numTextures++)
 	{
 		next = cur->next;
-		IDirectDraw_Release(cur->surf);
-		cur->surf = NULL;
+		
+		if (cur->surf)
+		{
+			IDirectDraw_Release(cur->surf);
+			cur->surf = NULL;
+		}
 
 		JallocFree((BYTE**)&cur->data);
 		JallocFree((BYTE**)&cur);
@@ -257,6 +261,11 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 		if ( newE->surf )
 			newE->hdl = ConvertSurfaceToTexture(newE->surf);
+		else
+		{
+			newE->hdl = 0;
+			dprintf"Error creating texture surface\n"));
+		}
 	}
 	else
 		dprintf"Cannot find texture %s\n",shortn));
