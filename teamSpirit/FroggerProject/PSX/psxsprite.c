@@ -411,8 +411,8 @@ void InitTiledBackdrop(char *filename)
 
 int xTile = 5;
 int yTile = 4;
-int xScrollSpeed = 16;
-int yScrollSpeed = 9;
+int xScrollSpeed = 32;
+int yScrollSpeed = 8;
 void DrawTiledBackdrop()
 {
 	int x,y;
@@ -437,11 +437,11 @@ void DrawTiledBackdrop()
 			setPolyFT4(ft4);
 			ft4->x0 = atbdx;
 			ft4->y0 = atbdy;
-			ft4->x1 = atbdx + xRes/xTile;
+			ft4->x1 = atbdx + xRes/xTile + 1;
 			ft4->y1 = atbdy;
 			ft4->x2 = atbdx;
 			ft4->y2 = atbdy + yRes/yTile;
-			ft4->x3 = atbdx + xRes/xTile;
+			ft4->x3 = atbdx + xRes/xTile + 1;
 			ft4->y3 = atbdy + yRes/yTile;
 			ft4->r0 = 128;
 			ft4->g0 = 128;

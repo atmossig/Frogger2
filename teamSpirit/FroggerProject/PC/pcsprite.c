@@ -429,12 +429,20 @@ void DrawTiledBackdrop()
 			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
 		}
 	}
+
+//	xScrollSpeed = sin((float)actFrameCount/60.0)*0.001;
+//	yScrollSpeed = cos((float)actFrameCount/81.0)*0.0006;
+
 	xScroll += (float)gameSpeed * xScrollSpeed;
 	if(xScroll > xRes/(float)xTile)
 		xScroll -= xRes/(float)xTile;
+	else if(xScroll < 0)
+		xScroll += xRes/(float)xTile;
 	yScroll += (float)gameSpeed * yScrollSpeed;
 	if(yScroll > yRes/(float)yTile)
 		yScroll -= yRes/(float)yTile;
+	else if(yScroll < 0)
+		yScroll += yRes/(float)yTile;
 }
 
 void FreeTiledBackdrop()

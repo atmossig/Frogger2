@@ -21,6 +21,7 @@
 #include "mdxFont.h"
 #include "mdxTexture.h"
 #include "mdxPoly.h"
+#include <lang.h>
 
 struct MDX_FONTCHAR
 {
@@ -224,6 +225,8 @@ long DrawFontCharAtLoc(long x,long y,char ch,unsigned long color, MDX_FONT *font
 
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY)
 {
+	char *str;
+
 	if (!font)
 		return 0;
 
@@ -234,8 +237,35 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 
 	while (*c)
 	{
-		cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
-		c++;
+		switch(*c)
+		{
+			case '@':
+				c++;
+				switch(*c)
+				{
+					case 'T':
+						str = GAMESTRING(STR_ESCAPE);
+						break;
+					case 'X':
+						str = GAMESTRING(STR_RETURN);
+						break;
+					case 'S':
+						str = GAMESTRING(STR_RIGHT_CONTROL);
+						break;
+					case 'C':
+						str = GAMESTRING(STR_RIGHT_SHIFT);
+						break;
+				}
+				DrawFontStringAtLoc(cx,y,str,color,font,scale,0,0);
+				cx += CalcStringWidth(str,font,scale);
+				c++;
+				break;
+
+			default:
+				cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
+				c++;
+				break;
+		}
 	}
 
 	return cx;
@@ -265,6 +295,8 @@ long GetCharWidth(char c, MDX_FONT *font, float scale)
 */
 long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 {
+	char *str;
+
 	if (!font)
 		return 0;
 
@@ -273,8 +305,34 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 	
 	while (*c)
 	{
-		width += font->characters[*c].width;
-		c++;
+		switch(*c)
+		{
+			case '@':
+				c++;
+				switch(*c)
+				{
+					case 'T':
+						str = GAMESTRING(STR_ESCAPE);
+						break;
+					case 'X':
+						str = GAMESTRING(STR_RETURN);
+						break;
+					case 'S':
+						str = GAMESTRING(STR_RIGHT_CONTROL);
+						break;
+					case 'C':
+						str = GAMESTRING(STR_RIGHT_SHIFT);
+						break;
+				}
+				width += CalcStringWidth(str,font,scale);
+				c++;
+				break;
+
+			default:
+				width += font->characters[*c].width;
+				c++;
+				break;
+		}
 	}
 
 	return width;
