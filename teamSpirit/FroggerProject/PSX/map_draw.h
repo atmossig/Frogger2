@@ -120,6 +120,19 @@ typedef struct FMA_WORLD
 }FMA_WORLD;
 
 
+//bb- these were in the c file,
+//I moved them here so I could use them outside,
+//when calling FmaActor_GetSBox()
+typedef struct{
+	SHORT x,y,z,w;
+}SHORTQUAT;
+
+typedef struct
+{
+	short x,y;
+}SHORTXY;
+
+
 #include "world_eff.h"
 #include "water.h"
 
@@ -132,6 +145,8 @@ void MapDraw_DrawFMA_Mesh(FMA_MESH_HEADER *mesh);
 void MapDraw_DrawFMA_Water ( WATER *cur );
 
 int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh);
+int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh);
+void FmaActor_GetSBox(FMA_MESH_HEADER *mesh, SHORTXY *sBox);
 
 void MapDraw_SetPlatformMatrix(FMA_MESH_HEADER *mesh);
 

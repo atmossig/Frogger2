@@ -10,6 +10,10 @@
 #include "water.h"
 #include "actor2.h"
 #include "temp_psx.h"
+#include "cam.h"
+#include "textures.h"
+#include "map_draw.h"
+#include "timer.h"
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
@@ -543,6 +547,7 @@ void PsxNameEntryFrame(void)
 
 
 
+//#define DRAW_SCREEN_CLIP
 void Actor2ClipCheck(ACTOR2* act)
 {
 //bbxx - PAL/NTSC specifics needed here
@@ -551,39 +556,53 @@ void Actor2ClipCheck(ACTOR2* act)
 	#define CLIP_BOTT	120
 	#define CLIP_LEFT	-256
 
-//	#define CLIP_FAR	7000
-	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
-
-//test
-// 	#define CLIP_TOP	-50
-// 	#define CLIP_RIGHT	100
-// 	#define CLIP_BOTT	50
-// 	#define CLIP_LEFT	-100
-
-	
 	long sxy,sz;
 	long sx, sy;//extracted from sxy
 	int distTop, distRight, distBott, distLeft;
 	int radius, FOV;
 
+	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
+
 	SVECTOR pos = act->actor->position;
 	pos.vx = -pos.vx;
 	pos.vy = -pos.vy;
 
-	//bb e3 - if boulder draw, increase far clipping
+
+
+	//bb if boulder draw, increase far clipping
+	//change this to draw always
 	if( ( strstr(act->actor->psiData.modelName, "BOULDER") ) || ( strstr(act->actor->psiData.modelName, "PATHFALL") ) )
-//	if( strstr(act->actor->psiData.modelName, "boulder") )
 	{
 		if(act->draw)
 		{
-//			worldVisualData[1].levelVisualData[0].farClip = 21000;
 			act->clipped = 0;
 			act->milesAway = 0;
+
+//it's not animated (is it?)
+/*			TIMER_START1(TIMER_UPANI);
+//			oldStackPointer = SetSp(0x1f800400);
+ 			actorUpdateAnimations(cur->actor);
+//			SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_UPANI);
+
+			TIMER_START1(TIMER_SETANI);
+//			oldStackPointer = SetSp(0x1f800400);
+			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
+//			SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_SETANI);
+*/
+			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+// 			act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+// 			act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+// 			act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+
 			return;
 		}
 		else
 		{
-//			worldVisualData[1].levelVisualData[0].farClip = 7000;
 			act->clipped = 1;
 			act->milesAway = 1;
 			return;
@@ -591,25 +610,80 @@ void Actor2ClipCheck(ACTOR2* act)
 	}
 
 	if( strstr(act->actor->psiData.modelName, "RISER") )
-//	if( strstr(act->actor->psiData.modelName, "boulder") )
 	{
 		if(act->draw)
 		{
-//			worldVisualData[1].levelVisualData[0].farClip = 21000;
 			act->clipped = 0;
 			act->milesAway = 0;
+
+//it's not animated (is it?)
+/*			TIMER_START1(TIMER_UPANI);
+//			oldStackPointer = SetSp(0x1f800400);
+ 			actorUpdateAnimations(cur->actor);
+//			SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_UPANI);
+
+			TIMER_START1(TIMER_SETANI);
+//			oldStackPointer = SetSp(0x1f800400);
+			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
+//			SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_SETANI);
+*/
+
+			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+//			act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+//			act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+//			act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+
 			return;
 		}
 		else
 		{
-//			worldVisualData[1].levelVisualData[0].farClip = 7000;
 			act->clipped = 1;
 			act->milesAway = 1;
 			return;
 		}
 	}
 
+	//let special cases through,
+	//such as always draw.
+	if(act->flags & ACTOR_DRAW_ALWAYS)
+	{
+		if(act->actor->psiData.object)
+		{
+			TIMER_START1(TIMER_UPANI);
+	//		oldStackPointer = SetSp(0x1f800400);
+			actorUpdateAnimations(act->actor);
+	//		SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_UPANI);
+
+			TIMER_START1(TIMER_SETANI);
+	//		oldStackPointer = SetSp(0x1f800400);
+			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
+	//		SetSp(oldStackPointer);
+			TIMER_STOP_ADD1(TIMER_SETANI);
+		}
+
+
+		QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+// 		act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+// 		act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+// 		act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+		act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+		act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+		act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+		act->clipped = 0;
+
+		return;
+	}
+
+
+
 	//calc screen coords of actor
+	//bbxx n.b only needed for psi actors.
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
 
@@ -637,51 +711,141 @@ void Actor2ClipCheck(ACTOR2* act)
 		sx = (short)(sxy&0xffff);
 		sy = (short)(sxy>>16);
 
-		//calc dists from edges
-		distTop		= sy - (CLIP_TOP + 20);
-		distRight	= sx - (CLIP_RIGHT - 20);
-		distBott	= sy - (CLIP_BOTT - 20);
-		distLeft	= sx - (CLIP_LEFT + 20);
-
-		//now with radius check
-//		gte_ReadGeomScreen(&FOV);
-//		radius = (act->actor->radius *FOV) /sz; //n.b *4 'cos we got z/4, not z
-//		distTop		= (sy+radius) - CLIP_TOP;
-//		distRight	= (sx-radius) - CLIP_RIGHT;
-//		distBott	= (sy-radius) - CLIP_BOTT;
-//		distLeft	= (sx+radius) - CLIP_LEFT;
-
-
-		//debug
-//		{
-//			int x0,x1;
-//			int y0,y1;
-//
-//			char c[2] = {'X',0};
-//
-//			x0 = sx - radius;
-//			x1 = sx + radius;
-//			y0 = sy - (radius>>1);
-//			y1 = sy + (radius>>1);
-//
-//			fontPrint(fontSmall, x0,y0, c, 128,128,128);
-//			fontPrint(fontSmall, x1,y0, c, 128,128,128);
-//			fontPrint(fontSmall, x1,y1, c, 128,128,128);
-//			fontPrint(fontSmall, x0,y1, c, 128,128,128);
-//		}
-
-
-		//clip?
-		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0)  )
-//		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>CLIP_FAR) )
+		//do screen clipping.
+		//mesh can be a psi or an fma.
+		//is this a psi actor?
+		if(act->actor->psiData.object)
 		{
-			act->clipped = 1;
-		}
-		else
+			//psi clipping.
+			//calculate the screen position of the object,
+			//and it's screen radius.
+
+			//bbxx
+			//this needs to be changed, so that we use
+			//the (as yet unwritten) true centre and true radius.
+			//(which we need to calc in psiLoad)
+
+			//calc dists from edges
+	//		distTop		= sy - (CLIP_TOP + 20);
+	//		distRight	= sx - (CLIP_RIGHT - 20);
+	//		distBott	= sy - (CLIP_BOTT - 20);
+	//		distLeft	= sx - (CLIP_LEFT + 20);
+
+			//now with radius check
+			gte_ReadGeomScreen(&FOV);
+			radius = (act->actor->radius *FOV) /sz; //n.b *4 'cos we got z/4, not z
+			distTop		= (sy+radius) - CLIP_TOP;
+			distRight	= (sx-radius) - CLIP_RIGHT;
+			distBott	= (sy-radius) - CLIP_BOTT;
+			distLeft	= (sx+radius) - CLIP_LEFT;
+
+
+			//clip?
+			if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0)  )
+	//		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>CLIP_FAR) )
+			{
+				act->clipped = 1;
+			}
+			else
+			{
+				TIMER_START1(TIMER_UPANI);
+//				oldStackPointer = SetSp(0x1f800400);
+				actorUpdateAnimations(act->actor);
+//				SetSp(oldStackPointer);
+				TIMER_STOP_ADD1(TIMER_UPANI);
+
+				TIMER_START1(TIMER_SETANI);
+//				oldStackPointer = SetSp(0x1f800400);
+				actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
+//				SetSp(oldStackPointer);
+				TIMER_STOP_ADD1(TIMER_SETANI);
+
+				QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+// 				act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+// 				act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+// 				act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+				act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+				act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+				act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+				act->clipped = 0;
+			}
+		}//end if psi actor if(act->actor->psiData.object)
+
+		//this is not a psi actor,
+		//so i suppose it's an fma actor?
+		else if(act->flags & ACTOR_NOANIMATION)
 		{
-			act->clipped = 0;
-		}
-	}
+			//and there is an fma 'world'
+			if(act->bffActor)
+			{
+//				FMA_MESH_HEADER *pMesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+
+
+				MATRIX tx, rY;
+
+
+
+				//need to do this to transform points
+				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+// 				act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+// 				act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+// 				act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+				act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+				act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+				act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+
+				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
+				act->actor->bffMatrix.t[1] = act->actor->position.vy;
+				act->actor->bffMatrix.t[2] = act->actor->position.vz;
+
+
+
+
+				//calculate local to screen coords for fma mesh.
+				//(camera matrix and objects' pos/rot matrix)
+
+				((FMA_MESH_HEADER*)(mesh))->posx = -act->actor->position.vx;
+				((FMA_MESH_HEADER*)(mesh))->posy = -act->actor->position.vy;
+				((FMA_MESH_HEADER*)(mesh))->posz = act->actor->position.vz;
+
+				gte_SetRotMatrix(&GsWSMATRIX);
+				gte_SetTransMatrix(&GsWSMATRIX);
+
+				// Unnecessary maths for landscape segments, where pos is always zero.
+				gte_ldlvl( &((FMA_MESH_HEADER*)(mesh))->posx);
+				gte_rtirtr();
+				gte_stlvl(&tx.t);
+
+//				gte_SetRotMatrix(&GsWSMATRIX);
+//				gte_SetTransMatrix(&tx);
+				
+				gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+				rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
+				rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+				RotMatrixY(2048, &rY);
+				gte_MulMatrix0(&tx, &rY, &tx);
+				gte_SetRotMatrix(&tx);
+				gte_SetTransMatrix(&tx);
+
+
+
+
+
+
+
+				if(FmaActor_ClipCheck(*mesh))
+//				if(FmaActor_ClipCheck_GetSBox(pMesh))
+					act->clipped=0;
+				else
+					act->clipped=1;
+			}
+
+		}//end if fma actor if(act->flags & ACTOR_NOANIMATION)
+
+	}//end if(sz>0 && sz<CLIP_FAR)
+
+	//sz was too far. clip it.
 	else
 	{
 		act->clipped = 1;
@@ -700,6 +864,241 @@ void Actor2ClipCheck(ACTOR2* act)
 // 			debugTemp++;
 // 		}
 // 	}
+
+
+	//debug - draw clipping rectangle
+#ifdef DRAW_SCREEN_CLIP
+	//is this a psi actor?
+	if(act->actor->psiData.object)
+	{
+		if(!act->clipped)
+		{
+			int x0,x1;
+			int y0,y1;
+			TextureType *tempTex;
+
+			x0 = sx - radius;
+			x1 = sx + radius;
+			y0 = sy - (radius>>1);
+			y1 = sy + (radius>>1);
+
+
+			tempTex = FindTexture("NEBU");
+			if(!tempTex)
+			{
+				POLY_F4 *f4;
+
+				//draw poly
+				BEGINPRIM(f4, POLY_F4);
+				setPolyF4(f4);
+				f4->x0 = x0;
+				f4->y0 = y0;
+				f4->x1 = x1;
+				f4->y1 = y0;
+				f4->x2 = x0;
+				f4->y2 = y1;
+				f4->x3 = x1;
+				f4->y3 = y1;
+				f4->r0 = 128;
+				f4->g0 = 0;
+				f4->b0 = 0;
+				f4->code |= 2;//semi-trans on
+		//		SetSemiTrans(f4,1);
+				ENDPRIM(f4, 1, POLY_F4);
+			}
+			else
+			{
+				POLY_FT4 *ft4;
+
+				//draw poly
+				BEGINPRIM(ft4, POLY_FT4);
+				setPolyFT4(ft4);
+				ft4->x0 = x0;
+				ft4->y0 = y0;
+				ft4->x1 = x1;
+				ft4->y1 = y0;
+				ft4->x2 = x0;
+				ft4->y2 = y1;
+				ft4->x3 = x1;
+				ft4->y3 = y1;
+				ft4->r0 = 16;
+				ft4->g0 = 16;
+				ft4->b0 = 16;
+				ft4->u0 = tempTex->u0;
+				ft4->v0 = tempTex->v0;
+				ft4->u1 = tempTex->u1;
+				ft4->v1 = tempTex->v1;
+				ft4->u2 = tempTex->u2;
+				ft4->v2 = tempTex->v2;
+				ft4->u3 = tempTex->u3;
+				ft4->v3 = tempTex->v3;
+				ft4->tpage = tempTex->tpage;
+				ft4->clut  = tempTex->clut;
+				ft4->code  |= 2;//semi-trans on
+		 		ft4->tpage |= 32;//add
+		// 		ft4->tpage = si->tpage | 64;//sub
+				ENDPRIM(ft4, 1, POLY_FT4);
+			}
+
+		}//end if(!act->clipped)
+
+	}//end if psi actor (act->actor->psiData.object)
+
+
+	//ok then, is it an fma actor?
+	else if(act->flags & ACTOR_NOANIMATION)
+	{
+		//and there is an fma 'world'
+		if(act->bffActor)
+		{
+			if(!act->clipped)
+			{
+				int x0,x1;
+				int y0,y1;
+				TextureType *tempTex;
+				int i;
+
+				SHORTXY sBox[8];
+				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+
+
+				//calculate local to screen coords for fma mesh.
+				//(camera matrix and objects' pos/rot matrix)
+				MATRIX tx, rY;
+//bb dont need this, they don't move/rotate, just animate.
+//				MapDraw_SetMatrix ( *mesh, *-mesh->posx, *mesh->posy, *mesh->posz );
+				gte_SetRotMatrix(&GsWSMATRIX);
+				gte_SetTransMatrix(&GsWSMATRIX);
+
+				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+// 				act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+// 				act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+// 				act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+				act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+				act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+				act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+
+//				MapDraw_SetMatrix ( *mesh, -cur->actor->position.vx, cur->actor->position.vy, cur->actor->position.vz );
+
+				((FMA_MESH_HEADER*)(mesh))->posx = -act->actor->position.vx;
+				((FMA_MESH_HEADER*)(mesh))->posy = -act->actor->position.vy;
+				((FMA_MESH_HEADER*)(mesh))->posz = act->actor->position.vz;
+
+				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
+				act->actor->bffMatrix.t[1] = act->actor->position.vy;
+				act->actor->bffMatrix.t[2] = act->actor->position.vz;
+
+				// Unnecessary maths for landscape segments, where pos is always zero.
+				gte_ldlvl( &((FMA_MESH_HEADER*)(mesh))->posx);
+				gte_rtirtr();
+				gte_stlvl(&tx.t);
+
+//				gte_SetRotMatrix(&GsWSMATRIX);
+//				gte_SetTransMatrix(&tx);
+				
+				gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+				rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
+				rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+				RotMatrixY(2048, &rY);
+				gte_MulMatrix0(&tx, &rY, &tx);
+				gte_SetRotMatrix(&tx);
+				gte_SetTransMatrix(&tx);
+
+
+
+
+
+
+				//get screen coords of bounding box
+//				FMA_MESH_HEADER **mesh = ((char*)act->actor->bffActor) + sizeof(FMA_WORLD);
+//				SHORTXY sBox[8];
+				FmaActor_GetSBox(*mesh, sBox);
+
+				//calc min\max of box
+				x0=256;
+				x1=-256;
+				y0=128;
+				y1=-128;
+				for(i=0; i<8; i++)
+				{
+					if(sBox[i].x < x0)
+						x0 = sBox[i].x;
+
+					else if(sBox[i].x > x1)
+						x1 = sBox[i].x;
+
+					if(sBox[i].y < y0)
+						 y0 = sBox[i].y;
+
+					else if(sBox[i].y > y1)
+						 y1 = sBox[i].y;
+				}
+
+
+				tempTex = FindTexture("NEBU");
+				if(!tempTex)
+				{
+					POLY_F4 *f4;
+
+					//draw poly
+					BEGINPRIM(f4, POLY_F4);
+					setPolyF4(f4);
+					f4->x0 = x0;
+					f4->y0 = y0;
+					f4->x1 = x1;
+					f4->y1 = y0;
+					f4->x2 = x0;
+					f4->y2 = y1;
+					f4->x3 = x1;
+					f4->y3 = y1;
+					f4->r0 = 128;
+					f4->g0 = 0;
+					f4->b0 = 0;
+					f4->code |= 2;//semi-trans on
+			//		SetSemiTrans(f4,1);
+					ENDPRIM(f4, 1, POLY_F4);
+				}
+				else
+				{
+					POLY_FT4 *ft4;
+
+					//draw poly
+					BEGINPRIM(ft4, POLY_FT4);
+					setPolyFT4(ft4);
+					ft4->x0 = x0;
+					ft4->y0 = y0;
+					ft4->x1 = x1;
+					ft4->y1 = y0;
+					ft4->x2 = x0;
+					ft4->y2 = y1;
+					ft4->x3 = x1;
+					ft4->y3 = y1;
+					ft4->r0 = 16;
+					ft4->g0 = 16;
+					ft4->b0 = 16;
+					ft4->u0 = tempTex->u0;
+					ft4->v0 = tempTex->v0;
+					ft4->u1 = tempTex->u1;
+					ft4->v1 = tempTex->v1;
+					ft4->u2 = tempTex->u2;
+					ft4->v2 = tempTex->v2;
+					ft4->u3 = tempTex->u3;
+					ft4->v3 = tempTex->v3;
+					ft4->tpage = tempTex->tpage;
+					ft4->clut  = tempTex->clut;
+					ft4->code  |= 2;//semi-trans on
+			 		ft4->tpage |= 32;//add
+// 					ft4->tpage = si->tpage | 64;//sub
+					ENDPRIM(ft4, 1, POLY_FT4);
+				}
+
+			}//end if(!act->clipped)
+
+		}//end if(act->bffActor)
+
+	}//end else if(act->flags & ACTOR_NOANIMATION)
+
+#endif //DRAW_SCREEN_CLIP
 
 }
 

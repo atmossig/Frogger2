@@ -81,15 +81,17 @@ displayPageType *currentDisplayPage;
 // but it's not in the headers yet
 
 
-typedef struct{
-	SHORT x,y,z,w;
-}SHORTQUAT;
+//bb moved to map_draw.h
+// typedef struct{
+// 	SHORT x,y,z,w;
+// }SHORTQUAT;
+// 
+// typedef struct
+// {
+// 	short x,y;
+// }SHORTXY;
 
 void ShortquaternionGetMatrix(SHORTQUAT *squat, MATRIX *dmatrix);
-typedef struct
-{
-	short x,y;
-}SHORTXY;
 
 
 
@@ -736,6 +738,121 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 
 	return(totalchecks==0);
 }
+
+
+//this is just MapDraw_ClipCheck,
+//with objects' position taken into account.
+//(where as MapDraw_ClipCheck assumes stationary object)
+int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
+{
+	ULONG check,totalchecks;
+	SHORTXY			*xy;
+	int v;
+
+// "9", coz the transformer only deals in multiples of three,
+// (or at least, it did the last time I looked at it)
+// and this array is on the stack, so overrunning would be a seriously bad idea.
+	VERT pBBox[9];
+
+
+// Get the 8 corners of the object's bounding box, & transform them.
+	for(v=0; v<8; v++)
+	{
+		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
+		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
+		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
+
+		//this is the only addition to this function,
+		//from when it was MapDraw_ClipCheck().
+ 		pBBox[v].vx+=mesh->posx;
+ 		pBBox[v].vy+=mesh->posy;
+ 		pBBox[v].vz+=mesh->posz;
+// 		pBBox[v].vx-=mesh->posx;
+// 		pBBox[v].vy-=mesh->posy;
+// 		pBBox[v].vz+=mesh->posz;
+	}
+
+	//utilPrintf("Map Clip Check!!!\n");
+	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
+
+
+// Check to see whether ALL of the vertices are on the outisde of ANY of the 6 planes of the view-frustrum
+	(ULONG*)xy=transformedVertices;
+	totalchecks=0xffff;
+	for(v=0; v<8; v++)
+	{
+		check=0;
+		if(xy[v].x<-256)
+			check|=OFFLEFT;
+		if(xy[v].x>256 )
+			check|=OFFRIGHT;
+		if(xy[v].y<-128)
+			check|=OFFUP;
+		if(xy[v].y>128 )
+			check|=OFFDOWN;
+
+#ifdef MAP_SCALE_DEPTH_DOWN
+	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
+			check|=OFFFRONT;
+
+//		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
+		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<(2+MAP_SCALE_DEPTH_DOWN)))
+			check |= OFFBACK;
+#else
+	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<2))
+			check|=OFFFRONT;
+
+		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<2))
+			check |= OFFBACK;
+#endif
+
+		totalchecks&=check;
+	}
+
+	//returns 1 if ok to draw.
+	return(totalchecks==0);
+}
+
+
+//debug spin-off of FmaActor_ClipCheck which
+//gives you the screen coords of the box
+void FmaActor_GetSBox(FMA_MESH_HEADER *mesh, SHORTXY *sBox)
+{
+	SHORTXY			*xy;
+	VERT pBBox[9];
+	int v;
+
+	//Get the 8 corners of the object's bounding box, & transform them.
+	for(v=0; v<8; v++)
+	{
+		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
+		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
+		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
+
+		//this is the only addition to this function,
+		//from when it was MapDraw_ClipCheck().
+ 		pBBox[v].vx+=mesh->posx;
+ 		pBBox[v].vy+=mesh->posy;
+ 		pBBox[v].vz+=mesh->posz;
+// 		pBBox[v].vx-=mesh->posx;
+// 		pBBox[v].vy-=mesh->posy;
+// 		pBBox[v].vz+=mesh->posz;
+	}
+
+	//utilPrintf("Map Clip Check!!!\n");
+	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
+
+	//copy to dest
+	(ULONG*)xy=transformedVertices;
+	for(v=0; v<8; v++)
+	{
+		sBox[v].x = xy[v].x;
+		sBox[v].y = xy[v].y;
+	}
+}
+
+
+
 
 // ===================================================
 //              Platform-related code
