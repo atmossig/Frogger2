@@ -8,11 +8,6 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
@@ -35,11 +30,12 @@ MDX_TIMING_VAL timeInfo;
 
 void InitTiming(float frameSpeed)
 {
-	timeInfo.firstTicks = GetTickCount();
+	timeInfo.firstTicks = timeGetTime();
 	timeInfo.tickCount = 0;
 	timeInfo.frameCount = 0;
 	timeInfo.frameSpeed = frameSpeed;
 	timeInfo.tickModifier = 0;
+	timeInfo.maxTickIncrement = 500;	// 500ms default
 }
 
 /*	--------------------------------------------------------------------------------
@@ -52,15 +48,22 @@ void InitTiming(float frameSpeed)
 
 void UpdateTiming(void)
 {
-	unsigned long currentTicks = (GetTickCount()+timeInfo.tickModifier) - timeInfo.firstTicks;
+	float mult = (timeInfo.frameSpeed/1000.0F);
+	unsigned long currentTicks = (timeGetTime()+timeInfo.tickModifier) - timeInfo.firstTicks;
 	unsigned long intervalTicks = currentTicks - timeInfo.tickCount;
-	float divVal = (1000.0F/timeInfo.frameSpeed);
+
+	// limit maximum clock increment
+	if (intervalTicks > timeInfo.maxTickIncrement)
+	{
+		intervalTicks -= timeInfo.maxTickIncrement;
+		timeInfo.firstTicks += intervalTicks;
+		currentTicks -= intervalTicks;
+		
+		intervalTicks = timeInfo.maxTickIncrement;
+	}
 	
-	timeInfo.speed = intervalTicks / divVal;
-	timeInfo.frameCount = (unsigned long)currentTicks / divVal;
+	timeInfo.speed = intervalTicks * mult;
+	timeInfo.frameCount = (unsigned long)(currentTicks * mult);
 	timeInfo.tickCount = currentTicks;	
 }
 
-#ifdef __cplusplus
-}
-#endif
