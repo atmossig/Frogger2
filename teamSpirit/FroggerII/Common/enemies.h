@@ -95,6 +95,8 @@ enum
 #define ENEMY_NEW_MOVEDOWN				(1 << 6)	// enemy moves down (1 node paths only)
 #define ENEMY_NEW_NOJUMPOVER			(1 << 7)	// enemy cannot be jumped over
 #define ENEMY_NEW_RADIUSBASEDCOLLISION	(1 << 8)	// enemy collision based on radius
+#define ENEMY_NEW_WATCHFROG				(1 << 9)	// enemy faces frogger
+#define ENEMY_NEW_SNAPFROG				(1 << 10)	// enemy snaps at frogger
 
 
 
