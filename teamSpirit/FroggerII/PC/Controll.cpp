@@ -140,13 +140,7 @@ KEYENTRY keymap[56] =
 	{ 3, CONT_R, 0 }
 };
 
-unsigned long joymap[MAXJOYPADS][MAXBUTTONS] =
-{
-	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
-	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
-	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
-	{ CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F },
-};
+unsigned int joymap[MAXBUTTONS] = { CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F };
 
 // controller type for each player
 #define KEYBOARD 0x200
@@ -160,7 +154,8 @@ struct CONTROLLERINFO
 
 CONTROLLERINFO *controllerInfo;	// allocated and deallocated by controller dialog
 
-unsigned short controllers[4];	// used by controller setup to decide which thing is what
+// used by controller setup to decide which thing is what
+unsigned short controllers[4] = { GAMEPAD, KEYBOARD, KEYBOARD, KEYBOARD };	
 
 unsigned long	playerInputPause;
 unsigned long	playerInputPause2;
@@ -479,50 +474,53 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
 
-	for( i=0; i < NUM_FROGS*14; i++ )
+	for (i = 0; i<NUM_FROGS * 14; i++)
 		if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
 			controllerdata[keymap[i].player].button |= keymap[i].button;
 
-	for ( j =0; j < MAXJOYPADS; j++)
+	for( i=0; i < NUM_FROGS; i++ )
 	{
-		LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[j];
-		DIJOYSTATE joy;
-
-		if (!lpJoy) break;
-
-		lpJoy->Acquire();
-
-		hRes = lpJoy->Poll();
-		if (hRes == DD_OK || hRes == DI_NOEFFECT)
+		if (controllers[i] & GAMEPAD)
 		{
-			hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
-			if (FAILED(hRes))
+			LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[controllers[i] & 0xFF];
+			DIJOYSTATE joy;
+
+			if (!lpJoy) break;
+
+			lpJoy->Acquire();
+
+			hRes = lpJoy->Poll();
+			if (hRes == DD_OK || hRes == DI_NOEFFECT)
 			{
-				dprintf"GetDeviceState() failed\n"));
-				return;
+				hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
+				if (FAILED(hRes))
+				{
+					dprintf"GetDeviceState() failed\n"));
+					return;
+				}
+
+				unsigned long b = 0;
+
+				for (int m=0; m < MAXBUTTONS; m++)
+					if (joy.rgbButtons[m]) b |= joymap[m];
+				
+				if (joy.lX < -DEAD_ZONE)
+					b |= (b & CONT_SHIFT) ? CONT_C : CONT_LEFT;		// if shift rotate L else hop L
+				else if (joy.lX > DEAD_ZONE)
+					b |= (b & CONT_SHIFT) ? CONT_F : CONT_RIGHT;	// if shift rotate R else hop R
+
+				//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
+				//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
+
+				if (joy.lY < -DEAD_ZONE)
+					b |= (b & CONT_SHIFT) ? 0 : CONT_UP;
+				else if (joy.lY > DEAD_ZONE)
+					b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
+
+				controllerdata[i].button |= b;
+
+				//lpJoystick->UnAcquire();
 			}
-
-			unsigned long b = 0;
-
-			for (int m=0; m < MAXBUTTONS; m++)
-				if (joy.rgbButtons[m]) b |= joymap[j][m];
-			
-			if (joy.lX < -DEAD_ZONE)
-				b |= (b & CONT_SHIFT) ? CONT_C : CONT_LEFT;		// if shift rotate L else hop L
-			else if (joy.lX > DEAD_ZONE)
-				b |= (b & CONT_SHIFT) ? CONT_F : CONT_RIGHT;	// if shift rotate R else hop R
-
-			//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
-			//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
-
-			if (joy.lY < -DEAD_ZONE)
-				b |= (b & CONT_SHIFT) ? 0 : CONT_UP;
-			else if (joy.lY > DEAD_ZONE)
-				b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
-
-			controllerdata[0].button |= b;
-
-			//lpJoystick->UnAcquire();
 		}
 	}
 }
@@ -594,6 +592,14 @@ BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lPara
 		{
 		case IDOK:
 			// Set appropriate controller data
+			{
+				for (int player = 0; player < 4; player++)
+				{
+					HWND combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+					int sel = SendMessage(combo, CB_GETCURSEL, 0, 0);
+					controllers[player] = controllerInfo[sel].id;
+				}
+			}
 
 			// fall through...
 		case IDCANCEL:

@@ -69,7 +69,6 @@ extern BYTE keyTable[256];
 extern DIMOUSESTATE mouseState;
 
 extern KEYENTRY keymap[56];
-extern unsigned long joypadMap[MAXJOYPADS][MAXBUTTONS];
 
 extern LPDIRECTINPUT lpDI;
 extern LPDIRECTINPUTDEVICE lpKeyb;
