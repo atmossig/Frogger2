@@ -557,8 +557,6 @@ void RunGameLoop (void)
 
 		gameIsOver = 0;
 		levelIsOver = 0;
-		lastActFrameCount = 0;
-		actFrameCount = 0;
 
 		ChangeCameraSetting();
 
@@ -625,6 +623,9 @@ void RunGameLoop (void)
 		}
 
 		ChangeCameraSetting();
+
+		lastActFrameCount = 0;
+		actFrameCount = 0;
 	}
 
 	if(keyFound)
