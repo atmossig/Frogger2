@@ -1573,6 +1573,9 @@ void StartLevelComplete()
 	frog[0]->draw = 1;
 	actorAnimate(frog[0]->actor,froganimnum,NO,NO,froganimspeed,NO);
 	drawLandscape = 0;
+
+	for(i=0;i<24;i++)
+		sfxStopChannel(i);
 }
 
 int dropSpeed = 40;
