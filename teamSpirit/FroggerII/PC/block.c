@@ -225,6 +225,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 void InitOneOverTable(void);
 extern float camSideOfs;
+extern TEXTOVERLAY *polysText;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
@@ -403,13 +404,16 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			{
 				if (KEYPRESS(DIK_F9))
 				{
-					actTickCountModifier -= modFactor;
-					keyDelay = 30;
+					
 				}
 			
 				if (KEYPRESS(DIK_F11))
 				{
-					modFactor *= 2;
+					DisableHUD();
+					polysText->draw = 0;
+					for (i=0; i<numBabies; i++)
+						babyIcons[i]->draw = 0;
+
 					keyDelay = 30;
 				}
 

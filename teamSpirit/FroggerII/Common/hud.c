@@ -94,11 +94,15 @@ typedef struct TAG_MULTI_HUD
 {
 	SPRITEOVERLAY *backTime;
 	SPRITEOVERLAY *backPenalise[MAX_FROGS];
+	SPRITEOVERLAY *backChars[MAX_FROGS];
 	TEXTOVERLAY   *penaliseText[MAX_FROGS];
 
 	TEXTOVERLAY   *timeTextMin;
 	TEXTOVERLAY   *timeTextSec;
 	TEXTOVERLAY   *timeTextHSec;
+
+	TEXTOVERLAY   *centreText;
+
 } MULTI_HUD;
 
 
@@ -111,6 +115,8 @@ char timeStringHSec[8]	= "00";
 char coinsText[32] = "00 of 32";
 char timeOutString[64] = "Out of time";
 char penalString[4][8] = {"00","00","00","00"};
+char charNames[4][16] = {"frogger.bmp","wart.bmp","lillie.bmp","twee.bmp"};
+char countdownString[64] = "00";
 
 TEXTOVERLAY   *polysText;
 char polyString[256] = "";
@@ -146,7 +152,7 @@ void InitArcadeHUD(void)
 	arcadeHud.timeOutText->a = 0;
 
 	polysText = CreateAndAddTextOverlay(2,2,polyString,NO,255,smallFont,0,0);
-
+	
 	arcadeHud.timedOut = 0;
 
 	for (i=0; i<MAX_HUD_SPARKLES; i++)
@@ -169,15 +175,20 @@ void InitMultiHUD()
 {
 	int i;
 	multiHud.backTime = CreateAndAddSpriteOverlay(160-40,5,"wback2.bmp",80,25,170,0);
+
+	multiHud.timeTextMin = CreateAndAddTextOverlay(120-8,9,timeStringMin,NO,255,currFont,0,0);
+	multiHud.timeTextSec = CreateAndAddTextOverlay(120+32-8,9,timeStringSec,NO,255,currFont,0,0);
+	multiHud.timeTextHSec = CreateAndAddTextOverlay(120+32+32-8,9,timeStringHSec,NO,255,currFont,0,0);
+	multiHud.timeTextHSec->scale = 0.75;
+	
+	multiHud.centreText = CreateAndAddTextOverlay(1,100,countdownString,YES,255,currFont,0,0);
+
 	for (i = 0; i<NUM_FROGS; i++)
 	{
+		multiHud.backChars[i] = CreateAndAddSpriteOverlay(xPos_multi[i]+64,yPos_multi[i]+5,charNames[i],16,16,0xff,0);
 		multiHud.backPenalise[i] = CreateAndAddSpriteOverlay(xPos_multi[i],yPos_multi[i],"wback2.bmp",80,45,170,0);
 		multiHud.penaliseText[i] = CreateAndAddTextOverlay(xPos_multi[i]+5,yPos_multi[i]+5,penalString[i],NO,255,currFont,0,0);
 		multiHud.penaliseText[i]->scale = 2;
-		multiHud.timeTextMin = CreateAndAddTextOverlay(120-8,9,timeStringMin,NO,255,currFont,0,0);
-		multiHud.timeTextSec = CreateAndAddTextOverlay(120+32-8,9,timeStringSec,NO,255,currFont,0,0);
-		multiHud.timeTextHSec = CreateAndAddTextOverlay(120+32+32-8,9,timeStringHSec,NO,255,currFont,0,0);
-		multiHud.timeTextHSec->scale = 0.75;
 	}
 
 }
@@ -229,6 +240,50 @@ void UpDateMultiplayerInfo( void )
 {
 	long timeFrames=0,i;
 
+	if( multiTimer.time>1)
+	{
+		if( multiTimer.time<5)
+		{
+			sprintf(countdownString,"%lu",multiTimer.time-1);
+			multiHud.centreText->scale = 2;
+			switch (multiTimer.time)
+			{
+				case 4:
+					multiHud.centreText->r = 0xff;
+					multiHud.centreText->g = 0;
+					multiHud.centreText->b = 0;
+					break;
+				case 3:
+					multiHud.centreText->r = 0xff;
+					multiHud.centreText->g = 180;
+					multiHud.centreText->b = 30;
+					break;
+				case 2:
+					multiHud.centreText->r = 0;
+					multiHud.centreText->g = 0xff;
+					multiHud.centreText->b = 0;
+					break;
+
+			}
+		}
+		else
+		{
+			sprintf(countdownString,"get ready");
+			multiHud.centreText->scale = 1;
+		}
+		multiHud.centreText->draw = 1;
+	}
+	else
+	{
+		multiHud.centreText->r = multiHud.centreText->b = multiHud.centreText->g = 0xff;
+		 			
+		multiHud.centreText->scale = 1;
+		if (multiTimer.time==1)
+			sprintf(countdownString,"go");
+		else
+			multiHud.centreText->draw = 0;
+	}
+	
 	for (i=0; i<NUM_FROGS; i++)
 	{
 		sprintf(penalString[i],"%02i",((int)(mpl[i].penalty/60)));
@@ -251,6 +306,7 @@ void UpDateOnScreenInfo( void )
 	long r,g,b,a,h;
 
 	sprintf(polyString,"%lu tri  %lu spr  %lu kpixels  %lu pc ovdrw",totalFacesDrawn,numSprites,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
+	
 	
 	if (totalFacesDrawn>2000)
 		if (totalFacesDrawn>2500)

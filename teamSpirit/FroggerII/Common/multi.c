@@ -40,9 +40,10 @@ char raceTimeText[4][20] =
 	Returns			: 
 	Info			:
 */
+
+TIMER multiTimer,endTimer;
 void UpdateRace( )
 {
-	static TIMER endTimer, multiTimer;
 	int i, j, score;
 
 	UpDateMultiplayerInfo();
@@ -55,24 +56,25 @@ void UpdateRace( )
 				j++;
 				player[i].canJump = 0;
 			}
-
+		GTInit( &multiTimer, 0);
 		if( j==NUM_FROGS )
 		{
 			GTInit( &endTimer, 0 );
-			GTInit( &multiTimer, 3 );
+			GTInit( &multiTimer, 6 );
 			started = 1;
 		}
 	}
 
 	// When all players are ready, start a countdown
-	if( multiTimer.time )
+
+
+	
+	if( multiTimer.time)
 	{
 		GTUpdate( &multiTimer, -1 );
-
-		if( !multiTimer.time )
+		if(multiTimer.time==1)
 		{
 			started = 2;
-
 			for( i=0; i<NUM_FROGS; i++ )
 				player[i].canJump = 1;
 		}
