@@ -11,20 +11,11 @@
 enum {
 	TIMER_TOTAL,
 	TIMER_TIMERS,
-	TIMER_LAND_UPDATE,
-	TIMER_LAND_DRAW,
-	TIMER_OBJECT_UPDATE,
-	TIMER_OBJECT_DRAW,
-	TIMER_MAN_UPDATE,
-	TIMER_MAN_DRAW,
-	TIMER_CAMERA,
 	TIMER_DRAWSYNC,
-	TIMER_COLLISION,
-	TIMER_PARTICLES,
-	TIMER_PROJECTILES,
+	TIMER_LAND_DRAW,
+	TIMER_ACTOR_DRAW,
+	TIMER_UPDATE,
 	TIMER_OVERLAYS,
-	TIMER_CUSTOM1,
-	TIMER_CUSTOM2,
 
 	TIMER_NUMTIMERS
 };
@@ -32,20 +23,11 @@ enum {
 
 #define TIMER_NAMES	   	"TOTAL", \
 					   	"TIMERS", \
-					   	"LAND UPDATE", \
+					   	"DRAW SYNC", \
 						"LAND DRAW", \
-					   	"OBJ UPDATE", \
-					   	"OBJ DRAW", \
-					   	"MAN UPDATE", \
-					   	"MAN DRAW", \
-					   	"CAMERA", \
-					   	"DRAWSYNC", \
-					   	"COLLISION", \
-					   	"PARTICLES", \
-					   	"PROJECTILES", \
-					   	"OVERLAYS", \
-						"CUSTOM1", \
-						"CUSTOM2"
+					   	"ACTOR UPDATE", \
+					   	"UPDATE", \
+					   	"OVERLAYS"
 
 
 extern char	timerActive;

@@ -16,7 +16,7 @@
 ACTORLIST	actorList;
 
 
-#include "bbtimer.h"
+#include "timer.h"
 #include "temp_psx.h"
 
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -422,13 +422,10 @@ void actorMove(ACTOR *actor)
 	RETURNS:	
 **************************************************************************/
 
-BBTIMER tActorDraw, tDrawSegments, tCalcWorldMatrix;
-
 void actorDraw(ACTOR *actor)
 {
 	PSIOBJECT *world;
 
-	TimerStart(&tActorDraw);
 	world = actor->psiData.object;
 
 	//convert qRot to matrix
@@ -453,15 +450,9 @@ void actorDraw(ACTOR *actor)
 
 	PSIrootScale = &actor->psiData.object->scale;
 	
-	TimerStart(&tCalcWorldMatrix);
 	psiCalcWorldMatrix(actor->psiData.object);
-	TimerStop(&tCalcWorldMatrix);
 
-	TimerStart(&tDrawSegments);
 	psiDrawSegments(&actor->psiData);
-	TimerStop(&tDrawSegments);
-
-	TimerStop(&tActorDraw);
 }
 
 void actorDraw2(ACTOR *actor)

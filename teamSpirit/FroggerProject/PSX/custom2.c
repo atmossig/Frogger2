@@ -8,9 +8,8 @@
 
 #include "enemies.h"
 #include <islutil.h>
-#include "bbtimer.h"
+#include "timer.h"
 
-BBTIMER poly;
 
 extern long *transformedVertices;
 extern long *transformedDepths;
