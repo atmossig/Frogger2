@@ -136,7 +136,7 @@ extern char		croakR,croakG,croakB;
 
 
 
-extern void CreateFrogger ( unsigned long createFrogActor, unsigned long createFrogOverlays, unsigned long createBabyOverlays );
+extern void CreateFrogger ( unsigned char createFrogActor, unsigned char createFrogOverlays, unsigned char createBabyOverlays );
 
 #endif
 
