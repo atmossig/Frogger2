@@ -40,6 +40,7 @@ void SetupDOF(long min, long max, float range);
 
 void PCRenderObject (MDX_OBJECT *obj);
 void PCRenderModgyObject (MDX_OBJECT *obj);
+void PCRenderModgyObject2(MDX_OBJECT *obj);
 void PCRenderObjectPhong (MDX_OBJECT *obj);
 
 void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4]);

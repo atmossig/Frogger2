@@ -953,7 +953,12 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 				}
 				else
 					if (obj->flags & OBJECT_FLAGS_MODGE)
-						PCRenderModgyObject(obj);
+					{
+						if (obj->flags & OBJECT_FLAGS_WAVE)
+							PCRenderModgyObject(obj);
+						else
+							PCRenderModgyObject2(obj);
+					}
 					else
 						PCRenderObject(obj);
 
@@ -1474,6 +1479,150 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->rhw = 1/vTemp->sz;
 			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
 			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m3x+m3z)*2);
+			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
+			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
+			//vTemp->tv = (tN2->vy+0.5);
+			//vTemp->tu = (tN2->vx+0.5);
+			
+			x1on = BETWEEN(v[0].sx,clx0,clx1);
+			x2on = BETWEEN(v[1].sx,clx0,clx1);
+			x3on = BETWEEN(v[2].sx,clx0,clx1);
+			y1on = BETWEEN(v[0].sy,cly0,cly1);
+			y2on = BETWEEN(v[1].sy,cly0,cly1);
+			y3on = BETWEEN(v[2].sy,cly0,cly1);
+
+			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			{
+				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
+					PushPolys(v,3,facesON,3,tex);
+				}
+				else
+					Clip3DPolygon(v,tex);
+			}
+		}
+		
+		// Update our pointers
+		facesIdx++;
+		tex2++;
+	}
+}
+
+void PCRenderModgyObject2(MDX_OBJECT *obj)
+{
+	long i,j;
+	unsigned short fce[3] = {0,1,2};		
+	MDX_QUATERNION *c1,*c2,*c3;
+	D3DTLVERTEX v[3],*vTemp;
+	MDX_SHORTVECTOR *facesIdx;
+	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long v0,v1,v2;
+	unsigned long v0a,v1a,v2a;
+	float m1x,m2x,m3x,tFog;
+	float m1z,m2z,m3z,cVal;
+	long alphaVal;
+	MDX_TEXENTRY *tex;
+	MDX_TEXENTRY **tex2;
+	MDX_VECTOR *tV0,*tV1,*tV2, *tN0,*tN1,*tN2;
+	MDX_QUATERNION *cols;
+	
+	facesIdx = obj->mesh->faceIndex;
+	tex2 = obj->mesh->textureIDs;
+	cols = obj->mesh->gouraudColors;
+	alphaVal = (long)(globalXLU2*255.0);
+
+	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
+	{
+		// Get information from the mesh!
+		v0 = facesIdx->v[0];
+		v1 = facesIdx->v[1];
+		v2 = facesIdx->v[2];
+		
+		
+		tV0 = &tV[v0];
+		tV1 = &tV[v1];
+		tV2 = &tV[v2];
+
+		tN0 = &tN[v0];
+		tN1 = &tN[v1];
+		tN2 = &tN[v2];
+		
+		m1x = tMx[v0];
+		m2x = tMx[v1];
+		m3x = tMx[v2];
+		m1z = tMz[v0];
+		m2z = tMz[v1];
+		m3z = tMz[v2];
+		
+		tex = (MDX_TEXENTRY *)(*tex2);
+		
+		// If we are to be drawn.
+		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+		{
+			// Get rest of info from mesh
+			v0a = j;
+			v1a = j+1;
+			v2a = j+2;
+
+			c1 = &(cols[v0a]);
+			c2 = &(cols[v1a]);
+			c3 = &(cols[v2a]);
+			
+			// Fill out D3DVertices...
+			vTemp = v;
+			
+			tFog = FOG(tV0->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			vTemp->specular = FOGVAL(tFog);			
+						
+			vTemp->sx = tV0->vx;
+			vTemp->sy = tV0->vy;
+			vTemp->sz = (tV0->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+
+			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
+		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
+		//	vTemp->color = D3DRGBA(cVal,cVal,1,1);
+			vTemp->color = MODALPHA(*((unsigned long *)(&(c1->x))),alphaVal);
+			//vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
+			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z*0.4;
+			
+			//vTemp->tv = (tN0->vy+0.5);
+			//vTemp->tu = (tN0->vx+0.5);
+			vTemp++;
+
+			tFog = FOG(tV1->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			vTemp->specular = FOGVAL(tFog);			
+			vTemp->sx = tV1->vx;
+			vTemp->sy = tV1->vy;
+			vTemp->sz = (tV1->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			cVal = 1;//fabs((m2x+m2z)*2.5);		
+		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m2x+m2z)*2);
+		//	vTemp->color = D3DRGBA(cVal,cVal,1,1);
+			vTemp->color = MODALPHA(*((unsigned long *)(&(c2->x))),alphaVal);
+			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
+			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z*0.4;
+			//vTemp->tv = (tN1->vy+0.5);
+			//vTemp->tu = (tN1->vx+0.5);
+			vTemp++;
+			
+			tFog = FOG(tV2->vz);
+			if (tFog>1) tFog = 1;
+			if (tFog<0) tFog = 0;
+			vTemp->specular = FOGVAL(tFog);			
+			vTemp->sx = tV2->vx;
+			vTemp->sy = tV2->vy;
+			vTemp->sz = (tV2->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
+		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m3x+m3z)*2);
+		//Temp->color = D3DRGBA(cVal,cVal,1,1);
+			vTemp->color = MODALPHA(*((unsigned long *)(&(c3->x))),alphaVal);
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
 			//vTemp->tv = (tN2->vy+0.5);

@@ -367,11 +367,13 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 	return 1;
 }
 
+extern MDX_TEXENTRY *haloHandle;
+
 void FreeAllTextureBanks()
 {
 	MDX_TEXENTRY *cur, *next/*, *cur2*/;
 	int numTextures;
-
+	haloHandle = 0;
 	for( cur = texList, numTextures = 0; cur; cur = next, numTextures++ )
 	{
 		next = cur->next;
