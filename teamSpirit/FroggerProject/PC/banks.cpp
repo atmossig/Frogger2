@@ -24,6 +24,12 @@
 
 char saveName[32];
 
+#ifdef FINAL_MASTER
+int compressedTexBanks = 1;
+#else 
+int compressedTexBanks = 1;		// ds - DEBUG! - change this to 0 (zero)
+#endif
+
 TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 
 void LoadObjectBank(int objectBank)					
@@ -406,11 +412,10 @@ void LoadTextureBank(int textureBank)
 			return;
 	}
 
-#ifdef FINAL_MASTER
-	LoadTexBankFile(fileName,baseDirectory);
-#else
-	LoadTexBank(fileName,baseDirectory);
-#endif
+	if (compressedTexBanks)
+		LoadTexBankFile(fileName,baseDirectory);
+	else
+		LoadTexBank(fileName,baseDirectory);
 	return;
 }
 

@@ -21,8 +21,10 @@ extern "C"
 //from psx textures.h
 #define MAX_TEXTURE_BANKS		5
 
+extern int compressedTexBanks;
 extern TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 extern char saveName[32];
+
 void LoadTextureBank(int textureBank);
 void FreeTextureBank(TextureBankType *textureBank);
 void LoadObjectBank(int objectBank);
@@ -32,20 +34,6 @@ void SaveGame(void);
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID);
 
 #define FreeWaterObjectList()
-
-/*
-#ifdef _______A
-#define _d(x)(*x--)
-#define _(x)(x++)
-#define __(x)(*x)
-#define ___ = 
-#define ____ for(
-#define _____ c
-#define ______ i
-#define _______ )
-#define ________ d
-#endif
-*/
 
 #ifdef __cplusplus
 }
