@@ -8,6 +8,8 @@
 #include "actor2.h"
 #include "timer.h"
 #include "world_eff.h"
+#include "layout.h"
+#include "frogger.h"
 
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
@@ -23,7 +25,7 @@ extern EXPLORE_black_CLUT;
 #define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
 #define WATERANIM_2  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
 
-extern int polyCount;
+int worldPolyCount = 0;
 
 //#define WATERANIM_1	(u|(v<<8))
 //#define WATERANIM_2	WATERANIM_1
@@ -169,7 +171,7 @@ asm(\
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (8000)
+#define MAX_MAP_DEPTH (1000)
 
 
 // ===================================================
@@ -229,11 +231,41 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 #endif
 
 	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
-	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
+//	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
+	int max_depth = worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip + mesh->extra_depth;
 
 
-	tfv = (long*)transformedVertices;
-	tfd = (long*)transformedDepths;
+	/*if(mesh->n_verts <= 255)	// Yes, 255. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)dcache;
+		tfd = transformedDepths;
+	}
+	else
+	{
+		tfv = transformedVertices;
+		tfd = transformedDepths;
+	}*/
+
+//#define DCACHE  0x1f800000
+		
+	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = (void *)(0x1f800000 + 512);
+	}
+	else if(mesh->n_verts <= 255)	// Not 256. TransformVerts rounds up to nearest 3, remember
+	{
+		tfv = (void *)0x1f800000;
+		tfd = transformedDepths;
+	}
+	else
+	{
+		tfv = transformedVertices;
+		tfd = transformedDepths;
+	}
+
+	//tfv = (long*)transformedVertices;
+	//tfd = (long*)transformedDepths;
 
 	if(max_depth > 1024-mesh->extra_depth)
 		max_depth = 1024-mesh->extra_depth;
@@ -284,7 +316,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 
 		//bbopt - 2 ifs
-		if(depth > min_depth && depth < max_depth)
+		if ( ( depth > min_depth ) && ( depth < max_depth ) )
 		{
 // Skip the poly if all the verts are off screen.
 // A fairly hefty check, but one that gives us a 20% code-speed increase & 30% less gpu work.
@@ -323,7 +355,9 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 
 				count++;	
-				polyCount ++;
+				//polyCount ++;
+
+				worldPolyCount++;
 
 				
 				// Put the polygon into the OT (Note that we re-use "depth" as one of the "t" variables)
@@ -418,7 +452,9 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 			if(clipflag < 0)
 			{
 				count++;
-				polyCount ++;
+				//polyCount ++;
+
+				worldPolyCount++;
 
 // Put the polygon into the OT (Note that we re-use "depth" as one of the "t" variables)
 				addPrimLen(ot+(depth), (si),9,t2);
@@ -616,16 +652,18 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 
 	for(i = world->n_meshes; i != 0; i--, mesh++)
 	{
-		if(MapDraw_ClipCheck(*mesh))
+		if ( (*mesh)->flags & DRAW_SEGMENT )
 		{
-				MapDraw_DrawFMA_Mesh2(*mesh);
+			if(MapDraw_ClipCheck(*mesh))
+			{
+					MapDraw_DrawFMA_Mesh2(*mesh);
+			}
+			// ENDIF
 		}
 		// ENDIF
 
 	}
 	// ENDFOR
-
-//	utilPrintf("Map Draw Poly Count%d\n", count);
 
 #ifdef MAP_SCALE_ADJUST
 	{
@@ -680,13 +718,14 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
 			check|=OFFFRONT;
 
-		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
+//		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
+		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<(2+MAP_SCALE_DEPTH_DOWN)))
 			check |= OFFBACK;
 #else
 	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<2))
 			check|=OFFFRONT;
 
-		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<2))
+		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<2))
 			check |= OFFBACK;
 #endif
 
@@ -706,7 +745,7 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 // Set up the PSX's transformation matrix for a platform segment,
 // Calculating the rot-matrix is, of course, only neccesary if the thing's rotated
 // In fact, it might be nicer to cache this thing somewhere rather than recalculating it all the time
-void MapDraw_SetPlatformMatrix(FMA_MESH_HEADER *mesh)
+/*void MapDraw_SetPlatformMatrix(FMA_MESH_HEADER *mesh)
 {
 	MATRIX tx;
 	MATRIX tx1;
@@ -729,7 +768,7 @@ void MapDraw_SetPlatformMatrix(FMA_MESH_HEADER *mesh)
 
 	gte_SetRotMatrix(&tx);
 	gte_SetTransMatrix(&tx);
-}
+}*/
 
 void MapDraw_DrawFMA_Water ( WATER *cur )
 {

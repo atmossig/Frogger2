@@ -15,6 +15,8 @@
 
 
 
+#define DRAW_SEGMENT  ( 1 << 0 )
+
 
 // NB - The structures defined in here must match those defined in the PC map compilation tool!
 
@@ -29,6 +31,7 @@
 extern long *transformedVertices;
 extern long *transformedDepths;
 
+extern int worldPolyCount;
 
 
 // frog-map versions of the playstation quad/tri structures
