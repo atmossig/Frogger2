@@ -11,6 +11,7 @@
 #include <islmem.h>
 #include <islfile.h>
 #include <stdio.h>
+#include <islutil.h>
 
 #include "Define.h"
 
@@ -40,13 +41,13 @@ void LoadScenics ( int collBank )
 {
 	int c;
 	int fileLength;
+	unsigned char* p;
 
 	int *ptrAddr;
 
 	char fileName[64];
 
 	SCENIC *cur;
-	SCENIC *next;
 
 	switch ( collBank )
 	{
@@ -128,21 +129,23 @@ void LoadScenics ( int collBank )
 	// ENDSWITCH
 
 	//bb
+
 	if(scenicFile)
 		FREE(scenicFile);
 
-	scenicFile = ( void* ) fileLoad ( fileName, &fileLength );
-
-	firstScenic = ( SCENIC* ) scenicFile;
+	scenicFile = fileLoad(fileName, &fileLength);
+	p = (unsigned char*)scenicFile;
 
 	// Get a pointer to the addr and get scenic count from it...
-	ptrAddr			= ( int* ) firstScenic;
+	ptrAddr			= ( int* )p;
 	scenicCount = ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the number of babies.
-	firstScenic = ( int ) firstScenic + 4;
+	p += 4;
 
 	c = 0;
+
+	firstScenic = ( SCENIC* ) scenicFile;
 	cur = firstScenic;
 
 	utilPrintf("%d\n\n\n\n", sizeof(SCENIC));
@@ -207,18 +210,16 @@ void LoadMapBank ( int collBank )
 void LoadCollision ( int collBank )
 {
 
-	int c, i;
-	int start;
-	int fileLength;
+	int c, start, fileLength;
 
 	int *ptrAddr;
+	unsigned char *p;
 
 	int babStart[5];	// Temp holders for the baby game tiles....
 
 	char fileName[64];
 
 	GAMETILE *cur;
-	GAMETILE *next;
 
 //	fileName = MALLOC0( sizeof(32) );
 	switch ( collBank )
@@ -310,42 +311,41 @@ void LoadCollision ( int collBank )
 
 	collisionFile = ( void* ) fileLoad ( fileName, &fileLength );
 
-	firstTile = ( GAMETILE* ) collisionFile;
+	p = (unsigned char*) collisionFile;
 
 	// Get a pointer to the addr and get tile count from it...
 	ptrAddr		= ( int* ) firstTile;
 	tileCount = ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the start tile.
-	firstTile = ( int ) firstTile + 4;
+	p += 4;
 
 	// Get a pointer to the addr and get a temp pointer to the Frogger startTile.....
 	ptrAddr = ( int* ) firstTile;
 	start		= ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the number of babies.
-	firstTile = ( int ) firstTile + 4;
+	p += 4;
 
 	// Get a pointer to the addr and get the number of babies.....
 	ptrAddr		= ( int* ) firstTile;
 	numBabies	= ( int ) *ptrAddr;
 
 	// Move on 4 bytes so that we can get the first baby game tile....
-	firstTile = ( int ) firstTile + 4;
+	p += 4;
 
 	for ( c = 0; c < numBabies; c++ )
 	{
 		// Get a pointer to the addr and get the game tile.....
-		ptrAddr					= ( int* ) firstTile;
-		babStart [ c ]	= ( int ) *ptrAddr;
+		babStart [ c ]	= *(int*)p;
 
 		// Move on 4 bytes so that we can get the next baby game tile....
-		firstTile = ( int ) firstTile + 4;
+		p += 4;
 
 	}
 	// ENDFOR - for ( c = 0; c < numBabies; c++ )
 	
-
+	firstTile = (GAMETILE*)p;
 	// These need to be done last, so that we get the correct firstTile offset in the file.....
 
 	//  Set the offsets for the memory pointers in memory for the baby game tiles....
@@ -353,7 +353,6 @@ void LoadCollision ( int collBank )
 	{
 		bTStart [c] = ( GAMETILE* ) ( ( int ) babStart [ c ] + ( int ) firstTile );
 	}
-	// ENDFOR - for ( c = 0; c < numBabies; c++ )
 
 	//  And lets do the same for the frogger start tile....
 
@@ -362,7 +361,6 @@ void LoadCollision ( int collBank )
 
 	c = 0;
 	cur = firstTile;
-
 
 	for ( c = 0; c < tileCount; c++, cur = cur->next )
 	{
@@ -397,7 +395,7 @@ void LoadCollision ( int collBank )
 		// ENDELSEIF
 
 
-		if ( cur->next != -1 )
+		if ( (int)cur->next != -1 )
 			cur->next = ( GAMETILE* ) ( ( int ) cur->next + ( int ) firstTile );
 		else
 				// If not a valid pointer then set the pointer to NULL
