@@ -220,10 +220,10 @@ void RunTitleScreen()
 
 		switch (currentSelection)
 		{
-			case 0: startText->a = 255; if( !(actFrameCount%32) ) startText->draw = !startText->draw; break;
-			case 1: selectText->a = 255; if( !(actFrameCount%32) ) selectText->draw = !selectText->draw; break;
-			case 2: multiText->a = 255; if( !(actFrameCount%32) ) multiText->draw = !multiText->draw; break;
-			case 3: devText->a = 255; if( !(actFrameCount%32) ) devText->draw = !devText->draw;break;
+			case 0: startText->a = 255; if( !(frameCount%32) ) startText->draw = !startText->draw; break;
+			case 1: selectText->a = 255; if( !(frameCount%32) ) selectText->draw = !selectText->draw; break;
+			case 2: multiText->a = 255; if( !(frameCount%32) ) multiText->draw = !multiText->draw; break;
+			case 3: devText->a = 255; if( !(frameCount%32) ) devText->draw = !devText->draw;break;
 		}
 	}
 
@@ -259,7 +259,7 @@ void RunCharSelect()
 		charSelText[i]->a = 100;
 	
 	charSelText[curSel]->a = 0xff;
-	if( !(actFrameCount%32) ) charSelText[curSel]->draw = !charSelText[curSel]->draw;
+	if( !(frameCount%32) ) charSelText[curSel]->draw = !charSelText[curSel]->draw;
 
 	button = controllerdata [ ActiveController ].button;
 
@@ -498,14 +498,14 @@ void RunLevelSelect()
 			levelSelText[currentLevelSelect]->a = 175;
 			levelSelText[currentLevelSelect]->draw = 1;
 		}
-		if( !(actFrameCount%32) ) worldSelText[currentWorldSelect]->draw = !worldSelText[currentWorldSelect]->draw;
+		if( !(frameCount%32) ) worldSelText[currentWorldSelect]->draw = !worldSelText[currentWorldSelect]->draw;
 	}
 	else
 	{
 		worldSelText[currentWorldSelect]->a = 175;
 		worldSelText[currentWorldSelect]->draw = 1;
 		if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 255;
-		if( !(actFrameCount%32) ) levelSelText[currentLevelSelect]->draw = !levelSelText[currentLevelSelect]->draw;
+		if( !(frameCount%32) ) levelSelText[currentLevelSelect]->draw = !levelSelText[currentLevelSelect]->draw;
 	}
 
 	lastbutton = button;

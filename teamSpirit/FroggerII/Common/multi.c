@@ -255,7 +255,7 @@ void UpdateBattle( )
 		if( count == NUM_FROGS )
 		{
 			GTInit( &endTimer, 0 );
-			GTInit( &powerupTimer, Random(10)+10 );
+			GTInit( &powerupTimer, Random(5)+3 );
 			started = 1;
 			timeTextOver->text[0] = '\0';
 		}
@@ -278,7 +278,7 @@ void UpdateBattle( )
 	if( started )
 	{
 		GTUpdate( &powerupTimer, -1 );
-		if( !(powerupTimer.time) )
+		if( !powerupTimer.time )
 		{
 			if( numMultiItems < MULTI_BATTLE_MAXITEMS )
 			{
@@ -298,7 +298,7 @@ void UpdateBattle( )
 				numMultiItems++;
 			}
 
-			GTInit( &powerupTimer, (Random(10)+10) );
+			GTInit( &powerupTimer, (Random(4)+4) );
 		}
 	}
 
@@ -570,7 +570,7 @@ int AddBattleTrailNode( int i )
 {
 	AIPATHNODE *node = (AIPATHNODE *)JallocAlloc(sizeof(AIPATHNODE),YES,"battletrail");
 	
-	node->tile = currTile[i];
+	node->tile = destTile[i];
 
 	if( node->tile->state >= TILESTATE_FROGGER1AREA && node->tile->state <= TILESTATE_FROGGER4AREA )
 		return 0;
@@ -675,6 +675,8 @@ void ResetMultiplayer( )
 			}
 			mpl[i].path = NULL;
 		}
+		FreeGaribLinkedList();
+		InitGaribLinkedList();
 		break;
 	}
 	case MULTIMODE_RACE_NORMAL:
