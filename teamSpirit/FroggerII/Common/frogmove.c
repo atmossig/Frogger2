@@ -690,7 +690,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 */
 
-	//SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
+	
+	SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 	
 	tiledir = dir;
 	dest = GetNextTile(&tiledir, pl);
@@ -794,9 +795,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
-	
-	SitAndFace(frog[pl],dest,nextFrogFacing[pl]);
-	
+	//SitAndFace(frog[pl],dest,nextFrogFacing[pl]);
+
 	if( player[pl].hasDoubleJumped )
 	{
 //		float time = (float)(actFrameCount - player[pl].jumpStartFrame)/(float)(player[pl].jumpEndFrame-player[pl].jumpStartFrame),
