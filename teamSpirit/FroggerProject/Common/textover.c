@@ -177,7 +177,12 @@ void PrintText(TEXTOVERLAY *cur,short xPos,short yPos,uchar r,uchar g,uchar b,uc
 	if( !rHardware && rXRes < 640 && (MDX_FONT *)cur->font == pcFontSmall )
 		scale = 1.0f;
 	else
-		scale = ((float)cur->scale)/4096.0 * ((float)rXRes/640.0);
+	{
+		if( cur == train )
+			scale = 1.0f;
+		else
+			scale = ((float)cur->scale)/4096.0 * ((float)rXRes/640.0);
+	}
 
 
 	if (cur->centred)
