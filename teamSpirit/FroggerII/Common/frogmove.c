@@ -1070,9 +1070,19 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				// platform too high
 				dprintf"Platform TOO HIGH\n"));
 
+				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+
+				if(destPlatform[pl]->flags & PLATFORM_NEW_NOWALKUNDER)
+				{
+					// platform cannot be walked under
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+					player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
+					destPlatform[pl] = NULL;
+					return FALSE;
+				}
+
 				destPlatform[pl] = NULL;
 				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 			}
 			else if(PlatformTooLow(destPlatform[pl],pl))
 			{
