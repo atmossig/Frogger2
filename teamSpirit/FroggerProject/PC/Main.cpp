@@ -77,7 +77,6 @@ char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
 char lButton = 0, rButton = 0;
 int editorOk = 0;
-char screenshotEnable = 0;
 
 float camY = 100,camZ = 100;
 extern "C" {MDX_LANDSCAPE *world;}
