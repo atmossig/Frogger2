@@ -1046,7 +1046,8 @@ void DrawGraphics(void *arg)
 				if ( dontClearScreen )
 					break;
 
-				
+				dispFrameCount++;
+
 				StartTimer(1,"GRAPHICS");
 
 				SendLastFrame();
