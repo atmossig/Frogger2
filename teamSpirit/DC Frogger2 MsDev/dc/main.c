@@ -36,6 +36,18 @@
 #include "strsfx.h"
 #include "islvideo.h"
 
+#include <Machine.h>
+#include <math.h>
+
+
+// *ASL* 09/08/2000 - Faster not to map the stack to cache
+//#define USE_STACK_CACHE
+
+#ifdef USE_STACK_CACHE
+extern void MapStackToRamCache();
+#endif
+
+
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
 
@@ -70,7 +82,7 @@ char 			textString[255] = "";
 
 long 			drawGame = 1;
 
-INT				textPosX = 10;
+INT				textPosX = 0;
 INT				textPosY = 10;
 
 GsRVIEW2		camera;
@@ -116,58 +128,32 @@ AM_BANK_PTR		gBank =	KTNULL;
 	
 KMDWORD			FogDensity;
 
-/*	--------------------------------------------------------------------------------
-	Function 	: Kamui_Init
-	Purpose 	: Initialise Kamui system configuration
-	Parameters 	: none
-	Returns 	: none
-	Info 		:
-*/
 
-void Kamui_Init()
-{
-	int	i;
-	
-	// create the frame buffers
-	pFB[0] = &primarySurfaceDesc;
-	pFB[1] = &renderSurfaceDesc;
+// -------
+// Globals
 
-    // vertex buffer pointer
-    dwDataPtr = (PKMDWORD)(((KMDWORD)syMalloc(0x200000) & 0x0FFFFFFFUL) | 0xA0000000);
+// used to abort the game
+unsigned int globalAbortFlag = 0;
 
-	// set the system configuration
-	kmSystemConfig.dwSize						= sizeof(KMSYSTEMCONFIGSTRUCT);
-	kmSystemConfig.flags						= KM_CONFIGFLAG_ENABLE_CLEAR_FRAMEBUFFER;
-	// for frame buffer
-	kmSystemConfig.ppSurfaceDescArray			= pFB;
-	kmSystemConfig.fb.nNumOfFrameBuffer			= 2;
-	// for texture memory
-    kmSystemConfig.nTextureMemorySize       	= 0x200000 * 2;		// 4 MB for textures
-    kmSystemConfig.nNumOfTextureStruct        	= 4096;
-    kmSystemConfig.nNumOfSmallVQStruct        	= 0;//1024;
-    kmSystemConfig.pTextureWork               	= &FBarea[0];
-    // for Vertex buffer
-    kmSystemConfig.pBufferDesc                	= &vertexBufferDesc;
-    kmSystemConfig.nNumOfVertexBank           	= 2;
-    kmSystemConfig.pVertexBuffer              	= dwDataPtr;		// pointer to vertex buffer
-    kmSystemConfig.nVertexBufferSize          	= 0x100000 * 2;		// 2MB for vertex buffer
-    kmSystemConfig.nPassDepth                 	= 1;
-    kmSystemConfig.Pass[0].dwRegionArrayFlag  	= KM_PASSINFO_AUTOSORT;
-    kmSystemConfig.Pass[0].fBufferSize[0]     	= 80.0f;
-    kmSystemConfig.Pass[0].fBufferSize[1]     	= 0.0f;
-    kmSystemConfig.Pass[0].fBufferSize[2]     	= 20.0f;
-    kmSystemConfig.Pass[0].fBufferSize[3]     	= 0.0f;
-    kmSystemConfig.Pass[0].fBufferSize[4]     	= 0.0f;
 
-	kmSetSystemConfiguration(&kmSystemConfig);
+// ----------
+// Prototypes
 
-    // initialise border colour
-    borderColour.dwPacked = RGBA(0,0,0,255);	// black border
-    kmSetBorderColor(borderColour);
-    
-    // user initialisation
-	InitCRCTable();	
-}
+// gsFs error function callback
+static void gdFsErrorCallback(void *obj, Sint32 err);
+
+// initialise kamui
+static void InitKamui();
+
+
+
+
+
+
+
+
+
+
 
 void SetCam(VECTOR src, VECTOR tar)
 {
@@ -326,6 +312,17 @@ short videoKeyHandler()
 extern StrDataType 	vStream;
 extern CurrentData	current[24];
 
+
+
+
+/* ---------------------------------------------------------
+   Function : main
+   Purpose : entry / exit function
+   Parameters : 
+   Returns : 
+   Info : 
+*/
+
 void main()
 {
 	int					i;
@@ -334,15 +331,16 @@ void main()
 	unsigned long		hyp,test;
 	int					numUsed;
 	
-	#ifdef __GNUC__
-	shinobi_workaround();
-	#endif
 
-	//	Initialize system for middleware(call before sbInitSystem)
+#ifdef __GNUC__
+	shinobi_workaround();
+#endif
+
+	// initialise system for middleware (call before sbInitSystem)
 	mwPlyPreInitSofdec();
 		
 	// initialise video mode
-	switch(syCblCheck())
+	switch (syCblCheck())
 	{
 		case SYE_CBL_VGA:
 			sbInitSystem((int)KM_DSPMODE_VGA,(int)KM_DSPBPP_RGB565,1);
@@ -362,9 +360,10 @@ void main()
 	}
 	frameBufferFormat = KM_DSPBPP_RGB888;
 
-	for(i = 0;i < 4;i++)
+	// initialise all pads
+	for (i=0; i<4; i++)
 	{
-		switch(i)
+		switch (i)
 		{
 			case 0:	
 				per = pdGetPeripheral(PDD_PORT_A0);
@@ -379,15 +378,28 @@ void main()
 				per = pdGetPeripheral(PDD_PORT_D0);
 				break;
 		}
-		padData.present[i] = TRUE;				
-		if(strstr(per->info->product_name,"(none)"))
-			padData.present[i] = FALSE;				
+		padData.present[i] = TRUE;
+		if (strstr(per->info->product_name,"(none)"))
+			padData.present[i] = FALSE;
 	}
 
-    // Check malloc alignment
+	// initialise KAMUI
+	InitKamui();
+
+    // initialise our CRC table
+	InitCRCTable();	
+
+	// *ASL* 09/09/2000 - Tray open
+
+	// clear our abort flag
+	globalAbortFlag = 0;
+
+	// set our gdFs error callback
+	gdFsEntryErrFuncAll(gdFsErrorCallback, (void *)0);
+
+    // malloc alignment
     Init32Malloc();
 
-	Kamui_Init();
 
 	// Open the AM system	
 	if(!bpAmSetup(AC_DRIVER_DA, KTFALSE, KTNULL))
@@ -414,6 +426,15 @@ void main()
 
 	// setup my vb interrupt
 	VblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
+
+
+
+#ifdef USE_STACK_CACHE
+	MapStackToRamCache();
+#endif
+
+
+
 
 //	kmSetCullingRegister(1.0f);
 	
@@ -456,12 +477,13 @@ void main()
 	
 //ma	BuildFogTable();
 
-#ifdef _DEBUG
-	utilPrintf("DEBUG ACTIVE!!!!!"\n");
-#endif
-	// render loop
-	while(TRUE)
+
+	// *ASL* 08/08/2000 - Run around the main loop until the user opens the cd tray
+	while (globalAbortFlag == 0)
 	{
+
+		Uint32 drawTime;
+
 		DCTIMER_START(0);
 
 		DCTIMER_START(1);		
@@ -532,7 +554,7 @@ void main()
 			}
 		
 			// toggle timer bars on/off
-			if((per->press & PDD_DGT_TY)&&((per->r <= 128)&&(per->r > 0))&&((per->l <= 128)&&(per->l > 0)))
+			if((per->press & PDD_DGT_TY) /*&&((per->r <= 128)&&(per->r > 0))&&((per->l <= 128)&&(per->l > 0))*/)
 				timerBars = !timerBars;
 
 			// temp pad emulation
@@ -571,17 +593,20 @@ void main()
 		PrintSprites();
 		DCTIMER_STOP(2);		
 
+		// *ASL* 27/07/2000
+		PSIDC_SH4XD_SetMatrix(&RotMatrix, &TransVector);
+
 		DCTIMER_START(3);		
 		if(drawLandscape && drawGame)
 			DrawWorld();		
-		DCTIMER_STOP(3);		
+		DCTIMER_STOP(3);
 
 		DCTIMER_START(4);		
 		if(drawLandscape && drawGame)
 			DrawScenicObjList();
 		if(drawLandscape && drawGame)
 			DrawWaterList();			
-		DCTIMER_STOP(4);		
+		drawTime = DCTIMER_STOP(4);		
 		
 		DCTIMER_START(5);		
 		if(drawGame)
@@ -604,8 +629,9 @@ void main()
 		gte_SetRotMatrix(&GsWSMATRIX);
 		gte_SetTransMatrix(&GsWSMATRIX);
 
-		DCTIMER_START(7);		
-		DCTIMER_STOP(7);		
+		DCTIMER_START(7);
+		DCTIMER_STOP(7);
+
 
 		if(timerBars)
 		{
@@ -618,15 +644,15 @@ void main()
 					numUsed++;
 			}
  
-		 	sprintf(textbuffer,"numUsed: %d",numUsed);
-			fontPrint(font, 10,10, textbuffer, 255,255,255);
+//		 	sprintf(textbuffer,"numUsed: %d",numUsed);
+//			fontPrint(font, 10,10, textbuffer, 255,255,255);
 
 //			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
 
-			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
+//			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
 
-//			sprintf(textbuffer,"polyCount: %d",polyCount);
-//			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
+			sprintf(textbuffer, "map polys: %d", polyCount);
+			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
 
 //			sprintf(textbuffer,"Actors: %d (%d,%d)",(psiActorCount+fmaActorCount),psiActorCount, fmaActorCount);
 //			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
@@ -634,18 +660,22 @@ void main()
 //			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
 //			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
-			sprintf(textbuffer,"Map: %d",mapCount);
+//			sprintf(textbuffer,"Map: %d",mapCount);
+//			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
+
+			sprintf(textbuffer,"Draw Time: %d",drawTime);
 			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
-			syMallocStat(memfree,memsize);
-			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
-			fontPrint(font, textPosX,textPosY+48, textbuffer, 255,255,255);						
+//			// *ASL* 25/07/2000 - Commented out as crashed in un-optimised build
+//			//syMallocStat(memfree,memsize);
+//			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
+//			fontPrint(font, textPosX,textPosY+48, textbuffer, 255,255,255);						
 
 //			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
 //			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
 
-			sprintf(textbuffer,"fog.max: %d",fog.max);		
-			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
+//			sprintf(textbuffer,"fog.max: %d",fog.max);		
+//			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
 
 /*			if(per->press & PDD_DGT_TR)
 			{
@@ -721,23 +751,95 @@ void main()
 		pdExecPeripheralServer();
 		DCTIMER_STOP(8);		
 		DCTIMER_STOP(0);		
-
-//// safe here!!
-//	utilPrintf("-- While\n");
-//	while (1)
-//	{
-//	}
-//// crash here!!
-
 	}
 
+
+	// *ASL* 09/08/2000 - Restore
+	// ** We got this far so we should shutdown all of our resources and drop back into the
+	// ** boot ROM
+
+#if 0
 	bpAmShutdown();		
 	
-	syChainDeleteHandler(VblChain);                   
+	syChainDeleteHandler(VblChain);
 
 	// *ASL* 21/07/2000 - Changed from FreeBackDrop()!!!
 	FreeBackdrop();
+#endif
 
 	sbExitSystem();
+	syBtExit();
+}
 
+
+
+
+
+/* ---------------------------------------------------------
+   Function : InitKamui
+   Purpose : initialise Kamui
+   Parameters : 
+   Returns : 
+   Info : 
+*/
+
+static void InitKamui()
+{
+	int	i;
+	
+	// create the frame buffers
+	pFB[0] = &primarySurfaceDesc;
+	pFB[1] = &renderSurfaceDesc;
+
+    // vertex buffer pointer
+    dwDataPtr = (PKMDWORD)(((KMDWORD)syMalloc(0x400000) & 0x0FFFFFFFUL) | 0xA0000000);
+
+	// set the system configuration
+	kmSystemConfig.dwSize						= sizeof(KMSYSTEMCONFIGSTRUCT);
+	kmSystemConfig.flags						= KM_CONFIGFLAG_ENABLE_CLEAR_FRAMEBUFFER;
+	// for frame buffer
+	kmSystemConfig.ppSurfaceDescArray			= pFB;
+	kmSystemConfig.fb.nNumOfFrameBuffer			= 2;
+	// for texture memory
+    kmSystemConfig.nTextureMemorySize       	= 0x200000 * 2;		// 4 MB for textures
+    kmSystemConfig.nNumOfTextureStruct        	= 4096;
+    kmSystemConfig.nNumOfSmallVQStruct        	= 0;//1024;
+    kmSystemConfig.pTextureWork               	= &FBarea[0];
+    // for Vertex buffer
+    kmSystemConfig.pBufferDesc                	= &vertexBufferDesc;
+    kmSystemConfig.nNumOfVertexBank           	= 2;
+    kmSystemConfig.pVertexBuffer              	= dwDataPtr;		// pointer to vertex buffer
+    kmSystemConfig.nVertexBufferSize          	= 0x200000 * 2;		// 4MB for vertex buffer
+    kmSystemConfig.nPassDepth                 	= 1;
+    kmSystemConfig.Pass[0].dwRegionArrayFlag  	= KM_PASSINFO_AUTOSORT;
+    kmSystemConfig.Pass[0].nDirectTransferList	= KM_OPAQUE_POLYGON;
+	kmSystemConfig.Pass[0].fBufferSize[0]     	= 20.0f;
+    kmSystemConfig.Pass[0].fBufferSize[1]     	= 0.0f;
+    kmSystemConfig.Pass[0].fBufferSize[2]     	= 80.0f;
+    kmSystemConfig.Pass[0].fBufferSize[3]     	= 0.0f;
+    kmSystemConfig.Pass[0].fBufferSize[4]     	= 0.0f;
+
+	kmSetSystemConfiguration(&kmSystemConfig);
+
+    // initialise border colour
+    borderColour.dwPacked = RGBA(0,0,0,255);	// black border
+    kmSetBorderColor(borderColour);
+}
+
+
+/* ---------------------------------------------------------
+   Function : gdFsErrorCallback
+   Purpose : gsFs error function callback
+   Parameters : user object pointer, error code
+   Returns : 
+   Info : 
+*/
+
+static void gdFsErrorCallback(void *obj, Sint32 err)
+{
+	// was the tray opened?
+	if (err == GDD_ERR_TRAYOPEND || err == GDD_ERR_UNITATTENT)
+	{
+		globalAbortFlag = 1;
+	}
 }

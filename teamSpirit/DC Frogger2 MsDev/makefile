@@ -5,6 +5,7 @@
 PROJECT = Frogger2
 
 PROJECT_SRC	= \
+	cacheStack.src\
 	common\actor2.c\
 	common\anim.c\
 	common\babyfrog.c\

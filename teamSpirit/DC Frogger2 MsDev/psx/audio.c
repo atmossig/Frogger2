@@ -325,15 +325,17 @@ int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *
 short voiceCount[4];
 int LoadSfx(long worldID )
 {
-	char path[256];
-	int len,j;	
+	char	path[256];
+	int		j;	
 
+	path[0] = 0;
 
 	if(worldID != -1)
 	{
 		for(j = 0;j < NUM_FROGS;j++)
 		{
-			path[len] = '\0';
+			// *ASL* 08/08/2000 - Removed redundant code line
+			//path[len] = '\0';
 			voiceCount[j] = 0;
 			LoadSfxSet(frogPool[player[j].character].fileName, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
 		}
@@ -693,8 +695,9 @@ void PrepareSong(short worldID,int loop)
 	int 	xaNum = 0;
 	char	buffer[32];
 
+	// *ASL* 08/08/2000 - Problem with sound!!
 	return;
-	
+
 	if(!bpAmStreamDone(gStream))
 		StopSong();
 	
@@ -862,7 +865,10 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 {
 	AM_SOUND	*sound;
 	int			volAverage,volPan,channel;
-	
+
+	// *ASL* 08/08/2000 - Problem with sound!!
+	return;
+
 	for(channel=0; channel<24; channel++)
 	{
 		if(!current[channel].sound.isPlaying)

@@ -17,6 +17,7 @@ extern long *transformedVertices;
 extern long *transformedDepths;
 extern float *transformedDepths2;
 
+
 // frog-map versions of the playstation quad/tri structures
 
 typedef struct FMA_GT3

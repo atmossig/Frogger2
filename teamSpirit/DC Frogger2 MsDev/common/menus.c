@@ -139,9 +139,9 @@ char cheatStr[64] = "";
 
 CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] = 
 {
-	{{PAD_UP,   PAD_DOWN, PAD_LEFT, PAD_RIGHT, 0},0,-1},//CHEAT_OPEN_ALL_LEVELS
-	{{PAD_DOWN, PAD_DOWN, PAD_DOWN, PAD_DOWN,  0},0,1},	//CHEAT_INFINITE_LIVES
-	{{PAD_LEFT, PAD_LEFT, PAD_LEFT, PAD_LEFT,  0},0,0},	//CHEAT_OPEN_ALL_CHARS
+	{{PAD_UP,   PAD_DOWN, PAD_LEFT, PAD_RIGHT, 0},0,0},//CHEAT_OPEN_ALL_LEVELS
+	{{PAD_DOWN, PAD_DOWN, PAD_DOWN, PAD_DOWN,  0},1,1},	//CHEAT_INFINITE_LIVES
+	{{PAD_LEFT, PAD_LEFT, PAD_LEFT, PAD_LEFT,  0},1,1},	//CHEAT_OPEN_ALL_CHARS
 	{{PAD_RIGHT,PAD_RIGHT,PAD_RIGHT,PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
 	{{PAD_LEFT, PAD_LEFT, PAD_RIGHT,PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
 	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    0},0,0},//CHEAT_SKIP_LEVEL
@@ -333,7 +333,6 @@ void RunPauseMenu()
 	int exitPause = FALSE;
 	int i;
 
-
 	if((quittingLevel) && (confirmMode == 0))
 	{
 		if(fadingOut == 0)
@@ -419,7 +418,10 @@ void RunPauseMenu()
 
 	if (padData.debounce[pauseController]&PAD_SQUARE)
 	{
-		currCheat = 0;		
+		currCheat = 0;
+
+		// *ASL* 08/08/2000 - Open all levels!!
+		ComboCheat(CHEAT_OPEN_ALL_LEVELS);
 	}
 
 	if (padData.digital[pauseController]&PAD_SQUARE)

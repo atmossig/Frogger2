@@ -27,3 +27,4 @@
 /* for compatibility with SHC (sg_sysrt.h) */
 #define	syStartGlobalConstructor	__call_static_initializers
 #define	syStartGlobalDestructor		__destroy_global_chain
+

@@ -1066,12 +1066,16 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 	// pre generate strip
 	if(texPtr->colourKey)
 	{
-		memcpy(&texPtr->stripHead,&StripHead_GT4_FMA_Alpha,sizeof(StripHead_GT4_FMA_Alpha));
+		// *ASL* 07/08/2000 - Change to strip type 4
+		//memcpy(&texPtr->stripHead,&StripHead_GT4_FMA_Alpha,sizeof(StripHead_GT4_FMA_Alpha));
+		memcpy(&texPtr->stripHead, &StripHead_GT4_FMA_Alpha_Vertex4, sizeof(StripHead_GT4_FMA_Alpha_Vertex4));
 		kmChangeStripTextureSurface(&texPtr->stripHead,KM_IMAGE_PARAM1,&texPtr->surface);
 	}
 	else
 	{
-		memcpy(&texPtr->stripHead,&StripHead_GT4_FMA,sizeof(StripHead_GT4_FMA));
+		// *ASL* 07/08/2000 - Change to strip type 4
+		//memcpy(&texPtr->stripHead,&StripHead_GT4_FMA,sizeof(StripHead_GT4_FMA));
+		memcpy(&texPtr->stripHead,&StripHead_GT4_FMA_Vertex4,sizeof(StripHead_GT4_FMA_Vertex4));
 		kmChangeStripTextureSurface(&texPtr->stripHead,KM_IMAGE_PARAM1,&texPtr->surface);
 	}
 

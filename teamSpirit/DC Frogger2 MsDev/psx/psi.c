@@ -47,6 +47,12 @@ long *transformedDepths; //__attribute__ ((section("cachedata"))) = 0;
 float *transformedDepths2; //__attribute__ ((section("cachedata"))) = 0;
 VERT *transformedNormals;// __attribute__ ((section("cachedata"))) = 0;
 
+// transformed reciprocal z's
+float *transformedRcpZs;
+
+// *ASL* 1/08/2000 - Transformed vertices
+TDCTransVector *alignedTransformedVertices;
+
 int  tfTotal = 0;
 
 #ifdef _DEBUG
@@ -382,6 +388,11 @@ void psiInitialise(int maxModels)
 	biggestVertexModel = 0;
 	biggestPrimModel = 0;
 
+	transformedRcpZs = NULL;
+
+	// *ASL* 1/08/2000 - Initialise transformed vertices
+	alignedTransformedVertices = NULL;
+
 	psiModelListLen = 0;
 	pilLibraryLen = 0;
 
@@ -406,6 +417,11 @@ void psiInitialise(int maxModels)
 **************************************************************************/
 void psiDestroy()
 {
+	// *ASL* 1/08/2000 - Free our transformed vertices
+	FREE(alignedTransformedVertices);
+
+	FREE(transformedRcpZs);
+	
 	FREE(transformedNormals);
 	FREE(transformedDepths);
 	FREE(transformedDepths2);
@@ -428,7 +444,12 @@ void psiDestroy()
 	transformedNormals = 0;
 	biggestVertexModel = 0;
 	biggestPrimModel = 0;
-	
+
+	transformedRcpZs = NULL;
+
+	// *ASL* 1/08/2000 - Initialise transformed vertices
+	alignedTransformedVertices = NULL;
+
 	if (sortedIndex)
 		FREE(sortedIndex);
 
@@ -939,6 +960,11 @@ void psiAllocWorkspace()
 	transformedDepths = (long*)MALLOC0( ((biggestVertexModel*2) + 2) * sizeof(long) );
 	transformedDepths2 = (float*)MALLOC0( ((biggestVertexModel*2) + 2) * sizeof(float) );
 	transformedNormals = (VERT*)MALLOC0( ((biggestVertexModel*2) + 2) * sizeof(VERT));
+
+	transformedRcpZs = (float *)MALLOC0(((biggestVertexModel*2) + 2) * sizeof(float));
+
+	// *ASL* 1/08/2000 - Allocate our transformed vertices buffer
+	alignedTransformedVertices = (TDCTransVector *)MALLOC0(((biggestVertexModel*2)+2) * sizeof(TDCTransVector));
 }
 
 
@@ -3321,87 +3347,10 @@ void DrawBoundingBox(ACTOR *actor)
 }
 */
 
-void transformVertexListA(VERT *verts, long numverts, long *transformedVerts, long *transformedDepths)
-{
-	register short 	*tfv = (short*)transformedVerts;
-	register long	*tfd = transformedDepths;
-	register float calc1;
-	register unsigned short ustempz;
-	register short	r0vx, r0vy, r0vz;
-	register float	screenvx, screenvy, screenvz;
-		
-	while(numverts--)
-	{
-		r0vx = verts->vx;
-		r0vy = verts->vy;
-		r0vz = verts->vz;
-		verts++;
 
-		// 1st calculation
-		screenvx = ((((RotMatrix.m[0][0] * r0vx) + (RotMatrix.m[0][1] * r0vy)
-			+ (RotMatrix.m[0][2] * r0vz)) >> 12) + TransVector.vx);
-		screenvy = ((((RotMatrix.m[1][0] * r0vx) + (RotMatrix.m[1][1] * r0vy)
-			+ (RotMatrix.m[1][2] * r0vz)) >> 12) + TransVector.vy);
-		screenvz = ((((RotMatrix.m[2][0] * r0vx) + (RotMatrix.m[2][1] * r0vy)
-			+ (RotMatrix.m[2][2] * r0vz)) >> 12) + TransVector.vz);
 
-		// LimA1S, A2S, A3S
-		if(screenvx < -32768)
-			screenvx = -32768;
-		if(screenvy < -32768)
-			screenvy = -32768;
-		if(screenvz < -32768)
-			screenvz = -32768;
-		if(screenvx > 32767)
-			screenvx = 32767;
-		if(screenvy > 32767)
-			screenvy = 32767;
-		if(screenvz > 32767)
-			screenvz = 32767;
 
-		// Convert to unsigned short
-		ustempz  = (unsigned short)screenvz;
 
-		// limC
-		if(ustempz < 0)
-			ustempz = 0;
-		if(ustempz > 65535)
-			ustempz = 65535;
-
-		screenvz = (short)ustempz;
-		if(screenvz < 0)
-			screenvz = 0;
-		if(screenvz > 32767)
-			screenvz = 32767;
-
-		// PLAYSTATION INACCURACY!!
-		if((float)screenvz < (GSh/2))
-			calc1 = (GSh/(GSh/2));
-		else
-			calc1 = (GSh/(float)screenvz);
-
-		// 2nd calculation
-		screenvx = (float)(GSx + (screenvx * calc1));
-		screenvy = (float)(GSy + (screenvy * calc1));
-
-		opz = (dqb + (dqa * (GSh/(float)screenvz))*4096)*16;
-
-		// limD1 and D2
-
-		if(screenvx < -1024) 
-			screenvx = -1024;
-		if(screenvx > 1023) 
-			screenvx = 1023;
-		if(screenvy < -1024) 	
-			screenvy = -1024;
-		if(screenvy > 1023) 
-			screenvy = 1023;		
-			
-	 	*tfv++ = (short)screenvx;
-	 	*tfv++ = (short)screenvy;			
-		*tfd++ = (((short)screenvz)>>2);
-	}
-}
 
 void transformVertexListB(VERT *verts, long numverts, long *transformedVerts, float *transformedDepths)
 {
@@ -3485,3 +3434,235 @@ void transformVertexListB(VERT *verts, long numverts, long *transformedVerts, fl
 	}
 }
 
+
+
+void transformVertexListA(VERT *verts, long numverts, long *transformedVerts, long *transformedDepths)
+{
+	register short 	*tfv = (short*)transformedVerts;
+	register long	*tfd = transformedDepths;
+	register float calc1;
+	register unsigned short ustempz;
+	register short	r0vx, r0vy, r0vz;
+	register float	screenvx, screenvy, screenvz;
+	float	*rcpZs = transformedRcpZs;
+
+	while(numverts--)
+	{
+		r0vx = verts->vx;
+		r0vy = verts->vy;
+		r0vz = verts->vz;
+
+		// 1st calculation
+		screenvx = ((((RotMatrix.m[0][0] * r0vx) + (RotMatrix.m[0][1] * r0vy)
+			+ (RotMatrix.m[0][2] * r0vz)) >> 12) + TransVector.vx);
+		screenvy = ((((RotMatrix.m[1][0] * r0vx) + (RotMatrix.m[1][1] * r0vy)
+			+ (RotMatrix.m[1][2] * r0vz)) >> 12) + TransVector.vy);
+		screenvz = ((((RotMatrix.m[2][0] * r0vx) + (RotMatrix.m[2][1] * r0vy)
+			+ (RotMatrix.m[2][2] * r0vz)) >> 12) + TransVector.vz);
+
+		// LimA1S, A2S, A3S
+		if(screenvx < -32768)
+			screenvx = -32768;
+		if(screenvy < -32768)
+			screenvy = -32768;
+		if(screenvz < -32768)
+			screenvz = -32768;
+		if(screenvx > 32767)
+			screenvx = 32767;
+		if(screenvy > 32767)
+			screenvy = 32767;
+		if(screenvz > 32767)
+			screenvz = 32767;
+
+		// Convert to unsigned short
+		ustempz  = (unsigned short)screenvz;
+
+		// limC
+		if(ustempz < 0)
+			ustempz = 0;
+		if(ustempz > 65535)
+			ustempz = 65535;
+
+		screenvz = (short)ustempz;
+		if(screenvz < 0)
+			screenvz = 0;
+		if(screenvz > 32767)
+			screenvz = 32767;
+
+		// PLAYSTATION INACCURACY!!
+		if((float)screenvz < (GSh/2))
+			calc1 = (GSh/(GSh/2));
+		else
+			calc1 = (GSh/(float)screenvz);
+
+		// 2nd calculation
+		screenvx = (float)(GSx + (screenvx * calc1));
+		screenvy = (float)(GSy + (screenvy * calc1));
+
+		opz = (dqb + (dqa * (GSh/(float)screenvz))*4096)*16;
+
+		// limD1 and D2
+
+		if(screenvx < -1024) 
+			screenvx = -1024;
+		if(screenvx > 1023) 
+			screenvx = 1023;
+		if(screenvy < -1024) 	
+			screenvy = -1024;
+		if(screenvy > 1023) 
+			screenvy = 1023;		
+
+	 	*tfv++ = (short)screenvx;
+	 	*tfv++ = (short)screenvy;			
+		*tfd++ = (((short)screenvz)>>2);
+
+		// *ASL* 25/07/2000 - Calc 1/z
+		{
+			float	fsz;
+			fsz = screenvz * 0.25f;
+			if (fsz != 0.0f)
+				*rcpZs++ = 1.0f / fsz;
+			else
+				*rcpZs++ = 1.0f;
+		}
+		verts++;
+	}
+}
+
+
+/* ---------------------------------------------------------
+   Function : PSIDC_SetSH4XDMatrix
+   Purpose : load 3x3 matrix and translate vector into SH4 XD registers (XMTRX)
+   Parameters : rotation / scale MATRIX pointer, translate VECTOR pointer
+   Returns : 
+   Info : matrix needs to be transposed as DC uses opposite rc notation
+*/
+
+void PSIDC_SH4XD_SetMatrix(MATRIX *inMat, VECTOR *inVec)
+{
+	float	xdMat[4][4];
+	float	fd;
+	
+	// scale matrix down from fixed point
+	fd = 1.0f / 4096.0f;
+	xdMat[0][0] = (float)inMat->m[0][0] * fd;
+	xdMat[1][0] = (float)inMat->m[0][1] * fd;
+	xdMat[2][0] = (float)inMat->m[0][2] * fd;
+	xdMat[3][0] = inVec->vx;
+	xdMat[0][1] = (float)inMat->m[1][0] * fd;
+	xdMat[1][1] = (float)inMat->m[1][1] * fd;
+	xdMat[2][1] = (float)inMat->m[1][2] * fd;
+	xdMat[3][1] = inVec->vy;
+	xdMat[0][2] = (float)inMat->m[2][0] * fd;
+	xdMat[1][2] = (float)inMat->m[2][1] * fd;
+	xdMat[2][2] = (float)inMat->m[2][2] * fd;
+	xdMat[3][2] = inVec->vz;
+	xdMat[0][3] = 0.0f;
+	xdMat[1][3] = 0.0f;
+	xdMat[2][3] = 0.0f;
+	xdMat[3][3] = 1.0f;
+
+	// load into SH4 XD registers
+	ld_ext(xdMat);
+}
+
+
+/* ---------------------------------------------------------
+   Function : PSIDC_SH4XD_TransformVertices
+   Purpose : Transform vertices with the 
+   Parameters : input verts, output verts, number of verts
+   Returns : 
+   Info : because of rhe way this function interleaves and fetches the next pass
+		: early we need to allow extra data in the source vertices
+*/
+
+void PSIDC_SH4XD_TransformVertices(TDCVector4 *verts, TDCTransVector *transVerts, int noof)
+{
+	// working vectors
+	TDCVector4	v1, v2;
+
+	// integer registers
+	register TDCVector4	*p1, *p2;
+	register float		*outvs = (float *)transVerts, *end = (float *)(transVerts + noof);
+
+	// float registers
+	register float		gshalf = fGShHalf, gshlimit = fGShLimit;
+	register float		gsx = fGSx, gsy = fGSy, gsh = fGSh;
+	register float		s, x1, y1, z1, z2;
+	register float		div4 = 0.25f, rcp = 1.0f;
+
+	// pre-calc the first vertex
+	p1 = verts;
+	p2 = p1 + 1;
+	ftrv((float *)p1, (float *)&v1);
+
+	// prefetch the next vertex pair
+	p1 += 2;
+	prefetch(p1);
+
+	// unrolled, prefetched, pipelined vertex transform loop
+	while (outvs < end)
+	{
+		// transform the second vertex
+		ftrv((float *)p2, (float *)&v2);
+
+		// project the first vertex
+		z1 = v1.z;
+		y1 = v1.y;
+		x1 = v1.x;
+
+		p2 += 2;
+
+		if (z1 >= gshalf)
+			s = gsh / z1;
+		else
+			s = gshlimit;
+
+		z2 = z1 * div4;
+
+		x1 *= s;
+		y1 *= s;
+		x1 += gsx;
+		y1 += gsy;
+
+		z1 = rcp / z2;
+
+		// save the first vertex
+		*outvs++ = z2;
+		*outvs++ = x1;
+		*outvs++ = y1;
+		*outvs++ = z1;
+
+
+		// transform the first vertex
+		ftrv((float *)p1, (float *)&v1);
+
+		z1 = v2.z;
+		y1 = v2.y;
+		x1 = v2.x;
+
+		// prefetch the next vertex pair
+		p1 += 2;
+		prefetch(p1);
+
+		if (z1 >= gshalf)
+			s = gsh / z1;
+		else
+			s = gshlimit;
+
+		z2 = z1 * div4;
+
+		x1 *= s;
+		y1 *= s;
+		x1 += gsx;
+		y1 += gsy;
+
+		z1 = rcp / z2;
+
+		// save the second vertex
+		*outvs++ = z2;
+		*outvs++ = x1;
+		*outvs++ = y1;
+		*outvs++ = z1;
+	}
+}

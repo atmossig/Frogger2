@@ -57,6 +57,13 @@ int GSh = 950;
 int GSx = 0;
 int GSy = 0;
 
+// *ASL* 26/07/2000 - Screen geometry floats
+float fGSx = 0;
+float fGSy = 0;
+float fGSh = 950.0f;
+float fGShHalf = 950.0f * 0.5f;
+float fGShLimit = 950.0f / (950.0f * 0.5f);
+
 // Rotation matrix
 MATRIX RotMatrix;
 
@@ -841,25 +848,31 @@ void gte_ld_intpol_sv1(VOID *v)
 // (rt * v0) + tr
 void gte_rtps(void)
 {	
-	register float calc1;
-	register unsigned short ustempz;
-	float	fscreenvx, fscreenvy, fscreenvz;
-
+	register float	calc1;
+	register float	fscreenvx, fscreenvy, fscreenvz;
+	register unsigned short	ustempz;
+	
 	// 1st calculation
-	fscreenvx = ((((RotMatrix.m[0][0] * vr0.vx) + (RotMatrix.m[0][1] * vr0.vy)
+	fscreenvx = (float)((((RotMatrix.m[0][0] * vr0.vx) + (RotMatrix.m[0][1] * vr0.vy)
 		+ (RotMatrix.m[0][2] * vr0.vz)) >> 12) + TransVector.vx);
-	fscreenvy = ((((RotMatrix.m[1][0] * vr0.vx) + (RotMatrix.m[1][1] * vr0.vy)
+	fscreenvy = (float)((((RotMatrix.m[1][0] * vr0.vx) + (RotMatrix.m[1][1] * vr0.vy)
 		+ (RotMatrix.m[1][2] * vr0.vz)) >> 12) + TransVector.vy);
-	fscreenvz = ((((RotMatrix.m[2][0] * vr0.vx) + (RotMatrix.m[2][1] * vr0.vy)
+	fscreenvz = (float)((((RotMatrix.m[2][0] * vr0.vx) + (RotMatrix.m[2][1] * vr0.vy)
 		+ (RotMatrix.m[2][2] * vr0.vz)) >> 12) + TransVector.vz);
 
 	// LimA1S, A2S, A3S
-	if (fscreenvx < -32768) fscreenvx = -32768;
-	if (fscreenvy < -32768) fscreenvy = -32768;
-	if (fscreenvz < -32768) fscreenvz = -32768;
-	if (fscreenvx > 32767) fscreenvx = 32767;
-	if (fscreenvy > 32767) fscreenvy = 32767;
-	if (fscreenvz > 32767) fscreenvz = 32767;
+	if (fscreenvx < -32768)
+		fscreenvx = -32768;
+	if (fscreenvy < -32768)
+		fscreenvy = -32768;
+	if (fscreenvz < -32768)
+		fscreenvz = -32768;
+	if (fscreenvx > 32767)
+		fscreenvx = 32767;
+	if (fscreenvy > 32767)
+		fscreenvy = 32767;
+	if (fscreenvz > 32767)
+		fscreenvz = 32767;
 
 	// Convert to unsigned short
 	ustempz  = (unsigned short)fscreenvz;
@@ -869,18 +882,20 @@ void gte_rtps(void)
 	if (ustempz > 65535) ustempz = 65535;
 
 	fscreenvz = (short)ustempz;
-	if (fscreenvz < 0) fscreenvz = 0;
-	if (fscreenvz > 32767) fscreenvz = 32767;
+	if (fscreenvz < 0.0f)
+		fscreenvz = 0.0f;
+	if (fscreenvz > 32767.0f)
+		fscreenvz = 32767.0f;
 
 	// PLAYSTATION INACCURACY!!
-	if ((float)fscreenvz < (GSh/2))
-		calc1 = (GSh/(GSh/2));
+	if (fscreenvz < fGShHalf)
+		calc1 = fGShLimit;
 	else
-		calc1 = (GSh/(float)fscreenvz);
+		calc1 = fGSh / fscreenvz;
 
 	// 2nd calculation
-	fscreenvx = (float)(GSx + (fscreenvx * calc1));
-	fscreenvy = (float)(GSy + (fscreenvy * calc1));
+	fscreenvx = fGSx + (fscreenvx * calc1);
+	fscreenvy = fGSy + (fscreenvy * calc1);
 
 	opz = (dqb + (dqa * (GSh/(float)fscreenvz))*4096)*16;
 
@@ -945,26 +960,44 @@ void gte_rtpt(void)
 		+ (RotMatrix.m[2][2] * vr2.vz)) >> 12) + TransVector.vz);
 
 	// limA1S
-	if (screenxy[0].vx < -32768) screenxy[0].vx = -32768;
-	if (screenxy[1].vx < -32768) screenxy[1].vx = -32768;
-	if (screenxy[2].vx < -32768) screenxy[2].vx = -32768;
-	if (screenxy[0].vx > 32767) screenxy[0].vx = 32767;
-	if (screenxy[1].vx > 32767) screenxy[1].vx = 32767;
-	if (screenxy[2].vx > 32767) screenxy[2].vx = 32767;
+	if (screenxy[0].vx < -32768)
+		screenxy[0].vx = -32768;
+	if (screenxy[1].vx < -32768)
+		screenxy[1].vx = -32768;
+	if (screenxy[2].vx < -32768)
+		screenxy[2].vx = -32768;
+	if (screenxy[0].vx > 32767)
+		screenxy[0].vx = 32767;
+	if (screenxy[1].vx > 32767)
+		screenxy[1].vx = 32767;
+	if (screenxy[2].vx > 32767)
+		screenxy[2].vx = 32767;
 	
-	if (screenxy[0].vy < -32768) screenxy[0].vy = -32768;
-	if (screenxy[1].vy < -32768) screenxy[1].vy = -32768;
-	if (screenxy[2].vy < -32768) screenxy[2].vy = -32768;
-	if (screenxy[0].vy > 32767) screenxy[0].vy = 32767;
-	if (screenxy[1].vy > 32767) screenxy[1].vy = 32767;
-	if (screenxy[2].vy > 32767) screenxy[2].vy = 32767;
+	if (screenxy[0].vy < -32768)
+		screenxy[0].vy = -32768;
+	if (screenxy[1].vy < -32768)
+		screenxy[1].vy = -32768;
+	if (screenxy[2].vy < -32768)
+		screenxy[2].vy = -32768;
+	if (screenxy[0].vy > 32767)
+		screenxy[0].vy = 32767;
+	if (screenxy[1].vy > 32767)
+		screenxy[1].vy = 32767;
+	if (screenxy[2].vy > 32767)
+		screenxy[2].vy = 32767;
 
-	if (screenxy[0].vz < -32768) screenxy[0].vz = -32768;
-	if (screenxy[1].vz < -32768) screenxy[1].vz = -32768;
-	if (screenxy[2].vz < -32768) screenxy[2].vz = -32768;
-	if (screenxy[0].vz > 32767) screenxy[0].vz = 32767;
-	if (screenxy[1].vz > 32767) screenxy[1].vz = 32767;
-	if (screenxy[2].vz > 32767) screenxy[2].vz = 32767;
+	if (screenxy[0].vz < -32768)
+		screenxy[0].vz = -32768;
+	if (screenxy[1].vz < -32768)
+		screenxy[1].vz = -32768;
+	if (screenxy[2].vz < -32768)
+		screenxy[2].vz = -32768;
+	if (screenxy[0].vz > 32767)
+		screenxy[0].vz = 32767;
+	if (screenxy[1].vz > 32767)
+		screenxy[1].vz = 32767;
+	if (screenxy[2].vz > 32767)
+		screenxy[2].vz = 32767;
 
 	// Convert to unsigned short
 	ustempz[0]  = (unsigned short)screenxy[0].vz;
@@ -985,25 +1018,31 @@ void gte_rtpt(void)
 	screenxy[2].vz = (short)ustempz[2];
 
 	// Extra limiter added (needed)
-	if (screenxy[0].vz < 0) screenxy[0].vz = 0;
-	if (screenxy[0].vz > 32767) screenxy[0].vz = 32767;
-	if (screenxy[1].vz < 0) screenxy[1].vz = 0;
-	if (screenxy[1].vz > 32767) screenxy[1].vz = 32767;
-	if (screenxy[2].vz < 0) screenxy[2].vz = 0;
-	if (screenxy[2].vz > 32767) screenxy[2].vz = 32767;
+	if (screenxy[0].vz < 0)
+		screenxy[0].vz = 0;
+	if (screenxy[0].vz > 32767)
+		screenxy[0].vz = 32767;
+	if (screenxy[1].vz < 0)
+		screenxy[1].vz = 0;
+	if (screenxy[1].vz > 32767)
+		screenxy[1].vz = 32767;
+	if (screenxy[2].vz < 0)
+		screenxy[2].vz = 0;
+	if (screenxy[2].vz > 32767)
+		screenxy[2].vz = 32767;
 
 	// PLAYSTATION INACCURACY!!
-	if ((float)screenxy[0].vz < (GSh/2))
-		calc1[0] = (GSh/(GSh/2));
+	if ((float)screenxy[0].vz < fGShHalf)
+		calc1[0] = fGShLimit;
 	else
-		calc1[0] = (GSh/(float)screenxy[0].vz);
+		calc1[0] = fGSh / screenxy[0].vz;
 
-	if ((float)screenxy[1].vz < (GSh/2))
-		calc1[1] = (GSh/(GSh/2));
+	if ((float)screenxy[1].vz < fGShHalf)
+		calc1[1] = fGShLimit;
 	else
 		calc1[1] = (GSh/(float)screenxy[1].vz);
 
-	if ((float)screenxy[2].vz < (GSh/2))
+	if ((float)screenxy[2].vz < fGShHalf)
 		calc1[2] = (GSh/(GSh/2));
 	else
 		calc1[2] = (GSh/(float)screenxy[2].vz);
@@ -1600,12 +1639,21 @@ void gte_ncs_b(void)
 void GsSetProjection(int h)
 {
 	GSh = h;
+
+	// *ASL* 26/07/2000 - Floating point projection values
+	fGSh = (float)GSh;
+	fGShHalf = fGSh * 0.5f;
+	fGShLimit = fGSh / fGShHalf;
 }
 
 void SetGeomOffset(int x, int y)
 {
 	GSx = x;
 	GSy = y;
+
+	// *ASL* 26/07/2000 - Floating point offset vales;
+	fGSx = (float)GSx;
+	fGSy = (float)GSy;
 }
 
 void GsSetAmbient(int r, int g, int b)
@@ -2318,6 +2366,7 @@ KMVERTEX_03		vertices_GT3_FMA_Trans[] =
 { KM_VERTEXPARAM_ENDOFSTRIP, 0,0, 1.0f, 1.0f, 0.0f, RGBA(255,255,255,255), 0 }
 };
 
+
 KMSTRIPCONTEXT	StripContext_GT4_FMA;
 KMSTRIPHEAD		StripHead_GT4_FMA;
 KMSTRIPCONTEXT	StripContext_GT4_FMA_Alpha;
@@ -2331,6 +2380,18 @@ KMVERTEX_03		vertices_GT4_FMA[] =
 { KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 1.0f, 1.0f, RGBA(255,255,255,255), 0 },
 { KM_VERTEXPARAM_ENDOFSTRIP, 0,0, 1.0f, 1.0f, 0.0f, RGBA(255,255,255,255), 0 }
 };
+
+// *ASL* 07/08/2000 - Vertex4 strips
+KMSTRIPHEAD		StripHead_GT4_FMA_Vertex4;
+KMSTRIPHEAD		StripHead_GT4_FMA_Alpha_Vertex4;
+KMVERTEX_04		vertices_GT4_FMA_Vertex4[] =
+{
+{ KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0, 0, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0, 0, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 1, 0, RGBA(255,255,255,255), 0 },
+{ KM_VERTEXPARAM_ENDOFSTRIP, 0,0, 1.0f, 1, 0, RGBA(255,255,255,255), 0 }
+};
+
 
 KMSTRIPCONTEXT	StripContext_GT4_FMA_Trans;
 KMSTRIPHEAD		StripHead_GT4_FMA_Trans;
@@ -2835,7 +2896,9 @@ void initialisePsxStrips()
     StripContext_GT3_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
 	StripContext_GT3_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT3_FMA_Alpha,&StripContext_GT3_FMA_Alpha);	
+
 	
+
 	// GT4 FMA strip
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_OPAQUE_POLYGON, &StripContext_GT4_FMA);
 	memset(&StripContext_GT4_FMA,0,sizeof(StripContext_GT4_FMA));
@@ -2862,6 +2925,10 @@ void initialisePsxStrips()
     StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
 //	StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT4_FMA,&StripContext_GT4_FMA);
+
+	// *ASL* 07/08/2000 - GT4 FMA Vertex4 strip
+	memset(&StripHead_GT4_FMA_Vertex4,0,sizeof(StripHead_GT4_FMA_Vertex4));
+	kmGenerateStripHead04(&StripHead_GT4_FMA_Vertex4, &StripContext_GT4_FMA);
 
 
 	// GT4 FMA Alpha strip
@@ -2890,6 +2957,11 @@ void initialisePsxStrips()
     StripContext_GT4_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
 	StripContext_GT4_FMA_Alpha.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT4_FMA_Alpha,&StripContext_GT4_FMA_Alpha);
+
+	// *ASL* 07/08/2000 - GT4 FMA Alpha Vertex4 strip
+	memset(&StripHead_GT4_FMA_Alpha_Vertex4,0,sizeof(StripHead_GT4_FMA_Alpha_Vertex4));
+	kmGenerateStripHead04(&StripHead_GT4_FMA_Alpha_Vertex4, &StripContext_GT4_FMA_Alpha);
+
 
 	// GT4 FMA Add strip
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_GT4_FMA_Add);
