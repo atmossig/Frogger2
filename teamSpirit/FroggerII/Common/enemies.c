@@ -739,7 +739,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	PATH *path = cur->path;
 	float length;
 
-	if( cur->nmeActor->distanceFromFrog > 100000 )
+	if( cur->nmeActor->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
 	{
 		cur->isIdle = 0;
 		return;
