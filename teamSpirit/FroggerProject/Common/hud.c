@@ -42,6 +42,7 @@
 #include <pcmisc.h>
 #endif
 
+int handAngle;
 extern TIMER endLevelTimer;
 char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
@@ -421,6 +422,7 @@ void EnableMultiHUD( )
 void InitHUD(void)
 {
 	storeFrameCount = 0;
+	handAngle = 0;
 	if (gameState.multi == SINGLEPLAYER)
 		InitArcadeHUD();		
 	else
@@ -626,7 +628,6 @@ void UpDateMultiplayerInfo( void )
 		break;
 	}
 }
-
 
 void UpDateOnScreenInfo ( void )
 {
@@ -880,6 +881,9 @@ void UpDateOnScreenInfo ( void )
 			sprintf(timeStringHSec,"%02i",((int)(timeFrames*100)/60)%100);
 			sprintf(timeStringSec,"0",((int)timeFrames/60)%60);
 			sprintf(timeStringMin,"",((int)timeFrames/(60*60))%60);	
+
+			arcadeHud.timeHandOver->angle /= 2;
+			arcadeHud.timeHeadOver->angle /= 2;
 		}
 		else
 		{
@@ -923,11 +927,17 @@ void UpDateOnScreenInfo ( void )
 					sprintf(timeStringMin,"",((int)timeFrames/(60*60))%60);			
 			}
 
-			arcadeHud.timeHandOver->angle += gameSpeed/60;
-			if( arcadeHud.timeHandOver->angle > 4096 )
-				arcadeHud.timeHandOver->angle -= 4096;
+			if(goTimer.time <= 1)
+			{
+				handAngle += gameSpeed;
+				if(handAngle > 4096*60)
+					handAngle -= 4096*60;
+				arcadeHud.timeHandOver->angle = handAngle/60;
+//				if( arcadeHud.timeHandOver->angle > 4096 )
+//					arcadeHud.timeHandOver->angle -= 4096;
 
-			arcadeHud.timeHeadOver->angle = rsin(arcadeHud.timeHandOver->angle)>>2;
+				arcadeHud.timeHeadOver->angle = rsin(arcadeHud.timeHandOver->angle)>>2;
+			}
 		}
 #ifdef PSX_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + fontExtentWScaled(arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->text)*8 + 2*8;

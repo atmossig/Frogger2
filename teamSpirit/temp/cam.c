@@ -109,7 +109,7 @@ void SlurpCamPosition( );
 int GetCamLimitVector(FVECTOR *out, FVECTOR *v, CAM_BOX *box, fixed edge)
 {
 	int p;
-	fixed dist, foo;
+	fixed dist;
 	CAM_PLANE *plane;
 	FVECTOR a, res;
 	int count;
@@ -120,7 +120,6 @@ int GetCamLimitVector(FVECTOR *out, FVECTOR *v, CAM_BOX *box, fixed edge)
 	count = 0;
 	plane = box->planes;
 	ZeroVector(&res);
-	foo = edge;
 
 	for (p = box->numPlanes; p; p--, plane++)
 	{
@@ -130,9 +129,6 @@ int GetCamLimitVector(FVECTOR *out, FVECTOR *v, CAM_BOX *box, fixed edge)
 
 		if (dist < edge)
 		{
-			if (dist < foo)
-				foo = dist;
-
 			dist -= edge;
 
 			SetVectorFF(&a, &plane->normal);
