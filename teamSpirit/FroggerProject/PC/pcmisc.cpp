@@ -65,26 +65,53 @@ LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
 */
 void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 {
-	DDSURFACEDESC2 ddsd;
-	HRESULT res;
-	LPDIRECTDRAWSURFACE7 to = ((MDX_TEXENTRY *)tex)->surf;
 	long i;
-	DDINIT(ddsd);
 
-	// Create static _AI_ surface you dolt
-	if( !pSurface ) pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
-	
-	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
-		ddShowError(res);
+	if( !tex || !buf || !pal )
+		return;
 
-	i=1024;
+	if( rHardware )
+	{
+		DDSURFACEDESC2 ddsd;
+		HRESULT res;
+		LPDIRECTDRAWSURFACE7 to = ((MDX_TEXENTRY *)tex)->surf;
+		DDINIT(ddsd);
 
-	while( i-- ) ((unsigned short *)ddsd.lpSurface)[i] = (unsigned short)pal[(unsigned char)buf[i]];
+		// Create static _AI_ surface you dolt
+		if( !pSurface ) pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
+		
+		while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
+			ddShowError(res);
 
-	pSurface->Unlock(NULL);
+		i=1024;
 
-	if ((res = to->BltFast(0,0,pSurface,NULL,DDBLTFAST_NOCOLORKEY))!=DD_OK)
-		ddShowError(res);
+		while( i-- ) ((unsigned short *)ddsd.lpSurface)[i] = (unsigned short)pal[(unsigned char)buf[i]];
+
+		pSurface->Unlock(NULL);
+
+		if ((res = to->BltFast(0,0,pSurface,NULL,DDBLTFAST_NOCOLORKEY))!=DD_OK)
+			ddShowError(res);
+	}
+	else
+	{
+		MDX_TEXENTRY *mdxdst = (MDX_TEXENTRY *)tex;
+
+		if( mdxdst->softData )
+		{
+			unsigned short c;
+			unsigned char r, g, b, a;
+			i=1024;
+
+			while( i-- )
+			{
+				c = (unsigned short)pal[(unsigned char)buf[i]];
+
+				mdxdst->softData[i] =	(((((((c & 0x0f00)>>8)+1)<<4)-1)<<16) |
+										((((((c & 0x00f0)>>4)+1)<<4)-1)<<8) |
+										(((((c & 0x000f)>>0)+1)<<4)-1)) & 0x00ffffff;
+			}
+		}
+	}
 }
 
 
@@ -373,15 +400,14 @@ void mtxSetIdent( float *m )
 
 void CopyTexture(TextureType *dest, TextureType *src, int copyPalette)
 {
-	HRESULT					res;
-	LPDIRECTDRAWSURFACE7	to, from;
-	MDX_TEXENTRY			*mdxsrc, *mdxdst;
-
 	if (!dest || !src) 
 		return;
 
 	if (rHardware)
 	{
+		HRESULT					res;
+		LPDIRECTDRAWSURFACE7	to, from;
+
 		to = ((MDX_TEXENTRY *)dest)->surf;
 		from = ((MDX_TEXENTRY *)src)->surf;
 
@@ -390,6 +416,8 @@ void CopyTexture(TextureType *dest, TextureType *src, int copyPalette)
 	}
 	else
 	{
+		MDX_TEXENTRY			*mdxsrc, *mdxdst;
+
 		// re-cast to mdx textures
 		mdxsrc = (MDX_TEXENTRY *)src;
 		mdxdst = (MDX_TEXENTRY *)dest;
