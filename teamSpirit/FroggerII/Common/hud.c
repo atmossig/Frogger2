@@ -19,6 +19,7 @@
 char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
 char timeText[32]	= "00:00";
+char spawnText[8];
 
 char timeTemp[6];
 
@@ -205,7 +206,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	levelComplete2 = CreateAndAddTextOverlay ( 0, 38, "complete", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
 	DisableTextOverlay(levelComplete2);
 
-	spawnCollected = CreateAndAddTextOverlay ( 100, 130, "", NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	spawnCollected = CreateAndAddTextOverlay ( 100, 130, spawnText, NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
 	sprintf ( spawnCollected->text, "%d", player[0].numSpawn );
 	DisableTextOverlay ( spawnCollected );
 
