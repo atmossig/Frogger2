@@ -190,7 +190,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short 
 // 		vT[i].vz += ripple->origin.vz;
 	//add world coords 
  		vT[i].vx += pos->vx;
- 		vT[i].vy += pos->vy+150;//mmfrig  debug to ensure the shadow appears above landscape CHANGE!!!!
+ 		vT[i].vy += pos->vy;//mmfrig  debug to ensure the shadow appears above landscape CHANGE!!!!
  		vT[i].vz += pos->vz;
 
 
@@ -202,6 +202,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short 
 	fx.flags = SPRITE_SUBTRACTIVE;
 //	fx.a = alpha;
 	fx.a = 75;
+	fx.zDepth = -18;	//bring the shadow closer to the camera
 
 
 	Print3D3DSprite ( &fx, vT, colour );
