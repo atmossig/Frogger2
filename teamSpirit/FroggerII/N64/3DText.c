@@ -45,7 +45,15 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->tileSize = t3d->scale*32;
 	t3d->vA = a;
 
-	t3d->xOffs = xO;
+	if( t3d->motion & T3D_ALIGN_CENTRE )
+		t3d->xOffs = 100-((200-(strlen(t3d->string)*t3d->tileSize))/2);
+	else if( t3d->motion & T3D_ALIGN_LEFT )
+		t3d->xOffs = 100;
+	else if( t3d->motion & T3D_ALIGN_RIGHT )
+		t3d->xOffs = strlen(t3d->string)*t3d->tileSize;
+	else
+		t3d->xOffs = xO;
+
 	t3d->yOffs = yO;
 	t3d->zOffs = zO;
 
