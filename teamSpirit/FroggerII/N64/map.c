@@ -341,13 +341,26 @@ void LoadCollision(short cNum)
 			sprintf(message,"SUPERRETRO 1");
 			break;
 		case RETROLEV2_COL:
-			tnum = -1;
+			tnum = SRETRO2_COLL_BANK;
 			sprintf(message,"SUPERRETRO 2");
 			break;
 		case RETROLEV3_COL:
-			tnum = -1;
+			tnum = SRETRO3_COLL_BANK;
 			sprintf(message,"SUPERRETRO 3");
 			break;
+		case RETROLEV4_COL:
+			tnum = SRETRO4_COLL_BANK;
+			sprintf(message,"SUPERRETRO 4");
+			break;
+		case RETROLEV5_COL:
+			tnum = SRETRO5_COLL_BANK;
+			sprintf(message,"SUPERRETRO 5");
+			break;
+		case RETROLEV6_COL:
+			tnum = SRETRO6_COLL_BANK;
+			sprintf(message,"SUPERRETRO 6");
+			break;
+/*
 		case RETROBONUS_COL:
 			tnum = -1;
 			sprintf(message,"SUPERRETRO BONUS");
@@ -356,7 +369,7 @@ void LoadCollision(short cNum)
 			tnum = -1;
 			sprintf(message,"SUPERRETRO MULTI");
 			break;
-
+*/
 		default:
 			tnum = -1;
 	}
@@ -732,13 +745,26 @@ void LoadScenics(short sNum)
 			sprintf(message,"SUPERRETRO 1");
 			break;
 		case RETROLEV2_COL:
-			tnum = -1;
+			tnum = SRETRO2_COLL_BANK;
 			sprintf(message,"SUPERRETRO 2");
 			break;
 		case RETROLEV3_COL:
-			tnum = -1;
+			tnum = SRETRO3_COLL_BANK;
 			sprintf(message,"SUPERRETRO 3");
 			break;
+		case RETROLEV4_COL:
+			tnum = SRETRO4_COLL_BANK;
+			sprintf(message,"SUPERRETRO 4");
+			break;
+		case RETROLEV5_COL:
+			tnum = SRETRO5_COLL_BANK;
+			sprintf(message,"SUPERRETRO 5");
+			break;
+		case RETROLEV6_COL:
+			tnum = SRETRO6_COLL_BANK;
+			sprintf(message,"SUPERRETRO 6");
+			break;
+/*
 		case RETROBONUS_COL:
 			tnum = -1;
 			sprintf(message,"SUPERRETRO BONUS");
@@ -747,7 +773,7 @@ void LoadScenics(short sNum)
 			tnum = -1;
 			sprintf(message,"SUPERRETRO MULTI");
 			break;
-
+*/
 		default:
 			tnum = -1;
 	}
@@ -1037,6 +1063,31 @@ void LoadLevelEntities(short worldID,short levelID)
 					bankRomEnd		= (u32)&_levData_9_1_SegmentRomEnd;
 					sprintf(message, "SUP_ENT1");				
 				break;
+			case SRETROLEV2_ENT:
+					bankRomStart	= (u32)&_levData_9_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_9_2_SegmentRomEnd;
+					sprintf(message, "SUP_ENT1");				
+				break;
+			case SRETROLEV3_ENT:
+					bankRomStart	= (u32)&_levData_9_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_9_3_SegmentRomEnd;
+					sprintf(message, "SUP_ENT1");				
+				break;
+			case SRETROLEV4_ENT:
+					bankRomStart	= (u32)&_levData_9_4_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_9_4_SegmentRomEnd;
+					sprintf(message, "SUP_ENT1");				
+				break;
+			case SRETROLEV5_ENT:
+					bankRomStart	= (u32)&_levData_9_5_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_9_5_SegmentRomEnd;
+					sprintf(message, "SUP_ENT1");				
+				break;
+			case SRETROLEV6_ENT:
+					bankRomStart	= (u32)&_levData_9_6_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_9_6_SegmentRomEnd;
+					sprintf(message, "SUP_ENT1");				
+				break;
 		}
 	}
 	else if(worldID == WORLDID_FRONTEND)
@@ -1118,6 +1169,8 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	SetVector(&act->actor->pos,&tile->centre);
 	player[pl].frogState |= FROGSTATUS_ISSTANDING;
 	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
+	player[pl].canJump = 1;
+	player[pl].isSuperHopping = 0;
 }
 
 
@@ -1351,6 +1404,31 @@ void LoadLevelScript(int worldID,int levelID)
 					bankRomStart	= (u32)&_scrData_9_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_9_1_SegmentRomEnd;
 					sprintf(message, "SUP_ENT1");				
+				break;
+			case SRETROLEV2_ENT:
+					bankRomStart	= (u32)&_scrData_9_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_9_2_SegmentRomEnd;
+					sprintf(message, "SUP_ENT2");				
+				break;
+			case SRETROLEV3_ENT:
+					bankRomStart	= (u32)&_scrData_9_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_9_3_SegmentRomEnd;
+					sprintf(message, "SUP_ENT3");				
+				break;
+			case SRETROLEV4_ENT:
+					bankRomStart	= (u32)&_scrData_9_4_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_9_4_SegmentRomEnd;
+					sprintf(message, "SUP_ENT4");				
+				break;
+			case SRETROLEV5_ENT:
+					bankRomStart	= (u32)&_scrData_9_5_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_9_5_SegmentRomEnd;
+					sprintf(message, "SUP_ENT5");				
+				break;
+			case SRETROLEV6_ENT:
+					bankRomStart	= (u32)&_scrData_9_6_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_9_6_SegmentRomEnd;
+					sprintf(message, "SUP_ENT6");				
 				break;
 		}
 	}
