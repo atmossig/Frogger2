@@ -616,11 +616,6 @@ void DrawFXLightning( SPECFX *fx )
 	if( !(tEntry = ((MDX_TEXENTRY *)fx->tex)) )
 		return;
 
-	vT[0].specular = D3DRGB(0,0,0);
-	vT[1].specular = vT[0].specular;
-	vT[2].specular = vT[0].specular;
-	vT[3].specular = vT[0].specular;
-
 	// Additive mode
 	SwapFrame(3);
 
@@ -639,8 +634,6 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect, NULL );
 			vT[0].sx = m.vx;
 			vT[0].sy = m.vy;
-			vT[0].tu = 0;
-			vT[0].tv = 0;
 			vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
 
@@ -650,8 +643,6 @@ void DrawFXLightning( SPECFX *fx )
 			XfmPoint( &m, &tempVect, NULL );
 			vT[1].sx = m.vx;
 			vT[1].sy = m.vy;
-			vT[1].tu = 1;
-			vT[1].tv = 0;
 			vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 			vT[1].color = vT[0].color;
 		}
@@ -663,8 +654,6 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect, NULL );
 		vT[2].sx = m.vx;
 		vT[2].sy = m.vy;
-		vT[2].tu = 1;
-		vT[2].tv = 1;
 		vT[2].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 		vT[2].color = vT[0].color;
 
@@ -674,8 +663,6 @@ void DrawFXLightning( SPECFX *fx )
 		XfmPoint( &m, &tempVect, NULL );
 		vT[3].sx = m.vx;
 		vT[3].sy = m.vy;
-		vT[3].tu = 0;
-		vT[3].tv = 1;
 		vT[3].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 		vT[3].color = vT[0].color;
 
@@ -688,6 +675,22 @@ void DrawFXLightning( SPECFX *fx )
 		// Draw polys, if they're not clipped
 		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
+			vT[0].specular = D3DRGB(0,0,0);
+			vT[0].tu = 1;
+			vT[0].tv = 1;
+			vT[1].specular = vT[0].specular;
+			vT[1].tu = 0;
+			vT[1].tv = 1;
+			vT[2].specular = vT[0].specular;
+			vT[2].tu = 0;
+			vT[2].tv = 0;
+			vT[3].specular = vT[0].specular;
+			vT[3].tu = 1;
+			vT[3].tv = 0;
+			vT[4].specular = D3DRGB(0,0,0);
+			vT[4].tu = 1;
+			vT[4].tv = 1;
+
 			Clip3DPolygon( vT, tEntry );
 			Clip3DPolygon( &vT[2], tEntry );
 		}
@@ -710,19 +713,6 @@ void DrawTongue( int pl )
 	if( !tEntry || index < 2 )
 		return;
 
-	vT[0].specular = D3DRGB(0,0,0);
-	vT[0].tu = 1;
-	vT[0].tv = 1;
-	vT[1].specular = vT[0].specular;
-	vT[1].tu = 0;
-	vT[1].tv = 1;
-	vT[2].specular = vT[0].specular;
-	vT[2].tu = 0;
-	vT[2].tv = 0;
-	vT[3].specular = vT[0].specular;
-	vT[3].tu = 1;
-	vT[3].tv = 0;
-
 	while( i < index )
 	{
 		//********-[ First 2 points ]-*******
@@ -738,6 +728,19 @@ void DrawTongue( int pl )
 		//********-[ Draw the polys ]-********
 		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
+			vT[0].specular = D3DRGB(0,0,0);
+			vT[0].tu = 1;
+			vT[0].tv = 1;
+			vT[1].specular = vT[0].specular;
+			vT[1].tu = 0;
+			vT[1].tv = 1;
+			vT[2].specular = vT[0].specular;
+			vT[2].tu = 0;
+			vT[2].tv = 0;
+			vT[3].specular = vT[0].specular;
+			vT[3].tu = 1;
+			vT[3].tv = 0;
+
 			Clip3DPolygon( vT, tEntry );
 			Clip3DPolygon( &vT[1], tEntry );
 		}
