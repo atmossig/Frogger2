@@ -242,7 +242,7 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 #ifdef PC_VERSION
 		a565Card
 #else
-		FALSE
+		FALSE		// Eat my hack brother trucker!
 #endif
 		)
 	{
@@ -280,8 +280,6 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		nB = (nB * 0x0f )/bVand;
 		nA = (nA * 0x0f )/bVand;
 
-//		nA = 0x0f;
-		
 		newCol = ((nA << 12) | (nR<<8) | (nG<<4) | (nB));
 		
 		((unsigned short *)pt->palette)[i] = newCol;
