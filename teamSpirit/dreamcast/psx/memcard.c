@@ -64,22 +64,22 @@ void DrawBox(int x0, int y0, int x1, int y1)
 	// draw the progress fade background
 	fadeVertices[0].fX = x0;
 	fadeVertices[0].fY = y0;
-	fadeVertices[0].u.fZ = 0.01;
+	fadeVertices[0].u.fZ = 0.0001;
 	fadeVertices[0].uBaseRGB.dwPacked = RGBA(0, 0, 0, 128);
 
 	fadeVertices[1].fX = x0;
 	fadeVertices[1].fY = y1;
-	fadeVertices[1].u.fZ = 0.01;
+	fadeVertices[1].u.fZ = 0.0001;
 	fadeVertices[1].uBaseRGB.dwPacked = RGBA(0, 0, 0, 128);
 
 	fadeVertices[2].fX = x1;
 	fadeVertices[2].fY = y0;
-	fadeVertices[2].u.fZ = 0.01;
+	fadeVertices[2].u.fZ = 0.0001;
 	fadeVertices[2].uBaseRGB.dwPacked = RGBA(0, 0, 0, 128);
 
 	fadeVertices[3].fX = x1;
 	fadeVertices[3].fY = y1;
-	fadeVertices[3].u.fZ = 0.01;
+	fadeVertices[3].u.fZ = 0.0001;
 	fadeVertices[3].uBaseRGB.dwPacked = RGBA(0, 0, 0, 128);
 
 	kmStartStrip(&vertexBufferDesc, &fadeStripHead);	
@@ -225,7 +225,7 @@ int FontInSpace(int x, int y, char *str, int w, int l, uchar r, uchar g, uchar b
 	for(loop=0; loop<numLines; loop++)
 	{
 //		fontPrintScaled(fontSmall, x+320,y+120, bufPtr, r,g,b,4096);
-		fontSmall->alpha = r;
+		fontSmall->alpha = r*2;
 		fontPrintScaled(fontSmall, x,y, bufPtr, 255,255,255,4096);
 		bufPtr += strlen(bufPtr)+1;
 		y += 21;
@@ -310,7 +310,7 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 		break;
 	}
 
-	f2 = MIN(f[1],128);
+	f2 = MIN(f[1],255);
 	SimpleMessage(msg, f2);
 
 	x = -220;
@@ -485,13 +485,17 @@ static void saveMenuFull()
 		useMemCard = 0;
 		break;
 	}
-	switch( CheckVMUs() )//gameSaveGetCardStatus())
+
+	if( !optChosen && optFrame>4 )
 	{
-   	case McErrCardNotExist:
-   	case McErrCardInvalid:
-		saveInfo.saveStage = SAVEMENU_NOCARD;
-		StartChooseOption();
-		break;
+		switch( CheckVMUs() )//gameSaveGetCardStatus())
+		{
+   		case McErrCardNotExist:
+   		case McErrCardInvalid:
+			saveInfo.saveStage = SAVEMENU_NOCARD;
+			StartChooseOption();
+			break;
+		}
 	}
 }
 
@@ -529,7 +533,7 @@ static void saveMenuNoCard()
 static void saveMenuLoad()
 {
 	SimpleMessage(GAMESTRING(STR_MCARD_LOADING), MIN(255,optFrame*60));
-	if (optFrame++>4)
+	if (!optChosen && optFrame++>4)
 	{
 		if (gameSaveHandleLoad(NO) != CARDREAD_OK)
 			saveInfo.saveStage = SAVEMENU_LOADERROR;
@@ -548,7 +552,7 @@ static void saveMenuCheck()
 	int res;
 
 	SimpleMessage(GAMESTRING(STR_MCARD_CHECK), MIN(255,optFrame*60));
-	if (optFrame++>4)
+	if ( !optChosen && optFrame++>4)
 	{
 		res = gameSaveHandleLoad(YES);
 		switch(res)
@@ -572,8 +576,12 @@ static void saveMenuCheck()
 				StartChooseOption();
 			}
 			break;
+		case CARDREAD_CORRUPT:		// Corrupt data
+			optSaveAlready = 0;
+			saveInfo.saveStage = SAVEMENU_CORRUPT;
+			StartChooseOption();
+			break;
 		case CARDREAD_NOTFOUND:		// Data not found, space on card
-//		case -2:					// Corrupt data
 			optSaveAlready = 0;
 			saveInfo.saveStage = SAVEMENU_SAVEYN;
 			StartChooseOption();
@@ -593,10 +601,10 @@ static void saveMenuCheck()
 			break;
 		}
 
-		if( vmuChosen )
+//		if( vmuChosen )
 			strcpy( slotNumStr, portlit[vmuDriveToUse] );
-		else
-			strcpy( slotNumStr, "" );
+//		else
+//			strcpy( slotNumStr, "" );
 	}
 }
 
@@ -615,6 +623,8 @@ static void saveMenuSave()
 			saveInfo.saveStage = SAVEMENU_FAIL;
 		else
 		{
+			vmuChosen = 1;
+
 			if(gameState.mode == LEVELCOMPLETE_MODE)
 			{
 				saveInfo.saveFrame = 0;
@@ -632,7 +642,7 @@ static void saveMenuSave()
 
 static void saveMenuComplete()
 {
-	if (((options.mode == -1) && (delayTimer++ > DELAY_TIME)) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (/*((options.mode == -1) && (delayTimer++ > DELAY_TIME)) ||*/ (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 	{
 		saveInfo.saveFrame = 0;
 		cardChanged = NO;
@@ -641,13 +651,13 @@ static void saveMenuComplete()
 
 static void saveMenuLoadComplete()
 {
-	if ((delayTimer++ > DELAY_TIME) || (ChooseOption(GAMESTRING(STR_MCARD_LOADCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (/*(delayTimer++ > DELAY_TIME) ||*/ (ChooseOption(GAMESTRING(STR_MCARD_LOADCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 		saveInfo.saveFrame = 0;
 }
 
 static void saveMenuFormatComplete()
 {
-	if ((delayTimer++ > DELAY_TIME) || (ChooseOption(GAMESTRING(STR_MCARD_FORMATCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (/*(delayTimer++ > DELAY_TIME) ||*/ (ChooseOption(GAMESTRING(STR_MCARD_FORMATCOMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 	{
 		saveInfo.saveStage = SAVEMENU_SAVEYN;
 		StartChooseOption();
@@ -678,13 +688,17 @@ static void saveMenuFail()
 		saveInfo.saveStage = SAVEMENU_CHECK;
 		StartChooseOption();
 	}
-	switch(CheckVMUs())//gameSaveGetCardStatus())
+
+	if( !optChosen && optFrame>4 )
 	{
-   	case McErrCardNotExist:
-   	case McErrCardInvalid:
-		saveInfo.saveStage = SAVEMENU_NOCARD;
-		StartChooseOption();
-		break;
+		switch(CheckVMUs())//gameSaveGetCardStatus())
+		{
+   		case McErrCardNotExist:
+   		case McErrCardInvalid:
+			saveInfo.saveStage = SAVEMENU_NOCARD;
+			StartChooseOption();
+			break;
+		}
 	}
 }
 
@@ -701,13 +715,16 @@ static void saveMenuOverwrite()
 		StartChooseOption();
 		break;
 	}
-	switch(CheckVMUs())//gameSaveGetCardStatus())
+	if( !optChosen && optFrame>4 )
 	{
-   	case McErrCardNotExist:
-   	case McErrCardInvalid:
-		saveInfo.saveStage = SAVEMENU_NOCARD;
-		StartChooseOption();
-		break;
+		switch(CheckVMUs())//gameSaveGetCardStatus())
+		{
+   		case McErrCardNotExist:
+   		case McErrCardInvalid:
+			saveInfo.saveStage = SAVEMENU_NOCARD;
+			StartChooseOption();
+			break;
+		}
 	}
 }
 
@@ -726,13 +743,16 @@ static void saveMenuFormatYN()
 		StartChooseOption();
 		break;
 	}
-	switch(CheckVMUs())//gameSaveGetCardStatus())
+	if( !optChosen && optFrame>4 )
 	{
-   	case McErrCardNotExist:
-   	case McErrCardInvalid:
-		saveInfo.saveStage = SAVEMENU_NOCARD;
-		StartChooseOption();
-		break;
+		switch(CheckVMUs())//gameSaveGetCardStatus())
+		{
+   		case McErrCardNotExist:
+   		case McErrCardInvalid:
+			saveInfo.saveStage = SAVEMENU_NOCARD;
+			StartChooseOption();
+			break;
+		}
 	}
 }
 
@@ -766,12 +786,33 @@ static void saveMenuSaveYN()
 		useMemCard = 0;
 		break;
 	}
-	switch(CheckVMUs())//gameSaveGetCardStatus())
+	if( !optChosen && optFrame>4 )
 	{
-   	case McErrCardNotExist:
-   	case McErrCardInvalid:
-		saveInfo.saveStage = SAVEMENU_NOCARD;
+		switch(CheckVMUs())//gameSaveGetCardStatus())
+		{
+   		case McErrCardNotExist:
+   		case McErrCardInvalid:
+			saveInfo.saveStage = SAVEMENU_NOCARD;
+			StartChooseOption();
+			break;
+		}
+	}
+}
+
+static void saveMenuCorrupt()
+{
+	int choice;
+
+	choice = ChooseOption(GAMESTRING(STR_MCARD_CORRUPT), GAMESTRING(STR_MCARD_RECHECK), GAMESTRING(STR_MCARD_PROCEED_WITHOUT_SAVE));
+	switch(choice)
+	{
+	case 3:
+		saveInfo.saveStage = SAVEMENU_CHECK;
 		StartChooseOption();
+		break;
+	case 2:
+		saveInfo.saveFrame = 0;
+		useMemCard = 0;
 		break;
 	}
 }
@@ -833,13 +874,16 @@ void saveMenuNeedFormat()
 		useMemCard = 0;
 		break;
 	}
-	switch(CheckVMUs())//gameSaveGetCardStatus())
+	if( !optChosen && optFrame>4 )
 	{
-   	case McErrCardNotExist:
-   	case McErrCardInvalid:
-		saveInfo.saveStage = SAVEMENU_NOCARD;
-		StartChooseOption();
-		break;
+		switch(CheckVMUs())//gameSaveGetCardStatus())
+		{
+   		case McErrCardNotExist:
+   		case McErrCardInvalid:
+			saveInfo.saveStage = SAVEMENU_NOCARD;
+			StartChooseOption();
+			break;
+		}
 	}
 }
 
@@ -850,16 +894,19 @@ void ChooseLoadSave()
 
 	if(saveInfo.load == 0)
 	{
-		switch(CheckVMUs())//gameSaveGetCardStatus())
+		if( !optChosen && optFrame>4 )
 		{
-   		case McErrNewCard:
-			if(cardChanged == NO)
+			switch(CheckVMUs())//gameSaveGetCardStatus())
 			{
-				saveInfo.saveStage = SAVEMENU_CHANGED;
-				StartChooseOption();
-				cardChanged = YES;
+   			case McErrNewCard:
+				if(cardChanged == NO)
+				{
+					saveInfo.saveStage = SAVEMENU_CHANGED;
+					StartChooseOption();
+					cardChanged = YES;
+				}
+				break;
 			}
-			break;
 		}
 		VSync(0);
 	}
@@ -887,6 +934,9 @@ void ChooseLoadSave()
 		break;
 	case SAVEMENU_NOCARD:
 		saveMenuNoCard();
+		break;
+	case SAVEMENU_CORRUPT:
+		saveMenuCorrupt();
 		break;
 	case SAVEMENU_SAVE:
 		saveMenuSave();
@@ -948,12 +998,14 @@ void LoadGame(void)
 
 int CheckVMUs( )
 {
-	int i, j, port, pad, fcStat=CARDREAD_NOCARD, res, freePort=-1, freeDrive;
+	int i, j, port, pad, fcStat=CARDREAD_NOCARD, res, freePort=-1, freeDrive, firstCard=-1;
 
 	// If not the first check then don't search
 	if( vmuChosen )
 	{
-		res = buGetDiskFree(vmuDriveToUse,BUD_FILETYPE_NORMAL);
+		do{ res = buGetDiskFree(vmuDriveToUse,BUD_FILETYPE_NORMAL); } 
+		while( res == BUD_ERR_BUSY );
+
 		if( res >= 0 && res < 7)
 			return CARDREAD_NOTFOUNDANDFULL;
 		else
@@ -978,15 +1030,22 @@ int CheckVMUs( )
 
 			// For some reason buGetLastError() prefers FILENOTFOUND over DISKFULL (Duuuuh)
 			// so check for full disk separately first.
-			res = buGetDiskFree(vmuDriveToUse,BUD_FILETYPE_NORMAL);
+			do{ res = buGetDiskFree(vmuDriveToUse,BUD_FILETYPE_NORMAL); } 
+			while( res == BUD_ERR_BUSY );
+
 			if( res >= 0 && res < 7)
 				res = CARDREAD_NOTFOUNDANDFULL;
 			else
 				res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
 
 			// Store state of first expansion of firstPad
-			if( !i && !j ) 
+			if( firstCard==-1 && res != CARDREAD_NOCARD && res != CARDREAD_BADCARD )
+			{
+				firstCard = portIndex;
+
+//			if( !i && !j ) 
 				fcStat = res;
+			}
 
 			switch(res)
 			{
@@ -1018,7 +1077,16 @@ int CheckVMUs( )
 		return CARDREAD_NOTFOUND;
 	}
 
-	vmuPortToUse = portNos[firstPad*2];
-	vmuDriveToUse = firstPad*2;
+	if( firstCard != -1 )
+	{
+		vmuPortToUse = portNos[firstCard];
+		vmuDriveToUse = firstCard;
+	}
+	else
+	{
+		vmuPortToUse = portNos[firstPad*2];
+		vmuDriveToUse = firstPad*2;
+	}
+
 	return fcStat;
 }
