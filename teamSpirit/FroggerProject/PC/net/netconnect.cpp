@@ -69,6 +69,7 @@ bool CheckLobby(HWND hwnd);
 bool SetupNetworking()
 {
 	HRESULT res;
+	HKEY hkey;
 
 	// init COM library
 	if ((res = CoInitialize(NULL)) != S_OK)
@@ -82,6 +83,17 @@ bool SetupNetworking()
 	{
 		utilPrintf("SetupNetworking(): Failed creating DirectPlay4A interface\n");
 		return false;
+	}
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
+	{
+		DWORD len;
+
+		len = 32;
+		RegQueryValueEx(hkey, "netplayer", NULL, NULL, (unsigned char*)playerName, &len);
+
+		len = 128;
+		RegQueryValueEx(hkey, "netgame", NULL, NULL, (unsigned char*)sessionName, &len);
 	}
 
     // Setup the g_DPSIHead circular linked list
@@ -110,6 +122,20 @@ void ShutdownNetworkGame()
 		dplay->Release();
 	}
 
+}
+
+
+
+void SaveNetgameSetup()
+{
+	HKEY hkey;
+	HRESULT res;
+
+	if ((res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, 0, 0, KEY_WRITE, NULL, &hkey, NULL)) == ERROR_SUCCESS)
+	{
+		RegSetValueEx(hkey, "netplayer", NULL, REG_SZ, (unsigned char*)playerName, strlen(playerName) + 1);
+		RegSetValueEx(hkey, "netgame", NULL, REG_SZ, (unsigned char*)sessionName, strlen(sessionName) + 1);
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -145,6 +171,8 @@ int StartNetworkGame(HWND hwnd, int flag)
 
 	if (connected)
 	{
+		SaveNetgameSetup();
+
 		SetupNetPlayerList();
 		if (RunNetChatWindow(hwnd))
 			return 1;
@@ -360,6 +388,9 @@ BOOL CALLBACK EnumSessions(const DPSESSIONDESC2 *pdpsd, LPDWORD lptimeout, DWORD
     pDPSINew->guidSession = pdpsd->guidInstance;
     sprintf( pDPSINew->szSession, "%s (%d/%d)", pdpsd->lpszSessionNameA, 
              pdpsd->dwCurrentPlayers, pdpsd->dwMaxPlayers );
+
+	if (pdpsd->dwFlags & DPSESSION_JOINDISABLED)
+		strcat(pDPSINew->szSession, " (in progress)");
 
     // Add pDPSINew to the circular linked list, g_pDPSIFirst
     pDPSINew->next = DPSIHead.next;
@@ -624,7 +655,7 @@ BOOL CALLBACK dlgCreate(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_INITDIALOG:
-		SetDlgItemText(hDlg, IDC_NAME, "Frogger2");
+		SetDlgItemText(hDlg, IDC_NAME, sessionName);
 		return FALSE;
 
 	case WM_COMMAND:

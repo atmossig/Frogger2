@@ -39,10 +39,18 @@
 
 unsigned long	nextUpdate = 0, nextPing = 0, gameStartTime = 0;
 bool			hostSync, wasSync, hostReady, gameReady;
-TEXTOVERLAY		*netMessage;
+TEXTOVERLAY		*netMessage, *netStatus;
 
 NETGAME_LOOP		netgameLoopFunc = NULL;
 NET_MESSAGEHANDLER	netgameHandler = NULL;
+
+#define NETMSG_TIMEOUT			1000 //ms
+
+char *netStatusText = NULL;
+DWORD netStatusTime = 0;
+
+#define NETSTATUS_TIMEOUT		3000
+#define NETSTATUS_FADEOUT		1000
 
 // ---------------------------------------------------------------------------------------
 // Update messages
@@ -157,6 +165,9 @@ void NetgameStartGame()
 		hostSync = hostReady = false;
 	}
 
+	netStatusText = new char[1024];
+	netStatus = CreateAndAddTextOverlay(32, 3800, netStatusText, 0, 0, fontSmall, 0);
+
 	NetgameBegin();
 }
 
@@ -201,6 +212,19 @@ void NetgameHostGame()
 	}
 }
 
+
+void NetgameStatusMessage(const char* msg)
+{
+	if (netStatus)
+	{
+		netStatusTime = timeInfo.tickCount;
+		strncpy(netStatusText, msg, 1023);
+
+		netStatus->draw = 1;
+		netStatus->a = 255;
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: NetgameRun
 	Purpose			: network-game specific version of GameLoop()
@@ -211,6 +235,11 @@ void NetgameHostGame()
 
 void NetgameGameloop()
 {
+	if (timeInfo.tickCount > netStatusTime+NETSTATUS_TIMEOUT)
+		netStatus->draw = 0;
+	else if (timeInfo.tickCount > netStatusTime+NETSTATUS_FADEOUT)
+		netStatus->a = (255*(NETSTATUS_TIMEOUT-timeInfo.tickCount+netStatusTime))/(NETSTATUS_TIMEOUT-NETSTATUS_FADEOUT);
+
 	if (gameReady)
 	{
 

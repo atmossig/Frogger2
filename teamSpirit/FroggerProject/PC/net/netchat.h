@@ -17,6 +17,7 @@ enum CHAT_FORMAT {
 };
 
 int RunNetChatWindow(HWND);
-void NetShowMessage(const char* string, CHAT_FORMAT f);
+void ChatShowMessage(const char* string, CHAT_FORMAT f);
+
 
 #endif

@@ -33,6 +33,8 @@ void NetgameDeath();
 
 void NetgameHostGame();
 
+void NetgameStatusMessage(const char* msg);
+
 #ifdef __cplusplus
 }
 #endif

@@ -64,7 +64,7 @@ struct	MSG_GAMESETUP
 
 
 int ChatHandler(void *data, unsigned long size, NETPLAYER *player);
-void ShowMessage(const char* string, CHAT_FORMAT f);
+//void ChatShowMessage(const char* string, CHAT_FORMAT f);
 
 void StartPlayers(HWND hDlg)
 {	
@@ -137,7 +137,7 @@ bool SetupChatDialog(HWND hdlg)
 	pf.dxOffset = 256;
 	SendMessage(hwndChatEdit, EM_SETPARAFORMAT, 0, (LPARAM)&pf);
 
-	ShowMessage(isHost?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
+	ChatShowMessage(isHost?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
 
 	HWND hList = GetDlgItem(hdlg, IDC_LEVEL);
 
@@ -174,7 +174,7 @@ bool SetupChatDialog(HWND hdlg)
 	return true;
 }
 
-void ShowMessage(const char* string, CHAT_FORMAT f)
+void ChatShowMessage(const char* string, CHAT_FORMAT f)
 {
 	if (!hwndChatEdit) return;
 
@@ -249,7 +249,7 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 				strcat(buffer, "> ");
 				strncat(buffer, text, 1024);
 
-				ShowMessage(buffer, CHAT_NORMAL);
+				ChatShowMessage(buffer, CHAT_NORMAL);
 
 				*(int*)buffer = APPMSG_CHAT;
 				strncpy(buffer+4, text, 1020);
@@ -265,15 +265,31 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		case IDC_START:
 			if (isHost) {
+				HRESULT res;
+				DWORD	dwSize;
+
 				// ... drumroll please ..
 				utilPrintf("NET: starting the game... drumroll please ...\n");
 
-				DPSESSIONDESC2 dpsd;
-				ZeroMemory(&dpsd, sizeof(dpsd));
-				dpsd.dwSize = sizeof(dpsd);
-				dpsd.dwFlags = DPSESSION_NEWPLAYERSDISABLED|DPSESSION_JOINDISABLED;
+				dwSize = 0;
+				res = dplay->GetSessionDesc(NULL, &dwSize);
 
-				dplay->SetSessionDesc(&dpsd, 0);
+				UBYTE *buffer = new UBYTE[dwSize];
+				res = dplay->GetSessionDesc(buffer, &dwSize);
+
+				if (res == DP_OK)
+				{
+					DPSESSIONDESC2 *dpsd = (DPSESSIONDESC2*)buffer;
+
+					dpsd->dwFlags |= DPSESSION_NEWPLAYERSDISABLED|DPSESSION_JOINDISABLED;
+					res = dplay->SetSessionDesc(dpsd, 0);
+					if (res)
+						utilPrintf("Net: couldn't set session desc: %s\n", GetDirectPlayError(res));
+				}
+				else
+					utilPrintf("Net: couldn't get session desc: %s\n", GetDirectPlayError(res));
+
+				delete buffer;
 
 				StartPlayers(hDlg);
 
@@ -296,11 +312,6 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return FALSE;
-}
-
-void NetShowMessage(const char* str, CHAT_FORMAT fmt)
-{
-	ShowMessage(str, fmt);
 }
 
 int RunNetChatWindow(HWND parent)
@@ -337,7 +348,7 @@ int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 			strcat(buffer, "> ");
 			strncat(buffer, ((char*)data) + 4, 1024);
 
-			ShowMessage(buffer, CHAT_NORMAL);
+			ChatShowMessage(buffer, CHAT_NORMAL);
 		}
 		return 0;
 

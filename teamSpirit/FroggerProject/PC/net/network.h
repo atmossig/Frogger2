@@ -12,6 +12,7 @@
 #define __NETWORK_H
 
 #include <dplay.h>
+#include "netchat.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -68,6 +69,9 @@ int GetPlayerNumFromID(DPID id);
 
 int NetBroadcastMessage(void *data, unsigned long size);
 int NetBroadcastUrgentMessage(void *data, unsigned long size);
+
+void NetShowMessage(const char* string, CHAT_FORMAT f);
+const char *GetDirectPlayError(HRESULT hRes);
 
 #ifdef __cplusplus
 }

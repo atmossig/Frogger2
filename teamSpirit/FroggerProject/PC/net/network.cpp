@@ -46,8 +46,92 @@ NETPLAYER netPlayerList[MAX_FROGS];
 
 
 
+const char *GetDirectPlayError(HRESULT hRes)
+{
+	static char szTempStr[12];
+
+	switch(hRes)
+	{
+		case DP_OK: return ("DP_OK");
+		case DPERR_ALREADYINITIALIZED: return ("DPERR_ALREADYINITIALIZED");
+		case DPERR_ACCESSDENIED: return ("DPERR_ACCESSDENIED");
+		case DPERR_ACTIVEPLAYERS: return ("DPERR_ACTIVEPLAYERS");
+		case DPERR_BUFFERTOOSMALL: return ("DPERR_BUFFERTOOSMALL");
+		case DPERR_CANTADDPLAYER: return ("DPERR_CANTADDPLAYER");
+		case DPERR_CANTCREATEGROUP: return ("DPERR_CANTCREATEGROUP");
+		case DPERR_CANTCREATEPLAYER: return ("DPERR_CANTCREATEPLAYER");
+		case DPERR_CANTCREATESESSION: return ("DPERR_CANTCREATESESSION");
+		case DPERR_CAPSNOTAVAILABLEYET: return ("DPERR_CAPSNOTAVAILABLEYET");
+		case DPERR_EXCEPTION: return ("DPERR_EXCEPTION");
+		case DPERR_GENERIC: return ("DPERR_GENERIC");
+		case DPERR_INVALIDFLAGS: return ("DPERR_INVALIDFLAGS");
+		case DPERR_INVALIDOBJECT: return ("DPERR_INVALIDOBJECT");
+	//	case DPERR_INVALIDPARAM: return ("DPERR_INVALIDPARAM");	 dup value
+		case DPERR_INVALIDPARAMS: return ("DPERR_INVALIDPARAMS");
+		case DPERR_INVALIDPLAYER: return ("DPERR_INVALIDPLAYER");
+		case DPERR_INVALIDGROUP: return ("DPERR_INVALIDGROUP");
+		case DPERR_NOCAPS: return ("DPERR_NOCAPS");
+		case DPERR_NOCONNECTION: return ("DPERR_NOCONNECTION");
+	//	case DPERR_NOMEMORY: return ("DPERR_NOMEMORY");		dup value
+		case DPERR_OUTOFMEMORY: return ("DPERR_OUTOFMEMORY");
+		case DPERR_NOMESSAGES: return ("DPERR_NOMESSAGES");
+		case DPERR_NONAMESERVERFOUND: return ("DPERR_NONAMESERVERFOUND");
+		case DPERR_NOPLAYERS: return ("DPERR_NOPLAYERS");
+		case DPERR_NOSESSIONS: return ("DPERR_NOSESSIONS");
+		case DPERR_PENDING: return ("DPERR_PENDING");
+		case DPERR_SENDTOOBIG: return ("DPERR_SENDTOOBIG");
+		case DPERR_TIMEOUT: return ("DPERR_TIMEOUT");
+		case DPERR_UNAVAILABLE: return ("DPERR_UNAVAILABLE");
+		case DPERR_UNSUPPORTED: return ("DPERR_UNSUPPORTED");
+		case DPERR_BUSY: return ("DPERR_BUSY");
+		case DPERR_USERCANCEL: return ("DPERR_USERCANCEL");
+		case DPERR_NOINTERFACE: return ("DPERR_NOINTERFACE");
+		case DPERR_CANNOTCREATESERVER: return ("DPERR_CANNOTCREATESERVER");
+		case DPERR_PLAYERLOST: return ("DPERR_PLAYERLOST");
+		case DPERR_SESSIONLOST: return ("DPERR_SESSIONLOST");
+		case DPERR_UNINITIALIZED: return ("DPERR_UNINITIALIZED");
+		case DPERR_NONEWPLAYERS: return ("DPERR_NONEWPLAYERS");
+		case DPERR_INVALIDPASSWORD: return ("DPERR_INVALIDPASSWORD");
+		case DPERR_CONNECTING: return ("DPERR_CONNECTING");
+		case DPERR_CONNECTIONLOST: return ("DPERR_CONNECTIONLOST");
+		case DPERR_UNKNOWNMESSAGE: return ("DPERR_UNKNOWNMESSAGE");
+		case DPERR_CANCELFAILED: return ("DPERR_CANCELFAILED");
+		case DPERR_INVALIDPRIORITY: return ("DPERR_INVALIDPRIORITY");
+		case DPERR_NOTHANDLED: return ("DPERR_NOTHANDLED");
+		case DPERR_CANCELLED: return ("DPERR_CANCELLED");
+		case DPERR_ABORTED: return ("DPERR_ABORTED");
+		case DPERR_BUFFERTOOLARGE: return ("DPERR_BUFFERTOOLARGE");
+		case DPERR_CANTCREATEPROCESS: return ("DPERR_CANTCREATEPROCESS");
+		case DPERR_APPNOTSTARTED: return ("DPERR_APPNOTSTARTED");
+		case DPERR_INVALIDINTERFACE: return ("DPERR_INVALIDINTERFACE");
+		case DPERR_NOSERVICEPROVIDER: return ("DPERR_NOSERVICEPROVIDER");
+		case DPERR_UNKNOWNAPPLICATION: return ("DPERR_UNKNOWNAPPLICATION");
+		case DPERR_NOTLOBBIED: return ("DPERR_NOTLOBBIED");
+		case DPERR_SERVICEPROVIDERLOADED: return ("DPERR_SERVICEPROVIDERLOADED");
+		case DPERR_ALREADYREGISTERED: return ("DPERR_ALREADYREGISTERED");
+		case DPERR_NOTREGISTERED: return ("DPERR_NOTREGISTERED");
+		case DPERR_AUTHENTICATIONFAILED: return ("DPERR_AUTHENTICATIONFAILED");
+		case DPERR_CANTLOADSSPI: return ("DPERR_CANTLOADSSPI");
+		case DPERR_ENCRYPTIONFAILED: return ("DPERR_ENCRYPTIONFAILED");
+		case DPERR_SIGNFAILED: return ("DPERR_SIGNFAILED");
+		case DPERR_CANTLOADSECURITYPACKAGE: return ("DPERR_CANTLOADSECURITYPACKAGE");
+		case DPERR_ENCRYPTIONNOTSUPPORTED: return ("DPERR_ENCRYPTIONNOTSUPPORTED");
+		case DPERR_CANTLOADCAPI: return ("DPERR_CANTLOADCAPI");
+		case DPERR_NOTLOGGEDIN: return ("DPERR_NOTLOGGEDIN");
+		case DPERR_LOGONDENIED: return ("DPERR_LOGONDENIED");
+	}
+
+	// For errors not in the list, return HRESULT string
+	wsprintf(szTempStr,"0x%08X",hRes);
+	return szTempStr;
+}
 
 
+void NetShowMessage(const char* string, CHAT_FORMAT f)
+{	
+	ChatShowMessage(string, f);
+	NetgameStatusMessage(string);
+}
 
 
 NETPLAYER *GetPlayerFromID(DPID id)
@@ -260,7 +344,7 @@ void NetProcessMessages()
 void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo)
 {
 	long i;
-	LPSTR lpszStr = NULL;
+	char message[256];
 
 	switch(lpMsg->dwType)
 	{
@@ -268,7 +352,9 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		{
 			LPDPMSG_CREATEPLAYERORGROUP lp = (LPDPMSG_CREATEPLAYERORGROUP) lpMsg;
 
-			utilPrintf("NET: '%s' joined the game\n", lp->dpnName.lpszShortNameA);
+			wsprintf(message, "'%s' joined the game", lp->dpnName.lpszShortNameA);
+			NetShowMessage(message, CHAT_SYSTEM);
+			utilPrintf("NET: %s\n", message);
 
 			AddNetPlayer(lp->dpId);
 		}
@@ -278,7 +364,9 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		{
 			LPDPMSG_DESTROYPLAYERORGROUP lp = (LPDPMSG_DESTROYPLAYERORGROUP) lpMsg;
 
-			utilPrintf("NET: '%s' left the game\n", lp->dpnName.lpszShortNameA);
+			wsprintf(message, "'%s' left the game", lp->dpnName.lpszShortNameA);
+			NetShowMessage(message, CHAT_SYSTEM);
+			utilPrintf("NET: %s\n", message);
 
 			RemoveNetPlayer(lp->dpId);
 		}
@@ -287,13 +375,18 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		case DPSYS_SESSIONLOST:
 		{
 			LPDPMSG_SESSIONLOST lp = (LPDPMSG_SESSIONLOST)lpMsg;
-			utilPrintf("NET: Lost connection.. shutting down\n");
+
+			wsprintf(message, "The connection to the game has been broken");
+			NetShowMessage(message, CHAT_ERROR);
+			utilPrintf("NET: %s\n", message);
 		}
 		break;
 
 		case DPSYS_HOST:
 		{
-			utilPrintf("NET: This machine is now the host\n");
+			wsprintf(message, "This computer is now the host");
+			NetShowMessage(message, CHAT_SYSTEM);
+			utilPrintf("NET: %s\n", message);
 			// we are now the host
 			isHost = true;
 
