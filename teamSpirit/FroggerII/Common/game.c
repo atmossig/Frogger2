@@ -377,15 +377,34 @@ void GameProcessController(long pl)
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
+		long i;
 		//ScreenShot();
 
 		gameState.mode = PAUSE_MODE;
 		testPause = 1;
+	
+		grabData.afterEffect = NO_EFFECT;
+
 		EnableTextOverlay ( pauseTitle );
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
+
+		livesTextOver->oa = livesTextOver->a;
+		scoreTextOver->oa = scoreTextOver->a;
+		timeTextOver->oa = timeTextOver->a;
+
+		livesTextOver->a = 0;
+		scoreTextOver->a = 0;
+		timeTextOver->a = 0;
+	
+		for ( i = 0; i < 3; i++ )
+			sprHeart[i]->draw = 0;
+
+		for(i=0; i<numBabies; i++)
+			babyIcons[i]->draw = 0;
+
 		lastbutton[pl] = button[pl];
-		
+/*		
 		if(backPanel)
 		{
 			backPanel->xPos		= 50;
@@ -398,7 +417,7 @@ void GameProcessController(long pl)
 			backPanel->a		= 127;
 			backPanel->draw		= 1;
 		}
-
+*/
 //		return;	
     }
   
@@ -820,7 +839,6 @@ void RunGameLoop (void)
 		backPanel->g		= 63;
 		backPanel->b		= 255;
 		backPanel->a		= 0;
-
 
 //		sp = AddNewSpriteToList(firstTile[],firstTile[],firstTile[],0,"wholekey.bmp",0);
 

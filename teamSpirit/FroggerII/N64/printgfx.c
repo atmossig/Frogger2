@@ -1157,7 +1157,7 @@ void PrintSprite(SPRITE *sprite)
 */
 void SetGrabData( )
 {
-	grabData.flags |= CALC_VTX;
+	grabData.calcVtx = 1;
 
 	if( grabData.flags & MOTION_BLUR )
 	{
@@ -1195,22 +1195,22 @@ void SetGrabData( )
 	if( grabData.flags & VERTEX_WODGE )
 	{
 		grabData.sinAmt = 3;
-		grabData.sinSpeed = 0.2;
-		grabData.flags |= DYNAMIC_VTX;
+		grabData.sinSpeed = 0.1;
+		grabData.dynVtx = 1;
 	}
 	if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
 	{
 		grabData.maxScale = 0.5;
-		grabData.speedScale = 0.0005;
+		grabData.speedScale = 0.05;
 		grabData.scale = 0;
-		grabData.flags |= DYNAMIC_VTX;
+		grabData.dynVtx = 1;
 	}
 	if( grabData.flags & MEZZOTINT ) // Requires one of the TILE_SHRINK defines to do anything
 	{
 		grabData.scale = 0.07;
 		grabData.maxScale = 0;
 		grabData.speedScale = 0;
-		grabData.flags |= DYNAMIC_VTX;
+		grabData.dynVtx = 1;
 	}
 }
 
@@ -1232,23 +1232,27 @@ void DrawScreenGrab( unsigned long flags )
 		vPtr = &fsVerts[0];
 		grab = scrTexGrab;
 
-		flags &= ~NEW_FLAGS;
 		grabData.flags = flags;
 		SetGrabData( );
 	}
-	else if( flags & NEW_FLAGS )
+	else if( flags != grabData.flags )
 	{
-		flags &= ~NEW_FLAGS;
-		newFlag = 0;
 		grabData.flags = flags;
 		SetGrabData( );
 	}
 
 	// Recalc vertices every frame
-	if( grabData.flags & CALC_VTX )
+	if( grabData.calcVtx )
 	{
 		if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
+		{
 			tileScale = grabData.yTS * grabData.scale;
+
+			if (grabData.scale<grabData.maxScale)
+				grabData.scale += grabData.speedScale;
+			else
+				grabData.afterEffect = NO_EFFECT;
+		}
 		
 		if( grabData.flags & SHRINK_TO_POINT )
 		{
@@ -1258,7 +1262,12 @@ void DrawScreenGrab( unsigned long flags )
 				grabData.xTS--;
 
 			if( !grabData.xTS && !grabData.yTS )
+			{
 				grabData.flags &= ~SHRINK_TO_POINT;
+				grabData.xTS = grabData.maxxTS;
+				grabData.yTS = grabData.maxyTS;
+				grabData.afterEffect = NO_EFFECT;
+			}
 		}
 
 		for (y=0; y<8; y++)
@@ -1300,20 +1309,18 @@ void DrawScreenGrab( unsigned long flags )
 							y1 += tileScale;
 						}
 					}
-					if (grabData.scale<grabData.maxScale)
-						grabData.scale += grabData.speedScale;
 				}
 				
 				if( grabData.flags & VERTEX_WODGE )
 				{
 					if (x!=0)
-						x1+=sinf((x1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
-					if (x!=4)
 						x2+=sinf((x2+frameCount*grabData.sinSpeed))*grabData.sinAmt;
+					if (x!=4)
+						x1+=sinf((x1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
 					if (y!=0)
-						y1+=sinf((y1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
-					if (y!=7)
 						y2+=sinf((y2+frameCount*grabData.sinSpeed))*grabData.sinAmt;
+					if (y!=7)
+						y1+=sinf((y1+frameCount*grabData.sinSpeed))*grabData.sinAmt;
 				}
 
 				V((&vPtr[v+0]),x1,grabData.zOff,-y1,0,2048,1024,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
@@ -1322,8 +1329,8 @@ void DrawScreenGrab( unsigned long flags )
 				V((&vPtr[v+3]),x1,grabData.zOff,-y2,0,2048,0   ,grabData.vR,grabData.vG,grabData.vB,grabData.alpha);
 			}
 
-		if( !(grabData.flags & DYNAMIC_VTX) )
-			grabData.flags &= ~CALC_VTX;
+		if( !grabData.dynVtx )
+			grabData.calcVtx = 0;
 	}
 
 	gSPDisplayList(glistp++,polyNoZ_dl);

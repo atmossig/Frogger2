@@ -47,7 +47,7 @@ typedef struct TAGTEXTOVERLAY
 	short		kill;
 	short		life;
 
-	UBYTE		r,g,b,a;
+	UBYTE		r,g,b,a,oa;
 
 	UBYTE		draw;
 	FONT		*font;

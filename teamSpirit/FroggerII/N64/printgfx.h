@@ -67,18 +67,15 @@
 #define G_CC_DECALI_MODULATEA_PRIM    TEXEL0, 0, 1, SHADE, TEXEL0, 0, PRIMITIVE, 0
 
 
-#define CALC_VTX			(1<<0)	// Recalc vertices every turn? Temporary flag
-#define DYNAMIC_VTX			(1<<1)	// Permanently determines the setting of CALC_VTX
-
-#define MOTION_BLUR			(1<<5)	// Standard effect - sets up basic blur data
-#define VERTEX_WODGE		(1<<6)  // Wibble vertices to make water / haze effect
-#define TILE_SHRINK_HORZ	(1<<7)	// Start shrinking tiles to nothing horizontally
-#define TILE_SHRINK_VERT	(1<<8)  // Vertically
-#define SHRINK_TO_POINT		(1<<9)	// Shrink whole overlay to point
-#define MEZZOTINT			(1<<10) // Scale tiles so they don't quite join - mad window effect
-#define DES_REP_MODE		(1<<11)	// Tile image bizarrely, in a Designers Republic stylee
-#define BARS_HORZ			(1<<12)	// Horizontal glass bars
-#define BARS_VERT			(1<<13) // Vertical
+#define MOTION_BLUR			(1<<0)	// Standard effect - sets up basic blur data
+#define VERTEX_WODGE		(1<<1)  // Wibble vertices to make water / haze effect
+#define TILE_SHRINK_HORZ	(1<<2)	// Start shrinking tiles to nothing horizontally
+#define TILE_SHRINK_VERT	(1<<3)  // Vertically
+#define SHRINK_TO_POINT		(1<<4)	// Shrink whole overlay to point
+#define MEZZOTINT			(1<<5)  // Scale tiles so they don't quite join - mad window effect
+#define DES_REP_MODE		(1<<6)	// Tile image bizarrely, in a Designers Republic stylee
+#define BARS_HORZ			(1<<7)	// Horizontal glass bars
+#define BARS_VERT			(1<<8)  // Vertical
 
 #define BLUR_HEAVY			(1<<20)	// High alpha on overlay
 #define BLUR_MEDIUM			(1<<21) // Medium
@@ -92,7 +89,9 @@
 #define TINT_GREEN			(1<<27) // Green
 #define TINT_BLUE			(1<<28) // Blue
 
-#define NEW_FLAGS			(1<<31) // Sign to recalculate data because we have new flags
+
+#define NO_EFFECT			0
+#define PAUSE_EXIT			1       // Shrinking screen out after pause
 
 typedef struct TAGGRABSTRUCT
 {
@@ -103,6 +102,9 @@ typedef struct TAGGRABSTRUCT
 		pR, pG, pB,        // Primitive rgb
 		eR, eG, eB,        // environment rgb
 		alpha;             // Translucency of mesh
+	short calcVtx;         // Recalculate vertices?
+	short dynVtx;          // Determines the setting of calcVtx
+	short afterEffect;     // Lets effects run over into game time after pause screen, for example
 	unsigned long flags;
 	// For vertex wodging
 	float sinAmt;          // Amount to wodge
