@@ -47,6 +47,10 @@ void LoadTextureBank ( int textureBank )
 				sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" );
 			break;
 
+		case SUPERRETRO_TEX_BANK:
+				sprintf ( fileName, "TEXTURES\\SUPER.SPT" );
+			break;
+
 		case FRONTEND_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\HUB.SPT" );
 			break;

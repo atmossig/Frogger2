@@ -52,11 +52,12 @@ asm(\
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
 
-//#define WATERANIM_1 (u+((rcos(frame<<6)+4096)>>11))|((v+((rsin(frame<<6)+4096)>>11))<<8)
-//#define WATERANIM_2 (u+((rsin(frame<<6)+4096)>>11))|((v+((rcos(frame<<6)+4096)>>11))<<8)
+#define WATERANIM_1A (u+((rcos(frame<<6)+4096)>>11))|((v+((rsin(frame<<6)+4096)>>11))<<8)
+#define WATERANIM_2B (u+((rsin(frame<<6)+4096)>>11))|((v+((rcos(frame<<6)+4096)>>11))<<8)
 
 #define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
 #define WATERANIM_2  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
+
 
 #define WATER_TRANS_CODE (((ULONG)2)<<24)
 #define WATER_TRANS_CLUT (0x80000000)
@@ -105,15 +106,24 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 	if ( !jiggledVerts )
 		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
-	for ( i = 0; i < mesh->n_verts; i++ )
-	{
-		jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
-		jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
-		jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
-	}
 	
-	//transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
-	transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
+	if ( mesh->flags & ( 1 << 9 ) )
+	{
+		for ( i = 0; i < mesh->n_verts; i++ )
+		{
+			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
+			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+		}
+		// ENDFOR
+		
+		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
+	}
+	else
+	{
+		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
+	}
+	// ENDELSEIF
 
 	for ( i = 0; i < mesh->n_verts; i++ )
 	{
@@ -168,10 +178,16 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 			v = op->v0;
 
-			if ( mesh->flags & ( 1 << 2 ) )
-				t1 = WATERANIM_1 | ( op->clut << 16 ) | WATER_TRANS_CLUT;
+			if ( mesh->flags & ( 1 << 6 ) )
+				t1 = WATERANIM_1A;
 			else
-				t1 = WATERANIM_1 | ( op->clut << 16 ) | 0;
+				t1 = WATERANIM_1;
+
+
+			if ( mesh->flags & ( 1 << 2 ) )
+				t1 |= ( op->clut << 16 ) | WATER_TRANS_CLUT;
+			else
+				t1 |= ( op->clut << 16 ) | 0;
 
 			if ( mesh->flags & ( 1 << 3 ) )
 				u = op->u1 + ( ( frame / 2 ) % 32 );
@@ -180,7 +196,19 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 			// ENDELSEIF
 			v = op->v1;
 
-			t2 = WATERANIM_1 | ( op->tpage << 16 );
+	//		t2 = WATERANIM_1 | ( op->tpage << 16 );
+
+
+			if ( mesh->flags & ( 1 << 6 ) )
+			{
+				t2 = WATERANIM_2B | ( op->tpage << 16 );
+			}
+			else
+			{
+				t2 = WATERANIM_1 | ( op->tpage << 16 );
+			}
+			// ENDELSEIF
+
 
 			*(u_long *)  (&si->u0) = t1;
 			*(u_long *)  (&si->u1) = t2;
@@ -194,7 +222,12 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 			// ENDELSEIF
 			v = op->v2;
 
-			t1 = WATERANIM_2;
+			//t1 = WATERANIM_2;
+
+			if ( mesh->flags & ( 1 << 6 ) )
+				t1 = WATERANIM_1A;
+			else
+				t1 = WATERANIM_2;
 
 			if ( mesh->flags & ( 1 << 3 ) )
 				u = op->u3 + ( ( frame / 2 ) % 32 );
@@ -203,10 +236,21 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 			// ENDELSEIF
 			v = op->v3;
 
-			t2 = WATERANIM_2;
+			if ( mesh->flags & ( 1 << 6 ) )
+			{
+				t2 = WATERANIM_2B;
+			}
+			else
+			{
+				t2 = WATERANIM_2;
+			}
+			// ENDELSEIF
+
+			//t2 = WATERANIM_2;
 
 			*(u_long *)  (&si->u2) = t1;
 			*(u_long *)  (&si->u3) = t2;
+
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
 			if ( mesh->flags & ( 1 << 2 ) )
@@ -497,15 +541,24 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	if ( !jiggledVerts )
 		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
-	for ( i = 0; i < mesh->n_verts; i++ )
-	{
-		jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
-		jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
-		jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
-	}
 	
-	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
-	//transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
+	if ( mesh->flags & ( 1 << 9 ) )
+	{
+		for ( i = 0; i < mesh->n_verts; i++ )
+		{
+			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
+			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+		}
+		// ENDFOR
+		
+		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
+	}
+	else
+	{
+		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
+	}
+	// ENDELSEIF
 
 	for ( i = 0; i < mesh->n_verts; i++ )
 	{
