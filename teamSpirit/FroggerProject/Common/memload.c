@@ -336,6 +336,7 @@ int MemLoadEntities(const void* data)
 					act->depthShift = depthShift;
 					act->dffClipping = dffClipping;
 
+#ifdef PC_VERSION
 					if( !rHardware )
 					{
 						char name[16], *c = type, *d = name;
@@ -351,6 +352,7 @@ int MemLoadEntities(const void* data)
 							}
 						}
 					}
+#endif
 				}
 
 #ifdef MEMLOAD_PRINT_ENTITIES
