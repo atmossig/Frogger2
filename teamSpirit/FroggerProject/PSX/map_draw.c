@@ -11,6 +11,7 @@
 #include "world_eff.h"
 #include "layout.h"
 #include "frogger.h"
+#include "psxsprite.h"
 
 
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
@@ -269,14 +270,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // The MapDraw stores a count+list of quads and one of tris,
 // rather than checking a "type" element for every polygon.
 // (coz it only has those two types. No transparent. No double sided. No nothing)
-
-#if PALMODE==1
-	#define SCALEY 640
-#else
-	#define SCALEY 512
-#endif
-
-#define SCALEX 900
 
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)

@@ -12,6 +12,7 @@
 #include "sprite.h"
 #include "frogger.h"
 #include "game.h"
+#include "psxsprite.h"
 
 #include "World_Eff.h"
 
@@ -233,14 +234,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	// Store UV modge vals for a poly
 	short mVs[8];
-
-#if PALMODE==1
-	#define SCALEY 640
-#else
-	#define SCALEY 512
-#endif
-
-#define SCALEX 900
 
 	// Is this an sp(m/f/l) type slidy thing? If so, what speed?
 	unsigned short pcStyleSlide;

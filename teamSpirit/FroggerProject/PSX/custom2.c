@@ -9,6 +9,7 @@
 #include "enemies.h"
 #include <islutil.h>
 #include "timer.h"
+#include "psxsprite.h"
 
 
 #define GETX(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->x )
@@ -1965,11 +1966,14 @@ void dcacheCustomDrawPrimitives2 ( int depth, long *tfv, long *tfd )
 		so we have to do the scaling based on the distance ourselves.
 	*/
 
-					//width = ((op->v2 * gteH) / (tfd[op->v0]));
-					//height = ((op->v3 * gteH) / (tfd[op->v0]));
+//					width = ((op->v2 * gteH) / (tfd[op->v0]));
+//					height = ((op->v3 * gteH) / (tfd[op->v0]));
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
-					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
+//					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+//					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
+
+					width = (op->v2 * SCALEX) / (tfd[op->v0]*20);
+					height = (op->v3 * SCALEY) / (tfd[op->v0]*20);
 
 					// JH : Temp Fix
 					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
