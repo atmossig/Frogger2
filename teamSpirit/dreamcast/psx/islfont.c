@@ -343,7 +343,7 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 */
 //					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b, font->alpha,scale);
 					
-					fontDispChar(font,font->uvOffsets[loop], x,y/*-((c>127)?(1):(0))*/, r,g,b, font->alpha, font->size);
+					fontDispChar(font,font->uvOffsets[loop], x,y/*-((c>127)?(1):(0))*/, r,g,b, font->alpha, font->size, scale);
 					
 				}
 				x += FMul(font->pixelwidth[loop]+2,scale);
@@ -450,77 +450,41 @@ void fontUnload(psFont *font)
 }
 
 
-void fontDispChar(psFont *font, DCKFLOAT2DVECTOR offset, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha, int size)
+
+
+// *ASL* 13/08/2000
+/* ---------------------------------------------------------
+   Function : fontDispChar
+   Purpose : display font char
+   Parameters : font pointer, uv offsets, x,y, r,g,b,a, font size, PSX scale
+   Returns : 
+   Info : 
+*/
+
+void fontDispChar(psFont *font, DCKFLOAT2DVECTOR offset, short x, short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha, int size, int psxScale)
 {
-	USHORT		w,h;
+	float	scaleSize;
+	float	uo, vo;
 
+	scaleSize = (float)font->size * ((float)psxScale / 4096.0f);
 
-	if(font == fontSmall)
-	{	
-		fontVertices[0].fX = x;
-		fontVertices[0].fY = y + font->size;
-		fontVertices[0].u.fZ = 1.0;
-		fontVertices[0].fU = offset.v[0];
-		fontVertices[0].fV = offset.v[1] + V_OFFSET_SMALL;
-		fontVertices[0].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-
-		fontVertices[1].fX = x;
-		fontVertices[1].fY = y;
-		fontVertices[1].u.fZ = 1.0;
-		fontVertices[1].fU = offset.v[0];
-		fontVertices[1].fV = offset.v[1];
-		fontVertices[1].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-
-		fontVertices[2].fX = x + font->size;
-		fontVertices[2].fY = y + font->size;
-		fontVertices[2].u.fZ = 1.0;
-		fontVertices[2].fU = offset.v[0] + U_OFFSET_SMALL;
-		fontVertices[2].fV = offset.v[1] + V_OFFSET_SMALL;
-		fontVertices[2].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-	
-		fontVertices[3].fX = x + font->size;
-		fontVertices[3].fY = y;
-		fontVertices[3].u.fZ = 1.0;
-		fontVertices[3].fU = offset.v[0] + U_OFFSET_SMALL;
-		fontVertices[3].fV = offset.v[1];
-		fontVertices[3].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
+	if (font == fontSmall)
+	{
+		uo = U_OFFSET_SMALL;
+		vo = V_OFFSET_SMALL;
 	}
 	else
 	{
-		fontVertices[0].fX = x;
-		fontVertices[0].fY = y + font->size;
-		fontVertices[0].u.fZ = 1.0;
-		fontVertices[0].fU = offset.v[0];
-		fontVertices[0].fV = offset.v[1] + V_OFFSET;
-		fontVertices[0].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-
-		fontVertices[1].fX = x;
-		fontVertices[1].fY = y;
-		fontVertices[1].u.fZ = 1.0;
-		fontVertices[1].fU = offset.v[0];
-		fontVertices[1].fV = offset.v[1];
-		fontVertices[1].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-
-		fontVertices[2].fX = x + font->size;
-		fontVertices[2].fY = y + font->size;
-		fontVertices[2].u.fZ = 1.0;
-		fontVertices[2].fU = offset.v[0] + U_OFFSET;
-		fontVertices[2].fV = offset.v[1] + V_OFFSET;
-		fontVertices[2].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-	
-		fontVertices[3].fX = x + font->size;
-		fontVertices[3].fY = y;
-		fontVertices[3].u.fZ = 1.0;
-		fontVertices[3].fU = offset.v[0] + U_OFFSET;
-		fontVertices[3].fV = offset.v[1];
-		fontVertices[3].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
+		uo = U_OFFSET;
+		vo = V_OFFSET;
 	}
-	
-/*	fontVertices[0].fX = x;
-	fontVertices[0].fY = y + font->size;
+
+	// initialise char strip
+	fontVertices[0].fX = x;
+	fontVertices[0].fY = y + scaleSize;
 	fontVertices[0].u.fZ = 1.0;
 	fontVertices[0].fU = offset.v[0];
-	fontVertices[0].fV = offset.v[1] + V_OFFSET_SMALL;
+	fontVertices[0].fV = offset.v[1] + vo;
 	fontVertices[0].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 
 	fontVertices[1].fX = x;
@@ -530,20 +494,21 @@ void fontDispChar(psFont *font, DCKFLOAT2DVECTOR offset, short x,short y, unsign
 	fontVertices[1].fV = offset.v[1];
 	fontVertices[1].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 
-	fontVertices[2].fX = x + font->size;
-	fontVertices[2].fY = y + font->size;
+	fontVertices[2].fX = x + scaleSize;
+	fontVertices[2].fY = y + scaleSize;
 	fontVertices[2].u.fZ = 1.0;
-	fontVertices[2].fU = offset.v[0] + U_OFFSET_SMALL;
-	fontVertices[2].fV = offset.v[1] + V_OFFSET_SMALL;
+	fontVertices[2].fU = offset.v[0] + uo;
+	fontVertices[2].fV = offset.v[1] + vo;
 	fontVertices[2].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 	
-	fontVertices[3].fX = x + font->size;
+	fontVertices[3].fX = x + scaleSize;
 	fontVertices[3].fY = y;
 	fontVertices[3].u.fZ = 1.0;
-	fontVertices[3].fU = offset.v[0] + U_OFFSET_SMALL;
+	fontVertices[3].fU = offset.v[0] + uo;
 	fontVertices[3].fV = offset.v[1];
 	fontVertices[3].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
-*/	
+
+	// print strip
 	kmStartStrip(&vertexBufferDesc, fontStripHeadPtr);	
 	kmSetVertex(&vertexBufferDesc, &fontVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 	kmSetVertex(&vertexBufferDesc, &fontVertices[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
@@ -627,7 +592,7 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 				{
 					letter = &font->txPtr[loop];
 //					if((x>-350)&&(x<640))
-						fontDispChar(font,font->uvOffsets[loop], x,y-((c>127)?(1):(0)), r,g,b, font->alpha, font->size);
+						fontDispChar(font,font->uvOffsets[loop], x,y-((c>127)?(1):(0)), r,g,b, font->alpha, font->size, 4096);
 					x += font->pixelwidth[loop];
 				}
 		}
@@ -825,7 +790,7 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 				{
 //					letter = &font->txPtr[loop];
 					if((x>-350)&&(x<640))
-						fontDispChar(font,font->uvOffsets[loop], x,y-((c>127)?(1):(0)), r,g,b,font->alpha, font->size);
+						fontDispChar(font,font->uvOffsets[loop], x,y-((c>127)?(1):(0)), r,g,b,font->alpha, font->size, 4096);
 					x += font->pixelwidth[loop];
 				}
 		}

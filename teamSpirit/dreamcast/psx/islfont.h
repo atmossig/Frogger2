@@ -81,7 +81,8 @@ int fontExtentW(psFont *font, char *text);
 
 int fontFitToWidth(psFont *font, int width, char *text, char *buffer);
 
-void fontDispChar(psFont *font, DCKFLOAT2DVECTOR offset, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha, int size);
+// *ASL* 13/08/2000 - Added PSX scale parameter
+void fontDispChar(psFont *font, DCKFLOAT2DVECTOR offset, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha, int size, int psxScale);
 
 /**************************************************************************
 	FUNCTION:	fontPrintN()
