@@ -134,7 +134,7 @@ int MemLoadEntities(const void* data, long size)
 			switch (thing)
 			{
 			case CREATE_ENEMY:
-				enemy = CreateAndAddEnemy(type,flags,ID,path);
+				enemy = CreateAndAddEnemy(type,flags,ID,path,animSpeed);
 				act = enemy->nmeActor;
 				break;
 

@@ -187,7 +187,7 @@ void UpdateEnemies()
 		}
 
 		// Do Special Effects attached to enemies
-		if( cur->nmeActor->effects )
+		if( cur->nmeActor->effects && !(cur->flags & ENEMY_NEW_VENT) )
 			ProcessAttachedEffects( (void *)cur, 1 );
 	}
 }
@@ -243,22 +243,16 @@ void UpdatePathNME( ENEMY *cur )
 
 	AddToVector(&cur->currNormal,&cur->deltaNormal);
 
-	if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-	{
+	if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
 		Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-	}
-	else
-	{
-		SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
-		if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
-		MakeUnit( &moveVec );
-		Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
-	}
+	else // Need to do this so normals still work
+		Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
 
 	// check if this enemy has arrived at a path node
 	if( actFrameCount > cur->path->endFrame )
 	{
 		UpdateEnemyPathNodes(cur);
+		CalcEnemyNormalInterps(cur);
 
 		cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
 
@@ -360,7 +354,7 @@ void UpdateSlerpPathNME( ENEMY *cur )
 
 	AddToVector( &act->pos, &fwd );
 
-	AddToVector(&cur->currNormal,&cur->deltaNormal);
+//	AddToVector(&cur->currNormal,&cur->deltaNormal);
 
 	// Update path nodes
 	if( DistanceBetweenPointsSquared(&act->pos,&toPosition) < 100 )
@@ -546,13 +540,16 @@ void UpdateVent( ENEMY *cur )
 {
 	PLANE2 rebound;
 	PATH *path = cur->path;
-	unsigned long i;
+	SPECFX *fx;
+	ACTOR2 *act = cur->nmeActor;
+	unsigned long i, t;
+	
 
 	switch( cur->isSnapping )
 	{
 	case -2:
 		path->startFrame = actFrameCount;
-		path->endFrame = actFrameCount + (60*cur->nmeActor->radius);
+		path->endFrame = actFrameCount + (60*act->radius);
 
 		cur->isSnapping = -1;
 		break;
@@ -578,6 +575,7 @@ void UpdateVent( ENEMY *cur )
 		// Delay until stop
 		path->startFrame = actFrameCount;
 		path->endFrame = actFrameCount + (60*path->nodes[0].speed);
+		act->fxCount = 0;
 
 		cur->isSnapping = 2;
 		break;
@@ -590,16 +588,24 @@ void UpdateVent( ENEMY *cur )
 			break;
 		}
 
-		// Create fx
-		/* TODO: Options for different types of effects specified in the effects thing. Need effects first...
-		if( cur->nmeActor->effects & EF_FLAMEBURST_UP )
+		t = (path->endFrame-path->startFrame)/act->value1;
+
+		if( (actFrameCount-path->startFrame) > (act->fxCount*t) )
 		{
-
+			act->fxCount++;
+			if( cur->nmeActor->effects & EF_FIERYSMOKE )
+				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 2.0*path->numNodes );
+			else if( cur->nmeActor->effects & EF_LASER )
+			{
+				fx = CreateAndAddSpecialEffect( FXTYPE_LASER, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 15, cur->nmeActor->animSpeed, 0, 1.5*path->numNodes );
+				SetAttachedFXColour( fx, cur->nmeActor->effects );
+			}
+			else if( cur->nmeActor->effects & EF_SMOKEBURST )
+			{
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 1.7*path->numNodes );
+				SetAttachedFXColour( fx, cur->nmeActor->effects );
+			}
 		}
-		else if...
-		*/
-
-		CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 64, cur->nmeActor->animSpeed*path->numNodes, 0, cur->nmeActor->value1*path->numNodes );
 
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
@@ -796,9 +802,9 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
 		}
-		else if( (actFrameCount-path->startFrame) > (0.5*(float)(path->endFrame-path->startFrame)) )
+		else if( (actFrameCount-path->startFrame) > (0.8*(float)(path->endFrame-path->startFrame)) )
 		{
-			cur->inTile = path->nodes[2].worldTile;//FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
+			cur->inTile = path->nodes[2].worldTile;
 		}
 	}
 
@@ -1085,7 +1091,7 @@ void FreeEnemyLinkedList()
 }
 
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed )
 {
 	int enemyType = 0;
 	float shadowRadius = 0;
@@ -1115,7 +1121,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
 	else
 		newItem->nmeActor->radius = 0.0F;	// set radius to zero - not used for collision detection
 
-	AnimateActor(newItem->nmeActor->actor,0,YES,NO,0.5/*newItem->nmeActor->animSpeed*/, 0, 0);
+	AnimateActor(newItem->nmeActor->actor,0,YES,NO,animSpeed, 0, 0);
+	newItem->nmeActor->animSpeed = animSpeed;
 	newItem->nmeActor->actor->scale.v[X] = 1.5F;
 	newItem->nmeActor->actor->scale.v[Y] = 1.5F;
 	newItem->nmeActor->actor->scale.v[Z] = 1.5F;
@@ -1350,8 +1357,6 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 	}
 
 	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
-
-	CalcEnemyNormalInterps(nme);
 }
 
 

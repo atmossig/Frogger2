@@ -38,6 +38,7 @@ TEXTURE *txtrBlank		= NULL;
 
 void UpdateFXRipple( SPECFX *fx );
 void UpdateFXRing( SPECFX *fx );
+void UpdateFXBolt( SPECFX *fx );
 void UpdateFXSmoke( SPECFX *fx );
 void UpdateFXSwarm( SPECFX *fx );
 void UpdateFXExplode( SPECFX *fx );
@@ -71,14 +72,16 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	effect->speed = speed;
 	effect->accn = accn;
 	effect->lifetime = actFrameCount + life;
+	effect->r = 255;
+	effect->g = 255;
+	effect->b = 255;
+	effect->a = 255;
 
 	switch( type )
 	{
 	case FXTYPE_WATERRIPPLE:
 		effect->r = 200;
 		effect->g = 200;
-		effect->b = 255;
-		effect->a = 255;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
@@ -89,10 +92,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		break;
 	case FXTYPE_GARIBCOLLECT:
-		effect->r = 255;
-		effect->g = 255;
 		effect->b = 0;
-		effect->a = 255;
 		effect->spin = 0.15;
 		effect->fade = effect->a / life;
 
@@ -106,9 +106,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		break;
 	case FXTYPE_BASICRING:
-		effect->r = 255;
-		effect->g = 255;
-		effect->b = 255;
 		effect->a = 200;
 		effect->fade = effect->a / life;
 
@@ -117,34 +114,40 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrRing;
 		effect->Update = UpdateFXRipple;
 		effect->Draw = DrawFXRipple;
+
 		break;
 	case FXTYPE_POLYRING:
 		if( !ringVtx )
 			CreateBlastRing( );
 
-		effect->r = 255;
-		effect->g = 255;
-		effect->b = 255;
-		effect->a = 255;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
 
 		effect->scale.v[Y] /= 8;
-		effect->vel.v[X] = effect->speed;
-		effect->vel.v[Y] = effect->speed/8;
-		effect->vel.v[Z] = effect->speed;
 		effect->tilt = 0.9;
 
 		effect->tex = txtrBlank;
 		effect->Update = UpdateFXRing;
 		effect->Draw = DrawFXRing;
+
 		break;
 	case FXTYPE_LASER:
 		if( !ringVtx )
 			CreateBlastRing( );
 
-		effect->scale.v[X] *= 2;
+		effect->scale.v[X] = 3;
+		effect->scale.v[Z] = 3;
+		SetVector( &effect->vel, &effect->normal );
+		ScaleVector( &effect->vel, effect->speed );
+		effect->spin = 0.1;
+		effect->tilt = 1;
+		effect->a = 128;
+
+		effect->tex = txtrBlank;
+		effect->Update = UpdateFXBolt;
+		effect->Draw = DrawFXRing;
+
 		break;
 	case FXTYPE_JUMPBLUR:
 		effect->numP = 1;
@@ -155,7 +158,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->sprites->scaleX = effect->scale.v[X];
 		effect->sprites->scaleY = effect->scale.v[Y];
 		effect->sprites->r = 100;
-		effect->sprites->g = 255;
 		effect->sprites->b = 100;
 		effect->sprites->a = 200;
 		effect->fade = effect->sprites->a / life;
@@ -182,11 +184,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
-
-		effect->r = 255;
-		effect->g = 255;
-		effect->b = 255;
-		effect->a = 255;
 
 		if( effect->type == FXTYPE_FLYSWARM )
 			effect->tex = txtrFly;
@@ -265,10 +262,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		SetVector( &effect->sprites->pos, &effect->origin );
 		effect->sprites->scaleX = effect->scale.v[X];
 		effect->sprites->scaleY = effect->scale.v[Y];
-		effect->sprites->r = 255;
-		effect->sprites->g = 255;
-		effect->sprites->b = 255;
-		effect->sprites->a = 255;
+
+		effect->sprites->r = effect->r;
+		effect->sprites->g = effect->g;
+		effect->sprites->b = effect->b;
+		effect->sprites->a = effect->a;
 
 #ifndef PC_VERSION
 		effect->sprites->offsetX = -effect->sprites->texture->sx / 2;
@@ -300,25 +298,13 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		SetVector( &effect->rebound->normal, &effect->normal );
 
 		if( effect->type == FXTYPE_SPLASH )
-		{
 			effect->tex = txtrBubble;
-			effect->gravity = 0.5;
-		}
 		else if( effect->type == FXTYPE_SPARKBURST )
-		{
 			effect->tex = txtrSolidRing;
-			effect->gravity = 0.5;
-		}
 		else if( effect->type == FXTYPE_FLAMES )
-		{
 			effect->tex = txtrFire;
-			effect->gravity = 0;
-		}
 		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
-		{
 			effect->tex = txtrSmoke;
-			effect->gravity = 0;
-		}
 
 		effect->fade = (255/life)*2;
 		effect->speed = (float)Random(10) * speed;
@@ -327,10 +313,10 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		{
 			SetVector( &effect->sprites[i].pos, &effect->origin );
 
-			effect->sprites[i].r = 255;
-			effect->sprites[i].g = 255;
-			effect->sprites[i].b = 255;
-			effect->sprites[i].a = 255;
+			effect->sprites[i].r = effect->r;
+			effect->sprites[i].g = effect->g;
+			effect->sprites[i].b = effect->b;
+			effect->sprites[i].a = effect->a;
 
 			if( effect->type == FXTYPE_FIERYSMOKE )
 			{
@@ -391,6 +377,13 @@ void UpdateSpecialEffects( )
 		if( fx1->follow )
 			SetVector( &fx1->origin, &fx1->follow->pos );
 
+		if( fx1->deadCount )
+			if( !(--fx1->deadCount) )
+			{
+				SubSpecFX(fx1);
+				continue;
+			}
+
 		if( fx1->Update )
 			fx1->Update( fx1 );
 	}
@@ -408,13 +401,6 @@ void UpdateFXRipple( SPECFX *fx )
 {
 	int fo;
 
-	if( fx->deadCount )
-		if( !(--fx->deadCount) )
-		{
-			SubSpecFX(fx);
-			return;
-		}
-
 	fo = fx->fade * gameSpeed;
 	if( fx->a > fo ) fx->a -= fo;
 	else fx->a = 0;
@@ -422,11 +408,7 @@ void UpdateFXRipple( SPECFX *fx )
 	fx->speed += fx->accn * gameSpeed;
 	fx->scale.v[X] += fx->speed * gameSpeed;
 	fx->scale.v[Z] += fx->speed * gameSpeed;
-	
-	if( fx->type == FXTYPE_GARIBCOLLECT )
-	{
-		fx->angle += fx->spin * gameSpeed;
-	}
+	fx->angle += fx->spin * gameSpeed;
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
@@ -443,22 +425,47 @@ void UpdateFXRipple( SPECFX *fx )
 void UpdateFXRing( SPECFX *fx )
 {
 	int fo;
-
-	if( fx->deadCount )
-		if( !(--fx->deadCount) )
-		{
-			SubSpecFX(fx);
-			return;
-		}
+	float speed;
 
 	fo = fx->fade * gameSpeed;
 	if( fx->a > fo ) fx->a -= fo;
 	else fx->a = 0;
 
 	fx->speed += fx->accn * gameSpeed;
-	fx->scale.v[X] += fx->speed * gameSpeed;
-	fx->scale.v[Y] += (fx->speed * gameSpeed)/8;
-	fx->scale.v[Z] += fx->speed * gameSpeed;
+	speed = fx->speed * gameSpeed;
+	fx->scale.v[X] += speed;
+	fx->scale.v[Y] += speed/8;
+	fx->scale.v[Z] += speed;
+	fx->angle += fx->spin * gameSpeed;
+	
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
+		fx->deadCount = 5;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFXBolt
+	Purpose			: Just move, not grow
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void UpdateFXBolt( SPECFX *fx )
+{
+	int fo;
+	float accn = fx->accn * gameSpeed;
+
+	fo = fx->fade * gameSpeed;
+	if( fx->a > fo ) fx->a -= fo;
+	else fx->a = 0;
+
+	fx->vel.v[X] += accn;
+	fx->vel.v[Y] += accn;
+	fx->vel.v[Z] += accn;
+	fx->origin.v[X] += fx->vel.v[X] * gameSpeed;
+	fx->origin.v[Y] += fx->vel.v[Y] * gameSpeed;
+	fx->origin.v[Z] += fx->vel.v[Z] * gameSpeed;
+	fx->angle += fx->spin * gameSpeed;
 	
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
@@ -476,13 +483,6 @@ void UpdateFXSmoke( SPECFX *fx )
 {
 	int fo;
 	float dist;
-
-	if( fx->deadCount )
-		if( !(--fx->deadCount) )
-		{
-			SubSpecFX(fx);
-			return;
-		}
 
 	fo = fx->fade * gameSpeed;
 	if( fx->sprites->a > fo ) fx->sprites->a -= fo;
@@ -545,13 +545,6 @@ void UpdateFXSwarm( SPECFX *fx )
 	VECTOR up, pos;
 	int i = fx->numP;
 	float dist;
-
-	if( fx->deadCount )
-		if( !(--fx->deadCount) )
-		{
-			SubSpecFX( fx );
-			return;
-		}
 
 	if( fx->type == FXTYPE_FROGSTUN )
 	{
@@ -647,13 +640,6 @@ void UpdateFXExplode( SPECFX *fx )
 	int i = fx->numP, fo, ele;
 	VECTOR up;
 
-	if( fx->deadCount)
-		if( !(--fx->deadCount) )
-		{
-			SubSpecFX( fx );
-			return;
-		}
-
 	while(i--)
 	{
 		if( fx->particles[i].bounce == 2 )
@@ -677,7 +663,7 @@ void UpdateFXExplode( SPECFX *fx )
 			if(dist > 0)
 			{
 				if( fx->particles[i].bounce )
-					fx->particles[i].vel.v[Y] *= -0.95;
+					fx->particles[i].vel.v[Y] *= -0.95; // Should be relative to the normal, but it'll do for now
 				else
 					SetVector( &fx->particles[i].vel, &zero );
 
@@ -910,7 +896,7 @@ void ProcessAttachedEffects( void *entity, int type )
 	float fxDist;
 	ACTOR2 *act;
 	GAMETILE *tile;
-	unsigned long flags;
+	unsigned long flags, t;
 	PATH *path;
 
 	if( type == 1 ) // Thing is an enemy
@@ -935,7 +921,12 @@ void ProcessAttachedEffects( void *entity, int type )
 	}
 
 	if( act->value1 )
-		r = Random(act->value1)+1;
+	{
+		if( flags & EF_RANDOMCREATE )
+			r = Random(act->value1)+1;
+		else
+			r = act->value1;
+	}
 	else
 		r = 10;
 
@@ -1007,11 +998,11 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_FIERYSMOKE )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2.5, 0, 2.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.0, 0, 2.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.5, 0, 2.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.2, 0, 2.5 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.2, 0, 2.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.5, 0, 2.5 );
 
 //				SetAttachedFXColour( fx, act->effects );
 			}

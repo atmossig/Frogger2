@@ -52,7 +52,6 @@ typedef struct TAGACTION
 	unsigned long deathBy;
 
 	unsigned long isCroaking;
-	unsigned long isTeleporting;
 	unsigned long isOnFire;
 
 } ACTION;
@@ -68,6 +67,7 @@ typedef struct TAGACTOR2
 	char			draw;
 	int				flags;
 	int				effects;
+	long			fxCount;
 	float			radius;
 	float			angle;
 	float			animSpeed;

@@ -750,7 +750,7 @@ void DrawFXRipple( SPECFX *ripple )
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	
 	tempVect[0].v[X] = -ripple->scale.v[X];
@@ -769,19 +769,19 @@ void DrawFXRipple( SPECFX *ripple )
 	tempVect[3].v[Y] = 0;
 	tempVect[3].v[Z] = -ripple->scale.v[Z];
 
-	if(	ripple->type == FXTYPE_GARIBCOLLECT )
-	{
-		SetVector( (VECTOR *)&q, &ripple->normal );
-		q.w = ripple->angle;
+	SetVector( (VECTOR *)&q, &ripple->normal );
+	q.w = ripple->angle;
 
+	if( ripple->type == FXTYPE_GARIBCOLLECT )
+	{
 		for( i=0; i<4; i++ )
 			RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
-	}
 
-	for(i=0; i<4; i++)
-	{
-		AddToVector( &tempVect[i], &ripple->origin );
-		XfmPoint (&m[i],&tempVect[i]);
+		for(i=0; i<4; i++)
+		{
+			AddToVector( &tempVect[i], &ripple->origin );
+			XfmPoint (&m[i],&tempVect[i]);
+		}
 	}
 	
 	if (m[0].v[Z])
@@ -832,19 +832,47 @@ void DrawFXRipple( SPECFX *ripple )
 			Clip3DPolygon( vT2, tEntry->hdl );
 		}
 	}
-
-	
 }
 
-
+float Tmtrx[4][4], Rmtrx[4][4], Smtrx[4][4], Dmtrx[4][4];
 void DrawFXRing( SPECFX *ring )
 {
 	unsigned long vx, i, j;
 	D3DTLVERTEX vT[4], vT2[3];
 	TEXENTRY *tEntry;
-	VECTOR tempVect[4], m[4];
-	float tilt;
+	VECTOR tempVect, m;
+	QUATERNION q1, q2, q3, cross;
+	DWORD colour = D3DRGBA(ring->r/255.0,ring->g/255.0,ring->b/255.0,ring->a/255.0);
+	float tilt, t;
 	int zeroZ = 0;
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+
+	// Translate to current fx pos and push
+	guTranslateF( Tmtrx, ring->origin.v[X], ring->origin.v[Y], ring->origin.v[Z] );
+	PushMatrix( Tmtrx );
+
+	// Rotate around axis
+	SetVector( (VECTOR *)&q1, &ring->normal );
+	q1.w = ring->angle;
+	GetQuaternionFromRotation( &q2, &q1 );
+
+	// Rotate to be around normal
+	CrossProduct( (VECTOR *)&cross, (VECTOR *)&q1, &upVec );
+	MakeUnit( (VECTOR *)&cross );
+	t = DotProduct( (VECTOR *)&q1, &upVec );
+	if( cross.x >= 0 )
+		cross.w = acos(t);
+	else
+		cross.w = -acos(t);
+	GetQuaternionFromRotation( &q3, &cross );
+
+	// Combine the rotations and push
+	QuaternionMultiply( &q1, &q2, &q3 );
+	QuaternionToMatrix( &q1,(MATRIX *)Rmtrx);
+	PushMatrix( Rmtrx );
 
 	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=4 )
 	{
@@ -854,22 +882,25 @@ void DrawFXRing( SPECFX *ring )
 		{
 			// Slant the polys
 			tilt = (j < 2) ? ring->tilt : 1;
-			// Scale first, since at origin
-			tempVect[j].v[X] = (vT[j].sx * tilt) * (float)ring->scale.v[X];
-			tempVect[j].v[Y] = (vT[j].sy * tilt) * (float)ring->scale.v[Y];
-			tempVect[j].v[Z] = (vT[j].sz * tilt) * (float)ring->scale.v[Z];
+			// Scale and push
+			guScaleF( Smtrx, tilt*ring->scale.v[X], tilt*ring->scale.v[Y], tilt*ring->scale.v[Z] );
+			PushMatrix( Smtrx );
 
-			// Then translate to position
-			AddToVector( &tempVect[j], &ring->origin );
-			XfmPoint (&m[j],&tempVect[j]);
+			// Transform point by combined matrix
+			SetMatrix( &Dmtrx, &matrixStack.stack[matrixStack.stackPosition] );
+			guMtxXFMF( Dmtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.v[X], &tempVect.v[Y], &tempVect.v[Z] );
+
+			XfmPoint( &m, &tempVect );
 
 			// Assign back to vT array
-			vT[j].sx = m[j].v[X];
-			vT[j].sy = m[j].v[Y];
-			vT[j].sz = m[j].v[Z];
+			vT[j].sx = m.v[X];
+			vT[j].sy = m.v[Y];
+			vT[j].sz = m.v[Z];
 			if( !vT[j].sz ) zeroZ++;
 
-			vT[j].color = D3DRGBA(ring->r/255.0,ring->g/255.0,ring->b/255.0,ring->a/255.0);
+			vT[j].color = colour;
+
+			PopMatrix( ); // Pop scale
 		}
 
 		tEntry = ((TEXENTRY *)ring->tex);
@@ -883,4 +914,10 @@ void DrawFXRing( SPECFX *ring )
 		}
 	}
 
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 }

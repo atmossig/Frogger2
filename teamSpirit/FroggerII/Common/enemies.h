@@ -92,7 +92,7 @@ void UpdateEnemies();
 
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path);
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed);
 void AssignPathToEnemy(ENEMY *nme,PATH *path,unsigned long pathFlags);
 BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);
