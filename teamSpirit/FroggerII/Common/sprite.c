@@ -786,19 +786,13 @@ SPRITE *spriteArrayPtr	= NULL;
 */
 void InitSpriteArray(int numElements)
 {
-	int i;
-
 	// check if sprite array already exists
 	if(spriteArray)
 		FreeSpriteArray();
 
 	// allocate memory for sprite array
-//	numArraySprites = 0;
-	spriteArrayPtr	= NULL;
 	spriteArray = (SPRITE *)JallocAlloc(sizeof(SPRITE)*numElements,YES,"sprArr");
-
-	for(i=0; i<numElements; i++)
-		spriteArray[i].arrayIndex = -1;
+	spriteArrayPtr	= NULL;
 }
 
 
@@ -816,7 +810,6 @@ void FreeSpriteArray()
 
 	spriteArray		= NULL;
 	spriteArrayPtr	= NULL;
-//	numArraySprites = 0;
 }
 
 
@@ -824,24 +817,12 @@ void FreeSpriteArray()
 	Function		: AssignToArray
 	Purpose			: returns a pointer to a free sprite slot in the sprite array
 	Parameters		: 
-	Returns			: void
+	Returns			: SPRITE *
 	Info			: 
 */
-void AssignSpriteToArray(SPRITE *sprite)
+SPRITE *AssignSpriteToArray()
 {
-	int n = 0;
-	spriteArrayPtr = &spriteArray[0];
-	
-	// search for a free slot
-	while(spriteArrayPtr->arrayIndex > -1)
-	{
-		spriteArrayPtr++;
-		n++;
-	}
-
-	sprite->kill = 0;
-	sprite->arrayIndex = n;
-	spriteArrayPtr = sprite;
+	return NULL;
 }
 
 
@@ -854,7 +835,4 @@ void AssignSpriteToArray(SPRITE *sprite)
 */
 void SubSpriteFromArray(SPRITE *sprite)
 {
-	spriteArrayPtr = &spriteArray[sprite->arrayIndex];
-	sprite->arrayIndex = -1;
-	spriteArrayPtr->arrayIndex = -1;
 }

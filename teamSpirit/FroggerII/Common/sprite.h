@@ -233,7 +233,7 @@ extern SPRITE *spriteArray;
 
 void InitSpriteArray(int numElements);
 void FreeSpriteArray();
-void AssignSpriteToArray(SPRITE *sprite);
+SPRITE *AssignSpriteToArray();
 void SubSpriteFromArray(SPRITE *sprite);
 
 //-----------------------------------------------------------------------------------------------
