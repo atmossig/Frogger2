@@ -107,7 +107,7 @@ unsigned char letters_spacing[] =
 
 void InitFont()
 {
-	unsigned int i,j,currTile;
+	unsigned int i,j;
 		
 	bigFont		= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT32");
 	smallFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT16");
