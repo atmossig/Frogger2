@@ -351,7 +351,8 @@ void UpdateFrogTongue( int pl )
 				RemoveFrogTongue(pl);
 
 				// Set frog idle animation
-				actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
+				if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
+					actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
 			}
 		}
 	}
