@@ -318,7 +318,7 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 			{
 				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
 
-				// Draw it, evebtually water will need it's own optimised draw function!
+				// Draw it, eventually water will need it's own optimised draw function!
 				PCRenderObject(obj);
 			}
 			else // Or we can modge just the vertices
@@ -1537,17 +1537,123 @@ void PCRenderObject (OBJECT *obj)
 	
 }
 
-// Essentially the pushpoly macro optimised into the data filling algorithm - NEED TO ADD CLIPPING! (Arrrgh)!
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	/*
+	numFaces = 0;
+	j=0;
+	for (i=1; i<(vInCount-1); i++, j+=3)
+	{
+		faceList[j] = 0;
+		faceList[j+1] = i;
+		faceList[j+2] = i+1;
+		numFaces++;
+	}
+	
+	if (numFaces)
+	{
+		PushPolys(vIn,vInCount,faceList,j,texture);
+	}
+*/
+
+// Clip a set of three vertices to a set of n vertices -> face order, all share first vertex ie... [F1(0,1,2), F2(0,3,4), F3(0,5,6) ... Fn(0,3n-1,3n)
+// Also, we need the destination to _always_ be able to hold 8 more vertices as the result,
+// but that should be ok _if_ we are using mavis.... (32000000000 verts!! Grr)
+
+unsigned long __fastcall ScreenClip (D3DTLVERTEX *vIn)
+{
+	int				out0, out1;									// Outcodes for the two vertices on the current edge
+	D3DTLVERTEX 	*v0ptr, *v1ptr, vBuf2[8], *vOut, *vTmp;		// Pointers for the two buffers
+	int				vInCount, vOutCount;						// Counts
+	int				sideLp, vertLp, sideMask;					// Loop and temp variables
+
+	// Setup for the first round!
+	vInCount = 3;
+	vOut = vBuf2;
+	vOutCount = 0;
+
+	// Step through each edge
+	for(sideLp=0; sideLp<4; sideLp++)
+	{
+		// Create a bitmask for testing this side
+		sideMask = 1<<sideLp;
+
+		// Loop through all the vertices in the current n-gon, and perform the checks for the edge V(vertLp) -> V(vertLp+1)
+		for(vertLp=0; vertLp<vInCount; vertLp++)
+		{
+			// Vertex 0 = vIn : Optimisation possibility, don't index... Increment
+			v0ptr = &vIn[vertLp];
+
+			// Vertex 1 (With wrapping back to 0) : Same optimisation applicable!
+			if ((vertLp+1)<vInCount)
+				v1ptr = &vIn[(vertLp+1)];
+			else
+				v1ptr = vIn;
+
+			// Calculate a clip outcode, a bitfield for clipping on each side!
+			out0 = CALC_OUTCODE(v0ptr->sx,v0ptr->sy, clx0,cly0,clx1,cly1);
+			out1 = CALC_OUTCODE(v1ptr->sx,v1ptr->sy, clx0,cly0,clx1,cly1);
+
+			// V0 is on
+			if ((out0 & sideMask)==0)		
+			{
+				// add v0 to output
+				memcpy(&vOut[vOutCount++], v0ptr, sizeof(D3DTLVERTEX));
+				// v0 on, v1 off
+				if (out1 & sideMask)		
+				{
+					// add intersection to output
+					if (calcIntVertex(&vOut[vOutCount], sideLp, v0ptr, v1ptr, clx0,cly0,clx1,cly1))
+						vOutCount++;
+				}
+			}
+			else 
+			{ 
+				// v0 off, v1 on
+				if ((out1 & sideMask)==0)	
+				{
+					// add intersection to output generating edge with next vertex! (So hence only add one!)
+					if (calcIntVertex(&vOut[vOutCount], sideLp, v1ptr, v0ptr, clx0,cly0,clx1,cly1))
+						vOutCount++;
+				} // else this edge is completely offscreen
+			}
+		}
+
+		// Swap in & out bufs
+		vTmp = vIn;			
+		vIn = vOut;
+		vOut = vTmp;
+		vInCount = vOutCount;
+		vOutCount = 0;
+	}
+
+	// vIn, because of the last swap now actually holds vOut.
+	return vInCount;
+}
+
+
+// Essentially the pushpoly macro optimised into the data filling algorithm - NEED TO ADD CLIPPING! (Arrrgh - noooooo)!
 void PCRenderObjectFast (OBJECT *obj)
 {
 	MESH *mesh = obj->mesh;							// Pointer to the mesh to avoid multiple dereferencing.
 	D3DTLVERTEX *vtxList = obj->renderData;			// Again avoiding multiple dereferencing of obj->renderdata.
 	VECTOR *vecList = tV;							// A pointer we can modify for the vector list.
-	unsigned long i;								// Loop counter.
+	unsigned long i,nClipV;							// Loop counter, the number of clipped vertices.
 	unsigned short i1,i2,i3;						// Face indices.
 	unsigned short *f1,*f2,*f3;						// Face pointers.
 	unsigned short *startF, *fIndex;				// More face pointer.
-	
+	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;	// Trivial face rejection!	
+	unsigned long oldFc,vCount;
+	TEXENTRY *tex;
+	TEXTURE **tex2;
+	VECTOR *v1,*v2,*v3;
+
 	// Store the start so that we dont have to increment the count every frame.
 	startF = cFInfo->cF;
 	vecList = tV;
@@ -1555,46 +1661,81 @@ void PCRenderObjectFast (OBJECT *obj)
 
 	// For every face
 	i = mesh->numFaces;
-
+	oldFc = cFInfo->nF;
 	// If there are no faces then we cannot draw this object!
 	if (!i)
 		return;
+	
+	tex2 = obj->mesh->textureIDs;
+	vCount = 0;
 
 	// Otherwise, we can!
 	while (--i)
 	{	
-		// Copy the information from the list of VECTOR's to the list of D3DTLVERTEX's, the actual setting could go in the if, once it's working.
-		SetVector((VECTOR *)(vtxList  ),(vecList+(i1 = *(fIndex  ))));
-		SetVector((VECTOR *)(vtxList+1),(vecList+(i2 = *(fIndex+1))));
-		SetVector((VECTOR *)(vtxList+2),(vecList+(i3 = *(fIndex+2))));
+		// Copy the information from the list of VECTOR's to the list of D3DTLVERTEX's, the actual setting of x&y could go within the if statement, once it's working.
+		v1 = (vecList+(i1 = *(fIndex  )));
+		v2 = (vecList+(i1 = *(fIndex+1)));
+		v3 = (vecList+(i1 = *(fIndex+2)));
+
 		fIndex+=3;
 		
-		// If all the vertices can be drawn?
-		if (*(((unsigned long *)vtxList)+2) && 
-			*(((unsigned long *)vtxList+1)+2) && 
-			*(((unsigned long *)vtxList+2)+2))
-		{	// Add it to the face list! And update the pointer
-			*(cFInfo->cF) = i1;
-			*(cFInfo->cF+1) = i2;
-			*(cFInfo->cF+2) = i3;
-			cFInfo->cF += 3;			
-		}
+		// If all the vertices can be drawn? IEEE normalised fp numbers store 0.0 as 0x00000000 (cool, since the co-pro will only generate normalised numbers)
+		if (*(((unsigned long *)v1)+2) &&
+			*(((unsigned long *)v2)+2) &&
+			*(((unsigned long *)v3)+2))
+		{
+			SetVector((VECTOR *)(vtxList  ),v1);
+			SetVector((VECTOR *)(vtxList+1),v2);
+			SetVector((VECTOR *)(vtxList+2),v3);
+		
+			// Clip / Test clip (Could I check against each edge in turn?)
+			x1on = BETWEEN((vtxList)->sx,0,SCREEN_WIDTH);
+			x2on = BETWEEN((vtxList+1)->sx,0,SCREEN_WIDTH);
+			x3on = BETWEEN((vtxList+2)->sx,0,SCREEN_WIDTH);
+			y1on = BETWEEN((vtxList)->sy,0,SCREEN_HEIGHT);
+			y2on = BETWEEN((vtxList+1)->sy,0,SCREEN_HEIGHT);
+			y3on = BETWEEN((vtxList+2)->sy,0,SCREEN_HEIGHT);
 
+			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			{
+				if (tex = ((TEXENTRY *)*tex2))
+				{
+					if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+					{
+						// Not Clipped! Add it to the face list! And update the pointer
+						*(cFInfo->cF) = cFInfo->nV;
+						*(cFInfo->cF+1) = cFInfo->nV+1;
+						*(cFInfo->cF+2) = cFInfo->nV+2;
+						*cFInfo->cH = tex->cFrame->hdl;
+						cFInfo->cH+=3;
+						cFInfo->cF += 3;
+						cFInfo->nF += 3;
+						
+						*(cFInfo->cV) = *(vtxList);
+						*(cFInfo->cV+1) = *(vtxList+1);
+						*(cFInfo->cV+2) = *(vtxList+3);
+						
+						cFInfo->cV+=3;
+						cFInfo->nV+=3;					
+					} 
+					else
+					{
+			//			nClipV = ScreenClip(vtxList); 
+						// Do nothing for now!
+					}
+				}
+			} // ...else completely clipped! (wooo)			
+		}
+		tex2++;		
 		vtxList+=3;
+
 	}
 
 	// Copy the vertices onto the vertex list
-	i = mesh->numFaces*3;
+	i = (vtxList - obj->renderData);
 	memcpy (cFInfo->cV,obj->renderData,i*sizeof(D3DTLVERTEX));
+	cFInfo->cV+=i;
 	
-	// For now they can all have the same texture coordinate
-	memset (cFInfo->cH,0,(cFInfo->cF - startF)*sizeof(unsigned long));
-
-	// Update the figures!
-	cFInfo->nV += i;
-	cFInfo->cH += (cFInfo->cF - startF);				
-	cFInfo->nF += (cFInfo->cF - startF);
-
 	// All done!
 }
 

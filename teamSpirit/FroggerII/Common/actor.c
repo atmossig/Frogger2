@@ -34,8 +34,8 @@
 #define MAX_UNIQUE_ACTORS	50
 void XformActor(ACTOR *ptr);
 
-unsigned long ACTOR_DRAWDISTANCEINNER = 250000;
-unsigned long ACTOR_DRAWDISTANCEOUTER = 500000;
+unsigned long ACTOR_DRAWDISTANCEINNER = 610000;
+unsigned long ACTOR_DRAWDISTANCEOUTER = 600000;
 
 float bFOV = 450.0;
 float texSlideSpeed = 40;
