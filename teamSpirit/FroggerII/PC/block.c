@@ -12,7 +12,9 @@
 #include "incs.h"
 #include "editor.h"
 #include <crtdbg.h>
+#include <stdio.h>
 
+#define DEBUG_FILE "C:\\frogger2.log"
 
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
@@ -44,7 +46,16 @@ int		appActive		= 0;
 */
 void debugPrintf(int num)
 {
+	FILE *f;
+
 	_CrtDbgReport(_CRT_WARN,NULL,NULL,"FroggerII",outputMessageBuffer);
+
+	f = fopen(DEBUG_FILE, "a+");
+	if (f)
+	{
+		fputs(outputMessageBuffer, f);
+		fclose(f);
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -74,6 +85,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
     MSG msg;
 	int ok = 1;
 	
+	dprintf"\n------------- Starting Frogger II ----------------\n"));
+
 	// create and initialise app window
 	if(!InitialiseWindows(hInstance,nCmdShow))
 		ok = 0;
@@ -90,7 +103,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	}
 	else
 	{
-		JallocInit(memPtr,memSizeInBytes);
+		JallocInit((long)memPtr,memSizeInBytes);
 		dprintf"DONE !\n"));
 	}
 
