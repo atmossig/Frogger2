@@ -94,9 +94,9 @@
 #include "story.h"
 
 #ifdef FINAL_MASTER
-int useMemCard = 1;
+int useMemCard = 0;
 #else
-int useMemCard = 1;
+int useMemCard = 0;
 #endif
 
 SAVE_INFO saveInfo;
@@ -169,7 +169,7 @@ void LoadCodeOverlay(int num)
 	if(loadCodeOverlays == NO)
 		return;
 #if GOLDCD == 0
-	strcpy(FILEIO_PCROOT, "C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\");
+	strcpy(FILEIO_PCROOT, "C:\\WORK\\FROGGERPROJECT\\PSX DEMO\\CODE\\");
 #endif
 
 	switch(num)
