@@ -18,6 +18,12 @@
 short mouseX = 20;
 short mouseY = 20;
 
+#define _EXC_MASK    \
+    _EM_UNDERFLOW  + \
+    _EM_OVERFLOW   + \
+    _EM_ZERODIVIDE + \
+    _EM_INEXACT
+
 /*	--------------------------------------------------------------------------------
 	Function		: 
 	Purpose			: 
@@ -29,6 +35,9 @@ void InitPCSpecifics()
 {
 	gelfInit();
 	InitCommonControls();
+
+	// throw floating point exceptions!
+    _controlfp(_EXC_MASK, _MCW_EM); 
 }
 
 /*	--------------------------------------------------------------------------------
