@@ -43,6 +43,8 @@ unsigned long numFreed = 0;
 
 D3DTLVERTEX *vtxPointers[500];
 unsigned long numVtxPointers = 0;
+unsigned long numObjectsDrawn;
+unsigned long numObjectsTransformed;
 
 void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 {
@@ -364,6 +366,8 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	float rotmat[4][4];
 	float scalemat[4][4];
 
+	numObjectsTransformed++;
+
 	//handle position keyframes
 	if((obj->numMoveKeys > 1) && (currentDrawActor->animation))
 	{
@@ -526,6 +530,7 @@ void TransformObjectQuick(MDX_OBJECT *obj, float time)
 	float rotmat[4][4];
 	float scalemat[4][4];
 
+	numObjectsDrawn++;
 
 	SetVector(&translation,&obj->moveKeys[obj->lastMKey].vect);
 	SetVector(&scale,&obj->scaleKeys[obj->lastSKey].vect);

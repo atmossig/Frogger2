@@ -562,6 +562,8 @@ void DrawBackground(void)
 long DrawLoop(void)
 {
 	POINT t;
+	
+	
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
 	StartTimer (2,"DrawActorList (old)");

@@ -25,6 +25,7 @@ typedef struct TAG_MDX_ACTOR
 
 	float						maxRadius;
 
+	MDX_VECTOR					trueCentre;
 	MDX_VECTOR					pos;
 	MDX_VECTOR					oldpos;
 	MDX_VECTOR					vel;
@@ -46,6 +47,7 @@ typedef struct TAG_MDX_ACTOR
 	long						draw;
 	long						xform;
 
+	float						radius;
 } MDX_ACTOR;
 
 #define	INIT_ANIMATION	(1 << 0)

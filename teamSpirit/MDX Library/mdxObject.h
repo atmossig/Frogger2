@@ -283,7 +283,8 @@ extern WORD fpuState;
 void FreeObjectBank(long i);
 void FreeAllObjectBanks();
 extern unsigned long drawThisObjectsSprites;
-
+extern unsigned long numObjectsDrawn;
+extern unsigned long numObjectsTransformed;
 #ifdef __cplusplus
 }
 #endif

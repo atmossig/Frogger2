@@ -78,17 +78,28 @@ void ActorListDraw(void)
 {
 	MDX_ACTOR *cur = actorList;	
 	MDX_VECTOR where;
+	float radius,scale;
 
 	while (cur)
 	{
 		drawThisObjectsSprites = cur->draw;
-//		XfmPoint(&where,&cur->pos,NULL);
-	//f (((where.vx > -50) && (where.vx<640+50)) &&
-	//((where.vy > -50) && (where.vy<480+50)))
-		{	
-			XformActor(cur,0);		
-			if (cur->draw)
-				DrawActor(cur);
+		
+		XfmPoint(&where,&cur->pos,NULL);
+
+		if (where.vz>10)
+		{
+			scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
+			scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
+			
+			radius = (FOV * cur->radius * scale)/(where.vz+DIST);
+			
+			if (((where.vx > -radius) && (where.vx<640+radius)) &&
+				((where.vy > -radius) && (where.vy<480+radius)))
+			{	
+				XformActor(cur,0);		
+				if (cur->draw)
+					DrawActor(cur);
+			}
 		}
 
 		cur = cur->next;
@@ -114,6 +125,8 @@ void DrawActor(MDX_ACTOR *actor)
 
 	if (objectC->isSkinned)
 	{
+		numObjectsDrawn++;
+	
 		globalXLU2 = (((float)objectC->object->xlu) / ((float)0xff)) * globalXLU;
 		if (objectC->object->flags & OBJECT_FLAGS_CLIPPED)
 			return;
@@ -667,6 +680,55 @@ void MakeUniqueActor(MDX_ACTOR *actor,int type)
 	actor->objectController->object = MakeUniqueObject(actor->objectController->object);	
 }
 
+float maxX,minX;
+float maxY,minY;
+float maxZ,minZ;
+
+#define BIGVAL 10000.0
+#define RADIUS_SCALE 0.95
+void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(MDX_OBJECT *me)
+{
+	int i;
+	MDX_VECTOR t;
+
+	if (me)
+	{
+		if (me->mesh)
+			for (i=0; i<me->mesh->numVertices; i++)
+			{
+				guMtxXFMF(me->objMatrix.matrix,
+							me->mesh->vertices[i].vx,
+							me->mesh->vertices[i].vy,
+							me->mesh->vertices[i].vz,
+							&(t.vx),&(t.vy),&(t.vz));
+
+				maxX = (t.vx > maxX)?t.vx:maxX;	maxY = (t.vy > maxY)?t.vy:maxY;	maxZ = (t.vz > maxZ)?t.vz:maxZ;
+				minX = (t.vx < minX)?t.vx:minX;	minY = (t.vy < minY)?t.vy:minY;	minZ = (t.vz < minZ)?t.vz:minZ;								
+			}
+
+		if (me->children)
+			PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(me->children);
+		if (me->next)
+			PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(me->next);
+	}
+}
+
+void CalculateTrueCentreAndRadius(MDX_ACTOR *t)
+{
+	MDX_VECTOR radius;
+	maxX = maxY = maxZ = -BIGVAL;
+	minX = minY = minZ = BIGVAL;
+
+	PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(t->objectController->object);
+
+	radius.vx = ((-minX)>(maxX))?-minX:maxX;
+	radius.vy = ((-minY)>(maxY))?-minY:maxY;
+	radius.vz = ((-minZ)>(maxZ))?-minZ:maxZ;
+
+	// Make the radius, but make it slightly smaller so we draw less (Cheat)
+	t->radius = mdxMagnitude(&radius) * RADIUS_SCALE;
+}
+
 MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 {
 	MDX_ACTOR *t;
@@ -681,6 +743,18 @@ MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 	}
 
 	MakeUniqueActor(t,0);
+	
+	//Initial position for radius calculation
+	t->pos.vx = t->pos.vy = t->pos.vz = 0;
+	t->scale.vx = t->scale.vy = t->scale.vz = 1;
+	t->qRot.x = t->qRot.y = t->qRot.z = 0;
+	t->qRot.w = 1;
+
+	// Transform object
+	XformActor(t,1);
+	
+	CalculateTrueCentreAndRadius(t);
+
 	return t;
 }
 
