@@ -98,14 +98,14 @@ void ActorListDraw(void)
 		
 		XfmPoint(&where,&tPos,NULL);
 
-		if (where.vz>10)
+		if (where.vz>10 || noClip)
 		{
 			scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
 			scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
 			
 			radius = (FOV * cur->radius * scale)/(where.vz+DIST);
 			
-			if (((where.vx > -radius) && (where.vx<rXRes+radius)) &&
+			if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
 				((where.vy > -radius) && (where.vy<rYRes+radius)))
 			{	
 				XformActor(cur,0);		

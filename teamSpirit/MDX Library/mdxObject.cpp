@@ -40,6 +40,8 @@ unsigned long drawThisObjectsSprites = 1;
 unsigned long numFreed = 0;
 #define ANIMSNAP_THRESHHOLD 0.25
 #define ROTATESNAP_MULT 2
+//#define ANIMSNAP_THRESHHOLD 0
+//#define ROTATESNAP_MULT 1
 
 D3DTLVERTEX *vtxPointers[500];
 unsigned long numVtxPointers = 0;

@@ -1,3 +1,5 @@
+//#define TRUE_OBJECT_FOG
+
 /*
 
 	This file is part of the M libraries,
@@ -2184,17 +2186,39 @@ void PCRenderObject (MDX_OBJECT *obj)
 			if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
 			{
 		
+#ifndef TRUE_OBJECT_FOG
 				(dVtx)->specular = cFog;			
+#else
+				tFog = FOG(tV0->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx)->specular = FOGVAL(tFog);
+#endif				
 				(dVtx)->sx = tV0->vx;
 				(dVtx)->sy = tV0->vy;
 				(dVtx)->sz = tV0->vz * 0.00025F;
-	
+				
+#ifndef TRUE_OBJECT_FOG
 				(dVtx+1)->specular = cFog;			
+#else
+				tFog = FOG(tV1->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx+1)->specular = FOGVAL(tFog);
+#endif
 				(dVtx+1)->sx = tV1->vx;
 				(dVtx+1)->sy = tV1->vy;
 				(dVtx+1)->sz = tV1->vz * 0.00025F;
-	
+
+				
+#ifndef TRUE_OBJECT_FOG
 				(dVtx+2)->specular = cFog;			
+#else
+				tFog = FOG(tV2->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx+2)->specular = FOGVAL(tFog);
+#endif	
 				(dVtx+2)->sx = tV2->vx;
 				(dVtx+2)->sy = tV2->vy;
 				(dVtx+2)->sz = tV2->vz * 0.00025F;
