@@ -254,14 +254,8 @@ MDX_FONT *InitFont(const char *filename)
 
 	FreeMem(scratch);
 
-
-	// ** Unfotunately i have to keep this gelf image loaded as an debug assertion occurs
-	// ** if the image is freed! This could be a c-runtime problem with gelf / frogger using
-	// ** different heap types OR, more seriously, the memory wrappers becoming invalid through
-	// ** a code bug. I've noticed that throughout this project, a gelf image is NEVER freed!!
-
-	// *ASL* 15/06/2000
-	//gelfDefaultFree(tData);
+	// release the gelf image file
+	gelfDefaultFree(tData);
 
 	dp("Font '%s' loaded, %d textures used\n", filename, currSurf);
 	return font;
