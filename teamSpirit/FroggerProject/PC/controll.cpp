@@ -21,6 +21,8 @@
 #include "..\resource.h"
 
 #include "cam.h"
+#include "game.h"
+#include "frontend.h"
 #include "Main.h"
 #include "menus.h"
 #include "frogger.h"
@@ -31,6 +33,7 @@
 #include "layout.h"
 #include "..\network.h"
 #include "..\netchat.h"
+
 /*	------------------------------------------------------------------------
 	Global stuff
 */
@@ -225,6 +228,7 @@ void RecordKeyInit(unsigned long worldNum, unsigned long levelNum)
 	{
 		rKeyOK = 1;
 		fclose(fp);
+		utilPrintf("Record keys START...\n");
 	}
 }
 
@@ -268,10 +272,13 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 		
 		curPlayKey = 0;
 		rPlayOK = 1;
+		rPlaying = 1;
 		rEndFrame = actFrameCount + (15 * 60);
 
 		fclose(fp);
 	}
+	else
+		utilPrintf("Error loading keys (%s)\n", rKeyFile);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -651,9 +658,6 @@ void ProcessUserInput()
 			//if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
 			//	RecordButtons(controllerdata[i].button,i);
 			
-			if ((rKeyOK) && (padData.digital[i] != oldDigital[i]))
-				RecordButtons(padData.digital[i],i);
-
 			if (controllers[i] & GAMEPAD)
 			{
 				LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[controllers[i] & 0xFF];
@@ -698,14 +702,32 @@ void ProcessUserInput()
 					//lpJoystick->UnAcquire();
 				}
 			}
-
 		}
 	}
 
-	// Get "debounce" states
+	// Start record keys if we're in record mode and (*sigh*) just
+	// after the first frame of a single-player mode level
+	
+	if (rKeying && gameState.mode == INGAME_MODE && frameCount == 2)
+		RecordKeyInit(player[0].worldNum, player[0].levelNum);
 
 	for (i = 0; i<8; i++)
+	{
+		// set 'debounce'
 		padData.debounce[i] = (~oldDigital[i]) & padData.digital[i];
+
+		// recordkeys
+		if ((rKeyOK) && (padData.digital[i] != oldDigital[i]))
+		{
+			if (padData.debounce[0] & PAD_START)
+			{
+				utilPrintf("Record keys STOP!\n");
+				rKeyOK = 0;
+			}
+			else
+				RecordButtons(padData.digital[i],i);
+		}
+	}
 
 #ifdef FULL_BUILD
 	if (pressed)
