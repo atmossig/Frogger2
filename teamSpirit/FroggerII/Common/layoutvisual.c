@@ -591,6 +591,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// initialise the various lists
 	InitSpriteFrameLists();
 	InitSpecFXList();
+	InitBabyList( TRUE ); // MUST BE DONE BEFORE ENEMY INITS!
 	InitEnemyLinkedList();
 	InitPlatformLinkedList();
 	InitGaribLinkedList();
@@ -616,7 +617,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	SetVector(&(currCamSource[i]),&outVec);
 	SetVector(&(currCamTarget[i]),&inVec);
 		
-	CreateFrogger(1,1,1); // This also creates the babies
+	CreateFrogger(1,1);
 
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);

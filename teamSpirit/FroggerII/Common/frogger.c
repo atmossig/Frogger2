@@ -79,13 +79,12 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	me->radius				= 22.0F;
 }
 
-void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlays, unsigned char createBabyOverlays)
+void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlays )
 {
 	int i;
 
 	if(createFrogActor)
 	{
-		CreateBabies( createBabyOverlays );
 		for (i=0; i<NUM_FROGS; i++)
 			if (gTStart[i])
 				CreateFrogActor (gTStart[i],"frogger.obe",i);

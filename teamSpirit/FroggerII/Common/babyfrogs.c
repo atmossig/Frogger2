@@ -29,7 +29,7 @@ unsigned long numBabies = 0;
 const char* baby_filenames[NUM_BABIES] = { "frog", "ylfrg", "blfrog", "prfrg", "rdfrg" };
 
 
-void CreateBabies( unsigned char createOverlays )
+void InitBabyList( unsigned char createOverlays )
 {
 	unsigned long i,j;
 

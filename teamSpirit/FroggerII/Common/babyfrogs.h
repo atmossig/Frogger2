@@ -43,7 +43,7 @@ extern SPRITEOVERLAY *babyIcons[NUM_BABIES];
 extern unsigned long babiesSaved;
 extern unsigned long numBabies;
 
-void CreateBabies(unsigned char createOverlays);
+void InitBabyList(unsigned char createOverlays);
 void ResetBabies( );
 int PickupBabyFrog( ACTOR2 *baby );
 int GetNearestBabyFrog();
