@@ -119,7 +119,7 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 
 	tongue[pl].progress = 0;
 
-	if( tongue[pl].type == TONGUE_GET_FROG )
+	if( type == TONGUE_GET_FROG )
 	{
 		int i;
 		for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
