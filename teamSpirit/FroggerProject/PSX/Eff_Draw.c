@@ -793,8 +793,7 @@ void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
 
 void DrawFXLightning( SPECFX *fx )
 {
-
-
+/*
 // 	VECTOR tempVect, m;
  	SVECTOR	 vT[5], vTPrev[2];
 // 	TEXENTRY *tEntry;
@@ -848,7 +847,182 @@ void DrawFXLightning( SPECFX *fx )
  
  		i++;
  	} 
- 
+*/
+
+//	MDX_VECTOR tempVect, m;
+	SVECTOR vT[5], vTPrev[2];
+	long otz;
+	TextureType *tEntry;
+	PARTICLE *p;
+	long i=0;
+
+	if( !(tEntry = (fx->tex)) )
+		return;
+
+	// Additive mode
+//	SwapFrame(3);
+
+	gte_SetTransMatrix(&GsWSMATRIX);
+	gte_SetRotMatrix(&GsWSMATRIX);
+	p = fx->particles;
+	while( i < fx->numP-1 )
+	{
+		SVECTOR tempSvect;
+
+		// Copy in previous transformed vertices, if they exist
+		if( i && vTPrev[0].vz && vTPrev[1].vz )
+			memcpy( vT, vTPrev, sizeof(SVECTOR)*2 );
+		else
+		{
+			// Otherwise, transform them again
+//			tempVect.vx = p->poly[0].vx;//*0.1;
+//			tempVect.vy = p->poly[0].vy;//*0.1;
+//			tempVect.vz = p->poly[0].vz;//*0.1;
+//			XfmPoint( &m, &tempVect, NULL );
+//			gte_ldv0(&p->poly[0]);
+			SetVectorSS(&tempSvect, &p->poly[0]);
+			tempSvect.vx = -tempSvect.vx;
+			tempSvect.vy = -tempSvect.vy;
+			gte_ldv0(&tempSvect);
+			gte_rtps();
+			gte_stsxy(&vT[0].vx);
+			gte_stotz(&otz);
+			vT[0].vz = otz;
+//			vT[0].sx = m.vx;
+//			vT[0].sy = m.vy;
+//			vT[0].rhw = 1;
+//			vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+//			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
+
+//			tempVect.vx = p->poly[1].vx*0.1;
+//			tempVect.vy = p->poly[1].vy*0.1;
+//			tempVect.vz = p->poly[1].vz*0.1;
+//			XfmPoint( &m, &tempVect, NULL );
+//			gte_ldv0(&p->poly[1]);
+			SetVectorSS(&tempSvect, &p->poly[1]);
+			tempSvect.vx = -tempSvect.vx;
+			tempSvect.vy = -tempSvect.vy;
+			gte_ldv0(&tempSvect);
+			gte_rtps();
+			gte_stsxy(&vT[1].vx);
+			gte_stotz(&otz);
+			vT[1].vz = otz;
+//			vT[1].sx = m.vx;
+//			vT[1].sy = m.vy;
+//			vT[1].rhw = 1;
+//			vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+//			vT[1].color = vT[0].color;
+		}
+
+		// Now the next two, to make a quad
+//		tempVect.vx = p->next->poly[1].vx*0.1;
+//		tempVect.vy = p->next->poly[1].vy*0.1;
+//		tempVect.vz = p->next->poly[1].vz*0.1;
+//		XfmPoint( &m, &tempVect, NULL );
+//		vT[2].sx = m.vx;
+//		vT[2].sy = m.vy;
+//		vT[2].rhw = 1;
+//		vT[2].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+//		vT[2].color = vT[0].color;
+//		gte_ldv0(&p->next->poly[1]);
+		SetVectorSS(&tempSvect, &p->next->poly[1]);
+		tempSvect.vx = -tempSvect.vx;
+		tempSvect.vy = -tempSvect.vy;
+		gte_ldv0(&tempSvect);
+		gte_rtps();
+		gte_stsxy(&vT[2].vx);
+		gte_stotz(&otz);
+		vT[2].vz = otz;
+
+
+//		tempVect.vx = p->next->poly[0].vx*0.1;
+//		tempVect.vy = p->next->poly[0].vy*0.1;
+//		tempVect.vz = p->next->poly[0].vz*0.1;
+//		XfmPoint( &m, &tempVect, NULL );
+//		vT[3].sx = m.vx;
+//		vT[3].sy = m.vy;
+//		vT[3].rhw = 1;
+//		vT[3].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+//		vT[3].color = vT[0].color;
+//		gte_ldv0(&p->next->poly[0]);
+		SetVectorSS(&tempSvect, &p->next->poly[0]);
+		tempSvect.vx = -tempSvect.vx;
+		tempSvect.vy = -tempSvect.vy;
+		gte_ldv0(&tempSvect);
+		gte_rtps();
+		gte_stsxy(&vT[3].vx);
+		gte_stotz(&otz);
+		vT[3].vz = otz;
+
+		// Store first 2 vertices of the next segment
+		memcpy( vTPrev, &vT[3], sizeof(SVECTOR) );
+		memcpy( &vTPrev[1], &vT[2], sizeof(SVECTOR) );
+		// And back to the first vertex for the second tri
+		memcpy( &vT[4], &vT[0], sizeof(SVECTOR) );
+
+		// Draw polys, if they're not clipped
+		if( vT[0].vz && vT[1].vz && vT[2].vz && vT[3].vz )
+		{
+/*			vT[0].specular = D3DRGB(0,0,0);
+			vT[0].tu = 1;
+			vT[0].tv = 1;
+			vT[1].specular = vT[0].specular;
+			vT[1].tu = 0;
+			vT[1].tv = 1;
+			vT[2].specular = vT[0].specular;
+			vT[2].tu = 0;
+			vT[2].tv = 0;
+			vT[3].specular = vT[0].specular;
+			vT[3].tu = 1;
+			vT[3].tv = 0;
+			vT[4].specular = D3DRGB(0,0,0);
+			vT[4].tu = 1;
+			vT[4].tv = 1;
+
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[2], tEntry );
+*/
+			POLY_FT4 *ft4;
+//			int zAvg = (vT[0].vz + vT[1].vz + vT[2].vz + vT[3].vz)/4;
+
+			//draw poly
+			BEGINPRIM(ft4, POLY_FT4);
+			setPolyFT4(ft4);
+			*((long*)&ft4->x0) = *((long*)&vT[0].vx);
+			*((long*)&ft4->x1) = *((long*)&vT[1].vx);
+			*((long*)&ft4->x2) = *((long*)&vT[2].vx);
+			*((long*)&ft4->x3) = *((long*)&vT[3].vx);
+//			ft4->r0 = p->r;
+//			ft4->g0 = p->g;
+//			ft4->b0 = p->b;
+			ft4->r0 = (p->r*p->a)>>8;
+			ft4->g0 = (p->g*p->a)>>8;
+			ft4->b0 = (p->b*p->a)>>8;
+			ft4->u0 = tEntry->u0;
+			ft4->v0 = tEntry->v0;
+			ft4->u1 = tEntry->u1;
+			ft4->v1 = tEntry->v1;
+			ft4->u2 = tEntry->u2;
+			ft4->v2 = tEntry->v2;
+			ft4->u3 = tEntry->u3;
+			ft4->v3 = tEntry->v3;
+			ft4->tpage = tEntry->tpage;
+			ft4->clut  = tEntry->clut;
+	//		setSemiTrans(ft4, 1);
+			ft4->code  |= 2;//semi-trans on
+ 			ft4->tpage |= 32;//add
+	// 		ft4->tpage = si->tpage | 64;//sub
+	//		ENDPRIM(ft4, 1, POLY_FT4);
+			ENDPRIM(ft4,
+				   (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)/4,
+					POLY_FT4);
+		}
+
+		i++;
+		p = p->next;
+	} 
+
+//	SwapFrame(0);
 }
  
 SVECTOR *psxCroakVtx = NULL;
@@ -913,6 +1087,7 @@ void DrawPsxCroak(SPECFX *ring)
 	MATRIX rotMtx;
 	VECTOR absPos;
 	SVECTOR scPos;
+	long sz;
 	int otz;
 	POLY_FT4 *ft4;
 	int width, height;
@@ -973,8 +1148,11 @@ void DrawPsxCroak(SPECFX *ring)
 		gte_ldlv0(&absPos);
 		gte_rtps();
 		gte_stsxy(&scPos.vx);
-		gte_stsz(&scPos.vz);	//screen z/4 as otz
+//		gte_stsz(&scPos.vz);	//screen z/4 as otz
+		gte_stsz(&sz);	//screen z/4 as otz
 		gte_stotz(&otz);	//screen z/4 as otz
+
+		scPos.vz = sz;
 
 		//calc width
 		if(scPos.vz)
@@ -1005,6 +1183,9 @@ void DrawPsxCroak(SPECFX *ring)
 		ft4->r0 = ring->a;
 		ft4->g0 = ring->a;
 		ft4->b0 = ring->a;
+//		ft4->r0 = (ring->r*ring->a)>>8;
+//		ft4->g0 = (ring->g*ring->a)>>8;
+//		ft4->b0 = (ring->b*ring->a)>>8;
 		ft4->u0 = ring->tex->u0;
 		ft4->v0 = ring->tex->v0;
 		ft4->u1 = ring->tex->u1;
