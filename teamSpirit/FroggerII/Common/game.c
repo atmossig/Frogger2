@@ -44,6 +44,7 @@ float upVal = 1;
 
 unsigned long displayCount = 0;
 long babySaved = 0;
+long award = 2;
 
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
@@ -646,12 +647,15 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 	levelTrophy = CreateAndAddActor("trophy.obe",0,0,100.0,0,0,0);
 	levelTrophy->draw = 0;
-//	levelTrophy->flags |= ACTOR_DRAW_LAST;
+	levelTrophy->flags |= ACTOR_DRAW_LAST;
 	levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
 	levelTrophy->flags &= ~ACTOR_DRAW_CULLED;
 	levelTrophy->actor->scale.v[0] = 0.2;
 	levelTrophy->actor->scale.v[1] = 0.2;
 	levelTrophy->actor->scale.v[2] = 0.2;
+	levelTrophy->actor->pos.v[0] = 0.0;
+	levelTrophy->actor->pos.v[1] = 0.0;
+	levelTrophy->actor->pos.v[2] = 300.0;
 	actCount++;
 
 	dprintf"\n\n** ADDED %d ACTORS **\n\n",actCount));	
@@ -744,10 +748,10 @@ char tmpBuffer[16];
 long carryOnBabies = 1;
 long clearTiles = 0;
 
-
 void RunGameLoop (void)
 {	    	
 	VECTOR fvec = { 0,0,1 };
+	VECTOR textSpeed = { 0, 0, 0 };
 	VECTOR v1;
 	QUATERNION q;
 	unsigned long i,j;
@@ -845,11 +849,9 @@ void RunGameLoop (void)
 			}
 		}
 
-		//Init3DTextList();
+		Init3DTextList();
 
-		//CreateAndAdd3DText( "geezers", 224, 128,128,128,255, T3D_CIRCLE );
-
-//		runningWaterStuff = 0;
+		//		runningWaterStuff = 0;
 		ChangeCameraSetting();
 	}
 
@@ -930,16 +932,37 @@ void RunGameLoop (void)
 	{
 		if ( levelIsOver )
 		{
+			static QUATERNION tSpin = { 0,1,0, PI/60 };
+			
+			MakeUnit ((VECTOR *)&tSpin);
+
+			RunLevelCompleteSequence();
+
 			if( showEndLevelScreen )
 			{
-				RunLevelCompleteSequence();
-
 				if( pauseMode != PM_ENDLEVEL )
 				{
-					levelTrophy->flags |= ACTOR_DRAW_ALWAYS;
+					static char scoreStr[255];
+
+					//levelTrophy->flags |= ACTOR_DRAW_ALWAYS;
+
+					sprintf( scoreStr, "%s  score %i  time %i  spawn %i of %i   \0", player[0].name, player[0].score, 
+						player[0].timeSec, player[0].numSpawn, 0 );
+
+					CreateAndAdd3DText( scoreStr, 600, 128,128,128,255, T3D_CIRCLE,
+										T3D_MOVE_SPIN,
+										&textSpeed,-1,0,30,300,6,0.6,0.6 );
 					darkenedLevel = 0;
 					pauseMode = PM_ENDLEVEL;
 				}
+			}
+
+			if( levelTrophy->draw )
+			{
+				tSpin.w += PI/60;
+				if( tSpin.w > PI2 )
+					tSpin.w = 0;
+				GetQuaternionFromRotation(&levelTrophy->actor->qRot,&tSpin);
 			}
 
 			levelIsOver--;
@@ -963,6 +986,11 @@ void RunGameLoop (void)
 				pauseMode = 0;
 
 				FreeAllLists();
+
+				/*
+				*	Move this to FreeAllLists
+				*/
+				FreeGrabData( );
 
 				frog[0] = NULL;
 				frameCount = 0;
@@ -1183,16 +1211,15 @@ void RunGameLoop (void)
 
 void RunLevelCompleteSequence()
 {
-	long award = 2;
 	long i;
 	extern long numHops_TOTAL;
 	extern long speedHops_TOTAL;
 	extern long numHealth_TOTAL;
-	QUATERNION q;
-	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
 
 	DisableHUD( );
 	DisableTextOverlay(babySavedText);
+
+	award = 2;
 
 	if(carryOnBabies)
 	{					
