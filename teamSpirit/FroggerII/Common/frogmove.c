@@ -24,7 +24,7 @@ GAMETILE *currTile[4]			= {0,0,0,0};
 GAMETILE *prevTile				= NULL;
 
 static float frogAnimSpeed		= 0.4F;
-static float frogAnimSpeed2		= 0.9F;
+static float frogAnimSpeed2		= 0.75F;
 
 int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
@@ -601,59 +601,29 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 */
 void AnimateFrogHop( unsigned long direction, long pl )
 {
-	float speed, speed2;
-	int anim;
-
 	if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
 	{
-		anim = FROG_ANIM_SUPERHOP;
-		speed = 0.45;
-		speed2 = 0.45;
-	}
-	else
-	{
-		anim = FROG_ANIM_STDJUMP;
-		speed = frogAnimSpeed;
-		speed2 = frogAnimSpeed2;
-		
+		// play animation for superhopping
+		AnimateActor(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, 0.45, 0,0);
+		return;
 	}
 
-	switch( direction )
+	// Otherwise, play appropriate jump animation
+
+	switch ((direction - frogFacing[pl]) & 3)
 	{
-	case 0:
-		switch( frogFacing[pl] )
-		{
-		case 3:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		case 1:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
-		}
-		break;
 	case 1:
-		switch( frogFacing[pl] )
-		{
-		case 2:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		case 0:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
-		}
+		AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0);
 		break;
-	case 2:
-		switch( frogFacing[pl] )
-		{
-		case 1:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		case 3:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
-		}
-		break;
+
 	case 3:
-		switch( frogFacing[pl] )
-		{
-		case 2:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		case 0:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
-		}
+		AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0);
+		break;
+
+	default:
+		AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
 		break;
 	}
-	//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
 }
 
 /*	--------------------------------------------------------------------------------
