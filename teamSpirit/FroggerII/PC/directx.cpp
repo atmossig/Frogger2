@@ -34,7 +34,6 @@
 #define SCREEN_HEIGHT	480	//240
 #define SCREEN_BITS		16
 
-
 extern "C"
 {
 #include <ultra64.h>
@@ -74,6 +73,8 @@ long isHardware = 1;
 
 int dumpScreen = 0;
 int prim = 0;
+
+extern long numFacesDrawn;
 
 GUID guID;
 
@@ -915,6 +916,8 @@ void DirectXFlip(void)
 	DDINIT(m);
 	m.dwFillDepth = -1;//D3DRGB(0,0,0);
 	while (srfZBuffer->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_DEPTHFILL,&m)!=DD_OK);
+
+	numFacesDrawn = 0;
 }
 
 void SetupRenderstates(void)
@@ -1107,6 +1110,7 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
+	
 	
 	if (pDirect3DDevice->DrawIndexedPrimitive(
 		D3DPT_TRIANGLELIST,

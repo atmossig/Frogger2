@@ -62,6 +62,8 @@ float thresh = 900;
 float sofs = 5;
 
 long noClipping = 0;
+long numFacesDrawn;
+long numPixelsDrawn;
 
 float oneOver[65535];
 long InitOneOverTable(void)
@@ -115,6 +117,14 @@ float clx0 = 1,
 //#define sbsqr(x,y) ((x-y)*(x-y))
 
 float xl = 1;
+
+float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+	float bx = x2-x1;
+	float by = y2-y1;
+	float base=sqrt(bx*bx+by*by);
+
+}
 
 /*---------------------------------------------------------------------------------------------
 	Function	: calcIntVertex
@@ -1237,12 +1247,16 @@ void PCRenderObject (OBJECT *obj)
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
+				numFacesDrawn++;
 				DrawAHardwarePoly(v,3,facesON,3,tex->hdl);
 			}
 			else
 			{
 				if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+				{
+					numFacesDrawn++;
 					Clip3DPolygon(v,tex->hdl);
+				}
 			}
 			
 		}

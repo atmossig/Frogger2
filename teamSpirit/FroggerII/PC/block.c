@@ -37,6 +37,9 @@ float gameSpeed = 1;
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
+extern long numFacesDrawn;
+extern long numPixelsDrawn;
+
 
 char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
@@ -304,7 +307,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			
 				if (KEYPRESS(DIK_F5))
 				{
-					drawTimers = !drawTimers;;
+					if (drawTimers<3)
+						drawTimers++;
+					else
+						drawTimers = 0;
+
 					keyDelay = 20;
 				}
 
@@ -603,12 +610,37 @@ void DrawGraphics()
 	/* END CAMERA SPACE STUFF */
 
 	if (drawTimers)
-		PrintTimers();
+		switch (drawTimers)
+		{
+			case 1:
+				PrintTimers();
+				break;
+			case 2:
+			case 3:
+			{
+				HDC hdc;
+				HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
+				char speed[255];
 
+				if (res == DD_OK)
+				{
+					if (drawTimers == 2)
+						sprintf(speed,"%4f %4f %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn);
+					else
+						sprintf(speed,"%4f %4f %lu %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numPixelsDrawn);
+
+					SetBkMode(hdc, TRANSPARENT);
+					SetTextColor(hdc, RGB(255,0,0));
+					TextOut(hdc,160,48, speed, strlen(speed));
+					IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
+				}
+				break;
+			}
+		}
+	
 	if (KEYPRESS(DIK_F6))
 		HoldTimers();
-
-			
+		
 	ClearTimers();
 	EndDrawHardware();
 }
