@@ -135,10 +135,10 @@ void UpdateLoadingScreen(short addprog)
 	if( loadProgress > 100 )
 		loadProgress = 100;
 
-	r.top = rYRes - rYRes/4;
-	r.bottom = rYRes - rYRes/4.8;
-	r.left = rXRes/4;
-	r.right = (((rXRes-(2*r.left))/100) * loadProgress) + r.left;
+	r.top = rYRes - rYRes/10;
+	r.bottom = rYRes - rYRes/15;
+	r.left = rXRes/2;
+	r.right = (((rXRes-(r.left+(r.left/8)))/100) * loadProgress) + r.left;
 
 	// show fixed background screen
 	DrawBackdrop();
@@ -147,7 +147,7 @@ void UpdateLoadingScreen(short addprog)
 	if (rHardware)
 	{
 		BeginDraw();
-		DrawFlatRect( r, D3DRGBA(0.9,0,0,1) );
+		DrawFlatRect( r, D3DRGBA(1,1,1,1) );
 		EndDraw();
 	}
 	else
@@ -157,7 +157,7 @@ void UpdateLoadingScreen(short addprog)
 		// ** have to contain the backdrop image.
 
 		// !! no alpha !!
-		mdxDrawRectangle(r, (int)1.0f*255.0f, (int)0.2f*255.0f, (int)0.2f*255.0f);
+		mdxDrawRectangle(r, (int)1.0f*255.0f, (int)1.0f*255.0f, (int)1.0f*255.0f);
 	}
 
 	// show our print screen
