@@ -103,6 +103,8 @@ extern char displayFullScreenPoly;
 extern TEXTOVERLAY *babySavedText;
 extern TEXTOVERLAY *controllerText;
 extern TEXTOVERLAY *continueText;
+extern char pauseTitleString[64];
+extern TEXTOVERLAY *xselectText, *pauseTitleText;
 extern TEXTOVERLAY *restartText;
 extern TEXTOVERLAY *quitText;
 extern TEXTOVERLAY *garibCount, *creditCount;

@@ -13,7 +13,7 @@
 #include <islfile.h>
 #include <islmem.h>
 #include <islutil.h>
-#include <stdio.h>
+//ma#include <stdio.h>
 
 #include "frontend.h"
 #include "define.h"
@@ -24,6 +24,7 @@
 #include "overlays.h"
 #include "hud.h"
 #include "fadeout.h"
+#include "lang.h"
 
 #ifdef DREAMCAST_VERSION
 #include "main.h"
@@ -86,12 +87,13 @@ void InitDemoMode()
 	curPlayKey = 0;
 
 #ifdef PSX_VERSION
-	CreateAndAddTextOverlay(2048, 512, "DEMO MODE", YES, 128, NULL, 0);
+	CreateAndAddTextOverlay(2048, 512, GAMESTRING(STR_DEMO_MODE), YES, 128, NULL, 0);
 	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
 #else
-	CreateAndAddTextOverlay(2048, 128, "DEMO MODE", YES, 128, NULL, 0);
+	CreateAndAddTextOverlay(2048, 128, GAMESTRING(STR_DEMO_MODE), YES, 128, NULL, 0);
 #endif
 
+	CreateAndAddTextOverlay(2048, 3500, GAMESTRING(STR_PRESSSTART), YES, 128, NULL, 0);
 //	CreateAndAddSpriteOverlay( 3000, 2700, "BLITZGAMES", 800, 1000, 190, 0 );
 //	CreateAndAddSpriteOverlay( 250, 3200, "FROGGER2", 600, 800, 255, 0 );
 

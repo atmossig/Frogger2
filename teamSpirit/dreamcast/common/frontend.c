@@ -9,6 +9,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
+
 //#include "directx.h"
 
 //#include "ultra64.h"
@@ -58,10 +60,12 @@
 #include <pcsprite.h>
 #endif
 #ifdef PSX_VERSION
+extern int cursPos;
 #include "audio.h"
 #include "temp_psx.h"
 #include "psxsprite.h"
-//ma#include "memcard.h"
+#include "memcard.h"
+#include "DCK_System.h"
 //ma#include <libspu.h>
 extern int useMemCard;
 #endif
@@ -83,7 +87,8 @@ enum
 };
 
 //------ [ GLOBALS ] ---------------------------------------------------------------------------//
-
+extern int pauseFrameCount;
+extern int restartingLevel;
 extern SPRITEOVERLAY *babyFlash;
 int frameCount			= 0;
 int timeForLevel;
@@ -101,6 +106,9 @@ long backTextY[4] = {160+64,160+64,3640,3640};
 long backWinsTextX[4] = {64+512,3520-200,3520-200,64+512};
 long backWinsTextY[4] = {420+128,420+128,3360-64,3360-64};
 
+TEXTOVERLAY *removeControllerText;
+TEXTOVERLAY *removeControllerText2;
+TEXTOVERLAY *removeControllerText3;
 
 /*	--------------------------------------------------------------------------------
 	Function		: GameLoop
@@ -111,10 +119,28 @@ long backWinsTextY[4] = {420+128,420+128,3360-64,3360-64};
 */
 
 extern SOUNDLIST soundList;					// Actual Sound Samples List
+extern unsigned long currentPauseSelection;
 void GameLoop(void)
 {
 	int i;
 
+	if(checkForSoftReset())
+	{
+		if((gameState.mode != FRONTEND_MODE)&&(quittingLevel == FALSE))
+		{
+			player[0].worldNum = WORLDID_FRONTEND;
+			player[0].levelNum = LEVELID_FRONTEND1;
+			gameState.mode = PAUSE_MODE;
+			quittingLevel = TRUE;
+			pauseConfirmMode = 0;
+			pauseConfirmMode = 0;
+			ScreenFade(255,0,30);
+
+//			gameState.mode = FRONTEND_MODE;
+//			player[0].character = FROG_FROGGER;
+//			InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+		}
+	}
 
 #ifndef FINAL_MASTER
 	if(((padData.debounce[0] & PAD_TRIANGLE) && (padData.digital[0] & PAD_SELECT)) || ((padData.debounce[0] & PAD_SELECT) && (padData.digital[0] & PAD_TRIANGLE)))
@@ -141,16 +167,21 @@ void GameLoop(void)
 		}
 		else if(!fadingOut)
 		{
-			StartVideoPlayback(FMV_ATARI_LOGO);
+#ifdef PC_DEMO
+			gameState.mode = INGAME_MODE;
+#else
+//			StartVideoPlayback(FMV_ATARI_LOGO);
 			if(quitAllVideo == 0)
 			{
 				StartVideoPlayback(FMV_BLITZ_LOGO);
 				if(quitAllVideo == 0)
 					StartVideoPlayback(FMV_INTRO);
 			}
+			gameState.mode = FRONTEND_MODE;
+#endif
 			actFrameCount = 0;
 			GTInit(&modeTimer,1);
-			gameState.mode = FRONTEND_MODE;
+
 			InitLevel(player[0].worldNum,player[0].levelNum);
 			return;
 		}
@@ -160,6 +191,63 @@ void GameLoop(void)
 	case INGAME_MODE:
 		RunGameLoop();
 
+		if( gameState.multi == SINGLEPLAYER )
+		{
+			// check for controller removed from dreamcast
+			if(checkForControllerRemovedSingle())
+			{
+				pauseFrameCount = 0;
+				quittingLevel = NO;
+				pauseConfirmMode = NO;
+				restartingLevel = NO;
+
+				currentPauseSelection = 0;
+
+				gameState.oldMode = gameState.mode;
+				gameState.mode = PAUSE_MODE;
+				pauseMode = 1;
+
+//				if( gameState.multi == SINGLEPLAYER )
+					DisableHUD( );
+
+				for(i=0; i<numBabies; i++)
+					babyIcons[i]->draw = 0;
+
+				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				controllerRemoved = TRUE;
+			}
+		}
+		else
+		{
+			if(checkForControllerRemovedMulti())
+			{
+				pauseFrameCount = 0;
+				quittingLevel = NO;
+				pauseConfirmMode = NO;
+				restartingLevel = NO;
+
+				currentPauseSelection = 0;
+
+				gameState.oldMode = gameState.mode;
+				gameState.mode = PAUSE_MODE;
+				pauseMode = 1;
+
+//				if( gameState.multi == SINGLEPLAYER )
+					DisableHUD( );
+
+				for(i=0; i<numBabies; i++)
+					babyIcons[i]->draw = 0;
+
+				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				controllerRemoved = TRUE;
+			}
+		}
+
+/*ma - not needed
 #ifdef PSX_VERSION
 		if(padData.present[0] == 0)
 		{
@@ -167,6 +255,7 @@ void GameLoop(void)
 			pauseController = 0;
 		}
 #endif
+*/
 		break;
 
 	case DEMO_MODE:
@@ -179,6 +268,34 @@ void GameLoop(void)
 
 	case TRAINING_MODE:
 		RunTrainingMode();
+
+		// check for controller removed from dreamcast
+		if(checkForControllerRemovedSingle())
+		{
+			pauseFrameCount = 0;
+			quittingLevel = NO;
+			pauseConfirmMode = NO;
+			restartingLevel = NO;
+
+			currentPauseSelection = 0;
+
+			gameState.oldMode = gameState.mode;
+			gameState.mode = PAUSE_MODE;
+			pauseMode = 1;
+
+//			if( gameState.multi == SINGLEPLAYER )
+				DisableHUD( );
+
+			for(i=0; i<numBabies; i++)
+				babyIcons[i]->draw = 0;
+
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			controllerRemoved = TRUE;
+		}
+
+/*ma - not needed
 #ifdef PSX_VERSION
 		if(padData.present[0] == 0)
 		{
@@ -186,6 +303,7 @@ void GameLoop(void)
 			pauseController = 0;
 		}
 #endif
+*/
 		break;
 
 	case LEVELCOMPLETE_MODE:
@@ -210,10 +328,6 @@ void GameLoop(void)
 		break;
 	case MULTI_WINRACE_MODE:
 		RunMultiWinRace( );
-		break;
-
-	case MULTI_WINMATCH_MODE:
-		RunMultiWinMatch( );
 		break;
 
 	case ARTVIEWER_MODE:
@@ -291,7 +405,7 @@ long goFrontend = 1;
 TEXTOVERLAY *tText,*coinText,*nameText,*newBestText,*extraText;
 TEXTOVERLAY *nText,*oText[2],*oldBestText;
 SPRITEOVERLAY *extraIcon,*coinIcon,*bIcon;
-char coinStr[64];
+char coinStr[128];
 char oldBestStr[64];
 
 char levTimeText[64];
@@ -468,6 +582,7 @@ void StartMultiWinGame( )
 
 	mgWin = (MULTIGAMEWIN *)MALLOC0(sizeof(MULTIGAMEWIN));
 
+	multiHud.centreText->yPos = 1600;
 	switch( multiplayerMode )
 	{
 	case MULTIMODE_RACE:
@@ -650,6 +765,7 @@ void RunMultiWinRace( )
 				}
 				mgWin->mode = MGW_FLASHING;
 				multiHud.centreText->a = 0;
+				multiHud.centreText->yPos = 900;
 				GTInit( &modeTimer, 3 );
 			}
 		} 
@@ -781,6 +897,7 @@ void RunMultiWinCollect( )
 				}
 
 				multiHud.centreText->draw = 0;
+				multiHud.centreText->yPos = 900;
 				ScreenFade(128,255,30);
 				keepFade = 0;
 				fadeText = NO;
@@ -889,6 +1006,7 @@ void RunMultiWinBattle( )
 
 
 		multiHud.centreText->draw = 0;
+		multiHud.centreText->yPos = 900;
 		ScreenFade(128,255,30);
 		keepFade = 0;
 		fadeText = NO;
@@ -902,19 +1020,6 @@ void RunMultiWinBattle( )
 
 		gameState.mode = INGAME_MODE;
 	}
-}
-
-void StartMultiWinMatch( )
-{
-	DisableHUD();
-
-	gameState.mode = MULTI_WINMATCH_MODE;
-}
-
-
-void RunMultiWinMatch( )
-{
-
 }
 
 extern int storeFrameCount;
@@ -993,6 +1098,10 @@ void DoEndMulti()
 
 			if(menuOption == 0)
 			{
+#ifdef PC_VERSION
+				checkMenuKeys = 0;
+#endif
+				multiHud.centreText->yPos = 900;
 				RestartMulti();
 				gameState.mode = INGAME_MODE;
 				menuText[0]->draw = menuText[1]->draw = 0;
@@ -1002,15 +1111,24 @@ void DoEndMulti()
 				player[0].character = FROG_FROGGER;
 				NUM_FROGS=1;
 
-				if( gameState.multi != MULTIREMOTE )
+				if( gameState.multi == MULTIREMOTE )
+				{
+#ifdef PC_VERSION
+					// I'm sure there's a nicer way of doing this, but this does the job for now - ds
+					PostQuitMessage(0);		
+#endif
+				}
+				else
+				{
 					gameState.multi = SINGLEPLAYER;
 
-				gameState.mode = FRONTEND_MODE;
-				FreeMultiplayer( );
-				InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+					gameState.mode = FRONTEND_MODE;
+					FreeMultiplayer( );
+					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 
-				frameCount = 0;
-				menuText[0] = NULL;
+					frameCount = 0;
+					menuText[0] = NULL;
+				}
 			}
 			menuOption = -1;
 		}
@@ -1075,13 +1193,16 @@ TEXTOVERLAY *levName;
 #define MAX_SPARKLES 15
 
 SPRITEOVERLAY *sparkles[MAX_SPARKLES];
+SPRITEOVERLAY *enterNameButton[5];
 
 void StartLevelComplete()
 {
 	int i,num,w;
 	ACTOR2 *c;
 	SPRITE *cur,*next;
+	char tempChar;
 
+	arcadeHud.coinZoom->draw = 0;
 #ifdef PSX_VERSION
 //ma	SpuSetKey(SPU_OFF,0xffffff);
 #endif
@@ -1169,7 +1290,7 @@ void StartLevelComplete()
 
 	moreCoins = 0;
 
-	arcadeHud.coinsOver->xPos = 3200 + 4096;
+	arcadeHud.coinsOver->xPos = 3400 + 4096;
 	coinText = NULL;
 	coinIcon = NULL;
 	extraText = NULL;
@@ -1316,17 +1437,31 @@ void StartLevelComplete()
 	if (grade==0)
 	{
 		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
-		nText = CreateAndAddTextOverlay(4096, 3610, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+		nText = CreateAndAddTextOverlay(4096, 3350, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
 #ifdef PSX_VERSION
-		w = fontExtentWScaled(nText->font,nText->text,4096)*4;
-		w = fontExtentW(nText->font,nText->text);
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*4 + fontExtentWScaled(nText->font,"AAAAA",4096)*4;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #elif PC_VERSION
-		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) / (OVERLAY_X * 2);
+		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) * 3.2;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #endif
+
+#ifdef PSX_VERSION
+		enterNameButton[1] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 100,3350,"BUT_RIGH",4096,0,0,0);
+		enterNameButton[4] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 600,3350,"BUT_CROS",4096,0,0,0);
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
+		enterNameButton[0] = CreateAndAddSpriteOverlay(nText->xPosTo + w - 200,3350,"BUT_LEFT",4096,0,0,0);
+		tempChar = textString[cursPos];
+		textString[cursPos] = 0;
+		enterNameButton[2] = CreateAndAddSpriteOverlay(nText->xPosTo + w + 24 + fontExtentWScaled(nText->font,textString,4096)*8,3050,"BUT_UP",4096,0,0,0);
+		enterNameButton[3] = CreateAndAddSpriteOverlay(nText->xPosTo + w + 24 + fontExtentWScaled(nText->font,textString,4096)*8,3650,"BUT_DOWN",4096,0,0,0);
+		textString[cursPos] = tempChar;
+		for(i = 0;i < 5;i++)
+			enterNameButton[i]->draw = 0;
+#endif
+
 	}
 	else
 		nText = NULL;
@@ -1422,26 +1557,27 @@ void CheckEOLLoopTrack()
 
 void RunLevelComplete()
 {
-	int i,dropped = FMul(dropSpeed,gameSpeed);
+	int i,dropped = FMul(dropSpeed,gameSpeed),w;
 	SPRITEOVERLAY *coinOver;
+	char tempChar;
 
 	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	drawLandscape = 0;
 
 #ifdef PSX_VERSION
-/*ma
+
 	if(saveInfo.saveFrame)
 	{
 		frog[0]->draw = 0;
 		for(i = 0;i < numBabies;i++)
 			babyList[i].baby->draw = 0;
-		skipTextOverlaysSpecFX = YES;
+//ma		skipTextOverlaysSpecFX = YES;
 		if(!fadingOut)
 			ChooseLoadSave();
 		return;
 	}
-	skipTextOverlaysSpecFX = NO;
-*/
+//ma	skipTextOverlaysSpecFX = NO;
+
 #endif
 
 	CheckEOLLoopTrack();
@@ -1611,6 +1747,27 @@ void RunLevelComplete()
 			{
 #ifdef PSX_VERSION
 				PsxNameEntryFrame();	//sets texEntry to 0 when done
+				for(i = 0;i < 5;i++)
+				{
+					if(((i != 0) || (cursPos > 0)) && ((i != 1) || (cursPos < 2)))
+					{
+						INC_ALPHA(enterNameButton[i],255);
+					}
+					else
+					{
+						DEC_ALPHA(enterNameButton[i]);
+					}
+					w = fontExtentWScaled(nText->font,nText->text,4096)*4;
+					enterNameButton[1]->xPos = nText->xPosTo + w*2 + 40;
+					enterNameButton[4]->xPos = nText->xPosTo + w*2 + 400;
+					w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
+					enterNameButton[0]->xPos = nText->xPosTo + w - 200;
+					tempChar = textString[cursPos];
+					textString[cursPos] = 0;
+					enterNameButton[2]->xPos = nText->xPosTo + w + 40 + fontExtentWScaled(nText->font,textString,4096)*8;
+					enterNameButton[3]->xPos = nText->xPosTo + w + 40 + fontExtentWScaled(nText->font,textString,4096)*8;
+					textString[cursPos] = tempChar;
+				}
 #endif
 				if(textEntry == 0)
 				{
@@ -1625,6 +1782,12 @@ void RunLevelComplete()
 //						SaveGame();
 					}
 					levCompleteState = LEV_COMPLETE_MENU;
+#ifdef PSX_VERSION
+					for(i = 0;i < 5;i++)
+					{
+						enterNameButton[i]->draw = 0;
+					}
+#endif
 				}
 				sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
 			}
@@ -1712,7 +1875,7 @@ void RunLevelComplete()
 			break;
 	}
 #ifdef PSX_VERSION
-		if((levCompleteState == LEV_COMPLETE_FADING_OUT) && /*ma(useMemCard) &&*/ ((grade == 0) || (moreCoins) || (levelOpened)))
+		if((levCompleteState == LEV_COMPLETE_FADING_OUT) && (useMemCard) && ((grade == 0) || (moreCoins) || (levelOpened)))
 		{
 			frog[0]->draw = 0;
 			for(i = 0;i < numBabies;i++)

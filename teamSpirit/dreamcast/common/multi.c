@@ -908,8 +908,8 @@ void BattleProcessController( int pl )
 
 	if((button[pl] & PAD_START) && ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
-		StartPauseMenu();
 		pauseController = pl;
+		StartPauseMenu();
 	}
 }
 

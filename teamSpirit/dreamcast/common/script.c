@@ -10,7 +10,7 @@
 
 #include <islfile.h>
 #include <islmem.h>
-#include <stdio.h>
+//ma#include <stdio.h>
 #include <islutil.h>
 
 #include "codes.h"
@@ -1155,10 +1155,10 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_KILLFROG:
 		{
-			int pl, time,num;
+			int pl, num;
 
 			pl = MEMGETBYTE(p);
-			time = MEMGETBYTE(p);
+			num = MEMGETBYTE(p);
 
 			if (currPlatform[pl])
 			{
@@ -1168,7 +1168,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			}
 
 			player[pl].frogState |= FROGSTATUS_ISDEAD;
-			if( num < NUM_DEATHTYPES )
+			if(( num < NUM_DEATHTYPES )&&(num >= 0))
 				deathAnims[num] (pl);
 			else
 				deathAnims[DEATHBY_NORMAL] (pl);
@@ -1209,11 +1209,13 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_ENDLEVEL:
 		{
-			UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
+//			UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
 			gameState.mode = LEVELCOMPLETE_MODE;
 			gameState.multi = SINGLEPLAYER;
 
 			GTInit( &modeTimer, 8 );
+			SetTimeForLevel();
+			PrepareSong(AUDIOTRK_LEVELCOMPLETE, NO);
 			StartLevelComplete();
 			break;
 		}
@@ -1318,7 +1320,7 @@ int FreeLevelScript(void)
 int Interpret(const UBYTE *buffer)
 {
 	UBYTE *p;//, *q;
-	int events,test;
+	int events;
 
 	p = (UBYTE*)buffer;
 
@@ -1326,9 +1328,6 @@ int Interpret(const UBYTE *buffer)
 
 	while (events--)
 	{
-		if(events == 55)
-			test = 8;
-			
 		if (!ExecuteCommand(&p))
 		{
 #ifdef DEBUG_SCRIPTING

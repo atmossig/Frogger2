@@ -145,3 +145,64 @@ void FreeBackdrop(void)
 	backDrop.draw = FALSE;
 //	kmFreeTexture(&backDrop.surface);
 }
+
+/*	--------------------------------------------------------------------------------
+	Function 	: DrawBackDrop
+	Purpose 	: Draw the current background image to the screen
+	Parameters 	: none
+	Returns 	: none
+	Info 		:
+*/
+
+void DrawLegalBackDrop(int num, int i)
+{
+	int	fogFade;
+	
+	fogFade = 100;
+
+	kmBeginScene(&kmSystemConfig);
+	kmBeginPass(&vertexBufferDesc);
+        
+	if((backDrop.init)&&(backDrop.draw))
+	{
+		kmStartStrip(&vertexBufferDesc, &backStripHead);	
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmEndStrip(&vertexBufferDesc);
+	}	
+
+	DrawScreenTransition();
+	
+	kmEndPass(&vertexBufferDesc);
+				
+	kmRender(KM_RENDER_FLIP);
+	kmEndScene(&kmSystemConfig);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FreeBackdrop
+	Purpose 	: Free the current background image
+	Parameters 	: none
+	Returns 	: none
+	Info 		:
+*/
+
+void FreeLegalBackdrop(void)
+{
+	if(backDrop.draw == FALSE)
+		return;
+		
+	backDrop.init = FALSE;
+	backDrop.draw = FALSE;
+	kmFreeTexture(&backDrop.surface);
+
+	// flip screen
+	kmBeginScene(&kmSystemConfig);
+	kmBeginPass(&vertexBufferDesc);
+	kmEndPass(&vertexBufferDesc);
+				
+	kmRender(KM_RENDER_FLIP);
+	kmEndScene(&kmSystemConfig);
+}

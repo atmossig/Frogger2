@@ -9,6 +9,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
+
 #define F3DEX_GBI_2
 
 #include <isltex.h>
@@ -65,6 +67,8 @@ TEXTOVERLAY *keyCollected;
 
 TEXTOVERLAY *controllerText;
 TEXTOVERLAY *continueText;
+char pauseTitleString[64];
+TEXTOVERLAY *xselectText, *pauseTitleText;
 TEXTOVERLAY *restartText;
 TEXTOVERLAY *quitText;
 TEXTOVERLAY *garibCount, *creditCount;
@@ -99,7 +103,7 @@ char winsString[4][8] = {"0","0","0","0"};
 
 char countdownString[64] = "00";
 
-TEXTOVERLAY   *polysText;
+//TEXTOVERLAY   *polysText;
 char polyString[256] = "";
 
 int timeBarWidth = 1600;
@@ -143,20 +147,20 @@ void InitArcadeHUD(void)
 	}
 
 #ifdef PSX_VERSION
-	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(100,3332,frogPool[player[0].character].icon,4096,546,0xff,0);
+	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(230,3332-100,frogPool[player[0].character].icon,4096,546,0xff,0);
 
 	if( gameState.single != STORY_MODE )
 	{
-		arcadeHud.timeFaceOver = CreateAndAddSpriteOverlay(3400,3032,"FROGWATCH01",4096,546,0xff,0);
+		arcadeHud.timeFaceOver = CreateAndAddSpriteOverlay(3400-200,3032,"FROGWATCH01",600,700,0xff,0);
 		arcadeHud.timeFaceOver->num = 0;
-		arcadeHud.timeHandOver = CreateAndAddSpriteOverlay(3400,3100,"CLK_HAND",600,700,0xff,0);
+		arcadeHud.timeHandOver = CreateAndAddSpriteOverlay(3400-200,3100,"CLK_HAND",600,700,0xff,0);
 		arcadeHud.timeHandOver->num = 1;
-		arcadeHud.timeHeadOver = CreateAndAddSpriteOverlay(3400,3100,"CLK_HEAD",600,700,0xff,0);
+		arcadeHud.timeHeadOver = CreateAndAddSpriteOverlay(3400-200,3100,"CLK_HEAD",600,700,0xff,0);
 		arcadeHud.timeHeadOver->num = 2;
 
-		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(2900,3700,timeStringMin,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		arcadeHud.timeTextSec =		CreateAndAddTextOverlay(2900+200,3700,timeStringSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(2900+450,3700,timeStringHSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(2900-200,3700,timeStringMin,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		arcadeHud.timeTextSec =		CreateAndAddTextOverlay(2900+200-200,3700,timeStringSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(2900+450-200,3700,timeStringHSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		arcadeHud.timeTextHSec->scale = 3072;
 	}
 
@@ -170,7 +174,7 @@ void InitArcadeHUD(void)
 	arcadeHud.quickHopOver->draw = 0;
 
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3400,300,"HUD_BGR",4096,460,0xff,0);
-	arcadeHud.livesText =		CreateAndAddTextOverlay(370,3750,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
+	arcadeHud.livesText =		CreateAndAddTextOverlay(370+150,3750-120,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
 	arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinsOver->num = 1;
 	arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
@@ -275,8 +279,8 @@ void InitArcadeHUD(void)
 //	arcadeHud.coinsText->g = 0;
 //	arcadeHud.coinsText->b = 255;
 
-	if (gameState.mode == INGAME_MODE)
-		polysText = CreateAndAddTextOverlay(200,600,polyString,NO,255,fontSmall,0);
+//	if (gameState.mode == INGAME_MODE)
+//		polysText = CreateAndAddTextOverlay(200,600,polyString,NO,255,fontSmall,0);
 
 	arcadeHud.timeOutText = CreateAndAddTextOverlay(2048,1900,GAMESTRING(STR_OUTOFTIME),YES,255,0,TEXTOVERLAY_SHADOW);
 	arcadeHud.timeOutText->r = 0xff;
@@ -341,7 +345,7 @@ void InitMultiHUD()
 		break;
 	}
 
-	multiHud.centreText = CreateAndAddTextOverlay(2048,1600,countdownString,YES,255,font,TEXTOVERLAY_SHADOW);
+	multiHud.centreText = CreateAndAddTextOverlay(2048,900,countdownString,YES,255,font,TEXTOVERLAY_SHADOW);
 
 	for(i = 0;i < NUM_FROGS;i++)
 	{
@@ -740,34 +744,34 @@ void UpDateOnScreenInfo ( void )
 	//	arcadeHud.goText->g = Random(0xff);
 	//	arcadeHud.goText->b = Random(0xff);
 
-#ifndef FINAL_MASTER
-#ifdef PC_VERSION
-		if( screenshotEnable )
-			polysText->draw = 0;
-		else
-		{
-#ifndef E3_DEMO
-			sprintf(polyString,"%lu %lu %lu",totalFacesDrawn,numObjectsDrawn,numObjectsTransformed);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
-#else
-			sprintf(polyString,"",totalFacesDrawn);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
-#endif
+//#ifndef FINAL_MASTER
+//#ifdef PC_VERSION
+//		if( screenshotEnable )
+//			polysText->draw = 0;
+//		else
+//		{
+//#ifndef E3_DEMO
+//			sprintf(polyString,"%lu %lu %lu",totalFacesDrawn,numObjectsDrawn,numObjectsTransformed);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
+//#else
+//			sprintf(polyString,"",totalFacesDrawn);//,numPixelsDrawn/1000,(numPixelsDrawn*100/307200));
+//#endif
 
-		}
-		if (totalFacesDrawn>2000)
-			if (totalFacesDrawn>2500)
-				if (totalFacesDrawn>2800)
-					frameCheck = 3;
-				else
-					frameCheck = 2;
-			else
-				frameCheck = 1;
+//		}
+//		if (totalFacesDrawn>2000)
+//			if (totalFacesDrawn>2500)
+//				if (totalFacesDrawn>2800)
+//					frameCheck = 3;
+//				else
+//					frameCheck = 2;
+//			else
+//				frameCheck = 1;
 
-		totalFacesDrawn = 0;
-		numObjectsDrawn = 0;
-		numObjectsTransformed = 0;
+//		totalFacesDrawn = 0;
+//		numObjectsDrawn = 0;
+//		numObjectsTransformed = 0;
 
-#endif
-#endif		
+//#endif
+//#endif		
 		switch(frameCheck)
 		{
 			case 0:
@@ -794,10 +798,10 @@ void UpDateOnScreenInfo ( void )
 				break;
 		}
 
-		polysText->r = r;
-		polysText->g = g;
-		polysText->b = b;
-		polysText->a = a;
+//		polysText->r = r;
+//		polysText->g = g;
+//		polysText->b = b;
+//		polysText->a = a;
 		
 	}
 
@@ -839,7 +843,6 @@ void UpDateOnScreenInfo ( void )
 					break;
 				case 1:
 				case 0:
-					player[0].canJump = 1;
 					sprintf(goStr,GAMESTRING(STR_GO));
 					break;
 				default:
@@ -1092,6 +1095,9 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, font, 0, 0, 0 );
 
+	xselectText	= CreateAndAddTextOverlay ( 2048, 3400, GAMESTRING(STR_X_SELECT_OPTION), YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+	sprintf( pauseTitleString, GAMESTRING(STR_PAUSE_MODE) );
+	pauseTitleText	= CreateAndAddTextOverlay ( 2048, 400, pauseTitleString, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 	continueText	= CreateAndAddTextOverlay ( 2048, 1540, GAMESTRING(STR_CONTINUE), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 	//controllerText	= CreateAndAddTextOverlay ( 0, 1540, "Controls", YES, 255, 0, 0,0 );
 	restartText		= CreateAndAddTextOverlay ( 2048, 1860, GAMESTRING(STR_RESTARTLEVEL), YES, 255, 0,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
@@ -1110,6 +1116,8 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	DisableTextOverlay ( controllerText );
 	DisableTextOverlay ( continueText );
+	DisableTextOverlay ( xselectText );
+	DisableTextOverlay ( pauseTitleText );
 	DisableTextOverlay ( restartText );
 	DisableTextOverlay ( quitText );
 	DisableTextOverlay ( posText );

@@ -83,7 +83,7 @@ unsigned long INPUT_POLLPAUSE	= 10;
 struct gameStateStruct gameState;
 
 //unsigned long fadingLogos = 0;
-long idleCamera = 0;
+//long idleCamera = 0;
 char tileString[16], dkPressed=0;
 
 short showEndLevelScreen = 1;
@@ -126,33 +126,44 @@ void GameProcessController(long pl)
 
 	button[pl] = padData.digital[pl];
 
+#ifdef DREAMCAST_VERSION
+	if( padData.debounce[pl] )
+	{
+		GTInit( &screenSaveTimer, PAUSEFADETIMESECS );
+
+		keepFade = 1;
+		fadingOut = 0;
+		fadeProc = NULL;
+	}
+#endif
+	
 	// The only thing we can do when dead is press start
 	if((gameState.multi == SINGLEPLAYER) || ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
 #ifdef PC_VERSION
 		if(padData.debounce[pl] & PAD_START)
 		{
-			StartPauseMenu();
 			pauseController = pl;
+			StartPauseMenu();
 			return;
 		}
 #endif
 #ifdef PSX_VERSION
-#ifdef FINAL_MASTER
+//#ifdef FINAL_MASTER
 		if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
 		{
-			StartPauseMenu();
 			pauseController = pl;
+			StartPauseMenu();
 			return;
 		}
-#else
-		if(padData.debounce[pl] & PAD_START)
-		{
-			StartPauseMenu();
-			pauseController = pl;
-			return;
-		}
-#endif
+//#else
+//		if(padData.debounce[pl] & PAD_START)
+//		{
+//			StartPauseMenu();
+//			pauseController = pl;
+//			return;
+//		}
+//#endif
 #endif
 	}
 
@@ -207,7 +218,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 
 			player[pl].extendedHopDir = MOVE_UP;
 		}
@@ -233,7 +244,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 
 			player[pl].extendedHopDir = MOVE_RIGHT;
 		}
@@ -259,7 +270,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 
 			player[pl].extendedHopDir = MOVE_DOWN;
 		}
@@ -285,7 +296,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 			
 			player[pl].extendedHopDir = MOVE_LEFT;
 		}
@@ -293,7 +304,7 @@ void GameProcessController(long pl)
 
 	// Do not allow superhop if in retro mode
 	if( ((doubleQueue[pl] && player[pl].jumpTime > 2048 ) || (padData.debounce[pl] & PAD_CROSS))
-		&& (player[0].worldNum != WORLDID_SUPERRETRO) && (gameState.mode != FRONTEND_MODE))
+		&& (player[0].worldNum != WORLDID_SUPERRETRO) && (gameState.mode != FRONTEND_MODE) && !cameoMode )
     {
 		int dir = player[pl].extendedHopDir;
 
@@ -319,11 +330,12 @@ void GameProcessController(long pl)
 
 		// update player idleTime
 		player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-		idleCamera = 0;
+		//idleCamera = 0;
 
 		// ------------------- DOUBLE JUMP -------------------------
 
-		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped && destTile[pl]->state != TILESTATE_NOSUPER)
+		if( player[pl].isSuperHopping && destTile[pl] && !player[pl].hasDoubleJumped &&
+			destTile[pl]->state != TILESTATE_NOSUPER && destTile[pl]->state != TILESTATE_NOSUPERHOT)  
 		{
 			GAMETILE *old;
 			int oldCamFacing;
@@ -430,10 +442,11 @@ void GameProcessController(long pl)
 		}
 	}
 
-	if( gameState.multi == SINGLEPLAYER )
+	if((gameState.multi == SINGLEPLAYER ) && (player[pl].canJump))
 	{
 //#ifdef PC_VERSION
-		if((padData.debounce[pl] & PAD_TRIANGLE) && (tongue[pl].flags & TONGUE_IDLE))
+		// ma - do not change this line
+		if(((padData.debounce[pl] & PAD_TRIANGLE)||(padData.debounce[pl] & PAD_R1)) && (tongue[pl].flags & TONGUE_IDLE))
 		{
 			// want to use tongue
 			tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
@@ -441,10 +454,10 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 		}
 
-		if( (padData.debounce[pl] & PAD_SQUARE) && !player[pl].isCroaking.time )
+		if( ((padData.debounce[pl] & PAD_SQUARE)||(padData.debounce[pl] & PAD_L1)) && !player[pl].isCroaking.time )
 		{
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 			GTInit( &player[pl].isCroaking, 2 );
@@ -457,7 +470,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 		}
 //#endif
 	}
@@ -514,6 +527,7 @@ void GameProcessController(long pl)
 char* oldStackPointer;
 long startCam = 0;
 TIMER endLevelTimer;
+TIMER screenSaveTimer;
 
 void RunGameLoop (void)
 {
@@ -525,6 +539,16 @@ void RunGameLoop (void)
 		arcadeHud.coinsOver->g = arcadeHud.coinsText->g = 127+((rcos(actFrameCount*4000)+4096)*64)/4096;
 		arcadeHud.coinsOver->b = arcadeHud.coinsText->b = 0;
 	}
+
+#ifdef DREAMCAST_VERSION
+	GTUpdate( &screenSaveTimer, -1 );
+	if( !screenSaveTimer.time )
+	{
+		// Fade to 75%
+		ScreenFade( 255, 63, 30 );
+		keepFade = 1;
+	}
+#endif
 
 //	if( frameCount==2 )
 //	{
@@ -538,29 +562,6 @@ void RunGameLoop (void)
 	// Take this out for release
 	if( !tileNum )
 		tileNum = CreateAndAddTextOverlay(2048,1024,tileString,YES,(char)255,font,0);
-#endif
-
-#ifdef E3_DEMO
-	if (gameState.multi == SINGLEPLAYER)
-		player[0].lives = 99;
-
-	if (frameCount < 5 || padData.debounce[0] || padData.debounce[1] || padData.debounce[2] || padData.debounce[3])
-	{
-#ifdef PC_VERSION
-		GTInit(&idleKickTimer, 15);
-#else
-		GTInit(&idleKickTimer, 30);
-#endif
-	}
-	else
-	{
-		GTUpdate(&idleKickTimer, -1);
-		if (!idleKickTimer.time)
-		{
-			StartE3LevelSelect();
-			return;
-		}
-	}
 #endif
 
 	// setup for frogger point of interest
@@ -591,6 +592,11 @@ void RunGameLoop (void)
 		}
 
 		UpdateBabies( );
+		if((player[0].worldNum != WORLDID_SPACE) || (player[0].levelNum != LEVELID_SPACE2))
+		{
+			UpdatePlatforms();
+			UpdateEnemies();
+		}
 		UpdateSpecialEffects( );
 		return;
 	}

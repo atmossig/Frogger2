@@ -43,8 +43,8 @@
 #define MAX_SPECFX	128
 #define MAX_PLANES	64
 #else
-#define MAX_SPECFX	64
-#define MAX_PLANES	16
+#define MAX_SPECFX	128
+#define MAX_PLANES	64
 #endif
 
 #define FX_CLIPSTEP	(ACTOR_DRAWDISTANCEOUTER>>12)/MAX_SPECFX

@@ -192,6 +192,8 @@ extern KMVERTEX_03		vertices_Sprites_Add[];
 
 extern KMSTRIPCONTEXT	StripContext_SpritesNoTex;
 extern KMSTRIPHEAD		StripHead_SpritesNoTex;
+extern KMSTRIPCONTEXT	StripContext_SpritesNoTex_Sub;
+extern KMSTRIPHEAD		StripHead_SpritesNoTex_Sub;
 extern KMVERTEX_00		vertices_SpritesNoTex[];
 
 extern KMSTRIPCONTEXT	StripContext_3DSprites;

@@ -52,9 +52,11 @@
 #include "temp_psx.h"
 #include "audio.h"
 #include "temp_psx.h"
+#include "DCK_System.h"
 //ma#include "memcard.h"
 #endif
 
+#include "fadeout.h"
 
 #define LONG_DEMO_WAIT 300
 
@@ -64,6 +66,7 @@ int fogStore;
 int quittingLevel = 0;
 int doneTraining = 0;
 int lastArcade = 0;
+int controllerRemoved = FALSE;
 
 extern int maxPlayers;
 
@@ -79,15 +82,6 @@ FVECTOR storeCamOffset;
 FVECTOR storeCurrCamOffset;
 FVECTOR storeCamVect;
 
-
-#define TILENUM_START	198
-#define TILENUM_OPTIONS 1
-#define TILENUM_CHOICE	2
-#define TILENUM_MULTI	3
-#define TILENUM_ARCADE	4
-#define TILENUM_BOOK	5
-
-
 int pauseConfirmMode;
 int pauseGameSpeed;
 
@@ -101,11 +95,11 @@ int fadingLogos = NO;
 void GameProcessController(long pl);
 
 
-#ifdef FINAL_MASTER
+//#ifdef FINAL_MASTER
 char playDemos = 1;
-#else
-char playDemos = 0;
-#endif
+//#else
+//char playDemos = 0;
+//#endif
 
 #ifdef PC_VERSION
  char debugKeys = 0;
@@ -168,14 +162,15 @@ short titleHudX[2][4] = {{1898,1898,96,3700},{1898,1898,96+128,3700-128}};
 short titleHudY[2][4] = {{220,3668,1898,1898},{220+128*2,3668-128*2,1898,1898}};
 #endif
 
-char titleHudOn[6][4] = 
+char titleHudOn[7][4] = 
 {
 	0,0,1,1,
-	0,1,1,1,
+	0,1,1,0,
 	1,1,1,1,
 	0,1,1,1,
 	0,0,1,1,
 	1,1,1,1,
+	0,1,0,1,
 };
 
 char *titleHudName[4] = 
@@ -183,8 +178,11 @@ char *titleHudName[4] =
 	"BUT_UP","BUT_DOWN","BUT_LEFT","BUT_RIGH",
 };
 SPRITEOVERLAY *titleHud[4];
+TEXTOVERLAY *titleHudText[4];
 
 int pauseFrameCount;
+int pauseFaded = 0;
+long pauseFadeTimer;
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
@@ -196,21 +194,45 @@ void StartPauseMenu()
 {
 	int i;
 
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
+
 	pauseFrameCount = 0;
 	quittingLevel = NO;
 	pauseConfirmMode = NO;
 	restartingLevel = NO;
 
-	currentPauseSelection = 0;
-
 	gameState.oldMode = gameState.mode;
 	gameState.mode = PAUSE_MODE;
 	pauseMode = 1;
 
+	// Fade screen after 300 seconds for Sega reqs.
+	pauseFaded = 0;
+	pauseFadeTimer = PAUSEFADETIME;
+
 	PauseAudio( );
 
 //	EnableTextOverlay ( controllerText );
+#ifndef DREAMCAST_VERSION
+	currentPauseSelection = 0;
 	EnableTextOverlay ( continueText );
+#else
+	currentPauseSelection = 1;
+#endif
+	EnableTextOverlay ( xselectText );
+
+	if(gameState.multi == SINGLEPLAYER)
+	{
+		sprintf( pauseTitleString, "%s", GAMESTRING(STR_PAUSE_MODE));
+	}
+	else
+	{
+		sprintf( pauseTitleString, "%s %d ", GAMESTRING(STR_PLAYER), pauseController+1);
+		strcat(pauseTitleString,GAMESTRING(STR_PAUSE_MODE));
+	}
+
+	EnableTextOverlay ( pauseTitleText );
 	continueText->r = continueText->g = continueText->b = 255;
 	if(gameState.oldMode == FRONTEND_MODE)
 		quitText->yPos = quitText->yPosTo = restartText->yPos;
@@ -347,10 +369,120 @@ void RunPauseMenu()
 	int exitPause = FALSE;
 	int i;
 
+	// removed controller
+	if(controllerRemoved)
+	{
+		pauseFrameCount += max((pauseGameSpeed>>12),1);
+
+		removeControllerText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+		removeControllerText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+
+		removeControllerText2->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+		removeControllerText2->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+
+		removeControllerText3->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+		removeControllerText3->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+
+		if( gameState.multi == SINGLEPLAYER )
+		{
+			if(checkForControllerInsertedSingle())
+			{
+				SubTextOverlay(removeControllerText);
+				SubTextOverlay(removeControllerText2);
+				SubTextOverlay(removeControllerText3);
+				controllerRemoved = FALSE;
+				StartPauseMenu();
+			}
+		}
+		else
+		{
+
+		}
+		return;
+	}
+
+	if( gameState.multi == SINGLEPLAYER )
+	{
+		// check for controller removed from dreamcast
+		if(checkForControllerRemovedSingle())
+		{
+			pauseFrameCount = 0;
+			quittingLevel = NO;
+			pauseConfirmMode = NO;
+			restartingLevel = NO;
+
+			currentPauseSelection = 0;
+
+			gameState.oldMode = gameState.mode;
+			gameState.mode = PAUSE_MODE;
+			pauseMode = 1;
+
+//			if( gameState.multi == SINGLEPLAYER )
+				DisableHUD( );
+
+			for(i=0; i<numBabies; i++)
+				babyIcons[i]->draw = 0;
+
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			controllerRemoved = TRUE;
+
+			DisableTextOverlay ( continueText );
+			DisableTextOverlay ( xselectText );
+			DisableTextOverlay ( pauseTitleText );
+			DisableTextOverlay ( restartText );
+			DisableTextOverlay ( quitText );
+		}
+	}
+	else
+	{
+		// check for controller removed from dreamcast
+		if(checkForControllerRemovedMulti())
+		{
+			pauseFrameCount = 0;
+			quittingLevel = NO;
+			pauseConfirmMode = NO;
+			restartingLevel = NO;
+
+			currentPauseSelection = 0;
+
+			gameState.oldMode = gameState.mode;
+			gameState.mode = PAUSE_MODE;
+			pauseMode = 1;
+
+//			if( gameState.multi == SINGLEPLAYER )
+				DisableHUD( );
+
+			for(i=0; i<numBabies; i++)
+				babyIcons[i]->draw = 0;
+
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			controllerRemoved = TRUE;
+
+			DisableTextOverlay ( continueText );
+			DisableTextOverlay ( xselectText );
+			DisableTextOverlay ( pauseTitleText );
+			DisableTextOverlay ( restartText );
+			DisableTextOverlay ( quitText );
+		}
+	}
 
 	pauseFrameCount += max((pauseGameSpeed>>12),1);
 	if((quittingLevel) && (pauseConfirmMode == 0))
 	{
+		pauseFadeTimer = PAUSEFADETIME;
+		// Bring screen back if faded
+		if( pauseFaded )
+		{
+			fadingOut = 0;
+			fadeProc = NULL;
+			keepFade = 1;
+			pauseFaded = 0;
+//			ScreenFade( 255, 255, 0 );
+		}
 		if(fadingOut == 0)
 		{
 			if(quittingLevel == 1)
@@ -432,6 +564,20 @@ void RunPauseMenu()
 	}
 #endif
 
+	if( padData.debounce[pauseController] )
+	{
+		pauseFadeTimer = PAUSEFADETIME;
+		// Bring screen back if faded
+		if( pauseFaded )
+		{
+			keepFade = 1;
+			pauseFaded = 0;
+			fadingOut = 0;
+			fadeProc = NULL;
+//			ScreenFade( 255, 255, 0 );
+		}
+	}
+
 	if (padData.debounce[pauseController]&PAD_SQUARE)
 	{
 		currCheat = 0;		
@@ -469,7 +615,13 @@ void RunPauseMenu()
 	{
 		if(padData.debounce[pauseController]&PAD_UP)
 		{
-			if (currentPauseSelection == 0)
+			if (currentPauseSelection ==
+#ifdef DREAMCAST_VERSION
+				(pauseConfirmMode?0:1)
+#else
+				0
+#endif
+				)
 			{
 				if((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode))
 					currentPauseSelection = 1;
@@ -484,10 +636,26 @@ void RunPauseMenu()
 		if(padData.debounce[pauseController]&PAD_DOWN)
 		{
 			if((((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode)) && (currentPauseSelection == 1)) || (currentPauseSelection == 2))
-				currentPauseSelection = 0;
+				currentPauseSelection =
+#ifdef DREAMCAST_VERSION
+				(pauseConfirmMode?0:1)
+#else
+				0
+#endif
+				;
 			else
 				currentPauseSelection++;
 		}
+	}
+
+	// If no activity for 300 secs, go to "screensaver" mode
+	pauseFadeTimer -= pauseGameSpeed;
+	if( pauseFadeTimer <= 0 )
+	{
+		// Fade to 75%
+		ScreenFade( 63, 63, 0 );
+		keepFade = 1;
+		pauseFaded = 1;
 	}
 
 	if((pauseConfirmMode) && (padData.debounce[pauseController] & PAD_TRIANGLE))
@@ -499,7 +667,10 @@ void RunPauseMenu()
 		quittingLevel = 0;
 		if(gameState.oldMode != FRONTEND_MODE)
 			restartText->draw = 1;
-		quitText->draw = continueText->draw = 1;
+		quitText->draw = 1;
+#ifndef DREAMCAST_VERSION
+		continueText->draw = 1;
+#endif
 	}
 	if( (padData.debounce[pauseController]&PAD_CROSS) || (padData.debounce[pauseController]&PAD_START) || (exitPause))
 	{
@@ -527,6 +698,8 @@ void RunPauseMenu()
 			case 0:   // continue game
 			{
 				DisableTextOverlay ( continueText );
+				DisableTextOverlay ( xselectText );
+				DisableTextOverlay ( pauseTitleText );
 				DisableTextOverlay ( restartText );
 				DisableTextOverlay ( quitText );
 				if(pauseConfirmMode)
@@ -561,6 +734,11 @@ void RunPauseMenu()
 						}
 					}
 
+					GTInit( &screenSaveTimer, PAUSEFADETIME );
+					keepFade = 1;
+					fadingOut = 0;
+					fadeProc = NULL;
+
 					UnPauseAudio( );
 				}
 				return;
@@ -585,7 +763,11 @@ void RunPauseMenu()
 						currentPauseSelection = quittingLevel;
 					}
 
-					continueText->draw = quitText->draw = 1;
+
+#ifndef DREAMCAST_VERSION
+					continueText->draw = 1;
+#endif
+					quitText->draw = 1;
 					quittingLevel = 0;
 					break;
 				}
@@ -818,6 +1000,9 @@ void RunFrontendGameLoop (void)
 		for(i = 0;i < 4;i++)
 		{
 			titleHud[i] = CreateAndAddSpriteOverlay(titleHudX[0][i],titleHudY[0][i],titleHudName[i],300,300,0,0);
+			titleHudText[i] = CreateAndAddTextOverlay(0,0,NULL,(i < 2),255,fontSmall,TEXTOVERLAY_SHADOW);
+			titleHudText[i]->b = 0;
+			titleHudText[i]->draw = 0;
 //			titleHud[i]->xPosTo = titleHudX[1][i];
 //			titleHud[i]->yPosTo = titleHudY[1][i];
 //			if(i < 2)
@@ -914,8 +1099,6 @@ void RunFrontendGameLoop (void)
 			player[0].hasJumped = 0;
 		}
 
-		options.currentPlayer = 0;
-
 		DisableHUD();
 		reachedPoint = 0;
 
@@ -932,7 +1115,7 @@ void RunFrontendGameLoop (void)
 		
 		options.parText[0] = CreateAndAddTextOverlay(1950,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		options.parText[1] = CreateAndAddTextOverlay(2750,1105,GAMESTRING(STR_SET_BY),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		options.parText[2] = CreateAndAddTextOverlay(3350,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[2] = CreateAndAddTextOverlay(3450,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
 		options.worldText->r = options.parText[0]->r = options.parText[1]->r = options.parText[2]->r = 255;
 		options.worldText->g = options.parText[0]->g = options.parText[1]->g = options.parText[2]->g = 200;
@@ -946,9 +1129,9 @@ void RunFrontendGameLoop (void)
 			options.levelParText[i]->draw = 0;
 			options.levelSetByText[i] = CreateAndAddTextOverlay(2750,(short)(1445+i*170),levelSetByStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelSetByText[i]->draw = 0;
-			options.levelCoinText[i] = CreateAndAddTextOverlay(3500,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+			options.levelCoinText[i] = CreateAndAddTextOverlay(3600,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelCoinText[i]->draw = 0;
-			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3482,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
+			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3582,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
 			options.levelCoinMedal[i]->draw = 0;
 			options.beatenIcon[i] = CreateAndAddSpriteOverlay(150,(short)(1477+i*170)-32,"FLASH",160,160,0,SPRITE_ADDITIVE);
 			options.beatenIcon[i]->draw = 0;
@@ -1144,14 +1327,14 @@ void RunFrontendGameLoop (void)
 				currTileNum++;
 			}
 
-			if(currTileNum == TILENUM_ARCADE)
+			if(currTileNum == lastArcade)
 			{
 				currTile[0] = lastTile[0] = testTile;
 				break;
 			}
 		}
 
-		lastArcade = 0;
+		SetVectorSS(&frog[0]->actor->position,&currTile[0]->centre);
 		SetVectorFF(&currCamSource,&storeCurrCamSource);
 		SetVectorFF(&camSource,&storeCamSource);
 		SetVectorFF(&currCamTarget,&storeCurrCamTarget);
@@ -1161,8 +1344,34 @@ void RunFrontendGameLoop (void)
 		SetVectorFF(&currCamOffset,&storeCurrCamOffset);
 		SetVectorFF(&camOffset,&storeCamOffset);
 		SetVectorFF(&camVect,&storeCamVect);
-		SetVectorSS(&frog[0]->actor->position,&currTile[0]->centre);
-		camFacing[0] = 1;
+		if(lastArcade == TILENUM_ARCADE)
+		{
+			camFacing[0] = 1;
+		}
+		else
+		{
+			for(i = 0;i < options.currentPlayer;i++)
+			{
+				options.multiFace[options.playerChar[i]]->draw = 1;
+				options.multiFace[options.playerChar[i]]->r = options.multiFace[options.playerChar[i]]->g = options.multiFace[options.playerChar[i]]->b = options.multiFace[options.playerChar[i]]->a = 255;
+				options.multiFace[options.playerChar[i]]->xPos = options.multiFace[options.playerChar[i]]->xPosTo = backCharsX[i];
+				options.multiFace[options.playerChar[i]]->yPos = options.multiFace[options.playerChar[i]]->yPosTo = backCharsY[i];
+			}
+			options.mode = OP_LEVELSEL;
+			reachedPoint = 1;
+			storeCamSource.vx = -3884265;
+			storeCamSource.vy = 3653915;
+			storeCamSource.vz = 2103810;
+			storeCamTarget.vx = 6143995;
+			storeCamTarget.vy = 409600;
+			storeCamTarget.vz = -3686400;
+			storeCurrCamOffset.vx = -10028260;
+			storeCurrCamOffset.vy = 3244315;
+			storeCurrCamOffset.vz = 5790205;
+			player[0].hasJumped = 0;
+		}
+
+		lastArcade = 0;
 		fadingLogos = 1;
 		frogLogo->draw = 0;
 	}
@@ -1182,17 +1391,43 @@ void RunFrontendGameLoop (void)
 		{
 			case TILENUM_START:
 				hudNum = 0;
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 1;
+				titleHudText[3]->draw = 1;
+				titleHudText[2]->text = GAMESTRING(STR_OPTIONS);
+				titleHudText[3]->text = GAMESTRING(STR_START_GAME);
 				break;
 
 			case TILENUM_OPTIONS:
 				if(options.mode == OP_GLOBALMENU)
 				{
-					hudNum = 1;
+					titleHudText[0]->draw = 0;
+					titleHudText[1]->draw = 1;
+					titleHudText[1]->text = GAMESTRING(STR_START_GAME);
+					if(options.selection == 0)
+					{
+						hudNum = 1;
+						titleHudText[2]->draw = 1;
+						titleHudText[3]->draw = 0;
+						titleHudText[2]->text = GAMESTRING(STR_OPTIONS_2);
+					}
+					else
+					{
+						hudNum = 6;
+						titleHudText[2]->draw = 0;
+						titleHudText[3]->draw = 1;
+						titleHudText[3]->text = GAMESTRING(STR_OPTIONS_1);
+					}
 					titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
 					titleHud[0]->xPos = titleHud[0]->xPosTo = titleHud[1]->xPos = titleHud[1]->xPosTo = titleHudX[0][0];
 				}
 				else if(options.mode == OP_SOUND)
 				{
+					titleHudText[0]->draw = 0;
+					titleHudText[1]->draw = 0;
+					titleHudText[2]->draw = 0;
+					titleHudText[3]->draw = 0;
 					hudNum = 5;
 					titleHud[0]->a = titleHud[1]->a = titleHud[2]->a = titleHud[3]->a = 255;
 				}
@@ -1202,6 +1437,14 @@ void RunFrontendGameLoop (void)
 
 			case TILENUM_CHOICE:
 				//close off multiplayer and arcade machine if training not completed
+				titleHudText[0]->draw = 1;
+				titleHudText[1]->draw = 1;
+				titleHudText[2]->draw = 1;
+				titleHudText[3]->draw = 1;
+				titleHudText[0]->text = GAMESTRING(STR_STORYMODE);
+				titleHudText[1]->text = GAMESTRING(STR_OPTIONS);
+				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
+				titleHudText[3]->text = GAMESTRING(STR_ARCADEMODE);
 				titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
 #ifdef FINAL_MASTER
 				if(doneTraining == 0)
@@ -1217,10 +1460,18 @@ void RunFrontendGameLoop (void)
 
 			case TILENUM_BOOK:
 				hudNum = 3;
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				break;
 
 
 			case TILENUM_MULTI:
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				if((options.mode == OP_MULTIPLAYERNUMBER) && (maxPlayers <= 2))
 					hudNum = -1;
 				else
@@ -1228,6 +1479,10 @@ void RunFrontendGameLoop (void)
 				break;
 
 			case TILENUM_ARCADE:
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				if(options.mode == OP_ARCADE)
 					hudNum = 4;
 				else
@@ -1235,12 +1490,33 @@ void RunFrontendGameLoop (void)
 				break;
 
 			default:
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				hudNum = -1;
 				break;
 		}
 	}
 	else
 		hudNum = -1;
+
+
+	titleHudText[0]->xPos = 2048;
+	titleHudText[1]->xPos = 2048;
+
+	titleHudText[2]->xPos = titleHudX[0][2] + 100;
+	titleHudText[2]->yPos = titleHud[2]->yPos + 300;
+	titleHudText[3]->yPos = titleHud[3]->yPos + 300;
+#ifdef PSX_VERSION
+	titleHudText[0]->yPos = titleHudY[0][0] + 520;
+	titleHudText[1]->yPos = titleHudY[0][1] - 520;
+	titleHudText[3]->xPos = titleHudX[0][3] + 100 - fontExtentWScaled(fontSmall,titleHudText[3]->text,4096)*8;
+#elif PC_VERSION
+	titleHudText[0]->yPos = titleHudY[0][0] + 400;
+	titleHudText[1]->yPos = titleHudY[0][1] - 400;
+	titleHudText[3]->xPos = titleHudX[0][3] + 100 - CalcStringWidth(titleHudText[3]->text,(MDX_FONT *)fontSmall,1)*6.4;
+#endif
 
 	if(hudNum == 5)
 	{
@@ -1273,12 +1549,23 @@ void RunFrontendGameLoop (void)
 	if(hudNum == -1)
 	{
 		for(i = 0;i < 4;i++)
+		{
 			DEC_ALPHA(titleHud[i]);
+			DEC_ALPHA(titleHudText[i]);
+		}
 	}
 	else
 	{
 		for(i = 0;i < 4;i++)
 		{
+			if(titleHudText[i]->draw)
+			{
+				INC_ALPHA(titleHudText[i],255);
+			}
+			else
+			{
+				DEC_ALPHA(titleHudText[i]);
+			}
 			if(titleHudOn[hudNum][i] == 0)
 			{
 				DEC_ALPHA(titleHud[i]);
@@ -1347,7 +1634,7 @@ void RunFrontendGameLoop (void)
 		DEC_ALPHA(options.parText[1]);
 		DEC_ALPHA(options.parText[2]);
 		
-		if((currTileNum != TILENUM_BOOK) && ((currTileNum != TILENUM_OPTIONS) || (creditsRunning) || (player[0].canJump == 0)))
+		if(((currTileNum != TILENUM_BOOK) || (player[0].canJump == 0)) && ((currTileNum != TILENUM_OPTIONS) || (creditsRunning) || (player[0].canJump == 0)))
 			DEC_ALPHA(options.selectText);
 		DEC_ALPHA(options.worldText);
 		DEC_ALPHA(options.worldBak);
@@ -1398,6 +1685,7 @@ void RunFrontendGameLoop (void)
 		{
 			SetVectorFF(&storeCamSource,&currCamSource);
 			SetVectorFF(&storeCamTarget,&currCamTarget);
+			SetVectorFF(&storeCurrCamOffset,&currCamOffset);
 
 			currCamSource.vx = -9591334;
 			currCamSource.vy = 2500000;
@@ -1617,7 +1905,6 @@ unsigned long USE_MENUS = 0;
 void DoArcadeMenu()
 {
 	int i;
-	int m,s,ms,t;
 
 
 	INC_ALPHA(options.subTitle,255);
@@ -1672,14 +1959,7 @@ void DoArcadeMenu()
 //		options.levelParText[0]->g = 255;
 //		options.levelParText[0]->r = 255;
 
-		t = worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime;
-		m = worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/600;
-		s = ((worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)/10)%60;
-		ms = (worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)%10;
-		
-		sprintf(levelParStr[1],"%d:%02d.%d0",m,s,ms);
-		
-//		sprintf(levelParStr[1],"%d:%02i.%d0",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/600,((worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)/10)%60,(worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)%10);
+		sprintf(levelParStr[1],"%lu:%02i.%d0",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/600,((worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)/10)%60,(worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)%10);
 		options.levelParText[1]->b = 255;
 		options.levelParText[1]->g = 255;
 		options.levelParText[1]->r = 255;

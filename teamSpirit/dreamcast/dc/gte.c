@@ -2366,6 +2366,8 @@ KMVERTEX_03		vertices_Sprites_Add[] =
 
 KMSTRIPCONTEXT	StripContext_SpritesNoTex;
 KMSTRIPHEAD		StripHead_SpritesNoTex;
+KMSTRIPCONTEXT	StripContext_SpritesNoTex_Sub;
+KMSTRIPHEAD		StripHead_SpritesNoTex_Sub;
 KMVERTEX_00		vertices_SpritesNoTex[] =
 {
 { KM_VERTEXPARAM_NORMAL,     0,0, 1.0f, 0, 0, RGBA(255,255,255,255), 0 },
@@ -2860,7 +2862,7 @@ void initialisePsxStrips()
 	StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].bIgnoreTextureAlpha	= KM_TRUE;
 	StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;
     StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].pTextureSurfaceDesc 	= &DCKtextureList[0].surface;
-//	StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
+	StripContext_GT4_FMA.ImageControl[KM_IMAGE_PARAM1].nClampUV				= KM_CLAMP_UV;
 	kmGenerateStripHead03(&StripHead_GT4_FMA,&StripContext_GT4_FMA);
 
 
@@ -3057,8 +3059,8 @@ void initialisePsxStrips()
 	StripContext_SpritesNoTex.ObjectControl.nDepthCompare			 			= KM_GREATER;
 	StripContext_SpritesNoTex.ObjectControl.nCullingMode			 			= KM_NOCULLING;
 	StripContext_SpritesNoTex.ObjectControl.bZWriteDisable						= KM_TRUE;
-	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_ZERO;
-	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCCOLOR;	
+	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_SRCALPHA;
+	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCALPHA;	
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nFogMode			= KM_NOFOG;
@@ -3068,6 +3070,30 @@ void initialisePsxStrips()
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;//KM_POINT_SAMPLE;
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nClampUV			= KM_CLAMP_UV;
 	kmGenerateStripHead00(&StripHead_SpritesNoTex,&StripContext_SpritesNoTex);
+
+	// initialise sprite with no texture strip context and head
+	memset(&StripContext_SpritesNoTex_Sub,0,sizeof(StripContext_SpritesNoTex_Sub));
+	memset(&StripHead_SpritesNoTex_Sub,0,sizeof(StripHead_SpritesNoTex_Sub));
+	StripContext_SpritesNoTex_Sub.nSize = sizeof(KMSTRIPCONTEXT);
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &StripContext_SpritesNoTex_Sub);
+	StripContext_SpritesNoTex_Sub.StripControl.nListType		 					= KM_TRANS_POLYGON;
+	StripContext_SpritesNoTex_Sub.StripControl.nUserClipMode	 					= KM_USERCLIP_DISABLE;
+	StripContext_SpritesNoTex_Sub.StripControl.nShadowMode			 				= KM_NORMAL_POLYGON;
+	StripContext_SpritesNoTex_Sub.StripControl.bGouraud		 						= KM_TRUE;
+	StripContext_SpritesNoTex_Sub.ObjectControl.nDepthCompare			 			= KM_GREATER;
+	StripContext_SpritesNoTex_Sub.ObjectControl.nCullingMode			 			= KM_NOCULLING;
+	StripContext_SpritesNoTex_Sub.ObjectControl.bZWriteDisable						= KM_TRUE;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_ZERO;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCCOLOR;	
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].nFogMode			= KM_NOFOG;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].bColorClamp			= KM_FALSE;	
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].bUseAlpha			= KM_TRUE;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].bIgnoreTextureAlpha	= KM_FALSE;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].nFilterMode			= KM_BILINEAR;//KM_POINT_SAMPLE;
+	StripContext_SpritesNoTex_Sub.ImageControl[KM_IMAGE_PARAM1].nClampUV			= KM_CLAMP_UV;
+	kmGenerateStripHead00(&StripHead_SpritesNoTex_Sub,&StripContext_SpritesNoTex_Sub);
 	
 	// initialise 3d sprite strip context and head
 	memset(&StripContext_3DSprites,0,sizeof(StripContext_3DSprites));

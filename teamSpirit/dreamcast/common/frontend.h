@@ -42,6 +42,10 @@ extern long backTextY[4];
 extern long backWinsTextX[4];
 extern long backWinsTextY[4];
 
+extern TEXTOVERLAY *removeControllerText;
+extern TEXTOVERLAY *removeControllerText2;
+extern TEXTOVERLAY *removeControllerText3;
+
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
 extern void GameLoop(void);

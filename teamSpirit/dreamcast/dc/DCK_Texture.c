@@ -819,7 +819,7 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 	int				i,j,size;
 	unsigned char	buf[256],*headerPtr,*dataPtr,*pptr;
     PKMDWORD   		TexturePtr,TwiddledPtr;
-  	USHORT			width,height,bpp,alpha,*pixelPtr,*newPixelPtr,palCol,*palPtr,index;
+  	USHORT			width,height,bpp,alpha,*pixelPtr,*newPixelPtr,palCol,*palPtr,index,*dPtr,pixel;
   	int				headerSize,colFormat,texFormat,texAttrib,attrib;
   	UCHAR			r,g,b,a;
   	BMPHeaderType	*bmpHeader;
@@ -946,114 +946,23 @@ int loadNSPRITEIntoSurface(NSPRITE *sprite)
 	}
 	else if(sprite->flags & NCOLOURKEY)
 	{
-		switch(bpp)
-		{
-			case 4:
-				pixelPtr = bitmapPtr;
-				for(i=0;i<height;i++)
-				{
-					for(j=0;j<(width/2);j++)
-					{
-						index = *dataPtr++;
-
-						palCol = *(palPtr+(index>>4));					
-						b = (palCol >> 10);
-						g = (palCol >> 4) & 0x3E;
-						r = (palCol) & 0x1F;
-						if((r == 31)&&(g == 0)&&(b == 31))					
-							*pixelPtr++ = RGBA1555(0,0,0,0);
-						else
-							*pixelPtr++ = RGBA1555(r,g,b,1);	
-
-						palCol = *(palPtr+(index&0x0F));
-						b = (palCol >> 10);
-						g = (palCol >> 4) & 0x3E;
-						r = (palCol) & 0x1F;
-						if((r == 31)&&(g == 0)&&(b == 31))					
-							*pixelPtr++ = RGBA1555(0,0,0,0);
-						else
-							*pixelPtr++ = RGBA1555(r,g,b,1);
-					}
-				}
-				break;
-			
-			case 8:
-				pixelPtr = bitmapPtr;
-				for(i=0;i<height;i++)
-				{
-					for(j=0;j<width;j++)
-					{
-						index = *dataPtr++;
-						
-						palCol = *(palPtr+index);					
-						b = (palCol >> 10);
-						g = (palCol >> 5) & 0x1F;
-						r = (palCol) & 0x1F;
-						if((r == 31)&&(g == 0)&&(b == 31))
-							*pixelPtr++ = RGBA1555(0,0,0,0);
-						else
-							*pixelPtr++ = RGBA1555(r,g,b,1);
-					}
-				}
-				break;		
-		}
 		texPtr->colourKey = TRUE;			
-		Rectangle2Twiddled((char*)bitmapPtr,(char*)twiddlePtr, width, 16);
 		tflag = kmCreateTextureSurface(&texPtr->surface, newWidth, newHeight,KM_TEXTURE_ARGB1555|KM_TEXTURE_TWIDDLED);
 		if(tflag != KMSTATUS_SUCCESS)
 			return FALSE;
-		kmLoadTexture(&texPtr->surface, (PKMDWORD)twiddlePtr);
+		memcpy((char*)bitmapPtr,(char*)dataPtr,(width*height*2));
+		kmLoadTexture(&texPtr->surface, (PKMDWORD)bitmapPtr);
+//		kmLoadTexture(&texPtr->surface, (PKMDWORD)twiddlePtr);
 	}
 	else
 	{
-		switch(bpp)
-		{
-			case 4:
-				pixelPtr = bitmapPtr;
-				for(i=0;i<height;i++)
-				{
-					for(j=0;j<(width/2);j++)
-					{
-						index = *dataPtr++;
-
-						palCol = *(palPtr+(index>>4));					
-						b = (palCol >> 10);
-						g = (palCol >> 4) & 0x3E;
-						r = (palCol) & 0x1F;
-						*pixelPtr++ = RGB565(r,g,b);
-
-						palCol = *(palPtr+(index&0x0F));
-						b = (palCol >> 10);
-						g = (palCol >> 4) & 0x3E;
-						r = (palCol) & 0x1F;
-						*pixelPtr++ = RGB565(r,g,b);
-					}
-				}
-				break;
-			
-			case 8:
-				pixelPtr = bitmapPtr;
-				for(i=0;i<height;i++)
-				{
-					for(j=0;j<width;j++)
-					{
-						index = *dataPtr++;
-
-						palCol = *(palPtr+index);
-						b = (palCol >> 10) & 0x1F;
-						g = (palCol >> 4) & 0x3E;
-						r = (palCol) & 0x1F;
-						*pixelPtr++ = RGB565(r,g,b);
-					}
-				}
-				break;		
-		}
-		Rectangle2Twiddled((char*)bitmapPtr,(char*)twiddlePtr, width, 16);
 		texPtr->colourKey = FALSE;
 		tflag = kmCreateTextureSurface(&texPtr->surface, newWidth, newHeight,KM_TEXTURE_RGB565|KM_TEXTURE_TWIDDLED);
 		if(tflag != KMSTATUS_SUCCESS)
 			return FALSE;
-		kmLoadTexture(&texPtr->surface, (PKMDWORD)twiddlePtr);
+		memcpy((char*)bitmapPtr,(char*)dataPtr,(width*height*2));
+		kmLoadTexture(&texPtr->surface, (PKMDWORD)bitmapPtr);
+//		kmLoadTexture(&texPtr->surface, (PKMDWORD)twiddlePtr);
 	}	
 
 	texPtr->surfacePtr = &texPtr->surface;

@@ -11,6 +11,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include "include.h"
+#include "main.h"
 
 extern DCKVERTEX 		*globalVerts;
 extern KMSTRIPCONTEXT 	StripContext;
@@ -38,6 +39,18 @@ KMVERTEXBUFFDESC vertexBufferDesc;			// global vertex buffer
 PKMDWORD 		dwDataPtr;
 
 Sint32			displayMode, frameBufferFormat;
+
+enum
+{
+	PADSTATUS_NOTCONNECTED,
+	PADSTATUS_CONNECTED,
+	PADSTATUS_REMOVED,
+	PADSTATUS_INSERTED,
+};
+
+int				firstPad = 0;
+int				numPads = 0;
+int				padStatus[4] = {0,0,0,0};
 
 //----- [ FUNCTION IMPLEMENTATION ] --------------------------------------------------------------
 
@@ -114,4 +127,199 @@ float getFloat(char *ptr)
 		*dest++ = *ptr++;
 
 	return testFloat;
+}
+
+int checkForControllerRemovedSingle()
+{
+	int state;
+
+	// test to see if pad still connected
+	switch(firstPad)
+	{
+		case 0:	
+			per = pdGetPeripheral(PDD_PORT_A0);
+			break;
+		case 1:	
+			per = pdGetPeripheral(PDD_PORT_B0);
+			break;
+		case 2:	
+			per = pdGetPeripheral(PDD_PORT_C0);
+			break;
+		case 3:	
+			per = pdGetPeripheral(PDD_PORT_D0);
+			break;
+	}
+	state = TRUE;
+	if(strstr(per->info->product_name,"(none)"))
+	{
+		state = FALSE;				
+	}
+	return !state;
+}
+
+int checkForControllerInsertedSingle()
+{
+	int i,pads[4],state;
+
+	switch(firstPad)
+	{
+		case 0:	
+			per = pdGetPeripheral(PDD_PORT_A0);
+			break;
+		case 1:	
+			per = pdGetPeripheral(PDD_PORT_B0);
+			break;
+		case 2:	
+			per = pdGetPeripheral(PDD_PORT_C0);
+			break;
+		case 3:	
+			per = pdGetPeripheral(PDD_PORT_D0);
+			break;
+	}
+	state = TRUE;				
+	if(strstr(per->info->product_name,"(none)"))
+	{
+		state = FALSE;				
+	}
+
+	return state;
+}
+
+int checkForControllerRemovedMulti()
+{
+	int i,state;
+
+	for(i=firstPad;i<numPads;i++)
+	{		
+		// test to see if pad still connected
+		switch(firstPad)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+		state = TRUE;
+		if(strstr(per->info->product_name,"(none)"))
+		{
+			state = FALSE;				
+		}
+
+		if((padStatus[i] == TRUE)&&(state == FALSE))
+			return i;
+	}
+
+	return FALSE;
+}
+
+int checkForControllerInsertedMulti()
+{
+	int i,pads[4],state;
+
+	switch(firstPad)
+	{
+		case 0:	
+			per = pdGetPeripheral(PDD_PORT_A0);
+			break;
+		case 1:	
+			per = pdGetPeripheral(PDD_PORT_B0);
+			break;
+		case 2:	
+			per = pdGetPeripheral(PDD_PORT_C0);
+			break;
+		case 3:	
+			per = pdGetPeripheral(PDD_PORT_D0);
+			break;
+	}
+	state = TRUE;				
+	if(strstr(per->info->product_name,"(none)"))
+	{
+		state = FALSE;				
+	}
+
+	return state;
+}
+
+int checkForSoftReset()
+{
+	int i;
+
+	for(i=0;i<4;i++)
+	{
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+
+		if(strstr(per->info->product_name,"(none)") == FALSE)
+		{
+			if( (per->on & PDD_DGT_TB)&&
+				(per->on & PDD_DGT_TA)&&
+				(per->on & PDD_DGT_TX)&&
+				(per->on & PDD_DGT_TY)&&
+				(per->on & PDD_DGT_ST))
+				 return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+int checkForValidControllers()
+{
+	int i;
+
+	firstPad = 4;
+	numPads = 0;
+	for(i = 3;i >= 0;i--)
+	{
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+		padData.present[i] = TRUE;				
+		if(strstr(per->info->product_name,"(none)"))
+		{
+			padData.present[i] = FALSE;				
+			padStatus[i] = PADSTATUS_NOTCONNECTED;
+		}
+		else
+		{
+			firstPad = i;
+			numPads++;
+			padStatus[i] = PADSTATUS_CONNECTED;
+		}
+	}
+
+	return numPads;
 }

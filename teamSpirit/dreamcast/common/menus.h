@@ -22,12 +22,20 @@ extern "C" {
 
 #define BOOK_NUM_PAGES 10
 
+#define TILENUM_START	204
+#define TILENUM_OPTIONS 1
+#define TILENUM_CHOICE	2
+#define TILENUM_MULTI	3
+#define TILENUM_ARCADE	4
+#define TILENUM_BOOK	5
+
 extern long tValue;
 extern fixed fadeSpeed;
 extern unsigned long cWorld;
 extern int fogStore;
 extern int pauseConfirmMode;
 extern int pauseGameSpeed;
+extern int controllerRemoved;
 
 #define DEC_ALPHA(x) \
 {													\

@@ -122,50 +122,87 @@ void PrintText(TEXTOVERLAY *cur,short xPos,short yPos,uchar r,uchar g,uchar b,uc
 #ifdef PSX_VERSION
 	uchar alphaStore = cur->font->alpha;
 
-	cur->font->alpha = a;
+
 
 //	if(a == 255)
 //		cur->font->alpha = 0;
 //	else
 //	{
 //		cur->font->alpha = fontAlpha;
-//		r = (r * a) / 512;
-//		g = (g * a) / 512;
-//		b = (b * a) / 512;
+//		r = (r * a)>>9;
+//		g = (g * a)>>9;
+//		b = (b * a)>>9;
 //	}
+
+	cur->font->alpha = cur->a;
+
 	if ( cur->centred )
 	{
-		int length = fontExtentW(cur->font, cur->text)/2;
+		int length = fontExtentWScaled(cur->font, cur->text,cur->scale)/2;
+//		length = ((float)length * (640.0/512.0));
+//		length /= 2;
+			
 		cur->tWidth = length;
 
+		// alter co-ordinates for the dreamcast
+		xPos -= length;
+		xPos += 320;
+		yPos += 128;
+		yPos = ((float)yPos * (480.0/256.0));
+
+//		if((xPos + length*2 < -255) || (xPos - length > 255))
+//			return;
+		if(cur->text[0] != 0)
+			fontPrintScaled(cur->font, (short)(xPos),(short)(yPos), cur->text, r,g,b,cur->scale);
+
+/*
 #if PALMODE==1
 		fontPrint(cur->font, -256+(xPos>>3)-length,-128+(yPos>>4), cur->text, r,g,b);
 #else
 		fontPrint(cur->font, -256+(xPos>>3)-length,-120+((yPos*15)>>8), cur->text, r,g,b);
 #endif
+*/
 	}
 	else
 	{
 		int length;
 
-		length = fontExtentW(cur->font, cur->text);
+		length = fontExtentWScaled(cur->font, cur->text,cur->scale);
 		cur->tWidth = (length*640)/512;
+
+		
+		// alter co-ordinates for the dreamcast
+		xPos += 256;
+		yPos += 128;
+		xPos = ((float)xPos * (640.0/512.0));
+		yPos = ((float)yPos * (480.0/256.0));
+
+//		if((xPos + length < -255) || (xPos > 255))
+//			return;
+		fontPrintScaled(cur->font, xPos,yPos, cur->text, r,g,b,cur->scale);
+
+/*
 #if PALMODE==1
 		fontPrint(cur->font, -256+(xPos>>3),-128+(yPos>>4), cur->text, r,g,b);
 #else
 		fontPrint(cur->font, -256+(xPos>>3),-120+((yPos*15)>>8), cur->text, r,g,b);
 #endif
+*/
 	}
 
 	cur->font->alpha = alphaStore;
 
 #else
 	if (cur->centred)
-		cur->tWidth = DrawFontStringAtLoc(xPos*OVERLAY_X,yPos*OVERLAY_Y,cur->text,
-		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)cur->scale/4096) * ((float)rXRes/640.0),rXRes/2,0);// - cur->xPos*OVERLAY_X;
+	{
+		cur->tWidth = DrawFontStringAtLoc(xPos,yPos,cur->text,
+		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)(cur->scale>>12)) * ((float)rXRes/640.0),xPos,0);// - cur->xPos*OVERLAY_X;
+	}
 	else
-		cur->tWidth = DrawFontStringAtLoc(xPos*OVERLAY_X,yPos*OVERLAY_Y,cur->text,
-		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)cur->scale/4096) * ((float)rXRes/640.0),0,0) - xPos*OVERLAY_X;
+	{
+		cur->tWidth = DrawFontStringAtLoc(xPos,yPos,cur->text,
+		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)(cur->scale>>12)) * ((float)rXRes/640.0),0,0) - xPos;
+	}
 
 	cur->tWidth *= (640.0/(float)rXRes);
 #endif
@@ -181,8 +218,9 @@ void PrintTextOverlays()
 
 	for(cur=textOverlayList.block, n=textOverlayList.alloc; n; cur++, n--)
 	{
+
 #ifdef PSX_VERSION
-		if((cur->used) && (cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED)) /*&& ((loadingDisplay == 0) || (cur->flags & TEXTOVERLAY_LOADING))*/)
+		if((cur->used) && (cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED))/* && ((loadingDisplay == 0) || (cur->flags & TEXTOVERLAY_LOADING))*/)
 #else
 		if((cur->used) && (cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED)))
 #endif
@@ -215,15 +253,44 @@ void PrintTextOverlays()
 
 #ifdef PC_VERSION
 			if(cur->flags & TEXTOVERLAY_SHADOW)
-				PrintText(cur,cur->xPos,cur->yPos + 50,0,0,0,(cur->a * 7)/10);
+				PrintText(cur,cur->xPos*OVERLAY_X,cur->yPos*OVERLAY_Y + (cur->font == font ? 6 : 4),0,0,0,(cur->a * 7)/10.0);
+			PrintText(cur,cur->xPos*OVERLAY_X,cur->yPos*OVERLAY_Y,cur->r,cur->g,cur->b,cur->a);
 #endif
 #ifdef PSX_VERSION
-			fontAlpha = 1;
-			if((cur->flags & TEXTOVERLAY_SHADOW) && (cur->a > 128))
-				PrintText(cur,cur->xPos,cur->yPos + 50,0,0,0,(cur->a * 7)/10);
-			fontAlpha = 2;
+			if(cur->flags & TEXTOVERLAY_PIXELS)
+			{
+				if((cur->flags & TEXTOVERLAY_SHADOW) && (cur->a > 120))
+				{
+					fontAlpha = 1;
+//					if(PALMODE)
+						PrintText(cur,-256+cur->xPos,-128+cur->yPos + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
+//					else
+//						PrintText(cur,-256+cur->xPos,-120+cur->yPos + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
+					fontAlpha = 2;
+				}
+//				if(PALMODE)
+					PrintText(cur,-256+cur->xPos,-128+cur->yPos,cur->r,cur->g,cur->b,cur->a);
+//				else
+//					PrintText(cur,-256+cur->xPos,-120+cur->yPos,cur->r,cur->g,cur->b,cur->a);
+			}
+			else
+			{
+				if((cur->flags & TEXTOVERLAY_SHADOW) && (cur->a > 120))
+				{
+					fontAlpha = 1;
+//					if(PALMODE)
+						PrintText(cur,-256 + (cur->xPos>>3),-128 + (cur->yPos>>4) + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
+//					else
+//						PrintText(cur,-256 + (cur->xPos>>3),-120 + ((cur->yPos*15)>>8) + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
+					fontAlpha = 2;
+				}
+//				if(PALMODE)
+					PrintText(cur,-256+(cur->xPos>>3),-128+(cur->yPos>>4),cur->r,cur->g,cur->b,cur->a);
+//				else
+//					PrintText(cur,-256+(cur->xPos>>3),-120+((cur->yPos*15)>>8),cur->r,cur->g,cur->b,cur->a);
+			}
 #endif
-			PrintText(cur,cur->xPos,cur->yPos,cur->r,cur->g,cur->b,cur->a);
+
 
 			//utilPrintf("cur->xPos : %d, cur->yPos : %d, cur->xPosTo : %d, cur->yPosTo : %d\n", cur->xPos, cur->yPos, cur->xPosTo, cur->yPosTo);
 		}

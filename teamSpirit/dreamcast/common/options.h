@@ -86,6 +86,9 @@ typedef struct
 
 	long soundVol;			// Global volume levels (1..10)
 	long musicVol;
+#ifdef DREAMCAST_VERSION
+	char stereo;			// Stereo or mono sound#
+#endif
 
 	SPRITEOVERLAY *soundIcons[2];
 	ACTOR2 *page;
@@ -141,8 +144,12 @@ typedef struct
 	SPRITEOVERLAY *soundBak[2];
 	TEXTOVERLAY *sfxText[2];
 	TEXTOVERLAY *soundInstrText[2];
+#ifdef DREAMCAST_VERSION
+	TEXTOVERLAY *stereoSelectText[2];		// Stereo or mono
+#endif
 	TEXTOVERLAY *warnText[4];
 	SPRITEOVERLAY *beatenIcon[MAX_LEVELSTRING];
+	char playerChar[4];
 } OPTIONSOBJECTS;
 
 typedef struct
@@ -209,6 +216,8 @@ void SetActorGouraudValues(ACTOR2 *actor, int r,int g,int b);
 
 #ifdef PSX_VERSION
 void SetActorGouraudValues(FMA_MESH_HEADER *mesh, int r,int g,int b);
+void SetActorGouraudValuesMinus(FMA_MESH_HEADER *mesh, int r,int g,int b);
+void SetActorGouraudValuesPlus(FMA_MESH_HEADER *mesh, int r,int g,int b, FMA_GT4 *gouraudList);
 #endif
 
 void DoArcadeMenu();
@@ -220,7 +229,13 @@ void ArcadeStart();
 void MPStart();
 void SetMusicVolume();
 void RunArtViewer();
+void RunTeaserScreens( );
 
+#ifdef DREAMCAST_VERSION
+void ToggleStereo( );
+#endif
+
+extern TIMER artTimer;
 extern u16 optionsLastButton;
 extern char chapterStr[2][32];
 

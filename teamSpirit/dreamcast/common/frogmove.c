@@ -1925,7 +1925,7 @@ void PushFrog(FVECTOR *direction, long pl)
 
 #define THROWFROG_FRAMES	12
 #ifdef PSX_VERSION
-fixed screenDist = 1750000;
+fixed screenDist = 4000000;
 #else
 fixed screenDist = 2200000;
 #endif

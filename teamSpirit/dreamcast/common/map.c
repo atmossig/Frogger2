@@ -12,7 +12,7 @@
 
 #include <islmem.h>
 #include <islfile.h>
-#include <stdio.h>
+//ma#include <stdio.h>
 #include <islutil.h>
 
 #include "Define.h"
@@ -407,7 +407,8 @@ void LoadLevelEntities ( int worldID, int levelID )
 		if(babyList[i].baby)
 		{
 			sprintf(name,"FROGLET0%d",babyList[i].baby->actor->clutOverride+1);
-			ChangeBabyModel(babyList[i].baby->actor, name);
+			ChangeModelNoUndo(babyList[i].baby->actor, name);
+//			ChangeBabyModel(babyList[i].baby->actor, name);
 		}
 	}
 }

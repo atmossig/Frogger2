@@ -37,6 +37,8 @@
 #include "menus.h"
 #include "game.h"
 #include "cam.h"
+#include "options.h"
+#include "islxa.h"
 
 int lastSound = -1;
 
@@ -327,14 +329,13 @@ short voiceCount[4];
 int LoadSfx(long worldID )
 {
 	char path[256];
-	int len,j;	
+	int j;	
 
-
+	path[0] = 0;
 	if(worldID != -1)
 	{
 		for(j = 0;j < NUM_FROGS;j++)
 		{
-			path[len] = '\0';
 			voiceCount[j] = 0;
 			LoadSfxSet(frogPool[player[j].character].fileName, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
 		}
@@ -698,9 +699,32 @@ void PrepareSong(short worldID,int loop)
 	int 	chan;
 	int 	xaNum = 0;
 	char	buffer[32];
+	XAFileType	*adxtestCur;
 
 //	return;
+
+	XAstop();
+
+	switch ( worldID )
+	{
+		case AUDIOTRK_GAMEOVER:				worldID = 10; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETE:		worldID = 9; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 11; xaNum = 1; break;
+	}
+
+	chan = musicList  [ worldID ] + 1;
+
+	if(chan < 10)
+		sprintf(buffer,"track0%d.adx",chan);
+	else
+		sprintf(buffer,"track%d.adx",chan);
+
+	adxtestCur = XAgetFileInfo(buffer);
+	XAplayChannel(adxtestCur, 1, 1, 64);
+
+	return;
 	
+/*
 	if(!bpAmStreamDone(gStream))
 		StopSong();
 	
@@ -730,18 +754,27 @@ void PrepareSong(short worldID,int loop)
 	bpAmStreamStart(gStream);	
 	
 	amHeapGetFree(&memfreeAfter);	
+*/
 }
 
 void StopSong( )
 {
 	KTU32	memfreeBefore,memfreeAfter;
 
-	amHeapGetFree(&memfreeBefore);
+	XAstop();
+
+	return;
+
+/*	amHeapGetFree(&memfreeBefore);
+	
+	if(gStream == 0)
+		return;
 	
 	bpAmStreamDestroy(gStream);
 	StreamDestroy();
 	
 	amHeapGetFree(&memfreeAfter);
+*/
 }
 
 long PAN_MAX = 4096*10;
@@ -761,7 +794,8 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	att = (radius)?radius/*/SCALE*/:DEFAULT_SFX_DIST;
 	att = att<<12;
 
-	SubVectorSSF(&diff, pos, &currCamSource);
+//	SubVectorSSF(&diff, pos, &currCamSource);
+	SubVectorSSF(&diff, pos, &currCamTarget);
 //	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
 	// Volume attenuation - check also for radius != 0 and use instead of default
 	dist = MagnitudeS(&diff);
@@ -873,6 +907,8 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 	AM_SOUND	*sound;
 	int			volAverage,volPan,channel;
 	
+//	return;
+
 	for(channel=0; channel<24; channel++)
 	{
 		if(!current[channel].sound.isPlaying)
@@ -883,8 +919,16 @@ int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
 
 	if(volL||volR)
 	{
-		volPan = (127 * volL)/(volL+volR);
-		volAverage = volL > volR ? volL : volR;
+		if(options.stereo)
+		{
+			volPan = (127 * volL)/(volL+volR);
+			volAverage = volL > volR ? volL : volR;
+		}
+		else
+		{
+			volPan = 64;
+			volAverage = volL > volR ? volL : volR;
+		}
 	}
 	else
 	{

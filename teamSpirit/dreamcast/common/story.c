@@ -18,7 +18,7 @@
 #include "frontend.h"
 #include "story.h"
 
-#include <stdio.h>
+//ma#include <stdio.h>
 
 #ifdef PC_VERSION
 #include <gelf.h>
@@ -30,9 +30,9 @@
 FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
 	"",0,
-	"ATARIS",250,		//	FMV_ATARI_LOGO,            
+	"HLOGO",250,		//	FMV_ATARI_LOGO,            
 	"BLITZS",147,		//	FMV_BLITZ_LOGO,            
-	"01S",147,			//	FMV_INTRO,
+	"INTRO",147,		//	FMV_INTRO,
 	"02S",1085,			//	FMV_FROGGER_LILLIE_BABIES, 
 	"03S",677,			//	FMV_SWAMPY_PLAN,           
 	"04S",525,			//	FMV_SWAMPY_ESCAPES,        

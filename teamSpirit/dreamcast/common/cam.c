@@ -9,6 +9,8 @@
 	
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
+
 //mm #include "ultra64.h"
 //mm #include "directx.h"
 #include "types.h"

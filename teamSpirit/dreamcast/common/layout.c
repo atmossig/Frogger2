@@ -1072,6 +1072,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	player[0].spawnTimer		= 0;
 	player[0].spawnScoreLevel	= 1;
 	GTInit( &scoreTimer, 90 );
+	GTInit( &screenSaveTimer, PAUSEFADETIMESECS );
 
 	if( worldID == WORLDID_FRONTEND || gameState.multi != SINGLEPLAYER )
 	{
@@ -1434,19 +1435,14 @@ void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
 int quitAllVideo;
 extern ACTOR oldActor;
 void CommonInit(void)
-{
-	utilPrintf("Playing FMV.....\n");
-	StartVideoPlayback(FMV_ATARI_LOGO);
-	if(quitAllVideo == 0)
-		StartVideoPlayback(FMV_BLITZ_LOGO);
-		
+{	
 	frameCount=1;
 	lastActFrameCount = actFrameCount = 1;
 
-	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+//	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 
 //#ifdef PC_VERSION
-	memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
+//	memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
 //#endif
 
 	frame = 0;

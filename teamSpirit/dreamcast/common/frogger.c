@@ -9,6 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
 
 //#include "directx.h"
 //#include "ultra64.h"
@@ -31,7 +32,7 @@
 #include "particle.h"
 //#include "newstuff.h"
 #ifndef PSX_VERSION
-#include <stdio.h>
+//ma#include <stdio.h>
 #endif
 
 PLATFORMLIST platformList;								// the platform list

@@ -64,6 +64,7 @@ extern long numHealth_TOTAL;
 
 extern void RunGameLoop (void);
 extern void RunLevelCompleteSequence();
+extern void GameProcessController(long player);
 
 extern ACTOR2 *backGnd;
 
@@ -78,6 +79,11 @@ extern char tileString[], dkPressed;
 extern long displayingTile;
 
 extern char doubleQueue[4];
+
+
+extern TIMER screenSaveTimer;
+#define PAUSEFADETIMESECS 295
+#define PAUSEFADETIME ((PAUSEFADETIMESECS<<12)*60)
 
 extern void SetCamFF(FVECTOR src, FVECTOR tar);
 

@@ -33,6 +33,10 @@ extern PKMDWORD				dwDataPtr;
 
 extern Sint32				displayMode, frameBufferFormat;
 
+extern int					firstPad;
+extern int					numPads;
+extern int					padStatus[4];
+
 //----- [ FUNCTION PROTOTYPES ] -----------------------------------------------------------------
 
 /*	--------------------------------------------------------------------------------
@@ -74,5 +78,12 @@ int	getInt(char *ptr);
 */
 
 float getFloat(char *ptr);
+
+int checkForControllerRemovedSingle();
+int checkForControllerInsertedSingle();
+int checkForControllerRemovedMulti();
+int checkForControllerInsertedMulti();
+int checkForSoftReset();
+int checkForValidControllers();
 
 #endif

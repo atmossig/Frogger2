@@ -14,7 +14,7 @@
 #include <isltex.h>
 #include <islmem.h>
 #include <islutil.h>
-#include <stdio.h>
+//ma#include <stdio.h>
 
 //#include "ultra64.h"
 #include "sprite.h"
