@@ -162,27 +162,25 @@ void AddOffsetToVertexLoads(int offset, Gfx *dl)
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
+	Function 	: DoubleBufferSkinVtx
 	Purpose 	: 
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-void DoubleBufferSkinVtx ( void )
+void DoubleBufferSkinVtx()
 {
 	ACTOR2 *cur;
 
-	while ( gfxTasks );	//must wait for the graphics tasks to be finished so that we don't disturb the drawlists
+	while(gfxTasks);	//must wait for the graphics tasks to be finished so that we don't disturb the drawlists
 
 	TIMER_StartTimer(6,"DBLBFSVTX");
 
 	cur = actList;
-
 	while ( cur )
 	{
-//		if ( cur->actor->objectController )
-			if ( cur->actor->objectController->drawList )
-				cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
+		if(cur->actor->objectController->drawList)
+			cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
 
 		cur = cur->next;
 	}
@@ -1061,134 +1059,6 @@ void FindSubObject(OBJECT **objPtr, int objID)
 */
 void WriteObjectDisplayListFlat(OBJECT *obj)
 {
-/*	int x, y, face = 0,j;
-	MESH	*mesh = obj->mesh;
-	SHORT2DVECTOR	*tcp = mesh->faceTC;
-	VECTOR		*baseVertices = mesh->vertices;
-	VECTOR		*vertex;
-	SHORTVECTOR	*baseFaceIndex = mesh->faceIndex;
-	SHORTVECTOR *faceIndex;
-	Vtx			*batchPtr;
-	int			fC = mesh->numFaces / 10;
-	int			mod = mesh->numFaces % 10, temp;
-	TEXTURE		*texture = NULL;
-	BYTEVECTOR	*normalPtr;
-	BYTEVECTOR	*baseNormalPtr = mesh->faceNormals;
-
-    gDPPipeSync(glistp++);
-
-	for(x = 0; x < fC; x++)
-	{
-		batchPtr = vtxPtr;
-
-		for(y = 0; y < 10; y++)
-		{		
-			faceIndex = baseFaceIndex + face;
-			normalPtr = baseNormalPtr + face;
-
-			vertex = baseVertices + faceIndex->v[X];
-  			V((vtxPtr), 
-				(int)vertex->v[0],
-				(int)vertex->v[1],
-				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				normalPtr->v[X], normalPtr->v[Y], normalPtr->v[Z], xluFact);
-
-			vertex = baseVertices + faceIndex->v[Y];
-			V((vtxPtr+1), 
-				(int)vertex->v[0],
-				(int)vertex->v[1],
-				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				normalPtr->v[X], normalPtr->v[Y], normalPtr->v[Z], xluFact);
-
-			vertex = baseVertices + faceIndex->v[Z];
-			V((vtxPtr+2), 
-				(int)vertex->v[0],
-				(int)vertex->v[1],
-				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				normalPtr->v[X], normalPtr->v[Y], normalPtr->v[Z], xluFact);
-
-
-
-  
-			face++;			
-			vtxPtr+=3;
-//			if(face == mesh->numFaces)
-//				break;
-
-		}
-
-		gSPVertex(glistp++, batchPtr , 30, 0);
-
-		for(j = 0;j < 10;j++)
-		{
-			if(texture != obj->mesh->textureIDs[face-10+j]	)
-			{
-				texture = obj->mesh->textureIDs[face-10+j];
-			    gDPPipeSync(glistp++);
-				LoadTexture(texture);
-			}
-			gSP1Triangle(glistp++, j*3, j*3+1, j*3+2, 2);
-		}
-	}
-
-//handle remaining faces
-	batchPtr = vtxPtr;
-
-	for(y = 0; y < mod; y++)
-	{		
-		faceIndex = baseFaceIndex + face;
-		normalPtr = baseNormalPtr + face;
-
-		vertex = baseVertices + faceIndex->v[0];
-		V((vtxPtr), 
-			(int)vertex->v[0],
-			(int)vertex->v[1],
-			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			normalPtr->v[X], normalPtr->v[Y], normalPtr->v[Z], xluFact);
-
-		vertex = baseVertices + faceIndex->v[1];
-		V((vtxPtr+1), 
-			(int)vertex->v[0],
-			(int)vertex->v[1],
-			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-  			normalPtr->v[X], normalPtr->v[Y], normalPtr->v[Z], xluFact);
-
-		vertex = baseVertices + faceIndex->v[2];
-  		V((vtxPtr+2), 
-			(int)vertex->v[0],
-			(int)vertex->v[1],
-			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			normalPtr->v[X], normalPtr->v[Y], normalPtr->v[Z], xluFact);
-
-
-		face++;			
-		vtxPtr+=3;
-
-	}
-
-	if(mod)
-	{
-		face -= mod;
-		gSPVertex(glistp++, batchPtr , mod * 3, 0);
-		temp = 0;
-		for(x = 0; x < mod; x++)
-		{
-			if(texture != obj->mesh->textureIDs[face])
-			{
-				texture = obj->mesh->textureIDs[face];		
-				gDPPipeSync(glistp++);
-				LoadTexture(texture);
-			}
-			gSP1Triangle(glistp++, temp++, temp++, temp++, 2);
-			face++;
-		}
-	}*/
 	int x, y, face = 0,j;
 	MESH	*mesh = obj->mesh;
 	USHORT2DVECTOR	*tcp = mesh->faceTC;
@@ -1328,142 +1198,6 @@ void WriteObjectDisplayListFlat(OBJECT *obj)
 */
 void WriteObjectDisplayListGouraud(OBJECT *obj)
 {
-/*
-	int x, y, face = 0,j;
-	MESH	*mesh = obj->mesh;
-	SHORT2DVECTOR	*tcp = mesh->faceTC;
-	VECTOR		*baseVertices = mesh->vertices;
-	VECTOR		*vertex;
-	SHORTVECTOR	*baseFaceIndex = mesh->faceIndex;
-	SHORTVECTOR *faceIndex;
-	Vtx			*batchPtr;
-	int			fC = mesh->numFaces / 10;
-	int			mod = mesh->numFaces % 10, temp;
-	TEXTURE		*texture = NULL;
-	BYTEVECTOR	*vNormalPtr;
-	BYTEVECTOR	*baseVNormalPtr = mesh->vertexNormals;
-
-
-	gDPPipeSync(glistp++);
-
-	for(x = 0; x < fC; x++)
-	{
-		batchPtr = vtxPtr;
-
-		for(y = 0; y < 10; y++)
-		{		
-			faceIndex = baseFaceIndex + face;
-//			tcp = mesh->faceTC + face;
-
-			vertex = baseVertices + faceIndex->v[X];
-			vNormalPtr = baseVNormalPtr + faceIndex->v[X];
-  			V((vtxPtr), 
-				(int)vertex->v[0],
-				(int)vertex->v[1],
-				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
-			vertex = baseVertices + faceIndex->v[Y];
-			vNormalPtr = baseVNormalPtr + faceIndex->v[Y];
-			V((vtxPtr+1), 
-				(int)vertex->v[0],
-				(int)vertex->v[1],
-				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
-			vertex = baseVertices + faceIndex->v[Z];
-			vNormalPtr = baseVNormalPtr + faceIndex->v[Z];
-			V((vtxPtr+2), 
-				(int)vertex->v[0],
-				(int)vertex->v[1],
-				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
-  
-			face++;			
-			vtxPtr+=3;
-
-		}
-
-		gSPVertex(glistp++, batchPtr , 30, 0);
-	    gDPPipeSync(glistp++);
-
-
-		for(j = 0;j < 10;j++)
-		{
-			if(texture != obj->mesh->textureIDs[face-10+j]	)
-			{
-				texture = obj->mesh->textureIDs[face-10+j];
-			    gDPPipeSync(glistp++);
-				LoadTexture(texture);
-			}
-			gSP1Triangle(glistp++, j*3, j*3+1, j*3+2, 2);
-		}
-	}
-
-//handle remaining faces
-	batchPtr = vtxPtr;
-
-	for(y = 0; y < mod; y++)
-	{		
-		faceIndex = baseFaceIndex + face;
-
-		vertex = baseVertices + faceIndex->v[0];
-		vNormalPtr = baseVNormalPtr + faceIndex->v[X];
-		V((vtxPtr), 
-			(int)vertex->v[0],
-			(int)vertex->v[1],
-			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
-		vertex = baseVertices + faceIndex->v[1];
-		vNormalPtr = baseVNormalPtr + faceIndex->v[Y];
-		V((vtxPtr+1), 
-			(int)vertex->v[0],
-			(int)vertex->v[1],
-			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
-		vertex = baseVertices + faceIndex->v[2];
-		vNormalPtr = baseVNormalPtr + faceIndex->v[Z];
-  		V((vtxPtr+2), 
-			(int)vertex->v[0],
-			(int)vertex->v[1],
-			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
-
-		face++;			
-		vtxPtr+=3;
-
-	}
-
-	if(mod)
-	{
-		face -= mod;
-		gSPVertex(glistp++, batchPtr , mod * 3, 0);
-		temp = 0;
-		for(x = 0; x < mod; x++)
-		{
-			if(texture != obj->mesh->textureIDs[face])
-			{
-				texture = obj->mesh->textureIDs[face];
-			    gDPPipeSync(glistp++);
-				LoadTexture(texture);
-			}
-			gSP1Triangle(glistp++, temp++, temp++, temp++, 2);
-			face++;
-		}
-	}
-
-    gDPPipeSync(glistp++);
-*/
 	int x, y, face = 0,j;
 	MESH	*mesh = obj->mesh;
 	USHORT2DVECTOR	*tcp = mesh->faceTC;
@@ -1478,7 +1212,6 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 	BYTEVECTOR	*vNormalPtr;
 	BYTEVECTOR	*baseVNormalPtr = mesh->vertexNormals;
 
-
     gDPPipeSync(glistp++);
 
 	for(x = 0; x < fC; x++)
@@ -1488,7 +1221,7 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 		for(y = 0; y < 10; y++)
 		{		
 			faceIndex = baseFaceIndex + face;
-//			tcp = mesh->faceTC + face;
+			tcp = mesh->faceTC + face;
 
 			vertex = baseVertices + faceIndex->v[X];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[X];
@@ -1516,7 +1249,6 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[2],0,
 				tcp->v[0], (tcp++)->v[1],
 				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
   
 			face++;			
 			vtxPtr+=3;
@@ -1572,7 +1304,6 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[2],0,
 			tcp->v[0], (tcp++)->v[1],
 			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
-
 
 		face++;			
 		vtxPtr+=3;

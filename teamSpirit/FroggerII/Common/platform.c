@@ -57,7 +57,7 @@ PLATFORM *destPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is ab
 PLATFORM *currPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
 PLATFORM *nearestPlatform[4] = { NULL,NULL,NULL,NULL };	// platform nearest to the frog
 
-float PLATFORM_GENEROSITY	= 40.0F;					// platform 'forgiveness'
+float PLATFORM_GENEROSITY	= 10.0F;					// platform 'forgiveness'
 
 
 void CalcNextPlatformDest(PLATFORM *plat);

@@ -44,6 +44,9 @@ void FreeMapBank();
 void LoadLevelEntities(short worldID,short levelID);
 void FreeLevelEntitys();
 
+void LoadLevelScript(int worldID,int levelID);
+
+
 void LoadCollision(short cNum);
 void LoadScenics(short sNum);
 

@@ -18,6 +18,7 @@
 
 #define MAXMENUOPTIONS	2
 
+unsigned long developmentMode = 0;
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunDevelopmentRoutines
@@ -41,6 +42,7 @@ void RunDevelopmentMenu()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
+		developmentMode = 0;
 		currFont = smallFont;
 
 		dev		= CreateAndAddTextOverlay(20,20,"DEVELOPMENT MENU",NO,NO,255,255,255,255,currFont,0,0,0);
@@ -51,7 +53,6 @@ void RunDevelopmentMenu()
 
 		StartDrawing("devmenu");
 	}
-	// ENDIF - frameCount == 1
 
 	button = controllerdata[ActiveController].button;
 
@@ -78,7 +79,6 @@ void RunDevelopmentMenu()
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
 			return;
@@ -94,12 +94,12 @@ void RunDevelopmentMenu()
 			switch(currentSelection)
 			{
 				case 0:   // object viewer
+					developmentMode = OBJVIEW_MODE;
 					FreeAllLists();
-					frontEndState.mode = OBJVIEW_MODE;
 					return;
 				case 1:  // sound player
+					developmentMode = SNDVIEW_MODE;
 					FreeAllLists();
-					frontEndState.mode = SNDVIEW_MODE;
 					return;
 			}
 		}			

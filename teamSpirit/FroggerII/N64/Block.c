@@ -1146,10 +1146,10 @@ void DrawGraphics(void *arg)
 				fog.mode = 0;
 				SetRenderMode();
 
-				if( drawScreenGrab && gameState.mode == GAME_MODE )
+				if( drawScreenGrab && gameState.mode == INGAME_MODE )
 					DrawScreenGrab( MOTION_BLUR );
 
-				if( drawScreenGrab && gameState.mode == GAME_MODE )
+				if( drawScreenGrab && gameState.mode == INGAME_MODE )
 					DrawScreenGrab( MOTION_BLUR );
 
 				if( pauseMode == PM_PAUSE )
@@ -1168,7 +1168,7 @@ void DrawGraphics(void *arg)
 				else if( grabData.afterEffect == FROG_DEATH_IN )
 					DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
 
-				if( gameState.mode == GAME_MODE && text3DList.numEntries )
+				if( gameState.mode == INGAME_MODE && text3DList.numEntries )
 					Print3DText( );					
 
 				if(displayOverlays)
@@ -1216,15 +1216,22 @@ void doPoly(void *arg)
 	short *msg_type = NULL;
 	unsigned long newCount;
 	
-	//----- [ MAIN GAME LOOP ] -----//
+	// init music system
+	InitMusicDriver();
 
+	// initialise font system and other gfx related stuff
+	InitFont();
+	fog.r = fog.g = fog.b = 0;
+
+	// initialise controllers
 	ActiveController = initControllers();
 
-	//
+	// set up for eeprom handling
 	InitEepromMessageQueue();
 	osCreateThread(&ControllerThread, 6, ControllerProc, arg,
 		 ControllerThreadStack+SMALLSTACKSIZE/sizeof(u64), controllerPriority);
   	osStartThread(&ControllerThread); 
+
 	frameCount = 1;					   
 
 	//InitEeprom();
@@ -1248,10 +1255,17 @@ void doPoly(void *arg)
 	{
 		dprintf"Not A Valid Eeprom"));
 	}
-	// ENDELSEIF
 
-	gameState.mode		= FRONTEND_MODE;
-	frontEndState.mode	= TITLE_MODE;
+	// start the game from the start options level
+	FreeAllLists();
+
+#ifndef USE_MENUS
+	gameState.mode = INGAME_MODE;
+	InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+#else
+	gameState.mode		= MENU_MODE;
+	gameState.menuMode	= TITLE_MODE;
+#endif
 
 	while(1) 
 	{
@@ -1259,19 +1273,10 @@ void doPoly(void *arg)
 
 		if(*msg_type == NN_SC_GFX_RETRACE_MSG)
 		{
-/*
-			GAME_SPEED2 = framesPerSec / 3;//desiredFrameRate;
-			GAME_SPEED2 *= accelerator;
-			gameSpeed += (GAME_SPEED2 - gameSpeed) / 3;
-*/
 			gameSpeed = framesPerSec;
 
 			codeRunning = 1;
 
-			// Handle reading the controller.
-//			osContStartReadData(&controllerMsgQ);
-	//		ReadController();
-			
 			// Actually handle the game loop
 			TIMER_StartTimer(0,"GAMELOOP");
 			GameLoop();
@@ -1294,16 +1299,9 @@ void doPoly(void *arg)
 
 static void main_(void *arg)
 {
-	int i,j;
-	
-	char *objectBank;
-	u32 bankSize;
+	int i = 0;
 
-	TIMER_InitTimers();
-	InitAtan();
-
-	guMtxIdent(&Identity);
-
+	// set scheduler type (NTSC / PAL)
 	switch(osTvType)
 	{
 		case 0:
@@ -1317,35 +1315,34 @@ static void main_(void *arg)
 			break;
 	}
 
+	// create gfx message queue
     osCreateMesgQueue(&gfx_msgQ,gfx_msgbuf,8);
 	nnScAddClient(&sched,&gfx_client,&gfx_msgQ);
 	sched_gfxMQ = nnScGetGfxMQ(&sched);
 	gfx_msg.gen.type = NN_SC_DONE_MSG;
 
-	fog.r = fog.g = fog.b = 0;
-
+	// set relevant display features
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON + OS_VI_DIVOT_ON + OS_VI_GAMMA_OFF + OS_VI_GAMMA_DITHER_ON);
 		
-	// Get maximum memory
-	JallocInit((ULONG)_staticSegmentStart,0x80400000 - (u32)_staticSegmentStart);
 	
 	dprintf"\n"));
-	dprintf"\nINITIALISING MEMORY"));
-	dprintf"\n   Getting max. memory : %lu bytes",0x80400000 - (u32)_staticSegmentStart));
+	dprintf"\nINITIALISING MEMORY - Getting max. memory : %lu bytes\n",0x80400000 - (u32)_staticSegmentStart));
+	// get maximum memory
+	JallocInit((ULONG)_staticSegmentStart,0x80400000 - (u32)_staticSegmentStart);
 	ShowMemorySituation(0);
 
+	// set the task lists
 	tlistp = &tlistPointers[0][0];
 	for(i = 0;i < MAXTASKS;i++) 
 	{
 		tlistp[i] = &tlist[0][i];
 		tlistp[i]->list.t.type = M_GFXTASK;
-		tlistp[i]->list.t.flags = 0;//OS_TASK_DP_WAIT;
+		tlistp[i]->list.t.flags = 0;
 		tlistp[i]->list.t.ucode_size = SP_UCODE_SIZE;
 		tlistp[i]->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
 		tlistp[i]->list.t.dram_stack	= (u64 *) (((int) &(dram_stack[0]) +0xf) & 0xfffffff0);
 		tlistp[i]->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
 		tlistp[i]->list.t.output_buff = (u64 *) &(rdp_output[0]);
-//		tlistp[i]->list.t.output_buff_size = &rdp_output_len;
 		tlistp[i]->list.t.output_buff_size = (u64 *)&rdp_output[RDP_BUFFER_LEN];
 		tlistp[i]->list.t.yield_data_ptr = (u64 *) gfxYieldBuf;
 		tlistp[i]->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
@@ -1360,13 +1357,12 @@ static void main_(void *arg)
 	{
 		tlistp[i] = &tlist[1][i];
 		tlistp[i]->list.t.type = M_GFXTASK;
-		tlistp[i]->list.t.flags = 0;//OS_TASK_DP_WAIT;
+		tlistp[i]->list.t.flags = 0;
 		tlistp[i]->list.t.ucode_size = SP_UCODE_SIZE;
 		tlistp[i]->list.t.ucode_data_size = SP_UCODE_DATA_SIZE;
 		tlistp[i]->list.t.dram_stack	= (u64 *) (((int) &(dram_stack[0]) +0xf) & 0xfffffff0);
 		tlistp[i]->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
 		tlistp[i]->list.t.output_buff = (u64 *) &(rdp_output[0]);
-//		tlistp[i]->list.t.output_buff_size = &rdp_output_len;
 		tlistp[i]->list.t.output_buff_size = (u64 *)&rdp_output[RDP_BUFFER_LEN];
 		tlistp[i]->list.t.yield_data_ptr = (u64 *) gfxYieldBuf;
 		tlistp[i]->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
@@ -1389,23 +1385,17 @@ static void main_(void *arg)
 	ComputeClockSpeed();
 	InitCRCTable();
 
-	dprintf"main_() - Initialising...\n"));
-	dprintf"   InitMatrixStack()\n"));
-	dprintf"   InitRMatrixStack()\n"));
-	
+	// initialise the matrix stacks and other math related stuff
 	InitMatrixStack();
 	InitRMatrixStack();
+	InitAtan();
+	guMtxIdent(&Identity);
 
-	InitFont();
-
-	InitMusicDriver();
-
-	InitSpriteLinkedList();
-	InitSpriteOverlayLinkedList();
-	InitTextOverlayLinkedList();
-	InitTriggerList();
-	
+	// set initial camera up vector
 	SetVector(&camVect,&cameraUpVect);
+
+	// initialise timer system
+	TIMER_InitTimers();
 
 	StopDrawing("main");
 
@@ -1595,7 +1585,10 @@ int GetNumStaticBlocksUsed()
 {
 	int i,numBlocks = 0;
 
-	for(i=0; i<MAXJALLOCS; i++)
+	if(jallocControl.lastUsedStatic == -1)
+		return numBlocks;
+
+	for(i=0; i<jallocControl.lastUsedStatic; i++)
 		if(jallocControl.blocks[i].inuse)
 			numBlocks++;
 
@@ -1606,7 +1599,7 @@ int GetNumDynamicBlocksUsed()
 {
 	int i,numBlocks = 0;
 
-	for(i=0; i<MAXJALLOCS; i++)
+	for(i=MAXJALLOCS-1; i>=jallocControl.lastUsedDynamic; i--)
 		if(jallocControl.blocks[i].inuse)
 			numBlocks++;
 
@@ -1706,6 +1699,8 @@ void ShowMemorySituation(char info)
 		dprintf"\n   Scenics bank: %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
 		bytes = GetBytesUsed("ENTBANK");
 		dprintf"\n   Entity bank: %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
+		bytes = GetBytesUsed("SCRBANK");
+		dprintf"\n   Script bank: %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
 	}
 
 	dprintf"\n\n"));

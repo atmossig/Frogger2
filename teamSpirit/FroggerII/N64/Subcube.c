@@ -119,11 +119,11 @@ void InitActorStructures(ACTOR *tempActor, int initFlags)
 */
 void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags)
 {
-	FindObject(&tempActor->objectController, UpdateCRC(name), name,YES);
+	FindObject(&tempActor->objectController,UpdateCRC(name),name,YES);
 	if(!tempActor->objectController)
 		return;
 
-	InitActorStructures(tempActor, initFlags);
+	InitActorStructures(tempActor,initFlags);
 
 	tempActor->pos.v[X] = x;
 	tempActor->pos.v[Y] = y;
@@ -133,6 +133,54 @@ void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int init
 //init actors rotation
 	ZeroQuaternion(&tempActor->qRot);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubActor
+	Purpose			: removes actor from list
+	Parameters		: ACTOR2 *
+	Returns			: void
+	Info			: 
+*/
+void SubActor(ACTOR2 *actor)
+{
+	if (!actor) return;
+
+	if (actor->next)
+		actor->next->prev = actor->prev;
+
+	if (actor->prev)
+		actor->prev->next = actor->next;
+	else
+		actList = actor->next;
+
+	if(actor->actor)
+	{
+		if(actor->actor->animation)
+		{
+			// free any animation associated with ACTOR type
+			JallocFree((UBYTE**)&actor->actor->animation);
+		}
+
+		if(actor->actor->shadow)
+		{
+			// free any shadow associated with ACTOR type
+			JallocFree((UBYTE**)&actor->actor->shadow);
+		}
+
+		if((actor->actor->objectController) && (actor->actor->objectController->object))
+		{
+			// free any object sprites for this actor
+			FreeObjectSprites(actor->actor->objectController->object);
+		}
+
+		// free associated ACTOR type
+		JallocFree((UBYTE**)&actor->actor);
+	}
+
+	JallocFree((UBYTE**)&actor);
+}
+
 
 long TestDistanceFromFrog = 0;
 
@@ -392,9 +440,6 @@ void DeformTextureCoords(OBJECT *obj)
 	}*/
 }
 
-
-
-
 /*	--------------------------------------------------------------------------------
 	Function 	: 
 	Purpose 	: 
@@ -519,12 +564,13 @@ void TransformObject(OBJECT *obj, float time)
 
 	//maintain posision of all objects sprites        
 //	if(obj->numSprites > 0)
-/*	{
+	{
 		for(i = 0; i < obj->numSprites; i++)
 		{
 			sprite = obj->sprites[i].sprite;
 			if(sprite)
 			{
+/*
 				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
 					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -551,19 +597,20 @@ void TransformObject(OBJECT *obj, float time)
 				}
 				else
 					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
+*/
 				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
 				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
 				xluVal = ((int)(obj->xlu * xluOverride))/100;
 				if(xluOverride <= 10)
 					xluVal = 0;
-				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
+/*				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
 				{
 					obj->sprites[i].sprite->r = 0;
 					obj->sprites[i].sprite->g = 0;
 					obj->sprites[i].sprite->b = 0;
 					obj->sprites[i].sprite->a = 254;
 				}
-				else
+				else*/
 					obj->sprites[i].sprite->a = Min(255,xluVal);
 				if(obj->sprites[i].sprite->a >= 255)
 					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
@@ -581,8 +628,6 @@ void TransformObject(OBJECT *obj, float time)
 			}
 		}
 	}
-*/
-
 		
   	guMtxF2L(matrixStack.stack[matrixStack.stackPosition], &obj->objMatrix);
 
@@ -732,8 +777,8 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 			}
 		}
 	}
-
-	if(frontEndState.mode != OBJVIEW_MODE)
+/*
+	if(gameState.mode == INGAME_MODE)
 	{
 		for(i=0; i<5; i++)
 			tmp[i] = obj->name[i];
@@ -784,7 +829,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 			}
 		}
 	}
-
+*/
 	rotmat[3][0] = translation.v[X] * parentScaleStack[parentScaleStackLevel].v[X];
 	rotmat[3][1] = translation.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
 	rotmat[3][2] = translation.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z];
@@ -806,18 +851,19 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 
 	//maintain posision of all objects sprites        
 //	if(obj->numSprites > 0)
-/*	{
+	{
 		for(i = 0; i < obj->numSprites; i++)
 		{
 			sprite = obj->sprites[i].sprite;
 			if(sprite)
 			{
-				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
-					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
+//				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
+//					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //				sprite->r = (float)obj->sprites[i].r*inShadow;
 //				sprite->g = (float)obj->sprites[i].g*inShadow;
 //				sprite->b = (float)obj->sprites[i].b*inShadow;
+/*
 				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
 				{
 					sprite->red2 = obj->colour.r;
@@ -838,9 +884,11 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 				}
 				else
 					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
+*/
 				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
 				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
 				xluVal = ((int)(obj->xlu * xluOverride))/100;
+/*
 				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
 				{
 					obj->sprites[i].sprite->r = 0;
@@ -854,6 +902,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 				else
 					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
+*/
 				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
 												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
 				if(renderMode.pixelOut)
@@ -865,7 +914,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 					sprite->flags &= -1 - SPRITE_FLAGS_PIXEL_OUT;
 			}
 		}
-	}*/
+	}
 
 
 	for(i = 0; i < obj->numVerts; i++)

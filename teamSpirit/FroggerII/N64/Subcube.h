@@ -57,6 +57,7 @@ extern char hiliteNum;
 
 
 void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags);
+void SubActor(ACTOR2 *actor);
 void InitActorStructures(ACTOR *tempActor, int initFlags);
 void LoadTexture(TEXTURE *texture);
 

@@ -502,6 +502,18 @@ void DrawFXRipple(SPECFX *ripple)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: DrawFXRing
+	Purpose			: draws the ring based FX
+	Parameters		: SPECFX *
+	Returns			: void
+	Info			: 
+*/
+void DrawFXRing(SPECFX *ring)
+{
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: ProcessShadows
 	Purpose			: processes the shadows
 	Parameters		: 
@@ -996,7 +1008,7 @@ void DrawScreenGrab( unsigned long flags )
 	long x, y, v, x1, y1, x2, y2, tileScale, cx, cy, vStep;
 	if( !fsVerts )
 	{
-		fsVerts = (Vtx *)JallocAlloc( sizeof(Vtx)*160, NO, "Vtx Array" );
+		fsVerts = (Vtx *)JallocAlloc(sizeof(Vtx)*160,NO,"VTXARR");
 		vPtr = &fsVerts[0];
 		grab = scrTexGrab;
 
@@ -1191,16 +1203,16 @@ void FreeGrabData()
 	pauseMode = 0;
 	grabData.afterEffect = 0;
 
-	if( fsVerts )
+	if(fsVerts)
 	{
-		JallocFree( (UBYTE **)&fsVerts );
+		JallocFree((UBYTE **)&fsVerts);
 		fsVerts = NULL;
 		vPtr = NULL;
 	}
 
-	if( scrTexGrab )
+	if(scrTexGrab)
 	{
-		JallocFree( (UBYTE **)&scrTexGrab );
+		JallocFree((UBYTE **)&scrTexGrab);
 		scrTexGrab = NULL;
 	}
 }

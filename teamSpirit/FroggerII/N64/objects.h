@@ -14,7 +14,7 @@ void LoadTexture(TEXTURE *texture);
 
 void SetObjectXlu(OBJECT *object,BOOL xlu);
 
-void DoubleBufferSkinVtx ( void );
+void DoubleBufferSkinVtx();
 void AddOffsetToVertexLoads(int offset, Gfx *dl);
 
 void ReplaceTextureInDrawList(Gfx *dl,u32 texDataToReplace,u32 newTexData, short once);

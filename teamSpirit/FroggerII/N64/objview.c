@@ -177,7 +177,6 @@ void SelectObjectBank()
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frontEndState.mode = DEVELOPMENTMENU_MODE;
 			frameCount		= 0;
 			lastbutton		= 0;
 			objectViewer.currObjNum = 0;

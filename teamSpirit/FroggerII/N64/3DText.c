@@ -17,7 +17,7 @@ TEXT3DLIST text3DList;
 void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO, float sinA, float sinS, float twA )
 {
 	TEXT3D *t;
-	TEXT3D *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
+	TEXT3D *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"TXT3D");
 	unsigned long len = strlen(str);
 	float tmp = PI2; // Don't ask why I have to do this, it's due to N64 remedial maths
 
