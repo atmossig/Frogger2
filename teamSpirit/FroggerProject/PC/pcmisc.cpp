@@ -361,7 +361,17 @@ void mtxSetIdent( float *m )
 	memcpy (m,imtx,sizeof(float)*16);
 }
 
-void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
+void CopyTexture( TextureType *dest, TextureType *src, int copyPalette )
 {
+	HRESULT res;
+	LPDIRECTDRAWSURFACE7 to, from;
+	
+	if( !dest || !src ) return;
+	
+	to = ((MDX_TEXENTRY *)dest)->surf;
+	from = ((MDX_TEXENTRY *)src)->surf;
+
+	if( (res = to->BltFast(0,0,from,NULL,DDBLTFAST_NOCOLORKEY)) != DD_OK )
+		ddShowError(res);
 }
 
