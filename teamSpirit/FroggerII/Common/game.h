@@ -41,10 +41,15 @@ extern struct gameStateStruct gameState;
 
 extern unsigned long INPUT_POLLPAUSE;
 
+extern unsigned long creditsActive;
+extern unsigned long fadingLogos;
+
 extern VECTOR *pointOfInterest;
 extern float	pOIDistance;
 
-extern TIMER gameIsOver, levelIsOver, scoreTimer;
+extern TIMER scoreTimer;
+extern TIMER modeTimer;
+
 extern short showEndLevelScreen;
 
 extern unsigned short screenNum;

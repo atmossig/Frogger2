@@ -38,7 +38,6 @@ void GameLoop(void)
 
 	switch (gameState.mode)
 	{
-		case GAME_MODE:
 		case INGAME_MODE:
 		case FRONTEND_MODE:
 			if(frameCount == 15)
@@ -52,7 +51,27 @@ void GameLoop(void)
 			RunGameLoop();
 			frameCount++;
 			break;
-	
+
+		case LEVELCOMPLETE_MODE:
+			RunLevelComplete( );
+			break;
+
+		case WORLDCOMPLETE_MODE:
+			RunWorldComplete( );
+			break;
+
+		case GAMECOMPLETE_MODE:
+			RunGameComplete( );
+			break;
+
+		case GAMEOVER_MODE:
+			RunGameOver( );
+			break;
+			
+		case INTRO_MODE:
+			RunGameIntro( );
+			break;
+
 		case CAMEO_MODE:
 		case PAUSE_MODE:
 			if(frameCount == 15)
@@ -136,7 +155,6 @@ void GameLoop(void)
 	Returns			: 
 	Info			: 
 */
-
 void CreateOverlaysFromLogo(const LOGO* logo, int x, int y)
 {
 	int i, j;
@@ -154,4 +172,141 @@ void CreateOverlaysFromLogo(const LOGO* logo, int x, int y)
 				CreateAndAddSpriteOverlay(x + j*32, y + i*32, texture, 32, 32, 255, 0);
 			}
 		}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunLevelComplete
+	Purpose			: What happens at the end of a level
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void RunLevelComplete( )
+{
+	if( showEndLevelScreen )
+	{
+		RunLevelCompleteSequence();
+
+		if(!levelComplete1->draw)
+		{
+			darkenedLevel = 0;
+			pauseMode = 1;
+			EnableTextOverlay(levelComplete1);
+			EnableTextOverlay(levelComplete2);
+			scoreTextOver->a = 255;
+			EnableTextOverlay(scoreTextOver);
+		}
+
+		levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
+		levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;			
+	}
+
+	GTUpdate( &modeTimer, -1 );
+
+	if(!modeTimer.time)
+	{
+		DoHiscores( );
+
+		// Only go to next level if in normal level progression.
+		if( showEndLevelScreen )
+		{
+			player[0].worldNum = WORLDID_FRONTEND;
+			player[0].levelNum = LEVELID_FRONTEND2;
+
+#ifndef PC_VERSION
+			StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
+			SaveGame(); // Write save games into eeprom
+#else
+//				SaveGameData();
+#endif
+		}
+
+		FreeAllLists();
+		frameCount = 0;
+		gameState.mode = INGAME_MODE;
+
+		player[0].numSpawn	= 0;
+//		spawnCounter = 0;
+
+		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
+		InitLevel(player[0].worldNum,player[0].levelNum);
+
+		showEndLevelScreen = 1; // Normal level progression is default
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunWorldComplete
+	Purpose			: What happens at the end of a world
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void RunWorldComplete( )
+{
+
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunGameComplete
+	Purpose			: The final complete screen
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void RunGameComplete( )
+{
+
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunGameOver
+	Purpose			: The frog has lost all his lives :(
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void RunGameOver( )
+{
+	if (NUM_FROGS == 1)
+	{
+		DisableTextOverlay(livesTextOver);
+		DisableTextOverlay(scoreTextOver);
+	}
+
+	DisableTextOverlay(timeTextOver);
+
+	RunGameOverSequence();
+	GTUpdate( &modeTimer, -1 );
+	if(!modeTimer.time)
+	{
+		StopDrawing("game over");
+		FreeAllLists();
+		gameState.mode = INGAME_MODE;
+
+		player[0].levelNum = LEVELID_FRONTEND1;
+		player[0].worldNum = WORLDID_FRONTEND;
+		player[0].frogState &= ~FROGSTATUS_ISDEAD;
+		InitLevel(player[0].worldNum,player[0].levelNum);
+
+		frameCount = 0;
+		StartDrawing("game over");
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RunGameIntro
+	Purpose			: Title screens and what have you
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void RunGameIntro( )
+{
+
 }

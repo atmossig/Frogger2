@@ -282,14 +282,6 @@ SOURCE=.\Common\levelplaying.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Common\LevelProgession.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common\LevelProgression.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\Common\maths.c
 # End Source File
 # Begin Source File

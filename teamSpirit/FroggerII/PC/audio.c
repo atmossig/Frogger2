@@ -343,10 +343,6 @@ void UpdateAmbientSounds()
 	AMBIENT_SOUND *amb,*amb2;
 	VECTOR *pos;
 
-	// Silence ambients if paused or level over?
-	if((gameState.mode == PAUSE_MODE) || levelIsOver.time )
-		return;
-
 	// Update each ambient in turn
 	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
 	{

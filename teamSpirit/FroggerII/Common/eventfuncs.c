@@ -383,7 +383,8 @@ void ChangeLevel( EVENT *event )
 	NUM_FROGS = 1;*/
 
 
-	GTInit( &levelIsOver, 15 );
+	gameState.mode = LEVELCOMPLETE_MODE;
+	GTInit( &modeTimer, 1 );
 	showEndLevelScreen = 0;
 }
 

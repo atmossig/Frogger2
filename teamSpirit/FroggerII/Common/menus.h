@@ -19,8 +19,7 @@ typedef struct LEVELNAMESTRUCT
 } LNAMESTRUCT;
 
 extern SPRITE *sp;
-extern SPRITEOVERLAY *atari;
-extern SPRITEOVERLAY *konami;
+extern SPRITEOVERLAY *atari,*konami,*flogo[10];
 extern SPRITEOVERLAY *sprOver;
 
 void RunTitleScreen();

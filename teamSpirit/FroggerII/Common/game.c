@@ -51,12 +51,11 @@ short showEndLevelScreen = 1;
 long bby = 0;
 long babySaved = 0;
 
-short spawnCounter = 0;
+//short spawnCounter = 0;
 long displayingTile=0;
 
-TIMER gameIsOver;
-TIMER levelIsOver;
 TIMER scoreTimer;
+TIMER modeTimer;
 
 void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID);
 void DoHiscores();
@@ -738,92 +737,16 @@ void RunGameLoop (void)
 	// setup for frogger point of interest
 	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
-		
-	if(frameCount == 1)
+
+	// Take this out for release
+	if( !frameCount )
 	{
-//		POLYGON *fp;
-//		TEXTURE *ftex;
-//		VECTOR firePos;
-
-		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
-		{
-			player[0].lives				= 3;
-			player[0].score				= 0;
-			player[0].spawnTimer		= 0;
-			player[0].spawnScoreLevel	= 1;
-			GTInit( &scoreTimer, 90 );
-		}
-
-		GTInit( &gameIsOver, 0 );
-		GTInit( &levelIsOver, 0 );
-		
-		if (player[0].worldNum == WORLDID_FRONTEND)
-		{
-			if (player[0].levelNum == LEVELID_FRONTEND1)
-			{
-#ifdef PC_VERSION
-				InitCredits();			
-				creditsActive = 3;
-				DeactivateCredits();
-			
-				DisableTextOverlay(scoreTextOver);
-
-				frogFacing[0] = 3;
-				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
-				konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,0);
-				i = 0;
-				flogo[i++] = CreateAndAddSpriteOverlay(98,136,"flogo01.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(130,136,"flogo02.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(162,136,"flogo03.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(194,136,"flogo04.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(98,168,"flogo05.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(130,168,"flogo06.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(162,168,"flogo07.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,0);
-#endif
-				fadingLogos = 0;
-			}
-		}
-
-		if (player[0].worldNum==9)
-		{
-		//	CreateOverlays();
-			timeTextOver->draw = 0;
-			livesTextOver->draw = 0;
-			countdownTimer = 0;
-			i = 3;
-			while(i--)
-				sprHeart[i]->draw = 0;			
-		}
-
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,bigFont,0,0);
 #endif
 //		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,255,smallFont,0,0);
+	}
 
-		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
-
-		lastActFrameCount = 0;
-
-		// Temporary test for procedural textures
-/*		SetVector( &firePos, &frog[0]->actor->pos );
-
-		firePos.v[Y] += 30;
-		FindTexture( &ftex, UpdateCRC("prc_watrr1.bmp"), YES );
-		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
-		
-		firePos.v[X] += 60;
-		FindTexture( &ftex, UpdateCRC("prc_watrd1.bmp"), YES );
-		CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
-
-		firePos.v[Z] -= 100;
-		FindTexture( &ftex, UpdateCRC("prc_watrt1.bmp"), YES );
-		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 16, 32 );
-		fp->v1 = 28.0f/32.0f;
-*/	}
-	// FINISH FIRST FRAME STUFF
 #ifdef PC_VERSION
 	if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
@@ -860,129 +783,41 @@ void RunGameLoop (void)
 	}
 #endif
 
-	if(gameIsOver.time)
-	{
-		if (NUM_FROGS == 1)
-		{
-			DisableTextOverlay(livesTextOver);
-			DisableTextOverlay(scoreTextOver);
-		}
-//				livesIcon->active = 0;
-		DisableTextOverlay(timeTextOver);
-
-		RunGameOverSequence();
-		GTUpdate( &gameIsOver, -1 );
-		if(!gameIsOver.time)
-		{
-			StopDrawing("game over");
-			FreeAllLists();
-
-			player[0].levelNum = LEVELID_FRONTEND1;
-			player[0].worldNum = WORLDID_FRONTEND;
-			player[0].frogState &= ~FROGSTATUS_ISDEAD;
-			InitLevel(player[0].worldNum,player[0].levelNum);
-
-			frameCount = 0;
-			StartDrawing("game over");
-			return;
-		}
-	}
-	else if ( levelIsOver.time )
-	{
-		if( showEndLevelScreen )
-		{
-			RunLevelCompleteSequence();
-
-			if(!levelComplete1->draw)
-			{
-				darkenedLevel = 0;
-				pauseMode = 1;
-				EnableTextOverlay(levelComplete1);
-				EnableTextOverlay(levelComplete2);
-				scoreTextOver->a = 255;
-				EnableTextOverlay(scoreTextOver);
-			}
-
-			levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
-			levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;			
-		}
-
-		GTUpdate( &levelIsOver, -1 );
-
-		if(!levelIsOver.time)
-		{
-			DoHiscores( );
-
-			// Only go to next level if in normal level progression.
-			if( showEndLevelScreen )
-			{
-				//			gameState.mode		= FRONTEND_MODE;
-				//frontEndState.mode	= DEMO_MODE;
-
-				player[0].worldNum = WORLDID_FRONTEND;
-				player[0].levelNum = LEVELID_FRONTEND2;
-				//player[0].levelNum++;
-
-#ifndef PC_VERSION
-				StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
-				SaveGame(); // Write save games into eeprom
-#else
-//				SaveGameData();
-#endif
-			}
-
-			FreeAllLists();
-			frameCount = 0;
-
-			player[0].numSpawn	= 0;
-			spawnCounter = 0;
-
-			worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
-			InitLevel(player[0].worldNum,player[0].levelNum);
-
-			showEndLevelScreen = 1; // Normal level progression is default
-			return;
-		}
-	}
-	else
-	{
-		if(keyFound)
-			RunLevelKeyFound();
 //		if( babySaved )
 //			RunBabySavedSequence(lastBabySaved);
 
-		if ( babiesSaved==numBabies && numBabies && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum ].multiPartLevel == NO_MULTI_LEV) )
+	if ( babiesSaved==numBabies && numBabies && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum ].multiPartLevel == NO_MULTI_LEV) )
+	{
+		camDist.v[X]	= 0;
+		camDist.v[Y]	= 680;
+		camDist.v[Z]	= 192;
+		UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
+		gameState.mode = LEVELCOMPLETE_MODE;
+		GTInit( &modeTimer, 15 );
+	}
+	else
+	{
+		if( frameCount > 15 )
 		{
-			camDist.v[X]	= 0;
-			camDist.v[Y]	= 680;
-			camDist.v[Z]	= 192;
-			UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
-			GTInit( &levelIsOver, 15 );
-		}
-		else
-		{
-			if( frameCount > 15 )
-			{
-				for (i=0; i<NUM_FROGS; i++)
-					if( !frog[i]->action.dead.time && !(player[i].frogState & FROGSTATUS_ISDEAD) )
-						if ( frog[i]->action.stun.time)
-						{
-							GTUpdate( &frog[i]->action.stun, -1 );
-						}
-						else
-						{
-							GameProcessController(i);                                      
-						}
-			}
-
-			CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
-
-			CameraLookAtFrog();
-			UpdateCameraPosition(0);
-
 			for (i=0; i<NUM_FROGS; i++)
-				if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
+				if( !frog[i]->action.dead.time && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+					if ( frog[i]->action.stun.time)
+					{
+						GTUpdate( &frog[i]->action.stun, -1 );
+					}
+					else
+					{
+						GameProcessController(i);                                      
+					}
 		}
+
+		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
+
+		CameraLookAtFrog();
+		UpdateCameraPosition(0);
+
+		for (i=0; i<NUM_FROGS; i++)
+			if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
 	}
 
 	UpdatePlatforms();
@@ -1077,6 +912,7 @@ void RunGameLoop (void)
 			SendUpdateMessage( );
 #endif
 
+	// Take this out for release
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers
 	cur = &firstTile[0];
@@ -1146,14 +982,14 @@ void RunLevelCompleteSequence()
 
 	scoreTextOver->xPos -= ((float)scoreTextOver->xPos - (100.0F)) / 15.0F;
 	scoreTextOver->yPos -= ((float)scoreTextOver->yPos - (110.0F)) / 16.0F;
-	
+/*	
 	if ( spawnCounter != player[0].numSpawn )
 	{
 		spawnCounter++;
 	}
 
 	sprintf ( spawnCollected->text, "%d / 150", spawnCounter );
-
+*/
 	sprintf ( timeTemp, "%i secs", 90-scoreTimer.time );
 
 	i = numBabies;

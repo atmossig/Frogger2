@@ -1183,7 +1183,8 @@ BOOL KillFrog(long pl)
 		player[pl].lives--;
 		if(!player[pl].lives)
 		{
-			GTInit( &gameIsOver, 10 );
+			gameState.mode = GAMEOVER_MODE;
+			GTInit( &modeTimer, 10 );
 			return FALSE;
 		}
 

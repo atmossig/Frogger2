@@ -36,6 +36,13 @@ extern void GameLoop();
 extern void RunLevelSelect();
 extern void RunTitleScreen();
 
+extern void	RunLevelComplete( );
+extern void	RunWorldComplete( );
+extern void	RunGameComplete( );
+extern void	RunGameOver( );
+extern void RunGameIntro( );
+
+
 extern void CreateOverlaysFromLogo(const LOGO *logo, int x, int y);
 
 #endif

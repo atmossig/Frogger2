@@ -769,7 +769,8 @@ BOOL ExecuteCommand(UBYTE **p)
 			player[0].worldNum = world;
 			player[0].levelNum = level;
 
-			GTInit( &levelIsOver, 1 );
+			gameState.mode = LEVELCOMPLETE_MODE;
+			GTInit( &modeTimer, 1 );
 			showEndLevelScreen = 0;
 			break;
 		}

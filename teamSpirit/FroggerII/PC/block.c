@@ -419,7 +419,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			if (editorOk)
 				RunEditor();
 
-			if( gameState.multi == MULTIREMOTE && gameState.mode == GAME_MODE )
+			if( gameState.multi == MULTIREMOTE && gameState.mode == INGAME_MODE )
 				RefreshMPFrogs( );
 
 			GameLoop();
@@ -853,7 +853,7 @@ void DrawGraphics()
 	}
 
 
-	if( chatFlags && gameState.mode == GAME_MODE )
+	if( chatFlags && gameState.mode == INGAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
 	
 	/* CAMERA SPACE STUFF */

@@ -645,6 +645,61 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	// script is loaded last when we know everything's set up
 	LoadLevelScript(worldID,levelID);	
+
+	// Stuff that used to be in RunGameLoop
+	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
+	{
+		player[0].lives				= 3;
+		player[0].score				= 0;
+		player[0].spawnTimer		= 0;
+		player[0].spawnScoreLevel	= 1;
+		GTInit( &scoreTimer, 90 );
+	}
+
+	if (player[0].worldNum == WORLDID_FRONTEND)
+	{
+		if (player[0].levelNum == LEVELID_FRONTEND1)
+		{
+#ifdef PC_VERSION
+			InitCredits();			
+			creditsActive = 3;
+			DeactivateCredits();
+		
+			DisableTextOverlay(scoreTextOver);
+
+			frogFacing[0] = 3;
+			atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
+			konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,0);
+			i = 0;
+			flogo[i++] = CreateAndAddSpriteOverlay(98,136,"flogo01.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(130,136,"flogo02.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(162,136,"flogo03.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(194,136,"flogo04.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(98,168,"flogo05.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(130,168,"flogo06.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(162,168,"flogo07.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,0);
+			flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,0);
+#endif
+			fadingLogos = 0;
+		}
+	}
+
+	if (player[0].worldNum==9)
+	{
+	//	CreateOverlays();
+		timeTextOver->draw = 0;
+		livesTextOver->draw = 0;
+		countdownTimer = 0;
+		i = 3;
+		while(i--)
+			sprHeart[i]->draw = 0;			
+	}
+
+	CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
+
+	lastActFrameCount = 0;
 }
 
 

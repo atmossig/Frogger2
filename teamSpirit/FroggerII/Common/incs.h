@@ -104,7 +104,6 @@
 #include "savegame.h"
 #include "menus.h"
 #include "defaultdata.h"
-#include "levelprogession.h"
 #include "audio.h"
 
 #ifndef PC_VERSION

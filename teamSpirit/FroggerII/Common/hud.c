@@ -62,7 +62,7 @@ void UpDateOnScreenInfo ( void )
 	sprintf(livesText,"*%lu",player[0].lives);	
 	sprintf(scoreText,"%lu",player[0].score);
 
-	if(scoreTextOver->a && !levelIsOver.time)
+	if(scoreTextOver->a && !(gameState.mode==LEVELCOMPLETE_MODE && modeTimer.time) )
 	{
 		scoreTextOver->a -= 8;
 		if(scoreTextOver->a < 8)
@@ -246,19 +246,19 @@ void RunGameOverSequence ( void )
 		EnableTextOverlay(gameOverScore);
 	}
 
-	if((gameOverScore->yPos < 120) && (gameIsOver.time > 7))
+	if((gameOverScore->yPos < 120) && (modeTimer.time > 7))
 		gameOverScore->yPos += 8;
-	else if(gameIsOver.time < 3)
+	else if(modeTimer.time < 3)
 	{
 		gameOverScore->centred = 0;
 		gameOverScore->xPos += 8;
 	}
 
-	if((gameOver1->yPos > 80) && (gameIsOver.time > 1))
+	if((gameOver1->yPos > 80) && (modeTimer.time > 1))
 	{
 		gameOver1->yPos -= 5;
 	}
-	else if(gameIsOver.time < 1)
+	else if(modeTimer.time < 1)
 	{
 		gameOver1->centred = 0;
 		gameOver1->xPos -= 4;
