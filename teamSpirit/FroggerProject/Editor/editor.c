@@ -807,7 +807,7 @@ void DrawEditorArrow(int x1, int y1, int x2, int y2, float width, D3DCOLOR col)
 {
 	float a, b;
 	D3DTLVERTEX vtx[3];
-	const short arse[3] = { 0, 1, 2 };
+	short arse[3] = { 0, 1, 2 };
 
 	memset(vtx, 0, sizeof(D3DTLVERTEX)*3);
 
@@ -842,7 +842,7 @@ void DrawEditorArrow(int x1, int y1, int x2, int y2, float width, D3DCOLOR col)
 	DrawPoly( D3DPT_TRIANGLELIST, 
 		D3DFVF_TLVERTEX,
 		vtx, 3, 
-		spriteIndices, 6,
+		arse, 3,
 		D3DDP_WAIT);
 }
 

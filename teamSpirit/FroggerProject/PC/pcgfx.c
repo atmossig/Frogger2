@@ -814,7 +814,7 @@ void DrawTongue( TONGUE *t )
 */
 void DrawTongue( TONGUE *t )
 {
-	unsigned long i=0, index = ((t->progress>>12)*(MAX_TONGUENODES-1));
+	unsigned long i=0, index = (t->progress*(MAX_TONGUENODES-1)>>12);
 	D3DTLVERTEX vT[4], vTPrev[2];
 	MDX_TEXENTRY *tEntry;
 
@@ -864,7 +864,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 {
 	MDX_QUATERNION q, cross;
 	float p;
-	MDX_VECTOR pos, m, normal;
+	MDX_VECTOR pos, m, normal, cam;
 
 	SetVectorRF( &pos, &t->segment[i] );
 	ScaleVector( &pos, 0.1 );
@@ -872,7 +872,8 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
 
-	SubVector( &normal, &currCamSource, &pos );
+	SetVectorRF( &cam, &currCamSource );
+	SubVector( &normal, &cam, &pos );
 	Normalise( &normal );
 	CrossProduct( (MDX_VECTOR *)&cross, &normal, &upV );
 	Normalise( (MDX_VECTOR *)&cross );
