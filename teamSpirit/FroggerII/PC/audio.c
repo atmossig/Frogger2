@@ -22,23 +22,48 @@
 
 SAMPLEMAP genericMapping[] = 
 {
-	"generic\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,	FLAGS_NONE,
-	"generic\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,	FLAGS_NONE,
-	"generic\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,		FLAGS_NONE,
-	"generic\\clocktock.wav",		2, 22050, 16, GEN_CLOCK_TOCK,	FLAGS_NONE,
-	"generic\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,	FLAGS_NONE,
-	"generic\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,		FLAGS_NONE,
-	"generic\\superhop.wav",		2, 22050, 16, GEN_SUPER_HOP,	FLAGS_NONE,
-	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE,
-	"generic\\froggerF.wav",		2, 22050, 16, GEN_FROG_TONGUE,	FLAGS_NONE,
-	"generic\\froggerD.wav",		2, 22050, 16, GEN_FROG_HURT,	FLAGS_NONE,
-	"generic\\froggerE.wav",		2, 22050, 16, GEN_FROG_DEATH,	FLAGS_NONE,
+	"generic\\levelcomp.wav",		2, 11025, 16, GEN_LEVEL_COMP,	FLAGS_NONE,
+	"generic\\targetcomplete.wav",	2, 11025, 16, GEN_TARGET_COM,	FLAGS_NONE,
+	"generic\\timeout.wav",			2, 11025, 16, GEN_TIME_OUT,		FLAGS_NONE,
+	"generic\\clocktock.wav",		2, 11025, 16, GEN_CLOCK_TOCK,	FLAGS_NONE,
+	"generic\\clocktick.wav",		2, 11025, 16, GEN_CLOCK_TICK,	FLAGS_NONE,
+	"generic\\hopongrass.wav",		2, 11025, 16, GEN_FROG_HOP,		FLAGS_NONE,
+	"generic\\froggerB.wav",		2, 11025, 16, GEN_SUPER_HOP,	FLAGS_NONE,
+	"generic\\babyfrog.wav",		2, 11025, 16, GEN_BABY_FROG,	FLAGS_NONE,
+	"generic\\froggerF.wav",		2, 11025, 16, GEN_FROG_TONGUE,	FLAGS_NONE,
+	"generic\\froggerD.wav",		2, 11025, 16, GEN_FROG_HURT,	FLAGS_NONE,
+	"generic\\froggerE.wav",		2, 11025, 16, GEN_FROG_DEATH,	FLAGS_NONE,
+	"generic\\froggerA.wav",		2, 11025, 16, GEN_FROG_DOUBLEHOP,FLAGS_NONE,
+
 };
 
 
 SAMPLEMAP gardenMapping[] =
 {
 	"generic\\babyfrog.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE,
+};
+
+SAMPLEMAP spaceMapping[] =
+{
+	"space\\bbota.wav",		2, 22050, 16, GAR_MOWER,	FLAGS_NONE,
+	"space\\bbotb.wav",		2, 22050, 16, SPC_BBOTB,	FLAGS_NONE,
+	"space\\bbotc.wav",		2, 22050, 16, SPC_BBOTC,	FLAGS_NONE,
+	"space\\bbotd.wav",		2, 22050, 16, SPC_BBOTD,	FLAGS_NONE,
+	"space\\beastA.wav",	2, 22050, 16, SPC_BEASTA,	FLAGS_NONE,
+	"space\\beastB.wav",	2, 22050, 16, SPC_BEASTB,	FLAGS_NONE,
+	"space\\beastC.wav",	2, 22050, 16, SPC_BEASTC,	FLAGS_NONE,
+	"space\\fisheadA.wav",	2, 22050, 16, SPC_FISHEADA, FLAGS_NONE,
+	"space\\fisHeadB.wav",	2, 22050, 16, SPC_FISHEADB, FLAGS_NONE,
+	"space\\muzapA.wav",	2, 22050, 16, SPC_MUZAPA,	FLAGS_NONE,
+	"space\\muzapB.wav",	2, 22050, 16, SPC_MUZAPB,	FLAGS_NONE,
+	"space\\muzapC.wav",	2, 22050, 16, SPC_MUZAPC,	FLAGS_NONE,
+	"space\\muzapD.wav",	2, 22050, 16, SPC_MUZAPD,	FLAGS_NONE,
+	"space\\seelA.wav",		2, 22050, 16, SPC_SEELA,	FLAGS_NONE,
+	"space\\seyeballA.wav", 2, 22050, 16, SPC_SEYEBALLA,FLAGS_NONE,
+	"space\\ssnail.wav",	2, 22050, 16, SPC_SSNAIL,	FLAGS_NONE,
+	"space\\spropA.wav",	2, 22050, 16, SPC_SPROPA,	FLAGS_NONE,
+	"space\\ssatA.wav",		2, 22050, 16, SPC_SSATA,	FLAGS_NONE,
+	"space\\tankA.wav",		2, 22050, 16, SPC_TANKA,	FLAGS_NONE,
 };
 
 
@@ -86,9 +111,17 @@ void LoadSfx( unsigned long worldID )
 
 	switch ( worldID )
 	{
-	case WORLDID_GARDEN: numSfx = NUM_GARDEN_SFX; mapping = &gardenMapping; break;
-		//etc...
-	default: numSfx = 0; break;
+		case WORLDID_GARDEN: 
+			numSfx = NUM_GARDEN_SFX; 
+			mapping = &gardenMapping; 
+			break;
+		case WORLDID_SPACE: 
+			numSfx = NUM_SPACE_SFX;
+			mapping = &spaceMapping;
+			break;
+		default: 
+			numSfx = 0;
+			break;
 	}
 
 	if( numSfx )

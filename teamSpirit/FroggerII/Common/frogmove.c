@@ -48,7 +48,7 @@ struct {
 	int Subr;
 	int Max;
 	int Min;
-} frogPitch = { 0, 128, 15, 2, 8, 128, 110 };
+} frogPitch = { 0, 128, 15, 2, 8, 64,50 };
 
 
 #define MAX_HOP_HEIGHT			26.0f	// +1 for rounding :o)
@@ -180,7 +180,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 
-		PlaySample(GEN_SUPER_HOP,&frog[pl]->actor->pos,0,255,128);
+		PlaySample(GEN_SUPER_HOP,&frog[pl]->actor->pos,0,255,64);
 
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 

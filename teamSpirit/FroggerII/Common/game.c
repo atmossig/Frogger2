@@ -214,6 +214,7 @@ void GameProcessController(long pl)
 		{
 			int dir = player[pl].extendedHopDir;
 			GAMETILE *old;
+			PlaySample(GEN_FROG_DOUBLEHOP,&frog[pl]->actor->pos,0,200,60);
 
 			if( button[pl] & CONT_UP )
 				dir = MOVE_UP;
@@ -287,6 +288,7 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
     {
 		// want to use tongue
+		PlaySample(GEN_FROG_TONGUE,&frog[pl]->actor->pos,0,255,64);
 		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
 		player[pl].hasJumped = 1;
 

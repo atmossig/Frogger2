@@ -52,6 +52,7 @@ enum
 	GEN_FROG_TONGUE,
 	GEN_FROG_HURT,
 	GEN_FROG_DEATH,
+	GEN_FROG_DOUBLEHOP,
 
 	NUM_GENERIC_SFX,
 };
@@ -61,11 +62,37 @@ enum
 // Depends how the samples are loaded and stored, I suppose. This seems a bit silly though
 enum
 {
-	GAR_MOWER = 100,
+	GAR_MOWER = NUM_GENERIC_SFX,
 	END_GARDEN_SFX,
 };
 
-#define NUM_GARDEN_SFX ( END_GARDEN_SFX - 100 )
+#define NUM_GARDEN_SFX ( END_GARDEN_SFX - NUM_GENERIC_SFX )
+
+enum
+{
+	SPC_BBOTA = NUM_GENERIC_SFX,
+	SPC_BBOTB,
+	SPC_BBOTC,
+	SPC_BBOTD,
+	SPC_BEASTA,
+	SPC_BEASTB,
+	SPC_BEASTC,
+	SPC_FISHEADA,
+	SPC_FISHEADB,
+	SPC_MUZAPA,
+	SPC_MUZAPB,
+	SPC_MUZAPC,
+	SPC_MUZAPD,
+	SPC_SEELA,
+	SPC_SEYEBALLA,
+	SPC_SSNAIL,
+	SPC_SPROPA,
+	SPC_SSATA,
+	SPC_TANKA,
+	END_SPACE_SFX,
+};
+
+#define NUM_SPACE_SFX ( END_SPACE_SFX - NUM_GENERIC_SFX )
 
 
 //***********************************
