@@ -135,21 +135,29 @@ long RunVideoPlayback()
 
 		ProcessUserInput();
 
-		if (/*bink->FrameNum == bink->Frames ||*/ padData.debounce[0])
+		if (bink->FrameNum == bink->Frames || padData.debounce[0])
 		{
 			// end playback mode..
 			BinkClose(bink); bink=NULL;
 
 			if(padData.debounce[0] & PAD_START)
 				quitAllVideo = YES;
-			AppLoop = oldLoop;
-			return 0;
+			//AppLoop = oldLoop;
+			return 1;
 		}
 		else
 			BinkNextFrame(bink);
 	}
 
 
+	return 0;
+}
+
+
+DWORD CALLBACK VideoThreadProc(LPVOID foo)
+{
+	while (!RunVideoPlayback());
+	
 	return 0;
 }
 
@@ -190,8 +198,16 @@ long StartVideoPlayback(int num)
 
 	videoSurface->Blt(NULL,NULL,NULL,DDBLT_COLORFILL,&bltfx);
 
-	oldLoop = AppLoop;
-	AppLoop = RunVideoPlayback;
+	//oldLoop = AppLoop;
+	//AppLoop = RunVideoPlayback;
+
+	DWORD id;
+	HANDLE videoThread = CreateThread(0, 0, VideoThreadProc, 0, 0, &id);
+
+	while (WaitForSingleObject(videoThread, 1000) == WAIT_TIMEOUT)
+	{
+		// do nothing, every second, until the thread is finished.		
+	}
 
 	return 1;
 }
