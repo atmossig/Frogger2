@@ -987,12 +987,12 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 		QUATERNION q, cross;
 		float t;
 
-		SubVector( &normal, &camSource[0], &pos );
+		SubVector( &normal, &currCamSource[0], &pos );
 		MakeUnit( &normal );
 		CrossProduct( (VECTOR *)&cross, &normal, &upVec );
 		MakeUnit( (VECTOR *)&cross );
 		t = DotProduct( &normal, &upVec );
-		cross.w = -acos(t);
+		cross.w = acos(t);
 		GetQuaternionFromRotation( &q, &cross );
 		QuaternionToMatrix( &q, (MATRIX *)trail->particles[i].rMtrx );
 	}
