@@ -457,12 +457,12 @@ void ChangeCameraSetting()
 
 	if(camZoom)
 	{
-		ACTOR_DRAWDISTANCEINNER = 100000;
+		ACTOR_DRAWDISTANCEINNER = 200000;
 		scaleV = 0.7F;
 	}
 	else
 	{
-		ACTOR_DRAWDISTANCEINNER = 125000;
+		ACTOR_DRAWDISTANCEINNER = 250000;
 		scaleV = 1.1F;
 	}
 }

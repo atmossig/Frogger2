@@ -17,6 +17,8 @@
 
 #include "incs.h"
 
+extern float xluFade;
+
 Vtx	objectsVtx[2][2000];
 
 Vtx *vtxPtr;
@@ -332,7 +334,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 	
 	in = obj->mesh->vertices;
 
-	if (xl<0.99)
+	if ((xl<0.99) || (xluFade<0.99))
 	{
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
@@ -545,7 +547,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 		}
 	}
 
-	if (xl<0.99)
+	if ((xl<0.99) || (xluFade<0.99))
 	{
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);

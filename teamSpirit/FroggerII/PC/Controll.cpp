@@ -317,7 +317,7 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_RETURN ))// | (joy.rgbButtons[0]))
 		controllerdata[0].button |= CONT_A;
 	
-	if (KEYPRESS(DIK_DELETE))
+	if (KEYPRESS(DIK_RSHIFT))
 		controllerdata[0].button |= CONT_B;
 	
 	if (KEYPRESS(DIK_ESCAPE))
@@ -325,16 +325,16 @@ void ProcessUserInput(HWND hWnd)
 
 	if (KEYPRESS(DIK_NUMPAD7))
 	{
-		farClip*=1.5;
-		horizClip*=1.5;
-		vertClip*=1.5;
+		farClip*=1.2;
+		horizClip*=1.2;
+		vertClip*=1.2;
 	}
 
 	if (KEYPRESS(DIK_NUMPAD9))
 	{
-		farClip/=1.5;
-		horizClip/=1.5;
-		vertClip/=1.5;
+		farClip/=1.2;
+		horizClip/=1.2;
+		vertClip/=1.2;
 	}
 
 	if (KEYPRESS(DIK_NUMPAD4))
@@ -349,7 +349,7 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_NUMPAD2))
 		controllerdata[0].button |= CONT_D;
 
-	if (KEYPRESS(DIK_L))
+	if (KEYPRESS(DIK_RCONTROL))
 		controllerdata[0].button |= CONT_L;
 
 	if (KEYPRESS(DIK_R))

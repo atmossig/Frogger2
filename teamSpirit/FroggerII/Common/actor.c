@@ -25,8 +25,11 @@
 #include "incs.h"
 
 
-float ACTOR_DRAWDISTANCEINNER = 150000.0F;
-float ACTOR_DRAWDISTANCEOUTER = 200000.0F;
+float ACTOR_DRAWDISTANCEINNER = 450000.0F;
+float ACTOR_DRAWDISTANCEOUTER = 600000.0F;
+float ACTOR_DRAWDISTANCESTART = 300000.0F;
+
+float xluFade = 0;
 
 int objectMatrix = 0;
 
@@ -126,12 +129,22 @@ void DrawActorList()
 								TestDistanceFromFrog = 1;
 							else
 								TestDistanceFromFrog = 0;
-							
+										
 		//					if (cur->flags & ~ACTOR_DRAW_NEVER)
+							xluFade = 1;
 							DrawActor(cur->actor);
 
 							EndTimer(6);
 						}
+//						else
+//						{
+//							xluFade = cur->distanceFromFrog - ACTOR_DRAWDISTANCESTART;
+//							if (xluFade>0)
+//							{
+//								xluFade /= (ACTOR_DRAWDISTANCEINNER - ACTOR_DRAWDISTANCESTART);
+//								DrawActor(cur->actor);
+//							}
+//						}
 					}
 
 		}

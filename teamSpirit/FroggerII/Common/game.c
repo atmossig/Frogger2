@@ -372,6 +372,7 @@ void GameProcessController(long pl)
 	// End Croak And CroakFloat
 
 	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
+	if (numBabies)
     {
 		bby++;
 		bby %= numBabies;
@@ -393,16 +394,23 @@ void GameProcessController(long pl)
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
 
-		livesTextOver->oa = livesTextOver->a;
-		scoreTextOver->oa = scoreTextOver->a;
-		timeTextOver->oa = timeTextOver->a;
+		if (NUM_FROGS == 1)
+		{
+			livesTextOver->oa = livesTextOver->a;
+			scoreTextOver->oa = scoreTextOver->a;
+			timeTextOver->oa = timeTextOver->a;
 
-		livesTextOver->a = 0;
-		scoreTextOver->a = 0;
-		timeTextOver->a = 0;
-	
-		for ( i = 0; i < 3; i++ )
-			sprHeart[i]->draw = 0;
+			livesTextOver->a = 0;
+			scoreTextOver->a = 0;
+			timeTextOver->a = 0;
+		}
+
+		if (NUM_FROGS == 1)
+		{
+		
+			for ( i = 0; i < 3; i++ )
+				sprHeart[i]->draw = 0;
+		}
 
 		for(i=0; i<numBabies; i++)
 			babyIcons[i]->draw = 0;
@@ -486,19 +494,26 @@ void CameraLookAtFrog(void)
 	{
 	
 		float afx,afy,afz;
-		int i;
+		int i,l;
 		afx = afy = afz = 0;
-
+		l = 0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			afx += frog[i]->actor->pos.v[0];
-			afy += frog[i]->actor->pos.v[1];
-			afz += frog[i]->actor->pos.v[2];
+			if (frog[i]->action.lives > 0)
+			{
+				afx += frog[i]->actor->pos.v[0];
+				afy += frog[i]->actor->pos.v[1];
+				afz += frog[i]->actor->pos.v[2];
+				l++;
+			}
 		}
 		
-		afx/=NUM_FROGS;
-		afy/=NUM_FROGS;
-		afz/=NUM_FROGS;
+		if (l)
+		{
+			afx/=l;
+			afy/=l;
+			afz/=l;
+		}
 
 		{
 			camTarget[0].v[0] = afx+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0]*upVal;	
@@ -541,12 +556,15 @@ void SlurpCamPosition(long cam)
 	{
 		VECTOR t;
 		int i;
-		
+	
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			t.v[0]+=currTile[i]->normal.v[0];
-			t.v[1]+=currTile[i]->normal.v[1];
-			t.v[2]+=currTile[i]->normal.v[2];
+			if (frog[i]->action.lives > 0)
+			{
+				t.v[0]+=currTile[i]->normal.v[0];
+				t.v[1]+=currTile[i]->normal.v[1];
+				t.v[2]+=currTile[i]->normal.v[2];
+			}
 		}
 
 		MakeUnit (&t);
@@ -595,33 +613,41 @@ void UpdateCameraPosition(long cam)
 		float afx,afy,afz;
 		float afx2,afy2,afz2;
 
-		int i;
+		int i,l;
 		afx = afy = afz = 0;
 		afx2 = afy2 = afz2 = 0;
-
+		l=0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			afx += frog[i]->actor->pos.v[0];
-			afy += frog[i]->actor->pos.v[1];
-			afz += frog[i]->actor->pos.v[2];
+			if (frog[i]->action.lives > 0)
+			{
 
-			afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
-			afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
-			afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
+				afx += frog[i]->actor->pos.v[0];
+				afy += frog[i]->actor->pos.v[1];
+				afz += frog[i]->actor->pos.v[2];
+
+				afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
+				afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
+				afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
 			
-			afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
-			afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
-			afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
-
+				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
+				afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
+				afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+				l++;
+			}
 		}
 		
-		afx/=NUM_FROGS;
-		afy/=NUM_FROGS;
-		afz/=NUM_FROGS;
+		if (l)
+		{
 		
-		afx2/=NUM_FROGS;
-		afy2/=NUM_FROGS;
-		afz2/=NUM_FROGS;
+			afx/=l;
+			afy/=l;
+			afz/=l;
+		
+			afx2/=l;
+			afy2/=l;
+			afz2/=l;
+		}
 
 		camSource[cam].v[0] = afx+afx2;
 		camSource[cam].v[1] = afy+afy2;
@@ -988,9 +1014,12 @@ void RunGameLoop (void)
 	{
 		if(gameIsOver)
 		{
-			DisableTextOverlay(livesTextOver);
-			DisableTextOverlay(timeTextOver);
-			DisableTextOverlay(scoreTextOver);
+			if (NUM_FROGS == 1)
+			{
+				DisableTextOverlay(livesTextOver);
+				DisableTextOverlay(timeTextOver);
+				DisableTextOverlay(scoreTextOver);
+			}
 //				livesIcon->active = 0;
 
 
@@ -1182,6 +1211,7 @@ void RunGameLoop (void)
 			}
 		}
 
+		if (frog[i]->action.safe == 0)
 		if (!IsPointVisible(&frog[i]->actor->pos))
 		{
 			int j;
@@ -1191,10 +1221,15 @@ void RunGameLoop (void)
 				{
 					TeleportActorToTile(frog[i],currTile[j],i);
 					destTile[i] = currTile[j];
-					frog[i]->action.stun = 50;
-					frog[i]->action.safe = 80;
+				
 				}
 			}
+
+			frog[i]->action.stun = 50;
+			frog[i]->action.safe = 80;
+	
+			if (frog[i]->action.lives > 0)
+				sprHeart[i*3+(--frog[i]->action.lives)]->draw = 0;
 		}
 	}
 	
@@ -1234,7 +1269,11 @@ void RunGameLoop (void)
 	{
 		if (frog[i]->actor)
 		{
-			frog[i]->actor->xluOverride=100;
+			if (frog[i]->action.lives > 0)
+				frog[i]->actor->xluOverride=100;
+			else
+				frog[i]->actor->xluOverride=0;
+
 		} 
 		if (frog[i]->action.safe) 
 		{
@@ -1306,9 +1345,12 @@ void RunLevelCompleteSequence()
 	nextLev1->draw = 1;
 	nextLev2->draw = 1;
 
-	for ( i = 0; i < 3; i++ )
-		sprHeart[i]->draw = 0;
-	// ENDFOR
+	if (NUM_FROGS == 1)
+	{
+		for ( i = 0; i < 3; i++ )
+			sprHeart[i]->draw = 0;
+		// ENDFOR
+	}
 
 	testA = 220;
 
