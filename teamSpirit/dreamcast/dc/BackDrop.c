@@ -214,7 +214,7 @@ void DrawBackDrop(int num, int i)
    Purpose : Free the current background image
    Parameters : 
    Returns : 
-   Info : release the backdrop
+   Info : release the backdrop.. no backdrops are kept loaded
 */
 
 void FreeBackdrop(void)
