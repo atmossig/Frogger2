@@ -365,7 +365,7 @@ int MemLoadEntities(const void* data, long size)
 				break;
 
 			case CREATE_PLATFORM:
-				platform = CreateAndAddPlatform(type,flags,ID,path);
+				platform = CreateAndAddPlatform(type,flags,ID,path,animSpeed);
 				act = platform->pltActor;
 
 #ifdef PLATFORM_NEW_SHAKABLESCENIC

@@ -364,7 +364,7 @@ void FreePlatformLinkedList()
 }
 
 
-PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path)
+PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,float animSpeed)
 {
 	int initFlags,i;
 	int platformType = 0;
@@ -384,6 +384,8 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path)
 
 	// create and add platform actor
 	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,initFlags,0,0);
+	newItem->pltActor->animSpeed = animSpeed;
+
 	if(newItem->pltActor->actor->objectController)
 	{
 		InitActorAnim(newItem->pltActor->actor);

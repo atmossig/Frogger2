@@ -115,7 +115,7 @@ void FrogLeavePlatform(long pl);
 
 //------------------------------------------------------------------------------------------------
 
-PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path);
+PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,float animSpeed);
 void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags);
 
 BOOL PlatformHasArrivedAtNode(PLATFORM *pform);
