@@ -14,7 +14,7 @@ TEXT3DLIST text3DList;
 	Returns			: 
 	Info			: Uses TEXT3D structure
 */
-void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO )
+void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO, float sinA, float sinS )
 {
 	TEXT3D *t;
 	TEXT3D *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
@@ -25,6 +25,8 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	// Scale factor - desired width over normal width of texture (32*numChars)
 	t3d->scale = (float)w/((float)len*32);
 	t3d->angle = 0;
+	t3d->sinA = sinA;
+	t3d->sinS = sinS;
 
 	t3d->vel.v[0] = spd->v[0];
 	t3d->vel.v[1] = spd->v[1];
@@ -40,9 +42,9 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->tileSize = t3d->scale*32;
 	t3d->vA = a;
 
-	t3d->xOffs = t3d->oldXOffs = xO;
-	t3d->yOffs = t3d->oldYOffs = yO;
-	t3d->zOffs = t3d->oldZOffs = zO;
+	t3d->xOffs = xO;
+	t3d->yOffs = yO;
+	t3d->zOffs = zO;
 
 	t3d->motion = motion;
 	t3d->type = type;
@@ -182,6 +184,7 @@ void MakeTextCircle( TEXT3D *t3d )
 	float pB, radians = t3d->angle/57.6;
 	unsigned long len = strlen(t3d->string), i;
 	unsigned int tS = t3d->tileSize;
+	float yPa, yPb, yPc, yPd;
 
 	for( i=0; i<len; i++ )
 	{
@@ -190,13 +193,38 @@ void MakeTextCircle( TEXT3D *t3d )
 
 		tesa = t3d->xOffs+t3d->radius*(sinf(pB));
 		tesb = t3d->xOffs+t3d->radius*(sinf(pB+arcStep));
+
 		teca = t3d->zOffs+t3d->radius*(cosf(pB));
 		tecb = t3d->zOffs+t3d->radius*(cosf(pB+arcStep));
 
-		V((&vPtr[v+0]),tesa,	teca,	t3d->yOffs,		0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+1]),tesb,	tecb,	t3d->yOffs,		0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+2]),tesb,	tecb,	t3d->yOffs+tS,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+3]),tesa,	teca,	t3d->yOffs+tS,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		yPa = t3d->yOffs;
+		yPb = yPa;
+		yPc = yPb+tS;
+		yPd = yPc;
+
+		if( t3d->motion & T3D_MOVE_SQUISH )
+		{
+			float sf1 = sinf(pB+frameCount*t3d->sinS)*t3d->sinA,
+				sf2 = sinf(pB+tS+frameCount*t3d->sinS)*t3d->sinA;
+			yPa += sf1;
+			yPb = yPa;
+			yPc += sf2;
+			yPd = yPc;
+		}
+		if( t3d->motion & T3D_MOVE_SINE )
+		{
+			float sf1 = sinf(i+frameCount*t3d->sinS)*t3d->sinA,
+				sf2 = sinf(i+1+frameCount*t3d->sinS)*t3d->sinA;
+			yPa += sf1;
+			yPb += sf2;
+			yPc += sf2;
+			yPd += sf1;
+		}
+
+		V((&vPtr[v+0]),tesa,	teca,	yPa,	0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		V((&vPtr[v+1]),tesb,	tecb,	yPb,	0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		V((&vPtr[v+2]),tesb,	tecb,	yPc,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		V((&vPtr[v+3]),tesa,	teca,	yPd,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 	}
 }
 
@@ -218,26 +246,80 @@ void MakeTextLine( TEXT3D *t3d )
 
 	if( t3d->type == T3D_HORIZONTAL )
 	{
+		float yPa, yPb, yPc, yPd;
+
 		for( i=0; i<len; i++ )
 		{
 			pB = i*tS;
 			v = i*4;
-			V((&vPtr[v+0]),-pB+t3d->xOffs,		t3d->zOffs,	t3d->yOffs,		0,		0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	t3d->zOffs,	t3d->yOffs,		0,		1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	t3d->zOffs,	tS+t3d->yOffs,	0,		1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+3]),-pB+t3d->xOffs,		t3d->zOffs,	tS+t3d->yOffs,	0,		0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+
+			yPa = t3d->yOffs;
+			yPb = yPa;
+			yPc = yPb+tS;
+			yPd = yPc;
+
+			if( t3d->motion & T3D_MOVE_SQUISH )
+			{
+				float sf1 = sinf(pB+frameCount*t3d->sinS)*t3d->sinA,
+					sf2 = sinf(pB+tS+frameCount*t3d->sinS)*t3d->sinA;
+				yPa += sf1;
+				yPb = yPa;
+				yPc += sf2;
+				yPd = yPc;
+			}
+			if( t3d->motion & T3D_MOVE_SINE )
+			{
+				float sf1 = sinf(i+frameCount*t3d->sinS)*t3d->sinA,
+					sf2 = sinf(i+1+frameCount*t3d->sinS)*t3d->sinA;
+				yPa += sf1;
+				yPb += sf2;
+				yPc += sf2;
+				yPd += sf1;
+			}
+
+			V((&vPtr[v+0]),-pB+t3d->xOffs,		t3d->zOffs,	yPa,	0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	t3d->zOffs,	yPb,	0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	t3d->zOffs,	yPc,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+3]),-pB+t3d->xOffs,		t3d->zOffs,	yPd,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		}
 	}
 	else
 	{
+		float xPa, xPb, xPc, xPd;
+
 		for( i=0; i<len; i++ )
 		{
 			pB = i*tS;
 			v = i*4;
-			V((&vPtr[v+0]),t3d->xOffs,		t3d->zOffs,	pB+t3d->yOffs,			0,		0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+1]),-tS+t3d->xOffs,	t3d->zOffs,	pB+t3d->yOffs,			0,		1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+2]),-tS+t3d->xOffs,	t3d->zOffs,	pB+tS+t3d->yOffs,		0,		1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+3]),t3d->xOffs,		t3d->zOffs,	pB+tS+t3d->yOffs,		0,		0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+
+			xPa = t3d->xOffs;
+			xPb = xPa-tS;
+			xPc = xPb;
+			xPd = xPa;
+
+			if( t3d->motion & T3D_MOVE_SQUISH )
+			{
+				float sf1 = sinf(pB+frameCount*t3d->sinS)*t3d->sinA,
+					sf2 = sinf(pB+tS+frameCount*t3d->sinS)*t3d->sinA;
+				xPa += sf1;
+				xPb += sf2;
+				xPc = xPb;
+				xPd = xPa;
+			}
+			if( t3d->motion & T3D_MOVE_SINE )
+			{
+				float sf1 = sinf(i+frameCount*t3d->sinS)*t3d->sinA,
+					sf2 = sinf(i+1+frameCount*t3d->sinS)*t3d->sinA;
+				xPa += sf1;
+				xPb += sf1;
+				xPc += sf2;
+				xPd += sf2;
+			}
+
+			V((&vPtr[v+0]),xPa,	t3d->zOffs,	pB+t3d->yOffs,		0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+1]),xPb,	t3d->zOffs,	pB+t3d->yOffs,		0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+2]),xPc,	t3d->zOffs,	pB+tS+t3d->yOffs,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+3]),xPd,	t3d->zOffs,	pB+tS+t3d->yOffs,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		}
 	}
 }
@@ -311,8 +393,6 @@ void UpdateT3DMotion( TEXT3D *t3d )
 				}
 			}
 		}
-
-		// z check
 	}
 	else if( t3d->type == T3D_HORIZONTAL )
 	{
@@ -348,8 +428,6 @@ void UpdateT3DMotion( TEXT3D *t3d )
 				}
 			}
 		}
-
-		// z check
 	}
 	else if( t3d->type == T3D_VERTICAL )
 	{
@@ -386,8 +464,6 @@ void UpdateT3DMotion( TEXT3D *t3d )
 				}
 			}
 		}
-
-		// z check
 	}
 
 	if( t3d->type == T3D_VERTICAL )
@@ -447,6 +523,65 @@ void UpdateT3DMotion( TEXT3D *t3d )
 			else if( t3d->motion & T3D_PATH_LOOP )
 			{
 				t3d->yOffs = -100-t3d->tileSize;
+			}
+		}
+	}
+
+	if( t3d->type == T3D_CIRCLE )
+	{
+		if( t3d->zOffs+t3d->radius >= farPlaneDist && (t3d->motion & T3D_MOVE_OUT) )
+		{
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_OUT;
+				t3d->motion |= T3D_MOVE_IN;
+				t3d->vel.v[2] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->zOffs = nearPlaneDist+t3d->radius;
+			}
+		}
+		else if( t3d->zOffs-t3d->radius <= nearPlaneDist && (t3d->motion & T3D_MOVE_IN) )
+		{
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_IN;
+				t3d->motion |= T3D_MOVE_OUT;
+				t3d->vel.v[2] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->yOffs = farPlaneDist-t3d->radius;
+			}
+		}
+	}
+	else
+	{
+		if( t3d->zOffs >= farPlaneDist && (t3d->motion & T3D_MOVE_OUT) )
+		{
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_OUT;
+				t3d->motion |= T3D_MOVE_IN;
+				t3d->vel.v[2] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->zOffs = nearPlaneDist;
+			}
+		}
+		else if( t3d->zOffs <= nearPlaneDist && (t3d->motion & T3D_MOVE_IN) )
+		{
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_IN;
+				t3d->motion |= T3D_MOVE_OUT;
+				t3d->vel.v[2] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->yOffs = farPlaneDist;
 			}
 		}
 	}

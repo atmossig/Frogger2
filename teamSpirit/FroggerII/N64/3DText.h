@@ -14,6 +14,9 @@
 #define T3D_MOVE_DOWN	(1<<5)
 #define T3D_MOVE_IN		(1<<6)
 #define T3D_MOVE_OUT	(1<<7)
+#define T3D_MOVE_SINE	(1<<8)
+#define T3D_MOVE_TWIST	(1<<9)
+#define T3D_MOVE_SQUISH	(1<<10)
 
 #define T3D_CALCULATED	(1<<29)
 #define T3D_PATH_BOUNCE	(1<<30)
@@ -27,8 +30,9 @@ typedef struct _TEXT3D
 	char vR, vG, vB, vA;    // Vertex rgb
 	short type;				// Line, circle, etc
 	unsigned long motion;	// Static, spin, move from left
-	float angle, scale, radius;
-	long width, xOffs, yOffs, zOffs, oldXOffs, oldYOffs, oldZOffs;
+	float angle, scale, radius,
+		sinA, sinS;
+	long width, xOffs, yOffs, zOffs;
 	VECTOR vel;             // Velocity vector
 	float rSpeed;			// Speed of rotation
 	unsigned int tileSize;	// Scaled size of each tile
@@ -47,7 +51,9 @@ typedef struct _TEXT3DLIST
 extern TEXT3DLIST text3DList;
 
 
-extern void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO );
+extern void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, 
+							   short type, unsigned long motion, VECTOR *spd, float rSpd, 
+							   long xO, long yO, long zO, float sinA, float sinS );
 extern void Print3DText( );
 extern void Calculate3DText( );
 extern void Init3DTextList( );
