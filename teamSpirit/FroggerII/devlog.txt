@@ -431,6 +431,11 @@ James Hubbard:
 		huge circle, and it's still a 32x32. Looks like sunlight off water, without the water.
 		And with your eyes squinted. 
 
+	Later:
+		Oh bugger it, I can't get rid of that sodding circle. If anyone's interested, it's
+		called ProcessPTWaterRipplesBM, in ptexture.c
+		No practical use at this point, I'm going to go back to game code for a while.
+
 
 James Healey:
 ------------------------------------------------
