@@ -138,6 +138,7 @@ struct VIDEOMODEINFO
 HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 {
 	char mode[10];
+	const SIZE testdim[4] = {{320,240},{640,480},{800,600},{1024,768}};
 	int index, selIndex = 0;
 	DWORD videomode;
 	VIDEOMODEINFO *info = (VIDEOMODEINFO*)context;
@@ -148,6 +149,11 @@ HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 		(desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
 		(desc->ddpfPixelFormat.dwRGBBitCount == 16))
 	{
+		for (int m=0; m<4; m++)
+			if (testdim[m].cx==desc->dwWidth&&testdim[m].cy==desc->dwHeight) break;
+
+		if (m==4) return DDENUMRET_OK;
+
 		int bytes = (desc->dwWidth*desc->dwHeight*2)*3;
 		dp("%d x %d, ~%d bytes (%0.3fMB)\n", desc->dwWidth, desc->dwHeight, bytes, bytes*(1.0f/(1024*1024)));
 
