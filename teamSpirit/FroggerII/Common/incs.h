@@ -99,7 +99,6 @@
 
 #include "subcube.h"
 #include "block.h"
-#include "cameos.h"
 #include "savegame.h"
 #include "menus.h"
 #include "defaultdata.h"
