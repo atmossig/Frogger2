@@ -275,7 +275,8 @@ void LoadObjectBank(int objectBank)
 // Front-end
 
 		case FRONTEND_OBJ_BANK:
-			strcpy(fileName, "title"); break;
+//			strcpy(fileName, "titles"); break;
+			return;
 
 		case FRONTEND1_OBJ_BANK:
 			strcpy(fileName, "start"); break;
