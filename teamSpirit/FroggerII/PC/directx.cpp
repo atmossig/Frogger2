@@ -355,11 +355,11 @@ BOOL InitSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 
 	hCombo = GetDlgItem( hwndDlg, IDC_COMBO1);
 
-	ComboBox_AddString( hCombo, "320 x 240");
+//	ComboBox_AddString( hCombo, "320 x 240");
 	ComboBox_AddString( hCombo, "640 x 480");
-	ComboBox_AddString( hCombo, "800 x 600");
-	ComboBox_AddString( hCombo, "1024 x 768");
-	ComboBox_AddString( hCombo, "1280 x 1024");
+//	ComboBox_AddString( hCombo, "800 x 600");
+//	ComboBox_AddString( hCombo, "1024 x 768");
+//	ComboBox_AddString( hCombo, "1280 x 1024");
 	ComboBox_SetCurSel( hCombo, 1 );
 
 	info->lpguidDDraw = NULL;
@@ -405,6 +405,7 @@ int CloseSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 
 	if (i>=count || !(dxDeviceList[i].caps.dwCaps & DDCAPS_3D))
 	{
+		ShowCursor(1);
 		MessageBox(hwndDlg,
 			"A software renderer is not currently available. Please select a video card that supports hardware 3D.",
 			"Frogger2", MB_OK | MB_ICONEXCLAMATION);
@@ -458,6 +459,8 @@ int CloseSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 	clx1 = SCREEN_WIDTH-1;
 	cly1 = SCREEN_HEIGHT-1;
 
+	SCREEN_WIDTH = 640;
+	SCREEN_HEIGHT = 480;
 
 //					EndDialog(hwndDlg,0);
 	runQuit = 0;
