@@ -65,6 +65,7 @@ TEXTOVERLAY *keyCollected;
 
 TEXTOVERLAY *controllerText;
 TEXTOVERLAY *continueText;
+TEXTOVERLAY *xselectText;
 TEXTOVERLAY *restartText;
 TEXTOVERLAY *quitText;
 TEXTOVERLAY *garibCount, *creditCount;
@@ -1090,6 +1091,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, font, 0, 0, 0 );
 
+	xselectText	= CreateAndAddTextOverlay ( 2048, 3400, GAMESTRING(STR_X_SELECT_OPTION), YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 	continueText	= CreateAndAddTextOverlay ( 2048, 1540, GAMESTRING(STR_CONTINUE), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 	//controllerText	= CreateAndAddTextOverlay ( 0, 1540, "Controls", YES, 255, 0, 0,0 );
 	restartText		= CreateAndAddTextOverlay ( 2048, 1860, GAMESTRING(STR_RESTARTLEVEL), YES, 255, 0,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
@@ -1109,6 +1111,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	DisableTextOverlay ( controllerText );
 	DisableTextOverlay ( continueText );
+	DisableTextOverlay ( xselectText );
 	DisableTextOverlay ( restartText );
 	DisableTextOverlay ( quitText );
 	DisableTextOverlay ( posText );
