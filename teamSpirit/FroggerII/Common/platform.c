@@ -259,9 +259,10 @@ void UpdatePlatforms()
 				cur->regen--;
 				if(!cur->regen)
 				{
-					cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
-					cur->pltActor->flags &= ~ACTOR_DRAW_NEVER;
-					cur->pltActor->flags |= ACTOR_DRAW_CULLED;
+					//cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
+					//cur->pltActor->flags &= ~ACTOR_DRAW_NEVER;
+					//cur->pltActor->flags |= ACTOR_DRAW_CULLED;
+					cur->pltActor->actor->xluOverride = 100;
 
 					cur->active	= 1;
 					cur->visible = cur->visibleTime;
@@ -434,9 +435,10 @@ void UpdatePlatforms()
 					cur->visible--;
 					if(!cur->visible)
 					{
-						cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
-						cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
-						cur->pltActor->flags |= ACTOR_DRAW_NEVER;
+						cur->pltActor->actor->xluOverride = 0;
+						//cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
+					//	cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
+				//		cur->pltActor->flags |= ACTOR_DRAW_NEVER;
 
 						cur->active = 0;
 						cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;

@@ -127,8 +127,8 @@ void DrawActorList()
 							else
 								TestDistanceFromFrog = 0;
 							
-						//	if (cur->flags & ~ACTOR_DRAW_NEVER)
-								DrawActor(cur->actor);
+		//					if (cur->flags & ~ACTOR_DRAW_NEVER)
+							DrawActor(cur->actor);
 
 							EndTimer(6);
 						}
@@ -231,7 +231,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->actor->oldpos.v[Z]	= cz;
 
 	newItem->draw	= 0;
-	newItem->flags	|= ACTOR_DRAW_CULLED;
+	newItem->flags	= ACTOR_DRAW_CULLED;
 	newItem->radius	= 0.0F;
 	newItem->animSpeed = 1.0F;
 	newItem->value1 = 0.0F;
