@@ -779,6 +779,10 @@ void RunFrontendGameLoop (void)
 		worldBak->xPos = worldBak->xPosTo;
 		
 		LevelSelProcessController(0);
+
+		if (gameState.mode == FMVPLAY_MODE)
+			return;
+
 		arcadeText->yPos = titleBak->yPos+5;
 		selectText->yPos = titleBak->yPos+23;
 		pcText->xPos = infoBak->xPos+52;
@@ -940,7 +944,7 @@ void LevelSelProcessController(long pl)
 
 	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
     {
-		if (currTileNum==5)
+		if (currTileNum==4)
 		{
 			if(gameState.multi != MULTIREMOTE)
 			{
@@ -950,20 +954,40 @@ void LevelSelProcessController(long pl)
 			}
 			player[0].worldNum = cWorld;
 			player[0].levelNum = cLevel;			
-		}
-					
-		if (currTileNum==3)
-		{
-			// Store in player 1 so the frontend still works :)
-			player[1].worldNum = cWorld;
-			InitMPSelect( );
-			return;
-		}
+			
+			lastActFrameCount = actFrameCount;
 
-		lastActFrameCount = actFrameCount;
-		gameState.mode = LEVELCOMPLETE_MODE;
-		GTInit( &modeTimer, 1 );
-		showEndLevelScreen = 0;		
+			FreeAllLists();
+			gameState.mode = FMVPLAY_MODE;
+			showEndLevelScreen = 0;		
+		}
+		else
+		{
+			if (currTileNum==5)
+			{
+				if(gameState.multi != MULTIREMOTE)
+				{
+					NUM_FROGS = 1;
+					gameState.multi = SINGLEPLAYER;
+					gameState.single = ARCADE_MODE;
+				}
+				player[0].worldNum = cWorld;
+				player[0].levelNum = cLevel;			
+			}
+						
+			if (currTileNum==3)
+			{
+				// Store in player 1 so the frontend still works :)
+				player[1].worldNum = cWorld;
+				InitMPSelect( );
+				return;
+			}
+
+			lastActFrameCount = actFrameCount;
+			gameState.mode = LEVELCOMPLETE_MODE;
+			GTInit( &modeTimer, 1 );
+			showEndLevelScreen = 0;		
+		}
 	}
 	
 	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
