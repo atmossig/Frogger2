@@ -59,6 +59,6 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 {
 	CommonInit();
 
-	while (0);
+	while (1)
 		GameLoop();
 }
