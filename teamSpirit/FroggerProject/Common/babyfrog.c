@@ -121,12 +121,22 @@ void InitBabyList( unsigned char createOverlays )
 #else
 //			sprintf( name, "0%iBABYIC", i );
 //			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,name,(4096*24)/640,(4096*24)/480,60,0);
-			babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,60,0);
+			if( rHardware )
+				babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,60,0);
+			else
+				babyIcons[i] = CreateAndAddSpriteOverlay( (230+(i*200)),210+BORDER,"00BABYIC",(4096*24)/640,(4096*24)/480,255,0);
 #endif
 			babyIcons[i]->num = 1;
 			babyIcons[i]->r = babyList[i].fxColour[R];
 			babyIcons[i]->g = babyList[i].fxColour[G];
 			babyIcons[i]->b = babyList[i].fxColour[B];
+
+			if( !rHardware )
+			{
+				babyIcons[i]->r /= 2;
+				babyIcons[i]->g /= 2;
+				babyIcons[i]->b /= 2;
+			}
 		}
 	}
 	babyFlashFrame = -1;
@@ -171,6 +181,13 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 		n = ((babyList[i].enemy->path->nodes->offset2>>12)/SCALE)-1;
 	else
 		n = i;
+
+	if( !rHardware )
+	{
+		babyIcons[n]->r *= 2;
+		babyIcons[n]->g *= 2;
+		babyIcons[n]->b *= 2;
+	}
 
 	babyFlashFrame = actFrameCount;
 	babyFlash->r = babyIcons[n]->r;

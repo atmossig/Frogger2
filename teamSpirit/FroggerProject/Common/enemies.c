@@ -2260,6 +2260,14 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 		babyIcons[i]->r = babyList[i].fxColour[0];
 		babyIcons[i]->g = babyList[i].fxColour[1];
 		babyIcons[i]->b = babyList[i].fxColour[2];
+#ifdef PC_VERSION
+		if( !rHardware )
+		{
+			babyIcons[i]->r /= 2;
+			babyIcons[i]->g /= 2;
+			babyIcons[i]->b /= 2;
+		}
+#endif
 	}
 
 	if( player[0].worldNum == WORLDID_ANCIENT )
