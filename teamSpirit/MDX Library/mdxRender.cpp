@@ -102,7 +102,7 @@ void SetupRenderer(long xRes, long yRes)
 	cly0 = 10;
 	clx1 = xRes - 10;
 	cly1 = yRes - 10;
-	FOV = 450.0/(640.0 / (float)xRes);
+	FOV = 450; 		
 }
 /*---------------------------------------------------------------------------------------------
 	Function	: calcIntVertex
