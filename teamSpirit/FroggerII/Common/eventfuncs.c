@@ -185,13 +185,13 @@ int LogicalOR( TRIGGER *trigger )
 
 int EnemyAtFlag(TRIGGER *trigger)
 {
-	int id, flag, n;
+	int id, flag;
 	ENEMY *e;
 	
 	id = (int)trigger->data[0];
 	flag = (int)trigger->data[1];
 
-	for(e = enemyList.head.next, n = enemyList.numEntries; n; e = e->next, n--)
+	for(e = enemyList.head.next; e != &enemyList.head; e = e->next)
 	{
 		if ((!id || e->uid == id) && (e->path->fromNode == flag))
 			return 1;
@@ -201,13 +201,13 @@ int EnemyAtFlag(TRIGGER *trigger)
 
 int PlatformAtFlag(TRIGGER *trigger)
 {
-	int id, flag, n;
+	int id, flag;
 	PLATFORM *p;
 	
 	id = (int)trigger->data[0];
 	flag = (int)trigger->data[1];
 
-	for(p = platformList.head.next, n = platformList.numEntries; n; p = p->next, n--)
+	for(p = platformList.head.next; p != &platformList.head; p = p->next)
 	{
 		if ((!id || p->uid == id) && (p->path->fromNode == flag))
 			return 1;

@@ -51,6 +51,7 @@
 
 #include "incs.h"
 
+#define PLATFORM_NEAREST_DIST  500	// radius in which to check for nearest platform
 
 PLATFORMLIST platformList;								// the platform list
 PLATFORM *destPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
@@ -61,13 +62,7 @@ PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that fr
 PLATFORM *nearestPlatform[MAX_FROGS];
 float nearestPlatDist[MAX_FROGS];
 
-float PLATFORM_NEAREST_DIST = 500.0f;	// radius in which to check for nearest platform
-
-float PLATFORM_GENEROSITY	= 20.0f;	// platform 'forgiveness'
-
-
 void CalcNextPlatformDest(PLATFORM *plat);
-
 
 //----- [ PLATFORM UPDATE FUNCTIONS ] ------------------------------------------------------------
 
@@ -162,10 +157,9 @@ void UpdatePlatforms()
 		{
 			float dist;
 
-			// don't include the *current* plat in the check
 			// and only consider platforms in the dest tile?? (TODO: debug!)
 
-			if (cur->inTile[0] != destTile[pl] /*|| cur == currPlatform[pl]*/) continue;
+			if (cur->inTile[0] != destTile[pl]) continue;
 
 			dist = DistanceBetweenPointsSquared(&cur->pltActor->actor->pos, &frog[pl]->actor->pos);
 			if (dist < nearestPlatDist[pl])
