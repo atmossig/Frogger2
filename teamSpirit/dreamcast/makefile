@@ -109,7 +109,7 @@ SYSTEM_LIBS	= \
 		sg_mwk2a\
 		audio64\
 
-OPTIMIZE = 1
+OPTIMIZE = 0
 
 #COMPILER =	SHC
 GFXLIB = KAMUI2
