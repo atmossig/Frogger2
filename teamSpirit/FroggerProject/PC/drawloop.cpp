@@ -328,12 +328,6 @@ long DrawLoop(void)
 #ifndef FINAL_MASTER
 	if (editorOk)
 		DrawEditor();
-
-	// ds - debug - remove me!
-	char afc[10];
-	itoa(actFrameCount/60, afc, 10);
-	DrawFontStringAtLoc(5,5,afc,0xFFFFFFFF,pcFontSmall,1.0f,0,0);
-	// ds - end debug
 #endif
 
 	EndDraw();
