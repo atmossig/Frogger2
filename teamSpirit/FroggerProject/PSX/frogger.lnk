@@ -1,5 +1,5 @@
- output map (Frogger.map)
- output syms (Frogger.sym)
+; output map (Frogger.map)
+; output syms (Frogger.sym)
 
         org     $00018000
 		regs    pc=__SN_ENTRY_POINT
@@ -101,7 +101,7 @@ bss     group   bss
 	include "training.obj"
 	include "fadeout.obj"
 	include "isltex.obj"
-
+	include "savegame.obj"
 
 ;	include "ANIM.obj"
 ;	include "TEXTOVER.obj"
