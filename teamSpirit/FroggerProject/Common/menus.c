@@ -87,6 +87,7 @@ FVECTOR storeCamVect;
 
 
 int pauseConfirmMode;
+int pauseGameSpeed;
 
 
 SPRITEOVERLAY *frogLogo = NULL;
@@ -175,6 +176,7 @@ char *titleHudName[4] =
 };
 SPRITEOVERLAY *titleHud[4];
 
+int pauseFrameCount;
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
@@ -186,6 +188,7 @@ void StartPauseMenu()
 {
 	int i;
 
+	pauseFrameCount = 0;
 	quittingLevel = NO;
 	pauseConfirmMode = NO;
 	restartingLevel = NO;
@@ -206,13 +209,13 @@ void StartPauseMenu()
 	else
 	{
 		quitText->yPos = quitText->yPosTo = 2180;
+		restartText->r = restartText->b = 64;
+		restartText->g = 160;
 		EnableTextOverlay ( restartText );
-		restartText->r = restartText->b = 100;
-		restartText->g = 200;
 	}
+	quitText->r = quitText->b = 64;
+	quitText->g = 160;
 	EnableTextOverlay ( quitText );
-	quitText->r = quitText->b = 100;
-	quitText->g = 200;
 
 //	if( gameState.multi == SINGLEPLAYER )
 		DisableHUD( );
@@ -332,6 +335,7 @@ void RunPauseMenu()
 	int i;
 
 
+	pauseFrameCount += pauseGameSpeed>>12;
 	if((quittingLevel) && (pauseConfirmMode == 0))
 	{
 		if(fadingOut == 0)
@@ -576,8 +580,15 @@ void RunPauseMenu()
 					{
 						quittingLevel = 1;
 						pauseConfirmMode = 1;
+						restartText->r = restartText->g = restartText->b = 255;
 						yesText = CreateAndAddTextOverlay(2048,restartText->yPos + 400,GAMESTRING(STR_YES),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+						yesText->r = 64;
+						yesText->g = 160;
+						yesText->b = 64;
 						noText = CreateAndAddTextOverlay(2048,restartText->yPos + 700,GAMESTRING(STR_NO),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+						noText->r = 64;
+						noText->g = 160;
+						noText->b = 64;
 						keepFade = 1;
 						continueText->draw = 0;
 						quitText->draw = 0;
@@ -592,6 +603,7 @@ void RunPauseMenu()
 				{
 					pauseConfirmMode = 1;
 					currentPauseSelection = 1;
+					quitText->r = quitText->g = quitText->b = 255;
 					yesText = CreateAndAddTextOverlay(2048,quitText->yPos + 400,GAMESTRING(STR_YES),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
 					noText = CreateAndAddTextOverlay(2048,quitText->yPos + 700,GAMESTRING(STR_NO),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
 					continueText->draw = 0;
@@ -609,14 +621,20 @@ void RunPauseMenu()
 		switch(currentPauseSelection)
 		{
 			case 0:
-				yesText->r = yesText->g = yesText->b = 255;
+				yesText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				yesText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				yesText->b = 10;
+//				yesText->r = yesText->g = yesText->b = 255;
 				noText->r = 64;
 				noText->g = 160;
 				noText->b = 64;
 				break;
 
 			case 1:
-				noText->r = noText->g = noText->b = 255;
+				noText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				noText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				noText->b = 10;
+//				noText->r = noText->g = noText->b = 255;
 				yesText->r = 64;
 				yesText->g = 160;
 				yesText->b = 64;
@@ -628,7 +646,10 @@ void RunPauseMenu()
 		switch(currentPauseSelection)
 		{
 			case 0:
-				continueText->r = continueText->g = continueText->b = 255;
+				continueText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				continueText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				continueText->b = 10;
+//				continueText->r = continueText->g = continueText->b = 255;
 				restartText->r = restartText->b = quitText->r = quitText->b /*= controllerText->r = controllerText->b*/ = 64;
 				restartText->g = quitText->g /*= controllerText->g*/ = 160;
 				break;
@@ -642,14 +663,20 @@ void RunPauseMenu()
 			case 1:
 				if(gameState.oldMode != FRONTEND_MODE)
 				{
-					restartText->r = restartText->g = restartText->b = 255;
+					restartText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+					restartText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+					restartText->b = 10;
+//					restartText->r = restartText->g = restartText->b = 255;
 					continueText->r = continueText->b = quitText->r = quitText->b /*= controllerText->r = controllerText->b*/ = 64;
 					continueText->g = quitText->g /*= controllerText->g*/ = 160;
 					break;
 				}
 			//deliberate drop-through!!!!!!!		
 			case 2:
-				quitText->r = quitText->g = quitText->b = 255;
+				quitText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				quitText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				quitText->b = 10;
+//				quitText->r = quitText->g = quitText->b = 255;
 				continueText->r = continueText->b = restartText->r = restartText->b /*= controllerText->r = controllerText->b*/ = 64;
 				continueText->g = restartText->g /*= controllerText->g*/ = 160;
 				break;

@@ -1510,6 +1510,40 @@ void RunLevelComplete()
 				extraIcon->speed = 4096*75;
 			arcadeHud.coinsOver->speed = 4096*75;
 
+
+			if(coinText->xPos == coinText->xPosTo)
+			{
+				if(player[0].numSpawn != garibList.maxCoins)
+				{
+					if(coinsMissed < garibList.maxCoins - player[0].numSpawn)
+					{
+						if(padData.digital[0] & PAD_CROSS)
+							coinCounter += 10;
+						else
+							coinCounter += actFrameCount-lastActFrameCount;
+			
+						if(coinCounter > 10)
+						{
+							coinsMissed++;
+							sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),coinsMissed);//,garibList.maxCoins - player[0].numSpawn);
+							coinCounter = 0;
+							PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
+							coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
+							coinOver->xPosTo += 10000;
+							coinOver->speed = 4096*50;
+						}
+					}
+					else
+					{
+						arcadeHud.coinsOver->draw = 0;
+						if(eolTimer.time == 0)
+							GTInit(&eolTimer,2);
+					}
+				}
+				else if(eolTimer.time == 0)
+					GTInit(&eolTimer,4);
+			}
+
 			if(((extraText) && (extraText->xPos == extraText->xPosTo)) || ((extraText == NULL) && (coinText->xPos == coinText->xPosTo)))
 			{
 				if(eolTimer.time)
@@ -1547,40 +1581,6 @@ void RunLevelComplete()
 						}
 					}
 				}
-			}
-
-
-			if(coinText->xPos == coinText->xPosTo)
-			{
-				if(player[0].numSpawn != garibList.maxCoins)
-				{
-					if(coinsMissed < garibList.maxCoins - player[0].numSpawn)
-					{
-						if(padData.digital[0] & PAD_CROSS)
-							coinCounter += 10;
-						else
-							coinCounter += actFrameCount-lastActFrameCount;
-			
-						if(coinCounter > 10)
-						{
-							coinsMissed++;
-							sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),coinsMissed);//,garibList.maxCoins - player[0].numSpawn);
-							coinCounter = 0;
-							PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
-							coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
-							coinOver->xPosTo += 10000;
-							coinOver->speed = 4096*50;
-						}
-					}
-					else
-					{
-						arcadeHud.coinsOver->draw = 0;
-						if(eolTimer.time == 0)
-							GTInit(&eolTimer,2);
-					}
-				}
-				else if(eolTimer.time == 0)
-					GTInit(&eolTimer,4);
 			}
 
 			break;
@@ -1817,6 +1817,7 @@ void RunLevelComplete()
 		if((numBabies == 0) && (levCompleteState == LEV_COMPLETE_DROPPING_FROGS))
 		{
 			levCompleteState = LEV_COMPLETE_COUNTING_COINS;
+			GTInit(&eolTimer,0);
 			// ds - do animations from above somewhere
 			actorAnimate(frog[0]->actor,froganimnum2,NO,NO,froganimspeed2,NO);
 			actorAnimate(frog[0]->actor,froganimnum3 + Random(4),NO,YES,froganimspeed3,NO);

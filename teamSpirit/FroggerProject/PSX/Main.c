@@ -878,13 +878,19 @@ totalObjs = 0;
 				lastActFrameCount = actFrameCount;
 
 				gameSpeed = vsyncCounter<<12;
-
+	
 				if(gameSpeed > (5<<12))
 					gameSpeed = (5<<12);
 
  				actFrameCount += gameSpeed>>12;
  				vsyncCounter = 0;
 			}
+			else
+			{
+				pauseGameSpeed = vsyncCounter<<12;
+				vsyncCounter = 0;
+			}
+				
 
 		}//end main loop
 

@@ -623,7 +623,7 @@ long LoopFunc(void)
 		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
 		lastFrames = timeInfo.frameCount;
 		lastTicks = timeInfo.tickCount;
-
+		pauseGameSpeed = gameSpeed;
 	}
 	else
 	{

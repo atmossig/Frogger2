@@ -53,7 +53,7 @@ void InitTrainingMode()
 
 	for (i=0; i<2; i++)
 	{
-		TEXTOVERLAY *t = train->txtover[i] = CreateAndAddTextOverlay(2048, 4096 + 204 + i*250, train->text, YES, 255, fontSmall, TEXTOVERLAY_SHADOW);
+		TEXTOVERLAY *t = train->txtover[i] = CreateAndAddTextOverlay(2048, 4096 + 204 + i*250, train->text, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
 		train->txtover[i]->speed = 75<<12;
 	}
 	currStr = lastStr = NULL;
