@@ -1398,7 +1398,7 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 	sprite->b			= 255;
 	sprite->a			= 255;
 
-	sprite->kill		= 0;
+//	sprite->kill		= 0;	// commented out to matched glover 2 structures
 	sprite->flags		= SPRITE_TRANSLUCENT;
 
 	sprintf(bmpBuff,"spnu%d.bmp",(scoreType * 10));
