@@ -75,6 +75,7 @@ LPDIRECTINPUTDEVICE		lpMouse		= NULL;
 
 extern "C"
 {
+void StopKeying(void);
 char rKeyFile[MAX_PATH] = "";
 unsigned long rKeying = 0;
 unsigned long rKeyOK = 0;
@@ -645,7 +646,13 @@ void ProcessUserInput(HWND hWnd)
 					else if (joy.lY > DEAD_ZONE)
 						b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
 
-					controllerdata[i].button |= b;
+					if (rPlaying)
+					{
+						if (b)
+							StopKeying();
+					}
+					else
+						controllerdata[i].button |= b;
 
 					//lpJoystick->UnAcquire();
 				}

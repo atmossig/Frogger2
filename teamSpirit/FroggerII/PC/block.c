@@ -680,6 +680,9 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			break;
 
 		case WM_KEYDOWN:
+			if (rPlaying)
+				StopKeying();
+
 			switch( (int)wParam )
 			{
 			case VK_SHIFT: mod |= FRED_SHIFT; break;
@@ -692,9 +695,6 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			break;
 
 		case WM_CHAR:
-			if (rPlaying)
-				StopKeying();
-		
 			if( chatFlags & CHAT_INPUT )
 			{
 				ChatInput((char)wParam);
