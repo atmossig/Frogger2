@@ -520,6 +520,8 @@ Vis:
 		if (plt->active) goto Invis; else goto Vis;
 	}
 
+	RecalculatePlatform(plt);
+
 	return 1;
 }
 
@@ -592,17 +594,11 @@ BOOL ExecuteCommand(UBYTE **p)
 		}
 
 	case EV_SETENEMY:
-		{
-			int id = MEMGETWORD(p), f = MEMGETBYTE(p);
-			if (EnumEnemies(id, SetEnemy, f) == 0) return 0;
-		}
+		if (EnumEnemies(MEMGETWORD(p), SetEnemy, MEMGETBYTE(p)) == 0) return 0;
 		break;
 
 	case EV_SETPLATFORM:
-		{
-			int id = MEMGETWORD(p), f = MEMGETBYTE(p);
-			if (EnumPlatforms(id, SetPlatform, f) == 0) return 0;
-		}
+		if (EnumPlatforms(MEMGETWORD(p), SetPlatform, MEMGETBYTE(p)) == 0) return 0;
 		break;
 
 	case EV_SETENEMYFLAG:
