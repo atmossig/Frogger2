@@ -722,6 +722,8 @@ void ControllerProc(void *arg);
 void InitDisplayLists(void);
 void ComputeClockSpeed();
 
+int strncmp(const char *a,char *b,int len);
+
 
 // MEMORY CHECKING & DEBUGGING ROUTINES - ANDYE - CURRENTLY SPECIFIC TO N64 ----------------------
 

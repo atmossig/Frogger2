@@ -41,6 +41,7 @@ typedef struct _TEXT3D
 	unsigned long motion;	// Static, spin, move from left
 	float angle, scale, radius,
 		sinA, sinS, twistA; // Sine amount and speed, twist amount
+	float yScale;
 	long width, xOffs, yOffs, zOffs;
 	VECTOR vel;             // Velocity vector
 	float rSpeed;			// Speed of rotation

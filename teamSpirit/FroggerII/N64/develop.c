@@ -189,23 +189,23 @@ void RunProcDemo()
 		txtTmp = CreateAndAddTextOverlay(32,26,"procedural stuff",NO,255,smallFont,0,0);
 		txtTmp->r = 0;	txtTmp->g = 0;	txtTmp->b = 0;
 
-		sOv1 = CreateAndAddSpriteOverlay(95,60,"prc_watr1.bmp",64,64,192,0);
-		CreateAndAddProceduralTexture(sOv1->frames[0],"prc_watr1");
+		sOv1 = CreateAndAddSpriteOverlay(95,60,"prc_watrr.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv1->frames[0],"prc_watrr");
 		for(j=0; j<1024; j++)
 			sOv1->frames[0]->data[j] = 0;
 
-		sOv2 = CreateAndAddSpriteOverlay(165,60,"prc_watr2.bmp",64,64,192,0);
-		CreateAndAddProceduralTexture(sOv2->frames[0],"prc_watr2");
+		sOv2 = CreateAndAddSpriteOverlay(165,60,"prc_watrd.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv2->frames[0],"prc_watrd");
 		for(j=0; j<1024; j++)
 			sOv2->frames[0]->data[j] = 0;
 
-		sOv3 = CreateAndAddSpriteOverlay(95,140,"prc_watr3.bmp",64,64,192,0);
-		CreateAndAddProceduralTexture(sOv3->frames[0],"prc_watr3");
+		sOv3 = CreateAndAddSpriteOverlay(95,140,"prc_watrb.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv3->frames[0],"prc_watrb");
 		for(j=0; j<1024; j++)
 			sOv3->frames[0]->data[j] = 0;
 
-		sOv4 = CreateAndAddSpriteOverlay(165,140,"prc_watr4.bmp",64,64,192,0);
-		CreateAndAddProceduralTexture(sOv4->frames[0],"prc_watr4");
+		sOv4 = CreateAndAddSpriteOverlay(165,140,"prc_watrt.bmp",64,64,192,0);
+		CreateAndAddProceduralTexture(sOv4->frames[0],"prc_watrt");
 		for(j=0; j<1024; j++)
 			sOv4->frames[0]->data[j] = 0;
 

@@ -1565,6 +1565,18 @@ void ControllerProc(void *arg)
 }
 
 
+int strncmp(const char *a,char *b,int len)
+{
+	int i;
+	char tmp[16];
+
+	for(i=0; i<len; i++)
+		tmp[i] = b[i];
+	tmp[len] = '\0';
+	
+	return gstrcmp(tmp,a);
+}
+
 
 // -----------------------------------------------------------------------------------------------
 // MEMORY DEBUGGING / CHECKING ROUTINES - ANDYE - CURRENTLY SPECIFIC TO N64
