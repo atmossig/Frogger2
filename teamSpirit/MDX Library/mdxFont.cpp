@@ -43,7 +43,7 @@ float tCoords32[FONT_NUM32][FONT_NUM32][2];
 char symbolChars[] = "!\"£$%^&*()-_+=[]{};'#:@~\\/,.<>?";
 
 float charHilite = 0;
-float hiliteSpeed = 0.015;
+float hiliteSpeed = 0.015f;
 char toHilite,toHilite2,toHilite3;
 float hR = 0.5, hG = 1, hB = 0;
 float cR = 1, cG = 1, cB = 1;
@@ -53,9 +53,9 @@ void UpdateFontHilite(void)
 {
 	if (charHilite>1)
 	{
-		toHilite = 26+((float)rand()/RAND_MAX)*26;
-		toHilite2 = 26+((float)rand()/RAND_MAX)*26;
-		toHilite3 = 26+((float)rand()/RAND_MAX)*26;
+		toHilite = 26+(char)((float)rand()/RAND_MAX)*26;
+		toHilite2 = 26+(char)((float)rand()/RAND_MAX)*26;
+		toHilite3 = 26+(char)((float)rand()/RAND_MAX)*26;
 		charHilite = 1;
 	}
 	else
@@ -81,40 +81,31 @@ void InitFontSystem(void)
 		}
 }
 
-MDX_FONT *InitFont(char *bank,char *baseDir)
+bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int surf)
 {
-	MDX_FONT *tFont = new MDX_FONT;
-	short *tData;
 	int pptr = -1;
-
-	char fPath[MAX_PATH], fPath2[MAX_PATH];
-	sprintf(fPath ,"%s%s%s\\fontl.bmp",baseDir,TEXTURE_BASE,bank);
-		
-	tData = (short *)gelfLoad_BMP(fPath,NULL,(void**)&pptr,NULL,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+	short *tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,NULL,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 	
 	if (tData)
 	{
-		if ((tFont->surf[0] = D3DCreateTexSurface(256,256, 0xf81f, 0, 1)) == NULL)
-		{
-			dp("Couldnt create surface 0 for font %s",bank);
-			delete tFont;
-			return NULL;
-		}
+		if ((tFont->surf[surf] = D3DCreateTexSurface(256,256, 0xf81f, 0, 1)) == NULL)
+			return false;
 
-		DDrawCopyToSurface(tFont->surf[0],(unsigned short *)tData,0,256,256);
+		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,256,256);
 
-		tFont->vPtrs[0] = new D3DTLVERTEX[FONT_NUM32*FONT_NUM32];
-		tFont->widths[0] = new long [FONT_NUM32*FONT_NUM32];
+		tFont->vPtrs[surf] = new D3DTLVERTEX[FONT_NUM32*FONT_NUM32];
+		tFont->widths[surf] = new long [FONT_NUM32*FONT_NUM32];
+		
 		for (int i=0; i<FONT_NUM32; i++)
 			for (int j=0; j<FONT_NUM32; j++)
 			{
 				long pixelWidth,k,l,wasColored;
 				// Set up basic Texture pointers!
-				tFont->vPtrs[0][(i+j*FONT_NUM32)].tu = ((float)i)/FONT_NUM32;
-				tFont->vPtrs[0][(i+j*FONT_NUM32)].tv = ((float)j)/FONT_NUM32;
+				tFont->vPtrs[surf][(i+j*FONT_NUM32)].tu = ((float)i)/FONT_NUM32;
+				tFont->vPtrs[surf][(i+j*FONT_NUM32)].tv = ((float)j)/FONT_NUM32;
 				pixelWidth = 32;
 
-				for (k = i*32+32; k>i*32; k--)
+				for (k = i*32+31; k>i*32; k--)
 				{
 					wasColored = 0;
 					for (l = 0; l<32; l++)
@@ -125,57 +116,35 @@ MDX_FONT *InitFont(char *bank,char *baseDir)
 					pixelWidth--;
 				}
 
-				tFont->widths[0][(i+j*FONT_NUM32)] = pixelWidth+1;
+				tFont->widths[surf][(i+j*FONT_NUM32)] = pixelWidth+1;
 			}
-	
-
-		
+			
 		gelfDefaultFree(tData);
 	}
 
-	sprintf(fPath ,"%s%s%s\\fonts.bmp",baseDir,TEXTURE_BASE,bank);
-		
-	tData = (short *)gelfLoad_BMP(fPath,NULL,(void**)&pptr,NULL,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
-	
-	if (tData)
+	return true;
+}
+
+MDX_FONT *InitFont(char *bank,char *baseDir)
+{
+	MDX_FONT *tFont = new MDX_FONT;
+
+	char fPath[MAX_PATH];
+
+	sprintf(fPath ,"%s%s%s\\fontl.bmp",baseDir,TEXTURE_BASE,bank);
+	if (!AddCharsToFont(tFont, bank, fPath, 0))
 	{
-		if ((tFont->surf[1] = D3DCreateTexSurface(256,256, 0xf81f, 0, 1)) == NULL)
-		{
-			dp("Couldnt create surface 0 for font %s",bank);
-			delete tFont;
-			return NULL;
-		}
+		dp("Couldnt create surface 0 for font %s",bank);
+		delete tFont;
+		return false;
+	}
 
-		DDrawCopyToSurface(tFont->surf[1],(unsigned short *)tData,0,256,256);
-
-		tFont->vPtrs[1] = new D3DTLVERTEX[FONT_NUM32*FONT_NUM32];
-		tFont->widths[1] = new long [FONT_NUM32*FONT_NUM32];
-		for (int i=0; i<FONT_NUM32; i++)
-			for (int j=0; j<FONT_NUM32; j++)
-			{
-				long pixelWidth,k,l,wasColored;
-				// Set up basic Texture pointers!
-				tFont->vPtrs[1][(i+j*FONT_NUM32)].tu = ((float)i)/FONT_NUM32;
-				tFont->vPtrs[1][(i+j*FONT_NUM32)].tv = ((float)j)/FONT_NUM32;
-				pixelWidth = 32;
-
-				for (k = i*32+32; k>i*32; k--)
-				{
-					wasColored = 0;
-					for (l = 0; l<32; l++)
-						if (tData[k+((l+j*32)*256)]!=tData[0])
-							wasColored = 1;
-					if (wasColored)
-						break;
-					pixelWidth--;
-				}
-
-				tFont->widths[1][(i+j*FONT_NUM32)] = pixelWidth+1;
-			}
-	
-
-		
-		gelfDefaultFree(tData);
+	sprintf(fPath ,"%s%s%s\\fonts.bmp",baseDir,TEXTURE_BASE,bank);
+	if (!AddCharsToFont(tFont, bank, fPath, 1))
+	{
+		dp("Couldnt create surface 1 for font %s",bank);
+		delete tFont;
+		return false;
 	}
 
 	return tFont;
@@ -222,9 +191,9 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 	{
 		if ((c==toHilite) || (c==toHilite2)|| (c==toHilite3))
 		{
-			float r = RGB_GETRED(color)/256.0;
-			float g = RGB_GETGREEN(color)/256.0;
-			float b = RGB_GETBLUE(color)/256.0;
+			float r = RGB_GETRED(color)		* (1.0f/255.0f);
+			float g = RGB_GETGREEN(color)	* (1.0f/255.0f);
+			float b = RGB_GETBLUE(color)	* (1.0f/255.0f);
 			color = D3DRGB(r*cR,g*cG,b*cB) | (color & 0xff000000);
 		}
 	}
