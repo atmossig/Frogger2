@@ -890,9 +890,9 @@ long LoopFunc(void)
 	ProcessUserInput();
 	EndTimer(10);
 
-	StartTimer(5,"Gameloop");
+	StartTimer(4,"Gameloop");
 	GameLoop();
-	EndTimer(5);
+	EndTimer(4);
 
 	StartTimer(11,"UpdateStuff");
 	for (c = actList; c; c = c->next)
