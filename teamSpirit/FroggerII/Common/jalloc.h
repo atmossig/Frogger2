@@ -30,7 +30,6 @@ typedef unsigned long	ulong;
 #define CheckJalloc();
 #define JallocInit(base, size);
 #define JallocReset();
-#define ShowJalloc();
 #define ListJallocBlocks(block);
 
 #else
