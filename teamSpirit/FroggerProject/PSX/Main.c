@@ -508,7 +508,6 @@ int main ( )
 		//XAsetStatus(CdInit());
 #else
 		fileInitialise("\\FROGGER.DAT;1");
-		XAsetStatus(1);
 //		XAsetStatus(CdInit());
 #endif
 

@@ -227,7 +227,7 @@ static int fileCDreadIndex(char *fName)
 static void fileCDInitialise(char *fileSystem)
 {
 	strcpy(FILEIO_CDINDEX, fileSystem);
-	CdInit();
+	XAsetStatus(CdInit());
 
 	fileIO.index = &fileIndex[0];//MALLOC(8*2048);
 
