@@ -36,7 +36,7 @@ TRIGGERLIST triggerList;
 	Returns 	: Created trigger structure
 	Info 		:
 */
-TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void ** args )
+TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args )
 {
 	//va_list args;
 	int i;
@@ -48,6 +48,10 @@ TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void ** ar
 	
 	trigger->func = func;
 	trigger->data = args;
+
+	trigger->flags = 0;
+	trigger->delay = 0;
+	trigger->count = 0;
 	
 	/*trigger->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
 
@@ -103,7 +107,7 @@ EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args )
 	Returns 	: 
 	Info 		:
 */
-void AttachEvent( TRIGGER *trigger, EVENT *event )
+void AttachEvent( TRIGGER *trigger, EVENT *event, unsigned short flags, unsigned long time )
 {
 	TRIGGER *tp;
 	EVENT *ep;
@@ -119,6 +123,10 @@ void AttachEvent( TRIGGER *trigger, EVENT *event )
 		tp->next = trigger;
 		triggerList.numEntries++;
 	}
+
+	// Set trigger vars
+	trigger->flags = flags;
+	if( flags & TRIGGER_DELAY ) trigger->delay = time;
 
 	// Attach the event to the trigger
 	ep = trigger->events.head.next;
@@ -155,6 +163,22 @@ void InitEventList( EVENTLIST *eventList )
 {
 	eventList->head.next = eventList->head.prev = &eventList->head;
 	eventList->numEntries = 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: AllocArgs
+	Purpose 	: Allocate space for a void* array
+	Parameters 	: array base, number of arguments
+	Returns 	: 
+	Info 		:
+*/
+void **AllocArgs( int numArgs )
+{
+	if( numArgs > 0 )
+		return ((void **)JallocAlloc( (sizeof(void *)*numArgs),YES,"EventData"));
+	else 
+		return NULL;
 }
 
 
@@ -245,12 +269,28 @@ void UpdateEvents( )
 	
 	for( trigger = triggerList.head.next; trigger != &triggerList.head; trigger = trigger->next )
 	{
-		/* Check if the trigger condition(s) are true */
-		if( trigger->func(trigger) )
+		/* Check if the trigger condition(s) are true and the trigger is allowed to fire */
+		if( !(((trigger->flags & TRIGGER_ONCE) || (trigger->flags & TRIGGER_DELAY)) && trigger->count) &&
+			trigger->func(trigger) )
 		{
 			/* If so, do correct responses */
 			for( event = trigger->events.head.next; event != &trigger->events.head; event = event->next )
 				event->func(event);
+
+			trigger->flags |= TRIGGER_FIRED; // Flag for other triggers to check if needed
+
+			// Set counters for once only and delayed triggers
+			if( trigger->flags & TRIGGER_ONCE ) 
+				trigger->count = 1;
+			else if( trigger->flags & TRIGGER_DELAY ) 
+				trigger->count = trigger->delay;
+		}
+		else
+		{
+			if( (trigger->flags & TRIGGER_DELAY) && trigger->count ) 
+				trigger->count--;
+
+			trigger->flags &= ~TRIGGER_FIRED;
 		}
 	}
 }

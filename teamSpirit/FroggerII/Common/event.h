@@ -13,6 +13,12 @@
 #define EVENT_H_INCLUDED
 
 
+/*----- [ DEFINES ] ----------------------------------------------------------------------------*/
+#define TRIGGER_ONCE		(1<<0)
+#define TRIGGER_DELAY		(1<<1)
+#define TRIGGER_FIRED		(1<<2)
+
+
 /*----- [ STRUCTURES ] -------------------------------------------------------------------------*/
 
 typedef struct TAGEVENT
@@ -32,6 +38,9 @@ typedef struct TAGTRIGGER
 	struct TAGTRIGGER *next, *prev;
 	void **data;
 	int (*func) ();
+	unsigned short flags;
+	unsigned long count;
+	unsigned long delay;
 	EVENTLIST events;
 } TRIGGER;
 
@@ -51,9 +60,10 @@ extern TRIGGERLIST triggerList;
 
 extern TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args );
 extern EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args );
-extern void AttachEvent( TRIGGER *trigger, EVENT *event );
+extern void AttachEvent( TRIGGER *trigger, EVENT *event, unsigned short flags, unsigned long time );
 extern void InitTriggerList( );
 extern void InitEventList( );
+extern void **AllocArgs( int numArgs );
 extern void KillAllTriggers( );
 extern void KillAllEvents( );
 extern void SubTrigger( TRIGGER *t );
