@@ -1,0 +1,6 @@
+#ifndef _EDCOMMAND_INCLUDED_H
+#define _EDCOMMAND_INCLUDED_H
+
+
+
+#endif

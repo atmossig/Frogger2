@@ -1,0 +1,6 @@
+#ifndef _INCLUDED_EDCAMERA_H
+#define _INCLUDED_EDCAMERA_H
+
+
+
+#endif
