@@ -617,6 +617,8 @@ void DrawBackground(void)
 	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 	
 	BlankFrame;
+
+	farClip = oF;
 }
 
 
@@ -650,11 +652,11 @@ long DrawLoop(void)
 	EndDraw();
 
 	farClip = fog.max;
-	if (fog.mode && fog.min>0)
-	{
-		SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0,1);
-		fogEnable = 1;
-	}
+//	if (fog.mode && fog.min>0)
+//	{
+//		SetupFogParams(fog.min,fog.r/255.0,fog.g/255.0,fog.b/255.0,1);
+//		fogEnable = 1;
+//	}
 	
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
