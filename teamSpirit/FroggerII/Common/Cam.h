@@ -20,7 +20,8 @@ enum
 	FIXED_SOURCE,
 	LOOK_AT_FROG,
 	LOOK_AT_FROG_NOTILT,
-	LOOK_AT_TILE
+	LOOK_AT_TILE,
+	LOOK_IN_DIR,
 };
 
 
@@ -31,7 +32,7 @@ typedef struct TAGTRANSCAMERA
 	GAMETILE		*tile;
 	unsigned long		dirCamMustFace;
 	unsigned long		flags;
-	VECTOR			camOffset;
+	VECTOR			camOffset, camLookAt;
 	float FOV;
 	float speed;
 

@@ -247,7 +247,7 @@ int MemLoadEntities(const void* data, long size)
 			{
 				TRANSCAMERA *tcam;
 				VECTOR v, w;
-				int flags, numNodes, speed;
+				int flags, numNodes, speed, target;
 				float FOV;
 				
 				flags = MEMGETINT(&p);
@@ -257,7 +257,7 @@ int MemLoadEntities(const void* data, long size)
 				
 				FOV = MEMGETFLOAT(&p);
 				speed = MEMGETFLOAT(&p);
-				MEMGETFLOAT(&p);
+				target = MEMGETINT(&p);
 
 				numNodes = MEMGETINT(&p);
 				while (numNodes--)
@@ -268,6 +268,9 @@ int MemLoadEntities(const void* data, long size)
 					tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &v, flags & 0xFFFF);
 					tcam->FOV = FOV;
 					tcam->speed = speed;
+					tcam->camLookAt.v[X] = ((char)(target & 0xFF))*10;
+					tcam->camLookAt.v[Y] = ((char)((target>>8) & 0xFF))*10;
+					tcam->camLookAt.v[Z] = ((char)((target>>16) & 0xFF))*10;
 				}
 				break;
 			}
@@ -409,6 +412,7 @@ int MemLoadEntities(const void* data, long size)
 			break;
 
 		case CREATE_CAMERACASE:
+			int target;
 			flags = MEMGETINT(&p);
 			v.v[X] = MEMGETFLOAT(&p);
 			v.v[Y] = MEMGETFLOAT(&p);
@@ -416,7 +420,7 @@ int MemLoadEntities(const void* data, long size)
 			
 			scale = MEMGETFLOAT(&p);
 			animSpeed = MEMGETFLOAT(&p);
-			MEMGETFLOAT(&p);
+			target= MEMGETINT(&p);
 
 			numNodes = MEMGETINT(&p);
 			while (numNodes--)
@@ -427,6 +431,9 @@ int MemLoadEntities(const void* data, long size)
 				tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &v, flags & 0xFFFF);
 				tcam->FOV = scale;
 				tcam->speed = animSpeed;
+				tcam->camLookAt.v[X] = ((char)(target & 0xFF))*10;
+				tcam->camLookAt.v[Y] = ((char)((target>>8) & 0xFF))*10;
+				tcam->camLookAt.v[Z] = ((char)((target>>16) & 0xFF))*10;
 			}
 			break;
 		}

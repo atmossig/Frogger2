@@ -146,6 +146,14 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 				fixedPos = 1;
 				fixedUp = 0;
 				break;
+
+			case LOOK_IN_DIR:
+				SetVector(&camSource[0], &cur->camOffset);
+				SetVector(&camTarget[0], &cur->camLookAt);
+				fixedDir = 1;
+				fixedPos = 1;
+				fixedUp = 1;
+				break;
 			}
 
 			if (cur->dirCamMustFace)
