@@ -17,6 +17,7 @@
 
 #include <islmem.h>
 #include <islutil.h>
+#include <islfile.h>
 
 #include "enemies.h"
 #include "frogger.h"
