@@ -467,8 +467,14 @@ MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 	t = new MDX_ACTOR;
 	
 	InitActor(t,name,0,0,0,flags);
-	MakeUniqueActor(t,0);
 
+	if (!t->objectController)
+	{
+		delete t;
+		return NULL;
+	}
+
+	MakeUniqueActor(t,0);
 	return t;
 }
 
