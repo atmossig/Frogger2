@@ -880,11 +880,12 @@ void DrawAllTiles(void)
 	GAMETILE *cur;
 	D3DCOLOR col;
 	EDVECTOR tmp,v,v2,v3;
-	int i;
+	int i, t;
 
 	cur = firstTile;
+	t = tileCount;
 	
-	while (cur)
+	while (t--)
 	{
 		GetTilePos(&tmp, cur);
 		EdXfmPoint(&v, &tmp);
@@ -941,7 +942,7 @@ void DrawAllTiles(void)
 				DrawEditorIcon(v.vx - 7, v.vy - 7, 60, FALSE);
 		}
 		
-		cur = cur->next;
+		cur++;
 	}
 }
 
@@ -1282,11 +1283,11 @@ GAMETILE *FindClickedTile(int x, int y)
 {
 	GAMETILE *t, *closest;
 	EDVECTOR v, a;
-	int dist, closestDist;
+	int dist, closestDist, n;
 
 	closest = NULL; closestDist = 100*100;
 
-	for (t = firstTile; t != NULL; t = t->next)
+	for (t=firstTile, n=tileCount; n; t++, n--)
 	{
 		GetTilePos(&a, t);
 		EdXfmPoint (&v, &a);
