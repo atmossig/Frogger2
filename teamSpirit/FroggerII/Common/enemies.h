@@ -136,6 +136,9 @@ ENEMY *GetEnemyFromUID (long uid);
 
 int EnumEnemies(long id, int (*func)(ENEMY*, int), int param);
 int MoveEnemyToNode(ENEMY *nme, int node);
+void SetEnemyVisible(ENEMY *nme, int visible);
+void SetEnemyMoving(ENEMY *nme, int moving);
+
 
 //------------------------------------------------------------------------------------------------
 

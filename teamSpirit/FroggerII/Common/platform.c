@@ -876,7 +876,7 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 	float start_offset, end_offset, t;
 
 	// check if this platform has arrived at a path node
-	if( actFrameCount > plat->path->endFrame )
+	if( actFrameCount >= plat->path->endFrame )
 	{
 		UpdatePlatformPathNodes(plat);
 
@@ -1008,6 +1008,39 @@ int EnumPlatforms(long id, int (*func)(PLATFORM*, int), int param)
 	return count;
 }
 
+void SetPlatformVisible(PLATFORM *plt, int visible)
+{
+	if (visible)
+	{
+		plt->active = 1;
+		plt->pltActor->draw = 1;
+		
+		if (plt->isWaiting != -1)
+			SetPlatformMoving(plt, 1);
+	}
+	else
+	{
+		plt->pltActor->draw = 0;
+		plt->active = 0;
+	}
+}
+
+void SetPlatformMoving(PLATFORM *plt, int moving)
+{
+	if (moving)
+	{
+		plt->isWaiting = 0;
+		plt->path->toNode = plt->path->fromNode;
+		plt->path->startFrame = actFrameCount;
+		plt->path->endFrame = actFrameCount + (60*plt->currSpeed);
+		//plt->Update(plt);
+	}
+	else
+	{
+		plt->isWaiting = -1;
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: MovePlatform
 	Purpose			: moves a platform to a given node in its path
@@ -1018,16 +1051,18 @@ int MovePlatformToNode(PLATFORM *plt, int flag)
 {
 	VECTOR fwd;
 
-	if (flag > 0 && flag < plt->path->numNodes)
+	if (flag >= 0 && flag < plt->path->numNodes)
 	{
 		plt->path->toNode = flag;
 		plt->inTile[0] = plt->path->nodes[flag].worldTile;
-		plt->isWaiting = 1;		// I'm not entirely sure why we need this, but it works and I'm not pushing it.
 		plt->path->endFrame = actFrameCount;
-		RecalculatePlatform(plt);
+		plt->Update();
 
 		plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
 	}
+	else
+		dprintf"MoveEnemyToNode(): Flag (%d) out of range\n", flag));
+
 	return 1;
 }
 

@@ -135,6 +135,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	CheckForDynamicCameraChange(currTile[p]);
 	lastTile = NULL; // force camera recalculation
 
+	frogFacing[p] = camFacing;
 	SitAndFace(frog[p],currTile[p],frogFacing[p]);
 }
 
@@ -823,7 +824,9 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		currPlatform[pl] = NULL;
 	}
 
-	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
+	if (pl == 0)
+		nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
+
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
 	//SitAndFace(frog[pl],dest,nextFrogFacing[pl]);
 

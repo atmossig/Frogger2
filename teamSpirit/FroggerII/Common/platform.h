@@ -134,6 +134,8 @@ PLATFORM *CheckDestForPlatform(GAMETILE *dest,long pl);
 
 int EnumPlatforms(long id, int (*func)(PLATFORM*, int), int param);
 int MovePlatformToNode(PLATFORM *, int node);
+void SetPlatformVisible(PLATFORM *plt, int visible);
+void SetPlatformMoving(PLATFORM *plt, int moving);
 
 //------------------------------------------------------------------------------------------------
 

@@ -412,7 +412,7 @@ void UpdatePathNME( ENEMY *cur )
 			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
 
 	// check if this enemy has arrived at a path node
-	if( actFrameCount > cur->path->endFrame )
+	if( actFrameCount >= cur->path->endFrame )
 	{
 		UpdateEnemyPathNodes(cur);
 		CalcEnemyNormalInterps(cur);
@@ -664,7 +664,7 @@ void UpdateTileSnapper( ENEMY *cur )
 		break;
 
 	case -1:
-		if( actFrameCount > path->endFrame )
+		if( actFrameCount >= path->endFrame )
 			cur->isSnapping = 0;
 
 		break;
@@ -774,7 +774,7 @@ void UpdateVent( ENEMY *cur )
 		break;
 
 	case -1:
-		if( actFrameCount > path->endFrame )
+		if( actFrameCount >= path->endFrame )
 			cur->isSnapping = 0;
 
 		break;
@@ -801,7 +801,7 @@ void UpdateVent( ENEMY *cur )
 
 	case 2:
 		// Stop firing on timeout, and reset
-		if( actFrameCount > path->endFrame )
+		if( actFrameCount >= path->endFrame )
 		{
 			cur->isSnapping = 0;
 			break;
@@ -857,7 +857,7 @@ void UpdateMoveVerticalNME( ENEMY *cur )
 	float start_offset, end_offset, t;
 
 	// check if this platform has arrived at a path node
-	if( actFrameCount > cur->path->endFrame )
+	if( actFrameCount >= cur->path->endFrame )
 	{
 		UpdateEnemyPathNodes(cur);
 		path->startFrame = path->endFrame + cur->isWaiting * waitScale;
@@ -928,7 +928,7 @@ void UpdateRotatePathNME( ENEMY *cur )
 
 	SetVector( &cur->nmeActor->actor->pos, &toPosition );
 
-	if( actFrameCount > cur->path->endFrame )
+	if( actFrameCount >= cur->path->endFrame )
 	{
 		cur->path->startFrame = cur->path->endFrame;
 		cur->path->endFrame = cur->path->startFrame+(60*Fabs(cur->speed));
@@ -1000,7 +1000,7 @@ void UpdateTileHomingNME( ENEMY *cur )
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
 	if( path->nodes[2].worldTile )
 	{
-		if( actFrameCount > path->endFrame )
+		if( actFrameCount >= path->endFrame )
 		{
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
@@ -1095,7 +1095,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
 	if( path->nodes[2].worldTile )
 	{
-		if( actFrameCount > path->endFrame )
+		if( actFrameCount >= path->endFrame )
 		{
 			cur->inTile->state = TILESTATE_NORMAL;
 			cur->inTile = path->nodes[2].worldTile;
@@ -1169,7 +1169,7 @@ void UpdateRandomMoveNME( ENEMY *cur )
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
 	if( path->nodes[2].worldTile )
 	{
-		if( actFrameCount > path->endFrame )
+		if( actFrameCount >= path->endFrame )
 		{
 			VECTOR rVec = {0,0,0};
 			int r;
@@ -1891,6 +1891,38 @@ int EnumEnemies(long id, int (*func)(ENEMY*, int), int param)
 	return count;
 }
 
+void SetEnemyVisible(ENEMY *nme, int visible)
+{
+	if (visible)
+	{
+		nme->active = 1;
+		nme->nmeActor->draw = 1;
+		
+		if (nme->isWaiting != -1)
+			SetEnemyMoving(nme, 1);
+	}
+	else
+	{
+		nme->nmeActor->draw = 0;
+		nme->active = 0;
+	}
+}
+
+void SetEnemyMoving(ENEMY *nme, int moving)
+{
+	if (moving)
+	{
+		nme->isWaiting = 0;
+		nme->path->toNode = nme->path->fromNode;
+		nme->path->startFrame = actFrameCount;
+		nme->path->endFrame = actFrameCount + (60*nme->speed);
+	}
+	else
+	{
+		nme->isWaiting = -1;
+	}
+}
+
 /*	--------------------------------------------------------------------------------
     Function	: MoveEnemy
 	Purpose		: Moves an enemy to a given node in its path
@@ -1899,14 +1931,15 @@ int EnumEnemies(long id, int (*func)(ENEMY*, int), int param)
 */
 int MoveEnemyToNode(ENEMY *nme, int flag)
 {
-	if (flag > 0 && flag < nme->path->numNodes)
+	if (flag >= 0 && flag < nme->path->numNodes)
 	{
-		// Cunning cheat (that probably flies apart)6
-		nme->path->toNode = flag;
+		nme->path->toNode  = flag;
+		nme->inTile = nme->path->nodes[flag].worldTile;
 		nme->path->endFrame = actFrameCount;
-		UpdateEnemyPathNodes(nme);
-		nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
+		nme->Update(nme);
 	}
+	else
+		dprintf"MoveEnemyToNode(): Flag (%d) out of range\n", flag));
 	return 1;
 }
 

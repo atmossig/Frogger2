@@ -420,34 +420,29 @@ int SetEnemy(ENEMY *nme, int v)
 {
 	switch (v)
 	{
-Move:
 	case FS_SET_MOVE:
-		if (nme->isWaiting)
-		{
-			nme->isWaiting = 0;
-			nme->path->startFrame = actFrameCount;
-			nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
-		}
+		SetEnemyMoving(nme, 1);
 		break;
-Stop:			
+
 	case FS_SET_STOP:
-		nme->isWaiting = -1; break;
+		SetEnemyMoving(nme, 0);
+		break;
 	
 	case FS_SET_TOGGLEMOVE:
-		if (nme->isWaiting) goto Move; else goto Stop;
-Invis:
-	case FS_SET_INVIS:
-		nme->active = 0;
-		nme->nmeActor->draw = 0;
+		SetEnemyMoving(nme, (nme->isWaiting == -1));
 		break;
-Vis:
+
+	case FS_SET_INVIS:
+		SetEnemyVisible(nme, 0);
+		break;
+
 	case FS_SET_VIS:
-		nme->active = 1;
-		nme->nmeActor->draw = 1;
+		SetEnemyVisible(nme, 1);
 		break;
 
 	case FS_SET_TOGGLEVIS:
-		if (nme->active) goto Invis; else goto Vis;
+		SetEnemyVisible(nme, !nme->active);
+		break;
 	}
 
 	return 1;
@@ -462,35 +457,29 @@ int SetPlatform(PLATFORM *plt, int v)
 {
 	switch (v)
 	{
-Move:
 	case FS_SET_MOVE:
-		if (plt->isWaiting)
-		{
-			plt->isWaiting = 0;
-			plt->path->startFrame = actFrameCount;
-			plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
-			RecalculatePlatform(plt);
-		}
+		SetPlatformMoving(plt, 1);
 		break;
-Stop:			
+
 	case FS_SET_STOP:
-		plt->isWaiting = -1; break;
+		SetPlatformMoving(plt, 0);
+		break;
 	
 	case FS_SET_TOGGLEMOVE:
-		if (plt->isWaiting) goto Move; else goto Stop;
-Invis:
-	case FS_SET_INVIS:
-		plt->active = 0;
-		plt->pltActor->draw = 0;
+		SetPlatformMoving(plt, (plt->isWaiting == -1));
 		break;
-Vis:
+
+	case FS_SET_INVIS:
+		SetPlatformVisible(plt, 0);
+		break;
+
 	case FS_SET_VIS:
-		plt->active = 1;
-		plt->pltActor->draw = 1;
+		SetPlatformVisible(plt, 1);
 		break;
 
 	case FS_SET_TOGGLEVIS:
-		if (plt->active) goto Invis; else goto Vis;
+		SetPlatformVisible(plt, !plt->active);
+		break;
 	}
 
 	return 1;
