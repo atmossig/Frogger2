@@ -675,6 +675,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			if (flag > 0 && flag < nme->path->numNodes)
 			{
 				nme->path->fromNode = nme->path->toNode = flag;
+				nme->inTile = nme->path->nodes[flag].worldTile;
 			}
 			break;
 		}
@@ -691,6 +692,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			if (flag > 0 && flag < plt->path->numNodes)
 			{
 				plt->path->fromNode = flag;
+				plt->inTile[0] = plt->path->nodes[flag].worldTile;
 				plt->isWaiting = 1;
 				RecalculatePlatform(plt);
 			}
