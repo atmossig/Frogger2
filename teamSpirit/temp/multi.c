@@ -44,12 +44,22 @@
 #ifdef PSX_VERSION
 #include "textures.h"
 #include "audio.h"
+
+extern char mpl0[];
+extern char mpl1[];
+extern char mpl2[];
+extern char mpl3[];
+extern char mpl4[];
+extern char mpl5[];
+extern char mpl6[];
+extern char mpl7[];
+
 #endif
 
 #define BABY_UID	255
 
 extern int pauseController;
-char penalStr[3] = "+3";
+char penalStr[3] = "+1";
 
 int multiplayerMode;
 long started = 0;
