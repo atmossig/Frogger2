@@ -1109,7 +1109,11 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	ClearTimers();
 
 	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
-	pcFont = pcFontSmall = InitFont(path);
+	pcFont = InitFont(path);
+
+	sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
+	pcFontSmall = InitFont(path);
+
 	//pcFontSmall = InitFont("FontB",baseDirectory);
 	//pcFontWhite = InitFont("FontC",baseDirectory);
 	LoadTexBank("Phong",baseDirectory);

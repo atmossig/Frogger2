@@ -95,7 +95,7 @@ MDX_FONT *InitFont(const char *filename)
 		int yscan, found = 0;
 
 		// find first scan containing a coloured pixel
-		while (1) //(txpos<bmpWidth)
+		while (txpos<bmpWidth)
 		{
 			for (yscan=0;yscan<bmpHeight;yscan++)
 				if (tData[yscan*bmpWidth + txpos] != transparent) { found=1; break; }
@@ -110,7 +110,7 @@ MDX_FONT *InitFont(const char *filename)
 		txpos++;
 
 		// find first scan NOT containing a coloured pixel, incrementing width
-		while (1) //(txpos<bmpWidth)
+		while (txpos<bmpWidth)
 		{
 			found = 0;
 			for (yscan=0;yscan<bmpHeight;yscan++)
@@ -119,9 +119,10 @@ MDX_FONT *InitFont(const char *filename)
 			if (!found) break;
 				
 			width++, txpos++;
+
 		}
 
-		if (charUV.x+width > FONT_TEXTURE_SIZE)
+		if (charUV.x+width >= FONT_TEXTURE_SIZE)
 		{
 			charUV.x = 0;
 			charUV.y += charSize;
@@ -162,6 +163,7 @@ MDX_FONT *InitFont(const char *filename)
 
 		charUV.x += width+1;
 
+		if (txpos == bmpWidth) break;
 		//dp("char '%c' @ %d,0, %d x %d\n", alphabet[i], left, width, bmpHeight);
 	}
 
