@@ -233,7 +233,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	// Is this an sp(m/f/l) type slidy thing? If so, what speed?
 	unsigned short pcStyleSlide = ((flags>>10)&3);
-	int sldSpd;
+	int sldSpd, rc, rs;
 
 	// Multiply speed if we have a multiple
 	if( pcStyleSlide )
@@ -245,6 +245,12 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	if( mesh->flags & MINUSSLIDING )
 		sldSpd = -sldSpd;
 
+	// Precalc modgy amount - NOT different for every vertex you wollocky boy :)
+	if ( mesh->flags & MODGY )
+	{
+		rs = (rsin(frame<<6)+4096)>>11;
+		rc = (rcos(frame<<6)+4096)>>11;
+	}
 
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
@@ -324,18 +330,19 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				u = si->u0;
-				v = si->v0;
-			
-				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 11 ) );
-				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 11 ) ) );
+				si->u0 += rs;
+				si->v0 += rc;
+				si->u1 += rs;
+				si->v1 += rc;
+//				u = si->u0;
+//				v = si->v0;
+//				si->u0 = ( u + ( (rsin(frame<<6)+4096)>>11 ) );
+//				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 11 ) ) );
 
-
-				u = si->u1;
-				v = si->v1;
-
-				si->u1 = ( u + ( (rsin(frame<<6) + 4096) >> 11 ) );
-				si->v1 = ( v + ( (rcos(frame<<6) + 4096) >> 11 ) );
+//				u = si->u1;
+//				v = si->v1;
+//				si->u1 = ( u + ( (rsin(frame<<6) + 4096) >> 11 ) );
+//				si->v1 = ( v + ( (rcos(frame<<6) + 4096) >> 11 ) );
 			}
 			
 			gte_stsxy3_gt4(si);
@@ -356,17 +363,21 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				u = si->u2;
-				v = si->v2;
+				si->u2 += rc;
+				si->v2 += rs;
+				si->u3 += rc;
+				si->v3 += rs;
+//				u = si->u2;
+//				v = si->v2;
 
-				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
-				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
+//				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
+//				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
 
-				u = si->u3;
-				v = si->v3;
+//				u = si->u3;
+//				v = si->v3;
 
-				si->u3 = (u+((rcos(frame<<6)+4096)>>11));
-				si->v3 = ((v+((rsin(frame<<6)+4096)>>11)));
+//				si->u3 = (u+((rcos(frame<<6)+4096)>>11));
+//				si->v3 = ((v+((rsin(frame<<6)+4096)>>11)));
 			}
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
@@ -430,15 +441,19 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				u = si->u0;
-				v = si->v0;
-				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 10 ) );
-				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 10 ) ) );
+				si->u0 += rs<<1;
+				si->v0 += rc<<1;
+				si->u1 += rs<<1;
+				si->v1 += rc<<1;
+//				u = si->u0;
+//				v = si->v0;
+//				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 10 ) );
+//				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 10 ) ) );
 
-				u = si->u1;
-				v = si->v1;
-				si->u1 = (u+((rsin(frame<<6)+4096)>>10));
-				si->v1 = ((v+((rcos(frame<<6)+4096)>>10)));
+//				u = si->u1;
+//				v = si->v1;
+//				si->u1 = (u+((rsin(frame<<6)+4096)>>10));
+//				si->v1 = ((v+((rcos(frame<<6)+4096)>>10)));
 			}
 			
 			gte_stsxy3_gt3(si);
@@ -451,11 +466,13 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				u = si->u2;
-				v = si->v2;
+				si->u2 += rc;
+				si->v2 += rs;
+//				u = si->u2;
+//				v = si->v2;
 
-				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
-				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
+//				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
+//				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
 			}
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
