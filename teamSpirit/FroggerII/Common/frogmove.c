@@ -162,6 +162,7 @@ BOOL UpdateFroggerControls(long pl)
 		
 		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
 		lastHopOn = actFrameCount;
+
 		MoveToRequestedDestination(dir,pl);
 	}
 
@@ -333,42 +334,41 @@ void UpdateFroggerPos(long pl)
 	}
 	else if( currTile[pl]->state == TILESTATE_SINK )
 	{
-		if( player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR) )
+		VECTOR dir;
+		float J, dist;
+
+		SubVector( &dir, &frog[pl]->actor->pos, &currTile[pl]->centre );
+		MakeUnit( &dir );
+		J = DotProduct( &currTile[pl]->normal, &dir );
+		dist = DistanceBetweenPointsSquared( &frog[pl]->actor->pos, &currTile[pl]->centre );
+		if( J < 0 ) dist *= -1;
+
+		if( player[pl].frogState & FROGSTATUS_ALLHOPFLAGS )
 		{
-			if( player[pl].isSinking > 2 )
-				player[pl].isSinking-=3;
-			else
+			SetVector( &moveVec, &currTile[pl]->normal );
+			ScaleVector( &moveVec, gameSpeed*2 );
+			AddToVector( &frog[pl]->actor->pos, &moveVec );
+
+			// Frog has broken free!
+			if( dist >= 0 )
 				player[pl].isSinking = 0;
-
-			SetVector( &moveVec, &currTile[pl]->normal );
-			ScaleVector( &moveVec, 0.6 );
-			AddVector( &frog[pl]->actor->pos, &frog[pl]->actor->pos, &moveVec );
-
-			dprintf"Climb little frog, climb! %d\n",player[pl].isSinking));
 		}
 		else if( player[pl].isSinking )
 		{
-			player[pl].isSinking++;
 			SetVector( &moveVec, &currTile[pl]->normal );
-			ScaleVector( &moveVec, -0.2 );
-			AddVector( &frog[pl]->actor->pos, &frog[pl]->actor->pos, &moveVec );
-			
-			dprintf"Frog is SINKING! %d\n",player[pl].isSinking));
-		}
+			ScaleVector( &moveVec, gameSpeed*-0.2 );
+			AddToVector( &frog[pl]->actor->pos, &moveVec );
 
-		if( player[pl].isSinking > 50 )
-		{
-			GTInit( &frog[pl]->action.dead, 3 );
-			frog[pl]->action.deathBy = DEATHBY_DROWNING;
-			player[pl].frogState |= FROGSTATUS_ISDEAD;
-			player[pl].isSinking = 0;
+			// Frog is dead
+			if( dist < -900 && !frog[pl]->action.dead.time )
+			{
+				GTInit( &frog[pl]->action.dead, 3 );
+				frog[pl]->action.deathBy = DEATHBY_DROWNING;
+				player[pl].frogState |= FROGSTATUS_ISDEAD;
+				player[pl].isSinking = 0;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
+			}
 		}
-		else if( player[pl].isSinking )
-		{
-			AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
-			return;
-		}
-
 	}
 	else if ( currTile[pl]->state == TILESTATE_SAFE )
 	{
@@ -688,7 +688,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// clear all movement flags
 	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 
-	if (!dest)
+	if (!dest || player[pl].isSinking )
 	{
 		player[pl].canJump = 1;
 		player[pl].isSuperHopping = 0;
@@ -1013,7 +1013,7 @@ void CheckForFroggerLanding(long pl)
 		}
 		else if(state == TILESTATE_SINK)
 		{
-			player[pl].isSinking = 10;
+			player[pl].isSinking = 1;
 		}
 		if (state & TILESTATE_CONVEYOR)
 		{	
