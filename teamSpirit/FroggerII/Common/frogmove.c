@@ -82,8 +82,9 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].canJump			= 1;
 	player[p].isSuperHopping	= 0;
 	player[p].isLongHopping		= 0;
-
 	player[p].isCroakFloating	= 0;
+	player[p].jumpStart			= 0;
+	player[p].jumpEnd			= 0;
 
 	for (i=0; i<numBabies; i++)
 	{
@@ -117,8 +118,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 }
 
 /*	--------------------------------------------------------------------------------
-	Function		: UpdateFroggerPos()
-	Purpose			: updates Frogger's position on game world
+	Function		: SpringFrog
+	Purpose			: springs the frog
 	Parameters		: none
 	Returns			: none
 	Info			:
@@ -189,6 +190,8 @@ void SpringFrog( EVENT *event )
 
 */
 
+float freeFall = 2.0F;
+
 void UpdateFroggerPos(long pl)
 {
 	float x,y,z;
@@ -196,6 +199,16 @@ void UpdateFroggerPos(long pl)
 	VECTOR effectPos;
 	PLANE2 ground;
 	float dist;
+
+	if(player[pl].frogState & FROGSTATUS_ISFLOATING)
+	{
+		SetVector(&effectPos,&currTile[pl]->normal);
+		ScaleVector(&effectPos,freeFall);
+		SubFromVector(&frog[pl]->actor->pos,&effectPos);
+		
+		CheckForFroggerLanding(JUMPING_TOTILE,pl);
+		return;
+	}
 
 	//--------------------------------------------------------------------------------------------
 
@@ -263,10 +276,6 @@ void UpdateFroggerPos(long pl)
 			CheckForFroggerLanding(JUMPING_TOTILE,pl);
 
 		return;
-	}
-
-	if(player[pl].frogState & FROGSTATUS_ISFLOATING)
-	{
 	}
 
 	// frog is croaking
@@ -427,9 +436,12 @@ void GetNextTile(unsigned long direction,long pl)
 	unsigned long newCamFacing = camFacing;
 
 	GAMETILE *joiningTile = NULL;
-	VECTOR vecUp,moveVec;
+	VECTOR vecUp,fwdVec,moveVec;
 	float t2,at2;
-	
+
+	float u,v,a,s;
+	float h;
+		
 	if(pl == 0)
 		destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3]; // hmm...
 	else
@@ -513,6 +525,8 @@ void GetNextTile(unsigned long direction,long pl)
 		}
 
 		nextCamFacing = newCamFacing;
+
+		//----------------------------------------------------------------------------------------
 
 		// determine frog's jump velocity
 		SubVector(&moveVec,&destTile[pl]->centre,&frog[pl]->actor->pos);
@@ -1001,9 +1015,18 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = -1;
 				frog[pl]->action.dead	 = 0;
 
+				if(player[pl].isSuperHopping || player[pl].isLongHopping)
+				{
+					player[pl].isSuperHopping = 0;
+					player[pl].isLongHopping = 0;
+
+					CreateAndAddFXSmoke(&frog[pl]->actor->pos,128,15);
+				}
+
 				player[pl].canJump = 1;
-				player[pl].isSuperHopping = 0;
-				player[pl].isLongHopping = 0;
+
+				player[pl].jumpStart = 0;
+				player[pl].jumpEnd = 0;
 
 				frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
 				frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
@@ -1090,8 +1113,6 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 	MakeUnit(&diff);
 	height = (h * DotProduct(&diff,&tile->normal));
 
-	dprintf"Height: %f\n",height));
-
 	if(height > 51.0F)
 	{
 		// cannot be jumped up to either with or without superhop
@@ -1103,7 +1124,8 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 		// too high - need superhop for this jump up
 		return TRUE;
 	}
-	
+
+	// tile can be jumped to
 	return FALSE;
 }
 
