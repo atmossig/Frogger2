@@ -18,6 +18,8 @@
 #include "islvideo.h"
 #include "story.h"
 #include "audio.h"
+#include "menus.h"
+#include "options.h"
 
 SCENICOBJ *lightBeam;
 FMA_GT4 *lightBeamGouraudValues = NULL;
