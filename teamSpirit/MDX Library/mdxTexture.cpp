@@ -503,7 +503,7 @@ void PrintTextureInfo(void)
 extern MDX_TEXENTRY *haloHandle;
 
 
-_CrtMemState state1,state2,state3;
+//_CrtMemState state1,state2,state3;
 
 void FreeAllTextureBanks()
 {
