@@ -127,6 +127,7 @@ void UpdatePlatforms()
 					//cur->pltActor->flags &= ~ACTOR_DRAW_NEVER;
 					//cur->pltActor->flags |= ACTOR_DRAW_CULLED;
 					cur->pltActor->actor->xluOverride = 100;
+					cur->pltActor->draw = 1;
 
 					cur->active	= 1;
 					cur->visible = cur->visibleTime;

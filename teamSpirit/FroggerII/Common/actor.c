@@ -110,12 +110,8 @@ void XformActorList()
 
 void DrawActorList()
 {
-	ACTOR2 *cur,*next;
-	float distance;
+	ACTOR2 *cur;
 	float ACTOR_DRAWFADERANGE = ACTOR_DRAWDISTANCEOUTER-ACTOR_DRAWDISTANCEINNER;
-	
-	objectMatrix = 0;
-//	SetRenderMode();
 	
 #ifndef PC_VERSION
 	vtxPtr = &(objectsVtx[draw_buffer][0]);
@@ -137,35 +133,35 @@ void DrawActorList()
 		// Need to set this once for each actor
 		cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
 
-		if( !(cur->flags & ACTOR_DRAW_ALWAYS) && (cur->flags & ACTOR_DRAW_CULLED) )
+		if( (cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) )
 		{
-			if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER )
-			{
-				cur = cur->next;
-				continue;
-			}
-			else if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER )
+			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
 				cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-				cur->actor->xluOverride = ((100-(float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)) / ACTOR_DRAWFADERANGE)*100;
-				cur = cur->next;
-				continue;
+				cur->actor->xluOverride = 100-(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE)*100);
 			}
 			else
 			{
 				cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
-				cur->actor->xluOverride = 100;
 			}
 		}
-
-		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
-		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
-		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+		else
 		{
-			if( cur->draw )
-			if( cur->actor->objectController )
-			if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
-				DrawActor(cur->actor);
+			if( cur->flags & ACTOR_DRAW_CULLED )
+			{
+				cur->actor->xluOverride = 100;
+				cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
+			}
+
+			if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+			   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
+			   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+			{
+				if( cur->draw )
+				if( cur->actor->objectController )
+				if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
+					DrawActor(cur->actor);
+			}
 		}
 	
 		cur = cur->next;
@@ -174,21 +170,16 @@ void DrawActorList()
 	cur = actList;
 	while(cur)
 	{
-		if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER )
-		{
-			cur = cur->next;
-			continue;
-		}
-
-		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
-		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
-		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+		if( cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
+		if( !((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER)) )
+		if( gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
+			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
 			if( cur->draw && cur->actor->objectController )
-			if( cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
 				DrawActor(cur->actor);
 		}
-	
+		
 		cur = cur->next;
 	}
 
@@ -299,7 +290,11 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->radius	= 0.0F;
 	newItem->animSpeed = 1.0F;
 	newItem->value1 = 0.0F;
-/*
+
+	// add actor object sprites to sprite list
+	if( (newItem->actor->objectController) && (newItem->actor->objectController->object) )
+		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
+
 	for( i=0; i<4; i++ )
 		tmp[i] = name[i];
 
@@ -309,14 +304,11 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 		newItem->flags |= ACTOR_DRAW_CULLED;
 	else
 	{
+		newItem->flags |= ACTOR_DRAW_ALWAYS;
 		newItem->actor->xluOverride = WATER_XLU;
 		newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
 	}
-*/
-	// add actor object sprites to sprite list
-	if( (newItem->actor->objectController) && (newItem->actor->objectController->object) )
-		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
-	
+
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
 	newItem->distanceFromFrog	= 0.0F;
