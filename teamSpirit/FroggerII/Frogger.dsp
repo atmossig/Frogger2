@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G6 /MT /w /W0 /GX /O2 /D "WIN32" /D "NDEBUG" /D "PC_VERSION" /D "_WINDOWS" /D "DONTUSEJALLOC" /D "USE_EDITOR" /YX /FD /c
+# ADD CPP /nologo /G6 /MT /w /W0 /GX /Zi /O2 /D "WIN32" /D "NDEBUG" /D "PC_VERSION" /D "_WINDOWS" /D "DONTUSEJALLOC" /D "USE_EDITOR" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 dsound.lib gelf.lib winmm.lib dxguid.lib ddraw.lib dinput.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 dsound.lib gelf.lib winmm.lib dxguid.lib ddraw.lib dinput.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib /nologo /subsystem:windows /debug /machine:I386
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MTd /Gm /GX /ZI /Od /D "WIN32" /D "_WINDOWS" /D "PC_VERSION" /D "DONTUSEJALLOC" /FAs /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /Gm /GX /ZI /Od /I "common" /I "pc" /I "editor" /I "pc/n64" /D "WIN32" /D "_WINDOWS" /D "PC_VERSION" /D "DONTUSEJALLOC" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
@@ -138,15 +138,6 @@ SOURCE=.\Common\codes.h
 # Begin Source File
 
 SOURCE=.\Common\collect.c
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# ADD CPP /w /W0
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -263,6 +254,14 @@ SOURCE=.\Common\Jalloc.c
 # Begin Source File
 
 SOURCE=.\Common\jalloc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\l10n.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\l10n.h
 # End Source File
 # Begin Source File
 
