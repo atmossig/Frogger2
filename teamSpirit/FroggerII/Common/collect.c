@@ -282,10 +282,10 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		garib != &garibCollectableList.head; garib = garib->next, i--)
 	{
 		// process only garibs in visual range
-		if(garib->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
+		if( DistanceBetweenPointsSquared(&garib->sprite.pos, &frog[0]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
-		if(garib->distanceFromFrog < PICKUP_RADIUS_SQUARED)
+		if( DistanceBetweenPointsSquared(&garib->sprite.pos, &frog[0]->actor->pos ) < PICKUP_RADIUS_SQUARED)
 		{
 			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib,pl);

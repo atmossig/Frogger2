@@ -317,7 +317,7 @@ void UpdateFXRipple( SPECFX *fx )
 	fx->speed += fx->accn;
 	fx->size += fx->speed;
 
-	if( actFrameCount > fx->lifetime )
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
 
@@ -356,7 +356,7 @@ void UpdateFXSmoke( SPECFX *fx )
 		fx->sprites->scaleY--;
 	}
 
-	if( actFrameCount > fx->lifetime )
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
 
@@ -409,7 +409,7 @@ void UpdateFXSwarm( SPECFX *fx )
 		AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
 	}
 
-	if( actFrameCount > fx->lifetime )
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
 
@@ -477,7 +477,7 @@ void UpdateFXExplode( SPECFX *fx )
 		}
 	}
 
-	if( actFrameCount > fx->lifetime )
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
 
