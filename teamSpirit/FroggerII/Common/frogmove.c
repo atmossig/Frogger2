@@ -363,7 +363,6 @@ void UpdateFroggerPos(long pl)
 		if( player[pl].isSinking > 50 )
 		{
 			GTInit( &frog[pl]->action.dead, 3 );
-			frog[pl]->action.healthPoints = 3;
 			frog[pl]->action.deathBy = DEATHBY_DROWNING;
 			player[pl].frogState |= FROGSTATUS_ISDEAD;
 			player[pl].isSinking = 0;
@@ -402,7 +401,7 @@ void UpdateFroggerPos(long pl)
 
 	//--------------------------------------------------------------------------------------------
 	
-	if(player[pl].frogState & FROGSTATUS_ISDEAD)
+	if( NUM_FROGS == 1 && (player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
 		KillFrog(pl);
 		return;
