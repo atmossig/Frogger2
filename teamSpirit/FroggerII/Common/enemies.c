@@ -257,6 +257,29 @@ void UpdateEnemies()
 				else
 					cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
 			}
+/*
+			Dave's new push block code will go in here ...
+
+			if (cur->flags & ENEMY_NEW_PUSHESFROG)
+			{
+				GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
+
+				if (currTile[0] == tile)
+				{
+					// USE FROG MOVE CODE TO PUSH FROG!
+
+					// Except I can't, so just do something fairly random for now.
+
+					if (cur->path->toNode < (cur->path->numNodes - 1))
+						tile = cur->path->nodes[cur->path->toNode+1].worldTile;
+
+					currTile[0] = destTile[0] = tile;
+					SetVector( &frog[0]->actor->pos, &tile->centre);
+
+					// i hate frogs
+				}
+			}
+*/
 		}
 		else
 			if(cur->flags & ENEMY_NEW_WATCHFROG)
