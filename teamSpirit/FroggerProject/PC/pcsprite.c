@@ -134,19 +134,18 @@ void PrintSprites()
 void PrintSpriteOverlays(long num)
 {
 	SPRITEOVERLAY *cur;
+	int n;
 	short x,y;
 	MDX_TEXENTRY *tEntry;
 
 	if( !drawOverlays || !spriteOverlayList.numEntries ) return;
 
-	cur = spriteOverlayList.head.next;
-	while(cur!=&spriteOverlayList.head)
+	cur = spriteOverlayList.block;
+	
+	for(n = spriteOverlayList.numEntries; n; n--,cur++)
 	{
 		if (cur->num!=num)
-		{
-			cur = cur->next;
 			continue;
-		}
 
 		// update the sprite animation if an animated sprite overlay
 		if(cur->draw && cur->a)
@@ -201,8 +200,6 @@ void PrintSpriteOverlays(long num)
 
 			numSprites++;
 		}
-
-		cur = cur->next;
 	}
 }
 
