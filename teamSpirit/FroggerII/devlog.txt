@@ -311,6 +311,8 @@ Chris Wilson:
 Matt Cloy:
 ------------------------------------------------
 
+	Spent most of today with kevin, the time I didnt spend in the meeting I spent eiter preparing for it,
+	or working on / talking about this Taz thing
 
 Andy Eder:
 ------------------------------------------------
@@ -343,9 +345,6 @@ James Hubbard:
 		May have to put it back again if it breaks other things.
 
 	Afternoon:
-		Fixed shadows a bit, so they work on non path-based enemies. Had some more coffee
-		so I made a candle flame and a steam/smoke effect that can be activated by a toggle.
-		Did some other stuff too but I'm writing this on Friday so I can't remember.
 		
 
 
@@ -405,6 +404,8 @@ Chris Wilson:
 Matt Cloy:
 ------------------------------------------------
 
+	Did some stuff with jims proc-textures in hub/frontend, got an additive mode in for objects (more generic) and fixed 
+	vertex alphas so that they actually work now.
 
 Andy Eder:
 ------------------------------------------------
@@ -420,21 +421,6 @@ David Swift:
 
 James Hubbard:
 ------------------------------------------------
-
-	Morning:
-		Talked tech for a long time. Umm. I think I fixed a bug too, but I can't
-		remember really. Oh yeah, tried bump mapping with a different algorithm. Seems
-		better.
-
-	Afternoon:
-		Got bump mapping working on water ripples, but the light source is visible as a
-		huge circle, and it's still a 32x32. Looks like sunlight off water, without the water.
-		And with your eyes squinted. 
-
-	Later:
-		Oh bugger it, I can't get rid of that sodding circle. If anyone's interested, it's
-		called ProcessPTWaterRipplesBM, in ptexture.c
-		No practical use at this point, I'm going to go back to game code for a while.
 
 
 James Healey:
