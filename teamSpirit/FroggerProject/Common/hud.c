@@ -359,10 +359,18 @@ void InitMultiHUD()
 		break;
 	}
 
-	menuText[0] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_RESTARTLEVEL),YES,0,font,TEXTOVERLAY_SHADOW);
-	menuText[1] = CreateAndAddTextOverlay(2048,2700,GAMESTRING(STR_QUIT),YES,0,font,TEXTOVERLAY_SHADOW);
+	if(gameState.multi == MULTIREMOTE)
+	{
+		menuText[0] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_QUIT),YES,0,font,TEXTOVERLAY_SHADOW);
+		menuText[1] = NULL;
+	}
+	else
+	{
+		menuText[0] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_RESTARTLEVEL),YES,0,font,TEXTOVERLAY_SHADOW);
+		menuText[1] = CreateAndAddTextOverlay(2048,2700,GAMESTRING(STR_QUIT),YES,0,font,TEXTOVERLAY_SHADOW);
+		menuText[1]->draw = 0;
+	}
 	menuText[0]->draw = 0;	
-	menuText[1]->draw = 0;
 
 	multiHud.centreText = CreateAndAddTextOverlay(2048,900,countdownString,YES,255,font,TEXTOVERLAY_SHADOW);
 
