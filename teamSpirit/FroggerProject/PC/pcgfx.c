@@ -323,9 +323,9 @@ void DrawFXDecal( SPECFX *fx )
 
 	// Dull "shadow" for ripple types, otherwise normal colour
 	if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
-		vT[0].color = D3DRGBA(0.2,0.2,0.5,fx->a/255.0);
+		vT[0].color = D3DRGBA(0.2,0.2,0.5,fx->a*ONEOVER255);
 	else
-		vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
+		vT[0].color = D3DRGBA((float)fx->r*ONEOVER255,(float)fx->g*ONEOVER255,(float)fx->b*ONEOVER255,(float)fx->a*ONEOVER255);
 
 	for( i=0; i<4; i++ )
 	{
@@ -395,7 +395,7 @@ void DrawFXRing( SPECFX *fx )
 	vT[0].tu = 0;
 	vT[0].tv = 1;
 	vT[0].rhw = 1;
-	vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
+	vT[0].color = D3DRGBA((float)fx->r*ONEOVER255,(float)fx->g*ONEOVER255,(float)fx->b*ONEOVER255,(float)fx->a*ONEOVER255);
 	vT[0].specular = D3DRGB(0,0,0);
 
 	vT[1].tu = 0;
@@ -666,7 +666,7 @@ void DrawFXLightning( SPECFX *fx )
 			vT[0].sy = m.vy;
 			vT[0].rhw = 1;
 			vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
+			vT[0].color = D3DRGBA(p->r*ONEOVER255, p->g*ONEOVER255, p->b*ONEOVER255, p->a*ONEOVER255);
 
 			tempVect.vx = p->poly[1].vx*0.1;
 			tempVect.vy = p->poly[1].vy*0.1;

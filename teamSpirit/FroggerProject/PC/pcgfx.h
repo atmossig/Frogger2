@@ -20,6 +20,7 @@ extern "C"
 #endif
 
 #define ONEOVERFIXED 0.00024414
+#define ONEOVER255	(1.0f/255.0f)
 
 void DrawSpecialFX();
 void DrawFXDecal( SPECFX *fx );
