@@ -148,7 +148,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 //	utilPrintf("New actor: %d bytes\n",len);
 	
-	sprintf(actorName,"ACTOR:%s",(char *)psiModel+4);
+	sprintf(actorName,"%s",psiModel->name);
 
 	actor = (ACTOR *)MALLOC0(len);
 	
@@ -167,7 +167,14 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 		//ScalePsi(actor->psiData.object->meshdata);
 	}
 
-	actor->psiData.modelName = &psiModel->name[0];
+	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
+
+	
+
+	actor->psiData.modelName = psiModel->name;
+
+
+	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 
 	actor->psiData.numObjects = parts;
 
