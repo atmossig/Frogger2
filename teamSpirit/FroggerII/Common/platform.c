@@ -113,6 +113,7 @@ PLATFORM *bus3		= NULL;
 PLATFORM *devPlat1	= NULL;
 PLATFORM *devPlat2	= NULL;
 PLATFORM *devPlat3	= NULL;
+PLATFORM *devPlat4	= NULL;
 
 
 
@@ -193,6 +194,9 @@ PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
 PATHNODE debug_pathNodes3[] = { 15,45,5 };
 PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
 
+PATHNODE debug_pathNodes4[] = { 11,5,45 };
+PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
+
 static void	GetActiveTile(PLATFORM *pform);
 
 
@@ -224,6 +228,10 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 			devPlat3 = NEW_CreateAndAddPlatform("pltlilly.ndo");
 			devPlat3->currSpeed = 1.0F;
 			NEW_AssignPathToPlatform(devPlat3,PLATFORM_NEW_MOVEDOWN | PLATFORM_NEW_STEPONACTIVATED,&debug_path3,PATH_MAKENODETILEPTRS);
+
+			devPlat4 = NEW_CreateAndAddPlatform("pltlilly.ndo");
+			devPlat4->currSpeed = 1.0F;
+			NEW_AssignPathToPlatform(devPlat4,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_STEPONACTIVATED,&debug_path4,PATH_MAKENODETILEPTRS);
 		}
 
 		if ( levelID == LEVELID_GARDENMAZE )
@@ -1261,8 +1269,8 @@ void UpdatePlatforms()
 					}
 					else if(cur->flags & PLATFORM_NEW_RISEWITHFROG)
 					{
-						GetPositionForPathNode(&toPosition,&cur->path->nodes[0]);
-						GetPositionForPathNodeOffset2(&fromPosition,&cur->path->nodes[0]);
+						GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
+						GetPositionForPathNodeOffset2(&toPosition,&cur->path->nodes[0]);
 
 						if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) < DistanceBetweenPointsSquared(&fromPosition,&toPosition))
 							AddToVector(&cur->pltActor->actor->pos,&moveVec);
@@ -1305,22 +1313,15 @@ void UpdatePlatforms()
 		}
 
 		// determine which world tile the platform is currently 'in'
-//------->		
-		for(i=0; i<4; i++)
-		{
-//------->		
-		
-		oldTile[i] = currTile[i];
+		oldTile[0] = currTile[0];
 		GetActiveTile(cur);
 
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
 			currTile[i] = cur->inTile;
+			cur->carrying = frog[0];
 			SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
 		}
-//------->		
-		}
-//------->		
 	}
 }
 
