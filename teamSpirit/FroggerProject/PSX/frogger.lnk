@@ -129,19 +129,19 @@ bss     group   bss
 ;	include "main.obj"
 ;	include "PC_PSX.obj"
 ;	include "types.obj"
-	;include "screen.obj"
+;	include "screen.obj"
 ;	include "main2.obj"
 ;	include "TEXTURE.OBJ"
 ;	include "OBJECTS.OBJ"
 
 ;	include "world.obj"
-	;include "debug.obj"
+;	include "debug.obj"
 
 ;	include "DEBUG.OBJ"
 ;	include "DBERROR.OBJ"
 
 
-;        include "islpad.obj"
+;   include "islpad.obj"
 ;	include "map_draw.obj"
 ;	include "bff_load.obj"
 ;	include "quatern.obj"

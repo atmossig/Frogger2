@@ -35,7 +35,8 @@ const USHORT EXPLORE_black_ref_palette[16] =
 
 USHORT EXPLORE_black_CLUT;
 
-unsigned short globalClut;
+TextureType *globalClut;
+unsigned short globalClut1;
 
 /**************************************************************************
 	FUNCTION:	customDrawPrimitives2
@@ -1429,7 +1430,10 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				setPolyFT3(si);
 
 				if ( globalClut )
-					si->clut = globalClut;
+				{
+					si->clut	= globalClut->clut;
+					si->tpage = globalClut->tpage;
+				}
 				// ENDIF
 
 				si->code = op->cd | modctrl->semitrans;
@@ -1473,7 +1477,10 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				setPolyFT4(si);
 
 				if ( globalClut )
-					si->clut = globalClut;
+				{
+					si->clut	= globalClut->clut;
+					si->tpage = globalClut->tpage;
+				}
 				// ENDIF
 
 				si->code = op->cd | modctrl->semitrans;
@@ -1524,7 +1531,10 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				setPolyGT3(si);
 
 				if ( globalClut )
-					si->clut = globalClut;
+				{
+					si->clut	= globalClut->clut;
+					si->tpage = globalClut->tpage;
+				}
 				// ENDIF
 
 
@@ -1583,7 +1593,10 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				setPolyGT4(si);
 
 				if ( globalClut )
-					si->clut = globalClut;
+				{
+					si->clut	= globalClut->clut;
+					si->tpage = globalClut->tpage;
+				}
 				// ENDIF
 
 				si->code = op->cd | modctrl->semitrans;
