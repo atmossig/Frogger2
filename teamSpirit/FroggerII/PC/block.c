@@ -63,6 +63,7 @@ extern unsigned long rPlaying;
 extern long synchedFrameCount;
 extern float RES_DIFF;
 extern float RES_DIFF2;
+extern int drawOverlays;
 
 void StopKeying(void);
 
@@ -456,6 +457,12 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 						else
 							drawTimers = 0;
 
+						keyDelay = 20;
+					}
+
+					if (KEYPRESS(DIK_F6))
+					{
+						drawOverlays = !drawOverlays;
 						keyDelay = 20;
 					}
 				}

@@ -18,6 +18,7 @@
 
 short drawScreenGrab = 0;
 short grabFlag = 0;
+int drawOverlays = 1;
 extern float RES_DIFF;
 extern float RES_DIFF2;
 extern long runHardware;
@@ -50,7 +51,9 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 	unsigned char letter,letterCount;
 	char *c;
 	short u,v,letterID;
-				
+
+	if (!drawOverlays) return;
+
 	x = tOver->xPos * RES_DIFF2;
 	y = tOver->yPos * RES_DIFF2;
 	height = tOver->font->height * RES_DIFF * tOver->scale;
@@ -188,6 +191,7 @@ void PrintSpriteOverlays(long num)
 	unsigned long texture;
 	TEXENTRY *tEntry;
 
+	if (!drawOverlays) return;
 
 	cur = spriteOverlayList.head.next;
 	if (spriteOverlayList.numEntries)
