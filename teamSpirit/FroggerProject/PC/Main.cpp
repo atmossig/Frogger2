@@ -182,7 +182,7 @@ int GetRegistryInformation(void)
 		len = 16;
 		if (RegQueryValueEx(hkey, "Language", NULL, NULL, (unsigned char*)regLanguage, &len) == ERROR_SUCCESS)
 		{
-			const char* languages[LANG_NUMLANGS] = { "English", "Français", "Deutsch", "Espanõl", "Italiano", "US" };
+			const char* languages[LANG_NUMLANGS] = { "English", "Français", "Deutsch", "Italiano", "US" };
 			int lang;
 
 			for (lang=0; lang<LANG_NUMLANGS; lang++)
