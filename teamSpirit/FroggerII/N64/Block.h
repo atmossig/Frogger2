@@ -240,6 +240,8 @@ extern char					numtasks;
 extern char					currentTask;
 extern NNSched				sched;
 
+extern unsigned long		actFrameCount;
+
 extern OSThread				mainThread;
 extern OSThread				drawGraphicsThread;
 extern OSThread				ControllerThread;

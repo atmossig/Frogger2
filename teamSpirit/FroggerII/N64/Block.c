@@ -24,6 +24,7 @@
 
 #include "incs.h"
 
+unsigned long actFrameCount = 0;
 
 ACTOR2 *clouds;
 TEXTURE *cloudtex	= NULL;

@@ -149,7 +149,6 @@ void nnScEventHandler(NNSched *sc)
   while(1) 
   {
     osRecvMesg(&sc->retraceMQ, &msg, OS_MESG_BLOCK);
-	
 
 //	desiredFrameRate = 3;
     switch ( (int)msg ) 
@@ -481,6 +480,8 @@ void TimerProc(void *arg)
 			gcount++;
 			acount++;
 
+			actFrameCount++;
+
 			if((gcount >= desiredFrameRate) && (gfxTasks == 0))
 			{
 
@@ -504,13 +505,6 @@ void TimerProc(void *arg)
 				acount = 0;
 				nnScEventBroadcast( sc, &sc->retraceMsg );
 			}
- 
-
-		}
-
-
+ 		}
 	}
-
-
-
 }

@@ -68,7 +68,7 @@ _codeSegmentEnd         alias   _code_objend
 		include "textoverlays.obj",code
 		include "backdrops.obj",code
 		include "printgfx.obj",code
-		;include "3dtext.obj",code
+		include "3dtext.obj",code
 		include "sfx.obj",code
 		include "mbuffer.obj",code
 		include "audio.obj",code
@@ -83,6 +83,7 @@ _codeSegmentEnd         alias   _code_objend
 		include "event.obj",code
 		include "eventfuncs.obj",code
 		include "objview.obj",code
+		include "memload.obj",code
 
 		include "develop.obj",code
 		include	"rdp_out0.obj",code
