@@ -377,6 +377,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			si->code	= op->code | ( op->pad2 & 2 );
 			si->tpage = op->tpage | ( op->pad2 & 96 );
+			if( globalClut ) si->clut = globalClut;
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
 		}
