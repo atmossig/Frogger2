@@ -35,6 +35,7 @@ extern int ActorNearActor( TRIGGER *trigger );
 extern int PathAtFlag( TRIGGER *trigger );
 extern int BitCheck( TRIGGER *trigger );
 extern int FrogIsDead( TRIGGER *trigger );
+extern int LevelIsOpen( TRIGGER *trigger );
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
 extern void ChangeActorScale( EVENT *event );

@@ -370,6 +370,15 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 
+	case TR_LEVELISOPEN:
+		{
+			params = AllocArgs(2);
+			(int)params[0] = MEMGETBYTE(p);
+			(int)params[1] = MEMGETBYTE(p);
+			trigger = MakeTrigger(LevelIsOpen, params);
+		}
+		break;
+
 	default:
 #ifdef DEBUG_SCRIPTING
 		dprintf"Unrecognised trigger type %02x, skipping\n", token));

@@ -198,6 +198,19 @@ int PathAtFlag( TRIGGER *trigger )
 }
 
 
+int LevelIsOpen( TRIGGER *trigger )
+{
+	int world, level;
+
+	world = (int)trigger->data[0];
+	level = (int)trigger->data[1];
+
+	if (level == 0xFF)
+		return worldVisualData[world].worldOpen;
+	else
+		return (worldVisualData[world].worldOpen && worldVisualData[world].levelVisualData[level].levelOpen);
+}
+
 /*	--------------------------------------------------------------------------------
 	Function 	: BitCheck
 	Purpose 	: Checks if a bit is set in a variable
