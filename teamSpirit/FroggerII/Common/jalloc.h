@@ -27,10 +27,10 @@ typedef unsigned long	ulong;
 #define JallocFree(addrptr) free(*(addrptr))
 
 #define ShowJalloc()
-#define CheckJalloc();
-#define JallocInit(base, size);
-#define JallocReset();
-#define ListJallocBlocks(block);
+#define CheckJalloc()
+#define JallocInit(base, size)
+#define JallocReset()
+#define ListJallocBlocks(block)
 
 #else
 
