@@ -304,6 +304,11 @@ void ProcessUserInput(HWND hWnd)
 		PostMessage(hWnd,WM_CLOSE,0,0);
 	}
 	
+	controllerdata[0].lastbutton = controllerdata[0].button;
+	controllerdata[1].lastbutton = controllerdata[1].button;
+	controllerdata[2].lastbutton = controllerdata[2].button;
+	controllerdata[3].lastbutton = controllerdata[3].button;
+
 	controllerdata[0].button = 0;
 	controllerdata[1].button = 0;
 	controllerdata[2].button = 0;
@@ -401,9 +406,6 @@ void ProcessUserInput(HWND hWnd)
 
 	//if (KEYPRESS(DIK_A))
 	//	controllerdata[1].button |= CONT_B;
-
-	if( gameState.mode == GAME_MODE )
-		SendUpdateMessage( );
 }
 
 

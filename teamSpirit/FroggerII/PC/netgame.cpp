@@ -32,6 +32,7 @@ extern "C" {
 #include "game.h"
 #include "specfx.h"
 #include "audio.h"
+#include "frogmove.h"
 
 }
 
@@ -50,16 +51,25 @@ void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMs
 	long i;
 	char tmp[256];
 
-	wsprintf( tmp, "Receiving: Player %d does %d", idFrom, lpMsg->data );
-	AddChatMessage( tmp );
-
 	for( i=1; i<MAX_MULTIPLAYERS; i++ )
 		if( netPlayers[i] == idFrom )
 		{
 			controllerdata[i].button = lpMsg->data;
-			
+
+			// Start of level or unseen emergency measure only
+			if( lpMsg->tileNum != (((DWORD)currTile[i] - (DWORD)firstTile) / sizeof(GAMETILE)) )
+			{
+				SetVector(&frog[i]->actor->pos, &firstTile[lpMsg->tileNum].centre);
+				//destTile[i] = &firstTile[lpMsg->tileNum];
+				currTile[i] = &firstTile[lpMsg->tileNum];
+			}
+
 			break;
 		}
+
+	wsprintf( tmp, "Receiving: Player %i on tile %i", i, lpMsg->tileNum );
+	AddChatMessage( tmp );
+
 }
 
 
@@ -90,8 +100,9 @@ HRESULT SendUpdateMessage( )
 	// build message	
 	lpUpdateMessage->dwType = APPMSG_UPDATEGAME;
 	lpUpdateMessage->data = controllerdata[0].button;
+	lpUpdateMessage->tileNum = ((DWORD)currTile[0] - (DWORD)firstTile) / sizeof(GAMETILE);
 
-	wsprintf( tmp, "Sending: Player %d does %d", netPlayers[0], lpUpdateMessage->data );
+	wsprintf( tmp, "Sending: Player on tile %i", lpUpdateMessage->tileNum );
 	AddChatMessage( tmp );
 
 	// send this data to all other players
@@ -138,7 +149,7 @@ void RefreshMPFrogs( )
 {
 	long i, count = 0;
 
-	for( i=2; i < MAX_MULTIPLAYERS; i++ )
+	for( i=1; i < MAX_MULTIPLAYERS; i++ )
 		if( netPlayers[i] == -1 )
 		{
 			MPRemoveFrog( i );
@@ -175,7 +186,7 @@ int MPAddFrog( int i )
 
 	// Health sprites need init
 	for( j=0; j<3; j++ )
-		sprHeart[i+j*3] = CreateAndAddSpriteOverlay(((i>1)?270:20)+(j*10),((i%2)?35:205),"mplaypts.bmp",32,32,255,255,255,192,0);
+		sprHeart[(i*3)+j]->draw = 1;
 
 	frog[i]->actor->xluOverride = 100; // Make it visible
 
@@ -211,9 +222,12 @@ int MPRemoveFrog( int i )
 	if( frog[i]->actor->xluOverride == 0 ) // Already disabled
 		return 1;
 
+	frog[i]->action.lives = 0;
+	player[i].lives = 0;
+
 	// Disable health sprites
 	for( j=0; j<3; j++ )
-		SubSpriteOverlay(sprHeart[i+j*3]);
+		sprHeart[(i*3)+j]->draw = 0;
 
 	frog[i]->actor->xluOverride = 0; // Make it invisible
 

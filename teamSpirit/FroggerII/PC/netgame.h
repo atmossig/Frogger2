@@ -10,6 +10,7 @@ typedef struct
 {
 	DWORD			dwType;			// message type (APPMSG_UPDATEGAME)
 	DWORD			data;			// controller data
+	DWORD			tileNum;		// Emergency sync
 
 } MSG_UPDATEGAME,*LPMSG_UPDATEGAME;
 

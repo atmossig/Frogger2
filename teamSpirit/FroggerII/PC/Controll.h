@@ -72,7 +72,7 @@ extern void ResetParameters();
 
 typedef struct tagOSContPad 
 {
-	unsigned long button;
+	unsigned long button, lastbutton;
 	char stick_x;
 	char stick_y;
 	unsigned char errno;

@@ -980,6 +980,9 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 			if( i==MAX_MULTIPLAYERS )
 				return;
 
+			frog[i]->action.lives = 3;
+			player[i].lives = 3;
+
 			RefreshMPFrogs( );
 
 			// get pointer to player name
