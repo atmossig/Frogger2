@@ -20,6 +20,7 @@
 enum
 {
 	RIPPLE_TYPE_CROAK,
+	RIPPLE_TYPE_SOLIDCROAK,
 	RIPPLE_TYPE_WATER,
 	RIPPLE_TYPE_DUST,
 	RIPPLE_TYPE_PICKUP,
@@ -79,6 +80,7 @@ extern TEXTURE *txtrRipple;
 extern TEXTURE *txtrWake;
 extern TEXTURE *txtrStar;
 extern TEXTURE *txtrRing;
+extern TEXTURE *solidRing;
 extern TEXTURE *txtrSmoke;
 
 extern char doScreenFade;

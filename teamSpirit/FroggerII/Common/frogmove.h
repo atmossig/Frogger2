@@ -86,8 +86,6 @@ extern GAMETILE *currTile[];
 extern GAMETILE *destTile[];
 extern GAMETILE *prevTile;
 
-extern float landRadius;
-
 extern unsigned long ice[];
 
 extern int frogFacing[4];

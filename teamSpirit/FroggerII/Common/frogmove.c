@@ -25,23 +25,15 @@ GAMETILE *longHopDestTile	= NULL;
 GAMETILE *currTile[4]		= {0,0,0,0};
 GAMETILE *prevTile			= NULL;
 
-float landRadius			= 20.0F;
 static float frogAnimSpeed	= 0.5F;
 static float frogAnimSpeed2	= 0.9F;
 
 int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
 
-float standardHopHeight = 6.0F;
-float standardHopSpeed	= 10.0F;
-float superHopHeight	= 24.0F;
-float superHopSpeed		= 4.0F;
-float longHopHeight		= 24.0F;
-float longHopSpeed		= 9.0F;
-
 unsigned long standardHopFrames = 7;
-unsigned long superHopFrames	= 16;
-unsigned long longHopFrames		= 16;
+unsigned long superHopFrames	= 18;
+unsigned long longHopFrames		= 24;
 
 float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
@@ -207,8 +199,9 @@ void UpdateFroggerPos(long pl)
 	FX_RIPPLE *rip;
 	VECTOR effectPos;
 	PLANE2 ground;
-	float dist;
-	
+	float dist,glowRange;
+	static float glowSeed = 0.0F;
+		
 	if(player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
 		SetVector(&effectPos,&currTile[pl]->normal);
@@ -245,6 +238,16 @@ void UpdateFroggerPos(long pl)
 		AddToVector(&newPos,&player[pl].vMotionDelta);
 		AddToVector(&newPos,&player[pl].hMotionDelta);
 		SetVector(&frog[pl]->actor->pos,&newPos);
+
+		if(player[pl].isSuperHopping || player[pl].isLongHopping)
+		{
+			SetVector(&effectPos,&player[pl].jumpUpVector);
+			ScaleVector(&effectPos,20);
+			AddToVector(&effectPos,&newPos);
+
+			rip = CreateAndAddFXRipple(RIPPLE_TYPE_SOLIDCROAK,&effectPos,&player[pl].jumpUpVector,30,0,0,16);
+			rip->r = 0;	rip->g = 255; rip->b = 0;
+		}
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -869,6 +872,22 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	// ------------------------------------------------------------------------------------------
 
+	if(player[pl].isSuperHopping)
+	{
+		t = superHopFrames;
+		frogGravity = -2;
+	}
+	else if(player[pl].isLongHopping)
+	{
+		t = longHopFrames;
+		frogGravity = -1;
+	}
+	else
+	{
+		t = standardHopFrames;
+		frogGravity = -4;
+	}
+
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 	{
 		// STAGE 1 - frog's movement - new stuff - AndyE
@@ -884,13 +903,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
 
 		// STAGE 2 - considering vertical motion
-
-		if(player[pl].isSuperHopping)
-			t = superHopFrames;
-		else if(player[pl].isLongHopping)
-			t = longHopFrames;
-		else
-			t = standardHopFrames;
 
 		// using s = ut + 0.5at^2
 		a = frogGravity;
@@ -923,13 +935,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
 
 		// STAGE 2 - considering vertical motion
-
-		if(player[pl].isSuperHopping)
-			t = superHopFrames;
-		else if(player[pl].isLongHopping)
-			t = longHopFrames;
-		else
-			t = standardHopFrames;
 
 		// using s = ut + 0.5at^2
 		a = frogGravity;
@@ -1044,14 +1049,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = -1;
 				frog[pl]->action.dead	 = 0;
 
-				if(player[pl].isSuperHopping || player[pl].isLongHopping)
-				{
-					player[pl].isSuperHopping = 0;
-					player[pl].isLongHopping = 0;
-
-					CreateAndAddFXSmoke(&frog[pl]->actor->pos,128,15);
-				}
-
+				player[pl].isSuperHopping = 0;
+				player[pl].isLongHopping = 0;
 				player[pl].canJump = 1;
 
 				frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;

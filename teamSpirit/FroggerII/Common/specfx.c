@@ -31,11 +31,12 @@ UBYTE testA			= 170;
 
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
-TEXTURE *txtrRipple = NULL;
-TEXTURE *txtrWake	= NULL;
-TEXTURE *txtrStar	= NULL;
-TEXTURE *txtrRing	= NULL;
-TEXTURE *txtrSmoke	= NULL;
+TEXTURE *txtrRipple		= NULL;
+TEXTURE *txtrWake		= NULL;
+TEXTURE *txtrStar		= NULL;
+TEXTURE *txtrRing		= NULL;
+TEXTURE *txtrSolidRing	= NULL;
+TEXTURE *txtrSmoke		= NULL;
 
 
 /*	--------------------------------------------------------------------------------
@@ -112,6 +113,11 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 		case RIPPLE_TYPE_RING:
 		case RIPPLE_TYPE_TELEPORT:
 			ripple->txtr = txtrRing;
+			break;
+
+		case RIPPLE_TYPE_SOLIDCROAK:
+			ripple->alpha = 200;
+			ripple->txtr = txtrSolidRing;
 			break;
 	}
 
@@ -224,10 +230,9 @@ void UpdateFXRipples()
 			ripple->alpha		-= ripple->alphaSpeed;
 			ripple->velocity	+= ripple->accel;
 			ripple->radius		+= ripple->velocity;
-
 			ripple->yRot		+= ripple->yRotSpeed;
 
-			if(!ripple->lifetime)
+			if(!(ripple->lifetime) || (ripple->alpha < (ripple->alphaSpeed + 1)))
 				ripple->deadCount = 5;
 		}
 	}
@@ -691,6 +696,7 @@ void InitFXLinkedLists()
 	FindTexture(&txtrWake,UpdateCRC("ai_wake.bmp"),YES);
 	FindTexture(&txtrStar,UpdateCRC("ai_star.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
+	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 }
 
