@@ -141,8 +141,8 @@ extern SAMPLE *FindSample( unsigned long uid );
  
 void MAIN_PrintXAData ( const XAFileType * const XATrack );
 
-#define InitVoices(path, len) 0
-
+#define InitVoices(path, len)	0
+#define IsSongPlaying			XAcheckPlay
 
 extern void PauseAudio( );
 extern void UnPauseAudio( );
