@@ -55,6 +55,7 @@ float scaleV				= 1.1F;
 
 short cameraShake			= 0;
 
+char cameraControl			= 0;
 
 TRANSCAMERA *transCameraList = NULL;
 

@@ -67,6 +67,7 @@ extern float	scaleV;
 
 extern short	cameraShake;
 
+extern char		controlCamera;
 
 extern TRANSCAMERA *transCameraList;
 
