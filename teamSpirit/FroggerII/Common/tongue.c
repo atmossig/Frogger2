@@ -101,6 +101,9 @@ void UpdateFrogTongue()
 
 	if(tongueState & TONGUE_IDLE)
 	{
+		// Just to test grappling
+		//gTStart[0]->next->state = TILESTATE_GRAPPLE;
+
 		// Tongue idle
 		return;
 	}

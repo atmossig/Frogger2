@@ -849,7 +849,7 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: GrapplePointInTOngueRange
+	Function		: GrapplePointInTongueRange
 	Purpose			: indicates if a grapple point is in range when tongueing
 	Parameters		: 
 	Returns			: GAMETILE *
@@ -858,11 +858,26 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 GAMETILE *GrapplePointInTongueRange( )
 {
 	VECTOR diff;
-	
-	if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, &gTStart[0]->centre) < tongueRadius * tongueRadius )
+	GAMETILE *cur, *best = NULL;
+	float min = 100000, dist;
+	cur = firstTile;
+
+	for( ;cur; cur=cur->next )
 	{
-		return gTStart[0];
+		if( cur->state == TILESTATE_GRAPPLE )
+		{
+			dist = DistanceBetweenPointsSquared(&frog[0]->actor->pos, &cur->centre);
+			if( dist < min ) 
+			{
+				min = dist; 
+				best = cur;
+			}
+		}
 	}
+
+
+	if( best && (min < tongueRadius * tongueRadius))
+		return best;
 	
 	return NULL;
 }
