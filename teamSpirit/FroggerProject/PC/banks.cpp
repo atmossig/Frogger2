@@ -233,11 +233,6 @@ void LoadObjectBank(int objectBank)
 		case FRONTEND5_OBJ_BANK:
 			strcpy(fileName, "language"); break;
 
-// Multiplayer
-
-		case MULTIPLAYER_OBJ_BANK:
-			strcpy(fileName, "language"); break;
-
 		default:
 			utilPrintf("Didn't load object bank '%d'\n", objectBank);
 			return;
