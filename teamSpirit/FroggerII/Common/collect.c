@@ -57,8 +57,8 @@ SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 */
 void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID)
 {
-	VECTOR v = { firstTile[15].centre.v[X], 3000, firstTile[15].centre.v[Z] };
-	CreateNewGarib ( v, 0, &firstTile[15], 5.0f );
+//	VECTOR v = { firstTile[15].centre.v[X], 3000, firstTile[15].centre.v[Z] };
+//	CreateNewGarib ( v, 0, 5.0f );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -658,7 +658,7 @@ void InitGaribSprite(GARIB *garib)
 	Returns			: GARIB *
 	Info			: 
 */
-GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile, float dropSpeed )
+GARIB *CreateNewGarib(VECTOR pos,int type)
 {
 	static indexPos = 0;
 
@@ -673,7 +673,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile, float dropSpeed )
 
 		if ( value == 0 )
 		{
-			dprintf"Returned, did not create garib ( %d : %d : %d )\n",value, garibListPos-1, player[0].levelNum-3));
+			dprintf"Returned, did not  garib ( %d : %d : %d )\n",value, garibListPos-1, player[0].levelNum-3));
 			return NULL;
 		}
 		// ENDIF
@@ -690,8 +690,8 @@ GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile, float dropSpeed )
 
 	SetVector(&garib->sprite.pos,&pos);
 
-	garib->gameTile = gameTile;
-	garib->dropSpeed = dropSpeed;
+//	garib->gameTile = gameTile;
+//	garib->dropSpeed = dropSpeed;
 	garib->type = type;
 	garib->active = 1;
 	garib->scale = 0;

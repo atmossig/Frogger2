@@ -119,10 +119,11 @@ extern void AddGarib(GARIB *garib);
 extern void SubGarib(GARIB *garib);
 
 extern void InitGaribSprite(GARIB *garib);
-extern GARIB *CreateNewGarib(VECTOR pos,int type, GAMETILE* gameTile, float dropSpeed );
+extern GARIB *CreateNewGarib(VECTOR pos, int type);
 extern void UpdateGaribs();
 
 extern void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType);
 
+extern void DropGaribToTile(GARIB *garib, GAMETILE *tile, float dropSpeed);
 
 #endif
