@@ -46,6 +46,8 @@ unsigned long longHopFrames		= 16;
 float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
 
+char makeFrogGlow = 0;
+
 
 void AnimateFrogHop(unsigned long direction,long pl);
 
@@ -221,9 +223,6 @@ void UpdateFroggerPos(long pl)
 
 	//--------------------------------------------------------------------------------------------
 
-//	if(currPlatform[pl] && DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&currPlatform[pl]->pltActor->actor->pos) > 0)
-//		ScrambleFrogToPlatformCentre(pl);
-
 	if(!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR)))
 	{
 		VECTOR newPos;
@@ -248,9 +247,6 @@ void UpdateFroggerPos(long pl)
 		AddToVector(&newPos,&player[pl].vMotionDelta);
 		AddToVector(&newPos,&player[pl].hMotionDelta);
 		SetVector(&frog[pl]->actor->pos,&newPos);
-
-		// check for a platform within the frog's jumping 'area'
-//		FrogCollidedWithPlatform(pl);
 	}
 
 	//--------------------------------------------------------------------------------------------
