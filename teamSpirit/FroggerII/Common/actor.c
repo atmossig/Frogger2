@@ -178,15 +178,19 @@ void DrawActorList()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 		
-	cur = actList;
 	waterObject = 0;
 
 	BlankFrame(_);
 
-	while(cur)
+	/* Draw normal actors */
+
+	for (cur = actList; cur; cur = cur->next)
 	{
 		float slideSpeed = 0;
 
+		if (!cur->draw || cur->flags & ACTOR_WATER || !cur->actor->objectController)
+			continue;
+		
 		waterObject = 0;
 		modgyObject = 0;
 
@@ -209,12 +213,6 @@ void DrawActorList()
 				SlideObjectTextures(cur->actor->objectController->object);
 		}
 
-		if(((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
-		{
-			cur = cur->next;
-			continue;
-		}
-		
 		if (cur->flags & ACTOR_MODGETEX)
 			modgyObject = 1;
 		else
@@ -244,19 +242,16 @@ void DrawActorList()
 				cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
 			}
 
-			if(gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
+			/*if(gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
 			   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+			{*/
+
+			if( cur->draw && !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
 			{
-				if( cur->draw )
-				if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
-				{
-					DrawActor(cur->actor);
-				}
+				DrawActor(cur->actor);
 			}
 		}
-	
-		cur = cur->next;
 	}
 	
 //	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
@@ -273,25 +268,14 @@ void DrawActorList()
 
 	DrawBatchedPolys();
 	BlankFrame(x);
+
+	/* Water objects */
 	
 	waterObject = 1;
-	cur = actList;
-	while(cur)
+	for (cur = actList; cur; cur = cur->next)
 	{
-		if((!(cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
-		{
-			cur = cur->next;
-			continue;
-		}
-
-		if( gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
-			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
-			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
-		{
+		if(cur->flags & ACTOR_WATER && cur->actor->objectController)
 			DrawActor(cur->actor);
-		}
-		
-		cur = cur->next;
 	}
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
@@ -301,51 +285,38 @@ void DrawActorList()
 	DrawBatchedPolys();
 	BlankFrame(x);
 
+	/* Transparent objects..? */
+	
 	waterObject = 0;
-	cur = actList;
-	while(cur)
+	for(cur = actList; cur; cur = cur->next)
 	{
-		if( ((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
-		{
-			cur = cur->next;
+		if( !cur->draw || (cur->flags & (ACTOR_WATER | ACTOR_DRAW_CULLED)) || cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER)
 			continue;
-		}
 
-		if( cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
-		if( !((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER)) )
-		if( gameState.mode == INGAME_MODE || gameState.mode == OBJVIEW_MODE || 
-			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
-			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
-		{
-				
-		if (cur->flags & ACTOR_MODGETEX)
-			modgyObject = 1;
-		else
-			modgyObject = 0;
+		if( !cur->actor->objectController || !cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
+			continue;
 
-			DrawActor(cur->actor);
-			
-			if (cur->flags & ACTOR_ADDITIVE)
-			{
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
-//				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-			}
+		modgyObject = (cur->flags & ACTOR_MODGETEX);
 
-			DrawBatchedPolys();
-			BlankFrame(x);
-
-			if (cur->flags & ACTOR_ADDITIVE)
-			{
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
-			}
-			
-		}
+		DrawActor(cur->actor);
 		
-		cur = cur->next;
+		if (cur->flags & ACTOR_ADDITIVE)
+		{
+			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+//				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+		}
+
+		DrawBatchedPolys();
+		BlankFrame(x);
+
+		if (cur->flags & ACTOR_ADDITIVE)
+		{
+			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+			pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+		}
 	}
 
 /*	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
