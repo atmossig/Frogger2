@@ -78,9 +78,9 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 	{
 		CreateBabies(createBabyActors, createBabyOverlays );
 		CreateFrogActor (gTStart[0],"frogger.ndo",0);
-		CreateFrogActor (gTStart[0]->tilePtrs[0],"frogger.ndo",1);
-		CreateFrogActor (gTStart[0]->tilePtrs[1],"frogger.ndo",2);
-		CreateFrogActor (gTStart[0]->tilePtrs[2],"frogger.ndo",3);
+		CreateFrogActor (gTStart[0]/*->tilePtrs[0]*/,"frogger.ndo",1);
+		CreateFrogActor (gTStart[0]/*->tilePtrs[1]*/,"frogger.ndo",2);
+		CreateFrogActor (gTStart[0]/*->tilePtrs[2]*/,"frogger.ndo",3);
 /*
 		frog[0]		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog[0]->actor->shadow->radius = 30;
