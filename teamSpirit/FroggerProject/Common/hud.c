@@ -860,12 +860,12 @@ void UpDateOnScreenInfo ( void )
 		if (timeFrames<0)
 		{
 			timeFrames = 0;
+			arcadeHud.timeTextHSec->draw = 0;
 			if (!arcadeHud.timedOut)
 			{
 				lastSecs = 0;
 //				arcadeHud.timeOutText->a = 0xff;
 //				arcadeHud.timeOutText->draw = 1;
-				arcadeHud.timeTextHSec->draw = 0;
 
 				PlaySample( FindSample(utilStr2CRC("alarm")), NULL, 0, SAMPLE_VOLUME, -1 );
 			}
