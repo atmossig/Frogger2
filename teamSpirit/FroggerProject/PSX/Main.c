@@ -1,3 +1,22 @@
+#define VRAM_STARTX			512
+#define VRAM_PAGECOLS		8
+#define VRAM_PAGEROWS		2
+#define VRAM_PAGES			16
+#define VRAM_PAGEW			32
+#define VRAM_PAGEH			32
+#define VRAM_SETX(X)		(X)
+#define VRAM_SETY(Y)		((Y)*VRAM_PAGEW)
+#define VRAM_SETXY(X,Y)		((X)+((Y)*VRAM_PAGEW))
+#define VRAM_SETPAGE(P)		((P)<<16)
+#define VRAM_GETX(HND)		((HND) & (VRAM_PAGEW-1))
+#define VRAM_GETY(HND)		(((HND)/VRAM_PAGEW) & (VRAM_PAGEW-1))
+#define VRAM_GETXY(HND)		((HND) & 0xffff)
+#define VRAM_GETPAGE(HND)	((HND)>>16)
+#define VRAM_CALCVRAMX(HND)	(512+((VRAM_GETPAGE(HND)%(VRAM_PAGECOLS))*64)+(VRAM_GETX(HND)*2))
+#define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
+
+
+
 #include "shell.h"
 
 //#include <memory.h>
@@ -59,6 +78,8 @@
 #include "objviewer.h"
 #include "platform.h"
 
+TextureAnimType* timerAnim = NULL;
+int animFrame;
 
 void customDrawPrimitives2(int);
 void customDrawSortedPrimitives(int);
@@ -287,7 +308,6 @@ extern int polyCount;
 //extern int scaledObjects;
 //extern int movedObjects;
 
-
 int lastpolyCount=0;
 int lastactorCount=0;
 int maxInterpretTimer=0;
@@ -298,14 +318,6 @@ char* oldStackPointer;
 
 int main ( )
 {
-
-	int i, animFrame;
-	char temp[16];
-
-	TextureType *dummy;
-	TextureType**	 timerTextures;
-
-	TextureAnimType* timerAnim = NULL;
 
 	while ( 1 )
 	{
@@ -531,23 +543,6 @@ int main ( )
 		CommonInit();
 
 
-	//find the dummy texture
-	/*dummy = textureFindCRCInAllBanks ( utilStr2CRC ( "DUMMY" ) );
-
-	//fill array of TextureType pointers
-	timerTextures = MALLOC0( sizeof (TextureType*) * 8 );
-
-	for ( i = 0; i < 8; i++ )
-	{
-		sprintf( temp, "FROGWATCH0%d", i);
-		timerTextures[i] = textureFindCRCInAllBanks ( utilStr2CRC ( temp ) );
-	}
-	// ENDFOR
-
-	timerAnim = textureCreateAnimation ( dummy, timerTextures, 8);
-
-	animFrame = 0;*/
-
 //		InitWater();
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
 
@@ -639,14 +634,33 @@ TIMER_STOP(TIMER_GAMELOOP);
 	//		if(spriteList.numEntries)
 	//			AnimateSprites();
 			
+//			textureSetAnimation ( timerAnim, animFrame++ );
+
+
+/*	moveRect.x = VRAM_CALCVRAMX(timerAnim->anim[animFrame]->handle);
+	moveRect.y = VRAM_CALCVRAMY(timerAnim->anim[animFrame]->handle);
+	moveRect.w = (timerAnim->dest->w + 3) / 4;
+	moveRect.h = timerAnim->dest->h;
+
+	// check for 256 colour mode
+	if(timerAnim->dest->tpage & (1 << 7))
+		moveRect.w *= 2;
+
+	// copy bit of vram
+	BEGINPRIM(siMove, DR_MOVE);
+	SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(timerAnim->dest->handle),VRAM_CALCVRAMY(timerAnim->dest->handle));
+	ENDPRIM(siMove, 1023, DR_MOVE);*/
+
+
 			// JH:  Main Draw Function That Runs All The Draw Functions.
 			if ( !objViewer )
 				MainDrawFunction();
 
-			//textureSetAnimation ( timerAnim, animFrame++);
+			//UpdateTextureAnimations();
 
-			//if ( animFrame == 9 )
-			//	animFrame = 0;
+
+			/*if ( ++animFrame == 8 )
+				animFrame = 0;*/
 
 			TIMER_START0(TIMER_DRAWSYNC);
 			DrawSync(0);
@@ -700,7 +714,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 				camDist.vz-=(20*gameSpeed)>>12;
 			}
 			// ENDIF*/
-			/*if ( padData.debounce[1] & PAD_SELECT )
+			if ( padData.debounce[1] & PAD_SELECT )
 			{
 				if ( !objViewer )
 					InitObjectViewer();
@@ -708,7 +722,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 					CommonInit();
 				objViewer ^= 1;
 			}
-			// ENDIF*/
+			// ENDIF
 
 #endif
 
@@ -852,7 +866,7 @@ void MainDrawFunction ( void )
 	//ProcessProcTextures( );
 	TIMER_STOP0(TIMER_PROCTEX);
 
-	DrawBackDrop(0);
+	DrawBackDrop(0, 0);
 }
 
 
@@ -896,7 +910,7 @@ void ResetDrawingEnvironment ( void )
   	displayPage[0].drawenv.ofs[0] = displayPage[1].drawenv.ofs[0] = 512/2;
   	displayPage[0].drawenv.ofs[1] = 120+PALMODE*8;
 	displayPage[1].drawenv.ofs[1] = 256+120+PALMODE*8;
-	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
+	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 0;
 	GsSetProjection(350);
 	SetDispMask(1);
 	VSync(0);
