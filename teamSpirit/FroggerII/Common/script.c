@@ -129,11 +129,16 @@ int InitScripting(void)
 
 void PrintScriptDebugMessage(const char* str)
 {
-	dprintf"[Interpreter Debug] %s", str));
-
-	if(lineNumber) dprintf" (line %d)", lineNumber));
-
-	dprintf"\n"));
+	if (lineNumber)
+	{
+		sprintf(statusMessage, "(script) %s (%d)", str, lineNumber);
+		dprintf"[Interpreter Debug] %s (line %d)\n", str, lineNumber));
+	}
+	else
+	{
+		sprintf(statusMessage, "(script) %s", str);
+		dprintf"[Interpreter Debug] %s\n", str));
+	}
 }
 
 #else

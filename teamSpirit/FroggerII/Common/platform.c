@@ -1034,7 +1034,10 @@ void SetPlatformVisible(PLATFORM *plt, int visible)
 		plt->countdown = -1;
 		
 		if (plt->isWaiting != -1)
+		{
+			plt->isWaiting = -1;
 			SetPlatformMoving(plt, 1);
+		}
 	}
 	else
 	{
@@ -1047,10 +1050,13 @@ void SetPlatformMoving(PLATFORM *plt, int moving)
 {
 	if (moving)
 	{
-		plt->isWaiting = 0;
-		plt->path->toNode = plt->path->fromNode;
-		plt->path->startFrame = actFrameCount;
-		plt->path->endFrame = actFrameCount + (60*plt->currSpeed);
+		if (plt->isWaiting)
+		{
+			plt->isWaiting = 0;
+			plt->path->toNode = plt->path->fromNode;
+			plt->path->startFrame = actFrameCount;
+			plt->path->endFrame = actFrameCount + (60*plt->currSpeed);
+		}
 		//plt->Update(plt);
 	}
 	else

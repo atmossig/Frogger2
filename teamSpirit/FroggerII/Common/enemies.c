@@ -427,17 +427,17 @@ void UpdatePathNME( ENEMY *cur )
 			cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
 	}
 
-	/*	------------- Push blocks, lovely blocks that push --------------- */
+	/*	------------- Push blocks, big fat mofo blocks that push --------------- */
 	if (cur->flags & ENEMY_NEW_PUSHESFROG)
 	{
 		VECTOR v;
 		AddVector(&v, &cur->nmeActor->actor->pos, &fwd);
 		SubFromVector(&v, &frog[0]->actor->pos);
 
-		if( MagnitudeSquared(&v) < 1000 )
+		if( MagnitudeSquared(&v) < (50*50) )
 		{
 			PushFrog(&cur->nmeActor->actor->pos, &fwd, 0);
-			player[0].canJump = 0;
+			//player[0].canJump = 0;
 			AnimateActor(frog[0]->actor, FROG_ANIM_FORWARDSOMERSAULT, NO, NO, 0.6f, 0, 0);
 		}
 	}
@@ -1932,7 +1932,10 @@ void SetEnemyVisible(ENEMY *nme, int visible)
 		nme->nmeActor->draw = 1;
 		
 		if (nme->isWaiting != -1)
+		{
+			nme->isWaiting = -1;
 			SetEnemyMoving(nme, 1);
+		}
 	}
 	else
 	{
