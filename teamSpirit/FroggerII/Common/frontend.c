@@ -50,6 +50,11 @@ void RunFrontEnd ( void )
 				RunGameMode();
 			break;
 
+		case ALL_LEVELSELECT_MODE:
+			multiplayerRun = 0;
+			RunSelectAllLevels( );
+			break;
+
 		case LEVELSELECT_MODE:
 				multiplayerRun = 0;
 				RunLevelSelect();

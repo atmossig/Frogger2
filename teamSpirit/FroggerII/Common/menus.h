@@ -28,6 +28,11 @@ struct slotSelectStateStruct
 	unsigned long mode;
 };
 
+typedef struct LEVELNAMESTRUCT
+{
+	char name[64];
+} LNAMESTRUCT;
+
 extern struct slotSelectStateStruct slotSelectState;
 
 extern SPRITE *sp;

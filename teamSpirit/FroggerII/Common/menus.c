@@ -121,7 +121,17 @@ void RunDemoOption ( void )
 	
 	if(frameCount > 15)
 	{
-		if ((button & CONT_B) && !(lastbutton & CONT_B))
+		if( (button & CONT_START) && !(lastbutton & CONT_START) )
+		{
+			runningDevStuff = 0;
+			FreeAllLists();
+			frameCount = 0;
+			lastbutton = 0;
+			frontEndState.mode	= ALL_LEVELSELECT_MODE;
+			PlaySample ( 2,NULL,255,128);
+		}
+
+		if( (button & CONT_B) && !(lastbutton & CONT_B) )
 		{
 //			runningDevStuff = 0;
 			FreeAllLists();
@@ -133,8 +143,7 @@ void RunDemoOption ( void )
 		}
 		// ENDIF
 
-		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
-		   ((button & CONT_START) && !(lastbutton & CONT_START)))
+		if( (button & CONT_A) && !(lastbutton & CONT_A) )
 		{
 		//	osMotorStart ( &rumble );
 
@@ -176,6 +185,223 @@ void RunDemoOption ( void )
 	}
 
 	lastbutton = button;
+}
+
+
+void RunSelectAllLevels ( void )
+{
+	static u16 button;
+	static u16 lastbutton;
+
+	TEXTOVERLAY *worldSelText[MAX_WORLDS];
+	TEXTOVERLAY *levelSelText[MAX_LEVELS];
+
+	static unsigned long lrSelect = 0;				// Select worlds or levels
+	static unsigned long oldWorldSelect = 0;        // To check if selected world has changed
+	static unsigned long currentWorldSelect = 0;	// Which world
+	static unsigned long currentLevelSelect = 0;	// Which level
+
+	static LNAMESTRUCT lNames[MAX_LEVELS];
+
+	unsigned int i,j;
+
+/*
+*	Initialise this screen
+*/
+	if ( frameCount == 1 )
+	{
+		StopDrawing ( "demo option" );
+
+		FreeAllLists();
+
+		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(TITLES_TEX_BANK);
+
+		currFont = oldeFont;
+
+		// Draw list of worlds on left
+		for( i=0; i < MAX_WORLDS; i++ )
+			worldSelText[i] = CreateAndAddTextOverlay( 30, (i*20)+30,
+														worldVisualData[i].description,
+														NO,NO,255,255,255,100,
+														currFont, TEXTOVERLAY_NORMAL,0,0 );
+
+		// Draw list of levels in current selected world on right
+		for( i=0; i < MAX_LEVELS; i++ )
+		{
+			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
+			levelSelText[i] = CreateAndAddTextOverlay( 180, (i*20)+30,
+														lNames[i].name,
+														NO,NO,255,255,255,100,		
+														currFont,TEXTOVERLAY_NORMAL,0,0);
+		}
+
+		ResetParameters();
+
+		runningDevStuff = 1;
+
+		StartDrawing ( "demo option" );
+	}
+
+
+	// Reset alpha values
+	worldSelText[currentWorldSelect]->a = 100;
+	if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 100;
+
+/*
+*	Update buttons
+*/
+	button = controllerdata [ ActiveController ].button;
+
+	// Move between worlds or levels
+	if((button & CONT_UP) && !(lastbutton & CONT_UP))
+    {
+		if( lrSelect == 0 && currentWorldSelect > 0 ) // World select
+		{
+			currentWorldSelect--;
+			for( i=0; i < MAX_LEVELS; i++ )
+			{
+				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				{
+					currentLevelSelect = i;
+					break;
+				}
+				else currentLevelSelect = 255;
+			}
+			PlaySample ( 237, NULL, 255, 128 );
+		}
+		else if( lrSelect == 1 && currentLevelSelect > 0 ) // Level select
+		{
+			for( i=currentLevelSelect-1; i >= 0; i-- )
+			{
+				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				{
+					currentLevelSelect = i;
+					PlaySample ( 237, NULL, 255, 128 );
+					break;
+				}
+			}
+		}
+	}
+	    
+	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+    {
+		if( lrSelect == 0 && currentWorldSelect < MAX_WORLDS-1 ) // World select
+		{
+			currentWorldSelect++;
+			for( i=0; i < MAX_LEVELS; i++ )
+			{
+				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				{
+					currentLevelSelect = i;
+					break;
+				}
+				else currentLevelSelect = 255;
+			}
+			PlaySample ( 237, NULL, 255, 128 );
+		}
+		else if( lrSelect == 1 && currentLevelSelect < MAX_LEVELS )
+		{
+			for( i=currentLevelSelect+1; i < MAX_LEVELS; i++ )
+			{
+				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
+				{
+					currentLevelSelect = i;
+					PlaySample ( 237, NULL, 255, 128 );
+					break;
+				}
+			}
+		}
+	}
+
+	// Move between world and level select
+	if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
+    {
+		if( lrSelect == 1 )
+		{
+			lrSelect = 0;
+			PlaySample ( 237, NULL, 255, 128 );
+		}
+	}
+	    
+	if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
+    {
+		if( lrSelect == 0 && currentLevelSelect != 255 )
+		{
+			lrSelect = 1;
+			PlaySample ( 237, NULL, 255, 128 );
+		}
+	}
+
+/*
+*	Check if world selection has changed. If so, update level list.
+*/
+
+	if( currentWorldSelect != oldWorldSelect )
+	{
+		// Change old level textovers
+		for( i=0; i < MAX_LEVELS; i++ )
+			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
+	}
+
+/*
+*	Don't allow menu changing for the first fifteen frames
+*/
+	if(frameCount > 15)
+	{
+		// Move back in menus?
+		if ((button & CONT_B) && !(lastbutton & CONT_B))
+		{
+			runningDevStuff = 0;
+			FreeAllLists();
+			frameCount = 0;
+			lastbutton = 0;
+			frontEndState.mode	= SLOT_SELECT_MODE;
+			PlaySample ( 2,NULL,255,128);
+			return;
+		}
+
+		// Run selected world and level
+		if ( (((button & CONT_A) && !(lastbutton & CONT_A)) ||
+			((button & CONT_START) && !(lastbutton & CONT_START))) &&
+			currentLevelSelect != 255 )
+		{
+			StopDrawing( "demo option" );
+
+			runningDevStuff = 0;
+			FreeAllLists();
+
+			worldNum = currentWorldSelect;
+			levelNum = currentLevelSelect;
+
+			InitLevel ( currentWorldSelect, currentLevelSelect );
+
+			gameState.oldMode = ALL_LEVELSELECT_MODE;
+			gameState.mode = GAME_MODE;
+
+			frameCount = 0;
+			lastbutton = 0;
+			PlaySample ( 2,NULL,255,128);
+
+			StartDrawing ( "demo option" );
+			return;
+		}			
+	}
+
+	// Set selected text solid
+	if( lrSelect == 0 )
+	{
+		worldSelText[currentWorldSelect]->a = 255;
+		if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 175;
+	}
+	else
+	{
+		worldSelText[currentWorldSelect]->a = 175;
+		if( currentLevelSelect != 255 ) levelSelText[currentLevelSelect]->a = 255;
+	}
+
+	lastbutton = button;
+	oldWorldSelect = currentWorldSelect;
 }
 
 
