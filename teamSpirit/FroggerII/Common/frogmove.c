@@ -1322,7 +1322,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		if(destPlatform[pl])
 		{
 			// check if platform is too high to reach
-			if(PlatformTooHigh(destPlatform[pl]))
+			if(PlatformTooHigh(destPlatform[pl],pl))
 			{
 				// platform too high
 				dprintf"Platform TOO HIGH\n"));
@@ -1338,7 +1338,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 				return FALSE;
 			}
-			else if(PlatformTooLow(destPlatform[pl]))
+			else if(PlatformTooLow(destPlatform[pl],pl))
 			{
 				// platform too far below
 				dprintf"Platform TOO LOW\n"));
