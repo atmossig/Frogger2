@@ -248,7 +248,7 @@ void GameProcessController(long pl)
 		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped ) // && (player[pl].heightJumped > -125.0F)
 		{
 			GAMETILE *old;
-			PlaySample(GEN_FROG_DOUBLEHOP,&frog[pl]->actor->pos,0,200,60);
+			PlaySample(genSfx[GEN_DOUBLE_HOP],&frog[pl]->actor->pos,0,200,60);
 
 			old = currTile[pl];
 			currTile[pl] = destTile[pl];
@@ -310,7 +310,7 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_B) && !(lastbutton[pl] & CONT_B) && (tongue[pl].flags & TONGUE_IDLE))
     {
 		// want to use tongue
-		PlaySample(GEN_FROG_TONGUE,&frog[pl]->actor->pos,0,255,64);
+		PlaySample(genSfx[GEN_FROG_TONGUE],&frog[pl]->actor->pos,0,255,64);
 		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
 		player[pl].hasJumped = 1;
 

@@ -166,7 +166,7 @@ BOOL UpdateFroggerControls(long pl)
 		
 		actF = frogPitch.freq+Random(10);
 		
-		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
+		PlaySample(genSfx[GEN_FROG_HOP],&frog[pl]->actor->pos,0,100-Random(15),actF);
 		frogPitch.lastHopOn = actFrameCount;
 
 		prevTile = currTile[pl];
@@ -187,7 +187,7 @@ BOOL UpdateFroggerControls(long pl)
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
 		else dir = MOVE_RIGHT;
 
-		PlaySample(GEN_SUPER_HOP,&frog[pl]->actor->pos,0,255,64);
+		PlaySample(genSfx[GEN_SUPER_HOP],&frog[pl]->actor->pos,0,255,64);
 
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 

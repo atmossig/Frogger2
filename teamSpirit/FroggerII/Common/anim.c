@@ -18,12 +18,6 @@
 
 float hedRotAmt = 0;
 
-// Used to cue a sound effect when an animation is played
-long *sfx_anim_map = NULL;
-
-int *FindSfxMapping( unsigned long uid );
-
-
 /*	--------------------------------------------------------------------------------
 	Function 	  : 
 	Purpose 	   : 
@@ -141,7 +135,7 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 		if(keepProportion)
 			actorAnim->morphTo = actorAnim->animTime = anim->animStart + proportion*(float)(anim->animEnd-anim->animStart);
 
-		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+		if( actorAnim->sfxMapping )
 			PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 48 );
 	}
 	else
@@ -289,7 +283,7 @@ void UpdateAnimations(ACTOR *actor)
 				*actorAnim->queueAnimationSpeed = -1;
 				*actorAnim->queueNumMorphFrames = 0;
 			}
-			if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+			if( actorAnim->sfxMapping )
 				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
 		}
 	}
@@ -302,7 +296,7 @@ void UpdateAnimations(ACTOR *actor)
 		{
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
 
-			if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+			if( actorAnim->sfxMapping )
 				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
 
 		}
@@ -336,36 +330,6 @@ BOOL QueryAnimTime(ACTOR *actor, float time)
 		return YES;
 
 	return NO;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: FindSfxMap
-	Purpose 	: Return a pointer to an array of sample numbers for an actors animations
-	Parameters 	: UID of actor
-	Returns 	: Pointer to int
-	Info 		:
-*/
-int *FindSfxMapping( unsigned long uid )
-{
-	unsigned long index=0;
-
-	if( !sfx_anim_map ) return NULL;
-
-	while( sfx_anim_map[index] && (unsigned long)sfx_anim_map[index] != uid )
-	{
-		switch( sfx_anim_map[index+1] )
-		{
-		case 0: index += NUM_FROG_ANIMS+2; break;
-//		case 1: index += NUM_MULTI_ANIMS+2; break;   // NOT IMPLEMENTED YET!
-		case 2: index += NUM_NME_ANIMS+2; break;
-		}
-	}
-
-	if( !sfx_anim_map[index] )
-		return NULL;
-
-	return &sfx_anim_map[index+2];
 }
 
 

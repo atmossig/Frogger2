@@ -44,11 +44,10 @@ ENEMYLIST enemyList;						// the enemy linked list
 
 #define ENEMY_RANDOMNESS (0.5 + (Random(100)/100.0))	// returns a value from 0.5 to 1.5
 
-void NMEDamageFrog( int num, ENEMY *nme );
+void NMEDamageFrog( int pl, ENEMY *nme );
 void DoEnemyCollision( ENEMY *cur );
 void RotateWaitingNME( ENEMY *cur );
 void SlerpWaitingFlappyThing( ENEMY *cur );
-void SetSoundEffectsForEnemy( ENEMY *nme );
 
 void UpdatePathNME( ENEMY *cur );
 void UpdateSlerpPathNME( ENEMY *cur );
@@ -172,59 +171,63 @@ void DoEnemyCollision( ENEMY *cur )
 	}
 }
 
-void NMEDamageFrog( int num, ENEMY *nme )
+void NMEDamageFrog( int pl, ENEMY *nme )
 {
-	if( !nme || (player[num].frogState & FROGSTATUS_ISSAFE))
+	if( !nme || (player[pl].frogState & FROGSTATUS_ISSAFE))
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
-		player[num].healthPoints = 0;
+		player[pl].healthPoints = 0;
 	else
-		player[num].healthPoints--;
+		player[pl].healthPoints--;
 
 #ifdef N64_VERSION
 	StartRumble(120,1.5,5,ActiveController);
 #endif
 	
-	if(player[num].healthPoints != 0)
+	if(player[pl].healthPoints != 0)
 	{
-		GTInit( &player[num].safe, 2 );
+		GTInit( &player[pl].safe, 2 );
 
 		// Special death anim
 		if( (nme->reactiveNumber != -1) && (reactiveAnims[nme->reactiveNumber].type == 0xFF) )
-			deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (num);
+			deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (pl);
 		else
-			deathAnims[0] (num); // Normal damage
+			deathAnims[0] (pl); // Normal damage
 	}
 	else
 	{
-		player[num].healthPoints = 3;
-		player[num].frogState |= FROGSTATUS_ISDEAD;
+		player[pl].healthPoints = 3;
+		player[pl].frogState |= FROGSTATUS_ISDEAD;
 
 /*		if( nme->flags & ENEMY_NEW_VENT )
-			deathAnims[DEATHBY_FIRE+NUM_DEATHTYPES] (num);
+			deathAnims[DEATHBY_FIRE+NUM_DEATHTYPES] (pl);
 		else */if (nme->reactiveNumber!=-1)
 		{
 			if( reactiveAnims[nme->reactiveNumber].type == 0xFF )
-				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (num);
+			{
+				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (pl);
+				if( reactiveAnims[nme->reactiveNumber].animChar != -1 )
+					AnimateActor( nme->nmeActor->actor, reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25, 0, 0 );
+			}
 			else
 			{
 				if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
-					SetQuaternion(&(frog[num]->actor->qRot),&(nme->nmeActor->actor->qRot));
+					SetQuaternion(&(frog[pl]->actor->qRot),&(nme->nmeActor->actor->qRot));
 				
 				if (reactiveAnims[nme->reactiveNumber].type & 0x02) //Center
-					SetVector(&(frog[num]->actor->pos),&(nme->nmeActor->actor->pos));
+					SetVector(&(frog[pl]->actor->pos),&(nme->nmeActor->actor->pos));
 
 				if (reactiveAnims[nme->reactiveNumber].type & 0x04) //FixedPos
 					nme->doNotMove = 1;
 
-				AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
+				AnimateActor(frog[pl]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
 				AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
-				GTInit( &player[num].dead, 3 );
+				GTInit( &player[pl].dead, 3 );
 			}
 		}
-		else deathAnims[NUM_DEATHTYPES] (num); // DEATHBY_NORMAL
+		else deathAnims[NUM_DEATHTYPES] (pl); // DEATHBY_NORMAL
 	}
 }
 
@@ -1483,8 +1486,6 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 			}
 	}
 
-	SetSoundEffectsForEnemy( newItem );
-
 	return newItem;
 }
 
@@ -1720,28 +1721,6 @@ void CalcEnemyNormalInterps(ENEMY *nme)
 	nme->deltaNormal.v[X] /= numSteps;
 	nme->deltaNormal.v[Y] /= numSteps;
 	nme->deltaNormal.v[Z] /= numSteps;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: SetSoundEffectsForEnemy
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: Add sounds for different enemy types (e.g. motor for moas
-*/
-void SetSoundEffectsForEnemy( ENEMY *nme )
-{
-	ACTOR *act;
-	
-	if (!nme->nmeActor) return;
-		
-	act = nme->nmeActor->actor;
-
-	if (!act->objectController) return;
-
-	if( !gstrcmp("lomoahrt", act->objectController->object->name) )
-		AddAmbientSound( GEN_CLOCK_TOCK, &act->pos, 1000, 100, 100, 3, 0, act );
 }
 
 

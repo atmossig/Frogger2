@@ -304,7 +304,7 @@ typedef struct
 	float		morphTo;
 	float		morphFrom;
 
-	long		*sfxMapping;	// Cue these sound effects off the animation
+	struct _SAMPLE **sfxMapping;	// Cue these sound effects off the animations
 
 }ACTOR_ANIMATION;
 
