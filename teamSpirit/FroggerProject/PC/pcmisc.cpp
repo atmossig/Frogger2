@@ -25,6 +25,8 @@
 #include "islPad.h"
 #include "controll.h"
 
+#include <stdio.h>
+
 int drawOverlays = 1;
 
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
