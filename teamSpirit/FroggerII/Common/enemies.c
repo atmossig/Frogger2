@@ -169,44 +169,15 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 			testEnemy = CreateAndAddEnemy("moa.ndo",lawnPath4,0,0,43,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL | ENEMY_ACCELERATECONST);
 
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath5,35,35,3,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath6,35,35,5,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
-
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath7,35,35,1,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
-
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath8,35,35,2,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath9,35,35,3,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath10,35,35,4,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath11,35,35,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath12,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath13,35,35,1,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 			testEnemy = CreateAndAddEnemy("wasp.ndo",lawnPath14,35,35,6,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHCYCLE | ENEMY_FLATLEVEL);
-			testEnemy->nmeActor->actor->scale.v[X] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Y] = 1.5;
-			testEnemy->nmeActor->actor->scale.v[Z] = 1.5;
 
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath15,0,0,2,3.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath16,0,0,3,3.0F, ENEMY_HASPATH | ENEMY_PATHBACKWARDS | ENEMY_PATHBOUNCE | ENEMY_FLATLEVEL);
@@ -344,7 +315,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	}
 
 	// add and initialise the actor
-	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,s0,0);
+	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
 	if(shadowRadius)
 		newItem->nmeActor->actor->shadow->radius = shadowRadius;
 
@@ -373,6 +344,9 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 			case NMETYPE_WASP:
 				AnimateActor(newItem->nmeActor->actor,0,NO,NO,1.0F);
 				newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
+				newItem->nmeActor->actor->scale.v[X] = 1.5F;
+				newItem->nmeActor->actor->scale.v[Y] = 1.5F;
+				newItem->nmeActor->actor->scale.v[Z] = 1.5F;
 				break;
 			case NMETYPE_SNAKE:
 				AnimateActor(newItem->nmeActor->actor,3,YES,NO,2.0F);
