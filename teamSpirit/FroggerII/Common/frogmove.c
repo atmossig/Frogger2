@@ -299,7 +299,8 @@ void FroggerHop(long pl)
 			if (before >= 0 && after <= 0)
 			{
 				destPlatform[pl] = nearestPlatform[pl];
-				player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
+				player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
+				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 				player[pl].jumpTime = 1.0f;	// aaand land.
 				player[pl].heightJumped = Magnitude(&up);
 			}
