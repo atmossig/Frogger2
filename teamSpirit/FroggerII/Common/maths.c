@@ -448,6 +448,7 @@ void QuaternionToMatrix(QUATERNION *squat, MATRIX *dmatrix)
 	dmatrix->matrix[3][2] = (float)0.0;
 }
 
+
 //	--------------------------------------------------------------------------------
 //	Function : MatrixToQuaternion
 //	Purpose : Translate a matrix to a stationary quaternion
@@ -520,20 +521,25 @@ void MatrixToQuaternion(MATRIX *smatrix, QUATERNION *dquat)
 	Returns 	: 
 	Info 		: destination CAN be same as source
 */
-void QuaternionMultiply(QUATERNION *dest,QUATERNION *src1,QUATERNION *src2)
+
+void QuaternionMultiply(QUATERNION *res,QUATERNION *q1,QUATERNION *q2)
 {
 	float dp;
 	QUATERNION temp;
 
-	dp = src1->x*src2->x + src1->y*src2->y + src1->z*src2->z;
+	dp = q1->x*q2->x + q1->y*q2->y + q1->z*q2->z;
 
-	temp.w = src1->w*src2->w - dp;
-	temp.x = src1->w*src2->x + src2->w*src1->x + src1->y*src2->z - src1->z*src2->y;
-	temp.y = src1->w*src2->y + src2->w*src1->y + src1->z*src2->x - src1->x*src2->z;
-	temp.z = src1->w*src2->z + src2->w*src1->z + src1->x*src2->y - src1->y*src2->x;
+	temp.w = q1->w*q2->w - dp;
+	temp.x = q1->w*q2->x + q2->w*q1->x + q1->y*q2->z - q1->z*q2->y;
+	temp.y = q1->w*q2->y + q2->w*q1->y + q1->z*q2->x - q1->x*q2->z;
+	temp.z = q1->w*q2->z + q2->w*q1->z + q1->x*q2->y - q1->y*q2->x;
 
-	memcpy(dest,&temp,sizeof(QUATERNION));
+	res->w = temp.w;
+	res->x = temp.x;
+	res->y = temp.y;
+	res->z = temp.z;
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function 	: GetRotationFromQuaternion()
