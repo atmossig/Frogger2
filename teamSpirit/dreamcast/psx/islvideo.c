@@ -146,32 +146,29 @@ Sint32 ApExec(AP ap)
 	fname = vidStream->strName;
 
 	// use first pad connected
-	switch(firstPad)
+	for(i=0;i<4;i++)
 	{
-		case 0:
-			per = pdGetPeripheral(PDD_PORT_A0);
-			break;
-		case 1:
-			per = pdGetPeripheral(PDD_PORT_B0);
-			break;
-		case 2:
-			per = pdGetPeripheral(PDD_PORT_C0);
-			break;
-		case 3:
-			per = pdGetPeripheral(PDD_PORT_D0);
-			break;
+		switch(i)
+		{
+			case 0:
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+				case 2:
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+		if ( per->press & PDD_DGT_ST )
+		{
+			ap->term_flag = 1;
+			quitAllVideo = TRUE;
+		}
 	}
-	if ( per->press & PDD_DGT_ST )
-	{
-		ap->term_flag = 1;
-		quitAllVideo = TRUE;
-//		ap->pause_flag = NOT_FLAG(ap->pause_flag);
-//		mwPlyPause(ply, ap->pause_flag);
-	}
-	if ( per->press & PDD_DGT_TA )
-		mwPlyStartFname(ply, fname);
-	if ( per->press & PDD_DGT_TL)
-		ap->disp_flag = NOT_FLAG(ap->disp_flag);
 
 	/*	Checking status												*/
 	stat = mwPlyGetStat(ply);

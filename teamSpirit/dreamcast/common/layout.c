@@ -1314,6 +1314,7 @@ void FreeAllLists()
 		{
 			// *ASL* 12/08/2000 - Force allow quit on video playback
 			StartVideoPlayback(storySequence[gameState.storySequenceLevel].fmv, 1);
+		}
 	}
 
 //	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
@@ -1376,63 +1377,6 @@ void FreeAllLists()
 	utilPrintf("----- DONE FREEING ALL LISTS -----\n");
 	utilPrintf("----------------------------------\n");
 }
-
-/*
-void		**gameTextStr;
-static void *gameTextBuffer;
-
-void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
-{
-	char	*bufPtr, *compactBuf;
-	int		loop, lang, len = 0;
-
-
-	gameTextStr = (void **)MALLOC(sizeof(void *) * numStrings);
-
-	gameTextBuffer = fileLoad(fName,0);
-	bufPtr = (char *)gameTextBuffer;
-	for(loop=0; loop<numStrings; loop++)
-	{
-		for(lang=-2; lang<numLang; lang++)
-		{
-			if (*bufPtr=='\"')
-				bufPtr++;
-			if (lang==currLang)
-				gameTextStr[loop] = bufPtr;
-			while((*bufPtr!=13) && (*bufPtr!=10) && (*bufPtr!='\t') && (*bufPtr!='\0'))
-				bufPtr++;
-			if (*(bufPtr-1)=='\"')
-				*(bufPtr-1) = '\0';
-			*bufPtr++ = '\0';
-			if ((*bufPtr==13)||(*bufPtr==10))
-				bufPtr++;
-			if (lang==currLang)
-				len += strlen(gameTextStr[loop]);
-		}
-	}
-
-	bufPtr = compactBuf = MALLOC(len+numStrings);
-	printf("small game text = %d\n", len+numStrings);
-	for(loop=0; loop<numStrings; loop++)
-	{
-		strcpy(bufPtr, gameTextStr[loop]);
-		gameTextStr[loop] = bufPtr;
-		bufPtr += strlen(gameTextStr[loop])+1;
-//		printf("[%d][%s]\n", loop, gameTextStr[loop]);
-	}
-	FREE(gameTextBuffer);
-	gameTextBuffer = compactBuf;
-	compactBuf = MALLOC(len+numStrings);
-	memcpy(compactBuf, gameTextBuffer, len+numStrings);
-	for(loop=0; loop<numStrings; loop++)
-	{
-		gameTextStr[loop] -= (unsigned long)gameTextBuffer;
-		gameTextStr[loop] += (unsigned long)compactBuf;
-	}
-	FREE(gameTextBuffer);
-	gameTextBuffer = compactBuf;
-}
-*/
 
 int quitAllVideo;
 extern ACTOR oldActor;
