@@ -57,7 +57,6 @@ typedef struct TAGACTOR2
 	char			draw;
 	int				flags;
 	float			radius;
-	float			angle;
 	float			animSpeed;
 	float			value1;
 

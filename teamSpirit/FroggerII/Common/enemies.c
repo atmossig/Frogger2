@@ -768,14 +768,34 @@ void UpdateEnemies()
 				}
 
 				// Move around a single flag
-				if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
+				if( (cur->flags & ENEMY_NEW_ROTATEPATH_XZ ) ||
+					(cur->flags & ENEMY_NEW_ROTATEPATH_XY) ||
+					(cur->flags & ENEMY_NEW_ROTATEPATH_ZY) )
 				{
 					VECTOR v1,v2,v3,nmeup;
 					fromPosition = cur->nmeActor->actor->pos;
 
-					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 ));
-					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 ));
-					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + cur->path->nodes->offset;
+					length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
+					length *= PI2;
+
+					if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
+					{
+						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
+						toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf(length));
+						toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + cur->path->nodes->offset;
+					}
+					else if( cur->flags & ENEMY_NEW_ROTATEPATH_XY )
+					{
+						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
+						toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
+						toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z];
+					}
+					else if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
+					{
+						toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
+						toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * sinf(length));
+						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X];
+					}
 
 					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
 					{
@@ -788,63 +808,12 @@ void UpdateEnemies()
 					}
 
 					cur->nmeActor->actor->pos = toPosition;
-					cur->nmeActor->angle += cur->speed;
-					if( cur->nmeActor->angle >= 360 )
-						cur->nmeActor->angle -= 360;
-					else if( cur->nmeActor->angle < 0 )
-						cur->nmeActor->angle += 360;
-				}
-				else if( cur->flags & ENEMY_NEW_ROTATEPATH_XY )
-				{
-					VECTOR v1,v2,v3,nmeup;
-					fromPosition = cur->nmeActor->actor->pos;
 
-					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 ));
-					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 )) + cur->path->nodes->offset;
-					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z];
-
-					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
+					if( actFrameCount > cur->path->endFrame )
 					{
-						SubVector(&v1,&fromPosition,&toPosition);
-						MakeUnit(&v1);
-						RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
-						CrossProduct(&v2,&v1,&nmeup);
-						CrossProduct(&v3,&v2,&nmeup);
-						Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
+						cur->path->startFrame = cur->path->endFrame;
+						cur->path->endFrame = cur->path->startFrame+(60*cur->speed);
 					}
-
-					cur->nmeActor->actor->pos = toPosition;
-					cur->nmeActor->angle += cur->speed;
-					if( cur->nmeActor->angle >= 360 )
-						cur->nmeActor->angle -= 360;
-					else if( cur->nmeActor->angle < 0 )
-						cur->nmeActor->angle += 360;
-				}
-				else if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
-				{
-					VECTOR v1,v2,v3,nmeup;
-					fromPosition = cur->nmeActor->actor->pos;
-
-					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 )) + cur->path->nodes->offset;
-					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 ));
-					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X];
-
-					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
-					{
-						SubVector(&v1,&fromPosition,&toPosition);
-						MakeUnit(&v1);
-						RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
-						CrossProduct(&v2,&v1,&nmeup);
-						CrossProduct(&v3,&v2,&nmeup);
-						Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
-					}
-
-					cur->nmeActor->actor->pos = toPosition;
-					cur->nmeActor->angle += cur->speed;
-					if( cur->nmeActor->angle >= 360 )
-						cur->nmeActor->angle -= 360;
-					else if( cur->nmeActor->angle < 0 )
-						cur->nmeActor->angle += 360;
 				}
 			}
 
@@ -1505,7 +1474,6 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 	newItem->startSpeed		= 1.0F;
 	newItem->accel			= 0.0F;
 	newItem->isSnapping 	= 0;
-	newItem->nmeActor->angle	= 0.0F;
 
 	return newItem;
 }
