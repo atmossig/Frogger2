@@ -14,6 +14,7 @@
 #include "layout.h"
 #include "Main.h"
 #include <islutil.h>
+#include <stdio.h>
 
 char saveName[32];
 

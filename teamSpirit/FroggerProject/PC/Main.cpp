@@ -54,7 +54,7 @@
 
 #include "mdx.h"
 #include "mdxException.h"
-#include "c:\work\froggerproject\resource.h"
+#include "..\resource.h"
 #include "..\network.h"
 #include "..\netchat.h"
 #include "..\netgame.h"
