@@ -34,6 +34,7 @@
 int numTextureBanks = 0;
 int numUsedDummys		= 0;
 int numUsedDummys64 = 0;
+int numUsedDummys16 = 0;
 
 
 //char *palNames [ 5 ] = { "BFG01", "BFG02", "BFG03", "BFG04", "BFG05"};
@@ -145,6 +146,8 @@ void LoadTextureAnimBank( int textureBank )
 
 		if ( textureAnim->animation->dest->h == 64 )
 			sprintf ( dummyString, "64DUMMY%d", numUsedDummys64++ );
+		else if ( textureAnim->animation->dest->h == 16 )
+			sprintf ( dummyString, "16DUMMY%d", numUsedDummys16++ );
 		else
 			sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
 
@@ -162,6 +165,24 @@ void LoadTextureAnimBank( int textureBank )
 		DrawSync(0);
 		MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
  		DrawSync(0);
+
+		moveRect.x = (textureAnim->animation->dest->clut & 0x3f) << 4;		// Copy up the palette
+		moveRect.y = (textureAnim->animation->dest->clut >> 6);
+
+		if ( dummyTexture->tpage & (1 << 7) )
+			moveRect.w = 256;
+		else		
+			moveRect.w = 16;
+
+		moveRect.h = 1;
+
+		DrawSync(0);
+		MoveImage ( &moveRect, (dummyTexture->clut & 0x3f) << 4, (dummyTexture->clut >> 6) );
+ 		DrawSync(0);
+
+		//BEGINPRIM		( siMove, DR_MOVE );
+		//SetDrawMove ( siMove, &moveRect, (dummyTexture->clut & 0x3f) << 4, (dummyTexture->clut >> 6) );
+		//ENDPRIM			( siMove, 1023, DR_MOVE );
 
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
@@ -215,6 +236,7 @@ void FreeAllTextureBanks ( void )
 	numTextureBanks = 0;
 	numUsedDummys		= 0;
 	numUsedDummys64	= 0;
+	numUsedDummys16	= 0;
 
 	textureDestroy();
 }
