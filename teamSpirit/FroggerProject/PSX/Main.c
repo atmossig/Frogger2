@@ -790,6 +790,11 @@ int main ( )
 				DrawBackDrop(0, 0);
 				DrawScreenTransition();
 			}
+			else if(gameState.mode == THEEND_MODE)
+			{
+				PrintTextOverlays();
+				DrawScreenTransition();
+			}
 			else
 			{
 				if ( !objViewer )

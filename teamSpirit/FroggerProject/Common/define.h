@@ -49,6 +49,7 @@ enum gameModes
 	STARTUP_MODE,
 
 	TEASERSCREEN_MODE,
+	THEEND_MODE,
 };
 
 #define SINGLEPLAYER	1

@@ -26,6 +26,7 @@ int barLength = 400;
 
 TEXTOVERLAY *worldName;
 TEXTOVERLAY *levelName;
+TEXTOVERLAY *loadingText;
 TEXTOVERLAY *parTimeText;
 TEXTOVERLAY *parNameText;
 TEXTOVERLAY *coinsText;
@@ -101,7 +102,7 @@ int fontsLoaded;
 
 void loadingInitText(int worldID, int levelID)
 {
-	int i,c,y = 500;
+	int i,c,y = 400;
 
 	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 52, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_LOADING); 
 
@@ -126,18 +127,25 @@ void loadingInitText(int worldID, int levelID)
 	{
 		y = 1900;
 		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, font, TEXTOVERLAY_LOADING); 
+		loadingText = NULL;
 	}
 	else
+	{
+		loadingText = CreateAndAddTextOverlay( 2048 + 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, fontSmall, TEXTOVERLAY_LOADING); 
+		y += 300;
 		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_LOADING); 
+		loadingText->xPosTo = 2048;
+		loadingText->speed = 4096*40*3;
+	}
 
 
 	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
 	backgrounds[1]->r = backgrounds[1]->g = backgrounds[1]->b = 128;
 
 	if(gameState.multi == SINGLEPLAYER)
-		y += 1200;
+		y += 1100;
 	else
-		y += 700;
+		y += 600;
 
 	levelName->r = 0;
 	levelName->b = 0;
@@ -180,11 +188,11 @@ void loadingInitText(int worldID, int levelID)
 		{
 			sprintf(playerStr[i],"%s %d",GAMESTRING(STR_PLAYER),i + 1);
 			c = (fontExtentWScaled(font,playerStr[i],4096)+96)*4;
-			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*600,playerStr[i],NO,255,font,TEXTOVERLAY_LOADING);
+			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*550,playerStr[i],NO,255,font,TEXTOVERLAY_LOADING);
 			playerText[i]->xPosTo = 2048 - c - 128 + 256*(i MOD 2);
 			playerText[i]->speed = 4096*40*3;
 			playerText[i]->draw = 0;
-			playerFace[i] = CreateAndAddSpriteOverlay(2048 + c - 64*8 + 4096*(4 +i) - 128 + 256*(i MOD 2),y + i*600 - 128,NULL,4096,1,255,SPRITE_LOADING);
+			playerFace[i] = CreateAndAddSpriteOverlay(2048 + c - 64*8 + 4096*(4 +i) - 128 + 256*(i MOD 2),y + i*550 - 128,NULL,4096,1,255,SPRITE_LOADING);
 			playerFace[i]->xPosTo = 2048 + c - 64*8 - 128 + 256*(i MOD 2);
 			playerFace[i]->speed = 4096*40*3;
 			playerFace[i]->draw = 0;
@@ -278,6 +286,8 @@ void loadingFree()
 	gameSpeed = 4096;
 	SubTextOverlay(worldName);
 	SubTextOverlay(levelName);
+	if(loadingText)
+		SubTextOverlay(loadingText);
 	SubTextOverlay(parTimeText);
 	SubTextOverlay(coinsText);
 	GsSetProjection(350);

@@ -1107,7 +1107,7 @@ void RunFrontendGameLoop (void)
 		CheckForDynamicCameraChange(currTile[0],0); // TEMPORARY FIX!!
 		lastActFrameCount = 0;
 
-		GTInit(&frontendTimer, 16);	// 10 seconds
+		GTInit(&frontendTimer, 30);	// 30 seconds
 	}
 
 	currTileNum = 0;
@@ -1127,7 +1127,7 @@ void RunFrontendGameLoop (void)
 	{
 		if(currTileNum == TILENUM_START)
 		{
-			GTInit(&frontendTimer, 16);
+			GTInit(&frontendTimer, 30);
 		}
 		else
 		{
@@ -1136,10 +1136,10 @@ void RunFrontendGameLoop (void)
 	}
 
 
-	if((frontendTimer.time > 0) && (playDemos) && (!creditsRunning))
+	if((frontendTimer.time > 0) && (playDemos) && (!creditsRunning) && (options.mode != OP_GLOBALMENU) && (options.mode != OP_EXTRA))
 	{
-		if((currTileNum == TILENUM_START) && (frontendTimer.time > 16))
-			GTInit(&frontendTimer,16);
+		if((currTileNum == TILENUM_START) && (frontendTimer.time > 30))
+			GTInit(&frontendTimer,30);
 		GTUpdate(&frontendTimer, -1);
 		if (!frontendTimer.time)
 		{
@@ -1454,7 +1454,7 @@ void RunFrontendGameLoop (void)
 	titleHudText[0]->xPos = 2048;
 	titleHudText[1]->xPos = 2048;
 
-	titleHudText[2]->xPos = titleHudX[0][2] + 100;
+	titleHudText[2]->xPos = titleHudX[0][2] + 164;
 	titleHudText[2]->yPos = titleHud[2]->yPos + 300;
 	titleHudText[3]->yPos = titleHud[3]->yPos + 300;
 #ifdef PSX_VERSION

@@ -68,6 +68,7 @@ extern int useMemCard;
 
 int numExtra;
 
+extern int restartingLevel;
 char extraOpenStr[64];
 extern int pauseController;
 int eolTrackComplete;
@@ -101,6 +102,35 @@ long backTextY[4] = {160+64,160+64,3640,3640};
 long backWinsTextX[4] = {64+512,3520-200,3520-200,64+512};
 long backWinsTextY[4] = {420+128,420+128,3360-64,3360-64};
 
+TEXTOVERLAY *theEndText = NULL;
+TIMER theEndTimer;
+void RunTheEndMode()
+{
+	if(theEndText == NULL)
+	{
+		FreeTextOverlayLinkedList();
+		InitTextOverlayLinkedList(2);
+		theEndText = CreateAndAddTextOverlay(2048,2000,GAMESTRING(STR_THE_END),YES,255,font,0);
+		GTInit(&theEndTimer,5);
+		ScreenFade(0,255,30);
+	}
+	else if((theEndTimer.time) && (!fadingOut))
+	{
+		GTUpdate(&theEndTimer,-1);
+		if((!theEndTimer.time) || (padData.debounce[0]))
+		{
+			ScreenFade(255,0,30);
+			theEndTimer.time = 0;
+		}
+	}
+	if((!fadingOut) && (theEndTimer.time == 0))
+	{
+		gameState.mode = FRONTEND_MODE;
+		theEndText = NULL;
+		InitLevel(player[0].worldNum,player[0].levelNum);
+		frameCount = 0;		
+	}
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: GameLoop
@@ -175,6 +205,10 @@ void GameLoop(void)
 
 	case DEMO_MODE:
 		RunDemoMode();
+		break;
+
+	case THEEND_MODE:
+		RunTheEndMode();
 		break;
 
 	case FRONTEND_MODE:
@@ -410,6 +444,10 @@ void StartGameOver()
 	TEXTOVERLAY *gameOverText;
 	gameState.mode = GAMEOVER_MODE;
 	GTInit( &modeTimer, 9 );
+
+#ifdef PSX_VERSION
+	SpuSetKey(SPU_OFF,0xffffff);
+#endif
 
 //	FreeAllGameLists();
 
@@ -1155,7 +1193,7 @@ void StartLevelComplete()
 		levelOpened = 1;
 	worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
 
-	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS - 1))
+	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS - 1) && ((gameState.difficulty != DIFFICULTY_HARD) || (arcadeHud.timeOutText->draw == 0)))
 	{
 		gameState.storySequenceLevel++;
 		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen == WORLD_CLOSED)
@@ -1265,7 +1303,7 @@ void StartLevelComplete()
 	}
 	else
 	{
-		if((gameState.difficulty == DIFFICULTY_HARD) && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && (timeForLevel <= worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime))
+		if((gameState.difficulty == DIFFICULTY_HARD) && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && (arcadeHud.timeOutText->draw == 0))
 			worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten = levelBeaten = 1;
 		if(timeForLevel < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)
 			grade = 0;
@@ -1792,7 +1830,7 @@ void RunLevelComplete()
 						gameState.storySequenceLevel = 0;
 						player[0].worldNum = WORLDID_FRONTEND;
 						player[0].levelNum = LEVELID_FRONTEND1;
-						gameState.mode = FRONTEND_MODE;
+						gameState.mode = THEEND_MODE;
 					}
 					else
 					{
@@ -1804,12 +1842,14 @@ void RunLevelComplete()
 				{
 					// todo: place Frogger 
 					gameState.mode = INGAME_MODE;
+					restartingLevel = TRUE;
 				}
 #endif
 //				FreeAllLists();
 				frameCount = 0;
 
-				InitLevel(player[0].worldNum,player[0].levelNum);
+				if(gameState.mode != THEEND_MODE)
+					InitLevel(player[0].worldNum,player[0].levelNum);
 
 				showEndLevelScreen = 1; // Normal level progression is default
 				frameCount = 0;		
