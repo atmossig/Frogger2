@@ -15,9 +15,6 @@
 //***********************************
 // Defines
 
-// Because CD playing pisses me off
-#define USE_AUDIO
-
 // Hmm - two flags. Worth it?
 #define FLAGS_NONE			0
 #define FLAGS_3D_SAMPLE		(1 << 0)
