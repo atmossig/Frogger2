@@ -652,7 +652,13 @@ void FroggerHop(int pl)
 	}
 
 	if( player[pl].deathBy == DEATHBY_FALLINGFOREVER || t < (1<<12) )
-		SetVectorSS(&frog[pl]->actor->position, &pos);
+	{
+		// MY GOD this is a stupid hack
+		if( !(frog[pl]->actor->position.vy < -30000 && pos.vy > 30000) ) // Stop wrapping
+			SetVectorSS(&frog[pl]->actor->position, &pos);
+		else
+			frog[pl]->draw = 0;
+	}
 
 #ifdef PSX_VERSION
 	if( currTile[pl]->state >= TILESTATE_CONVEYOR || currTile[pl]->state == TILESTATE_ICE )
@@ -1624,7 +1630,7 @@ void CheckTileState(GAMETILE *tile, int pl)
 				if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 				
 				//player[pl].jumpTime = jump_overrun;
-				player[pl].jumpSpeed = 100;
+				player[pl].jumpSpeed = 75;
 
 				// DOn't follow frog cos it exposes nasty things
 				fixedPos = 1;
