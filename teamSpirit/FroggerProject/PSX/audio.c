@@ -308,7 +308,7 @@ int LoadSfx(long worldID )
 		{
 			path[len] = '\0';
 			voiceCount[j] = 0;
-			strcat(path,frogPool[player[j].character].name);
+			strcat(path,frogPool[player[j].character].fileName);
 			strcat(path,"\\SFX");
 			LoadSfxSet(path, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
 		}
@@ -683,13 +683,16 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  		return;
  
  	// traverse enemy list and free elements
+/*
  	for( cur = ambientSoundList.head.next; cur != &ambientSoundList.head; cur = next )
  	{
  		next = cur->next;
  
- 		SubAmbientSound( cur );
+// 		SubAmbientSound( cur );
+	 	if(cur->handle != -1)
+			sfxStopChannel(cur->handle);
  	}
- 
+*/ 
  	// initialise list for future use
  	InitAmbientSoundList();
 }

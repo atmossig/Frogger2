@@ -328,7 +328,7 @@ unsigned short textureAddCLUT16(unsigned short *palette)
 		b = palette[col] & 31;
 
 		// close enough to magenta
-		if ((r>20) && (g<10) && (b>20))
+		if ((r > 25) && (g < 5) && (b > 25))
 			palette[col] = 0x0000;
 		else
 			palette[col] |= 0x8000;
@@ -445,7 +445,7 @@ unsigned short textureAddCLUT256(unsigned short *palette)
 		g = (palette[col] >> 5) & 31;
 		b = palette[col] & 31;
 
-		if ((r > 20) && (g < 10) && (b > 20))
+		if ((r > 25) && (g < 5) && (b > 25))
 			palette[col] = 0x0000;
 		else
 			palette[col] |= 0x8000;

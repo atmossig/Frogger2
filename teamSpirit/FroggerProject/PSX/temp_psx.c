@@ -17,6 +17,7 @@
 #include "memcard.h"
 #include "islvideo.h"
 #include "story.h"
+#include "audio.h"
 
 FVECTOR fmaActorScale;
 
@@ -504,6 +505,7 @@ void PsxNameEntryFrame(void)
 		{
 			textString[cursPos] = '-';
 			cursPos--;
+			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		}
 	}
 
@@ -528,7 +530,10 @@ void PsxNameEntryFrame(void)
 				textString[NAME_LENGTH] = 0;
 				textEntry = 0;
 				cursPos--;
+				PlaySample(genSfx[GEN_COLLECT_BABY],NULL,0,SAMPLE_VOLUME,-1);
 			}
+			else
+				PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		}
 	}
 
@@ -536,6 +541,7 @@ void PsxNameEntryFrame(void)
 	//change char under cursor
 	if(padData.debounce[0] & PAD_UP)
 	{
+		PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		if((textString[cursPos]==' ') || (textString[cursPos] == '-'))
 			textString[cursPos]='A';
 		else if(textString[cursPos] == 'Z')
@@ -546,6 +552,7 @@ void PsxNameEntryFrame(void)
 
 	if(padData.debounce[0] & PAD_DOWN)
 	{
+		PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		if(textString[cursPos]=='A')
 			textString[cursPos]=' ';
 		else if((textString[cursPos]==' ') || (textString[cursPos] == '-'))
