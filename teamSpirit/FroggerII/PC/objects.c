@@ -222,15 +222,15 @@ void LoadObjectBank(int num)
 			break;
 		
 		case CITYLEV1_OBJ_BANK:
-			strcat (file,"citylev1");
+			strcat (file,"city1");
 			break;
 
 		case CITYLEV2_OBJ_BANK:
-			strcat (file,"citylev2");
+			strcat (file,"city2");
 			break;
 
 		case CITYLEV3_OBJ_BANK:
-			strcat (file,"citylev3");
+			strcat (file,"city3");
 			break;
 
 		case CITYBONUS_OBJ_BANK:
