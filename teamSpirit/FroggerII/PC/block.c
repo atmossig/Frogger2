@@ -529,7 +529,16 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					curTicks = GetTickCount();
 					if (curTicks>startTicks+2000)
 					{
+						dp("--BeforeFinish---------------------------------------\n");
+						PrintTextureInfo();
+						dp("-------------------------------------------------------\n");
+	
 						FreeScreenTextures(screenTextureList,screenTextureList2,screenTexList);
+
+						dp("--AfterFinish---------------------------------------\n");
+						PrintTextureInfo();
+						dp("-------------------------------------------------------\n");
+	
 						screenGrabbed = 0;
 					}
 					else

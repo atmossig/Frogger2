@@ -399,7 +399,7 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
 		long i;
-		
+
 		if (rPlaying)
 		{
 			StopKeying();

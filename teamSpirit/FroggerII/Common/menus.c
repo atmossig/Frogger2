@@ -136,8 +136,13 @@ void RunTitleScreen()
 					numPlayers--;
 		}
 
-		if(	(button & CONT_A) && !(lastbutton & CONT_A) ||
-			(button & CONT_START) && !(lastbutton & CONT_START))
+		if ((button & CONT_START) && !(lastbutton & CONT_START))
+		{
+			PostQuitMessage(0);
+			return;
+		}
+
+		if ((button & CONT_A) && !(lastbutton & CONT_A))
 		{
 			switch(currentSelection)
 			{
@@ -362,9 +367,14 @@ void RunLevelSelect()
 			return;
 		}
 
+		if ((button & CONT_START) && !(lastbutton & CONT_START))
+		{
+			PostQuitMessage(0);
+			return;
+		}
+
 		// run selected world and level
-		if( (((button & CONT_A) && !(lastbutton & CONT_A)) ||
-			((button & CONT_START) && !(lastbutton & CONT_START)))
+		if( (((button & CONT_A) && !(lastbutton & CONT_A)))
 			&& currentLevelSelect != 255)
 		{
 			player[0].worldNum = currentWorldSelect;
@@ -434,6 +444,8 @@ void RunPauseMenu()
 		DisableTextOverlay ( quitText );
 		DisableTextOverlay ( posText );
 		DisableTextOverlay ( levelnameText );
+
+		FreeScreenTextures(screenTextureList,screenTextureList2,screenTexList);
 
 		pauseMode = 0;
 		idleCamera = 0;

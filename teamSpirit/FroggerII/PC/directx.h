@@ -67,6 +67,7 @@ extern unsigned long screenGrabbed;
 extern LPDIRECTDRAWSURFACE *screenTextureList2;
 extern unsigned long screenTexList[1000];
 extern void ShowDesignScreen(char *filename);
+void PrintTextureInfo(void);
 
 #define SCREENTEX_SIZE 32
 

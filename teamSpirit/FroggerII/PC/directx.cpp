@@ -931,6 +931,10 @@ void ShowLoadScreen(void)
 	long curTicks;
 	float sVal,fVal;
 
+	dp("--ShowLoadScreen---------------------------------------\n");
+	PrintTextureInfo();
+	dp("-------------------------------------------------------\n");
+	
 	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
 	
 	startTicks = GetTickCount();
@@ -976,13 +980,23 @@ void ShowLoadScreen(void)
 
 	
 	FreeScreenTextures(screenTextureList,screenTextureList2,screenTexList);
-
+	
+	dp("--ShowLoadScreen---------------------------------------\n");
+	PrintTextureInfo();
+	dp("-------------------------------------------------------\n");
+	
 	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
 		memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
 	surface[RENDER_SRF]->Unlock(NULL);
 	DDrawFlip();	
+
 	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
+
+	dp("--ShowLoadScreen---------------------------------------\n");
+	PrintTextureInfo();
+	dp("-------------------------------------------------------\n");
+	
 	screenGrabbed = 1;
 }
 
@@ -1038,7 +1052,7 @@ void PrintTextureInfo(void)
 	ddCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_TEXTURE;
 	pDirectDraw7->GetAvailableVidMem(&ddCaps, &dwVidMemTotal, &dwVidMemFree);					// Get the caps for the device
 	//pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
-	dp ( "Total Mem : %d : - Total Free : %d :\n",dwVidMemTotal, dwVidMemFree );
+	dp ( "Total Mem : %du : - Total Free : %du :\n",dwVidMemTotal, dwVidMemFree );
 }
  
 void DirectXFlip(void)
