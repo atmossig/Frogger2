@@ -59,6 +59,7 @@ PLATFORM *currPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is cu
 PLATFORM *nearestPlatform[4] = { NULL,NULL,NULL,NULL };	// platform nearest to the frog
 
 static void	GetPlatformActiveTile(PLATFORM *pform);
+void CalcNextPlatformDest(PLATFORM *plat);
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -1093,70 +1094,9 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	PATH *path = pform->path;
 	unsigned long flags = pform->flags;
 	
-	if(flags & PLATFORM_NEW_FORWARDS)	// platform moves forward through path nodes
-	{
-		if(path->toNode >= GET_PATHLASTNODE(path))
-		{
-			if(flags & PLATFORM_NEW_PINGPONG)
-			{
-				pform->flags	^= (PLATFORM_NEW_FORWARDS | PLATFORM_NEW_BACKWARDS);
-				path->fromNode	= GET_PATHLASTNODE(path);
-				path->toNode	= GET_PATHLASTNODE(path) - 1;
-			}
-			else if(flags & PLATFORM_NEW_CYCLE)
-			{
-				// platform has cyclic movement
-				path->fromNode	= GET_PATHLASTNODE(path);
-				path->toNode	= 0;
-			}
-			else
-			{
-				path->fromNode	= 0;
-				path->toNode	= 1;
-				GetPositionForPathNode(&pformPos,&path->nodes[0]);
-				SetVector(&pform->pltActor->actor->pos,&pformPos);
-			}
-		}
-		else
-		{
-			path->fromNode = path->toNode;
-			path->toNode++;
-		}
-	}
-	else if(flags & PLATFORM_NEW_BACKWARDS)
-	{
-		// platform moves backwards through path nodes
-		if(path->toNode <= 0)
-		{
-			if(flags & PLATFORM_NEW_PINGPONG)
-			{
-				pform->flags	^= (PLATFORM_NEW_FORWARDS | PLATFORM_NEW_BACKWARDS);
-				path->fromNode	= 0;
-				path->toNode	= 1;
-			}
-			else if(flags & PLATFORM_NEW_CYCLE)
-			{
-				path->fromNode	= 0;
-				path->toNode	= GET_PATHLASTNODE(path);
-			}
-			else
-			{
-				path->fromNode	= GET_PATHLASTNODE(path);
-				path->toNode	= GET_PATHLASTNODE(path) - 1;
-				GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
-				SetVector(&pform->pltActor->actor->pos,&pformPos);
-			}
-		}
-		else
-		{
-			path->fromNode = path->toNode;
-			path->toNode--;
-		}
-	}
-	else if((flags & PLATFORM_NEW_PINGPONG) && flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
-	{
-		pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);
-	}
+	path->fromNode = path->toNode;
+
+	CalcNextPlatformDest(pform);
 
 	pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 	pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
@@ -1312,4 +1252,105 @@ PLATFORM *GetNearestPlatformBelowFrog(GAMETILE *tile,long pl)
 	return pltNearest;
 }
 
-//------------------------------------------------------------------------------------------------
+/*	--------------------------------------------------------------------------------
+	Function		: CalcNextPlatformDest
+	Purpose			: Figures out what tile to go to next, on a path
+	Parameters		: PLATFORM *
+	Returns			: void
+	Info			: 
+*/
+void CalcNextPlatformDest(PLATFORM *pform)
+{
+	PATH *path = pform->path;
+	unsigned long flags = pform->flags;
+
+	if(pform->flags & PLATFORM_NEW_FORWARDS)	// platform moves forward through path nodes
+	{
+		path->toNode = path->fromNode + 1;
+
+		if(path->toNode > GET_PATHLASTNODE(path))
+		{
+			if(flags & PLATFORM_NEW_PINGPONG)
+			{
+				pform->flags	^= (PLATFORM_NEW_FORWARDS | PLATFORM_NEW_BACKWARDS);
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= GET_PATHLASTNODE(path) - 1;
+			}
+			else if(flags & PLATFORM_NEW_CYCLE)
+			{
+				// platform has cyclic movement
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= 0;
+			}
+			else
+			{
+				path->fromNode	= 0;
+				path->toNode	= 1;
+				//GetPositionForPathNode(&pformPos,&path->nodes[0]);
+				//SetVector(&pform->pltActor->actor->pos,&pformPos);
+			}
+		}
+	}
+	else if(flags & PLATFORM_NEW_BACKWARDS)
+	{
+		// platform moves backwards through path nodes
+		path->toNode = path->fromNode - 1;
+
+		if(path->toNode < 0)
+		{
+			if(flags & PLATFORM_NEW_PINGPONG)
+			{
+				pform->flags	^= (PLATFORM_NEW_FORWARDS | PLATFORM_NEW_BACKWARDS);
+				path->fromNode	= 0;
+				path->toNode	= 1;
+			}
+			else if(flags & PLATFORM_NEW_CYCLE)
+			{
+				path->fromNode	= 0;
+				path->toNode	= GET_PATHLASTNODE(path);
+			}
+			else
+			{
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= GET_PATHLASTNODE(path) - 1;
+				//GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
+				//SetVector(&pform->pltActor->actor->pos,&pformPos);
+			}
+		}
+	}
+	else if((flags & PLATFORM_NEW_PINGPONG) && flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
+	{
+		pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RecalculatePlatform
+	Parameters		: PLATFORM *
+	Returns			: void
+*/
+
+void RecalculatePlatform(PLATFORM *plat)
+{
+	// only recalculate when we're actually waiting, otherwise when it gets to the next
+	// path node it'll sort itself out anyway.
+
+	if (plat->isWaiting && (plat->flags & PLATFORM_NEW_FOLLOWPATH))
+	{
+		CalcNextPlatformDest(plat);
+	}
+}
+
+
+void FrogLeavePlatform(long pl)
+{
+	PLATFORM *plt;
+
+	if ((plt = currPlatform[pl]))
+	{
+		plt->flags |= PLATFORM_NEW_CARRYINGFROG;	// plat is NOT carrying a frog
+		plt->carrying = NULL;
+		currPlatform[pl] = NULL;
+	}
+}

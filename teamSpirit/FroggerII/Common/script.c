@@ -50,13 +50,18 @@ ACTOR2 *GetActorFromUID(int UID)
 	ENEMY *e;
 	PLATFORM *p;
 
+	dprintf"Finding actor %d: ", UID));
 	e = GetEnemyFromUID(UID);
 	if (e)
 		return e->nmeActor;
 	
+	dprintf"Searching plats: "));
 	p = GetPlatformFromUID(UID);
 	if (p)
+	{
+		dprintf"Found\n"));
 		return p->pltActor;
+	}
 
 	return NULL;
 }
@@ -304,6 +309,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			if (!(nme = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			flag = MEMGETINT(p);
 			nme->flags |= flag;
+
 			break;
 		}
 		
@@ -314,6 +320,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			if (!(nme = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			flag = MEMGETINT(p);
 			nme->flags &= ~flag;
+
 			break;
 		}
 
@@ -325,6 +332,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
 			flag = MEMGETINT(p);
 			plt->flags |= flag;
+			RecalculatePlatform(plt);
 			break;
 		}
 
@@ -335,6 +343,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			if (!(plt = GetPlatformFromUID(MEMGETINT(p)))) return 0;
 			flag = MEMGETINT(p);
 			plt->flags &= ~flag;
+			RecalculatePlatform(plt);
 			break;
 		}
 		
@@ -389,6 +398,7 @@ Vis:
 			case FS_SET_TOGGLEVIS:
 				if (nme->active) goto Invis; else goto Vis;
 			}
+
 			break;
 		}
 
@@ -418,6 +428,7 @@ Vis:
 					plt->isWaiting = -1;
 				break;
 			}
+
 			break;
 		}
 
@@ -463,8 +474,9 @@ Vis:
 			VECTOR telePos;
 			void **param;
 
-			player[fNum].frogState &= ~FROGSTATUS_ISSTANDING;
-			player[fNum].frogState |= FROGSTATUS_ISTELEPORTING;
+			player[fNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL other flags
+			FrogLeavePlatform(fNum);	// bah
+
 			fadeDir		= FADE_OUT;
 			fadeOut		= 1;
 			fadeStep	= 8;
@@ -509,8 +521,8 @@ Vis:
 			height = MEMGETFLOAT(p);
 			time = MEMGETFLOAT(p);
 
-			player[frogNum].frogState &= ~FROGSTATUS_ISSTANDING;
-			player[frogNum].frogState |= FROGSTATUS_ISTELEPORTING;
+			player[frogNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL flags
+			FrogLeavePlatform(frogNum);	// bah
 
 			info = (SPRINGINFO*)JallocAlloc(sizeof(SPRINGINFO), NO, "spring");
 

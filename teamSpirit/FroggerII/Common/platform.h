@@ -102,6 +102,7 @@ extern void AddPlatform(PLATFORM *plat);
 extern void SubPlatform(PLATFORM *plat);
 
 extern void UpdatePlatforms();
+extern void RecalculatePlatform(PLATFORM *);
 extern void GetNextLocalPlatform(unsigned long direction);
 extern PLATFORM *GetPlatformForTile(GAMETILE *tile);
 
@@ -110,6 +111,8 @@ extern BOOL PlatformTooLow(PLATFORM *plat,long pl);
 
 PLATFORM *GetPlatformFrogIsOn(long pl);
 extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
+
+extern void FrogLeavePlatform(long pl);
 
 //------------------------------------------------------------------------------------------------
 
