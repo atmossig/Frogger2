@@ -674,6 +674,7 @@ void gte_SetFarColor(u_char rfc, u_char gfc, u_char bfc)
 }
 
 
+// *ASL* 17/08/2000
 /* ---------------------------------------------------------
    Function : gte_MulMatrix0
    Purpose : PSX gte emulation mulitply two 3x3 matrices
@@ -682,9 +683,150 @@ void gte_SetFarColor(u_char rfc, u_char gfc, u_char bfc)
    Info : change '#if 1' below to '#if 0' to use original PSX version
 */
 
+#if 1
+// ** Hopefully optimised PSX emulation matrix multiply
 void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2) 
 {
-	register short	*mp0, *mp1, *mp2;
+	// are our matrices are non-aliased?
+	if (m1 != m2)
+	{
+		// ** non-aliased matries
+
+		register short	*mp0, *mp1, *mp2;
+		register int	r0,r1,r2, a0,a1,a2;
+
+		mp0 = &m0->m[0][0];
+		mp2 = &m2->m[0][0];
+
+		r0 = *mp0++;					// m0[0][0]
+		r1 = *mp0++;					// m0[0][1]
+		r2 = *mp0++;					// m0[0][2]
+
+		mp1 = &m1->m[0][0];
+		a0  = ((*mp1++ * r0) >>12);
+		a1  = ((*mp1++ * r0) >>12);
+		a2  = ((*mp1++ * r0) >>12);
+		a0 += ((*mp1++ * r1) >>12);
+		a1 += ((*mp1++ * r1) >>12);
+		a2 += ((*mp1++ * r1) >>12);
+		a0 += ((*mp1++ * r2) >>12);
+		a1 += ((*mp1++ * r2) >>12);
+		a2 += ((*mp1   * r2) >>12);
+		*mp2++ = a0;
+		*mp2++ = a1;
+		*mp2++ = a2;
+
+		r0 = *mp0++;					// m0[1][0]
+		r1 = *mp0++;					// m0[1][1]
+		r2 = *mp0++;					// m0[1][2]
+
+		mp1 = &m1->m[0][0];
+		a0  = ((*mp1++ * r0) >>12);
+		a1  = ((*mp1++ * r0) >>12);
+		a2  = ((*mp1++ * r0) >>12);
+		a0 += ((*mp1++ * r1) >>12);
+		a1 += ((*mp1++ * r1) >>12);
+		a2 += ((*mp1++ * r1) >>12);
+		a0 += ((*mp1++ * r2) >>12);
+		a1 += ((*mp1++ * r2) >>12);
+		a2 += ((*mp1   * r2) >>12);
+		*mp2++ = a0;
+		*mp2++ = a1;
+		*mp2++ = a2;
+
+		r0 = *mp0++;					// m0[2][0]
+		r1 = *mp0++;					// m0[2][1]
+		r2 = *mp0;						// m0[2][2]
+
+		mp1 = &m1->m[0][0];
+		a0  = ((*mp1++ * r0) >>12);
+		a1  = ((*mp1++ * r0) >>12);
+		a2  = ((*mp1++ * r0) >>12);
+		a0 += ((*mp1++ * r1) >>12);
+		a1 += ((*mp1++ * r1) >>12);
+		a2 += ((*mp1++ * r1) >>12);
+		a0 += ((*mp1++ * r2) >>12);
+		a1 += ((*mp1++ * r2) >>12);
+		a2 += ((*mp1   * r2) >>12);
+		*mp2++ = a0;
+		*mp2++ = a1;
+		*mp2   = a2;
+
+	}
+	else
+	{
+		// ** aliased matrices
+
+		short			mat[9];
+		register short	*mp0, *mp1, *mp2;
+		register int	r0,r1,r2, a0,a1,a2;
+
+		mp0 = &m0->m[0][0];
+		mp2 = &m1->m[0][0];
+
+		// copy aliased matrix into working mat
+		memcpy(mat, &m2->m[0][0], sizeof(short)*3*3);
+
+		r0 = *mp0++;					// m0[0][0]
+		r1 = *mp0++;					// m0[0][1]
+		r2 = *mp0++;					// m0[0][2]
+
+		mp1 = mat;
+		a0  = ((*mp1++ * r0) >>12);
+		a1  = ((*mp1++ * r0) >>12);
+		a2  = ((*mp1++ * r0) >>12);
+		a0 += ((*mp1++ * r1) >>12);
+		a1 += ((*mp1++ * r1) >>12);
+		a2 += ((*mp1++ * r1) >>12);
+		a0 += ((*mp1++ * r2) >>12);
+		a1 += ((*mp1++ * r2) >>12);
+		a2 += ((*mp1   * r2) >>12);
+		*mp2++ = a0;
+		*mp2++ = a1;
+		*mp2++ = a2;
+
+		r0 = *mp0++;					// m0[1][0]
+		r1 = *mp0++;					// m0[1][1]
+		r2 = *mp0++;					// m0[1][2]
+
+		mp1 = mat;
+		a0  = ((*mp1++ * r0) >>12);
+		a1  = ((*mp1++ * r0) >>12);
+		a2  = ((*mp1++ * r0) >>12);
+		a0 += ((*mp1++ * r1) >>12);
+		a1 += ((*mp1++ * r1) >>12);
+		a2 += ((*mp1++ * r1) >>12);
+		a0 += ((*mp1++ * r2) >>12);
+		a1 += ((*mp1++ * r2) >>12);
+		a2 += ((*mp1   * r2) >>12);
+		*mp2++ = a0;
+		*mp2++ = a1;
+		*mp2++ = a2;
+
+		r0 = *mp0++;					// m0[2][0]
+		r1 = *mp0++;					// m0[2][1]
+		r2 = *mp0;						// m0[2][2]
+
+		mp1 = mat;
+		a0  = ((*mp1++ * r0) >>12);
+		a1  = ((*mp1++ * r0) >>12);
+		a2  = ((*mp1++ * r0) >>12);
+		a0 += ((*mp1++ * r1) >>12);
+		a1 += ((*mp1++ * r1) >>12);
+		a2 += ((*mp1++ * r1) >>12);
+		a0 += ((*mp1++ * r2) >>12);
+		a1 += ((*mp1++ * r2) >>12);
+		a2 += ((*mp1   * r2) >>12);
+		*mp2++ = a0;
+		*mp2++ = a1;
+		*mp2   = a2;
+	}
+}
+
+#else
+
+void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2) 
+{
 	register MATRIX tempmat;
 	int		 i,j,k;
 
@@ -704,6 +846,7 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 
 	*m2 = tempmat;
 }
+#endif
 
 
 // Get Z average of three Z values
@@ -937,6 +1080,7 @@ void gte_ld_intpol_sv1(VOID *v)
 }
 
 
+// *ASL* 17/08/2000
 /* ---------------------------------------------------------
    Function : gte_rtps
    Purpose : PSX gte emulation transform to screen function
@@ -947,7 +1091,7 @@ void gte_ld_intpol_sv1(VOID *v)
 
 // (rt * v0) + tr
 #if 1
-#pragma inline(gte_rtpt)
+#pragma inline(gte_rtps)
 // ** Hopefully optimised PSX emulation transform
 void gte_rtps(void)
 {
