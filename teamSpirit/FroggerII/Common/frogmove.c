@@ -166,9 +166,6 @@ void UpdateFroggerPos()
 	FX_RIPPLE *rip;
 	VECTOR effectPos;
 
-	// FOR DEBUGGING - ANDYE !!
-	sprintf(txtFrog1Info->text,"frog1 at (%.0f %.0f %.0f) FF:%d",frog->actor->pos.v[X],frog->actor->pos.v[Y],frog->actor->pos.v[Z],frogFacing);
-		
 	if(frogState & FROGSTATUS_ISDEAD)
 	{
 		KillFrog(frog);
