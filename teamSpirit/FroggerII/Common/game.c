@@ -31,6 +31,7 @@ unsigned long INPUT_POLLPAUSE	= 10;
 struct gameStateStruct gameState;
 
 unsigned short screenNum = 0;
+unsigned long fadingLogos = 0;
 
 GAMETILE *firstTile;
 GAMETILE **gTStart;
@@ -359,13 +360,13 @@ void GameProcessController(long pl)
 	{
 		long i;
 		//ScreenShot();
-
+		
 		gameState.mode = PAUSE_MODE;
 		pauseMode = 1;
 	
 //		grabData.afterEffect = NO_EFFECT;
 
-		EnableTextOverlay ( pauseTitle );
+//		EnableTextOverlay ( pauseTitle );
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
 
@@ -513,6 +514,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	Returns		: void 
 */
 
+extern float camSideOfs;
 long playMode = NORMAL_PMODE;
 long carryOnBabies = 1;
 long clearTiles = 0;
@@ -536,6 +538,9 @@ void KillMPFrog(int num)
 		sprHeart[num*3+(--frog[num]->action.healthPoints)]->draw = 0;
 }
 
+SPRITEOVERLAY *atari,*konami,*flogo[10];
+float sideSwaySpeed = 0.01,sideSwayAmt=50;
+
 void RunGameLoop (void)
 {
 	unsigned long i,j;
@@ -558,6 +563,26 @@ void RunGameLoop (void)
 
 		gameIsOver = 0;
 		levelIsOver = 0;
+
+		if (player[0].worldNum == WORLDID_LANGUAGE)
+			if (player[0].levelNum == LEVELID_FRONTEND1)
+			{
+				frogFacing[0] = 3;
+				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,255,255,255,0);
+				konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,255,255,255,0);
+				i = 0;
+				flogo[i++] = CreateAndAddSpriteOverlay(98,136,"flogo01.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(130,136,"flogo02.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(162,136,"flogo03.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(194,136,"flogo04.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(98,168,"flogo05.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(130,168,"flogo06.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(162,168,"flogo07.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,255,255,255,0);
+				fadingLogos = 0;
+			}
 
 		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,255,255,255,0);
 		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,255,255,255,0);
@@ -621,6 +646,23 @@ void RunGameLoop (void)
 		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 		lastActFrameCount = 0;
+	}
+
+	if (player[0].hasJumped == 1)
+		fadingLogos = 1;
+
+
+	if	((player[0].worldNum == WORLDID_LANGUAGE) &&
+	     (player[0].levelNum == LEVELID_FRONTEND1) &&
+		 (fadingLogos))
+	{
+		if (atari->xPos < 500)
+		{
+			atari->xPos+=2*gameSpeed;
+			konami->xPos-=2*gameSpeed;
+			for (i=0; i<10; i++)
+				flogo[i]->yPos+=3*gameSpeed;
+		}
 	}
 
 	if(keyFound)
@@ -860,6 +902,9 @@ void RunGameLoop (void)
 
 	// check if player is idle
 	i = NUM_FROGS;
+	
+	camSideOfs = sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt;
+
 	while(i--)
 	{
 		player[i].idleTime-=gameSpeed;

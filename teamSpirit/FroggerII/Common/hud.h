@@ -40,7 +40,7 @@ extern TEXTOVERLAY	*levelComplete1,
 
 extern TEXTOVERLAY  *keyCollected;
 
-extern TEXTOVERLAY *pauseTitle;
+//extern TEXTOVERLAY *pauseTitle;
 
 extern TEXTOVERLAY *continueText;
 extern TEXTOVERLAY *quitText;

@@ -376,7 +376,7 @@ void RunPauseMenu()
 	
 	button = controllerdata[ActiveController].button;
 
-	pauseTitle->a -= 16;
+//	pauseTitle->a -= 16;
 
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
 		if(currentSelection > 0)
@@ -390,7 +390,7 @@ void RunPauseMenu()
 	{
 		lastbutton = button;
 
-		DisableTextOverlay ( pauseTitle );
+//		DisableTextOverlay ( pauseTitle );
 		DisableTextOverlay ( continueText );
 		DisableTextOverlay ( quitText );
 		pauseMode = 0;
@@ -483,7 +483,4 @@ void CreateOverlays()
 	sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
 	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
-	
-	konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
-	atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
 }

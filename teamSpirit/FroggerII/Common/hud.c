@@ -47,7 +47,7 @@ TEXTOVERLAY	*levelComplete1,
 
 TEXTOVERLAY *keyCollected;
 
-TEXTOVERLAY *pauseTitle;
+//TEXTOVERLAY *pauseTitle;
 
 TEXTOVERLAY *continueText;
 TEXTOVERLAY *quitText;
@@ -168,10 +168,10 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 	currFont = smallFont;
 
-	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+//	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
 	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, NO, 255, 255, 255, 255, smallFont, 0,0, 0 );
 	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, NO, 255, 255, 255, 255, smallFont, 0,0, 0 );
-	DisableTextOverlay ( pauseTitle );
+//	DisableTextOverlay ( pauseTitle );
 	DisableTextOverlay ( continueText );
 	DisableTextOverlay ( quitText );
 

@@ -298,8 +298,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
     while(ok)
 	{
-		StartTimer(10,"Msg");
-			
         while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
 		{
 			if(msg.message == WM_QUIT)
@@ -311,12 +309,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			TranslateMessage(&msg); 
 			DispatchMessage(&msg);
 		}
-		EndTimer (10);
 		if(appActive)
 		{
-			
-			StartTimer(9,"Before");
-
 			if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2*gameSpeed;
 
@@ -404,26 +398,19 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			if( gameState.multi == MULTIREMOTE && gameState.mode == GAME_MODE )
 				RefreshMPFrogs( );
 
-			StartTimer(4,"GameLoop");
 			GameLoop();
-			EndTimer(4);
 
 			keysEnabled = !(editorOk || (chatFlags & CHAT_INPUT));
 			ProcessUserInput(winInfo.hWndMain);
-			EndTimer(9);
 
 			DrawGraphics();
 
 			//if (speedKill)
 			//	Sleep(speedKill);
 
-			StartTimer(3,"Flip");
 			DirectXFlip();
-			EndTimer(3);
 
-			StartTimer(8,"CleanBuf");
 			CleanBufferSamples();
-			EndTimer(8);
 
 			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
 
@@ -656,6 +643,8 @@ long useBilerpF = 0;
 
 void DrawGraphics() 
 {
+	StartTimer(0,"Draw Gfx");
+
 	if (useBilerpN)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	else
@@ -736,6 +725,7 @@ void DrawGraphics()
 	currCamSource[screenNum] = oldCCSource;
 	currCamTarget[screenNum] = oldCCTarget;
 	/* END CAMERA SPACE STUFF */
+	EndTimer(0);
 
 	if (drawTimers)
 		switch (drawTimers)
@@ -769,11 +759,13 @@ void DrawGraphics()
 		HoldTimers();
 		
 	ClearTimers();
-	
+	StartTimer(0,"Draw Gfx");
 	if (runHardware)
 		EndDrawHardware();
 	else
 		SoftwareEndFrame();
 
 	AnimateTexturePointers();
+
+	EndTimer(0);
 }

@@ -309,16 +309,13 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 {
 	if (skinned)
 	{
-		StartTimer(6,"Xform");
 		PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
-		EndTimer(6);
 	}
 	else
 	{
 		if (obj->mesh)
 		{
 			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
-			StartTimer(6,"Xform");
 			if ((waterObject))
 				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
 			else
@@ -327,10 +324,7 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 				else
 					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
 
-			EndTimer(6);
-			StartTimer(12,"ActDraw");
 			PCRenderObject(obj);
-			EndTimer(12);
 		}
 	}
 
@@ -985,9 +979,7 @@ void DrawActor(ACTOR *actor)
 	if (objectC->vtxBuf)
 	{
 		DrawObject(objectC->object, objectC->object->drawList, TRUE, objectC->object->mesh);
-		StartTimer(12,"ActDraw");
 		PCRenderObject(objectC->object);
-		EndTimer(12,"ActDraw");
 	}
 	else
 		DrawObject(objectC->object, objectC->object->drawList, FALSE, objectC->object->mesh);
