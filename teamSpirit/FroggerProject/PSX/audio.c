@@ -218,6 +218,11 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_COLLECT_BABY] = FindSample(utilStr2CRC("getbabyfrog"));
 	genSfx[GEN_FROG_TONGUE] = FindSample(utilStr2CRC("froggerf"));
 	genSfx[GEN_COLLECT_COIN] = FindSample(utilStr2CRC("pickupcoin"));
+	genSfx[GEN_CROAK] = FindSample(utilStr2CRC("frogcroak"));
+	genSfx[GEN_DROWN] = FindSample(utilStr2CRC("frogdrown"));
+	genSfx[GEN_BABYHAPPY] = FindSample(utilStr2CRC("babyhappy"));
+	genSfx[GEN_BABYSAD] = FindSample(utilStr2CRC("babysad"));
+	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
 
 	path[len] = '\0';
 

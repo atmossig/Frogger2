@@ -120,6 +120,11 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_COLLECT_BABY] = FindSample(UpdateCRC("getbabyfrog"));
 	genSfx[GEN_FROG_TONGUE] = FindSample(UpdateCRC("FroggerF"));
 	genSfx[GEN_COLLECT_COIN] = FindSample(UpdateCRC("pickupcoin"));
+	genSfx[GEN_CROAK] = FindSample(UpdateCRC("frogcroak"));
+	genSfx[GEN_DROWN] = FindSample(UpdateCRC("frogdrown"));
+	genSfx[GEN_BABYHAPPY] = FindSample(UpdateCRC("babyhappy"));
+	genSfx[GEN_BABYSAD] = FindSample(UpdateCRC("babysad"));
+	genSfx[GEN_BABYCRY] = FindSample(UpdateCRC("babycry"));
 
 	path[len] = '\0';
 
@@ -222,7 +227,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	unsigned long bufStatus, vol=volume;
 	long pan;
 	float att, dist;
-	MDX_VECTOR diff;
+	SVECTOR diff;
 	unsigned long flags=0;
 	LPDIRECTSOUNDBUFFER lpdsBuffer;
 
@@ -240,9 +245,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	{
 		att = (radius)?radius:DEFAULT_SFX_DIST;
 
-		SubVector( &diff, pos, &frog[0]->actor->position );
+		SubVectorSSS( &diff, pos, &frog[0]->actor->position );
 		// Volume attenuation - check also for radius != 0 and use instead of default
-		dist = mdxMagnitude( &diff );
+		dist = MagnitudeS( &diff )>>12;
 		if( dist > att )
 			return FALSE;
 
