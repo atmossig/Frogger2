@@ -154,6 +154,29 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 		}
 	}
 
+	for(i = 0; i < mesh->n_sprs; i++)
+	{
+		tmap = tmaps [ mesh->sprs[i].tpage ];
+		if ( tmap )
+		{
+			mesh->sprs[i].clut = tmap->clut;
+			mesh->sprs[i].tpage = tmap->tpage;
+
+			mesh->sprs[i].u0 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u0);
+			mesh->sprs[i].v0 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v0);
+			mesh->sprs[i].u1 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u1);
+			mesh->sprs[i].v1 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v1);
+			mesh->sprs[i].u2 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u2);
+			mesh->sprs[i].v2 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v2);
+			mesh->sprs[i].u3 = FMA_TmapCorrect(tmap->x,tmap->w,mesh->sprs[i].u3);
+			mesh->sprs[i].v3 = FMA_TmapCorrect(tmap->y,tmap->h,mesh->sprs[i].v3);
+//			mesh->gt4s[i].vert0 *= 4;
+//			mesh->gt4s[i].vert1 *= 4;
+//			mesh->gt4s[i].vert2 *= 4;
+//			mesh->gt4s[i].vert3 *= 4;
+		}
+	}
+
 // Tra-la. The BFF memory-image is now a usable, drawable, thing.
 
 }

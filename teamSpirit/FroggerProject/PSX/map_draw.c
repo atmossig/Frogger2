@@ -22,6 +22,7 @@
 
 
 
+
 extern EXPLORE_black_CLUT;
 
 #define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
@@ -269,6 +270,14 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // rather than checking a "type" element for every polygon.
 // (coz it only has those two types. No transparent. No double sided. No nothing)
 
+#if PALMODE==1
+	#define SCALEY 640
+#else
+	#define SCALEY 512
+#endif
+
+#define SCALEX 900
+
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
 
@@ -466,7 +475,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 	currentDisplayPage->primPtr = (char *)packet;
 
-#define si ((POLY_F4*)packet)
+#define si ((POLY_FT4*)packet)
 #define op ((FMA_SPR *)opcd)
 
 //	polyCount += mesh->n_gt3s;
@@ -484,7 +493,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 		BEGINPRIM(si, POLY_FT4);
 
-		setPolyF4(si);
+		setPolyFT4(si);
 
 		//utilPrintf ( "Sprite Position : %d : %d : %d\n", op->x, op->y, op->z );
 
@@ -502,23 +511,41 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		gte_stsxy(&si->x0);		// get screen x and y
 		gte_stsz(&spritez);		// get screen z
 
-		width = (50*900) / spritez;
+		if ( spritez <= 0 || spritez >= fog.max ) 
+			return 0;
+
+		width = ( 64 * SCALEX ) / spritez;
 
  		si->x1 = si->x3 = si->x0 + width;
  		si->x0 = si->x2 = si->x0 - width;
 
-		height = (50*512) / spritez;
+		height = ( 64 * SCALEY ) / spritez;
 
 		si->y2 = si->y3 = si->y0 + height;
 		si->y1 = si->y0 = si->y0 - height;
 
-		si->r0 = 128;
-		si->g0 = 0;
-		si->b0 = 128;
+		si->r0 = op->r0;
+		si->g0 = op->g0;
+		si->b0 = op->b0;
 
-		si->code = GPU_COM_F4;
+		si->u0 = op->u0;
+		si->v0 = op->v0;
 
-		ENDPRIM(si, 1, POLY_F4);
+		si->u1 = op->u1;
+		si->v1 = op->v1;
+
+		si->u2 = op->u2;
+		si->v2 = op->v2;
+
+		si->u3 = op->u3;
+		si->v3 = op->v3;
+
+		si->tpage = op->tpage;
+		si->clut = op->clut;
+
+		si->code = GPU_COM_TF4;
+
+		ENDPRIM(si, spritez>>4, POLY_FT4);
 
 
 /*		LONG spritez, width;

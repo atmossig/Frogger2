@@ -64,7 +64,12 @@ typedef struct FMA_SPR
 	int y;
 	int z;
 	int u0, v0;
+	int u1, v1;
+	int u2, v2;
+	int u3, v3;
   u_short clut; u_char w, h;
+  u_short	tpage;
+
 
 	/*u_char	r0, g0, b0, code;
 	u_char	u0, v0;	u_short	clut;
