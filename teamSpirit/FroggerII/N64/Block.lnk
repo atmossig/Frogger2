@@ -23,6 +23,8 @@ _codeSegmentEnd         alias   _code_objend
         section.16      code.sbss,codebss
         section.16      code.bss,codebss
 
+        ;inclib  "c:/ultra/usr/lib/patch5/patch5.lib",code
+
         include "snmain.obj",code
         include "c:/gnun64/lib/psyq.obj",code
         include "c:/gnun64/lib/psyqdbg.obj",code
@@ -87,6 +89,10 @@ _codeSegmentEnd         alias   _code_objend
 		include "c:/n64/PR/gspSpri1.obj",code
 
 		include "c:/n64/PR/gspl3dex.obj",code
+
+		;include "c:/n64/PR/gspF3Dex2.fifo.obj",code
+		;include "c:/n64/PR/gspS2Dex2.fifo.obj",code
+		;include "c:/n64/PR/gspL3Dex2.fifo.obj",code
 
 ;        include "c:/n64/PR/gspFast5.obj",code
 ;        include "c:/n64/PR/gspFast4.obj",code
