@@ -164,7 +164,9 @@ void UpdateFroggerPos(long pl)
 	float x,y,z;
 	FX_RIPPLE *rip;
 	VECTOR effectPos;
-
+	PLANE2 ground;
+	float dist;
+	
 	if(player[pl].frogState & FROGSTATUS_ISDEAD)
 	{
 		KillFrog(frog[pl],pl);
@@ -191,9 +193,50 @@ void UpdateFroggerPos(long pl)
 	// update frog tongue
 	UpdateFrogTongue();
 
-	if(player[pl].frogState & FROGSTATUS_ISFALLINGTODEATH)
+	if(player[pl].frogState & FROGSTATUS_ISFALLINGTOGROUND)
 	{
+		// the frog is falling to the ground
+		SetVector(&ground.point,&currTile[pl]->centre);
+		SetVector(&ground.normal,&currTile[pl]->normal);
+
+		// update frog position in relation to ground
+//		frog[pl]->actor->vel.v[X] *= 0.95F;
+		frog[pl]->actor->vel.v[Y] += -1.1F;
+//		frog[pl]->actor->vel.v[Z] *= 0.95F;
+
+		AddToVector(&frog[pl]->actor->pos,&frog[pl]->actor->vel);
+		ground.J = -DotProduct(&ground.point,&ground.normal);
+		dist = -(DotProduct(&frog[pl]->actor->pos,&ground.normal) + ground.J);						
+
+		// check if frog has hit (or passed through) the ground plane
+		if(dist > 0)
+		{
+			SetVector(&frog[pl]->actor->pos,&ground.point);
+			CalcBounce(&frog[pl]->actor->vel,&ground.normal);
+//			frog[pl]->actor->vel.v[X] *= 0.75F;
+			frog[pl]->actor->vel.v[Y] *= 0.75F;
+//			frog[pl]->actor->vel.v[Z] *= 0.75F;
+
+			CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&ground.point,128,0,0.5,15);
+
+			if(MagnitudeSquared(&frog[pl]->actor->vel) < 5.0F)
+			{
+				// stop the frog from bouncing - set to standing
+				player[pl].frogState &= ~FROGSTATUS_ISFALLINGTOGROUND;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGU;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGD;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGL;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGR;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPU;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPD;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPL;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPR;
+			}
+		}
+
+		return;
 	}
+
 	if(player[pl].frogState & FROGSTATUS_ISSTANDING)
 	{
 	}
@@ -578,7 +621,7 @@ void UpdateFroggerPos2()
 	}
 
 
-	if(frogState2 & FROGSTATUS_ISFALLINGTODEATH)
+	if(frogState2 & FROGSTATUS_ISFALLINGTOGROUND)
 	{
 	}
 	if(frogState2 & FROGSTATUS_ISSTANDING)

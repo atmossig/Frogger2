@@ -202,8 +202,6 @@ void UpdatePlatforms()
 				cur->regen--;
 				if(!cur->regen)
 				{
-					dprintf"Appears - Groovy !\n"));
-
 					cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
 					cur->pltActor->flags &= ~ACTOR_DRAW_NEVER;
 					cur->pltActor->flags |= ACTOR_DRAW_CULLED;
@@ -353,7 +351,6 @@ void UpdatePlatforms()
 					cur->visible--;
 					if(!cur->visible)
 					{
-						dprintf"Vanished - Poof !\n"));
 						cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
 						cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
 						cur->pltActor->flags |= ACTOR_DRAW_NEVER;
@@ -380,7 +377,11 @@ void UpdatePlatforms()
 						
 						currTile[0] = cur->inTile;
 						cur->carrying = NULL;
-						SetVector(&frog[0]->actor->pos,&currTile[0]->centre);
+//						SetVector(&frog[0]->actor->pos,&currTile[0]->centre);
+
+						player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
+						SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
+						FlipVector(&frog[0]->actor->vel);
 					}
 				}
 
