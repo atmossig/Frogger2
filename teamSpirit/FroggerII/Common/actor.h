@@ -33,8 +33,8 @@ typedef struct TAGACTION
 	unsigned long safe;
 	unsigned long stun;
 
-	unsigned long frogon;
-	unsigned long frogunder;
+	long frogon;
+	long frogunder;
 
 	unsigned long lives;
 	unsigned long dead;
