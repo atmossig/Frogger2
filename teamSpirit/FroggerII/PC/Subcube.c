@@ -889,7 +889,13 @@ void TransformObject(OBJECT *obj, float time)
 				sprite->offsetX = -16;
 				sprite->offsetY = -16;
 
-				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
+				/*
+					TEMPORARY SPRITE FIX - Dave
+
+					I'm not sure why this works; clearly the sprite's z-value is the
+					negative of what it should be. Where does this negative creep in? 
+				*/
+				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, -obj->sprites[i].z,
 												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
 			}
 		}
