@@ -6,6 +6,8 @@
 int multiplayerMode;
 long started = 0;
 unsigned long numMultiItems=0;
+char matchWinner = -1;
+
 
 TIMER powerupTimer;
 
@@ -101,7 +103,10 @@ void UpdateRace( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		// Check for frog off screen - death
+		raceTimeOver[i]->r = (raceTimeOver[i]->r < 250)?(raceTimeOver[i]->r + 3):255;
+		raceTimeOver[i]->g = (raceTimeOver[i]->g < 250)?(raceTimeOver[i]->g + 3):255;
+		raceTimeOver[i]->b = (raceTimeOver[i]->b < 250)?(raceTimeOver[i]->b + 3):255;
+
 		if( !mpl[i].ready )
 		{
 			unsigned long total;
@@ -156,9 +161,6 @@ void UpdateRace( )
 		// Find best time
 		for( j=0,best=999999999; j<NUM_FROGS; j++ )
 		{
-			// So it doesn't really belong here, sue me...
-			player[j].canJump = 1;
-
 			time = mpl[j].timer + mpl[j].penalty;
 			if( time < best )
 			{
@@ -178,6 +180,8 @@ void UpdateRace( )
 			sprintf( timeTextOver->text, "Draw" );
 		else
 		{
+			matchWinner = winner;
+			ScaleVector( &camDist, 0.25 );
 			mpl[winner].wins++;
 			sprintf( timeTextOver->text, "P%i won", winner );
 		}
@@ -383,6 +387,7 @@ void RaceRespawn( int pl )
 	int j, respawn=0;
 	GAMETILE *tile;
 	VECTOR diff;
+	SPECFX *fx;
 
 	if( playerFocus != pl && player[playerFocus].healthPoints && !(player[playerFocus].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[playerFocus]->actor->pos) )
 		respawn = playerFocus;
@@ -421,6 +426,12 @@ void RaceRespawn( int pl )
 			if( currPlatform[respawn] ) currPlatform[pl] = currPlatform[respawn];
 			tile = currTile[respawn];
 		}
+	}
+
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 2, 0.05, 0.6 )) )
+	{
+		fx->spin = 5;
+		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 	}
 
 	TeleportActorToTile(frog[pl],tile,pl);
@@ -555,6 +566,9 @@ void KillMPFrog(int num)
 	if( multiplayerMode == MULTIMODE_RACE )
 	{
 		mpl[num].penalty += MULTI_RACE_TIMEPENALTY;
+		raceTimeOver[num]->r = mpl[num].r;
+		raceTimeOver[num]->g = mpl[num].g;
+		raceTimeOver[num]->b = mpl[num].b;
 		RaceRespawn(num);
 	}
 	else
@@ -644,12 +658,14 @@ void ResetMultiplayer( )
 
 	started = 0;
 	playerFocus = 0;
+	matchWinner = -1;
 	GTInit( &powerupTimer, 0 );
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		mpl[i].ready = 0;
 		player[i].idleEnable = 1;
+		player[i].canJump = 1;
 	}
 
 	switch( multiplayerMode )
@@ -694,6 +710,7 @@ void ResetMultiplayer( )
 		break;
 	}
 
+	ScaleVector( &camDist, 4 );
 	InitCamera();
 }
 
@@ -733,6 +750,13 @@ void CalcRaceCamera( VECTOR *target )
 	float t;
 
 	ZeroVector( target );
+
+	if( matchWinner != -1 )
+	{
+		playerFocus = matchWinner;
+		SetVector( target, &frog[matchWinner]->actor->pos );
+		return;
+	}
 
 	for( i=0; i<NUM_FROGS; i++ )
 		if( mpl[i].lap >= bestLap && mpl[i].check >= bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )

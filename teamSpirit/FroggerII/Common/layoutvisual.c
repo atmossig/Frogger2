@@ -707,6 +707,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 			runAttractMode = attractTime;
 			// Matt, could you PLEASE make these things so they can be turned off?
 //			runAttractMode = 2147483647;
+			NUM_FROGS = 1;
+			gameState.multi = SINGLEPLAYER;
 
 #ifdef PC_VERSION
 			InitCredits();			
