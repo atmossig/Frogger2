@@ -742,6 +742,7 @@ long DirectXInit(HWND window, long hardware )
 	D3DFINDDEVICESEARCH		search;
 	DDSURFACEDESC			ddsd;
 	DDSURFACEDESC sdesc;
+	HRESULT res;
 	int l;
 	win = window;
 
@@ -762,17 +763,29 @@ long DirectXInit(HWND window, long hardware )
 
 //	while (0==0);
 	// Create main DirectDraw object
-	if (DirectDrawCreate(dxDeviceList[selIdx].guid, &pDirectDraw, NULL) != DD_OK)
-	 return FALSE;
+	if ((res = DirectDrawCreate(dxDeviceList[selIdx].guid, &pDirectDraw, NULL)) != DD_OK)
+	{
+		dp("Failed creating DirectDraw object: %s\n", ddError2String(res));
+		return FALSE;
+	}
 
-	if (pDirectDraw->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDirectDraw4) != S_OK)
-		return FALSE;	
+	if ((res = pDirectDraw->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDirectDraw4)) != S_OK)
+	{
+		dp("Failed getting DirectDraw4 interface: %s\n", ddError2String(res));
+		return FALSE;
+	}
 
-	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX) != DD_OK)
-	 return FALSE;
+	if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX)) != DD_OK)
+	{
+		dp("Failed setting cooperative level: %s\n", ddError2String(res));
+		return FALSE;
+	}
 
-	if (pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS))
-	 return FALSE;
+	if ((res = pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS)) != DD_OK)
+	{
+		dp("Failed setting display mode: %s\n", ddError2String(res));
+		return FALSE;
+	}
 
 	// Get the primary display surface
 	DDINIT(ddsd);
@@ -798,12 +811,17 @@ long DirectXInit(HWND window, long hardware )
 	else
 	 ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_SYSTEMMEMORY;
 	
-	if (pDirectDraw->CreateSurface(&ddsd, &hiddenSrf, NULL) != DD_OK)
-	 return FALSE;
+	if ((res = pDirectDraw->CreateSurface(&ddsd, &hiddenSrf, NULL)) != DD_OK)
+	{
+		dp("Error creating backbuffer: %s\n", ddError2String(res));
+		return FALSE;
+	}
 	
 	if (primarySrf->AddAttachedSurface(hiddenSrf) != DD_OK)
-	 return FALSE;
-
+	{
+		dp("Error attaching backbuffer: %s\n", ddError2String(res));
+		return FALSE;
+	}
 
 //	if (hardware)
 	{
@@ -817,10 +835,16 @@ long DirectXInit(HWND window, long hardware )
 			ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
 		else
 			ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_SYSTEMMEMORY;
-		if (pDirectDraw->CreateSurface(&ddsd, &srfZBuffer, NULL) != DD_OK) 
+		if ((res = pDirectDraw->CreateSurface(&ddsd, &srfZBuffer, NULL)) != DD_OK)
+		{
+			dp("Error creating Z-buffer: %s\n", ddError2String(res));
 			return FALSE;
-		if (hiddenSrf->AddAttachedSurface(srfZBuffer) != DD_OK) 
+		}
+		if ((res = hiddenSrf->AddAttachedSurface(srfZBuffer)) != DD_OK)
+		{
+			dp("Error attaching Z-buffer: %s\n", ddError2String(res));
 			return FALSE;
+		}
 	}
 
 	if (pDirectDraw->QueryInterface(IID_IDirect3D2, (LPVOID *)&pDirect3D) != S_OK)
@@ -1101,6 +1125,8 @@ void EndDrawHardware (void)
 
 void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h)
 {
+	int i, j, v1, v2, v3, e;
+
 	if (h!=lastH)
 	{
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
@@ -1111,7 +1137,6 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
 	
-	
 	if (pDirect3DDevice->DrawIndexedPrimitive(
 		D3DPT_TRIANGLELIST,
 		D3DVT_TLVERTEX,
@@ -1119,10 +1144,10 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 		vC,
 		(unsigned short *)fce,
 		fC,
-		D3DDP_DONOTCLIP 
-			| D3DDP_DONOTLIGHT 
-			| D3DDP_DONOTUPDATEEXTENTS 
-			/*| D3DDP_WAIT*/)!=D3D_OK)
+			D3DDP_DONOTCLIP |
+			D3DDP_DONOTLIGHT |
+			D3DDP_DONOTUPDATEEXTENTS |
+			D3DDP_WAIT) !=D3D_OK)
 	{
 		dp("BUGGER !!!!! CAN'T DRAW POLY JOBBY\n");
 	}
