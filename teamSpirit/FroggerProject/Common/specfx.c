@@ -1022,7 +1022,7 @@ void UpdateFXSwarm( SPECFX *fx )
 	s = fx->sprites;
 	p = fx->particles;
 
-	j = (((int)fx) & 40);
+	j = (((int)fx) & (40 + 64 + 128 + 256));
 
 	while(i--)
 	{
