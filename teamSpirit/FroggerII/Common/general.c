@@ -44,20 +44,13 @@ unsigned long gstrcmp(char *a,char *b)
 
 void stringChange ( char *name )
 {
-	char *tmpName;
-
-	while ( *name != '.' )
+	char *c = strstr(name, ".ndo");
+	if (c)
 	{
-		dprintf"%c", *name ));
-		name++;
+		dprintf "Converted %s to ", name));
+		strcpy(c, ".obe");
+		dprintf "%s\n", name));
 	}
-
-	name[1] = 'o';
-	name[2] = 'b';
-	name[3] = 'e';
-	name[4] = '\0';
-	dprintf"%c\n", name ));
-
 }
 
 inline void cmemcpy( char *a, char *b, unsigned long size )
