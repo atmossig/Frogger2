@@ -1131,9 +1131,9 @@ void UpdateFlagSelection( )
 		
 		for (f = 0, n = editPath->nodes; n; n = n->link, f++) if (node == n) break;
 		
-		if( (sample = FindSample(node->sample)) )
-			sprintf( statusMessage, "Flag #%d: Speed %.2f, Offset %.2f, Offset2 %.2f, Wait %i, Sample %s", f, node->speed, node->offset, node->offset2, node->waitTime, sample->idName );
-		else
+//		if( (sample = FindSample(node->sample)) )
+//			sprintf( statusMessage, "Flag #%d: Speed %.2f, Offset %.2f, Offset2 %.2f, Wait %i, Sample %s", f, node->speed, node->offset, node->offset2, node->waitTime, sample->idName );
+//		else
 			sprintf( statusMessage, "Flag #%d: Speed %.2f, Offset %.2f, Offset2 %.2f, Wait %i", f, node->speed, node->offset, node->offset2, node->waitTime );
 	}
 
