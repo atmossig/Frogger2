@@ -90,6 +90,7 @@ struct MSG_WONGAME
 
 #define GetTileNo(t) (((DWORD)tile-(DWORD)firstTile)/sizeof(GAMETILE))
 
+int WaitForGameReady();
 int SendUpdateMessage();
 void SendPing();
 int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
@@ -200,69 +201,29 @@ void NetgameStartGame()
 	}
 
 	netgameLoopFunc = NetRaceRun;
+
+	// Add a little disclaimer to say "it's not my fault it's a bit poo". More or less.
+	TEXTOVERLAY *disclaimer = CreateAndAddTextOverlay(2048, 3800, "Frogger2 Network Test", 1, 0xD0, fontSmall, 0);
+	disclaimer->r = 0xFF; disclaimer->g = 0; disclaimer->b = 0;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: NetgameRun
+	Purpose			: network-game specific version of GameLoop()
+
+	Updates only the bits of the game that we need for multiplayer; makes sure everything's
+	ready and sychronised before running the game proper
+*/
 
 void NetgameRun()
 {
 	if (!dplay) return;
 
-	bool wasSync = hostSync;
-	bool wasReady = gameReady;
-
 	NetProcessMessages();
 
-	if (!hostReady)
+	if (!WaitForGameReady())
 		return;
-
-	if (!hostSync)
-	{
-		SendPing();
-		return;
-	}
-	else if (!wasSync)
-	{
-		// We've just become synchronised, so tell everybody else
-		unsigned char msg = APPMSG_READY;
-		NetBroadcastUrgentMessage(&msg, 1);
-
-		UpdateAllEnemies();	// sync all our enemies with the host
-	}
-
-	if (!gameReady)
-	{
-		int pl;
-		gameReady = true;
-		for (pl=1; pl<NUM_FROGS; pl++)
-		{
-			if (!netPlayerList[pl].dpid) break;
-			
-			if (!netPlayerList[pl].isReady)
-			{
-				gameReady = false;
-				break;
-			}
-		}
-
-		if (!gameReady)
-			return;
-	}
-
-	if (gameReady && !wasReady)
-	{
-		netMessage->draw = 0;
-
-		if (isServer)
-		{
-			MSG_STARTGAME start;
-
-			gameStartTime = actFrameCount + STARTGAME_COUNT;
-
-			start.appmsg_start = APPMSG_START;
-			start.gameStartTime = gameStartTime;	// game starts in five seconds
-
-			NetBroadcastUrgentMessage(&start, sizeof(start));
-		}
-	}
 
 	// ... otherwise ...
 
@@ -302,6 +263,73 @@ void NetgameRun()
 
 	frameCount++;
 	player[0].inputPause = 0;
+}
+
+
+
+int WaitForGameReady()
+{
+	if (gameReady)
+		return 1;
+
+	if (!hostReady)
+		return 0;
+
+	bool wasSync = hostSync;
+
+	if (!hostSync)
+	{
+		SendPing();
+		return 0;
+	}
+	else if (!wasSync)
+	{
+		// We've just become synchronised, so tell everybody else
+		unsigned char msg = APPMSG_READY;
+		NetBroadcastUrgentMessage(&msg, 1);
+
+		UpdateAllEnemies();	// sync all our enemies with the host
+
+		utilPrintf("Net: synchronised with host okay\n");
+	}
+
+	gameReady = true;
+
+	for (int pl=1; pl<NUM_FROGS; pl++)
+	{
+		if (!netPlayerList[pl].dpid) break;
+		
+		if (!netPlayerList[pl].isReady)
+		{
+			gameReady = false;
+			break;
+		}
+	}
+
+	if (gameReady)
+	{
+		utilPrintf("Net: all players ready\n");
+
+		netMessage->draw = 0;
+
+		if (isServer)
+		{
+			MSG_STARTGAME start;
+
+			gameStartTime = actFrameCount + STARTGAME_COUNT;
+
+			start.appmsg_start = APPMSG_START;
+			start.gameStartTime = gameStartTime;	// game starts in five seconds
+
+			NetBroadcastUrgentMessage(&start, sizeof(start));
+
+			utilPrintf("Net: starting game at T%d\n", gameStartTime);
+		}
+
+		return 1;
+	}
+	else
+		return 0;
 }
 
 // ------------------------------------------------------------------------
@@ -366,10 +394,12 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 		return 0;
 
 	case APPMSG_READY:
+		utilPrintf("Net: Player ID %08x is ready\n", player->dpid);
 		player->isReady = true;
 		return 0;
 
 	case APPMSG_HOSTREADY:
+		utilPrintf("Net: Host is ready to sync\n");
 		hostReady = true;
 		return 0;
 
