@@ -7,7 +7,7 @@
 #include <libgs.h>
 //#include <inline_c.h>
 //#include <gtemac.h>
-#include <stdio.h>
+//ma#include <stdio.h>
 #include "types.h"
 #include "islpsi.h"
 #include <islmem.h>

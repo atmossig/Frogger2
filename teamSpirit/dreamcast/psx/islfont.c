@@ -7,8 +7,6 @@
 #include "include.h"
 #include "main.h"
 
-void fontDispSprite(TextureType *tex, short x,short y, uchar alpha, float size);
-
 KMSTRIPHEAD		*fontStripHeadPtr;
 
 KMSTRIPCONTEXT	fontStripContext;
@@ -43,7 +41,7 @@ KMVERTEX_03		buttonVertices[] =
 #define V_OFFSET_SMALL	21.0/BITMAP_YD
 
 
-static TextureType	*buttonSprites[6];
+TextureType	*buttonSprites[6];
 
 unsigned char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-=+[]{}:;\"'|\\,<.>/?"
 					"\xe0\xe8\xec\xf2\xf9\xc0\xc8\xcc\xd2\xd9\xe1\xe9\xed\xf3\xfa\xfd\xc1\xc9\xcd\xd3\xda\xdd\xe2\xea\xee\xf4\xfb\xc2\xca\xce\xd4\xdb\xe3\xf1\xf5\xc3\xd1\xd5\xe4\xeb\xef\xf6\xfc\xff\xc4\xcb\xcf\xd6\xdc\xe5\xc5\xe6\xc6\xe7\xc7\xf0\xd0\xf8\xd8\xbf\xa1\xdf";
@@ -65,7 +63,17 @@ char	fontwidths[255] = {26,21,19,21,17,17,20,22,
 						   17,20,27,15,23,18,13,13,
 						   10,16,16,13,13,11,11,10,
 						   10,13,10,14, 9,10,16,10,
-						   16, 9,14,17,17,10,18,19};
+						   16, 9,14,17,17,10,18,19,
+
+						   26,17,11,21,20,17,18,10,
+						   18,19,20,26,17,20,21,20,
+						   24,17,18,11,18,19,26,17,
+						   11,21,20,17,19,18,26,20,
+						   21,17,17,12,18,19,20,26,
+						   17,12,21,20,17,26,25,31,
+						   16,19,14,14,18,22,15,11,
+						   20,23,
+};
 
 char	smallfontwidths[255] = {
 						   17,13,12,14,11,11,13,15,
@@ -82,7 +90,17 @@ char	smallfontwidths[255] = {
 						   10,14,18, 9,15,12, 9, 9,
 						    7,10,10, 8, 8, 7, 7, 6,
 						    6, 8, 6, 9, 6, 6,10, 6,
-						   10, 6,10,11,11, 7,12,12};
+						   10, 6,10,11,11, 7,12,12,
+
+						   17,12, 7,14,13,11,11, 6,
+						   12,12,13,17,11, 7,14,13,
+						   16,11,11, 7,12,12,17,11,
+						    7,14,13,11,12,12,17,13,
+						   14,11,12, 8,13,12,13,17,
+						   11, 8,14,13,11,17,16,20,
+						   10,13, 9, 9,12,14,10, 6,
+						   13,19,
+};
 						   
 #define OVERLAY_X 640.0/4096.0
 #define OVERLAY_Y 480.0/4096.0
@@ -115,6 +133,7 @@ psFont *fontLoad(char *fontname)
 		fontptr->uoffset = 21.0/BITMAP_XD;
 		fontptr->voffset = 21.0/BITMAP_YD;	
 		widths = smallfontwidths;
+		fontptr->height = 16;
 	}
 	else
 	{
@@ -123,14 +142,14 @@ psFont *fontLoad(char *fontname)
 		fontptr->uoffset = 32.0/BITMAP_XD;
 		fontptr->voffset = 32.0/BITMAP_YD;	
 		widths = fontwidths;
+		fontptr->height = 32;
 	}
 
 	// load font and setup font texture
 	if(loadPVRFileIntoSurface(fontname, "fonts", &fontptr->surface, TRUE) == 0)
 		return NULL;
 		
-	fontptr->numchars = 62+31;
-	fontptr->height = 32;
+	fontptr->numchars = 154;
 
 	memset(fontptr->charlookup, -1, 256);
 	for(loop = 0; loop < fontptr->numchars; loop++)
@@ -140,7 +159,7 @@ psFont *fontLoad(char *fontname)
 		fontptr->pixelwidth[loop] = (float)widths[loop] * fontptr->scale;
 		fontptr->charlookup[alphabet[loop]] = loop;
 	
-		fontptr->uvOffsets[loop].v[0] = (float)((float)(loop % 8) * 32.0) / BITMAP_XD;
+		fontptr->uvOffsets[loop].v[0] = (float)((float)((loop % 8) * 32.0)-1.0) / BITMAP_XD;
 		fontptr->uvOffsets[loop].v[1] = (float)((float)(loop/8) * 32.0) / BITMAP_YD;
 	}
 	fontptr->alpha = 255;
@@ -232,6 +251,11 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 	TextureType		*letter;
 	POLY_FT4 	*ft4; 
 
+	if(font == fontSmall)
+		fontStripHeadPtr = &smallFontStripHead;
+	else
+		fontStripHeadPtr = &fontStripHead;
+
 	strPtr = (unsigned char *)text;
 	cx = x;
 	cy = y;
@@ -259,21 +283,22 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 			switch(*strPtr)
 			{
 			case 'X':
-//ma			    fontDispSprite(buttonSprites[2], x,y + yAdd,r,g,b,font->alpha);
-//ma				x += buttonSprites[2]->w+2;
-				break;
-			case 'C':
-//ma			   	fontDispSprite(buttonSprites[1], x,y + yAdd,r,g,b,font->alpha);
-//ma				x += buttonSprites[1]->w+2;
-				break;
-			case 'S':
-//ma			   	fontDispSprite(buttonSprites[3], x,y + yAdd,r,g,b,font->alpha);
-//ma				x += buttonSprites[3]->w+2;
+			    fontDispSprite(buttonSprites[2], x,y + yAdd,r,g,b,font->alpha,font->size);
+				x += buttonSprites[2]->w+2;
 				break;
 			case 'T':
-//ma			   	fontDispSprite(buttonSprites[0], x,y + yAdd,r,g,b,font->alpha);
-//ma				x += buttonSprites[0]->w+2;
+			case 'C':
+			   	fontDispSprite(buttonSprites[1], x,y + yAdd,r,g,b,font->alpha,font->size);
+				x += buttonSprites[1]->w+2;
 				break;
+			case 'S':
+			   	fontDispSprite(buttonSprites[3], x,y + yAdd,r,g,b,font->alpha,font->size);
+				x += buttonSprites[3]->w+2;
+				break;
+//			case 'T':
+//			   	fontDispSprite(buttonSprites[0], x,y + yAdd,r,g,b,font->alpha,font->size);
+//				x += buttonSprites[0]->w+2;
+//				break;
 			case 'L':
 //ma			   	fontDispSprite(buttonSprites[4], x,y + yAdd,r,g,b,font->alpha);
 //ma				x += buttonSprites[4]->w+2;
@@ -363,6 +388,7 @@ int fontExtentWScaled(psFont *font, char *text,int scale)
 				strPtr++;
 				x += buttonSprites[2]->w+2;
 				break;
+			case 'T':
 			case 'C':
 				strPtr++;
 				x += buttonSprites[1]->w+2;
@@ -371,18 +397,18 @@ int fontExtentWScaled(psFont *font, char *text,int scale)
 				strPtr++;
 				x += buttonSprites[3]->w+2;
 				break;
-			case 'T':
-				strPtr++;
-				x += buttonSprites[0]->w+2;
-				break;
-			case 'L':
-				strPtr++;
-				x += buttonSprites[4]->w+2;
-				break;
-			case 'R':
-				strPtr++;
-				x += buttonSprites[5]->w+2;
-				break;
+//			case 'T':
+//				strPtr++;
+//				x += buttonSprites[0]->w+2;
+//				break;
+//			case 'L':
+//				strPtr++;
+//				x += buttonSprites[4]->w+2;
+//				break;
+//			case 'R':
+//				strPtr++;
+//				x += buttonSprites[5]->w+2;
+//				break;
 			}
 
 /*ma
@@ -572,18 +598,18 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 				switch(*(strPtr+1))
 				{
 					case 'X':
-					    fontDispSprite(buttonSprites[2], x+3,y-3, font->alpha, font->size);
+//					    fontDispSprite(buttonSprites[2], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += (buttonSprites[2]->w*font->scale)+6;
 						break;
 					case 'T':
 					case 'C':
-					   	fontDispSprite(buttonSprites[1], x+3,y-3, font->alpha, font->size);
+//					   	fontDispSprite(buttonSprites[1], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += (buttonSprites[1]->w*font->scale)+6;
 						break;
 					case 'S':
-					   	fontDispSprite(buttonSprites[3], x+3,y-3, font->alpha, font->size);
+//					   	fontDispSprite(buttonSprites[3], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += (buttonSprites[3]->w*font->scale)+6;
 						break;
@@ -771,22 +797,22 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 				switch(*(strPtr+1))
 				{
 					case 'X':
-					    fontDispSprite(buttonSprites[2], x+3,y-3, font->alpha, font->size);
+//					    fontDispSprite(buttonSprites[2], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += buttonSprites[2]->w+6;
 						break;
 					case 'C':
-					   	fontDispSprite(buttonSprites[1], x+3,y-3, font->alpha, font->size);
+//					   	fontDispSprite(buttonSprites[1], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += buttonSprites[1]->w+6;
 						break;
 					case 'S':
-					   	fontDispSprite(buttonSprites[3], x+3,y-3, font->alpha, font->size);
+//					   	fontDispSprite(buttonSprites[3], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += buttonSprites[3]->w+6;
 						break;
 					case 'T':
-					   	fontDispSprite(buttonSprites[0], x+3,y-3, font->alpha, font->size);
+//					   	fontDispSprite(buttonSprites[0], x+3,y-3, font->alpha, font->size);
 						strPtr++;
 						x += buttonSprites[0]->w+6;
 						break;
@@ -808,38 +834,38 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 	}	
 }
 
-void fontDispSprite(TextureType *tex, short x,short y, uchar alpha, float size)
+void fontDispSprite(TextureType *tex, short x,short y, uchar r, uchar g, uchar b, uchar alpha, int size)
 {
 	USHORT		w,h;
 //	float		size = 32;
 
-	buttonVertices[0].fX = x;
-	buttonVertices[0].fY = y + (size*1.5);
+	buttonVertices[0].fX = x+5;
+	buttonVertices[0].fY = y + (size*1.0)+5;
 	buttonVertices[0].u.fZ = 1.0;
 	buttonVertices[0].fU = 0;
 	buttonVertices[0].fV = 1;
-	buttonVertices[0].uBaseRGB.dwPacked = RGBA(255,255,255,alpha);
+	buttonVertices[0].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 
-	buttonVertices[1].fX = x;
-	buttonVertices[1].fY = y;
+	buttonVertices[1].fX = x+5;
+	buttonVertices[1].fY = y+5;
 	buttonVertices[1].u.fZ = 1.0;
 	buttonVertices[1].fU = 0;
 	buttonVertices[1].fV = 0;
-	buttonVertices[1].uBaseRGB.dwPacked = RGBA(255,255,255,alpha);
+	buttonVertices[1].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 
-	buttonVertices[2].fX = x + (size*1.5);
-	buttonVertices[2].fY = y + (size*1.5);
+	buttonVertices[2].fX = x + (size*1.0)+5;
+	buttonVertices[2].fY = y + (size*1.0)+5;
 	buttonVertices[2].u.fZ = 1.0;
 	buttonVertices[2].fU = 1;
 	buttonVertices[2].fV = 1;
-	buttonVertices[2].uBaseRGB.dwPacked = RGBA(255,255,255,alpha);
+	buttonVertices[2].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 	
-	buttonVertices[3].fX = x + (size*1.5);
-	buttonVertices[3].fY = y;
+	buttonVertices[3].fX = x + (size*1.0)+5;
+	buttonVertices[3].fY = y+5;
 	buttonVertices[3].u.fZ = 1.0;
 	buttonVertices[3].fU = 1;
 	buttonVertices[3].fV = 0;
-	buttonVertices[3].uBaseRGB.dwPacked = RGBA(255,255,255,alpha);
+	buttonVertices[3].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 
 	kmChangeStripTextureSurface(&buttonStripHead,KM_IMAGE_PARAM1,&tex->surface);
 	

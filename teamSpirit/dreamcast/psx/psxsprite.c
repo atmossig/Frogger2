@@ -14,11 +14,14 @@
 #include "menus.h"
 #include "options.h"
 #include "hud.h"
+#include "menus.h"
+#include "gte.h"
 
 #define OVERLAY_X 640.0/4096.0
 #define OVERLAY_Y 480.0/4096.0
 
 extern OPTIONSOBJECTS options;
+extern SPRITEOVERLAY *frogLogo;
 
 void DrawSprite ( SPRITEOVERLAY *spr )
 {
@@ -45,6 +48,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	else
 	{
 		alpha = 2;
+//		r = spr->r;
+//		g = spr->g;
+//		b = spr->b;
 		r = (spr->r * spr->a) >> 9;
 		g = (spr->g * spr->a) >> 9;
 		b = (spr->b * spr->a) >> 9;
@@ -82,7 +88,11 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		vertices_SpritesNoTex[3].u.fZ = spr->num + 1.0;
 		vertices_SpritesNoTex[3].uBaseRGB.dwPacked = RGBA(r,g,b,alpha);
 
-		kmStartStrip(&vertexBufferDesc, &StripHead_SpritesNoTex);	
+		if(spr->flags & SPRITE_SUBTRACTIVE)
+			kmStartStrip(&vertexBufferDesc, &StripHead_SpritesNoTex_Sub);	
+		else
+			kmStartStrip(&vertexBufferDesc, &StripHead_SpritesNoTex);	
+
 		kmSetVertex(&vertexBufferDesc, &vertices_SpritesNoTex[0], KM_VERTEXTYPE_00, sizeof(KMVERTEX_00));
 		kmSetVertex(&vertexBufferDesc, &vertices_SpritesNoTex[1], KM_VERTEXTYPE_00, sizeof(KMVERTEX_00));
 		kmSetVertex(&vertexBufferDesc, &vertices_SpritesNoTex[2], KM_VERTEXTYPE_00, sizeof(KMVERTEX_00));	
@@ -302,8 +312,8 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 
 //		atbdx = spr->xPos-2048;
 //		atbdy = spr->yPos-(120*17);
-		atbdx = spr->xPos-96;
-		atbdy = spr->yPos-96;
+		atbdx = spr->xPos;//-96;
+		atbdy = spr->yPos;//-96;
 		tPtr = spr->tex;
 
 		x0 = -halfWidth;
@@ -403,12 +413,15 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 
 void PrintSpriteOverlays ( char num )
 {
-	int counter;
+	int counter,j;
 	SPRITEOVERLAY *cur;
 
 	for ( counter = 0; counter < spriteOverlayList.numEntries; counter++ )
 	{
 		cur = &spriteOverlayList.block [ counter ];
+
+		if(frogLogo == cur)
+			j=8;
 
 		if(cur->draw)
 		{

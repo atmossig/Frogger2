@@ -28,8 +28,8 @@ typedef struct
 {
 	unsigned char		x;
 	unsigned char		y;
-	unsigned char		w;
-	unsigned char		h;
+	unsigned short		w;
+	unsigned short		h;
 	unsigned short		tpage;
 	unsigned short		clut;
 	unsigned char		u0, v0;

@@ -26,8 +26,10 @@ typedef struct _psFont
 	float				uoffset,voffset;
 	KMSURFACEDESC		surface;
 	float				scale;
-	int					size;
+	int				size;
 } psFont;
+
+extern TextureType	*buttonSprites[6];
 
 /**************************************************************************
 	FUNCTION:	fontLoad()
@@ -98,6 +100,8 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 **************************************************************************/
 
 void fontRegisterButtonSprites(TextureType *triangle, TextureType *circle, TextureType *cross, TextureType *square);
+
+void fontDispSprite(TextureType *tex, short x,short y, uchar r, uchar g, uchar b, uchar alpha, int size);
 
 
 #endif //__ISLFONT_H__

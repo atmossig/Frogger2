@@ -82,7 +82,7 @@ typedef struct _PSIMESH
 	unsigned long  	norn;           // the number of normals
 	unsigned long  	scale;          // the scale factor of TMD format
 
-	UBYTE			name[16];
+	char			name[16];
 	struct _PSIMESH	*child;
 	struct _PSIMESH	*next;
 

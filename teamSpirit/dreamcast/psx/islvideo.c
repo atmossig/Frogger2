@@ -13,6 +13,8 @@
 #include	"usr.h"
 #include	"km2enum.h"
 #include	"DCK_System.h"
+#include	"fadeout.h"
+#include	"main.h"
 
 static StrDataType *vidStream;
 
@@ -91,7 +93,7 @@ void ApStart(AP ap)
 	cprm->compo_mode = MWD_PLY_COMPO_OPEQ;
 	cprm->ftype			= MWD_PLY_FTYPE_SFD;
 	cprm->dtype			= MWD_PLY_DTYPE_WND;
-	cprm->max_bps = 900*1024*8;
+	cprm->max_bps = 1200*1024*8;
 	cprm->max_width = vidStream->width;
 	cprm->max_height = vidStream->height;
 	cprm->nfrm_pool_wk = 6;
@@ -143,7 +145,22 @@ Sint32 ApExec(AP ap)
 	ply = ap->ply;
 	fname = vidStream->strName;
 
-	per = pdGetPeripheral(PDD_PORT_A0);
+	// use first pad connected
+	switch(firstPad)
+	{
+		case 0:
+			per = pdGetPeripheral(PDD_PORT_A0);
+			break;
+		case 1:
+			per = pdGetPeripheral(PDD_PORT_B0);
+			break;
+		case 2:
+			per = pdGetPeripheral(PDD_PORT_C0);
+			break;
+		case 3:
+			per = pdGetPeripheral(PDD_PORT_D0);
+			break;
+	}
 	if ( per->press & PDD_DGT_ST )
 	{
 		ap->term_flag = 1;
@@ -195,7 +212,9 @@ short videoPlayStream(StrDataType *str, int palMode, short (*keyHandler)(void))
 	//	Entry callback function of GD file system error
 	gdFsEntryErrFuncAll((void *)ApGdErrFunc, ap);
 
-	ApInitMw(ap, KM_DSPMODE_NTSCNI640x480/*displayMode*/, KM_DSPBPP_RGB888/*frameBufferFormat*/, 1, 2, &vertexBufferDesc/*vertexBuffer*/);
+	// ma - must change tis !
+//	ApInitMw(ap, KM_DSPMODE_NTSCNI640x480/*displayMode*/, KM_DSPBPP_RGB888/*frameBufferFormat*/, 1, 2, &vertexBufferDesc/*vertexBuffer*/);
+	ApInitMw(ap, displayMode, frameBufferFormat, 1, 2, &vertexBufferDesc);
 
 	ApStart(ap);
 	while (1)
@@ -212,6 +231,11 @@ short videoPlayStream(StrDataType *str, int palMode, short (*keyHandler)(void))
 	ApStop(ap);
 	//	Finalize application
 	ApFinishMw(ap);			//	Finalize Middleware					
+
+	// blank fmv screen
+	UsrBeginDraw();
+	BlankScreen();
+	UsrEndDraw();
 }
 
 void videoSetAudioChannel(int channel)

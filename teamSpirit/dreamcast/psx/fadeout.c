@@ -157,3 +157,65 @@ void DrawScreenTransition(void)
 				fadeProc = NULL;
 		}
 }
+
+/*	-------------------------------------------------------------------------------
+	Function:	BlankScreen
+	Params:		start, end intensity (0-255), time in frames
+	returns:	
+*/
+
+void BlankScreen(void)
+{
+	int col = 255;
+
+	// initialise strip context and head
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &fadeStripContext);
+	memset(&fadeStripContext,0,sizeof(fadeStripContext));
+	memset(&fadeStripHead,0,sizeof(fadeStripHead));
+	fadeStripContext.nSize = sizeof(KMSTRIPCONTEXT);
+    kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &fadeStripContext);
+	fadeStripContext.StripControl.nListType		 					= KM_TRANS_POLYGON;
+	fadeStripContext.StripControl.nUserClipMode	 					= KM_USERCLIP_DISABLE;
+	fadeStripContext.StripControl.nShadowMode			 			= KM_NORMAL_POLYGON;
+	fadeStripContext.StripControl.bGouraud		 					= KM_TRUE;
+	fadeStripContext.ObjectControl.nDepthCompare			 		= KM_ALWAYS;
+	fadeStripContext.ObjectControl.nCullingMode			 			= KM_NOCULLING;
+	fadeStripContext.ObjectControl.bZWriteDisable					= KM_TRUE;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_SRCALPHA;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCALPHA;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].bSRCSelect		= KM_FALSE;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].bDSTSelect		= KM_FALSE;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].nFogMode			= KM_NOFOG;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].bColorClamp		= KM_FALSE;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].bUseAlpha		= KM_TRUE;
+	fadeStripContext.ImageControl[KM_IMAGE_PARAM1].nFilterMode		= KM_BILINEAR;
+	kmGenerateStripHead00(&fadeStripHead,&fadeStripContext);
+
+	// draw the progress fade background
+	fadeVertices[0].fX = 0;
+	fadeVertices[0].fY = 0;
+	fadeVertices[0].u.fZ = 10.00;
+	fadeVertices[0].uBaseRGB.dwPacked = RGBA(0, 0, 0, col);
+
+	fadeVertices[1].fX = 0;
+	fadeVertices[1].fY = 480;
+	fadeVertices[1].u.fZ = 10.00;
+	fadeVertices[1].uBaseRGB.dwPacked = RGBA(0, 0, 0, col);
+
+	fadeVertices[2].fX = 640;
+	fadeVertices[2].fY = 0;
+	fadeVertices[2].u.fZ = 10.00;
+	fadeVertices[2].uBaseRGB.dwPacked = RGBA(0, 0, 0, col);
+
+	fadeVertices[3].fX = 640;
+	fadeVertices[3].fY = 480;
+	fadeVertices[3].u.fZ = 10.00;
+	fadeVertices[3].uBaseRGB.dwPacked = RGBA(0, 0, 0, col);
+
+	kmStartStrip(&vertexBufferDesc, &fadeStripHead);	
+	kmSetVertex(&vertexBufferDesc, &fadeVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+	kmSetVertex(&vertexBufferDesc, &fadeVertices[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+	kmSetVertex(&vertexBufferDesc, &fadeVertices[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+	kmSetVertex(&vertexBufferDesc, &fadeVertices[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+	kmEndStrip(&vertexBufferDesc);
+}

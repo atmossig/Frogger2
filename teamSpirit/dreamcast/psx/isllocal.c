@@ -10,7 +10,7 @@
 //#include "..\islmem\islmem.h"
 //#include "..\islfile\islfile.h"
 
-#include <stdio.h>
+//ma#include <stdio.h>
 #include "isllocal.h"
 
 #include <islmem.h>

@@ -5,6 +5,8 @@
 
 ************************************************************************************/
 
+#include "prefix_dc.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -194,7 +196,9 @@ int utilDecompressBuffer(unsigned char *inBuf, unsigned char *outBuf)
 
 int utilPrintf(char* fmt, ...)
 {
-    va_list	arglist;
+	return 1;
+
+/*    va_list	arglist;
     long	r1, r2, r3, r4, r5, r6;
     int		len;
 
@@ -211,6 +215,7 @@ int utilPrintf(char* fmt, ...)
 	debug_printf(buffer);
 
     return len;    
+*/
 }
 
 /**************************************************************************

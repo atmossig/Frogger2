@@ -7,7 +7,7 @@
    
 #include <stddef.h>
 #include <string.h>
-#include <stdio.h>
+//ma#include <stdio.h>
 #include "isltex.h"
 #include "islutil.h"
 #include "islfont.h"
@@ -67,7 +67,6 @@ TextureBankType *textureLoadBank(char *sFile)
 		if(pNSprite	== NULL)
 			retry++;
 	}
-
 	numTextures = textureSetSPRPointers(pNSprite,&maxWidth,&maxHeight);
 
 	bitmapPtr = Align32Malloc(maxWidth*maxHeight*sizeof(USHORT));

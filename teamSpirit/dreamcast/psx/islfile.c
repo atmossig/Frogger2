@@ -1,4 +1,6 @@
 #include "include.h"
+#include	<cri_adxf.h>
+#include	<cri_adxt.h>
 
 extern texurestring[256];
 extern texurestring2[256];
@@ -13,12 +15,13 @@ char* fileLoad(char *filename,int *bytesRead)
     long        FileBlocks;
     int			i,flag = TRUE;
     char		buffer[256],*fptr;
-	Sint32		status;
+	Sint32		status,size;
 	int			retry = 0;
 	Sint32		gflag;
 	Uint32		length;
 	long		crc = 0;
 	char		*crcPtr;
+	ADXF		adxf;
 
 //	syCacheICI();
 	
@@ -51,6 +54,7 @@ char* fileLoad(char *filename,int *bytesRead)
 //		memcpy(genericStak,filePtr)
 //	}
 	
+
     // Open input file.
     while((!gdfs) && (retry < 50))
     {
@@ -93,6 +97,37 @@ char* fileLoad(char *filename,int *bytesRead)
     // Close file.
     gdFsClose(gdfs);
 
+/*	{
+		// Open input file.......
+		if (!(adxf = ADXF_Open(buffer, NULL)))
+		{
+			utilPrintf("********file open error********\n");
+			return NULL;
+		} // end-if
+
+		// Get the file size (blocks/sectors)
+		FileBlocks = ADXF_GetFsizeSct(adxf);
+
+		// Alloc the memory needed for loading the file
+		filePtr = Align32Malloc(FileBlocks * 2048); //this is a bit big for most files, but we have the room
+		if(filePtr == NULL)							 //and several levels won't load otherwise (it is freed v.soon)
+			utilPrintf("Error\n");
+
+		// Read the file into memory
+		ADXF_ReadNw32(adxf, FileBlocks, filePtr);	
+
+		// Wait until we're done reading the file or an error occurs somewhere....
+		while(ADXF_GetStat(adxf) != ADXF_STAT_READEND)
+		{
+			status = ADXF_GetStat(adxf);
+			if (status == ADXF_STAT_ERROR)
+				utilPrintf("Error\n");
+		}
+
+		// Close the file
+		ADXF_Close(adxf);
+	}
+*/
     return (char*)filePtr;
 }
 

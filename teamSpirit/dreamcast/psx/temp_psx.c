@@ -12,6 +12,7 @@
 #include "temp_psx.h"
 #include "islvideo.h"
 #include "story.h"
+#include "audio.h"
 
 FVECTOR fmaActorScale;
 
@@ -474,48 +475,74 @@ static void froggerVRAMdrawPalette256(unsigned long clut, int y)
 }
 */
 
-static int cursPos = 0;
+int cursPos = 0;
 
 void PsxNameEntryInit(void)
 {
-	cursPos = 0;
+	int j;
 
-	textString[0] = 'A';
-	textString[1] = 0;
+	for(j = 0;j < NAME_LENGTH;j++)
+		if(textString[j] == 0)
+			textString[j] = '-';
+
+	if(textString[0] == '-')
+		textString[0] = 'A';
+
+	textString[NAME_LENGTH] = 0;
 }
 
 void PsxNameEntryFrame(void)
 {
-//	padHandler();
+	int j;
+//	myPadHandleInput();
 
 	//move cursor
 	if(padData.debounce[0] & PAD_LEFT)
 	{
-		if(cursPos>0)
+		if(cursPos > 0)
 		{
-			textString[cursPos] = 0;
+			textString[cursPos] = '-';
 			cursPos--;
+			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		}
 	}
 
 	if(padData.debounce[0] & (PAD_RIGHT | PAD_CROSS))
 	{
-		if(cursPos<8)
+		if((cursPos < NAME_LENGTH - 1) || (padData.debounce[0] & PAD_CROSS))
 		{
-			cursPos++;
+			if(cursPos < NAME_LENGTH)
+			{
+				cursPos++;
 
-			textString[cursPos]='A';
-			textString[cursPos + 1] = 0;
+				textString[cursPos]='A';
+				if(cursPos == NAME_LENGTH - 1)
+				{
+					textString[cursPos + 1] = 0;
+				}
+				else
+					textString[cursPos + 1] = '-';
+				if(cursPos == NAME_LENGTH)
+				{
+					for(j = 0;j < NAME_LENGTH;j++)
+						if(textString[j] == '-')
+							textString[j] = 0;
+					textString[NAME_LENGTH] = 0;
+					textEntry = 0;
+					cursPos--;
+					PlaySample(genSfx[GEN_COLLECT_BABY],NULL,0,SAMPLE_VOLUME,-1);
+				}
+				else
+					PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
+			}
 		}
-		else
-			textEntry = 0;
 	}
-
 
 	//change char under cursor
 	if(padData.debounce[0] & PAD_UP)
 	{
-		if(textString[cursPos]==' ')
+		PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
+		if((textString[cursPos]==' ') || (textString[cursPos] == '-'))
 			textString[cursPos]='A';
 		else if(textString[cursPos] == 'Z')
 			textString[cursPos]=' ';
@@ -525,9 +552,10 @@ void PsxNameEntryFrame(void)
 
 	if(padData.debounce[0] & PAD_DOWN)
 	{
+		PlaySample(genSfx[GEN_FROG_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		if(textString[cursPos]=='A')
 			textString[cursPos]=' ';
-		else if(textString[cursPos]==' ')
+		else if((textString[cursPos]==' ') || (textString[cursPos] == '-'))
 			textString[cursPos]='Z';
 		else if(textString[cursPos]>'A')
 			textString[cursPos]--;
@@ -536,6 +564,10 @@ void PsxNameEntryFrame(void)
 	//done?
 	if(padData.debounce[0]&PAD_START)
 	{
+		for(j = 0;j < NAME_LENGTH;j++)
+			if(textString[j] == '-')
+				textString[j] = 0;
+		textString[NAME_LENGTH] = 0;
 		textEntry=0;
 	}
 }
@@ -2312,7 +2344,6 @@ static unsigned short ascii_k_table[] = {		// ASCII code to Shift-JIS code trans
 
 // *ASL* 21/07/2000
 // ** Function commented out as seems to be Windows code
-#if 0
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest) 
 {
 	int	i;
@@ -2359,7 +2390,6 @@ void asciiStringToSJIS(unsigned char *string, unsigned char *dest)
 			stmp2 = 63;
 		else {
 			printf("bad ASCII code 0x%x\n", ascii_code);
-			exit(1);
 		}
 
 		if(stmp2)
@@ -2372,7 +2402,6 @@ void asciiStringToSJIS(unsigned char *string, unsigned char *dest)
 		*dest++ = (sjis_code&0xff);
 	}
 }
-#endif
 
 short videoKeyPress(void)
 {
@@ -2387,7 +2416,7 @@ StrDataType vStream =
 		640,							// Screen res width
 		0,								// X,Y position
 		00,								//
-		352,							// Stream width and height
+		640,							// Stream width and height
 		240,							//
 		-1,								// Last frame No.
 		0,								// Size of each VLC buffer (including header).
@@ -2399,11 +2428,11 @@ void StartVideoPlayback(int num)
 	RECT rect;
 	StrDataType str;
 
-	gdFsChangeDir("\\");
-	gdFsChangeDir("FMV");
-	
 	StopSong();
-	
+
+	gdFsChangeDir("\\");
+	gdFsChangeDir("FMV");	
+
 	sprintf(vStream.strName,"%s.SFD",fmv[num].name);
 	// *ASL* 21/07/2000 - Third parameter expects a callback function pointer
 	videoPlayStream(&vStream, (int)PALMODE, &videoKeyPress);

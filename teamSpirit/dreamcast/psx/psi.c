@@ -469,7 +469,6 @@ PSIOBJECT *psiObjectScan(PSIOBJECT *obj, char *name)
 	return NULL;
 }
 
-
 /**************************************************************************
 	FUNCTION:	SetPSIObject
 	PURPOSE:	set up next & child pointers in PSIOBJECT
@@ -976,11 +975,12 @@ PSIMODEL *psiLoad(char *psiName)
 	}
 
 	// change to the models directory
-	gdFsChangeDir("\\");
+//	gdFsChangeDir("\\");
 //	gdFsChangeDir("models");
 
 	//psiName = psiConstructName(psiName);
-	addr = (void *)fileLoad(psiName, &filelength);
+//	addr = (void *)fileLoad(psiName, &filelength);
+	addr = (void *)FindStakFileInAllBanks ( psiName, &filelength );
 	psiModel = (PSIMODEL*)addr;
 	
 	return psiFixup(addr);
@@ -1006,7 +1006,7 @@ void *psiLoadPIL(char *pilName)
 		return NULL;
 
 	i = (int)*addr;
-	(char*)table = addr+4;
+	table = (int*)(addr+4);
 
 	utilPrintf("%d models in this library.\n",i);
 

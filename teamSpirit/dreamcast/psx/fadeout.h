@@ -12,11 +12,21 @@
 #ifndef _FADEOUT_H
 #define _FADEOUT_H
 
+#include "include.h"
+
+extern int (*fadeProc)(void);
+
 extern int fadingOut, keepFade;
 extern int fadeText;
 extern int flashScreen;
 
+extern KMSURFACEDESC	fadeSurface;
+extern KMSTRIPCONTEXT	fadeStripContext;
+extern KMSTRIPHEAD		fadeStripHead;
+extern KMVERTEX_00		fadeVertices[];
+
 void ScreenFade(int start, int end, long time);
 void DrawScreenTransition(void);
+void BlankScreen(void);
 
 #endif

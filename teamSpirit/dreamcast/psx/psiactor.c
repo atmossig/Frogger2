@@ -1198,6 +1198,64 @@ void *ChangeModel( ACTOR *actor, char *model )
 }
 
 /*	--------------------------------------------------------------------------------
+	Function 	: ChangeModel
+	Purpose 	: Swap models within an actor
+	Parameters 	: actor, name of new model
+	Returns 	: void
+	Info 		:
+*/
+void *ChangeModelNoUndo( ACTOR *actor, char *model )
+
+{
+	ACTOR *newActor, oldActor;
+	PSIMODEL *newModel;
+	char newName[16];
+	int i=0;
+
+	actorSub(actor);
+
+	//find model
+	while( model[i] != '.' && model[i] != '\0' )
+	{
+		newName[i] = model[i];
+		i++;
+	}
+	newName[i] = '\0';
+	strcat( newName, ".psi" );
+
+	newModel = psiCheck ( newName );
+
+	utilPrintf("Trying To Find New Model %s : %s................\n", newModel);
+
+	if( !newModel )
+	{
+		utilPrintf("Could Not Find Replacment Model................\n");
+		return;
+	}
+
+	//create new actor
+	newActor = actorCreate( newModel, 1, 0 );
+
+	//backup current actor
+	oldActor = *actor;
+
+	//copy over current actor
+	*actor = *newActor;
+
+	//keep some of the original data
+	actor->position = oldActor.position;
+	actor->qRot		= oldActor.qRot;
+
+	// set baby frog scale
+	actor->size.vx = globalFrogScale;
+	actor->size.vy = globalFrogScale;
+	actor->size.vz = globalFrogScale;
+	ScaleVectorFF( &actor->size, 3072 );
+
+//	actorFree(newActor);
+}
+
+/*	--------------------------------------------------------------------------------
 	Function 	: ChangeBabyModel
 	Purpose 	: Swap models within an actor
 	Parameters 	: actor, name of new model
