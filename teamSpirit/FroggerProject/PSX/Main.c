@@ -272,9 +272,9 @@ extern int polyCount;
 //extern int countMakeUnit;
 //extern int countQuatToPSXMatrix;
 
-extern int rotatedObjects;
-extern int scaledObjects;
-extern int movedObjects;
+//extern int rotatedObjects;
+//extern int scaledObjects;
+//extern int movedObjects;
 
 
 int main ( )
@@ -392,8 +392,28 @@ int main ( )
 //		InitWater();
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
 
+
+		
+		
+		//*****************//
+		//*** MAIN LOOP ***//
+		//*****************//
+
 		while ( !quitMainLoop )
 		{
+			if(gameState.mode!=PAUSE_MODE)
+			{
+				char tempText[64];
+
+ 				gameSpeed = vsyncCounter<<12;
+ 				actFrameCount += vsyncCounter;
+ 				vsyncCounter = 0;
+
+ 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
+ 						gameSpeed>>12, actorCount, polyCount); 
+ 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+			}
+
 			//turn on/off timers + display
 			if(padData.debounce[0] & PAD_SELECT)
 				timerActive ^= 1;
@@ -409,9 +429,9 @@ int main ( )
 //			countMakeUnit = 0;
 //			countQuatToPSXMatrix = 0;
 
-			rotatedObjects = 0;
-			scaledObjects = 0;
-			movedObjects = 0;
+//			rotatedObjects = 0;
+//			scaledObjects = 0;
+//			movedObjects = 0;
 
 
 			
@@ -600,7 +620,7 @@ int main ( )
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 
-//			if(gameState.mode!=PAUSE_MODE)
+/*			if(gameState.mode!=PAUSE_MODE)
 			{
 				char tempText[64];
 
@@ -619,7 +639,7 @@ int main ( )
 // 						rotatedObjects, scaledObjects, movedObjects); 
 // 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 			}
-
+*/
 		}//end main loop
 
 
