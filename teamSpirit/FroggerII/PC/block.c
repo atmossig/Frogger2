@@ -446,7 +446,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
     wc.cbClsExtra		= 0;
     wc.cbWndExtra		= 0;
     wc.hInstance		= hInstance;
-    wc.hIcon			= LoadIcon(NULL,(LPSTR)IDI_WINLOGO);
+    wc.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FROGGER));
     wc.hCursor			= LoadCursor(NULL,IDC_ARROW);
     wc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
     wc.lpszMenuName		= NULL;
