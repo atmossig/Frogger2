@@ -1226,7 +1226,7 @@ SOURCE=.\Backtile.bmp
 # End Source File
 # Begin Source File
 
-SOURCE=.\bmp\f2logo.bmp
+SOURCE=.\f2logo.bmp
 # End Source File
 # Begin Source File
 
@@ -1235,13 +1235,6 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project
