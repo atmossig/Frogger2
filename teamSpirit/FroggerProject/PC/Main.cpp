@@ -722,7 +722,7 @@ long DrawLoop(void)
 			ssClearViewport();
 		}
 		else
-			return 1;
+			utilPrintf("DrawLoop Error!");
 	}
 
 
