@@ -1584,7 +1584,7 @@ static void RunIntro()
 {
 	static ACTOR2 *fAct = NULL,*lilly = NULL;
 	static TEXTOVERLAY *introTxt1 = NULL,*introTxt2 = NULL;
-	static SPRITE *fireSprite = NULL,*sOv,*fly;
+	static SPRITE *fireSprite = NULL,*sOv,*sOv2,*fly;
 	static u16 button,lastbutton;
 	static float lillyRot = 0.0F,introSeed = 0.0F,fVal;
 	static GAMETILE dummyTile;
@@ -1648,7 +1648,11 @@ static void RunIntro()
 		sOv->a = 64;
 		CreateAndAddProceduralTexture(sOv->texture,"prc_watrd");
 
-		fly = AddNewSpriteToList(0,0,20,16,"fly1.bmp",0);
+		sOv2 = AddNewSpriteToList(0,0,256,1280,"prc_watrt.bmp",SPRITE_TRANSLUCENT);
+		sOv2->a = 64;
+		CreateAndAddProceduralTexture(sOv2->texture,"prc_watrt");
+
+		fly = AddNewSpriteToList(0,0,20,24,"fly1.bmp",0);
 		fly->a = 255;
 		flyVel.v[X] = - 10 + Random(20);
 		flyVel.v[Y] = - 10 + Random(20);
@@ -1741,8 +1745,8 @@ static void RunIntro()
 		gameState.mode		= MENU_MODE;
 		gameState.menuMode	= TITLE_MODE;
 
-		myAA = 0;
-
+		myAA			= 0;
+		currTile[0]		= NULL;
 		hedSpeed		= 0.2;
 		frameCount		= 1;
 		lastbutton		= 0;
