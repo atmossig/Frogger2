@@ -419,7 +419,6 @@ void PickupCollectable(GARIB *garib)
 	rip->r = 255;
 	rip->g = 255;
 	rip->b = 0;
-	rip->yRotSpeed = 16;
 
 	switch(garib->type)
 	{
