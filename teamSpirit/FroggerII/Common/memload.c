@@ -268,9 +268,9 @@ int MemLoadEntities(const void* data, long size)
 					tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &v, flags & 0xFFFF);
 					tcam->FOV = FOV;
 					tcam->speed = speed;
-					tcam->camLookAt.v[X] = ((char)(target & 0xFF))*10;
-					tcam->camLookAt.v[Y] = ((char)((target>>8) & 0xFF))*10;
-					tcam->camLookAt.v[Z] = ((char)((target>>16) & 0xFF))*10;
+					tcam->camLookAt.v[X] = (float)((char)(target & 0xFF))/0x7F;
+					tcam->camLookAt.v[Y] = (float)((char)((target>>8) & 0xFF))/0x7F;
+					tcam->camLookAt.v[Z] = (float)((char)((target>>16) & 0xFF))/0x7F;
 				}
 				break;
 			}
@@ -431,9 +431,9 @@ int MemLoadEntities(const void* data, long size)
 				tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &v, flags & 0xFFFF);
 				tcam->FOV = scale;
 				tcam->speed = animSpeed;
-				tcam->camLookAt.v[X] = ((char)(target & 0xFF))*10;
-				tcam->camLookAt.v[Y] = ((char)((target>>8) & 0xFF))*10;
-				tcam->camLookAt.v[Z] = ((char)((target>>16) & 0xFF))*10;
+				tcam->camLookAt.v[X] = (float)((char)(target & 0xFF))/0x7F;
+				tcam->camLookAt.v[Y] = (float)((char)((target>>8) & 0xFF))/0x7F;
+				tcam->camLookAt.v[Z] = (float)((char)((target>>16) & 0xFF))/0x7F;
 			}
 			break;
 		}
