@@ -920,10 +920,7 @@ void UpdateRotatePathNME( ENEMY *cur )
 */
 void UpdateHomingNME( ENEMY *cur )
 {
-	GAMETILE *chTile;
-	VECTOR tVec, moveVec;
-	float distance, best=-100000, result;
-	unsigned long i;
+	VECTOR moveVec;
 
 	// For now, screw tiles completely and just move. Make radius based if they need to collide
 	SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
