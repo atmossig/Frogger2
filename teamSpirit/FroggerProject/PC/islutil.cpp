@@ -9,7 +9,8 @@
 //returns fixed format
 unsigned long utilSqrt(unsigned long num)
 {
-	return (unsigned long)(sqrt(num)*4096);
+//	return (unsigned long)(sqrt(num)*4096);
+	return (unsigned long)(sqrt(num)*65536);
 }
 
 //return angle -2048 to +2048

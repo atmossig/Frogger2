@@ -71,7 +71,7 @@ Unassigned tasks
 - TIDY UP ! ! !
 - Get hold of my old timing interrupt code,
   and CalcAbsAng() quat function
-
+- check all 4055 checks, look to use 4088 (1-0.001 instead of 1-0.01)
 
 
 -----------------------------------------------------
