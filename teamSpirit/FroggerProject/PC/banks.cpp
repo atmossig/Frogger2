@@ -406,7 +406,11 @@ void LoadTextureBank(int textureBank)
 			return;
 	}
 
-	LoadTexBank(fileName,baseDirectory);	
+#ifdef FINAL_MASTER
+	LoadTexBankFile(fileName,baseDirectory);
+#else
+	LoadTexBank(fileName,baseDirectory);
+#endif
 	return;
 }
 

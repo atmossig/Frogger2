@@ -30,7 +30,12 @@ int InitBackdrop(const char *filename)
 	strcpy(path, baseDirectory);
 	strcat(path, "Backdrops\\");
 	strcat(path, filename);
+
+#ifdef FINAL_MASTER
+	strcat(path, ".fla");	// load flatpacker compressed data
+#else
 	strcat(path, ".bmp");
+#endif
 
 	utilPrintf("Load backdrop: %s...", path);
 
@@ -50,7 +55,12 @@ int InitCDBackdrop(const char *filename)
 	strcpy(path, cdromDrive);
 	strcat(path, "Gallery\\");
 	strcat(path, filename);
+
+#ifdef FINAL_MASTER
+	strcat(path, ".fla");	// load flatpacker compressed data
+#else
 	strcat(path, ".bmp");
+#endif
 
 	utilPrintf("Load backdrop from CD: %s...", path);
 
