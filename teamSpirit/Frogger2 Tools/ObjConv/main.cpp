@@ -67,8 +67,7 @@ void AddLastObject(void)
 {
 	if (cur.name[0])
 	{
-		if (strncmp(cur.name, "cam", 3) != 0)
-			memcpy(&objList[nObj++],&cur,sizeof(obj));
+		memcpy(&objList[nObj++],&cur,sizeof(obj));
 
 		cur.name[0]=0;
 		cur.linename[0]=0;
@@ -124,7 +123,9 @@ void ProcessCommand (char *line)
 			while ((cur.name[letr]>='0') && (cur.name[letr]<='9')) letr--;
 			letr++;
 			cur.name[letr]=0;
-			if (!strcmp(cur.name,"collision"))
+
+			if ((strcmp(cur.name,"collision") == 0) ||
+				(strncmp(cur.name, "cam", 3) == 0))
 			{
 				where = 120;
 				cur.name[0] = 0;
@@ -298,6 +299,13 @@ void WriteData(void)
 
 			fprintf (out,"};\n\n");
 		}
+
+	fprintf(out,
+			"#define DllExport __declspec( dllexport )\n\n"
+			"extern \"C\" DllExport long GetSC000Address()\n"
+			"{\n"
+			"	return (long)&(Sc_000);\n"
+			"}\n");
 	
 	fclose (out);
 }
