@@ -378,8 +378,32 @@ int *FindSfxMapping( unsigned long uid )
 */
 void DamageNormal( int pl )
 {
+	SPECFX *fx;
+
 	AnimateActor(frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
 	CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 0, 0, 3.0 );
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 4, 0, 5 );
+	SetFXColour( fx, 255, 255, 0 );
+	fx->gravity = 0.1;
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 3, 0, 5 );
+	SetFXColour( fx, 255, 255, 130 );
+	fx->gravity = 0.1;
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2, 0, 5 );
+	SetFXColour( fx, 255, 255, 130 );
+	fx->gravity = 0.1;
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 );
+	SetFXColour( fx, 255, 255, 255 );
+	fx->gravity = 0.1;
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 3, 0, 5 );
+	SetFXColour( fx, 200, 255, 200 );
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 );
+	SetFXColour( fx, 255, 255, 255 );
+	fx->gravity = 0.1;
+	
+//	fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 0.2, 0.1, 0.7 );
+//	SetFXColour( fx, 255, 0, 0 );
 }
 
 void DamageRunOver( int pl )
