@@ -432,8 +432,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		if( dist > att )
 			return FALSE;
 
-		vol = FMul((vol<<12), FDiv(((att<<12)-(dist<<12)),att<<12))>>12;
-
+//bb	vol = FMul((vol<<12), FDiv(((att<<12)-(dist<<12)),att<<12))>>12;
+//bb look out, this may have been badly optimised
+		vol = (vol * (((att-dist)<<12)/att)) >>12;
 	}
 
 
