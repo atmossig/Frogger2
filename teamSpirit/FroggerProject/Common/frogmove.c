@@ -655,7 +655,10 @@ void FroggerHop(int pl)
 		SetVectorSS(&frog[pl]->actor->position, &pos);
 
 #ifdef PSX_VERSION
-	frog[pl]->actor->shadow->draw = 1;
+	if( currTile[pl]->state >= TILESTATE_CONVEYOR || currTile[pl]->state == TILESTATE_ICE )
+		frog[pl]->actor->shadow->draw = 0;
+	else
+		frog[pl]->actor->shadow->draw = 1;
 #endif
 
 /*
