@@ -1035,7 +1035,7 @@ BOOL SetupControllerDlg(HWND hdlg)
 	SetWindowText(GetDlgItem(hdlg, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
 
 	SetWindowText(GetDlgItem(hdlg, IDC_TXT_CONTROLS), GAMESTRING(STR_PCSETUP_CONTROLS));
-	SetWindowText(GetDlgItem(hdlg, IDD_CONTROLS), GAMESTRING(STR_PCSETUP_CONTROLS));
+	SetWindowText(/*GetDlgItem(hdlg, IDD_CONTROLS)*/hdlg, GAMESTRING(STR_PCSETUP_CONTROLS));
 	SetWindowText(GetDlgItem(hdlg, ID_DEFAULT), GAMESTRING(STR_PCSETUP_DEFAULTS));
 
 	SetWindowText(GetDlgItem(hdlg, IDC_P1), "1UP");
