@@ -24,6 +24,7 @@
 #include "commctrl.h"
 #include "mdxException.h"
 #include "resource.h"
+#include "mdxFile.h"
 
 const char *softwareString = "Software Rendering";
 const char *softwareDriver = "Blitz Games SoftStation";
@@ -134,7 +135,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	LV_ITEM i1 = {LVIF_TEXT,0,0,0,0,NULL,255};
 
 	static int	initFlag;
-	int			i,lastIdx;
+	unsigned	i,lastIdx;
 	char		text[32];
 	HWND		list;
 
@@ -818,6 +819,16 @@ void mdxSetBackdropToTex(MDX_TEXENTRY *t)
 		backdrop = t->surf;
 }
 
+
+int isBMP(const char* filename)
+{
+	int n = strlen(filename);
+	if (n<5) return 0;
+	char *c = (char*)filename + (n-4);
+	return (strcmp(c, ".bmp") == 0);
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function	: mdxLoadBackdrop
 	Purpose		: 
@@ -830,20 +841,65 @@ void mdxLoadBackdrop(const char* filename)
 	DDSURFACEDESC2 ddsd; DDINIT(ddsd);
 	HRESULT res;
 
-	int xDim,yDim;
+	int xDim,yDim,gelf;
 	int pptr = -1;
 
-	void* data = gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,r565?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+	void *fdata;
+	BYTE* data;
+	
+	if (isBMP(filename))
+	{
+		data = (BYTE*)gelfLoad_BMP((char*)filename,NULL,(void**)&pptr,&xDim,&yDim,NULL,r565?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+		if (!data) {
+			dp("mdxLoadBackdrop(): Failed loading .BMP\n");
+			return;
+		}
+		gelf = 1;
+	}
+	else
+	{
+		fdata = mdxFileLoad(filename, NULL, NULL);
+		if (!fdata) {
+			dp("mdxLoadBackdrop(): Failed loading raw bitmap\n");
+			return;
+		}
+		
+		TEXTURE_HEADER *h = (TEXTURE_HEADER*)fdata;
+		data = ((BYTE*)fdata + sizeof(TEXTURE_HEADER));
+		gelf = 0;
+
+		xDim = h->dim[0]; yDim = h->dim[1];
+
+		unsigned short *p = (unsigned short*)data;
+
+		if (r565)
+			for (int x=(xDim*yDim); x; x--, p++)
+			{
+				unsigned short pix = *p;
+				*p = ((pix & 0x7fe0)<<1)|(pix & 0x1f);
+			}
+	}
 
 	surface[RENDER_SRF]->GetSurfaceDesc(&ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
 	ddsd.dwWidth = xDim;
 	ddsd.dwHeight = yDim;
+
+
 /*
 	DDINIT(ddsd.ddpfPixelFormat);
 	ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
 	ddsd.ddpfPixelFormat.dwRGBBitCount = 16;
+	
+	ddsd.ddpfPixelFormat.dwRBitMask = 0xf800;
+	ddsd.ddpfPixelFormat.dwGBitMask = 0x07e0;
+	ddsd.ddpfPixelFormat.dwBBitMask = 0x001f;
+
+	//ddsd.ddpfPixelFormat.dwRBitMask = 0x7c00;
+	//ddsd.ddpfPixelFormat.dwGBitMask = 0x03e0;
+	//ddsd.ddpfPixelFormat.dwBBitMask = 0x001f;
 */
+
 	/*	if (rHardware)
 		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
 	else*/
@@ -863,7 +919,10 @@ void mdxLoadBackdrop(const char* filename)
 	
 	CopyDataToSurface(data, backdrop);
 
-	free(data);
+	if (gelf)
+		free(data);
+	else
+		FreeMem(fdata);
 }
 
 /*	--------------------------------------------------------------------------------

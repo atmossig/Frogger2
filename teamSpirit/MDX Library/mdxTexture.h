@@ -24,9 +24,9 @@ extern "C"
 typedef struct TAG_MDX_TEXENTRY
 {
 	long CRC;
-	char name[32];
-	char bank[64];
-	short *data;
+	char name[12];
+//	char bank[64];
+	short *data, *gelfData;
 	long *softData;
 	char keyed;
 	long type;
@@ -54,6 +54,14 @@ typedef struct TAG_MDX_TEXPAGE
 
 	struct TAG_MDX_TEXPAGE *next;	
 } MDX_TEXPAGE;
+
+typedef struct _TEXTURE_HEADER
+{
+	DWORD flags;
+	DWORD CRC;
+	short dim[2];
+	char name[12];
+} TEXTURE_HEADER;
 
 #define TEXTURE_BASE "textures\\"
 

@@ -35,12 +35,7 @@
 #include "mdxException.h"
 #include <stdio.h>
 
-
-#ifdef __cplusplus
-
-extern "C"
-{
-#endif
+/*	-------------------------------------------------------------------------------- */
 
 MDX_TEXENTRY *cDispTexture = NULL;
 MDX_TEXENTRY *texList = NULL;
@@ -57,6 +52,57 @@ float textureAdjustDivider = (TEX_PAGE_SIZE/32);
 unsigned long texXCoords[((TEX_PAGE_SIZE/32) * (TEX_PAGE_SIZE/32))];
 unsigned long texYCoords[((TEX_PAGE_SIZE/32) * (TEX_PAGE_SIZE/32))];
 
+
+struct MDX_TEXTUREBANK
+{
+	char name[32];
+	void *data;
+
+	MDX_TEXTUREBANK *prev, *next;
+};
+
+MDX_TEXTUREBANK* texBankList = NULL;
+
+/*	-------------------------------------------------------------------------------- */
+
+MDX_TEXTUREBANK* AddTextureBank(const char* name)
+{
+	MDX_TEXTUREBANK* bank;
+	
+	bank = (MDX_TEXTUREBANK*)AllocMem(sizeof(MDX_TEXTUREBANK));
+	strncpy(bank->name, name, 31);
+	bank->prev = 0;
+	bank->next = texBankList;
+	
+	if (texBankList)
+		texBankList->prev = bank;
+	
+	texBankList = bank;
+
+	return bank;
+}
+
+bool RemoveTextureBank(MDX_TEXTUREBANK* bank)
+{
+	if (bank->next) bank->next->prev = bank->prev;
+
+	if (bank->prev)
+		bank->prev->next = bank->next;
+	else
+		texBankList = bank->next;
+
+	if (bank->data) FreeMem(bank->data);
+	FreeMem(bank);
+
+	return true;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetTexEntryFromCRC
+	Purpose			: retrieves the first MDX_TEXENTRY with the given CRC, brute force search (blech)
+	Parameters		: long CRC
+	Returns			: texture entry
+*/
 MDX_TEXENTRY *GetTexEntryFromCRC (long CRC)
 {
 	MDX_TEXENTRY *me = texList;
@@ -72,6 +118,12 @@ MDX_TEXENTRY *GetTexEntryFromCRC (long CRC)
 	return NULL;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+*/
 MDX_TEXPAGE *GetFreeTexturePage(void)
 {
 	MDX_TEXPAGE *ret;
@@ -133,6 +185,12 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: AddMemoryTexture
+	Purpose			: adds loaded texture data to the texture list
+	Parameters		: short name (lowercase.bmp), raw data, x/y dimensions, 'type'
+	Returns			: texture entry
+*/
 MDX_TEXENTRY *AddMemoryTexture(char *name, short *data, int xDim, int yDim, int texType)
 {
 	LPDIRECTDRAWSURFACE7 temp;
@@ -283,6 +341,12 @@ MDX_TEXENTRY *AddMemoryTexture(char *name, short *data, int xDim, int yDim, int 
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: AddTextureToTexList
+	Purpose			: loads a texture from a .bmp using Gelf and adds it to the list
+	Parameters		: 
+	Returns			: 
+*/
 MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 {
 	char mys[255],tBnk[255];
@@ -342,9 +406,10 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	{
 		MDX_TEXENTRY *newE = AddMemoryTexture(mys, data, xDim, yDim, texType);
 
-		strncpy(newE->bank,tBnk,60);
+		//strncpy(newE->bank,tBnk,60);
 		newE->keyed = 0;
 		newE->numFrames = 1;
+		newE->gelfData = data;
 
 		return newE;
 	}
@@ -354,6 +419,12 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	return NULL;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+*/
 void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSURFACE7 srf)
 {
 	short tempdata[256*256];
@@ -404,6 +475,8 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 	HANDLE			fHandle;
 
 	unsigned long numTextures;
+
+	MDX_TEXTUREBANK* texbank = AddTextureBank(bank);
 
 	strcpy (fPath,baseDir);
 	strcat (fPath,TEXTURE_BASE);
@@ -506,13 +579,6 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 	Parameters		: 
 	Returns			: 
 */
-struct TEXTURE_HEADER
-{
-	DWORD flags;
-	DWORD CRC;
-	short dim[2];
-	char name[12];
-};
 
 unsigned long LoadTexBankFile(char *bank, char *baseDir)
 {
@@ -522,13 +588,15 @@ unsigned long LoadTexBankFile(char *bank, char *baseDir)
 	TEXTURE_HEADER *head;
 	int size, num;
 	
+	MDX_TEXTUREBANK* texbank = AddTextureBank(bank);
+
 	strcpy(path, baseDir);
 	strcat(path, TEXTURE_BASE);
 	
 	strcpy(file, bank);
 	strcat(file, ".fla");
 
-	data = buffer = mdxFileLoad(file, path, &size);
+	texbank->data = data = buffer = mdxFileLoad(file, path, &size);
 
 	num = (int)*(DWORD*)data; data += 4;
 
@@ -606,7 +674,7 @@ void PrintTextureInfo(void)
 	dp ( "Total Mem : %lu : - Total Free : %lu :\n",dwVidMemTotal, dwVidMemFree );
 }
 
-extern MDX_TEXENTRY *haloHandle;
+//extern MDX_TEXENTRY *haloHandle;
 
 
 //_CrtMemState state1,state2,state3;
@@ -615,22 +683,13 @@ void FreeAllTextureBanks()
 {
 	MDX_TEXENTRY *cur, *next/*, *cur2*/;
 	int numTextures;
-	haloHandle = 0;
+	//haloHandle = 0;
 	for( cur = texList, numTextures = 0; cur; cur = next, numTextures++ )
 	{
 		next = cur->next;
 
-/* Pending animated textures
-
-		cur2 = cur->nextFrame;
-		while (cur2)
-		{
-			cur2->surf->Release();
-			cur2 = cur2->nextFrame;
-		}
-*/
-		if( cur->data ) 
-			gelfDefaultFree(cur->data);
+		if(cur->gelfData)
+			gelfDefaultFree(cur->gelfData);
 
 		// animated texture?
 		if (cur->numFrames > 1)
@@ -652,25 +711,26 @@ void FreeAllTextureBanks()
 			surfacesMade--;
 		}
 
-		if (cur->softData) 
+		if (cur->softData)
 			FreeMem(cur->softData);
 
 		FreeMem (cur);
 	}
+
+	while (texBankList)
+		RemoveTextureBank(texBankList);
 
 	dp("Freed %d Textures\n",numTextures);
 	dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
 
 	if( showMemDebug )
 		Show_Mem();
-//CrtMemCheckpoint(&state2);
-//CrtMemDifference(&state3,&state2,&state1);
-	
-//	_CrtMemDumpStatistics(&state3);
 
-//	_CrtMemCheckpoint(&state1);
-
-	dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
+	//CrtMemCheckpoint(&state2);
+	//CrtMemDifference(&state3,&state2,&state1);
+	//	_CrtMemDumpStatistics(&state3);
+	//	_CrtMemCheckpoint(&state1);
+	//dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
 
 	
 	texList = NULL;
@@ -798,8 +858,8 @@ void ShowTextures(void)
 
 						SetTextColor(hdc, RGB(0,255,255));
 						
-						sprintf(tText,"%s",me->bank);
-						TextOut(hdc, r.left+70, r.top+60, tText, strlen(tText));
+						//sprintf(tText,"%s",me->bank);
+						//TextOut(hdc, r.left+70, r.top+60, tText, strlen(tText));
 						
 						r.left += 150;
 						r.right += 150;
@@ -818,6 +878,3 @@ void ShowTextures(void)
 	
 }
 
-#ifdef __cplusplus
-}
-#endif
