@@ -291,12 +291,13 @@ void PrintSpriteOverlays()
 */
 void DrawSpecialFX()
 {
-//	if(rippleFXList.numEntries)
-//		DrawFXRipples();
-
 	if ( ( gameState.mode == GAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
 		 ( gameState.mode == CAMEO_MODE ) )
+	{
 		ProcessShadows();
+		if(rippleFXList.numEntries)
+			DrawFXRipples();
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -710,4 +711,89 @@ BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int
 	AddBackdrop(backdrop);
 
 	return backdrop;
+}
+
+
+void DrawFXRipples()
+{
+	FX_RIPPLE *ripple,*ripple2;
+	TEXENTRY *tEntry;
+	long i;
+	D3DTLVERTEX vT[4];
+	VECTOR tempVect[4], m[4];
+	static short f[6] = {0,1,2,0,2,3};
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	
+	// go through list and draw ripples
+	for(ripple = rippleFXList.head.next; ripple != &rippleFXList.head; ripple = ripple2)
+	{
+		ripple2 = ripple->next;
+		if(ripple->deadCount)
+			continue;
+
+		tempVect[0].v[X] = ripple->origin.v[X] - ripple->radius;
+		tempVect[0].v[Y] = ripple->origin.v[Y];
+		tempVect[0].v[Z] = ripple->origin.v[Z] + ripple->radius;
+
+		tempVect[1].v[X] = ripple->origin.v[X] + ripple->radius;
+		tempVect[1].v[Y] = ripple->origin.v[Y];
+		tempVect[1].v[Z] = ripple->origin.v[Z] + ripple->radius;
+
+		tempVect[2].v[X] = ripple->origin.v[X] + ripple->radius;
+		tempVect[2].v[Y] = ripple->origin.v[Y];
+		tempVect[2].v[Z] = ripple->origin.v[Z] - ripple->radius;
+
+		tempVect[3].v[X] = ripple->origin.v[X] - ripple->radius;
+		tempVect[3].v[Y] = ripple->origin.v[Y];
+		tempVect[3].v[Z] = ripple->origin.v[Z] - ripple->radius;
+
+		for(i=0; i<4; i++)
+			XfmPoint (&m[i],&tempVect[i]);
+		
+		if (m[0].v[Z])
+		if (m[1].v[Z])
+		if (m[2].v[Z])
+		if (m[3].v[Z])
+		{
+			vT[0].sx = m[0].v[X];
+			vT[0].sy = m[0].v[Y];
+			vT[0].sz = (m[0].v[Z]+DIST)/2000;
+			vT[0].tu = 1;
+			vT[0].tv = 0;
+			vT[0].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
+			vT[0].specular = D3DRGB(0,0,0);
+
+			vT[1].sx = m[1].v[X];
+			vT[1].sy = m[1].v[Y];
+			vT[1].sz = (m[1].v[Z]+DIST)/2000;
+			vT[1].tu = 0;
+			vT[1].tv = 0;
+			vT[1].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
+			vT[1].specular = D3DRGB(0,0,0);
+
+			vT[2].sx = m[2].v[X];
+			vT[2].sy = m[2].v[Y];
+			vT[2].sz = (m[2].v[Z]+DIST)/2000;
+			vT[2].tu = 0;
+			vT[2].tv = 1;
+			vT[2].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
+			vT[2].specular = 0;
+			vT[2].specular = D3DRGB(0,0,0);
+
+			
+			vT[3].sx = m[3].v[X];
+			vT[3].sy = m[3].v[Y];
+			vT[3].sz = (m[3].v[Z]+DIST)/2000;
+			vT[3].tu = 1;
+			vT[3].tv = 1;
+			vT[3].color = D3DRGBA(ripple->r,ripple->g,ripple->b,ripple->alpha);
+			vT[3].specular = 0;
+			vT[3].specular = D3DRGB(0,0,0);
+
+			tEntry = ((TEXENTRY *)ripple->txtr);
+			DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
+		}
+	}
 }
