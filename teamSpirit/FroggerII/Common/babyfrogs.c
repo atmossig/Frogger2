@@ -19,8 +19,8 @@ BABY babyList[NUM_BABIES];
 
 GAMETILE **bTStart;
 
-int nearestBaby		= NULL;
-int lastBabySaved	= NULL;
+int nearestBaby		= -1;
+int lastBabySaved	= -1;
 
 SPRITEOVERLAY *babyIcons[NUM_BABIES];
 
@@ -33,8 +33,8 @@ void CreateBabies( unsigned char createOverlays )
 {
 	unsigned long i,j;
 
-	nearestBaby		= NULL;
-	lastBabySaved	= NULL;
+	nearestBaby		= -1;
+	lastBabySaved	= -1;
 	babiesSaved		= 0;
 	
 	for (i=0; i<numBabies; i++)
@@ -118,6 +118,8 @@ void ResetBabies( )
 		babyList[i].baby = NULL;
 		babyIcons[i]->a = 128;
 		babiesSaved = 0;
+		lastBabySaved = -1;
+		nearestBaby = -1;
 	}
 }
 
@@ -152,8 +154,8 @@ int PickupBabyFrog( ACTOR2 *baby )
 	
 	// make baby position the new start position ?
 	if(carryOnBabies)
-		gTStart[0] = bTStart[i];
-							  
+		gTStart[0] = &firstTile[(int)baby->value1]; //bTStart[i];
+
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
 //	PlaySample(17, &baby->actor->pos, 192, 128);
