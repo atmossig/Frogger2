@@ -741,9 +741,9 @@ void RunGameLoop (void)
 		
 	if(frameCount == 1)
 	{
-		POLYGON *fp;
-		TEXTURE *ftex;
-		VECTOR firePos;
+//		POLYGON *fp;
+//		TEXTURE *ftex;
+//		VECTOR firePos;
 
 		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
 		{
@@ -807,21 +807,21 @@ void RunGameLoop (void)
 		lastActFrameCount = 0;
 
 		// Temporary test for procedural textures
-		SetVector( &firePos, &frog[0]->actor->pos );
+/*		SetVector( &firePos, &frog[0]->actor->pos );
 
 		firePos.v[Y] += 30;
-		FindTexture( &ftex, UpdateCRC("prc_watr1.bmp"), YES );
+		FindTexture( &ftex, UpdateCRC("prc_watrr1.bmp"), YES );
 		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
 		
 		firePos.v[X] += 60;
-		FindTexture( &ftex, UpdateCRC("prc_ffld1.bmp"), YES );
+		FindTexture( &ftex, UpdateCRC("prc_watrd1.bmp"), YES );
 		CreateAndAddRandomPoly( ftex, &firePos, &inVec, 32, 32 );
 
 		firePos.v[Z] -= 100;
-		FindTexture( &ftex, UpdateCRC("prc_fire1.bmp"), YES );
+		FindTexture( &ftex, UpdateCRC("prc_watrt1.bmp"), YES );
 		fp = CreateAndAddRandomPoly( ftex, &firePos, &inVec, 16, 32 );
 		fp->v1 = 28.0f/32.0f;
-	}
+*/	}
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)

@@ -431,13 +431,13 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		pt->Update = ProcessPTForcefield;
 	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
 	{
-		if( name[8]=='1' )
+		if( name[8]=='r' )
 			pt->Update = ProcessPTWaterRipples;
-		else if( name[8]=='2' )
+		else if( name[8]=='d' )
 			pt->Update = ProcessPTWaterDrops;
-		else if( name[8]=='3' )
+		else if( name[8]=='b' )
 			pt->Update = ProcessPTWaterBubbler;
-		else if( name[8]=='4' )
+		else if( name[8]=='t' )
 			pt->Update = ProcessPTWaterTrail;
 	}
 }
