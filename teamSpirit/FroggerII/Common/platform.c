@@ -497,16 +497,20 @@ void UpdatePlatforms()
 					{
 						distance = t;
 						nCamFac = j;
-					}
+					}							
 				}		
 	
-				currTile[0] = cur->inTile;
+				for(j=0; j<NUM_FROGS; j++)
+					if (cur->carrying == frog[j])
+						currTile[j] = cur->inTile;
+
 				camFacing = nCamFac;
-				cur->carrying = frog[0];
+				//cur->carrying = frog[0];
+
 				SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
 
 				if(!cur->flags & PLATFORM_NEW_NONMOVING)
-					SetQuaternion(&frog[0]->actor->qRot,&cur->pltActor->actor->qRot);
+					SetQuaternion(&cur->carrying->actor->qRot,&cur->pltActor->actor->qRot);
 			}
 		}
 		else
