@@ -69,6 +69,10 @@ psFont *font;
 psFont *fontSmall;
 
 
+//PC has this in their main
+int drawLandscape = 1;
+
+
 
 //fixed gameSpeed = 4096;
 //char quitMainLoop;
@@ -319,7 +323,7 @@ int main ( )
 
 
 #define ENABLE_LANG_SEL 1
-#if ENABLE_LANG_SEL
+#if ENABLE_LANG_SEL==1
 		languageInitialise();
 		while(!DoneLangSel)
 		{
@@ -341,6 +345,25 @@ int main ( )
 
 
 		InitCam();
+
+
+#if GOLDCD==1
+		{
+			int bbRes;
+			int endFrame = 877;
+		//#if PALMODE==1
+		//	StrDataType strInfo = { "\\VIDEO\\TOYFAIR.STR;1", STR_MODE16, STR_BORDERS_ON,  320, 0,32, 320,192, endFrame, 0, 127};
+			StrDataType strInfo = { "\\TOYFAIR.STR;1", STR_MODE16, STR_BORDERS_ON,  320, 0,32, 320,192, endFrame, 0, 127};
+
+			printf("Starting video..\n");
+			bbRes = videoPlayStream(&strInfo, 0, &ZeroFunc);
+			printf("%d\n",bbRes);
+		}
+#endif
+
+
+
+
 		actorInitialise();
 		InitBackdrop ( "FROGGER2.RAW" );
 
@@ -379,7 +402,9 @@ int main ( )
 
 			TimerStart(&tDrawWorld);
 //			DrawWorld();
-			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+// 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+// 				DrawWorld();
+			if(drawLandscape)
 				DrawWorld();
 			TimerStop(&tDrawWorld);
 
