@@ -106,6 +106,8 @@ void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 			{
 				c = (unsigned short)pal[(unsigned char)buf[i]];
 
+				// This converts from 16bit 4444 to 24 bit 888 - it would be 32 bit 8888 but the alpha channel does nowt but make it red.
+				// Presumably software just uses the top 16 bits for red and doesn't bother masking it.
 				mdxdst->softData[i] =	(((((((c & 0x0f00)>>8)+1)<<4)-1)<<16) |
 										((((((c & 0x00f0)>>4)+1)<<4)-1)<<8) |
 										(((((c & 0x000f)>>0)+1)<<4)-1)) & 0x00ffffff;
