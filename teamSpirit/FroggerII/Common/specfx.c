@@ -430,11 +430,10 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		
 		break;
 	case FXTYPE_LIGHTNING:
-		effect->numP = 8;
+		effect->numP = speed/24;
 		i = effect->numP;
 
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "P" );
-
 		effect->tex = txtrTrail;
 
 		while(i--)
@@ -1059,7 +1058,7 @@ void UpdateFXLightning( SPECFX *fx )
 {
 	VECTOR target, aim, to;
 	VECTOR ran, source, cross;
-	float scale, fr;
+	float scale, fr, r;
 	long i, h=fx->numP*0.25;
 
 	if( fx->deadCount )
@@ -1086,19 +1085,20 @@ void UpdateFXLightning( SPECFX *fx )
 	for( i=0; i<fx->numP; i++ )
 	{
 		SetVector( &source, (!i)?(&fx->origin):(&fx->particles[i-1].pos) );
-		scale = 2/(float)(fx->numP-i);
+		scale = 1/(float)(fx->numP-i);
 		fr = 1-((float)i/(float)fx->numP);
-		// Get direction from last sprite to target
+		// Get direction from last particle to target
 		SubVector( &to, &target, &source );
 		ScaleVector( &to, scale );
 
 		// Get a random direction, and then modify by the "unit" aim direction (general movement in direction of target)
-		ran.v[X] = Random(21)-8;
-		ran.v[Y] = Random(21)-12;
-		ran.v[Z] = Random(21)-8;
+		ran.v[X] = Random(21)-10;
+		ran.v[Y] = Random(21)-10;
+		ran.v[Z] = Random(21)-10;
 
 		MakeUnit( &ran );
-		ScaleVector( &ran, fx->accn*(float)min((i-0),(fx->numP-i))*Magnitude(&to) );
+		r = fx->accn * ( (i>fx->numP*0.5)?(fx->numP-i):(i) * Magnitude(&to) );
+		ScaleVector( &ran, r );
 		AddToVector( &to, &ran );
 		AddVector( &fx->particles[i].pos, &source, &to );
 
@@ -1111,7 +1111,7 @@ void UpdateFXLightning( SPECFX *fx )
 		SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
 
 		// Randomly fork a new lightning strand, but not if we're near the end or we're more than 2 layers of forking deep
-		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 )
+/*		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 )
 		{
 			VECTOR dir;
 			SPECFX *effect;
@@ -1123,7 +1123,7 @@ void UpdateFXLightning( SPECFX *fx )
 			effect->fade = ++fx->fade;
 			SetFXColour( effect, fx->r, fx->g, fx->b );
 		}
-	}
+*/	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
@@ -1763,6 +1763,49 @@ void CreateGloopEffects( SPECFX *parent )
 	SetVector( &fx->rebound->normal, &up );
 	SetVector( &fx->rebound->point, &surface );
 	SetFXColour( fx, parent->r, parent->g, parent->b );
+}
+
+
+void CreateLightningEffect( VECTOR *p1, VECTOR *p2, unsigned long effects, long life )
+{
+	VECTOR dir;
+	long distance;
+	short rn, c, i;
+	SPECFX *fx;
+
+	SubVector( &dir, p1, p2 );
+	distance = Magnitude( &dir );
+	MakeUnit( &dir );
+
+	if( effects & EF_SLOW ) i=2;
+	else if( effects & EF_MEDIUM ) i=3;
+	else if( effects & EF_FAST ) i=4;
+	else i=1;
+
+	for( ; i; i-- )
+	{
+		fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, p2, &dir, 5, distance, 25.0/(float)distance, life/60 );
+		SetAttachedFXColour( fx, effects );
+
+		// Randomise colours a bit
+		rn = fx->r * 0.5;
+		rn += Random(rn+1)-(rn*0.5);
+		if( rn > 255 ) fx->r = 255;
+		else if( rn < 0 ) fx->r = 0;
+		else fx->r = rn;
+
+		rn = fx->g * 0.5;
+		rn += Random(rn+1)-(rn*0.5);
+		if( rn > 255 ) fx->g = 255;
+		else if( rn < 0 ) fx->g = 0;
+		else fx->g = rn;
+
+		rn = fx->b * 0.5;
+		rn += Random(rn+1)-(rn*0.5);
+		if( rn > 255 ) fx->b = 255;
+		else if( rn < 0 ) fx->b = 0;
+		else fx->b = rn;
+	}
 }
 
 

@@ -164,6 +164,7 @@ extern void SetAttachedFXColour( SPECFX *fx, int effects );
 extern void ProcessAttachedEffects( void *entity, int type );
 
 extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, unsigned char r, unsigned char g, unsigned char b );
+extern void CreateLightningEffect( VECTOR *p1, VECTOR *p2, unsigned long effects, long life );
 
 
 

@@ -818,17 +818,25 @@ void UpdateVent( ENEMY *cur )
 
 			if( cur->nmeActor->effects & EF_FIERYSMOKE )
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 2.0 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &path->nodes->worldTile->normal, 50, act->animSpeed*path->numNodes, 0, 2.0 );
 			}
 			else if( cur->nmeActor->effects & EF_LASER )
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_LASER, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 15, cur->nmeActor->animSpeed, 0, 0.5*path->numNodes );
-				SetAttachedFXColour( fx, cur->nmeActor->effects );
+				fx = CreateAndAddSpecialEffect( FXTYPE_LASER, &act->actor->pos, &path->nodes->worldTile->normal, 15, act->animSpeed, 0, 0.5*path->numNodes );
+				SetAttachedFXColour( fx, act->effects );
 			}
 			else if( cur->nmeActor->effects & EF_SMOKEBURST )
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 50, cur->nmeActor->animSpeed*path->numNodes, 0, 1.7 );
-				SetAttachedFXColour( fx, cur->nmeActor->effects );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &path->nodes->worldTile->normal, 50, act->animSpeed*path->numNodes, 0, 1.7 );
+				SetAttachedFXColour( fx, act->effects );
+			}
+			else if( cur->nmeActor->effects & EF_LIGHTNING ) // Make a big lighning thing between first and last nodes
+			{
+				VECTOR p1, p2;
+
+				GetPositionForPathNode( &p1, &path->nodes[0] );
+				GetPositionForPathNode( &p2, &path->nodes[path->numNodes-1] );
+				CreateLightningEffect( &p1, &p2, act->effects, (60*path->nodes[0].speed)/act->value1 );
 			}
 		}
 
