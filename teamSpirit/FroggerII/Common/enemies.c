@@ -143,7 +143,8 @@ void UpdateEnemies()
 		}
 
 		// Do update functions for individual enemy types
-		cur->Update(cur);
+		if (cur->Update)
+			cur->Update(cur);
 
 		// Single and multiplayer damage to frog
 		if (NUM_FROGS==1)
@@ -175,7 +176,7 @@ void UpdateEnemies()
 					KillMPFrog(i);
 				}
 		}
-
+/*
 		// Do Special Effects attached to enemies
 		if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
 		{
@@ -227,6 +228,7 @@ void UpdateEnemies()
 				CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->currNormal, 5, 30, &rebound, 10 );
 			}
 		}
+*/
 	}
 }
 
@@ -278,23 +280,7 @@ void UpdatePathNME( ENEMY *cur )
 	ScaleVector(&fwd,length);
 	AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
 	MakeUnit (&fwd);
-/*
-	if (cur->flags & ENEMY_NEW_PUSHESFROG)
-	{
-		if( DistanceBetweenPointsSquared(&cur->nmeActor->actor->pos,&frog[0]->actor->pos) < (frog[0]->radius*frog[0]->radius) )
-		{
-			GAMETILE *tile = NULL;
-			
-			SetVector( &moveVec, &fwd );
-			ScaleVector( &moveVec, frog[0]->radius );
 
-			AddVector( &frog[0]->actor->pos, &cur->nmeActor->actor->pos, &moveVec );
-
-			currTile[0] = FindNearestTile( frog[0]->actor->pos );
-			destTile[0] = currTile[0];
-		}
-	}
-*/
 	AddToVector(&cur->currNormal,&cur->deltaNormal);
 
 	if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
@@ -321,29 +307,31 @@ void UpdatePathNME( ENEMY *cur )
 		else
 			cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
 	}
-/*
-	Dave's new push block code will go in here ...
+
+	/*	------------- Push blocks, lovely blocks that push --------------- */
 
 	if (cur->flags & ENEMY_NEW_PUSHESFROG)
 	{
-		GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
+		//GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
+		VECTOR v;
+		AddVector(&v, &cur->nmeActor->actor->pos, &fwd);
+		SubFromVector(&v, &frog[0]->actor->pos);
 
-		if (currTile[0] == tile)
+		if (MagnitudeSquared(&v) < 50*50)
 		{
-			// USE FROG MOVE CODE TO PUSH FROG!
+			PushFrog(&cur->nmeActor->actor->pos, &fwd, 0);
+			player[0].canJump = 0;
 
-			// Except I can't, so just do something fairly random for now.
-
+/*
 			if (cur->path->toNode < (cur->path->numNodes - 1))
 				tile = cur->path->nodes[cur->path->toNode+1].worldTile;
 
 			currTile[0] = destTile[0] = tile;
 			SetVector( &frog[0]->actor->pos, &tile->centre);
-
-			// i hate frogs
+*/
 		}
 	}
-*/
+
 	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
 	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
 
@@ -569,9 +557,12 @@ void UpdateVent( ENEMY *cur )
 		}
 		else if...
 		*/
+
+		/*
 		SetVector(&rebound.point,&cur->inTile->centre);
 		SetVector(&rebound.normal,&cur->inTile->normal);
 		CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, cur->nmeActor->animSpeed*path->numNodes, 30, &rebound, cur->nmeActor->value1*path->numNodes );
+		*/
 
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
