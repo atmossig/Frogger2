@@ -168,6 +168,8 @@ u8 actorIsVisible(ACTOR *actor);
 void ScalePsi(PSIMESH* pPSI);
 
 void ChangeModel( ACTOR *actor, char *model );
+int UndoChangeModel( ACTOR *actor );
 
+void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip);
 
 #endif //__ACTOR_H__

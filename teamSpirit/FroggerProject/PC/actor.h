@@ -78,6 +78,9 @@ void actorSetAnimation(ACTOR *actor, ULONG frame);
 void actorUpdateAnimations(ACTOR *actor);
 
 void ChangeModel( ACTOR *actor, char *model );
+int UndoChangeModel( ACTOR *actor );
+
+void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip);
 
 #ifdef __cplusplus
 }

@@ -1217,4 +1217,42 @@ void ChangeModel( ACTOR *actor, char *model )
 	//InitActorAnim( actor );
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function 	: UndoChangeModel
+	Purpose 	: Swap models back after a ChangeModel
+	Parameters 	: actor
+	Returns 	: void
+	Info 		:
+*/
+int UndoChangeModel( ACTOR *actor )
+{
+	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
+
+	if( a->LODObjectController )
+	{
+		a->objectController = a->LODObjectController;
+		a->LODObjectController = NULL;
+		//InitActorAnim( frog[pl]->actor );
+		actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
+		return 1;
+	}
+	return 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function	: AnimateActor
+	Purpose		: Runs an animation on an actor EXCEPT when it's already running
+	Parameters	: actor, anim, loop?, queue?, speed, morph?, keep proportion?
+	Returns		: void
+*/
+void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip)
+{
+	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
+
+ 	if (a->animation->currentAnimation != animNum)
+ 		actorAnimate(actor, animNum, loop, queue, speed, skip);
+}
+
 }
