@@ -275,9 +275,12 @@ int main ( )
 		RAMstart = (unsigned long)__bss_orgend;
 
 
+#if GOLDCD==0
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
-//		RAMsize = 6291264;
+#else
+		RAMsize = 6291264;
+#endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 4096);
@@ -329,7 +332,7 @@ int main ( )
 		StartSound();//mmsfx
 
 
-#define ENABLE_LANG_SEL 0
+#define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
 		languageInitialise();
 		while(!DoneLangSel)
