@@ -199,19 +199,19 @@ void InitSampleList( )
 	if(soundList.genericBank)
 	{
 		sfxUnloadSampleBank(soundList.genericBank);
-		sfxRemoveSampleBank(soundList.genericBank,1);
+		sfxRemoveSampleBank(soundList.genericBank);
 		soundList.genericBank = NULL;
 	}
 	if(soundList.levelBank)
 	{
 		sfxUnloadSampleBank(soundList.levelBank);
-		sfxRemoveSampleBank(soundList.levelBank,1);
+		sfxRemoveSampleBank(soundList.levelBank);
 		soundList.levelBank = NULL;
 	}
 	if(soundList.loopBank)
 	{
 		sfxUnloadSampleBank(soundList.loopBank);
-		sfxRemoveSampleBank(soundList.loopBank,1);
+		sfxRemoveSampleBank(soundList.loopBank);
 		soundList.loopBank = NULL;
 	}
 
