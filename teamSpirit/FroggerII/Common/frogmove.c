@@ -322,12 +322,6 @@ BOOL UpdateFroggerControls(long pl)
 
 float freeFall = 2.0F;
 
-short blurSize = 128;
-short blurFrames = 6;
-char blurR = 0;
-char blurG = 255;
-char blurB = 0;
-
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateFroggerPos
 	Parameters		: player number
@@ -440,10 +434,7 @@ void UpdateFroggerPos(long pl)
 			ScaleVector(&effectPos,20);
 			AddToVector(&effectPos,&newPos);
 
-			//blur = CreateAndAddFXObjectBlur(&effectPos,blurSize,255,blurFrames);
-			//blur->sprite.r = blurR;
-			//blur->sprite.g = blurG;
-			//blur->sprite.b = blurB;
+			CreateAndAddSpecialEffect( FXTYPE_JUMPBLUR, &effectPos, &currTile[0]->normal, 128, 0, 0, 0.3 );
 		}
 	}
 

@@ -118,6 +118,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
 
 		effect->size = size;
+		SetVector( &effect->sprites->pos, &effect->origin );
 		effect->sprites->texture = txtrSolidRing;
 		effect->sprites->scaleX = effect->size;
 		effect->sprites->scaleY = effect->size;
@@ -313,7 +314,7 @@ void UpdateFXRipple( SPECFX *fx )
 			return;
 		}
 
-	fx->a -= fx->fade;
+	fx->a -= fx->fade * gameSpeed;
 	fx->speed += fx->accn;
 	fx->size += fx->speed;
 
@@ -338,7 +339,7 @@ void UpdateFXSmoke( SPECFX *fx )
 			return;
 		}
 
-	fx->sprites->a -= fx->fade;
+	fx->sprites->a -= fx->fade * gameSpeed;
 
 	AddToVector( &fx->sprites->pos,&fx->vel );
 	fx->vel.v[X] *= 0.95;
@@ -467,7 +468,7 @@ void UpdateFXExplode( SPECFX *fx )
 			}
 		}
 
-		fx->sprites[i].a -= Random(4) + fx->fade;
+		fx->sprites[i].a -= (Random(4) + fx->fade) * gameSpeed ;
 		if( fx->sprites[i].a < 16 )
 		{
 			fx->sprites[i].scaleX	= 0;
@@ -552,6 +553,8 @@ void AddSpecFX( SPECFX *fx )
 */
 void SubSpecFX( SPECFX *fx )
 {
+	int i;
+
 	if( !fx->next )
 		return;
 
@@ -559,6 +562,23 @@ void SubSpecFX( SPECFX *fx )
 	fx->next->prev = fx->prev;
 	fx->next = NULL;
 	specFXList.numEntries--;
+
+	if( fx->sprites )
+	{
+		if( fx->numP )
+			for( i=fx->numP; i; i-- )
+				SubSprite( &fx->sprites[i-1] );
+		else
+			SubSprite( fx->sprites );
+
+		JallocFree( (UBYTE **)&fx->sprites );
+	}
+
+	if( fx->particles )
+		JallocFree( (UBYTE **)&fx->particles );
+
+	if( fx->rebound )
+		JallocFree( (UBYTE **)&fx->rebound );
 
 	JallocFree((UBYTE **)&fx);
 }

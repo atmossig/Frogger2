@@ -308,10 +308,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			StartTimer(9,"Before");
 
 			if (KEYPRESS(DIK_F1))
-				camDist.v[1]+=2;
+				camDist.v[1]+=2*gameSpeed;
 
 			if (KEYPRESS(DIK_F2))
-				camDist.v[1]-=2;
+				camDist.v[1]-=2*gameSpeed;
 
 			/*if (KEYPRESS(DIK_F1))
 				speedKill++;
@@ -321,10 +321,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					speedKill--;
 */
 			if (KEYPRESS(DIK_F3))
-				camDist.v[2]+=2;
+				camDist.v[2]+=2*gameSpeed;
 
 			if (KEYPRESS(DIK_F4))
-				camDist.v[2]-=2;
+				camDist.v[2]-=2*gameSpeed;
 
 			if (KEYPRESS(DIK_F8))
 				displayingTile=!displayingTile;
