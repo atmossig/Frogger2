@@ -63,6 +63,8 @@ enum
 	FROGGER3AREA,
 	FROGGER4AREA,
 	HOT,
+	ELECTRIC,
+	FINISH,
 
 	NUM_MATERIALS
 };
@@ -108,7 +110,9 @@ const char* materialnames[NUM_MATERIALS] =
 	"frogger2area",
 	"frogger3area",
 	"frogger4area",
-	"hot"
+	"hot",
+	"electric",
+	"finish"
 };
 
 int numFrogs = 0;
@@ -551,6 +555,14 @@ void TileMaterial(int mat, int nSquare)
 		case HOT:
 			PutTileChar('*');
 			tileType = TILESTATE_HOT;
+			break;
+		case ELECTRIC:
+			PutTileChar(1);
+			tileType = TILESTATE_ELECTRIC;
+			break;
+		case FINISH:
+			PutTileChar('!');
+			tileType = TILESTATE_FINISH;
 			break;
 
 		case FROGGER1AREA:
