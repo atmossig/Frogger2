@@ -55,7 +55,7 @@ SPRITE *AllocateSprites( int number )
 	if( sprList.count > spriteMax )
 	{
 		spriteMax = sprList.count;
-		dprintf"New sprite record - %i\n",spriteMax));
+		//dprintf"New sprite record - %i\n",spriteMax));
 	}
 
 	return sprList.stack[sprList.stackPtr+1];
