@@ -64,6 +64,8 @@
 #include "..\resource.h"
 #include "fxBlur.h"
 #include "net\netconnect.h"	// ds - pending new network code
+#include "net\netgame.h"
+
 
 psFont *font = 0;
 psFont *fontSmall = 0;
@@ -597,52 +599,10 @@ long beenPaused = 0;
 long lastFrames,lastTicks;
 
 
-/*	--------------------------------------------------------------------------------
-	Function	: LoopFunc
-	Purpose		: Application main loop
-	Parameters	: void
-	Returns		: success
-*/
-long LoopFunc(void)
+void CopyActorList()
 {
 	ACTOR2 *c;
 
-	if((gameState.mode!=PAUSE_MODE) || ((quittingLevel) && (pauseConfirmMode == 0)))
-	{
-		lastActFrameCount = actFrameCount;
-		
-		actFrameCount = (timeInfo.frameCount-(pFrameModifier)) * (float)(turbo/4096);
-
-		if (beenPaused)
-		{
-			pFrameModifier += (actFrameCount - lastActFrameCount);		
-			actFrameCount = lastActFrameCount;
-			beenPaused = 0;
-		}
-
-		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
-		lastFrames = timeInfo.frameCount;
-		lastTicks = timeInfo.tickCount;
-		pauseGameSpeed = gameSpeed;
-	}
-	else
-	{
-		beenPaused = 1;
-		gameSpeed = 0;
-		timeInfo.speed = 0;
-		timeInfo.frameCount = lastFrames;
-		timeInfo.tickCount = lastTicks;
-	}
-
-	StartTimer(10,"Controller");
-	ProcessUserInput();
-	EndTimer(10);
-
-	StartTimer(4,"Gameloop");
-	GameLoop();
-	EndTimer(4);
-
-	StartTimer(11,"UpdateStuff");
 	for (c = actList; c; c = c->next)
 	{
 		if( c->actor )
@@ -695,6 +655,60 @@ long LoopFunc(void)
 			}
 		}
 	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: LoopFunc
+	Purpose		: Application main loop
+	Parameters	: void
+	Returns		: success
+*/
+long LoopFunc(void)
+{
+	if((gameState.mode!=PAUSE_MODE) || ((quittingLevel) && (pauseConfirmMode == 0)))
+	{
+		lastActFrameCount = actFrameCount;
+		
+		actFrameCount = (timeInfo.frameCount-(pFrameModifier)) * (float)(turbo/4096);
+
+		if (beenPaused)
+		{
+			pFrameModifier += (actFrameCount - lastActFrameCount);		
+			actFrameCount = lastActFrameCount;
+			beenPaused = 0;
+		}
+
+		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
+		lastFrames = timeInfo.frameCount;
+		lastTicks = timeInfo.tickCount;
+		pauseGameSpeed = gameSpeed;
+	}
+	else
+	{
+		beenPaused = 1;
+		gameSpeed = 0;
+		timeInfo.speed = 0;
+		timeInfo.frameCount = lastFrames;
+		timeInfo.tickCount = lastTicks;
+	}
+
+	ProcessUserInput();
+
+	if (networkGame)
+	{
+		StartTimer(10,"Network");
+		NetgameRun();
+		EndTimer(10);
+	}
+	else
+	{
+		StartTimer(4,"Gameloop");
+		GameLoop();
+		EndTimer(4);
+	}
+
+	StartTimer(11,"UpdateStuff");
+	CopyActorList();
 	EndTimer(11);
 
 #ifndef FINAL_MASTER
@@ -801,6 +815,8 @@ int GameShutdown()
 	UndoChangeModel( frog[0]->actor );
 
 	SaveGame();
+
+	ShutdownNetworkGame();
 
 #ifndef FINAL_MASTER
 	ShutdownEditor();
@@ -956,7 +972,11 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	}
 
 	GameStartup();
-	CommonInit();
+
+	if (networkGame)
+		NetgameStartGame();
+	else
+		CommonInit();
 	
 	mdxSetUserWndProc(MainWndProc);
 	

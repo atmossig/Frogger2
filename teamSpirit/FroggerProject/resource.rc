@@ -172,7 +172,7 @@ BEGIN
                     WS_TABSTOP
     GROUPBOX        "Game Settings (host only)",IDC_STATIC,169,93,186,81
     RTEXT           "Level:",IDC_STATIC,175,110,37,8
-    COMBOBOX        IDC_LEVEL,218,107,128,30,CBS_DROPDOWN | CBS_SORT | 
+    COMBOBOX        IDC_LEVEL,218,107,128,83,CBS_DROPDOWNLIST | CBS_SORT | 
                     WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     RTEXT           "Description:",IDC_STATIC,176,123,37,8
     LTEXT           "Blah blah blah blah blah blah blah blah blah blah blah",
