@@ -650,6 +650,7 @@ void FreeSampleList( void )
 	}
 
 	if( sfx_anim_map ) JallocFree( (UBYTE **)&sfx_anim_map );
+	sfx_anim_map = NULL;
 
 	// initialise list for future use
 	InitSampleList();

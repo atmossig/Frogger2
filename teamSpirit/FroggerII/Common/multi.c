@@ -102,9 +102,48 @@ int UpdateCTF( )
 */
 int UpdateRace( )
 {
+	static TIMER endTimer;
 	int i, j;
 
 	multiplayerMode = MULTIMODE_RACE;
+
+	if( !started )
+	{
+		GTInit( &endTimer, 0 );
+		started = 1;
+	}
+
+	if( endTimer.time )
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+		{
+			StopDrawing("game over");
+			FreeAllLists();
+
+			InitLevel(player[0].worldNum,player[0].levelNum);
+			gameState.mode = INGAME_MODE;
+
+			started = frameCount = 0;
+			fixedPos = fixedDir = 0;
+			StartDrawing("game over");
+
+			return FALSE;
+		}
+		return TRUE;
+	}
+	else // Is anyone still alive?
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+			if( player[i].healthPoints ) break;
+
+		if( i==NUM_FROGS )
+		{
+			GTInit( &endTimer, 10 );
+			fixedPos = fixedDir = 1;
+		}
+	}
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
@@ -119,6 +158,13 @@ int UpdateRace( )
 					TeleportActorToTile(frog[i],currTile[j],i);
 					destTile[i] = currTile[j];
 				}
+		}
+		else if( currTile[i]->state == TILESTATE_FROGGER1AREA )
+		{
+			sprintf( timeTextOver->text, "P%i won", i );
+
+			GTInit( &endTimer, 10 );
+			return TRUE;
 		}
 	}
 

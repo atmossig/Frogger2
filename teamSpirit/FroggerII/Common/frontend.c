@@ -240,7 +240,8 @@ void RunLevelComplete( )
 
 void StartLevelComplete()
 {
-	FreeAllGameLists();
+//	FreeAllGameLists();
+
 	CreateAndAddTextOverlay(0, 120, "Level complete", YES, 255, currFont, 0, 0);
 }
 
