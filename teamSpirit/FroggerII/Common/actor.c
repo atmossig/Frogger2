@@ -160,6 +160,7 @@ void DrawActorList()
 
 #ifdef PC_VERSION
 	
+	BlankFrame();
 
 	if (backGnd)
 	{
@@ -194,6 +195,9 @@ void DrawActorList()
 		
 	cur = actList;
 	waterObject = 0;
+
+	BlankFrame();
+
 	while(cur)
 	{
 		float slideSpeed = 0;
@@ -235,7 +239,7 @@ void DrawActorList()
 				float fadeValue =  1.0-(sqrtf(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)))/ACTOR_DRAWFADERANGE);
 
 				cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-				cur->actor->xluOverride = 95;//fadeValue*100;				
+				cur->actor->xluOverride = fadeValue*100;				
 			}
 			else
 			{

@@ -666,32 +666,19 @@ void DrawGraphics()
 	else
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_NEAREST);
 
-//	if( fog.mode )
-	{
-		//fog.r = fR;
-		//fog.g = fG;
-	//	fog.b = fB;
-
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
-		//pDirect3DDevice->lpVtbl->SetLightState(pDirect3DDevice,D3DLIGHTSTATE_FOGSTART, *(DWORD *)(&fStart));
-		//pDirect3DDevice->lpVtbl->SetLightState(pDirect3DDevice,D3DLIGHTSTATE_FOGEND,   *(DWORD *)(&fEnd));
-	}
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
 
 	numPixelsDrawn=0;
 	numSprites = 0;
 
 	currentFrameTime = timeGetTime();
-		
-	StartTimer(0,"DrawGfx");
-
+	
 	XformActorList();
 
-	
 	if(spriteList.numEntries)
 		AnimateSprites();
-
 
 	// Actual stuff that draws
 	if (runHardware)
@@ -699,9 +686,6 @@ void DrawGraphics()
 	else
 		SoftwareBeginFrame();
 
-	StartTimer(1,"Draw Actor List");
-
-//	XformActorList();
 	DrawActorList();	
 
 	if(spriteList.numEntries)
@@ -713,41 +697,31 @@ void DrawGraphics()
 	DrawBatchedPolys();
 	BlankFrame();
 
-	DrawSpecialFX();
-	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
+	DrawSpecialFX();
+	
 	DrawBatchedPolys();
 	BlankFrame();
 	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	
-	EndTimer(1);
-	StartTimer(2,"Draw Sprites");
-	
-	
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
 	
-	EndTimer(2);
-	
-	EndTimer(0);
-
-	StartTimer(11,"Editor");
 	if (editorOk)
 		DrawEditor();
 
 
 	if( chatFlags && gameState.mode == GAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
-	EndTimer(11);
-
 	
 	/* CAMERA SPACE STUFF */
 	// Back up currCamSource and currCamTarget
 	oldCCSource = currCamSource[screenNum];
 	oldCCTarget = currCamTarget[screenNum];
+	
 	// Set them so we don't do any modelling transforms
 	currCamSource[screenNum] = zero;
 	currCamTarget[screenNum] = inVec;
@@ -762,8 +736,6 @@ void DrawGraphics()
 	currCamSource[screenNum] = oldCCSource;
 	currCamTarget[screenNum] = oldCCTarget;
 	/* END CAMERA SPACE STUFF */
-	
-	EndTimer(5);
 
 	if (drawTimers)
 		switch (drawTimers)
@@ -797,8 +769,6 @@ void DrawGraphics()
 		HoldTimers();
 		
 	ClearTimers();
-	StartTimer(5,"EVERYTHING!");
-	StartTimer(7,"EndDraw");
 	
 	if (runHardware)
 		EndDrawHardware();
@@ -806,5 +776,4 @@ void DrawGraphics()
 		SoftwareEndFrame();
 
 	AnimateTexturePointers();
-	EndTimer(7);
 }

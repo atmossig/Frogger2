@@ -67,7 +67,7 @@ void DrawBatchedPolys (void)
 		lHandle = *frameInfo.cH;
 		nFace = 0;
 
-		while ((*(frameInfo.cH)) == lHandle)
+		while (((*(frameInfo.cH)) == lHandle) && (i<frameInfo.nF))
 		{
 			frameInfo.cH+=3;
 			nFace+=3;

@@ -1534,14 +1534,14 @@ void PCRenderObject (OBJECT *obj)
 				y2on = BETWEEN(v[1].sy,0,SCREEN_HEIGHT);
 				y3on = BETWEEN(v[2].sy,0,SCREEN_HEIGHT);
 	
-				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
 				{
-					numFacesDrawn++;
-					PushPolys(v,3,facesON,3,tex->cFrame->hdl);
-				}
-				else
-				{
-					if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+					if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+					{
+						numFacesDrawn++;
+						PushPolys(v,3,facesON,3,tex->cFrame->hdl);
+					}
+					else
 					{
 						numFacesDrawn++;
 						Clip3DPolygon(v,tex->cFrame->hdl);
