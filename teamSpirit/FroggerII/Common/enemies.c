@@ -643,7 +643,10 @@ void UpdateVent( ENEMY *cur )
 			break;
 		}
 
-		t = (path->endFrame-path->startFrame)/act->value1;
+		if(act->value1)
+			t = (path->endFrame-path->startFrame)/act->value1;
+		else
+			t = 1;
 
 		if( (actFrameCount-path->startFrame) > (act->fxCount*t) )
 		{
