@@ -19,6 +19,7 @@
 #define ACTOR_DRAW_CULLED			(1 << 1)	//2
 #define ACTOR_DRAW_ALWAYS			(1 << 2)	//4
 #define ACTOR_DRAW_LAST				(1 << 3)	//8
+#define ACTOR_WATER					(1 << 4)	//16
 
 
 #define LOOKAT_ANYWHERE		1

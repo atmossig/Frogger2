@@ -31,9 +31,13 @@ typedef struct tTEXENTRY
 	struct tTEXENTRY *next;
 	LPDIRECTDRAWSURFACE surf;
 	D3DTEXTUREHANDLE hdl;
+	
 	struct tTEXENTRY *nextFrame;
-	struct tTEXENTRY *cFrame;
+	float nextFrameAt;
+	float frameTime;
 
+	struct tTEXENTRY *cFrame;
+	
 } TEXENTRY;
 
 extern TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];

@@ -251,7 +251,7 @@ void UpdatePlatforms()
 				{
 					// platform has no frog on it - return to original position
 					GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
-					if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) > 25.0F)
+					if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) > 5.0F)
 					{
 						if(cur->flags & PLATFORM_NEW_SINKWITHFROG)
 						{

@@ -18,7 +18,7 @@
 #define BETWEEN(x,a,b) ((x>a) && (x<b))
 
 VECTOR pointVec = {0,0,1};
-
+extern long waterObject;
 extern long HALF_WIDTH,HALF_HEIGHT;
 extern long runHardware;
 
@@ -27,6 +27,7 @@ void TransformObject(OBJECT *obj, float time);
 void PCDrawObject(OBJECT *obj, float m[4][4]);
 
 void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4]);
+void PCPrepareWaterObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 void PCRenderObject(OBJECT *obj);
 void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 
@@ -296,9 +297,6 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	
 	if (numFaces)
 	{
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-
 		DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
 	}
 }
@@ -321,7 +319,11 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 	{
 		if (obj->mesh)
 		{
-			PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
+			if (waterObject)
+				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
+			else
+				PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
 			PCRenderObject(obj);
 		}
 	}
@@ -754,7 +756,7 @@ void TransformObject(OBJECT *obj, float time)
 			// Slerp between from and to vectors
 			tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
 			QuatSlerp(&morphFromQuat, &morphToQuat, tempFloat, &morphResultQuat);
-
+			
 			QuaternionToMatrix(&morphResultQuat, (MATRIX *)rotmat);
 		}
 		else
@@ -805,7 +807,6 @@ void TransformObject(OBJECT *obj, float time)
 			else
 				rot.w = acos(rot.w);
 
-		
 			GetQuaternionFromRotation (&quat,&rot);
 			QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
 			guMtxCatF(rotmat,rotmat2,rotmat);
@@ -1151,7 +1152,76 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 
 		vTemp2++;
 		in++;
-		mV[i]*=scVC;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+float modi1 = 0.07;
+float modi2 = 2;
+float modi3 = 2;
+float modi4 = 0.05;
+
+void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
+{
+	float c[4][4];
+	float f[4][4];
+	VECTOR *in;
+	VECTOR *vTemp2;
+	float *vTemp3,t,t2;
+	unsigned long i;
+
+	in = obj->mesh->vertices;
+
+	guLookAtF(c,
+			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			//stx,sty,stz,
+			//ctx,cty,ctz,
+			//0,1,0);
+			camVect.v[X],camVect.v[Y],camVect.v[Z]);
+	
+	guMtxCatF(m,c,f);
+	
+	vTemp2 = tV;
+	vTemp3 = mV;
+	t = actFrameCount * modi1;
+	for (i=0; i<obj->mesh->numVertices; i++)
+	{
+		t2 = sinf(t+i*modi2) + cosf(t+i*modi2);
+		*vTemp3 = t2 * modi4;
+		vTemp2->v[X] = (f[0][0]*in->v[X])+(f[1][0]*in->v[Y])+(f[2][0]*in->v[Z])+(f[3][0]);
+		vTemp2->v[Y] = (f[0][1]*in->v[X])+(f[1][1]*in->v[Y])+(f[2][1]*in->v[Z])+(f[3][1]);
+		vTemp2->v[Z] = (f[0][2]*in->v[X])+(f[1][2]*in->v[Y])+(f[2][2]*in->v[Z])+(f[3][2]);
+		vTemp2->v[Y]+=t2 * modi3;
+
+		if (((vTemp2->v[Z]+DIST)>nearClip) &&
+			((noClipping) ||   
+			(((vTemp2->v[Z]+DIST)<farClip) &&
+			((vTemp2->v[X])>-horizClip) &&
+			((vTemp2->v[X])<horizClip) &&
+			((vTemp2->v[Y])>-vertClip) &&
+			((vTemp2->v[Y])<vertClip))))
+		{
+			long x = vTemp2->v[Z]+DIST;
+			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
+			
+			vTemp2->v[X] = HALF_WIDTH+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = HALF_HEIGHT+(vTemp2->v[Y] * oozd);
+		}
+		else
+			vTemp2->v[Z] = 0;
+
+		vTemp2++;
+		vTemp3++;
+		in++;
 	}
 }
 
@@ -1192,9 +1262,11 @@ void PCRenderObject (OBJECT *obj)
 	TEXTURE **tex2;
 	VECTOR *tV0,*tV1,*tV2,*cols;
 
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	if (xl<0.99)
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	else
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
 
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
@@ -1234,8 +1306,19 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV0->v[X];
 				vTemp->sy = tV0->v[Y];
 				vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
-				vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
-				vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
+				if (waterObject)
+				{
+					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
+					vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F)+mV[v0];
+				}
+				else
+				{
+					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
+					vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
+				}
+				
+
+
 				vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
 			
 				vTemp++;
@@ -1244,8 +1327,17 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sx = tV1->v[X];
 				vTemp->sy = tV1->v[Y];
 				vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
-				vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
-				vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
+				if (waterObject)
+				{
+					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
+					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F)+mV[v1];
+				}
+				else
+				{
+					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
+					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
+				}
+
 				vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
 				
 				vTemp++;
@@ -1256,8 +1348,17 @@ void PCRenderObject (OBJECT *obj)
 				vTemp->sy = tV2->v[Y];
 				vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
 
-				vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
-				vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
+				if (waterObject)
+				{
+					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];
+					vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F)+mV[v2];
+				}
+				else
+				{
+					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
+					vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
+				}
+				
 				vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
 				
 				x1on = BETWEEN(v[0].sx,0,SCREEN_WIDTH);
@@ -1269,8 +1370,6 @@ void PCRenderObject (OBJECT *obj)
 
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
-					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 					numFacesDrawn++;
 					
 					DrawAHardwarePoly(v,3,facesON,3,tex->cFrame->hdl);
@@ -1309,8 +1408,9 @@ void PCRenderObject (OBJECT *obj)
 		tex2++;
 	}
 
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	if (xl<0.99)
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	
 }
 
 

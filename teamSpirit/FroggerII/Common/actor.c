@@ -28,8 +28,8 @@
 #define MAX_UNIQUE_ACTORS	50
 
 #ifdef PC_VERSION
-float ACTOR_DRAWDISTANCEINNER = 450000.0F;
-float ACTOR_DRAWDISTANCEOUTER = 600000.0F;
+float ACTOR_DRAWDISTANCEINNER = 80000.0F;
+float ACTOR_DRAWDISTANCEOUTER = 150000.0F;
 float ACTOR_DRAWDISTANCESTART = 300000.0F;
 #else
 float ACTOR_DRAWDISTANCEINNER = 100000.0F;
@@ -37,7 +37,7 @@ float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
 #endif
 
 #define WATER_XLU 70
-
+long waterObject;
 int objectMatrix = 0;
 
 ACTOR2 *actList = NULL;				// entire actor list
@@ -62,7 +62,7 @@ void XformActor(ACTOR *ptr);
 void XformActorList()
 {
 	ACTOR2 *cur;
-		
+	
 	cur = actList;
 	while(cur)
 	{
@@ -116,23 +116,27 @@ void DrawActorList()
 	   gDPSetFogColor(glistp++,fog.r,fog.g,fog.b,255);
 	   gSPFogPosition(glistp++,fog.min,fog.max);
 	}
+#else
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 #endif
 
 	cur = actList;
+	waterObject = 0;
 	while(cur)
 	{
-		if( !cur->actor->objectController )
+		if( ((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
 		{
 			cur = cur->next;
 			continue;
 		}
 
-		if( (cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
+		if((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
+				float fadeValue =  1.0-sqrt(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE));
 				cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-				cur->actor->xluOverride = 100-(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE)*100);				
+				cur->actor->xluOverride = fadeValue*100;				
 			}
 			else
 			{
@@ -159,11 +163,36 @@ void DrawActorList()
 	
 		cur = cur->next;
 	}
-
+	
+#ifdef PC_VERSION
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+#endif
+	
+	waterObject = 1;
 	cur = actList;
 	while(cur)
 	{
-		if( !cur->actor->objectController )
+		if((!(cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
+		{
+			cur = cur->next;
+			continue;
+		}
+
+		if( gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
+			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+		{
+			DrawActor(cur->actor);
+		}
+		
+		cur = cur->next;
+	}
+
+	waterObject = 0;
+	cur = actList;
+	while(cur)
+	{
+		if( ((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
 		{
 			cur = cur->next;
 			continue;

@@ -160,7 +160,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	char mys[255];
 	short *dat;
 	TEXENTRY *newE;
-	
+	long isAnim = 0;
 	strcpy (mys,shortn);
 	strlwr (mys);
 
@@ -168,9 +168,17 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	dprintf"%s\n",mys));
 #endif
 
-	if (((shortn[0]>='0') && (shortn[0]<='9'))
-	 && ((shortn[1]>='0') && (shortn[1]<='9'))
-	 && (!((shortn[0]=='0') && (shortn[1]=='0'))))
+	isAnim = (((shortn[0]>='0') && (shortn[0]<='9'))
+	 && ((shortn[1]>='0') && (shortn[1]<='9')));
+	
+	if (isAnim)
+	{
+		newE->frameTime = (((shortn[6]-'0')+1) * ((shortn[6]-'0')+1));
+	}
+	
+	newE->nextFrameAt=0;
+
+	if (isAnim && (!((shortn[0]=='0') && (shortn[1]=='0'))))
 	{
 		TEXENTRY *cEntry = texList;
 		
