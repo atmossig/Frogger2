@@ -479,7 +479,7 @@ long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
 	Returns			: GAMETILE*
 */
 
-float JUMP_TOOFAR = 70.0F;
+float JUMP_TOOFAR	= 70.0F;
 
 GAMETILE *GetNextTile(unsigned long direction,long pl)
 {
