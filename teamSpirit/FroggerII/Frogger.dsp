@@ -384,14 +384,6 @@ SOURCE=.\Common\textoverlays.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Common\title.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common\title.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Common\tongue.c
 # End Source File
 # Begin Source File
