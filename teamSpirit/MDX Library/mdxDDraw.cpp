@@ -916,7 +916,7 @@ void ScreenShot()
 		return;
 	}
 
-	if (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0) != DD_OK) return 0;
+	if (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0) != DD_OK) return;
 	
 	screen = (short *)ddsd.lpSurface;
 	pitch = ddsd.lPitch/2;
