@@ -262,7 +262,7 @@ PATH *EditorPathMake(const EDITPATH *editPath)
 	EDITPATHNODE *path;
 	PATHNODE *node;
 
-	PATH *newPath = (PATH *)calloc(sizeof(PATH), 1); //JallocAlloc(sizeof(PATH), YES, "epath");
+	PATH *newPath = (PATH *)calloc(sizeof(PATH), 1);
 
 	/* count the number of nodes first */
 	for (path = editPath->nodes, count = 0; path; path = path->link, count++);
@@ -272,7 +272,7 @@ PATH *EditorPathMake(const EDITPATH *editPath)
 	newPath->numNodes = count;
 
 	// allocate memory for path nodes
-	newPath->nodes = (PATHNODE *)calloc(1,sizeof(PATHNODE)); //JallocAlloc(sizeof(PATHNODE) * newPath->numNodes,YES,"epathnode");
+	newPath->nodes = (PATHNODE *)calloc(1,sizeof(PATHNODE));
 
 	i = 0;
 	node = newPath->nodes;

@@ -370,9 +370,19 @@ void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int 
 
 void FreeActor(MDX_ACTOR **toFree)
 {
-	delete (*toFree)->animation;
-	delete (*toFree)->shadow;
-	delete (*toFree);
+	MDX_ACTOR *a = *toFree;
+
+	if (a->next) a->next->prev = a->prev;
+	if (a->prev)
+		a->prev->next = a->next;
+	else
+		actorList = a->next;
+
+	delete a->animation;
+	//delete (*toFree)->shadow;
+	delete a;
+
+
 	*toFree = 0;
 }
 
