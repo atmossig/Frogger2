@@ -64,9 +64,10 @@ void customDrawPrimitives2(int depth)
 
 	int						gteH;
 
-	depth += actorShiftDepth;
 
 	depth=depth>>2;
+
+	depth += actorShiftDepth;
 
 	prims = (int)modctrl->PrimTop;
 	sorts = modctrl->SortOffs;
@@ -117,7 +118,7 @@ void customDrawPrimitives2(int depth)
 				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
- 				ENDPRIM(si, depth & 1023, POLY_FT3);
+ 				ENDPRIM(si, depth, POLY_FT3);
 				modctrl->polysdrawn++;
 				break;
 #undef si
@@ -165,7 +166,7 @@ void customDrawPrimitives2(int depth)
 				
 				modctrl->polysdrawn++;
  			
- 				ENDPRIM(si, depth & 1023, POLY_FT4);
+ 				ENDPRIM(si, depth, POLY_FT4);
 				break;
 #undef si
 #undef op
@@ -221,7 +222,7 @@ void customDrawPrimitives2(int depth)
 			
 				modctrl->polysdrawn++;
 
-				ENDPRIM(si, depth & 1023, POLY_GT3);
+				ENDPRIM(si, depth, POLY_GT3);
 				break;
  		
 #undef si
@@ -287,7 +288,7 @@ void customDrawPrimitives2(int depth)
 				}
 				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
-				ENDPRIM(si, depth & 1023, POLY_GT4);
+				ENDPRIM(si, depth, POLY_GT4);
 				break;
 #undef si
 #undef op
@@ -394,7 +395,7 @@ void customDrawPrimitives2(int depth)
 
 				modctrl->polysdrawn++;
 
-				ENDPRIM(si, depth & 1023, POLY_G4);
+				ENDPRIM(si, depth, POLY_G4);
 				break;
 #undef si
 #undef op
@@ -411,6 +412,11 @@ void customDrawPrimitives2(int depth)
 
  
 				//*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+
+				si->r0 = ( op->r0 << 7 ) >> 8;
+				si->g0 = ( op->g0 << 7 ) >> 8;
+				si->b0 = ( op->b0 << 7 ) >> 8;
+
  				gte_nclip_b();	// takes 8 cycles
 		
 
@@ -426,9 +432,6 @@ void customDrawPrimitives2(int depth)
 				//*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				//*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
-				si->r0 = ( op->r0 << 7 ) >> 8;
-				si->g0 = ( op->g0 << 7 ) >> 8;
-				si->b0 = ( op->b0 << 7 ) >> 8;
 
 				si->r1 = ( op->r1 << 7 ) >> 8;
 				si->g1 = ( op->g1 << 7 ) >> 8;
@@ -449,7 +452,7 @@ void customDrawPrimitives2(int depth)
 				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
-				ENDPRIM(si, depth & 1023, POLY_G3);
+				ENDPRIM(si, depth, POLY_G3);
 				break;
 #undef si
 #undef op
@@ -1326,6 +1329,8 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 	depth = depth >> 2;
 
+	depth += actorShiftDepth;
+
 	// SL: get the fogdepth, and modge it accordingly.
 	fogdepth = 10000;//(depth << (2+1/*LSCAPE_Data.depthshift*/));
 
@@ -1664,6 +1669,8 @@ void DrawSortedPrimitivesFaded ( int depth )
 	gte_ReadGeomScreen(&gteH);
 
 	depth=depth>>2;
+
+	depth += actorShiftDepth;
 
 	// SL: work out the fog fade. in advance. It's the same for the whole model, so this is fine here.
 //	fogFade=globalFadeVal;
