@@ -642,7 +642,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 
 		case WM_ERASEBKGND:
 		{
-			RECT cRect;
+/*			RECT cRect;
 			int i,j;
 			HDC appBackgndDC;
 
@@ -657,7 +657,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 					if (!BitBlt((HDC)wParam,i,j,128,128,appBackgndDC,0,0,SRCCOPY))
 										 dp("bugger");
 			DeleteDC(appBackgndDC);
-      			
+      			*/
 			return TRUE;
 		 }
 
