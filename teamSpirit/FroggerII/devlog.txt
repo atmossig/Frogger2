@@ -806,6 +806,13 @@ Andy Eder:
 
 David Swift:
 ------------------------------------------------
+	Yet more frog movement (yawn)
+	
+	ø	Tried footling with the way Frogger jumps through join tiles and
+		utterly shagged it. So I put it back to how it was before. There's
+		a problem with jumping through horizontal join tiles which somehow
+		managed to work even though it shouldn't.
+	
 
 
 James Hubbard:
