@@ -907,8 +907,7 @@ void UpdateFXTrail( SPECFX *fx )
 void AddTrailElement( SPECFX *fx, int i )
 {
 	float t;
-	QUATERNION q, cross, d;
-	VECTOR offset;
+	QUATERNION cross, offset;
 
 	fx->particles[i].r = fx->r;
 	fx->particles[i].g = fx->g;
@@ -924,8 +923,8 @@ void AddTrailElement( SPECFX *fx, int i )
 	if( fx->gravity )
 	{
 		SetVector( &offset, &fx->normal );
-		ScaleVector( &offset, fx->gravity );
-		AddToVector( &fx->particles[i].pos, &offset );
+		ScaleVector( (VECTOR *)&offset, fx->gravity );
+		AddToVector( &fx->particles[i].pos, (VECTOR *)&offset );
 	}
 
 	// Amount of drift - distance between this and the last particle scaled. Doesn't work for first one
