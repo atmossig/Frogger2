@@ -259,6 +259,7 @@ void GameProcessController(long pl)
 				player[pl].hasDoubleJumped = 1;
 				player[pl].canJump = 0;
 
+				camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 				player[pl].extendedHopDir = dir;
 				SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);

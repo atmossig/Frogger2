@@ -537,7 +537,7 @@ void DeInitJoystick()
 }
 
 
-#ifdef TOYFAIR_DEMO
+#ifdef FULL_BUILD
 // TODO: remove this timer
 TIMER idletimer;
 #endif
@@ -673,7 +673,7 @@ void ProcessUserInput(HWND hWnd)
 		}
 	}
 
-#ifdef TOYFAIR_DEMO
+#ifdef FULL_BUILD
 	if (pressed)
 	{
 		GTInit(&idletimer, 75);
