@@ -245,8 +245,7 @@ int NetRaceRun()
 
 				NetBroadcastUrgentMessage(&msg, sizeof(msg));
 
-				mpl[0].ready = 1;
-				player[0].canJump = 0;
+				PlayerRaceWin( 0 );
 
 				multiHud.centreText->text = GAMESTRING(STR_NET_FINISHED);
 				multiHud.centreText->a = 255;

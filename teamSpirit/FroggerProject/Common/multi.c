@@ -262,6 +262,7 @@ void UpdateRace( )
 					{
 						mpl[i].ready = 1;
 						player[i].canJump = 0;
+						PlayerRaceWin( i );
 					}
 				}
 				// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
@@ -1806,4 +1807,17 @@ void RestartMulti()
 	ResetMultiplayer();
 	multiHud.centreText->draw = 1;
 	EnableHUD();
+}
+
+void PlayerRaceWin( int pl )
+{
+	mpl[pl].ready = 1;
+	player[pl].canJump = 0;
+	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE1,NO,NO,80,0);
+	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE2,NO,YES,80,0);
+	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE3,NO,YES,80,0);
+	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE4,NO,YES,80,0);
+	actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,50,0);
+
+	CreatePickupEffect( pl, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b, 255, 255, 255 );
 }

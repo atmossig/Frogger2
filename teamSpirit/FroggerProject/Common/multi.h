@@ -113,6 +113,7 @@ void CalcMPCamera( FVECTOR *target );
 char IsPointVisible(SVECTOR *pos);
 void RestartMulti();
 
+void PlayerRaceWin( int pl );
 
 #ifdef __cplusplus
 }
