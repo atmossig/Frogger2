@@ -15,9 +15,9 @@
 
 
 WININFO winInfo;
-long lButton = 0;
+BYTE lButton = 0, rButton = 0;
 
-char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
+char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
@@ -273,6 +273,15 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		case WM_LBUTTONUP:
 			lButton = 0;
 			break;
+
+		case WM_RBUTTONDOWN:
+			rButton = 1;
+			break;
+		
+		case WM_RBUTTONUP:
+			rButton = 0;
+			break;
+
 	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);

@@ -29,7 +29,7 @@ typedef struct TAGWININFO
 } WININFO;
 
 extern WININFO winInfo;
-extern long lButton;
+extern BYTE lButton, rButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
 
