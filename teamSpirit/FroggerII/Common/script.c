@@ -577,9 +577,14 @@ TRIGGER *LoadTrigger(UBYTE **p)
 
 	case TR_ONPATH:
 		{
+			ENEMY *e;
 			params = AllocArgs(2);
 			(int)params[0] = MEMGETBYTE(p);
-			(PATH*)params[1] = GetEnemyFromUID(MEMGETWORD(p))->path;
+			
+			if (!(e = GetEnemyFromUID(MEMGETWORD(p))))
+				return 0;;
+			
+			(PATH*)params[1] = e->path;
 			trigger = MakeTrigger(FrogOnPath, params);
 			break;
 		}
