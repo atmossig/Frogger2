@@ -164,7 +164,12 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 
 	actorAnimate(frog[p]->actor,FROG_ANIM_BREATHE,YES,NO,64,0);
 
-	if( frog[p]->actor->shadow ) frog[p]->actor->shadow->draw = 1;
+	if( frog[p]->actor->shadow ) 
+#ifdef PC_VERSION
+		frog[p]->actor->shadow->draw = 1;
+#else
+		frog[p]->actor->shadow->draw = 0;
+#endif
 
 	if (currPlatform[p])
 	{
