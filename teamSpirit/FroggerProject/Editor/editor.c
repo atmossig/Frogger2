@@ -562,15 +562,18 @@ void EditorMouseMove(int x, int y)
 
 void EditorMoveCamera()
 {
-	float offsx, offsy;
+	float offsx = 0, offsy = 0;
 	EDVECTOR v;
 	BOOL foo = FALSE;
 
-/* TODO
-	if (KEYPRESS(DIK_UP))    { offsy = -InOutWhizziness; foo = TRUE; }
-	if (KEYPRESS(DIK_DOWN))  { offsy = InOutWhizziness; foo = TRUE; }
-	if (KEYPRESS(DIK_LEFT))	 { offsx = -HorizontalWhizziness; foo = TRUE; }
-	if (KEYPRESS(DIK_RIGHT)) { offsx = HorizontalWhizziness; foo = TRUE; }
+	if (KEYPRESS(DIK_UP))
+		{ offsy = -InOutWhizziness; foo = TRUE; }
+	if (KEYPRESS(DIK_DOWN))  
+		{ offsy = InOutWhizziness; foo = TRUE; }
+	if (KEYPRESS(DIK_LEFT))	 
+		{ offsx = -HorizontalWhizziness; foo = TRUE; }
+	if (KEYPRESS(DIK_RIGHT)) 
+		{ offsx = HorizontalWhizziness; foo = TRUE; }
 
 	if (KEYPRESS(DIK_LSHIFT) || KEYPRESS(DIK_RSHIFT)) { offsx *= 2; offsy *= 2; }
 
@@ -580,19 +583,19 @@ void EditorMoveCamera()
 	if (foo)
 	{
 		v.vy = 0.0;
-		v.vx = offsx;
-		v.vz = offsy;
+		v.vx = offsx * 40960;
+		v.vz = offsy * 40960;
 
 		RotateVector2DXYZ(&v, &v, editCameraRot.vx, X);
 		RotateVector2DXYZ(&v, &v, editCameraRot.vy, Y);
-		AddToVector(&currCamSource, &v);
+ 
+		AddToVector(&currCamSource[0], &v);
 
 		//SetCursorPos(320,240);
 	}
 
 	if (controlCamera)
 		EditorUpdateCamera();
-*/
 }
 
 void ToolbarMouseDown(int toolOpt)
@@ -961,7 +964,7 @@ void DrawEditPath(EDITPATH *ep, BOOL shadey)
 				AddToVector(&w, &v);
 
 				//DrawALine(v.vx, v.vy, w.vx, w.vy, D3DRGBA(1,0,0,shadey?0.5:1.0));
-				DrawEditorArrow(v.vx, v.vy, w.vx, w.vy, 0.1, D3DRGBA(1,0,0,shadey?0.5:1.0));
+				DrawEditorArrow(v.vx, v.vy, w.vx, w.vy, 0.1f, D3DRGBA(1,0,0,shadey?0.5:1.0));
 				DrawEditorIcon(w.vx - 3, w.vy - 3, 4, shadey);
 			}
 		}
@@ -1308,7 +1311,7 @@ GAMETILE *FindClickedTile(int x, int y)
 */
 void EditorUpdateCamera()
 {
-	EDVECTOR v = { 0.0, 0.0, 409600 };
+	EDVECTOR v = { 0.0, 0.0, -409600 };
 	EDVECTOR up = { 0.0, 1.0, 0.0 };
 
 	// Work out point to look at
@@ -1338,14 +1341,12 @@ void EditorUpdateCamera()
 		currCamTarget.vx,currCamTarget.vy,currCamTarget.vz,
 		currCamSource.vx,currCamSource.vy,currCamSource.vz,
 		camVect.vx,camVect.vy,camVect.vz);	
-*/
+	*/
 }
 
 
 void GetEditorCameraRotations(void)
 {
-/* TODO:
-
 	EDVECTOR v, a, b;
 	float foo, bar;
 
@@ -1359,7 +1360,6 @@ void GetEditorCameraRotations(void)
 
 	editCameraRot.vx = foo;
 	editCameraRot.vy = bar;
-*/
 }
 
 

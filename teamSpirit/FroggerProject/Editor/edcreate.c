@@ -53,7 +53,7 @@ void EditorCreateEntities(void)
 	FreeEnemyLinkedList();
 	FreeGaribLinkedList();
 	FreeTransCameraList();
-//	FreePathList();
+	FreePathList();
 	KillAllTriggers( );
 
 	for (i=0; i<4; i++)
