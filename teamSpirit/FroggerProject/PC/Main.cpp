@@ -114,6 +114,8 @@ int GetRegistryInformation(void)
 		{
 			if (baseDirectory[strlen(baseDirectory) - 1] != '\\')
 				strcat(baseDirectory, "\\");
+
+			utilPrintf("Using base directory: %s\n", baseDirectory);
 		}
 		else
 			utilPrintf("Couldn't read InstallDir value from registry\n");
