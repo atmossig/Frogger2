@@ -17,7 +17,6 @@
 #include <dinput.h>
 
 #ifndef __cplusplus
-
 #include <math.h>
 #endif
 
