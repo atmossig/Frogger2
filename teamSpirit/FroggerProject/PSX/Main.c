@@ -749,11 +749,12 @@ totalObjs = 0;
 
 #if GOLDCD==0
 //			if (padData.debounce[0] & PAD_L1)
-			if( (padData.debounce[0] & PAD_L1))
+			if(camControlMode == 0)
 			{
-//				textureShowVRAM(1); // 1 = PAL mode
-				froggerShowVRAM(1);
-				//continue;
+				if( (padData.debounce[0] & PAD_L1))
+				{
+					froggerShowVRAM(1);
+				}
 			}
 #endif
 			padHandler();
