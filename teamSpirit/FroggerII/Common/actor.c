@@ -1040,10 +1040,7 @@ void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 	float dp,m;
 	
 
-//	CalculateQuatForPlane2( 0, me, up);
-	SetVector( (VECTOR *)&normal, up );
-	normal.w = 0;
-	GetQuaternionFromRotation( &rotn, &normal );
+	CalculateQuatForPlane2( 0, me, up);
 
 	RotateVectorByQuaternion( &dirn, mfd, me);
 	dp = DotProduct( fd, &dirn );
