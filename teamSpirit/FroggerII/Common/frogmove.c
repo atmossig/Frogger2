@@ -163,7 +163,10 @@ BOOL UpdateFroggerControls(long pl)
 		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
 		lastHopOn = actFrameCount;
 
-		MoveToRequestedDestination(dir,pl);
+		if (!MoveToRequestedDestination(dir,pl))
+		{
+			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
+		}
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -178,11 +181,15 @@ BOOL UpdateFroggerControls(long pl)
 
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 
+		PlaySample(GEN_SUPER_HOP,&frog[pl]->actor->pos,0,255,128);
+
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
-		MoveToRequestedDestination(dir,pl);
+		if (!MoveToRequestedDestination(dir,pl))
+		{
+			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
+		}
 
-		PlaySample(GEN_SUPER_HOP,&frog[pl]->actor->pos,0,255,128);
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink
@@ -506,17 +513,13 @@ long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
 */
 GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 {
-	VECTOR cDir;
-	unsigned long i,j,n;
-	unsigned long closest[4] = { -1,-1,-1,-1 };
-	float distance,t;
-	unsigned long direction = *pdir;
-	unsigned long newCamFacing = camFacing;
-
 	GAMETILE *dest = NULL;
+	long i, direction;
+	float distance, t, t2, at2;
 	VECTOR vecUp;
-	float t2, at2;
 		
+	direction = *pdir;
+
 	if(pl == 0)
 	{
 		i = (direction + camFacing + 2) & 3;
@@ -541,13 +544,15 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 	if (!dest || dest->state == TILESTATE_BARRED)
 		return NULL;
 
-	if((dest->state == TILESTATE_SUPERHOP) || (dest->state == TILESTATE_JOIN))
+	if(dest->state == TILESTATE_JOIN)	// || dest->state == TILESTATE_SUPERHOP
 	{
 		GAMETILE *joiningTile = dest;
 
+		// Find the direction closest to "up" or "down" in the opposite direction to where we are now
+
 		SetVector(&vecUp,&currTile[pl]->normal);
 
-		distance = -1000;
+		distance = 0;
 		
 		for(i=0; i<4; i++)
 		{
@@ -560,15 +565,18 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 					if(currTile[pl] != joiningTile->tilePtrs[i])
 					{
 						distance = t;
-						n = i;
+						direction = i;
 						at2 = t2;
 					}
 				}
 			}
 		}
 
-		dest = joiningTile->tilePtrs[n];
+		dest = joiningTile->tilePtrs[direction];
 
+		if (dest->state == TILESTATE_BARRED)
+			return NULL;
+/*
 		if((joiningTile->state == TILESTATE_SUPERHOP))
 		{
 			if(DotProduct(&vecUp,&joiningTile->dirVector[n]) < 0)
@@ -579,6 +587,7 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 				}
 			}
 		}
+*/
 	}
 
 	// frog is jumping to available tile
