@@ -82,7 +82,7 @@ HRESULT SendUpdateMessage( )
 
 	char tmp[256];
 
-	if( !controllerdata[0].button )
+	if( !controllerdata[0].button || !DPInfo.lpDP4A )
 		return DPERR_ABORTED;
 
 	lpUpdateMessage = (LPMSG_UPDATEGAME)GlobalAllocPtr(GHND,sizeof(MSG_UPDATEGAME));

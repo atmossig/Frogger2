@@ -1477,13 +1477,13 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
  			return TRUE;
 		}
-
+/*
         case WM_CLOSE:
 			keyIndex = 0;
 			kMapSet = 0;
 			EndDialog(hDlg,TRUE);
             return TRUE;
-
+*/
 		case WM_NOTIFY:
 			switch( wParam )
 			{
@@ -1492,7 +1492,25 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 					{
 						case LVN_KEYDOWN:
 							if( kMapSet == 14 )
+							{
 								kMapSet = 0;
+								EnableDlgButton(hDlg,IDC_CONTROLLER1,TRUE);
+								EnableDlgButton(hDlg,IDC_CONTROLLER2,TRUE);
+								EnableDlgButton(hDlg,IDC_CONTROLLER3,TRUE);
+								EnableDlgButton(hDlg,IDC_CONTROLLER4,TRUE);
+								EnableDlgButton(hDlg,IDOK,TRUE);
+								EnableDlgButton(hDlg,IDCANCEL,TRUE);
+
+							}
+							else if( kMapSet == 0 )
+							{
+								EnableDlgButton(hDlg,IDC_CONTROLLER1,FALSE);
+								EnableDlgButton(hDlg,IDC_CONTROLLER2,FALSE);
+								EnableDlgButton(hDlg,IDC_CONTROLLER3,FALSE);
+								EnableDlgButton(hDlg,IDC_CONTROLLER4,FALSE);
+								EnableDlgButton(hDlg,IDOK,FALSE);
+								EnableDlgButton(hDlg,IDCANCEL,FALSE);
+							}
 
 							hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
 							if(FAILED(hRes))
