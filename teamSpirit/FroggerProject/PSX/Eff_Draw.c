@@ -1104,8 +1104,15 @@ void DrawPsxCroak(SPECFX *ring)
 
 	for(i=0; i<NUM_PSX_CROAK_VTX; i++)
 	{
+		//don't draw this sprite if scale is too big,
+		//because it can wrap the pos, and appear back on screen.
+		#define MAX_RING_SCALE (10<<12)
+		if( (ring->scale.vx>MAX_RING_SCALE) || (ring->scale.vy>MAX_RING_SCALE) || (ring->scale.vz>MAX_RING_SCALE) )
+			continue;
+
+/*
 		//quat to rotate current point by spinning angle
-/*		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
+		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
 		q1.w = ring->angle;
 		fixedGetQuaternionFromRotation( &q2, &q1 );
 
@@ -1127,6 +1134,8 @@ void DrawPsxCroak(SPECFX *ring)
 		absPos.vz += ring->origin.vz;
 */
 
+
+
 		//spinning circle
 		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
 		q1.w = ring->angle;
@@ -1136,17 +1145,26 @@ void DrawPsxCroak(SPECFX *ring)
 		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
 
 		//apply scale
-//		absPos.vx = (absPos.vx*ring->scale.vx)>>12;
-//		absPos.vy = (absPos.vy*ring->scale.vy)>>12;
-//		absPos.vz = (absPos.vz*ring->scale.vz)>>12;
-		absPos.vx = FMul(absPos.vx, ring->scale.vx);
-		absPos.vy = FMul(absPos.vy, ring->scale.vy);
-		absPos.vz = FMul(absPos.vz, ring->scale.vz);
+		//BB - TEMP BOTCH TO GET TO WORK ON SPACE (SORT OF WORK, ANYWAY)
+		if(player[0].worldNum==WORLDID_SPACE && player[0].levelNum==LEVELID_SPACE3)
+		{
+			absPos.vx = (absPos.vx*ring->scale.vx)>>12;
+			absPos.vy = (absPos.vy*ring->scale.vy)>>12;
+			absPos.vz = (absPos.vz*ring->scale.vz)>>12;
+		}
+		else
+		{
+			absPos.vx = FMul(absPos.vx, ring->scale.vx);
+			absPos.vy = FMul(absPos.vy, ring->scale.vy);
+			absPos.vz = FMul(absPos.vz, ring->scale.vz);
+		}
 		
 		//position around centre
 		absPos.vx += -ring->origin.vx;
 		absPos.vy += -ring->origin.vy;
 		absPos.vz += ring->origin.vz;
+
+
 
 
 
@@ -1163,6 +1181,13 @@ void DrawPsxCroak(SPECFX *ring)
 
 		scPos.vz = sz;
 
+		//screen clip
+		if(scPos.vx<-256)
+			if(scPos.vx>256)
+				if(scPos.vy<-128)
+					if(scPos.vy>128)
+						continue;
+			
 		//calc width
 		if(scPos.vz)
 		{
@@ -1209,7 +1234,7 @@ void DrawPsxCroak(SPECFX *ring)
 		ft4->code  |= 2;//semi-trans on
  		ft4->tpage |= 32;//add
 // 		ft4->tpage = si->tpage | 64;//sub
-//		ENDPRIM(ft4, 1, POLY_FT4);
-		ENDPRIM(ft4, otz, POLY_FT4);
+		ENDPRIM(ft4, 1, POLY_FT4);
+//		ENDPRIM(ft4, otz, POLY_FT4);
 	}
 }
