@@ -24,6 +24,7 @@
 #include "Main.h"
 #include "dx_sound.h"
 #include "pcaudio.h"
+#include "pcmisc.h"
 
 
 #define MAX_AMBIENT_SFX		50
@@ -48,7 +49,7 @@ void RemoveSample( SAMPLE *sample );
 void AddBufSample( BUFSAMPLE *sample );
 void RemoveBufSample( BUFSAMPLE *sample );
 
-extern AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,ACTOR *follow);
+AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,MDX_ACTOR *follow);
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 int UpdateLoopingSample( AMBIENT_SOUND *sample );
 
@@ -292,25 +293,33 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	Returns			: success?
 	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
 */
-void PlaySfxMappedSample( ACTOR *act )
+void PlaySfxMappedSample( MDX_ACTOR *act )
 {
-	MDX_ACTOR *actor = (MDX_ACTOR *)act->actualActor;
-	SAMPLE *sample = act->animation.sfxMapping[actor->animation->currentAnimation];
+	SAMPLE **map, *sample;
+	SVECTOR pos;
 
-	if( !sample ) return;
+	if( !act || !act->animation )
+		return;
 
+	if( !(map = (SAMPLE **)act->animation->sfxMapping) )
+		return;
+
+	if( !(sample = map[act->animation->currentAnimation]) )
+		return;
+
+	SetVectorSR( &pos, &act->pos );
 	// If looping, add ambient sound and remove sample from mapping
 	if( sample->flags & SFXFLAGS_LOOP )
 	{
-		if( !act->animation.loopFlags[actor->animation->currentAnimation] )
+		if( !act->animation->loopFlags[act->animation->currentAnimation] )
 		{
-			AddAmbientSound( sample, &act->position, DEFAULT_SFX_DIST, SAMPLE_VOLUME, -1, 0, 0, act );
-			act->animation.loopFlags[actor->animation->currentAnimation] = 1;
+			AddAmbientSound( sample, &pos, DEFAULT_SFX_DIST, SAMPLE_VOLUME, -1, 0, 0, act );
+			act->animation->loopFlags[act->animation->currentAnimation] = 1;
 		}
 		return;
 	}
 
-	PlaySample( sample, &act->position, DEFAULT_SFX_DIST, SAMPLE_VOLUME, -1 );
+	PlaySample( sample, &pos, DEFAULT_SFX_DIST, SAMPLE_VOLUME, -1 );
 }
 
 
@@ -422,7 +431,7 @@ void CleanBufferSamples ( void )
 	Returns 	: 
 	Info 		:
 */
-AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, ACTOR *follow )
+AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, MDX_ACTOR *follow )
 {
 	AMBIENT_SOUND *ptr;
 	AMBIENT_SOUND *ambientSound;
@@ -433,7 +442,7 @@ AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short 
 	ptr = &ambientSoundList.head;
 
 	if( pos ) SetVectorSS( &ambientSound->pos, pos );
-	if( follow ) ambientSound->follow = follow;
+	ambientSound->follow = follow;
 
 	ambientSound->volume = vol;
 	ambientSound->sample = sample;
@@ -476,7 +485,7 @@ void UpdateAmbientSounds()
 
 		// If it is attached to a platform, make ambient follow that platform
 		if( amb->follow )
-			SetVectorSS( &amb->pos, &amb->follow->position );
+			SetVectorSR( &amb->pos, &amb->follow->pos );
 
 		// If sound doesn't have a source
 		if( !mdxMagnitudeSquared(&amb->pos) )
@@ -892,33 +901,41 @@ void LoadSfxMapping( int world, int level )
 	Returns 	: Pointer to mapping array
 	Info 		: 
 */
-SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
+void FindSfxMapping( unsigned long uid, ACTOR *actor )
 {
-	unsigned long act, type, num, index=0;
+	MDX_ACTOR *act = (MDX_ACTOR *)actor->actualActor;
+	unsigned long actID, type, num, index=0, i;
 
-	if( !sfx_anim_map || !uid ) return NULL;
+	// Clear all loopflags
+	for( i=0; i<NUM_NME_ANIMS; i++ )
+		act->animation->loopFlags[i] = 0;
 
 	// First actor uid - if none, return NULL
-	if( !(act = (unsigned long)sfx_anim_map[index++]) )
-		return NULL;
+	if( !sfx_anim_map || !uid || !(actID = (unsigned long)sfx_anim_map[index++]) )
+	{
+		act->animation->sfxMapping = NULL;
+		return;
+	}
 
 	do
 	{
 		// Advance cursor by number depending on actor type
 		type = (unsigned long)sfx_anim_map[index++];
 
-		if( act == uid )
+		if( actID == uid )
 		{
 			if( type == 3 )
 			{
 				// Make an ambient sound if we've attached a sound to a scenic
-				AddAmbientSound( sfx_anim_map[index], &actor->position, 12000, AMBIENT_VOLUME, -1/*128*/, 0, 0, actor );
-				return NULL;
+				AddAmbientSound( sfx_anim_map[index], &actor->position, 12000, AMBIENT_VOLUME, -1/*128*/, 0, 0, act );
+				act->animation->sfxMapping = NULL;
+				return;
 			}
 			else
 			{
 				// Return a run of samples if we've found the actor
-				return &sfx_anim_map[index];
+				act->animation->sfxMapping = (void **)&sfx_anim_map[index];
+				return;
 			}
 		}
 
@@ -931,9 +948,10 @@ SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 		}
 
 		// Get next actor uid and stop if end of list
-		act = (unsigned long)sfx_anim_map[index++];
+		actID = (unsigned long)sfx_anim_map[index++];
 
-	} while( act );
+	} while( actID );
 
-	return NULL;
+	// Not found owt
+	act->animation->sfxMapping = NULL;
 }

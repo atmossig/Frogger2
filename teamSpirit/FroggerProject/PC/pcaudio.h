@@ -13,6 +13,7 @@
 
 #include <windows.h>
 #include <dsound.h>
+#include <mdx.h>
 
 #include "types.h"
 #include "actor.h"
@@ -115,7 +116,7 @@ typedef struct TAG_AMBIENT_SOUND
 	struct TAG_AMBIENT_SOUND *next,*prev;
 
 	SVECTOR		pos;
-	ACTOR		*follow;
+	MDX_ACTOR	*follow;
 
 	struct _SAMPLE *sample;
 	LPDIRECTSOUNDBUFFER		lpdsBuffer;
@@ -145,7 +146,7 @@ extern SAMPLE *genSfx[];
 // Function Prototypes
 
 extern void LoadSfxMapping( int world, int level );
-extern SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor );
+extern void FindSfxMapping( unsigned long uid, ACTOR *actor );
 
 extern void LoadSfx( unsigned long worldID );
 
@@ -164,7 +165,7 @@ extern void SetSampleFormat ( SAMPLE *sample );
 
 
 extern int PlaySample(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch);
-void PlaySfxMappedSample( ACTOR *act );
+void PlaySfxMappedSample( MDX_ACTOR *act );
 extern void UpdateAmbientSounds();
 
 
