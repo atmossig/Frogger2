@@ -808,7 +808,7 @@ void DrawEditorArrow(int x1, int y1, int x2, int y2, float width, D3DCOLOR col)
 {
 	float a, b;
 	D3DTLVERTEX vtx[3];
-	short arse[3] = { 0, 1, 2 };
+	short arse[3] = { 0, 2, 1 };
 
 	memset(vtx, 0, sizeof(D3DTLVERTEX)*3);
 
