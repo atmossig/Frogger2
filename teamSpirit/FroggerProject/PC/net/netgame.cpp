@@ -275,7 +275,10 @@ void NetgameGameloop()
 			GTUpdate( &endTimer, -1 );
 
 			if( !endTimer.time )
+			{
+				multiHud.centreText->draw = 0;
 				StartMultiWinGame( );
+			}
 
 			return;
 		}
@@ -371,7 +374,7 @@ int WaitForGameReady()
 	{
 		utilPrintf("Net: all players ready\n");
 
-		multiHud.centreText->draw = 0;
+		//multiHud.centreText->draw = 0;
 
 		if (isHost)
 		{
