@@ -1,4 +1,3 @@
-
 #include <windows.h>
 #include <windowsx.h>
 #include <crtdbg.h>
@@ -35,12 +34,17 @@ extern "C" {
 #include "frogmove.h"
 //#include "general.h"
 
+extern unsigned long actTickCount;
+long synchedFrameCount = 0;
+long myLatency;
+
 }
 
 DPID netPlayers[MAX_MULTIPLAYERS];
 
 unsigned char playersReady[MAX_MULTIPLAYERS] = {0,0,0,0};
 unsigned char serverReady = 0;
+DPID serverPlayer;
 
 /*	--------------------------------------------------------------------------------
 	Function		: HandleSynchMessage
@@ -54,7 +58,7 @@ void HandleSynchMessage( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgS
 {
 	unsigned int i;
 	
-	if (lpMsg->actFrameCount == 0)
+	if (lpMsg->actTickCount == 0)
 	{
 		if (DPInfo.bIsHost)
 		{
@@ -65,8 +69,58 @@ void HandleSynchMessage( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgS
 		else
 		{
 			serverReady = 1;
+			serverPlayer = idFrom;
 		}
 	}
+	else
+		synchedFrameCount = actTickCount - (lpMsg->actTickCount + myLatency);	
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: HandleSynchMessage
+	Purpose			: interpret a game update from the network
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+HRESULT HandlePingMessageServer( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
+{
+	LPMSG_SYNCHGAME lpMessage = NULL;
+	HRESULT	hRes;
+	
+	// Check the DPlay device
+	if(!DPInfo.lpDP4A )
+		return DPERR_ABORTED;
+	
+	// Alloc the message
+	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
+		return DPERR_OUTOFMEMORY;
+	
+	// build message	
+	lpMessage->dwType = APPMSG_SYNCHPING;
+	lpMessage->actTickCount = lpMsg->actTickCount;
+	
+	// send this data to all other players
+	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,idFrom,/*DPSEND_GUARANTEED*/ 0,lpMessage,sizeof(MSG_SYNCHGAME));
+
+	// Free the message.
+	GlobalFreePtr(lpMessage);
+
+	return hRes;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: HandleSynchMessage
+	Purpose			: interpret a game update from the network
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void HandlePingMessagePlayer( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
+{
+	myLatency = (actTickCount - lpMsg->actTickCount)/2;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -93,7 +147,7 @@ HRESULT InitialPlayerSynch(void)
 	
 	// build message	
 	lpMessage->dwType = APPMSG_SYNCHGAME;
-	lpMessage->actFrameCount = 0;
+	lpMessage->actTickCount = 0;
 	
 	// send this data to all other players
 	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpMessage,sizeof(MSG_SYNCHGAME));
@@ -104,7 +158,77 @@ HRESULT InitialPlayerSynch(void)
 	// *NB* Wait for the GO message! (Again shouldn't really just wait, but still!) (Also add a timeout!)
 	while (!serverReady);
 
+	Sleep(600);
+
 	return hRes;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitialServerSynch
+	Purpose			: Wait for everyone to be ready, synch clocks, and agree a start time
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+HRESULT SendPingMessage(void)
+{
+	LPMSG_SYNCHGAME lpMessage = NULL;
+	HRESULT	hRes;
+	
+	// Check the DPlay device
+	if(!DPInfo.lpDP4A )
+		return DPERR_ABORTED;
+	
+	// Alloc the message
+	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
+		return DPERR_OUTOFMEMORY;
+	
+	// build message	
+	lpMessage->dwType = APPMSG_SYNCHPING;
+	lpMessage->actTickCount = actTickCount;
+	
+	// send this data to all other players
+	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,serverPlayer,0,lpMessage,sizeof(MSG_SYNCHGAME));
+
+	// Free the message.
+	GlobalFreePtr(lpMessage);
+
+	return hRes;		
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitialServerSynch
+	Purpose			: Wait for everyone to be ready, synch clocks, and agree a start time
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+HRESULT SendSynchMessage(void)
+{
+	LPMSG_SYNCHGAME lpMessage = NULL;
+	HRESULT	hRes;
+	
+	// Check the DPlay device
+	if(!DPInfo.lpDP4A )
+		return DPERR_ABORTED;
+		
+	// Alloc the message
+	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
+		return DPERR_OUTOFMEMORY;
+	
+	// build message	
+	lpMessage->dwType = APPMSG_SYNCHGAME;
+	lpMessage->actTickCount = actTickCount;
+	
+	// send this data to all other players
+	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,/*DPSEND_GUARANTEED*/ 0,lpMessage,sizeof(MSG_SYNCHGAME));
+
+	// Free the message.
+	GlobalFreePtr(lpMessage);
+
+	return hRes;		
 }
 
 /*	--------------------------------------------------------------------------------
@@ -144,7 +268,7 @@ HRESULT InitialServerSynch(void)
 	
 	// build message	
 	lpMessage->dwType = APPMSG_SYNCHGAME;
-	lpMessage->actFrameCount = 0;
+	lpMessage->actTickCount = 0;
 	
 	// send this data to all other players
 	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpMessage,sizeof(MSG_SYNCHGAME));

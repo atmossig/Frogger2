@@ -26,6 +26,7 @@
 #include "netchat.h"
 #include "software.h"
 #include "mavis.h"
+#include "config.h"
 
 void AnimateTexturePointers(void);
 
@@ -53,9 +54,11 @@ extern long numFacesDrawn;
 extern long numPixelsDrawn;
 extern long runHardware;
 extern unsigned long USE_MENUS;
+extern long synchedFrameCount;
 long keyInput = 1;
 
 extern long displayingTile;
+extern long myLatency;
 
 long winMode = 1;
 long scaleMode = 0;
@@ -64,6 +67,12 @@ char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
 float keyDelay;
+
+unsigned long nextSynchAt;
+
+unsigned long synchSpeed = 60 * 1;
+unsigned long pingOffset = 40;
+unsigned long synchRecovery = 10;
 
 char outputMessageBuffer[256];
 
@@ -176,36 +185,6 @@ int SaveRegistryInformation(void)
 	return 1;
 }
 
-void GetArgs(char *arglist)
-{
-	int i;
-	for (i=0; arglist[i]!=0; i++)
-	{
-		if ((arglist[i]=='+') || (arglist[i]=='-') || (arglist[i]=='/'))
-		{
-			switch(arglist[i+1])
-			{
-				case 'W':
-				case 'w':
-					winMode = 1;
-					break;
-				case 'S':
-				case 's':
-					scaleMode = 1;
-					break;
-				case 'C':
-				case 'c':
-					swingCam = 0;
-					break;
-				case 'M':
-				case 'm':
-					USE_MENUS = 1;
-					break;
-
-			}
-		}
-	}
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: WinMain
@@ -220,23 +199,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	winMode = 0;
 	scaleMode = 0;
 	GetArgs(lpCmdLine);
-//	__try
-//	{
-		WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
-//	} 
-/*	__except (1) 
-	{
-		dprintf"--------------------------------------------------------\n"));
-		dprintf"- *** Unhandled exception ***                          -\n"));
-		dprintf"--------------------------------------------------------\n"));
-		///////////////////////////
-		
-	//	_exception_info();
 
-		///////////////////////////
-		dprintf"--------------------------------------------------------\n"));
-
-	}*/
+	WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
 }
 
 long InitOneOverTable(void);
@@ -480,6 +444,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 						InitialServerSynch();
 					else
 						InitialPlayerSynch();
+					
+					nextSynchAt = synchSpeed;
 				}
 
 				actTickCountModifier = GetTickCount()-1;
@@ -488,13 +454,42 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			}
 			else
 			{
+				if( gameState.multi == MULTIREMOTE )
+				{
+					if (DPInfo.bIsHost)
+					{
+						if (actFrameCount >	nextSynchAt)
+						{
+							nextSynchAt = actFrameCount + synchSpeed;
+							SendSynchMessage();
+						}
+					}
+					else
+					{
+						if ((actFrameCount+pingOffset) > nextSynchAt)
+						{
+							nextSynchAt = actFrameCount + synchSpeed;
+							SendPingMessage();
+						}
+
+						if (synchedFrameCount>0)
+						{
+							synchedFrameCount-=synchRecovery;
+							actTickCountModifier+=synchRecovery;
+						}
+						else
+						{
+							synchedFrameCount+=synchRecovery;
+							actTickCountModifier-=synchRecovery;
+						}
+					}
+				}
+
 				newTickCount = GetTickCount()-actTickCountModifier;
 				gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
 				actTickCount = newTickCount;
 				actFrameCount = (actTickCount/(1000.0/60.0));
-			}
-			
-
+			}		
 		}
 	}
 
@@ -881,7 +876,7 @@ void DrawGraphics()
 					
 			if (res == DD_OK)
 			{
-				sprintf(speed,"%.2f fps - %lu polys (%lu) - %lu sprites- %lu pixels",(60.0/gameSpeed),numFacesDrawn,totalFacesDrawn,numSprites,numPixelsDrawn);
+				sprintf(speed,"%i : %i : - : %.2f fps - %lu polys (%lu) - %lu sprites- %lu pixels",myLatency,synchedFrameCount,(60.0/gameSpeed),numFacesDrawn,totalFacesDrawn,numSprites,numPixelsDrawn);
 				
 				SetBkMode(hdc, TRANSPARENT);
 				SetTextColor(hdc, RGB(255,0,0));

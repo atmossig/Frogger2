@@ -719,6 +719,14 @@ SOURCE=.\Pc\block.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\config.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\config.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\Controll.cpp
 # End Source File
 # Begin Source File
@@ -910,6 +918,9 @@ SOURCE=.\Editor\edtoolbars.c
 SOURCE=.\Editor\edtoolbars.h
 # End Source File
 # End Group
+# Begin Group "misc"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=.\Backtile.bmp
@@ -929,6 +940,11 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=.\devlog.txt
 # End Source File
 # End Target
 # End Project

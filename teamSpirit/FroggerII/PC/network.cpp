@@ -42,6 +42,7 @@ HANDLE ghKillReceiveEvent		= NULL;			// event used to kill receive thread
 const DWORD APPMSG_UPDATEGAME	= 0;			// message type for update of game
 const DWORD APPMSG_GAMECHAT     = 1;			// message type for in game chat
 const DWORD APPMSG_SYNCHGAME	= 2;			// message type for update of game
+const DWORD APPMSG_SYNCHPING	= 3;			// message type for ping message
 
 const DWORD	MAX_STRLEN			= 200;			// max size of a temporary string
 
@@ -958,6 +959,14 @@ void HandleApplicationMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD d
 		case APPMSG_SYNCHGAME:
 			HandleSynchMessage( lpDPInfo, (LPMSG_SYNCHGAME)lpMsg, dwMsgSize, idFrom, idTo );
 		break;
+
+		case APPMSG_SYNCHPING:
+			if (DPInfo.bIsHost)
+				HandlePingMessageServer( lpDPInfo, (LPMSG_SYNCHGAME)lpMsg, dwMsgSize, idFrom, idTo );
+			else
+				HandlePingMessagePlayer( lpDPInfo, (LPMSG_SYNCHGAME)lpMsg, dwMsgSize, idFrom, idTo );
+		break;
+
 	}
 }
 
