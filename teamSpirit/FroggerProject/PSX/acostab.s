@@ -6,5 +6,7 @@ text	group
  		cnop 0,4
 bb_acostable incbin "acostab.bin"
 		cnop 0,4						          
+saveicon	incbin	"saveicon.tim"
+			cnop 0,4
 
 
