@@ -1,7 +1,7 @@
 ; output map (Frogger.map)
 ; output syms (Frogger.sym)
 
-        org     $00018000
+        org     $00010000
 		regs    pc=__SN_ENTRY_POINT
 
 text    group
