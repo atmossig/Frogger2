@@ -505,7 +505,7 @@ int main ( )
 
 			fontInitButtonSprites();
 			gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUM_LANGUAGES, gameTextLang);
-			InitTiledBackdrop("FROGTILE");
+			InitTiledBackdrop("LOGO");
 			memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
 			ScreenFade(0,255,20);
 			keepFade = NO;
@@ -940,7 +940,7 @@ void MainDrawFunction ( void )
 
 	TIMER_START0(TIMER_PRINT_OVERS);
 
-	if(tileTexture)
+	if(tileTexture[0])
 		DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
 
 //	PrintSpriteOverlays(1);

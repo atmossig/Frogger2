@@ -381,10 +381,17 @@ void PrintSpriteOverlays ( char num )
 	}
 }
 
-TextureType *tileTexture = NULL;
+TextureType *tileTexture[4] = {NULL,NULL,NULL,NULL};
 void InitTiledBackdrop(char *filename)
 {
-	tileTexture = FindTexture(filename);
+	char tempStr[32];
+	int i;
+
+	for(i = 0;i < 4;i++)
+	{
+		sprintf(tempStr,"%s0%d",filename,i+1);
+		tileTexture[i] = FindTexture(tempStr);
+	}
 }
 
 int xTile = 5;
@@ -397,14 +404,17 @@ void DrawTiledBackdrop(int scroll)
 	int xRes = 512,yRes = PALMODE ? 256 : 240;
 	static int xScroll = 0;
 	static int yScroll = 0;
+	TextureType *tex;
 
-	w = tileTexture->w-1;
-	h = tileTexture->h-1;
+	w = tileTexture[0]->w-1;
+	h = tileTexture[0]->h-1;
 
-	for(x = -1;x < xTile + 1;x++)
+	for(x = -4;x < xTile + 4;x++)
 	{
-		for(y = -1;y < yTile + 1;y++)
+		for(y = -2;y < yTile + 2;y++)
 		{
+			tex = tileTexture[(((x + 4) MOD 2) + ((y + 2) MOD 2) * 2 + ((x + 4)/2) * 2) MOD 4];
+
 			atbdx = (x*xRes)/xTile - xRes/2 + xScroll;
 			atbdy = (y*yRes)/yTile - yRes/2 + yScroll;
 
@@ -421,31 +431,31 @@ void DrawTiledBackdrop(int scroll)
 			ft4->r0 = 128;
 			ft4->g0 = 128;
 			ft4->b0 = 128;
-			ft4->u0 = tileTexture->u0;
-			ft4->v0 = tileTexture->v0;
-			ft4->u1 = tileTexture->u1;
-			ft4->v1 = tileTexture->v1;
-			ft4->u2 = tileTexture->u2;
-			ft4->v2 = tileTexture->v2;
-			ft4->u3 = tileTexture->u3;
-			ft4->v3 = tileTexture->v3;
-			ft4->tpage = tileTexture->tpage;
-			ft4->clut = tileTexture->clut;
+			ft4->u0 = tex->u0;
+			ft4->v0 = tex->v0;
+			ft4->u1 = tex->u1;
+			ft4->v1 = tex->v1;
+			ft4->u2 = tex->u2;
+			ft4->v2 = tex->v2;
+			ft4->u3 = tex->u3;
+			ft4->v3 = tex->v3;
+			ft4->tpage = tex->tpage;
+			ft4->clut = tex->clut;
 			ENDPRIM(ft4, 1023, POLY_FT4);
 		}
 	}
 	if(scroll)
 	{
 		xScroll++;//= FMul(gameSpeed,xScrollSpeed);
-		if(xScroll > (xRes/xTile))
-			xScroll -= (xRes/xTile);
+		if(xScroll > ((xRes*4)/xTile))
+			xScroll -= ((xRes*4)/xTile);
 		yScroll++;//= FMul(gameSpeed,yScrollSpeed);
-		if(yScroll > (yRes/yTile))
-			yScroll -= (yRes/yTile);
+		if(yScroll > ((yRes*2)/yTile))
+			yScroll -= ((yRes*2)/yTile);
 	}
 }
 
 void FreeTiledBackdrop()
 {
-	tileTexture = NULL;
+	tileTexture[0] = NULL;
 }

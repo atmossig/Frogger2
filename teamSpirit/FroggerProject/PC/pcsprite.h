@@ -32,7 +32,7 @@ extern long	SPRITECLIPTOP		;
 extern long	SPRITECLIPRIGHT		;
 extern long	SPRITECLIPBOTTOM	;
 
-extern TextureType *tileTexture;
+extern TextureType *tileTexture[4];
 
 void AddObjectsSpritesToSpriteList(MDX_OBJECT *obj,short flags);
 void FreeTiledBackdrop();

@@ -97,10 +97,10 @@ void LoadTextureBank ( int textureBank )
 			break;
 
 		case INGAMEGENERIC_TEX_BANK:
-				textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
+//				textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
 
-				textureDownloadBank ( textureBanks [ numTextureBanks ]   );
-				textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
+//				textureDownloadBank ( textureBanks [ numTextureBanks ]   );
+//				textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
 				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 //				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 			break;

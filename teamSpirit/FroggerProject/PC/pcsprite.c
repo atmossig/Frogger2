@@ -403,11 +403,18 @@ void ZSortSpriteList()
 		qsort( (void *)spriteSortArray, numSortArraySprites, sizeof(SPRITE*), SpriteZCompare );
 }
 
-TextureType *tileTexture = NULL;
+TextureType *tileTexture[4] = {NULL,NULL,NULL,NULL};
 
 void InitTiledBackdrop(char *filename)
 {
-	tileTexture = FindTexture(filename);
+	char tempStr[32];
+	int i;
+
+	for(i = 0;i < 4;i++)
+	{
+		sprintf(tempStr,"%s0%d",filename,i+1);
+		tileTexture[i] = FindTexture(tempStr);
+	}
 }
 
 int xTile = 5;
@@ -423,9 +430,9 @@ void DrawTiledBackdrop()
 	static float xScroll = 0;
 	static float yScroll = 0;
 
-	for(x = -1;x < xTile + 1;x++)
+	for(x = -4;x < xTile + 4;x++)
 	{
-		for(y = -1;y < yTile + 1;y++)
+		for(y = -2;y < yTile + 2;y++)
 		{
 			r.left = (x*xRes)/xTile + xScroll;
 			r.right = ((x+1)*xRes)/xTile + xScroll;
@@ -433,7 +440,7 @@ void DrawTiledBackdrop()
 			r.bottom = ((y+1)*yRes)/yTile + yScroll;
 
 //			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
-			mdxPolyDrawTextureRect(r, D3DRGBA(1,1,1,1), (MDX_TEXENTRY *)tileTexture, 0,0, 1,1);
+			mdxPolyDrawTextureRect(r, D3DRGBA(1,1,1,1), (MDX_TEXENTRY *)tileTexture[(((x + 4) MOD 2) + ((y + 2) MOD 2) * 2 + ((x + 4)/2) * 2) MOD 4], 0,0, 1,1);
 		}
 	}
 
@@ -441,18 +448,18 @@ void DrawTiledBackdrop()
 //	yScrollSpeed = cos((float)actFrameCount/81.0)*0.0006;
 
 	xScroll += (float)gameSpeed * xScrollSpeed;
-	if(xScroll > xRes/(float)xTile)
-		xScroll -= xRes/(float)xTile;
+	if(xScroll > (xRes*4)/(float)xTile)
+		xScroll -= (xRes*4)/(float)xTile;
 	else if(xScroll < 0)
-		xScroll += xRes/(float)xTile;
+		xScroll += (xRes*4)/(float)xTile;
 	yScroll += (float)gameSpeed * yScrollSpeed;
-	if(yScroll > yRes/(float)yTile)
-		yScroll -= yRes/(float)yTile;
+	if(yScroll > (yRes*2)/(float)yTile)
+		yScroll -= (yRes*2)/(float)yTile;
 	else if(yScroll < 0)
-		yScroll += yRes/(float)yTile;
+		yScroll += (yRes*2)/(float)yTile;
 }
 
 void FreeTiledBackdrop()
 {
-	tileTexture = NULL;
+	tileTexture[0] = NULL;
 }

@@ -6,6 +6,6 @@ void InitTiledBackdrop(char *filename);
 void DrawTiledBackdrop(int scroll);
 void FreeTiledBackdrop();
 
-extern  TextureType *tileTexture;
+extern  TextureType *tileTexture[4];
 
 #endif
