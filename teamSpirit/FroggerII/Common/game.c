@@ -94,20 +94,17 @@ void GameProcessController(long pl)
 
 	if(player[pl].hasDoubleJumped)
 	{
-/*		if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A) )
-		{
-			player[pl].frogState |= FROGSTATUS_ISFLOATING;
-		}
-		else if(!(button[pl] & CONT_A) && (lastbutton[pl] & CONT_A) )
-		{
-			player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
-		}
-*/
-
 		if ((button[pl] & CONT_A) && (player[pl].jumpTime > 0.5f*player[pl].jumpMultiplier))
+		{
+			AnimateActor(frog[pl]->actor, FROG_ANIM_FLOATFALL, NO, NO, 0.5f, NO, NO);
 			player[pl].frogState |= FROGSTATUS_ISFLOATING;
+		}
 		else
+		{
+			if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+				AnimateActor(frog[pl]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
 			player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+		}
 	}
 
 	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && (player[pl].canJump))
