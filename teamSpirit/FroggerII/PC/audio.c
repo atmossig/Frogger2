@@ -506,7 +506,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				break;
 		}
 	}
-	else if(worldID == WORLDID_TOYSHOP)
+/*	else if(worldID == WORLDID_TOYSHOP)
 	{
 		switch(levelID)
 		{
@@ -514,7 +514,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				theToon = TOYSHOP_CDAUDIO;
 				break;
 		}
-	}
+	}*/
 	else if(worldID == WORLDID_HALLOWEEN)
 	{
 		switch(levelID)
