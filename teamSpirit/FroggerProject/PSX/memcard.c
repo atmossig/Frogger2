@@ -496,8 +496,7 @@ static void saveMenuNoCard()
 		break;
 	case 2:
 		saveInfo.saveFrame = 0;
-		if(saveInfo.load)
-			useMemCard = 0;
+		useMemCard = 0;
 		break;
 	}
 /*
