@@ -1276,44 +1276,60 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 	char fileName[16];
 	FILE *fp;
 	int x, y, linePos;
-	short pixel;
+	unsigned short pixel;
 	unsigned char col;
-	unsigned char line [ 640 * 4 ];
+	unsigned char line [ 480 * 4 ];
 
 	char header[] =	   {0x42,0x4D,0x36,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
-						0x00,0x00,0x40,0x01,0x00,0x00,0xF0,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
+						0x00,0x00,0x40,0x01,0x00,0x00,0x1E0,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
 						0x00,0x00,0x00,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 						0x00,0x00,0x00,0x00,0x00,0x00};
 
-	sprintf ( fileName, "c:\\pc%04d.bmp", picnum++);
+	sprintf ( fileName, "c:\\pc%04d.raw", picnum++);
 
 	fp = fopen ( fileName, "w" );
 	if ( fp == NULL )
 		return;
 	// ENDIF
 
-	fwrite ( header, sizeof ( header ), 1, fp );
+	//fwrite ( header, sizeof ( header ), 1, fp );
 
-	y = 480-1;
-	while (y >= 0)
+	y = 0;
+	for ( y = 0; y < 480; y++ )
 	{
 		linePos = 0;
 		for(x = 0; x < 640; x++)
 		{
 			pixel = ((short*)ddsd.lpSurface)[x + y * (ddsd.lPitch/2)];
 
-			col = ((pixel>>1)<<3)&0xFF;
+/*			col = ((pixel>>1)<<3)&0xFF;
 			line[linePos++] = col;
 			col = ((pixel>>6)<<3)&0xFF;
 			line[linePos++] = col;
 			col = ((pixel>>11)<<3)&0xFF;
+			line[linePos++] = col;*/
+
+			col = pixel;
+			col &= 0x1f;	
+		//	col *= 0xff;
+			col /= 0x1f;
+
+			line[linePos++] = col;
+		
+			col = pixel>>5;
+			col &= 0x3f;
+			col *= 0xff;
+			col /= 0x3f;
+
+			line[linePos++] = col;
+			col = pixel>>11;
+			col &= 0x1f;
+			col *= 0xff;
+			col /= 0x1f;
 			line[linePos++] = col;
 
-
 		}
-		y--;
-
-			fwrite ( line, sizeof ( linePos ), 1, fp );//(file, line, linePos);	
+			fwrite ( line, sizeof ( line ), 1, fp );//(file, line, linePos);	
 		
 	}
 
