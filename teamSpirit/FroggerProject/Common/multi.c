@@ -1021,11 +1021,19 @@ void FaceFrogToCentre(int pl, int toggle)
 */
 void PickupBabyFrogMulti( ENEMY *baby, int pl )
 {
-	int i;
+	int i,n;
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby->nmeActor ) break;
 
 	if( i==numBabies || babyList[i].isSaved ) return;
+
+	if( baby->path->nodes->offset2 )
+		n = ((baby->path->nodes->offset2>>12)/SCALE)-1;
+	else
+		n = i;
+
+	if( n > numBabies )
+		n = 0;
 
 	lastBabySaved = i;
 	babyList[i].isSaved	= 1;
@@ -1041,7 +1049,7 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 		PlaySample( genSfx[GEN_COLLECT_BABY], NULL, 0, SAMPLE_VOLUME, -1 );
 		PlayVoice(pl, "frogokay");
 
-		BabyCollectEffect( baby->nmeActor, baby->inTile, i );
+		BabyCollectEffect( baby->nmeActor, baby->inTile, n );
 	}
 }
 
