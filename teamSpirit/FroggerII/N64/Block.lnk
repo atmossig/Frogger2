@@ -567,6 +567,8 @@ mbnk1  incbin "music/docks.bin",mBank1.data, 32
 
 ;----- [ LEVEL DATA ] ------------------------------------------------------------------------------
 
+; [ GARDEN LEVEL 1 ] >>>>>
+
 levData1        group   obj()
 levData1bss     group   obj(),bss
 
@@ -577,5 +579,27 @@ _levData1SegmentRomEnd   alias _levData1_orgend
 
 levDat1  incbin "leveldata/entity-0-0.dat",levData1.data, 32
 
+; [ GARDEN LEVEL 2 ] >>>>>
 
+levData2        group   obj()
+levData2bss     group   obj(),bss
+
+_levData2SegmentRomStart alias _levData2_org
+_levData2SegmentRomEnd   alias _levData2_orgend
+
+        section.16       levData2.data,levData2
+
+levDat2  incbin "leveldata/entity-0-0.dat",levData2.data, 32
+
+; [ GARDEN LEVEL 3 ] >>>>>
+
+levData3        group   obj()
+levData3bss     group   obj(),bss
+
+_levData3SegmentRomStart alias _levData3_org
+_levData3SegmentRomEnd   alias _levData3_orgend
+
+        section.16       levData3.data,levData3
+
+levDat3  incbin "leveldata/entity-0-2.dat",levData3.data, 32
 
