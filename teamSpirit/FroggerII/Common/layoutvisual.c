@@ -685,7 +685,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// Stuff that used to be in RunGameLoop
 	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
 	{
-		player[0].lives				= 3;
+		player[0].lives				= 999;
 		player[0].score				= 0;
 		player[0].spawnTimer		= 0;
 		player[0].spawnScoreLevel	= 1;
