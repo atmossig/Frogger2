@@ -425,7 +425,7 @@ FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float l
 	{
 		case SWARM_TYPE_STARSTUN:
 		*/
-			FindTexture(&theTexture,UpdateCRC("star.bmp"),YES,"star.bmp");
+			FindTexture(&theTexture,UpdateCRC("star.bmp"),YES);
 /*			break;
 
 		case SWARM_TYPE_CROWS:
