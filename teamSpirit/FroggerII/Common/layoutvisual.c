@@ -664,19 +664,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	i=0;
 	initialCamera = 2;
 
-	// Set up camera
+	InitCamera();
 	
-	CheckForDynamicCameraChange(currTile[0]);
-	UpdateCameraPosition(0);
-
-	SetVector(&currCamSource[0], &camSource[0]);
-	SetVector(&currCamTarget[0], &camTarget[0]);
-
-/*
-	SetVector(&camSource[0],&outVec);
-	SetVector(&camTarget[0],&inVec);
-*/
-		
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
 

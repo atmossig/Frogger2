@@ -68,7 +68,7 @@ long prevCamFacing = 0;
 float FindMaxInterFrogDistance( );
 
 CAM_BOX_LIST cameraBoxes;
-
+CAM_BOX *currCamBox;
 float cam_edge_spacing = 100;
 
 /*	--------------------------------------------------------------------------------
@@ -81,37 +81,97 @@ float cam_edge_spacing = 100;
 int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge)
 {
 	int p;
-	float dist;
+	float dist, foo;
 	CAM_PLANE *plane;
-	VECTOR a, adjustment;
-	int count = 0;
+	VECTOR a, new_v;
+	int count;
 
 	if (!box)
 		return 0;
 
+	count = 0;
 	plane = box->planes;
+	SetVector(&new_v, v);
+	foo = edge;
 
 	for (p = box->numPlanes; p; p--, plane++)
 	{
-		dist = DotProduct(v, &plane->normal) - plane->k - edge;
+		if (!plane->status) continue;
 
-		if (dist < 0)
+		dist = DotProduct(&new_v, &plane->normal) - plane->k;
+
+		if (dist < edge)
 		{
+			if (dist < foo)
+				foo = dist;
+
+			dist -= edge;
+
 			SetVector(&a, &plane->normal);
 			ScaleVector(&a, -dist);
-			AddToVector(v, &a);
+			AddToVector(&new_v, &a);
+			
 			count++;
 		}
 	}
 
-/*	if (count)
-	{
-		ScaleVector(&adjustment, 1.0f/count);
-		AddToVector(v, &adjustment);
-	}*/
+	SetVector(v, &new_v);
 
 	return count;
 }
+
+/*	--------------------------------------------------------------------------------
+	Function		: IsPointInCameraBox
+	Purpose			: checks if a 3D point is within a camera space
+	Parameters		: 
+	Returns			: 
+*/
+
+int IsPointInCameraBox(VECTOR v, CAM_BOX *box)
+{
+	int p;
+	CAM_PLANE *plane = box->planes;
+
+	for (p = box->numPlanes; p; p--, plane++)
+	{
+		if ((DotProduct(&v, &plane->normal) - plane->k) < 0)
+			return 0;
+	}
+	return 1;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: CheckCameraBoxes
+	Purpose			: checks the current camera box, handles transitions between boxes
+	Parameters		: 
+	Returns			: 
+*/
+
+void CheckCameraBoxes(void)
+{
+	if (!currCamBox || !IsPointInCameraBox(camTarget[0], currCamBox))
+	{
+		CAM_BOX *box = cameraBoxes.boxes;
+		int b, c;
+
+		if (currCamBox)
+			dprintf"Frogger leaves cam box (%08x)\n", box));
+
+		currCamBox = NULL;
+	
+		for (b = cameraBoxes.numBoxes, c = 0; b; b--, c++, box++)
+		{
+			if (IsPointInCameraBox(camTarget[0], box))
+			{
+				currCamBox = box;
+				dprintf"Frogger enters cam box #%d (%08x)\n", c, box));
+				break;
+			}
+		}
+	}
+}
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddTransCamera
@@ -473,9 +533,11 @@ void UpdateCameraPosition(long cam)
 		afx2 = afy2 = afz2 = 0;
 		l=0;
 
+		CheckCameraBoxes();
+
 		// Multiplier here should probably be related to tan(FOV) somehow..
 
-		CameraBoundPosition(&camTarget[0], &cameraBoxes.boxes[0], cam_edge_spacing);
+		CameraBoundPosition(&camTarget[0], currCamBox, cam_edge_spacing);
 
 		for (i=0; i<NUM_FROGS; i++)
 		{
@@ -554,7 +616,7 @@ void UpdateCameraPosition(long cam)
 		}
 */
 
-		CameraBoundPosition(&camSource[0], &cameraBoxes.boxes[0], cam_edge_spacing * 0.95);
+		CameraBoundPosition(&camSource[0], currCamBox, cam_edge_spacing * 0.95);
 	}
 
 	if (fixedUp)
@@ -591,6 +653,27 @@ void UpdateCameraPosition(long cam)
 		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed*swayModifier)*sideSwayAmt) * camDist.v[2]) / 350.0;
 	}
 }
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitCamera
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+*/
+
+void InitCamera(void)
+{
+	currCamBox = NULL;
+	CheckCameraBoxes();
+	
+	CheckForDynamicCameraChange(currTile[0]);
+	UpdateCameraPosition(0);
+
+	SetVector(&currCamSource[0], &camSource[0]);
+	SetVector(&currCamTarget[0], &camTarget[0]);
+}
+
+
 
 
 float FindMaxInterFrogDistance( )
