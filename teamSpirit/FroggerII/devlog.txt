@@ -752,6 +752,16 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Morning:
+		Got rid of fly swarms and replaced them with bats, using models rather than sprites.
+		To be honest I can't remember this morning much, I was far too tired. Fixed a few bugs probably.
+
+	Afternoon:
+		Made health flies that flap about, instead of the unused EXTRAHEALTH_GARIB type. You can tongue or
+		grab them and they've got motion trails. OK, so I'm using the butterfly model right now, but
+		as soon as Sandro gets around to making a fly that'll go in.
+		Thought about rain.
+
 
 James Healey:
 ------------------------------------------------
