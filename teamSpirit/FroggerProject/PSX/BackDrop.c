@@ -26,9 +26,9 @@ void InitBackdrop ( char * filename )
 
 #if PALMODE==1
 	backDrop.rect.x = 512;			// leave the y till the update
-	backDrop.rect.y = 256+8;
+	backDrop.rect.y = 256;
 	backDrop.rect.w = 512; 
-	backDrop.rect.h = 256-16;
+	backDrop.rect.h = 256;
 #else
 	backDrop.rect.x = 512;			// leave the y till the update
 	backDrop.rect.y = 256+8;
@@ -96,11 +96,14 @@ void DrawBackDrop ( int execute, int drawBothScreens )
 		// ENDIF
 
 
-		BEGINPRIM(si, DR_MOVE);
+		if(drawBothScreens >= 0)
+		{
+			BEGINPRIM(si, DR_MOVE);
+		
+			SetDrawMove ( si, &rect, 0, targetpage->dispenv.disp.y );
 
-		SetDrawMove ( si, &rect, 0, targetpage->dispenv.disp.y );
-
-		ENDPRIM(si, 500, DR_MOVE);	// 0 or 1023
+			ENDPRIM(si, 500, DR_MOVE);	// 0 or 1023
+		}
 
 		if ( drawBothScreens )
 		{
