@@ -389,14 +389,14 @@ MDX_OBJECT *MakeUniqueObject(MDX_OBJECT *object)
 	object = new MDX_OBJECT;
 	memcpy(object, obj, sizeof(MDX_OBJECT));
 
-	if(obj->numSprites)
+/*	if(obj->numSprites)
 	{
 		spr = &object->sprites;
 		tempSpr = new MDX_OBJECTSPRITE;
 		memcpy(tempSpr, *spr, sizeof(MDX_OBJECTSPRITE) * obj->numSprites);
 		*spr = tempSpr;
 	}
-
+*/
 	if(object->children)
 		object->children = MakeUniqueObject(object->children);
 
