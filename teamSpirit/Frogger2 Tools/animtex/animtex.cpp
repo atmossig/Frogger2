@@ -78,12 +78,12 @@ int loadTextureTxt(const char* filename)
 		char line[255];
 		char tempName[255];
 
-		numFrames = 0;
-
 		fgets(line,255,animFp);
 		sscanf(line,"%d", &numFrames);
 
 		printf("Animated texture: %s (%d frames)\n", filename, numFrames);
+		
+		anim->numFrames = numFrames;
 		
 		for (int i=0; i<numFrames; i++)
 		{
