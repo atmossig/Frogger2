@@ -26,7 +26,7 @@
 #pal master
 !if $(PAL) == 1
 !if $(MASTER) == 1
-OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++ 
+OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=1 -c -O2 -mgpopt -G0 -X0$00010000 -comments-c++ 
 LIBISL = c:\ps\psx\library\lib\release
 !endif
 !endif

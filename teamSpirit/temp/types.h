@@ -22,7 +22,7 @@
 
 #ifdef PSX_VERSION
 #define E3_DEM
-#define _FINAL_MASTER
+#define FINAL_MASTER
 #endif
 
 //#include "sonylibs.h"
