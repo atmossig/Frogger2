@@ -411,8 +411,6 @@ void InitTiledBackdrop(char *filename)
 
 int xTile = 5;
 int yTile = 4;
-int xScrollSpeed = 32;
-int yScrollSpeed = 8;
 void DrawTiledBackdrop()
 {
 	int x,y;
@@ -430,8 +428,8 @@ void DrawTiledBackdrop()
 		for(y = -1;y < yTile + 1;y++)
 		{
 
-			atbdx = (x*xRes)/xTile - xRes/2 + xScroll/8;
-			atbdy = (y*yRes)/yTile - yRes/2 + yScroll/8;
+			atbdx = (x*xRes)/xTile - xRes/2 + xScroll;
+			atbdy = (y*yRes)/yTile - yRes/2 + yScroll;
 
 			BEGINPRIM(ft4, POLY_FT4);
 			setPolyFT4(ft4);
@@ -471,12 +469,12 @@ void DrawTiledBackdrop()
 */
 		}
 	}
-	xScroll += FMul(gameSpeed,xScrollSpeed);
-	if(xScroll > (xRes/xTile)*8)
-		xScroll -= (xRes/xTile)*8;
-	yScroll += FMul(gameSpeed,yScrollSpeed);
-	if(yScroll > (yRes/yTile)*8)
-		yScroll -= (yRes/yTile)*8;
+	xScroll++;//= FMul(gameSpeed,xScrollSpeed);
+	if(xScroll > (xRes/xTile))
+		xScroll -= (xRes/xTile);
+	yScroll++;//= FMul(gameSpeed,yScrollSpeed);
+	if(yScroll > (yRes/yTile))
+		yScroll -= (yRes/yTile);
 
 }
 

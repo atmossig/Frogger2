@@ -21,6 +21,7 @@ long fadeoutStart, fadeoutLength;
 int fadingOut = 0, keepFade = 0;
 
 int fadeText = YES;
+int flashScreen = NO;
 
 int (*fadeProc)(void);
 
@@ -43,7 +44,10 @@ int DrawScreenFade(void)
 
 //		col = startIntensity + ((endIntensity-startIntensity)*(actFrameCount-fadeoutStart))/fadeoutLength;
 
-	D3DSetupRenderstates(xluSubRS);
+	if(flashScreen)
+		D3DSetupRenderstates(xluAddRS);
+	else
+		D3DSetupRenderstates(xluSubRS);
 	DrawFlatRect(r, RGBA_MAKE(col, col, col, 255));
 
 	D3DSetupRenderstates(xluSemiRS);
@@ -63,6 +67,7 @@ void ScreenFade(int start, int end, long time)
 	fadeoutStart = actFrameCount;
 	fadeoutLength = time;
 	fadingOut = 1;
+	flashScreen = NO;
 
 	// cause we're using subtractive
 	startIntensity = 255-start;

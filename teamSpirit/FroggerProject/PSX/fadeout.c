@@ -20,6 +20,7 @@ int fadingOut = 0, keepFade = 0;
 int fadedOutCount;
 
 int fadeText = YES;
+int flashScreen = NO;
 
 int (*fadeProc)(void);
 
@@ -79,7 +80,10 @@ int DrawScreenFade(void)
 	setSemiTrans(f4,1);
 	ENDPRIM(f4, depth, POLY_F4);
 	BEGINPRIM(dm, DR_MODE);
-	SetDrawMode(dm, 0,1, ((SEMITRANS_SUB-1)<<5),0);
+	if(flashScreen)
+		SetDrawMode(dm, 0,1, ((SEMITRANS_ADD-1)<<5),0);
+	else
+		SetDrawMode(dm, 0,1, ((SEMITRANS_SUB-1)<<5),0);
 	ENDPRIM(dm, depth, DR_MODE);
 
 	
@@ -105,6 +109,7 @@ void ScreenFade(int start, int end, long time)
 	endIntensity = 255-end;
 	fadedOutCount = 0;
 	fadeText = YES;
+	flashScreen = NO;
 }
 
 
