@@ -1681,6 +1681,38 @@ void CalculateQuatForPlane2(float yRot,QUATERNION *qAim,VECTOR *normal)
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: OrientateQuaternion
+	Purpose 	: Creates an orientation as a quaternion from a forward and an up vector
+	Parameters 	: QUATERNION*, up, forwards
+	Returns 	: 
+	Info 		: up and fwd should be UNIT vectors or it won't work!
+*/
+void OrientateQuaternion(QUATERNION *q, VECTOR *fwd, VECTOR *up)
+{
+	float mag, thetaOver2, sinThetaOver2;
+	VECTOR axis;
+
+	CrossProduct(&axis, fwd, up);		// axis is perp to two vectors
+	mag = Magnitude(&axis);
+
+	if (mag != 0)
+	{
+		ScaleVector(&axis, 1.0f/mag);
+
+		thetaOver2 = (float)acos(mag) * 0.5f;
+		sinThetaOver2 = sin(thetaOver2);
+
+		q->x = sinThetaOver2 * fwd->v[0];
+		q->y = sinThetaOver2 * fwd->v[1];
+		q->z = sinThetaOver2 * fwd->v[2];
+		q->w = cosf(thetaOver2);
+	}
+	else
+	{
+		*q = zeroQuat;
+	}
+}
 
 #ifdef PC_VERSION	//----------------------------------------------------------------------------
 

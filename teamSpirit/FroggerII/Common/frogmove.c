@@ -1394,21 +1394,41 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 
 void ThrowFrogAtScreen(long pl)
 {
-	VECTOR target, v;
+	VECTOR target, v, w;
 	float dist, time, animSpeed, screenDist = 70.0f;
 	long frameTime;
 
-	SubVector(&v, &currCamTarget[0], &currCamSource[0]);
+	SubVector(&v, &currCamTarget[0], &currCamSource[0]);	// v points from screen to screen target
 	dist = Magnitude(&v);
-	ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
+	ScaleVector(&v, 1.0f/dist);
 
-	ScaleVector(&v,	screenDist/dist);
+	SetVector(&w, &v);
+	ScaleVector(&w,	screenDist);
+	AddVector(&target, &w, &currCamSource[0]);
+/*
+	// Rotate actor to face in the right direction
+	// 1. Get unit vectors FORWARDS and SCREEN->TARGET
 
-	AddVector(&target, &v, &currCamSource[0]);
+	ScaleVector(&v, 1.0f/dist);		// unit
 
-	time = 1.0f;
-	frameTime = (long)(time*60);
-	animSpeed = 1.0f / (THROWFROG_FRAMES * time * 60.0f);
+	// 2. 
+	CrossProduct(&w, &v, &forwards);
+*/
+
+	//ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
+	OrientateQuaternion(&frog[pl]->actor->qRot, &v, &upVec);	// ??
+
+	frameTime = 120;
+	
+	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal,
+		0, frameTime, pl);
+
+	animSpeed = 60.0f * player[pl].jumpSpeed / ((float)THROWFROG_FRAMES * frameTime);
+
+	AnimateActor(frog[pl]->actor, FROG_ANIM_TO_SCREENSPLAT, NO, NO, animSpeed, NO, NO);
+	//AnimateActor(frog[pl]->actor, FROG_ANIM_SCREENSPLAT, NO, YES, 0.25f, YES, YES);
+
+	// Set up froggy state
 
 	fixedPos = 1;
 	controlCamera = 1;
@@ -1417,11 +1437,6 @@ void ThrowFrogAtScreen(long pl)
 	player[pl].frogState = 0;
 	player[pl].idleTime = 1000000;	// arbitrary big number
 
-	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal,
-		0, frameTime, pl);
-
-	AnimateActor(frog[pl]->actor, FROG_ANIM_TO_SCREENSPLAT, NO, NO, 0.5f, NO, NO);
-	//AnimateActor(frog[pl]->actor, FROG_ANIM_SCREENSPLAT, NO, YES, 0.25f, YES, YES);
 }
 
 

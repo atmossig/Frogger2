@@ -131,6 +131,7 @@ int IntersectEdges(float *x,float *y,POINT2D *v1,POINT2D *v2,POINT2D *v3,POINT2D
 */
 //void SetQuaternion(QUATERNION *q1,QUATERNION *q2);
 void NormalToQuaternion(QUATERNION *q,VECTOR *normal);
+void OrientatateQuaternion(QUATERNION *q, VECTOR *fwd, VECTOR *up);
 
 //vector functions
 //void ZeroVector(VECTOR *v1);
