@@ -170,12 +170,7 @@ void ActorListDraw(long i)
 		if( tPos2.vz+DIST+radius > nearClip || noClip )
 		{
 			if( where.vz > nearClip )
-			{
-//				long x = (long)vTemp2->vz+DIST;
-//				float oozd = -FOV * oneOver[x];
-
-				radius = (FOV * radius)/(where.vz+DIST);
-			}
+				radius = (FOV * radius * (rXRes*(1.0f/640.0f))) / (where.vz+DIST);
 
 			if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
 				((where.vy > -radius) && (where.vy<rYRes+radius)))
