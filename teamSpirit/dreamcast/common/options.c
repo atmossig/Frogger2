@@ -2247,14 +2247,27 @@ void RunOptionsMenu(void)
 		case OP_FMV:
 			if((playingFMV) && (fadingOut == 0))
 			{
+				{
 #ifdef PSX_VERSION
-//ma				SsSetMute( 1 );
+					// *ASL* 16/08/2000 - Temporarily mute all the ambient sounds while we play the FMV
+					int		c;
+					for (c=0; c<24; c++)
+						if (current[c].sound.isPlaying)
+						{
+							amSoundSetVolume(&current[c].sound, 0);
+						}
 #endif
 					// *ASL* 12/08/2000 - Force allow quit on video playback
 					StartVideoPlayback(options.fmvNum + 3, 1);
 #ifdef PSX_VERSION
-//ma				SsSetMute( 0 );
+					// *ASL* 16/08/2000 - Restore the ambient sounds
+					for (c=0; c<24; c++)
+						if (current[c].sound.isPlaying)
+						{
+							amSoundSetVolume(&current[c].sound, current[c].volume);
+						}
 #endif
+				}
 				playingFMV = NO;
 				PrepareSong(WORLDID_FRONTEND,YES);
 				ScreenFade(0,255,30);
