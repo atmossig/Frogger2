@@ -427,8 +427,8 @@ int main ( )
 
 
 #if GOLDCD == NO
-		//fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
-		fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
+		fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+//		fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
 		//XAsetStatus(CdInit());
 #else
 		fileInitialise("\\FROGGER.DAT;1");
@@ -445,14 +445,14 @@ int main ( )
 		MemCardStart();
 		videoInit ( 1024, 2400, VIDEO_INIT_AND_MALLOC );
 
-		saveicon = fileLoad("saveicon.tim", NULL);
+/*		saveicon = fileLoad("saveicon.tim", NULL);
 		if(!saveicon)
 		{
 			utilPrintf("ERROR! Could not load save icon\n");
 			for(;;)
 			{}
 		}
-
+*/
 		//		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
 		//#if GOLDCD==0
 		//		XAenable = CdInit();
@@ -971,8 +971,8 @@ void MainReset ( void )
 		utilSeedRandomInt(398623);
 
 #if GOLDCD == NO
-	//fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
-	fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
+	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+//	fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
 #else
 	fileInitialise("\\FROGGER.DAT;1");
 #endif
