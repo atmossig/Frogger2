@@ -2046,7 +2046,7 @@ void DrawAllFrames(void)
 	if (!rHardware)
 	{
 //		DrawSoftwarePolys();
-//		EndDraw();
+		EndDraw();
 		return;
 	}
 	else
