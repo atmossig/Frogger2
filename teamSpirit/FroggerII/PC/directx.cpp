@@ -70,8 +70,6 @@ extern long numPixelsDrawn;
 #define FOGADJ(x) (1.0-((x-fStart)*fEnd))
 #define FOGVAL(y) (((unsigned long)(255*y) << 24))
 
-HWND win;
-
 //LPDIRECTDRAW			pDirectDraw;
 //LPDIRECTDRAWSURFACE		primarySrf;
 //LPDIRECTDRAWSURFACE		hiddenSrf;
@@ -198,19 +196,6 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
     return DDENUMRET_OK;
 }
 
-/*  --------------------------------------------------------------------------------
-    Function      : enumDXObjects 
-	Purpose       :	-
-	Parameters    : (void))
-	Returns       : bool 
-	Info          : -
-*/
-
-void EnumDXObjects (GUID *guid)
-{
-	DirectDrawEnumerate(EnumDDDevices, guid);
-}
-
 char col0txt[] = "Name";
 char col1txt[] = "Description";
 char col2txt[] = "Caps";
@@ -271,6 +256,7 @@ BOOL InitSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 	LV_COLUMN clm;
 	LV_ITEM itm;
 	HWND list;
+	int defaultIndex = 0;
 
 	GetWindowRect(hwndDlg, &meR);
 	
@@ -318,7 +304,9 @@ BOOL InitSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 		itm.iSubItem = 2;
 		itm.pszText = (dxDeviceList[i].caps.dwCaps & DDCAPS_3D)?hwText:swText;
 		SendMessage (list,LVM_SETITEM,0,(long)&itm);
-		
+
+		if ((dxDeviceList[i].caps.dwCaps & DDCAPS_3D) && (dxDeviceList[i].guid))
+			defaultIndex = i;
 	}
 	
 	// ------- Add item for software renderer ------
@@ -343,10 +331,10 @@ BOOL InitSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 	itm.pszText = swText;
 	SendMessage (list,LVM_SETITEM,0,(long)&itm);
 
-	///////////////////////////////////////////////////////////////////////////////
+	ListView_SetItemState(list, defaultIndex, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
 
-	ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
-
+	// ------- Set up other controls --------
+	
 	SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 
 	HWND hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
@@ -388,18 +376,22 @@ BOOL InitSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 	Returns       : TRUE for success
 */
 
-BOOL CloseSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
+int CloseSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 {
 	LPGUID lpTemp;
-	int i;
+	HWND hlist;
+	int i, count;
 
 	if (!winMode)
 		ShowCursor(0);
 	
 	// Get selected video driver
 
-	for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
-		if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
+	hlist = GetDlgItem(hwndDlg,IDC_LIST2);
+	count = SendMessage (hlist,LVM_GETITEMCOUNT,0,0);
+
+	for (i=0; i<count; i++)
+		if (SendMessage(hlist, LVM_GETITEMSTATE, i, LVIS_SELECTED))
 		{
 			if (dxDeviceList[i].guid)
 			{
@@ -408,8 +400,16 @@ BOOL CloseSetupDialog(HWND hwndDlg, DXSETUPINFO *info)
 			}
 			else
 				info->lpguidDDraw = NULL;
+			break;
 		}
 
+	if (i>=count || !(dxDeviceList[i].caps.dwCaps & DDCAPS_3D))
+	{
+		MessageBox(hwndDlg,
+			"A software renderer is not currently available. Please select a video card that supports hardware 3D.",
+			"Frogger2", MB_OK | MB_ICONEXCLAMATION);
+		return -1;	// return to dialog
+	}
 	
 	SendMessage (GetDlgItem(hwndDlg,IDC_EDIT),WM_GETTEXT,MAX_PATH,(long)baseDirectory);
 
@@ -509,10 +509,13 @@ BOOL CALLBACK SetupDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 				break;
 */
 			case IDOK:
-				if (CloseSetupDialog(hwndDlg, info))
-					EndDialog(hwndDlg, TRUE);
-				else
-					EndDialog(hwndDlg, FALSE);
+				switch (CloseSetupDialog(hwndDlg, info))
+				{
+				case 0: EndDialog(hwndDlg, FALSE); break;
+				case 1: EndDialog(hwndDlg, TRUE); break;
+				case -1:
+					break;
+				}
 		}
 		break;
 	}
@@ -524,29 +527,15 @@ BOOL CALLBACK SetupDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 // It's DirectX, innit?
 long DirectXInit(HWND window, long hardware )
 {
-	HRESULT					res;
-	int						l;
-	GUID videoguid, *vguid;
-
+	HRESULT		res;
+	int			l;
 	DXSETUPINFO info;
 
-	win = window;
-
-	EnumDXObjects(NULL);
+	DirectDrawEnumerate(EnumDDDevices, 0);
 
 	if (!DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1), window,
 		(DLGPROC)SetupDialogProc, (LPARAM)&info))
 		return 0;
-
-/*	
-	if (dxDeviceList[selIdx].guid)
-	{
-		memcpy(&videoguid, dxDeviceList[selIdx].guid, sizeof(GUID));
-		vguid = &videoguid;
-	}
-	else
-		vguid = NULL;
-*/
 
 	// Initialise DirectDraw
 	DDrawInitObject (info.lpguidDDraw);
@@ -777,8 +766,8 @@ void DirectXFlip(void)
 	{
 		RECT clientR,windowR;
 
-		GetClientRect(win,&clientR);
-		GetWindowRect(win,&windowR);
+		GetClientRect(winInfo.hWndMain,&clientR);
+		GetWindowRect(winInfo.hWndMain,&windowR);
 		
 		if (!scaleMode)
 		{
