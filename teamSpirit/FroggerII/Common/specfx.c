@@ -792,8 +792,8 @@ void UpdateFXSmoke( SPECFX *fx )
 		else
 		{
 			s->draw = 0;
-			if (s->a>gameSpeed)
-				s->a-=gameSpeed;
+			s->a = 0;
+			fx->deadCount = 5;
 		}
 
 		s->pos.v[X] += fx->vel.v[X] * gameSpeed;
@@ -1033,11 +1033,11 @@ void UpdateFXExplode( SPECFX *fx )
 			if( s->a > fo ) s->a -= fo;
 			else s->a = 0;
 
-			if( s->a < 16 )
+			if( !s->a )
 			{
-				s->a = 0;
 				s->draw = 0;
 				p->bounce = 2;
+				fx->deadCount = 5;
 			}
 		}
 
@@ -1712,15 +1712,19 @@ void ProcessAttachedEffects( void *entity, int type )
 
 	if( fxDist < ACTOR_DRAWDISTANCEOUTER && actFrameCount > act->fxCount )
 	{
+		int ran;
 		// Restart effect timer
 		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) )
 			r = 57;
 		else if( act->value1 > 0.0001 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
-				r = 60000/(max( Random((int)(max(act->value1*1000,1000))), 1000 ));
+			{
+				ran = Random( (int)(act->value1?act->value1:1) );
+				r = 60000/(ran?(ran*1000):1000);
+			}
 			else
-				r = 60000/(max(act->value1*1000,1000));
+				r = 60000/((act->value1*1000)?(act->value1*1000):1000);
 		}
 		else r = 60;
 
