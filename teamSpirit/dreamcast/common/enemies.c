@@ -92,9 +92,9 @@ typedef struct _NMEHACK {
 
 NMEHACK enemyAnimHack[] = {
 #ifdef DREAMCAST_VERSION
-#include "x:\teamspirit\pcversion\nmehack.txt"
+#include "f:\frogger\nmehack.txt"
 #else
-#include "x:/teamspirit/pcversion/nmehack.txt"
+#include "f:\frogger\nmehack.txt"
 #endif
 };
 
@@ -110,9 +110,9 @@ NMEHACK enemyAnimHack[] = {
 
 REACTIVEANIM reactiveAnims[] = {
 #ifdef DREAMCAST_VERSION
-#include "x:\teamspirit\pcversion\reactive.txt"
+#include "f:\frogger\reactive.txt"
 #else
-#include "x:/teamspirit/pcversion/reactive.txt"
+#include "f:\frogger\reactive.txt"
 #endif
 };
 

@@ -61,6 +61,7 @@
 #include "training.h"
 #include "ptexture.h"
 #include "options.h"
+#include "memcard.h"
 //ma#include "flatpack.h"
 
 #ifdef PSX_VERSION
@@ -673,6 +674,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	// *ASL* 17/08/2000 - Make sure the game quitting level is zero
 	quittingLevel = 0;
+	saveInfo.saveStage = SAVEMENU_COMPLETE;
 
 	// JH : Turn on, the loading screen.
 #ifdef PC_VERSION

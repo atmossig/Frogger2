@@ -73,6 +73,8 @@ extern short			*acostable;
 
 extern long 			turbo;
 
-extern struct gameStateStruct gameState;
+extern struct			gameStateStruct gameState;
+
+extern int				skipSpecFX;
 
 #endif

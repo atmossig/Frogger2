@@ -234,7 +234,7 @@ void StartPauseMenu()
 //#else
 //	currentPauseSelection = 1;
 //#endif
-	EnableTextOverlay ( xselectText );
+//ma	EnableTextOverlay ( xselectText );
 
 	if(gameState.multi == SINGLEPLAYER)
 	{
@@ -475,13 +475,13 @@ void RunPauseMenu()
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 
-			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			controllerRemoved = TRUE;
 
 			DisableTextOverlay ( continueText );
-			DisableTextOverlay ( xselectText );
+//ma			DisableTextOverlay ( xselectText );
 			DisableTextOverlay ( pauseTitleText );
 			DisableTextOverlay ( restartText );
 			DisableTextOverlay ( quitText );
@@ -511,13 +511,13 @@ void RunPauseMenu()
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 
-			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			controllerRemoved = TRUE;
 
 			DisableTextOverlay ( continueText );
-			DisableTextOverlay ( xselectText );
+//ma			DisableTextOverlay ( xselectText );
 			DisableTextOverlay ( pauseTitleText );
 			DisableTextOverlay ( restartText );
 			DisableTextOverlay ( quitText );
@@ -731,7 +731,7 @@ void RunPauseMenu()
 		continueText->draw = 1;
 //#endif
 	}
-	if( (padData.debounce[pauseController]&PAD_CROSS) || (padData.debounce[pauseController]&PAD_START) || (exitPause))
+	if(/* (padData.debounce[pauseController]&PAD_CROSS) || */(padData.debounce[pauseController]&PAD_START) || (exitPause))
 	{
 //		DisableTextOverlay ( controllerText );
 //		DisableTextOverlay ( continueText );
@@ -740,7 +740,7 @@ void RunPauseMenu()
 
 		pauseMode = 0;
 
-		if(padData.debounce[pauseController]&PAD_START)
+/*		if(padData.debounce[pauseController]&PAD_START)
 		{
 			currentPauseSelection = 0;
 			if(pauseConfirmMode)
@@ -751,13 +751,13 @@ void RunPauseMenu()
 			}
 			quittingLevel = 0;
 		}
-
+*/
 		switch(currentPauseSelection)
 		{
 			case 0:   // continue game
 			{
 				DisableTextOverlay ( continueText );
-				DisableTextOverlay ( xselectText );
+//ma				DisableTextOverlay ( xselectText );
 				DisableTextOverlay ( pauseTitleText );
 				DisableTextOverlay ( restartText );
 				DisableTextOverlay ( quitText );
@@ -1236,6 +1236,11 @@ void RunFrontendGameLoop (void)
 		options.worldText->g = options.parText[0]->g = options.parText[1]->g = options.parText[2]->g = 200;
 		options.worldText->b = options.parText[0]->b = options.parText[1]->b = options.parText[2]->b = 0;
 
+		options.worldBak = CreateAndAddSpriteOverlay(150,938,"WBACK",3796,1365,0,0);
+		options.worldBak->r = 10;
+		options.worldBak->g = 200;
+		options.worldBak->b = 10;
+
 		for (i=0; i<MAX_LEVELSTRING; i++)
 		{
 			options.levelText[i] = CreateAndAddTextOverlay(306,(short)(1445+i*170),levelStr[i],NO,(char)0,fontSmall,TEXTOVERLAY_SHADOW);
@@ -1251,11 +1256,6 @@ void RunFrontendGameLoop (void)
 			options.beatenIcon[i] = CreateAndAddSpriteOverlay(150,(short)(1477+i*170)-32,"FLASH",160,160,0,SPRITE_ADDITIVE);
 			options.beatenIcon[i]->draw = 0;
 		}
-
-		options.worldBak = CreateAndAddSpriteOverlay(150,938,"WBACK",3796,1365,0,0);
-		options.worldBak->r = 10;
-		options.worldBak->g = 200;
-		options.worldBak->b = 10;
 
 		arcadeScreenTex = FindTexture( "TEST5" );
 

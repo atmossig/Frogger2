@@ -185,6 +185,8 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	3,RED,		//design
 	0,GREEN,
@@ -3057,7 +3059,14 @@ void SetMusicVolume()
 
 void RunArtViewer()
 {
-	char name[32];
+	int		channel;
+	char	name[32];
+
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sound.isPlaying)
+			amSoundSetVolume(&current[channel].sound,0);
+	}
 
 	if(padData.debounce[0] & (PAD_START | PAD_TRIANGLE))
 		currentArt = MAX_ARTWORK;

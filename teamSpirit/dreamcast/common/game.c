@@ -118,14 +118,6 @@ void GameProcessController(long pl)
 	static u16 button[4];
 	static s16 stickX[4], stickY[4],lastStickX[4],lastStickY[4];
 
-	if(camControlMode)
-		return;
-
-	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
-		return;
-
-	button[pl] = padData.digital[pl];
-
 #ifdef DREAMCAST_VERSION
 	if( padData.debounce[pl] )
 	{
@@ -136,7 +128,15 @@ void GameProcessController(long pl)
 		fadeProc = NULL;
 	}
 #endif
-	
+
+	if(camControlMode)
+		return;
+
+	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
+		return;
+
+	button[pl] = padData.digital[pl];
+
 	// The only thing we can do when dead is press start
 	if((gameState.multi == SINGLEPLAYER) || ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
@@ -514,6 +514,66 @@ void GameProcessController(long pl)
 }
 
 
+void SquishPlayers()
+{
+	int i, j, on, under;
+
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		for( j=0; j<NUM_FROGS; j++ )
+		{
+			if( i!=j && currTile[i] == currTile[j] && 
+				player[i].frogunder==-1 && player[j].frogunder==-1 &&
+				!(player[i].frogState & FROGSTATUS_ISDEAD) && !(player[j].frogState & FROGSTATUS_ISDEAD) &&
+				player[i].canJump && player[j].canJump )
+			{
+				if( player[i].frogon != -1 )
+				{
+					under = i;
+					on = j;
+				}
+				else
+				{
+					under = j;
+					on = i;
+				}
+
+				nextFrogFacing[under] = frogFacing[under] = frogFacing[on];
+				SetQuaternion( &frog[under]->actor->qRot, &frog[on]->actor->qRot );
+				OrientateSS( &frog[under]->actor->qRot, &currTile[under]->dirVector[frogFacing[under]], &currTile[under]->normal );
+
+				PlaySample(genSfx[GEN_DEATHCRUSH], NULL, 0, SAMPLE_VOLUME, -1 );
+
+				utilPrintf("PIN HACK ACTIVATED!\n");
+				player[under].canJump = 0;
+
+				player[on].frogon = under;
+				player[under].frogunder = on;
+
+				player[under].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
+				player[on].idleEnable = 0;
+				player[under].idleEnable = 0;
+
+				actorAnimate( frog[on]->actor, FROG_ANIM_PIN, YES, NO, 128, 0);
+
+				if( player[under].frogon != -1 )
+				{
+					FVECTOR up;
+					SetVectorFF(&up, &currTile[under]->normal);
+					ScaleVector( &up, 10 );
+					AddVectorSSF( &frog[under]->actor->position, &frog[player[under].frogon]->actor->position, &up );
+				}
+
+				SetVectorSS(&frog[on]->actor->position, &frog[under]->actor->position);
+				actorAnimate( frog[under]->actor, FROG_ANIM_PINNED, YES, NO, 128, 0);
+
+				if( currPlatform[under] && currPlatform[under] == currPlatform[on] )
+					currPlatform[under]->carrying = frog[under];
+			}
+		}
+	}
+}
+
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: Run
@@ -674,6 +734,7 @@ void RunGameLoop (void)
 		}
 	}  
 
+	SquishPlayers();
 
 	TIMER_START3(TIMER_UP_PLAT);
 #ifdef PSX_VERSION

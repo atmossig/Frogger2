@@ -831,7 +831,7 @@ void PrepareSong(short worldID,int loop)
 		return;
 	}
 
-	XAplayChannel(adxtestCur, 1, 1, 64);
+	XAplayChannel(adxtestCur, 1, loop, 64);
 
 	// set global volume
 	newVolume = (float)globalMusicVol * 2.55;

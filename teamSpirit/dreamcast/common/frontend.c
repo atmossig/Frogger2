@@ -164,6 +164,9 @@ void GameLoop(void)
 {
 	int i;
 
+	// set default special effects skip flag
+	skipSpecFX = FALSE;
+
 	if(checkForSoftReset())
 	{
 		// *ASL* 14/08/2000 - ** Cannot quit whilst saving data to VMU **
@@ -387,13 +390,16 @@ void GameLoop(void)
 		break;
 
 	case MULTI_WINBATTLE_MODE:
+		skipSpecFX = TRUE;
 		RunMultiWinCollect( );
 		break;
 
 	case MULTI_WINCOLLECT_MODE:
+		skipSpecFX = TRUE;
 		RunMultiWinCollect( );
 		break;
 	case MULTI_WINRACE_MODE:
+		skipSpecFX = TRUE;
 		RunMultiWinRace( );
 		break;
 

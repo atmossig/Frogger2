@@ -158,6 +158,7 @@ void showLegalFMV(int allowQuit);
 extern void XAinit();
 extern void XAShutdown();
 
+int	skipSpecFX = FALSE;
 
 /* ---------------------------------------------------------
    Function : Kamui_Init
@@ -576,6 +577,9 @@ void main()
 			break;
 	}
 
+	// ma - temp fix for us version
+	gameTextLang = LANG_US;
+
 	// get sound mode
 	syCfgGetSoundMode(&soundMode);
 	if(soundMode == SYD_CFG_STEREO)
@@ -804,7 +808,7 @@ void main()
 		}
 
 		// Jim: I'm sorry...
-		if( saveInfo.saveFrame )
+//		if( saveInfo.saveFrame )
 		{
 			DCTIMER_START(1);
 			kmBeginScene(&kmSystemConfig);
@@ -895,7 +899,8 @@ void main()
 		else
 		{
 			DCTIMER_START(2);		
-			DrawSpecialFX();
+			if(!skipSpecFX)
+				DrawSpecialFX();
 			PrintSprites();
 			DCTIMER_STOP(2);
 

@@ -14,6 +14,7 @@
 #include <sg_pad.h>
 
 #include "islcard.h"
+#include "memcard.h"
 
 #define VMSCOMMENT		"FROGGER2 DATA"
 #define BTRCOMMENT		"FROGGER2 SWAMPYS REVENGE"
@@ -248,7 +249,10 @@ int cardRead(char *memCardName, void *gSaveData, int gameSaveDataSize)
 				cardDisplay(LCD_ok);
 			}
 			else
-				cardDisplay(LCD_error);
+			{
+				if(saveInfo.saveStage != SAVEMENU_SAVEYN)
+					cardDisplay(LCD_error);
+			}
 			return rtn;
 		}
 #ifdef _NINJA_

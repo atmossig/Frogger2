@@ -768,8 +768,8 @@ void RunMultiplayer( )
 		else
 			mpl[i].numText->draw = 0;
 		TransformPoint(&frog[i]->actor->position,&mpl[i].numText->xPos,&mpl[i].numText->yPos);
-		mpl[i].numText->xPos += mpltextx;
-		mpl[i].numText->yPos += mpltexty;
+//ma		mpl[i].numText->xPos += mpltextx;
+//ma		mpl[i].numText->yPos += mpltexty;
 
 		if( mpl[i].wins == 3 )
 		{

@@ -21,6 +21,8 @@
 extern char *saveicon;  // Included TIM data created from a 16-col BMP by TIMUTIL.EXE
 #endif
 
+extern long globalSoundVol;
+extern long globalMusicVol;
 
 /*	--------------------------------------------------------------------------------
 	Function		: SaveGameInfo
@@ -78,6 +80,9 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 	// TODO: language, controller setup & audio settings here
 	header->lives = player[0].lives;
 	
+	header->vol_musicvol = (unsigned char)globalMusicVol;
+	header->vol_effect = (unsigned char)globalSoundVol;
+
 	// Set per-level info
 //bb - now got a PsxCardHeader struct at the beginning, (psx only)
 //	levelinfo = (SAVEGAME_LEVELINFO*)(data + SAVEGAME_HEADERSIZE);
@@ -89,7 +94,8 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 		{
 			levelvis = &worldVisualData[world].levelVisualData[level];
 
-			levelinfo->flags = (levelvis->levelOpen ? 1:0) + (levelvis->levelCompleted ? 2:0);
+//sb horrible bodge to remember if training level has been completed!!!
+			levelinfo->flags = (levelvis->levelOpen ? 1:0) + (levelvis->levelCompleted ? 2:0) + (worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted ? 4:0) + (levelvis->levelBeaten ? 8:0) + ((gameState.difficulty == DIFFICULTY_HARD) ? 16:0) + ((gameState.difficulty == DIFFICULTY_EASY) ? 32:0);
 			levelinfo->bestTime = levelvis->parTime;
 			levelinfo->garibs = levelvis->maxCoins;
 			
@@ -135,6 +141,9 @@ int LoadSaveGameBlock(void* ptr, unsigned long size)
 	else
 		player[0].lives = 3;
 
+	globalMusicVol = (unsigned char)header->vol_musicvol;
+	globalSoundVol = (unsigned char)header->vol_effect;
+
 	// Set per-level info
 //bb
 //	levelinfo = (SAVEGAME_LEVELINFO*)(data + SAVEGAME_HEADERSIZE);
@@ -151,9 +160,18 @@ int LoadSaveGameBlock(void* ptr, unsigned long size)
 			if((level < worldVisualData[world].numSinglePlayerLevels) && (levelvis->levelOpen))
 				worldVisualData[world].worldOpen = WORLD_OPEN;
 			levelvis->levelCompleted = (levelinfo->flags & 2) ? 1 : 0;
+			levelvis->levelBeaten = (levelinfo->flags & 8) ? 1 : 0;
+//sb horrible bodge to remember if training level has been completed!!!
+			worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted = (levelinfo->flags & 4) ? 1 : 0;
+
+			if(levelinfo->flags & 16)
+				gameState.difficulty = DIFFICULTY_HARD;
+			else if(levelinfo->flags & 32)
+				gameState.difficulty = DIFFICULTY_EASY;
+
 			levelvis->maxCoins = levelinfo->garibs;
 			levelvis->parTime = levelinfo->bestTime;
-
+			
 			// *ASL* 21/07/2000 - (char *) expected
 			strncpy((char *)levelvis->parName, levelinfo->winner, 8);
 			levelvis->parName[8] = 0;
