@@ -22,6 +22,8 @@
 #include "ptexture.h"
 #include "mdx.h"
 #include "mdxTexture.h"
+#include "islPad.h"
+#include "controll.h"
 
 int drawOverlays = 1;
 
@@ -237,12 +239,14 @@ void LoadScreenFromNumber(unsigned long num)
 	int pptr = -1;
 	char file[MAX_PATH];
 
-	strcpy(file,baseDirectory);
-	strcat(file,"Design\\");
-	sprintf(file,"%s%s\\des%03l.bmp",num);
+	sprintf(file,"%s%s\\des%03lu.bmp",baseDirectory,"Design\\",num);
 	screen = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,NULL,NULL,NULL,r565?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);	
 }
 
+void FreeScreen(void)
+{
+	screen = 0;
+}
 
 void ShowScreen(void)
 {
@@ -262,17 +266,80 @@ void ShowScreen(void)
 	surface[RENDER_SRF]->Unlock(NULL);	
 }
 
+unsigned long quitDesignLoop = 0;
+unsigned long designNum = 0;
+#define MAX_DESIGNS 2
+
+void DesignProcessController(long pl)
+{
+	unsigned long changedLevel = 0;
+	u16 button[4];
+	static u16 lastbutton[4];
+
+	button[pl] = padData.digital[pl];
+	
+	if((button[pl] & PAD_UP) && !(lastbutton[pl] & PAD_UP))
+	{
+	}	    
+	else if((button[pl] & PAD_RIGHT) && !(lastbutton[pl] & PAD_RIGHT))
+	{
+		if (designNum<MAX_DESIGNS)
+		{
+			designNum++;
+			FreeScreen();
+			LoadScreenFromNumber(designNum);
+		}
+	}
+    else if((button[pl] & PAD_DOWN) && !(lastbutton[pl] & PAD_DOWN))
+	{
+	}
+    else if((button[pl] & PAD_LEFT) && !(lastbutton[pl] & PAD_LEFT))
+	{
+		if (designNum>0)
+		{
+			designNum--;
+			FreeScreen();
+			LoadScreenFromNumber(designNum);
+		}
+	}
+
+
+	if((button[pl] & PAD_CROSS) && !(lastbutton[pl] & PAD_CROSS))
+    {
+		FreeScreen();
+		quitDesignLoop=1;
+	}
+	
+	if((button[pl] & PAD_START) && !(lastbutton[pl] & PAD_START))
+	{
+	}
+
+	lastbutton[pl] = button[pl];
+}
+
+
+
 extern "C"
 {
 void RunDesignWorkViewer(void)
 {
-	if (screen)
-		ShowScreen();
+	quitDesignLoop = 0;
+	designNum = 0;
+	while(!quitDesignLoop)
+	{
+		ProcessUserInput();
+		DesignProcessController(0);
 
-	BeginDraw();
-	EndDraw();
-	DDrawFlip();
-	D3DClearView();
+		if (screen)
+			ShowScreen();
+		else
+			LoadScreenFromNumber(designNum);
 
+		BeginDraw();
+		EndDraw();
+		DDrawFlip();
+		D3DClearView();
+	}
 }
 }
+

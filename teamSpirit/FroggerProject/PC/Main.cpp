@@ -11,6 +11,8 @@
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
+#include <dplay.h>
+#include <dplobby.h>
 #include <math.h>
 #include <islutil.h>
 #include <islpad.h>
@@ -53,6 +55,9 @@
 #include "mdx.h"
 #include "mdxException.h"
 #include "c:\work\froggerproject\resource.h"
+#include "..\network.h"
+#include "..\netchat.h"
+#include "..\netgame.h"
 
 extern "C"
 {
@@ -69,6 +74,12 @@ int editorOk = 0;
 
 float camY = 100,camZ = 100;
 extern "C" {MDX_LANDSCAPE *world;}
+
+unsigned long nextSynchAt;
+unsigned long actTickCountModifier = 0;
+unsigned long synchSpeed = 60 * 1;
+unsigned long pingOffset = 40;
+unsigned long synchRecovery = 1;
 
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
@@ -121,6 +132,16 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			return FALSE;			
 		}		
+
+		case WM_COMMAND:
+		{
+			switch (LOWORD(wParam))
+			{
+				case IDC_MULTI:
+					InitMPDirectPlay(mdxWinInfo.hInstance);
+					return TRUE;
+			}
+		}
 	}
 
 	return FALSE;
@@ -164,6 +185,12 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_CHAR:
+			if( chatFlags & CHAT_INPUT )
+			{
+				ChatInput((char)wParam);
+				return 0;
+			}
+			else
 			if (editorOk)	// only when editor is set up to "grab" keyboard data
 			{
 				EditorKeypress((char)wParam);
@@ -253,6 +280,9 @@ long DrawLoop(void)
 	if (editorOk)
 		DrawEditor();
 
+	if( chatFlags && gameState.mode == INGAME_MODE )
+		DrawChatBuffer( 100, 20, 540, 150 );
+
 	EndDraw();
 
 	CopySoftScreenToSurface(surface[RENDER_SRF]);
@@ -328,8 +358,73 @@ long LoopFunc(void)
 	if (editorOk)
 		RunEditor();
 
+	if( KEYPRESS(DIK_F7) && chatFlags )
+	{
+		if( chatFlags & CHAT_INPUT )
+		{
+			chatFlags &= ~CHAT_INPUT;
+		}
+		else
+		{
+			if( !chatInput.msg )
+				chatInput.msg = new char[MAX_CSLENGTH];
+
+			chatInput.msgLen = 0;
+			chatFlags |= CHAT_INPUT;
+		}
+	}
+
 	UpdateWater();
 	DrawLoop();
+
+	if(networkPlay && (gameState.mode == INGAME_MODE))
+	{
+		
+		if (!synchedOK)
+		{
+			if (DPInfo.bIsHost)
+				InitialServerSynch();
+			else
+				InitialPlayerSynch();
+			
+			InitTiming(60);
+			synchedOK = 1;
+			nextSynchAt = synchSpeed;
+		}
+		else
+		{
+			if (DPInfo.bIsHost)
+			{
+				if (actFrameCount >	nextSynchAt)
+				{
+					nextSynchAt = timeInfo.frameCount + synchSpeed;
+					SendSynchMessage();
+				}
+			}
+			else
+			{
+				if ((actFrameCount+pingOffset) > nextSynchAt)
+				{
+					nextSynchAt = timeInfo.frameCount + synchSpeed;
+					SendPingMessage();
+				}
+
+				if (synchedFrameCount>0)
+				{
+					synchedFrameCount-=synchRecovery;
+					actTickCountModifier+=synchRecovery;
+					timeInfo.tickModifier = -actTickCountModifier;
+				}
+				else
+				{
+					synchedFrameCount+=synchRecovery;
+					actTickCountModifier-=synchRecovery;
+					timeInfo.tickModifier = -actTickCountModifier;
+				}
+			}
+		}
+		SendUpdateMessage();
+	}
 
 	return 0;
 }
