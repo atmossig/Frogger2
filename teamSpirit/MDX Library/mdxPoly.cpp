@@ -893,7 +893,28 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 	totalFacesDrawn+=dwIndexCount / 3;
 	if (rHardware)
 	{
+
+//		pDirect3DDevice->SetTexture(0,tex);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+		
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,FALSE);
+
 		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
+
+		if (fogging)
+			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
+
+
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+		pDirect3DDevice->SetTexture(0,NULL);
+
+
+
+//		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
 	}
 	else
 	{
