@@ -419,7 +419,6 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	if (pitch ==-1)
 		pitch = 0;
 
-	vol += vol <<8;
 //end of stuff
 
 
@@ -439,8 +438,10 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 
  	
- 	vl = (volume>>8)&0xff;
- 	vr = volume&0xff;	
+// 	vl = (volume>>8)&0xff;
+// 	vr = volume&0xff;	
+	vl = volume;
+	vr = volume;
 
 // 	return sfxPlaySample( sample, vl,vr, pitch*10);
 	i =	sfxPlaySample( sample->snd, vl,vr, pitch*10);
