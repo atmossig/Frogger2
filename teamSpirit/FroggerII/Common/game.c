@@ -89,6 +89,18 @@ void GameProcessController(long pl)
 	if(player[pl].isSuperHopping)
 		player[pl].canJump = 0;
 
+	if(player[pl].hasDoubleJumped)
+	{
+		if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A) )
+		{
+			player[pl].frogState |= FROGSTATUS_ISFLOATING;
+		}
+		else if(!(button[pl] & CONT_A) && (lastbutton[pl] & CONT_A) )
+		{
+			player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+		}
+	}
+
 	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && (player[pl].canJump))
 	{
 		if(!player[pl].inputPause)

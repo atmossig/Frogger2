@@ -273,6 +273,9 @@ void UpdateFroggerPos(long pl)
 		VECTOR up, fwd, pos;
 		float p, t;
 
+
+/* THIS CODE MOVED TO GAME.C - ANDYE ----------------------------
+
 		// If superjumping during a double jump, start floating - if button released, stop floating
 		if( player[pl].hasDoubleJumped )
 		{
@@ -285,6 +288,8 @@ void UpdateFroggerPos(long pl)
 				player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
 			}
 		}
+
+---------------------------- THIS CODE MOVED TO GAME.C - ANDYE */
 
 /*		if( player[pl].frogState & FROGSTATUS_ISFLOATING )
 		{
@@ -1245,7 +1250,7 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 	where h is the height of the curve and t is the 'time' variable (see below). m is a multiplier
 	calculated using the formula
 
-	m = (1+sqrt(1-d))/2
+	m = (1+sqrtf(1-d))/2
 
 	where d is the difference in height between the start and end position. height is displacement
 	parallel to the starting normal vector. Horizontal motion is simply linear,	parallel to the
@@ -1287,7 +1292,7 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 
 	// Multiplier
 	if (height > 0)
-		m = 0.5f * (1 + sqrt(1 - diff/height));
+		m = 0.5f * (1 + sqrtf(1 - diff/height));
 	else
 		m = 0;
 
