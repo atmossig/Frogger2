@@ -56,7 +56,7 @@ void XformActorList()
 		if (frontEndState.mode != OBJVIEW_MODE)
 		{
 			// calculate the distance between the camera and this actor
-			cur->distanceFromFrog = DistanceBetweenPointsSquared(&cur->actor->pos,&frog->actor->pos);
+			cur->distanceFromFrog = DistanceBetweenPointsSquared(&cur->actor->pos,&frog[0]->actor->pos);
 
 			// transform actor
 			XformActor(cur->actor);
