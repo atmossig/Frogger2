@@ -1255,7 +1255,7 @@ void UpdateFXFly( SPECFX *fx )
 {
 	VECTOR fwd, down;
 	QUATERNION q1, q2, q3;
-	float t, best = 10000000, speed;
+	float t, speed;
 	ACTOR *act = fx->act[0]->actor;
 	unsigned long i;
 
