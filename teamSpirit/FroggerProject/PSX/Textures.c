@@ -172,7 +172,7 @@ void LoadTextureAnimBank( int textureBank )
 		case LABORATORY_TEX_BANK: sprintf ( titFileName, "LAB.TIT" ); break;
 		case HALLOWEEN_TEX_BANK: sprintf ( titFileName, "HALLOWEEN.TIT" ); break;
 		case SUPERRETRO_TEX_BANK: sprintf ( titFileName, "RETRO.TIT" ); break;
-		case TITLES_TEX_BANK: sprintf ( titFileName, "HUB.TIT" ); break;
+		case FRONTEND_TEX_BANK: sprintf ( titFileName, "HUB.TIT" ); break;
 		case INGAMEGENERIC_TEX_BANK: sprintf ( titFileName, "GENERIC.TIT" ); break;
 		default: return;
 	}
