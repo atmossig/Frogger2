@@ -658,20 +658,36 @@ BOOL ExecuteCommand(UBYTE **p)
 		}
 
 	case EV_SETENEMYFLAG:
-		if (EnumEnemies(MEMGETWORD(p), SetEnemyFlag, MEMGETINT(p)) == 0) return 0;
-		break;
+		{
+			long id = (long)MEMGETWORD(p);
+			unsigned flags = (unsigned)MEMGETINT(p);
+			if (EnumEnemies(id, SetEnemyFlag, flags) == 0) return 0;
+			break;
+		}
 		
 	case EV_RESETENEMYFLAG:
-		if (EnumEnemies(MEMGETWORD(p), ResetEnemyFlag, MEMGETINT(p)) == 0) return 0;
-		break;
+		{
+			long id = (long)MEMGETWORD(p);
+			unsigned flags = (unsigned)MEMGETINT(p);
+			if (EnumEnemies(id, ResetEnemyFlag, flags) == 0) return 0;
+			break;
+		}
 
 	case EV_SETPLATFLAG:
-		if (EnumPlatforms(MEMGETWORD(p), SetPlatformFlag, MEMGETINT(p)) == 0) return 0;
-		break;
+		{
+			long id = (long)MEMGETWORD(p);
+			unsigned flags = (unsigned)MEMGETINT(p);
+			if (EnumPlatforms(id, SetPlatformFlag, flags) == 0) return 0;
+			break;
+		}
 
 	case EV_RESETPLATFLAG:
-		if (EnumPlatforms(MEMGETWORD(p), ResetPlatformFlag, MEMGETINT(p)) == 0) return 0;
-		break;
+		{
+			long id = (long)MEMGETWORD(p);
+			unsigned flags = (unsigned)MEMGETINT(p);
+			if (EnumPlatforms(id, ResetPlatformFlag, flags) == 0) return 0;
+			break;
+		}
 		
 	case EV_ANIMATEACTOR:
 		{
