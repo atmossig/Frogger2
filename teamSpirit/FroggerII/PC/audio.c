@@ -344,7 +344,7 @@ void UpdateAmbientSounds()
 	VECTOR *pos;
 
 	// Silence ambients if paused or level over?
-	if((gameState.mode == PAUSE_MODE) || levelIsOver )
+	if((gameState.mode == PAUSE_MODE) || levelIsOver.time )
 		return;
 
 	// Update each ambient in turn
