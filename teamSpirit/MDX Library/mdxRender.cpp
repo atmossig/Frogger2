@@ -931,8 +931,8 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 					SaveFrame;
 					SwapFrame(MA_FRAME_PHONG);
 					PushPolys(v,3,facesON,3,phong->surf);					
-					SwapFrame(MA_FRAME_LIGHTMAP);
-					PushPolys(v,3,facesON,3,lightMap->surf);					
+					//SwapFrame(MA_FRAME_LIGHTMAP);
+					//PushPolys(v,3,facesON,3,lightMap->surf);					
 					RestoreFrame;
 				}
 				else
