@@ -1143,6 +1143,17 @@ Andy Eder:
 David Swift:
 ------------------------------------------------
 
+	Happy new year.
+	
+	Spend most of today experimenting with intro stuff. Split up a few functions so one can
+	run the game loop without actually loading a level (i.e. loading or generating
+	textures, objects, collision etc. manually).
+	
+	Changed the join tile check so it'll *always* jump through a join tile, even if the
+	direction is utterly wrong.
+	
+	I just thought of something really important but I've completely forgotten what it was. Rats.
+
 
 James Hubbard:
 ------------------------------------------------
