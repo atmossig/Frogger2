@@ -14,6 +14,7 @@
 
 #define MAX_TEXTURE_BANKS		5
 
+
 typedef struct
 {
 	char	*data;

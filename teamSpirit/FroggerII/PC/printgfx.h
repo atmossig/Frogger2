@@ -22,6 +22,33 @@
 #define G_CC_COLOURBLEND_SPRITE_AFTERLIGHT	TEXEL0,0,PRIMITIVE,0,TEXEL0,0,PRIMITIVE,0
 #define G_CC_COLOURBLEND_SPRITE_AFTERLIGHT2	ENVIRONMENT,COMBINED,ENV_ALPHA,COMBINED,0,0,0,COMBINED
 
+
+#define BACKDROP_FILTER	(1<<0)
+#define BACKDROP_WRAP	(1<<1)
+
+typedef struct TAGBACKDROP
+{
+	struct			TAGBACKDROP *next,*prev;
+	struct			TAGBACKDROP *parent;
+	TEXTURE			*texture;
+	UBYTE			r,g,b,a;
+	int				xPos,yPos,zPos;
+	short			scaleX,scaleY;
+	short			draw;
+	short			flags;
+//	uObjBg			background;
+
+} BACKDROP;
+
+typedef struct TAGBACKDROPLIST
+{
+	int				numEntries;
+	BACKDROP		head;
+
+} BACKDROPLIST;
+
+extern BACKDROPLIST backdropList;
+
 extern Vtx shadowVtx[4];
 extern Sprite template_sprite;
 
@@ -30,29 +57,36 @@ extern Gfx rspInitForSprites_dl[];
 extern Gfx rdpInitForSprites_dl[];
 
 
-extern void PrintBackdrop(BACKDROP *bDrop);
-extern void PrintTextAsOverlay(TEXTOVERLAY *tOver);
-extern void PrintOverlays();
-extern void PrintSpriteOverlays();
+void PrintBackdrops();
+void PrintTextAsOverlay(TEXTOVERLAY *tOver);
+void PrintOverlays();
+void PrintSpriteOverlays();
 
-extern void DrawSpecialFX();
-extern void DrawFXRipples();
+void DrawSpecialFX();
+void DrawFXRipples();
 
-extern void ProcessShadows();
-extern void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv);
+void ProcessShadows();
+void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alph,Vtx *vert,VECTOR *lightDir, float tu, float tv);
 
-extern void DrawSwirlFX();
-extern void ScreenFade(UBYTE dir,UBYTE step);
+void DrawSwirlFX();
+void ScreenFade(UBYTE dir,UBYTE step);
 
-extern void DrawDarkenedLevel();
+void DrawDarkenedLevel();
 
 
-extern SPRITE *PrintSpritesOpaque();
-extern void PrintSpritesTranslucent(SPRITE *sprite);
-extern void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
-extern void PrintSprite(SPRITE *sprite);
+SPRITE *PrintSpritesOpaque();
+void PrintSpritesTranslucent(SPRITE *sprite);
+void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
+void PrintSprite(SPRITE *sprite);
 
-extern void ScreenShot();
+void ScreenShot();
 char IsPointVisible(VECTOR *p);
+
+void InitBackdropLinkedList();
+void FreeBackdropLinkedList();
+void AddBackdrop(BACKDROP *bDrop);
+void SubBackdrop(BACKDROP *bDrop);
+BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int z,int destX,int destY,int destWidth,int destHeight,int scalex,int scaley,int flags);
+
 
 #endif
