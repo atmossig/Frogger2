@@ -172,15 +172,23 @@ void PrintText(TEXTOVERLAY *cur,short xPos,short yPos,uchar r,uchar g,uchar b,uc
 	cur->font->alpha = alphaStore;
 
 #else
+	float scale;
+
+	if( !rHardware && rXRes < 640 && (MDX_FONT *)cur->font == pcFontSmall )
+		scale = 1.0f;
+	else
+		scale = ((float)cur->scale)/4096.0 * ((float)rXRes/640.0);
+
+
 	if (cur->centred)
 	{
 		cur->tWidth = DrawFontStringAtLoc(xPos,yPos,cur->text,
-		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)cur->scale)/4096.0 * ((float)rXRes/640.0),xPos,0);// - cur->xPos*OVERLAY_X;
+		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,scale,xPos,0);
 	}
 	else
 	{
 		cur->tWidth = DrawFontStringAtLoc(xPos,yPos,cur->text,
-		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)cur->scale)/4096.0 * ((float)rXRes/640.0),0,0) - xPos;
+		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,scale,0,0) - xPos;
 	}
 
 	cur->tWidth *= (640.0/(float)rXRes);
