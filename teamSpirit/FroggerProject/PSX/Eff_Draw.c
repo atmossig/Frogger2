@@ -301,6 +301,7 @@ void DrawFXRing(SPECFX *fx)
 	SVECTOR fxpos;
 	fixed tilt, tilt2, t;
 	int zeroZ = 0;
+	int r,g,b;
 
 	MATRIX tMtrx, rMtrx, sMtrx, tempMtrx;
 
@@ -356,6 +357,10 @@ void DrawFXRing(SPECFX *fx)
 	vT[3].tu = tEntry->u1;
 	vT[3].tv = tEntry->v1;
 */
+	r = (fx->r*fx->a) >>8;
+	g = (fx->g*fx->a) >>8;
+	b = (fx->b*fx->a) >>8;
+
 	vT[0].tu = tEntry->u2;
 	vT[0].tv = tEntry->v2;
 	vT[1].tu = tEntry->u0;
@@ -472,56 +477,19 @@ void DrawFXRing(SPECFX *fx)
 
 			
 				//set up a poly
-/*				BEGINPRIM(ft4, POLY_FT4);
-				setPolyFT4(ft4);
-				ft4->x0 = vT[0].vx;
-				ft4->y0 = vT[0].vy;
-				ft4->x1 = vT[3].vx;
-				ft4->y1 = vT[3].vy;
-				ft4->x2 = vT[1].vx;
-				ft4->y2 = vT[1].vy;
-				ft4->x3 = vT[2].vx;
-				ft4->y3 = vT[2].vy;
-				ft4->r0 = 64;
-				ft4->g0 = 64;
-				ft4->b0 = 64;
-				ft4->u0 = tEntry->u0;
-				ft4->v0 = tEntry->v0;
-				ft4->u1 = tEntry->u1;
-				ft4->v1 = tEntry->v1;
-				ft4->u2 = tEntry->u3;
-				ft4->v2 = tEntry->v3;
-				ft4->u3 = tEntry->u2;
-				ft4->v3 = tEntry->v2;
-				ft4->tpage = tEntry->tpage;
-				ft4->clut  = tEntry->clut;
-				ft4->code  |= 2;//semi-trans on
- 				ft4->tpage |= 32;//add
-				ENDPRIM(ft4, 1, POLY_FT4);
-*/
 				BEGINPRIM(ft4, POLY_FT4);
 				setPolyFT4(ft4);
 				ft4->x0 = vT[0].vx;
 				ft4->y0 = vT[0].vy;
 				ft4->x1 = vT[1].vx;
 				ft4->y1 = vT[1].vy;
-//				ft4->x2 = vT[2].vx;
-//				ft4->y2 = vT[2].vy;
-//				ft4->x3 = vT[3].vx;
-//				ft4->y3 = vT[3].vy;
 				ft4->x2 = vT[3].vx;
 				ft4->y2 = vT[3].vy;
 				ft4->x3 = vT[2].vx;
 				ft4->y3 = vT[2].vy;
-//				ft4->r0 = 64;
-//				ft4->g0 = 64;
-//				ft4->b0 = 64;
-//				ft4->r0 = fx->a;
-//				ft4->g0 = fx->a;
-//				ft4->b0 = fx->a;
-				ft4->r0 = fx->a>>1;
-				ft4->g0 = fx->a>>1;
-				ft4->b0 = fx->a>>1;
+				ft4->r0 = r;
+				ft4->g0 = g;
+				ft4->b0 = b;
 				ft4->u0 = vT[0].tu;
 				ft4->v0 = vT[0].tv;
 				ft4->u1 = vT[1].tu;
