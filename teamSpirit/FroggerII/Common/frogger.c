@@ -41,16 +41,6 @@ SPECFX *frogTrail[MAX_FROGS] = {NULL,NULL,NULL,NULL};
 
 long NUM_FROGS = 1;
 
-float CROAK_SOUND_RANGE			= 400;
-
-float croakRadius				= 15;
-float croakVelocity				= 1.1F;
-char croakFade					= 255;
-char croakFadeDec				= 16;
-char croakR						= 255;
-char croakG						= 255;
-char croakB						= 255;
-
 float globalFrogScale			= 0.6F;
 
 TEXTURE *frogEyeOpen,*frogEyeClosed;
@@ -75,7 +65,6 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 */
 	me->actor->shadow->radius = 30;
 	me->actor->shadow->alpha = 191;
-//	me->flags	|= ACTOR_DRAW_ALWAYS;
 	me->flags	= ACTOR_DRAW_ALWAYS;
 	
 	tongue[p].flags = TONGUE_NONE | TONGUE_IDLE;
@@ -83,9 +72,9 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	InitActorAnim (me->actor);
 	AnimateActor  (me->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);
 
-	me->actor->scale.v[0] = globalFrogScale;	//0.09;
-	me->actor->scale.v[1] = globalFrogScale;	//0.09;
-	me->actor->scale.v[2] = globalFrogScale;	//0.09;
+	me->actor->scale.v[0] = globalFrogScale;
+	me->actor->scale.v[1] = globalFrogScale;
+	me->actor->scale.v[2] = globalFrogScale;
 	
 	SetFroggerStartPos(where,p);
 
@@ -115,7 +104,7 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 	}
 
 	InitCamera();
-
+/*
 	if (gameState.multi == SINGLEPLAYER)
 	{
 		if(createFrogOverlays)
@@ -125,9 +114,9 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 			i = 3;
 			while(i--)
 			{
-///	sprHeart[i] = CreateAndAddSpriteOverlay((short)(20+(i*10)), 205, "heart001.bmp",
-//					16,16,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-/*				for (f = 2; f <= 10; f++)
+				sprHeart[i] = CreateAndAddSpriteOverlay((short)(20+(i*10)), 205, "heart001.bmp",
+					16,16,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
+				for (f = 2; f <= 10; f++)
 				{
 					char fname[13];
 					sprintf(fname, "heart%03d.bmp", f);
@@ -135,10 +124,10 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 				}
 				SetSpriteOverlayAnimSpeed(sprHeart[i],1.0F);
 				sprHeart[i]->animTime = (i * 3);
-*/			}
+			}
 		}
 	}
-/*	else if( multiplayerMode != MULTIMODE_BATTLE )
+	else if( multiplayerMode != MULTIMODE_BATTLE )
 	{
 		int j,k = 0;
 		for (j=0; j<NUM_FROGS; j++)
@@ -155,7 +144,6 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 		
 	}
 */
-
 }
 
 
