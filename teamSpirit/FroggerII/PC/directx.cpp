@@ -330,7 +330,6 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 
 void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h)
 {
-	short fce[] = {0,1,2,2,3,0};
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,0,0,
@@ -364,13 +363,11 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 
-	if (pDirect3DDevice->DrawIndexedPrimitive(
-		D3DPT_TRIANGLELIST,
+	if (pDirect3DDevice->DrawPrimitive(
+		D3DPT_TRIANGLEFAN,
 		D3DVT_TLVERTEX,
 		v,
 		4,
-		(unsigned short *)fce,
-		6,
 		D3DDP_DONOTCLIP 
 			| D3DDP_DONOTLIGHT 
 			| D3DDP_DONOTUPDATEEXTENTS 
@@ -382,6 +379,60 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 
 }
 
+void DrawAlphaSprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, float alpha)
+{
+	D3DTLVERTEX v[4] = {
+		{
+			x,y,0,0,
+			D3DRGBA(1,1,1,alpha),0,
+			u1,v1
+		},
+		{
+			x+xs,y,0,0,
+			D3DRGBA(1,1,1,alpha),0,
+			u2,v1
+		},
+		{
+			x+xs,y+ys,0,0,
+			D3DRGBA(1,1,1,alpha),0,
+			u2,v2
+		},
+		{
+			x,y+ys,0,0,
+			D3DRGB(1,1,1,alpha),0,
+			u1,v2
+	}};
+
+	if (h!=lastH)
+	{
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
+		lastH = h;
+	}
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_BOTHSRCALPHA);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_BOTHSRCALPHA);
+
+	if (pDirect3DDevice->DrawPrimitive(
+		D3DPT_TRIANGLEFAN,
+		D3DVT_TLVERTEX,
+		v,
+		4,
+		D3DDP_DONOTCLIP 
+			| D3DDP_DONOTLIGHT 
+			| D3DDP_DONOTUPDATEEXTENTS 
+			| D3DDP_WAIT)!=D3D_OK)
+	{
+		dp("Could not print sprite\n");
+		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
+	}
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+}
 /*	--------------------------------------------------------------------------------
 	Function		: DrawFlatRect
 	Purpose			: draw a flat rectangle
