@@ -709,7 +709,7 @@ void DDrawFlip(void)
 		if (rFlipOK)
 			surface[PRIMARY_SRF]->Flip(NULL,DDFLIP_WAIT);
 		else
-			while (surface[PRIMARY_SRF]->Blt(NULL,surface[RENDER_SRF],NULL,DDBLT_WAIT,NULL)!=DD_OK);
+			surface[PRIMARY_SRF]->Blt(NULL,surface[RENDER_SRF],NULL,DDBLT_WAIT,NULL);
 	}
 	else
 	{
