@@ -688,14 +688,15 @@ void FreeAllLists()
 	FreePathList();
 	Free3DTextList();
 	FreeAnimationList();
+#ifdef PC_VERSION
 	FreeProcTextures( );
 	FreeRandomPolyList( );
+#endif
 	FreeTextureList();
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();
 	FreeTransCameraList();
 #ifndef PC_VERSION
-	FreeLevelEntitys();
 	FreeN64WaterResources();
 	FreeN64ModgyTexResources();
 #endif
