@@ -41,6 +41,8 @@ char	newDesiredFrameRate = 2;
 
 int		appActive		= 0;
 
+static GUID     guID;
+
 /*	--------------------------------------------------------------------------------
 	Function		: debugPrintf(int num)
 	Purpose			: prints debug information to the file server output window
@@ -113,6 +115,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	FILE *fpp;
 	int ok = 1;
 	long zero = 0;
+	HRESULT	dsrVal;
 	
 	GetLocalTime(&currTime);
 //	fpp = fopen("c:\frog.ini","rt");
@@ -152,9 +155,20 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	InitCRCTable();
 	dprintf"Init matrix stack...\n"));
 	InitMatrixStack();
+
 	if(!InitInputDevices())
 		ok = 0;
 
+	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
+	{
+		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
+	} 
+	else 
+	{
+		InitDirectSound ( NULL, hInstance, winInfo.hWndMain, 0 );
+	}
+	// ENDELSIF
+	
 	//InitSaveData();
 
 	gameState.mode		= FRONTEND_MODE;
