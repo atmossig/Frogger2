@@ -61,9 +61,6 @@ typedef struct TAGPLATFORM
 	VECTOR					currNormal;				// platform current normal
 	VECTOR					deltaNormal;			// platform delta normal (for linear interp)
 
-	float					visibleTime;			// platforms time visible if it disappears
-	float					regenTime;				// platforms regeneration time
-
 	float					countdown;				// countdown for disappear/regenerate
 
 	GAMETILE				*inTile[2];				// tile(s) platform is(are) currently 'in'

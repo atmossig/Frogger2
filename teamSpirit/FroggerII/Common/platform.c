@@ -61,7 +61,7 @@ PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that fr
 PLATFORM *nearestPlatform[MAX_FROGS];
 float nearestPlatDist[MAX_FROGS];
 
-float PLATFORM_NEAREST_DIST = 200.0f;	// radius in which to check for nearest platform
+float PLATFORM_NEAREST_DIST = 500.0f;	// radius in which to check for nearest platform
 
 float PLATFORM_GENEROSITY	= 20.0f;	// platform 'forgiveness'
 
@@ -126,7 +126,7 @@ void UpdatePlatforms()
 		
 		// But I digress.
 
-		nearestPlatDist[pl] = (PLATFORM_NEAREST_DIST*PLATFORM_NEAREST_DIST);	
+		nearestPlatDist[pl] = (PLATFORM_NEAREST_DIST*PLATFORM_NEAREST_DIST);
 	}
 
 	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
@@ -199,7 +199,7 @@ void UpdatePlatforms()
 			if (cur->countdown < 0)
 			{
 				if (cur->flags & PLATFORM_NEW_CARRYINGFROG)
-					cur->countdown = cur->visibleTime;
+					cur->countdown = cur->path->nodes->speed;
 			}
 			else	// we're counting down...
 			{
@@ -237,11 +237,11 @@ void UpdatePlatforms()
 					cur->pltActor->draw = 0;
 					cur->active = 0;
 					cur->carrying = NULL;
-					cur->countdown = cur->regenTime;
+					cur->countdown = cur->path->nodes->waitTime;
 
 					if(cur->flags & PLATFORM_NEW_CRUMBLES)
 					{
-						cur->countdown = cur->regenTime;	//0;
+						//cur->countdown = cur->regenTime;	//0;
 						CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 50, 4, 0, 1 );
 						CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile[0]->normal, 40, 2, 0, 1.5 );
 					}
@@ -251,7 +251,7 @@ void UpdatePlatforms()
 		else
 		{
 			// platform is not carrying a frog
-			if(cur->countdown < cur->visibleTime)
+			if(cur->countdown < cur->path->nodes->speed)
 				cur->countdown += gameSpeed;
 		}
 
@@ -514,9 +514,6 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 	pform->path->endFrame = (actFrameCount+(60*pform->currSpeed));
 	pform->countdown = -1;
 
-	if(pform->flags & PLATFORM_NEW_CRUMBLES)
-		pform->visibleTime = pform->regenTime = path->nodes[pform->path->fromNode].waitTime;
-
 	CalcPlatformNormalInterps(pform);
 }
 
@@ -704,7 +701,7 @@ void FrogLeavePlatform(long pl)
 
 	if ((plt = currPlatform[pl]))
 	{
-		plt->flags |= PLATFORM_NEW_CARRYINGFROG;	// plat is NOT carrying a frog
+		plt->flags &= ~PLATFORM_NEW_CARRYINGFROG;	// plat is NOT carrying a frog
 		plt->carrying = NULL;
 		currPlatform[pl] = NULL;
 	}

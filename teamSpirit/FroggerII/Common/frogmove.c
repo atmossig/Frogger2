@@ -257,29 +257,22 @@ void FroggerHop(long pl)
 		// TODO: Test, test, test. And possibly find somewhere more sensible for this code.
 		if (!destPlatform[pl] && nearestPlatform[pl])
 		{
-			if (nearestPlatform[pl]->inTile[0] == destTile[pl])	// erm.
+			VECTOR v, plt;
+			float before, after;	// height above platform before and after moving
+
+			SetVector(&plt, &nearestPlatform[pl]->pltActor->actor->pos);
+
+			SubVector(&v, &frog[pl]->actor->pos, &plt);
+			before = DotProduct(&v, &currTile[pl]->normal);
+
+			SubVector(&v, &pos, &plt);
+			after = DotProduct(&v, &currTile[pl]->normal);
+
+			if (before >= 0 && after <= 0)
 			{
-				VECTOR v, plt;
-				float before, after;	// height above platform before and after moving
-
-				SetVector(&plt, &nearestPlatform[pl]->pltActor->actor->pos);
-
-				SubVector(&v, &frog[pl]->actor->pos, &plt);
-				before = DotProduct(&v, &currTile[pl]->normal);
-
-				SubVector(&v, &pos, &plt);
-				after = DotProduct(&v, &currTile[pl]->normal);
-
-				if (before >= 0 && after <= 0)
-				{
-					destPlatform[pl] = nearestPlatform[pl];
-					player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
-					player[pl].jumpTime = 1.0f;	// aaand land.
-				}
-			}
-			else
-			{
-				dprintf"PLATFORM ERROR! Platform tile and Frogger tile are different!\n"));
+				destPlatform[pl] = nearestPlatform[pl];
+				player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
+				player[pl].jumpTime = 1.0f;	// aaand land.
 			}
 		}
 	}
@@ -407,7 +400,8 @@ void UpdateFroggerPos(long pl)
 	
 	if( NUM_FROGS == 1 && (player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
-		CheckForFroggerLanding(pl);
+		//CheckForFroggerLanding(pl);
+		player[pl].jumpTime = -1;
 		KillFrog(pl);
 		return;
 	}
@@ -703,28 +697,12 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		return FALSE;
 	}
 
-	if(currPlatform[pl])
-	{
-		currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
-		currPlatform[pl]->carrying = NULL;
-	}
-
 	// check destination tile
 	if(GameTileTooHigh(dest, pl))
 	{			
 		// gametile is too high
 		player[pl].canJump = 1;
 		player[pl].isSuperHopping = 0;
-
-		player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
-
-		// if frog was on platform, place back on the platform
-		if(currPlatform[pl])
-		{
-			currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-			currPlatform[pl]->carrying = frog[pl];
-		}
-			
 		return FALSE;
 	}
 	else if(dest->state == TILESTATE_SMASH)
@@ -733,38 +711,15 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 		if(!(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING))
 		{
-			dprintf"Must superhop to smash\n"));
-
 			player[pl].canJump = 1;
 			player[pl].isSuperHopping = 0;
-
-			player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
-
-			// if frog was on platform, place back on the platform
-			if(currPlatform[pl])
-			{
-				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-				currPlatform[pl]->carrying = frog[pl];
-			}
-
 			return FALSE;
 		}
 		else
 		{
 			dest->state = TILESTATE_NORMAL;
-				
 			player[pl].canJump = 1;
 			player[pl].isSuperHopping = 0;
-
-			player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
-
-			// if frog was on platform, place back on the platform
-			if(currPlatform[pl])
-			{
-				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-				currPlatform[pl]->carrying = frog[pl];
-			}
-
 			return FALSE;
 		}
 	}
@@ -774,7 +729,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	from = currTile[pl];
 	destTile[pl] = dest;
-	currPlatform[pl] = NULL;
+	destPlatform[pl] = NULL;
+
 	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 	// If we're just hopping, check if there's a platform to jump to
@@ -794,7 +750,10 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		{
 			if (!plat->active) continue;
 
-			if ((40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos))
+			// line 1 of this test is for platform->platform
+			// line 2 is for tile->platform
+			if ((currPlatform[pl] && (40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos)) ||
+				(plat->inTile[0] == dest))
 			{
 				
 				destPlatform[pl] = plat;
@@ -803,6 +762,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				break;
 			}
 		}
+	}
+
+	if (currPlatform[pl])
+	{
+		currPlatform[pl]->carrying = NULL;
+		currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+		currPlatform[pl] = NULL;
 	}
 
 	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
