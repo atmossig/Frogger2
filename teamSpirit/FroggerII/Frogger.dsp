@@ -612,6 +612,32 @@ SOURCE=.\N64\font.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\N64\graphic.c
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\N64\graphic.h
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\N64\libmus.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
@@ -951,32 +977,6 @@ SOURCE=.\N64\texture.c
 # Begin Source File
 
 SOURCE=.\N64\texture.h
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\N64\timerbar.c
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\N64\timerbar.h
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
 
