@@ -585,6 +585,10 @@ void InitGameLists()
 	Init3DTextList( );
 	InitTongues( );
 
+#ifdef PC_VERSION
+	InitSampleList();
+#endif
+	InitAmbientSoundList();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -647,8 +651,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
 
-	InitGameLists();
-
 #ifdef PC_VERSION
 	actFrameCount = 0;
 	gameSpeed = 1;
@@ -662,10 +664,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
 	LoadVisualBanksForWorld(worldID,levelID);
 
-#ifdef PC_VERSION
-	InitSampleList();
-#endif
-	InitAmbientSoundList();
+	InitGameLists();
 
 #ifdef USE_AUDIO
 #ifdef PC_VERSION
