@@ -792,7 +792,7 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 
 	if( animNum >= actorAnim->numAnimations )
 	{
-		utilPrintf("anim index number out of range.\n");
+		utilPrintf("anim index out of range: %s\n",actor->psiData.modelName);
 		return;
 	}
 
