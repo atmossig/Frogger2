@@ -140,12 +140,6 @@ void NetgameStartGame()
 	GAMETILE *startTiles[4];
 	memcpy(startTiles, gTStart, sizeof(GAMETILE*)*4);
 
-	for (pl=0; pl<NUM_FROGS; pl++)
-	{
-		gTStart[pl] = startTiles[netPlayerList[pl].start];
-		SetFroggerStartPos(gTStart[pl], pl);
-	}
-
 	if (isHost)
 	{
 		hostSync = hostReady = true;
@@ -154,6 +148,12 @@ void NetgameStartGame()
 	}
 	else
 	{
+		for (pl=0; pl<NUM_FROGS; pl++)
+		{
+			gTStart[pl] = startTiles[netPlayerList[pl].start];
+			SetFroggerStartPos(gTStart[pl], pl);
+		}
+
 		hostSync = hostReady = false;
 	}
 

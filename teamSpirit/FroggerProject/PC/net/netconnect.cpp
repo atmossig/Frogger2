@@ -44,6 +44,9 @@ struct DPSessionInfo
 DPSessionInfo               DPSIHead;
 BOOL                        searchingForSessions;
 
+IDirectPlayLobby3A			*dpLobby = NULL;
+
+
 // {D0D2A940-5803-11d4-8832-00A0244E2381}
 static const GUID Frogger2_GUID =
 { 0xd0d2a940, 0x5803, 0x11d4, { 0x88, 0x32, 0x0, 0xa0, 0x24, 0x4e, 0x23, 0x81 } };
@@ -161,7 +164,59 @@ int StartNetworkGame(HWND hwnd, int flag)
 
 bool CheckLobby(HWND hwnd)
 {
-	return false;	// ds - not currently implemented
+	HRESULT hr;
+	DWORD dwSize = 0;
+	DPLCONNECTION *dplConnection;
+
+	if (FAILED(hr = CoCreateInstance(CLSID_DirectPlayLobby, NULL, CLSCTX_INPROC_SERVER,
+        IID_IDirectPlayLobby3A, (VOID**)&dpLobby)))
+    return hr;
+
+	hr = dpLobby->GetConnectionSettings(0, NULL, &dwSize);
+	if (FAILED(hr) && (DPERR_BUFFERTOOSMALL != hr))
+	{
+		dpLobby->Release();
+
+		if (DPERR_NOTLOBBIED == hr)
+			utilPrintf("net: Not running lobbied\n");
+		else
+			utilPrintf("net: Error getting lobby connection settings: %d\n");
+
+		return false; 
+	}
+
+	dplConnection = (DPLCONNECTION*)new UBYTE[dwSize];
+	if (FAILED(hr = dpLobby->GetConnectionSettings(0, dplConnection, &dwSize)))
+	{
+		utilPrintf("net: Error getting lobby connection settings: %d\n", hr);
+		delete dplConnection;
+		return false;
+	};
+
+	// Set our session flags
+	dplConnection->lpSessionDesc->dwFlags = 
+			DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
+ 
+	// Let lobby know our connection flags
+	if ( FAILED( hr = dpLobby->SetConnectionSettings( 
+			0, 0, dplConnection ) ) )
+		return false;
+
+	if ( FAILED( hr = dpLobby->ConnectEx( 0, IID_IDirectPlay4A, 
+        (VOID**)&dplay, NULL ) ) )
+    return false;
+
+	// Create a player
+	DPNAME dpname;
+	memcpy(&dpname, dplConnection->lpPlayerName, sizeof(DPNAME));
+	
+	if ( FAILED( hr = dplay->CreatePlayer( &dpidLocalPlayer, &dpname, 
+			NULL, NULL, 0, 0 ) ) )
+		return hr;
+	
+	delete dplConnection;
+
+	return true;
 }
 
 /*	--------------------------------------------------------------------------------
