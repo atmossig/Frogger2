@@ -25,6 +25,7 @@
 #define ACTOR_MODGETEX				(1 << 7)	//128
 #define ACTOR_ADDITIVE				(1 << 8)	//256
 #define ACTOR_SLUDGE				(1 << 9)	//512
+#define ACTOR_LEAVES				(1 << 10)	//1024
 
 #define LOOKAT_ANYWHERE		1
 #define LOOKAT_2D			2

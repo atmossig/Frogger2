@@ -27,6 +27,8 @@ extern long modgyObject;
 extern long HALF_WIDTH,HALF_HEIGHT;
 extern long runHardware;
 
+extern long leafObject;
+
 float hedSpeed = 0.2;
 void TransformObject(OBJECT *obj, float time);
 void PCDrawObject(OBJECT *obj, float m[4][4]);
@@ -1406,12 +1408,22 @@ void PCRenderObject (OBJECT *obj)
 		//		vTemp->color = D3DRGBA(1,1,1,1);
 				if (waterObject)
 				{
-					if (!sludgeObject)
+					if (!sludgeObject && !leafObject)
 						vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal*c1->w*((naddr+mV[v0])*nmult));
 					else
 						vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal*c1->w);
-					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
-					vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F)+mV[v0];
+
+					if (!leafObject)
+					{
+						vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
+						vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F)+mV[v0];
+					}
+					else
+					{
+						vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
+						vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
+					}
+					
 				}
 				else
 				{
@@ -1446,13 +1458,22 @@ void PCRenderObject (OBJECT *obj)
 
 				if (waterObject)
 				{
-					if (!sludgeObject)
+					if (!sludgeObject && !leafObject)
 						vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal*c2->w*((naddr+mV[v1])*nmult));
 					else
 						vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal*c2->w);
 					
-					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
-					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F)+mV[v1];
+					if (!leafObject)
+					{
+						vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
+						vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F)+mV[v1];
+					}
+					else
+					{
+						vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
+						vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
+					}
+					
 				}
 				else
 				{
@@ -1487,12 +1508,22 @@ void PCRenderObject (OBJECT *obj)
 
 				if (waterObject)
 				{
-					if (!sludgeObject)
+					if (!sludgeObject && !leafObject)
 						vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal*c3->w*((naddr+mV[v2])*nmult));
 					else
 						vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal*c3->w);
-					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];
-					vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F)+mV[v2];
+
+					if (!leafObject)
+					{
+						vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];
+						vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F)+mV[v2];
+					}
+					else
+					{
+						vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
+						vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
+					}
+					
 				}
 				else
 				{

@@ -523,6 +523,15 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 #endif
 			}
 
+			if( !gstrcmp( tmp, "lea_\0" ) )
+			{
+				theActor->flags = ACTOR_WATER | ACTOR_LEAVES | ACTOR_DRAW_ALWAYS;
+
+				if (ts->name[4]=='f')
+					theActor->flags |= ACTOR_SLIDYTEX;
+
+			}
+
 
 			tv = ts->rot.y;
 			ts->rot.y = ts->rot.z;
