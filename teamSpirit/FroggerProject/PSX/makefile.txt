@@ -85,7 +85,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj bff_load.obj cam.obj collect.ob
 				psxsprite.obj ptexture.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
 				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj font.obj \
 				objviewer.obj options.obj snapshot.obj training.obj fadeout.obj isltex.obj savegame.obj \
-				memcard.obj flatpack.obj islvideo.obj frogger.lnk
+				memcard.obj flatpack.obj islvideo.obj frogger.lnk waterbin.obj waterpal.obj
 
 			
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
@@ -120,6 +120,12 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj bff_load.obj cam.obj collect.ob
 #
 # GAME COMPONENTS
 #
+
+waterbin.obj:	waterbin.s waterbin.bin
+		asmpsx /zd /l waterbin.s,waterbin.obj
+
+waterpal.obj:	waterpal.s waterpal.bin
+		asmpsx /zd /l waterpal.s,waterpal.obj
 
 acostab.obj:	acostab.s acostab.bin
 		asmpsx /zd /l acostab.s,acostab.obj

@@ -83,6 +83,9 @@ lang	group	over(video),file("lang.bin")
 	;include "bbtimer.obj"
 	include "temp_psx.obj"
 	include "acostab.obj"
+	include "waterbin.obj"
+	include "waterpal.obj"
+
 	include "audio.obj"
 	include "psxsprite.obj"
 	include "ptexture.obj"

@@ -255,24 +255,25 @@ static void vsyncCallback()
 {
 	frame++;
 	vsyncCounter++;
-	SpuFlush(SPU_EVENT_ALL);
+	//SpuFlush(SPU_EVENT_ALL);
 #if GOLDCD==0
 	asm("break 1024");
 #endif
 
 	if ( loadingDisplay )
 	{
-		currentDisplayPage					= (currentDisplayPage == displayPage) ? (&displayPage[1]):(&displayPage[0]);
+/*		currentDisplayPage					= (currentDisplayPage == displayPage) ? (&displayPage[1]):(&displayPage[0]);
 		ClearOTagR ( currentDisplayPage->ot, 1024 );
 		currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
 		//loadingFrame();
 		//loadingDisplay++;
+		loadingDisplayFrame();
 
 		DrawSync		(0);
 		PutDispEnv	( &currentDisplayPage->dispenv );
 		PutDrawEnv	( &currentDisplayPage->drawenv );
-		DrawOTag		( currentDisplayPage->ot + ( 1024 - 1 ) );
+		DrawOTag		( currentDisplayPage->ot + ( 1024 - 1 ) );*/
 	}
 	// ENDIF
 }
@@ -307,7 +308,12 @@ void videoInit ( int otDepth, int maxPrims, int flags)
 	{
 		VSync(0);
 		ResetGraph(1);
+		SetDispMask(0);
 		VSync(0);
+
+		ClearImage2(&VRAMarea, 0,0,0);
+		DrawSync(0);
+
 		#if PALMODE==1
 			utilPrintf("Setting Mode For PAL\n");
 			SetVideoMode(MODE_PAL);
@@ -541,6 +547,7 @@ int main ( )
 		StartSound();//mmsfx
 
 		actFrameCount = 0;
+		LoadSfx(-1);
 #define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
 		LoadCodeOverlay(LANG_OVERLAY);
@@ -570,7 +577,6 @@ int main ( )
 		
 		if(saveInfo.saveFrame)
 		{
-			LoadSfx(-1);
 		 	fontSmall = fontLoad("FONT12.FON");
 			genBank = textureLoadBank("TEXTURES\\GENERIC.SPT");
 			textureDownloadBank(genBank);
