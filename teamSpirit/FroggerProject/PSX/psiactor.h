@@ -78,7 +78,7 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
 
 /*  	short			xluOverride;//mm used in PC to force actor to appear                                     */
  	SVECTOR			rotaim;//mm not used in the PSX at the moment, but may make it easier to determine direction 
-/* 	ACTOR_SHADOW	*shadow; //mm added from PC                                                                  */
+ 	ACTOR_SHADOW	*shadow; //mm added from PC  //mmshadow
 /* 	int				visible;//mm added from PC                                                                   */
 
 
