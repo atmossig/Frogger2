@@ -517,15 +517,15 @@ void UpdateCurvePathNME( ENEMY *cur )
 	// Set geometry components
 	gx[0] = from.v[X];
 	gx[1] = to.v[X];
-	gx[2] = tan2.v[X]*-5;
+	gx[2] = tan2.v[X]*-1;
 	gx[3] = tan1.v[X];
-	gy[0] = from.v[Y];
-	gy[1] = to.v[Y];
-	gy[2] = tan2.v[Y]*5;
-	gy[3] = tan1.v[Y];
+//	gy[0] = from.v[Y];
+//	gy[1] = to.v[Y];
+//	gy[2] = tan2.v[Y]*-1;
+//	gy[3] = tan1.v[Y];
 	gz[0] = from.v[Z];
 	gz[1] = to.v[Z];
-	gz[2] = tan2.v[Z]*-5;
+	gz[2] = tan2.v[Z]*-1;
 	gz[3] = tan1.v[Z];
 
 	t = length;

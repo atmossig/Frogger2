@@ -999,8 +999,8 @@ void UpdateFXLightning( SPECFX *fx )
 		AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
 		SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
 
-		// Randomly fork a new lightning strand
-		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 ) // But not if we're near the end or we're more than 2 layers of forking deep
+		// Randomly fork a new lightning strand, but not if we're near the end or we're more than 2 layers of forking deep
+		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 )
 		{
 			VECTOR dir;
 			SPECFX *effect;
