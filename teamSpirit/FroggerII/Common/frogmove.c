@@ -89,13 +89,14 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	ZeroVector(&frog[p]->actor->vel);
 
 	player[p].canJump			= 1;
+	player[p].frogState			= 0;
 	player[p].isSuperHopping	= 0;
 	player[p].isLongHopping		= 0;
 	player[p].isCroakFloating	= 0;
 	player[p].isSinking			= 0;
 	player[p].isQuickHopping	= 0;
 	player[p].idleTime			= MAX_IDLE_TIME;
-
+	player[p].heightJumped		= 0;
 	player[p].jumpStartFrame	= 0;
 	player[p].jumpEndFrame		= 0;
 
