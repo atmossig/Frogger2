@@ -61,16 +61,14 @@
 #include "..\netchat.h"
 #include "..\netgame.h"
 
-extern "C"
-{
-	psFont *font = 0;
-	psFont *fontSmall = 0;
-	MDX_FONT *pcFont;
-	MDX_FONT *pcFontSmall;
-	long drawLandscape = 1;
-	long textEntry = 0;	
-	char textString[255] = "";
-}
+psFont *font = 0;
+psFont *fontSmall = 0;
+MDX_FONT *pcFont;
+MDX_FONT *pcFontSmall;
+long drawLandscape = 1;
+long drawGame = 1;
+long textEntry = 0;	
+char textString[255] = "";
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
@@ -496,53 +494,61 @@ long DrawLoop(void)
 
 	//	changedView = 1;
 
-	
+	DrawBackdrop();
 
 	//if (backGnd)
 	//	DrawBackground();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
-
-	D3DSetupRenderstates(cullCWRS);
 	EndTimer(2);
 
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
-
-	StartTimer(14,"Landscape");
-	if (world && drawLandscape)
-		DrawLandscape(world);
-	EndTimer(14);
-	StartTimer(1,"Actors");
-	
-	ActorListDraw();
-	EndTimer(1);
-
-	BeginDraw();
-	
-	StartTimer(15,"DAF");
-	if (rHardware)
+	if (drawGame)
 	{
-		DrawAllFrames();
-		BlankAllFrames();
+		D3DSetupRenderstates(cullCWRS);
+
+	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+
+		StartTimer(14,"Landscape");
+		if (world && drawLandscape)
+			DrawLandscape(world);
+		EndTimer(14);
+		StartTimer(1,"Actors");
+		
+		ActorListDraw();
+		EndTimer(1);
+
+		BeginDraw();
+		
+		StartTimer(15,"DAF");
+		if (rHardware)
+		{
+			DrawAllFrames();
+			BlankAllFrames();
+		}
+		EndTimer(15);
+		
+		StartTimer(16,"Sprites,text & SpecFX");
+	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+		D3DSetupRenderstates(xluZRS);
+		D3DSetupRenderstates(cullNoneRS);
+		
+		// Draw Sprites
+		if(sprList.count)
+			PrintSprites();
+
+		D3DSetupRenderstates(xluZRS);
+		// FX and shadows
+		DrawSpecialFX();
+
+		// Light halos
+	//	CheckHaloPoints();
+	//	DrawHalos();
 	}
-	EndTimer(15);
-	
-	StartTimer(16,"Sprites,text & SpecFX");
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-	D3DSetupRenderstates(xluZRS);
-	D3DSetupRenderstates(cullNoneRS);
-	
-	// Draw Sprites
-	if(sprList.count)
-		PrintSprites();
-
-	D3DSetupRenderstates(xluZRS);
-	// FX and shadows
-	DrawSpecialFX();
-
-	// Light halos
-//	CheckHaloPoints();
-//	DrawHalos();
+	else
+	{
+		D3DSetupRenderstates(xluZRS);
+		D3DSetupRenderstates(cullNoneRS);
+	}
 
 	if (rHardware)
 	{

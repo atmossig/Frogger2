@@ -64,6 +64,7 @@ extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
 extern long keyInput;
 extern long drawLandscape;
+extern long drawGame;
 extern char	transparentSurf;
 extern char	xluSurf;
 extern char	aiSurf;
@@ -72,6 +73,10 @@ extern char	UseZMode;
 extern int runQuit;
 extern long textEntry;	
 extern char textString[255];
+extern psFont *font;
+extern psFont *fontSmall;
+extern MDX_FONT *pcFont;
+extern MDX_FONT *pcFontSmall;
 
 void debugPrintf(int num);
 void Crash(char *mess);
