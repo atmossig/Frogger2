@@ -57,7 +57,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "plat" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
 									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
 									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
-									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
+									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "torch" ) )||
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
 					CreateAndAddScenicObject(cur);
@@ -868,10 +868,10 @@ void Actor2ClipCheck(ACTOR2* act)
 		sy = (short)(sxy>>16);
 
 		//calc dists from edges
-		distTop		= sy - CLIP_TOP;
-		distRight	= sx - CLIP_RIGHT;
-		distBott	= sy - CLIP_BOTT;
-		distLeft	= sx - CLIP_LEFT;
+		distTop		= sy - (CLIP_TOP - 20);
+		distRight	= sx - (CLIP_RIGHT + 20);
+		distBott	= sy - (CLIP_BOTT + 20);
+		distLeft	= sx - (CLIP_LEFT - 20);
 
 		//now with radius check
 //		gte_ReadGeomScreen(&FOV);

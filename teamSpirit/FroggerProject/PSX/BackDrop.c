@@ -16,6 +16,8 @@ void FreeBackdrop ( void );
 
 void InitBackdrop ( char * filename )
 {
+	char newFileName[64];
+
 	FreeBackdrop();
 	if (backDrop.init)
 		return;
@@ -32,7 +34,6 @@ void InitBackdrop ( char * filename )
 	backDrop.rect.y = 256+8;
 	backDrop.rect.w = 512; 
 	backDrop.rect.h = 256-16;
-
 #endif
 
 	/*DrawSync(0);
@@ -44,8 +45,8 @@ void InitBackdrop ( char * filename )
 	DrawSync(0);*/
 
 
-	//strcat ( filename, ".RAW" );
-	backDrop.data = fileLoad(filename, NULL);
+	sprintf ( newFileName, "%s.RAW", filename );
+	backDrop.data = fileLoad ( newFileName, NULL );
 
 	DrawSync(0);
 	LoadImage ( &backDrop.rect, (ULONG *) backDrop.data );
@@ -58,16 +59,11 @@ void InitBackdrop ( char * filename )
 
 #define ScreenGetBuffer()			( (currentDisplayPage==displayPage)?0:1 )
 
-void DrawBackDrop ( void )
+void DrawBackDrop ( int execute )
 {
-//	register PACKET			*packet;//, *packetNext;
+	displayPageType *targetpage;
 
-	int fogFade;
-
-	fogFade = 100;
-
-	if ( ( backDrop.init ) && ( backDrop.data ) )
-	{
+	DR_MOVE *si = (void *)currentDisplayPage->primPtr;
 
 
 #if PALMODE==1
@@ -75,12 +71,76 @@ void DrawBackDrop ( void )
 #else
 	static RECT rect = {512,256+8,512,256-16};
 #endif
-//	static RECT rect = {512,256+8,512,256-8};
-	displayPageType *targetpage;
-	DR_MOVE *si = (void *)currentDisplayPage->primPtr;
-	POLY_F4 *si4;
 
 	targetpage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+
+	if ( ( backDrop.init ) && ( backDrop.data ) )
+	{
+		if ( execute )
+		{
+ 			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+//			currentDisplayPage = displayPage;
+			ClearOTagR(currentDisplayPage->ot, 1024);
+			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+			gte_SetRotMatrix(&GsWSMATRIX);
+			gte_SetTransMatrix(&GsWSMATRIX);
+
+ 			DrawSync(0);
+ 			VSync(2);
+			PutDispEnv(&currentDisplayPage->dispenv);
+ 			PutDrawEnv(&currentDisplayPage->drawenv);
+ 			DrawOTag(currentDisplayPage->ot+(1024-1));
+
+		}
+		// ENDIF
+
+
+		BEGINPRIM(si, DR_MOVE);
+
+		SetDrawMove ( si, &rect, 0, targetpage->dispenv.disp.y );
+
+		ENDPRIM(si, 500, DR_MOVE);	// 0 or 1023
+
+		if ( execute )
+		{
+ 			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+ 			ClearOTagR(currentDisplayPage->ot, 1024);
+ 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+
+ 			DrawSync(0);
+ 			VSync(2);
+ 		/*	PutDispEnv(&currentDisplayPage->dispenv);
+ 			PutDrawEnv(&currentDisplayPage->drawenv);
+ 			DrawOTag(currentDisplayPage->ot+(1024-1));*/
+		}
+		// ENDIF
+	}
+	// ENIDF
+
+
+
+
+
+//			fontPrint(font, -80,0, "LOADING", 64,16,16);
+
+
+
+
+
+//	register PACKET			*packet;//, *packetNext;
+
+//	int fogFade;
+
+/*	fogFade = 100;
+
+	if ( ( backDrop.init ) && ( backDrop.data ) )
+	{
+
+
+//	static RECT rect = {512,256+8,512,256-8};
+	POLY_F4 *si4;
 
 
 //	printf("%d\n",currentDisplayPage->dispenv.disp.y,currentDisplayPage->dispenv.screen.y);
@@ -176,12 +236,8 @@ void DrawBackDrop ( void )
 
 
 
-	BEGINPRIM(si, DR_MOVE);
-// disp or screen. dunno which
-	SetDrawMove(si,&rect,0,targetpage->dispenv.disp.y);
-	ENDPRIM(si, 1023, DR_MOVE);	// 0 or 1023
 
-	}
+	/*}
 
 
 
@@ -387,19 +443,10 @@ void DrawBackDrop ( void )
 
 void FreeBackdrop ( void )
 {
+	utilPrintf("Freeing Backdrop, naughty........................\n");
 	backDrop.init = 0;
-
-/*	backDrop.rect.y = 0;
-	DrawSync(0);
-	ClearImage2(&backDrop.rect, 0,0,0);
-	DrawSync(0);
-	backDrop.rect.y = 256;
-	DrawSync(0);
-	ClearImage2(&backDrop.rect, 0,0,0);
-	DrawSync(0);*/
-
-	//backDrop.rect.y = 0;
 
 	FREE(backDrop.data);
 
+	backDrop.data = NULL;
 }

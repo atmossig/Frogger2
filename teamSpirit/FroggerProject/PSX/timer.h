@@ -8,7 +8,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#define TIMER_SET 0
+#define TIMER_SET 1
 
 //*** TIMER SET 0 - GAME LOOP ***/
 #if TIMER_SET==0

@@ -17,7 +17,7 @@ extern BACKDROP backDrop;
 
 void InitBackdrop ( char * const filename );
 
-void DrawBackDrop ( void );
+void DrawBackDrop ( int execute );
 void FreeBackdrop ( void );
 
 #endif

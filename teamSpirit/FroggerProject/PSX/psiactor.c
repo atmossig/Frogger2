@@ -25,6 +25,9 @@ ACTORLIST	actorList;
 //#define Bound(a,x,b) min(b,max(a,x))
 
 
+extern PSIMODEL *psiCheck(char *psiName);
+
+
 void actorInitialise()
 {
 	actorList.numEntries = 0;
@@ -344,6 +347,7 @@ void actorAdjustPosition(ACTOR *actor)
 
 void actorDraw(ACTOR *actor)
 {
+	char *compare;
 	PSIOBJECT *world;
 
 	world = actor->psiData.object;
@@ -353,9 +357,22 @@ void actorDraw(ACTOR *actor)
 // 	if(actor->qRot.x==0 && actor->qRot.y==0 && actor->qRot.z==0 && actor->qRot.w==0)
 // 		utilPrintf("ZERO QUAT !\n");
 
-	TIMER_START2(TIMER_ACTDR_QUAT);
-	QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
-	TIMER_STOP_ADD2(TIMER_ACTDR_QUAT);
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+
+/*	if ( ( compare = strstr ( actor->psiData.modelName, "BOULDER" ) ) )
+	{
+//		utilPrintf("%d : %d : %d : %d\n", actor->qRot.x, actor->qRot.y, actor->qRot.z, actor->qRot.w);
+//		actor->psiData.object->rotate.vx += 1;
+	}
+	else*/
+	{
+		TIMER_START2(TIMER_ACTDR_QUAT);
+		QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
+		TIMER_STOP_ADD2(TIMER_ACTDR_QUAT);
+	}
+	// ENDELSEIF
+
 
 	if(actor->psiData.flags & ACTOR_MOTIONBONE)
 	{
@@ -369,6 +386,8 @@ void actorDraw(ACTOR *actor)
 		world->matrix.t[1] += -actor->position.vy;
 		world->matrix.t[2] += actor->position.vz;
 	}
+
+
 
 	PSIrootScale = &actor->psiData.object->scale;
 	
@@ -1047,13 +1066,32 @@ void ScalePsi(PSIMESH* pMesh)
 	Returns 	: void
 	Info 		:
 */
-void ChangeModel( ACTOR *actor, char *model )
+void *ChangeModel( ACTOR *actor, char *model )
 {
+/*	ACTOR *newActor;
+
+	PSIMODEL *newModel;
+
 /*	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
 
 	a->LODObjectController = a->objectController;
 	FindObject( &a->objectController, UpdateCRC(model), model );
 	InitAnims( a );*/
+
+/*	newModel = psiCheck ( model );
+
+	utilPrintf("Trying To Find New Model %s : %s................\n", model);
+
+	if ( !newModel )
+	{
+		utilPrintf("Could Not Find Replacment Model................\n");
+		return;
+	}
+	// ENDIF
+
+	newActor = actorCreate ( newModel );
+
+	actor->psiData = newActor->psiData;*/
 }
 
 
@@ -1279,104 +1317,6 @@ void actorUpdateAnimation()
 
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
 {
-	/*ACTOR_ANIMATION *actorAnim = &actor->animation;
-	ANIMATION *anim;
-	int	actualSpeed;
-
-	// SL: if it doesn't have any animations, sod it...
-	if(actorAnim->numAnimations == 0)
-	{
-		return;
-	}
-
-	// SL: if we've tried to index too far, sod it...
-	if( animNum >= actor->numAnimations )
-	{
-		utilPrintf("anim index number out of range. : %d\n", animNum);
-		return;
-	}
-
-	// SL: if this is outside the max number of anims, sod it...
-	if (animIdx >= ACTOR_NUM_ANIMATIONS)
-		return;
-
-	// SL: get a pointer to the particular anim we're selecting...
-	actorAnim = &actor->animation[animIdx];
-
-	// SL: if the actor's current anim is the anim we're after, and there's no queue, and we've not reached the end, and the speed is already right...
-	if( (actorAnim->currentAnimation == animNum) &&	(queue == 0) && (actorAnim->reachedEndOfAnimation == 0) &&
-		( speed == actorAnim->animationSpeed) )
-	{
-		actorAnim->loopAnimation = loop;
-		actorFlushQueue(actor, animIdx);
-		return;
-	}
-
-	// SL: in case the speed is bizarely set to 0, then default it to normal speed.
-	if(speed == 0)
-	{
-		actualSpeed = 256;
-	}
-	else
-	{
-		actualSpeed = speed;
-	}
-
-	// SL: errr... summat...
-	actorAnim->exclusive = skipendframe;
-
-	// SL: if there's no queue...
-	if(queue == 0)
-	{
-		// CR: Don't adjust position if not the default anim
-		if (animIdx==0)
-			actorAdjustPosition(actor);
-
-		// SL: select the right anim...
-		actorAnim->currentAnimation = animNum;
-		// SL: set whether we're looping or not...
-		actorAnim->loopAnimation = loop;
-		// SL: set the speed...
-		actorAnim->animationSpeed = actualSpeed;
-		// SL: set the flag...
-		actorAnim->reachedEndOfAnimation = 0;
-		// SL: get a pointer to the anim we're after...
-		anim = (ANIMATION*)(actor->animSegments + (actorAnim->currentAnimation*2));
-		// SL: set the animtime
-		actorAnim->animTime = anim->animStart << ANIMSHIFT;
-		// SL: set the actual frame...
-		actorAnim->frame = anim->animStart;
-		// SL: flush the queue...
-		actorFlushQueue(actor, animIdx);
-		// SL: handle negative speeds...
-		if(actualSpeed < 0)
-		{
-			actorAnim->animTime = anim->animEnd << ANIMSHIFT;
-		}
-	}
-	else
-	{
-		if(actorAnim->currentAnimation == -1)
-		{
-			actorAnim->currentAnimation = animNum;
-			actorAnim->loopAnimation = loop;
-			actorAnim->animationSpeed = actualSpeed;
-		}
-		else
-		{
-			if(actorAnim->numberQueued == 5)
-			{
-				return;
-			}
-
-			actorAnim->queueAnimation[actorAnim->numberQueued] = animNum;
-			actorAnim->queueLoopAnimation[actorAnim->numberQueued] = loop;
-			actorAnim->queueAnimationSpeed[actorAnim->numberQueued] = actualSpeed;
-			actorAnim->numberQueued++;
-		}
-	}
-*/
-
 
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
 	ANIMATION *anim;
@@ -1393,7 +1333,9 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 		return;
 	}
 
-	
+
+//	utilPrintf("Actor Animate.......%s : %d : %d\n", actor->psiData.modelName, animNum, actorAnim->numberQueued);
+
 /*	if( (actorAnim->currentAnimation == animNum) &&
 		(queue == 0) && 
 		(actorAnim->reachedEndOfAnimation == 0) &&

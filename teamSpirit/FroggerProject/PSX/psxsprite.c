@@ -150,7 +150,6 @@ void PrintSpriteOverlays ( char num )
 				}
 			}
 		
-
 			DrawSprite ( cur );
 		}
 		// ENDIF

@@ -71,6 +71,8 @@ void LoadTextureBank ( int textureBank )
 	}
 	// ENDSWITCH - textureBank
 
+	utilPrintf("FileName : %s\n", fileName );
+
 	if ( numTextureBanks < MAX_TEXTURE_BANKS )
 	{
 		textureBanks [ numTextureBanks ] = textureLoadBank ( fileName );
@@ -107,7 +109,7 @@ void FreeAllTextureBanks ( void )
 	}
 	// ENDIF - 	for ( c = o; c < MAX_TEXTURE_BANKS; c++ )
 	numTextureBanks = 0;
-	//textureDestroy();
+	textureDestroy();
 }
 
 

@@ -417,4 +417,6 @@ void psiAllocWorkspace();
 void transformVertexListA(VERT *vertPtr, long numVerts, long *transformedVerts, long *transformedDepths);
 
 
+extern PSIMODEL *psiCheck(char *psiName);
+
 #endif //__ISLPSI_H__

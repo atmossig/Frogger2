@@ -20,6 +20,7 @@
 #include <islfile.h>
 #include <isltex.h>
 #include <islutil.h>
+#include "timer.h"
 
 typedef struct{
 	SHORT x,y,z,w;
@@ -999,7 +1000,7 @@ long psiCRCName(char *psiName)
 	RETURNS:	pointer to PSIMODEL / null
 **************************************************************************/
 
-static PSIMODEL *psiCheck(char *psiName)
+PSIMODEL *psiCheck(char *psiName)
 {
 	int i,crc;
 
@@ -1151,6 +1152,9 @@ PSIMODEL *psiLoad(char *psiName)
 
 	//psiName = psiConstructName(psiName);
 	addr = (void *)fileLoad(psiName, &lastfilelength);
+
+	if ( !addr )
+		return 0;
 	
 	return psiFixup(addr);
 }
@@ -2161,14 +2165,19 @@ void psiDrawPrimitives(int depth)
 				*(u_long *)&si->u2 = *(u_long *)&op->tu2;
 				*(u_long *)&si->u3 = *(u_long *)&op->tu3;
 
+				utilPrintf("%d : %d, %d : %d, %d : %d, %d : %d\n ", si->u0, si->v0, si->u1, si->v1, si->u2, si->v2, si->u3, si->v3  );
+
 				si->x1 = si->x3 = ((DVECTOR *)tfv)[op->v0].vx + width;
 				si->x0 = si->x2 = ((DVECTOR *)tfv)[op->v0].vx - width;
 				si->y2 = si->y3 = ((DVECTOR *)tfv)[op->v0].vy + height;
 				si->y0 = si->y1 = ((DVECTOR *)tfv)[op->v0].vy - height;
+
+				utilPrintf("Sprite : %d : %d %d : %d\n ", ((DVECTOR *)tfv)[op->v0].vx, ((DVECTOR *)tfv)[op->v0].vy, width, height);
 				
 				setPolyFT4(si);
 				si->code = op->cd | modctrl->semitrans;
  				ENDPRIM(si, depth & 1023, POLY_FT4);
+				op = op->next;
 			}
 			break;
 #undef si
@@ -2340,6 +2349,7 @@ void psiDrawSegments(PSIDATA *psiData)
 
 	tfTotal = 0;
 
+TIMER_START0(TIMER_DRAW_WATER);
 	for (loop = 0; loop < obs; loop++)
 	{
 		world = (PSIOBJECT*)psiData->objectTable[loop];
@@ -2378,6 +2388,7 @@ void psiDrawSegments(PSIDATA *psiData)
 		tfd += world->meshdata->vern;
 		tfTotal += world->meshdata->vern;
 	}
+TIMER_STOP_ADD0(TIMER_DRAW_WATER);
 
 
 	modctrl->PrimTop = (ULONG*)psiData->primitiveList;
@@ -2390,6 +2401,8 @@ void psiDrawSegments(PSIDATA *psiData)
 		j = DEFAULTDEPTHSHIFT;
 	}
 	*/
+
+	TIMER_START0(TIMER_DRAW_SCENICS);
 
 	if (psiData->flags & ACTOR_DYNAMICSORT)
 	{
@@ -2449,6 +2462,7 @@ void psiDrawSegments(PSIDATA *psiData)
 				psiDrawPrimitives(depth >> modctrl->depthShift);
 		}
 	}
+	TIMER_STOP_ADD0(TIMER_DRAW_SCENICS);
 }
 
 
@@ -3820,17 +3834,26 @@ static void psiCalcChildMatrix(PSIOBJECT *world, PSIOBJECT *parent)
 void psiCalcWorldMatrix(PSIOBJECT *world)
 {
 	cameraAndGlobalscale = GsWSMATRIX;
+
 	ScaleMatrix(&cameraAndGlobalscale, PSIactorScale);
+
 	world->matrixscale = world->matrix;
+
 	ScaleMatrix(&world->matrixscale,&world->scale);
+
 	gte_MulMatrix0(&cameraAndGlobalscale, &world->matrixscale, &world->matrixscale);
+
 	gte_SetRotMatrix(&GsWSMATRIX);
+
 	gte_SetTransMatrix(&GsWSMATRIX);
+
 	gte_ldlvl(&world->matrixscale.t);
+
 	gte_rtirtr();
+
 	gte_stlvl(&world->matrixscale.t);
 
-	if(world->child)
+	if ( world->child )
 		psiCalcChildMatrix(world->child, world);
 }
 

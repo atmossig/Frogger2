@@ -52,10 +52,10 @@ LIBISL = c:\psx\isl\lib\release
 !if $(PAL) == 0
 !if $(MASTER) == 0
 #OPT = -DPSX_VERSION -DDEBUG -DPALMODE=0 -DGOLDCD=0 -c -O0 -mgpopt -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
-OPT = -DPSX_VERSION -DPALMODE=0 -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
+#OPT = -DPSX_VERSION -DPALMODE=0 -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DE3_DEMO -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
-#OPT = -DPSX_VERSION -DE3_DEMO -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
+OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O0 -g -mgpopt -G0 -X0$00018000 -comments-c++
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++
 LIBISL = c:\psx\isl\lib\debug
 !endif
@@ -83,7 +83,8 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 				tongue.obj types.obj newpsx.obj map.obj objects.obj textures.obj main.obj world.obj water.obj \
 				bbtimer.obj backdrop.obj eff_draw.obj temp_psx.obj world_eff.obj acostab.obj particle.obj \
 				psxsprite.obj ptexture.obj charsel.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
-				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj
+				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj file.obj font.obj \
+				objviewer.obj
 
 			
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map

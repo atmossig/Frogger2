@@ -92,6 +92,11 @@ bss     group   bss
 	include "psi.obj"
 	include "bbpsiani.obj"
 	include "quatern.obj"
+	include "loadingbar.obj"
+	include "file.obj"
+	include "font.obj"
+	include "objviewer.obj"
+
 
 ;	include "ANIM.obj"
 ;	include "TEXTOVER.obj"
@@ -156,9 +161,9 @@ bss     group   bss
 
 ;    inclib  "islpsi.lib"
     inclib  "islmem.lib"
-    inclib  "islfile.lib"
+;    inclib  "islfile.lib"
     inclib  "isltex.lib"
-    inclib  "islfont.lib"
+    ;inclib  "islfont.lib"
     inclib  "isllocal.lib"
     inclib  "islpad.lib"
 ;    inclib  "islsound.lib"

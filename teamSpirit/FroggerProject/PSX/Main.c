@@ -56,6 +56,9 @@
 #include "cam.h"
 //#include "psxtongue.h"
 
+#include "objviewer.h"
+#include "platform.h"
+
 
 void customDrawPrimitives2(int);
 void customDrawSortedPrimitives(int);
@@ -71,8 +74,8 @@ unsigned long	RAMstart, RAMsize;
 static RECT VRAMarea = {0,0,1024,512};
 extern char __bss_orgend[];
 displayPageType displayPage[2], *currentDisplayPage;
-psFont *font;
-psFont *fontSmall;
+psFont *font = NULL;
+psFont *fontSmall = NULL;
 
 
 //PC has this in their main
@@ -93,6 +96,8 @@ long drawGame = 1;
 
 //char UseAAMode = 0;
 //char UseZMode = 1;
+
+char objViewer = 0;
 
 
 int vsyncCounter = 0;
@@ -123,37 +128,38 @@ void *memoryAllocateZero(unsigned long size, char *file, int line)
 	return ptr;
 }
 
-void videoInit(int otDepth, int maxPrims)
+void videoInit ( int otDepth, int maxPrims, int flags)
 {
-	if (maxPrims>0)
+	if ( maxPrims > 0 )
 	{
-//		displayPage[0].ot = MALLOC0(otDepth*4);
-//		displayPage[1].ot = MALLOC0(otDepth*4);
-//		displayPage[0].primPtr = displayPage[0].primBuffer = MALLOC0(maxPrims*sizeof(POLY_GT4));
-//		displayPage[1].primPtr = displayPage[1].primBuffer = MALLOC0(maxPrims*sizeof(POLY_GT4));
 		displayPage[0].ot = MALLOC0(otDepth*4);
 		displayPage[1].ot = MALLOC0(otDepth*4);
 		displayPage[0].primPtr = displayPage[0].primBuffer = MALLOC0(maxPrims*sizeof(POLY_GT4));
 		displayPage[1].primPtr = displayPage[1].primBuffer = MALLOC0(maxPrims*sizeof(POLY_GT4));
 	}
 
-	VSync(0);
-	ResetGraph(1);
-	VSync(0);
-#if PALMODE==1
-	utilPrintf("Setting Mode For PAL\n");
-	SetVideoMode(MODE_PAL);
-//	GsInitGraph(512,273, 4,1,0);
-	GsInitGraph(512,273, 4,1,0);
-	GsInit3D();
-	SetGeomOffset(512/2, 256/2);
-#else
-	utilPrintf("Setting Mode For NTSC\n");
-	SetVideoMode(MODE_NTSC);
-	GsInitGraph(512,240, 4,1,0);
-	GsInit3D();
-	SetGeomOffset(512/2, 240/2);
-#endif
+	if ( flags == VIDEO_INIT_AND_MALLOC )
+	{
+		VSync(0);
+		ResetGraph(1);
+		VSync(0);
+		#if PALMODE==1
+			utilPrintf("Setting Mode For PAL\n");
+			SetVideoMode(MODE_PAL);
+			GsInitGraph(512,273, 4,1,0);
+			GsInit3D();
+			SetGeomOffset(512/2, 256/2);
+		#else
+			utilPrintf("Setting Mode For NTSC\n");
+			SetVideoMode(MODE_NTSC);
+			GsInitGraph(512,240, 4,1,0);
+			GsInit3D();
+			SetGeomOffset(512/2, 240/2);
+		#endif
+	}
+	// ENDIF
+
+
 	SetDefDrawEnv(&displayPage[0].drawenv, 0,   0, 512,256);
 	SetDefDrawEnv(&displayPage[1].drawenv, 0, 256, 512,256);
 	SetDefDispEnv(&displayPage[0].dispenv, 0, 256, 512,256);
@@ -293,6 +299,14 @@ char* oldStackPointer;
 int main ( )
 {
 
+	int i, animFrame;
+	char temp[16];
+
+	TextureType *dummy;
+	TextureType**	 timerTextures;
+
+	TextureAnimType* timerAnim = NULL;
+
 	while ( 1 )
 	{
 		RAMstart = (unsigned long)__bss_orgend;
@@ -302,8 +316,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		RAMsize = (0x1fff00 - RAMstart)-8192;
-//		RAMsize = 6291264;
+//		RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
@@ -336,8 +350,8 @@ int main ( )
 		MemCardInit(1);
 		MemCardStart();
 		padInitialise(1); // 0 = No multi tap support
-		videoInit(1024, 3000);
-		textureInitialise(500, 8);
+		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
+		textureInitialise ( 600, 24);
 
 
 //		sfxInitialise();
@@ -350,8 +364,8 @@ int main ( )
 //		font = fontLoad("FONT12.FON");
 // 		fontSmall = fontLoad("FONT12.FON");
 
-		font = fontLoad("FONTL.FON");
-		fontSmall = fontLoad("FONTS.FON");
+		//font = fontLoad("FONTL.FON");
+		//fontSmall = fontLoad("FONTS.FON");
 
 
 /*		//bb xa test
@@ -512,10 +526,27 @@ int main ( )
 //		drawGame = 0;
 
 		actorInitialise();
-		//InitBackdrop ( "FROGGER2.RAW" );
+
 
 		CommonInit();
 
+
+	//find the dummy texture
+	/*dummy = textureFindCRCInAllBanks ( utilStr2CRC ( "DUMMY" ) );
+
+	//fill array of TextureType pointers
+	timerTextures = MALLOC0( sizeof (TextureType*) * 8 );
+
+	for ( i = 0; i < 8; i++ )
+	{
+		sprintf( temp, "FROGWATCH0%d", i);
+		timerTextures[i] = textureFindCRCInAllBanks ( utilStr2CRC ( temp ) );
+	}
+	// ENDFOR
+
+	timerAnim = textureCreateAnimation ( dummy, timerTextures, 8);
+
+	animFrame = 0;*/
 
 //		InitWater();
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
@@ -528,6 +559,10 @@ int main ( )
 		//*****************//
 		//*** MAIN LOOP ***//
 		//*****************//
+
+//		currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[0]):(&displayPage[1]);
+//		ClearOTagR(currentDisplayPage->ot, 1024);
+		//currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
 		while ( !quitMainLoop )
 		{
@@ -576,37 +611,52 @@ TIMER_STOP(TIMER_GAMELOOP);
 */
 			TIMER_START0(TIMER_GAMELOOP);
 //			oldStackPointer = SetSp(0x1f800400);
-			GameLoop();
+
+			if ( !objViewer )
+				GameLoop();
+			else
+				RunObjectViewer();
+			// ENDIF
+
+
+			if ( currPlatform[0] )
+			{
+				frog[0]->depthShift = 220;
+			}
+			else
+			{
+				frog[0]->depthShift = 0;
+			}
+			// ENDIF
+
 //			SetSp(oldStackPointer);
 			TIMER_STOP0(TIMER_GAMELOOP);
 			
 			TIMER_START0(TIMER_UPDATE_WATER);
-			UpdateWater();
+//			UpdateWater();
 			TIMER_STOP0(TIMER_UPDATE_WATER);
 
 	//		if(spriteList.numEntries)
 	//			AnimateSprites();
 			
-
 			// JH:  Main Draw Function That Runs All The Draw Functions.
-			MainDrawFunction();
+			if ( !objViewer )
+				MainDrawFunction();
+
+			//textureSetAnimation ( timerAnim, animFrame++);
+
+			//if ( animFrame == 9 )
+			//	animFrame = 0;
 
 			TIMER_START0(TIMER_DRAWSYNC);
 			DrawSync(0);
 			TIMER_STOP0(TIMER_DRAWSYNC);
 
-
 			TIMER_STOP(TIMER_TOTAL);
 			TIMER_ENDFRAME;
 
-			//store any timer peaks here
-
-
 			TIMER_ZERO;
 			VSync(2);
-
-//			TIMER_START(TIMER_TOTAL);
-
 
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
@@ -617,7 +667,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 
 #if GOLDCD == NO
-			if ( padData.digital[1] & PAD_DOWN )
+		/*	if ( padData.digital[1] & PAD_DOWN )
 			{
 				camDist.vy += ( 20 * gameSpeed ) >> 12;
 			}
@@ -649,7 +699,17 @@ TIMER_STOP(TIMER_GAMELOOP);
 			{
 				camDist.vz-=(20*gameSpeed)>>12;
 			}
-			// ENDIF
+			// ENDIF*/
+			/*if ( padData.debounce[1] & PAD_SELECT )
+			{
+				if ( !objViewer )
+					InitObjectViewer();
+				else
+					CommonInit();
+				objViewer ^= 1;
+			}
+			// ENDIF*/
+
 #endif
 
 
@@ -697,7 +757,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 			{
 //				textureShowVRAM(1); // 1 = PAL mode
 				froggerShowVRAM(1);
-				continue;
+				//continue;
 			}
 #endif
 			padHandler();
@@ -762,17 +822,17 @@ void MainDrawFunction ( void )
 	SetSp(oldStackPointer);
 	TIMER_STOP0(TIMER_PRINT_SPRITES);
 
-	TIMER_START0(TIMER_DRAW_SCENICS);
+	//TIMER_START0(TIMER_DRAW_SCENICS);
 
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawScenicObjList();
 
-	TIMER_STOP0(TIMER_DRAW_SCENICS);
+//	TIMER_STOP0(TIMER_DRAW_SCENICS);
 	
-	TIMER_START0(TIMER_DRAW_WATER);
+	//TIMER_START0(TIMER_DRAW_WATER);
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawWaterList();
-	TIMER_STOP0(TIMER_DRAW_WATER);
+//	TIMER_STOP0(TIMER_DRAW_WATER);
 
 	TIMER_START0(TIMER_ACTOR_DRAW);
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
@@ -789,9 +849,96 @@ void MainDrawFunction ( void )
 	TIMER_STOP0(TIMER_PRINT_OVERS);
 
 	TIMER_START0(TIMER_PROCTEX);
-	ProcessProcTextures( );
+	//ProcessProcTextures( );
 	TIMER_STOP0(TIMER_PROCTEX);
 
-	DrawBackDrop();
+	DrawBackDrop(0);
+}
+
+
+void SetCurrentDisplayPage ( int page1, int page2 )
+{
+	currentDisplayPage = ( currentDisplayPage == displayPage ) ?( &displayPage [ page1 ] ):( &displayPage [ page2 ] );
+	ClearOTagR ( currentDisplayPage->ot, 1024 );
+	currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+}
+
+void SendOTDisp ( void )
+{
+	DrawSync(0);
+	VSync(2);
+	PutDispEnv(&currentDisplayPage->dispenv);
+	PutDrawEnv(&currentDisplayPage->drawenv);
+	DrawOTag(currentDisplayPage->ot+(1024-1));
+}
+
+void ResetDrawingEnvironment ( void )
+{
+	SetGeomOffset(512/2, 256/2);
+	SetDefDrawEnv(&displayPage[0].drawenv, 0,   0, 512,256);
+	SetDefDrawEnv(&displayPage[1].drawenv, 0, 256, 512,256);
+	SetDefDispEnv(&displayPage[0].dispenv, 0, 256, 512,256);
+	SetDefDispEnv(&displayPage[1].dispenv, 0,   0, 512,256);
+
+//	displayPage[0].dispenv.screen.y = displayPage[1].dispenv.screen.y = 8+PALMODE*12;
+//	displayPage[0].dispenv.screen.h = displayPage[1].dispenv.screen.h = 240+PALMODE*16;
+
+#if PALMODE==1
+	displayPage[0].dispenv.screen.y = displayPage[1].dispenv.screen.y = 8+PALMODE*12;
+	displayPage[0].dispenv.screen.h = displayPage[1].dispenv.screen.h =256;	// SetDefDispEnv always sets it to 240
+#else
+	displayPage[0].dispenv.screen.y = displayPage[1].dispenv.screen.y = 0;
+	displayPage[0].dispenv.screen.h = displayPage[1].dispenv.screen.h =240;	// SetDefDispEnv always sets it to 240
+#endif
+
+//	displayPage[0].dispenv.screen.y = displayPage[1].dispenv.screen.y = 24;
+
+  	displayPage[0].drawenv.ofs[0] = displayPage[1].drawenv.ofs[0] = 512/2;
+  	displayPage[0].drawenv.ofs[1] = 120+PALMODE*8;
+	displayPage[1].drawenv.ofs[1] = 256+120+PALMODE*8;
+	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 1;
+	GsSetProjection(350);
+	SetDispMask(1);
+	VSync(0);
+	SetGeomOffset(0,0);				//camera focused on middle of screen
+}
+
+void MainReset ( void )
+{
+		RAMstart = (unsigned long)__bss_orgend;
+
+
+#if GOLDCD==1
+		RAMsize = (0x1fff00 - RAMstart)-8192;
+//		RAMsize = (0x7fff00 - RAMstart)-8192;
+#else
+//		RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
+#endif
+
+		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
+		memoryInitialise(RAMstart, RAMsize, 4096);
+
+		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
+
+		ResetCallback();
+		memset((void *)0x1f8000,0,0x8000);
+
+		utilInitCRC();
+		utilSeedRandomInt(398623);
+
+#if GOLDCD == NO
+	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+#else
+	fileInitialise("\\FROGGER.DAT;1");
+#endif
+
+		MemCardInit(1);
+		MemCardStart();
+		padInitialise(1); // 0 = No multi tap support
+		videoInit ( 1024, 3000, 0 );
+		textureInitialise ( 600, 24);
+
+
 }
 
