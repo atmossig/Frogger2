@@ -974,3 +974,56 @@ Byron Blay:
 
 Chris Wilson:
 ------------------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+21/12/99 - Tuesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+Damn, just realised I've been forgetting to fill this in,
+looks like I'm not the only one.
+hellO?
+anyone there?
+
+Still converting new code to fixed point.
+
+Just putting in the classes in caused bugs,
+(should have done nothing, using classes containing floats
+ should not change functionality)
+but the extra functions such as ReadVectorS(SVECTOR)
+have had some bugs in them. (silly errors)
+
+This has made the initial stages take longer than hoped.
+Hope the further stages go smoother!
+
+
+Chris Wilson:
+------------------------------------------------
