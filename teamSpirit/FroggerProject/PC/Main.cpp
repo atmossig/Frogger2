@@ -63,7 +63,9 @@
 
 #include "..\resource.h"
 #include "fxBlur.h"
-#include "net\network.h"
+
+// ds - pending new network code
+//#include "net\network.h"
 
 psFont *font = 0;
 psFont *fontSmall = 0;
@@ -399,10 +401,11 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					SetupControllers(hWnd);
 					return TRUE;
 
+/*	ds - COPY **ALL** NETWORK-SPECIFIC STUFF TO NETWORK-SPECIFIC FILES!
 				case IDC_MULTI:
 					InitMPDirectPlay(mdxWinInfo.hInstance);
 					return TRUE;
-
+*/
 				case IDOK:
 				{
 					// *ASL* 13/06/2000
