@@ -23,7 +23,11 @@ typedef struct _SCENICOBJ
 
 	int						flags;
 	FMA_WORLD*		fmaObj;
-	SVECTOR				position;
+//	SVECTOR				position;
+
+	//bb
+	MATRIX matrix;
+
 } SCENICOBJ;
 
 typedef struct _SCENICOBJLIST
@@ -35,7 +39,8 @@ typedef struct _SCENICOBJLIST
 extern SCENICOBJLIST scenicObjList;
 
 
-void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags );
+//void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags );
+void CreateAndAddScenicObject(SCENIC *sc);
 
 void InitScenicObjLinkedList ( void );
 
