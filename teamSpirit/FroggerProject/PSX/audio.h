@@ -32,25 +32,6 @@
 #define AMBIENT_VOLUME	255
 #define SAMPLE_VOLUME	255
  
-/* 
-enum
-{
-	NOTRACK = 0,
-	GARDEN_CDAUDIO = 2,
-	ANCIENTS_CDAUDIO,
-	SPACE_CDAUDIO,
-	CITY_CDAUDIO,
-	SUBTERRANEAN_CDAUDIO,
-	LABORATORY_CDAUDIO,
-	HALLOWEEN_CDAUDIO,
-	SUPERRETRO_CDAUDIO,
-	FRONTEND_CDAUDIO,
-	LEVELSELECT_CDAUDIO,
-
-	NUM_CD_TRACKS,
-};
-*/
-
 enum
 {
 	MUSIC_GARDEN,
@@ -75,28 +56,6 @@ extern XAFileType *xaFileData[MUSIC_NUM_TRACKS];
 // All generic sfx
 enum
 {
-	/*GEN_FROG_HOP,
-	GEN_SUPER_HOP,
-	GEN_DOUBLE_HOP,
-	GEN_COLLECT_BABY,
-	GEN_COLLECT_COIN,
-	GEN_BABYHAPPY,
-	GEN_BABYSAD,
-	GEN_BABYCRY,
-	GEN_BABYREPLY,
-	GEN_TELEPORT,
-	GEN_POWERUP,
-
-	GEN_DEATHDROWN,
-	GEN_DEATHCRUSH,
-	GEN_DEATHEXPLODE,
-	GEN_DEATHFALL,
-	GEN_DEATHGIB,
-	GEN_DEATHCHOP,
-	GEN_DEATHELECTRIC,
-
-	NUM_GENERIC_SFX*/
-
 	GEN_FROG_HOP,
 	GEN_SUPER_HOP,
 	GEN_DOUBLE_HOP,
@@ -140,32 +99,8 @@ enum
 
 
 
-
-// //***********************************
-// // Type Defines
- 
-// typedef struct _SAMPLE
-// {
-// 	struct _SAMPLE			*next, *prev;
-// 
-// 	char					*idName;
-// 	unsigned long			flags;
-// 	unsigned long			uid;
-// 
-// 	LPWAVEFORMATEX			lpWavFmt;
-// 	BYTE					*data;
-// 	DWORD					len;
-// 
-// 	LPDIRECTSOUNDBUFFER		lpdsBuffer;	
-//     LPDIRECTSOUND3DBUFFER   lpds3DBuffer;	// DirectSound 3D buffer interface
-// 
-// } SAMPLE;
-
 typedef struct _SAMPLE
 {
-	struct _SAMPLE			*next, *prev;
-
-//	char					*idName;
 	unsigned long			flags;
 	unsigned long			uid;
 
@@ -174,35 +109,21 @@ typedef struct _SAMPLE
 
  
 extern SAMPLE **sfx_anim_map;
+
+#define MAX_SAMPLES 100
  
 typedef struct _SOUNDLIST
 {
 	SfxBankType		*genericBank;
 	SfxBankType		*levelBank;
+	SfxBankType		*loopBank;
 
 	short count;
 	short blocks;
 
-	SAMPLE			*array;
-	SAMPLE			head;
-
+	SAMPLE			array[MAX_SAMPLES];
 } SOUNDLIST;
  
- 
-// typedef struct _BUFSAMPLE
-// {
-// 	struct _BUFSAMPLE *next, *prev;
-// 	LPDIRECTSOUNDBUFFER lpdsBuffer;
-// 
-// } BUFSAMPLE;
- 
- 
-//typedef struct _BUFFERLIST
-// {
-// 	int			numEntries;
-// 	BUFSAMPLE	head;
-// 
-// } BUFFERLIST;
  
  
 typedef struct TAG_AMBIENT_SOUND
@@ -236,40 +157,9 @@ typedef struct
  
  extern SAMPLE *genSfx[];
  
-//***********************************
-// Function Prototypes
- 
-// extern SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor );
- 
-// extern void LoadSfx( unsigned long worldID );
- 
-// extern void InitSampleList( );
-// extern void FreeSampleList( );
- 
-// extern void InitAmbientSoundList( );
-// extern void FreeAmbientSoundList( );
- 
-// extern void FreeBufSampleList( );
  
 extern SAMPLE *FindSample( unsigned long uid );
  
-// extern void CleanBufferSamples ( void );
-// extern void SetSampleFormat ( SAMPLE *sample );
- 
- 
-// extern int PlaySample(SAMPLE *sample,VECTOR *pos,long radius,short volume,short pitch);
-// void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch );
-// extern AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,VECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,ACTOR *follow);
-// extern void UpdateAmbientSounds();
- 
- 
-// extern void PrepareSongForLevel( short worldID, short levelID );
-
-
-// #define UpdateAmbientSounds()
-// //#define PTTextureLoad()
-// #define FreeAmbientSoundList()
-// #define InitAmbientSoundList()
  
 void MAIN_PrintXAData ( const XAFileType * const XATrack );
 

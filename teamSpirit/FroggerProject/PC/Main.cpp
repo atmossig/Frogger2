@@ -647,6 +647,9 @@ long DrawLoop(void)
 	BeginDraw();
 	DrawBackdrop();
 
+	if(tileTexture)
+		DrawTiledBackdrop();
+
 	if (backGnd)
 		DrawBackground();
 	EndDraw();

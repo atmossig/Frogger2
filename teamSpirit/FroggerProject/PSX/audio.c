@@ -12,6 +12,7 @@
 // #include "..\resource.h"
 // #include "incs.h"
 #include <islmem.h>
+#include <libspu.h>
 
 #include "audio.h"
 
@@ -21,8 +22,10 @@
 #include "frogger.h"
 #include "layout.h"
 #include "menus.h"
+#include "game.h"
 
 
+int lastSound = -1;
 
 char *musicNames[] = { "CDA.XA",//
 											 "CDB.XA",//
@@ -92,7 +95,7 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol);
 
 int UpdateLoopingSample(AMBIENT_SOUND *sample)
 {
-	int vl,vr;
+	int vl,vr,vs;
 	short pitch;
 
 	if ( !sample )
@@ -117,9 +120,12 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 		pitch = sample->pitch * PITCH_STEP;
 	}
 
-	if ( (sample->handle == -1) && ( sample->sample ) && (sample->sample->snd) )
+	if((sample->handle == -1) && (sample->sample) && (sample->sample->snd))
 	{
- 		sample->handle = sfxPlaySample(sample->sample->snd, vl,vr, pitch);
+		vs = VSync(1);
+		while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
+
+ 		lastSound = sample->handle = sfxPlaySample(sample->sample->snd, vl,vr, pitch);
 		return;
 	}
 
@@ -169,6 +175,7 @@ void StopSound()
 //free the sfxBankType pointers
 	FREE(soundList.genericBank);
 	FREE(soundList.levelBank);
+	FREE(soundList.loopBank);
 	sfxOff();
 	sfxStopSound();
 	sfxDestroy();
@@ -188,34 +195,28 @@ void StopSound()
 void InitSampleList( )
 {
 	//Init the sample list for the real samples.
-	if(!soundList.genericBank)//first time around
+
+	if(soundList.genericBank)
 	{
-		soundList.genericBank = (SfxBankType *)MALLOC0(sizeof(SfxBankType));
-		soundList.levelBank = (SfxBankType *)MALLOC0(sizeof(SfxBankType));
-	}
-	else
-	{
+		sfxUnloadSampleBank(soundList.genericBank);
+		sfxRemoveSampleBank(soundList.genericBank,1);
 		soundList.genericBank = NULL;
+	}
+	if(soundList.levelBank)
+	{
+		sfxUnloadSampleBank(soundList.levelBank);
+		sfxRemoveSampleBank(soundList.levelBank,1);
 		soundList.levelBank = NULL;
 	}
-
-	soundList.array = NULL;
-	soundList.count = 0;
-	soundList.head.next = soundList.head.prev = &soundList.head;
-
-}
-
-void AllocSampleBlock ( int num )
-{
-	if ( !soundList.array )
+	if(soundList.loopBank)
 	{
-		utilPrintf ( "Mallocing a list of %d Sample Structures.\n", num );
-		soundList.array = ( SAMPLE * ) MALLOC0 ( sizeof ( SAMPLE ) * num );
+		sfxUnloadSampleBank(soundList.loopBank);
+		sfxRemoveSampleBank(soundList.loopBank,1);
+		soundList.loopBank = NULL;
 	}
-	// ENDIF
 
-	soundList.count		= 0;
-	soundList.blocks	= num;
+	soundList.count = 0;
+	soundList.blocks = MAX_SAMPLES;
 }
 
 
@@ -241,8 +242,6 @@ int LoadSfxSet( char *path, int generic )
 
 	snd =(SfxSampleType *) sfxBank->sample;
 
-	AllocSampleBlock ( sfxBank->numSamples );
-
 	for  ( i=0; i<sfxBank->numSamples; i++)
 	{
 		if (!snd)
@@ -257,6 +256,8 @@ int LoadSfxSet( char *path, int generic )
 	}
 	if (generic > 0)
 		soundList.genericBank = sfxBank;
+	else if(generic < 0)
+		soundList.loopBank = sfxBank;
 	else
 		soundList.levelBank = sfxBank;
  	sfxDestroySampleBank( sfxBank );		
@@ -341,19 +342,24 @@ int LoadSfx( unsigned long worldID )
 
 	utilPrintf ( "WorldID Is : %d\n", worldID );
 //load the non-looping level samples
-	switch( worldID )
+
+	if(gameState.multi == SINGLEPLAYER)
 	{
-		case WORLDID_GARDEN: strcat( path, "GARDEN\\" ); break;
-		case WORLDID_ANCIENT: strcat( path, "ANCIENTS\\" ); break;
-		case WORLDID_SPACE: strcat( path, "SPACE\\" ); break;
-		case WORLDID_CITY: strcat( path, "CITY\\" ); break;
-		case WORLDID_SUBTERRANEAN: strcat( path, "SUB\\" ); break;
-		case WORLDID_LABORATORY: strcat( path, "LAB\\" ); break;
-		case WORLDID_HALLOWEEN: strcat( path, "HALLOWEEN\\" ); break;
-//		case WORLDID_SWAMPYWORLD: strcat( path, "SWAMPYWORLD\\" ); break;
-		case WORLDID_SUPERRETRO: strcat( path, "SUPERRETRO\\" ); break;
-		case WORLDID_FRONTEND: strcat( path, "FRONTEND\\" ); break;
+		switch( worldID )
+		{
+			case WORLDID_GARDEN: strcat( path, "GARDEN\\" ); break;
+			case WORLDID_ANCIENT: strcat( path, "ANCIENTS\\" ); break;
+			case WORLDID_SPACE: strcat( path, "SPACE\\" ); break;
+			case WORLDID_CITY: strcat( path, "CITY\\" ); break;
+			case WORLDID_SUBTERRANEAN: strcat( path, "SUB\\" ); break;
+			case WORLDID_LABORATORY: strcat( path, "LAB\\" ); break;
+			case WORLDID_HALLOWEEN: strcat( path, "HALLOWEEN\\" ); break;
+			case WORLDID_SUPERRETRO: strcat( path, "SUPERRETRO\\" ); break;
+			case WORLDID_FRONTEND: strcat( path, "FRONTEND\\" ); break;
+		}
 	}
+	else
+		strcat(path,"MULTI\\");
 
  	len = strlen(path);
 
@@ -365,29 +371,14 @@ int LoadSfx( unsigned long worldID )
 // JH: Quite Possibly fix it!!!!!!!!!!!!!!!!!!!!!!!!!!
 	path[len] = '\0';
 
-/*	switch( worldID )
-	{
-		case WORLDID_GARDEN: strcat( path, "GARDEN\\" ); break;
-		case WORLDID_ANCIENT: strcat( path, "ANCIENTS\\" ); break;
-		case WORLDID_SPACE: strcat( path, "SPACE\\" ); break;
-		case WORLDID_CITY: strcat( path, "CITY\\" ); break;
-		case WORLDID_SUBTERRANEAN: strcat( path, "SUB\\" ); break;
-		case WORLDID_LABORATORY: strcat( path, "LAB\\" ); break;
-		case WORLDID_HALLOWEEN: strcat( path, "HALLOWEEN\\" ); break;
-		case WORLDID_SWAMPYWORLD: strcat( path, "SWAMPYWORLD\\" ); break;
-		case WORLDID_SUPERRETRO: strcat( path, "SUPERRETRO\\" ); break;
-		case WORLDID_FRONTEND: strcat( path, "FRONTEND\\" ); break;
-	}*/
 
 //load the looping level samples
-	//path[len] = '\0';
 
  	len = strlen(path);
 
 	strcat( path, "LOOP" );
 
 	LoadSfxSet( path, -1 );
-
 
 	FREE( path );
 
@@ -417,66 +408,10 @@ SAMPLE *CreateAndAddSample( SfxSampleType *snd, int flags )
 	newItem->snd = snd;
 	newItem->flags = flags;
 
-	AddSample( newItem );
+	soundList.count++;
 
 	return newItem;
 }
-
-
- 
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddSample
-	Purpose			: Adds a sample structure to the list
-	Parameters		: The sample to be added 
-	Returns			: 
-	Info			: 
-*/
-void AddSample( SAMPLE *sample )
-{
-	SAMPLE *cur;
-
-	if( !sample || sample->next )
-		return;
-
-	// If enemy is the first of its kind, add at head of list
-	if( !sample->next )
-	{
-		sample->prev = &soundList.head;
-		sample->next = soundList.head.next;
-		soundList.head.next->prev = sample;
-		soundList.head.next = sample;
-	}
-
-	soundList.count++;
-}
-
-
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: RemoveSample
-	Purpose			: Removes a sample from the list
-	Parameters		: Sample to be removed
-	Returns			: 
-	Info			: 
-*/
-void RemoveSample( SAMPLE *sample )
-{
-	/*if( !sample->next )
-		return;
-
-	sample->prev->next	= sample->next;
-	sample->next->prev	= sample->prev;
-	sample->next		= NULL;
-	soundList.numEntries--;
-
-	FREE( sample );*/
-}
-
-
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: FindSample
@@ -487,21 +422,16 @@ void RemoveSample( SAMPLE *sample )
 */
 SAMPLE *FindSample( unsigned long uid )
 {
-	SAMPLE *next, *cur;
+	int i;
 
 	if (!uid)
 		return NULL;
 
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	for(i = 0;i < soundList.count;i++)
 	{
-		next = cur->next;
-		
-		if( cur->uid == uid )
-			return cur;
+		if(soundList.array[i].uid == uid)
+			return &soundList.array[i];
 	}
-
-	// WHY???
-//	return FindSample ( utilStr2CRC ( "hopongrass" ) );
 
 	return NULL;	
 }
@@ -509,26 +439,8 @@ SAMPLE *FindSample( unsigned long uid )
 
 void FreeSampleBlock( )
 {
-	if( soundList.array )
-		FREE( soundList.array );
-
-	soundList.array = NULL;
 	soundList.count = 0;
 	soundList.blocks = 0;
-}
-
-
-void SubSample ( SAMPLE *sample )
-{
-	//n.b paths alloced and freed separately
-
-	if(sample->next == NULL)
-		return;
-
-	sample->prev->next = sample->next;
-	sample->next->prev = sample->prev;
-	sample->next = NULL;
-	soundList.count--;
 }
 
 
@@ -545,10 +457,6 @@ void FreeSampleList( )
 
 	if(soundList.count)
 		utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.count);
-
-	// traverse enemy list and free elements
-	while( soundList.head.next && soundList.head.next != &soundList.head )
-		SubSample ( soundList.head.next );
 
 	FreeSampleBlock( );
 
@@ -570,7 +478,7 @@ void FreeSampleList( )
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
  	int vl,vr;
-	int i;
+	int vs;
 
 	if ( (!sample) )
 	{
@@ -602,10 +510,13 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	if ( !sample->snd )
 		return 0;
 
-	i =	sfxPlaySample( sample->snd, vl,vr, pitch);
-	if(i<0)
-		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",i);
-	return i;
+	vs = VSync(1);
+	while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
+
+	lastSound =	sfxPlaySample( sample->snd, vl,vr, pitch);
+	if(lastSound<0)
+		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",lastSound);
+	return lastSound;
 }
 
 
@@ -736,8 +647,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  
  void SubAmbientSound(AMBIENT_SOUND *ambientSound)
  {
- 	if( ambientSound->sample )
- 		sfxStopSample(ambientSound->sample, -1);
+ 	if(ambientSound->handle != -1)
+		sfxStopChannel(ambientSound->handle);
  
  	ambientSound->prev->next = ambientSound->next;
  	ambientSound->next->prev = ambientSound->prev;
@@ -914,10 +825,7 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	if( dist > (att) )
 		return -1;
 
-//bb	vol = FMul((vol<<12), FDiv(((att<<12)-(dist<<12)),att<<12))>>12;
 	vol = (FDiv(att-dist,att)*vol)>>12;
-//bb look out, this may have been badly optimised
-//		vol = (vol * (((att-dist)<<12)/att)) >>12;
 
 	tempSvect.vx = -pos->vx;
 	tempSvect.vy = -pos->vy;
