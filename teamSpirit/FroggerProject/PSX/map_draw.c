@@ -725,7 +725,8 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 			check|=OFFFRONT;
 
 //		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<2))
-		if((transformedDepths[v]) >= (fog.max))
+//		if((transformedDepths[v]) >= (fog.max))
+		if((transformedDepths[v]) >= (fog.max>>2))
 			check |= OFFBACK;
 #endif
 
@@ -736,14 +737,8 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 }
 
 
-//this is just MapDraw_ClipCheck,
-//with objects' position taken into account.
-//(where as MapDraw_ClipCheck assumes stationary object)
-
-//BB NOTE:
-//This function now looks exactly like MapDraw_ClipCheck
-//again. We should use that instead.
-
+//this is just MapDraw_ClipCheck, with out the z check.
+//Fma actors are z checked before this func is called
 int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 {
 	ULONG check,totalchecks;
@@ -762,12 +757,6 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
 		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
 		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
-
-		//this is the only addition to this function,
-		//from when it was MapDraw_ClipCheck().
-// 		pBBox[v].vx+=mesh->posx;
-// 		pBBox[v].vy+=mesh->posy;
-// 		pBBox[v].vz+=mesh->posz;
 	}
 
 	//utilPrintf("Map Clip Check!!!\n");
