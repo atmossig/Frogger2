@@ -311,20 +311,13 @@ void DrawFXRing(SPECFX *fx)
 	SetVectorFF(&normal, &fx->normal);
 	SetVectorSS(&pos, &fx->origin);
 
-//	ScaleVectorFF( &scale, 410 );
-//	ScaleVectorFF( &pos, 410 );
-
-
 	// Translate to current fx pos and push
-//	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
-//	PushMatrix( tMtrx );
 	tMtrx = GsIDMATRIX;
 	tMtrx.t[0] = -pos.vx;
 	tMtrx.t[1] = -pos.vy;
 	tMtrx.t[2] = pos.vz;
 
 	// Rotate around axis
-//	SetVector( (MDX_VECTOR *)&q1, &normal );
 	SetVectorFF((FVECTOR*)&q1, &normal);
 
 	// Rotate to be around normal
@@ -332,30 +325,13 @@ void DrawFXRing(SPECFX *fx)
 	MakeUnit((FVECTOR *)&cross);
 	t = DotProductFF((FVECTOR*)&q1, &upVec);
 	cross.w = -arccos(t);
-//	GetQuaternionFromRotation( &q3, &cross );
 	fixedGetQuaternionFromRotation(&q3, &cross);
 
 	// Combine the rotations and push
-//	QuaternionToMatrix( &q3,(MDX_MATRIX *)rMtrx);
-//	PushMatrix( rMtrx );
 	QuatToPSXMatrix(&q3, &rMtrx);
 
-//	if(fx->type == FXTYPE_CROAK)
-//		SwapFrame(3);
-
-//	tilt2 = (float)fx->tilt*0.000244;
 	tilt2 = fx->tilt;
 
-
-/*	vT[0].tu = tEntry->u0;
-	vT[0].tv = tEntry->v1;
-	vT[1].tu = tEntry->u0;
-	vT[1].tv = tEntry->v0;
-	vT[2].tu = tEntry->u1;
-	vT[2].tv = tEntry->v0;
-	vT[3].tu = tEntry->u1;
-	vT[3].tv = tEntry->v1;
-*/
 	r = (fx->r*fx->a) >>8;
 	g = (fx->g*fx->a) >>8;
 	b = (fx->b*fx->a) >>8;
@@ -383,28 +359,14 @@ void DrawFXRing(SPECFX *fx)
 				int flg;
 
 				vxj = (vx+j)%(NUM_RINGSEGS<<1);
-//				vT[j].sx = ringVtx[vxj].vx*0.000244;
-//				vT[j].sy = ringVtx[vxj].vy*0.000244;
-//				vT[j].sz = ringVtx[vxj].vz*0.000244;
-				vT[j].vx = ringVtx[vxj].vx;//*0.000244;
-				vT[j].vy = ringVtx[vxj].vy;//*0.000244;
-				vT[j].vz = ringVtx[vxj].vz;//*0.000244;
+				vT[j].vx = ringVtx[vxj].vx;
+				vT[j].vy = ringVtx[vxj].vy;
+				vT[j].vz = ringVtx[vxj].vz;
 
 				// Slant the polys
-//				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 1 : tilt2;
 				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 4096 : tilt2;
-
-//				vT[j].tv = 1-vT[j].tv;
 				vT[j].tv = tEntry->v2-(vT[j].tv-tEntry->v0);
 
-
-				// Scale and push
-//				guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
-//				PushMatrix( sMtrx );
-				//bb - scale was causeing overflows
-//				tempFVect.vx = FMul(tilt,scale.vx);
-//				tempFVect.vy = FMul(tilt,scale.vy);
-//				tempFVect.vz = FMul(tilt,scale.vz);
 				tempFVect.vx = FMul(tilt,scale.vx>>4);
 				tempFVect.vy = FMul(tilt,scale.vy>>4);
 				tempFVect.vz = FMul(tilt,scale.vz>>4);
@@ -412,15 +374,12 @@ void DrawFXRing(SPECFX *fx)
 				ScaleMatrix(&sMtrx, &tempFVect);
 
 				// Transform point by combined matrix
-//				MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
-//				guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
-//				tempVect = vT[j];
 				tempVect.vx = -vT[j].vx;
 				tempVect.vy = -vT[j].vy;
 				tempVect.vz =  vT[j].vz;
 				ApplyMatrixLV(&sMtrx, &tempVect, &tempVect);
 				ApplyMatrixLV(&rMtrx, &tempVect, &tempVect);
-//				ApplyMatrixLV(&tMtrx, &tempVect, &tempVect);
+
 				tempVect.vx -= pos.vx;
 				tempVect.vy -= pos.vy;
 				tempVect.vz += pos.vz;
@@ -432,13 +391,11 @@ void DrawFXRing(SPECFX *fx)
 					fxpos.vz = tempVect.vz;
 				}
 
-//				XfmPoint( &m, &tempVect, NULL );
 				gte_SetTransMatrix(&GsWSMATRIX);
 				gte_SetRotMatrix(&GsWSMATRIX);
 				gte_ldlv0(&tempVect);
 				gte_rtps();
 				gte_stsxy(&m.vx);
-//				gte_stsz(&m.vz);	//screen z/4 as otz
 				gte_stszotz(&m.vz);	//screen z/4 as otz
 				m.vz>>=2;
 				gte_stflg(&flg);	//screen z/4 as otz
@@ -446,82 +403,64 @@ void DrawFXRing(SPECFX *fx)
 				// Assign back to vT array
 				vT[j].vx = m.vx;
 				vT[j].vy = m.vy;
-//				if(!m.vz)
 				if( (m.vz<60) || (m.vz>1000) )
-//				if(flg)
 					zeroZ++;
 				else
-//					vT[j].sz = (m.vz+DIST)*0.00025;
 					vT[j].vz = m.vz;
-
-//				PopMatrix( ); // Pop scale
 			}
 		}
 
 		if(!zeroZ)
 		{
-/*			if( (vT[0].vx>-256) && (vT[0].vx<256)
-			 && (vT[0].vy>-120) && (vT[0].vy<120)
-			 &&	(vT[1].vx>-256) && (vT[1].vx<256)
-			 && (vT[1].vy>-120) && (vT[1].vy<120)
-			 &&	(vT[2].vx>-256) && (vT[2].vx<256)
-			 && (vT[2].vy>-120) && (vT[2].vy<120)
-			 &&	(vT[3].vx>-256) && (vT[3].vx<256)
-			 && (vT[3].vy>-120) && (vT[3].vy<120) )
-*/			{
-			
-				POLY_FT4 *ft4;
-				int width;
+			POLY_FT4 *ft4;
+			int width;
 
-				memcpy( vTPrev, &vT[2], sizeof(VERT)*2 );
-				memcpy( &vT[4], &vT[0], sizeof(VERT) );
-	//			Clip3DPolygon( vT, tEntry );
-	//			Clip3DPolygon( &vT[2], tEntry );
+			vT[0].tu = tEntry->u2;
+			vT[1].tu = tEntry->u0;
+			vT[2].tu = tEntry->u1;
+			vT[3].tu = tEntry->u3;
 
-			
-				//set up a poly
-				BEGINPRIM(ft4, POLY_FT4);
-				setPolyFT4(ft4);
-				ft4->x0 = vT[0].vx;
-				ft4->y0 = vT[0].vy;
-				ft4->x1 = vT[1].vx;
-				ft4->y1 = vT[1].vy;
-				ft4->x2 = vT[3].vx;
-				ft4->y2 = vT[3].vy;
-				ft4->x3 = vT[2].vx;
-				ft4->y3 = vT[2].vy;
-				ft4->r0 = r;
-				ft4->g0 = g;
-				ft4->b0 = b;
-				ft4->u0 = vT[0].tu;
-				ft4->v0 = vT[0].tv;
-				ft4->u1 = vT[1].tu;
-				ft4->v1 = vT[1].tv;
-				ft4->u2 = vT[3].tu;
-				ft4->v2 = vT[3].tv;
-				ft4->u3 = vT[2].tu;
-				ft4->v3 = vT[2].tv;
-				ft4->tpage = tEntry->tpage;
-				ft4->clut  = tEntry->clut;
-				ft4->code  |= 2;//semi-trans on
- 				ft4->tpage |= 32;//add
-				ENDPRIM(ft4, 1, POLY_FT4);
-//				ENDPRIM(ft4, (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)>>3, POLY_FT4);
+			memcpy( vTPrev, &vT[2], sizeof(VERT)*2 );
+			memcpy( &vT[4], &vT[0], sizeof(VERT) );
 
+			BEGINPRIM(ft4, POLY_FT4);
+			setPolyFT4(ft4);
+			ft4->x0 = vT[0].vx;
+			ft4->y0 = vT[0].vy;
+			ft4->x1 = vT[1].vx;
+			ft4->y1 = vT[1].vy;
+			ft4->x2 = vT[3].vx;
+			ft4->y2 = vT[3].vy;
+			ft4->x3 = vT[2].vx;
+			ft4->y3 = vT[2].vy;
+			ft4->r0 = r;
+			ft4->g0 = g;
+			ft4->b0 = b;
+			ft4->u0 = vT[0].tu;
+			ft4->v0 = vT[0].tv;
+			ft4->u1 = vT[1].tu;
+			ft4->v1 = vT[1].tv;
+			ft4->u2 = vT[3].tu;
+			ft4->v2 = vT[3].tv;
+			ft4->u3 = vT[2].tu;
+			ft4->v3 = vT[2].tv;
+			ft4->tpage = tEntry->tpage;
+			ft4->clut  = tEntry->clut;
+			ft4->code  |= 2;//semi-trans on
+ 			ft4->tpage |= 32;//add
+			ENDPRIM(ft4, 1, POLY_FT4);
 			
-				
-				if((i&1) && (actFrameCount&1))
+			if((i&1) && (actFrameCount&1))
+			{
+				SPECFX *trail;
+
+				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
 				{
-					SPECFX *trail;
-
-					if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
-					{
-						trail->tilt = 8192;
-						if(i&2)
-							SetFXColour(trail, 180, 220, 180);
-						else
-							SetFXColour(trail, fx->r, fx->g, fx->b);
-					}
+					trail->tilt = 8192;
+					if(i&2)
+						SetFXColour(trail, 180, 220, 180);
+					else
+						SetFXColour(trail, fx->r, fx->g, fx->b);
 				}
 			}
 		}
@@ -530,17 +469,7 @@ void DrawFXRing(SPECFX *fx)
 			vTPrev[0].vz = vTPrev[1].vz = 0;
 		}
 	}
-
-//	PopMatrix( ); // Rotation
-//	PopMatrix( ); // Translation
-
-//	if( fx->type == FXTYPE_CROAK )
-//		SwapFrame(0);
 }
-
- 
-
-
 
 
 void DrawFXTrail( SPECFX *trail )
@@ -653,7 +582,7 @@ void DrawFXLightning( SPECFX *fx )
 	SVECTOR vT[4], vTPrev[2], tempSvect;
 	TextureType *tEntry;
 	PARTICLE *p;
-	long i=0, otz, clipped, sz;
+	long i=0, otz, clipped, mDpth=(fog.max>>2); //,sz;
 	POLY_FT4 *ft4;
 	short checky = PALMODE?256:240;
 
@@ -662,9 +591,6 @@ void DrawFXLightning( SPECFX *fx )
 
 	if(gameState.mode == LEVELCOMPLETE_MODE)
 		return;
-
-//	gte_SetTransMatrix(&GsWSMATRIX);
-//	gte_SetRotMatrix(&GsWSMATRIX);
 
 	p = fx->particles;
 	while( i < fx->numP-1 )
@@ -684,10 +610,7 @@ void DrawFXLightning( SPECFX *fx )
 			gte_stsxy(&vT[0].vx);
 			gte_stszotz(&otz);
 			vT[0].vz = otz;
-			gte_stsz(&sz);
-			clipped += ( vT[0].vx > 256 || vT[0].vx < -256 ||
-						vT[0].vy > checky || vT[0].vy < -checky ||
-						sz<20 || sz>fog.max);
+//			gte_stsz(&sz);
 
 			tempSvect.vx = -p->poly[1].vx;
 			tempSvect.vy = -p->poly[1].vy;
@@ -697,11 +620,15 @@ void DrawFXLightning( SPECFX *fx )
 			gte_stsxy(&vT[1].vx);
 			gte_stszotz(&otz);
 			vT[1].vz = otz;
-			gte_stsz(&sz);
-			clipped += ( vT[1].vx > 256 || vT[1].vx < -256 ||
-						vT[1].vy > checky || vT[1].vy < -checky ||
-						sz<20 || sz>fog.max);
+//			gte_stsz(&sz);
 		}
+
+		clipped += ( vT[0].vx > 256 || vT[0].vx < -256 ||
+					vT[0].vy > checky || vT[0].vy < -checky ||
+					vT[0].vz<=0 || vT[0].vz>mDpth);
+		clipped += ( vT[1].vx > 256 || vT[1].vx < -256 ||
+					vT[1].vy > checky || vT[1].vy < -checky ||
+					vT[1].vz<=0 || vT[1].vz>mDpth);
 
 		tempSvect.vx = -p->next->poly[1].vx;
 		tempSvect.vy = -p->next->poly[1].vy;
@@ -711,10 +638,10 @@ void DrawFXLightning( SPECFX *fx )
 		gte_stsxy(&vT[2].vx);
 		gte_stszotz(&otz);
 		vT[2].vz = otz;
-		gte_stsz(&sz);
+//		gte_stsz(&sz);
 		clipped += ( vT[2].vx > 256 || vT[2].vx < -256 ||
 					vT[2].vy > checky || vT[2].vy < -checky ||
-					sz<20 || sz>fog.max);
+					otz<=0 || otz>mDpth);
 
 		tempSvect.vx = -p->next->poly[0].vx;
 		tempSvect.vy = -p->next->poly[0].vy;
@@ -724,17 +651,17 @@ void DrawFXLightning( SPECFX *fx )
 		gte_stsxy(&vT[3].vx);
 		gte_stszotz(&otz);
 		vT[3].vz = otz;
-		gte_stsz(&sz);
+//		gte_stsz(&sz);
 		clipped += ( vT[3].vx > 256 || vT[3].vx < -256 ||
 					vT[3].vy > checky || vT[3].vy < -checky ||
-					sz<20 || sz>fog.max);
+					otz<=0 || otz>mDpth);
 
 		// Store first 2 vertices of the next segment
 		lmemcpy( (long *)vTPrev, (long *)&vT[3], 2 );
 		lmemcpy( (long *)&vTPrev[1], (long *)&vT[2], 2 );
 
 		// Draw polys, if they're not clipped
-		if( !clipped )
+		if( clipped < 4 )
 		{
 			BEGINPRIM(ft4, POLY_FT4);
 			setPolyFT4(ft4);
