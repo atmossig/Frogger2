@@ -126,10 +126,12 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYSAD] = FindSample(UpdateCRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(UpdateCRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(UpdateCRC("babyreply"));
-
 	genSfx[GEN_FROGBELCH1] = FindSample(UpdateCRC("frogbelch2"));
 	genSfx[GEN_FROGBELCH2] = FindSample(UpdateCRC("frogbelch2"));
 	genSfx[GEN_FROGANNOYED] = FindSample(UpdateCRC("frogannoyed"));
+	genSfx[GEN_FROGSLIDE] = FindSample(UpdateCRC("frogslide2"));
+	genSfx[GEN_FROGHAPPY] = FindSample(UpdateCRC("frogokay"));
+	genSfx[GEN_FROGSCARED] = FindSample(UpdateCRC("froguhoh"));
 
 	genSfx[GEN_DEATHNORMAL] = FindSample(UpdateCRC("frogdeath"));
 	genSfx[GEN_DEATHDROWN1] = FindSample(UpdateCRC("frogdrown1"));
@@ -744,6 +746,12 @@ void RemoveSample( SAMPLE *sample )
 	sample->next		= NULL;
 	soundList.numEntries--;
 
+	if( sample->lpds3DBuffer )
+		sample->lpds3DBuffer->lpVtbl->Release(sample->lpds3DBuffer);
+
+	if( sample->lpdsBuffer )
+		sample->lpdsBuffer->lpVtbl->Release(sample->lpdsBuffer);
+
 	if( sample->idName )
 		FREE( sample->idName );
 
@@ -764,7 +772,8 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 	bufSample->next		= NULL;
 	bufferList.numEntries--;
 
-	bufSample->lpdsBuffer->lpVtbl->Release(bufSample->lpdsBuffer);
+	if( bufSample->lpdsBuffer )
+		bufSample->lpdsBuffer->lpVtbl->Release(bufSample->lpdsBuffer);
 
 	FREE( bufSample );
 }
@@ -773,7 +782,7 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 void FreeSampleList( void )
 {
 	SAMPLE *cur,*next;
-	unsigned long stat, i;
+	unsigned long i;
 
 	if( sfx_anim_map ) 
 	{
@@ -788,10 +797,7 @@ void FreeSampleList( void )
 	// traverse enemy list and free elements
 	while( soundList.head.next && soundList.head.next != &soundList.head )
 	{
-		soundList.head.next->lpdsBuffer->lpVtbl->GetStatus( soundList.head.next->lpdsBuffer, &stat );
-		if( stat & DSBSTATUS_PLAYING )
-			soundList.head.next->lpdsBuffer->lpVtbl->Stop( soundList.head.next->lpdsBuffer );
-
+		StopSample( soundList.head.next );
 		RemoveSample( soundList.head.next );
 	}
 
