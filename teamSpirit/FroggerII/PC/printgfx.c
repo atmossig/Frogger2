@@ -741,14 +741,14 @@ void DrawFXRipple( SPECFX *ripple )
 	static short f[6] = {0,1,2,0,2,3};
 	QUATERNION q;
 
+	if(ripple->deadCount)
+	return;
+
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	
-	if(ripple->deadCount)
-		return;
-
 	tempVect[0].v[X] = -ripple->size;
 	tempVect[0].v[Y] = 0;
 	tempVect[0].v[Z] = ripple->size;
