@@ -34,11 +34,26 @@ enum
 	TILESTATE_BARRED,
 	TILESTATE_LEVELCHANGE,
 
-	TILESTATE_CONVEYOR0 = 0x20,
-	TILESTATE_CONVEYOR1,
-	TILESTATE_CONVEYOR2,
-	TILESTATE_CONVEYOR3,
+	TILESTATE_CONVEYOR0SLOW = 0x20,
+	TILESTATE_CONVEYOR1SLOW,
+	TILESTATE_CONVEYOR2SLOW,
+	TILESTATE_CONVEYOR3SLOW,
+
+	TILESTATE_CONVEYOR0MED,
+	TILESTATE_CONVEYOR1MED,
+	TILESTATE_CONVEYOR2MED,
+	TILESTATE_CONVEYOR3MED,
+
+	TILESTATE_CONVEYOR0FAST,
+	TILESTATE_CONVEYOR1FAST,
+	TILESTATE_CONVEYOR2FAST,
+	TILESTATE_CONVEYOR3FAST,
 };
+
+#define TILESTATE_CONVEYOR 0x20
+#define TILESTATE_CONVEYOR_SLOW TILESTATE_CONVEYOR0SLOW
+#define TILESTATE_CONVEYOR_MED	TILESTATE_CONVEYOR0MED
+#define TILESTATE_CONVEYOR_FAST TILESTATE_CONVEYOR0FAST
 
 enum
 {
@@ -58,13 +73,22 @@ enum
 	BARRED,
 	SUPERHOP,
 	JOIN,
+	CONV0SLOW,
+	CONV1SLOW,
+	CONV2SLOW,
+	CONV3SLOW,
 	CONV0,
 	CONV1,
 	CONV2,
 	CONV3,
+	CONV0FAST,
+	CONV1FAST,
+	CONV2FAST,
+	CONV3FAST,
 
 	NUM_MATERIALS
 };
+
 
 const char* materialnames[NUM_MATERIALS] =
 {
@@ -84,10 +108,18 @@ const char* materialnames[NUM_MATERIALS] =
 	"barred",
 	"superjump",
 	"link",
+	"conveyor0slow",
+	"conveyor1slow",
+	"conveyor2slow",
+	"conveyor3slow",
 	"conveyor0",
 	"conveyor1",
 	"conveyor2",
 	"conveyor3",
+	"conveyor0fast",
+	"conveyor1fast",
+	"conveyor2fast",
+	"conveyor3fast",
 };
 
 unsigned long numFrogs = 0;
@@ -493,9 +525,24 @@ void BuildSquareList(void)
 							case CONV2:
 							case CONV3:
 								printf("<");
-								squareList[nSquare].status = faceList[j].mat - CONV0 + TILESTATE_CONVEYOR0;
+								squareList[nSquare].status = faceList[j].mat - CONV0 + TILESTATE_CONVEYOR_MED;
 								break;
 
+							case CONV0SLOW:
+							case CONV1SLOW:
+							case CONV2SLOW:
+							case CONV3SLOW:
+								printf(">");
+								squareList[nSquare].status = faceList[j].mat - CONV0SLOW + TILESTATE_CONVEYOR_SLOW;
+								break;
+
+							case CONV0FAST:
+							case CONV1FAST:
+							case CONV2FAST:
+							case CONV3FAST:
+								printf("^");
+								squareList[nSquare].status = faceList[j].mat - CONV0FAST + TILESTATE_CONVEYOR_FAST;
+								break;
 						}
 						
 						squareList[nSquare].p[0] = (p1x+p2x)/2;
