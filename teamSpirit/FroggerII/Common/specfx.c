@@ -52,7 +52,7 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 
 	ripple = (FX_RIPPLE *)JallocAlloc(sizeof(FX_RIPPLE),YES,"FX_RIP");
 	AddFXRipple(ripple);
-	
+
 	// set centre of ripple
 	SetVector(&ripple->origin,origin);
 

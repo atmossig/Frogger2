@@ -245,7 +245,7 @@ void UpdateFroggerPos(long pl)
 			ScaleVector(&effectPos,20);
 			AddToVector(&effectPos,&newPos);
 
-			rip = CreateAndAddFXRipple(RIPPLE_TYPE_SOLIDCROAK,&effectPos,&player[pl].jumpUpVector,20,0,0,16);
+			rip = CreateAndAddFXRipple(RIPPLE_TYPE_SOLIDCROAK,&effectPos,&player[pl].jumpUpVector,20,0,0,(16 * gameSpeed));
 			rip->r = 0;	rip->g = 255; rip->b = 0;
 		}
 	}
