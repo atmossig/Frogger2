@@ -17,7 +17,7 @@
 WININFO winInfo;
 long lButton = 0;
 
-char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
+char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
