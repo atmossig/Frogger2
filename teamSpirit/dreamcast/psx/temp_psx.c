@@ -2423,7 +2423,7 @@ StrDataType vStream =
 		127,							// Left and Right ADPCM volume. (0..127)
 };
 
-void StartVideoPlayback(int num, int allowQuit)
+int StartVideoPlayback(int num, int allowQuit)
 {
 	RECT rect;
 	StrDataType str;
