@@ -424,7 +424,11 @@ void DrawFXRing(SPECFX *fx)
 				tempVect.vz += pos.vz;
 
 				if(j==3)
-					SetVectorSV(&fxpos, &tempVect);
+				{
+					fxpos.vx = -tempVect.vx;
+					fxpos.vy = -tempVect.vy;
+					fxpos.vz = tempVect.vz;
+				}
 
 //				XfmPoint( &m, &tempVect, NULL );
 				gte_SetTransMatrix(&GsWSMATRIX);
@@ -507,8 +511,6 @@ void DrawFXRing(SPECFX *fx)
 				if((i&1) && (actFrameCount&1))
 				{
 					SPECFX *trail;
-
-					ScaleVector(&fxpos, 10);
 
 					if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
 					{
