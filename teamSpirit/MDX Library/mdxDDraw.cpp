@@ -21,6 +21,7 @@
 #include "mdxWindows.h"
 #include "gelf.h"
 #include "commctrl.h"
+#include "majikPR.h"
 
 #include "resource.h"
 #ifdef __cplusplus
@@ -236,7 +237,8 @@ unsigned long DDrawInitObject (GUID *guid)
 		return 0;
 	}
 	rHardware = (ddCaps.dwCaps & DDCAPS_3D);
-	
+
+	MPR_Init();
 	// We now have a valid object!
 	return 1;
 }

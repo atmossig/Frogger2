@@ -30,6 +30,7 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "gelf.h"
+#include "majikPR.h"
 
 extern "C"
 {
@@ -44,6 +45,7 @@ unsigned long numSoftPolys,numSoftVertex;
 SOFTPOLY softPolyBuffer[MA_MAX_FACES];
 SOFTPOLY *softDepthBuffer[MA_SOFTWARE_DEPTH];
 D3DTLVERTEX softV[MA_MAX_VERTICES];
+long softScreen[640*480];
 
 unsigned long numHaloPoints;
 
@@ -117,6 +119,27 @@ unsigned long xluSemiRS[] =
 	//
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
+
+long dPoly = 0;
+
+void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
+{
+	unsigned long mPitch;
+	DDSURFACEDESC2		ddsd;
+	DDINIT(ddsd);
+	return;
+
+	while (srf->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	mPitch = ddsd.lPitch/2;
+	for (int y=0; y<480; y++)
+		for (int x=0; x<640; x++)
+		{
+	//		((short *)ddsd.lpSurface)[x+y*mPitch] = (short)softScreen[x+y*640];
+			memcpy(&(((short *)ddsd.lpSurface)[y*mPitch]),&softScreen[y*640],640);
+		}
+	srf->Unlock(NULL);
+	dPoly = 1;
+}
 
 /*  --------------------------------------------------------------------------------
     Function      : DrawBatchedPolys
@@ -202,10 +225,10 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE
 	short *mfce = fce;
 
 	// Push for software/sorting...
-/*	PushPolys_Software(v,vC,fce,fC,tSrf );
-	memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
-	numSoftVertex+=vC;
-*/	
+//	PushPolys_Software(v,vC,fce,fC,tSrf );
+//	memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
+//	numSoftVertex+=vC;
+
 	// discard excess polys
 	if ((cFInfo->nV + vC) > MA_MAX_VERTICES || (cFInfo->nF + fC) > MA_MAX_FACES)
 		return;
@@ -261,6 +284,39 @@ void DrawSoftwarePolys (void)
 		cur = (SOFTPOLY *)softDepthBuffer[i];
 		while (cur)
 		{
+			MPR_POLY_VERT v[3];
+			unsigned long f1,f2,f3;
+			f1 = cur->f[0];
+			f2 = cur->f[1];
+			f3 = cur->f[2];
+
+			if (dPoly)
+			{
+				unsigned long xD1, xD2, xD3;
+				unsigned long yD1, yD2, yD3;
+				v[0].x = softV[f1].sx;
+				v[0].y = softV[f1].sy;
+				v[0].rgba = 0xffffffff;
+
+				v[1].x = softV[f2].sx;
+				v[1].y = softV[f2].sy;
+				v[1].rgba = 0xffffffff;
+
+				v[2].x = softV[f3].sx;
+				v[2].y = softV[f3].sy;
+				v[2].rgba = 0xffffffff;
+
+				xD1 = fabs(v[0].x - v[1].x);
+				xD2 = fabs(v[1].x - v[2].x);
+				xD3 = fabs(v[2].x - v[0].x);
+				
+				yD1 = fabs(v[0].y - v[1].y);
+				yD2 = fabs(v[1].y - v[2].y);
+				yD3 = fabs(v[2].y - v[0].y);
+
+				if (((xD1>5) && (xD2>5) &&(xD3>5)) && ((yD1>5) && (yD2>5) &&(yD3>5)))
+					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3, POLY_GOURAUD | POLY_NOCLIP, NULL);
+			}            
 			pDirect3DDevice->SetTexture(0,cur->t);
 		
 			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,D3DDP_WAIT)!=D3D_OK)
@@ -288,6 +344,8 @@ void DrawBatchedPolys (void)
 	unsigned long i;
 	unsigned long nFace;
 	LPDIRECTDRAWSURFACE7 lSurface;
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+//	DrawSoftwarePolys();
 
 	cFInfo->cF = cFInfo->f;
 	cFInfo->cT = cFInfo->t;
@@ -672,7 +730,6 @@ void DrawAllFrames(void)
 	// Draw Normal Polys
 	SwapFrame(MA_FRAME_NORMAL);
 	DrawBatchedPolys();
-	
 /*	pDirect3DDevice->EndScene();
 	
 	// Need to test the ZBuffer on these polys...

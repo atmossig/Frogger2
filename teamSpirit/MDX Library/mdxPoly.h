@@ -48,6 +48,7 @@ typedef struct TAG_FRAME_INFO
 
 extern FRAME_INFO frameInfo[MA_MAX_FRAMES];
 extern FRAME_INFO *cFInfo,*oFInfo;
+
 // Blanks out current frame
 #define BlankFrame {\
 cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFInfo->cT = cFInfo->t;\
@@ -67,6 +68,7 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB);
 
 // Push a poly onto the buffers
 
+void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf);
 void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf );
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1);

@@ -18,7 +18,7 @@ extern "C"
 
 #define TEXTURE_NORMAL 0
 #define TEXTURE_AI	1
-#define TEXTURE_LARGE 2
+#define TEXTURE_PROCEDURAL 2
 
 typedef struct TAG_MDX_TEXENTRY
 {
