@@ -120,6 +120,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	MDX_TEXENTRY *cEntry = texList;
 	long isAnim = 0,texType = 0;
 	int pptr = -1;
+	int xDim,yDim;
 
 	strcpy (mys,shortn);
 	strlwr (mys);
@@ -138,7 +139,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	strcpy (newE->name,mys);
 	newE->CRC  = UpdateCRC (mys);
 
-	newE->data = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,NULL,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+	newE->data = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 
 	if (newE->data)
 	{
@@ -152,10 +153,10 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				newE->surf = page->surf;
 					
 				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(32,32, 0xf81f, 0, 1)) == NULL)
+				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
 					return;
 
-				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,32,32);
+				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);
 
 				while (newE->surf->BltFast(texXCoords[page->numTex],texYCoords[page->numTex],temp,NULL,NULL)!=DD_OK);
 				newE->xPos = texXCoords[page->numTex];
@@ -173,10 +174,10 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				LPDIRECTDRAWSURFACE7 temp;
 								
 				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(64,64, 0xf81f, 0, 1)) == NULL)
+				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
 					return;
 
-				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,64,64);			
+				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);			
 				newE->surf = temp;
 				newE->xPos = 0;
 				newE->yPos = 0;
