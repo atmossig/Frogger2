@@ -601,6 +601,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			void **param;
 
 			player[fNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL other flags
+			player[fNum].canJump = 0;
 			FrogLeavePlatform(fNum);	// bah
 
 			CreateTeleportEffect( &frog[fNum]->actor->pos, &upVec );
@@ -635,6 +636,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			time = MEMGETFLOAT(p);
 
 			player[frogNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL flags
+			player[frogNum].canJump = 0;
 			FrogLeavePlatform(frogNum);	// bah
 
 			info = (SPRINGINFO*)JallocAlloc(sizeof(SPRINGINFO), NO, "spring");

@@ -396,6 +396,7 @@ void SpringFrog( EVENT *event )
 		SetVector( &(frog[f]->actor->pos), &(info->dest->centre) );
 		player[f].frogState &= ~FROGSTATUS_ISTELEPORTING;
 		player[f].frogState |= FROGSTATUS_ISSTANDING;
+		player[f].canJump = 1;
 
 		JallocFree((UBYTE**)&info);
 
