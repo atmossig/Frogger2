@@ -12,7 +12,7 @@
 #ifndef TIMERBAR_H_INCLUDED
 #define TIMERBAR_H_INCLUDED
 
-
+/*
 #define MAX_SLICES	30
 #define STARTX		240
 #define STARTY		130
@@ -47,5 +47,6 @@ extern unsigned int frameStart;
 extern unsigned int renderTime,renderTimeMax;
 extern char			timerMode;
 extern char			showTime;
+*/
 
 #endif
