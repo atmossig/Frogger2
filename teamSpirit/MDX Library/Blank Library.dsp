@@ -234,10 +234,6 @@ SOURCE=.\resource.h
 # End Source File
 # Begin Source File
 
-SOURCE=X:\TeamManta\MajikPR\lib\libm.lib
-# End Source File
-# Begin Source File
-
 SOURCE=X:\TeamManta\MajikPR\lib\MajikPR.lib
 # End Source File
 # End Target
