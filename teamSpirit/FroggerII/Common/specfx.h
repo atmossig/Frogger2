@@ -39,6 +39,8 @@ extern char pauseMode;
 #define EF_FIERYSMOKE					(1 << 8)	// Red at base, goes black
 #define EF_BUTTERFLYSWARM				(1 << 9)	// Swarm of butterflies. Uses models
 #define EF_LASER						(1 << 10)	// Straight bolt
+#define EF_TRAIL						(1 << 11)	// Motion trail
+#define EF_BILLBOARDTRAIL				(1 << 12)	// Always faces camera
 
 #define EF_RANDOMCREATE					(1 << 25)
 #define EF_FAST							(1 << 26)
@@ -70,6 +72,8 @@ enum
 	FXTYPE_POLYRING,
 	FXTYPE_BUTTERFLYSWARM,
 	FXTYPE_LASER,
+	FXTYPE_TRAIL,
+	FXTYPE_BILLBOARDTRAIL,
 
 	FXTYPE_NUMTYPES
 };
@@ -77,6 +81,8 @@ enum
 typedef struct
 {
 	VECTOR pos, vel;
+	VECTOR *poly;								// Used for motion trails
+	float *rMtrx;
 	unsigned char r, g, b, a, bounce;
 
 } PARTICLE;
@@ -91,9 +97,7 @@ typedef struct TAGSPECFX
 	PARTICLE *particles;						// For swarm, explosions etc.
 	ACTOR2 **act;								// For models
 
-	Vtx *verts;									// Persistent vertices on N64
-
-	short type, fade;
+	short type, fade, start, end;
 	float speed, accn, angle, spin, tilt, gravity;
 	long lifetime, deadCount, numP;				// numP is number of particles
 

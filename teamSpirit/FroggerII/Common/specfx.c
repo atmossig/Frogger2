@@ -42,8 +42,10 @@ void UpdateFXBolt( SPECFX *fx );
 void UpdateFXSmoke( SPECFX *fx );
 void UpdateFXSwarm( SPECFX *fx );
 void UpdateFXExplode( SPECFX *fx );
+void UpdateFXTrail( SPECFX *fx );
 
 void CreateBlastRing( );
+void AddTrailElement( SPECFX *fx, int n );
 
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
@@ -136,8 +138,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		if( !ringVtx )
 			CreateBlastRing( );
 
-		effect->scale.v[X] = 3;
-		effect->scale.v[Z] = 3;
+		effect->scale.v[X] = 2;
+		effect->scale.v[Z] = 2;
 		SetVector( &effect->vel, &effect->normal );
 		ScaleVector( &effect->vel, effect->speed );
 		effect->spin = 0.1;
@@ -147,6 +149,25 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrBlank;
 		effect->Update = UpdateFXBolt;
 		effect->Draw = DrawFXRing;
+
+		break;
+	case FXTYPE_TRAIL:
+	case FXTYPE_BILLBOARDTRAIL:
+		effect->fade = effect->a / life;
+
+		effect->numP = i = 8;
+		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*i, YES, "P" );
+		effect->particles[0].bounce = 1;
+
+		while( i-- )
+		{
+			effect->particles[i].poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
+			effect->particles[i].rMtrx = (float *)JallocAlloc( sizeof(float)*16, YES, "Mtx" );
+		}
+
+		effect->tex = txtrBlank;
+		effect->Update = UpdateFXTrail;
+		effect->Draw = DrawFXTrail;
 
 		break;
 	case FXTYPE_JUMPBLUR:
@@ -374,16 +395,6 @@ void UpdateSpecialEffects( )
 	{
 		fx2 = fx1->next;
 
-		if( fx1->follow )
-			SetVector( &fx1->origin, &fx1->follow->pos );
-
-		if( fx1->deadCount )
-			if( !(--fx1->deadCount) )
-			{
-				SubSpecFX(fx1);
-				continue;
-			}
-
 		if( fx1->Update )
 			fx1->Update( fx1 );
 	}
@@ -400,6 +411,16 @@ void UpdateSpecialEffects( )
 void UpdateFXRipple( SPECFX *fx )
 {
 	int fo;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+		SetVector( &fx->origin, &fx->follow->pos );
 
 	fo = fx->fade * gameSpeed;
 	if( fx->a > fo ) fx->a -= fo;
@@ -426,6 +447,16 @@ void UpdateFXRing( SPECFX *fx )
 {
 	int fo;
 	float speed;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+		SetVector( &fx->origin, &fx->follow->pos );
 
 	fo = fx->fade * gameSpeed;
 	if( fx->a > fo ) fx->a -= fo;
@@ -455,6 +486,16 @@ void UpdateFXBolt( SPECFX *fx )
 	int fo;
 	float accn = fx->accn * gameSpeed;
 
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+		SetVector( &fx->origin, &fx->follow->pos );
+
 	fo = fx->fade * gameSpeed;
 	if( fx->a > fo ) fx->a -= fo;
 	else fx->a = 0;
@@ -483,6 +524,16 @@ void UpdateFXSmoke( SPECFX *fx )
 {
 	int fo;
 	float dist;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+		SetVector( &fx->origin, &fx->follow->pos );
 
 	fo = fx->fade * gameSpeed;
 	if( fx->sprites->a > fo ) fx->sprites->a -= fo;
@@ -545,6 +596,16 @@ void UpdateFXSwarm( SPECFX *fx )
 	VECTOR up, pos;
 	int i = fx->numP;
 	float dist;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+		SetVector( &fx->origin, &fx->follow->pos );
 
 	if( fx->type == FXTYPE_FROGSTUN )
 	{
@@ -640,10 +701,20 @@ void UpdateFXExplode( SPECFX *fx )
 	int i = fx->numP, fo, ele;
 	VECTOR up;
 
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+		SetVector( &fx->origin, &fx->follow->pos );
+
 	while(i--)
 	{
 		if( fx->particles[i].bounce == 2 )
-			continue;
+			return;
 
 		ScaleVector( &fx->particles[i].vel, 0.98 );
 
@@ -707,6 +778,98 @@ void UpdateFXExplode( SPECFX *fx )
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFXTrails
+	Purpose			: 
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void UpdateFXTrail( SPECFX *fx )
+{
+	unsigned long i = fx->start;
+	short diff;
+	float fo;
+	VECTOR dist;
+
+	// Flag for first time through
+	if( fx->particles[i].bounce )
+	{
+		fx->particles[i].bounce = 0;
+		AddTrailElement( fx, i );
+	}
+
+	do
+	{
+		// If space, add a new particle after end (wrapped). Check the follow actor
+		// for quaternion and rotate the points about it. If no actor, don't add.
+		if( fx->follow )
+		{
+			if( fx->end < fx->start ) 
+				diff = fx->start - fx->end;
+			else
+				diff = ((fx->numP-1)-fx->end)+fx->start;
+
+			if( diff > 0 )
+			{
+				if( ++fx->end > fx->numP ) fx->end = 0;
+				AddTrailElement( fx, fx->end );
+			}
+		}
+
+		// Update particles that are alive - fade, shrink by speed, move by velocity
+		// Note - polys stored in object space
+		ScaleVector( &fx->particles[i].poly[0], fx->speed );
+		ScaleVector( &fx->particles[i].poly[1], fx->speed );
+		fo = (Random(4) + fx->fade) * gameSpeed ;
+		if( fx->particles[i].a > fo ) fx->particles[i].a -= fo;
+		else fx->particles[i].a = 0;
+		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
+
+		if( ++i > fx->numP ) i=0;
+
+	} while( i != ((fx->end+1)%fx->numP) );
+
+	// If oldest particle has dies, exclude it from the list
+	if( fx->particles[fx->start].a < 16 || DistanceBetweenPointsSquared(&fx->particles[fx->start].poly[0],&fx->particles[fx->start].poly[0])<25 )
+		if( ++fx->start > fx->numP )
+		{
+			fx->start = 0;
+			// If no more particles in list, time to die
+			if( (fx->start == fx->end) && !fx->deadCount )
+				fx->deadCount = 5;
+		}
+}
+
+void AddTrailElement( SPECFX *fx, int n )
+{
+	float t;
+	QUATERNION q, cross;
+
+	fx->particles[n].r = fx->r;
+	fx->particles[n].g = fx->g;
+	fx->particles[n].b = fx->b;
+	fx->particles[n].a = fx->a;
+	fx->particles[n].poly[0].v[X] = fx->scale.v[X];
+	fx->particles[n].poly[1].v[X] = -fx->scale.v[X];
+	// Amount of drift
+	SetVector( &fx->particles[n].vel, &fx->follow->vel );
+	ScaleVector( &fx->particles[n].vel, fx->accn );
+	SubVector( &fx->particles[n].pos, &fx->follow->pos, &fx->origin );
+
+	// Rotate to be around normal
+	CrossProduct( (VECTOR *)&cross, (VECTOR *)&fx->follow->qRot, &upVec );
+	MakeUnit( (VECTOR *)&cross );
+	t = DotProduct( (VECTOR *)&fx->follow->qRot, &upVec );
+	if( cross.x >= 0 )
+		cross.w = acos(t);
+	else
+		cross.w = -acos(t);
+	GetQuaternionFromRotation( &q, &cross );
+	QuaternionToMatrix( &q, (MATRIX *)fx->particles[n].rMtrx );
 }
 
 
@@ -914,7 +1077,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		PLATFORM *plt = (PLATFORM *)entity;
 
 		act = plt->pltActor;
-		SetVector( &normal, &plt->inTile->normal );
+		SetVector( &normal, &plt->inTile[0]->normal );
 		tile = plt->inTile;
 		flags = plt->flags;
 		path = plt->path;
