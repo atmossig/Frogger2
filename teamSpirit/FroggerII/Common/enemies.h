@@ -54,7 +54,8 @@ typedef struct TAGENEMY
 
 	ACTOR2					*nmeActor;				// actor used as enemy
 	unsigned long			flags;					// enemy flags
-	
+	unsigned long			reactiveNumber;			// What reactive animation does this NME have?
+
 	float					startSpeed;				// enemy start speed
 	float					speed;					// enemy current speed
 	float					accel;					// enemy acceleration
@@ -82,6 +83,13 @@ typedef struct TAGENEMYLIST
 
 } ENEMYLIST;
 
+typedef struct TAG_REACTIVEANIM
+{
+	char name[8];
+	short animChar;
+	short animFrog;
+	long type;
+} REACTIVEANIM;
 
 extern ENEMYLIST enemyList;
 

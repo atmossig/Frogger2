@@ -15,6 +15,9 @@
 
 #include "incs.h"
 
+REACTIVEANIM reactiveAnims[] = {
+#include "x:\teamspirit\pcversion\reactive.txt"
+};
 
 ENEMYLIST enemyList;						// the enemy linked list
 
@@ -46,6 +49,24 @@ void UpdateTileHomingNME( ENEMY *cur );
 	Returns			: 
 	Info			: 
 */
+
+long GetReactiveAnimNumber(char *name)
+{
+	long i = 0;
+	for (i=0; *reactiveAnims[i].name; i++)
+		if (gstrcmp(name,reactiveAnims[i].name)==0)
+			return i;
+	return -1;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
 ENEMY *GetEnemyFromUID (long uid)
 {
 	ENEMY *cur,*next;
@@ -127,7 +148,7 @@ void DoEnemyCollision( ENEMY *cur )
 
 void NMEDamageFrog( int num, ENEMY *nme )
 {
-	if( !nme || (player[num].frogState & FROGSTATUS_ISSAFE))
+		if( !nme || (player[num].frogState & FROGSTATUS_ISSAFE))
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
@@ -1330,6 +1351,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
 	if(newItem->nmeActor->actor->objectController)
 		InitActorAnim(newItem->nmeActor->actor);
+	
+	newItem->reactiveNumber = GetReactiveAnimNumber(eActorName);
 
 	// set shadow radius (if applicable)
 	if(shadowRadius)
