@@ -368,7 +368,6 @@ void GameProcessController(void)
     {
 		// *** DEBUG - ANDYE ***
 		ShowCamInfo();
-		ShowFrogInfo(frog);
 		// *********************
 	}
 
