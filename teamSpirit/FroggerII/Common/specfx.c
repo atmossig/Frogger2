@@ -1181,21 +1181,7 @@ void UpdateFXLightning( SPECFX *fx )
 			AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &rightVec );
 			SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &rightVec );
 		}
-
-		// Randomly fork a new lightning strand, but not if we're near the end or we're more than 2 layers of forking deep
-/*		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 )
-		{
-			VECTOR dir;
-			SPECFX *effect;
-			SubVector( &dir, &fx->particles[i].pos, &source );
-			MakeUnit( &dir );
-			effect = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &fx->particles[i].pos,
-												&dir, fx->scale.v[X]-Random(3), fx->speed * min(fr*1.5, 1),
-												fx->accn, fx->startLife * min(fr*1.5, 1) );
-			effect->fade = ++fx->fade;
-			SetFXColour( effect, fx->r, fx->g, fx->b );
-		}
-*/	}
+	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
