@@ -372,7 +372,8 @@ _objBank13SegmentRomEnd          alias   _objBank13_orgend
 
 oBank13  incbin  "objects/ancientbossa.nob",objBank13.data,64
 
-; [ ANCIENT WORLD BONUS ] >>>>>
+
+; [ ANCIENT WORLD LEVEL 4 ] >>>>>
 
 objBank14        group   obj()
 objBank14bss     group   obj(),bss
@@ -382,9 +383,9 @@ _objBank14SegmentRomEnd          alias   _objBank14_orgend
 
         section.16      objBank14.data,objBank14
 
-oBank14  incbin  "objects/ancientbonuslev.nob",objBank14.data,64
+oBank14  incbin  "objects/ancientbossb.nob",objBank14.data,64
 
-; [ ANCIENT WORLD MULTIPLAYER ] >>>>>
+; [ ANCIENT WORLD LEVEL 4 ] >>>>>
 
 objBank15        group   obj()
 objBank15bss     group   obj(),bss
@@ -394,7 +395,33 @@ _objBank15SegmentRomEnd          alias   _objBank15_orgend
 
         section.16      objBank15.data,objBank15
 
-oBank15  incbin  "objects/ancientmulti.nob",objBank15.data,64
+oBank15  incbin  "objects/ancientbossc.nob",objBank15.data,64
+
+
+
+; [ ANCIENT WORLD BONUS ] >>>>>
+
+objBank16        group   obj()
+objBank16bss     group   obj(),bss
+
+_objBank16SegmentRomStart        alias   _objBank16_org
+_objBank16SegmentRomEnd          alias   _objBank16_orgend
+
+        section.16      objBank16.data,objBank16
+
+oBank16  incbin  "objects/ancientbonuslev.nob",objBank16.data,64
+
+; [ ANCIENT WORLD MULTIPLAYER ] >>>>>
+
+objBank17        group   obj()
+objBank17bss     group   obj(),bss
+
+_objBank17SegmentRomStart        alias   _objBank17_org
+_objBank17SegmentRomEnd          alias   _objBank17_orgend
+
+        section.16      objBank17.data,objBank17
+
+oBank17  incbin  "objects/ancientmulti.nob",objBank17.data,64
 
 
 
@@ -608,7 +635,8 @@ _texBank16SegmentRomEnd          alias   _texBank16_orgend
 
 tBank16  incbin  "textures/bossb_ancients.fla",texBank16.data,64
 
-; [ BONUS ANCIENT ] >>>>>
+
+; [ BOSS C ANCIENT ] >>>>>
 
 texBank17        group   obj()
 texBank17bss     group   obj(),bss
@@ -618,9 +646,12 @@ _texBank17SegmentRomEnd          alias   _texBank17_orgend
 
         section.16      texBank17.data,texBank17
 
-tBank17  incbin  "textures/bonus_ancients.fla",texBank17.data,64
+tBank17  incbin  "textures/bossc_ancients.fla",texBank17.data,64
 
-; [ MULTI ANCIENT ] >>>>>
+
+
+
+; [ BONUS ANCIENT ] >>>>>
 
 texBank18        group   obj()
 texBank18bss     group   obj(),bss
@@ -631,6 +662,18 @@ _texBank18SegmentRomEnd          alias   _texBank18_orgend
         section.16      texBank18.data,texBank18
 
 tBank18  incbin  "textures/bonus_ancients.fla",texBank18.data,64
+
+; [ MULTI ANCIENT ] >>>>>
+
+texBank19        group   obj()
+texBank19bss     group   obj(),bss
+
+_texBank19SegmentRomStart        alias   _texBank19_org
+_texBank19SegmentRomEnd          alias   _texBank19_orgend
+
+        section.16      texBank19.data,texBank19
+
+tBank19  incbin  "textures/bonus_ancients.fla",texBank19.data,64
 
 
 
