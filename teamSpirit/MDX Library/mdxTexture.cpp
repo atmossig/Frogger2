@@ -639,7 +639,8 @@ unsigned long LoadTexBankFile(char *bank, char *baseDir)
 	while (num--)
 	{
 		int numFrames;
-		DWORD crc, time;
+		DWORD crc;
+		long time;
 		
 		numFrames = *(p++);
 		crc = *(p++);
