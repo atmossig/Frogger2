@@ -43,7 +43,7 @@ typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE, C
 int memload_fast = 0;
 
 #ifdef PC_VERSION
-#define NUM_SORTHACKED_OBJECTS 17
+#define NUM_SORTHACKED_OBJECTS 18
 #define SORTHACK_OFFSET -50
 
 char *sortHackNames[] = 
