@@ -749,10 +749,11 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		if( player[0].worldNum == 8 )
 		{
 			timeTextOver->draw = 0;
-			i = 3;
-			while(i--)
-				sprHeart[i]->draw = 0;
 		}
+
+		i = 3;
+		while(i--)
+			sprHeart[i]->draw = 0;
 
 		i = numBabies;
 		while(i--)
