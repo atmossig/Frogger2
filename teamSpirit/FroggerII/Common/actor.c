@@ -134,7 +134,7 @@ void DrawActorList()
 #ifdef PC_VERSION
 	float ACTOR_DRAWFADERANGE = sqrtf((float)ACTOR_DRAWDISTANCEOUTER - (float)ACTOR_DRAWDISTANCEINNER);
 	
-	BlankFrame(hello);
+	BlankFrame(_);
 
 	if (backGnd)
 	{
@@ -159,15 +159,18 @@ void DrawActorList()
 		fStart = oFs;
 		fEnd = oFe;
 
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,FALSE);
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_CLAMP);	// clamp textures
+//		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_WRAPV, 0);	// wrap textures
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+		
+		DrawBatchedPolys();
+		BlankFrame(_);
+
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREADDRESS, D3DTADDRESS_WRAP);	// wrap textures
 	}
 
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-	
-	DrawBatchedPolys();
-	BlankFrame(tomatoes);
-	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
@@ -175,7 +178,7 @@ void DrawActorList()
 	cur = actList;
 	waterObject = 0;
 
-	BlankFrame(spaghetti);
+	BlankFrame(_);
 
 	while(cur)
 	{
@@ -266,7 +269,7 @@ void DrawActorList()
 	}
 
 	DrawBatchedPolys();
-	BlankFrame("Fresh crispy side salad");
+	BlankFrame(_);
 	
 	waterObject = 1;
 	cur = actList;
