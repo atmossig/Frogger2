@@ -12,7 +12,7 @@
 #include "..\resource.h"
 #include "incs.h"
 
-#define MYDEBUG
+#define _MYDEBUG
 
 SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\timeout.wav",	2, 22050, 16, GEN_TIME_OUT,
 								"x:\\teamspirit\\pcversion\\clocktock.wav", 2, 22050, 16, GEN_CLOCK_TOCK,
