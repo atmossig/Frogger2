@@ -964,19 +964,12 @@ void RunGameLoop (void)
 					//CreateAndAdd3DText( scoreStr, 600, 128,128,128,255, T3D_CIRCLE,
 					//					T3D_MOVE_SPIN,
 					//					&textSpeed,-1,0,30,300,6,0.6,0.6 );
+
+					//Screen2Texture( );			// Need static grab for endlevel screen
+
 					darkenedLevel = 0;
 					pauseMode = PM_ENDLEVEL;
-
-					//grabData.fxTimer = 0;
 				}
-				//else
-				//	grabData.fxTimer++;
-				// PLEASE DON'T DELETE
-
-				//if( grabData.fxTimer == 50 )	// Just grab screen the once, when everything has been disabled
-				//	Screen2Texture( );			// Need static grab for endlevel screen
-				//else if( grabData.fxTimer > 50 )
-				//	grabData.alpha = 255;
 
 				if( levelTrophy->draw )
 				{

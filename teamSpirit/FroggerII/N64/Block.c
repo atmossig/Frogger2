@@ -1521,10 +1521,8 @@ void DrawGraphics(void *arg)
 						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
 					else if( pauseMode == PM_ENDLEVEL )
 					{
-						if( grabData.fxTimer < 50 )
-							DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
-						else
-							DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | USE_GRAB_BUFFER );
+						DrawScreenGrab( MOTION_BLUR | USE_GRAB_BUFFER | BLUR_INWARD | OVERLAY_SOLID | RECALC_VTX );
+						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | BLUR_LIGHT );
 
 						DrawSwirlFX( );
 					}

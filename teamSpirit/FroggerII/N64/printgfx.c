@@ -1253,6 +1253,11 @@ void DrawScreenGrab( unsigned long flags )
 	if( grabData.afterEffect == FROG_DEATH_OUT && grabData.fxTimer )
 		grabData.fxTimer--;
 
+	if( (grabData.flags & USE_GRAB_BUFFER) && !grab )
+	{
+		dprintf"No Grab Data!\n"));
+		return;
+	}
 	// Recalc vertices every frame
 	if( grabData.calcVtx )
 	{
@@ -1464,14 +1469,15 @@ void FreeGrabData( )
 void Screen2Texture( )
 {
 	u16 *screen = cfb_ptrs[1-draw_buffer];
-	static unsigned short *grab = NULL;
 	unsigned long xTex = 0, yTex = 0, tStep = 0, x = 0, yPos = 0;
 	long y = 76800;
 
 	// Initialise grab buffer first time through
 	if( !scrTexGrab )
 	{
-		grab = scrTexGrab = (unsigned short *)JallocAlloc(163840,NO,"TGrab"); //sizeof(short)*81920
+		scrTexGrab = (unsigned short *)JallocAlloc(163840,NO,"TGrab"); //sizeof(short)*81920
+
+		grab = scrTexGrab;
 
 		// Because the screen ends halfway down a row of textures, fill up the rest with blanks
 		for( yTex=81919; yTex>71360; yTex-- )
