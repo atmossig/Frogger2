@@ -12,8 +12,11 @@ BACKDROP backDrop;
 
 extern USHORT EXPLORE_black_CLUT;
 
+void FreeBackdrop ( void );
+
 void InitBackdrop ( char * filename )
 {
+	FreeBackdrop();
 	if (backDrop.init)
 		return;
 
