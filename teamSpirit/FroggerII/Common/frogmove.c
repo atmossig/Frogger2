@@ -1120,11 +1120,14 @@ void CheckForFroggerLanding(long pl)
 			{
 				int speed;
 
-				if (state >= TILESTATE_CONVEYOR_FAST)
+				if (state >= TILESTATE_CONVEYOR_ONEWAY)
 				{
 					speed = 2;
 					StartAnimateActor(frog[pl]->actor, FROG_ANIM_ICE1, YES, NO, 0.2f, NO, NO);
+					currTile[pl] = destTile[pl];
 				}
+				else if (state >= TILESTATE_CONVEYOR_FAST)
+					speed = 2;
 				else if (state >= TILESTATE_CONVEYOR_MED)
 					speed = 1;
 				else
