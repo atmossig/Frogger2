@@ -602,10 +602,10 @@ void ToolbarSelect(int command)
 	case TB_KILL_EVERYTHING:
 		//TODO: FreeAmbientSoundList();
 		//TODO: FreeBufSampleList();
-		//TODO:	FreeSampleList();
 
 		FreeSpecFXList( );
 		InitSpecFXList( );
+		ResetBabies( );
 		FreePlatformLinkedList();
 		FreeEnemyLinkedList();
 		FreeGaribList();
