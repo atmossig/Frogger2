@@ -60,6 +60,12 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 
 	if ( createOverlays )
 	{
+		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
+		{
+			numBabies = 5;
+		}
+		// ENDIF
+
 		for(i=0; i<numBabies; i++)
 		{
 			switch(i)
@@ -228,7 +234,7 @@ ACTOR2 *GetNearestBabyFrog()
 	}
 
 	if(nearest && (distance < CROAK_SOUND_RANGE))
-		PlaySample(218,NULL,255,128 + (128 - (distance / 4)));
+		PlaySample(0,NULL,255,128 + (128 - (distance / 4))); //218
 
 	return nearest;
 }
