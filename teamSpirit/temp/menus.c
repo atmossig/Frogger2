@@ -1788,7 +1788,8 @@ void CheckForExtras()
 	for(i = NUM_BASIC_EXTRAS;i < NUM_EXTRAS;i++)
 	{
 		options.extrasAvailable[i] = 0;
-		options.extras[i]->draw = 0;	
+		if(options.extras[i])
+			options.extras[i]->draw = 0;	
 	}
 
 	for(i = 0;i < num;i++)
