@@ -483,6 +483,8 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
+		Init_BB_AcosTable();
+
 //		MemCardInit(1);
 //		MemCardStart();
 		padInitialise(0); // 0 = No multi tap support

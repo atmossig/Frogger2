@@ -78,6 +78,7 @@ bss     group   bss
 	include "eff_draw.obj"
 	include "temp_psx.obj"
 	include "world_eff.obj"
+	include "acostab.obj"
 
 
 ;	include "ANIM.obj"
