@@ -665,7 +665,7 @@ Vis:
 			player[0].worldNum = world;
 			player[0].levelNum = level;
 
-			levelIsOver = 10;
+			levelIsOver = 1;
 			showEndLevelScreen = 0;
 			break;
 		}
