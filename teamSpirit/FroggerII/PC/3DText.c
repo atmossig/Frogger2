@@ -47,17 +47,31 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->motion = motion;
 	t3d->type = type;
 
-	if( t3d->motion & T3D_ALIGN_CENTRE )
-		t3d->xOffs = (SCREEN_WIDTH/2)-((SCREEN_WIDTH-(len*t3d->tileSize))/2);
-	else if( t3d->motion & T3D_ALIGN_LEFT )
-		t3d->xOffs = SCREEN_WIDTH/2;
-	else if( t3d->motion & T3D_ALIGN_RIGHT )
-		t3d->xOffs = strlen(str)*t3d->tileSize;
+	if( t3d->type == T3D_CIRCLE )
+	{
+		if( t3d->motion & T3D_ALIGN_CENTRE )
+			t3d->xOffs = SCREEN_WIDTH/2;
+		else if( t3d->motion & T3D_ALIGN_LEFT )
+			t3d->xOffs = t3d->radius;
+		else if( t3d->motion & T3D_ALIGN_RIGHT )
+			t3d->xOffs = SCREEN_WIDTH-t3d->radius;
+		else
+			t3d->xOffs = xO;
+	}
 	else
-		t3d->xOffs = xO;
+	{
+		if( t3d->motion & T3D_ALIGN_CENTRE )
+			t3d->xOffs = (SCREEN_WIDTH-(len*t3d->tileSize))/2;
+		else if( t3d->motion & T3D_ALIGN_LEFT )
+			t3d->xOffs = 0;
+		else if( t3d->motion & T3D_ALIGN_RIGHT )
+			t3d->xOffs = SCREEN_WIDTH-(strlen(str)*t3d->tileSize);
+		else
+			t3d->xOffs = xO;
+	}
 
 	t3d->yOffs = yO;
-	t3d->zOffs = zO;
+	t3d->zOffs = -zO;
 
 	//t3d->timer = T360_TIMER; // Default value
 
@@ -116,13 +130,13 @@ void Print3DText( )
 			u = (float)u/256.0;
 			v = (float)v/256.0;
 
-			t3d->vT[vx+0].tu = u;
+			t3d->vT[vx+0].tu = u2;
 			t3d->vT[vx+0].tv = v2;
-			t3d->vT[vx+1].tu = u2;
+			t3d->vT[vx+1].tu = u;
 			t3d->vT[vx+1].tv = v2;
-			t3d->vT[vx+2].tu = u2;
+			t3d->vT[vx+2].tu = u;
 			t3d->vT[vx+2].tv = v;
-			t3d->vT[vx+3].tu = u;
+			t3d->vT[vx+3].tu = u2;
 			t3d->vT[vx+3].tv = v;
 
 			// Transform to screen coords
@@ -202,7 +216,7 @@ void MakeTextCircle( TEXT3D *t3d )
 
 		yPa = t3d->yOffs;
 		yPb = yPa;
-		yPc = yPb+tS;
+		yPc = yPb-tS;
 		yPd = yPc;
 
 		if( t3d->motion & T3D_MOVE_SQUISH )
@@ -274,7 +288,7 @@ void MakeTextLine( TEXT3D *t3d )
 
 			yPa = t3d->yOffs;
 			yPb = yPa;
-			yPc = yPb+tS;
+			yPc = yPb-tS;
 			yPd = yPc;
 			zPa = zPb = zPc = zPd = t3d->zOffs;
 
@@ -332,22 +346,22 @@ void MakeTextLine( TEXT3D *t3d )
 				zPd = t3d->zOffs - sfz1;
 			}
 
-			t3d->vT[v+0].sx = -pB+t3d->xOffs;
+			t3d->vT[v+0].sx = pB+t3d->xOffs;
 			t3d->vT[v+0].sz = (zPa+DIST)/2000;
 			t3d->vT[v+0].sy = yPa;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
-			t3d->vT[v+1].sx = -pB-tS+t3d->xOffs;
+			t3d->vT[v+1].sx = pB-tS+t3d->xOffs;
 			t3d->vT[v+1].sz = (zPb+DIST)/2000;
 			t3d->vT[v+1].sy = yPb;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
-			t3d->vT[v+2].sx = -pB-tS+t3d->xOffs;
+			t3d->vT[v+2].sx = pB-tS+t3d->xOffs;
 			t3d->vT[v+2].sz = (zPc+DIST)/2000;
 			t3d->vT[v+2].sy = yPc;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
-			t3d->vT[v+3].sx = -pB+t3d->xOffs;
+			t3d->vT[v+3].sx = pB+t3d->xOffs;
 			t3d->vT[v+3].sz = (zPd+DIST)/2000;
 			t3d->vT[v+3].sy = yPd;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
@@ -371,7 +385,7 @@ void MakeTextLine( TEXT3D *t3d )
 			xPd = xPa;
 			yPa = pB+t3d->yOffs;
 			yPb = yPa;
-			yPc = yPb+tS;
+			yPc = yPb-tS;
 			yPd = yPc;
 			zPa = zPb = zPc = zPd = t3d->zOffs;
 
@@ -810,61 +824,41 @@ void Free3DTextList( )
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: RunHiscoreScreen
-	Purpose 	: Draws 3d text of hiscore table as if floating on water
+	Function 	: MakeHiscoreText
+	Purpose 	: Draws 3d text of hiscore table
 	Parameters 	: 
 	Returns 	: 
 	Info 		: SHOULD NOT BE HERE!
 */
 void MakeHiscoreText( )
 {
-	/*
-	static u16 button,lastbutton = 0;
+	long i;
+	char hiScoreStr[32];
 
-	button = controllerdata[ActiveController].button;
+	Init3DTextList( );
 
-	if( frameCount == 1 )
-	{*/
-		long i;
-		char hiScoreStr[32];
-
-		Init3DTextList( );
-
-		for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
-		{
-			// Create a 3D text object for each hiscore entry.
-			// Increase z and alter y so they form a perspective plane,
-			// in a StarWars stylee.
-
-			sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
-
-			CreateAndAdd3DText( hiScoreStr, 500,
-								255,255,255,255,
-								T3D_HORIZONTAL,
-								T3D_MOVE_TWIST | T3D_ALIGN_CENTRE,
-								&zero,
-								-3,90,
-								0,150-(i*64),20*i,
-								6.0, 0.3, 0.3 );
-		}
-	//}
-/*
-	if(frameCount > 15)
+	for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
 	{
-		// Move back in menus
-		if( ((button & CONT_A) && !(lastbutton & CONT_A)) ||
-			((button & CONT_B) && !(lastbutton & CONT_B)) )
-		{
-			FreeAllLists();
-			frameCount = 0;
-			lastbutton = 0;
-			frontEndState.mode	= TITLE_MODE;
-			PlaySample ( 2,NULL,255,128);
-			return;
-		}
+		sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
 
+		CreateAndAdd3DText( hiScoreStr, 500,
+							255,255,255,255,
+							T3D_CIRCLE,
+							T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+							&zero,
+							-3,90,
+							0,100+(i*64),20,
+							6.5, 0.3, 0.4 );
+
+		/*
+		CreateAndAdd3DText( hiScoreStr, 500,
+							255,255,255,255,
+							T3D_HORIZONTAL,
+							T3D_MOVE_TWIST | T3D_ALIGN_CENTRE,
+							&zero,
+							-5,i*30,
+							0,100+(i*64),20*i,
+							0.0, 0.0, 0.4 );
+		*/
 	}
-
-	lastbutton = button;
-	*/
 }
