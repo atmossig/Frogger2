@@ -119,8 +119,8 @@ void GameLoop(void)
 		break;
 	}
 
-	i = 4;
-	while (i--)
-		if (player[i].inputPause>0)
-			player[i].inputPause=0;
+	i = NUM_FROGS;
+	while(i--)
+		if(player[i].inputPause > 0)
+			player[i].inputPause = 0;
 }

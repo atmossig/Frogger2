@@ -384,17 +384,16 @@ unsigned long mus		= 0;
 
 int sfxRes				= 0;
 
-
 void RunSndView()
 {
 	unsigned long counter;
-
-	static TEXTOVERLAY *title,*titleSfx,*titleMus;
+	static TEXTOVERLAY *title,*titleShadow,*titleSfx,*titleMus;
 	static u16 button,lastbutton;
 	static s16 stickX,stickY;
 	static SPRITEOVERLAY *curPane;
 	SPRITEOVERLAY *sprPane;
-
+	static float sndSeed = 0.0F;
+	
 	if(frameCount == 1)
 	{
 		FreeAllLists();
@@ -402,21 +401,46 @@ void RunSndView()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 
-		currFont = smallFont;
-		title = CreateAndAddTextOverlay(30,25,"sound player",NO,NO,255,255,255,255,currFont,0,0,0);
+		title = CreateAndAddTextOverlay(30,24,"sound player",NO,NO,255,255,255,255,smallFont,0,0,0);
+		titleShadow = CreateAndAddTextOverlay(32,26,"sound player",NO,NO,0,0,0,255,smallFont,0,0,0);
 
-		currFont = oldeFont;
-		titleSfx = CreateAndAddTextOverlay(40,75,"SNDFX NAMES",NO,NO,255,0,0,255,currFont,0,0,0);
-		sfxName = CreateAndAddTextOverlay(45,90,"",NO,NO,255,255,255,255,currFont,0,2,0);
+		// bottom pane --------------------------------------------------------------------------
+		CreateAndAddTextOverlay(75,125,"select first or last item",NO,NO,255,255,255,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(77,127,"select first or last item",NO,NO,0,0,0,255,oldeFont,0,0,0);
+
+		CreateAndAddTextOverlay(75,140,"play selected item",NO,NO,255,255,255,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(77,142,"play selected item",NO,NO,0,0,0,255,oldeFont,0,0,0);
+
+		CreateAndAddTextOverlay(75,155,"stop playback",NO,NO,255,255,255,255,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(77,157,"stop playback",NO,NO,0,0,0,255,oldeFont,0,0,0);
+		// bottom pane --------------------------------------------------------------------------
+
+		// middle pane --------------------------------------------------------------------------
+		titleSfx = CreateAndAddTextOverlay(40,55,"SNDFX NAMES",NO,NO,0,255,0,255,oldeFont,0,0,0);
+		sfxName = CreateAndAddTextOverlay(45,65,"",NO,NO,255,255,255,255,oldeFont,0,2,0);
 		sfxName->text = sfxNames[sfxNum];
 
-		titleMus = CreateAndAddTextOverlay(40,115,"MUSIC TRACK",NO,NO,255,0,0,95,currFont,0,0,0);
-		musName = CreateAndAddTextOverlay(45,130,"",NO,NO,255,255,255,95,currFont,0,0,0);
+		titleMus = CreateAndAddTextOverlay(40,85,"MUSIC TRACK",NO,NO,0,255,0,95,oldeFont,0,0,0);
+		musName = CreateAndAddTextOverlay(45,95,"",NO,NO,255,255,255,95,oldeFont,0,0,0);
 		musName->text = gameSongs[musNum].tuneName;
+		// middle pane --------------------------------------------------------------------------
 
-		curPane = CreateAndAddSpriteOverlay(43,88,"tippane.bmp",200,12,255,255,255,191,0);
-		sprPane = CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,24,255,255,255,191,0);
-		sprPane = CreateAndAddSpriteOverlay(25,50,"tippane.bmp",270,110,255,255,255,95,0);
+		// bottom pane --------------------------------------------------------------------------
+		CreateAndAddSpriteOverlay(30,120,"shldr_l.bmp",16,16,255,255,255,255,0);
+		CreateAndAddSpriteOverlay(47,120,"shldr_r.bmp",16,16,255,255,255,255,0);
+
+		CreateAndAddSpriteOverlay(34,135,"button_a.bmp",16,16,255,255,255,255,0);
+		CreateAndAddSpriteOverlay(34,150,"button_b.bmp",16,16,255,255,255,255,0);
+		// bottom pane --------------------------------------------------------------------------
+
+		curPane = CreateAndAddSpriteOverlay(43,63,"tippane.bmp",200,12,255,255,255,191,0);
+
+		// top pane
+		sprPane = CreateAndAddSpriteOverlay(25,20,"tippane.bmp",270,25,255,255,255,191,0);
+		// middle pane
+		sprPane = CreateAndAddSpriteOverlay(25,46,"tippane.bmp",270,68,255,255,255,95,0);
+		// bottom pane
+		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,255,255,255,191,0);
 
 		sfxNum	= 0;
 		musNum	= 0;
@@ -436,7 +460,7 @@ void RunSndView()
 		MusHandleStop(audioCtrl.musicHandle[0],0);
 		audioCtrl.currentTrack[0] = 0;
 
-		curPane->xPos = 43;	curPane->yPos = 88;
+		curPane->xPos = 43;	curPane->yPos = 63;
 	}
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
 	{
@@ -447,7 +471,7 @@ void RunSndView()
 		MusHandleStop(audioCtrl.musicHandle[0],0);
 		audioCtrl.currentTrack[0] = 0;
 
-		curPane->xPos = 43;	curPane->yPos = 128;
+		curPane->xPos = 43;	curPane->yPos = 93;
 	}
 
 	if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
@@ -603,6 +627,10 @@ void RunSndView()
 	}
 
 	curPane->a = 255 * Fabs(sinf(frameCount/12.5));
+
+	title->xPos = 30 + (sinf(sndSeed) * 5);
+	titleShadow->xPos = 32 - (sinf(sndSeed) * 5);
+	sndSeed += 0.2F;
 }
 
 #endif

@@ -48,11 +48,9 @@ float globalFrogScale			= 0.6F;
 
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
-	char frogName[16];
 	ACTOR2 **me = &frog[p];
 
-	sprintf(frogName,"frogger.obe");
-	(*me) = CreateAndAddActor(frogName,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+	(*me) = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
@@ -86,14 +84,14 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 	if(createFrogActor)
 	{
 		CreateBabies(createBabyActors, createBabyOverlays );
-		for (i=0; i<MAX_FROGS; i++)
+		for (i=0; i<NUM_FROGS; i++)
 			if (gTStart[i])
-				CreateFrogActor (gTStart[i],"frogger.ndo",i);
+				CreateFrogActor (gTStart[i],"frogger.obe",i);
 			else
-				CreateFrogActor (gTStart[0],"frogger.ndo",i);
+				CreateFrogActor (gTStart[0],"frogger.obe",i);
 		
-		for (i=4; i>NUM_FROGS; i--)
-			frog[i-1]->draw = 0;
+		for (i=0; i<NUM_FROGS; i++)
+			frog[i]->draw = 0;
 	}
 
 	if (NUM_FROGS == 1)
