@@ -159,6 +159,9 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 		gTStart[0] = tile;
 	}
 
+	startCamFacing = camFacing[0];
+	startFrogFacing = frogFacing[0];
+
 //	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
 

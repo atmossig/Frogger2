@@ -71,6 +71,7 @@ extern float	camSpeed;
 extern float	camLookOfs;
 extern int		camFacing[];
 extern long		prevCamFacing[];
+extern short	startCamFacing, startFrogFacing;
 
 extern VECTOR	camSource;
 extern VECTOR	camTarget;

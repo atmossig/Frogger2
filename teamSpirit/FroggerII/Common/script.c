@@ -1075,7 +1075,9 @@ BOOL ExecuteCommand(UBYTE **p)
 		{
 			ENEMY *e;
 			if (!(e = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
-			gTStart[0] = e->path->nodes->worldTile; 
+			gTStart[0] = e->path->nodes->worldTile;
+			startCamFacing = camFacing[0];
+			startFrogFacing = frogFacing[0];
 			break;
 		}
 

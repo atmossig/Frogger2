@@ -51,6 +51,7 @@ float fovSpd				= 2;
 float transCamSpeedMult		= 1.0F;
 
 int	camFacing[4]			= {0,0,0,0};
+short startCamFacing = 0, startFrogFacing = 0;
 float scaleV				= 1.1F;
 
 char controlCamera			= 0;
@@ -377,6 +378,8 @@ void FreeTransCameraList()
 	fixedDir = 0;
 	fixedPos = 0;
 	firstPerson = 0;
+
+	startCamFacing = startFrogFacing = 0;
 }
 
 
@@ -715,17 +718,24 @@ void InitCamera(void)
 	currCamBox = NULL;
 	CheckCameraBoxes();
 
-	for( i=0; i<NUM_FROGS; i++ )
+	if( gameState.multi == SINGLEPLAYER )
 	{
-		camFacing[i] = 0;
-		lastTile[i] = NULL;
-		CheckForDynamicCameraChange(currTile[i],i);
+		lastTile[0] = NULL;
+		CheckForDynamicCameraChange(currTile[0],0);
+	}
+	else
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			camFacing[i] = 0;
+			lastTile[i] = NULL;
+			CheckForDynamicCameraChange(currTile[i],i);
+		}
 	}
 
 	cam_shakiness = 0;
 
 	SubVector(&currCamOffset, &camTarget, &camSource);
-
 	UpdateCameraPosition();
 
 	SetVector(&currCamSource, &camSource);

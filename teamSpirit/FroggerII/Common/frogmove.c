@@ -133,7 +133,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	fixedPos = 0;
 	fixedDir = 0;
 
-	frogFacing[p] = camFacing[p];
+	camFacing[p] = startCamFacing;
+	frogFacing[p] = startFrogFacing;
 	Orientate( &frog[p]->actor->qRot, &currTile[p]->dirVector[frogFacing[p]], &currTile[p]->normal );
 }
 
