@@ -46,6 +46,7 @@ extern unsigned long numBabies;
 void CreateBabies(unsigned char createOverlays);
 void ResetBabies( );
 int PickupBabyFrog( ACTOR2 *baby );
+void PickupBabyFrogMulti( ACTOR2 *baby );
 int GetNearestBabyFrog();
 
 #endif

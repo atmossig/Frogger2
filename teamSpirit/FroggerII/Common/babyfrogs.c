@@ -127,7 +127,7 @@ void ResetBabies( )
 	Function		: PickupBabyFrog
 	Purpose			: called when a baby frog is picked up...
 	Parameters		: ACTOR2
-	Returns			: void
+	Returns			: truth
 	Info			:
 */
 int PickupBabyFrog( ACTOR2 *baby )
