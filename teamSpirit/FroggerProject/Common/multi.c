@@ -336,6 +336,7 @@ void UpdateBattle( )
 			{
 				MoveEnemyToNode( nme, count );
 				nme->isWaiting = -1;
+				nme->inTile = 0;
 				count++;
 			}
 
@@ -721,6 +722,13 @@ void UpdateCollect( )
 	Returns			: void
 	Info			:
 */
+#ifdef PSX_VERSION
+int mpltextx = 250;
+int mpltexty = -150;
+#elif PC_VERSION
+int mpltextx = 0;
+int mpltexty = -200;
+#endif
 void RunMultiplayer( )
 {
 	int i;
@@ -742,6 +750,7 @@ void RunMultiplayer( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
+
 #ifdef PSX_VERSION
 		//bb - update depth shifts for frog on frog
 		int p=player[i].frogon;
@@ -752,6 +761,13 @@ void RunMultiplayer( )
 		}
 #endif
 
+		if(multiTimer.time > 1)
+			mpl[i].numText->draw = 1;
+		else
+			mpl[i].numText->draw = 0;
+		TransformPoint(&frog[i]->actor->position,&mpl[i].numText->xPos,&mpl[i].numText->yPos);
+		mpl[i].numText->xPos += mpltextx;
+		mpl[i].numText->yPos += mpltexty;
 		if( mpl[i].wins == 3 )
 		{
 			if(matchWinner == -1)
@@ -1157,6 +1173,7 @@ void FreeMultiplayer( )
 	Returns			: 
 	Info			:
 */
+char numString[4][4] = {"1","2","3","4"};
 void ReinitialiseMultiplayer( )
 {
 	int i;
@@ -1225,6 +1242,7 @@ void ReinitialiseMultiplayer( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
+		mpl[i].numText = CreateAndAddTextOverlay(-1000,0,numString[i],YES,255,font,TEXTOVERLAY_SHADOW);
 		if(gameState.difficulty == DIFFICULTY_HARD)
 			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH*2;
 		else

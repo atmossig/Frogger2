@@ -341,7 +341,7 @@ void InitMultiHUD()
 		break;
 	}
 
-	multiHud.centreText = CreateAndAddTextOverlay(2048,1600,countdownString,YES,255,font,TEXTOVERLAY_SHADOW);
+	multiHud.centreText = CreateAndAddTextOverlay(2048,900,countdownString,YES,255,font,TEXTOVERLAY_SHADOW);
 
 	for(i = 0;i < NUM_FROGS;i++)
 	{

@@ -701,7 +701,7 @@ void FroggerHop(int pl)
 	GTUpdate( &x, -1 ); \
 	if( !x.time ) \
 		PlayVoice( pl, "frogannoyed" ); \
-	if( x.time != oldTime ) \
+	if((gameState.multi == SINGLEPLAYER) && (x.time != oldTime)) \
 		PlaySample( genSfx[GEN_POWERTICK], NULL, 0, SAMPLE_VOLUME, -1 ); \
 }
 

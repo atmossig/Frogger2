@@ -1206,6 +1206,7 @@ void RunFrontendGameLoop (void)
 			storeCurrCamOffset.vx = -10028260;
 			storeCurrCamOffset.vy = 3244315;
 			storeCurrCamOffset.vz = 5790205;
+			player[0].hasJumped = 0;
 		}
 
 		lastArcade = 0;

@@ -500,6 +500,7 @@ void StartMultiWinGame( )
 		{
 			sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
 		}
+		multiHud.centreText->yPos = 1600;
 		multiHud.centreText->a = 0;
 		multiHud.centreText->scale = 4096;
 		gameState.mode = MULTI_WINCOLLECT_MODE;
@@ -650,6 +651,7 @@ void RunMultiWinRace( )
 				}
 				mgWin->mode = MGW_FLASHING;
 				multiHud.centreText->a = 0;
+				multiHud.centreText->yPos = 900;
 				GTInit( &modeTimer, 3 );
 			}
 		} 
@@ -781,6 +783,7 @@ void RunMultiWinCollect( )
 				}
 
 				multiHud.centreText->draw = 0;
+				multiHud.centreText->yPos = 900;
 				ScreenFade(128,255,30);
 				keepFade = 0;
 				fadeText = NO;
@@ -889,6 +892,7 @@ void RunMultiWinBattle( )
 
 
 		multiHud.centreText->draw = 0;
+		multiHud.centreText->yPos = 900;
 		ScreenFade(128,255,30);
 		keepFade = 0;
 		fadeText = NO;

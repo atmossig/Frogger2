@@ -83,6 +83,7 @@ typedef struct
 
 	short scrX,scrY;
 	TEXTOVERLAY *penalText;	// haha... penal.. - ds
+	TEXTOVERLAY *numText;
 } MPINFO;
 
 extern char multiGameTypes[MAX_WORLDS];
