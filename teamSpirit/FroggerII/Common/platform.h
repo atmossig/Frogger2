@@ -57,7 +57,6 @@ typedef struct TAGPLATFORM
 	UBYTE					active;					// 1 = active ; 0 = non-active
 
 	unsigned long			flags;					// platform flags
-	unsigned long			originalFlags;			// copy of original flags
 
 	float					currSpeed;				// platform current speed
 	short					isWaiting;				// platform node pause time
@@ -67,6 +66,9 @@ typedef struct TAGPLATFORM
 
 	short					visibleTime;			// platforms time visible if it disappears
 	short					visible;				// platforms current visibility counter
+
+	short					regenTime;				// platforms regeneration time
+	short					regen;					// platforms current regeneration counter
 
 	GAMETILE				*inTile;				// tile platform is currently 'in'
 	PATH					*path;					// ptr to platform path data
@@ -128,6 +130,7 @@ extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 #define PLATFORM_NEW_DISAPPEARWITHFROG	(1 << 11)	// platform disappears when frog is on it (after period of time)
 #define PLATFORM_NEW_CRUMBLES			(1 << 12)	// platform crumbles when frog is on it (after period of time)
 #define PLATFORM_NEW_NONMOVING			(1 << 13)	// platform does not move
+#define PLATFORM_NEW_REGENERATES		(1 << 14)	// platform regenerates after specified time
 
 
 PLATFORM *CreateAndAddPlatform(char *pActorName);
@@ -138,6 +141,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform);
 void CalcPlatformNormalInterps(PLATFORM *pform);
 
 void SetPlatformVisibleTime(PLATFORM *pform,short time);
+void SetPlatformRegenerateTime(PLATFORM *pform,short time);
 
 //------------------------------------------------------------------------------------------------
 

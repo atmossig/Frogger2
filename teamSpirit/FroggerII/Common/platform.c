@@ -94,7 +94,7 @@ PATHNODE debug_pathNodes3[] =					// TEST PATH - ANDYE
 
 PATHNODE debug_pathNodes4[] =					// TEST PATH - ANDYE
 { 
-	14,20,0,2,0,
+	14,50,0,2,0,
 };
 
 PATH debug_path1 = { 8,0,0,0,debug_pathNodes1 };
@@ -134,7 +134,9 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path3,PATH_MAKENODETILEPTRS);
 
 			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat2,PLATFORM_NEW_NONMOVING,&debug_path4,PATH_MAKENODETILEPTRS);
+			AssignPathToPlatform(devPlat2,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path4,PATH_MAKENODETILEPTRS);
+			SetPlatformVisibleTime(devPlat2,75);
+			SetPlatformRegenerateTime(devPlat2,100);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
@@ -177,6 +179,7 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 */
 void UpdatePlatforms()
 {
+	PLANE2 rebound;
 	PLATFORM *cur,*next;
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd;
@@ -184,10 +187,6 @@ void UpdatePlatforms()
 	float lowest,t;
 	int i,newCamFacing,newFrogFacing;
 
-	float m,n,qrspd;
-	QUATERNION q1,destQ;
-	VECTOR pltUp,v1,v2;
-		
 	if(platformList.numEntries == 0)
 		return;
 	
@@ -195,11 +194,31 @@ void UpdatePlatforms()
 	{
 		next = cur->next;
 
+		// update regenerating platforms
+		if(cur->flags & PLATFORM_NEW_REGENERATES)
+		{
+			if(cur->regen)
+			{
+				cur->regen--;
+				if(!cur->regen)
+				{
+					dprintf"Appears - Groovy !\n"));
+
+					cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
+					cur->pltActor->flags &= ~ACTOR_DRAW_NEVER;
+					cur->pltActor->flags |= ACTOR_DRAW_CULLED;
+
+					cur->active	= 1;
+					cur->visible = cur->visibleTime;
+				}
+			}
+		}
+
+		// check if platform is active
 		if(!cur->active)
 			continue;
 
 		// check if this platform is currently 'waiting' at a node
-
 		if(cur->isWaiting)
 		{
 			if(cur->isWaiting == -1)
@@ -318,11 +337,53 @@ void UpdatePlatforms()
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
 			// check if this is a disappearing or crumbling platform
-			if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
+			if((cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG) || (cur->flags & PLATFORM_NEW_CRUMBLES))
 			{
-			}
-			else if(cur->flags & PLATFORM_NEW_CRUMBLES)
-			{
+				if(cur->visible)
+				{
+					// give some visual indication that this platform is about to vanish
+					if(cur->visible < 30)
+					{
+						SetVector(&cur->pltActor->actor->pos,&frog[0]->actor->pos);
+						cur->pltActor->actor->pos.v[X] += (-2 + Random(5));
+						cur->pltActor->actor->pos.v[Y] += (-2 + Random(5));
+						cur->pltActor->actor->pos.v[Z] += (-2 + Random(5));
+					}
+
+					cur->visible--;
+					if(!cur->visible)
+					{
+						dprintf"Vanished - Poof !\n"));
+						cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
+						cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
+						cur->pltActor->flags |= ACTOR_DRAW_NEVER;
+
+						cur->active = 0;
+						cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+
+						if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
+						{
+							// platform disappears and will regenerate
+							cur->regen = cur->regenTime;
+						}
+						else
+						{
+							// platform crumbles and will not regenerate
+							SetVector(&rebound.point,&cur->inTile->centre);
+							SetVector(&rebound.normal,&cur->inTile->normal);
+							cur->regen = cur->regenTime;	//0;
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,6,16,&rebound,30);
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,12,32,&rebound,40);
+						}
+
+						CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&cur->pltActor->actor->pos,128,1,0.2,40);
+						
+						currTile[0] = cur->inTile;
+						cur->carrying = NULL;
+						SetVector(&frog[0]->actor->pos,&currTile[0]->centre);
+					}
+				}
+
 			}
 			else
 			{
@@ -337,6 +398,8 @@ void UpdatePlatforms()
 		else
 		{
 			// platform is not carrying a frog
+			if(cur->visible < cur->visibleTime)
+				cur->visible++;
 		}
 	}
 }
@@ -855,7 +918,6 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	{
 		// this platform does not move
 		pform->path->fromNode = pform->path->toNode = 0;
-		SetPathNodeWaitTime(&pform->path->nodes[0],-1);
 	}
 
 	// set platform position to relevant point on path
@@ -1169,6 +1231,19 @@ void SetPlatformVisibleTime(PLATFORM *pform,short time)
 {
 	pform->visibleTime	= time;
 	pform->visible		= time;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetPlatformRegenerateTime
+	Purpose			: sets the regeneration time for a platform
+	Parameters		: PLATFORM *,short
+	Returns			: void
+	Info			: 
+*/
+void SetPlatformRegenerateTime(PLATFORM *pform,short time)
+{
+	pform->regenTime	= time;
+	pform->regen		= time;
 }
 
 //------------------------------------------------------------------------------------------------
