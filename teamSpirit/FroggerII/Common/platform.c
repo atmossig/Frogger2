@@ -144,12 +144,13 @@ void UpdatePlatforms()
 			}
 		}
 
-		// check if this paltform is currently 'waiting' at a node
+		// check if this platform is currently 'waiting' at a node
 		if(cur->isWaiting)
 		{
 			if(cur->isWaiting == -1)
 				continue;
 
+			// check platform that is currently waiting at a node
 			if(actFrameCount > cur->path->startFrame)
 				cur->isWaiting = 0;
 			else
@@ -265,7 +266,7 @@ void UpdatePlatforms()
 
 		// special fx associated with platform
 		if(cur->pltActor->effects)
-			ProcessAttachedEffects((void *)cur,0);
+			ProcessAttachedEffects((void *)cur,ENTITY_PLATFORM);
 	}
 }
 
@@ -793,23 +794,15 @@ BOOL PlatformHasArrivedAtNode(PLATFORM *pform)
 	VECTOR nodePos;
 	PATH *path = pform->path;
 
-	if (actFrameCount>path->endFrame)
-	{
-		if (pform->flags & PLATFORM_NEW_CARRYINGFROG)
-		{
-			CheckTileForCollectable(path->nodes[path->toNode].worldTile,0);
-		}
-
-		return TRUE;
-	}
 	// check if path node is reached
-/*	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
-	if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&nodePos) <  ((pform->currSpeed + 0.1F) * (pform->currSpeed + 0.1F)))
+	if(actFrameCount>path->endFrame)
 	{
-		dprintf""));
+		if(pform->flags & PLATFORM_NEW_CARRYINGFROG)
+			CheckTileForCollectable(path->nodes[path->toNode].worldTile,0);
+	
 		return TRUE;
 	}
-*/
+
 	return FALSE;
 }
 
@@ -1284,7 +1277,8 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 		// platform is moving down
 		SubFromVector(&plat->pltActor->actor->pos,&moveVec);
 	}
-	
+
+	// check if this platform has arrived at a path node
 	if(PlatformReachedTopOrBottomPoint(plat))
 		UpdatePlatformPathNodes(plat);
 }
