@@ -38,6 +38,7 @@ typedef struct
 } MPINFO;
 
 extern TIMER multiTimer,endTimer;
+extern char matchWinner;
 extern MPINFO mpl[];
 extern int multiplayerMode;
 extern unsigned long numMultiItems;

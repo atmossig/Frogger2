@@ -240,6 +240,7 @@ void UpDateMultiplayerInfo( void )
 {
 	long timeFrames=0,i;
 
+	multiHud.centreText->a = 0xff;
 	if( multiTimer.time>1)
 	{
 		if( multiTimer.time<5)
@@ -281,7 +282,16 @@ void UpDateMultiplayerInfo( void )
 		if (multiTimer.time==1)
 			sprintf(countdownString,"go");
 		else
-			multiHud.centreText->draw = 0;
+		{
+			if (matchWinner==-1)
+				multiHud.centreText->draw = 0;
+			else
+			{
+				sprintf(countdownString,"player %i won",matchWinner);
+				multiHud.centreText->draw = 1;
+				multiHud.centreText->a = 128+(sinf(actFrameCount * 0.3) * 128);		
+			}
+		}
 	}
 	
 	for (i=0; i<NUM_FROGS; i++)
