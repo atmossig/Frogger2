@@ -478,6 +478,9 @@ void PsxNameEntryInit(void)
 		if(textString[j] == 0)
 			textString[j] = '-';
 
+	if(textString[0] == '-')
+		textString[0] = 'A';
+
 	textString[NAME_LENGTH] = 0;
 }
 

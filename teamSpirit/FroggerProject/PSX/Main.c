@@ -112,7 +112,7 @@ psFont *fontSmall = NULL;
 int skipTextOverlaysSpecFX = NO;
 int drawLandscape = 1;
 long textEntry = 0;	
-char textString[255] = "---";
+char textString[255] = "A--";
 
 long drawGame = 1;
 

@@ -1021,7 +1021,8 @@ void SaveGame(void)
 
 void LoadGame(void)
 {
-	StartChooseLoadSave(YES);
+	if(useMemCard)
+		StartChooseLoadSave(YES);
 }
 
 
