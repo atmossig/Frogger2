@@ -960,6 +960,15 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Umm. Well, I spent the morning fixing minor bugs to get some levels ready
+	for the focus test this afternoon. Mark also found an enemy bug with going up slopes
+	that turned out to be the fault of the orientation function. So not my fault, although
+	I'm going to spend a bit of time trying to write a decent mathy thing to orientate actors
+	properly.
+
+	Afternoon was spent in the focus test. Bloody kids. Useful feedback though. Then fixed
+	bugs again in the afternoon.
+
 
 James Healey:
 ------------------------------------------------
@@ -996,6 +1005,22 @@ David Swift:
 
 James Hubbard:
 ------------------------------------------------
+
+	Hi Byron. This morning I have got around to the enemy orientation bug
+	from yesterday. It works _better_, i.e. it doesn't turn upside down on
+	slopes anymore, but it has a problem with facing on upward slopes now,
+	where it looks like its having a struggle to get up the hill. Its the
+	damn orientation functions again - why the hell did we use such an unholy
+	mixture of quaternions, matrices and euler angles? In my opinion we should
+	use eulers all the way through the main game code (cos they're easy to 
+	understand and change) and then convert them to matrices when it comes to
+	transforms. At least I think that's how I'd do it. Maybe store the last matrix 
+	for doing clever stuff with like collision. Hmm.
+
+	Who wrote Orientate anyway? Goddam piece of crap. It causes the enemy flipping bug.
+	AND it's expensive. Bah.
+
+	Enough ranting for this morning, I have to type up the focus test notes.
 
 
 James Healey:
