@@ -364,11 +364,11 @@ void FreeSampleList( )
 {
 	SAMPLE *cur,*next;
 
+	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
+
 	// check if any elements in list
 	if( !soundList.numEntries )
 		return;
-
-	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
 
 	// traverse enemy list and free elements
 	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
@@ -586,6 +586,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  void FreeAmbientSoundList( )
  {
  	AMBIENT_SOUND *cur,*next;
+
+	utilPrintf("Freeing Schmambient sound list\n");
  
  	// check if any elements in list
  	if( !ambientSoundList.numEntries )
