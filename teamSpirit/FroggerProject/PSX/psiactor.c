@@ -95,7 +95,7 @@ void actorFree(ACTOR *actor)
 {
 	FREE(actor->psiData.objectTable);
 	if (actor->shadow)
-		FREE((UBYTE **)actor->shadow);//IF SHADOWS ARE ADDED...mm
+		FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
 	actorSub(actor);
 	FREE(actor);
 }
@@ -257,7 +257,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	{
 		ScalePsi(actor->psiData.object->meshdata);
 		actor->radius *= 10;
-		psiInitSortList(actor->radius*2+8);
+		psiInitSortList((actor->radius*2)+8);
 	}
 	// ENDIF
 
@@ -370,7 +370,13 @@ void actorDraw(ACTOR *actor)
 	else*/
 	{
 		TIMER_START2(TIMER_ACTDR_QUAT);
-		QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
+
+		if ( !( actor->flags & ACTOR_NEW_NOREORIENTATE ) )
+		{
+			QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
+		}
+		// ENDIF
+
 		TIMER_STOP_ADD2(TIMER_ACTDR_QUAT);
 	}
 	// ENDELSEIF
@@ -385,7 +391,7 @@ void actorDraw(ACTOR *actor)
 	else
 	{
 
-		//if((world->rotate.vx) || (world->rotate.vy) || (world->rotate.vz))
+		if((world->rotate.vx) || (world->rotate.vy) || (world->rotate.vz))
 		{
 			MATRIX		rotmat1;
 			RotMatrixYXZ_gte(&world->rotate,&rotmat1);
@@ -594,7 +600,7 @@ void actorSetAnimation(ACTOR *actor, ULONG frame)
 	PSIactorScale = &actor->size;
 
 //bbopt
-//	psiSetKeyFrames(world, frame);
+  //psiSetKeyFrames(world, frame);
 	bb_psiSetKeyFrames(world, frame);
 
 	/*
@@ -1062,12 +1068,12 @@ void ScalePsi(PSIMESH* pMesh)
 	}
 
 		//loop scalekeys
-// 		for(v=curMesh->numScaleKeys-1; v>=0; v--)
-// 		{
-// 			curMesh->scalekeys[v].vect.x *= SCALE;
-// 			curMesh->scalekeys[v].vect.y *= SCALE;
-// 			curMesh->scalekeys[v].vect.z *= SCALE;
-// 		}
+/* 		for(v=pMesh->numScaleKeys-1; v>=0; v--)
+ 		{
+ 			pMesh->scalekeys[v].vect.x *= SCALE;
+ 			pMesh->scalekeys[v].vect.y *= SCALE;
+ 			pMesh->scalekeys[v].vect.z *= SCALE;
+ 		}*/
 
 	if(pMesh->child)
 		ScalePsi(pMesh->child);
@@ -1347,8 +1353,6 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
 	ANIMATION *anim;
 	int	actualSpeed;
-
-//	return;
 
 	if(actorAnim->numAnimations == 0)
 	{

@@ -90,6 +90,7 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
 //	unsigned short clutOverride;
 
 	unsigned short clutOverride;
+	unsigned long flags;
 
 } ACTOR;
 
