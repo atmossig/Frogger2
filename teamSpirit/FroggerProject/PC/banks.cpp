@@ -456,7 +456,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		else
 		{
 
-			if(gstrcmp(ts->name,"world.obe") != 0)
+			if((gstrcmp(ts->name,"world.obe") != 0) && (gstrcmp(ts->name,"world.psi") != 0))
 			{
 				for( i=0; i<4; i++ )
 					tmp[i] = ts->name[i];

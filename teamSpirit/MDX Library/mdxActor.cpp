@@ -55,6 +55,9 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 	if (!me)
 		return 0;
 
+	if (strcmp((const char *)me->objectController->object->name,"world")==0)
+		dp("WorldAddad");
+
 	if (actorList)
 	{
 		actorList->prev = me;
