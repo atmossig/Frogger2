@@ -1,5 +1,13 @@
+TASK----------- Automapping babies in the editor crashes it.
+PRIORITY------- (High, Medium or Low) High - ******Completed******
+INSTANCE-------	Everywhere
+SENT BY-------- Lauren
+FIXED BY-------
+RESPONSIBILTY-- 
+FIXED NOTES---- Baby start tile loading had been commented out. 
+
 BUG------------ Can't collect baby on a platform in Space 1
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Jan 28th - ******Completed*******
 INSTANCE-------	Space1
 SENT BY-------- Lauren
 RESPONSIBILTY-- Jim
@@ -19,8 +27,19 @@ SENT BY-------- Brucie Baby
 RESPONSIBILTY-- Jim
 FIXED NOTES---- Fixed - someone put in a check for canJump, so it didn't work when the frog was jumping. Hmm.
 
+TASK----------- Looping samples don't work right if theres more than one instance of the same sample
+PRIORITY------- Low - *******Completed*******
+INSTANCE-------	Garden 1 mowers
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+FIXED BY-------
+FIXED NOTES---- Don't know how to do this yet, cos we don't keep track of duplicate samples and there are complications. Bugger.
 
-
+TASK----------- Different shadow types, and scale and fade depending on height
+COMPLETION BY-- Feb 28th - *******Completed********
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- Kind of. I don't think we'll be having different types, because then they have to turn etc.
 
 
 
@@ -51,13 +70,6 @@ NOTES----------
 
 
 
-
-
-TASK----------- Different shadow types, and scale and fade depending on height
-COMPLETION BY-- Feb 28th
-PRIORITY------- Low
-RESPONSIBILTY-- Jim
-NOTES---------- 
 
 TASK----------- Environmental effects including fog (diffuse and fudged volumetric), rain and small miscellaneous critters
 COMPLETION BY--	Feb 28th
