@@ -239,7 +239,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	if (psiObjectScan(actor->psiData.object,"MOTION"))
 	{
-//		utilPrintf("motion bone found\n");
+		utilPrintf("motion bone found\n");
 		actor->psiData.flags |= ACTOR_MOTIONBONE;
 	}
 //	else
@@ -382,6 +382,21 @@ void actorDraw(ACTOR *actor)
 	}
 	else
 	{
+
+		//if((world->rotate.vx) || (world->rotate.vy) || (world->rotate.vz))
+		{
+			MATRIX		rotmat1;
+			RotMatrixYXZ_gte(&world->rotate,&rotmat1);
+
+			gte_SetRotMatrix(&world->matrix);
+//			gte_SetTransMatrix	// not doing an rtirtr, so we don't need so set the tx to zero
+			gte_ldlvl(&world->matrix.t);
+			gte_rtir();
+			gte_stlvl(&world->matrix.t);
+		}
+
+
+
 		world->matrix.t[0] += -actor->position.vx;
 		world->matrix.t[1] += -actor->position.vy;
 		world->matrix.t[2] += actor->position.vz;
@@ -1068,7 +1083,7 @@ void ScalePsi(PSIMESH* pMesh)
 */
 void *ChangeModel( ACTOR *actor, char *model )
 {
-/*	ACTOR *newActor;
+	ACTOR *newActor;
 
 	PSIMODEL *newModel;
 
@@ -1078,20 +1093,20 @@ void *ChangeModel( ACTOR *actor, char *model )
 	FindObject( &a->objectController, UpdateCRC(model), model );
 	InitAnims( a );*/
 
-/*	newModel = psiCheck ( model );
+	newModel = psiCheck ( model );
 
-	utilPrintf("Trying To Find New Model %s : %s................\n", model);
+//	utilPrintf("Trying To Find New Model %s : %s................\n", model);
 
 	if ( !newModel )
 	{
-		utilPrintf("Could Not Find Replacment Model................\n");
+	//	utilPrintf("Could Not Find Replacment Model................\n");
 		return;
 	}
 	// ENDIF
 
 	newActor = actorCreate ( newModel );
 
-	actor->psiData = newActor->psiData;*/
+	actor->psiData = newActor->psiData;
 }
 
 
