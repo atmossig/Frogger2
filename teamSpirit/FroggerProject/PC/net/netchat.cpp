@@ -36,7 +36,7 @@ COLORREF systemColor = RGB(0,0x80,0);	// green
 COLORREF errorColor = RGB(0xFF,0,0);		// red
 HWND hwndChat, hwndChatEdit;
 
-#define NUM_MULTI_LEVELS 10
+#define NUM_MULTI_LEVELS 6
 
 struct MULTILEVEL { int world, level; };
 
@@ -46,47 +46,37 @@ MULTILEVEL multiLevels[NUM_MULTI_LEVELS] = {
 	{ WORLDID_TEST, 2 },
 	{ WORLDID_TEST, 3 },
 	{ WORLDID_TEST, 4 },
-	{ WORLDID_TEST, 5 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_TEST, 5 }
 };
 
 
 struct	MSG_GAMESETUP
 {
-	UBYTE appmsg_gamesetup;
-	UBYTE characters[4];
+	UBYTE id;
+
+	struct {
+		DPID dpid;
+		UBYTE character, flags;
+	} players[4];
+
+	short world, level;
 };
 
 
 int ChatHandler(void *data, unsigned long size, NETPLAYER *player);
 void ShowMessage(const char* string, CHAT_FORMAT f);
 
-/*
 void StartPlayers(HWND hDlg)
-{
-	int s, pl, dpid;
-	int start[4] = { -1, -1, -1, -1 };
+{	
+	MSG_GAMESETUP msg;
 
-	struct {
-		unsigned char msg;
-		NETGAME_STARTUP info;
-	} msg;
+	msg.id = APPMSG_START;
 
-	for (s=0; s<4; s++)
+	for (int s=0; s<4; s++)
 	{
-		dpid = 0xFFFFFFFF;
-
-		for (pl=0; pl<4; pl++)
-		{
-			if (start[pl] < 0 && netPlayerList[pl].dpid && netPlayerList[pl].dpid < dpid)
-			{
-				start[pl] = s;
-				dpid = netPlayerList[pl].dpid;
-			}
-		}
+		msg.players[s].dpid = netPlayerList[s].dpid;
+		msg.players[s].character = s;
+		msg.players[s].flags = 0;
 	}
 
 	int level;
@@ -98,21 +88,30 @@ void StartPlayers(HWND hDlg)
 	if (level<0 || level>=NUM_MULTI_LEVELS)
 		level = 0;
 
-	msg.msg = APPMSG_START;
-	msg.info.level = multiLevels[level].level;
-	msg.info.level = multiLevels[level].world;
+	msg.id = APPMSG_START;
+	msg.level = multiLevels[level].level;
+	msg.world = multiLevels[level].world;
 
-	for (pl=0; pl<4 && start[pl]>=0; pl++)
-	{
-		msg.info.character = pl;
-		msg.
+	NetBroadcastUrgentMessage(&msg, sizeof(msg));
 
-
-//		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
-//		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
-	}
+	player[0].character = 0;
+	player[0].worldNum = msg.world;
+	player[0].levelNum = msg.level;
 }
-*/
+
+void SetupPlayers(MSG_GAMESETUP *msg)
+{
+	for (int s=0; s<4; s++)
+	{
+		if (msg->players[s].dpid == netPlayerList[s].dpid)
+		{
+			player[s].character = msg->players[s].character;
+		}
+	}
+
+	player[0].worldNum = msg->world;
+	player[0].levelNum = msg->level;
+}
 
 // -----------------------------------------------------------------------------------------
 
@@ -251,9 +250,7 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				dplay->SetSessionDesc(&dpsd, 0);
 
-				unsigned char msg = APPMSG_START;
-
-				NetBroadcastUrgentMessage(&msg, 1);
+				StartPlayers(hDlg);
 
 				EndDialog(hDlg, 0);
 				return TRUE;
@@ -311,6 +308,8 @@ int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 
 	case APPMSG_START:
 		{
+			SetupPlayers((MSG_GAMESETUP*)data);
+
 			utilPrintf("NET: starting the joined game... drumroll please ...\n");
 			EndDialog(hwndChat, 0);
 		}

@@ -116,6 +116,8 @@ int NetRaceCountdown()
 		if (lastActFrameCount < gameStartTime)
 		{
 			netMessage->text = GAMESTRING(STR_GO);
+			netMessage->a = (char)255;
+
 			PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
 
 			player[0].canJump = 1;
@@ -152,7 +154,8 @@ int NetRaceRun()
 
 	if (actFrameCount > gameStartTime)
 	{
-		mpl[0].timer = actFrameCount - gameStartTime;
+		if (!mpl[0].ready)
+			mpl[0].timer = actFrameCount - gameStartTime;
 
 		if( player[0].dead.time )
 		{
@@ -275,7 +278,7 @@ int NetRaceCheckWin()
 			mpl[winner].wins++;
 		}
 
-		GTInit( &endTimer, 2 );
+		GTInit( &endTimer, 10 );
 		controlCamera = 1;
 
 		return 1;
@@ -294,7 +297,7 @@ int NetRaceMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 	case GAMEMSG_RACEWON:
 		MSG_RACEWON *won = (MSG_RACEWON*)data;
 
-		utilPrintf("Player 0x08 finished on frame %d with penalty %d\n", won->frame, (int)won->penalty);
+		utilPrintf("Player %08x finished on frame %d with penalty %d\n", player->dpid, won->frame, (int)won->penalty);
 
 		pl = GetPlayerNumFromID(player->dpid);
 		mpl[pl].timer = (won->frame-gameStartTime);

@@ -168,26 +168,13 @@ void NetgameStartGame()
 	}
 	NUM_FROGS = pl;
 
-
-	if (isHost)
-	{
-		player[0].character = FROG_FROGGER;
-		player[1].character = FROG_LILLIE;
-	}
-	else
-	{
-		player[0].character = FROG_LILLIE;
-		player[1].character = FROG_FROGGER;
-	}
-
-
 	NetInstallMessageHandler(NetgameMessageDispatch);
 
 	// Init game mode here ..
 	NetRaceInit();
 
 	GTInit( &modeTimer, 1 );
-	InitLevel(9, 3);
+	InitLevel(player[0].worldNum, player[0].levelNum);
 
 	for (pl= isHost?1:0; pl<NUM_FROGS; pl++)
 	{
@@ -201,7 +188,7 @@ void NetgameStartGame()
 		unsigned char msg;
 		
 		// See comment at the top of the file - ds
-		SortOutPlayerNumbers();
+		//SortOutPlayerNumbers();
 
 		msg = APPMSG_HOSTREADY;
 		NetBroadcastUrgentMessage(&msg, 1);
