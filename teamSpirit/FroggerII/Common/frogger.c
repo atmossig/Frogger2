@@ -109,7 +109,10 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 				CreateFrogActor (gTStart[0],frogModel[i],i);
 		
 		for (i=0; i<NUM_FROGS; i++)
+		{
 			frog[i]->draw = 0;
+			currPlatform[i] = NULL;
+		}
 	}
 
 	if (NUM_FROGS == 1)
