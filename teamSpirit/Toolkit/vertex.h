@@ -23,15 +23,15 @@ public:
 	Vector(float _x,float _y, float _z) { x=_x;y=_y;z=_z; }
 	Vector(vec &v) { x=v.x; y=v.y; z=v.z; }
 
-	void operator = (vec &v) { x=v.x; y=v.y; z=v.z; }
+	Vector& operator = (vec &v) { x=v.x; y=v.y; z=v.z; return *this; }
 	Vector operator + (vec &v) const { return Vector( x+v.x, y+v.y, z+v.z ); }
-	void operator += (vec &v) { x+=v.x; y+=v.y; z+=v.z; }
+	Vector& operator += (vec &v) { x+=v.x; y+=v.y; z+=v.z; return *this; }
 	Vector operator - (vec &v) const { return Vector( x-v.x, y-v.y, z-v.z ); }
-	void operator -= (vec &v) { x-=v.x; y-=v.y; z-=v.z; }
+	Vector& operator -= (vec &v) { x-=v.x; y-=v.y; z-=v.z; return *this; }
 	Vector operator * (float s) const { return Vector( x*s, y*s, z*s ); }
-	void operator *= (float s) { x*=s; y*=s; z*=s; }
+	Vector& operator *= (float s) { x*=s; y*=s; z*=s; return *this; }
 	Vector operator / (float s) const { return Vector( x/s, y/s, z/s ); }
-	void operator /= (float s) { x/=s; y/=s; z/=s; }
+	Vector& operator /= (float s) { x/=s; y/=s; z/=s; return *this; }
 	Vector operator * (Matrix &m) { return Vector( x*m.m[0][0] + y*m.m[0][1] + z*m.m[0][2], 
 													x*m.m[1][0] + y*m.m[1][1] + z*m.m[1][2], 
 													x*m.m[2][0] + y*m.m[2][1] + z*m.m[2][2] ); }
@@ -47,8 +47,8 @@ public:
 	float Dist2D( Vector &v ) const { Vector tmp=*this-v; return tmp.Size2D(); }
 	float DistSq2D( Vector &v ) const { Vector tmp=*this-v; return tmp.SizeSq2D(); }
 
-	void Set(float _x,float _y,float _z) { x=_x; y=_y; z=_z; }
-	void MakeUnit() { *this /= this->Size(); }
+	Vector &Set(float _x,float _y,float _z) { x=_x; y=_y; z=_z; return *this; }
+	Vector &MakeUnit() { *this /= this->Size(); return *this; }
 	float InBox( vec &v1, vec &v2 ) const { return( (x>=v1.x && x<=v2.x) && (y>=v1.y && y<=v2.y) && (z>=v1.z && z<=v2.z) ); }
 
 	friend Vector CrossProduct( vec &a, vec &b ) { return Vector( a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x ); }
