@@ -836,9 +836,13 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 {
 	unsigned long i;
 	GARIB *garib = NULL;
+	VECTOR v;
 
 	for(i=0; i<tileList[0]; i++)
-		garib = CreateNewGarib(firstTile[tileList[i+1]].centre,type);
+	{
+		v = firstTile[tileList[i+1]].centre;
+		v.v[Y] += 20;
+		garib = CreateNewGarib(v, type);
 }
 
 
@@ -1313,25 +1317,21 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	
 	if(garib->type == SPAWN_GARIB)
 	{
-		garib->sprite.pos.v[Y] += 20;
 		garib->sprite.flags |= SPRITE_TRANSLUCENT;
 		garib->sprite.a = 200;
 	}
 	else if(garib->type == WHOLEKEY_GARIB)
 	{
-		garib->sprite.pos.v[Y] += 20;
 		garib->sprite.flags |= SPRITE_TRANSLUCENT;
 		garib->sprite.a = 200;
 	}
 	else if(garib->type == HALFLKEY_GARIB)
 	{
-		garib->sprite.pos.v[Y] += 20;
 		garib->sprite.flags |= SPRITE_TRANSLUCENT;
 		garib->sprite.a = 200;
 	}
 	else if(garib->type == HALFRKEY_GARIB)
 	{
-		garib->sprite.pos.v[Y] += 20;
 		garib->sprite.flags |= SPRITE_TRANSLUCENT;
 		garib->sprite.a = 200;
 	}

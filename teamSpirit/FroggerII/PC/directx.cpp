@@ -324,7 +324,36 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 			| D3DDP_DONOTUPDATEEXTENTS 
 			/*| D3DDP_WAIT*/)!=D3D_OK)
 	{
-		dp("UGGER !!!!! CAN'T DRAW POLY JOBBY\n");
+		dp("BUGGER !!!!! CAN'T DRAW POLY JOBBY\n");
+	}
+}
+
+void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
+{
+	D3DTLVERTEX v[2] = {
+		{
+			x1,y1,0,0,
+			color, 0.0,
+			0.0, 0.0
+		},
+		{
+			x2,y2,0,0,
+			color, 0.0,
+			0.0, 0.0
+		}
+	};
+
+	if (pDirect3DDevice->DrawPrimitive(
+		D3DPT_LINESTRIP,
+		D3DVT_TLVERTEX,
+		v,
+		2,
+		D3DDP_DONOTCLIP 
+			| D3DDP_DONOTLIGHT 
+			| D3DDP_DONOTUPDATEEXTENTS 
+			/*| D3DDP_WAIT*/)!=D3D_OK)
+	{
+		dp("COULDN'T DRAW LINE");
 	}
 }
 
