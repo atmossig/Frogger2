@@ -794,112 +794,64 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	TONGUE *t = &tongue[pl];
 	FVECTOR p1, p2;
 	MDX_QUATERNION q, cross;
-	float p;
-	MDX_VECTOR pos, m, normal, cam;
+	float n;
+	MDX_VECTOR p, m, normal, cam, pos;
 
+	// Scaled world position
 	SetVectorRF( &pos, &t->segment[i] );
 	ScaleVector( &pos, 0.1 );
-	// Translate to current fx pos and push
-	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
-	PushMatrix( tMtrx );
 
-	SetVectorRS( &cam, &camDist );
+	// Calculate matrix to rotate to screen
+	SetVectorRF( &cam, &currCamSource );
 	ScaleVector( &cam, 0.1 );
 	SubVector( &normal, &cam, &pos );
 	Normalise( &normal );
 	CrossProduct( (MDX_VECTOR *)&cross, &normal, &upV );
 	Normalise( (MDX_VECTOR *)&cross );
-	p = DotProduct( &normal, &upV );
-	cross.w = -acos(p);
+	n = DotProduct( &normal, &upV );
+	cross.w = -acos(n);
+	// Note - need rotationToMatrix function!
 	GetQuaternionFromRotation( &q, &cross );
 	QuaternionToMatrix( &q, (MDX_MATRIX *)rMtrx );
 
-	// Precalculated rotation
 	PushMatrix( (MDX_MATRIX *)rMtrx );
-
-	p1.vx = -12000+(i*1024);
-	p1.vy = 0;
-	p1.vz = 0;
-	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
-	vT[0].sx = p2.vx*ONEOVERFIXED;
-	vT[0].sy = p2.vy*ONEOVERFIXED;
-	vT[0].sz = p2.vz*ONEOVERFIXED;
-	vT[0].color = tongueColours[player[pl].character];//D3DRGBA(1,0,0,1);
-
-	p1.vx = 12000-(i*1024);
-	p1.vy = 0;
-	p1.vz = 0;
-	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
-	vT[1].sx = p2.vx*ONEOVERFIXED;
-	vT[1].sy = p2.vy*ONEOVERFIXED;
-	vT[1].sz = p2.vz*ONEOVERFIXED;
-	vT[1].color = vT[0].color;
-
-	// Transform point by combined matrix
 	MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
 
-	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.vx, &pos.vy, &pos.vz );
-	XfmPoint( &m, &pos, NULL );
+	// Set size of section
+	p.vx = -2.93+(i*0.25);
+	p.vy = p.vz = 0;
+	// Rotate to face screen
+	guMtxXFMF( dMtrx, p.vx, p.vy, p.vz, &m.vx, &m.vy, &m.vz );
+	// Rotate around frog
+	SetVectorFR( &p1, &m );
+	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
+	SetVectorRF( &p, &p2 );
+	// And move to world pos
+	mdxAddToVector( &p, &pos );
+	// And transform
+	XfmPoint( &m, &p, NULL );
 	vT[0].sx = m.vx;
 	vT[0].sy = m.vy;
 	vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
-	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.vx, &pos.vy, &pos.vz );
-	XfmPoint( &m, &pos, NULL );
+	vT[0].color = tongueColours[player[pl].character];
+
+	// Set size of section
+	p.vx = 2.93-(i*0.25);
+	p.vy = p.vz = 0;
+	// Rotate to face screen
+	guMtxXFMF( dMtrx, p.vx, p.vy, p.vz, &m.vx, &m.vy, &m.vz );
+	// Rotate around frog
+	SetVectorFR( &p1, &m );
+	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
+	SetVectorRF( &p, &p2 );
+	// And move to world pos
+	mdxAddToVector( &p, &pos );
+	// And transform
+	XfmPoint( &m, &p, NULL );
 	vT[1].sx = m.vx;
 	vT[1].sy = m.vy;
 	vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+	vT[1].color = tongueColours[player[pl].character];
 
-	PopMatrix( ); // Rotation
-	PopMatrix( ); // Translation
+	PopMatrix( );
 }
-
-/*	THIS IS A MORE OPTIMAL VERSION OF DRAWTONGUE THAT RELIES ON QUAD DRAWING. SO IT WONT WORK YET :)
-void DrawTongue( TONGUE *t )
-{
-	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
-	D3DTLVERTEX vT1[2], vT2[2], *tmp;
-	TEXENTRY *tEntry;
-
-	if( index < 2 )
-		return;
-
-	vT1[0].specular = D3DRGB(0,0,0);
-	vT1[0].tu = 1;
-	vT1[0].tv = 1;
-	vT1[1].specular = vT1[0].specular;
-	vT1[1].tu = 0;
-	vT1[1].tv = 1;
-	vT2[0].specular = vT1[0].specular;
-	vT2[0].tu = 0;
-	vT2[0].tv = 0;
-	vT2[1].specular = vT1[0].specular;
-	vT2[1].tu = 1;
-	vT2[1].tv = 0;
-
-
-	while( i < index )
-	{
-		//********-[ First 2 points ]-*******
-		if( !(i && vT1[0].sz && vT1[1].sz) )
-			CalcTongueNodes( vT1, t, i );
-
-		//********-[ Next 2 points ]-********
-		CalcTongueNodes( vT2, t, i+1 );
-
-		//********-[ Draw the polys ]-********
-		tEntry = ((TEXENTRY *)t->tex);
-		if( tEntry && vT1[0].sz && vT1[1].sz && vT2[0].sz && vT2[1].sz )
-		{
-			Clip3DPolygon( vT, tEntry );
-			Clip3DPolygon( &vT[1], tEntry );
-		}
-
-		tmp = vT1;
-		vT1 = vT2;
-		vT2 = tmp;
-
-		i++;
-	}
-}
-*/
-
