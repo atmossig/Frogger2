@@ -139,6 +139,10 @@ SOURCE=.\Common\cameos.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\codes.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\collect.c
 # End Source File
 # Begin Source File
