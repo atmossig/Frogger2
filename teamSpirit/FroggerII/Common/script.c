@@ -469,54 +469,69 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			EVENT *e;
 			int fNum = MEMGETINT(p),
 				tNum = MEMGETINT(p),
-				ht = MEMGETINT(p),
-				type = MEMGETINT(p),
 				time = actFrameCount+25;
-
 			VECTOR telePos;
 			void **param;
 
-			switch( type )
-			{
-			case TELEPORT_TELEPORT:
-				player[fNum].frogState &= ~FROGSTATUS_ISSTANDING;
-				player[fNum].frogState |= FROGSTATUS_ISTELEPORTING;
-				//frog[fNum]->action.isTeleporting = 25;
-				//frog[fNum]->action.safe = 65;
+			player[fNum].frogState &= ~FROGSTATUS_ISSTANDING;
+			player[fNum].frogState |= FROGSTATUS_ISTELEPORTING;
+			fadeDir		= FADE_OUT;
+			fadeOut		= 1;
+			fadeStep	= 8;
+			doScreenFade = 63;
 
-				fadeDir		= FADE_OUT;
-				fadeOut		= 1;
-				fadeStep	= 8;
-				doScreenFade = 63;
+			SetVector(&telePos,&frog[fNum]->actor->pos);
+			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
+			telePos.v[Y] += 20;
+			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
+			telePos.v[Y] += 40;
+			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
+			telePos.v[Y] += 60;
+			CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
+			PlaySample(88,NULL,255,128);
 
-				SetVector(&telePos,&frog[fNum]->actor->pos);
-				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
-				telePos.v[Y] += 20;
-				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
-				telePos.v[Y] += 40;
-				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
-				telePos.v[Y] += 60;
-				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
-				PlaySample(88,NULL,255,128);
+			param = AllocArgs(1);
+			param[0] = (void *)time;
+			t = MakeTrigger( OnTimeout, param );
 
-				param = AllocArgs(1);
-				param[0] = (void *)time;
-				t = MakeTrigger( OnTimeout, param );
+			param = AllocArgs(2);
+			param[0] = (void *)fNum;
+			param[1] = (void *)tNum;
+			e = MakeEvent( TeleportFrog, param );
 
-				param = AllocArgs(3);
-				param[0] = (void *)fNum;
-				param[1] = (void *)tNum;
-				param[2] = (void *)type;
-				e = MakeEvent( TeleportFrog, param );
+			AttachEvent( t, e, TRIGGER_ONCE, 0 );
 
-				AttachEvent( t, e, TRIGGER_ONCE, 0 );
+			break;
+		}
 
-				break;
+	case EV_SPRING:
+		{
+			TRIGGER *t;
+			EVENT *e;
+			int fNum = MEMGETINT(p),
+				tNum = MEMGETINT(p),
+				ht = MEMGETINT(p),
+				time = MEMGETINT(p);
+			void **param;
 
-			case TELEPORT_SPRING:
+			player[fNum].frogState &= ~FROGSTATUS_ISSTANDING;
+			player[fNum].frogState |= FROGSTATUS_ISTELEPORTING;
 
-				break;
-			}
+			param = AllocArgs(2);
+			param[0] = (void *)&player[fNum].frogState;
+			param[1] = (void *)FROGSTATUS_ISTELEPORTING;
+			t = MakeTrigger( BitCheck, param );
+
+			param = AllocArgs(5);
+			param[0] = (void *)fNum;
+			param[1] = (void *)tNum;
+			param[2] = (void *)time;
+			param[3] = (void *)ht;
+			param[4] = (void *)t;
+			e = MakeEvent( SpringFrog, param );
+
+			AttachEvent( t, e, TRIGGER_ALWAYS, 0 );
+
 			break;
 		}
 
