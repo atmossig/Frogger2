@@ -859,6 +859,8 @@ void MainDrawFunction ( void )
 	TIMER_STOP0(TIMER_PROCTEX);
 
 	DrawBackDrop(0, 0);
+
+	DrawScreenTransition();
 }
 
 
