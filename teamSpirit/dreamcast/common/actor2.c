@@ -566,6 +566,8 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 		if( strstr(newname,"TRANSOBJ") || strstr(newname,"NOTHING") || strstr(newname,"NULL_") ||
 			strstr(newname,"transobj") || strstr(newname,"nothing") || strstr(newname,"null_") )
 			newItem->draw = 0;		
+		else
+			newItem->draw = 1;
 	}
 #elif PC_VERSION
 
@@ -599,6 +601,8 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 	// null object - do not display
 	if( !(strnicmp(newname,"TRANSOBJ",8)) || !(strnicmp(newname,"NOTHING",7)) || !(strnicmp(newname,"NULL_",5)) )
 		newItem->draw = 0;
+	else
+		newItem->draw = 1;
 #endif
 
 	gstrlwr(newname);
@@ -703,7 +707,8 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 	newItem->actor->size.vy = 4096;
 	newItem->actor->size.vz = 4096;
 
-	newItem->draw	= 1;
+	// JIM: This makes NULL objects draw, which produces funny white lines all over the place.
+//	newItem->draw	= 1;
 	newItem->flags	|= ACTOR_DRAW_CULLED;
 	newItem->radius	= 0;
 	newItem->animSpeed = 4096;
