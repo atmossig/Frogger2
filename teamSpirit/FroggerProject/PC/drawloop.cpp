@@ -25,6 +25,7 @@
 #include "cam.h"
 #include "tongue.h"
 #include "specfx.h"
+#include "menus.h"
 
 // pc
 #include "drawloop.h"
@@ -357,10 +358,8 @@ long DrawLoop(void)
 	EndTimer(18);
 
 
-// *ASL* 13/06/2000
-// ** Section commented out
-// ** Why print anything after a flip!!!
-#if 0
+// This ain't printing to the screen but to the textures - used specifically for the storybook in the frontend
+
 	if (grabToTexture == 1)
 	{
 		DrawPageB();
@@ -374,7 +373,6 @@ long DrawLoop(void)
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 2;
 	}
-#endif
 
 
 	GetCursorPos(&t);
