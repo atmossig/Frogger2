@@ -195,7 +195,7 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 	if(font == fontSmall)
 		yAdd = -3;
 	else
-		yAdd = 3;
+		yAdd = 0;
 
 	while(*strPtr)
 	{
