@@ -1396,7 +1396,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 void mdxPolyDrawTextureRect(RECT rc, D3DCOLOR colour, MDX_TEXENTRY *mdxTexture, float u0, float v0, float u1, float v1)
 {
 
-	colour = D3DRGB(1, 1, 1);
+//	colour = D3DRGB(1, 1, 1);
 
 	// check if rectangle out of clip window
 	if ((rc.left>clx1) || (rc.top>cly1) || (rc.right<clx0) || (rc.bottom<cly0))

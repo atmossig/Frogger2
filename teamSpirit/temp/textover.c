@@ -127,9 +127,9 @@ void PrintText(TEXTOVERLAY *cur,short xPos,short yPos,uchar r,uchar g,uchar b,uc
 //	else
 	{
 		cur->font->alpha = fontAlpha;
-		r = (r * a) / 512;
-		g = (g * a) / 512;
-		b = (b * a) / 512;
+		r = (r * a)>>9;
+		g = (g * a)>>9;
+		b = (b * a)>>9;
 	}
 
 	if ( cur->centred )
@@ -175,12 +175,12 @@ void PrintText(TEXTOVERLAY *cur,short xPos,short yPos,uchar r,uchar g,uchar b,uc
 	if (cur->centred)
 	{
 		cur->tWidth = DrawFontStringAtLoc(xPos,yPos,cur->text,
-		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)cur->scale/4096) * ((float)rXRes/640.0),xPos,0);// - cur->xPos*OVERLAY_X;
+		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)(cur->scale>>12)) * ((float)rXRes/640.0),xPos,0);// - cur->xPos*OVERLAY_X;
 	}
 	else
 	{
 		cur->tWidth = DrawFontStringAtLoc(xPos,yPos,cur->text,
-		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)cur->scale/4096) * ((float)rXRes/640.0),0,0) - xPos;
+		RGBA_MAKE(r,g,b,a), (MDX_FONT *)cur->font,((float)(cur->scale>>12)) * ((float)rXRes/640.0),0,0) - xPos;
 	}
 
 	cur->tWidth *= (640.0/(float)rXRes);

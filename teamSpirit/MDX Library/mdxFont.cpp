@@ -238,7 +238,9 @@ MDX_FONT *InitFont(const char *filename)
 							if ((rgb555 = tData[(cx + left) + (cy*bmpWidth)]) == FONT_TRANSVAL)
 								*cp++ = 0xff00ff;
 							else
-								*cp++ = ((((unsigned long)rgb555) & 0x7c00)<<(16-10)) | ((((unsigned long)rgb555) & 0x03e0)<<( 8- 3)) | ((((unsigned long)rgb555) & 0x001f)<<( 0- 0));
+								*cp++ = ((((((rgb555 & 0x7c00)>>10)+1)<<3)-1)<<16) | 
+										((((((rgb555 & 0x03e0)>>5)+1)<<3)-1)<<8) | 
+										((((rgb555 & 0x001f)+1)<<3)-1);
 						}
 				}
 		}
