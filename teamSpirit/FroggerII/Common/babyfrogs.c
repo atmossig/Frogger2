@@ -39,8 +39,8 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	{
 		for (i=0; i<numBabies; i++)
 		{
-			if ( babies[i] )
-			{
+//			if ( babies[i] )
+//			{
 				babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 
 				babies[i]->actor->shadow->radius	= 15;
@@ -57,7 +57,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 				babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
 
 	//			babies[i]->flags |= ACTOR_DRAW_ALWAYS;
-			}
+//			}
 			// ENDIF
 		}
 	}
@@ -226,15 +226,16 @@ ACTOR2 *GetNearestBabyFrog()
 	i = numBabies;
 	while(i--)
 	{
-		if(!babies[i]->action.isSaved)
-		{
-			t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
-			if(t < distance)
+		if ( babies[i] )
+			if(!babies[i]->action.isSaved)
 			{
-				distance	= t;
-				nearest		= babies[i];
+				t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
+				if(t < distance)
+				{
+					distance	= t;
+					nearest		= babies[i];
+				}
 			}
-		}
 	}
 
 	if(nearest && (distance < CROAK_SOUND_RANGE))
