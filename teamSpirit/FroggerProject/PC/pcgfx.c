@@ -47,23 +47,20 @@ void DrawSpecialFX()
 {
 	int i;
 
-	if( gameState.mode != PAUSE_MODE )
+	SwapFrame(0);
+	ProcessShadows();
+	
+	if( sfxList.count )
 	{
-		SwapFrame(0);
-		ProcessShadows();
-		
-		if( sfxList.count )
-		{
-			SPECFX *fx;
-			for( fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next )
-				if( fx->Draw )
-					fx->Draw( fx );
-		}
-
-		for( i=0; i<NUM_FROGS; i++ )
-			if( tongue[i].flags & TONGUE_BEINGUSED )
-				DrawTongue( &tongue[i] );
+		SPECFX *fx;
+		for( fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next )
+			if( fx->Draw )
+				fx->Draw( fx );
 	}
+
+	for( i=0; i<NUM_FROGS; i++ )
+		if( tongue[i].flags & TONGUE_BEINGUSED )
+			DrawTongue( &tongue[i] );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -380,22 +377,22 @@ void DrawFXRing( SPECFX *fx )
 	ScaleVector( &pos, 0.1 );
 
 	vT[0].tu = 0;
-	vT[0].tv = 0;
+	vT[0].tv = 1;
 	vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
 	vT[1].tu = 0;
-	vT[1].tv = 1;
+	vT[1].tv = 0;
 	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
 	vT[2].tu = 1;
-	vT[2].tv = 1;
+	vT[2].tv = 0;
 	vT[2].color = vT[0].color;
 	vT[2].specular = vT[0].specular;
 	
 	vT[3].tu = 1;
-	vT[3].tv = 0;
+	vT[3].tv = 1;
 	vT[3].color = vT[0].color;
 	vT[3].specular = vT[0].specular;
 
@@ -433,7 +430,8 @@ void DrawFXRing( SPECFX *fx )
 			vT[j].sy = ringVtx[vxj].vy*0.000244;
 			vT[j].sz = ringVtx[vxj].vz*0.000244;
 			// Slant the polys
-			tilt = (float)((i&1)?((j==0||j==3) ? fx->tilt : 4096):((j==1||j==2) ? fx->tilt : 4096))/4096;
+			tilt = (float)(((i&1)?(j==0||j==3):(j==1||j==2)) ? fx->tilt : 4096)/4096;
+			vT[j].tv = 1-vT[j].tv;//(i&1) ? 1-vT[j].tv : vT[j].tv;
 			// Scale and push
 			guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
 			PushMatrix( sMtrx );
@@ -462,7 +460,7 @@ void DrawFXRing( SPECFX *fx )
 			Clip3DPolygon( &vT[2], tEntry );
 		}
 
-		if( i&1 )
+		if( i&1 && (actFrameCount&1) )
 		{
 			SPECFX *trail;
 
@@ -470,7 +468,7 @@ void DrawFXRing( SPECFX *fx )
 
 			if( (trail = CreateSpecialEffect( FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096 )) )
 			{
-				trail->tilt = 4096;
+				trail->tilt = 8192;
 				if( i&2 ) SetFXColour( trail, 180, 220, 180 );
 				else SetFXColour( trail, fx->r, fx->g, fx->b );
 			}
