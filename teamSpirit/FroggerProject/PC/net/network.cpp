@@ -21,6 +21,9 @@
 #include "netgame.h"
 
 #include "frogger.h"
+#include "frogmove.h"
+#include "multi.h"
+#include "hud.h"
 
 void *recieveBuffer;
 DWORD recieveBufferSize = 1024;
@@ -82,6 +85,7 @@ int AddNetPlayer(DPID id)
 			player->dpid = id;
 			//player->isHost = ((dpc.dwFlags & DPCAPS_ISHOST) != 0);
 			//player->player = i;
+			NUM_FROGS++;
 			return i;
 		}
 	}
@@ -91,18 +95,47 @@ int AddNetPlayer(DPID id)
 
 int RemoveNetPlayer(DPID id)
 {
-	int p;
+	int p, q;
 	NETPLAYER *player;
 
 	for (p=0, player=&netPlayerList[0]; p<MAX_FROGS; p++, player++)
 		if (netPlayerList[p].dpid == id)
 		{
-			while (p<(MAX_FROGS-1))
+			if (frog[p])
+				frog[p]->draw = 0;
+
+			if (mpl[p].penalText)	mpl[p].penalText->draw = 0;
+			if (multiHud.backChars[p])
 			{
-				netPlayerList[p] = netPlayerList[p+1];
-				p++;
+				multiHud.backChars[p]->a = 128;
+				multiHud.penaliseText[p]->draw = false;
+				multiHud.penalOver[p]->draw = false;
 			}
+
+			q = p+1;
+			while (q<NUM_FROGS)
+			{
+				// here's a bit of comedy code... - ds
+
+				multiHud.backChars[p] = multiHud.backChars[q];
+				multiHud.penaliseText[p] = multiHud.penaliseText[q];
+				multiHud.penalOver[p] = multiHud.penalOver[q];
+				memcpy(multiHud.trophies[p], multiHud.trophies[q], sizeof(SPRITEOVERLAY*)*3);
+
+				netPlayerList[p]	= netPlayerList[q];
+				currTile[p]	= currTile[q];
+				destTile[p]	= destTile[q];
+				frog[p]		= frog[q];
+				player[p]	= player[q];
+				mpl[p]		= mpl[q];
+				gTStart[p]	= gTStart[q];
+
+				p++,q++;
+			}
+
+			
 			netPlayerList[p].dpid = 0;
+			NUM_FROGS--;
 			return 1;
 		}
 
@@ -124,6 +157,8 @@ void SetupNetPlayerList()
 		netPlayerList[i].dpid = 0;
 		//netPlayerList[i].player = -1;
 	}
+
+	NUM_FROGS=0;
 
 	if (dplay)
 	{

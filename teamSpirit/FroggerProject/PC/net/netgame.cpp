@@ -124,7 +124,7 @@ void NetgameStartGame()
 	gameState.single = ARCADE_MODE;
 	gameState.difficulty = DIFFICULTY_NORMAL;
 
-	for (pl=1; pl<MAX_FROGS; pl++)
+	for (pl=1; pl<NUM_FROGS; pl++)
 	{
 		if (!netPlayerList[pl].dpid)
 			break;

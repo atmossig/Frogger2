@@ -174,7 +174,7 @@ int NetRaceRun()
 				GTInit( &player[0].safe, 3 );
 			}
 		}
-		else if( !(IsPointVisible(&frog[0]->actor->position)) )
+		else if( frog[0]->draw && !(IsPointVisible(&frog[0]->actor->position)) )
 		{
 			KillMPFrog(0);
 		}
