@@ -321,11 +321,6 @@ void UpdatePlatforms()
 				Orientate(&cur->pltActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
 
-//			NormalToQuaternion(&cur->pltActor->actor->qRot,&cur->currNormal);
-//			or
-//			Orientate(&cur->pltActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-
-
 //--------------------->
 
 			// check if this platform has arrived at a path node
