@@ -977,15 +977,6 @@ void RunGameLoop (void)
 		UpdateCameraPosition();
 	}
 
-	UpdatePlatforms();
-	UpdateEnemies();
-	UpdateSpecialEffects();
-	UpdateEvents();
-	UpdateAmbientSounds();
-
-	ProcessCharacters( );
-	ProcessCollectables();
-
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		if( frog[i] )
@@ -1012,6 +1003,15 @@ void RunGameLoop (void)
 			}
 		}
 	}  
+
+	UpdatePlatforms();
+	UpdateEnemies();
+	UpdateSpecialEffects();
+	UpdateEvents();
+	UpdateAmbientSounds();
+
+	ProcessCharacters( );
+	ProcessCollectables();
 
 	if( gameState.multi == SINGLEPLAYER )
 		UpDateOnScreenInfo();
