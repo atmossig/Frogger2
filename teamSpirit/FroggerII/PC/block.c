@@ -18,6 +18,8 @@ WININFO winInfo;
 long lButton = 0;
 
 char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
+char editorOk = 0;
+char keyDelay;
 
 char outputMessageBuffer[256];
 
@@ -128,9 +130,19 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 		if(appActive)
 		{
+			if KEYPRESS(DIK_F10)
+			{
+				if (!keyDelay)
+				{editorOk = !editorOk; keyDelay = 20;}
+				else
+					keyDelay--;
+			}
+
 			GameLoop();
 			ProcessUserInput(winInfo.hWndMain);
-			RunEditor();
+			if (editorOk)
+				RunEditor();
+
 			
 			DrawGraphics();
 			
@@ -277,8 +289,9 @@ void DrawGraphics()
 		
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
-
-	DrawEditor();
+	
+	if (editorOk)
+		DrawEditor();
 
 	EndDrawHardware();
 }
