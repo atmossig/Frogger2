@@ -836,15 +836,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth;
 
-	//static SVECTOR *jiggledVerts = NULL;
-
 	int i;
 
 	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH;// + mesh->extra_depth;
-
-	//tfv = (long*)transformedVertices;
-	//tfd = (long*)transformedDepths;
 
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
@@ -864,19 +859,14 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	if ( max_depth > 1024 - mesh->extra_depth )
 		max_depth = 1024 - mesh->extra_depth;
-
-
-//	if ( !jiggledVerts )
-	//	jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
-
 	
 	if ( mesh->flags & JIGGLE )
 	{
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
-			jiggledVerts[i].vx = mesh->verts[i].vx + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
-			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frameCount << 7 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 6 );
-			jiggledVerts[i].vz = mesh->verts[i].vz + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vx = mesh->verts[i].vx + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx & mesh->verts[i].vz ) ) >> 7 );
+			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frameCount << 7 ) + ( mesh->verts[i].vx ^ mesh->verts[i].vz ) ) >> 6 );
+			jiggledVerts[i].vz = mesh->verts[i].vz + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx | mesh->verts[i].vz ) ) >> 7 );
 		}
 		// ENDFOR
 		
@@ -889,13 +879,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 	}
 	// ENDELSEIF
-
-	//for ( i = 0; i < mesh->n_verts; i++ )
-	//{
-	//	tfd [ i ] = tfd [ i ] >> 2;
-	//}
-	// ENDFOR
-
 
 
 #define si ((POLY_GT4*)packet)
@@ -930,55 +913,46 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
-				addPrimLen ( ot + ( depth + mesh->shift), si, 12, t2 );
-			// ENDELSEIF
+			addPrimLen ( ot + ( depth + mesh->shift), si, 12, t2 );
 
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
-				if ( mesh->flags & USLIDDING )
+			if ( mesh->flags & USLIDDING )
+			{
+				if ( mesh->flags & PLUSSLIDDING )
 				{
-					if ( mesh->flags & PLUSSLIDDING )
-					{
-						si->u0 += ( ( frame / 2 ) % 32 );
-						si->u1 += ( ( frame / 2 ) % 32 );
-					}
-
-					if ( mesh->flags & MINUSSLIDDING )
-					{
-						si->u0 -= ( ( frame / 2 ) % 32 );
-						si->u1 -= ( ( frame / 2 ) % 32 );
-					}
-					// ENDELSEIF
-//					v = op->v0;
-
+					si->u0 += ( ( frame / 2 ) % 32 );
+					si->u1 += ( ( frame / 2 ) % 32 );
 				}
-				else if ( mesh->flags & VSLIDDING )
-				{
-					if ( mesh->flags & PLUSSLIDDING )
-					{
-						si->v0 += ( ( frame / 2 ) % 32 );
-						si->v1 += ( ( frame / 2 ) % 32 );
-					}
 
-					if ( mesh->flags & MINUSSLIDDING )
-					{
-						si->v0 -= ( ( frame / 2 ) % 32 );
-						si->v1 -= ( ( frame / 2 ) % 32 );
-					}
-
-					//u = op->u0;
-				}
-				else
+				if ( mesh->flags & MINUSSLIDDING )
 				{
-					//u = op->u0;
-					//v = op->v0;
+					si->u0 -= ( ( frame / 2 ) % 32 );
+					si->u1 -= ( ( frame / 2 ) % 32 );
 				}
 				// ENDELSEIF
-			
+//					v = op->v0;
 
-//			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
-//			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
+			}
+			else if ( mesh->flags & VSLIDDING )
+			{
+				if ( mesh->flags & PLUSSLIDDING )
+				{
+					si->v0 += ( ( frame / 2 ) % 32 );
+					si->v1 += ( ( frame / 2 ) % 32 );
+				}
+
+				if ( mesh->flags & MINUSSLIDDING )
+				{
+					si->v0 -= ( ( frame / 2 ) % 32 );
+					si->v1 -= ( ( frame / 2 ) % 32 );
+				}
+
+				//u = op->u0;
+			}
+			// ENDIF
+			
 
 			if ( mesh->flags & MODGY )
 			{
@@ -1285,6 +1259,25 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 //		FREE ( jiggledVerts );
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void PTTextureLoad ( void )
 {
 	//CreateProceduralTexture ( "PRC_FIRE1" );		
@@ -1466,153 +1459,3 @@ void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )
 
 }
 
-
-unsigned short *realWaterData;
-unsigned short *waterData;
-unsigned short *reflectionData;
-
-unsigned short *waterPalette;
-unsigned short *reflectionPalette;
-
-TextureType *realWater;
-TextureType *water;
-TextureType *reflection;
-
-void InitWater ( void )
-{
-/*	int counter;
-	RECT rect;
-
-	// JH : Get a pointer to texture that we will over right in VRAM.
-	if ( !( realWater = textureFindCRCInAllBanks ( utilStr2CRC ( "00WATE04" ) ) ) )
-	{
-		// JH : Output debug message if not found.
-		utilPrintf("Could Not Find Texture : 00WATE04\n");
-		return;
-	}
-	// ENDIF
-
-	// JH : atempt to find the required texture.
-	if ( !( water = textureFindCRCInAllBanks ( utilStr2CRC ( "WATER" ) ) ) )
-	{
-		// JH : Output debug message if not found.
-		utilPrintf("Could Not Find Texture : WATER\n");
-		return;
-	}
-	// ENDIF
-
-	// JH : atempt to find the required texture.
-	if ( !( reflection = textureFindCRCInAllBanks ( utilStr2CRC ( "REFLECT" ) ) ) )
-	{
-		// JH : Output debug message if not found.
-		utilPrintf("Could Not Find Texture : REFLECT\n");
-		return;
-	}
-	// ENDIF
-
-	// JH : Make sure we can get both textures before we continue. Malloc the space for each texture,
-	// JH : so that we can acces the texture data;
-	realWaterData				= (unsigned short *)MALLOC0( 8192 );
-	waterData				= (unsigned short *)MALLOC0( 8192 );
-	reflectionData	= (unsigned short *)MALLOC0( 8192 );
-
-	waterPalette			= (unsigned char *)MALLOC0( 512 );
-	reflectionPalette	= (unsigned char *)MALLOC0( 512 );
-
-	// JH : Make the rectangle of the texture in VRAM.
-	rect.x = VRAM_CALCVRAMX ( realWater->handle );
-	rect.y = VRAM_CALCVRAMY ( realWater->handle );
-	rect.w = 64;
-	rect.h = 64;
-
-	// JH : Copy the texture data into a buffer.
-	StoreImage ( &rect, (unsigned long*)realWaterData );
-
-	// JH : Make the rectangle of the texture in VRAM.
-	rect.x = VRAM_CALCVRAMX ( water->handle );
-	rect.y = VRAM_CALCVRAMY ( water->handle );
-	rect.w = 64;
-	rect.h = 64;
-
-	// JH : Copy the texture data into a buffer.
-	StoreImage ( &rect, (unsigned long*)waterData );
-
-	// JH : Make the rectangle of the texture in VRAM.
-	rect.x = VRAM_CALCVRAMX ( reflection->handle );
-	rect.y = VRAM_CALCVRAMY ( reflection->handle );
-	rect.w = 64;
-	rect.h = 64;
-
-	// JH : Copy the texture data into a buffer.
-	StoreImage ( &rect, (unsigned long*)reflectionData );
-
-	/*//*/ JH : Make the rectangle of the palette in VRAM.
-	rect.x = ( water->clut & 0x3f ) << 4;
-	rect.y = water->clut >> 6;
-	rect.w = 256;
-	rect.h = 1;
-
-	// JH : Copy the palette data into a buffer.
-	StoreImage ( &rect, (unsigned long*)waterPalette );
-
-	LoadClut ( (unsigned long*)waterPalette, (realWater->clut & 0x3f) << 4, realWater->clut >> 6 );
-
-*/
-	// JH : Make the rectangle of the palette in VRAM.
-	/*rect.x = ( water->clut & 0x3f ) << 4;
-	rect.y = water->clut >> 6;
-	rect.w = 256;
-	rect.h = 1;
-
-	// JH : Copy the palette data into a buffer.
-	StoreImage ( &rect, (unsigned long*)waterPalette );
-
-//	for ( counter = 0; counter < 256; counter++ )
-//		reflectionPalette[counter] = ((( reflectionPalette[counter] >> 10 ) & 0x1f) * 12) / 0x1f;
-
-	// JH : Make the rectangle of the palette in VRAM.
-	rect.x = ( realWater->clut & 0x3f ) << 4;
-	rect.y = realWater->clut >> 6;
-	rect.w = 256;
-	rect.h = 1;
-
-	// JH : Copy the palette data into a buffer.
-	LoadImage ( &rect, (unsigned long*)waterPalette );*/
-}
-
-
-void UpdateWater ( void )
-{
-	/*long wIndex1,wIndex2;
-	long wOffset;
-
-	long x,y,y1,p;
-
-	int counterX, counterY;
-	RECT rect;
-
-//	for ( counterY = 0; counterY < 64; counterY++ )
-//		for ( counterX = 0; counterX < 64; counterX++ )
-//			realWaterData [ counterX + counterY * 64 ] = reflectionData [ counterX + counterY * 64 ];
-		
-wOffset = 0;;
-
-	for (y=0,y1=0; y<64*64; y+= 64,y1+=64)
-		for (x=0; x<64; x++)
-		{
-			wIndex1 = ((x + wOffset) & (64-1)) + y;
-			wIndex2 = ((x + *(reflectionData+wIndex1)) & (64-1)) + y;
-
-			*(realWaterData+x+y1) = *(waterData+wIndex2);
-		}
-
-//memcpy ( realWaterData, waterData, 4096 );
-
-	rect.x = VRAM_CALCVRAMX ( realWater->handle );
-	rect.y = VRAM_CALCVRAMY ( realWater->handle );
-	rect.w = realWater->w;
-	rect.h = realWater->h;
-	
-	LoadImage ( &rect, (unsigned long*)realWaterData );
-*/
-}

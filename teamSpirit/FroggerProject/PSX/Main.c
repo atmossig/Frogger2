@@ -461,7 +461,7 @@ int main ( )
 
 		StartSound();//mmsfx
 
-#define ENABLE_LANG_SEL 1
+#define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
 		actFrameCount = 0;
 		languageInitialise();
