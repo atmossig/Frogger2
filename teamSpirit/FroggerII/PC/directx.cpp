@@ -1453,16 +1453,8 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 
 	if ((z>0.01) || (z<-0.01))
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
-	else	
+	else
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
-
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);	
-	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
-	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_BOTHSRCALPHA);
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_BOTHSRCALPHA);
 
 	if (pDirect3DDevice->DrawPrimitive(
 		D3DPT_TRIANGLEFAN,
@@ -1477,8 +1469,6 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 		dp("Could not print sprite\n");
 		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
 	}
-
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 }
 /*	--------------------------------------------------------------------------------
 	Function		: DrawFlatRect

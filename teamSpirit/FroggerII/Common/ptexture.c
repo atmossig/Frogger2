@@ -94,17 +94,63 @@ void ProcessPTForcefield( PROCTEXTURE *pt )
 #endif
 
 	p = ((Random(30)+1)*32) + Random(30)+1;
-	pt->buf1[p] = 0xff;
-	pt->buf1[p+1] = 0xff;
-	pt->buf1[p-1] = 0xff;
-	pt->buf1[p-32] = 0xff;
-	pt->buf1[p+32] = 0xff;
+	pt->buf1[p]-=30;
+	pt->buf1[p+1]-=15;
+	pt->buf1[p-1]-=15;
+	pt->buf1[p-32]-=15;
+	pt->buf1[p+32]-=15;
 
 	for (i=0; i<1024; i++)
 	{
-		res = (pt->buf1[i] + pt->buf1[(i-32)&1023] + pt->buf1[(i-1)&1023]-2)>>2;
+		res = (((unsigned long)((pt->buf1[(i)&1023] + pt->buf1[(i-1)&1023] + pt->buf1[(i-31)&1023] + pt->buf1[(i+32)&1023]-10)))) >>2;
 		pt->buf2[i] = (unsigned char)res;
 	}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessPTWater
+	Purpose			: Procedural water ripple effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTWater( PROCTEXTURE *pt )
+{
+	unsigned long i,j;
+	unsigned char *tmp;
+	unsigned short res;
+	short p;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
+
+	// Make a new wave every so often
+	if( Random(1000)>995 )
+	{
+		p = ((Random(30)+1)*32) + Random(30)+1;
+		pt->buf1[p] = (pt->buf1[p]>100) ? pt->buf1[p]-100 : 0;
+	}
+
+	// Smooth, move up and fade
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			res = ((pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1])>>1)-pt->buf2[p];
+			pt->buf2[p] = res - (pt->buf2[p]>>4);
+		}
 
 	// Swap buffers
 	tmp = pt->buf1;
@@ -228,6 +274,8 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		nG = (nG * 0x0f )/gVand;
 		nB = (nB * 0x0f )/bVand;
 		nA = (nA * 0x0f )/bVand;
+
+//		nA = 0x0f;
 		
 		newCol = ((nA << 12) | (nR<<8) | (nG<<4) | (nB));
 		
@@ -239,6 +287,8 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		pt->Update = ProcessPTFire;
 	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
 		pt->Update = ProcessPTForcefield;
+	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
+		pt->Update = ProcessPTWater;
 }
 
 
