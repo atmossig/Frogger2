@@ -159,6 +159,12 @@ int MemLoadEntities(const void* data, long size)
 				break;
 			}
 
+			if(gstrcmp(type,"nothing.obe") == 0)
+			{
+				// null object - do not display
+				act->flags = ACTOR_DRAW_NEVER;
+			}
+
 			act->radius = radius;
 			act->actor->scale.v[X] = scale;
 			act->actor->scale.v[Y] = scale;
@@ -195,11 +201,9 @@ int MemLoadEntities(const void* data, long size)
 				w.v[X] = MEMGETFLOAT(&p);
 				w.v[Y] = MEMGETFLOAT(&p);
 				w.v[Z] = MEMGETFLOAT(&p);
-#ifndef NO_CAMCASES
 				tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &v, flags & 0xFFFF);
 				tcam->FOV = scale;
 				tcam->speed = animSpeed;
-#endif
 			}
 			break;
 		}

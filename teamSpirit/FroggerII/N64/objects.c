@@ -76,12 +76,17 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 				addrP = (u32 *)(temp + 4);
 				address = *addrP;
 				FindTexture(&tempTex,address,YES);
+
 				if(tempTex)
 				{
 					if(*(temp + 8) == 0xf5)
 						*addrP = (u32)tempTex->data;
 					else
 						*addrP = (u32)tempTex->palette;
+				}
+				else
+				{
+					FindTexture(&tempTex,UpdateCRC("fg.bmp"),YES);
 				}
 	
 				temp += 8;

@@ -443,11 +443,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			theActor->flags = ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
 		}
-		else if(gstrcmp(ts->name,"nothing.obe") == 0)
-		{
-			// null object - never drawn - placeholder
-			theActor->flags = ACTOR_DRAW_NEVER;
-		}
 
 		for( i=0; i<4; i++ )
 			tmp[i] = ts->name[i];

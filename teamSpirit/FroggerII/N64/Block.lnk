@@ -233,7 +233,7 @@ _objBank_0_0_SegmentRomEnd          alias   _objBank00_orgend
 
         section.16      objBank00.data,objBank00
 
-oBank00  incbin  "objects/frontmaster.nob",objBank00.data,64
+oBank00  incbin  "objects/title.nob",objBank00.data,64
 
 ; [ FRONTEND WORLD LEVEL 1 ] >>>>>
 
@@ -1168,7 +1168,7 @@ _texBank_0_0_SegmentRomEnd          alias   _texBank00_orgend
 
         section.16      texBank00.data,texBank00
 
-tBank00  incbin  "textures/frontmaster.fla",texBank00.data,64
+tBank00  incbin  "textures/title.fla",texBank00.data,64
 
 ; [ FRONTEND 1 ] >>>>>
 

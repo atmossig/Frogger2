@@ -1042,6 +1042,27 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
+			case FRONTEND1_ENT:
+				bankRomStart	= (u32)&_levData_10_1_SegmentRomStart;
+				bankRomEnd		= (u32)&_levData_10_1_SegmentRomEnd;
+				sprintf(message, "FRE_ENT1");
+				break;
+
+			case FRONTEND2_ENT:
+				bankRomStart	= (u32)&_levData_10_2_SegmentRomStart;
+				bankRomEnd		= (u32)&_levData_10_2_SegmentRomEnd;
+				sprintf(message, "FRE_ENT2");
+				break;
+
+			case FRONTEND3_ENT:
+			case FRONTEND4_ENT:
+				return;
+
+			case FRONTEND5_ENT:
+				bankRomStart	= (u32)&_levData_10_5_SegmentRomStart;
+				bankRomEnd		= (u32)&_levData_10_5_SegmentRomEnd;
+				sprintf(message, "FRE_ENT5");
+				break;
 		}
 	}
 
@@ -1081,52 +1102,6 @@ void FreeLevelEntitys()
 		JallocFree((UBYTE**)&globalPtrEntityBank);
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: MakeTeleportTile
-	Purpose			: makes the specified 'from' game tile a teleport tile to 'to' tile
-	Parameters		: GAMETILE *,GAMETILE *,char
-	Returns			: void
-	Info			: 
-*/
-void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType)
-{
-	// determine type of teleporter
-	switch(teleportType)
-	{
-		case TELEPORT_ONEWAY:
-			// make 'from' tile a teleport tile and point it towards the 'to' tile
-			fromTile->state			= TILESTATE_TELEPORTER;
-			fromTile->teleportTo	= toTile;
-			break;
-		
-		case TELEPORT_TWOWAY:
-			// make 'from' tile a teleport tile and point it towards the 'to' tile
-			fromTile->state			= TILESTATE_TELEPORTER;
-			fromTile->teleportTo	= toTile;
-
-			// make the 'to' tile a teleport tile and point it back towards the 'from' tile
-			toTile->state			= TILESTATE_TELEPORTER;
-			toTile->teleportTo		= fromTile;
-			break;
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: IsATeleportTile
-	Purpose			: checks if the specified tile is a teleport tile
-	Parameters		: GAMETILE *
-	Returns			: BOOL
-	Info			: TRUE if a teleport tile, else FALSE
-*/
-BOOL IsATeleportTile(GAMETILE *tile)
-{
-	if(tile->state == TILESTATE_TELEPORTER)
-		return TRUE;
-
-	return FALSE;
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: TeleportActorToTile
@@ -1137,16 +1112,9 @@ BOOL IsATeleportTile(GAMETILE *tile)
 */
 void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 {
-	int i = 8;
-
 	// make the teleport 'to' tile the current tile
 	currTile[pl] = tile;
 	SetVector(&act->actor->pos,&tile->centre);
+	player[pl].frogState |= FROGSTATUS_ISSTANDING;
 	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
-
-	frog[pl]->actor->scale.v[X] = globalFrogScale;
-	frog[pl]->actor->scale.v[Y] = globalFrogScale;
-	frog[pl]->actor->scale.v[Z] = globalFrogScale;
-
-	drawScreenGrab = 0;
 }

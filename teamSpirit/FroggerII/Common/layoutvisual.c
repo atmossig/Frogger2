@@ -462,6 +462,8 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	long objBankToUse;
 	long texBankToUse;
 
+	dprintf"Loading...\n"));
+
 	objBankToUse = worldVisualData[worldID].masterObjectBank;
 	texBankToUse = worldVisualData[worldID].masterTextureBank;
 
