@@ -270,6 +270,7 @@ void loadingFree()
 int loadwatershadefac = 20;
 int loadwatershadeval = 128;
 int loadFrameCount = 0;
+int wateru0,wateru1,wateru2,waterv0,waterv1,waterv2;
 void loadingWaterFrame ( void )
 {
 	int i, c;
@@ -298,6 +299,15 @@ void loadingWaterFrame ( void )
 		waterTex = FindTexture("LOADWAT");
 		if(!waterTex)
 			return;
+		else
+		{
+			wateru0 = waterTex->u0;
+			wateru1 = (waterTex->u0 + waterTex->u1)/2;
+			wateru2 = waterTex->u3;
+			waterv0 = waterTex->v0;
+			waterv1 = (waterTex->v0 + waterTex->v2)/2;
+			waterv2 = waterTex->v3;
+		}
 	}
 
 	loadingTransformPoints();
@@ -350,14 +360,30 @@ void loadingWaterFrame ( void )
 			*(long *)&si->x3 = *(long *)&waterXYs[i + 1][c + 1];
 
 
-			si->u0 = waterTex->u0;
-			si->v0 = waterTex->v0;
-			si->u1 = waterTex->u1;
-			si->v1 = waterTex->v0;
-			si->u2 = waterTex->u2;
-			si->v2 = waterTex->v2;
-			si->u3 = waterTex->u3;
-			si->v3 = waterTex->v3;
+			if((c % 2) == 0)
+			{
+				si->u0 = si->u2 = wateru0;
+				si->u1 = si->u3 = wateru1;
+//				si->u2 = waterTex->u2;
+//				si->u3 = waterTex->u3;
+			}
+			else
+			{
+				si->u0 = si->u2 = wateru1;
+				si->u1 = si->u3 = wateru2;
+			}
+
+			if((i % 2) == 0)
+			{
+				si->v0 = si->v1 = waterv0;
+				si->v2 = si->v3 = waterv1;
+			}
+			else
+			{
+				si->v0 = si->v1 = waterv1;
+				si->v2 = si->v3 = waterv2;
+			}
+
 
 			si->code = GPU_COM_TG4;
 
