@@ -1,7 +1,7 @@
 #ifndef _MAIN_H_INCLUDE
 #define _MAIN_H_INCLUDE
 
-#pragma warning(disable: 4244)
+#pragma warning(disable: 4244,4761)
 
 #include <windows.h>
 #include "fixed.h"
