@@ -394,14 +394,29 @@ void Rectangle2Twiddled(char *Rectangle, char *Twiddled, int Dimension, int Bits
     }
 }
 
-/*	--------------------------------------------------------------------------------
-	Function 	: LoadTextureFile
-	Purpose 	: load a texture from the gdrom
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
+// *ASL* 13/08/2000
+/* --------------------------------------------------------------------------------
+   Function : LoadTextureFile
+   Purpose  : load a texture from the gdrom
+   Parameters : texture filename
+   Returns : 
+   Info :
 */
 
+PKMDWORD LoadTextureFile2(char *Filename);
+
+PKMDWORD LoadTextureFile(char *filename)
+{
+	PKMDWORD	pt;
+
+	pt = LoadTextureFile2(filename);
+	if (pt == NULL)
+	{
+		if (globalAbortFlag == 1)
+			resetToBootROM();
+	}
+	return pt;
+}
 PKMDWORD LoadTextureFile(char *Filename)
 {
     PKMDWORD    TexturePtr;
