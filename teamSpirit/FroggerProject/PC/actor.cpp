@@ -135,7 +135,6 @@ void FindFrogSubObjects( int p )
 		MDX_OBJECT *obj;
 
 		strcpy(objName, headNames[player[p].character]);
-		strlwr(objName);
 
 		if( (obj = FindActorSubObject( (MDX_ACTOR *)frog[0]->actor->actualActor, objName )) )
 		{

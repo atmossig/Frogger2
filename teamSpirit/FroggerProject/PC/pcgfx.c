@@ -823,7 +823,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	vT[0].sx = p2.vx*ONEOVERFIXED;
 	vT[0].sy = p2.vy*ONEOVERFIXED;
 	vT[0].sz = p2.vz*ONEOVERFIXED;
-	vT[0].color = D3DRGBA(1,0,0,1);
+	vT[0].color = tongueColours[player[pl].character];//D3DRGBA(1,0,0,1);
 
 	p1.vx = 12000-(i*1024);
 	p1.vy = 0;
