@@ -316,6 +316,7 @@ void FreeAllTextureBanks()
 	dp("Freed %d Textures\n",numTextures);
 
 	texList = NULL;
+	testS = NULL;
 }
 
 
