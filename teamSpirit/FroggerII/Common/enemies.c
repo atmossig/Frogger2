@@ -331,6 +331,18 @@ void UpdateEnemies()
 						SlerpWaitingFlappyThing( cur );
 					}
 				}
+
+				// if enemy is a pusher and currently waiting - should still 'push' away frog
+				if(cur->flags & ENEMY_NEW_PUSHESFROG)
+				{
+					// perhaps not the best way to do this, though...
+					if(cur->inTile == currTile[0])
+					{
+						SetVector(&frog[0]->actor->pos,&prevTile->centre);
+						currTile[0] = prevTile;
+					}
+				}
+
 				continue;
 			}
 		}

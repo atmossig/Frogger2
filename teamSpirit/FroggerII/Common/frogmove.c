@@ -165,6 +165,7 @@ BOOL UpdateFroggerControls(long pl)
 		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
 		frogPitch.lastHopOn = actFrameCount;
 
+		prevTile = currTile[pl];
 		if (!MoveToRequestedDestination(dir,pl))
 		{
 			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
@@ -187,6 +188,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
+		prevTile = currTile[pl];
 		if (!MoveToRequestedDestination(dir,pl))
 		{
 			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
