@@ -365,7 +365,7 @@ void UpdateEnemies()
 					break;
 
 				case SNAPPER_TIME: 				// Snap animation
-					if( (actFrameCount-cur->path->startFrame) < 0.5*(cur->path->endFrame-cur->path->startFrame) )
+					if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
 						break;
 
 					AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
