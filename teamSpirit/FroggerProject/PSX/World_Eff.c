@@ -670,9 +670,9 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	{
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
-			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
-			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
-			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 6 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vy = mesh->verts[i].vy + ( rcos ( ( frame << 6 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 5 );
+			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
 		}
 		// ENDFOR
 		
@@ -748,8 +748,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "+ Slidding.................................\n" );
 #endif
-						si->u0 += ( ( frame ) % 32 );
-						si->u1 += ( ( frame ) % 32 );
+						si->u0 += ( ( frame/2 ) % 32 );
+						si->u1 += ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 
@@ -758,8 +758,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "- Slidding.................................\n" );
 #endif
-						si->u0 -= ( ( frame ) % 32 );
-						si->u1 -= ( ( frame ) % 32 );
+						si->u0 -= ( ( frame/2 ) % 32 );
+						si->u1 -= ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 				}
@@ -775,8 +775,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "+ Slidding.................................\n" );
 #endif
-						si->v0 += ( ( frame ) % 32 );
-						si->v1 += ( ( frame ) % 32 );
+						si->v0 += ( ( frame/2 ) % 32 );
+						si->v1 += ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 
@@ -785,8 +785,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "- Slidding.................................\n" );
 #endif
-						si->v0 -= ( ( frame ) % 32 );
-						si->v1 -= ( ( frame ) % 32 );
+						si->v0 -= ( ( frame/2 ) % 32 );
+						si->v1 -= ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 
@@ -833,8 +833,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "+ Slidding.................................\n" );
 #endif
-						si->u2 += ( ( frame ) % 32 );
-						si->u3 += ( ( frame ) % 32 );
+						si->u2 += ( ( frame/2 ) % 32 );
+						si->u3 += ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 
@@ -843,8 +843,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "- Slidding.................................\n" );
 #endif
-						si->u2 -= ( ( frame ) % 32 );
-						si->u3 -= ( ( frame ) % 32 );
+						si->u2 -= ( ( frame/2 ) % 32 );
+						si->u3 -= ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 				}
@@ -860,8 +860,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "+ Slidding.................................\n" );
 #endif
-						si->v2 += ( ( frame ) % 32 );
-						si->v3 += ( ( frame ) % 32 );
+						si->v2 += ( ( frame/2 ) % 32 );
+						si->v3 += ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 
@@ -870,8 +870,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #ifdef DEBUG_INFO
 				utilPrintf ( "- Slidding.................................\n" );
 #endif
-						si->v2 -= ( ( frame ) % 32 );
-						si->v3 -= ( ( frame ) % 32 );
+						si->v2 -= ( ( frame/2 ) % 32 );
+						si->v3 -= ( ( frame/2 ) % 32 );
 					}
 					// ENDIF
 				}

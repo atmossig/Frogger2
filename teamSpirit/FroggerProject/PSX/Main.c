@@ -275,7 +275,7 @@ int main ( )
 		RAMstart = (unsigned long)__bss_orgend;
 
 
-#if GOLDCD==0
+#if GOLDCD==1
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else

@@ -82,9 +82,10 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
  	ACTOR_SHADOW	*shadow; //mm added from PC  //mmshadow
 /* 	int				visible;//mm added from PC                                                                   */
 
-
 //bb - for merge
 	IQUATERNION qRot;
+
+	unsigned short clutOverride;
 
 } ACTOR;
 

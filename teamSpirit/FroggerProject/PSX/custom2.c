@@ -35,6 +35,8 @@ const USHORT EXPLORE_black_ref_palette[16] =
 
 USHORT EXPLORE_black_CLUT;
 
+unsigned short globalClut;
+
 /**************************************************************************
 	FUNCTION:	customDrawPrimitives2
 	PURPOSE:	add list of polys into ot using sortlists
@@ -1418,13 +1420,18 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 			
 				// JH : Temp Fix.................
 
-				si->r0 = ( op->r0 * 128 ) >> 8;
-				si->g0 = ( op->g0 * 128 ) >> 8;
-				si->b0 = ( op->b0 * 128 ) >> 8;
+				si->r0 = ( op->r0 << 7 ) >> 8;
+				si->g0 = ( op->g0 << 7 ) >> 8;
+				si->b0 = ( op->b0 << 7 ) >> 8;
 
 
 				// SL: put in the additive poly...
 				setPolyFT3(si);
+
+				if ( globalClut )
+					si->clut = globalClut;
+				// ENDIF
+
 				si->code = op->cd | modctrl->semitrans;
 				ENDPRIM(si, depth, POLY_FT3);
 
@@ -1464,6 +1471,11 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				// SL: put in the additive poly...
 				setPolyFT4(si);
+
+				if ( globalClut )
+					si->clut = globalClut;
+				// ENDIF
+
 				si->code = op->cd | modctrl->semitrans;
 				ENDPRIM(si, depth, POLY_FT4);
 
@@ -1510,6 +1522,12 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				// SL: put in the additive poly...
 				setPolyGT3(si);
+
+				if ( globalClut )
+					si->clut = globalClut;
+				// ENDIF
+
+
 				si->code = op->cd | modctrl->semitrans;
 				ENDPRIM(si, depth, POLY_GT3);
 
@@ -1563,6 +1581,11 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				// SL: put in the additive poly...
 				setPolyGT4(si);
+
+				if ( globalClut )
+					si->clut = globalClut;
+				// ENDIF
+
 				si->code = op->cd | modctrl->semitrans;
 				ENDPRIM(si, depth, POLY_GT4);
 

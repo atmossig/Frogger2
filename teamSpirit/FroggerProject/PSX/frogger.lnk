@@ -86,6 +86,7 @@ bss     group   bss
 	include "charsel.obj"
 	include "cr_lang.obj"
 	include "story.obj"
+	include "timer.obj"
 
 
 ;	include "ANIM.obj"

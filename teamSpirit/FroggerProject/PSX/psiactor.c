@@ -244,6 +244,8 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	actorSetBoundingRotated(actor,0,0,0,0);						// fill in bounding box info
 
+	actor->clutOverride = NULL;
+
 	return actor;
 }
 
