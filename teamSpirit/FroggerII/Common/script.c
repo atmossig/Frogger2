@@ -614,6 +614,16 @@ Vis:
 			break;
 		}
 
+	case EV_BABYONPLATFORM:
+		{
+			long pid = MEMGETINT(p);
+			int baby = MEMGETBYTE(p);
+			PLATFORM *plat = GetPlatformFromUID( pid );
+
+			babyFollow[baby] = plat->pltActor->actor;
+			break;
+		}
+
 	default:
 #ifdef DEBUG_SCRIPTING
 		dprintf"[Interpreter] Unrecognised command\n"));
