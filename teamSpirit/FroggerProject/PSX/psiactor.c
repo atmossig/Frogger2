@@ -240,7 +240,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 //	else
 //		utilPrintf("motion bone NOT found\n");
 
-//	actor->psiData.flags |= ACTOR_DYNAMICSORT;							// by default
+	actor->psiData.flags |= ACTOR_DYNAMICSORT;							// by default
 
 	actorSetBoundingRotated(actor,0,0,0,0);						// fill in bounding box info
 
