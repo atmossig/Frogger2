@@ -252,6 +252,13 @@ int CheatAllowed(int cheat)
 		case CHEAT_SKIP_LEVEL:
 			return ((NUM_FROGS == 1) && (gameState.mode != FRONTEND_MODE));
 		
+		case CHEAT_EXTRA_LEVELS:
+#ifdef PC_VERSION
+			return TRUE;
+#else
+			return FALSE;
+#endif
+	
 		default:
 			return TRUE;
 	}
