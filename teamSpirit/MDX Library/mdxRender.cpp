@@ -578,12 +578,10 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-					SampleGraph(i>>1);		
 					PushPolys(v,3,facesON,3,*tEnt);
 				}
 				else
 				{
-					SampleGraph(i<<1);		
 					Clip3DPolygon(v,*tEnt);
 				}
 			}	

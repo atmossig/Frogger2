@@ -475,9 +475,7 @@ void DrawBatchedPolys (void)
 		pDirect3DDevice->SetTexture(0,lSurface);
 		
 		numSeperates++;
-		
-		SampleGraph(nFace);
-		
+				
 		while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,D3DDP_WAIT)!=D3D_OK)
 		{
 			// Idle Time

@@ -215,7 +215,8 @@ long DrawLoop(void)
 		PrintTimers();
 	ClearTimers();
 	StartTimer(0,"Everything");
-	
+	BeginDraw();
+	EndDraw();
 	DDrawFlip();
 	D3DClearView();
 
