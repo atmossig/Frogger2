@@ -56,6 +56,7 @@ void LoadObjectBank(int objectBank)
 
 		case ANCIENTMULTI_OBJ_BANK:
 			strcpy(fileName, "ancientsmulti"); break;
+
 // Space
 
 		case SPACEMASTER_OBJ_BANK:					
@@ -67,10 +68,19 @@ void LoadObjectBank(int objectBank)
 		case SPACELEV2_OBJ_BANK:
 			strcpy(fileName, "space2"); break;
 
+		case SPACELEV3_OBJ_BANK:
+			strcpy(fileName, "space3"); break;
+
+		case SPACEBOSS_OBJ_BANK:
+			strcpy(fileName, "spaceboss"); break;
+
 // City
 
 		case CITYMASTER_OBJ_BANK:
 			strcpy(fileName, "citymaster"); break;
+
+		case CITYBOSS_OBJ_BANK:
+			strcat (fileName,"cityboss"); break;
 
 		case CITYLEV1_OBJ_BANK:
 			strcpy(fileName, "city1"); break;
@@ -85,6 +95,12 @@ void LoadObjectBank(int objectBank)
 
 		case SUBTERRANEANMASTER_OBJ_BANK:
 			strcpy(fileName, "submaster"); break;
+
+		case SUBTERRANEANBOSS_OBJ_BANK:
+			strcat (fileName, "subboss"); break;
+
+		case SUBTERRANEANBOSSB_OBJ_BANK:
+			strcat (fileName, "subtest"); break;
 
 		case SUBTERRANEANLEV1_OBJ_BANK:
 			strcpy(fileName, "sub1"); break;
@@ -109,6 +125,15 @@ void LoadObjectBank(int objectBank)
 		case LABORATORYLEV3_OBJ_BANK:
 			strcpy(fileName, "lab3"); break;
 
+		case LABORATORYBOSSA_OBJ_BANK:
+			strcat(fileName, "labbossa"); break;
+	
+		case LABORATORYBOSSB_OBJ_BANK:
+			strcat (fileName, "labbossb"); break;
+
+		case LABORATORYBOSSC_OBJ_BANK:
+			strcat (fileName, "labbossc"); break;
+
 // Halloween
 
 		case HALLOWEENMASTER_OBJ_BANK:
@@ -129,6 +154,41 @@ void LoadObjectBank(int objectBank)
 		case HALLOWEENBOSSB_OBJ_BANK:
 			strcat(fileName, "halloweenbossb");	break;
 
+// Super-retro
+		case RETROLEV1_OBJ_BANK:
+			strcat(fileName,"sretro1");
+			break;
+		case RETROLEV2_OBJ_BANK:
+			strcat(fileName,"sretro2");
+			break;
+		case RETROLEV3_OBJ_BANK:
+			strcat(fileName,"sretro3");
+			break;
+		case RETROLEV4_OBJ_BANK:
+			strcat(fileName,"sretro4");
+			break;
+		case RETROLEV5_OBJ_BANK:
+			strcat(fileName,"sretro5");
+			break;
+		case RETROLEV6_OBJ_BANK:
+			strcat(fileName,"sretro6");
+			break;
+		case RETROLEV7_OBJ_BANK:
+			strcat(fileName,"sretro7");
+			break;
+		case RETROLEV8_OBJ_BANK:
+			strcat(fileName,"sretro8");
+			break;
+		case RETROLEV9_OBJ_BANK:
+			strcat(fileName,"sretro9");
+			break;
+		case RETROLEV10_OBJ_BANK:
+			strcat(fileName,"sretro10");
+			break;
+		case RETROMASTER_OBJ_BANK:
+			strcat(fileName,"sretroboss");
+			break;
+			
 // Front-end
 
 		case FRONTEND_OBJ_BANK:
