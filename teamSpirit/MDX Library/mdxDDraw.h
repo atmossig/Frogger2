@@ -113,6 +113,16 @@ void DDrawFlip(void);
 
 void DDrawClearSurface(unsigned long srfN, unsigned long value, unsigned long fillType);
 
+/*	--------------------------------------------------------------------------------
+	Function	: ClearSurface
+	Purpose		: Clear a surface (Depth or color)
+	Parameters	: Surface Number, value to fill with, DDBLT_DEPTHFILL or DDBLT_COLORFILL
+	Returns		: success
+	Info		: 
+*/
+
+WNDPROC SetUserVideoProc(WNDPROC proc);
+
 #ifdef __cplusplus
 }
 #endif

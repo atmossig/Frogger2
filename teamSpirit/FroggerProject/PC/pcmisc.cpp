@@ -220,3 +220,59 @@ TextureType *FindTexture( char *name )
 
 	return (TextureType *)textureFindCRCInAllBanks(utilStr2CRC(bmp));
 }
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FindTexture
+	Purpose 	: Add .bmp extension to filename and find in all banks
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+// It's a very own graphics/code loop all on it's own!
+
+short *screen = NULL;
+void LoadScreenFromNumber(unsigned long num)
+{
+	int pptr = -1;
+	char file[MAX_PATH];
+
+	strcpy(file,baseDirectory);
+	strcat(file,"Design\\");
+	sprintf(file,"%s%s\\des%03l.bmp",num);
+	screen = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,NULL,NULL,NULL,r565?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);	
+}
+
+
+void ShowScreen(void)
+{
+	unsigned long mPitch;
+	DDSURFACEDESC2		ddsd;
+	unsigned long r,g,b,d;
+
+	DDINIT(ddsd);
+	
+	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	
+	mPitch = ddsd.lPitch/2;
+
+	for (int y=0; y<480; y++)
+		memcpy(&((short *)ddsd.lpSurface)[y*mPitch],&screen[y*640],640*sizeof(short));
+	
+	surface[RENDER_SRF]->Unlock(NULL);	
+}
+
+extern "C"
+{
+void RunDesignWorkViewer(void)
+{
+	if (screen)
+		ShowScreen();
+
+	BeginDraw();
+	EndDraw();
+	DDrawFlip();
+	D3DClearView();
+
+}
+}

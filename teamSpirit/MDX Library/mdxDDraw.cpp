@@ -36,6 +36,16 @@ HWND					rWin;
 
 LPDIRECTDRAWSURFACE7	surface[NUM_SRF] = {NULL,NULL,NULL};
 
+WNDPROC userDlgProc = NULL;
+
+WNDPROC SetUserVideoProc(WNDPROC proc)
+{
+	WNDPROC oldDlgProc = userDlgProc;
+	userDlgProc = proc;
+
+	return oldDlgProc;
+}
+
 MDX_DXDEVICE dxDeviceList[100];
 unsigned long dxNumDevices = 0;
 
@@ -116,12 +126,16 @@ LV_COLUMN c2 = {LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM,LVCFMT_LEFT,500
 
 #define NUM_LANGUAGES 5
 
-char *languageText[NUM_LANGUAGES] = {"English","Franch","German","Italian","Martian"};
+char *languageText[NUM_LANGUAGES] = {"English","French","German","Italian","Hungarian"};
 
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	HWND list;
 	int i,lastIdx;
+
+	if (userDlgProc)
+		if (userDlgProc(hwndDlg,uMsg,wParam, lParam))
+			return TRUE;
 
     switch(uMsg)
 	{
@@ -139,7 +153,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 		
 			for (i=NUM_LANGUAGES; i>0; i--)
 				SendMessage ( GetDlgItem(hwndDlg,IDC_LANGUAGE),LB_INSERTSTRING,0,(unsigned int)languageText[i-1]);
-			
+
 			SendMessage ( GetDlgItem(hwndDlg,IDC_LANGUAGE),LB_SETCURSEL,0,0);
 
 			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&c1);

@@ -52,6 +52,7 @@
 
 #include "mdx.h"
 #include "mdxException.h"
+#include "c:\work\froggerproject\resource.h"
 
 extern "C"
 {
@@ -69,6 +70,61 @@ int editorOk = 0;
 float camY = 100,camZ = 100;
 extern "C" {MDX_LANDSCAPE *world;}
 
+/*	-------------------------------------------------------------------------------
+	Function:	MainWndProc
+	Params:		As WNDPROC
+	returns:	0 for success, other to pass on to mdx default handler
+*/
+
+LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	WIN32_FIND_DATA fData;
+	HANDLE			fHandle;
+	char	fName[MAX_PATH];
+	char	fPath[MAX_PATH];
+
+    switch(msg)
+	{
+		case WM_INITDIALOG:
+		{
+			strcpy (fPath,baseDirectory);
+			strcpy (fName,fPath);
+			strcat (fName,"*.fsg");
+
+			fHandle = FindFirstFile (fName,&fData);
+
+			if (fHandle != INVALID_HANDLE_VALUE)
+			{
+				long ret;
+				char finalFile[MAX_PATH];
+				char finalShort[MAX_PATH];
+
+				do
+				{
+					strcpy (finalFile,fPath);
+					strcat (finalFile,fData.cFileName);
+					strcpy (finalShort,fData.cFileName);
+					ret = FindNextFile (fHandle,&fData);
+					
+					for (int i=0; finalShort[i]!=0; i++)
+						if (finalShort[i] == '.')
+							finalShort[i] = 0;
+
+					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_INSERTSTRING,0,(long)finalShort);
+				}
+				while (ret);
+			
+				FindClose (fHandle);
+			}
+			else
+				dp("No savegames",fName);
+
+			return FALSE;			
+		}		
+	}
+
+	return FALSE;
+}
 
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
@@ -282,6 +338,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	MDX_TEXENTRY *t;
 	char waterFile[MAX_PATH];
 
+	SetUserVideoProc(MyInitProc);
 	// Init common controls
 	InitCommonControls();
 
