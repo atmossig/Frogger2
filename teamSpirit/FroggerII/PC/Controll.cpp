@@ -536,6 +536,11 @@ void DeInitJoystick()
 		}
 }
 
+
+// TODO: remove this timer
+
+TIMER idletimer;
+
 /*	--------------------------------------------------------------------------------
 	Function	: ProcessUserInput
 	Purpose		: processes keyboard input / mouse
@@ -547,6 +552,7 @@ void ProcessUserInput(HWND hWnd)
 {
 	HRESULT hRes;
 	long i,j;
+	int pressed = 0;
 	
 	if (keyInput)
 	{
@@ -603,7 +609,10 @@ void ProcessUserInput(HWND hWnd)
 	{
 		for (i = 0; i<NUM_FROGS * 14; i++)
 				if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
+				{
 					controllerdata[keymap[i].player].button |= keymap[i].button;
+					pressed = 1;
+				}
 
 		for( i=0; i < NUM_FROGS; i++ )
 		{
@@ -648,17 +657,36 @@ void ProcessUserInput(HWND hWnd)
 					else if (joy.lY > DEAD_ZONE)
 						b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
 
-					if (rPlaying)
+					if (b)
 					{
-						if (b)
-							StopKeying();
-					}
-					else
 						controllerdata[i].button |= b;
+						pressed = 1;
+
+						if (rPlaying) StopKeying();
+					}
 
 					//lpJoystick->UnAcquire();
 				}
 			}
+		}
+	}
+
+	// TODO remove this timer thing!
+
+	if (pressed)
+	{
+		GTInit(&idletimer, 30);
+	}
+	else
+	{
+		GTUpdate(&idletimer, -1);
+		if (!idletimer.time && (player[0].worldNum != 8))
+		{
+			player[0].worldNum = 8;	player[0].levelNum = 0;
+			gameState.mode = LEVELCOMPLETE_MODE;
+			gameState.multi = SINGLEPLAYER;
+			GTInit( &modeTimer, 1 );
+			showEndLevelScreen = 0;
 		}
 	}
 }
