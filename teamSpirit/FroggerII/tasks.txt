@@ -1,0 +1,130 @@
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|		Dont modify this, it's our blank, COPY IT AND FILL IT OUT.					|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+
+TASK----------- 
+PRIORITY------- 
+DATE----------- 
+SENT BY-------- 
+RESPONSIBILTY-- 
+NOTES---------- 
+
+
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|		This is the full programming task list for the rest of the project.			|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+
+
+TASK-----------	Coins for Credits system 
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+NOTES---------- Mostly done, needs actually putting in and testing
+
+TASK----------- Multiplayer testing, bug fix and finish. Race end conditions
+PRIORITY------- Medium
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Shooting stars and other cosmic effects
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+NOTES---------- Like Voodoo Lights
+
+TASK----------- Screen grab, map to texture and draw on polys conversion from N64
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Matt?
+NOTES---------- 
+
+TASK----------- Frontend mechanisms - multiplayer select, high scores, save/load, story board screens
+PRIORITY------- Medium
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- 
+NOTES---------- All in game
+
+TASK----------- Generalise hats to "Attach object to object" to accessorise characters (including swampy, hub char, lady frog etc)
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- 
+NOTES---------- e.g. Girly backpack, hair, shades
+
+TASK----------- Rain and other weather
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim/Matt
+NOTES---------- 
+
+TASK----------- Small critters and other environmental effects
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Hub critter
+PRIORITY------- Medium
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+NOTES---------- Needs design and list of tasks it has to perform
+
+TASK----------- Associate sounds with animations
+PRIORITY------- High
+DATE----------- 6/1/00
+SENT BY-------- Matt
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Orientation of actors again, especially path enemies that face the wrong way on slopes still.
+PRIORITY------- Medium
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- 
+NOTES---------- WHY can't we do this?
+
+TASK----------- Static sprite list for special effects
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Jim
+NOTES---------- Just an optimisation, dynamic allocation is too slow
+
+TASK----------- Decent fogging as depth cue, maybe fudged volumetric too
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim
+RESPONSIBILTY-- Matt
+NOTES---------- 
+
+TASK----------- Engine optimisation, especially actor transforms
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Dave
+RESPONSIBILTY-- Matt
+NOTES---------- Maybe delay this a while so the artists don't get carried away
+
+TASK----------- Frog deformations
+PRIORITY------- Low
+DATE----------- 6/1/00
+SENT BY-------- Jim, Matt, Sandro
+RESPONSIBILTY-- Matt
+NOTES---------- Flatten to ground, squidge and sway when landing etc. Also inflate, and a skeleton effect for electrocute
+

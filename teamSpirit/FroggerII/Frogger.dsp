@@ -950,5 +950,9 @@ SOURCE=X:\TeamSpirit\pcversion\buglist.txt
 
 SOURCE=.\devlog.txt
 # End Source File
+# Begin Source File
+
+SOURCE=.\tasks.txt
+# End Source File
 # End Target
 # End Project
