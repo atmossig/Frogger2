@@ -15,6 +15,8 @@ extern "C"
 {
 #endif
 
+#include <mdx.h>
+
 #define COLLISION_BASE	"collision\\"
 #define SCENIC_BASE		"scenics\\"
 #define OBJECT_BASE		"objects\\"
@@ -30,8 +32,8 @@ extern "C"
 //#endif
 
 
-//#define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
-#define MALLOC0(S)	calloc(1,(S))
+#define MALLOC0(S)	AllocMem(S)
+//#define MALLOC0(S)	calloc(1,(S))
 
 #define REGISTRY_KEY "Software\\Atari\\Frogger2"
 

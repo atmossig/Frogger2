@@ -86,6 +86,7 @@ void *Alloc_Mem(unsigned long size,char *file, long line)
 
 
 	nMem->data = (void *)new char[size];
+	memset(nMem->data,0,size);
 	nMem->size = size;
 	nMem->numprints = 0;
 

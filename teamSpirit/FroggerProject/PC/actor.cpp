@@ -40,6 +40,9 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 
 void actorFree(ACTOR *actor)
 {
+	if( actor->shadow )
+		FREE( actor->shadow );
+
 	// Free the mdx_actor
 	if (actor->actualActor)
 		FreeActor((MDX_ACTOR **)&actor->actualActor);

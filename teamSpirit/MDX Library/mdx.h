@@ -18,6 +18,7 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "mdxFont.h"
+#include "mdxException.h"
 #include "commctrl.h"
 #include "gelf.h"
 
