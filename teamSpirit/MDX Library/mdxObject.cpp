@@ -44,21 +44,21 @@ void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 	for (i=0; i<obj->mesh->numFaces; i++)
 	{
 		// Do the sliding.
-		obj->mesh->faceTC[(i*3)].v[0] -= (timeInfo.speed * speed);		
-		obj->mesh->faceTC[(i*3)+1].v[0] -= (timeInfo.speed * speed);		
-		obj->mesh->faceTC[(i*3)+2].v[0] -= (timeInfo.speed * speed);		
+		obj->mesh->faceTC[(i*3)].v[1] -= (timeInfo.speed * speed);		
+		obj->mesh->faceTC[(i*3)+1].v[1] -= (timeInfo.speed * speed);		
+		obj->mesh->faceTC[(i*3)+2].v[1] -= (timeInfo.speed * speed);		
 
 		// Deal with the case when they might wrap.
-		if ((obj->mesh->faceTC[(i*3)].v[0] < 4096) || (obj->mesh->faceTC[(i*3)+1].v[0]<4096) || (obj->mesh->faceTC[(i*3)+2].v[0]<4096))
+		if ((obj->mesh->faceTC[(i*3)].v[1] < 4096) || (obj->mesh->faceTC[(i*3)+1].v[1]<4096) || (obj->mesh->faceTC[(i*3)+2].v[1]<4096))
 		{
-			obj->mesh->faceTC[(i*3)].v[0] += 8192;		
-			obj->mesh->faceTC[(i*3)+1].v[0] += 8192;
-			obj->mesh->faceTC[(i*3)+2].v[0] += 8192;		
+			obj->mesh->faceTC[(i*3)].v[1] += 8192;		
+			obj->mesh->faceTC[(i*3)+1].v[1] += 8192;
+			obj->mesh->faceTC[(i*3)+2].v[1] += 8192;		
 		}
 
-		obj->mesh->d3dVtx[(i*3)].tu = obj->mesh->faceTC[(i*3)].v[0] * 0.000975F;
-		obj->mesh->d3dVtx[(i*3)+1].tu = obj->mesh->faceTC[(i*3)].v[0] * 0.000975F;
-		obj->mesh->d3dVtx[(i*3)+2].tu = obj->mesh->faceTC[(i*3)].v[0] * 0.000975F;
+		obj->mesh->d3dVtx[(i*3)].tv = obj->mesh->faceTC[(i*3)].v[1] * 0.000975F;
+		obj->mesh->d3dVtx[(i*3)+1].tv = obj->mesh->faceTC[(i*3)+1].v[1] * 0.000975F;
+		obj->mesh->d3dVtx[(i*3)+2].tv = obj->mesh->faceTC[(i*3)+2].v[1] * 0.000975F;
 	}
 
 	if (obj->children)
