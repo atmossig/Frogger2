@@ -785,3 +785,6 @@ void StopSong( )
 }
 
 
+void *FindVoice ( long crc, int pl )
+{
+}
