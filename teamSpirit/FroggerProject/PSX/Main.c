@@ -60,6 +60,7 @@
 #include "Game.h"
 //#include "Block.h"
 #include "Actor2.h"
+#include "tongue.h"
 
 #include "timer.h"
 #include "Water.h"
@@ -847,6 +848,12 @@ void MainDrawFunction ( void )
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawActorList();
 	TIMER_STOP0(TIMER_ACTOR_DRAW);
+
+	if( gameState.multi == SINGLEPLAYER )
+	{
+		UpdateFrogTongue(0);
+		UpdateFrogCroak(0);
+	}
 
 //	if ( !( frameCount % 10 ) )
 //		utilPrintf ( "Poly Count : %d\n", polyCount );
