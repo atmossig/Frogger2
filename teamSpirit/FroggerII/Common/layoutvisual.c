@@ -744,9 +744,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 			flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,0);
 			flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,0);
 
-			islLogo[0] = CreateAndAddSpriteOverlay(210,10,"isl1.bmp",32,32,192,0 );
-			islLogo[1] = CreateAndAddSpriteOverlay(242,10,"isl2.bmp",32,32,192,0 );
-			islLogo[2] = CreateAndAddSpriteOverlay(274,10,"isl3.bmp",32,32,192,0 );
+			islLogo[0] = CreateAndAddSpriteOverlay(250,10,"isl1.bmp",20,20,192,0 );
+			islLogo[1] = CreateAndAddSpriteOverlay(270,10,"isl2.bmp",20,20,192,0 );
+			islLogo[2] = CreateAndAddSpriteOverlay(290,10,"isl3.bmp",20,20,192,0 );
 #endif
 			fadingLogos = 0;
 		}
