@@ -23,6 +23,7 @@ extern SPRITE *sp;
 extern void RunTitleScreen ( void );
 extern void RunLevelSelect ( void );
 extern void RunPauseMenu ( void );
+extern void RunHiscoreScreen( );
 
 #endif
 

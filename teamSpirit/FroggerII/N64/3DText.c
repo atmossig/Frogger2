@@ -14,7 +14,7 @@ TEXT3DLIST text3DList;
 	Returns			: 
 	Info			: Uses TEXT3D structure
 */
-void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO, float sinA, float sinS, float twA )
+void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, long xO, long yO, long zO, float sinA, float sinS, float twA )
 {
 	TEXT3D *t;
 	TEXT3D *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
@@ -24,7 +24,9 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->width = w;
 	// Scale factor - desired width over normal width of texture (32*numChars)
 	t3d->scale = (float)w/((float)len*32);
-	t3d->angle = 0;
+
+	t3d->angle = initAngle;
+	
 	t3d->sinA = sinA;
 	t3d->sinS = sinS;
 	t3d->twistA = twA;
