@@ -74,7 +74,7 @@ typedef struct _KMAP
 typedef struct tagEDLOADSTATE
 {
 	HANDLE f;
-	int ver;
+	int ver, fastLoad;
 	EDITPATH **pathList;
 	int numPaths;
 } EDLOADSTATE;

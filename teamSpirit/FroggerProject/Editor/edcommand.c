@@ -195,6 +195,13 @@ void SetEditorMode(int mode, int icon, TOOLBAR_SUBMENU menu)
 	FreeEditGroup(&selectionList);
 }
 
+void SpecialEditorSave(const char* str)
+{
+	releaseQuality = 1;
+	EditorSave(str);
+	releaseQuality = 0;
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: ToolbarSelect
 	Parameters		: int
@@ -209,6 +216,11 @@ void ToolbarSelect(int command)
 	{
 	case TB_SAVE: // save
 		EditVariable("Save path", EDITVAR_PASSTOFUNCTION, EditorSave);
+		strcpy(editText.string, savePath);
+		break;
+
+	case TB_SAVE_EXTRASPECIAL: // extra special save
+		EditVariable("Save special", EDITVAR_PASSTOFUNCTION, SpecialEditorSave);
 		strcpy(editText.string, savePath);
 		break;
 

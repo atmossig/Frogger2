@@ -23,7 +23,7 @@
 #include "collect.h"
 
 const UBYTE fileVersion = 15;
-const UBYTE releaseVersion = 100;
+const UBYTE releaseVersion = 0x40;
 
 int releaseQuality = 0;
 
@@ -34,7 +34,7 @@ int releaseQuality = 0;
 void WriteEditPath(EDITPATH*, HANDLE);
 void WriteTileGroup(EDITGROUP*, HANDLE);
 EDITPATH *ReadEditPath(EDLOADSTATE *state);
-EDITGROUP *ReadTileGroup(HANDLE f);
+EDITGROUP *ReadTileGroup(EDLOADSTATE *state);
 
 /* ------------------------------------------------------------------------------ */
 
@@ -62,6 +62,35 @@ void ReadVector(EDVECTOR *v, HANDLE f)
 	v->vx = ReadFloat(f);
 	v->vy = ReadFloat(f);
 	v->vz = ReadFloat(f);
+}
+
+void WriteTile(GAMETILE *t, HANDLE h, int extraFast)
+{
+	if (extraFast)
+	{
+		WriteInt(((int)t-(int)firstTile)/sizeof(GAMETILE), h);	// ugh
+	}
+	else
+	{
+		EDVECTOR v;
+		GetTilePos(&v, t);
+		WriteVector(&v, h);
+	}
+}
+
+GAMETILE *ReadTile(EDLOADSTATE *state)
+{
+	if (state->fastLoad)
+	{
+		int i = ReadInt(state->f);
+		return &firstTile[i];
+	}
+	else
+	{
+		EDVECTOR v;
+		ReadVector(&v, state->f);
+		return FindNearestTile(v);
+	}
 }
 
 int FindPtrIndex(void *i, void** list, int num)
@@ -114,6 +143,14 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 	scale = ReadFloat(f);
 	radius = ReadFloat(f);
 	
+	if (state->ver & releaseVersion)
+	{
+		state->ver &= ~releaseVersion;
+		state->fastLoad = 1;
+	}
+	else
+		state->fastLoad = 0;
+
 	if(state->ver > 10 )
 	{
 		animSpeed = ReadFloat(f);
@@ -224,9 +261,11 @@ BOOL LoadCreateList(const char* filename)
 
 	if (ver > 0x40)
 	{
-		releaseQuality = 1;
+		state.fastLoad = 1;
 		ver -= 0x40;
 	}
+	else
+		state.fastLoad = 0;
 
 	state.f = f;
 	state.ver = ver;
@@ -275,12 +314,14 @@ BOOL LoadCreateList(const char* filename)
 				EDVECTOR pos;
 
 				int i = ReadByte(f);
-				ReadVector(&pos, f);
-				if (!(tile = FindNearestTile(pos)))
+				//ReadVector(&pos, f);
+				//if (!(tile = FindNearestTile(pos)))
+
+				if (!(tile = ReadTile(&state)))
 				{
 					utilPrintf("FindNearestTile() returned NULL\n");
 					continue;
-				};
+				}
 				ep = CreateEditPath();
 				EditorAddFlag(tile, ep);
 				
@@ -312,7 +353,7 @@ BOOL LoadCreateList(const char* filename)
 					animSpeed = ReadFloat(f); // Camera slurp speed
 					target = ReadInt(f);    // Cam target compressed into a byte EDVECTOR
 				}
-				group = ReadTileGroup(f);
+				group = ReadTileGroup(&state);
 				create = EditorAddCameraCase(group, flags, &pos);
 				create->scale = scale;
 				create->animSpeed = animSpeed;
@@ -358,7 +399,10 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 		FILE_ATTRIBUTE_NORMAL, NULL);
 	if (f == INVALID_HANDLE_VALUE) return FALSE;
 
-	WriteByte(fileVersion, f);
+	if (releaseQuality)
+		WriteByte(fileVersion | releaseVersion, f);	
+	else
+		WriteByte(fileVersion, f);
 
 	// ----------------------- Step 1: Build up a list of paths -------------------------
 
@@ -438,8 +482,9 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 
 		case CREATE_GARIB:
 			WriteByte((BYTE)create->flags, f);
-			GetTilePos(&v, create->path->nodes->tile);
-			WriteVector(&v, f);
+			//GetTilePos(&v, create->path->nodes->tile);
+			//WriteVector(&v, f);
+			WriteTile(create->path->nodes->tile, f, releaseQuality);
 			WriteFloat(create->path->nodes->offset, f);
 			break;
 
@@ -478,8 +523,9 @@ void WriteEditPath(EDITPATH *p, HANDLE f)
 
 	for (node = p->nodes; count; node = node->link, count--)
 	{
-		GetTilePos(&v, node->tile);
-		WriteVector(&v, f);
+		//GetTilePos(&v, node->tile);
+		//WriteVector(&v, f);
+		WriteTile(node->tile, f, releaseQuality);
 		WriteFloat(node->offset, f);
 		WriteFloat(node->offset2, f);
 		WriteFloat(node->speed, f);
@@ -515,7 +561,8 @@ EDITPATH *ReadEditPath(EDLOADSTATE *state)
 		unsigned long sample;
 		float speed;
 
-		ReadVector(&v, f);
+		//ReadVector(&v, f);
+		tile = ReadTile(state);
 		offset = ReadFloat(f);
 		offset2 = ReadFloat(f);
 		speed = ReadFloat(f);
@@ -524,7 +571,7 @@ EDITPATH *ReadEditPath(EDLOADSTATE *state)
 		if( state->ver > 13 ) sample = (unsigned long)ReadInt(f);
 		else sample = 0;
 
-		tile = FindNearestTile(v);
+		//tile = FindNearestTile(v);
 		if (!tile || tile == prevtile) continue;	// discard invalid path nodes
 
 		node = EditorAddFlag(tile, path);
@@ -548,7 +595,7 @@ EDITPATH *ReadEditPath(EDLOADSTATE *state)
 	Returns			: EDITGROUP* containing GAMETILE*s
 */
 
-EDITGROUP *ReadTileGroup(HANDLE f)
+EDITGROUP *ReadTileGroup(EDLOADSTATE *state)
 {
 	EDITGROUP *group;
 	GAMETILE *tile;
@@ -557,12 +604,13 @@ EDITGROUP *ReadTileGroup(HANDLE f)
 
 	group = MakeEditGroup();
 
-	count = ReadInt(f);
+	count = ReadInt(state->f);
 
 	while (count--)
 	{
-		ReadVector(&v, f);
-		tile = FindNearestTile(v);
+		//ReadVector(&v, f);
+		//tile = FindNearestTile(v);
+		tile = ReadTile(state);
 
 		if (tile)
 			AddGroupMember((void*)tile, &v, group);
@@ -589,165 +637,9 @@ void WriteTileGroup(EDITGROUP *group, HANDLE f)
 
 	for (node = group->nodes; count--; node = node->link)
 	{
-		EDVECTOR v;
-		GetTilePos(&v, (GAMETILE*)node->thing);
-		WriteVector(&v, f);
+//		GetTilePos(&v, (GAMETILE*)node->thing);
+//		WriteVector(&v, f);
+		WriteTile((GAMETILE*)node->thing, f, releaseQuality);
 	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Programmer		: David Swift
-    Function		: SaveReleaseLevel
-	Parameters		: const char*, CREATEENTITYNODE*
-	Returns			: TRUE on success
-*/
-
-#define RELEASE_MAXPATH 100
-
-void WriteReleasePath(EDITPATH *p, HANDLE f)
-{
-	int count;
-	EDITPATHNODE *node;
-
-	for (count=0, node = p->nodes; node; node = node->link, count++);
-	
-	WriteWord(count, f);
-
-	utilPrintf("Path[%d]: ", count);
-
-	for (node = p->nodes; count; node = node->link, count--)
-	{
-		int tile = (node->tile - firstTile);
-		utilPrintf("%d,", tile);
-
-		WriteWord(tile, f);
-		WriteFloat(node->offset, f);
-		WriteFloat(node->offset2, f);
-		WriteFloat(node->speed, f);
-		WriteInt(node->waitTime, f);
-		WriteInt(node->sample, f);
-	}
-
-	utilPrintf("\n");
-}
-
-void WriteReleaseTileGroup(EDITGROUP *group, HANDLE f)
-{
-	EDITGROUPNODE *node;
-	int count;
-
-	count = CountGroupMembers(group);
-
-	WriteInt(count, f);
-
-	for (node = group->nodes; count--; node = node->link)
-	{
-		int tile = ((int)node->thing - (int)firstTile) / sizeof(GAMETILE);
-		WriteWord(tile, f);
-	}
-}
-
-BOOL SaveReleaseLevel(const char* filename, EDITGROUP *list)
-{
-	HANDLE h;
-	EDITPATH *pathBuf[RELEASE_MAXPATH];
-	EDITGROUPNODE *node;
-	CREATEENTITY *create;
-	int i, count;
-	EDVECTOR v;
-
-	int numPaths = 0;
-
-	// Open a file
-
-	h = CreateFile(filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) return FALSE;
-
-	WriteByte(releaseVersion, h);
-
-	// ----------------------- Step 1: Build up a list of paths -------------------------
-
-	for (node = list->nodes; node; node = node->link)
-	{
-		int f = 0;
-		EDITPATH *path = ((CREATEENTITY*)node->thing)->path;
-
-		for (i=0; i<numPaths; i++)
-			if (pathBuf[i] == path) { f = 1; break; }
-
-		if (!f)
-		{
-			pathBuf[numPaths++] = path;
-		}
-	}
-
-	// Write this list to the start of the file
-
-	WriteWord(numPaths, h);
-	for (i = 0; i < numPaths; i++)
-		WriteReleasePath(pathBuf[i], h);
-
-	// ----------------------- Step 2: Save entities ---------------------------
-
-	for (count = 0, node = list->nodes; node; node = node->link, count++);
-
-	WriteWord(count, h);
-
-	for (node = list->nodes; node; node = node->link)
-	{
-		create = (CREATEENTITY*)node->thing;
-
-		WriteByte(create->thing, h);
-
-		switch (create->thing)
-		{
-		case CREATE_ENEMY:
-		case CREATE_PLACEHOLDER:
-		case CREATE_PLATFORM:
-			count = strlen(create->type);
-			WriteByte((BYTE)count, h);
-			WriteFile(h, create->type, count, &bytesWritten, NULL);
-			WriteInt(create->flags, h);
-			WriteInt(create->ID, h);
-			WriteFloat(create->scale, h);
-			WriteFloat(create->radius, h);
-			WriteFloat(create->animSpeed, h);
-			WriteFloat(create->value1, h);
-			WriteByte(create->facing, h);
-			WriteInt(create->objFlags, h);
-			WriteInt(create->effects, h);
-			WriteWord(create->startNode, h);
-			WriteWord(FindPtrIndex(create->path, pathBuf, numPaths), h);
-			break;
-
-		case CREATE_GARIB:
-			WriteByte((BYTE)create->flags, h);
-
-			// Calculate position from EDVECTOR
-			SetVectorF(&v, &create->path->nodes->tile->normal);
-			ScaleVector(&v, create->path->nodes->offset);
-			AddToVector(&v, &create->path->nodes->tile->centre);
-
-			WriteVector(&v, h);
-			break;
-
-		case CREATE_CAMERACASE:
-			WriteInt(create->flags, h);
-			WriteVector(&create->camera, h);
-			//WriteVector(&create->target, h);	"target" was never used!
-			
-			WriteFloat(create->scale, h);
-			WriteFloat(create->animSpeed, h);
-			WriteInt(create->startNode, h);
-
-			WriteReleaseTileGroup(create->group, h);
-			break;
-		}
-	}
-
-	CloseHandle(h);
-
-	return TRUE;
 }
 

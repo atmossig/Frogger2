@@ -438,5 +438,6 @@ char *tooltips[TBNUMCOMMANDS] =
 	"Faces Direction",		// TB_SET_ORIENTATION
 	"PSX Sorting hack",		// TB_SET_PSXSHIFT
 	"PSX extra hack",		// TB_SET_PSXSHIFT
+	"Save extraspecial map"	// TB_SAVE_EXTRASPECIAL
 };
 

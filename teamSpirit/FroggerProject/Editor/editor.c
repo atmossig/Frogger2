@@ -85,6 +85,7 @@ KMAP EDKEYMAP[] =
 	{ 'x',  TB_SET_ID },
 	{ 'm',	TB_ANIMSPEED },
 	{ '.',	TB_CAMERACASE_SETDIRECTION },
+	{ '5',  TB_SAVE_EXTRASPECIAL },
 	{ -1, -1 }
 };
 /* ----------------------------------------------------------------------------------------------- */
