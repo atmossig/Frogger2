@@ -677,9 +677,9 @@ int main ( )
 
 				if( gameState.mode != PAUSE_MODE )
 				{
-					//TIMER_START0(TIMER_UPDATETEXANIM);
-					//UpdateTextureAnimations();
-					//TIMER_STOP0(TIMER_UPDATETEXANIM);
+					TIMER_START0(TIMER_UPDATETEXANIM);
+					UpdateTextureAnimations();
+					TIMER_STOP0(TIMER_UPDATETEXANIM);
 				}
 			}
 			

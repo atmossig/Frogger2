@@ -1186,8 +1186,11 @@ void *ChangeModel( ACTOR *actor, char *model )
 	//copy over current actor
 	*actor = *newActor;
 
+
+
 	//keep some of the original data
 	actor->position = oldActor.position;
+	actor->qRot			= oldActor.qRot;
 }
 
 
