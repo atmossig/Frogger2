@@ -153,3 +153,71 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 
 
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FroggerIdleAnim
+	Purpose 	: Choose and play an idle animation
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void FroggerIdleAnim( int i )
+{
+	GAMETILE *t = currTile[i]->tilePtrs[frogFacing[(i + 2) & 3]];
+
+	// 2/3 chance of doing an idle based on the tile we're facing
+	if (t && (Random(3) > 0))	
+	{
+		// Play a looking-over-the-edge animation when we're next to a drop or deadly tile
+		if (t->state == TILESTATE_JOIN)
+		{
+			VECTOR v;
+			float height;
+			
+			SubVector(&v, &t->centre, &currTile[i]->centre);
+			height = DotProduct(&v, &currTile[i]->normal);
+
+			if (height < -10)
+			{
+				AnimateActor(frog[i]->actor, FROG_ANIM_LOOKDOWN, NO, NO, 0.15f, 0, 0);
+				AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+				return;
+			}
+		}
+		else if (t->state == TILESTATE_DEADLY)
+		{
+			AnimateActor(frog[i]->actor, FROG_ANIM_LOOKDOWN, NO, NO, 0.15f, 0, 0);
+			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+			return;
+		}
+	}
+
+	// otherwise, play a normal idle
+	switch (Random(4))
+	{
+		case 0:
+			AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
+			if (Random(10)>6)
+				AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
+			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+			break;
+		case 1:
+			AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
+			break;
+		case 2:
+			AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
+			break;
+		case 3:
+			AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
+			if (Random(10)>6)
+				AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
+			else
+				AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+			break;
+		case 4:
+			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+			break;
+	}
+}
+

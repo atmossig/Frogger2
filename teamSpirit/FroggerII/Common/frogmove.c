@@ -588,7 +588,7 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 	}
 
 	// frog is jumping to available tile
-	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	//player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 	return dest;
 }

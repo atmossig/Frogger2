@@ -46,7 +46,7 @@ BYTE keyTable[256];
 
 // Gamepad
 
-long DEAD_ZONE = 50;
+long DEAD_ZONE = 100;
 
 char keyFileName[] = "frogkeys.map";
 

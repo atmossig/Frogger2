@@ -939,7 +939,14 @@ void RunGameLoop (void)
 			}
 
 			if( player[i].idleEnable )
-				FroggerIdleAnim(i);
+			{
+				player[i].idleTime-=gameSpeed;
+				if(player[i].idleTime<1)
+				{
+					FroggerIdleAnim(i);
+					player[i].idleTime = MAX_IDLE_TIME + Random(MAX_IDLE_TIME);
+				}
+			}
 		}
 	}  
 
