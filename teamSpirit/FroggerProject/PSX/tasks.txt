@@ -1,4 +1,37 @@
 For E3
+	fixed music (?)
+	disabled timers
+
+Optimisation
+  - get our own version of transformvertexlistA with depth>>=2
+  - Remove FMul/FDiv where poss
+  - Use DistBetweenPointsSquared where poss
+  - utilsCalcAngle returns hyp len in top 16 ! ! ! 
+  - check loops are counting down for clear/copy mem
+  - check for copying 2 shorts as 1 long e.t.c
+  - check for 4 or less params
+  - check we use our own memcpy/strcpy
+  - order if statements
+  - look for more funcs to make macros
+  - look to put shifts in
+  - reduce the structure contaiment depth where poss.
+    - consider putting all of actor2 into actor
+  - look to put in conditional calls, instead of conditional returns
+  - look to keep few local vars
+  - no dynamic MALLOCs
+    - use static array with stack of free pointers
+	  - order by type for icache friendly processing
+  - Things that want putting into one big loop
+    - DistanceFromFrog
+	- function calls in enemy/platform processing loops
+	  turn into looping functions?
+	- 4k loops
+	- 
+
+
+
+
+
 
 Ancients 1 aztec canyon
 -----------------------
@@ -130,29 +163,4 @@ Unassigned tasks
 Suggestions/other:
 -----------------------------------------------------
 
-
-- Thoughts on optimisation
-  - Remove FMul/FDiv where poss
-  - Use DistBetweenPointsSquared where poss
-  - utilsCalcAngle returns hyp len in top 16 ! ! ! 
-  - check loops are counting down for clear/copy mem
-  - check for copying 2 shorts as 1 long e.t.c
-  - check for 4 or less params
-  - check we use our own memcpy/strcpy
-  - order if statements
-  - look for more funcs to make macros
-  - look to put shifts in
-  - reduce the structure contaiment depth where poss.
-    - consider putting all of actor2 into actor
-  - look to put in conditional calls, instead of conditional returns
-  - look to keep few local vars
-  - no dynamic MALLOCs
-    - use static array with stack of free pointers
-	  - order by type for icache friendly processing
-  - Things that want putting into one big loop
-    - DistanceFromFrog
-	- function calls in enemy/platform processing loops
-	  turn into looping functions?
-	- 4k loops
-	- 
 
