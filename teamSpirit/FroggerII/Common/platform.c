@@ -192,6 +192,18 @@ void UpdatePlatforms()
 			// check if this platform has arrived at a path node
 			if(PlatformHasArrivedAtNode(cur))
 			{
+					/*distance = -10000;
+				
+					for(j=0; j<4; j++)
+					{
+						float t = DotProduct(&(cur->inTile->dirVector[j]),&(currTile[0]->dirVector[camFacing]));
+						if(t > distance)
+						{
+							distance = t;
+							nCamFac = j;
+						}							
+					}		*/
+		
 				UpdatePlatformPathNodes(cur);
 				
 				cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
@@ -301,6 +313,22 @@ void UpdatePlatforms()
 				// check if this is a disappearing or crumbling platform
 				if((cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG) || (cur->flags & PLATFORM_NEW_CRUMBLES))
 				{
+				/*	float distance;
+					long nCamFac = 0, j = 0;
+
+					distance = -10000;
+				
+					for(j=0; j<4; j++)
+					{
+						float t = DotProduct(&(cur->inTile->dirVector[j]),&(currTile[0]->dirVector[camFacing]));
+						if(t > distance)
+						{
+							distance = t;
+							nCamFac = j;
+						}							
+					}		
+					camFacing = nCamFac;*/
+
 					if(cur->visible)
 					{
 						// give some visual indication that this platform is about to vanish

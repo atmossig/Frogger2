@@ -21,6 +21,7 @@
 #define ACTOR_DRAW_LAST				(1 << 3)	//8
 #define ACTOR_WATER					(1 << 4)	//16
 #define ACTOR_SLIDYTEX				(1 << 5)	//32
+#define ACTOR_SLIDYTEX2				(1 << 6)	//64
 
 
 #define LOOKAT_ANYWHERE		1

@@ -62,7 +62,7 @@ char numUniqueActors = 0;
 	Returns		: void 
 */
 void XformActor(ACTOR *ptr);
-float texSlideSpeed = 50;
+float texSlideSpeed = 40;
 void SlideObjectTextures(OBJECT *obj)
 {
 	int i;
@@ -153,10 +153,27 @@ void DrawActorList()
 	waterObject = 0;
 	while(cur)
 	{
-		if(cur->flags & ACTOR_SLIDYTEX)
+		float slideSpeed = 0;
+
+		if ((cur->flags & ACTOR_SLIDYTEX))
+		{
+			if ((cur->flags & ACTOR_SLIDYTEX2))
+				slideSpeed = 64;
+			else
+				slideSpeed = 16;
+		}
+		else
+			if ((cur->flags & ACTOR_SLIDYTEX2))
+				slideSpeed = 32;
+
+	
+		if (slideSpeed>1)
+		{
+			texSlideSpeed = slideSpeed;
 			if (cur->actor->objectController)
 				SlideObjectTextures(cur->actor->objectController->object);
-	
+		}
+
 		if(((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
 		{
 			cur = cur->next;
@@ -448,6 +465,23 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 		newItem->flags = ACTOR_DRAW_CULLED;
 	else
 		newItem->flags = ACTOR_DRAW_ALWAYS;
+
+	if (name[0] == 's')
+		if (name[1] == 'p')
+		{
+			switch (name[2])
+			{
+				case 'l':
+					newItem->flags |= ACTOR_SLIDYTEX;
+					break;
+				case 'm':
+					newItem->flags |= ACTOR_SLIDYTEX2;
+					break;
+				case 'f':
+					newItem->flags |= ACTOR_SLIDYTEX & ACTOR_SLIDYTEX2;
+					break;
+			}
+		}
 
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
