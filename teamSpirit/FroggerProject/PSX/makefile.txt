@@ -73,7 +73,7 @@ LIBISL = c:\psx\isl\lib\debug
 # 
 
 frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj collect.obj\
-				custom.obj custom2.obj\
+				custom.obj custom2.obj audio.obj\
 				defdata.obj enemies.obj event.obj evenfunc.obj fixed.obj frogger.obj frogmove.obj \
 				frontend.obj game.obj general.obj hud.obj language.obj layout.obj \
 				levplay.obj levprog.obj maths.obj map_draw.obj memload.obj menus.obj multi.obj overlays.obj \

@@ -512,8 +512,11 @@ int main ( )
 
 		CommonInit();
 
-//		InitSound();//mmsfx
+
+		StartSound();//mmsfx
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
+
+
 
 		while ( !quitMainLoop )
 		{
@@ -615,6 +618,8 @@ int main ( )
 
 		}
 		// ENDWHILE
+
+		StopSound();
 
 		utilPrintf("\nFROGGER2 QUIT/RESET\n");
 		DrawSync(0);

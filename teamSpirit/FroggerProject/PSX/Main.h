@@ -1,6 +1,7 @@
 #ifndef _MAIN_H_INCLUDE
 #define _MAIN_H_INCLUDE
 
+#include <isltex.h>
 #include <islfont.h>
 #include "fixed.h"
 #include "sonylibs.h"

@@ -79,6 +79,7 @@ bss     group   bss
 	include "temp_psx.obj"
 	include "world_eff.obj"
 	include "acostab.obj"
+	include "audio.obj"
 	include "particle.obj"
 
 
@@ -150,7 +151,8 @@ bss     group   bss
     inclib  "islfont.lib"
     inclib  "isllocal.lib"
     inclib  "islpad.lib"
-    inclib  "islsound.lib"
+;    inclib  "islsound.lib"
+	inclib	"islsfx2.lib"
     inclib  "islutil.lib"
     inclib  "islxa.lib"
     inclib  "islcard.lib"
