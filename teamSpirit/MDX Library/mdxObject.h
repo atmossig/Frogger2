@@ -261,6 +261,8 @@ void LoadObjBank(char *bank, char *baseDir);
 void TransformObject(MDX_OBJECT *obj, float time);
 void SubdivideObject(MDX_OBJECT *me);
 extern WORD fpuState;
+void FreeObjectBank(long i);
+void FreeAllObjectBanks();
 
 #ifdef __cplusplus
 }

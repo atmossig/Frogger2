@@ -84,18 +84,22 @@ void InitFontSystem(void)
 bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int surf)
 {
 	int pptr = -1;
-	short *tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,NULL,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
+	int dim,size;
+
+	short *tData = (short *)gelfLoad_BMP((char*)fPath,NULL,(void**)&pptr,&dim,NULL,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 	
 	if (tData)
 	{
-		if ((tFont->surf[surf] = D3DCreateTexSurface(256,256, 0xf81f, 0, 1)) == NULL)
+		
+		if ((tFont->surf[surf] = D3DCreateTexSurface(dim,dim, 0xf81f, 0, 1)) == NULL)
 			return false;
 
-		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,256,256);
+		DDrawCopyToSurface(tFont->surf[surf],(unsigned short *)tData,0,dim,dim);
 
 		tFont->vPtrs[surf] = new D3DTLVERTEX[FONT_NUM32*FONT_NUM32];
 		tFont->widths[surf] = new long [FONT_NUM32*FONT_NUM32];
 		
+		size = dim/8;
 		for (int i=0; i<FONT_NUM32; i++)
 			for (int j=0; j<FONT_NUM32; j++)
 			{
@@ -103,22 +107,23 @@ bool AddCharsToFont(MDX_FONT *tFont, const char *bank, const char* fPath, int su
 				// Set up basic Texture pointers!
 				tFont->vPtrs[surf][(i+j*FONT_NUM32)].tu = ((float)i)/FONT_NUM32;
 				tFont->vPtrs[surf][(i+j*FONT_NUM32)].tv = ((float)j)/FONT_NUM32;
-				pixelWidth = 32;
+				pixelWidth = size;
 
-				for (k = i*32+31; k>i*32; k--)
+				for (k = i*size+(size-1); k>i*size; k--)
 				{
 					wasColored = 0;
-					for (l = 0; l<32; l++)
-						if (tData[k+((l+j*32)*256)]!=tData[0])
+					for (l = 0; l<size; l++)
+						if (tData[k+((l+j*size)*dim)]!=tData[0])
 							wasColored = 1;
 					if (wasColored)
 						break;
 					pixelWidth--;
 				}
-
+				
+				pixelWidth*=(256.0/dim);
 				tFont->widths[surf][(i+j*FONT_NUM32)] = pixelWidth+1;
 			}
-			
+		tFont->dim = dim;	
 		gelfDefaultFree(tData);
 	}
 
@@ -170,7 +175,7 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 	{
 		oc = c;
 		if (c==' ')
-			return font->widths[fNum][0]*scale;
+			return font->widths[fNum][0]*scale*(font->dim/256.0);
 		
 		// Convert c to a 0 indexed letter (if a letter)
 		if (c>='A' && c<='Z')
@@ -200,17 +205,73 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 
 	m.left = x;
 	m.top = y;
-	m.bottom = y+(32*scale);
-	m.right = x+(font->widths[fNum][c])*scale;
+	m.bottom = y+(32*scale)*(font->dim/256.0);
+	m.right = x+(font->widths[fNum][c])*scale*(font->dim/256.0);
 
 	DrawTexturedRect(m,color,font->surf[fNum],font->vPtrs[fNum][c].tu,font->vPtrs[fNum][c].tv,font->vPtrs[fNum][c].tu+((font->widths[fNum][c])/256.0),font->vPtrs[fNum][c].tv+(32.0/256.0));
 	
-	return font->widths[fNum][c]*scale;
+	return font->widths[fNum][c]*scale * (font->dim/256.0);
 }
 
-long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale)
+long CalcStringWidth(char *string,MDX_FONT *font, float scale)
+{
+	char *s = symbolChars;
+	char *ch = string;
+	char c;
+	long fNum = 0;
+	long tWidth = 0;
+
+	while (*ch)
+	{
+		c = *ch;
+		while (*s)
+		{
+		
+			if (*s==c)
+			{
+				c = s-symbolChars;
+				fNum=1;
+			}
+			s++;
+		}
+		
+		if (!fNum)
+		{
+			// Convert c to a 0 indexed letter (if a letter)
+			if (c>='A' && c<='Z')
+				c -= 'A';
+			else
+			if (c>='a' && c<='z')
+				c -= 'a'-26;
+			else	
+			if (c>='1' && c<='9')
+				c -= '1'-26-26;
+			else
+			if (c=='0')
+				c = 26+26+9;
+				
+		}
+		
+		if (c==' ')
+			tWidth += font->widths[fNum][0]*scale*(font->dim/256.0);
+		else
+			tWidth += font->widths[fNum][c]*scale*(font->dim/256.0);
+
+		ch++;
+	}
+	return tWidth;
+}
+
+long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX, long centredY)
 {
 	unsigned long cx = x;
+
+	if (centredY)
+		y -= (16*scale)*(font->dim/256.0);
+
+	if (centredX)
+		cx = centredX-CalcStringWidth(c,font,scale)/2;
+	
 	while (*c)
 	{
 		cx+=DrawFontCharAtLoc(cx,y,*c,color,font,scale);

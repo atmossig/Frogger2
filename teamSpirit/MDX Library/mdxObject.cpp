@@ -621,6 +621,20 @@ void LoadObjBank(char *bank, char *baseDir)
 	return;
 }
 
+void FreeObjectBank(long i)
+{
+	FreeLibrary((HINSTANCE)(objectBanks[i].freePtr));
+	objectBanks[i].freePtr = NULL;
+}
+
+void FreeAllObjectBanks()
+{
+	unsigned long i;
+	
+	for(i=0; i<MAX_OBJECT_BANKS; i++)
+		FreeObjectBank(i);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -23,13 +23,14 @@ typedef struct TAG_FONT
 	
 	D3DTLVERTEX *vPtrs[2];
 	long *widths[2];
-	
+	long dim;
+
 } MDX_FONT;
 
 void InitFontSystem(void);
 MDX_FONT *InitFont(char *bank,char *baseDir);
 long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,float scale);
-long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale);
+long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY);
 void UpdateFontHilite(void);
 extern float charHilite;
 #define HiliteUp(x) {charHilite = x;}
