@@ -630,8 +630,8 @@ long DrawLoop(void)
 
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
-	StartTimer (2,"DrawActorList (old)");
-	DrawActorList();
+	StartTimer (2,"Viewing, bg, fog");
+//	DrawActorList();
 
 	if ((gameState.mode != FRONTEND_MODE) && (editorOk || fixedPos))
 		CalcViewMatrix(0);
@@ -897,6 +897,9 @@ long LoopFunc(void)
 	StartTimer(11,"UpdateStuff");
 	for (c = actList; c; c = c->next)
 	{
+		if( c->actor )
+			c->distanceFromFrog = DistanceBetweenPointsSS( &c->actor->position, &frog[0]->actor->position );
+
 		if (c->actor->actualActor)
 		{
 			MDX_ACTOR *a = (MDX_ACTOR*)c->actor->actualActor;

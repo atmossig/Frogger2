@@ -142,37 +142,44 @@ void ActorListDraw(long i)
 	MDX_VECTOR where,tPos,tPos2;
 	float radius,scale;
 	MDX_MATRIX rotmat;
+	char drawOverride = 0;
 
 	cur = actorDrawList[i];
 
 	while (cur)
 	{
+		drawOverride = 0;
 		drawThisObjectsSprites = cur->draw;
 
-		SetVector(&tPos,&cur->trueCentre);
+		if( noClip || (cur->flags & ACTOR_ALWAYSDRAW) )
+			drawOverride = 1;
+		else
+		{
+			SetVector(&tPos,&cur->trueCentre);
 
-		tPos.vx *= cur->scale.vx;
-		tPos.vy *= cur->scale.vy;
-		tPos.vz *= cur->scale.vz;
+			tPos.vx *= cur->scale.vx;
+			tPos.vy *= cur->scale.vy;
+			tPos.vz *= cur->scale.vz;
+				
+			QuaternionToMatrix(&cur->qRot,&rotmat);
+			guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&tPos2.vx,&tPos2.vy,&tPos2.vz);
 			
-		QuaternionToMatrix(&cur->qRot,&rotmat);
-		guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&tPos2.vx,&tPos2.vy,&tPos2.vz);
-		
-		AddVector(&tPos,&cur->pos,&tPos2);
+			AddVector(&tPos,&cur->pos,&tPos2);
 
-		XfmPoint(&where,&tPos,NULL);
+			XfmPoint(&where,&tPos,NULL);
 
-		guMtxXFMF(vMatrix.matrix,tPos.vx,tPos.vy,tPos.vz,&tPos2.vx,&tPos2.vy,&tPos2.vz);
+			guMtxXFMF(vMatrix.matrix,tPos.vx,tPos.vy,tPos.vz,&tPos2.vx,&tPos2.vy,&tPos2.vz);
 
-		scale = max(cur->scale.vx,max(cur->scale.vy,cur->scale.vz));
-		radius = cur->radius * scale;
+			scale = max(cur->scale.vx,max(cur->scale.vy,cur->scale.vz));
+			radius = cur->radius * scale;
+		}
 
-		if( tPos2.vz+DIST+radius > nearClip || noClip )
+		if( drawOverride || tPos2.vz+DIST+radius > nearClip )
 		{
 			if( where.vz > nearClip )
 				radius = (FOV * radius * (rXRes*(1.0f/640.0f))) / (where.vz+DIST);
 
-			if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
+			if (drawOverride || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
 				((where.vy > -radius) && (where.vy<rYRes+radius)))
 			{	
 				XformActor(cur,0);

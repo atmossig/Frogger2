@@ -56,8 +56,9 @@ typedef struct TAG_MDX_ACTOR
 #define	INIT_ANIMATION	(1 << 0)
 #define	INIT_SHADOW		(1 << 1)
 
-#define ACTOR_NOFLAGS   0
-#define ACTOR_WRAPTC	(1<<0)
+#define ACTOR_NOFLAGS		0
+#define ACTOR_WRAPTC		(1<<0)
+#define ACTOR_ALWAYSDRAW	(1<<1)
 
 extern MDX_ACTOR  *currentDrawActor;
 extern MDX_VECTOR parentScaleStack[10];
