@@ -1374,6 +1374,7 @@ float fogMulBase = 0.7;
 short facesON[3] = {0,1,2};
 
 #define SETALPHA(rgba, x) ((((long)(x)) << 24) | ((rgba & 0x00ffffff)))
+#define MODALPHA(rgba, x) ((((long) ((x*(rgba>>24))>>8)) << 24) | ((rgba & 0x00ffffff)))
 
 float naddr = 0.25;
 float nmult = 4.0;
@@ -1466,7 +1467,7 @@ void PCRenderObject (OBJECT *obj)
 					}
 					else
 					{
-						vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal);
+						vTemp->color = MODALPHA(*((long *)(&(c1->x))),alphaVal);
 						vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
 						vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
 					}
@@ -1503,7 +1504,7 @@ void PCRenderObject (OBJECT *obj)
 					}
 					else
 					{
-						vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal);
+						vTemp->color = MODALPHA(*((long *)(&(c2->x))),alphaVal);
 						vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
 						vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
 					}
@@ -1540,7 +1541,7 @@ void PCRenderObject (OBJECT *obj)
 					}
 					else
 					{
-						vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal);
+						vTemp->color = MODALPHA(*((long *)(&(c3->x))),alphaVal);
 						vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
 						vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
 					}

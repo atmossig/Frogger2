@@ -7,6 +7,7 @@
 	Programmer	: Matthew Cloy
 	Date		: 11/11/98
 
+
 ----------------------------------------------------------------------------------------------- */
 
 
@@ -293,6 +294,13 @@ void DrawActorList()
 		cur = cur->next;
 	}
 
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+
+	DrawBatchedPolys();
+	BlankFrame();
+
 	waterObject = 0;
 	cur = actList;
 	while(cur)
@@ -316,6 +324,25 @@ void DrawActorList()
 			modgyObject = 0;
 
 			DrawActor(cur->actor);
+			
+			if (cur->flags & ACTOR_ADDITIVE)
+			{
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+//				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+			}
+
+			DrawBatchedPolys();
+			BlankFrame();
+
+			if (cur->flags & ACTOR_ADDITIVE)
+			{
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+			}
+			
 		}
 		
 		cur = cur->next;
@@ -582,7 +609,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 		{
 			if (name[2]=='a')
 			{
-				newItem->flags = ACTOR_DRAW_ALWAYS;// | ACTOR_MODGETEX | ACTOR_SLIDYTEX;
+				newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
 
 #ifdef N64_VERSION
 				// add support for modgy objects

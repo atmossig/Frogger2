@@ -73,6 +73,15 @@ LPDIRECTINPUTDEVICE		lpKeyb		= NULL;
 LPDIRECTINPUTDEVICE2	lpJoystick[4] = { NULL, NULL, NULL, NULL };
 LPDIRECTINPUTDEVICE		lpMouse		= NULL;
 
+extern "C"
+{
+char rKeyFile[MAX_PATH] = "";
+unsigned long rKeying = 0;
+unsigned long rKeyOK = 0;
+unsigned long rPlaying = 0;
+unsigned long rPlayOK = 0;
+}
+
 int numJoypads = 0;
 
 // 14 buttons per controller, 4 controllers.
@@ -190,6 +199,87 @@ const char* DIErrorStr(HRESULT err)
 	return "Unrecognised error code";
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function	: InitInputDevices
+	Purpose		: initialises input devices
+	Parameters	: 
+	Returns		: BOOL - TRUE on success, else FALSE
+	Info		: 
+*/
+
+void RecordKeyInit(unsigned long worldNum, unsigned long levelNum)
+{
+	FILE *fp;
+	sprintf(rKeyFile,"record_%lu_%lu.key",worldNum,levelNum);
+	fp = fopen(rKeyFile,"wb");
+	if (fp)
+	{
+		rKeyOK = 1;
+		fclose(fp);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: InitInputDevices
+	Purpose		: initialises input devices
+	Parameters	: 
+	Returns		: BOOL - TRUE on success, else FALSE
+	Info		: 
+*/
+unsigned long playKeyCount;
+unsigned long curPlayKey;
+unsigned long *playKeyList;
+void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
+{
+	FILE *fp;
+	sprintf(rKeyFile,"record_%lu_%lu.key",worldNum,levelNum);
+	fp = fopen(rKeyFile,"rb");
+	if (fp)
+	{
+		playKeyCount = 0;
+		curPlayKey = 0;
+
+		while (!feof(fp))
+		{
+			fread(&curPlayKey,4,0,fp);
+			fread(&curPlayKey,4,0,fp);
+			fread(&curPlayKey,4,0,fp);
+			playKeyCount ++;
+		}
+
+		playKeyList = new unsigned long [playKeyCount*3];
+		
+		for (curPlayKey=0; curPlayKey<playKeyCount*3; curPlayKey++)
+			fread(&playKeyList[curPlayKey],4,0,fp);			
+		
+		curPlayKey = 0;
+		rPlayOK = 1;
+
+		fclose(fp);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: InitInputDevices
+	Purpose		: initialises input devices
+	Parameters	: 
+	Returns		: BOOL - TRUE on success, else FALSE
+	Info		: 
+*/
+
+void RecordButtons(unsigned long b0,unsigned long pnum)
+{
+	FILE *fp = fopen(rKeyFile,"ab");
+	if (fp)
+	{
+		fwrite(&actFrameCount,4,0,fp);
+		fwrite(&b0,4,0,fp);
+		fwrite(&pnum,4,0,fp);
+		
+		fclose(fp);
+	}
+}
 
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
@@ -480,6 +570,10 @@ void ProcessUserInput(HWND hWnd)
 
 	for( i=0; i < NUM_FROGS; i++ )
 	{
+		
+		if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
+			RecordButtons(controllerdata[i].button,i);
+
 		if (controllers[i] & GAMEPAD)
 		{
 			LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[controllers[i] & 0xFF];

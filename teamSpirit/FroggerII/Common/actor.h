@@ -23,6 +23,7 @@
 #define ACTOR_SLIDYTEX				(1 << 5)	//32
 #define ACTOR_SLIDYTEX2				(1 << 6)	//64
 #define ACTOR_MODGETEX				(1 << 7)	//128
+#define ACTOR_ADDITIVE				(1 << 8)	//128
 
 
 #define LOOKAT_ANYWHERE		1

@@ -41,6 +41,8 @@ extern long scaleMode;
 extern unsigned long synchSpeed;
 extern unsigned long pingOffset;
 extern unsigned long synchRecovery;
+extern unsigned long rKeying;
+extern unsigned long rPlaying;
 
 CONFIG cfgOptList[] = 
 {
@@ -87,6 +89,14 @@ void GetArgs(char *arglist)
 
 			case 'M': case 'm':
 				if (cmdMode) USE_MENUS = 1;
+				break;
+
+			case 'R': case 'r':
+				if (cmdMode) rKeying = 1;
+				break;
+
+			case 'P': case 'p':
+				if (cmdMode) rPlaying = 1;
 				break;
 
 			default:

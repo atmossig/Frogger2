@@ -54,6 +54,8 @@ extern long numFacesDrawn;
 extern long numPixelsDrawn;
 extern long runHardware;
 extern unsigned long USE_MENUS;
+extern unsigned long rKeying;
+extern unsigned long rPlaying;
 extern long synchedFrameCount;
 long keyInput = 1;
 
@@ -438,6 +440,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if ((frameCount == 1) && (gameState.mode == INGAME_MODE))
 			{
+				if (rKeying)
+					RecordKeyInit(player[0].worldNum, player[0].levelNum);
+				if (rPlaying)
+					PlayKeyInit(player[0].worldNum, player[0].levelNum);
+
 				if( gameState.multi == MULTIREMOTE )
 				{
 					if (DPInfo.bIsHost)
@@ -797,21 +804,13 @@ void DrawGraphics()
 	StartTimer(3,"DrawActorList");
 	DrawActorList();	
 	EndTimer(3);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-
-	DrawBatchedPolys();
-	BlankFrame();
 
 	DrawRandomPolyList( );
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 
 	DrawBatchedPolys();
 	BlankFrame();

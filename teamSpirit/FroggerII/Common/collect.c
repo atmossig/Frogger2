@@ -132,6 +132,12 @@ void PickupCollectable(GARIB *garib, int pl)
 
 			player[0].score += (player[0].spawnScoreLevel * 10);
 			player[0].numSpawn++;
+
+			if (player[0].numSpawn>100)
+			{
+				player[0].numSpawn = 0;
+				player[0].numCredits++;
+			}
 			//PlaySample(0,&garib->sprite.pos,192,118 + (player[0].spawnScoreLevel * 10));
 			break;
 
