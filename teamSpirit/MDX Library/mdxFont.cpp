@@ -275,7 +275,7 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 {
 	char *str;
 
-	if (!font)
+	if (!font || !c)
 		return 0;
 
 	long cx = x;
