@@ -544,7 +544,7 @@ void InitGameLists()
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
 	InitSpecFXList();
-	InitBabyList( TRUE ); // MUST BE DONE BEFORE ENEMY INITS!
+	InitBabyList(YES); // MUST BE DONE BEFORE ENEMY INITS!
 	InitEnemyLinkedList();
 	InitPlatformLinkedList();
 	InitGaribLinkedList();
@@ -759,6 +759,10 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		i = 3;
 		while(i--)
 			sprHeart[i]->draw = 0;			
+
+		i = numBabies;
+		while(i--)
+			babyIcons[i]->draw = 0;
 	}
 	
 	demoText = NULL;

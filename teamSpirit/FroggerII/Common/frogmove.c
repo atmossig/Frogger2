@@ -355,6 +355,7 @@ void UpdateFroggerPos(long pl)
 			
 			SitAndFace(frog[pl], tile, frogFacing[pl]); // this is kinda unreliable..
 
+			CheckForDynamicCameraChange(tile);
 			CheckTileForCollectable(tile, pl);
 		}
 		
