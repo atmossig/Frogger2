@@ -384,6 +384,28 @@ unsigned long sfx		= 1;
 unsigned long mus		= 0;
 int sfxRes				= 0;
 
+float waterFreq[2] = { 80, 41 };
+float waterFactor[2] = { 0.004, 0.008 };
+float waterF = 0.1;
+float waterWaveHeight[2] = { 20, -10 };
+VECTOR waterCentre[2] = { { 25,0,25 },{ -15,0,0 } };
+
+float waterWaveHeightBase[2] = { 10,8 };
+float waterWaveHeightAmp[2] = { 20,10 };
+float waterWaveHeightFreq[2] = { 101, 102 };
+float watRot[2] = { 0,0 };
+
+int waterMode = 1;
+int waterX = 11;
+int waterY = 11;
+
+float *waterVel = NULL;
+
+float dist[2];
+VECTOR tempVect;
+
+float watX = 0,watY = -30,watZ = 50;
+ACTOR2 *watActor = NULL;
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunSndView
@@ -406,6 +428,7 @@ void RunSndView()
 		
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+		LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
 
 		title = CreateAndAddTextOverlay(30,24,"sound player",NO,NO,255,255,255,255,smallFont,0,0,0);
 		titleShadow = CreateAndAddTextOverlay(32,26,"sound player",NO,NO,0,0,0,255,smallFont,0,0,0);
@@ -447,6 +470,15 @@ void RunSndView()
 		sprPane = CreateAndAddSpriteOverlay(25,46,"tippane.bmp",270,68,255,255,255,95,0);
 		// bottom pane
 		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,255,255,255,191,0);
+
+		// add the water actor
+		watActor = CreateAndAddActor("eleven.obe",watX,watY,watZ,0,0,0);
+		watActor->flags = ACTOR_DRAW_ALWAYS;
+
+		watActor->actor->qRot.x = -0.25;
+		watActor->actor->qRot.y = 0;
+		watActor->actor->qRot.z = 0;
+		watActor->actor->qRot.w = 1;
 
 		sfxNum	= 0;
 		musNum	= 0;
@@ -606,13 +638,19 @@ void RunSndView()
 		sfxName->text = sfxNames[sfxNum];
 	}
 
-	if((button & CONT_START) && !(lastbutton & CONT_START))
+	if((button & CONT_G) && !(lastbutton & CONT_G))
 	{
 		MusHandleStop(sfxRes,0);
 		MusHandleStop(audioCtrl.musicHandle[0],0);
 		audioCtrl.currentTrack[0] = 0;
 
+		if(waterVel)
+			JallocFree((UBYTE **)&waterVel);
+
 		FreeAllLists();
+		developmentMode = 0;
+		gameState.mode = DEVELOPMENT_MODE;
+		return;
 	}
 
 	lastbutton = button;
@@ -633,6 +671,39 @@ void RunSndView()
 	}
 
 	curPane->a = 255 * Fabs(sinf(frameCount/12.5));
+
+	// update the water
+	if(watActor)
+	{
+		// assuming non-drawlisted object
+		VECTOR *wv;
+		int k,j,i = watActor->actor->objectController->object->mesh->numVertices;
+		int x,y;
+
+		if(waterVel == NULL)
+			waterVel = (float *)JallocAlloc(waterX*waterY*sizeof(float),YES,"wvel");
+
+		while(i--)
+		{
+			wv = &watActor->actor->objectController->object->mesh->vertices[i];
+
+			for(j=0; j<2; j++)
+			{
+				AddVector2D(&tempVect,wv,&waterCentre[j]);
+				dist[j] = Magnitude2D(&tempVect);
+			}
+
+			wv->v[Y] =	wv->v[Y] * (1 - waterF) + 
+					(	SineWave2(waterFreq[0],frameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
+						SineWave2(waterFreq[1],frameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
+		}
+
+		for(j = 0;j < 2;j++)
+		{
+			waterWaveHeight[j] = SineWave2(waterWaveHeightFreq[j],frameCount)*waterWaveHeightAmp[j] + waterWaveHeightBase[j];
+			RotateVector2D(&waterCentre[j],&waterCentre[j],watRot[j]);
+		}
+	}
 }
 
 #endif

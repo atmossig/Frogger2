@@ -77,8 +77,22 @@ void GameLoop(void)
 					RunLevelSelect();
 					break;
 
+#ifdef N64_VERSION
 				case DEVELOPMENT_MODE:
+					switch(developmentMode)
+					{
+						case OBJVIEW_MODE:
+							break;
+
+						case SNDVIEW_MODE:
+							RunSndView();
+							break;
+
+						default:
+							RunDevelopmentMenu();
+					}
 					break;
+#endif
 
 				default:
 					dprintf""));

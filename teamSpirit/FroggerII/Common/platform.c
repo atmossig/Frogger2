@@ -340,71 +340,6 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 	player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 	return NULL;
-
-
-/*
-	// VERSION FROM (19.10.1999) - ANDYE
-
-	PLATFORM *cur,*next;
-	float t,distance = 999999999;
-
-	// determine if a platform is in the tile that the frog is jumping to
-
-	if(!platformList.numEntries)
-		return NULL;				// no platforms in the platform list
-
-	// set nearest platform to NULL
-	nearestPlatform[pl] = NULL;
-
-	// traverse platform list and search for platform in the specified tile
-	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
-	{
-		next = cur->next;
-
-		// process only visible platforms and not the current one (if any)
-		if((!cur->pltActor->draw) || (cur == currPlatform[pl]))
-			continue;				// skip to next platform in list
-
-		// check if current platform is in specified game tile
-		if(cur->inTile == tile)
-		{
-			// match found - return this platform
-			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-			return cur;
-		}
-
-		// no match found - determine how close this platform is to 'centre' of specified tile
-		t = DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&tile->centre);
-		if(t < distance)
-		{
-			// this is the closest platform to centre of specified tile
-			distance = t;
-			nearestPlatform[pl] = cur;
-		}
-	}
-
-	// ok - no platform was found in the specified tile - check the nearest platform (if any)
-	if(nearestPlatform[pl])
-	{
-		// a 'nearest' platform was detected - determine if close enough to jump to
-		if(distance < (PLATFORM_GENEROSITY * PLATFORM_GENEROSITY))
-		{
-			// ok - platform close enough to jump to
-			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-			// return this closest platform which the frog is jumping to
-			return nearestPlatform[pl];
-		}
-	}
-
-	// so....frog is not jumping to a platform (i.e. no platform detected)
-	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-	player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-	return NULL;
-*/
 }
 
 
@@ -1332,17 +1267,6 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 		plat->inTile[1] = NULL;
 	}
-
-/*
-	if(DistanceBetweenPointsSquared(&fromPosition,&plat->pltActor->actor->pos) < (length * length))
-	{
-		plat->inTile[0] = plat->path->nodes[plat->path->fromNode].worldTile;
-	}
-	else
-	{
-		plat->inTile[0] = plat->path->nodes[plat->path->toNode].worldTile;
-	}
-*/
 }
 
 
