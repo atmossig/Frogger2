@@ -469,7 +469,7 @@ void RunPauseMenu()
 				else
 				{
 					gameState.mode = INGAME_MODE;
-					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND2);
+					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 				}
 			}
 			else
