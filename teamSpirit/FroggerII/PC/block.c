@@ -659,9 +659,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				else
 				{
 #ifdef FIX_FRAME_TIME
-					gameSpeed = 3;
-					actTickCount += 3*60;
-					actFrameCount += 3;
+					actTickCount += gameSpeed*60;
+					actFrameCount += gameSpeed;
 #else
 					gameSpeed = (newTickCount-actTickCount)*(60.0/1000.0);
 					actTickCount = newTickCount;
