@@ -153,11 +153,11 @@ LPDIRECTDRAWSURFACE D3DCreateTexSurface(long xs,long ys, long cKey, long alphaSu
 	    ddsd.ddpfPixelFormat.dwRGBAlphaBitMask=0xf000;
 	}
 	
-	ddsd.ddsCaps.dwCaps = videoRam?DDSCAPS_VIDEOMEMORY:DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE;
+	ddsd.ddsCaps.dwCaps = (videoRam?DDSCAPS_VIDEOMEMORY:DDSCAPS_SYSTEMMEMORY) | DDSCAPS_TEXTURE;
 
 	if ((me = pDirectDraw->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{
-		dp ("Failed NSurf\n");
+		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
 		ddShowError(me);
 		RELEASE(pSurface); 
 		return NULL;
