@@ -125,7 +125,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj bff_load.obj cam.obj collect.ob
 waterbin.obj:	waterbin.s water.spt
 		asmpsx /zd /l waterbin.s,waterbin.obj
 
-acostab.obj:	acostab.s acostab.bin
+acostab.obj:	acostab.s acostab.bin mpl0.pal mpl1.pal mpl2.pal mpl3.pal mpl4.pal mpl5.pal mpl6.pal mpl7.pal
 		asmpsx /zd /l acostab.s,acostab.obj
 
 #incbins.obj:	incbins.s
