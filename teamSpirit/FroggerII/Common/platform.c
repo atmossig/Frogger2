@@ -58,7 +58,6 @@ PLATFORM *destPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is ab
 PLATFORM *currPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
 PLATFORM *nearestPlatform[4] = { NULL,NULL,NULL,NULL };	// platform nearest to the frog
 
-static void	GetPlatformActiveTile(PLATFORM *pform);
 void CalcNextPlatformDest(PLATFORM *plat);
 
 /*	--------------------------------------------------------------------------------
@@ -294,9 +293,6 @@ void UpdatePlatforms()
 					UpdatePlatformPathNodes(cur);
 			}
 		}
-
-		// determine which world tile the platform is currently 'in'
-		GetPlatformActiveTile(cur);
 
 		// determine if platform is carrying frog
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
@@ -712,37 +708,6 @@ void ResetPlatformFlags()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: GetPlatformActiveTile
-	Purpose			: gets the currently active tile for the platform
-	Parameters		: PLATFORM *
-	Returns			: void
-	Info			: 
-*/
-static void	GetPlatformActiveTile(PLATFORM *pform)
-{
-	VECTOR v1,v2,diff;
-	float halfdist;
-	
-	if((pform->flags & PLATFORM_NEW_FOLLOWPATH ) || (pform->flags & PLATFORM_NEW_MOVEUP) || (pform->flags & PLATFORM_NEW_MOVEDOWN))
-	{
-		GetPositionForPathNode(&v1,&pform->path->nodes[pform->path->fromNode]);
-		GetPositionForPathNode(&v2,&pform->path->nodes[pform->path->toNode]);
-
-		halfdist = DistanceBetweenPoints(&v1,&v2) / 2.0F;
-
-		if(DistanceBetweenPointsSquared(&v1,&pform->pltActor->actor->pos) < (halfdist * halfdist))
-			pform->inTile = pform->path->nodes[pform->path->fromNode].worldTile;
-		else
-			pform->inTile = pform->path->nodes[pform->path->toNode].worldTile;
-	}
-	else
-	{
-		pform->inTile = pform->path->nodes[0].worldTile;
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: PlatformTooHigh
 	Purpose			: checks is destination platform is too high to jump to
 	Parameters		: PLATFORM *,long
@@ -1149,6 +1114,36 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 	pform->currSpeed = path->nodes[path->fromNode].speed;
 	pform->isWaiting = path->nodes[path->fromNode].waitTime;
+
+	// when we've gone past half-way (i.e. after half the current movement time),
+	// set the current "in" tile to halfway.
+	if (actFrameCount > (pform->path->startFrame + pform->path->endFrame) / 2)
+	{
+		GAMETILE *nextTile = pform->path->nodes[pform->path->toNode].worldTile;
+
+		pform->inTile = nextTile;
+
+		// if we're moving onto a barred tile, push the frog in the other direction
+		if (pform->carrying && nextTile->state == TILESTATE_BARRED)
+		{
+			int pl;
+			VECTOR v;
+			
+			SubVector(&v,
+				&pform->path->nodes[pform->path->fromNode].worldTile->centre,
+				&pform->path->nodes[pform->path->toNode].worldTile->centre);
+				
+			pform->inTile = nextTile;
+
+			// We need to find which frog we're carrying (yeeeeeesh)
+			for (pl=0; pl<4; pl++)
+				if (currPlatform[pl] == pform)
+				{
+					PushFrog(&pform->pltActor->actor->pos, &v, pl);
+					break;
+				}
+		}
+	}
 
 	// Stop overshoot when waiting on a path node
 	if (pform->isWaiting)
