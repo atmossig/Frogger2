@@ -5,6 +5,7 @@
 
 int multiplayerMode;
 long started = 0;
+unsigned long numMultiItems=0;
 
 TIMER powerupTimer;
 
@@ -17,7 +18,8 @@ void CalcCTFCamera( VECTOR *target );
 void CalcRaceCamera( VECTOR *target );
 
 void BattleProcessController( int pl );
-void AddBattleTrailNode( int i );
+int AddBattleTrailNode( int i );
+void FaceFrogInwards(int i);
 
 MPINFO mpl[4] = 
 {
@@ -166,16 +168,10 @@ void UpdateRace( )
 
 		if( !endTimer.time )
 		{
-			timeTextOver->text[0] = '\0';
-			StopDrawing("game over");
-			FreeAllLists();
-
-			InitLevel(player[0].worldNum,player[0].levelNum);
-			gameState.mode = INGAME_MODE;
-
-			started = frameCount = 0;
-			fixedPos = fixedDir = 0;
-			StartDrawing("game over");
+			frameCount = 2; // Not 0, because 0 and 1 are used to trigger initialisation stuff elsewhere
+			ResetMultiplayer( );
+			for( i=0; i < NUM_FROGS; i++ )
+				SetFroggerStartPos( gTStart[i], i );
 		}
 		return;
 	}
@@ -201,7 +197,7 @@ void UpdateRace( )
 					mpl[i].check = 0;
 
 					// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
-					if( mpl[i].lap >= MULTI_RACE_NUMLAPS )
+					if( mpl[i].lap >= 1)//MULTI_RACE_NUMLAPS )
 					{
 						sprintf( timeTextOver->text, "P%i won", i );
 						GTInit( &endTimer, 5 );
@@ -244,23 +240,26 @@ void UpdateBattle( )
 
 	if( !started )
 	{
-		timeTextOver->text[0] = '\0';
+		int count=0;
+		sprintf( timeTextOver->text, "Press A" );
 
-		if( frameCount > 50 )
+		for( i=0; i<NUM_FROGS; i++ )
 		{
-			int count=0;
-			for( i=0; i<NUM_FROGS; i++ )
-			{
-				if( controllerdata[i].button != controllerdata[i].lastbutton ) mpl[i].ready = 1;
-				if( mpl[i].ready ) count++;
-			}
+			VECTOR dir;
+			float dp;
+			if( (controllerdata[i].button & CONT_A) && !(controllerdata[i].lastbutton & CONT_A) ) mpl[i].ready = 1;
+			if( mpl[i].ready ) count++;
+			player[i].idleEnable = 0;
+			// Face all frogs towards the centre of the map
+			FaceFrogInwards(i);
+		}
 
-			if( count == NUM_FROGS )
-			{
-				GTInit( &endTimer, 0 );
-				GTInit( &powerupTimer, Random(10)+10 );
-				started = 1;
-			}
+		if( count == NUM_FROGS )
+		{
+			GTInit( &endTimer, 0 );
+			GTInit( &powerupTimer, Random(10)+10 );
+			started = 1;
+			timeTextOver->text[0] = '\0';
 		}
 	}
 
@@ -270,34 +269,39 @@ void UpdateBattle( )
 
 		if( !endTimer.time )
 		{
-			StopDrawing("game over");
-			FreeAllLists();
-
-			InitLevel(player[0].worldNum,player[0].levelNum);
-			gameState.mode = INGAME_MODE;
-
-			started = frameCount = 0;
-			fixedPos = fixedDir = 0;
-			StartDrawing("game over");
+			frameCount = 2;
+			ResetMultiplayer( );
+			for( i=0; i < NUM_FROGS; i++ )
+				SetFroggerStartPos( gTStart[i], i );
 		}
 		return;
 	}
 
-	GTUpdate( &powerupTimer, -1 );
-	if( !(powerupTimer.time) )
+	if( started )
 	{
-		VECTOR pos;
-		GARIB *g;
-		int r=Random(numTiles);
+		GTUpdate( &powerupTimer, -1 );
+		if( !(powerupTimer.time) )
+		{
+			if( numMultiItems < MULTI_BATTLE_MAXITEMS )
+			{
+				VECTOR pos;
+				GARIB *g;
+				int r;
+				
+				do{ r=Random(numTiles); } while( firstTile[r].state >= TILESTATE_FROGGER1AREA && firstTile[r].state <= TILESTATE_FROGGER4AREA );
 
-		SetVector( &pos, &firstTile[r].normal );
-		ScaleVector( &pos, 250 );
-		AddToVector( &pos, &firstTile[r].centre );
+				SetVector( &pos, &firstTile[r].normal );
+				ScaleVector( &pos, 250 );
+				AddToVector( &pos, &firstTile[r].centre );
 
-		// TODO: Randomise garib type with preference for trail extension
-		g = CreateNewGarib( pos, SPAWN_GARIB );
-		DropGaribToTile( g, &firstTile[r], 10 );
-		GTInit( &powerupTimer, (Random(10)+10) );
+				// TODO: Randomise garib type with preference for trail extension
+				g = CreateNewGarib( pos, SPAWN_GARIB );
+				DropGaribToTile( g, &firstTile[r], 10 );
+				numMultiItems++;
+			}
+
+			GTInit( &powerupTimer, (Random(10)+10) );
+		}
 	}
 
 	for( i=0; i<NUM_FROGS; i++ )
@@ -307,18 +311,23 @@ void UpdateBattle( )
 
 		if( started )
 		{
-			AIPATHNODE *node, *temp;
+			AIPATHNODE *node=NULL, *temp;
 			// If the frog can move then continue in current direction
 			if( player[i].canJump )
 			{
+				int tf=1;
+
 				res = MoveToRequestedDestination( ((frogFacing[i] - camFacing) & 3), i );
 				player[i].canJump = 0;
 
 				// Add a new node to the trail
 				if( res )
-					AddBattleTrailNode( i );
-				else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA && (currTile[i]->state-TILESTATE_FROGGER1AREA != i) )
-					player[i].frogState |= FROGSTATUS_ISDEAD;
+				{
+					tf = AddBattleTrailNode( i );
+					AnimateFrogHop( frogFacing[i], i );
+				}
+				
+				if( !tf || !res ) player[i].frogState |= FROGSTATUS_ISDEAD;
 			}
 
 			// Update trail. For 0->length, increase alpha to limit. 
@@ -348,7 +357,7 @@ void UpdateBattle( )
 		if( player[i].frogState & FROGSTATUS_ISDEAD )
 		{
 			player[i].deathBy = DEATHBY_NORMAL;
-			frog[i]->draw = 0;
+			AnimateActor(frog[i]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
 			dead++;
 		}
 	}
@@ -360,11 +369,13 @@ void UpdateBattle( )
 			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
 				break;
 
-
+		if( i!=NUM_FROGS )
+		{
+			sprintf( timeTextOver->text, "P%i won", i );
+			GTInit( &endTimer, 5 );
+		}
 	}
-
-	// Or if everyone is dead, declare a draw
-	if( dead == NUM_FROGS )
+	else if( dead == NUM_FROGS ) // Or if everyone is dead, declare a draw
 	{
 		GTInit( &endTimer, 5 );
 		fixedPos = fixedDir = 1;
@@ -557,11 +568,15 @@ void BattleProcessController( int pl )
 	Returns			: void
 	Info			:
 */
-void AddBattleTrailNode( int i )
+int AddBattleTrailNode( int i )
 {
 	AIPATHNODE *node = (AIPATHNODE *)JallocAlloc(sizeof(AIPATHNODE),YES,"battletrail");
 	
 	node->tile = currTile[i];
+
+	if( node->tile->state >= TILESTATE_FROGGER1AREA && node->tile->state <= TILESTATE_FROGGER4AREA )
+		return 0;
+
 	node->tile->state = TILESTATE_FROGGER1AREA + i;
 	// Create the effect that marks the trails
 	if( (node->fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &currTile[i]->centre, &currTile[i]->normal, 25, 0, 0, 9999999 )) )
@@ -576,7 +591,36 @@ void AddBattleTrailNode( int i )
 	node->next = mpl[i].path;
 	if( mpl[i].path ) mpl[i].path->prev = node;
 	mpl[i].path = node;
+
+	return 1;
 }
+
+void FaceFrogInwards(int pl)
+{
+	VECTOR dest, dir;
+	float dp, best=-1;
+	short facing=0, i;
+
+	// Find direction to centre
+	// NOTE: These can be done in one go, but I can't be bothered right now
+	SetVector( &dir, &frog[pl]->actor->pos );
+	MakeUnit( &dir );
+	ScaleVector( &dir, -1 );
+
+	for( i=0; i<4; i++ )
+	{
+		dp = DotProduct( &dir, &currTile[pl]->dirVector[i] );
+		if( dp > best )
+		{
+			facing = i;
+			best = dp;
+		}
+	}
+
+	frogFacing[pl] = facing;
+	SitAndFace( frog[pl], currTile[pl], frogFacing[pl] );
+}
+
 
 void KillMPFrog(int num)
 {
@@ -608,6 +652,7 @@ void ResetMultiplayer( )
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		mpl[i].ready = 0;
+		player[i].idleEnable = 1;
 	}
 
 	switch( multiplayerMode )
@@ -626,9 +671,11 @@ void ResetMultiplayer( )
 			while(node)
 			{
 				temp = node->next;
+				node->tile->state = TILESTATE_NORMAL;
 				SubAIPathNode(node);
 				node = temp;
 			}
+			mpl[i].path = NULL;
 		}
 		break;
 	}
@@ -639,6 +686,9 @@ void ResetMultiplayer( )
 			mpl[i].check = -1;
 			mpl[i].lap = 0;
 			mpl[i].lasttile = TILESTATE_FROGGER1AREA;
+			sprHeart[i*3]->draw = 1;
+			sprHeart[(i*3)+1]->draw = 1;
+			sprHeart[(i*3)+2]->draw = 1;
 		}
 		break;
 	}

@@ -8,6 +8,7 @@
 #define MULTIMODE_BATTLE			4
 
 
+#define MULTI_BATTLE_MAXITEMS		15
 #define MULTI_BATTLE_TRAILLENGTH	6
 
 #define MULTI_RACE_NUMLAPS 3
@@ -31,6 +32,7 @@ typedef struct
 
 extern MPINFO mpl[];
 extern int multiplayerMode;
+extern unsigned long numMultiItems;
 
 void RunMultiplayer( );
 void ResetMultiplayer( );

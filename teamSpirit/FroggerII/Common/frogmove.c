@@ -83,13 +83,10 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 {
 	unsigned long i;
 	VECTOR tmpVec;
-	ENEMY *cur,*next;
+	ENEMY *cur;
 
-	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
-	{
-		next = cur->next;
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next)
 		cur->doNotMove = 0;
-	}
 
 	// Change frog's position to reflect that of the start tile
 	SetVector(&frog[p]->actor->pos,&startTile->centre);
@@ -460,17 +457,12 @@ void UpdateFroggerPos(long pl)
 	
 	if( player[pl].frogState & FROGSTATUS_ISDEAD )
 	{
+		CheckForFroggerLanding(pl);
+
 		if( gameState.multi == SINGLEPLAYER )
-		{
-			CheckForFroggerLanding(pl);
 			KillFrog(pl);
-			return;
-		}
-		else
-		{
-			frog[pl]->draw = 0;
-			return;
-		}
+
+		return;
 	}
 	
 	// update frog tongue

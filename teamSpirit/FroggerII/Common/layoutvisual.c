@@ -749,14 +749,18 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if (player[0].worldNum==8 || gameState.multi != SINGLEPLAYER)
 	{
 	//	CreateOverlays();
-//		timeTextOver->draw = 0;
 		livesTextOver->draw = 0;
 		garibCount->draw = 0;
 		creditCount->draw = 0;
 		countdownTimer = 0;
-		i = 3;
-		while(i--)
-			sprHeart[i]->draw = 0;			
+
+		if( player[0].worldNum == 8 )
+		{
+			timeTextOver->draw = 0;
+			i = 3;
+			while(i--)
+				sprHeart[i]->draw = 0;
+		}
 
 		i = numBabies;
 		while(i--)
