@@ -35,7 +35,7 @@
 
 
 // *ASL* 12/08/2000 - Show intro every n passes
-#define	SHOW_INTRO_NOOF_PASSES	2
+#define	SHOW_INTRO_NOOF_PASSES	1
 
 
 // -------
