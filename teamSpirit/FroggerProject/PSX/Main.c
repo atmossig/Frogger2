@@ -198,6 +198,7 @@ void InitCam(void)
 {
 	// Set up an ambient light
 	GsSetAmbient(128*16, 128*16, 128*16);
+
 //bbopt - lighting test
 // 	GsSetLightMode(2);
 

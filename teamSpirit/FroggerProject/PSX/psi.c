@@ -541,6 +541,8 @@ int TF3count=0;
 int F4count=0;
 int F3count=0;
 
+#define FIXUP_RGB
+
 static void psiFixupPrims(PSIMODEL *psiModel)
 {
 	TextureType *sprt;
@@ -560,7 +562,8 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 			switch (s &(0xff-2))
 			{
 
-				case GPU_COM_G3:
+//bbopt - split because rgb code inserted
+/*				case GPU_COM_G3:
 				case GPU_COM_F3:	
 					a = sizeof(TMD_P_FG3I );
 			 		((TMD_P_FG3I*)primitive)->in=(sizeof(TMD_P_FG3I)/4)-1;	//ilen
@@ -583,8 +586,53 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					//((TMD_P_FG3I*)primitive)->dummy &= psiDOUBLESIDED; 
 					F3count++;							  
 					break;
+*/
+				case GPU_COM_F3:
+					a = sizeof(TMD_P_FG3I );
+			 		((TMD_P_FG3I*)primitive)->in=(sizeof(TMD_P_FG3I)/4)-1;	//ilen
+					((TMD_P_FG3I*)primitive)->out=0xc; 						//olen   
+					
+					if (((TMD_P_FG3I*)primitive)->dummy & psiTRANSPAR )
+						((TMD_P_FG3I*)primitive)->cd |=2;
 
-				case GPU_COM_G4:
+					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
+					((TMD_P_FG3I*)primitive)->r0 >>= 1;
+					((TMD_P_FG3I*)primitive)->g0 >>= 1;
+					((TMD_P_FG3I*)primitive)->b0 >>= 1;
+#endif
+					
+					//((TMD_P_FG3I*)primitive)->dummy &= psiDOUBLESIDED; 
+					F3count++;							  
+					break;
+
+				case GPU_COM_G3:
+					a = sizeof(TMD_P_FG3I );
+			 		((TMD_P_FG3I*)primitive)->in=(sizeof(TMD_P_FG3I)/4)-1;	//ilen
+					((TMD_P_FG3I*)primitive)->out=0xc; 						//olen   
+					
+					if (((TMD_P_FG3I*)primitive)->dummy & psiTRANSPAR )
+						((TMD_P_FG3I*)primitive)->cd |=2;
+
+					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
+					((TMD_P_FG3I*)primitive)->r0 >>= 1;
+					((TMD_P_FG3I*)primitive)->g0 >>= 1;
+					((TMD_P_FG3I*)primitive)->b0 >>= 1;
+					((TMD_P_FG3I*)primitive)->r1 >>= 1;
+					((TMD_P_FG3I*)primitive)->g1 >>= 1;
+					((TMD_P_FG3I*)primitive)->b1 >>= 1;
+					((TMD_P_FG3I*)primitive)->r2 >>= 1;
+					((TMD_P_FG3I*)primitive)->g2 >>= 1;
+					((TMD_P_FG3I*)primitive)->b2 >>= 1;
+#endif
+					//((TMD_P_FG3I*)primitive)->dummy &= psiDOUBLESIDED; 
+					F3count++;							  
+					break;
+
+
+//split cos rgb code insterted
+/*				case GPU_COM_G4:
 				case GPU_COM_F4:	
 					a = sizeof(TMD_P_FG4I );
 					((TMD_P_FG4I*)primitive)->in=(sizeof(TMD_P_FG4I)/4)-1;	//ilen
@@ -611,6 +659,54 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					
 					F4count++;
 					break;
+*/
+				case GPU_COM_F4:	
+					a = sizeof(TMD_P_FG4I );
+					((TMD_P_FG4I*)primitive)->in=(sizeof(TMD_P_FG4I)/4)-1;	//ilen
+		 			((TMD_P_FG4I*)primitive)->out=0x8; 						//olen   
+					
+					if (((TMD_P_FG4I*)primitive)->dummy & psiTRANSPAR )
+						((TMD_P_FG4I*)primitive)->cd |=2;
+					
+					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
+					((TMD_P_FG4I*)primitive)->r0 >>= 1;
+					((TMD_P_FG4I*)primitive)->g0 >>= 1;
+					((TMD_P_FG4I*)primitive)->b0 >>= 1;
+#endif
+					//((TMD_P_FG4I*)primitive)->dummy &= psiDOUBLESIDED; 
+					
+					F4count++;
+					break;
+
+				case GPU_COM_G4:
+					a = sizeof(TMD_P_FG4I );
+					((TMD_P_FG4I*)primitive)->in=(sizeof(TMD_P_FG4I)/4)-1;	//ilen
+		 			((TMD_P_FG4I*)primitive)->out=0x8; 						//olen   
+					
+					if (((TMD_P_FG4I*)primitive)->dummy & psiTRANSPAR )
+						((TMD_P_FG4I*)primitive)->cd |=2;
+					
+					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
+					((TMD_P_FG4I*)primitive)->r0 >>= 1;
+					((TMD_P_FG4I*)primitive)->g0 >>= 1;
+					((TMD_P_FG4I*)primitive)->b0 >>= 1;
+					((TMD_P_FG4I*)primitive)->r1 >>= 1;
+					((TMD_P_FG4I*)primitive)->g1 >>= 1;
+					((TMD_P_FG4I*)primitive)->b1 >>= 1;
+					((TMD_P_FG4I*)primitive)->r2 >>= 1;
+					((TMD_P_FG4I*)primitive)->g2 >>= 1;
+					((TMD_P_FG4I*)primitive)->b2 >>= 1;
+					((TMD_P_FG4I*)primitive)->r3 >>= 1;
+					((TMD_P_FG4I*)primitive)->g3 >>= 1;
+					((TMD_P_FG4I*)primitive)->b3 >>= 1;
+#endif
+					//((TMD_P_FG4I*)primitive)->dummy &= psiDOUBLESIDED; 
+					
+					F4count++;
+					break;
+
 
 				case GPU_COM_TF3:	
 					a = sizeof(TMD_P_FT3I );
@@ -634,10 +730,11 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_FT3I*)primitive)->tv2 += sprt->y;
 
 					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
 					((TMD_P_FT3I*)primitive)->r0 >>= 1;
 					((TMD_P_FT3I*)primitive)->g0 >>= 1;
 					((TMD_P_FT3I*)primitive)->b0 >>= 1;
-
+#endif
 					TF3count++;
 					//((TMD_P_FG4I*)primitive)->dummy &= psiDOUBLESIDED; 
 					break;
@@ -668,10 +765,11 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_FT4I*)primitive)->tv3 += sprt->y;
 
 					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
 					((TMD_P_FT4I*)primitive)->r0 >>= 1;
 					((TMD_P_FT4I*)primitive)->g0 >>= 1;
 					((TMD_P_FT4I*)primitive)->b0 >>= 1;
-
+#endif
 					TF4count++;
 					//((TMD_P_FG4I*)primitive)->dummy &= psiDOUBLESIDED; 
 					break;
@@ -699,6 +797,7 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_GT3I*)primitive)->tv2 += sprt->y;
 
 					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
 					((TMD_P_GT3I*)primitive)->r0 >>= 1;
 					((TMD_P_GT3I*)primitive)->g0 >>= 1;
 					((TMD_P_GT3I*)primitive)->b0 >>= 1;
@@ -708,7 +807,7 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_GT3I*)primitive)->r2 >>= 1;
 					((TMD_P_GT3I*)primitive)->g2 >>= 1;
 					((TMD_P_GT3I*)primitive)->b2 >>= 1;
-
+#endif
 
 					TG3count++;
 					break;
@@ -738,6 +837,7 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_GT4I*)primitive)->tv3 += sprt->y;
 									
 					//bbopt - to save doing this at draw time
+#ifdef FIXUP_RGB
 					((TMD_P_GT4I*)primitive)->r0 >>= 1;
 					((TMD_P_GT4I*)primitive)->g0 >>= 1;
 					((TMD_P_GT4I*)primitive)->b0 >>= 1;
@@ -750,7 +850,7 @@ static void psiFixupPrims(PSIMODEL *psiModel)
 					((TMD_P_GT4I*)primitive)->r3 >>= 1;
 					((TMD_P_GT4I*)primitive)->g3 >>= 1;
 					((TMD_P_GT4I*)primitive)->b3 >>= 1;
-
+#endif
 					TG4count++;
 
 					break;
