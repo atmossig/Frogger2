@@ -55,6 +55,7 @@ extern GsRVIEW2	camera;
 extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
 extern unsigned long currentFrameTime;
+extern char screenshotEnable;
 
 extern psFont* font;	// todo: put this somewhere sensible for heaven's sake
 extern psFont *fontSmall;
