@@ -315,7 +315,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 		}
 
-		if (newE->surf)
+		if (newE->surf && rHardware)
 			pDirect3DDevice->PreLoad(newE->surf);
 			
 		newE->xSize = xDim;

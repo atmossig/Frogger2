@@ -820,20 +820,6 @@ void FreeActor(MDX_ACTOR **toFree)
 
 /*  --------------------------------------------------------------------------------
 
-	Function	: MakeUniqueVtx
-	Purpose		: Make vertices unique, unused
-	Parameters	: (MDX_OBJECT_CONTROLLER *objC)
-	Returns		: void 
-	Info		:
-*/
-
-void MakeUniqueVtx(MDX_OBJECT_CONTROLLER *objC)
-{
-}
-
-
-/*  --------------------------------------------------------------------------------
-
 	Function	: MakeUniqueObject
 	Purpose		: Make an object into a unique copy of itself
 	Parameters	: (MDX_OBJECT *object)
@@ -966,7 +952,7 @@ void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunc
 	Info		: Facility for getting radius from centrepoint is commented out.
 */
 
-void CalculateTrueCentreAndRadius(MDX_ACTOR *t)
+void CalculateTrueCentreAndRadiusForAnActorSoWeCanCullItSensiblyToTheEdgeOfTheScreenWhenTheHeartIsntAtItsCentre(MDX_ACTOR *t)
 {
 	MDX_VECTOR radius;
 	maxX = maxY = maxZ = -BIGVAL;
@@ -1033,7 +1019,7 @@ MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 	
 	t->flags = ACTOR_NOFLAGS;
 		
-	CalculateTrueCentreAndRadius(t);
+	CalculateTrueCentreAndRadiusForAnActorSoWeCanCullItSensiblyToTheEdgeOfTheScreenWhenTheHeartIsntAtItsCentre(t);
 
 	return t;
 }
