@@ -572,7 +572,7 @@ typedef struct TAGPOLY
 
 	PLANE2 plane;
 	unsigned char r, g, b, a;
-	float u, v, u1, v1;
+	float u, v, u1, v1, angle;
 	TEXTURE *tex;
 	VECTOR *vT;
 

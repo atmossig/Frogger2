@@ -808,10 +808,10 @@ void RunGameLoop (void)
 		SetVector( &firePos, &frog[0]->actor->pos );
 		firePos.v[Y] += 30;
 		fp = CreateAndAddRandomPoly( prcTexList->tex, &firePos, &inVec, 16, 32 );
-		fp->u = 0;
-		fp->v = 0;
-		fp->u1 = 1;
 		fp->v1 = 28.0f/32.0f;
+//		fp = CreateAndAddRandomPoly( prcTexList->tex, &firePos, &rightVec, 16, 32 );
+//		fp->v1 = 28.0f/32.0f;
+//		fp->angle = PI;
 	}
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)

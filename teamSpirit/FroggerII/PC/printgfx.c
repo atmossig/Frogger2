@@ -1110,7 +1110,7 @@ void TransformAndDrawPolygon( POLYGON *p )
 {
 	VECTOR tempVect, m, fwd;
 	D3DTLVERTEX vT[5];
-	QUATERNION cross, q, up;
+	QUATERNION cross, q1, q2, q3, up;
 	long i, zeroZ=0;
 	unsigned long tex;
 	float t;
@@ -1151,13 +1151,21 @@ void TransformAndDrawPolygon( POLYGON *p )
 	guTranslateF( tMtrx, p->plane.point.v[X], p->plane.point.v[Y], p->plane.point.v[Z] );
 	PushMatrix( tMtrx );
 
+	// Rotate around axis
+	SetVector( (VECTOR *)&q1, &p->plane.normal );
+	q1.w = p->angle;
+	GetQuaternionFromRotation( &q2, &q1 );
+
 	// Rotate to be around normal
 	CrossProduct( (VECTOR *)&cross, &p->plane.normal, &upVec );
 	MakeUnit( (VECTOR *)&cross );
 	t = DotProduct( &p->plane.normal, &upVec );
 	cross.w = -acos(t);
-	GetQuaternionFromRotation( &q, &cross );
-	QuaternionToMatrix( &q,(MATRIX *)rMtrx);
+	GetQuaternionFromRotation( &q3, &cross );
+
+	// Combine the rotations and push
+	QuaternionMultiply( &q1, &q2, &q3 );
+	QuaternionToMatrix( &q1,(MATRIX *)rMtrx);
 	PushMatrix( rMtrx );
 
 	// Transform point by combined matrix

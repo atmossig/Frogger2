@@ -82,7 +82,11 @@ void ProcessProcTextures( )
 	PROCTEXTURE *pt;
 
 	for( pt=prcTexList; pt; pt=pt->next )
-		if( pt->Update ) pt->Update( pt );
+		if( pt->Update && (actFrameCount > pt->timer) )
+		{
+			pt->timer = actFrameCount+1; // Max 60fps - slow machines will just have to slow down
+			pt->Update( pt );
+		}
 }
 
 
@@ -125,7 +129,7 @@ void FreeProcTextures( )
 void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 {
 	unsigned long i;
-	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
+	unsigned long rVand,gVand,bVand,rVshr;
 	unsigned short newCol,nR,nG,nB,nA;
 #ifdef PC_VERSION
 	TEXENTRY *tx = (TEXENTRY *)tex;
@@ -152,8 +156,6 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		gVand = 0x3f;
 		bVand = 0x1f;
 		rVshr = 11;
-		gVshr = 5;
-		bVshr = 0;
 	}
 	else
 	{
@@ -161,17 +163,15 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 		gVand = 0x1f;
 		bVand = 0x1f;
 		rVshr = 10;
-		gVshr = 5;
-		bVshr = 0;
 	}
 
 	i=0xff;
 	while( i-- )
 	{
 		nR = ((unsigned short *)tx->data)[i] >> rVshr;
-		nG = ((unsigned short *)tx->data)[i] >> gVshr;
-		nB = ((unsigned short *)tx->data)[i] >> bVshr; 
-		nA = ((unsigned short *)tx->data)[i+0xff] >> bVshr; 
+		nG = ((unsigned short *)tx->data)[i] >> 5;
+		nB = ((unsigned short *)tx->data)[i];
+		nA = ((unsigned short *)tx->data)[i+0xff];
 		
 		nR &= rVand;
 		nG &= gVand;
@@ -233,6 +233,8 @@ POLYGON *CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, floa
 	p->v = 0;
 	p->u1 = 1;
 	p->v1 = 1;
+
+	p->angle = 0;
 
 	p->next = rpList;
 	rpList = p;
