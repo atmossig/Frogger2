@@ -620,7 +620,7 @@ void MainDrawFunction ( void )
 {
 			TIMER_START0(TIMER_DRAW_WORLD);
 
-			if ( drawLandscape && drawGame )
+//			if ( drawLandscape && drawGame )
 				DrawWorld();
 
 			TIMER_STOP0(TIMER_DRAW_WORLD);
@@ -646,7 +646,7 @@ void MainDrawFunction ( void )
 			TIMER_STOP0(TIMER_DRAW_WATER);
 
 			TIMER_START0(TIMER_ACTOR_DRAW);
-			if ( ( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) && drawGame )
+			if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 				DrawActorList();
 			TIMER_STOP0(TIMER_ACTOR_DRAW);
 
