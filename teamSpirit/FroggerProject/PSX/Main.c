@@ -397,7 +397,7 @@ int main ( )
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
 			polyCount = 0;
-
+			actorCount = 0;
 
 			DrawBackDrop();
 
@@ -441,8 +441,8 @@ int main ( )
 				DrawActorList();
 			TIMER_STOP(TIMER_ACTOR_DRAW);
 
-			if ( !( frameCount % 10 ) )
-				utilPrintf ( "Poly Count : %d\n", polyCount );
+// 			if ( !( frameCount % 10 ) )
+// 				utilPrintf ( "Poly Count : %d\n", polyCount );
 			// ENDIF
 
 			TIMER_START(TIMER_PRINT_OVERS);
@@ -534,6 +534,8 @@ int main ( )
 
 			if(gameState.mode!=PAUSE_MODE)
 			{
+				char tempText[64];
+
 // 				actFrameCount += 3;//(GetTickCount()/(1000/60));
 // 				gameSpeed=3<<12;
 
@@ -542,8 +544,10 @@ int main ( )
  				vsyncCounter = 0;
 
 //				utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
-				if(!(actFrameCount%10))
-					utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
+//				sprintf(tempText, "%d frames", gameSpeed>>12); 
+				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
+						gameSpeed>>12, actorCount, polyCount); 
+				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 
 			}
 
