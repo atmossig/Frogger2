@@ -354,7 +354,7 @@ int GetControllerSetup(void)
 			
 			if (RegQueryValueEx(hkey, name, NULL, NULL, (unsigned char*)value, &len) == ERROR_SUCCESS)
 			{
-				if (strnicmp(value, "joypad", 7) == 0)
+				if (strnicmp(value, "joypad", 6) == 0)
 				{
 					if (value[7] >= '1' && value[7] <= '9')
 						controllers[pl] = GAMEPAD + (value[7] - '1');
