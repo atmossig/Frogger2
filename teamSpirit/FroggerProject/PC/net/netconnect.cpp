@@ -27,6 +27,8 @@
 #include "network.h"
 #include "netchat.h"
 
+#include "lang.h"
+
 #define MAX_PLAYER_NAME     14
 #define MAX_SESSION_NAME    256
 
@@ -304,6 +306,13 @@ BOOL CALLBACK dlgProvider(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
 			hctrl = GetDlgItem(hdlg, IDC_PLAYERNAME);
 			SetWindowText(hctrl, playerName);
 			SendMessage(hctrl, EM_SETSEL, 0, -1);
+
+			SetWindowText(hdlg, GAMESTRING(STR_NET_NETWORKGAME));
+
+			SetDlgItemText(hdlg, IDC_PLAYERLABEL, GAMESTRING(STR_NET_PLAYERNAME));
+			SetDlgItemText(hdlg, IDC_CONNECTIONLABEL, GAMESTRING(STR_NET_CONNECTION));
+			SetDlgItemText(hdlg, IDOK, GAMESTRING(STR_PCSETUP_OK));
+			SetDlgItemText(hdlg, IDCANCEL, GAMESTRING(STR_PCSETUP_CANCEL));
 		}		
 		return 0;
 
@@ -472,8 +481,8 @@ bool ShowNetGames(HWND hDlg, bool start)
 				// so stop the search
 				if( searchingForSessions )
 				{
-					CheckDlgButton( hDlg, IDC_SEARCH, BST_UNCHECKED );
 					SendMessage( hDlg, WM_COMMAND, IDC_SEARCH, 0 );
+					CheckDlgButton( hDlg, IDC_SEARCH, BST_UNCHECKED );
 				}
 
 				return S_OK;
@@ -547,11 +556,17 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
         case WM_INITDIALOG:
             {
                 searchingForSessions = TRUE;
-				ShowNetGames(hDlg, true);
-				SetTimer( hDlg, 1, 250, NULL );
-
-                SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
+				SetDlgItemText( hDlg, IDC_SEARCH, GAMESTRING(STR_NET_SEARCHING));
 				CheckDlgButton( hDlg, IDC_SEARCH, BST_CHECKED);
+				SetTimer( hDlg, 1, 250, NULL );
+				ShowNetGames(hDlg, true);
+
+				SetWindowText(hDlg, GAMESTRING(STR_NET_FINDAGAME));
+
+				SetDlgItemText(hDlg, IDCANCEL, GAMESTRING(STR_PCSETUP_CANCEL));
+				SetDlgItemText(hDlg, IDC_SELECTA, GAMESTRING(STR_NET_CLICKJOIN));
+				SetDlgItemText(hDlg, IDC_CREATE, GAMESTRING(STR_NET_CREATE));
+				SetDlgItemText(hDlg, IDC_JOIN, GAMESTRING(STR_NET_JOIN));
 
 				// Disable the join button until sessions are found
 				EnableWindow( GetDlgItem( hDlg, IDC_JOIN ), FALSE );
@@ -573,7 +588,7 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
                     if (searchingForSessions)
                     {
                         // Start the timer, and start the async enumeratation
-                        SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
+                        SetDlgItemText( hDlg, IDC_SEARCH, GAMESTRING(STR_NET_SEARCHING) );
                         SetTimer( hDlg, 1, 250, NULL );
 
 						ShowNetGames(hDlg, true);
@@ -583,7 +598,7 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
                         // Stop the timer, and stop the async enumeration
                         KillTimer( hDlg, 1 );
 						ShowNetGames(hDlg, false);
-                        SetDlgItemText( hDlg, IDC_SEARCH, "Start Search" );
+                        SetDlgItemText( hDlg, IDC_SEARCH, GAMESTRING(STR_NET_FIND) );
 
 						InitSessionsDialog(hDlg);
                     }
@@ -656,6 +671,11 @@ BOOL CALLBACK dlgCreate(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 		SetDlgItemText(hDlg, IDC_NAME, sessionName);
+		SetDlgItemText(hDlg, IDOK,		GAMESTRING(STR_PCSETUP_OK));
+		SetDlgItemText(hDlg, IDCANCEL,	GAMESTRING(STR_PCSETUP_OK));
+		SetDlgItemText(hDlg, IDC_NAME,	GAMESTRING(STR_NET_GAMENAME));
+
+		SetWindowText(hDlg, GAMESTRING(STR_NET_CREATEAGAME));
 		return FALSE;
 
 	case WM_COMMAND:

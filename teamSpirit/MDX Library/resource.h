@@ -55,6 +55,10 @@
 #define ID_SEND                         1049
 #define IDC_TXT_RESOLUTION              1050
 #define IDC_SCREENRES                   1051
+#define IDC_PLAYERLABEL                 1053
+#define IDC_CONNECTIONLABEL             1054
+#define IDC_SELECTA                     1055
+#define IDC_PLAYERSLABEL                1056
 #define IDC_PLAYER1                     1100
 #define IDC_PLAYER2                     1101
 #define IDC_PLAYER3                     1102
@@ -67,7 +71,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1053
+#define _APS_NEXT_CONTROL_VALUE         1057
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

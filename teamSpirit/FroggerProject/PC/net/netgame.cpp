@@ -166,6 +166,7 @@ void NetgameStartGame()
 	}
 
 	netStatusText = new char[1024];
+	netStatusText[0] = 0;
 	netStatus = CreateAndAddTextOverlay(32, 3800, netStatusText, 0, 0, fontSmall, 0);
 
 	NetgameBegin();

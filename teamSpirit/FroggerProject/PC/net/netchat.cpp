@@ -137,7 +137,8 @@ bool SetupChatDialog(HWND hdlg)
 	pf.dxOffset = 256;
 	SendMessage(hwndChatEdit, EM_SETPARAFORMAT, 0, (LPARAM)&pf);
 
-	ChatShowMessage(isHost?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
+	if (isHost)
+		ChatShowMessage(GAMESTRING(STR_NET_HOST), CHAT_SYSTEM);
 
 	HWND hList = GetDlgItem(hdlg, IDC_LEVEL);
 
@@ -170,6 +171,12 @@ bool SetupChatDialog(HWND hdlg)
 
 	// Timer 1 is used for checking the player list and footling through the message buffers
 	SetTimer(hdlg, 1, 250, NULL);
+
+	SetDlgItemText(hdlg, IDCANCEL,	GAMESTRING(STR_PCSETUP_OK));
+	SetDlgItemText(hdlg, IDC_START,	GAMESTRING(STR_NET_READY));
+	SetDlgItemText(hdlg, IDC_PLAYERSLABEL, GAMESTRING(STR_NET_PLAYERS));
+	
+	SetWindowText(hdlg, GAMESTRING(STR_NET_STARTAGAME));
 
 	return true;
 }
