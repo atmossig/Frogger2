@@ -478,10 +478,9 @@ void DrawFXRing( SPECFX *fx )
 			}
 		}
 
-		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 );
-
 		if( !zeroZ )
 		{
+			memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 );
 			memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 			Clip3DPolygon( vT, tEntry );
 			Clip3DPolygon( &vT[2], tEntry );
@@ -499,6 +498,10 @@ void DrawFXRing( SPECFX *fx )
 					else SetFXColour( trail, fx->r, fx->g, fx->b );
 				}
 			}
+		}
+		else
+		{
+			vTPrev[0].sz = vTPrev[1].sz = 0;
 		}
 	}
 
