@@ -303,7 +303,8 @@ void main()
 	int					i;
 	MWS_PLY_INIT_SFD	iprm;
 	Uint32 				*memfree,*memsize;
-
+	unsigned long		hyp,test;
+	
 	#ifdef __GNUC__
 	shinobi_workaround();
 	#endif
@@ -347,6 +348,9 @@ void main()
 	InitCam();
 	actorInitialise();
 
+//	hyp = utilSqrt(17777*17777);
+//	test = sqrt(17777*17777);
+	
 	InitProgressBar();
 	InitTimerbar();
 	
@@ -449,7 +453,7 @@ void main()
 				padData.digital[i] |= PAD_START;
 		}
 		
-		UpdateTextureAnimations();
+//		UpdateTextureAnimations();
 				
 		GameLoop();
 		DCTIMER_STOP(1);		
@@ -479,7 +483,7 @@ void main()
 			DrawActorList();
 		DCTIMER_STOP(5);		
 
-//		UpdateFrogTongue(0);
+		UpdateFrogTongue(0);
 		UpdateFrogCroak(0);
 
 //		for( i=0; i<NUM_FROGS; i++ )
@@ -503,11 +507,14 @@ void main()
 //		MyStreamServer();
 		DCTIMER_STOP(7);		
 
-//		sprintf(textbuffer,"rz: %d",camera.rz);
-//		fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
+		sprintf(textbuffer,"rz: %d",camera.rz);
+		fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
 
-//		sprintf(textbuffer,"rz: %f",(float)camera.rz / 4096.0);
-//		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
+		sprintf(textbuffer,"rz: %f",(float)camera.rz / 4096.0);
+		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
+
+		sprintf(textbuffer,"rz: %f",(float)camera.rz / 360);
+		fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 		
 //		sprintf(textbuffer,"frame: %d",frame);
 //		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
