@@ -226,25 +226,6 @@ void FreeSpriteSortArray();
 int SpriteZCompare(const void *arg1,const void *arg2);
 void ZSortSpriteList();
 
-//----- used for static sprite list - ANDYE -----------------------------------------------------
-
-typedef struct TAGSPRITE_ENTRY
-{
-	char used;
-	SPRITE sprite;
-
-} SPRITE_ENTRY;
-
-extern int numArraySprites;
-extern int lowestFreeArraySlot;
-extern SPRITE_ENTRY *spriteEntryArray;
-extern SPRITE_ENTRY *spriteEntryArrayPtr;
-
-void InitSpriteArray(int numElements);
-void FreeSpriteArray();
-void AddSpriteToArray(SPRITE *sprite);
-void SubSpriteFromArray(SPRITE *sprite);
-
 //-----------------------------------------------------------------------------------------------
 
 

@@ -307,7 +307,6 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	static indexPos = 0;
 	unsigned char value;
 	GARIB *garib;
-	SPRITE sprite;
 
 	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
 	{

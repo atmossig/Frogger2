@@ -755,11 +755,11 @@ void ZSortSpriteList()
 
 	// traverse through sprite list and create the sort array
 	numSortArraySprites = 0;
-	for(cur = spriteList.head.next; cur != &spriteList.head; cur = next)
+	for(cur = spriteList.head.next; (cur != &spriteList.head) && (numSortArraySprites < MAX_ARRAY_SPRITES); cur = next)
 	{
 		next = cur->next;
 
-		// the static array should be large enough to enough sprites (currently 500)
+		// the static array should be large enough to hold sprites
 		if((cur->sc.v[Z] - frogXfm.v[Z]) < SPRITE_ZSORT_DRAWDISTANCE)
 		{
 			spriteSortArray[numSortArraySprites] = *(cur);
@@ -768,70 +768,4 @@ void ZSortSpriteList()
 	}
 
 	qsort(&spriteSortArray[0],numSortArraySprites,sizeof(SPRITE),SpriteZCompare);
-}
-
-
-//----- used for static sprite list - ANDYE -----------------------------------------------------
-
-int numArraySprites					= 0;
-int lowestFreeArraySlot				= 0;
-SPRITE_ENTRY *spriteEntryArrayPtr	= NULL;
-SPRITE_ENTRY *spriteEntryArray		= NULL;
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitSpriteArray
-	Purpose			: initialises the static sprite array
-	Parameters		: int
-	Returns			: void
-	Info			: 
-*/
-void InitSpriteArray(int numElements)
-{
-	if(spriteEntryArray)
-		FreeSpriteArray();
-
-	spriteEntryArray = JallocAlloc(sizeof(SPRITE_ENTRY) * numElements,YES,"sprArray");
-
-	numArraySprites = 0;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeSpriteArray
-	Purpose			: frees the static sprite array
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void FreeSpriteArray()
-{
-	if(spriteEntryArray)
-		JallocFree((UBYTE**)&spriteEntryArray);
-
-	spriteEntryArray = NULL;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddSpriteToArray
-	Purpose			: adds a sprite to the sprite array
-	Parameters		: SPRITE *
-	Returns			: 
-	Info			: void
-*/
-void AddSpriteToArray(SPRITE *sprite)
-{
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: SubSpriteFromArray
-	Purpose			: removes a sprite from the sprite array
-	Parameters		: SPRITE *
-	Returns			: void
-	Info			: 
-*/
-void SubSpriteFromArray(SPRITE *sprite)
-{
 }
