@@ -64,7 +64,7 @@ SVECTOR camDist				= {0,680*SCALE,192*SCALE};
 fixed camSpeed				= 15<<12; //30; //9;
 fixed camSpeed2				= 20<<12;; //25; //9;
 fixed camSpeed3				= 20<<12;	// source & target interp.
-fixed camSpeed4				= 15<<12;; //25; //8;
+//fixed camSpeed4				= 15<<12;; //25; //8;
 fixed fovSpd				= 2<<12;;
 fixed transCamSpeedMult		= 4096;
 
@@ -525,7 +525,7 @@ void CameraSetOffset(void)
 */
 void SlurpCamPosition( )
 {
-	fixed s1,s2,s3,s4;
+	fixed s1,s2,s3;//,s4;
 	FVECTOR v;
 
 	if(camControlMode)
@@ -543,7 +543,7 @@ void SlurpCamPosition( )
 		s1 = min(4096, (gameSpeed<<12)/FMul(camSpeed ,transCamSpeedMult) );
 		s2 = min(4096, (gameSpeed<<12)/FMul(camSpeed2,transCamSpeedMult) );
 		s3 = min(4096, (gameSpeed<<12)/FMul(camSpeed3,transCamSpeedMult) );
-		s4 = min(4096, (gameSpeed<<12)/FMul(camSpeed4,transCamSpeedMult) );
+		//s4 = min(4096, (gameSpeed<<12)/FMul(camSpeed4,transCamSpeedMult) );
 //	}
 
 	SubVectorFFF(&v, &camTarget, &currCamTarget);
