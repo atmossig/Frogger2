@@ -244,10 +244,10 @@ PARTICLE *AllocateParticles( int number )
 	PARTICLE *p;
 	// Return if allocation is impossible for any reason
 	if( (number <= 0) || (partList.stackPtr-number < 0) || (number >= MAX_PARTICLES-partList.count) )
-	{
-		utilPrintf ( "Could not find enough space to allocate particles. Number : %d\n", number );
+//	{
+//		utilPrintf ( "Could not find enough space to allocate particles. Number : %d\n", number );
 		return NULL;
-	}
+//	}
 
 
 	// Now we can go and allocate particles with gay abandon
