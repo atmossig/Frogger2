@@ -277,7 +277,7 @@ unsigned long DDrawInitObject (GUID *guid)
 			return 0;
 		}
 		
-		MPR_Init();
+//		MPR_Init();
 	
 	}
 	else

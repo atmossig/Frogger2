@@ -99,7 +99,7 @@ extern unsigned long cullNoneRS[];
 extern unsigned long cullCWRS[];
 extern unsigned long cullCCWRS[];
 
-extern long softScreen[640*480];
+extern short softScreen[640*480];
 
 #ifdef __cplusplus
 }

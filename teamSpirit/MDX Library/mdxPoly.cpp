@@ -45,13 +45,13 @@ unsigned long numSoftPolys,numSoftVertex;
 SOFTPOLY softPolyBuffer[MA_MAX_FACES];
 SOFTPOLY *softDepthBuffer[MA_SOFTWARE_DEPTH];
 D3DTLVERTEX softV[MA_MAX_VERTICES];
-long softScreen[640*480];
+short softScreen[640*480];
 
 unsigned long numHaloPoints;
 long limTex = 0;
 
-long softFlags = POLY_TEXTURE | POLY_GOURAUD | POLY_NOCLIP;
-//long softFlags = POLY_GOURAUD | POLY_NOCLIP;
+long softFlags = POLY_TEXTURE;
+
 short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
 float flareScales[MA_MAX_HALOS];
@@ -155,15 +155,15 @@ unsigned long cullCCWRS[] =
 
 
 
-long dPoly = 0;
-
+long dPoly = 1;
+unsigned long mPitch,cPitch,srcAddr,dstAddr;
+	
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 {
-	unsigned long mPitch;
 	DDSURFACEDESC2		ddsd;
 	unsigned long r,g,b,d;
 
-	if (rHardware)
+	if (rHardware || !dPoly)
 		return;
 		
 	DDINIT(ddsd);
@@ -171,8 +171,52 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 	while (srf->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	
 	
-	mPitch = ddsd.lPitch/2;
-	for (int y=0; y<480; y++)
+	mPitch = ddsd.lPitch * 2;
+	cPitch = ddsd.lPitch;
+
+	srcAddr = (unsigned long)softScreen;
+	dstAddr = (unsigned long)ddsd.lpSurface;
+	__asm
+	{
+		
+		push ebp
+
+		mov esi,[srcAddr]
+		mov edi,[dstAddr]
+		
+		mov ebp,edi
+		add ebp,[cPitch]
+		
+		mov edx,0
+		YLOOP:
+		
+		mov ecx,0
+		XLOOP:
+
+		mov ax,[esi+ecx*2]
+		mov bx,ax
+		shl eax,16
+		mov ax,bx
+
+		mov dword ptr[edi+ecx*4],eax
+		mov dword ptr[ebp+ecx*4],eax
+		
+		inc ecx
+		cmp ecx,320
+		jne XLOOP
+
+		add esi,640*2
+		add edi,[mPitch]
+		add ebp,[mPitch]
+
+		inc edx
+		cmp edx,239
+		jne YLOOP
+		
+		pop ebp
+	}
+
+	/*for (int y=0; y<480; y++)
 		for (int x=0; x<640; x++)
 		{
 			d = softScreen[x+y*640];
@@ -186,9 +230,11 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 
 
 			((short *)ddsd.lpSurface)[x+y*mPitch] = (r<<11 | g<<5 | b);
-		}
-	srf->Unlock(NULL);
-	dPoly = 1;
+		}*/
+	//for (int y=0; y<240; y++)
+	//	memcpy(&((short *)ddsd.lpSurface)[y*mPitch],&softScreen[y*640],640*sizeof(short));
+	
+	srf->Unlock(NULL);	
 }
 
 /*  --------------------------------------------------------------------------------
@@ -336,36 +382,36 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB)
 void DrawSoftwarePolys (void)
 {
 	SOFTPOLY *cur;
-	MPR_BITMAP32 thisTex;
+	MPR_BITMAP16 thisTex;
 
 	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
 	{
 		cur = (SOFTPOLY *)softDepthBuffer[i];
 		while (cur)
 		{
-			MPR_POLY_VERT v[3];
+			MPR_VERT v[3];
 			unsigned long f1,f2,f3;
 			f1 = cur->f[0];
 			f2 = cur->f[1];
 			f3 = cur->f[2];
 
-			v[0].x = softV[f1].sx;
-			v[0].y = softV[f1].sy;
-			v[0].rgba = softV[f1].color;
+			v[0].x = (long)softV[f1].sx >> 1;
+			v[0].y = (long)softV[f1].sy >> 1;
+			v[0].argb = softV[f1].color;
 			
-			v[1].x = softV[f2].sx;
-			v[1].y = softV[f2].sy;
-			v[1].rgba = softV[f2].color;
+			v[1].x = (long)softV[f2].sx >> 1;
+			v[1].y = (long)softV[f2].sy >> 1;
+			v[1].argb = softV[f2].color;
 
-			v[2].x = softV[f3].sx;
-			v[2].y = softV[f3].sy;
-			v[2].rgba = softV[f3].color;
+			v[2].x = (long)softV[f3].sx >> 1;
+			v[2].y = (long)softV[f3].sy >> 1;
+			v[2].argb = softV[f3].color;
 			
 			if (cur->t)
 			{
 				thisTex.width = cur->tEntry->xSize;
 				thisTex.height = cur->tEntry->ySize;
-				thisTex.image = (unsigned long *)cur->tEntry->softData;
+				thisTex.image = (unsigned short *)cur->tEntry->data;
 				
 				v[0].u = softV[f1].tu * thisTex.width;
 				v[0].v = softV[f1].tv * thisTex.height;
@@ -412,8 +458,8 @@ void DrawSoftwarePolys (void)
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
-			
+				if (dPoly)
+					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
 			}
 			 
 			/*pDirect3DDevice->SetTexture(0,cur->t);
@@ -506,8 +552,8 @@ void SetTexture(MDX_TEXENTRY *me)
 HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags)
 {
 	HRESULT res;
-	MPR_BITMAP32 thisTex;
-	MPR_POLY_VERT v[3];
+	MPR_BITMAP16 thisTex;
+	MPR_VERT v[3];
 	D3DTLVERTEX *verts;
 	unsigned long f1,f2,f3;
 	
@@ -522,23 +568,23 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 			f2 = lpwIndices[i+1];
 			f3 = lpwIndices[i+2];
 
-			v[0].x = verts[f1].sx;
-			v[0].y = verts[f1].sy;
-			v[0].rgba = verts[f1].color;
+			v[0].x = (long)verts[f1].sx >> 1;
+			v[0].y = (long)verts[f1].sy >> 1;
+			v[0].argb = verts[f1].color;
 			
-			v[1].x = verts[f2].sx;
-			v[1].y = verts[f2].sy;
-			v[1].rgba = verts[f2].color;
+			v[1].x = (long)verts[f2].sx >> 1;
+			v[1].y = (long)verts[f2].sy >> 1;
+			v[1].argb = verts[f2].color;
 
-			v[2].x = verts[f3].sx;
-			v[2].y = verts[f3].sy;
-			v[2].rgba = verts[f3].color;
+			v[2].x = (long)verts[f3].sx >> 1;
+			v[2].y = (long)verts[f3].sy >> 1;
+			v[2].argb = verts[f3].color;
 			
 			if (cTexture)
 			{
 				thisTex.width = cTexture->xSize;
 				thisTex.height = cTexture->ySize;
-				thisTex.image = (unsigned long *)cTexture->softData;
+				thisTex.image = (unsigned short *)cTexture->data;
 				
 				v[0].u = verts[f1].tu * thisTex.width;
 				v[0].v = verts[f1].tv * thisTex.height;
@@ -585,7 +631,9 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				if (v[2].v<0)
 					 v[2].v = 0;
 
-				f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
+				if (dPoly)
+					f1 = MPR_DrawPoly((unsigned short *)softScreen,v,3,softFlags, &thisTex);
+				res = D3D_OK;
 			}			
 		}
 	}
@@ -639,34 +687,34 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 	}
 	else
 	{
-			MPR_POLY_VERT sv[4];
+			MPR_VERT sv[4];
 			long alpha = (v[0].color & 0xff000000)>>(24+4);
 
 			
 			sv[0].x = v[0].sx;
 			sv[0].y = v[0].sy;
-			sv[0].rgba = v[0].color & 0x00ffffff;
+			sv[0].argb = v[0].color & 0x00ffffff;
 			
 			sv[1].x = v[1].sx;
 			sv[1].y = v[1].sy;
-			sv[1].rgba = v[1].color & 0x00ffffff;
+			sv[1].argb = v[1].color & 0x00ffffff;
 
 			sv[2].x = v[2].sx;
 			sv[2].y = v[2].sy;
-			sv[2].rgba = v[2].color & 0x00ffffff;
+			sv[2].argb = v[2].color & 0x00ffffff;
 			
 			sv[3].x = v[3].sx;
 			sv[3].y = v[3].sy;
-			sv[3].rgba = v[3].color & 0x00ffffff;
+			sv[3].argb = v[3].color & 0x00ffffff;
 			
 			alpha = 32;
 
-			sv[0].rgba |= alpha << 24;
-			sv[1].rgba |= alpha << 24;
-			sv[2].rgba |= alpha << 24;
-			sv[3].rgba |= alpha << 24;
+			sv[0].argb |= alpha << 24;
+			sv[1].argb |= alpha << 24;
+			sv[2].argb |= alpha << 24;
+			sv[3].argb |= alpha << 24;
 
-			MPR_DrawPoly((unsigned short *)softScreen,sv,4,POLY_GOURAUD | POLY_NOCLIP,NULL);
+			MPR_DrawPoly((unsigned short *)softScreen,sv,4,POLY_GOURAUD,NULL);
 	}
 	
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);

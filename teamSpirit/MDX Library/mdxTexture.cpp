@@ -213,11 +213,10 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 					r = (dt>>10) & 0x1f;
 					g = (dt>>5) & 0x1f;
 					b = (dt) & 0x1f;
-					r<<=3;
-					g<<=3;
-					b<<=3;
-					newE->softData[i+j*xDim] = (r<<16 | g<<8 | b);
-
+					g<<=1;
+					if (r565)
+						newE->data[i+j*xDim] = (r<<11 | g<<5 | b);
+		
 				}
 	}
 	else
