@@ -44,6 +44,7 @@
 #include "bbtimer.h"
 #include "maths.h"
 #include "E3_Demo.h"
+#include "menus.h"
 
 #include "editor.h"
 
@@ -89,7 +90,7 @@ unsigned long synchSpeed = 60 * 1;
 unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
 
-long resolution;
+long resolution = 1;
 long slideSpeeds[4] = {0,16,32,64};
 
 long fogEnable = 0;
@@ -107,7 +108,7 @@ void GetArgs(char *arglist);
 int GetRegistryInformation(void)
 {
 	HKEY hkey;
-	DWORD len = MAX_PATH;
+	DWORD val, len = MAX_PATH;
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) != ERROR_SUCCESS)
 	{
@@ -125,6 +126,12 @@ int GetRegistryInformation(void)
 		else
 			utilPrintf("Couldn't read InstallDir value from registry\n");
 
+		if (RegQueryValueEx(hkey, "Resolution", NULL, NULL, (unsigned char*)&val, &len) == ERROR_SUCCESS)
+			resolution = val;
+
+		if (RegQueryValueEx(hkey, "Fullscreen", NULL, NULL, (unsigned char*)&val, &len) == ERROR_SUCCESS)
+			rFullscreen = val;
+
 		len = 255;
 
 		RegCloseKey(hkey);
@@ -136,7 +143,8 @@ int GetRegistryInformation(void)
 int SetRegistryInformation(void)
 {
 	HKEY hkey;
-	DWORD len = MAX_PATH;
+	char temp[MAX_PATH];
+	DWORD val;
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_WRITE, &hkey) != ERROR_SUCCESS)
 	{
@@ -144,8 +152,21 @@ int SetRegistryInformation(void)
 	}
 	else
 	{
+		// Save base directory
 		RegSetValueEx(hkey, "InstallDir", NULL, REG_SZ, (unsigned char*)baseDirectory, strlen(baseDirectory) + 1);
 //		RegSetValueEx(hkey, "VideoCard", NULL, REG_SZ, videoCardName, strlen(videoCardName) + 1);
+
+		// Save working resolution
+		val = resolution;
+		RegSetValueEx(hkey, "Resolution", NULL, REG_DWORD, (unsigned char*)&val, sizeof(DWORD));
+
+		// Save "fullscreen?"
+		val = rFullscreen;
+		RegSetValueEx(hkey, "Fullscreen", NULL, REG_DWORD, (unsigned char*)&val, sizeof(DWORD));
+
+		// Save video device
+		RegSetValueEx(hkey, "VideoDevice", NULL, REG_SZ, (unsigned char*)rVideoDevice, strlen(rVideoDevice)+1);
+
 		RegCloseKey(hkey);
 	}
 
@@ -286,7 +307,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				dp("No savegames",fName);
 
 			SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_SETCURSEL,0,0);
-			
+/*			
 			strcpy (fName,fPath);
 			strcat (fName,"setup.fsc");
 			fp = fopen(fName,"rb");
@@ -304,6 +325,15 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				SendMessage ( GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,data,0);				
 				fclose(fp);
 			}
+*/
+			switch (resolution)	{
+				case 1: SendMessage(GetDlgItem(hWnd,IDC_640),BM_SETCHECK,1,0); break;
+				case 2: SendMessage(GetDlgItem(hWnd,IDC_800),BM_SETCHECK,1,0); break;
+				case 3: SendMessage(GetDlgItem(hWnd,IDC_1024),BM_SETCHECK,1,0); break;
+				case 4: SendMessage(GetDlgItem(hWnd,IDC_1280),BM_SETCHECK,1,0); break;
+			}
+
+			SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,!rFullscreen,0);
 
 			return FALSE;			
 		}		
@@ -322,33 +352,17 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				case IDOK:
 				{
-					
-					strcpy (fPath,baseDirectory);
-					strcpy (fName,fPath);
-					strcat (fName,"setup.fsc");
-					fp = fopen(fName,"wb");
-					if (fp)
-					{
-						data = SendMessage (GetDlgItem(hWnd,IDC_640),BM_GETCHECK,0,0);
-						fwrite(&data,1,4,fp);
-						if (data)
-							resolution=1;
-						data = SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0);
-						fwrite(&data,1,4,fp);
-						if (data)
-							resolution=2;
-						data = SendMessage (GetDlgItem(hWnd,IDC_1024),BM_GETCHECK,0,0);
-						fwrite(&data,1,4,fp);
-						if (data)
-							resolution=3;
-						data = SendMessage (GetDlgItem(hWnd,IDC_1280),BM_GETCHECK,0,0);
-						fwrite(&data,1,4,fp);
-						if (data)
-							resolution=4;
-						data = SendMessage (GetDlgItem(hWnd,IDC_WINDOW),BM_GETCHECK,0,0);
-						fwrite(&data,1,4,fp);
-						fclose(fp);
-					}
+					//if (SendMessage (GetDlgItem(hWnd,IDC_640),BM_GETCHECK,0,0))
+						resolution=1;
+					//else
+					if (SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0))
+						resolution=2;
+					else if (SendMessage (GetDlgItem(hWnd,IDC_1024),BM_GETCHECK,0,0))
+						resolution=3;
+					else if (SendMessage (GetDlgItem(hWnd,IDC_1280),BM_GETCHECK,0,0))
+						resolution=4;
+
+					rFullscreen = !SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_GETCHECK,0,0);
 
 					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),WM_GETTEXT,16,(long)saveName);
 
@@ -716,6 +730,23 @@ long DrawLoop(void)
 
 	if (grabToTexture == 1)
 	{
+		DrawPageB();
+		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
+		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
+		grabToTexture = 0;
+	}
+
+	if (grabToTexture == 3)
+	{
+		DrawPageB();
+		//GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
+		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
+		grabToTexture = 2;
+	}
+	
+	/*
+	if (grabToTexture == 1)
+	{
 		DrawPageB(cWorld);
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
 //		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
@@ -737,7 +768,7 @@ long DrawLoop(void)
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 2;
 	}
-
+*/
 
 	GetCursorPos(&t);
 	camZ = t.x*8;
@@ -1038,6 +1069,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	DDrawShutdown();	
 	ShutDownDirectSound( );
 	gelfShutdown();
+
+	SetRegistryInformation();
 
 	return 0;
 }
