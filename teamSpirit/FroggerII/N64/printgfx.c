@@ -1303,3 +1303,23 @@ void ScreenShot()
 //help	disableGraphics = FALSE;
 
 }
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: N64SurfaceBlit
+	Purpose			: performs N64 surface blit for procedural texturing
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void N64SurfaceBlit(unsigned char *to,unsigned char *buf,unsigned short *pal)
+{
+	long i = 928;
+
+	while(i--)
+	{
+		((unsigned short *)to)[i] = (unsigned short)pal[(unsigned char)buf[i]];
+	}
+}
+

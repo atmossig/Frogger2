@@ -93,5 +93,7 @@ char IsPointVisible(VECTOR *p);
 
 void ScreenShot();
 
+void N64SurfaceBlit(unsigned char *to,unsigned char *buf,unsigned short *pal);
+
 
 #endif

@@ -93,6 +93,10 @@ void GameLoop(void)
 							RunWaterDemo();
 							break;
 
+						case PROCVIEW_MODE:
+							RunProcDemo();
+							break;
+
 						default:
 							RunDevelopmentMenu();
 					}
