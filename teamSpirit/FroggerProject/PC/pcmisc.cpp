@@ -270,7 +270,7 @@ void ShowScreen(void)
 
 unsigned long quitDesignLoop = 0;
 unsigned long designNum = 0;
-#define MAX_DESIGNS 2
+#define MAX_DESIGNS 43
 
 void DesignProcessController(long pl)
 {

@@ -65,12 +65,15 @@ extern "C"
 	psFont *fontSmall = 0;
 	MDX_FONT *pcFont;
 	MDX_FONT *pcFontSmall;
+	long drawLandscape = 1;
+
 }
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
 char lButton = 0, rButton = 0;
 int editorOk = 0;
+
 
 float camY = 100,camZ = 100;
 extern "C" {MDX_LANDSCAPE *world;}
@@ -234,7 +237,7 @@ long DrawLoop(void)
 	D3DSetupRenderstates(cullCWRS);
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 
-	if (world)
+	if (world && drawLandscape)
 		DrawLandscape(world);
 
 	StartTimer(1,"Actors");
