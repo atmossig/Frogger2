@@ -559,8 +559,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
 
-	frameCount = 0;
-
 	// prepare screen for fade in
 	fadeOut		= 255;
 	fadeStep	= 8;
@@ -581,7 +579,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	InitAmbientSoundList();
 
 #ifdef USE_AUDIO
+#ifdef PC_VERSION
 	LoadSfx(worldID);
+#endif
 #endif
 
 	// initialise the various lists
@@ -634,7 +634,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	fEnd = 	(worldVisualData[worldID].levelVisualData[levelID].fogFarDist * 0.0005);
 #endif
 
-	InitPlatformsForLevel(worldID,levelID);
+	frameCount = 0;
 }
 
 
@@ -647,6 +647,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 */
 void FreeAllLists()
 {
+	StopDrawing("FREELIST");
+
 #ifdef N64_VERSION
 	MusHandleStop(audioCtrl.musicHandle[0],0);
 	audioCtrl.currentTrack[0] = 0;
@@ -660,8 +662,6 @@ void FreeAllLists()
 	FreeAmbientSoundList();
 
 	dprintf"----- FREEING ALL LISTS -----\n"));
-
-	StopDrawing("FREELIST");
 
 	KillAllTriggers();
 
