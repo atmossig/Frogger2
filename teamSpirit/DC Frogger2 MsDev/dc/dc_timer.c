@@ -87,13 +87,14 @@ void DCTIMER_STOP_ADD(int num)
 	timers[num].count += diff;
 }
 
-void DCTIMER_STOP(int num)
+Uint32 DCTIMER_STOP(int num)
 {
 	Uint32	diff,time;
 	
 	time = syTmrGetCount();
 	diff = syTmrDiffCount(timers[num].start, time);
 	timers[num].count = diff;
+	return diff;
 }
 
 void DCTIMER_PRINTS()

@@ -20,6 +20,6 @@ void DCTIMER_START(int num);
 
 void DCTIMER_STOP_ADD(int num);
 
-void DCTIMER_STOP(int num);
+Uint32 DCTIMER_STOP(int num);
 
 void DCTIMER_PRINTS();
