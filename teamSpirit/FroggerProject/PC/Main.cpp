@@ -73,6 +73,8 @@ extern "C"
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
+#define REGISTRY_KEY "Software\\Atari\\Frogger2"
+
 char lButton = 0, rButton = 0;
 int editorOk = 0;
 
@@ -89,6 +91,59 @@ unsigned long synchRecovery = 1;
 long slideSpeeds[4] = {0,16,32,64};
 
 void GetArgs(char *arglist);
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetRegistryInformation(void)
+	Parameters		: 
+	Returns			: int
+	Info			: Gets setup stuff (e.g. install dir) from the registry
+*/
+
+int GetRegistryInformation(void)
+{
+	HKEY hkey;
+	DWORD len = MAX_PATH;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) != ERROR_SUCCESS)
+	{
+		utilPrintf("Couldn't open registry key\n"); return 0;
+	}
+	else
+	{
+		if (RegQueryValueEx(hkey, "InstallDir", NULL, NULL, (unsigned char*)baseDirectory, &len) == ERROR_SUCCESS)
+		{
+			if (baseDirectory[strlen(baseDirectory) - 1] != '\\')
+				strcat(baseDirectory, "\\");
+		}
+		else
+			utilPrintf("Couldn't read InstallDir value from registry\n");
+
+		len = 255;
+
+		RegCloseKey(hkey);
+	}
+
+	return 1;
+}
+
+int SetRegistryInformation(void)
+{
+	HKEY hkey;
+	DWORD len = MAX_PATH;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_WRITE, &hkey) != ERROR_SUCCESS)
+	{
+		utilPrintf("Couldn't open registry kep for writing\n"); return 0;
+	}
+	else
+	{
+		RegSetValueEx(hkey, "InstallDir", NULL, REG_SZ, (unsigned char*)baseDirectory, strlen(baseDirectory) + 1);
+//		RegSetValueEx(hkey, "VideoCard", NULL, REG_SZ, videoCardName, strlen(videoCardName) + 1);
+		RegCloseKey(hkey);
+	}
+
+	return 1;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetArgs
@@ -541,6 +596,15 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	MDX_TEXENTRY *t;
 	char waterFile[MAX_PATH];
 
+	SYSTEMTIME currTime;
+	GetLocalTime(&currTime);
+	utilPrintf("\n------------- Starting Frogger2 ----------------\n"
+		"Session started %02d/%02d/%d %02d:%02d:%02d\n",
+		currTime.wDay, currTime.wMonth, currTime.wYear,
+		currTime.wHour, currTime.wMinute, currTime.wSecond);
+
+	GetRegistryInformation();
+	
 	SetUserVideoProc(MyInitProc);
 	// Init common controls
 	InitCommonControls();
