@@ -33,7 +33,7 @@
 #include "layout.h"
 #include "..\network.h"
 #include "..\netchat.h"
-#include "pcgfx.h"
+#include "backdrop.h"
 
 #include "hud.h"
 

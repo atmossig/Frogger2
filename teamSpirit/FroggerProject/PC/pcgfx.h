@@ -29,10 +29,6 @@ void DrawFXLightning( SPECFX *fx );
 
 void ProcessShadows();
 
-int InitBackdrop(const char *filename);
-void FreeBackdrop(void);
-void DrawBackdrop(void);
-
 #ifdef __cplusplus
 }
 #endif
