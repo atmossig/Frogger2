@@ -43,9 +43,11 @@ float camLookOfs			= 50;
 float camLookOfsNew			= 50;
 
 VECTOR camDist				= { 0,680,192 };
-float camSpeed				= 9;
-float camSpeed2				= 9;
-float camSpeed3				= 8;
+float camSpeed				= 30;//9;
+float camSpeed2				= 25;//9;
+float camSpeed3				= 30;//8;
+float camSpeed4				= 25;//8;
+float fovSpd				= 2;
 float transCamSpeedMult		= 1.0F;
 
 int	camFacing				= 0;
@@ -262,10 +264,6 @@ void CameraLookAtFrog(void)
 	Parameters	: (void)
 	Returns		: void 
 */
-
-float fovSpd = 2;
-float camSpeed4 = 8;
-
 void SlurpCamPosition(long cam)
 {
 	float s1 = camSpeed * transCamSpeedMult,
@@ -326,7 +324,7 @@ void SlurpCamPosition(long cam)
 	//		osMotorStop ( &rumble );
 		}
 
-		lastActFrameCount+=2;
+		lastActFrameCount++;
 	}
 }
 
