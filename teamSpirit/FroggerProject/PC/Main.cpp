@@ -433,8 +433,8 @@ long DrawLoop(void)
 
 	CalcViewMatrix();
 
-	if (backGnd)
-		DrawBackground();
+	//if (backGnd)
+	//	DrawBackground();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 
