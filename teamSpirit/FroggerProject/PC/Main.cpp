@@ -1149,6 +1149,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SaveGame();
 
 	// Byeeeeeeeeeee
+	fxFreeBlur( );
 	ShutdownEditor();
 	DeInitInputDevices();
 	D3DShutdown();

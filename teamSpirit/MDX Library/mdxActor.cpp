@@ -156,23 +156,31 @@ void ActorListDraw(long i)
 		tPos.vz *= cur->scale.vz;
 			
 		QuaternionToMatrix(&cur->qRot,&rotmat);
-		guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&(tPos2.vx),&(tPos2.vy),&(tPos2.vz));
+		guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&tPos2.vx,&tPos2.vy,&tPos2.vz);
 		
 		AddVector(&tPos,&cur->pos,&tPos2);
-			
+
 		XfmPoint(&where,&tPos,NULL);
 
-		if (where.vz>10 || noClip)
+		guMtxXFMF(vMatrix.matrix,tPos.vx,tPos.vy,tPos.vz,&tPos2.vx,&tPos2.vy,&tPos2.vz);
+
+		scale = max(cur->scale.vx,max(cur->scale.vy,cur->scale.vz));
+		radius = cur->radius * scale;
+
+		if( tPos2.vz+DIST+radius > nearClip || noClip )
 		{
-			scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
-			scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
-			
-			radius = (FOV * cur->radius * scale)/(where.vz+DIST);
-			
+			if( where.vz > nearClip )
+			{
+//				long x = (long)vTemp2->vz+DIST;
+//				float oozd = -FOV * oneOver[x];
+
+				radius = (FOV * radius)/(where.vz+DIST);
+			}
+
 			if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
 				((where.vy > -radius) && (where.vy<rYRes+radius)))
 			{	
-				XformActor(cur,0);		
+				XformActor(cur,0);
 				if (cur->draw)
 				{
 					if (cur->flags & ACTOR_WRAPTC)
@@ -433,211 +441,63 @@ void UpdateAnims(MDX_ACTOR *actor)
 
 
 /*  --------------------------------------------------------------------------------
-
 	Function	: CheckBoundingBox
 	Purpose		: Compare a bounding box to see if it is visible
-	Parameters	: (MDX_VECTOR *bBox,MDX_MATRIX *m)
-	Returns		: unsigned long 
-	Info		: BROKEN!
+	Parameters	: Bounding box, object matrix
+	Returns		: clipped?
+	Info		: 
 */
+enum { TOP=0x1, BOTTOM=0x2, LEFT=0x4, RIGHT=0x8, INWARD=0x10 };
 
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
-	/*
-
-	Currently this function transorms the 8 points in bBox by the matrix m. It then transforms them to screen space, 
-	and checks them against the limits of the screen, and if all are off of one side then the object is culled, and 
-	the funtions returns TRUE.
-
-	Unfortunately this doesn't take account of the Z value of the point, I cant check that here, and this is a source 
-	of errors.
-
-	What you need to do is to check the points with the viewing frustrum.
-
-	The actual FOV variable is used in the 3D->2D xform such that FOV*X3d / Z3d = X2d, you can use this to work out 
-	the angle of the viewing frustrum...
-
-
-	Let  X2d = 640
-	Let  Z3D = 1
-	Let  a = actual FOV angle;
-
-		FOV*X3d / 1 = 640 ==
-		X3d = 640/FOV;
-
-	Since 
-		tan(a) = X3D/Z3D 
-		a = atan(X3D) = atan(640/FOV)
-
-	Use rXRes instead of 640 and you'll be laughing for the X fov angle, 
-	Then do the same for the Y, the angles may be marginally different I think. 
-
-	You can the transform the point into camera space, the same way XfmPoint Does before doing X*FOV/Z and then check against the
-	Angles of the viewing frustrum, all should then work fine.
-
-	As a last piece of code here, it's fairly well documented. ;) 
-
-	Unfortunately not written though.
-
-	Bye all.
-
-	Good luck with the game.
-	Matt.
-	
-  */
-
 	MDX_VECTOR t[8];
 	MDX_VECTOR *r = t;
-	unsigned long pointOn,onscreen;
+	unsigned long ocs[8] = {0,0,0,0,0,0,0,0};
 
-	unsigned long left,right,top,bottom;
-	left = top = right = bottom = 0;
-
-	for (int i=8; i; i--)
+	for( unsigned long i=8, o=7; i; i--, r++, bBox++, o=i-1 )
 	{
 		XfmPoint(r,bBox,m);
 
-		if (r->vx>rXRes)// || r->vz<10)
-			right++;
+		if( !r->vz )
+			ocs[o] |= INWARD;
+		else
+		{
+			if( r->vx < 0 )
+				ocs[o] |= LEFT;
+			else if( r->vx > rXRes )
+				ocs[o] |= RIGHT;
 
-		if (r->vx<0)// || r->vz<10)		
-			left++;			
+			if( r->vy < 0 )
+				ocs[o] |= TOP;
+			else if( r->vy > rYRes )
+				ocs[o] |= BOTTOM;
+		}
 
-		if (r->vy>rYRes)// || r->vz<10)
-			bottom++;
-
-		if (r->vy<0)// || r->vz<10)
-			top++;				
-
-		r++;
-		bBox++;
+		if( !ocs[o] ) 
+			return 0;
 	}
-	
-	if ((left|right|top|bottom) & (~7))
-		return 1;
-		
-	
-//	if (onscreen==0)
-//		return 1;
 
-	//if ((left>7) || (right>7) || (top>7) || (bottom>7))
-	
-	return 0;
+	if( !(ocs[0] & ocs[1]) ||
+		!(ocs[0] & ocs[3]) ||
+		!(ocs[0] & ocs[4]) ||
+		!(ocs[1] & ocs[2]) ||
+		!(ocs[1] & ocs[5]) ||
+		!(ocs[2] & ocs[3]) ||
+		!(ocs[2] & ocs[6]) ||
+		!(ocs[3] & ocs[7]) ||
+		!(ocs[4] & ocs[5]) ||
+		!(ocs[4] & ocs[7]) ||
+		!(ocs[5] & ocs[6]) ||
+		!(ocs[6] & ocs[7]) ||
+		!(ocs[4] & ocs[6]) ||
+		!(ocs[3] & ocs[5]) ||
+		!(ocs[4] & ocs[2]) ||
+		!(ocs[6] & ocs[0]) )
+		return 0;
+
+	return 1;
 }
-/*
-MDX_TEXENTRY *temp = 0;
-
-unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
-{
-	MDX_VECTOR r[8];
-	D3DTLVERTEX v[3];
-	
-	unsigned long left,right,top,bottom,in;
-	left = top = right = bottom = in = 0;
-	
-	if (!temp)
-		temp = GetTexEntryFromCRC(UpdateCRC("dock4.bmp"));
-
-
-	for (int i=0; i<8; i++)
-	{
-		XfmPoint(&r[i],&bBox[i],m);
-
-	//	if (r[i].vz < 10)
-	//		in++;
-	//	else
-	//	{
-
-		if (r[i].vx>rXRes || r[i].vz<10)
-			right++;
-
-		if (r[i].vx<0 || r[i].vz<10)		
-			left++;			
-
-		if (r[i].vy>rYRes || r[i].vz<10)
-			bottom++;
-
-		if (r[i].vy<0 || r[i].vz<10)
-			top++;				
-	//	}
-	}
-	
-	if ((left>7) || (right>7) || (top>7) || (bottom>7) || (in>7))
-		return 1;
-	
-	dp("left %lu   right %lu   up %lu   down %lu   z%lu   \n",left,right,top,bottom,in);
-	for (i=0; i<24; i++)
-	{
-		long vals[] =	{
-							2,1,0, 
-							3,2,0,
-							
-							4,5,6,
-							4,6,7,
-
-							1,2,5, 
-							2,6,5,
-
-							4,3,0, 
-							7,3,4,
-
-							5,4,1, 
-							1,4,0,
-
-							7,6,3, 
-							6,2,3,
-				
-
-							0,1,2, 
-							0,2,3,
-							
-							6,5,4,
-							7,6,4,
-
-							5,2,1, 
-							5,6,2,
-
-							0,3,4, 
-							4,3,7,
-
-							1,4,5, 
-							0,4,1,
-
-							3,6,7, 
-							3,2,6,				
-						};
-		v[0].sx = r[vals[i*3]].vx;
-		v[0].sy = r[vals[i*3]].vy;
-		v[0].sz = r[vals[i*3]].vz*0.00025;
-		v[1].sx = r[vals[i*3+1]].vx;
-		v[1].sy = r[vals[i*3+1]].vy;
-		v[1].sz = r[vals[i*3+1]].vz*0.00025;
-		v[2].sx = r[vals[i*3+2]].vx;
-		v[2].sy = r[vals[i*3+2]].vy;
-		v[2].sz = r[vals[i*3+2]].vz*0.00025;
-		v[0].color = (((long)bBox)&0x00ffffff) | D3DRGBA(1,1,0,0.2);
-		v[1].color = (((long)bBox)&0x00ffffff) | D3DRGBA(1,1,0,0.2);
-		v[2].color = (((long)bBox)&0x00ffffff) | D3DRGBA(1,1,0,0.2);
-		v[0].specular = 0;
-		v[1].specular = 0;
-		v[2].specular = 0;
-		v[0].tu = 0;
-		v[0].tv = 0;
-		v[1].tu = 1;
-		v[1].tv = 0;
-		v[2].tu = 1;
-		v[2].tv = 1;
-
-		SwapFrame(MA_FRAME_XLU);
-
-		if (v[0].sz && v[1].sz && v[2].sz)
-			Clip3DPolygon(v,temp);
-		
-		SwapFrame(MA_FRAME_NORMAL);
-	}
-	return 0;
-}
-*/
 
 long halve = 0;
 
@@ -650,7 +510,7 @@ long halve = 0;
 	Info		: Update anims, Interpolate anim keys, and Create object matrix
 */
 
-void XformActor(MDX_ACTOR *actor,long v)
+void XformActor(MDX_ACTOR *actor, long v)
 {
 	MDX_OBJECT_CONTROLLER *objectC = actor->objectController;
 	float transmat[4][4];
@@ -679,9 +539,8 @@ void XformActor(MDX_ACTOR *actor,long v)
 	QuaternionToMatrix(&actor->qRot,(MDX_MATRIX *)rotmat);
 	PushMatrix(rotmat);
 
-	
 	if(objectC->object)
-			TransformObject(objectC->object, animTime);
+		TransformObject(objectC->object, animTime);
 	
 	halve++;
 
