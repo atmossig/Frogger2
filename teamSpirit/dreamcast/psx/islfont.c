@@ -124,7 +124,7 @@ psFont *fontLoad(char *fontname)
 	char			*c,name[64];
 	char			*widths;
 	
-	fontptr = (psFont*)MALLOC0(sizeof(psFont));	
+	fontptr = (psFont*)syMalloc(sizeof(psFont));	
 
 	if(strcmp(fontname,"smallfont.pvr") == 0)
 	{

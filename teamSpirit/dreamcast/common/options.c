@@ -120,6 +120,8 @@ long numExtrasAvailable = NUM_BASIC_EXTRAS;
 
 long SOUND_SCALE = 15;
 
+short afterSaveFlag = 0;
+
 int chestOpenAnim = 1;
 TIMER artTimer;
 
@@ -268,6 +270,7 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
+	0,GREEN,
 
 	3,RED,		//for Hasbro Interactive Europe
 	0,RED,
@@ -316,11 +319,9 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 
 	3,RED,		//art director
-
 	0,GREEN,
 
 	3,RED,		//manual manager
-
 	0,GREEN,
 
 	3,RED,		//documentation writer
@@ -479,7 +480,6 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 
 	3,WHITE,	//separator
-
 	1,WHITE,
 	0,WHITE,
 	1,WHITE,
@@ -489,7 +489,6 @@ CREDIT_DATA creditData[] =
 	1,WHITE,
 	1,WHITE,
 	0,WHITE,
-
 
 };
 

@@ -532,6 +532,10 @@ void main()
 	InitCam();
 	actorInitialise();
 
+	// load the two fonts
+	font = fontLoad("font.pvr");
+	fontSmall = fontLoad("smallfont.pvr");
+
 	InitProgressBar();
 	InitTimerbar();
 	
@@ -871,7 +875,7 @@ void main()
 			DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
 
 		DCTIMER_START(6);				
-		if( !saveInfo.saveFrame )
+		if( !saveInfo.saveFrame && !afterSaveFlag )
 		{
 			PrintSpriteOverlays(1);
 			PrintSpriteOverlays(0);

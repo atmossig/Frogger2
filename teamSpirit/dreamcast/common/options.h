@@ -238,7 +238,7 @@ void ToggleStereo( );
 extern TIMER artTimer;
 extern u16 optionsLastButton;
 extern char chapterStr[2][32];
-
+extern short afterSaveFlag;
 
 #ifdef __cplusplus
 }

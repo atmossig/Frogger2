@@ -1092,15 +1092,15 @@ void FreeAllLists()
 #endif
 	
 #ifdef PSX_VERSION
-	if ( font )
-		fontUnload ( font );
+//ma	if ( font )
+//ma		fontUnload ( font );
 	// ENDIF
-	font = NULL;
+//ma	font = NULL;
 
-	if ( fontSmall )
-		fontUnload ( fontSmall );
+//ma	if ( fontSmall )
+//ma		fontUnload ( fontSmall );
 	// ENDIF
-	fontSmall = NULL;
+//ma	fontSmall = NULL;
 
 #endif
 
@@ -1159,9 +1159,9 @@ void FreeAllLists()
 #ifdef PSX_VERSION
 //ma	if(loadingLevel)
 //ma		loadingInit(player[0].worldNum,player[0].levelNum);
-	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
-	font = fontLoad("font.pvr");
-	fontSmall = fontLoad("smallfont.pvr");
+//ma	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+//ma	font = fontLoad("font.pvr");
+//ma	fontSmall = fontLoad("smallfont.pvr");
 #endif
 	
 //mm	pOIDistance = ToFixed(500000);
@@ -1173,6 +1173,7 @@ void FreeAllLists()
 	backGnd = NULL;
 	tileNum = NULL;
 	dkPressed = 0;
+	afterSaveFlag = 0;
 
 #ifdef PC_VERSION
 	headMatrix = NULL;
@@ -1211,7 +1212,7 @@ void CommonInit(void)
 	frameCount=1;
 	lastActFrameCount = actFrameCount = 1;
 
-//	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 
 //#ifdef PC_VERSION
 //	memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));

@@ -36,7 +36,7 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 	char	*bufPtr, *compactBuf;
 	int		loop, lang, len = 0;
 
-	gameTextStr = (char **)MALLOC0(sizeof(char*) * numStrings);
+	gameTextStr = (char **)syMalloc(sizeof(char*) * numStrings);
 
 	gameTextBuffer = fileLoad(fName,0);
 	bufPtr = (char *)gameTextBuffer;
@@ -60,7 +60,7 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 		}
 	}
 
-	bufPtr = compactBuf = (char*)MALLOC0(len+numStrings);
+	bufPtr = compactBuf = (char*)syMalloc(len+numStrings);
 //	utilPrintf("small game text = %d\n", len+numStrings);
 	for(loop=0; loop<numStrings; loop++)
 	{
@@ -72,22 +72,15 @@ void gameTextInit(char *fName, int numStrings, int numLang, int currLang)
 
 	FREE(gameTextBuffer);
 	gameTextBuffer = compactBuf;
-	compactBuf = (char*)MALLOC0(len+numStrings);
+	compactBuf = (char*)syMalloc(len+numStrings);
 	memcpy(compactBuf, gameTextBuffer, len+numStrings);
 	for(loop=0; loop<numStrings; loop++)
 	{
 		gameTextStr[loop] -= (unsigned long)gameTextBuffer;
 		gameTextStr[loop] += (unsigned long)compactBuf;
 	}
-	FREE(gameTextBuffer);
+	syFree(gameTextBuffer);
 	gameTextBuffer = compactBuf;
-/*
-	gameTextTimings = (int *)fileLoad("GAMETEXT.BIN");
-	len = (TEXTSTR_MAX-TEXTSTR_MISSION_CITY1A)*4;
-	compactBuf = MALLOC(len);
-	memcpy(compactBuf, ((char *)gameTextTimings)+len*currLang, len);
-	FREE(gameTextTimings);
-	gameTextTimings = compactBuf;*/
 }
 
 

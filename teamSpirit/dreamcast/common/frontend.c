@@ -1517,6 +1517,18 @@ void StartLevelComplete()
 #endif
 
 #ifdef PSX_VERSION
+/*		enterNameButton[1] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 100,3350,"BUT_RIGH",4096,0,0,0);
+		enterNameButton[4] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 600,3350,"BUT_CROS",4096,0,0,0);
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
+		enterNameButton[0] = CreateAndAddSpriteOverlay(nText->xPosTo + w - 200,3350,"BUT_LEFT",4096,0,0,0);
+		tempChar = textString[cursPos];
+		textString[cursPos] = 0;
+		enterNameButton[2] = CreateAndAddSpriteOverlay(nText->xPosTo + w + 24 + fontExtentWScaled(nText->font,textString,4096)*8,3050,"BUT_UP",4096,0,0,0);
+		enterNameButton[3] = CreateAndAddSpriteOverlay(nText->xPosTo + w + 24 + fontExtentWScaled(nText->font,textString,4096)*8,3650,"BUT_DOWN",4096,0,0,0);
+		textString[cursPos] = tempChar;
+		for(i = 0;i < 5;i++)
+			enterNameButton[i]->draw = 0;
+*/
 		enterNameButton[1] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 100,3350,"BUT_RIGH",4096,0,0,0);
 		enterNameButton[4] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 600,3350,"BUT_CROS",4096,0,0,0);
 		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
@@ -1528,6 +1540,7 @@ void StartLevelComplete()
 		textString[cursPos] = tempChar;
 		for(i = 0;i < 5;i++)
 			enterNameButton[i]->draw = 0;
+
 #endif
 
 	}
