@@ -350,6 +350,9 @@ int InstallChecker(HWND hParent)
 }
 
 
+
+
+
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
 	Params:		As WNDPROC
@@ -376,6 +379,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetWindowText(GetDlgItem(hWnd, IDOK), GAMESTRING(STR_PCSETUP_OK));
 			SetWindowText(GetDlgItem(hWnd, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
 
+			/*
 			switch (resolution)	{
 				case 0: SendMessage(GetDlgItem(hWnd,IDC_320),BM_SETCHECK,1,0); break;
 				case 1: SendMessage(GetDlgItem(hWnd,IDC_640),BM_SETCHECK,1,0); break;
@@ -383,6 +387,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case 3: SendMessage(GetDlgItem(hWnd,IDC_1024),BM_SETCHECK,1,0); break;
 				case 4: SendMessage(GetDlgItem(hWnd,IDC_1280),BM_SETCHECK,1,0); break;
 			}
+			*/
 
 			SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,!rFullscreen,0);
 
@@ -409,6 +414,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				{
 					// *ASL* 13/06/2000
 
+/*
 					// default to 640x480
 					resolution = 1;
 
@@ -420,7 +426,12 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						resolution=3;
 					else if (SendMessage (GetDlgItem(hWnd,IDC_1280),BM_GETCHECK,0,0))
 						resolution=4;
+*/
 
+					HWND hres = GetDlgItem(hWnd, IDC_SCREENRES);
+					int sel = SendMessage(hres, CB_GETCURSEL, 0, 0);
+					
+					resolution = SendMessage(hres, CB_GETITEMDATA, (WPARAM)sel, 0);
 					rFullscreen = !SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_GETCHECK,0,0);
 
 					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),WM_GETTEXT,16,(long)saveName);
@@ -926,6 +937,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		if (DDrawInitObject (configDialog) == -1)
 			return 1;
 
+/*
 		// *ASL* 13/06/2000
 		switch (resolution)
 		{
@@ -954,6 +966,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			yRes = 480;
 			break;
 		}
+*/
+
+		xRes = (resolution & 0xFFFF0000) >> 16;
+		yRes = (resolution & 0xFFFF);
 
 		OVERLAY_X = xRes/4096.0;
 		OVERLAY_Y = yRes/4096.0;

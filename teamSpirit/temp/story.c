@@ -30,7 +30,7 @@ FMV_DATA fmv[NUM_FMV_SEQUENCES] =
 	"",0,
 	"ATARIS",250,		//	FMV_ATARI_LOGO,            
 	"BLITZS",147,		//	FMV_BLITZ_LOGO,            
-	"02S",1094,			//	FMV_INTRO,
+	"01S",1094,			//	FMV_INTRO,
 	"02S",1094,			//	FMV_FROGGER_LILLIE_BABIES, 
 	"03S",674,			//	FMV_SWAMPY_PLAN,           
 	"04S",667,			//	FMV_SWAMPY_ESCAPES,        

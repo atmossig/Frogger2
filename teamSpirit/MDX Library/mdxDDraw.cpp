@@ -26,8 +26,13 @@
 #include "resource.h"
 #include "mdxFile.h"
 
+#define NUM_LANGUAGES 5
+
+const char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","Svierge"};
 const char *softwareString = "Software Rendering";
 const char *softwareDriver = "Blitz Games SoftStation";
+
+unsigned long selIdx;
 
 LPDIRECTDRAW7			pDirectDraw7;
 LPDIRECTDRAWCLIPPER		pClipper;
@@ -119,11 +124,115 @@ BOOL WINAPI  EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR lpDriverN
     return DDENUMRET_OK;
 }
 
-unsigned long selIdx;
+/*	---------------------------------------------------------
+	Info:	Dave's lovely happy video mode enumeration stuff
+*/
 
-#define NUM_LANGUAGES 5
+struct VIDEOMODEINFO
+{
+	HWND hcombo;
+	DWORD totalVidMem;
+};
 
-char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","Svierge"};
+HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
+{
+	char mode[10];
+	int index;
+	DWORD videomode;
+	VIDEOMODEINFO *info = (VIDEOMODEINFO*)context;
+	
+	HWND hcmb = (HWND)info->hcombo;
+
+	if ((desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
+		(desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
+		(desc->ddpfPixelFormat.dwRGBBitCount == 16))
+	{
+		int bytes = (desc->dwWidth*desc->dwHeight*2)*3;
+		dp("%d x %d, ~%d bytes (%0.3fMB)\n", desc->dwWidth, desc->dwHeight, bytes, bytes*(1.0f/(1024*1024)));
+
+		if (bytes < info->totalVidMem)
+		{
+			sprintf(mode, "%d×%d", desc->dwWidth, desc->dwHeight);
+			videomode = (desc->dwWidth << 16)|(desc->dwHeight);
+
+			index = SendMessage(hcmb, CB_ADDSTRING, 0, (LPARAM)mode);
+			SendMessage(hcmb, CB_SETITEMDATA, (WPARAM)index, (LPARAM)videomode);
+
+			if (videomode == ((640<<16)|480))
+				SendMessage(hcmb, CB_SETCURSEL, 0, (LPARAM)index);
+		}
+
+		// print out globs of debug stuff
+	}
+
+	return DDENUMRET_OK;
+}
+
+
+BOOL FillVideoModes(HWND hdlg, GUID *lpGUID)
+{
+	HWND hctrl = GetDlgItem(hdlg, IDC_SCREENRES);
+    LPDIRECTDRAW7	lpDD;
+	DWORD total, free;
+	DDSCAPS2 ddsc;
+	HRESULT res;
+	VIDEOMODEINFO info;
+
+	ZeroMemory(&ddsc, sizeof(ddsc));
+	ddsc.dwCaps = DDSCAPS_3DDEVICE|DDSCAPS_PRIMARYSURFACE;
+
+	dp("--- Enumerating video modes ---\n");
+
+	SendMessage(hctrl, CB_RESETCONTENT, 0, 0);
+
+	if (DirectDrawCreateEx(lpGUID, (LPVOID *)&lpDD, IID_IDirectDraw7, NULL) !=DD_OK)
+		return FALSE;
+
+	info.hcombo = hctrl;
+	info.totalVidMem = 0xFFFFFFFF;
+
+	if ((res = lpDD->GetAvailableVidMem(&ddsc, &total, &free)) == DD_OK)
+	{
+		if (total)
+		{
+			dp("Total video memory: %d (%0.2fMB)\n", total, total*(1.0f/(1024*1024)));
+			info.totalVidMem = total;
+		}
+	}
+
+	lpDD->EnumDisplayModes(0, NULL, (LPVOID)&info, VideoModeCallback);
+
+	dp("-------------------------------\n");
+
+	lpDD->Release();
+	return TRUE;
+
+}
+
+/*
+BOOL FillVideoModes(HWND hdlg, GUID *lpGUID)
+{
+	const POINT res[4] = { {640,480), { 800,600 }, {1024,768} };
+	HWND hctrl = GetDlgItem(hdlg, IDC_SCREENRES);
+	int m;
+
+	SendMessage(hctrl, CB_RESETCONTENT, 0, 0);
+
+	for (m=0; m<3; m++)
+	{
+		char mode[10];
+		DWORD videomode = (res[mode].x<<16)|(res[mode].y);
+
+		sprintf(mode, "%d×%d", desc->dwWidth, desc->dwHeight);
+
+		int index = SendMessage(hcmb, CB_ADDSTRING, 0, (LPARAM)mode);
+		SendMessage(hcmb, CB_SETITEMDATA, videomode, (LPARAM)videomode);
+	}
+
+	return TRUE;
+}
+*/
+
 
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -196,6 +305,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 			}
 			ListView_SetItemState(list, index, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
 
+/*
 			// if the hardware renderer is currently selected..
 			if (stricmp(dxDeviceList[index].desc, softwareString) != NULL)
 			{
@@ -207,6 +317,8 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				}
 				EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
 			}
+*/
+			FillVideoModes(hwndDlg, dxDeviceList[index].guid);
 
 			// initialised.. notifications valid
 			initFlag = 1;
@@ -244,55 +356,64 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					EndDialog ( hwndDlg, TRUE );
 					break;
 				}
+
+				default:
+					return FALSE;
 			}
 			break;
 
-			case WM_NOTIFY:
+		case WM_NOTIFY:
 
-				// ready to accept control notifications?
-				if (initFlag == 0)
-					break;
-				// is this from the video device list box?
-				if (((NMHDR *)lParam)->idFrom == IDC_LIST2)
-				{
-					switch (((NMHDR *)lParam)->code)
-					{
-						// user changed selection..
-						case LVN_ITEMCHANGED:
-							if (((NMLISTVIEW *)lParam)->uChanged & LVIF_STATE && ((NMLISTVIEW *)lParam)->uNewState & LVIS_SELECTED)
-							{
-								// to what?
-								ListView_GetItemText(((NMHDR *)lParam)->hwndFrom, ((NMLISTVIEW *)lParam)->iItem, 0, text, 32);
-								if (stricmp(text, softwareString) == NULL)
-								{
-									// User selected software renderer
-
-									// allow 320x240 resolution
-									EnableWindow(GetDlgItem(hwndDlg, IDC_320), TRUE);
-								}
-								else
-								{
-									// User selected hardware renderer
-
-									// do not allow 320x240 resolution
-									if (SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_GETCHECK, 0, 0))
-									{
-										SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_SETCHECK, 0, 0);
-										SendMessage(GetDlgItem(hwndDlg, IDC_640), BM_SETCHECK, 1, 0);
-									}
-									EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
-								}
-							}
-							break;
-
-						// user double-clicked on video selection..
-						case NM_DBLCLK:
-							// use current configuration and exit
-							PostMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
-							break;
-					}
-				}
+			// ready to accept control notifications?
+			if (initFlag == 0)
 				break;
+			// is this from the video device list box?
+			if (((NMHDR *)lParam)->idFrom == IDC_LIST2)
+			{
+				switch (((NMHDR *)lParam)->code)
+				{
+					// user changed selection..
+					case LVN_ITEMCHANGED:
+						if (((NMLISTVIEW *)lParam)->uChanged & LVIF_STATE && ((NMLISTVIEW *)lParam)->uNewState & LVIS_SELECTED)
+						{
+							// to what?
+/*							ListView_GetItemText(((NMHDR *)lParam)->hwndFrom, ((NMLISTVIEW *)lParam)->iItem, 0, text, 32);
+							
+						
+							if (stricmp(text, softwareString) == NULL)
+							{
+								// User selected software renderer
+
+								// allow 320x240 resolution
+								EnableWindow(GetDlgItem(hwndDlg, IDC_320), TRUE);
+							}
+							else
+							{
+								// User selected hardware renderer
+
+								// do not allow 320x240 resolution
+								if (SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_GETCHECK, 0, 0))
+								{
+									SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_SETCHECK, 0, 0);
+									SendMessage(GetDlgItem(hwndDlg, IDC_640), BM_SETCHECK, 1, 0);
+								}
+								EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
+							}
+*/
+							NMLISTVIEW* nmlv = (NMLISTVIEW*)lParam;
+
+							FillVideoModes(hwndDlg, dxDeviceList[nmlv->iItem].guid);
+						}
+						break;
+
+					// user double-clicked on video selection..
+					case NM_DBLCLK:
+						// use current configuration and exit
+						PostMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+						break;
+				}
+			}
+			break;
 	}
 
 	return FALSE;
