@@ -868,6 +868,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName)
 
 	// set this platform to be carrying no actors (frogs)
 	newItem->carrying		= NULL;
+	newItem->flags			= 0;
 
 	return newItem;
 }
@@ -931,9 +932,10 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 		if(platformFlags & PLATFORM_NEW_STEPONACTIVATED)
 			pform->flags |= PLATFORM_NEW_SINKWITHFROG;
 	}
-	else if(platformFlags & PLATFORM_NEW_NONMOVING)
+	else
 	{
 		// this platform does not move
+		pform->flags |= PLATFORM_NEW_NONMOVING;
 		pform->path->fromNode = pform->path->toNode = 0;
 	}
 
