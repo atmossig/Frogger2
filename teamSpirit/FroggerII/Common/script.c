@@ -670,7 +670,7 @@ Vis:
 			break;
 		}
 
-	case EV_SETSTARTTILE:	SetFroggerStartPos(GetTileFromNumber(MEMGETINT(p)), 0); break;
+	case EV_SETSTARTTILE:	gtStart[0] = GetTileFromNumber(MEMGETINT(p);
 
 	case EV_FOG:
 		{
