@@ -62,10 +62,8 @@
 #include "softstation.h"
 
 #include "..\resource.h"
-#include "..\network.h"
-#include "..\netchat.h"
-#include "..\netgame.h"
 #include "fxBlur.h"
+#include "net\network.h"
 
 psFont *font = 0;
 psFont *fontSmall = 0;
@@ -552,11 +550,14 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				TextInput((char)wParam);
 			}
+/*
 			if( chatFlags & CHAT_INPUT )
 			{
 				ChatInput((char)wParam);
 				return 0;
 			}
+*/
+
 #ifndef FINAL_MASTER
 			if (editorOk)	// only when editor is set up to "grab" keyboard data
 			{
@@ -703,6 +704,7 @@ long LoopFunc(void)
 	EndTimer(12);
 #endif
 
+/*
 	if( KEYPRESS(DIK_F7) && chatFlags )
 	{
 		if( chatFlags & CHAT_INPUT )
@@ -718,13 +720,16 @@ long LoopFunc(void)
 			chatFlags |= CHAT_INPUT;
 		}
 	}
+*/
 
 	StartTimer(13,"WaterUpdate");
 	UpdateWater();
 	EndTimer(13);
 
 	DrawLoop();
-	
+
+/*	ds - COPY **ALL** NETWORK-SPECIFIC STUFF TO NETWORK-SPECIFIC FILES!
+
 	if(networkPlay && (gameState.mode == INGAME_MODE))
 	{
 		
@@ -774,6 +779,7 @@ long LoopFunc(void)
 			}
 		}
 	}
+*/
 
 	return 0;
 }
