@@ -69,6 +69,21 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Spent the morning attempting to get the basic lab world level models and collision maps into
+	(and running on) the N64. Still some artwork tasks need to be done on some of the lab levels.
+	Entity and scripting will be added later - when it has been fixed (re: scripting).
+	Dreaming of Cameron Diaz.
+
+	Afternoon:
+
+	Started looking into using procedural textures on the N64 for special effects and general
+	aesthetic visual pleasantries. Considering using them as opposed to several hundred sprites
+	for the special effects (such as vents). Why does the N64 have to be such a friggin' pain
+	in the (_|_) ???? It's not exactly the most flexible platform to work on.
+	Still dreaming of Cameron Diaz.
+
 
 David Swift:
 ------------------------------------------------
@@ -188,6 +203,22 @@ Matt Cloy:
 
 Andy Eder:
 ------------------------------------------------
+
+	Morning:
+
+	Unable to wake from my dream about Cameron Diaz....I can't believe she did that for me !
+	Today is National N64 Procedural Texture Day here in room Team Spirit. So...that's what
+	I'm going to be doing today.
+
+	Afternoon:
+
+	Coughed loudly about 15:37 and thought it was funny, then carried on with the work from this
+	morning. Got some nice flame effects working, although not quite the same way as they work
+	on the PC. If only the N64 could support 4444 textures....I'll have to look into either using
+	5551 RGBA (which means only 1-bit of alpha) or 8888 RGBA (which means we have 4 channels each
+	of 8-bits for RGB and A). I think the 5551 is the best option and will provide transparency,
+	and then use primitive modification functions to set the general translucency of the object
+	on which the procedural texture appears.
 
 
 David Swift:
