@@ -602,19 +602,19 @@ void RunPauseMenu()
 					if (player[0].worldNum == WORLDID_FRONTEND)
 					{
 						#ifdef PC_VERSION
-							if (player[0].levelNum == LEVELID_FRONTEND1)
+							if (player[0].levelNum == LEVELID_FRONTEND4)
 								PostQuitMessage(0);
 							else
 							{
 								gameState.mode = INGAME_MODE;
-								InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);						
+								InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND4);						
 							}
 						#endif
 					}
 					else
 					{
 						gameState.mode = INGAME_MODE;
-						InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+						InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND4);
 					}
 				}
 				else
