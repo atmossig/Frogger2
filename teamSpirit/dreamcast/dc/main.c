@@ -1040,7 +1040,7 @@ void showLegalFMV(int allowQuit)
 	if (StartVideoPlayback(FMV_BLITZ_LOGO, allowQuit) == 1)
 		return;
 	// play our intro
-	if (StartVideoPlayback(FMV_INTRO, 1) == 1)
+	if (StartVideoPlayback(FMV_INTRO, 1) == 1 && allowQuit)
 		return;
 
 	// show SoftDec screen
