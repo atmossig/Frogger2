@@ -85,10 +85,6 @@ PC merge/update related
 
 Unassigned tasks
 ----------------
-- on screen overlays
-- baby size, colour, anim, overlays, sfx
-- frog move to baby points
-- water splits
 - city plank across building - x = sort problem
 - lab1 needs trans rotors, + sprites in.
 - help text (see poliver e-mail, 06/03/00) elieve this has been changed to a training level
