@@ -170,8 +170,8 @@ extern void CleanBufferSamples ( void );
 extern void SetSampleFormat ( SAMPLE *sample );
 
 
-extern int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch );
-extern AMBIENT_SOUND *AddAmbientSound( short num, VECTOR *pos, long radius, short volume, short pitch, float freq, float rFreq, ACTOR *follow );
+extern int PlaySample(short num,VECTOR *pos,long radius,short volume,short pitch);
+extern AMBIENT_SOUND *AddAmbientSound(short num,VECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,ACTOR *follow);
 void UpdateAmbientSounds();
 
 
