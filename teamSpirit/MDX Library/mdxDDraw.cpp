@@ -992,6 +992,7 @@ void mdxLoadBackdrop(const char* filename)
 {
 	DDSURFACEDESC2 ddsd; DDINIT(ddsd);
 	HRESULT res;
+	DDCAPS ddcaps;
 
 	int xDim,yDim,gelf;
 	int pptr = -1;
@@ -1034,10 +1035,24 @@ void mdxLoadBackdrop(const char* filename)
 
 	surface[RENDER_SRF]->GetSurfaceDesc(&ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-	ddsd.dwWidth = xDim;
-	ddsd.dwHeight = yDim;
 
+/*
+	// Get driver caps
+	pDirectDraw7->GetCaps( &ddcaps, NULL );
 
+	// If we can have surfaces wider than the primary (hardware determined) then create
+	// a surface the size of the bitmap.
+	if( ddcaps.dwCaps2 & DDCAPS2_WIDESURFACES )
+	{
+*/		ddsd.dwWidth = xDim;
+		ddsd.dwHeight = yDim;
+/*	}
+	else // Otherwise we're probably in 320x240 using an old card, so set it to the size of the primary
+	{
+		ddsd.dwWidth = rXRes;
+		ddsd.dwHeight = rYRes;
+	}
+  */
 /*
 	DDINIT(ddsd.ddpfPixelFormat);
 	ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
@@ -1055,14 +1070,19 @@ void mdxLoadBackdrop(const char* filename)
 	/*	if (rHardware)
 		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
 	else*/
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
 
 	mdxFreeBackdrop();
 
 	if ((res = pDirectDraw7->CreateSurface(&ddsd, &backdrop, NULL)) != DD_OK)
 	{
 		dp("Error creating backdrop surface\n");
-		free(data);
+
+		if( gelf )
+			free(data);
+		else
+			FreeMem(fdata);
+
 		ddShowError(res);
 		return;
 	}
