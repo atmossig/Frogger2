@@ -251,3 +251,145 @@ void TIMER_PrintTimers()
 	gDPPipeSync(glistp++);
 	gDPSetRenderMode(glistp++,G_RM_AA_ZB_OPA_SURF , G_RM_AA_ZB_OPA_SURF2);
 }
+
+
+
+
+
+
+//----- [ GLOBALS ] ----------------------------------------------------------------------------//
+
+BACKDROPLIST backdropList;
+
+
+//----- [ BACKDROP HANDLING ] ------------------------------------------------------------------//
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: InitBackdropLinkedList
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void InitBackdropLinkedList()
+{
+	backdropList.head.next = backdropList.head.prev = &backdropList.head;
+	backdropList.numEntries = 0;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: AddBackdrop()
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void AddBackdrop(BACKDROP *backdrop)
+{
+	BACKDROP *ptr;	 
+
+	if(backdrop->next == NULL)
+	{
+		for(ptr = backdropList.head.next;ptr != &backdropList.head;ptr = ptr->next)
+		{
+			if((ptr->zPos < backdrop->zPos) || ((ptr->texture == backdrop->texture) && (ptr->texture->format == backdrop->texture->format) && (ptr->zPos == backdrop->zPos)))
+			{
+				break;
+			}
+		}
+		backdrop->next = ptr;
+		backdrop->prev = ptr->prev;
+		ptr->prev->next = backdrop;
+		ptr->prev = backdrop;
+		backdropList.numEntries++;
+		backdrop->draw = 1;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: SubBackdrop
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void SubBackdrop(BACKDROP *backdrop)
+{
+	if(backdrop->next == NULL)
+		return;
+
+	backdrop->prev->next = backdrop->next;
+	backdrop->next->prev = backdrop->prev;
+
+	backdrop->next = NULL;
+	backdropList.numEntries--;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeBackdropLinkedList()
+{
+	BACKDROP *cur,*next;	 
+
+	if(backdropList.numEntries == 0)
+		return;
+
+	dprintf"Freeing linked list : BACKDROP : (%d elements)\n",backdropList.numEntries));
+	for(cur = backdropList.head.next; cur != &backdropList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubBackdrop(cur);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: SetupBackdrop
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int z,int destX,int destY,int destWidth,int destHeight,int scalex,int scaley,int flags)
+{
+	if(backdrop == NULL)
+		backdrop = (BACKDROP *)JallocAlloc(sizeof(BACKDROP),YES,"backdrop");
+	backdrop->scaleX = scalex;
+	backdrop->scaleY = scaley;
+	backdrop->xPos = sourceX;
+	backdrop->yPos = sourceY;
+	backdrop->zPos = z;
+	backdrop->draw = 1;
+	backdrop->flags = flags;
+	backdrop->r = backdrop->g = backdrop->b = backdrop->a = 255;
+	FindTexture(&backdrop->texture,texID,YES);
+	backdrop->background.s.imageX = sourceX<<5;
+	backdrop->background.s.imageY = sourceY<<5;
+	backdrop->background.s.imageW = (backdrop->texture->sx+1)<<2;
+	backdrop->background.s.imageH = backdrop->texture->sy<<2;
+	backdrop->background.s.frameX = destX<<2;
+	backdrop->background.s.frameY = destY<<2;
+	backdrop->background.s.frameW = destWidth<<2;
+	backdrop->background.s.frameH = destHeight<<2;
+	backdrop->background.s.imagePtr = (u64*)backdrop->texture->data;
+	backdrop->background.s.imageLoad = G_BGLT_LOADTILE;
+	backdrop->background.s.imageFmt = backdrop->texture->format;
+	backdrop->background.s.imageSiz = backdrop->texture->pixSize;
+	backdrop->background.s.imagePal = 0;
+	backdrop->background.s.imageFlip = 0;
+	backdrop->background.s.scaleW = (1024*1024)/scalex;
+	backdrop->background.s.scaleH = (1024*1024)/scaley;
+	backdrop->background.s.imageYorig = 0<<5;
+
+	osWritebackDCache(&backdrop->background, sizeof(uObjBg));
+
+	AddBackdrop(backdrop);
+
+	return backdrop;
+}

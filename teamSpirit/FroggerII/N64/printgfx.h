@@ -76,28 +76,31 @@ extern Gfx rdpInitForOverlays_dl[];
 extern Gfx croakRing_dl[];
 extern Gfx polyNoZ_dl[];
 
-extern void PrintBackdrop(BACKDROP *bDrop);
-extern void PrintTextAsOverlay(TEXTOVERLAY *tOver);
-extern void PrintOverlays();
-extern void PrintSpriteOverlays();
+void PrintBackdrops();
+void PrintTextAsOverlay(TEXTOVERLAY *tOver);
+void PrintOverlays();
+void PrintSpriteOverlays();
 
-extern void DrawSpecialFX();
-extern void DrawFXRipples();
+void DrawSpecialFX();
+void DrawFXRipples();
 
-extern void ProcessShadows();
-extern void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir);
+void ProcessShadows();
+void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir);
 
-extern void DrawSwirlFX();
-extern void ScreenFade(UBYTE dir,UBYTE step);
+void DrawSwirlFX();
+void ScreenFade(UBYTE dir,UBYTE step);
 
-extern void DrawDarkenedLevel();
+void DrawDarkenedLevel();
 
 
-extern SPRITE *PrintSpritesOpaque();
-extern void PrintSpritesTranslucent(SPRITE *sprite);
-extern void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
-extern void PrintSprite(SPRITE *sprite);
+SPRITE *PrintSpritesOpaque();
+void PrintSpritesTranslucent(SPRITE *sprite);
+void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
+void PrintSprite(SPRITE *sprite);
 
-extern void ScreenShot();
+char IsPointVisible(VECTOR *p);
+
+void ScreenShot();
+
 
 #endif

@@ -44,7 +44,6 @@ typedef struct _TEXTLIST2
 
 extern TEXTLIST2 *textList;
 
-extern FONT *bigFont;
 extern FONT *smallFont;
 extern FONT *oldeFont;
 extern FONT	*currFont;
@@ -53,10 +52,8 @@ extern FONT	*currFont;
 
 extern unsigned char characterMap[256];
 
-extern unsigned long letters32_offset[];
 extern unsigned long letters16_offset[];
 extern unsigned long letters8_offset[];
-extern unsigned char letters_spacing[];
 
 // ----- [ FUNCTION PROTOTYPES ] ----- //
 

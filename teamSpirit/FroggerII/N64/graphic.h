@@ -41,4 +41,47 @@ void TIMER_PrintTimers();
 void TIMER_ClearTimers();
 
 
+
+//----- [ TYPES ] ------------------------------------------------------------------------------//
+
+#define BACKDROP_FILTER	(1<<0)
+#define BACKDROP_WRAP	(1<<1)
+
+typedef struct TAGBACKDROP
+{
+	struct			TAGBACKDROP *next,*prev;
+	struct			TAGBACKDROP *parent;
+	TEXTURE			*texture;
+	UBYTE			r,g,b,a;
+	int				xPos,yPos,zPos;
+	short			scaleX,scaleY;
+	short			draw;
+	short			flags;
+	uObjBg			background;
+
+} BACKDROP;
+
+typedef struct TAGBACKDROPLIST
+{
+	int				numEntries;
+	BACKDROP		head;
+
+} BACKDROPLIST;
+
+
+//----- [ GLOBALS ] ----------------------------------------------------------------------------//
+
+extern BACKDROPLIST backdropList;
+
+
+//----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
+
+void InitBackdropLinkedList();
+void FreeBackdropLinkedList();
+void AddBackdrop(BACKDROP *bDrop);
+void SubBackdrop(BACKDROP *bDrop);
+BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int z,int destX,int destY,int destWidth,int destHeight,int scalex,int scaley,int flags);
+
+
+
 #endif

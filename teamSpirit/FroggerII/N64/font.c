@@ -9,22 +9,20 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
 #include "incs.h"
 
-#define FONT32_DATACHUNK_OFFSET		40 + 0
-#define FONT16_DATACHUNK_OFFSET		40 + 21024
-#define FONT8_DATACHUNK_OFFSET		40 + 21024 + 9600
+#define FONT16_DATACHUNK_OFFSET		40
+#define FONT8_DATACHUNK_OFFSET		40 + 9600
 
 
 // ----- [ FONT PRINTING DATA ] ----- //
 
 TEXTLIST2 *textList = NULL;
 
-FONT *bigFont		= NULL;
 FONT *smallFont		= NULL;
 FONT *oldeFont		= NULL;
 FONT *currFont		= NULL;
@@ -51,19 +49,6 @@ unsigned char characterMap[256] =
 	 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 };
 
-// Offset of letters in font data
-unsigned long letters32_offset[] =
-{
-	(0*(512+72)),	(1*(512+72)),	(2*(512+72)),	(3*(512+72)),
-	(4*(512+72)),	(5*(512+72)),	(6*(512+72)),	(7*(512+72)),
-	(8*(512+72)),	(9*(512+72)),	(10*(512+72)),	(11*(512+72)),
-	(12*(512+72)),	(13*(512+72)),	(14*(512+72)),	(15*(512+72)),
-	(16*(512+72)),	(17*(512+72)),	(18*(512+72)),	(19*(512+72)),
-	(20*(512+72)),	(21*(512+72)),	(22*(512+72)),	(23*(512+72)),
-	(24*(512+72)),	(25*(512+72)),	(26*(512+72)),	(27*(512+72)),
-	(28*(512+72)),	(29*(512+72)),	(30*(512+72)),	(31*(512+72)),
-	(32*(512+72)),	(33*(512+72)),	(34*(512+72)),	(35*(512+72)),
-};
 unsigned long letters16_offset[] =
 {
 	(0*(128+72)),	(1*(128+72)),	(2*(128+72)),	(3*(128+72)),
@@ -92,46 +77,14 @@ unsigned long letters8_offset[] =
 	(32*(128+72)),	(33*(128+72)),	(34*(128+72)),	(35*(128+72)),
 };
 
-
-// Spacing (width) of letters in the font
-unsigned char letters_spacing[] =
-{
-	22,22,22,22,22,22,	// ABCDEF
-	22,22,22,22,22,22,	// GHIJKL
-	22,22,22,22,22,22,	// MNOPQR
-	22,22,22,22,22,22,	// STUVWX
-	22,22,22,22,22,22,	// YZ0123
-	22,22,22,22,22,22,	// 456789
-	22,22,22,22,22,22,	// ?:,!.(
-	22,22,22,22,22,		// +"/-*
-};
-
-
 // ----- [ FUNCTION IMPLEMENTATIONS ] ----- //
 
 void InitFont()
 {
 	unsigned int i,j;
 		
-	bigFont		= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT32");
 	smallFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT16");
 	oldeFont	= (FONT *)JallocAlloc(sizeof(FONT),YES,"FONT8");
-
-	// Initialise the 32x32 font ----------------------------------------------------
-
-	bigFont->width		= 32;
-	bigFont->height		= 32;
-	bigFont->palOffset	= 32*32/2;	//20996;
-	bigFont->palOffset	+= 4;
-
-	for(i=0; i<MAX_FONT_CHARS; i++)
-	{
-		bigFont->offset[i] = FONT32_DATACHUNK_OFFSET + letters32_offset[i];
-		
-		// Set spacing characteristics for individual font chars
-		bigFont->xSpacing[i] = letters_spacing[i];
-		bigFont->ySpacing[i] = 48;
-	}
 
 	// Initialise the 16x16 font ----------------------------------------------------
 

@@ -9,7 +9,7 @@
 	
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -50,7 +50,7 @@ void RunDevelopmentMenu()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(GENERIC_TEX_BANK);
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
 		currFont = smallFont;
 
@@ -134,29 +134,24 @@ void RunDevelopmentMenu()
 				case 0:   // objviewer
 					FreeAllLists();
 					frontEndState.mode = OBJVIEW_MODE;
-					FreeBackdrop(myBackdrop);
 					return;
 				case 1:  // andysplay pen
 					FreeAllLists();
 //					frontEndState.mode = SNDVIEW_MODE;
-					FreeBackdrop(myBackdrop);
 					return;
 				case 2:  // record keying
 					FreeAllLists();
 					InitLevel ( 2,0 );
 					gameState.mode = RECORDKEY_MODE;
 //					recordKeying = 1;
-					FreeBackdrop(myBackdrop);
 					return;
 				case 3:  // level selection
 					FreeAllLists();
 					gameState.mode = LEVELSELECT_MODE;
-					FreeBackdrop(myBackdrop);
 					return;
 				case 4:  // test area
 					FreeAllLists();
 //					frontEndState.mode = DEVELOPMENT_MODE;
-					FreeBackdrop(myBackdrop);
 					return;
 			}
 		}			
@@ -325,8 +320,7 @@ void RunDevelopmentRoutines()
 	{
 		StopDrawing("devlp");
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(GENERIC_TEX_BANK);
-		myBackdrop	= CreateAndInitBackdrop("n64.bmp");
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
 		ResetParameters();
 
@@ -426,8 +420,8 @@ void RunTestRoutine1()
 	gDPSetCombineMode(glistp++,G_CC_MODULATERGBA,G_CC_MODULATERGBA);
 	gDPSetRenderMode(glistp++,G_RM_ADD,G_RM_ADD2);
 
-	FindTexture(&myTxtr1,UpdateCRC("water2.bmp"),YES,"water2.bmp");
-	FindTexture(&myTxtr2,UpdateCRC("water1.bmp"),YES,"water1.bmp");
+	FindTexture(&myTxtr1,UpdateCRC("water2.bmp"),YES);
+	FindTexture(&myTxtr2,UpdateCRC("water1.bmp"),YES);
 	LoadTexture(myTxtr1);
 
 	gDPSetTextureLUT(glistp++,G_TT_RGBA16);
@@ -522,8 +516,8 @@ void DrawTestWater()
 	gDPSetRenderMode(glistp++,G_RM_ADD,G_RM_ADD2);
 	gSPClearGeometryMode(glistp++, G_ZBUFFER);
 
-	FindTexture(&myTxtr1,UpdateCRC("water2.bmp"),YES,"water2.bmp");
-	FindTexture(&myTxtr2,UpdateCRC("water1.bmp"),YES,"water1.bmp");
+	FindTexture(&myTxtr1,UpdateCRC("water2.bmp"),YES);
+	FindTexture(&myTxtr2,UpdateCRC("water1.bmp"),YES);
 	LoadTexture(myTxtr1);
 
 	V((vtxp),-600,waterOffset,600,0,t1,t2,255,255,255,255);

@@ -26,9 +26,9 @@ extern TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];
 extern unsigned long numTextureBanks;
 
 
-extern void LoadTextureBank(int num);
-extern void InitTextureBanks();
-extern void FindTexture(TEXTURE **texPtr, int texID, BOOL report, char *txtName);
+void LoadTextureBank(int num);
+void InitTextureBanks();
+void FindTexture(TEXTURE **texPtr, int texID, BOOL report);
 
 
 #endif

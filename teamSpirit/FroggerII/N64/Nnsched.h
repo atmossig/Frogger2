@@ -105,6 +105,12 @@ extern NNScPerf* nnsc_perf_ptr;
 
 extern char desiredFrameRate;
 extern char newDesiredFrameRate;
+extern float framesPerSec;
+
+extern float accelerator;
+extern float GAME_SPEED;
+extern float GAME_SPEED2;
+
 
 extern void            nnScCreateScheduler(NNSched *sc, u8 videoMode, u8 
 numFields);

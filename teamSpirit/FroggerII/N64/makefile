@@ -8,7 +8,8 @@ compiler = ccn64
 assembler = asmn64
 
 ;compile_opt = -c -O0 -G0 -I c:/work/n64/include
-compile_opt = -g -c -O0 -G0 -I c:/work/n64/include
+;compile_opt = -g -c -O0 -G0 -I c:/work/n64/include
+compile_opt = -g -c -O0 -G0 -I c:/n642/include
 assemble_opt = /l
 
 
@@ -42,7 +43,7 @@ snmain.obj: snmain.s
 
 %.nob: %.c2
 	copy $(patsubst objects/%,objects\\%,$<) $(patsubst objects/%.c2,objects\\%.c,$<)
-	ccn64 -c -O0 -I c:/work/n64/include $(patsubst objects/%.c2,objects/%.c,$<)
+	ccn64 -c -O0 -I c:/n642/include $(patsubst objects/%.c2,objects/%.c,$<)
 	psylink /c /p $(patsubst objects/%.c2,objects/%.obj,$<),$(patsubst objects/%.c2,objects/%.bin,$<)
 	fpack objects\\$(patsubst objects/%.c2,%,$<).bin
 	copy $(patsubst objects/%.c2,objects\\%.fla,$<) $(patsubst objects/%.c2,objects\\%.nob,$<)

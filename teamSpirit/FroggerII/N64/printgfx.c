@@ -9,10 +9,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 
-//************************************************************************************************
-//	System Includes
-
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 #include "incs.h"
@@ -63,24 +60,6 @@ Gfx rdpInitForBackdrops_dl[] =
 	gsDPSetTextureLUT(G_TT_RGBA16),
 	gsDPSetTextureDetail(G_TD_CLAMP),
 	gsDPSetTexturePersp(G_TP_NONE),
-	gsDPSetTextureFilter(G_TF_BILERP),
-	gsDPSetTextureConvert(G_TC_FILT),
-	gsDPSetCombineMode(G_CC_DECALRGB, G_CC_DECALRGB),
-	gsDPSetCombineKey(G_CK_NONE),
-	gsDPSetAlphaCompare(G_AC_NONE),
-	gsDPSetRenderMode(G_RM_OPA_SURF,G_RM_OPA_SURF2),
-	gsDPPipeSync(),
-	gsSPEndDisplayList(),
-};
-
-/*Gfx rdpInitForBackdrops_dl[] = 
-{
-	gsDPSetCycleType(G_CYC_1CYCLE),    
-	gsDPPipelineMode(G_PM_NPRIMITIVE), 
-	gsDPSetTextureLOD(G_TL_TILE),
-	gsDPSetTextureLUT(G_TT_RGBA16),
-	gsDPSetTextureDetail(G_TD_CLAMP),
-	gsDPSetTexturePersp(G_TP_NONE),
 #ifdef NOFILTER
 	gsDPSetTextureFilter(G_TF_POINT),
 #else
@@ -94,7 +73,7 @@ Gfx rdpInitForBackdrops_dl[] =
 	gsDPSetColorDither(G_CD_BAYER),
 	gsDPPipeSync(),
 	gsSPEndDisplayList(),
-};*/
+};
 
 Gfx rspInitForBackdrops_dl[] = 
 {
@@ -113,7 +92,7 @@ Gfx rdpInitForOverlays_dl[] =
 	gsDPSetTextureLUT(G_TT_RGBA16),
 //	gsDPSetRenderMode(G_RM_CLD_SURF,G_RM_CLD_SURF2),
 	gsDPSetRenderMode(G_RM_XLU_SURF,G_RM_XLU_SURF2),
-	gsDPSetCombineMode(G_CC_MODULATERGBDECALA_PRIM,G_CC_MODULATERGBDECALA_PRIM),
+	gsDPSetCombineMode(G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA),
 	gsSPEndDisplayList(),
 };
 
@@ -203,6 +182,15 @@ Gfx polyNoZ_dl[] =
 	gsSPEndDisplayList()
 };
 
+Gfx setrend_light_fog2[] =
+{
+	gsDPPipeSync(),
+	gsDPSetCycleType(G_CYC_2CYCLE),
+	gsDPPipeSync(),
+	gsSPEndDisplayList()
+};
+
+
 Vtx verts[32];
 Vtx *fsVerts = NULL;
 Vtx *vPtr = NULL;
@@ -216,94 +204,79 @@ short drawScreenGrab = 0;
 short grabFlag = 0;
 
 /*	--------------------------------------------------------------------------------
-	Function		: PrintBackdrop
-	Purpose			: prints a backdrop...
-	Parameters		: ptr to a backdrop to display
-	Returns			: void
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
 	Info			:
 */
-void PrintBackdrop(BACKDROP *bDrop)
+void PrintBackdrops()
 {
-/*	gDPPipeSync(glistp++);
+	BACKDROP *backdrop;
 
-	gSPDisplayList(glistp++, rdpInitForBackdrops_dl);
-	gSPDisplayList(glistp++, rspInitForBackdrops_dl);
+	if(backdropList.numEntries == 0)
+		return;
 
-	gDPSetPrimColor(glistp++,0,0,bDrop->r,bDrop->g,bDrop->b,bDrop->a);
-
-	guSprite2DInit(&bDrop->N64Spr,(void *)bDrop->texture->data,bDrop->texture->palette, 
-		bDrop->texture->sx,bDrop->texture->sx,bDrop->texture->sy,
-		bDrop->texture->format,bDrop->texture->pixSize,0,0);
-
-	gSPSprite2DBase(glistp++,OS_K0_TO_PHYSICAL(&bDrop->N64Spr));
-
-	gSPSprite2DScaleFlip(glistp++,(1024*1024)/bDrop->scaleX,(1024*1024)/bDrop->scaleY,
-		bDrop->flipX,bDrop->flipY);
-
-	gSPSprite2DDraw(glistp++,bDrop->xPos,bDrop->yPos);
-
-	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
-					   */
-/*	gDPPipeSync(glistp++);
+	gDPPipeSync(glistp++);
 	gSPDisplayList(glistp++, rdpInitForBackdrops_dl);
 	gSPObjRenderMode(glistp ++, G_OBJRM_XLU);
-//	for(backdrop = backdropList.head.next;backdrop != &backdropList.head;backdrop = backdrop->next)
-//	{
-//		if((backdrop->draw) && (backdrop->texture))
-//		{
-//			if(backdrop->flags & BACKDROP_FILTER)
-//			{
+	for(backdrop = backdropList.head.next;backdrop != &backdropList.head;backdrop = backdrop->next)
+	{
+		if((backdrop->draw) && (backdrop->texture))
+		{
+			if(backdrop->flags & BACKDROP_FILTER)
+			{
 				gDPSetTextureFilter(glistp++,G_TF_BILERP);
-//			}
-//			else
-//			{
-//				gDPSetTextureFilter(glistp++,G_TF_POINT);
-//			}
+			}
+			else
+			{
+				gDPSetTextureFilter(glistp++,G_TF_POINT);
+			}
 
-//			if((backdrop->a == 255) && (backdrop->texture->format != G_IM_FMT_IA))
-//			{
-//				if(backdrop->flags & BACKDROP_FILTER)
-//				{
+			if((backdrop->a == 255) && (backdrop->texture->format != G_IM_FMT_IA))
+			{
+				if(backdrop->flags & BACKDROP_FILTER)
+				{
 					gSPObjRenderMode(glistp ++, G_OBJRM_BILERP);
-//				}
-//				else
-//				{
-//					gSPObjRenderMode(glistp ++, 0);
-//				}
+				}
+				else
+				{
+					gSPObjRenderMode(glistp ++, 0);
+				}
 				gDPSetRenderMode(glistp++, G_RM_SPRITE, G_RM_SPRITE2);
-//			}
-//			else
-//			{
-//				if(backdrop->flags & BACKDROP_FILTER)
-//				{
-//					gSPObjRenderMode(glistp ++, G_OBJRM_XLU | G_OBJRM_BILERP);
-//				}
-//				else
-//				{
-//					gSPObjRenderMode(glistp ++, G_OBJRM_XLU);
-//				}
-//				gDPSetRenderMode(glistp++, G_RM_XLU_SPRITE, G_RM_XLU_SPRITE2);
-//			}
+			}
+			else
+			{
+				if(backdrop->flags & BACKDROP_FILTER)
+				{
+					gSPObjRenderMode(glistp ++, G_OBJRM_XLU | G_OBJRM_BILERP);
+				}
+				else
+				{
+					gSPObjRenderMode(glistp ++, G_OBJRM_XLU);
+				}
+				gDPSetRenderMode(glistp++, G_RM_XLU_SPRITE, G_RM_XLU_SPRITE2);
+			}
 
-			switch(bDrop->texture->pixSize)
+			switch(backdrop->texture->pixSize)
 			{
 				case G_IM_SIZ_4b:
 					gDPSetTextureLUT(glistp++,G_TT_RGBA16);
-					gDPLoadTLUT_pal16(glistp++,0,bDrop->texture->palette);
+					gDPLoadTLUT_pal16(glistp++,0,backdrop->texture->palette);
 					break;
 				case G_IM_SIZ_8b:
 					gDPSetTextureLUT(glistp++,G_TT_RGBA16);
-					gDPLoadTLUT_pal256(glistp++,bDrop->texture->palette);
+					gDPLoadTLUT_pal256(glistp++,backdrop->texture->palette);
 					break;
 				case G_IM_SIZ_16b:
 					gDPSetTextureLUT(glistp++,G_TT_NONE);
 					break;
 			}
-			gDPSetPrimColor(glistp++,0,0,bDrop->r,bDrop->g,bDrop->b,bDrop->a);
-			gSPBgRect1Cyc(glistp++,&bDrop->background);
-		//}
-//	}
-	gDPPipeSync(glistp++); */
+			gDPSetPrimColor(glistp++,0,0,backdrop->r,backdrop->g,backdrop->b,backdrop->a);
+			gSPBgRect1Cyc(glistp++,&backdrop->background);
+		}
+	}
+	gDPPipeSync(glistp++);
 }
 
 
@@ -363,7 +336,6 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 									tOver->font->width,tOver->font->height,
 									0,G_TX_CLAMP|G_TX_NOMIRROR,G_TX_CLAMP|G_TX_NOMIRROR,0,0,G_TX_NOLOD,G_TX_NOLOD);
 
-//			gSPTextureRectangle(glistp++,x << 2,y << 2,(x + tOver->font->width) << 2,(y + tOver->font->height) << 2,
 			gSPScisTextureRectangle(glistp++,x << 2,y << 2,(x + tOver->font->width) << 2,(y + tOver->font->height) << 2,
 									G_TX_RENDERTILE,0,0,1<<10,1<<10);
 
@@ -485,7 +457,6 @@ void PrintSpriteOverlays()
 								  0,0,
 								  G_TX_NOLOD,G_TX_NOLOD);
 
-//			gSPTextureRectangle(glistp++,cur->xPos << 2,cur->yPos << 2,
 			gSPScisTextureRectangle(glistp++,cur->xPos << 2,cur->yPos << 2,
 								(cur->xPos + cur->width) << 2,
 								(cur->yPos + cur->height) << 2,
@@ -605,7 +576,7 @@ void ProcessShadows()
 	gDPSetRenderMode(glistp++,G_RM_ZB_CLD_SURF,G_RM_ZB_CLD_SURF2);
 	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
 
-	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES,"ai_circle.bmp");
+	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
 	gDPSetTextureLUT(glistp++,G_TT_NONE);
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,
 						G_TX_CLAMP,G_TX_CLAMP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
@@ -770,7 +741,7 @@ void DrawSwirlFX()
 	V((&verts[2]),d,0,-d,0,0,0,testR,testG,testB,testA);
 	V((&verts[3]),-d,0,-d,0,1024,0,testR,testG,testB,testA);
 
-	FindTexture(&theTexture,UpdateCRC("ai_pausef.bmp"),YES,"ai_pausef.bmp");
+	FindTexture(&theTexture,UpdateCRC("ai_pausef.bmp"),YES);
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
@@ -815,7 +786,7 @@ void ScreenFade(UBYTE dir,UBYTE step)
 	V((&verts[2]),d,0,-d,0,0,0,testR,testG,testB,fadeOut);
 	V((&verts[3]),-d,0,-d,0,1024,0,testR,testG,testB,fadeOut);
 
-	FindTexture(&theTexture,UpdateCRC("ai_fullwhite.bmp"),YES,"ai_fullwhite.bmp");
+	FindTexture(&theTexture,UpdateCRC("ai_fullwhite.bmp"),YES);
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
@@ -873,7 +844,7 @@ void DrawDarkenedLevel()
 	V((&verts[2]),d,0,-d,0,0,0,testR,testG,testB,lightIntensity);
 	V((&verts[3]),-d,0,-d,0,1024,0,testR,testG,testB,lightIntensity);
 
-	FindTexture(&theTexture,UpdateCRC("ai_bigcircle.bmp"),YES,"ai_bigcircle.bmp");
+	FindTexture(&theTexture,UpdateCRC("ai_bigcircle.bmp"),YES);
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
@@ -905,13 +876,27 @@ SPRITE *PrintSpritesOpaque()
 	gSPDisplayList(glistp++,rdpInitForSprites_dl);
 	gDPSetScissor(glistp++,G_SC_NON_INTERLACE,0,0,SCREEN_WD,SCREEN_HT);
 
+	fm = 128000/(fog.max - fog.min);	
+	if(fog.mode)
+	{
+		gSPDisplayList(glistp++,setrend_light_fog2); 
+	}
+
 	guMtxCatL(&(dynamicp->viewing[screenNum]),&(dynamicp->projection[screenNum]),&temp);
 	guMtxL2F(printSpritesProj[screenNum],&temp);
 
 	spriteList.xluMode = NO;
 
-	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
-	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+	if(fog.mode)
+	{
+		gDPSetRenderMode(glistp++,G_RM_FOG_PRIM_A,G_RM_AA_ZB_TEX_EDGE2);
+		gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_PASS2);
+	}
+	else
+	{
+		gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+		gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+	}
 
 	if(!pauseMode)
 	{
@@ -943,11 +928,25 @@ void PrintSpritesTranslucent(SPRITE *sprite)
 	gSPDisplayList(glistp++,rdpInitForSprites_dl);
 	gDPSetScissor(glistp++,G_SC_NON_INTERLACE,0,0,SCREEN_WD,SCREEN_HT);
 
+	fm = 128000/(fog.max - fog.min);	
+	if(fog.mode)
+	{
+		gSPDisplayList(glistp++,setrend_light_fog2); 
+	}
+
 	guMtxCatL(&(dynamicp->viewing[screenNum]),&(dynamicp->projection[screenNum]),&temp);
 	guMtxL2F(printSpritesProj[screenNum],&temp);
 
-	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
-	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+	if(fog.mode)
+	{
+		gDPSetRenderMode(glistp++,G_RM_FOG_PRIM_A,G_RM_AA_ZB_TEX_EDGE2);
+		gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_PASS2);
+	}
+	else
+	{
+		gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+		gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+	}
 
 	if(!pauseMode)
 	{
@@ -1068,7 +1067,7 @@ void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,in
 */
 void PrintSprite(SPRITE *sprite)
 {
-	float x,y,z,w;
+	float x,y,z,w,fogVal;
 	float dist;
 	int scaleX,scaleY;
 	int sprScaleX,sprScaleY;
@@ -1123,6 +1122,93 @@ void PrintSprite(SPRITE *sprite)
 		return;
 
 	gDPSetPrimColor(glistp++,0,0,sprite->r,sprite->g,sprite->b,sprite->a);
+
+	if(sprite->flags & SPRITE_FLAGS_PIXEL_OUT)
+	{
+		gDPSetAlphaCompare(glistp++,G_AC_DITHER);
+	}
+	else
+	{
+		gDPSetAlphaCompare(glistp++,G_AC_NONE);
+	}
+		
+	if(fog.mode)
+	{
+		fogVal = MAX(0,((z-16360)/16360)*fm + 255 - fm);
+		if(fogVal >= 255)
+			return;
+		gDPSetFogColor(glistp++,fog.r,fog.g,fog.b,(unsigned int)fogVal);
+		if(sprite->flags & SPRITE_TRANSLUCENT)
+		{
+			gDPSetRenderMode(glistp++,G_RM_FOG_PRIM_A,G_RM_ZB_CLD_SURF2);
+		}
+		else
+		{
+			gDPSetRenderMode(glistp++,G_RM_FOG_PRIM_A,G_RM_AA_ZB_TEX_EDGE2);
+		}
+		gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA, G_CC_PASS2);
+		gDPSetCycleType(glistp++,G_CYC_2CYCLE);
+	}
+	else
+	{
+		if(sprite->flags & SPRITE_FLAGS_COLOUR_BLEND)
+		{
+			if(sprite->flags & SPRITE_TRANSLUCENT)
+			{
+				gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_ZB_CLD_SURF2);
+			}
+			else
+			{
+				gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_ZB_TEX_EDGE2);
+			}
+			gDPSetCombineMode(glistp++,G_CC_COLOURBLEND_SPRITE,G_CC_COLOURBLEND_SPRITE2);
+			gDPSetEnvColor(glistp++,sprite->red2,sprite->green2,sprite->blue2,sprite->alpha2);
+			gDPSetCycleType(glistp++,G_CYC_2CYCLE);
+		}
+		else if(sprite->flags & SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT)
+		{
+			if(sprite->flags & SPRITE_TRANSLUCENT)
+			{
+				gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_ZB_CLD_SURF2);
+			}
+			else
+			{
+				gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_ZB_TEX_EDGE2);
+			}
+			gDPSetCombineMode(glistp++,G_CC_COLOURBLEND_SPRITE_AFTERLIGHT,G_CC_COLOURBLEND_SPRITE_AFTERLIGHT2);
+			gDPSetEnvColor(glistp++,sprite->red2,sprite->green2,sprite->blue2,sprite->alpha2);
+			gDPSetCycleType(glistp++,G_CYC_2CYCLE);
+		}
+		else
+		{
+			if(sprite->flags & SPRITE_TRANSLUCENT)
+			{
+				if(sprite->flags & SPRITE_FLAGS_NOZB)
+				{
+					gDPSetRenderMode(glistp++,G_RM_CLD_SURF,G_RM_CLD_SURF2);
+				}
+				else
+				{
+					gDPSetRenderMode(glistp++,G_RM_ZB_CLD_SURF,G_RM_ZB_CLD_SURF2);
+				}
+			}
+			else
+			{
+				if(sprite->flags & SPRITE_FLAGS_NOZB)
+				{
+					gDPSetRenderMode(glistp++,G_RM_AA_TEX_EDGE,G_RM_AA_TEX_EDGE2);
+				}
+				else
+				{
+					gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+				}
+			}
+			gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+			gDPSetCycleType(glistp++,G_CYC_1CYCLE);
+		}
+	}
+
+/*
 	gDPSetAlphaCompare(glistp++,G_AC_NONE);
 
 	if(sprite->flags & SPRITE_TRANSLUCENT)
@@ -1136,7 +1222,9 @@ void PrintSprite(SPRITE *sprite)
 
 	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
 	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
+*/
 	
+
 	scaleY = dist * yFOV;
 	scaleX = (scaleY << 8) / sprScaleX;
 	scaleY = (scaleY << 8) / sprScaleY;
@@ -1412,20 +1500,11 @@ void DrawScreenGrab( unsigned long flags )
 	Returns			: 
 	Info			: 
 */
-extern long environmentMapped;
-
 Mtx	nomatrix;
 
 void SetRendermodeForEnviroment(void)
 {
-	if (environmentMapped)
-	{
-		gSPSetGeometryMode(glistp++,G_TEXTURE_GEN);
-	}
-	else
-	{
-		gSPClearGeometryMode(glistp++,G_TEXTURE_GEN);
-	}
+	gSPClearGeometryMode(glistp++,G_TEXTURE_GEN);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1435,7 +1514,7 @@ void SetRendermodeForEnviroment(void)
 	Returns			: 
 	Info			: 
 */
-void FreeGrabData( )
+void FreeGrabData()
 {
 	drawScreenGrab = 0;
 	pauseMode = 0;
@@ -1510,6 +1589,30 @@ void Screen2Texture( )
 		yPos = yTex + tStep;
 	}*/
 	
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: IsPointVisible
+	Purpose			: determine if a point in 3D space is visible in 2D screen space
+	Parameters		: VECTOR *
+	Returns			: char
+	Info			: 
+*/
+char IsPointVisible(VECTOR *p)
+{
+	VECTOR m;
+	XfmPoint (&m,p);
+	if (m.v[3]==0)
+		return 0;
+	if (m.v[0]<0) 
+		return 0;
+	if (m.v[0]>640) 
+		return 0;
+	if (m.v[1]<0) 
+		return 0;
+	if (m.v[1]>480)
+		return 0;
+	return 1;
 }
 
 /*	--------------------------------------------------------------------------------

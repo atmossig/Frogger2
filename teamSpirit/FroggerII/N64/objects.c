@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -17,8 +17,6 @@
 
 OBJECT_BANK	objectBanks[MAX_OBJECT_BANKS];
 OBJECT *tempObject;
-
-char message[256];
 
 int offsetVtx = TRUE;
 
@@ -54,12 +52,13 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 
 	temp = (u8 *)dl; 
 
-	while(*temp != 0xB8)
+	while(*temp != 0xDF)
 	{
 		switch(*temp)
 		{
 			//loadvertices
-			case 0x04:
+			case 0x01:
+
 				if(offsetVtx)
 				{
 					addrP = (u32 *)(temp + 4);
@@ -67,45 +66,32 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 					address = Rom2Ram(address, offset);
 					*addrP = address;
 				}
-				// ENDIF
 				temp += 8;
 				break;
 
 			//load texture block
 			case 0xFD:		
-							//load texture and load texture palette share the same first byte
-
-							//this appears to be the code for a texture load
-							if(*(temp + 8) == 0xf5)
-							{
-								addrP = (u32 *)(temp + 4);
-								address = *addrP;
-								FindTexture(&tempTex, address,YES,"");
-								if(tempTex)
-									*addrP = (u32)tempTex->data;
-								temp += 56;
-							}
-							else if(*(temp + 8) == 0xe8)
-							{
-								addrP = (u32 *)(temp + 4);
-								address = *addrP;
-								FindTexture(&tempTex, address,YES,"");
-								if(tempTex)
-									*addrP = (u32)tempTex->palette;
-								temp += 48;
-							}
-							else
-								temp += 16;
-										 
-			
-							break;
+				//load texture and load texture palette share the same first byte
+				//this appears to be the code for a texture load
+				addrP = (u32 *)(temp + 4);
+				address = *addrP;
+				FindTexture(&tempTex,address,YES);
+				if(tempTex)
+				{
+					if(*(temp + 8) == 0xf5)
+						*addrP = (u32)tempTex->data;
+					else
+						*addrP = (u32)tempTex->palette;
+				}
+	
+				temp += 8;
+				break;
 
 
-			default:		temp += 8;
-							break;
-
+			default:		
+				temp += 8;
+				break;
 		}
-
 	}
 }
 
@@ -134,28 +120,20 @@ void SwapVtxReferencesInDrawlist(OBJECT_CONTROLLER *objectC)
 	AddOffsetToVertexLoads(offset, dl);
 
 	objectC->vtxBuf = 1 - objectC->vtxBuf;
+}
 
-
-
-/*
-	Gfx *dl = objectC->drawList;
-	u8	*temp;
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void AddOffsetToVertexLoads(int offset, Gfx *dl)
+{
+	u8	*temp = (u8 *)dl; 
 	u32	address;
 	u32 *addrP;
-	s32 offset;
-	Vtx *vtx = objectC->Vtx[objectC->vtxBuf];
-
-
-	if(objectC->vtxBuf)
-		offset = objectC->Vtx[0] - objectC->Vtx[1];
-	else
-		offset = objectC->Vtx[1] - objectC->Vtx[0];
-
-	offset *= sizeof(Vtx);
-
-
-
-	temp = (u8 *)dl; 
 
 	while(*temp != 0xDF)
 	{
@@ -174,44 +152,6 @@ void SwapVtxReferencesInDrawlist(OBJECT_CONTROLLER *objectC)
 				break;
 		}
 	}
-
-	objectC->vtxBuf = 1 - objectC->vtxBuf; */
-	
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void AddOffsetToVertexLoads(int offset, Gfx *dl)
-{
-	u8	*temp = (u8 *)dl; 
-	u32	address;
-	u32 *addrP;
-
-	while(*temp != 0xB8)
-	{
-		switch(*temp)
-		{
-			//loadvertices
-			case 0x04:
-				addrP = (u32 *)(temp + 4);
-				address = *addrP;
-				*addrP += (u32)offset;
-				temp += 8;
-				break;
-
-			default:
-				temp += 8;
-				break;
-		}
-	}
-
-
-
 }
 
 
@@ -229,23 +169,20 @@ void DoubleBufferSkinVtx ( void )
 
 	while ( gfxTasks );	//must wait for the graphics tasks to be finished so that we don't disturb the drawlists
 
-	StartTimer ( 0, "code" );
+	TIMER_StartTimer(6,"DBLBFSVTX");
 
 	cur = actList;
 
 	while ( cur )
 	{
-		if ( cur->actor->objectController )
+//		if ( cur->actor->objectController )
 			if ( cur->actor->objectController->drawList )
-//				SwapVtxReferencesInDrawlist ( cur->actor->objectController );
 				cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
-			// ENDIF
-		// ENDIF
+
 		cur = cur->next;
 	}
-	// ENDWHILE
 
-	EndTimer(0);
+	TIMER_EndTimer(6);
 }
 
 
@@ -292,7 +229,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 				obj->mesh->textureIDs = (TEXTURE **)Rom2Ram((u32)obj->mesh->textureIDs, memoryOffset);
 
 				for(x = 0; x < obj->mesh->numFaces; x++)
-					FindTexture(&(obj->mesh->textureIDs[x]), (u32)obj->mesh->textureIDs[x],YES, "");
+					FindTexture(&(obj->mesh->textureIDs[x]), (u32)obj->mesh->textureIDs[x],YES);
 			}
 		}
 		if(obj->mesh->vertexNormals)
@@ -301,14 +238,14 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 
 //////////initialise all sprites within object
 	if(obj->phongTex)
-		FindTexture(&(obj->phongTex), (u32)obj->phongTex,YES, "");
+		FindTexture(&(obj->phongTex), (u32)obj->phongTex,YES);
 	tempInt = (u32)obj->sprites;
 	if(tempInt)
 	{
 		obj->sprites = (OBJECTSPRITE *)Rom2Ram((u32)obj->sprites, memoryOffset);
 		for(x = 0; x < obj->numSprites; x++)
 		{
-			FindTexture(&(obj->sprites[x].textureID), (u32)obj->sprites[x].textureID,YES, "");
+			FindTexture(&(obj->sprites[x].textureID), (u32)obj->sprites[x].textureID,YES);
 		}
 	}
 
@@ -393,7 +330,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 				obj->mesh->textureIDs = (TEXTURE **)Rom2Ram((u32)obj->mesh->textureIDs, memoryOffset);
 
 				for(x = 0; x < obj->mesh->numFaces; x++)
-					FindTexture(&(obj->mesh->textureIDs[x]), (u32)obj->mesh->textureIDs[x],YES,"");
+					FindTexture(&(obj->mesh->textureIDs[x]), (u32)obj->mesh->textureIDs[x],YES);
 			}
 
 		}
@@ -408,7 +345,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 		obj->sprites = (OBJECTSPRITE *)Rom2Ram((u32)obj->sprites, memoryOffset);
 		for(x = 0; x < obj->numSprites; x++)
 		{
-			FindTexture(&(obj->sprites[x].textureID), (u32)obj->sprites[x].textureID,YES,"");
+			FindTexture(&(obj->sprites[x].textureID), (u32)obj->sprites[x].textureID,YES);
 		}
 	}
 
@@ -465,97 +402,359 @@ void LoadObjectBank(int num)
 
 	switch(num)
 	{
-
+		// GARDEN OBJECTS ------------------------------------------------------------------------
 		case GENERIC_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank1SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank1SegmentRomEnd;
-			sprintf(message, "GAR_MAS");
+			bankRomStart	= (u32)&_objBank_1_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_0_SegmentRomEnd;
+			dprintf"GENERIC GARDEN OBJECT BANK - "));
 			break;
-
 		case LEVEL1_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank2SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank2SegmentRomEnd;
-			sprintf(message, "GAR_LEV1");
+			bankRomStart	= (u32)&_objBank_1_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_1_SegmentRomEnd;
+			dprintf"GARDEN LEVEL 1 OBJECT BANK - "));
 			break;
-
 		case LEVEL2_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank3SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank3SegmentRomEnd;
-			sprintf(message, "GAR_LEV2");
+			bankRomStart	= (u32)&_objBank_1_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_2_SegmentRomEnd;
+			dprintf"GARDEN LEVEL 2 OBJECT BANK - "));
 			break;
-
 		case LEVEL3_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank4SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank4SegmentRomEnd;
-			sprintf(message, "GAR_LEV3");
+			bankRomStart	= (u32)&_objBank_1_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_3_SegmentRomEnd;
+			dprintf"GARDEN LEVEL 3 OBJECT BANK - "));
 			break;
-
 		case BOSSA_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank5SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank5SegmentRomEnd;
-			sprintf(message, "GAR_BOSA");
+			bankRomStart	= (u32)&_objBank_1_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_4_SegmentRomEnd;
+			dprintf"GARDEN BOSS A OBJECT BANK - "));
 			break;
-
 		case BOSSB_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank6SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank6SegmentRomEnd;
-			sprintf(message, "GAR_BOSB");
+			bankRomStart	= (u32)&_objBank_1_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_5_SegmentRomEnd;
+			dprintf"GARDEN BOSS B OBJECT BANK - "));
 			break;
-
 		case BONUS_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank7SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank7SegmentRomEnd;
-			sprintf(message, "GAR_BON");
+			bankRomStart	= (u32)&_objBank_1_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_6_SegmentRomEnd;
+			dprintf"GARDEN BONUS OBJECT BANK - "));
 			break;
-
 		case MULTI_GARDEN_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank8SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank8SegmentRomEnd;
-			sprintf(message, "GAR_MUL");
+			bankRomStart	= (u32)&_objBank_1_7_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_1_7_SegmentRomEnd;
+			dprintf"GARDEN MULTIPLAYER OBJECT BANK - "));
 			break;
 
+		// ANCIENT OBJECTS ------------------------------------------------------------------------
 		case GENERIC_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank9SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank9SegmentRomEnd;
-			sprintf(message, "ANC_MAS");
+			bankRomStart	= (u32)&_objBank_2_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_0_SegmentRomEnd;
+			dprintf"GENERIC ANCIENT OBJECT BANK - "));
 			break;
-
 		case LEVEL1_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank10SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank10SegmentRomEnd;
-			sprintf(message, "ANC_LEV1");
+			bankRomStart	= (u32)&_objBank_2_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_1_SegmentRomEnd;
+			dprintf"ANCIENT LEVEL 1 OBJECT BANK - "));
 			break;
-
 		case LEVEL2_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank11SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank11SegmentRomEnd;
-			sprintf(message, "ANC_LEV2");
+			bankRomStart	= (u32)&_objBank_2_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_2_SegmentRomEnd;
+			dprintf"ANCIENT LEVEL 2 OBJECT BANK - "));
 			break;
-
 		case LEVEL3_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank12SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank12SegmentRomEnd;
-			sprintf(message, "ANC_LEV3");
+			bankRomStart	= (u32)&_objBank_2_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_3_SegmentRomEnd;
+			dprintf"ANCIENT LEVEL 3 OBJECT BANK - "));
 			break;
-
+		case BOSS_ANCIENT_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_2_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_4_SegmentRomEnd;
+			dprintf"ANCIENT BOSS OBJECT BANK - "));
+			break;
 		case BOSSA_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank13SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank13SegmentRomEnd;
-			sprintf(message, "ANC_BOSA");
+			bankRomStart	= (u32)&_objBank_2_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_5_SegmentRomEnd;
+			dprintf"ANCIENT BOSS A OBJECT BANK - "));
 			break;
-
+		case BOSSB_ANCIENT_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_2_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_6_SegmentRomEnd;
+			dprintf"ANCIENT BOSS B OBJECT BANK - "));
+			break;
+		case BOSSC_ANCIENT_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_2_7_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_7_SegmentRomEnd;
+			dprintf"ANCIENT BOSS C OBJECT BANK - "));
+			break;
 		case BONUS_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank14SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank14SegmentRomEnd;
-			sprintf(message, "ANC_BON");
+			bankRomStart	= (u32)&_objBank_2_8_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_8_SegmentRomEnd;
+			dprintf"ANCIENT BONUS OBJECT BANK - "));
+			break;
+		case MULTI_ANCIENT_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_2_9_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_2_9_SegmentRomEnd;
+			dprintf"ANCIENT MULTIPLAYER OBJECT BANK - "));
 			break;
 
-		case MULTI_ANCIENT_OBJ_BANK:
-			bankRomStart	= (u32)&_objBank15SegmentRomStart;
-			bankRomEnd		= (u32)&_objBank15SegmentRomEnd;
-			sprintf(message, "ANC_MUL");
+		// SPACE OBJECTS -------------------------------------------------------------------------
+		case GENERIC_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_0_SegmentRomEnd;
+			dprintf"GENERIC SPACE OBJECT BANK - "));
 			break;
-				   
+		case LEVEL1_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_1_SegmentRomEnd;
+			dprintf"SPACE LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_2_SegmentRomEnd;
+			dprintf"SPACE LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_3_SegmentRomEnd;
+			dprintf"SPACE LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_4_SegmentRomEnd;
+			dprintf"SPACE BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_5_SegmentRomEnd;
+			dprintf"SPACE BONUS OBJECT BANK - "));
+			break;
+		case MULTI_SPACE_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_3_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_3_6_SegmentRomEnd;
+			dprintf"SPACE MULTIPLAYER OBJECT BANK - "));
+			break;
+
+		// CITY OBJECTS -------------------------------------------------------------------------
+		case GENERIC_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_0_SegmentRomEnd;
+			dprintf"GENERIC CITY OBJECT BANK - "));
+			break;
+		case LEVEL1_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_1_SegmentRomEnd;
+			dprintf"CITY LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_2_SegmentRomEnd;
+			dprintf"CITY LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_3_SegmentRomEnd;
+			dprintf"CITY LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_4_SegmentRomEnd;
+			dprintf"CITY BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_5_SegmentRomEnd;
+			dprintf"CITY BONUS OBJECT BANK - "));
+			break;
+		case MULTI_CITY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_4_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_4_6_SegmentRomEnd;
+			dprintf"CITY MULTIPLAYER OBJECT BANK - "));
+			break;
+
+		// SUBTERRANEAN OBJECTS ------------------------------------------------------------------
+		case GENERIC_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_0_SegmentRomEnd;
+			dprintf"GENERIC SUBTERRANEAN OBJECT BANK - "));
+			break;
+		case LEVEL1_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_1_SegmentRomEnd;
+			dprintf"SUBTERRANEAN LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_2_SegmentRomEnd;
+			dprintf"SUBTERRANEAN LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_3_SegmentRomEnd;
+			dprintf"SUBTERRANEAN LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_4_SegmentRomEnd;
+			dprintf"SUBTERRANEAN BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_5_SegmentRomEnd;
+			dprintf"SUBTERRANEAN BONUS OBJECT BANK - "));
+			break;
+		case MULTI_SUBTERRANEAN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_5_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_5_6_SegmentRomEnd;
+			dprintf"SUBTERRANEAN MULTIPLAYER OBJECT BANK - "));
+			break;
+
+		// LABORATORY OBJECTS --------------------------------------------------------------------
+		case GENERIC_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_0_SegmentRomEnd;
+			dprintf"GENERIC LABORATORY OBJECT BANK - "));
+			break;
+		case LEVEL1_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_1_SegmentRomEnd;
+			dprintf"LABORATORY LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_2_SegmentRomEnd;
+			dprintf"LABORATORY LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_3_SegmentRomEnd;
+			dprintf"LABORATORY LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_4_SegmentRomEnd;
+			dprintf"LABORATORY BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_5_SegmentRomEnd;
+			dprintf"LABORATORY BONUS OBJECT BANK - "));
+			break;
+		case MULTI_LABORATORY_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_6_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_6_6_SegmentRomEnd;
+			dprintf"LABORATORY MULTIPLAYER OBJECT BANK - "));
+			break;
+
+		// TOYSHOP OBJECTS -----------------------------------------------------------------------
+		case GENERIC_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_0_SegmentRomEnd;
+			dprintf"GENERIC TOYSHOP OBJECT BANK - "));
+			break;
+		case LEVEL1_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_1_SegmentRomEnd;
+			dprintf"TOYSHOP LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_2_SegmentRomEnd;
+			dprintf"TOYSHOP LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_3_SegmentRomEnd;
+			dprintf"TOYSHOP LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_4_SegmentRomEnd;
+			dprintf"TOYSHOP BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_5_SegmentRomEnd;
+			dprintf"TOYSHOP BONUS OBJECT BANK - "));
+			break;
+		case MULTI_TOYSHOP_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_7_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_7_6_SegmentRomEnd;
+			dprintf"TOYSHOP MULTIPLAYER OBJECT BANK - "));
+			break;
+
+		// HALLOWEEN OBJECTS ---------------------------------------------------------------------
+		case GENERIC_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_0_SegmentRomEnd;
+			dprintf"GENERIC HALLOWEEN OBJECT BANK - "));
+			break;
+		case LEVEL1_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_1_SegmentRomEnd;
+			dprintf"HALLOWEEN LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_2_SegmentRomEnd;
+			dprintf"HALLOWEEN LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_3_SegmentRomEnd;
+			dprintf"HALLOWEEN LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_4_SegmentRomEnd;
+			dprintf"HALLOWEEN BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_5_SegmentRomEnd;
+			dprintf"HALLOWEEN BONUS OBJECT BANK - "));
+			break;
+		case MULTI_HALLOWEEN_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_8_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_8_6_SegmentRomEnd;
+			dprintf"HALLOWEEN MULTIPLAYER OBJECT BANK - "));
+			break;
+
+		// RETRO OBJECTS -------------------------------------------------------------------------
+		case GENERIC_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_0_SegmentRomEnd;
+			dprintf"GENERIC RETRO OBJECT BANK - "));
+			break;
+		case LEVEL1_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_1_SegmentRomEnd;
+			dprintf"RETRO LEVEL 1 OBJECT BANK - "));
+			break;
+		case LEVEL2_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_2_SegmentRomEnd;
+			dprintf"RETRO LEVEL 2 OBJECT BANK - "));
+			break;
+		case LEVEL3_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_3_SegmentRomEnd;
+			dprintf"RETRO LEVEL 3 OBJECT BANK - "));
+			break;
+		case BOSSA_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_4_SegmentRomEnd;
+			dprintf"RETRO BOSS A OBJECT BANK - "));
+			break;
+		case BONUS_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_5_SegmentRomEnd;
+			dprintf"RETRO BONUS OBJECT BANK - "));
+			break;
+		case MULTI_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_6_SegmentRomEnd;
+			dprintf"RETRO MULTIPLAYER OBJECT BANK - "));
+			break;
+
 		default:
 			dprintf"ERROR: no object bank specified....\n"));
 			for(;;);
@@ -564,16 +763,16 @@ void LoadObjectBank(int num)
 
 	bankSize = bankRomEnd - bankRomStart;
 
-	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart,bankRomEnd),YES,message);
+	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart,bankRomEnd),YES,"OBJBANK");
 
 //start download from rom
 
 	DMAMemory(objectBank, bankRomStart, bankRomEnd);
 	if(objectBank)
-		dprintf"Loaded object bank %s (size %d)\n",message,(int)bankSize));
+		dprintf"LOADED OK (size %d)\n",(int)bankSize));
 	else
 	{
-		dprintf"Unable to load object bank %s\n",message));
+		dprintf"ERROR: UNABLE TO LOAD OBJECT BANK\n"));
 		return;
 	}
 
@@ -1084,7 +1283,8 @@ void WriteObjectDisplayListFlat(OBJECT *obj)
 */
 void WriteObjectDisplayListGouraud(OBJECT *obj)
 {
-/**	int x, y, face = 0,j;
+/*
+	int x, y, face = 0,j;
 	MESH	*mesh = obj->mesh;
 	SHORT2DVECTOR	*tcp = mesh->faceTC;
 	VECTOR		*baseVertices = mesh->vertices;
@@ -1098,7 +1298,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 	BYTEVECTOR	*vNormalPtr;
 	BYTEVECTOR	*baseVNormalPtr = mesh->vertexNormals;
 
-    gDPPipeSync(glistp++);
+
+	gDPPipeSync(glistp++);
 
 	for(x = 0; x < fC; x++)
 	{
@@ -1216,7 +1417,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 		}
 	}
 
-    gDPPipeSync(glistp++);*/
+    gDPPipeSync(glistp++);
+*/
 	int x, y, face = 0,j;
 	MESH	*mesh = obj->mesh;
 	USHORT2DVECTOR	*tcp = mesh->faceTC;
@@ -1459,8 +1661,8 @@ void StopDrawing(char *whereami)
 	if(codeDrawingRequest == TRUE)
 		dprintf"Stop Drawing Requested from '%s'\n", whereami));
 	codeDrawingRequest = FALSE;
+	codeRunning = 0;
 	while(gfxIsDrawing == TRUE);
-	disableGraphics = TRUE;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1475,9 +1677,9 @@ void StartDrawing(char *whereami)
 	if(codeDrawingRequest == FALSE)
 		dprintf"Start Drawing Requested from '%s'\n", whereami));
 	codeDrawingRequest = TRUE;
-	while(gfxIsDrawing == FALSE);
-	disableGraphics = FALSE;
-	onlyDrawBackdrops = FALSE;
+	codeRunning = 0;
+	while(gfxIsDrawing == FALSE)
+		dispFrameCount = 0;
 }
 
 

@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -18,8 +18,11 @@
 
 char *mapBank;
 char *levBank;
-char *aMapBank = NULL;
-char *aLevBank = NULL;
+
+// global ptrs used to free allocated resources
+char *aMapBank				= NULL;
+char *aLevBank				= NULL;
+char *globalPtrEntityBank	= NULL;
 
 unsigned long numSafe = 1;
 unsigned long numPwrups = 3;
@@ -39,83 +42,126 @@ char message[256];
 	Parameters	: (int num)
 	Returns		: void 
 */
-void LoadCollision (int num);
-void LoadScenics (int num);
-
-void LoadMapBank(int num)
+void LoadMapBank(short worldID,short levelID)
 {
-	LoadCollision (num);
-	LoadScenics (num);
+	LoadCollision(worldID,levelID);
+	LoadScenics(worldID,levelID);
 }
 
-void FreeMapBank(void)
+void FreeMapBank()
 {
-	if (aMapBank)
-		JallocFree ((UBYTE**)&aMapBank);
-	if (aLevBank)
-		JallocFree ((UBYTE**)&aLevBank);
+	if(aMapBank)
+		JallocFree((UBYTE**)&aMapBank);
+	if(aLevBank)
+		JallocFree((UBYTE**)&aLevBank);
 }
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadCollision 
-
 	Purpose		:
-	Parameters	: (int num)
+	Parameters	: short,short
 	Returns		: void 
 */
 
-void LoadCollision (int num)
+void LoadCollision(short worldID,short levelID)
 {
 	int					tnum = -1;
 	char				*objectBank;
 	u32					bankRomStart, bankRomEnd, bankSize;
 	short				y, x;
 	GAMETILE			*cgT;
-	char				message[64];
 
-	switch(num)
+	switch(worldID)
 	{
-		// GARDEN LEVELS
-		case GARDENMASTERA_COL:
-			tnum = TRUNK_COLL_BANK;
-			break;
-		case GARDENMASTERB_COL:
-			tnum = TREETOP_COLL_BANK;
-			break;
-		case GARDENMULTI_COL:
-			tnum = GARDENMULTI_COLL_BANK;
-			break;
-		case GARDENLEV1_COL:
-			tnum = LAWN_COLL_BANK;
-			break;
-		case GARDENLEV2_COL:
-			tnum = MAZE_COLL_BANK;
-			break;
-		case GARDENLEV3_COL:
-			tnum = VEGPATCH_COLL_BANK;
+		case WORLDID_GARDEN:
+			switch(levelID)
+			{
+				case LEVELID_GARDENLEV1:
+					tnum = GARDEN1_COLL_BANK;
+					break;
+				case LEVELID_GARDENLEV2:
+					tnum = GARDEN2_COLL_BANK;
+					break;
+				case LEVELID_GARDENLEV3:
+					tnum = GARDEN3_COLL_BANK;
+					break;
+				case LEVELID_GARDENBOSSA:
+					tnum = GARDENBOSSA_COLL_BANK;
+					break;
+				case LEVELID_GARDENBOSSB:
+					tnum = GARDENBOSSB_COLL_BANK;
+					break;
+				case LEVELID_GARDENBONUS:
+					tnum = GARDENBONUS_COLL_BANK;
+					break;
+				case LEVELID_GARDENMULTI:
+					tnum = GARDENMULTI_COLL_BANK;
+					break;
+			}
 			break;
 
-		// ANCIENTS LEVELS
-		case ANCIENTMASTERA_COL:
-			tnum = TOWER_COLL_BANK;
+		case WORLDID_ANCIENT:
+			switch(levelID)
+			{
+				case LEVELID_ANCIENTLEV1:
+					tnum = ANCIENTS1_COLL_BANK;
+					break;
+				case LEVELID_ANCIENTLEV2:
+					tnum = ANCIENTS2_COLL_BANK;
+					break;
+				case LEVELID_ANCIENTLEV3:
+					tnum = ANCIENTS3_COLL_BANK;
+					break;
+			}
 			break;
-		case ANCIENTMASTERB_COL:
-			tnum = ROOMONE_COLL_BANK;
+
+		case WORLDID_SPACE:
+			switch(levelID)
+			{
+				case LEVELID_SPACELEV1:
+					tnum = SPACE1_COLL_BANK;
+					break;
+				case LEVELID_SPACELEV2:
+					tnum = SPACE2_COLL_BANK;
+					break;
+				case LEVELID_SPACELEV3:
+					tnum = SPACE3_COLL_BANK;
+					break;
+				case LEVELID_SPACEBOSSA:
+					tnum = SPACEBOSS_COLL_BANK;
+					break;
+			}
 			break;
-		case ANCIENTMASTERC_COL:
-			tnum = TRAP2_COLL_BANK;
+	
+		case WORLDID_CITY:
 			break;
-		case ANCIENTMULTI_COL:
+
+		case WORLDID_SUBTERRANEAN:
 			break;
-		case ANCIENTLEV1_COL:
-			tnum = VOTG_COLL_BANK;
+
+		case WORLDID_LABORATORY:
+			switch(levelID)
+			{
+				case LEVELID_LABORATORYLEV1:
+					tnum = LAB1_COLL_BANK;
+					break;
+				case LEVELID_LABORATORYLEV2:
+					tnum = LAB2_COLL_BANK;
+					break;
+				case LEVELID_LABORATORYLEV3:
+					tnum = LAB3_COLL_BANK;
+					break;
+			}
 			break;
-		case ANCIENTLEV2_COL:
-			tnum = RUINEDCITY_COLL_BANK;
+		
+		case WORLDID_TOYSHOP:
 			break;
-		case ANCIENTLEV3_COL:
-			tnum = TEMPLE_COLL_BANK;
+		
+		case WORLDID_HALLOWEEN:
+			break;
+		
+		case WORLDID_SUPERRETRO:
 			break;
 	}
 	
@@ -123,7 +169,7 @@ void LoadCollision (int num)
 	bankRomEnd		= (u32)collBanksEnd[tnum];			
 	bankSize = bankRomEnd - bankRomStart;
 
-	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart, bankRomEnd), FALSE,"mBank");
+	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart, bankRomEnd), FALSE,"COLLBANK");
 	aMapBank = objectBank;
 	//start download from rom
 
@@ -202,13 +248,12 @@ void LoadCollision (int num)
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadScenics 
-
 	Purpose		:
 	Parameters	: (int num)
 	Returns		: void 
 */
 
-void LoadScenics (int num)
+void LoadScenics(short worldID,short levelID)
 {
 	int					tnum = -1;
 	char				*objectBank;
@@ -216,91 +261,97 @@ void LoadScenics (int num)
 	short				y, x;
 	SCENIC				*cSc;
 	char				message[64];
-	
-/*
 
-	SYSTEM_COL,
-
-	SPACEMASTER_COL,
-	SPACELEV1_COL,
-	SPACELEV2_COL,
-	SPACELEV3_COL,
-	SPACEBONUS_COL,
-	SPACEMULTI_COL,
-
-	CITYMASTER_COL,
-	CITYLEV1_COL,
-	CITYLEV2_COL,
-	CITYLEV3_COL,
-	CITYBONUS_COL,
-	CITYMULTI_COL,
-
-	SUBTERRANEANMASTER_COL,
-	SUBTERRANEANLEV1_COL,
-	SUBTERRANEANLEV2_COL,
-	SUBTERRANEANLEV3_COL,
-	SUBTERRANEANBONUS_COL,
-	SUBTERRANEANMULTI_COL,
-
-	LABORATORYMASTER_COL,
-	LABORATORYLEV1_COL,
-	LABORATORYLEV2_COL,
-	LABORATORYLEV3_COL,
-	LABORATORYBONUS_COL,
-	LABORATORYMULTI_COL,
-
-	TOYSHOPMASTER_COL,
-	TOYSHOPLEV1_COL,
-	TOYSHOPLEV2_COL,
-	TOYSHOPLEV3_COL,
-	TOYSHOPBONUS_COL,
-	TOYSHOPMULTI_COL,
-
-	HALLOWEENMASTER_COL,
-	HALLOWEENLEV1_COL,
-	HALLOWEENLEV2_COL,
-	HALLOWEENLEV3_COL,
-	HALLOWEENBONUS_COL,
-	HALLOWEENMULTI_COL,
-
-	RETROMASTER_COL,
-	RETROLEV1_COL,
-	RETROLEV2_COL,
-	RETROLEV3_COL,
-	RETROBONUS_COL,
-	RETROMULTI_COL,
-*/
-
-	switch(num)
+	switch(worldID)
 	{
-		// GARDEN LEVELS
-		case GARDENMASTERA_COL:
+		case WORLDID_GARDEN:
+			switch(levelID)
+			{
+				case LEVELID_GARDENLEV1:
+					tnum = GARDEN1_COLL_BANK;
+					break;
+				case LEVELID_GARDENLEV2:
+					tnum = GARDEN2_COLL_BANK;
+					break;
+				case LEVELID_GARDENLEV3:
+					tnum = GARDEN3_COLL_BANK;
+					break;
+				case LEVELID_GARDENBOSSA:
+					tnum = GARDENBOSSA_COLL_BANK;
+					break;
+				case LEVELID_GARDENBOSSB:
+					tnum = GARDENBOSSB_COLL_BANK;
+					break;
+				case LEVELID_GARDENBONUS:
+					tnum = GARDENBONUS_COLL_BANK;
+					break;
+				case LEVELID_GARDENMULTI:
+					tnum = GARDENMULTI_COLL_BANK;
+					break;
+			}
 			break;
-		case GARDENMULTI_COL:
-			tnum = GARDENMULTI_COLL_BANK;
-			break;
-		case GARDENLEV1_COL:
-			tnum = LAWN_COLL_BANK;
-			break;
-		case GARDENLEV2_COL:
-			tnum = MAZE_COLL_BANK;
-			break;
-		case GARDENLEV3_COL:
-			tnum = VEGPATCH_COLL_BANK;
+			
+		case WORLDID_ANCIENT:
+			switch(levelID)
+			{
+				case LEVELID_ANCIENTLEV1:
+					tnum = ANCIENTS1_COLL_BANK;
+					break;
+				case LEVELID_ANCIENTLEV2:
+					tnum = ANCIENTS2_COLL_BANK;
+					break;
+				case LEVELID_ANCIENTLEV3:
+					tnum = ANCIENTS3_COLL_BANK;
+					break;
+			}
 			break;
 
-		// ANCIENTS LEVELS
-		case ANCIENTMASTERA_COL:
+		case WORLDID_SPACE:
+			switch(levelID)
+			{
+				case LEVELID_SPACELEV1:
+					tnum = SPACE1_COLL_BANK;
+					break;
+				case LEVELID_SPACELEV2:
+					tnum = SPACE2_COLL_BANK;
+					break;
+				case LEVELID_SPACELEV3:
+					tnum = SPACE3_COLL_BANK;
+					break;
+				case LEVELID_SPACEBOSSA:
+					tnum = SPACEBOSS_COLL_BANK;
+					break;
+			}
 			break;
-		case ANCIENTMULTI_COL:
+	
+		case WORLDID_CITY:
 			break;
-		case ANCIENTLEV1_COL:
-			tnum = RUINEDCITY_COLL_BANK;
+
+		case WORLDID_SUBTERRANEAN:
 			break;
-		case ANCIENTLEV2_COL:
-			tnum = VOTG_COLL_BANK;
+
+		case WORLDID_LABORATORY:
+			switch(levelID)
+			{
+				case LEVELID_LABORATORYLEV1:
+					tnum = LAB1_COLL_BANK;
+					break;
+				case LEVELID_LABORATORYLEV2:
+					tnum = LAB2_COLL_BANK;
+					break;
+				case LEVELID_LABORATORYLEV3:
+					tnum = LAB3_COLL_BANK;
+					break;
+			}
 			break;
-		case ANCIENTLEV3_COL:
+		
+		case WORLDID_TOYSHOP:
+			break;
+		
+		case WORLDID_HALLOWEEN:
+			break;
+		
+		case WORLDID_SUPERRETRO:
 			break;
 	}
 
@@ -308,7 +359,7 @@ void LoadScenics (int num)
 	bankRomEnd		= (u32)scenBanksEnd[tnum];			
 	bankSize = bankRomEnd - bankRomStart;
 
-	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart, bankRomEnd), FALSE,"sBank");
+	objectBank = (char *)JallocAlloc(DMAGetSize(bankRomStart, bankRomEnd), FALSE,"SCENBANK");
 	aLevBank = objectBank;
 	//start download from rom
 
@@ -336,7 +387,7 @@ void LoadScenics (int num)
 	cSc = Sc_000;
 
 	while (cSc)
-	{		
+	{
 		if (cSc->next)
 			cSc->next = Rom2Ram((u32)cSc->next, (u32)objectBank);
 		if (cSc->typedata)
@@ -352,58 +403,202 @@ void LoadScenics (int num)
 }
 
 /*	--------------------------------------------------------------------------------
-	Function		: LoadLevelEntitys
+	Function		: LoadLevelEntities
 	Purpose			: Loads in the data for level, inc enemies, platforms etc
 	Parameters		: short worldID - world number
 				 	  short levelID - level number
 	Returns			: void
 	Info			: 
 */
-void LoadLevelEntitys ( short entityNum )
+void LoadLevelEntities(short worldID,short levelID)
 {
 	char	*entityDat;
-	u32		bankRomStart, bankRomEnd, bankSize;
+	u32		bankRomStart,bankRomEnd,bankSize;
 
-	switch ( entityNum )
+	if(worldID == WORLDID_GARDEN)
 	{
-		case GARDENLEV1_ENT:
-				bankRomStart	= (u32)&_levData1SegmentRomStart;
-				bankRomEnd		= (u32)&_levData1SegmentRomEnd;
-				sprintf(message, "GAR_ENT1");				
-			break;
+		switch(levelID)
+		{
+			case GARDENLEV1_ENT:
+					bankRomStart	= (u32)&_levData_1_1_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_1_SegmentRomEnd;
+					sprintf(message, "GAR_ENT1");				
+				break;
 
-		case GARDENLEV2_ENT:
-				bankRomStart	= (u32)&_levData2SegmentRomStart;
-				bankRomEnd		= (u32)&_levData2SegmentRomEnd;
-				sprintf(message, "GAR_ENT2");				
-			break;
+			case GARDENLEV2_ENT:
+					bankRomStart	= (u32)&_levData_1_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_2_SegmentRomEnd;
+					sprintf(message, "GAR_ENT2");				
+				break;
 
-		case GARDENLEV3_ENT:
-				bankRomStart	= (u32)&_levData3SegmentRomStart;
-				bankRomEnd		= (u32)&_levData3SegmentRomEnd;
-				sprintf(message, "GAR_ENT3");				
-			break;
+			case GARDENLEV3_ENT:
+					bankRomStart	= (u32)&_levData_1_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_3_SegmentRomEnd;
+					sprintf(message, "GAR_ENT3");				
+				break;
 
-		case GARDENLEV4_ENT:
-				bankRomStart	= (u32)&_levData4SegmentRomStart;
-				bankRomEnd		= (u32)&_levData4SegmentRomEnd;
-				sprintf(message, "GAR_BOSA");				
-			break;
+			case GARDENBOSSA_ENT:
+					bankRomStart	= (u32)&_levData_1_4_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_4_SegmentRomEnd;
+					sprintf(message, "GAR_BOSA");
+				break;
 
-		default:
-			return;
-			break;
-	};
+			case GARDENBOSSB_ENT:
+					bankRomStart	= (u32)&_levData_1_5_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_5_SegmentRomEnd;
+					sprintf(message, "GAR_BOSB");
+				break;
+
+			case GARDENBONUS_ENT:
+					bankRomStart	= (u32)&_levData_1_6_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_6_SegmentRomEnd;
+					sprintf(message, "GAR_BONS");
+				break;
+
+			case GARDENMULTI_ENT:
+					bankRomStart	= (u32)&_levData_1_7_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_1_7_SegmentRomEnd;
+					sprintf(message, "GAR_MULT");
+				break;
+
+			default:
+				return;
+		}
+	}
+	else if(worldID == WORLDID_ANCIENT)
+	{
+		switch(levelID)
+		{
+			case ANCIENTLEV1_ENT:
+					bankRomStart	= (u32)&_levData_2_1_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_1_SegmentRomEnd;
+					sprintf(message, "ANC_ENT1");				
+				break;
+
+			case ANCIENTLEV2_ENT:
+					bankRomStart	= (u32)&_levData_2_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_2_SegmentRomEnd;
+					sprintf(message, "ANC_ENT2");				
+				break;
+
+			case ANCIENTLEV3_ENT:
+					bankRomStart	= (u32)&_levData_2_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_3_SegmentRomEnd;
+					sprintf(message, "ANC_ENT3");				
+				break;
+
+			case ANCIENTBOSSA_ENT:
+					bankRomStart	= (u32)&_levData_2_4_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_4_SegmentRomEnd;
+					sprintf(message, "ANC_BOSA");
+				break;
+
+			case ANCIENTBOSSB_ENT:
+					bankRomStart	= (u32)&_levData_2_5_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_5_SegmentRomEnd;
+					sprintf(message, "ANC_BOSB");
+				break;
+
+			case ANCIENTBOSSC_ENT:
+					bankRomStart	= (u32)&_levData_2_6_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_6_SegmentRomEnd;
+					sprintf(message, "ANC_BOSC");
+				break;
+
+			case ANCIENTBOSSD_ENT:
+					bankRomStart	= (u32)&_levData_2_7_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_7_SegmentRomEnd;
+					sprintf(message, "ANC_BOSD");
+				break;
+
+			case ANCIENTBONUS_ENT:
+					bankRomStart	= (u32)&_levData_2_8_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_8_SegmentRomEnd;
+					sprintf(message, "ANC_BONS");
+				break;
+
+			case ANCIENTMULTI_ENT:
+					bankRomStart	= (u32)&_levData_2_9_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_2_9_SegmentRomEnd;
+					sprintf(message, "ANC_MULT");
+				break;
+
+			default:
+				return;
+		}
+	}
+	else if(worldID == WORLDID_SPACE)
+	{
+		switch(levelID)
+		{
+			case SPACELEV1_ENT:
+					bankRomStart	= (u32)&_levData_3_1_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_3_1_SegmentRomEnd;
+					sprintf(message, "SPC_ENT1");				
+				break;
+
+			case SPACELEV2_ENT:
+					bankRomStart	= (u32)&_levData_3_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_3_2_SegmentRomEnd;
+					sprintf(message, "SPC_ENT2");				
+				break;
+
+			case SPACELEV3_ENT:
+					bankRomStart	= (u32)&_levData_3_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_3_3_SegmentRomEnd;
+					sprintf(message, "SPC_ENT3");				
+				break;
+		}
+	}
+	else if(worldID == WORLDID_CITY)
+	{
+		switch(levelID)
+		{
+		}
+	}
+	else if(worldID == WORLDID_SUBTERRANEAN)
+	{
+		switch(levelID)
+		{
+		}
+	}
+	else if(worldID == WORLDID_LABORATORY)
+	{
+		switch(levelID)
+		{
+		}
+	}
+	else if(worldID == WORLDID_TOYSHOP)
+	{
+		switch(levelID)
+		{
+		}
+	}
+	else if(worldID == WORLDID_HALLOWEEN)
+	{
+		switch(levelID)
+		{
+		}
+	}
+	else if(worldID == WORLDID_SUPERRETRO)
+	{
+		switch(levelID)
+		{
+		}
+	}
 
 	bankSize = bankRomEnd - bankRomStart;
 
-	entityDat = (char *) JallocAlloc ( DMAGetSize ( bankRomStart, bankRomEnd ), YES, message );
-
+	entityDat = (char *)JallocAlloc(DMAGetSize(bankRomStart,bankRomEnd),YES,"ENTBANK");
+	globalPtrEntityBank = entityDat;
+	
 //start download from rom
 
 	DMAMemory ( entityDat, bankRomStart, bankRomEnd );
 	if ( entityDat )
+	{
 		dprintf"Loaded entity data %s (size %d)\n",message,(int)bankSize));
+	}
 	else
 	{
 		dprintf"Unable to load entity data %s\n",message));
@@ -411,11 +606,21 @@ void LoadLevelEntitys ( short entityNum )
 	}
 	// ENDIF - entityDat
 
-	MemLoadEntities(entityDat, bankSize);
-	
-
+	MemLoadEntities(entityDat,bankSize);
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: FreeLevelEntitys
+	Purpose			: frees the entity bank associated with the level
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeLevelEntitys()
+{
+	if(globalPtrEntityBank)
+		JallocFree((UBYTE**)&globalPtrEntityBank);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: MakeTeleportTile
@@ -473,7 +678,7 @@ BOOL IsATeleportTile(GAMETILE *tile)
 */
 void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 {
-	VECTOR telePos;
+	int i = 8;
 
 	// make the teleport 'to' tile the current tile
 	currTile[pl] = tile;
@@ -481,23 +686,12 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	player[pl].frogState |= FROGSTATUS_ISSTANDING;
 	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
 
-	SetVector(&telePos,&act->actor->pos);
+	frog[pl]->actor->scale.v[X] = globalFrogScale;
+	frog[pl]->actor->scale.v[Y] = globalFrogScale;
+	frog[pl]->actor->scale.v[Z] = globalFrogScale;
 
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,30);
-	telePos.v[Y] += 20;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,25);
-	telePos.v[Y] += 40;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,20);
-	telePos.v[Y] += 60;
-	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,15);
-}
+	while(i--)
+		CreateAndAddFXSmoke(&tile->centre,64,30);
 
-
-
-
-
-// THIS IS A FUDGE - MOVE TO PRINTGFX.C (N64) EVENTUALLY *****************************************
-char IsPointVisible(VECTOR *p)
-{
-	return 1;
+	drawScreenGrab = 0;
 }

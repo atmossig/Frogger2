@@ -200,15 +200,18 @@ void ReadDebugPad()
 
 	if((button & CONT_E) && !(lastbutton & CONT_E))
     {
+		ShowMemorySituation(MEM_SHOW_INGAMEINFO);
     }
 
-	if(button & CONT_D)
+	if((button & CONT_D) && !(lastbutton & CONT_D))
     {
 		ShowJalloc();
+		CheckJalloc();
 	}
 
-	if(button & CONT_F)
+	if((button & CONT_F) && !(lastbutton & CONT_F))
     {
+		ShowMemorySituation(0);
 	}
 
 	if(button & CONT_C)
@@ -243,15 +246,10 @@ void ReadDebugPad()
 
 	if((button & CONT_R) && !(lastbutton & CONT_R))
     {
-//		if(UseAAMode)
-//			UseAAMode = 0;
-//		else
-//			UseAAMode = 2;
 	}
 
 	if((button & CONT_START) && !(lastbutton & CONT_START))
 	{
-//		timerMode = !timerMode;
 		timerMode++;
 		timerMode %= 3;
 	}

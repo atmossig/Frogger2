@@ -25,7 +25,7 @@
 
 //***********************************
 // Globals
-
+/*
 SAVE_SLOT saveSlot[NUM_SAVE_SLOTS] = 
 {
 	{"jim", 50000, 0, 0,},
@@ -35,7 +35,7 @@ SAVE_SLOT saveSlot[NUM_SAVE_SLOTS] =
 	{"jok", 10000, 0, 0,},
 	{"sim", 5000, 0, 0,},
 };
-
+*/
 
 LEVEL_HISCORE levelTable[MAX_WORLDS*3] = {
 	{ "AAA", 5000 },
@@ -316,6 +316,7 @@ void SaveGame()
 */
 void EepromSaveGame()
 {
+/*
 	short	res = 1;
 
 	if(eepromPresent)
@@ -329,6 +330,7 @@ void EepromSaveGame()
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
+*/
 }
 
 
@@ -355,6 +357,7 @@ void LoadGame()
 */
 void EepromLoadGame()
 {
+/*
 	short	res = 1;
 
 	if(eepromPresent)
@@ -368,6 +371,7 @@ void EepromLoadGame()
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
+*/
 }
 
 
@@ -380,6 +384,7 @@ void EepromLoadGame()
 */
 void StoreSaveSlot( int p, int s )
 {
+/*
 	short saveFlag = 0;
 
 	// Check if the player has reached a new world or a new level within a world
@@ -411,6 +416,7 @@ void StoreSaveSlot( int p, int s )
 
 		saveFlag = 0;
 	}
+*/
 }
 
 
@@ -423,6 +429,7 @@ void StoreSaveSlot( int p, int s )
 */
 void ReadSaveSlot( int p, int s )
 {
+/*
 	player[p].worldNum = saveSlot[s].currentWorld;
 	player[p].levelNum = saveSlot[s].currentLevel;
 
@@ -434,6 +441,7 @@ void ReadSaveSlot( int p, int s )
 	player[p].name[0] = saveSlot[s].name[0];
 	player[p].name[1] = saveSlot[s].name[1];
 	player[p].name[2] = saveSlot[s].name[2];
+*/
 }
 
 

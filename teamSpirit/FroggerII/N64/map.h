@@ -22,6 +22,11 @@ enum
 };
 
 extern char *mapBank;
+
+// global ptrs to banks for freeing allocated resources
+extern char *aMapBank;
+extern char *globalPtrEntityBank;
+
 extern unsigned long numSafe;
 extern unsigned long numPwrups;
 
@@ -33,17 +38,18 @@ extern SCENIC *Sc_000;
 
 #include "levbanks\\levext.h"
 
-extern void LoadMapBank(int num);
-extern void FreeMapBank(void);
+void LoadMapBank(short worldID,short levelID);
+void FreeMapBank();
 
-extern void LoadLevelEntitys ( short entityNum );
+void LoadLevelEntities(short worldID,short levelID);
+void FreeLevelEntitys();
 
-extern void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType);
-extern BOOL IsATeleportTile(GAMETILE *tile);
-extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
+void LoadCollision(short worldID,short levelID);
+void LoadScenics(short worldID,short levelID);
 
-// THIS IS A FUDGE - MOVE TO PRINTGFX.H (N64) EVENTUALLY *****************************************
-char IsPointVisible(VECTOR *p);
+void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType);
+BOOL IsATeleportTile(GAMETILE *tile);
+void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
 
 
 #endif

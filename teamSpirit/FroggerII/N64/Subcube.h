@@ -56,24 +56,27 @@ extern char lookatNum;
 extern char hiliteNum;
 
 
-extern void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags);
-extern void InitActorStructures(ACTOR *tempActor, int initFlags);
-extern void LoadTexture(TEXTURE *texture);
+void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags);
+void InitActorStructures(ACTOR *tempActor, int initFlags);
+void LoadTexture(TEXTURE *texture);
 
-extern void WriteObjectDisplayListGouraud(OBJECT *obj);
-extern void WriteObjectDisplayListFlat(OBJECT *obj);
-extern void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short animEnd);
-extern void DrawActor(ACTOR *actor);
+void WriteObjectDisplayListGouraud(OBJECT *obj);
+void WriteObjectDisplayListFlat(OBJECT *obj);
+void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short animEnd);
+void DrawActor(ACTOR *actor);
 
-extern void DeformTextureCoords(OBJECT *obj);
+void DeformTextureCoords(OBJECT *obj);
 
-extern void TransformObject ( OBJECT *obj, float time );
-extern void FindToFromQKeys ( QKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys );
-extern void FindToFromVKeys ( VKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys );
-extern void DrawObject		( OBJECT *obj, Gfx *drawList, int skinned );
-extern void SetupRenderModeForObject ( OBJECT *obj );
+void TransformObject ( OBJECT *obj, float time );
+void FindToFromQKeys ( QKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys );
+void FindToFromVKeys ( VKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys );
+void DrawObject		( OBJECT *obj, Gfx *drawList, int skinned );
+void SetupRenderModeForObject ( OBJECT *obj );
 
-extern void TransformSkinnedObject(OBJECT *obj, float time);
+void TransformSkinnedObject(OBJECT *obj, float time);
+
+void XfmPoint(VECTOR *vTemp2,VECTOR *in);
+
 
 extern TEXTURE	*tempTexture;
 extern char		*tempObjectPtr, *tempObjectPtr2;

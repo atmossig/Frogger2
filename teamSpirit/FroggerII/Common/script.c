@@ -26,7 +26,7 @@ UBYTE* scriptBuffer;
 /* --------------------------------------------------------------------------------- */
 
 #define MEMGETBYTE(p) (*((*p)++))
-
+/*
 inline int MEMGETINT(UBYTE **p)		// get a little-endian integer
 {
 	unsigned int i;
@@ -38,9 +38,9 @@ inline int MEMGETINT(UBYTE **p)		// get a little-endian integer
 
 	return i;
 }
-
+*/
 #define MEMGETFLOAT(p) ((float)MEMGETINT(p) / (float)0x10000)
-
+/*
 inline char *MemLoadString(UBYTE **p)
 {
 	char *ptr;
@@ -55,7 +55,7 @@ inline char *MemLoadString(UBYTE **p)
 
 	return ptr;
 }
-
+*/
 ACTOR2 *GetActorFromUID(int UID)
 {
 	ENEMY *e;
@@ -294,7 +294,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			flags = MEMGETINT(p);
 			speed = MEMGETFLOAT(p);
 
-			AnimateActor(actor->actor, anim, (char)(flags & 1), (char)(flags & 2), speed);
+			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed,0,0);
 		}
 		break;
 
@@ -446,6 +446,7 @@ int Interpret(const UBYTE *buffer)
 */
 void LoadTestScript(const char* filename)
 {
+#ifdef PC_VERSION
 	HANDLE h;
 	long size, read;
 	UBYTE* buffer;
@@ -471,6 +472,7 @@ void LoadTestScript(const char* filename)
 	{
 		dprintf"Failed initialising script\n", filename)); return;
 	}
+#endif
 }
 
 int InitLevelScript(void *buffer)

@@ -11,20 +11,18 @@
 
 //#define ROM_BUILD
 
-//#define F3DEX_GBI
-#define F3DEX_GBI
+#define F3DEX_GBI_2
+
 #include <ultra64.h>
 #include <assert.h>
-//#include <pr/gs2dex.h>
-
-#ifndef PC_VERSION
-#include <PR/ramrom.h>					// Needed for argument passing into the app
-#include <pr/os.h>
-#endif
-
 #include "incs.h"
 
-unsigned long actFrameCount = 0;
+#define RDP_OUTPUT_SIZE		4096
+
+unsigned long actFrameCount = 0,currentFrameTime = 0;
+char codeRunning = 0;
+
+Mtx Identity;
 
 ACTOR2 *clouds;
 TEXTURE *cloudtex	= NULL;
@@ -33,9 +31,6 @@ TEXTURE *cloudtex	= NULL;
 extern char _codeSegmentEnd[];
 
 u64	bootStack[SMALLSTACKSIZE/sizeof(u64)];
-
-static void	idle(void *);
-static void main_(void *);
 
 static OSThread	idleThread;								// Lowest priority idle thread - must have idle thread !
 static u64 idleThreadStack[SMALLSTACKSIZE/sizeof(u64)];	// Stack used by lowest priority idle thread
@@ -94,13 +89,12 @@ char			viewTextures		= 1;
 
 // ------------------------------------------------
 
-char			disableGraphics		= FALSE;
 char			displayLogos		= 1;
 char			displayOverlays		= TRUE;
+char			onlyDrawBackdrops	= FALSE;
 
 char			codeDrawingRequest	= TRUE;
 char			gfxIsDrawing		= FALSE;
-char			onlyDrawBackdrops	= FALSE;
 
 char			idlePriority		= 1;
 char			codePriority		= 10;
@@ -150,7 +144,8 @@ u64				dram_stack[SP_DRAM_STACK_SIZE64+2];	// For RSP tasks - used for matrix st
 
 //----- [ FORWARD DECLARATIONS ] -----//
 
-static void ComputeClockSpeed();
+static void idle(void *arg);
+static void main_(void *arg);
 
 
 /*	--------------------------------------------------------------------------------
@@ -197,10 +192,12 @@ void boot()
     
     osInitialize();
 	
-	#ifndef ROM_BUILD
+#ifndef ROM_BUILD
 	init_debug();
+	PCinit();
     asm("break 0x407");
-	#endif
+	dprintf"\n\n** Frogger2 Started **\n"));
+#endif
 
     // Create and start the idle thread
 	osCreateThread(&idleThread,1,idle,(void *)0,idleThreadStack+SMALLSTACKSIZE/sizeof(u64),idlePriority);
@@ -241,12 +238,15 @@ static void idle(void *arg)
 void CreateMessageQueues()
 {
 	osCreateMesgQueue(&dmaMessageQ,&dmaMessageBuf,1);			// Create dma message queue
+
 	osCreateMesgQueue(&rspMessageQ,&rspMessageBuf,1);			// Create rsp message queue
 //	osSetEventMesg(OS_EVENT_SP,&rspMessageQ,dummyMessage);
+
 	osCreateMesgQueue(&rdpMessageQ,&rdpMessageBuf,1);			// Create rdp message queue
 //	osSetEventMesg(OS_EVENT_DP,&rdpMessageQ,dummyMessage);
+
 	osCreateMesgQueue(&retraceMessageQ,&retraceMessageBuf,1);	// Create VI retrace message queue
-//	osViSetEvent(&retraceMessageQ,dummyMessage,1);  
+	//	osViSetEvent(&retraceMessageQ,dummyMessage,1);  
 }
 
 /*	--------------------------------------------------------------------------------
@@ -262,30 +262,29 @@ void CreateTaskStructure(int n,int ucode)
 	tlistp[n]->list.t.ucode_boot		= (u64 *)rspbootTextStart;
 	tlistp[n]->list.t.ucode_boot_size	= (u32)rspbootTextEnd - (u32)rspbootTextStart;
 
+	tlistp[n]->list.t.output_buff_size	= (u64 *)&rdp_output[RDP_OUTPUT_SIZE];
+	tlistp[n]->list.t.flags				= 0;
+
 	switch(ucode)
 	{
-		case UCODE_NORMAL:
-			// use the gspF3DEX ucode
-			tlistp[n]->list.t.ucode			= (u64 *)gspF3DEX_fifoTextStart;
-			tlistp[n]->list.t.ucode_data	= (u64 *)gspF3DEX_fifoDataStart;
+		case UCODE_POLY:
+			// use the gspF3DEX2 ucode
+			tlistp[n]->list.t.ucode			= (u64 *)gspF3DEX2_fifoTextStart;
+			tlistp[n]->list.t.ucode_data	= (u64 *)gspF3DEX2_fifoDataStart;
 			break;
 
-		case UCODE_WIREFRAME:
-			// use the gspF3DEX ucode
-			tlistp[n]->list.t.ucode			= (u64 *)gspL3DEX_fifoTextStart;
-			tlistp[n]->list.t.ucode_data	= (u64 *)gspL3DEX_fifoDataStart;
+		case UCODE_LINE:
+			// use the gspL3DEX2 ucode
+			tlistp[n]->list.t.ucode			= (u64 *)gspL3DEX2_fifoTextStart;
+			tlistp[n]->list.t.ucode_data	= (u64 *)gspL3DEX2_fifoDataStart;
 			break;
 
-		case UCODE_SPRITE2D:
-			// use the 2D sprite ucode
-			tlistp[n]->list.t.ucode			= (u64 *)gspSprite2DTextStart;
-			tlistp[n]->list.t.ucode_data	= (u64 *)gspSprite2DDataStart;
-
+		case UCODE_SPRITE:
+			// use the gspS2DEX2 ucode
+			tlistp[n]->list.t.ucode			= (u64 *)gspS2DEX2_fifoTextStart;
+			tlistp[n]->list.t.ucode_data	= (u64 *)gspS2DEX2_fifoDataStart;
 			break;		  
 	}
-
-	tlistp[n]->list.t.output_buff_size	= (u64 *)&rdp_output[rdp_output_size];
-	tlistp[n]->list.t.flags				= OS_TASK_LOADABLE | OS_TASK_DP_WAIT;	//0;
 
 	// Initial display list
 	tlistp[n+1]->list.t.data_ptr		= (u64 *)glistp;
@@ -325,7 +324,7 @@ void SetupViewing()
 
 	guPerspective(&dynamicp->projection[screenNum],&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
 
-	if(ShadingMode == LIGHTING)
+//	if(ShadingMode == LIGHTING)
 	{
 		guLookAtHilite(&(dynamicp->viewing[screenNum]),&(dynamicp->lookat[screenNum]),&(dynamicp->hilite[screenNum]),
 			actualCamSource[draw_buffer][screenNum].v[X],actualCamSource[draw_buffer][screenNum].v[Y],actualCamSource[draw_buffer][screenNum].v[Z],
@@ -335,14 +334,14 @@ void SetupViewing()
 			0.0, 0.0, 127.0,
 			32,32);					
 	}
-	else
+/*	else
 	{
 		guLookAt(&dynamicp->viewing[screenNum], 
 			actualCamSource[draw_buffer][screenNum].v[X],actualCamSource[draw_buffer][screenNum].v[Y],actualCamSource[draw_buffer][screenNum].v[Z],
 			actualCamTarget[draw_buffer][screenNum].v[X],actualCamTarget[draw_buffer][screenNum].v[Y],actualCamTarget[draw_buffer][screenNum].v[Z],
 			camVect.v[X],camVect.v[Y],camVect.v[Z]);
     }
-
+*/
 	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->projection[screenNum])),
 		G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
 
@@ -350,6 +349,8 @@ void SetupViewing()
 		G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);  
 
 	gSPPerspNormalize(glistp++,perspNorm);  
+	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&Identity),
+		G_MTX_MODELVIEW|G_MTX_LOAD|G_MTX_NOPUSH);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -373,7 +374,6 @@ void SetRenderMode()
 	if(fog.mode == 1)
 	{
 		gSPSetGeometryMode(glistp++, G_FOG);
-
 
 	    gDPSetCycleType(glistp++, G_CYC_2CYCLE);
 
@@ -715,319 +715,19 @@ void SetRenderMode()
 			}
 		}
 	}
-
-
-
-/*    gDPPipeSync(glistp++);
-
-	gSPSetGeometryMode(glistp++,G_ZBUFFER |	G_SHADE | G_SHADING_SMOOTH);
-
-/**** PUT IN IF REQUIRED AT A LATER STAGE - ANDY E ***********************************************
-
-	if(fog.mode == 1)
-	{
-		gSPSetGeometryMode(glistp++, G_FOG);
-
-
-	    gDPSetCycleType(glistp++, G_CYC_2CYCLE);
-
-		if(xluSurf)
-		{
-			if(transparentSurf)
-			{
-				gDPSetCombineMode(glistp++,G_CC_DECALRGB_MODULATEPRIMA, G_CC_PASS2);
-			}
-			else
-			{
-				gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_PASS2);
-			}
-			gDPSetPrimColor(glistp++,0,0,0,0,0,xluFact);
-
-//			gSPClearGeometryMode(glistp++, G_CULL_BOTH);
-			if((UseAAMode == 0) && (UseZMode))
-			{
-				gSPSetGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++,
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2);      
-			}
-			else if((UseAAMode == 2) && (UseZMode))
-			{
-				gSPSetGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_ZB_XLU_SURF2);      
-			}
-			else if((UseAAMode == 0) && (!UseZMode))
-			{
-				gSPClearGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_XLU_SURF2);      
-			}
-			else if((UseAAMode == 1) && (UseZMode))
-			{
-				gSPSetGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_ZB_OPA_SURF2);      
-			}
-			else if((UseAAMode == 1) && (!UseZMode))
-			{
-				gSPClearGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);      
-			}
-			else
-			{
-				gSPClearGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_XLU_SURF2);      
-			}  
-
-		}
-		else	//fog
-		{
-//			gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_PASS2);
-			if(transparentSurf)
-			{
-				gDPSetCombineMode(glistp++, G_CC_MODULATERGBDECALA, G_CC_PASS2);
-				if((UseAAMode == 0) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 2) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A , G_RM_AA_ZB_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 0) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 1) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 1) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_TEX_EDGE2);      
-				}
-				else
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);      
-				}  
-			}
-			else
-			{
-//				gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGBA);
-
-				gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_PASS2);
-
-				if((UseAAMode == 0) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_OPA_SURF2);      
-				}
-				else if((UseAAMode == 2) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A , G_RM_ZB_OPA_SURF2);      
-				}
-				else if((UseAAMode == 0) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_OPA_SURF2);      
-				}
-				else if((UseAAMode == 1) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_ZB_OPA_SURF2);      
-				}
-				else if((UseAAMode == 1) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);      
-				}
-				else
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_OPA_SURF2);      
-				}  
-
-			}
-		}
-	}
-	else
-
-********************************************************************************************/
-
-/*	{
-//	    gDPSetCycleType(glistp++, G_CYC_1CYCLE);
-//		gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGBA);
-
-			if(transparentSurf) //nofog+transparent
-			{
-				gDPSetCombineMode(glistp++,G_CC_MODULATERGB,G_CC_MODULATERGBA);
-			}
-			else
-			{
-				gDPSetCombineMode(glistp++,G_CC_MODULATERGBPRIMA,G_CC_MODULATERGBPRIMA);
-			}
-			gDPSetPrimColor(glistp++,0,0,0,0,0,xluFact);
-
-		//nofog & xlu
-		if(xluSurf)
-		{
-//			gSPClearGeometryMode(glistp++, G_CULL_BOTH);
-			if((UseAAMode == 0) && (UseZMode))
-			{
-				gSPSetGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++,
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2);      
-			}
-			else if((UseAAMode == 2) && (UseZMode))
-			{
-				gSPSetGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_ZB_XLU_SURF , G_RM_ZB_XLU_SURF2);      
-			}
-			else if((UseAAMode == 0) && (!UseZMode))
-			{
-				gSPClearGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);      
-			}
-			else if((UseAAMode == 1) && (UseZMode))
-			{
-				gSPSetGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_RA_ZB_OPA_SURF, G_RM_RA_ZB_OPA_SURF2);      
-			}
-			else if((UseAAMode == 1) && (!UseZMode))
-			{
-				gSPClearGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_RA_OPA_SURF, G_RM_RA_OPA_SURF2);      
-			}
-			else
-			{
-				gSPClearGeometryMode(glistp++, G_ZBUFFER);
-				gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_XLU_SURF, G_RM_XLU_SURF2);      
-			}  
-
-		}
-		else
-		{
-			if(transparentSurf) //nofog+transparent
-			{
-				gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGBA);
-
-				if((UseAAMode == 0) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 2) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE , G_RM_AA_ZB_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 0) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 1) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2);      
-				}
-				else if((UseAAMode == 1) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);      
-				}
-				else
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_TEX_EDGE, G_RM_TEX_EDGE2);      
-				}  
-			}
-			else	//nofog + solid
-			{
-				if((UseAAMode == 0) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);      
-				}
-				else if((UseAAMode == 2) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-					(UseTextureMode == 2) ? G_RM_PASS : G_RM_ZB_OPA_SURF , G_RM_ZB_OPA_SURF2);      
-				}
-				else if((UseAAMode == 0) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_AA_OPA_SURF, G_RM_AA_OPA_SURF2);      
-				}
-				else if((UseAAMode == 1) && (UseZMode))
-				{
-					gSPSetGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_RA_ZB_OPA_SURF, G_RM_RA_ZB_OPA_SURF2);      
-				}
-				else if((UseAAMode == 1) && (!UseZMode))
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_RA_OPA_SURF, G_RM_RA_OPA_SURF2);      
-				}
-				else
-				{
-					gSPClearGeometryMode(glistp++, G_ZBUFFER);
-					gDPSetRenderMode(glistp++, 
-						(UseTextureMode == 2) ? G_RM_PASS : G_RM_OPA_SURF, G_RM_OPA_SURF2);      
-				}  
-			}
-		}
-	}*/
 }
 
 
 long screen_clipScale = 2;
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitRDP()
-	Purpose			: inits. the RDP state for rendering
+	Function		: SetScissor
+	Purpose			: 
 	Parameters		: none
 	Returns			: none
-	Info			:
+	Info			: 
 */
-static void SetScissor()
+void SetScissor()
 {
 	gDPPipeSync(glistp++);
 
@@ -1136,7 +836,7 @@ static void SetScissor()
 	gDPPipeSync(glistp++);
 }
 
-static void InitRDP()
+void InitRDP()
 {
 	gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WD, SCREEN_HT);
 	gDPPipelineMode(glistp++, G_PM_NPRIMITIVE);
@@ -1175,7 +875,7 @@ static void InitRDP()
 	Info			:
 */
 
-static void InitRSP()
+void InitRSP()
 {
 	gSPViewport(glistp++,&dynamicp->vp[screenNum]);
 
@@ -1197,7 +897,7 @@ static void InitRSP()
 	Returns			: none
 	Info			:
 */
-static void ClearZBuffer()
+void ClearZBuffer()
 {
 	gDPSetColorImage(glistp++,G_IM_FMT_RGBA,G_IM_SIZ_16b,SCREEN_WD,OS_K0_TO_PHYSICAL(zbuffer));
 	gDPPipeSync(glistp++);
@@ -1214,33 +914,30 @@ static void ClearZBuffer()
 	Returns			: none
 	Info			:
 */
-static void ClearFrameBuffer()
+void ClearFrameBuffer()
 {
 	// Clear colour framebuffer
 	gDPSetCycleType(glistp++,G_CYC_FILL);
 
 	gDPSetColorImage(glistp++,G_IM_FMT_RGBA,G_IM_SIZ_16b,SCREEN_WD,OS_K0_TO_PHYSICAL(cfb_ptrs[draw_buffer]));
   
+	// Clear screen (framebuffer) to colour
 	if(gfxIsDrawing)
 	{
-		gDPSetFillColor(glistp++,GPACK_RGBA5551(1,1,1,1) << 16 | GPACK_RGBA5551(1,1,1,1));
+		gDPSetFillColor(glistp++,GPACK_RGBA5551(fog.r,fog.g,fog.b,1) << 16 | GPACK_RGBA5551(fog.r,fog.g,fog.b,1));
 	}
 	else
 	{
-		gDPSetFillColor(glistp++,GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
+		gDPSetFillColor(glistp++, GPACK_RGBA5551(0,0,0,1) << 16 | GPACK_RGBA5551(0,0,0,1));
 	}
 
-	// Clear screen (framebuffer) to colour
-	
 	gDPFillRectangle(glistp++,0,0,SCREEN_WD-1,SCREEN_HT-1);
-
-
 	gDPPipeSync(glistp++);
 	
-	if(UseTextureMode == 2)
-		gDPSetCycleType(glistp++,G_CYC_2CYCLE)
+	if(renderMode.useTextureMode == 2)
+		gDPSetCycleType(glistp++, G_CYC_2CYCLE)
 	else
-		gDPSetCycleType(glistp++,G_CYC_1CYCLE);
+		gDPSetCycleType(glistp++, G_CYC_1CYCLE);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1300,7 +997,7 @@ void InitDisplayLists(void)
 	Returns			: none
 	Info			:
 */
-static void CleanupAndSendDisplayList(int ucode,int flag)
+void CleanupAndSendDisplayList(int ucode,int flag)
 {
 	int listSize;
 
@@ -1308,21 +1005,21 @@ static void CleanupAndSendDisplayList(int ucode,int flag)
 	gSPEndDisplayList(glistp++);
 
 	tlistp[currentTask]->list.t.data_size = (u32)((glistp - (Gfx *)tlistp[currentTask]->list.t.data_ptr) * sizeof(Gfx));
-	
-	// Write back dirty cache lines that need to be read by the RCP
-//	osWritebackDCache(dynamicp,sizeof(dynamic[0]));
+	/* Write back dirty cache lines that need to be read by the RCP */
+//	osWritebackDCache(dynamicp, sizeof(dynamic[0]));
 
 	actualGFXListLength[currentTask] = tlistp[currentTask]->list.t.data_size;
 
-	if(tlistp[currentTask]->list.t.data_size >= GLIST_LEN)	
+	if(tlistp[currentTask]->list.t.data_size >= GLIST_LEN * sizeof(Gfx))	
 	{
 		dprintf"ERROR: Graphics list overflow !!!\n"));
 		return;
    		Crash("GFX LIST");
 	}
+
 	
 	// Start up the RSP task
-	CreateTaskStructure(currentTask,ucode);
+	CreateTaskStructure(currentTask, ucode);
 
 	tlistp[currentTask]->flags = flag;
 	tlistp[currentTask]->framebuffer = cfb_ptrs[draw_buffer];
@@ -1331,8 +1028,6 @@ static void CleanupAndSendDisplayList(int ucode,int flag)
 	{
 		listSize = (u32)(glistp - (Gfx *)dynamicp->glist) * sizeof(Gfx);
 		draw_buffer ^= 1;
-
-//		dprintf"- NN_SC_SWAPBUFFER -\n"));
 	}
 
 	//osSendMesg(sched_gfxMQ, (OSMesg *) tlistp[currentTask], OS_MESG_BLOCK);
@@ -1383,15 +1078,13 @@ void DrawGraphics(void *arg)
 		
 	while(1)
 	{
-
 		osRecvMesg(&gfx_msgQ,(OSMesg *)&msg_type,OS_MESG_BLOCK);
 
 		switch(*msg_type)
 		{
 			case NN_SC_GFX_RETRACE_MSG:
+				TIMER_StartTimer(1,"GRAPHICS1");
 				
-				ClearTimers();
-
 				if(gfxTasks == 0)
 				{
 					if(codeDrawingRequest == TRUE)
@@ -1399,187 +1092,160 @@ void DrawGraphics(void *arg)
 
 					if(codeDrawingRequest == FALSE)
 						gfxIsDrawing = FALSE;
-					//DoubleBufferSkinVtx();
 				}
 
-				if ( dontClearScreen )
+				if(dontClearScreen)
 					break;
 
 				dispFrameCount++;
-
-				StartTimer(1,"GRAPHICS");
 
 				SendLastFrame();
 
 				dynamicp = &dynamic[draw_buffer];
 				tlistp = &tlistPointers[draw_buffer][0];
 
-				// Ptr to build display list
 				glistp = dynamicp->glist;
 				currentTask = 1;
 				tlistp[currentTask]->list.t.data_ptr = (u64 *)glistp;
 		
 				InitDisplayLists();
-
-				// Clear z-buffer and colour frame buffer
 				ClearZBuffer();		
 				ClearFrameBuffer();				
-				
 				SetScissor();
-
 				objectMatrix = 0;
 
-				EndTimer(1,"GRAPHICS");
+				if(gfxIsDrawing == FALSE)
+					goto cleanup;
 
-				if (gfxIsDrawing)
-				{					
-									
-					StartTimer(1,"GRAPHICS");
-
-					//if(myBackdrop)
-					//	PrintBackdrop(myBackdrop);
-
-					CleanupAndSendDisplayList(UCODE_SPRITE2D,0);
-					InitDisplayLists();
+				InitDisplayLists();
 					
-					i = 4;
-					while(i--)
-					{
-						SetVector(&actualCamSource[draw_buffer][i],&currCamSource[i]);
-						SetVector(&actualCamTarget[draw_buffer][i],&currCamTarget[i]);
-					}
-					SetupViewing();
-
-					if(spriteList.numEntries)
-					{
-						sprite = PrintSpritesOpaque();
-						InitDisplayLists();
-					}
-
-					//***********************************
-	
-					UseZMode = 1;
-					SetRenderMode();
-					ApplyGlobalTransformations();
-
-					if(runningWaterStuff)
-						DrawTestWater();
-
-					//***********************************
-
-					AnimateSprites();
-					XformActorList();
-
-					switch (playMode)
-					{	
-						
-						case NORMAL_PMODE:
-							DrawActorList();
-							break;
-						case TWO_PMODE:
-							xFOV = 2.666;
-
-							screenNum = 0; 
-							SetupViewing();
-							SetScissor();
-							DrawActorList();
-
-							screenNum = 1; 
-							SetupViewing();
-							SetScissor();
-							DrawActorList();
-							
-							break;
-						case FOUR_PMODE:
-							for (screenNum = 0; screenNum<4; screenNum++)
-							{
-								SetScissor();
-								DrawActorList();
-							}		
-
-							break;							
-					}
-					gDPPipeSync(glistp++);
-
-					if(spriteList.numEntries)
-						PrintSpritesTranslucent(sprite);
-
-					if(runningDevStuff)
-						RunTestRoutine1();
-
-					DrawSpecialFX();
-
-					ClearViewing();
-
-					if( drawScreenGrab && gameState.mode == GAME_MODE )
-						DrawScreenGrab( MOTION_BLUR );
-
-					if( drawScreenGrab && gameState.mode == GAME_MODE )
-						DrawScreenGrab( MOTION_BLUR );
-
-					if( pauseMode == PM_PAUSE )
-						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
-					else if( pauseMode == PM_ENDLEVEL )
-					{
-						// Because this screen stays on between levels, we have one screen grab drawn
-						// twice to simulate doing a vertex wodge over the normal level.
-						DrawScreenGrab( MOTION_BLUR | USE_GRAB_BUFFER | BLUR_INWARD | OVERLAY_SOLID | RECALC_VTX );
-						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | BLUR_LIGHT );
-
-						DrawSwirlFX( );
-					}
-					else if( grabData.afterEffect == PAUSE_EXIT )
-						DrawScreenGrab( MOTION_BLUR | TINT_BLUE | TILE_SHRINK_HORZ | TILE_SHRINK_VERT );
-					else if( grabData.afterEffect == FROG_DEATH_OUT )
-						DrawScreenGrab( MOTION_BLUR | RECALC_VTX | USE_GRAB_BUFFER );
-					else if( grabData.afterEffect == FROG_DEATH_IN )
-						DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
-
-					DrawCameraSpaceActorList( );
-
-					if( (gameState.mode == GAME_MODE || frontEndState.mode == HISCORE_MODE) && text3DList.numEntries )
-						Print3DText( );					
-
-					if(darkenedLevel)
-						DrawDarkenedLevel();
-
-					if(displayOverlays)
-					{
-						PrintSpriteOverlays();
-						PrintTextOverlays();
-					}
-
-					if(doScreenFade)
-						ScreenFade(fadeDir,fadeStep);
-
-
-					EndTimer(1);
-				}
-
-				StartTimer(1,"GRAPHICS");
-
-				PrintTimers();
-
-/*				if ( gameState.mode == OLDEFROGGER_MODE )
+				i = 4;
+				while(i--)
 				{
-//					DrawGraphicsInGraphicsThread();
-					//DrawTimeBar();
+					SetVector(&actualCamSource[draw_buffer][i],&currCamSource[i]);
+					SetVector(&actualCamTarget[draw_buffer][i],&currCamTarget[i]);
 				}
-				// endif
-  */
-#ifndef ROM_BUILD
-				if(UseWireframeMode)
-					ucodeType = 1;
-				else
-					ucodeType = 0;
-#else
-				ucodeType = 0;
-#endif
-				CleanupAndSendDisplayList(ucodeType,NN_SC_SWAPBUFFER);
+				SetupViewing();
+
+				PrintBackdrops();
+				CleanupAndSendDisplayList(UCODE_POLY,0);
+
+				if(onlyDrawBackdrops)
+					goto cleanup;
+
+				InitDisplayLists();
+
+				if(spriteList.numEntries)
+				{
+					sprite = PrintSpritesOpaque();
+					InitDisplayLists();
+				}
+
+				//***********************************
+	
+				UseZMode = 1;
+				SetRenderMode();
+				ApplyGlobalTransformations();
+
+				if(runningWaterStuff)
+					DrawTestWater();
+
+				//***********************************
+
+				AnimateSprites();
+
+				TIMER_EndTimer(1);
+
+				TIMER_StartTimer(4,"XFORMACTLIST");
+				XformActorList();
+				TIMER_EndTimer(4);
+
+
+				switch (playMode)
+				{	
+						
+					case NORMAL_PMODE:
+						DrawActorList();
+						break;
+					case TWO_PMODE:
+						xFOV = 2.666;
+						screenNum = 0; 
+						SetupViewing();
+						SetScissor();
+						DrawActorList();
+
+						screenNum = 1; 
+						SetupViewing();
+						SetScissor();
+						DrawActorList();
+							
+						break;
+					case FOUR_PMODE:
+						for (screenNum = 0; screenNum<4; screenNum++)
+						{
+							SetScissor();
+							DrawActorList();
+						}		
+
+						break;							
+				}
+
+				if(spriteList.numEntries)
+					PrintSpritesTranslucent(sprite);
+
+				if(runningDevStuff)
+					RunTestRoutine1();
+
+				DrawSpecialFX();
+
+				ClearViewing();
+
+				if( drawScreenGrab && gameState.mode == GAME_MODE )
+					DrawScreenGrab( MOTION_BLUR );
+
+				if( drawScreenGrab && gameState.mode == GAME_MODE )
+					DrawScreenGrab( MOTION_BLUR );
+
+				if( pauseMode == PM_PAUSE )
+					DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
+				else if( pauseMode == PM_ENDLEVEL )
+				{
+					// Because this screen stays on between levels, we have one screen grab drawn
+					// twice to simulate doing a vertex wodge over the normal level.
+					DrawScreenGrab( MOTION_BLUR | USE_GRAB_BUFFER | BLUR_INWARD | OVERLAY_SOLID | RECALC_VTX );
+					DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | BLUR_LIGHT );
+
+					DrawSwirlFX( );
+				}
+				else if( grabData.afterEffect == PAUSE_EXIT )
+					DrawScreenGrab( MOTION_BLUR | TINT_BLUE | TILE_SHRINK_HORZ | TILE_SHRINK_VERT );
+				else if( grabData.afterEffect == FROG_DEATH_OUT )
+					DrawScreenGrab( MOTION_BLUR | RECALC_VTX | USE_GRAB_BUFFER );
+				else if( grabData.afterEffect == FROG_DEATH_IN )
+					DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
+
+				DrawCameraSpaceActorList( );
+
+				if( gameState.mode == GAME_MODE && text3DList.numEntries )
+					Print3DText( );					
+
+				if(darkenedLevel)
+					DrawDarkenedLevel();
+
+				if(displayOverlays)
+				{
+					PrintSpriteOverlays();
+					PrintTextOverlays();
+				}
+
+				if(doScreenFade)
+					ScreenFade(fadeDir,fadeStep);
+
+cleanup:
+				TIMER_PrintTimers();
+
+				CleanupAndSendDisplayList(UCODE_POLY,NN_SC_SWAPBUFFER);
 				displayListLength = glistp - dynamicp->glist;
-
-				EndTimer(1);
-
 				break;
 
 			case NN_SC_DONE_MSG:
@@ -1601,10 +1267,10 @@ void DrawGraphics(void *arg)
 
 	Purpose		:
 	Parameters	: (void *arg)
-	Returns		: static void 
+	Returns		: void 
 */
 
-static void doPoly(void *arg)
+void doPoly(void *arg)
 {	
 	short tmp;
 	short *msg_type = NULL;
@@ -1628,7 +1294,7 @@ static void doPoly(void *arg)
 	// Handle graphics drawing
 	osCreateThread(&drawGraphicsThread,4,DrawGraphics,arg,drawGraphicsThreadStack+STACKSIZE/sizeof(u64),graphicsPriority);
 	osStartThread(&drawGraphicsThread);
-
+/*
 	InitEeprom();
 
 	if ( validEeprom )
@@ -1637,12 +1303,12 @@ static void doPoly(void *arg)
 		LoadLevelScores();
 		LoadGame();
 	}
-	else
+	else*/
 	{
 		dprintf"Not A Valid Eeprom"));
 	}
 	// ENDELSEIF
-  
+
 	gameState.mode		= FRONTEND_MODE;
 	frontEndState.mode	= TITLE_MODE;
 
@@ -1652,16 +1318,25 @@ static void doPoly(void *arg)
 
 		if(*msg_type == NN_SC_GFX_RETRACE_MSG)
 		{
+//			GAME_SPEED2 = framesPerSec / 3;//desiredFrameRate;
+//			GAME_SPEED2 *= accelerator;
+//			GAME_SPEED += (GAME_SPEED2 - GAME_SPEED) / 3;
+
+			codeRunning = 1;
+
 			// Handle reading the controller.
 //			osContStartReadData(&controllerMsgQ);
 	//		ReadController();
 			
 			// Actually handle the game loop
+			TIMER_StartTimer(0,"GAMELOOP");
 			GameLoop();
-
+			TIMER_EndTimer(0);
 
 			DoubleBufferSkinVtx();
 		}
+
+		codeRunning = 0;
 	}
 }
 
@@ -1680,8 +1355,10 @@ static void main_(void *arg)
 	char *objectBank;
 	u32 bankSize;
 
-	InitTimers();
+	TIMER_InitTimers();
 	InitAtan();
+
+	guMtxIdent(&Identity);
 
 	switch(osTvType)
 	{
@@ -1701,11 +1378,17 @@ static void main_(void *arg)
 	sched_gfxMQ = nnScGetGfxMQ(&sched);
 	gfx_msg.gen.type = NN_SC_DONE_MSG;
 
+	fog.r = fog.g = fog.b = 0;
+
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON + OS_VI_DIVOT_ON + OS_VI_GAMMA_OFF + OS_VI_GAMMA_DITHER_ON);
 		
 	// Get maximum memory
 	JallocInit((ULONG)_staticSegmentStart,0x80400000 - (u32)_staticSegmentStart);
-	dprintf"\nJallocInit() - Getting max. memory\n"));
+	
+	dprintf"\n"));
+	dprintf"\nINITIALISING MEMORY"));
+	dprintf"\n   Getting max. memory : %lu bytes",0x80400000 - (u32)_staticSegmentStart));
+	ShowMemorySituation(0);
 
 	tlistp = &tlistPointers[0][0];
 	for(i = 0;i < MAXTASKS;i++) 
@@ -1718,7 +1401,8 @@ static void main_(void *arg)
 		tlistp[i]->list.t.dram_stack	= (u64 *) (((int) &(dram_stack[0]) +0xf) & 0xfffffff0);
 		tlistp[i]->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
 		tlistp[i]->list.t.output_buff = (u64 *) &(rdp_output[0]);
-		tlistp[i]->list.t.output_buff_size = &rdp_output_len;
+//		tlistp[i]->list.t.output_buff_size = &rdp_output_len;
+		tlistp[i]->list.t.output_buff_size = (u64 *)&rdp_output[RDP_BUFFER_LEN];
 		tlistp[i]->list.t.yield_data_ptr = (u64 *) gfxYieldBuf;
 		tlistp[i]->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
 
@@ -1738,7 +1422,8 @@ static void main_(void *arg)
 		tlistp[i]->list.t.dram_stack	= (u64 *) (((int) &(dram_stack[0]) +0xf) & 0xfffffff0);
 		tlistp[i]->list.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
 		tlistp[i]->list.t.output_buff = (u64 *) &(rdp_output[0]);
-		tlistp[i]->list.t.output_buff_size = &rdp_output_len;
+//		tlistp[i]->list.t.output_buff_size = &rdp_output_len;
+		tlistp[i]->list.t.output_buff_size = (u64 *)&rdp_output[RDP_BUFFER_LEN];
 		tlistp[i]->list.t.yield_data_ptr = (u64 *) gfxYieldBuf;
 		tlistp[i]->list.t.yield_data_size = OS_YIELD_DATA_SIZE;
 
@@ -1759,13 +1444,14 @@ static void main_(void *arg)
 	// Initialise core program elements
 	ComputeClockSpeed();
 	InitCRCTable();
-	InitMatrixStack();
-	InitRMatrixStack();
 
 	dprintf"main_() - Initialising...\n"));
 	dprintf"   InitMatrixStack()\n"));
 	dprintf"   InitRMatrixStack()\n"));
 	
+	InitMatrixStack();
+	InitRMatrixStack();
+
 	InitFont();
 
 	InitMusicDriver();
@@ -1773,8 +1459,11 @@ static void main_(void *arg)
 	InitSpriteLinkedList();
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
+	InitTriggerList();
 	
 	SetVector(&camVect,&cameraUpVect);
+
+	StopDrawing("main");
 
 	doPoly(arg);
 }
@@ -1792,7 +1481,6 @@ void ClearViewing()
 	u16 perspNorm;
 
     gDPPipeSync(glistp++);
-	
 	guPerspective(&dynamicp->projection[screenNum],&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
 
 	guLookAtReflect(&(dynamicp->noViewing),&(dynamicp->lookat[screenNum]),
@@ -1811,7 +1499,6 @@ void ClearViewing()
 
 	gSPLight (glistp++,&diffuseL1,1);
 	gSPNumLights (glistp++,NUMLIGHTS_0);
-
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1821,7 +1508,7 @@ void ClearViewing()
 	Returns 	: 
 	Info 		:
 */
-static void ComputeClockSpeed()
+void ComputeClockSpeed()
 {
 	u32 count0,count1;
 
@@ -1874,8 +1561,8 @@ void ControllerProc(void *arg)
 			if(*msg_type == NN_SC_GFX_RETRACE_MSG)
 			{			
 				frameStart = osGetCount();
-//				ClearTimers();
-				//StartTimer(2,"CONTROL");
+				TIMER_ClearTimers();
+				TIMER_StartTimer(2,"CONTROL");
 				osContStartReadData(&controllerMsgQ);
 				(void)osRecvMesg(&controllerMsgQ, NULL, OS_MESG_BLOCK);
 //				if((msg_type) && (*msg_type == NN_SC_GFX_RETRACE_MSG))
@@ -1893,15 +1580,13 @@ void ControllerProc(void *arg)
 #ifndef FINAL_RELEASE
 					ReadController(3);
 #endif
-					//EndTimer(2);
+					TIMER_EndTimer(2);
 
 					if(eepromMessageQueue[0] != EEPROM_IDLE)
 					{
-//						BOOL oldDG=disableGraphics;
 						BOOL oldDC=disableController;
 
 //						StopDrawing("eeprom");
-//help						disableGraphics = TRUE;
 						disableController = TRUE;
 						
 						switch(eepromMessageQueue[0])
@@ -1957,4 +1642,138 @@ void ControllerProc(void *arg)
 			}
 		}
 	}
+}
+
+
+
+// -----------------------------------------------------------------------------------------------
+// MEMORY DEBUGGING / CHECKING ROUTINES - ANDYE - CURRENTLY SPECIFIC TO N64
+// -----------------------------------------------------------------------------------------------
+
+unsigned long memFix_SpriteOverlaysAlloced = 0;
+unsigned long memFix_SpriteOverlaysFreed = 0;
+
+float ConvertKb(unsigned long op1)
+{
+	return ((float)op1 / 1024.0F);
+}
+
+int GetNumStaticBlocksUsed()
+{
+	int i,numBlocks = 0;
+
+	for(i=0; i<MAXJALLOCS; i++)
+		if(jallocControl.blocks[i].inuse)
+			numBlocks++;
+
+	return numBlocks;
+}
+
+int GetNumDynamicBlocksUsed()
+{
+	int i,numBlocks = 0;
+
+	for(i=0; i<MAXJALLOCS; i++)
+		if(jallocControl.blocks[i].inuse)
+			numBlocks++;
+
+	return numBlocks;
+}
+
+unsigned long GetBaseAddrMemoryArea()
+{
+	return jallocControl.base;
+}
+
+long GetSizeOfMemoryArea()
+{
+	return jallocControl.size;
+}
+
+unsigned long GetBytesUsedForStatic()
+{
+	return jallocControl.staticUsed;
+}
+
+unsigned long GetBytesUsedForDynamic()
+{
+	return jallocControl.dynamicUsed;
+}
+
+unsigned long GetBytesUsedForUniques()
+{
+	int i;
+	unsigned long bytes = 0;
+
+	for(i=0; i<MAXJALLOCS; i++)
+	{
+		if(jallocControl.blocks[i].inuse)
+		{
+			if(	gstrcmp("uniqDL",jallocControl.blocks[i].name) == 0 ||
+				gstrcmp("unqVtx",jallocControl.blocks[i].name) == 0 ||
+				gstrcmp("UniqObj",jallocControl.blocks[i].name) == 0 ||
+				gstrcmp("UniqObjC",jallocControl.blocks[i].name) == 0 ||
+				gstrcmp("UniqSpr",jallocControl.blocks[i].name) == 0)
+			{
+				bytes += jallocControl.blocks[i].size;
+			}
+		}
+	}
+
+	return bytes;
+}
+
+unsigned long GetBytesUsed(char *search)
+{
+	int i;
+	unsigned long bytes = 0;
+
+	for(i=0; i<MAXJALLOCS; i++)
+	{
+		if(jallocControl.blocks[i].inuse)
+		{
+			if(gstrcmp(search,jallocControl.blocks[i].name) == 0)
+				bytes += jallocControl.blocks[i].size;
+		}
+	}
+
+	return bytes;
+}
+
+void ShowMemorySituation(char info)
+{
+	unsigned long totalBytes = 0;
+	unsigned long totalBytesFree = 0;
+	unsigned long totalBytesUsed = 0;
+	unsigned long bytes = 0;
+
+	totalBytes		= GetSizeOfMemoryArea();
+	totalBytesFree	= totalBytes - GetBytesUsedForStatic() - GetBytesUsedForDynamic();
+	totalBytesUsed	= GetBytesUsedForStatic() + GetBytesUsedForDynamic();
+
+	dprintf"\n"));
+	dprintf"\nCURRENT MEMORY SITUATION"));
+	dprintf"\n   Size of memory area : %lu bytes (free: %lu)",totalBytes,totalBytesFree));
+	dprintf"\n   Blocks used : %lu / %lu",GetNumStaticBlocksUsed() + GetNumDynamicBlocksUsed(),MAXJALLOCS));
+	dprintf"\n      Static : %lu bytes",GetBytesUsedForStatic()));
+	dprintf"\n      Dynamic : %lu bytes",GetBytesUsedForDynamic()));
+	dprintf"\n      Total : %lu bytes",totalBytesUsed));
+	dprintf"\n"));
+
+	if(info == MEM_SHOW_INGAMEINFO)
+	{
+		bytes = GetBytesUsed("TXTRBANK");
+		bytes += GetBytesUsed("SYSTXTR");
+		dprintf"\n   Texture banks : %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
+		bytes = GetBytesUsed("OBJBANK");
+		dprintf"\n   Object banks : %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
+		bytes = GetBytesUsed("COLLBANK");
+		dprintf"\n   Collision bank: %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
+		bytes = GetBytesUsed("SCENBANK");
+		dprintf"\n   Scenics bank: %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
+		bytes = GetBytesUsed("ENTBANK");
+		dprintf"\n   Entity bank: %lu / %lu bytes  (%.0f kb)",bytes,totalBytesUsed,ConvertKb(bytes)));
+	}
+
+	dprintf"\n\n"));
 }

@@ -36,7 +36,10 @@ static NNScPerf* nnsc_perf_inptr;
 NNScPerf* nnsc_perf_ptr;              
 #endif 
 
-
+float framesPerSec = 2;
+float GAME_SPEED = 1;
+float GAME_SPEED2 = 1;
+float accelerator = 1.0;
 
 
 
@@ -145,43 +148,53 @@ void nnScEventHandler(NNSched *sc)
   OSMesg msg = (OSMesg)0;
 	static short gcount = 0;
 	static short acount = 0;
+	static short fcount = 0;
 
   while(1) 
   {
     osRecvMesg(&sc->retraceMQ, &msg, OS_MESG_BLOCK);
 
+
 //	desiredFrameRate = 3;
     switch ( (int)msg ) 
 	{
 		case VIDEO_MSG:
+			nnScEventBroadcast( sc, &sc->retraceMsg );
 			
 			gcount++;
 			acount++;
+			fcount++;
 
-			if((gcount >= desiredFrameRate) && (gfxTasks == 0))
+			actFrameCount++;
+
+			if((gcount >= desiredFrameRate) && (gfxTasks == 0) && (codeRunning == 0))
 			{
+
 
 				desiredFrameRate = newDesiredFrameRate;
 				gcount = 0;
 				nnScEventBroadcast( sc, &gfxRetraceMsg);
-//					nnScEventBroadcast( sc, &sc->retraceMsg );
+				framesPerSec = fcount;
+				fcount = 0;
+//				GAME_SPEED = framesPerSec / desiredFrameRate;
+//				GAME_SPEED2 = desiredFrameRate / framesPerSec;
+	//				nnScEventBroadcast( sc, &sc->retraceMsg );
 			}
 			else
 			{
-				if((gfxTasks) && (gcount >= desiredFrameRate))
+//				if((gfxTasks) && (gcount >= desiredFrameRate))
 				{
 					gcount = desiredFrameRate - 1;
-
 				}
 			}
 
-
+/*
 			if(acount >= 3)
 			{
 				acount = 0;
 				nnScEventBroadcast( sc, &sc->retraceMsg );
 			}
-
+*/
 			if(preNmiCount)
 			{
 				preNmiCount--;
@@ -194,7 +207,7 @@ void nnScEventHandler(NNSched *sc)
 				{
 				    osStopThread(&mainThread);
 				    osStopThread(&drawGraphicsThread);
-//				    osStopThread(&ControllerThread);
+				    osStopThread(&ControllerThread);
 				    osStopThread(&sched.audioThread);
 					
 					if(osTvType == 0)
@@ -212,7 +225,9 @@ void nnScEventHandler(NNSched *sc)
       nnScEventBroadcast( sc, &sc->prenmiMsg );
 //		if(osTvType == 0)
 		{
-//			MusHandleStop(audioCtrl.musicHandle, 20);
+#ifdef AUDIO
+			MusHandleStop(audioCtrl.musicHandle, 20);
+#endif
 			preNmiCount = 20;
 		}
 //		FadeScreenOut();
@@ -325,13 +340,13 @@ void nnScExecuteAudio(NNSched *sc)
 #endif /* NN_SC_PERF */
 
 
-    StartTimer(7,"MUSIC");
+//    TIMER_StartTimer(7,"MUSIC");
     sc->curAudioTask = task;
     osSpTaskStart(&task->list);
 
     osRecvMesg(&sc->rspMQ, &msg, OS_MESG_BLOCK);
     sc->curAudioTask = (NNScTask *)0;
-	EndTimer(7);
+//	TIMER_EndTimer(7);
 
 #ifdef NN_SC_PERF
     if(nnsc_perf_inptr->autask_cnt < NN_SC_AUTASK_NUM){
@@ -368,7 +383,8 @@ void nnScExecuteGraphics(NNSched *sc)
 
     osRecvMesg(&sc->graphicsRequestMQ, (OSMesg *)&task, OS_MESG_BLOCK);
 
-    nnScWaitTaskReady(sc, task);
+	if(task->framebuffer)
+		nnScWaitTaskReady(sc, task);
 
     if( sc->curAudioTask ) 
 	{
@@ -378,21 +394,24 @@ void nnScExecuteGraphics(NNSched *sc)
     }
 
     sc->curGraphicsTask = task;
+//	osInvalDCache(&rdp_output_len, 8);
+//	dprintf"%x\n", rdp_output_len));
+//	osInvalDCache(&rdp_output_len, sizeof(rdp_output_len));
+
+	osWritebackDCacheAll();
+
+    TIMER_StartTimer(8,"RSP");
+    TIMER_StartTimer(9,"RDP");
     osSpTaskStart(&task->list);
 
-    StartTimer(8,"RSP");
-    StartTimer(9,"RDP");
     osRecvMesg(&sc->rspMQ, &msg, OS_MESG_BLOCK);
     sc->curGraphicsTask = (NNScTask *)0;
-	EndTimer(8);
+	TIMER_EndTimer(8);
 
 	osRecvMesg(&sc->rdpMQ, &msg, OS_MESG_BLOCK);
-	EndTimer(9);
+	TIMER_EndTimer(9);
 
-
-//	StartTimer(7,"MODGE");
-//	UpdateClouds ();
-//	EndTimer(7);
+//	dprintf"%x\n", rdp_output_len));
 
     if (sc->firstTime) 
 	{
@@ -402,7 +421,8 @@ void nnScExecuteGraphics(NNSched *sc)
 
     if ( task->flags & NN_SC_SWAPBUFFER )
 	{
-      osViSwapBuffer(task->framebuffer);
+		if(task->framebuffer)
+			osViSwapBuffer(task->framebuffer);
     }
     osSendMesg(task->msgQ, task->msg, OS_MESG_BLOCK);
   }
@@ -417,7 +437,7 @@ void nnScWaitTaskReady(NNSched *sc, NNScTask *task)
   NNScClient client;
   void *fb = task->framebuffer;
 
-  while( osViGetCurrentFramebuffer() == fb || osViGetNextFramebuffer() == fb ) 
+  while(osViGetCurrentFramebuffer() == fb || osViGetNextFramebuffer() == fb ) 
   {
     nnScAddClient( sc, &client, &sc->waitMQ );  
     osRecvMesg( &sc->waitMQ, &msg, OS_MESG_BLOCK );

@@ -47,7 +47,7 @@ typedef struct
 	int score;
 } LEVEL_HISCORE;
 
-
+/*
 typedef struct
 {
 	// Player
@@ -64,7 +64,7 @@ typedef struct
 	short	currentLevel;
 
 } SAVE_SLOT;
-
+*/
 
 
 /*typedef struct
@@ -137,7 +137,7 @@ extern char	eepromMessageNum;
 extern short eepromPresent;
 
 extern LEVEL_HISCORE	levelTable [ MAX_WORLDS*3 ];
-extern SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
+//extern SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
 
 //***********************************
 // Function Prototypes

@@ -21,92 +21,436 @@ extern char _staticSegmentStart[];
 extern char __zbufferSegmentStart[];
 extern char _cfbSegmentStart[];
 
-extern char *_objBank1SegmentRomStart;
-extern char *_objBank1SegmentRomEnd;
-extern char *_objBank2SegmentRomStart;
-extern char *_objBank2SegmentRomEnd;
-extern char *_objBank3SegmentRomStart;
-extern char *_objBank3SegmentRomEnd;
-extern char *_objBank4SegmentRomStart;
-extern char *_objBank4SegmentRomEnd;
-extern char *_objBank5SegmentRomStart;
-extern char *_objBank5SegmentRomEnd;
-extern char *_objBank6SegmentRomStart;
-extern char *_objBank6SegmentRomEnd;
-extern char *_objBank7SegmentRomStart;
-extern char *_objBank7SegmentRomEnd;
-extern char *_objBank8SegmentRomStart;
-extern char *_objBank8SegmentRomEnd;
-extern char *_objBank9SegmentRomStart;
-extern char *_objBank9SegmentRomEnd;
-extern char *_objBank10SegmentRomStart;
-extern char *_objBank10SegmentRomEnd;
-extern char *_objBank11SegmentRomStart;
-extern char *_objBank11SegmentRomEnd;
-extern char *_objBank12SegmentRomStart;
-extern char *_objBank12SegmentRomEnd;
-extern char *_objBank13SegmentRomStart;
-extern char *_objBank13SegmentRomEnd;
-extern char *_objBank14SegmentRomStart;
-extern char *_objBank14SegmentRomEnd;
-extern char *_objBank15SegmentRomStart;
-extern char *_objBank15SegmentRomEnd;
-extern char *_objBank16SegmentRomStart;
-extern char *_objBank16SegmentRomEnd;
-extern char *_objBank17SegmentRomStart;
-extern char *_objBank17SegmentRomEnd;
-
-
-
-
-extern char *_texBank1SegmentRomStart;
+extern char *_texBank1SegmentRomStart;	// SYSTEM TEXTURE BANK
 extern char *_texBank1SegmentRomEnd;
-extern char *_texBank2SegmentRomStart;
+extern char *_texBank2SegmentRomStart;	// TITLE SCREENS TEXTURE BANK
 extern char *_texBank2SegmentRomEnd;
-extern char *_texBank3SegmentRomStart;
+extern char *_texBank3SegmentRomStart;	// IN GAME GENERIC TEXTURE BANK
 extern char *_texBank3SegmentRomEnd;
-extern char *_texBank4SegmentRomStart;
-extern char *_texBank4SegmentRomEnd;
-extern char *_texBank5SegmentRomStart;
-extern char *_texBank5SegmentRomEnd;
-extern char *_texBank6SegmentRomStart;
-extern char *_texBank6SegmentRomEnd;
-extern char *_texBank7SegmentRomStart;
-extern char *_texBank7SegmentRomEnd;
-extern char *_texBank8SegmentRomStart;
-extern char *_texBank8SegmentRomEnd;
-extern char *_texBank9SegmentRomStart;
-extern char *_texBank9SegmentRomEnd;
-extern char *_texBank10SegmentRomStart;
-extern char *_texBank10SegmentRomEnd;
-extern char *_texBank11SegmentRomStart;
-extern char *_texBank11SegmentRomEnd;
-extern char *_texBank12SegmentRomStart;
-extern char *_texBank12SegmentRomEnd;
-extern char *_texBank13SegmentRomStart;
-extern char *_texBank13SegmentRomEnd;
-extern char *_texBank14SegmentRomStart;
-extern char *_texBank14SegmentRomEnd;
-extern char *_texBank15SegmentRomStart;
-extern char *_texBank15SegmentRomEnd;
-extern char *_texBank16SegmentRomStart;
-extern char *_texBank16SegmentRomEnd;
-extern char *_texBank17SegmentRomStart;
-extern char *_texBank17SegmentRomEnd;
-extern char *_texBank18SegmentRomStart;
-extern char *_texBank18SegmentRomEnd;
+
+//----- [ WORLD OBJECT / TEXTURE / ENTITY BANKS ] ------------------------------------------------
+
+// GARDEN WORLD - Objects ------------------------------------------------------------------------
+extern char *_objBank_1_0_SegmentRomStart;
+extern char *_objBank_1_0_SegmentRomEnd;
+extern char *_objBank_1_1_SegmentRomStart;
+extern char *_objBank_1_1_SegmentRomEnd;
+extern char *_objBank_1_2_SegmentRomStart;
+extern char *_objBank_1_2_SegmentRomEnd;
+extern char *_objBank_1_3_SegmentRomStart;
+extern char *_objBank_1_3_SegmentRomEnd;
+extern char *_objBank_1_4_SegmentRomStart;
+extern char *_objBank_1_4_SegmentRomEnd;
+extern char *_objBank_1_5_SegmentRomStart;
+extern char *_objBank_1_5_SegmentRomEnd;
+extern char *_objBank_1_6_SegmentRomStart;
+extern char *_objBank_1_6_SegmentRomEnd;
+extern char *_objBank_1_7_SegmentRomStart;
+extern char *_objBank_1_7_SegmentRomEnd;
+// GARDEN WORLD - Textures
+extern char *_texBank_1_0_SegmentRomStart;
+extern char *_texBank_1_0_SegmentRomEnd;
+extern char *_texBank_1_1_SegmentRomStart;
+extern char *_texBank_1_1_SegmentRomEnd;
+extern char *_texBank_1_2_SegmentRomStart;
+extern char *_texBank_1_2_SegmentRomEnd;
+extern char *_texBank_1_3_SegmentRomStart;
+extern char *_texBank_1_3_SegmentRomEnd;
+extern char *_texBank_1_4_SegmentRomStart;
+extern char *_texBank_1_4_SegmentRomEnd;
+extern char *_texBank_1_5_SegmentRomStart;
+extern char *_texBank_1_5_SegmentRomEnd;
+extern char *_texBank_1_6_SegmentRomStart;
+extern char *_texBank_1_6_SegmentRomEnd;
+extern char *_texBank_1_7_SegmentRomStart;
+extern char *_texBank_1_7_SegmentRomEnd;
+// GARDEN WORLD - Level Entities
+extern char *_levData_1_1_SegmentRomStart;
+extern char *_levData_1_1_SegmentRomEnd;
+extern char *_levData_1_2_SegmentRomStart;
+extern char *_levData_1_2_SegmentRomEnd;
+extern char *_levData_1_3_SegmentRomStart;
+extern char *_levData_1_3_SegmentRomEnd;
+extern char *_levData_1_4_SegmentRomStart;
+extern char *_levData_1_4_SegmentRomEnd;
+extern char *_levData_1_5_SegmentRomStart;
+extern char *_levData_1_5_SegmentRomEnd;
+extern char *_levData_1_6_SegmentRomStart;
+extern char *_levData_1_6_SegmentRomEnd;
+extern char *_levData_1_7_SegmentRomStart;
+extern char *_levData_1_7_SegmentRomEnd;
+
+// ANCIENT WORLD - Objects -----------------------------------------------------------------------
+extern char *_objBank_2_0_SegmentRomStart;
+extern char *_objBank_2_0_SegmentRomEnd;
+extern char *_objBank_2_1_SegmentRomStart;
+extern char *_objBank_2_1_SegmentRomEnd;
+extern char *_objBank_2_2_SegmentRomStart;
+extern char *_objBank_2_2_SegmentRomEnd;
+extern char *_objBank_2_3_SegmentRomStart;
+extern char *_objBank_2_3_SegmentRomEnd;
+extern char *_objBank_2_4_SegmentRomStart;
+extern char *_objBank_2_4_SegmentRomEnd;
+extern char *_objBank_2_5_SegmentRomStart;
+extern char *_objBank_2_5_SegmentRomEnd;
+extern char *_objBank_2_6_SegmentRomStart;
+extern char *_objBank_2_6_SegmentRomEnd;
+extern char *_objBank_2_7_SegmentRomStart;
+extern char *_objBank_2_7_SegmentRomEnd;
+extern char *_objBank_2_8_SegmentRomStart;
+extern char *_objBank_2_8_SegmentRomEnd;
+extern char *_objBank_2_9_SegmentRomStart;
+extern char *_objBank_2_9_SegmentRomEnd;
+// ANCIENT WORLD - Textures
+extern char *_texBank_2_0_SegmentRomStart;
+extern char *_texBank_2_0_SegmentRomEnd;
+extern char *_texBank_2_1_SegmentRomStart;
+extern char *_texBank_2_1_SegmentRomEnd;
+extern char *_texBank_2_2_SegmentRomStart;
+extern char *_texBank_2_2_SegmentRomEnd;
+extern char *_texBank_2_3_SegmentRomStart;
+extern char *_texBank_2_3_SegmentRomEnd;
+extern char *_texBank_2_4_SegmentRomStart;
+extern char *_texBank_2_4_SegmentRomEnd;
+extern char *_texBank_2_5_SegmentRomStart;
+extern char *_texBank_2_5_SegmentRomEnd;
+extern char *_texBank_2_6_SegmentRomStart;
+extern char *_texBank_2_6_SegmentRomEnd;
+extern char *_texBank_2_7_SegmentRomStart;
+extern char *_texBank_2_7_SegmentRomEnd;
+extern char *_texBank_2_8_SegmentRomStart;
+extern char *_texBank_2_8_SegmentRomEnd;
+extern char *_texBank_2_9_SegmentRomStart;
+extern char *_texBank_2_9_SegmentRomEnd;
+// ANCIENT WORLD - Level Entities
+extern char *_levData_2_1_SegmentRomStart;
+extern char *_levData_2_1_SegmentRomEnd;
+extern char *_levData_2_2_SegmentRomStart;
+extern char *_levData_2_2_SegmentRomEnd;
+extern char *_levData_2_3_SegmentRomStart;
+extern char *_levData_2_3_SegmentRomEnd;
+extern char *_levData_2_4_SegmentRomStart;
+extern char *_levData_2_4_SegmentRomEnd;
+extern char *_levData_2_5_SegmentRomStart;
+extern char *_levData_2_5_SegmentRomEnd;
+extern char *_levData_2_6_SegmentRomStart;
+extern char *_levData_2_6_SegmentRomEnd;
+extern char *_levData_2_7_SegmentRomStart;
+extern char *_levData_2_7_SegmentRomEnd;
+extern char *_levData_2_8_SegmentRomStart;
+extern char *_levData_2_8_SegmentRomEnd;
+extern char *_levData_2_9_SegmentRomStart;
+extern char *_levData_2_9_SegmentRomEnd;
+
+// SPACE WORLD - Objects -------------------------------------------------------------------------
+extern char *_objBank_3_0_SegmentRomStart;
+extern char *_objBank_3_0_SegmentRomEnd;
+extern char *_objBank_3_1_SegmentRomStart;
+extern char *_objBank_3_1_SegmentRomEnd;
+extern char *_objBank_3_2_SegmentRomStart;
+extern char *_objBank_3_2_SegmentRomEnd;
+extern char *_objBank_3_3_SegmentRomStart;
+extern char *_objBank_3_3_SegmentRomEnd;
+extern char *_objBank_3_4_SegmentRomStart;
+extern char *_objBank_3_4_SegmentRomEnd;
+extern char *_objBank_3_5_SegmentRomStart;
+extern char *_objBank_3_5_SegmentRomEnd;
+extern char *_objBank_3_6_SegmentRomStart;
+extern char *_objBank_3_6_SegmentRomEnd;
+// SPACE WORLD - Textures
+extern char *_texBank_3_0_SegmentRomStart;
+extern char *_texBank_3_0_SegmentRomEnd;
+extern char *_texBank_3_1_SegmentRomStart;
+extern char *_texBank_3_1_SegmentRomEnd;
+extern char *_texBank_3_2_SegmentRomStart;
+extern char *_texBank_3_2_SegmentRomEnd;
+extern char *_texBank_3_3_SegmentRomStart;
+extern char *_texBank_3_3_SegmentRomEnd;
+extern char *_texBank_3_4_SegmentRomStart;
+extern char *_texBank_3_4_SegmentRomEnd;
+extern char *_texBank_3_5_SegmentRomStart;
+extern char *_texBank_3_5_SegmentRomEnd;
+extern char *_texBank_3_6_SegmentRomStart;
+extern char *_texBank_3_6_SegmentRomEnd;
+// SPACE WORLD - Level Entities
+extern char *_levData_3_1_SegmentRomStart;
+extern char *_levData_3_1_SegmentRomEnd;
+extern char *_levData_3_2_SegmentRomStart;
+extern char *_levData_3_2_SegmentRomEnd;
+extern char *_levData_3_3_SegmentRomStart;
+extern char *_levData_3_3_SegmentRomEnd;
+extern char *_levData_3_4_SegmentRomStart;
+extern char *_levData_3_4_SegmentRomEnd;
+extern char *_levData_3_5_SegmentRomStart;
+extern char *_levData_3_5_SegmentRomEnd;
+extern char *_levData_3_6_SegmentRomStart;
+extern char *_levData_3_6_SegmentRomEnd;
+
+// CITY WORLD - Objects --------------------------------------------------------------------------
+extern char *_objBank_4_0_SegmentRomStart;
+extern char *_objBank_4_0_SegmentRomEnd;
+extern char *_objBank_4_1_SegmentRomStart;
+extern char *_objBank_4_1_SegmentRomEnd;
+extern char *_objBank_4_2_SegmentRomStart;
+extern char *_objBank_4_2_SegmentRomEnd;
+extern char *_objBank_4_3_SegmentRomStart;
+extern char *_objBank_4_3_SegmentRomEnd;
+extern char *_objBank_4_4_SegmentRomStart;
+extern char *_objBank_4_4_SegmentRomEnd;
+extern char *_objBank_4_5_SegmentRomStart;
+extern char *_objBank_4_5_SegmentRomEnd;
+extern char *_objBank_4_6_SegmentRomStart;
+extern char *_objBank_4_6_SegmentRomEnd;
+// CITY WORLD - Textures
+extern char *_texBank_4_0_SegmentRomStart;
+extern char *_texBank_4_0_SegmentRomEnd;
+extern char *_texBank_4_1_SegmentRomStart;
+extern char *_texBank_4_1_SegmentRomEnd;
+extern char *_texBank_4_2_SegmentRomStart;
+extern char *_texBank_4_2_SegmentRomEnd;
+extern char *_texBank_4_3_SegmentRomStart;
+extern char *_texBank_4_3_SegmentRomEnd;
+extern char *_texBank_4_4_SegmentRomStart;
+extern char *_texBank_4_4_SegmentRomEnd;
+extern char *_texBank_4_5_SegmentRomStart;
+extern char *_texBank_4_5_SegmentRomEnd;
+extern char *_texBank_4_6_SegmentRomStart;
+extern char *_texBank_4_6_SegmentRomEnd;
+// CITY WORLD - Level Entities
+extern char *_levData_4_1_SegmentRomStart;
+extern char *_levData_4_1_SegmentRomEnd;
+extern char *_levData_4_2_SegmentRomStart;
+extern char *_levData_4_2_SegmentRomEnd;
+extern char *_levData_4_3_SegmentRomStart;
+extern char *_levData_4_3_SegmentRomEnd;
+extern char *_levData_4_4_SegmentRomStart;
+extern char *_levData_4_4_SegmentRomEnd;
+extern char *_levData_4_5_SegmentRomStart;
+extern char *_levData_4_5_SegmentRomEnd;
+extern char *_levData_4_6_SegmentRomStart;
+extern char *_levData_4_6_SegmentRomEnd;
+
+// SUBTERRANEAN WORLD - Objects ------------------------------------------------------------------
+extern char *_objBank_5_0_SegmentRomStart;
+extern char *_objBank_5_0_SegmentRomEnd;
+extern char *_objBank_5_1_SegmentRomStart;
+extern char *_objBank_5_1_SegmentRomEnd;
+extern char *_objBank_5_2_SegmentRomStart;
+extern char *_objBank_5_2_SegmentRomEnd;
+extern char *_objBank_5_3_SegmentRomStart;
+extern char *_objBank_5_3_SegmentRomEnd;
+extern char *_objBank_5_4_SegmentRomStart;
+extern char *_objBank_5_4_SegmentRomEnd;
+extern char *_objBank_5_5_SegmentRomStart;
+extern char *_objBank_5_5_SegmentRomEnd;
+extern char *_objBank_5_6_SegmentRomStart;
+extern char *_objBank_5_6_SegmentRomEnd;
+// SUBTERRANEAN WORLD - Textures
+extern char *_texBank_5_0_SegmentRomStart;
+extern char *_texBank_5_0_SegmentRomEnd;
+extern char *_texBank_5_1_SegmentRomStart;
+extern char *_texBank_5_1_SegmentRomEnd;
+extern char *_texBank_5_2_SegmentRomStart;
+extern char *_texBank_5_2_SegmentRomEnd;
+extern char *_texBank_5_3_SegmentRomStart;
+extern char *_texBank_5_3_SegmentRomEnd;
+extern char *_texBank_5_4_SegmentRomStart;
+extern char *_texBank_5_4_SegmentRomEnd;
+extern char *_texBank_5_5_SegmentRomStart;
+extern char *_texBank_5_5_SegmentRomEnd;
+extern char *_texBank_5_6_SegmentRomStart;
+extern char *_texBank_5_6_SegmentRomEnd;
+// SUBTERRANEAN WORLD - Level Entities
+extern char *_levData_5_1_SegmentRomStart;
+extern char *_levData_5_1_SegmentRomEnd;
+extern char *_levData_5_2_SegmentRomStart;
+extern char *_levData_5_2_SegmentRomEnd;
+extern char *_levData_5_3_SegmentRomStart;
+extern char *_levData_5_3_SegmentRomEnd;
+extern char *_levData_5_4_SegmentRomStart;
+extern char *_levData_5_4_SegmentRomEnd;
+extern char *_levData_5_5_SegmentRomStart;
+extern char *_levData_5_5_SegmentRomEnd;
+extern char *_levData_5_6_SegmentRomStart;
+extern char *_levData_5_6_SegmentRomEnd;
+
+// LABORATORY WORLD - Objects --------------------------------------------------------------------
+extern char *_objBank_6_0_SegmentRomStart;
+extern char *_objBank_6_0_SegmentRomEnd;
+extern char *_objBank_6_1_SegmentRomStart;
+extern char *_objBank_6_1_SegmentRomEnd;
+extern char *_objBank_6_2_SegmentRomStart;
+extern char *_objBank_6_2_SegmentRomEnd;
+extern char *_objBank_6_3_SegmentRomStart;
+extern char *_objBank_6_3_SegmentRomEnd;
+extern char *_objBank_6_4_SegmentRomStart;
+extern char *_objBank_6_4_SegmentRomEnd;
+extern char *_objBank_6_5_SegmentRomStart;
+extern char *_objBank_6_5_SegmentRomEnd;
+extern char *_objBank_6_6_SegmentRomStart;
+extern char *_objBank_6_6_SegmentRomEnd;
+// LABORATORY WORLD - Textures
+extern char *_texBank_6_0_SegmentRomStart;
+extern char *_texBank_6_0_SegmentRomEnd;
+extern char *_texBank_6_1_SegmentRomStart;
+extern char *_texBank_6_1_SegmentRomEnd;
+extern char *_texBank_6_2_SegmentRomStart;
+extern char *_texBank_6_2_SegmentRomEnd;
+extern char *_texBank_6_3_SegmentRomStart;
+extern char *_texBank_6_3_SegmentRomEnd;
+extern char *_texBank_6_4_SegmentRomStart;
+extern char *_texBank_6_4_SegmentRomEnd;
+extern char *_texBank_6_5_SegmentRomStart;
+extern char *_texBank_6_5_SegmentRomEnd;
+extern char *_texBank_6_6_SegmentRomStart;
+extern char *_texBank_6_6_SegmentRomEnd;
+// LABORATORY WORLD - Level Entities
+extern char *_levData_6_1_SegmentRomStart;
+extern char *_levData_6_1_SegmentRomEnd;
+extern char *_levData_6_2_SegmentRomStart;
+extern char *_levData_6_2_SegmentRomEnd;
+extern char *_levData_6_3_SegmentRomStart;
+extern char *_levData_6_3_SegmentRomEnd;
+extern char *_levData_6_4_SegmentRomStart;
+extern char *_levData_6_4_SegmentRomEnd;
+extern char *_levData_6_5_SegmentRomStart;
+extern char *_levData_6_5_SegmentRomEnd;
+extern char *_levData_6_6_SegmentRomStart;
+extern char *_levData_6_6_SegmentRomEnd;
+
+// TOYSHOP WORLD - Objects -----------------------------------------------------------------------
+extern char *_objBank_7_0_SegmentRomStart;
+extern char *_objBank_7_0_SegmentRomEnd;
+extern char *_objBank_7_1_SegmentRomStart;
+extern char *_objBank_7_1_SegmentRomEnd;
+extern char *_objBank_7_2_SegmentRomStart;
+extern char *_objBank_7_2_SegmentRomEnd;
+extern char *_objBank_7_3_SegmentRomStart;
+extern char *_objBank_7_3_SegmentRomEnd;
+extern char *_objBank_7_4_SegmentRomStart;
+extern char *_objBank_7_4_SegmentRomEnd;
+extern char *_objBank_7_5_SegmentRomStart;
+extern char *_objBank_7_5_SegmentRomEnd;
+extern char *_objBank_7_6_SegmentRomStart;
+extern char *_objBank_7_6_SegmentRomEnd;
+// TOYSHOP WORLD - Textures
+extern char *_texBank_7_0_SegmentRomStart;
+extern char *_texBank_7_0_SegmentRomEnd;
+extern char *_texBank_7_1_SegmentRomStart;
+extern char *_texBank_7_1_SegmentRomEnd;
+extern char *_texBank_7_2_SegmentRomStart;
+extern char *_texBank_7_2_SegmentRomEnd;
+extern char *_texBank_7_3_SegmentRomStart;
+extern char *_texBank_7_3_SegmentRomEnd;
+extern char *_texBank_7_4_SegmentRomStart;
+extern char *_texBank_7_4_SegmentRomEnd;
+extern char *_texBank_7_5_SegmentRomStart;
+extern char *_texBank_7_5_SegmentRomEnd;
+extern char *_texBank_7_6_SegmentRomStart;
+extern char *_texBank_7_6_SegmentRomEnd;
+// TOYSHOP WORLD - Level Entities
+extern char *_levData_7_1_SegmentRomStart;
+extern char *_levData_7_1_SegmentRomEnd;
+extern char *_levData_7_2_SegmentRomStart;
+extern char *_levData_7_2_SegmentRomEnd;
+extern char *_levData_7_3_SegmentRomStart;
+extern char *_levData_7_3_SegmentRomEnd;
+extern char *_levData_7_4_SegmentRomStart;
+extern char *_levData_7_4_SegmentRomEnd;
+extern char *_levData_7_5_SegmentRomStart;
+extern char *_levData_7_5_SegmentRomEnd;
+extern char *_levData_7_6_SegmentRomStart;
+extern char *_levData_7_6_SegmentRomEnd;
+
+// HALLOWEEN WORLD - Objects ---------------------------------------------------------------------
+extern char *_objBank_8_0_SegmentRomStart;
+extern char *_objBank_8_0_SegmentRomEnd;
+extern char *_objBank_8_1_SegmentRomStart;
+extern char *_objBank_8_1_SegmentRomEnd;
+extern char *_objBank_8_2_SegmentRomStart;
+extern char *_objBank_8_2_SegmentRomEnd;
+extern char *_objBank_8_3_SegmentRomStart;
+extern char *_objBank_8_3_SegmentRomEnd;
+extern char *_objBank_8_4_SegmentRomStart;
+extern char *_objBank_8_4_SegmentRomEnd;
+extern char *_objBank_8_5_SegmentRomStart;
+extern char *_objBank_8_5_SegmentRomEnd;
+extern char *_objBank_8_6_SegmentRomStart;
+extern char *_objBank_8_6_SegmentRomEnd;
+// HALLOWEEN WORLD - Textures
+extern char *_texBank_8_0_SegmentRomStart;
+extern char *_texBank_8_0_SegmentRomEnd;
+extern char *_texBank_8_1_SegmentRomStart;
+extern char *_texBank_8_1_SegmentRomEnd;
+extern char *_texBank_8_2_SegmentRomStart;
+extern char *_texBank_8_2_SegmentRomEnd;
+extern char *_texBank_8_3_SegmentRomStart;
+extern char *_texBank_8_3_SegmentRomEnd;
+extern char *_texBank_8_4_SegmentRomStart;
+extern char *_texBank_8_4_SegmentRomEnd;
+extern char *_texBank_8_5_SegmentRomStart;
+extern char *_texBank_8_5_SegmentRomEnd;
+extern char *_texBank_8_6_SegmentRomStart;
+extern char *_texBank_8_6_SegmentRomEnd;
+// HALLOWEEN WORLD - Level Entities
+extern char *_levData_8_1_SegmentRomStart;
+extern char *_levData_8_1_SegmentRomEnd;
+extern char *_levData_8_2_SegmentRomStart;
+extern char *_levData_8_2_SegmentRomEnd;
+extern char *_levData_8_3_SegmentRomStart;
+extern char *_levData_8_3_SegmentRomEnd;
+extern char *_levData_8_4_SegmentRomStart;
+extern char *_levData_8_4_SegmentRomEnd;
+extern char *_levData_8_5_SegmentRomStart;
+extern char *_levData_8_5_SegmentRomEnd;
+extern char *_levData_8_6_SegmentRomStart;
+extern char *_levData_8_6_SegmentRomEnd;
+
+// SUPERRETRO WORLD - Objects --------------------------------------------------------------------
+extern char *_objBank_9_0_SegmentRomStart;
+extern char *_objBank_9_0_SegmentRomEnd;
+extern char *_objBank_9_1_SegmentRomStart;
+extern char *_objBank_9_1_SegmentRomEnd;
+extern char *_objBank_9_2_SegmentRomStart;
+extern char *_objBank_9_2_SegmentRomEnd;
+extern char *_objBank_9_3_SegmentRomStart;
+extern char *_objBank_9_3_SegmentRomEnd;
+extern char *_objBank_9_4_SegmentRomStart;
+extern char *_objBank_9_4_SegmentRomEnd;
+extern char *_objBank_9_5_SegmentRomStart;
+extern char *_objBank_9_5_SegmentRomEnd;
+extern char *_objBank_9_6_SegmentRomStart;
+extern char *_objBank_9_6_SegmentRomEnd;
+// SUPERRETRO WORLD - Textures
+extern char *_texBank_9_0_SegmentRomStart;
+extern char *_texBank_9_0_SegmentRomEnd;
+extern char *_texBank_9_1_SegmentRomStart;
+extern char *_texBank_9_1_SegmentRomEnd;
+extern char *_texBank_9_2_SegmentRomStart;
+extern char *_texBank_9_2_SegmentRomEnd;
+extern char *_texBank_9_3_SegmentRomStart;
+extern char *_texBank_9_3_SegmentRomEnd;
+extern char *_texBank_9_4_SegmentRomStart;
+extern char *_texBank_9_4_SegmentRomEnd;
+extern char *_texBank_9_5_SegmentRomStart;
+extern char *_texBank_9_5_SegmentRomEnd;
+extern char *_texBank_9_6_SegmentRomStart;
+extern char *_texBank_9_6_SegmentRomEnd;
+// SUPERRETRO WORLD - Level Entities
+extern char *_levData_9_1_SegmentRomStart;
+extern char *_levData_9_1_SegmentRomEnd;
+extern char *_levData_9_2_SegmentRomStart;
+extern char *_levData_9_2_SegmentRomEnd;
+extern char *_levData_9_3_SegmentRomStart;
+extern char *_levData_9_3_SegmentRomEnd;
+extern char *_levData_9_4_SegmentRomStart;
+extern char *_levData_9_4_SegmentRomEnd;
+extern char *_levData_9_5_SegmentRomStart;
+extern char *_levData_9_5_SegmentRomEnd;
+extern char *_levData_9_6_SegmentRomStart;
+extern char *_levData_9_6_SegmentRomEnd;
 
 
-
-
-extern char *_levData1SegmentRomStart;
-extern char *_levData1SegmentRomEnd;
-extern char *_levData2SegmentRomStart;
-extern char *_levData2SegmentRomEnd;
-extern char *_levData3SegmentRomStart;
-extern char *_levData3SegmentRomEnd;
-extern char *_levData4SegmentRomStart;
-extern char *_levData4SegmentRomEnd;
 
 /*extern char *_pbank1SegmentRomStart;
 extern char *_pbank1SegmentRomEnd;
@@ -133,9 +477,9 @@ extern char *_mBank1SegmentRomEnd;
 // microcode types
 enum
 {
-	UCODE_NORMAL,
-	UCODE_WIREFRAME,
-	UCODE_SPRITE2D,
+	UCODE_POLY,
+	UCODE_LINE,
+	UCODE_SPRITE,
 };
 
 
@@ -175,23 +519,23 @@ enum
 #define RDP_OUTPUT_BUF		0x8004b400		// End of Z buffer
 #define COLOR_BUFFER		0x8016a000
 
-//#define RDP_OUTPUT_BUF_LEN	((4096*8)*2)
 #define RDP_OUTPUT_BUF_LEN	(4096)
 
 #define RDP_OUTBUF_SIZE_MIN 0x100			// Min fifo buffer size
+
+#define RDP_BUFFER_LEN		43000
 
 #define PRIMCOLOR			0
 #define GOURAUD				1
 #define LIGHTING			2
 
-#define	GLIST_LEN			40000			// Large enough to handle enough polys
+#define	GLIST_LEN			20000			// Large enough to handle enough polys
 
 #define TXTR_NONE			0
 #define TXTR_ON				1
 #define TXTR_ON_MM			2
 
-//#define MAX_MATRICES		128*4
-#define MAX_MATRICES		128*8
+#define MAX_MATRICES		64*8
 
 
 //-----------------------------------------------------------------------------//
@@ -265,7 +609,7 @@ extern char					numtasks;
 extern char					currentTask;
 extern NNSched				sched;
 
-extern unsigned long		actFrameCount;
+extern unsigned long		actFrameCount,currentFrameTime;
 
 extern OSThread				mainThread;
 extern OSThread				drawGraphicsThread;
@@ -328,7 +672,33 @@ extern short dontDoAnims;
 extern char codeRunning;
 
 void ControllerProc(void *arg);
-extern void InitDisplayLists(void);
+void InitDisplayLists(void);
+void ComputeClockSpeed();
+
+
+// MEMORY CHECKING & DEBUGGING ROUTINES - ANDYE - CURRENTLY SPECIFIC TO N64 ----------------------
+
+enum
+{
+	MEM_SHOW_INGAMEINFO = 1,
+};
+
+extern unsigned long memFix_SpriteOverlaysAlloced;
+extern unsigned long memFix_SpriteOverlaysFreed;
+
+float ConvertKb(unsigned long op1);
+
+int GetNumStaticBlocksUsed();
+int GetNumDynamicBlocksUsed();
+unsigned long GetBaseAddrMemoryArea();
+long GetSizeOfMemoryArea();
+unsigned long GetBytesUsedForStatic();
+unsigned long GetBytesUsedForDynamic();
+unsigned long GetBytesUsedForUniques();
+unsigned long GetBytesUsed(char *search);
+
+void ShowMemorySituation(char info);
+
 
 #endif	/* _LANGUAGE_C */
 
