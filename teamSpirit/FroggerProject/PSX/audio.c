@@ -21,6 +21,9 @@
 #include "types.h"
 #include "frogger.h"
 #include "layout.h"
+#include <libcd.h>
+#include <islxa.h>
+
 
 
 #define SFX_BASE		"SFX\\"
@@ -35,6 +38,8 @@
  
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 // SAMPLE **sfx_anim_map = NULL;
+
+XAFileType	*xaFileData[NUM_CD_TRACKS];
  
 // UINT mciDevice = 0;
  
@@ -469,6 +474,40 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: PrepareSongForLevel
+	Purpose			: loads and starts playback of song for specified level
+	Parameters		: short,short
+	Returns			: void
+	Info			: 
+*/
+void PrepareSongForLevel(short worldID,short levelID)
+{
+	char cdTrack[16];
+
+	int trackIndex = worldID + GARDEN_CDAUDIO;
+
+	// The frontend is different cos it has different cd tracks for its levels
+	if( worldID == WORLDID_FRONTEND && levelID == LEVELID_FRONTEND2 )
+		trackIndex++;
+
+	sprintf(cdTrack, "CD%i.XA", trackIndex);
+					   
+	xaFileData[trackIndex]=XAgetFileInfo(cdTrack);	// Not sure if you need to tell it its an xa file (looks like you do)
+
+	XAsetStatus(1);		// enable for playing
+	XAstart(1);			// set for double speed playback
+	XAplayChannelOffset( xaFileData[trackIndex],0,0,1,100); // file to play , offset from start , channel , loop , volume
+	// volume goes from 0 to 100
+}
+
+
+
+void StopSong( )
+{
+	XAstop();
+	XAsetStatus(0);		// This should disable all xa functions allowing normal cd access
+}
 
 
 
@@ -479,8 +518,18 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 
 
-			
- 
+
+
+
+
+
+
+
+
+
+
+
+
 // /*	--------------------------------------------------------------------------------
 // 	Function		: LoadSfx
 // 	Purpose			: 
