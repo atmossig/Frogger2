@@ -75,7 +75,7 @@ typedef struct _PLAYER
 
 	unsigned char	extendedHopDir;
 
-	VECTOR			jumpVelocity;
+	unsigned long	isCroakFloating;
 
 } PLAYER;
 
@@ -85,14 +85,6 @@ extern PLAYER player[];
 extern float CROAK_SOUND_RANGE;
 
 extern float globalFrogScale;
-
-extern long isLong;
-extern float longSpeed;
-extern float longAmt;
-
-extern float changeLongSpeed;
-extern float startLongSpeed;
-
 
 extern ACTOR2	*frog[];
 extern SPRITEOVERLAY *sprHeart[3];

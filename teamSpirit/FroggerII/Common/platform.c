@@ -338,6 +338,7 @@ void UpdatePlatforms()
 						SetVector(&cur->pltActor->actor->pos,&fromPosition);
 
 						// check if there are any platforms below the frog over the same tile
+/*
 						if(destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0))
 						{
 							// set frog falling to nearest dest platform below
@@ -348,6 +349,11 @@ void UpdatePlatforms()
 							// set frog falling to game tile below
 							player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
 						}
+*/
+						
+						// frog is free-falling - check for platform below the frog
+						destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0);
+						player[0].frogState |= FROGSTATUS_ISFREEFALLING;
 					}
 				}
 

@@ -73,6 +73,14 @@ extern FX_RIPPLELIST rippleFXList;
 extern FX_SMOKELIST smokeFXList;
 extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
 
+//----- [ TEXTURES USED FOR SPECIAL FX ] -----//
+
+extern TEXTURE *txtrRipple;
+extern TEXTURE *txtrWake;
+extern TEXTURE *txtrStar;
+extern TEXTURE *txtrRing;
+extern TEXTURE *txtrSmoke;
+
 extern char doScreenFade;
 extern char	fadeDir;
 extern short fadeOut;
@@ -101,7 +109,6 @@ extern void FreeFXExplodeParticleLinkedList();
 extern void AddFXExplodeParticle(FX_EXPLODEPARTICLE *explode);
 extern void SubFXExplodeParticle(FX_EXPLODEPARTICLE *explode);
 extern void UpdateFXExplodeParticle();
-
 
 extern void InitFXLinkedLists();
 extern void UpdateSpecialFX();

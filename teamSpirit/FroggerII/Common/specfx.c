@@ -29,6 +29,15 @@ UBYTE testB			= 0;
 UBYTE testA			= 170;
 
 
+//----- [ TEXTURES USED FOR SPECIAL FX ] -----//
+
+TEXTURE *txtrRipple = NULL;
+TEXTURE *txtrWake	= NULL;
+TEXTURE *txtrStar	= NULL;
+TEXTURE *txtrRing	= NULL;
+TEXTURE *txtrSmoke	= NULL;
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddFXRipple
 	Purpose			: creates and initialises a ripple based effect
@@ -82,7 +91,7 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 	switch(rippleType)
 	{
 		case RIPPLE_TYPE_WATER:
-			FindTexture(&ripple->txtr,UpdateCRC("ai_ripple.bmp"),YES);
+			ripple->txtr = txtrRipple;
 			break;
 		
 		case RIPPLE_TYPE_DUST:
@@ -90,19 +99,19 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 			ripple->alphaSpeed >>= 1;
 			ripple->yRotSpeed = -16 + Random(32);
 			ripple->origin.v[Y]++;
-			FindTexture(&ripple->txtr,UpdateCRC("ai_wake.bmp"),YES);
+			ripple->txtr = txtrWake;
 			break;
 		
 		case RIPPLE_TYPE_PICKUP:
 			ripple->yRotSpeed = 24;
 			ripple->origin.v[Y] += 10;
-			FindTexture(&ripple->txtr,UpdateCRC("ai_star.bmp"),YES);
+			ripple->txtr = txtrStar;
 			break;
 		
 		case RIPPLE_TYPE_CROAK:
 		case RIPPLE_TYPE_RING:
 		case RIPPLE_TYPE_TELEPORT:
-			FindTexture(&ripple->txtr,UpdateCRC("ai_ring.bmp"),YES);
+			ripple->txtr = txtrRing;
 			break;
 	}
 
@@ -245,7 +254,7 @@ FX_SMOKE *CreateAndAddFXSmoke(VECTOR *origin,short size,float lifetime)
 	smoke->alphaSpeed		= 255 / lifetime;
 	smoke->lifetime			= lifetime;
 	
-	FindTexture(&smoke->sprite.texture,UpdateCRC("ai_smoke.bmp"),YES);
+	smoke->sprite.texture	= txtrSmoke;
 	smoke->sprite.scaleX	= size;
 	smoke->sprite.scaleY	= size;
 	smoke->sprite.r			= 255;
@@ -405,7 +414,6 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 {
 	int i = MAX_EXPLODE_PARTICLES;
 	FX_EXPLODEPARTICLE *explode;
-	TEXTURE *theTexture;
 	float speed;
 		
 	explode = (FX_EXPLODEPARTICLE *)JallocAlloc(sizeof(FX_EXPLODEPARTICLE),YES,"FX_XPLTCLE");
@@ -428,8 +436,7 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 
 		if(explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 		{
-			FindTexture(&theTexture,UpdateCRC("ai_smoke.bmp"),YES);
-			explode->sprite[i].texture	= theTexture;
+			explode->sprite[i].texture	= txtrSmoke;
 			explode->alphaDecay[i]		*= 2;
 
 			explode->sprite[i].r		= 255;
@@ -441,8 +448,7 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 		}
 		else
 		{
-			FindTexture(&theTexture,UpdateCRC("spa01.bmp"),YES);
-			explode->sprite[i].texture	= theTexture;
+			explode->sprite[i].texture	= txtrStar;
 
 			explode->sprite[i].r		= 255;
 			explode->sprite[i].g		= 255;
@@ -661,9 +667,9 @@ void UpdateFXExplodeParticle()
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitFXLists
-	Purpose			: initialises the special fx lists
+	Purpose			: initialises the special fx lists and textures used
 	Parameters		: 
-	Returns			: viod
+	Returns			: void
 	Info			: 
 */
 void InitFXLinkedLists()
@@ -679,6 +685,13 @@ void InitFXLinkedLists()
 	// initialise the explode particle fx list
 	explodeParticleFXList.numEntries = 0;
 	explodeParticleFXList.head.next = explodeParticleFXList.head.prev = &explodeParticleFXList.head;
+
+	// get the textures used for the various special effects
+	FindTexture(&txtrRipple,UpdateCRC("ai_ripple.bmp"),YES);
+	FindTexture(&txtrWake,UpdateCRC("ai_wake.bmp"),YES);
+	FindTexture(&txtrStar,UpdateCRC("ai_star.bmp"),YES);
+	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
+	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 }
 
 /*	--------------------------------------------------------------------------------

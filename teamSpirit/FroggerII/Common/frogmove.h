@@ -36,8 +36,10 @@
 #define FROGSTATUS_ISSUPERHOPPING				(1 << 12)
 #define FROGSTATUS_ISTONGUEING					(1 << 13)
 #define FROGSTATUS_ISONMOVINGPLATFORM			(1 << 14)
-#define FROGSTATUS_ISFALLINGTOGROUND			(1 << 15)
-#define FROGSTATUS_ISFALLINGTOPLATFORM			(1 << 16)
+
+#define FROGSTATUS_ISFREEFALLING				(1 << 15)
+//#define FROGSTATUS_ISFALLINGTOGROUND			(1 << 15)
+//#define FROGSTATUS_ISFALLINGTOPLATFORM			(1 << 16)
 
 #define FROGSTATUS_ISWANTINGLONGHOPD			(1 << 17)
 #define FROGSTATUS_ISWANTINGLONGHOPU			(1 << 18)
@@ -94,6 +96,10 @@ extern int frogFacing[4];
 
 extern float speedTest;
 
+extern float frogGravity;
+extern float gravityModifier;
+
+
 // ----- [ FUNCTION PROTOTYPES ] ---------- //
 
 void SetFroggerStartPos(GAMETILE *startTile,long p);
@@ -111,7 +117,7 @@ BOOL GameTileTooLow(GAMETILE *tile,long pl);
 
 BOOL KillFrog(long pl);
 
-void GetNextTileLongHop (unsigned long direction);
+void GetNextTileLongHop(unsigned long direction,long pl);
 void RotateFrog(ACTOR2* frog,unsigned long fFacing);
 
 

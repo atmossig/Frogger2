@@ -309,23 +309,16 @@ void GameProcessController(long pl)
 		}
     }
 
-	if((button[pl] & CONT_G) && !(lastbutton[pl] & CONT_G))
+	if(button[pl] & CONT_G)
 	{
-/*		TEXTURE *texOld,*texNew;
-
-		if((frameCount & 1) == 0)
-		{
-			FindTexture(&texOld,UpdateCRC("fgeye.bmp"),YES);
-			FindTexture(&texNew,UpdateCRC("water2.bmp"),YES);
-		}
-		else
-		{
-			FindTexture(&texOld,UpdateCRC("water2.bmp"),YES);
-			FindTexture(&texNew,UpdateCRC("fgeye.bmp"),YES);
-		}
-
-		ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)texOld->data,(u32)texNew->data,YES);
-*/	}
+		player[pl].frogState |= FROGSTATUS_ISFLOATING;
+		gravityModifier = 0.5F;
+	}
+	else
+	{
+		player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+		gravityModifier = 1.0F;
+	}
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{

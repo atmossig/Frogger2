@@ -145,6 +145,18 @@ int MemLoadEntities(const void* data, long size)
 				platform->uid = ID;
 				AssignPathToPlatform(platform, flags, path, 0);
 				act = platform->pltActor;
+
+				// check for platforms that are 'shakable' scenics - TESTING - ANDYE
+				if(	gstrcmp(type,"appltree.obe") == 0 || gstrcmp(type,"appltree.ndo") == 0 ||
+					gstrcmp(type,"barrel.obe") == 0 || gstrcmp(type,"barrel.ndo") == 0 ||
+					gstrcmp(type,"pltbarel.obe") == 0 || gstrcmp(type,"pltbarel.ndo") == 0 ||
+					gstrcmp(type,"bucket.obe") == 0 || gstrcmp(type,"bucket.ndo") == 0)
+				{
+					// make this 'platform' shakable
+					SetVector(&platform->pltActor->actor->oldpos,&platform->pltActor->actor->pos);
+					platform->flags |= PLATFORM_NEW_SHAKABLESCENIC;
+				}
+
 				break;
 			}
 

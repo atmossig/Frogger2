@@ -90,7 +90,6 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 */
 GAMETILE *GrapplePointInTongueRange( )
 {
-	VECTOR diff;
 	GAMETILE *cur, *best = NULL;
 	float min = 100000, dist;
 	cur = firstTile;
@@ -127,7 +126,6 @@ GARIB *GaribIsInTongueRange()
 {
 	GARIB *garib,*nearest;
 	GARIB *inRange[8];
-	VECTOR diff;
 	float dist,mags[8];
 	int i = 0,numInRange = 0;
 		
@@ -175,7 +173,6 @@ ACTOR2 *BabyFrogIsInTongueRange()
 {
 	ACTOR2 *act,*nearest;
 	ACTOR2 *inRange[4];
-	VECTOR diff;
 	float dist,mags[4];
 	int i = 0,numInRange = 0;
 
@@ -211,18 +208,38 @@ ACTOR2 *BabyFrogIsInTongueRange()
 
 	// no baby frog in range
 	return NULL;
+}
 
-/*		
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+
+/*	--------------------------------------------------------------------------------
+	Function		: ScenicIsInTongueRange
+	Purpose			: indicates if a scenic is in range when tongueing
+	Parameters		: 
+	Returns			: ACTOR2 *
+	Info			: returns ptr to the nearest scenic (if in range)
+*/
+ACTOR2 *ScenicIsInTongueRange()
+{
+	PLATFORM *cur,*next,*nearest;
+	PLATFORM *inRange[4];
+	float dist,mags[4];
+	int i = 0,numInRange = 0;
+		
+	dprintf"<< ATTEMPTING TO TONGUE A SCENIC >>\n"));
+
+	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
 	{
-		// only check for garibs in visual range
-		if(garib->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
+		next = cur->next;
+
+		// only check for scenics in visual range
+		dist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->pltActor->actor->pos);
+		if(dist > (tongueRadius * tongueRadius))
 			continue;
 
-		if((garib->distanceFromFrog < (tongueRadius * tongueRadius)) && (garib->active) && (numInRange < 8))
+		if((cur->flags & PLATFORM_NEW_SHAKABLESCENIC) && (numInRange < 4))
 		{
 			mags[numInRange]		= dist;
-			inRange[numInRange++]	= garib;
+			inRange[numInRange++]	= cur;
 		}
 	}
 
@@ -240,11 +257,11 @@ ACTOR2 *BabyFrogIsInTongueRange()
 			}
 		}
 
-		return nearest;
+		// we now have the nearest 'scenic' - return relevant actor
+		return nearest->pltActor;
 	}
 
 	return NULL;
-*/
 }
 
 
@@ -331,9 +348,7 @@ void ProcessCollectables()
 
 void AddScreenSpawn(long x, long y, long xa, long ya)
 {
-	SCREENSPAWN *me ;
-	
-	me = JallocAlloc(sizeof(SCREENSPAWN),"sspa",0);
+	SCREENSPAWN *me = (SCREENSPAWN *)JallocAlloc(sizeof(SCREENSPAWN),0,"sspa");
 
 	me->x = x;
 	me->y = y;

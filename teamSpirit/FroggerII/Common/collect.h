@@ -100,6 +100,7 @@ void CreateLevelCollectables(unsigned long *tileList, int type);
 GARIB *GaribIsInTongueRange();
 ACTOR2 *BabyFrogIsInTongueRange();
 GAMETILE *GrapplePointInTongueRange();
+ACTOR2 *ScenicIsInTongueRange();
 
 void CheckTileForCollectable(GAMETILE *tile,long pl);
 

@@ -19,7 +19,6 @@
 //float TONGUE_RADIUSNORMAL = 85.0;
 //float TONGUE_RADIUSLONG	  = 175.0;
 
-
 float tongueRadius			= 200.0;
 
 unsigned long tongueState	= TONGUE_NONE | TONGUE_IDLE;
@@ -43,6 +42,7 @@ char tongueToCollect		= 0;
 GARIB *nearestColl			= NULL;
 ACTOR2 *nearestBabyFrog		= NULL;
 GAMETILE *nearestGrapple    = NULL;
+ACTOR2 *nearestScenic		= NULL;
 
 float tongueMag				= 0;
 float tongueMagStep			= 0;
@@ -52,6 +52,7 @@ float tongueRotateStep		= 0;
 
 SPRITE tongueSprite[MAX_TONGUENODES];
 
+TEXTURE *txtrTongue = NULL;
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitTongue
@@ -71,6 +72,8 @@ void InitTongue(char toCollect)
 	numTongueNodes		= MAX_TONGUENODES;
 
 	tongueToCollect		= toCollect;
+
+	FindTexture(&txtrTongue,UpdateCRC("tongue1.bmp"),YES);
 
 	// Determine frog's forward vector (ff) and up vector (fu) and right vector (fr)
 	RotateVectorByQuaternion(&ff,&v,&frog[0]->actor->qRot);
@@ -153,6 +156,13 @@ void UpdateFrogTongue()
 				nearestBabyFrog->actor->scale.v[Y] *= 0.9;
 				nearestBabyFrog->actor->scale.v[Z] *= 0.9;
 			}
+			else if( tongueToCollect == TONGUE_GET_SCENIC )
+			{
+				tongueSegment--;
+				nearestScenic->actor->pos.v[X] += (-3 + Random(7));
+				nearestScenic->actor->pos.v[Y] += (-3 + Random(7));
+				nearestScenic->actor->pos.v[Z] += (-3 + Random(7));
+			}
 			else // TONGUE_GET_GRAPPLE
 			{
 				SetVector(&frog[0]->actor->pos,&tongueCoords[tongueSegment]);
@@ -169,6 +179,8 @@ void UpdateFrogTongue()
 					PickupCollectable(nearestColl);
 				else if( tongueToCollect == TONGUE_GET_BABY )
 					PickupBabyFrog(nearestBabyFrog);
+				else if( tongueToCollect == TONGUE_GET_SCENIC )
+					SetVector(&nearestScenic->actor->pos,&nearestScenic->actor->oldpos);
 				else
 					PutFrogOnGrapplePoint(nearestGrapple);
 
@@ -284,7 +296,7 @@ void UpdateFrogTongue()
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
 			}
 		}
-		else if( nearestGrapple = GrapplePointInTongueRange( ) )
+		else if(nearestGrapple = GrapplePointInTongueRange())
 		{
 			// Grapple towards point
 			InitTongue(TONGUE_GET_GRAPPLE);
@@ -297,6 +309,50 @@ void UpdateFrogTongue()
 
 			// Calculate the vector to the collectable item and its magnitude
 			SubVector(&p,&nearestGrapple->centre,&tongueCoords[0]);
+
+			tongueMag = Magnitude(&p);
+			MakeUnit(&p);
+
+			// Calculate angle through which the tongue needs to rotate
+			dp = DotProduct(&ff,&p);
+			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
+			{
+				tongueState = TONGUE_NONE | TONGUE_IDLE;
+			}
+			else
+			{
+				tongueMagStep = tongueMag / numTongueNodes;
+
+				// Determine the tongue up vector about which the tongue rotates
+				CrossProduct(&tongueUpVector,&ff,&p);
+
+				tongueRotateAngle = acos(dp);
+				tongueRotateStep = tongueRotateAngle / numTongueNodes;
+
+				// Create tongue segments
+				while(numTongueNodes--)
+					CreateTongueSegment(tongueCoordIndex);
+
+				// Set frog mouth open animation, and the speed
+				frog[0]->actor->animation->animTime = 0;
+				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
+
+				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
+			}
+		}
+		else if(nearestScenic = ScenicIsInTongueRange())
+		{
+			// tongue towards scenic
+			InitTongue(TONGUE_GET_SCENIC);
+
+			// Get first tongue position (tongueCoordIndex == 0)
+			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
+			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
+			tongueCoordIndex++;
+
+			// Calculate the vector to the collectable item and its magnitude
+			SubVector(&p,&nearestScenic->actor->pos,&tongueCoords[0]);
 
 			tongueMag = Magnitude(&p);
 			MakeUnit(&p);
@@ -396,7 +452,7 @@ void RemoveTongueSegment(char idx)
 */
 void AddTongueSprite(short index,float x,float y,float z)
 {
-	FindTexture(&tongueSprite[index].texture,UpdateCRC("tongue1.bmp"),YES);
+	tongueSprite[index].texture		= txtrTongue;
 
 	tongueSprite[index].pos.v[X]	= x;
 	tongueSprite[index].pos.v[Y]	= y;
@@ -404,7 +460,7 @@ void AddTongueSprite(short index,float x,float y,float z)
 
 	tongueSprite[index].anim.type	= SPRITE_ANIM_NONE;
 	
-	tongueSprite[index].scaleX		= 48 - (index << 2);
+	tongueSprite[index].scaleX		= 32;	//48 - (index << 2);
 	tongueSprite[index].scaleY		= tongueSprite[index].scaleX;
 	tongueSprite[index].r			= 255;
 	tongueSprite[index].g			= 0;
