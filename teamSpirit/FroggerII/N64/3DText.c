@@ -14,7 +14,7 @@ TEXT3DLIST text3DList;
 	Returns			: 
 	Info			: Uses TEXT3D structure
 */
-void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO, float sinA, float sinS )
+void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, long xO, long yO, long zO, float sinA, float sinS, float twA )
 {
 	TEXT3D *t;
 	TEXT3D *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
@@ -27,6 +27,7 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t3d->angle = 0;
 	t3d->sinA = sinA;
 	t3d->sinS = sinS;
+	t3d->twistA = twA;
 
 	t3d->vel.v[0] = spd->v[0];
 	t3d->vel.v[1] = spd->v[1];
@@ -83,6 +84,7 @@ void Print3DText( )
 	gDPPipeSync(glistp++);
 
 	gSPDisplayList(glistp++,polyNoZ_dl);
+	gDPSetTextureFilter(glistp++,G_TF_BILERP);
 
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
@@ -130,7 +132,9 @@ void Print3DText( )
 			{
 				FindTexture( &texture, UpdateCRC(texName), YES, texName );
 
-				gDPLoadTextureBlock_4b(glistp++,texture->data,G_IM_FMT_RGBA,texture->sx,texture->sy,
+				LoadTexture(texture);
+
+				gDPLoadTextureBlock_4b(glistp++,texture->data,G_IM_FMT_CI,texture->sx,texture->sy,
 										0,G_TX_CLAMP|G_TX_NOMIRROR,G_TX_CLAMP|G_TX_NOMIRROR,
 										0,0,G_TX_NOLOD,G_TX_NOLOD);
 
@@ -246,7 +250,8 @@ void MakeTextLine( TEXT3D *t3d )
 
 	if( t3d->type == T3D_HORIZONTAL )
 	{
-		float yPa, yPb, yPc, yPd;
+		float yPa, yPb, yPc, yPd,
+			zPa, zPb, zPc, zPd;
 
 		for( i=0; i<len; i++ )
 		{
@@ -257,6 +262,7 @@ void MakeTextLine( TEXT3D *t3d )
 			yPb = yPa;
 			yPc = yPb+tS;
 			yPd = yPc;
+			zPa = zPb = zPc = zPd = t3d->zOffs;
 
 			if( t3d->motion & T3D_MOVE_SQUISH )
 			{
@@ -276,16 +282,53 @@ void MakeTextLine( TEXT3D *t3d )
 				yPc += sf2;
 				yPd += sf1;
 			}
+			if( t3d->motion & T3D_MOVE_SPIN )
+			{
+				float radians = t3d->angle / 57.6,
+					twa = t3d->twistA+radians,
+					sfa = sinf(twa)*tS,
+					sfb = cosf(twa)*tS;
+					
+				yPa = t3d->yOffs + sfa;
+				yPb = t3d->yOffs + sfa;
+				yPc = t3d->yOffs - sfa;
+				yPd = t3d->yOffs - sfa;
+				zPa = t3d->zOffs + sfb;
+				zPb = t3d->zOffs + sfb;
+				zPc = t3d->zOffs - sfb;
+				zPd = t3d->zOffs - sfb;
+			}
+			if( t3d->motion & T3D_MOVE_TWIST )
+			{
+				float radians = t3d->angle / 57.6,
+					twa = (i*t3d->twistA)+radians,
+					twb = ((i+1)*t3d->twistA)+radians,
+					sfy1 = sinf(twa)*tS,
+					sfy2 = sinf(twb)*tS,
+					sfz1 = cosf(twa)*tS,
+					sfz2 = cosf(twb)*tS;
+					
+				yPa = t3d->yOffs + sfy1;
+				yPb = t3d->yOffs + sfy2;
+				yPc = t3d->yOffs - sfy2;
+				yPd = t3d->yOffs - sfy1;
+				zPa = t3d->zOffs + sfz1;
+				zPb = t3d->zOffs + sfz2;
+				zPc = t3d->zOffs - sfz2;
+				zPd = t3d->zOffs - sfz1;
+			}
 
-			V((&vPtr[v+0]),-pB+t3d->xOffs,		t3d->zOffs,	yPa,	0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	t3d->zOffs,	yPb,	0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	t3d->zOffs,	yPc,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+3]),-pB+t3d->xOffs,		t3d->zOffs,	yPd,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+0]),-pB+t3d->xOffs,		zPa,	yPa,	0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	zPb,	yPb,	0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	zPc,	yPc,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+3]),-pB+t3d->xOffs,		zPd,	yPd,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		}
 	}
 	else
 	{
-		float xPa, xPb, xPc, xPd;
+		float xPa, xPb, xPc, xPd,
+			zPa, zPb, zPc, zPd,
+			yPa, yPb, yPc, yPd;
 
 		for( i=0; i<len; i++ )
 		{
@@ -296,6 +339,11 @@ void MakeTextLine( TEXT3D *t3d )
 			xPb = xPa-tS;
 			xPc = xPb;
 			xPd = xPa;
+			yPa = pB+t3d->yOffs;
+			yPb = yPa;
+			yPc = yPb+tS;
+			yPd = yPc;
+			zPa = zPb = zPc = zPd = t3d->zOffs;
 
 			if( t3d->motion & T3D_MOVE_SQUISH )
 			{
@@ -315,11 +363,46 @@ void MakeTextLine( TEXT3D *t3d )
 				xPc += sf2;
 				xPd += sf2;
 			}
+			if( t3d->motion & T3D_MOVE_SPIN )
+			{
+				float radians = t3d->angle / 57.6,
+					twa = t3d->twistA+radians,
+					sfa = sinf(twa)*tS,
+					sfb = cosf(twa)*tS;
+					
+				xPa = t3d->xOffs + sfa;
+				xPb = t3d->xOffs - sfa;
+				xPc = t3d->xOffs - sfa;
+				xPd = t3d->xOffs + sfa;
+				zPa = t3d->zOffs + sfb;
+				zPb = t3d->zOffs - sfb;
+				zPc = t3d->zOffs - sfb;
+				zPd = t3d->zOffs + sfb;
+			}
+			if( t3d->motion & T3D_MOVE_TWIST )
+			{
+				float radians = t3d->angle / 57.6,
+					twa = (i*t3d->twistA)+radians,
+					twb = ((i+1)*t3d->twistA)+radians,
+					sfx1 = sinf(twa)*tS,
+					sfx2 = sinf(twb)*tS,
+					sfz1 = cosf(twa)*tS,
+					sfz2 = cosf(twb)*tS;
+					
+				xPa = t3d->xOffs + sfx1;
+				xPb = t3d->xOffs - sfx1;
+				xPc = t3d->xOffs - sfx2;
+				xPd = t3d->xOffs + sfx2;
+				zPa = t3d->zOffs + sfz1;
+				zPb = t3d->zOffs - sfz1;
+				zPc = t3d->zOffs - sfz2;
+				zPd = t3d->zOffs + sfz2;
+			}
 
-			V((&vPtr[v+0]),xPa,	t3d->zOffs,	pB+t3d->yOffs,		0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+1]),xPb,	t3d->zOffs,	pB+t3d->yOffs,		0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+2]),xPc,	t3d->zOffs,	pB+tS+t3d->yOffs,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+3]),xPd,	t3d->zOffs,	pB+tS+t3d->yOffs,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+0]),xPa,	zPa, yPa, 0, 0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+1]),xPb,	zPb, yPb, 0, 1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+2]),xPc,	zPc, yPc, 0, 1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+3]),xPd,	zPd, yPd, 0, 0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		}
 	}
 }
@@ -336,7 +419,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 {
 	int temp;
 
-	if( t3d->motion & T3D_MOVE_SPIN )
+	if( (t3d->motion & T3D_MOVE_SPIN) || (t3d->motion & T3D_MOVE_TWIST) )
 	{
 		t3d->angle += t3d->rSpeed;
 		if( t3d->angle >= 360 )

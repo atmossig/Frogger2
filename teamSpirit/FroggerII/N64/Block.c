@@ -1530,10 +1530,10 @@ void DrawGraphics(void *arg)
 					else if( grabData.afterEffect == FROG_DEATH_IN )
 						DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
 
-					//DrawCameraSpaceActorList();
-
 					if( gameState.mode && text3DList.numEntries )
 						Print3DText( );					
+
+					DrawCameraSpaceActorList( );					
 
 					if(darkenedLevel)
 						DrawDarkenedLevel();

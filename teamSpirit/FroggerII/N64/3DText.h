@@ -31,7 +31,7 @@ typedef struct _TEXT3D
 	short type;				// Line, circle, etc
 	unsigned long motion;	// Static, spin, move from left
 	float angle, scale, radius,
-		sinA, sinS;
+		sinA, sinS, twistA; // Sine amount and speed, twist amount
 	long width, xOffs, yOffs, zOffs;
 	VECTOR vel;             // Velocity vector
 	float rSpeed;			// Speed of rotation
@@ -53,7 +53,7 @@ extern TEXT3DLIST text3DList;
 
 extern void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, 
 							   short type, unsigned long motion, VECTOR *spd, float rSpd, 
-							   long xO, long yO, long zO, float sinA, float sinS );
+							   long xO, long yO, long zO, float sinA, float sinS, float twA );
 extern void Print3DText( );
 extern void Calculate3DText( );
 extern void Init3DTextList( );
