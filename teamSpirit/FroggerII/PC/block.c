@@ -161,7 +161,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitInputDevices())
 		ok = 0;
 	
-	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
+/*	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
 	{
 		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
 	} 
@@ -180,7 +180,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	//InitSaveData();
 
 	playCDTrack ( winInfo.hWndMain, 1 );
-
+*/
 	gameState.mode		= FRONTEND_MODE;
 	//frontEndState.mode	= TITLE_MODE;
 
