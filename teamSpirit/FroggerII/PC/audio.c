@@ -14,13 +14,13 @@
 
 #define MYDEBUG
 
-SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,
-								"x:\\teamspirit\\pcversion\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,
-								"x:\\teamspirit\\pcversion\\clocktock.wav",			2, 22050, 16, GEN_CLOCK_TOCK,
-								"x:\\teamspirit\\pcversion\\clocktick.wav",			2, 22050, 16, GEN_CLOCK_TICK,
-								"x:\\teamspirit\\pcversion\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,
-								"x:\\teamspirit\\pcversion\\superhop.wav",			2, 22050, 16, GEN_SUPER_HOP,
-								"x:\\teamspirit\\pcversion\\babyfrog.wav",			2, 22050, 16, GEN_BABY_FROG };
+SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\sfx\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,
+								"x:\\teamspirit\\pcversion\\sfx\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,
+								"x:\\teamspirit\\pcversion\\sfx\\clocktock.wav",		2, 22050, 16, GEN_CLOCK_TOCK,
+								"x:\\teamspirit\\pcversion\\sfx\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,
+								"x:\\teamspirit\\pcversion\\sfx\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,
+								"x:\\teamspirit\\pcversion\\sfx\\superhop.wav",			2, 22050, 16, GEN_SUPER_HOP,
+								"x:\\teamspirit\\pcversion\\sfx\\babyfrog.wav",			2, 22050, 16, GEN_BABY_FROG };
 
 //***********************************
 // Function Prototypes
