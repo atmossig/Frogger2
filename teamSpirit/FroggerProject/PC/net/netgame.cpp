@@ -243,7 +243,6 @@ void NetgameGameloop()
 
 	if (gameReady)
 	{
-
 		// Make sure we don't send update messages EVERY frame, in case we're running at, like,
 		// 8 million frames per second, or some junk
 		if (actFrameCount >= nextUpdate)
@@ -289,7 +288,9 @@ void NetgameGameloop()
 		}
 	}
 	else
+	{
 		WaitForGameReady();
+	}
 
 	if (hostSync)
 	{

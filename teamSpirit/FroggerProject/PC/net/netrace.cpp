@@ -113,6 +113,7 @@ int NetRaceCountdown()
 			}
 		}
 
+		cameoMode = 1;
 		return 1;
 	}
 	else
@@ -125,6 +126,7 @@ int NetRaceCountdown()
 			PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
 
 			player[0].canJump = 1;
+			cameoMode = 0;
 			
 			// Reset countdown for next time
 			countdown = 4;
