@@ -46,6 +46,7 @@ void UpdateFXExplode( SPECFX *fx );
 void UpdateFXTrail( SPECFX *fx );
 void UpdateFXLightning( SPECFX *fx );
 void UpdateFXFly( SPECFX *fx );
+void UpdateFXTwinkle( SPECFX *fx );
 
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
@@ -145,6 +146,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		break;
 	case FXTYPE_FROGSHIELD:
+		effect->numP = 1;
 
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "shield" );
 
@@ -459,6 +461,37 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXLightning;
 		effect->Draw = DrawFXLightning;
+		break;
+
+	case FXTYPE_GLOW:
+	case FXTYPE_TWINKLE:
+		effect->numP = 1;
+
+		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "shield" );
+
+		if( effect->type == FXTYPE_GLOW )
+			effect->sprites->texture = txtrSolidRing;
+		else
+			effect->sprites->texture = txtrFlash;
+
+		effect->sprites->r = 255;
+		effect->sprites->g = 255;
+		effect->sprites->b = 255;
+		effect->sprites->a = 128;
+
+		effect->sprites->offsetX = -16;
+		effect->sprites->offsetY = -16;
+		effect->sprites->flags = SPRITE_TRANSLUCENT;
+
+		effect->sprites->scaleX = size;
+		effect->sprites->scaleY = size;
+		SetVector( &effect->sprites->pos, &effect->origin );
+
+		AddSprite( effect->sprites, NULL );
+
+		effect->fade = effect->sprites->a / life;
+
+		effect->Update = UpdateFXTwinkle;
 		break;
 	}
 
@@ -1125,6 +1158,60 @@ void UpdateFXFly( SPECFX *fx )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: UpdateFXTwinkle
+	Purpose			: Glows around fire, candles etc and twinkles from gold
+	Parameters		: 
+	Returns			: 
+	Info			: Need a method of specifying, not just affix to nmes
+*/
+void UpdateFXTwinkle( SPECFX *fx )
+{
+	int fo;
+
+	if( fx->follow )
+	{
+		SetVector( &fx->origin, &fx->follow->pos );
+		SetVector( &fx->sprites->pos, &fx->origin );
+	}
+
+	if( fx->type == FXTYPE_TWINKLE )
+	{
+		if( fx->deadCount )
+			if( !(--fx->deadCount) )
+			{
+				SubSpecFX(fx);
+				return;
+			}
+
+		fo = Random((int)fx->fade) * gameSpeed;
+		if( fx->sprites->a > fo ) fx->sprites->a -= fo;
+		else fx->sprites->a = 0;
+
+		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
+			fx->deadCount = 5;
+	}
+
+	// Use tilt to specify twinkliness - urgh
+	if( fx->tilt >= 2 )
+	{
+		int size = Random(5)-2;
+		fx->sprites->scaleX += size;
+		fx->sprites->scaleY += size;
+		if( fx->sprites->scaleX > fx->scale.v[X]*2 ) fx->sprites->scaleX = fx->scale.v[X]*2;
+		else if( fx->sprites->scaleX < fx->scale.v[X]*0.5 ) fx->sprites->scaleX = fx->scale.v[X]*0.5;
+		if( fx->sprites->scaleY > fx->scale.v[Y]*2 ) fx->sprites->scaleY = fx->scale.v[Y]*2;
+		else if( fx->sprites->scaleY < fx->scale.v[Y]*0.5 ) fx->sprites->scaleY = fx->scale.v[Y]*0.5;
+	}
+	if( fx->tilt )
+	{
+		fx->sprites->a += Random(50)-25;
+		if( fx->sprites->a > 200 ) fx->sprites->a = 200;
+		else if( fx->sprites->a < 50 ) fx->sprites->a = 50;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: FreeSpecFXList
 	Purpose			: frees the fx linked list
 	Parameters		: 
@@ -1486,6 +1573,35 @@ void ProcessAttachedEffects( void *entity, int type )
 
 			SetAttachedFXColour( fx, act->effects );
 		}
+		if( act->effects & EF_TWINKLE )
+		{
+			fx = CreateAndAddSpecialEffect( FXTYPE_TWINKLE, &act->actor->pos, &normal, 20, 0, 0, Random(3)+1 );
+			SetAttachedFXColour( fx, act->effects );
+			fx->follow = act->actor;
+
+			if( act->effects & EF_FAST )
+				fx->tilt = 3;
+			else if( act->effects & EF_MEDIUM )
+				fx->tilt = 2;
+			else if( act->effects & EF_SLOW )
+				fx->tilt = 1;
+		}
+	}
+
+	if( act->effects & EF_GLOW )
+	{
+		fx = CreateAndAddSpecialEffect( FXTYPE_GLOW, &act->actor->pos, &normal, 120, 0, 0, 0 );
+		SetAttachedFXColour( fx, act->effects );
+		fx->follow = act->actor;
+
+		if( act->effects & EF_FAST )
+			fx->tilt = 2;
+		else if( act->effects & EF_MEDIUM )
+			fx->tilt = 1;
+		else if( act->effects & EF_SLOW )
+			fx->tilt = 0;
+
+		act->effects &= ~EF_GLOW;
 	}
 
 	if( (act->effects & EF_BUTTERFLYSWARM) || (act->effects & EF_BATSWARM) || (act->effects & EF_SPACETHING1) )

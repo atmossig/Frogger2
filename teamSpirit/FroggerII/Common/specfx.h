@@ -43,6 +43,8 @@ extern char pauseMode;
 #define EF_LIGHTNING					(1 << 13)	// Emperors hands effect
 #define EF_SPACETHING1					(1 << 14)	// Swirly jobby
 #define EF_SPARKLYTRAIL					(1 << 15)	// Flash texture
+#define EF_GLOW							(1 << 16)	// Around candles and fire and stuff
+#define EF_TWINKLE						(1 << 17)	// For gold and gems and things
 
 #define EF_RANDOMCREATE					(1 << 25)
 #define EF_FAST							(1 << 26)
@@ -80,6 +82,8 @@ enum
 	FXTYPE_HEALTHFLY,
 	FXTYPE_SPACETHING1,
 	FXTYPE_FROGSHIELD,
+	FXTYPE_GLOW,
+	FXTYPE_TWINKLE,
 
 	FXTYPE_NUMTYPES
 };
