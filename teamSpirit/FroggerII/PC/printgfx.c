@@ -20,7 +20,7 @@ short grabFlag = 0;
 extern float RES_DIFF;
 extern float RES_DIFF2;
 extern long runHardware;
-
+long numSprites;
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
 	Purpose			: used to print the backdrops
@@ -142,6 +142,7 @@ void PrintSprite(SPRITE *sprite)
 		distx = disty = (FOV)/(m.v[Z]+DIST);
 		distx *= (sprite->scaleX/(64.0))*RES_DIFF;
 		disty *= (sprite->scaleY/(64.0))*RES_DIFF;
+		numSprites++;
 		if (runHardware)
 			DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,(m.v[Z]+DIST)/2000.0,32*distx,32*disty,
 				0,
@@ -271,6 +272,7 @@ void PrintSpriteOverlays()
 			
 			//tEntry->xo = 7 * (32.0/256.0);
 			//tEntry->yo = 3 * (32.0/256.0);
+			numSprites++;
 			if (runHardware)
 				DrawAlphaSprite (cur->xPos*RES_DIFF2,cur->yPos*RES_DIFF2,0,cur->width*RES_DIFF2,cur->height*RES_DIFF2,
 				0,

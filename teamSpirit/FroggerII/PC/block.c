@@ -286,6 +286,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
     while(ok)
 	{
+		StartTimer(10,"Msg");
+			
         while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
 		{
 			if(msg.message == WM_QUIT)
@@ -297,10 +299,12 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			TranslateMessage(&msg); 
 			DispatchMessage(&msg);
 		}
-
+		EndTimer (10);
 		if(appActive)
 		{
+			
 #ifndef MBR_DEMO
+			StartTimer(9,"Before");
 
 			if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2;
@@ -374,16 +378,21 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			keysEnabled = !(editorOk || (chatFlags & CHAT_INPUT));
 			ProcessUserInput(winInfo.hWndMain);
+			EndTimer(9);
 
 			DrawGraphics();
 
-			if (speedKill)
-				Sleep(speedKill);
+			//if (speedKill)
+			//	Sleep(speedKill);
 
 			StartTimer(3,"Flip");
 			DirectXFlip();
 			EndTimer(3);
+
+			StartTimer(8,"CleanBuf");
 			CleanBufferSamples();
+			EndTimer(8);
+
 			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
 
 			newTickCount = GetTickCount();
@@ -392,6 +401,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			actTickCount = newTickCount;
 			
 			actFrameCount = (GetTickCount()/(1000.0/60.0));
+			
 
 		}
 	}
@@ -605,9 +615,11 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 	Info			: 
 */
 VECTOR oldCCSource, oldCCTarget;
-
+extern long numSprites;
 void DrawGraphics() 
 {
+	numSprites = 0;
+
 	currentFrameTime = timeGetTime();
 		
 	StartTimer(0,"DrawGfx");
@@ -643,14 +655,16 @@ void DrawGraphics()
 	
 	EndTimer(2);
 
+	StartTimer(11,"Editor");
 	if (editorOk)
 		DrawEditor();
+	EndTimer(11);
+
 
 	if( chatFlags && gameState.mode == GAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
 
-	EndTimer(0);
-
+	
 	/* CAMERA SPACE STUFF */
 	// Back up currCamSource and currCamTarget
 	oldCCSource = currCamSource[screenNum];
@@ -669,6 +683,9 @@ void DrawGraphics()
 	currCamSource[screenNum] = oldCCSource;
 	currCamTarget[screenNum] = oldCCTarget;
 	/* END CAMERA SPACE STUFF */
+	EndTimer(0);
+
+	EndTimer(5);
 
 	if (drawTimers)
 		switch (drawTimers)
@@ -688,7 +705,7 @@ void DrawGraphics()
 					if (drawTimers == 2)
 						sprintf(speed,"%4f %4f %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn);
 					else
-						sprintf(speed,"%4f %4f %lu %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numPixelsDrawn);
+						sprintf(speed,"%4f %4f %lu %lu",gameSpeed,(60.0/gameSpeed),numFacesDrawn,numSprites);
 					
 					SetBkMode(hdc, TRANSPARENT);
 					SetTextColor(hdc, RGB(255,0,0));
@@ -705,11 +722,13 @@ void DrawGraphics()
 		HoldTimers();
 		
 	ClearTimers();
-
+	StartTimer(5,"EVERYTHING!");
+	StartTimer(7,"EndDraw");
 	if (runHardware)
 		EndDrawHardware();
 	else
 		SoftwareEndFrame();
 
 	AnimateTexturePointers();
+	EndTimer(7);
 }

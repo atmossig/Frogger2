@@ -424,7 +424,12 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		tmp[4] = '\0';
 		// If a water object, draw always
 		if( !gstrcmp( tmp, "wat_\0" ) )
+		{
 			theActor->flags |= ACTOR_WATER;
+
+			if (ts->name[4]=='f')
+				theActor->flags |= ACTOR_SLIDYTEX;
+		}
 
 		tv = ts->rot.y;
 		ts->rot.y = ts->rot.z;
