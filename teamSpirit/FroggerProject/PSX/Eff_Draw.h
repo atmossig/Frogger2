@@ -8,7 +8,7 @@
 void DrawSpecialFX();
 void ProcessShadows();
 //void DrawShadow( FVECTOR, FVECTOR, fixed, fixed, short, long );
-void DrawFXRipple( SPECFX * );
+void DrawFXDecal( SPECFX * );
 void DrawFXRing( SPECFX * );                           
 void DrawFXTrail( SPECFX * );                        
 void CalcTrailPoints( SVECTOR * , SPECFX * , int  ); 

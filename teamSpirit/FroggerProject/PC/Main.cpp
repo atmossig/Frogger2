@@ -51,7 +51,10 @@
 
 #include "editor.h"
 
-#include <temp_pc.h>
+#include "temp_pc.h"
+#include "pcsprite.h"
+#include "pcgfx.h"
+
 #include "controll.h"
 
 #include "mdx.h"
@@ -148,12 +151,52 @@ long DrawLoop(void)
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+
 	if (world)
 		DrawLandscape(world);
 
 	StartTimer(1,"Actors");
 	ActorListDraw();
 	EndTimer(1);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	
+	// Draw Sprites
+	if(sprList.count)
+		PrintSprites();
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+
+	// FX and shadows
+	DrawSpecialFX();
+
+/*	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+	// Light halos
+	CheckHaloPoints();
+	DrawHalos();
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+*/
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	PrintSpriteOverlays(0);	
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);//D3DFILTER_LINEAR);
+	PrintSpriteOverlays(1);	
+
+/*	if( text3DList.numEntries )
+	{
+		Calculate3DText( );
+		Print3DText( );
+	}
+*/
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+
 
 	DrawAllFrames();
 	PrintTextOverlays();
@@ -178,7 +221,11 @@ long DrawLoop(void)
 	camZ = t.x*8;
 	camY = t.y*8;
 
+//	if( gameState.mode == INGAME_MODE )
+//		ProcessProcTextures( );
 	
+//	AnimateTexturePointers();
+
 	return 0;
 }
 
@@ -271,6 +318,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	CommonInit();
 
 	pcFont = InitFont("FontA",baseDirectory);
+	font = (psFont *)pcFont;
 
 	InitTiming(60.0);
 

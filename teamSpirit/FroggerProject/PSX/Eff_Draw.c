@@ -212,7 +212,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short 
 
 
 		   
-void DrawFXRipple( SPECFX *ripple )
+void DrawFXDecal( SPECFX *ripple )
 {
 	FVECTOR tempV[4];
 	SVECTOR vT[4];

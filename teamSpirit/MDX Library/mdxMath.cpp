@@ -31,6 +31,10 @@ extern "C"
 {
 #endif
 
+MDX_VECTOR	upV = {0,1,0},
+			rightV = {1,0,0},
+			inV = {0,0,1};
+
 MDX_QUATERNION zeroQuat = {0,0,0,1};
 MDX_MATRIXSTACK	matrixStack;
 

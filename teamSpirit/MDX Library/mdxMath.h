@@ -6,7 +6,12 @@ extern "C"
 {
 #endif
 
-typedef struct
+#define PI			(3.141592654)
+#define PI_OVER_2	(3.141592654/2.0F)
+#define PI_OVER_4	(3.141592654/4.0F)
+#define PI2			(3.141592654*2.0F)
+
+typedef struct _MDX_VECTOR
 {
 	float	vx,vy,vz;
 }MDX_VECTOR;
@@ -47,6 +52,8 @@ typedef struct
 }MDX_MATRIXSTACK;
 
 extern MDX_MATRIXSTACK	matrixStack;
+
+extern MDX_VECTOR upV, rightV, inV;
 
 void guTranslateF(float a[4][4], float dx, float dy, float dz);
 void guMtxCatF(float b[4][4], float a[4][4], float ret[4][4]);

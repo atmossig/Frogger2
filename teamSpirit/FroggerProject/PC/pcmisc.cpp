@@ -16,9 +16,9 @@
 #include <islmem.h>
 
 #include "Main.h"
-#include "frogger.h"
-#include "sprite.h"
 #include "pcmisc.h"
+
+int drawOverlays = 1;
 
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
 {
@@ -42,96 +42,32 @@ LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
 	return temp;
 }
 
-//----- [ SORTING STUFF ] -----------------------------------------------------------------------
-
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitSpriteSortArray
-	Purpose			: initialises the sprite sort array
-	Parameters		: int
-	Returns			: void
-	Info			: 
+	Function 	: PTSurfaceBlit
+	Purpose 	: Copy data into texture surface from procedural texture
+	Parameters 	: Target texture, source data
+	Returns 	: 
+	Info 		:
 */
-void InitSpriteSortArray(int numElements)
+void PTSurfaceBlit( LPDIRECTDRAWSURFACE7 to, unsigned char *buf, unsigned short *pal )
 {
-	if(spriteSortArray)
-		FreeSpriteSortArray();
+	DDSURFACEDESC2 ddsd;
+	HRESULT res;
+	long i;
+	DDINIT(ddsd);
 
-	spriteSortArray = (SPRITE *)MALLOC0( sizeof(SPRITE) * numElements );
-	numSortArraySprites = 0;
-}
+	static LPDIRECTDRAWSURFACE7 pSurface = D3DCreateTexSurface(32,32,0xf81f, 0,0);
+	
+	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
+		ddShowError(res);
 
+	i=928;
 
-/*	--------------------------------------------------------------------------------
-	Function		: FreeSpriteSortArray
-	Purpose			: frees the sprite sort array
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void FreeSpriteSortArray()
-{
-	if(spriteSortArray)
-		FREE( spriteSortArray );
+	while( i-- ) ((unsigned short *)ddsd.lpSurface)[i] = (unsigned short)pal[(unsigned char)buf[i]];
 
-	spriteSortArray = NULL;
-}
+	pSurface->Unlock(NULL);
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: SpriteZCompare
-	Purpose			: function to compare transformed sprite z-values for sorting
-	Parameters		: const void *,const void *
-	Returns			: int
-	Info			: -1 if less than, 0 if equal to, 1 if greater than
-*/
-int SpriteZCompare(const void *arg1,const void *arg2)
-{
-	SPRITE *s1 = (SPRITE *)arg1;
-	SPRITE *s2 = (SPRITE *)arg2;
-
-	if(s1->sc.vz < s2->sc.vz)
-		return -1;
-	else if(s1->sc.vz == s2->sc.vz)
-		return 0;
-	else
-		return 1;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ZSortSpriteList
-	Purpose			: sorts the sprites based on z-distance
-	Parameters		: 
-	Returns			: void
-	Info			: list to sort is specified in srcList
-*/
-
-#define SPRITE_ZSORT_DRAWDISTANCE	450
-
-void ZSortSpriteList()
-{
-	SPRITE *cur;
-	MDX_VECTOR frogXfm;
-		
-	if(sprList.count < 2)
-		return;
-
-	XfmPoint(&frogXfm,(MDX_VECTOR *)&frog[0]->actor->position,NULL);
-
-	// uses a quick sort
-
-	// traverse through sprite list and create the sort array
-	numSortArraySprites = 0;
-	for(cur = sprList.head.next; cur != &sprList.head && numSortArraySprites < MAX_ARRAY_SPRITES; cur = cur->next)
-	{
-		// the static array should be large enough to hold sprites
-		if((cur->sc.vz - frogXfm.vz) < farClip )
-		{
-			spriteSortArray[numSortArraySprites] = *(cur);
-			numSortArraySprites++;
-		}
-	}
-
-	qsort(spriteSortArray,numSortArraySprites,sizeof(SPRITE),SpriteZCompare);
+	if ((res = to->BltFast(0,0,pSurface,NULL,0))!=DD_OK)
+		ddShowError(res);
 }
