@@ -3131,7 +3131,7 @@ void psiSetKeyFrames(PSIOBJECT *world, ULONG frame)
 	psiSetRotateKeyFrames(world, frame);
 }
 
-static void psiSetRotateKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
+/*static void psiSetRotateKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
 {		  
 	MATRIX		rotmat1;
 	SQKEYFRAME	*tmprotatekeys,*tmprotatekeyslast;
@@ -3257,7 +3257,7 @@ static void psiSetRotateKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 		//ShortquaternionSlerpMatrix(&quat[0],&quat[1],b,&world->matrix);
 		{
 			LONG	s, xs,ys,zs, wx,wy,wz, xx,xy,xz, yy,yz,zz/*, cosom, tempcalc*/;
-			VECTOR	source, sqrin, sqrout;
+		/*	VECTOR	source, sqrin, sqrout;
 
 			/*
 			// calc cosine (dot product)
@@ -3279,7 +3279,7 @@ static void psiSetRotateKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 			// "from" and "to" quaternions are very close 
 			//  ... so we can do a linear interpolation
 			
-			gte_ld_intpol_sv1(&quat[0]);
+	/*		gte_ld_intpol_sv1(&quat[0]);
 			gte_ld_intpol_sv0(&quat[1]);
 
 			gte_lddp(b);			// load interpolant
@@ -3351,9 +3351,9 @@ static void psiSetRotateKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 		else
 			world = 0;
 	}
-}
+}*/
 
-static void psiSetScaleKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
+/*static void psiSetScaleKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
 {
 	SVKEYFRAME	*tmpscalekeys,*tmpscalekeyslast;
 	LONG		t;
@@ -3489,9 +3489,9 @@ static void psiSetScaleKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, 
 		else
 			world = 0;
 	}
-}
+}*/
 
-static void psiSetMoveKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
+/*static void psiSetMoveKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
 {
 	
 	register SVKEYFRAME	*workingkeys,*tmpmovekeys;
@@ -3620,18 +3620,18 @@ static void psiSetMoveKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, U
 		else
 			world = 0;
 	}
-}
+}*/
 
 
-void psiSetKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG blend)
+/*void psiSetKeyFrames3(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG blend)
 {
 	psiSetMoveKeyFrames3(world, frame0, frame1, blend, world);
 	psiSetScaleKeyFrames3(world, frame0, frame1, blend, world);
 	psiSetRotateKeyFrames3(world, frame0, frame1, blend, world);
-}
+}*/
 
 
-static void psiSetRotateKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b)
+/*static void psiSetRotateKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b)
 {		  
 	MATRIX		rotmat1;
 	SQKEYFRAME	*tmprotatekeys,*tmprotatekeyslast;
@@ -3757,7 +3757,7 @@ static void psiSetRotateKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 		//ShortquaternionSlerpMatrix(&quat[0],&quat[1],b,&world->matrix);
 		{
 			LONG	s, xs,ys,zs, wx,wy,wz, xx,xy,xz, yy,yz,zz/*, cosom, tempcalc*/;
-			VECTOR	source, sqrin, sqrout;
+	/*		VECTOR	source, sqrin, sqrout;
 
 			/*
 			// calc cosine (dot product)
@@ -3779,7 +3779,7 @@ static void psiSetRotateKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 			// "from" and "to" quaternions are very close 
 			//  ... so we can do a linear interpolation
 			
-			gte_ld_intpol_sv1(&quat[0]);
+	/*		gte_ld_intpol_sv1(&quat[0]);
 			gte_ld_intpol_sv0(&quat[1]);
 
 			gte_lddp(b);			// load interpolant
@@ -3847,9 +3847,9 @@ static void psiSetRotateKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1,
 		}
 		world = world->next;
 	}
-}
+}*/
 
-static void psiSetScaleKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b)
+/*static void psiSetScaleKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b)
 {
 	SVKEYFRAME	*tmpscalekeys,*tmpscalekeyslast;
 	LONG		t;
@@ -3982,9 +3982,9 @@ static void psiSetScaleKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, 
 
 		world = world->next;
 	}
-}
+}*/
 
-static void psiSetMoveKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
+/*static void psiSetMoveKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG b, PSIOBJECT *root)
 {
 	
 	register SVKEYFRAME	*workingkeys,*tmpmovekeys;
@@ -4123,15 +4123,15 @@ static void psiSetMoveKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, U
 		
 		world = world->next;
 	}
-}
+}*/
 
 
-void psiSetKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG blend)
+/*void psiSetKeyFrames2(PSIOBJECT *world, ULONG frame0, ULONG frame1, ULONG blend)
 {
 	psiSetMoveKeyFrames2(world, frame0, frame1, blend, world);
 	psiSetScaleKeyFrames2(world, frame0, frame1, blend);
 	psiSetRotateKeyFrames2(world, frame0, frame1, blend);
-}
+}*/
 
 
 /**************************************************************************

@@ -31,7 +31,7 @@ extern int sortCount;
 
 int polyCount = 0;
 
-signed char actorShiftDepth;
+short actorShiftDepth;
 
 // SL: This is the pre-made up all black palette.
 const USHORT EXPLORE_black_ref_palette[16] =

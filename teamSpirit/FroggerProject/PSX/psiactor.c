@@ -505,7 +505,7 @@ void actorDraw2(ACTOR *actor)
 
 
 
-void actorDrawBones(ACTOR *actor)
+/*void actorDrawBones(ACTOR *actor)
 {
 	PSIOBJECT *world;
 
@@ -534,7 +534,7 @@ void actorDrawBones(ACTOR *actor)
 		gte_SetTransMatrix(&GsWSMATRIX);
 		drawBones(world->child, world);
 	}
-}
+}*/
 
 
 
@@ -711,7 +711,7 @@ void actorSetAnimation(ACTOR *actor, ULONG frame, int setKeys)
 **************************************************************************/
 
 
-void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
+/*void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
 {
 	PSIOBJECT *world;
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
@@ -749,7 +749,7 @@ void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
 	world->matrix.t[2] = result.vz;
 	*/
 
-	if (actorAnim->exclusive)  
+	/*if (actorAnim->exclusive)  
 	{
 		anim = (ANIMATION*) (actor->animSegments + (actorAnim->currentAnimation*2));
 		if(actorAnim->frame >= anim->animEnd)
@@ -771,7 +771,7 @@ void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
 		// Store Root Bone movement
 		// Use Basic Position - IE Set root bone to zero
 }
-
+*/
 
 
 
@@ -1240,11 +1240,11 @@ void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int spe
  		actorAnimate(actor, animNum, loop, queue, speed, skip);
 }
 
-void actorSetAnimationSpeed(ACTOR *actor, int speed)
+/*void actorSetAnimationSpeed(ACTOR *actor, int speed)
 {
 	actor->animation.animationSpeed = speed;
 }
-
+*/
 /**************************************************************************
 	FUNCTION:	
 	PURPOSE:	draw all actors in actorList
@@ -1252,7 +1252,7 @@ void actorSetAnimationSpeed(ACTOR *actor, int speed)
 	RETURNS:	
 **************************************************************************/
 
-void actorDrawAll()
+/*void actorDrawAll()
 {
 
 	int loop;
@@ -1270,7 +1270,7 @@ void actorDrawAll()
 		tempActor = tempActor->next;
 		loop--;
 	}
-}
+}*/
 
 /**************************************************************************
 	FUNCTION:	
@@ -1279,7 +1279,7 @@ void actorDrawAll()
 	RETURNS:	
 **************************************************************************/
 
-void actorMove(ACTOR *actor)
+/*void actorMove(ACTOR *actor)
 {
 	int i,v,rotcalc,rotate;
 	PSIOBJECT *world;
@@ -1328,8 +1328,8 @@ void actorMove(ACTOR *actor)
 		}
 	}
 }
-
-void actorDraw2(ACTOR *actor)
+*/
+/*void actorDraw2(ACTOR *actor)
 {
 	MATRIX		scaleMatrix;
 	PSIOBJECT	*world;
@@ -1354,9 +1354,9 @@ void actorDraw2(ACTOR *actor)
 	gte_stlvl(&world->matrixscale.t);
 
 	psiDrawSegments(&actor->psiData);
-}
+}*/
 
-void drawBones(PSIOBJECT *world, PSIOBJECT *parent)
+/*void drawBones(PSIOBJECT *world, PSIOBJECT *parent)
 {
 	LINE_F2	*line;
 	VERT	worldPos, parentPos;
@@ -1393,7 +1393,7 @@ void drawBones(PSIOBJECT *world, PSIOBJECT *parent)
 		world = world->next;
 	}
 }
-
+*/
 /**************************************************************************
 	FUNCTION:	actorUpdateAnimation()
 	PURPOSE:	Set keyframe information for current object frame
@@ -1516,7 +1516,7 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 
 }
 
-void actorRotate(short angx, short angy, short angz, long movex, long movey, long movez, VECTOR *result)
+/*void actorRotate(short angx, short angy, short angz, long movex, long movey, long movez, VECTOR *result)
 {																
 	SVECTOR  MATHS_ang;											
 	VECTOR   MATHS_move;										
@@ -1533,7 +1533,7 @@ void actorRotate(short angx, short angy, short angz, long movex, long movey, lon
 	MATHS_rotMat = GsIDMATRIX;									
 	RotMatrixYXZ_gte(&MATHS_ang, &MATHS_rotMat);				
 	ApplyMatrixLV(&MATHS_rotMat, &MATHS_move, (result));		
-}
+}*/
 
 /**************************************************************************
 	FUNCTION:	actorIsVisible
@@ -1594,13 +1594,13 @@ UBYTE actorIsVisible(ACTOR *actor)
 	RETURNS:	sets values in actor structure's bounding box
 **************************************************************************/
 
-void actorSetBounding(ACTOR *actor,int frame)
+/*void actorSetBounding(ACTOR *actor,int frame)
 {
 	actorSetBoundingRotated(actor,frame,0,0,0);
-}
+}*/
 
 
-void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
+/*void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 {
 	MATRIX		rotmat1;
 	int j, i;
@@ -1612,7 +1612,7 @@ void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 			for ( j = 0; j < 3; j++ )
 				dest->matrix.m[i][j] = src->matrix.m[i][j];*/
 
-			dest->matrix = src->matrix;
+	/*		dest->matrix = src->matrix;
 			
 			dest->rotate = src->rotate;
 			
@@ -1646,7 +1646,7 @@ void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 //		RotMatrixYXZ_gte ( &dest->rotate, &rotmat1 );
 //		gte_MulMatrix0 ( &rotmat1, &dest->matrix, &dest->matrix );
 
-		if ( src->child )
+/*		if ( src->child )
 			CopyKeyFrames ( dest->child, src->child );
 
 		dest	= dest->next;
@@ -1654,7 +1654,7 @@ void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 		
 	}
 	
-
+*/
 
 /*	for ( i = 0; i < 3; i++ )
 		for ( j = 0; j < 3; j++ )
@@ -1683,8 +1683,8 @@ void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
 
 	if ( src->psiData.object->next )*
 		KeyFrameScan ( src->psiData.object->next, dest->psiData.object->next );*/
-}
-
+/*}
+*/
 
 
 
