@@ -272,6 +272,12 @@ void ChangeLevel( EVENT *event )
 }
 
 
+void ScreenGrab( EVENT *event )
+{
+#ifndef PC_VERSION
+	Screen2Texture();
+#endif
+}
 
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
 
@@ -298,6 +304,22 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
+			/* //Does a screen grab to a texture array
+			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
+			*fnum = 100;
+
+			args = AllocArgs(3);
+			args[0] = (void *)frog[0]->actor;
+			args[1] = (void *)&bTStart[0]->centre;
+			args[2] = (void *)fnum;
+
+			trigger = MakeTrigger( ActorWithinRadius, 3, args );
+
+			event = MakeEvent( ScreenGrab, 0, NULL );
+
+			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
+			*/
+
 			/*// This should change to level when you hop onto the first platform
 			args = AllocArgs(2);
 			args[0] = (void *)frog[0];
@@ -364,7 +386,6 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 		}
 		else if( levelID == LEVELID_GARDENVEGPATCH )
 		{
-
 			/* // This triggers a sound when frog is near to baby frog
 			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
 			*fnum = 500;
