@@ -126,16 +126,17 @@ char cheatStr[64] = "";
 
 CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] = 
 {
-	{{PAD_UP,   PAD_DOWN, PAD_LEFT, PAD_RIGHT, 0},0,-1},//CHEAT_OPEN_ALL_LEVELS
-	{{PAD_DOWN, PAD_DOWN, PAD_DOWN, PAD_DOWN,  0},0,1},	//CHEAT_INFINITE_LIVES
-	{{PAD_LEFT, PAD_LEFT, PAD_LEFT, PAD_LEFT,  0},0,0},	//CHEAT_OPEN_ALL_CHARS
-	{{PAD_RIGHT,PAD_RIGHT,PAD_RIGHT,PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
-	{{PAD_LEFT, PAD_LEFT, PAD_RIGHT,PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
-	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    0},0,0},//CHEAT_SKIP_LEVEL
+	{{PAD_UP,   PAD_DOWN, PAD_LEFT, PAD_RIGHT, PAD_RIGHT, PAD_RIGHT, PAD_DOWN,  PAD_LEFT,  0},0,-1},//CHEAT_OPEN_ALL_LEVELS
+	{{PAD_DOWN, PAD_DOWN, PAD_UP,   PAD_DOWN,  PAD_RIGHT, PAD_DOWN,  PAD_UP,    PAD_UP,    0},0,1},	//CHEAT_INFINITE_LIVES
+	{{PAD_LEFT, PAD_RIGHT,PAD_LEFT, PAD_LEFT,  PAD_LEFT,  PAD_UP,    PAD_LEFT,  PAD_LEFT,  0},0,0},	//CHEAT_OPEN_ALL_CHARS
+	{{PAD_RIGHT,PAD_UP,   PAD_UP,   PAD_DOWN,  PAD_RIGHT, PAD_RIGHT, PAD_DOWN,  PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
+	{{PAD_LEFT, PAD_LEFT, PAD_UP,   PAD_LEFT,  PAD_DOWN,  PAD_RIGHT, PAD_RIGHT, PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
+	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    PAD_UP,    PAD_RIGHT, PAD_LEFT,  PAD_LEFT,  0},0,0},//CHEAT_SKIP_LEVEL
 	{{PAD_UP,PAD_UP,PAD_DOWN,PAD_DOWN,PAD_LEFT,PAD_RIGHT,0},0,0},//CHEAT_EXTRA_LEVELS
 };
 
-long currentCheatCombo[8];
+
+long currentCheatCombo[12];
 int currCheat = -1;
 
 
@@ -483,7 +484,7 @@ void RunPauseMenu()
 		if (padData.debounce[pauseController] & ~PAD_SQUARE)
 		{
 			currentCheatCombo[currCheat++] = padData.debounce[pauseController];
-			if (currCheat == 8) currCheat = 0;
+			if (currCheat == 12) currCheat = 0;
 		}
 	}
 	else if (currCheat>0)	// if we've stored a cheat, check it
@@ -1393,15 +1394,14 @@ void RunFrontendGameLoop (void)
 				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
 				titleHudText[3]->text = GAMESTRING(STR_ARCADEMODE);
 				titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
-//#ifdef FINAL_MASTER
+#ifdef FINAL_MASTER
 				if(doneTraining == 0)
 				{
-//					currTile[0]->tilePtrs[0] = NULL;
 					currTile[0]->tilePtrs[2] = NULL;
 					maxHud = 3;
 				}
 				GTInit( &modeTimer, 5 );
-//#endif
+#endif
 				hudNum = 2;
 				break;
 

@@ -1639,7 +1639,7 @@ void RunLevelComplete()
 
 				if(nText->xPos == nText->xPosTo)
 				{
-					levCompleteState = LEV_COMPLETE_MENU;
+					levCompleteState = LEV_COMPLETE_ENTER_NAME;
 					textEntry = NAME_LENGTH;
 				}
 			}

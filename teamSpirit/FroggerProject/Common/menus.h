@@ -61,7 +61,7 @@ extern SPRITEOVERLAY *titleHud[4];
 
 typedef struct
 {
-	int keyString[8];
+	short keyString[12];
 	char state;
 	signed char toggle;
 }CHEAT_COMBO;
