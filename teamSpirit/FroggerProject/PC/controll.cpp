@@ -18,6 +18,7 @@
 #include <islutil.h>
 #include <dplay.h>
 #include <dplobby.h>
+#include <dinput.h>
 #include "..\resource.h"
 
 #include "cam.h"
@@ -50,10 +51,14 @@ PadDataType padData;	// PSX-Combatibuuule
 	Controll-specific stuff
 */
 
+#define NUM_CONTROLS	7		// number of in-game controls needed
+#define DEAD_ZONE		500		// threshold at which we consider a joypad 'pressed', since PC pads are all analogue
+#define MAXJOYPADS 4			// Support at most 4 joypads
+#define MAXBUTTONS 6			// max buttons used on joypad ... hmm...
+#define KEYBOARDBUFFER	40		// length of DIDEVICEOBJECTDATA array for keyboard
+#define JOYPADPOLLRATE	20		// amount of time (ms) to sleep every loop of the joypad processing loop
 
 // Gamepad
-
-long DEAD_ZONE = 500;
 
 char keyFileName[] = "frogkeys.map";
 
@@ -62,8 +67,6 @@ struct CONTROLSETUP
 	const char* name;
 	unsigned long padCode;
 };
-
-#define NUM_CONTROLS	7
 
 CONTROLSETUP controlDesc[NUM_CONTROLS] = 
 {
@@ -84,10 +87,18 @@ CONTROLSETUP controlDesc[NUM_CONTROLS] =
 //	"Left Shoulder",
 //	"Right Shoulder"
 
-LPDIRECTINPUT			lpDI		= NULL;
-LPDIRECTINPUTDEVICE		lpKeyb		= NULL;
-LPDIRECTINPUTDEVICE2	lpJoystick[4] = { NULL, NULL, NULL, NULL };
-LPDIRECTINPUTDEVICE		lpMouse		= NULL;
+LPDIRECTINPUT7			lpDI		= NULL;
+LPDIRECTINPUTDEVICE7	lpKeyb		= NULL;
+LPDIRECTINPUTDEVICE7	lpJoypad[4] = { NULL, NULL, NULL, NULL };
+
+unsigned short oldJoypadButtons[4];
+unsigned short joypadButtons[4];
+unsigned short joypadDebounce[4];
+
+#ifdef JOYPADTHREAD
+bool runJoypadThread = true;
+HANDLE hJoypadThread = NULL, hJoyMutex = NULL, hJoyEvent = NULL;
+#endif
 
 void StopKeying(void);
 
@@ -97,24 +108,20 @@ unsigned rKeyOK = 0;
 unsigned rPlaying = 0;
 unsigned rPlayOK = 0;
 long rEndFrame;
-// -------------------------------------------------
 
-extern DIMOUSESTATE mouseState;
+#ifdef FULL_BUILD
+// TODO: remove this timer
+TIMER idletimer;
+#endif
+
+// -------------------------------------------------
 
 extern KEYENTRY keymap[56];
 
 extern unsigned rKeying;
 extern unsigned rPlaying;
 
-extern LPDIRECTINPUT lpDI;
-extern LPDIRECTINPUTDEVICE lpKeyb;
-extern LPDIRECTINPUTDEVICE lpMouse;
-
 int numJoypads = 0;
-
-#define MAXJOYPADS 4
-#define MAXBUTTONS 6	// max buttons used on joypad ... hmm...
-
 
 KEYENTRY keymap[56] = 
 {
@@ -214,6 +221,8 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
 int GetButtonDialog(LPDIRECTINPUTDEVICE lpDI, HWND hParent);
 int SetupKeyboardDialog(int player, HWND hParent);
 
+DWORD WINAPI JoypadThreadProc(LPVOID);
+
 /*	------------------------------------------------------------------------ */
 
 const char* DIErrorStr(HRESULT err)
@@ -256,70 +265,6 @@ void RecordKeyInit(unsigned long worldNum, unsigned long levelNum)
 		utilPrintf("Record keys START...\n");
 	}
 }
-
-/*	--------------------------------------------------------------------------------
-	Function	: InitInputDevices
-	Purpose		: initialises input devices
-	Parameters	: 
-	Returns		: BOOL - TRUE on success, else FALSE
-	Info		: 
-void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
-{
-	FILE *fp;
-	if (rPlayOK)
-		return;
-
-	sprintf(rKeyFile,"%srecord-%lu-%lu.key",baseDirectory,worldNum,levelNum);
-	fp = fopen(rKeyFile,"rb");
-	if (fp)
-	{
-		playKeyCount = 0;
-		curPlayKey = 0;
-
-		while (!feof(fp))
-		{
-			fread(&curPlayKey,4,1,fp);
-			fread(&curPlayKey,4,1,fp);
-			fread(&curPlayKey,4,1,fp);
-			playKeyCount++;
-		}
-		
-		fseek(fp,0,SEEK_SET);
-
-		playKeyList = new unsigned long [playKeyCount*3];
-		
-		for (curPlayKey=0; curPlayKey<playKeyCount*3; curPlayKey++)
-			fread(&(playKeyList[curPlayKey]),4,1,fp);			
-		
-		curPlayKey = 0;
-		rPlayOK = 1;
-		rPlaying = 1;
-		rEndFrame = actFrameCount + (15 * 60);
-
-		fclose(fp);
-	}
-	else
-		utilPrintf("Error loading keys (%s)\n", rKeyFile);
-}
-*/
-
-
-/*	--------------------------------------------------------------------------------
-	Function	: InitInputDevices
-	Purpose		: initialises input devices
-	Parameters	: 
-	Returns		: BOOL - TRUE on success, else FALSE
-	Info		: 
-
-void PlayKeyDone(void)
-{
-	playKeyCount = 0;
-	curPlayKey = 0;
-	delete playKeyList;
-	rPlayOK = 0;
-	rPlaying = 0;
-}
-*/
 
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
@@ -384,7 +329,7 @@ BOOL InitInputDevices()
 {
 	HRESULT hRes;
 
-	hRes = DirectInputCreate(mdxWinInfo.hInstance,DIRECTINPUT_VERSION,&lpDI,NULL);
+	hRes = DirectInputCreateEx(mdxWinInfo.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput7, (void**)&lpDI, NULL);
 	if(FAILED(hRes))
 		return FALSE;
 
@@ -435,37 +380,6 @@ void DeInitInputDevices()
 }
 
 /*	--------------------------------------------------------------------------------
-	Function	: InitKeyboardControl();
-	Purpose		: initialises DirectInput keyboard control
-	Parameters	: none
-	Returns		: TRUE on success - else FALSE
-	Info		: 
-*/
-
-BOOL InitKeyboardControl()
-{
-	HRESULT hRes;
-
-	hRes = lpDI->CreateDevice(GUID_SysKeyboard,&lpKeyb,NULL);
-	if(FAILED(hRes))
-		return FALSE;
-
-	hRes = lpKeyb->SetDataFormat(&c_dfDIKeyboard);
-	if(FAILED(hRes))
-		return FALSE;
-
-	hRes = lpKeyb->SetCooperativeLevel(mdxWinInfo.hWndMain,DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
-	if(FAILED(hRes))
-		return FALSE;
-	
-	hRes = lpKeyb->Acquire();
-	if(FAILED(hRes))
-		return FALSE;
-
-	return TRUE;
-}
-
-/*	--------------------------------------------------------------------------------
 	Function	: EnumJoypadProc
 	Purpose		: Enumerates DI devices to find a gamepad (for now gets the first instance)
 	Parameters	: 
@@ -499,8 +413,7 @@ BOOL InitJoystickControl()
 {
 	HRESULT hRes;
 	DIDEVICEINSTANCE dev[4];
-	LPDIRECTINPUTDEVICE lpJoy1;
-	LPDIRECTINPUTDEVICE2 lpJoy;
+	LPDIRECTINPUTDEVICE7 lpJoy;
 	int j;
 
 	ZeroMemory(&dev, sizeof(dev));
@@ -511,18 +424,12 @@ BOOL InitJoystickControl()
 	{
 		if (!dev[j].dwSize) break;
 
-		hRes = lpDI->CreateDevice(dev[j].guidInstance, &lpJoy1, NULL);
+		hRes = lpDI->CreateDeviceEx(dev[j].guidInstance, IID_IDirectInputDevice7, (void**)&lpJoy, NULL);
 		if(FAILED(hRes))
-			return FALSE;
-
-		hRes = lpJoy1->QueryInterface( IID_IDirectInputDevice2,(LPVOID *)&lpJoy);
-		if (FAILED(hRes))
 		{
-			utilPrintf("Error retrieving DirectInputDevice2 interface\n");
+			utilPrintf("Failed to create IDirectInputDevice7 device for joypad\n");
 			return FALSE;
 		}
-
-		lpJoy1->Release();
 
 		hRes = lpJoy->SetDataFormat(&c_dfDIJoystick);
 		if(FAILED(hRes))
@@ -554,32 +461,143 @@ BOOL InitJoystickControl()
 		if ( FAILED(hRes) ) 
 			return FALSE;
 
-		lpJoystick[j] = lpJoy;
+		lpJoypad[j] = lpJoy;
 
 		controllers[j] = GAMEPAD + j;
 	}
 
+
+#ifdef JOYPADTHREAD
+	DWORD threadID;
+
+	hJoyMutex = CreateMutex(NULL, FALSE, NULL);
+	hJoyEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	CreateThread(NULL, NULL, JoypadThreadProc, NULL, 0, &threadID);
+
+	utilPrintf("Created Joypad thread with thread ID 0x%08x\n", threadID);
+#endif
+
 	return TRUE;
 }
 
-
+#ifdef JOYPADTHREAD
 /*	--------------------------------------------------------------------------------
-	Function	: DeInitKeyboardControl()
-	Purpose		: cleans up DirectInput
+	Function	: JoypadThreadProc()
+	Purpose		: Polls the joypad hundreds of millions of times a second until it explodes
 	Parameters	: none
 	Returns		: none
 	Info		: 
+
+	Analogue joypads don't generate interrupts and must be polled every frame; unfortunately
+	because the framerate changes all the time we'll sometimes miss a press completely. By
+	polling the joypad in a different thread, we can pretty much choose our time resolution.
+
+	We have to avoid running this bit of code while the controller code in the main thread
+	is processing our data - a Mutex (mutually exclusive lock) is used to achieve this.
 */
-void DeInitKeyboardControl()
+DWORD WINAPI JoypadThreadProc(LPVOID param)
 {
-	if(lpKeyb)
+	while (runJoypadThread)
 	{
-		lpKeyb->Unacquire();
-		lpKeyb->Release();
-		lpKeyb = NULL;
+		if (WaitForSingleObject(hJoyMutex, 1000) == WAIT_TIMEOUT) continue;
+
+		for (int i=0; i<4; i++)
+		{
+			if (controllers[i] & GAMEPAD)
+			{
+				LPDIRECTINPUTDEVICE2 lpJoy = lpJoypad[controllers[i] & 0xFF];
+				DIJOYSTATE joy;
+				HRESULT hRes;
+
+				if (!lpJoy) break;
+
+				lpJoy->Acquire();
+
+				hRes = lpJoy->Poll();
+				if (hRes == DI_OK || hRes == DI_NOEFFECT)
+				{
+					hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
+					if (FAILED(hRes)) continue;
+
+					unsigned long b = 0;
+
+					for (int m=0; m < MAXBUTTONS; m++)
+						if (joy.rgbButtons[m]) b |= joymap[m];
+					
+					if (joy.lX < -DEAD_ZONE)		b |= PAD_LEFT;
+					else if (joy.lX > DEAD_ZONE)	b |= PAD_RIGHT;
+
+					if (joy.lY < -DEAD_ZONE)		b |= PAD_UP;
+					else if (joy.lY > DEAD_ZONE)	b |= PAD_DOWN;
+
+					joypadDebounce[i] |= (~oldJoypadButtons[i]) & b;
+					joypadButtons[i] |= b;
+
+					//lpJoypad->UnAcquire();
+				}
+			}
+		}
+
+		ReleaseMutex(hJoyMutex);
+		PulseEvent(hJoyEvent);
+		Sleep(JOYPADPOLLRATE);
+	}
+
+	return 0;
+}
+#endif
+
+void OldProcessJoypad()
+{
+	for(int i=0; i<4; i++ )
+	{
+		if (controllers[i] & GAMEPAD)
+		{
+			LPDIRECTINPUTDEVICE7 lpJoy = lpJoypad[controllers[i] & 0xFF];
+			DIJOYSTATE joy;
+			HRESULT hRes;
+
+			if (!lpJoy) break;
+
+			lpJoy->Acquire();
+
+			hRes = lpJoy->Poll();
+			if (hRes == DI_OK || hRes == DI_NOEFFECT)
+			{
+				hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
+				if (FAILED(hRes))
+				{
+					utilPrintf("GetDeviceState() failed\n");
+					return;
+				}
+
+				unsigned long b = 0;
+
+				for (int m=0; m < MAXBUTTONS; m++)
+					if (joy.rgbButtons[m]) b |= joymap[m];
+				
+				if (joy.lX < -DEAD_ZONE)		b |= PAD_LEFT;
+				else if (joy.lX > DEAD_ZONE)	b |= PAD_RIGHT;
+
+				//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
+				//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
+
+				if (joy.lY < -DEAD_ZONE)		b |= PAD_UP;
+				else if (joy.lY > DEAD_ZONE)	b |= PAD_DOWN;
+
+				if (b)
+				{
+					padData.digital[i] |= b;
+					//pressed = 1;
+
+					//if (rPlaying) StopKeying();
+				}
+
+				//lpJoystick->UnAcquire();
+			}
+		}
 	}
 }
-
 
 /*	--------------------------------------------------------------------------------
 	Function	: DeInitJoystick
@@ -591,64 +609,122 @@ void DeInitKeyboardControl()
 void DeInitJoystick()
 {
 	int j;
+
+#ifdef JOYPADTHREAD
+	runJoypadThread = false;
 	
+	if (WaitForSingleObject(hJoypadThread, 1000) == WAIT_TIMEOUT)
+	{
+		utilPrintf("Couldn't shut down joypad thread; terminating\n");
+		TerminateThread(hJoypadThread, -1);
+	}
+
+	CloseHandle(hJoyMutex);
+#endif
+
+
 	for (j=0; j<MAXJOYPADS; j++)
-		if(lpJoystick[j])
+		if(lpJoypad[j])
 		{
-			lpJoystick[j]->Unacquire();
-			lpJoystick[j]->Release();
-			lpJoystick[j] = NULL;
+			lpJoypad[j]->Unacquire();
+			lpJoypad[j]->Release();
+			lpJoypad[j] = NULL;
 		}
+
+
 }
 
 
-#ifdef FULL_BUILD
-// TODO: remove this timer
-TIMER idletimer;
-#endif
-
 /*	--------------------------------------------------------------------------------
-	Function	: ProcessUserInput
-	Purpose		: processes keyboard input / mouse
-	Parameters	: HWND
-	Returns		: void
+	Function	: InitKeyboardControl();
+	Purpose		: initialises DirectInput keyboard control
+	Parameters	: none
+	Returns		: TRUE on success - else FALSE
 	Info		: 
 */
-void ProcessUserInput()
+
+BOOL InitKeyboardControl()
 {
 	HRESULT hRes;
-	long i;
-	int pressed = 0;
+
+	hRes = lpDI->CreateDeviceEx(GUID_SysKeyboard, IID_IDirectInputDevice7, (void**)&lpKeyb, NULL);
+	if(FAILED(hRes))
+		return FALSE;
+
+	hRes = lpKeyb->SetDataFormat(&c_dfDIKeyboard);
+	if(FAILED(hRes))
+		return FALSE;
+
+	hRes = lpKeyb->SetCooperativeLevel(mdxWinInfo.hWndMain,DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
+	if(FAILED(hRes))
+		return FALSE;
 	
-	unsigned short oldDigital[8];
+	DIPROPDWORD dipdw;
+	dipdw.diph.dwSize = sizeof(DIPROPDWORD);
+	dipdw.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+    dipdw.diph.dwObj = 0;
+    dipdw.diph.dwHow = DIPH_DEVICE;
+	dipdw.dwData = KEYBOARDBUFFER;
 
-	if (consoleDraw || textureDraw || showSounds)
-		return;
+    hRes = lpKeyb->SetProperty( DIPROP_BUFFERSIZE, &dipdw.diph );
 
-	if (windowActive)
-	{
-		// read keyboard data
-		hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
-		if(FAILED(hRes))
-			return;
+	hRes = lpKeyb->Acquire();
+	if(FAILED(hRes))
+		return FALSE;
+
+	return TRUE;
+}
+
+void ProcessKeyboardInput()
+{
+
+	// read keyboard data
+    DIDEVICEOBJECTDATA didod[KEYBOARDBUFFER];  // Receives buffered data 
+    DWORD dwElements;
+    HRESULT hr;
+	int i;
+
+    hr = DIERR_INPUTLOST;
+
+    while ( DI_OK != hr )
+    {
+        dwElements = KEYBOARDBUFFER;
+        hr = lpKeyb->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),didod,&dwElements,0);
+        if (hr != DI_OK) 
+        {
+            hr = lpKeyb->Acquire();
+            if ( FAILED(hr) )  
+                return;
+		}
+	}
+		
+    // Study each of the buffer elements and process them.
+    for (i = 0; i < dwElements; i++) 
+    {
+		if (didod[i].dwData & 0x80)
+		{
+			DWORD key = didod[i].dwOfs;
+
+			for (int k = 0; k<4*14; k++)
+				if( keymap[k].key == key )
+				{
+					int pl = keymap[k].player;
+
+					joypadDebounce[pl] |= keymap[k].button;
+					//joypadButtons[pl] |= keymap[i].button;
+				}
+		}
 	}
 
-	//----- [ KEYBOARD CONTROL ] -----//
+	// We also want the keyboard state because it's used in a few places.. go figure
+	hr = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
 
-	if(KEYPRESS(DIK_F12))
-		PostMessage(mdxWinInfo.hWndMain,WM_QUIT, 0, 0);
-	
-	if ( chatFlags & CHAT_INPUT)
-		return;
-	// reset states
-	for (i=0; i<8; i++)
-	{
-		oldDigital[i] = padData.digital[i];
-		padData.digital[i] = 0;
-	}
-
-	if (!keysEnabled) return;
-
+	for (i = 0; i<4 * 14; i++)
+		if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
+		{
+			//controllerdata[keymap[i].player].button |= keymap[i].button;
+			padData.digital[keymap[i].player] |= keymap[i].button;
+		}
 
 	if( debugKeys )
 	{
@@ -693,83 +769,85 @@ void ProcessUserInput()
 
 		if( KEYPRESS(DIK_F8) )
 			displayingTile = !displayingTile;
+
+		if(KEYPRESS(DIK_F12))
+			PostMessage(mdxWinInfo.hWndMain,WM_QUIT, 0, 0);
 	}
+}
 
-	if( showSounds )
-		return;
-
+/*	--------------------------------------------------------------------------------
+	Function	: DeInitKeyboardControl()
+	Purpose		: cleans up DirectInput
+	Parameters	: none
+	Returns		: none
+	Info		: 
+*/
+void DeInitKeyboardControl()
+{
+	if(lpKeyb)
 	{
-		for (i = 0; i<4 * 14; i++)
-				if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
-				{
-					//controllerdata[keymap[i].player].button |= keymap[i].button;
-					padData.digital[keymap[i].player] |= keymap[i].button;
-					pressed = 1;
-				}
-
-		for( i=0; i<4; i++ )
-		{
-			
-			//if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
-			//	RecordButtons(controllerdata[i].button,i);
-			
-			if (controllers[i] & GAMEPAD)
-			{
-				LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[controllers[i] & 0xFF];
-				DIJOYSTATE joy;
-
-				if (!lpJoy) break;
-
-				lpJoy->Acquire();
-
-				hRes = lpJoy->Poll();
-				if (hRes == DI_OK || hRes == DI_NOEFFECT)
-				{
-					hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
-					if (FAILED(hRes))
-					{
-						utilPrintf("GetDeviceState() failed\n");
-						return;
-					}
-
-					unsigned long b = 0;
-
-					for (int m=0; m < MAXBUTTONS; m++)
-						if (joy.rgbButtons[m]) b |= joymap[m];
-					
-					if (joy.lX < -DEAD_ZONE)		b |= PAD_LEFT;
-					else if (joy.lX > DEAD_ZONE)	b |= PAD_RIGHT;
-
-					//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
-					//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
-
-					if (joy.lY < -DEAD_ZONE)		b |= PAD_UP;
-					else if (joy.lY > DEAD_ZONE)	b |= PAD_DOWN;
-
-					if (b)
-					{
-						padData.digital[i] |= b;
-						pressed = 1;
-
-						//if (rPlaying) StopKeying();
-					}
-
-					//lpJoystick->UnAcquire();
-				}
-			}
-		}
+		lpKeyb->Unacquire();
+		lpKeyb->Release();
+		lpKeyb = NULL;
 	}
+}
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function	: ProcessUserInput
+	Purpose		: processes keyboard input / mouse
+	Parameters	: HWND
+	Returns		: void
+	Info		: 
+*/
+void ProcessUserInput()
+{
+	long i;
+	int pressed = 0;
+	
+	unsigned short oldDigital[8];
+
+	if (consoleDraw || textureDraw || showSounds)
+		return;
 
 	// Start record keys if we're in record mode and (*sigh*) just
 	// after the first frame of a single-player mode level
-	
 	if (rKeying && gameState.mode == INGAME_MODE && frameCount == 2)
 		RecordKeyInit(player[0].worldNum, player[0].levelNum);
 
-	for (i = 0; i<8; i++)
+	if ( chatFlags & CHAT_INPUT)
+		return;
+	// reset states
+	for (i=0; i<8; i++)
 	{
-		// set 'debounce'
-		padData.debounce[i] = (~oldDigital[i]) & padData.digital[i];
+		oldDigital[i] = padData.digital[i];
+		padData.debounce[i] = 0;
+		padData.digital[i] = 0;
+	}
+
+	if (!keysEnabled | showSounds) return;
+
+	if (windowActive)
+		ProcessKeyboardInput();
+
+#ifdef JOYPADTHREAD
+	// Joypad must have been polled at least once, so wait for it just in case
+	WaitForSingleObject(hJoyEvent, 1000);
+
+	// And now get the mutex so it won't change anything while we're using its
+	// variables... perhaps a bit of an efficiency fart here - ds
+	WaitForSingleObject(hJoyMutex, 1000);
+#else	
+	// use old joypad processing stuff
+	OldProcessJoypad();
+#endif
+
+	for (i = 0; i<4; i++)
+	{
+		padData.digital[i] |= joypadButtons[i];
+		padData.debounce[i] |= ((~oldDigital[i]) & padData.digital[i]) | joypadDebounce[i];
 
 		// recordkeys
 		if ((rKeyOK) && (padData.digital[i] != oldDigital[i]))
@@ -782,7 +860,16 @@ void ProcessUserInput()
 			else
 				RecordButtons(padData.digital[i],i);
 		}
+
+		oldJoypadButtons[i] = joypadButtons[i];
+
+		joypadDebounce[i] = 0;
+		joypadButtons[i] = 0;
 	}
+
+#ifdef JOYPADTHREAD
+	ReleaseMutex(hJoyMutex);
+#endif
 
 #ifdef FULL_BUILD
 	if (pressed)
@@ -827,12 +914,12 @@ BOOL SetupControllerDlg(HWND hdlg)
 	strcpy(controllerInfo[0].name, "Keyboard");
 	controllerInfo[0].id = KEYBOARD;
 
-	for (int c = 0; c < numJoypads && lpJoystick[c]; c++)
+	for (int c = 0; c < numJoypads && lpJoypad[c]; c++)
 	{
 		DIDEVICEINSTANCE di;
 		di.dwSize = sizeof(DIDEVICEINSTANCE);
 
-		lpJoystick[c]->GetDeviceInfo(&di);
+		lpJoypad[c]->GetDeviceInfo(&di);
 
 		strcpy(controllerInfo[c+1].name, di.tszInstanceName);
 		controllerInfo[c+1].id = GAMEPAD + c;
