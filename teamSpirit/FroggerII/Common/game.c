@@ -163,9 +163,9 @@ void GameProcessController(long pl)
 	VECTOR fwd = { 0,0,1 };
 	VECTOR vec;
 
-	button[pl] = controllerdata[ActiveController].button;
-	stickX[pl] = controllerdata[ActiveController].stick_x;
-	stickY[pl] = controllerdata[ActiveController].stick_y;
+	button[pl] = controllerdata[pl].button;
+	stickX[pl] = controllerdata[pl].stick_x;
+	stickY[pl] = controllerdata[pl].stick_y;
 		
 	if ( autoPlaying )
 	{
@@ -505,7 +505,7 @@ void InitCamera ( unsigned long worldID, unsigned long levelID )
 								camTarget[i].v[X]	= 0;
 								camTarget[i].v[Y]	= 0;
 								camTarget[i].v[Z]	= 900;
-								frogFacing = ( camFacing+2 ) & 3;
+								frogFacing[0] = ( camFacing+2 ) & 3;
 							break;
 					}
 					// ENDSWITCH
@@ -617,9 +617,24 @@ void UpdateCameraPosition(long cam)
 	
 	if ( gameState.mode != CAMEO_MODE )
 	{
-		camSource[cam].v[0] = frog[0]->actor->pos.v[0]+((currTile[0]->normal.v[0]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]));
-		camSource[cam].v[1] = frog[0]->actor->pos.v[1]+((currTile[0]->normal.v[1]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2]));
-		camSource[cam].v[2] = frog[0]->actor->pos.v[2]+((currTile[0]->normal.v[2]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2]));
+		float afx,afy,afz;
+		int i;
+		afx = afy = afz = 0;
+
+		for (i=0; i<2; i++)
+		{
+			afx += frog[i]->actor->pos.v[0];
+			afy += frog[i]->actor->pos.v[1];
+			afz += frog[i]->actor->pos.v[2];
+		}
+		
+		afx/=2;
+		afy/=2;
+		afz/=2;
+
+		camSource[cam].v[0] = afx+((currTile[0]->normal.v[0]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]));
+		camSource[cam].v[1] = afy+((currTile[0]->normal.v[1]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2]));
+		camSource[cam].v[2] = afz+((currTile[0]->normal.v[2]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2]));
 	}
 	// ENDIF
 
@@ -1057,8 +1072,8 @@ void RunGameLoop (void)
 				{
 					if(!frog[0]->action.dead)	
 					{
-						GameProcessController(0);
-						GameProcessController(1);
+						for (i=0; i<4; i++)
+							GameProcessController(i);						
 					}
 
 					if (!frog2->action.dead)
@@ -1081,12 +1096,12 @@ void RunGameLoop (void)
 						CameraLookAtFrog();
 					}
 					// ENDIF
+					UpdateCameraPosition(0);
 					for (i=0; i<4; i++)
 					{
-						UpdateCameraPosition(i);
 					
 						if ( !( player[i].frogState & FROGSTATUS_ISFLOATING ) )
-							SitAndFace(frog[i],currTile[i],frogFacing);
+							SitAndFace(frog[i],currTile[i],frogFacing[i]);
 						else if ( player[i].frogState & FROGSTATUS_ISFLOATING )
 						{
 							//SitAndFace(frog,currTile,frogFacing);
@@ -1118,9 +1133,9 @@ void RunGameLoop (void)
 
 	ProcessCollectables();
 
-	UpdateFroggerPos(0);
-	UpdateFroggerPos(1);
-
+	for (i=0; i<4; i++)
+		UpdateFroggerPos(i);
+	
 	UpdateFroggerPos2();
 
 	UpDateOnScreenInfo();

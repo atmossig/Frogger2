@@ -252,6 +252,7 @@ void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType)
 	Returns			: void
 	Info			: 
 */
+
 void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 {
 	// make the teleport 'to' tile the current tile

@@ -39,6 +39,6 @@ extern void FreeMapBank(void);
 
 extern void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType);
 extern BOOL IsATeleportTile(GAMETILE *tile);
-extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile);
+extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
 
 #endif

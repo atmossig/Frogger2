@@ -202,6 +202,9 @@ void ProcessUserInput(HWND hWnd)
 		PostMessage(hWnd,WM_CLOSE,0,0);
 	}
 	controllerdata[0].button = 0;
+	controllerdata[1].button = 0;
+	controllerdata[2].button = 0;
+	controllerdata[3].button = 0;
 
 	if (KEYPRESS(DIK_UP))
 		controllerdata[0].button |= CONT_UP;
@@ -216,10 +219,10 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_RIGHT))
 		controllerdata[0].button |= CONT_RIGHT;
 	
-	if (KEYPRESS(DIK_A))
+	if (KEYPRESS(DIK_INSERT ))
 		controllerdata[0].button |= CONT_A;
 	
-	if (KEYPRESS(DIK_B))
+	if (KEYPRESS(DIK_DELETE))
 		controllerdata[0].button |= CONT_B;
 	
 	if (KEYPRESS(DIK_S))
@@ -242,6 +245,26 @@ void ProcessUserInput(HWND hWnd)
 
 	if (KEYPRESS(DIK_R))
 		controllerdata[0].button |= CONT_R;
+
+	////////////////////////////////////////////
+
+	if (KEYPRESS(DIK_T))
+		controllerdata[1].button |= CONT_UP;
+
+	if (KEYPRESS(DIK_G))
+		controllerdata[1].button |= CONT_DOWN;
+
+	if (KEYPRESS(DIK_F))
+		controllerdata[1].button |= CONT_LEFT;
+
+	if (KEYPRESS(DIK_H))
+		controllerdata[1].button |= CONT_RIGHT;
+	
+	if (KEYPRESS(DIK_Q))
+		controllerdata[1].button |= CONT_A;
+	
+	if (KEYPRESS(DIK_A))
+		controllerdata[1].button |= CONT_B;
 
 }
 

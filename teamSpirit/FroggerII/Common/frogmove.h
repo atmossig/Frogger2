@@ -102,7 +102,7 @@ extern unsigned long iceTileY;
 extern unsigned long iceTileZ;
 extern unsigned long ice[];
 
-extern int			frogFacing;
+extern int			frogFacing[4];
 extern int			frogFacing2;
 
 extern float speedTest;

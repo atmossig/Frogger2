@@ -444,6 +444,8 @@ typedef struct TAGPLANE2
 
 #define dprintf debugPrintf(sprintf(outputMessageBuffer, 
 
+#define bprintf sprintf(statusMessage,
+
 extern char outputMessageBuffer[];
 
 extern Gfx *glistp;
