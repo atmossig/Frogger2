@@ -14,6 +14,7 @@
 #include "fixed.h"
 #include "layout.h"
 
+void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alpha, long tex, long depth );
 
 #define gte_stotz_cpu(r)\
 asm(\
@@ -96,7 +97,7 @@ void ProcessShadows()
 			size = FDiv( frog[i]->actor->shadow->radius, scale );
 			alpha = FDiv( ToFixed(frog[i]->actor->shadow->alpha), scale )>>13;
 
-			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex );
+			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, frog[i]->depthShift+1 );
 		}
 
 	//------------------------------------------------------------------------------------------------
@@ -122,9 +123,9 @@ void ProcessShadows()
 			alpha = FDiv( ToFixed(nme->nmeActor->actor->shadow->alpha), scale )>>13;
 
 			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
-				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex );
+				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, nme->nmeActor->depthShift+1 );
 			else
-				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex );
+				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, nme->nmeActor->depthShift+1 );
 		}
 	}
 
@@ -148,7 +149,7 @@ void ProcessShadows()
 			size = FDiv( plat->pltActor->actor->shadow->radius, scale );
 			alpha = FDiv( ToFixed(plat->pltActor->actor->shadow->alpha), scale )>>13;
 
-			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex );
+			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, plat->pltActor->depthShift+1 );
 		}
 	}
 }
@@ -159,7 +160,7 @@ void ProcessShadows()
 
 
 
-void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alpha, long tex )
+void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alpha, long tex, long depth )
 {
 	FVECTOR tempV, up;
 	SVECTOR vT[4];
@@ -214,7 +215,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	fx.tex = tex;
 	fx.flags = SPRITE_SUBTRACTIVE;
 	fx.a = alpha;
-	fx.zDepthOff = -18;	//bring the shadow closer to the camera
+	fx.zDepthOff = depth;//-18;	//bring the shadow closer to the camera
 	fx.r = fx.g = fx.b = 0xff;
 
 	gte_SetTransMatrix(&GsWSMATRIX);
