@@ -28,6 +28,7 @@
 #define IDC_KEYMAP                      1009
 #define IDC_CONTROLS                    1009
 #define IDC_CONTROLLER1                 1010
+#define IDC_README                      1010
 #define IDC_CONTROLLER2                 1011
 #define IDC_CONTROLLER4                 1012
 #define IDC_CONTROLLER3                 1013
