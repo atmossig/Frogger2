@@ -1054,6 +1054,21 @@ void PrintTextureInfo(void)
 	//pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
 	dp ( "Total Mem : %du : - Total Free : %du :\n",dwVidMemTotal, dwVidMemFree );
 }
+
+#ifdef TEXTURE_DEBUG
+int CheckTexHDL( unsigned long hdl )
+{
+	// Hack for fonts
+	if( hdl && hdl <3 ) return TRUE;
+
+	if( hdl && hdl < MAX_HDLCHECKS && hdlCheck[hdl] )
+		return TRUE;
+
+	dprintf"Invalid texture handle on visible polygon!\n"));
+
+	return FALSE;
+}
+#endif
  
 void DirectXFlip(void)
 {
@@ -1534,6 +1549,9 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 
 	if (h!=lastH)
 	{
+#ifdef TEXTURE_DEBUG
+		if( CheckTexHDL(h) )
+#endif
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
 		lastH = h;
 	}
@@ -1621,6 +1639,9 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 
 	if (h!=lastH)
 	{
+#ifdef TEXTURE_DEBUG
+		if( CheckTexHDL(h) )
+#endif
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
 		lastH = h;
 	}
@@ -1882,6 +1903,9 @@ void DrawScreenOverlays(void)
 
 	for (int i=0; i<numRequired; i++)
 	{
+#ifdef TEXTURE_DEBUG
+		if( CheckTexHDL(screenTexList[i]) )
+#endif
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,screenTexList[i]);
 
 		if (pDirect3DDevice->DrawIndexedPrimitive(
@@ -1976,7 +2000,16 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRE
 			res = surface2->BltFast(0,0,surface,NULL,DDBLTFAST_WAIT);
 			
 			if (!*hdl)
+			{
 				*hdl = ConvertSurfaceToTexture(surface2);
+
+#ifdef TEXTURE_DEBUG
+			if( *hdl && *hdl < MAX_HDLCHECKS )
+				hdlCheck[*hdl] = 1;
+			else
+				dprintf"Invalid texture handle %d\n", *hdl));
+#endif
+			}
 			
 			hdl++;
 			dds++;
@@ -2066,13 +2099,20 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 
 		p2d.verts[i].sx = newX + pos[X];
 		p2d.verts[i].sy = newY + pos[Y];
+
+		if( p2d.verts[i].sx < 0 || p2d.verts[i].sx >= SCREEN_WIDTH ||
+			p2d.verts[i].sy < 0 || p2d.verts[i].sy >= SCREEN_HEIGHT )
+			return;
 	}
 
 	// clip the rotated sprite here...
-	SpriteClip_Do(&p2d,&drawPoly);
+//	SpriteClip_Do(&p2d,&drawPoly);
 
 	if (h!=lastH)
 	{
+#ifdef TEXTURE_DEBUG
+		if( CheckTexHDL(h) )
+#endif
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
 		lastH = h;
 	}
@@ -2086,8 +2126,10 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 		D3DPT_TRIANGLEFAN,
 		D3DVT_TLVERTEX,
 
-		drawPoly.verts,
-		drawPoly.numVerts,
+		p2d.verts,
+		p2d.numVerts,
+//		drawPoly.verts,
+//		drawPoly.numVerts,
 
 		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS 
 		)!=D3D_OK)
