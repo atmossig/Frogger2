@@ -487,15 +487,18 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	for(i = mesh->n_sprs; i != 0; i--,op++)
 	{
 		LONG spritez, width, height;
-		VERT tempVect;
+		SVECTOR tempVect;
+
+		gte_SetTransMatrix(&GsWSMATRIX);
+		gte_SetRotMatrix(&GsWSMATRIX);
 
 		BEGINPRIM(si, POLY_FT4);
 
 		setPolyFT4(si);
 
-		tempVect.vx = -op->x;
-		tempVect.vy = -op->y;
-		tempVect.vz = -op->z;
+		tempVect.vx = mesh->maxx-op->x;
+		tempVect.vy = mesh->maxy-op->y;
+		tempVect.vz = mesh->maxz-op->z;
 
 		width = 32;
 
@@ -510,7 +513,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 			continue;
 
 		width = ( op->w * SCALEX ) / spritez;
-		if(width < 2 )
+		if(width < 2 || width > 256 )
 			continue;
 
  		si->x1 = si->x3 = si->x0 + width;
@@ -547,53 +550,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		si->code = GPU_COM_TF4;
 
 		ENDPRIM(si, spritez>>4, POLY_FT4);
-
-
-/*		LONG spritez, width;
-		VERT tempVect;
-
-		utilPrintf ( "Sprite Position : %d : %d : %d\n", op->x, op->y, op->z );
-
-		tempVect.vx = op->x;
-		tempVect.vy = op->y;
-		tempVect.vz = op->z;
-
-	 	//setPolyF4 ( si );
- 		//setRGB0 ( si, op->r0, op->g0, op->b0 );
-
-		width = 32;
-		//gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
-
-		//gte_ldv0(&tempVect);
-		//gte_SetLDDQA(width);	// shove sprite width into control reg (C2_DQA)
-		//gte_rtps();				// do the rtps
-		//gte_stsxy(&si->x0);		// get screen x and y
-		//gte_stsz(&spritez);		// get screen z
-
-		addPrimLen ( ot + ( 1 ), ( si ), 12, t2 );
-
- 	si->x0 = 0;
- 	si->x0 = 0;
-
- 	si->x1 = si->x3 = si->x0 + 32;
- 	si->x0 = si->x2 = si->x0 - 32;
-
-
-	si->y2 = si->y3 = si->y0 + 32;
-	si->y1 = si->y0 = si->y0 - 32;
-
-	si->r0 = 128;
-	si->g0 = 0;
-	si->b0 = 128;
-
-	si->code = GPU_COM_F4;
-
- 	//addPrim(currentDisplayPage->ot+(spritez>>4), pp);
-
- 	//currentDisplayPage->primPtr += sizeof(POLY_FT4);
-
-		packet = ADD2POINTER(packet,sizeof(POLY_F4));*/
-
 	}
 
 #undef si
