@@ -58,6 +58,13 @@ Matt Cloy:
 	packet loss, latency, bandwith etc. Reminds me of the programs that used to eat CPU time, what useful things they were! 
 	Started work on config file reader, added config.cpp & .h to the project, started devlog!
 	Woo hoo.
+
+	Afternoon:
+
+	Finished off the config loading, and helped (and maybe hindered) Jim a bit on his procedural textures, got Richard to compile a concept
+	package for kevin, Did a bit more on network support, and then decided that up until christmas I shall attempt to make the engine a bit smarter, 
+	got ideas need to write them down and formulate them more. Spent time on xlu modes although I worry that other cards wont support them.
+
 		
 Andy Eder:
 ------------------------------------------------
