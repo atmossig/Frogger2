@@ -117,7 +117,8 @@ void EditorCreateEntities(void)
 				act->actor->size.vz = create->scale*BABY_SCALE;
 			}
 
-			if(gstrcmp(create->type,"nothing.obe") == 0)
+			// null object - do not display
+			if( !(stricmp(create->type,"TRANSOBJ.OBE")) || !(stricmp(create->type,"NOTHING.OBE")) || !(strnicmp(create->type,"NULL_",5)) )
 				act->draw = 0;
 
 			counts[0]++;
