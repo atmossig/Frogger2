@@ -1419,15 +1419,15 @@ void EditorKeypress(char c)
 				}
 
 			case EDITVAR_GROUPFUNCINT:
-				ForAllGroupNodesInt(selectionList, editText.var, (CREATEFUNCINT)editText.variable);
+				ForAllGroupNodesInt(selectionList, editText.string, (CREATEFUNCINT)editText.variable);
 				break;
 				
 			case EDITVAR_GROUPFUNCFLOAT:
-				ForAllGroupNodesFloat(selectionList, editText.var, (CREATEFUNCFLOAT)editText.variable);
+				ForAllGroupNodesFloat(selectionList, editText.string, (CREATEFUNCFLOAT)editText.variable);
 				break;
 
 			case EDITVAR_GROUPFUNCSTR:
-				ForAllGroupNodesStr(selectionList, editText.var, (CREATEFUNCSTR)editText.variable);
+				ForAllGroupNodesStr(selectionList, editText.string, (CREATEFUNCSTR)editText.variable);
 				break;
 			}
 			editText.active = FALSE;
