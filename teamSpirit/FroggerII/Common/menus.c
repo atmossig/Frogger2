@@ -281,6 +281,15 @@ void RunCharSelect()
 			frameCount = 0;
 			lastbutton = 0;
 		}
+
+		if( (button & CONT_B) && !(lastbutton & CONT_B) )
+		{
+			FreeMenuItems();
+			gameState.menuMode = TITLE_MODE;
+			frameCount = 0;
+			lastbutton = 0;
+			return;
+		}
 	}
 
 	lastbutton = button;

@@ -514,14 +514,19 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		}
 
 		if( effect->type == FXTYPE_GLOW )
+		{
 			effect->sprites->texture = txtrFlare;
+			effect->sprites->a = 128;
+		}
 		else
+		{
 			effect->sprites->texture = txtrFlash;
+			effect->sprites->a = 200;
+		}
 
 		effect->sprites->r = 255;
 		effect->sprites->g = 255;
 		effect->sprites->b = 255;
-		effect->sprites->a = 128;
 
 		effect->sprites->offsetX = -16;
 		effect->sprites->offsetY = -16;
