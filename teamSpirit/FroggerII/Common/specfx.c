@@ -563,7 +563,7 @@ void UpdateFXSmoke( SPECFX *fx )
 	fx->sprites->pos.v[Z] += fx->vel.v[Z] * gameSpeed;
 
 	// Slow down gameSpeed times
-	for( i=0; i<(int)gameSpeed; i++, vS*=0.95 );
+	vS = 1-(0.02*gameSpeed);
 	ScaleVector( &fx->vel, vS );
 
 	if( fx->type == FXTYPE_SMOKE_GROWS )
@@ -710,7 +710,7 @@ void UpdateFXSwarm( SPECFX *fx )
 */
 void UpdateFXExplode( SPECFX *fx )
 {
-	float dist, vS=1;
+	float dist, vS;
 	int i = fx->numP, j, fo, ele;
 	VECTOR up;
 
@@ -725,7 +725,7 @@ void UpdateFXExplode( SPECFX *fx )
 		SetVector( &fx->origin, &fx->follow->pos );
 
 	// Slow down gameSpeed times
-	for( j=0; j<(int)gameSpeed; j++, vS*=0.98 );
+	vS = 1-(0.02*gameSpeed);
 
 	while(i--)
 	{
@@ -765,7 +765,9 @@ void UpdateFXExplode( SPECFX *fx )
 			}
 		}
 
-		AddToVector( &fx->sprites[i].pos, &fx->particles[i].vel );
+		fx->sprites[i].pos.v[X] += fx->particles[i].vel.v[X] * gameSpeed;
+		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y] * gameSpeed;
+		fx->sprites[i].pos.v[Z] += fx->particles[i].vel.v[Z] * gameSpeed;
 
 		fo = (Random(4) + fx->fade) * gameSpeed ;
 
@@ -1144,7 +1146,8 @@ void ProcessAttachedEffects( void *entity, int type )
 	if(fxDist < ACTOR_DRAWDISTANCEOUTER)
 	{
 		// For timings value1 has to round down to a non-zero integer
-		if( (int)act->value1 )
+		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 5;
+		else if( (int)act->value1 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
 				r = Random(act->value1)+1;
@@ -1159,10 +1162,12 @@ void ProcessAttachedEffects( void *entity, int type )
 			{
 				SetVector( &rPos, &act->actor->pos );
 				rPos.v[Y] = tile->centre.v[Y];
-				if( flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
+				if( act->effects & EF_FAST )
 					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
-				else // Gentle ripples
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.1, 0.1, 0.8 );
+				else if( act->effects & EF_SLOW )
+					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
+				else
+					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}
