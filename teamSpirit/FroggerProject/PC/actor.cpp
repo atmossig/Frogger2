@@ -72,9 +72,19 @@ void actorFree(ACTOR *actor)
 void ChangeModel( ACTOR *actor, char *model )
 {
 	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
+	char newName[16];
+	int i=0;
+
+	while( model[i] != '.' && model[i] != '\0' )
+	{
+		newName[i] = model[i];
+		i++;
+	}
+	newName[i] = '\0';
+	strcat( newName, ".obe" );
 
 	a->LODObjectController = a->objectController;
-	FindObject( &a->objectController, UpdateCRC(model), model );
+	FindObject( &a->objectController, UpdateCRC(newName), newName );
 	InitAnims( a );
 }
 
