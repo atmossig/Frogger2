@@ -38,8 +38,6 @@ extern "C"
 {
 #include <ultra64.h>
 #include "incs.h"
-#include "l13n.h"
-//#include "block.h"
 
 HWND win;
 

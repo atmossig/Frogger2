@@ -14,6 +14,9 @@
 
 #define NUM_LANGUAGES	5
 
+#ifdef PC_VERSION
+extern char *DIKStrings[256];
+#endif
 
 extern void RunLanguageSelect	( void );
 
