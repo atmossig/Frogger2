@@ -72,6 +72,7 @@ void EditorCreateEntities(void)
 		counts[((CREATEENTITY*)(node->thing))->thing]++;
 
 	AllocNmeBlock(counts[CREATE_ENEMY]+counts[CREATE_PLACEHOLDER]);
+	AllocPlatformBlock(counts[CREATE_PLATFORM]);
 
 	for (i=0; i<4; i++)
 		if (currPlatform[i])
