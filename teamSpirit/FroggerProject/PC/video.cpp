@@ -11,6 +11,7 @@
 
 #include <islutil.h>
 #include "story.h"
+#include "video.h"
 
 #ifdef USE_BINK_VIDEO
 #include <windows.h>
@@ -19,7 +20,6 @@
 #include <stdio.h>
 
 #include "layout.h"
-#include "video.h"
 #include "islpad.h"
 #include "controll.h"
 #include "pcaudio.h"
