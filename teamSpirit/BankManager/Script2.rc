@@ -1,0 +1,391 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+MAINDLG DIALOGEX 40, 40, 542, 255
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Bank Manager v2.0 (OBE loading with skinning)"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_LIST1,5,20,110,95,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_LIST2,5,135,135,60,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "New",IDC_NEWTEXBANK,5,200,45,11
+    PUSHBUTTON      "Delete",IDC_DELTEXBANK,50,200,45,11,WS_DISABLED
+    GROUPBOX        "",IDC_STATIC,0,115,435,120
+    GROUPBOX        "",IDC_STATIC,0,0,540,120
+    GROUPBOX        "",IDC_STATIC,0,230,435,20
+    LTEXT           "Status:",IDC_PROGTEXT,194,238,150,10,0,WS_EX_RIGHT
+    PUSHBUTTON      "Add",IDC_ADDTEX,385,125,45,20
+    LTEXT           "Select object bank",IDC_STATIC,5,10,70,8
+    LTEXT           "Select texture bank",IDC_STATIC,5,125,133,8
+    PUSHBUTTON      "Export",IDC_EXPORT,120,80,45,20
+    PUSHBUTTON      "Delete",IDC_DELTEX,385,145,45,20
+    PUSHBUTTON      "Refresh",IDC_REFRESHTEX,385,210,45,15
+    PUSHBUTTON      "Properties",IDC_TEXPROPERTIES,95,200,45,11
+    PUSHBUTTON      "New",IDNEWOBJBANK,120,20,45,11
+    PUSHBUTTON      "Properties",IDC_OBJBANKPROPERTIES,120,35,45,11
+    PUSHBUTTON      "Button1",IDC_OBJTEXUP,480,10,10,15,BS_BITMAP
+    PUSHBUTTON      "Button1",IDC_OBJTEXDN,480,85,10,15,BS_BITMAP
+    PUSHBUTTON      "Button1",IDC_TEXUP,365,125,10,15,BS_BITMAP
+    PUSHBUTTON      "Button1",IDC_TEXDN,365,200,10,15,BS_BITMAP
+    CONTROL         "Tree1",IDC_TREE1,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_EDITLABELS | 
+                    WS_BORDER | WS_TABSTOP,175,60,135,45,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Export",IDC_EXPORTTEX,5,215,45,10
+    PUSHBUTTON      "Show unused",IDC_UNUSEDTEX,50,215,45,10
+    CONTROL         "",IDC_OBJSTATUS,"Static",SS_SIMPLE | SS_SUNKEN | 
+                    WS_GROUP,325,105,150,10
+    LTEXT           "Texture banks",IDC_TEXSTATUS,155,220,205,10,SS_SUNKEN
+    LISTBOX         IDC_BMPLIST,440,135,100,45,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL | 
+                    WS_TABSTOP,WS_EX_TRANSPARENT
+    LTEXT           "Selected bitmaps:",IDC_STATIC,440,125,85,10
+    LTEXT           "Referenced by objects:",IDC_STATIC,440,185,85,10
+    LISTBOX         IDC_REFLIST,440,195,100,55,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | LBS_NOSEL | WS_VSCROLL | 
+                    WS_TABSTOP,WS_EX_TRANSPARENT
+    PUSHBUTTON      "Button1",IDC_USERFACE,395,175,25,29,BS_BITMAP | BS_FLAT
+    PUSHBUTTON      "Load all",IDC_LOADALLBANKS,95,215,45,10
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
+                    345,240,85,6
+    PUSHBUTTON      "Add",IDC_ADDNDO,225,105,40,10
+    PUSHBUTTON      "Del",IDC_DELNDO,270,105,40,10
+    LISTBOX         IDC_OBJLIST,175,5,135,55,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "NOB:",IDC_NUMOBJ,120,65,41,10
+    PUSHBUTTON      "Configure",IDC_CONFIGURE,0,235,45,15
+    GROUPBOX        "",IDC_STATIC,0,0,170,120
+    PUSHBUTTON      "Export all",IDC_EXPORTALL,120,105,45,9
+    CONTROL         "Check2",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,149,53,9,10
+    LTEXT           "cup",IDC_STATIC,120,52,27,9
+    EDITTEXT        IDC_POLYCOUNT,480,103,55,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+END
+
+OBJBANKPROPERTIES DIALOG DISCARDABLE  0, 0, 212, 286
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Object bank properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,55,265,50,14,NOT WS_TABSTOP
+    PUSHBUTTON      "Cancel",IDCANCEL,105,265,50,14,NOT WS_TABSTOP
+    LTEXT           "Object bank file",IDC_STATIC,10,50,110,10
+    LTEXT           "Generated object bank",IDC_STATIC,10,100,110,10
+    LTEXT           "Generated texture bank",IDC_STATIC,10,135,110,10
+    GROUPBOX        "Output",IDC_STATIC,5,85,200,80
+    GROUPBOX        "Input",IDC_STATIC,5,5,200,75
+    PUSHBUTTON      "Browse",IDC_BANKFILEBROWSE,170,60,30,15,NOT WS_TABSTOP
+    PUSHBUTTON      "Browse",IDC_OBJOUTBROWSE,170,110,30,15,NOT WS_TABSTOP
+    PUSHBUTTON      "Browse",IDC_TEXOUTBROWSE,170,145,30,15,NOT WS_TABSTOP
+    LTEXT           "Bank filename",IDC_STATIC,10,20,110,10
+    EDITTEXT        IDC_OBJBANKNAME,10,30,190,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_OBJBANKPATH,10,60,155,15,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_OBJOUTPATH,10,110,155,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXOUTPATH,10,145,155,15,ES_AUTOHSCROLL
+    GROUPBOX        "LND file",IDC_STATIC,5,175,200,75
+    LTEXT           "Source file",IDC_STATIC,10,190,135,10
+    LTEXT           "Destination folder",IDC_STATIC,10,220,135,10
+    EDITTEXT        IDC_LNDDEST,10,230,155,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LNDSOURCE,10,200,155,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_LNDSRCBROWSE,170,200,30,15,NOT WS_TABSTOP
+    PUSHBUTTON      "Browse",IDC_LNDDESTBROWSE,170,230,30,15,NOT WS_TABSTOP
+END
+
+BITMAPPROPERTIES DIALOGEX 0, 0, 267, 130
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Bitmap properties"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,170,110,45,15
+    PUSHBUTTON      "Cancel",IDCANCEL,220,110,45,14
+    CTEXT           "Static",IDC_BITMAPNAME,5,5,215,10,SS_SUNKEN
+    EDITTEXT        IDC_CYCLESPEED,220,45,40,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CYCLESTART,220,60,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_CYCLEEND,220,75,40,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Cycle speed",IDC_STATIC,175,45,40,8,0,WS_EX_RIGHT
+    LTEXT           "Cycle start",IDC_STATIC,180,60,35,8,0,WS_EX_RIGHT
+    LTEXT           "Cycle end",IDC_STATIC,180,75,35,8,0,WS_EX_RIGHT
+    LTEXT           "Static",IDC_BMPINFO,150,20,70,10
+    PUSHBUTTON      "Preview",IDPREVIEW,175,90,40,10,BS_FLAT
+    PUSHBUTTON      "Clear",IDCLEAR,220,90,40,10
+    CONTROL         137,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,225,5,33,
+                    30
+    GROUPBOX        "",IDC_STATIC,170,35,95,70
+END
+
+WORKING DIALOG DISCARDABLE  0, 0, 227, 36
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Loading stuff"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
+                    5,20,215,10
+    LTEXT           "Loading:",IDC_STATIC,5,10,30,10
+    LTEXT           "a",IDC_PROGTEXT,35,10,180,10
+END
+
+TEXBANKPROPERTIES DIALOG DISCARDABLE  0, 0, 312, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Texture Bank properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,205,105,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,255,105,50,14
+    EDITTEXT        IDC_TEXBANKPATH,5,46,265,15,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Browse",IDC_TEXPATHBROWSE,275,46,30,15,NOT WS_TABSTOP
+    LTEXT           "Texture path",IDC_STATIC,5,35,110,10
+    EDITTEXT        IDC_TEXBANKNAME,5,10,70,15,ES_AUTOHSCROLL
+    LTEXT           "Name",IDC_STATIC,80,15,30,10
+    EDITTEXT        IDC_EXPBANKPATH,5,81,265,15,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_EXPPATHBROWSE,275,81,30,15,NOT WS_TABSTOP
+    LTEXT           "Export path",IDC_STATIC,5,70,110,10
+END
+
+BROWSEFORDIR DIALOG DISCARDABLE  0, 0, 186, 175
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select directory for textures"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,130,130,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,130,145,50,14
+    LISTBOX         IDC_DIRLIST,10,40,105,120,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Static",IDC_DIRTEXT,5,20,175,10
+    PUSHBUTTON      "Make folder",IDC_MAKEDIR,130,40,50,14
+END
+
+FLYNN DIALOGEX 0, 0, 147, 122
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Listen tae me!"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         134,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN | 
+                    WS_BORDER,5,5,135,93
+    CTEXT           "I AM Johns protégé....                grrr",IDC_STATIC,
+                    5,105,135,10,0,WS_EX_STATICEDGE
+END
+
+ONEUSER DIALOG DISCARDABLE  0, 0, 222, 41
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Only one copy of this program may be run at once..."
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "The person who is dogging you in is...",IDC_STATIC,25,
+                    15,120,10
+    PUSHBUTTON      "Button1",IDC_USERFACE,155,5,25,29,BS_BITMAP
+END
+
+CONFIGURE DIALOG DISCARDABLE  0, 0, 277, 126
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Configure Bankmanager"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,170,105,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,220,105,50,14
+    EDITTEXT        IDC_BANKPATH,5,30,220,15,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Select bank path",IDC_STATIC,5,20,60,10
+    PUSHBUTTON      "Browse",IDC_BANKBROWSE,230,30,35,15
+    EDITTEXT        IDC_CMDPATH,5,65,220,15,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Select command path",IDC_STATIC,5,55,92,10
+    PUSHBUTTON      "Browse",IDC_CMDBROWSE,230,65,35,15
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    "MAINDLG", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 535
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 248
+    END
+
+    "OBJBANKPROPERTIES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 279
+    END
+
+    "BITMAPPROPERTIES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 260
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 123
+    END
+
+    "WORKING", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 29
+    END
+
+    "TEXBANKPROPERTIES", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    "BROWSEFORDIR", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 168
+    END
+
+    "FLYNN", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 140
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 115
+    END
+
+    "ONEUSER", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 34
+    END
+
+    "CONFIGURE", DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 270
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_UP                  BITMAP  DISCARDABLE     "uparrow.bmp"
+IDB_DOWN                BITMAP  DISCARDABLE     "bitmap3.bmp"
+IDB_FARGO               BITMAP  DISCARDABLE     "Bitmaps\\fargo.bmp"
+IDB_WELLS               BITMAP  DISCARDABLE     "Bitmaps\\wells.bmp"
+IDB_COACH               BITMAP  DISCARDABLE     "Bitmaps\\wellsf.bmp"
+IDB_BIGFLYNN            BITMAP  DISCARDABLE     "Bitmaps\\handsome.bmp"
+IDB_SUZY                BITMAP  DISCARDABLE     "Bitmaps\\suzy.bmp"
+IDB_SMFLYNN             BITMAP  DISCARDABLE     "bitmaps\\bitmap4.bmp"
+IDB_WOODY               BITMAP  DISCARDABLE     "Bitmaps\\woody.bmp"
+IDB_FLYNN               BITMAP  DISCARDABLE     "Bitmaps\\flynn.bmp"
+IDB_JIM                 BITMAP  DISCARDABLE     "Bitmaps\\jim.bmp"
+IDB_NEIL                BITMAP  DISCARDABLE     "Bitmaps\\neil.bmp"
+IDB_NICK                BITMAP  DISCARDABLE     "Bitmaps\\nick.bmp"
+IDB_SIMON               BITMAP  DISCARDABLE     "Bitmaps\\simon.bmp"
+IDB_STEVE               BITMAP  DISCARDABLE     "Bitmaps\\steve.bmp"
+IDB_DAVE                BITMAP  DISCARDABLE     "Bitmaps\\dave.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+ACCEL ACCELERATORS DISCARDABLE 
+BEGIN
+    VK_DELETE,      IDC_DELTEX,             VIRTKEY, NOINVERT
+    VK_DOWN,        IDC_TEXDN,              VIRTKEY, NOINVERT
+    VK_INSERT,      IDC_ADDTEX,             VIRTKEY, NOINVERT
+    VK_NEXT,        IDC_OBJTEXDN,           VIRTKEY, NOINVERT
+    VK_PRIOR,       IDC_OBJTEXUP,           VIRTKEY, NOINVERT
+    VK_UP,          IDC_TEXUP,              VIRTKEY, NOINVERT
+END
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
