@@ -677,7 +677,7 @@ void GetNextTile(unsigned long direction,long pl)
 		nextCamFacing = GetTilesMatchingDirection(fromTile,camFacing,destTile[pl]);
 		nextFrogFacing[pl] = GetTilesMatchingDirection(fromTile,frogFacing[pl],destTile[pl]);
 
-		dprintf"    camFacing = %lu, (%f,%f,%f)\n",camFacing
+/*		dprintf"    camFacing = %lu, (%f,%f,%f)\n",camFacing
 															,fromTile->dirVector[camFacing].v[X]
 															,fromTile->dirVector[camFacing].v[Y]
 															,fromTile->dirVector[camFacing].v[Z]));
@@ -685,7 +685,7 @@ void GetNextTile(unsigned long direction,long pl)
 															,destTile[pl]->dirVector[nextCamFacing].v[X]
 															,destTile[pl]->dirVector[nextCamFacing].v[Y]
 															,destTile[pl]->dirVector[nextCamFacing].v[Z]));
-
+*/
 		/*distance = 0.0;
 		
 		for(i=0; i<4; i++)

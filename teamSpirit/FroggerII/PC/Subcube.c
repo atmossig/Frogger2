@@ -22,6 +22,7 @@
 
 VECTOR pointVec = {0,0,1};
 extern long waterObject;
+extern long modgyObject;
 extern long HALF_WIDTH,HALF_HEIGHT;
 extern long runHardware;
 
@@ -31,6 +32,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4]);
 
 void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 void PCPrepareWaterObject(OBJECT *obj, MESH *mesh, float m[4][4]);
+void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4]);
 void PCRenderObject(OBJECT *obj);
 void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 
@@ -51,6 +53,7 @@ long FOV=450;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 VECTOR tV[8000];
+VECTOR nV[8000];
 float mV[8000];
 
 float sinSpeedWater = 0.2;
@@ -314,10 +317,14 @@ void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 		{
 			xl = (((float)obj->xlu) / ((float)0xff)) * xl;
 			StartTimer(6,"Xform");
-			if (waterObject)
+			if ((waterObject))
 				PCPrepareWaterObject(obj, obj->mesh,  obj->objMatrix.matrix);
 			else
-				PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+				if (modgyObject)
+					PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
+				else
+					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+
 			EndTimer(6);
 			StartTimer(12,"ActDraw");
 			PCRenderObject(obj);
@@ -1159,17 +1166,31 @@ void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 	Info			: 
 */
 
-float modi1 = 0.07;
-float modi2 = 2;
-float modi3 = 2;
-float modi4 = 0.05;
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+float modi1 = 0.05;
+float modi2 = 1.29;
+float modi3 = 2.5;
+float modi4 = 0.08;
+float modi5 = 0.1; // Small value for calculating normals.
+float modi6 = 5; // Small value for calculating normals.
+
+
 void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 {
 	float c[4][4];
 	float f[4][4];
 	VECTOR *in;
-	VECTOR *vTemp2;
-	float *vTemp3,t,t2;
+	VECTOR *vTemp2,*vTemp4;
+	float *vTemp3,t,t2,t2x,t2z,xval,zval;
 	unsigned long i;
 
 	in = obj->mesh->vertices;
@@ -1185,12 +1206,26 @@ void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 	guMtxCatF(m,c,f);
 	
 	vTemp2 = tV;
+	vTemp4 = nV;
+
 	vTemp3 = mV;
 	t = actFrameCount * modi1;
 	for (i=0; i<obj->mesh->numVertices; i++)
 	{
-		t2 = sinf(t+i*modi2) + cosf(t+i*modi2);
+		xval=in->v[X]*modi2;
+		zval=in->v[Z]*modi2;
+
+		t2 = sinf(t+xval*zval*0.5) - cosf(t+xval*0.3*zval);
+	//	t2x = sinf(t+(xval+modi5)+zval*0.5) * cosf(t+(xval+modi5)*0.3+zval);
+	//	t2z = sinf(t+xval+(zval+modi5)*0.5) * cosf(t+xval*0.3+(zval+modi5));
+
+		
+	//	vTemp4->v[X] = (t2 - t2x)*modi6;
+	//	vTemp4->v[Z] = (t2 - t2z)*modi6;
+//		MakeUnit(vTemp4);
+//		ScaleVector(vTemp4,modi6);
 		*vTemp3 = t2 * modi4;
+
 		vTemp2->v[X] = (f[0][0]*in->v[X])+(f[1][0]*in->v[Y])+(f[2][0]*in->v[Z])+(f[3][0]);
 		vTemp2->v[Y] = (f[0][1]*in->v[X])+(f[1][1]*in->v[Y])+(f[2][1]*in->v[Z])+(f[3][1]);
 		vTemp2->v[Z] = (f[0][2]*in->v[X])+(f[1][2]*in->v[Y])+(f[2][2]*in->v[Z])+(f[3][2]);
@@ -1215,10 +1250,80 @@ void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 
 		vTemp2++;
 		vTemp3++;
+		vTemp4++;
 		in++;
 	}
 }
 
+void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4])
+{
+	float c[4][4];
+	float f[4][4];
+	VECTOR *in;
+	VECTOR *vTemp2,*vTemp4;
+	float *vTemp3,t,t2,t2x,t2z,xval,zval;
+	unsigned long i;
+
+	in = obj->mesh->vertices;
+
+	guLookAtF(c,
+			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			//stx,sty,stz,
+			//ctx,cty,ctz,
+			//0,1,0);
+			camVect.v[X],camVect.v[Y],camVect.v[Z]);
+	
+	guMtxCatF(m,c,f);
+	
+	vTemp2 = tV;
+	vTemp4 = nV;
+
+	vTemp3 = mV;
+	t = actFrameCount * modi1 * 0.5;
+	for (i=0; i<obj->mesh->numVertices; i++)
+	{
+		xval=in->v[X]*modi2;
+		zval=in->v[Z]*modi2;
+
+		t2 = sinf(t+xval*zval*0.2) - cosf(t+xval*0.4*zval);
+	//	t2x = sinf(t+(xval+modi5)+zval*0.5) * cosf(t+(xval+modi5)*0.3+zval);
+	//	t2z = sinf(t+xval+(zval+modi5)*0.5) * cosf(t+xval*0.3+(zval+modi5));
+
+		
+	//	vTemp4->v[X] = (t2 - t2x)*modi6;
+	//	vTemp4->v[Z] = (t2 - t2z)*modi6;
+//		MakeUnit(vTemp4);
+//		ScaleVector(vTemp4,modi6);
+		*vTemp3 = t2 * modi4;
+
+		vTemp2->v[X] = (f[0][0]*in->v[X])+(f[1][0]*in->v[Y])+(f[2][0]*in->v[Z])+(f[3][0]);
+		vTemp2->v[Y] = (f[0][1]*in->v[X])+(f[1][1]*in->v[Y])+(f[2][1]*in->v[Z])+(f[3][1]);
+		vTemp2->v[Z] = (f[0][2]*in->v[X])+(f[1][2]*in->v[Y])+(f[2][2]*in->v[Z])+(f[3][2]);
+		
+		if (((vTemp2->v[Z]+DIST)>nearClip) &&
+			((noClipping) ||   
+			(((vTemp2->v[Z]+DIST)<farClip) &&
+			((vTemp2->v[X])>-horizClip) &&
+			((vTemp2->v[X])<horizClip) &&
+			((vTemp2->v[Y])>-vertClip) &&
+			((vTemp2->v[Y])<vertClip))))
+		{
+			long x = vTemp2->v[Z]+DIST;
+			float oozd = -FOV * oneOver[x];///(vTemp2->v[Z]+DIST);
+			
+			vTemp2->v[X] = HALF_WIDTH+(vTemp2->v[X] * oozd);
+			vTemp2->v[Y] = HALF_HEIGHT+(vTemp2->v[Y] * oozd);
+		}
+		else
+			vTemp2->v[Z] = 0;
+
+		vTemp2++;
+		vTemp3++;
+		vTemp4++;
+		in++;
+	}
+}
 
 
 
@@ -1242,7 +1347,11 @@ float fogMulBase = 0.7;
 
 short facesON[3] = {0,1,2};
 
-#define SETALPHA(rgba, x) (((x) << 24) | ((rgba & 0x00ffffff)))
+#define SETALPHA(rgba, x) ((((long)(x)) << 24) | ((rgba & 0x00ffffff)))
+
+float naddr = 0.25;
+float nmult = 4.0;
+
 
 void PCRenderObject (OBJECT *obj)
 {
@@ -1314,15 +1423,17 @@ void PCRenderObject (OBJECT *obj)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
 				
-				vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal);//SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				//SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 		//		vTemp->color = D3DRGBA(1,1,1,1);
-				if (waterObject)
+				if (waterObject | modgyObject)
 				{
+					vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal*c1->w*((naddr+mV[v0])*nmult));
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
 					vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F)+mV[v0];
 				}
 				else
 				{
+					vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal);
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
 					vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
 				}
@@ -1339,16 +1450,18 @@ void PCRenderObject (OBJECT *obj)
 				if (fogAmt>1)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
-				vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal);//SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				//SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 //				vTemp->color = D3DRGBA(1,1,1,1);
 
-				if (waterObject)
+				if (waterObject | modgyObject)
 				{
+					vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal*c2->w*((naddr+mV[v1])*nmult));
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
 					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F)+mV[v1];
 				}
 				else
 				{
+					vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal);
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
 					vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
 				}
@@ -1365,16 +1478,18 @@ void PCRenderObject (OBJECT *obj)
 				if (fogAmt>1)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
-				vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal);//SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				//SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 	//			vTemp->color = D3DRGBA(1,1,1,1);
 
-				if (waterObject)
+				if (waterObject | modgyObject)
 				{
+					vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal*c3->w*((naddr+mV[v2])*nmult));
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];
 					vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F)+mV[v2];
 				}
 				else
 				{
+					vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal);
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
 					vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
 				}

@@ -13,7 +13,7 @@
 #include "incs.h"
 
 
-//#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
+#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
 
 
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
@@ -151,7 +151,7 @@ void AnimateTexturePointers(void)
 					cEntry->cFrame = tE;
 				else
 					cEntry->cFrame = cEntry;
-				cEntry->nextFrameAt = cEntry->cFrame->frameTime; 
+				cEntry->nextFrameAt = 2;//cEntry->cFrame->frameTime; 
 			}
 			else
 				cEntry->nextFrameAt-=gameSpeed;
