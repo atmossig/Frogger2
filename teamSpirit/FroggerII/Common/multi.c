@@ -798,7 +798,7 @@ void CalcRaceCamera( VECTOR *target )
 	}
 
 	for( i=0; i<NUM_FROGS; i++ )
-		if( mpl[i].lap >= bestLap && mpl[i].check >= bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		if( mpl[i].lap >= bestLap && mpl[i].check >= bestCheck )
 		{
 			bestLap = mpl[i].lap;
 			bestCheck = mpl[i].check;
@@ -807,7 +807,7 @@ void CalcRaceCamera( VECTOR *target )
 
 	for( i=0,num=0; i<NUM_FROGS; i++ )
 	{
-		if( mpl[i].lap == bestLap && mpl[i].check == bestCheck && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		if( mpl[i].lap == bestLap && mpl[i].check == bestCheck )
 		{
 			num++;
 			t = player[i].jumpTime;
