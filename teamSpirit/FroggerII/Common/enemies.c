@@ -416,15 +416,19 @@ void UpdatePathNME( ENEMY *cur )
 	// check if this enemy has arrived at a path node
 	if( actFrameCount >= cur->path->endFrame )
 	{
-		UpdateEnemyPathNodes(cur);
+		do {
+			UpdateEnemyPathNodes(cur);
+			cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+
+			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+				cur->path->endFrame = cur->path->startFrame + (60*((float)Random(100)/100.0F) );
+			else
+				cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+		}
+		while (actFrameCount >= cur->path->endFrame && cur->isWaiting >= 0);
+
 		CalcEnemyNormalInterps(cur);
 
-		cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
-
-		if (cur->flags & ENEMY_NEW_RANDOMSPEED)
-			cur->path->endFrame = cur->path->startFrame + (60*((float)Random(100)/100.0F) );
-		else
-			cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
 	}
 
 	/*	------------- Push blocks, big fat mofo blocks that push --------------- */

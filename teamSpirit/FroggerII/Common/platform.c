@@ -860,11 +860,13 @@ void UpdatePathPlatform(PLATFORM *plat)
 	// check if this platform has arrived at a path node
 	if(actFrameCount >= plat->path->endFrame)
 	{
-		UpdatePlatformPathNodes(plat);
-	
-		plat->path->startFrame = plat->path->endFrame + plat->isWaiting * waitScale;
-		plat->path->endFrame = plat->path->startFrame + (60*plat->currSpeed);
-	
+		do {
+			UpdatePlatformPathNodes(plat);
+			plat->path->startFrame = plat->path->endFrame + plat->isWaiting * waitScale;
+			plat->path->endFrame = plat->path->startFrame + (60*plat->currSpeed);
+		}
+		while (actFrameCount >= plat->path->endFrame && plat->isWaiting >= 0);
+
 		if (plat->isWaiting) return;
 	}
 	else if (actFrameCount > ((plat->path->startFrame + plat->path->endFrame) / 2))
