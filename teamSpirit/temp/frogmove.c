@@ -155,6 +155,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 			cur->visible = 1;
 			cur->nmeActor->draw = 1;
 			SetVectorSS( &cur->nmeActor->actor->position, &cur->path->nodes->worldTile->centre );
+			SetVectorFF( &cur->nmeActor->actor->size, &oneVec );
 		}
 	}
 

@@ -65,6 +65,7 @@ FVECTOR upVec	= {0,4096,0};
 FVECTOR inVec	= {0,0,4096};
 FVECTOR outVec	= {0,0,-4096};
 FVECTOR rightVec= {4096,0,0};
+FVECTOR oneVec = {4096,4096,4096};
 
 SVECTOR *pointOfInterest;
 fixed pOIDistance = 20000<<12;

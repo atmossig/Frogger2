@@ -537,6 +537,7 @@ void RemoveFrogTongue( int pl )
 				ENEMY *nme = (ENEMY *)tongue[pl].thing;
 				nme->visible = 1;
 				nme->active = 1;
+				SetVectorFF( &nme->nmeActor->actor->size, &oneVec );
 				break;
 			}
 		}
