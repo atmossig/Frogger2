@@ -303,16 +303,6 @@ void actorFlushQueue(ACTOR *actor)
 }
 
 
-/**************************************************************************
-	FUNCTION:	
-	PURPOSE:	
-	PARAMETERS:	
-	RETURNS:	
-**************************************************************************/
-void actorSetAnimationSpeed(ACTOR *actor, int speed)
-{
-	actor->animation.animationSpeed = speed;
-}
 
 
 /**************************************************************************
@@ -341,90 +331,8 @@ void actorAdjustPosition(ACTOR *actor)
 }
 
 
-/**************************************************************************
-	FUNCTION:	
-	PURPOSE:	draw all actors in actorList
-	PARAMETERS:	
-	RETURNS:	
-**************************************************************************/
-
-void actorDrawAll()
-{
-
-	int loop;
-	ACTOR *tempActor;
-
-	loop = actorList.numEntries;
-	tempActor = actorList.head.next;
-	
-	while (loop)
-	{
-		actorMove(tempActor);
-
-		actorDraw(tempActor);
-
-		tempActor = tempActor->next;
-		loop--;
-	}
-}
 
 
-/**************************************************************************
-	FUNCTION:	
-	PURPOSE:	move actor at actor->position
-	PARAMETERS:	ACTOR *
-	RETURNS:	
-**************************************************************************/
-
-void actorMove(ACTOR *actor)
-{
-	int i,v,rotcalc,rotate;
-	PSIOBJECT *world;
-	register PSIMODELCTRL	*modctrl = &PSImodelctrl;
-
-   	world = actor->psiData.object;
-
-	if ( !(actor->psiData.flags & ACTOR_DYNAMICSORT) )
-	{
-		v = 0;
-		if (-PSImodelctrl.whichcamera->vpy < actor->position.vy)
-		{
-			v=4;
-		}
-
-		rotcalc=utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
-							PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
-		rotate=world->rotate.vy+2048; 
-
-		i = utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
-						PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
-		i=((((rotcalc+rotate)&4095)/1024))&3;
-		i += v;
-		modctrl->sorttable=i;
-	}
-
-	actorSetAnimation(actor, actor->animation.frame);
-
-
-	if (actor->psiData.flags&ACTOR_MOTIONBONE)
-	{
-		if (actor->psiData.flags&ACTOR_HOLDMOTION)
-		{
-			world->matrix.t[0] = actor->position.vx;
-			world->matrix.t[1] = actor->position.vy;
-			world->matrix.t[2] = actor->position.vz;
-		}
-		else
-		{
-			world->matrix.t[0] += actor->position.vx;
-			world->matrix.t[1] += actor->position.vy;
-			world->matrix.t[2] += actor->position.vz;
-			actor->position.vx = world->matrix.t[0];
-			actor->position.vy = world->matrix.t[1];
-			actor->position.vz = world->matrix.t[2];
-		}
-	}
-}
 
 
 /**************************************************************************
@@ -473,32 +381,6 @@ void actorDraw(ACTOR *actor)
 	TIMER_STOP_ADD2(TIMER_ACTDR_SEG);
 }
 
-void actorDraw2(ACTOR *actor)
-{
-	MATRIX		scaleMatrix;
-	PSIOBJECT	*world;
-
-	world = actor->psiData.object;
-
-	// create out rotation matrix
-	RotMatrixYXZ_gte(&world->rotate,&world->matrix);
-
-	// create our scale matrix
-	scaleMatrix = GsIDMATRIX;
-	ScaleMatrix(&scaleMatrix, &actor->size);
-
-	gte_MulMatrix0(&GsWSMATRIX, &world->matrix, &world->matrixscale);
-	gte_MulMatrix0(&world->matrixscale, &scaleMatrix, &world->matrixscale);
-
-	// get our position in camera space
-	gte_SetRotMatrix(&GsWSMATRIX);
-	gte_SetTransMatrix(&GsWSMATRIX);
-	gte_ldlvl(&actor->position);
-	gte_rtirtr();
-	gte_stlvl(&world->matrixscale.t);
-
-	psiDrawSegments(&actor->psiData);
-}
 /*
 void actorDraw2(ACTOR *actor)
 {
@@ -532,43 +414,6 @@ void actorDraw2(ACTOR *actor)
 }
 */
 
-void drawBones(PSIOBJECT *world, PSIOBJECT *parent)
-{
-	LINE_F2	*line;
-	VERT	worldPos, parentPos;
-	long	worldXY, parentXY;
-
-	while(world)
-	{
-		worldPos.vx = world->matrixscale.t[0];
-		worldPos.vy = world->matrixscale.t[1];
-		worldPos.vz = world->matrixscale.t[2];
-		
-		parentPos.vx = parent->matrixscale.t[0];
-		parentPos.vy = parent->matrixscale.t[1];
-		parentPos.vz = parent->matrixscale.t[2];
-
-		gte_ldv0(&worldPos);
-		gte_rtps();
-		gte_stsxy(&worldXY);
-
-		gte_ldv0(&parentPos);
-		gte_rtps();
-		gte_stsxy(&parentXY);
-
-		BEGINPRIM(line, LINE_F2);
-		*(u_long *)&line->x0 = *(u_long *)&worldXY;
-		*(u_long *)&line->x1 = *(u_long *)&parentXY;
-		setRGB0(line, 255, 255, 255);
-		setLineF2(line);
-		ENDPRIM(line, 0, LINE_F2);
-
-		if(world->child)
-			drawBones(world->child, world);
-
-		world = world->next;
-	}
-}
 
 
 
@@ -604,29 +449,6 @@ void actorDrawBones(ACTOR *actor)
 }
 
 
-/**************************************************************************
-	FUNCTION:	actorUpdateAnimation()
-	PURPOSE:	Set keyframe information for current object frame
-	PARAMETERS:	Model structure, frame number
-	RETURNS:	
-**************************************************************************/
-
-void actorUpdateAnimation()
-{
-	int loop;
-	ACTOR *actor;
-	
-	loop = actorList.numEntries;
-	actor = actorList.head.next;
-	while (loop)
-	{
-
-		actorUpdateAnimations(actor);
-		actor = actor->next;
-		loop--;
-
-	}	
-}
 
 
 /**************************************************************************
@@ -786,90 +608,6 @@ void actorSetAnimation(ACTOR *actor, ULONG frame)
 }
 
 
-/**************************************************************************
-	FUNCTION:	actorSetAnimation2()
-	PURPOSE:	Set keyframe information for current object ((4096 - blend) * frame0) + (blend * frame1)
-	PARAMETERS:	actor, frame0, frame1, blend
-	RETURNS:	
-**************************************************************************/
-
-void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
-{
-	ACTOR_ANIMATION *actorAnim = &actor->animation;
-	ANIMATION *anim;
-	int	actualSpeed;
-
-	if(actorAnim->numAnimations == 0)
-	{
-		return;
-	}
-
-	if( animNum >= actorAnim->numAnimations )
-	{
-		utilPrintf("anim index out of range: %s\n",actor->psiData.modelName);
-		return;
-	}
-
-	
-	if( (actorAnim->currentAnimation == animNum) &&
-		(queue == 0) && 
-		(actorAnim->reachedEndOfAnimation == 0) &&
-		( speed == actorAnim->animationSpeed) )
-	{
-		actorAnim->loopAnimation = loop;
-		actorFlushQueue(actor);
-		return;
-	}
-
-	if(speed == 0)
-	{
-		actualSpeed = 256;
-	}
-	else
-	{
-		actualSpeed = speed;
-	}
-
-	actorAnim->exclusive = skipendframe;
-	
-	if(queue == 0)
-	{
-		actorAdjustPosition(actor);
-		actorAnim->currentAnimation = animNum;
-		actorAnim->loopAnimation = loop;
-		actorAnim->animationSpeed = actualSpeed;
-		actorAnim->reachedEndOfAnimation = 0;
-		anim = (ANIMATION*)(actor->animSegments + (actorAnim->currentAnimation*2));
-		actorAnim->animTime = anim->animStart << ANIMSHIFT;
-		actorAnim->frame = anim->animStart;
-		actorFlushQueue(actor);
-		if(actualSpeed < 0)
-		{
-			actorAnim->animTime = anim->animEnd << ANIMSHIFT;
-		}
-	}
-	else
-	{
-		if(actorAnim->currentAnimation == -1)
-		{
-			actorAnim->currentAnimation = animNum;
-			actorAnim->loopAnimation = loop;
-			actorAnim->animationSpeed = actualSpeed;
-		}
-		else
-		{
-			if(actorAnim->numberQueued == 5)
-			{
-				return;
-			}
-
-			actorAnim->queueAnimation[actorAnim->numberQueued] = animNum;
-			actorAnim->queueLoopAnimation[actorAnim->numberQueued] = loop;
-			actorAnim->queueAnimationSpeed[actorAnim->numberQueued] = actualSpeed;
-			actorAnim->numberQueued++;
-		}
-	}
-}
 
 
 
@@ -943,76 +681,7 @@ void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
 }
 
 
-void actorRotate(short angx, short angy, short angz, long movex, long movey, long movez, VECTOR *result)
-{																
-	SVECTOR  MATHS_ang;											
-	VECTOR   MATHS_move;										
-	MATRIX   MATHS_rotMat;										
-																
-	MATHS_ang.vx = (angx);										
-	MATHS_ang.vy = (angy);										
-	MATHS_ang.vz = (angz);										
-																
-	MATHS_move.vx = (movex);								
-	MATHS_move.vy = (movey);									
-	MATHS_move.vz = (movez);									
-																
-	MATHS_rotMat = GsIDMATRIX;									
-	RotMatrixYXZ_gte(&MATHS_ang, &MATHS_rotMat);				
-	ApplyMatrixLV(&MATHS_rotMat, &MATHS_move, (result));		
-}
 
-/**************************************************************************
-	FUNCTION:	actorIsVisible
-	PURPOSE:	using actor's preset radius, see if it's screen vivible
-	PARAMETERS:	
-	RETURNS:	true / false
-**************************************************************************/
-
-UBYTE actorIsVisible(ACTOR *actor)
-{
-	VERT	v[3];
-	DVECTOR	scrXY[3];
-	long	scrZ[3];
-//	LINE_F2	*line;
-
-	gte_SetRotMatrix(&GsWSMATRIX);		// load viewpoint matrices
-	gte_SetTransMatrix(&GsWSMATRIX);
-
-	v[0].vx = actor->position.vx;		// use actor's world position
-	v[0].vy = actor->position.vy - actor->radius;
-	v[0].vz = actor->position.vz;
-
-	v[1].vx = v[0].vx + actor->radius;
-	v[1].vy = v[0].vy + actor->radius;
-	v[1].vz = v[0].vz;
-
-	v[2].vx = v[0].vx - actor->radius;
-	v[2].vy = v[0].vy - actor->radius;
-	v[2].vz = v[0].vz;
-
-	gte_ldv3c(&v[0]);
-	gte_rtpt();
-	gte_stsxy3c(&scrXY[0]);
-	gte_stsz3c(&scrZ[0]);
-
-	if (scrZ[0] <= 0)
-	{
-		return 0;					// return if 'behind' camera
-	}
-
-	if ((scrZ[0]-actor->radius)>PSImodelctrl.farclip)
-	{
-		return 0;					// Too far away
-	}
-
-	if( (scrXY[1].vx < -256) || (scrXY[1].vy < -128) || (scrXY[2].vx > 256) || (scrXY[2].vy > 128))
-	{
-		return 0;					// Off screen
-	}
-
-	return 1;
-}
 
 
 
@@ -1330,17 +999,6 @@ int actorCalcSegments(ACTOR *actor)
 }
 
 
-/**************************************************************************
-	FUNCTION:	actorSetBounding
-	PURPOSE:	as actorSetBoundingRotated but forces 0 rotation
-	PARAMETERS:	
-	RETURNS:	sets values in actor structure's bounding box
-**************************************************************************/
-
-void actorSetBounding(ACTOR *actor,int frame)
-{
-	actorSetBoundingRotated(actor,frame,0,0,0);
-}
 
 
 void ScalePsi(PSIMESH* pMesh)
@@ -1432,4 +1090,350 @@ void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int spe
 {
  	if (actor->animation.currentAnimation != animNum)
  		actorAnimate(actor, animNum, loop, queue, speed, skip);
+}
+
+void actorSetAnimationSpeed(ACTOR *actor, int speed)
+{
+	actor->animation.animationSpeed = speed;
+}
+
+/**************************************************************************
+	FUNCTION:	
+	PURPOSE:	draw all actors in actorList
+	PARAMETERS:	
+	RETURNS:	
+**************************************************************************/
+
+void actorDrawAll()
+{
+
+	int loop;
+	ACTOR *tempActor;
+
+	loop = actorList.numEntries;
+	tempActor = actorList.head.next;
+	
+	while (loop)
+	{
+		actorMove(tempActor);
+
+		actorDraw(tempActor);
+
+		tempActor = tempActor->next;
+		loop--;
+	}
+}
+
+/**************************************************************************
+	FUNCTION:	
+	PURPOSE:	move actor at actor->position
+	PARAMETERS:	ACTOR *
+	RETURNS:	
+**************************************************************************/
+
+void actorMove(ACTOR *actor)
+{
+	int i,v,rotcalc,rotate;
+	PSIOBJECT *world;
+	register PSIMODELCTRL	*modctrl = &PSImodelctrl;
+
+   	world = actor->psiData.object;
+
+	if ( !(actor->psiData.flags & ACTOR_DYNAMICSORT) )
+	{
+		v = 0;
+		if (-PSImodelctrl.whichcamera->vpy < actor->position.vy)
+		{
+			v=4;
+		}
+
+		rotcalc=utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
+							PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
+		rotate=world->rotate.vy+2048; 
+
+		i = utilCalcAngle(	PSImodelctrl.whichcamera->vpx - actor->position.vx,
+						PSImodelctrl.whichcamera->vpz - actor->position.vz)&0xffff;
+		i=((((rotcalc+rotate)&4095)/1024))&3;
+		i += v;
+		modctrl->sorttable=i;
+	}
+
+	actorSetAnimation(actor, actor->animation.frame);
+
+
+	if (actor->psiData.flags&ACTOR_MOTIONBONE)
+	{
+		if (actor->psiData.flags&ACTOR_HOLDMOTION)
+		{
+			world->matrix.t[0] = actor->position.vx;
+			world->matrix.t[1] = actor->position.vy;
+			world->matrix.t[2] = actor->position.vz;
+		}
+		else
+		{
+			world->matrix.t[0] += actor->position.vx;
+			world->matrix.t[1] += actor->position.vy;
+			world->matrix.t[2] += actor->position.vz;
+			actor->position.vx = world->matrix.t[0];
+			actor->position.vy = world->matrix.t[1];
+			actor->position.vz = world->matrix.t[2];
+		}
+	}
+}
+
+void actorDraw2(ACTOR *actor)
+{
+	MATRIX		scaleMatrix;
+	PSIOBJECT	*world;
+
+	world = actor->psiData.object;
+
+	// create out rotation matrix
+	RotMatrixYXZ_gte(&world->rotate,&world->matrix);
+
+	// create our scale matrix
+	scaleMatrix = GsIDMATRIX;
+	ScaleMatrix(&scaleMatrix, &actor->size);
+
+	gte_MulMatrix0(&GsWSMATRIX, &world->matrix, &world->matrixscale);
+	gte_MulMatrix0(&world->matrixscale, &scaleMatrix, &world->matrixscale);
+
+	// get our position in camera space
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+	gte_ldlvl(&actor->position);
+	gte_rtirtr();
+	gte_stlvl(&world->matrixscale.t);
+
+	psiDrawSegments(&actor->psiData);
+}
+
+void drawBones(PSIOBJECT *world, PSIOBJECT *parent)
+{
+	LINE_F2	*line;
+	VERT	worldPos, parentPos;
+	long	worldXY, parentXY;
+
+	while(world)
+	{
+		worldPos.vx = world->matrixscale.t[0];
+		worldPos.vy = world->matrixscale.t[1];
+		worldPos.vz = world->matrixscale.t[2];
+		
+		parentPos.vx = parent->matrixscale.t[0];
+		parentPos.vy = parent->matrixscale.t[1];
+		parentPos.vz = parent->matrixscale.t[2];
+
+		gte_ldv0(&worldPos);
+		gte_rtps();
+		gte_stsxy(&worldXY);
+
+		gte_ldv0(&parentPos);
+		gte_rtps();
+		gte_stsxy(&parentXY);
+
+		BEGINPRIM(line, LINE_F2);
+		*(u_long *)&line->x0 = *(u_long *)&worldXY;
+		*(u_long *)&line->x1 = *(u_long *)&parentXY;
+		setRGB0(line, 255, 255, 255);
+		setLineF2(line);
+		ENDPRIM(line, 0, LINE_F2);
+
+		if(world->child)
+			drawBones(world->child, world);
+
+		world = world->next;
+	}
+}
+
+/**************************************************************************
+	FUNCTION:	actorUpdateAnimation()
+	PURPOSE:	Set keyframe information for current object frame
+	PARAMETERS:	Model structure, frame number
+	RETURNS:	
+**************************************************************************/
+
+void actorUpdateAnimation()
+{
+	int loop;
+	ACTOR *actor;
+	
+	loop = actorList.numEntries;
+	actor = actorList.head.next;
+	while (loop)
+	{
+
+		actorUpdateAnimations(actor);
+		actor = actor->next;
+		loop--;
+
+	}	
+}
+
+/**************************************************************************
+	FUNCTION:	actorSetAnimation2()
+	PURPOSE:	Set keyframe information for current object ((4096 - blend) * frame0) + (blend * frame1)
+	PARAMETERS:	actor, frame0, frame1, blend
+	RETURNS:	
+**************************************************************************/
+
+void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
+{
+	ACTOR_ANIMATION *actorAnim = &actor->animation;
+	ANIMATION *anim;
+	int	actualSpeed;
+
+	if(actorAnim->numAnimations == 0)
+	{
+		return;
+	}
+
+	if( animNum >= actorAnim->numAnimations )
+	{
+		utilPrintf("anim index out of range: %s\n",actor->psiData.modelName);
+		return;
+	}
+
+	
+	if( (actorAnim->currentAnimation == animNum) &&
+		(queue == 0) && 
+		(actorAnim->reachedEndOfAnimation == 0) &&
+		( speed == actorAnim->animationSpeed) )
+	{
+		actorAnim->loopAnimation = loop;
+		actorFlushQueue(actor);
+		return;
+	}
+
+	if(speed == 0)
+	{
+		actualSpeed = 256;
+	}
+	else
+	{
+		actualSpeed = speed;
+	}
+
+	actorAnim->exclusive = skipendframe;
+	
+	if(queue == 0)
+	{
+		actorAdjustPosition(actor);
+		actorAnim->currentAnimation = animNum;
+		actorAnim->loopAnimation = loop;
+		actorAnim->animationSpeed = actualSpeed;
+		actorAnim->reachedEndOfAnimation = 0;
+		anim = (ANIMATION*)(actor->animSegments + (actorAnim->currentAnimation*2));
+		actorAnim->animTime = anim->animStart << ANIMSHIFT;
+		actorAnim->frame = anim->animStart;
+		actorFlushQueue(actor);
+		if(actualSpeed < 0)
+		{
+			actorAnim->animTime = anim->animEnd << ANIMSHIFT;
+		}
+	}
+	else
+	{
+		if(actorAnim->currentAnimation == -1)
+		{
+			actorAnim->currentAnimation = animNum;
+			actorAnim->loopAnimation = loop;
+			actorAnim->animationSpeed = actualSpeed;
+		}
+		else
+		{
+			if(actorAnim->numberQueued == 5)
+			{
+				return;
+			}
+
+			actorAnim->queueAnimation[actorAnim->numberQueued] = animNum;
+			actorAnim->queueLoopAnimation[actorAnim->numberQueued] = loop;
+			actorAnim->queueAnimationSpeed[actorAnim->numberQueued] = actualSpeed;
+			actorAnim->numberQueued++;
+		}
+	}
+}
+
+void actorRotate(short angx, short angy, short angz, long movex, long movey, long movez, VECTOR *result)
+{																
+	SVECTOR  MATHS_ang;											
+	VECTOR   MATHS_move;										
+	MATRIX   MATHS_rotMat;										
+																
+	MATHS_ang.vx = (angx);										
+	MATHS_ang.vy = (angy);										
+	MATHS_ang.vz = (angz);										
+																
+	MATHS_move.vx = (movex);								
+	MATHS_move.vy = (movey);									
+	MATHS_move.vz = (movez);									
+																
+	MATHS_rotMat = GsIDMATRIX;									
+	RotMatrixYXZ_gte(&MATHS_ang, &MATHS_rotMat);				
+	ApplyMatrixLV(&MATHS_rotMat, &MATHS_move, (result));		
+}
+
+/**************************************************************************
+	FUNCTION:	actorIsVisible
+	PURPOSE:	using actor's preset radius, see if it's screen vivible
+	PARAMETERS:	
+	RETURNS:	true / false
+**************************************************************************/
+
+UBYTE actorIsVisible(ACTOR *actor)
+{
+	VERT	v[3];
+	DVECTOR	scrXY[3];
+	long	scrZ[3];
+//	LINE_F2	*line;
+
+	gte_SetRotMatrix(&GsWSMATRIX);		// load viewpoint matrices
+	gte_SetTransMatrix(&GsWSMATRIX);
+
+	v[0].vx = actor->position.vx;		// use actor's world position
+	v[0].vy = actor->position.vy - actor->radius;
+	v[0].vz = actor->position.vz;
+
+	v[1].vx = v[0].vx + actor->radius;
+	v[1].vy = v[0].vy + actor->radius;
+	v[1].vz = v[0].vz;
+
+	v[2].vx = v[0].vx - actor->radius;
+	v[2].vy = v[0].vy - actor->radius;
+	v[2].vz = v[0].vz;
+
+	gte_ldv3c(&v[0]);
+	gte_rtpt();
+	gte_stsxy3c(&scrXY[0]);
+	gte_stsz3c(&scrZ[0]);
+
+	if (scrZ[0] <= 0)
+	{
+		return 0;					// return if 'behind' camera
+	}
+
+	if ((scrZ[0]-actor->radius)>PSImodelctrl.farclip)
+	{
+		return 0;					// Too far away
+	}
+
+	if( (scrXY[1].vx < -256) || (scrXY[1].vy < -128) || (scrXY[2].vx > 256) || (scrXY[2].vy > 128))
+	{
+		return 0;					// Off screen
+	}
+
+	return 1;
+}
+
+/**************************************************************************
+	FUNCTION:	actorSetBounding
+	PURPOSE:	as actorSetBoundingRotated but forces 0 rotation
+	PARAMETERS:	
+	RETURNS:	sets values in actor structure's bounding box
+**************************************************************************/
+
+void actorSetBounding(ACTOR *actor,int frame)
+{
+	actorSetBoundingRotated(actor,frame,0,0,0);
 }
