@@ -60,13 +60,13 @@ extern void CreateProceduralTexture( TextureType *tex, char *name );
 												   (v1)->vy = (short)(v2)->vy,\
 												   (v1)->vz = (short)(v2)->vz
 
-#define SetVectorRF(v1, v2)						   (v1)->vx = (float)((int)(v2)->vx>>12),\
-												   (v1)->vy = (float)((int)(v2)->vy>>12),\
-												   (v1)->vz = (float)((int)(v2)->vz>>12)
+#define SetVectorRF(v1, v2)						   (v1)->vx = ((float)(v2)->vx*ONEOVERFIXED),\
+												   (v1)->vy = ((float)(v2)->vy*ONEOVERFIXED),\
+												   (v1)->vz = ((float)(v2)->vz*ONEOVERFIXED)
 
-#define SetVectorFR(v1, v2)						   (v1)->vx = (int)((v2)->vx<<12),\
-												   (v1)->vy = (int)((v2)->vy<<12),\
-												   (v1)->vz = (int)((v2)->vz<<12)
+#define SetVectorFR(v1, v2)						   (v1)->vx = (int)((v2)->vx*4096),\
+												   (v1)->vy = (int)((v2)->vy*4096),\
+												   (v1)->vz = (int)((v2)->vz*4096)
 
 
 #define ROUND2SHORT(x)				((short)((x) + 0.5F))
