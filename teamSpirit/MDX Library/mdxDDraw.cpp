@@ -381,7 +381,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 
 		if ((res = pDirectDraw7->SetCooperativeLevel(window, DDSCL_NORMAL)) != DD_OK)
 		{
-			dp("Failed setting cooperative level. (Fullscreen Mode)\n");
+			dp("Failed setting cooperative level. (Windowsed Mode)\n");
 			ddShowError(res);
 			return 0;
 		}
