@@ -258,7 +258,7 @@ typedef struct
 #define OBJECT_FLAGS_XLU					   	(1<<1)		// 2
 #define OBJECT_FLAGS_TRANSPARENT			   	(1<<2)		// 4
 #define OBJECT_FLAGS_PRELIT					   	(1<<3)		// 8
-#define OBJECT_FLAGS_MIP_MAP				   	(1<<4)		// 16
+#define OBJECT_FLAGS_SHEEN					   	(1<<4)		// 16
 #define OBJECT_FLAGS_MODGE					   	(1<<5)		// 32
 #define OBJECT_FLAGS_ADDITIVE				   	(1<<6)		// 64
 #define OBJECT_FLAGS_WAVE					   	(1<<7)		// 128

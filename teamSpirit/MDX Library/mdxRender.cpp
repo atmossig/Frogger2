@@ -35,6 +35,7 @@ extern "C"
 #endif
 
 unsigned long drawingSwampy;
+long noClip = 0;
 
 #define MAX_OBJECT_VERTICES 8000
 #define SETALPHA(rgba, x) ((((long)(x)) << 24) | ((rgba & 0x00ffffff)))
@@ -201,10 +202,22 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
 	vOut->rhw = 1;///vOut->sz;
 	
-	vOut->specular = v0->specular;//((long)(((long)v0->specular>>24)+((((long)v1->specular>>24)-((long)v0->specular>>24))*vt)))<<24;
+	//vOut->specular = v0->specular;//((long)(((long)v0->specular>>24)+((((long)v1->specular>>24)-((long)v0->specular>>24))*vt)))<<24;
 	
 	
 	vOut->color = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
+
+	a1 = RGBA_GETALPHA(v0->specular);
+	r1 = RGBA_GETRED(v0->specular);
+	g1 = RGBA_GETGREEN(v0->specular);
+	b1 = RGBA_GETBLUE(v0->specular);
+
+	a2 = RGBA_GETALPHA(v1->specular);
+	r2 = RGBA_GETRED(v1->specular);
+	g2 = RGBA_GETGREEN(v1->specular);
+	b2 = RGBA_GETBLUE(v1->specular);
+
+	vOut->specular = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
 
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
@@ -324,7 +337,7 @@ void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d)
 		guMtxXFMF(vMatrix.matrix,in->vx,in->vy,in->vz,&(vTemp2->vx),&(vTemp2->vy),&(vTemp2->vz));
 	
 	if  (((vTemp2->vz+DIST)>nearClip) &&
-		((vTemp2->vz+DIST)<farClip) &&
+		((vTemp2->vz+DIST)<farClip || noClip) &&
 		((vTemp2->vx)>-horizClip) &&
 		((vTemp2->vx)<horizClip) &&
 		((vTemp2->vy)>-vertClip) &&
@@ -392,7 +405,7 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 		vTemp2->vz = (f[0][2]*in->vx)+(f[1][2]*in->vy)+(f[2][2]*in->vz)+(f[3][2]);
 
 		if (((vTemp2->vz+DIST)>nearClip) &&
-			(((vTemp2->vz+DIST)<farClip) &&
+			(((vTemp2->vz+DIST)<farClip || noClip) &&
 			(((vTemp2->vx)>-horizClip) &&
 			((vTemp2->vx)<horizClip) &&
 			((vTemp2->vy)>-vertClip) &&
@@ -436,6 +449,8 @@ void PCCalcModgeValues(MDX_OBJECT *obj)
 	}
 }
 
+
+
 void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {
 	float f[4][4],*mTemp,*mTemp2,ty,oozd;
@@ -459,7 +474,7 @@ void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 		vTemp2->vz = (f[0][2]*in->vx)+(f[1][2]*ty)+(f[2][2]*in->vz)+(f[3][2]);
 
 		if (((vTemp2->vz+DIST)>nearClip) &&
-			(((vTemp2->vz+DIST)<farClip) &&
+			(((vTemp2->vz+DIST)<farClip || noClip) &&
 			((vTemp2->vx)>-horizClip) &&
 			((vTemp2->vx)<horizClip) &&
 			((vTemp2->vy)>-vertClip) &&
@@ -478,6 +493,65 @@ void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 
 		vTemp2++;
 		mTemp++;
+		in++;
+	}
+}
+
+MDX_VECTOR sheenPos = {0,100,-1700};
+MDX_VECTOR sheenEye = {0,100,-1700};
+MDX_USHORT2DVECTOR sheenTC[2000];
+
+void PCPrepareModgySheenObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
+{
+	float f[4][4],*mTemp,*mTemp2,ty,oozd;
+	MDX_VECTOR *in,vT,vT1,vT2;
+	MDX_VECTOR *vTemp2 = obj->mesh->vertices;;
+	float ang,len,mul;
+	long i;
+
+	short *face = &obj->mesh->faceIndex[0].v[0];
+
+	in = obj->mesh->vertices;
+
+//	vTemp2 = tV;
+	sheenEye.vy = 0;
+	for (i=0; i<obj->mesh->numFaces*3; i++)
+	{
+		in = &vTemp2[*face];
+
+		vT.vx = (m[0][0]*in->vx)+(m[1][0]*in->vy)+(m[2][0]*in->vz)+(m[3][0]);
+		vT.vy = (m[0][1]*in->vx)+(m[1][1]*in->vy)+(m[2][1]*in->vz)+(m[3][1]);
+		vT.vz = (m[0][2]*in->vx)+(m[1][2]*in->vy)+(m[2][2]*in->vz)+(m[3][2]);
+
+		
+		SubVector (&vT1,&vT,&sheenEye);
+		SubVector (&vT2,&sheenPos,&sheenEye);
+		len = mdxMagnitude(&vT1);
+
+		vT1.vy = 0;
+		vT2.vy = 0;
+		
+		Normalise(&vT1);
+		Normalise(&vT2);
+
+		
+		ang = DotProduct(&vT1,&vT2);
+
+		if (ang>0)
+		{
+			mul = len*sin(acos(ang)*2)*2;
+		
+			if (mul>1000)
+				mul = 1000;
+
+
+			sheenTC[i].v[0] = 1024-(mul);
+			sheenTC[i].v[1] = 1024-(mul);
+		}
+		else
+			sheenTC[i].v[0] = sheenTC[i].v[1] = 24;
+
+		face++;		
 		in++;
 	}
 }
@@ -873,6 +947,18 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 	}
 }
 
+void AdjustObjectOutline(void)
+{
+	MDX_VECTOR *vTemp2 = tV;
+
+	for (int i=0; i<400; i++)
+	{
+		vTemp2->vx -= 4;
+		vTemp2->vy += 2;
+		vTemp2++;
+	}
+}
+
 unsigned long numObjDrawn;
 
 void DrawLandscape(MDX_LANDSCAPE *me)
@@ -974,8 +1060,8 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 	{
 		if (skinned<3)
 			PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
-//	else
-//			PCPrepareSkinnedObjectOutline(obj, masterMesh,  obj->objMatrix.matrix);
+		else
+			PCPrepareSkinnedObjectOutline(obj, masterMesh,  obj->objMatrix.matrix);
 
 		if (skinned == 2)
 			PCPrepareSkinnedObjectNormals(obj, masterMesh, obj->objMatrix.matrix);
@@ -992,7 +1078,12 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 					PCCalcModgeValues(obj);					
 					
 				if (obj->flags & OBJECT_FLAGS_WAVE)
+				{
 					PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
+					
+					if (obj->flags & OBJECT_FLAGS_SHEEN)
+						PCPrepareModgySheenObject(obj, obj->mesh,  obj->objMatrix.matrix);
+				}
 				else
 					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
 
@@ -1007,7 +1098,12 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 					if (obj->flags & OBJECT_FLAGS_MODGE)
 					{
 						if (obj->flags & OBJECT_FLAGS_WAVE)
-							PCRenderModgyObject(obj);
+						{
+							if (obj->flags & OBJECT_FLAGS_SHEEN)
+								PCRenderModgySheenObject(obj);
+							else
+								PCRenderModgyObject(obj);
+						}
 						else
 							PCRenderModgyObject2(obj);
 					}
@@ -1467,8 +1563,11 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 		m1z = tMz[v0];
 		m2z = tMz[v1];
 		m3z = tMz[v2];
-		
-		tex = (MDX_TEXENTRY *)(*tex2);
+
+//		if (overrideTex)
+//			tex = overrideTex;
+//		else
+			tex = (MDX_TEXENTRY *)(*tex2);
 		
 		// If we are to be drawn.
 		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
@@ -1493,10 +1592,10 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sx = tV0->vx;
 			vTemp->sy = tV0->vy;
 			vTemp->sz = (tV0->vz) * 0.00025F;
-			vTemp->rhw = 1/vTemp->sz;
+			vTemp->rhw = 1;///vTemp->sz;
 
 			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
+			vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m1x+m1z));
 			//vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z*0.4;
@@ -1512,9 +1611,9 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sx = tV1->vx;
 			vTemp->sy = tV1->vy;
 			vTemp->sz = (tV1->vz) * 0.00025F;
-			vTemp->rhw = 1/vTemp->sz;
+			vTemp->rhw = 1;///vTemp->sz;
 			cVal = 1;//fabs((m2x+m2z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m2x+m2z)*2);
+			vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m2x+m2z));
 			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z*0.4;
 			//vTemp->tv = (tN1->vy+0.5);
@@ -1528,11 +1627,143 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sx = tV2->vx;
 			vTemp->sy = tV2->vy;
 			vTemp->sz = (tV2->vz) * 0.00025F;
-			vTemp->rhw = 1/vTemp->sz;
+			vTemp->rhw = 1;///vTemp->sz;
 			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m3x+m3z)*2);
+			vTemp->color = D3DRGBA(cVal,cVal,1,0.4+(m3x+m3z));
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
+			//vTemp->tv = (tN2->vy+0.5);
+			//vTemp->tu = (tN2->vx+0.5);
+			
+			x1on = BETWEEN(v[0].sx,clx0,clx1);
+			x2on = BETWEEN(v[1].sx,clx0,clx1);
+			x3on = BETWEEN(v[2].sx,clx0,clx1);
+			y1on = BETWEEN(v[0].sy,cly0,cly1);
+			y2on = BETWEEN(v[1].sy,cly0,cly1);
+			y3on = BETWEEN(v[2].sy,cly0,cly1);
+
+			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			{
+				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
+					PushPolys(v,3,facesON,3,tex);
+				}
+				else
+					Clip3DPolygon(v,tex);
+			}
+		}
+		
+		// Update our pointers
+		facesIdx++;
+		tex2++;
+	}
+}
+
+MDX_TEXENTRY *sheenTex;
+void PCRenderModgySheenObject (MDX_OBJECT *obj)
+{
+	long i,j;
+	unsigned short fce[3] = {0,1,2};		
+	MDX_QUATERNION *c1,*c2,*c3;
+	D3DTLVERTEX v[3],*vTemp;
+	MDX_SHORTVECTOR *facesIdx;
+	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long v0,v1,v2;
+	unsigned long v0a,v1a,v2a;
+	float m1x,m2x,m3x,tFog;
+	float m1z,m2z,m3z,cVal;
+	long alphaVal;
+	MDX_TEXENTRY *tex;
+	MDX_TEXENTRY **tex2;
+	MDX_VECTOR *tV0,*tV1,*tV2, *tN0,*tN1,*tN2;
+	MDX_QUATERNION *cols;
+	
+	facesIdx = obj->mesh->faceIndex;
+	tex2 = obj->mesh->textureIDs;
+	cols = obj->mesh->gouraudColors;
+	alphaVal = (long)(globalXLU2*255.0);
+
+	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
+	{
+		// Get information from the mesh!
+		v0 = facesIdx->v[0];
+		v1 = facesIdx->v[1];
+		v2 = facesIdx->v[2];
+		
+		
+		tV0 = &tV[v0];
+		tV1 = &tV[v1];
+		tV2 = &tV[v2];
+
+		tN0 = &tN[v0];
+		tN1 = &tN[v1];
+		tN2 = &tN[v2];
+		
+		m1x = tMx[v0];
+		m2x = tMx[v1];
+		m3x = tMx[v2];
+		m1z = tMz[v0];
+		m2z = tMz[v1];
+		m3z = tMz[v2];
+
+//		if (overrideTex)
+		tex = sheenTex;
+//		else
+//			tex = (MDX_TEXENTRY *)(*tex2);
+		
+		// If we are to be drawn.
+		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+		{
+			// Get rest of info from mesh
+			v0a = j;
+			v1a = j+1;
+			v2a = j+2;
+
+			c1 = &(cols[v0a]);
+			c2 = &(cols[v1a]);
+			c3 = &(cols[v2a]);
+			
+			// Fill out D3DVertices...
+			vTemp = v;
+			
+			vTemp->specular = D3DRGBA(0,0,0,1);									
+			vTemp->sx = tV0->vx;
+			vTemp->sy = tV0->vy;
+			vTemp->sz = (tV0->vz) * 0.00025F;
+			vTemp->rhw = 1;///vTemp->sz;
+
+			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
+			vTemp->color = D3DRGBA(1,1,1,1);
+			//vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (sheenTC[v0a].v[0]*0.000975F);
+			vTemp->tv = (sheenTC[v0a].v[1]*0.000975F);
+			
+			//vTemp->tv = (tN0->vy+0.5);
+			//vTemp->tu = (tN0->vx+0.5);
+			vTemp++;
+
+			vTemp->specular = D3DRGBA(0,0,0,1);			
+			vTemp->sx = tV1->vx;
+			vTemp->sy = tV1->vy;
+			vTemp->sz = (tV1->vz) * 0.00025F;
+			vTemp->rhw = 1;///vTemp->sz;
+			cVal = 1;//fabs((m2x+m2z)*2.5);		
+			vTemp->color = D3DRGBA(1,1,1,1);
+			vTemp->tu = (sheenTC[v1a].v[0]*0.000975F);
+			vTemp->tv = (sheenTC[v1a].v[1]*0.000975F);
+			//vTemp->tv = (tN1->vy+0.5);
+			//vTemp->tu = (tN1->vx+0.5);
+			vTemp++;
+			
+			vTemp->specular = D3DRGBA(0,0,0,1);			
+			vTemp->sx = tV2->vx;
+			vTemp->sy = tV2->vy;
+			vTemp->sz = (tV2->vz) * 0.00025F;
+			vTemp->rhw = 1;///vTemp->sz;
+			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
+			vTemp->color = D3DRGBA(1,1,1,1);
+			vTemp->tu = (sheenTC[v2a].v[0]*0.000975F);
+			vTemp->tv = (sheenTC[v2a].v[1]*0.000975F);
 			//vTemp->tv = (tN2->vy+0.5);
 			//vTemp->tu = (tN2->vx+0.5);
 			
@@ -1912,7 +2143,8 @@ void PCRenderObject (MDX_OBJECT *obj)
 				(dVtx)->sx = tV0->vx;
 				(dVtx)->sy = tV0->vy;
 				(dVtx)->sz = tV0->vz * 0.00025F;
-				
+				(dVtx)->rhw = 1;///(dVtx)->sz;
+
 				tFog = FOG(tV1->vz);
 				if (tFog>1) tFog = 1;
 				if (tFog<0) tFog = 0;
@@ -1920,7 +2152,8 @@ void PCRenderObject (MDX_OBJECT *obj)
 				(dVtx+1)->sx = tV1->vx;
 				(dVtx+1)->sy = tV1->vy;
 				(dVtx+1)->sz = tV1->vz * 0.00025F;
-				
+				(dVtx+1)->rhw = 1;///(dVtx+1)->sz;
+
 				tFog = FOG(tV2->vz);
 				if (tFog>1) tFog = 1;
 				if (tFog<0) tFog = 0;
@@ -1928,7 +2161,8 @@ void PCRenderObject (MDX_OBJECT *obj)
 				(dVtx+2)->sx = tV2->vx;
 				(dVtx+2)->sy = tV2->vy;
 				(dVtx+2)->sz = tV2->vz * 0.00025F;
-				
+				(dVtx+2)->rhw = 1;///(dVtx+2)->sz;
+
 				y1on = BETWEEN(tV0->vy,cly0,cly1) +
 					   BETWEEN(tV1->vy,cly0,cly1) +
 					   BETWEEN(tV2->vy,cly0,cly1);

@@ -26,6 +26,8 @@
 #include "mdxTiming.h"
 #include "gelf.h"
 #include "mdxException.h"
+#include "mdxLandscape.h"
+#include "mdxRender.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -486,7 +488,7 @@ void TransformObject(MDX_OBJECT *obj, float time)
 
 	MatrixSet (&obj->objMatrix.matrix,&matrixStack.stack[matrixStack.stackPosition]);
 
-	if ((obj->bBox) && CheckBoundingBox(obj->bBox,&obj->objMatrix))
+	if ((obj->bBox) && CheckBoundingBox(obj->bBox,&obj->objMatrix) && (!noClip))
 		obj->flags |= OBJECT_FLAGS_CLIPPED;
 	else
 		obj->flags &= ~OBJECT_FLAGS_CLIPPED;

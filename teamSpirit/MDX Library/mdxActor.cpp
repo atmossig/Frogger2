@@ -128,8 +128,10 @@ void DrawActor(MDX_ACTOR *actor)
 		{
 			DrawObject(objectC->object, TRUE, objectC->object->mesh);
 			PCRenderObject(objectC->object);
-//			DrawObject(objectC->object, 3, objectC->object->mesh);
-//			PCRenderObjectOutline(objectC->object);
+			DrawObject(objectC->object, 3, objectC->object->mesh);
+			PCRenderObjectOutline(objectC->object);
+			AdjustObjectOutline();
+			PCRenderObjectOutline(objectC->object);
 		}
 	}
 	else

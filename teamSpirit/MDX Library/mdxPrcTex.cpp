@@ -36,7 +36,7 @@ LPDIRECTDRAWSURFACE7 testS = NULL;
 
 short *waterData1;
 short *waterData2;
-#define WATER_EFFECT_RATIO 32
+#define WATER_EFFECT_RATIO 64
 #define WATER_TEXTURE_SIZE 128
 #define WATER_TEXTURE_SIZE2 (128*128)
 #define WATER_TEXTURE_SHIFT 7
@@ -77,7 +77,7 @@ void UpdateWater(void)
 	if (!testS)
 		return;
 
-	wOffset = timeInfo.frameCount /2;
+	wOffset = timeInfo.frameCount;//2;
 	
 	while (testS->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	
