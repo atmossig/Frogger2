@@ -314,9 +314,9 @@ int LoadSfx(long worldID )
 	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
 
 // JH: changed file name to some thing else coz we don't have this one yet....
-	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("hopongrass"));
+//	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("hopongrass"));
 
-	//genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
+	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
 
 	genSfx[GEN_CLOCKTICK] = FindSample(utilStr2CRC("clocktick"));
 	genSfx[GEN_POWERTICK] = FindSample(utilStr2CRC("puptick"));
@@ -485,6 +485,7 @@ void FreeSampleList( )
 	Returns			: success?
 	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
 */
+int sfxwaittime = 5;
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
  	int vl,vr;
@@ -522,7 +523,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		return 0;
 
 	vs = VSync(1);
-	while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
+	while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+sfxwaittime));
 
 	if(sample->flags)
 		utilPrintf("playing looping sample the wrong way!!!!!!!!\n");
@@ -865,7 +866,8 @@ void PauseAudio( )
 {
 	// CD Pause: Possibly should check return value... Nah, can't be bothered.
 #if GOLDCD==1
-	CdControl( CdlPause, NULL, NULL );
+	SetCDVolume(0);
+//	CdControl( CdlPause, NULL, NULL );
 #endif
 
 	// Mute sound
@@ -876,7 +878,8 @@ void UnPauseAudio( )
 {
 	// CD Resume
 #if GOLDCD==1
-	CdControl( CdlPlay, NULL, NULL );
+	SetCDVolume((globalMusicVol * 65535)/MAX_SOUND_VOL);
+//	CdControl( CdlPlay, NULL, NULL );
 #endif
 	// Unmute sound
 	SsSetMute( 0 );
