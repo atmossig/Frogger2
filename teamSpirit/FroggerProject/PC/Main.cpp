@@ -151,7 +151,7 @@ long DrawLoop(void)
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 
 	if (world)
 		DrawLandscape(world);
