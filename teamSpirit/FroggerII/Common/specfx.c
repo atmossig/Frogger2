@@ -642,13 +642,26 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 		if(explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST)
 		{
 //			FindTexture(&theTexture,UpdateCRC("ai_star.bmp"),YES,"ai_star.bmp");
-			FindTexture(&theTexture,UpdateCRC("spa01.bmp"),YES,"ai_star.bmp");
+			FindTexture(&theTexture,UpdateCRC("spa01.bmp"),YES,"spa01.bmp");
 			explode->sprite[i].texture	= theTexture;
 			explode->alphaDecay[i]		*= 2;
 
 			explode->sprite[i].r		= Random(256);
 			explode->sprite[i].g		= Random(256);
 			explode->sprite[i].b		= Random(256);
+
+			explode->sprite[i].scaleX	= 1;
+			explode->sprite[i].scaleY	= 1;
+		}
+		else if(explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
+		{
+			FindTexture(&theTexture,UpdateCRC("ai_smoke.bmp"),YES,"ai_smoke.bmp");
+			explode->sprite[i].texture	= theTexture;
+			explode->alphaDecay[i]		*= 2;
+
+			explode->sprite[i].r		= 255;
+			explode->sprite[i].g		= 255;
+			explode->sprite[i].b		= 255;
 
 			explode->sprite[i].scaleX	= 1;
 			explode->sprite[i].scaleY	= 1;
@@ -828,7 +841,7 @@ void UpdateFXExplodeParticle()
 						rip->b = 255;
 						continue;
 					}
-					else if(explode->explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST)
+					else if(explode->explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST || explode->explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 					{
 						explode->hasHitPlane[i] = 1;
 						explode->sprite[i].a = 1;
@@ -850,7 +863,7 @@ void UpdateFXExplodeParticle()
 				}
 
 				// update specific effects
-				if(explode->explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST)
+				if(explode->explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST || explode->explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 				{
 					explode->sprite[i].scaleX	+= 2;
 					explode->sprite[i].scaleY	= explode->sprite[i].scaleX;
