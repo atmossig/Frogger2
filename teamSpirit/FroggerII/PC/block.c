@@ -159,6 +159,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitInputDevices())
 		ok = 0;
 
+	/*
 	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
 	{
 		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
@@ -168,7 +169,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		InitDirectSound ( NULL, hInstance, winInfo.hWndMain, 0 );
 	}
 	// ENDELSIF
-	
+	*/
 	//InitSaveData();
 
 	gameState.mode		= FRONTEND_MODE;
@@ -251,7 +252,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			EndTimer(3);
 			actFrameCount = (GetTickCount()/(1000/60));
 			
-			clock = timeGetTime();
+			// THIS IS A SPRITE OVERLAY. ASSIGNING A TIME TO IT IS BAD.
+			//clock = timeGetTime();
 		}
 	}
 
