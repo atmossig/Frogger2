@@ -312,6 +312,8 @@ Andy Eder:
 
 David Swift:
 ------------------------------------------------
+	Fixed WorldConv to handle triangular collision tiles. God the ASE file
+	format is a pile of puppy doo-doo. Never ever use it again.
 
 
 James Hubbard:
