@@ -13,6 +13,8 @@
 
 #define ANIM_RANDOM_START	(1 << 0)
 
+extern long *sfx_anim_map;
+
 // Frogger death and damage functions
 void DamageNormal( int pl );
 void DamageRunOver( int pl );
@@ -49,5 +51,6 @@ extern void InitActorAnim(ACTOR *tempActor);
 extern BOOL QueryAnimTime(ACTOR *actor, float time);
 
 extern void FroggerIdleAnim( int i );
+
 
 #endif

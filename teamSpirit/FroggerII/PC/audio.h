@@ -204,6 +204,8 @@ void UpdateAmbientSounds();
 
 extern void PrepareSongForLevel( short worldID, short levelID );
 
+extern void LoadSfxMapping( int world, int level );
+
 #endif
 
 

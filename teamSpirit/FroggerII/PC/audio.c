@@ -11,6 +11,7 @@
 #include <ultra64.h>
 #include "..\resource.h"
 #include "incs.h"
+#include "memload.h"
 
 //#define MYDEBUG	- stop printing all that CRAP, man!
 #define MAX_AMBIENT_SFX		50
@@ -838,5 +839,92 @@ void FreeAmbientSoundList( )
 
 	// initialise list for future use
 	InitAmbientSoundList();
+}
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: LoadSfxMapping
+	Purpose 	: Load a mapping of animations to sound effects for a list of actors
+	Parameters 	: world and level ID's
+	Returns 	: Pointer to mapping array
+	Info 		: 
+*/
+void LoadSfxMapping( int world, int level )
+{
+	unsigned char *in;
+	void *buffer;
+	HANDLE h;
+	char *filename, wnum[3], lnum[3];
+	long num, size, read, index, type, i, count;
+
+	index = strlen(baseDirectory) + 25;
+	filename = (char *)JallocAlloc( index, YES, "fname" );
+
+	// Directory and start of sfxmap filename
+	strcpy( filename, baseDirectory );
+	strcat( filename, "maps\\sfxanim" );
+	// World and level ids are part of the filename
+	_itoa( world, wnum, 10 );
+	_itoa( level, lnum, 10 );
+	strcat( filename, wnum );
+	strcat( filename, lnum );
+	// Extension
+	strcat( filename, ".sam\0" );
+
+	// Open input file
+	h = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	if (h == INVALID_HANDLE_VALUE)
+	{
+		dprintf"Couldn't load sfx map file %s\n", filename));
+		JallocFree( (UBYTE **)&filename );
+		return;
+	}
+
+	// Get file info and data
+	size = GetFileSize(h, NULL);
+	buffer = JallocAlloc(size, NO, "sfxbuffer");
+	ReadFile( h, buffer, size, &read, NULL );
+	CloseHandle(h);
+
+	in = (unsigned char *)buffer;
+	sfx_anim_map = (long *)JallocAlloc( size>>2, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
+
+	index=0;
+	count=0;
+
+	// Read data from buffer into mapping array
+	while( count < size-4 )
+	{
+		sfx_anim_map[index++] = MEMGETINT(&in);
+		count+=4;
+
+		type = MEMGETINT(&in);
+		sfx_anim_map[index++] = type;
+		count+=4;
+
+		switch( type )
+		{
+		case 0: num = NUM_FROG_ANIMS; break;
+//		case 1: num = NUM_MULTI_ANIMS; break;
+		case 2: num = NUM_NME_ANIMS; break;
+		default: num = 0; break;
+		}
+
+		for( i=0; i<=num; i++ )
+		{
+			sfx_anim_map[index++] = MEMGETINT(&in);
+			count+=4;
+		}
+	}
+
+	// Signal end of list
+	sfx_anim_map[index-1] = 0;
+
+	JallocFree((UBYTE**)&filename);
+
+	// FIXME: COMMENTING OUT THIS LINE CAUSES A MEMORY LEAK! But it makes the game run :)
+//	JallocFree((UBYTE**)&buffer);
 }
 

@@ -18,6 +18,12 @@
 
 float hedRotAmt = 0;
 
+// Used to cue a sound effect when an animation is played
+long *sfx_anim_map = NULL;
+
+int *FindSfxMapping( unsigned long uid );
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	  : 
 	Purpose 	   : 
@@ -42,7 +48,9 @@ void InitActorAnim(ACTOR *tempActor)
 	tempActor->animation->numberQueued = 0;
 	tempActor->animation->animTime = 0;
 	tempActor->animation->reachedEndOfAnimation = FALSE;
-	
+
+	// Cue sounds from animations
+	tempActor->animation->sfxMapping = FindSfxMapping( tempActor->objectController->objectID );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -269,15 +277,33 @@ void UpdateAnimations(ACTOR *actor)
 			actorAnim->queueAnimationSpeed[ANIM_QUEUE_LENGTH - 1] = -1;
 			actorAnim->queueNumMorphFrames[i] = 0;
 		}
+
+		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+			PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
 	}
 	else
 	{
+		int sound=0;
+
 		if(anim->animEnd == anim->animStart)
+		{
 			actorAnim->animTime = anim->animEnd;
+			sound=1;
+		}
 		else if(actorAnim->animTime > anim->animEnd)
+		{
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
+			sound=1;
+		}
 		else if(actorAnim->animTime < anim->animStart)
+		{
 			actorAnim->animTime += (anim->animEnd - anim->animStart);
+			sound=1;
+		}
+
+		if( sound )
+			if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
 	}
 	if(actorAnim->numMorphFrames)
 	{
@@ -349,6 +375,37 @@ void FroggerIdleAnim( int i )
 
 		player[i].idleTime = 400 + Random(300);
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FindSfxMap
+	Purpose 	: Return a pointer to an array of sample numbers for an actors animations
+	Parameters 	: UID of actor
+	Returns 	: Pointer to int
+	Info 		:
+*/
+int *FindSfxMapping( unsigned long uid )
+{
+	unsigned long index=0;
+
+	while( sfx_anim_map[index] && (unsigned long)sfx_anim_map[index] != uid )
+	{
+		switch( sfx_anim_map[index+1] )
+		{
+		case 0: index += NUM_FROG_ANIMS+2; break;
+//		case 1: index += NUM_MULTI_ANIMS+2; break;   // NOT IMPLEMENTED YET!
+		case 2: index += NUM_NME_ANIMS; break;
+		}
+	}
+
+	if( !sfx_anim_map[index] )
+	{
+		dprintf"Sfx map entry for actor %i not found!\n",uid));
+		return NULL;
+	}
+
+	return &sfx_anim_map[index+2];
 }
 
 

@@ -27,6 +27,8 @@
 #define NMEANIM_SNAP_EXTRA1		2
 #define NMEANIM_SNAP_EXTRA2		3
 
+#define NUM_NME_ANIMS			4
+
 
 typedef void (*DEATHANIM_FUNC) (int);
 
