@@ -17,6 +17,7 @@
 #define OBJECT_BASE		"objects\\"
 #define TEXTURE_BASE	"textures\\"
 #define ENTITY_BASE		"maps\\"
+#define SAVEDATA_BASE	"savedata\\"
 
 #ifndef __cplusplus
 #define sinf(x)			((float)sin(x))
