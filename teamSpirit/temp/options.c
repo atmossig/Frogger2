@@ -49,6 +49,7 @@
 #include <backdrop.h>
 #include <video.h>
 #elif PSX_VERSION
+#include "backdrop.h"
 #include "Textures.h"
 #include "temp_psx.h"
 #include "audio.h"
@@ -127,7 +128,7 @@ OPTIONSOBJECTS options =
 
 #define NUM_ARCADE_WORLDS (NUM_WORLDS - 1)
 
-#define MAX_CREDITS 100
+#define MAX_CREDITS 200
 TEXTOVERLAY *creditsText[MAX_CREDITS] = {NULL};
 
 int camStill;
@@ -213,7 +214,19 @@ CREDIT_DATA creditData[] =
 	2,RED,		//voices
 	0,GREEN,
 
+	2,RED,		//voice artist
+	0,GREEN,
+
+	2,RED,		//voice engineer
+	0,GREEN,
+
 	2,RED,		//special thanks
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
@@ -267,7 +280,7 @@ CREDIT_DATA creditData[] =
 };
 
 #ifdef PSX_VERSION
-int CREDIT_SPACING = 15;
+int CREDIT_SPACING = 18;
 #else
 int CREDIT_SPACING = 300;
 #endif
@@ -1484,7 +1497,7 @@ void RunOptionsMenu(void)
 				{
 					for(i = 0;i < 256;i++)
 						warnStr[i] = 0;
-					fontFitToWidth(fontSmall,450,GAMESTRING(STR_WARNING_1 + confirmMode - 2),warnStr);
+					fontFitToWidth(fontSmall,450,GAMESTRING(STR_WARNING_1 + confirmMode - 3),warnStr);
 					warnPtr = warnStr;
 					for(i = 0;i < 4;i++)
 					{
@@ -1874,7 +1887,6 @@ void RunOptionsMenu(void)
 	{
 		if(fadingOut == 0)
 		{
-			FreeAllLists();
 			gameState.mode = ARTVIEWER_MODE;
 			GTInit(&artTimer,10);
 			currentArt = 0;
@@ -2265,9 +2277,9 @@ void ArcadeSelect()
 	options.parText[0]->draw = options.parText[1]->draw = options.parText[2]->draw = 0;
 	options.worldText->draw = 0;
 
-	options.worldBak->xPos = options.worldBak->xPosTo = 1000;
+	options.worldBak->xPos = options.worldBak->xPosTo = 900;
 	options.worldBak->yPos = options.worldBak->yPosTo += 250;
-	options.worldBak->width = 4096 - 2*options.worldBak->xPos;
+   	options.worldBak->width = 4096 - 2*options.worldBak->xPos;
 	options.selectText->text = GAMESTRING(STR_X_SELECT_CHAR);
 
 	for(i = 0;i < MAX_LEVELSTRING;i++)
@@ -2288,8 +2300,8 @@ void ArcadeSelect()
 			options.worldBak->height = i*300 + 600;
 			options.worldBak->yPos = options.worldBak->yPosTo = 850;
 			options.levelText[i]->yPos = options.levelText[i]->yPosTo = i*300 + 1000 + 50;
-			options.levelText[i]->xPos = options.levelText[i]->xPosTo = 1700;
-			options.multiFace[i]->xPos = options.multiFace[i]->xPosTo = 1100 + (i MOD 2) * 1300;
+			options.levelText[i]->xPos = options.levelText[i]->xPosTo = 1600;
+			options.multiFace[i]->xPos = options.multiFace[i]->xPosTo = 1000 + (i MOD 2) * 1500;
 			options.multiFace[i]->yPos = options.multiFace[i]->yPosTo = i*300 + 1000-128;
 			options.multiFace[i]->num = 1;
 			options.multiFace[i]->draw = 1;
@@ -2437,6 +2449,7 @@ void StartCredits()
 #else
 		creditsText[j] = CreateAndAddTextOverlay(2048,min(10000,4096 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,font,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
 #endif	 
+	 	creditsText[j]->draw = 0;
 	 	creditsText[j]->r = creditData[j].r;
 		creditsText[j]->g = creditData[j].g;
 		creditsText[j]->b = creditData[j].b;
@@ -2574,6 +2587,7 @@ void SetMusicVolume()
 #define InitCDBackdrop(name)	InitBackdrop(name)
 #endif
 
+
 void RunArtViewer()
 {
 	char name[32];
@@ -2600,6 +2614,8 @@ void RunArtViewer()
 		}
 		else
 		{
+			if(currentArt == 0)
+				PrepareSong(AUDIOTRK_LEVELCOMPLETE,1);
 			sprintf(name,"ARTWORK%02d",currentArt);
 			InitBackdrop(name);
 			currentArt++;

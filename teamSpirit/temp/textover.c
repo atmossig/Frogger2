@@ -63,9 +63,14 @@ TEXTOVERLAY *CreateAndAddTextOverlay(short x, short y, char *text, char centred,
 		return NULL;
 	}
 
-	for(j = 0;j < textOverlayList.alloc;j++)
-		if(textOverlayList.block[j].used == 0)
-			break;
+	if(textOverlayList.block[textOverlayList.numEntries].used == 0)
+		j = textOverlayList.numEntries;
+	else
+	{
+		for(j = 0;j < textOverlayList.alloc;j++)
+			if(textOverlayList.block[j].used == 0)
+				break;
+	}
 	newItem = &textOverlayList.block[j];
 	textOverlayList.numEntries++;
 

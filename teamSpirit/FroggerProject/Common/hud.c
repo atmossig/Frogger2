@@ -292,7 +292,7 @@ void InitArcadeHUD(void)
 			if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
 				arcadeHud.goSparkles[i]->draw = 0;
 
-			arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay(Random(4096),Random(512)+4096-512,"FLASH2",10,10,0xff,SPRITE_ADDITIVE);
+/*			arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay(Random(4096),Random(512)+4096-512,"FLASH2",10,10,0xff,SPRITE_ADDITIVE);
 			arcadeHud.sparkles[i]->r = 200;
 			arcadeHud.sparkles[i]->g = 200;
 			arcadeHud.sparkles[i]->b = 0;
@@ -300,6 +300,7 @@ void InitArcadeHUD(void)
 			arcadeHud.sparkles[i]->a = 0;
 			arcadeHud.sparkles[i]->draw = 0;
 			arcadeHud.sparkles[i]->num = 1;
+*/
 		}
 	}
 	if(gameState.mode == FRONTEND_MODE)
@@ -949,6 +950,7 @@ void UpDateOnScreenInfo ( void )
 
 	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
+/*
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 		{
 			SPRITEOVERLAY *me = arcadeHud.sparkles[i];
@@ -971,6 +973,7 @@ void UpDateOnScreenInfo ( void )
 			else
 				me->a = Random(100)+155;
 		}
+*/
 	}
 	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 	{

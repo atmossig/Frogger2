@@ -1246,17 +1246,19 @@ void StartLevelComplete()
 			grade = 1;
 		else
 			grade = 2;
-		for (i=0; i<MAX_SPARKLES; i++)
+		if(grade < 2)
 		{
-			sparkles[i] = CreateAndAddSpriteOverlay( 256,1535,"FLASH",200,200,(UBYTE)Random(0xff),SPRITE_ADDITIVE);
-			if(sparkles[i])
+			for (i=0; i<MAX_SPARKLES; i++)
 			{
-				sparkles[i]->num = 1;
-				sparkles[i]->draw = 0;
-				sparkles[i]->a = Random(256);
+				sparkles[i] = CreateAndAddSpriteOverlay( 256,1535,"FLASH",200,200,(UBYTE)Random(0xff),SPRITE_ADDITIVE);
+				if(sparkles[i])
+				{
+					sparkles[i]->num = 1;
+					sparkles[i]->draw = 0;
+					sparkles[i]->a = Random(256);
+				}
 			}
 		}
-
 	}
 
 	if (grade==0)
@@ -1496,7 +1498,7 @@ void RunLevelComplete()
 				extraIcon->speed = 4096*75;
 			arcadeHud.coinsOver->speed = 4096*75;
 
-			if(coinText->xPos == coinText->xPosTo)
+			if(extraText->xPos == extraText->xPosTo)
 			{
 				if(eolTimer.time)
 				{
@@ -1722,8 +1724,9 @@ void RunLevelComplete()
 
 	if(bIcon)
 	{
-//		if(bIcon->xPos == bIcon->xPosTo)
+		if(grade < 2)
 		{
+		
 			for(i = 0;i < MAX_SPARKLES;i++)
 			{
 				if(sparkles[i])

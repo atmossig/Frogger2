@@ -1785,6 +1785,12 @@ void CheckForExtras()
 			num++;
 		
 
+	for(i = NUM_BASIC_EXTRAS;i < NUM_EXTRAS;i++)
+	{
+		options.extrasAvailable[i] = 0;
+		options.extras[i]->draw = 0;	
+	}
+
 	for(i = 0;i < num;i++)
 	{
 		if(i < 9)
@@ -1797,7 +1803,10 @@ void CheckForExtras()
 	if(cheatCombos[CHEAT_OPEN_ALL_EXTRAS].state)
 	{
 		for(i = NUM_BASIC_EXTRAS;i < NUM_EXTRAS;i++)
+		{
 			options.extrasAvailable[i] = 1;
+//			options.extras[i]->draw = 1;
+		}
 	}
 }
 

@@ -26,7 +26,7 @@ extern "C" {
 
 typedef struct TAG_ARCADE_HUD
 {
-	SPRITEOVERLAY *sparkles[MAX_HUD_SPARKLES];
+//	SPRITEOVERLAY *sparkles[MAX_HUD_SPARKLES];
 	unsigned long sX,sY,sW,sH;
 	unsigned long sTime;
 

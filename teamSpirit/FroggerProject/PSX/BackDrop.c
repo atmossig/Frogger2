@@ -14,6 +14,8 @@ extern USHORT EXPLORE_black_CLUT;
 
 void FreeBackdrop ( void );
 
+#define ScreenGetBuffer()			( (currentDisplayPage==displayPage)?0:1 )
+
 void InitBackdrop ( char * filename )
 {
 	char newFileName[64];
@@ -56,8 +58,6 @@ void InitBackdrop ( char * filename )
 	// set the drawing clscols to NOT clearscreen
 //	INTERUPT_ScreenClear(INTERUPT_CLEAR_OFF);
 }
-
-#define ScreenGetBuffer()			( (currentDisplayPage==displayPage)?0:1 )
 
 void DrawBackDrop ( int execute, int drawBothScreens )
 {

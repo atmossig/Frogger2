@@ -1331,7 +1331,7 @@ void FreeAllLists()
 
 	if (gameState.mode == FRONTEND_MODE)
 	{
-		InitTextOverlayLinkedList(200);
+		InitTextOverlayLinkedList(250);
 	}
 	else
 	{
@@ -1348,8 +1348,6 @@ void FreeAllLists()
 	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 	font = fontLoad("BIGFONT.FON");
 	fontSmall = fontLoad("FONT12.FON");
-
-
 #endif
 
 
