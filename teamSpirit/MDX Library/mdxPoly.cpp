@@ -2075,7 +2075,7 @@ void DrawAllFrames(void)
 
  	D3DSetupRenderstates(xluAddRS);	
 	SwapFrame(MA_FRAME_ADDITIVE);
-
+/*
 	// Sort out additive for fog.
 	i = 0;
 	cV = cFInfo->v;
@@ -2087,16 +2087,11 @@ void DrawAllFrames(void)
 		cV++;
 		i++;
 	}
-		
+*/
 	DrawBatchedPolys();	
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
 	SwapFrame(MA_FRAME_OVERLAY);
 
-	EndDraw();
-	
-	//ReadHaloPoints();
-	BeginDraw();
-	
 	//DrawHalos();
 	D3DSetupRenderstates(noZRS);
 	D3DSetupRenderstates(cullNoneRS);
