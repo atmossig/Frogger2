@@ -500,7 +500,7 @@ int main ( )
 
 		videoInit(1024, 3000);
 
-		textureInitialise(500, 100);
+		textureInitialise(500, 20);
 
 		sfxInitialise();
 //		sfxStartSound();
@@ -641,7 +641,7 @@ int main ( )
 //			actorDraw(frog[0]->actor);
 
 #if GOLDCD==0
-			if (padData.debounce[4] & PAD_L1)
+			if (padData.debounce[0] & PAD_L1)
 			{
 				textureShowVRAM(1); // 1 = PAL mode
 				continue;
