@@ -167,6 +167,7 @@ u8 actorIsVisible(ACTOR *actor);
 
 void ScalePsi(PSIMESH* pPSI);
 
+void ChangeModel( ACTOR *actor, char *model );
 
 
 #endif //__ACTOR_H__

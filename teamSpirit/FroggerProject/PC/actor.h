@@ -77,6 +77,8 @@ void actorDraw(ACTOR *actor);
 void actorSetAnimation(ACTOR *actor, ULONG frame);
 void actorUpdateAnimations(ACTOR *actor);
 
+void ChangeModel( ACTOR *actor, char *model );
+
 #ifdef __cplusplus
 }
 #endif

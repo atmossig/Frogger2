@@ -1200,4 +1200,21 @@ void actorUpdateAnimations(ACTOR *actor)
 	return;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function 	: ChangeModel
+	Purpose 	: Swap models within an actor
+	Parameters 	: actor, name of new model
+	Returns 	: void
+	Info 		:
+*/
+void ChangeModel( ACTOR *actor, char *model )
+{
+	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
+
+	a->LODObjectController = a->objectController;
+	FindObject( &a->objectController, UpdateCRC(model), model );
+	//InitActorAnim( actor );
+}
+
 }
