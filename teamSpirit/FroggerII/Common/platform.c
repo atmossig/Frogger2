@@ -230,25 +230,7 @@ void UpdatePlatforms()
 				}
 				else
 				{
-					float distance = -10000;
-					long nCamFac = 0, j = 0;
-
-					for(j=0; j<4; j++)
-					{
-						float t = DotProduct(&(cur->inTile[0]->dirVector[j]),&(currTile[0]->dirVector[camFacing]));
-						if(t > distance)
-						{
-							distance = t;
-							nCamFac = j;
-						}							
-					}		
-		
-					for(j=0; j<NUM_FROGS; j++)
-						if(cur->carrying == frog[j])
-							currTile[j] = cur->inTile[0];
-
-					camFacing = nCamFac;
-
+	
 					// move frog with platform
 					SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
 
@@ -1203,8 +1185,9 @@ void UpdatePathPlatform(PLATFORM *plat)
 	// check if this platform has arrived at a path node
 	if(actFrameCount > plat->path->endFrame)
 	{
-		UpdatePlatformPathNodes(plat);
 
+		UpdatePlatformPathNodes(plat);
+	
 		plat->path->startFrame = plat->path->endFrame + plat->isWaiting * waitScale;
 		plat->path->endFrame = plat->path->startFrame + (60*plat->currSpeed);
 	}
@@ -1220,9 +1203,20 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 	if((n < (length + PLATFORM_GENEROSITY)) && (n > (length - PLATFORM_GENEROSITY)))
 	{
+	/*	if (plat->inTile[0] != plat->path->nodes[plat->path->toNode].worldTile)
+			if (plat->flags & PLATFORM_NEW_CARRYINGFROG)
+			{ 
+				unsigned long t;
+				t = GetTilesMatchingDirection(plat->path->nodes[plat->path->fromNode].worldTile,camFacing,plat->path->nodes[plat->path->toNode].worldTile);
+			//	t = 0;
+				camFacing = t;
+			}*/
+
 		// platform is 'in' two tiles
 		plat->inTile[0] = plat->path->nodes[plat->path->toNode].worldTile;
 		plat->inTile[1] = plat->path->nodes[plat->path->fromNode].worldTile;
+
+		
 	}
 	else
 	{
