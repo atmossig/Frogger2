@@ -57,6 +57,7 @@
 #include <pcmisc.h>
 #include <pcsprite.h>
 #elif PSX_VERSION
+extern int cursPos;
 #include "audio.h"
 #include "temp_psx.h"
 #include "psxsprite.h"
@@ -1087,12 +1088,14 @@ TEXTOVERLAY *levName;
 #define MAX_SPARKLES 15
 
 SPRITEOVERLAY *sparkles[MAX_SPARKLES];
+SPRITEOVERLAY *enterNameButton[5];
 
 void StartLevelComplete()
 {
 	int i,num,w;
 	ACTOR2 *c;
 	SPRITE *cur,*next;
+	char tempChar;
 
 	arcadeHud.coinZoom->draw = 0;
 #ifdef PSX_VERSION
@@ -1334,15 +1337,29 @@ void StartLevelComplete()
 	if (grade==0)
 	{
 		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
-		nText = CreateAndAddTextOverlay(4096, 3610, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
+		nText = CreateAndAddTextOverlay(4096, 3350, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
 #ifdef PSX_VERSION
-		w = fontExtentWScaled(nText->font,nText->text,4096)*4;
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*4 + fontExtentWScaled(nText->font,"AAAAA",4096)*4;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #elif PC_VERSION
 		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) * 3.2;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
+#endif
+
+#ifdef PSX_VERSION
+		enterNameButton[1] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 100,3350,"BUT_RIGH",4096,0,0,0);
+		enterNameButton[4] = CreateAndAddSpriteOverlay(nText->xPosTo + w*2 + 600,3350,"BUT_CROS",4096,0,0,0);
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
+		enterNameButton[0] = CreateAndAddSpriteOverlay(nText->xPosTo + w - 200,3350,"BUT_LEFT",4096,0,0,0);
+		tempChar = textString[cursPos];
+		textString[cursPos] = 0;
+		enterNameButton[2] = CreateAndAddSpriteOverlay(nText->xPosTo + w + 24 + fontExtentWScaled(nText->font,textString,4096)*8,3050,"BUT_UP",4096,0,0,0);
+		enterNameButton[3] = CreateAndAddSpriteOverlay(nText->xPosTo + w + 24 + fontExtentWScaled(nText->font,textString,4096)*8,3650,"BUT_DOWN",4096,0,0,0);
+		textString[cursPos] = tempChar;
+		for(i = 0;i < 5;i++)
+			enterNameButton[i]->draw = 0;
 #endif
 	}
 	else
@@ -1439,8 +1456,9 @@ void CheckEOLLoopTrack()
 
 void RunLevelComplete()
 {
-	int i,dropped = FMul(dropSpeed,gameSpeed);
+	int i,dropped = FMul(dropSpeed,gameSpeed),w;
 	SPRITEOVERLAY *coinOver;
+	char tempChar;
 
 	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	drawLandscape = 0;
@@ -1628,6 +1646,27 @@ void RunLevelComplete()
 			{
 #ifdef PSX_VERSION
 				PsxNameEntryFrame();	//sets texEntry to 0 when done
+				for(i = 0;i < 5;i++)
+				{
+					if(((i != 0) || (cursPos > 0)) && ((i != 1) || (cursPos < 2)))
+					{
+						INC_ALPHA(enterNameButton[i],255);
+					}
+					else
+					{
+						DEC_ALPHA(enterNameButton[i]);
+					}
+					w = fontExtentWScaled(nText->font,nText->text,4096)*4;
+					enterNameButton[1]->xPos = nText->xPosTo + w*2 + 40;
+					enterNameButton[4]->xPos = nText->xPosTo + w*2 + 400;
+					w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
+					enterNameButton[0]->xPos = nText->xPosTo + w - 200;
+					tempChar = textString[cursPos];
+					textString[cursPos] = 0;
+					enterNameButton[2]->xPos = nText->xPosTo + w + 40 + fontExtentWScaled(nText->font,textString,4096)*8;
+					enterNameButton[3]->xPos = nText->xPosTo + w + 40 + fontExtentWScaled(nText->font,textString,4096)*8;
+					textString[cursPos] = tempChar;
+				}
 #endif
 				if(textEntry == 0)
 				{
@@ -1642,6 +1681,12 @@ void RunLevelComplete()
 //						SaveGame();
 					}
 					levCompleteState = LEV_COMPLETE_MENU;
+#ifdef PSX_VERSION
+					for(i = 0;i < 5;i++)
+					{
+						enterNameButton[i]->draw = 0;
+					}
+#endif
 				}
 				sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
 			}

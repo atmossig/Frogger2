@@ -555,7 +555,7 @@ int VRAM_256PALETTES = 40;
 }*/
 
 
-static int cursPos = 0;
+int cursPos = 0;
 
 void PsxNameEntryInit(void)
 {
@@ -589,29 +589,32 @@ void PsxNameEntryFrame(void)
 
 	if(padData.debounce[0] & (PAD_RIGHT | PAD_CROSS))
 	{
-		if(cursPos < NAME_LENGTH)
+		if((cursPos < NAME_LENGTH - 1) || (padData.debounce[0] & PAD_CROSS))
 		{
-			cursPos++;
+			if(cursPos < NAME_LENGTH)
+			{
+				cursPos++;
 
-			textString[cursPos]='A';
-			if(cursPos == NAME_LENGTH - 1)
-			{
-				textString[cursPos + 1] = 0;
+				textString[cursPos]='A';
+				if(cursPos == NAME_LENGTH - 1)
+				{
+					textString[cursPos + 1] = 0;
+				}
+				else
+					textString[cursPos + 1] = '-';
+				if(cursPos == NAME_LENGTH)
+				{
+					for(j = 0;j < NAME_LENGTH;j++)
+						if(textString[j] == '-')
+							textString[j] = 0;
+					textString[NAME_LENGTH] = 0;
+					textEntry = 0;
+					cursPos--;
+					PlaySample(genSfx[GEN_COLLECT_BABY],NULL,0,SAMPLE_VOLUME,-1);
+				}
+				else
+					PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 			}
-			else
-				textString[cursPos + 1] = '-';
-			if(cursPos == NAME_LENGTH)
-			{
-				for(j = 0;j < NAME_LENGTH;j++)
-					if(textString[j] == '-')
-						textString[j] = 0;
-				textString[NAME_LENGTH] = 0;
-				textEntry = 0;
-				cursPos--;
-				PlaySample(genSfx[GEN_COLLECT_BABY],NULL,0,SAMPLE_VOLUME,-1);
-			}
-			else
-				PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		}
 	}
 

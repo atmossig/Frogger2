@@ -526,7 +526,6 @@ int main ( )
 		//XAsetStatus(CdInit());
 #else
 		fileInitialise("\\FROGGER.DAT;1");
-		initialiseCrypt();
 //		XAsetStatus(CdInit());
 #endif
 
@@ -542,6 +541,9 @@ int main ( )
 
 			if((fadingOut == 0) && (fontSmall == NULL))
 			{
+#if GOLDCD==1		
+				initialiseCrypt();
+#endif
 				genBank = textureLoadBank("TEXTURES\\MEMCARD.SPT");
 				textureDownloadBank(genBank);
 				textureDestroyBank(genBank);
