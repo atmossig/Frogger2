@@ -252,14 +252,6 @@ SOURCE=.\Common\hud.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Common\i13n.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common\i13n.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Common\incs.h
 # End Source File
 # Begin Source File
@@ -269,6 +261,14 @@ SOURCE=.\Common\Jalloc.c
 # Begin Source File
 
 SOURCE=.\Common\jalloc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\l13n.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\l13n.h
 # End Source File
 # Begin Source File
 
