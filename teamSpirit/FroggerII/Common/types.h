@@ -265,13 +265,7 @@ typedef struct
 	float			radius;
 	UBYTE			alpha;
 	char			draw;
-//	UBYTE			alphaAim;
-//	UBYTE			alphaAimSpeed;
-/*
-#ifndef PC_VERSION
-	Vtx				vert[4];
-#endif
-*/
+
 } ACTOR_SHADOW;
 
 
