@@ -565,7 +565,7 @@ int main ( )
 
 #if GOLDCD==0
 //			if (padData.debounce[0] & PAD_L1)
-			if( (padData.debounce[0] & PAD_L1) && (padData.debounce[0] & PAD_R1) )
+			if( (padData.debounce[0] & PAD_L1))
 			{
 				textureShowVRAM(1); // 1 = PAL mode
 				continue;
