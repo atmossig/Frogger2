@@ -416,8 +416,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	int i;
 
 //Stuff to ensure calls to PlaySample can be the same for PC and PSX
-	if (pitch ==-1)
-		pitch = 0;
+//	if (pitch ==-1)
+		pitch = 0;//set to 0 at the moment just for simplicity. If not 0 it should be set
+					//to an appropriate Hz value (0 is the default value)
 
 //end of stuff
 
@@ -429,7 +430,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		SubVectorSSS( &diff, pos, &frog[0]->actor->position );
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = MagnitudeS( &diff );
-		if( dist > att )
+		if( dist > (att<<12) )
 			return FALSE;
 
 //bb	vol = FMul((vol<<12), FDiv(((att<<12)-(dist<<12)),att<<12))>>12;
@@ -444,8 +445,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	vl = volume;
 	vr = volume;
 
-// 	return sfxPlaySample( sample, vl,vr, pitch*10);
-	i =	sfxPlaySample( sample->snd, vl,vr, pitch*10);
+// 	return sfxPlaySample( sample, vl,vr, pitch);
+//	i =	sfxPlaySample( sample->snd, vl,vr, pitch*10);
+	i =	sfxPlaySample( sample->snd, vl,vr, pitch);
 	if(i<0)
 		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",i);
 	else
