@@ -60,16 +60,11 @@ void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMs
 			if( lpMsg->tileNum != (((DWORD)currTile[i] - (DWORD)firstTile) / sizeof(GAMETILE)) )
 			{
 				SetVector(&frog[i]->actor->pos, &firstTile[lpMsg->tileNum].centre);
-				//destTile[i] = &firstTile[lpMsg->tileNum];
 				currTile[i] = &firstTile[lpMsg->tileNum];
 			}
 
 			break;
 		}
-
-	wsprintf( tmp, "Receiving: Player %i on tile %i", i, lpMsg->tileNum );
-	AddChatMessage( tmp );
-
 }
 
 
@@ -101,9 +96,6 @@ HRESULT SendUpdateMessage( )
 	lpUpdateMessage->dwType = APPMSG_UPDATEGAME;
 	lpUpdateMessage->data = controllerdata[0].button;
 	lpUpdateMessage->tileNum = ((DWORD)currTile[0] - (DWORD)firstTile) / sizeof(GAMETILE);
-
-	wsprintf( tmp, "Sending: Player on tile %i", lpUpdateMessage->tileNum );
-	AddChatMessage( tmp );
 
 	// send this data to all other players
 	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpUpdateMessage,sizeof(MSG_UPDATEGAME));
