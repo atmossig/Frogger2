@@ -142,23 +142,23 @@ void GameProcessController(long pl)
 #ifdef PC_VERSION
 		if(padData.debounce[pl] & PAD_START)
 		{
-			StartPauseMenu();
 			pauseController = pl;
+			StartPauseMenu();
 			return;
 		}
 #elif PSX_VERSION
 #ifdef FINAL_MASTER
 		if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
 		{
-			StartPauseMenu();
 			pauseController = pl;
+			StartPauseMenu();
 			return;
 		}
 #else
 		if(padData.debounce[pl] & PAD_START)
 		{
-			StartPauseMenu();
 			pauseController = pl;
+			StartPauseMenu();
 			return;
 		}
 #endif

@@ -197,8 +197,8 @@ void GameLoop(void)
 #ifdef PSX_VERSION
 		if(padData.present[0] == 0)
 		{
-			StartPauseMenu();
 			pauseController = 0;
+			StartPauseMenu();
 		}
 #endif
 		break;
