@@ -251,8 +251,8 @@ void KillAllEvents( EVENTLIST *eventList )
 */
 void SubTrigger( TRIGGER *t )
 {
-	t->prev->next = t->next;
-	t->next->prev = t->prev;
+	if (t->prev) t->prev->next = t->next;
+	if (t->next) t->next->prev = t->prev;
 	triggerList.numEntries--;
 }
 

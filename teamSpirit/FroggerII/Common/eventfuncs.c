@@ -152,7 +152,7 @@ int OnTrigger( TRIGGER *trigger )
 */
 int LogicalAND( TRIGGER *trigger )
 {
-	int numT = *(int *)trigger->data[0];
+	int numT = (int)trigger->data[0];
 	long i;
 	short fireFlag = 1;
 	TRIGGER *t;
@@ -161,13 +161,10 @@ int LogicalAND( TRIGGER *trigger )
 	{
 		t = (TRIGGER *)trigger->data[i+1];
 		if( !t->func(t) )
-			fireFlag = 0;
+			return 0;
 	}
 
-	if( fireFlag )
-		return 1;
-
-	return 0;
+	return 1;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -180,7 +177,7 @@ int LogicalAND( TRIGGER *trigger )
 */
 int LogicalOR( TRIGGER *trigger )
 {
-	int numT = *(int *)trigger->data[0];
+	int numT = (int)trigger->data[0];
 	long i;
 	short fireFlag = 0;
 	TRIGGER *t;
@@ -189,11 +186,8 @@ int LogicalOR( TRIGGER *trigger )
 	{
 		t = (TRIGGER *)trigger->data[i+1];
 		if( t->func(t) )
-			fireFlag = 1;
+			return 1;
 	}
-
-	if( fireFlag )
-		return 1;
 
 	return 0;
 }
