@@ -1796,7 +1796,7 @@ void InitEnemyLinkedList()
 	deathAnims[DEATHBY_ELECTRIC]		= DamageElectric;
 	deathAnims[DEATHBY_FALLING]			= DamageFalling;
 	deathAnims[DEATHBY_WHACKING]		= DamageWhacking;
-	deathAnims[DEATHBY_VACUUM]			= DamageVacuum;
+	deathAnims[DEATHBY_INFLATION]		= DamageInflation;
 	deathAnims[DEATHBY_POISON]			= DamagePoison;
 	deathAnims[DEATHBY_SLICING]			= DamageSlicing;
 	deathAnims[DEATHBY_EXPLOSION]		= DamageExplosion;
@@ -1810,7 +1810,7 @@ void InitEnemyLinkedList()
 	deathAnims[DEATHBY_ELECTRIC+NUM_DEATHTYPES]		= DeathElectric;
 	deathAnims[DEATHBY_FALLING+NUM_DEATHTYPES]		= DeathFalling;
 	deathAnims[DEATHBY_WHACKING+NUM_DEATHTYPES]		= DeathWhacking;
-	deathAnims[DEATHBY_VACUUM+NUM_DEATHTYPES]		= DeathVacuum;
+	deathAnims[DEATHBY_INFLATION+NUM_DEATHTYPES]	= DeathInflation;
 	deathAnims[DEATHBY_POISON+NUM_DEATHTYPES]		= DeathPoison;
 	deathAnims[DEATHBY_SLICING+NUM_DEATHTYPES]		= DeathSlicing;
 	deathAnims[DEATHBY_EXPLOSION+NUM_DEATHTYPES]	= DeathExplosion;

@@ -68,7 +68,7 @@ enum
 	DEATHBY_ELECTRIC,			// Zappy turrets, faulty vibrator
 	DEATHBY_FALLING,			// Splat from a height
 	DEATHBY_WHACKING,			// Big fast things hitting froggy against screen
-	DEATHBY_VACUUM,				// Floating in space, inside of my head
+	DEATHBY_INFLATION,			// Floating in space, blowpipes
 	DEATHBY_POISON,				// Wasps and other stingie thingies
 	DEATHBY_SLICING,			// Frogs with axes, spinning blades etc,
 	DEATHBY_EXPLOSION,			// Gibs rain down from the sky, and the very sun goes cold...

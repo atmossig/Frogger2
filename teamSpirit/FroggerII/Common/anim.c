@@ -419,7 +419,7 @@ void DamageWhacking( int pl )
 	DamageNormal(pl);
 }
 
-void DamageVacuum( int pl )
+void DamageInflation( int pl )
 {
 	DamageNormal(pl);
 }
@@ -470,7 +470,18 @@ void DeathDrowning( int pl )
 
 void DeathSquashed( int pl )
 {
-	DeathNormal(pl);
+	player[pl].deathBy = DEATHBY_SQUASHED;
+	player[pl].idleEnable = 0;
+
+	// Drop in replacement model and animate gib explosion
+	frog[pl]->actor->LODObjectController = frog[pl]->actor->objectController;
+	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-flat.obe"), "dth-flat.obe", NO );
+	InitActorAnim( frog[pl]->actor );
+
+	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.2, 0, 0 );
+	AnimateActor( frog[pl]->actor, 1, YES, YES, 0.2, 0, 0 );
+
+	GTInit( &player[pl].dead, 3 );
 }
 
 void DeathFire( int pl )
@@ -505,9 +516,21 @@ void DeathWhacking( int pl )
 	GTInit( &player[pl].dead, 5 );
 }
 
-void DeathVacuum( int pl )
+void DeathInflation( int pl )
 {
-	DeathNormal(pl);
+	player[pl].deathBy = DEATHBY_INFLATION;
+	player[pl].idleEnable = 0;
+
+	// Drop in replacement model and animate gib explosion
+	frog[pl]->actor->LODObjectController = frog[pl]->actor->objectController;
+	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-ball.obe"), "dth-ball.obe", NO );
+	InitActorAnim( frog[pl]->actor );
+
+	// TODO: Randomly play different type of inflation anim
+	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.2, 0, 0 );
+	AnimateActor( frog[pl]->actor, 1, YES, YES, 0.2, 0, 0 );
+
+	GTInit( &player[pl].dead, 5 );
 }
 
 void DeathPoison( int pl )

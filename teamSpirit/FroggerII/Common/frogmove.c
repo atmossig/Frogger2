@@ -1356,15 +1356,6 @@ BOOL KillFrog(long pl)
 				ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)txtr2->data,(u32)txtr1->data,NO);
 #endif
 			break;
-
-		case DEATHBY_FALLING:
-			break;
-
-		case DEATHBY_WHACKING:
-			break;
-
-		case DEATHBY_VACUUM:
-			break;
 	}
 
 	return TRUE;
