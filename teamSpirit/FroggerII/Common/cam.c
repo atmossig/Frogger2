@@ -26,11 +26,6 @@ VECTOR	actualCamTarget[2];
 
 VECTOR currCamDist = {0,0,10};
 
-//float	xValuesFOV[4]		= { 1.333333F,1.333333F,1.333333F,1.333333F };
-//float	yValuesFOV[4]		= { 45.0F,45.0F,45.0F,45.0F };
-//float	camValuesLookOfs[4]	= { 50.0F,50.0F,50.0F,25.0F};
-//VECTOR	camValuesDist[4]	= { { 0,680,192 }, { 0,480,192 }, { 0,280,192 }, { 0,90,100 } };
-//short	currCamSetting		= 0;
 float	xFOVNew				= 320.0F / 240.0F;
 float	yFOVNew				= 45.0F;
 float	xFOV				= 320.0F / 240.0F;
@@ -52,8 +47,7 @@ float transCamSpeedMult		= 1.0F;
 
 int	camFacing				= 0;
 int nextCamFacing			= 0;
-char camZoom				= 1;
-float scaleV				= 1.1F;
+float scaleV				= 0.7F;
 
 char controlCamera			= 0;
 char fixedDir = 0;
@@ -65,16 +59,8 @@ TRANSCAMERA *transCameraList = NULL;
 extern long idleCamera;
 VECTOR idleCamDist	= { 0,100,102 };
 
-/*	--------------------------------------------------------------------------------
-	Function		: InitCameraForLevel
-	Purpose			: initialises the camera (and the special cases) for the specified level
-	Parameters		: unsigned long,unsigned long
-	Returns			: void
-	Info			: 
-*/
-void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
-{
-}
+
+FindMaxInterFrogDistance( );
 
 
 /*	--------------------------------------------------------------------------------
@@ -201,29 +187,6 @@ void FreeTransCameraList()
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: ChangeCameraSetting
-	Purpose			: changes camera position / view, etc.
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-
-void ChangeCameraSetting()
-{
-	camZoom ^= 1;
-
-	if(camZoom)
-	{
-		scaleV = 0.7F;
-	}
-	else
-	{
-		scaleV = 1.1F;
-	}
-}
-
-
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: CameraLookAtFrog
@@ -236,8 +199,8 @@ void CameraLookAtFrog(void)
 {
 	if(frog[0] && !fixedDir && !controlCamera)
 	{
-	
-		float afx,afy,afz;
+		// Average frog position	
+		float afx,afy,afz,sc;
 		int i,l;
 		afx = afy = afz = 0;
 		l = 0;
@@ -250,6 +213,10 @@ void CameraLookAtFrog(void)
 				afz += frog[i]->actor->pos.v[2];
 				l++;
 			}
+
+			// Zoom in/out to keep multiplayer frogs in view
+			sc = FindMaxInterFrogDistance( );
+			if( sc != -1 ) scaleV = (sc*0.001) + 0.5;
 		}
 		
 		if (l)
@@ -269,8 +236,8 @@ void CameraLookAtFrog(void)
 		{
 			if (!idleCamera)
 			{
-				camTarget[0].v[0] = afx+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs + currTile[0]->normal.v[0];	
-				camTarget[0].v[1] = afy+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs + currTile[0]->normal.v[1];	
+				camTarget[0].v[0] = afx+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs + currTile[0]->normal.v[0];
+				camTarget[0].v[1] = afy+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs + currTile[0]->normal.v[1];
 				camTarget[0].v[2] = afz+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs + currTile[0]->normal.v[2];
 			}
 			else
@@ -519,4 +486,28 @@ void UpdateCameraPosition(long cam)
 	}
 
 	SlurpCamPosition(0);
+}
+
+
+float FindMaxInterFrogDistance( )
+{
+	int i, max=0;
+	float dist, best=-100000;
+	VECTOR sep;
+
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		SubVector( &sep, &frog[i]->actor->pos, &frog[0]->actor->pos );
+		dist = Magnitude( &sep );
+
+		if( dist > best )
+		{
+			max = i;
+			best = dist;
+		}
+	}
+
+	if( max ) return best;
+	
+	return -1;
 }

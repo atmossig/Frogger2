@@ -60,16 +60,10 @@ extern VECTOR	currCamDist;
 extern VECTOR	actualCamSource[2];
 extern VECTOR	actualCamTarget[2];
 
-//extern float	xValuesFOV[4];
-//extern float	yValuesFOV[4];
-//extern float	camValuesLookOfs[4];
-//extern VECTOR	camValuesDist[4];
-//extern short	currCamSetting;
 extern float	xFOV;				// actually the SCREEN RATIO, i.e. 4/3
 extern float	yFOV;				// THIS is the field of view
 extern float	precScaleFactor;
 
-extern char		camZoom;
 extern float	scaleV;
 
 extern char		controlCamera;
@@ -79,8 +73,6 @@ extern char		fixedUp;
 extern char		firstPerson;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
-
-void InitCameraForLevel(unsigned long worldID,unsigned long levelID);
 
 TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace, VECTOR *v, unsigned long flags);
 void CheckForDynamicCameraChange(GAMETILE *tile);
