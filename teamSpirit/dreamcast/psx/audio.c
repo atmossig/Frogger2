@@ -760,6 +760,12 @@ void PrepareSong(short worldID,int loop)
 		sprintf(buffer,"track%d.adx",chan);
 
 	adxtestCur = XAgetFileInfo(buffer);
+	if (adxtestCur == NULL)
+	{
+		curXA = NULL;
+		return;
+	}
+
 	XAplayChannel(adxtestCur, 1, 1, 64);
 
 	// set global volume

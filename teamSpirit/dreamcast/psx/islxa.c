@@ -24,7 +24,101 @@ static int	XAenable;
 #define ADX_WORKSIZE (ADXT_CALC_WORK((1), (ADXT_PLY_STM), (3), (44100)))
 static char xaWorkArea[ADX_WORKSIZE];
 
-XAFileType *curXA=NULL;
+XAFileType	*curXA = NULL;
+
+// XA buffer
+static XAFileType	xaBuffer;
+
+// XA playing flag
+static unsigned int	xaPlaying = 0;
+
+
+// *ASL* 13/08/2000
+/* ---------------------------------------------------------
+   Function : XAinit
+   Purpose : initialise streaming XA
+   Parameters :
+   Returns : 
+   Info : 
+*/
+
+void XAinit()
+{
+	xaPlaying = 0;
+	xaBuffer.adxt = NULL;
+	curXA = NULL;
+}
+
+
+/* ---------------------------------------------------------
+   Function : XAShutdown
+   Purpose : shutdown streaming XA
+   Parameters :
+   Returns : 
+   Info : 
+*/
+
+void XAShutdown()
+{
+	XAstop();
+}
+
+
+/* ---------------------------------------------------------
+   Function : XAgetFileInfo
+   Purpose : get an ADX file handle for our streaming filename
+   Parameters : stream filename
+   Returns : pointer to the XA buffer
+   Info : 
+*/
+
+XAFileType *XAgetFileInfo(char *fileName)
+{
+	// release any currently playing stream
+	XAstop();
+
+	// initialise our XA stream buffer
+	sprintf(xaBuffer.fileInfo, fileName);
+	xaBuffer.startPos = 0;
+	xaBuffer.endPos	= 0;
+	xaBuffer.status = 0;
+	xaBuffer.adxt = ADXT_Create(2, xaWorkArea, ADX_WORKSIZE);
+
+	// problem creating the work buffer
+	if (xaBuffer.adxt == NULL)
+		return NULL;
+
+	// flag active
+	xaPlaying = 1;
+	// and return the buffer
+	return &xaBuffer;
+}
+
+
+/* ---------------------------------------------------------
+   Function : XAstop
+   Purpose : stop currently playing XA stream
+   Parameters : 
+   Returns : 
+   Info : 
+*/
+
+void XAstop()
+{
+	if (xaPlaying == 1)
+	{
+		ADXT_Destroy(xaBuffer.adxt);
+		xaBuffer.adxt = NULL;
+	}
+	xaPlaying = 0;
+	curXA = NULL;
+}
+
+
+
+
+
+
 
 
 /**************************************************************************
@@ -70,6 +164,7 @@ static void XAcallback(int intr, u_char *result)
 }
 
 
+#if 0
 /**************************************************************************
 	FUNCTION:	XAgetFileInfo()
 
@@ -86,9 +181,9 @@ XAFileType *XAgetFileInfo(char *fileName)
 {
 	XAFileType	*xaf;
 	char		fName[40];
-	
+
 	xaf = (XAFileType *)MALLOC0(sizeof(XAFileType));				//
-	memset(xaf, 0, sizeof(*xaf));								//
+	memset(xaf, 0, sizeof(XAFileType));								//
 
 	sprintf(xaf->fileInfo,fileName);
 	xaf->startPos		= 0;									//
@@ -96,9 +191,9 @@ XAFileType *XAgetFileInfo(char *fileName)
 	xaf->status			= 0;									//
 
 	xaf->adxt			= ADXT_Create(2, xaWorkArea, ADX_WORKSIZE);	//
-
 	return xaf;
 }
+#endif
 
 
 /**************************************************************************
@@ -114,6 +209,7 @@ void XAstart(int speed)
 }
 
 
+#if 0
 /**************************************************************************
 	FUNCTION:	XAstop()
 	PURPOSE:	CD back to data - finished playing XA audio streams
@@ -132,6 +228,7 @@ void XAstop()
 		}
 	} // end-if
 }
+#endif
 
 
 /**************************************************************************

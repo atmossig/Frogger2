@@ -154,6 +154,10 @@ static void gdFsErrorCallback(void *obj, Sint32 err);
 // show all legal screens and FMV
 void showLegalFMV(int allowQuit);
 
+// these should go into islxa.h
+extern void XAinit();
+extern void XAShutdown();
+
 
 /* ---------------------------------------------------------
    Function : Kamui_Init
@@ -491,9 +495,12 @@ void main()
 	}
 	frameBufferFormat = KM_DSPBPP_RGB888;
 
+	// needs to be called before calling ADXT_Init
+	XAinit();
+
 	ADXT_Init();
 
-    // Check malloc alignment
+    // check malloc alignment
     Init32Malloc();
 
 	Kamui_Init();
