@@ -63,10 +63,6 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	InitActorAnim ((*me)->actor);
 	AnimateActor  ((*me)->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);
 
-	// set animation values for frog 'arcade-feel' factor - will be changing - AndyE
-	(*me)->actor->animation->anims->animStart	= 6;
-	(*me)->actor->animation->anims->animEnd		= 11;
-	
 	(*me)->actor->scale.v[0] = globalFrogScale;	//0.09;
 	(*me)->actor->scale.v[1] = globalFrogScale;	//0.09;
 	(*me)->actor->scale.v[2] = globalFrogScale;	//0.09;
