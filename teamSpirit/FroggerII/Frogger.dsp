@@ -115,14 +115,6 @@ SOURCE=.\Common\babyfrogs.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Common\backdrops.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common\backdrops.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Common\cam.c
 # End Source File
 # Begin Source File
@@ -144,6 +136,15 @@ SOURCE=.\Common\codes.h
 # Begin Source File
 
 SOURCE=.\Common\collect.c
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# ADD CPP /w /W0
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
