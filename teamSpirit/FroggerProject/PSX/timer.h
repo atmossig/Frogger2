@@ -8,7 +8,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#define TIMER_SET 0
+#define TIMER_SET 4
 
 //*** TIMER SET 0 - GAME LOOP ***/
 #if TIMER_SET==0
@@ -58,6 +58,17 @@
 #define TIMER_STOP_ADD3(x)
 #endif
 
+//*** TIMER SET 4 - PsiActor2ClipCheck ***/
+#if TIMER_SET==4
+#define TIMER_SET_4
+#define TIMER_START4(x) 	 TIMER_START(x)
+#define TIMER_STOP4(x)  	 TIMER_STOP(x)
+#define TIMER_STOP_ADD4(x)   TIMER_STOP_ADD(x)
+#else
+#define TIMER_START4(x)
+#define TIMER_STOP4(x)
+#define TIMER_STOP_ADD4(x)
+#endif
 
 
 
@@ -179,6 +190,25 @@ enum {
 						"TIMERS"
 #endif //TIMER_SET_3
 
+
+
+
+//*** TIMER SET 4 - PsiActo2ClipCheck ***//
+#ifdef TIMER_SET_4
+enum {
+	TIMER_TOTAL,
+	TIMER_UPANI,
+	TIMER_SETANI,
+	TIMER_TIMERS,
+
+	TIMER_NUMTIMERS
+};
+
+#define TIMER_NAMES	   	"TOTAL", \
+						"UPANI", \
+						"SETANI", \
+						"TIMERS"
+#endif //TIMER_SET_4
 
 
 
