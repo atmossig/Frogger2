@@ -178,8 +178,8 @@ void RunLevelSelect( )
 	static u16 button;
 	static u16 lastbutton;
 
-	TEXTOVERLAY *worldSelText[MAX_WORLDS];
-	TEXTOVERLAY *levelSelText[MAX_LEVELS];
+	static TEXTOVERLAY *worldSelText[MAX_WORLDS];
+	static TEXTOVERLAY *levelSelText[MAX_LEVELS];
 
 	static unsigned long lrSelect = 0;				// Select worlds or levels
 	static unsigned long oldWorldSelect = 0;        // To check if selected world has changed
