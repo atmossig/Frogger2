@@ -335,50 +335,6 @@ BOOL QueryAnimTime(ACTOR *actor, float time)
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: FroggerIdleAnim
-	Purpose 	: Choose and play an idle animation
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void FroggerIdleAnim( int i )
-{
-	player[i].idleTime-=gameSpeed;
-	if(player[i].idleTime<1)
-	{
-		unsigned long iAnim = Random(4);
-		switch (iAnim)
-		{
-			case 0:
-				AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
-				if (Random(10)>6)
-					AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
-				AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-				break;
-			case 1:
-				AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
-				break;
-			case 2:
-				AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
-				break;
-			case 3:
-				AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
-				if (Random(10)>6)
-					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
-				else
-					AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-				break;
-			case 4:
-				AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-				break;
-		}
-
-		player[i].idleTime = 400 + Random(300);
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function 	: FindSfxMap
 	Purpose 	: Return a pointer to an array of sample numbers for an actors animations
 	Parameters 	: UID of actor
