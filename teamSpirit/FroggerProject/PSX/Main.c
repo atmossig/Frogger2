@@ -605,7 +605,10 @@ TIMER_STOP(TIMER_GAMELOOP);
 			if ( !objViewer )
 				MainDrawFunction();
 
-//			UpdateTextureAnimations();
+
+			TIMER_START0(TIMER_UPDATETEXANIM);
+			UpdateTextureAnimations();
+			TIMER_STOP0(TIMER_UPDATETEXANIM);
 
 			DisplayOnScreenInfo();
 
@@ -815,13 +818,9 @@ void MainDrawFunction ( void )
 
 	TIMER_START0(TIMER_PRINT_OVERS);
 
-	if ( padData.digital[0] & PAD_CIRCLE )
-	{
-		PrintSpriteOverlays(1);
-		PrintTextOverlays();
-		PrintSpriteOverlays(0);
-	}
-	// ENDIF
+	PrintSpriteOverlays(1);
+	PrintTextOverlays();
+	PrintSpriteOverlays(0);
 
 	TIMER_STOP0(TIMER_PRINT_OVERS);
 

@@ -275,7 +275,7 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		case FRONTEND4_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\TITLE\\MULTISEL.BFF" );
+				sprintf ( BFFfileName, "OBJECTS\\TITLE\\TRAINING.BFF" );
 			break;
 
 		default:

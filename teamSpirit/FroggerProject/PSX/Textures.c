@@ -361,17 +361,17 @@ void CreateTextureAnimation ( char *fileName, TextureType *dummy, int numFrames 
 		utilPrintf("Counter : %d\n", counter );
 
 		if ( counter < 9 )
-			sprintf( type, "%s%d\n", fileName, counter+1 );
+			sprintf( type, "%s%d", fileName, counter+1 );
 		else
-			sprintf( type, "%s%d\n", fileName, counter+1 );
+			sprintf( type, "%s%d", fileName, counter+1 );
 
-		utilPrintf("Trying To Load Texture : %s", type );
+		utilPrintf("Trying To Load Texture : %s\n", type );
 //		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
 
 		textureAnim->animation->anim [ counter ] = FindTexture ( type );
 
 		if ( !textureAnim->animation->anim [ counter ] )
-			utilPrintf("Could Not Find Texture : %s", type );
+			utilPrintf("Could Not Find Texture : %s\n", type );
 	}
 	// ENDIF
 
@@ -411,9 +411,9 @@ void UpdateTextureAnimations ( void )
 			moveRect.w *= 2;
 
 		// copy bit of vram
-		BEGINPRIM(siMove, DR_MOVE);
+		BEGINPRIM ( siMove, DR_MOVE );
 		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(cur->animation->dest->handle),VRAM_CALCVRAMY(cur->animation->dest->handle));
-		ENDPRIM(siMove, 1023, DR_MOVE);
+		ENDPRIM ( siMove, 1023, DR_MOVE );
 
 		cur->waitTime++;
 	}

@@ -12,12 +12,12 @@
 #include <string.h>
 #include <stdio.h>
 #include "isltex.h"
-#include "..\islmem\islmem.h"
-#include "..\islfile\islfile.h"
-#include "..\islpad\islpad.h"
-#include "..\islfont\islfont.h"
-#include "..\islutil\islutil.h"
-#include "..\shell\shell.h"
+#include <islmem.h>
+#include "file.h"
+#include <islpad.h>
+#include "font.h"
+#include <islutil.h>
+#include "shell.h"
 
 extern psFont	*font;
 
@@ -797,8 +797,17 @@ TextureBankType *textureLoadBank(char *sFile)
 	newBank->pNSprite = nspr;
 	newBank->CRC = (unsigned long *)((unsigned char *)newBank + (sizeof(TextureBankType)));
 
+
+// JH: Implementing new texture animation stuff
 	for(loop=0; loop<newBank->numTextures; loop++)
-		newBank->CRC[loop] = newBank->pNSprite[loop].crc;
+	{
+		newBank->CRC [ loop ] = newBank->pNSprite [ loop ].crc;
+
+		/*if ( fileLoad (
+		{
+		}
+		// ENDIF*/
+	}
 
 	newBank->texture = (TextureType *)((unsigned char *)newBank->CRC+newBank->numTextures*4);
 	memset(newBank->texture, 0, sizeof(TextureType)*newBank->numTextures);
@@ -1277,7 +1286,7 @@ static void VRAMviewTextures(int *currTex)
 
 void textureShowVRAM(unsigned char palMode)
 {
-	DISPENV		dispenv;
+	/*DISPENV		dispenv;
 	int			xOffs,yOffs, viewMode, currTex;
 
 	currTex = 0;
@@ -1299,7 +1308,7 @@ void textureShowVRAM(unsigned char palMode)
 		}
 		if (padData.debounce[4] & PAD_SELECT)
 			viewMode = (viewMode+1) % 2;
-	}
+	}*/
 }
 
 

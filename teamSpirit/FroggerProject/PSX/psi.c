@@ -230,9 +230,9 @@ void dcachePsiSortPrimitives ( long *tfv, long *tfd )
 					
 				if ((clipflag < 0))	// || (op->dummy))
 				{
-//					op->next = sl[deep];
-//					sl[deep] = (int)op;
-//					localSortCount ++;
+					op->next = sl[deep];
+					sl[deep] = (int)op;
+					localSortCount ++;
 				}
 				op ++;
 				break;
@@ -252,9 +252,9 @@ void dcachePsiSortPrimitives ( long *tfv, long *tfd )
 				
 				if ((clipflag < 0))	// || (op->dummy))
 				{
-//					op->next = sl[deep];
-//					sl[deep] = (int)op;
-//					localSortCount ++;
+					op->next = sl[deep];
+					sl[deep] = (int)op;
+					localSortCount ++;
 				}
 				op ++;
 				break;
@@ -2619,7 +2619,7 @@ void psiDrawSegments(PSIDATA *psiData)
 		tfTotal += world->meshdata->vern;
 	}
 
-	if(tfTotal <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
+	/*if(tfTotal <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
 		tfvbase = (void *)DCACHE;
 		tfdbase = (void *)(DCACHE + 512);
@@ -2629,7 +2629,7 @@ void psiDrawSegments(PSIDATA *psiData)
 		tfvbase = (void *)DCACHE;
 		tfdbase = transformedDepths;
 	}
-	else
+	else*/
 	{
 		tfvbase = transformedVertices;
 		tfdbase = transformedDepths;

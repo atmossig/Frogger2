@@ -99,6 +99,8 @@ bss     group   bss
 	include "options.obj"
 	include "snapshot.obj"
 	include "training.obj"
+	include "fadeout.obj"
+	include "isltex.obj"
 
 
 ;	include "ANIM.obj"
@@ -165,7 +167,7 @@ bss     group   bss
 ;	inclib  "islpsi.lib"
     inclib  "islmem.lib"
     inclib  "islfile.lib"
-    inclib  "isltex.lib"
+;    inclib  "isltex.lib"
 ;	inclib  "islfont.lib"
     inclib  "isllocal.lib"
     inclib  "islpad.lib"
