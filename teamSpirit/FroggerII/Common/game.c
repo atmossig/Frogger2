@@ -38,6 +38,7 @@ GAMETILE *firstTile;
 GAMETILE **gTStart;
 
 long hopAmt = 10;
+long idleCamera = 0;
 
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
@@ -54,6 +55,8 @@ short spawnCounter = 0;
 long displayingTile=0;
 
 void DoHiscores();
+extern float gCamDist;
+extern TEXTURE *frogEyeOpen,*frogEyeClosed;
 
 
 /* --------------------------------------------------------------------------------
@@ -120,6 +123,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = MAX_IDLE_TIME;
+			idleCamera = 0;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_UP, frameCount );
@@ -140,6 +144,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = MAX_IDLE_TIME;
+			idleCamera = 0;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_RIGHT, frameCount );
@@ -160,6 +165,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = MAX_IDLE_TIME;
+			idleCamera = 0;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
@@ -180,6 +186,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = MAX_IDLE_TIME;
+			idleCamera = 0;
 			
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_LEFT, frameCount );
@@ -194,6 +201,7 @@ void GameProcessController(long pl)
 
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
+		idleCamera = 0;
 
 		if( ((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && !(player[pl].hasDoubleJumped) )
 		{
@@ -267,6 +275,7 @@ void GameProcessController(long pl)
 
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
+		idleCamera = 0;
 	}
 
 	if((button[0] & CONT_E) && !(lastbutton[0] & CONT_E))
@@ -311,6 +320,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = MAX_IDLE_TIME;
+			idleCamera = 0;
 		}
 	}
 
@@ -508,7 +518,7 @@ void KillMPFrog(int num)
 }
 
 SPRITEOVERLAY *atari,*konami,*flogo[10];
-float sideSwaySpeed = 0.01,sideSwayAmt=50;
+float sideSwaySpeed = 0.005,sideSwayAmt=50;
 
 void RunGameLoop (void)
 {
@@ -532,7 +542,7 @@ void RunGameLoop (void)
 
 		gameIsOver = 0;
 		levelIsOver = 0;
-
+		
 		if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
@@ -846,42 +856,55 @@ void RunGameLoop (void)
 	// check if player is idle
 	i = NUM_FROGS;
 	
-//	camSideOfs = sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt;
+	camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
 
 	while(i--)
 	{
-		player[i].idleTime-=gameSpeed;
-		if(player[i].idleTime<1)
+		if (!(player[i].frogState & FROGSTATUS_ISDEAD))
 		{
-			unsigned long iAnim = Random(4);
-			
-			switch (iAnim)
+			player[i].idleTime-=gameSpeed;
+			if(player[i].idleTime<1)
 			{
-				case 0:
-					AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
-					if (Random(10)>6)
-						AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
-					AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-					break;
-				case 1:
-					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
-					break;
-				case 2:
-					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
-					break;
-				case 3:
-					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
-					if (Random(10)>6)
-						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
+				unsigned long iAnim = Random(4);
+				
+				if ((Random(4) > 1) && (frogFacing[0] != ((camFacing+2) & 3)))
+				{
+					if ((frogFacing[0] - camFacing) != 1)
+						AnimateActor(frog[i]->actor,FROG_ANIM_HOPRIGHT,NO,NO,0.4F,0,0);
 					else
+						AnimateActor(frog[i]->actor,FROG_ANIM_HOPLEFT,NO,NO,0.4F,0,0);
+					frogFacing[0] = (camFacing+2) & 3;
+					idleCamera = 1;
+				}
+				else
+				switch (iAnim)
+				{
+					case 0:
+						AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
+						if (Random(10)>6)
+							AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
 						AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-					break;
-				case 4:
-					AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-					break;
-			}
+						break;
+					case 1:
+						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
+						break;
+					case 2:
+						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
+						break;
+					case 3:
+						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
+						if (Random(10)>6)
+							AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
+						else
+							AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+						break;
+					case 4:
+						AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+						break;
+				}
 
-			player[i].idleTime = 180 + Random(100);
+				player[i].idleTime = 180 + Random(100);
+			}
 		}
 	}
 
@@ -893,6 +916,7 @@ void RunGameLoop (void)
 #endif
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
+
 	// displays the tile numbers
 	cur = &firstTile[0];
 	currTileNum = 0;
@@ -914,17 +938,15 @@ void RunGameLoop (void)
 			sprintf(faceNum->text,"%d",camFacing);
 
 	if (tileNum)
-	if (tileNum->text)
-	{
-		if (displayingTile)
-			sprintf(tileNum->text,"%d",currTileNum);
-		else
-			sprintf(tileNum->text,"",currTileNum);
-	}
+		if (tileNum->text)
+		{
+			if (displayingTile)
+				sprintf(tileNum->text,"%d",currTileNum);
+			else
+				sprintf(tileNum->text,"",currTileNum);
+		}
 
 #endif
-
-
 }
 
 
