@@ -13,12 +13,6 @@
 #include "incs.h"
 
 
-Vtx *fsVerts = NULL;
-Vtx *vPtr = NULL;
-
-unsigned short *grab = NULL;
-unsigned short *scrTexGrab = NULL;
-
 //GRABSTRUCT grabData;
 
 short drawScreenGrab = 0;
