@@ -163,7 +163,11 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	
 	strcpy (mys,shortn);
 	strlwr (mys);
+
+#ifdef PRINT_TEXTURE_DEBUG
 	dprintf"%s\n",mys));
+#endif
+
 	if (((shortn[0]>='0') && (shortn[0]<='9'))
 	 && ((shortn[1]>='0') && (shortn[1]<='9'))
 	 && (!((shortn[0]=='0') && (shortn[1]=='0'))))
