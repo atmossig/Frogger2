@@ -24,6 +24,7 @@
 #include "controll.h"
 #include "islpad.h"
 #include "mdx.h"
+#include "layout.h"
 
 /*	------------------------------------------------------------------------
 	Global stuff

@@ -23,7 +23,7 @@
 #include "Main.h"
 #include "pcmisc.h"
 #include "pcsprite.h"
-
+#include "layout.h"
 
 
 //----- [ PRINTING STUFF ] -----------------------------------------------------------------------
