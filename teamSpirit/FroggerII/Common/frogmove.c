@@ -1157,8 +1157,8 @@ BOOL MoveToRequestedDestination2(int dir)
 
 BOOL MoveToRequestedDestination(int dir,long pl)
 {
-	char moveLocal		= 0;
-	
+	char moveLocal = 0;
+
 	// clear movement request flags
 	player[pl].frogState &= ~FROGSTATUS_ISWANTINGU;
 	player[pl].frogState &= ~FROGSTATUS_ISWANTINGD;
@@ -1398,6 +1398,40 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 					player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
 
 					return FALSE;			
+			}
+			else if( destTile[pl]->state & TILESTATE_SMASH )
+			{
+				if( !(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING) )
+				{
+					dprintf"Must superhop to smash\n"));
+
+					destTile[pl] = NULL;
+					destPlatform[pl] = NULL;
+					isJump[pl] = 0;
+					superHop = 0;
+
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+					player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
+					player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
+
+					return FALSE;
+				}
+				else
+				{
+					destTile[pl]->state &= ~TILESTATE_SMASH;
+					destTile[pl] = currTile[pl];
+					destPlatform[pl] = NULL;
+					isJump[pl] = 0;
+					superHop = 0;
+
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE; // Replace with smash action
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+					player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
+					player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
+
+					return FALSE;
+				}
 			}
 		}
 		// ENDIF

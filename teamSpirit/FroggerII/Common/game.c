@@ -921,8 +921,11 @@ void RunGameLoop (void)
 
 		/* Ambient Sound test */
 		//InitAmbientSoundList( );
+		//AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
 
-//		AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
+		/*JIM - Testing smash objects*/
+		//gTStart[0]->next->state = TILESTATE_SMASH;
+
 	}
 
 	if(!goText->kill)
@@ -1057,7 +1060,7 @@ void RunGameLoop (void)
 				worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].levelOpen |= LEVEL_OPEN;
 
 				InitLevel ( player[0].worldNum, player[0].levelNum );
-					  
+				
 				StartDrawing ( "EndGame" );
 				return;	 
 			}
