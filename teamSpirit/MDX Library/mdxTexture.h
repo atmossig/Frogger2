@@ -25,6 +25,7 @@ typedef struct TAG_MDX_TEXENTRY
 	long CRC;
 	char name[32];
 	short *data;
+	long *softData;
 	char keyed;
 	long type;
 	LPDIRECTDRAWSURFACE7 surf;

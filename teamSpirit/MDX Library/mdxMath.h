@@ -104,7 +104,7 @@ void guTranslateF(float a[4][4], float dx, float dy, float dz);
 }
 
 void guScaleF(float a[4][4], float dx, float dy, float dz);
-void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp);
+void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp, long updateView);
 void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float *destY,float *destZ);
 
 

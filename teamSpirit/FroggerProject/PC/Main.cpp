@@ -429,12 +429,12 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 #define CAMVECTSCALE (1.0f/40960.0f)
 
-void CalcViewMatrix(void)
+void CalcViewMatrix(long uDate)
 {
 	guLookAtF (vMatrix.matrix,
 		currCamTarget.vx*CAMVECTSCALE, currCamTarget.vy*CAMVECTSCALE, currCamTarget.vz*CAMVECTSCALE,
 		currCamSource.vx*CAMVECTSCALE, currCamSource.vy*CAMVECTSCALE, currCamSource.vz*CAMVECTSCALE,
-		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE);
+		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE,uDate);
 }
 
 void DrawBackground(void)
@@ -488,7 +488,11 @@ long DrawLoop(void)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();
 
-	CalcViewMatrix();
+	CalcViewMatrix(1);
+
+	if (editorOk)
+		changedView = 1;
+
 
 	//if (backGnd)
 	//	DrawBackground();

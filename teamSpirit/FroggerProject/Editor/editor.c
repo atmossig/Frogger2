@@ -357,7 +357,7 @@ void RunEditor(void)
 	EditorMoveCamera();
 
 	// recalc viewing matrix FOR HEAVENS SAKE
-	CalcViewMatrix();
+	CalcViewMatrix(0);
 	
 	if (showX) PlaceEditX(p.x, p.y);
 

@@ -134,28 +134,32 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 
 
 
-void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp)
+void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp, long updateView)
 {
     MDX_VECTOR  up, right, view_dir,world_up,from;
 
 	guMtxIdent (m);
 
 	changedView = 1;
-	if ((fabs(curAt.vx - xAt)<MOVE_THRESH) &&
-		(fabs(curAt.vy - yAt)<MOVE_THRESH) &&
-		(fabs(curAt.vz - zAt)<MOVE_THRESH) &&
-		(fabs(curEye.vx - xEye)<MOVE_THRESH) &&
-		(fabs(curEye.vy - yEye)<MOVE_THRESH) &&
-		(fabs(curEye.vz - zEye)<MOVE_THRESH))
-		changedView = 0;
 	
-	curAt.vx = xAt;
-	curAt.vy = yAt;
-	curAt.vz = zAt;
-
-	curEye.vx = xEye;
-	curEye.vy = yEye;
-	curEye.vz = zEye;
+	if (updateView)
+	{
+		if ((fabs(curAt.vx - xAt)<MOVE_THRESH) &&
+			(fabs(curAt.vy - yAt)<MOVE_THRESH) &&
+			(fabs(curAt.vz - zAt)<MOVE_THRESH) &&
+			(fabs(curEye.vx - xEye)<MOVE_THRESH) &&
+			(fabs(curEye.vy - yEye)<MOVE_THRESH) &&
+			(fabs(curEye.vz - zEye)<MOVE_THRESH))
+			changedView = 0;
+	
+		curAt.vx = xAt;
+		curAt.vy = yAt;
+		curAt.vz = zAt;	
+	
+		curEye.vx = xEye;
+		curEye.vy = yEye;
+		curEye.vz = zEye;
+	}
 
 	view_dir.vx = xEye - xAt;
 	view_dir.vy = yEye - yAt;

@@ -79,7 +79,7 @@ void Crash(char *mess);
 int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
-void CalcViewMatrix(void);
+void CalcViewMatrix(long);
 
 #ifdef __cplusplus
 }

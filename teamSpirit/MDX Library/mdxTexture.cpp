@@ -205,24 +205,32 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			newE->xSize = xDim;
 			newE->ySize = yDim;
 			newE->keyed = 0;
+			
+			if (!rHardware)
+			{
+				newE->softData = new long[xDim*yDim];
 
-			for (int i=0; i<xDim; i++)
-				for (int j=0; j<yDim; j++)
-				{
-					short dt;
-					unsigned long d,r,g,b;
-					dt = newE->data[i+j*xDim];
-					r = (dt>>10) & 0x1f;
-					g = (dt>>5) & 0x1f;
-					b = (dt) & 0x1f;
+				for (int i=0; i<xDim; i++)
+					for (int j=0; j<yDim; j++)
+					{
+						short dt;
+						unsigned long d,r,g,b;
+						dt = newE->data[i+j*xDim];
+						r = (dt>>10) & 0x1f;
+						g = (dt>>5) & 0x1f;
+						b = (dt) & 0x1f;
 
-					if ((r==0x1f) && (b==0x1f) && (g==0))
-						newE->keyed = 1;
-					g<<=1;
-					if (r565)
-						newE->data[i+j*xDim] = (r<<11 | g<<5 | b);
+						if ((r==0x1f) && (b==0x1f) && (g==0))
+							newE->keyed = 1;
+						
+						r<<=3;
+						g<<=3;
+						b<<=3;
+						//if (r565)
+						newE->softData[i+j*xDim] = (r<<24 | g<<16 | b);
 		
-				}
+					}
+			}
 	}
 	else
 		dp("Cannot load texture %s\n",shortn);

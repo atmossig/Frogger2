@@ -292,24 +292,33 @@ void UpdateAnims(MDX_ACTOR *actor)
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
 	MDX_VECTOR r[8];
-	unsigned long left,right,top,bottom;
-	left = top = right = bottom = 0;
+	unsigned long left,right,top,bottom,in;
+	left = top = right = bottom = in = 0;
 	
 	for (int i=0; i<8; i++)
 	{
 		XfmPoint(&r[i],&bBox[i],m);
 
-		if (r[i].vx>rXRes)
-			right++;
-		if (r[i].vx<0)		
-			left++;			
-		if (r[i].vy>rYRes)
-			bottom++;
-		if (r[i].vy<0)
-			top++;				
+		if (r[i].vz == 0)
+			in++;
+		else
+		{
+
+			if (r[i].vx>rXRes)
+				right++;
+
+			if (r[i].vx<0)		
+				left++;			
+
+			if (r[i].vy>rYRes)
+				bottom++;
+
+			if (r[i].vy<0)
+				top++;				
+		}
 	}
 	
-	if ((left==8) || (right==8) || (top==8) || (bottom==8))
+	if ((left==8) || (right==8) || (top==8) || (bottom==8) || (in==8))
 		return 1;
 	return 0;
 }
