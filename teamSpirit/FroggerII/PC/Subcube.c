@@ -831,20 +831,14 @@ void TransformObject(OBJECT *obj, float time)
 		guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], 0, 0, 0,&obj->collSphere->offset.v[X], &obj->collSphere->offset.v[Y], &obj->collSphere->offset.v[Z]);
 	}
 */
-	//maintain posision of all objects sprites        
-//	if(obj->numSprites > 0)
-/*	{
+//	maintain posision of all objects sprites        
+	if(obj->numSprites > 0)
+	{
 		for(i = 0; i < obj->numSprites; i++)
 		{
 			sprite = obj->sprites[i].sprite;
 			if(sprite)
 			{
-				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
-					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//				sprite->r = (float)obj->sprites[i].r*inShadow;
-//				sprite->g = (float)obj->sprites[i].g*inShadow;
-//				sprite->b = (float)obj->sprites[i].b*inShadow;
 				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
 				{
 					sprite->red2 = obj->colour.r;
@@ -865,12 +859,12 @@ void TransformObject(OBJECT *obj, float time)
 				}
 				else
 					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
-				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
+				obj->sprites[i].sprite->scaleX = 2*((float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X]);
+				obj->sprites[i].sprite->scaleY = 2*((float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y]);
 				xluVal = ((int)(obj->xlu * xluOverride))/100;
 				if(xluOverride <= 10)
 					xluVal = 0;
-				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
+		/*		if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
 				{
 					obj->sprites[i].sprite->r = 0;
 					obj->sprites[i].sprite->g = 0;
@@ -883,19 +877,15 @@ void TransformObject(OBJECT *obj, float time)
 					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
 				else
 					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
+			*/
+				obj->sprites[i].sprite->a = xluVal;
+
 				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
 												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
-				if(renderMode.pixelOut)
-				{
-					sprite->flags |= SPRITE_FLAGS_PIXEL_OUT;
-					sprite->a = (sprite->a * obj->pixelOutAlpha)/255;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_PIXEL_OUT;
 			}
 		}
 	}
-*/
+
 
 		
 //MATT, required
