@@ -27,6 +27,7 @@
 #include "mdxRender.h"
 #include "mdxPoly.h"
 #include "mdxProfile.h"
+#include "math.h"
 
 #ifdef __cplusplus
 extern "C"
