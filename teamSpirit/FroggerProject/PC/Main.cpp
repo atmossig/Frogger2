@@ -43,6 +43,7 @@
 #include "actor2.h"
 #include "bbtimer.h"
 #include "maths.h"
+#include "E3_Demo.h"
 
 #include "editor.h"
 
@@ -208,6 +209,10 @@ void GetArgs(char *arglist)
 					case 'I': case 'i':
 						screenshotEnable = !screenshotEnable;
 						utilPrintf("Screenshot mode is %s\n",screenshotEnable?"enabled":"disabled");
+						break;
+
+					case 'M': case 'm':
+						e3multi = !e3multi;
 						break;
 
 					case ' ':
