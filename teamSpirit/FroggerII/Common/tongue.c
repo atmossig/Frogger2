@@ -363,8 +363,13 @@ void AddTongueSprite(short index,float x,float y,float z)
 	tongueSprite[index].b			= 0;
 	tongueSprite[index].a			= 255;
 
+#ifndef PC_VERSION
 	tongueSprite[index].offsetX		= -tongueSprite[index].texture->sx / 2;
 	tongueSprite[index].offsetY		= -tongueSprite[index].texture->sy / 2;
+#else
+	tongueSprite[index].offsetX		= -16;
+	tongueSprite[index].offsetY		= -16;
+#endif
 
 	AddSprite(&tongueSprite[index],NULL);
 }
