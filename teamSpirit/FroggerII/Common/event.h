@@ -49,14 +49,14 @@ extern TRIGGERLIST triggerList;
 
 /*----- [ PROTOTYPES ] ------------------------------------------------------------------------*/
 
-TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args );
-EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args );
-void AttachEvent( TRIGGER *trigger, EVENT *event );
-void InitTriggerList( );
-void InitEventList( );
-void KillAllTriggers( );
-void KillAllEvents( );
-void SubTrigger( TRIGGER *t );
-void UpdateEvents( );
+extern TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args );
+extern EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args );
+extern void AttachEvent( TRIGGER *trigger, EVENT *event );
+extern void InitTriggerList( );
+extern void InitEventList( );
+extern void KillAllTriggers( );
+extern void KillAllEvents( );
+extern void SubTrigger( TRIGGER *t );
+extern void UpdateEvents( );
 
 #endif

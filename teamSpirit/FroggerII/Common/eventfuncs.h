@@ -1,13 +1,27 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+	
+	  
+	File		: event.h
+	Programmer	: Jim Hubbard
+	Date		: 30/06/99
+	
+----------------------------------------------------------------------------------------------- */
+
 #ifndef EVENTFUNCS_H_INCLUDED
 #define EVENTFUNCS_H_INCLUDED
 
 
 /*----- [ TRIGGER PROTOTYPES ] -----------------------------------------------------------------*/
-int ActorOnTile( TRIGGER *trigger );
+extern int ActorOnTile( TRIGGER *trigger );
 
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
-void ChangeActorScale( EVENT *event );
+extern void ChangeActorScale( EVENT *event );
 
+
+/*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
+extern void SetupEventsForLevel( );
 
 #endif

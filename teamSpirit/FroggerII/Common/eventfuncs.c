@@ -7,6 +7,9 @@
 	Programmer	: Jim Hubbard
 	Date		: 30/06/99
 
+	Info		: Trigger and event functions for the event system, and setups for 
+					level specific events.
+
 ----------------------------------------------------------------------------------------------- */
 
 #include <ultra64.h>
@@ -66,4 +69,56 @@ void ChangeActorScale( EVENT *event )
 	VECTOR *scale = (VECTOR *)event->data[1];
 
 	actor->scale = *scale;
+}
+
+
+
+/*----- [ LEVEL SETUPS ] -----------------------------------------------------------------------*/
+
+/*	--------------------------------------------------------------------------------
+	Function 	: SetupEventsForLevel
+	Purpose 	: Adds all triggers and events for the current level
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void SetupEventsForLevel( )
+{
+	void **args;
+	TRIGGER *trigger;
+	EVENT *event;
+	VECTOR *pos = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
+	VECTOR *scale = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
+	float *rad;
+
+	InitTriggerList( );
+
+	pos->v[0] = -75.0;
+	pos->v[1] = 0.0;
+	pos->v[2] = -375.0;
+	
+	rad = (float *)JallocAlloc( sizeof(float),YES,"Float" );
+	*rad = 100;
+
+	// Test trigger
+	args = (void **)JallocAlloc( (sizeof(void *)*3),YES,"EventData" );
+	args[0] = (void *)frog[0]->actor;
+	args[1] = (void *)pos;
+	args[2] = (void *)rad;
+
+	trigger = MakeTrigger( ActorWithinRadius, 3, args );
+
+	scale->v[0] = 3.0;
+	scale->v[1] = 3.0;
+	scale->v[2] = 3.0;
+
+	// Test event
+	args = (void **)JallocAlloc( (sizeof(void *)*2),YES,"EventData" );
+	args[0] = (void *)frog[0]->actor;
+	args[1] = (void *)scale;
+
+	event = MakeEvent( ChangeActorScale, 2, args );
+
+	// Attach event to trigger
+	AttachEvent( trigger, event );
 }

@@ -44,7 +44,7 @@ TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void ** ar
 	
 	trigger->prev = trigger->next = NULL;
 
-	InitEventList( trigger->events );
+	InitEventList( &trigger->events );
 	
 	trigger->func = func;
 	trigger->data = args;
