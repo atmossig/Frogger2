@@ -138,10 +138,13 @@ void DrawBackground(void)
    Returns : 1 draw error else 0 okay
    Info : 
 */
-
+extern int winActive;
 long DrawLoop(void)
 {
 	POINT	t;
+
+	if(!winActive)
+		return 0;
 
 	if(gameState.mode == ARTVIEWER_MODE || gameState.mode == STARTUP_MODE || gameState.mode == TEASERSCREEN_MODE )
 	{

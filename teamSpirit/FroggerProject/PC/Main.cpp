@@ -78,6 +78,7 @@ long drawGame = 1;
 long textEntry = 0;	
 char textString[255] = "---";
 int networkGame = 0;
+int winActive = 1;
 
 #ifdef FINAL_MASTER
 char baseDirectory[MAX_PATH] = "";
@@ -489,10 +490,13 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_ACTIVATEAPP:
 			if(wParam)
 			{
+				winActive = 1;
 				for(i = 0;i < NUM_SRF;i++)
 					if(surface[i])
 						surface[i]->Restore();
 			}
+			else
+				winActive = 0;
 			break;
 
 		case WM_LBUTTONDOWN:

@@ -216,7 +216,10 @@ void StartPauseMenu()
 #endif
 	EnableTextOverlay ( xselectText );
 
-	sprintf( pauseTitleString, "%s %s", GAMESTRING(STR_CHAR_NAME_1+player[pauseController].character), GAMESTRING(STR_PAUSE_MODE) );
+	if(NUM_FROGS == 1)
+		sprintf( pauseTitleString, "%s",GAMESTRING(STR_PAUSE_MODE));
+	else
+		sprintf( pauseTitleString, "%s %s", GAMESTRING(STR_CHAR_NAME_1+player[pauseController].character), GAMESTRING(STR_PAUSE_MODE) );
 	EnableTextOverlay ( pauseTitleText );
 	continueText->r = continueText->g = continueText->b = 255;
 	if(gameState.oldMode == FRONTEND_MODE)
