@@ -15,6 +15,7 @@
 #include "netchat.h"
 #include "netgame.h"
 #include "config.h"
+#include "mdxDDraw.h"
 
 extern "C" {
 
@@ -103,6 +104,11 @@ void GetArgs(char *arglist)
 					case 'a': case 'A':
 						audioEnabled = !audioEnabled;
 						dprintf"Audio %s\n",audioEnabled?"enabled":"disabled"));
+						break;
+
+					case 'f': case 'F':
+						rFlipOK = !rFlipOK;
+						dprintf"Buffer swap by %s\n", rFlipOK?"flip":"blit"));
 						break;
 
 					case ' ':

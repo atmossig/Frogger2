@@ -32,7 +32,7 @@ extern LPDIRECTDRAW			pDirectDraw;
 extern LPDIRECTDRAW4		pDirectDraw4;
 extern LPDIRECTDRAWCLIPPER	pClipper;
 extern LPDIRECTDRAWSURFACE	surface[NUM_SRF];
-extern unsigned long		rXRes, rYRes, rBitDepth, r565 ,rHardware, rFullscreen, rScale;
+extern unsigned long		rXRes, rYRes, rBitDepth, r565 ,rHardware, rFullscreen, rScale, rFlipOK;
 extern HWND					rWin;
 
 /*	--------------------------------------------------------------------------------
