@@ -54,6 +54,13 @@ typedef struct
 } SVKEYFRAME;
 
 
+typedef struct
+{
+	SVKEYFRAME *lastscalekey;
+	SVKEYFRAME *lastmovekey;
+	SQKEYFRAME *lastrotatekey;
+} LASTKEYS;
+
 // PSI mesh data structure
 typedef struct _PSIMESH
 {
@@ -71,7 +78,8 @@ typedef struct _PSIMESH
 	USHORT			numScaleKeys;
 	USHORT			numMoveKeys;
 	USHORT			numRotateKeys;
-	USHORT			pad1;
+//	USHORT			pad1;
+	USHORT			lastKeysOff;	// offset to  LASTKEYS structure.
 
 	SVKEYFRAME		*scalekeys;
 	SVKEYFRAME		*movekeys;
@@ -81,10 +89,11 @@ typedef struct _PSIMESH
 	SVECTOR			center;
 
 	//bbopt - for optimising animation
-	short lastscalekey;
-	short lastmovekey;
-	short lastrotatekey;
-	short pad2;
+	//can't store these here, because it's block loaded data.
+	//damn it.
+//	SVKEYFRAME *lastscalekey;
+//	SVKEYFRAME *lastmovekey;
+//	SQKEYFRAME *lastrotatekey;
 
 } PSIMESH;
 
