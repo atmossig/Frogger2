@@ -128,6 +128,8 @@ BOOL UpdateFroggerControls(long pl)
 {
 	/* ----------------------- Frog wants to HOP u/d/l/r ----------------------------- */
 
+	//if (!player[pl].canJump) return;
+
 	if(player[pl].frogState & (FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD))
 	{
 		int dir;
@@ -1021,8 +1023,6 @@ void CheckForFroggerLanding(long pl)
 
 			if (res)
 			{
-				//AnimateActor(frog[pl], FROG_ANIM_ICE1, YES, NO, 0.5, NO, NO);
-
 				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
 						&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &tile->normal,
@@ -1031,6 +1031,8 @@ void CheckForFroggerLanding(long pl)
 					CalculateFrogJump(
 						&frog[pl]->actor->pos, &destTile[pl]->centre, &tile->normal, 
 						0, iceFrames, pl);
+
+				StartAnimateActor(frog[pl]->actor, FROG_ANIM_ICE3, YES, NO, 0.2f, NO, NO);
 
 				player[pl].canJump = FALSE;
 			}

@@ -18,6 +18,7 @@ extern float hedRotAmt;
 
 extern void UpdateAnimations(ACTOR *actor);
 extern void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed, BYTE morphs,BOOL keepProportion);
+extern void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed, BYTE morphs,BOOL keepProportion);
 extern void FlushQueue(ACTOR *myActor);
 extern void SetAnimationSpeed(ACTOR *myActor, float speed);
 extern void InitActorAnim(ACTOR *tempActor);

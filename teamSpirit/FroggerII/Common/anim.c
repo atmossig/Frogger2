@@ -46,11 +46,22 @@ void InitActorAnim(ACTOR *tempActor)
 }
 
 /*	--------------------------------------------------------------------------------
-	Function 	  : 
-	Purpose 	   : 
-	Parameters 	: 
-	Returns    	: 
-	Info 		     :
+	Function	: AnimateActor
+	Purpose		: Runs an animation on an actor EXCEPT when it's already running
+	Parameters	: actor, anim, loop?, queue?, speed, morph?, keep proportion?
+	Returns		: void
+*/
+void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed, BYTE morphs,BOOL keepProportion)
+{
+	if (actor->animation->currentAnimation != animNum)
+		AnimateActor(actor, animNum, loop, queue, speed, morphs, keepProportion);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: AnimateActor
+	Purpose		: Runs an animation on a specific ACTOR
+	Parameters	: actor, anim, loop?, queue?, speed, morph?, keep proportion?
+	Returns		: void
 */
 void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed, BYTE morphs,BOOL keepProportion)
 {

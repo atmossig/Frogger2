@@ -858,7 +858,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 				if (currPlatform[pl] == pform)
 				{
 					PushFrog(&pform->pltActor->actor->pos, &v, pl);
-					AnimateActor(frog[pl], FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
+					AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
 					break;
 				}
 		}
