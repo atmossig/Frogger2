@@ -459,6 +459,7 @@ void DrawFXRing( SPECFX *fx )
 				// Slant the polys
 				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 1 : tilt2;
 				vT[j].tv = 1-vT[j].tv;
+				vT[j].rhw = 1;
 
 				// Scale and push
 				guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
@@ -484,6 +485,10 @@ void DrawFXRing( SPECFX *fx )
 
 		if( !zeroZ )
 		{
+			vT[0].tu = 0;
+			vT[1].tu = 0;
+			vT[2].tu = 1;
+			vT[3].tu = 1;
 			memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 );
 			memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 			Clip3DPolygon( vT, tEntry );
