@@ -654,7 +654,8 @@ void CopyActorList()
 			a->scale.vx = c->actor->size.vx * (1.0f/4096.0f);
 			a->scale.vy = c->actor->size.vy * (1.0f/4096.0f);
 			a->scale.vz = c->actor->size.vz * (1.0f/4096.0f);
-	
+
+			a->depthOff = c->depthShift;
 			
 			if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
 			{
