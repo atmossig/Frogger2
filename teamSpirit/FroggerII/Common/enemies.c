@@ -217,7 +217,7 @@ void UpdateEnemies()
 				r = 10;
 
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
-				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0, 0, 1.5 );
+				CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0, 0, 1.5 );
 		}
 		if( cur->nmeActor->effects & EF_SPARK_BURSTS )
 		{
