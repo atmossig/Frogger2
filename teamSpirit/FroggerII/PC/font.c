@@ -208,7 +208,7 @@ void InitFont()
 
 	// Initialise the 8x8 font ----------------------------------------------------
 
-	dprintf"Initialising 8x8 font...(NOT USED YET !)"));
+	dprintf"Initialising 8x8 font...(NOT USED IN PC VERSION YET !) "));
 
 	dprintf"OK !\n"));
 
