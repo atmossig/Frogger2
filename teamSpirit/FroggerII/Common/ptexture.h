@@ -16,7 +16,7 @@ typedef struct TAGPROCTEXTURE
 {
 	struct TAGPROCTEXTURE *next;
 
-	char *buffer;
+	unsigned char *buf1, *buf2;
 	short *palette;
 
 	TEXTURE *tex;
@@ -30,6 +30,8 @@ extern PROCTEXTURE *prcTexList;
 
 
 extern void CreateAndAddProceduralTexture( TEXENTRY *tex, char *name );
+extern void ProcessProcTextures( );
+extern void FreeProcTextures( );
 
 extern void ProcessPTFire( PROCTEXTURE *pt );
 

@@ -1032,7 +1032,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrFly,UpdateCRC("fly1.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
-	FindTexture(&txtrFire,UpdateCRC("ai_flame3.bmp"),YES);
+	FindTexture(&txtrFire,UpdateCRC("prc_fire1.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 }
@@ -1341,13 +1341,15 @@ void ProcessAttachedEffects( void *entity, int type )
 		if( act->effects & EF_FLAMES )
 		{
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 0.7 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 99999 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 0.7 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 99999 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 0.7 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 99999 );
 
 			SetAttachedFXColour( fx, act->effects );
+
+			act->effects &= ~EF_FLAMES;
 		}
 		if( act->effects & EF_BUBBLES )
 		{

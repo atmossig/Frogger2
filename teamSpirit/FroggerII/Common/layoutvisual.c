@@ -688,6 +688,7 @@ void FreeAllLists()
 	FreePathList();
 	Free3DTextList();
 	FreeAnimationList();
+	FreeProcTextures( );
 	FreeTextureList();
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();

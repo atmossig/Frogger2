@@ -885,6 +885,7 @@ void DrawGraphics()
 		SoftwareEndFrame();
 
 	AnimateTexturePointers();
+	ProcessProcTextures( );
 
 	EndTimer(1);
 }
