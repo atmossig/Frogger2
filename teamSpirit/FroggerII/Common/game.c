@@ -878,9 +878,10 @@ void RunGameLoop (void)
 			} 
 			if (frog[i]->action.safe) 
 			{
-				if ((frameCount % 2)==0)
-					frog[i]->draw = 0;
-				frog[i]->action.safe--;
+				frog[i]->actor->xluOverride = 50;
+				
+				if( !(--frog[i]->action.safe) )
+					frog[i]->actor->xluOverride = 100;
 			}
 		}
 	}  
