@@ -401,17 +401,20 @@ void actorDraw(ACTOR *actor)
 //		actor->psiData.object->rotate.vx += 1;
 	}
 	else*/
-	{
-		TIMER_START2(TIMER_ACTDR_QUAT);
 
-		if ( !( actor->flags & ACTOR_NEW_NOREORIENTATE ) )
-		{
-			QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
-		}
-		// ENDIF
-
-		TIMER_STOP_ADD2(TIMER_ACTDR_QUAT);
-	}
+// bb - now done at the same time as actor clipping.
+// i.e Actor2ClipCheck(), or for dffClipping (distancefromfrog) in DrawActorList().
+// 	{
+// 		TIMER_START2(TIMER_ACTDR_QUAT);
+// 
+// 		if ( !( actor->flags & ACTOR_NEW_NOREORIENTATE ) )
+// 		{
+// 			QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
+// 		}
+// 		// ENDIF
+// 
+// 		TIMER_STOP_ADD2(TIMER_ACTDR_QUAT);
+// 	}
 	// ENDELSEIF
 
 
@@ -423,7 +426,6 @@ void actorDraw(ACTOR *actor)
 	}
 	else
 	{
-
 		if((world->rotate.vx) || (world->rotate.vy) || (world->rotate.vz))
 		{
 			MATRIX		rotmat1;
@@ -434,14 +436,21 @@ void actorDraw(ACTOR *actor)
 			gte_ldlvl(&world->matrix.t);
 			gte_rtir();
 			gte_stlvl(&world->matrix.t);
+
+			//bb move into here from outside this if,
+			//because the QuatToPsxMatrix call has been moved,
+			//(and the .t setting with it.)
+	 		world->matrix.t[0] += -actor->position.vx;
+	 		world->matrix.t[1] += -actor->position.vy;
+	 		world->matrix.t[2] += actor->position.vz;
 		}
 
-
-
-		world->matrix.t[0] += -actor->position.vx;
-		world->matrix.t[1] += -actor->position.vy;
-		world->matrix.t[2] += actor->position.vz;
+//bb see above comment
+//  		world->matrix.t[0] += -actor->position.vx;
+//  		world->matrix.t[1] += -actor->position.vy;
+//  		world->matrix.t[2] += actor->position.vz;
 	}
+
 
 
 
