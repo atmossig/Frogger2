@@ -144,11 +144,20 @@ void PickupCollectable(GARIB *garib, int pl)
 			SetVector(&fx->rebound->normal,&seUp);
 			fx->gravity = 0.2;
 
-			fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 16, 1, 0, 3 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, player[pl].spawnScoreLevel * 5, player[pl].spawnScoreLevel, 0, 3 );
 			SetFXColour(fx,255,255,0);
 			SetVector(&fx->rebound->point,&garib->pos);
 			SetVector(&fx->rebound->normal,&seUp);
 			fx->gravity = 0.1;
+
+			if(player[pl].spawnScoreLevel == 5)
+			{
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 50, 4, 0, 6 );
+				SetFXColour(fx,0,255,255);
+				SetVector(&fx->rebound->point,&garib->pos);
+				SetVector(&fx->rebound->normal,&seUp);
+				fx->gravity = 0.15;
+			}
 
 			player[pl].score += (player[pl].spawnScoreLevel * 10);
 			player[pl].numSpawn++;
@@ -366,7 +375,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 		// ok - make the spawn garib a rotating sprite - ANDYE
 		garib->sprite->flags	|= SPRITE_FLAGS_ROTATE;
 		garib->sprite->angle	= 0;
-		garib->sprite->angleInc = 0.01f;
+		garib->sprite->angleInc = 0.025f;
 		
 #ifndef PC_VERSION
 		garib->sprite->offsetX = -garib->sprite->texture->sx / 2;
