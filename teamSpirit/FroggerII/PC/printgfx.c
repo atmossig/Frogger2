@@ -180,6 +180,7 @@ SPRITE *PrintSprites()
 	ZSortSpriteList();
 
 	// draw from the newly sorted static array
+	
 	i = numSortArraySprites;
 	while(i--) if( spriteSortArray[i].draw ) PrintSprite(&spriteSortArray[i]);
 
@@ -378,6 +379,24 @@ void PrintSprite(SPRITE *sprite)
 		numSprites++;
 		if (runHardware)
 		{
+			if (sprite->flags & XLU_SUBFIRST)
+			{
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_DESTCOLOR);
+				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_DESTALPHA);
+
+				if(sprite->flags & SPRITE_FLAGS_ROTATE)
+				{
+					DrawAlphaSpriteRotating(&sprite->sc.v[0],sprite->angle,sprite->sc.v[X]+sprite->offsetX*distx,sprite->sc.v[Y]+sprite->offsetY*disty,sprite->sc.v[Z]*0.00025,32*distx,32*disty,
+					0,0,1,1,tEntry->cFrame->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/455.0) );
+				}
+				else
+				{
+					DrawAlphaSprite(sprite->sc.v[X]+sprite->offsetX*distx,sprite->sc.v[Y]+sprite->offsetY*disty,sprite->sc.v[Z]*0.00025,32*distx,32*disty,
+					0,0,1,1,tEntry->cFrame->hdl,D3DRGBA(sprite->r/255.0,sprite->g/255.0,sprite->b/255.0,sprite->a/455.0) );
+				}
+
+			}
+			
 			if (sprite->flags & XLU_ADD)
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);

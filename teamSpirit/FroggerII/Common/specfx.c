@@ -324,7 +324,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->vel.v[X] += (Random(2)-1)*speed*0.2;
 		effect->vel.v[Y] += (Random(2)-1)*speed*0.2;
 		effect->vel.v[Z] += (Random(2)-1)*speed*0.2;
-		effect->fade = 180 / life;
+		effect->fade = 190 / life;
 
 		if( effect->type == FXTYPE_BUBBLES )
 			effect->numP = i = 1;
@@ -346,7 +346,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->texture = txtrBubble;
 			else
 			{
-				s->flags |= XLU_ADD;
+				s->flags |= XLU_ADD | XLU_SUBFIRST;
 				s->texture = txtrSmoke;
 			}
 
@@ -767,6 +767,7 @@ void UpdateFXSmoke( SPECFX *fx )
 		{
 			s->scaleX += fx->accn*gameSpeed;
 			s->scaleY += fx->accn*gameSpeed;
+			
 		}
 		else if( fx->type == FXTYPE_BUBBLES )
 		{
