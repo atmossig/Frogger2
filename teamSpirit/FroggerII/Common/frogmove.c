@@ -49,8 +49,8 @@ float floatGravity		= -1.0F;
 */
 
 float	hopHeight		= 30;
-float	superhopHeight	= 75;
-float	doublehopHeight = 100;
+float	superhopHeight	= 50;
+float	doublehopHeight = 75;
 
 float	floatMultiply	= 0.25f;
 
@@ -602,8 +602,8 @@ void AnimateFrogHop( unsigned long direction, long pl )
 	if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
 	{
 		anim = FROG_ANIM_SUPERHOP;
-		speed = 0.35;
-		speed2 = 0.35;
+		speed = 0.45;
+		speed2 = 0.45;
 	}
 	else
 	{
@@ -1373,16 +1373,12 @@ void ThrowFrogAtScreen(long pl)
 /*
 	// Rotate actor to face in the right direction
 	// 1. Get unit vectors FORWARDS and SCREEN->TARGET
-
 	ScaleVector(&v, 1.0f/dist);		// unit
-
 	// 2. 
 	CrossProduct(&w, &v, &forwards);
-*/
-
 	//ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
 	OrientateQuaternion(&frog[pl]->actor->qRot, &v, &upVec);	// ??
-
+*/
 	frameTime = 120;
 	
 	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal,
