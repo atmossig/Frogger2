@@ -98,6 +98,8 @@ void GameProcessController(long pl)
 
 	button[pl] = controllerdata[pl].button;
 	lastbutton[pl] = controllerdata[pl].lastbutton;
+	if (button[pl] != lastbutton[pl])
+		runAttractMode = actFrameCount+attractTime;
 
 	player[pl].hasJumped = 0;
 	
