@@ -1053,8 +1053,8 @@ void UpdateSelection(void)
 				submenu = TOOLBAR_ENEMY;
 				if( count == 1 )
 					sprintf(statusMessage, 
-							"Enemy: %s: ID %i: Radius %.2f Value1: %.2f AnimSpeed: %.2f Depth: %d",
-							name, create->ID, create->radius, create->value1, create->animSpeed, create->PSX_shift );
+							"Enemy: %s: ID %i: Radius %.2f Value1: %.2f Scale: %.2f Depth: %d",
+							name, create->ID, create->radius, create->value1, create->scale, create->PSX_shift );
 				else
 					sprintf(statusMessage, "Selected %d enemies: %s", count, name );
 				break;
@@ -1062,8 +1062,8 @@ void UpdateSelection(void)
 				submenu = TOOLBAR_PLATFORM;
 				if( count == 1 )
 					sprintf(statusMessage, 
-							"Platform: %s: ID %i: AnimSpeed: %.2f Depth: %d",
-							name, create->ID, create->animSpeed, create->PSX_shift );
+							"Platform: %s: ID %i: AnimSpeed: %.2f Scale: %.2f Depth: %d",
+							name, create->ID, create->animSpeed, create->scale, create->PSX_shift );
 				else
 					sprintf(statusMessage, "Selected %d platforms: %s", count, name );
 				break;
