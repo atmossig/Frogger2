@@ -182,7 +182,8 @@ Matt Cloy:
 		This afternoon I processed the increasing number of things to do in my inbox, including some of the bugs that have been accumulating.
 
 		I cant think straight today, maybe I'm getting the brain rot cold bug that Chris, Kevin, and Alex have had. Hope not.
-		
+
+		Fixed the bug with the frogs head, bloody dotproduct returning 1.000000000000001... grrr.		
 
 Andy Eder:
 ------------------------------------------------
