@@ -3,7 +3,7 @@
 #include "sonylibs.h"
 #include "shell.h"
 #include "types.h"
-#include <islpsi.h>
+#include "islpsi.h"
 //#include <islpsi.h>
 #include <psitypes.h>
 

@@ -8,6 +8,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+//*** TIMER SET 0 - GAME LOOP ***/
 #define TIMER_SET_0
 #define TIMER_START0(x) 	 TIMER_START(x)
 #define TIMER_STOP0(x)  	 TIMER_STOP(x)
@@ -16,17 +17,28 @@
 // #define TIMER_STOP0(x)
 // #define TIMER_STOP_ADD0(x)
 
-// #define TIMER_SET_1
-// #define TIMER_START1(x)    TIMER_START(x)
-// #define TIMER_STOP1(x) 	   TIMER_STOP(x)
-// #define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
+//*** TIMER SET 0 - DrawActorList ***//
+//#define TIMER_SET_1
+//#define TIMER_START1(x)    TIMER_START(x)
+//#define TIMER_STOP1(x) 	   TIMER_STOP(x)
+//#define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
 #define TIMER_START1(x)
 #define TIMER_STOP1(x)
 #define TIMER_STOP_ADD1(x)
 
+//*** TIMER SET 2 - actorDraw ***/
+//#define TIMER_SET_2
+//#define TIMER_START2(x) 	 TIMER_START(x)
+//#define TIMER_STOP2(x)  	 TIMER_STOP(x)
+//#define TIMER_STOP_ADD2(x) TIMER_STOP_ADD(x)
+#define TIMER_START2(x)
+#define TIMER_STOP2(x)
+#define TIMER_STOP_ADD2(x)
 
 
 
+
+//*** TIMER SET 0 - GAME LOOP ***//
 #ifdef TIMER_SET_0
 enum {
 	TIMER_TOTAL,
@@ -62,17 +74,56 @@ enum {
 #endif //TIMER_SET_0
 
 
+//*** TIMER SET 1 - DrawActorList ***//
 #ifdef TIMER_SET_1
 enum {
 	TIMER_TOTAL,
+	TIMER_DIST,
+	TIMER_CLIP,
+	TIMER_UPANI,
+	TIMER_SETANI,
+	TIMER_DRAW,
 	TIMER_TIMERS,
 
 	TIMER_NUMTIMERS
 };
 
 #define TIMER_NAMES	   	"TOTAL", \
+						"DIST", \
+						"CLIP", \
+						"UPANI", \
+						"SETANI", \
+						"DRAW", \
 						"TIMERS"
 #endif //TIMER_SET_1
+
+
+//*** TIMER SET 2 - actorDraw ***//
+#ifdef TIMER_SET_2
+enum {
+	TIMER_TOTAL,
+	TIMER_ACTDR_QUAT,
+	TIMER_ACTDR_MTX,
+	TIMER_ACTDR_SEG,
+	TIMER_TIMERS,
+
+	TIMER_NUMTIMERS
+};
+
+#define TIMER_NAMES	   	"TOTAL", \
+						"QUAT", \
+						"MTX", \
+						"SEG", \
+						"TIMERS"
+#endif //TIMER_SET_1
+
+
+
+
+
+
+
+
 
 
 

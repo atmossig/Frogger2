@@ -26,7 +26,7 @@
 //#include <islpsi.h>
 #include "sonylibs.h"
 #include "shell.h"
-#include <islpsi.h>
+#include "islpsi.h"
 
 
 #include "Layout.h"
@@ -198,7 +198,8 @@ void InitCam(void)
 {
 	// Set up an ambient light
 	GsSetAmbient(128*16, 128*16, 128*16);
- 	GsSetLightMode(2);
+//bbopt - lighting test
+// 	GsSetLightMode(2);
 
 // 	psiInitialise();
 // 	psiInitLights();
@@ -269,6 +270,11 @@ TextureType *texture;
 extern int polyCount;
 //extern int countMakeUnit;
 //extern int countQuatToPSXMatrix;
+
+extern int rotatedObjects;
+extern int scaledObjects;
+extern int movedObjects;
+
 
 int main ( )
 {
@@ -377,7 +383,7 @@ int main ( )
 
 
 		actorInitialise();
-//		InitBackdrop ( "FROGGER2.RAW" );
+		InitBackdrop ( "FROGGER2.RAW" );
 
 		CommonInit();
 
@@ -397,99 +403,125 @@ int main ( )
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
-			DrawBackDrop();
-
-
 			polyCount = 0;
 			actorCount = 0;
 //			countMakeUnit = 0;
 //			countQuatToPSXMatrix = 0;
+
+			rotatedObjects = 0;
+			scaledObjects = 0;
+			movedObjects = 0;
+
+
+			
+			//see if this does anything we need.
+			//probabaly ok without it.
+			//bb just found it in the psi libs
+//			psiResetModelctrl();
+
+
+			DrawBackDrop();
+
 
 			//for timing optimised functions
 			//remember to stop really timing GameLoop
 /*			TIMER_START(TIMER_GAMELOOP);
 			{
 				int i;
-				int res1, res2, res3, res4;
+// 				int res1, res2, res3, res4;
 // 				SVECTOR sv1 = {10,10,10};
 // 				SVECTOR sv2 = {23456,23456,23456};
 // 				SVECTOR sv3 = {-10,-10,-10};
 // 				SVECTOR sv4 = {-12345,-12345,-12345};
-//  				VECTOR v1 = {10,10,10};
-//  				VECTOR v2 = {23456,23456,23456};
-//  				VECTOR v3 = {-10,-10,-10};
-//  				VECTOR v4 = {-12345,-12345,-12345};
- 				FVECTOR fv1 = {10<<12, 10<<12, 10<<12};
- 				FVECTOR fv2 = {23456<<12, 23456<<12, 23456<<12};
- 				FVECTOR fv3 = {-10<<12, -10<<12, -10<<12};
- 				FVECTOR fv4 = {-12345<<12, -12345<<12, -12345<<12};
+//  			VECTOR v1 = {10,10,10};
+//  			VECTOR v2 = {23456,23456,23456};
+//  			VECTOR v3 = {-10,-10,-10};
+//  			VECTOR v4 = {-12345,-12345,-12345};
+  				FVECTOR fv1 = {10<<12, 0, 23456<<12};
+  				FVECTOR fv2 = {23456<<12, 0, -12345<<12};
+  				FVECTOR fv3 = {-100<<12, 0, -12345<<12};
+  				FVECTOR fv4 = {23456<<12, 0, 23456<<12};
+//  				FVECTOR fv1 = {0, 0, 4096};
+//  				FVECTOR fv2 = {4096, 0, };
+//  				FVECTOR fv3 = {0, 0, -4096};
+//  				FVECTOR fv4 = {-4096, 0, 0};
+ 				FVECTOR tempUp = {0,4096,0};
+				MakeUnit(&fv1);
+				MakeUnit(&fv2);
+				MakeUnit(&fv3);
+				MakeUnit(&fv4);
+//			TIMER_START(TIMER_GAMELOOP);
 				for(i=0; i<1000; i++)
 				{
 // 					res1 = Magnitude2DF(&v1);
 // 					res2 = Magnitude2DF(&v2);
 // 					res3 = Magnitude2DF(&v3);
 // 					res4 = Magnitude2DF(&v4);
-					MakeUnit(&fv1);
-					MakeUnit(&fv2);
-					MakeUnit(&fv3);
-					MakeUnit(&fv4);
+// 					MakeUnit(&fv1);
+// 					MakeUnit(&fv2);
+// 					MakeUnit(&fv3);
+// 					MakeUnit(&fv4);
+					Orientate(&frog[0]->actor->qRot, &fv1, &tempUp );
+					Orientate(&frog[0]->actor->qRot, &fv2, &tempUp );
+					Orientate(&frog[0]->actor->qRot, &fv3, &tempUp );
+					Orientate(&frog[0]->actor->qRot, &fv4, &tempUp );
 				}
 			}
 			TIMER_STOP(TIMER_GAMELOOP);
 */
-			TIMER_START(TIMER_GAMELOOP);
+			TIMER_START0(TIMER_GAMELOOP);
 			GameLoop();
-			TIMER_STOP(TIMER_GAMELOOP);
+			TIMER_STOP0(TIMER_GAMELOOP);
 			
-			TIMER_START(TIMER_UPDATE_WATER);
+			TIMER_START0(TIMER_UPDATE_WATER);
 			UpdateWater();
-			TIMER_STOP(TIMER_UPDATE_WATER);
+			TIMER_STOP0(TIMER_UPDATE_WATER);
 
 	//		if(spriteList.numEntries)
 	//			AnimateSprites();
 			
 
-			TIMER_START(TIMER_DRAW_WORLD);
+			TIMER_START0(TIMER_DRAW_WORLD);
 			if(drawLandscape)
 				DrawWorld();
-			TIMER_STOP(TIMER_DRAW_WORLD);
+			TIMER_STOP0(TIMER_DRAW_WORLD);
 
-			TIMER_START(TIMER_DRAW_SPECFX);
+			TIMER_START0(TIMER_DRAW_SPECFX);
 			DrawSpecialFX();
-			TIMER_STOP(TIMER_DRAW_SPECFX);
+			TIMER_STOP0(TIMER_DRAW_SPECFX);
 
-			TIMER_START(TIMER_PRINT_SPRITES);
+			TIMER_START0(TIMER_PRINT_SPRITES);
 			PrintSprites();
-			TIMER_STOP(TIMER_PRINT_SPRITES);
+			TIMER_STOP0(TIMER_PRINT_SPRITES);
 
-			TIMER_START(TIMER_DRAW_SCENICS);
+			TIMER_START0(TIMER_DRAW_SCENICS);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawScenicObjList();
-			TIMER_STOP(TIMER_DRAW_SCENICS);
+			TIMER_STOP0(TIMER_DRAW_SCENICS);
 			
-			TIMER_START(TIMER_DRAW_WATER);
+			TIMER_START0(TIMER_DRAW_WATER);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawWaterList();
-			TIMER_STOP(TIMER_DRAW_WATER);
+			TIMER_STOP0(TIMER_DRAW_WATER);
 
-			TIMER_START(TIMER_ACTOR_DRAW);
+			TIMER_START0(TIMER_ACTOR_DRAW);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawActorList();
-			TIMER_STOP(TIMER_ACTOR_DRAW);
+			TIMER_STOP0(TIMER_ACTOR_DRAW);
 
 // 			if ( !( frameCount % 10 ) )
 // 				utilPrintf ( "Poly Count : %d\n", polyCount );
 			// ENDIF
 
-			TIMER_START(TIMER_PRINT_OVERS);
+			TIMER_START0(TIMER_PRINT_OVERS);
 			PrintSpriteOverlays(1);
 			PrintTextOverlays();
 			PrintSpriteOverlays(0);
-			TIMER_STOP(TIMER_PRINT_OVERS);
+			TIMER_STOP0(TIMER_PRINT_OVERS);
 
-			TIMER_START(TIMER_PROCTEX);
+			TIMER_START0(TIMER_PROCTEX);
 			ProcessProcTextures( );
-			TIMER_STOP(TIMER_PROCTEX);
+			TIMER_STOP0(TIMER_PROCTEX);
 
 
 			if ( padData.digital[1] & PAD_DOWN )
@@ -553,9 +585,10 @@ int main ( )
 				quitMainLoop = 1;
 
 
-			TIMER_START(TIMER_DRAWSYNC);
+			TIMER_START0(TIMER_DRAWSYNC);
 			DrawSync(0);
-			TIMER_STOP(TIMER_DRAWSYNC);
+			TIMER_STOP0(TIMER_DRAWSYNC);
+
 
 			TIMER_STOP(TIMER_TOTAL);
 			TIMER_ENDFRAME;
@@ -565,7 +598,6 @@ int main ( )
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
-
 
 			if(gameState.mode!=PAUSE_MODE)
 			{
@@ -578,12 +610,13 @@ int main ( )
  				actFrameCount += vsyncCounter;
  				vsyncCounter = 0;
 
-//				utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
-//				sprintf(tempText, "%d frames", gameSpeed>>12); 
-				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
-						gameSpeed>>12, actorCount, polyCount); 
-				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+ 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
+ 						gameSpeed>>12, actorCount, polyCount); 
+ 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 
+// 				sprintf(tempText, "% 4d rotated  % 4d scaled  % 4d moved",
+// 						rotatedObjects, scaledObjects, movedObjects); 
+// 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 			}
 
 		}//end main loop
