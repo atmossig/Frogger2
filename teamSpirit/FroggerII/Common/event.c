@@ -274,8 +274,13 @@ void UpdateEvents( )
 			trigger->func(trigger) )
 		{
 			/* If so, do correct responses */
-			for( event = trigger->events.head.next; event != &trigger->events.head; event = event->next )
-				event->func(event);
+
+			/* rising-edge triggers fire when the trigger is not previously fired */
+			if (!(trigger->flags & TRIGGER_RISING) || !(trigger->flags & TRIGGER_FIRED))
+			{
+				for( event = trigger->events.head.next; event != &trigger->events.head; event = event->next )
+					event->func(event);
+			}
 
 			trigger->flags |= TRIGGER_FIRED; // Flag for other triggers to check if needed
 

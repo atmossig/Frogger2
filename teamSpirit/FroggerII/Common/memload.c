@@ -9,6 +9,10 @@
 enum MEMLOAD_EVENTS
 {
 	EV_DEBUG = 0,
+	EV_CHANGEACTORSCALE,
+	EV_TOGGLEPLATFORMMOVE,
+	EV_TOGGLEENEMYMOVE,
+	EV_TOGGLETILELINK,
 	MEMLOAD_NUMEVENTS
 };
 
@@ -16,9 +20,8 @@ enum MEMLOAD_TRIGGERS
 {
 	TR_ENEMYONTILE = 0,
 	TR_FROGONTILE,
-//	TR_FROGONPLATFORM,
-//	TR_WITHINRADIUS,
-//	TR_TIMEOUT,
+	TR_FROGONPLATFORM,
+	TR_WITHINRADIUS,
 	MEMLOAD_NUMTRIGGERS
 };
 
@@ -128,11 +131,13 @@ int MemLoadEntities(const void* data, long size)
 		{
 		case 0:
 			enemy = CreateAndAddEnemy(type);
+			enemy->uid = ID;
 			AssignPathToEnemy(enemy, flags, path, 0);
 			break;
 
 		case 1:
 			platform = CreateAndAddPlatform(type);
+			platform->uid = ID;
 			AssignPathToPlatform(platform, flags, path, 0);
 			break;
 		}
@@ -205,6 +210,67 @@ GAMETILE *GetTileFromNumber(int number)
 	return tile;
 }
 
+ACTOR2 *GetUniqueActor2(int UID)
+{
+	ENEMY *e;
+	PLATFORM *p;
+
+	e = GetEnemyFromUID(UID);
+	if (e)
+		return e->nmeActor;
+	
+	p = GetPlatformFromUID(UID);
+	if (p)
+		return p->pltActor;
+
+	return NULL;
+}
+
+EVENT* MemLoadEvent(UBYTE** p, int type)
+{
+	EVENT* event;
+	VECTOR *v;
+	float f;
+	void **params;
+
+	switch (type)
+	{
+	case EV_DEBUG: // string
+		params = AllocArgs(1);
+		params[0] = MemLoadString(p);
+		event =	MakeEvent(DebugEvent, 1, params);
+		break;
+
+	case EV_CHANGEACTORSCALE: // ID, float
+		params = AllocArgs(2);
+		params[0] = (void*)GetUniqueActor2(MEMGETINT(p))->actor;
+		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
+		v->v[X] = v->v[Y] = v->v[Z] = MEMGETFLOAT(p);
+		params[1] = (void*)v;
+		event =	MakeEvent(ChangeActorScale, 2, params);
+		break;
+
+	case EV_TOGGLEPLATFORMMOVE:
+		params = AllocArgs(1);
+		params[0] = (void*)GetPlatformFromUID(MEMGETINT(p));
+		event = MakeEvent(TogglePlatformMove, 1, params);
+		break;
+
+	case EV_TOGGLEENEMYMOVE:
+		params = AllocArgs(1);
+		params[0] = (void*)GetEnemyFromUID(MEMGETINT(p));
+		event = MakeEvent(ToggleEnemyMove, 1, params);
+		break;
+
+	case EV_TOGGLETILELINK:
+		params = AllocArgs(1);
+		params[0] = (void*)GetTileFromNumber(MEMGETINT(p));
+		event = MakeEvent(ToggleTileLink, 1, params);
+		break;
+	}
+
+	return event;
+}
 
 int MemLoadTrigger(UBYTE** p, long size)
 {
@@ -212,6 +278,7 @@ int MemLoadTrigger(UBYTE** p, long size)
 	TRIGGER* trigger;
 	EVENT* event;
 	int events;
+	VECTOR *v;
 
 	void **params;
 
@@ -228,14 +295,10 @@ int MemLoadTrigger(UBYTE** p, long size)
 	switch (type)
 	{
 	case TR_ENEMYONTILE:
-/*		params = AllocArgs(2);
-		params[0] = (void*)GetEnemyFromID(MEMGETINT(p));
+		params = AllocArgs(2);
+		params[0] = (void*)GetEnemyFromUID(MEMGETINT(p));
 		params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
 		trigger = MakeTrigger(EnemyOnTile, 2, params);
-*/		
-		MEMGETINT(p);
-		MEMGETINT(p);
-		trigger = NULL;
 		break;
 
 	case TR_FROGONTILE:
@@ -243,6 +306,25 @@ int MemLoadTrigger(UBYTE** p, long size)
 		params[0] = (void*)JallocAlloc(sizeof(int), NO, "int");	*(int*)params[0] = MEMGETINT(p);
 		params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
 		trigger = MakeTrigger(FrogOnTile, 2, params);
+		break;
+
+	case TR_FROGONPLATFORM:
+		params = AllocArgs(2);
+		params[0] = frog[MEMGETINT(p)];
+		params[1] = (void*)GetPlatformFromUID(MEMGETINT(p));
+		trigger = MakeTrigger(FrogOnPlatform, 2, params);
+		break;
+
+	case TR_WITHINRADIUS:
+		params = AllocArgs(3);
+		params[0] = GetUniqueActor2(MEMGETINT(p))->actor;
+		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
+		v->v[X] = MEMGETINT(p);
+		v->v[Y] = MEMGETINT(p);
+		v->v[Z] = MEMGETINT(p);
+		params[1] = (void*)v;
+		params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
+		trigger = MakeTrigger(ActorWithinRadius, 3, params);
 		break;
 	}
 
@@ -259,17 +341,9 @@ int MemLoadTrigger(UBYTE** p, long size)
 			(*p) += psize;
 			continue;
 		}
-
-		switch (type)
-		{
-		case EV_DEBUG:
-			params = AllocArgs(1);
-			params[0] = MemLoadString(p);
-			event =	MakeEvent(DebugEvent, 1, params);
-			break;
-		}
-
-		AttachEvent(trigger, event, TRIGGER_ALWAYS, 0);
+		
+		event = MemLoadEvent(p, type);
+		AttachEvent(trigger, event, TRIGGER_RISING, 0);
 	}
 
 	return 1;

@@ -18,7 +18,7 @@
 #define TRIGGER_DELAY		(1<<1)
 #define TRIGGER_ALWAYS		(1<<2)
 #define TRIGGER_FIRED		(1<<3)
-
+#define TRIGGER_RISING		(1<<4)
 
 /*----- [ STRUCTURES ] -------------------------------------------------------------------------*/
 
