@@ -110,6 +110,7 @@
 #endif
 
 #include "sndview.h"
+#include "water.h"
 
 #ifndef PC_VERSION
 #include "sfx.h"

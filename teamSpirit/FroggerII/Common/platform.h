@@ -13,7 +13,6 @@
 #define PLATFORM_H_INCLUDED
 
 #define NODE_RANGETHRESHOLD				10.0F
-#define PLATFORM_GENEROSITY				65.0F
 
 //----- [ PLATFORM FLAGS ] ---------------------------------------------------------------------//
 
@@ -36,8 +35,9 @@
 #define PLATFORM_NEW_NOWALKUNDER		(1 << 15)	// platform cannot be walked under
 #define PLATFORM_NEW_KILLSFROG			(1 << 16)	// platform kills when it moves over frog
 #define PLATFORM_NEW_FACEFORWARDS		(1 << 17)	// face same direction
+#define PLATFORM_NEW_SLERPPATH			(1 << 18)	// platform slerps along path
 
-#define PLATFORM_NEW_SHAKABLESCENIC		(1 << 18)	// platform is actually a shakable scenic
+#define PLATFORM_NEW_SHAKABLESCENIC		(1 << 19)	// platform is actually a shakable scenic
 
 
 typedef struct TAGPLATFORM
@@ -68,9 +68,11 @@ typedef struct TAGPLATFORM
 	short					regenTime;				// platforms regeneration time
 	short					regen;					// platforms current regeneration counter
 
-	GAMETILE				*inTile;				// tile platform is currently 'in'
+	GAMETILE				*inTile[2];				// tile(s) platform is(are) currently 'in'
 	PATH					*path;					// ptr to platform path data
 	ACTOR2					*carrying;				// current actor platform is carrying
+
+	void					(*Update)();			// ptr to platform update function
 
 } PLATFORM;
 
@@ -91,30 +93,33 @@ extern PLATFORM *currPlatform[4];		// platform that frog is currently on
 
 extern float waitScale;
 
-extern void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
+void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
 
-extern void InitPlatformLinkedList();
-extern void FreePlatformLinkedList();
-extern void AddPlatform(PLATFORM *plat);
-extern void SubPlatform(PLATFORM *plat);
+void InitPlatformLinkedList();
+void FreePlatformLinkedList();
+void AddPlatform(PLATFORM *plat);
+void SubPlatform(PLATFORM *plat);
 
-extern void UpdatePlatforms();
-extern void RecalculatePlatform(PLATFORM *);
-extern void GetNextLocalPlatform(unsigned long direction);
-extern PLATFORM *GetPlatformForTile(GAMETILE *tile);
+void UpdatePlatforms();
+void RecalculatePlatform(PLATFORM *);
+void GetNextLocalPlatform(unsigned long direction);
+PLATFORM *GetPlatformForTile(GAMETILE *tile);
 
-extern BOOL PlatformTooHigh(PLATFORM *plat,long pl);
-extern BOOL PlatformTooLow(PLATFORM *plat,long pl);
+BOOL PlatformTooHigh(PLATFORM *plat,long pl);
+BOOL PlatformTooLow(PLATFORM *plat,long pl);
 
 PLATFORM *GetPlatformFrogIsOn(long pl);
-extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
+PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 
-extern void FrogLeavePlatform(long pl);
+void FrogLeavePlatform(long pl);
+
+void RotateWaitingPlatform(PLATFORM *cur);
 
 //------------------------------------------------------------------------------------------------
 
-PLATFORM *CreateAndAddPlatform(char *pActorName);
-void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags);
+PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path);
+void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags);
+
 BOOL PlatformHasArrivedAtNode(PLATFORM *pform);
 BOOL PlatformReachedTopOrBottomPoint(PLATFORM *pform);
 void UpdatePlatformPathNodes(PLATFORM *pform);

@@ -117,7 +117,7 @@ void RunTitleScreen()
 				case 0:
 					// start game
 					FreeAllLists();
-					InitLevel(WORLDID_GARDEN,LEVELID_GARDENLEV1);
+					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 					gameState.mode = INGAME_MODE;
 					frameCount = 0;
 					lastbutton = 0;

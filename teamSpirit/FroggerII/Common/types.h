@@ -199,14 +199,6 @@ typedef struct
 
 typedef struct
 {
-/*	VECTOR	offset;
-	VECTOR	oldOffset;
-	float	radius;
-	float	radiusAim;
-	UBYTE	posTag;
-	UBYTE	quatTag;
-	short	flags;
-*/
 	VECTOR	offset;
 	float	radius;
 	float	radiusAim;
@@ -230,30 +222,9 @@ typedef struct
 	BYTEVECTOR		*vertexNormals;
 	char		 	*faceFlags;
 	TEXTURE			**textureIDs;
-/*
 
-	short			numFaces;
-	short			numVertices;
-	VECTOR			*vertices;
-	SHORTVECTOR		*faceIndex;
-	BYTEVECTOR		*faceNormals;
-	SHORT2DVECTOR	*faceTC;
-	SHORT2DVECTOR	*originalFaceTC;
-	BYTEVECTOR		*vertexNormals;
-	char		 	*faceFlags;
-	TEXTURE			**textureIDs;*/
 }MESH;
 
-
-/*typedef struct
-{
-	union
-	{
-		QUATERNION	quat;
-		VECTOR	vect;
-	}u;
-	int	time;
-}KEYFRAME;*/
 
 typedef struct
 {
@@ -308,20 +279,7 @@ typedef struct
 	char		currentMorphFrame;
 	float		morphTo;
 	float		morphFrom;
-/*
 
-
-	short		numAnimations;
-	short		currentAnimation;
-	BOOL		reachedEndOfAnimation;
-	BOOL		loopAnimation;
-	float		animationSpeed;
-	short		queueAnimation[ANIM_QUEUE_LENGTH];
-	BOOL		queueLoopAnimation[ANIM_QUEUE_LENGTH];
-	float		queueAnimationSpeed[ANIM_QUEUE_LENGTH];
-	short 		numberQueued;
-	animation	*anims;
-	float		animTime;//, animTimeDelta;*/
 }ACTOR_ANIMATION;
 
 typedef struct
@@ -330,6 +288,7 @@ typedef struct
 	short	numFrames;
 	short	overrideNumFrames;
 	char	filename[16];
+
 }FRAMELIST;
 
 typedef struct
@@ -343,6 +302,7 @@ typedef struct
 	USHORT		endScale;
 	USHORT		spriteFlags;
 	short		pad;
+
 }SPRITE_ANIMATION_TEMPLATE;
 
 typedef struct
@@ -359,21 +319,7 @@ typedef struct
 	USHORT		currentFrame;
 	float		counter;
 	float		lifetime;
-//	USHORT		pad;
-/*
 
-	FRAMELIST	*frameList;
-	UBYTE		delay;
-	UBYTE		type;
-	UBYTE		startAlpha;
-	UBYTE		endAlpha;
-	USHORT		startScale;
-	USHORT		endScale;
-	USHORT		spriteFlags;
-	USHORT		lifespan;
-	USHORT		lifetime;
-	UBYTE		currentFrame;
-	BYTE		counter;*/
 }SPRITE_ANIMATION;
 
 typedef struct TAGSPRITE
@@ -393,22 +339,6 @@ typedef struct TAGSPRITE
 
 	char kill;
 
-
-/*	struct TAGSPRITE *next,*prev;
-
-	TEXTURE *texture;
-	VECTOR pos;
-	short scaleX;
-	short scaleY;
-	UBYTE sameAsLast;
-	UBYTE r,g,b,a;
-
-	char kill;
-
-	UBYTE flags;
-	BYTE  offsetX;
-	BYTE  offsetY;
-	SPRITE_ANIMATION anim;*/
 }SPRITE;
 
 typedef struct OBJECTSPRITE
@@ -421,6 +351,7 @@ typedef struct OBJECTSPRITE
 	short		ox;	//offset from centre
 	short		oy;	//offset from centre
 	short		flags;
+
 }OBJECTSPRITE;
 
 
@@ -431,6 +362,7 @@ typedef struct
 	UBYTE		flags;
 	UBYTE		currentFrame;
 	BYTE		counter;
+
 }TEXTURE_ANIMATION;
 
 typedef struct
@@ -438,12 +370,14 @@ typedef struct
 	s16		*verts;
 //	Vtx		**verts;
 	char	numVerts;
+
 }SKINVTX;
 
 typedef struct
 {
 	float	v[3];
 	s8		n[3];
+
 }DUELVECTOR; 
 
 
@@ -490,37 +424,9 @@ typedef struct OBJECT
 #ifndef PC_VERSION
 	Mtx			objMatrix;
 #else
-	MATRIX			objMatrix;
+	MATRIX		objMatrix;
 #endif
 
-
-/*	int			objID;
-	char		name[8];
-	u8			active;
-	u8			xlu;
-	short		numScaleKeys;
-	short		numMoveKeys;
-	short		numRotateKeys;
-
-	MESH		*mesh;
-	Gfx			*drawList;
-//vitals
-
-//animation
-	KEYFRAME	*scaleKeys;
-	KEYFRAME	*moveKeys;
-	KEYFRAME	*rotateKeys;
-
-	int			numSprites;
-	OBJECTSPRITE	*sprites;
-
-//family
-	short		numChildren;
-	short		flags;
-	struct		OBJECT	*children;
-	struct		OBJECT	*next;
-	COLLSPHERE	*collSphere;
-	Mtx			myMatrix;*/
 }OBJECT;
 
 typedef struct
@@ -539,14 +445,6 @@ typedef struct
 	short	vtxBuf;
 	short	numVtx;
 
-	/*int		objectID;
-
-	Mtx		*matrix;
-	int		objectSize;
-	OBJECT	*object;
-	float	radius;
-	PLANE	*planes;
-	ACTOR_ANIMATION	*animation;*/
 }OBJECT_CONTROLLER;
 
 

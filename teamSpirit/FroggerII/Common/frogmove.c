@@ -258,7 +258,7 @@ void UpdateFroggerPos(long pl)
 	if (currPlatform[pl])
 	{
 		PLATFORM *plat = currPlatform[pl];
-		GAMETILE *dest = plat->inTile;
+		GAMETILE *dest = plat->inTile[0];
 
 		if (dest != currTile[pl])
 		{
@@ -625,10 +625,11 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// see if frog is currently on a moving platform (i.e. platform that follows a path)
 	if(currPlatform[pl] = GetPlatformFrogIsOn(pl))
 	{
-		currTile[pl] = currPlatform[pl]->inTile;
+		// frog is on a platform - get current tile
+		currTile[pl] = currPlatform[pl]->inTile[0];
 		currPlatform[pl]->carrying = frog[pl];
 
-		// check if frog is on a platform that follows a path
+		// check if the platform follows a path
 		if(currPlatform[pl]->flags & PLATFORM_NEW_FOLLOWPATH)
 			player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 	}
@@ -713,7 +714,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		// check if platform is too high to reach
 		if(PlatformTooHigh(destPlatform[pl],pl))
 		{
-			// platform too high
+			// platform too high (too many joints ?)
 			dprintf"Platform TOO HIGH\n"));
 
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
@@ -791,9 +792,14 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	destTile[pl] = dest;
 
 	if (currPlatform[pl])
-		from = currPlatform[pl]->inTile;
+	{
+		from = currPlatform[pl]->inTile[0];
+		currPlatform[pl] = NULL;
+	}
 	else
+	{
 		from = currTile[pl];
+	}
 
 	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
@@ -831,7 +837,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	{
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
 			t,pl,t2,NOINIT_VELOCITY);
 	}
 
@@ -988,7 +994,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
 						&frog[pl]->actor->pos, &tile->normal,
-						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
 						conveyorFrames[speed], pl, 0.0, NOINIT_VELOCITY);
 				else
 					CalculateFrogJump(
@@ -1006,7 +1012,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
 						&frog[pl]->actor->pos, &tile->normal,
-						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
 						iceFrames, pl, 0.0, NOINIT_VELOCITY);
 				else
 					CalculateFrogJump(
@@ -1276,7 +1282,7 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 			t = superHopFrames;
 			
 			if(destPlatform[pl])
-				CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destPlatform[pl]->pltActor->actor->pos,&destPlatform[pl]->inTile->normal,t,pl,superGravity,NOINIT_VELOCITY);
+				CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destPlatform[pl]->pltActor->actor->pos,&destPlatform[pl]->inTile[0]->normal,t,pl,superGravity,NOINIT_VELOCITY);
 			else
 				CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl,superGravity,NOINIT_VELOCITY);
 
@@ -1350,7 +1356,7 @@ void GetNextTileLongHop(unsigned long direction,long pl)
 		t = longHopFrames;
 
 		if(longHopPlat)
-			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&longHopPlat->pltActor->actor->pos,&longHopPlat->inTile->normal,t,pl,superGravity,NOINIT_VELOCITY);
+			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&longHopPlat->pltActor->actor->pos,&longHopPlat->inTile[0]->normal,t,pl,superGravity,NOINIT_VELOCITY);
 		else
 			CalculateFrogJump(&frog[pl]->actor->pos,&currTile[pl]->normal,&destTile[pl]->centre,&destTile[pl]->normal,t,pl,superGravity,NOINIT_VELOCITY);
 
@@ -1472,7 +1478,7 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile->normal,
+			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
 			standardHopFrames, pl, 0.0, NOINIT_VELOCITY);
 	else
 		CalculateFrogJump(
