@@ -286,6 +286,7 @@ void LoadObjectBank ( int objectBank )
 
 		case FRONTEND4_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\TITLE\\TRAINING.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\TITLE\\TRAIN.PIL" );
 			break;
 
 		default:

@@ -2772,6 +2772,12 @@ void psiDrawSegments(PSIDATA *psiData)
 				//modctrl->depthShift = 0;
 			}*/
 
+		
+			// JH: Don't bother with this object if it's to close to the camera.
+			if ( (depth >> modctrl->depthShift) < 10 )
+			 continue;
+
+
 #ifdef DCACHE_OPTIMISATION
 			dcacheCustomDrawPrimitives2 ( depth >> modctrl->depthShift, tfvbase, tfdbase );
 #else

@@ -1159,7 +1159,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	}
 
 	newActor = actorCreate ( newModel, 1, 0 );
-	oldModel = actor->psiData;
+	//oldModel = actor->psiData;
 
 	actor->psiData = newActor->psiData;
 
