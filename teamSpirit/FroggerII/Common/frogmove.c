@@ -857,8 +857,6 @@ void CheckForFroggerLanding(long pl)
 
 	// Frog has landed - set camera to new rotation, face frog correctly, blahblahblah
 
-	frogFacing[pl] = nextFrogFacing[pl];
-	
 	//if (pl == 0)
 	//	camFacing = nextCamFacing;
 
@@ -936,6 +934,7 @@ void CheckForFroggerLanding(long pl)
 									FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING);
 
 		currPlatform[pl] = destPlatform[pl];
+		currTile[pl] = tile;
 		destPlatform[pl] = NULL;
 
 		if(player[pl].heightJumped < -125.0F)
