@@ -47,7 +47,7 @@ void InitTrainingMode()
 		babyIcons[i]->draw = 1;
 	}
 
-	train->bg = CreateAndAddSpriteOverlay(0, 4096, NULL, 4096, 900, 254, SPRITE_SUBTRACTIVE);
+	train->bg = CreateAndAddSpriteOverlay(0, 4096, "SHEEN", 4096, 900, 180, 0);
 	train->bg->speed = 75<<12;
 	train->bg->r = train->bg->g = train->bg->b = 128;
 
