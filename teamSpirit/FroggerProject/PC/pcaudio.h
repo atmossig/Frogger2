@@ -121,6 +121,7 @@ typedef struct _SOUNDLIST
 typedef struct _BUFSAMPLE
 {
 	struct _BUFSAMPLE *next, *prev;
+	unsigned long			uid;
 	LPDIRECTSOUNDBUFFER lpdsBuffer;
 
 } BUFSAMPLE;

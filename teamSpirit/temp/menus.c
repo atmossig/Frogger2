@@ -170,6 +170,7 @@ char *titleHudName[4] =
 	"BUT_UP","BUT_DOWN","BUT_LEFT","BUT_RIGH",
 };
 SPRITEOVERLAY *titleHud[4];
+TEXTOVERLAY *titleHudText[4];
 
 int pauseFrameCount;
 /*	--------------------------------------------------------------------------------
@@ -862,6 +863,9 @@ void RunFrontendGameLoop (void)
 		for(i = 0;i < 4;i++)
 		{
 			titleHud[i] = CreateAndAddSpriteOverlay(titleHudX[0][i],titleHudY[0][i],titleHudName[i],300,300,0,0);
+			titleHudText[i] = CreateAndAddTextOverlay(0,0,NULL,(i < 2),255,fontSmall,TEXTOVERLAY_SHADOW);
+			titleHudText[i]->b = 0;
+			titleHudText[i]->draw = 0;
 //			titleHud[i]->xPosTo = titleHudX[1][i];
 //			titleHud[i]->yPosTo = titleHudY[1][i];
 //			if(i < 2)
@@ -1245,26 +1249,51 @@ void RunFrontendGameLoop (void)
 	}
 
 	maxHud = 4;
+
+
 	if(player[0].canJump)
 	{
 		switch(currTileNum)
 		{
 			case TILENUM_START:
 				hudNum = 0;
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 1;
+				titleHudText[3]->draw = 1;
+				titleHudText[2]->text = GAMESTRING(STR_OPTIONS);
+				titleHudText[3]->text = GAMESTRING(STR_START_GAME);
 				break;
 
 			case TILENUM_OPTIONS:
 				if(options.mode == OP_GLOBALMENU)
 				{
+					titleHudText[0]->draw = 0;
+					titleHudText[1]->draw = 1;
+					titleHudText[1]->text = GAMESTRING(STR_START_GAME);
 					if(options.selection == 0)
+					{
 						hudNum = 1;
+						titleHudText[2]->draw = 1;
+						titleHudText[3]->draw = 0;
+						titleHudText[2]->text = GAMESTRING(STR_OPTIONS_2);
+					}
 					else
+					{
 						hudNum = 6;
+						titleHudText[2]->draw = 0;
+						titleHudText[3]->draw = 1;
+						titleHudText[3]->text = GAMESTRING(STR_OPTIONS_1);
+					}
 					titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
 					titleHud[0]->xPos = titleHud[0]->xPosTo = titleHud[1]->xPos = titleHud[1]->xPosTo = titleHudX[0][0];
 				}
 				else if(options.mode == OP_SOUND)
 				{
+					titleHudText[0]->draw = 0;
+					titleHudText[1]->draw = 0;
+					titleHudText[2]->draw = 0;
+					titleHudText[3]->draw = 0;
 					hudNum = 5;
 					titleHud[0]->a = titleHud[1]->a = titleHud[2]->a = titleHud[3]->a = 255;
 				}
@@ -1274,6 +1303,14 @@ void RunFrontendGameLoop (void)
 
 			case TILENUM_CHOICE:
 				//close off multiplayer and arcade machine if training not completed
+				titleHudText[0]->draw = 1;
+				titleHudText[1]->draw = 1;
+				titleHudText[2]->draw = 1;
+				titleHudText[3]->draw = 1;
+				titleHudText[0]->text = GAMESTRING(STR_STORYMODE);
+				titleHudText[1]->text = GAMESTRING(STR_OPTIONS);
+				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
+				titleHudText[3]->text = GAMESTRING(STR_ARCADEMODE);
 				titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
 #ifdef FINAL_MASTER
 				if(doneTraining == 0)
@@ -1289,10 +1326,18 @@ void RunFrontendGameLoop (void)
 
 			case TILENUM_BOOK:
 				hudNum = 3;
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				break;
 
 
 			case TILENUM_MULTI:
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				if((options.mode == OP_MULTIPLAYERNUMBER) && (maxPlayers <= 2))
 					hudNum = -1;
 				else
@@ -1300,6 +1345,10 @@ void RunFrontendGameLoop (void)
 				break;
 
 			case TILENUM_ARCADE:
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				if(options.mode == OP_ARCADE)
 					hudNum = 4;
 				else
@@ -1307,12 +1356,33 @@ void RunFrontendGameLoop (void)
 				break;
 
 			default:
+				titleHudText[0]->draw = 0;
+				titleHudText[1]->draw = 0;
+				titleHudText[2]->draw = 0;
+				titleHudText[3]->draw = 0;
 				hudNum = -1;
 				break;
 		}
 	}
 	else
 		hudNum = -1;
+
+
+	titleHudText[0]->xPos = 2048;
+	titleHudText[1]->xPos = 2048;
+
+	titleHudText[2]->xPos = titleHudX[0][2] + 100;
+	titleHudText[2]->yPos = titleHud[2]->yPos + 300;
+	titleHudText[3]->yPos = titleHud[3]->yPos + 300;
+#ifdef PSX_VERSION
+	titleHudText[0]->yPos = titleHudY[0][0] + 520;
+	titleHudText[1]->yPos = titleHudY[0][1] - 520;
+	titleHudText[3]->xPos = titleHudX[0][3] + 100 - fontExtentWScaled(fontSmall,titleHudText[3]->text,4096)*8;
+#elif PC_VERSION
+	titleHudText[0]->yPos = titleHudY[0][0] + 400;
+	titleHudText[1]->yPos = titleHudY[0][1] - 400;
+	titleHudText[3]->xPos = titleHudX[0][3] + 100 - CalcStringWidth(titleHudText[3]->text,(MDX_FONT *)fontSmall,1)/OVERLAY_X;
+#endif
 
 	if(hudNum == 5)
 	{
@@ -1345,12 +1415,23 @@ void RunFrontendGameLoop (void)
 	if(hudNum == -1)
 	{
 		for(i = 0;i < 4;i++)
+		{
 			DEC_ALPHA(titleHud[i]);
+			DEC_ALPHA(titleHudText[i]);
+		}
 	}
 	else
 	{
 		for(i = 0;i < 4;i++)
 		{
+			if(titleHudText[i]->draw)
+			{
+				INC_ALPHA(titleHudText[i],255);
+			}
+			else
+			{
+				DEC_ALPHA(titleHudText[i]);
+			}
 			if(titleHudOn[hudNum][i] == 0)
 			{
 				DEC_ALPHA(titleHud[i]);
@@ -1419,7 +1500,7 @@ void RunFrontendGameLoop (void)
 		DEC_ALPHA(options.parText[1]);
 		DEC_ALPHA(options.parText[2]);
 		
-		if((currTileNum != TILENUM_BOOK) && ((currTileNum != TILENUM_OPTIONS) || (creditsRunning) || (player[0].canJump == 0)))
+		if(((currTileNum != TILENUM_BOOK) || (player[0].canJump == 0)) && ((currTileNum != TILENUM_OPTIONS) || (creditsRunning) || (player[0].canJump == 0)))
 			DEC_ALPHA(options.selectText);
 		DEC_ALPHA(options.worldText);
 		DEC_ALPHA(options.worldBak);

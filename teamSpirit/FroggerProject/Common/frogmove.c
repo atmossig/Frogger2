@@ -1793,6 +1793,7 @@ BOOL KillFrog(long pl)
 		player[pl].frogState &= ~FROGSTATUS_ISDEAD;
 
 		SetFroggerStartPos(gTStart[0],pl);
+		GTInit(&player[0].safe,2);
 		InitCamera();
 
 		PlayVoice( pl, "frogletsgo" );

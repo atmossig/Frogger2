@@ -358,6 +358,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 	AddBufSample( bufSample );
 	lpdsBuffer = bufSample->lpdsBuffer;
+	bufSample->uid = sample->uid;
 
 	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
 	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, (pitch==-1)?(DSBFREQUENCY_ORIGINAL):(pitch*PITCH_STEP) );
@@ -382,8 +383,25 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 int StopSample( SAMPLE *sample )
 {
 	unsigned long bufStatus;
+	BUFSAMPLE *cur,*next;
+	unsigned long stat;
 
 	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
+
+
+	for(cur = bufferList.head.next;cur != &bufferList.head;cur = next)
+	{
+		next = cur->next;
+
+		if(cur->uid == sample->uid)
+		{
+			cur->lpdsBuffer->lpVtbl->GetStatus( cur->lpdsBuffer, &stat );
+			if( stat & DSBSTATUS_PLAYING )
+				cur->lpdsBuffer->lpVtbl->Stop( cur->lpdsBuffer );
+
+			RemoveBufSample(cur);
+		}
+	}
 
 	if( bufStatus & DSBSTATUS_PLAYING )
 	{
