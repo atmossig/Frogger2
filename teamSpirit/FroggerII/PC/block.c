@@ -286,9 +286,14 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (!runHardware)
 		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
+#ifndef USE_MENUS
 	FreeAllLists();
 	InitLevel(WORLDID_LANGUAGE,LEVELID_FRONTEND1);
-    
+#else
+	gameState.mode = MENU_MODE;
+	gameState.menuMode = TITLE_MODE;
+#endif
+
     while(ok)
 	{
 		StartTimer(10,"Msg");
