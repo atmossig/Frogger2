@@ -1134,7 +1134,10 @@ void WritePSXTileData(FILE *f)
 	int i, tile;
 
 	WRITEINT(nSquare);
-	WRITEINDEX(frogs[0]);
+
+	for (i=0; i<4; i++)
+		WRITEINT(frogs[i]);
+
 	WRITEINT(numBabys);
 
 	for (i=0; i<numBabys; i++)
@@ -1143,12 +1146,9 @@ void WritePSXTileData(FILE *f)
 	for (tile = 0; tile<nSquare; tile++)
 	{
 		for (i=0; i<4; i++)
-			WRITEINDEX(squareList[tile].adj[i]);
+			WRITEINT(squareList[tile].adj[i]);
 
-		if (tile == nSquare-1)
-			WRITEINDEX(-1);
-		else
-			WRITEINDEX(tile+1);
+		WRITEINT(tile+1);	// next
 
 		WRITEINT(squareList[tile].status);
 		
@@ -1176,23 +1176,23 @@ void WritePSXCameraBoxes(FILE *f)
 	camera_box *box;
 	cam_plane *p;
 
-	WRITESHORT(num_cam_planes);
+	WRITEINT(num_cam_planes);
 
 	for (i = 0, p = camera_planes; i < num_cam_planes; i++, p++)
 	{
 		WRITEFIXED(p->normal.x);
 		WRITEFIXED(p->normal.y);
 		WRITEFIXED(p->normal.z);
-		WRITEINT(p->k);
+		WRITEFIXED(p->k);
 		WRITEINT(p->status);
 	}
 
-	WRITESHORT(num_cam_boxes);
+	WRITEINT(num_cam_boxes);
 	
 	for (i = 0, box = camera_boxes; i < num_cam_boxes; i++, box++)
 	{
-		WRITESHORT(box->num_planes);
-		WRITESHORT(box->firstplane);
+		WRITEINT(box->num_planes);
+		WRITEINT(box->firstplane);
 	}
 }
 
