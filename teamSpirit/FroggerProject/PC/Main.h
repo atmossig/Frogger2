@@ -6,6 +6,7 @@
 #include <windows.h>
 #include "fixed.h"
 #include "sonylibs.h"
+#include "islfont.h"
 #include <malloc.h>
 
 #ifdef __cplusplus
@@ -51,7 +52,7 @@ extern unsigned long actFrameCount, lastActFrameCount;
 extern char UseAAMode;
 extern char UseZMode;
 
-
+extern psFont* font;	// todo: put this somewhere sensible for heaven's sake
 
 extern long winMode;
 extern WININFO winInfo;

@@ -754,8 +754,8 @@ void FreePlatformList(void)
 void EdCalcViewMatrix(void)
 {
 	guLookAtF (vMatrix.matrix,
-		currCamTarget[0].vx*CAMVECTSCALE, currCamTarget[0].vy*CAMVECTSCALE, currCamTarget[0].vz*CAMVECTSCALE,
-		currCamSource[0].vx*CAMVECTSCALE, currCamSource[0].vy*CAMVECTSCALE, currCamSource[0].vz*CAMVECTSCALE,
+		currCamTarget.vx*CAMVECTSCALE, currCamTarget.vy*CAMVECTSCALE, currCamTarget.vz*CAMVECTSCALE,
+		currCamSource.vx*CAMVECTSCALE, currCamSource.vy*CAMVECTSCALE, currCamSource.vz*CAMVECTSCALE,
 		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE);
 }
 

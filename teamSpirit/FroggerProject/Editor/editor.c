@@ -525,7 +525,7 @@ void EditorMouseMove(int x, int y)
 
 				RotateVector2DXYZ(&v, &v, editCameraRot.vx, X);
 				RotateVector2DXYZ(&v, &v, editCameraRot.vy, Y);
-				AddToVector(&currCamSource[0], &v);
+				AddToVector(&currCamSource, &v);
 				EditorUpdateCamera();
 			}
 			else 
@@ -545,7 +545,7 @@ void EditorMouseMove(int x, int y)
 
 			RotateVector2DXYZ(&v, &v, editCameraRot.vx, X);
 			RotateVector2DXYZ(&v, &v, editCameraRot.vy, Y);
-			AddToVector(&currCamSource[0], &v);
+			AddToVector(&currCamSource, &v);
 			EditorUpdateCamera();
 		}
 	}
@@ -589,7 +589,7 @@ void EditorMoveCamera()
 		RotateVector2DXYZ(&v, &v, editCameraRot.vx, X);
 		RotateVector2DXYZ(&v, &v, editCameraRot.vy, Y);
  
-		AddToVector(&currCamSource[0], &v);
+		AddToVector(&currCamSource, &v);
 
 		//SetCursorPos(320,240);
 	}
@@ -1321,16 +1321,16 @@ void EditorUpdateCamera()
 
 	// Work out point to look at
 
-	//SetVectorS(&v, &currCamTarget[0]);
-	//SubFromVector(&v, &currCamSource[0]);
+	//SetVectorS(&v, &currCamTarget);
+	//SubFromVector(&v, &currCamSource);
 	RotateVector2DXYZ(&v, &v, editCameraRot.vx, X);
 	RotateVector2DXYZ(&v, &v, editCameraRot.vy, Y);
 	
-	AddToVector(&v, &currCamSource[0]);
+	AddToVector(&v, &currCamSource);
 	
-	currCamTarget[0].vx = (fixed)v.vx;
-	currCamTarget[0].vy = (fixed)v.vy;
-	currCamTarget[0].vz = (fixed)v.vz;
+	currCamTarget.vx = (fixed)v.vx;
+	currCamTarget.vy = (fixed)v.vy;
+	currCamTarget.vz = (fixed)v.vz;
 
 	// Calculate "up" vector
 
@@ -1355,8 +1355,8 @@ void GetEditorCameraRotations(void)
 	EDVECTOR v, a, b;
 	float foo, bar;
 
-	SetVectorS(&a, &currCamSource[0]);
-	SetVectorS(&b, &currCamTarget[0]);
+	SetVectorS(&a, &currCamSource);
+	SetVectorS(&b, &currCamTarget);
 	SubVector(&v, &a, &b);
 
 	bar = atan2(v.vx, v.vz);

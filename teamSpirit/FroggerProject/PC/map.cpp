@@ -163,7 +163,7 @@ void LoadScenics ( int collBank )
 		cur->pos.vy *= SCALE;
 		cur->pos.vz *= SCALE;
 
-		utilPrintf("%s, %d, %d, %d, %d\n", cur->name, cur->pos.vx*SCALE, cur->pos.vy, cur->pos.vz, scenicCount);
+		utilPrintf("%s, %d, %d, %d, %d\n", cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, scenicCount);
 	}
 	// ENDFOR
 

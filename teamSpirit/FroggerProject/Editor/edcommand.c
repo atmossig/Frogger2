@@ -427,7 +427,7 @@ void ToolbarSelect(int command)
 	case TB_MAKECAMERA_WATCHFROG:
 		if (selectionList)
 		{
-			SetVectorF(&edv, &currCamSource[0]);
+			SetVectorF(&edv, &currCamSource);
 			EditorAddCameraCase(selectionList, FIXED_SOURCE, &edv);
 			UpdateSelection( );
 		}
@@ -436,7 +436,7 @@ void ToolbarSelect(int command)
 	case TB_MAKECAMERA_STATIC:
 		if (selectionList)
 		{
-			SetVectorF(&edv, &currCamSource[0]);
+			SetVectorF(&edv, &currCamSource);
 			EditorAddCameraCase(selectionList, STATIC_CAMERA, &edv);
 			UpdateSelection( );
 		}
@@ -445,7 +445,7 @@ void ToolbarSelect(int command)
 	case TB_MAKECAMERA_WATCHTILE:
 		if (selectionList)
 		{
-			SetVectorF(&edv, &currCamSource[0]);
+			SetVectorF(&edv, &currCamSource);
 			EditorAddCameraCase(selectionList, LOOK_AT_TILE, &edv);
 			UpdateSelection( );
 		}
@@ -457,11 +457,11 @@ void ToolbarSelect(int command)
 			EDVECTOR dir, a, b;
 			CREATEENTITY *cam;
 			
-			SetVectorF(&edv, &currCamSource[0]);
+			SetVectorF(&edv, &currCamSource);
 			cam = EditorAddCameraCase(selectionList, LOOK_IN_DIR, &edv);
 			
-			SetVectorF(&a, &currCamTarget[0]);
-			SetVectorF(&b, &currCamSource[0]);
+			SetVectorF(&a, &currCamTarget);
+			SetVectorF(&b, &currCamSource);
 			SubVector(&dir, &a, &b);
 			EdMakeUnit( &dir );
 
