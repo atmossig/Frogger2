@@ -25,6 +25,7 @@
 #include "cam.h"
 
 #include "maths.h"
+#include "flatpack.h"
 
 #ifdef DREAMCAST_VERSION
 #include "main.h"
@@ -54,7 +55,13 @@ void LoadScenics ( int collBank )
 	char file[64];
 	SCENIC *cur;
 
+#ifdef PSX_VERSION
+	strcpy( file, "" );
+#endif
+
+#ifdef PC_VERSION
 	strcpy( file, "SCENICS\\" );
+#endif
 
 	switch ( collBank )
 	{
@@ -303,9 +310,16 @@ void LoadScenics ( int collBank )
 #ifdef PSX_VERSION
 	if(scenicFile)
 		FREE(scenicFile);
+
+	scenicFile = FindStakFileInAllBanks ( file, &fileLength );
 #endif
 
+	//scenicFile = getFileFromStack ( stakFile, file, &fileLength);
+
+#ifdef PC_VERSION
 	scenicFile = fileLoad(file, &fileLength);
+#endif
+
 	p = (unsigned char*)scenicFile;
 
 	// Get a pointer to the addr and get scenic count from it...
@@ -343,16 +357,30 @@ void LoadLevelEntities ( int worldID, int levelID )
 
 #ifdef DREAMCAST_VERSION
 	sprintf ( fileName, "MAPS\\ENTITY_%d_%d.dat", worldID, levelID );
-#else
-	sprintf ( fileName, "MAPS\\ENTITY-%d-%d.dat", worldID, levelID );
+#endif
+
+#ifdef PSX_VERSION
+	sprintf ( fileName, "ENTITY-%d-%d.DAT", worldID, levelID );
+#endif
+
+#ifdef PC_VERSION
+	sprintf ( fileName, "MAPS\\ENTITY-%d-%d.DAT", worldID, levelID );
 #endif
 
 #ifdef PSX_VERSION
 	if(entityFile)
 		FREE(entityFile);
+
+	entityFile = FindStakFileInAllBanks ( fileName, &fileLength );
+
 #endif
 
+
+	//entityFile = getFileFromStack ( stakFile, fileName, &fileLength);
+
+#ifdef PC_VERSION
 	entityFile = ( void * ) fileLoad ( fileName, &fileLength );
+#endif
 
 	if ( !entityFile )
 		return;
@@ -496,7 +524,13 @@ void LoadCollision ( int collBank )
 	void *p;
 	int fileLength;
 
+#ifdef PSX_VERSION
+	strcpy( file, "" );
+#endif
+
+#ifdef PC_VERSION
 	strcpy( file, "COLLISION\\" );
+#endif
 
 	switch ( collBank )
 	{
@@ -748,8 +782,16 @@ void LoadCollision ( int collBank )
 #ifdef PSX_VERSION
 	if(collisionFile)
 		FREE(collisionFile);
+
+	collisionFile = FindStakFileInAllBanks ( file, &fileLength );
+
 #endif
+
+	//collisionFile = getFileFromStack ( stakFile, file, &fileLength);
+
+#ifdef PC_VERSION
 	collisionFile = ( void* ) fileLoad ( file, &fileLength );
+#endif
 
 	p = collisionFile;
 

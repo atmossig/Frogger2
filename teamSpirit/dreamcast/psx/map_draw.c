@@ -168,11 +168,11 @@ asm(\
 // which looks horrible!
 //#define MIN_MAP_DEPTH 140
 //#define MIN_MAP_DEPTH 100
-#define MIN_MAP_DEPTH (10)
+#define MIN_MAP_DEPTH (1)
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (1000<<3)
+#define MAX_MAP_DEPTH (1000)
 
 
 
@@ -205,6 +205,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	float			x0,y0,x1,y1,x2,y2,x3,y3;
 	float			z0,z1,z2,z3;
 	TextureType		*tex;
+	int				num_sprs = 0;
 	
 	mapCount++;
 	
@@ -462,6 +463,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 	//utilPrintf ( "Number Of Sprite : %d\n", mesh->n_sprs );
 
+	num_sprs = mesh->n_sprs;
+	
 	for(i = mesh->n_sprs; i != 0; i--,opspr++)
 	{
 		LONG spritez, width, height;
@@ -731,10 +734,10 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 #ifdef MAP_SCALE_ADJUST
 	MATRIX temp;
 #endif
-	int i,tempCRC;
-	int removed_models=0;
-	char tbuffer[256];
+	int i;
+//	int removed_models;
 	FMA_MESH_HEADER **mesh;
+
 	mesh = ADD2POINTER(world,sizeof(FMA_WORLD));
 
 // If we're rendering the map to a different integer scale to the objects, then we need to
@@ -742,105 +745,38 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 // Get rid of the relevant #define at the top of this file when everything's unified
 #ifdef MAP_SCALE_ADJUST
 	{
-//		temp = GsWSMATRIX;
-//		GsWSMATRIX.t[0] = GsWSMATRIX.t[0] << (MAP_SCALE_DEPTH_DOWN);
-//		GsWSMATRIX.t[1] = GsWSMATRIX.t[1] << (MAP_SCALE_DEPTH_DOWN);
-//		GsWSMATRIX.t[2] = GsWSMATRIX.t[2] << (MAP_SCALE_DEPTH_DOWN);
+		temp = GsWSMATRIX;
+		GsWSMATRIX.t[0] = GsWSMATRIX.t[0] << (MAP_SCALE_DEPTH_DOWN);
+		GsWSMATRIX.t[1] = GsWSMATRIX.t[1] << (MAP_SCALE_DEPTH_DOWN);
+		GsWSMATRIX.t[2] = GsWSMATRIX.t[2] << (MAP_SCALE_DEPTH_DOWN);
 	}
 #endif
 
-//	printf("draw %d meshes\n",world->n_meshes);
-//	removed_models=0;
+	//MapDraw_SetMatrix(*mesh, 0, 0, 0);
+
+//ma	count=0;
+
 	for(i = world->n_meshes; i != 0; i--, mesh++)
 	{
-		// TBD - Do A clip-check on the mesh before calling
-		MapDraw_SetMatrix(*mesh, 0, 0, 0);
-
-		if(MapDraw_ClipCheck(*mesh))
+		if ( (*mesh)->flags & DRAW_SEGMENT )
 		{
-//			if((*mesh)->flags & MESH_ISWATER)
-//			{
-//				MapDraw_DrawFMA_Mesh2Water(*mesh);
-//			}
-//			else
-//			{
-//				if(
-/*				   (*mesh)->name_crc == utilStr2CRC("LAWNA")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNB")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNC")||
+			MapDraw_SetMatrix(*mesh, (*mesh)->posx, (*mesh)->posy, (*mesh)->posz);
 
-				   (*mesh)->name_crc == utilStr2CRC("LAWND")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNDB")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNE")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNF")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNFB")||
-				   
-				   (*mesh)->name_crc == utilStr2CRC("LAWNG")||
-				   (*mesh)->name_crc == utilStr2CRC("JETTY")||
-				   (*mesh)->name_crc == utilStr2CRC("BRDGE")||
-
-				   (*mesh)->name_crc == utilStr2CRC("LAWNH")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNI")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNIB")||
-				   (*mesh)->name_crc == utilStr2CRC("MILL")||
-				   
-				   (*mesh)->name_crc == utilStr2CRC("LAWNH")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNI")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNIB")||
-				   (*mesh)->name_crc == utilStr2CRC("MILL")||
-
-				   (*mesh)->name_crc == utilStr2CRC("LAWNJ")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNK")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNL")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNLB")||
-
-				   (*mesh)->name_crc == utilStr2CRC("LAWNM")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNN")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNO")||
-				   (*mesh)->name_crc == utilStr2CRC("STEPS")||
-*/
-//				   (*mesh)->name_crc == utilStr2CRC("LAWNP")
-//				   (*mesh)->name_crc == utilStr2CRC("LAWNQ")
-				   
-/*				   (*mesh)->name_crc == utilStr2CRC("LAWNR")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNS")||
-
-				   (*mesh)->name_crc == utilStr2CRC("LAWNR")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNS")||
-
-				   (*mesh)->name_crc == utilStr2CRC("LAWNT")||
-				   (*mesh)->name_crc == utilStr2CRC("LAWNU")||
-				   (*mesh)->name_crc == utilStr2CRC("GREENH")||
-
-				   (*mesh)->name_crc == utilStr2CRC("SHED")||
-				   (*mesh)->name_crc == utilStr2CRC("SHEDB")||
-				   (*mesh)->name_crc == utilStr2CRC("WHLBRW")||
-				   (*mesh)->name_crc == utilStr2CRC("FLOWERSA")||
-				   (*mesh)->name_crc == utilStr2CRC("FLOWERSB")||
-				   (*mesh)->name_crc == utilStr2CRC("GLASS")
-*/				   
-//				   )
-				{
+			if(MapDraw_ClipCheck(*mesh))
+			{
 					MapDraw_DrawFMA_Mesh2(*mesh);
-				}
-//			}
+			}
+			// ENDIF
+		}
+		// ENDIF
 
-		}
-		else
-		{
-			removed_models++;
-		}
 	}
-
-//	sprintf(tbuffer,"%d => %d",world->n_meshes-removed_models,world->n_meshes);
-//	fontPrint(font, -100,10, tbuffer, 255,255,255);
-
-//	sprintf(tbuffer,"frame: %d (%d)",frame,myVsyncCounter+1);
-//	fontPrint(font, -100,10+20, tbuffer, 255,255,255);
+	// ENDFOR
 
 #ifdef MAP_SCALE_ADJUST
 	{
-//		GsWSMATRIX = temp;
+		GsWSMATRIX = temp;
+
 	}
 #endif
 
@@ -849,74 +785,6 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 // Check to see if a frogger map shape is on-screen
 // (Assumes the projection matrix has already been set up for this shape)
 int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
-{
-	ULONG 	check,totalchecks;
-	SHORTXY	*xy;
-	int 	v;
-
-	// "9", coz the transformer only deals in multiples of three,
-	// (or at least, it did the last time I looked at it)
-	// and this array is on the stack, so overrunning would be a seriously bad idea.
-	VERT 	pBBox[9];
-
-
-	// Get the 8 corners of the object's bounding box, & transform them.
-	for(v=0; v<8; v++)
-	{
-		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
-		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
-		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
-	}
-	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
-
-	// Check to see whether ALL of the vertices are on the outisde of ANY of the 6 planes of the view-frustrum
-	(ULONG*)xy = transformedVertices;
-	totalchecks = 0xffff;
-	for(v=0; v<8; v++)
-	{
-		check=0;
-		if(xy[v].x < 0)			// -256
-			check |= OFFLEFT;
-		if(xy[v].x > 640)		//  256
-			check |= OFFRIGHT;
-		if(xy[v].y < 0)			// -128
-			check |= OFFUP;
-		if(xy[v].y > 480 )		//  128
-			check |= OFFDOWN;
-
-//		if(xy[v].x<-256)
-//			check|=OFFLEFT;
-//		if(xy[v].x>256 )
-//			check|=OFFRIGHT;
-//		if(xy[v].y<-128)
-//			check|=OFFUP;
-//		if(xy[v].y>128 )
-//			check|=OFFDOWN;
-		
-#ifdef MAP_SCALE_DEPTH_DOWN
-	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(MAP_SCALE_DEPTH_DOWN)))
-			check|=OFFFRONT;
-
-		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(MAP_SCALE_DEPTH_DOWN)))
-			check |= OFFBACK;
-#else
-	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH))
-			check|=OFFFRONT;
-
-		if((transformedDepths[v]) >= (MAX_MAP_DEPTH))
-			check |= OFFBACK;
-#endif
-
-		totalchecks &= check;
-	}
-
-	return(totalchecks==0);
-}
-
-//this is just MapDraw_ClipCheck,
-//with objects' position taken into account.
-//(where as MapDraw_ClipCheck assumes stationary object)
-int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 {
 	ULONG check,totalchecks;
 	SHORTXY			*xy;
@@ -934,12 +802,6 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
 		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
 		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
-
-		//this is the only addition to this function,
-		//from when it was MapDraw_ClipCheck().
-// 		pBBox[v].vx+=mesh->posx;
-// 		pBBox[v].vy+=mesh->posy;
-// 		pBBox[v].vz+=mesh->posz;
 	}
 
 	//utilPrintf("Map Clip Check!!!\n");
@@ -962,18 +824,21 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 			check|=OFFDOWN;
 
 #ifdef MAP_SCALE_DEPTH_DOWN
-	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(MAP_SCALE_DEPTH_DOWN)))
+	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
 			check|=OFFFRONT;
 
 //		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
-		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<(MAP_SCALE_DEPTH_DOWN)))
-			check|=OFFBACK;
+//		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<(2+MAP_SCALE_DEPTH_DOWN)))
+		if((transformedDepths[v]) >= (fog.max<<(2+MAP_SCALE_DEPTH_DOWN)))
+			check |= OFFBACK;
 #else
-	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH))
+	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<2))
 			check|=OFFFRONT;
 
-		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip))
-			check|=OFFBACK;
+//		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<2))
+//		if((transformedDepths[v]) >= (fog.max))
+		if((transformedDepths[v]) >= (fog.max>>2))
+			check |= OFFBACK;
 #endif
 
 		totalchecks&=check;
@@ -981,6 +846,109 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 
 	//returns 1 if ok to draw.
 	return(totalchecks==0);
+}
+
+//this is just MapDraw_ClipCheck, with out the z check.
+//Fma actors are z checked before this func is called
+int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
+{
+	ULONG check,totalchecks;
+	SHORTXY			*xy;
+	int v;
+
+// "9", coz the transformer only deals in multiples of three,
+// (or at least, it did the last time I looked at it)
+// and this array is on the stack, so overrunning would be a seriously bad idea.
+	VERT pBBox[9];
+
+
+// Get the 8 corners of the object's bounding box, & transform them.
+	for(v=0; v<8; v++)
+	{
+		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
+		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
+		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
+	}
+
+	//utilPrintf("Map Clip Check!!!\n");
+	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
+
+
+// Check to see whether ALL of the vertices are on the outisde of ANY of the 6 planes of the view-frustrum
+	(ULONG*)xy=transformedVertices;
+	totalchecks=0xffff;
+	for(v=0; v<8; v++)
+	{
+		check=0;
+		if(xy[v].x<0)
+			check|=OFFLEFT;
+		if(xy[v].x>640 )
+			check|=OFFRIGHT;
+		if(xy[v].y<0)
+			check|=OFFUP;
+		if(xy[v].y>480 )
+			check|=OFFDOWN;
+
+//bbopt - near/far clipping done in FmaActor2ClipCheck()
+//using the actor's pos, before full on clipping
+/*
+#ifdef MAP_SCALE_DEPTH_DOWN
+	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
+			check|=OFFFRONT;
+
+//		if((transformedDepths[v]) >= (MAX_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
+//		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<(2+MAP_SCALE_DEPTH_DOWN)))
+		if((transformedDepths[v]) >= (fog.max<<(2+MAP_SCALE_DEPTH_DOWN)))
+			check |= OFFBACK;
+#else
+	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<2))
+			check|=OFFFRONT;
+
+//		if((transformedDepths[v]) >= (worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip<<2))
+		if((transformedDepths[v]) >= (fog.max))
+			check |= OFFBACK;
+#endif
+*/
+		totalchecks&=check;
+	}
+
+	//returns 1 if ok to draw.
+	return(totalchecks==0);
+}
+
+
+//debug spin-off of FmaActor_ClipCheck which
+//gives you the screen coords of the box
+void FmaActor_GetSBox(FMA_MESH_HEADER *mesh, SHORTXY *sBox)
+{
+	SHORTXY			*xy;
+	VERT pBBox[9];
+	int v;
+
+	//Get the 8 corners of the object's bounding box, & transform them.
+	for(v=0; v<8; v++)
+	{
+		pBBox[v].vx=(v&1)?mesh->minx:mesh->maxx;
+		pBBox[v].vy=(v&2)?mesh->miny:mesh->maxy;
+		pBBox[v].vz=(v&4)?mesh->minz:mesh->maxz;
+
+		//this is the only addition to this function,
+		//from when it was MapDraw_ClipCheck().
+// 		pBBox[v].vx+=mesh->posx;
+//		pBBox[v].vy+=mesh->posy;
+//		pBBox[v].vz+=mesh->posz;
+	}
+
+	//utilPrintf("Map Clip Check!!!\n");
+	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
+
+	//copy to dest
+	(ULONG*)xy=transformedVertices;
+	for(v=0; v<8; v++)
+	{
+		sBox[v].x = xy[v].x;
+		sBox[v].y = xy[v].y;
+	}
 }
 
 // ===================================================

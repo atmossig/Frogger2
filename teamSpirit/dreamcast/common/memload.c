@@ -167,7 +167,9 @@ int MemLoadEntities(const void* data)
 			node->speed = MEMGETFIXED(&p);//mm *SCALE?
 
 			node->waitTime = MEMGETINT(&p);
-			node->sample = FindSample((unsigned long)MEMGETINT(&p));
+//ma			node->sample = FindSample((unsigned long)MEMGETINT(&p));
+			MEMGETINT(&p);
+			node->sample = NULL;
 			node++;
 		}
 	}
@@ -301,17 +303,6 @@ int MemLoadEntities(const void* data)
 
 				if (act)
 				{
-					// null object - do not display
-					if( 
-#ifdef PC_VERSION
-						!(strnicmp(type,"TRANSOBJ",8)) || !(strnicmp(type,"NOTHING",7))
-						|| !(strnicmp(type,"NULL_",5)) )
-#else
-						strstr(type,"TRANSOBJ.PSI") || strstr(type,"NOTHING.PSI")
-						|| strstr(type,"NULL_") )
-#endif
-						act->draw = 0;
-
 					if( thing == CREATE_ENEMY )
 					{
 						if( !(enemy->flags & ENEMY_NEW_BABYFROG) )
@@ -328,13 +319,9 @@ int MemLoadEntities(const void* data)
 
 					act->animSpeed = animSpeed;
 					act->value1 = value1;
-//					act->effects = effects;
-
 
 					act->depthShift = depthShift;
 					act->dffClipping = dffClipping;
-
-
 				}
 
 #ifdef MEMLOAD_PRINT_ENTITIES

@@ -40,12 +40,14 @@ void InitBackdrop(char * const filename)
   	int				headerSize,colFormat,texFormat,texAttrib,attrib;
 	char			r,g,b,a;
 
+	backDrop.draw = TRUE;
+
 	if(backDrop.init)
 		return;
 
 	sprintf(buf,"%s.pvr",filename);
 	
-	backDrop.init = 1;
+	backDrop.init = TRUE;
 	backDrop.rect.x = 0;			// leave the y till the update
 	backDrop.rect.y = 0;
 	backDrop.rect.w = 640; 
@@ -111,7 +113,7 @@ void DrawBackDrop(int num, int i)
 //	kmBeginScene(&kmSystemConfig);
 //	kmBeginPass(&vertexBufferDesc);
         
-	if(backDrop.init)
+	if((backDrop.init)&&(backDrop.draw))
 	{
 		kmStartStrip(&vertexBufferDesc, &backStripHead);	
 		kmSetVertex(&vertexBufferDesc, &backdropVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
@@ -137,9 +139,9 @@ void DrawBackDrop(int num, int i)
 
 void FreeBackdrop(void)
 {
-	if(backDrop.init == 0)
+	if(backDrop.draw == FALSE)
 		return;
 		
-	backDrop.init = 0;
-	kmFreeTexture(&backDrop.surface);
+	backDrop.draw = FALSE;
+//	kmFreeTexture(&backDrop.surface);
 }

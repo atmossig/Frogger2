@@ -34,51 +34,19 @@ void LoadTextureBank ( int textureBank )
 	
 	switch ( textureBank )
 	{
-		case GARDEN_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\GARDEN.SPT" );
-			break;
-
-		case ANCIENT_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\ANCIENTS.SPT" );
-			break;
-
-		case SPACE_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\SPACE.SPT" );
-			break;
-
-		case CITY_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\CITY.SPT" );
-			break;
-
-		case SUBTERRANEAN_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\SUB.SPT" );
-			break;
-
-		case LABORATORY_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\LAB.SPT" );
-			break;
-
-		case HALLOWEEN_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" );
-			break;
-
-		case SUPERRETRO_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\SUPER.SPT" );
-			break;
-
-		case FRONTEND_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\HUB.SPT" );
-			break;
-
-		case INGAMEGENERIC_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
-			break;
-
-		case TITLES_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\TITLES.SPT" );
-			break;
+		case GARDEN_TEX_BANK: sprintf ( fileName, "TEXTURES\\GARDEN.SPT" );	break;
+		case ANCIENT_TEX_BANK: sprintf ( fileName, "TEXTURES\\ANCIENTS.SPT" ); break;
+		case SPACE_TEX_BANK: sprintf ( fileName, "TEXTURES\\SPACE.SPT" ); break;
+		case CITY_TEX_BANK: sprintf ( fileName, "TEXTURES\\CITY.SPT" ); break;
+		case SUBTERRANEAN_TEX_BANK: sprintf ( fileName, "TEXTURES\\SUB.SPT" ); break;
+		case LABORATORY_TEX_BANK: sprintf ( fileName, "TEXTURES\\LAB.SPT" ); break;
+		case HALLOWEEN_TEX_BANK: sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" ); break;
+		case SUPERRETRO_TEX_BANK: sprintf ( fileName, "TEXTURES\\SUPER.SPT" ); break;
+		case FRONTEND_TEX_BANK: sprintf ( fileName, "TEXTURES\\HUB.SPT" ); break;
+		case INGAMEGENERIC_TEX_BANK: sprintf ( fileName, "TEXTURES\\GENERIC.SPT" ); break;
+		case TITLES_TEX_BANK: sprintf ( fileName, "TEXTURES\\TITLES.SPT" ); break;
+		case LOADING_TEX_BANK: fileName[0] = 0; break;
 	}
-	// ENDSWITCH - textureBank
 
 	if ( numTextureBanks < MAX_TEXTURE_BANKS )
 	{
@@ -91,36 +59,6 @@ void LoadTextureBank ( int textureBank )
 	{
 		utilPrintf("Error Loading: %s, Max Texture Banks Reached", fileName );
 	}
-	// ENDELSEIF - 	if ( numTextureBanks < MAX_TEXTURE_BANKS )
-
-	if(titFileName[0] == 0)
-		return;
-		
-	// setup animated textures
-/*	textureAnims = (unsigned char *)fileLoad ( titFileName, &fileLength );
-
-	if ( !textureAnims )
-		return;
-	
-	p = ( unsigned char* ) textureAnims;
-	numAnimations = (short)*p;
-	p += 2;
-
-	for ( counter = 0; counter < (short)*p; counter++ )
-	{
-		p += 2;
-
-//		textureAnim = CreateTextureAnimation( ( long ) *p+2, ( short ) *p );
-		p += 2;
-		for ( counter1 = 0; counter1 < ( short ) *p-2; counter1 )
-		{
-//			AddAnimFrame ( textureAnim, (long*)p, (short*)p+4, counter1 );			
-			p += 6;
-		}
-		// ENDFOR
-	}
-	// ENDFOR	
-*/
 }
 
 void LoadTextureAnimBank ( int textureBank )
@@ -135,60 +73,21 @@ void LoadTextureAnimBank ( int textureBank )
 	TEXTUREANIM *textureAnim;
 	short numAnimations = 0;
 
-	titFileName[0] =0;
-	
-//	if(textureBank != GARDEN_TEX_BANK)
-//		return;
-		
 	switch ( textureBank )
 	{
-		case GARDEN_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" );
-			break;
-
-		case ANCIENT_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" );
-			break;
-
-		case SPACE_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\SPACE.TIT" );
-			break;
-
-		case CITY_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
-			break;
-
-		case SUBTERRANEAN_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\SUB.TIT" );
-			break;
-
-		case LABORATORY_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\LAB.TIT" );
-			break;
-
-		case HALLOWEEN_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" );
-			break;
-
-		case SUPERRETRO_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\RETRO.TIT" );
-			break;
-
-		case FRONTEND_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
-			break;
-
-		case TITLES_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\TITLES.TIT" );
-			break;
-
-		case INGAMEGENERIC_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" );
-			break;
+		case GARDEN_TEX_BANK: sprintf ( titFileName, "GARDEN.TIT" ); break;
+		case ANCIENT_TEX_BANK: sprintf ( titFileName, "ANCIENTS.TIT" ); break;
+		case SPACE_TEX_BANK: sprintf ( titFileName, "SPACE.TIT" ); break;
+		case SUBTERRANEAN_TEX_BANK: sprintf ( titFileName, "SUB.TIT" ); break;
+		case LABORATORY_TEX_BANK: sprintf ( titFileName, "LAB.TIT" ); break;
+		case HALLOWEEN_TEX_BANK: sprintf ( titFileName, "HALLOWEEN.TIT" ); break;
+		case SUPERRETRO_TEX_BANK: sprintf ( titFileName, "RETRO.TIT" ); break;
+		case FRONTEND_TEX_BANK: sprintf ( titFileName, "HUB.TIT" ); break;
+		case INGAMEGENERIC_TEX_BANK: sprintf ( titFileName, "GENERIC.TIT" ); break;
+		default: return;
 	}
-	// ENDSWITCH - textureBank6
 
-	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
+	textureAnims = (TEXTUREANIM*)FindStakFileInAllBanks ( titFileName, &fileLength );
 
 	if ( !textureAnims )
 		return;

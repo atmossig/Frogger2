@@ -29,6 +29,7 @@
 #include "lang.h"
 #include "frontend.h"
 #include "story.h"
+#include "menus.h"
 
 #ifdef PSX_VERSION
 #include "textures.h"
@@ -41,17 +42,20 @@
 #include <pcmisc.h>
 #endif
 
-
+extern TIMER endLevelTimer;
 char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
 char timeText[32]	= "00:00      ";
 char garibText[8], creditText[8];
 
 char timeTemp[6];
+char goStr[64];
 
 char countdownTimer	= 1;
 char displayFullScreenPoly = 0;
 long coinZoomX,coinZoomY;
+
+TIMER goTimer;
 
 TEXTOVERLAY	*babySavedText;
 
@@ -97,7 +101,9 @@ char countdownString[64] = "00";
 TEXTOVERLAY   *polysText;
 char polyString[256] = "";
 
-
+int timeBarWidth = 1600;
+int timeBarStep = 16;
+char timeBarStr[16];
 
 // -----------------------------------------------
 
@@ -105,6 +111,34 @@ void InitArcadeHUD(void)
 {
 	int i;
 
+
+	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)
+		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime;
+
+	arcadeHud.timeBar = CreateAndAddSpriteOverlay(1200,3600,NULL,0,100,255,0);
+	arcadeHud.timeBar->num = 1;
+	arcadeHud.timeBak = CreateAndAddSpriteOverlay(1200-8,3600-17,NULL,timeBarWidth+24,100+34,255,SPRITE_SUBTRACTIVE);
+	arcadeHud.timeBak->a = 254;
+	arcadeHud.timeBak->r = 128;
+	arcadeHud.timeBak->g = 128;
+	arcadeHud.timeBak->b = 128;
+	sprintf(timeBarStr,"%d:%02d",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/60,worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime%60);
+	arcadeHud.timeBarText = CreateAndAddTextOverlay(2048,3300,timeBarStr,YES,255,font,TEXTOVERLAY_SHADOW);
+	if(gameState.mode == FRONTEND_MODE)
+	{
+		GTInit(&goTimer,0);
+	}
+	else
+	{
+		GTInit(&goTimer,5);
+	}
+
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+	{
+		arcadeHud.timeBar->draw = 0;
+		arcadeHud.timeBak->draw = 0;
+		arcadeHud.timeBarText->draw = 0;
+	}
 
 #ifdef PSX_VERSION
 	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(100,3332,frogPool[player[0].character].icon,4096,546,0xff,0);
@@ -123,10 +157,15 @@ void InitArcadeHUD(void)
 		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(2900+450,3700,timeStringHSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		arcadeHud.timeTextHSec->scale = 3072;
 	}
-	
+
 #ifdef E3_DEMO
 	arcadeHud.helpOver =		CreateAndAddSpriteOverlay(3370,1200,"HELPOVER",4096,(128*4096)/480,180,0);
 #endif
+
+	arcadeHud.autoHopOver =		CreateAndAddSpriteOverlay( 200, 2900, "AHOVER", 400, 400, 0, 0 );
+	arcadeHud.autoHopOver->draw = 0;
+	arcadeHud.quickHopOver =	CreateAndAddSpriteOverlay( 650, 2900, "QHOVER", 400, 400, 0, 0 );
+	arcadeHud.quickHopOver->draw = 0;
 
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3400,300,"HUD_BGR",4096,460,0xff,0);
 	arcadeHud.livesText =		CreateAndAddTextOverlay(370,3750,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
@@ -171,6 +210,11 @@ void InitArcadeHUD(void)
 	arcadeHud.helpOver =		CreateAndAddSpriteOverlay(3424,2130,"HELPOVER",(128*4096)/640,(128*4096)/480,180,0);
 #endif
 
+	arcadeHud.autoHopOver =		CreateAndAddSpriteOverlay( 100, 3200, "AHOVER", 180, 180, 0, 0 );
+	arcadeHud.autoHopOver->draw = 0;
+	arcadeHud.quickHopOver =	CreateAndAddSpriteOverlay( 350, 3200, "QHOVER", 180, 180, 0, 0 );
+	arcadeHud.quickHopOver->draw = 0;
+
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3520,130,"HUD_BGR",450,460,0xff,0);
 	arcadeHud.coinsBack->num = 0;
 	arcadeHud.livesText =		CreateAndAddTextOverlay(520,3650,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
@@ -195,10 +239,15 @@ void InitArcadeHUD(void)
 	pauseFlag = 0;
 
 
-	if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
-		arcadeHud.goText =			CreateAndAddTextOverlay(2048,2048, "",YES,255,0,0);
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+  		arcadeHud.goText = CreateAndAddTextOverlay(2048,2048,goStr,YES,255,0,TEXTOVERLAY_SHADOW);
 	else
-		arcadeHud.goText =			CreateAndAddTextOverlay(2048,2048, GAMESTRING(STR_COLLECTBABIES),YES,255,0,TEXTOVERLAY_SHADOW);
+	{
+		if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
+			arcadeHud.goText = CreateAndAddTextOverlay(2048,2048, "",YES,255,0,0);
+		else
+			arcadeHud.goText = CreateAndAddTextOverlay(2048,2048, GAMESTRING(STR_COLLECTBABIES),YES,255,0,TEXTOVERLAY_SHADOW);
+	}
 	
 // allow a few extra pixels height on the overlays for overscan on the PSX (and DC?)
 
@@ -225,30 +274,34 @@ void InitArcadeHUD(void)
 	if (gameState.mode == INGAME_MODE)
 		polysText = CreateAndAddTextOverlay(200,600,polyString,NO,255,fontSmall,0);
 
-//	arcadeHud.timeOutText = CreateAndAddTextOverlay(2048,180,GAMESTRING(STR_OUTOFTIME),YES,255,0,0);
-//	arcadeHud.timeOutText->r = 0xff;
-//	arcadeHud.timeOutText->g = 0;
-//	arcadeHud.timeOutText->b = 0;
-//	arcadeHud.timeOutText->a = 0;
-//	DisableTextOverlay(arcadeHud.timeOutText);
+	arcadeHud.timeOutText = CreateAndAddTextOverlay(2048,1900,GAMESTRING(STR_OUTOFTIME),YES,255,0,TEXTOVERLAY_SHADOW);
+	arcadeHud.timeOutText->r = 0xff;
+	arcadeHud.timeOutText->g = 0;
+	arcadeHud.timeOutText->b = 0;
+	arcadeHud.timeOutText->a = 0;
+	DisableTextOverlay(arcadeHud.timeOutText);
 
 	arcadeHud.timedOut = 0;
 
-	for (i=0; i<MAX_HUD_SPARKLES; i++)
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
-		arcadeHud.goSparkles[i] = CreateAndAddSpriteOverlay(900-Random(1800)+2048,1900+Random(350),"FLASH2",100,100,0xff,SPRITE_ADDITIVE);
-		arcadeHud.goSparkles[i]->num = 1;
-		if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
-			arcadeHud.goSparkles[i]->draw = 0;
+		for (i=0; i<MAX_HUD_SPARKLES; i++)
+		{
+			arcadeHud.goSparkles[i] = CreateAndAddSpriteOverlay(900-Random(1800)+2048,1900+Random(350),"FLASH2",100,100,0xff,SPRITE_ADDITIVE);
+			arcadeHud.goSparkles[i]->num = 1;
+			if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
+				arcadeHud.goSparkles[i]->draw = 0;
 
-		arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay(Random(4096),Random(512)+4096-512,"FLASH2",10,10,0xff,SPRITE_ADDITIVE);
-		arcadeHud.sparkles[i]->r = 200;
-		arcadeHud.sparkles[i]->g = 200;
-		arcadeHud.sparkles[i]->b = 0;
+/*			arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay(Random(4096),Random(512)+4096-512,"FLASH2",10,10,0xff,SPRITE_ADDITIVE);
+			arcadeHud.sparkles[i]->r = 200;
+			arcadeHud.sparkles[i]->g = 200;
+			arcadeHud.sparkles[i]->b = 0;
 
-		arcadeHud.sparkles[i]->a = 0;
-		arcadeHud.sparkles[i]->draw = 0;
-		arcadeHud.sparkles[i]->num = 1;
+			arcadeHud.sparkles[i]->a = 0;
+			arcadeHud.sparkles[i]->draw = 0;
+			arcadeHud.sparkles[i]->num = 1;
+*/
+		}
 	}
 	if(gameState.mode == FRONTEND_MODE)
 	{
@@ -413,14 +466,18 @@ void DisableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 0;
 
-	for (i=0; i<MAX_HUD_SPARKLES; i++)
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+	{
+		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 0;
+	}
 
 	arcadeHud.coinsBack->draw = 0;
 	arcadeHud.coinsOver->draw = 0;
 	arcadeHud.goText->draw = arcadeHud.coinsBack->draw = 0; /*arcadeHud.helpOver->draw = */ 
 	arcadeHud.livesOver->draw = arcadeHud.coinsOver->draw = arcadeHud.livesText->draw = arcadeHud.coinsText->draw = /*arcadeHud.coinsText2->draw =*/ 0;
 	arcadeHud.collectText->draw = 0;
+	arcadeHud.autoHopOver->draw = arcadeHud.quickHopOver->draw = 0;
 
 	if( gameState.single != STORY_MODE )
 	{
@@ -430,6 +487,11 @@ void DisableHUD(void)
 
 	for(i=0; i<numBabies; i++)
 		babyIcons[i]->draw = 0;
+
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+	{
+		arcadeHud.timeBar->draw = arcadeHud.timeBak->draw = arcadeHud.timeBarText->draw = 0;
+	}
 }
 
 void EnableHUD(void)
@@ -448,7 +510,7 @@ void EnableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 1;
 	
-	if((player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
+	if(((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 1;
@@ -459,6 +521,7 @@ void EnableHUD(void)
 	arcadeHud.goText->draw = arcadeHud.coinsBack->draw = 1;	/*arcadeHud.helpOver->draw =*/
 	arcadeHud.livesOver->draw = arcadeHud.coinsOver->draw = arcadeHud.livesText->draw = arcadeHud.coinsText->draw = /*arcadeHud.coinsText2->draw =*/ 1;
 	arcadeHud.collectText->draw = 1;
+	arcadeHud.autoHopOver->draw = arcadeHud.quickHopOver->draw = 1;
 
 	if((gameState.single != STORY_MODE ) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
@@ -474,6 +537,12 @@ void EnableHUD(void)
 		arcadeHud.coinsOver->draw = 0;
 		arcadeHud.coinsText->draw = 0;
 //		arcadeHud.coinsText2->draw = 0;
+	}
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+	{
+		arcadeHud.timeBar->draw = arcadeHud.timeBak->draw = 1;
+		if(arcadeHud.timeBarText->a)
+			arcadeHud.timeBarText->draw = 1;
 	}
 }
 
@@ -545,8 +614,6 @@ void UpDateMultiplayerInfo( void )
 #ifdef PSX_VERSION
 //ma		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentWScaled(multiHud.timeTextSec->font,multiHud.timeTextSec->text,multiHud.timeTextSec->scale)*8 + 2*8;
 //ma		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentWScaled(multiHud.timeTextMin->font,multiHud.timeTextMin->text,multiHud.timeTextMin->scale)*8 - 2*8;
-		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentW(multiHud.timeTextSec->font,multiHud.timeTextSec->text) + 2*8;
-		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentW(multiHud.timeTextMin->font,multiHud.timeTextMin->text) - 2*8;
 #elif PC_VERSION
 		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + (float)(CalcStringWidth(multiHud.timeTextSec->text,(MDX_FONT *)multiHud.timeTextSec->font,((float)multiHud.timeTextSec->scale)/4096.0) + 2) / OVERLAY_X;
 		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - (float)(CalcStringWidth(multiHud.timeTextMin->text,(MDX_FONT *)multiHud.timeTextMin->font,((float)multiHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
@@ -567,6 +634,8 @@ void UpDateMultiplayerInfo( void )
 	}
 }
 
+long storeFrameCount;
+
 void UpDateOnScreenInfo ( void )
 {
 	long i;
@@ -574,6 +643,7 @@ void UpDateOnScreenInfo ( void )
 	long r,g,b,a;
 	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 60;
 	long frameCheck = 0;
+	int oldTime;
 	
 
 	if (gameState.mode == INGAME_MODE)
@@ -588,36 +658,87 @@ void UpDateOnScreenInfo ( void )
 				arcadeHud.coinZoom->draw = 0;
 		}
 
-		if (actFrameCount>100)
+		if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 		{
-			alpha *= 3;
-			if (alpha>255)
+			if(goTimer.time == 0)
 			{
-				alpha = 255;
-				arcadeHud.goText->draw = 0;
+				arcadeHud.goText->draw = arcadeHud.goText->a = 0;
 			}
-			
-			arcadeHud.goText->a = 0xff - alpha;
+		}
+		else
+		{
+			if (actFrameCount>100)
+			{
+				alpha *= 3;
+				if (alpha>255)
+				{
+					alpha = 255;
+					arcadeHud.goText->draw = 0;
+				}
+				
+				arcadeHud.goText->a = 0xff - alpha;
+			}
 		}
 
-		for (i=0; i<MAX_HUD_SPARKLES; i++)
-		{	
-			long a = arcadeHud.goSparkles[i]->a * 4096;
-			a -= gameSpeed * spSpeeds[i] * 4;
-			if (a<0)
+		// Show and update powerup icons
+		if( player[0].autohop.time )
+		{
+			if( player[0].autohop.time > 3 )
 			{
-				if (arcadeHud.goText->a>100)
-				{
-					arcadeHud.goSparkles[i]->a = arcadeHud.goText->a;
-					arcadeHud.goSparkles[i]->xPos = 1000-Random(2000)+2048;
-					arcadeHud.goSparkles[i]->yPos = 1900+Random(350);
-				}
-				else
-					arcadeHud.goSparkles[i]->draw = 0;
-
+				INC_ALPHA( arcadeHud.autoHopOver, 0xff );
+				arcadeHud.autoHopOver->draw = 1;
 			}
 			else
-				arcadeHud.goSparkles[i]->a = a/4096;
+			{
+				arcadeHud.autoHopOver->a = 127+((rsin(actFrameCount*4000)+4096)<<6)>>12;//Aabs(rsin( actFrameCount<<6 )>>4)-1;
+			}
+		}
+		else
+		{
+			DEC_ALPHA( arcadeHud.autoHopOver );
+			arcadeHud.autoHopOver->draw = arcadeHud.autoHopOver->a = 0;
+		}
+
+		if( player[0].quickhop.time )
+		{
+			if( player[0].quickhop.time > 5 )
+			{
+				INC_ALPHA( arcadeHud.quickHopOver, 0xff );
+				arcadeHud.quickHopOver->draw = 1;
+			}
+			else
+			{
+				arcadeHud.quickHopOver->a = 127+((rsin(actFrameCount*4000)+4096)<<6)>>12;//Aabs(rsin( actFrameCount<<6 )>>4)-1;
+			}
+		}
+		else
+		{
+			DEC_ALPHA( arcadeHud.quickHopOver );
+			arcadeHud.quickHopOver->draw = 0;
+		}
+
+		// Sparklies
+		if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+		{
+			for (i=0; i<MAX_HUD_SPARKLES; i++)
+			{	
+				long a = arcadeHud.goSparkles[i]->a * 4096;
+				a -= gameSpeed * spSpeeds[i] * 4;
+				if (a<0)
+				{
+					if (arcadeHud.goText->a>100)
+					{
+						arcadeHud.goSparkles[i]->a = arcadeHud.goText->a;
+						arcadeHud.goSparkles[i]->xPos = 1000-Random(2000)+2048;
+						arcadeHud.goSparkles[i]->yPos = 1900+Random(350);
+					}
+					else
+						arcadeHud.goSparkles[i]->draw = 0;
+
+				}
+				else
+					arcadeHud.goSparkles[i]->a = a/4096;
+			}
 		}
 
 	//	arcadeHud.goText->r = Random(0xff);
@@ -685,11 +806,57 @@ void UpDateOnScreenInfo ( void )
 		
 	}
 
+	timeFrames -=actFrameCount;
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+	{
+		if(goTimer.time)
+		{
+			player[0].canJump = 0;
+			if(goTimer.time > 1)
+				storeFrameCount = actFrameCount;
+			oldTime = goTimer.time;
+			GTUpdate(&goTimer,-1);
+			if(oldTime != goTimer.time)
+			{
+				switch(goTimer.time)
+				{
+					case 4:
+					case 3:
+					case 2:
+						PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
+						break;
+
+					case 1:
+						PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
+						break;
+				}
+			}
+			switch(goTimer.time)
+			{
+				case 3:
+					sprintf(goStr,"2");
+					break;
+				case 2:
+					sprintf(goStr,"1");
+					break;
+				case 1:
+				case 0:
+					player[0].canJump = 1;
+					sprintf(goStr,GAMESTRING(STR_GO));
+					break;
+				default:
+					sprintf(goStr,"3");
+					break;
+			}
+		}
+		timeFrames += storeFrameCount;
+	}
+	
+
 	if((gameState.single != STORY_MODE ) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		static int lastSecs = 0;
 
-		timeFrames -=actFrameCount;
 
 		if (timeFrames<0)
 		{
@@ -771,7 +938,6 @@ void UpDateOnScreenInfo ( void )
 #ifdef PSX_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + fontExtentWScaled(arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->text)*8 + 2*8;
 //ma		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentWScaled(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text,arcadeHud.timeTextMin->scale)*8 - 2*8;
-		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentW(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text) - 2*8;
 #elif PC_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + (float)(CalcStringWidth(arcadeHud.timeTextSec->text,(MDX_FONT *)arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->scale) + 2) / OVERLAY_X;
 		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - (float)(CalcStringWidth(arcadeHud.timeTextMin->text,(MDX_FONT *)arcadeHud.timeTextMin->font,((float)arcadeHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
@@ -782,27 +948,58 @@ void UpDateOnScreenInfo ( void )
 	sprintf(coinsText,"%2i",player[0].numSpawn);
 //	sprintf(coinsText2,"%2i",player[0].numSpawn);
 
-	for (i=0; i<MAX_HUD_SPARKLES; i++)
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
-		SPRITEOVERLAY *me = arcadeHud.sparkles[i];
-
-		xPos = arcadeHud.sX + (((rsin(i*80+actFrameCount*60)+4096)*arcadeHud.sW) >> 13);
-		me->xPosTo = me->xPos = xPos;
-
-		yPos = arcadeHud.sY + ((Random(4096)*arcadeHud.sH)>>12);
-		me->height = me->width = 32 + Random(128);
-		me->yPosTo = me->yPos = yPos + 64 - me->height;			
-		me->draw = 1;
-
-		if (actFrameCount>arcadeHud.sTime)
+/*
+		for (i=0; i<MAX_HUD_SPARKLES; i++)
 		{
-			if (me->a > gameSpeed)
-				me->a -= gameSpeed;
+			SPRITEOVERLAY *me = arcadeHud.sparkles[i];
+
+			xPos = arcadeHud.sX + (((rsin(i*80+actFrameCount*60)+4096)*arcadeHud.sW) >> 13);
+			me->xPosTo = me->xPos = xPos;
+
+			yPos = arcadeHud.sY + ((Random(4096)*arcadeHud.sH)>>12);
+			me->height = me->width = 32 + Random(128);
+			me->yPosTo = me->yPos = yPos + 64 - me->height;			
+			me->draw = 1;
+
+			if (actFrameCount>arcadeHud.sTime)
+			{
+				if (me->a > gameSpeed)
+					me->a -= gameSpeed;
+				else
+					me->draw = 0;
+			}
 			else
-				me->draw = 0;
+				me->a = Random(100)+155;
+		}
+*/
+	}
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+	{
+		if(goTimer.time > 1)
+		{
+			if(arcadeHud.timeBar->width < timeBarWidth - FMul(gameSpeed,timeBarStep))
+				arcadeHud.timeBar->width += FMul(gameSpeed,timeBarStep);
+			else
+				arcadeHud.timeBar->width = timeBarWidth;
 		}
 		else
-			me->a = Random(100)+155;
+		{
+			DEC_ALPHA(arcadeHud.timeBarText);
+			timeFrames += 60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*60;
+			if(timeFrames > 0)
+				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
+			else
+			{
+				player[0].canJump = 0;
+				arcadeHud.timeOutText->a = 255;
+				arcadeHud.timeOutText->draw = 1;
+				GTInit(&endLevelTimer,4);
+				PlaySample( FindSample(utilStr2CRC("alarm")), NULL, 0, SAMPLE_VOLUME, -1 );
+				PrepareSong(AUDIOTRK_GAMEOVER,0);
+			}
+		}
 	}
 }
 

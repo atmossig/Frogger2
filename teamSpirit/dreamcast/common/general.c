@@ -418,8 +418,8 @@ void LoadSfxMapping( int world, int level )
 #endif
 
 #ifdef PSX_VERSION
-//ma	buffer = FindStakFileInAllBanks ( filename, &size );
-	buffer = fileLoad(filename,&size);
+	buffer = (unsigned char *)FindStakFileInAllBanks ( filename, &size );
+//	buffer = fileLoad(filename,&size);
 #endif
 
 	if(buffer == NULL)

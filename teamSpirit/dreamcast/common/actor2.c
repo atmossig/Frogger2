@@ -81,7 +81,7 @@ int numUniqueActors = 0;
 
 
 #ifdef PSX_VERSION
-void LSCAPE_DrawSortedPrimitives(int);
+//void LSCAPE_DrawSortedPrimitives(int);
 void DrawSortedPrimitivesFaded(int);
 void customDrawPrimitives2(int, long*);
 int actorCount=0;
@@ -90,7 +90,7 @@ ACTOR2 *backDropObject=NULL;
 //PSIMODEL* pPSI;
 
 
-void drawSpriteActor(ACTOR *actor)
+/*void drawSpriteActor(ACTOR *actor)
 {
 	POLY_FT4	*ft4;
 	VERT		point[4];
@@ -100,7 +100,6 @@ void drawSpriteActor(ACTOR *actor)
 	short		*verts;
 
 
-/*ma
 	tmdGT4 = (TMD_P_GT4I*)(actor->psiData.primitiveList);
 
 	x = -actor->position.vx;
@@ -137,8 +136,8 @@ void drawSpriteActor(ACTOR *actor)
 	gte_stsz(&depth);
 
 	ENDPRIM(ft4, 0, POLY_FT4);
-*/
 }
+*/
 
 #endif
 
@@ -552,6 +551,11 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 				}
 			}
 		}
+
+		// null object - do not display
+		if( strstr(newname,"TRANSOBJ") || strstr(newname,"NOTHING") || strstr(newname,"NULL_") ||
+			strstr(newname,"transobj") || strstr(newname,"nothing") || strstr(newname,"null_") )
+			newItem->draw = 0;		
 	}
 #elif PC_VERSION
 
@@ -574,11 +578,6 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 
 	tAct = (MDX_ACTOR *)newItem->actor->actualActor;
 
-	if( (initFlags & INIT_SHADOW) || !strnicmp(newname,"shadow",6) )
-		AddActorToList(tAct,1);
-	else
-		AddActorToList(tAct,0);
-
 	if((tAct->objectController) && (tAct->objectController->object))
 	{
 		AddObjectsSpritesToSpriteList(tAct->objectController->object,0);
@@ -587,6 +586,9 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 		FindSfxMapping( tAct->objectController->objectID, newItem->actor );
 	}
 
+	// null object - do not display
+	if( !(strnicmp(newname,"TRANSOBJ",8)) || !(strnicmp(newname,"NOTHING",7)) || !(strnicmp(newname,"NULL_",5)) )
+		newItem->draw = 0;
 #endif
 
 	gstrlwr(newname);
@@ -614,8 +616,7 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 			newItem->flags |= ACTOR_SLIDYTEX;
 	}
 
-	if (newname[0] == 's')
-	if (newname[1] == 'p')
+	if (newname[0] == 's' && newname[1] == 'p')
 	{
 		switch (newname[2])
 		{
@@ -648,7 +649,14 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 		*/
 	}
 
-#ifdef PSX_VERSION
+#ifdef PC_VERSION
+
+	if( (initFlags & INIT_SHADOW) || (newItem->flags & ACTOR_ADDITIVE) || !strnicmp(newname,"shadow",6))
+		AddActorToList(tAct,1);
+	else
+		AddActorToList(tAct,0);
+
+#else PSX_VERSION
 	gstrupr(newname);
 
 	/*if ((strstr(newname,"CARA"))||(strstr(newname,"CARB"))||(strstr(newname,"CARC"))||(strstr(newname,"CARD"))||(strstr(newname,"CARE"))||
@@ -706,18 +714,16 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 		return NULL;
 	}
 #endif
-	
-	newItem->next = actList;
-	newItem->prev = NULL;
 
-	//bb
 	newItem->clipped = 0;
 	newItem->milesAway = 0;
+
+	newItem->next = actList;
+	newItem->prev = NULL;
 
 	if (actList) actList->prev = newItem;
 	actList = newItem;
 	
-
 	return newItem;
 }
 
@@ -1211,7 +1217,10 @@ void actor2Free(ACTOR2 *actor)
 	else
 		actList = actor->next;
 
+#ifdef PC_VERSION
 	FREE(actor);
+#endif
+	actor = NULL;
 }
 
 

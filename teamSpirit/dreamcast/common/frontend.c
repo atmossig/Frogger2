@@ -65,7 +65,10 @@
 extern int useMemCard;
 #endif
 
+int numExtra;
 
+char extraOpenStr[64];
+extern int pauseController;
 int eolTrackComplete;
 int levCompleteState;
 enum
@@ -130,7 +133,10 @@ void GameLoop(void)
 
 #ifdef PSX_VERSION
 		if(padData.present[0] == 0)
+		{
 			StartPauseMenu();
+			pauseController = 0;
+		}
 #endif
 		break;
 
@@ -146,7 +152,10 @@ void GameLoop(void)
 		RunTrainingMode();
 #ifdef PSX_VERSION
 		if(padData.present[0] == 0)
+		{
 			StartPauseMenu();
+			pauseController = 0;
+		}
 #endif
 		break;
 
@@ -259,7 +268,7 @@ unsigned long createFrames = 30;
 char currentName[64] = "";
 char initialName[64] = "";
 long waitFrame = 0;
-long grade,moreCoins,levelOpened;
+long grade,moreCoins,levelOpened,levelBeaten;
 long cOption = 0;
 long goFrontend = 1;
 TEXTOVERLAY *tText,*coinText,*nameText,*newBestText,*extraText;
@@ -309,7 +318,7 @@ void LevelCompleteProcessController(long pl)
 
 		levCompleteState = LEV_COMPLETE_FADING_OUT;
 
-		if((grade == 0) || (moreCoins) || (levelOpened))
+		if((grade == 0) || (moreCoins) || (levelOpened) || (levelBeaten))
 			SaveGame();
 
 		if (cOption == 1)
@@ -366,7 +375,7 @@ void RunGameOver( )
 	}
 	if((keepFade) && (fadingOut == 0))
 	{
-		FreeAllLists();
+//		FreeAllLists();
 #ifdef E3_DEMO
 		StartE3LevelSelect();
 #else
@@ -487,15 +496,15 @@ void StartMultiWinGame( )
 		GTInit( &modeTimer, 3 );
 		if(matchWinner != -1)
 		{
-			sprintf(countdownString,GAMESTRING(STR_MULTI_WINMATCH),frogPool[player[gameWinner].character].name);
+			sprintf(countdownString,GAMESTRING(STR_MULTI_WINMATCH),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
 		}
 		else if(gameWinner == MULTI_ROUND_DRAW)
 		{
-			sprintf(countdownString,GAMESTRING(STR_MULTI_DRAW),frogPool[player[gameWinner].character].name);
+			sprintf(countdownString,GAMESTRING(STR_MULTI_DRAW));
 		}
 		else
 		{
-			sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),frogPool[player[gameWinner].character].name);
+			sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
 		}
 		multiHud.centreText->a = 0;
 		multiHud.centreText->scale = 4096;
@@ -710,11 +719,11 @@ void RunMultiWinRace( )
 		}
 #else
 		if(matchWinner != -1)
-			sprintf(countdownString,GAMESTRING(STR_MULTI_WINMATCH),frogPool[player[gameWinner].character].name);
+			sprintf(countdownString,GAMESTRING(STR_MULTI_WINMATCH),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
 		else if( gameWinner == MULTI_ROUND_DRAW )
 			sprintf(countdownString,GAMESTRING(STR_MULTI_DRAW));
 		else
-			sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),frogPool[player[gameWinner].character].name);
+			sprintf(countdownString,GAMESTRING(STR_MULTI_PLAYERWINS),GAMESTRING(STR_CHAR_NAME_1 + player[gameWinner].character));
 		multiHud.centreText->scale = 4096;
 #endif
 
@@ -914,6 +923,11 @@ void RunMultiWinMatch( )
 
 }
 
+void SetTimeForLevel( )
+{
+	timeForLevel = actFrameCount/60;
+}
+
 TEXTOVERLAY *menuText[2] = {NULL,NULL};
 int menuOption = -1;
 int optionSelected = 0;
@@ -1037,7 +1051,7 @@ SVECTOR frogPos[6] =
 	{0,0,1500},
 	{-300,0,1200},
 	{-500,0,1000},
-	{0,0,1000},
+	{0,0,850},
 };
 
 int babyFrogY[5] = 
@@ -1063,6 +1077,10 @@ int froganimspeed3 = 100;
 int froganimnum4 = FROG_ANIM_BREATHE;
 int froganimspeed4 = 100;
 TEXTOVERLAY *levName;
+#define MAX_SPARKLES 15
+
+SPRITEOVERLAY *sparkles[MAX_SPARKLES];
+
 void StartLevelComplete()
 {
 	int i,num,w;
@@ -1104,6 +1122,7 @@ void StartLevelComplete()
 	flashScreen = YES;
 
 	levelOpened = 0;
+	levelBeaten = 0;
 	arcadeHud.collectText->draw = 0;
 
 	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted == 0)
@@ -1152,10 +1171,6 @@ void StartLevelComplete()
 
 	createTime = actFrameCount + createFrames;
 
-
-	timeForLevel = actFrameCount/60;
-
-
 	moreCoins = 0;
 
 	arcadeHud.coinsOver->xPos = 3200 + 4096;
@@ -1175,15 +1190,21 @@ void StartLevelComplete()
 			{
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].maxCoins = player[0].numSpawn;
 				moreCoins = 1;
-				for(i = 1,num = 0;i < NUM_STORY_LEVELS;i++)
+				for(i = 1,numExtra = 0;i < NUM_STORY_LEVELS;i++)
 				{
 					if(worldVisualData[storySequence[i].worldNum].levelVisualData[storySequence[i].levelNum].maxCoins == 25)
-						num++;
+						numExtra++;
 				}
 
-		 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+750,GAMESTRING(STR_OPENED_EXTRA_1 + num - 1),YES,255,font,TEXTOVERLAY_SHADOW);
+				if(numExtra <= 9)
+				{
+			 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+750,extraOpenStr,YES,255,font,TEXTOVERLAY_SHADOW);
+					sprintf(extraOpenStr,GAMESTRING(STR_OPENED_EXTRA_1),GAMESTRING(worldVisualData[WORLDID_SUPERRETRO].levelVisualData[numExtra].description_str));
+				}
+				else
+			 		extraText = CreateAndAddTextOverlay(2048+4096+4096,850+750,GAMESTRING(STR_OPENED_EXTRA_1 + numExtra - 9),YES,255,font,TEXTOVERLAY_SHADOW);
 				extraText->xPosTo = 2048;
-				extraIcon = CreateAndAddSpriteOverlay(2048-256-4096-4096,850+1050,storySequence[num].iconName,512,512,255,0);
+				extraIcon = CreateAndAddSpriteOverlay(2048-256-4096-4096,850+1050,storySequence[numExtra].iconName,512,512,255,0);
 				extraIcon->xPosTo = 2048-256;
 			}
 			arcadeHud.coinsOver->draw = 0;
@@ -1217,12 +1238,27 @@ void StartLevelComplete()
 	}
 	else
 	{
+		if((worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && timeForLevel <= (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime))
+			worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten = levelBeaten = 1;
 		if(timeForLevel < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)
 			grade = 0;
 		else if(timeForLevel < (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 3)/2)
 			grade = 1;
 		else
 			grade = 2;
+		if(grade < 2)
+		{
+			for (i=0; i<MAX_SPARKLES; i++)
+			{
+				sparkles[i] = CreateAndAddSpriteOverlay( 256,1535,"FLASH",200,200,(UBYTE)Random(0xff),SPRITE_ADDITIVE);
+				if(sparkles[i])
+				{
+					sparkles[i]->num = 1;
+					sparkles[i]->draw = 0;
+					sparkles[i]->a = Random(256);
+				}
+			}
+		}
 	}
 
 	if (grade==0)
@@ -1266,7 +1302,7 @@ void StartLevelComplete()
 		bIcon = NULL;
 	}
 
-	if(gameState.single == STORY_MODE)
+	if((gameState.single == STORY_MODE) && (arcadeHud.timeOutText->draw == 0))
 	{
 		oText[0] = CreateAndAddTextOverlay(2048+4096, 3420, GAMESTRING(STR_PRESS_X_TO_CONTINUE), YES, (char)0xFF, font, TEXTOVERLAY_SHADOW);
 		oText[0]->xPosTo = 2048;
@@ -1357,7 +1393,7 @@ int babyanimy = 100;
 int babyanimy = 300;
 #endif
 
-#define NUM_CELEBRATE_ANIMS 6
+#define NUM_CELEBRATE_ANIMS 7
 
 int celebrateAnim[NUM_CELEBRATE_ANIMS] = 
 {
@@ -1367,18 +1403,14 @@ int celebrateAnim[NUM_CELEBRATE_ANIMS] =
 	FROG_ANIM_DANCE3,
 	FROG_ANIM_DANCE4,
 	FROG_ANIM_HANDSPRING,
+	FROG_ANIM_VICTORY
 };
 
 TIMER eolTimer;
 
-void RunLevelComplete()
+
+void CheckEOLLoopTrack()
 {
-	int i,dropped = FMul(dropSpeed,gameSpeed);
-	SPRITEOVERLAY *coinOver;
-
-	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/60)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%60);
-	drawLandscape = 0;
-
 	if(IsSongPlaying())
 	{
 		if(eolTrackComplete == 0)
@@ -1389,9 +1421,20 @@ void RunLevelComplete()
 		PrepareSong(AUDIOTRK_LEVELCOMPLETELOOP,YES);
 		eolTrackComplete = 2;
 	}
+}
+
+
+void RunLevelComplete()
+{
+	int i,dropped = FMul(dropSpeed,gameSpeed);
+	SPRITEOVERLAY *coinOver;
+
+	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/60)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%60);
+	drawLandscape = 0;
 
 #ifdef PSX_VERSION
-/*ma	if(saveInfo.saveFrame)
+/*ma
+	if(saveInfo.saveFrame)
 	{
 		frog[0]->draw = 0;
 		for(i = 0;i < numBabies;i++)
@@ -1405,6 +1448,7 @@ void RunLevelComplete()
 */
 #endif
 
+	CheckEOLLoopTrack();
 //	if(padData.digital[0] & PAD_CROSS)
 //		StartLevelComplete();
 
@@ -1427,16 +1471,19 @@ void RunLevelComplete()
 			}
 
 			
-			for(i = 0;i < numBabies;i++)
+			if(arcadeHud.timeOutText->draw == 0)
 			{
-				if(babyList[i].baby->actor->position.vy > 0)
+				for(i = 0;i < numBabies;i++)
 				{
-					babyList[i].baby->actor->position.vy -= dropped;
-
-					if((babyList[i].baby->actor->position.vy <= babyanimy) && (babyList[i].baby->actor->position.vy + dropped > babyanimy))
+					if(babyList[i].baby->actor->position.vy > 0)
 					{
-						actorAnimate(babyList[i].baby->actor,BABY_ANIM_COLLECT,NO,NO,-babyanimspeed,NO);
-						actorAnimate(babyList[i].baby->actor,BABY_ANIM_HOP,YES,YES,babyanimspeed2,NO);
+						babyList[i].baby->actor->position.vy -= dropped;
+
+						if((babyList[i].baby->actor->position.vy <= babyanimy) && (babyList[i].baby->actor->position.vy + dropped > babyanimy))
+						{
+							actorAnimate(babyList[i].baby->actor,BABY_ANIM_COLLECT,NO,NO,-babyanimspeed,NO);
+							actorAnimate(babyList[i].baby->actor,BABY_ANIM_HOP,YES,YES,babyanimspeed2,NO);
+						}
 					}
 				}
 			}
@@ -1454,7 +1501,7 @@ void RunLevelComplete()
 				extraIcon->speed = 4096*75;
 			arcadeHud.coinsOver->speed = 4096*75;
 
-			if(coinText->xPos == coinText->xPosTo)
+			if(((extraText) && (extraText->xPos == extraText->xPosTo)) || ((extraText == NULL) && (coinText->xPos == coinText->xPosTo)))
 			{
 				if(eolTimer.time)
 				{
@@ -1547,7 +1594,7 @@ void RunLevelComplete()
 				}
 			}
 
-			if(!nText)
+			if((!nText) && ((tText == NULL) || (tText->xPosTo == tText->xPos)))
 			{
 				if(eolTimer.time)
 				{
@@ -1633,12 +1680,13 @@ void RunLevelComplete()
 					player[0].levelNum = LEVELID_FRONTEND1;
 					player[0].character = FROG_FROGGER;
 				}
-				else if (gameState.single == STORY_MODE)
+				else if ((gameState.single == STORY_MODE) && (arcadeHud.timeOutText->draw == 0))
 				{
 					gameState.mode = INGAME_MODE;
 
 					if( gameState.storySequenceLevel > 16 )
 					{
+						StartVideoPlayback(FMV_VICTORY);
 						gameState.storySequenceLevel = 0;
 						player[0].worldNum = WORLDID_FRONTEND;
 						player[0].levelNum = LEVELID_FRONTEND1;
@@ -1655,7 +1703,7 @@ void RunLevelComplete()
 					// todo: place Frogger 
 					gameState.mode = INGAME_MODE;
 				}
-				FreeAllLists();
+//				FreeAllLists();
 				frameCount = 0;
 
 				InitLevel(player[0].worldNum,player[0].levelNum);
@@ -1676,6 +1724,36 @@ void RunLevelComplete()
 			return;
 		}
 #endif
+
+	if(bIcon)
+	{
+		if(grade < 2)
+		{
+		
+			for(i = 0;i < MAX_SPARKLES;i++)
+			{
+				if(sparkles[i])
+				{
+					if(sparkles[i]->draw == 0)
+					{
+						sparkles[i]->xPos = bIcon->xPos - sparkles[i]->width/2 + Random(bIcon->width);
+						sparkles[i]->yPos = bIcon->yPos - sparkles[i]->height/2 + Random(bIcon->height);
+						sparkles[i]->r = 64 + Random(192);
+						sparkles[i]->g = 64 + Random(192);
+						sparkles[i]->b = 64 + Random(192);
+						sparkles[i]->a = 200 + Random(56);
+						sparkles[i]->draw = 1;
+					}
+					else
+					{
+						if(Random(50) < 20)
+							DEC_ALPHA(sparkles[i]);
+					}
+				}
+			}
+		}
+	}
+
 	for(i = 0;i < numBabies;i++)
 	{
 		babyList[i].baby->draw = 1;
@@ -1718,6 +1796,12 @@ void RunLevelComplete()
 	frog[0]->draw = 1;
 	if(frog[0]->actor->position.vy <= 0)
 	{
+		if((arcadeHud.timeOutText->draw) && (levCompleteState == LEV_COMPLETE_DROPPING_FROGS))
+		{
+			levCompleteState = LEV_COMPLETE_MENU;
+			actorAnimate(frog[0]->actor,froganimnum2,NO,NO,froganimspeed2,NO);
+			actorAnimate(frog[0]->actor,froganimnum4,YES,YES,froganimspeed4,NO);
+		}
 		if((numBabies == 0) && (levCompleteState == LEV_COMPLETE_DROPPING_FROGS))
 		{
 			levCompleteState = LEV_COMPLETE_COUNTING_COINS;
@@ -1726,7 +1810,8 @@ void RunLevelComplete()
 			actorAnimate(frog[0]->actor,froganimnum3 + Random(4),NO,YES,froganimspeed3,NO);
 			actorAnimate(frog[0]->actor,froganimnum4,YES,YES,froganimspeed4,NO);
 		}
-		if(GetAnimNum(frog[0]) == FROG_ANIM_BREATHE)
+		
+		if((arcadeHud.timeOutText->draw == 0) && (GetAnimNum(frog[0]) == FROG_ANIM_BREATHE))
 		{
 			if(GetAnimLoop(frog[0]))
 			{
@@ -1746,7 +1831,7 @@ void RunLevelComplete()
 							break;
 					}
 					actorAnimate(frog[0]->actor,celebrateAnim[Random(NUM_CELEBRATE_ANIMS)],NO,YES,70,NO);
-					actorAnimate(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,babyanimspeed2,NO);
+					actorAnimate(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,75,NO);
 				}
 			}
 		}

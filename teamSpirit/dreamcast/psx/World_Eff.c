@@ -1004,6 +1004,106 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #undef op
 #undef si
 
+//	return;
+	
+#define si ((POLY_FT4*)packet)
+#define op ((FMA_SPR *)opcd)
+
+	op = mesh->sprs;
+
+	for(i = mesh->n_sprs; i != 0; i--,op++)
+	{
+		LONG spritez, width, height;
+		SVECTOR tempVect;
+
+//		BEGINPRIM(si, POLY_FT4);
+
+//		setPolyFT4(si);
+
+		tempVect.vx = -op->x;
+		tempVect.vy = -op->y;
+		tempVect.vz = -op->z;
+
+		width = 32;
+
+		gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
+		gte_ldv0(&tempVect);
+		gte_SetLDDQA(width);	// shove sprite width into control reg (C2_DQA)
+		gte_rtps();				// do the rtps
+//		gte_stsxy(&si->x0);		// get screen x and y
+		x0 = screenxy[2].vx;
+		y0 = screenxy[2].vy;
+		spritez = screenxy[2].vz;
+//ma	gte_stsz(&spritez);		// get screen z
+
+		if ( spritez <= 0 || spritez >= fog.max ) 
+			continue;
+
+		width = ((op->w * SCALEX * fmaActorScale.vx)>>12) / spritez;
+		if(width < 2 || width > 256)
+			continue;
+
+ 		x1 = x3 = x0 + width;
+ 		x0 = x2 = x0 - width;
+   		if(x1 <= 0)
+   			continue;
+   		if(x0 >= 640)
+   			continue;
+
+		height = ((op->h * SCALEY * fmaActorScale.vx)>>12) / spritez;
+
+		y2 = y3 = y0 + height;
+		y0 = y1 = y0 - height;
+		
+   		if(y2 <= 0)
+   			continue;
+   		if(y0 >= 480)
+   			continue;
+
+		spritez >>= 2;
+		vertices_GT4_FMA[0].fX = x0;
+		vertices_GT4_FMA[0].fY = y0;
+		vertices_GT4_FMA[0].u.fZ = 1.0 / spritez;
+		vertices_GT4_FMA[0].fU = 0;
+		vertices_GT4_FMA[0].fV = 0;
+		vertices_GT4_FMA[0].uBaseRGB.dwPacked = RGBA(op->r0,op->g0,op->b0,255);
+
+		vertices_GT4_FMA[1].fX = x1;
+		vertices_GT4_FMA[1].fY = y1;
+		vertices_GT4_FMA[1].u.fZ = 1.0 / spritez;
+		vertices_GT4_FMA[1].fU = 1;
+		vertices_GT4_FMA[1].fV = 0;
+		vertices_GT4_FMA[1].uBaseRGB.dwPacked = RGBA(op->r0,op->g0,op->b0,255);
+
+		vertices_GT4_FMA[2].fX = x2;
+		vertices_GT4_FMA[2].fY = y2;
+		vertices_GT4_FMA[2].u.fZ = 1.0 / spritez;
+		vertices_GT4_FMA[2].fU = 0;
+		vertices_GT4_FMA[2].fV = 1;
+		vertices_GT4_FMA[2].uBaseRGB.dwPacked = RGBA(op->r0,op->g0,op->b0,255);
+
+		vertices_GT4_FMA[3].fX = x3;
+		vertices_GT4_FMA[3].fY = y3;
+		vertices_GT4_FMA[3].u.fZ = 1.0 / spritez;
+		vertices_GT4_FMA[3].fU = 1;
+		vertices_GT4_FMA[3].fV = 1;		
+		vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(op->r0,op->g0,op->b0,255);
+
+//ma	kmStartStrip(&vertexBufferDesc, &DCKtextureList[op->tpage].stripHead);	
+
+		kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,DCKtextureList[op->tpage].surfacePtr);
+		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+
+		kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmEndStrip(&vertexBufferDesc);				
+		
+	}
+
+#undef si
+#undef op
 
 //	currentDisplayPage->primPtr = (char *)packet;
 }

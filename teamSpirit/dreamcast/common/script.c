@@ -1155,7 +1155,7 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_KILLFROG:
 		{
-			int pl, time;
+			int pl, time,num;
 
 			pl = MEMGETBYTE(p);
 			time = MEMGETBYTE(p);
@@ -1168,8 +1168,12 @@ BOOL ExecuteCommand(UBYTE **p)
 			}
 
 			player[pl].frogState |= FROGSTATUS_ISDEAD;
-			player[pl].deathBy = DEATHBY_NORMAL;
-			GTInit(&player[pl].dead, time);
+			if( num < NUM_DEATHTYPES )
+				deathAnims[num] (pl);
+			else
+				deathAnims[DEATHBY_NORMAL] (pl);
+//			player[pl].deathBy = DEATHBY_NORMAL;
+//			GTInit(&player[pl].dead, time);
 		}
 		break;
 
@@ -1350,12 +1354,20 @@ int LoadLevelScript ( int worldID, int levelID )
 	int fileLength;
 	char fileName[256];
 
-	sprintf ( fileName, "MAPS\\SCRIPT_%d_%d.FEV", worldID, levelID );
+#ifdef PSX_VERSION
+	sprintf ( fileName, "SCRIPT_%d_%d.FEV", worldID, levelID );
 
-	utilPrintf("Loading script %s...", fileName);
-	
+	scriptFile = (void*)FindStakFileInAllBanks ( fileName, &fileLength );
+#endif
+
+#ifdef PC_VERSION
+	sprintf ( fileName, "MAPS\\SCRIPT-%d-%d.FEV", worldID, levelID );
+
 	scriptFile = ( void * ) fileLoad ( fileName, &fileLength );
+#endif
 
+	utilPrintf("Loading script %s...\n", fileName);
+	
 	if ( !scriptFile )
 	{
 		utilPrintf("error loading file\n", fileName);

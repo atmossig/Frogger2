@@ -65,6 +65,7 @@
 #endif
 
 
+extern int pauseController;
 //----------------------------------------------------------------------
 
 #define SHOW_ME_THE_TILE_NUMBERS 1
@@ -125,27 +126,33 @@ void GameProcessController(long pl)
 	button[pl] = padData.digital[pl];
 
 	// The only thing we can do when dead is press start
-#ifdef PC_VERSION
-	if(padData.debounce[pl] & PAD_START)
+	if((gameState.multi == SINGLEPLAYER) || ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
-		StartPauseMenu();
-		return;
-	}
+#ifdef PC_VERSION
+		if(padData.debounce[pl] & PAD_START)
+		{
+			StartPauseMenu();
+			pauseController = pl;
+			return;
+		}
 #else PSX_VERSION
 #ifdef FINAL_MASTER
-	if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
-	{
-		StartPauseMenu();
-		return;
-	}
+		if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
+		{
+			StartPauseMenu();
+			pauseController = pl;
+			return;
+		}
 #else
-	if(padData.debounce[pl] & PAD_START)
-	{
-		StartPauseMenu();
-		return;
+		if(padData.debounce[pl] & PAD_START)
+		{
+			StartPauseMenu();
+			pauseController = pl;
+			return;
+		}
+#endif
+#endif
 	}
-#endif
-#endif
 
 	if( player[pl].stun.time )
 	{
@@ -167,7 +174,7 @@ void GameProcessController(long pl)
 	{
 		if ((button[pl]&PAD_CROSS) && (player[pl].jumpTime > player[pl].jumpMultiplier/2))
 		{
-			StartAnimateActor(frog[pl]->actor, FROG_ANIM_FALL, YES, NO, 256, NO);
+			StartAnimateActor(frog[pl]->actor, FROG_ANIM_FALL, YES, NO, 256, 512);
 			player[pl].frogState |= FROGSTATUS_ISFLOATING;
 		}
 		else
@@ -509,8 +516,6 @@ TIMER endLevelTimer;
 void RunGameLoop (void)
 {
 	unsigned long i;
-//	GAMETILE *cur;
-	
 
 	if(player[0].numSpawn == 25)
 	{
@@ -519,13 +524,13 @@ void RunGameLoop (void)
 		arcadeHud.coinsOver->b = arcadeHud.coinsText->b = 0;
 	}
 
-	if( frameCount==2 )
-	{
-		ScreenFade(0,255,30);
-		keepFade = 0;
-		startCam = 1;
-		GTInit( &endLevelTimer, 0 );
-	}
+//	if( frameCount==2 )
+//	{
+//		ScreenFade(0,255,30);
+//		keepFade = 0;
+//		startCam = 1;
+//		GTInit( &endLevelTimer, 0 );
+//	}
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 	// Take this out for release
@@ -564,6 +569,7 @@ void RunGameLoop (void)
 
 	if( endLevelTimer.time )
 	{
+		CheckEOLLoopTrack();
 		GTUpdate( &endLevelTimer, -1 );
 		if( !endLevelTimer.time )
 		{
@@ -589,8 +595,11 @@ void RunGameLoop (void)
 
 	if ((cheatCombos[CHEAT_SKIP_LEVEL].state) || ( babiesSaved==numBabies && numBabies && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum ].multiPartLevel == NO_MULTI_LEV) ))
 	{
-		GTInit( &endLevelTimer, 3 );
+		GTInit( &endLevelTimer, 4 );
+		SetTimeForLevel();
 		PrepareSong ( AUDIOTRK_LEVELCOMPLETE, NO );
+		actorAnimate(frog[0]->actor,FROG_ANIM_VICTORY,NO,NO,100,NO);
+		actorAnimate(frog[0]->actor,FROG_ANIM_DANCE4,YES,YES,70,NO);
 		return;
 	}
 	else
@@ -720,24 +729,16 @@ void RunGameLoop (void)
 //		if( controllerdata[0].button == 0 || (controllerdata[0].button != controllerdata[0].lastbutton) )
 //			SendUpdateMessage( );
 
-#ifndef E3_DEMO
-/*#ifdef SHOW_ME_THE_TILE_NUMBERS
+#ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers
 	TIMER_START3(TIMER_TILENUM);
-	cur = &firstTile[0];
-	currTileNum = 0;
-	while(cur)
-	{
-		cur = cur->next;
-
-		if(cur == currTile[0])
-		{
-			currTileNum++;
+	i = tileCount;
+	while(i--)
+		if(&firstTile[i] == currTile[0])
 			break;
-		}
 
-		currTileNum++;
-	}
+	currTileNum = i;
+
 	TIMER_STOP_ADD3(TIMER_TILENUM);
 	
  	if (tileNum)
@@ -748,7 +749,6 @@ void RunGameLoop (void)
  			else
 				sprintf(tileString,"");
  		}
-#endif*/
 #endif
 	TIMER_STOP_ADD3(TIMER_TOTAL);
 }

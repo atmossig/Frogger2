@@ -1001,7 +1001,7 @@ void *psiLoadPIL(char *pilName)
 	int *table,*crcs;
 	int filelength,i;
 
-	addr = (void *)fileLoad(pilName, &filelength);
+	addr = (char*)FindStakFileInAllBanks ( pilName, &filelength );	
 	if(!addr)
 		return NULL;
 

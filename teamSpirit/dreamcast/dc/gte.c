@@ -2999,8 +2999,8 @@ void initialisePsxStrips()
 	StripContext_Sprites_Sub.ObjectControl.nDepthCompare			 			= KM_GREATER;
 	StripContext_Sprites_Sub.ObjectControl.nCullingMode			 				= KM_NOCULLING;
 	StripContext_Sprites_Sub.ObjectControl.bZWriteDisable						= KM_FALSE;
-	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode		= KM_ONE;
-	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode		= KM_ONE;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode		= KM_ZERO;
+	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode		= KM_INVSRCCOLOR;
 	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
 	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
 	StripContext_Sprites_Sub.ImageControl[KM_IMAGE_PARAM1].nFogMode				= KM_NOFOG;

@@ -10,6 +10,10 @@
 #include "water.h"
 #include "actor2.h"
 #include "temp_psx.h"
+#include "islvideo.h"
+#include "story.h"
+
+FVECTOR fmaActorScale;
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
@@ -1782,7 +1786,7 @@ void PsiActor2ClipCheck(ACTOR2* act)
 
 	long sxy,sz;
 	long sx, sy;
-	int distTop, distRight, distBott, distLeft;
+	int distTop, distRight, distBott, distLeft, distIn, distOut;
 	int radius, FOV;
 
 	SVECTOR pos = act->actor->position;
@@ -1820,15 +1824,16 @@ void PsiActor2ClipCheck(ACTOR2* act)
 
 
 	//not too close/far
-	if( sz <= 0 || sz >= fog.max )
+	if( sz <= 0 )
 	{
 		act->clipped = 1;
+		return;
 	}
 
 	//psi clipping.
 	//calculate the screen position of the object,
 	//and it's screen radius.
-	else 
+//	else 
 	{
 		sx = (short)(sxy&0xffff);
 		sy = (short)(sxy>>16);
@@ -1845,9 +1850,11 @@ void PsiActor2ClipCheck(ACTOR2* act)
 		distRight	= (sx-radius) - CLIP_RIGHT;
 		distBott	= (sy-radius) - CLIP_BOTT;
 		distLeft	= (sx+radius) - CLIP_LEFT;
+		distIn		= sz+radius;
+		distOut		= sz-radius;
 
 		//clip?
-		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>fog.max) )
+		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (distOut>fog.max) )
 		{
 			act->clipped = 1;
 		}
@@ -2047,7 +2054,7 @@ void FmaActor2ClipCheck(ACTOR2* act)
 
 	//not too close/far
 //	if( sz <= 0 || sz >= fog.max )
-	if( sz <= 10 || sz >= fog.max )
+	if( sz <= 10 || sz >= fog.max)
 	{
 		act->clipped = 1;
 	}
@@ -2102,8 +2109,8 @@ void FmaActor2ClipCheck(ACTOR2* act)
 		gte_MulMatrix0(&tx, &rY, &tx);
 		gte_SetRotMatrix(&tx);
 		gte_SetTransMatrix(&tx);
-		
-		
+
+		SetVectorFF( &fmaActorScale, &act->actor->size );		
 		
 		if(FmaActor_ClipCheck(*mesh))
 			act->clipped=0;
@@ -2358,5 +2365,72 @@ void asciiStringToSJIS(unsigned char *string, unsigned char *dest)
 		// Write sjis
 		*dest++ = (sjis_code&0xff00)>>8;
 		*dest++ = (sjis_code&0xff);
+	}
+}
+
+short videoKeyPress()
+{
+	return ((padData.digital[0] & (PAD_CROSS|PAD_START))>0);
+}
+
+StrDataType vStream = 
+{
+		"02s.SFD",					// Stream name
+		STR_MODE24,						// 24-Bit or 16-Bit streaming
+		STR_BORDERS_ON,					// != 0 if borders on
+		640,							// Screen res width
+		0,								// X,Y position
+		50,								//
+		640,							// Stream width and height
+		380,							//
+		-1,								// Last frame No.
+		0,								// Size of each VLC buffer (including header).
+		127,							// Left and Right ADPCM volume. (0..127)
+};
+
+/*typedef struct _StrDataType
+{
+		char		*strName;					// Stream file name. 
+		short		mode;						// 24-Bit or 16-Bit streaming.
+		short		drawBorders;				// != 0 if borders on.
+		short		scrWidth;					// Screen res width.
+		short		x;							// X,Y position. 
+		short		y;
+		short		width;						// Stream width and height.
+		short		height;
+		long		endFrame;					// Last frame No.
+		long		vlcBufSize;					// Size of each VLC buffer (including header).
+		short		volume;						// Left and Right ADPCM volume.
+} StrDataType
+*/
+void StartVideoPlayback(int num)
+{
+	RECT rect;
+	StrDataType str;
+
+	rect.x = rect.y = 0;
+	rect.w = 512;
+	rect.h = 512;
+
+	StopSong();
+	
+	sprintf(vStream.strName,"%s.sfd",fmv[num].name);
+
+//	if (XAgetStatus())
+	{
+  		sprintf(str.strName,"%s.sfd",fmv[num].name);
+		utilPrintf("Playing stream %s\n",str.strName);
+   		str.mode = STR_MODE24;
+   		str.drawBorders = STR_BORDERS_ON;
+   		str.scrWidth = 640;
+   		str.x = 0;
+   		str.y = 50;
+   		str.width = 640;
+   		str.height = 380;
+   		str.endFrame = -1;//fmv[num].len;
+   		str.vlcBufSize = 0;//50000;
+   		str.volume = 127;
+//   		videoPlayStream(&str, PALMODE, videoKeyPress);
+   		videoPlayStream(&vStream, PALMODE, videoKeyPress);
 	}
 }

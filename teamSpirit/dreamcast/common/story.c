@@ -30,16 +30,25 @@
 FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
 	"",0,
-	"TREX",2143,
-	"INTRO",1640,
-	"TREX",2143,
-	"TREX",2143,
-	"TREX",2143,
-	"TREX",2143,
-	"TREX",2143,
-	"TREX",2143,
-	"TREX",2143,
-	"TREX",2143,
+//	"BLOGO25S",147,
+	"ATARI",147,
+//	"02S",1085,
+	"02S",1085,
+	"03S",677,
+	"04S",525,
+	"05S",386,
+	"06S",518,
+	"07S",527,
+	"08S",943,
+	"09S",968,
+	"10S",462,
+	"11S",948,
+	"12S",737,
+};
+
+short storySequenceLevelToChapter[] = 
+{
+	0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,8,9
 };
 
 GAME_LEVEL storySequence[] = 

@@ -37,6 +37,8 @@ KMVERTEXBUFFDESC vertexBufferDesc;			// global vertex buffer
 
 PKMDWORD 		dwDataPtr;
 
+Sint32			displayMode, frameBufferFormat;
+
 //----- [ FUNCTION IMPLEMENTATION ] --------------------------------------------------------------
 
 /*	--------------------------------------------------------------------------------

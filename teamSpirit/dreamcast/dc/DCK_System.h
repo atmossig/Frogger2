@@ -31,6 +31,8 @@ extern KMVERTEXBUFFDESC 	vertexBufferDesc;			// global vertex buffer
 
 extern PKMDWORD				dwDataPtr;
 
+extern Sint32				displayMode, frameBufferFormat;
+
 //----- [ FUNCTION PROTOTYPES ] -----------------------------------------------------------------
 
 /*	--------------------------------------------------------------------------------

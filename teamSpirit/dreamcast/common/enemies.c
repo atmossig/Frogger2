@@ -73,6 +73,7 @@
 #define NME_ROLL_Z		3
 #define NME_BOUNCY		4
 #define NME_ROLL		5
+#define NME_ROLL2		6
 
 void UpdateBobbingEnemy(ENEMY *cur);
 void UpdateJigglingEnemy(ENEMY *cur);
@@ -80,9 +81,10 @@ void UpdateGallopingEnemy(ENEMY *cur);
 void UpdateRollZEnemy(ENEMY *cur);
 void UpdateBouncingEnemy(ENEMY *cur);
 void UpdateRollEnemy(ENEMY *cur);
+void UpdateRoll2Enemy(ENEMY *cur);
 
 void (*hackFuncs[])(ENEMY*) =
-	{ UpdateJigglingEnemy, UpdateBobbingEnemy, UpdateGallopingEnemy, UpdateRollZEnemy, UpdateBouncingEnemy, UpdateRollEnemy };
+	{ UpdateJigglingEnemy, UpdateBobbingEnemy, UpdateGallopingEnemy, UpdateRollZEnemy, UpdateBouncingEnemy, UpdateRollEnemy, UpdateRoll2Enemy };
 
 typedef struct _NMEHACK {
 	char *modelname; short flags;
@@ -650,7 +652,6 @@ void UpdateRollEnemy(ENEMY *nme)
 	PATH *p = nme->path;
 
 	nme->flags |= ENEMY_NEW_NOREORIENTATE|ENEMY_NEW_FACEFORWARDS;
-//	nme>flags &= ~ENEMY_NEW_F
 
 //	Does this work? Does it? Hmm?
 
@@ -668,25 +669,56 @@ void UpdateRollEnemy(ENEMY *nme)
 		&p->nodes[p->toNode].worldTile->centre,
 		&p->nodes[p->fromNode].worldTile->centre);
 
-	t = (gameSpeed<<12)/FMul(nme->nmeActor->radius, nme->speed);
+	//t = (gameSpeed*nme->speed)/nme->nmeActor->radius;
+	t = (gameSpeed<<13)/FMul(nme->nmeActor->radius, nme->speed);
 
 	// rotate around z axis with a quaternion.. oogly
 
 	c = rsin(t);
 
 	q.w = rcos(t);
-	q.x = (c*fwd.vz/500);
+	q.x = (c*fwd.vz)/500;
 	q.y = 0;
-	q.z = (-c*fwd.vx/500);
-
-	NormaliseQuaternion(&nme->nmeActor->actor->qRot); // testing..
+	q.z = (-c*fwd.vx)/500;
 
 	fixedQuaternionMultiply(
 		&nme->nmeActor->actor->qRot,
 		&q, &nme->nmeActor->actor->qRot);
 
+	NormaliseQuaternion(&nme->nmeActor->actor->qRot); // testing..
+
 }
 
+void UpdateRoll2Enemy(ENEMY *nme)
+{
+	fixed t;
+	IQUATERNION q;
+	SVECTOR fwd;
+	PATH *p = nme->path;
+
+	nme->flags |= ENEMY_NEW_NOREORIENTATE|ENEMY_NEW_FACEFORWARDS;
+
+//	Does this work? Does it? Hmm?
+
+	t = ((actFrameCount-p->startFrame)<<12)/(p->endFrame-p->startFrame);
+
+	if (nme->flags & ENEMY_NEW_BACKWARDS)
+		t -= ((p->fromNode-p->startNode)%12)*171;
+	else
+		t += ((p->fromNode-p->startNode)%12)*171;
+		
+	t >>= 2;
+	t += ((p->fromNode & 1)<<10);
+
+	// rotate around z axis with a quaternion, hoorah
+
+	q.w = rcos(t);
+	q.x = rsin(t);
+	q.y = 0;
+	q.z = 0;
+
+	nme->nmeActor->actor->qRot = q;
+}
 /*	--------------------------------------------------------------------------------
 	Function		: UpdatePathNME
 	Purpose			: update enemies that move along a path
@@ -1150,12 +1182,14 @@ void UpdateVent( ENEMY *cur )
 
 				if( cur->nmeActor->effects & EF_FIERYSMOKE ) // Pilot light type thing
 				{
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 65536, 2048, 1024, 4096 );
+					PrepForPriorityEffect( );
+					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
 					SetFXColour( fx, 255, 255, 255 );
 				}
 				else if( cur->nmeActor->effects & EF_SMOKEBURST )
 				{
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 65536, 2048, 1024, 4096 );
+					PrepForPriorityEffect( );
+					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
 					SetAttachedFXColour( fx, act->effects );
 				}
 				else if( (cur->nmeActor->effects & EF_LIGHTNING) && !cur->isIdle ) // TODO: make this better!
@@ -1219,6 +1253,7 @@ void UpdateVent( ENEMY *cur )
 
 			if( cur->nmeActor->effects & EF_FIERYSMOKE )
 			{
+				PrepForPriorityEffect( );
 				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 8192 );
 			}
 			else if( cur->nmeActor->effects & EF_LASER )
@@ -1228,6 +1263,7 @@ void UpdateVent( ENEMY *cur )
 			}
 			else if( cur->nmeActor->effects & EF_SMOKEBURST )
 			{
+				PrepForPriorityEffect( );
 				fx = CreateSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 6963 );
 				SetAttachedFXColour( fx, act->effects );
 			}
@@ -1237,7 +1273,7 @@ void UpdateVent( ENEMY *cur )
 
 				GetPositionForPathNode( &p1, &path->nodes[0] );
 				GetPositionForPathNode( &p2, &path->nodes[path->numNodes-1] );
-//				CreateLightningEffect( &p1, &p2, act->effects, ((60*path->nodes->speed)>>12)/((act->value1)?(act->value1>>12):1) );
+
 				CreateLightningEffect( &p1, &p2, act->effects,
 									   ((60*path->nodes->speed)>>12)/((act->value1)?(act->value1>>12):1),
 									   act->depthShift);
@@ -2112,18 +2148,34 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
 	{
+		char name[32];
+		int n;
+
 		for( i=0; i<numBabies; i++ )
 			if( !babyList[i].baby )
 			{
+				if( path->nodes->offset2 )
+					n = ((path->nodes->offset2>>12)/SCALE)-1;
+				else
+					n = i;
+
+				if( n > numBabies )
+					n = 0;
 #ifdef PC_VERSION
-				char name[32];
-				sprintf(name,"bfg0%lu.bmp",i+1);
+				sprintf(name,"bfg0%lu.bmp",n+1);
 				((MDX_ACTOR*)newItem->nmeActor->actor->actualActor)->overrideTex = GetTexEntryFromCRC(UpdateCRC(name));
 #endif
+
 #ifdef PSX_VERSION
-//				newItem->nmeActor->actor->clutOverride = FindTexture(palNames[i]);
 #ifndef DREAMCAST_VERSION
-				newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( palNames [ i ] );
+				switch ( n )
+				{
+					case 0: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( greenpal ); break;
+					case 1: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( yellowpal ); break;
+					case 2:	newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( bluepal ); break;
+					case 3:	newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( pinkpal ); break;
+					case 4: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( redpal ); break;
+				}
 #endif				
 #endif
 				babyList[i].baby = newItem->nmeActor;
@@ -2135,6 +2187,22 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 		if( babyList[i].fxColour[0] ) newItem->nmeActor->effects |= EF_TINTRED;
 		if( babyList[i].fxColour[1] ) newItem->nmeActor->effects |= EF_TINTGREEN;
 		if( babyList[i].fxColour[2] ) newItem->nmeActor->effects |= EF_TINTBLUE;
+
+		babyIcons[i]->r = babyList[i].fxColour[0];
+		babyIcons[i]->g = babyList[i].fxColour[1];
+		babyIcons[i]->b = babyList[i].fxColour[2];
+	}
+
+	if( player[0].worldNum == WORLDID_ANCIENT )
+	{
+		if( 
+#ifdef PSX_VERSION
+			strstr(eActorName, "STNWHEEL") || strstr(eActorName, "stnwheel")
+#else
+			!(strnicmp(eActorName,"STNWHEEL",8)) || !(strnicmp(eActorName,"stnwheel",8))
+#endif
+			)
+		newItem->flags |= ENEMY_NEW_NOJUMPOVER;
 	}
 
 	AddEnemyModelUpdates(eActorName, newItem);

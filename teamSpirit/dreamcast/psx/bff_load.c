@@ -429,7 +429,12 @@ BFF_Header *BFF_LoadFile(char *filename)
 // Oh lovely, Frogger's makefile didn't warn me about duff numbers of parameters being sent to functions...
 // Someone's not got the warning level set high enough!
 
-	addr = (void *)fileLoad(filename, &lastfilelength);
+	addr = (BFF_Header*)FindStakFileInAllBanks ( filename, &lastfilelength );
+
+	//addr = (BFF_Header*)getFileFromStack ( stakFile, filename, &lastfilelength );
+
+//	addr = (void *)fileLoad(filename, &lastfilelength);
+
 	if(!addr)
 		return NULL;
 

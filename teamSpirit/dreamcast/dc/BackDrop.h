@@ -26,6 +26,7 @@ typedef struct _BACKDROP
 	RECT	 		rect;
 	char	 		old_red;
 	char 			init;
+	char 			draw;
 	INT				imageXD,imageYD;
 	KMSURFACEDESC	surface;
 } BACKDROP;

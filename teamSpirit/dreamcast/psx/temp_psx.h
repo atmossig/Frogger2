@@ -13,7 +13,7 @@
 #define RunControllerView()
 #define StopSample(x)
 
-
+extern FVECTOR fmaActorScale;
 
 
 void CreateLevelObjects ( unsigned long worldID,unsigned long levelID );
@@ -30,5 +30,8 @@ void SaveGame(void);
 void LoadGame(void);
 //mavoid Actor2ClipCheck(ACTOR2* act);
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest);
+
+short videoKeyPress();
+void StartVideoPlayback(int num);
 
 #endif

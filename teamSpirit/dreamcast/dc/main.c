@@ -32,6 +32,7 @@
 #include "bpprintf.h"
 #include "bpamsfx.h"
 #include "strsfx.h"
+#include "islvideo.h"
 
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
@@ -137,7 +138,7 @@ void Kamui_Init()
 	kmSystemConfig.ppSurfaceDescArray			= pFB;
 	kmSystemConfig.fb.nNumOfFrameBuffer			= 2;
 	// for texture memory
-    kmSystemConfig.nTextureMemorySize       	= 0x200000 * 2;		// 2 MB for textures
+    kmSystemConfig.nTextureMemorySize       	= 0x200000 * 2;		// 4 MB for textures
     kmSystemConfig.nNumOfTextureStruct        	= 4096;
     kmSystemConfig.nNumOfSmallVQStruct        	= 0;//1024;
     kmSystemConfig.pTextureWork               	= &FBarea[0];
@@ -312,6 +313,26 @@ extern KTU32 gTransferBufferSize;
 
 int	texViewer = 0;
 
+short videoKeyHandler()
+{
+	return 0;
+}
+
+StrDataType videoStream = 
+{
+		"02s.SFD",					// Stream name
+		STR_MODE24,						// 24-Bit or 16-Bit streaming
+		STR_BORDERS_ON,					// != 0 if borders on
+		640,							// Screen res width
+		0,								// X,Y position
+		50,								//
+		640,							// Stream width and height
+		380,							//
+		-1,								// Last frame No.
+		0,								// Size of each VLC buffer (including header).
+		127,							// Left and Right ADPCM volume. (0..127)
+};
+
 void main()
 {
 	int					i;
@@ -323,24 +344,29 @@ void main()
 	shinobi_workaround();
 	#endif
 
-//	movestack();
-	
+	//	Initialize system for middleware(call before sbInitSystem)
+	mwPlyPreInitSofdec();
+		
 	// initialise video mode
 	switch(syCblCheck())
 	{
 		case SYE_CBL_VGA:
 			sbInitSystem((int)KM_DSPMODE_VGA,(int)KM_DSPBPP_RGB565,1);
+			displayMode = KM_DSPMODE_VGA;		
 			break;
 			
 		case SYE_CBL_PAL:
 			sbInitSystem((int)KM_DSPMODE_PALNI640x480EXT,(int)KM_DSPBPP_RGB565,1);
+			displayMode = KM_DSPMODE_PALNI640x480EXT;		
 			break;
 			
 		case SYE_CBL_NTSC:
 		default:
 			sbInitSystem((int)KM_DSPMODE_NTSCNI640x480,(int)KM_DSPBPP_RGB565,1);
+			displayMode = KM_DSPMODE_NTSCNI640x480;		
 			break;
 	}
+	frameBufferFormat = KM_DSPBPP_RGB888;
 
 	for(i = 0;i < 4;i++)
 	{
@@ -409,7 +435,8 @@ void main()
 	initialisePsxStrips();
 
 	numTextureBanks = 0;
-	sprintf(texurestring,"not loaded\n");
+
+//	videoPlayStream(&blitzStream,0,videoKeyHandler);
 
 	CommonInit();
 
@@ -434,9 +461,15 @@ void main()
 		if(strstr(per->info->product_name,"(none)"))
 			padData.present[i] = FALSE;				
 	}
+
 			
 //ma	BuildFogTable();
-	
+
+//	while(TRUE)
+//	{
+//		videoPlayStream(&videoStream,0,videoKeyHandler);
+//	}
+//		
 	// render loop
 	while(TRUE)
 	{
@@ -486,13 +519,13 @@ void main()
 			if(per->press & PDD_DGT_KL)
 				padData.debounce[i] |= PAD_LEFT;
 
-			if(per->press & PDD_DGT_TY)
+			if(per->press & PDD_DGT_TB)
 				padData.debounce[i] |= PAD_TRIANGLE;
 			if(per->press & PDD_DGT_TA)
 				padData.debounce[i] |= PAD_CROSS;
 			if(per->press & PDD_DGT_TX)
 				padData.debounce[i] |= PAD_SQUARE;
-			if(per->press & PDD_DGT_TB)
+			if(per->press & PDD_DGT_TY)
 				padData.debounce[i] |= PAD_CIRCLE;
 			if(per->press & PDD_DGT_ST)
 				padData.debounce[i] |= PAD_START;
@@ -524,13 +557,13 @@ void main()
 			if(per->on & PDD_DGT_KL)
 				padData.digital[i] |= PAD_LEFT;
 
-			if(per->on & PDD_DGT_TY)
+			if(per->on & PDD_DGT_TB)
 				padData.digital[i] |= PAD_TRIANGLE;
 			if(per->on & PDD_DGT_TA)
 				padData.digital[i] |= PAD_CROSS;
 			if(per->on & PDD_DGT_TX)
 				padData.digital[i] |= PAD_SQUARE;
-			if(per->on & PDD_DGT_TB)
+			if(per->on & PDD_DGT_TY)
 				padData.digital[i] |= PAD_CIRCLE;
 			if(per->on & PDD_DGT_ST)
 				padData.digital[i] |= PAD_START;
@@ -593,6 +626,7 @@ void main()
 		{
 			DCTIMER_PRINTS();
 
+
 			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
 
 			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
@@ -603,11 +637,11 @@ void main()
 //			sprintf(textbuffer,"Actors: %d (%d,%d)",(psiActorCount+fmaActorCount),psiActorCount, fmaActorCount);
 //			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 
-			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
-			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
-
-//			sprintf(textbuffer,"Map: %d",mapCount);
+//			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
 //			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
+
+			sprintf(textbuffer,"Map: %d",mapCount);
+			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
 			syMallocStat(memfree,memsize);
 			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
@@ -616,7 +650,10 @@ void main()
 //			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
 //			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
 
-			if(per->press & PDD_DGT_TR)
+			sprintf(textbuffer,"fog.max: %d",fog.max);		
+			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
+
+/*			if(per->press & PDD_DGT_TR)
 			{
 				if(texViewer < DCKnumTextures)
 					texViewer++;
@@ -664,6 +701,7 @@ void main()
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmEndStrip(&vertexBufferDesc);
+*/			
 		}
 	
 		kmEndPass(&vertexBufferDesc);

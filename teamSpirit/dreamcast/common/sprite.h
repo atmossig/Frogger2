@@ -26,6 +26,7 @@ extern "C" {
 #define SPRITE_FLAGS_ROTATE						(1 << 4)
 #define SPRITE_ADDITIVE							(1 << 5)
 #define SPRITE_SUBTRACTIVE						(1 << 6)
+#define SPRITE_LOADING							(1 << 7)
 
 
 typedef struct TAGSPRITE
@@ -111,11 +112,10 @@ typedef struct
 
 extern FOG fog;
 
+extern int SCALEX, SCALEY;
+
 #ifdef __cplusplus
 }
 #endif
-
-extern	int SCALEX;
-extern	int SCALEY;
 
 #endif

@@ -76,10 +76,10 @@ TextureBankType *textureLoadBank(char *sFile)
 	// convert and load textures
 	for(loop=0;loop<numTextures;loop++)
 	{
-		if(utilStr2CRC("AI_CIRCLE") == pNSprite[loop].crc)
-		{
-			pNSprite[loop].flags |= NALPHA;
-		}	
+//		if(utilStr2CRC("AI_CIRCLE") == pNSprite[loop].crc)
+//		{
+//			pNSprite[loop].flags |= NALPHA;
+//		}	
 		if(!((pNSprite[loop].flags & NSPLIT)||(pNSprite[loop].flags & NBITSTREAM)))
 			loadNSPRITEIntoSurface(&pNSprite[loop]);
 		else
