@@ -421,14 +421,7 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 			dprintf"Returned, did not  garib ( %d : %d : %d )\n",value, garibListPos-1, player[0].levelNum-3));
 			return NULL;
 		}
-		// ENDIF
-
-//		if ( 
-//		{
-//		}
-		// ENDIF
 	}
-	// ENDIF
 
 	garib = (GARIB *)JallocAlloc(sizeof(GARIB),YES,"garib");
 	AddGarib(garib);

@@ -186,6 +186,17 @@ void UpdateFrogTongue( int pl )
 
 		// Update the forward vector
 		RotateVectorByQuaternion( &tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot );
+		// Update source (for frog on platform)
+		tongue[pl].source.v[X] = frog[pl]->actor->pos.v[X] + (tongue[pl].fwd.v[X] * TONGUE_OFFSET_FORWARD) - (currTile[pl]->normal.v[X] * TONGUE_OFFSET_UP);
+		tongue[pl].source.v[Y] = frog[pl]->actor->pos.v[Y] + (tongue[pl].fwd.v[Y] * TONGUE_OFFSET_FORWARD) - (currTile[pl]->normal.v[Y] * TONGUE_OFFSET_UP);
+		tongue[pl].source.v[Z] = frog[pl]->actor->pos.v[Z] + (tongue[pl].fwd.v[Z] * TONGUE_OFFSET_FORWARD) - (currTile[pl]->normal.v[Z] * TONGUE_OFFSET_UP);
+		// Update the targets position (for moving babies)
+		switch( tongue[pl].type )
+		{
+		case TONGUE_GET_BABY: SetVector( &tongue[pl].target, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos ); break;
+		case TONGUE_GET_GARIB: SetVector( &tongue[pl].target, &((GARIB *)tongue[pl].thing)->sprite.pos ); break;
+		case TONGUE_GET_SCENIC: SetVector( &tongue[pl].target, &((ACTOR2 *)tongue[pl].thing)->actor->pos ); break;
+		}
 
 		if( tongue[pl].flags & TONGUE_OUTGOING )
 		{
@@ -210,26 +221,29 @@ void UpdateFrogTongue( int pl )
 		
 		if(tongue[pl].flags & TONGUE_INCOMING)
 		{
-			if(tongue[pl].type == TONGUE_GET_GARIB)
+			if( tongue[pl].flags & TONGUE_HASITEMONIT )
 			{
-				GARIB *g = (GARIB *)tongue[pl].thing;
-				SetVector( &g->sprite.pos, &tongue[pl].pos );
-				g->scale *= 0.9;
-			}
-			else if( tongue[pl].type == TONGUE_GET_BABY )
-			{
-				ENEMY *e = (ENEMY *)tongue[pl].thing;
-				SetVector( &e->nmeActor->actor->pos, &tongue[pl].pos );
-				e->nmeActor->actor->scale.v[X] *= 0.9;
-				e->nmeActor->actor->scale.v[Y] *= 0.9;
-				e->nmeActor->actor->scale.v[Z] *= 0.9;
-			}
-			else if( tongue[pl].type == TONGUE_GET_SCENIC )
-			{
-				ACTOR2 *s = (ACTOR2 *)tongue[pl].thing;
-				s->actor->pos.v[X] += (-3 + Random(7));
-				s->actor->pos.v[Y] += (-3 + Random(7));
-				s->actor->pos.v[Z] += (-3 + Random(7));
+				if(tongue[pl].type == TONGUE_GET_GARIB)
+				{
+					GARIB *g = (GARIB *)tongue[pl].thing;
+					SetVector( &g->sprite.pos, &tongue[pl].pos );
+					g->scale *= 0.9;
+				}
+				else if( tongue[pl].type == TONGUE_GET_BABY )
+				{
+					ENEMY *e = (ENEMY *)tongue[pl].thing;
+					SetVector( &e->nmeActor->actor->pos, &tongue[pl].pos );
+					e->nmeActor->actor->scale.v[X] *= 0.9;
+					e->nmeActor->actor->scale.v[Y] *= 0.9;
+					e->nmeActor->actor->scale.v[Z] *= 0.9;
+				}
+				else if( tongue[pl].type == TONGUE_GET_SCENIC )
+				{
+					ACTOR2 *s = (ACTOR2 *)tongue[pl].thing;
+					s->actor->pos.v[X] += (-3 + Random(7));
+					s->actor->pos.v[Y] += (-3 + Random(7));
+					s->actor->pos.v[Z] += (-3 + Random(7));
+				}
 			}
 
 			// Retract tongue a bit
@@ -240,17 +254,20 @@ void UpdateFrogTongue( int pl )
 			// If tongue has got back to mouth
 			if( DistanceBetweenPointsSquared(&tongue[pl].source,&tongue[pl].interp) < TONGUE_STICKYRADIUS*TONGUE_STICKYRADIUS )
 			{
-				if( tongue[pl].type == TONGUE_GET_GARIB )
-					PickupCollectable( (GARIB *)tongue[pl].thing, pl );
-				else if( tongue[pl].type == TONGUE_GET_BABY )
+				if( tongue[pl].flags & TONGUE_HASITEMONIT )
 				{
-					if( gameState.multi == SINGLEPLAYER )
-						PickupBabyFrog( ((ENEMY *)tongue[pl].thing)->nmeActor );
-					else
-						PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
+					if( tongue[pl].type == TONGUE_GET_GARIB )
+						PickupCollectable( (GARIB *)tongue[pl].thing, pl );
+					else if( tongue[pl].type == TONGUE_GET_BABY )
+					{
+						if( gameState.multi == SINGLEPLAYER )
+							PickupBabyFrog( ((ENEMY *)tongue[pl].thing)->nmeActor );
+						else
+							PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
+					}
+					else if( tongue[pl].type == TONGUE_GET_SCENIC )
+						SetVector( &((ACTOR2 *)tongue[pl].thing)->actor->pos, &((ACTOR2 *)tongue[pl].thing)->actor->oldpos );
 				}
-				else if( tongue[pl].type == TONGUE_GET_SCENIC )
-					SetVector( &((ACTOR2 *)tongue[pl].thing)->actor->pos, &((ACTOR2 *)tongue[pl].thing)->actor->oldpos );
 
 				player[pl].frogState &= ~FROGSTATUS_ISTONGUEING;
 				tongue[pl].flags = TONGUE_IDLE;
@@ -343,12 +360,15 @@ void RemoveFrogTongue( int pl )
 
 	dprintf"Remove TONGUE\n"));
 
-	if( tongue[pl].type == TONGUE_GET_BABY )
+	if( tongue[pl].flags & TONGUE_HASITEMONIT )
 	{
-		ENEMY *baby = (ENEMY *)tongue[pl].thing;
-		baby->nmeActor->actor->scale.v[X] = 1;
-		baby->nmeActor->actor->scale.v[Y] = 1;
-		baby->nmeActor->actor->scale.v[Z] = 1;
+		if( tongue[pl].type == TONGUE_GET_BABY )
+		{
+			ENEMY *baby = (ENEMY *)tongue[pl].thing;
+			baby->nmeActor->actor->scale.v[X] = 1;
+			baby->nmeActor->actor->scale.v[Y] = 1;
+			baby->nmeActor->actor->scale.v[Z] = 1;
+		}
 	}
 
 	tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
