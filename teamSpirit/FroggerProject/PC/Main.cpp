@@ -171,11 +171,10 @@ long DrawLoop(void)
 	
 	pDirect3DDevice->BeginScene();
 
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
-//	
+	
 	// Draw Sprites
 	if(sprList.count)
 		PrintSprites();
@@ -187,6 +186,7 @@ long DrawLoop(void)
 //	CheckHaloPoints();
 //	DrawHalos();
 
+	SwapFrame(0);
 	DrawBatchedPolys();
 	BlankFrame;
 
