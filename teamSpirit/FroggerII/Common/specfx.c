@@ -89,6 +89,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 {
 	SPECFX *effect = NULL;
 	SPRITE *s;
+	PARTICLE *p;
 	long i,n;
 	float life = lifetime * 60;
 
@@ -201,12 +202,15 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		break;
 	case FXTYPE_TRAIL:
 	case FXTYPE_BILLBOARDTRAIL:
+
 		effect->fade = effect->a / life;
-
 		effect->numP = i = NUM_TRAIL_ELEMENTS;
-		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*i, YES, "P" );
-		effect->particles[0].bounce = 1;
 
+		// We can get away with dynamic allocation here cos trails are usually persistant
+		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*i, YES, "P" );
+		// Not to mention that the update function is a bitch if we use a linked list :)
+
+		effect->particles[0].bounce = 1;
 		while( i-- )
 		{
 			effect->particles[i].poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
@@ -218,22 +222,28 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->tex = txtrTrail;
 		effect->Update = UpdateFXTrail;
 		effect->Draw = DrawFXTrail;
+
 		break;
 	case FXTYPE_FROGSTUN:
 		effect->numP = 6;
 		i = effect->numP;
 
-		if( !(effect->sprites = AllocateSprites( effect->numP )) )
+		if( !(effect->sprites = AllocateSprites(effect->numP)) )
 		{
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
 
-		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
+		if( !(effect->particles = AllocateParticles(i)) )
+		{
+			DeallocateFX( effect,1 );
+			return NULL;
+		}
 
 		effect->tex = txtrStar;
 
 		s = effect->sprites;
+		p = effect->particles;
 		while( i-- )
 		{
 			s->texture = effect->tex;
@@ -250,10 +260,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			s->offsetY	= -16;
 			s->flags = SPRITE_TRANSLUCENT | XLU_ADD;
 
-			effect->particles[i].pos.v[X] = -8 + Random(16);
-			effect->particles[i].pos.v[Y] = -6 + Random(12);
-			effect->particles[i].pos.v[Z] = -8 + Random(16);
+			p->pos.v[X] = -8 + Random(16);
+			p->pos.v[Y] = -6 + Random(12);
+			p->pos.v[Z] = -8 + Random(16);
+
 			s = s->next;
+			p = p->next;
 		}
 
 		effect->Update = UpdateFXSwarm;
@@ -266,7 +278,13 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		i = effect->numP;
 
 		effect->act = (ACTOR2 **)JallocAlloc( sizeof(ACTOR2 *)*effect->numP, YES, "Actor2s" );
-		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
+
+		if( !(effect->particles = AllocateParticles(i)) )
+		{
+			DeallocateFX( effect,1 );
+			return NULL;
+		}
+		p = effect->particles;
 
 		while( i-- )
 		{
@@ -294,9 +312,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			effect->act[i]->actor->scale.v[Y] = effect->scale.v[Y];
 			effect->act[i]->actor->scale.v[Z] = effect->scale.v[Z];
 
-			effect->particles[i].pos.v[X] = -8 + Random(16);
-			effect->particles[i].pos.v[Y] = -6 + Random(12);
-			effect->particles[i].pos.v[Z] = -8 + Random(16);
+			p->pos.v[X] = -8 + Random(16);
+			p->pos.v[Y] = -6 + Random(12);
+			p->pos.v[Z] = -8 + Random(16);
+
+			p = p->next;
 		}
 
 		effect->Update = UpdateFXSwarm;
@@ -412,7 +432,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
-		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
+		if( !(effect->particles = AllocateParticles(i)) )
+		{
+			DeallocateFX( effect,1 );
+			return NULL;
+		}
 
 		effect->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
 		SetVector( &effect->rebound->point, &effect->origin );
@@ -430,6 +454,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->fade = (255/life)*2;
 
 		s = effect->sprites;
+		p = effect->particles;
 		while( i-- )
 		{
 			SetVector( &s->pos, &effect->origin );
@@ -444,16 +469,16 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			s->flags = SPRITE_TRANSLUCENT | XLU_ADD;
 
 			if( effect->type == FXTYPE_SPARKBURST || effect->type == FXTYPE_SPARKLYTRAIL )
-				effect->particles[i].bounce = 1;
+				p->bounce = 1;
 			else
-				effect->particles[i].bounce = 0;
+				p->bounce = 0;
 
 			// Velocity is normal scaled by speed, plus a random offset scaled by speed
-			SetVector( &effect->particles[i].vel, &effect->normal );
-			ScaleVector( &effect->particles[i].vel, effect->speed );
-			effect->particles[i].vel.v[X] += (Random(2)-1)*effect->speed*0.3;
-			effect->particles[i].vel.v[Y] += (Random(2)-1)*effect->speed*0.3;
-			effect->particles[i].vel.v[Z] += (Random(2)-1)*effect->speed*0.3;
+			SetVector( &p->vel, &effect->normal );
+			ScaleVector( &p->vel, effect->speed );
+			p->vel.v[X] += (Random(2)-1)*effect->speed*0.3;
+			p->vel.v[Y] += (Random(2)-1)*effect->speed*0.3;
+			p->vel.v[Z] += (Random(2)-1)*effect->speed*0.3;
 
 			if( effect->type == FXTYPE_FIERYSMOKE )
 			{
@@ -482,6 +507,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			}
 
 			s = s->next;
+			p = p->next;
 		}
 
 		effect->Update = UpdateFXExplode;
@@ -491,19 +517,26 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->numP = speed/24;
 		i = effect->numP;
 
-		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "P" );
+		if( !(effect->particles = AllocateParticles(i)) )
+		{
+			DeallocateFX( effect,1 );
+			return NULL;
+		}
 		effect->tex = txtrElectric;
 
+		p = effect->particles;
 		while(i--)
 		{
-			SetVector( &effect->particles[i].pos, &effect->origin );
+			SetVector( &p->pos, &effect->origin );
 
-			effect->particles[i].poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
+			p->poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
 
-			effect->particles[i].r = effect->r;
-			effect->particles[i].g = effect->g;
-			effect->particles[i].b = effect->b;
-			effect->particles[i].a = effect->a;
+			p->r = effect->r;
+			p->g = effect->g;
+			p->b = effect->b;
+			p->a = effect->a;
+
+			p = p->next;
 		}
 
 		effect->Update = UpdateFXLightning;
@@ -518,31 +551,32 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
+		s = effect->sprites;
 
 		if( effect->type == FXTYPE_GLOW )
 		{
-			effect->sprites->texture = txtrFlare;
-			effect->sprites->a = 128;
+			s->texture = txtrFlare;
+			s->a = 128;
 		}
 		else
 		{
-			effect->sprites->texture = txtrFlash;
-			effect->sprites->a = 200;
+			s->texture = txtrFlash;
+			s->a = 200;
 		}
 
-		effect->sprites->r = 255;
-		effect->sprites->g = 255;
-		effect->sprites->b = 255;
+		s->r = 255;
+		s->g = 255;
+		s->b = 255;
 
-		effect->sprites->offsetX = -16;
-		effect->sprites->offsetY = -16;
-		effect->sprites->flags = SPRITE_TRANSLUCENT | XLU_ADD;
+		s->offsetX = -16;
+		s->offsetY = -16;
+		s->flags = SPRITE_TRANSLUCENT | XLU_ADD;
 
-		effect->sprites->scaleX = size;
-		effect->sprites->scaleY = size;
-		SetVector( &effect->sprites->pos, &effect->origin );
+		s->scaleX = size;
+		s->scaleY = size;
+		SetVector( &s->pos, &effect->origin );
 
-		effect->fade = effect->sprites->a / life;
+		effect->fade = s->a / life;
 
 		effect->Update = UpdateFXTwinkle;
 		break;
@@ -562,19 +596,20 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
-		effect->sprites->texture = txtrBubble;
+		s = effect->sprites;
+		s->texture = txtrBubble;
 
-		SetVector( &effect->sprites->pos, &effect->origin );
-		effect->sprites->scaleX = 22;
-		effect->sprites->scaleY = 22;
+		SetVector( &s->pos, &effect->origin );
+		s->scaleX = 22;
+		s->scaleY = 22;
 
-		effect->sprites->r = effect->r;
-		effect->sprites->g = effect->g;
-		effect->sprites->b = effect->b;
-		effect->sprites->a = effect->a;
-		effect->sprites->offsetX = -16;
-		effect->sprites->offsetY = -16;
-		effect->sprites->flags = SPRITE_TRANSLUCENT;
+		s->r = effect->r;
+		s->g = effect->g;
+		s->b = effect->b;
+		s->a = effect->a;
+		s->offsetX = -16;
+		s->offsetY = -16;
+		s->flags = SPRITE_TRANSLUCENT;
 
 		effect->Update = UpdateFXSmoke;
 		effect->Draw = NULL;
@@ -811,8 +846,9 @@ void UpdateFXSwarm( SPECFX *fx )
 {
 	VECTOR up, pos;
 	SPRITE *s;
+	PARTICLE *p;
 	int i = fx->numP;
-	float dist;
+	float dist, speed = max(gameSpeed*0.333, 1), limit=gameSpeed*2;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -832,6 +868,7 @@ void UpdateFXSwarm( SPECFX *fx )
 	}
 
 	s = fx->sprites;
+	p = fx->particles;
 	while(i--)
 	{
 		// Set world check position from either sprite or actor
@@ -847,43 +884,43 @@ void UpdateFXSwarm( SPECFX *fx )
 
 		// Update particle velocity to oscillate around the point
 		if( pos.v[X] > fx->origin.v[X])
-			fx->particles[i].vel.v[X] -= max(gameSpeed*0.333, 1);
+			p->vel.v[X] -= speed;
 		else
-			fx->particles[i].vel.v[X] += max(gameSpeed*0.333, 1);
+			p->vel.v[X] += speed;
 		if( pos.v[Y] > fx->origin.v[Y] )
-			fx->particles[i].vel.v[Y] -= max(gameSpeed*0.333, 1);
+			p->vel.v[Y] -= speed;
 		else
-			fx->particles[i].vel.v[Y] += max(gameSpeed*0.333, 1);
+			p->vel.v[Y] += speed;
 		if( pos.v[Z] > fx->origin.v[Z])
-			fx->particles[i].vel.v[Z] -= max(gameSpeed*0.333, 1);
+			p->vel.v[Z] -= speed;
 		else
-			fx->particles[i].vel.v[Z] += max(gameSpeed*0.333, 1);
+			p->vel.v[Z] += speed;
 
 		// Limit velocity of particles
-		if( fx->particles[i].vel.v[X] > gameSpeed*2 )
-			fx->particles[i].vel.v[X] = gameSpeed*2;
-		else if( fx->particles[i].vel.v[X] < -gameSpeed*2 )
-			fx->particles[i].vel.v[X] = -gameSpeed*2;
-		if( fx->particles[i].vel.v[Y] > gameSpeed*2 )
-			fx->particles[i].vel.v[Y] = gameSpeed*2;
-		else if( fx->particles[i].vel.v[Y] < -gameSpeed*2 )
-			fx->particles[i].vel.v[Y] = -gameSpeed*2;
-		if( fx->particles[i].vel.v[Z] > gameSpeed*2 )
-			fx->particles[i].vel.v[Z] = gameSpeed*2;
-		else if( fx->particles[i].vel.v[Z] < -gameSpeed*2 )
-			fx->particles[i].vel.v[Z] = -gameSpeed*2;
+		if( p->vel.v[X] > limit )
+			p->vel.v[X] = limit;
+		else if( p->vel.v[X] < -limit )
+			p->vel.v[X] = -limit;
+		if( p->vel.v[Y] > limit )
+			p->vel.v[Y] = limit;
+		else if( p->vel.v[Y] < -limit )
+			p->vel.v[Y] = -limit;
+		if( p->vel.v[Z] > limit )
+			p->vel.v[Z] = limit;
+		else if( p->vel.v[Z] < -limit )
+			p->vel.v[Z] = -limit;
 
 		// Add velocity to local particle position
-		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
+		AddToVector( &p->pos, &p->vel );
 		// Add local particle pos to swarm origin to get world coords for sprite or actor
 		if( fx->act )
 		{
-			AddVector( &fx->act[i]->actor->pos, &fx->origin, &fx->particles[i].pos );
+			AddVector( &fx->act[i]->actor->pos, &fx->origin, &p->pos );
 			SetVector( &pos, &fx->act[i]->actor->pos );
 		}
 		else
 		{
-			AddVector( &s->pos, &fx->origin, &fx->particles[i].pos );
+			AddVector( &s->pos, &fx->origin, &p->pos );
 			SetVector( &pos, &s->pos );
 			s = s->next;
 		}
@@ -896,6 +933,8 @@ void UpdateFXSwarm( SPECFX *fx )
 			if(dist > 0 && dist < 3)
 				CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.3 );
 		}
+
+		p = p->next;
 	}
 
 	if( fx->type == FXTYPE_FROGSTUN )
@@ -917,6 +956,7 @@ void UpdateFXExplode( SPECFX *fx )
 	int i = fx->numP, j, fo, ele;
 	VECTOR up;
 	SPRITE *s;
+	PARTICLE *p;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -932,18 +972,19 @@ void UpdateFXExplode( SPECFX *fx )
 	vS = 1-(0.02*gameSpeed);
 
 	s = fx->sprites;
+	p = fx->particles;
 	while(i--)
 	{
-		if( fx->particles[i].bounce == 2 )
+		if( p->bounce == 2 )
 			continue;
 
-		ScaleVector( &fx->particles[i].vel, vS );
+		ScaleVector( &p->vel, vS );
 
 		if( fx->gravity != 0 )
 		{
 			SetVector( &up, &fx->normal );
 			ScaleVector( &up, fx->gravity*gameSpeed );
-			SubFromVector( &fx->particles[i].vel, &up );
+			SubFromVector( &p->vel, &up );
 		}
 
 		if( fx->rebound )
@@ -954,10 +995,10 @@ void UpdateFXExplode( SPECFX *fx )
 			// check if particle has hit (or passed through) the plane
 			if(dist > 0)
 			{
-				if( fx->particles[i].bounce )
-					fx->particles[i].vel.v[Y] *= -0.95; // Should be relative to the normal, but it'll do for now
+				if( p->bounce )
+					p->vel.v[Y] *= -0.95; // Should be relative to the normal, but it'll do for now
 				else
-					SetVector( &fx->particles[i].vel, &zero );
+					SetVector( &p->vel, &zero );
 
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
@@ -969,9 +1010,9 @@ void UpdateFXExplode( SPECFX *fx )
 		if(s->flags & SPRITE_FLAGS_ROTATE)
 			s->angle += (s->angleInc * gameSpeed);
 
-		s->pos.v[X] += fx->particles[i].vel.v[X] * gameSpeed;
-		s->pos.v[Y] += fx->particles[i].vel.v[Y] * gameSpeed;
-		s->pos.v[Z] += fx->particles[i].vel.v[Z] * gameSpeed;
+		s->pos.v[X] += p->vel.v[X] * gameSpeed;
+		s->pos.v[Y] += p->vel.v[Y] * gameSpeed;
+		s->pos.v[Z] += p->vel.v[Z] * gameSpeed;
 
 		fo = (Random(4) + fx->fade) * gameSpeed;
 
@@ -992,17 +1033,17 @@ void UpdateFXExplode( SPECFX *fx )
 			{
 				s->a = 0;
 				s->draw = 0;
-				fx->particles[i].bounce = 2;
+				p->bounce = 2;
 			}
 		}
 
 		s = s->next;
+		p = p->next;
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateFXTrails
@@ -1131,6 +1172,7 @@ void UpdateFXLightning( SPECFX *fx )
 {
 	VECTOR target, aim, to;
 	VECTOR ran, source, cross;
+	PARTICLE *p;
 	float scale, fr, r;
 	long i, h=fx->numP*0.25;
 
@@ -1155,14 +1197,14 @@ void UpdateFXLightning( SPECFX *fx )
 	}
 
 	// Find a route through space
-	for( i=0; i<fx->numP; i++ )
+	for( i=0,p=fx->particles; i<fx->numP; i++,p=p->next )
 	{
 		if( i )
 		{
 			scale = 1/(float)(fx->numP-i);
 			fr = 1-((float)i/(float)fx->numP);
 			// Get direction from last particle to target
-			SetVector( &source, &fx->particles[i-1].pos );
+			SetVector( &source, &p->prev->pos );
 			SubVector( &to, &target, &source );
 			ScaleVector( &to, scale );
 
@@ -1175,12 +1217,12 @@ void UpdateFXLightning( SPECFX *fx )
 			r = fx->accn * ( (i>fx->numP*0.5)?(fx->numP-i):(i) * Magnitude(&to) );
 			ScaleVector( &ran, r );
 			AddToVector( &to, &ran );
-			AddVector( &fx->particles[i].pos, &source, &to );
+			AddVector( &p->pos, &source, &to );
 		}
 		else
 		{
 			// Get direction from last particle to target
-			SetVector( &source, &fx->particles[0].pos );
+			SetVector( &source, &p->pos );
 			SubVector( &to, &target, &source );
 		}
 
@@ -1189,8 +1231,8 @@ void UpdateFXLightning( SPECFX *fx )
 		CrossProduct( &cross, &to, &upVec );
 		MakeUnit( &cross );
 		ScaleVector( &cross, fx->scale.v[X] );
-		AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
-		SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
+		AddVector( &p->poly[0], &p->pos, &cross );
+		SubVector( &p->poly[1], &p->pos, &cross );
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
@@ -1273,12 +1315,13 @@ void UpdateFXFly( SPECFX *fx )
 */
 void UpdateFXTwinkle( SPECFX *fx )
 {
+	SPRITE *s = fx->sprites;
 	int fo;
 
 	if( fx->follow )
 	{
 		SetVector( &fx->origin, &fx->follow->pos );
-		SetVector( &fx->sprites->pos, &fx->origin );
+		SetVector( &s->pos, &fx->origin );
 	}
 
 	if( fx->type == FXTYPE_TWINKLE )
@@ -1291,11 +1334,11 @@ void UpdateFXTwinkle( SPECFX *fx )
 			}
 
 		fo = Random((int)fx->fade) * gameSpeed;
-		if( fx->sprites->a > fo ) fx->sprites->a -= fo;
+		if( s->a > fo ) s->a -= fo;
 		else
 		{
-			fx->sprites->a = 0;
-			fx->sprites->draw = 0;
+			s->a = 0;
+			s->draw = 0;
 		}
 
 		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
@@ -1306,18 +1349,18 @@ void UpdateFXTwinkle( SPECFX *fx )
 	if( fx->tilt >= 2 )
 	{
 		int size = Random(5)-2;
-		fx->sprites->scaleX += size;
-		fx->sprites->scaleY += size;
-		if( fx->sprites->scaleX > fx->scale.v[X]*2 ) fx->sprites->scaleX = fx->scale.v[X]*2;
-		else if( fx->sprites->scaleX < fx->scale.v[X]*0.5 ) fx->sprites->scaleX = fx->scale.v[X]*0.5;
-		if( fx->sprites->scaleY > fx->scale.v[Y]*2 ) fx->sprites->scaleY = fx->scale.v[Y]*2;
-		else if( fx->sprites->scaleY < fx->scale.v[Y]*0.5 ) fx->sprites->scaleY = fx->scale.v[Y]*0.5;
+		s->scaleX += size;
+		s->scaleY += size;
+		if( s->scaleX > fx->scale.v[X]*2 ) s->scaleX = fx->scale.v[X]*2;
+		else if( s->scaleX < fx->scale.v[X]*0.5 ) s->scaleX = fx->scale.v[X]*0.5;
+		if( s->scaleY > fx->scale.v[Y]*2 ) s->scaleY = fx->scale.v[Y]*2;
+		else if( s->scaleY < fx->scale.v[Y]*0.5 ) s->scaleY = fx->scale.v[Y]*0.5;
 	}
 	if( fx->tilt )
 	{
-		fx->sprites->a += Random(50)-25;
-		if( fx->sprites->a > 200 ) fx->sprites->a = 200;
-		else if( fx->sprites->a < 50 ) fx->sprites->a = 50;
+		s->a += Random(50)-25;
+		if( s->a > 200 ) s->a = 200;
+		else if( s->a < 50 ) s->a = 50;
 	}
 }
 
@@ -1480,62 +1523,63 @@ SPECFX *AllocateFX( int number, int type )
 */
 void DeallocateFX( SPECFX *head, int number )
 {
-	SPECFX *s=head, *t;
+	SPECFX *fx=head, *t;
 	int i;
 
-	if( !s || !s->next || (number<=0) || (sfxList.stackPtr+number >= MAX_SPECFX) ) return;
+	if( !fx || !fx->next || (number<=0) || (sfxList.stackPtr+number >= MAX_SPECFX) ) return;
 
 	while( number-- )
 	{
-		t = s->next;
+		t = fx->next;
 
 		// If this is the last added effect of its type then either set the last added to be this effects sucessor if the same type,
 		// or NULL if this effect is also the last of its kind
-		if( s == sfxList.lastAdded[s->updateType] )
+		if( fx == sfxList.lastAdded[fx->updateType] )
 		{
-			if( s->next->updateType == s->updateType )
-				sfxList.lastAdded[s->updateType] = s->next;
+			if( fx->next->updateType == fx->updateType )
+				sfxList.lastAdded[fx->updateType] = fx->next;
 			else
-				sfxList.lastAdded[s->updateType] = NULL;
+				sfxList.lastAdded[fx->updateType] = NULL;
 		}
 
-		s->prev->next = s->next;
-		s->next->prev = s->prev;
+		fx->prev->next = fx->next;
+		fx->next->prev = fx->prev;
 
-		if( s->sprites )
-			DeallocateSprites( s->sprites, s->numP );
+		if( fx->sprites )
+			DeallocateSprites( fx->sprites, fx->numP );
 
-		if( s->particles )
+		if( fx->particles )
 		{
-			if(s->numP)
+			if( fx->updateType == FXUPDATE_TRAIL )
 			{
-				i = s->numP;
+				i = fx->numP;
 				while(i--)
 				{
-					JallocFree( (UBYTE **)&s->particles[i].poly );
-					JallocFree( (UBYTE **)&s->particles[i].rMtrx );
+					JallocFree( (UBYTE **)&fx->particles[i].poly );
+					JallocFree( (UBYTE **)&fx->particles[i].rMtrx );
 				}
-			}
 
-			JallocFree( (UBYTE **)&s->particles );
+				JallocFree( (UBYTE **)&fx->particles );
+			}
+			else DeallocateParticles( fx->particles, fx->numP );
 		}
 
-		if( s->rebound )
-			JallocFree( (UBYTE **)&s->rebound );
+		if( fx->rebound )
+			JallocFree( (UBYTE **)&fx->rebound );
 
-		if( s->act )
+		if( fx->act )
 		{
-			for( i=s->numP; i; i-- )
-				SubActor(s->act[i-1]);
-			JallocFree( (UBYTE **)&s->act );
+			for( i=fx->numP; i; i-- )
+				SubActor(fx->act[i-1]);
+			JallocFree( (UBYTE **)&fx->act );
 		}
 
 		sfxList.count--;
-		sfxList.stack[++sfxList.stackPtr] = s;
+		sfxList.stack[++sfxList.stackPtr] = fx;
 
-		memset( s, 0, sizeof(SPECFX) );
+		memset( fx, 0, sizeof(SPECFX) );
 
-		s = t;
+		fx = t;
 	}
 }
 
@@ -1551,6 +1595,7 @@ void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b 
 {
 	int i;
 	SPRITE *s;
+	PARTICLE *p;
 
 	if( !fx ) return;
 
@@ -1567,12 +1612,26 @@ void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b 
 		}
 
 	if( fx->particles )
-		for( i=0; i<fx->numP; i++ )
+	{
+		if( fx->updateType == FXUPDATE_TRAIL )
 		{
-			fx->particles[i].r = r;
-			fx->particles[i].g = g;
-			fx->particles[i].b = b;
+			for( i=0; i<fx->numP; i++ )
+			{
+				fx->particles[i].r = r;
+				fx->particles[i].g = g;
+				fx->particles[i].b = b;
+			}
 		}
+		else
+		{
+			for( i=0,p=fx->particles; i<fx->numP; i++,p=p->next )
+			{
+				p->r = r;
+				p->g = g;
+				p->b = b;
+			}
+		}
+	}
 }
 
 

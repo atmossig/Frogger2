@@ -576,7 +576,6 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,255,currFont,TEXTOVERLAY_WAVECHARS,4);
 	DisableTextOverlay(babySavedText);
-	babySaved = 0;
 }
 
 

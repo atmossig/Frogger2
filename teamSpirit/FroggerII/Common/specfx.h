@@ -89,15 +89,6 @@ enum
 	FXTYPE_NUMTYPES
 };
 
-typedef struct
-{
-	VECTOR pos, vel;
-	VECTOR *poly;								// Used for motion trails
-	float *rMtrx;
-	unsigned char r, g, b, a, bounce;
-
-} PARTICLE;
-
 
 typedef struct TAGSPECFX
 {
@@ -105,7 +96,7 @@ typedef struct TAGSPECFX
 
 	VECTOR normal, origin, vel, scale;
 	PLANE2 *rebound;
-	PARTICLE *particles;						// For swarm, explosions etc.
+	struct _PARTICLE *particles;				// For swarm, explosions etc.
 	ACTOR2 **act;								// For models
 
 	short type, start, end;

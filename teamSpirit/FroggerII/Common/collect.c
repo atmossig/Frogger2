@@ -119,8 +119,6 @@ void PickupCollectable(GARIB *garib, int pl)
 					if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 50, 4, 0, 6 )) )
 					{
 						SetFXColour(fx,0,255,255);
-						SetVector(&fx->rebound->point,&garib->pos);
-						SetVector(&fx->rebound->normal,&seUp);
 						fx->gravity = 0.15;
 					}
 				}
@@ -142,15 +140,11 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 20, 2, 0, 2 )) )
 			{
 				SetFXColour(fx,255,255,255);
-				SetVector(&fx->rebound->point,&garib->pos);
-				SetVector(&fx->rebound->normal,&seUp);
 				fx->gravity = 0.2;
 			}
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, player[pl].spawnScoreLevel * 5, player[pl].spawnScoreLevel, 0, 3 )) )
 			{
 				SetFXColour(fx,255,255,0);
-				SetVector(&fx->rebound->point,&garib->pos);
-				SetVector(&fx->rebound->normal,&seUp);
 				fx->gravity = 0.1;
 			}
 
@@ -164,29 +158,21 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 50, 3, 0, 5 )) )
 			{
 				SetFXColour( fx, 10, 200, 10 );
-				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
-				SetVector( &fx->rebound->normal, &garib->fx->normal );
 				fx->gravity = 0.07;
 			}
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 40, 2.5, 0, 6 )) )
 			{
 				SetFXColour( fx, 220, 220, 220 );
-				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
-				SetVector( &fx->rebound->normal, &garib->fx->normal );
 				fx->gravity = 0.07;
 			}
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 30, 2, 0, 7 )) )
 			{
 				SetFXColour( fx, 10, 200, 10 );
-				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
-				SetVector( &fx->rebound->normal, &garib->fx->normal );
 				fx->gravity = 0.07;
 			}
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 20, 1.5, 0, 8 )) )
 			{
 				SetFXColour( fx, 220, 220, 220 );
-				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
-				SetVector( &fx->rebound->normal, &garib->fx->normal );
 				fx->gravity = 0.07;
 			}
 

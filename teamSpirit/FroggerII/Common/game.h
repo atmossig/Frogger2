@@ -64,7 +64,6 @@ extern char	scoreText[32];
 extern char	timeText[32];
 extern long hopAmt;
 
-extern long babySaved;
 extern long award;
 
 extern long numHops_TOTAL;

@@ -51,7 +51,6 @@ long award = 2;
 short showEndLevelScreen = 1;
 
 long bby = 0;
-long babySaved = 0;
 
 long displayingTile=0;
 

@@ -33,17 +33,6 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
 void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex );
 void DrawTongue( TONGUE *t );
 
-/*	--------------------------------------------------------------------------------
-	Function		: PrintBackdrops
-	Purpose			: used to print the backdrops
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void PrintBackdrops()
-{
-	// TO BE IMPLEMENTED
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintTextAsOverlay
@@ -112,8 +101,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 
 		if(letter == 32)
 		{
-			x += tOver->font->xSpacing[0] * tOver->scale;
-			
+			x += tOver->font->xSpacing[0] * tOver->scale;	
 		}
 		else
 		{
@@ -129,7 +117,6 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			}
 	
 			x += tOver->font->xSpacing[letterID] * RES_DIFF * tOver->scale;
-			
 		}
 
 		pos++;
@@ -502,7 +489,7 @@ void ProcessShadows()
 	// process enemy shadows
 	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next)
 	{
-//		if( !nme->active || !nme->nmeActor )
+		if( !nme->active || !nme->nmeActor )
 			continue;
 
 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
@@ -520,7 +507,7 @@ void ProcessShadows()
 	// process platform shadows
 	for(plat = platformList.head.next; plat != &platformList.head; plat = plat->next)
 	{
-//		if( !plat->active || !plat->pltActor )
+		if( !plat->active || !plat->pltActor )
 			continue;
 
 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
@@ -530,157 +517,6 @@ void ProcessShadows()
 			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius/max(height*0.02, 1), -height+1, plat->pltActor->actor->shadow->alpha/max(height*0.02, 1), tex );
 		}
 	}
-
-	// process garib shadows
-/*	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
-	{
-		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
-		{
-			vec.v[X] = garib->sprite.pos.v[X];
-			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
-			vec.v[Z] = garib->sprite.pos.v[Z];
-			DrawShadow( &vec, &garib->gameTile->normal, garib->shadow.radius, 0, garib->shadow.alpha, tex );
-		}
-	}*/
-}
-
-
-//----- [ GLOBALS ] ----------------------------------------------------------------------------//
-
-//BACKDROPLIST backdropList;
-
-
-//----- [ BACKDROP HANDLING ] ------------------------------------------------------------------//
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: InitBackdropLinkedList
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void InitBackdropLinkedList()
-{
-//	backdropList.head.next = backdropList.head.prev = &backdropList.head;
-//	backdropList.numEntries = 0;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: AddBackdrop()
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void AddBackdrop(BACKDROP *backdrop)
-{
-/*	BACKDROP *ptr;	 
-
-	if(backdrop->next == NULL)
-	{
-		for(ptr = backdropList.head.next;ptr != &backdropList.head;ptr = ptr->next)
-		{
-			if((ptr->zPos < backdrop->zPos) || ((ptr->texture == backdrop->texture) && (ptr->texture->format == backdrop->texture->format) && (ptr->zPos == backdrop->zPos)))
-			{
-				break;
-			}
-		}
-		backdrop->next = ptr;
-		backdrop->prev = ptr->prev;
-		ptr->prev->next = backdrop;
-		ptr->prev = backdrop;
-		backdropList.numEntries++;
-		backdrop->draw = 1;
-	}*/
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: SubBackdrop
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void SubBackdrop(BACKDROP *backdrop)
-{
-/*	if(backdrop->next == NULL)
-		return;
-
-	backdrop->prev->next = backdrop->next;
-	backdrop->next->prev = backdrop->prev;
-
-	backdrop->next = NULL;
-	backdropList.numEntries--;*/
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: 
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void FreeBackdropLinkedList()
-{
-/*	BACKDROP *cur,*next;	 
-
-	if(backdropList.numEntries == 0)
-		return;
-
-	dprintf"Freeing linked list : BACKDROP : (%d elements)\n",backdropList.numEntries));
-	for(cur = backdropList.head.next; cur != &backdropList.head; cur = next)
-	{
-		next = cur->next;
-
-		SubBackdrop(cur);
-	}*/
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: SetupBackdrop
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int z,int destX,int destY,int destWidth,int destHeight,int scalex,int scaley,int flags)
-{
-	if(backdrop == NULL)
-		backdrop = (BACKDROP *)JallocAlloc(sizeof(BACKDROP),YES,"backdrop");
-	backdrop->scaleX = scalex;
-	backdrop->scaleY = scaley;
-	backdrop->xPos = sourceX;
-	backdrop->yPos = sourceY;
-//	backdrop->zPos = z;
-	backdrop->draw = 1;
-//	backdrop->flags = flags;
-	backdrop->r = backdrop->g = backdrop->b = backdrop->a = 255;
-	FindTexture(&backdrop->texture,texID,YES);
-/*
-	backdrop->background.s.imageX = sourceX<<5;
-	backdrop->background.s.imageY = sourceY<<5;
-	backdrop->background.s.imageW = (backdrop->texture->sx+1)<<2;
-	backdrop->background.s.imageH = backdrop->texture->sy<<2;
-	backdrop->background.s.frameX = destX<<2;
-	backdrop->background.s.frameY = destY<<2;
-	backdrop->background.s.frameW = destWidth<<2;
-	backdrop->background.s.frameH = destHeight<<2;
-	backdrop->background.s.imagePtr = (u64*)backdrop->texture->data;
-	backdrop->background.s.imageLoad = G_BGLT_LOADTILE;
-	backdrop->background.s.imageFmt = backdrop->texture->format;
-	backdrop->background.s.imageSiz = backdrop->texture->pixSize;
-	backdrop->background.s.imagePal = 0;
-	backdrop->background.s.imageFlip = 0;
-	backdrop->background.s.scaleW = (1024*1024)/scalex;
-	backdrop->background.s.scaleH = (1024*1024)/scaley;
-	backdrop->background.s.imageYorig = 0<<5;
-
-	osWritebackDCache(&backdrop->background, sizeof(uObjBg));
-*/
-	AddBackdrop(backdrop);
-
-	return backdrop;
 }
 
 
@@ -1066,6 +902,7 @@ void DrawFXLightning( SPECFX *fx )
 	VECTOR tempVect, m;
 	D3DTLVERTEX vT[5], vTPrev[2];
 	TEXENTRY *tEntry;
+	PARTICLE *p;
 	long i=0;
 
 	if( fx->deadCount )
@@ -1083,6 +920,7 @@ void DrawFXLightning( SPECFX *fx )
 	// Additive mode
 	SwapFrame(3);
 
+	p = fx->particles;
 	while( i < fx->numP-1 )
 	{
 		// Copy in previous transformed vertices, if they exist
@@ -1091,20 +929,20 @@ void DrawFXLightning( SPECFX *fx )
 		else
 		{
 			// Otherwise, transform them again
-			tempVect.v[X] = fx->particles[i].poly[0].v[X];
-			tempVect.v[Y] = fx->particles[i].poly[0].v[Y];
-			tempVect.v[Z] = fx->particles[i].poly[0].v[Z];
+			tempVect.v[X] = p->poly[0].v[X];
+			tempVect.v[Y] = p->poly[0].v[Y];
+			tempVect.v[Z] = p->poly[0].v[Z];
 			XfmPoint( &m, &tempVect );
 			vT[0].sx = m.v[X];
 			vT[0].sy = m.v[Y];
 			vT[0].tu = 0;
 			vT[0].tv = 0;
 			vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
-			vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
+			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
 
-			tempVect.v[X] = fx->particles[i].poly[1].v[X];
-			tempVect.v[Y] = fx->particles[i].poly[1].v[Y];
-			tempVect.v[Z] = fx->particles[i].poly[1].v[Z];
+			tempVect.v[X] = p->poly[1].v[X];
+			tempVect.v[Y] = p->poly[1].v[Y];
+			tempVect.v[Z] = p->poly[1].v[Z];
 			XfmPoint( &m, &tempVect );
 			vT[1].sx = m.v[X];
 			vT[1].sy = m.v[Y];
@@ -1115,9 +953,9 @@ void DrawFXLightning( SPECFX *fx )
 		}
 
 		// Now the next two, to make a quad
-		tempVect.v[X] = fx->particles[i+1].poly[1].v[X];
-		tempVect.v[Y] = fx->particles[i+1].poly[1].v[Y];
-		tempVect.v[Z] = fx->particles[i+1].poly[1].v[Z];
+		tempVect.v[X] = p->next->poly[1].v[X];
+		tempVect.v[Y] = p->next->poly[1].v[Y];
+		tempVect.v[Z] = p->next->poly[1].v[Z];
 		XfmPoint( &m, &tempVect );
 		vT[2].sx = m.v[X];
 		vT[2].sy = m.v[Y];
@@ -1126,9 +964,9 @@ void DrawFXLightning( SPECFX *fx )
 		vT[2].sz = (m.v[Z])?((m.v[Z]+DIST)*0.00025):0;
 		vT[2].color = vT[0].color;
 
-		tempVect.v[X] = fx->particles[i+1].poly[0].v[X];
-		tempVect.v[Y] = fx->particles[i+1].poly[0].v[Y];
-		tempVect.v[Z] = fx->particles[i+1].poly[0].v[Z];
+		tempVect.v[X] = p->next->poly[0].v[X];
+		tempVect.v[Y] = p->next->poly[0].v[Y];
+		tempVect.v[Z] = p->next->poly[0].v[Z];
 		XfmPoint( &m, &tempVect );
 		vT[3].sx = m.v[X];
 		vT[3].sy = m.v[Y];
@@ -1151,6 +989,7 @@ void DrawFXLightning( SPECFX *fx )
 		}
 
 		i++;
+		p = p->next;
 	} 
 
 	SwapFrame(0);

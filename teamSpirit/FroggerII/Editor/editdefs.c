@@ -260,6 +260,8 @@ void EditorCreateEntities(void)
 	KillAllTriggers( );
 	FreeSpriteList( );
 	InitSpriteList( );
+	FreeParticleList( );
+	InitParticleList( );
 
 	for (i=0; i<4; i++)
 		if (currPlatform[i])

@@ -41,6 +41,7 @@ void InitBabyList( unsigned char createOverlays )
 		babyList[i].isSaved = 0;
 		babyList[i].baby = NULL;
 		babyList[i].idle = 0;
+		babyList[i].collect = 0;
 
 		// determine baby colour and set values accordingly
 		switch(i)
@@ -110,6 +111,7 @@ void ResetBabies( )
 		babyList[i].isSaved = 0;
 		babyList[i].baby = NULL;
 		babyList[i].idle = 0;
+		babyList[i].collect = 0;
 		babiesSaved = 0;
 		lastBabySaved = -1;
 	}
@@ -139,7 +141,10 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 		return FALSE;
 
 	babyList[i].isSaved	= 1;
-	baby->draw = 0;
+	babyList[i].collect = 45;
+
+	if( babiesSaved == numBabies-1 )
+		baby->draw = 0;
 
 	lastBabySaved = i;
 
@@ -165,7 +170,6 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	startFrogFacing = frogFacing[0];
 
 //	player[0].score += (1500 * babiesSaved);
-	babySaved = 30;
 
 	PlaySample( genSfx[GEN_COLLECT_BABY], &baby->actor->pos, 0, SAMPLE_VOLUME, -1 );
 
@@ -257,6 +261,60 @@ void UpdateBabies( )
 	{
 		baby = babyList[i].baby;
 		act = baby->actor;
+
+		if( !babyList[i].baby->draw ) continue;
+
+		if( babyList[i].collect )
+		{
+			// Spin around and move up
+			VECTOR fwd, up;
+			QUATERNION q;
+
+			SetVector( &up, &currTile[0]->normal );
+			SetVector( (VECTOR *)&q, &up );
+			q.w = (actFrameCount%360)*0.15;
+
+			RotateVectorByRotation( &fwd, &inVec, &q );
+			Orientate( &baby->actor->qRot, &fwd, &up );
+
+			babyList[i].collect -= gameSpeed;
+
+			if( babyList[i].collect < 1 )
+			{
+				SPECFX *fx;
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &babyList[i].baby->actor->pos, &up, 50, 3, 0, 5 )) )
+				{
+					SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+					SetVector( &fx->rebound->point, &currTile[0]->centre );
+					fx->gravity = 0.07;
+				}
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &babyList[i].baby->actor->pos, &up, 40, 2.5, 0, 6 )) )
+				{
+					SetFXColour( fx, 220, 220, 220 );
+					SetVector( &fx->rebound->point, &currTile[0]->centre );
+					fx->gravity = 0.07;
+				}
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &babyList[i].baby->actor->pos, &up, 30, 2, 0, 7 )) )
+				{
+					SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+					SetVector( &fx->rebound->point, &currTile[0]->centre );
+					fx->gravity = 0.07;
+				}
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &babyList[i].baby->actor->pos, &up, 20, 1.5, 0, 8 )) )
+				{
+					SetFXColour( fx, 220, 220, 220 );
+					SetVector( &fx->rebound->point, &currTile[0]->centre );
+					fx->gravity = 0.07;
+				}
+				babyList[i].baby->draw = 0;
+				babyList[i].collect = 0;
+			}
+
+			ScaleVector( &up, gameSpeed*3 );
+			AddToVector( &baby->actor->pos, &up );
+
+			continue;
+		}
 
 		SubVector( &frogV, &frog[0]->actor->pos, &act->pos );
 		dist = MagnitudeSquared(&frogV);

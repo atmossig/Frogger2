@@ -36,7 +36,8 @@ typedef struct TAGBABY
 {
 	unsigned long isSaved;
 	unsigned char fxColour[4];
-	long idle;
+	long idle, collect;
+
 	ACTOR2 *baby;
 
 } BABY;

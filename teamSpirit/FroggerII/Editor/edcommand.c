@@ -586,6 +586,8 @@ void ToolbarSelect(int command)
 		KillAllTriggers( );
 		FreeSpriteList( );
 		InitSpriteList( );
+		FreeParticleList( );
+		InitParticleList( );
 		RemoveEntities( CREATE_ENEMY );
 		RemoveEntities( CREATE_PLATFORM );
 		RemoveEntities( CREATE_CAMERACASE );

@@ -329,6 +329,14 @@ SOURCE=.\Common\overlays.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\particle.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\particle.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\path.c
 # End Source File
 # Begin Source File

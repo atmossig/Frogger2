@@ -58,7 +58,6 @@ extern Gfx rspInitForSprites_dl[];
 extern Gfx rdpInitForSprites_dl[];
 
 
-void PrintBackdrops();
 void PrintTextAsOverlay(TEXTOVERLAY *tOver);
 void PrintOverlays();
 void PrintSpriteOverlays(long);
@@ -87,12 +86,5 @@ void PrintSprite(SPRITE *sprite);
 
 //void ScreenShot();
 char IsPointVisible(VECTOR *p);
-
-void InitBackdropLinkedList();
-void FreeBackdropLinkedList();
-void AddBackdrop(BACKDROP *bDrop);
-void SubBackdrop(BACKDROP *bDrop);
-BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int z,int destX,int destY,int destWidth,int destHeight,int scalex,int scaley,int flags);
-
 
 #endif

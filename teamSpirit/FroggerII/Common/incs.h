@@ -62,6 +62,7 @@
 #include "levelplaying.h"
 #include "jalloc.h"
 #include "sprite.h"
+#include "particle.h"
 #include "overlays.h"
 #include "textoverlays.h"
 #include "frogger.h"
