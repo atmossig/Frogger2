@@ -27,8 +27,8 @@ enum
 	TILESTATE_ICE,
 	TILESTATE_SUPERHOP,
 	TILESTATE_JOIN,
-	TILESTATE_SPRING,
-	TILESTATE_TELEPORTER,
+	TILESTATE_SAFE,
+	TILESTATE_RESERVED,
 	TILESTATE_GRAPPLE,
 	TILESTATE_SMASH,
 	TILESTATE_BARRED,
@@ -68,6 +68,7 @@ enum
 	AUTOHOP,
 	SAFE,
 	DEADLY,
+	ICE,
 	SINK,
 	JUMP,
 	BARRED,
@@ -103,6 +104,7 @@ const char* materialnames[NUM_MATERIALS] =
 	"autohop",
 	"safe",
 	"deadly",
+	"ice",
 	"sink",
 	"platjump",
 	"barred",
@@ -490,10 +492,6 @@ void BuildSquareList(void)
 								powers[numPowers++] = nSquare;
 								printf("a");
 								break;
-							case SAFE:
-								safes[numSafes++] = nSquare;
-								printf("s");
-								break;
 							case DEADLY:
 								printf(",");
 								squareList[nSquare].status = TILESTATE_DEADLY;
@@ -502,11 +500,14 @@ void BuildSquareList(void)
 								printf("v");
 								squareList[nSquare].status = TILESTATE_SINK;
 								break;
-/*							case JUMP:
-								printf("^");
-								squareList[nSquare].status = TILESTATE_JUMP;
+							case SAFE:
+								printf("s");
+								squareList[nSquare].status = TILESTATE_SAFE;
 								break;
-*/
+							case ICE:
+								printf("i");
+								squareList[nSquare].status = TILESTATE_ICE;
+								break;
 							case SUPERHOP:
 								printf("@");
 								squareList[nSquare].status = TILESTATE_SUPERHOP;

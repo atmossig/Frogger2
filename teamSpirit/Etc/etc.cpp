@@ -317,17 +317,13 @@ bool AddEvent(Buffer &buffer)
 	{
 	case C_INCLUDE:
 		{
-			char foo[255];
 			const char *filename = GetStringToken();
 			if (!filename) { Error(ERR_EXPECTFILENAME); return false; }
 			
-			GetPath(foo, CurrentFilename());
-			strcat(foo, filename);
-
-			if (!OpenFile(foo)) return false;
+			if (!OpenFile(filename)) return false;
 			
 			if (verbose)
-				printf("includes %s\n", foo);
+				printf("includes %s\n", filename);
 			
 			NextToken();
 			return AddEvent(buffer);
@@ -528,9 +524,6 @@ bool compile(const char* filename, bool save)
 		GetFilenameStart(outfile, filename);
 		strcat(outfile, OUTPUT_FILE_EXT);
 
-		if (verbose > 1)
-			printf("Saving version %d FEV file to '%s'...\n", ETC_VERSION, outfile);
-		
 		FILE *f = fopen(outfile, "wb");
 		if (!f)
 		{
@@ -550,7 +543,7 @@ bool compile(const char* filename, bool save)
 		int size = header.Size() + buffer.Size();
 
 		if (verbose)
-			printf("Saved %s (%d bytes)\n", outfile, size);
+			printf("Saved %s (version %d, %d bytes)\n", outfile, ETC_VERSION, size);
 	}
 
 	if (!quiet) puts(filename);

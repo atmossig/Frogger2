@@ -94,6 +94,7 @@ void Error(const char* message)
 
 bool OpenFile(const char* filename)
 {
+	char buffer[1024] = "";
 	FILE *f;
 	
 	if (currFile == FILESTACKSIZE-1)
@@ -102,12 +103,17 @@ bool OpenFile(const char* filename)
 		return false;
 	}
 
+	if (currFile >= 0)
+	{
+		GetPath(buffer, CurrentFilename());
+	}
+	
+	strcat(buffer, filename);
+
 	f = fopen(filename, "r");
 
 	if (!f && currFile >= 0)
 	{
-		char buffer[1024];
-		
 		if (includePath)	// Try include directory
 		{
 			strcpy(buffer, includePath);
