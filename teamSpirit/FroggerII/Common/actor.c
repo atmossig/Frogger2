@@ -921,7 +921,7 @@ void MakeUniqueActor(ACTOR *actor,int type)
 		if(uniqueActorCRC[i] == CRC)
 		{
 			//if it is, actor is not unique and must have seperate stuff
-			dprintf"found duplicate actor %s\n", actor->objectController->object->name));
+			//dprintf"found duplicate actor %s\n", actor->objectController->object->name));
 			unique = FALSE;
 			break;
 		}
