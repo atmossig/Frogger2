@@ -122,6 +122,7 @@ extern long *psiModelListCRC;
 extern int	psiModelListLen;
 extern char *PSIname;
 
+extern PSIDATA oldModel;
 
 
 // functions

@@ -54,6 +54,7 @@ void AddTextureAnim							( TEXTUREANIM *textureAnim );
 void SubTextureAnim							( TEXTUREANIM *textureAnim );
 void AddAnimFrame ( TEXTUREANIM *anim, long crc, short waitTime, int num );
 
+void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette );
 
 
 #endif

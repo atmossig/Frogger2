@@ -426,7 +426,7 @@ void actorDraw(ACTOR *actor)
 	}
 	else
 	{
-		if((world->rotate.vx) || (world->rotate.vy) || (world->rotate.vz))
+		/*if((world->rotate.vx) || (world->rotate.vy) || (world->rotate.vz))
 		{
 			MATRIX		rotmat1;
 			RotMatrixYXZ_gte(&world->rotate,&rotmat1);
@@ -443,12 +443,12 @@ void actorDraw(ACTOR *actor)
 	 		world->matrix.t[0] += -actor->position.vx;
 	 		world->matrix.t[1] += -actor->position.vy;
 	 		world->matrix.t[2] += actor->position.vz;
-		}
+		}*/
 
 //bb see above comment
 //  		world->matrix.t[0] += -actor->position.vx;
-//  		world->matrix.t[1] += -actor->position.vy;
-//  		world->matrix.t[2] += actor->position.vz;
+ // 		world->matrix.t[1] += -actor->position.vy;
+ // 		world->matrix.t[2] += actor->position.vz;
 	}
 
 
@@ -642,9 +642,9 @@ void actorSetAnimation(ACTOR *actor, ULONG frame, int setKeys)
 	PSIactorScale = &actor->size;
 
 //bbopt
-  //psiSetKeyFrames(world, frame);
-	if ( setKeys )
-		bb_psiSetKeyFrames(world, frame);
+  psiSetKeyFrames(world, frame);
+	//if ( setKeys )
+		//bb_psiSetKeyFrames(world, frame);
 
 	/*
 		
@@ -1134,9 +1134,9 @@ void ScalePsi(PSIMESH* pMesh)
 */
 void *ChangeModel( ACTOR *actor, char *model )
 {
-	actorAnimate( frog[0]->actor, 31, NO, NO, 64, 0 );
+//	actorAnimate( frog[0]->actor, 31, NO, NO, 64, 0 );
 
-/*	ACTOR *newActor;
+	ACTOR *newActor;
 
 	PSIMODEL *newModel;
 
@@ -1146,22 +1146,28 @@ void *ChangeModel( ACTOR *actor, char *model )
 	FindObject( &a->objectController, UpdateCRC(model), model );
 	InitAnims( a );*/
 
-/*	newModel = psiCheck ( model );
+	oldModel = actor->psiData;
 
-//	utilPrintf("Trying To Find New Model %s : %s................\n", model);
+	newModel = psiCheck ( model );
+
+	utilPrintf("Trying To Find New Model %s : %s................\n", model);
 
 	if ( !newModel )
 	{
-	//	utilPrintf("Could Not Find Replacment Model................\n");
+		utilPrintf("Could Not Find Replacment Model................\n");
 		return;
 	}
 	// ENDIF
 
-	newActor = actorCreate ( newModel );
+	newActor = actorCreate ( newModel, 1 );
 
 	oldModel = actor->psiData;
 
-	actor->psiData = newActor->psiData;*/
+	actor->psiData = newActor->psiData;
+
+	actorInitAnim ( actor );										// initialise animation structure
+	actorSetAnimation ( actor, 0, 1 );										// initialise animation structure
+
 }
 
 
@@ -1175,7 +1181,11 @@ void *ChangeModel( ACTOR *actor, char *model )
 int UndoChangeModel( ACTOR *actor )
 {
 
-/*	actor->psiData = oldModel;
+	actor->psiData = oldModel;
+
+	//actor->psiData = psiCheck ( "frogger.psi" );
+
+	actorInitAnim ( actor );										// initialise animation structure
 
 	actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
 

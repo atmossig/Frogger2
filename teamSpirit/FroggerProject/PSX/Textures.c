@@ -601,22 +601,8 @@ void UpdateTextureAnimations ( void )
 		}
 		// ENDIF
 
-
-//s		utilPrintf("Wait Time : %d\n", cur->waitTime );
-
-		moveRect.x = VRAM_CALCVRAMX(cur->animation->anim[cur->waitTime]->handle);
-		moveRect.y = VRAM_CALCVRAMY(cur->animation->anim[cur->waitTime]->handle);
-		moveRect.w = (cur->animation->dest->w + 3) / 4;
-		moveRect.h = cur->animation->dest->h;
-
-		// check for 256 colour mode
-		if(cur->animation->dest->tpage & (1 << 7))
-			moveRect.w *= 2;
-
-		// copy bit of vram
-		BEGINPRIM ( siMove, DR_MOVE );
-		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(cur->animation->dest->handle),VRAM_CALCVRAMY(cur->animation->dest->handle));
-		ENDPRIM ( siMove, 1023, DR_MOVE );
+		// JH: Copy the required texture into vram.
+		CopyTexture ( cur->animation->dest, cur->animation->anim[cur->waitTime], 0 );
 
 		cur->waitTime++;
 	}
@@ -746,3 +732,39 @@ TextureType *CreateSpareTextureSpace ( long dummyCrc )
 
 
 
+void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
+{
+	DR_MOVE *siMove;
+	RECT	moveRect;
+
+	moveRect.x = VRAM_CALCVRAMX(src->handle);
+	moveRect.y = VRAM_CALCVRAMY(src->handle);
+	moveRect.w = (dest->w + 3) / 4;
+	moveRect.h = dest->h;
+
+	// check for 256 colour mode
+	if ( dest->tpage & (1 << 7) )
+		moveRect.w *= 2;
+
+//	dest->tpage = src->tpage;
+	//dest->clut = src->clut;
+
+	// copy bit of vram
+	BEGINPRIM		( siMove, DR_MOVE );
+	SetDrawMove ( siMove, &moveRect, VRAM_CALCVRAMX(dest->handle), VRAM_CALCVRAMY(dest->handle) );
+	ENDPRIM			( siMove, 1023, DR_MOVE );
+
+	if ( copyPalette )
+	{
+		moveRect.x = (src->clut & 0x3f) << 4;		// Copy up the palette
+		moveRect.y = (src->clut >> 6);
+		moveRect.w = 16;
+		moveRect.h = 1;
+
+		BEGINPRIM		( siMove, DR_MOVE );
+		SetDrawMove ( siMove, &moveRect, (dest->clut & 0x3f) << 4, (dest->clut >> 6) );
+		ENDPRIM			( siMove, 1023, DR_MOVE );
+	}
+	// ENDIF
+
+}

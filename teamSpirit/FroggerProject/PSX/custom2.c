@@ -1667,23 +1667,6 @@ void dcache_LSCAPE_DrawSortedPrimitives ( int depth, long *tfv )
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 		
-// 				si->r0 = ( op->r0 << 7 ) >> 8;
-// 				si->g0 = ( op->g0 << 7 ) >> 8;
-// 				si->b0 = ( op->b0 << 7 ) >> 8;
-// 
-// 				si->r1 = ( op->r1 << 7 ) >> 8;
-// 				si->g1 = ( op->g1 << 7 ) >> 8;
-// 				si->b1 = ( op->b1 << 7 ) >> 8;
-// 
-// 				si->r2 = ( op->r2 << 7 ) >> 8;
-// 				si->g2 = ( op->g2 << 7 ) >> 8;
-// 				si->b2 = ( op->b2 << 7 ) >> 8;
-// 
-// 				si->r3 = ( op->r3 << 7 ) >> 8;
-// 				si->g3 = ( op->g3 << 7 ) >> 8;
-// 				si->b3 = ( op->b3 << 7 ) >> 8;
-
-				// SL: put in the additive poly...
 				setPolyGT4(si);
 
 				if ( globalClut )
