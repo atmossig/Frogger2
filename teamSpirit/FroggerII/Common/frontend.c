@@ -418,7 +418,7 @@ void StartGameIntro()
 	fog.mode = FOG_OFF;
 
 	intro->timer = 0;
-	intro->stage = 0;
+	intro->stage = 1;
 
 	lastActFrameCount = 0;
 }
@@ -530,6 +530,7 @@ void RunGameIntro( )
 				controlCamera = 0;
 
 				gameState.mode = LEVELCOMPLETE_MODE;
+				gameState.multi = SINGLEPLAYER;
 				GTInit( &modeTimer, 1 );
 				showEndLevelScreen = 0;
 			}
