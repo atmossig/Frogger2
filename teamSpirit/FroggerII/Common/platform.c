@@ -513,7 +513,8 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 		&pform->path->nodes[pform->path->fromNode].worldTile->centre);
 	MakeUnit(&fwd);
 
-	Orientate(&pform->pltActor->actor->qRot, &fwd, &inVec, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
+	if (!(pform->flags & PLATFORM_NEW_FACEFORWARDS))
+		Orientate(&pform->pltActor->actor->qRot, &fwd, &inVec, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
 
 	// set platform current 'in' tile and speeds and pause times
 	pform->inTile[0]	= path->nodes[pform->path->fromNode].worldTile;
