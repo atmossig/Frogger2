@@ -36,10 +36,10 @@ void actorInitialise()
 	return;
 }
 
-void LoadLevelEntities(int worldID, int levelID)		
-{
-	return;
-}
+//void LoadLevelEntities(int worldID, int levelID)		
+//{
+//	return;
+//}
 
 
 void DrawFXRipple(SPECFX *s)							
