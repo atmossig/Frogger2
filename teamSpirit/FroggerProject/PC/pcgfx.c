@@ -242,7 +242,7 @@ void DrawFXDecal( SPECFX *fx )
 	long i, zeroZ=0;
 	float t;
 
-	if(fx->deadCount)
+	if( !(tEntry = ((MDX_TEXENTRY *)fx->tex)) )
 		return;
 
 	SetVectorRF( &scale, &fx->scale );
@@ -326,8 +326,7 @@ void DrawFXDecal( SPECFX *fx )
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 
-	tEntry = ((MDX_TEXENTRY *)fx->tex);
-	if( tEntry && !zeroZ )
+	if( !zeroZ )
 	{
 		SwapFrame(0);
 		Clip3DPolygon( vT, tEntry->surf );
@@ -364,9 +363,7 @@ void DrawFXRing( SPECFX *fx )
 	float tilt, t;
 	int zeroZ = 0;
 
-	tEntry = ((MDX_TEXENTRY *)fx->tex);
-
-	if( !tEntry || fx->deadCount )
+	if( !(tEntry = ((MDX_TEXENTRY *)fx->tex)) )
 		return;
 
 	SetVectorRF( &scale, &fx->scale );
@@ -458,8 +455,7 @@ void DrawFXTrail( SPECFX *fx )
 	MDX_TEXENTRY *tEntry;
 
 	tEntry = ((MDX_TEXENTRY *)fx->tex);
-
-	if( !tEntry || fx->deadCount || (fx->start == fx->end) )
+	if( !tEntry || (fx->start == fx->end) )
 		return;
 
 	vT[0].specular = D3DRGB(0,0,0);
@@ -567,9 +563,7 @@ void DrawFXLightning( SPECFX *fx )
 	PARTICLE *p;
 	long i=0;
 
-	tEntry = ((MDX_TEXENTRY *)fx->tex);
-
-	if( !tEntry || fx->deadCount )
+	if( !(tEntry = ((MDX_TEXENTRY *)fx->tex)) )
 		return;
 
 	vT[0].specular = D3DRGB(0,0,0);

@@ -221,14 +221,10 @@ void DrawFXDecal( SPECFX *ripple )
 	unsigned long colour;
 	long i;
 
-	if(ripple->deadCount)
-		return;
-
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
 	colour = ripple->r>>1;
 	colour += (ripple->g>>1)<<8;
 	colour += (ripple->b>>1)<<16;
-
 
 //set the size of the effect
 	vT[0].vx = (ripple->scale.vx>>12);
@@ -298,9 +294,6 @@ void DrawFXRing( SPECFX *ring )
  	IQUATERNION q1, q2, q3, cross;
  	fixed tilt, t;
  
- 	if( ring->deadCount )
- 		return;
-
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
 	colour = ring->r>>1;
 	colour += (ring->g>>1)<<8;
@@ -362,7 +355,7 @@ void DrawFXTrail( SPECFX *trail )
  	unsigned long colour, i = trail->start;
  	SVECTOR vT[4], vTPrev[2];
  
- 	if( trail->deadCount || (trail->start == trail->end) )
+ 	if( trail->start == trail->end )
  		return;
 
 
@@ -477,9 +470,6 @@ void DrawFXLightning( SPECFX *fx )
  	long i=0;
  	unsigned long colour;
  
-  	if( fx->deadCount )
- 		return;
-
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
 	colour = fx->r>>1;
 	colour += (fx->g>>1)<<8;
