@@ -226,6 +226,8 @@ void FreeLegalBackdrop(void)
 	Info 		:
 */
 
+extern int currentArt;
+
 void InitArtBackdrop(char * const filename)
 {
 	int				i,x,y;
@@ -234,6 +236,7 @@ void InitArtBackdrop(char * const filename)
   	USHORT			width,height,*pixelPtr,pixel,newPixel;
   	int				headerSize,colFormat,texFormat,texAttrib,attrib;
 	char			r,g,b,a;
+	KMUINT32		rgba;
 
 	artBackDrop.draw = TRUE;
 
@@ -250,22 +253,32 @@ void InitArtBackdrop(char * const filename)
 	artBackDrop.imageXD = artBackDrop.surface.u0.USize;
 	artBackDrop.imageYD = artBackDrop.surface.u1.VSize;
 
+	if((currentArt == 0)||(currentArt == 4)||(currentArt == 5)||(currentArt == 6)||
+		(currentArt == 10)||(currentArt == 11)||(currentArt == 12))
+		rgba = RGBA(128,128,128,255);
+	else
+		rgba = RGBA(255,255,255,255);
+
 	// setup (u,v) coordinates vertices
 	artBackdropVertices[0].fU = 0;
 	artBackdropVertices[0].fV = 384.0/512;	
 	artBackdropVertices[0].u.fZ = 1.0;
+	artBackdropVertices[0].uBaseRGB.dwPacked = rgba;
 
 	artBackdropVertices[1].fU = 0;
 	artBackdropVertices[1].fV = 0;	
 	artBackdropVertices[1].u.fZ = 1.0;
+	artBackdropVertices[1].uBaseRGB.dwPacked = rgba;
 	
 	artBackdropVertices[2].fU = 1.0;
 	artBackdropVertices[2].fV = 384.0/512;
 	artBackdropVertices[2].u.fZ = 1.0;
+	artBackdropVertices[2].uBaseRGB.dwPacked = rgba;
 	
 	artBackdropVertices[3].fU = 1.0;
 	artBackdropVertices[3].fV = 0;
 	artBackdropVertices[3].u.fZ = 1.0;
+	artBackdropVertices[3].uBaseRGB.dwPacked = rgba;
 	
 	// initialise strip context and head
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_TRANS_POLYGON, &artBackStripContext);
