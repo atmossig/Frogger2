@@ -213,6 +213,7 @@ void StartPauseMenu()
 	currentPauseSelection = 1;
 #endif
 	EnableTextOverlay ( xselectText );
+	EnableTextOverlay ( pauseTitleText );
 	continueText->r = continueText->g = continueText->b = 255;
 	if(gameState.oldMode == FRONTEND_MODE)
 		quitText->yPos = quitText->yPosTo = restartText->yPos;
@@ -586,6 +587,7 @@ void RunPauseMenu()
 			{
 				DisableTextOverlay ( continueText );
 				DisableTextOverlay ( xselectText );
+				DisableTextOverlay ( pauseTitleText );
 				DisableTextOverlay ( restartText );
 				DisableTextOverlay ( quitText );
 				if(pauseConfirmMode)

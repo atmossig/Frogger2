@@ -16,6 +16,8 @@ extern int fadingOut, keepFade;
 extern int fadeText;
 extern int flashScreen;
 
+extern int (*fadeProc)(void);
+
 void ScreenFade(int start, int end, long time);
 void DrawScreenTransition(void);
 
