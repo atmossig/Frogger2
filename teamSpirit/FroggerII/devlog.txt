@@ -1730,7 +1730,16 @@ James Hubbard:
 
 James Healey:
 ------------------------------------------------
+	What a suprise, no devlogs!!!
 
+	Get to it Jim.
+
+	Well getting busy with getting the playstation up and running.
+
+	I'm in the middle of doing initlevel, so that all texture banks and objects are loaded and then
+	getting them displayed I shall do this afternoon.
+
+	Have a nice day!!!
 
 Mike Movel:
 ------------------------------------------------
