@@ -21,7 +21,8 @@ extern int OnTimeout( TRIGGER *trigger );
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
 extern void ChangeActorScale( EVENT *event );
-
+extern void AssignFloatToFloat( EVENT *event );
+extern void AssignIntToInt( EVENT *event );
 
 /*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
 extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );

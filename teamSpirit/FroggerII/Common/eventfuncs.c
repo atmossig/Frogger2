@@ -108,6 +108,38 @@ void ChangeActorScale( EVENT *event )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: AssignFloatToFloat
+	Purpose 	: Assigns a number to any float.
+	Parameters 	: Pointer to event structure
+	Returns 	: 
+	Info 		:
+*/
+void AssignFloatToFloat( EVENT *event )
+{
+	float *ass = (float *)event->data[0];
+	float val = *(float *)event->data[1];
+
+	*ass = val;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: AssignIntToInt
+	Purpose 	: Assigns a number to any float.
+	Parameters 	: Pointer to event structure
+	Returns 	: 
+	Info 		:
+*/
+void AssignIntToInt( EVENT *event )
+{
+	int *ass = (int *)event->data[0];
+	int val = *(int *)event->data[1];
+
+	*ass = val;
+}
+
+
 
 /*----- [ LEVEL SETUPS ] -----------------------------------------------------------------------*/
 
