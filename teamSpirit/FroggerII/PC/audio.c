@@ -75,12 +75,10 @@ void LoadSfxSet( char *path )
 
 	do
 	{
-		ret = FindNextFile( h, &fData );
-
 		CreateAndAddSample( path, fData.cFileName );
 		numSfx++;
 	}
-	while (ret);
+	while( (ret = FindNextFile( h, &fData )) );
 
 	dprintf"Loaded %d Samples\n",numSfx ));
 
@@ -893,8 +891,9 @@ SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 
 	if( !sfx_anim_map || !uid ) return NULL;
 
-	// First actor uid
-	act = (unsigned long)sfx_anim_map[index++];
+	// First actor uid - if none, return NULL
+	if( !(act = (unsigned long)sfx_anim_map[index++]) )
+		return NULL;
 
 	do
 	{
