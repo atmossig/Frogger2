@@ -582,7 +582,7 @@ void StartGameOver()
 {
 	TEXTOVERLAY *gameOverText;
 	gameState.mode = GAMEOVER_MODE;
-	GTInit( &modeTimer, 9);
+	GTInit(&modeTimer, 5);	// 9
 
 //	FreeAllGameLists();
 

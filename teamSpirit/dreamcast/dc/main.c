@@ -834,6 +834,44 @@ void main()
 			break;
 		}
 
+
+		// *ASL* 20/08/2000 - Reset all strip cache vars
+		stripFT3textureID = -1;
+		stripFT3textureID_A = -1;
+		stripFT3dsided = FALSE;
+		stripFT3dsided_A = FALSE;
+
+		stripFT4textureID = -1;
+		stripFT4textureID_A = -1;
+		stripFT4dsided = FALSE;
+		stripFT4dsided_A = FALSE;
+
+		stripGT3textureID = -1;
+		stripGT3textureID_A = -1;
+		stripGT3dsided = FALSE;
+		stripGT3dsided_A = FALSE;
+
+		stripGT4textureID = -1;
+		stripGT4textureID_A = -1;
+		stripGT4dsided = FALSE;
+		stripGT4dsided_A = FALSE;
+
+		stripGT3FMAtextureID = -1;
+		stripGT3FMAtextureID_A = -1;
+
+		stripGT4FMAtextureID = -1;
+		stripGT4FMAtextureID_A = -1;
+		stripGT4FMAtextureID_Add = -1;
+
+		stripTF4SPRtextureID = -1;
+		stripTF4SPRtextureID_A = -1;
+
+		stripGT3FMATransTextureID = -1;
+		stripGT4FMATransTextureID = -1;
+
+		strip3DBackdropTextureID = -1;
+
+
 		// Jim: I'm sorry...
 		if( !saveInfo.saveFrame )
 		{

@@ -4522,6 +4522,10 @@ void my_setPolyGT3(POLY_GT3 *packet, TMD_P_GT3I *opcd)
 	kmEndStrip(&vertexBufferDesc);
 }
 
+
+
+// rotor blade textuers set here...
+
 void my_setPolyGT4(POLY_GT4 *packet, TMD_P_GT4I *opcd)
 {
 	int		i,ds;
@@ -4599,7 +4603,7 @@ void my_setPolyGT4(POLY_GT4 *packet, TMD_P_GT4I *opcd)
 				kmChangeStripCullingMode(&StripHead_GT4_Alpha,KM_CULLCW);
 				stripGT4dsided_A = FALSE;
 			}
-		}	
+		}
 		kmStartStrip(&vertexBufferDesc, &StripHead_GT4_Alpha);
 	}	
 	else
