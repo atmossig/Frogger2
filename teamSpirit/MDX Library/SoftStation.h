@@ -30,6 +30,7 @@
 
 // texture map hints - [called with ssSetTexture]
 #define SSTEXHINT_NOTRANS			(1<<0)	// set if you are sure the texture map isn't transparent
+#define SSTEXHINT_WRAPUVS			(1<<1)	// set if you want the texture uvs to wrap around - (used to create sliding textures)
 
 // render states
 enum ESSRenderState {
