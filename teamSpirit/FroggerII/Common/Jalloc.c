@@ -199,7 +199,7 @@ jallocFailed:
 
 	Crash("JALLOC");
 	ShowJalloc();
-	while(1);
+	//while(1);
 	return NULL;
 
 jallocSuccess:
@@ -293,7 +293,7 @@ jallocFailed:
 		dprintf"Cannot malloc %d - out of memory\n",size));
 	Crash("JALLOC");
 	ShowJalloc();
-	while(1);
+	//while(1);
 	return NULL;
 
 jallocSuccess:
