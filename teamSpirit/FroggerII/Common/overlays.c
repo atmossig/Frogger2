@@ -28,7 +28,8 @@ SPRITEOVERLAY *goldCup[8];
 	Returns			: SPRITEOVERLAY *
 	Info			: 
 */
-SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short width,short height,char r,char g,char b,char a,short flags)
+SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short width,short height,
+										 unsigned char r,unsigned char g,unsigned char b,unsigned char a,short flags)
 {
 	SPRITEOVERLAY *newItem;
 
