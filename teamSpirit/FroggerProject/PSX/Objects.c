@@ -288,6 +288,7 @@ void FreeAllObjectBanks ( void )
 //MM	FREE( ( FMA_WORLD* ) fma_world );
 	FREE( fma_world );
 	numObjectBanks = 0;
+	fma_world = NULL;
 }
 
 
