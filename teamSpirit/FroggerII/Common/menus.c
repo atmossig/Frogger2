@@ -24,8 +24,6 @@ SPRITEOVERLAY *konami = NULL;
 
 SPRITE *sp = NULL;
 
-//#define MBR_DEMO 1
-
 /*	--------------------------------------------------------------------------------
 	Function 	: RunTitleScreen
 	Purpose 	: The first menu

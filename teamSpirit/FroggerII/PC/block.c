@@ -256,6 +256,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 		if(appActive)
 		{
+#ifndef MBR_DEMO
+
 			if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2;
 
@@ -316,6 +318,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if( NUM_FROGS > 1 && gameState.mode == GAME_MODE )
 				RefreshMPFrogs( );
+#endif
 
 			StartTimer(4,"GameLoop");
 			GameLoop();

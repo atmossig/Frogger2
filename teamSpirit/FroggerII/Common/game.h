@@ -22,6 +22,10 @@
 #define PM_ENDLEVEL	2
 #define PM_GAMEOVER	3
 
+
+#define MBR_DEMO 1
+
+
 // -----------------
 
 enum

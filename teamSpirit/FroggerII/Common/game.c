@@ -299,6 +299,17 @@ void GameProcessController(long pl)
 		}
 	}
 
+	if(button[pl] & CONT_G)
+	{
+		player[pl].frogState |= FROGSTATUS_ISFLOATING;
+	}
+	else
+	{
+		player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+	}
+
+#ifndef MBR_DEMO
+
 	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
 	{
 		if(numBabies)
@@ -309,15 +320,6 @@ void GameProcessController(long pl)
 				SetFroggerStartPos(bTStart[bby],pl);
 		}
     }
-
-	if(button[pl] & CONT_G)
-	{
-		player[pl].frogState |= FROGSTATUS_ISFLOATING;
-	}
-	else
-	{
-		player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
-	}
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
@@ -356,7 +358,9 @@ void GameProcessController(long pl)
 
 		lastbutton[pl] = button[pl];
     }
-  
+
+#endif
+
 	lastbutton[pl] = button[pl];
 	lastStickX[pl] = stickX[pl];
 	lastStickY[pl] = stickY[pl];
@@ -968,7 +972,13 @@ void RunGameLoop (void)
 				// Only go to next level if in normal level progression.
 				if( showEndLevelScreen )
 				{
+#ifdef MBR_DEMO
+					player[0].levelNum = 0;
+					player[0].worldNum = WORLDID_LABORATORY;
+#else
 					player[0].levelNum++;
+#endif
+
 #ifndef PC_VERSION
 					StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
 
@@ -997,7 +1007,7 @@ void RunGameLoop (void)
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
 
 				InitLevel ( player[0].worldNum, player[0].levelNum );
-				
+
 				showEndLevelScreen = 1; // Normal level progression is default
 
 				StartDrawing ( "EndGame" );
