@@ -66,8 +66,10 @@
 
 psFont *font = 0;
 psFont *fontSmall = 0;
+psFont *fontWhite = 0;
 MDX_FONT *pcFont;
 MDX_FONT *pcFontSmall;
+MDX_FONT *pcFontWhite;
 long drawLandscape = 1;
 long drawGame = 1;
 long textEntry = 0;	
@@ -93,6 +95,7 @@ long slideSpeeds[4] = {0,16,32,64};
 long fogEnable = 0;
 
 void GetArgs(char *arglist);
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetRegistryInformation(void)
@@ -697,6 +700,15 @@ long DrawLoop(void)
 	StartTimer(18,"Clear");
 	D3DClearView();
 	EndTimer(18);
+
+	if (grabToTexture)
+	{
+		DrawPageB();
+		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
+		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
+		grabToTexture = 0;
+	}
+
 	GetCursorPos(&t);
 	camZ = t.x*8;
 	camY = t.y*8;
@@ -954,6 +966,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	pcFont = InitFont("FontA",baseDirectory);
 	pcFontSmall = InitFont("FontB",baseDirectory);
+	pcFontWhite = InitFont("FontC",baseDirectory);
 	LoadTexBank("Phong",baseDirectory);
 
 	if (t = GetTexEntryFromCRC(UpdateCRC("phong.bmp")))
@@ -964,6 +977,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	font = (psFont *)pcFont;
 	fontSmall = (psFont *)pcFontSmall;
+	fontWhite = (psFont *)pcFontWhite;
 
 	sprintf(waterFile,"%stextures\\ProcData\\",baseDirectory);
 	InitWater(waterFile);

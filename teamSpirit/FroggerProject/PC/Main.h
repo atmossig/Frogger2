@@ -75,6 +75,7 @@ extern long textEntry;
 extern char textString[255];
 extern psFont *font;
 extern psFont *fontSmall;
+extern psFont *fontWhite;
 extern MDX_FONT *pcFont;
 extern MDX_FONT *pcFontSmall;
 extern long fogEnable;
