@@ -153,12 +153,12 @@ extern void ProcessNMEMower(ACTOR2 *nme);
 
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName);
-void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
-BOOL EnemyHasArrivedAtNode(ENEMY *nme);
-BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
-void UpdateEnemyPathNodes(ENEMY *nme);
-void CalcEnemyNormalInterps(ENEMY *nme);
+extern ENEMY *CreateAndAddEnemy(char *eActorName);
+extern void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
+extern BOOL EnemyHasArrivedAtNode(ENEMY *nme);
+extern BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
+extern void UpdateEnemyPathNodes(ENEMY *nme);
+extern void CalcEnemyNormalInterps(ENEMY *nme);
 
 //------------------------------------------------------------------------------------------------
 
