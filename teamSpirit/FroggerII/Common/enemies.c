@@ -556,11 +556,7 @@ void UpdateVent( ENEMY *cur )
 		else if...
 		*/
 
-		/*
-		SetVector(&rebound.point,&cur->inTile->centre);
-		SetVector(&rebound.normal,&cur->inTile->normal);
-		CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, cur->nmeActor->animSpeed*path->numNodes, 30, &rebound, cur->nmeActor->value1*path->numNodes );
-		*/
+		CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->path->nodes->worldTile->normal, 64, cur->nmeActor->animSpeed*path->numNodes, 0, cur->nmeActor->value1*path->numNodes );
 
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
@@ -796,7 +792,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		// Elevate above gametile
 		SetVector( &up, &cur->inTile->normal );
 		ScaleVector( &up, path->nodes[0].offset );
-		AddVector( &cur->nmeActor->actor->pos, &cur->nmeActor->actor->pos, &up );
+		AddToVector( &cur->nmeActor->actor->pos, &up );
 	}
 }
 
@@ -1077,7 +1073,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
 		newItem->Update = UpdateTileSnapper;
 	else if( newItem->flags & ENEMY_NEW_VENT )
 	{
-		newItem->isSnapping = 2;
+		newItem->isSnapping = -2;
 		newItem->Update = UpdateVent;
 	}
 	else if( (newItem->flags & ENEMY_NEW_MOVEUP) || (newItem->flags & ENEMY_NEW_MOVEDOWN) )
