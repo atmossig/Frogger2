@@ -68,8 +68,7 @@ DWORD stopCDTrack( HWND hWndNotify );
 
 // CD Audio variables
 
-static UINT		wDeviceID;
-static int		numTracks = 0, currTrack = -1, auxVolume, oldVolume;
+static int		auxVolume, oldVolume;
 static DWORD	volumecontrolid, cdaudiovalid;
 
 static char		errStr[128];
@@ -592,10 +591,6 @@ void UpdateAmbientSounds()
 
 int InitCDaudio()
 {
-    DWORD				dwReturn;
-	MCI_OPEN_PARMS		mciOpenParms;
-	MCI_SET_PARMS		mciSetParms;
-	MCI_STATUS_PARMS	mciStatusParms;
 	int					noofmixers, l;
 	MIXERCAPS			mixcaps;
 	MIXERLINE			mixline;
@@ -701,38 +696,6 @@ int InitCDaudio()
 		}
 
 	oldVolume = auxVolume = GetCDVolume();
-
-#ifndef UNICODE
-    mciOpenParms.lpstrDeviceType = "cdaudio";
-#else
-    mciOpenParms.lpstrDeviceType = L"cdaudio";
-#endif
-    if (dwReturn = mciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE, (DWORD)(LPVOID) &mciOpenParms))
-		{
-		utilPrintf("InitCDaudio: MCI_OPEN '%s'\n", MCIerrorToString(dwReturn));
-        return (dwReturn);
-		}
-
-    wDeviceID = mciOpenParms.wDeviceID;
-
-    mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
-    if (dwReturn = mciSendCommand(wDeviceID, MCI_SET, 
-        MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &mciSetParms))
-		{
-		utilPrintf("InitCDaudio: MCI_SET '%s'\n", MCIerrorToString(dwReturn));
-        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
-        return (dwReturn);
-		}  
-
-	mciStatusParms.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
-	if (dwReturn = mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPVOID)&mciStatusParms))
-		{
-		utilPrintf("InitCDaudio: MCI_STATUS '%s'\n", MCIerrorToString(dwReturn));
-        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
-        return (dwReturn);
-		}
-	numTracks = mciStatusParms.dwReturn;
-	utilPrintf("%d track audio CD located\n", numTracks);
 	return 0;
 }
 
@@ -746,11 +709,8 @@ int InitCDaudio()
 
 int ShutdownCDaudio()
 {
-	if (numTracks>0)
-	    return mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
-	else
-		return 0;
 	SetCDVolume(auxVolume);
+	return 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -786,6 +746,11 @@ DWORD stopCDTrack ( HWND hWndNotify )
 	mciDevice = 0;
 
 	return TRUE;
+}
+
+int pauseCDTrack()
+{
+    return mciSendCommand(mciDevice, MCI_STOP, 0, NULL);
 }
 
 // Plays a specified audio track using MCI_OPEN, MCI_PLAY. Returns as 
@@ -925,13 +890,12 @@ void SetCDVolume(int vol)
 
 	if (!cdaudiovalid)
 		return;
-
-/*	if ((vol == 0) && (oldVolume))
-		PauseCDaudio();
+/*
+	if ((vol == 0) && (oldVolume))
+		cdplCDaudio();
 	else if ((vol != 0) && (oldVolume == 0))
 		PlayCDaudio(currTrack);
 */
-
 	oldVolume = vol;
 
 	details[0] = vol;
@@ -1097,7 +1061,6 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 
 void FreeSampleList( void )
 {
-	SAMPLE *cur,*next;
 	unsigned long i;
 
 	if( sfx_anim_map ) 
@@ -1130,7 +1093,6 @@ void FreeSampleList( void )
 void FreeBufSampleList ( void )
 {
 	unsigned long stat;
-	BUFSAMPLE *cur,*next;
 
 	utilPrintf("Freeing linked list : BUFSAMPLE : (%d elements)\n",bufferList.numEntries);
 
@@ -1286,7 +1248,7 @@ void LoadSfxMapping( int world, int level )
 void FindSfxMapping( unsigned long uid, ACTOR *actor )
 {
 	MDX_ACTOR *act = (MDX_ACTOR *)actor->actualActor;
-	unsigned long actID, type, num, index=0, i;
+	unsigned long actID, type, index=0, i;
 
 	// Clear all loopflags
 	for( i=0; i<NUM_NME_ANIMS; i++ )
