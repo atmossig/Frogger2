@@ -67,6 +67,7 @@ extern unsigned long rPlaying;
 extern long rEndFrame;
 extern TEXTOVERLAY *demoText;
 
+char playDemos = 1;
 extern TEXTOVERLAY *posText;
 extern TEXTOVERLAY *levelnameText;
 extern char levelString[];
@@ -872,7 +873,7 @@ void RunGameLoop (void)
 	if	((player[0].worldNum == WORLDID_FRONTEND) &&
 	     (player[0].levelNum == LEVELID_FRONTEND1) )
 	{
-		if ((frameCount > 15) && (gameState.mode != LEVELCOMPLETE_MODE) && (runAttractMode < actFrameCount))
+		if ((frameCount > 15) && playDemos && (gameState.mode != LEVELCOMPLETE_MODE) && (runAttractMode < actFrameCount))
 		{
 			player[0].worldNum = levelPlayList[cLevelPlay];
 			player[0].levelNum = levelPlayList[cLevelPlay+1];
