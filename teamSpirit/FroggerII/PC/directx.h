@@ -29,6 +29,7 @@ extern LPDIRECT3DDEVICE2		pDirect3DDevice;
 extern LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 extern long a565Card;
 
+extern int dumpScreen;
 
 long DirectXInit(HWND window, long hardware);
 void SetupRenderstates(void);

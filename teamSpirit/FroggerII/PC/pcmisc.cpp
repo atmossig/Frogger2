@@ -13,6 +13,7 @@
 #include "incs.h"
 #include "gelf.h"
 #include <commctrl.h>
+#include <ddraw.h>
 
 extern "C"
 {
@@ -262,3 +263,5 @@ void LoadTextureForTrophy( TEXTURE *tex )
 {
 
 }
+
+

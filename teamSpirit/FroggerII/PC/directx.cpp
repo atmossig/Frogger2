@@ -25,6 +25,7 @@
 #include <mmsystem.h>
 #include <memory.h>
 #include <winbase.h>
+//#include "incs.h"
 
 #define SCREEN_WIDTH	640	//320
 #define SCREEN_HEIGHT	480	//240
@@ -64,6 +65,11 @@ long a565Card = 0;
 
 char *ddError2String(HRESULT error);
 long isHardware = 1;
+
+int dumpScreen = 0;
+
+void ScreenShot ( DDSURFACEDESC ddsd );
+
 
 void dp(char *format, ...)
 {
@@ -811,6 +817,24 @@ void DirectXFlip(void)
 	RECT r,a;
 	DDBLTFX m;
 
+	DDSURFACEDESC			ddsd;
+
+// lock hiddenSrf and run screengrab
+
+	DDINIT(ddsd);
+	if ( dumpScreen )
+	{
+		while ( hiddenSrf->Lock ( NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR, 0 ) != DD_OK );
+
+		// run screen grab
+		ScreenShot ( ddsd );
+
+
+		hiddenSrf->Unlock ( ddsd.lpSurface );
+		dumpScreen = 0;
+	}
+	// ENDIF
+
 	// Flip the back buffer to the primary surface
 	primarySrf->Flip(NULL,DDFLIP_WAIT);
 //	while (primarySrf->Blt(NULL,hiddenSrf,NULL,NULL,NULL)!=DD_OK);
@@ -1244,3 +1268,57 @@ D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)
 }
 
 }
+
+
+void ScreenShot ( DDSURFACEDESC ddsd )
+{
+	static int picnum = 0;
+	char fileName[16];
+	FILE *fp;
+	int x, y, linePos;
+	short pixel;
+	unsigned char col;
+	unsigned char line [ 640 * 4 ];
+
+	char header[] =	   {0x42,0x4D,0x36,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
+						0x00,0x00,0x40,0x01,0x00,0x00,0xF0,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
+						0x00,0x00,0x00,0x84,0x03,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+						0x00,0x00,0x00,0x00,0x00,0x00};
+
+	sprintf ( fileName, "c:\\pc%04d.bmp", picnum++);
+
+	fp = fopen ( fileName, "w" );
+	if ( fp == NULL )
+		return;
+	// ENDIF
+
+	fwrite ( header, sizeof ( header ), 1, fp );
+
+	y = 480-1;
+	while (y >= 0)
+	{
+		linePos = 0;
+		for(x = 0; x < 640; x++)
+		{
+			pixel = ((short*)ddsd.lpSurface)[x + y * (ddsd.lPitch/2)];
+
+			col = ((pixel>>1)<<3)&0xFF;
+			line[linePos++] = col;
+			col = ((pixel>>6)<<3)&0xFF;
+			line[linePos++] = col;
+			col = ((pixel>>11)<<3)&0xFF;
+			line[linePos++] = col;
+
+
+		}
+		y--;
+
+			fwrite ( line, sizeof ( linePos ), 1, fp );//(file, line, linePos);	
+		
+	}
+
+
+	fclose ( fp );
+}
+
+

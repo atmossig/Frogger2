@@ -79,7 +79,7 @@ void PrintSpritesTranslucent(SPRITE *sprite);
 void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
 void PrintSprite(SPRITE *sprite);
 
-void ScreenShot();
+//void ScreenShot();
 char IsPointVisible(VECTOR *p);
 
 void InitBackdropLinkedList();
