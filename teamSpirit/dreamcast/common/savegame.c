@@ -59,8 +59,8 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 		// *ASL* 21/07/2000 - (unsigned char *) expected
 		asciiStringToSJIS((unsigned char *)"Frogger 2", (unsigned char *)cardHeader->title);
 		memset(cardHeader->reserved, 0, 28);
-		OpenTIM((u_long *)saveicon);
-		ReadTIM(&tim);
+//ma		OpenTIM((u_long *)saveicon);
+//ma		ReadTIM(&tim);
 		memcpy(cardHeader->clut, tim.caddr, 32);
 		cardHeader->clut[0] = cardHeader->clut[1] = 0x00;
 		memcpy(cardHeader->icons, tim.paddr, 128);
