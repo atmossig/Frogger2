@@ -746,13 +746,14 @@ long DrawLoop(void)
 	return 0;
 }
 
+long turbo = 4096;
 long LoopFunc(void)
 {
 	ACTOR2 *c;
 
-	lastActFrameCount = actFrameCount;
-	actFrameCount = timeInfo.frameCount;
-	gameSpeed = 4096*timeInfo.speed;
+	lastActFrameCount = actFrameCount * (float)(turbo/4096);
+	actFrameCount = timeInfo.frameCount * (float)(turbo/4096);
+	gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
 
 	StartTimer(10,"Controller");
 	ProcessUserInput();
