@@ -10,8 +10,9 @@ FMA_WORLD* fma_world = NULL;
 
 void DrawWorld()
 {
-	
-	MapDraw_DrawFMA_World ( fma_world );
+	if ( fma_world )	
+		MapDraw_DrawFMA_World ( fma_world );
+	// ENDIF
 
 }
 
