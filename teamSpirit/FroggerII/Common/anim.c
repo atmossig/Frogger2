@@ -395,7 +395,7 @@ int *FindSfxMapping( unsigned long uid )
 		{
 		case 0: index += NUM_FROG_ANIMS+2; break;
 //		case 1: index += NUM_MULTI_ANIMS+2; break;   // NOT IMPLEMENTED YET!
-		case 2: index += NUM_NME_ANIMS; break;
+		case 2: index += NUM_NME_ANIMS+2; break;
 		}
 	}
 
