@@ -24,6 +24,8 @@ TEXTOVERLAY *levelName;
 TEXTOVERLAY *parTimeText;
 TEXTOVERLAY *parNameText;
 TEXTOVERLAY *coinsText;
+TEXTOVERLAY *playerText[4] = {NULL,NULL,NULL,NULL};
+SPRITEOVERLAY *playerFace[4] = {NULL,NULL,NULL,NULL};
 
 SPRITEOVERLAY *backgrounds[4] = {NULL,NULL,NULL,NULL};
 
@@ -35,6 +37,7 @@ static char waterShade[NUM_WATER_TILESX][NUM_WATER_TILESY];
 char recordStr[256];
 char coinStr[128];
 char chaptStr[32];
+char playerStr[4][32];
 short loadingDisplay = 0;
 TextureType *waterTex = NULL;
 
@@ -144,7 +147,10 @@ void loadingInit ( int worldID, int levelID )
 	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
 	backgrounds[1]->r = backgrounds[1]->g = backgrounds[1]->b = 128;
 
-	y += 1200;
+	if(gameState.multi == SINGLEPLAYER)
+		y += 1200;
+	else
+		y += 700;
 
 	levelName->r = 0;
 	levelName->b = 0;
@@ -172,6 +178,21 @@ void loadingInit ( int worldID, int levelID )
 		sprintf(recordStr,GAMESTRING(STR_MULTI_DESC_1 + multiGameTypes[player[0].worldNum] - 1),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
 		backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
 		backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
+
+		y += 500;
+		for(i = 0;i < NUM_FROGS;i++)
+		{
+			sprintf(playerStr[i],"%s %d",GAMESTRING(STR_PLAYER),i + 1);
+			c = (fontExtentWScaled(font,playerStr[i],4096)+96)*4;
+			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*600,playerStr[i],NO,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+			playerText[i]->xPosTo = 2048 - c - 128 + 256*(i MOD 2);
+			playerText[i]->speed = 4096*40;
+			playerText[i]->draw = 0;
+			playerFace[i] = CreateAndAddSpriteOverlay(2048 + c - 64*8 + 4096*(4 +i) - 128 + 256*(i MOD 2),y + i*600 - 128,frogPool[player[i].character].icon,4096,1,255,SPRITE_LOADING);
+			playerFace[i]->xPosTo = 2048 + c - 64*8 - 128 + 256*(i MOD 2);
+			playerFace[i]->speed = 4096*40;
+			playerFace[i]->draw = 0;
+		}
 	}
 	parTimeText->xPosTo = 2048;
 	parTimeText->speed = 4096*40;
@@ -221,9 +242,13 @@ void loadingFree()
 	{
 		SubSpriteOverlay(backgrounds[i]);
 		backgrounds[i] = NULL;
+		SubSpriteOverlay(playerFace[i]);
+		playerFace[i] = NULL;
+		SubTextOverlay(playerText[i]);
+		playerText[i] = NULL;
 	}
 
-	loadingDisplay		= 0;
+	loadingDisplay = 0;
 	frameCount = 1;
 	gameSpeed = 4096;
 	SubTextOverlay(worldName);
@@ -246,6 +271,17 @@ void loadingWaterFrame ( void )
 	
 //	frameCount++;
 //	actFrameCount++;
+
+
+	for(i = 0;i < NUM_FROGS;i++)
+	{
+		if((playerFace[i]) && (playerFace[i]->draw == 0))
+		{
+			playerFace[i]->tex = FindTexture(frogPool[player[i].character].icon);
+			if(playerFace[i]->tex)
+				playerFace[i]->draw = playerText[i]->draw = 1;
+		}
+	}
 
 	actFrameCount = ++loadFrameCount;
 	DrawScreenTransition();

@@ -19,6 +19,11 @@
 #include "audio.h"
 #include <Libmcrd.h>
 
+#include "game.h"
+#include "menus.h"
+#include "options.h"
+
+
 #define MIN min
 #define MAX max
 
@@ -28,11 +33,11 @@ int framePause = 0;
 static int	optChosen, optFrame, optSaveAlready, optSaveSlot;
 static char	optStr[256];
 
+extern SAVE_INFO saveInfo;
 extern int useMemCard;
 char memmessage[256];
 char slotNumStr[4];
 
-SAVE_INFO saveInfo;
 
 int delayTimer;
 int cardChanged = NO;
@@ -589,14 +594,23 @@ static void saveMenuCheck()
 
 static void saveMenuSave()
 {
-	SimpleMessage(GAMESTRING(STR_MCARD_SAVING), MIN(255,optFrame*60));
+	if(gameState.mode == LEVELCOMPLETE_MODE)
+		SimpleMessage(GAMESTRING(STR_MCARD_AUTOSAVING), MIN(255,optFrame*60));
+	else
+		SimpleMessage(GAMESTRING(STR_MCARD_SAVING), MIN(255,optFrame*60));
 	if (optFrame++>4)
 	{
 		if (gameSaveHandleSave() != CARDWRITE_OK)
 			saveInfo.saveStage = SAVEMENU_FAIL;
 		else
 		{
-			saveInfo.saveStage = SAVEMENU_COMPLETE;
+			if(gameState.mode == LEVELCOMPLETE_MODE)
+			{
+				saveInfo.saveFrame = 0;
+				cardChanged = NO;
+			}
+			else
+				saveInfo.saveStage = SAVEMENU_COMPLETE;
 			delayTimer = 0;
 		}
 		StartChooseOption();
@@ -607,7 +621,7 @@ static void saveMenuSave()
 
 static void saveMenuComplete()
 {
-	if ((delayTimer++ > DELAY_TIME) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
+	if (((options.mode == -1) && (delayTimer++ > DELAY_TIME)) || (ChooseOption(GAMESTRING(STR_MCARD_COMPLETE), GAMESTRING(STR_MCARD_CONTINUE), NULL)))
 	{
 		saveInfo.saveFrame = 0;
 		cardChanged = NO;

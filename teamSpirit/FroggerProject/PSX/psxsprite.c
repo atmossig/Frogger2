@@ -374,7 +374,11 @@ void PrintSpriteOverlays ( char num )
 			}
 		
 			if ( !cur->angle )
+			{
+				if(cur->xPos > 4095)
+					continue;
 				DrawSprite ( cur );
+			}
 			else
 				DrawSpriteOverlayRotating ( cur );
 		}
