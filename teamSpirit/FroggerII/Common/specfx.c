@@ -30,7 +30,6 @@ TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
 TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrBubble		= NULL;
-TEXTURE *txtrFire		= NULL;
 TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 TEXTURE *txtrFlash		= NULL;
@@ -48,6 +47,7 @@ void UpdateFXLightning( SPECFX *fx );
 void UpdateFXFly( SPECFX *fx );
 void UpdateFXTwinkle( SPECFX *fx );
 
+void CreateGloopEffects( SPECFX *parent );
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
 
@@ -357,7 +357,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	case FXTYPE_SPLASH:
 	case FXTYPE_SPARKBURST:
 	case FXTYPE_SPARKLYTRAIL:
-	case FXTYPE_FLAMES:
 	case FXTYPE_FIERYSMOKE:
 		effect->numP = 5;
 		i = effect->numP;
@@ -375,8 +374,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			effect->tex = txtrSolidRing;
 		else if( effect->type == FXTYPE_SPARKLYTRAIL )
 			effect->tex = txtrFlash;
-		else if( effect->type == FXTYPE_FLAMES )
-			effect->tex = txtrFire;
 		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
 			effect->tex = txtrSmoke;
 
@@ -487,6 +484,39 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->fade = effect->sprites->a / life;
 
 		effect->Update = UpdateFXTwinkle;
+		break;
+
+	case FXTYPE_GREENGLOOP:
+		// Create a bubble, but the effect persists after the bubbles are gone, to create a wait time
+		// Also create several actual bubbles, but they do not spawn all the shit that this does
+		SetVector( &effect->vel, &effect->normal );
+		ScaleVector( &effect->vel, speed );
+		effect->vel.v[X] += (-1 + Random(3))*speed*0.4;
+		effect->vel.v[Y] += (-1 + Random(3))*speed*0.4;
+		effect->vel.v[Z] += (-1 + Random(3))*speed*0.4;
+		effect->fade = 255 / life;
+
+		effect->numP = 1;
+		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
+		effect->sprites->texture = txtrBubble;
+
+		SetVector( &effect->sprites->pos, &effect->origin );
+		effect->sprites->scaleX = 22;
+		effect->sprites->scaleY = 22;
+
+		effect->sprites->r = effect->r;
+		effect->sprites->g = effect->g;
+		effect->sprites->b = effect->b;
+		effect->sprites->a = effect->a;
+		effect->sprites->offsetX = -16;
+		effect->sprites->offsetY = -16;
+		effect->sprites->flags = SPRITE_TRANSLUCENT;
+
+		AddSprite( effect->sprites, NULL );
+
+		effect->Update = UpdateFXSmoke;
+		effect->Draw = NULL;
+
 		break;
 	}
 
@@ -649,6 +679,10 @@ void UpdateFXSmoke( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
+			// Spawn some bubbles, some smoke and a splash
+			if( fx->type == FXTYPE_GREENGLOOP )
+				CreateGloopEffects( fx );
+
 			SubSpecFX(fx);
 			return;
 		}
@@ -854,7 +888,7 @@ void UpdateFXExplode( SPECFX *fx )
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
 					if( dist < 5 )
-						CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.3, 0.05, 0.3 );
+						CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.2, 0.1, 0.3 );
 			}
 		}
 
@@ -1232,7 +1266,6 @@ void InitSpecFXList( )
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
-	FindTexture(&txtrFire,UpdateCRC("prc_fire1.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
@@ -1548,17 +1581,6 @@ void ProcessAttachedEffects( void *entity, int type )
 
 //				SetAttachedFXColour( fx, act->effects );
 		}
-		if( act->effects & EF_FLAMES )
-		{
-			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 0.7 );
-			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 0.7 );
-			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 0.7 );
-
-			SetAttachedFXColour( fx, act->effects );
-		}
 		if( act->effects & EF_BUBBLES )
 		{
 			if( act->effects & EF_FAST )
@@ -1588,6 +1610,23 @@ void ProcessAttachedEffects( void *entity, int type )
 				fx->tilt = 2;
 			else if( act->effects & EF_SLOW )
 				fx->tilt = 1;
+		}
+		if( act->effects & EF_GREENGLOOP )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_GREENGLOOP, &act->actor->pos, &normal, act->radius, 1.5, 0, 0.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_GREENGLOOP, &act->actor->pos, &normal, act->radius, 0.3, 0, 0.5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_GREENGLOOP, &act->actor->pos, &normal, act->radius, 0.7, 0, 0.5 );
+
+			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+			SetVector( &up, &path->nodes[0].worldTile->normal );
+			SetVector( &fx->rebound->normal, &up );
+			ScaleVector( &up, act->radius );
+			AddVector( &fx->rebound->point, &act->actor->pos, &up );
+
+			SetAttachedFXColour( fx, act->effects );
 		}
 	}
 
@@ -1679,6 +1718,48 @@ void SetAttachedFXColour( SPECFX *fx, int effects )
 		b = 255;
 
 	SetFXColour( fx, r, g, b );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateGloopEffects
+	Purpose			: Some bubbles, some smoke and a splash
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void CreateGloopEffects( SPECFX *parent )
+{
+	SPECFX *fx;
+	VECTOR up, surface;
+	int i;
+
+	SetVector( &up, &parent->normal );
+
+	SetVector( &surface, &up );
+	ScaleVector( &surface, parent->scale.v[X] );
+	AddToVector( &surface, &parent->origin );
+
+	// Create the second wave of bubbles
+	fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &parent->origin, &up, 22, 0.7, 0, 0.5 );
+
+	fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+	SetVector( &fx->rebound->normal, &up );
+	SetVector( &fx->rebound->point, &surface );
+
+	SetFXColour( fx, parent->r, parent->g, parent->b );
+
+	// Green smoke created at the _surface_ of the water
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &surface, &up, 50, 1, 0, 1.7 );
+	SetFXColour( fx, parent->r, parent->g, parent->b );
+
+	// Ditto for splash
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPLASH, &surface, &up, 14, 2.5, 0, 2 );
+	fx->gravity = 0.1;
+	fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+	SetVector( &fx->rebound->normal, &up );
+	SetVector( &fx->rebound->point, &surface );
+	SetFXColour( fx, parent->r, parent->g, parent->b );
 }
 
 

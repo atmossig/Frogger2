@@ -30,7 +30,7 @@ extern char pauseMode;
 #define EF_RIPPLE_RINGS					(1 << 0)	// Lillypad thing
 #define EF_SMOKE_STATIC					(1 << 1)	// Smoke that doesn't grow
 #define EF_SPARKBURST					(1 << 2)	// Explosion of smoke
-#define EF_FLAMES						(1 << 3)	// Fire
+#define EF_GREENGLOOP					(1 << 3)	// Lab slime thing
 #define EF_BATSWARM						(1 << 4)	// Bats
 #define EF_BUBBLES						(1 << 5)	// From the fishes
 #define EF_SMOKE_GROWS					(1 << 6)	// Grows as it fades
@@ -68,7 +68,6 @@ enum
 	FXTYPE_DECAL,
 	FXTYPE_SPLASH,
 	FXTYPE_SMOKEBURST,
-	FXTYPE_FLAMES,
 	FXTYPE_BATSWARM,
 	FXTYPE_BUBBLES,
 	FXTYPE_SPARKBURST,
@@ -84,6 +83,7 @@ enum
 	FXTYPE_FROGSHIELD,
 	FXTYPE_GLOW,
 	FXTYPE_TWINKLE,
+	FXTYPE_GREENGLOOP,
 
 	FXTYPE_NUMTYPES
 };
@@ -144,7 +144,6 @@ extern TEXTURE *txtrSolidRing;
 extern TEXTURE *txtrSmoke;
 extern TEXTURE *txtrRing;
 extern TEXTURE *txtrBubble;
-extern TEXTURE *txtrFire;
 extern TEXTURE *txtrBlank;
 extern TEXTURE *txtrTrail;
 extern TEXTURE *txtrFlash;
