@@ -808,7 +808,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	// Precalculated rotation
 	PushMatrix( (MDX_MATRIX *)rMtrx );
 
-	p1.vx = (i)?(-20480+(i*1638)):0;
+	p1.vx = (i)?(-20480+(i*1200)):0;
 	p1.vy = 0;
 	p1.vz = 0;
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
@@ -817,7 +817,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	vT[0].sz = p2.vz*ONEOVERFIXED;
 	vT[0].color = D3DRGBA(1,0.5,0.5,1);
 
-	p1.vx = (i)?(20480-(i*1638)):0;
+	p1.vx = (i)?(20480-(i*1200)):0;
 	p1.vy = 0;
 	p1.vz = 0;
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
