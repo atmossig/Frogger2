@@ -631,6 +631,8 @@ int ToggleRectFlagSelection(int ax, int ay, int bx, int by, EDITGROUP *selection
 		GetTilePos(&c, pnode->tile);
 		EdXfmPoint(&v, &c);
 		if (!v.vz) continue;
+
+		v.vy -= (pnode->level*16);
 		
 		if (v.vx > ax && v.vx < bx && v.vy > ay && v.vy < by)
 			fuzz += ToggleGroupMember(pnode, &c, selection);
