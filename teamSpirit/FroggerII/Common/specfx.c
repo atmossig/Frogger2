@@ -754,7 +754,7 @@ void UpdateFXSmoke( SPECFX *fx )
 		s->pos.v[Z] += fx->vel.v[Z] * gameSpeed;
 
 		// Slow down gameSpeed times
-		vS = 1-(0.02*gameSpeed);
+		vS = 1-(0.01*gameSpeed);
 		ScaleVector( &fx->vel, vS );
 
 		if(s->flags & SPRITE_FLAGS_ROTATE)
@@ -1675,11 +1675,11 @@ void ProcessAttachedEffects( void *entity, int type )
 		if( act->effects & EF_BUBBLES )
 		{
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 1.5, 0, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 1, 0, 0.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.3, 0, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.2, 0, 0.5 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.7, 0, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.5, 0, 0.5 );
 
 			if( fx )
 			{
