@@ -98,6 +98,109 @@ void loadingInitPolys()
 }
 
 int fontsLoaded;
+
+void loadingInitText(int worldID, int levelID)
+{
+	int i,c,y = 500;
+
+	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+
+	if(gameState.mode == FRONTEND_MODE)
+		chaptStr[0] = 0;
+	else if((gameState.single == STORY_MODE) && (gameState.multi == SINGLEPLAYER))
+	{
+		sprintf(chaptStr,"%d - %s %s",storySequenceLevelToChapter[gameState.storySequenceLevel] + 1,GAMESTRING(STR_CHAPTER_1a + storySequenceLevelToChapter[gameState.storySequenceLevel]*2),GAMESTRING(STR_CHAPTER_1b + storySequenceLevelToChapter[gameState.storySequenceLevel]*2));
+		backgrounds[0] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+		backgrounds[0]->r = backgrounds[0]->g = backgrounds[0]->b = 128;
+		y += 700;
+	}
+	else
+		chaptStr[0] = 0;
+
+	worldName->r = 0;
+	worldName->b = 0;
+	worldName->xPosTo = 2048;
+	worldName->speed = 4096*40*3;
+
+	if(gameState.mode == FRONTEND_MODE)
+	{
+		y = 1900;
+		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+	}
+	else
+		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+
+
+	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+	backgrounds[1]->r = backgrounds[1]->g = backgrounds[1]->b = 128;
+
+	if(gameState.multi == SINGLEPLAYER)
+		y += 1200;
+	else
+		y += 700;
+
+	levelName->r = 0;
+	levelName->b = 0;
+	levelName->xPosTo = 2048;
+	levelName->speed = 4096*40*3;
+
+	parTimeText = CreateAndAddTextOverlay( 2048 + 4096*3, y, recordStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+	if(gameState.mode == FRONTEND_MODE)
+		recordStr[0] = 0;
+	else if(gameState.multi == SINGLEPLAYER) 
+	{
+		if(gameState.single == ARCADE_MODE)
+		{
+			sprintf(recordStr,GAMESTRING(STR_RECORD),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
+			backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,800,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+			backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
+			y += 400;
+		}
+		else
+			recordStr[0] = 0;
+	}
+	else
+	{
+//		recordStr[0] = 0;
+		sprintf(recordStr,GAMESTRING(STR_MULTI_DESC_1 + multiGameTypes[player[0].worldNum] - 1),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
+		backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+		backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
+
+		y += 500;
+		for(i = 0;i < NUM_FROGS;i++)
+		{
+			sprintf(playerStr[i],"%s %d",GAMESTRING(STR_PLAYER),i + 1);
+			c = (fontExtentWScaled(font,playerStr[i],4096)+96)*4;
+			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*600,playerStr[i],NO,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+			playerText[i]->xPosTo = 2048 - c - 128 + 256*(i MOD 2);
+			playerText[i]->speed = 4096*40*3;
+			playerText[i]->draw = 0;
+			playerFace[i] = CreateAndAddSpriteOverlay(2048 + c - 64*8 + 4096*(4 +i) - 128 + 256*(i MOD 2),y + i*600 - 128,NULL,4096,1,255,SPRITE_LOADING);
+			playerFace[i]->xPosTo = 2048 + c - 64*8 - 128 + 256*(i MOD 2);
+			playerFace[i]->speed = 4096*40*3;
+			playerFace[i]->draw = 0;
+		}
+	}
+	parTimeText->xPosTo = 2048;
+	parTimeText->speed = 4096*40*3;
+
+
+	if(gameState.mode == FRONTEND_MODE)
+		coinStr[0] = 0;
+	else if(gameState.multi == SINGLEPLAYER)
+	{
+		if(gameState.single == ARCADE_MODE)
+			sprintf ( coinStr, "%s: %d",GAMESTRING(STR_COINS), worldVisualData[worldID].levelVisualData[levelID].maxCoins );
+		else
+			coinStr[0] = 0;
+	}
+	else
+		coinStr[0] = 0;
+	coinsText = CreateAndAddTextOverlay( 2048 - 4096*4, y, coinStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+	coinsText->xPosTo = 2048;
+	coinsText->speed = 4096*40*3;
+}
+
 void loadingInit ( int worldID, int levelID )
 {
 	int i, c;
@@ -125,107 +228,6 @@ void loadingInit ( int worldID, int levelID )
 //		return;
 
 	setCamera(0,0,-12000, 0,0,0);
-
-	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
-	worldName->draw = 0;
-
-	if(gameState.mode == FRONTEND_MODE)
-		chaptStr[0] = 0;
-	else if((gameState.single == STORY_MODE) && (gameState.multi == SINGLEPLAYER))
-	{
-		sprintf(chaptStr,"%d - %s %s",storySequenceLevelToChapter[gameState.storySequenceLevel] + 1,GAMESTRING(STR_CHAPTER_1a + storySequenceLevelToChapter[gameState.storySequenceLevel]*2),GAMESTRING(STR_CHAPTER_1b + storySequenceLevelToChapter[gameState.storySequenceLevel]*2));
-		backgrounds[0] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
-		backgrounds[0]->r = backgrounds[0]->g = backgrounds[0]->b = 128;
-		y += 700;
-	}
-	else
-		chaptStr[0] = 0;
-
-	worldName->r = 0;
-	worldName->b = 0;
-	worldName->xPosTo = 2048;
-	worldName->speed = 4096*40;
-
-	if(gameState.mode == FRONTEND_MODE)
-	{
-		y = 1900;
-		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
-	}
-	else
-		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
-
-
-	levelName->draw = 0;
-	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
-	backgrounds[1]->r = backgrounds[1]->g = backgrounds[1]->b = 128;
-
-	if(gameState.multi == SINGLEPLAYER)
-		y += 1200;
-	else
-		y += 700;
-
-	levelName->r = 0;
-	levelName->b = 0;
-	levelName->xPosTo = 2048;
-	levelName->speed = 4096*40;
-
-	parTimeText = CreateAndAddTextOverlay( 2048 + 4096*3, y, recordStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
-	parTimeText->draw = 0;
-	if(gameState.mode == FRONTEND_MODE)
-		recordStr[0] = 0;
-	else if(gameState.multi == SINGLEPLAYER) 
-	{
-		if(gameState.single == ARCADE_MODE)
-		{
-			sprintf(recordStr,GAMESTRING(STR_RECORD),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
-			backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,800,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
-			backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
-			y += 400;
-		}
-		else
-			recordStr[0] = 0;
-	}
-	else
-	{
-//		recordStr[0] = 0;
-		sprintf(recordStr,GAMESTRING(STR_MULTI_DESC_1 + multiGameTypes[player[0].worldNum] - 1),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
-		backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
-		backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
-
-		y += 500;
-		for(i = 0;i < NUM_FROGS;i++)
-		{
-			sprintf(playerStr[i],"%s %d",GAMESTRING(STR_PLAYER),i + 1);
-			c = (fontExtentWScaled(font,playerStr[i],4096)+96)*4;
-			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*600,playerStr[i],NO,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
-			playerText[i]->xPosTo = 2048 - c - 128 + 256*(i MOD 2);
-			playerText[i]->speed = 4096*40;
-			playerText[i]->draw = 0;
-			playerFace[i] = CreateAndAddSpriteOverlay(2048 + c - 64*8 + 4096*(4 +i) - 128 + 256*(i MOD 2),y + i*600 - 128,frogPool[player[i].character].icon,4096,1,255,SPRITE_LOADING);
-			playerFace[i]->xPosTo = 2048 + c - 64*8 - 128 + 256*(i MOD 2);
-			playerFace[i]->speed = 4096*40;
-			playerFace[i]->draw = 0;
-		}
-	}
-	parTimeText->xPosTo = 2048;
-	parTimeText->speed = 4096*40;
-
-
-	if(gameState.mode == FRONTEND_MODE)
-		coinStr[0] = 0;
-	else if(gameState.multi == SINGLEPLAYER)
-	{
-		if(gameState.single == ARCADE_MODE)
-			sprintf ( coinStr, "%s: %d",GAMESTRING(STR_COINS), worldVisualData[worldID].levelVisualData[levelID].maxCoins );
-		else
-			coinStr[0] = 0;
-	}
-	else
-		coinStr[0] = 0;
-	coinsText = CreateAndAddTextOverlay( 2048 - 4096*4, y, coinStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
-	coinsText->xPosTo = 2048;
-	coinsText->speed = 4096*40;
-	coinsText->draw = 0;
 
 /*
 	rect.x = 1024-64;
@@ -277,6 +279,7 @@ int loadwatershadefac = 20;
 int loadwatershadeval = 128;
 int loadFrameCount = 0;
 int wateru0,wateru1,wateru2,waterv0,waterv1,waterv2;
+int loadcamrotspeed = 500;
 void loadingWaterFrame ( void )
 {
 	int i, c;
@@ -290,27 +293,36 @@ void loadingWaterFrame ( void )
 		if((fontSmall) && (font))
 		{
 			fontsLoaded = YES;
-			for(i = 0;i < NUM_FROGS;i++)
-				playerText[i]->font = font;
-			worldName->font = fontSmall;
-			levelName->font = font;
-			parTimeText->font = font;
-			coinsText->font = font;
-			worldName->draw = 1;
-			levelName->draw = 1;
-			parTimeText->draw = 1;
-			coinsText->draw = 1;
+//			for(i = 0;i < NUM_FROGS;i++)
+//				playerText[i]->font = font;
+			loadingInitText(player[0].worldNum,player[0].levelNum);
+//			worldName->font = fontSmall;
+//			levelName->font = font;
+//			parTimeText->font = font;
+//			coinsText->font = font;
+//			worldName->draw = 1;
+//			levelName->draw = 1;
+//			parTimeText->draw = 1;
+//			coinsText->draw = 1;
 		}
 	}
 	else
 	{
-		for(i = 0;i < NUM_FROGS;i++)
+		for(i = 0;i < 4;i++)
 		{
-			if((playerFace[i]) && (playerFace[i]->draw == 0))
+			if(backgrounds[i])
+				INC_ALPHA(backgrounds[i],254);
+		}
+		if(textureBanks[1])
+		{
+			for(i = 0;i < NUM_FROGS;i++)
 			{
-				playerFace[i]->tex = FindTexture(frogPool[player[i].character].icon);
-				if(playerFace[i]->tex)
-					playerFace[i]->draw = playerText[i]->draw = 1;
+				if((playerFace[i]) && (playerFace[i]->draw == 0))
+				{
+					playerFace[i]->tex = FindTexture(frogPool[player[i].character].icon);
+					if(playerFace[i]->tex)
+						playerFace[i]->draw = playerText[i]->draw = 1;
+				}
 			}
 		}
 	}
@@ -444,7 +456,7 @@ void loadingDisplayFrame ( void )
 //		return;
 
 
-	gameSpeed = 4096*3;
+	gameSpeed = 4096;
 	loadingWaterFrame();
 }
 

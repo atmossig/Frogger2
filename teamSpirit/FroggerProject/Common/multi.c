@@ -1218,7 +1218,10 @@ void ReinitialiseMultiplayer( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
+		if(gameState.difficulty == DIFFICULTY_HARD)
+			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH*2;
+		else
+			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
 		mpl[i].lasttile = TILESTATE_FROGGER1AREA;
 		if(multiplayerMode == MULTIMODE_RACE)
 		{
@@ -1280,7 +1283,10 @@ void ResetMultiplayer( )
 		BATTLENODE *node, *temp;
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
+			if(gameState.difficulty == DIFFICULTY_HARD)
+				mpl[i].trail = MULTI_BATTLE_TRAILLENGTH*2;
+			else
+				mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
 			mpl[i].ready = 0;
 			mpl[i].score = 0;
 			node = mpl[i].path;

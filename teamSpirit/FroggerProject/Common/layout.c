@@ -1327,7 +1327,7 @@ void FreeAllLists()
 			StartVideoPlayback(storySequence[gameState.storySequenceLevel].fmv);
 	}
 
-	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+//	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 
 	if (gameState.mode == FRONTEND_MODE)
 	{
@@ -1345,6 +1345,7 @@ void FreeAllLists()
 #ifdef PSX_VERSION
 	if(loadingLevel)
 		loadingInit(player[0].worldNum,player[0].levelNum);
+	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 	font = fontLoad("BIGFONT.FON");
 	fontSmall = fontLoad("FONT12.FON");
 

@@ -1714,6 +1714,7 @@ void DoArcadeMenu()
 		{
 			if(i == 0)
 			{
+				options.beatenIcon[i]->draw = 0;
 				if(worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].maxCoins == 25)
 				{
 					INC_ALPHA(options.levelCoinMedal[i],0xff);

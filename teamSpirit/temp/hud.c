@@ -112,9 +112,6 @@ void InitArcadeHUD(void)
 	int i;
 
 
-	if((player[0].worldNum == WORLDID_FRONTEND) && (player[0].levelNum == LEVELID_FRONTEND4))
-		gameState.mode = TRAINING_MODE;
-
 	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)
 		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime;
 
@@ -136,7 +133,7 @@ void InitArcadeHUD(void)
 		GTInit(&goTimer,5);
 	}
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (gameState.mode == TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		arcadeHud.timeBar->draw = 0;
 		arcadeHud.timeBak->draw = 0;
@@ -242,7 +239,7 @@ void InitArcadeHUD(void)
 	pauseFlag = 0;
 
 
-	if((gameState.difficulty == DIFFICULTY_HARD) && (gameState.mode != TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
   		arcadeHud.goText = CreateAndAddTextOverlay(2048,2048,goStr,YES,255,0,TEXTOVERLAY_SHADOW);
 	else
 	{
@@ -286,7 +283,7 @@ void InitArcadeHUD(void)
 
 	arcadeHud.timedOut = 0;
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (gameState.mode == TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 		{
@@ -468,7 +465,7 @@ void DisableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 0;
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (gameState.mode == TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 0;
@@ -490,7 +487,7 @@ void DisableHUD(void)
 	for(i=0; i<numBabies; i++)
 		babyIcons[i]->draw = 0;
 
-	if((gameState.difficulty == DIFFICULTY_HARD) && (gameState.mode != TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		arcadeHud.timeBar->draw = arcadeHud.timeBak->draw = arcadeHud.timeBarText->draw = 0;
 	}
@@ -512,7 +509,7 @@ void EnableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 1;
 	
-	if(((gameState.difficulty == DIFFICULTY_EASY) || (gameState.mode == TRAINING_MODE)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
+	if(((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 1;
@@ -540,7 +537,7 @@ void EnableHUD(void)
 		arcadeHud.coinsText->draw = 0;
 //		arcadeHud.coinsText2->draw = 0;
 	}
-	if((gameState.difficulty == DIFFICULTY_HARD) && (gameState.mode != TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		arcadeHud.timeBar->draw = arcadeHud.timeBak->draw = 1;
 		if(arcadeHud.timeBarText->a)
@@ -660,7 +657,7 @@ void UpDateOnScreenInfo ( void )
 				arcadeHud.coinZoom->draw = 0;
 		}
 
-		if((gameState.difficulty == DIFFICULTY_HARD) && (gameState.mode != TRAINING_MODE))
+		if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 		{
 			if(goTimer.time == 0)
 			{
@@ -720,7 +717,7 @@ void UpDateOnScreenInfo ( void )
 		}
 
 		// Sparklies
-		if((gameState.difficulty == DIFFICULTY_EASY) || (gameState.mode == TRAINING_MODE))
+		if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 		{
 			for (i=0; i<MAX_HUD_SPARKLES; i++)
 			{	
@@ -809,7 +806,7 @@ void UpDateOnScreenInfo ( void )
 	}
 
 	timeFrames -=actFrameCount;
-	if((gameState.difficulty == DIFFICULTY_HARD) && (gameState.mode != TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		if(goTimer.time)
 		{
@@ -835,9 +832,6 @@ void UpDateOnScreenInfo ( void )
 			}
 			switch(goTimer.time)
 			{
-				case 4:
-					sprintf(goStr,"3");
-					break;
 				case 3:
 					sprintf(goStr,"2");
 					break;
@@ -848,6 +842,9 @@ void UpDateOnScreenInfo ( void )
 				case 0:
 					player[0].canJump = 1;
 					sprintf(goStr,GAMESTRING(STR_GO));
+					break;
+				default:
+					sprintf(goStr,"3");
 					break;
 			}
 		}
@@ -950,7 +947,7 @@ void UpDateOnScreenInfo ( void )
 	sprintf(coinsText,"%2i",player[0].numSpawn);
 //	sprintf(coinsText2,"%2i",player[0].numSpawn);
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (gameState.mode == TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 		{
@@ -975,7 +972,7 @@ void UpDateOnScreenInfo ( void )
 				me->a = Random(100)+155;
 		}
 	}
-	if((gameState.difficulty == DIFFICULTY_HARD) && (gameState.mode != TRAINING_MODE))
+	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		if(goTimer.time > 1)
 		{

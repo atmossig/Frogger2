@@ -375,7 +375,7 @@ void RunGameOver( )
 	}
 	if((keepFade) && (fadingOut == 0))
 	{
-		FreeAllLists();
+//		FreeAllLists();
 #ifdef E3_DEMO
 		StartE3LevelSelect();
 #else
@@ -1675,7 +1675,7 @@ void RunLevelComplete()
 					player[0].levelNum = LEVELID_FRONTEND1;
 					player[0].character = FROG_FROGGER;
 				}
-				else if (gameState.single == STORY_MODE)
+				else if ((gameState.single == STORY_MODE) && (arcadeHud.timeOutText->draw == 0))
 				{
 					gameState.mode = INGAME_MODE;
 
@@ -1698,7 +1698,7 @@ void RunLevelComplete()
 					// todo: place Frogger 
 					gameState.mode = INGAME_MODE;
 				}
-				FreeAllLists();
+//				FreeAllLists();
 				frameCount = 0;
 
 				InitLevel(player[0].worldNum,player[0].levelNum);
