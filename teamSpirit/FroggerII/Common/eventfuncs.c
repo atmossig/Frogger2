@@ -47,7 +47,7 @@ int EnemyOnTile( TRIGGER *trigger )
 */
 int FrogOnTile( TRIGGER *trigger )
 {
-	int frognum = *(int *)trigger->data[0];
+	long frognum = (long)trigger->data[0];
 	GAMETILE *tile = (GAMETILE *)trigger->data[1];
 
 	if( currTile[frognum] == tile )
@@ -87,7 +87,7 @@ int ActorWithinRadius( TRIGGER *trigger )
 {
 	ACTOR *actor = (ACTOR *)trigger->data[0];
 	VECTOR *pos = (VECTOR *)trigger->data[1];
-	float radius = *(float *)trigger->data[2];
+	long radius = (long)trigger->data[2];
 
 	if( DistanceBetweenPoints(&actor->pos, pos) < radius )
 		return 1;
@@ -105,8 +105,8 @@ int ActorWithinRadius( TRIGGER *trigger )
 */
 int OnTimeout( TRIGGER *trigger )
 {
-	int count = *(int *)trigger->data[0];  // Counter
-	int start = *(int *)trigger->data[1];  // Count down from this
+	long count = (long)trigger->data[0];  // Counter
+	long start = (long)trigger->data[1];  // Count down from this
 
 	if( count-- == -1 )
 		count = start;
@@ -144,7 +144,7 @@ int OnTrigger( TRIGGER *trigger )
 */
 int LogicalAND( TRIGGER *trigger )
 {
-	int numT = *(int *)trigger->data[0];
+	long numT = (long)trigger->data[0];
 	long i;
 	short fireFlag = 1;
 	TRIGGER *t;
@@ -172,7 +172,7 @@ int LogicalAND( TRIGGER *trigger )
 */
 int LogicalOR( TRIGGER *trigger )
 {
-	int numT = *(int *)trigger->data[0];
+	long numT = (long)trigger->data[0];
 	long i;
 	short fireFlag = 0;
 	TRIGGER *t;
@@ -206,39 +206,6 @@ void ChangeActorScale( EVENT *event )
 
 	actor->scale = *scale;
 }
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: AssignFloatToFloat
-	Purpose 	: Assigns a number to any float.
-	Parameters 	: Pointer to event structure
-	Returns 	: 
-	Info 		:
-*/
-void AssignFloatToFloat( EVENT *event )
-{
-	float *ass = (float *)event->data[0];
-	float val = *(float *)event->data[1];
-
-	*ass = val;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: AssignIntToInt
-	Purpose 	: Assigns a number to any float.
-	Parameters 	: Pointer to event structure
-	Returns 	: 
-	Info 		:
-*/
-void AssignIntToInt( EVENT *event )
-{
-	int *ass = (int *)event->data[0];
-	int val = *(int *)event->data[1];
-
-	*ass = val;
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function 	: TogglePlatformMove
@@ -294,11 +261,11 @@ void ToggleTileLink( EVENT *event )
 */
 void PlaySFX( EVENT *event )
 {
-	int snum = *(int *)event->data[0];
-	int vol = *(int *)event->data[1];
-	int pitch = *(int *)event->data[2];
+	long snum = (long)event->data[0];
+	long vol = (long)event->data[1];
+	long pitch = (long)event->data[2];
 	VECTOR *point = (VECTOR *)event->data[3];
-	float radius = *(float *)event->data[4];
+	long radius = (long)event->data[4];
 
 	if( point )
 		PlaySampleRadius( snum, point, vol, pitch, radius );
@@ -316,8 +283,8 @@ void PlaySFX( EVENT *event )
 */
 void ChangeLevel( EVENT *event )
 {
-	int wNum = *(int *)event->data[0],
-		lNum = *(int *)event->data[1];
+	long wNum = (long)event->data[0],
+		lNum = (long)event->data[1];
 
 	player[0].worldNum = wNum;
 	player[0].levelNum = lNum;
@@ -342,8 +309,6 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	EVENT *event;
 	VECTOR *pos = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
 	VECTOR *scale = (VECTOR *)JallocAlloc( sizeof(VECTOR),YES,"Vector" );
-	float *fnum;
-	int *inum;
 
 	InitTriggerList( );
 
@@ -351,7 +316,7 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
-			/*// This should change to level when you hop onto the first platform
+			// This should change to level when you hop onto the first platform
 			args = AllocArgs(2);
 			args[0] = (void *)frog[0];
 			args[1] = (void *)platformList.head.next;
@@ -359,18 +324,14 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 
 			args = AllocArgs(2);
 
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 0;
-			args[0] = (void *)inum;
-
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 2;
-			args[1] = (void *)inum;
+			// Store simple values in the pointer itself
+			args[0] = (void *)0;
+			args[1] = (void *)2;
 
 			event = MakeEvent( ChangeLevel, 2, args );
 
 			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
-			*/
+			
 			
 			/*	//This is an example of chained events, and some basic events and triggers
 			args = AllocArgs(2);
@@ -399,13 +360,11 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 		else if( levelID == LEVELID_GARDENMAZE )
 		{
 			/* // An example of toggling the motion of an enemy
-			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
-			*fnum = 100;
 			
 			args = AllocArgs(3);
 			args[0] = (void *)frog[0]->actor;
 			args[1] = (void *)&enemyList.head.next->nmeActor->actor->pos;
-			args[2] = (void *)fnum;
+			args[2] = (void *)100;
 			trigger = MakeTrigger( ActorWithinRadius, 3, args );
 			
 			args = AllocArgs(1);
@@ -418,34 +377,21 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 		else if( levelID == LEVELID_GARDENVEGPATCH )
 		{
 			/* // This triggers a sound when frog is near to baby frog
-			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
-			*fnum = 500;
 
 			args = AllocArgs(3);
 			args[0] = (void *)frog[0]->actor;
 			args[1] = (void *)&bTStart[2]->centre;
-			args[2] = (void *)fnum;
+			args[2] = (void *)500;
 
 			trigger = MakeTrigger( ActorWithinRadius, 3, args );
 
 			args = AllocArgs(5);
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = FX_CHICKEN_BELCH;
-			args[0] = (void *)inum;
+			args[0] = FX_CHICKEN_BELCH;
 
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 200;
-			args[1] = (void *)inum;
-
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 50;
-			args[2] = (void *)inum;
-
+			args[1] = (void *)200;
+			args[2] = (void *)50;
 			args[3] = (void *)&bTStart[2]->centre; // No position for sound
-
-			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
-			*fnum = 10;
-			args[4] = (void *)fnum;
+			args[4] = (void *)10;
 
 			event = MakeEvent( PlaySFX, 5, args );
 
@@ -463,13 +409,8 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 
 			args = AllocArgs(2);
 
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 0;
-			args[0] = (void *)inum;
-
-			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
-			*inum = 2;
-			args[1] = (void *)inum;
+			args[0] = (void *)0;
+			args[1] = (void *)2;
 
 			event = MakeEvent( ChangeLevel, 2, args );
 

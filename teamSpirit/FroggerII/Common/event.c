@@ -39,7 +39,6 @@ TRIGGERLIST triggerList;
 TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args )
 {
 	//va_list args;
-	int i;
 	TRIGGER *trigger = (TRIGGER *)JallocAlloc(sizeof(TRIGGER),YES,"Trigger");
 	
 	trigger->prev = trigger->next = NULL;
@@ -77,14 +76,13 @@ TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **arg
 EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args )
 {
 	//va_list args;
-	int i = 0;
 	EVENT *event = (EVENT *)JallocAlloc(sizeof(EVENT),YES,"Event");
 	
 	event->prev = event->next = NULL;
 
 	event->func = func;
 	event->data = args;
-	
+
 	/*event->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
 
 	// Get variable number of arguments
@@ -227,10 +225,6 @@ void KillAllEvents( EVENTLIST *eventList )
 			event->prev->next = event->next;
 			event->next->prev = event->prev;
 			eventList->numEntries--;
-
-			/*
-			Probably need to free the data separately
-			*/
 
 			tmp = event->next;
 			JallocFree( (UBYTE **)&event );
