@@ -1219,7 +1219,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 			SetWindowText(GetDlgItem(hDlg, IDOK), GAMESTRING(STR_PCSETUP_OK));
 			SetWindowText(GetDlgItem(hDlg, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
 
-			wsprintf(itmTxt, "%s: %s %d", GAMESTRING(STR_PCSETUP_KEYBOARD), GAMESTRING(STR_PLAYER), (player+1));
+			wsprintf(itmTxt, "%s : %s %d", GAMESTRING(STR_PCSETUP_KEYBOARD), GAMESTRING(STR_PLAYER), (player+1));
 			SetWindowText(hDlg, itmTxt);
 
 			GetWindowRect(hDlg, &meR);
