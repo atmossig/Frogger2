@@ -85,27 +85,24 @@ static void GetEnemyActiveTile(ENEMY *nme)
 	Info			: 
 */
 
-GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
+GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d )
 {
 	float distance = 100000, t;
 	int i;
-	VECTOR un;
-	long closest = 0;
-
-	SetVector (&un,d);
-	MakeUnit (&un);
+	GAMETILE *res = NULL;
 
 	for (i=0; i<4; i++)
 	{
-		t = DotProduct(&un,&(st->dirVector[i]));
-		if (t<distance)
+		t = DotProduct( d, &st->dirVector[i] );
+		if( (t < distance) && st->tilePtrs[i] )
+		if( st->tilePtrs[i]->state == TILESTATE_NORMAL )
 		{
 			distance = t;
-			closest = i;					
+			res = st->tilePtrs[i];
 		}
 	}
 
-	return st->tilePtrs[closest];
+	return res;
 }
 
 void DamageFrog( int num )
@@ -608,7 +605,10 @@ void UpdateEnemies()
 			PATH *path = cur->path;
 
 			if( cur->nmeActor->distanceFromFrog > 100000 )
+			{
+				cur->isIdle = 0;
 				continue;
+			}
 
 			// Check if the enemy has 3 path nodes. Allocate if not ( first time through )
 			if( cur->path->numNodes < 3 )
@@ -647,8 +647,8 @@ void UpdateEnemies()
 				cur->isIdle--;
 			}
 
-			// Move towards next node
-			if( path->nodes[1].worldTile && path->nodes[2].worldTile )
+			// Move towards next node - third condition is so fwd is not scaled to zero
+			if( path->nodes[1].worldTile && path->nodes[2].worldTile && (actFrameCount > path->startFrame) )
 			{
 				// Move towards frog
 				SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
