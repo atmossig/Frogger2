@@ -42,6 +42,10 @@
 #include "savegame.h"
 #include "DCK_system.h"
 
+
+// -------
+// Globals
+
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
 PDS_PERIPHERAL 	*per;
@@ -97,7 +101,6 @@ extern int		frogFacing[4];
 extern int		camFacing;
 extern struct 	gameStateStruct gameState;
 
-SYCHAIN      	VblChain;
 unsigned long 	*sqrtable;
 short			*acostable;
 
@@ -124,12 +127,27 @@ int useMemCard = 1;
 
 SAVE_INFO saveInfo;
 
-/*	--------------------------------------------------------------------------------
-	Function 	: Kamui_Init
-	Purpose 	: Initialise Kamui system configuration
-	Parameters 	: none
-	Returns 	: none
-	Info 		:
+
+// chained vblank handler
+SYCHAIN vblChain;
+
+// used to abort the game
+unsigned int globalAbortFlag = 0;
+
+
+// ----------
+// Prototypes
+
+// gsFs error function callback
+static void gdFsErrorCallback(void *obj, Sint32 err);
+
+
+/* ---------------------------------------------------------
+   Function : Kamui_Init
+   Purpose : initialise kamui
+   Parameters : 
+   Returns : 
+   Info : 
 */
 
 void Kamui_Init()
@@ -172,9 +190,6 @@ void Kamui_Init()
     // initialise border colour
     borderColour.dwPacked = RGBA(0,0,0,255);	// black border
     kmSetBorderColor(borderColour);
-    
-    // user initialisation
-	InitCRCTable();	
 }
 
 void SetCam(VECTOR src, VECTOR tar)
@@ -342,9 +357,7 @@ short videoKeyHandler()
 extern StrDataType 	vStream;
 extern CurrentData	current[24];
 
-int	softReset = FALSE;
 
-int checkForSoftReset();
 int checkForValidControllers();
 
 void updatePads()
@@ -472,6 +485,16 @@ void main()
 
 	Kamui_Init();
 
+
+	// *ASL* 09/09/2000
+	globalAbortFlag = 0;				// clear our abort flag
+	// set our gdFs error callback
+	gdFsEntryErrFuncAll(gdFsErrorCallback, (void *)0);
+
+    // initialise our CRC table
+	InitCRCTable();	
+
+
 	// Open the AM system	
 	if(!bpAmSetup(AC_DRIVER_DA, KTFALSE, KTNULL))
 	{
@@ -488,7 +511,7 @@ void main()
 	a64FileInit();
 
 	// setup my vb interrupt
-	VblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
+	vblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
 
 //	kmSetCullingRegister(1.0f);
 	
@@ -681,8 +704,11 @@ void main()
 
 //	syCacheInit(SYD_CACHE_FORM_OC_ENABLE | SYD_CACHE_FORM_IC_ENABLE | SYD_CACHE_FORM_OC_RAM);
 
-	// render loop
-	while(!softReset)
+
+	// ** Render loop
+
+	// *ASL* 08/08/2000 - Until user quits or opens the lid
+	while (globalAbortFlag == 0)
 	{
 		DCTIMER_START(0);
 
@@ -990,14 +1016,38 @@ void main()
 		DCTIMER_STOP(0);	
 	}
 
-	bpAmShutdown();		
-	
-	syChainDeleteHandler(VblChain);                   
-	
-	FreeBackdrop();
 
+	// *ASL* 10/08/2000
+	// ** We got to here so user must have opened the lid or quit from the frontend. Either
+	// ** way we should shutdown all and return to the BootROM.
+
+	// shutdown
+	FreeBackdrop();
+	bpAmShutdown();
+	syChainDeleteHandler(vblChain);
+
+	// exit the system
 	sbExitSystem();
+
+	// forcibly displays the main menu screen of the BootROM
+	syBtExit();
 }
 
 
 
+/* ---------------------------------------------------------
+   Function : gdFsErrorCallback
+   Purpose : gsFs error function callback
+   Parameters : user object pointer, error code
+   Returns : 
+   Info : 
+*/
+
+static void gdFsErrorCallback(void *obj, Sint32 err)
+{
+	// was the tray opened?
+	if (err == GDD_ERR_TRAYOPEND || err == GDD_ERR_UNITATTENT)
+	{
+		globalAbortFlag = 1;
+	}
+}
