@@ -548,7 +548,7 @@ void PsxNameEntryFrame(void)
 
 
 
-//#define DRAW_SCREEN_CLIP
+#define DRAW_SCREEN_CLIP
 void Actor2ClipCheck(ACTOR2* act)
 {
 //bbxx - PAL/NTSC specifics needed here
@@ -785,11 +785,12 @@ void Actor2ClipCheck(ACTOR2* act)
 
 		//this is not a psi actor,
 		//so i suppose it's an fma actor?
-		else if(act->flags & ACTOR_NOANIMATION)
+//		else if(act->flags & ACTOR_NOANIMATION)
+		else if(act->bffActor)
 		{
 			//and there is an fma 'world'
-			if(act->bffActor)
-			{
+//			if(act->bffActor)
+//			{
 //				FMA_MESH_HEADER *pMesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
 				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
 
@@ -800,12 +801,6 @@ void Actor2ClipCheck(ACTOR2* act)
 
 				//need to do this to transform points
 				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
-// 				act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-// 				act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-// 				act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-				act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-				act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-				act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 
 				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 				act->actor->bffMatrix.t[1] = act->actor->position.vy;
@@ -851,9 +846,10 @@ void Actor2ClipCheck(ACTOR2* act)
 					act->clipped=0;
 				else
 					act->clipped=1;
-			}
+//			}
 
-		}//end if fma actor if(act->flags & ACTOR_NOANIMATION)
+//		}//end if fma actor if(act->flags & ACTOR_NOANIMATION)
+		}//end if(act->bffActor)
 
 	}//end if(sz>0 && sz<CLIP_FAR)
 
@@ -958,11 +954,12 @@ void Actor2ClipCheck(ACTOR2* act)
 
 
 	//ok then, is it an fma actor?
-	else if(act->flags & ACTOR_NOANIMATION)
+//	else if(act->flags & ACTOR_NOANIMATION)
+	else if(act->bffActor)
 	{
 		//and there is an fma 'world'
-		if(act->bffActor)
-		{
+//		if(act->bffActor)
+//		{
 			if(!act->clipped)
 			{
 				int x0,x1;
@@ -970,51 +967,52 @@ void Actor2ClipCheck(ACTOR2* act)
 				TextureType *tempTex;
 				int i;
 
+				MATRIX tx, rY;
 				SHORTXY sBox[8];
-				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+//				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+				FMA_MESH_HEADER **mesh = ADD2POINTER ( act->bffActor, sizeof ( FMA_WORLD ) );
 
 
 				//calculate local to screen coords for fma mesh.
 				//(camera matrix and objects' pos/rot matrix)
-				MATRIX tx, rY;
-//bb dont need this, they don't move/rotate, just animate.
-//				MapDraw_SetMatrix ( *mesh, *-mesh->posx, *mesh->posy, *mesh->posz );
 				gte_SetRotMatrix(&GsWSMATRIX);
 				gte_SetTransMatrix(&GsWSMATRIX);
 
 				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
-// 				act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-// 				act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-// 				act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-				act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-				act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-				act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 
-//				MapDraw_SetMatrix ( *mesh, -cur->actor->position.vx, cur->actor->position.vy, cur->actor->position.vz );
-
-				((FMA_MESH_HEADER*)(mesh))->posx = -act->actor->position.vx;
-				((FMA_MESH_HEADER*)(mesh))->posy = -act->actor->position.vy;
-				((FMA_MESH_HEADER*)(mesh))->posz = act->actor->position.vz;
+				(*mesh)->posx = -act->actor->position.vx;
+				(*mesh)->posy = -act->actor->position.vy;
+				(*mesh)->posz = act->actor->position.vz;
 
 				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 				act->actor->bffMatrix.t[1] = act->actor->position.vy;
 				act->actor->bffMatrix.t[2] = act->actor->position.vz;
 
-				// Unnecessary maths for landscape segments, where pos is always zero.
-				gte_ldlvl( &((FMA_MESH_HEADER*)(mesh))->posx);
+
+
+				gte_ldlvl( &(*mesh)->posx);
 				gte_rtirtr();
 				gte_stlvl(&tx.t);
-
-//				gte_SetRotMatrix(&GsWSMATRIX);
-//				gte_SetTransMatrix(&tx);
 				
-				gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+/*				gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
 				rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
 				rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
 				RotMatrixY(2048, &rY);
 				gte_MulMatrix0(&tx, &rY, &tx);
 				gte_SetRotMatrix(&tx);
 				gte_SetTransMatrix(&tx);
+*/
+				gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+				rY.m[0][0] = act->actor->size.vx;
+				rY.m[1][1] = act->actor->size.vy;
+				rY.m[2][2] = act->actor->size.vz;
+
+				rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+				RotMatrixY(2048, &rY);
+				gte_MulMatrix0(&tx, &rY, &tx);
+				gte_SetRotMatrix(&tx);
+				gte_SetTransMatrix(&tx);
+
 
 
 
@@ -1106,9 +1104,10 @@ void Actor2ClipCheck(ACTOR2* act)
 
 			}//end if(!act->clipped)
 
-		}//end if(act->bffActor)
+//		}//end if(act->bffActor)
 
-	}//end else if(act->flags & ACTOR_NOANIMATION)
+//	}//end else if(act->flags & ACTOR_NOANIMATION)
+	}//end if(act->bffActor)
 
 #endif //DRAW_SCREEN_CLIP
 

@@ -764,11 +764,8 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 
 		//this is the only addition to this function,
 		//from when it was MapDraw_ClipCheck().
- 		pBBox[v].vx+=mesh->posx;
- 		pBBox[v].vy+=mesh->posy;
- 		pBBox[v].vz+=mesh->posz;
-// 		pBBox[v].vx-=mesh->posx;
-// 		pBBox[v].vy-=mesh->posy;
+// 		pBBox[v].vx+=mesh->posx;
+// 		pBBox[v].vy+=mesh->posy;
 // 		pBBox[v].vz+=mesh->posz;
 	}
 
@@ -831,12 +828,9 @@ void FmaActor_GetSBox(FMA_MESH_HEADER *mesh, SHORTXY *sBox)
 
 		//this is the only addition to this function,
 		//from when it was MapDraw_ClipCheck().
- 		pBBox[v].vx+=mesh->posx;
- 		pBBox[v].vy+=mesh->posy;
- 		pBBox[v].vz+=mesh->posz;
-// 		pBBox[v].vx-=mesh->posx;
-// 		pBBox[v].vy-=mesh->posy;
-// 		pBBox[v].vz+=mesh->posz;
+// 		pBBox[v].vx+=mesh->posx;
+//		pBBox[v].vy+=mesh->posy;
+//		pBBox[v].vz+=mesh->posz;
 	}
 
 	//utilPrintf("Map Clip Check!!!\n");
