@@ -63,6 +63,8 @@ long ingameRate = 3;
 
 void GameLoop(void)
 {
+	int i = 4;
+
 	switch (gameState.mode)
 	{
 	case GAME_MODE:
@@ -109,4 +111,9 @@ void GameLoop(void)
 		gameState.mode = FRONTEND_MODE;
 		break;
 	}
+
+	i = 4;
+	while (i--)
+		if (player[i].inputPause>0)
+			player[i].inputPause--;
 }

@@ -347,7 +347,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			flags = MEMGETBYTE(p);
 			speed = MEMGETFLOAT(p);
 
-			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed); //,0,0);
+			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed,0,0);
 			break;
 		}
 

@@ -125,11 +125,12 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 		}
 	}
 
-	for (x=0; x<obj->mesh->numFaces; x++)
-	{
-		obj->mesh->textureIDs[x] = (long)GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
-		
-	}
+	if (obj->mesh)
+		for (x=0; x<obj->mesh->numFaces; x++)
+		{
+			obj->mesh->textureIDs[x] = (long)GetTexEntryFromCRC (obj->mesh->textureIDs[x]);
+		}
+
 	if(obj->children)
 		RestoreObjectPointers(obj->children, memoryOffset);
 	if(obj->next)

@@ -45,20 +45,13 @@ float globalFrogScale			= 0.6F;
 //----- FUNCTIONS ------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-#ifndef PC_VERSION
-char me[100] = "frogger.ndo";
-#else
-char me[100] = "frogger.obe";
-#endif
+//char me[100] = "frogger.obe";
 
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
 	ACTOR2 **me = &frog[p];
-#ifndef PC_VERSION
 	(*me)		 = CreateAndAddActor ("frogger.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
-#else
-	(*me)		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
-#endif
+
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
 	(*me)->flags	|= ACTOR_DRAW_ALWAYS;

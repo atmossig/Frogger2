@@ -122,7 +122,7 @@ void LoadCollision (int num)
 			break;
 
 		case SPACEMASTER_COL:
-			strcat(file,"spacemaster");
+			strcat(file,"spaceboss");
 			break;
 		case SPACELEV1_COL:
 			strcat(file,"space1");
@@ -369,7 +369,7 @@ void LoadScenics (int num)
 			break;
 
 		case SPACEMASTER_COL:
-			strcat(file,"spacemas\ter");
+			strcat(file,"spaceboss");
 			break;
 		case SPACELEV1_COL:
 			strcat(file,"space1");

@@ -214,7 +214,7 @@ int MPRemoveFrog( int i )
 	if( frog[i]->actor->xluOverride == 0 ) // Already disabled
 		return 1;
 
-	frog[i]->action.lives = 0;
+	frog[i]->action.healthPoints = 0;
 	player[i].lives = 0;
 
 	// Disable health sprites

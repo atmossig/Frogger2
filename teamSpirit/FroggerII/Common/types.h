@@ -483,7 +483,11 @@ typedef struct OBJECT
 	struct OBJECT	*next;
 
 	COLLSPHERE	*collSphere;
+#ifndef PC_VERSION
 	Mtx			objMatrix;
+#else
+	MATRIX			objMatrix;
+#endif
 
 
 /*	int			objID;

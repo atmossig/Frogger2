@@ -123,11 +123,13 @@ void DrawActorList()
 	objectMatrix = 0;
 //	SetRenderMode();
 	
+#ifndef PC_VERSION
 	vtxPtr = &(objectsVtx[draw_buffer][0]);
 
 	InitDisplayLists();
 	SetRenderMode();
 	SetupViewing();
+#endif
 
 	if(fog.mode)
 	{

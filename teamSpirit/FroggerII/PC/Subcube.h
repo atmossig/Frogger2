@@ -24,7 +24,7 @@ extern void DrawActor(ACTOR *ptr);
 
 extern TEXTURE	*tempTexture;
 extern char		*tempObjectPtr, *tempObjectPtr2;
-extern VECTOR	actorScale, parentScale;
+extern VECTOR	*actorScale, parentScale;
 extern Vtx		*vtxPtr;
 extern short	xluFact;
 extern char		changeRenderMode;

@@ -49,7 +49,7 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 		"the spawn lawn",		LEVELID_GARDENLAWN,GARDENLEV1_OBJ_BANK,0,GARDENLEV1_COL,LEVEL_OPEN,WORLDID_ANCIENT,0,
 		"a-maze-ing garden",	LEVELID_GARDENMAZE,GARDENLEV2_OBJ_BANK,0,GARDENLEV2_COL,LEVEL_OPEN,WORLDID_SPACE,0,
 		"vegging out",			LEVELID_GARDENVEGPATCH,GARDENLEV3_OBJ_BANK,0,GARDENLEV3_COL,LEVEL_OPEN,WORLDID_CITY,0,
-		"garden boss",			LEVELID_GARDEN4,GARDENBOSS_OBJ_BANK,0,GARDENMASTER_COL,LEVEL_OPEN,WORLDID_SUBTERRANEAN,0,
+		"garden boss",			LEVELID_GARDEN4,GARDENBOSSA_OBJ_BANK,0,GARDENMASTERA_COL,LEVEL_OPEN,WORLDID_SUBTERRANEAN,0,
 		"garden bonus",			LEVELID_GARDEN5,GARDENBONUS_OBJ_BANK,0,GARDENBONUS_COL,LEVEL_CLOSED,-1,0,
 		"garden multi",			LEVELID_GARDEN6,GARDENMULTI_OBJ_BANK,0,GARDENMULTI_COL,LEVEL_CLOSED,-1,0,
 		},
@@ -531,7 +531,12 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	doScreenFade = 63;
 
 	// load relevant collison, texture and object banks
+#ifdef PC_VERSION
+	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
+#else
 	LoadMapBank(worldID,levelID);
+#endif
+
 	LoadVisualBanksForWorld(worldID,levelID);
 
 	InitSpriteFrameLists();

@@ -39,11 +39,11 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	{
 		for (i=0; i<numBabies; i++)
 		{
-#ifndef PC_VERSION
+//#ifndef PC_VERSION
 			babies[i] = CreateAndAddActor("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
-#else
-			babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
-#endif
+//#else
+//			babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+//#endif
 
 			babies[i]->actor->shadow->radius	= 15;
 			babies[i]->actor->shadow->alpha		= 191;

@@ -56,10 +56,10 @@
 
 // New for the skinning
 
-#define PushMatrix(matrix)	guMtxCatF((matrix), matrixStack.stack[matrixStack.stackPosition++], matrixStack.stack[matrixStack.stackPosition])
+#define PushMatrix(matrix)	{ guMtxCatF((matrix), matrixStack.stack[matrixStack.stackPosition], matrixStack.stack[matrixStack.stackPosition+1]); matrixStack.stackPosition++; }
 #define PopMatrix() matrixStack.stackPosition--
 
-#define PushRMatrix(matrix)	guMtxCatF((matrix), rMatrixStack.stack[rMatrixStack.stackPosition++], rMatrixStack.stack[rMatrixStack.stackPosition])
+#define PushRMatrix(matrix)	{ guMtxCatF((matrix), rMatrixStack.stack[rMatrixStack.stackPosition++], rMatrixStack.stack[rMatrixStack.stackPosition]); rMatrixStack.stackPosition++ } 
 #define PopRMatrix() rMatrixStack.stackPosition--
 
 #define LinearInterp(result,from,to,interp) {(result)->v[0] = (from)->v[0] + (((to)->v[0] - (from)->v[0]) * interp);(result)->v[1] = (from)->v[1] + (((to)->v[1] - (from)->v[1]) * interp);(result)->v[2] = (from)->v[2] + (((to)->v[2] - (from)->v[2]) * interp);}

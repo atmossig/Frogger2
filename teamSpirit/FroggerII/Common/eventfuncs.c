@@ -428,7 +428,7 @@ void SpringFrog( EVENT *event )
 		player[fNum].frogState &= ~FROGSTATUS_ISTELEPORTING;
 		player[fNum].frogState |= FROGSTATUS_ISSTANDING;
 
-		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&frog[fNum]->actor->pos,128,0,0.5,15);
+		//CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&frog[fNum]->actor->pos,128,0,0.5,15);
 
 		start = 0;
 		end = 0;
