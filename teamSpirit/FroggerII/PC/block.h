@@ -48,6 +48,7 @@ extern char	UseZMode;
 extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
 extern int runQuit;
+extern float gameSpeed;
 
 void debugPrintf(int num);
 void Crash(char *mess);

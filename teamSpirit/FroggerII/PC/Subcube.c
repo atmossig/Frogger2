@@ -65,6 +65,15 @@ float sofs = 5;
 
 long noClipping = 0;
 
+float oneOver[65535];
+long InitOneOverTable(void)
+{
+	int i;
+	for(i=1; i<65535; i++)
+		oneOver[i] = 1/i;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 short	xluOverride = 0;

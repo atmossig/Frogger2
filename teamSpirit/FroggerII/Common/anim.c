@@ -216,7 +216,7 @@ void UpdateAnimations(ACTOR *actor)
 	}
 
 	actorAnim->reachedEndOfAnimation = FALSE;
-	actorAnim->animTime += (actorAnim->animationSpeed);	// * GAME_SPEED);
+	actorAnim->animTime += (actorAnim->animationSpeed) * gameSpeed;	// * GAME_SPEED);
 
 	if(((actorAnim->animTime > anim->animEnd) || (actorAnim->animTime < anim->animStart)) && (actorAnim->loopAnimation == NO))
 	{

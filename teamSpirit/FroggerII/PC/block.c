@@ -27,7 +27,9 @@
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
-unsigned long actFrameCount, currentFrameTime;
+unsigned long actFrameCount, currentFrameTime,actTickCount;
+unsigned long speedKill = 0;
+float gameSpeed = 1;
 
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
@@ -150,6 +152,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	}*/
 }
 
+long InitOneOverTable(void);
+
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
 	SYSTEMTIME currTime;
@@ -161,7 +165,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	long i;
 	long zero = 0;
 	HRESULT	dsrVal, hRes;
-	
+	unsigned long newTickCount;
 	SAMPLE *test;
 
 	GetLocalTime(&currTime);
@@ -178,7 +182,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		currTime.wHour, currTime.wMinute, currTime.wSecond));
 
 	GetRegistryInformation();
-		
+	InitOneOverTable();	
 	// create and initialise app window
 	if(!InitialiseWindows(hInstance,nCmdShow))
 		ok = 0;
@@ -231,6 +235,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	gameState.mode		= FRONTEND_MODE;
 	//frontEndState.mode	= DEMO_MODE;
 	frameCount = 1;
+	actTickCount = GetTickCount();
 
     while(ok)
 	{
@@ -248,17 +253,18 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 		if(appActive)
 		{
-			if (KEYPRESS(DIK_F1))
+			/*if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2;
 
 			if (KEYPRESS(DIK_F2))
-				camDist.v[1]-=2;
+				camDist.v[1]-=2;*/
 
-		/*	if (KEYPRESS(DIK_F1))
-				hedRotAmt+=0.02;
+			if (KEYPRESS(DIK_F1))
+				speedKill++;
 
 			if (KEYPRESS(DIK_F2))
-				hedRotAmt-=0.02;*/
+				if (speedKill>0)
+					speedKill--;
 
 			if (KEYPRESS(DIK_F3))
 				camDist.v[2]+=2;
@@ -297,6 +303,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					keyDelay = 20;
 				}
 
+
 			}
 			else
 				keyDelay--;
@@ -315,13 +322,23 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			ProcessUserInput(winInfo.hWndMain);
 
 			DrawGraphics();
-			
+
+			if (speedKill)
+				Sleep(speedKill);
+
 			StartTimer(3,"Flip");
 			DirectXFlip();
 			EndTimer(3);
 			CleanBufferSamples();
 			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
-			actFrameCount = (GetTickCount()/(1000/60));
+
+			newTickCount = GetTickCount();
+			gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
+			
+			actTickCount = newTickCount;
+			
+			actFrameCount = (GetTickCount()/(1000.0/60.0));
+
 		}
 	}
 
