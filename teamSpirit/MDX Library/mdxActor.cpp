@@ -457,16 +457,16 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
 	MDX_VECTOR t[8];
 	MDX_VECTOR *r = t;
-	unsigned long ocs[8]; // = {0,0,0,0,0,0,0,0};
+	unsigned long i, *oc, ocs[8];
 
 	float mtx[4][4], oozd;
 
 	guMtxCatF((float *)m->matrix,(float *)vMatrix.matrix,(float *)mtx);
 
-	for( unsigned long i=8, o=7; i; i--, r++, bBox++, o=i-1 )
+	for(i=8, oc=&ocs[7]; i; i--, r++, bBox++, oc-- )
 	{
 		//XfmPoint(r,bBox,m);
-		ocs[o] = 0;
+		*oc = 0;
 
 		// do the work of XfmPoint, using the matrix concatenated above
 		guMtxXFMF(mtx,
@@ -476,10 +476,11 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 		// clippage
 
 		if( r->vz < nearClip )
-			ocs[o] |= INWARD;
+			*oc |= INWARD;
 		else if( r->vz > farClip )
-				ocs[o] |= OUTWARD;
+			*oc |= OUTWARD;
 		else
+		if (r->vz>=nearClip&&r->vz<=farClip)
 		{
 			// Perform XfmPoint's really fucked up perspective calculation
 			// that's "so much more efficient".
@@ -488,36 +489,36 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 			r->vy = halfHeight+(r->vy * oozd);
 
 			if( r->vx < 0 )
-				ocs[o] |= LEFT;
+				*oc |= LEFT;
 			else if( r->vx > rXRes )
-				ocs[o] |= RIGHT;
+				*oc |= RIGHT;
 
 			if( r->vy < 0 )
-				ocs[o] |= TOP;
+				*oc |= TOP;
 			else if( r->vy > rYRes )
-				ocs[o] |= BOTTOM;
+				*oc |= BOTTOM;
 		}
 
-		if( !ocs[o] ) 
+		if( !*oc ) 
 			return 0;
 	}
 
-	if( !(ocs[0] & ocs[1]) ||
-		!(ocs[0] & ocs[3]) ||
-		!(ocs[0] & ocs[4]) ||
-		!(ocs[1] & ocs[2]) ||
-		!(ocs[1] & ocs[5]) ||
-		!(ocs[2] & ocs[3]) ||
-		!(ocs[2] & ocs[6]) ||
-		!(ocs[3] & ocs[7]) ||
-		!(ocs[4] & ocs[5]) ||
-		!(ocs[4] & ocs[7]) ||
-		!(ocs[5] & ocs[6]) ||
-		!(ocs[6] & ocs[7]) ||
-		!(ocs[4] & ocs[6]) ||
-		!(ocs[3] & ocs[5]) ||
-		!(ocs[4] & ocs[2]) ||
-		!(ocs[6] & ocs[0]) )
+	if(!((ocs[0] & ocs[1]) &&
+		(ocs[0] & ocs[3]) &&
+		(ocs[0] & ocs[4]) &&
+		(ocs[1] & ocs[2]) &&
+		(ocs[1] & ocs[5]) &&
+		(ocs[2] & ocs[3]) &&
+		(ocs[2] & ocs[6]) &&
+		(ocs[3] & ocs[7]) &&
+		(ocs[4] & ocs[5]) &&
+		(ocs[4] & ocs[7]) &&
+		(ocs[5] & ocs[6]) &&
+		(ocs[6] & ocs[7]) &&
+		(ocs[4] & ocs[6]) &&
+		(ocs[3] & ocs[5]) &&
+		(ocs[4] & ocs[2]) &&
+		(ocs[6] & ocs[0])))
 		return 0;
 
 	return 1;
