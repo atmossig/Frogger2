@@ -235,9 +235,9 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	long clipflag;
 #endif
 
-	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
+	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
 //	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
-	int max_depth = (fog.max>>2) + mesh->extra_depth;
+	int max_depth = (fog.max>>4);// + mesh->extra_depth;
 //	int max_depth = worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].farClip + mesh->extra_depth;
 		
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember

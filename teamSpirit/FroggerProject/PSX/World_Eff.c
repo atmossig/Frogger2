@@ -229,7 +229,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	int i, j;
 
 	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
-	int max_depth = fog.max>>2;//MAX_MAP_DEPTH;// + mesh->extra_depth;
+	int max_depth = (fog.max>>4);// + mesh->extra_depth;
 
 	// Store UV modge vals for a poly
 	short mVs[8];

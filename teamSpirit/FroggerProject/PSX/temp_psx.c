@@ -579,7 +579,7 @@ void PsiActor2ClipCheck(ACTOR2* act)
 
 	long sxy,sz;
 	long sx, sy;
-	int distTop, distRight, distBott, distLeft;
+	int distTop, distRight, distBott, distLeft, distIn, distOut;
 	int radius, FOV;
 
 	SVECTOR pos = act->actor->position;
@@ -617,16 +617,17 @@ void PsiActor2ClipCheck(ACTOR2* act)
 
 
 	//not too close/far
-	if( sz <= 0 || sz >= fog.max )
+	if( sz <= 0 )
 	{
 		act->clipped = 1;
+		return;
 	}
 
 	//psi clipping.
 	//calculate the screen position of the object,
 	//and it's screen radius.
-	else 
-	{
+//	else 
+//	{
 		sx = (short)(sxy&0xffff);
 		sy = (short)(sxy>>16);
 
@@ -642,9 +643,11 @@ void PsiActor2ClipCheck(ACTOR2* act)
 		distRight	= (sx-radius) - CLIP_RIGHT;
 		distBott	= (sy-radius) - CLIP_BOTT;
 		distLeft	= (sx+radius) - CLIP_LEFT;
+		distIn		= sz+radius;
+		distOut		= sz-radius;
 
 		//clip?
-		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>fog.max) )
+		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (distOut>fog.max) )
 		{
 			act->clipped = 1;
 		}
@@ -664,7 +667,7 @@ void PsiActor2ClipCheck(ACTOR2* act)
 			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 			act->clipped = 0;
 		}
-	}
+//	}
 
 	//miles away?
 // 	if(act->clipped)
