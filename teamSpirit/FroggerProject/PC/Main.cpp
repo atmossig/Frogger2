@@ -820,18 +820,19 @@ long DrawLoop(void)
 
 	if (rHardware)
 	{
-		SwapFrame(0);
+		SwapFrame(MA_FRAME_NORMAL);
 		DrawBatchedPolys();
 		BlankFrame;
 
 		D3DSetupRenderstates(xluAddRS);
-		SwapFrame(3);
+		SwapFrame(MA_FRAME_ADDITIVE);
 		DrawBatchedPolys();
 		BlankFrame;
-		D3DSetupRenderstates(xluSemiRS);
-		SwapFrame(0);
 
-		D3DSetupRenderstates(noZRS);  // And z enable
+		D3DSetupRenderstates(xluSemiRS);
+		SwapFrame(MA_FRAME_NORMAL);
+
+		D3DSetupRenderstates(noZRS);  // And disable z tests
 	}
 	else
 	{
@@ -841,14 +842,12 @@ long DrawLoop(void)
 		BlankAllFrames();
 	}
 
+	D3DSetupRenderstates(cullNoneRS);
+
 	if(!fadeText)
-	{
-		D3DSetupRenderstates(cullNoneRS);
 		DrawScreenTransition();
-	}
 
 //	D3DSetupRenderstates(cullCWRS);
-	D3DSetupRenderstates(cullNoneRS);
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
@@ -857,10 +856,7 @@ long DrawLoop(void)
 	PrintSpriteOverlays(2);	
 
 	if(fadeText)
-	{
-		D3DSetupRenderstates(cullNoneRS);
 		DrawScreenTransition();
-	}
 
 	if (editorOk)
 		DrawEditor();

@@ -106,12 +106,14 @@ void PTTextureLoad( )
 			CreateProceduralTexture( (TextureType *)t, t->name );		
 	}
 
+/*
 	t = GetTexEntryFromCRC(UpdateCRC("00wate04.bmp"));
 
 	if (t)
 		testS = t->surf;
 
 	pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
+*/
 }
 
 

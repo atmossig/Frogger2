@@ -530,21 +530,16 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					}*/
 
 					// If a water object, draw always
-					if( !gstrcmp( tmp, "wat_\0" ))
+					if( !gstrcmp( tmp, "wat_" ))
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
-						if (!gstrcmp(ts->name,"wat_flo.obe"))
-							((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;// | OBJECT_FLAGS_SHEEN;
-						else
-							((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
-						
+						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
 						
 						if (ts->name[4]=='f')
-							theActor->flags |= ACTOR_SLOWSLIDE;
+							theActor->flags |= ACTOR_SLIDYTEX;
 
 					}
-
-					if( !gstrcmp( tmp, "slu_\0" ) )
+					else if( !gstrcmp( tmp, "slu_" ) )
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_SLUDGE | ACTOR_DRAW_ALWAYS;
 						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_MODGE;						
@@ -552,14 +547,18 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 							theActor->flags |= ACTOR_SLIDYTEX;
 
 					}
-
-					if( !gstrcmp( tmp, "lea_\0" ) )
+					else if( !gstrcmp( tmp, "lea_" ) )
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_LEAVES | ACTOR_DRAW_ALWAYS;
 						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE;						
 						if (ts->name[4]=='f')
 							theActor->flags |= ACTOR_SLIDYTEX;
 
+					}
+					else if ( !gstrcmp( tmp, "xxa_"))
+					{
+						theActor->flags = ACTOR_ADDITIVE;
+						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_ADDITIVE;
 					}
 
 		// JH : rot is not a member

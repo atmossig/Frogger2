@@ -831,6 +831,11 @@ void ProcessUserInput()
 		ProcessKeyboardInput();
 
 #ifdef JOYPADTHREAD
+	// NOTE - this is all complete shite! Ignore it for the time being
+	// eats up clock cycles like a rhino on heat
+	// (rhinos are reknowned for their cycle-eating frenzies)
+	// (at least in my imagination) - ds
+
 	// Joypad must have been polled at least once, so wait for it just in case
 	WaitForSingleObject(hJoyEvent, 1000);
 
