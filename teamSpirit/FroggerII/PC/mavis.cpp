@@ -252,9 +252,9 @@ void DrawBatchedPolys (void)
 
 		while (((*(cFInfo->cH)) == lHandle) && (i<cFInfo->nF))
 		{
-			numPixelsDrawn+=TriangleArea(cFInfo->v[cFInfo->f[i]].sx,cFInfo->v[cFInfo->f[i]].sy,
-						 cFInfo->v[cFInfo->f[i+1]].sx,cFInfo->v[cFInfo->f[i+1]].sy,
-						 cFInfo->v[cFInfo->f[i+2]].sx,cFInfo->v[cFInfo->f[i+2]].sy);
+//	numPixelsDrawn+=TriangleArea(cFInfo->v[cFInfo->f[i]].sx,cFInfo->v[cFInfo->f[i]].sy,
+//				 cFInfo->v[cFInfo->f[i+1]].sx,cFInfo->v[cFInfo->f[i+1]].sy,
+//				 cFInfo->v[cFInfo->f[i+2]].sx,cFInfo->v[cFInfo->f[i+2]].sy);
 #ifdef SHOW_OUTLINES
 			if (drawTimers==3)
 			{
