@@ -36,10 +36,6 @@ static int				outputBufLen;
 static unsigned char	LZhistory[HISTORY_SIZE];
 static unsigned short	LZhistoryOff;
 
-// *sigh* I just don't care any more..
-
-extern char* baseDirectory;
-
 /**************************************************************************
 	FUNCTION:	DecompressOutputByte()
 	PURPOSE:	decompresses a byte of data
@@ -107,7 +103,7 @@ int utilDecompressBuffer(unsigned char *inBuf, unsigned char *outBuf)
 }
 
 
-BYTE *fileLoad(const char *filename, int *bytesRead)
+BYTE *mdxFileLoad(const char *filename, const char *baseDirectory, int *bytesRead)
 {
 	BYTE *buffer;
 	DWORD size, read;
@@ -125,15 +121,13 @@ BYTE *fileLoad(const char *filename, int *bytesRead)
 	if (data[0] == FLA_MAGIC)	// file is compressed! make another buffer, decompress and return that
 	{
 		BYTE *dbuffer = (BYTE*)AllocMem(data[1]);
-		*bytesRead = utilDecompressBuffer(((BYTE*)buffer)+8, dbuffer);
+		read = utilDecompressBuffer(((BYTE*)buffer)+8, dbuffer);
 		
 		FreeMem(buffer);
-		return dbuffer;
+		buffer = dbuffer;
 	}
-	else
-	{
-		*bytesRead = read;
-		return buffer;
-	}
+
+	if (bytesRead) *bytesRead = read;
+	return buffer;
 }
 

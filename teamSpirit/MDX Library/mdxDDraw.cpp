@@ -849,6 +849,8 @@ void mdxLoadBackdrop(const char* filename)
 	else*/
 		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 
+	mdxFreeBackdrop();
+
 	if ((res = pDirectDraw7->CreateSurface(&ddsd, &backdrop, NULL)) != DD_OK)
 	{
 		dp("Error creating backdrop surface\n");

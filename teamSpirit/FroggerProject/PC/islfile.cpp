@@ -3,11 +3,18 @@
 #include "islmem.h"
 #include "islfile.h"
 #include "Main.h"
+#include <mdxfile.h>
 
 void fileInitialise(char *fileSystem)
 {
 }
 
+unsigned char *fileLoad(const char* filename, int *bytesRead)
+{
+	return mdxFileLoad(filename, baseDirectory, bytesRead);
+}
+
+/*
 unsigned char *fileLoad(const char *filename, int *bytesRead)
 {
 	void *buffer;
@@ -25,3 +32,4 @@ unsigned char *fileLoad(const char *filename, int *bytesRead)
 	if (bytesRead) *bytesRead = read;
 	return (unsigned char*)buffer;
 }
+*/

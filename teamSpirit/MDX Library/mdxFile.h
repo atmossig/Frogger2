@@ -14,7 +14,7 @@
 #ifndef MDXFILE_INCLUDED
 #define MDXFILE_INCLUDED
 
-unsigned char *fileLoad(unsigned char *fName, int *length);
+unsigned char *mdxFileLoad(const char *file, const char *baseDir, int *length);
 
 #endif
 

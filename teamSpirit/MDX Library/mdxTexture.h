@@ -64,6 +64,7 @@ extern LPDIRECTDRAWSURFACE7 testS;
 
 MDX_TEXENTRY *GetTexEntryFromCRC (long CRC);
 unsigned long LoadTexBank(char *bank, char *baseDir);
+unsigned long LoadTexBankFile(char *bank, char *baseDir);
 void FreeAllTextureBanks( );
 void InitWater(char *file);
 void UpdateWater(void);

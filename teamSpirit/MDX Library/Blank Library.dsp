@@ -42,7 +42,6 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /W3 /GX /O2 /Ob2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# SUBTRACT CPP /Z<none>
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
 # ADD RSC /l 0x809 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -144,6 +143,14 @@ SOURCE=.\mdxException.cpp
 # Begin Source File
 
 SOURCE=.\mdxException.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\mdxFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mdxFile.h
 # End Source File
 # Begin Source File
 

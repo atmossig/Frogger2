@@ -30,6 +30,7 @@
 #include "mdxDText.h"
 #include "mdxProfile.h"
 #include "mdxWindows.h"
+#include "mdxFile.h"
 #include "gelf.h"
 #include "mdxException.h"
 #include <stdio.h>
@@ -131,14 +132,164 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 	return ret;
 }
 
+
+MDX_TEXENTRY *AddMemoryTexture(char *name, short *data, int xDim, int yDim, int texType)
+{
+	LPDIRECTDRAWSURFACE7 temp;
+	MDX_TEXENTRY *newE, *cEntry = texList;
+
+	if (!data) return NULL;
+
+	// Create Texture entry ..
+	newE = (MDX_TEXENTRY *) AllocMem(sizeof(MDX_TEXENTRY));
+	
+	newE->data = data;
+
+	newE->next = texList;
+	if (texList)
+		texList->prev = newE;
+	newE->prev = NULL;
+	texList = newE;
+
+	strcpy (newE->name, name);
+	newE->CRC  = UpdateCRC (name);
+	newE->refCount = 0;
+
+	switch (texType)
+	{
+		case TEXTURE_NORMAL:
+		{
+			newE->surf = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1);
+				
+			// Create a temporary surface to hold the texture.
+			if ((temp = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1)) == NULL)
+				return NULL;
+
+			newE->keyed = (char)DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,0);
+			newE->surf->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);
+			newE->xPos = 0;
+			newE->yPos = 0;
+			
+			temp->Release();
+			surfacesMade--;
+			//page->numTex++;
+
+			newE->type = TEXTURE_NORMAL;
+			break;
+		}
+
+		case TEXTURE_AI:
+		{
+			// Create a temporary surface to hold the texture.
+			if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
+				return NULL;
+
+			newE->keyed = (char)DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim,0);			
+			newE->surf = temp;
+			newE->xPos = 0;
+			newE->yPos = 0;
+			
+			newE->type = TEXTURE_AI;
+			break;
+		}			
+
+		case TEXTURE_PROCEDURAL:
+		{
+			// Create a temporary surface to hold the texture.
+			if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
+				return NULL;
+
+			newE->keyed = (char)DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim,0);			
+			newE->surf = temp;
+			newE->xPos = 0;
+			newE->yPos = 0;
+			
+			newE->type = TEXTURE_AI;
+			break;
+		}								
+
+		case TEXTURE_NOTEXTURE:
+		{
+			// Create a temporary surface to hold the texture.
+
+			if ((temp = D3DCreateSurface(xDim,yDim, 0xf81f, 0)) == NULL)
+				return NULL;
+
+			newE->keyed = (char)DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,1);
+			newE->surf = temp;
+			newE->xPos = 0;
+			newE->yPos = 0;
+
+			newE->type = TEXTURE_NOTEXTURE;
+			break;
+		}								
+
+		case TEXTURE_AC:
+		{
+			// Create a temporary surface to hold the texture.
+			if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
+				return NULL;
+
+			newE->keyed = (char)DDrawCopyToSurface(temp,(unsigned short *)newE->data,2,xDim,yDim,0);			
+			newE->surf = temp;
+			newE->xPos = 0;
+			newE->yPos = 0;
+			
+			newE->type = TEXTURE_AI;
+			break;
+		}
+	}
+
+	if (newE->surf && rHardware)
+		pDirect3DDevice->PreLoad(newE->surf);
+		
+	newE->xSize = xDim;
+	newE->ySize = yDim;
+
+	if( rHardware )
+		newE->softData = NULL;
+	else
+	{
+		newE->softData = (long *) AllocMem(sizeof(long)*xDim*yDim);
+
+		for (int i=0; i<xDim; i++)
+			for (int j=0; j<yDim; j++)
+			{
+				short dt;
+				unsigned long r,g,b;
+				dt = newE->data[i+j*xDim];
+				r = (dt>>10) & 0x1f;
+				g = (dt>>5) & 0x1f;
+				b = (dt) & 0x1f;
+
+				if ((r==0x1f) && (b==0x1f) && (g==0))
+				{
+					newE->keyed = 1;
+					newE->softData[i+j*xDim] = 0x00ff00ff;
+				}
+				else
+				{
+					r<<=3;
+					g<<=3;
+					b<<=3;
+					//if (r565)
+					newE->softData[i+j*xDim] = (r<<16 | g<<8 | b) & 0x00ffffff;
+				}
+
+			}
+	}
+
+	return newE;
+}
+
+
 MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 {
 	char mys[255],tBnk[255];
-	MDX_TEXENTRY *newE;
-	MDX_TEXENTRY *cEntry = texList;
 	long isAnim = 0,texType = 0;
 	int pptr = -1;
 	int xDim,yDim,i,j,bksCount;
+	short *data;
 
 	strcpy (mys,shortn);
 	strlwr (mys);
@@ -153,19 +304,9 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	if (strncmp(mys,"prc",3)==0)
 		texType = TEXTURE_PROCEDURAL;
 
-	newE = (MDX_TEXENTRY *) AllocMem(sizeof(MDX_TEXENTRY));
-	
-	newE->next = texList;
-	if (texList)
-		texList->prev = newE;
-	newE->prev = NULL;
-	texList = newE;
+	data = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
 
-	strcpy (newE->name,mys);
-	newE->CRC  = UpdateCRC (mys);
-	newE->refCount = 0;
-	newE->data = (short *)gelfLoad_BMP(file,NULL,(void**)&pptr,&xDim,&yDim,NULL,GELF_IFORMAT_16BPP555,GELF_IMAGEDATA_TOPDOWN);
-
+	// Count bits to make sure our dimension is a power of 2
 	i = xDim;
 	bksCount = 0;
 	for (j=0; j<32; j++)
@@ -178,7 +319,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	if (bksCount>1)
 	{
 		texType = TEXTURE_NOTEXTURE;
-		newE->type = TEXTURE_NOTEXTURE;
+		//newE->type = TEXTURE_NOTEXTURE;
 	}
 
 	bksCount = 0;
@@ -196,136 +337,14 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 		if (tBnk[i] == '\\')
 			tBnk[i] = 0;
 			
-	strncpy(newE->bank,tBnk,60);
 
-	newE->keyed = 0;
-	newE->numFrames = 1;
-	if (newE->data)
+	if (data)
 	{
-		LPDIRECTDRAWSURFACE7 temp;
+		MDX_TEXENTRY *newE = AddMemoryTexture(mys, data, xDim, yDim, texType);
 
-		switch (texType)
-		{
-			case TEXTURE_NORMAL:
-			{
-				newE->surf = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1);
-					
-				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1)) == NULL)
-					return NULL;
-
-				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,0);
-				newE->surf->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);
-				newE->xPos = 0;
-				newE->yPos = 0;
-				
-				temp->Release();
-				surfacesMade--;
-				//page->numTex++;
-
-				newE->type = TEXTURE_NORMAL;
-				break;
-			}
-
-			case TEXTURE_AI:
-			{
-				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
-					return NULL;
-
-				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim,0);			
-				newE->surf = temp;
-				newE->xPos = 0;
-				newE->yPos = 0;
-				
-				newE->type = TEXTURE_AI;
-				break;
-			}			
-
-			case TEXTURE_PROCEDURAL:
-			{
-				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
-					return NULL;
-
-				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,1,xDim,yDim,0);			
-				newE->surf = temp;
-				newE->xPos = 0;
-				newE->yPos = 0;
-				
-				newE->type = TEXTURE_AI;
-				break;
-			}								
-
-			case TEXTURE_NOTEXTURE:
-			{
-				// Create a temporary surface to hold the texture.
-
-				if ((temp = D3DCreateSurface(xDim,yDim, 0xf81f, 0)) == NULL)
-					return NULL;
-
-				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,1);
-				newE->surf = temp;
-				newE->xPos = 0;
-				newE->yPos = 0;
-				
-				break;
-			}								
-
-			case TEXTURE_AC:
-			{
-				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 1, 1)) == NULL)
-					return NULL;
-
-				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,2,xDim,yDim,0);			
-				newE->surf = temp;
-				newE->xPos = 0;
-				newE->yPos = 0;
-				
-				newE->type = TEXTURE_AI;
-				break;
-			}
-		}
-
-		if (newE->surf && rHardware)
-			pDirect3DDevice->PreLoad(newE->surf);
-			
-		newE->xSize = xDim;
-		newE->ySize = yDim;
-
-			if( rHardware )
-				newE->softData = NULL;
-			else
-			{
-				newE->softData = (long *) AllocMem(sizeof(long)*xDim*yDim);
-
-				for (int i=0; i<xDim; i++)
-					for (int j=0; j<yDim; j++)
-					{
-						short dt;
-						unsigned long r,g,b;
-						dt = newE->data[i+j*xDim];
-						r = (dt>>10) & 0x1f;
-						g = (dt>>5) & 0x1f;
-						b = (dt) & 0x1f;
-
-						if ((r==0x1f) && (b==0x1f) && (g==0))
-						{
-							newE->keyed = 1;
-							newE->softData[i+j*xDim] = 0x00ff00ff;
-						}
-						else
-						{
-							r<<=3;
-							g<<=3;
-							b<<=3;
-							//if (r565)
-							newE->softData[i+j*xDim] = (r<<16 | g<<8 | b) & 0x00ffffff;
-						}
-		
-					}
-			}
+		strncpy(newE->bank,tBnk,60);
+		newE->keyed = 0;
+		newE->numFrames = 1;
 
 		return newE;
 	}
@@ -335,9 +354,9 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	return NULL;
 }
 
-short tempdata[256*256];
 void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSURFACE7 srf)
 {
+	short tempdata[256*256];
 	long xS,yS,mPitch,j;
 	HRESULT res;
 	
@@ -367,6 +386,12 @@ void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSUR
 
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: LoadTexBank
+	Purpose			: loads a texture bank
+	Parameters		: 
+	Returns			: 1 for success, 0 for failure
+*/
 unsigned long LoadTexBank(char *bank, char *baseDir)
 {
 	char	fName[MAX_PATH];
@@ -413,7 +438,7 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 				strcpy (fAnim,fPath);
 				strcat (fAnim,finalShort);
 				
-				for (int i=0; i<strlen(fAnim); i++)
+				for (int i=strlen(fAnim)-1; i; i--)
 					if (fAnim[i]=='.')
 						fAnim[i] = 0;
 				
@@ -474,6 +499,64 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 		}
 	return 1;
 }
+
+/*	--------------------------------------------------------------------------------
+	Function		: LoadTexBankFile
+	Purpose			: Loads a texture bank from a special file
+	Parameters		: 
+	Returns			: 
+*/
+struct TEXTURE_HEADER
+{
+	DWORD flags;
+	DWORD CRC;
+	short dim[2];
+	char name[12];
+};
+
+unsigned long LoadTexBankFile(char *bank, char *baseDir)
+{
+	char file[20];
+	char path[MAX_PATH];
+	BYTE *buffer, *data;
+	TEXTURE_HEADER *head;
+	int size, num;
+	
+	strcpy(path, baseDir);
+	strcat(path, TEXTURE_BASE);
+	
+	strcpy(file, bank);
+	strcat(file, ".fla");
+
+	data = buffer = mdxFileLoad(file, path, &size);
+
+	num = (int)*(DWORD*)data; data += 4;
+
+	while (num--)
+	{
+		head = (TEXTURE_HEADER*)data;
+		data += sizeof(TEXTURE_HEADER);
+
+		MDX_TEXENTRY *entry = AddMemoryTexture(head->name, (short*)data, head->dim[0], head->dim[1], head->flags);
+		entry->CRC = head->CRC;	// just in case of extra long names, fnar
+		
+		//entry->data = NULL;		// to prevent undue freeing! (boh)
+
+		data += head->dim[0]*head->dim[1]*2;
+	}
+
+	//FreeMem(buffer);	// and relax
+
+	return 1;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateAnimatingTextures
+	Purpose			: interpret a game update from the network
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
 
 void UpdateAnimatingTextures(void)
 {
