@@ -216,7 +216,7 @@ int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch )
 	{
 		att = (radius)?radius:DEFAULT_SFX_DIST;
 
-		SubVector2D( &diff, pos, &frog[0]->actor->pos );
+		SubVector( &diff, pos, &frog[0]->actor->pos );
 		// Volume attenuation - check also for radius != 0 and use instead of default
 		dist = Magnitude( &diff );
 		if( dist > att )
@@ -871,7 +871,7 @@ void LoadSfxMapping( int world, int level )
 	strcat( filename, wnum );
 	strcat( filename, lnum );
 	// Extension
-	strcat( filename, ".sam\0" );
+	strcat( filename, ".sam" );
 
 	// Open input file
 	h = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
@@ -884,12 +884,12 @@ void LoadSfxMapping( int world, int level )
 
 	// Get file info and data
 	size = GetFileSize(h, NULL);
-	buffer = JallocAlloc(size, NO, "sfxbuffer");
+	buffer = JallocAlloc(size, YES, "sfxbuffer");
 	ReadFile( h, buffer, size, &read, NULL );
 	CloseHandle(h);
 
 	in = (unsigned char *)buffer;
-	sfx_anim_map = (long *)JallocAlloc( size>>2, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
+	sfx_anim_map = (long *)JallocAlloc( size, YES, "SfxMap" ); // Divide size by sizeof(long) cos size is in bytes
 
 	index=0;
 	count=0;
@@ -923,8 +923,6 @@ void LoadSfxMapping( int world, int level )
 	sfx_anim_map[index-1] = 0;
 
 	JallocFree((UBYTE**)&filename);
-
-	// FIXME: COMMENTING OUT THIS LINE CAUSES A MEMORY LEAK! But it makes the game run :)
-//	JallocFree((UBYTE**)&buffer);
+	JallocFree((UBYTE**)&buffer);
 }
 

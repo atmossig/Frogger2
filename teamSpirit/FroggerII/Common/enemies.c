@@ -189,7 +189,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 	if(player[num].healthPoints != 0)
 	{
 		GTInit( &player[num].safe, 2 );
-		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
+//		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 
 		if (nme->reactiveNumber!=-1)
 		{
@@ -560,7 +560,7 @@ void UpdateSnapper( ENEMY *cur )
 			path->startFrame = actFrameCount;
 			path->endFrame = path->startFrame + (path->nodes[0].waitTime * waitScale);
 
-			cur->isSnapping = 1;
+			cur->isSnapping = 2;
 		}
 		break;
 
@@ -583,8 +583,8 @@ void UpdateSnapper( ENEMY *cur )
 		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 			break;
 
-		//AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
-		//AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
+		AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
+		AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
 
 		if( cur->nmeActor->effects & EF_LIGHTNING )
 		{

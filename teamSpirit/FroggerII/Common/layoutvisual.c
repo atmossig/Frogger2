@@ -571,6 +571,7 @@ void FreeAllGameLists()
 #ifdef PC_VERSION
 	StopSong( );
 	FreeSampleList();
+	if( sfx_anim_map ) JallocFree( (UBYTE **)sfx_anim_map );
 #endif
 
 	KillAllTriggers();
@@ -632,6 +633,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 #ifdef USE_AUDIO
 #ifdef PC_VERSION
 	LoadSfx(worldID);
+	LoadSfxMapping( worldID, levelID );
 #endif
 #endif
 

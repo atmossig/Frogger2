@@ -140,6 +140,9 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 		}
 		if(keepProportion)
 			actorAnim->morphTo = actorAnim->animTime = anim->animStart + proportion*(float)(anim->animEnd-anim->animStart);
+
+		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+			PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 48 );
 	}
 	else
 	{
@@ -264,46 +267,48 @@ void UpdateAnimations(ACTOR *actor)
 				actorAnim->animTime = actorAnim->anims[actorAnim->currentAnimation].animStart;
 
 
-			actorAnim->numberQueued--;
-			for(i = 0;i < ANIM_QUEUE_LENGTH - 1;i++)
+			if (--actorAnim->numberQueued)
 			{
-				actorAnim->queueAnimation[i] = actorAnim->queueAnimation[i + 1];
-				actorAnim->queueLoopAnimation[i] = actorAnim->queueLoopAnimation[i + 1];
-				actorAnim->queueAnimationSpeed[i] = actorAnim->queueAnimationSpeed[i + 1];
-				actorAnim->queueNumMorphFrames[i] = actorAnim->queueNumMorphFrames[i + 1];
-			}
-			actorAnim->queueAnimation[ANIM_QUEUE_LENGTH - 1] = -1;
-			actorAnim->queueLoopAnimation[ANIM_QUEUE_LENGTH - 1] = -1;
-			actorAnim->queueAnimationSpeed[ANIM_QUEUE_LENGTH - 1] = -1;
-			actorAnim->queueNumMorphFrames[i] = 0;
-		}
+				for(i = 0;i < ANIM_QUEUE_LENGTH - 1;i++)
+				{
+					actorAnim->queueAnimation[i] = actorAnim->queueAnimation[i + 1];
+					actorAnim->queueLoopAnimation[i] = actorAnim->queueLoopAnimation[i + 1];
+					actorAnim->queueAnimationSpeed[i] = actorAnim->queueAnimationSpeed[i + 1];
+					actorAnim->queueNumMorphFrames[i] = actorAnim->queueNumMorphFrames[i + 1];
+				}
 
-		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
-			PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
+				actorAnim->queueAnimation[ANIM_QUEUE_LENGTH - 1] = -1;
+				actorAnim->queueLoopAnimation[ANIM_QUEUE_LENGTH - 1] = -1;
+				actorAnim->queueAnimationSpeed[ANIM_QUEUE_LENGTH - 1] = -1;
+				actorAnim->queueNumMorphFrames[ANIM_QUEUE_LENGTH - 1] = 0;
+			}
+			else
+			{
+				*actorAnim->queueAnimation = -1;
+				*actorAnim->queueLoopAnimation = -1;
+				*actorAnim->queueAnimationSpeed = -1;
+				*actorAnim->queueNumMorphFrames = 0;
+			}
+			if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
+				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
+		}
 	}
 	else
 	{
-		int sound=0;
-
+		
 		if(anim->animEnd == anim->animStart)
-		{
-			actorAnim->animTime = anim->animEnd;
-			sound=1;
-		}
+			actorAnim->animTime = anim->animEnd;			
 		else if(actorAnim->animTime > anim->animEnd)
 		{
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
-			sound=1;
-		}
-		else if(actorAnim->animTime < anim->animStart)
-		{
-			actorAnim->animTime += (anim->animEnd - anim->animStart);
-			sound=1;
-		}
 
-		if( sound )
 			if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] != -1 )
 				PlaySample( actorAnim->sfxMapping[actorAnim->currentAnimation], &actor->pos, 500, 255, 128 );
+
+		}
+		else if(actorAnim->animTime < anim->animStart)
+			actorAnim->animTime += (anim->animEnd - anim->animStart);			
+		
 	}
 	if(actorAnim->numMorphFrames)
 	{
@@ -358,10 +363,7 @@ int *FindSfxMapping( unsigned long uid )
 	}
 
 	if( !sfx_anim_map[index] )
-	{
-		dprintf"Sfx map entry for actor %i not found!\n",uid));
 		return NULL;
-	}
 
 	return &sfx_anim_map[index+2];
 }

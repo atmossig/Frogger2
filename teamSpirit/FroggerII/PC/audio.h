@@ -57,9 +57,6 @@ enum
 	NUM_GENERIC_SFX,
 };
 
-// All Garden sfx - could this not be based on 100?
-// e.g. Have enum for each world/level, which starts right after NUM_GENERIC_SFX.
-// Depends how the samples are loaded and stored, I suppose. This seems a bit silly though
 enum
 {
 	GAR_MOWER = NUM_GENERIC_SFX,
