@@ -297,10 +297,11 @@ void FindToFromQKeys(MDX_QKEYFRAME *keys,short *from,short *to,float *interp,flo
 void TransformObject(MDX_OBJECT *obj, float time)
 {
 	MDX_VECTOR translation,scale;
-//	SPRITE	*sprite;
+	MDX_SPRITE	*sprite;
+	int i;
 	float	interp;
 	short	fromKey, toKey;
-//	short	xluVal;
+	short	xluVal;
 //	unsigned long wasHed;
 	MDX_QUATERNION	tempQuat;
 	float rotmat[4][4];
@@ -364,6 +365,48 @@ void TransformObject(MDX_OBJECT *obj, float time)
 		MatrixToQuaternion ((MDX_MATRIX *)matrixStack.stack[matrixStack.stackPosition],&(obj->attachedActor->qRot));
 	}
 	
+	if(obj->numSprites > 0)
+	{
+		for(i = 0; i < obj->numSprites; i++)
+		{
+			sprite = obj->sprites[i].sprite;
+
+			//MC - if (currentDrawActor2)
+			//	sprite->draw = currentDrawActor2->draw;					 
+						
+			if(sprite)
+			{
+				MDX_VECTOR tVect;
+				obj->sprites[i].sprite->scaleX = 2*((float)obj->sprites[i].sx * actorScale->vx * scale.vx);
+				obj->sprites[i].sprite->scaleY = 2*((float)obj->sprites[i].sy * actorScale->vy * scale.vy);
+
+				//MC - xluVal = ((int)(obj->xlu * xluOverride))/100;
+				//if(xluOverride <= 10)
+				//	xluVal = 0;
+				
+				xluVal = obj->xlu;
+
+				obj->sprites[i].sprite->a = xluVal;
+				sprite->offsetX = -16;
+				sprite->offsetY = -16;
+
+				/*
+					"TEMPORARY" SPRITE FIX (ahahaha..) - Dave
+
+					I'm not sure why this works; clearly the sprite's z-value is the
+					negative of what it should be. Where does this negative creep in? 
+				*/
+
+				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, -obj->sprites[i].z,
+												&tVect.vx, &tVect.vy, &tVect.vz);
+
+				sprite->pos.vx = tVect.vx*10;
+				sprite->pos.vy = tVect.vy*10;
+				sprite->pos.vz = tVect.vz*10;
+			}
+		}
+	}
+
 	MatrixSet (&obj->objMatrix.matrix,&matrixStack.stack[matrixStack.stackPosition]);
 
 	if ((obj->bBox) && CheckBoundingBox(obj->bBox,&obj->objMatrix))

@@ -1144,8 +1144,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sz = (tV0->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
 
-			cVal = fabs((m1x+m1z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,(m1x+m1z)*2.5);
+			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
+			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z*0.4;
@@ -1158,8 +1158,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sy = tV1->vy;
 			vTemp->sz = (tV1->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
-			cVal = fabs((m2x+m2z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,(m2x+m2z)*2.5);
+			cVal = 1;//fabs((m2x+m2z)*2.5);		
+			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m2x+m2z)*2);
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
 			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z*0.4;
@@ -1171,8 +1171,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			vTemp->sy = tV2->vy;
 			vTemp->sz = (tV2->vz) * 0.00025F;
 			vTemp->rhw = 1/vTemp->sz;
-			cVal = fabs((m3x+m3z)*2.5);		
-			vTemp->color = D3DRGBA(cVal,cVal,1,(m3x+m3z)*2.5);
+			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
+			vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m3x+m3z)*2);
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
@@ -1189,13 +1189,9 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
 			{
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
-				{
 					PushPolys(v,3,facesON,3,tex->surf);
-				}
 				else
-				{
 					Clip3DPolygon(v,tex->surf);
-				}
 			}
 		}
 		

@@ -48,6 +48,46 @@ void SpriteClip_Bottom(POLYCLIP *poly,D3DTLVERTEX *v0,D3DTLVERTEX *v1);
 
 int numSprites;
 
+void AddObjectsSpritesToSpriteList(MDX_OBJECT *obj,short flags)
+{
+	SPRITE *sprite;
+	int i;
+
+	if(obj->numSprites > 0)
+	{
+		for(i=0; i<obj->numSprites; i++)
+		{
+			sprite = AllocateSprites( 1 );
+
+			sprite->texture = (TextureType *)obj->sprites[i].textureID;
+			SetVectorSV(&sprite->pos,&zero);
+
+			if((obj->sprites[i].flags & SPRITE_DONE) == 0)
+				obj->sprites[i].flags |= SPRITE_DONE;
+
+			sprite->r = sprite->g = sprite->b = 255;
+			sprite->a = 128;
+			if(obj->xlu < 255)
+				sprite->flags = SPRITE_TRANSLUCENT;
+			else
+				sprite->flags = 0;
+
+			sprite->flags |= flags;
+
+			sprite->offsetX = -32 / 2;
+			sprite->offsetY = -32 / 2;
+
+			//AddSprite(sprite,NULL);
+			obj->sprites[i].sprite = (MDX_SPRITE *)sprite;
+		}
+	}
+
+	if(obj->children)
+		AddObjectsSpritesToSpriteList(obj->children,flags);
+
+	if(obj->next)
+		AddObjectsSpritesToSpriteList(obj->next,flags);
+}
 /*	--------------------------------------------------------------------------------
     Function		: PrintSprites
 	Parameters		: 
@@ -272,10 +312,11 @@ void PrintSprite(SPRITE *sprite)
 		return;
 
 	SetVector( &sc, (MDX_VECTOR *)&sprite->sc );
+	
+	tEntry = ((MDX_TEXENTRY *)sprite->texture);
 
 	if( sc.vz )
 	{
-		tEntry = ((MDX_TEXENTRY *)sprite->texture);
 		distx = disty = (FOV)/(sc.vz+DIST);
 		distx *= (sprite->scaleX/(64.0));
 		disty *= (sprite->scaleY/(64.0));

@@ -52,12 +52,18 @@ typedef struct
 
 }MDX_TEXTURE_ANIMATION;
 
-typedef struct TAG_MDX_SPRITE
+typedef struct
+{	
+	short	vx, vy;
+	short	vz, pad;
+} MDX_SVECTOR;
+
+typedef struct TAG_MDXSPRITE
 {
-	struct TAG_MDX_SPRITE *next,*prev;
+	struct TAGSPRITE *next,*prev;
 
 	MDX_TEXENTRY *texture;
-	MDX_VECTOR pos;
+	MDX_SVECTOR pos;
 	short scaleX;
 	short scaleY;
 	short flags;
@@ -65,16 +71,18 @@ typedef struct TAG_MDX_SPRITE
 	unsigned char red2,green2,blue2,alpha2;
 	char  offsetX;
 	char  offsetY;
-	MDX_SPRITE_ANIMATION anim;
-
-	char kill;
 
 	MDX_VECTOR sc;
-	float angle;
-	float angleInc;
+
+	char draw;
+
+	short angle;
+	short angleInc;
 	short arrayIndex;
 
 }MDX_SPRITE;
+
+
 
 typedef struct TAG_MDX_OBJECTSPRITE
 {

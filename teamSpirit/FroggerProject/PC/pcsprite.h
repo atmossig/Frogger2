@@ -38,6 +38,7 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color);
 void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h,DWORD colour);
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h, DWORD colour );
 void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, LPDIRECTDRAWSURFACE7 h, DWORD colour );
+//void AddObjectsSpritesToSpriteList(MDX_OBJECT *obj,short flags);
 
 
 // PC Sprite sorting stuff
