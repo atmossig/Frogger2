@@ -28,5 +28,6 @@ extern VECTOR	actorScale, parentScale;
 extern Vtx		*vtxPtr;
 extern short	xluFact;
 extern char		changeRenderMode;
+extern long		DIST;
 
 #endif

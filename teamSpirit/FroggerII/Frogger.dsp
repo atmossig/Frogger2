@@ -1000,6 +1000,14 @@ SOURCE=.\N64\Zbuffer.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\Pc\3DText.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\3DText.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\audio.c
 # End Source File
 # Begin Source File
@@ -1100,6 +1108,14 @@ SOURCE=.\Pc\texture.h
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\Editor\edcamera.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Editor\edcamera.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Editor\edcommand.c
 # End Source File
 # Begin Source File
@@ -1158,13 +1174,6 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project
