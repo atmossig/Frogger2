@@ -514,6 +514,8 @@ int main ( )
 		font = fontLoad("FONTL.FON");
 		fontSmall = fontLoad("FONTS.FON");
 
+		StartSound();//mmsfx
+
 		InitCam();
 		actorInitialise();
 		InitBackdrop ( "FROGGER2.RAW" );
@@ -521,7 +523,6 @@ int main ( )
 		CommonInit();
 
 
-		StartSound();//mmsfx
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
 
 
