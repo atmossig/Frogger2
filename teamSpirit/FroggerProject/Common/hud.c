@@ -521,8 +521,8 @@ void EnableHUD(void)
 {
 	int i;
 
-	if( screenshotEnable )
-		return;
+	//if( screenshotEnable )
+	//	return;
 
 	if( gameState.multi != SINGLEPLAYER )
 	{
@@ -1171,6 +1171,6 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	babySavedText = CreateAndAddTextOverlay(2048,110,"BABY SAVED",YES,255,0,0);
 	DisableTextOverlay(babySavedText);
 
-	if( screenshotEnable ) 
-		DisableHUD( );
+	//if( screenshotEnable ) 
+		//DisableHUD( );
 }
