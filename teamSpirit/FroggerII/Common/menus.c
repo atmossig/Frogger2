@@ -612,9 +612,7 @@ void RunPauseMenu()
 	lastbutton = button;
 
 	gameSpeed = pauseGameSpeed;
-	CameraLookAtFrog();
 	UpdateCameraPosition(0);
-	SlurpCamPosition(0);
 	gameSpeed = 0;
 			
 }
