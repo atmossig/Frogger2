@@ -778,7 +778,13 @@ void DrawGraphics()
 	PrintTextOverlays();
 	
 	if (editorOk)
+	{
+		DrawBatchedPolys();
+		BlankFrame();
+	
 		DrawEditor();
+		DrawBatchedPolys();
+	}
 
 
 	if( chatFlags && gameState.mode == GAME_MODE )
