@@ -494,7 +494,13 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			//	Sleep(speedKill);
 
 			if (actFrameCount>10)
-				DirectXFlip(); //DDrawFlip();
+			{
+				// THIS SHOULD BE DETECTED AUTOMATICALLY
+				if( rFlipOK )
+					DDrawFlip();
+				else
+					DirectXFlip();
+			}
 			
 			DDrawClearSurface(RENDER_SRF, 0, DDBLT_COLORFILL);
 			DDrawClearSurface(ZBUFFER_SRF, -1, DDBLT_DEPTHFILL);
