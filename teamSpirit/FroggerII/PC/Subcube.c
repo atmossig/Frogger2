@@ -19,12 +19,14 @@
 void TransformObject(OBJECT *obj, float time);
 void PCDrawObject(OBJECT *obj, float m[4][4]);
 
-void PCPrepareObject(OBJECT *obj, float m[4][4]);
+void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 void PCRenderObject(OBJECT *obj);
+void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 long TestDistanceFromFrog = 0;
+float hedRotAmt = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +39,8 @@ float vertClip = 550;
 
 long DIST=0;
 long FOV=512;
+
+#define IsNotClipped(vTemp2) (((vTemp2->v[Z]+DIST)>nearClip) && ((noClipping) || (((vTemp2->v[Z]+DIST)<farClip) && ((vTemp2->v[X])>-horizClip) && ((vTemp2->v[X])<horizClip) && ((vTemp2->v[Y])>-vertClip) && ((vTemp2->v[Y])<vertClip))))
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,84 +290,26 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	Info			: 
 */
 
-void DrawObject(OBJECT *obj, Gfx *drawList, int skinned)
+void DrawObject(OBJECT *obj, Gfx *drawList, int skinned, MESH *masterMesh)
 {
-//	if(obj->textureAnim)
-//		AnimateTexture(obj->textureAnim,obj->drawList);
-
-/*	if(staticObjectMtx == NULL)
+	if (skinned)
 	{
-		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)&obj->objMatrix);
-
-	    gSPMatrix(glistp++, 
-		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
+		PCPrepareSkinnedObject(obj, masterMesh,  obj->objMatrix.matrix);
 	}
 	else
 	{
-		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)staticObjectMtx);
-
-	    gSPMatrix(glistp++, 
-		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-	}
-	
-	SetupRenderModeForObject(obj);
-
-	if(drawList)
-	{
-		gSPDisplayList(glistp++, drawList);
-	}
-	else if(obj->mesh->numFaces)
-	{
-		if(obj->flags & OBJECT_FLAGS_GOURAUD_SHADED)
+		if (obj->mesh)
 		{
-			if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-			{
-				gSPSetGeometryMode(glistp++, G_LIGHTING);
-			}
-			else
-			{
-				gSPClearGeometryMode(glistp++, G_LIGHTING);
-			}
-			if(obj->flags & OBJECT_FLAGS_PHONG)
-				WriteObjectDisplayListGouraudPhong(obj);
-			else
-				WriteObjectDisplayListGouraud(obj);
-		}
-		else
-		{
-			if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-			{
-				gSPSetGeometryMode(glistp++, G_LIGHTING);
-			}
-			else
-			{
-				gSPClearGeometryMode(glistp++, G_LIGHTING);
-			}
-			WriteObjectDisplayListFlat(obj);
+			PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+			PCRenderObject(obj);
 		}
 	}
-
-	gSPPopMatrix(glistp++, G_MTX_MODELVIEW);
-*/
-
-	if (obj->mesh)
-	{
-	//	PCDrawObject(obj, obj->objMatrix.matrix);
-
-		PCPrepareObject(obj, obj->objMatrix.matrix);
-		PCRenderObject(obj);
-	}
-
-	if(skinned)
-		return;
 
 	if(obj->children)
-		DrawObject(obj->children, obj->children->drawList, skinned);
+		DrawObject(obj->children, obj->children->drawList, skinned, masterMesh);
 
 	if(obj->next)
-		DrawObject(obj->next, obj->next->drawList, skinned);
+		DrawObject(obj->next, obj->next->drawList, skinned, masterMesh);
 }
 
 
@@ -920,6 +866,15 @@ void TransformObject(OBJECT *obj, float time)
 		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
 	}
 
+	if (strncmp(obj->name,"fghed",5) == 0)
+	{
+		float rotmat2[4][4];
+		QUATERNION quat, rot = {0,1,0,hedRotAmt};
+		GetQuaternionFromRotation (&quat,&rot);
+		QuaternionToMatrix(&quat, rotmat2);
+		guMtxCatF(rotmat,rotmat2,rotmat);
+	}
+
 	rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];
 	rotmat[3][1] = translation.v[Y] * actorScale->v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
 	rotmat[3][2] = translation.v[Z] * actorScale->v[Z] * parentScaleStack[parentScaleStackLevel].v[Z];
@@ -1076,10 +1031,13 @@ void DrawActor(ACTOR *actor)
 	}
 	*/
 
-	if (objectC->numVtx)
-		DrawObject(objectC->object, objectC->object->drawList, TRUE);
+	if (objectC->vtxBuf)
+	{
+		DrawObject(objectC->object, objectC->object->drawList, TRUE, objectC->object->mesh);
+		PCRenderObject(objectC->object);
+	}
 	else
-		DrawObject(objectC->object, objectC->object->drawList, FALSE);
+		DrawObject(objectC->object, objectC->object->drawList, FALSE, objectC->object->mesh);
 
 	//DrawObject(objectC->object, objectC->object->drawList, FALSE);
 }
@@ -1363,10 +1321,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 
 
 
-
-
-
-void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
+/*
+void PCPrepareObject(OBJECT *obj, MESH *mesh, float m[4][4])
 {
 	float c[4][4];
 	float f[4][4];
@@ -1374,81 +1330,22 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 	VECTOR *vTemp2;
 	unsigned long i;
 
-	in = obj->mesh->vertices;
-
+	in = mesh->vertices;
+	vTemp2 = tV;
+	
 	guLookAtF(c,
 			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
 			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
-			//stx,sty,stz,
-			//ctx,cty,ctz,
-			//0,1,0);
 			camVect.v[X],camVect.v[Y],camVect.v[Z]);
 	
 	guMtxCatF(m,c,f);
 	
-	
-	for (i=0; i<obj->mesh->numVertices; i++)
+	for (i=0; i<mesh->numVertices; i++)
 	{
-		if (xl<0.99)
-		{
-			if (player[0].frogState & FROGSTATUS_ISDEAD)
-			{
-				player[0].lives = 5;
-				if (frog[0]->action.deathBy & DEATHBY_DROWNING)
-				{
-					float val;
-					VECTOR me,me2;
-					me.v[X] = in->v[X]*sclW;
-					me.v[Y] = in->v[Y]*sclW;
-					me.v[Z] = in->v[Z]*sclW;
+		guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
+		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
 
-					guMtxXFMF(m,me.v[X],me.v[Y],me.v[Z],
-								&me2.v[0],&me2.v[1],&me2.v[2]); 
-					
-					val = 1+DistanceBetweenPoints2DSquared(&destTile[0]->centre,&me2);
-					if (val<thresh)
-						val = thresh;
-					val = rval / (val/rval2);
-
-					val = (1+sinf(val*fmody2+frameCount*fmody)) * val * svall;
-					if (frog[0]->action.dead>sofs)
-						val *= ((frog[0]->action.dead-sofs) / 75.0);
-					else
-						val*=0;
-
-					val += (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
-					
-					mV[i] = (2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2)))*valWater;
-
-					guMtxXFMF(f,in->v[X],in->v[Y] - val, in->v[Z],
-
-					&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-				}
-			}
-			else
-			{
-				mV[i] =(	(2+(sin(in->v[Z]*sinSpeedVert+frameCount*sinSpeedWater)+cos(in->v[X]*sinSpeedVert2+frameCount*sinSpeedWater2))) + 
-					(2+(sin((in->v[Z]+50)*sinSpeedVert+frameCount*sinSpeedWater)+cos((in->v[X]+50)*sinSpeedVert2+frameCount*sinSpeedWater2)))
-					)*valWater/2;
-				guMtxXFMF(f,in->v[X],in->v[Y]-
-				mV[i]
-				,in->v[Z],
-				&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-			}
-		}
-		else
-		{
-			guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
-			&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
-		}
-	
-		if (((vTemp2->v[Z]+DIST)>nearClip) &&
-			((noClipping) ||   
-			(((vTemp2->v[Z]+DIST)<farClip) &&
-			((vTemp2->v[X])>-horizClip) &&
-			((vTemp2->v[X])<horizClip) &&
-			((vTemp2->v[Y])>-vertClip) &&
-			((vTemp2->v[Y])<vertClip))))
+		if (IsNotClipped(vTemp2))
 		{
 			float oozd = -1/(vTemp2->v[Z]+DIST);
 			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
@@ -1459,7 +1356,51 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 
 		vTemp2++;
 		in++;
-		mV[i]*=scVC;
+	}
+}
+	*/
+
+
+void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
+{
+	float c[4][4];
+	float f[4][4];
+	VECTOR *in;
+	VECTOR *vTemp2;
+	unsigned long i,j;
+	guLookAtF(c,
+			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
+			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
+			camVect.v[X],camVect.v[Y],camVect.v[Z]);
+	
+	guMtxCatF(m,c,f);
+
+	// Go thru the affected vertices, and xfm the corresponding vertices
+	for (i=0; i<obj->numVerts; i++)
+	{
+		j = ((unsigned long *)(obj->effectedVerts))[i];
+		if (j==0)
+			j=0;
+		// Setup Our pointers
+		vTemp2 = &tV[j];
+		in = &mesh->vertices[j];
+
+		// Transform by our matrix
+		guMtxXFMF(f,in->v[X],in->v[Y],in->v[Z],
+		&(vTemp2->v[X]),&(vTemp2->v[Y]),&(vTemp2->v[Z]));
+
+		// Transform to screen space
+		if (IsNotClipped(vTemp2))
+		{
+			float oozd = -1/(vTemp2->v[Z]+DIST);
+			vTemp2->v[X] = 320+((vTemp2->v[X] * FOV) * oozd);
+			vTemp2->v[Y] = 220+((vTemp2->v[Y] * FOV) * oozd);
+		}
+		else
+		{
+			vTemp2->v[Z] = 0;
+		}
+
 	}
 }
 
@@ -1471,7 +1412,28 @@ void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4])
 
 
 
-void PCPrepareObject (OBJECT *obj, float m[4][4])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void PCPrepareObject (OBJECT *obj, MESH *me, float m[4][4])
 {
 	float c[4][4];
 	float f[4][4];

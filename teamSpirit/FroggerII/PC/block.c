@@ -37,6 +37,7 @@ char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
+extern float hedRotAmt;
 
 char outputMessageBuffer[256];
 
@@ -248,11 +249,17 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 		if(appActive)
 		{
-			if (KEYPRESS(DIK_F1))
+		/*	if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2;
 
 			if (KEYPRESS(DIK_F2))
-				camDist.v[1]-=2;
+				camDist.v[1]-=2;*/
+
+			if (KEYPRESS(DIK_F1))
+				hedRotAmt+=0.02;
+
+			if (KEYPRESS(DIK_F2))
+				hedRotAmt-=0.02;
 
 			if (KEYPRESS(DIK_F3))
 				camDist.v[2]+=2;

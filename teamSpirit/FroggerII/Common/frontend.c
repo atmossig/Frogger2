@@ -115,5 +115,5 @@ void GameLoop(void)
 	i = 4;
 	while (i--)
 		if (player[i].inputPause>0)
-			player[i].inputPause--;
+			player[i].inputPause=0;
 }

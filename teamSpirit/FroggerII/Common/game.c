@@ -762,6 +762,10 @@ void RunGameLoop (void)
 	VECTOR ambpos = { -75,0,-375 };
 	static int ambrad = 10;
 	
+	// Setup for frogger point of interest
+	pOIDistance = 10000.0;
+	pointOfInterest = NULL;
+
 	if(frameCount == 1)
 	{	
 		//StopDrawing("game");

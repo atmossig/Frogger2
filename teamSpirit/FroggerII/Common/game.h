@@ -35,6 +35,9 @@ extern struct gameStateStruct gameState;
 
 extern unsigned long INPUT_POLLPAUSE;
 
+extern VECTOR *pointOfInterest;
+extern float	pOIDistance;
+
 //extern long timeMin,timeSec;
 //extern long score,lives;
 extern long gameIsOver;
