@@ -101,7 +101,6 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);
 void CalcEnemyNormalInterps(ENEMY *nme);
 ENEMY *GetEnemyFromUID (long uid);
-void PickupBabyFrogMulti( ACTOR2 *baby);//, int pl );
 
 //------------------------------------------------------------------------------------------------
 

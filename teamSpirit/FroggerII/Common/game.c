@@ -492,25 +492,6 @@ long playMode = NORMAL_PMODE;
 long carryOnBabies = 1;
 long clearTiles = 0;
 
-void KillMPFrog(int num)
-{
-	int j;
-	for (j=0; j<NUM_FROGS; j++)
-	{
-		if (IsPointVisible(&frog[j]->actor->pos))
-		{
-			TeleportActorToTile(frog[num],currTile[j],num);
-			destTile[num] = currTile[j];
-		}
-	}
-
-	frog[num]->action.stun = 50;
-	frog[num]->action.safe = 80;
-	
-	if (frog[num]->action.healthPoints > 0)
-		sprHeart[num*3+(--frog[num]->action.healthPoints)]->draw = 0;
-}
-
 SPRITEOVERLAY *atari,*konami,*flogo[10];
 float sideSwaySpeed = 0.005,sideSwayAmt=50;
 
@@ -816,13 +797,21 @@ void RunGameLoop (void)
 				frog[i]->actor->pos.v[Z] = frog[frog[i]->action.frogon]->actor->pos.v[Z]+cosf(frameCount/27.0)*5;
 			}
 		}
-
-		if (NUM_FROGS != 1)
-		if ((frog[i]->action.safe == 0) && (frameCount > 20))
-		if (!IsPointVisible(&frog[i]->actor->pos))
-			KillMPFrog(i);
 	}
 	
+	if( gameState.multi != SINGLEPLAYER )
+	{
+		switch( player[0].worldNum )
+		{
+		case WORLDID_GARDEN:
+			UpdateRace( );
+			break;
+		case WORLDID_LABORATORY:
+			UpdateCTF( );
+			break;
+		}
+	}
+
 	UpDateOnScreenInfo();
 
 	for (i=0; i<NUM_FROGS; i++)

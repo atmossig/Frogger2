@@ -347,9 +347,6 @@ void RunLevelSelect()
 
 			gameState.mode = INGAME_MODE;
 				
-			if(gameState.multi != MULTIREMOTE)
-				gameState.multi = SINGLEPLAYER;
-
 			frameCount = 0;
 			lastbutton = 0;
 			return;

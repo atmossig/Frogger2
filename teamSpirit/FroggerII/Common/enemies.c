@@ -107,18 +107,18 @@ void DoEnemyCollision( ENEMY *cur )
 				(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
-					PickupBabyFrogMulti( cur->nmeActor );
-
-				KillMPFrog(i);
+					PickupBabyFrogMulti( cur, i );
+				else
+					KillMPFrog(i);
 			}
 			else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
 					(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 					!(player[i].frogState & FROGSTATUS_ISFLOATING))
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
-					PickupBabyFrogMulti( cur->nmeActor );
-
-				KillMPFrog(i);
+					PickupBabyFrogMulti( cur, i );
+				else
+					KillMPFrog(i);
 			}
 	}
 }
@@ -1543,24 +1543,3 @@ void CalcEnemyNormalInterps(ENEMY *nme)
 	nme->deltaNormal.v[Z] /= numSteps;
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: PickupBabyFrogMulti
-	Purpose			: Player has collected baby frog in a multiplayer game
-	Parameters		: ACTOR2
-	Returns			: void
-	Info			:
-*/
-void PickupBabyFrogMulti( ENEMY *baby, int pl )
-{
-	int i;
-
-	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
-
-	if( i==numBabies ) return;
-
-	lastBabySaved = i;
-
-	// For different multiplayer modes do different things:
-		// CTF - transport baby back to frogger start point
-}

@@ -313,6 +313,14 @@ SOURCE=.\Common\menus.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\multi.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\multi.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\overlays.c
 # End Source File
 # Begin Source File

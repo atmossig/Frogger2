@@ -73,6 +73,7 @@
 #include "platform.h"
 #include "cam.h"
 #include "game.h"
+#include "multi.h"
 #include "objects.h"
 #include "texture.h"
 #include "collect.h"
