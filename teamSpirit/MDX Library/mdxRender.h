@@ -60,6 +60,7 @@ void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry);
 extern unsigned long noClipping;
 extern MDX_TEXENTRY *sheenTex;
 extern MDX_VECTOR sheenEye;
+extern unsigned long wrapCoords;
 
 #ifdef __cplusplus
 }

@@ -74,6 +74,19 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 	return 1;
 }
 
+void KillObjectSprites(MDX_OBJECT *me)
+{
+	int i;
+	
+	for (i=0; i<me->numSprites; i++)
+		me->sprites[i].sprite->draw = 0;
+	
+	if (me->next)
+		KillObjectSprites(me->next);
+	if (me->children)
+		KillObjectSprites(me->children);
+}
+
 void ActorListDraw(void)
 {
 	MDX_ACTOR *cur = actorList;	
@@ -110,9 +123,21 @@ void ActorListDraw(void)
 			{	
 				XformActor(cur,0);		
 				if (cur->draw)
+				{
+					if (cur->flags & ACTOR_WRAPTC)
+						wrapCoords = 1;
+					else
+						wrapCoords = 0;
 					DrawActor(cur);
+				}
 			}
+			else
+				KillObjectSprites(cur->objectController->object);
+			
 		}
+		else
+			KillObjectSprites(cur->objectController->object);
+			
 
 		cur = cur->next;
 	}
@@ -128,7 +153,7 @@ void DrawActor(MDX_ACTOR *actor)
 	if(actor->visible == FALSE || !objectC)
 		return;
 
-	// xluOverride is used in the sprite engine, and xl is used within the main polygon engine.
+	// xluOverride is used in the sprite engine, and globalXLU is used within the main polygon engine.
 	
 	globalXLU = (float)actor->xluOverride/100.0F;
 
@@ -214,8 +239,6 @@ void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed)
 
 		if (StartAnim)
 			StartAnim(actor);
-//		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
-//			PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 	}
 	else
 	{
@@ -263,9 +286,9 @@ void UpdateAnims(MDX_ACTOR *actor)
 
 		if(actorAnim->numberQueued)
 		{
-			actorAnim->currentAnimation = actorAnim->queueAnimation[0];//actorAnim;
-			actorAnim->loopAnimation = actorAnim->queueLoopAnimation[0];//loop;
-			actorAnim->animationSpeed = actorAnim->queueAnimationSpeed[0];//speed;
+			actorAnim->currentAnimation = actorAnim->queueAnimation[0];
+			actorAnim->loopAnimation = actorAnim->queueLoopAnimation[0];
+			actorAnim->animationSpeed = actorAnim->queueAnimationSpeed[0];
 			
 			if(actorAnim->animationSpeed < 0)
 				actorAnim->animTime = actorAnim->anims[actorAnim->currentAnimation].animEnd;
@@ -294,9 +317,7 @@ void UpdateAnims(MDX_ACTOR *actor)
 			}
 
 			if (StartAnim)
-				StartAnim(actor);
-			//if( actorAnim->sfxMapping )
-			//	PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
+				StartAnim(actor);		
 		}
 	}
 	else
@@ -306,12 +327,11 @@ void UpdateAnims(MDX_ACTOR *actor)
 			actorAnim->animTime = anim->animEnd;			
 		else if(actorAnim->animTime > anim->animEnd)
 		{
-			actorAnim->animTime -= (anim->animEnd - anim->animStart);
+			while (actorAnim->animTime > anim->animEnd)
+				actorAnim->animTime -= (anim->animEnd - anim->animStart);
 
 			if (StartAnim)
 				StartAnim(actor);
-//			if( actorAnim->sfxMapping )
-//				PlaySfxMappedSample( actor, 500, SAMPLE_VOLUME, -1/*128*/ );
 		}
 		else if(actorAnim->animTime < anim->animStart)
 			actorAnim->animTime += (anim->animEnd - anim->animStart);			
@@ -780,6 +800,8 @@ MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 	// Transform object
 	XformActor(t,1);
 	
+	t->flags = ACTOR_NOFLAGS;
+		
 	CalculateTrueCentreAndRadius(t);
 
 	return t;

@@ -243,7 +243,7 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 			c = 26+26+9;
 			
 	}
-
+/*
 	if (charHilite)
 	{
 		if ((c==toHilite) || (c==toHilite2)|| (c==toHilite3))
@@ -254,7 +254,7 @@ long DrawFontCharAtLoc(long x,long y,char c,unsigned long color, MDX_FONT *font,
 			color = D3DRGB(r*cR,g*cG,b*cB) | (color & 0xff000000);
 		}
 	}
-
+*/
 	m.left = x;
 	m.top = y;
 	m.bottom = y+(32*scale)*(font->dim/256.0);

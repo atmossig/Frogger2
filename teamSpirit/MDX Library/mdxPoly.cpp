@@ -1153,6 +1153,9 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 
 		pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
 
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+
+
 	}
 /*	else
 	{
@@ -1275,6 +1278,7 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
 	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 		pDirect3DDevice->SetTexture(0,NULL);
 	}	
 }
@@ -1359,6 +1363,7 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 		if (fogging)
 			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_FOGENABLE,TRUE);
 			
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //		pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
@@ -1443,6 +1448,7 @@ void DrawTexturedRectRotated(float x, float y, float width, float height, D3DCOL
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 //	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->SetTexture(0,NULL);
 }
@@ -2010,6 +2016,7 @@ void DrawAllFrames(void)
 	D3DSetupRenderstates(noZRS);
 	D3DSetupRenderstates(cullNoneRS);
 	DrawBatchedPolys();	
+	D3DSetupRenderstates(cullCWRS);
 	
 	D3DSetupRenderstates(normalZRS);
 	D3DSetupRenderstates(normalAlphaCmpRS);		

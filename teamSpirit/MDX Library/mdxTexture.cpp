@@ -625,9 +625,11 @@ void ShowTextures(void)
 	r.top = 0;
 	r.right = rXRes - 1;
 	r.bottom = rYRes - 1;
-	
+
+	BeginDraw();
 	DrawTexturedRect(r,D3DRGBA(0,0,0,0.8),NULL,0,0,1,1);
-	
+	EndDraw();
+
 	// Draw the textures
 	r.left = 32;
 	r.top = 32;
@@ -643,7 +645,11 @@ void ShowTextures(void)
 		while (me && (r.right < rXRes - 32))
 		{
 			if (me->type != TEXTURE_NOTEXTURE)	
+			{
+				BeginDraw();
 				DrawTexturedRect(r,D3DRGB(1,1,1),me->surf,0,0,1,1);
+				EndDraw();
+			}
 			else
 				surface[RENDER_SRF]->Blt(&r, me->surf, NULL, DDBLT_WAIT, NULL);
 				//DrawTexturedRect(r,D3DRGB(0,1,0),NULL,0,0,1,1);
@@ -655,7 +661,6 @@ void ShowTextures(void)
 		r.bottom += 85;
 	}
 
-	EndDraw();
 			
 	HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 	if ((res == DD_OK))
@@ -727,7 +732,6 @@ void ShowTextures(void)
 		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
 	}
 	
-	BeginDraw();
 }
 
 #ifdef __cplusplus

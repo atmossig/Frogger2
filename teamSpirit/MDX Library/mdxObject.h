@@ -254,10 +254,10 @@ typedef struct
 #define OBJECT_BASE "objects\\"
 #define MAX_OBJECT_BANKS 5
 
-#define OBJECT_FLAGS_GOURAUD_SHADED			   	(1<<0)		// 1
+#define OBJECT_FLAGS_UNUSED					   	(1<<0)		// 1
 #define OBJECT_FLAGS_XLU					   	(1<<1)		// 2
-#define OBJECT_FLAGS_TRANSPARENT			   	(1<<2)		// 4
-#define OBJECT_FLAGS_PRELIT					   	(1<<3)		// 8
+#define OBJECT_FLAGS_UNUSED1				   	(1<<2)		// 4
+#define OBJECT_FLAGS_UNUSED2				   	(1<<3)		// 8
 #define OBJECT_FLAGS_SHEEN					   	(1<<4)		// 16
 #define OBJECT_FLAGS_MODGE					   	(1<<5)		// 32
 #define OBJECT_FLAGS_ADDITIVE				   	(1<<6)		// 64
@@ -265,7 +265,7 @@ typedef struct
 #define OBJECT_FLAGS_PHONG					   	(1<<8)		// 256
 #define OBJECT_FLAGS_FADEOUT				   	(1<<9)		// 512
 #define OBJECT_FLAGS_CARTOON				   	(1<<10)		// 1024
-#define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)		// 2048
+#define OBJECT_FLAGS_UNUSED3				   	(1<<11)		// 2048
 #define OBJECT_FLAGS_FLATSHADOW				   	(1<<12)		// 4096
 #define OBJECT_FLAGS_SUBDIVIDED				   	(1<<13)		// 8192
 #define OBJECT_FLAGS_GLOW					  	(1<<14)		// 16384

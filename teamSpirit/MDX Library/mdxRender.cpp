@@ -135,7 +135,9 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 		case OUTCODE_LEFT:
 			segLen = cx0-v0->sx;
 			totalLen = v1->sx-v0->sx;
+			
 			vt = segLen/totalLen;
+			
 			a1 = RGBA_GETALPHA(v0->color);
 			r1 = RGBA_GETRED(v0->color);
 			g1 = RGBA_GETGREEN(v0->color);
@@ -145,7 +147,9 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 			r2 = RGBA_GETRED(v1->color);
 			g2 = RGBA_GETGREEN(v1->color);
 			b2 = RGBA_GETBLUE(v1->color);
+			
 			vOut->sx = cx0;
+
 			vOut->sy = v0->sy+((v1->sy-v0->sy)*vt);
 			break;
 		case OUTCODE_RIGHT:
@@ -210,16 +214,19 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 	vOut->color = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
 
 	a1 = RGBA_GETALPHA(v0->specular);
-	r1 = RGBA_GETRED(v0->specular);
-	g1 = RGBA_GETGREEN(v0->specular);
-	b1 = RGBA_GETBLUE(v0->specular);
+// Not required unless we have some specular values!
+//	r1 = RGBA_GETRED(v0->specular);
+//	g1 = RGBA_GETGREEN(v0->specular);
+//	b1 = RGBA_GETBLUE(v0->specular);
 
 	a2 = RGBA_GETALPHA(v1->specular);
-	r2 = RGBA_GETRED(v1->specular);
-	g2 = RGBA_GETGREEN(v1->specular);
-	b2 = RGBA_GETBLUE(v1->specular);
 
-	vOut->specular = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
+// Not required unless we have some specular values!
+//	r2 = RGBA_GETRED(v1->specular);
+//	g2 = RGBA_GETGREEN(v1->specular);
+//	b2 = RGBA_GETBLUE(v1->specular);
+
+	vOut->specular = RGBA_MAKE (0,0,0,(long)(a1+(a2-a1)*vt));
 
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
@@ -411,7 +418,7 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 		
 			vTemp2->vx = halfWidth + ((*(g)*in->vx)+(*(g+4)*in->vy)+(*(g+8)*in->vz)+*(g+12))*oozd;
-			vTemp2->vy = halfHeight + ((*(g+1)*in->vx)+(*(g+4+1)*in->vy)+(*(g+8+1)*in->vz)+*(g+12+1))*oozd;		
+			vTemp2->vy = halfHeight + ((*(g+1)*in->vx)+(*(g+4+1)*in->vy)+(*(g+8+1)*in->vz)+*(g+12+1))*oozd;
 		}
 		else
 			vTemp2->vz = 0;
@@ -752,6 +759,7 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 	float a1,b1,c1,d1;
 	float a2,b2,c2,d2,tFog;
 	float nDIST,nNear,nFar;
+	float frange;
 
 	a0 = vMatrix.matrix[0][0];
 	a1 = vMatrix.matrix[0][1];
@@ -776,32 +784,38 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 		in = me->vertices;
 		vTemp2 = me->xfmVert;
 		tFace = me->faceIndex;
-	
+		frange = 0xff*fogRange;	
+
 		for (i=0,j=me->numFaces*3; j>0; i++,j--)
 		{
 			in = &me->vertices[*tFace];
 			
-			vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
-			vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
 			vTemp2->sz = (a2*in->vx)+(b2*in->vy)+(c2*in->vz)+d2;
 
 			if (((vTemp2->sz+DIST)>nearClip) &&
 			(((vTemp2->sz+DIST)<farClip)))
 			{
+				vTemp2->sx = (a0*in->vx)+(b0*in->vy)+(c0*in->vz)+d0;
+				vTemp2->sy = (a1*in->vx)+(b1*in->vy)+(c1*in->vz)+d1;
+			
 				oozd = nFOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 
 				vTemp2->sx = halfWidth+(vTemp2->sx * oozd);
 				vTemp2->sy = halfHeight+(vTemp2->sy * oozd);
 				
-				tFog = FOG(vTemp2->sz);
-
-				if (tFog>1) tFog = 1;
-				if (tFog<0) tFog = 0;
+				tFog = 0;
+				
+				if (vTemp2->sz>fogStart)
+				{
+					tFog = (0xff-(vTemp2->sz-fogStart)*frange) ;
+					if (tFog>0xff)
+						tFog = 0xff;
+				}
+					
 	
-				vTemp2->specular = FOGVAL(tFog);
+				vTemp2->specular = ((long)tFog)<<24;
 				
 				vTemp2->sz *= 0.00025F;
-//				vTemp2->rhw = 1;			
 			}
 			else
 				vTemp2->sz = 0;
@@ -1053,11 +1067,13 @@ void DrawLandscape3(MDX_LANDSCAPE *me)
 
 }
 
+unsigned long wrapCoords = 0;
+
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 {
 	SaveFrame;
 
-	if (obj->flags & OBJECT_FLAGS_MODGE)
+	if (obj->flags & OBJECT_FLAGS_MODGE || wrapCoords)
 		SwapFrame(MA_FRAME_WRAP);
 
 	if (obj->flags & OBJECT_FLAGS_XLU)
