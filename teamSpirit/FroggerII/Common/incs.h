@@ -71,6 +71,7 @@
 #include "frogmove.h"
 #include "cam.h"
 #include "tongue.h"
+#include "event.h"
 
 #ifndef PC_VERSION
 #include "develop.h"

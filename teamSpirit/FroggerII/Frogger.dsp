@@ -182,6 +182,14 @@ SOURCE=.\Common\enemies.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\event.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\event.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\frogger.c
 # End Source File
 # Begin Source File
