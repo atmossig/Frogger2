@@ -1115,7 +1115,7 @@ void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short 
 */
 void ProcessAttachedEffects( void *entity, int type )
 {
-	long r;
+	float r;
 	VECTOR rPos, up, normal;
 	SPECFX *fx = NULL;
 	float fxDist;
@@ -1152,121 +1152,120 @@ void ProcessAttachedEffects( void *entity, int type )
 
 	fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos);
 
-	if(fxDist < ACTOR_DRAWDISTANCEOUTER)
+	if( fxDist < ACTOR_DRAWDISTANCEOUTER && actFrameCount > act->fxCount )
 	{
-		// For timings value1 has to round down to a non-zero integer
-		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 5;
+		// Restart effect timer
+		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 0.8;
 		else if( (int)act->value1 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
-				r = Random(act->value1)+1;
+				r = 60/(Random((int)act->value1)+1);
 			else
-				r = act->value1;
+				r = 60/act->value1;
 		}
-		else r = 10;
+		else r = 60;
 
-		if( !(actFrameCount%r) )
+		act->fxCount = actFrameCount + r;
+
+		if( act->effects & EF_RIPPLE_RINGS )
 		{
-			if( act->effects & EF_RIPPLE_RINGS )
-			{
-				SetVector( &rPos, &act->actor->pos );
-				rPos.v[Y] = tile->centre.v[Y];
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
-				else
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
+			SetVector( &rPos, &act->actor->pos );
+			rPos.v[Y] = tile->centre.v[Y];
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 10, 0.3, 0.1, 0.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.1, 0.05, 0.5 );
+			else
+				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &normal, 20, 0.2, 0.1, 0.5 );
 
-				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_SMOKE_STATIC )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 1.5, 0, 1.5 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.2, 0, 1.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.8, 0, 1.5 );
+			SetAttachedFXColour( fx, act->effects );
+		}
+		if( act->effects & EF_SMOKE_STATIC )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 1.5, 0, 1.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.2, 0, 1.5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &act->actor->pos, &normal, 64, 0.8, 0, 1.5 );
 
-				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_SMOKE_GROWS )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.5, 0, 1.5 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, 0, 1.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.8, 0, 1.5 );
+			SetAttachedFXColour( fx, act->effects );
+		}
+		if( act->effects & EF_SMOKE_GROWS )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.5, 0, 1.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, 0, 1.5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.8, 0, 1.5 );
 
-				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_SPARKBURST )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 4, 0, 5 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.5, 0, 5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2, 0, 5 );
+			SetAttachedFXColour( fx, act->effects );
+		}
+		if( act->effects & EF_SPARKBURST )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 4, 0, 5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.5, 0, 5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2, 0, 5 );
 
-				SetVector( &fx->rebound->point, &tile->centre );
-				SetVector( &fx->rebound->point, &tile->normal );
-				fx->gravity = act->radius;
+			SetVector( &fx->rebound->point, &tile->centre );
+			SetVector( &fx->rebound->point, &tile->normal );
+			fx->gravity = act->radius;
 
-				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_SMOKEBURST )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 5, 0, 1.7 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.6, 0, 1.7 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 2, 0, 1.7 );
+			SetAttachedFXColour( fx, act->effects );
+		}
+		if( act->effects & EF_SMOKEBURST )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 5, 0, 1.7 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 0.6, 0, 1.7 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &act->actor->pos, &normal, 50, 2, 0, 1.7 );
 
-				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_FIERYSMOKE )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 4, 0, 2.5 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1, 0, 2.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2.5, 0, 2.5 );
+			SetAttachedFXColour( fx, act->effects );
+		}
+		if( act->effects & EF_FIERYSMOKE )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 4, 0, 2.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1, 0, 2.5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2.5, 0, 2.5 );
 
 //				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_FLAMES )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 0.7 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 0.7 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 0.7 );
+		}
+		if( act->effects & EF_FLAMES )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 0.7 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 0.7 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 0.7 );
 
-				SetAttachedFXColour( fx, act->effects );
-			}
-			if( act->effects & EF_BUBBLES )
-			{
-				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 1.5, 0, 0.5 );
-				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.3, 0, 0.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.7, 0, 0.5 );
+			SetAttachedFXColour( fx, act->effects );
+		}
+		if( act->effects & EF_BUBBLES )
+		{
+			if( act->effects & EF_FAST )
+				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 1.5, 0, 0.5 );
+			else if( act->effects & EF_SLOW )
+				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.3, 0, 0.5 );
+			else // EF_MEDIUM
+				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.7, 0, 0.5 );
 
-				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-				SetVector( &up, &path->nodes[0].worldTile->normal );
-				SetVector( &fx->rebound->normal, &up );
-				ScaleVector( &up, act->radius );
-				AddVector( &fx->rebound->point, &act->actor->pos, &up );
+			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+			SetVector( &up, &path->nodes[0].worldTile->normal );
+			SetVector( &fx->rebound->normal, &up );
+			ScaleVector( &up, act->radius );
+			AddVector( &fx->rebound->point, &act->actor->pos, &up );
 
-				SetAttachedFXColour( fx, act->effects );
-			}
+			SetAttachedFXColour( fx, act->effects );
 		}
 	}
 
@@ -1284,7 +1283,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		act->effects &= ~EF_FLYSWARM;
 	}
-	if( act->effects & EF_BUTTERFLYSWARM )
+	else if( act->effects & EF_BUTTERFLYSWARM )
 	{
 		fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
 		fx->follow = act->actor;
@@ -1297,7 +1296,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		act->effects &= ~EF_BUTTERFLYSWARM;
 	}
-	if( act->effects & EF_TRAIL )
+	else if( act->effects & EF_TRAIL )
 	{
 		if( act->effects & EF_FAST )
 			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 0.6 );
