@@ -872,6 +872,8 @@ void RunGameLoop (void)
 		UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
 		gameState.mode = LEVELCOMPLETE_MODE;
 		GTInit( &modeTimer, 15 );
+
+		StartLevelComplete();
 	}
 	else
 	{
@@ -959,43 +961,6 @@ void RunGameLoop (void)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void RunLevelCompleteSequence()
-{
-	long i;
-
-	DisableTextOverlay(livesTextOver);
-	DisableTextOverlay(timeTextOver);
-	//DisableTextOverlay(scoreTextOver);
-	DisableTextOverlay(babySavedText);
-	DisableTextOverlay(garibCount);
-	DisableTextOverlay(creditCount);
-
-	if(carryOnBabies)
-	{					
-		if(numHops_TOTAL < 110)
-				award = 1;
-		if(numHops_TOTAL < 105)
-			award = 0;
-	}
-
-	if (NUM_FROGS == 1)
-	{
-		for ( i = 0; i < 3; i++ )
-			sprHeart[i]->draw = 0;
-	}
-
-	scoreTextOver->xPos -= ((float)scoreTextOver->xPos - (100.0F)) / 15.0F;
-	scoreTextOver->yPos -= ((float)scoreTextOver->yPos - (110.0F)) / 16.0F;
-
-	i = numBabies;
-	while(i--)
-	{
-		babyIcons[i]->xPos -= ((float)babyIcons[i]->xPos - ((20.0F*i)+115.0F)) / 16.0F;
-		babyIcons[i]->yPos -= ((float)babyIcons[i]->yPos - (65.0F)) / 16.0F;
-		babyIcons[i]->animSpeed = 1.5F;
-	}
-}
 
 void DoHiscores( )
 {
