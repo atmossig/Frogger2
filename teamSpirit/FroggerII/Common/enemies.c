@@ -742,6 +742,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	if( cur->nmeActor->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
 	{
 		cur->isIdle = 0;
+		path->nodes[2].worldTile = NULL;
 		return;
 	}
 
