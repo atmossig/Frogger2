@@ -63,6 +63,31 @@ void LoadObjectBank ( int objectBank )
 					sprintf ( PILfileName, "TANK.PIL" );					
 				break;
 
+		case MFROGGER_OBJ_BANK:
+					sprintf ( PILfileName, "MFROGGER.PIL" );					
+				break;
+		case MLILLI_OBJ_BANK:
+					sprintf ( PILfileName, "MLILIE.PIL" );					
+				break;
+		case MTAD_OBJ_BANK:
+					sprintf ( PILfileName, "MTAD.PIL" );					
+				break;
+		case MSWAMPY_OBJ_BANK:
+					sprintf ( PILfileName, "MSWAMPY.PIL" );					
+				break;
+		case MTWEE_OBJ_BANK:
+					sprintf ( PILfileName, "MTWEE.PIL" );					
+				break;
+		case MWART_OBJ_BANK:
+					sprintf ( PILfileName, "MTOAD.PIL" );					
+				break;
+		case MROOBIE_OBJ_BANK:
+					sprintf ( PILfileName, "MROOBIE.PIL" );					
+				break;
+		case MTANK_OBJ_BANK:
+					sprintf ( PILfileName, "MTANK.PIL" );					
+				break;
+
 /*	// Multiplayer object banks
 	MFROGGER_OBJ_BANK,
 	MLILLI_OBJ_BANK,

@@ -101,9 +101,15 @@ void BFF_Link_FMA_Mesh(FMA_MESH_HEADER *mesh)
 		tmap = textureFindCRCInAllBanks((unsigned long)tmaps[i]);
 		if(!tmap)
 		{
-			utilPrintf("World Texture (crc &%8x) not found\n",(unsigned long)tmaps[i]);
+			utilPrintf("World Texture (crc %lu) not found\n",(unsigned long)tmaps[i]);
+
+			tmaps[i] = textureFindCRCInAllBanks(utilStr2CRC ("FROGWATCH01"));
 		}
-		tmaps[i] = tmap;
+		else
+		{
+			tmaps[i] = tmap;
+		}
+
 	}
 
 // Number two. Every polygon contains a texture number, which needs converting
@@ -324,15 +330,15 @@ BFF_Header *BFF_LoadFile(char *filename)
 	work = addr;
 	for(;;)
 	{
-/*
-				printf("Linking BFF class %d (%c%c%c%d)\n",
+
+				utilPrintf("Linking BFF class %d (%c%c%c%d)\n",
 					work->id,
 					((char *)(&work->id))[0],
 					((char *)(&work->id))[1],
 					((char *)(&work->id))[2],
 					(int)(((char *)(&work->id))[3])
 					);
-*/
+
 
 		switch(work->id)
 		{

@@ -199,6 +199,7 @@ void LoadTextureAnimBank( int textureBank )
 		crc = *p; p++;
 
 		destCrc = crc;
+
 		textureAnim = CreateTextureAnimation( crc, numframes );
 
 		if ( textureAnim->animation->dest->h == 64 )
@@ -218,8 +219,8 @@ void LoadTextureAnimBank( int textureBank )
 		moveRect.h = textureAnim->animation->dest->h;
 
 		// check for 256 colour mode
-		//if(textureAnim->animation->dest->tpage & (1 << 7))
-			//moveRect.w *= 2;
+		if(textureAnim->animation->dest->tpage & (1 << 7))
+			moveRect.w *= 2;
 
 		// copy bit of vram
 /*		BEGINPRIM ( siMove, DR_MOVE );
