@@ -367,7 +367,8 @@ long DrawLoop(void)
 //	fxBlurSurface(surface[RENDER_SRF]);
 
 	// *ASL* 13/06/2000
-	SurfaceDraw();
+	if( !rHardware )
+		SurfaceDraw();
 
 	if((rHardware) || (gameState.mode != STARTUP_MODE))
 		DDrawFlip();

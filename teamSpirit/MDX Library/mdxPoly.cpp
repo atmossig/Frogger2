@@ -571,6 +571,8 @@ void DrawSoftwarePolys (void)
 				ssVerts[2].u = SSMAKEUV(ssVerts[2].u);
 				ssVerts[2].v = SSMAKEUV(ssVerts[2].v);
 			}
+			else
+				ssSetTexture(NULL, 0, 0);
 
 			// ** Additive alpha? Subtactive alpha?, Semi alpha?
 			// ** This cannot be correct?
@@ -903,11 +905,17 @@ void SetSoftwareState(unsigned long *me)
 			case D3DRENDERSTATE_DESTBLEND:
 				switch (*(me+1))
 				{
+//					case D3DBLEND_ZERO:
+//						ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_NONE);
+//						break;
 					case D3DBLEND_ONE:
 						ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_ADD);
 						break;
 					case D3DBLEND_INVSRCALPHA:
 						ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_NONE);
+						break;
+					case D3DBLEND_INVSRCCOLOR:
+						ssSetRenderState(SSRENDERSTATE_ALPHAMODE,SSALPHAMODE_SUB);
 						break;
 				}
 				break;
@@ -1000,19 +1008,22 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 			// *ASL* 27/06/2000
 			// alpha blend all vertex rgbs
 			alphaVal = RGBA_GETALPHA(softV[f1].color);
-			v[0].r = (v[0].r * alphaVal) >>8;
-			v[0].g = (v[0].g * alphaVal) >>8;
-			v[0].b = (v[0].b * alphaVal) >>8;
+			if( alphaVal != 0xff )
+			{
+				v[0].r = (v[0].r * alphaVal) >>8;
+				v[0].g = (v[0].g * alphaVal) >>8;
+				v[0].b = (v[0].b * alphaVal) >>8;
 
-			alphaVal = RGBA_GETALPHA(softV[f2].color);
-			v[1].r = (v[1].r * alphaVal) >>8;
-			v[1].g = (v[1].g * alphaVal) >>8;
-			v[1].b = (v[1].b * alphaVal) >>8;
+				alphaVal = RGBA_GETALPHA(softV[f2].color);
+				v[1].r = (v[1].r * alphaVal) >>8;
+				v[1].g = (v[1].g * alphaVal) >>8;
+				v[1].b = (v[1].b * alphaVal) >>8;
 
-			alphaVal = RGBA_GETALPHA(softV[f3].color);
-			v[2].r = (v[2].r * alphaVal) >>8;
-			v[2].g = (v[2].g * alphaVal) >>8;
-			v[2].b = (v[2].b * alphaVal) >>8;
+				alphaVal = RGBA_GETALPHA(softV[f3].color);
+				v[2].r = (v[2].r * alphaVal) >>8;
+				v[2].g = (v[2].g * alphaVal) >>8;
+				v[2].b = (v[2].b * alphaVal) >>8;
+			}
 
 			if (cTexture)
 			{
@@ -1077,11 +1088,13 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 				v[0].v = SSMAKEUV(((long)v[0].v));
 				v[1].v = SSMAKEUV(((long)v[1].v));
 				v[2].v = SSMAKEUV(((long)v[2].v));
-				
-				ssDrawPrimitive(v, 3);
-				// *ASL* 13/06/2000
-				res = D3D_OK;
 			}
+			else
+				ssSetTexture(NULL, 0,0);
+
+			ssDrawPrimitive(v, 3);
+			// *ASL* 13/06/2000
+			res = D3D_OK;
 		}
 	}
 		/*
