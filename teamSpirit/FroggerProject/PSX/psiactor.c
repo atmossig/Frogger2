@@ -435,7 +435,9 @@ void actorDraw(ACTOR *actor)
 // 	if(actor->qRot.x==0 && actor->qRot.y==0 && actor->qRot.z==0 && actor->qRot.w==0)
 // 		utilPrintf("ZERO QUAT !\n");
 
+//	TIMER_START(TIMER_ACTDR_QUAT);
 	QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
+//	TIMER_STOP_ADD(TIMER_ACTDR_QUAT);
 
 	if(actor->psiData.flags & ACTOR_MOTIONBONE)
 	{
@@ -452,9 +454,13 @@ void actorDraw(ACTOR *actor)
 
 	PSIrootScale = &actor->psiData.object->scale;
 	
+//	TIMER_START(TIMER_ACTDR_MTX);
 	psiCalcWorldMatrix(actor->psiData.object);
+//	TIMER_STOP_ADD(TIMER_ACTDR_MTX);
 
+//	TIMER_START(TIMER_ACTDR_SEG);
 	psiDrawSegments(&actor->psiData);
+//	TIMER_STOP_ADD(TIMER_ACTDR_SEG);
 }
 
 void actorDraw2(ACTOR *actor)
