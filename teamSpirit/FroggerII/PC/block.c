@@ -23,7 +23,7 @@ WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
 
-char baseDirectory[MAX_PATH] = "";
+char baseDirectory[MAX_PATH] = "x:\\teamspirit\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
