@@ -10,10 +10,10 @@
 //GsRVIEW2	camera;
 extern GsRVIEW2	camera;
 
-extern fixed gameSpeed;
-extern unsigned long actFrameCount, lastActFrameCount;
-extern char UseAAMode;
-extern char UseZMode;
+//extern fixed gameSpeed;
+//extern unsigned long actFrameCount, lastActFrameCount;
+//extern char UseAAMode;
+//extern char UseZMode;
 
 
 

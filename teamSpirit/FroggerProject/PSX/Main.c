@@ -68,15 +68,10 @@ psFont *font;
 //unsigned long lastActFrameCount = 0;
 //ULONG	frame;
 //VECTOR bbsrc, bbtar;
-extern fixed gameSpeed = 4096;
-extern char quitMainLoop;
-extern unsigned long actFrameCount = 0;
-extern unsigned long lastActFrameCount = 0;
-extern ULONG	frame;
-extern VECTOR bbsrc, bbtar;
 
-char UseAAMode = 0;
-char UseZMode = 1;
+
+//char UseAAMode = 0;
+//char UseZMode = 1;
 
 
 
