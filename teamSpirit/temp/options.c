@@ -70,6 +70,7 @@ extern FVECTOR storeCamOffset;
 extern FVECTOR storeCurrCamOffset;
 extern FVECTOR storeCamVect;
 
+extern int lastArcade;
 
 #ifdef PSX_VERSION
 extern RECT clipBox1;
@@ -154,98 +155,98 @@ long creditsY = 0;
 CREDIT_DATA creditData[] = 
 {
 	0,GREEN,
-	2,RED,
+	3,RED,
 	0,GREEN,
 
-	2,RED,		//founded by
+	3,RED,		//founded by
 	0,GREEN,
 
-	2,RED,		//technical director
+	3,RED,		//technical director
 	0,GREEN,
 
-	2,RED,		//project manager
+	3,RED,		//project manager
 	0,GREEN,
 
-	2,RED,		//programming
+	3,RED,		//programming
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-
-	2,RED,		//design
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//level design and editing
+	3,RED,		//design
+	0,GREEN,
+	0,GREEN,
+
+	3,RED,		//level design and editing
 	0,RED,		//level design and editing
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//concept art and illustration
+	3,RED,		//concept art and illustration
 	0,RED,		//concept art and illustration
 	0,GREEN,
 
-	2,RED,		//character building
+	3,RED,		//character building
 	0,RED,		//and animation
 	0,GREEN,
 
-	2,RED,		//additional animation
+	3,RED,		//additional animation
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//textures
+	3,RED,		//textures
 	0,GREEN,
 
-	2,RED,		//additional textures
+	3,RED,		//additional textures
 	0,GREEN,
 	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-
-
-	2,RED,		//3D modelling
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//music and sound
+
+	3,RED,		//3D modelling
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//video
+	3,RED,		//music and sound
 	0,GREEN,
 
-	2,RED,		//video producer
+	3,RED,		//video
 	0,GREEN,
 
-	2,RED,		//video animation modelling and lighting
+	3,RED,		//video producer
+	0,GREEN,
+
+	3,RED,		//video animation modelling and lighting
 	0,RED,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//video modelling
+	3,RED,		//video modelling
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//voices
+	3,RED,		//voices
 	0,GREEN,
 
-	2,RED,		//voice artist
+	3,RED,		//voice artist
 	0,GREEN,
 
-	2,RED,		//voice engineer
+	3,RED,		//voice engineer
 	0,GREEN,
 
-	2,RED,		//special thanks
+	3,RED,		//special thanks
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
@@ -255,53 +256,53 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-	0,GREEN,
-
-	2,RED,		//published by
-	0,GREEN,
-
-	2,RED,		//producer
-	0,GREEN,
-
-	2,RED,		//executive producer
-	0,GREEN,
-
-	2,RED,		//lead tester
-	0,GREEN,
-
-	2,RED,		//testers
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//shadow ...
+	3,RED,		//published by
+	0,GREEN,
+
+	3,RED,		//producer
+	0,GREEN,
+
+	3,RED,		//executive producer
+	0,GREEN,
+
+	3,RED,		//lead tester
+	0,GREEN,
+
+	3,RED,		//testers
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+
+	3,RED,		//shadow ...
 	0,RED,		//shadow ...
 	0,GREEN,
 
-	2,RED,		//localisation
+	3,RED,		//localisation
 	0,RED,		//localisation
 	0,GREEN,
 
-	2,RED,		//packaging
+	3,RED,		//packaging
 	0,RED,		//packaging
 	0,GREEN,
 
-	2,RED,		//product manager US
+	3,RED,		//product manager US
 	0,RED,		//product manager US
 	0,GREEN,
 	0,GREEN,
 
-	2,RED,		//product manager ROW
+	3,RED,		//product manager ROW
 	0,RED,		//product manager ROW
 	0,GREEN,
 
-	2,RED,		//special thanks
+	3,RED,		//special thanks
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
@@ -323,7 +324,7 @@ CREDIT_DATA creditData[] =
 };
 
 #ifdef PSX_VERSION
-int CREDIT_SPACING = 18;
+int CREDIT_SPACING = 20;
 #else
 int CREDIT_SPACING = 300;
 #endif
@@ -342,7 +343,7 @@ CONTROLFUNC controlsList[OP_TOTAL][C_TOTAL] =
 	{NULL,NULL,NULL,NULL,NULL,OptionBack}, // Control
 	{NULL,MenuBack,MenuLeft,MenuRight,MenuSelect,MenuBack}, //Main menu
 	{MenuBack,NumPSelect,NumPLeft,NumPRight,NumPSelect,MenuBack}, //Multiplayer numplayer select
-	{MPLevBack,MPLevSelect,MPLevLeft,MPLevRight,MPLevSelect,MPLevBack}, //Multiplayer level select
+	{MPLevBack,NULL,MPLevLeft,MPLevRight,MPLevSelect,MPLevBack}, //Multiplayer level select
 	{MPCharBack,NULL,MPCharLeft,MPCharRight,MPCharSelect,MPCharBack}, //Multiplayer char select
 	{NULL,BookDown,BookLeft,BookRight,BookSelect,BookDown}, // book
 	{ArcadeUp,ArcadeDown,ArcadeLeft,ArcadeRight,ArcadeSelect,ArcadeBack}, // arcade mode
@@ -422,10 +423,11 @@ FMA_MESH_HEADER *portraitActor[NUM_MULTICHARS];
 //-----------------------------------------------------------------------------------------------------------
 void MenuRight(void)
 {
-	options.selection--;
-	if (options.selection<0)
-		options.selection = (NUM_OPTIONS-1);
-	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	if(options.selection)
+	{
+		options.selection--;
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -433,10 +435,11 @@ void MenuRight(void)
 //-----------------------------------------------------------------------------------------------------------
 void MenuLeft(void)
 {
-	options.selection++;
-	if (options.selection>(NUM_OPTIONS-1))
-		options.selection = 0;
-	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	if(options.selection == 0)
+	{
+		options.selection++;
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -458,10 +461,17 @@ void NumPLeft(void)
 //-----------------------------------------------------------------------------------------------------------
 void NumPSelect(void)
 {
+	int i;
+
 	if((camStill) && (maxPlayers > 1))
 	{
-		options.mode=OP_LEVELSEL;	
+		options.mode=OP_CHARSEL;	
 		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		options.mode = OP_CHARSEL;
+		options.multiSelection = 0;
+		options.currentPlayer = 0;
+		for(i = 0;i < options.numPlayers;i++)
+			options.playerNum[i]->draw = 1;
 	}
 }
 
@@ -499,7 +509,7 @@ void MPCharSelect()
 	{
 		for(i = 0;i < options.currentPlayer;i++)
 		{
-			if(player[i].character == options.multiSelection)
+			if(options.playerChar[i] == options.multiSelection)
 			{
 				allowed = FALSE;
 				break;
@@ -519,7 +529,7 @@ void MPCharSelect()
 #endif
 
 			options.playerNum[options.currentPlayer]->draw = 0;
-			player[options.currentPlayer].character = options.multiSelection;
+			options.playerChar[options.currentPlayer] = options.multiSelection;
 			
 			options.multiFace[options.multiSelection]->draw = 1;
 			options.multiFace[options.multiSelection]->r = options.multiFace[options.multiSelection]->g = options.multiFace[options.multiSelection]->b = options.multiFace[options.multiSelection]->a = 255;
@@ -532,9 +542,11 @@ void MPCharSelect()
 			}
 			else
 			{
-				ScreenFade(255,0,30);
-				keepFade = 1;
-				gameSelected = 1;
+				options.currentPlayer++;
+				options.mode = OP_LEVELSEL;				
+//				ScreenFade(255,0,30);
+//				keepFade = 1;
+//				gameSelected = 1;
 			}
 		}
 		else
@@ -552,18 +564,18 @@ void MPCharBack()
 	if(options.currentPlayer)
 	{
 		options.currentPlayer--;
-		options.multiFace[player[options.currentPlayer].character]->draw = 0;
+		options.multiFace[options.playerChar[options.currentPlayer]]->draw = 0;
 		options.playerNum[options.currentPlayer]->draw = 1;
 #ifdef PC_VERSION
-		SetActorGouraudValues(portraitActor[player[options.currentPlayer].character],255,255,255);
+		SetActorGouraudValues(portraitActor[options.playerChar[options.currentPlayer]],255,255,255);
 #endif
 #ifdef PSX_VERSION
-		SetActorGouraudValues(portraitActor[player[options.currentPlayer].character],128,128,128);
+		SetActorGouraudValues(portraitActor[options.playerChar[options.currentPlayer]],128,128,128);
 #endif
 	}
 	else
 	{
-		options.mode = OP_LEVELSEL;
+		options.mode = OP_MULTIPLAYERNUMBER;
 		for(i = 0;i < options.numPlayers;i++)
 			options.playerNum[i]->draw = 0;
 	}
@@ -612,20 +624,35 @@ void MPLevSelect()
 
 	if(camStill)
 	{
-		options.mode = OP_CHARSEL;
-		options.multiSelection = 0;
-		options.currentPlayer = 0;
-		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
-		for(i = 0;i < options.numPlayers;i++)
-			options.playerNum[i]->draw = 1;
+		ScreenFade(255,0,30);
+		keepFade = 1;
+		gameSelected = 1;
+		lastArcade = TILENUM_MULTI;
+		SetVectorFF(&storeCamSource,&camSource);
+		SetVectorFF(&storeCurrCamSource,&currCamSource);
+		SetVectorFF(&storeCamTarget,&camTarget);
+		SetVectorFF(&storeCurrCamTarget,&currCamTarget);
+		SetVectorFF(&storeCamDist,&camDist);
+		SetVectorFF(&storeCurrCamDist,&currCamDist);
+		SetVectorFF(&storeCamOffset,&camOffset);
+		SetVectorFF(&storeCamOffset,&currCamOffset);
+		SetVectorFF(&storeCamVect,&camVect);
+
+//		options.mode = OP_CHARSEL;
+//		options.multiSelection = 0;
+//		options.currentPlayer = 0;
+//		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+//		for(i = 0;i < options.numPlayers;i++)
+//			options.playerNum[i]->draw = 1;
 	}
 }
 
 
 void MPLevBack()
 {
-	options.mode = OP_MULTIPLAYERNUMBER;
+	options.mode = OP_CHARSEL;
 	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	MPCharBack();
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -657,6 +684,8 @@ void MenuBack(void)
 		SetVectorFF(&currCamTarget,&storeCamTarget);
 		SetVectorFF(&camSource,&storeCamSource);
 		SetVectorFF(&camTarget,&storeCamTarget);
+		SetVectorFF(&currCamOffset,&storeCurrCamOffset);
+		SetVectorFF(&camOffset,&storeCurrCamOffset);
 	}
 
 	if(options.mode == OP_GLOBALMENU)
@@ -750,6 +779,8 @@ void MenuSelect(void)
 
 void GoMulti(void)
 {
+	int i;
+
 	fog.max = fogStore;
 	NUM_FROGS = options.numPlayers;
 	lastActFrameCount = actFrameCount;
@@ -764,6 +795,8 @@ void GoMulti(void)
 
 	multiplayerMode = multiGameTypes[player[0].worldNum];
 
+	for(i = 0;i < options.currentPlayer;i++)
+		player[i].character = options.playerChar[i];
 	InitLevel(player[0].worldNum, player[0].levelNum);
 }
 
@@ -1702,16 +1735,24 @@ void RunOptionsMenu(void)
 			}
 
 			
-			temp.vx = -10259420;
-			temp.vy = 12857946; 
-			temp.vz = 19851922; 
+			temp.vx = -9890938;
+			temp.vy = 9046405; 
+			temp.vz = 21231148; 
+//			temp.vx = -10259420;
+//			temp.vy = 12857946; 
+//			temp.vz = 19851922; 
 
 			camStill += SlideVectorToVectorFF(&camSource,&temp,mpcamspeed);
 			SetVectorFF(&currCamSource,&camSource);
 			
-			temp.vx = -10259420 + (7400)*100;
-			temp.vy = 12857946;
-			temp.vz = 19851922 + (39926)*100;
+//			temp.vx = -10259420 + (7400)*100;
+//			temp.vy = 9046405;
+//			temp.vz = 19851922 + (39926)*100;
+
+			temp.vx = -9890938 + (7617)*100;
+			temp.vy = 9046405;
+			temp.vz = 21231148 + (41020)*100;
+
 
 			camStill += SlideVectorToVectorFF(&camTarget,&temp,mpcamspeed);
 
@@ -1735,6 +1776,11 @@ void RunOptionsMenu(void)
 			break;
 		
 		case OP_LEVELSEL:
+			if((gameSelected) && (fadingOut == 0))
+			{
+				MPStart();
+				return;
+			}
 			strcpy(options.titleStr,GAMESTRING(STR_MULTIPLAYER));
 			strcpy(options.mpStr,GAMESTRING(STR_SELECT_LEVEL));
 			strcpy(options.subTitleStr,GAMESTRING(STR_TRIANGLE_BACK));
@@ -1760,14 +1806,16 @@ void RunOptionsMenu(void)
 			options.numPText->b = options.numPText2->b = 0;
 			
 			temp.vx = -9890938;
-			temp.vy = 8859623;  
+//			temp.vy = 8859623;  
+			temp.vy = -500000;  
 			temp.vz = 21231148; 
 
 			camStill += SlideVectorToVectorFF(&camSource,&temp,mpcamspeed);
 			SetVectorFF(&currCamSource,&camSource);
 			
 			temp.vx = -9890938 + (7617)*100;
-			temp.vy = 8859623;
+//			temp.vy = 8859623;
+			temp.vy = -500000;
 			temp.vz = 21231148 + (41020)*100;
 
 			camStill += SlideVectorToVectorFF(&camTarget,&temp,mpcamspeed);
@@ -1788,11 +1836,6 @@ void RunOptionsMenu(void)
 			break;
 
 		case OP_CHARSEL:
-			if((gameSelected) && (fadingOut == 0))
-			{
-				MPStart();
-				return;
-			}
 			for(i = 0;i < 4;i++)
 			{
 				if(i == options.currentPlayer)
@@ -2382,7 +2425,6 @@ void ArcadeRight(void)
 	}
 }
 
-extern int lastArcade;
 
 void SPCharSelect(void)
 {
@@ -2390,7 +2432,7 @@ void SPCharSelect(void)
 	ScreenFade(128,0,30);
 	keepFade = 1;
 	gameSelected = 1;
-	lastArcade = 1;
+	lastArcade = TILENUM_ARCADE;
 	CameraSetOffset();
 	SetVectorFF(&storeCamSource,&camSource);
 	SetVectorFF(&storeCurrCamSource,&currCamSource);

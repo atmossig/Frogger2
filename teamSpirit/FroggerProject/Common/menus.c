@@ -78,13 +78,6 @@ FVECTOR storeCurrCamOffset;
 FVECTOR storeCamVect;
 
 
-#define TILENUM_START	198
-#define TILENUM_OPTIONS 1
-#define TILENUM_CHOICE	2
-#define TILENUM_MULTI	3
-#define TILENUM_ARCADE	4
-#define TILENUM_BOOK	5
-
 
 int pauseConfirmMode;
 int pauseGameSpeed;
@@ -160,14 +153,15 @@ short titleHudX[2][4] = {{1898,1898,96,3700},{1898,1898,96+128,3700-128}};
 short titleHudY[2][4] = {{220,3668,1898,1898},{220+128*2,3668-128*2,1898,1898}};
 #endif
 
-char titleHudOn[6][4] = 
+char titleHudOn[7][4] = 
 {
 	0,0,1,1,
-	0,1,1,1,
+	0,1,1,0,
 	1,1,1,1,
 	0,1,1,1,
 	0,0,1,1,
 	1,1,1,1,
+	0,1,0,1,
 };
 
 char *titleHudName[4] = 
@@ -905,8 +899,6 @@ void RunFrontendGameLoop (void)
 			player[0].hasJumped = 0;
 		}
 
-		options.currentPlayer = 0;
-
 		DisableHUD();
 		reachedPoint = 0;
 
@@ -1135,14 +1127,15 @@ void RunFrontendGameLoop (void)
 				currTileNum++;
 			}
 
-			if(currTileNum == TILENUM_ARCADE)
+			
+			if(currTileNum == lastArcade)
 			{
 				currTile[0] = lastTile[0] = testTile;
 				break;
 			}
 		}
 
-		lastArcade = 0;
+		SetVectorSS(&frog[0]->actor->position,&currTile[0]->centre);
 		SetVectorFF(&currCamSource,&storeCurrCamSource);
 		SetVectorFF(&camSource,&storeCamSource);
 		SetVectorFF(&currCamTarget,&storeCurrCamTarget);
@@ -1152,8 +1145,33 @@ void RunFrontendGameLoop (void)
 		SetVectorFF(&currCamOffset,&storeCurrCamOffset);
 		SetVectorFF(&camOffset,&storeCamOffset);
 		SetVectorFF(&camVect,&storeCamVect);
-		SetVectorSS(&frog[0]->actor->position,&currTile[0]->centre);
-		camFacing[0] = 1;
+		if(lastArcade == TILENUM_ARCADE)
+		{
+			camFacing[0] = 1;
+		}
+		else
+		{
+			for(i = 0;i < options.currentPlayer;i++)
+			{
+				options.multiFace[options.playerChar[i]]->draw = 1;
+				options.multiFace[options.playerChar[i]]->r = options.multiFace[options.playerChar[i]]->g = options.multiFace[options.playerChar[i]]->b = options.multiFace[options.playerChar[i]]->a = 255;
+				options.multiFace[options.playerChar[i]]->xPos = options.multiFace[options.playerChar[i]]->xPosTo = backCharsX[i];
+				options.multiFace[options.playerChar[i]]->yPos = options.multiFace[options.playerChar[i]]->yPosTo = backCharsY[i];
+			}
+			options.mode = OP_LEVELSEL;
+			reachedPoint = 1;
+			storeCamSource.vx = -3884265;
+			storeCamSource.vy = 3653915;
+			storeCamSource.vz = 2103810;
+			storeCamTarget.vx = 6143995;
+			storeCamTarget.vy = 409600;
+			storeCamTarget.vz = -3686400;
+			storeCurrCamOffset.vx = -10028260;
+			storeCurrCamOffset.vy = 3244315;
+			storeCurrCamOffset.vz = 5790205;
+		}
+
+		lastArcade = 0;
 		fadingLogos = 1;
 		frogLogo->draw = 0;
 	}
@@ -1178,7 +1196,10 @@ void RunFrontendGameLoop (void)
 			case TILENUM_OPTIONS:
 				if(options.mode == OP_GLOBALMENU)
 				{
-					hudNum = 1;
+					if(options.selection == 0)
+						hudNum = 1;
+					else
+						hudNum = 6;
 					titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
 					titleHud[0]->xPos = titleHud[0]->xPosTo = titleHud[1]->xPos = titleHud[1]->xPosTo = titleHudX[0][0];
 				}
@@ -1389,6 +1410,7 @@ void RunFrontendGameLoop (void)
 		{
 			SetVectorFF(&storeCamSource,&currCamSource);
 			SetVectorFF(&storeCamTarget,&currCamTarget);
+			SetVectorFF(&storeCurrCamOffset,&currCamOffset);
 
 			currCamSource.vx = -9591334;
 			currCamSource.vy = 2500000;

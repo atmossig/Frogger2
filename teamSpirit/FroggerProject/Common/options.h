@@ -143,6 +143,7 @@ typedef struct
 	TEXTOVERLAY *soundInstrText[2];
 	TEXTOVERLAY *warnText[4];
 	SPRITEOVERLAY *beatenIcon[MAX_LEVELSTRING];
+	char playerChar[4];
 } OPTIONSOBJECTS;
 
 typedef struct
