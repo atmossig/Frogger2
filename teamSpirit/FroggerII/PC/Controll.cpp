@@ -537,9 +537,10 @@ void DeInitJoystick()
 }
 
 
+#ifdef TOYFAIR_DEMO
 // TODO: remove this timer
-
 TIMER idletimer;
+#endif
 
 /*	--------------------------------------------------------------------------------
 	Function	: ProcessUserInput
@@ -672,11 +673,10 @@ void ProcessUserInput(HWND hWnd)
 		}
 	}
 
-	// TODO remove this timer thing!
-
+#ifdef TOYFAIR_DEMO
 	if (pressed)
 	{
-		GTInit(&idletimer, 50);
+		GTInit(&idletimer, 75);
 	}
 	else
 	{
@@ -690,6 +690,7 @@ void ProcessUserInput(HWND hWnd)
 			showEndLevelScreen = 0;
 		}
 	}
+#endif
 }
 
 
