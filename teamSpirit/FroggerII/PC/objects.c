@@ -181,7 +181,9 @@ BOOL LoadObjectBank(int num)
 
 	switch(num)
 	{
-
+		case INGAMEGENERIC_OBJ_BANK:
+			strcat (file,"GameGeneric");
+			break;
 		case GARDENMASTER_OBJ_BANK:
 			strcat (file,"gardenmaster");
 			break;
