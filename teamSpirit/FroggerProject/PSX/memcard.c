@@ -442,7 +442,10 @@ enum {
 void StartChooseLoadSave(int load)
 {
 	if (XAgetStatus())
-		CdControl( CdlStop, NULL, NULL );
+	{
+		if(XAcheckPlay())
+			CdControl( CdlStop, NULL, NULL );
+	}
 	saveInfo.saveFrame = 1;
 	saveInfo.saveChosen = 0;
 	saveInfo.saveStage = SAVEMENU_CHECK;
