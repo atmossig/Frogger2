@@ -600,7 +600,7 @@ int ToggleRectTileSelection(int ax, int ay, int bx, int by, EDITGROUP *selection
 	if (ax > bx) { int foo = ax; ax = bx; bx = foo; }
 	if (ay > by) { int foo = ay; ay = by; by = foo; }
 
-	for (tile = firstTile, n = tileCount; n; tile++, n++)
+	for (tile = firstTile, n = tileCount; n; tile++, n--)
 	{
 		GetTilePos(&c, tile);
 		EdXfmPoint(&v, &c);
