@@ -26,6 +26,8 @@ typedef int (*NETGAME_LOOP)(void);
 void NetgameStartGame();
 void NetgameRun();
 
+void NetgameWon(unsigned long finishFrame);
+
 #ifdef __cplusplus
 }
 #endif

@@ -260,11 +260,22 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 	}
 }
 
+// --------------------------------------------------------------------------
+// NetBroadcastMessage & co
+// Send broadcast messages (generally game-generated messages) asynchronously
+
+// Note:
+// Right now we're not using priorities and so these may not 'throttle' correctly;
+// we also don't have any kind of timeout. Ideally we want to query for these caps
+// and use them where available.
+
 int NetBroadcastMessage(void *data, unsigned long size)
 {
 	HRESULT res;
 
-	res = dplay->Send(dpidLocalPlayer, DPID_ALLPLAYERS, 0, data, size);
+	res = dplay->SendEx(dpidLocalPlayer, DPID_ALLPLAYERS,
+		DPSEND_ASYNC|DPSEND_NOSENDCOMPLETEMSG,
+		data, size, 0, 0, NULL, NULL);
 
 	return res;
 }
@@ -273,7 +284,9 @@ int NetBroadcastUrgentMessage(void *data, unsigned long size)
 {
 	HRESULT res;
 
-	res = dplay->Send(dpidLocalPlayer, DPID_ALLPLAYERS, DPSEND_GUARANTEED, data, size);
+	res = dplay->SendEx(dpidLocalPlayer, DPID_ALLPLAYERS,
+		DPSEND_GUARANTEED|DPSEND_ASYNC,
+		data, size, 0, 0, NULL, NULL);
 
 	return res;
 }

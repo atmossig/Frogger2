@@ -29,13 +29,9 @@
 #include "specfx.h"
 #include "overlays.h"
 #include "lang.h"
+#include "multi.h"
 
-#define BIT(x)	(1<<(x))
-
-#define NETUPD_SUPERHOP		BIT(0)
-#define NETUPD_DOUBLEJUMP	BIT(1)
-
-#define UPDATE_PERIOD		5		// in 60ths of a second (actFrameCounts)
+#define UPDATE_PERIOD		10		// in 60ths of a second (actFrameCounts)
 #define PING_PERIOD			200		// how often we should ping once we're synchronised
 
 #define STARTGAME_COUNT		(4*60)	// how much time we allow for the countdown
@@ -45,10 +41,20 @@ bool			hostSync, hostReady, gameReady;
 NETGAME_LOOP	netgameLoopFunc = NULL;
 TEXTOVERLAY		*netMessage;
 
+// ---------------------------------------------------------------------------------------
+// Update messages
+// all of these are identified by a UBYTE message ID tag entry.. member.. thing
+
+#define BIT(x)	(1<<(x))
+
+#define NETUPD_SUPERHOP		BIT(0)
+#define NETUPD_DOUBLEJUMP	BIT(1)
+#define NETUPD_DEAD			BIT(4)
+#define NETUPD_SAFE			BIT(5)
+
 typedef struct
 {
 	unsigned char	type;
-	DWORD			buttons;		// controller data
 	short			fromTile, toTile;
 	DWORD			tickCount;		// When in game frames this event happened.
 	DWORD			flags;
@@ -73,76 +79,34 @@ struct	MSG_STARTGAME
 	unsigned long	gameStartTime;		// when the game is due to start, according to actFrameCount
 };
 
+struct MSG_WONGAME
+{
+	UBYTE appmsg_wongame;
+	unsigned long	gameWonTime;
+};
+
+
+
+
 #define GetTileNo(t) (((DWORD)tile-(DWORD)firstTile)/sizeof(GAMETILE))
 
-int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
 int SendUpdateMessage();
 void SendPing();
+int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
 
-/*	--------------------------------------------------------------------------------
-	Function		: HandleUpdateMessage
-	Purpose			: interpret a game update from the network
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void HandleUpdateMessage(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl)
-{
-	if (lpMsg->tickCount < pl->lastUpdateMsg)
-		return;
-	
-	int i = GetPlayerNumFromID(pl->dpid);
-	GAMETILE *tile = &firstTile[lpMsg->toTile];
+void OnPing(MSG_PING*ping, NETPLAYER *player);
+void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player);
+void OnUpdate(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl);
 
-//	padData.digital[i] = lpMsg->buttons;
-//	padData[i].tickOn = lpMsg->tickCount;
 
-//	dp("Recieved message for tile %lu\n",lpMsg->tileNum);
 
-	// Calculate frog jump if it's not 'in' the current tile
-	if (tile != currTile[i])
-	{
-		FVECTOR fv;
-
-		if (currTile[i])
-		{
-			SubVectorFSS(&fv, &tile->centre, &currTile[i]->centre);
-			OrientateFS(&frog[i]->actor->qRot, &fv, &currTile[i]->normal);
-		}
-
-		//SetVector(&frog[i]->actor->position, &tile->centre);
-		currTile[i] = tile;
-		frog[i]->draw = 1;
-
-		if (lpMsg->flags & NETUPD_SUPERHOP)
-		{
-			CalculateFrogJumpS(&frog[i]->actor->position, &tile->centre, &tile->normal, superhopHeight, superHopFrames, i);
-			actorAnimate(frog[i]->actor, FROG_ANIM_SUPERHOP, NO, NO, (player[i].jumpSpeed*15)>>4, 0);
-		}
-		else if (lpMsg->flags & NETUPD_DOUBLEJUMP)
-		{
-			CalculateFrogJumpS(&frog[i]->actor->position, &tile->centre, &tile->normal, doublehopHeight, doubleHopFrames, i);
-			actorAnimate(frog[i]->actor,FROG_ANIM_SOMERSAULT,NO,NO,75,0);
-		}
-		else
-		{
-			CalculateFrogJumpS(&frog[i]->actor->position, &tile->centre, &tile->normal, hopHeight, standardHopFrames, i);
-			actorAnimate(frog[i]->actor,FROG_ANIM_HOP,NO,NO,frogAnimSpeed,0);
-		}
-	}
-
-	pl->lastUpdateMsg = lpMsg->tickCount;
-}
+// ---------------------------------------------------------------------------------
 
 /*
-{
-	currTile[0] = &firstTile[lpMsg->tileNum];
-	SetVector(&frog[0]->actor->position, &currTile[0]->centre);
-}
-*/
 
-/*
-*/
+here's a little experiment - the host sorts the players by dpid and assigns a start tile number to
+each player. We want to do this when STARTING THE GAME and pass all the character data around at the
+same time. - ds
 
 void SortOutPlayerNumbers()
 {
@@ -165,12 +129,18 @@ void SortOutPlayerNumbers()
 
 	for (pl=0; pl<NUM_FROGS; pl++)
 	{
-		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
-		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
+		//UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
+		//dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
 	}
 }
+*/
 
-
+/*	--------------------------------------------------------------------------------
+	Function		: NetgameStartGame
+	Purpose			: starts a network game; for now, always a race
+	Parameters		: 
+	Returns			: 
+*/
 void NetgameStartGame()
 {
 	int pl;
@@ -181,9 +151,11 @@ void NetgameStartGame()
 	gameReady = false;
 
 	gameState.mode = INGAME_MODE;
-	gameState.multi = SINGLEPLAYER;
+	gameState.multi = MULTIREMOTE;
 	gameState.single = ARCADE_MODE;
 	gameState.difficulty = DIFFICULTY_NORMAL;
+
+	multiplayerMode = MULTIMODE_RACE;
 
 	for (pl=1; pl<MAX_FROGS; pl++)
 	{
@@ -217,7 +189,8 @@ void NetgameStartGame()
 	{
 		unsigned char msg;
 		
-		SortOutPlayerNumbers();
+		// do this *before* starting the game (see top of file) -ds
+		// SortOutPlayerNumbers();
 
 		msg = APPMSG_HOSTREADY;
 		NetBroadcastUrgentMessage(&msg, 1);
@@ -364,6 +337,12 @@ void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player)
 	hostSync = true;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: NetgameMessageDispatch
+	Purpose			: callback to dispatch net messages to the right function
+	Parameters		: data, size, player
+	Returns			: error code
+*/
 
 int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 {
@@ -375,7 +354,7 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 		return 0;
 
 	case APPMSG_UPDATE:
-		HandleUpdateMessage((LPMSG_UPDATEGAME)data, player);
+		OnUpdate((LPMSG_UPDATEGAME)data, player);
 		return 0;
 
 	case APPMSG_PING:
@@ -408,7 +387,6 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 	Purpose			: sends an update message
 	Parameters		: Player number
 	Returns			: 
-	Info			: 
 */
 
 int SendUpdateMessage()
@@ -422,10 +400,13 @@ int SendUpdateMessage()
 
 	// build message	
 	updateMessage.type = APPMSG_UPDATE;
-	updateMessage.buttons = padData.digital[0];
+	//updateMessage.buttons = padData.digital[0];
 	updateMessage.toTile = GetTileNo(tile);
 	updateMessage.tickCount = timeInfo.tickCount;
-	updateMessage.flags = 0;
+	
+	updateMessage.flags =
+		(player[0].safe.time?NETUPD_SAFE:0) |
+		(player[0].dead.time?NETUPD_DEAD:0);
 	
 	if (player[0].hasDoubleJumped)
 		updateMessage.flags |= NETUPD_DOUBLEJUMP;
@@ -436,6 +417,70 @@ int SendUpdateMessage()
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: OnUpdate
+	Purpose			: interpret a game update from the network
+	Parameters		: 
+	Returns			: 
+*/
+void OnUpdate(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl)
+{
+	if (lpMsg->tickCount < pl->lastUpdateMsg)
+		return;
+	
+	int i = GetPlayerNumFromID(pl->dpid);
+	GAMETILE *tile = &firstTile[lpMsg->toTile];
+
+//	padData.digital[i] = lpMsg->buttons;
+//	padData[i].tickOn = lpMsg->tickCount;
+
+//	dp("Recieved message for tile %lu\n",lpMsg->tileNum);
+
+	// Calculate frog jump if it's not 'in' the current tile
+	if (tile != currTile[i])
+	{
+		FVECTOR fv;
+
+		if (currTile[i])
+		{
+			SubVectorFSS(&fv, &tile->centre, &currTile[i]->centre);
+			MakeUnit(&fv);
+			OrientateFS(&frog[i]->actor->qRot, &fv, &currTile[i]->normal);
+		}
+
+		//SetVector(&frog[i]->actor->position, &tile->centre);
+		currTile[i] = tile;
+		frog[i]->draw = 1;
+
+		if (player[i].dead.time)
+		{
+			SetVectorSS(&frog[i]->actor->position, &tile->centre);
+		}
+		else
+		{
+			if (lpMsg->flags & NETUPD_SUPERHOP)
+			{
+				CalculateFrogJumpS(&frog[i]->actor->position, &tile->centre, &tile->normal, superhopHeight, superHopFrames, i);
+				actorAnimate(frog[i]->actor, FROG_ANIM_SUPERHOP, NO, NO, (player[i].jumpSpeed*15)>>4, 0);
+			}
+			else if (lpMsg->flags & NETUPD_DOUBLEJUMP)
+			{
+				CalculateFrogJumpS(&frog[i]->actor->position, &tile->centre, &tile->normal, doublehopHeight, doubleHopFrames, i);
+				actorAnimate(frog[i]->actor,FROG_ANIM_SOMERSAULT,NO,NO,75,0);
+			}
+			else
+			{
+				CalculateFrogJumpS(&frog[i]->actor->position, &tile->centre, &tile->normal, hopHeight, standardHopFrames, i);
+				actorAnimate(frog[i]->actor,FROG_ANIM_HOP,NO,NO,frogAnimSpeed,0);
+			}
+		}
+	}
+
+	player[i].safe.time = (lpMsg->flags&NETUPD_SAFE)?1:0;
+	player[i].dead.time = (lpMsg->flags&NETUPD_DEAD)?1:0;
+
+	pl->lastUpdateMsg = lpMsg->tickCount;
+}
 
 void SendPing()
 {
@@ -448,4 +493,15 @@ void SendPing()
 
 		dplay->Send(dpidLocalPlayer, DPID_SERVERPLAYER, 0, &ping, sizeof(ping));
 	}
+}
+
+
+void NetgameWon(unsigned long finishFrame)
+{
+	MSG_WONGAME	mwg;
+
+	mwg.appmsg_wongame = APPMSG_WONGAME;
+	mwg.gameWonTime = finishFrame;
+
+	NetBroadcastUrgentMessage(&mwg, sizeof(mwg));
 }

@@ -12,17 +12,23 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+// PC headers
 #include "netrace.h"
 #include "netgame.h"
+#include "controll.h"
+#include "pcaudio.h"
+#include "islutil.h"
+
+// COMMON headers
+#include "layout.h"
+#include "lang.h"
+#include "game.h"
 #include "frogger.h"
 #include "frogmove.h"
 #include "cam.h"
-#include "controll.h"
-#include "game.h"
-#include "layout.h"
-#include "lang.h"
-#include "pcaudio.h"
-#include "islutil.h"
+#include "multi.h"
+#include "hud.h"
+#include "frontend.h"	// why is 'SlideTextOverlayToPos' defined here?
 
 long started = 0;
 
@@ -30,6 +36,7 @@ int countdown = 4;
 
 int NetRaceRun()
 {
+	int i;
 	static char txt[3];
 	//RunGameLoop();
 
@@ -87,6 +94,63 @@ int NetRaceRun()
 	}
 		
 	UpdateFroggerPos(0);
+
+	if (actFrameCount > gameStartTime)
+	{
+		if( !(IsPointVisible(&frog[0]->actor->position)) )
+			KillMPFrog(0);
+
+		if( player[0].dead.time )
+		{
+			GTUpdate( &player[0].dead, -1 );
+
+			// from multi.c
+			if( !player[0].dead.time )
+			{
+				RaceRespawn(0);
+				frog[0]->draw = 1;
+				GTInit( &player[0].safe, 3 );
+			}
+		}
+
+		if (currTile[0]->state == TILESTATE_FINISHLINE && player[0].canJump)
+		{
+			// Send message saying "This player finished the race on frame X"
+			// Probably want to let the host decide... here's where the arguments start :o)
+
+			mpl[0].ready = 0;
+			utilPrintf("Player finished the race, hurrah!\n");
+		}
+
+		// from game.c/multi.c
+
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			// Do overlay stuff
+			if(mpl[i].penalText->draw)
+			{
+				SlideTextOverlayToPos(mpl[i].penalText,backTextX[i],backTextY[i],mpl[i].scrX,mpl[i].scrY,40);	
+				if((mpl[i].penalText->xPos == backTextX[i]) && (mpl[i].penalText->yPos == backTextY[i]))
+					mpl[i].penalText->draw = 0;
+			}
+
+			// Do pretty effects
+			if( frog[i] )
+			{
+				if (player[i].safe.time)
+				{
+					if( actFrameCount&1 )
+						CreateRingEffect(i);
+
+					GTUpdate( &player[i].safe, -1 );
+				}
+
+				frog[i]->draw = (player[i].dead.time==0);
+			}
+		}
+
+		UpDateMultiplayerInfo( );
+	}
 
 	return 0;
 }
