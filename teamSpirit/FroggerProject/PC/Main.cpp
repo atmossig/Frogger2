@@ -762,8 +762,12 @@ long DrawLoop(void)
 		BlankAllFrames();
 	}
 
-	D3DSetupRenderstates(cullNoneRS);
-	DrawScreenTransition();
+	if(!fadeText)
+	{
+		D3DSetupRenderstates(cullNoneRS);
+		DrawScreenTransition();
+	}
+
 //	D3DSetupRenderstates(cullCWRS);
 
 	PrintSpriteOverlays(0);	
@@ -772,6 +776,12 @@ long DrawLoop(void)
 	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
 	PrintSpriteOverlays(2);	
+
+	if(fadeText)
+	{
+		D3DSetupRenderstates(cullNoneRS);
+		DrawScreenTransition();
+	}
 
 	if (editorOk)
 		DrawEditor();

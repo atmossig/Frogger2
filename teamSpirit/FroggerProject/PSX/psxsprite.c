@@ -20,6 +20,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	POLY_FT4	*ft4;
 	TextureType	*tPtr;
 	uchar alpha,r,g,b;
+	int depth;
+
+	depth = 4 - spr->num;
 
 	atbdx = (spr->xPos/8)-256;
 	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
@@ -64,7 +67,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		{
 			f4->code  |= 2;
 		}
-		ENDPRIM(f4, 1+(1-spr->num)*2, POLY_F4);
+		ENDPRIM(f4, depth, POLY_F4);
 	}
 	else
 	{
@@ -109,7 +112,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
 			if(alpha)
 				SETSEMIPRIM(ft4, alpha);
-			ENDPRIM(ft4, 1+(1-spr->num)*2, POLY_FT4);
+			ENDPRIM(ft4, depth, POLY_FT4);
 		}
 		else
 		{	// Original random scaling method (slightly tidier)
@@ -149,7 +152,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
 			if(alpha)
 				SETSEMIPRIM(ft4, alpha);
-			ENDPRIM(ft4, 1+(1-spr->num)*2, POLY_FT4);
+			ENDPRIM(ft4, depth, POLY_FT4);
 		}
 	}
 }

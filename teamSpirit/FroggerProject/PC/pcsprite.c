@@ -215,6 +215,20 @@ void PrintSpriteOverlays(long num)
 */
 void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
 {
+	RECT r;
+
+	r.left = x;
+	r.right = x+xs;
+	r.top = y;
+	r.bottom = y+ys;
+
+	if(tex)
+		DrawTexturedRect(r, colour, tex->surf, u1, v1, u2, v2);
+	else
+		DrawFlatRect(r,colour);
+
+//	return c->width*scale;
+/*
 	D3DTLVERTEX v[4];
 	float x2 = (x+xs), y2 = (y+ys);
 
@@ -269,6 +283,7 @@ void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1,
 		D3DDP_WAIT);
 
 	SetTexture(NULL);
+*/
 }
 
 

@@ -1126,7 +1126,9 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 		if (DrawPoly(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,v,4,(unsigned short *)Indices, 6,D3DDP_WAIT)!=D3D_OK)
 			dp("Could not draw flat rectangle\n");
 
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 		pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 

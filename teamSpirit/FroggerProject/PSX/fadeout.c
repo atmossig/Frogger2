@@ -61,7 +61,7 @@ int DrawScreenFade(void)
 	if(fadeText)
 		depth = 0;
 	else
-		depth = 4;
+		depth = 5;
 
 	BEGINPRIM(f4, POLY_F4);
 	setPolyF4(f4);
