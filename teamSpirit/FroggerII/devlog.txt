@@ -674,8 +674,8 @@ David Swift:
 	(Some of these fixes look a little naff - they'll probably need a little work to get them
 	looking polished)
 	
-	Subtle puzzling bug in WorldConv has appeared, related to my new adjacent-tile
-	test. I'm looking into it.
+	A subtle puzzling bug in WorldConv appeared, related to my new adjacent-tile test. Turns out
+	it was a silly logic error; I'm pretty certain it's fixed now.
 
 
 James Hubbard:
