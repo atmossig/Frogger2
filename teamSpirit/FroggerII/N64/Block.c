@@ -1090,9 +1090,6 @@ void DrawGraphics(void *arg)
 						gfxIsDrawing = FALSE;
 				}
 
-				if(dontClearScreen)
-					break;
-
 				dispFrameCount++;
 
 				SendLastFrame();
@@ -1105,8 +1102,10 @@ void DrawGraphics(void *arg)
 				tlistp[currentTask]->list.t.data_ptr = (u64 *)glistp;
 
 				InitDisplayLists();
+
 				ClearZBuffer();		
 				ClearFrameBuffer();				
+				
 				SetScissor();
 				objectMatrix = 0;
 
@@ -1125,15 +1124,6 @@ void DrawGraphics(void *arg)
 
 				InitDisplayLists();
 
-				if(spriteList.numEntries)
-				{
-					sprite = PrintSpritesOpaque();
-					gDPPipeSync(glistp++);
-					InitDisplayLists();
-					SetRenderMode();
-					SetupViewing();
-				}
-
 				//***********************************
 	
 				SetRenderMode();
@@ -1147,6 +1137,15 @@ void DrawGraphics(void *arg)
 				TIMER_StartTimer(3,"XFORMACTLIST");
 				XformActorList();
 				TIMER_EndTimer(3);
+
+				if(spriteList.numEntries)
+				{
+					sprite = PrintSpritesOpaque();
+					gDPPipeSync(glistp++);
+					InitDisplayLists();
+					SetRenderMode();
+					SetupViewing();
+				}
 
 				DrawActorList();
 

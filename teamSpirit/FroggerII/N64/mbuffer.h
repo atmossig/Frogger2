@@ -31,6 +31,10 @@ extern char _mBank3SegmentRomStart[];
 extern char _mBank3SegmentRomEnd[];
 extern char _mBank4SegmentRomStart[];
 extern char _mBank4SegmentRomEnd[];
+extern char _mBank5SegmentRomStart[];
+extern char _mBank5SegmentRomEnd[];
+extern char _mBank6SegmentRomStart[];
+extern char _mBank6SegmentRomEnd[];
 
 
 // 'dream' generate labels 
@@ -52,59 +56,8 @@ extern int   Priority [];
 #define PBANK2_END	 _pbank2SegmentRomEnd
 
 
-/*
-// ROM addresses 
-#define WBANK_START	_wbankSegmentRomStart
-#define PBANK_START _pbankSegmentRomStart
-#define PBANK_END	_pbankSegmentRomEnd
-#define MUSIC_START	_tuneSegmentRomStart
-#define MUSIC_END	_tuneSegmentRomEnd
-*/
-
-
 extern unsigned char	audio_memory[];
 extern musConfig musicPlayer;
-
-/*
-extern unsigned char	pointer_buf	[];
-extern unsigned int		tune_buf[];
-*/
-
-
-//enum
-//{
-/*
-#define	SFX_FOOTSTEP1		FX_NULL
-#define	SFX_FOOTSTEP2		FX_NULL
-#define	SFX_SPLASH1			FX_NULL
-#define	SFX_SPLASH2			FX_NULL
-#define	SFX_HANDBOUNCE		FX_BOUNCE
-#define	SFX_HANDJUMP		FX_HAND_JUMP
-#define	SFX_HANDWHACK		FX_WHACK
-#define	SFX_HANDLAND		FX_HAND_LAND
-#define	SFX_SWITCH			FX_NULL
-#define	SFX_SPIKESWITCH		FX_NULL
-#define	SFX_GATEOPEN		FX_NULL
-#define	SFX_HEAVYLAND		FX_NULL
-#define	SFX_SPIKE			FX_NULL
-#define	SFX_HANDDROWN		FX_NULL
-
-#define	SFX_LOBSTER			FX_NULL
-#define	SFX_CHEST			FX_NULL
-#define	SFX_CUTLASS			FX_NULL
-#define	SFX_BIGBALL			FX_NULL
-
-#define	SFX_SWISH			FX_NULL
-#define	SFX_MOTOR			FX_NULL
-#define	SFX_SQUASH			FX_NULL
-#define	SFX_SNAPPY			FX_NULL
-#define	SFX_TELEPORT		FX_NULL
-#define	SFX_BALLBURST		FX_BURST
-#define	SFX_COLLECTABLE		FX_NULL
-*///};
-
-
-
 
 
 #endif

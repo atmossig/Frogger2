@@ -2,7 +2,7 @@
         org     $b0000000
 
 header  group
-        section.16      code.header,header
+        section.64      code.header,header
 
 code    group   obj($80100000)
 codebss	group	obj(),bss
@@ -12,16 +12,16 @@ _codeSegmentRomEnd      alias   _code_orgend
 _codeSegmentStart       alias   _code_obj
 _codeSegmentEnd         alias   _code_objend
 
-        section.16      code.start,code
-        section.16      code.rdata,code
-        section.16      code.rodata,code
-        section.16      code.ctors,code
-        section.16      code.dtors,code
-        section.16      code.text,code
-        section.16      code.data,code
-        section.16      code.sdata,code
-        section.16      code.sbss,codebss
-        section.16      code.bss,codebss
+        section.64      code.start,code
+        section.64      code.rdata,code
+        section.64      code.rodata,code
+        section.64      code.ctors,code
+        section.64      code.dtors,code
+        section.64      code.text,code
+        section.64      code.data,code
+        section.64      code.sdata,code
+        section.64      code.sbss,codebss
+        section.64      code.bss,codebss
 
 
 		inclib	"tonylib2.lib",code
@@ -122,30 +122,30 @@ _staticSegmentRomEnd    alias   _static_orgend
 _staticSegmentStart     alias   _static_obj
 _staticSegmentEnd       alias   _static_objend
 
-        section.16      static.rdata,static
-        section.16      static.rodata,static
-        section.16      static.ctors,static
-        section.16      static.dtors,static
-        section.16      static.text,static
-        section.16      static.data,static
-        section.16      static.sdata,static
-        section.16      static.sbss,staticbss
-        section.16      static.bss,staticbss
+        section.64      static.rdata,static
+        section.64      static.rodata,static
+        section.64      static.ctors,static
+        section.64      static.dtors,static
+        section.64      static.text,static
+        section.64      static.data,static
+        section.64      static.sdata,static
+        section.64      static.sbss,staticbss
+        section.64      static.bss,staticbss
         include "static.obj",static
 
 ;--
 _zbuffer        group   obj($80000400)
 _zbufferbss	group	obj(),bss
 
-        section.16      _zbuffer.rdata,_zbuffer
-        section.16      _zbuffer.rodata,_zbuffer
-        section.16      _zbuffer.ctors,_zbuffer
-        section.16      _zbuffer.dtors,_zbuffer
-        section.16      _zbuffer.text,_zbuffer
-        section.16      _zbuffer.data,_zbuffer
-        section.16      _zbuffer.sdata,_zbuffer
-        section.16      _zbuffer.sbss,_zbufferbss
-        section.16      _zbuffer.bss,_zbufferbss
+        section.64      _zbuffer.rdata,_zbuffer
+        section.64      _zbuffer.rodata,_zbuffer
+        section.64      _zbuffer.ctors,_zbuffer
+        section.64      _zbuffer.dtors,_zbuffer
+        section.64      _zbuffer.text,_zbuffer
+        section.64      _zbuffer.data,_zbuffer
+        section.64      _zbuffer.sdata,_zbuffer
+        section.64      _zbuffer.sbss,_zbufferbss
+        section.64      _zbuffer.bss,_zbufferbss
 		include "zbuffer.obj",_zbuffer
 
 ;--
@@ -157,15 +157,15 @@ _rdpbufSegmentRomEnd   alias _rdpbuf_orgend
 _rdpbufSegmentStart    alias _rdpbuf_obj
 _rdpbufSegmentEnd      alias _rdpbufbss_objend
 
-        section.16       rdpbuf.rdata,rdpbuf
-        section.16       rdpbuf.rodata,rdpbuf
-        section.16       rdpbuf.ctors,rdpbuf
-        section.16       rdpbuf.dtors,rdpbuf
-        section.16       rdpbuf.text,rdpbuf
-        section.16       rdpbuf.data,rdpbuf
-        section.16       rdpbuf.sdata,rdpbuf
-        section.16       rdpbuf.sbss,rdpbufbss
-        section.16       rdpbuf.bss,rdpbufbss
+        section.64       rdpbuf.rdata,rdpbuf
+        section.64       rdpbuf.rodata,rdpbuf
+        section.64       rdpbuf.ctors,rdpbuf
+        section.64       rdpbuf.dtors,rdpbuf
+        section.64       rdpbuf.text,rdpbuf
+        section.64       rdpbuf.data,rdpbuf
+        section.64       rdpbuf.sdata,rdpbuf
+        section.64       rdpbuf.sbss,rdpbufbss
+        section.64       rdpbuf.bss,rdpbufbss
         include "rdp_outp.obj",rdpbuf
 
 ;--
@@ -178,15 +178,15 @@ _musbufSegmentRomEnd   alias _musbuf_orgend
 _musbufSegmentStart    alias _musbuf_obj
 _musbufSegmentEnd      alias _musbufbss_objend
 
-        section.16       musbuf.rdata,musbuf
-        section.16       musbuf.rodata,musbuf
-        section.16       musbuf.ctors,musbuf
-        section.16       musbuf.dtors,musbuf
-        section.16       musbuf.text,musbuf
-        section.16       musbuf.data,musbuf
-        section.16       musbuf.sdata,musbuf
-        section.16       musbuf.sbss,musbufbss
-        section.16       musbuf.bss,musbufbss
+        section.64       musbuf.rdata,musbuf
+        section.64       musbuf.rodata,musbuf
+        section.64       musbuf.ctors,musbuf
+        section.64       musbuf.dtors,musbuf
+        section.64       musbuf.text,musbuf
+        section.64       musbuf.data,musbuf
+        section.64       musbuf.sdata,musbuf
+        section.64       musbuf.sbss,musbufbss
+        section.64       musbuf.bss,musbufbss
         include "mbuffer.obj",musbuf
 
 ;--
@@ -199,15 +199,15 @@ _cfbSegmentRomEnd       alias   _cfb_orgend
 _cfbSegmentStart        alias   _cfb_obj
 _cfbSegmentEnd          alias   _cfb_objend
 
-        section.16      cfb.rdata,cfb
-        section.16      cfb.rodata,cfb
-        section.16      cfb.ctors,cfb
-        section.16      cfb.dtors,cfb
-        section.16      cfb.text,cfb
-        section.16      cfb.data,cfb
-        section.16      cfb.sdata,cfb
-        section.16      cfb.sbss,cfbbss
-        section.16      cfb.bss,cfbbss
+        section.64      cfb.rdata,cfb
+        section.64      cfb.rodata,cfb
+        section.64      cfb.ctors,cfb
+        section.64      cfb.dtors,cfb
+        section.64      cfb.text,cfb
+        section.64      cfb.data,cfb
+        section.64      cfb.sdata,cfb
+        section.64      cfb.sbss,cfbbss
+        section.64      cfb.bss,cfbbss
 	include "cfb.obj",cfb
 
 
@@ -223,7 +223,7 @@ objBankg0bss    group   obj(),bss
 _objBank_g_0_SegmentRomStart        alias   _objBankg0_org
 _objBank_g_0_SegmentRomEnd          alias   _objBankg0_orgend
 
-        section.16      objBankg0.data,objBankg0
+        section.64      objBankg0.data,objBankg0
 
 oBankg0  incbin  "objects/gamegeneric.nob",objBankg0.data,64
 
@@ -236,7 +236,7 @@ objBank00bss    group   obj(),bss
 _objBank_0_0_SegmentRomStart        alias   _objBank00_org
 _objBank_0_0_SegmentRomEnd          alias   _objBank00_orgend
 
-        section.16      objBank00.data,objBank00
+        section.64      objBank00.data,objBank00
 
 oBank00  incbin  "objects/title.nob",objBank00.data,64
 
@@ -248,7 +248,7 @@ objBank01bss     group   obj(),bss
 _objBank_0_1_SegmentRomStart        alias   _objBank01_org
 _objBank_0_1_SegmentRomEnd          alias   _objBank01_orgend
 
-        section.16      objBank01.data,objBank01
+        section.64      objBank01.data,objBank01
 
 oBank01  incbin  "objects/start.nob",objBank01.data,64
 
@@ -260,7 +260,7 @@ objBank02bss     group   obj(),bss
 _objBank_0_2_SegmentRomStart        alias   _objBank02_org
 _objBank_0_2_SegmentRomEnd          alias   _objBank02_orgend
 
-        section.16      objBank02.data,objBank02
+        section.64      objBank02.data,objBank02
 
 oBank02  incbin  "objects/levela.nob",objBank02.data,64
 
@@ -272,7 +272,7 @@ objBank03bss     group   obj(),bss
 _objBank_0_3_SegmentRomStart        alias   _objBank03_org
 _objBank_0_3_SegmentRomEnd          alias   _objBank03_orgend
 
-        section.16      objBank03.data,objBank03
+        section.64      objBank03.data,objBank03
 
 oBank03  incbin  "objects/dummy.nob",objBank03.data,64
 
@@ -284,7 +284,7 @@ objBank04bss     group   obj(),bss
 _objBank_0_4_SegmentRomStart        alias   _objBank04_org
 _objBank_0_4_SegmentRomEnd          alias   _objBank04_orgend
 
-        section.16      objBank04.data,objBank04
+        section.64      objBank04.data,objBank04
 
 oBank04  incbin  "objects/dummy.nob",objBank04.data,64
 
@@ -296,7 +296,7 @@ objBank05bss     group   obj(),bss
 _objBank_0_5_SegmentRomStart        alias   _objBank05_org
 _objBank_0_5_SegmentRomEnd          alias   _objBank05_orgend
 
-        section.16      objBank05.data,objBank05
+        section.64      objBank05.data,objBank05
 
 oBank05  incbin  "objects/language.nob",objBank05.data,64
 
@@ -309,7 +309,7 @@ objBank10bss    group   obj(),bss
 _objBank_1_0_SegmentRomStart        alias   _objBank10_org
 _objBank_1_0_SegmentRomEnd          alias   _objBank10_orgend
 
-        section.16      objBank10.data,objBank10
+        section.64      objBank10.data,objBank10
 
 oBank10  incbin  "objects/gardenmaster.nob",objBank10.data,64
 
@@ -321,7 +321,7 @@ objBank11bss     group   obj(),bss
 _objBank_1_1_SegmentRomStart        alias   _objBank11_org
 _objBank_1_1_SegmentRomEnd          alias   _objBank11_orgend
 
-        section.16      objBank11.data,objBank11
+        section.64      objBank11.data,objBank11
 
 oBank11  incbin  "objects/garden1.nob",objBank11.data,64
 
@@ -333,7 +333,7 @@ objBank12bss     group   obj(),bss
 _objBank_1_2_SegmentRomStart        alias   _objBank12_org
 _objBank_1_2_SegmentRomEnd          alias   _objBank12_orgend
 
-        section.16      objBank12.data,objBank12
+        section.64      objBank12.data,objBank12
 
 oBank12  incbin  "objects/garden2.nob",objBank12.data,64
 
@@ -345,7 +345,7 @@ objBank13bss     group   obj(),bss
 _objBank_1_3_SegmentRomStart        alias   _objBank13_org
 _objBank_1_3_SegmentRomEnd          alias   _objBank13_orgend
 
-        section.16      objBank13.data,objBank13
+        section.64      objBank13.data,objBank13
 
 oBank13  incbin  "objects/garden3.nob",objBank13.data,64
 
@@ -357,7 +357,7 @@ objBank14bss     group   obj(),bss
 _objBank_1_4_SegmentRomStart        alias   _objBank14_org
 _objBank_1_4_SegmentRomEnd          alias   _objBank14_orgend
 
-        section.16      objBank14.data,objBank14
+        section.64      objBank14.data,objBank14
 
 oBank14  incbin  "objects/gardenboss.nob",objBank14.data,64
 
@@ -369,7 +369,7 @@ objBank15bss     group   obj(),bss
 _objBank_1_5_SegmentRomStart        alias   _objBank15_org
 _objBank_1_5_SegmentRomEnd          alias   _objBank15_orgend
 
-        section.16      objBank15.data,objBank15
+        section.64      objBank15.data,objBank15
 
 oBank15  incbin  "objects/gardenbossa.nob",objBank15.data,64
 
@@ -381,7 +381,7 @@ objBank16bss     group   obj(),bss
 _objBank_1_6_SegmentRomStart        alias   _objBank16_org
 _objBank_1_6_SegmentRomEnd          alias   _objBank16_orgend
 
-        section.16      objBank16.data,objBank16
+        section.64      objBank16.data,objBank16
 
 oBank16  incbin  "objects/gardenbonus.nob",objBank16.data,64
 
@@ -393,7 +393,7 @@ objBank17bss     group   obj(),bss
 _objBank_1_7_SegmentRomStart        alias   _objBank17_org
 _objBank_1_7_SegmentRomEnd          alias   _objBank17_orgend
 
-        section.16      objBank17.data,objBank17
+        section.64      objBank17.data,objBank17
 
 oBank17  incbin  "objects/gardenmulti.nob",objBank17.data,64
 
@@ -406,7 +406,7 @@ objBank20bss    group   obj(),bss
 _objBank_2_0_SegmentRomStart        alias   _objBank20_org
 _objBank_2_0_SegmentRomEnd          alias   _objBank20_orgend
 
-        section.16      objBank20.data,objBank20
+        section.64      objBank20.data,objBank20
 
 oBank20  incbin  "objects/ancientsmaster.nob",objBank20.data,64
 
@@ -418,7 +418,7 @@ objBank21bss    group   obj(),bss
 _objBank_2_1_SegmentRomStart        alias   _objBank21_org
 _objBank_2_1_SegmentRomEnd          alias   _objBank21_orgend
 
-        section.16      objBank21.data,objBank21
+        section.64      objBank21.data,objBank21
 
 oBank21  incbin  "objects/ancients1.nob",objBank21.data,64
 
@@ -430,7 +430,7 @@ objBank22bss    group   obj(),bss
 _objBank_2_2_SegmentRomStart        alias   _objBank22_org
 _objBank_2_2_SegmentRomEnd          alias   _objBank22_orgend
 
-        section.16      objBank22.data,objBank22
+        section.64      objBank22.data,objBank22
 
 oBank22  incbin  "objects/ancients2.nob",objBank22.data,64
 
@@ -442,7 +442,7 @@ objBank23bss    group   obj(),bss
 _objBank_2_3_SegmentRomStart        alias   _objBank23_org
 _objBank_2_3_SegmentRomEnd          alias   _objBank23_orgend
 
-        section.16      objBank23.data,objBank23
+        section.64      objBank23.data,objBank23
 
 oBank23  incbin  "objects/ancients3.nob",objBank23.data,64
 
@@ -454,7 +454,7 @@ objBank24bss    group   obj(),bss
 _objBank_2_4_SegmentRomStart        alias   _objBank24_org
 _objBank_2_4_SegmentRomEnd          alias   _objBank24_orgend
 
-        section.16      objBank24.data,objBank24
+        section.64      objBank24.data,objBank24
 
 oBank24  incbin  "objects/ancientsboss.nob",objBank24.data,64
 
@@ -466,7 +466,7 @@ objBank25bss    group   obj(),bss
 _objBank_2_5_SegmentRomStart        alias   _objBank25_org
 _objBank_2_5_SegmentRomEnd          alias   _objBank25_orgend
 
-        section.16      objBank25.data,objBank25
+        section.64      objBank25.data,objBank25
 
 oBank25  incbin  "objects/ancientsbossa.nob",objBank25.data,64
 
@@ -478,7 +478,7 @@ objBank26bss    group   obj(),bss
 _objBank_2_6_SegmentRomStart        alias   _objBank26_org
 _objBank_2_6_SegmentRomEnd          alias   _objBank26_orgend
 
-        section.16      objBank26.data,objBank26
+        section.64      objBank26.data,objBank26
 
 oBank26  incbin  "objects/ancientsbossb.nob",objBank26.data,64
 
@@ -490,7 +490,7 @@ objBank27bss    group   obj(),bss
 _objBank_2_7_SegmentRomStart        alias   _objBank27_org
 _objBank_2_7_SegmentRomEnd          alias   _objBank27_orgend
 
-        section.16      objBank27.data,objBank27
+        section.64      objBank27.data,objBank27
 
 oBank27  incbin  "objects/ancientsbossc.nob",objBank27.data,64
 
@@ -502,7 +502,7 @@ objBank28bss    group   obj(),bss
 _objBank_2_8_SegmentRomStart        alias   _objBank28_org
 _objBank_2_8_SegmentRomEnd          alias   _objBank28_orgend
 
-        section.16      objBank28.data,objBank28
+        section.64      objBank28.data,objBank28
 
 oBank28  incbin  "objects/dummy.nob",objBank28.data,64
 
@@ -514,7 +514,7 @@ objBank29bss    group   obj(),bss
 _objBank_2_9_SegmentRomStart        alias   _objBank29_org
 _objBank_2_9_SegmentRomEnd          alias   _objBank29_orgend
 
-        section.16      objBank29.data,objBank29
+        section.64      objBank29.data,objBank29
 
 oBank29  incbin  "objects/ancientsmulti.nob",objBank29.data,64
 
@@ -527,7 +527,7 @@ objBank30bss    group   obj(),bss
 _objBank_3_0_SegmentRomStart        alias   _objBank30_org
 _objBank_3_0_SegmentRomEnd          alias   _objBank30_orgend
 
-        section.16      objBank30.data,objBank30
+        section.64      objBank30.data,objBank30
 
 oBank30  incbin  "objects/spacemaster.nob",objBank30.data,64
 
@@ -539,7 +539,7 @@ objBank31bss     group   obj(),bss
 _objBank_3_1_SegmentRomStart        alias   _objBank31_org
 _objBank_3_1_SegmentRomEnd          alias   _objBank31_orgend
 
-        section.16      objBank31.data,objBank31
+        section.64      objBank31.data,objBank31
 
 oBank31  incbin  "objects/space1.nob",objBank31.data,64
 
@@ -551,7 +551,7 @@ objBank32bss     group   obj(),bss
 _objBank_3_2_SegmentRomStart        alias   _objBank32_org
 _objBank_3_2_SegmentRomEnd          alias   _objBank32_orgend
 
-        section.16      objBank32.data,objBank32
+        section.64      objBank32.data,objBank32
 
 oBank32  incbin  "objects/space2.nob",objBank32.data,64
 
@@ -563,7 +563,7 @@ objBank33bss     group   obj(),bss
 _objBank_3_3_SegmentRomStart        alias   _objBank33_org
 _objBank_3_3_SegmentRomEnd          alias   _objBank33_orgend
 
-        section.16      objBank33.data,objBank33
+        section.64      objBank33.data,objBank33
 
 oBank33  incbin  "objects/space3.nob",objBank33.data,64
 
@@ -575,7 +575,7 @@ objBank34bss     group   obj(),bss
 _objBank_3_4_SegmentRomStart        alias   _objBank34_org
 _objBank_3_4_SegmentRomEnd          alias   _objBank34_orgend
 
-        section.16      objBank34.data,objBank34
+        section.64      objBank34.data,objBank34
 
 oBank34  incbin  "objects/spaceboss.nob",objBank34.data,64
 
@@ -587,7 +587,7 @@ objBank35bss     group   obj(),bss
 _objBank_3_5_SegmentRomStart        alias   _objBank35_org
 _objBank_3_5_SegmentRomEnd          alias   _objBank35_orgend
 
-        section.16      objBank35.data,objBank35
+        section.64      objBank35.data,objBank35
 
 oBank35  incbin  "objects/dummy.nob",objBank35.data,64
 
@@ -599,7 +599,7 @@ objBank36bss     group   obj(),bss
 _objBank_3_6_SegmentRomStart        alias   _objBank36_org
 _objBank_3_6_SegmentRomEnd          alias   _objBank36_orgend
 
-        section.16      objBank36.data,objBank36
+        section.64      objBank36.data,objBank36
 
 oBank36  incbin  "objects/dummy.nob",objBank36.data,64
 
@@ -612,7 +612,7 @@ objBank40bss    group   obj(),bss
 _objBank_4_0_SegmentRomStart        alias   _objBank40_org
 _objBank_4_0_SegmentRomEnd          alias   _objBank40_orgend
 
-        section.16      objBank40.data,objBank40
+        section.64      objBank40.data,objBank40
 
 oBank40  incbin  "objects/citymaster.nob",objBank40.data,64
 
@@ -624,7 +624,7 @@ objBank41bss     group   obj(),bss
 _objBank_4_1_SegmentRomStart        alias   _objBank41_org
 _objBank_4_1_SegmentRomEnd          alias   _objBank41_orgend
 
-        section.16      objBank41.data,objBank41
+        section.64      objBank41.data,objBank41
 
 oBank41  incbin  "objects/city1.nob",objBank41.data,64
 
@@ -636,7 +636,7 @@ objBank42bss     group   obj(),bss
 _objBank_4_2_SegmentRomStart        alias   _objBank42_org
 _objBank_4_2_SegmentRomEnd          alias   _objBank42_orgend
 
-        section.16      objBank42.data,objBank42
+        section.64      objBank42.data,objBank42
 
 oBank42  incbin  "objects/city2.nob",objBank42.data,64
 
@@ -648,7 +648,7 @@ objBank43bss     group   obj(),bss
 _objBank_4_3_SegmentRomStart        alias   _objBank43_org
 _objBank_4_3_SegmentRomEnd          alias   _objBank43_orgend
 
-        section.16      objBank43.data,objBank43
+        section.64      objBank43.data,objBank43
 
 oBank43  incbin  "objects/city3.nob",objBank43.data,64
 
@@ -660,7 +660,7 @@ objBank44bss     group   obj(),bss
 _objBank_4_4_SegmentRomStart        alias   _objBank44_org
 _objBank_4_4_SegmentRomEnd          alias   _objBank44_orgend
 
-        section.16      objBank44.data,objBank44
+        section.64      objBank44.data,objBank44
 
 oBank44  incbin  "objects/cityboss.nob",objBank44.data,64
 
@@ -672,7 +672,7 @@ objBank45bss     group   obj(),bss
 _objBank_4_5_SegmentRomStart        alias   _objBank45_org
 _objBank_4_5_SegmentRomEnd          alias   _objBank45_orgend
 
-        section.16      objBank45.data,objBank45
+        section.64      objBank45.data,objBank45
 
 oBank45  incbin  "objects/citybonus.nob",objBank45.data,64
 
@@ -684,7 +684,7 @@ objBank46bss     group   obj(),bss
 _objBank_4_6_SegmentRomStart        alias   _objBank46_org
 _objBank_4_6_SegmentRomEnd          alias   _objBank46_orgend
 
-        section.16      objBank46.data,objBank46
+        section.64      objBank46.data,objBank46
 
 oBank46  incbin  "objects/citymulti.nob",objBank46.data,64
 
@@ -697,7 +697,7 @@ objBank50bss    group   obj(),bss
 _objBank_5_0_SegmentRomStart        alias   _objBank50_org
 _objBank_5_0_SegmentRomEnd          alias   _objBank50_orgend
 
-        section.16      objBank50.data,objBank50
+        section.64      objBank50.data,objBank50
 
 oBank50  incbin  "objects/dummy.nob",objBank50.data,64
 
@@ -709,7 +709,7 @@ objBank51bss     group   obj(),bss
 _objBank_5_1_SegmentRomStart        alias   _objBank51_org
 _objBank_5_1_SegmentRomEnd          alias   _objBank51_orgend
 
-        section.16      objBank51.data,objBank51
+        section.64      objBank51.data,objBank51
 
 oBank51  incbin  "objects/dummy.nob",objBank51.data,64
 
@@ -721,7 +721,7 @@ objBank52bss     group   obj(),bss
 _objBank_5_2_SegmentRomStart        alias   _objBank52_org
 _objBank_5_2_SegmentRomEnd          alias   _objBank52_orgend
 
-        section.16      objBank52.data,objBank52
+        section.64      objBank52.data,objBank52
 
 oBank52  incbin  "objects/dummy.nob",objBank52.data,64
 
@@ -733,7 +733,7 @@ objBank53bss     group   obj(),bss
 _objBank_5_3_SegmentRomStart        alias   _objBank53_org
 _objBank_5_3_SegmentRomEnd          alias   _objBank53_orgend
 
-        section.16      objBank53.data,objBank53
+        section.64      objBank53.data,objBank53
 
 oBank53  incbin  "objects/dummy.nob",objBank53.data,64
 
@@ -745,7 +745,7 @@ objBank54bss     group   obj(),bss
 _objBank_5_4_SegmentRomStart        alias   _objBank54_org
 _objBank_5_4_SegmentRomEnd          alias   _objBank54_orgend
 
-        section.16      objBank54.data,objBank54
+        section.64      objBank54.data,objBank54
 
 oBank54  incbin  "objects/dummy.nob",objBank54.data,64
 
@@ -757,7 +757,7 @@ objBank55bss     group   obj(),bss
 _objBank_5_5_SegmentRomStart        alias   _objBank55_org
 _objBank_5_5_SegmentRomEnd          alias   _objBank55_orgend
 
-        section.16      objBank55.data,objBank55
+        section.64      objBank55.data,objBank55
 
 oBank55  incbin  "objects/dummy.nob",objBank55.data,64
 
@@ -769,7 +769,7 @@ objBank56bss     group   obj(),bss
 _objBank_5_6_SegmentRomStart        alias   _objBank56_org
 _objBank_5_6_SegmentRomEnd          alias   _objBank56_orgend
 
-        section.16      objBank56.data,objBank56
+        section.64      objBank56.data,objBank56
 
 oBank56  incbin  "objects/dummy.nob",objBank56.data,64
 
@@ -782,7 +782,7 @@ objBank60bss    group   obj(),bss
 _objBank_6_0_SegmentRomStart        alias   _objBank60_org
 _objBank_6_0_SegmentRomEnd          alias   _objBank60_orgend
 
-        section.16      objBank60.data,objBank60
+        section.64      objBank60.data,objBank60
 
 oBank60  incbin  "objects/labmaster.nob",objBank60.data,64
 
@@ -794,7 +794,7 @@ objBank61bss     group   obj(),bss
 _objBank_6_1_SegmentRomStart        alias   _objBank61_org
 _objBank_6_1_SegmentRomEnd          alias   _objBank61_orgend
 
-        section.16      objBank61.data,objBank61
+        section.64      objBank61.data,objBank61
 
 oBank61  incbin  "objects/lab1.nob",objBank61.data,64
 
@@ -806,7 +806,7 @@ objBank62bss     group   obj(),bss
 _objBank_6_2_SegmentRomStart        alias   _objBank62_org
 _objBank_6_2_SegmentRomEnd          alias   _objBank62_orgend
 
-        section.16      objBank62.data,objBank62
+        section.64      objBank62.data,objBank62
 
 oBank62  incbin  "objects/lab2.nob",objBank62.data,64
 
@@ -818,7 +818,7 @@ objBank63bss     group   obj(),bss
 _objBank_6_3_SegmentRomStart        alias   _objBank63_org
 _objBank_6_3_SegmentRomEnd          alias   _objBank63_orgend
 
-        section.16      objBank63.data,objBank63
+        section.64      objBank63.data,objBank63
 
 oBank63  incbin  "objects/dummy.nob",objBank63.data,64
 
@@ -830,7 +830,7 @@ objBank64bss     group   obj(),bss
 _objBank_6_4_SegmentRomStart        alias   _objBank64_org
 _objBank_6_4_SegmentRomEnd          alias   _objBank64_orgend
 
-        section.16      objBank64.data,objBank64
+        section.64      objBank64.data,objBank64
 
 oBank64  incbin  "objects/dummy.nob",objBank64.data,64
 
@@ -842,7 +842,7 @@ objBank65bss     group   obj(),bss
 _objBank_6_5_SegmentRomStart        alias   _objBank65_org
 _objBank_6_5_SegmentRomEnd          alias   _objBank65_orgend
 
-        section.16      objBank65.data,objBank65
+        section.64      objBank65.data,objBank65
 
 oBank65  incbin  "objects/dummy.nob",objBank65.data,64
 
@@ -854,7 +854,7 @@ objBank66bss     group   obj(),bss
 _objBank_6_6_SegmentRomStart        alias   _objBank66_org
 _objBank_6_6_SegmentRomEnd          alias   _objBank66_orgend
 
-        section.16      objBank66.data,objBank66
+        section.64      objBank66.data,objBank66
 
 oBank66  incbin  "objects/dummy.nob",objBank66.data,64
 
@@ -867,7 +867,7 @@ objBank70bss    group   obj(),bss
 _objBank_7_0_SegmentRomStart        alias   _objBank70_org
 _objBank_7_0_SegmentRomEnd          alias   _objBank70_orgend
 
-        section.16      objBank70.data,objBank70
+        section.64      objBank70.data,objBank70
 
 oBank70  incbin  "objects/dummy.nob",objBank70.data,64
 
@@ -879,7 +879,7 @@ objBank71bss     group   obj(),bss
 _objBank_7_1_SegmentRomStart        alias   _objBank71_org
 _objBank_7_1_SegmentRomEnd          alias   _objBank71_orgend
 
-        section.16      objBank71.data,objBank71
+        section.64      objBank71.data,objBank71
 
 oBank71  incbin  "objects/toy1.nob",objBank71.data,64
 
@@ -891,7 +891,7 @@ objBank72bss     group   obj(),bss
 _objBank_7_2_SegmentRomStart        alias   _objBank72_org
 _objBank_7_2_SegmentRomEnd          alias   _objBank72_orgend
 
-        section.16      objBank72.data,objBank72
+        section.64      objBank72.data,objBank72
 
 oBank72  incbin  "objects/dummy.nob",objBank72.data,64
 
@@ -903,7 +903,7 @@ objBank73bss     group   obj(),bss
 _objBank_7_3_SegmentRomStart        alias   _objBank73_org
 _objBank_7_3_SegmentRomEnd          alias   _objBank73_orgend
 
-        section.16      objBank73.data,objBank73
+        section.64      objBank73.data,objBank73
 
 oBank73  incbin  "objects/dummy.nob",objBank73.data,64
 
@@ -915,7 +915,7 @@ objBank74bss     group   obj(),bss
 _objBank_7_4_SegmentRomStart        alias   _objBank74_org
 _objBank_7_4_SegmentRomEnd          alias   _objBank74_orgend
 
-        section.16      objBank74.data,objBank74
+        section.64      objBank74.data,objBank74
 
 oBank74  incbin  "objects/dummy.nob",objBank74.data,64
 
@@ -927,7 +927,7 @@ objBank75bss     group   obj(),bss
 _objBank_7_5_SegmentRomStart        alias   _objBank75_org
 _objBank_7_5_SegmentRomEnd          alias   _objBank75_orgend
 
-        section.16      objBank75.data,objBank75
+        section.64      objBank75.data,objBank75
 
 oBank75  incbin  "objects/dummy.nob",objBank75.data,64
 
@@ -939,7 +939,7 @@ objBank76bss     group   obj(),bss
 _objBank_7_6_SegmentRomStart        alias   _objBank76_org
 _objBank_7_6_SegmentRomEnd          alias   _objBank76_orgend
 
-        section.16      objBank76.data,objBank76
+        section.64      objBank76.data,objBank76
 
 oBank76  incbin  "objects/dummy.nob",objBank76.data,64
 
@@ -952,7 +952,7 @@ objBank80bss    group   obj(),bss
 _objBank_8_0_SegmentRomStart        alias   _objBank80_org
 _objBank_8_0_SegmentRomEnd          alias   _objBank80_orgend
 
-        section.16      objBank80.data,objBank80
+        section.64      objBank80.data,objBank80
 
 oBank80  incbin  "objects/dummy.nob",objBank80.data,64
 
@@ -964,7 +964,7 @@ objBank81bss     group   obj(),bss
 _objBank_8_1_SegmentRomStart        alias   _objBank81_org
 _objBank_8_1_SegmentRomEnd          alias   _objBank81_orgend
 
-        section.16      objBank81.data,objBank81
+        section.64      objBank81.data,objBank81
 
 oBank81  incbin  "objects/dummy.nob",objBank81.data,64
 
@@ -976,7 +976,7 @@ objBank82bss     group   obj(),bss
 _objBank_8_2_SegmentRomStart        alias   _objBank82_org
 _objBank_8_2_SegmentRomEnd          alias   _objBank82_orgend
 
-        section.16      objBank82.data,objBank82
+        section.64      objBank82.data,objBank82
 
 oBank82  incbin  "objects/dummy.nob",objBank82.data,64
 
@@ -988,7 +988,7 @@ objBank83bss     group   obj(),bss
 _objBank_8_3_SegmentRomStart        alias   _objBank83_org
 _objBank_8_3_SegmentRomEnd          alias   _objBank83_orgend
 
-        section.16      objBank83.data,objBank83
+        section.64      objBank83.data,objBank83
 
 oBank83  incbin  "objects/dummy.nob",objBank83.data,64
 
@@ -1000,7 +1000,7 @@ objBank84bss     group   obj(),bss
 _objBank_8_4_SegmentRomStart        alias   _objBank84_org
 _objBank_8_4_SegmentRomEnd          alias   _objBank84_orgend
 
-        section.16      objBank84.data,objBank84
+        section.64      objBank84.data,objBank84
 
 oBank84  incbin  "objects/dummy.nob",objBank84.data,64
 
@@ -1012,7 +1012,7 @@ objBank85bss     group   obj(),bss
 _objBank_8_5_SegmentRomStart        alias   _objBank85_org
 _objBank_8_5_SegmentRomEnd          alias   _objBank85_orgend
 
-        section.16      objBank85.data,objBank85
+        section.64      objBank85.data,objBank85
 
 oBank85  incbin  "objects/dummy.nob",objBank85.data,64
 
@@ -1024,7 +1024,7 @@ objBank86bss     group   obj(),bss
 _objBank_8_6_SegmentRomStart        alias   _objBank86_org
 _objBank_8_6_SegmentRomEnd          alias   _objBank86_orgend
 
-        section.16      objBank86.data,objBank86
+        section.64      objBank86.data,objBank86
 
 oBank86  incbin  "objects/dummy.nob",objBank86.data,64
 
@@ -1037,7 +1037,7 @@ objBank90bss    group   obj(),bss
 _objBank_9_0_SegmentRomStart        alias   _objBank90_org
 _objBank_9_0_SegmentRomEnd          alias   _objBank90_orgend
 
-        section.16      objBank90.data,objBank90
+        section.64      objBank90.data,objBank90
 
 oBank90  incbin  "objects/sretromaster.nob",objBank90.data,64
 
@@ -1049,7 +1049,7 @@ objBank91bss     group   obj(),bss
 _objBank_9_1_SegmentRomStart        alias   _objBank91_org
 _objBank_9_1_SegmentRomEnd          alias   _objBank91_orgend
 
-        section.16      objBank91.data,objBank91
+        section.64      objBank91.data,objBank91
 
 oBank91  incbin  "objects/sretro1.nob",objBank91.data,64
 
@@ -1061,7 +1061,7 @@ objBank92bss     group   obj(),bss
 _objBank_9_2_SegmentRomStart        alias   _objBank92_org
 _objBank_9_2_SegmentRomEnd          alias   _objBank92_orgend
 
-        section.16      objBank92.data,objBank92
+        section.64      objBank92.data,objBank92
 
 oBank92  incbin  "objects/sretro2.nob",objBank92.data,64
 
@@ -1073,7 +1073,7 @@ objBank93bss     group   obj(),bss
 _objBank_9_3_SegmentRomStart        alias   _objBank93_org
 _objBank_9_3_SegmentRomEnd          alias   _objBank93_orgend
 
-        section.16      objBank93.data,objBank93
+        section.64      objBank93.data,objBank93
 
 oBank93  incbin  "objects/sretro3.nob",objBank93.data,64
 
@@ -1085,7 +1085,7 @@ objBank94bss     group   obj(),bss
 _objBank_9_4_SegmentRomStart        alias   _objBank94_org
 _objBank_9_4_SegmentRomEnd          alias   _objBank94_orgend
 
-        section.16      objBank94.data,objBank94
+        section.64      objBank94.data,objBank94
 
 oBank94  incbin  "objects/sretro4.nob",objBank94.data,64
 
@@ -1097,7 +1097,7 @@ objBank95bss     group   obj(),bss
 _objBank_9_5_SegmentRomStart        alias   _objBank95_org
 _objBank_9_5_SegmentRomEnd          alias   _objBank95_orgend
 
-        section.16      objBank95.data,objBank95
+        section.64      objBank95.data,objBank95
 
 oBank95  incbin  "objects/sretro5.nob",objBank95.data,64
 
@@ -1109,7 +1109,7 @@ objBank96bss     group   obj(),bss
 _objBank_9_6_SegmentRomStart        alias   _objBank96_org
 _objBank_9_6_SegmentRomEnd          alias   _objBank96_orgend
 
-        section.16      objBank96.data,objBank96
+        section.64      objBank96.data,objBank96
 
 oBank96  incbin  "objects/sretro6.nob",objBank96.data,64
 
@@ -1135,7 +1135,7 @@ texBank1bss     group   obj(),bss
 _texBank1SegmentRomStart        alias   _texBank1_org
 _texBank1SegmentRomEnd          alias   _texBank1_orgend
 
-        section.16      texBank1.data,texBank1
+        section.64      texBank1.data,texBank1
 
 tBank1  incbin  "textures/system.fla",texBank1.data,64
 
@@ -1147,7 +1147,7 @@ texBank2bss     group   obj(),bss
 _texBank2SegmentRomStart        alias   _texBank2_org
 _texBank2SegmentRomEnd          alias   _texBank2_orgend
 
-        section.16      texBank2.data,texBank2
+        section.64      texBank2.data,texBank2
 
 tBank2  incbin  "textures/titlegeneric.fla",texBank2.data,64
 
@@ -1159,7 +1159,7 @@ texBank3bss     group   obj(),bss
 _texBank3SegmentRomStart        alias   _texBank3_org
 _texBank3SegmentRomEnd          alias   _texBank3_orgend
 
-        section.16      texBank3.data,texBank3
+        section.64      texBank3.data,texBank3
 
 tBank3  incbin  "textures/gamegeneric.fla",texBank3.data,64
 
@@ -1173,7 +1173,7 @@ texBank00bss     group   obj(),bss
 _texBankFrontendSegmentRomStart        alias   _texBank00_org
 _texBankFrontendSegmentRomEnd          alias   _texBank00_orgend
 
-        section.16      texBank00.data,texBank00
+        section.64      texBank00.data,texBank00
 
 tBank00  incbin  "textures/front.fla",texBank00.data,64
 
@@ -1185,7 +1185,7 @@ texBank01bss     group   obj(),bss
 _texBankGardenSegmentRomStart        alias   _texBank01_org
 _texBankGardenSegmentRomEnd          alias   _texBank01_orgend
         
-		section.16      texBank01.data,texBank01
+		section.64      texBank01.data,texBank01
 
 tBank01  incbin  "textures/garden.fla",texBank01.data,64
 
@@ -1197,7 +1197,7 @@ texBank02bss     group   obj(),bss
 _texBankAncientSegmentRomStart        alias   _texBank02_org
 _texBankAncientSegmentRomEnd          alias   _texBank02_orgend
         
-		section.16      texBank02.data,texBank02
+		section.64      texBank02.data,texBank02
 
 tBank02  incbin  "textures/ancient.fla",texBank02.data,64
 
@@ -1209,7 +1209,7 @@ texBank03bss     group   obj(),bss
 _texBankSpaceSegmentRomStart        alias   _texBank03_org
 _texBankSpaceSegmentRomEnd          alias   _texBank03_orgend
         
-		section.16      texBank03.data,texBank03
+		section.64      texBank03.data,texBank03
 
 tBank03  incbin  "textures/space.fla",texBank03.data,64
 
@@ -1221,7 +1221,7 @@ texBank04bss     group   obj(),bss
 _texBankCitySegmentRomStart        alias   _texBank04_org
 _texBankCitySegmentRomEnd          alias   _texBank04_orgend
         
-		section.16      texBank04.data,texBank04
+		section.64      texBank04.data,texBank04
 
 tBank04  incbin  "textures/city.fla",texBank04.data,64
 
@@ -1233,7 +1233,7 @@ texBank05bss     group   obj(),bss
 _texBankLabSegmentRomStart        alias   _texBank05_org
 _texBankLabSegmentRomEnd          alias   _texBank05_orgend
         
-		section.16      texBank05.data,texBank05
+		section.64      texBank05.data,texBank05
 
 tBank05  incbin  "textures/lab.fla",texBank05.data,64
 
@@ -1245,7 +1245,7 @@ texBank06bss     group   obj(),bss
 _texBankSubSegmentRomStart        alias   _texBank06_org
 _texBankSubSegmentRomEnd          alias   _texBank06_orgend
         
-		section.16      texBank06.data,texBank06
+		section.64      texBank06.data,texBank06
 
 tBank06  incbin  "textures/sub.fla",texBank06.data,64
 
@@ -1257,7 +1257,7 @@ texBank07bss     group   obj(),bss
 _texBankToySegmentRomStart        alias   _texBank07_org
 _texBankToySegmentRomEnd          alias   _texBank07_orgend
         
-		section.16      texBank07.data,texBank07
+		section.64      texBank07.data,texBank07
 
 tBank07  incbin  "textures/toy.fla",texBank07.data,64
 
@@ -1269,7 +1269,7 @@ texBank08bss     group   obj(),bss
 _texBankHallowSegmentRomStart        alias   _texBank08_org
 _texBankHallowSegmentRomEnd          alias   _texBank08_orgend
         
-		section.16      texBank08.data,texBank08
+		section.64      texBank08.data,texBank08
 
 tBank08  incbin  "textures/hallow.fla",texBank08.data,64
 
@@ -1281,7 +1281,7 @@ texBank09bss     group   obj(),bss
 _texBankSRetroSegmentRomStart        alias   _texBank09_org
 _texBankSRetroSegmentRomEnd          alias   _texBank09_orgend
         
-		section.16      texBank09.data,texBank09
+		section.64      texBank09.data,texBank09
 
 tBank09  incbin  "textures/sretro.fla",texBank09.data,64
 
@@ -1304,7 +1304,7 @@ levData11bss     group   obj(),bss
 _levData_1_1_SegmentRomStart alias _levData11_org
 _levData_1_1_SegmentRomEnd   alias _levData11_orgend
 
-        section.16       levData11.data,levData11
+        section.64       levData11.data,levData11
 
 ;levDat11  incbin "leveldata/entity-0-0.cef",levData11.data, 32
 levDat11  incbin "c:/levtemp/entity-0-0.dat",levData11.data, 32
@@ -1317,7 +1317,7 @@ levData12bss     group   obj(),bss
 _levData_1_2_SegmentRomStart alias _levData12_org
 _levData_1_2_SegmentRomEnd   alias _levData12_orgend
 
-        section.16       levData12.data,levData12
+        section.64       levData12.data,levData12
 
 levDat12  incbin "leveldata/entity-0-1.cef",levData12.data, 32
 
@@ -1329,7 +1329,7 @@ levData13bss     group   obj(),bss
 _levData_1_3_SegmentRomStart alias _levData13_org
 _levData_1_3_SegmentRomEnd   alias _levData13_orgend
 
-        section.16       levData13.data,levData13
+        section.64       levData13.data,levData13
 
 levDat13  incbin "leveldata/entity-0-2.cef",levData13.data, 32
 
@@ -1341,7 +1341,7 @@ levData14bss     group   obj(),bss
 _levData_1_4_SegmentRomStart alias _levData14_org
 _levData_1_4_SegmentRomEnd   alias _levData14_orgend
 
-        section.16       levData14.data,levData14
+        section.64       levData14.data,levData14
 
 levDat14  incbin "leveldata/entity-0-3.cef",levData14.data, 32
 
@@ -1353,7 +1353,7 @@ levData15bss     group   obj(),bss
 _levData_1_5_SegmentRomStart alias _levData15_org
 _levData_1_5_SegmentRomEnd   alias _levData15_orgend
 
-        section.16       levData15.data,levData15
+        section.64       levData15.data,levData15
 
 levDat15  incbin "leveldata/entity-0-4.cef",levData15.data, 32
 
@@ -1365,7 +1365,7 @@ levData16bss     group   obj(),bss
 _levData_1_6_SegmentRomStart alias _levData16_org
 _levData_1_6_SegmentRomEnd   alias _levData16_orgend
 
-        section.16       levData16.data,levData16
+        section.64       levData16.data,levData16
 
 levDat16  incbin "leveldata/entity-0-5.cef",levData16.data, 32
 
@@ -1377,7 +1377,7 @@ levData17bss     group   obj(),bss
 _levData_1_7_SegmentRomStart alias _levData17_org
 _levData_1_7_SegmentRomEnd   alias _levData17_orgend
 
-        section.16       levData17.data,levData17
+        section.64       levData17.data,levData17
 
 levDat17  incbin "leveldata/entity-0-6.cef",levData17.data, 32
 
@@ -1392,7 +1392,7 @@ levData21bss     group   obj(),bss
 _levData_2_1_SegmentRomStart alias _levData21_org
 _levData_2_1_SegmentRomEnd   alias _levData21_orgend
 
-        section.16       levData21.data,levData21
+        section.64       levData21.data,levData21
 
 levDat21  incbin "leveldata/entity-1-0.cef",levData21.data, 32
 
@@ -1404,7 +1404,7 @@ levData22bss     group   obj(),bss
 _levData_2_2_SegmentRomStart alias _levData22_org
 _levData_2_2_SegmentRomEnd   alias _levData22_orgend
 
-        section.16       levData22.data,levData22
+        section.64       levData22.data,levData22
 
 levDat22  incbin "leveldata/entity-1-1.cef",levData22.data, 32
 
@@ -1416,7 +1416,7 @@ levData23bss     group   obj(),bss
 _levData_2_3_SegmentRomStart alias _levData23_org
 _levData_2_3_SegmentRomEnd   alias _levData23_orgend
 
-        section.16       levData23.data,levData23
+        section.64       levData23.data,levData23
 
 levDat23  incbin "leveldata/entity-1-2.cef",levData23.data, 32
 
@@ -1428,7 +1428,7 @@ levData24bss     group   obj(),bss
 _levData_2_4_SegmentRomStart alias _levData24_org
 _levData_2_4_SegmentRomEnd   alias _levData24_orgend
 
-        section.16       levData24.data,levData24
+        section.64       levData24.data,levData24
 
 levDat24  incbin "leveldata/dummy.cef",levData24.data, 32
 
@@ -1440,7 +1440,7 @@ levData25bss     group   obj(),bss
 _levData_2_5_SegmentRomStart alias _levData25_org
 _levData_2_5_SegmentRomEnd   alias _levData25_orgend
 
-        section.16       levData25.data,levData25
+        section.64       levData25.data,levData25
 
 levDat25  incbin "leveldata/dummy.cef",levData25.data, 32
 
@@ -1452,7 +1452,7 @@ levData26bss     group   obj(),bss
 _levData_2_6_SegmentRomStart alias _levData26_org
 _levData_2_6_SegmentRomEnd   alias _levData26_orgend
 
-        section.16       levData26.data,levData26
+        section.64       levData26.data,levData26
 
 levDat26  incbin "leveldata/dummy.cef",levData26.data, 32
 
@@ -1464,7 +1464,7 @@ levData27bss     group   obj(),bss
 _levData_2_7_SegmentRomStart alias _levData27_org
 _levData_2_7_SegmentRomEnd   alias _levData27_orgend
 
-        section.16       levData27.data,levData27
+        section.64       levData27.data,levData27
 
 levDat27  incbin "leveldata/dummy.cef",levData27.data, 32
 
@@ -1476,7 +1476,7 @@ levData28bss     group   obj(),bss
 _levData_2_8_SegmentRomStart alias _levData28_org
 _levData_2_8_SegmentRomEnd   alias _levData28_orgend
 
-        section.16       levData28.data,levData28
+        section.64       levData28.data,levData28
 
 levDat28  incbin "leveldata/dummy.cef",levData28.data, 32
 
@@ -1488,7 +1488,7 @@ levData29bss     group   obj(),bss
 _levData_2_9_SegmentRomStart alias _levData29_org
 _levData_2_9_SegmentRomEnd   alias _levData29_orgend
 
-        section.16       levData29.data,levData29
+        section.64       levData29.data,levData29
 
 levDat29  incbin "leveldata/dummy.cef",levData29.data, 32
 
@@ -1503,7 +1503,7 @@ levData31bss     group   obj(),bss
 _levData_3_1_SegmentRomStart alias _levData31_org
 _levData_3_1_SegmentRomEnd   alias _levData31_orgend
 
-        section.16       levData31.data,levData31
+        section.64       levData31.data,levData31
 
 levDat31  incbin "leveldata/entity-2-0.cef",levData31.data, 32
 ;levDat31  incbin "c:/levtemp/entity-2-0.dat",levData31.data, 32
@@ -1516,7 +1516,7 @@ levData32bss     group   obj(),bss
 _levData_3_2_SegmentRomStart alias _levData32_org
 _levData_3_2_SegmentRomEnd   alias _levData32_orgend
 
-        section.16       levData32.data,levData32
+        section.64       levData32.data,levData32
 
 levDat32  incbin "leveldata/entity-2-1.cef",levData32.data, 32
 
@@ -1528,7 +1528,7 @@ levData33bss     group   obj(),bss
 _levData_3_3_SegmentRomStart alias _levData33_org
 _levData_3_3_SegmentRomEnd   alias _levData33_orgend
 
-        section.16       levData33.data,levData33
+        section.64       levData33.data,levData33
 
 levDat33  incbin "leveldata/entity-2-2.cef",levData33.data, 32
 
@@ -1540,7 +1540,7 @@ levData34bss     group   obj(),bss
 _levData_3_4_SegmentRomStart alias _levData34_org
 _levData_3_4_SegmentRomEnd   alias _levData34_orgend
 
-        section.16       levData34.data,levData34
+        section.64       levData34.data,levData34
 
 levDat34  incbin "leveldata/entity-2-3.cef",levData34.data, 32
 
@@ -1552,7 +1552,7 @@ levData35bss     group   obj(),bss
 _levData_3_5_SegmentRomStart alias _levData35_org
 _levData_3_5_SegmentRomEnd   alias _levData35_orgend
 
-        section.16       levData35.data,levData35
+        section.64       levData35.data,levData35
 
 levDat35  incbin "leveldata/dummy.cef",levData35.data, 32
 
@@ -1564,7 +1564,7 @@ levData36bss     group   obj(),bss
 _levData_3_6_SegmentRomStart alias _levData36_org
 _levData_3_6_SegmentRomEnd   alias _levData36_orgend
 
-        section.16       levData36.data,levData36
+        section.64       levData36.data,levData36
 
 levDat36  incbin "leveldata/dummy.cef",levData36.data, 32
 
@@ -1579,7 +1579,7 @@ levData41bss     group   obj(),bss
 _levData_4_1_SegmentRomStart alias _levData41_org
 _levData_4_1_SegmentRomEnd   alias _levData41_orgend
 
-        section.16       levData41.data,levData41
+        section.64       levData41.data,levData41
 
 levDat41  incbin "leveldata/dummy.cef",levData41.data, 32
 
@@ -1591,7 +1591,7 @@ levData42bss     group   obj(),bss
 _levData_4_2_SegmentRomStart alias _levData42_org
 _levData_4_2_SegmentRomEnd   alias _levData42_orgend
 
-        section.16       levData42.data,levData42
+        section.64       levData42.data,levData42
 
 levDat42  incbin "leveldata/dummy.cef",levData42.data, 32
 
@@ -1603,7 +1603,7 @@ levData43bss     group   obj(),bss
 _levData_4_3_SegmentRomStart alias _levData43_org
 _levData_4_3_SegmentRomEnd   alias _levData43_orgend
 
-        section.16       levData43.data,levData43
+        section.64       levData43.data,levData43
 
 levDat43  incbin "leveldata/dummy.cef",levData43.data, 32
 
@@ -1615,7 +1615,7 @@ levData44bss     group   obj(),bss
 _levData_4_4_SegmentRomStart alias _levData44_org
 _levData_4_4_SegmentRomEnd   alias _levData44_orgend
 
-        section.16       levData44.data,levData44
+        section.64       levData44.data,levData44
 
 levDat44  incbin "leveldata/dummy.cef",levData44.data, 32
 
@@ -1627,7 +1627,7 @@ levData45bss     group   obj(),bss
 _levData_4_5_SegmentRomStart alias _levData45_org
 _levData_4_5_SegmentRomEnd   alias _levData45_orgend
 
-        section.16       levData45.data,levData45
+        section.64       levData45.data,levData45
 
 levDat45  incbin "leveldata/dummy.cef",levData45.data, 32
 
@@ -1639,7 +1639,7 @@ levData46bss     group   obj(),bss
 _levData_4_6_SegmentRomStart alias _levData46_org
 _levData_4_6_SegmentRomEnd   alias _levData46_orgend
 
-        section.16       levData46.data,levData46
+        section.64       levData46.data,levData46
 
 levDat46  incbin "leveldata/dummy.cef",levData46.data, 32
 
@@ -1654,7 +1654,7 @@ levData51bss     group   obj(),bss
 _levData_5_1_SegmentRomStart alias _levData51_org
 _levData_5_1_SegmentRomEnd   alias _levData51_orgend
 
-        section.16       levData51.data,levData51
+        section.64       levData51.data,levData51
 
 levDat51  incbin "leveldata/dummy.cef",levData51.data, 32
 
@@ -1666,7 +1666,7 @@ levData52bss     group   obj(),bss
 _levData_5_2_SegmentRomStart alias _levData52_org
 _levData_5_2_SegmentRomEnd   alias _levData52_orgend
 
-        section.16       levData52.data,levData52
+        section.64       levData52.data,levData52
 
 levDat52  incbin "leveldata/dummy.cef",levData52.data, 32
 
@@ -1678,7 +1678,7 @@ levData53bss     group   obj(),bss
 _levData_5_3_SegmentRomStart alias _levData53_org
 _levData_5_3_SegmentRomEnd   alias _levData53_orgend
 
-        section.16       levData53.data,levData53
+        section.64       levData53.data,levData53
 
 levDat53  incbin "leveldata/dummy.cef",levData53.data, 32
 
@@ -1690,7 +1690,7 @@ levData54bss     group   obj(),bss
 _levData_5_4_SegmentRomStart alias _levData54_org
 _levData_5_4_SegmentRomEnd   alias _levData54_orgend
 
-        section.16       levData54.data,levData54
+        section.64       levData54.data,levData54
 
 levDat54  incbin "leveldata/dummy.cef",levData54.data, 32
 
@@ -1702,7 +1702,7 @@ levData55bss     group   obj(),bss
 _levData_5_5_SegmentRomStart alias _levData55_org
 _levData_5_5_SegmentRomEnd   alias _levData55_orgend
 
-        section.16       levData55.data,levData55
+        section.64       levData55.data,levData55
 
 levDat55  incbin "leveldata/dummy.cef",levData55.data, 32
 
@@ -1714,7 +1714,7 @@ levData56bss     group   obj(),bss
 _levData_5_6_SegmentRomStart alias _levData56_org
 _levData_5_6_SegmentRomEnd   alias _levData56_orgend
 
-        section.16       levData56.data,levData56
+        section.64       levData56.data,levData56
 
 levDat56  incbin "leveldata/dummy.cef",levData56.data, 32
 
@@ -1729,7 +1729,7 @@ levData61bss     group   obj(),bss
 _levData_6_1_SegmentRomStart alias _levData61_org
 _levData_6_1_SegmentRomEnd   alias _levData61_orgend
 
-        section.16       levData61.data,levData61
+        section.64       levData61.data,levData61
 
 levDat61  incbin "leveldata/entity-5-0.cef",levData61.data, 32
 
@@ -1741,7 +1741,7 @@ levData62bss     group   obj(),bss
 _levData_6_2_SegmentRomStart alias _levData62_org
 _levData_6_2_SegmentRomEnd   alias _levData62_orgend
 
-        section.16       levData62.data,levData62
+        section.64       levData62.data,levData62
 
 levDat62  incbin "leveldata/entity-5-1.cef",levData62.data, 32
 
@@ -1753,7 +1753,7 @@ levData63bss     group   obj(),bss
 _levData_6_3_SegmentRomStart alias _levData63_org
 _levData_6_3_SegmentRomEnd   alias _levData63_orgend
 
-        section.16       levData63.data,levData63
+        section.64       levData63.data,levData63
 
 levDat63  incbin "leveldata/dummy.cef",levData63.data, 32
 
@@ -1765,7 +1765,7 @@ levData64bss     group   obj(),bss
 _levData_6_4_SegmentRomStart alias _levData64_org
 _levData_6_4_SegmentRomEnd   alias _levData64_orgend
 
-        section.16       levData64.data,levData64
+        section.64       levData64.data,levData64
 
 levDat64  incbin "leveldata/dummy.cef",levData64.data, 32
 
@@ -1777,7 +1777,7 @@ levData65bss     group   obj(),bss
 _levData_6_5_SegmentRomStart alias _levData65_org
 _levData_6_5_SegmentRomEnd   alias _levData65_orgend
 
-        section.16       levData65.data,levData65
+        section.64       levData65.data,levData65
 
 levDat65  incbin "leveldata/dummy.cef",levData65.data, 32
 
@@ -1789,7 +1789,7 @@ levData66bss     group   obj(),bss
 _levData_6_6_SegmentRomStart alias _levData66_org
 _levData_6_6_SegmentRomEnd   alias _levData66_orgend
 
-        section.16       levData66.data,levData66
+        section.64       levData66.data,levData66
 
 levDat66  incbin "leveldata/dummy.cef",levData66.data, 32
 
@@ -1804,7 +1804,7 @@ levData71bss     group   obj(),bss
 _levData_7_1_SegmentRomStart alias _levData71_org
 _levData_7_1_SegmentRomEnd   alias _levData71_orgend
 
-        section.16       levData71.data,levData71
+        section.64       levData71.data,levData71
 
 levDat71  incbin "leveldata/dummy.cef",levData71.data, 32
 
@@ -1816,7 +1816,7 @@ levData72bss     group   obj(),bss
 _levData_7_2_SegmentRomStart alias _levData72_org
 _levData_7_2_SegmentRomEnd   alias _levData72_orgend
 
-        section.16       levData72.data,levData72
+        section.64       levData72.data,levData72
 
 levDat72  incbin "leveldata/dummy.cef",levData72.data, 32
 
@@ -1828,7 +1828,7 @@ levData73bss     group   obj(),bss
 _levData_7_3_SegmentRomStart alias _levData73_org
 _levData_7_3_SegmentRomEnd   alias _levData73_orgend
 
-        section.16       levData73.data,levData73
+        section.64       levData73.data,levData73
 
 levDat73  incbin "leveldata/dummy.cef",levData73.data, 32
 
@@ -1840,7 +1840,7 @@ levData74bss     group   obj(),bss
 _levData_7_4_SegmentRomStart alias _levData74_org
 _levData_7_4_SegmentRomEnd   alias _levData74_orgend
 
-        section.16       levData74.data,levData74
+        section.64       levData74.data,levData74
 
 levDat74  incbin "leveldata/dummy.cef",levData74.data, 32
 
@@ -1852,7 +1852,7 @@ levData75bss     group   obj(),bss
 _levData_7_5_SegmentRomStart alias _levData75_org
 _levData_7_5_SegmentRomEnd   alias _levData75_orgend
 
-        section.16       levData75.data,levData75
+        section.64       levData75.data,levData75
 
 levDat75  incbin "leveldata/dummy.cef",levData75.data, 32
 
@@ -1864,7 +1864,7 @@ levData76bss     group   obj(),bss
 _levData_7_6_SegmentRomStart alias _levData76_org
 _levData_7_6_SegmentRomEnd   alias _levData76_orgend
 
-        section.16       levData76.data,levData76
+        section.64       levData76.data,levData76
 
 levDat76  incbin "leveldata/dummy.cef",levData76.data, 32
 
@@ -1879,7 +1879,7 @@ levData81bss     group   obj(),bss
 _levData_8_1_SegmentRomStart alias _levData81_org
 _levData_8_1_SegmentRomEnd   alias _levData81_orgend
 
-        section.16       levData81.data,levData81
+        section.64       levData81.data,levData81
 
 levDat81  incbin "leveldata/dummy.cef",levData81.data, 32
 
@@ -1891,7 +1891,7 @@ levData82bss     group   obj(),bss
 _levData_8_2_SegmentRomStart alias _levData82_org
 _levData_8_2_SegmentRomEnd   alias _levData82_orgend
 
-        section.16       levData82.data,levData82
+        section.64       levData82.data,levData82
 
 levDat82  incbin "leveldata/dummy.cef",levData82.data, 32
 
@@ -1903,7 +1903,7 @@ levData83bss     group   obj(),bss
 _levData_8_3_SegmentRomStart alias _levData83_org
 _levData_8_3_SegmentRomEnd   alias _levData83_orgend
 
-        section.16       levData83.data,levData83
+        section.64       levData83.data,levData83
 
 levDat83  incbin "leveldata/dummy.cef",levData83.data, 32
 
@@ -1915,7 +1915,7 @@ levData84bss     group   obj(),bss
 _levData_8_4_SegmentRomStart alias _levData84_org
 _levData_8_4_SegmentRomEnd   alias _levData84_orgend
 
-        section.16       levData84.data,levData84
+        section.64       levData84.data,levData84
 
 levDat84  incbin "leveldata/dummy.cef",levData84.data, 32
 
@@ -1927,7 +1927,7 @@ levData85bss     group   obj(),bss
 _levData_8_5_SegmentRomStart alias _levData85_org
 _levData_8_5_SegmentRomEnd   alias _levData85_orgend
 
-        section.16       levData85.data,levData85
+        section.64       levData85.data,levData85
 
 levDat85  incbin "leveldata/dummy.cef",levData85.data, 32
 
@@ -1939,7 +1939,7 @@ levData86bss     group   obj(),bss
 _levData_8_6_SegmentRomStart alias _levData86_org
 _levData_8_6_SegmentRomEnd   alias _levData86_orgend
 
-        section.16       levData86.data,levData86
+        section.64       levData86.data,levData86
 
 levDat86  incbin "leveldata/dummy.cef",levData86.data, 32
 
@@ -1954,7 +1954,7 @@ levData91bss     group   obj(),bss
 _levData_9_1_SegmentRomStart alias _levData91_org
 _levData_9_1_SegmentRomEnd   alias _levData91_orgend
 
-        section.16       levData91.data,levData91
+        section.64       levData91.data,levData91
 
 levDat91  incbin "leveldata/entity-8-0.cef",levData91.data, 32
 
@@ -1966,7 +1966,7 @@ levData92bss     group   obj(),bss
 _levData_9_2_SegmentRomStart alias _levData92_org
 _levData_9_2_SegmentRomEnd   alias _levData92_orgend
 
-        section.16       levData92.data,levData92
+        section.64       levData92.data,levData92
 
 levDat92  incbin "leveldata/entity-8-1.cef",levData92.data, 32
 
@@ -1978,7 +1978,7 @@ levData93bss     group   obj(),bss
 _levData_9_3_SegmentRomStart alias _levData93_org
 _levData_9_3_SegmentRomEnd   alias _levData93_orgend
 
-        section.16       levData93.data,levData93
+        section.64       levData93.data,levData93
 
 levDat93  incbin "leveldata/entity-8-2.cef",levData93.data, 32
 
@@ -1990,7 +1990,7 @@ levData94bss     group   obj(),bss
 _levData_9_4_SegmentRomStart alias _levData94_org
 _levData_9_4_SegmentRomEnd   alias _levData94_orgend
 
-        section.16       levData94.data,levData94
+        section.64       levData94.data,levData94
 
 levDat94  incbin "leveldata/entity-8-3.cef",levData94.data, 32
 
@@ -2002,7 +2002,7 @@ levData95bss     group   obj(),bss
 _levData_9_5_SegmentRomStart alias _levData95_org
 _levData_9_5_SegmentRomEnd   alias _levData95_orgend
 
-        section.16       levData95.data,levData95
+        section.64       levData95.data,levData95
 
 levDat95  incbin "leveldata/entity-8-4.cef",levData95.data, 32
 
@@ -2014,7 +2014,7 @@ levData96bss     group   obj(),bss
 _levData_9_6_SegmentRomStart alias _levData96_org
 _levData_9_6_SegmentRomEnd   alias _levData96_orgend
 
-        section.16       levData96.data,levData96
+        section.64       levData96.data,levData96
 
 levDat96  incbin "leveldata/dummy.cef",levData96.data, 32
 
@@ -2029,7 +2029,7 @@ levData101bss     group   obj(),bss
 _levData_10_1_SegmentRomStart alias _levData101_org
 _levData_10_1_SegmentRomEnd   alias _levData101_orgend
 
-        section.16       levData101.data,levData101
+        section.64       levData101.data,levData101
 
 ;levDat101  incbin "leveldata/entity-9-0.cef",levData101.data, 32
 levDat101  incbin "c:/levtemp/entity-9-0.dat",levData101.data, 32
@@ -2042,7 +2042,7 @@ levData102bss     group   obj(),bss
 _levData_10_2_SegmentRomStart alias _levData102_org
 _levData_10_2_SegmentRomEnd   alias _levData102_orgend
 
-        section.16       levData102.data,levData102
+        section.64       levData102.data,levData102
 
 levDat102  incbin "leveldata/entity-9-1.cef",levData102.data, 32
 
@@ -2054,7 +2054,7 @@ levData103bss     group   obj(),bss
 _levData_10_3_SegmentRomStart alias _levData103_org
 _levData_10_3_SegmentRomEnd   alias _levData103_orgend
 
-        section.16       levData103.data,levData103
+        section.64       levData103.data,levData103
 
 levDat103  incbin "leveldata/dummy.cef",levData103.data, 32
 
@@ -2066,7 +2066,7 @@ levData104bss     group   obj(),bss
 _levData_10_4_SegmentRomStart alias _levData104_org
 _levData_10_4_SegmentRomEnd   alias _levData104_orgend
 
-        section.16       levData104.data,levData104
+        section.64       levData104.data,levData104
 
 levDat104  incbin "leveldata/dummy.cef",levData104.data, 32
 
@@ -2078,7 +2078,7 @@ levData105bss     group   obj(),bss
 _levData_10_5_SegmentRomStart alias _levData105_org
 _levData_10_5_SegmentRomEnd   alias _levData105_orgend
 
-        section.16       levData105.data,levData105
+        section.64       levData105.data,levData105
 
 levDat105  incbin "leveldata/entity-9-4.cef",levData105.data, 32
 
@@ -2101,7 +2101,7 @@ scrData11bss     group   obj(),bss
 _scrData_1_1_SegmentRomStart alias _scrData11_org
 _scrData_1_1_SegmentRomEnd   alias _scrData11_orgend
 
-        section.16       scrData11.data,scrData11
+        section.64       scrData11.data,scrData11
 
 scrDat11  incbin "leveldata/dummy.csf",scrData11.data, 32
 
@@ -2113,7 +2113,7 @@ scrData12bss     group   obj(),bss
 _scrData_1_2_SegmentRomStart alias _scrData12_org
 _scrData_1_2_SegmentRomEnd   alias _scrData12_orgend
 
-        section.16       scrData12.data,scrData12
+        section.64       scrData12.data,scrData12
 
 scrDat12  incbin "leveldata/dummy.csf",scrData12.data, 32
 
@@ -2125,7 +2125,7 @@ scrData13bss     group   obj(),bss
 _scrData_1_3_SegmentRomStart alias _scrData13_org
 _scrData_1_3_SegmentRomEnd   alias _scrData13_orgend
 
-        section.16       scrData13.data,scrData13
+        section.64       scrData13.data,scrData13
 
 scrDat13  incbin "leveldata/dummy.csf",scrData13.data, 32
 
@@ -2137,7 +2137,7 @@ scrData14bss     group   obj(),bss
 _scrData_1_4_SegmentRomStart alias _scrData14_org
 _scrData_1_4_SegmentRomEnd   alias _scrData14_orgend
 
-        section.16       scrData14.data,scrData14
+        section.64       scrData14.data,scrData14
 
 scrDat14  incbin "leveldata/dummy.csf",scrData14.data, 32
 
@@ -2149,7 +2149,7 @@ scrData15bss     group   obj(),bss
 _scrData_1_5_SegmentRomStart alias _scrData15_org
 _scrData_1_5_SegmentRomEnd   alias _scrData15_orgend
 
-        section.16       scrData15.data,scrData15
+        section.64       scrData15.data,scrData15
 
 scrDat15  incbin "leveldata/dummy.csf",scrData15.data, 32
 
@@ -2161,7 +2161,7 @@ scrData16bss     group   obj(),bss
 _scrData_1_6_SegmentRomStart alias _scrData16_org
 _scrData_1_6_SegmentRomEnd   alias _scrData16_orgend
 
-        section.16       scrData16.data,scrData16
+        section.64       scrData16.data,scrData16
 
 scrDat16  incbin "leveldata/dummy.csf",scrData16.data, 32
 
@@ -2173,7 +2173,7 @@ scrData17bss     group   obj(),bss
 _scrData_1_7_SegmentRomStart alias _scrData17_org
 _scrData_1_7_SegmentRomEnd   alias _scrData17_orgend
 
-        section.16       scrData17.data,scrData17
+        section.64       scrData17.data,scrData17
 
 scrDat17  incbin "leveldata/dummy.csf",scrData17.data, 32
 
@@ -2188,7 +2188,7 @@ scrData21bss     group   obj(),bss
 _scrData_2_1_SegmentRomStart alias _scrData21_org
 _scrData_2_1_SegmentRomEnd   alias _scrData21_orgend
 
-        section.16       scrData21.data,scrData21
+        section.64       scrData21.data,scrData21
 
 scrDat21  incbin "leveldata/dummy.csf",scrData21.data, 32
 
@@ -2200,7 +2200,7 @@ scrData22bss     group   obj(),bss
 _scrData_2_2_SegmentRomStart alias _scrData22_org
 _scrData_2_2_SegmentRomEnd   alias _scrData22_orgend
 
-        section.16       scrData22.data,scrData22
+        section.64       scrData22.data,scrData22
 
 scrDat22  incbin "leveldata/dummy.csf",scrData22.data, 32
 
@@ -2212,7 +2212,7 @@ scrData23bss     group   obj(),bss
 _scrData_2_3_SegmentRomStart alias _scrData23_org
 _scrData_2_3_SegmentRomEnd   alias _scrData23_orgend
 
-        section.16       scrData23.data,scrData23
+        section.64       scrData23.data,scrData23
 
 scrDat23  incbin "leveldata/dummy.csf",scrData23.data, 32
 
@@ -2224,7 +2224,7 @@ scrData24bss     group   obj(),bss
 _scrData_2_4_SegmentRomStart alias _scrData24_org
 _scrData_2_4_SegmentRomEnd   alias _scrData24_orgend
 
-        section.16       scrData24.data,scrData24
+        section.64       scrData24.data,scrData24
 
 scrDat24  incbin "leveldata/dummy.csf",scrData24.data, 32
 
@@ -2236,7 +2236,7 @@ scrData25bss     group   obj(),bss
 _scrData_2_5_SegmentRomStart alias _scrData25_org
 _scrData_2_5_SegmentRomEnd   alias _scrData25_orgend
 
-        section.16       scrData25.data,scrData25
+        section.64       scrData25.data,scrData25
 
 scrDat25  incbin "leveldata/dummy.csf",scrData25.data, 32
 
@@ -2248,7 +2248,7 @@ scrData26bss     group   obj(),bss
 _scrData_2_6_SegmentRomStart alias _scrData26_org
 _scrData_2_6_SegmentRomEnd   alias _scrData26_orgend
 
-        section.16       scrData26.data,scrData26
+        section.64       scrData26.data,scrData26
 
 scrDat26  incbin "leveldata/dummy.csf",scrData26.data, 32
 
@@ -2260,7 +2260,7 @@ scrData27bss     group   obj(),bss
 _scrData_2_7_SegmentRomStart alias _scrData27_org
 _scrData_2_7_SegmentRomEnd   alias _scrData27_orgend
 
-        section.16       scrData27.data,scrData27
+        section.64       scrData27.data,scrData27
 
 scrDat27  incbin "leveldata/dummy.csf",scrData27.data, 32
 
@@ -2272,7 +2272,7 @@ scrData28bss     group   obj(),bss
 _scrData_2_8_SegmentRomStart alias _scrData28_org
 _scrData_2_8_SegmentRomEnd   alias _scrData28_orgend
 
-        section.16       scrData28.data,scrData28
+        section.64       scrData28.data,scrData28
 
 scrDat28  incbin "leveldata/dummy.csf",scrData28.data, 32
 
@@ -2284,7 +2284,7 @@ scrData29bss     group   obj(),bss
 _scrData_2_9_SegmentRomStart alias _scrData29_org
 _scrData_2_9_SegmentRomEnd   alias _scrData29_orgend
 
-        section.16       scrData29.data,scrData29
+        section.64       scrData29.data,scrData29
 
 scrDat29  incbin "leveldata/dummy.csf",scrData29.data, 32
 
@@ -2299,7 +2299,7 @@ scrData31bss     group   obj(),bss
 _scrData_3_1_SegmentRomStart alias _scrData31_org
 _scrData_3_1_SegmentRomEnd   alias _scrData31_orgend
 
-        section.16       scrData31.data,scrData31
+        section.64       scrData31.data,scrData31
 
 scrDat31  incbin "leveldata/script-2-0.csf",scrData31.data, 32
 
@@ -2311,7 +2311,7 @@ scrData32bss     group   obj(),bss
 _scrData_3_2_SegmentRomStart alias _scrData32_org
 _scrData_3_2_SegmentRomEnd   alias _scrData32_orgend
 
-        section.16       scrData32.data,scrData32
+        section.64       scrData32.data,scrData32
 
 scrDat32  incbin "leveldata/dummy.csf",scrData32.data, 32
 
@@ -2323,7 +2323,7 @@ scrData33bss     group   obj(),bss
 _scrData_3_3_SegmentRomStart alias _scrData33_org
 _scrData_3_3_SegmentRomEnd   alias _scrData33_orgend
 
-        section.16       scrData33.data,scrData33
+        section.64       scrData33.data,scrData33
 
 scrDat33  incbin "leveldata/dummy.csf",scrData33.data, 32
 
@@ -2335,7 +2335,7 @@ scrData34bss     group   obj(),bss
 _scrData_3_4_SegmentRomStart alias _scrData34_org
 _scrData_3_4_SegmentRomEnd   alias _scrData34_orgend
 
-        section.16       scrData34.data,scrData34
+        section.64       scrData34.data,scrData34
 
 scrDat34  incbin "leveldata/script-2-3.csf",scrData34.data, 32
 
@@ -2347,7 +2347,7 @@ scrData35bss     group   obj(),bss
 _scrData_3_5_SegmentRomStart alias _scrData35_org
 _scrData_3_5_SegmentRomEnd   alias _scrData35_orgend
 
-        section.16       scrData35.data,scrData35
+        section.64       scrData35.data,scrData35
 
 scrDat35  incbin "leveldata/dummy.csf",scrData35.data, 32
 
@@ -2359,7 +2359,7 @@ scrData36bss     group   obj(),bss
 _scrData_3_6_SegmentRomStart alias _scrData36_org
 _scrData_3_6_SegmentRomEnd   alias _scrData36_orgend
 
-        section.16       scrData36.data,scrData36
+        section.64       scrData36.data,scrData36
 
 scrDat36  incbin "leveldata/dummy.csf",scrData36.data, 32
 
@@ -2374,7 +2374,7 @@ scrData41bss     group   obj(),bss
 _scrData_4_1_SegmentRomStart alias _scrData41_org
 _scrData_4_1_SegmentRomEnd   alias _scrData41_orgend
 
-        section.16       scrData41.data,scrData41
+        section.64       scrData41.data,scrData41
 
 scrDat41  incbin "leveldata/dummy.csf",scrData41.data, 32
 
@@ -2386,7 +2386,7 @@ scrData42bss     group   obj(),bss
 _scrData_4_2_SegmentRomStart alias _scrData42_org
 _scrData_4_2_SegmentRomEnd   alias _scrData42_orgend
 
-        section.16       scrData42.data,scrData42
+        section.64       scrData42.data,scrData42
 
 scrDat42  incbin "leveldata/dummy.csf",scrData42.data, 32
 
@@ -2398,7 +2398,7 @@ scrData43bss     group   obj(),bss
 _scrData_4_3_SegmentRomStart alias _scrData43_org
 _scrData_4_3_SegmentRomEnd   alias _scrData43_orgend
 
-        section.16       scrData43.data,scrData43
+        section.64       scrData43.data,scrData43
 
 scrDat43  incbin "leveldata/dummy.csf",scrData43.data, 32
 
@@ -2410,7 +2410,7 @@ scrData44bss     group   obj(),bss
 _scrData_4_4_SegmentRomStart alias _scrData44_org
 _scrData_4_4_SegmentRomEnd   alias _scrData44_orgend
 
-        section.16       scrData44.data,scrData44
+        section.64       scrData44.data,scrData44
 
 scrDat44  incbin "leveldata/dummy.csf",scrData44.data, 32
 
@@ -2422,7 +2422,7 @@ scrData45bss     group   obj(),bss
 _scrData_4_5_SegmentRomStart alias _scrData45_org
 _scrData_4_5_SegmentRomEnd   alias _scrData45_orgend
 
-        section.16       scrData45.data,scrData45
+        section.64       scrData45.data,scrData45
 
 scrDat45  incbin "leveldata/dummy.csf",scrData45.data, 32
 
@@ -2434,7 +2434,7 @@ scrData46bss     group   obj(),bss
 _scrData_4_6_SegmentRomStart alias _scrData46_org
 _scrData_4_6_SegmentRomEnd   alias _scrData46_orgend
 
-        section.16       scrData46.data,scrData46
+        section.64       scrData46.data,scrData46
 
 scrDat46  incbin "leveldata/dummy.csf",scrData46.data, 32
 
@@ -2449,7 +2449,7 @@ scrData51bss     group   obj(),bss
 _scrData_5_1_SegmentRomStart alias _scrData51_org
 _scrData_5_1_SegmentRomEnd   alias _scrData51_orgend
 
-        section.16       scrData51.data,scrData51
+        section.64       scrData51.data,scrData51
 
 scrDat51  incbin "leveldata/dummy.csf",scrData51.data, 32
 
@@ -2461,7 +2461,7 @@ scrData52bss     group   obj(),bss
 _scrData_5_2_SegmentRomStart alias _scrData52_org
 _scrData_5_2_SegmentRomEnd   alias _scrData52_orgend
 
-        section.16       scrData52.data,scrData52
+        section.64       scrData52.data,scrData52
 
 scrDat52  incbin "leveldata/dummy.csf",scrData52.data, 32
 
@@ -2473,7 +2473,7 @@ scrData53bss     group   obj(),bss
 _scrData_5_3_SegmentRomStart alias _scrData53_org
 _scrData_5_3_SegmentRomEnd   alias _scrData53_orgend
 
-        section.16       scrData53.data,scrData53
+        section.64       scrData53.data,scrData53
 
 scrDat53  incbin "leveldata/dummy.csf",scrData53.data, 32
 
@@ -2485,7 +2485,7 @@ scrData54bss     group   obj(),bss
 _scrData_5_4_SegmentRomStart alias _scrData54_org
 _scrData_5_4_SegmentRomEnd   alias _scrData54_orgend
 
-        section.16       scrData54.data,scrData54
+        section.64       scrData54.data,scrData54
 
 scrDat54  incbin "leveldata/dummy.csf",scrData54.data, 32
 
@@ -2497,7 +2497,7 @@ scrData55bss     group   obj(),bss
 _scrData_5_5_SegmentRomStart alias _scrData55_org
 _scrData_5_5_SegmentRomEnd   alias _scrData55_orgend
 
-        section.16       scrData55.data,scrData55
+        section.64       scrData55.data,scrData55
 
 scrDat55  incbin "leveldata/dummy.csf",scrData55.data, 32
 
@@ -2509,7 +2509,7 @@ scrData56bss     group   obj(),bss
 _scrData_5_6_SegmentRomStart alias _scrData56_org
 _scrData_5_6_SegmentRomEnd   alias _scrData56_orgend
 
-        section.16       scrData56.data,scrData56
+        section.64       scrData56.data,scrData56
 
 scrDat56  incbin "leveldata/dummy.csf",scrData56.data, 32
 
@@ -2524,7 +2524,7 @@ scrData61bss     group   obj(),bss
 _scrData_6_1_SegmentRomStart alias _scrData61_org
 _scrData_6_1_SegmentRomEnd   alias _scrData61_orgend
 
-        section.16       scrData61.data,scrData61
+        section.64       scrData61.data,scrData61
 
 scrDat61  incbin "leveldata/dummy.csf",scrData61.data, 32
 
@@ -2536,7 +2536,7 @@ scrData62bss     group   obj(),bss
 _scrData_6_2_SegmentRomStart alias _scrData62_org
 _scrData_6_2_SegmentRomEnd   alias _scrData62_orgend
 
-        section.16       scrData62.data,scrData62
+        section.64       scrData62.data,scrData62
 
 scrDat62  incbin "leveldata/dummy.csf",scrData62.data, 32
 
@@ -2548,7 +2548,7 @@ scrData63bss     group   obj(),bss
 _scrData_6_3_SegmentRomStart alias _scrData63_org
 _scrData_6_3_SegmentRomEnd   alias _scrData63_orgend
 
-        section.16       scrData63.data,scrData63
+        section.64       scrData63.data,scrData63
 
 scrDat63  incbin "leveldata/dummy.csf",scrData63.data, 32
 
@@ -2560,7 +2560,7 @@ scrData64bss     group   obj(),bss
 _scrData_6_4_SegmentRomStart alias _scrData64_org
 _scrData_6_4_SegmentRomEnd   alias _scrData64_orgend
 
-        section.16       scrData64.data,scrData64
+        section.64       scrData64.data,scrData64
 
 scrDat64  incbin "leveldata/dummy.csf",scrData64.data, 32
 
@@ -2572,7 +2572,7 @@ scrData65bss     group   obj(),bss
 _scrData_6_5_SegmentRomStart alias _scrData65_org
 _scrData_6_5_SegmentRomEnd   alias _scrData65_orgend
 
-        section.16       scrData65.data,scrData65
+        section.64       scrData65.data,scrData65
 
 scrDat65  incbin "leveldata/dummy.csf",scrData65.data, 32
 
@@ -2584,7 +2584,7 @@ scrData66bss     group   obj(),bss
 _scrData_6_6_SegmentRomStart alias _scrData66_org
 _scrData_6_6_SegmentRomEnd   alias _scrData66_orgend
 
-        section.16       scrData66.data,scrData66
+        section.64       scrData66.data,scrData66
 
 scrDat66  incbin "leveldata/dummy.csf",scrData66.data, 32
 
@@ -2599,7 +2599,7 @@ scrData71bss     group   obj(),bss
 _scrData_7_1_SegmentRomStart alias _scrData71_org
 _scrData_7_1_SegmentRomEnd   alias _scrData71_orgend
 
-        section.16       scrData71.data,scrData71
+        section.64       scrData71.data,scrData71
 
 scrDat71  incbin "leveldata/dummy.csf",scrData71.data, 32
 
@@ -2611,7 +2611,7 @@ scrData72bss     group   obj(),bss
 _scrData_7_2_SegmentRomStart alias _scrData72_org
 _scrData_7_2_SegmentRomEnd   alias _scrData72_orgend
 
-        section.16       scrData72.data,scrData72
+        section.64       scrData72.data,scrData72
 
 scrDat72  incbin "leveldata/dummy.csf",scrData72.data, 32
 
@@ -2623,7 +2623,7 @@ scrData73bss     group   obj(),bss
 _scrData_7_3_SegmentRomStart alias _scrData73_org
 _scrData_7_3_SegmentRomEnd   alias _scrData73_orgend
 
-        section.16       scrData73.data,scrData73
+        section.64       scrData73.data,scrData73
 
 scrDat73  incbin "leveldata/dummy.csf",scrData73.data, 32
 
@@ -2635,7 +2635,7 @@ scrData74bss     group   obj(),bss
 _scrData_7_4_SegmentRomStart alias _scrData74_org
 _scrData_7_4_SegmentRomEnd   alias _scrData74_orgend
 
-        section.16       scrData74.data,scrData74
+        section.64       scrData74.data,scrData74
 
 scrDat74  incbin "leveldata/dummy.csf",scrData74.data, 32
 
@@ -2647,7 +2647,7 @@ scrData75bss     group   obj(),bss
 _scrData_7_5_SegmentRomStart alias _scrData75_org
 _scrData_7_5_SegmentRomEnd   alias _scrData75_orgend
 
-        section.16       scrData75.data,scrData75
+        section.64       scrData75.data,scrData75
 
 scrDat75  incbin "leveldata/dummy.csf",scrData75.data, 32
 
@@ -2659,7 +2659,7 @@ scrData76bss     group   obj(),bss
 _scrData_7_6_SegmentRomStart alias _scrData76_org
 _scrData_7_6_SegmentRomEnd   alias _scrData76_orgend
 
-        section.16       scrData76.data,scrData76
+        section.64       scrData76.data,scrData76
 
 scrDat76  incbin "leveldata/dummy.csf",scrData76.data, 32
 
@@ -2674,7 +2674,7 @@ scrData81bss     group   obj(),bss
 _scrData_8_1_SegmentRomStart alias _scrData81_org
 _scrData_8_1_SegmentRomEnd   alias _scrData81_orgend
 
-        section.16       scrData81.data,scrData81
+        section.64       scrData81.data,scrData81
 
 scrDat81  incbin "leveldata/dummy.csf",scrData81.data, 32
 
@@ -2686,7 +2686,7 @@ scrData82bss     group   obj(),bss
 _scrData_8_2_SegmentRomStart alias _scrData82_org
 _scrData_8_2_SegmentRomEnd   alias _scrData82_orgend
 
-        section.16       scrData82.data,scrData82
+        section.64       scrData82.data,scrData82
 
 scrDat82  incbin "leveldata/dummy.csf",scrData82.data, 32
 
@@ -2698,7 +2698,7 @@ scrData83bss     group   obj(),bss
 _scrData_8_3_SegmentRomStart alias _scrData83_org
 _scrData_8_3_SegmentRomEnd   alias _scrData83_orgend
 
-        section.16       scrData83.data,scrData83
+        section.64       scrData83.data,scrData83
 
 scrDat83  incbin "leveldata/dummy.csf",scrData83.data, 32
 
@@ -2710,7 +2710,7 @@ scrData84bss     group   obj(),bss
 _scrData_8_4_SegmentRomStart alias _scrData84_org
 _scrData_8_4_SegmentRomEnd   alias _scrData84_orgend
 
-        section.16       scrData84.data,scrData84
+        section.64       scrData84.data,scrData84
 
 scrDat84  incbin "leveldata/dummy.csf",scrData84.data, 32
 
@@ -2722,7 +2722,7 @@ scrData85bss     group   obj(),bss
 _scrData_8_5_SegmentRomStart alias _scrData85_org
 _scrData_8_5_SegmentRomEnd   alias _scrData85_orgend
 
-        section.16       scrData85.data,scrData85
+        section.64       scrData85.data,scrData85
 
 scrDat85  incbin "leveldata/dummy.csf",scrData85.data, 32
 
@@ -2734,7 +2734,7 @@ scrData86bss     group   obj(),bss
 _scrData_8_6_SegmentRomStart alias _scrData86_org
 _scrData_8_6_SegmentRomEnd   alias _scrData86_orgend
 
-        section.16       scrData86.data,scrData86
+        section.64       scrData86.data,scrData86
 
 scrDat86  incbin "leveldata/dummy.csf",scrData86.data, 32
 
@@ -2749,7 +2749,7 @@ scrData91bss     group   obj(),bss
 _scrData_9_1_SegmentRomStart alias _scrData91_org
 _scrData_9_1_SegmentRomEnd   alias _scrData91_orgend
 
-        section.16       scrData91.data,scrData91
+        section.64       scrData91.data,scrData91
 
 scrDat91  incbin "leveldata/script-8-0.csf",scrData91.data, 32
 
@@ -2761,7 +2761,7 @@ scrData92bss     group   obj(),bss
 _scrData_9_2_SegmentRomStart alias _scrData92_org
 _scrData_9_2_SegmentRomEnd   alias _scrData92_orgend
 
-        section.16       scrData92.data,scrData92
+        section.64       scrData92.data,scrData92
 
 scrDat92  incbin "leveldata/script-8-1.csf",scrData92.data, 32
 
@@ -2773,7 +2773,7 @@ scrData93bss     group   obj(),bss
 _scrData_9_3_SegmentRomStart alias _scrData93_org
 _scrData_9_3_SegmentRomEnd   alias _scrData93_orgend
 
-        section.16       scrData93.data,scrData93
+        section.64       scrData93.data,scrData93
 
 scrDat93  incbin "leveldata/script-8-2.csf",scrData93.data, 32
 
@@ -2785,7 +2785,7 @@ scrData94bss     group   obj(),bss
 _scrData_9_4_SegmentRomStart alias _scrData94_org
 _scrData_9_4_SegmentRomEnd   alias _scrData94_orgend
 
-        section.16       scrData94.data,scrData94
+        section.64       scrData94.data,scrData94
 
 scrDat94  incbin "leveldata/script-8-3.csf",scrData94.data, 32
 
@@ -2797,7 +2797,7 @@ scrData95bss     group   obj(),bss
 _scrData_9_5_SegmentRomStart alias _scrData95_org
 _scrData_9_5_SegmentRomEnd   alias _scrData95_orgend
 
-        section.16       scrData95.data,scrData95
+        section.64       scrData95.data,scrData95
 
 scrDat95  incbin "leveldata/script-8-4.csf",scrData95.data, 32
 
@@ -2809,7 +2809,7 @@ scrData96bss     group   obj(),bss
 _scrData_9_6_SegmentRomStart alias _scrData96_org
 _scrData_9_6_SegmentRomEnd   alias _scrData96_orgend
 
-        section.16       scrData96.data,scrData96
+        section.64       scrData96.data,scrData96
 
 scrDat96  incbin "leveldata/dummy.csf",scrData96.data, 32
 
@@ -2824,7 +2824,7 @@ scrData101bss     group   obj(),bss
 _scrData_10_1_SegmentRomStart alias _scrData101_org
 _scrData_10_1_SegmentRomEnd   alias _scrData101_orgend
 
-        section.16       scrData101.data,scrData101
+        section.64       scrData101.data,scrData101
 
 scrDat101  incbin "leveldata/script-9-0.csf",scrData101.data, 32
 
@@ -2836,7 +2836,7 @@ scrData102bss     group   obj(),bss
 _scrData_10_2_SegmentRomStart alias _scrData102_org
 _scrData_10_2_SegmentRomEnd   alias _scrData102_orgend
 
-        section.16       scrData102.data,scrData102
+        section.64       scrData102.data,scrData102
 
 scrDat102  incbin "leveldata/dummy.csf",scrData102.data, 32
 
@@ -2848,7 +2848,7 @@ scrData103bss     group   obj(),bss
 _scrData_10_3_SegmentRomStart alias _scrData103_org
 _scrData_10_3_SegmentRomEnd   alias _scrData103_orgend
 
-        section.16       scrData103.data,scrData103
+        section.64       scrData103.data,scrData103
 
 scrDat103  incbin "leveldata/dummy.csf",scrData103.data, 32
 
@@ -2860,7 +2860,7 @@ scrData104bss     group   obj(),bss
 _scrData_10_4_SegmentRomStart alias _scrData104_org
 _scrData_10_4_SegmentRomEnd   alias _scrData104_orgend
 
-        section.16       scrData104.data,scrData104
+        section.64       scrData104.data,scrData104
 
 scrDat104  incbin "leveldata/dummy.csf",scrData104.data, 32
 
@@ -2872,7 +2872,7 @@ scrData105bss     group   obj(),bss
 _scrData_10_5_SegmentRomStart alias _scrData105_org
 _scrData_10_5_SegmentRomEnd   alias _scrData105_orgend
 
-        section.16       scrData105.data,scrData105
+        section.64       scrData105.data,scrData105
 
 scrDat105  incbin "leveldata/dummy.csf",scrData105.data, 32
 
@@ -2898,7 +2898,7 @@ pbank1bss     group   obj(),bss
 _pbank1SegmentRomStart alias _pbank1_org
 _pbank1SegmentRomEnd   alias _pbank1_orgend
 
-        section.16       pbank1.data,pbank1
+        section.64       pbank1.data,pbank1
 pbnk1	incbin "music/new/frogger2.ptr",pbank1.data, 32
 
 ;--
@@ -2908,7 +2908,7 @@ pbank2bss     group   obj(),bss
 _pbank2SegmentRomStart alias _pbank2_org
 _pbank2SegmentRomEnd   alias _pbank2_orgend
 
-        section.16       pbank2.data,pbank2
+        section.64       pbank2.data,pbank2
 pbnk2	incbin "sfx/sfx.ptr",pbank2.data, 32
 
 
@@ -2921,7 +2921,7 @@ wbank1bss     group   obj(),bss
 _wbank1SegmentRomStart alias _wbank1_org
 _wbank1SegmentRomEnd   alias _wbank1_orgend
 
-        section.16       wbank1.data,wbank1
+        section.64       wbank1.data,wbank1
 wbnk1   incbin "music/new/frogger2.wbk",wbank1.data, 32
 
 ;--
@@ -2931,7 +2931,7 @@ wbank2bss     group   obj(),bss
 _wbank2SegmentRomStart alias _wbank2_org
 _wbank2SegmentRomEnd   alias _wbank2_orgend
 
-        section.16       wbank2.data,wbank2
+        section.64       wbank2.data,wbank2
 wbnk2   incbin "sfx/sfx.wbk",wbank2.data, 32
 
 ;--
@@ -2940,7 +2940,7 @@ sbank1bss     group   obj(),bss
 
 _sbank1SegmentRomStart alias _sbank1_org
 _sbank1SegmentRomEnd   alias _sbank1_orgend
-        section.16       sbank1.data,sbank1
+        section.64       sbank1.data,sbank1
 sbnk1   incbin "sfx/sfx.bfx",sbank1.data, 32
 
 
@@ -2952,7 +2952,7 @@ mBank1bss     group   obj(),bss
 
 _mBank1SegmentRomStart alias _mBank1_org
 _mBank1SegmentRomEnd   alias _mBank1_orgend
-        section.16       mBank1.data,mBank1
+        section.64       mBank1.data,mBank1
 mbnk1  incbin "music/new/garden/garden.bin",mBank1.data, 32
 
 ; [ TEST2_TRACK ] >>>>>
@@ -2962,7 +2962,7 @@ mBank2bss     group   obj(),bss
 
 _mBank2SegmentRomStart alias _mBank2_org
 _mBank2SegmentRomEnd   alias _mBank2_orgend
-        section.16       mBank2.data,mBank2
+        section.64       mBank2.data,mBank2
 mbnk2  incbin "music/new/hub/hub.bin",mBank2.data, 32
 
 ; [ TEST3_TRACK ] >>>>>
@@ -2972,7 +2972,7 @@ mBank3bss     group   obj(),bss
 
 _mBank3SegmentRomStart alias _mBank3_org
 _mBank3SegmentRomEnd   alias _mBank3_orgend
-        section.16       mBank3.data,mBank3
+        section.64       mBank3.data,mBank3
 mbnk3  incbin "music/new/labs/labs.bin",mBank3.data, 32
 
 ; [ TEST4_TRACK ] >>>>>
@@ -2982,5 +2982,25 @@ mBank4bss     group   obj(),bss
 
 _mBank4SegmentRomStart alias _mBank4_org
 _mBank4SegmentRomEnd   alias _mBank4_orgend
-        section.16       mBank4.data,mBank4
+        section.64       mBank4.data,mBank4
 mbnk4  incbin "music/new/toyshop/toyshop.bin",mBank4.data, 32
+
+; [ TEST5_TRACK ] >>>>>
+
+mBank5        group   obj()
+mBank5bss     group   obj(),bss
+
+_mBank5SegmentRomStart alias _mBank5_org
+_mBank5SegmentRomEnd   alias _mBank5_orgend
+        section.64       mBank5.data,mBank5
+mbnk5  incbin "music/new/city/city.bin",mBank5.data, 32
+
+; [ TEST6_TRACK ] >>>>>
+
+mBank6        group   obj()
+mBank6bss     group   obj(),bss
+
+_mBank6SegmentRomStart alias _mBank6_org
+_mBank6SegmentRomEnd   alias _mBank6_orgend
+        section.64       mBank6.data,mBank6
+mbnk6  incbin "music/new/halloween/halloween.bin",mBank6.data, 32

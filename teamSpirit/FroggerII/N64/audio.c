@@ -27,11 +27,13 @@ int numContinuousSamples = 0;
 
 TUNE_DATA_BANK gameSongs[] = 
 {
-	0,0,"no track",												//	NOTRACK			0 
-	_mBank1SegmentRomStart,_mBank1SegmentRomEnd,"garden toon",	//	TEST1_TRACK		1
-	_mBank2SegmentRomStart,_mBank2SegmentRomEnd,"hub toon",		//	TEST2_TRACK		2
-	_mBank3SegmentRomStart,_mBank3SegmentRomEnd,"lab toon",		//	TEST3_TRACK		3
-	_mBank4SegmentRomStart,_mBank4SegmentRomEnd,"toyshop toon",	//	TEST4_TRACK		4
+	0,0,"no track",													//	NOTRACK			0 
+	_mBank1SegmentRomStart,_mBank1SegmentRomEnd,"garden toon",		//	TEST1_TRACK		1
+	_mBank2SegmentRomStart,_mBank2SegmentRomEnd,"hub toon",			//	TEST2_TRACK		2
+	_mBank3SegmentRomStart,_mBank3SegmentRomEnd,"lab toon",			//	TEST3_TRACK		3
+	_mBank4SegmentRomStart,_mBank4SegmentRomEnd,"toyshop toon",		//	TEST4_TRACK		4
+	_mBank5SegmentRomStart,_mBank5SegmentRomEnd,"city toon",		//	TEST5_TRACK		5
+	_mBank6SegmentRomStart,_mBank6SegmentRomEnd,"halloween toon",	//	TEST6_TRACK		6
 };
 
 
@@ -651,9 +653,11 @@ int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch)
 */
 void PrepareSongForLevel(short worldID,short levelID)
 {
-	int theToon = TEST1_TRACK;
+	int theToon = TEST4_TRACK;
 
 	// just play the first track for now !!!!
+	MusSetMasterVolume(MUSFLAG_SONGS,32000);
+
 	PrepareSong(theToon,0);
 }
 

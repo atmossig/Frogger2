@@ -192,8 +192,9 @@ Gfx setrend_light_fog2[] =
 };
 
 
-Vtx verts[32];
 Vtx *vPtr = NULL;
+
+float rotMtx[4][4],scaleMtx[4][4],transMtx[4][4],tempMtx[4][4];
 
 
 /*	--------------------------------------------------------------------------------
@@ -473,12 +474,18 @@ void PrintSpriteOverlays()
 */
 void DrawSpecialFX()
 {
-	if(specFXList.numEntries)
+	if(	(gameState.mode == INGAME_MODE) || (gameState.mode == PAUSE_MODE) ||
+		(gameState.mode == CAMEO_MODE))
 	{
-		SPECFX *fx;
-		for(fx = specFXList.head.next; fx!=&specFXList.head; fx=fx->next)
-			if(fx->Draw)
-				fx->Draw(fx);
+		ProcessShadows();
+		
+		if(specFXList.numEntries)
+		{
+			SPECFX *fx;
+			for(fx=specFXList.head.next; fx!=&specFXList.head; fx=fx->next)
+				if(fx->Draw)
+					fx->Draw(fx);
+		}
 	}
 }
 
@@ -528,18 +535,115 @@ void DrawFXTrail(SPECFX *trail)
 */
 void ProcessShadows()
 {
+	TEXTURE *theTexture = NULL;
+	VECTOR vec;
+//	ENEMY *nme;
+//	PLATFORM *plat;
+//	GARIB *garib;
+	int i;
+	float height;
+
+//	gDPSetRenderMode(glistp++,G_RM_ZB_CLD_SURF,G_RM_ZB_CLD_SURF2);
+//	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+/*
+	FindTexture(&theTexture,UpdateCRC("ai_circle.bmp"),YES);
+	gDPSetTextureLUT(glistp++,G_TT_NONE);
+	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,
+						G_TX_CLAMP,G_TX_CLAMP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);	
+*/
+	FindTexture(&theTexture,UpdateCRC("fgeye.bmp"),YES);
+	LoadTexture(theTexture);
+
+	// process frog shadows
+	for(i=0; i<NUM_FROGS; i++ )
+	{
+		if(frog[i]->actor->shadow)
+		{
+			SubVector(&vec,&frog[i]->actor->pos,&currTile[i]->centre);
+			height = DotProduct(&vec,&currTile[i]->normal);
+			DrawShadow(&frog[i]->actor->pos,&currTile[i]->normal,frog[i]->actor->shadow->radius,-height + 1,frog[i]->actor->shadow->alpha,theTexture,frog[i]->actor->shadow->vert);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+/*
+	// process enemy shadows
+	for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next)
+	{
+		if(!nme->active || !nme->nmeActor)
+			continue;
+
+		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+			DrawShadow(&nme->nmeActor->actor->pos,&nme->inTile->normal,nme->nmeActor->actor->shadow->radius, -nme->path->nodes[nme->path->fromNode].offset+1,nme->nmeActor->actor->shadow->alpha,tex);
+	}
+
+	// process platform shadows
+	for(plat = platformList.head.next; plat != &platformList.head; plat = plat->next)
+	{
+		if(!plat->active || !plat->pltActor)
+			continue;
+
+		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+			DrawShadow(&plat->pltActor->actor->pos,&plat->inTile[0]->normal,plat->pltActor->actor->shadow->radius, -plat->path->nodes[plat->path->fromNode].offset+1,plat->pltActor->actor->shadow->alpha,tex);
+	}
+*/
+	// process garib shadows
+/*	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	{
+		if(garib->distanceFromFrog < SPRITE_DRAWDISTANCE)
+		{
+			vec.v[X] = garib->sprite.pos.v[X];
+			vec.v[Y] = garib->sprite.pos.v[Y] + garib->sprite.offsetY;
+			vec.v[Z] = garib->sprite.pos.v[Z];
+			DrawShadow( &vec, &garib->gameTile->normal, garib->shadow.radius, 0, garib->shadow.alpha, tex );
+		}
+	}*/
 }
 
 
 /*	--------------------------------------------------------------------------------
 	Function		: DrawShadow
 	Purpose			: draws a shadow
-	Parameters		: VECTOR *,PLANE *,float,float,short,Vtx *,VECTOR *
-	Returns			: 
+	Parameters		: 
+	Returns			: void
 	Info			: 
 */
-void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir)
+void DrawShadow(VECTOR *pos,VECTOR *normal,float size,float offset,short alpha,TEXTURE *sTxtr,Vtx *sVtx)
 {
+	int i;
+	float r;
+	QUATERNION q;
+	Vtx *sVtxPtr;
+		
+	gSPDisplayList(glistp++,croakRing_dl);
+
+	// build matrices
+
+	// rotation matrix
+	NormalToQuaternion(&q,normal);
+	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
+
+	// translation matrix
+	guTranslateF(transMtx,pos->v[X],pos->v[Y],pos->v[Z]);
+	guMtxCatF(rotMtx,transMtx,tempMtx);
+
+	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+					G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+	r = size;
+	sVtxPtr = sVtx;
+	V((sVtxPtr),-r,0,r,0,1024,0,255,255,255,255);
+	V((sVtxPtr + 1),r,0,r,0,0,0,255,255,255,255);
+	V((sVtxPtr + 2),r,0,-r,0,0,1024,255,255,255,255);
+	V((sVtxPtr + 3),-r,0,-r,0,1024,1024,255,255,255,255);
+
+	gDPLoadTextureBlock(glistp++,sTxtr->data,G_IM_FMT_IA,G_IM_SIZ_16b,sTxtr->sx,sTxtr->sy,0,G_TX_WRAP,G_TX_WRAP,sTxtr->TCScaleX,sTxtr->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
+
+	gSPVertex(glistp++,sVtx,4,0);
+	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+
+	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
 
