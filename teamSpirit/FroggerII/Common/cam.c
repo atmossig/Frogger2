@@ -15,9 +15,9 @@
 
 #include "incs.h"
 
-ACTOR	camera;
+//ACTOR	camera;
 
-VECTOR	cameraUpVect = { 0,1,0 };
+//VECTOR	cameraUpVect = { 0,1,0 };
 VECTOR	camVect;
 
 VECTOR	currCamSource[4] = {{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 }};
@@ -28,11 +28,11 @@ VECTOR	actualCamTarget[2][4];
 
 VECTOR currCamDist = {0,0,10};
 
-float	xValuesFOV[4]		= { 1.333333F,1.333333F,1.333333F,1.333333F };
-float	yValuesFOV[4]		= { 45.0F,45.0F,45.0F,45.0F };
-float	camValuesLookOfs[4]	= { 50.0F,50.0F,50.0F,25.0F};
-VECTOR	camValuesDist[4]	= { { 0,680,192 }, { 0,480,192 }, { 0,280,192 }, { 0,90,100 } };
-short	currCamSetting		= 0;
+//float	xValuesFOV[4]		= { 1.333333F,1.333333F,1.333333F,1.333333F };
+//float	yValuesFOV[4]		= { 45.0F,45.0F,45.0F,45.0F };
+//float	camValuesLookOfs[4]	= { 50.0F,50.0F,50.0F,25.0F};
+//VECTOR	camValuesDist[4]	= { { 0,680,192 }, { 0,480,192 }, { 0,280,192 }, { 0,90,100 } };
+//short	currCamSetting		= 0;
 float	xFOVNew				= 320.0F / 240.0F;
 float	yFOVNew				= 45.0F;
 float	xFOV				= 320.0F / 240.0F;
@@ -50,7 +50,7 @@ float camSpeed2				= 9;
 float camSpeed3				= 8;
 
 int	camFacing				= 0;
-int	camFacing2				= 0;
+//int	camFacing2				= 0;
 char camZoom				= 1;
 float scaleV				= 1.1F;
 

@@ -39,24 +39,20 @@ float rZ = 0,rX = 0 ,rY = 0;
 long hopAmt = 10;
 
 float seed = 0.0F;
-float upVal = 1;
-
-long babySaved = 0;
 
 unsigned long autoPlaying = 0;
 unsigned long recordKeying = 0;
 
 unsigned long num = 0;
 
+long award = 2;
 short showEndLevelScreen = 1;
 
 long bby = 0;
-
-VECTOR currCamDist = {0,0,10};
+long babySaved = 0;
 
 short spawnCounter = 0;
 
-long award = 2;
 
 void DoHiscores();
 
@@ -339,205 +335,6 @@ void GameProcessController(long pl)
 	lastStickY[pl] = stickY[pl];
 }
 
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: InitCamera
-
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-*/
-void InitCamera ( unsigned long worldID, unsigned long levelID )
-{
-}
-
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: CameraLookAtFrog
-
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-*/
-
-extern long multiplayerRun;
-void CameraLookAtFrog(void)
-{
-	if(frog[0] && !fixedDir && !controlCamera)
-	{
-	
-		float afx,afy,afz;
-		int i,l;
-		afx = afy = afz = 0;
-		l = 0;
-		for (i=0; i<NUM_FROGS; i++)
-		{
-			if (frog[i]->action.healthPoints > 0)
-			{
-				afx += frog[i]->actor->pos.v[0];
-				afy += frog[i]->actor->pos.v[1];
-				afz += frog[i]->actor->pos.v[2];
-				l++;
-			}
-		}
-		
-		if (l)
-		{
-			afx/=l;
-			afy/=l;
-			afz/=l;
-		}
-
-		{
-			camTarget[0].v[0] = afx+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0]*upVal;	
-			camTarget[0].v[1] = afy+currTile[0]->dirVector[camFacing].v[1]*camLookOfs + currTile[0]->normal.v[1]*upVal;	
-			camTarget[0].v[2] = afz+currTile[0]->dirVector[camFacing].v[2]*camLookOfs + currTile[0]->normal.v[2]*upVal;
-		}
-		
-	}
-	
-}
-
-
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: SlurpCamPosition
-
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-*/
-
-float fovSpd = 2;
-float camSpeed4 = 8;
-
-void SlurpCamPosition(long cam)
-{
-	float cam1 = camSpeed,
-		cam2 = camSpeed3,
-		cam3 = camSpeed4;
-
-	while( lastActFrameCount < actFrameCount )
-	{
-		currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cam1;
-		currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cam1;
-		currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cam1;
-
-		currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cam2;
-		currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cam2;
-		currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cam2;
-
-		currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cam3;
-		currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cam3;
-		currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cam3;
-
-		if ( gameState.mode != CAMEO_MODE )
-		{
-			VECTOR t = { 0,0,0 };
-			int i;
-		
-			for (i=0; i<NUM_FROGS; i++)
-			{
-				if (frog[i]->action.healthPoints > 0)
-				{
-					t.v[0]+=currTile[i]->normal.v[0];
-					t.v[1]+=currTile[i]->normal.v[1];
-					t.v[2]+=currTile[i]->normal.v[2];
-				}
-			}
-
-			MakeUnit (&t);
-			
-			camVect.v[0] -= (camVect.v[0] - t.v[0])/camSpeed2;
-			camVect.v[1] -= (camVect.v[1] - t.v[1])/camSpeed2;
-			camVect.v[2] -= (camVect.v[2] - t.v[2])/camSpeed2;
-			
-		}
-
-		xFOV		-= (xFOV - xFOVNew) / (camSpeed*fovSpd);
-		yFOV		-= (yFOV - yFOVNew) / (camSpeed*fovSpd);
-		camLookOfs	-= (camLookOfs - camLookOfsNew) / camSpeed;
-
-		if(cameraShake)
-		{
-			currCamSource[cam].v[0] += (-16 + Random(32));
-			currCamSource[cam].v[1] += (-16 + Random(32));
-			currCamSource[cam].v[2] += (-16 + Random(32));
-			cameraShake--;
-		}
-		else
-		{
-	//		osMotorStop ( &rumble );
-		}
-
-		lastActFrameCount+=2;
-	}
-}
-
-
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: UpdateCameraPosition
-
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
-*/
-void UpdateCameraPosition(long cam)
-{
-	VECTOR result;
-
-	if(!frog[0] || !currTile[0] || controlCamera)
-		return;
-	
-	if ( gameState.mode != CAMEO_MODE && !fixedPos )
-	{
-		float afx,afy,afz;
-		float afx2,afy2,afz2;
-
-		int i,l;
-		afx = afy = afz = 0;
-		afx2 = afy2 = afz2 = 0;
-		l=0;
-		for (i=0; i<NUM_FROGS; i++)
-		{
-			if (frog[i]->action.healthPoints > 0)
-			{
-
-				afx += frog[i]->actor->pos.v[0];
-				afy += frog[i]->actor->pos.v[1];
-				afz += frog[i]->actor->pos.v[2];
-
-				afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
-				afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
-				afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
-			
-				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
-				afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
-				afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
-				l++;
-			}
-		}
-		
-		if (l)
-		{
-		
-			afx/=l;
-			afy/=l;
-			afz/=l;
-		
-			afx2/=l;
-			afy2/=l;
-			afz2/=l;
-		}
-
-		camSource[cam].v[0] = afx+afx2;
-		camSource[cam].v[1] = afy+afy2;
-		camSource[cam].v[2] = afz+afz2;
-	}
-
-	SlurpCamPosition(cam);
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateLevelObjects
@@ -635,71 +432,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	dprintf"\n\n** ADDED %d ACTORS **\n\n",actCount));	
 }
 
-void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
-{
-	VECTOR dirn;
-	QUATERNION rotn,q;
-	float dp,m;
-	
-	CalculateQuatForPlane2( 0, me, up);
-	RotateVectorByQuaternion( &dirn, mfd, me);
-	dp = DotProduct( fd, &dirn );
-	CrossProduct( (VECTOR *)&rotn, &dirn, fd );
-	if(dp > -0.99)
-	{
-		m = Magnitude( (VECTOR *)&rotn );
-		if(m > 0.0001)
-		{
-			ScaleVector( (VECTOR *)&rotn, 1/m );
-
-			if (dp<0.99)
-				rotn.w = acos(dp);
-			else
-				rotn.w = 0;
-			
-			GetQuaternionFromRotation( &q, &rotn );
-			QuaternionMultiply( me, &q, me );
-		}
-	}
-	else
-	{
-		vertQ.w = PI;
-		GetQuaternionFromRotation(&q,&vertQ);
-		QuaternionMultiply(me,me,&q);
-	}
-}
-
-void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
-{
-	VECTOR fwdVec = { 0,0,1 };
-	VECTOR dirn2;
-	QUATERNION rotn,q;
-	float frogMatrix[4][4];
-	float frogMatrix2[4][4];
-	float dp,m;
-	
-	CalculateQuatForPlane2(0,&me->actor->qRot,&tile->normal);
-	RotateVectorByQuaternion(&dirn2,&fwdVec,&me->actor->qRot);
-	dp = DotProduct(&tile->dirVector[fFacing],&dirn2);
-	CrossProduct((VECTOR *)&rotn,&dirn2,&tile->dirVector[fFacing]);
-	if(dp > -0.99)
-	{
-		m = Magnitude((VECTOR *)&rotn);
-		if(m > 0.0001)
-		{
-			ScaleVector((VECTOR *)&rotn,1/m);
-			rotn.w = acos(dp);
-			GetQuaternionFromRotation(&q,&rotn);
-			QuaternionMultiply(&me->actor->qRot,&q,&me->actor->qRot);
-		}
-	}
-	else
-	{
-		vertQ.w = PI;
-		GetQuaternionFromRotation(&q,&vertQ);
-		QuaternionMultiply(&me->actor->qRot,&me->actor->qRot,&q);
-	}
-}
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy

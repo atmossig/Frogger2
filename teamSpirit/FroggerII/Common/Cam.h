@@ -90,4 +90,8 @@ void FreeTransCameraList();
 
 void ChangeCameraSetting();
 
+void CameraLookAtFrog();
+void SlurpCameraPosition( long cam );
+void UpdateCameraPosition( long cam );
+
 #endif
