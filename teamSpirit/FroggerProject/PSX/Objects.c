@@ -60,6 +60,7 @@ void LoadObjectBank ( int objectBank )
 	switch ( objectBank )
 	{
 		case INGAMEGENERIC_OBJ_BANK:
+					sprintf ( PILfileName, "OBJECTS\\GENERIC.BFF" );					
 					sprintf ( PILfileName, "OBJECTS\\GENERIC.PIL" );					
 				break;
 
@@ -110,6 +111,11 @@ void LoadObjectBank ( int objectBank )
 
 		case CITYLEV3_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY3.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
+			break;
+
+		case CITYMULTI_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITYMULTI.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
 			break;
 

@@ -71,7 +71,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			si->clut = tPtr->clut;
 		
 			setPolyFT4(si);
-			ENDPRIM(si, 1, POLY_FT4);
+			ENDPRIM(si, spr->num*10, POLY_FT4);
 
 
 #undef si

@@ -1,3 +1,19 @@
+#define DEBUG_INFO1
+
+#define TRANS           ( 1 << 2 )
+#define FLOW            ( 1 << 3 )
+#define SHIFT_FORWARD   ( 1 << 4 )
+#define SHIFT_BACKWARD  ( 1 << 5 )
+#define MODGY           ( 1 << 6 )
+#define ADDATIVE        ( 1 << 7 )
+#define SUBTRACTIVE     ( 1 << 8 )
+#define JIGGLE          ( 1 << 9 )
+#define USLIDDING       ( 1 << 10 )
+#define VSLIDDING       ( 1 << 11 )
+#define PLUSSLIDDING    ( 1 << 12 )
+#define MINSLIDDING     ( 1 << 13 )
+
+
 
 #include "sonylibs.h"
 #include <islutil.h>
@@ -107,7 +123,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
 	
-	if ( mesh->flags & ( 1 << 9 ) )
+	if ( mesh->flags & JIGGLE )
 	{
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
@@ -162,44 +178,95 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
-			if ( mesh->flags & ( 1 << 4 ) )
+			if ( mesh->flags & SHIFT_FORWARD )
 				addPrimLen ( ot + ( depth - mesh->shift ), si, 12, t2 )
-			else if ( mesh->flags & ( 1 << 5 ) )
+			else if ( mesh->flags & SHIFT_BACKWARD )
 				addPrimLen ( ot + ( depth + mesh->shift ), si, 12, t2 )
 			else
 				addPrimLen ( ot + ( depth ), si, 12, t2 );
 			// ENDELSEIF
 
-			if ( mesh->flags & ( 1 << 3 ) )
-				u = op->u0 + ( ( frame / 2 ) % 32 );
+			if ( mesh->flags & FLOW )
+			{
+//#ifdef DEBUG_INFO
+//				utilPrintf ( "" );
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						u = op->u0 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						u = op->u0 - ( ( frame / 2 ) % 32 );
+					// ENDELSEIF
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v0 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						v = op->v0 - ( ( frame / 2 ) % 32 );
+
+				}
+				// ENDIF
+
+			}
 			else
+			{
 				u = op->u0;
+				v = op->v0;
+			}
 			// ENDELSEIF
 
-			v = op->v0;
 
-			if ( mesh->flags & ( 1 << 6 ) )
+			if ( mesh->flags & MODGY )
 				t1 = WATERANIM_1A;
 			else
 				t1 = WATERANIM_1;
 
 
-			if ( mesh->flags & ( 1 << 2 ) )
+			if ( mesh->flags & TRANS )
 				t1 |= ( op->clut << 16 ) | WATER_TRANS_CLUT;
 			else
 				t1 |= ( op->clut << 16 ) | 0;
 
-			if ( mesh->flags & ( 1 << 3 ) )
-				u = op->u1 + ( ( frame / 2 ) % 32 );
+			if ( mesh->flags & FLOW )
+			{
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						u = op->u1 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						u = op->u1 - ( ( frame / 2 ) % 32 );
+					// ENDELSEIF
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v1 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						v = op->v1 - ( ( frame / 2 ) % 32 );
+				}
+				// ENDIF
+
+			}
 			else
+			{
 				u = op->u1;
+				v = op->v1;
+			}
 			// ENDELSEIF
-			v = op->v1;
 
 	//		t2 = WATERANIM_1 | ( op->tpage << 16 );
 
 
-			if ( mesh->flags & ( 1 << 6 ) )
+			if ( mesh->flags & MODGY )
 			{
 				t2 = WATERANIM_2B | ( op->tpage << 16 );
 			}
@@ -215,28 +282,74 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 			gte_stsxy3_gt4 ( si );	// The first 3 x's & y's are already in the gte, so we may as well use 'em
 
-			if ( mesh->flags & ( 1 << 3 ) )
-				u = op->u2 + ( ( frame / 2 ) % 32 );
+			if ( mesh->flags & FLOW )
+			{
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v2 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						v = op->v2 - ( ( frame / 2 ) % 32 );
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v2 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						v = op->v2 - ( ( frame / 2 ) % 32 );
+				}
+				// ENDIF
+
+			}
 			else
+			{
 				u = op->u2;
+				v = op->v2;
+			}
 			// ENDELSEIF
-			v = op->v2;
 
 			//t1 = WATERANIM_2;
 
-			if ( mesh->flags & ( 1 << 6 ) )
+			if ( mesh->flags & MODGY )
 				t1 = WATERANIM_1A;
 			else
 				t1 = WATERANIM_2;
 
-			if ( mesh->flags & ( 1 << 3 ) )
-				u = op->u3 + ( ( frame / 2 ) % 32 );
-			else
-				u = op->u3;
-			// ENDELSEIF
-			v = op->v3;
+			if ( mesh->flags & FLOW )
+			{
+				if ( mesh->flags & USLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v3 + ( ( frame / 2 ) % 32 );
 
-			if ( mesh->flags & ( 1 << 6 ) )
+					if ( mesh->flags & MINSLIDDING )
+						v = op->v3 - ( ( frame / 2 ) % 32 );
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+					if ( mesh->flags & PLUSSLIDDING )
+						v = op->v3 + ( ( frame / 2 ) % 32 );
+
+					if ( mesh->flags & MINSLIDDING )
+						v = op->v3 - ( ( frame / 2 ) % 32 );
+				}
+				// ENDIF
+
+			}
+			else
+			{
+				u = op->u3;
+				v = op->v3;
+			}
+			// ENDELSEIF
+
+			if ( mesh->flags & MODGY )
 			{
 				t2 = WATERANIM_2B;
 			}
@@ -253,7 +366,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
-			if ( mesh->flags & ( 1 << 2 ) )
+			if ( mesh->flags & TRANS )
 				t1 = ( *( u_long *) ( &op->r0 ) ) | WATER_TRANS_CODE;
 			else
 				t1 = ( *( u_long *) ( &op->r0 ) ) | 0;
@@ -505,6 +618,8 @@ void SubScenicObject ( SCENICOBJ *scenicObj )
 
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 {
+	char u,v;
+
 	static SVECTOR *jiggledVerts = NULL;
 
 	register u_long t1 asm("$16");
@@ -542,7 +657,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		jiggledVerts = MALLOC0 ( sizeof ( SVECTOR ) * 700 );
 
 	
-	if ( mesh->flags & ( 1 << 9 ) )
+	if ( mesh->flags & JIGGLE )
 	{
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
@@ -578,7 +693,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
-//		char u,v;
 
 
 		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
@@ -599,9 +713,9 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
-			if ( mesh->flags & ( 1 << 4 ) )
+			if ( mesh->flags & SHIFT_FORWARD )
 				addPrimLen ( ot + ( depth - mesh->shift ), si, 12, t2 )
-			else if ( mesh->flags & ( 1 << 5 ) )
+			else if ( mesh->flags & SHIFT_BACKWARD )
 				addPrimLen ( ot + ( depth + mesh->shift ), si, 12, t2 )
 			else
 				addPrimLen ( ot + ( depth ), si, 12, t2 );
@@ -610,22 +724,165 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
-			if ( mesh->flags & ( 1 << 3 ) )
+			if ( mesh->flags & FLOW )
 			{
-				si->u0 += ( ( frame / 2 ) % 32 );
-				si->u1 += ( ( frame / 2 ) % 32 );
+#ifdef DEBUG_INFO
+				utilPrintf ( "Flowing.................................\n" );
+#endif
+				if ( mesh->flags & USLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "U Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->u0 += ( ( frame ) % 32 );
+						si->u1 += ( ( frame ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->u0 -= ( ( frame ) % 32 );
+						si->u1 -= ( ( frame ) % 32 );
+					}
+					// ENDIF
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "V Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->v0 += ( ( frame ) % 32 );
+						si->v1 += ( ( frame ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->v0 -= ( ( frame ) % 32 );
+						si->v1 -= ( ( frame ) % 32 );
+					}
+					// ENDIF
+
+				}
+				// ENDIF
+
 			}
 			// ENDIF
+			
+			if ( mesh->flags & MODGY )
+			{
+				u = si->u0;
+				v = si->v0;
+			
+				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 10 ) );
+				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 10 ) ) );
+
+
+				u = si->u1;
+				v = si->v1;
+
+				si->u1 = (u+((rsin(frame<<6)+4096)>>11));
+				si->v1 = ((v+((rcos(frame<<6)+4096)>>11)));
+			}
+			// ENDIF*/
 			
 			gte_stsxy3_gt4(si);
 								
 			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
 			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
 
-			if ( mesh->flags & ( 1 << 3 ) )
+			if ( mesh->flags & FLOW )
 			{
-				si->u2 += ( ( frame / 2 ) % 32 );
-				si->u3 += ( ( frame / 2 ) % 32 );
+#ifdef DEBUG_INFO
+				utilPrintf ( "Flowing.................................\n" );
+#endif
+				if ( mesh->flags & USLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "U Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->u2 += ( ( frame ) % 32 );
+						si->u3 += ( ( frame ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->u2 -= ( ( frame ) % 32 );
+						si->u3 -= ( ( frame ) % 32 );
+					}
+					// ENDIF
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "V Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->v2 += ( ( frame ) % 32 );
+						si->v3 += ( ( frame ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->v2 -= ( ( frame ) % 32 );
+						si->v3 -= ( ( frame ) % 32 );
+					}
+					// ENDIF
+				}
+				// ENDIF
+			}
+			// ENDIF
+
+			if ( mesh->flags & MODGY )
+			{
+				u = si->u2;
+				v = si->v2;
+
+				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
+				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
+
+				u = si->u3;
+				v = si->v3;
+
+				si->u3 = (u+((rcos(frame<<6)+4096)>>11));
+				si->v3 = ((v+((rsin(frame<<6)+4096)>>11)));
 			}
 			// ENDIF
 
@@ -636,18 +893,18 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
-			if ( mesh->flags & ( 1 << 2 ) )
+			if ( mesh->flags & TRANS )
 				si->code  |= 2;
 			// ENDIF
 
 
-			if ( mesh->flags & ( 1 << 7 ) )
+			if ( mesh->flags & ADDATIVE )
 			{
  				si->tpage |= 32;
 			}
 			// ENDIF
 
-			if ( mesh->flags & ( 1 << 8 ) )
+			if ( mesh->flags & SUBTRACTIVE )
 			{
  				si->tpage = si->tpage | 64;
 			}

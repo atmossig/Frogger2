@@ -2,10 +2,10 @@
 #define _WORLDEFF_H_INCLUDE
 
 
-#define SHIFT_DEPTH ( 1 << 0 )
-#define TRANSPARENT ( 1 << 1 )
-#define SUBTRACTIVE ( 1 << 2 )
-#define ADDATIVE	  ( 1 << 3 )
+//#define SHIFT_DEPTH ( 1 << 0 )
+//#define TRANSPARENT ( 1 << 1 )
+//#define SUBTRACTIVE ( 1 << 2 )
+//#define ADDATIVE	  ( 1 << 3 )
 
 
 #include "sonylibs.h"

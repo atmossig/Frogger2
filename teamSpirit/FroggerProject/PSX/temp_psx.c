@@ -31,7 +31,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 			if ( ( gstrcmp ( tmp,"cam_\0") != 0 ) )
 			{
-				if ( ( gstrcmp ( tmp,"wat_\0") ==0 ) || ( gstrcmp ( tmp,"slu_\0") ==0 ) )
+				if ( ( gstrcmp ( tmp,"wat_\0") ==0 ) )
 				{
 					flags = 0;
 
@@ -49,6 +49,9 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "log" ) )|| ( compare = strstr ( cur->name, "cfence" ) )||
 									( compare = strstr ( cur->name, "bar" ) )|| ( compare = strstr ( cur->name, "submush" ) )||
 									( compare = strstr ( cur->name, "ttop" ) )|| ( compare = strstr ( cur->name, "spf_" ) )||
+									( compare = strstr ( cur->name, "gunk" ) )|| ( compare = strstr ( cur->name, "mini" ) )||
+									( compare = strstr ( cur->name, "plat" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
+									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
 									( compare = strstr ( cur->name,  "tcone" ))|| ( compare = strstr ( cur->name, "bin" ) )  ) 
 				{
 //					CreateAndAddScenicObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );

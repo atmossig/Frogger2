@@ -84,6 +84,7 @@ bss     group   bss
 	include "psxsprite.obj"
 	include "ptexture.obj"
 	include "charsel.obj"
+	include "cr_lang.obj"
 
 
 ;	include "ANIM.obj"

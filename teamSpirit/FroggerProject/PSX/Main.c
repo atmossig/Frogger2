@@ -301,7 +301,7 @@ int main ( )
 
 //		MemCardInit(1);
 //		MemCardStart();
-		padInitialise(0); // 0 = No multi tap support
+		padInitialise(1); // 0 = No multi tap support
 		videoInit(1024, 3000);
 		textureInitialise(500, 20);
 
@@ -322,7 +322,7 @@ int main ( )
 		StartSound();//mmsfx
 
 
-#define ENABLE_LANG_SEL 1
+#define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
 		languageInitialise();
 		while(!DoneLangSel)
@@ -431,9 +431,9 @@ int main ( )
 
 //			utilPrintf ( "Poly Count : %d\n", polyCount );
 
-			PrintSpriteOverlays(0);
-			PrintTextOverlays();
 			PrintSpriteOverlays(1);
+			PrintTextOverlays();
+			PrintSpriteOverlays(0);
 
 
 			ProcessProcTextures( );
