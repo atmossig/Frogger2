@@ -1701,14 +1701,6 @@ void UpdateFrogCroak( int pl )
 	{
 		SPECFX *fx;
 
-#ifdef PC_VERSION
-		if( breastMatrix )
-		{
-			// Put code here
-		}
-#else
-#endif
-
 		if( !(player[pl].isCroaking.time%2) )
 		{
 			SetVectorSS(&effectPos, &frog[pl]->actor->position);
@@ -1717,8 +1709,6 @@ void UpdateFrogCroak( int pl )
 			{
 				fx->spin = 20;
 				SetFXColour( fx, 191,255,0);
-//				fx->a = 128;
-//				fx->fade = 2;
 			}
 			specFXAlpha = 255;
 			PlayVoice( pl, "frogcroak" );
@@ -1753,18 +1743,6 @@ void UpdateFrogCroak( int pl )
 				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
 			}
 		}
-	}
-	else
-	{
-#ifdef PC_VERSION
-		if( breastMatrix )
-		{
-			breastMatrix->m[0][0] = breastMatrix->m[1][1] = breastMatrix->m[2][2] = 1;
-
-			croakDir = 0;
-		}
-#else
-#endif
 	}
 }
 
