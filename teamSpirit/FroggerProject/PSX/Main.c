@@ -548,6 +548,7 @@ int main ( )
 
 		actFrameCount = 0;
 		LoadSfx(-1);
+#if PALMODE==1
 #define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
 		LoadCodeOverlay(LANG_OVERLAY);
@@ -570,6 +571,7 @@ int main ( )
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 		}
 		actFrameCount = 0;
+#endif
 #endif
 		LoadCodeOverlay(GAME_OVERLAY);
 		myPadHandleInput();
