@@ -223,7 +223,7 @@ void froggerShowVRAM(unsigned char palMode)
 	SetDefDispEnv(&dispenv, 0,0, 512,256);
 	while ((padData.digital[0] & PAD_START)==0)
 	{
-		padHandler();
+		padHandleInput();
 		switch(viewMode)
 		{
 		case 0:
@@ -487,7 +487,7 @@ void PsxNameEntryInit(void)
 
 void PsxNameEntryFrame(void)
 {
-//	padHandler();
+//	padHandleInput();
 
 	//move cursor
 	if(padData.debounce[0] & PAD_LEFT)

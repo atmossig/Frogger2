@@ -471,7 +471,7 @@ int main ( )
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
-			padHandler();
+			padHandleInput();
 			languageFrame();
 			DrawScreenTransition();
 			actFrameCount++;
@@ -767,7 +767,7 @@ totalObjs = 0;
 				}
 			}
 #endif
-			padHandler();
+			padHandleInput();
 			if (padData.digital[4] == (PAD_SELECT|PAD_START|PAD_L1|PAD_R1|PAD_L2|PAD_R2))
 				quitMainLoop = 1;
 
