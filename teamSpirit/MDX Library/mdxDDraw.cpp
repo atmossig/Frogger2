@@ -1046,13 +1046,7 @@ void mdxLoadBackdrop(const char* filename)
 	{
 */		ddsd.dwWidth = xDim;
 		ddsd.dwHeight = yDim;
-/*	}
-	else // Otherwise we're probably in 320x240 using an old card, so set it to the size of the primary
-	{
-		ddsd.dwWidth = rXRes;
-		ddsd.dwHeight = rYRes;
-	}
-  */
+
 /*
 	DDINIT(ddsd.ddpfPixelFormat);
 	ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
