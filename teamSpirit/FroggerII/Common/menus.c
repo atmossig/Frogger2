@@ -83,11 +83,19 @@ void RunTitleScreen()
 		devText = CreateAndAddTextOverlay(100,172,"develop",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
 
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,192,0 );
-		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
+//		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
+		atari = CreateAndAddSpriteOverlay(40,35,"testfire.bmp",32,32,192,0 );
 
 		CreateOverlaysFromLogo(&Frogger2Logo,98,20);
 
 		ResetParameters();
+
+		if(atari->frames[0]->data)
+		{
+			CreateAndAddProceduralTexture(atari->frames[0],"testfire.bmp");
+			for(i=0; i<1024; i++)
+				atari->frames[0]->data[i] = 0;
+		}
 	}
 
 	startText->a = 100;

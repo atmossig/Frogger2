@@ -102,7 +102,7 @@ void SelectObjectBank()
 
 		misc = CreateAndAddTextOverlay(30,24,"OBJECT VIEWER",NO,255,smallFont,0,0);
 		misc = CreateAndAddTextOverlay(32,26,"OBJECT VIEWER",NO,255,smallFont,0,0);
-		misc->r = 255;	misc->g = 255;	misc->b = 255;
+		misc->r = 0;	misc->g = 0;	misc->b = 0;
 
 		CreateAndAddTextOverlay(30,55,"up and down selects world",NO,255,oldeFont,0,0);
 		CreateAndAddTextOverlay(30,65,"left and right selects level",NO,255,oldeFont,0,0);
@@ -234,7 +234,7 @@ void ViewObjectBank()
 		{
 			if(objectBanks[j].freePtr)
 			{
-				objectViewer.numObjects += objectBanks[j].numObjects;
+				objectViewer.numObjects += objectBanks[j].numObjects - 1;
 				objDesc = objectBanks[j].objList;
 					
 				for(i=0; i<objectBanks[j].numObjects; i++)
@@ -277,6 +277,10 @@ void ViewObjectBank()
 		objectViewer.currObj		= actList;
 		objectViewer.currObjNum		= 0;
 		objectViewer.currObj->flags = ACTOR_DRAW_ALWAYS;
+
+		// add object sprites to sprite list
+		if((objectViewer.currObj->actor->objectController) && (objectViewer.currObj->actor->objectController->object))
+			AddObjectsSpritesToSpriteList(objectViewer.currObj->actor->objectController->object,0);
 	}
 
 	if(!viewTxt)
@@ -284,7 +288,7 @@ void ViewObjectBank()
 	if(!msgTxt)
 		msgTxt	= CreateAndAddTextOverlay(30,205,NULL,NO,255,smallFont,0,0);
 
-	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum+1,objectViewer.numObjects);
+	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum,objectViewer.numObjects-1);
 	viewTxt->text = objName;
 
 	objectMatrix = 0;
@@ -357,12 +361,19 @@ void ObjViewGotoNextObject()
 	if(++objectViewer.currObjNum >= objectViewer.numObjects)
 		objectViewer.currObjNum = 0;
 
+	// free object sprites
+	FreeObjectSprites(objectViewer.currObj->actor->objectController->object);
+
 	cur = actList;
 	for(i=0; i<objectViewer.currObjNum; i++)
 		cur = cur->next;
 
 	objectViewer.currObj = cur;
 	objectViewer.currObj->flags = ACTOR_DRAW_ALWAYS;
+
+	// add object sprites to sprite list
+	if((objectViewer.currObj->actor->objectController) && (objectViewer.currObj->actor->objectController->object))
+		AddObjectsSpritesToSpriteList(objectViewer.currObj->actor->objectController->object,0);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -381,12 +392,19 @@ void ObjViewGotoPreviousObject()
 	if(--objectViewer.currObjNum < 0)
 		objectViewer.currObjNum = objectViewer.numObjects - 1;
 
+	// free object sprites
+	FreeObjectSprites(objectViewer.currObj->actor->objectController->object);
+
 	cur = actList;
 	for(i=0; i<objectViewer.currObjNum; i++)
 		cur = cur->next;
 
 	objectViewer.currObj = cur;
 	objectViewer.currObj->flags = ACTOR_DRAW_ALWAYS;
+
+	// add object sprites to sprite list
+	if((objectViewer.currObj->actor->objectController) && (objectViewer.currObj->actor->objectController->object))
+		AddObjectsSpritesToSpriteList(objectViewer.currObj->actor->objectController->object,0);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -398,8 +416,15 @@ void ObjViewGotoPreviousObject()
 */
 void ObjViewGotoFirstObject()
 {
+	// free object sprites
+	FreeObjectSprites(objectViewer.currObj->actor->objectController->object);
+
 	objectViewer.currObjNum = 0;
 	objectViewer.currObj = actList;
+
+	// add object sprites to sprite list
+	if((objectViewer.currObj->actor->objectController) && (objectViewer.currObj->actor->objectController->object))
+		AddObjectsSpritesToSpriteList(objectViewer.currObj->actor->objectController->object,0);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -411,8 +436,15 @@ void ObjViewGotoFirstObject()
 */
 void ObjViewGotoLastObject()
 {
+	// free object sprites
+	FreeObjectSprites(objectViewer.currObj->actor->objectController->object);
+
 	objectViewer.currObjNum = objectViewer.numObjects - 1;
 	objectViewer.currObj = &actList[objectViewer.currObjNum];
+
+	// add object sprites to sprite list
+	if((objectViewer.currObj->actor->objectController) && (objectViewer.currObj->actor->objectController->object))
+		AddObjectsSpritesToSpriteList(objectViewer.currObj->actor->objectController->object,0);
 }
 
 /*	--------------------------------------------------------------------------------

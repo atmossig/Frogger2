@@ -66,11 +66,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	long i,n;
 	float life = lifetime * 60;
 
-#ifdef N64_VERSION
-	SPRITE newSpr;
-	PARTICLE newParticle;
-#endif
-
 	effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
 
 	effect->type = type;
@@ -166,6 +161,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		break;
 	case FXTYPE_TRAIL:
 	case FXTYPE_BILLBOARDTRAIL:
+
+#ifdef N64_VERSION
+		break;		// TEMPORARY MEASURE - ANDYE
+#endif
+
 		effect->fade = effect->a / life;
 
 		effect->numP = i = NUM_TRAIL_ELEMENTS;

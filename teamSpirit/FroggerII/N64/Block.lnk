@@ -46,6 +46,7 @@ _codeSegmentEnd         alias   _code_objend
         include "jalloc.obj",code
         include "decomp.obj",code
         include "texture.obj",code
+        include "ptexture.obj",code
         include "cam.obj",code
         include "anim.obj",code
         include "crc32.obj",code
@@ -821,7 +822,7 @@ _objBank_6_3_SegmentRomEnd          alias   _objBank63_orgend
 
         section.64      objBank63.data,objBank63
 
-oBank63  incbin  "objects/dummy.nob",objBank63.data,64
+oBank63  incbin  "objects/lab3.nob",objBank63.data,64
 
 ; [ LAB WORLD BOSS ] >>>>>
 
@@ -833,7 +834,7 @@ _objBank_6_4_SegmentRomEnd          alias   _objBank64_orgend
 
         section.64      objBank64.data,objBank64
 
-oBank64  incbin  "objects/dummy.nob",objBank64.data,64
+oBank64  incbin  "objects/labboss.nob",objBank64.data,64
 
 ; [ LAB WORLD BONUS ] >>>>>
 
@@ -955,7 +956,7 @@ _objBank_8_0_SegmentRomEnd          alias   _objBank80_orgend
 
         section.64      objBank80.data,objBank80
 
-oBank80  incbin  "objects/dummy.nob",objBank80.data,64
+oBank80  incbin  "objects/haloweenmaster.nob",objBank80.data,64
 
 ; [ HALLOWEEN WORLD LEVEL 1 ] >>>>>
 
@@ -967,7 +968,7 @@ _objBank_8_1_SegmentRomEnd          alias   _objBank81_orgend
 
         section.64      objBank81.data,objBank81
 
-oBank81  incbin  "objects/dummy.nob",objBank81.data,64
+oBank81  incbin  "objects/haloween1.nob",objBank81.data,64
 
 ; [ HALLOWEEN WORLD LEVEL 2 ] >>>>>
 
@@ -2131,6 +2132,7 @@ _levData_10_1_SegmentRomEnd   alias _levData101_orgend
         section.64       levData101.data,levData101
 
 levDat101  incbin "leveldata/entity-9-0.cef",levData101.data, 32
+;levDat101  incbin "c:/levtemp/entity-9-0.dat",levData101.data, 32
 
 ; [ FRONTEND 2 ] >>>>>
 

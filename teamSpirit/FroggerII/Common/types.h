@@ -215,6 +215,9 @@ typedef struct
 	short	*palette;
 }TEXTURE;
 
+#ifdef N64_VERSION
+typedef TEXTURE TEXENTRY;
+#endif
 
 typedef struct
 {

@@ -252,7 +252,7 @@ void LoadCollision(short cNum)
 		// LABORATORY ----------------------------------------------------------------------------
 
 		case LABORATORYMASTERA_COL:
-			tnum = -1;
+			tnum = LABBOSSA_COLL_BANK;
 			sprintf(message,"LABORATORY BOSS A");
 			break;
 		case LABORATORYLEV1_COL:
@@ -659,7 +659,7 @@ void LoadScenics(short sNum)
 		// LABORATORY ----------------------------------------------------------------------------
 
 		case LABORATORYMASTERA_COL:
-			tnum = -1;
+			tnum = LABBOSSA_COLL_BANK;
 			sprintf(message,"LABORATORY BOSS A");
 			break;
 		case LABORATORYLEV1_COL:

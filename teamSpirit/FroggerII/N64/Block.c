@@ -1154,6 +1154,9 @@ void DrawGraphics(void *arg)
 				if(spriteList.numEntries)
 					PrintSpritesTranslucent(sprite);
 
+				if(prcTexList)
+					ProcessProcTextures();
+
 				DrawSpecialFX();
 
 				ClearViewing();

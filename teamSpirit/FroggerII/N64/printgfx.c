@@ -215,6 +215,7 @@ Vtx *vPtr = NULL;
 float rotMtx[4][4],scaleMtx[4][4],transMtx[4][4],tempMtx[4][4];
 
 
+
 /*	--------------------------------------------------------------------------------
 	Function		: 
 	Purpose			: 
@@ -460,7 +461,7 @@ void PrintSpriteOverlays()
 			tScaleY = (1024.0 * 1024.0) / tScaleY;
 
 			gDPSetPrimColor(glistp++,0,0,cur->r,cur->g,cur->b,cur->a);
-
+/*
 			gDPLoadTLUT_pal256(glistp++,texture->palette);
 			gDPLoadTextureBlock(glistp++,texture->data,G_IM_FMT_RGBA,G_IM_SIZ_8b,
 								  texture->sx,texture->sy,0,
@@ -468,6 +469,8 @@ void PrintSpriteOverlays()
 								  G_TX_CLAMP|G_TX_NOMIRROR,
 								  0,0,
 								  G_TX_NOLOD,G_TX_NOLOD);
+*/
+			LoadTexture(texture);
 
 			gSPScisTextureRectangle(glistp++,
 								(unsigned long)cur->xPos << 2,
@@ -501,8 +504,21 @@ void DrawSpecialFX()
 		{
 			SPECFX *fx;
 			for(fx=specFXList.head.next; fx!=&specFXList.head; fx=fx->next)
+			{
 				if(fx->Draw)
+				{
+					// perform RSP / RDP processing here to minimise texture loading, etc.
+
+					// set primitive colour
+					gDPSetPrimColor(glistp++,0,0,fx->r,fx->g,fx->b,fx->a);
+
+					// load texture - perhaps move this elsewhere to minimise texture loads ??? ANDYE
+					gDPSetTextureLUT(glistp++,G_TT_NONE);
+					gDPLoadTextureBlock(glistp++,fx->tex->data,G_IM_FMT_IA,G_IM_SIZ_16b,fx->tex->sx,fx->tex->sy,0,
+										G_TX_CLAMP,G_TX_CLAMP,fx->tex->TCScaleX,fx->tex->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 					fx->Draw(fx);
+				}
+			}
 		}
 	}
 }
@@ -561,14 +577,6 @@ void DrawFXRipple(SPECFX *ripple)
 	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
 				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
-	// set primitive colour
-	gDPSetPrimColor(glistp++,0,0,ripple->r,ripple->g,ripple->b,ripple->a);
-
-	// load texture - perhaps move this elsewhere to minimise texture loads ??? ANDYE
-	gDPSetTextureLUT(glistp++,G_TT_NONE);
-	gDPLoadTextureBlock(glistp++,ripple->tex->data,G_IM_FMT_IA,G_IM_SIZ_16b,ripple->tex->sx,ripple->tex->sy,0,
-						G_TX_CLAMP,G_TX_CLAMP,ripple->tex->TCScaleX,ripple->tex->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
-
 	// load vertices into vertex cache
 	gSPVertex(glistp++,rippleVtx,4,0);
 	gSP2Triangles(glistp++,0,1,2,0,0,2,3,0);
@@ -622,14 +630,6 @@ void DrawFXRing(SPECFX *ring)
 	// push onto matrix stack
 	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
 				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	// set primitive colour
-	gDPSetPrimColor(glistp++,0,0,ring->r,ring->g,ring->b,ring->a);
-
-	// load texture - perhaps move this elsewhere to minimise texture loads ??? ANDYE
-	gDPSetTextureLUT(glistp++,G_TT_NONE);
-	gDPLoadTextureBlock(glistp++,ring->tex->data,G_IM_FMT_IA,G_IM_SIZ_16b,ring->tex->sx,ring->tex->sy,0,
-						G_TX_CLAMP,G_TX_CLAMP,ring->tex->TCScaleX,ring->tex->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	// load vertices into vertex cache
 	gSPVertex(glistp++,ringVtx,4,0);
@@ -859,7 +859,6 @@ SPRITE *PrintSpritesOpaque()
 void PrintSpritesTranslucent(SPRITE *sprite)
 {
 	Mtx temp;
-	short n = MAX_SFX_SPRITES;
 
 	spriteList.lastTexture = NULL;
 
@@ -893,13 +892,6 @@ void PrintSpritesTranslucent(SPRITE *sprite)
 		for(; sprite != &spriteList.head; sprite = sprite->next)
 		{
 			PrintSprite(sprite);
-		}
-
-		// print sfx sprite array
-		while(n--)
-		{
-			if(sfxSpriteStatus[n])
-				PrintSprite(&sfxSpriteList[n]);
 		}
 	}
 
