@@ -704,3 +704,267 @@ void DrawDarkenedLevel()
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
+
+
+float printSpritesProj[4][4][4];
+float fm;
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrintSpritesOpaque
+	Purpose			: prints opaque sprites
+	Parameters		: 
+	Returns			: SPRITE *
+	Info			: 
+*/
+SPRITE *PrintSpritesOpaque()
+{
+	SPRITE *cur,*next;
+	Mtx temp;
+
+	spriteList.lastTexture = NULL;
+
+	gSPDisplayList(glistp++,rspInitForSprites_dl);
+	gSPDisplayList(glistp++,rdpInitForSprites_dl);
+	gDPSetScissor(glistp++,G_SC_NON_INTERLACE,0,0,SCREEN_WD,SCREEN_HT);
+
+	guMtxCatL(&(dynamicp->viewing[screenNum]),&(dynamicp->projection[screenNum]),&temp);
+	guMtxL2F(printSpritesProj[screenNum],&temp);
+
+	spriteList.xluMode = NO;
+
+	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+
+	if(!testPause)
+	{
+		for(cur = spriteList.head.next; (cur != &spriteList.head) && ((cur->flags & SPRITE_TRANSLUCENT) == 0); cur = next)
+		{
+			next = cur->next;
+
+			PrintSprite(cur);
+		}
+	}
+
+	return cur;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrintSpritesTranslucent
+	Purpose			: prints translucent sprites
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void PrintSpritesTranslucent(SPRITE *sprite)
+{
+	Mtx temp;
+	
+	spriteList.lastTexture = NULL;
+
+	gSPDisplayList(glistp++,rspInitForSprites_dl);
+	gSPDisplayList(glistp++,rdpInitForSprites_dl);
+	gDPSetScissor(glistp++,G_SC_NON_INTERLACE,0,0,SCREEN_WD,SCREEN_HT);
+
+	guMtxCatL(&(dynamicp->viewing[screenNum]),&(dynamicp->projection[screenNum]),&temp);
+	guMtxL2F(printSpritesProj[screenNum],&temp);
+
+	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+
+	if(!testPause)
+	{
+		for(; sprite != &spriteList.head; sprite = sprite->next)
+		{
+			PrintSprite(sprite);
+		}
+	}
+
+	// IMPORTANT - MUST SET THESE STATES
+	gDPSetDepthSource(glistp++,G_ZS_PIXEL);
+	gDPSetTexturePersp(glistp++,G_TP_PERSP);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: TileRectangle
+	Purpose			: displays a tile rectangle
+	Parameters		: Gfx**,SPRITE *,f32,f32,int,int,int
+	Returns			: void
+	Info			: 
+*/
+void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY)
+{
+	Gfx *gfx = *glistp;
+	int incx,incy;
+	float tempx,tempy;
+	int s,t;
+	int sval,tval;
+
+	gDPSetPrimDepth(gfx++,z,0);
+
+	if(sprite->flags & SPRITE_FLIPX)
+		incx = -scaleX;
+	else
+		incx = scaleX;
+
+	if(sprite->flags & SPRITE_FLIPY)
+		incy = -scaleY;
+	else
+		incy = scaleY;
+
+	t = (scaleX < 512 ? -16 : -16 - (((int)y0) & 3) * 8);
+	s = -16;
+
+	if(sprite->texture != spriteList.lastTexture)
+	{
+		switch(sprite->texture->pixSize)
+		{
+			case G_IM_SIZ_4b:
+				gDPSetTextureLUT(gfx++,G_TT_RGBA16);
+				gDPLoadTLUT_pal16(gfx++,0,sprite->texture->palette);
+				gDPLoadTextureTile_4b(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+
+			case G_IM_SIZ_8b:
+				gDPSetTextureLUT(gfx++,G_TT_RGBA16);
+				gDPLoadTLUT_pal256(gfx++,sprite->texture->palette);
+				gDPLoadTextureTile(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					G_IM_SIZ_8b,sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+
+			case G_IM_SIZ_16b:
+				gDPSetTextureLUT(gfx++,G_TT_NONE);
+				gDPLoadTextureTile(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					G_IM_SIZ_16b,sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+
+			case G_IM_SIZ_32b:
+				gDPLoadTextureTile(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					G_IM_SIZ_32b,sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+		}
+	}
+
+	tempx = sprite->texture->sx;
+	tempx *= (1 << 12);
+	tempx /= (float)scaleX;
+	tempx = x0 + tempx;
+
+	tempy = sprite->texture->sy;
+	tempy *= (1 << 12);
+	tempy /= (float)scaleY;
+	tempy = y0 + tempy;
+
+	if(sprite->flags & SPRITE_FLIPX)
+		sval = ((sprite->texture->sx) << 5) - s - 32;
+	else
+		sval = s;
+
+	if(sprite->flags & SPRITE_FLIPY)
+		tval = ((sprite->texture->sy) << 5) - t - 32;
+	else
+		tval = t;
+
+	gSPScisTextureRectangle(gfx++,x0,y0,(int)tempx,(int)tempy,G_TX_RENDERTILE,sval,tval,incx,incy);
+	*glistp = gfx;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrintSprite
+	Purpose			: prints a sprite
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void PrintSprite(SPRITE *sprite)
+{
+	float x,y,z,w;
+	float dist;
+	int scaleX,scaleY;
+	int sprScaleX,sprScaleY;
+
+	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
+		return;
+
+	dist = DistanceBetweenPointsSquared(&actualCamSource[draw_buffer][screenNum],&sprite->pos);
+	if((dist > farPlaneDist * farPlaneDist) || (dist < nearPlaneDist * nearPlaneDist))
+		return;
+
+	w = printSpritesProj[screenNum][0][3] * sprite->pos.v[X] + 
+		printSpritesProj[screenNum][1][3] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][3] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][3];
+
+	if(w <= 0)
+		return;
+
+	z = printSpritesProj[screenNum][0][2] * sprite->pos.v[X] + 
+		printSpritesProj[screenNum][1][2] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][2] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][2];
+
+	if(z < 0)
+		return;
+
+	x = printSpritesProj[screenNum][0][0] * sprite->pos.v[X] +
+		printSpritesProj[screenNum][1][0] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][0] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][0];
+
+	y = printSpritesProj[screenNum][0][1] * sprite->pos.v[X] +
+		printSpritesProj[screenNum][1][1] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][1] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][1];
+
+	x = ((x * dynamicp->vp[screenNum].vp.vscale[0] / w) + dynamicp->vp[screenNum].vp.vtrans[0]);
+	y = ((-y * dynamicp->vp[screenNum].vp.vscale[1] / w) + dynamicp->vp[screenNum].vp.vtrans[1]);
+	z = 32 * ((z * dynamicp->vp[screenNum].vp.vscale[2] / w) + dynamicp->vp[screenNum].vp.vtrans[2]);
+
+	dist = sqrtf(dist);
+
+	sprScaleX = 33 * sprite->scaleX * ((float)dynamicp->vp[screenNum].vp.vscale[0] / (float)(SCREEN_WD * 2));
+	x = (f32)x + (f32)(sprite->offsetX * sprScaleX << 4) / (dist * yFOV);
+	if((x > SCREEN_WD * 4) || (x + (sprite->texture->sx * sprScaleX << 4) / (dist * yFOV) <= 0))
+		return;
+
+	sprScaleY = 33 * sprite->scaleY * ((float)dynamicp->vp[screenNum].vp.vscale[1] / (float)(SCREEN_HT * 2));
+	y = (f32)y + (f32)(sprite->offsetY * sprScaleY << 4) / (dist * yFOV);
+	if((y > SCREEN_HT * 4) || (y + (sprite->texture->sy * sprScaleY << 4) / (dist * yFOV) <= 0))
+		return;
+
+	gDPSetPrimColor(glistp++,0,0,sprite->r,sprite->g,sprite->b,sprite->a);
+	gDPSetAlphaCompare(glistp++,G_AC_NONE);
+
+	if(sprite->flags & SPRITE_TRANSLUCENT)
+	{
+		gDPSetRenderMode(glistp++,G_RM_ZB_CLD_SURF,G_RM_ZB_CLD_SURF2);
+	}
+	else
+	{
+		gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+	}
+
+	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
+	
+	scaleY = dist * yFOV;
+	scaleX = (scaleY << 8) / sprScaleX;
+	scaleY = (scaleY << 8) / sprScaleY;
+
+	TileRectangle(&glistp,sprite,x,y,z,scaleX,scaleY);
+	gDPPipeSync(glistp++);
+
+	spriteList.lastTexture = sprite->texture;
+}
