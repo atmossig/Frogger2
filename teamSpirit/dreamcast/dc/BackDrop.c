@@ -202,7 +202,8 @@ void DrawLegalBackDrop(int num, int i)
 
 void FreeLegalBackdrop(void)
 {
-	if(backDrop.draw == FALSE)
+	// *ASL* 12/08/2000 - Release currently initialised backdrop
+	if (backDrop.init == FALSE)		// if(backDrop.draw == TRUE)
 		return;
 		
 	backDrop.init = FALSE;
@@ -220,7 +221,7 @@ void FreeLegalBackdrop(void)
 
 /*	--------------------------------------------------------------------------------
 	Function 	: InitArtBackdrop
-	Purpose 	: Load and setup a atr background image
+	Purpose 	: Load and setup a art background image
 	Parameters 	: filename
 	Returns 	: none
 	Info 		:
