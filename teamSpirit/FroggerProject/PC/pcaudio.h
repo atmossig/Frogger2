@@ -197,6 +197,12 @@ extern void UpdateAmbientSounds();
 extern void PrepareSong( short num );
 extern void StopSong( );
 
+int InitCDaudio();
+int ShutdownCDaudio();
+int GetCDVolume();
+void SetCDVolume(int vol);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -66,7 +66,24 @@ void CleanBufferSamples( void );
 DWORD playCDTrack( HWND hWndNotify, BYTE bTrack );
 DWORD stopCDTrack( HWND hWndNotify );
 
+// CD Audio variables
 
+static UINT		wDeviceID;
+static int		numTracks = 0, currTrack = -1, auxVolume, oldVolume;
+static DWORD	volumecontrolid, cdaudiovalid;
+
+static char		errStr[128];
+static int		mixerid;
+
+static char *MCIerrorToString(int err)
+{
+#ifndef DOUBLEBYTE
+	mciGetErrorString(err, errStr,128);
+	return errStr;
+#else
+	return "DByte";
+#endif
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: LoadSfx
@@ -564,6 +581,178 @@ void UpdateAmbientSounds()
 }
 
 
+
+/*	--------------------------------------------------------------------------------
+	FUNCTION:	InitCDaudio
+	PURPOSE:	Open the CD audio device
+	PARAMETERS:	
+	RETURNS:	0/1
+	INFO:		
+*/
+
+int InitCDaudio()
+{
+    DWORD				dwReturn;
+	MCI_OPEN_PARMS		mciOpenParms;
+	MCI_SET_PARMS		mciSetParms;
+	MCI_STATUS_PARMS	mciStatusParms;
+	int					noofmixers, l;
+	MIXERCAPS			mixcaps;
+	MIXERLINE			mixline;
+	MIXERLINECONTROLS	linecontrols;
+	DWORD				linetype, lineid;
+	MIXERCONTROL		mixercontrol;
+
+	utilPrintf("\n");
+	noofmixers = mixerGetNumDevs();
+	utilPrintf("Found %d mixer devices\n", noofmixers);
+	utilPrintf("\n");
+
+	lineid = 0;
+	volumecontrolid = 0;
+	cdaudiovalid = 0;
+	for(l = 0; l < noofmixers; l++)
+		{
+		mixerGetDevCaps(l, &mixcaps, sizeof(MIXERCAPS));
+		utilPrintf("  Mixer name : '%s'\n", mixcaps.szPname);
+		utilPrintf("  #Destinations : %d\n", mixcaps.cDestinations);
+
+		mixline.cbStruct = sizeof(MIXERLINE);
+		mixline.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC;
+		if (mixerGetLineInfo((HMIXEROBJ)l, &mixline, MIXER_GETLINEINFOF_COMPONENTTYPE | MIXER_OBJECTF_MIXER) == MMSYSERR_NOERROR)
+			{
+			utilPrintf("    _COMPACTDISC\n");
+			utilPrintf("    #Channels : %d\n", mixline.cChannels);
+			utilPrintf("    Line ID : %d\n", mixline.dwLineID);
+			utilPrintf("    Short name : %s\n", mixline.szShortName);
+			utilPrintf("    Name : %s\n", mixline.szName);
+			utilPrintf("    Product name : %s\n", mixline.Target.szPname);
+			linetype = MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC;
+			lineid = mixline.dwLineID;
+			mixerid = l;
+			break;
+			}
+		else
+			utilPrintf("No _COMPACTDISC line found\n");
+
+		mixline.cbStruct = sizeof(MIXERLINE);
+		mixline.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_DIGITAL;
+		if (mixerGetLineInfo((HMIXEROBJ)l, &mixline, MIXER_GETLINEINFOF_COMPONENTTYPE | MIXER_OBJECTF_MIXER) == MMSYSERR_NOERROR)
+			{
+			utilPrintf("    _DIGITAL\n");
+			utilPrintf("    #Channels : %d\n", mixline.cChannels);
+			utilPrintf("    Line ID : %d\n", mixline.dwLineID);
+			utilPrintf("    Short name : %s\n", mixline.szShortName);
+			utilPrintf("    Name : %s\n", mixline.szName);
+			utilPrintf("    Product name : %s\n", mixline.Target.szPname);
+			linetype = MIXERLINE_COMPONENTTYPE_SRC_DIGITAL;
+			lineid = mixline.dwLineID;
+			mixerid = l;
+			break;
+			}
+		else
+			utilPrintf("No _DIGITAL line found\n");
+
+		mixline.cbStruct = sizeof(MIXERLINE);
+		mixline.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_AUXILIARY;
+		if (mixerGetLineInfo((HMIXEROBJ)l, &mixline, MIXER_GETLINEINFOF_COMPONENTTYPE | MIXER_OBJECTF_MIXER) == MMSYSERR_NOERROR)
+			{
+			utilPrintf("    _AUXILIARY\n");
+			utilPrintf("    #Channels : %d\n", mixline.cChannels);
+			utilPrintf("    Line ID : %d\n", mixline.dwLineID);
+			utilPrintf("    Short name : %s\n", mixline.szShortName);
+			utilPrintf("    Name : %s\n", mixline.szName);
+			utilPrintf("    Product name : %s\n", mixline.Target.szPname);
+			linetype = MIXERLINE_COMPONENTTYPE_SRC_AUXILIARY;
+			lineid = mixline.dwLineID;
+			mixerid = l;
+			break;
+			}
+		else
+			utilPrintf("No _AUXILIARY line found\n");
+		}
+
+	if (l != noofmixers)
+		{
+		mixline.cbStruct = sizeof(MIXERLINE);
+		mixline.dwComponentType = linetype;
+		mixerGetLineInfo((HMIXEROBJ)mixerid, &mixline, MIXER_GETLINEINFOF_COMPONENTTYPE | MIXER_OBJECTF_MIXER);
+
+		mixercontrol.cbStruct = sizeof(MIXERCONTROL);
+		linecontrols.cbStruct = sizeof(MIXERLINECONTROLS);
+		linecontrols.dwLineID = lineid;
+		linecontrols.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
+		linecontrols.cControls = 1;
+		linecontrols.cbmxctrl = sizeof(MIXERCONTROL);
+		linecontrols.pamxctrl = &mixercontrol;
+		if (mixerGetLineControls((HMIXEROBJ)mixerid, &linecontrols, MIXER_GETLINECONTROLSF_ONEBYTYPE | MIXER_OBJECTF_MIXER) == MMSYSERR_NOERROR)
+			{
+			utilPrintf("      Control name : '%s' / '%s'\n", mixercontrol.szShortName, mixercontrol.szName);
+			utilPrintf("      Control range : %u -> %u\n", mixercontrol.Bounds.dwMinimum, mixercontrol.Bounds.dwMaximum);
+			utilPrintf("      Control ID : %u\n", mixercontrol.dwControlID);
+
+			cdaudiovalid = 1;
+			volumecontrolid = mixercontrol.dwControlID;
+
+			utilPrintf("        Current CD volume = %d\n", GetCDVolume()); 
+			}
+		else
+			utilPrintf("mixerGetLineControls failed\n");
+		}
+
+	oldVolume = auxVolume = GetCDVolume();
+
+#ifndef UNICODE
+    mciOpenParms.lpstrDeviceType = "cdaudio";
+#else
+    mciOpenParms.lpstrDeviceType = L"cdaudio";
+#endif
+    if (dwReturn = mciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE, (DWORD)(LPVOID) &mciOpenParms))
+		{
+		utilPrintf("InitCDaudio: MCI_OPEN '%s'\n", MCIerrorToString(dwReturn));
+        return (dwReturn);
+		}
+
+    wDeviceID = mciOpenParms.wDeviceID;
+
+    mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
+    if (dwReturn = mciSendCommand(wDeviceID, MCI_SET, 
+        MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &mciSetParms))
+		{
+		utilPrintf("InitCDaudio: MCI_SET '%s'\n", MCIerrorToString(dwReturn));
+        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
+        return (dwReturn);
+		}  
+
+	mciStatusParms.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
+	if (dwReturn = mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPVOID)&mciStatusParms))
+		{
+		utilPrintf("InitCDaudio: MCI_STATUS '%s'\n", MCIerrorToString(dwReturn));
+        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
+        return (dwReturn);
+		}
+	numTracks = mciStatusParms.dwReturn;
+	utilPrintf("%d track audio CD located\n", numTracks);
+	return 0;
+}
+
+/*	--------------------------------------------------------------------------------
+	FUNCTION:	ShutdownCDaudio
+	PURPOSE:	Shutdown the CD audio device
+	PARAMETERS:	
+	RETURNS:	0/1
+	INFO:		
+*/
+
+int ShutdownCDaudio()
+{
+	if (numTracks>0)
+	    return mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);
+	else
+		return 0;
+	SetCDVolume(auxVolume);
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: PrepareSong
 	Purpose			: prepares a song...and plays it...woohoo !
@@ -661,6 +850,127 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
     return 0L;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function : GetCDVolume
+	Purpose : Return the current CD volume setting
+	Parameters :	
+	Returns : volume (0..0xffff)
+	Info :
+*/
+
+int GetCDVolume()
+{
+	MIXERCONTROLDETAILS	controldetails;
+	DWORD				details[2];
+	MMRESULT			mmres;
+
+	if (!cdaudiovalid)
+		return 0;
+
+	controldetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
+	controldetails.dwControlID = volumecontrolid;
+	controldetails.cChannels = 1;
+	controldetails.cMultipleItems = 0;
+	controldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+	controldetails.paDetails = (void*)details;
+	mmres = mixerGetControlDetails((HMIXEROBJ)mixerid, &controldetails, MIXER_GETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_MIXER);
+	if (mmres == MMSYSERR_NOERROR)
+		return ((int)details[0]);
+	else
+		{
+		utilPrintf("mixerGetControlDetails failed\n");
+		switch(mmres)
+			{
+			case MIXERR_INVALCONTROL:
+				utilPrintf("MIXERR_INVALCONTROL\n");
+				break;
+			case MMSYSERR_BADDEVICEID:
+				utilPrintf("MMSYSERR_BADDEVICEID\n");
+				break;
+			case MMSYSERR_INVALFLAG:
+				utilPrintf("MMSYSERR_INVALFLAG\n");
+				break;
+			case MMSYSERR_INVALHANDLE:
+				utilPrintf("MMSYSERR_INVALHANDLE\n");
+				break;
+			case MMSYSERR_INVALPARAM:
+				utilPrintf("MMSYSERR_INVALPARAM\n");
+				break;
+			case MMSYSERR_NODRIVER:
+				utilPrintf("MMSYSERR_NODRIVER\n");
+				break;
+			default:
+				utilPrintf("UNKNOWN\n");
+				break;
+			}
+		}
+	return 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function : SetCDVolume
+	Purpose : Set the CD volume
+	Parameters : volume (0..0xffff)
+	Returns : 
+	Info :
+*/
+
+void SetCDVolume(int vol)
+{
+	MIXERCONTROLDETAILS	controldetails;
+	MMRESULT			mmres;
+	DWORD				details[2];
+
+	if (!cdaudiovalid)
+		return;
+
+/*	if ((vol == 0) && (oldVolume))
+		PauseCDaudio();
+	else if ((vol != 0) && (oldVolume == 0))
+		PlayCDaudio(currTrack);
+*/
+
+	oldVolume = vol;
+
+	details[0] = vol;
+	controldetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
+	controldetails.dwControlID = volumecontrolid;
+	controldetails.cChannels = 1;
+	controldetails.cMultipleItems = 0;
+	controldetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+	controldetails.paDetails = (void*)details;
+	mmres = mixerSetControlDetails((HMIXEROBJ)mixerid, &controldetails, MIXER_SETCONTROLDETAILSF_VALUE | MIXER_OBJECTF_MIXER);
+	if (mmres != MMSYSERR_NOERROR)
+		{
+		utilPrintf("** mixerSetControlDetails failed\n");
+		switch(mmres)
+			{
+			case MIXERR_INVALCONTROL:
+				utilPrintf("MIXERR_INVALCONTROL\n");
+				break;
+			case MMSYSERR_BADDEVICEID:
+				utilPrintf("MMSYSERR_BADDEVICEID\n");
+				break;
+			case MMSYSERR_INVALFLAG:
+				utilPrintf("MMSYSERR_INVALFLAG\n");
+				break;
+			case MMSYSERR_INVALHANDLE:
+				utilPrintf("MMSYSERR_INVALHANDLE\n");
+				break;
+			case MMSYSERR_INVALPARAM:
+				utilPrintf("MMSYSERR_INVALPARAM\n");
+				break;
+			case MMSYSERR_NODRIVER:
+				utilPrintf("MMSYSERR_NODRIVER\n");
+				break;
+			default:
+				utilPrintf("UNKNOWN\n");
+				break;
+			}
+		}
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: FindSample

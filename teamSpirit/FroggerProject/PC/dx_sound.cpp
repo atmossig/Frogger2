@@ -166,6 +166,8 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 		return 0;
 	}
 
+	InitCDaudio();
+
 	return 1;
 }
 
@@ -174,6 +176,8 @@ void ShutDownDirectSound ( void )
 {
 	if( lpDS )
 		lpDS->Release();
+
+	ShutdownCDaudio();
 }
 
 
