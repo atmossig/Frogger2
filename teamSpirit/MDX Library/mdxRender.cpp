@@ -96,7 +96,14 @@ float clx0 = 10,//320-160,
 
 float xl = 1;
 
-
+void SetupRenderer(long xRes, long yRes)
+{
+	clx0 = 10;
+	cly0 = 10;
+	clx1 = xRes - 10;
+	cly1 = yRes - 10;
+	FOV = 450.0/(640.0 / (float)xRes);
+}
 /*---------------------------------------------------------------------------------------------
 	Function	: calcIntVertex
 	Parameters	: (D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)

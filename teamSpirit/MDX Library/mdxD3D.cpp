@@ -94,7 +94,7 @@ void D3DSetupRenderstates(unsigned long *me)
 unsigned long D3DInit(void)
 {
 	HRESULT			res;
-    D3DVIEWPORT7	vp = {0, 0, 640, 480, 0.0f, 1.0f};
+    D3DVIEWPORT7	vp = {0, 0, rXRes, rYRes, 0.0f, 1.0f};
 
 	if (!rHardware)
 		return TRUE;

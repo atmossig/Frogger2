@@ -30,7 +30,6 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "gelf.h"
-#include "majikPR.h"
 
 extern "C"
 {
@@ -52,7 +51,7 @@ short spIndices[] = {0,1,2,2,3,0};
 unsigned long numHaloPoints;
 long limTex = 0;
 
-long softFlags = POLY_TEXTURE | POLY_MAGENTAMASK;
+//long softFlags = POLY_TEXTURE | POLY_MAGENTAMASK;
 
 short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
@@ -315,10 +314,10 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 		m->f[2] = fce[i+2]+numSoftVertex;
 		m->t = tEntry->surf;
 		m->tEntry = tEntry;
-		if (tEntry->type == TEXTURE_AI)
-			m->flags = softFlags | POLY_ALPHA_SUB;
-		else
-			m->flags = softFlags;
+//		if (tEntry->type == TEXTURE_AI)
+//			m->flags = softFlags | POLY_ALPHA_SUB;
+//		else
+//			m->flags = softFlags;
 
 		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
 		zVal += v[fce[i+1]].sz * MA_SOFTWARE_DEPTH;		
@@ -411,7 +410,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 
 void DrawSoftwarePolys (void)
 {
-	SOFTPOLY *cur;
+/*	SOFTPOLY *cur;
 	MPR_BITMAP16 thisTex;
 
 	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
@@ -495,17 +494,10 @@ void DrawSoftwarePolys (void)
 
 			}
 			 
-			/*pDirect3DDevice->SetTexture(0,cur->t);
-		
-			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,D3DDP_WAIT)!=D3D_OK)
-			{
-			}
-
-			pDirect3DDevice->SetTexture(0,0);
-			*/
 			cur = cur->next;
 		}
 	}
+	*/
 }
 
 
@@ -664,7 +656,7 @@ void DrawBatchedPolys (void)
 
 void SetSoftwareState(unsigned long *me)
 {
-	while (*me!=D3DRENDERSTATE_FORCE_DWORD)
+/*	while (*me!=D3DRENDERSTATE_FORCE_DWORD)
 	{
 		switch(*me)
 		{
@@ -682,7 +674,7 @@ void SetSoftwareState(unsigned long *me)
 		}
 		me+=2;
 	}
-//	D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE,	
+//	D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE,	*/
 }
 
 void SetTexture(MDX_TEXENTRY *me)
@@ -694,7 +686,7 @@ void SetTexture(MDX_TEXENTRY *me)
 		else 
 			pDirect3DDevice->SetTexture(0,0);
 	}
-	else
+/*	else
 		if (me)
 		{
 			if (me->keyed) 
@@ -702,21 +694,21 @@ void SetTexture(MDX_TEXENTRY *me)
 			else 
 				softFlags &= ~POLY_MAGENTAMASK;
 		}
-	
+*/	
 	cTexture = me;	
 }
 
 HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags)
 {
 	HRESULT res;
-	MPR_BITMAP16 thisTex;
-	MPR_VERT v[3];
+//	MPR_BITMAP16 thisTex;
+//	MPR_VERT v[3];
 	D3DTLVERTEX *verts;
 	unsigned long f1,f2,f3;
 	totalFacesDrawn+=dwIndexCount / 3;
 	if (rHardware)
 		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
-	else
+/*	else
 	{
 		verts = (D3DTLVERTEX *)lpvVertices;
 		for (int i=0; i<dwIndexCount; i+=3)
@@ -794,7 +786,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 			}			
 		}
 	}
-	
+*/	
 	return res;
 }
 
@@ -842,7 +834,7 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 		if (pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK)
 			dp("Could not draw flat rectangle\n");
 	}
-	else
+/*	else
 	{
 			MPR_VERT sv[4];
 			long alpha = (v[0].color & 0xff000000)>>(24+4);
@@ -873,7 +865,7 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 
 			MPR_DrawPoly((unsigned short *)softScreen,sv,4,POLY_GOURAUD,NULL);
 	}
-	
+*/	
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 }
 

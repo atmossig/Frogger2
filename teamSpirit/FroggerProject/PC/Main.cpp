@@ -52,6 +52,7 @@
 #include "dx_sound.h"
 #include "banks.h"
 #include "controll.h"
+#include "pcmisc.h"
 
 #include "mdx.h"
 #include "mdxException.h"
@@ -88,6 +89,7 @@ unsigned long synchSpeed = 60 * 1;
 unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
 
+long resolution;
 long slideSpeeds[4] = {0,16,32,64};
 
 void GetArgs(char *arglist);
@@ -223,9 +225,10 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	WIN32_FIND_DATA fData;
 	HANDLE			fHandle;
-	char	fName[MAX_PATH];
-	char	fPath[MAX_PATH];
-	long idx;
+	char			fName[MAX_PATH];
+	char			fPath[MAX_PATH];
+	long			idx,data;
+	FILE			*fp;
 
     switch(msg)
 	{
@@ -260,10 +263,30 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			
 				FindClose (fHandle);
 
-				SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_SETCURSEL,0,0);
+				SendMessage ( GetDlgItem(hWnd,IDC_640),BM_SETCHECK,BST_CHECKED,0);
 			}
 			else
 				dp("No savegames",fName);
+
+			SendMessage ( GetDlgItem(hWnd,IDC_LIST3),CB_SETCURSEL,0,0);
+			
+			strcpy (fName,fPath);
+			strcat (fName,"setup.fsc");
+			fp = fopen(fName,"rb");
+			if (fp)
+			{
+				fread(&data,1,4,fp);
+				SendMessage ( GetDlgItem(hWnd,IDC_640),BM_SETCHECK,data,0);
+				fread(&data,1,4,fp);
+				SendMessage ( GetDlgItem(hWnd,IDC_800),BM_SETCHECK,data,0);
+				fread(&data,1,4,fp);
+				SendMessage ( GetDlgItem(hWnd,IDC_1024),BM_SETCHECK,data,0);
+				fread(&data,1,4,fp);
+				SendMessage ( GetDlgItem(hWnd,IDC_1280),BM_SETCHECK,data,0);
+				fread(&data,1,4,fp);
+				SendMessage ( GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,data,0);				
+				fclose(fp);
+			}
 
 			return FALSE;			
 		}		
@@ -276,8 +299,39 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					InitMPDirectPlay(mdxWinInfo.hInstance);
 					return TRUE;					
 				case IDOK:
+				{
+					
+					strcpy (fPath,baseDirectory);
+					strcpy (fName,fPath);
+					strcat (fName,"setup.fsc");
+					fp = fopen(fName,"wb");
+					if (fp)
+					{
+						data = SendMessage (GetDlgItem(hWnd,IDC_640),BM_GETCHECK,0,0);
+						fwrite(&data,1,4,fp);
+						if (data)
+							resolution=1;
+						data = SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0);
+						fwrite(&data,1,4,fp);
+						if (data)
+							resolution=2;
+						data = SendMessage (GetDlgItem(hWnd,IDC_1024),BM_GETCHECK,0,0);
+						fwrite(&data,1,4,fp);
+						if (data)
+							resolution=3;
+						data = SendMessage (GetDlgItem(hWnd,IDC_1280),BM_GETCHECK,0,0);
+						fwrite(&data,1,4,fp);
+						if (data)
+							resolution=4;
+						data = SendMessage (GetDlgItem(hWnd,IDC_WINDOW),BM_GETCHECK,0,0);
+						fwrite(&data,1,4,fp);
+						fclose(fp);
+					}
+
 					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),WM_GETTEXT,16,(long)saveName);
+
 					return FALSE;				
+				}
 			}
 		}
 	}
@@ -671,7 +725,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 {
 	MDX_TEXENTRY *t;
 	char waterFile[MAX_PATH];
-
+	long xRes,yRes;
+	
 	SYSTEMTIME currTime;
 	GetLocalTime(&currTime);
 	utilPrintf("\n------------- Starting Frogger2 ----------------\n"
@@ -693,9 +748,28 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	if (!DDrawInitObject (NULL))
 		return 1;
 
+	switch(resolution)
+	{
+		case 1:
+			xRes = 640; yRes = 480; break;
+		case 2:
+			xRes = 800; yRes = 600; break;
+		case 3:
+			xRes = 1024; yRes = 768; break;
+		case 4:
+			xRes = 1280; yRes = 1024; break;
+		default:
+			xRes = 640; yRes = 480; break;
+	}
+
+	OVERLAY_X = xRes/4096.0;
+	OVERLAY_Y = yRes/4096.0;
 	// Setup our sufaces
-	if (!DDrawCreateSurfaces (mdxWinInfo.hWndMain, 1024, 768, 16,TRUE, 16))
+	if (!DDrawCreateSurfaces (mdxWinInfo.hWndMain, xRes, yRes, 16,TRUE, 16))
 		return 2;
+
+	// Setup the renderer
+	SetupRenderer(xRes, yRes);
 
 	// Setup D3D
 	if (!D3DInit())

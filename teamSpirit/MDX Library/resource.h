@@ -21,6 +21,10 @@
 #define IDC_MULTI                       1016
 #define IDC_KEYMAPLIST                  1018
 #define IDC_CONTROLS                    1020
+#define IDC_640                         1021
+#define IDC_800                         1022
+#define IDC_1024                        1023
+#define IDC_1280                        1024
 #define IDC_PLAYER1                     1100
 #define IDC_PLAYER2                     1101
 #define IDC_PLAYER3                     1102
@@ -32,7 +36,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1021
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -392,8 +392,8 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			// Create a primary surface
 		DDINIT(ddsd);
 		ddsd.dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_CAPS;
-		ddsd.dwWidth  = 640;
-		ddsd.dwHeight = 480; 
+		ddsd.dwWidth  = rXRes;
+		ddsd.dwHeight = rYRes; 
 		if (rHardware)
 			ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
 		else
