@@ -564,6 +564,7 @@ void MPCharBack()
 	if(options.currentPlayer)
 	{
 		options.currentPlayer--;
+		options.multiSelection = options.playerChar[options.currentPlayer];
 		options.multiFace[options.playerChar[options.currentPlayer]]->draw = 0;
 		options.playerNum[options.currentPlayer]->draw = 1;
 #ifdef PC_VERSION
@@ -1768,8 +1769,8 @@ void RunOptionsMenu(void)
 			INC_ALPHA(options.subTitle,255);
 			INC_ALPHA(options.statusBak,128);
 			options.mpText->draw = 1;
-			if(maxPlayers == 1)
-				options.numPText->yPos = 1898;
+			if(maxPlayers <= 1)
+				options.numPText->yPos = 1948;
 			else
 				options.numPText->yPos = 2048;
 	
