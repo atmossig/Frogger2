@@ -101,7 +101,7 @@ void CreateAndAddScenicObject(SCENIC *sc)
 
 	newItem->flags = 0;
 
-	utilPrintf("SCENIC %s, ROT %d %d %d %d\n", sc->name, sc->rot.x, sc->rot.y, sc->rot.z, sc->rot.w);
+	//utilPrintf("SCENIC %s, ROT %d %d %d %d\n", sc->name, sc->rot.x, sc->rot.y, sc->rot.z, sc->rot.w);
 
 	QuatToPSXMatrix(&sc->rot, &newItem->matrix);
 
