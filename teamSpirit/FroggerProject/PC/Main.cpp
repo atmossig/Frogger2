@@ -9,12 +9,14 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
-//#include "directx.h"
-
-//#include "ultra64.h"
-//#include <stdio.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <math.h>
 #include <islutil.h>
 #include <islpad.h>
+
+extern "C"
+{
 
 #include <anim.h>
 #include <stdio.h>
@@ -51,12 +53,46 @@
 #include "maths.h"
 
 #include <temp_pc.h>
+}
+
 #include "mdx.h"
 
+extern "C"
+{
 psFont *font;
+MDX_FONT *pcFont;
+}
+
 
 extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
+long DrawLoop(void)
+{
+	D3DSetupRenderstates(D3DDefaultRenderstates);
+	
+	pDirect3DDevice->BeginScene();
+	PrintTextOverlays();
+	pDirect3DDevice->EndScene();
+
+	EndTimer(0);
+	if (consoleDraw)
+		PrintConsole();
+	if (timerDraw)
+		PrintTimers();
+	ClearTimers();	
+	StartTimer(0,"Everything");
+	
+	DDrawFlip();
+	D3DClearView();
+	return 0;
+}
+
+long LoopFunc(void)
+{
+	GameLoop();
+	DrawLoop();
+	return 0;
+}
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
@@ -64,7 +100,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	InitCommonControls();
 
 	// Init windows
-	if (!InitialiseWindows(hInstance,"Frogger2",1))
+	if (!WindowsInitialise(hInstance,"Frogger2",1))
 		return 1;
 
 	// Init DDraw Object
@@ -72,7 +108,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		return 1;
 
 	// Setup our sufaces
-	if (!DDrawCreateSurfaces (winInfo.hWndMain, 640, 480, 16,TRUE, 16))
+	if (!DDrawCreateSurfaces (mdxWinInfo.hWndMain, 640, 480, 16,TRUE, 16))
 		return 2;
 
 	// Setup D3D
@@ -80,7 +116,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		return 3;
 	
 	// Initialise the matrix stack
-	InitMatrixStack();
+	MatrixStackInitialise();
 	
 	// Initialise Johns BMP loader
 	gelfInit();
@@ -105,6 +141,14 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	CommonInit();
 
-	while (1)
-		GameLoop();
+	pcFont = InitFont("FontA",baseDirectory);
+
+	RunWindowsLoop(&LoopFunc);
+
+	// Byeeeeeeeeeee
+	D3DShutdown();
+	DDrawShutdown();	
+	gelfShutdown();
+
+	return 0;
 }
