@@ -426,6 +426,14 @@ James Hubbard:
 James Healey:
 ------------------------------------------------
 
+	Finally got those wasp's orientate correct,
+	also other enemies are correct for direction of movement.
+
+	Any only in about 4 lines of code, I suppose it helps, when there
+	is a function that calcs the angle for you, hehe!!!
+
+	some thing doggy going on with collision with wasp's, not really
+	sure what!!!
 
 Mike Movel:
 ------------------------------------------------
