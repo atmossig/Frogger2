@@ -54,6 +54,8 @@ void LoadObjectBank(int objectBank)
 		case ANCIENTBOSS_OBJ_BANK:				
 			strcpy(fileName, "ancientsboss"); break;
 
+		case ANCIENTMULTI_OBJ_BANK:
+			strcpy(fileName, "ancientsmulti"); break;
 // Space
 
 		case SPACEMASTER_OBJ_BANK:					
