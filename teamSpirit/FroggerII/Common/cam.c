@@ -56,7 +56,8 @@ float scaleV				= 1.1F;
 short cameraShake			= 0;
 
 char controlCamera			= 0;
-char fixedSource			= 0;
+char fixedDir = 0;
+char fixedPos = 0;
 
 TRANSCAMERA *transCameraList = NULL;
 
@@ -389,19 +390,23 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 				// ok - move the camera to the new position
 				SetVector(&camDist,&cur->camOffset);
 				specialCaseTile = 1;
-				controlCamera = 0;
-				fixedSource = 0;
+				fixedDir = 0;
+				fixedPos = 0;
+				// return ?
 			}
 			else if ( cur->flags == STATIC_CAMERA )
 			{
-				controlCamera = 1;
 				SetVector(&camSource[0], &cur->camOffset);
+				fixedDir = 1;
+				fixedPos = 1;
+				// return ?
 			}
 			else if ( cur->flags == FIXED_SOURCE )
 			{
-				fixedSource = 1;
-				controlCamera = 0;
 				SetVector(&camSource[0], &cur->camOffset);
+				fixedDir = 0;
+				fixedPos = 1;
+				// return ?
 			}
 			// ENDELSEIF
 			

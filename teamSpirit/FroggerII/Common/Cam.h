@@ -22,10 +22,10 @@
 
 typedef struct TAGTRANSCAMERA
 {
-	GAMETILE				*tile;
-	unsigned long			dirCamMustFace;
-	unsigned long			flags;
-	VECTOR					camOffset;
+	GAMETILE		*tile;
+	short			dirCamMustFace;
+	short			flags;
+	VECTOR			camOffset;
 
 	struct TAGTRANSCAMERA	*next;
 
@@ -73,10 +73,10 @@ extern float	scaleV;
 extern short	cameraShake;
 
 extern char		controlCamera;
-extern char		fixedSource;
+extern char		fixedDir;
+extern char		fixedPos;
 
 extern TRANSCAMERA *transCameraList;
-
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
