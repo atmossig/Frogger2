@@ -191,15 +191,15 @@ void GameProcessController(long pl)
 			else if( button[pl] & CONT_RIGHT )
 				dir = MOVE_RIGHT;
 
-			// player is superhopping - make frog double jump
-			player[pl].hasDoubleJumped = 1;
-			player[pl].canJump = 0;
-			currTile[pl] = destTile[pl];
-			frogFacing[pl] = nextFrogFacing[pl];
-			camFacing = nextCamFacing;
-
 			if( dir != -1 )
 			{
+				// player is superhopping - make frog double jump
+				player[pl].hasDoubleJumped = 1;
+				player[pl].canJump = 0;
+				currTile[pl] = destTile[pl];
+				frogFacing[pl] = nextFrogFacing[pl];
+				camFacing = nextCamFacing;
+
 				MoveToRequestedDestination( dir, pl );
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 				player[pl].extendedHopDir = dir;

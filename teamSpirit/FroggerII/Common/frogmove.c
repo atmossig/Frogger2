@@ -30,8 +30,8 @@ int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
 
 unsigned long standardHopFrames = 8;
-unsigned long superHopFrames	= 28;
-unsigned long doubleHopFrames	= 28;
+unsigned long superHopFrames	= 32;
+unsigned long doubleHopFrames	= 40;
 unsigned long longHopFrames		= 24;
 unsigned long quickHopFrames	= 4;
 unsigned long floatFrames       = 30;
@@ -42,10 +42,10 @@ unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 unsigned long longHopJumpDownDivisor		= 12;
 
-float superGravity		= -1.0F;
+float superGravity		= -0.7F;
 float hopGravity		= -5.0F;
 float frogGravity		= -9.0F;
-float doubleGravity		= -1.0F;
+float doubleGravity		= -0.5F;
 float floatGravity		= -1.0F;
 
 BOOL cameoMode			= FALSE;
@@ -333,11 +333,36 @@ void UpdateFroggerPos(long pl)
 	if ((actFrameCount < player[pl].jumpEndFrame))
 	{
 		VECTOR newPos;
-		float t,s,a;
+		float t,s,a,hs;
 
-		// get time frame for current jump
+		// get time frame for current jump - if floating from a double jump, halve the speed
+/*		if( player[pl].hasDoubleJumped )
+		{
+			// Just pressed the button again
+			if( (controllerdata[pl].button & CONT_A) && !(controllerdata[pl].lastbutton & CONT_A) )
+			{
+				player[pl].isCroakFloating=1;
+				player[pl].jumpEndFrame += (player[pl].jumpEndFrame - actFrameCount)*0.5; // Double the amount of time until we land
+			}
+			else if( !(controllerdata[pl].button & CONT_A) && (controllerdata[pl].lastbutton & CONT_A) && player[pl].isCroakFloating )
+			{
+				player[pl].isCroakFloating=0;
+				player[pl].jumpEndFrame -= (player[pl].jumpEndFrame - actFrameCount)*0.5;
+			}
+		}
+*/
+		if( player[pl].isCroakFloating )
+		{
+			a = frogGravity*0.5;
+			hs = player[pl].hInitialVelocity * 0.5;
+		}
+		else
+		{
+			a = frogGravity;
+			hs = player[pl].hInitialVelocity;
+		}
+
 		t = actFrameCount - player[pl].jumpStartFrame;
-		a = frogGravity;
 
 		// calculate position considering vertical motion using s = ut + 0.5at^2
 		s = (player[pl].vInitialVelocity * t) + (0.5F * a * (t * t));
@@ -346,7 +371,7 @@ void UpdateFroggerPos(long pl)
 
 		// calculate position considering horizontal motion using s = ut + 0.5at^2
 		a = 0;
-		s = (player[pl].hInitialVelocity * t) + (0.5F * a * (t * t));
+		s = (hs * t) + (0.5F * a * (t * t));
 		SetVector(&player[pl].hMotionDelta,&player[pl].jumpFwdVector);
 		ScaleVector(&player[pl].hMotionDelta,s);
 
@@ -403,10 +428,10 @@ void UpdateFroggerPos(long pl)
 			// check for nearest baby frog - do radius check ????
 			if(nearestBaby = GetNearestBabyFrog())
 			{
-				fx = CreateAndAddSpecialEffect(	FXTYPE_POLYRING, &babies[nearestBaby]->actor->pos, &upVec, 15, 1, 0.1, 1.2 );
-				fx->r = babyList[nearestBaby].fxColour[R];
-				fx->g = babyList[nearestBaby].fxColour[G];
-				fx->b = babyList[nearestBaby].fxColour[B];
+//				fx = CreateAndAddSpecialEffect(	FXTYPE_POLYRING, &babies[nearestBaby]->actor->pos, &upVec, 15, 1, 0.1, 1.2 );
+//				fx->r = babyList[nearestBaby].fxColour[R];
+//				fx->g = babyList[nearestBaby].fxColour[G];
+//				fx->b = babyList[nearestBaby].fxColour[B];
 			}
 		}
 	}
@@ -558,38 +583,54 @@ GAMETILE *GetNextTile(unsigned long direction,long pl)
 */
 void AnimateFrogHop( unsigned long direction, long pl )
 {
+	float speed, speed2;
+	int anim;
+
+	if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
+	{
+		anim = FROG_ANIM_SUPERHOP;
+		speed = 0.35;
+		speed2 = 0.35;
+	}
+	else
+	{
+		anim = FROG_ANIM_STDJUMP;
+		speed = frogAnimSpeed;
+		speed2 = frogAnimSpeed2;
+	}
+
 	switch( direction )
 	{
 	case 0:
 		switch( frogFacing[pl] )
 		{
-		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
-		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 3:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		case 1:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
 		}
 		break;
 	case 1:
 		switch( frogFacing[pl] )
 		{
-		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
-		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 2:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		case 0:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
 		}
 		break;
 	case 2:
 		switch( frogFacing[pl] )
 		{
-		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
-		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 1:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		case 3:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
 		}
 		break;
 	case 3:
 		switch( frogFacing[pl] )
 		{
-		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
-		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 2:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		case 0:	AnimateActor(frog[pl]->actor,anim,NO,NO,speed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,anim,NO,NO,speed,0,0); break;
 		}
 		break;
 	}
@@ -906,6 +947,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	player[pl].canJump = 1;
 	player[pl].isSuperHopping = 0;
 	player[pl].isLongHopping = 0;
+	player[pl].isCroakFloating = 0;
 	player[pl].hasDoubleJumped = 0;
 	if( frogTrail[pl] && frogTrail[pl]->follow )
 	{
