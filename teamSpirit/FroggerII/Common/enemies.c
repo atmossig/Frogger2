@@ -197,10 +197,10 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 
 		// Hop the frog up in the air and do a somersault
-		CalculateFrogJump(&frog[num]->actor->pos, &currTile[num]->centre, &currTile[num]->normal,
+		/*CalculateFrogJump(&frog[num]->actor->pos, &currTile[num]->centre, &currTile[num]->normal,
 			hurtJumpHeight, hurtJumpTime, num);
 
-		player[num].canJump = 0;
+		player[num].canJump = 0;*/
 	}
 	else
 	{
