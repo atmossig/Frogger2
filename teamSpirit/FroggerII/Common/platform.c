@@ -113,13 +113,13 @@ PATHNODE debug_pathNodes7[] =					// TEST PATH - ANDYE
 	154,5,500,1,0
 };
 
-PATH debug_path1 = { 1,0,0,0,debug_pathNodes1 };
-PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
-PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
-PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
-PATH debug_path5 = { 1,0,0,0,debug_pathNodes5 };
-PATH debug_path6 = { 1,0,0,0,debug_pathNodes6 };
-PATH debug_path7 = { 1,0,0,0,debug_pathNodes7 };
+PATH debug_path1 = { 1,0,0,0,0,debug_pathNodes1 };
+PATH debug_path2 = { 1,0,0,0,0,debug_pathNodes2 };
+PATH debug_path3 = { 1,0,0,0,0,debug_pathNodes3 };
+PATH debug_path4 = { 1,0,0,0,0,debug_pathNodes4 };
+PATH debug_path5 = { 1,0,0,0,0,debug_pathNodes5 };
+PATH debug_path6 = { 1,0,0,0,0,debug_pathNodes6 };
+PATH debug_path7 = { 1,0,0,0,0,debug_pathNodes7 };
 
 
 
@@ -216,6 +216,9 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 	Returns			: void
 	Info			: 
 */
+
+float speedScale = 0.04;
+float waitScale = 5;
 void UpdatePlatforms()
 {
 	PLANE2 rebound;
@@ -258,25 +261,33 @@ void UpdatePlatforms()
 		{
 			if(cur->isWaiting == -1)
 				continue;
+		
+			if (actFrameCount>cur->path->startFrame)
+				cur->isWaiting = 0;
 			else
-				cur->isWaiting--;
-			
-			continue;
+				continue;
 		}
 
 		if(cur->flags & PLATFORM_NEW_FOLLOWPATH)
 		{
+			float length;
 			// process platforms that follow a path (>1 node in path)
 
 			// first, update the platform position
+
 			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
-			SubVector(&fwd,&toPosition,&cur->pltActor->actor->pos);
-			MakeUnit(&fwd);
+			GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
+			
+			SubVector(&fwd,&toPosition,&fromPosition);
+			
+			length = (float)(actFrameCount-cur->path->startFrame)/(float)(cur->path->endFrame-cur->path->startFrame);
+			
+			ScaleVector(&fwd,length);
+			AddVector (&cur->pltActor->actor->pos,&fwd,&fromPosition);
 
-			cur->pltActor->actor->pos.v[X] += (cur->currSpeed * fwd.v[X]);
-			cur->pltActor->actor->pos.v[Y] += (cur->currSpeed * fwd.v[Y]);
-			cur->pltActor->actor->pos.v[Z] += (cur->currSpeed * fwd.v[Z]);
+		//cur->path->curDist += cur->currSpeed * speedScale;
 
+			
 //--------------------->
 
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
@@ -290,7 +301,13 @@ void UpdatePlatforms()
 
 			// check if this platform has arrived at a path node
 			if(PlatformHasArrivedAtNode(cur))
+			{
 				UpdatePlatformPathNodes(cur);
+				
+				cur->path->startFrame += cur->isWaiting * waitScale;
+				cur->path->endFrame += cur->isWaiting * waitScale;
+	
+			}
 		}
 		else
 		{
@@ -939,6 +956,7 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	// set the start position for the platform
 	pform->path->fromNode = pform->path->startNode;
 
+
 	if(platformFlags & PLATFORM_NEW_FORWARDS)
 	{
 		// this platform moves forward thru path nodes
@@ -990,6 +1008,9 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	pform->currSpeed	= path->nodes[pform->path->fromNode].speed;
 	pform->isWaiting	= path->nodes[pform->path->fromNode].waitTime;
 
+	pform->path->startFrame = actFrameCount;
+	pform->path->endFrame = (actFrameCount+(60*pform->currSpeed));
+
 	CalcPlatformNormalInterps(pform);
 
 	dprintf"\n"));
@@ -1008,14 +1029,18 @@ BOOL PlatformHasArrivedAtNode(PLATFORM *pform)
 	VECTOR nodePos;
 	PATH *path = pform->path;
 
+	if (actFrameCount>path->endFrame)
+	{
+		return TRUE;
+	}
 	// check if path node is reached
-	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
+/*	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
 	if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&nodePos) <  ((pform->currSpeed + 0.1F) * (pform->currSpeed + 0.1F)))
 	{
 		dprintf""));
 		return TRUE;
 	}
-
+*/
 	return FALSE;
 }
 
@@ -1071,7 +1096,10 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	VECTOR *n1,*n2;
 	
 	// determine to/from nodes for the current platform
-
+	path->startFrame = path->endFrame;
+	path->endFrame = path->startFrame+(60*pform->currSpeed);
+	pform->isWaiting = 0;
+	
 	if(flags & PLATFORM_NEW_FORWARDS)
 	{
 		// platform moves forward through path nodes
@@ -1102,6 +1130,7 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 				
 				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+
 				CalcPlatformNormalInterps(pform);
 				return;
 			}
@@ -1236,6 +1265,8 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 			return;
 		}
 	}
+
+	
 }
 
 

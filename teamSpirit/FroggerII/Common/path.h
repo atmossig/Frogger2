@@ -46,7 +46,8 @@ typedef struct TAGPATH
 	int						fromNode;				// from node
 	int						toNode;					// node we're heading towards
 	int						startNode;				// start node for this path
-
+	unsigned long			startFrame;				// The start frame
+	unsigned long			endFrame;				// The start frame
 	PATHNODE				*nodes;					// actual path nodes
 
 } PATH;
