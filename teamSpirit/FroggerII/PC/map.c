@@ -325,11 +325,11 @@ BOOL LoadCollision(int num)
 
 		if (GetStartsAddress)  
 			gTStart = (GAMETILE**)GetStartsAddress();
-/*		
+		
 	
 		if (GetBabiesAddress)   
 			bTStart = (GAMETILE**)GetBabiesAddress();   
-		
+/*		
 		if (GetSafesAddress)
 			bTSafe = (GAMETILE**)GetSafesAddress();
 
