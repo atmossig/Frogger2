@@ -571,7 +571,10 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					theActor->actor->qRot = ts->rot;	// rot is a quat! Yay!
 
 					actorAnimate(theActor->actor,0,YES,NO,90,0);
-					if(ts->name[0] == 'a')
+					
+					// ds - what the HELL?
+
+					/*if(ts->name[0] == 'a')
 					{
 						float rMin,rMax,rNum;
 						if(ts->name[2] == '_')
@@ -599,7 +602,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 												
 							actorAnimate(theActor->actor,0,YES,NO,rNum, 0);
 						}
-					}
+					}*/
+
 					theActor->actor->size.vx = 4096;
 					theActor->actor->size.vy = 4096;
 					theActor->actor->size.vz = 4096;

@@ -91,7 +91,7 @@ void UpdateLoadingScreen(short addprog)
 	if (rHardware)
 	{
 		BeginDraw();
-		DrawFlatRect( r, D3DRGBA(1,0.2,0.2,0.8) );
+		DrawFlatRect( r, D3DRGBA(0.9,0,0,1) );
 		EndDraw();
 	}
 	else
