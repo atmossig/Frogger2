@@ -13,7 +13,7 @@
 #include <ultra64.h>
 #include "incs.h"
 
-#define MAX_SPRITES	1024
+#define MAX_SPRITES	512
 
 FOG fog = {120,120,160,FOG_OFF,995,5000};
 
