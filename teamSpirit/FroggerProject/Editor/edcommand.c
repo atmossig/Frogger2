@@ -615,6 +615,7 @@ void ToolbarSelect(int command)
 		KillAllTriggers( );
 		FreeSpriteList( );
 		InitSpriteList( );
+		InitSpriteSortArray( );
 		FreeParticleList( );
 		InitParticleList( );
 		RemoveEntities( CREATE_ENEMY );

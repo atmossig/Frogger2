@@ -25,6 +25,7 @@
 #include "cam.h"
 #include "babyfrog.h"
 #include "event.h"
+#include "pcmisc.h"
 
 
 /*	--------------------------------------------------------------------------------
@@ -60,6 +61,7 @@ void EditorCreateEntities(void)
 	KillAllTriggers( );
 	FreeSpriteList( );
 	InitSpriteList( );
+	InitSpriteSortArray( );
 	FreeParticleList( );
 	InitParticleList( );
 
@@ -163,13 +165,17 @@ void EditorCreateEntities(void)
 			break;
 
 		case CREATE_GARIB:
-			pn = create->path->nodes;
-			SetVectorF(&v, &pn->tile->normal);
-			ScaleVector(&v, pn->offset);
-			AddToVector(&v, &pn->tile->centre);
-	
-			//TODO: CreateNewGarib(v, create->flags);
-			counts[2]++;
+			{
+				SVECTOR pos;
+				pn = create->path->nodes;
+				SetVectorF(&v, &pn->tile->normal);
+				ScaleVector(&v, pn->offset);
+				AddToVector(&v, &pn->tile->centre);
+		
+				SetVectorSR(&pos, &v);
+				CreateNewGarib(pos, create->flags);
+				counts[2]++;
+			}
 			break;
 
 		case CREATE_CAMERACASE:
