@@ -485,6 +485,9 @@ int main ( )
 	//			AnimateSprites();
 			
 
+			// JH:  Main Draw Function That Runs All The Draw Functions.
+			MainDrawFunction();
+
 			TIMER_START0(TIMER_DRAWSYNC);
 			DrawSync(0);
 			TIMER_STOP0(TIMER_DRAWSYNC);
@@ -492,23 +495,24 @@ int main ( )
 
 			TIMER_STOP(TIMER_TOTAL);
 
-			VSync(2);
-
-//			TIMER_START(TIMER_TOTAL);
-
-			PutDispEnv(&currentDisplayPage->dispenv);
-			PutDrawEnv(&currentDisplayPage->drawenv);
-
-			// JH:  Main Draw Function That Runs All The Draw Functions.
-			MainDrawFunction();
-
-			DrawOTag(currentDisplayPage->ot+(1024-1));
-
 			TIMER_ENDFRAME;
 
 			TIMER_ZERO;
 
+			VSync(2);
 
+//			TIMER_START(TIMER_TOTAL);
+
+
+			PutDispEnv(&currentDisplayPage->dispenv);
+			PutDrawEnv(&currentDisplayPage->drawenv);
+
+			DrawOTag(currentDisplayPage->ot+(1024-1));
+
+
+
+
+#if GOLDCD == NO
 			if ( padData.digital[1] & PAD_DOWN )
 			{
 				camDist.vy += ( 20 * gameSpeed ) >> 12;
@@ -542,6 +546,7 @@ int main ( )
 				camDist.vz-=(20*gameSpeed)>>12;
 			}
 			// ENDIF
+#endif
 
 
 
@@ -579,7 +584,7 @@ int main ( )
 
 
 
-			if(gameState.mode!=PAUSE_MODE)
+//			if(gameState.mode!=PAUSE_MODE)
 			{
  				gameSpeed = vsyncCounter<<12;
  				actFrameCount += vsyncCounter;
@@ -658,7 +663,6 @@ void MainDrawFunction ( void )
 			ProcessProcTextures( );
 			TIMER_STOP0(TIMER_PROCTEX);
 
-
-//			DrawBackDrop();
+			DrawBackDrop();
 }
 
