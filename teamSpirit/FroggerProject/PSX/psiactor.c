@@ -1384,8 +1384,7 @@ void ChangeModel( ACTOR *actor, char *model )
 
 	a->LODObjectController = a->objectController;
 	FindObject( &a->objectController, UpdateCRC(model), model );
-	//InitActorAnim( actor );
-	*/
+	InitAnims( a );*/
 }
 
 
@@ -1398,21 +1397,18 @@ void ChangeModel( ACTOR *actor, char *model )
 */
 int UndoChangeModel( ACTOR *actor )
 {
-	/*
-	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
+/*	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
 
 	if( a->LODObjectController )
 	{
 		a->objectController = a->LODObjectController;
 		a->LODObjectController = NULL;
-		//InitActorAnim( frog[pl]->actor );
+		InitAnims( a );
 		actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
-		player[pl].idleEnable = 1;
 		return 1;
 	}
-	*/
 	return 0;
-}
+*/}
 
 
 /*	--------------------------------------------------------------------------------
