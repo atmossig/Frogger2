@@ -1500,6 +1500,55 @@ James Hubbard:
 		I think I found a good way so I'll implement it this afternoon.
 		I'm sure I wrote some other code but I can't remember what.
 
+	Afternoon:
+		Fixed bugs in the build we sent to Kevin, and started that thing
+		I mentioned this morning. Got the in-game stuff done but not the 
+		file saving and loading.
+
+		Nobody else really does this at all, do they?
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+12/01/00 - Wednesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+	Today I couldn't come in cos I'm a big girl.
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Spent all day loading and saving files in different and interesting ways.
+	Finished it this afternoon just about, except for a weird bug with JallocFree
+	crashing in the load function. Bugger.
+
 
 James Healey:
 ------------------------------------------------
