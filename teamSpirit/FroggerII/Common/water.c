@@ -137,7 +137,8 @@ void UpdateWater(ACTOR *wAct)
 	if(wAct)
 	{
 		int i,j;
-
+		int colMod = 0;
+		
 		wv = wAct->objectController->vtx[wAct->objectController->vtxBuf];
 		i = wAct->objectController->numVtx;
 		while(i--)
@@ -153,10 +154,16 @@ void UpdateWater(ACTOR *wAct)
 					(	SineWave2(waterFreq[0],frameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
 						SineWave2(waterFreq[1],frameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
 
-			wv->v.cn[0] = 128 + (2 * wv->v.ob[Y]);
-			wv->v.cn[1] = wv->v.cn[0];
-			wv->v.cn[2] = wv->v.cn[0];
-			wv->v.cn[3] = 255;
+			colMod = 128 + (6 * (wv->v.ob[Y] + 20));
+			if(colMod > 255)
+				colMod = 255;
+			else if(colMod < 64)
+				colMod = 64;
+
+			wv->v.cn[0] = colMod;
+			wv->v.cn[1] = colMod;
+			wv->v.cn[2] = colMod;
+			wv->v.cn[3] = colMod;
 
 			wv++;
 		}

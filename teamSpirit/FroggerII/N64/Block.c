@@ -347,6 +347,10 @@ void SetupViewing()
 	Returns			: none
 	Info			:
 */
+
+//#define G_CC_MYNEWMODE a,b,c,d,A,B,C,D
+#define G_CC_MYNEWMODE1 TEXEL0,0,SHADE,0,	0,0,SHADE,0
+
 void SetRenderMode()
 {
 	changeRenderMode = 0;
@@ -541,20 +545,21 @@ void SetRenderMode()
 		else if(renderMode.transparentSurf) //nofog+transparent
 		{
 			gDPSetCombineMode(glistp++,G_CC_MODULATERGB_MODULATEPRIMA,G_CC_MODULATERGB_MODULATEPRIMA);
-//			gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGBA);
 		}
 		else
 		{
-			gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_MODULATERGBPRIMA);
+//			gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_MODULATERGBPRIMA);
+			gDPSetCombineMode(glistp++, G_CC_MODULATERGBA, G_CC_MODULATERGBA);
 		}
-		gDPSetPrimColor(glistp++,0,0,255,255,255,xluFact);
+//		gDPSetPrimColor(glistp++,0,0,255,255,255,xluFact);
 
 		//nofog & xlu
 		if(renderMode.xluSurf)
 		{
 			if(!renderMode.faceColour)
 			{
-				gDPSetCombineMode(glistp++,G_CC_MODULATERGB_MODULATEPRIMA,G_CC_MODULATERGB_MODULATEPRIMA);
+				gDPSetCombineMode(glistp++,G_CC_MODULATERGBA,G_CC_MODULATERGBA);
+//				gDPSetCombineMode(glistp++,G_CC_MODULATERGB_MODULATEPRIMA,G_CC_MODULATERGB_MODULATEPRIMA);
 			}
 			else
 			{
