@@ -1258,7 +1258,7 @@ void PCRenderObject (OBJECT *obj)
 {
 	unsigned long i,j;
 	unsigned short fce[3] = {0,1,2};		
-	VECTOR *c1,*c2,*c3;
+	QUATERNION *c1,*c2,*c3;
 	D3DTLVERTEX v[3],*vTemp;
 	USHORTVECTOR *facesIdx;
 	unsigned long drawme,x1on,x2on,x3on,y1on,y2on,y3on;
@@ -1267,8 +1267,10 @@ void PCRenderObject (OBJECT *obj)
 	long alphaVal;
 	TEXENTRY *tex;
 	TEXTURE **tex2;
-	VECTOR *tV0,*tV1,*tV2,*cols;
+	VECTOR *tV0,*tV1,*tV2;
+	QUATERNION *cols;
 	float t1,t2,t3,fogAmt;
+
 	if (xl<0.99)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 	else
@@ -1322,7 +1324,7 @@ void PCRenderObject (OBJECT *obj)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
 				
-				vTemp->color = SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				vTemp->color = *((long *)(&(c1->x)));//SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
@@ -1346,7 +1348,7 @@ void PCRenderObject (OBJECT *obj)
 				if (fogAmt>1)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
-				vTemp->color = SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				vTemp->color = *((long *)(&(c2->x)));//SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 				
 				if (waterObject)
 				{
@@ -1371,7 +1373,7 @@ void PCRenderObject (OBJECT *obj)
 				if (fogAmt>1)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
-				vTemp->color = SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				vTemp->color = *((long *)(&(c3->x)));//SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];

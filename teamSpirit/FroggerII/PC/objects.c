@@ -127,7 +127,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 
 	if (obj->mesh)
 	{
-		float r,g,b;
+		float r,g,b,a;
 			
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
@@ -143,10 +143,11 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 		
 		for (x=0; x<obj->mesh->numFaces*3; x++)
 		{
-			r = ((VECTOR *)obj->mesh->vertexNormals)[x].v[0];
-			g = ((VECTOR *)obj->mesh->vertexNormals)[x].v[1];
-			b = ((VECTOR *)obj->mesh->vertexNormals)[x].v[2];
-			((long *)(&((VECTOR *)obj->mesh->vertexNormals)[x].v[0]))[0] = D3DRGB(r,g,b);
+			r = ((QUATERNION *)obj->mesh->vertexNormals)[x].x;
+			g = ((QUATERNION *)obj->mesh->vertexNormals)[x].y;
+			b = ((QUATERNION *)obj->mesh->vertexNormals)[x].z;
+			a = ((QUATERNION *)obj->mesh->vertexNormals)[x].w;
+			((long *)(& ((QUATERNION *)obj->mesh->vertexNormals)[x].x))[0] = D3DRGBA(r,g,b,a);
 		}
 	}
 

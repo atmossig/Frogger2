@@ -248,6 +248,13 @@ void CameraLookAtFrog(void)
 			afz/=l;
 		}
 
+		if (fixedPos)
+		{
+			camTarget[0].v[0] = afx + currTile[0]->normal.v[0];	
+			camTarget[0].v[1] = afy + currTile[0]->normal.v[1];	
+			camTarget[0].v[2] = afz + currTile[0]->normal.v[2];
+		}
+		else
 		{
 			camTarget[0].v[0] = afx+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs + currTile[0]->normal.v[0];	
 			camTarget[0].v[1] = afy+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs + currTile[0]->normal.v[1];	

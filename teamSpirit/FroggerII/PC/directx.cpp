@@ -53,6 +53,8 @@ long is565;
 
 extern long numPixelsDrawn; 
 
+#define FOGADJ(x) (1.0-((x-fStart)*fEnd))
+#define FOGVAL(y) (((unsigned long)(255*y) << 24))
 
 //#define TriangleArea(x1,y1,x2,y2,x3,y3) fabs((fabs(x3-x1)*fabs(y3-y2) - fabs(y3-y1)*fabs(x3-x2))*0.5)
 extern long numFacesDrawn; 
@@ -1485,12 +1487,12 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 	D3DTLVERTEX v[2] = {
 		{
 			x1,y1,0,0,
-			color, 0.0,
+			color, D3DRGBA(0,0,0,1.0),
 			0.0, 0.0
 		},
 		{
 			x2,y2,0,0,
-			color, 0.0,
+			color, D3DRGBA(0,0,0,1.0),
 			0.0, 0.0
 		}
 	};
@@ -1514,22 +1516,22 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,0,0,
-			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
 			u1,v1
 		},
 		{
 			x+xs,y,0,0,
-			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
 			u2,v1
 		},
 		{
 			x+xs,y+ys,0,0,
-			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
 			u2,v2
 		},
 		{
 		x,y+ys,0,0,
-			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			D3DRGB(1,1,1),D3DRGBA(0,0,0,1),
 			u1,v2
 	}};
 
@@ -1567,6 +1569,7 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h, float alpha)
 {
 	float x2 = x + xs, y2 = y + ys;
+	float fogAmt;
 
 	// Really crap clipping
 	if (x < SPRITECLIPLEFT)
@@ -1595,25 +1598,32 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	}
 	if (ys < 0) return;
 
+	
+	fogAmt = FOGADJ(z);
+	if (fogAmt<0)
+		fogAmt=0;
+	if (fogAmt>1)
+		fogAmt=1;
+	
 	D3DTLVERTEX v[4] = {
 		{
 			x,y,z,0,
-			D3DRGBA(1,1,1,alpha),0,
+			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
 			u1,v1
 		},
 		{
 			x2,y,z,0,
-			D3DRGBA(1,1,1,alpha),0,
+			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
 			u2,v1
 		},
 		{
 			x2,y2,z,0,
-			D3DRGBA(1,1,1,alpha),0,
+			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
 			u2,v2
 		},
 		{
 			x,y2,z,0,
-			D3DRGBA(1,1,1,alpha),0,
+			D3DRGBA(1,1,1,alpha),FOGVAL(fogAmt),
 			u1,v2
 	}};
 
@@ -1665,22 +1675,22 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 	D3DLVERTEX v[4] = {
 		{
 			r.left,r.top,0,0,
-			colour,0,
+			colour,D3DRGBA(0,0,0,1),
 			0,0
 		},
 		{
 			r.left,r.bottom,0,0,
-			colour,0,
+			colour,D3DRGBA(0,0,0,1),
 			0,0
 		},
 		{
 			r.right,r.bottom,0,0,
-			colour,0,
+			colour,D3DRGBA(0,0,0,1),
 			0,0
 		},
 		{
 			r.right,r.top,0,0,
-			colour,0,
+			colour,D3DRGBA(0,0,0,1),
 			0,0
 	}};
 

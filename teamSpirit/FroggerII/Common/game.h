@@ -23,7 +23,7 @@
 #define PM_GAMEOVER	3
 
 #ifndef DEFINITELY_NOT_MBR_DEMO
-#define MBR_DEMO 1
+//#define MBR_DEMO 1
 #endif
 
 // -----------------
