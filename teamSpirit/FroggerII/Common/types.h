@@ -408,6 +408,8 @@ typedef struct TAGACTOR
 	ACTOR_ANIMATION				*animation;
 	ACTOR_SHADOW				*shadow;
 	PLANE  						*planes;
+	BYTEVECTOR					color;
+	BYTEVECTOR					currentcolor;
 	unsigned long	loopCount;
 	int rotateAboutY;
 }ACTOR;

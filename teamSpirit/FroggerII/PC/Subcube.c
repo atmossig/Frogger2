@@ -29,6 +29,7 @@ float unitMatrix[4][4] = {0, 0, 0, 0,
 				  0, 0, 0, 0,
 				  0, 0, 0, 0};
 
+
 char	*tempObjectPtr, *tempObjectPtr2;
 
 VECTOR	actorScale;
@@ -99,6 +100,8 @@ float clx0 = 1,
 	Parameters	: (D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
 	Returns		: inline int 
 */
+
+float   rCol,gCol,bCol;
 
 int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
 {
@@ -372,6 +375,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->tu = obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0);
 			vTemp->color = D3DRGB(c1->v[0],c1->v[1],c1->v[2]);
+			vTemp->specular = (rCol,gCol,bCol);
 			
 			vTemp++;
 
@@ -382,7 +386,8 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->tu = obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0);
 			vTemp->color = D3DRGB(c2->v[0],c2->v[1],c2->v[2]);
-		
+			vTemp->specular = (rCol,gCol,bCol);
+
 			vTemp++;
 
 			vTemp->specular = 0;
@@ -392,6 +397,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->tu = obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0);
 			vTemp->color = D3DRGB(c3->v[0],c3->v[1],c3->v[2]);
+			vTemp->specular = (rCol,gCol,bCol);
 			
 		
 
@@ -545,6 +551,10 @@ void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int init
 //init actors rotation
 	ZeroQuaternion(&tempActor->qRot);
 	InitTex();
+
+	tempActor->currentcolor.v[0] = 0;
+	tempActor->currentcolor.v[1] = 0;
+	tempActor->currentcolor.v[2] = 0;
 }
 
 //extern ACTOR2* watert;
@@ -981,7 +991,11 @@ void DrawActor(ACTOR *ptr)
 	float	animTime = 0;
 
 	QUATERNION tempQ;
-		
+	
+	rCol = ptr->currentcolor.v[0]/256.0;
+	gCol = ptr->currentcolor.v[1]/256.0;
+	bCol = ptr->currentcolor.v[2]/256.0;
+
 	ptr->matrix = NULL;
 	if(dispFrameCount == 1)
 	{

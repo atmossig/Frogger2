@@ -252,13 +252,13 @@ void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType)
 	Returns			: void
 	Info			: 
 */
-void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile)
+void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 {
 	// make the teleport 'to' tile the current tile
-	currTile[0] = tile;
+	currTile[pl] = tile;
 	SetVector(&act->actor->pos,&tile->centre);
-	player[0].frogState |= FROGSTATUS_ISSTANDING;
-	player[0].frogState &= ~FROGSTATUS_ISTELEPORTING;
+	player[pl].frogState |= FROGSTATUS_ISSTANDING;
+	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
 
 	// create vector with +'s...
 /*

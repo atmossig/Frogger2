@@ -13,6 +13,8 @@
 
 #include "incs.h"
 
+char statusMessage[255];
+
 unsigned long gstrlen (const char *a)
 {
 	char *b=a;

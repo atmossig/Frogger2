@@ -155,78 +155,78 @@ void GameProcessController2(void)
 }
 
 
-void GameProcessController(void)
+void GameProcessController(long pl)
 {
-	static u16 button,lastbutton;
-	static s16 stickX, stickY,lastStickX,lastStickY;
+	static u16 button[4],lastbutton[4];
+	static s16 stickX[4], stickY[4],lastStickX[4],lastStickY[4];
     
 	VECTOR fwd = { 0,0,1 };
 	VECTOR vec;
 
-	button = controllerdata[ActiveController].button;
-	stickX = controllerdata[ActiveController].stick_x;
-	stickY = controllerdata[ActiveController].stick_y;
+	button[pl] = controllerdata[ActiveController].button;
+	stickX[pl] = controllerdata[ActiveController].stick_x;
+	stickY[pl] = controllerdata[ActiveController].stick_y;
 		
 	if ( autoPlaying )
 	{
 		LevelPlayingProcessController();
-		button = 0;
-		stickX = 0;
-		stickY = 0;
+		button[pl] = 0;
+		stickX[pl] = 0;
+		stickY[pl] = 0;
 		// find frame keys
-		button = GetCurrentRecordKey();
+		button[pl] = GetCurrentRecordKey();
 	}
 	else if ( ( gameState.mode == CAMEO_MODE ) && !( button && CONT_A ) )
 	{
 		CameoProcessController();
-		button = 0;
-		stickX = 0;
-		stickY = 0;
+		button[pl] = 0;
+		stickX[pl] = 0;
+		stickY[pl] = 0;
 
 		// Find any movement keys for the frog
-		button = GetCurrentCameoKey();
+		button[pl] = GetCurrentCameoKey();
 	}
 	// ENDELSEIF
 
-	if((stickX > 15) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
+	if((stickX[pl] > 15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
 	{
-		if (lastStickX < 15)
+		if (lastStickX[pl] < 15)
 		{
-	    	player[0].frogState |= FROGSTATUS_ISWANTINGR;
+	    	player[pl].frogState |= FROGSTATUS_ISWANTINGR;
 		}
 	}
-	else if((stickX < -15) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
+	else if((stickX[pl] < -15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
 	{
-		if (lastStickX > -15)
+		if (lastStickX[pl] > -15)
 		{
-	    	player[0].frogState |= FROGSTATUS_ISWANTINGL;
+	    	player[pl].frogState |= FROGSTATUS_ISWANTINGL;
 	    }
 	}
 
-	if ((stickY > 15) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
+	if ((stickY[pl] > 15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
 	{
-		if (lastStickY < 15)
+		if (lastStickY[pl] < 15)
 		{
-		   	player[0].frogState |= FROGSTATUS_ISWANTINGU;
+		   	player[pl].frogState |= FROGSTATUS_ISWANTINGU;
 	    }
 	}
 	else 
-	if ((stickY < -15) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
+	if ((stickY[pl] < -15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
 	{
-		if (lastStickY > -15)
+		if (lastStickY[pl] > -15)
 		{
-	    	player[0].frogState |= FROGSTATUS_ISWANTINGD;
+	    	player[pl].frogState |= FROGSTATUS_ISWANTINGD;
 	    }
 	}
 
 
-	if((button & CONT_UP) && (autoHop?1:!(lastbutton & CONT_UP)) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[0].frogState & FROGSTATUS_ISFLOATING ))
+	if((button[pl] & CONT_UP) && (autoHop?1:!(lastbutton[pl] & CONT_UP)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING ))
 	{
 		if(!playerInputPause)
 		{
-			UpdateScore(frog[0],hopAmt);
+			UpdateScore(frog[pl],hopAmt);
 
-			player[0].frogState |= FROGSTATUS_ISWANTINGU;
+			player[pl].frogState |= FROGSTATUS_ISWANTINGU;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_UP, frameCount );
@@ -239,13 +239,13 @@ void GameProcessController(void)
 				playerInputPause -= INPUT_PENALTY;
 	}	    
 
-	if((button & CONT_RIGHT) && (autoHop?1:!(lastbutton & CONT_RIGHT)) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[0].frogState & FROGSTATUS_ISFLOATING))
+	if((button[pl] & CONT_RIGHT) && (autoHop?1:!(lastbutton[pl] & CONT_RIGHT)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING))
 	{
 		if(!playerInputPause)
 		{
-			UpdateScore(frog[0],hopAmt);
+			UpdateScore(frog[pl],hopAmt);
 
-			player[0].frogState |= FROGSTATUS_ISWANTINGR;
+			player[pl].frogState |= FROGSTATUS_ISWANTINGR;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_RIGHT, frameCount );
@@ -258,13 +258,13 @@ void GameProcessController(void)
 				playerInputPause -= INPUT_PENALTY;
 	}
     
-	if((button & CONT_DOWN) && (autoHop?1:!(lastbutton & CONT_DOWN)) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[0].frogState & FROGSTATUS_ISFLOATING))
+	if((button[pl] & CONT_DOWN) && (autoHop?1:!(lastbutton[pl] & CONT_DOWN)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING))
 	{
 		if(!playerInputPause)
 		{
-			UpdateScore(frog[0],hopAmt);
+			UpdateScore(frog[pl],hopAmt);
 	    	
-			player[0].frogState |= FROGSTATUS_ISWANTINGD;
+			player[pl].frogState |= FROGSTATUS_ISWANTINGD;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
@@ -277,13 +277,13 @@ void GameProcessController(void)
 				playerInputPause -= INPUT_PENALTY;
 	}
     
-	if((button & CONT_LEFT) && (autoHop?1:!(lastbutton & CONT_LEFT)) && (player[0].frogState & FROGSTATUS_ISSTANDING || player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[0].frogState & FROGSTATUS_ISFLOATING))
+	if((button[pl] & CONT_LEFT) && (autoHop?1:!(lastbutton[pl] & CONT_LEFT)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING))
 	{
 		if(!playerInputPause)
 		{
-			UpdateScore(frog[0],hopAmt);
+			UpdateScore(frog[pl],hopAmt);
 
-			player[0].frogState |= FROGSTATUS_ISWANTINGL;
+			player[pl].frogState |= FROGSTATUS_ISWANTINGL;
 			
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_LEFT, frameCount );
@@ -297,7 +297,7 @@ void GameProcessController(void)
 	}
 
 
-	if((button & CONT_A) && !(lastbutton & CONT_A))
+	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
     {
 		if ( gameState.mode == CAMEO_MODE )
 			gameState.mode = GAME_MODE;
@@ -312,16 +312,16 @@ void GameProcessController(void)
 			switch(iceMoveDir)
 			{
 				case MOVE_UP:
-					player[0].frogState |= FROGSTATUS_ISWANTINGLONGHOPU;
+					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPU;
 				break;
 				case MOVE_RIGHT:
-					player[0].frogState |= FROGSTATUS_ISWANTINGLONGHOPR;
+					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPR;
 				break; 
 				case MOVE_DOWN:
-					player[0].frogState |= FROGSTATUS_ISWANTINGLONGHOPD;
+					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPD;
 				break;
 				case MOVE_LEFT:
-					player[0].frogState |= FROGSTATUS_ISWANTINGLONGHOPL;
+					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPL;
 				break;
 			}
 
@@ -340,16 +340,16 @@ void GameProcessController(void)
 				switch(iceMoveDir)
 				{
 					case MOVE_UP:
-						player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
 						break;
 					case MOVE_LEFT:
-						player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
 						break;
 					case MOVE_DOWN:
-						player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
 						break;
 					case MOVE_RIGHT:
-						player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
+						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
 						break;
 				}
 			}
@@ -358,26 +358,26 @@ void GameProcessController(void)
 
 
 	
-	if((button & CONT_B) && (player[0].frogState & FROGSTATUS_ISSTANDING) && (tongueState & TONGUE_IDLE))
+	if((button[pl] & CONT_B) && (player[pl].frogState & FROGSTATUS_ISSTANDING) && (tongueState & TONGUE_IDLE))
     {
 		// want to use tongue
 		tongueState	= TONGUE_NONE | TONGUE_SEARCHING;
 	}
 
-	if((button & CONT_E) && !(lastbutton & CONT_E))
+	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))
     {
 		// *** DEBUG - ANDYE ***
 		ShowCamInfo();
 		// *********************
 	}
 
-	if((button & CONT_D) && !(lastbutton & CONT_D))
+	if((button[0] & CONT_D) && !(lastbutton[0] & CONT_D))
     {
 		// toggle between zoom in or out camera view
 		ChangeCameraSetting();
 	}
 
-	if((button & CONT_F) && !(lastbutton & CONT_F))
+	if((button[0] & CONT_F) && !(lastbutton[0] & CONT_F))
     {
 		camFacing--;
 		camFacing &= 3;
@@ -386,7 +386,7 @@ void GameProcessController(void)
 
 	}
 
-	if((button & CONT_C) && !(lastbutton & CONT_C))
+	if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
     {
 		camFacing++;
 		camFacing &= 3;		
@@ -395,26 +395,26 @@ void GameProcessController(void)
 	}
 
 	// Croak and Croak Float
-	if ( ( frog[0]->action.deathBy != DEATHBY_FALLINGTOTILE ) && 
-		 ( !(player[0].frogState & FROGSTATUS_ISDEAD) ) && !frog[0]->action.isCroaking )
-		if ( ( button & CONT_L ) && !( lastbutton & CONT_L ) )
+	if ( ( frog[pl]->action.deathBy != DEATHBY_FALLINGTOTILE ) && 
+		 ( !(player[pl].frogState & FROGSTATUS_ISDEAD) ) && !frog[pl]->action.isCroaking )
+		if ( ( button[pl] & CONT_L ) && !( lastbutton[pl] & CONT_L ) )
 		{
-			frog[0]->action.isCroaking	= 15;
-			player[0].frogState |= FROGSTATUS_ISCROAKING;
+			frog[pl]->action.isCroaking	= 15;
+			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 			PlaySample(218,NULL,255,128);
 		}
 
 	// croak / croak-float
-	if ( ( button & CONT_L ) && ( croakFloat ) )
+	if ( ( button[pl] & CONT_L ) && ( croakFloat ) )
     {
 		if(croakFloat)
 		{
 			// following added by JamesH
-			if ( frog[0]->action.deathBy == DEATHBY_FALLINGTOTILE )
+			if ( frog[pl]->action.deathBy == DEATHBY_FALLINGTOTILE )
 			{
-				player[0].frogState		    &= ~FROGSTATUS_ISDEAD;
-				frog[0]->action.dead	 = 0;
-				player[0].frogState		    |= FROGSTATUS_ISFLOATING;
+				player[pl].frogState		    &= ~FROGSTATUS_ISDEAD;
+				frog[pl]->action.dead	 = 0;
+				player[pl].frogState		    |= FROGSTATUS_ISFLOATING;
 
 				yFOVNew		= 80.0f;
 				speedTest	= 2.0f;
@@ -425,13 +425,13 @@ void GameProcessController(void)
     }
 	else
 	{
-		if ( ( croakFloat ) && ( ( frog[0]->action.deathBy == DEATHBY_FALLINGTOTILE ) ) &&
-							 ( player[0].frogState & FROGSTATUS_ISFLOATING ) )
+		if ( ( croakFloat ) && ( ( frog[pl]->action.deathBy == DEATHBY_FALLINGTOTILE ) ) &&
+							 ( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
 		{
-			player[0].frogState		    &= ~FROGSTATUS_ISFLOATING;
-			player[0].frogState			|= FROGSTATUS_ISDEAD;
-			frog[0]->action.deathBy = DEATHBY_FALLINGTOTILE;
-			frog[0]->action.dead	 = 50;
+			player[pl].frogState		    &= ~FROGSTATUS_ISFLOATING;
+			player[pl].frogState			|= FROGSTATUS_ISDEAD;
+			frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
+			frog[pl]->action.dead	 = 50;
 			speedTest = 18.0f;
 		}
 		// ENDIF
@@ -440,14 +440,14 @@ void GameProcessController(void)
 
 	// End Croak And CroakFloat
 
-	if((button & CONT_R) && !(lastbutton & CONT_R))
+	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
     {
 		bby++;
 		bby %= numBabies;
-		SetFroggerStartPos(bTStart[bby],frog[0]);
+		SetFroggerStartPos(bTStart[bby],frog[pl],0);
     }
 
-	if((button & CONT_START) && !(lastbutton & CONT_START))
+	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
 		//ScreenShot();
 
@@ -456,7 +456,7 @@ void GameProcessController(void)
 		EnableTextOverlay ( pauseTitle );
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
-		lastbutton = button;
+		lastbutton[pl] = button[pl];
 		
 		if(backPanel)
 		{
@@ -474,9 +474,9 @@ void GameProcessController(void)
 //		return;	
     }
   
-	lastbutton = button;
-	lastStickX = stickX;
-	lastStickY = stickY;
+	lastbutton[pl] = button[pl];
+	lastStickX[pl] = stickX[pl];
+	lastStickY[pl] = stickY[pl];
 }
 
 /* --------------------------------------------------------------------------------
@@ -890,9 +890,9 @@ void RunGameLoop (void)
 		ChangeCameraSetting();
 
 		/* Ambient Sound test */
-		InitAmbientSoundList( );
+		//InitAmbientSoundList( );
 
-		AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
+//		AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
 	}
 
 	if(!goText->kill)
@@ -939,8 +939,8 @@ void RunGameLoop (void)
 			DisableTextOverlay(scoreTextOver);
 //				livesIcon->active = 0;
 
-			if( ambientSoundList.numEntries )
-				KillAmbientSfx( );
+		//	if( ambientSoundList.numEntries )
+		//		KillAmbientSfx( );
 
 			RunGameOverSequence();
 
@@ -974,8 +974,8 @@ void RunGameLoop (void)
 
 		if ( levelIsOver )
 		{
-			if( ambientSoundList.numEntries )
-				KillAmbientSfx( );
+		//	if( ambientSoundList.numEntries )
+		//		KillAmbientSfx( );
 
 			RunLevelCompleteSequence();
 
@@ -1057,7 +1057,8 @@ void RunGameLoop (void)
 				{
 					if(!frog[0]->action.dead)	
 					{
-						GameProcessController();
+						GameProcessController(0);
+						GameProcessController(1);
 					}
 
 					if (!frog2->action.dead)
@@ -1081,16 +1082,19 @@ void RunGameLoop (void)
 					}
 					// ENDIF
 					for (i=0; i<4; i++)
+					{
 						UpdateCameraPosition(i);
 					
-					if ( !( player[0].frogState & FROGSTATUS_ISFLOATING ) )
-						SitAndFace(frog[0],currTile[0],frogFacing);
-					else if ( player[0].frogState & FROGSTATUS_ISFLOATING )
-					{
-						//SitAndFace(frog,currTile,frogFacing);
-						//RotateFrog ( frog, frogFacing );
-						//switch ( turnDir )
+						if ( !( player[i].frogState & FROGSTATUS_ISFLOATING ) )
+							SitAndFace(frog[i],currTile[i],frogFacing);
+						else if ( player[i].frogState & FROGSTATUS_ISFLOATING )
+						{
+							//SitAndFace(frog,currTile,frogFacing);
+							//RotateFrog ( frog, frogFacing );
+							//switch ( turnDir )
+						}
 					}
+					
 					// ENDELSEIF
 					SitAndFace(frog2,currTile2,frogFacing2);
 
@@ -1107,14 +1111,17 @@ void RunGameLoop (void)
 	UpdatePlatforms();
 	UpdateEnemies();
 	UpdateSpecialFX();
-	UpdateAmbientSounds();
+	//UpdateAmbientSounds();
 	//	UpdateWater();
-
+	
+	dprintf"%lu %lu\n",player[0].frogState,player[1].frogState));
 	//*****************//
 
 	ProcessCollectables();
 
-	UpdateFroggerPos();
+	UpdateFroggerPos(0);
+	UpdateFroggerPos(1);
+
 	UpdateFroggerPos2();
 
 	UpDateOnScreenInfo();

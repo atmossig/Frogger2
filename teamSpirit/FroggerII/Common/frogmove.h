@@ -109,23 +109,23 @@ extern float speedTest;
 
 // ----- [ FUNCTION PROTOTYPES ] ---------- //
 
-extern void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act);
-void UpdateFroggerPos();
+extern void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act,long p);
+void UpdateFroggerPos(long p);
 void UpdateFroggerPos2();
-extern BOOL MoveToRequestedDestination(int dir);
-extern void GetNextTile(unsigned long direction);
+extern BOOL MoveToRequestedDestination(int dir,long pl);
+extern void GetNextTile(unsigned long direction, long pl);
 
-extern void SlurpFroggerPosition(int whereTo);
+extern void SlurpFroggerPosition(int whereTo,long pl);
 extern void SlurpFroggerPosition2(int whereTo);
 
-extern void CheckForFroggerLanding(int whereTo);
+extern void CheckForFroggerLanding(int whereTo,long pl);
 extern void CheckForFroggerLanding2(int whereTo);
 extern void SlideFroggerPosition ( ACTOR2 *actor2 );
 
 extern BOOL GameTileTooHigh(GAMETILE *tile);
 extern BOOL GameTileTooLow(GAMETILE *tile);
 
-extern BOOL KillFrog(ACTOR2 *frogAct);
+extern BOOL KillFrog(ACTOR2 *frogAct,long pl);
 
 extern void GetNextTileLongHop ( unsigned long direction );
 extern void RotateFrog ( ACTOR2* frog, unsigned long fFacing );

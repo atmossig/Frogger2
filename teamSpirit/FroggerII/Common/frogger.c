@@ -44,6 +44,31 @@ char croakB						= 255;
 
 char me[100] = "frogger.ndo";
 
+void CreateFrogActor (GAMETILE *where, char *name,long p)
+{
+	ACTOR2 **me = &frog[p];
+	(*me)		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+	(*me)->actor->shadow->radius = 30;
+	(*me)->actor->shadow->alpha = 191;
+	(*me)->flags	|= ACTOR_DRAW_ALWAYS;
+	
+	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
+	
+	InitActorAnim ( (*me)->actor );
+	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667 );
+	
+	(*me)->actor->scale.v[0] = 0.09;
+	(*me)->actor->scale.v[1] = 0.09;
+	(*me)->actor->scale.v[2] = 0.09;
+	
+	SetFroggerStartPos ( where, (*me),p);
+	
+	(*me)->action.lives		= 3;
+	(*me)->action.isOnFire	= 0;
+	(*me)->radius			= 37.0F;
+
+}
+
 void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlays,
 					unsigned long createBabyActors,unsigned long createBabyOverlays)
 {
@@ -51,6 +76,12 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 
 	if ( createFrogActor )
 	{
+		CreateBabies(createBabyActors, createBabyOverlays );
+		CreateFrogActor (gTStart[0],"frogger.ndo",0);
+		CreateFrogActor (gTStart[0]->tilePtrs[0],"frogger.ndo",1);
+		CreateFrogActor (gTStart[0]->tilePtrs[1],"frogger.ndo",2);
+		CreateFrogActor (gTStart[0]->tilePtrs[2],"frogger.ndo",3);
+/*
 		frog[0]		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog[0]->actor->shadow->radius = 30;
 		frog[0]->actor->shadow->alpha = 191;
@@ -66,7 +97,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		frog[0]->action.lives		= 3;
 		frog[0]->action.isOnFire	= 0;
 		frog[0]->radius				= 37.0F;
-
+*/
 		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog2->actor->shadow->radius = 30;
 		frog2->actor->shadow->alpha = 191;
@@ -77,7 +108,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		frog2->actor->scale.v[0] = 0.09;
 		frog2->actor->scale.v[1] = 0.09;
 		frog2->actor->scale.v[2] = 0.09;
-		SetFroggerStartPos ( gTStart[0], frog2);
+		//SetFroggerStartPos ( gTStart[0], frog2,);
 		frog2->action.lives = 3;
 	}
 	// ENIF
