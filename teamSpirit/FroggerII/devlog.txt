@@ -2002,3 +2002,45 @@ Secondaries:
 
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------
+01/02/00 - Tuesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Things I done recently...
+
+	o	Failed to write devlog entries, but I'm not alone there
+	o	Started to write a decal printing thing before realising that I'd effectively done just that a few months ago
+	o	Made a silly shield effect that people seem to like for some reason
+	o	Glow and twinkle effects, kind of
+	o	Made looping samples work right. I think.
+	o	Multiplayer bug fixes
+	o	Bonus item code mostly written
+	o	And just today, I rewrote the tongue drawing stuff so it doesn't use silly sprites, but a motion blur style polygon trail.
+		Except it doesn't work yet.
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
