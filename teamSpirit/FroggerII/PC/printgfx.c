@@ -374,7 +374,7 @@ void ProcessShadows()
 		{
 			SubVector( &vec, &frog[i]->actor->pos, &currTile[i]->centre );
 			height = DotProduct( &vec, &currTile[i]->normal );
-			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius, -height+1, frog[i]->actor->shadow->alpha, tex );
+			DrawShadow( &frog[i]->actor->pos, &currTile[i]->normal, frog[i]->actor->shadow->radius/max(height*0.02, 1), -height+1, frog[i]->actor->shadow->alpha/max(height*0.02, 1), tex );
 		}
 
 	//------------------------------------------------------------------------------------------------
@@ -391,9 +391,9 @@ void ProcessShadows()
 			height = DotProduct( &vec, &nme->inTile->normal );
 
 			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
-				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -height+1, nme->nmeActor->actor->shadow->alpha, tex );
+				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/max(height*0.02, 1), -height+1, nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1), tex );
 			else
-				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius, -height+1, nme->nmeActor->actor->shadow->alpha, tex );
+				DrawShadow( &nme->nmeActor->actor->pos, &nme->inTile->normal, nme->nmeActor->actor->shadow->radius/max(height*0.02, 1), -height+1, nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1), tex );
 		}
 	}
 
@@ -407,7 +407,7 @@ void ProcessShadows()
 		{
 			SubVector( &vec, &plat->pltActor->actor->pos, &plat->inTile[0]->centre );
 			height = DotProduct( &vec, &plat->inTile[0]->normal );
-			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius, -height+1, plat->pltActor->actor->shadow->alpha, tex );
+			DrawShadow( &plat->pltActor->actor->pos, &plat->inTile[0]->normal, plat->pltActor->actor->shadow->radius/max(height*0.02, 1), -height+1, plat->pltActor->actor->shadow->alpha/max(height*0.02, 1), tex );
 		}
 	}
 
