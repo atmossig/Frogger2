@@ -496,14 +496,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				else
 					keyDelay-=1;
 
-#ifdef USE_EDITOR
-			if (editorOk)
-			{
-				SetupViewMatrix();
-				RunEditor();
-			}
-#endif
-
 			if( gameState.multi == MULTIREMOTE && gameState.mode == INGAME_MODE )
 				RefreshMPFrogs( );
 
@@ -511,6 +503,14 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			keysEnabled = !(editorOk || (chatFlags & CHAT_INPUT));
 			ProcessUserInput(winInfo.hWndMain);
+
+#ifdef USE_EDITOR
+			if (editorOk)
+			{
+				SetupViewMatrix();
+				RunEditor();
+			}
+#endif
 
 			DrawGraphics();
 
