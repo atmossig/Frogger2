@@ -119,6 +119,15 @@ James Healey:
 
 Mike Movel:
 ------------------------------------------------
+	Fixed/frigged the direction of camera cases to work with the PSX mapping.
+	
+	Discovered that you have to set the total number of MALLOCS you can use in
+	a program using the new PSX libraries - it's initially set to 512, but I had
+	to change it to 1024 to allow everything to load.
+
+	Tried to get plt4log and plt5log to load properly, but they don't seem to work. For now
+	I'll just load a pltlilly instead.
+
 
 
 Byron Blay:
