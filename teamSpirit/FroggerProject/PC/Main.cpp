@@ -80,10 +80,9 @@ long DrawLoop(void)
 	DrawActorList();
 	EndTimer(2);
 
-	if (world)
-		world = world;
-
-	guLookAtF (vMatrix.matrix,0,0,0, 0,camY,camZ, 0,1,0);
+	guLookAtF (vMatrix.matrix,
+		currCamTarget[0].vx/40960.0,currCamTarget[0].vy/40960.0,currCamTarget[0].vz/40960.0,
+		currCamSource[0].vx/40960.0,currCamSource[0].vy/40960.0,currCamSource[0].vz/40960.0, 0,1,0);
 	pDirect3DDevice->BeginScene();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
@@ -135,7 +134,7 @@ long LoopFunc(void)
 		((MDX_ACTOR *)(c->actor->actualActor))->pos.vy = c->actor->position.vy / 10.0;
 		((MDX_ACTOR *)(c->actor->actualActor))->pos.vz = c->actor->position.vz / 10.0;
 
-		if (c->actor->qRot.w)
+		if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
 		{
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
