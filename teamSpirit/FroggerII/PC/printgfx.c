@@ -51,8 +51,8 @@ float wSeed = 0.0F;
 
 void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 {
-	unsigned int pos = 0,length;
-	unsigned int x,y,width;
+	int pos = 0,length;
+	int x,y,width;
 	unsigned char letter,letterCount;
 	char *c;
 	short u,v,letterID;
