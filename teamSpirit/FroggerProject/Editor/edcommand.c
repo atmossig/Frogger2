@@ -180,6 +180,7 @@ unsigned int FlagFromCommand( int command )
 	case TB_FLAG_NME_SHADOW:			return ENEMY_NEW_SHADOW;
 	case TB_FLAG_PLAT_SHADOW:			return PLATFORM_NEW_SHADOW;
 	case TB_FLAG_NME_TILEHOMING:		return ENEMY_NEW_TILEHOMING;
+	case TB_FLAG_NME_BATTLEMODE:		return ENEMY_NEW_BATTLEMODE;
 	}
 	return 0;
 }
@@ -736,6 +737,7 @@ void ToolbarSelect(int command)
 	case TB_FLAG_NME_RANDOMMOVE:
 	case TB_FLAG_NME_SHADOW:
 	case TB_FLAG_NME_TILEHOMING:
+	case TB_FLAG_NME_BATTLEMODE:
 		{
 			EDITGROUPNODE *node;
 			unsigned int fl = FlagFromCommand(command);
