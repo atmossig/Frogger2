@@ -1167,8 +1167,23 @@ void RunGameLoop (void)
 		  	if (player[i].frogState & FROGSTATUS_ISSTANDING)
 			{
 				frog[i]->actor->pos.v[X] = frog[frog[i]->action.frogon]->actor->pos.v[X]+sinf(frameCount/30.0)*5;
-	           frog[i]->actor->pos.v[Y] = frog[frog[i]->action.frogon]->actor->pos.v[Y]+35;
-	          frog[i]->actor->pos.v[Z] = frog[frog[i]->action.frogon]->actor->pos.v[Z]+cosf(frameCount/27.0)*5;
+				frog[i]->actor->pos.v[Y] = frog[frog[i]->action.frogon]->actor->pos.v[Y]+35;
+				frog[i]->actor->pos.v[Z] = frog[frog[i]->action.frogon]->actor->pos.v[Z]+cosf(frameCount/27.0)*5;
+			}
+		}
+
+		if (!IsPointVisible(&frog[i]->actor->pos))
+		{
+			int j;
+			for (j=0; j<NUM_FROGS; j++)
+			{
+				if (IsPointVisible(&frog[j]->actor->pos))
+				{
+					TeleportActorToTile(frog[i],currTile[j],i);
+					destTile[i] = currTile[j];
+					frog[i]->action.stun = 50;
+					frog[i]->action.safe = 80;
+				}
 			}
 		}
 	}

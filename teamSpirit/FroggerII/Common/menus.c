@@ -32,6 +32,8 @@ SPRITE *sp = NULL;
 	Returns 	: 
 	Info 		:
 */
+char mpText[] = "Multiplayer 1";
+
 void RunTitleScreen( )
 {
 	static unsigned long currentSelection = 0;
@@ -41,6 +43,7 @@ void RunTitleScreen( )
 	static TEXTOVERLAY *startText;
 	static TEXTOVERLAY *selectText;
 	static TEXTOVERLAY *multiText;
+	static long numPlayers = 1;
 
 	int i = 0,xPos,j;
 
@@ -57,7 +60,7 @@ void RunTitleScreen( )
 		currFont	= smallFont;
 		startText = CreateAndAddTextOverlay(100,112,"Start Game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 		selectText = CreateAndAddTextOverlay(100,132,"Level Select",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
-		multiText = CreateAndAddTextOverlay(100,152,"Multiplayer",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		multiText = CreateAndAddTextOverlay(100,152,mpText,YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
@@ -71,7 +74,7 @@ void RunTitleScreen( )
 	startText->a = 100;
 	selectText->a = 100;
 	multiText->a = 100;
-
+	sprintf(mpText,"Multiplayer %i",numPlayers);
 	button = controllerdata [ ActiveController ].button;
 
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
@@ -94,6 +97,17 @@ void RunTitleScreen( )
 	
 	if(frameCount > 15)
 	{
+		if (currentSelection == 2)
+		{
+		if( (button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT) )
+			if (numPlayers<MAX_FROGS)
+				numPlayers++;
+
+		if( (button & CONT_LEFT) && !(lastbutton & CONT_LEFT) )
+			if (numPlayers>1)
+				numPlayers--;
+		}
+
 		if( (button & CONT_A) && !(lastbutton & CONT_A) )
 		{
 			//osMotorStart ( &rumble );
@@ -113,6 +127,7 @@ void RunTitleScreen( )
 				frameCount = 0;
 				lastbutton = 0;
 				PlaySample ( 2,NULL,255,128);
+				NUM_FROGS = 1;
 				break;
 			case 1:
 				FreeAllLists();
@@ -123,13 +138,18 @@ void RunTitleScreen( )
 				break;
 			case 2:
 				FreeAllLists();
-				frameCount = 0;
-				lastbutton = 0;
+				worldNum = 0;
+				levelNum = 0;
+				//osMotorStop ( &rumble );
+				InitLevel ( 0, 0 );
 
 				gameState.oldMode = FRONTEND_MODE;
 				gameState.mode = GAME_MODE;
 
+				frameCount = 0;
+				lastbutton = 0;
 				PlaySample ( 2,NULL,255,128);
+				NUM_FROGS = numPlayers;
 				break;
 			}
 		}			
