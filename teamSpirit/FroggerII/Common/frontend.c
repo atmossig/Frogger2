@@ -253,8 +253,7 @@ void RunLevelComplete( )
 void StartLevelComplete()
 {
 	FreeAllGameLists();
-	CreateAndAddTextOverlay(0, 110, "Level complete screen", YES, 255, currFont, 0, 0);
-	CreateAndAddTextOverlay(0, 130, "goes here", YES, 255, currFont, 0, 0);
+	CreateAndAddTextOverlay(0, 120, "Level complete", YES, 255, currFont, 0, 0);
 }
 
 /*	--------------------------------------------------------------------------------
