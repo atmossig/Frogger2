@@ -104,6 +104,7 @@ enum
 #define ENEMY_NEW_FOLLOWFROG			(1 << 21)	// Follow where the frog has been
 #define ENEMY_NEW_VENT_UP				(1 << 22)	// Like a geyser - one tile
 #define ENEMY_NEW_VENT_ACROSS			(1 << 23)	// Like a flamethrower - path
+#define ENEMY_NEW_NODAMAGE				(1 << 24)	// Don't hurt the frog on collision
 
 typedef struct TAGENEMY
 {
@@ -150,6 +151,7 @@ void AddEnemy(ENEMY *enemy);
 void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
+void DamageFrog( int num );
 
 /*
 void ProcessNMEMole ( ENEMY *nme );

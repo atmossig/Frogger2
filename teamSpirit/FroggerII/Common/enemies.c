@@ -108,6 +108,27 @@ GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
 	return st->tilePtrs[closest];
 }
 
+void DamageFrog( int num )
+{
+	frog[num]->action.healthPoints--;
+	
+	if(frog[num]->action.healthPoints != 0)
+	{
+		cameraShake = 25;
+		PlaySample(42,NULL,192,128);
+		frog[num]->action.safe = 25;
+	}
+	else
+	{
+		PlaySample(110,NULL,192,128);
+		AnimateActor(frog[num]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
+		frog[num]->action.dead = 50;
+		frog[num]->action.healthPoints = 3;
+		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		player[num].frogState |= FROGSTATUS_ISDEAD;
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateEnemies
 	Purpose			: updates all enemies and their states / movements, etc.
@@ -399,7 +420,7 @@ void UpdateEnemies()
 					cur->isSnapping = 0;
 
 					// If the frog is on our current target tile
-					if( cur->path->nodes[cur->path->fromNode].worldTile == FindNearestTile(frog[0]->actor->pos) )
+					if( cur->path->nodes[cur->path->fromNode].worldTile == currTile[0] )//FindNearestTile(frog[0]->actor->pos) )
 					{
 						frog[0]->action.healthPoints--;
 						
@@ -427,6 +448,52 @@ void UpdateEnemies()
 
 					AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
 					cur->isSnapping = 1;
+					break;
+				}
+			}
+			else if( cur->flags & ENEMY_NEW_VENT_UP ) // Speed on flag is how long the vent fires for, waittime is delay between bursts
+			{
+				PATH *path = cur->path;
+
+				switch( cur->isSnapping )
+				{
+				case 0: // Start timer
+					// Delay until fire
+					path->startFrame = actFrameCount;
+					path->endFrame = actFrameCount + (60*path->nodes[0].waitTime);
+
+					cur->isSnapping = 1;
+					break;
+
+				case 1:
+					if( actFrameCount < path->endFrame )
+						break;
+
+					// Delay until stop
+					path->startFrame = actFrameCount;
+					path->endFrame = actFrameCount + (60*path->nodes[0].speed);
+
+					cur->isSnapping = 2;
+					break;
+
+				case 2:
+					// Stop firing on timeout, and reset
+					if( actFrameCount > path->endFrame )
+					{
+						cur->isSnapping = 0;
+						break;
+					}
+
+					// Create fx
+					SetVector(&rebound.point,&cur->inTile->centre);
+					SetVector(&rebound.normal,&cur->inTile->normal);
+					CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, 10*path->numNodes, 30, &rebound, 10*path->numNodes );
+
+					// Check for collision with frog, and do damage
+					for( i=0; i < path->numNodes; i++ )
+						if( path->nodes[i].worldTile == currTile[0] )
+							DamageFrog(0);
+
 					break;
 				}
 			}
@@ -679,7 +746,7 @@ void UpdateEnemies()
 			// check if frog has been 'killed' by current enemy - tile based collision
 			else if((currTile[0] == cur->inTile) && (!frog[0]->action.dead) &&
 					(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-					(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING))
+					(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE))
 			{
 				frog[0]->action.healthPoints--;
 				if(frog[0]->action.healthPoints != 0)
