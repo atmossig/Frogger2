@@ -251,7 +251,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface(long xs,long ys, long cKey, long alphaS
 
 	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{
-		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		dp ("Failed creating texture surface in %s memory\n", videoRam?"video":"system");
 		ddShowError(me);
 		RELEASE(pSurface); 
 		
@@ -296,7 +296,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long 
 
 	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{
-		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		dp ("Failed creating texture surface in %s memory\n", videoRam?"video":"system");
 		ddShowError(me);
 		RELEASE(pSurface); 
 		return NULL;
@@ -343,7 +343,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam)
 
 	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{
-		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		dp ("Failed creating texture surface in %s memory\n", videoRam?"video":"system");
 		ddShowError(me);
 		RELEASE(pSurface); 
 		return NULL;
@@ -391,7 +391,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long te
 
 	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{
-		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		dp ("Failed creating texture surface in %s memory\n", videoRam?"video":"system");
 		ddShowError(me);
 		RELEASE(pSurface); 
 		return NULL;
