@@ -759,6 +759,9 @@ void DrawFXLightning( SPECFX *fx )
 //	gte_SetTransMatrix(&GsWSMATRIX);
 //	gte_SetRotMatrix(&GsWSMATRIX);
 
+	vTPrev[0].vz = 0;
+	vTPrev[1].vz = 0;
+	
 	p = fx->particles;
 	while( i < fx->numP-1 )
 	{
