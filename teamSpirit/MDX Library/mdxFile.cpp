@@ -109,7 +109,7 @@ BYTE *mdxFileLoad(const char *filename, const char *baseDirectory, int *bytesRea
 	DWORD size, read;
 	HANDLE h;
 
-//	if(baseDirectory)
+	if(baseDirectory)
 		SetCurrentDirectory(baseDirectory);
 	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (h == INVALID_HANDLE_VALUE) return NULL;

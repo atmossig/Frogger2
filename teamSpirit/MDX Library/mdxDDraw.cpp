@@ -564,6 +564,9 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		}
 
 		// Set display
+		dp("Bit depth: %d\n",rBitDepth);
+		dp("Xres: %d\n",rXRes);
+		dp("Yres: %d\n",rYRes);
 		if ((res = pDirectDraw7->SetDisplayMode(rXRes, rYRes, rBitDepth,0,0)) != DD_OK)
 		{
 			dp("Failed setting display mode. (Fullscreen Mode)\n");
