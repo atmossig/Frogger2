@@ -272,19 +272,17 @@ void ProcessUserInput(HWND hWnd)
 			return;
 	}
 	
-	if (joyAvail)
-	{
-		hRes = lpJoystick2->Poll();
-		if(FAILED(hRes))
-		{joyAvail = 0;
-		return;}
-
-		hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
-		if(FAILED(hRes))
-		{joyAvail = 0;
-		return;}
-
-	}
+//	if (joyAvail)
+//	{
+//		hRes = lpJoystick2->Poll();
+//		if(FAILED(hRes))
+//		{joyAvail = 0;
+//		return;}
+//		hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
+//		if(FAILED(hRes))
+//		{joyAvail = 0;
+//		return;}
+//	}
 
 	//----- [ KEYBOARD CONTROL ] -----//
 
@@ -304,20 +302,20 @@ void ProcessUserInput(HWND hWnd)
 	controllerdata[2].button = 0;
 	controllerdata[3].button = 0;
 
-	if (KEYPRESS(DIK_UP) | (joy.lY < -DEAD_ZONE))
+	if (KEYPRESS(DIK_UP))// | (joy.lY < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_UP;
 
-	if (KEYPRESS(DIK_DOWN) | (joy.lY > DEAD_ZONE))
+	if (KEYPRESS(DIK_DOWN))// | (joy.lY > DEAD_ZONE))
 		controllerdata[0].button |= CONT_DOWN;
 
-	if (KEYPRESS(DIK_LEFT) | (joy.lX < -DEAD_ZONE))
+	if (KEYPRESS(DIK_LEFT))// | (joy.lX < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_LEFT;
 
 	
-	if (KEYPRESS(DIK_RIGHT) | (joy.lX > DEAD_ZONE))
+	if (KEYPRESS(DIK_RIGHT))// | (joy.lX > DEAD_ZONE))
 		controllerdata[0].button |= CONT_RIGHT;
 	
-	if (KEYPRESS(DIK_INSERT ) | (joy.rgbButtons[0]))
+	if (KEYPRESS(DIK_INSERT ))// | (joy.rgbButtons[0]))
 		controllerdata[0].button |= CONT_A;
 	
 	if (KEYPRESS(DIK_DELETE))
