@@ -1734,9 +1734,10 @@ void UpdateFrogCroak( int pl )
 				SetVectorFF( &up, &upVec );
 				ScaleVector( &up, 20 );
 				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
+				SetVectorFF( &up, &currTile[pl]->normal );
 
 				specFXAlpha = 128;
-				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[pl]->normal, initcroakscale, 4096, 410, croaklife )) )
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &up, initcroakscale, 4096, 410, croaklife )) )
 				{
 					fx->spin = 25;
 					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
