@@ -87,8 +87,7 @@
 #include "tongue.h"
 #include "script.h"
 #include "event.h"
-#include "eventfuncs.h"	//doesn't need to be global! - Dave
-						// Probably not, but at least include it where it's needed please! - Jim
+#include "eventfuncs.h"
 
 #ifndef PC_VERSION
 #include "develop.h"
