@@ -32,7 +32,29 @@ TEXENTRY *texList = NULL;
 
 void FreeAllTextureBanks()
 {
-	TEXENTRY *me = texList;
+	TEXENTRY *cur, *next;
+
+	cur		= texList;
+
+	numTextures = 0;
+	while ( cur )
+	{
+		next = cur->next;
+
+		if (cur->surf)
+			ReleaseSurface(cur->surf);
+		JallocFree((BYTE**)&cur->data);
+//		JallocFree((BYTE**)&tme->hdl);
+		JallocFree((BYTE**)&cur);
+
+		cur = next;
+
+
+		numTextures++;
+	}
+	// ENDWHILE
+
+/*	TEXENTRY *me = texList;
 	TEXENTRY *tme = texList;
 	int numTextures = 0;
 
@@ -43,11 +65,12 @@ void FreeAllTextureBanks()
 
 		if (tme->surf)
 			ReleaseSurface(tme->surf);
-		JallocFree(&(tme->data));
-		JallocFree(&tme);		
+		JallocFree((BYTE**)&tme->data);
+//		JallocFree((BYTE**)&tme->hdl);
+		JallocFree((BYTE**)&tme);
 		numTextures++;
 	}
-
+*/
 	dprintf"Freed %d Textures\n",numTextures ));
 
 
@@ -154,13 +177,15 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		if (((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
-			newE->hdl = ConvertSurfaceToTexture(newE->surf);
+			if ( newE->surf )
+				newE->hdl = ConvertSurfaceToTexture(newE->surf);
 			
 		}
 		else
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,0);
-			newE->hdl = ConvertSurfaceToTexture(newE->surf);
+			if ( newE->surf )
+				newE->hdl = ConvertSurfaceToTexture(newE->surf);
 		}
 	}
 	else

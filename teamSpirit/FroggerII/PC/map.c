@@ -77,8 +77,11 @@ void LoadCollision (int num)
 
 	switch(num)
 	{
-		case GARDENMASTER_COL:
+		case GARDENMASTERA_COL:
 			strcat(file,"gardenmaster");
+			break;
+		case GARDENMASTERB_COL:
+			strcat(file,"gardentreetop");
 			break;
 		case GARDENLEV1_COL:
 			strcat(file,"garden1");
@@ -274,7 +277,7 @@ void LoadCollision (int num)
 			bTStart = (GAMETILE *)GetBabiesAddress();   
 		
 		if (GetSafesAddress)
-			bTSafe = (GAMETILE *)GetSafesAddress();    
+			bTSafe = (GAMETILE *)GetSafesAddress();
 		
 		if (GetPowerupsAddress) 
 			pwrupTStart = GetPowerupsAddress(); 
@@ -321,8 +324,11 @@ void LoadScenics (int num)
 
 	switch(num)
 	{
-case GARDENMASTER_COL:
+		case GARDENMASTERA_COL:
 			strcat(file,"gardenmaster");
+			break;
+		case GARDENMASTERB_COL:
+			strcat(file,"gardentreetop");
 			break;
 		case GARDENLEV1_COL:
 			strcat(file,"garden1");

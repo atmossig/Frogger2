@@ -384,7 +384,7 @@ void GameProcessController(long pl)
 		//ScreenShot();
 
 		gameState.mode = PAUSE_MODE;
-		testPause = 1;
+		pauseMode = 1;
 	
 //		grabData.afterEffect = NO_EFFECT;
 
@@ -854,11 +854,15 @@ void RunGameLoop (void)
 		currCamSetting = 1;
 		ChangeCameraSetting();
 
-		player[0].lives				= 3;
-		player[0].score				= 0;
-		player[0].timeSec			= (90*30);
-		player[0].spawnTimer		= 0;
-		player[0].spawnScoreLevel	= 1;
+		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
+		{
+			player[0].lives				= 3;
+			player[0].score				= 0;
+			player[0].timeSec			= (90*30);
+			player[0].spawnTimer		= 0;
+			player[0].spawnScoreLevel	= 1;
+		}
+		// ENDIF
 
 		gameIsOver = 0;
 		levelIsOver = 0;
@@ -925,7 +929,7 @@ void RunGameLoop (void)
 //		sp = AddNewSpriteToList(firstTile[],firstTile[],firstTile[],0,"wholekey.bmp",0);
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
-		tileNum = CreateAndAddTextOverlay(0,35,"TILENUM",YES,NO,255,255,255,255,oldeFont,0,0,0);
+		tileNum = CreateAndAddTextOverlay(0,35,"TILENUM",YES,NO,255,255,255,255,smallFont,0,0,0);
 #endif
 
 		//CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
@@ -933,6 +937,8 @@ void RunGameLoop (void)
 		//firstTile[137].state = TILESTATE_SPRING;
 		//firstTile[261].state = TILESTATE_SPRING;
 		//firstTile[301].state = TILESTATE_SPRING;
+
+//		firstTile[0].state = TILESTATE_LEVELCHANGE;
 
 		if (clearTiles)
 		{
@@ -1023,7 +1029,7 @@ void RunGameLoop (void)
 				if(!levelComplete1->draw)
 				{
 					darkenedLevel = 0;
-					testPause = 1;
+					pauseMode = 1;
 					//sprintf(levelComplete3->text,"you scored %s",scoreText);
 					EnableTextOverlay(levelComplete1);
 					EnableTextOverlay(levelComplete2);
@@ -1056,6 +1062,9 @@ void RunGameLoop (void)
 #endif
 				}
 
+				// Save out the game data to the currently selected slot
+				SaveGameData();
+
 				FreeAllLists();
 
 				frog[0] = NULL;
@@ -1085,7 +1094,8 @@ void RunGameLoop (void)
 		}
 		else
 		{
-			if ((babiesSaved == numBabies) && (numBabies))
+			if ( ( babiesSaved == numBabies ) && ( numBabies ) &&
+				 ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV ) )
 			{
 				{
 					camDist.v[X]	= 0;
@@ -1120,6 +1130,7 @@ void RunGameLoop (void)
 				{
 					for (i=0; i<numBabies; i++)
 					{
+						if ( babies[i] )
 				//		InitActorAnim(babies[i]->actor);
 						AnimateActor(babies[i]->actor,0,YES,NO,1.0);
 					}
@@ -1262,6 +1273,8 @@ void RunGameLoop (void)
 	if (tileNum)
 		sprintf(tileNum->text,"%d",currTileNum);
 #endif
+
+
 }
 
 

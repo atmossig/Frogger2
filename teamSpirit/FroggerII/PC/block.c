@@ -138,7 +138,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 	// create area for memory Jalloc's
 	// 16MB () for now - ANDYE
-	memSizeInBytes = (16 * 1024 * 1024);
+	memSizeInBytes = (28 * 1024 * 1024);
 	dprintf"\nAllocating %lu bytes memory.....",memSizeInBytes));
 	memPtr = (UBYTE *)malloc(memSizeInBytes);
 	if(memPtr == NULL)
@@ -161,7 +161,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitInputDevices())
 		ok = 0;
 	
-/*	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
+	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
 	{
 		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
 	} 
@@ -176,11 +176,13 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	test = CreateAndAddSample ( "x:\\teamspirit\\pcversion\\test.wav" );
 
 //	test
-	test->lpdsBuffer->lpVtbl->Play ( test->lpdsBuffer, 0, 0, 0 );
+	PlaySample ( 0, 0, 0, 0 );
+//	test->lpdsBuffer->lpVtbl->Play ( test->lpdsBuffer, 0, 0, 0 );
 	//InitSaveData();
 
-	playCDTrack ( winInfo.hWndMain, 1 );
-*/
+	PrepareSong ( 1 );
+//	playCDTrack ( winInfo.hWndMain, 1 );
+
 /*	InitSaveData();
 	SaveGameData();*/
 	gameState.mode		= FRONTEND_MODE;

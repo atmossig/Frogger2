@@ -32,6 +32,9 @@ extern void SaveGameData			( void );
 
 extern void CalculateHiScoreList	( void );
 
+extern void Convert3CharTo2Char ( char twoChar[2], char threeChar[3] );
+extern void Convert2CharTo3Char ( char threeChar[3], char twoChar[2] );
+
 //***********************************
 // Global Externs
 

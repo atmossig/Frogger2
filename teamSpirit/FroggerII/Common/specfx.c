@@ -26,7 +26,7 @@ char fadeDir		= FADE_OUT;
 short fadeOut		= 255;
 short fadeStep		= 4;
 
-char testPause		= 0;
+char pauseMode		= 0;
 UBYTE testR			= 0;
 UBYTE testG			= 0;
 UBYTE testB			= 0;

@@ -141,6 +141,11 @@ void SaveGameData ( void )
 
 	fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\gamedata.dat", "w" );
 
+//	sprintf ( player[0].name, "jam");
+	Convert3CharTo2Char ( saveSlots [ player[0].saveSlot ].name, player[0].name );
+	Convert2CharTo3Char ( player[0].name, saveSlots [ player[0].saveSlot ].name );
+	saveSlots [ player[0].saveSlot ].score = player[0].score;
+
 	fwrite ( saveSlots, sizeof ( SAVE_SLOT ), MAX_SAVE_SLOTS, fp );
 
 	close ( fp );
@@ -155,8 +160,8 @@ void Convert3CharTo2Char ( char twoChar[2], char threeChar[3] )
 	tb = ( threeChar[1] - 'a' ) & 31;
 	tc = ( threeChar[2] - 'a' ) & 31;
 
-	twoChar[0] = ( a << 3 ) | ( ( b >> 2 ) & 7 );
-	twoChar[1] = ( b << 6 ) | ( c << 1 );
+	twoChar[0] = ( ta << 3 ) | ( ( tb >> 2 ) & 7 );
+	twoChar[1] = ( tb << 6 ) | ( tc << 1 );
 
 
 /*	char a,b,c;
@@ -193,7 +198,7 @@ void Convert3CharTo2Char ( char twoChar[2], char threeChar[3] )
 
 }
 
-void Convert2CharTo2Char ( char threeChar[3], char twoChar[2] )
+void Convert2CharTo3Char ( char threeChar[3], char twoChar[2] )
 {
 	threeChar[0] = (twoChar[0] >> 3) + 'a';
 	threeChar[1] = (((twoChar[0] & 7) << 2) | (twoChar[1]>>6)) + 'a';

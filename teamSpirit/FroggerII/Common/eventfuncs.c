@@ -358,9 +358,10 @@ void ChangeLevel( EVENT *event )
 
 	player[0].worldNum = wNum;
 	player[0].levelNum = lNum;
+	
 
-	levelIsOver = 400;
-	showEndLevelScreen = 0;
+//	levelIsOver = 400;
+//	showEndLevelScreen = 0;
 }
 
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
@@ -383,6 +384,22 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	int *inum;
 
 	InitTriggerList( );
+
+	if ( worldID == WORLDID_FRONTEND )
+	{
+		/*if ( levelID == LEVELID_LEVELID_FRONTEND1 )
+		{
+			args	= AllocArgs ( 2 );
+			args[0] = (void *) 0;
+			args[1] = (void *) firstTile[0];
+			trigger = MakeTrigger ( FrogOnTile, 2, args );
+		}
+		else if ( levelID == LEVELID_LEVELID_FRONTEND2 )
+		{
+		}
+		// ENDELSEIF*/
+	}
+	// ENDIF
 
 	if ( worldID == WORLDID_GARDEN )
 	{

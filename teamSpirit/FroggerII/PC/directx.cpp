@@ -850,6 +850,10 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	HRESULT capsResult;
     DDCAPS			ddCaps;
 
+//	DDINIT(ddCaps);													// Init caps struct
+//	capsResult = pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
+//	dp ( "Before Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
+
 	LPDIRECTDRAWSURFACE pSurface,pTSurface = NULL;
 	DDSURFACEDESC ddsd;
 	HRESULT me;
@@ -976,12 +980,15 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	pTSurface->Blt(NULL,pSurface,NULL,DDBLT_WAIT,0);
 	RELEASE(pSurface);
 	dp ("Tex = %x\n",pTSurface);
+//	DDINIT(ddCaps);													// Init caps struct
+//	capsResult = pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
+//	dp ( "After Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
 	return pTSurface;
 }
 
-void ReleaseSurface(LPDIRECTDRAWSURFACE me)
+void ReleaseSurface(LPDIRECTDRAWSURFACE surf)
 {
-	RELEASE(me);
+	RELEASE(surf);
 }
 
 D3DTEXTUREHANDLE lastH = NULL;

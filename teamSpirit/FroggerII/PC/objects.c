@@ -164,8 +164,11 @@ void LoadObjectBank(int num)
 		case GARDENMASTER_OBJ_BANK:
 			strcat (file,"gardenmaster");
 			break;
-		case GARDENBOSS_OBJ_BANK:
+		case GARDENBOSSA_OBJ_BANK:
 			strcat (file,"gardenboss");
+			break;
+		case GARDENBOSSB_OBJ_BANK:
+			strcat (file,"gardentreetop");
 			break;
 		case GARDENLEV1_OBJ_BANK:
 			strcat (file,"garden1");

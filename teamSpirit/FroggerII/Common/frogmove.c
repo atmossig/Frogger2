@@ -139,16 +139,17 @@ void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act, long p)
 	{
 		// ***** ANDYE *********************************
 
-		if(!babies[i]->action.isSaved)
-		{
-			babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-			babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-			babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
-			NormalToQuaternion(&babies[i]->actor->qRot,&bTStart[i]->normal);
+		if ( babies[i] )
+			if(!babies[i]->action.isSaved)
+			{
+				babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+				babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+				babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				NormalToQuaternion(&babies[i]->actor->qRot,&bTStart[i]->normal);
 
-			InitActorAnim(babies[i]->actor);
-			AnimateActor(babies[i]->actor,0,YES,NO,1.0F);
-		}
+				InitActorAnim(babies[i]->actor);
+				AnimateActor(babies[i]->actor,0,YES,NO,1.0F);
+			}
 		
 		// *********************************************
 	}
@@ -1427,23 +1428,27 @@ void SlurpFroggerPosition(int whereTo,long pl)
 	
 	for (i=0; i<numBabies; i++)
 	{
-		if(!(babies[i]->action.isSaved))
+		if ( babies [i] )
 		{
-			babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-			babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-			babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
-			babies[i]->action.isSaved = 0;
+			if(!(babies[i]->action.isSaved))
+			{
+				babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+				babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+				babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+				babies[i]->action.isSaved = 0;
+			}
+
+			// Face babies towards frog
+			SubVector(&v1,&babies[i]->actor->pos,&frog[pl]->actor->pos);
+			MakeUnit(&v1);
+
+			// Calculate babys up vector
+			RotateVectorByQuaternion(&babyup,&vup,&babies[i]->actor->qRot);
+			CrossProduct(&v2,&v1,&babyup);
+			CrossProduct(&v3,&v2,&babyup);
+			Orientate(&babies[i]->actor->qRot,&v3,&vfd,&babyup);
 		}
-
-		// Face babies towards frog
-		SubVector(&v1,&babies[i]->actor->pos,&frog[pl]->actor->pos);
-		MakeUnit(&v1);
-
-		// Calculate babys up vector
-		RotateVectorByQuaternion(&babyup,&vup,&babies[i]->actor->qRot);
-		CrossProduct(&v2,&v1,&babyup);
-		CrossProduct(&v3,&v2,&babyup);
-		Orientate(&babies[i]->actor->qRot,&v3,&vfd,&babyup);
+		// ENDIF
 	}
 }
 

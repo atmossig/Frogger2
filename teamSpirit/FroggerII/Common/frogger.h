@@ -32,6 +32,7 @@ typedef struct _PLAYER
 	short		 	worldNum;
 	short			levelNum;
 	unsigned long	frogState;
+	short			saveSlot;
 
 } PLAYER;
 

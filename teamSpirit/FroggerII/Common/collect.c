@@ -229,11 +229,12 @@ ACTOR2 *BabyFrogIsInTongueRange()
 	{
 		for(i=0; i<numBabies; i++)
 		{
-			if((!babies[i]->action.isSaved) && (babies[i]->distanceFromFrog < (tongueRadius * tongueRadius)))
-			{
-				mags[numInRange]		= babies[i]->distanceFromFrog;
-				inRange[numInRange++]	= babies[i];
-			}
+			if ( babies[i] )
+				if((!babies[i]->action.isSaved) && (babies[i]->distanceFromFrog < (tongueRadius * tongueRadius)))
+				{
+					mags[numInRange]		= babies[i]->distanceFromFrog;
+					inRange[numInRange++]	= babies[i];
+				}
 		}
 
 		if(numInRange)
@@ -471,7 +472,7 @@ void PickupCollectable(GARIB *garib)
 			CreateAndAddSpawnScoreSprite(&garib->sprite.pos,player[0].spawnScoreLevel);
 			player[0].score += (player[0].spawnScoreLevel * 10);
 			player[0].numSpawn++;
-			PlaySample(145,NULL,192,118 + (player[0].spawnScoreLevel * 10));
+			PlaySample(0,NULL,192,118 + (player[0].spawnScoreLevel * 10)); //145
 			break;
 
 		case EXTRAHEALTH_GARIB:
@@ -560,7 +561,7 @@ void PickupBabyFrog(ACTOR2 *baby)
 							  
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
-	PlaySample(147,NULL,192,128);
+	PlaySample(0,NULL,192,128); // 147
 }
 
 //-------------------------------------------------------------------------------------------------

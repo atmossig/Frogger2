@@ -9,16 +9,6 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <ultra64.h>
-#include <windows.h>
-#include <windowsx.h>
-#include <stdio.h>
-#include <mmsystem.h>
-#include <dsound.h>
-#include <memory.h>
-#include <winuser.h>
-#include <commctrl.h>
-#include <commdlg.h>
-#include <cderr.h>
 #include "..\resource.h"
 #include "incs.h"
 
@@ -36,18 +26,17 @@ int Makebuffer ( SAMPLE *sample );
 //***********************************
 // Function Prototypes
 
-SAMPLE *CreateAndAddSample ( LPSTR lpFile )
+SAMPLE *CreateAndAddSample ( char *lpFile )
 {
 	SAMPLE *newItem = ( SAMPLE * ) JallocAlloc ( sizeof ( SAMPLE ), YES, "SAM" );
+
+	sprintf ( newItem->idName, "%s", lpFile );
 
 	newItem->lpDSound = lpDS;
 
 	LoadWav		( lpFile, newItem );
-//	Makebuffer	( newItem );
 
 	AddSampleToList ( newItem );
-
-//	newItem->lpdsBuffer->lpVtbl->Play ( newItem->lpdsBuffer, 0, 0, DSBPLAY_LOOPING );
 }
 
 void InitSampleList ( void )
@@ -106,44 +95,28 @@ void FreeSampleList ( void )
 }
 
 
-
-int Makebuffer ( SAMPLE *sample )
+SAMPLE * GetEntryFromSampleList ( int num )
 {
-	int result=0;
-	LPVOID	pBlk1, pBlk2;
-	unsigned long	dwSize1=0, dwSize2=0;
-	DSBUFFERDESC	DSBD;
+	int i;
+	SAMPLE *next, *cur;
 
-	if(sample->lpdsBuffer) {
-		IDirectSoundBuffer_Release(sample->lpdsBuffer);
-		sample->lpdsBuffer = NULL;
-	}
-
-	ZeroMemory(&DSBD, sizeof(DSBUFFERDESC));
-	DSBD.dwSize = sizeof(DSBUFFERDESC);
-	DSBD.dwFlags = DSBCAPS_STICKYFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_GETCURRENTPOSITION2;
-	DSBD.dwBufferBytes = sample->Len;
-	DSBD.lpwfxFormat = sample->lpWavFmt;
-	result=IDirectSound_CreateSoundBuffer ( sample->lpDSound, &DSBD, &sample->lpdsBuffer, NULL);
-
-	// add error handling here...
-	if(sample->lpdsBuffer) {
-		IDirectSoundBuffer_Lock(sample->lpdsBuffer, 0,sample->Len, &pBlk1, &dwSize1, &pBlk2, &dwSize2, 0);
-		CopyMemory(pBlk1, sample->Data, dwSize1);
-		if(dwSize2) {
-			CopyMemory(pBlk2, sample->Data, dwSize2);
+	i = 0;
+	// traverse enemy list and free elements
+	for ( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	{
+		next = cur->next;
+		
+		if ( i == num )
+		{
+			return cur;
 		}
-		IDirectSoundBuffer_Unlock ( sample->lpdsBuffer, pBlk1, dwSize1, pBlk2, dwSize2);
-
-		return 1;
+		// ENDIF
+		i++;
 	}
+	// ENDFOR
 
-	//DisplayDirectSoundError(result);
-
-	//LogFile("UnFunky. Couldn't make DSoundBuffer. And Shit.");
-	return 0;
+	return NULL;
 }
-
 
 
 
@@ -166,9 +139,17 @@ int Makebuffer ( SAMPLE *sample )
 	Returns			: int
 	Info			: 
 */
-int PlaySample(short num,VECTOR *pos,short tempVol,short pitch)
+int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 {
-	return 0;
+	SAMPLE *sample;
+
+	sample = GetEntryFromSampleList ( num );
+
+	if ( ( !sample ) || ( !lpDS ) )
+		return 0;
+	// ENDIF
+
+	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -178,9 +159,13 @@ int PlaySample(short num,VECTOR *pos,short tempVol,short pitch)
 	Returns			: int
 	Info			: 
 */
-int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius)
+int PlaySampleRadius ( short num, VECTOR *pos, short vol, short pitch, float radius )
 {
-	return 0;
+	SAMPLE *sample;
+
+	sample = GetEntryFromSampleList ( num );
+
+	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -190,9 +175,10 @@ int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius)
 	Returns			: void
 	Info			: 
 */
-void PrepareSong(char num)
+void PrepareSong ( char num )
 {
 	// play cd audio track here....
+	playCDTrack ( winInfo.hWndMain, num );
 }
 
 
@@ -205,31 +191,49 @@ void PrepareSong(char num)
 DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
 {
     UINT wDeviceID;
-    DWORD dwReturn;    MCI_OPEN_PARMS mciOpenParms;
-    MCI_SET_PARMS mciSetParms;    MCI_PLAY_PARMS mciPlayParms;
+    DWORD dwReturn;
+    MCI_OPEN_PARMS mciOpenParms;
+    MCI_SET_PARMS mciSetParms;
+    MCI_PLAY_PARMS mciPlayParms;
+
     // Open the CD audio device by specifying the device name.
     mciOpenParms.lpstrDeviceType = "cdaudio";
-    if (dwReturn = mciSendCommand(NULL, MCI_OPEN,
-        MCI_OPEN_TYPE, (DWORD)(LPVOID) &mciOpenParms))    {
+
+    if ( dwReturn = mciSendCommand ( NULL, MCI_OPEN, MCI_OPEN_TYPE, ( DWORD ) ( LPVOID ) &mciOpenParms ) )
+    {
         // Failed to open device. Don't close it; just return error.
-        return (dwReturn);    }
+        return dwReturn;
+    }
+	// ENDIF
+
     // The device opened successfully; get the device ID.
     wDeviceID = mciOpenParms.wDeviceID;
+
     // Set the time format to track/minute/second/frame (TMSF).
     mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
-    if (dwReturn = mciSendCommand(wDeviceID, MCI_SET, 
-        MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &mciSetParms))    {
-        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);        return (dwReturn);
-    }     // Begin playback from the given track and play until the beginning 
+
+    if (dwReturn = mciSendCommand ( wDeviceID, MCI_SET,MCI_SET_TIME_FORMAT, ( DWORD )  ( LPVOID ) &mciSetParms ) )
+    {
+        mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
+		return dwReturn;
+    }
+	// ENDIF
+	
+	// Begin playback from the given track and play until the beginning 
     // of the next track. The window procedure function for the parent 
     // window will be notified with an MM_MCINOTIFY message when 
     // playback is complete. Unless the play command fails, the window 
     // procedure closes the device.    mciPlayParms.dwFrom = 0L;
-    mciPlayParms.dwTo = 0L;
-    mciPlayParms.dwFrom = MCI_MAKE_TMSF(bTrack, 0, 0, 0);
-    mciPlayParms.dwTo = MCI_MAKE_TMSF(bTrack + 1, 0, 0, 0);
-    mciPlayParms.dwCallback = (DWORD) hWndNotify;
-    if (dwReturn = mciSendCommand(wDeviceID, MCI_PLAY,
-        MCI_FROM | MCI_TO | MCI_NOTIFY, (DWORD)(LPVOID) &mciPlayParms))    {
-        mciSendCommand(wDeviceID, MCI_CLOSE, 0, NULL);        return (dwReturn);
-    }    return (0L);}
+    mciPlayParms.dwTo		= 0L;
+    mciPlayParms.dwFrom		= MCI_MAKE_TMSF ( bTrack, 0, 0, 0 );
+    mciPlayParms.dwTo		= MCI_MAKE_TMSF ( bTrack + 1, 0, 0, 0 );
+    mciPlayParms.dwCallback = ( DWORD ) hWndNotify;
+    if ( dwReturn = mciSendCommand ( wDeviceID, MCI_PLAY,MCI_FROM | MCI_TO | MCI_NOTIFY, (DWORD)(LPVOID) &mciPlayParms ) )
+    {
+        mciSendCommand ( wDeviceID, MCI_CLOSE, 0, NULL );
+        return dwReturn;
+    }
+	// ENDIF
+
+    return 0L;
+}

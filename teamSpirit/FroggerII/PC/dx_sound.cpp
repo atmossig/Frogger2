@@ -9,27 +9,31 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+//***********************************
+// System Includes
+
 #include <ultra64.h>
-#include <windows.h>
 #include <windowsx.h>
-#include <stdio.h>
-#include <mmsystem.h>
-#include <dsound.h>
-#include <memory.h>
-#include <winuser.h>
-#include <commctrl.h>
-#include <commdlg.h>
-#include <cderr.h>
+
+//***********************************
+// User Includes
+
 #include "..\resource.h"
 #include "incs.h"
 
 
+//***********************************
+// User Includes
+
 LPDIRECTSOUND           lpDS			= NULL;
 LPDIRECTSOUNDBUFFER		lpdsbPrimary	= NULL;
 
-static char *DSoundErrorToString(int dxerror)
+//***********************************
+// Function Definitions
+
+static char *DSoundErrorToString ( int dxerror )
 {
-	switch(dxerror)
+	switch ( dxerror )
 		{
 		case DS_OK:
 			return "The request completed successfully.";
@@ -249,7 +253,12 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 }
 
 
-DWORD LoadWavFile(char *fileName,  SAMPLE *sample)
+void ShutDownDirectSound ( void )
+{
+}
+
+
+DWORD LoadWavFile ( char *fileName,  SAMPLE *sample )
 {
 	HRESULT			dsrVal;
 	HMMIO 			hwav;    // handle to wave file

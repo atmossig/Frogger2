@@ -465,7 +465,7 @@ void RunPauseMenu( )
 		DisableTextOverlay ( pauseTitle );
 		DisableTextOverlay ( continueText );
 		DisableTextOverlay ( quitText );
-		testPause = 0;
+		pauseMode = 0;
 
 		/*
 		if(backPanel)

@@ -34,8 +34,8 @@ long DirectXInit(HWND window, long hardware);
 void SetupRenderstates(void);
 void DirectXFlip(void);
 
-LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware, long cKey, long aiSurf);
-D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf);
+extern  LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware, long cKey, long aiSurf);
+extern D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf);
 void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h);
 void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color);
 void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h);
@@ -43,7 +43,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void BeginDrawHardware (void);
 void EndDrawHardware (void);
-void ReleaseSurface(LPDIRECTDRAWSURFACE me);
+extern void ReleaseSurface(LPDIRECTDRAWSURFACE surf);
 
 extern void dp(char *format, ...);
 
