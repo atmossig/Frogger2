@@ -374,7 +374,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 
-		if (!currPlatform[pl] && currTile[pl]->state == TILESTATE_NOSUPER)
+		if (!currPlatform[pl] && (currTile[pl]->state == TILESTATE_NOSUPER || currTile[pl]->state == TILESTATE_NOSUPERHOT))
 		{
 			//OrientateSS( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 			player[pl].isSuperHopping = 0;
@@ -1674,6 +1674,7 @@ void CheckTileState(GAMETILE *tile, int pl)
 		break;
 	}
 	
+	case TILESTATE_NOSUPERHOT:
 	case TILESTATE_HOT:
 	{
 		if( gameState.multi != SINGLEPLAYER )
