@@ -144,6 +144,8 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYSAD] = FindSample(UpdateCRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(UpdateCRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(UpdateCRC("babyreply"));
+	genSfx[GEN_TELEPORT] = FindSample(UpdateCRC("teleport"));
+	genSfx[GEN_POWERUP] = FindSample(UpdateCRC("powerup"));
 
 	genSfx[GEN_DEATHDROWN] = FindSample(UpdateCRC("frogdrown1"));
 	genSfx[GEN_DEATHCRUSH] = FindSample(UpdateCRC("frogcrush"));
@@ -151,6 +153,7 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHFALL] = FindSample(UpdateCRC("frogfall"));
 	genSfx[GEN_DEATHGIB] = FindSample(UpdateCRC("frogmowed"));
 	genSfx[GEN_DEATHCHOP] = FindSample(UpdateCRC("frogchop"));
+	genSfx[GEN_DEATHELECTRIC] = FindSample(UpdateCRC("electrocute"));
 
 	InitVoices( path, len );
 
