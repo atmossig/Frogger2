@@ -199,7 +199,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	winMode = 0;
 	scaleMode = 0;
 	GetArgs(lpCmdLine);
-
+	ReadConfigFile();
 	WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
 }
 
