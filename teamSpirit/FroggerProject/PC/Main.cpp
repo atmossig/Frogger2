@@ -79,7 +79,12 @@ long textEntry = 0;
 char textString[255] = "---";
 int networkGame = 0;
 
+#ifdef FINAL_MASTER
+char baseDirectory[MAX_PATH] = "";
+#else
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
+#endif
+
 char cdromDrive[4] = "";
 
 char lButton = 0, rButton = 0;
