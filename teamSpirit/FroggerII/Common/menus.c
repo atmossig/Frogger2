@@ -54,15 +54,21 @@ void RunPauseMenu()
 	
 	button = controllerdata[ActiveController].button;
 
-	if( ((button & CONT_UP) && !(lastbutton & CONT_UP)) || ((button & CONT_DOWN) && !(lastbutton & CONT_DOWN)) )
-		((currentSelection ^= 1)?(continueText):(quitText))->draw = 1; // If I have to do this I'm damn well going to hack it
-
+	if(((button & CONT_DOWN) && !(lastbutton & CONT_DOWN)))// || ((button & CONT_DOWN) && !(lastbutton & CONT_DOWN)) )
+		if (currentSelection<2)
+			currentSelection++;
+		
+	if(((button & CONT_UP) && !(lastbutton & CONT_UP)))// || ((button & CONT_DOWN) && !(lastbutton & CONT_DOWN)) )
+		if (currentSelection>0)
+			currentSelection--;
+	
 	if((button & CONT_A) && !(lastbutton & CONT_A))
 	{
 		lastbutton = button;
 
 //		DisableTextOverlay ( pauseTitle );
 		DisableTextOverlay ( continueText );
+		DisableTextOverlay ( restartText );
 		DisableTextOverlay ( quitText );
 		DisableTextOverlay ( posText );
 		DisableTextOverlay ( levelnameText );
@@ -97,8 +103,21 @@ void RunPauseMenu()
 			actTickCountModifier = (GetTickCount()-actTickCount);
 			return;
 		}
+		case 1:
+		{
+			if( gameState.multi != SINGLEPLAYER )
+				ResetMultiplayer( );
+
+			FreeAllLists();
+
+			gameState.mode = INGAME_MODE;
+			InitLevel(player[0].worldNum,player[0].levelNum);						
 		
-		case 1:   // quit game
+			frameCount = 0;
+			lastbutton = 0;
+			return;
+		}
+		case 2:   // quit game
 			if( gameState.multi != SINGLEPLAYER )
 				ResetMultiplayer( );
 
@@ -132,23 +151,24 @@ void RunPauseMenu()
 	switch(currentSelection)
 	{
 		case 0:
-			continueText->a = 255;
 			continueText->r = continueText->g = continueText->b = 255;
-			if( !(actTickCount%4) ) continueText->draw = !continueText->draw;
 
-			quitText->a = 91; //255;
-			quitText->r = quitText->b = 255;
-			quitText->g = 255;
+			restartText->r = restartText->b = quitText->r = quitText->b = 100;
+			restartText->g = quitText->g = 200;
 			break;
 		
 		case 1:
-			quitText->a = 255;
+			restartText->r = restartText->g = restartText->b = 255;
+			
+			continueText->r = continueText->b = quitText->r = quitText->b = 100;
+			continueText->g = quitText->g = 200;
+			break;
+		
+		case 2:
 			quitText->r = quitText->g = quitText->b = 255;
-			if( !(actTickCount%4) ) quitText->draw = !quitText->draw;
-
-			continueText->a = 91; //255;
-			continueText->r = continueText->b = 255;
-			continueText->g = 255;
+			
+			continueText->r = continueText->b = restartText->r = restartText->b = 100;
+			continueText->g = restartText->g = 200;
 			break;
 
 	}

@@ -36,6 +36,7 @@ TEXTOVERLAY *keyCollected;
 //TEXTOVERLAY *pauseTitle;
 
 TEXTOVERLAY *continueText;
+TEXTOVERLAY *restartText;
 TEXTOVERLAY *quitText;
 TEXTOVERLAY *garibCount, *creditCount;
 TEXTOVERLAY *time;
@@ -79,13 +80,17 @@ typedef struct TAG_ARCADE_HUD
 	TEXTOVERLAY   *parText;
 
 	SPRITEOVERLAY *coins;
+
+	TEXTOVERLAY   *timeOutText;
+	unsigned long timedOut;
 } ARCADE_HUD;
 
 ARCADE_HUD arcadeHud;
 char timeStringMin[8]	= "00";
 char timeStringSec[8]	= "00";
 char coinsText[32] = "00 of 32";
-
+char timeOutString[64] = "Out of time";
+ 
 void InitHUD(void)
 {
 	int
@@ -111,6 +116,14 @@ void InitHUD(void)
 	arcadeHud.timeTextMin = CreateAndAddTextOverlay(234+22,240-7-16,timeStringMin,NO,255,currFont,0,0);
 	arcadeHud.timeTextSec = CreateAndAddTextOverlay(234+22+32,240-7-16,timeStringSec,NO,255,currFont,0,0);
 	
+	arcadeHud.timeOutText = CreateAndAddTextOverlay(0,120,timeOutString,YES,255,currFont,0,0);
+	arcadeHud.timeOutText->r = 0xff;
+	arcadeHud.timeOutText->g = 0;
+	arcadeHud.timeOutText->b = 0;
+	arcadeHud.timeOutText->a = 0;
+
+	arcadeHud.timedOut = 0;
+
 	for (i=0; i<MAX_HUD_SPARKLES; i++)
 	{
 		arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay((rand()*320 / RAND_MAX),(rand()*240 / RAND_MAX),"flash2.bmp",10,10,0xff,XLU_ADD);
@@ -147,6 +160,7 @@ void DisableHUD(void)
 	arcadeHud.livesOver->draw = arcadeHud.timeOver->draw = arcadeHud.coinsOver->draw = arcadeHud.backLeftExtra->draw = 
 	arcadeHud.backLeft->draw = arcadeHud.backRightExtra->draw = arcadeHud.backRight->draw = arcadeHud.backCentre->draw = 
 	arcadeHud.livesText->draw = arcadeHud.coinsText->draw = arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 0;
+	arcadeHud.timeOutText->draw = 0;
 }
 
 void EnableHUD(void)
@@ -154,6 +168,7 @@ void EnableHUD(void)
 	arcadeHud.livesOver->draw = arcadeHud.timeOver->draw = arcadeHud.coinsOver->draw = arcadeHud.backLeftExtra->draw = 
 	arcadeHud.backLeft->draw = arcadeHud.backRightExtra->draw = arcadeHud.backRight->draw = arcadeHud.backCentre->draw = 
 	arcadeHud.livesText->draw = arcadeHud.coinsText->draw = arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 1;
+	arcadeHud.timeOutText->draw = 1;
 }
 
 void UpDateOnScreenInfo( void )
@@ -166,6 +181,13 @@ void UpDateOnScreenInfo( void )
 	if (timeFrames<0)
 	{
 		timeFrames = 0;
+		if (!arcadeHud.timedOut)
+			arcadeHud.timeOutText->a = 0xff;
+	
+		if (arcadeHud.timeOutText->a > gameSpeed)
+			arcadeHud.timeOutText->a-=gameSpeed;
+
+		arcadeHud.timedOut = 1;
 		arcadeHud.timeTextMin->r = arcadeHud.timeTextSec->r = 255;
 		arcadeHud.timeTextMin->g = arcadeHud.timeTextSec->g = 0;
 		arcadeHud.timeTextMin->b = arcadeHud.timeTextSec->b = 0;
@@ -330,13 +352,16 @@ extern char posString[];
 void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, currFont, 0, 0, 0 );
-	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, 255, currFont, 0,0 );
+	continueText	= CreateAndAddTextOverlay ( 50, 90, "continue", YES, 255, currFont, 0,0 );
+	restartText		= CreateAndAddTextOverlay ( 50, 110, "restart level", YES, 255, currFont, 0,0 );
 	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, 255, currFont, 0,0 );
-	posText			= CreateAndAddTextOverlay ( 50, 50, posString, YES, 255, smallFont, 0, 0);
-	levelnameText	= CreateAndAddTextOverlay ( 50, 70, levelString, YES, 255, smallFont, 0, 0);
+
+	posText			= CreateAndAddTextOverlay ( 50, 40, posString, YES, 255, smallFont, 0, 0);
+	levelnameText	= CreateAndAddTextOverlay ( 50, 50, levelString, YES, 255, smallFont, 0, 0);
 
 	//	DisableTextOverlay ( pauseTitle );
 	DisableTextOverlay ( continueText );
+	DisableTextOverlay ( restartText );
 	DisableTextOverlay ( quitText );
 	DisableTextOverlay ( posText );
 	DisableTextOverlay ( levelnameText );

@@ -211,6 +211,7 @@ int SetRegistryInformation(void)
 short *loadScr;
 long startTicks;
 long curTicks;
+float turbo = 1.0;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow);
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
@@ -624,7 +625,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
-				newTickCount = GetTickCount()-actTickCountModifier;
+				newTickCount = (GetTickCount()-actTickCountModifier)*turbo;
 
 				if (gameState.mode == PAUSE_MODE)
 				{

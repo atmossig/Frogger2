@@ -22,6 +22,7 @@ extern char displayFullScreenPoly;
 extern TEXTOVERLAY	*babySavedText;
 
 extern TEXTOVERLAY *continueText;
+extern TEXTOVERLAY *restartText;
 extern TEXTOVERLAY *quitText;
 extern TEXTOVERLAY *garibCount, *creditCount;
 extern TEXTOVERLAY *time;

@@ -22,6 +22,7 @@ int	frameCount2			= 0;
 int dispFrameCount		= 0;
 
 char ActiveController	= 0;
+extern unsigned long levelTime;
 
 struct INTRO
 {
@@ -160,9 +161,12 @@ void RunLevelComplete( )
 		{
 			short wld = player[0].worldNum, lvl = player[0].levelNum;
 
+			if ((levelTime/60) < worldVisualData[wld].levelVisualData[lvl].parTime)
+				worldVisualData[wld].levelVisualData[lvl].parTime = (levelTime/60);
+
 			player[0].worldNum = worldVisualData[wld].levelVisualData[lvl].nextWorldID;
 			player[0].levelNum = worldVisualData[wld].levelVisualData[lvl].nextLevelID;
-
+			
 #ifndef PC_VERSION
 			StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
 			SaveGame(); // Write save games into eeprom

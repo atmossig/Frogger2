@@ -82,6 +82,7 @@ unsigned long levelPlayList[] =
 	5,2,
 	1000,1000
 };
+unsigned long levelTime;
 
 void StopKeying(void)
 {
@@ -412,6 +413,7 @@ void GameProcessController(long pl)
 			sprintf(levelString,"%s",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].description);
 			sprintf(posString,"Pos %04li %04li %04li",(int)(frog[0]->actor->pos.v[0]/10),(int)(frog[0]->actor->pos.v[1]/10),(int)(frog[0]->actor->pos.v[2]/10));
 			
+			EnableTextOverlay ( restartText );
 			EnableTextOverlay ( continueText );
 			EnableTextOverlay ( quitText );
 #ifdef _DEBUG
@@ -633,6 +635,7 @@ void RunGameLoop (void)
 		camDist.v[Z]	= 192;
 		UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
 		gameState.mode = LEVELCOMPLETE_MODE;
+		levelTime = actFrameCount;
 		GTInit( &modeTimer, 8 );
 
 		StartLevelComplete();
