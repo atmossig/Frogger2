@@ -21,6 +21,7 @@
 #include <dinput.h>
 #include "..\resource.h"
 
+#include "lang.h"
 #include "cam.h"
 #include "game.h"
 #include "frontend.h"
@@ -988,9 +989,13 @@ BOOL SetupControllerDlg(HWND hdlg)
 	int n = numJoypads + 1;
 	HWND combo;
 
+	SetWindowText(GetDlgItem(hdlg, ID_SETUP), GAMESTRING(STR_PCSETUP_SETUP));
+	SetWindowText(GetDlgItem(hdlg, IDOK), GAMESTRING(STR_PCSETUP_OK));
+	SetWindowText(GetDlgItem(hdlg, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
+
 	controllerInfo = (CONTROLLERINFO*)malloc(sizeof(CONTROLLERINFO) * n);
 
-	strcpy(controllerInfo[0].name, "Keyboard");
+	strcpy(controllerInfo[0].name, GAMESTRING(STR_PCSETUP_KEYBOARD));
 	controllerInfo[0].id = KEYBOARD;
 
 	for (int c = 0; c < numJoypads && lpJoypad[c]; c++)
@@ -1117,8 +1122,6 @@ BOOL SetupControllers(HWND hwnd)
 	Returns			: 
 	Info			: 
 */
-char listText1[] = "Command";
-char listText2[] = "Key";
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
 
 
@@ -1145,7 +1148,10 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 			keyIndex = 14 * player;
 			
-			wsprintf(itmTxt, "Keyboard setup: Player %d", (player+1));
+			SetWindowText(GetDlgItem(hDlg, IDOK), GAMESTRING(STR_PCSETUP_OK));
+			SetWindowText(GetDlgItem(hDlg, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
+
+			wsprintf(itmTxt, "%s: %s %d", GAMESTRING(STR_PCSETUP_KEYBOARD), GAMESTRING(STR_PLAYER), (player+1));
 			SetWindowText(hDlg, itmTxt);
 
 			GetWindowRect(hDlg, &meR);
@@ -1263,6 +1269,9 @@ BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam
 	switch (msg)
 	{
 		case WM_INITDIALOG:
+			SetWindowText(GetDlgItem(hDlg, IDC_PRESSKEY), GAMESTRING(STR_PCSETUP_PRESSKEY));
+			SetWindowText(GetDlgItem(hDlg, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
+
 			button = (int*)lParam;
             
 			SetTimer( hDlg, 0, 100, NULL );	// poll every 100ms

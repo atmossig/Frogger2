@@ -100,7 +100,6 @@ bool configDialog = false;
 
 void GetArgs(char *arglist);
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: FindFroggerCD
 	Parameters		: 
@@ -178,6 +177,21 @@ int GetRegistryInformation(void)
 
 		len = 255;
 		RegQueryValueEx(hkey, "VideoDevice", NULL, NULL, (unsigned char*)rVideoDevice, &len);
+
+		char regLanguage[16];
+		len = 16;
+		if (RegQueryValueEx(hkey, "Language", NULL, NULL, (unsigned char*)regLanguage, &len) == ERROR_SUCCESS)
+		{
+			const char* languages[LANG_NUMLANGS] = { "English", "Français", "Deutsch", "Espanõl", "Italiano", "US" };
+			int lang;
+
+			for (lang=0; lang<LANG_NUMLANGS; lang++)
+				if (stricmp(regLanguage, languages[lang]) == 0)
+				{
+					gameTextLang = lang;
+					break;
+				}
+		}
 
 		RegCloseKey(hkey);
 	}
