@@ -1142,31 +1142,40 @@ void UpdateFXLightning( SPECFX *fx )
 	// Find a route through space
 	for( i=0; i<fx->numP; i++ )
 	{
-		SetVector( &source, (!i)?(&fx->origin):(&fx->particles[i-1].pos) );
-		scale = 1/(float)(fx->numP-i);
-		fr = 1-((float)i/(float)fx->numP);
-		// Get direction from last particle to target
-		SubVector( &to, &target, &source );
-		ScaleVector( &to, scale );
+		if( i )
+		{
+			SetVector( &source, &fx->particles[i-1].pos );
+			scale = 1/(float)(fx->numP-i);
+			fr = 1-((float)i/(float)fx->numP);
+			// Get direction from last particle to target
+			SubVector( &to, &target, &source );
+			ScaleVector( &to, scale );
 
-		// Get a random direction, and then modify by the "unit" aim direction (general movement in direction of target)
-		ran.v[X] = Random(21)-10;
-		ran.v[Y] = Random(21)-10;
-		ran.v[Z] = Random(21)-10;
+			// Get a random direction, and then modify by the "unit" aim direction (general movement in direction of target)
+			ran.v[X] = Random(21)-10;
+			ran.v[Y] = Random(21)-10;
+			ran.v[Z] = Random(21)-10;
 
-		MakeUnit( &ran );
-		r = fx->accn * ( (i>fx->numP*0.5)?(fx->numP-i):(i) * Magnitude(&to) );
-		ScaleVector( &ran, r );
-		AddToVector( &to, &ran );
-		AddVector( &fx->particles[i].pos, &source, &to );
+			MakeUnit( &ran );
+			r = fx->accn * ( (i>fx->numP*0.5)?(fx->numP-i):(i) * Magnitude(&to) );
+			ScaleVector( &ran, r );
+			AddToVector( &to, &ran );
+			AddVector( &fx->particles[i].pos, &source, &to );
 
-		// Push the polys out from the position
-		MakeUnit( &to );
-		CrossProduct( &cross, &to, &upVec );
-		MakeUnit( &cross );
-		ScaleVector( &cross, fx->scale.v[X] );
-		AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
-		SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
+			// Push the polys out from the position
+			MakeUnit( &to );
+			CrossProduct( &cross, &to, &upVec );
+			MakeUnit( &cross );
+			ScaleVector( &cross, fx->scale.v[X] );
+			AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
+			SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
+		}
+		else
+		{
+			SetVector( &fx->particles[i].pos, &fx->origin );
+			AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &rightVec );
+			SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &rightVec );
+		}
 
 		// Randomly fork a new lightning strand, but not if we're near the end or we're more than 2 layers of forking deep
 /*		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 )
