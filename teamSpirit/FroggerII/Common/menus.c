@@ -475,7 +475,10 @@ void RunLevelSelect()
 				{
 					switch( player[0].worldNum )
 					{
-					case WORLDID_GARDEN: multiplayerMode = MULTIMODE_RACE; break;
+					case WORLDID_ANCIENT:
+					case WORLDID_GARDEN:
+						multiplayerMode = MULTIMODE_RACE; 
+						break;
 					case WORLDID_LABORATORY: multiplayerMode = MULTIMODE_BATTLE; break;
 					}
 				}

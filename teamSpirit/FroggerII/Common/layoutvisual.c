@@ -662,6 +662,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
 
+	if( gameState.multi != SINGLEPLAYER )
+		ReinitialiseMultiplayer( );
+
 #ifndef PC_VERSION
 	MusSetMasterVolume(MUSFLAG_SONGS,32000);
 #endif
@@ -745,17 +748,17 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		if( player[0].worldNum == 8 )
 		{
 			timeTextOver->draw = 0;
-		}
 
-		i = 3;
-		while(i--)
-			sprHeart[i]->draw = 0;
+			i = 3;
+			while(i--)
+				sprHeart[i]->draw = 0;
+
+			DisableTextOverlay( scoreTextOver );
+		}
 
 		i = numBabies;
 		while(i--)
 			babyIcons[i]->draw = 0;
-
-		DisableTextOverlay( scoreTextOver );
 	}
 	
 	demoText = NULL;

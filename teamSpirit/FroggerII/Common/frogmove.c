@@ -923,6 +923,7 @@ void CheckForFroggerLanding(long pl)
 	{
 		int f = player[pl].frogon;
 
+		GTInit( &player[f].stun, 1.5 );
 		player[f].canJump = 1;
 		player[f].frogunder = -1;
 		player[pl].frogon = -1;

@@ -305,11 +305,11 @@ void UpdateFrogTongue( int pl )
 	if( tongue[pl].flags & TONGUE_SEARCHING )
 	{
 		// first priority - check if baby frog is in range
-		if( tongue[pl].thing = (void *)FrogIsInRange(tongue[pl].radius,pl) )
-			StartTongue( TONGUE_GET_FROG, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
-		else if( gameState.multi != SINGLEPLAYER && (tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl)) )
-			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
-		else if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
+//		if( tongue[pl].thing = (void *)FrogIsInRange(tongue[pl].radius,pl) )
+//			StartTongue( TONGUE_GET_FROG, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
+//		else if( gameState.multi != SINGLEPLAYER && (tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl)) )
+//			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
+		if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
 		{
 			if( ((GARIB *)tongue[pl].thing)->type == EXTRAHEALTH_GARIB )
 				StartTongue( TONGUE_GET_HEALTH, &((GARIB *)tongue[pl].thing)->fx->act[0]->actor->pos, pl );
