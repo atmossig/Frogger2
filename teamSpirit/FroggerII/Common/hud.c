@@ -28,7 +28,7 @@ char displayFullScreenPoly = 0;
 
 //ANIM_STRUCTURE *livesIcon;
 
-TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
+//TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
 TEXTOVERLAY	*babySavedText;
 
 TEXTOVERLAY *keyCollected;
@@ -48,20 +48,91 @@ TEXTOVERLAY *wholeKeyText = NULL;
 char levelString[] = "Levelname Goes in here";
 char posString[] = "-----------------------";
 
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+typedef struct TAG_ARCADE_HUD
+{
+	SPRITEOVERLAY *backLeft;
+	SPRITEOVERLAY *backLeftExtra;
+
+	SPRITEOVERLAY *backRight;
+	SPRITEOVERLAY *backRightExtra;
+
+	SPRITEOVERLAY *backCentre;
+	
+	SPRITEOVERLAY *livesOver;
+	TEXTOVERLAY   *livesText;
+	
+	SPRITEOVERLAY *coinsOver;
+	TEXTOVERLAY   *coinsText;
+	
+	SPRITEOVERLAY *timeOver;
+	TEXTOVERLAY   *timeTextMin;
+	TEXTOVERLAY   *timeTextSec;
+
+	TEXTOVERLAY   *parText;
+
+	SPRITEOVERLAY *coins;
+} ARCADE_HUD;
+
+ARCADE_HUD arcadeHud;
+char timeStringMin[3]	= "00";
+char timeStringSec[3]	= "00";
+
+void InitHUD(void)
+{
+	//timeTextOver = CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
+	arcadeHud.livesOver = CreateAndAddSpriteOverlay(5,240-27,"hud_frog.bmp",32,32,0xff,0);
+	arcadeHud.timeOver = CreateAndAddSpriteOverlay(236,240-27,"hud_time.bmp",32,32,0xff,0);
+	arcadeHud.coinsOver = CreateAndAddSpriteOverlay(68,240-4-13,"hud_coin.bmp",12,12,0xff,0);
+	
+	arcadeHud.backLeftExtra = CreateAndAddSpriteOverlay(3,240-2-26,"prc_watrd1.bmp",62,26,0xff,XLU_ADD);
+	arcadeHud.backLeft = CreateAndAddSpriteOverlay(3,240-2-26,"wback2.bmp",62,25,170,0);
+
+	arcadeHud.backRightExtra = CreateAndAddSpriteOverlay(254-20,240-4-26,"prc_watrt1.bmp",82,26,0xff,XLU_ADD);
+	arcadeHud.backRight = CreateAndAddSpriteOverlay(254-20,240-3-25,"wback2.bmp",82,25,170,0);
+
+	arcadeHud.backCentre = CreateAndAddSpriteOverlay(65,240-3-15,"wback2.bmp",254-20-65,15,170,0);
+
+	arcadeHud.livesText = CreateAndAddTextOverlay(5+32,240-7-16,livesText,NO,255,currFont,0,0);
+
+	arcadeHud.timeTextMin = CreateAndAddTextOverlay(234+22,240-7-16,timeStringMin,NO,255,currFont,0,0);
+	arcadeHud.timeTextSec = CreateAndAddTextOverlay(234+22+32,240-7-16,timeStringSec,NO,255,currFont,0,0);
+}
+
+void DisableHUD(void)
+{
+}
+
+void EnableHUD(void)
+{
+}
+
+void UpDateOnScreenInfo( void )
+{
+	sprintf(livesText,"%lu",player[0].lives);	
+	sprintf(timeStringSec,"%02i",((int)actFrameCount/60)%60);
+	sprintf(timeStringMin,"%2i",((int)actFrameCount/(60*60))%60);	
+}
+
+
+
+/*
 void UpDateOnScreenInfo ( void )
 {
 	int i;
 	static char tickTock = 0;
 	static long lastCount = 0;
 
-/*	if( player[0].worldNum == WORLDID_SUPERRETRO ) // credits are lives in super retro
-	{
-		sprintf(livesText,"*%lu",player[0].numCredits);	
-		sprintf(scoreText,"%lu",player[0].score);
-	}
-	else
-	{
-*/		sprintf(livesText,"%lu",player[0].lives);	
+//	if( player[0].worldNum == WORLDID_SUPERRETRO ) // credits are lives in super retro
+//	{
+//		sprintf(livesText,"*%lu",player[0].numCredits);	
+//		sprintf(scoreText,"%lu",player[0].score);
+//	}
+//	else
+//	{
+		sprintf(livesText,"%lu",player[0].lives);	
 		sprintf(scoreText,"%lu",player[0].score);
 		sprintf(garibText,"%lu",player[0].numSpawn);	
 		sprintf(creditText,"%lu",player[0].numCredits);
@@ -124,7 +195,7 @@ void UpDateOnScreenInfo ( void )
 	}
 }
 
-
+*/
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateScore
 	Purpose			: updates the current score
@@ -137,7 +208,7 @@ void UpdateScore(ACTOR2 *act,long scoreUpdate)
 	if (gameState.multi == SINGLEPLAYER)
 	{
 		player[0].score += scoreUpdate;
-		scoreTextOver->a = 255;
+//		scoreTextOver->a = 255;
 	}
 }
 
@@ -155,6 +226,7 @@ char gameOverText[32];
 extern char levelString[];
 extern char posString[];
 
+
 void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, currFont, 0, 0, 0 );
@@ -171,9 +243,10 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	/* Lives and score */
 
-	livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,255,currFont,0,0);
-	scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,255,currFont,0,0);
-	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
+	InitHUD();
+//	livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,255,currFont,0,0);
+//	scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,255,currFont,0,0);
+//	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
 
 #ifdef TOYFAIR_BUILD
 	build = CreateAndAddTextOverlay(40,230,"Toy Fair Demo Build      In Development",NO,255,smallFont,0,0);

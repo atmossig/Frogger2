@@ -54,9 +54,17 @@ enum gameModes
 #define MULTILOCAL		2
 #define MULTIREMOTE		3
 
+enum
+{
+	INVALID_MODE,
+	ARCADE_MODE,
+	STORY_MODE,
+};
+
 struct gameStateStruct
 {
 	unsigned char multi;
+	unsigned char single;
 	unsigned long mode;
 	unsigned long oldMode;
 	unsigned long menuMode;

@@ -48,8 +48,8 @@ void UpdateRace( )
 	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
-		timeTextOver->text[0] = '\0';
-		scoreTextOver->text[0] = '\0';
+//		timeTextOver->text[0] = '\0';
+//		scoreTextOver->text[0] = '\0';
 
 		for( i=0,j=0; i<NUM_FROGS; i++ )
 			if( currTile[i]->state == TILESTATE_FROGGER1AREA )
@@ -69,12 +69,12 @@ void UpdateRace( )
 	// When all players are ready, start a countdown
 	if( multiTimer.time )
 	{
-		sprintf( timeTextOver->text, "%d", multiTimer.time );
+//		sprintf( timeTextOver->text, "%d", multiTimer.time );
 		GTUpdate( &multiTimer, -1 );
 
 		if( !multiTimer.time )
 		{
-			sprintf( timeTextOver->text, "Go" );
+//			sprintf( timeTextOver->text, "Go" );
 			started = 2;
 
 			for( i=0; i<NUM_FROGS; i++ )
@@ -95,7 +95,7 @@ void UpdateRace( )
 
 	if( started )
 	{
-		sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
+//		sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
 	}
 
 	if( started != 2 )
@@ -142,7 +142,7 @@ void UpdateRace( )
 				// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
 				else if( currTile[i]->state == mpl[i].lasttile+1 || (mpl[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
 				{
-					timeTextOver->text[0] = '\0';
+//					timeTextOver->text[0] = '\0';
 					mpl[i].check++;
 					mpl[i].lasttile = currTile[i]->state;
 				}
@@ -177,13 +177,14 @@ void UpdateRace( )
 		}
 
 		if( draw )
-			sprintf( timeTextOver->text, "Draw" );
+			draw = draw;
+//			sprintf( timeTextOver->text, "Draw" );
 		else
 		{
 			matchWinner = winner;
 			ScaleVector( &camDist, 0.25 );
 			mpl[winner].wins++;
-			sprintf( timeTextOver->text, "P%i won", winner );
+//			sprintf( timeTextOver->text, "P%i won", winner );
 		}
 
 		GTInit( &endTimer, 5 );
@@ -206,7 +207,7 @@ void UpdateBattle( )
 	if( !started )
 	{
 		int count=0;
-		sprintf( timeTextOver->text, "Press A" );
+//		sprintf( timeTextOver->text, "Press A" );
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
@@ -222,7 +223,7 @@ void UpdateBattle( )
 			GTInit( &endTimer, 0 );
 			GTInit( &powerupTimer, Random(4)+3 );
 			started = 1;
-			timeTextOver->text[0] = '\0';
+//			timeTextOver->text[0] = '\0';
 		}
 	}
 
@@ -238,10 +239,10 @@ void UpdateBattle( )
 		return;
 	}
 
-	sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
+//	sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
 	if( started )
 	{
-		sprintf( timeTextOver->text, "%i %i %i %i", mpl[0].score, mpl[1].score, mpl[2].score, mpl[3].score );
+//		sprintf( timeTextOver->text, "%i %i %i %i", mpl[0].score, mpl[1].score, mpl[2].score, mpl[3].score );
 		GTUpdate( &powerupTimer, -1 );
 		if( !powerupTimer.time )
 		{
@@ -341,7 +342,7 @@ void UpdateBattle( )
 
 		if( i!=NUM_FROGS )
 		{
-			sprintf( timeTextOver->text, "P%i won", i );
+//			sprintf( timeTextOver->text, "P%i won", i );
 			mpl[i].wins++;
 			GTInit( &endTimer, 5 );
 		}
@@ -486,8 +487,8 @@ void BattleProcessController( int pl )
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
 
-		timeTextOver->oa = timeTextOver->a;
-		timeTextOver->a = 0;
+//		timeTextOver->oa = timeTextOver->a;
+//		timeTextOver->a = 0;
     }
 }
 

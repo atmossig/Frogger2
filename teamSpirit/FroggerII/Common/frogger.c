@@ -89,7 +89,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	
 	SetFroggerStartPos(where,p);
 
-	player[p].healthPoints	= 3;
+	player[p].healthPoints	= 1;
 	player[p].frogon		= -1;
 	player[p].frogunder		= -1;
 
@@ -125,8 +125,8 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 			i = 3;
 			while(i--)
 			{
-				sprHeart[i] = CreateAndAddSpriteOverlay((short)(20+(i*10)), 205, "heart001.bmp",
-					16,16,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
+///	sprHeart[i] = CreateAndAddSpriteOverlay((short)(20+(i*10)), 205, "heart001.bmp",
+//					16,16,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
 /*				for (f = 2; f <= 10; f++)
 				{
 					char fname[13];

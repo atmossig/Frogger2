@@ -81,13 +81,14 @@ void RunPauseMenu()
 
 			if( gameState.multi==SINGLEPLAYER )
 			{
-				livesTextOver->a = livesTextOver->oa;
-				scoreTextOver->a = scoreTextOver->oa;
+				EnableHUD();
+//				livesTextOver->a = livesTextOver->oa;
+//				scoreTextOver->a = scoreTextOver->oa;
 
 				for ( i = 0; i < 3; i++ )
 					sprHeart[i]->draw = 1;
 
-				timeTextOver->a = timeTextOver->oa;
+//				timeTextOver->a = timeTextOver->oa;
 			}
 
 			for(i=0; i<numBabies; i++)
@@ -892,6 +893,7 @@ void LevelSelProcessController(long pl)
 			{
 				NUM_FROGS = 1;
 				gameState.multi = SINGLEPLAYER;
+				gameState.single = ARCADE_MODE;
 			}
 			player[0].worldNum = cWorld;
 			player[0].levelNum = cLevel;			
@@ -899,11 +901,12 @@ void LevelSelProcessController(long pl)
 					
 		if (currTileNum==3)
 		{
+			gameState.single = INVALID_MODE;
 			if(gameState.multi != MULTIREMOTE)
 				gameState.multi = MULTILOCAL;
 			NUM_FROGS = numPlayers;
 			player[0].worldNum = cWorld;
-
+	
 			switch( player[0].worldNum )
 			{
 			case WORLDID_ANCIENT: 

@@ -187,7 +187,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case EXTRAHEALTH_GARIB:
-			if( player[pl].healthPoints < 3 )
+			if( player[pl].healthPoints < 1 )
 				player[pl].healthPoints++;
 
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 )) )

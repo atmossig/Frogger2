@@ -214,7 +214,7 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 	}
 	else
 	{
-		player[pl].healthPoints = 3;
+		player[pl].healthPoints = 1;
 		player[pl].frogState |= FROGSTATUS_ISDEAD;
 
 		if (nme->reactiveNumber!=-1)

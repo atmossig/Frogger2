@@ -88,7 +88,7 @@ void InitBabyList( unsigned char createOverlays )
 		{
 			char fn[] = "frog001.bmp\0";
 
-			babyIcons[i] = CreateAndAddSpriteOverlay( (280-(i*15)),205,fn,10,10,91,ANIMATION_FORWARDS|ANIMATION_CYCLE);
+			babyIcons[i] = CreateAndAddSpriteOverlay( ((234-15)-(i*15)),240-16,fn,10,10,91,ANIMATION_FORWARDS|ANIMATION_CYCLE);
 
 			// Add animation frames
 			for (j=2; j<=8; j++)

@@ -1000,7 +1000,7 @@ void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgS
 			if( i==MAX_MULTIPLAYERS )
 				return;
 
-			player[i].healthPoints = 3;
+			player[i].healthPoints = 1;
 			player[i].lives = 3;
 
 			RefreshMPFrogs( );

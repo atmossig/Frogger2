@@ -715,7 +715,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 			creditsActive = 3;
 			DeactivateCredits();
 		
-			DisableTextOverlay(scoreTextOver);
+//			DisableTextOverlay(scoreTextOver);
 
 			frogFacing[0] = 3;
 			atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
@@ -733,20 +733,21 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if (player[0].worldNum==8 || gameState.multi != SINGLEPLAYER)
 	{
 	//	CreateOverlays();
-		livesTextOver->draw = 0;
+		DisableHUD();
+//		livesTextOver->draw = 0;
 		garibCount->draw = 0;
 		creditCount->draw = 0;
 		countdownTimer = 0;
 
 		if( player[0].worldNum == 8 )
 		{
-			timeTextOver->draw = 0;
+//			timeTextOver->draw = 0;
 
-			i = 3;
-			while(i--)
-				sprHeart[i]->draw = 0;
+//			i = 3;
+//			while(i--)
+//				sprHeart[i]->draw = 0;
 
-			DisableTextOverlay( scoreTextOver );
+//			DisableTextOverlay( scoreTextOver );
 		}
 
 		i = numBabies;
@@ -759,16 +760,17 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	if (rPlaying)
 	{
 		demoText = CreateAndAddTextOverlay(160,5,demoStr,YES,128,currFont,0,0);
-		DisableTextOverlay(livesTextOver);
-		DisableTextOverlay(timeTextOver);
+		DisableHUD();
+//		DisableTextOverlay(livesTextOver);
+//		DisableTextOverlay(timeTextOver);
 		DisableTextOverlay(babySavedText);
 		DisableTextOverlay(garibCount);
 		DisableTextOverlay(creditCount);
-		DisableTextOverlay(scoreTextOver);
+//		DisableTextOverlay(scoreTextOver);
 		
-		i = 3;
-		while(i--)
-			sprHeart[i]->draw = 0;			
+//		i = 3;
+//		while(i--)
+//			sprHeart[i]->draw = 0;			
 
 		i = numBabies;
 		while(i--)

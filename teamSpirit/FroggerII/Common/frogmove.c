@@ -107,7 +107,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	currPlatform[p]	= NULL;
 	destPlatform[p]	= NULL;
 
-	player[p].healthPoints	= 3;
+	player[p].healthPoints	= 1;
 	GTInit( &player[p].isCroaking, 0 );
 	GTInit( &player[p].isOnFire, 0 );
 	GTInit( &player[p].stun, 0 );
