@@ -648,7 +648,6 @@ long DrawLoop(void)
 	}
 
 	PrintSpriteOverlays(0);	
-	
 	PrintTextOverlays();
 	PrintSpriteOverlays(1);	
 
@@ -662,7 +661,6 @@ long DrawLoop(void)
 	EndTimer(16);
 
 	CopySoftScreenToSurface(surface[RENDER_SRF]);
-
 	EndTimer(0);
 	
 	if (textureDraw)
