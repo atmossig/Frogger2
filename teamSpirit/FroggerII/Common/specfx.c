@@ -309,8 +309,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( effect->type == FXTYPE_BUBBLES )
 			effect->sprites->texture = txtrBubble;
-		else if( effect->type == FXTYPE_SPARKLYTRAIL )
-			effect->sprites->texture = txtrFlash;
 		else
 			effect->sprites->texture = txtrSmoke;
 

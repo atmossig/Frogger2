@@ -886,7 +886,7 @@ void RunGameLoop (void)
 		camDist.v[Z]	= 192;
 		UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
 		gameState.mode = LEVELCOMPLETE_MODE;
-		GTInit( &modeTimer, 15 );
+		GTInit( &modeTimer, 8 );
 
 		StartLevelComplete();
 	}

@@ -133,6 +133,8 @@ void ResetBabies( )
 int PickupBabyFrog( ACTOR2 *baby )
 {
 	unsigned long i;
+	SPECFX *fx;
+	VECTOR normal;
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
 
@@ -152,13 +154,39 @@ int PickupBabyFrog( ACTOR2 *baby )
 	babiesSaved++;
 	
 	// make baby position the new start position ?
+
 	if(carryOnBabies)
-		gTStart[0] = &firstTile[(int)baby->value1]; //bTStart[i];
+		gTStart[0] = &firstTile[(int)baby->value1];
 
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
-//	PlaySample(17, &baby->actor->pos, 192, 128);
 
+	SetVector( &normal, &firstTile[(int)baby->value1].normal );
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 50, 3, 0, 5 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+	SetVector( &fx->rebound->point, &baby->actor->pos );
+	SetVector( &fx->rebound->normal, &normal );
+	fx->gravity = 0.07;
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 40, 2.5, 0, 6 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+	SetVector( &fx->rebound->point, &baby->actor->pos );
+	SetVector( &fx->rebound->normal, &normal );
+	fx->gravity = 0.07;
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 30, 2, 0, 7 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+	SetVector( &fx->rebound->point, &baby->actor->pos );
+	SetVector( &fx->rebound->normal, &normal );
+	fx->gravity = 0.07;
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 20, 1.5, 0, 8 );
+	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
+	SetVector( &fx->rebound->point, &baby->actor->pos );
+	SetVector( &fx->rebound->normal, &normal );
+	fx->gravity = 0.07;
+	
 	return TRUE;
 }
 
