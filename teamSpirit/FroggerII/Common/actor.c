@@ -129,10 +129,7 @@ void DrawActorList()
 			continue;
 		}
 
-		// Need to set this once for each actor
-		cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
-
-		if( (cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) )
+		if( (cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
