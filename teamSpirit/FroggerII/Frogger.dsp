@@ -1223,6 +1223,10 @@ SOURCE=.\f2logo.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\icon1.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource.h
 # End Source File
 # Begin Source File
