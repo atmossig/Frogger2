@@ -2788,3 +2788,22 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 
 	return FALSE;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FindEnemyAtNode
+	Purpose			: Search enemy list for an enemy that is on this node
+	Parameters		: Node to compare
+	Returns			: Found enemy or NULL
+	Info			: nme is an optional parameter to allow for exclusions to the search
+*/
+ENEMY *FindEnemyAtNode( ENEMY *nme, PATHNODE *node )
+{
+	ENEMY *e;
+
+	for( e = enemyList.head.next; e != &enemyList.head; e = e->next )
+		if( (nme && e != nme) && e->active && ((&e->path->nodes[e->path->toNode] == node) || (&e->path->nodes[e->path->fromNode] == node)) )
+			return e;
+
+	return NULL;
+}
