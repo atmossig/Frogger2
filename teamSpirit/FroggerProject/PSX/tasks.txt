@@ -91,7 +91,7 @@ Unassigned tasks
 - water splits
 - city plank across building - x = sort problem
 - lab1 needs trans rotors, + sprites in.
-- help text (see poliver e-mail, 06/03/00)
+- help text (see poliver e-mail, 06/03/00) elieve this has been changed to a training level
   - infront of wall garib (x to jump high)
   - infront of river (can't swim, jump onto ... )
   - infront of deadly hazzard after bridge that needs double hop
@@ -120,6 +120,8 @@ Suggestions/other:
 
 
 - Thoughts on optimisation
+  - Remove FMul/FDiv where poss
+  - Use DistBetweenPointsSquared where poss
   - utilsCalcAngle returns hyp len in top 16 ! ! ! 
   - check loops are counting down for clear/copy mem
   - check for copying 2 shorts as 1 long e.t.c
