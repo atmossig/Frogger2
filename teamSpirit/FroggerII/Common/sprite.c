@@ -307,12 +307,7 @@ void AddSprite(SPRITE *sprite,SPRITE *after)
 		if(after)
 			ptr = after;
 		else
-		{
-			if( sprite->flags & SPRITE_TRANSLUCENT )
-				ptr = &spriteList.head.prev;
-			else
-				ptr = &spriteList.head;
-		}
+			ptr = &spriteList.head;
 
 		sprite->kill	= 0;
 
@@ -357,8 +352,9 @@ VECTOR svUp = { 0,1,0 };
 void AnimateSprites()
 {
 	SPRITE *cur,*next;
+	int count=0;
 
-	for(cur = spriteList.head.next; cur != &spriteList.head; cur = next)
+	for(cur = spriteList.head.next; cur != &spriteList.head; cur = next,count++)
 	{
 		next = cur->next;
 

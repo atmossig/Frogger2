@@ -147,7 +147,6 @@ extern TEXTURE *txtrBubble;
 extern TEXTURE *txtrBlank;
 extern TEXTURE *txtrTrail;
 extern TEXTURE *txtrFlash;
-extern TEXTURE *txtrShield;
 
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );

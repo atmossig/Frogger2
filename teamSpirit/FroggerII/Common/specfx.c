@@ -36,12 +36,14 @@ TEXTURE *txtrRipple		= NULL;
 TEXTURE *txtrStar		= NULL;
 TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
+TEXTURE *txtrSmoke2		= NULL;
 TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrBubble		= NULL;
 TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 TEXTURE *txtrFlash		= NULL;
-TEXTURE *txtrShield		= NULL;
+TEXTURE *txtrElectric	= NULL;
+TEXTURE *txtrFlare		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -78,10 +80,13 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 {
 	SPECFX *effect = NULL;
 	SPRITE *s;
+	VECTOR distance;
 	long i,n;
 	float life = lifetime * 60;
 
-//	return NULL;
+	SubVector( &distance, origin, &frog[0]->actor->pos );
+	if( MagnitudeSquared(&distance) > ACTOR_DRAWDISTANCEOUTER )
+		return NULL;
 
 	effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
 
@@ -328,9 +333,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		// Velocity is normal scaled by speed, plus a random offset scaled by speed
 		SetVector( &effect->vel, &effect->normal );
 		ScaleVector( &effect->vel, speed );
-		effect->vel.v[X] += (-1 + Random(3))*speed*0.4;
-		effect->vel.v[Y] += (-1 + Random(3))*speed*0.4;
-		effect->vel.v[Z] += (-1 + Random(3))*speed*0.4;
+		effect->vel.v[X] += (Random(2)-1)*speed*0.2;
+		effect->vel.v[Y] += (Random(2)-1)*speed*0.2;
+		effect->vel.v[Z] += (Random(2)-1)*speed*0.2;
 		effect->fade = 180 / life;
 
 		if( effect->type == FXTYPE_BUBBLES )
@@ -353,8 +358,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->texture = txtrSmoke;
 
 			SetVector( &s->pos, &effect->origin );
-			s->scaleX = effect->scale.v[X];
-			s->scaleY = effect->scale.v[Y];
+			s->scaleX = effect->scale.v[X] + Random(21)-10;
+			s->scaleY = effect->scale.v[Y] + Random(21)-10;
 
 			s->r = effect->r;
 			s->g = effect->g;
@@ -427,10 +432,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->b = 0;
 			}
 
-			s->texture = effect->tex;
-
-			s->scaleX = effect->scale.v[X];
-			s->scaleY = effect->scale.v[Y];
+			s->scaleX = effect->scale.v[X] + Random(21)-10;
+			s->scaleY = effect->scale.v[Y] + Random(21)-10;
 
 			s->offsetX = -16;
 			s->offsetY = -16;
@@ -444,20 +447,25 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			// Velocity is normal scaled by speed, plus a random offset scaled by speed
 			SetVector( &effect->particles[i].vel, &effect->normal );
 			ScaleVector( &effect->particles[i].vel, effect->speed );
-			effect->particles[i].vel.v[X] += (-1 + Random(3))*effect->speed*0.4;
-			effect->particles[i].vel.v[Y] += (-1 + Random(3))*effect->speed*0.4;
-			effect->particles[i].vel.v[Z] += (-1 + Random(3))*effect->speed*0.4;
+			effect->particles[i].vel.v[X] += (Random(2)-1)*effect->speed*0.3;
+			effect->particles[i].vel.v[Y] += (Random(2)-1)*effect->speed*0.3;
+			effect->particles[i].vel.v[Z] += (Random(2)-1)*effect->speed*0.3;
+
+			if( (effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE) && !(Random(4)) )
+			{
+				s->texture = (Random(2))?txtrSmoke:txtrSmoke2;
+				s->flags |= SPRITE_FLAGS_ROTATE;
+				s->angle = 0.0f;
+				s->angleInc = 1.0 / (float)(8 + (rand() % 12));
+				if(!(actFrameCount & 1))
+					effect->sprites->angleInc *= -1;
+			}
+			else
+			{
+				s->texture = effect->tex;
+			}
 
 			s = s->next;
-		}
-
-		if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
-		{
-			effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
-			effect->sprites->angle		= 0.0f;
-			effect->sprites->angleInc	= 1.0 / (float)(8 + (rand() % 12));
-			if(!(actFrameCount & 1))
-				effect->sprites->angleInc *= -1;
 		}
 
 		effect->Update = UpdateFXExplode;
@@ -469,7 +477,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		i = effect->numP;
 
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "P" );
-		effect->tex = txtrTrail;
+		effect->tex = txtrBlank;
 
 		while(i--)
 		{
@@ -1315,12 +1323,14 @@ void InitSpecFXList( )
 	FindTexture(&txtrStar,UpdateCRC("ai_star.bmp"),YES);
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
+	FindTexture(&txtrSmoke2,UpdateCRC("ai_smoke2.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
-	FindTexture(&txtrShield,UpdateCRC("00spaw04.bmp"),YES);
+	FindTexture(&txtrElectric,UpdateCRC("ai_electric.bmp"),YES);
+	FindTexture(&txtrFlare,UpdateCRC("ai_flare.bmp"),YES);
 
 	// Allocate a big bunch of sprites
 	if( !fxSpriteList ) fxSpriteList = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_FXSPRITES, YES, "FXSprites" );
@@ -1972,7 +1982,7 @@ SPRITE *AllocateSprites( int number )
 	// Now we can go and allocate sprites with gay abandon
 	while( number-- )
 	{
-		AddSprite( fxSpriteStack[fxsStackPtr--], &spriteList.head );
+		AddSprite( fxSpriteStack[fxsStackPtr--], NULL );
 		fxsCount++;
 	}
 
