@@ -594,13 +594,13 @@ int ToggleRectTileSelection(int ax, int ay, int bx, int by, EDITGROUP *selection
 {
 	GAMETILE *tile;
 	EDVECTOR c, v;
-	int fuzz = 0;
+	int n, fuzz = 0;
 
 	// flip rect the right way round
 	if (ax > bx) { int foo = ax; ax = bx; bx = foo; }
 	if (ay > by) { int foo = ay; ay = by; by = foo; }
 
-	for (tile = firstTile; tile; tile = tile->next)
+	for (tile = firstTile, n = tileCount; n; tile++, n++)
 	{
 		GetTilePos(&c, tile);
 		EdXfmPoint(&v, &c);
@@ -786,12 +786,12 @@ void EdXfmPoint (EDVECTOR *res, EDVECTOR *in)
 GAMETILE* FindNearestTile(EDVECTOR v)
 {
 	GAMETILE *t, *closest;
-	int dist, closestDist;
+	int n, dist, closestDist;
 	EDVECTOR a;
 
 	closest = NULL; closestDist = 0x10000000;
 
-	for (t = firstTile; t != NULL; t = t->next)
+	for (t = firstTile, n = tileCount; n; t++, n--)
 	{
 		GetTilePos(&a, t);
 		dist = (int)DistanceBetweenPointsSquared(&v, &a);
