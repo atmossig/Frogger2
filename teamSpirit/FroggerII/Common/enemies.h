@@ -118,6 +118,7 @@ extern ENEMY *testEnemy;
 
 extern void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID);
 extern ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,float offset2,int startNode,float eSpeed,unsigned long eFlags);
+extern ENEMY *CreateAndAddEnemyWithPath(char *eActorName, PATH *path, int startNode, float eSpeed, unsigned long eFlags);
 
 extern void InitEnemyLinkedList();
 extern void FreeEnemyLinkedList();

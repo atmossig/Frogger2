@@ -251,7 +251,25 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 	Returns			: ENEMY *
 	Info			: 
 */
+
 ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,float offset2,int startNode,float eSpeed,unsigned long eFlags)
+{
+	PATH *path;
+
+	// create the ptr to the linked list of world game tiles that define the enemy's path
+	path = CreateEnemyPathFromTileList(pathIndex,offset,offset2);
+	return CreateAndAddEnemyWithPath(eActorName, path, startNode, eSpeed, eFlags);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAndAddEnemy
+	Purpose			: creates and initialises an enemy
+	Parameters		: char *,PATH*,int,float,unsigned int
+	Returns			: ENEMY *
+	Info			:
+*/
+
+ENEMY *CreateAndAddEnemyWithPath(char *eActorName, PATH *path, int startNode, float eSpeed, unsigned long eFlags)
 {
 	VECTOR toPosition;
 	VECTOR vfd	= { 0,0,1 };
@@ -387,18 +405,15 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	newItem->endSpeed		= eSpeed;
 	newItem->accel			= 0.0F;
 
-	newItem->path			= NULL;
-	newItem->inTile			= &firstTile[pathIndex[startNode + 1]];
-
-	// create the ptr to the linked list of world game tiles that define the enemy's path
-	newItem->path = CreateEnemyPathFromTileList(pathIndex,offset,offset2);
+	newItem->path			= path;
+	newItem->inTile			= path->nodes[startNode].worldTile; //&firstTile[pathIndex[startNode + 1]];
 
 	newItem->path->startNode = startNode;
 
 	if(eFlags & ENEMY_PATHFORWARDS)
 	{
 		newItem->path->fromNode = startNode;
-		if ( startNode == pathIndex[0] )
+		if ( startNode == path->numNodes ) // pathIndex[0]
 		{
 			newItem->path->toNode	= startNode;
 		}
