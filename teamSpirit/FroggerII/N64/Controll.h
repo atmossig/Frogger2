@@ -1,0 +1,41 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+
+	File		: Controll.h
+	Programmer	: Andrew Eder
+	Date		: 12/1/98
+
+----------------------------------------------------------------------------------------------- */
+
+#ifndef CONTROLL_H_INCLUDED
+#define CONTROLL_H_INCLUDED
+
+
+//#define INPUT_POLLPAUSE		0	//3
+extern unsigned long	INPUT_POLLPAUSE;
+extern long INPUT_PENALTY;
+
+extern OSMesgQueue	controllerMsgQ;
+extern OSMesg		controllerMsgBuf[];
+extern OSMesgQueue     serialMsgQ;
+extern OSMesg          serialMsg;
+
+extern OSPfs	rumble;
+
+extern int initControllers(void);
+extern OSContStatus     statusdata[MAXCONTROLLERS];
+extern OSContPad        controllerdata[MAXCONTROLLERS];
+extern unsigned long	playerInputPause;
+extern unsigned long	playerInputPause2;
+
+extern int ControllerMode;
+extern char debugCtrlMode[20];
+
+extern int initControllers(void);
+extern void ReadController1(void);
+extern void ReadController2(void);
+
+
+#endif
