@@ -133,8 +133,8 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 				tongue[pl].sprite[i].a			= 0;
 
 #ifndef PC_VERSION
-				tongue[pl].sprite[i].offsetX		= -tongueSprite[pl].texture->sx / 2;
-				tongue[pl].sprite[i].offsetY		= -tongueSprite[pl].texture->sy / 2;
+				tongue[pl].sprite[i].offsetX		= -tongue[pl].tex->sx / 2;
+				tongue[pl].sprite[i].offsetY		= -tongue[pl].tex->sy / 2;
 #else
 				tongue[pl].sprite[i].offsetX		= -16;
 				tongue[pl].sprite[i].offsetY		= -16;
