@@ -1681,6 +1681,8 @@ void UpdateFrogCroak( int pl )
 		{
 			SetVectorSS(&effectPos, &frog[pl]->actor->position);
 			specFXAlpha = 128;
+
+			PrepForPriorityEffect( );
 			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &normal, initcroakscale, 4096, 410, croaklife )) )
 			{
 				fx->spin = 20;
@@ -1709,6 +1711,8 @@ void UpdateFrogCroak( int pl )
 				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
 
 				specFXAlpha = 128;
+	
+				PrepForPriorityEffect( );
 				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &normal, initcroakscale, 4096, 410, croaklife )) )
 				{
 					fx->spin = 25;
