@@ -1438,7 +1438,7 @@ void CreateOptionsObjects(void)
 	options.soundInstrText[0]->draw = 0;
 	options.soundInstrText[1]->draw = 0;
 #ifdef DREAMCAST_VERSION
-	options.stereo = 0;
+//ma	options.stereo = 0;
 	options.stereoSelectText[0] = CreateAndAddTextOverlay(1650,1024,GAMESTRING(STR_SOUNDMONO),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 	options.stereoSelectText[1] = CreateAndAddTextOverlay(2250,1024,GAMESTRING(STR_SOUNDSTEREO),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 	options.stereoSelectText[0]->draw = 0;

@@ -1845,14 +1845,26 @@ void RunLevelComplete()
 					w = fontExtentWScaled(nText->font,nText->text,4096)*4;
 					enterNameButton[1]->xPos = nText->xPosTo + w*2 + 40;
 					enterNameButton[4]->xPos = nText->xPosTo + w*2 + 400;
+					
+					// ma - alter position of sprite 1 4
+					enterNameButton[1]->xPos = enterNameButton[1]->xPos * (512.0/640.0);
+					enterNameButton[4]->xPos = enterNameButton[4]->xPos * (512.0/640.0);
+
 					w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*8;
 					enterNameButton[0]->xPos = nText->xPosTo + w - 200;
+
+					// ma - alter position of sprite 1 4
+					enterNameButton[0]->xPos = enterNameButton[0]->xPos * (512.0/640.0);
+
 					tempChar = textString[cursPos];
 					textString[cursPos] = 0;
 //					enterNameButton[2]->xPos = nText->xPosTo + w + 40 + fontExtentWScaled(nText->font,textString,4096)*8;
 //					enterNameButton[3]->xPos = nText->xPosTo + w + 40 + fontExtentWScaled(nText->font,textString,4096)*8;
-					enterNameButton[2]->xPos = (nText->xPosTo + w + fontExtentWScaled(nText->font,textString,4096)*8)-300;
-					enterNameButton[3]->xPos = (nText->xPosTo + w + fontExtentWScaled(nText->font,textString,4096)*8)-200;
+					enterNameButton[2]->xPos = nText->xPosTo + w + 180 + fontExtentWScaled(nText->font,textString,4096)*8;
+					enterNameButton[3]->xPos = nText->xPosTo + w + 180 + fontExtentWScaled(nText->font,textString,4096)*8;
+					// ma - alter position of sprite 2 3
+					enterNameButton[2]->xPos = enterNameButton[2]->xPos * (512.0/640.0);
+					enterNameButton[3]->xPos = enterNameButton[3]->xPos * (512.0/640.0);
 					textString[cursPos] = tempChar;
 				}
 #endif
