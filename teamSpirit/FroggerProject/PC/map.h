@@ -1,6 +1,9 @@
 #ifndef _MAP_H_INCLUDE
 #define _MAP_H_INCLUDE
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "define.h"
 
 extern SCENIC		*firstScenic;
@@ -17,4 +20,7 @@ void FreeMap				( void );
 void FreeEntityBank			( void );
 void FreeScenic				( void );
 
+#ifdef __cplusplus
+}
+#endif
 #endif
