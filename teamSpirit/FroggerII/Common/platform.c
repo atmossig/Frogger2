@@ -214,10 +214,11 @@ void UpdatePlatforms()
 		// check if this platform is currently 'waiting' at a node
 		if(cur->isWaiting)
 		{
-			if((cur->isWaiting != -1) && (actFrameCount > cur->path->startFrame))
+			if (((cur->isWaiting != -1) && (actFrameCount > cur->path->startFrame)) ||
+				(cur->flags & PLATFORM_NEW_STEPONACTIVATED && cur->carrying))
 				cur->isWaiting = 0;
-
-			continue;
+			else
+				continue;
 		}
 
 		// update frog if on the current platform
@@ -607,11 +608,6 @@ void FreePlatformLinkedList()
 }
 
 
-
-//------------------------------------------------------------------------------------------------
-// NEW PLATFORM CODE - UNDER DEVELOPMENT - ANDYE - NEW PLATFORM CODE - UNDER DEVELOPMENT - ANDYE -
-//------------------------------------------------------------------------------------------------
-
 PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path)
 {
 	int initFlags,i;
@@ -661,10 +657,24 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path)
 
 	AssignPathToPlatform(newItem,path,0);
 
+	if (newItem->flags & PLATFORM_NEW_STEPONACTIVATED)
+	{
+		if (newItem->flags & PLATFORM_NEW_MOVEUP)
+		{
+			newItem->flags &= ~PLATFORM_NEW_MOVEUP;
+			newItem->flags |= PLATFORM_NEW_RISEWITHFROG;
+		}
+		else if (newItem->flags & PLATFORM_NEW_MOVEDOWN)
+		{
+			newItem->flags &= ~PLATFORM_NEW_MOVEDOWN;
+			newItem->flags |= PLATFORM_NEW_SINKWITHFROG;
+		}
+	}
+
 	// determine relevant platform update function
 	if(newItem->flags & PLATFORM_NEW_FOLLOWPATH)
 		newItem->Update = UpdatePathPlatform;
-	else if((newItem->flags & PLATFORM_NEW_MOVEUP) || (newItem->flags & PLATFORM_NEW_MOVEDOWN))
+	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 		newItem->Update = UpdateUpDownPlatform;
 	else if(newItem->flags & PLATFORM_NEW_NONMOVING)
 		newItem->Update = UpdateNonMovingPlatform;
@@ -721,7 +731,11 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 	}
 
 	// set platform position to relevant point on path
-	GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
+	if (pform->flags & PLATFORM_NEW_MOVEDOWN)
+		GetPositionForPathNodeOffset2(&platformStartPos,&path->nodes[pform->path->fromNode]);
+	else
+		GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
+
 	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
 	NormalToQuaternion(&pform->pltActor->actor->qRot,&path->nodes[pform->path->fromNode].worldTile->normal);
 
@@ -837,13 +851,14 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 				&pform->path->nodes[pform->path->fromNode].worldTile->centre,
 				&pform->path->nodes[pform->path->toNode].worldTile->centre);
 				
-			pform->inTile[0] = nextTile;
+			//pform->inTile[0] = nextTile;
 
 			// We need to find which frog we're carrying (yeeeeeesh)
 			for (pl=0; pl<4; pl++)
 				if (currPlatform[pl] == pform)
 				{
 					PushFrog(&pform->pltActor->actor->pos, &v, pl);
+					AnimateActor(frog[pl], FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
 					break;
 				}
 		}
@@ -905,7 +920,6 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	pform->deltaNormal.v[Y] /= numSteps;
 	pform->deltaNormal.v[Z] /= numSteps;
 }
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: SetPlatformVisibleTime
@@ -1073,14 +1087,14 @@ void CalcNextPlatformDest(PLATFORM *pform)
 	else if( flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN) )
 	{
 		if( flags & PLATFORM_NEW_PINGPONG )
-			pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);
-		else if( flags & PLATFORM_NEW_CYCLE )
+			pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);	// invert flags
+		/*else
 		{
 			if( flags & PLATFORM_NEW_MOVEUP )
-				GetPositionForPathNode( &pform->pltActor->actor->pos, &path->nodes[path->fromNode] );
+				GetPositionForPathNode( &pform->pltActor->actor->pos, &path->nodes[0] );
 			else
-				GetPositionForPathNodeOffset2( &pform->pltActor->actor->pos, &path->nodes[path->fromNode] );
-		}
+				GetPositionForPathNodeOffset2( &pform->pltActor->actor->pos, &path->nodes[0] );
+		}*/
 	}
 }
 
@@ -1122,7 +1136,7 @@ void FrogLeavePlatform(long pl)
 	Parameters		: GAMETILE *,long
 	Returns			: PLATFORM *
 	Info			: 
-*/
+
 PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
 {
 	PLATFORM *cur,*next;
@@ -1229,7 +1243,7 @@ PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
 
 	return NULL;
 }
-
+*/
 
 
 
@@ -1286,6 +1300,10 @@ void UpdatePathPlatform(PLATFORM *plat)
 		plat->path->endFrame = plat->path->startFrame + (60*plat->currSpeed);
 	}
 
+/*
+	This doesn't really work, does it?
+
+
 	GetPositionForPathNode(&fromPosition,&plat->path->nodes[plat->path->fromNode]);
 	GetPositionForPathNode(&toPosition,&plat->path->nodes[plat->path->toNode]);
 
@@ -1304,13 +1322,11 @@ void UpdatePathPlatform(PLATFORM *plat)
 				t = GetTilesMatchingDirection(plat->path->nodes[plat->path->fromNode].worldTile,camFacing,plat->path->nodes[plat->path->toNode].worldTile);
 			//	t = 0;
 				camFacing = t;
-			}*/
+			}
 
 		// platform is 'in' two tiles
 		plat->inTile[0] = plat->path->nodes[plat->path->toNode].worldTile;
 		plat->inTile[1] = plat->path->nodes[plat->path->fromNode].worldTile;
-
-		
 	}
 	else
 	{
@@ -1322,6 +1338,8 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 		plat->inTile[1] = NULL;
 	}
+*/
+
 }
 
 
@@ -1334,27 +1352,37 @@ void UpdatePathPlatform(PLATFORM *plat)
 */
 void UpdateUpDownPlatform(PLATFORM *plat)
 {
-	VECTOR moveVec;;
+	VECTOR moveVec;
+	float start_offset, end_offset, t;
+
+	// check if this platform has arrived at a path node
+	if( actFrameCount > plat->path->endFrame )
+	{
+		UpdatePlatformPathNodes(plat);
+
+		plat->path->startFrame = plat->path->endFrame + plat->isWaiting * waitScale;
+		plat->path->endFrame = plat->path->startFrame + (60*plat->currSpeed);
+
+		if (plat->isWaiting) return;
+	}
+
+	if (plat->flags & PLATFORM_NEW_MOVEUP)
+	{
+		start_offset = plat->path->nodes->offset;
+		end_offset = plat->path->nodes->offset2;
+	}
+	else
+	{
+		start_offset = plat->path->nodes->offset2;
+		end_offset = plat->path->nodes->offset;
+	}
 
 	// get up vector for this platform
 	SetVector(&moveVec,&plat->path->nodes[0].worldTile->normal);
-	ScaleVector(&moveVec,plat->currSpeed);
-
-	// check if this platform is moving up or down
-	if(plat->flags & PLATFORM_NEW_MOVEUP)
-	{
-		// platform is moving up
-		AddToVector(&plat->pltActor->actor->pos,&moveVec);
-	}
-	else if(plat->flags & PLATFORM_NEW_MOVEDOWN)
-	{
-		// platform is moving down
-		SubFromVector(&plat->pltActor->actor->pos,&moveVec);
-	}
-
-	// check if this platform has arrived at a path node
-	if(PlatformReachedTopOrBottomPoint(plat))
-		UpdatePlatformPathNodes(plat);
+	
+	t = (float)(actFrameCount- plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
+	ScaleVector(&moveVec, t * end_offset + (1-t) * start_offset);
+	AddVector(&plat->pltActor->actor->pos, &plat->path->nodes->worldTile->centre, &moveVec)
 }
 
 
