@@ -200,7 +200,6 @@ unsigned long cullCCWRS[] =
 
 
 long dPoly = 1;
-unsigned long mPitch,cPitch,srcAddr,dstAddr;
 	
 
 /*  --------------------------------------------------------------------------------
@@ -214,6 +213,7 @@ void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 {
 	DDSURFACEDESC2		ddsd;
 	unsigned long r,g,b,d;
+	static unsigned long mPitch,cPitch,srcAddr,dstAddr;
 
 	if (rHardware || !dPoly)
 		return;

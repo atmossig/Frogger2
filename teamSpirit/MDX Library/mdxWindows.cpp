@@ -131,7 +131,12 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			else
 			{
 				windowActive = 1;
-				pDirectDraw7->RestoreAllSurfaces();	// wheeeee
+
+/*				ds - we probably need to do some clever jiggerypokery here so the system doesn't crash
+
+				if (pDirectDraw)
+					pDirectDraw7->RestoreAllSurfaces();
+*/
 			}
 			break;
 
