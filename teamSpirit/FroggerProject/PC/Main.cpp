@@ -101,7 +101,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			switch (wParam)
 			{
 			case VK_F2:
-				editorOk = !editorOk; keysEnabled != keysEnabled; break;
+				editorOk = !editorOk; keysEnabled = !keysEnabled; break;
 			default:
 				return 1;
 			}
