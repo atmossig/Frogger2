@@ -14,6 +14,9 @@
 
 
 #include <islsfx2.h> 
+#include "types.h"
+#include "actor2.h"
+
 // //***********************************
 // // Defines
  
@@ -120,34 +123,32 @@ typedef struct _SOUNDLIST
 // } BUFFERLIST;
  
  
-// typedef struct TAG_AMBIENT_SOUND
-// {
-// 	struct TAG_AMBIENT_SOUND *next,*prev;
-// 
-// 	VECTOR		pos;
-// 	ACTOR		*follow;
-// 
-// 	struct _SAMPLE *sample;
-// 	LPDIRECTSOUNDBUFFER		lpdsBuffer;
-// 
-// 	short		volume;
-// 	short		pitch;
-// 	long		radius;
-// 
-// 	long		freq;
-// 	long		randFreq;
-// 	long		counter;
-// 
-// }AMBIENT_SOUND;
+typedef struct TAG_AMBIENT_SOUND
+{
+	struct TAG_AMBIENT_SOUND *next,*prev;
+
+	SVECTOR		pos;
+	ACTOR		*follow;
+
+	struct _SAMPLE *sample;
+
+	short		volume;
+	short		pitch;
+	long		radius;
+
+	long		freq;
+	long		randFreq;
+	long		counter;
+
+}AMBIENT_SOUND;
  
  
-// typedef struct
-// {
-// 	AMBIENT_SOUND head;
-// 	int numEntries;
-// 
-// }AMBIENT_SOUND_LIST;
- 
+typedef struct
+{
+	AMBIENT_SOUND head;
+	int numEntries;
+
+}AMBIENT_SOUND_LIST; 
  
  extern SAMPLE *genSfx[];
  
@@ -182,10 +183,10 @@ typedef struct _SOUNDLIST
 // extern void PrepareSongForLevel( short worldID, short levelID );
 
 
-#define UpdateAmbientSounds()
-//#define PTTextureLoad()
+// #define UpdateAmbientSounds()
+// //#define PTTextureLoad()
 #define LoadSfxMapping(a,b)		0
-#define FreeAmbientSoundList()
-#define InitAmbientSoundList()
+// #define FreeAmbientSoundList()
+// #define InitAmbientSoundList()
  
 #endif

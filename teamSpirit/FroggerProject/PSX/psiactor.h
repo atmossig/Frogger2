@@ -36,6 +36,7 @@ typedef struct
 	short		frame;
 	u8 		exclusive;
 	u8 		spare;
+	struct _SAMPLE **sfxMapping;	// Cue these sound effects off the animations
 
 } ACTOR_ANIMATION;
 
