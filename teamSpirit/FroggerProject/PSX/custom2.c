@@ -119,6 +119,11 @@ void customDrawPrimitives2(int depth)
 						*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
 		 		}
 				setPolyFT3(si);
+				if ( globalClut )
+				{
+					si->clut	= globalClut;
+				}
+				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
  				ENDPRIM(si, depth & 1023, POLY_FT3);
@@ -173,6 +178,11 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->u3) = *(u_long *) (&op->tu3);
 
 				setPolyFT4(si);
+				if ( globalClut )
+				{
+					si->clut	= globalClut;
+				}
+				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 				
 				modctrl->polysdrawn++;
@@ -230,6 +240,11 @@ void customDrawPrimitives2(int depth)
 						*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 				}
 				setPolyGT3(si);
+				if ( globalClut )
+				{
+					si->clut	= globalClut;
+				}
+				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 			
 				modctrl->polysdrawn++;
@@ -306,6 +321,11 @@ void customDrawPrimitives2(int depth)
 				modctrl->polysdrawn++;
 			
 				setPolyGT4(si);
+				if ( globalClut )
+				{
+					si->clut	= globalClut;
+				}
+				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 				ENDPRIM(si, depth & 1023, POLY_GT4);
 				break;
@@ -353,8 +373,8 @@ void customDrawPrimitives2(int depth)
 					si->code |= modctrl->semitrans;
 			
 	 				ENDPRIM(si, depth & 1023, POLY_FT4);
-					op = op->next;
 				}*/
+					op = op->next;
 				break;
 #undef si
 #undef op
@@ -417,6 +437,11 @@ void customDrawPrimitives2(int depth)
 				}
 
 				setPolyG4(si);
+				if ( globalClut )
+				{
+//					si->clut	= globalClut;
+				}
+				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
 				modctrl->polysdrawn++;
@@ -476,6 +501,11 @@ void customDrawPrimitives2(int depth)
 				modctrl->polysdrawn++;
 
 				setPolyG3(si);
+				if ( globalClut )
+				{
+//					si->clut	= globalClut;
+				}
+				// ENDIF
 				si->code = op->cd | modctrl->semitrans;
 
 				ENDPRIM(si, depth & 1023, POLY_G3);
