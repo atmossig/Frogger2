@@ -273,9 +273,9 @@ void GameLoop(void)
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 0;
 
-				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 				controllerRemoved = TRUE;
 			}
 		}
@@ -303,9 +303,9 @@ void GameLoop(void)
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 0;
 
-				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+				removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 				controllerRemoved = TRUE;
 			}
 		}
@@ -356,9 +356,9 @@ void GameLoop(void)
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 
-			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, "No Memory Card Found.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Make Sure Your Memory Card And", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
-			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "Controller Are Connected Properly", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText = CreateAndAddTextOverlay ( 2048, 1860, " A Controller Was Removed,", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText2 = CreateAndAddTextOverlay ( 2048, 1860+200, "Or A VMU Is Being Recognized.", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
+			removeControllerText3 = CreateAndAddTextOverlay ( 2048, 1860+400, "", YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 			controllerRemoved = TRUE;
 		}
 
