@@ -1086,6 +1086,9 @@ James Hubbard:
 	Last day today! I need a holiday.
 
 	Tried to make a cartoon smoke thing like in Yellow Submarine, but failed. More difficult than it looks...
+	Then I decided to implement all the character stuff I was planning yesterday. Going well so far, I've got
+	all the basic stuctures done, all the list management, most of the create functions and the top level update
+	function. After lunch I'm going to try a few basic commands and see if I can get the bugger to work at all.
 	
 
 James Healey:
