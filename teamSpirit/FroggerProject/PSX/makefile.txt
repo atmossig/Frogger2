@@ -55,7 +55,7 @@ LIBISL = c:\ps\psx\library\lib\release
 #OPT = -DPSX_VERSION -DPALMODE=0 -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DE3_DEMO -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
-OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O0 -g -mgpopt -G0 -X0$00018000 -comments-c++
+OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -g -mgpopt -G0 -X0$00018000 -comments-c++
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++
 LIBISL = c:\ps\psx\library\lib\debug
 !endif

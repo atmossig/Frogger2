@@ -80,6 +80,7 @@
 #include "objviewer.h"
 #include "platform.h"
 #include "snapshot.h"
+#include "psxsprite.h"
 
 long turbo = 4096;
 
@@ -863,6 +864,9 @@ void MainDrawFunction ( void )
 //		utilPrintf ( "Poly Count : %d\n", polyCount );
 
 	TIMER_START0(TIMER_PRINT_OVERS);
+
+	if(tileTexture)
+		DrawTiledBackdrop();
 
 //	PrintSpriteOverlays(1);
 	PrintTextOverlays();

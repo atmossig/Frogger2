@@ -212,23 +212,6 @@ void PrintSpriteOverlays(long num)
 */
 void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
 {
-/*
-	RECT r;
-
-	r.left = x;
-	r.right = x+xs;
-	r.top = y;
-	r.bottom = y+ys;
-
-	if(tex)
-		DrawTexturedRect(r, colour, tex->surf, u1, v1, u2, v2);
-	else
-		DrawFlatRect(r,colour);
-
-*/
-
-//	return c->width*scale;
-
 	D3DTLVERTEX v[4];
 	float x2 = (x+xs), y2 = (y+ys);
 
@@ -414,3 +397,47 @@ void ZSortSpriteList()
 		qsort( (void *)spriteSortArray, numSortArraySprites, sizeof(SPRITE*), SpriteZCompare );
 }
 
+TextureType *tileTexture = NULL;
+
+void InitTiledBackdrop(char *filename)
+{
+	tileTexture = FindTexture(filename);
+}
+
+int xTile = 5;
+int yTile = 4;
+float xScrollSpeed = 0.001;
+float yScrollSpeed = 0.0006;
+void DrawTiledBackdrop()
+{
+	int x,y;
+	RECT r;
+	float xRes = OVERLAY_X*4096;
+	float yRes = OVERLAY_Y*4096;
+	static float xScroll = 0;
+	static float yScroll = 0;
+
+	for(x = -1;x < xTile + 1;x++)
+	{
+		for(y = -1;y < yTile + 1;y++)
+		{
+			r.left = (x*xRes)/xTile + xScroll;
+			r.right = ((x+1)*xRes)/xTile + xScroll;
+			r.top = (y*yRes)/yTile + yScroll;
+			r.bottom = ((y+1)*yRes)/yTile + yScroll;
+
+			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
+		}
+	}
+	xScroll += (float)gameSpeed * xScrollSpeed;
+	if(xScroll > xRes/(float)xTile)
+		xScroll -= xRes/(float)xTile;
+	yScroll += (float)gameSpeed * yScrollSpeed;
+	if(yScroll > yRes/(float)yTile)
+		yScroll -= yRes/(float)yTile;
+}
+
+void FreeTiledBackdrop()
+{
+	tileTexture = NULL;
+}

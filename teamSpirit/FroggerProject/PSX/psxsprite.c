@@ -10,6 +10,7 @@
 #include "sprite.h"
 #include "layout.h"
 #include "maths.h"
+#include "textures.h"
 
 
 
@@ -400,4 +401,86 @@ void PrintSpriteOverlays ( char num )
 
 	}
 	// ENDFOR
+}
+
+TextureType *tileTexture = NULL;
+void InitTiledBackdrop(char *filename)
+{
+	tileTexture = FindTexture(filename);
+}
+
+int xTile = 5;
+int yTile = 4;
+int xScrollSpeed = 16;
+int yScrollSpeed = 9;
+void DrawTiledBackdrop()
+{
+	int x,y;
+	int			atbdx,atbdy, w,h;
+	POLY_FT4	*ft4;
+	int xRes = 512,yRes = PALMODE ? 256 : 240;
+	static int xScroll = 0;
+	static int yScroll = 0;
+
+	w = tileTexture->w-1;
+	h = tileTexture->h-1;
+
+	for(x = -1;x < xTile + 1;x++)
+	{
+		for(y = -1;y < yTile + 1;y++)
+		{
+
+			atbdx = (x*xRes)/xTile - xRes/2 + xScroll/8;
+			atbdy = (y*yRes)/yTile - yRes/2 + yScroll/8;
+
+			BEGINPRIM(ft4, POLY_FT4);
+			setPolyFT4(ft4);
+			ft4->x0 = atbdx;
+			ft4->y0 = atbdy;
+			ft4->x1 = atbdx + xRes/xTile;
+			ft4->y1 = atbdy;
+			ft4->x2 = atbdx;
+			ft4->y2 = atbdy + yRes/yTile;
+			ft4->x3 = atbdx + xRes/xTile;
+			ft4->y3 = atbdy + yRes/yTile;
+			ft4->r0 = 128;
+			ft4->g0 = 128;
+			ft4->b0 = 128;
+			ft4->u0 = tileTexture->u0;
+			ft4->v0 = tileTexture->v0;
+			ft4->u1 = tileTexture->u1;
+			ft4->v1 = tileTexture->v1;
+			ft4->u2 = tileTexture->u2;
+			ft4->v2 = tileTexture->v2;
+			ft4->u3 = tileTexture->u3;
+			ft4->v3 = tileTexture->v3;
+			ft4->tpage = tileTexture->tpage;
+			ft4->clut = tileTexture->clut;
+			ENDPRIM(ft4, 1023, POLY_FT4);
+
+
+
+/*
+
+			r.left = (x*xRes)/xTile + xScroll;
+			r.right = ((x+1)*xRes)/xTile + xScroll;
+			r.top = (y*yRes)/yTile + yScroll;
+			r.bottom = ((y+1)*yRes)/yTile + yScroll;
+
+			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
+*/
+		}
+	}
+	xScroll += FMul(gameSpeed,xScrollSpeed);
+	if(xScroll > (xRes/xTile)*8)
+		xScroll -= (xRes/xTile)*8;
+	yScroll += FMul(gameSpeed,yScrollSpeed);
+	if(yScroll > (yRes/yTile)*8)
+		yScroll -= (yRes/yTile)*8;
+
+}
+
+void FreeTiledBackdrop()
+{
+	tileTexture = NULL;
 }
