@@ -787,7 +787,7 @@ void DrawGraphics()
 	currCamSource[screenNum] = zero;
 	currCamTarget[screenNum] = inVec;
 	
-	if( gameState.mode == GAME_MODE && text3DList.numEntries )
+	if( text3DList.numEntries )
 	{
 		Calculate3DText( );
 		Print3DText( );
