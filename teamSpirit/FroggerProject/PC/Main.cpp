@@ -864,11 +864,14 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	GetRegistryInformation();
 	GetArgs(lpCmdLine);
 
+#pragma message("*** WinMain(): Copy protection disabled")
 #ifdef FINAL_MASTER
 	while (!FindFrogger2CD())
 	{
 		if (MessageBox(NULL,
-			"Please insert your Frogger2 CD!", "Frogger2",
+			"Please insert your Frogger2 CD!\n\n"
+			"NOTE: Copy protection is currently disabled; clicking cancel will proceed without a valid Frogger2 CD"
+			, "Frogger2",
 			MB_ICONEXCLAMATION|MB_RETRYCANCEL) == IDCANCEL)
 			break;
 
