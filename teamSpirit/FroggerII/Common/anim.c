@@ -381,6 +381,16 @@ void DamageNormal( int pl )
 		SetFXColour( fx, 255, 255, 255 );
 		fx->gravity = 0.1;
 	}
+	
+	// jump in air thing
+	if (!currPlatform[pl])
+	{
+		CalculateFrogJump(
+			&frog[pl]->actor->pos, &currTile[pl]->centre, &currTile[pl]->normal,
+			100, 50, pl);
+		destTile[pl] = currTile[pl];
+		player[pl].canJump = 0;
+	}
 }
 
 void DamageRunOver( int pl )
