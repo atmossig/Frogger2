@@ -192,7 +192,7 @@ void NetgameBegin()
 		msg = APPMSG_READY;
 		NetBroadcastUrgentMessage(&msg, 1);
 
-		multiHud.centreText->text = "Waiting for players...";	// LOCALISE
+		multiHud.centreText->text = GAMESTRING(STR_NET_WAITINGPLAYERS);
 	}
 	else
 	{
@@ -329,11 +329,14 @@ void NetgameRun()
 int WaitForGameReady()
 {
 	if (!hostReady)
+	{
+		multiHud.centreText->text = GAMESTRING(STR_NET_WAITINGHOST);
 		return 0;
+	}
 
 	if (!hostSync)
 	{
-		multiHud.centreText->text = "Synchronising...";	// LOCALISE		
+		multiHud.centreText->text = GAMESTRING(STR_NET_SYNCH);
 
 		SendPing();
 		return 0;
@@ -348,7 +351,7 @@ int WaitForGameReady()
 
 		utilPrintf("Net: synchronised with host okay\n");
 
-		multiHud.centreText->text = "Waiting for players...";	// LOCALISE
+		multiHud.centreText->text = GAMESTRING(STR_NET_WAITINGPLAYERS);
 	}
 
 	gameReady = true;
