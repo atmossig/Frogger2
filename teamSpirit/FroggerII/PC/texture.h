@@ -26,10 +26,14 @@ typedef struct
 typedef struct tTEXENTRY
 {
 	long CRC;
+	char name[32];
 	short *data;
 	struct tTEXENTRY *next;
 	LPDIRECTDRAWSURFACE surf;
 	D3DTEXTUREHANDLE hdl;
+	struct tTEXENTRY *nextFrame;
+	struct tTEXENTRY *cFrame;
+
 } TEXENTRY;
 
 extern TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];

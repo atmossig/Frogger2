@@ -342,13 +342,34 @@ BOOL LoadObjectBank(int num)
 			strcat (file,"haloween");
 			break;
 
-		case FRONTEND1_OBJ_BANK:
+		case FRONTEND_OBJ_BANK:
 			strcat(file,"title");
 			break;
 
+		case FRONTEND1_OBJ_BANK:
+			strcat(file,"start");
+			break;
+
+		case FRONTEND2_OBJ_BANK:
+			strcat(file,"levela");
+			break;
+
+		case FRONTEND3_OBJ_BANK:
+			strcat(file,"levelb");
+			break;
+
+		case FRONTEND4_OBJ_BANK:
+			strcat(file,"multisel");
+			break;
+
+		case FRONTEND5_OBJ_BANK:
+			strcat(file,"language");
+			break;
+
 		default:
-			dprintf"ERROR: %d is not a valid object bank\n", num));
-			return FALSE;
+			dprintf"ERROR: no object bank specified....\n"));
+			return 0;
+			break;
 	}
 
 	strcat (file,".dll");
@@ -368,14 +389,14 @@ BOOL LoadObjectBank(int num)
 	else
 	{
 		dprintf"Unable to load object bank %s\n", message));
-		return FALSE;
+		return 0;
 	}
 
 	while(objectBanks[++x].freePtr != 0);
 	if(x >= MAX_OBJECT_BANKS)
 	{
 		dprintf"ERROR:too many object banks\n"));
-		return FALSE;
+		return 0;
 	}
 
 //PC-CHANGE
@@ -394,8 +415,7 @@ BOOL LoadObjectBank(int num)
 	}
 	
 	objectBanks[x].numObjects = y;	
-
-	return TRUE;
+	return 1;
 }
 
 void FreeObjectBank(long i)

@@ -239,7 +239,19 @@ BOOL LoadCollision(int num)
 			break;
 		
 		case FRONTEND1_COL:
-			strcat(file,"title");
+			strcat(file,"start");
+			break;
+		case FRONTEND2_COL:
+			strcat(file,"levela");
+			break;
+		case FRONTEND3_COL:
+			strcat(file,"levelb");
+			break;
+		case FRONTEND4_COL:
+			strcat(file,"multisel");
+			break;
+		case FRONTEND5_COL:
+			strcat(file,"language");
 			break;
 
 		default:
@@ -485,7 +497,19 @@ BOOL LoadScenics (int num)
 			break;
 
 		case FRONTEND1_COL:
-			strcat(file,"title");
+			strcat(file,"start");
+			break;
+		case FRONTEND2_COL:
+			strcat(file,"levela");
+			break;
+		case FRONTEND3_COL:
+			strcat(file,"levelb");
+			break;
+		case FRONTEND4_COL:
+			strcat(file,"multisel");
+			break;
+		case FRONTEND5_COL:
+			strcat(file,"language");
 			break;
 
 		default:

@@ -137,24 +137,77 @@ TEXENTRY *GetTexEntryFromCRC (long CRC)
 	return NULL;
 }
 
+void AnimateTexturePointers(void)
+{
+	TEXENTRY *cEntry = texList,*tE;
+	while (cEntry)
+	{
+		if (cEntry->nextFrame)
+		{
+			tE = cEntry->cFrame->nextFrame; 
+			if (tE)
+				cEntry->cFrame = tE;
+			else
+				cEntry->cFrame = cEntry;
+		}
+
+		cEntry = cEntry->next;
+	}
+}
+
 void AddTextureToTexList(char *file, char *shortn, long finalTex)
 {
 	char mys[255];
 	short *dat;
-
-	TEXENTRY *newE = (TEXENTRY*)JallocAlloc (sizeof(TEXENTRY),NO,"txtur");
-
-	newE->next = texList;
-	
-	texList = newE;
+	TEXENTRY *newE;
 	
 	strcpy (mys,shortn);
 	strlwr (mys);
+	dprintf"%s\n",mys));
+	if (((shortn[0]>='0') && (shortn[0]<='9'))
+	 && ((shortn[1]>='0') && (shortn[1]<='9'))
+	 && (!((shortn[0]=='0') && (shortn[1]=='0'))))
+	{
+		TEXENTRY *cEntry = texList;
+		
+		newE = (TEXENTRY*)JallocAlloc (sizeof(TEXENTRY),NO,"txtur");
+		newE->next = NULL;
+		newE->nextFrame = NULL;
+
+		while (cEntry)
+		{
+			if (strcmp(&mys[3],&cEntry->name[3])==0)
+			{
+				if (cEntry->nextFrame)
+				{
+					TEXENTRY *tEn = cEntry->nextFrame;
+					while (tEn->nextFrame) tEn = tEn->nextFrame;
+					tEn->nextFrame = newE;
+				}
+				else
+					cEntry->nextFrame = newE;
+
+				cEntry = 0;
+			}
+			else
+				cEntry = cEntry->next;
+		}
+	}
+	else
+	{
+		newE = (TEXENTRY*)JallocAlloc (sizeof(TEXENTRY),NO,"txtur");
 	
+		newE->next = texList;
+		newE->nextFrame = NULL;
+
+		texList = newE;
+	}
+
+	strcpy (newE->name,mys);
 	newE->CRC  = UpdateCRC (mys);
-	
 	newE->data = GetGelfBmpDataAsShortPtr(file);
-	
+	newE->cFrame = newE;
+
 	if (newE->data)
 	{
 		if (((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
@@ -162,7 +215,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
 			if ( newE->surf )
 				newE->hdl = ConvertSurfaceToTexture(newE->surf);
-			
+				
 		}
 		else
 		{

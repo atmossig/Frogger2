@@ -88,11 +88,13 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			v = tOver->font->offset[letterID].v[Y];
 			
 			if (runHardware)
+			{
 				DrawAlphaSprite (x*RES_DIFF2,y*RES_DIFF2,0,tOver->font->height*RES_DIFF2,tOver->font->width*RES_DIFF2,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width-1)/256.0,
 				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,tOver->a/256.0);
-
+			}
+	
 			x += tOver->font->xSpacing[letterID];
 		}
 

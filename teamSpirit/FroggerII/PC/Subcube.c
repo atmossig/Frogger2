@@ -11,7 +11,6 @@
 #define F3DEX_GBI
 
 #include <ultra64.h>
-
 #include "incs.h"
 
 #define LODDist (700 * 700)
@@ -300,8 +299,7 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 
-		if (runHardware)
-			DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
+		DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
 	}
 }
 
@@ -1228,63 +1226,82 @@ void PCRenderObject (OBJECT *obj)
 			c3 = &(cols[v2a]);
 			
 			// Fill out D3DVertices...
-			vTemp = v;
-			
-			vTemp->specular = 0;
-			vTemp->sx = tV0->v[X];
-			vTemp->sy = tV0->v[Y];
-			vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
-			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
-			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
-			vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
-			
-			vTemp++;
-
-			vTemp->specular = 0;
-			vTemp->sx = tV1->v[X];
-			vTemp->sy = tV1->v[Y];
-			vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
-			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
-			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
-			vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
-			
-			vTemp++;
-
-			vTemp->specular = 0;
-			
-			vTemp->sx = tV2->v[X];
-			vTemp->sy = tV2->v[Y];
-			vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
-
-			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
-			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
-			vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
-			
-			x1on = BETWEEN(v[0].sx,0,SCREEN_WIDTH);
-			x2on = BETWEEN(v[1].sx,0,SCREEN_WIDTH);
-			x3on = BETWEEN(v[2].sx,0,SCREEN_WIDTH);
-			y1on = BETWEEN(v[0].sy,0,SCREEN_HEIGHT);
-			y2on = BETWEEN(v[1].sy,0,SCREEN_HEIGHT);
-			y3on = BETWEEN(v[2].sy,0,SCREEN_HEIGHT);
-
-			if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+			if (runHardware)
 			{
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
-				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
-				numFacesDrawn++;
+				vTemp = v;
+			
+				vTemp->specular = 0;
+				vTemp->sx = tV0->v[X];
+				vTemp->sy = tV0->v[Y];
+				vTemp->sz = (tV[v0].v[Z]) * 0.0005F;///2000;
+				vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
+				vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
+				vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
+			
+				vTemp++;
+
+				vTemp->specular = 0;
+				vTemp->sx = tV1->v[X];
+				vTemp->sy = tV1->v[Y];
+				vTemp->sz = (tV1->v[Z]) * 0.0005F;//2000;
+				vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
+				vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
+				vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
 				
-				if (runHardware)
-					DrawAHardwarePoly(v,3,facesON,3,tex->hdl);
+				vTemp++;
+
+				vTemp->specular = 0;
+				
+				vTemp->sx = tV2->v[X];
+				vTemp->sy = tV2->v[Y];
+				vTemp->sz = (tV2->v[Z]) * 0.0005F;///2000;
+
+				vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
+				vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
+				vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
+				
+				x1on = BETWEEN(v[0].sx,0,SCREEN_WIDTH);
+				x2on = BETWEEN(v[1].sx,0,SCREEN_WIDTH);
+				x3on = BETWEEN(v[2].sx,0,SCREEN_WIDTH);
+				y1on = BETWEEN(v[0].sy,0,SCREEN_HEIGHT);
+				y2on = BETWEEN(v[1].sy,0,SCREEN_HEIGHT);
+				y3on = BETWEEN(v[2].sy,0,SCREEN_HEIGHT);
+
+				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
+					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
+					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
+					numFacesDrawn++;
+					
+					DrawAHardwarePoly(v,3,facesON,3,tex->cFrame->hdl);
+				}
+				else
+				{
+					if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+					{
+						numFacesDrawn++;
+						Clip3DPolygon(v,tex->cFrame->hdl);
+					}
+				}
 			}
 			else
 			{
-				if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
-				{
-					numFacesDrawn++;
-					Clip3DPolygon(v,tex->hdl);
-				}
+				numFacesDrawn++;
+				DrawSoftwarePolygon (
+					tV0->v[X],tV0->v[Y],
+					(obj->mesh->faceTC[v0a].v[0]*0.000975F) * 32,
+					(obj->mesh->faceTC[v0a].v[1]*0.000975F) * 32,
+					
+					tV1->v[X],tV1->v[Y],
+					(obj->mesh->faceTC[v1a].v[0]*0.000975F) * 32,
+					(obj->mesh->faceTC[v1a].v[1]*0.000975F) * 32,
+
+					tV2->v[X],tV2->v[Y],
+					(obj->mesh->faceTC[v2a].v[0]*0.000975F) * 32,
+					(obj->mesh->faceTC[v2a].v[1]*0.000975F) * 32,
+					tex->data);
+							
 			}
-			
 		}
 
 		// Update our pointers

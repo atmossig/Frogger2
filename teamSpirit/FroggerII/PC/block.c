@@ -26,6 +26,8 @@
 #include "netchat.h"
 #include "software.h"
 
+void AnimateTexturePointers(void);
+
 #define DEBUG_FILE "C:\\frogger2.log"
 
 unsigned long actFrameCount,
@@ -618,8 +620,11 @@ void DrawGraphics()
 
 
 	// Actual stuff that draws
-	BeginDrawHardware();
-	
+	if (runHardware)
+		BeginDrawHardware();
+	else
+		SoftwareBeginFrame();
+
 	StartTimer(1,"Draw Actor List");
 
 //	XformActorList();
@@ -700,5 +705,11 @@ void DrawGraphics()
 		HoldTimers();
 		
 	ClearTimers();
-	EndDrawHardware();
+
+	if (runHardware)
+		EndDrawHardware();
+	else
+		SoftwareEndFrame();
+
+	AnimateTexturePointers();
 }

@@ -37,6 +37,7 @@ extern "C"
 {
 #include <ultra64.h>
 #include "incs.h"
+#include "software.h"
 
 long SCREEN_WIDTH=320;	//320
 long SCREEN_HEIGHT=240;	//240
@@ -1059,6 +1060,20 @@ void DirectXFlip(void)
 		dumpScreen = 0;
 	}
 	// ENDIF
+	
+	if (!runHardware)
+	{
+		long i,j;
+		DDSURFACEDESC ddsd;
+	
+		DDINIT(ddsd);
+		while (hiddenSrf->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	
+		for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
+			memcpy (&((short *)ddsd.lpSurface)[i],&screen[j],SCREEN_WIDTH*2);
+	
+		hiddenSrf->Unlock(ddsd.lpSurface);
+	}
 
 	// Flip the back buffer to the primary surface
 	if (!winMode)
@@ -1102,16 +1117,18 @@ void DirectXFlip(void)
 		
 	}
 
-	DDINIT(m);
-	m.dwFillColor = D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
-	while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
 	
 	if (runHardware)
 	{
 		DDINIT(m);
+		m.dwFillColor = D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
+		while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
+	
+		DDINIT(m);
 		m.dwFillDepth = -1;//D3DRGB(0,0,0);
 		while (srfZBuffer->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_DEPTHFILL,&m)!=DD_OK);
 	}
+
 	numFacesDrawn = 0;
 }
 
