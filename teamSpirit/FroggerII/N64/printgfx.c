@@ -191,7 +191,7 @@ Gfx polyNoZ_dl[] =
 	
 	gsDPSetCombineMode(G_CC_MOTIONBLUR,G_CC_MOTIONBLUR),
 
-	gsDPSetRenderMode(G_RM_AA_XLU_SURF,G_RM_AA_XLU_SURF2),
+	gsDPSetRenderMode(G_RM_XLU_SURF,G_RM_XLU_SURF2),
 	gsDPSetCycleType(G_CYC_1CYCLE),
 
 	gsSPTexture(0xffff,0xffff,0,G_TX_RENDERTILE,G_ON),
@@ -1152,61 +1152,143 @@ void PrintSprite(SPRITE *sprite)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: SetGrabData
+	Purpose			: Update vars in grabData from new flags
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void SetGrabData( )
+{
+	grabData.flags |= CALC_VTX;
+
+	if( grabData.flags & MOTION_BLUR )
+	{
+		grabData.maxTSize = grabData.tSize = 36;
+		grabData.xOff = 35;
+		grabData.yOff = 45;
+
+		if( grabData.flags & BLUR_INWARD )
+			grabData.zOff = 330;
+		else if( grabData.flags & BLUR_OUTWARD )
+			grabData.zOff = 302;
+		else
+			grabData.zOff = 316;
+
+		if( grabData.flags & BLUR_HEAVY )
+			grabData.alpha = 220;
+		else if( grabData.flags & BLUR_LIGHT )
+			grabData.alpha = 128;
+		else
+			grabData.alpha = 170;
+
+		grabData.vR = grabData.vG = grabData.vB = 0x80;
+
+		if( grabData.flags & TINT_RED )
+			grabData.vR = 0xB4;
+		else if( grabData.flags & TINT_GREEN )
+			grabData.vG = 0xB4;
+		else if( grabData.flags & TINT_BLUE )
+			grabData.vB = 0xB4;
+
+		grabData.pR = grabData.pG = grabData.pB = 0xff;
+		grabData.eR = grabData.eG = grabData.eB = 0x80;
+	}
+	if( grabData.flags & VERTEX_WODGE )
+	{
+		grabData.sinAmt = 3;
+		grabData.sinSpeed = 0.2;
+		grabData.flags |= DYNAMIC_VTX;
+	}
+	if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
+	{
+		grabData.maxScale = 0.5;
+		grabData.speedScale = 0.0005;
+		grabData.scale = 0;
+		grabData.flags |= DYNAMIC_VTX;
+	}
+	if( grabData.flags & MEZZOTINT ) // Requires one of the TILE_SHRINK defines to do anything
+	{
+		grabData.scale = 0.07;
+		grabData.maxScale = 0;
+		grabData.speedScale = 0;
+		grabData.flags |= DYNAMIC_VTX;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
 	Function		: DrawScreenGrab
 	Purpose			: Draws the texture array made in Screen2Texture
 	Parameters		: 
 	Returns			: 
 	Info			: 
 */
-void DrawScreenGrab( long flags )
+void DrawScreenGrab( unsigned long flags )
 {
 	QUATERNION q;
 	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
-	long x, y, xTex, v, x1, y1, x2, y2;
+	long x, y, xTex, v, x1, y1, x2, y2, tileScale;
+
+	flags = MOTION_BLUR;
 
 	if( !fsVerts )
 	{
-		grabData.flags = flags;
 		fsVerts = (Vtx *)JallocAlloc( sizeof(Vtx)*320, NO, "Vtx Array" );
 		vPtr = &fsVerts[0];
 		grab = scrTexGrab;
 
-		grabData.flags |= CALC_VTX;
-
-		if( grabData.flags & MOTION_BLUR )
-		{
-			grabData.tSize = 36;
-			grabData.xOff = 35;
-			grabData.yOff = 45;
-			grabData.zOff = 316;
-			grabData.alpha = 128;
-			grabData.vR = grabData.vG = grabData.vB = 0xff;
-			grabData.pR = grabData.pG = grabData.pB = 0xff;
-			grabData.eR = grabData.eG = grabData.eB = 0xff;
-		}
-		if( grabData.flags & VERTEX_WODGE )
-		{
-			grabData.sinAmt = 3;
-			grabData.sinSpeed = 0.2;
-
-			grabData.flags |= DYNAMIC_VTX;
-		}
+		flags &= ~NEW_FLAGS;
+		grabData.flags = flags;
+		SetGrabData( );
+	}
+	else if( flags & NEW_FLAGS )
+	{
+		flags &= ~NEW_FLAGS;
+		grabData.flags = flags;
+		SetGrabData( );
 	}
 
 	// Recalc vertices every frame
 	if( grabData.flags & CALC_VTX )
 	{
+		if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
+			tileScale = grabData.tSize * grabData.scale;
+		
+		if( grabData.flags & SHRINK_TO_POINT )
+		{
+			if( !grabData.tSize )
+				sShrink = 0;
+			else
+				grabData.tSize--;
+		}
+
 		for (y=0; y<8; y++)
 			for (x=0; x<10; x++)
 			{
-				v = (x+(y*10))*4;
-				
+				v = (x+(y*10))<<2;
+
 				x1 = ((5-x)*grabData.tSize)-grabData.xOff;
 				y1 = ((4-y)*grabData.tSize)-grabData.yOff;
-
+				
 				x2 = ((6-x)*grabData.tSize)-grabData.xOff;
 				y2 = ((5-y)*grabData.tSize)-grabData.yOff;
-
+				
+				if( (grabData.flags & TILE_SHRINK_HORZ) || (grabData.flags & TILE_SHRINK_VERT) )
+				{
+					if( grabData.flags & TILE_SHRINK_HORZ )
+					{
+						x2 -= tileScale;
+						x1 += tileScale;
+					}
+					if( grabData.flags & TILE_SHRINK_VERT )
+					{
+						y2 -= tileScale;
+						y1 += tileScale;
+					}
+					if (grabData.scale<grabData.maxScale)
+						grabData.scale += grabData.speedScale;
+				}
+				
 				if( grabData.flags & VERTEX_WODGE )
 				{
 					if (x!=0)
@@ -1300,7 +1382,7 @@ void Screen2Texture( )
 	{
 		while( x < SCREEN_WD )
 		{
-			lmemcpy( &grab[xTex+yPos], &screen[x+y], 16 );
+			lmemcpy( (unsigned long *)&grab[xTex+yPos], (unsigned long *)&screen[x+y], 16 );
 			x += 32;
 			xTex += 1024;
 		}
