@@ -667,9 +667,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	float t,t2,h;
 	unsigned long tiledir;
 	
-	// clear movement request flags
-	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
-								FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR);
+/*	TODO: check if this is actually necessary
 
 //	if( tongue[pl].flags & TONGUE_BEINGUSED)
 //		RemoveFrogTongue(pl);
@@ -685,12 +683,13 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		if(currPlatform[pl]->flags & PLATFORM_NEW_FOLLOWPATH)
 			player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 	}
+*/
 
 	tiledir = dir;
 	dest = GetNextTile(&tiledir, pl);
 
-	// clear all 'wanting movement' flags
-	player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
+	// clear all movement flags
+	player[pl].frogState &= ~(FROGSTATUS_ALLHOPFLAGS | FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM);
 
 	if (!dest)
 	{
@@ -772,6 +771,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	from = currTile[pl];
 	destTile[pl] = dest;
 	currPlatform[pl] = NULL;
+	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 
 	// If we're just hopping, check if there's a platform to jump to
 	// This should help fix tile->platform and platform->platform jumping

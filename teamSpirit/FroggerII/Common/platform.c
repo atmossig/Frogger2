@@ -56,7 +56,9 @@ PLATFORMLIST platformList;								// the platform list
 PLATFORM *destPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
 PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
 
-PLATFORM *nearestPlatform[MAX_FROGS];	// platform nearest to the frog
+/*	Note! This array is now only a handy helper for the hopping *to platform* code
+	Don't try to use it to find the actual nearest platform, cause it isn't! */
+PLATFORM *nearestPlatform[MAX_FROGS];
 float nearestPlatDist[MAX_FROGS];
 
 float PLATFORM_NEAREST_DIST = 200.0f;	// radius in which to check for nearest platform
@@ -122,6 +124,7 @@ void UpdatePlatforms()
 		// Sphere restores 2 D12 HP to all sentients within 10 metres
 		
 		// But I digress.
+
 		nearestPlatDist[pl] = (PLATFORM_NEAREST_DIST*PLATFORM_NEAREST_DIST);	
 	}
 
@@ -157,7 +160,9 @@ void UpdatePlatforms()
 			float dist;
 
 			// don't include the *current* plat in the check
-			if (cur == currPlatform[pl]) continue;	
+			// and only consider platforms in the dest tile?? (TODO: debug!)
+
+			if (cur->inTile[0] != destTile[pl] || cur == currPlatform[pl]) continue;
 
 			dist = DistanceBetweenPointsSquared(&cur->pltActor->actor->pos, &frog[pl]->actor->pos);
 			if (dist < nearestPlatDist[pl])
