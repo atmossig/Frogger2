@@ -512,7 +512,7 @@ void RunGameLoop (void)
 		gameIsOver = 0;
 		levelIsOver = 0;
 
-		if (player[0].worldNum == WORLDID_LANGUAGE)
+		if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
 				frogFacing[0] = 3;
@@ -600,7 +600,7 @@ void RunGameLoop (void)
 		fadingLogos = 1;
 
 
-	if	((player[0].worldNum == WORLDID_LANGUAGE) &&
+	if	((player[0].worldNum == WORLDID_FRONTEND) &&
 	     (player[0].levelNum == LEVELID_FRONTEND1) &&
 		 (fadingLogos))
 	{

@@ -115,14 +115,20 @@ void RunTitleScreen()
 			switch(currentSelection)
 			{
 				case 0:
-					// start game
+					player[0].worldNum = WORLDID_FRONTEND;
+					player[0].levelNum = LEVELID_FRONTEND1;
+
 					FreeAllLists();
-					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+					InitLevel(player[0].worldNum,player[0].levelNum);
+
 					gameState.mode = INGAME_MODE;
+						
+					if(gameState.multi != MULTIREMOTE)
+						gameState.multi = SINGLEPLAYER;
+
+					NUM_FROGS = 1;
 					frameCount = 0;
 					lastbutton = 0;
-					NUM_FROGS = 1;
-					gameState.multi = SINGLEPLAYER;
 					break;
 
 				case 1:
