@@ -127,8 +127,8 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 		WS_POPUP,
 		0,
 		0,
-		640, 
-		480, 
+		GetSystemMetrics(SM_CXSCREEN), 
+		GetSystemMetrics(SM_CYSCREEN), 
         NULL,				// parent window
         NULL,				// menu handle
         hInstance,			// program handle
