@@ -19,12 +19,28 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	POLY_F4		*f4;
 	POLY_FT4	*ft4;
 	TextureType	*tPtr;
+	uchar alpha,r,g,b;
 
 	atbdx = (spr->xPos/8)-256;
 	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
-	tPtr = spr->frames[0];
+	tPtr = spr->tex;
 
-	if(spr->frames[0] == 0)
+	if(spr->a == 255)
+	{
+		alpha = 0;
+		r = (spr->r * 128) >> 8;
+		g = (spr->g * 128) >> 8;
+		b = (spr->b * 128) >> 8;
+	}
+	else
+	{
+		alpha = 2;
+		r = (spr->r * spr->a) >> 9;
+		g = (spr->g * spr->a) >> 9;
+		b = (spr->b * spr->a) >> 9;
+	}
+
+	if(spr->tex == 0)
 	{
 		BEGINPRIM(f4,POLY_F4);
 		setPolyF4(f4);
@@ -67,9 +83,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			ft4->y2 = atbdy+h;
 			ft4->x3 = atbdx+w;
 			ft4->y3 = atbdy+h;
-			ft4->r0 = ( spr->r * 128 ) >> 8;
-			ft4->g0 = ( spr->g * 128 ) >> 8;
-			ft4->b0 = ( spr->b * 128 ) >> 8;
+			ft4->r0 = r;//( spr->r * 128 ) >> 8;
+			ft4->g0 = g;//( spr->g * 128 ) >> 8;
+			ft4->b0 = b;//( spr->b * 128 ) >> 8;
 			ft4->u0 = tPtr->u0;
 			ft4->v0 = tPtr->v0;
 			ft4->u1 = tPtr->u1;
@@ -90,6 +106,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 				ft4->tpage |= 64;
 			}
 			ft4->clut = tPtr->clut;
+			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
+			if(alpha)
+				SETSEMIPRIM(ft4, alpha);
 			ENDPRIM(ft4, 1, POLY_FT4);
 		}
 		else
@@ -104,9 +123,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			ft4->y2 = atbdy + (spr->height/(17-PALMODE));
 			ft4->x3 = atbdx + (spr->width/8);
 			ft4->y3 = atbdy + (spr->height/(17-PALMODE));
-			ft4->r0 = ( spr->r * 128 ) >> 8;
-			ft4->g0 = ( spr->g * 128 ) >> 8;
-			ft4->b0 = ( spr->b * 128 ) >> 8;
+			ft4->r0 = r;//( spr->r * 128 ) >> 8;
+			ft4->g0 = g;//( spr->g * 128 ) >> 8;
+			ft4->b0 = b;//( spr->b * 128 ) >> 8;
 			ft4->u0 = tPtr->u0;
 			ft4->v0 = tPtr->v0;
 			ft4->u1 = tPtr->u1;
@@ -127,6 +146,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 				ft4->tpage = tPtr->tpage | 64;
 			}
 			ft4->clut = tPtr->clut;
+			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
+			if(alpha)
+				SETSEMIPRIM(ft4, alpha);
 			ENDPRIM(ft4, 1, POLY_FT4);
 		}
 	}

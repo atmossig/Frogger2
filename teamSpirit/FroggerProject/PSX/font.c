@@ -164,8 +164,8 @@ static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, uns
 	setXYWH(ft4, x,y, tex->w,tex->h-1);
 	setRGB0(ft4, r,g,b);
 	setUVWH(ft4, tex->x,tex->y, tex->w-1, tex->h-1);
-	setSemiTrans(ft4, alpha);
 	ft4->tpage = tex->tpage;
+	setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
 	if(alpha)
 		SETSEMIPRIM(ft4, alpha);
 	ft4->clut = tex->clut;
