@@ -344,7 +344,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
-				if KEYPRESS(DIK_F10)
+				if( KEYPRESS(DIK_F8) )
+					fog.mode = !(fog.mode);
+
+				if( KEYPRESS(DIK_F10) )
 				{
 					editorOk = !editorOk; 
 					keyDelay = 20;
