@@ -264,5 +264,35 @@ void RunGameOverSequence ( void )
 	}
 }
 
+void DisableHUD( )
+{
+	long i;
+	livesTextOver->oa = livesTextOver->a;
+	scoreTextOver->oa = scoreTextOver->a;
+	timeTextOver->oa = timeTextOver->a;
 
+	livesTextOver->a = 0;
+	scoreTextOver->a = 0;
+	timeTextOver->a = 0;
+
+	for ( i = 0; i < 3; i++ )
+		sprHeart[i]->draw = 0;
+
+	for(i=0; i<numBabies; i++)
+		babyIcons[i]->draw = 0;
+}
+
+void EnableHUD( )
+{
+	long i;
+	livesTextOver->a = livesTextOver->oa;
+	timeTextOver->a = timeTextOver->oa;
+	scoreTextOver->a = scoreTextOver->oa;
+
+	for ( i = 0; i < 3; i++ )
+		sprHeart[i]->draw = 1;
+
+	for(i=0; i<numBabies; i++)
+		babyIcons[i]->draw = 1;
+}
 
