@@ -84,233 +84,233 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		case GARDENMULTI_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\GARDEN\\GARDENMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\GARDEN\\GARDEN1.PIL" );
+				sprintf ( BFFfileName, "GARDENMULTI.BFF" );
+				sprintf ( PILfileName, "GARDEN1.PIL" );
 			break;
 
 		case ANCIENTLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.PIL" );
+				sprintf ( BFFfileName, "ANCIENTS1.BFF" );
+				sprintf ( PILfileName, "ANCIENTS1.PIL" );
 			break;
 
 		case ANCIENTLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTS2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTS2.PIL" );
+				sprintf ( BFFfileName, "ANCIENTS2.BFF" );
+				sprintf ( PILfileName, "ANCIENTS2.PIL" );
 			break;
 
 		case ANCIENTBOSS_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTSBOSS.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTSBOSS.PIL" );
+				sprintf ( BFFfileName, "ANCIENTSBOSS.BFF" );
+				sprintf ( PILfileName, "ANCIENTSBOSS.PIL" );
 			break;
 
 		case ANCIENTMULTI_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTSMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTSMULTI.PIL" );
+				sprintf ( BFFfileName, "ANCIENTSMULTI.BFF" );
+				sprintf ( PILfileName, "ANCIENTSMULTI.PIL" );
 			break;
 
 		case SPACELEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\SPACE\\SPACE1.PIL" );
+				sprintf ( BFFfileName, "SPACE1.BFF" );
+				sprintf ( PILfileName, "SPACE1.PIL" );
 			break;
 
 		case SPACELEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\SPACE\\SPACE2.PIL" );
+				sprintf ( BFFfileName, "SPACE2.BFF" );
+				sprintf ( PILfileName, "SPACE2.PIL" );
 			break;
 
 		case SPACEBOSS_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE3.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\SPACE\\SPACE3.PIL" );
+				sprintf ( BFFfileName, "SPACE3.BFF" );
+				sprintf ( PILfileName, "SPACE3.PIL" );
 			break;
 
 		case CITYLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY1.PIL" );
+				sprintf ( BFFfileName, "CITY1.BFF" );
+				sprintf ( PILfileName, "CITY1.PIL" );
 			break;
 
 		case CITYLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY2.PIL" );
+				sprintf ( BFFfileName, "CITY2.BFF" );
+				sprintf ( PILfileName, "CITY2.PIL" );
 			break;
 
 		case CITYLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY3.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
+				sprintf ( BFFfileName, "CITY3.BFF" );
+				sprintf ( PILfileName, "CITY3.PIL" );
 			break;
 
 		case CITYMULTI_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITYMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
+				sprintf ( BFFfileName, "CITYMULTI.BFF" );
+				sprintf ( PILfileName, "CITY3.PIL" );
 			break;
 
 		case SUBTERRANEANLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB1.PIL" );
+				sprintf ( BFFfileName, "SUB1.BFF" );
+				sprintf ( PILfileName, "SUB1.PIL" );
 			break;
 		
 		case SUBTERRANEANLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB2.PIL" );
+				sprintf ( BFFfileName, "SUB2.BFF" );
+				sprintf ( PILfileName, "SUB2.PIL" );
 			break;
 
 		case SUBTERRANEANBOSS_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB4.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB4.PIL" );
+				sprintf ( BFFfileName, "SUB4.BFF" );
+				sprintf ( PILfileName, "SUB4.PIL" );
 			break;
 
 		case LABORATORYLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LAB1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LAB1.PIL" );
+				sprintf ( BFFfileName, "LAB1.BFF" );
+				sprintf ( PILfileName, "LAB1.PIL" );
 			break;
 
 		case LABORATORYLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LAB2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LAB2.PIL" );
+				sprintf ( BFFfileName, "LAB2.BFF" );
+				sprintf ( PILfileName, "LAB2.PIL" );
 			break;
 
 		case LABORATORYBOSSA_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABBOSS.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LABBOSS.PIL" );
+				sprintf ( BFFfileName, "LABBOSS.BFF" );
+				sprintf ( PILfileName, "LABBOSS.PIL" );
 			break;
 
 		case LABORATORYMULTI1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI" );
+				sprintf ( BFFfileName, "LABMULTI.BFF" );
+				sprintf ( PILfileName, "LABMULTI" );
 			break;
 
 		case LABORATORYMULTI2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI2.PIL" );
+				sprintf ( BFFfileName, "LABMULTI2.BFF" );
+				sprintf ( PILfileName, "LABMULTI2.PIL" );
 			break;
 
 		case LABORATORYMULTI3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI3.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI3.PIL" );
+				sprintf ( BFFfileName, "LABMULTI3.BFF" );
+				sprintf ( PILfileName, "LABMULTI3.PIL" );
 			break;
 
 		case HALLOWEENLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN1.PIL" );
+				sprintf ( BFFfileName, "HALLOWEEN1.BFF" );
+				sprintf ( PILfileName, "HALLOWEEN1.PIL" );
 			break;
 
 		case HALLOWEENLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN2.PIL" );
+				sprintf ( BFFfileName, "HALLOWEEN2.BFF" );
+				sprintf ( PILfileName, "HALLOWEEN2.PIL" );
 			break;
 
 		case HALLOWEENLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN3.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN3.PIL" );
+				sprintf ( BFFfileName, "HALLOWEEN3.BFF" );
+				sprintf ( PILfileName, "HALLOWEEN3.PIL" );
 			break;
 
 		case HALLOWEENBOSS_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSS.BFF");
-				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSS.PIL" );
+				sprintf ( BFFfileName, "HALLOBOSS.BFF");
+				sprintf ( PILfileName, "HALLOBOSS.PIL" );
 			break;
 
 
 		case HALLOWEENBOSSB_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSSB.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSSB.PIL" );
+				sprintf ( BFFfileName, "HALLOBOSSB.BFF" );
+				sprintf ( PILfileName, "HALLOBOSSB.PIL" );
 			break;
 
 		case RETROLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO1.BFF" );
+				sprintf ( BFFfileName, "RETRO1.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO2.BFF" );
+				sprintf ( BFFfileName, "RETRO2.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO3.BFF" );
+				sprintf ( BFFfileName, "RETRO3.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV4_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO4.BFF" );
+				sprintf ( BFFfileName, "RETRO4.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV5_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO5.BFF" );
+				sprintf ( BFFfileName, "RETRO5.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV6_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO6.BFF" );
+				sprintf ( BFFfileName, "RETRO6.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV7_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO7.BFF" );
+				sprintf ( BFFfileName, "RETRO7.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV8_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO8.BFF" );
+				sprintf ( BFFfileName, "RETRO8.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV9_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO9.BFF" );
+				sprintf ( BFFfileName, "RETRO9.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV10_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO10.BFF" );
+				sprintf ( BFFfileName, "RETRO10.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI2.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI2.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI3.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI3.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI4_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI4.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI4.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI5_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI5.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI5.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI6_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI6.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI6.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI7_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI7.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI7.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI8_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI8.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI8.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI9_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI9.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI9.BFF" );
 				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI10_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI10.BFF" );
+				sprintf ( BFFfileName, "RETROMULTI10.BFF" );
 //				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
@@ -323,12 +323,12 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		case FRONTEND2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\TITLE\\LEVEL.BFF" );
+				sprintf ( BFFfileName, "LEVEL.BFF" );
 			break;
 
 		case FRONTEND4_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\TITLE\\TRAINING.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\TITLE\\TRAIN.PIL" );
+				sprintf ( BFFfileName, "TRAINING.BFF" );
+				sprintf ( PILfileName, "TRAIN.PIL" );
 			break;
 
 		default:
