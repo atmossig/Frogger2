@@ -40,6 +40,26 @@ typedef struct TAGTRANSCAMERA
 
 } TRANSCAMERA;
 
+// ------------- Camera boxes ----------------
+
+typedef struct
+{
+	VECTOR	normal;
+	float	k;
+	unsigned long status;
+} CAM_PLANE;
+
+typedef struct
+{
+	int numPlanes;
+	CAM_PLANE *planes;
+} CAM_BOX;
+
+typedef struct
+{
+	int numBoxes;
+	CAM_BOX *boxes;
+} CAM_BOX_LIST;
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
@@ -73,6 +93,8 @@ extern char		fixedDir;
 extern char		fixedPos;
 extern char		fixedUp;
 extern char		firstPerson;
+
+extern CAM_BOX_LIST cameraBoxes;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 

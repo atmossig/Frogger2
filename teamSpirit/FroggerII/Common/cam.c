@@ -67,6 +67,51 @@ long prevCamFacing = 0;
 
 float FindMaxInterFrogDistance( );
 
+CAM_BOX_LIST cameraBoxes;
+
+float cam_edge_spacing = 100;
+
+/*	--------------------------------------------------------------------------------
+	Function		: CameraBoundPosition
+	Purpose			: limits a vector to a camera space, with edge padding
+	Parameters		: VECTOR *, CAM_BOX *, float
+	Returns			: 
+*/
+
+int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge)
+{
+	int p;
+	float dist;
+	CAM_PLANE *plane;
+	VECTOR a, adjustment;
+	int count = 0;
+
+	if (!box)
+		return 0;
+
+	plane = box->planes;
+
+	for (p = box->numPlanes; p; p--, plane++)
+	{
+		dist = DotProduct(v, &plane->normal) - plane->k - edge;
+
+		if (dist < 0)
+		{
+			SetVector(&a, &plane->normal);
+			ScaleVector(&a, -dist);
+			AddToVector(v, &a);
+			count++;
+		}
+	}
+
+/*	if (count)
+	{
+		ScaleVector(&adjustment, 1.0f/count);
+		AddToVector(v, &adjustment);
+	}*/
+
+	return count;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddTransCamera
@@ -213,7 +258,6 @@ void FreeTransCameraList()
 
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: CameraLookAtFrog
 
 	Purpose		:
@@ -233,9 +277,18 @@ void CameraLookAtFrog(void)
 		{
 			if( player[i].healthPoints )
 			{
-				afx += frog[i]->actor->pos.v[0];
-				afy += frog[i]->actor->pos.v[1];
-				afz += frog[i]->actor->pos.v[2];
+				if (currPlatform[i])
+				{
+					afx += currPlatform[i]->pltActor->actor->pos.v[0];
+					afy += currPlatform[i]->pltActor->actor->pos.v[1];
+					afz += currPlatform[i]->pltActor->actor->pos.v[2];
+				}
+				else
+				{
+					afx += currTile[i]->centre.v[0];
+					afy += currTile[i]->centre.v[1];
+					afz += currTile[i]->centre.v[2];
+				}
 				l++;
 			}
 
@@ -398,15 +451,14 @@ void SlurpCamPosition(long cam)
 
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: UpdateCameraPosition
-
-	Purpose		:
+	Purpose		: updates the position of the camera, and, er, does some other stuff
 	Parameters	: (void)
 	Returns		: void 
 */
 void UpdateCameraPosition(long cam)
 {
+
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
@@ -420,13 +472,18 @@ void UpdateCameraPosition(long cam)
 		afx = afy = afz = 0;
 		afx2 = afy2 = afz2 = 0;
 		l=0;
+
+		// Multiplier here should probably be related to tan(FOV) somehow..
+
+		CameraBoundPosition(&camTarget[0], &cameraBoxes.boxes[0], cam_edge_spacing);
+
 		for (i=0; i<NUM_FROGS; i++)
 		{
 			if( player[i].healthPoints )
 			{
-				afx += frog[i]->actor->pos.v[0];
-				afy += frog[i]->actor->pos.v[1];
-				afz += frog[i]->actor->pos.v[2];
+				afx += camTarget[0].v[0]; //frog[i]->actor->pos.v[0];
+				afy += camTarget[0].v[1]; //frog[i]->actor->pos.v[1];
+				afz += camTarget[0].v[2]; //frog[i]->actor->pos.v[2];
 
 				if (fixedUp)
 				{
@@ -482,11 +539,12 @@ void UpdateCameraPosition(long cam)
 			afz2/=l;
 		}
 
+		camSource[0].v[0] = afx+afx2+afx3;
+		camSource[0].v[1] = afy+afy2+afy3;
+		camSource[0].v[2] = afz+afz2+afz3;
+/*
 		if (idleCamera)
 		{
-			camSource[0].v[0] = afx+afx2+afx3;
-			camSource[0].v[1] = afy+afy2+afy3;
-			camSource[0].v[2] = afz+afz2+afz3;
 		}
 		else
 		{
@@ -494,9 +552,9 @@ void UpdateCameraPosition(long cam)
 			camSource[0].v[1] = afy+afy2+afy3+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
 			camSource[0].v[2] = afz+afz2+afz3+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
 		}
+*/
 
-		
-
+		CameraBoundPosition(&camSource[0], &cameraBoxes.boxes[0], cam_edge_spacing * 0.95);
 	}
 
 	if (fixedUp)
@@ -508,6 +566,9 @@ void UpdateCameraPosition(long cam)
 
 	SlurpCamPosition(0);
 	
+	// edge spacing should probably related to tan(FOV/2)
+	cam_edge_spacing = DistanceBetweenPoints(&currCamSource[0], &currCamTarget[0]) * 0.75f;
+
 	if (initialCamera)
 	{
 		
