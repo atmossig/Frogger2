@@ -66,6 +66,7 @@ extern int editorOk;
 extern long pFrameModifier;
 extern char lButton, rButton;
 extern char baseDirectory[MAX_PATH];
+extern char cdromDrive[4];
 extern char outputMessageBuffer[256];
 extern long keyInput;
 extern long drawLandscape;
