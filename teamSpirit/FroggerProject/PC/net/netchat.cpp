@@ -77,6 +77,8 @@ void StartPlayers(HWND hDlg)
 		msg.players[s].dpid = netPlayerList[s].dpid;
 		msg.players[s].character = s;
 		msg.players[s].flags = 0;
+
+		player[s].character = s;
 	}
 
 	int level;
@@ -94,19 +96,22 @@ void StartPlayers(HWND hDlg)
 
 	NetBroadcastUrgentMessage(&msg, sizeof(msg));
 
-	player[0].character = 0;
 	player[0].worldNum = msg.world;
 	player[0].levelNum = msg.level;
 }
 
 void SetupPlayers(MSG_GAMESETUP *msg)
 {
-	for (int s=0; s<4; s++)
+	int pl, i;
+
+	for (pl=0; pl<4; pl++)
 	{
-		if (msg->players[s].dpid == netPlayerList[s].dpid)
-		{
-			player[s].character = msg->players[s].character;
-		}
+		for (i=0; i<4; i++)
+			if (msg->players[pl].dpid == netPlayerList[i].dpid)
+			{
+				player[pl].character = msg->players[i].character;
+				break;
+			}
 	}
 
 	player[0].worldNum = msg->world;

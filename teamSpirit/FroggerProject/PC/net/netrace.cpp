@@ -121,6 +121,9 @@ int NetRaceCountdown()
 			PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
 
 			player[0].canJump = 1;
+			
+			// Reset countdown for next time
+			countdown = 4;
 		}
 
 		return 0;
@@ -278,7 +281,7 @@ int NetRaceCheckWin()
 			mpl[winner].wins++;
 		}
 
-		GTInit( &endTimer, 10 );
+		GTInit( &endTimer, 2 );
 		controlCamera = 1;
 
 		return 1;

@@ -32,7 +32,6 @@ enum APPMSGTYPE
 	APPMSG_READY,		// this player is ready (synched etc.)
 	APPMSG_HOSTREADY,	// the host is ready to sync
 	APPMSG_DEATH,		// this player was deaded
-	APPMSG_PLAYERNUM,	// you are player (x) - sent by host only
 
 	GAMEMSG_START
 };

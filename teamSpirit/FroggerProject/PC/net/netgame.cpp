@@ -105,39 +105,6 @@ void OnDeath(NETPLAYER *player);
 
 // ---------------------------------------------------------------------------------
 
-/*
-here's a little experiment - the host sorts the players by dpid and assigns a start tile number to
-each player. We want to do this when STARTING THE GAME and pass all the character data around at the
-same time so InitLevel sets everything up properly. - ds
-*/
-void SortOutPlayerNumbers()
-{
-	int s, pl, dpid;
-	int start[4] = { -1, -1, -1, -1 };
-
-	start[0] = dpidLocalPlayer;
-
-	for (s=1; s<NUM_FROGS; s++)
-	{
-		dpid = 0xFFFFFFFF;
-
-		for (pl=1; pl<NUM_FROGS; pl++)
-		{
-			if (start[pl] < 0 && netPlayerList[pl].dpid < dpid)
-			{
-				start[pl] = s;
-				dpid = netPlayerList[pl].dpid;
-			}
-		}
-	}
-
-	for (pl=1; pl<NUM_FROGS; pl++)
-	{
-		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
-		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
-	}
-}
-
 /*	--------------------------------------------------------------------------------
 	Function		: NetgameStartGame
 	Purpose			: starts a network game; for now, always a race
@@ -176,11 +143,6 @@ void NetgameStartGame()
 	GTInit( &modeTimer, 1 );
 	InitLevel(player[0].worldNum, player[0].levelNum);
 
-	for (pl= isHost?1:0; pl<NUM_FROGS; pl++)
-	{
-		frog[pl]->draw = 0;
-	}
-	
 	netMessage = CreateAndAddTextOverlay(2048, 2048, "Waiting for players", YES, (char)255, font, TEXTOVERLAY_SHADOW);
 
 	if (isHost)
@@ -283,7 +245,12 @@ void NetgameRun()
 		player[0].inputPause = 0;
 	}
 	else
+	{
+		gameReady = false;
+		hostSync = isHost;
+
 		GameLoop();
+	}
 }
 
 
@@ -411,12 +378,6 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 
 	switch (*(unsigned char*)data)
 	{
-	case APPMSG_PLAYERNUM:	// See the remark at the top of the file; this is a little test
-		gTStart[0] = gTStart[((UBYTE*)data)[1]];
-		SetFroggerStartPos(gTStart[0], 0);
-		frog[0]->draw = 1;
-		break;
-
 	case APPMSG_UPDATE:
 		OnUpdate((LPMSG_UPDATEGAME)data, player);
 		break;
