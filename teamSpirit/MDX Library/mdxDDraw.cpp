@@ -3,6 +3,7 @@
 #include <ddraw.h>
 #include <d3d.h>
 #include <math.h>
+#include <stdio.h>
 #include "mgeReport.h"
 #include "mdxDDraw.h"
 #include "mdxD3D.h"
