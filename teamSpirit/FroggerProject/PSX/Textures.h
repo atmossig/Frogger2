@@ -22,8 +22,8 @@ extern TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 typedef struct _TEXTUREANIM
 {
 	struct _TEXTUREANIM *next, *prev;			// ptr to next / prev platform
-	int numFrames;
-	int waitTime;
+	unsigned short numFrames, frame;
+	unsigned long lastTime;
 	char txtName[20];
 	TextureAnimType *animation;
 } TEXTUREANIM;

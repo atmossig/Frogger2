@@ -160,7 +160,7 @@ void LoadTextureBank ( int textureBank )
 	// ENDFOR*/
 }
 
-void LoadTextureAnimBank ( int textureBank )
+void LoadTextureAnimBank( int textureBank )
 {
 	TextureType *dummyTexture;
 	int fileLength, counter, counter1, numframes, waitTime;
@@ -174,55 +174,17 @@ void LoadTextureAnimBank ( int textureBank )
 
 	switch ( textureBank )
 	{
-		case GARDEN_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" );
-			break;
-
-		case ANCIENT_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" );
-			break;
-
-		case SPACE_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\SPACE.TIT" );
-			break;
-
-	//	case CITY_TEX_BANK:
-	//			sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
-	//		break;
-
-		case SUBTERRANEAN_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\SUB.TIT" );
-			break;
-
-		case LABORATORY_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\LAB.TIT" );
-			break;
-
-		case HALLOWEEN_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" );
-			break;
-
-		case SUPERRETRO_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\RETRO.TIT" );
-			break;
-
-//		case FRONTEND_TEX_BANK:
-//				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
-//			break;
-
-		case TITLES_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\TITLES.TIT" );
-			break;
-
-		case INGAMEGENERIC_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" );
-			break;
-
-		default:
-			return;
-			break;
+		case GARDEN_TEX_BANK: sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" ); break;
+		case ANCIENT_TEX_BANK: sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" ); break;
+		case SPACE_TEX_BANK: sprintf ( titFileName, "TEXTURES\\SPACE.TIT" ); break;
+		case SUBTERRANEAN_TEX_BANK: sprintf ( titFileName, "TEXTURES\\SUB.TIT" ); break;
+		case LABORATORY_TEX_BANK: sprintf ( titFileName, "TEXTURES\\LAB.TIT" ); break;
+		case HALLOWEEN_TEX_BANK: sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" ); break;
+		case SUPERRETRO_TEX_BANK: sprintf ( titFileName, "TEXTURES\\RETRO.TIT" ); break;
+		case TITLES_TEX_BANK: sprintf ( titFileName, "TEXTURES\\TITLES.TIT" ); break;
+		case INGAMEGENERIC_TEX_BANK: sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" ); break;
+		default: return;
 	}
-	// ENDSWITCH - textureBank
 
 	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
 
@@ -237,41 +199,24 @@ void LoadTextureAnimBank ( int textureBank )
 	{
 		DR_MOVE *siMove;
 		RECT moveRect;
+
 		numframes = *p;	p++;
 		crc = *p; p++;
 
 		destCrc = crc;
-
 		textureAnim = CreateTextureAnimation( crc, numframes );
 
-
 		if ( textureAnim->animation->dest->h == 64 )
-		{
 			sprintf ( dummyString, "64DUMMY%d", numUsedDummys64++ );
-		}
 		else
-		{
 			sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
-		}
-		// ENDIF
-
 
 		dummyCrc = utilStr2CRC ( dummyString );
 		dummyTexture = textureFindCRCInAllBanks ( dummyCrc );
 
 		if ( !dummyTexture )
-		{
 			utilPrintf("Cound Not Find Dummy Texture....\n");
-
-			//return NULL;
-		}
-		// ENDIF
 		
-
-		//moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
-		//moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
-		//moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
-		//moveRect.h = textureAnim->animation->dest->h;
 		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
 		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
 		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
@@ -301,11 +246,7 @@ void LoadTextureAnimBank ( int textureBank )
 			else
 				AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
 		}
-		// ENDFOR
-		//froggerShowVRAM(1);
 	}
-	// ENDFOR
-	//froggerShowVRAM(1);
 }
 
 void FreeTextureBank ( TextureBankType *textureBank )
@@ -530,13 +471,12 @@ TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 		utilPrintf ( "Could Not Malloc Texture Anim.\n" );
 		return NULL;
 	}
-	// ENDIF
 
 	AddTextureAnim ( textureAnim );
 
 	textureAnim->numFrames = numframes;
-	textureAnim->waitTime = 0;
-
+	textureAnim->frame = 0;
+	textureAnim->lastTime = 0;
 	textureAnim->animation = MALLOC0 ( sizeof(TextureAnimType) + (sizeof(TextureType *) * textureAnim->numFrames ) );
 
 	if ( !textureAnim->animation )
@@ -545,69 +485,60 @@ TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 		FREE ( textureAnim );
 		return NULL;
 	}
-	// ENDIF
 
 	textureAnim->animation->dest = textureFindCRCInAllBanks ( crc );
-
 	textureAnim->animation->anim = (TextureType **)((unsigned char *)textureAnim->animation + sizeof(TextureAnimType));
+	textureAnim->animation->waitTimes = (short *)MALLOC0( sizeof(short)*numframes );
 
-	/*for ( counter = 0; counter < textureAnim->numFrames; counter++ )
-	{
-		utilPrintf("Counter : %d\n", counter );
+//	for ( counter = 0; counter < textureAnim->numFrames; counter++ )
+//	{
+//		utilPrintf("Counter : %d\n", counter );
 
-		if ( counter < 9 )
-			sprintf( type, "%s%d", fileName, counter+1 );
-		else
-			sprintf( type, "%s%d", fileName, counter+1 );
+//		if ( counter < 9 )
+//			sprintf( type, "%s%d", fileName, counter+1 );
+//		else
+//			sprintf( type, "%s%d", fileName, counter+1 );
 
-		utilPrintf("Trying To Load Texture : %s\n", type );
+//		utilPrintf("Trying To Load Texture : %s\n", type );
 //		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
 
-		if ( !textureAnim->animation->anim [ counter ] )
-			utilPrintf("Could Not Find Texture : %s\n", type );
-	}
-	// ENDIF*/
+//		if ( !textureAnim->animation->anim [ counter ] )
+//			utilPrintf("Could Not Find Texture : %s\n", type );
+//	}
 
 	return textureAnim;
 }
 
 
-void AddAnimFrame ( TEXTUREANIM *anim, long crc, short waitTime, int num )
+void AddAnimFrame( TEXTUREANIM *anim, long crc, short waitTime, int num )
 {
-	anim->animation->waitTime = waitTime;
-	anim->animation->anim [ num ] = textureFindCRCInAllBanks ( crc );
-	if ( !anim->animation->anim [ num ] )
+	anim->animation->waitTimes[num] = waitTime;
+	anim->animation->anim[num] = textureFindCRCInAllBanks( crc );
+	if ( !anim->animation->anim[num] )
 		utilPrintf("Could Not Find Texture : %lu\n", crc );
-	// ENDIF
 }
 
-void UpdateTextureAnimations ( void )
+void UpdateTextureAnimations( void )
 {
-	DR_MOVE *siMove;
-	RECT	moveRect;
-
-	TEXTUREANIM *cur,*next;
+	TEXTUREANIM *cur;
 
 	if ( textureAnimList.numEntries == 0 )
 		return;
 
-	for ( cur = textureAnimList.head.next; cur != &textureAnimList.head; cur = next )
+	for ( cur = textureAnimList.head.next; cur != &textureAnimList.head; cur = cur->next )
 	{
-		next = cur->next;
-
-		if ( cur->waitTime == cur->numFrames )
+		while( cur->lastTime + cur->animation->waitTimes[cur->frame] < frame )
 		{
-			cur->waitTime = 0;
+			cur->lastTime += cur->animation->waitTimes[cur->frame];
+			
+			cur->frame++;
+			if( cur->frame >= cur->numFrames )
+				cur->frame = 0;
 		}
-		// ENDIF
 
 		// JH: Copy the required texture into vram.
-		CopyTexture ( cur->animation->dest, cur->animation->anim[cur->waitTime], 0 );
-
-		cur->waitTime++;
+		CopyTexture ( cur->animation->dest, cur->animation->anim[cur->frame], 0 );
 	}
-	// ENDFOR
-
 }
 
 void InitTextureAnimLinkedList ( void )
@@ -640,7 +571,6 @@ void FreeTextureAnimList ( void )
 		next = cur->next;
 		SubTextureAnim(cur);
 	}
-//	FREE(specFXList.head);
 }
 
 

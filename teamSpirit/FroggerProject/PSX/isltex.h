@@ -40,7 +40,7 @@ typedef struct {
 // animated texture structure
 typedef struct _TextureAnimType
 {
-	int waitTime;
+	short *waitTimes;
 	TextureType		*dest;	// destination texture
 	TextureType		**anim;	// source textures
 
