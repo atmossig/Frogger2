@@ -200,36 +200,6 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	AnimateActor(frog[0]->actor,FROG_ANIM_DANCE4,NO,NO,0.3F,0,0);
 	AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
    	
-	/*
-	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 50, 3, 0, 5 )) )
-	{
-		SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
-		SetVector( &fx->rebound->point, &baby->actor->pos );
-		SetVector( &fx->rebound->normal, &normal );
-		fx->gravity = 0.07;
-	}
-	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 40, 2.5, 0, 6 )) )
-	{
-		SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
-		SetVector( &fx->rebound->point, &baby->actor->pos );
-		SetVector( &fx->rebound->normal, &normal );
-		fx->gravity = 0.07;
-	}
-	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 30, 2, 0, 7 )) )
-	{
-		SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
-		SetVector( &fx->rebound->point, &baby->actor->pos );
-		SetVector( &fx->rebound->normal, &normal );
-		fx->gravity = 0.07;
-	}
-	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &baby->actor->pos, &normal, 20, 1.5, 0, 8 )) )
-	{
-		SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
-		SetVector( &fx->rebound->point, &baby->actor->pos );
-		SetVector( &fx->rebound->normal, &normal );
-		fx->gravity = 0.07;
-	}
-	*/
 	return TRUE;
 }
 

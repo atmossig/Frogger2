@@ -1376,15 +1376,7 @@ void FreeSpecFXList()
 
 	if( sfxList.array )
 	{
-		// Remove all fx in array from list so they don't get removed after deallocation
-		for( i=0; i<MAX_SPECFX; i++ )
-		{
-			if( !sfxList.array[i].next ) continue;
-
-			sfxList.array[i].prev->next	= sfxList.array[i].next;
-			sfxList.array[i].next->prev	= sfxList.array[i].prev;
-			sfxList.array[i].next = NULL;
-		}
+		DeallocateFX( sfxList.head.next, sfxList.count );
 
 		JallocFree( (UBYTE **)&sfxList.array );
 		sfxList.array = NULL;

@@ -161,11 +161,36 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( player[pl].lives < 99 )
 				player[pl].lives++;
 
-			if( (fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 )) )
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 50, 3, 0, 5 )) )
 			{
-				SetFXColour( fx, 30, 240, 30 );
-				DeallocateFX( garib->fx, 1 );
+				SetFXColour( fx, 10, 200, 10 );
+				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
+				SetVector( &fx->rebound->normal, &garib->fx->normal );
+				fx->gravity = 0.07;
 			}
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 40, 2.5, 0, 6 )) )
+			{
+				SetFXColour( fx, 220, 220, 220 );
+				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
+				SetVector( &fx->rebound->normal, &garib->fx->normal );
+				fx->gravity = 0.07;
+			}
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 30, 2, 0, 7 )) )
+			{
+				SetFXColour( fx, 10, 200, 10 );
+				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
+				SetVector( &fx->rebound->normal, &garib->fx->normal );
+				fx->gravity = 0.07;
+			}
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->fx->act[0]->actor->pos, &garib->fx->normal, 20, 1.5, 0, 8 )) )
+			{
+				SetFXColour( fx, 220, 220, 220 );
+				SetVector( &fx->rebound->point, &garib->fx->act[0]->actor->pos );
+				SetVector( &fx->rebound->normal, &garib->fx->normal );
+				fx->gravity = 0.07;
+			}
+
+			DeallocateFX( garib->fx, 1 );
 			break;
 
 		case EXTRALIFE_GARIB:
