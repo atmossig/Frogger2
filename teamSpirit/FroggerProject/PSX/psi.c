@@ -4195,11 +4195,18 @@ static void psiCalcChildMatrix(PSIOBJECT *world, PSIOBJECT *parent)
 		}
 
 		// transform our position vector by our parents scaled matrix
+//bb wrong but funny. People wanted this as a cheat.
+//		gte_SetRotMatrix(&parent->matrix);
+//		gte_SetTransMatrix(&parent->matrixscale);
 		gte_SetRotMatrix(&parent->matrixscale);
 		gte_SetTransMatrix(&parent->matrixscale);
 		gte_ldlvl(&world->matrixscale.t);
 		gte_rtirtr();
 		gte_stlvl(&world->matrixscale.t);
+
+
+
+
 
 		// calculate our children if we have any
 		if(world->child)
