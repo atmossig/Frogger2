@@ -128,7 +128,7 @@ void RunTitleScreen( )
 
 				frameCount = 0;
 				lastbutton = 0;
-				PlaySample ( 0,0,0,0);
+				//PlaySample ( 0,0,0,0);
 				NUM_FROGS = 1;
 				break;
 			case 1:

@@ -388,7 +388,7 @@ void UpdateFroggerPos(long pl)
 		}
 		move = moveVal;
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlaySample ( GEN_FROG_HOP, &frog[0]->actor->pos, 0, 0 );
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
