@@ -221,15 +221,17 @@ void GameProcessController(long pl)
 				dir = MOVE_RIGHT;
 
 			// player is superhopping - make frog double jump
-			player[pl].hasDoubleJumped = 1;
-			player[pl].canJump = 0;
-			currTile[pl] = destTile[pl];
-			frogFacing[pl] = nextFrogFacing[pl];
-			camFacing = nextCamFacing;
+			if (MoveToRequestedDestination( dir, pl ))
+			{
+				player[pl].hasDoubleJumped = 1;
+				player[pl].canJump = 0;
+				currTile[pl] = destTile[pl];
+				frogFacing[pl] = nextFrogFacing[pl];
+				camFacing = nextCamFacing;
 
-			MoveToRequestedDestination( dir, pl );
-			nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
-			player[pl].extendedHopDir = dir;
+				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
+				player[pl].extendedHopDir = dir;
+			}
 
 			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
 			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
