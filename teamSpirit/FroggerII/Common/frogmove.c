@@ -1234,11 +1234,6 @@ BOOL KillFrog(long pl)
 	switch(player[pl].deathBy)
 	{
 		case DEATHBY_NORMAL:
-			// throw some stars about
-			if(!(actFrameCount & 31))
-			{
-				CreateAndAddSpecialEffect( FXTYPE_SPLASH, &currTile[pl]->centre, &currTile[pl]->normal, 6, 15, 0, 2 );
-			}
 			break;
 
 		case DEATHBY_RUNOVER:
