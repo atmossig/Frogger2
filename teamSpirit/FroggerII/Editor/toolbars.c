@@ -1,0 +1,148 @@
+
+#include "toolbars.h"
+
+TOOLBAR_ENTRY TOOLBARBUTTONS[] =
+{
+	{ 8,	TB_SAVE },
+	{ 9,	TB_LOAD },
+	{ 10,	TB_TEST },
+	{ 21,	TB_CLEARLISTS },
+	{ 15,	TB_UNDO },
+	{ -1, 0 }, // SEPARATOR
+	{ 61,	TB_RECTSELECT },
+	{ 46,	TB_TILESELECT },
+	{ 29,	TB_PICKFLAG },
+	{ -1, 0 },
+	{ 11,	TB_PLACEFLAG },
+	{ 13,	TB_CLEARPATH },
+	{ 19,	TB_PLACEENEMY },
+	{ 20,	TB_PLACEPLATFORM },
+	{ -1, 0 },
+	{ 16,	TB_PLACEGARIB },
+	{ 17,	TB_PREV },
+	{ 18,	TB_NEXT },
+	{ -1, 0 },
+	{ 22,	TB_AUTOCAMERA },
+	{ -1, 0 },
+	{ 56,	TB_INFO },
+	{ 47,	TB_TESTING },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_MULTI[] =
+{
+	{ 32 + TB_ON,	TB_SET_ENTITYTYPE },
+	{ 21 + TB_ON,	TB_DELETE_SELECTED },
+	{ 39 + TB_ON,	TB_SET_ID },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_ENEMY[] =
+{
+	{ 32 + TB_ON,	TB_SET_ENTITYTYPE },
+	{ 21 + TB_ON,	TB_DELETE_SELECTED },
+	{ 39 + TB_ON,	TB_SET_ID },
+	{ -1, 0 },
+	{ 33 + TB_ON,	TBFLAG  + PLATFORM_NEW_FORWARDS },
+	{ 34,			TBFLAG + PLATFORM_NEW_BACKWARDS },
+	{ 35,			TBFLAG + PLATFORM_NEW_CYCLE },
+	{ 36,			TBFLAG + PLATFORM_NEW_PINGPONG },
+	{ 37,			TBFLAG + PLATFORM_NEW_MOVEUP },
+	{ 38,			TBFLAG + PLATFORM_NEW_MOVEDOWN },
+	{ 48,			TBFLAG + ENEMY_NEW_WATCHFROG },
+	{ 49,			TBFLAG + ENEMY_NEW_SNAPFROG },
+	{ 50,			TBFLAG + ENEMY_NEW_RANDOMSPEED },
+	{ -1, 0 },
+	{ 67 + TB_ON,	TB_ASSIGNPATH },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_PLATFORM[] =
+{
+	{ 32 + TB_ON,	TB_SET_ENTITYTYPE },
+	{ 21 + TB_ON,	TB_DELETE_SELECTED },
+	{ 39 + TB_ON,	TB_SET_ID },
+	{ -1, 0 },
+	{ 33 + TB_ON,	TBFLAG + PLATFORM_NEW_FORWARDS },
+	{ 34,			TBFLAG + PLATFORM_NEW_BACKWARDS },
+	{ 35,			TBFLAG + PLATFORM_NEW_CYCLE },
+	{ 36,			TBFLAG + PLATFORM_NEW_PINGPONG },
+	{ 37,			TBFLAG + PLATFORM_NEW_MOVEUP },
+	{ 38,			TBFLAG + PLATFORM_NEW_MOVEDOWN },
+	{ 40,			TBFLAG + PLATFORM_NEW_STEPONACTIVATED },
+	{ 41,			TBFLAG + PLATFORM_NEW_CRUMBLES },
+	{ 42,			TBFLAG + PLATFORM_NEW_REGENERATES },
+	{ 43,			TBFLAG + PLATFORM_NEW_NOWALKUNDER },
+	{ 44,			TBFLAG + PLATFORM_NEW_KILLSFROG },
+	{ -1, 0 },
+	{ 67 + TB_ON,	TB_ASSIGNPATH },
+	{ -1, -1 }	// end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_CLEAR[] =
+{
+	{ 16 + 0x8000, TB_CLEAR_GARIBS  },
+	{ 19 + 0x8000, TB_CLEAR_ENEMIES },
+	{ 20 + 0x8000, TB_CLEAR_PLATFORMS },
+	{ 5 + 0x8000, TB_CLEAR_CREATEENEMY },
+	{ 6 + 0x8000, TB_CLEAR_CREATEPLATFORM },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_GARIB[] =
+{
+	{ 21 + TB_ON,	TB_DELETE_SELECTED  },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_INFO[] =
+{
+	{ 57,	TB_DRAW_LINKS },
+	{ 58,	TB_DRAW_NORMALS },
+	{ 59,	TB_DRAW_VECTORS },
+	{ 60,	TB_DRAW_DOTS },
+	{ -1, 0 },
+	{ 54,	TB_INVERTMOUSE },
+	{ 52,	TB_INOUTWHIZZY },
+	{ 53,	TB_HORIZWHIZZY },
+	{ -1, 0 },
+	{ 51,	TB_999LIVES },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_FLAG[] =
+{
+	{ 21 + TB_ON,	TB_DELETE_SELECTED },
+	{ -1, 0 },
+	{ 25 + TB_ON,	TB_SET_SPEED },
+	{ 26 + TB_ON,	TB_SET_OFFSET },
+	{ 27 + TB_ON,	TB_SET_OFFSET2 },
+	{ 24 + TB_ON,	TB_SET_WAIT },
+	{ -1, 0 },
+	{ 28 + TB_ON,	TB_SETPATHSPEED },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_TILES[] =
+{
+	{ 21 + TB_ON,	TB_EMPTYTILESELECTION },
+	{ 17 + TB_ON,	TB_TILESTATE_NEXT },
+	{ 18 + TB_ON,	TB_TILESTATE_PREV },
+	{ -1, 0 },
+	{ 63 + TB_ON,	TB_MAKECAMERACASE },
+	{ -1, -1 } // end of list
+};
+
+TOOLBAR_ENTRY TOOLBAR_TESTING[] =
+{
+	{ 64 + TB_ON, 0 },
+	{ 65 + TB_ON, 0 },
+	{ 66 + TB_ON, 0 },
+	{ 64 + TB_ON, 0 },
+	{ 65 + TB_ON, 0 },
+	{ 66 + TB_ON, 0 },
+	{ 64 + TB_ON, 0 },
+	{ 65 + TB_ON, 0 },
+	{ 66 + TB_ON, 0 },
+	{ -1, -1 } // end of list
+};
