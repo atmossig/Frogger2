@@ -856,6 +856,24 @@ long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
 	return dirNumber;
 }
 
+long GetTilesMatchingVector( SVECTOR *dir, GAMETILE *next)
+{
+	long dirNumber,i;
+	fixed t,distance=0;
+	
+	for(i=0; i<4; i++)
+	{
+		t = DotProductFF(dir,&next->dirVector[i]);
+		if(t >= distance)
+		{
+			distance = t;
+			dirNumber = i;			
+		}
+	}
+
+	return dirNumber;
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: GetNextTile(unsigned long direction)
 	Purpose			: Finds the next tile in a given direction
@@ -1347,7 +1365,20 @@ void CheckForFroggerLanding(long pl)
 		else
 		{
 			if( currTile[pl]->state >= TILESTATE_CONVEYOR_ONEWAY && destTile[pl]->state < TILESTATE_CONVEYOR_ONEWAY )
+			{
+				FVECTOR fwd;
+				SVECTOR dir;
+				long cam = GetTilesMatchingDirection( currTile[pl], camFacing[pl], destTile[pl] );
+
 				actorAnimate( frog[pl]->actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0 );
+
+				SubVectorFSS( &fwd, &destTile[pl]->centre, &currTile[pl]->centre );
+				MakeUnit( &fwd );
+				SetVectorFF( &dir, &fwd );
+				frogFacing[pl] = nextFrogFacing[pl] = GetTilesMatchingVector( &dir, destTile[pl] );
+
+				player[pl].extendedHopDir = (frogFacing[pl] - cam)&3;
+			}
 
 			currTile[pl] = tile = destTile[pl];
 			destTile[pl] = NULL;

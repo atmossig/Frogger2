@@ -159,6 +159,7 @@ BOOL MoveToRequestedDestination(int dir,long pl);
 BOOL KillFrog(long pl);
 void AnimateFrogHop(unsigned long direction,long pl);
 long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next);
+long GetTilesMatchingVector( SVECTOR *dir, GAMETILE *next);
 void CheckForFrogOn(int pl,GAMETILE *tile);
 
 
