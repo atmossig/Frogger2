@@ -111,6 +111,7 @@ int MemLoadEntities(const void* data)
 	{
 		memload_fast = 0;
 		utilPrintf("MemLoadEntities() ---------------------\n");
+//		while(1);
 	}
 
 	if (n != MEMLOAD_ENTITY_VERSION ) {
