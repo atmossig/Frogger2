@@ -516,7 +516,7 @@ void SubAIPathNode( AIPATHNODE *p )
 	if( p->prev ) p->prev->next = p->next;
 	if( p->next ) p->next->prev = p->prev;
 
-	if( p->fx ) SubSpecFX( p->fx );
+	if( p->fx ) DeallocateFX( p->fx, 1 );
 
 	JallocFree( (UBYTE **)&p );
 }

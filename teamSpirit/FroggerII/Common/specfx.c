@@ -13,7 +13,10 @@
 #include "incs.h"
 
 
-SPECFXLIST specFXList;
+#define MAX_SPECFX	128
+#define FX_CLIPSTEP	ACTOR_DRAWDISTANCEOUTER/MAX_SPECFX
+
+SPECFXLIST sfxList;
 
 char pauseMode		= 0;
 
@@ -33,8 +36,24 @@ TEXTURE *txtrBubble		= NULL;
 TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 TEXTURE *txtrFlash		= NULL;
-TEXTURE *txtrElectric	= NULL;
 TEXTURE *txtrFlare		= NULL;
+
+
+enum
+{
+	FXUPDATE_DECAL,
+	FXUPDATE_RING,
+	FXUPDATE_BOLT,
+	FXUPDATE_SMOKE,
+	FXUPDATE_SWARM,
+	FXUPDATE_EXPLODE,
+	FXUPDATE_TRAIL,
+	FXUPDATE_LIGHTNING,
+	FXUPDATE_FLY,
+	FXUPDATE_TWINKLE,
+
+	NUM_FXUPDATES
+};
 
 
 void UpdateFXDecal( SPECFX *fx );
@@ -68,15 +87,14 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 {
 	SPECFX *effect = NULL;
 	SPRITE *s;
-	VECTOR distance;
 	long i,n;
 	float life = lifetime * 60;
 
-	SubVector( &distance, origin, &frog[0]->actor->pos );
-	if( MagnitudeSquared(&distance) > ACTOR_DRAWDISTANCEOUTER )
+	if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, origin) > ACTOR_DRAWDISTANCEOUTER-(sfxList.count*FX_CLIPSTEP) )
 		return NULL;
 
-	effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
+	if( !(effect = AllocateFX(1)) )
+		return NULL;
 
 	effect->type = type;
 	SetVector( &effect->origin, origin );
@@ -217,7 +235,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( !(effect->sprites = AllocateSprites( effect->numP )) )
 		{
-			SubSpecFX( effect );
+			DeallocateFX( effect,1 );
 			return NULL;
 		}
 
@@ -343,7 +361,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( !(effect->sprites = AllocateSprites( effect->numP )) )
 		{
-			SubSpecFX( effect );
+			DeallocateFX( effect,1 );
 			return NULL;
 		}
 
@@ -404,7 +422,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( !(effect->sprites = AllocateSprites( effect->numP )) )
 		{
-			SubSpecFX( effect );
+			DeallocateFX( effect,1 );
 			return NULL;
 		}
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
@@ -512,7 +530,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( !(effect->sprites = AllocateSprites( effect->numP )) )
 		{
-			SubSpecFX( effect );
+			DeallocateFX( effect,1 );
 			return NULL;
 		}
 
@@ -557,7 +575,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->numP = 1;
 		if( !(effect->sprites = AllocateSprites( effect->numP )) )
 		{
-			SubSpecFX( effect );
+			DeallocateFX( effect,1 );
 			return NULL;
 		}
 		effect->sprites->texture = txtrBubble;
@@ -580,8 +598,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		break;
 	}
 
-	AddSpecFX( effect );
-
 	return effect;
 }
 
@@ -597,7 +613,7 @@ void UpdateSpecialEffects( )
 {
 	SPECFX *fx1, *fx2;
 
-	for( fx1 = specFXList.head.next; fx1 != &specFXList.head; fx1 = fx2 )
+	for( fx1 = sfxList.head.next; fx1 != &sfxList.head; fx1 = fx2 )
 	{
 		fx2 = fx1->next;
 
@@ -621,7 +637,7 @@ void UpdateFXDecal( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -657,7 +673,7 @@ void UpdateFXRing( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -695,7 +711,7 @@ void UpdateFXBolt( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -739,7 +755,7 @@ void UpdateFXSmoke( SPECFX *fx )
 			if( fx->type == FXTYPE_GREENGLOOP )
 				CreateGloopEffects( fx );
 
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -820,7 +836,7 @@ void UpdateFXSwarm( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -924,7 +940,7 @@ void UpdateFXExplode( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -1024,7 +1040,7 @@ void UpdateFXTrail( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -1140,7 +1156,7 @@ void UpdateFXLightning( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -1219,7 +1235,7 @@ void UpdateFXFly( SPECFX *fx )
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
 		{
-			SubSpecFX(fx);
+			DeallocateFX(fx,1);
 			return;
 		}
 
@@ -1289,7 +1305,7 @@ void UpdateFXTwinkle( SPECFX *fx )
 		if( fx->deadCount )
 			if( !(--fx->deadCount) )
 			{
-				SubSpecFX(fx);
+				DeallocateFX(fx,1);
 				return;
 			}
 
@@ -1334,8 +1350,22 @@ void UpdateFXTwinkle( SPECFX *fx )
 */
 void InitSpecFXList( )
 {
-	specFXList.head.next = specFXList.head.prev = &specFXList.head;
-	specFXList.numEntries = 0;
+	long i;
+
+	sfxList.head.next = sfxList.head.prev = &sfxList.head;
+
+	sfxList.lastAdded = (SPECFX **)JallocAlloc( sizeof(SPECFX *)*NUM_FXUPDATES, YES, "last" );
+	// Allocate a big bunch of effects
+	sfxList.array = (SPECFX *)JallocAlloc( sizeof(SPECFX)*MAX_SPECFX, YES, "Effects" );
+	sfxList.stack = (SPECFX **)JallocAlloc( sizeof(SPECFX*)*MAX_SPECFX, YES, "FXStack" );
+
+	// Initially, all effects are available
+	for( i=0; i<MAX_SPECFX; i++ )
+		sfxList.stack[i] = &sfxList.array[i];
+
+	sfxList.count = 0;
+	sfxList.stackPtr = i-1;
+
 
 	// get the textures used for the various special effects
 	FindTexture(&txtrRipple,UpdateCRC("ai_ripple2.bmp"),YES);
@@ -1349,7 +1379,6 @@ void InitSpecFXList( )
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
-	FindTexture(&txtrElectric,UpdateCRC("ai_electric.bmp"),YES);
 	FindTexture(&txtrFlare,UpdateCRC("ai_flare.bmp"),YES);
 }
 
@@ -1363,85 +1392,127 @@ void InitSpecFXList( )
 */
 void FreeSpecFXList()
 {
-	SPECFX *cur,*next;
-
-	if( !specFXList.numEntries )
-		return;
-
-	for(cur = specFXList.head.next; cur != &specFXList.head; cur = next)
-	{
-		next = cur->next;
-		SubSpecFX(cur);
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddSpecFX
-	Purpose			: adds a special effect to the list
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void AddSpecFX( SPECFX *fx )
-{
-	if( !fx->next )
-	{
-		specFXList.numEntries++;
-		fx->prev = &specFXList.head;
-		fx->next = specFXList.head.next;
-		specFXList.head.next->prev = fx;
-		specFXList.head.next = fx;
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: SubSpecFX
-	Purpose			: removes a special effect from the list
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void SubSpecFX( SPECFX *fx )
-{
 	int i;
 
-	if( !fx->next )
-		return;
-
-	fx->prev->next = fx->next;
-	fx->next->prev = fx->prev;
-	fx->next = NULL;
-	specFXList.numEntries--;
-
-	if( fx->sprites )
-		DeallocateSprites( fx->sprites, fx->numP );
-
-	if( fx->particles )
+	if( sfxList.array )
 	{
-		if(fx->numP)
+		// Remove all fx in array from list so they don't get removed after deallocation
+		for( i=0; i<MAX_SPECFX; i++ )
 		{
-			i = fx->numP;
-			while(i--)
-			{
-				JallocFree( (UBYTE **)&fx->particles[i].poly );
-				JallocFree( (UBYTE **)&fx->particles[i].rMtrx );
-			}
+			if( !sfxList.array[i].next ) continue;
+
+			sfxList.array[i].prev->next	= sfxList.array[i].next;
+			sfxList.array[i].next->prev	= sfxList.array[i].prev;
+			sfxList.array[i].next = NULL;
 		}
 
-		JallocFree( (UBYTE **)&fx->particles );
+		JallocFree( (UBYTE **)&sfxList.array );
+		sfxList.array = NULL;
 	}
 
-	if( fx->rebound )
-		JallocFree( (UBYTE **)&fx->rebound );
-
-	if( fx->act )
+	if( sfxList.stack )
 	{
-		for( i=fx->numP; i; i-- )
-			SubActor(fx->act[i-1]);
-		JallocFree( (UBYTE **)&fx->act );
+		JallocFree( (UBYTE **)&sfxList.stack );
+		sfxList.stack = NULL;
 	}
 
-	JallocFree((UBYTE **)&fx);
+	if( sfxList.lastAdded )
+	{
+		JallocFree( (UBYTE **)sfxList.lastAdded );
+		sfxList.lastAdded = NULL;
+	}
+
+	sfxList.count = 0;
+	sfxList.stackPtr = 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AllocateFX
+	Purpose			: Find a number of effects and return a sublist
+	Parameters		: number of fx
+	Returns			: pointer to first one
+	Info			: 
+*/
+SPECFX *AllocateFX( int number )
+{
+	SPECFX *s;
+	// Return if allocation is impossible for any reason
+	if( (number <= 0) || (sfxList.stackPtr-number < 0) || (number >= MAX_SPECFX-sfxList.count) ) return NULL;
+
+	// Now we can go and allocate effects with gay abandon
+	while( number-- )
+	{
+		s = sfxList.stack[sfxList.stackPtr--];
+
+		s->prev	= &sfxList.head;
+		s->next	= sfxList.head.next;
+		sfxList.head.next->prev	= s;
+		sfxList.head.next = s;
+
+		sfxList.count++;
+	}
+
+	return sfxList.stack[sfxList.stackPtr+1];
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: DeallocateFX
+	Purpose			: Remove fx from list and flag as unused
+	Parameters		: number of fx
+	Returns			: 
+	Info			: 
+*/
+void DeallocateFX( SPECFX *head, int number )
+{
+	SPECFX *s=head, *t;
+	int i;
+
+	if( !s || !s->next || (number<=0) || (sfxList.stackPtr+number >= MAX_SPECFX) ) return;
+
+	while( number-- )
+	{
+		t = s->next;
+
+		s->prev->next	= s->next;
+		s->next->prev	= s->prev;
+
+		if( s->sprites )
+			DeallocateSprites( s->sprites, s->numP );
+
+		if( s->particles )
+		{
+			if(s->numP)
+			{
+				i = s->numP;
+				while(i--)
+				{
+					JallocFree( (UBYTE **)&s->particles[i].poly );
+					JallocFree( (UBYTE **)&s->particles[i].rMtrx );
+				}
+			}
+
+			JallocFree( (UBYTE **)&s->particles );
+		}
+
+		if( s->rebound )
+			JallocFree( (UBYTE **)&s->rebound );
+
+		if( s->act )
+		{
+			for( i=s->numP; i; i-- )
+				SubActor(s->act[i-1]);
+			JallocFree( (UBYTE **)&s->act );
+		}
+
+		sfxList.count--;
+		sfxList.stack[++sfxList.stackPtr] = s;
+
+		memset( s, 0, sizeof(SPECFX) );
+
+		s = t;
+	}
 }
 
 

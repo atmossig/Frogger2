@@ -447,7 +447,7 @@ void CameraSetOffset(void)
 		ScaleVector(&v, currCamDist.v[1]);
 		SetVector(&camOffset, &v);
 
-		SetVector(&v, &currTile[playerFocus]->dirVector[camFacing]);
+		SetVector(&v, &currTile[0]->dirVector[camFacing]);
 		ScaleVector(&v, -currCamDist.v[2]);
 		AddToVector(&camOffset, &v);
 

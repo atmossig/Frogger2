@@ -193,7 +193,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( (fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 )) )
 			{
 				SetFXColour( fx, 30, 240, 30 );
-				SubSpecFX( garib->fx );
+				DeallocateFX( garib->fx, 1 );
 			}
 			break;
 

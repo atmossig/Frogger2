@@ -127,13 +127,25 @@ typedef struct TAGSPECFX
 
 typedef struct
 {
+	// Statically allocated array of sprites
+	SPECFX *array;
+	// Number of sprites allocated
+	short count;
+
+	// Defines and data for the sprite allocation stack
+	SPECFX **stack;
+	short stackPtr;
+
+	// Array of pointers to the last effect of each type allocated
+	SPECFX **lastAdded;
+
+	// Static head of list
 	SPECFX head;
-	int numEntries;
 
 } SPECFXLIST;
 
 
-extern SPECFXLIST specFXList;
+extern SPECFXLIST sfxList;
 
 #ifdef PC_VERSION
 extern D3DTLVERTEX *ringVtx;
@@ -154,8 +166,8 @@ extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *no
 
 extern void UpdateSpecialEffects( );
 
-extern void AddSpecFX( SPECFX *fx );
-extern void SubSpecFX( SPECFX *fx );
+extern SPECFX *AllocateFX( int number );
+extern void DeallocateFX( SPECFX *head, int number );
 extern void InitSpecFXList( );
 extern void FreeSpecFXList( );
 

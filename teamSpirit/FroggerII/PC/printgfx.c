@@ -442,10 +442,10 @@ void DrawSpecialFX()
 	{
 		ProcessShadows();
 		
-		if( specFXList.numEntries )
+		if( sfxList.count )
 		{
 			SPECFX *fx;
-			for( fx = specFXList.head.next; fx != &specFXList.head; fx = fx->next )
+			for( fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next )
 				if( fx->Draw )
 					fx->Draw( fx );
 		}
