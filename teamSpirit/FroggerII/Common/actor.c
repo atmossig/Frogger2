@@ -1009,13 +1009,22 @@ void ActorLookAt( ACTOR *act, VECTOR *at, long flags )
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function 	: Orientate
+	Purpose 	: Creates an orientation quaternion from a given UNIT forward and UNIT up vector
+	Parameters 	: ->quat, forward', forward, up'
+	Returns 	: void
+	Info 		:
+*/
 
 void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 {
+	/* This seems to be somewhat more expensive (and unreliable!) than it should be. */
 	VECTOR dirn;
 	QUATERNION rotn,q;
 	float dp,m;
 	
+
 	CalculateQuatForPlane2( 0, me, up);
 	RotateVectorByQuaternion( &dirn, mfd, me);
 	dp = DotProduct( fd, &dirn );
@@ -1023,7 +1032,7 @@ void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 	if(dp > -0.99)
 	{
 		m = Magnitude( (VECTOR *)&rotn );
-		if(m > 0.0001)
+		if(m > 0.001)
 		{
 			ScaleVector( (VECTOR *)&rotn, 1/m );
 
@@ -1043,7 +1052,6 @@ void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 		QuaternionMultiply(me,me,&q);
 	}
 }
-
 
 void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 {
