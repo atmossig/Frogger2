@@ -1309,7 +1309,15 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 			col = ((pixel>>11)<<3)&0xFF;
 			line[linePos++] = col;*/
 
-			col = pixel;
+			col = (int)(255.0/31.0 * ((pixel >> 11) & 0x1f));
+			line[linePos++] = col;
+		
+			col = (int)(255.0/63.0 * ((pixel >> 5) & 0x3f));
+			line[linePos++] = col;
+
+			col = (int)(255.0/31.0 * (pixel & 0x1f));
+			line[linePos++] = col;
+/*			col = pixel;
 			col &= 0x1f;	
 		//	col *= 0xff;
 			col /= 0x1f;
@@ -1326,7 +1334,7 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 			col &= 0x1f;
 			col *= 0xff;
 			col /= 0x1f;
-			line[linePos++] = col;
+			line[linePos++] = col;*/
 
 		}
 			fwrite ( line, sizeof ( line ), 1, fp );//(file, line, linePos);	
