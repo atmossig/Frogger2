@@ -403,8 +403,11 @@ void UpdateFroggerPos(long pl)
 		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
 	
 		AnimateFrogHop((dir + camFacing) & 3,pl);
-
 		frogFacing[pl] = (frogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+
+		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+		//PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
 
 		if(!MoveToRequestedDestination(dir,pl))
 		{
@@ -416,12 +419,9 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState &=
 				~(FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|
 				FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD);
+
+			destTile[pl] = currTile[pl];
 		}
-
-		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -451,6 +451,8 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState &=
 				~(FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|
 				FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD);
+
+			destTile[pl] = currTile[pl];
 		}
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
@@ -580,7 +582,7 @@ void GetNextTile(unsigned long direction,long pl)
 			}
 
 			destTile[pl] = joiningTile->tilePtrs[n];
-
+	
 			if((joiningTile->state == TILESTATE_SUPERHOP))
 			{
 				if(DotProduct(&vecUp,&joiningTile->dirVector[n]) < 0)
@@ -1130,9 +1132,31 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				{
 					player[pl].isSinking = 10;
 				}
+				if (currTile[pl]->state & TILESTATE_CONVEYOR)
+				{	
+					// -------------------------------- Conveyors ----------------------------
+
+					int dir = currTile[pl]->state & (TILESTATE_CONVEYOR-1);
+
+					MoveToRequestedDestination((dir - camFacing) & 3, pl);
+
+					if (destTile[pl])
+					{
+						GAMETILE *fromTile = currTile[pl];
+
+						//if (actFrameCount > (player[pl].jumpStartFrame + player[pl].jumpEndFrame) / 2)
+						//	currTile[pl] = destTile[pl];
+
+						CalculateFrogJump(
+							&frog[pl]->actor->pos, &fromTile->normal, 
+							&destTile[pl]->centre, &currTile[pl]->normal,
+							conveyorFrames, pl, 0.0, NOINIT_VELOCITY);
+
+					}
+				}
 				else if (state == TILESTATE_ICE)
 				{
-					MoveToRequestedDestination((nextFrogFacing[pl] + 2) & 3, pl);	// sliiiiiide!
+					MoveToRequestedDestination((nextFrogFacing[pl] - camFacing) & 3, pl);	// sliiiiiide!
 
 					if (destTile[pl])
 						CalculateFrogJump(
@@ -1142,21 +1166,6 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 					player[pl].canJump = FALSE;
 				}
-				else if (state & TILESTATE_CONVEYOR)
-				{	
-					// -------------------------------- Conveyors ----------------------------
-
-					int dir = destTile[pl]->state & (TILESTATE_CONVEYOR-1);
-
-					MoveToRequestedDestination(dir, pl);
-
-					if (destTile[pl])
-						CalculateFrogJump(
-							&currTile[pl]->centre, &currTile[pl]->normal, 
-							&destTile[pl]->centre, &currTile[pl]->normal,
-							conveyorFrames, pl, 0.0, NOINIT_VELOCITY);
-				}
-
 				// Check for camera transitions on the tile
 				CheckForDynamicCameraChange(currTile[pl]);
 
