@@ -291,3 +291,13 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,15);
 }
 
+
+
+
+
+// THIS IS A FUDGE - MOVE TO PRINTGFX.H EVENTUALLY ***********************************************
+char IsPointVisible(VECTOR *p)
+{
+	return 1;
+}
+
