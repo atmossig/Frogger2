@@ -141,14 +141,12 @@ extern float waitScale;
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
-	VECTOR fromPosition,toPosition;
+	VECTOR fromPosition,toPosition, frogVec;
 	VECTOR fwd;
 	VECTOR moveVec;
 	PLANE2 rebound;
 	float length,fxDist;
 	long i;
-
-	float tileRadiusSquared = snapRadius * snapRadius;
 
 	if(enemyList.numEntries == 0)
 		return;
@@ -160,6 +158,9 @@ void UpdateEnemies()
 		// check if enemy is active
 		if(!cur->active)
 			continue;
+
+		// Some common values needed
+		SubVector( &frogVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 
 		// check if this enemy is currently 'waiting' at a node
 		if(cur->isWaiting)
@@ -318,7 +319,7 @@ void UpdateEnemies()
 				}
 
 				// If frog is on a tile by the snapper
-				if( Magnitude(&v1) < tileRadiusSquared )
+				if( Magnitude(&v1) < snapRadius )
 				{
 					// Snap animation
 					if (cur->isSnapping == SNAPPER_TIME)
