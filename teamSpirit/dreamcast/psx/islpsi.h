@@ -478,6 +478,7 @@ typedef struct tagTDCTransVector
 // export aligned transformed vertices buffer
 extern TDCTransVector *alignedTransformedVertices;
 
+
 /* ---------------------------------------------------------
    Function : PSIDC_SetSH4XDMatrix
    Purpose : load 3x3 matrix and translate vector into SH4 XD registers (XMTRX)
