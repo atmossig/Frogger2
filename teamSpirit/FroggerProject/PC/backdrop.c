@@ -92,7 +92,7 @@ void InitLoadingScreen( const char *filename )
 	else
 		strcat( path, "EU" );
 
-	InitBackdrop( filename );
+	InitBackdrop( path );
 
 	loadProgress = 0;
 }

@@ -900,8 +900,12 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// ------ Reset miscellaneous pieces of data ------------
 
 	// Stuff that used to be in RunGameLoop
+#ifdef PC_DEMO
+	player[0].lives = 5;
+#else
 	if((gameState.mode != DEMO_MODE) && (gameState.single != STORY_MODE) && (gameState.mode != FRONTEND_MODE))
 		player[0].lives = numLives[gameState.difficulty];
+#endif
 
 //	player[0].score				= 0;
 	player[0].spawnTimer		= 0;
@@ -983,6 +987,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	SetMusicVolume();
 
 	player[0].oldLives = player[0].lives;
+
 
 #ifdef PSX_VERSION
 	//sb wait for screen to fade to black!!
