@@ -1016,11 +1016,6 @@ void CheckForFroggerLanding(long pl)
 				if(state == TILESTATE_DEADLY)
 				{
 					SPECFX *fx;
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 10, 1, 0, 2 );
-					fx->gravity = 0.05;
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 20, 1, 0, 2 );
-					fx->gravity = 0.05;
-
 					CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
 					frog[pl]->action.deathBy = DEATHBY_DROWNING;
 					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);

@@ -23,7 +23,7 @@
 TEXTOVERLAY *tileNum = NULL;
 unsigned long currTileNum = 0;
 #endif
-TEXTOVERLAY *faceNum = NULL;
+//TEXTOVERLAY *faceNum = NULL;
 
 //----------------------------------------------------------------------
 
@@ -510,6 +510,99 @@ long clearTiles = 0;
 
 SPRITEOVERLAY *atari,*konami,*flogo[10];
 
+
+//////////////////////////////////////////
+void Modify3DText(TEXT3D *t3d, char *str,unsigned char alpha);
+
+TEXT3D *cText[4];
+TEXT3D *rText[4];
+
+unsigned char *credits[] = 
+{
+	"","Programmers",		"Matthew Cloy",		"",
+	"","\x1",				"Andy Eder",		"",
+	"","\x1",				"James Hubbard",	"",
+	"","\x1",				"David Swift",		"",
+	"","\x1",				"James Healey",		"",
+
+
+	"","Artists",			"Alex Rigby","",
+	"","\x1",				"Joff Scarcliffe","", 
+	"","\x1",				"Bruce Millar","",
+	"","\x1",				"Lauren Grindrod","",
+	"","\x1",				"Simon Little","",
+	"","\x1",				"Sandro Da Cruz","",
+	"","\x1",				"Richard Whale","",
+	"","\x1",				"Mark Turner","",
+	0,0,0,0,0,0,0,0
+};
+
+unsigned long cNumber = 0;
+unsigned long cFrame = 0;
+
+#define CRED_SPEED		(60*6)
+#define CRED_BORDERIN	(60*1)
+#define CRED_BORDEROUT	(60*1)
+
+
+void RunCredits()
+{
+	unsigned long cn;
+
+	if (actFrameCount>cFrame)
+	{
+		cFrame = actFrameCount + CRED_SPEED;
+		cNumber+= 4;
+
+		if (credits[cNumber] == 0)
+			cNumber = 0;
+	
+		Modify3DText(cText[0], credits[cNumber],220);
+		Modify3DText(cText[1], credits[cNumber+1],220);
+		Modify3DText(cText[2], credits[cNumber+2],220);
+		Modify3DText(cText[3], credits[cNumber+3],220);
+
+		Modify3DText(rText[1], credits[cNumber+1],220);
+		Modify3DText(rText[2], credits[cNumber+2],220);
+
+	}
+
+	for (cn=0; cn<4; cn++)
+		cText[cn]->angle = 90+360*2;
+
+	
+	if (actFrameCount<(cFrame-CRED_SPEED+CRED_BORDERIN))
+	{
+		unsigned long amt;
+		amt = 0xff - ((((cFrame-CRED_SPEED+CRED_BORDERIN)-actFrameCount) * 255) / CRED_BORDEROUT);
+		for (cn=0; cn<4; cn++)
+			if ((credits[cNumber+cn]) && (credits[cNumber+cn][0]!=1))
+			{
+				cText[cn]->vA = amt; 
+				cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+			}
+		
+	}
+
+	if (actFrameCount>(cFrame-CRED_BORDEROUT))
+	{
+		unsigned long amt;
+		amt = 0xff - (((actFrameCount-(cFrame-CRED_BORDEROUT)) * 255) / CRED_BORDEROUT);
+		for (cn=0; cn<4; cn++)
+			if ((credits[cNumber+cn+4]) && (credits[cNumber+cn+4][0]!=1))
+			{
+				cText[cn]->vA = amt; 
+				cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+			}
+	}
+
+	for (cn=1; cn<3; cn++)
+	{
+		rText[cn]->angle = (360*8) - (cText[cn]->angle);
+		rText[cn]->vA = ((unsigned char) cText[cn]->vA) / (6-(cn*2));
+	}
+}
+
 void RunGameLoop (void)
 {
 	unsigned long i,j;
@@ -518,7 +611,7 @@ void RunGameLoop (void)
 	// setup for frogger point of interest
 	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
-
+		
 	if(frameCount == 1)
 	{	
 		if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV )
@@ -534,8 +627,68 @@ void RunGameLoop (void)
 		GTInit( &levelIsOver, 0 );
 		
 		if (player[0].worldNum == WORLDID_FRONTEND)
+		{
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
+				
+				cText[0] = CreateAndAdd3DText( credits[cNumber], 180,
+						255,30,0,220,
+						T3D_HORIZONTAL,
+						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+						&zero,
+						0,0,
+						-30,120,-440,
+						2, 0.02, 0.0 );
+				
+				
+				cText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
+						255,30,0,220,
+						T3D_HORIZONTAL,
+						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+						&zero,
+						0,0,
+						-30,90,-440,
+						2, 0.03, 0.0 );
+
+				cText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
+						255,220,30,220,
+						T3D_HORIZONTAL,
+						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+						&zero,
+						0,0,
+						-30,60,-440,
+						2, 0.025, 0.0 );
+
+				cText[3] = CreateAndAdd3DText( credits[cNumber+3], 250,
+						255,220,30,220,
+						T3D_HORIZONTAL,
+						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+						&zero,
+						0,0,
+						-30,30,-440,
+						2, 0.028, 0.0 );
+			
+				
+				rText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
+						255,30,130,220,
+						T3D_HORIZONTAL,
+						T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+						&zero,
+						0,0,
+						-30,-90-30,-440,
+						3, 0.3, 0.0 );
+
+				rText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
+						255,220,130,220,
+						T3D_HORIZONTAL,
+						T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+						&zero,
+						0,0,
+						-30,-60-30,-440,
+						3, 0.25, 0.0 );
+
+			
+				DisableTextOverlay(scoreTextOver);
 #ifdef PC_VERSION
 				frogFacing[0] = 3;
 				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
@@ -554,6 +707,7 @@ void RunGameLoop (void)
 #endif
 				fadingLogos = 0;
 			}
+		}
 
 		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,0);
 		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,0);
@@ -600,16 +754,19 @@ void RunGameLoop (void)
 		}
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
-		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,smallFont,0,0);
+		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,bigFont,0,0);
 #endif
-		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,255,smallFont,0,0);
+//		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,255,smallFont,0,0);
 
 		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 		lastActFrameCount = 0;
 	}
 	// FINISH FIRST FRAME STUFF
-
+	if (player[0].worldNum == WORLDID_FRONTEND)
+			if (player[0].levelNum == LEVELID_FRONTEND1)
+				RunCredits();
+	
 	if	((player[0].worldNum == WORLDID_FRONTEND) &&
 	     (player[0].levelNum == LEVELID_FRONTEND1) )
 	{
@@ -688,7 +845,12 @@ void RunGameLoop (void)
 			// Only go to next level if in normal level progression.
 			if( showEndLevelScreen )
 			{
-				player[0].levelNum++;
+				//			gameState.mode		= FRONTEND_MODE;
+				//frontEndState.mode	= DEMO_MODE;
+
+				player[0].worldNum = WORLDID_FRONTEND;
+				player[0].levelNum = LEVELID_FRONTEND2;
+				//player[0].levelNum++;
 
 #ifndef PC_VERSION
 				StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
@@ -723,7 +885,7 @@ void RunGameLoop (void)
 			camDist.v[X]	= 0;
 			camDist.v[Y]	= 680;
 			camDist.v[Z]	= 192;
-
+		
 			GTInit( &levelIsOver, 15 );
 		}
 		else
@@ -861,9 +1023,9 @@ void RunGameLoop (void)
 		currTileNum++;
 	}
 	
-	if (faceNum)
-		if (faceNum->text)
-			sprintf(faceNum->text,"%d",camFacing);
+//	if (faceNum)
+//		if (faceNum->text)
+//			sprintf(faceNum->text,"%d",camFacing);
 
 	if (tileNum)
 		if (tileNum->text)

@@ -3,6 +3,37 @@
 
 TEXT3DLIST text3DList;
 
+enum
+{
+	ESC_CONTINUE = 1,
+};
+
+void Modify3DText(TEXT3D *t3d, char *str,unsigned char a)
+{
+	unsigned long len = strlen(str);
+	
+	if (len!=0)
+	{
+		switch (str[0])
+		{
+			case ESC_CONTINUE:
+				return;
+		}
+
+		t3d->scale = (float)t3d->width/((float)len*32);
+		sprintf( t3d->string, "%s\0", str );
+		t3d->tileSize = t3d->scale*32;
+		t3d->vA = a;
+
+		t3d->motion |= T3D_CREATED;
+
+	}
+	else
+		t3d->motion &= !T3D_CREATED;
+		
+//	JallocFree (&t3d->vT);
+//	t3d->vT = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*len*4, NO, "D3DTLVERTEX");
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAdd3DText
@@ -35,13 +66,13 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 	
 	t3d->radius = (float)w / tmp;
 	t3d->prev = t3d->next = NULL;
-	t3d->string = (char *)JallocAlloc(len+1,YES,"String");
+//	t3d->string = (char *)JallocAlloc(len+1,YES,"String");
 	sprintf( t3d->string, "%s\0", str );
-	t3d->vR = r;
-	t3d->vG = g;
-	t3d->vB = b;
+	t3d->vR = (unsigned char)r;
+	t3d->vG = (unsigned char)g;
+	t3d->vB = (unsigned char)b;
 	t3d->tileSize = t3d->scale*32;
-	t3d->vA = a;
+	t3d->vA = (unsigned char)a;
 
 	t3d->motion = motion;
 	t3d->type = type;
@@ -60,7 +91,7 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 	else
 	{
 		if( t3d->motion & T3D_ALIGN_CENTRE )
-			t3d->xOffs = (SCREEN_WIDTH-(len*t3d->tileSize))/2;
+			t3d->xOffs = xO-((len*t3d->tileSize)/2);
 		else if( t3d->motion & T3D_ALIGN_LEFT )
 			t3d->xOffs = 0;
 		else if( t3d->motion & T3D_ALIGN_RIGHT )
@@ -74,7 +105,7 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 
 	//t3d->timer = T360_TIMER; // Default value
 
-	t3d->vT = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*len*4, NO, "D3DTLVERTEX");
+//	t3d->vT = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*len*4, NO, "D3DTLVERTEX");
 
 	// Finally, add new text3D to global list
 	t = text3DList.head.next;
@@ -104,9 +135,10 @@ void Print3DText( )
 	unsigned long vx, c, len, i;
 	D3DTLVERTEX vT2[3];
 
-	VECTOR m, tmp;
+	VECTOR m, tmp, tmp2;
 	float u, v, u2, v2;
 	short letterID, zeroZ=0;
+	float f[4][4];
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
@@ -125,21 +157,21 @@ void Print3DText( )
 				continue;
 
 			letterID = characterMap[t3d->string[c]];
-			u = bigFont->offset[letterID].v[X];
-			v = bigFont->offset[letterID].v[Y];
-			u2 = (float)(u+32)/256.0;
-			v2 = (float)(v+32)/256.0;
+			u = smallFont->offset[letterID].v[X];
+			v = smallFont->offset[letterID].v[Y];
+			u2 = (float)(u+16)/256.0;
+			v2 = (float)(v+16)/256.0;		
 			u = (float)u/256.0;
 			v = (float)v/256.0;
 
-			t3d->vT[vx+0].tu = u2;
-			t3d->vT[vx+0].tv = v2;
-			t3d->vT[vx+1].tu = u;
-			t3d->vT[vx+1].tv = v2;
 			t3d->vT[vx+2].tu = u;
-			t3d->vT[vx+2].tv = v;
+			t3d->vT[vx+2].tv = v2;
 			t3d->vT[vx+3].tu = u2;
-			t3d->vT[vx+3].tv = v;
+			t3d->vT[vx+3].tv = v2;
+			t3d->vT[vx+0].tu = u2;
+			t3d->vT[vx+0].tv = v;
+			t3d->vT[vx+1].tu = u;
+			t3d->vT[vx+1].tv = v;
 
 			// Transform to screen coords
 			for( i=0; i<4; i++ )
@@ -147,6 +179,7 @@ void Print3DText( )
 				tmp.v[0] = t3d->vT[vx+i].sx;
 				tmp.v[1] = t3d->vT[vx+i].sy;
 				tmp.v[2] = t3d->vT[vx+i].sz;
+
 				XfmPoint( &m, &tmp );
 				t3d->vT[vx+i].sx = m.v[0];
 				t3d->vT[vx+i].sy = m.v[1];
@@ -159,8 +192,8 @@ void Print3DText( )
 				memcpy( &vT2[0], &t3d->vT[vx], sizeof(D3DTLVERTEX) );
 				memcpy( &vT2[1], &t3d->vT[vx+2], sizeof(D3DTLVERTEX) );
 				memcpy( &vT2[2], &t3d->vT[vx+3], sizeof(D3DTLVERTEX) );
-				Clip3DPolygon( &t3d->vT[vx], bigFont->hdl );
-				Clip3DPolygon( vT2, bigFont->hdl );
+				Clip3DPolygon( &t3d->vT[vx], smallFont->hdl );
+				Clip3DPolygon( vT2, smallFont->hdl );
 			}
 		}
 	}
@@ -223,7 +256,7 @@ void MakeTextCircle( TEXT3D *t3d )
 
 		yPa = t3d->yOffs;
 		yPb = yPa;
-		yPc = yPb-tS;
+		yPc = yPb-20;
 		yPd = yPc;
 
 		if( t3d->motion & T3D_MOVE_SQUISH )
@@ -278,40 +311,48 @@ void MakeTextCircle( TEXT3D *t3d )
 */
 void MakeTextLine( TEXT3D *t3d )
 {
-	float pB;
+	float pB,tR,tG,tB,tA;
 	int v;
 	unsigned long len = strlen(t3d->string), i;
 	unsigned int tS = t3d->tileSize;
 
+	tR = (unsigned char)t3d->vR / 255.0;
+	tG = (unsigned char)t3d->vG / 255.0;
+	tB = (unsigned char)t3d->vB / 255.0;
+	tA = (unsigned char)t3d->vA / 255.0;
+
 	if( t3d->type == T3D_HORIZONTAL )
 	{
-		float yPa, yPb, yPc, yPd,
+		float xPa, xPb, xPc, xPd,
+			yPa, yPb, yPc, yPd,
 			zPa, zPb, zPc, zPd;
 
 		for( i=0; i<len; i++ )
 		{
+			xPa = xPb = xPc = xPc = 0;
 			pB = i*tS;
 			v = i*4;
-
+			
 			yPa = t3d->yOffs;
 			yPb = yPa;
-			yPc = yPb-tS;
+			yPc = yPb-20;
 			yPd = yPc;
 			zPa = zPb = zPc = zPd = t3d->zOffs;
 
 			if( t3d->motion & T3D_MOVE_SQUISH )
 			{
-				float sf1 = sinf(pB+frameCount*t3d->sinS)*t3d->sinA,
-					sf2 = sinf(pB+tS+frameCount*t3d->sinS)*t3d->sinA;
+				float sf1 = sinf(pB+actFrameCount*t3d->sinS)*t3d->sinA,
+					sf2 = sinf(pB+tS+actFrameCount*t3d->sinS)*t3d->sinA;
 				yPa += sf1;
 				yPb = yPa;
 				yPc += sf2;
 				yPd = yPc;
 			}
+
 			if( t3d->motion & T3D_MOVE_SINE )
 			{
-				float sf1 = sinf(i+frameCount*t3d->sinS)*t3d->sinA,
-					sf2 = sinf(i+1+frameCount*t3d->sinS)*t3d->sinA;
+				float sf1 = sinf(i+actFrameCount*t3d->sinS)*t3d->sinA,
+					sf2 = sinf(i+1+actFrameCount*t3d->sinS)*t3d->sinA;
 				yPa += sf1;
 				yPb += sf2;
 				yPc += sf2;
@@ -321,8 +362,8 @@ void MakeTextLine( TEXT3D *t3d )
 			{
 				float radians = t3d->angle / 57.6,
 					twa = t3d->twistA+radians,
-					sfa = sinf(twa)*tS,
-					sfb = cosf(twa)*tS;
+					sfa = sinf(twa)*10,
+					sfb = cosf(twa)*10;
 					
 				yPa = t3d->yOffs + sfa;
 				yPb = t3d->yOffs + sfa;
@@ -353,25 +394,41 @@ void MakeTextLine( TEXT3D *t3d )
 				zPd = t3d->zOffs - sfz1;
 			}
 
-			t3d->vT[v+0].sx = pB+t3d->xOffs;
+			if( t3d->motion & T3D_MOVE_MODGE )
+			{
+				float sf1 = sinf(0.73*(pB+actFrameCount*t3d->sinS))*t3d->sinA,
+					sf2 = sinf(0.84*(pB+tS+actFrameCount*t3d->sinS))*t3d->sinA;
+				float sf3 = cosf(0.81*(pB+actFrameCount*t3d->sinS))*t3d->sinA,
+					sf4 = cosf(0.92*(pB+tS+actFrameCount*t3d->sinS))*t3d->sinA;
+				
+				xPa -= sf1;
+				xPb += sf3;
+				xPc -= sf4;
+
+				yPa += sf1;
+				yPb -= sf3;
+				yPc += sf2;				
+			}
+			
+			t3d->vT[v+0].sx = xPa + pB+t3d->xOffs;
 			t3d->vT[v+0].sz = zPa;
 			t3d->vT[v+0].sy = yPa;
-			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+0].color = D3DRGBA(tR,tG,tB,tA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
-			t3d->vT[v+1].sx = pB-tS+t3d->xOffs;
+			t3d->vT[v+1].sx = xPb + pB-tS+t3d->xOffs;
 			t3d->vT[v+1].sz = zPb;
 			t3d->vT[v+1].sy = yPb;
-			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+1].color = t3d->vT[v+0].color;
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
-			t3d->vT[v+2].sx = pB-tS+t3d->xOffs;
+			t3d->vT[v+2].sx = xPc + pB-tS+t3d->xOffs;
 			t3d->vT[v+2].sz = zPc;
 			t3d->vT[v+2].sy = yPc;
-			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+2].color = t3d->vT[v+0].color;
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
-			t3d->vT[v+3].sx = pB+t3d->xOffs;
+			t3d->vT[v+3].sx = xPd + pB+t3d->xOffs;
 			t3d->vT[v+3].sz = zPd;
 			t3d->vT[v+3].sy = yPd;
-			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+3].color = t3d->vT[v+0].color;
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
 	}
@@ -819,8 +876,8 @@ void Free3DTextList( )
 
 		Sub3DText( t3d );
 
-		JallocFree( (UBYTE **)&t3d->string );
-		JallocFree( (UBYTE **)&t3d->vT );
+//		JallocFree( (UBYTE **)&t3d->string );
+//		JallocFree( (UBYTE **)&t3d->vT );
 		JallocFree( (UBYTE **)&t3d );
 	}
 }

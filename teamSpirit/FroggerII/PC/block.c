@@ -287,7 +287,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 	if(!InitInputDevices())
 		ok = 0;
-	
+	//FreeAllLists
 	//InitSaveData();
 
 	//PrepareSong ( 1 );
@@ -789,6 +789,7 @@ void DrawGraphics()
 	
 		DrawEditor();
 		DrawBatchedPolys();
+		BlankFrame();
 	}
 
 
@@ -800,16 +801,21 @@ void DrawGraphics()
 	oldCCSource = currCamSource[screenNum];
 	oldCCTarget = currCamTarget[screenNum];
 	
-	// Set them so we don't do any modelling transforms
-	currCamSource[screenNum] = zero;
-	currCamTarget[screenNum] = inVec;
-	
 	if( text3DList.numEntries )
 	{
 		Calculate3DText( );
 		Print3DText( );
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+		DrawBatchedPolys();
+		BlankFrame();
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	}
 
+	// Set them so we don't do any modelling transforms
+	currCamSource[screenNum] = zero;
+	currCamTarget[screenNum] = inVec;
+	
+	
 	// Restore currCam vectors
 	currCamSource[screenNum] = oldCCSource;
 	currCamTarget[screenNum] = oldCCTarget;

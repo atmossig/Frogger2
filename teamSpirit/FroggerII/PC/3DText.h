@@ -22,6 +22,7 @@
 #define T3D_ALIGN_CENTRE	(1<<11)
 #define T3D_ALIGN_LEFT		(1<<12)
 #define T3D_ALIGN_RIGHT		(1<<13)
+#define T3D_MOVE_MODGE		(1<<14)
 
 #define T3D_CREATED			(1<<28)
 #define T3D_CALCULATED		(1<<29)
@@ -31,8 +32,8 @@
 typedef struct _TEXT3D
 {
 	struct _TEXT3D *next, *prev;
-	D3DTLVERTEX *vT;		// Store polygon vertices
-	char *string;			// Text string on which the 3DText is based
+	D3DTLVERTEX vT[100*4];	// Store polygon vertices
+	char string[100];		// Text string on which the 3DText is based
 	char vR, vG, vB, vA;    // Vertex rgb
 	short type;				// Line, circle, etc
 	unsigned long motion;	// Static, spin, move from left

@@ -33,6 +33,7 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(float x,float y,char *txtrName,short wi
 	SPRITEOVERLAY *newItem;
 
 	newItem = (SPRITEOVERLAY *)JallocAlloc(sizeof(SPRITEOVERLAY),YES,"SOVER");
+	newItem->next = newItem->prev = 0;
 	AddSpriteOverlay(newItem);
 
 	newItem->xPos		= x;
