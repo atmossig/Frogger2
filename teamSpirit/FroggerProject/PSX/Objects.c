@@ -32,35 +32,35 @@ void LoadObjectBank ( int objectBank )
 	switch ( objectBank )
 	{
 		case FROGGER_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\FROGGER.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\FROGGER.PIL" );					
 				break;
 
 		case LILLI_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\LILLIE.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\LILLIE.PIL" );					
 				break;
 
 		case TAD_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\TAD.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TAD.PIL" );					
 				break;
 
 		case SWAMPY_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\SWAMPY.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\SWAMPY.PIL" );					
 				break;
 
 		case TWEE_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\TWEE.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TWEE.PIL" );					
 				break;
 
 		case WART_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\WART.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\WART.PIL" );					
 				break;
 
 		case ROOBIE_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\ROOBIE.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\ROOBIE.PIL" );					
 				break;
 
 		case TANK_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTER\\TANK.PIL" );					
+					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TANK.PIL" );					
 				break;
 
 /*	// Multiplayer object banks
