@@ -128,6 +128,7 @@ void mdxLoadBackdrop(const char* filename);
 
 void mdxDrawBackdrop();
 void mdxFreeBackdrop();
+void ScreenShot();
 
 #ifdef __cplusplus
 }

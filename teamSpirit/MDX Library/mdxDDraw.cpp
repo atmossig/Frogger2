@@ -749,3 +749,74 @@ void mdxFreeBackdrop()
 	if (backdrop)
 		backdrop->Release();
 }
+
+#define REDVAL(x) ((((x>>11)&0x1f) * 0xff)/0x1f)
+#define GREENVAL(x) ((((x>>5)&0x3f) * 0xff)/0x3f)
+#define BLUEVAL(x) ((((x>>0)&0x1f) * 0xff)/0x1f)
+int picnum = 0;
+
+void ScreenShot()
+{
+	char	filename[MAX_PATH];
+	FILE *file;
+	short *screen;
+	long pitch;
+	int x, y;
+	unsigned short pixel;
+	unsigned char	col;
+	unsigned char	line[1280 * 4];
+	int	linePos;
+
+	DDSURFACEDESC2		ddsd;
+	DDINIT(ddsd);
+	
+
+
+
+	dp("==================\n");
+	dp("Taking screen shot\n");
+
+
+	sprintf(filename, "c:\\frogshot%04d_%lux%lu.raw", picnum++,rXRes,rYRes);
+	file =	fopen(filename, "wb");
+	
+	if(!file)
+	{
+		dp("FILEERROR: could not open file:\n");
+		return;
+	}
+
+	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+	
+	screen = (short *)ddsd.lpSurface;
+	pitch = ddsd.lPitch/2;
+
+	y = 0;
+	while (y<rYRes)
+	{
+		linePos = 0;
+		
+		for(x = 0; x < rXRes; x++)
+		{
+			pixel = screen[x + pitch * y];
+
+			col = REDVAL(pixel);
+			line[linePos++] = col;
+			col = GREENVAL(pixel);
+			line[linePos++] = col;
+			col = BLUEVAL(pixel);
+			line[linePos++] = col;
+		}
+
+		y++;
+
+		fwrite(line, rXRes*3,1,file);	
+		
+	}
+
+	surface[RENDER_SRF]->Unlock(NULL);	
+
+	fclose(file);	
+}
+
+

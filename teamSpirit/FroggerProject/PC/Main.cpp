@@ -606,7 +606,9 @@ long DrawLoop(void)
 	StartTimer(17,"Flip");
 	BeginDraw();
 	EndDraw();
-	
+
+	if (KEYPRESS(DIK_F9))
+		ScreenShot();
 	DDrawFlip();
 	EndTimer(17);
 	StartTimer(18,"Clear");
