@@ -260,7 +260,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	//PrepareSong ( 1 );
 /*	InitSaveData();
 	SaveGameData();*/
-	gameState.mode		= FRONTEND_MODE;
+	gameState.mode		= INGAME_MODE;
 	//frontEndState.mode	= TITLE_MODE;
 
 	// initialise PC stuff and DirectX / Direct3D
@@ -286,6 +286,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (!runHardware)
 		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
+	FreeAllLists();
+	InitLevel(WORLDID_LANGUAGE,LEVELID_FRONTEND1);
+    
     while(ok)
 	{
 		StartTimer(10,"Msg");

@@ -87,7 +87,7 @@ void XformActorList()
 	cur = actList;
 	while(cur)
 	{
-		if (frontEndState.mode != OBJVIEW_MODE)
+		if (gameState.mode == INGAME_MODE)
 		{
 			// calculate the distance between the camera and this actor
 			cur->distanceFromFrog = DistanceBetweenPointsSquared(&cur->actor->pos,&frog[0]->actor->pos);
@@ -261,6 +261,12 @@ void DrawActorList()
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
+				
+		if (cur->flags & ACTOR_MODGETEX)
+			modgyObject = 1;
+		else
+			modgyObject = 0;
+
 			DrawActor(cur->actor);
 		}
 		
