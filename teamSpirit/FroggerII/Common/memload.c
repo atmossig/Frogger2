@@ -278,7 +278,7 @@ EVENT* MemLoadEvent(UBYTE** p, int type)
 		params[0] = MemLoadString(p);
 		event =	MakeEvent(DebugEvent, 1, params);
 		break;
-
+/*
 	case EV_CHANGEACTORSCALE: // ID, float
 		params = AllocArgs(2);
 		if (!(actor = GetUniqueActor2(MEMGETINT(p)))) return 0;
@@ -288,7 +288,7 @@ EVENT* MemLoadEvent(UBYTE** p, int type)
 		params[1] = (void*)v;
 		event =	MakeEvent(ChangeActorScale, 2, params);
 		break;
-
+*/
 	case EV_TOGGLEPLATFORMMOVE:
 		params = AllocArgs(1);
 		params[0] = (void*)GetPlatformFromUID(MEMGETINT(p));
