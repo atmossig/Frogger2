@@ -103,6 +103,7 @@ lang	group	over(video),file("lang.bin")
 	include "isltex.obj"
 	include "savegame.obj"
 	include "flatpack.obj"
+	include "islmem.obj"
 
 ;	include "ANIM.obj"
 ;	include "TEXTOVER.obj"
@@ -166,7 +167,7 @@ lang	group	over(video),file("lang.bin")
 ;	include "custom2.obj"
 
 ;	inclib  "islpsi.lib"
-    inclib  "islmem.lib"
+;    inclib  "islmem.lib"
     inclib  "islfile.lib"
 ;    inclib  "isltex.lib"
 ;	inclib  "islfont.lib"
