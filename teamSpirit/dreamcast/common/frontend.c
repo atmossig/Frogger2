@@ -178,7 +178,11 @@ void GameLoop(void)
 		// *ASL* 10/08/2000 - Abort to BootROM on user quit within front end 
 		else if (gameState.mode == FRONTEND_MODE)
 		{
-			// !!like to put in a screen fade here rather than just quitting!!
+			// are we in the credit sequence?
+			if (
+			{
+				flag to end credits.. as soon as possible
+			}
 
 			// set abort flag
 			globalAbortFlag = 1;

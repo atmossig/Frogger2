@@ -2909,6 +2909,12 @@ void DoCredits()
 			DEC_ALPHA(options.extras[j]);
 		}
 	}
+
+
+	// *ASL* 12/08/2000 - End of credits from 
+
+
+
 	for(j = 0;;j++)
 	{
 		spacing += creditData[j].spacing;
