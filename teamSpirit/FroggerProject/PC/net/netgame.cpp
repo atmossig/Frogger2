@@ -185,7 +185,6 @@ void NetgameBegin()
 	else
 	{
 		hostSync = wasSync = false;
-		Sleep(10000);
 	}
 }
 

@@ -189,8 +189,8 @@ int NetRaceRun()
 					mpl[i].penalText->draw = 0;
 			}
 
-			if (frog[i]->actor->position.vz > frog[leadingPlayer]->actor->position.vz)
-				leadingPlayer = i;
+			//if (frog[i]->actor->position.vz > frog[leadingPlayer]->actor->position.vz)
+			//	leadingPlayer = i;
 
 			if(!frog[i]) continue;
 
@@ -214,7 +214,7 @@ int NetRaceRun()
 			}
 		}
 
-		if (leadingPlayer != 0)	GTInit( &player[i].quickhop, 3 );
+		//if (leadingPlayer != 0)	GTInit( &player[i].quickhop, 3 );
 
 		if( currTile[0]->state == TILESTATE_FINISHLINE && mpl[0].lasttile != TILESTATE_FINISHLINE )
 		{
