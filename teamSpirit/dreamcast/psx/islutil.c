@@ -13,6 +13,7 @@
 //#include <libsn.h>
 #include <sn_fcntl.h>   /* LibCross file types. */
 #include <usrsnasm.h>   /* LibCross I/O routines. */
+#include "fixed.h"
 
 
 #define POLYNOMIAL			0x04c11db7L			// polynomial for crc algorithm
@@ -293,7 +294,7 @@ unsigned long utilSqrt(unsigned long num)
 		j++;
 	}
 
-	return sqrtable[num] << j;
+	return sqrtable[num] << j;	
 }
 
 /**************************************************************************
@@ -305,7 +306,15 @@ unsigned long utilSqrt(unsigned long num)
 
 long utilCalcAngle(long adj,long opp)
 {
+	fixed angle;
+	
+	angle = ((atan2(adj,opp) / 6.283185308) * 4096.0);
+	
+	return angle;
+
+/*
 	long hyp,xsgn,ysgn,sine,quadrant;
+//	long adjsq,oppsq;
 
 	while ((adj>32767)||(opp>32767)||(adj<-32767)||(opp<-32767))
 	{
@@ -318,6 +327,9 @@ long utilCalcAngle(long adj,long opp)
 
 	quadrant = (xsgn * 2) + ysgn;							//
 													  
+//	adjsq = adj * adj;
+//	oppsq = opp * opp;	//
+//	hyp = utilSqrt(adjsq + oppsq);	//
 	hyp = utilSqrt(adj * adj + opp * opp);	//
 	ysgn=((hyp & 0xffff) > 0x7fff);
 
@@ -335,5 +347,7 @@ long utilCalcAngle(long adj,long opp)
 	sine = ((sine + quadrants[quadrant]) + 4096) & 4095;
 	
 	sine |= (hyp & 0xffff0000);
-	return sine;
+	
+	return sine;	
+*/	
 }
