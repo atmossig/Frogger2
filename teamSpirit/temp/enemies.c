@@ -215,8 +215,7 @@ void DoEnemyCollision( ENEMY *cur )
 		{
 			// JIM: checking for lasttile causes totally unfair collision.
 			if( ((currTile[0] == cur->inTile) /*|| (lastTile[0] == cur->inTile)*/) && !player[0].dead.time && 
-				(!(player[0].isSuperHopping) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-				!(player[0].frogState & FROGSTATUS_ISFLOATING) )
+				((!(player[0].isSuperHopping)&&!(player[0].frogState & FROGSTATUS_ISFLOATING)) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{
