@@ -18,7 +18,7 @@
 
 typedef struct
 {
-	unsigned long time;
+	unsigned short time;
 	unsigned long lastCount;
 
 } TIMER;
