@@ -45,7 +45,7 @@ void InitActorAnim(ACTOR *tempActor)
 	tempActor->animation->reachedEndOfAnimation = FALSE;
 
 	// Cue sounds from animations
-	tempActor->animation->sfxMapping = FindSfxMapping( tempActor->objectController->objectID );
+	tempActor->animation->sfxMapping = FindSfxMapping( tempActor->objectController->objectID, tempActor );
 	// Clear all loopflags
 	for( i=0; i<NUM_NME_ANIMS; i++ )
 		tempActor->animation->loopFlags[i] = 0;

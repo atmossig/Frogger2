@@ -129,7 +129,7 @@ extern SAMPLE *genSfx[];
 // Function Prototypes
 
 extern void LoadSfxMapping( int world );
-extern SAMPLE **FindSfxMapping( unsigned long uid );
+extern SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor );
 
 extern void LoadSfx( unsigned long worldID );
 

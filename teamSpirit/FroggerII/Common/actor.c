@@ -304,6 +304,10 @@ void DrawObjects(void)
 				}
 				else
 				{
+					// Put translucent clipping back in when objects are ordered right
+//					if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER )
+//						cur->actor->xluOverride = 100*(1.0-(sqrtf(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)))/ACTOR_DRAWFADERANGE));
+
 					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
 					{
 						// Draw transparent objects.

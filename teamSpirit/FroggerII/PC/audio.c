@@ -400,9 +400,14 @@ void CleanBufferSamples ( void )
 */
 AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, VECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, ACTOR *follow )
 {
-	AMBIENT_SOUND *ptr = &ambientSoundList.head;
-	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
-	
+	AMBIENT_SOUND *ptr;
+	AMBIENT_SOUND *ambientSound;
+
+	if( !sample ) return NULL;
+
+	ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
+	ptr = &ambientSoundList.head;
+
 	if( pos ) SetVector( &ambientSound->pos, pos );
 	if( follow ) ambientSound->follow = follow;
 
@@ -840,6 +845,7 @@ void LoadSfxMapping( int world )
 		case 0: num = NUM_FROG_ANIMS; break;
 //		case 1: num = NUM_MULTI_ANIMS; break;
 		case 2: num = NUM_NME_ANIMS; break;
+		case 3: num = 1; break; // NUM_SCENIC_ANIMS
 		default: num = 0; break;
 		}
 
@@ -852,7 +858,7 @@ void LoadSfxMapping( int world )
 	}
 
 	// Signal end of list
-	sfx_anim_map[index-1] = NULL;
+	sfx_anim_map[index] = NULL;
 
 	JallocFree((UBYTE**)&filename);
 	JallocFree((UBYTE**)&buffer);
@@ -866,7 +872,7 @@ void LoadSfxMapping( int world )
 	Returns 	: Pointer to mapping array
 	Info 		: 
 */
-SAMPLE **FindSfxMapping( unsigned long uid )
+SAMPLE **FindSfxMapping( unsigned long uid, ACTOR *actor )
 {
 	unsigned long act, type, num, index=0;
 
@@ -877,17 +883,30 @@ SAMPLE **FindSfxMapping( unsigned long uid )
 
 	do
 	{
-		// Return a run of samples if we've found the actor
-		if( act == uid )
-			return &sfx_anim_map[index+1];
-
 		// Advance cursor by number depending on actor type
 		type = (unsigned long)sfx_anim_map[index++];
+
+		if( act == uid )
+		{
+			if( type == 3 )
+			{
+				// Make an ambient sound if we've attached a sound to a scenic
+				AddAmbientSound( sfx_anim_map[index], &actor->pos, 500, 100, 128, 0, 0, actor );
+				return NULL;
+			}
+			else
+			{
+				// Return a run of samples if we've found the actor
+				return &sfx_anim_map[index];
+			}
+		}
+
 		switch( type )
 		{
 		case 0: index += NUM_FROG_ANIMS; break;
 //		case 1: index += NUM_MULTI_ANIMS; break;
 		case 2: index += NUM_NME_ANIMS; break;
+		case 3: index ++; break; // Number of scenic animations
 		}
 
 		// Get next actor uid and stop if end of list
