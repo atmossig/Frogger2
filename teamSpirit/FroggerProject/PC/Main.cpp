@@ -535,7 +535,6 @@ long DrawLoop(void)
 		ActorListDraw();
 		EndTimer(1);
 
-		BeginDraw();
 		
 		StartTimer(15,"DAF");
 		if (rHardware)
@@ -544,6 +543,8 @@ long DrawLoop(void)
 			BlankAllFrames();
 		}
 		EndTimer(15);
+
+		BeginDraw();
 		
 		StartTimer(16,"Sprites,text & SpecFX");
 	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
