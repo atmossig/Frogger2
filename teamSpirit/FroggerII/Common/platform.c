@@ -112,6 +112,7 @@ PLATFORM *bus3		= NULL;
 
 PLATFORM *devPlat1	= NULL;
 PLATFORM *devPlat2	= NULL;
+PLATFORM *devPlat3	= NULL;
 
 
 
@@ -189,6 +190,8 @@ PATH debug_path1 = { 4,0,0,0,debug_pathNodes1 };
 PATHNODE debug_pathNodes2[] = { 14,5,45 };
 PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
 
+PATHNODE debug_pathNodes3[] = { 15,45,5 };
+PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
 
 static void	GetActiveTile(PLATFORM *pform);
 
@@ -211,12 +214,16 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		if(levelID == LEVELID_GARDENLAWN)
 		{
 			devPlat1 = NEW_CreateAndAddPlatform("pltlilly.ndo");
-			devPlat1->currSpeed = 2.0F;
+			devPlat1->currSpeed = 3.0F;
 			NEW_AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
 
 			devPlat2 = NEW_CreateAndAddPlatform("pltlilly.ndo");
-			devPlat2->currSpeed = 1.0F;
+			devPlat2->currSpeed = 2.0F;
 			NEW_AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path2,PATH_MAKENODETILEPTRS);
+
+			devPlat3 = NEW_CreateAndAddPlatform("pltlilly.ndo");
+			devPlat3->currSpeed = 1.0F;
+			NEW_AssignPathToPlatform(devPlat3,PLATFORM_NEW_MOVEDOWN | PLATFORM_NEW_STEPONACTIVATED,&debug_path3,PATH_MAKENODETILEPTRS);
 		}
 
 		if ( levelID == LEVELID_GARDENMAZE )
@@ -1194,7 +1201,10 @@ void UpdatePlatforms()
 	PLATFORM *cur,*next;
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd;
-
+	VECTOR moveVec;
+	float lowest,t;
+	int i,newCamFacing,newFrogFacing;
+		
 	if(platformList.numEntries == 0)
 		return;
 	
@@ -1220,24 +1230,97 @@ void UpdatePlatforms()
 
 			// check if this platform has arrived at a path node
 			if(NEW_PlatformHasArrivedAtNode(cur))
-			{
 				NEW_UpdatePlatformPathNodes(cur);
-			}
 		}
 		else
 		{
 			// process platforms that are based on a single node
 
-			// check if this platform is moving up or down
-			if(cur->flags & PLATFORM_NEW_MOVEUP)
+			// get up vector for this platform
+			SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
+			
+			moveVec.v[X] *= cur->currSpeed;
+			moveVec.v[Y] *= cur->currSpeed;
+			moveVec.v[Z] *= cur->currSpeed;
+
+			if(cur->flags & PLATFORM_NEW_STEPONACTIVATED)
 			{
-				// update the platform position
+				// only move up or down when frog is on them - otherwise return to start pos
+
+				if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
+				{
+					// platform has frog on it
+
+					if(cur->flags & PLATFORM_NEW_SINKWITHFROG)
+					{
+						GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
+						GetPositionForPathNodeOffset2(&toPosition,&cur->path->nodes[0]);
+		
+						if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) < DistanceBetweenPointsSquared(&fromPosition,&toPosition))
+							SubFromVector(&cur->pltActor->actor->pos,&moveVec);
+					}
+					else if(cur->flags & PLATFORM_NEW_RISEWITHFROG)
+					{
+						GetPositionForPathNode(&toPosition,&cur->path->nodes[0]);
+						GetPositionForPathNodeOffset2(&fromPosition,&cur->path->nodes[0]);
+
+						if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) < DistanceBetweenPointsSquared(&fromPosition,&toPosition))
+							AddToVector(&cur->pltActor->actor->pos,&moveVec);
+					}
+				}
+				else
+				{
+					// platform has no frog on it - return to original position
+					GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
+					if(DistanceBetweenPointsSquared(&cur->pltActor->actor->pos,&fromPosition) > 25.0F)
+					{
+						if(cur->flags & PLATFORM_NEW_SINKWITHFROG)
+						{
+							AddToVector(&cur->pltActor->actor->pos,&moveVec);
+						}
+						else if(cur->flags & PLATFORM_NEW_RISEWITHFROG)
+						{
+							SubFromVector(&cur->pltActor->actor->pos,&moveVec);
+						}
+					}
+				}
 			}
-			else if(cur->flags & PLATFORM_NEW_MOVEDOWN)
+			else
 			{
-				// update the platform position
+				// check if this platform is moving up or down
+				if(cur->flags & PLATFORM_NEW_MOVEUP)
+				{
+					// platform is moving up
+					AddToVector(&cur->pltActor->actor->pos,&moveVec);
+				}
+				else if(cur->flags & PLATFORM_NEW_MOVEDOWN)
+				{
+					// platform is moving down
+					SubFromVector(&cur->pltActor->actor->pos,&moveVec);
+				}
+	
+				if(NEW_PlatformReachedTopOrBottomPoint(cur))
+					NEW_UpdatePlatformPathNodes(cur);
 			}
 		}
+
+		// determine which world tile the platform is currently 'in'
+//------->		
+		for(i=0; i<4; i++)
+		{
+//------->		
+		
+		oldTile[i] = currTile[i];
+		GetActiveTile(cur);
+
+		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
+		{
+			currTile[i] = cur->inTile;
+			SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
+		}
+//------->		
+		}
+//------->		
 	}
 }
 
@@ -1245,11 +1328,11 @@ void UpdatePlatforms()
 /*	--------------------------------------------------------------------------------
 	Function		: JumpingToTileWithPlatform
 	Purpose			: checks if frog is jumping to a tile that has a platform
-	Parameters		: GAMETILE *
+	Parameters		: GAMETILE *,long
 	Returns			: PLATFORM *
 	Info			: platform returned is platform frog is attempting to jump to
 */
-PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
+PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 {
 	PLATFORM *cur,*next;
 	float distance = 999999999;
@@ -1258,7 +1341,7 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 	float t;
 
 	// check if jumping to a platform
-	nearestPlatform[0] = NULL;
+	nearestPlatform[pl] = NULL;
 
 	if(platformList.numEntries == 0)
 		return NULL;
@@ -1269,14 +1352,14 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 		next = cur->next;
 
 		// process only the platforms that are visible
-		if((!cur->pltActor->draw) || (cur == currPlatform[0]))
+		if((!cur->pltActor->draw) || (cur == currPlatform[pl]))
 			continue;
 
-		t = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->pltActor->actor->pos);
+		t = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&cur->pltActor->actor->pos);
 		if(t < (distance * distance))
 		{
 			distance = t;
-			nearestPlatform[0] = cur;
+			nearestPlatform[pl] = cur;
 		}
 
 		if(cur->inTile == tile)
@@ -1285,41 +1368,41 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile)
 			if(cur->flags & PLATFORM_CANWALKUNDER)
 			{
 				// check height of platform
-				if(fabs(cur->pltActor->actor->pos.v[Y] - frog[0]->actor->pos.v[Y]) > 25.0F)
+				if(Fabs(cur->pltActor->actor->pos.v[Y] - frog[pl]->actor->pos.v[Y]) > 25.0F)
 				{
-					player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-					player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+					player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 					return NULL;
 				}
 			}
 
-			player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-			player[0].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 			return cur;
 		}
 	}
 
 	// if we get here then no platform was in the specified tile - check for nearest platform
-	if(nearestPlatform[0])
+	if(nearestPlatform[pl])
 	{
 		// determine if the nearest platform is moving 'into' the specified tile
-		if(nearestPlatform[0]->path->nodes[nearestPlatform[0]->path->toNode].worldTile == tile)
+		if(nearestPlatform[pl]->path->nodes[nearestPlatform[pl]->path->toNode].worldTile == tile)
 		{
 			// this platform is about to move into the specified tile
 			if(distance < (PLATFORM_GENEROSITY * PLATFORM_GENEROSITY))
 			{
-				player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[0].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 			
-				return nearestPlatform[0];
+				return nearestPlatform[pl];
 			}
 		}
 	}
 
 	// if we get here then frog is not jumping to a platform (e.g. no platform, missed a platform)
-	player[0].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-	player[0].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 	return NULL;
 }
@@ -1396,9 +1479,8 @@ void GetNextLocalPlatform(unsigned long direction)
 	Returns			: PLATFORM *
 	Info			: 
 */
-PLATFORM *GetPlatformFrogIsOn()
+PLATFORM *GetPlatformFrogIsOn(long pl)
 {
-/*
 	PLATFORM *cur,*next;
 
 	if(platformList.numEntries == 0)
@@ -1412,10 +1494,10 @@ PLATFORM *GetPlatformFrogIsOn()
 		if(!cur->pltActor->draw)
 			continue;
 
-		if(cur->flags & PLATFORM_CARRYINGFROG)
+		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 			return cur;
 	}
-*/
+
 	return NULL;
 }
 
@@ -1465,50 +1547,10 @@ void ResetPlatformFlags()
 	{
 		next = cur->next;
 
-		cur->flags &= ~PLATFORM_CARRYINGFROG;
+		cur->flags		&= ~PLATFORM_NEW_CARRYINGFROG;
+		cur->carrying	= NULL;
 	}
 }
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ResetPlatformPositions
-	Purpose			: resets platform positions to start of path, etc.
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void ResetPlatformPositions()
-{
-	PLATFORM *cur,*next;
-
-	if(platformList.numEntries == 0)
-		return;
-
-	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
-	{
-		next = cur->next;
-
-		cur->flags = cur->originalFlags;
-		if(cur->flags & PLATFORM_HASPATH)
-		{
-			if(cur->flags & PLATFORM_PATHFORWARDS)
-			{
-				cur->path->fromNode = cur->path->startNode;
-				cur->path->toNode	= cur->path->fromNode + 1;
-			}
-			
-			if(cur->flags & PLATFORM_PATHBACKWARDS)
-			{
-				cur->path->fromNode = cur->path->startNode;
-				cur->path->toNode	= cur->path->fromNode - 1;
-			}
-
-			SetVector(&cur->pltActor->actor->pos,&cur->path->nodes[cur->path->fromNode].worldTile->centre);
-			NormalToQuaternion(&cur->pltActor->actor->qRot,&cur->path->nodes[cur->path->fromNode].worldTile->normal);
-		}
-	}
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: PlatformHasArrivedAtNode
@@ -1543,7 +1585,7 @@ static void	GetActiveTile(PLATFORM *pform)
 	VECTOR v1,v2,diff;
 	float halfdist;
 	
-	if( ( pform->flags & PLATFORM_HASPATH ) || ( pform->flags & PLATFORM_PATH_MOVEUPDOWN ))
+	if((pform->flags & PLATFORM_NEW_FOLLOWPATH ) || (pform->flags & PLATFORM_NEW_MOVEUP) || (pform->flags & PLATFORM_NEW_MOVEDOWN))
 	{
 		GetPositionForPathNode(&v1,&pform->path->nodes[pform->path->fromNode]);
 		GetPositionForPathNode(&v2,&pform->path->nodes[pform->path->toNode]);
@@ -1739,6 +1781,9 @@ PLATFORM *NEW_CreateAndAddPlatform(char *pActorName)
 
 	newItem->currSpeed		= 1.0F;
 
+	// set this platform to be carrying no actors (frogs)
+	newItem->carrying		= NULL;
+
 	return newItem;
 }
 
@@ -1782,16 +1827,27 @@ void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *
 	{
 		// this platform moves up
 		pform->path->fromNode = pform->path->toNode = 0;
+
+		// rise under frog weight ?
+		if(platformFlags & PLATFORM_NEW_STEPONACTIVATED)
+			pform->flags |= PLATFORM_NEW_RISEWITHFROG;
 	}
 	else if(platformFlags & PLATFORM_NEW_MOVEDOWN)
 	{
 		// this platform moves down
 		pform->path->fromNode = pform->path->toNode = 0;
+
+		// sinks under frog weight ?
+		if(platformFlags & PLATFORM_NEW_STEPONACTIVATED)
+			pform->flags |= PLATFORM_NEW_SINKWITHFROG;
 	}
 
 	// set platform position to relevant point on path
 	GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
 	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
+
+	// set platform current 'in' tile
+	pform->inTile = path->nodes[pform->path->fromNode].worldTile;
 
 	dprintf"\n"));
 }
@@ -1809,9 +1865,44 @@ BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform)
 	VECTOR nodePos;
 	PATH *path = pform->path;
 
+	// check if path node is reached
 	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
 	if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&nodePos) <  ((pform->currSpeed + 0.1F) * (pform->currSpeed + 0.1F)))
 		return TRUE;
+
+	return FALSE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: NEW_PlatformReachedTopOrBottomPoint
+	Purpose			: checks if a platform has arrived at top or bottom point (1 node based)
+	Parameters		: PLATFORM *
+	Returns			: BOOL - TRUE if node reached, else FALSE
+	Info			: 
+*/
+BOOL NEW_PlatformReachedTopOrBottomPoint(PLATFORM *pform)
+{
+	VECTOR toPos;
+	PATH *path = pform->path;
+
+	// check if path extreme point is reached
+	if(pform->flags & PLATFORM_NEW_MOVEUP)
+	{
+		// moving up
+		GetPositionForPathNodeOffset2(&toPos,&path->nodes[0]);
+
+		if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&toPos) < (pform->currSpeed * pform->currSpeed))
+			return TRUE;
+	}
+	else if(pform->flags & PLATFORM_NEW_MOVEDOWN)
+	{
+		// moving down
+		GetPositionForPathNode(&toPos,&path->nodes[0]);
+
+		if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&toPos) < (pform->currSpeed * pform->currSpeed))
+			return TRUE;
+	}
 
 	return FALSE;
 }
@@ -1893,6 +1984,30 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 		{
 			path->fromNode--;
 			path->toNode--;
+		}
+	}
+	else if(flags & PLATFORM_NEW_MOVEUP)
+	{
+		// path has reached 'top' of path
+		// check if this platform has ping-pong movement
+		if(flags & PLATFORM_NEW_PINGPONG)
+		{
+			// reverse platform movement
+			pform->flags	&= ~PLATFORM_NEW_MOVEUP;
+			pform->flags	|= PLATFORM_NEW_MOVEDOWN;
+			return;
+		}
+	}
+	else if(flags & PLATFORM_NEW_MOVEDOWN)
+	{
+		// path has reached 'bottom' of path
+		// check if this platform has ping-pong movement
+		if(flags & PLATFORM_NEW_PINGPONG)
+		{
+			// reverse platform movement
+			pform->flags	|= PLATFORM_NEW_MOVEUP;
+			pform->flags	&= ~PLATFORM_NEW_MOVEDOWN;
+			return;
 		}
 	}
 }

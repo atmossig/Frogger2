@@ -68,6 +68,8 @@ typedef struct TAGPLATFORM
 
 	PATH					*path;					// ptr to platform path data
 
+	ACTOR2					*carrying;				// current actor platform is carrying
+
 } PLATFORM;
 
 
@@ -97,15 +99,16 @@ extern void AddPlatform(PLATFORM *plat);
 extern void SubPlatform(PLATFORM *plat);
 
 extern void UpdatePlatforms();
-extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile);
 extern void GetNextLocalPlatform(unsigned long direction);
-extern PLATFORM *GetPlatformFrogIsOn();
 extern PLATFORM *GetPlatformForTile(GAMETILE *tile);
 extern BOOL PlatformHasArrivedAtNode(PLATFORM *pform,int nodeID);
 
 extern BOOL PlatformTooHigh(PLATFORM *plat);
 extern BOOL PlatformTooLow(PLATFORM *plat);
 
+
+PLATFORM *GetPlatformFrogIsOn(long pl);
+extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 
 //------------------------------------------------------------------------------------------------
 
@@ -117,11 +120,15 @@ extern BOOL PlatformTooLow(PLATFORM *plat);
 #define PLATFORM_NEW_MOVEUP				(1 << 4)	// platform moves up (1 node paths only)
 #define PLATFORM_NEW_MOVEDOWN			(1 << 5)	// platform moves down (1 node paths only)
 #define PLATFORM_NEW_STEPONACTIVATED	(1 << 6)	// platform is activated when frog is on it
+#define PLATFORM_NEW_SINKWITHFROG		(1 << 7)	// platform sinks when frog is on it
+#define PLATFORM_NEW_RISEWITHFROG		(1 << 8)	// platform sinks when frog is on it
+#define PLATFORM_NEW_CARRYINGFROG		(1 << 9)	// platform is carrying a frog
 
 
 PLATFORM *NEW_CreateAndAddPlatform(char *pActorName);
 void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags);
 BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform);
+BOOL NEW_PlatformReachedTopOrBottomPoint(PLATFORM *pform);
 void NEW_UpdatePlatformPathNodes(PLATFORM *pform);
 
 //------------------------------------------------------------------------------------------------
