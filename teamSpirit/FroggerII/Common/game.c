@@ -782,15 +782,6 @@ void RunGameLoop (void)
 		if (frog[i])
 		{
 			UpdateFroggerPos(i);
-			if (frog[i]->action.frogon!=-1)
-			{
-		  		if(player[i].canJump)
-				{
-					frog[i]->actor->pos.v[X] = frog[frog[i]->action.frogon]->actor->pos.v[X]+sinf(frameCount/30.0)*5;
-					frog[i]->actor->pos.v[Y] = frog[frog[i]->action.frogon]->actor->pos.v[Y]+35;
-					frog[i]->actor->pos.v[Z] = frog[frog[i]->action.frogon]->actor->pos.v[Z]+cosf(frameCount/27.0)*5;
-				}
-			}
 			if (frog[i]->actor)
 			{
 				if (frog[i]->action.healthPoints > 0)
@@ -834,7 +825,7 @@ void RunGameLoop (void)
 
 	while(i--)
 	{
-		if (!(player[i].frogState & FROGSTATUS_ISDEAD))
+		if (!(player[i].frogState & FROGSTATUS_ISDEAD) && player[i].idleEnable )
 		{
 			player[i].idleTime-=gameSpeed;
 			if(player[i].idleTime<1)

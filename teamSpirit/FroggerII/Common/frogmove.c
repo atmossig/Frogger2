@@ -104,6 +104,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].isSinking			= 0;
 	player[p].isQuickHopping	= 0;
 	player[p].idleTime			= MAX_IDLE_TIME;
+	player[p].idleEnable		= 1;
 	player[p].heightJumped		= 0;
 	player[p].jumpTime			= -1;
 }
@@ -620,11 +621,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
 	}
 
-	if (frog[pl]->action.frogunder==-1)
-	{
-		tiledir = dir;
-		dest = GetNextTile(&tiledir, pl);
-	}
+	tiledir = dir;
+	dest = GetNextTile(&tiledir, pl);
 
 	// clear all 'wanting movement' flags
 	player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
@@ -803,7 +801,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 void CheckForFroggerLanding(long pl)
 {
 	VECTOR telePos;
-	unsigned long i;
+	unsigned long i, j;
 	float distance;
 
 	if (player[pl].jumpTime < 0) return;	// we're not even jumping. Duh.
@@ -865,6 +863,26 @@ void CheckForFroggerLanding(long pl)
 	player[pl].isSuperHopping = 0;
 	player[pl].hasDoubleJumped = 0;
 	player[pl].jumpTime = -1;
+
+	// Assume for now that if we've landed after being on another frogs head then we're no longer on it.
+	if( frog[pl]->action.frogon != -1 )
+	{
+		int f = frog[pl]->action.frogon;
+
+		player[f].canJump = 1;
+		frog[f]->action.frogunder = -1;
+		frog[pl]->action.frogon = -1;
+
+		player[pl].idleEnable = 1;
+
+		if( frog[f]->action.frogon == -1 )
+		{
+			player[f].idleEnable = 1;
+			AnimateActor( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, 0.6, 0,0 );
+		}
+		else
+			AnimateActor( frog[f]->actor, FROG_ANIM_PINLOOP, YES, NO, 0.5, 0,0 );
+	}
 
 	if (currPlatform[pl])
 	{
@@ -1037,6 +1055,45 @@ void CheckForFroggerLanding(long pl)
 				player[pl].canJump = FALSE;
 			}
 		}
+
+		// If we've landed on another frog, sit on his head
+		for( i=(pl+1)%NUM_FROGS; i!=pl; i=(i+1)%NUM_FROGS )
+			if( currTile[i] == tile )
+			{
+				// Check if the frog has another frog already on its head
+				j=i;
+				while( frog[j]->action.frogunder != -1 )
+				{
+					nextFrogFacing[j] = frogFacing[j] = frogFacing[pl];
+					SitAndFace( frog[j], currTile[j], frogFacing[j] );
+					j = (j+1)%NUM_FROGS;
+				}
+				if( j==pl ) break;
+
+				player[j].canJump = 0;
+
+				frog[pl]->action.frogon = j;
+				frog[j]->action.frogunder = pl;
+
+				player[pl].idleEnable = 0;
+				player[j].idleEnable = 0;
+
+				StartAnimateActor( frog[pl]->actor, FROG_ANIM_PINLOOP, YES, NO, 0.5, 0,0 );
+
+				if( frog[j]->action.frogon != -1 )
+				{
+					VECTOR up;
+					SetVector( &up, &currTile[j]->normal );
+					ScaleVector( &up, 10 );
+					AddVector( &frog[j]->actor->pos, &frog[frog[j]->action.frogon]->actor->pos, &up );
+				}
+
+				SetVector( &frog[pl]->actor->pos, &frog[j]->actor->pos );
+
+				AnimateActor( frog[j]->actor, FROG_ANIM_PINNED, NO, NO, 1.0, 0,0 );
+				StartAnimateActor( frog[j]->actor, FROG_ANIM_PINNEDLOOP, YES, YES, 0.5, 0,0 );
+			}
+
 		// Check for camera transitions on the tile
 		CheckForDynamicCameraChange(tile);
 

@@ -97,7 +97,7 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 {
 	float dp;
 	VECTOR to;
-	int i;
+	int i, no=0;
 
 	if( !tongue[pl].canTongue || !player[pl].canJump ) return;
 
@@ -119,77 +119,81 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 
 	tongue[pl].progress = 0;
 
+	if( tongue[pl].type == TONGUE_GET_FROG )
+	{
+		int i;
+		for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
+		if( i!=MAX_FROGS ) 
+		{
+			if( frog[i]->action.frogunder != -1 ) no=1;
+			if( frog[i]->action.frogon != -1 ) no=1;
+		}
+	}
+
 	// Calculate angle through which the tongue needs to rotate
 	dp = DotProduct( &tongue[pl].fwd, &to );
-	if( dp < TONGUE_WRAPAROUNDTHRESHOLD )
+	if( dp<TONGUE_WRAPAROUNDTHRESHOLD || no )
 	{
 		tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
 		tongue[pl].thing = NULL;
+		return;
+	}
+
+	tongue[pl].type = type;
+
+	FindTexture( &tongue[pl].tex,UpdateCRC("tongue1.bmp"),YES);
+
+	if( !tongue[pl].sprite )
+	{
+		tongue[pl].sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_TONGUENODES, YES, "TSprite" );
+
+		for( i=0; i<MAX_TONGUENODES; i++ )
+		{
+			tongue[pl].sprite[i].texture = tongue[pl].tex;
+
+			tongue[pl].sprite[i].anim.type	= SPRITE_ANIM_NONE;
+			
+			tongue[pl].sprite[i].scaleX		= 32;	//48 - (pl << 2);
+			tongue[pl].sprite[i].scaleY		= 32;
+			tongue[pl].sprite[i].r			= 255;
+			tongue[pl].sprite[i].g			= 70;
+			tongue[pl].sprite[i].b			= 70;
+			tongue[pl].sprite[i].a			= 0;
+
+#ifndef PC_VERSION
+			tongue[pl].sprite[i].offsetX		= -tongue[pl].tex->sx / 2;
+			tongue[pl].sprite[i].offsetY		= -tongue[pl].tex->sy / 2;
+#else
+			tongue[pl].sprite[i].offsetX		= -16;
+			tongue[pl].sprite[i].offsetY		= -16;
+#endif
+			AddSprite( &tongue[pl].sprite[i], NULL );
+		}
+
 	}
 	else
 	{
-		tongue[pl].type = type;
-
-		FindTexture( &tongue[pl].tex,UpdateCRC("tongue1.bmp"),YES);
-
-		if( !tongue[pl].sprite )
+		for( i=0; i<MAX_TONGUENODES; i++ )
 		{
-			tongue[pl].sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_TONGUENODES, YES, "TSprite" );
-
-			for( i=0; i<MAX_TONGUENODES; i++ )
-			{
-				tongue[pl].sprite[i].texture = tongue[pl].tex;
-
-				tongue[pl].sprite[i].anim.type	= SPRITE_ANIM_NONE;
-				
-				tongue[pl].sprite[i].scaleX		= 32;	//48 - (pl << 2);
-				tongue[pl].sprite[i].scaleY		= 32;
-				tongue[pl].sprite[i].r			= 255;
-				tongue[pl].sprite[i].g			= 70;
-				tongue[pl].sprite[i].b			= 70;
-				tongue[pl].sprite[i].a			= 0;
-
-#ifndef PC_VERSION
-				tongue[pl].sprite[i].offsetX		= -tongue[pl].tex->sx / 2;
-				tongue[pl].sprite[i].offsetY		= -tongue[pl].tex->sy / 2;
-#else
-				tongue[pl].sprite[i].offsetX		= -16;
-				tongue[pl].sprite[i].offsetY		= -16;
-#endif
-				AddSprite( &tongue[pl].sprite[i], NULL );
-			}
-
+			AddSprite( &tongue[pl].sprite[i], NULL );
+			tongue[pl].sprite[i].a = 0;
 		}
-		else
-		{
-			for( i=0; i<MAX_TONGUENODES; i++ )
-			{
-				AddSprite( &tongue[pl].sprite[i], NULL );
-				tongue[pl].sprite[i].a = 0;
-			}
-		}
-
-		// Set frog mouth open animation, and the speed
-		frog[pl]->actor->animation->animTime = 0;
-		AnimateActor( frog[pl]->actor, FROG_ANIM_USINGTONGUE, NO, NO, 0.5F, 0, 0 );
-
-		tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
-		tongue[pl].canTongue = 0;
-
-		if( tongue[pl].type == TONGUE_GET_FROG ) // Throw frog backwards, over our head, as far as he will go
-		{
-			int i;
-			for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
-			if( i!=MAX_FROGS ) 
-			{
-				tongue[i].canTongue = 0;
-				player[i].canJump = 0;
-//				AnimateActor( frog[i]->actor, FROG_ANIM_DROWNING, YES, NO, 0.5, 0,0 );
-			}
-		}
-
-		PlaySample(GEN_FROG_TONGUE,&frog[pl]->actor->pos,0,100-Random(15),100-Random(15));
 	}
+
+	// Set frog mouth open animation, and the speed
+	frog[pl]->actor->animation->animTime = 0;
+	AnimateActor( frog[pl]->actor, FROG_ANIM_USINGTONGUE, NO, NO, 0.5F, 0, 0 );
+
+	tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
+	tongue[pl].canTongue = 0;
+
+	if( (tongue[pl].type == TONGUE_GET_FROG) && (i!= MAX_FROGS) )
+	{
+		tongue[i].canTongue = 0;
+		player[i].canJump = 0;
+	}
+
+	PlaySample(GEN_FROG_TONGUE,&frog[pl]->actor->pos,0,100-Random(15),100-Random(15));
 }
 
 
@@ -202,6 +206,7 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 */
 void UpdateFrogTongue( int pl )
 {
+	int i;
 	// Determine tongue state and perform relevant action / update
 
 	if( tongue[pl].flags & TONGUE_IDLE )
@@ -274,8 +279,7 @@ void UpdateFrogTongue( int pl )
 				}
 				else if( tongue[pl].type == TONGUE_GET_FROG )
 				{
-					ACTOR2 *f = (ACTOR2 *)tongue[pl].thing;
-					SetVector( &f->actor->pos, &tongue[pl].pos );
+					SetVector( &((ACTOR2 *)tongue[pl].thing)->actor->pos, &tongue[pl].pos );
 				}
 				else if( tongue[pl].type == TONGUE_GET_SCENIC )
 				{
@@ -308,8 +312,7 @@ void UpdateFrogTongue( int pl )
 					}
 					else if( tongue[pl].type == TONGUE_GET_FROG ) // Throw frog as far as he will go
 					{
-						int i, dir;
-
+						int dir;
 						// Find frog based on actor address
 						for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
 						// Chuck the frog according to control direction
