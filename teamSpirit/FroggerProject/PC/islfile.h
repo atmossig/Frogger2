@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 void fileInitialise(char *fileSystem);
-unsigned char *fileLoad(char *fName, int *length);
+unsigned char *fileLoad(const char *fName, int *length);
 
 #ifdef __cplusplus
 }

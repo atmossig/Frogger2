@@ -281,8 +281,8 @@ PATH *EditorPathMake(const EDITPATH *editPath)
 	{
 		node->worldTile = path->tile;
 		node->speed		= GAMEFLOAT(path->speed);
-		node->offset	= GAMEFLOAT(path->offset);
-		node->offset2	= GAMEFLOAT(path->offset2);
+		node->offset	= GAMEFLOAT(path->offset)*10;
+		node->offset2	= GAMEFLOAT(path->offset2)*10;
 		node->waitTime  = path->waitTime;
 #ifdef NEW_EDITOR
 		//TODO: node->sample	= FindSample(path->sample);
@@ -539,7 +539,7 @@ int SubGroupMember(void *thing, EDITGROUP *group)
 				prev->link = s->link;
 			else
 				group->nodes = s->link;
-			free((UBYTE**)&s);
+			free(s);
 			return -1;
 		}
 	}
@@ -568,7 +568,7 @@ int ToggleGroupMember(void* thing, EDVECTOR* pos, EDITGROUP *group)
 				prev->link = s->link;
 			else
 				group->nodes = s->link;
-			free((UBYTE**)&s);
+			free(s);
 			return -1;
 		}
 	}

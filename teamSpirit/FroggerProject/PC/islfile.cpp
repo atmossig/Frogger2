@@ -10,7 +10,7 @@ void fileInitialise(char *fileSystem)
 	// do nothing
 }
 
-unsigned char *fileLoad(char *filename, int *bytesRead)
+unsigned char *fileLoad(const char *filename, int *bytesRead)
 {
 	char fname[256];
 	void *buffer;
