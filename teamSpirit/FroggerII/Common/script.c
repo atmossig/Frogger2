@@ -32,6 +32,11 @@ int lineNumber = 0;
 
 #endif
 
+#define SCRIPT_MAX_FLAGS	64
+#define SCRIPT_FLAGS_BYTES	(SCRIPT_MAX_FLAGS/8)
+
+unsigned char scriptFlags[SCRIPT_FLAGS_BYTES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
 /* --------------------------------------------------------------------------------- */
 
 //int Interpret(const UBYTE *buffer);
@@ -51,6 +56,32 @@ float ChangeVolume(int a, float delta)
 	return volTest;
 }
 
+/*	--------------------------------------------------------------------------------
+    Function		: InitScripting
+	Parameters		: void
+	Returns			: TRUE for success (currently ALWAYS returns true)
+*/
+
+int InitScripting(void)
+{
+	memset(scriptFlags, 0, SCRIPT_FLAGS_BYTES);
+	return TRUE;
+}
+
+/*	--------------------------------------------------------------------------------
+    Function		: PrintScriptDebugMessage
+	Parameters		: const char* str
+	Returns			: 
+*/
+
+void PrintScriptDebugMessage(const char* str)
+{
+	dprintf"[Interpreter Debug] %s", str));
+
+	if(lineNumber) dprintf" (line %d)", lineNumber));
+
+	dprintf"\n"));
+}
 /* --------------------------------------------------------------------------------- */
 
 ACTOR2 *GetActorFromUID(int UID)
@@ -81,7 +112,16 @@ ACTOR2 *GetActorFromUID(int UID)
 GAMETILE *GetTileFromNumber(int number)
 {
 	GAMETILE *tile;
-	for (tile = firstTile; number; number--, tile = tile->next);
+	for (tile = firstTile; number && tile; number--, tile = tile->next);
+#ifdef DEBUG_SCRIPTING
+	if (!tile)
+	{
+		char buf[40];
+		sprintf(buf, "Invalid tile number: %d", number);
+		PrintScriptDebugMessage(buf);
+	}
+#endif
+
 	return tile;
 }
 
@@ -114,7 +154,19 @@ int ORtrigger(TRIGGER *t)
 	return a->func(a) || b->func(b);
 }
 
+int NOTtrigger(TRIGGER *t)
+{
+	TRIGGER *a = (TRIGGER*)t->data[0];
+	return !a->func(a);
+}
+
 int AlwaysTrigger(TRIGGER *t) { return TRUE; }
+
+int OnFlagSet(TRIGGER *t)
+{
+	int f = (int)t->data[0];
+	return (scriptFlags[f >> 3] & (1 << (f & 7))) != 0;
+}
 
 /*	--------------------------------------------------------------------------------
     Function		: LoadTrigger
@@ -252,6 +304,17 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 
+	case TR_NOT:
+		{
+			TRIGGER *a;
+			a = LoadTrigger(p);
+			if (!a) return 0;
+			params = AllocArgs(1);
+			params[0] = (void*)a;
+			trigger = MakeTrigger(NOTtrigger, params);
+		}
+		break;
+
 	case TR_WAIT:
 		{
 			float time = MEMGETFLOAT(p);
@@ -263,6 +326,15 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 
+	case TR_FLAGSET:
+		{
+			int flag = MEMGETBYTE(p);
+			params = AllocArgs(1);
+			(int)params[0] = flag;
+			trigger = MakeTrigger(OnFlagSet, params);
+		}
+		break;
+		
 	default:
 #ifdef DEBUG_SCRIPTING
 		dprintf"Unrecognised trigger type %02x, skipping\n", token));
@@ -271,15 +343,6 @@ TRIGGER *LoadTrigger(UBYTE **p)
 	}
 
 	return trigger;
-}
-
-void PrintScriptDebugMessage(const char* str)
-{
-	dprintf"[Interpreter Debug] %s", str));
-
-	if(lineNumber) dprintf" (line %d)", lineNumber));
-
-	dprintf"\n"));
 }
 
 /*	--------------------------------------------------------------------------------
@@ -694,11 +757,21 @@ Vis:
 	case EV_NO_FOG:	fog.mode = 0; break;
 
 	case EV_CAMEOMODE_ON:
-		PrintScriptDebugMessage("CameoModeOn() : CAMEO MODE IS BROKEN!!");
+		{
+			//PrintScriptDebugMessage("CameoModeOn() : CAMEO MODE IS BROKEN!!");
+			int pl;
+			for (pl = 0; pl < MAX_FROGS; pl++)
+				player[pl].canJump = 0;
+		}
 		break;
 
 	case EV_CAMEOMODE_OFF:
-		PrintScriptDebugMessage("CameoModeOff() : CAMEO MODE IS BROKEN!!");
+		{
+			//PrintScriptDebugMessage("CameoModeOff() : CAMEO MODE IS BROKEN!!");
+			int pl;
+			for (pl = 0; pl < MAX_FROGS; pl++)
+				player[pl].canJump = 1;
+		}
 		break;
 
 	case EV_HOP:
@@ -706,6 +779,20 @@ Vis:
 			int pl = MEMGETBYTE(p);
 			GAMETILE *tile = GetTileFromNumber(MEMGETINT(p));
 			HopFrogToTile(tile, pl);
+			break;
+		}
+
+	case EV_SETFLAG:
+		{
+			int flag = MEMGETBYTE(p);
+			scriptFlags[flag >> 3] |= (1 << (flag & 7));
+			break;
+		}
+
+	case EV_RESETFLAG:
+		{
+			int flag = MEMGETBYTE(p);
+			scriptFlags[flag >> 3] &= ~(1 << (flag & 7));
 			break;
 		}
 
