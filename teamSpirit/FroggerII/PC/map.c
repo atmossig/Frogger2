@@ -625,6 +625,8 @@ BOOL LoadScenics (int num)
 		
 		if (GetSc000Address)
 			Sc_000 = (SCENIC*)GetSc000Address();
+		else
+			Sc_000 = NULL;
 	}
 	else
 		return FALSE;
