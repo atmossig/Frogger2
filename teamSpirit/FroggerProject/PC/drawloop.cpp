@@ -241,7 +241,8 @@ long DrawLoop(void)
 
 		D3DSetupRenderstates(xluZRS);
 		// FX and shadows
-		DrawSpecialFX();
+		if( gameState.mode != MULTI_WINMATCH_MODE )
+			DrawSpecialFX();
 
 		// Light halos
 	//	CheckHaloPoints();
