@@ -157,6 +157,9 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 	long i, zeroZ=0;
 	float t;
 
+	ScaleVector( pos, 0.1 );
+	size *= 0.1;
+
 	vT[0].sx = size;
 	vT[0].sy = offset;
 	vT[0].sz = size;
@@ -232,7 +235,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 
 void DrawFXDecal( SPECFX *fx )
 {
-	MDX_VECTOR tempVect, m, fwd, scale, normal;
+	MDX_VECTOR tempVect, m, fwd, scale, normal, pos;
 	D3DTLVERTEX vT[5];
 	MDX_TEXENTRY *tEntry;
 	MDX_QUATERNION q1, q2, q3;
@@ -244,6 +247,10 @@ void DrawFXDecal( SPECFX *fx )
 
 	SetVectorRF( &scale, &fx->scale );
 	SetVectorRF( &normal, &fx->normal );
+	SetVectorRS( &pos, &fx->origin );
+
+	ScaleVector( &pos, 0.1 );
+	ScaleVector( &scale, 0.1 );
 
 	vT[0].sx = scale.vx;
 	vT[0].sy = 0;
@@ -278,7 +285,7 @@ void DrawFXDecal( SPECFX *fx )
 	vT[3].specular = vT[0].specular;
 
 	// Translate to current fx pos and push
-	guTranslateF( tMtrx, fx->origin.vx, fx->origin.vy, fx->origin.vz );
+	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
 
 	// Rotate to be around normal
@@ -306,7 +313,7 @@ void DrawFXDecal( SPECFX *fx )
 
 	for( i=0; i<4; i++ )
 	{
-		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.vz, &tempVect.vy, &tempVect.vz );
+		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
 		XfmPoint( &m, &tempVect, NULL );
 
 		// Assign back to vT array
@@ -351,7 +358,7 @@ void DrawFXRing( SPECFX *fx )
 	unsigned long vx, i, j;
 	D3DTLVERTEX vT[4], vT2[3];
 	MDX_TEXENTRY *tEntry;
-	MDX_VECTOR tempVect, m, scale, normal;
+	MDX_VECTOR tempVect, m, scale, normal, pos;
 	MDX_QUATERNION q1, q2, q3, cross;
 	DWORD colour = D3DRGBA(fx->r/255.0,fx->g/255.0,fx->b/255.0,fx->a/255.0);
 	float tilt, t;
@@ -364,9 +371,13 @@ void DrawFXRing( SPECFX *fx )
 
 	SetVectorRF( &scale, &fx->scale );
 	SetVectorRF( &normal, &fx->normal );
+	SetVectorRS( &pos, &fx->origin );
+
+	ScaleVector( &scale, 0.1 );
+	ScaleVector( &pos, 0.1 );
 
 	// Translate to current fx pos and push
-	guTranslateF( tMtrx, fx->origin.vx, fx->origin.vy, fx->origin.vz );
+	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
 
 	// Rotate around axis
@@ -494,6 +505,8 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i )
 	MDX_VECTOR pos, m;
 
 	AddVector( &pos, &fx->origin, &fx->particles[i].pos );
+	ScaleVector( &pos, 0.1 );
+
 	// Translate to current fx pos and push
 	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
@@ -518,13 +531,13 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i )
 	// Precalculated rotation
 	PushMatrix( (MDX_MATRIX *)fx->particles[i].rMtrx );
 
-	vT[0].sx = fx->particles[i].poly[0].vx;
-	vT[0].sy = fx->particles[i].poly[0].vy;
-	vT[0].sz = fx->particles[i].poly[0].vz;
+	vT[0].sx = fx->particles[i].poly[0].vx*0.1;
+	vT[0].sy = fx->particles[i].poly[0].vy*0.1;
+	vT[0].sz = fx->particles[i].poly[0].vz*0.1;
 	vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
-	vT[1].sx = fx->particles[i].poly[1].vx;
-	vT[1].sy = fx->particles[i].poly[1].vy;
-	vT[1].sz = fx->particles[i].poly[1].vz;
+	vT[1].sx = fx->particles[i].poly[1].vx*0.1;
+	vT[1].sy = fx->particles[i].poly[1].vy*0.1;
+	vT[1].sz = fx->particles[i].poly[1].vz*0.1;
 	vT[1].color = vT[0].color;
 
 	// Transform point by combined matrix
@@ -576,9 +589,9 @@ void DrawFXLightning( SPECFX *fx )
 		else
 		{
 			// Otherwise, transform them again
-			tempVect.vx = p->poly[0].vx;
-			tempVect.vy = p->poly[0].vy;
-			tempVect.vz = p->poly[0].vz;
+			tempVect.vx = p->poly[0].vx*0.1;
+			tempVect.vy = p->poly[0].vy*0.1;
+			tempVect.vz = p->poly[0].vz*0.1;
 			XfmPoint( &m, &tempVect, NULL );
 			vT[0].sx = m.vx;
 			vT[0].sy = m.vy;
@@ -587,9 +600,9 @@ void DrawFXLightning( SPECFX *fx )
 			vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 			vT[0].color = D3DRGBA(p->r/255.0, p->g/255.0, p->b/255.0, p->a/255.0);
 
-			tempVect.vx = p->poly[1].vx;
-			tempVect.vy = p->poly[1].vy;
-			tempVect.vz = p->poly[1].vz;
+			tempVect.vx = p->poly[1].vx*0.1;
+			tempVect.vy = p->poly[1].vy*0.1;
+			tempVect.vz = p->poly[1].vz*0.1;
 			XfmPoint( &m, &tempVect, NULL );
 			vT[1].sx = m.vx;
 			vT[1].sy = m.vy;
@@ -600,9 +613,9 @@ void DrawFXLightning( SPECFX *fx )
 		}
 
 		// Now the next two, to make a quad
-		tempVect.vx = p->next->poly[1].vx;
-		tempVect.vy = p->next->poly[1].vy;
-		tempVect.vz = p->next->poly[1].vz;
+		tempVect.vx = p->next->poly[1].vx*0.1;
+		tempVect.vy = p->next->poly[1].vy*0.1;
+		tempVect.vz = p->next->poly[1].vz*0.1;
 		XfmPoint( &m, &tempVect, NULL );
 		vT[2].sx = m.vx;
 		vT[2].sy = m.vy;
@@ -611,9 +624,9 @@ void DrawFXLightning( SPECFX *fx )
 		vT[2].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
 		vT[2].color = vT[0].color;
 
-		tempVect.vx = p->next->poly[0].vx;
-		tempVect.vy = p->next->poly[0].vy;
-		tempVect.vz = p->next->poly[0].vz;
+		tempVect.vx = p->next->poly[0].vx*0.1;
+		tempVect.vy = p->next->poly[0].vy*0.1;
+		tempVect.vz = p->next->poly[0].vz*0.1;
 		XfmPoint( &m, &tempVect, NULL );
 		vT[3].sx = m.vx;
 		vT[3].sy = m.vy;
@@ -847,6 +860,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	MDX_VECTOR pos, m, normal;
 
 	SetVectorRF( &pos, &t->segment[i] );
+	ScaleVector( &pos, 0.1 );
 	// Translate to current fx pos and push
 	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
 	PushMatrix( tMtrx );
