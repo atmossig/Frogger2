@@ -178,6 +178,7 @@ u8 actorIsVisible(ACTOR *actor);
 
 void ScalePsi(PSIMESH* pPSI);
 
+void *ChangeModelNoUndo( ACTOR *actor, char *model );
 void *ChangeModel( ACTOR *actor, char *model );
 int UndoChangeModel( ACTOR *actor );
 
