@@ -134,7 +134,7 @@ bool SetupChatDialog(HWND hdlg)
 
 	pf.cbSize = sizeof(pf);
 	pf.dwMask = PFM_OFFSET;
-	pf.dxOffset = 512;
+	pf.dxOffset = 256;
 	SendMessage(hwndChatEdit, EM_SETPARAFORMAT, 0, (LPARAM)&pf);
 
 	ShowMessage(isHost?"I'm the server!":"Joined a game!", CHAT_SYSTEM);

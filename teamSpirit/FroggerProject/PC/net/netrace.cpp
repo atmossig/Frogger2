@@ -179,9 +179,6 @@ int NetRaceRun()
 			KillMPFrog(0);
 		}
 */
-		int leadingPlayer=0;
-		for (i=1; i<NUM_FROGS; i++)
-
 		for( i=0; i<NUM_FROGS; i++ )
 		{
 			// Do overlay stuff

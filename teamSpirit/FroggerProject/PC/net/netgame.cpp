@@ -185,19 +185,20 @@ void NetgameBegin()
 	else
 	{
 		hostSync = wasSync = false;
+		Sleep(10000);
 	}
 }
 
 void NetgameHostGame()
 {
-	if (!hostReady)
+	if (!gameReady)
 	{
 		unsigned char msg;
 
-		msg = APPMSG_READY;
+		msg = APPMSG_HOSTREADY;
 		NetBroadcastUrgentMessage(&msg, 1);
 
-		hostReady = hostSync = wasSync = true;
+		hostReady = hostSync = true;
 	}
 }
 
@@ -211,56 +212,61 @@ void NetgameHostGame()
 
 void NetgameGameloop()
 {
-	if (!WaitForGameReady())
-		return;
-
-	// Make sure we don't send update messages EVERY frame, in case we're running at, like,
-	// 8 million frames per second, or some junk
-	if (actFrameCount >= nextUpdate)
+	if (gameReady)
 	{
-		SendUpdateMessage();
-		nextUpdate += UPDATE_PERIOD;
-	}
 
-	if (actFrameCount > nextPing)
-	{
-		SendPing();
-		nextPing += PING_PERIOD;
-	}
-
-	bool wasDead = player[0].frogState & FROGSTATUS_ISDEAD;
-
-	if( endTimer.time ) // If finished the race then wait before replaying
-	{
-		GTUpdate( &endTimer, -1 );
-
-		if( !endTimer.time )
-			StartMultiWinGame( );
-
-		return;
-	}
-	else if (netgameLoopFunc) netgameLoopFunc();
-
-	UpdateEnemies();
-	UpdateSpecialEffects();
-
-	// generate a death message if the player ever *becomes* dead
-	if (player[0].frogState & FROGSTATUS_ISDEAD && !wasDead)
-		NetgameDeath();
-
-	int i;
-
-	for (i=1; i<NUM_FROGS; i++)
-	{
-		FroggerHop(i);
-		if (player[i].jumpTime > 4096)
+		// Make sure we don't send update messages EVERY frame, in case we're running at, like,
+		// 8 million frames per second, or some junk
+		if (actFrameCount >= nextUpdate)
 		{
-			player[i].jumpTime = -1;
-			SetVectorSS(&frog[i]->actor->position, &currTile[i]->centre);
-			actorAnimate(frog[i]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
+			SendUpdateMessage();
+			nextUpdate += UPDATE_PERIOD;
+		}
+
+		if (actFrameCount > nextPing)
+		{
+			SendPing();
+			nextPing += PING_PERIOD;
+		}
+
+		bool wasDead = player[0].frogState & FROGSTATUS_ISDEAD;
+
+		if( endTimer.time ) // If finished the race then wait before replaying
+		{
+			GTUpdate( &endTimer, -1 );
+
+			if( !endTimer.time )
+				StartMultiWinGame( );
+
+			return;
+		}
+		else if (netgameLoopFunc) netgameLoopFunc();
+
+		// generate a death message if the player ever *becomes* dead
+		if (player[0].frogState & FROGSTATUS_ISDEAD && !wasDead)
+			NetgameDeath();
+
+		int i;
+
+		for (i=1; i<NUM_FROGS; i++)
+		{
+			FroggerHop(i);
+			if (player[i].jumpTime > 4096)
+			{
+				player[i].jumpTime = -1;
+				SetVectorSS(&frog[i]->actor->position, &currTile[i]->centre);
+				actorAnimate(frog[i]->actor, FROG_ANIM_BREATHE, YES, YES, FROG_BREATHE_SPEED, NO);
+			}
 		}
 	}
+	else
+		WaitForGameReady();
 
+	if (hostSync)
+	{
+		UpdateEnemies();
+		UpdateSpecialEffects();
+	}
 }
 
 void NetgameRun()
@@ -293,9 +299,6 @@ void NetgameRun()
 
 int WaitForGameReady()
 {
-	if (gameReady)
-		return 1;
-
 	if (!hostReady)
 		return 0;
 
@@ -398,7 +401,14 @@ void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player)
 	long latency = ((long)currTime - (long)pingreply->time0) / 2;
 
 	timeInfo.tickCount = (pingreply->reply + latency);
-	timeInfo.firstTicks = (long)currTime - (long)timeInfo.tickCount; //
+	timeInfo.firstTicks = (long)currTime - (long)timeInfo.tickCount;
+
+	utilPrintf("Net: clock sync, count was:\t%d\n", actFrameCount);
+
+	gameSpeed = 2048;
+	actFrameCount = timeInfo.tickCount*(timeInfo.frameSpeed/1000.0F);
+
+	utilPrintf("Net: actframecount is now:\t%d\n", actFrameCount);
 
 	hostSync = true;
 }
@@ -427,7 +437,8 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 		break;
 
 	case APPMSG_PINGREPLY:
-		OnPingReply((MSG_PINGREPLY*)data, player);
+		if (!hostSync)
+			OnPingReply((MSG_PINGREPLY*)data, player);
 		break;
 
 	case APPMSG_READY:
@@ -438,6 +449,12 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 	case APPMSG_HOSTREADY:
 		utilPrintf("Net: Host is ready to sync\n");
 		hostReady = true;
+
+		if (hostSync)
+		{
+			utilPrintf("Net: synching to new host..\n");
+			hostSync = false;
+		}
 		break;
 
 	case APPMSG_DEATH:
