@@ -17,6 +17,10 @@
 	moves up and down on the spot			PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG
 											PLATFORM_NEW_MOVEDOWN | PLATFORM_NEW_PINGPONG
 
+	moves up and down on the spot and		PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG | PLATFORM_NEW_NOWALKUNDER
+	cannot be walked under (e.g. solid		PLATFORM_NEW_MOVEDOWN | PLATFORM_NEW_PINGPONG | PLATFORM_NEW_NOWALKUNDER
+	stone pillar)
+
 	moves up on the spot (rises) when a		PLATFORM_NEW_STEPONACTIVATED | PLATFORM_NEW_MOVEUP
 	frog is on it, and returns to start		
 	position otherwise
@@ -94,7 +98,7 @@ PATHNODE debug_pathNodes3[] =					// TEST PATH - ANDYE
 
 PATHNODE debug_pathNodes4[] =					// TEST PATH - ANDYE
 { 
-	14,50,0,2,0,
+	14,0,100,4,0,
 };
 
 PATH debug_path1 = { 8,0,0,0,debug_pathNodes1 };
@@ -134,9 +138,9 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path3,PATH_MAKENODETILEPTRS);
 
 			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat2,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path4,PATH_MAKENODETILEPTRS);
-			SetPlatformVisibleTime(devPlat2,75);
-			SetPlatformRegenerateTime(devPlat2,100);
+			AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path4,PATH_MAKENODETILEPTRS);
+//			SetPlatformVisibleTime(devPlat2,75);
+//			SetPlatformRegenerateTime(devPlat2,100);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
