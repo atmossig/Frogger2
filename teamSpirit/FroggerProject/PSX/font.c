@@ -9,6 +9,7 @@
 #include <islmem.h>
 #include <islfile.h>
 #include "font.h"
+#include "textures.h"
 
 
 // Richard's funky macros for calculating vram related stuff
@@ -502,12 +503,19 @@ void fontDispSprite(TextureType *tex, short x,short y)
 }
 
 
-void fontRegisterButtonSprites(TextureType *triangle, TextureType *circle, TextureType *cross, TextureType *square)
+void fontInitButtonSprites()
 {
+	buttonSprites[0] = FindTexture("BUT_TRIA");
+	buttonSprites[1] = FindTexture("BUT_CIRC");
+	buttonSprites[2] = FindTexture("BUT_CROS");
+	buttonSprites[3] = FindTexture("BUT_SQUA");
+
+/*
 	buttonSprites[0] = triangle;
 	buttonSprites[1] = circle;
 	buttonSprites[2] = cross;
 	buttonSprites[3] = square;
+*/
 }
 
 

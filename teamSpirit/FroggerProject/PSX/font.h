@@ -86,11 +86,11 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 /**************************************************************************
 	FUNCTION:	fontRegisterButtonSprites()
 	PURPOSE:	Set sprites to be used for button display
-	PARAMETERS:	pointers to sprites
+	PARAMETERS:	
 	RETURNS:	
 **************************************************************************/
 
-void fontRegisterButtonSprites(TextureType *triangle, TextureType *circle, TextureType *cross, TextureType *square);
+void fontInitButtonSprites();
 
 
 /**************************************************************************

@@ -254,7 +254,6 @@ void ShowScreen(void)
 {
 	unsigned long mPitch;
 	DDSURFACEDESC2		ddsd;
-	unsigned long r,g,b,d;
 
 	DDINIT(ddsd);
 	
