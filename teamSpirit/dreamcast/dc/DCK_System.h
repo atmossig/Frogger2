@@ -86,4 +86,16 @@ int checkForControllerInsertedMulti();
 int checkForSoftReset();
 int checkForValidControllers();
 
+
+// *ASL* 12/08/2000
+/* --------------------------------------------------------------------------------
+   Function : initCheckForSoftReset
+   Purpose : initialise the soft reset check (!)
+   Parameters : 
+   Returns : 
+   Info :
+*/
+
+void initCheckForSoftReset();
+
 #endif
