@@ -1364,6 +1364,8 @@ James Hubbard:
 		Throwing the frog against the screen and splatting him and then he slides down, which Dave
 		started a while back. Ran into problems with bloody orientation again.
 
+		Also changed the zwriteenable flag for sprites sp they work again.
+
 
 James Healey:
 ------------------------------------------------
