@@ -213,6 +213,7 @@ extern long *transformedVertices;	// pointer to transformed vert workspace
 extern long *transformedDepths;		// pointer to transformed depth workspace
 extern VERT *transformedNormals;	// pointer to transformed normal workspace
 
+extern int totalObjs;
 
 // function prototypes
 
