@@ -423,6 +423,14 @@ void FreeLevel(void)
 */
 void FreeAllLists ( void )
 {
+	/*<JIM>*/
+	if( triggerList.numEntries )
+		KillAllTriggers( );
+
+	//	if( ambientSoundList.numEntries )
+	//		KillAmbientSfx( );
+	/*</JIM>*/
+
 	FreeActorList();
 	FreeAnimationList();
 	FreeTextureList();

@@ -30,6 +30,7 @@ extern struct gameStateStruct gameState;
 //extern long score,lives;
 extern long gameIsOver;
 extern long levelIsOver;
+extern short showEndLevelScreen;
 
 extern unsigned short screenNum;
 

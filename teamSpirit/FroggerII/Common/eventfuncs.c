@@ -214,6 +214,7 @@ void ToggleEnemyMove( EVENT *event )
 	nme->speed = (nme->speed) ? 0 : nme->startSpeed;
 }
 
+
 /*	--------------------------------------------------------------------------------
 	Function 	: ToggleTileLink
 	Purpose 	: Change whether it is possible to go from one tile to another
@@ -226,6 +227,48 @@ void ToggleTileLink( EVENT *event )
 	GAMETILE *tile = (GAMETILE *)event->data[0];
 
 	tile->state = (tile->state==TILESTATE_BARRED) ? TILESTATE_NORMAL : TILESTATE_BARRED;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: PlaySound
+	Purpose 	: Play an SFX, either sourceless or at a point
+	Parameters 	: Pointer to event structure
+	Returns 	: 
+	Info 		: 
+*/
+void PlaySound( EVENT *event )
+{
+	int snum = *(int *)event->data[0];
+	int vol = *(int *)event->data[1];
+	int pitch = *(int *)event->data[2];
+	VECTOR *point = (VECTOR *)event->data[3];
+	float radius = *(float *)event->data[4];
+
+	if( point )
+		PlaySampleRadius( snum, point, vol, pitch, radius );
+	else
+		PlaySample( snum, point, vol, pitch );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: ChangeLevel
+	Purpose 	: Go to a new level in the game
+	Parameters 	: Pointer to event structure
+	Returns 	: 
+	Info 		: I hope this deallocs everything...
+*/
+void ChangeLevel( EVENT *event )
+{
+	int wNum = *(int *)event->data[0],
+		lNum = *(int *)event->data[1];
+
+	player[0].worldNum = wNum;
+	player[0].levelNum = lNum;
+
+	levelIsOver = 400;
+	showEndLevelScreen = 0;
 }
 
 
@@ -255,6 +298,28 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
+			/*// This should change to level when you hop onto the first platform
+			args = AllocArgs(2);
+			args[0] = (void *)frog[0];
+			args[1] = (void *)platformList.head.next;
+			trigger = MakeTrigger( FrogOnPlatform, 2, args );
+
+			args = AllocArgs(2);
+
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 0;
+			args[0] = (void *)inum;
+
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 2;
+			args[1] = (void *)inum;
+
+			event = MakeEvent( ChangeLevel, 2, args );
+
+			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
+			*/
+			
+			/*	//This is an example of chained events, and some basic events and triggers
 			args = AllocArgs(2);
 			args[0] = (void *)frog[0];
 			args[1] = (void *)platformList.head.next;
@@ -276,10 +341,11 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			event = MakeEvent( TogglePlatformMove, 1, args );
 
 			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );
-
+			*/
 		}
 		else if( levelID == LEVELID_GARDENMAZE )
 		{
+			/* // An example of toggling the motion of an enemy
 			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
 			*fnum = 100;
 			
@@ -294,37 +360,46 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			event = MakeEvent( ToggleEnemyMove, 1, args );
 
 			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );
+			*/
 		}
 		else if( levelID == LEVELID_GARDENVEGPATCH )
 		{
-			pos->v[0] = -75.0;
-			pos->v[1] = 0.0;
-			pos->v[2] = -375.0;
-			
-			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
-			*fnum = 100;
 
-			// Test trigger
-			args = AllocArgs(3);//(void **)JallocAlloc( (sizeof(void *)*3),YES,"EventData" );
+			/* // This triggers a sound when frog is near to baby frog
+			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
+			*fnum = 500;
+
+			args = AllocArgs(3);
 			args[0] = (void *)frog[0]->actor;
-			args[1] = (void *)pos;
+			args[1] = (void *)&bTStart[2]->centre;
 			args[2] = (void *)fnum;
 
 			trigger = MakeTrigger( ActorWithinRadius, 3, args );
 
-			scale->v[0] = 1.0;
-			scale->v[1] = 1.0;
-			scale->v[2] = 1.0;
+			args = AllocArgs(5);
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = FX_CHICKEN_BELCH;
+			args[0] = (void *)inum;
 
-			// Test event
-			args = AllocArgs(2);//(void **)JallocAlloc( (sizeof(void *)*2),YES,"EventData" );
-			args[0] = (void *)frog[0]->actor;
-			args[1] = (void *)scale;
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 200;
+			args[1] = (void *)inum;
 
-			event = MakeEvent( ChangeActorScale, 2, args );
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 50;
+			args[2] = (void *)inum;
+
+			args[3] = (void *)&bTStart[2]->centre; // No position for sound
+
+			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
+			*fnum = 10;
+			args[4] = (void *)fnum;
+
+			event = MakeEvent( PlaySound, 5, args );
 
 			// Attach event to trigger
-			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
+			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );
+			*/
 		}
 	} // etc
 }

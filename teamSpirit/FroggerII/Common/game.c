@@ -52,6 +52,7 @@ unsigned long num = 0;
 
 unsigned long globalLong = 4;
 unsigned long myVar = 4;
+short showEndLevelScreen = 1;
 
 ACTOR2 *demoTug = NULL;
 OBJECT_CONTROLLER *waterObjectCont = NULL;
@@ -919,12 +920,7 @@ void RunGameLoop (void)
 //		runningWaterStuff = 0;
 		ChangeCameraSetting();
 
-		/* Ambient Sound test */
-		//InitAmbientSoundList( );
 		//AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
-
-		/*JIM - Testing smash objects*/
-		//gTStart[0]->next->state = TILESTATE_SMASH;
 
 	}
 
@@ -972,12 +968,6 @@ void RunGameLoop (void)
 			DisableTextOverlay(scoreTextOver);
 //				livesIcon->active = 0;
 
-			if( triggerList.numEntries )
-				KillAllTriggers( );
-
-		//	if( ambientSoundList.numEntries )
-		//		KillAmbientSfx( );
-
 			RunGameOverSequence();
 
 			gameIsOver--;
@@ -1006,32 +996,28 @@ void RunGameLoop (void)
 	}
 	else
 	{
-
 		if ( levelIsOver )
 		{
-			if( triggerList.numEntries )
-				KillAllTriggers( );
-
-			//	if( ambientSoundList.numEntries )
-			//		KillAmbientSfx( );
-
-			RunLevelCompleteSequence();
-
-			if(!levelComplete1->draw)
+			if( showEndLevelScreen )
 			{
-				darkenedLevel = 0;
-				testPause = 1;
-				//sprintf(levelComplete3->text,"you scored %s",scoreText);
-				EnableTextOverlay(levelComplete1);
-				EnableTextOverlay(levelComplete2);
-				scoreTextOver->a = 255;
-				EnableTextOverlay(scoreTextOver);
-				//EnableTextOverlay(levelComplete3);
-			}
+				RunLevelCompleteSequence();
 
-			levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
-			levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;
-			//levelComplete3->a -= (levelComplete3->a - 255) / 20.0F;
+				if(!levelComplete1->draw)
+				{
+					darkenedLevel = 0;
+					testPause = 1;
+					//sprintf(levelComplete3->text,"you scored %s",scoreText);
+					EnableTextOverlay(levelComplete1);
+					EnableTextOverlay(levelComplete2);
+					scoreTextOver->a = 255;
+					EnableTextOverlay(scoreTextOver);
+					//EnableTextOverlay(levelComplete3);
+				}
+
+				levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
+				levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;
+				//levelComplete3->a -= (levelComplete3->a - 255) / 20.0F;
+			}
 
 			levelIsOver--;
 
@@ -1042,10 +1028,10 @@ void RunGameLoop (void)
 
 				frog[0] = NULL;
 				frameCount = 0;
-//				runningWaterStuff = 0;
+				// Only go to next level if in normal level progression.
+				if( showEndLevelScreen )
+					player[0].levelNum++;
 
-				//gameState.mode = FRONT_END_MODE;
-				player[0].levelNum++;
 				player[0].numSpawn	= 0;
 				player[0].timeSec	= 90;
 
@@ -1056,13 +1042,15 @@ void RunGameLoop (void)
 					frontEndState.mode	= TITLE_MODE;
 					gameState.mode		= FRONTEND_MODE;
 				}
-				// ENDIF
+
 				worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].levelOpen |= LEVEL_OPEN;
 
 				InitLevel ( player[0].worldNum, player[0].levelNum );
 				
+				showEndLevelScreen = 1; // Normal level progression is default
+
 				StartDrawing ( "EndGame" );
-				return;	 
+				return;
 			}
 				
 		}
