@@ -1134,40 +1134,37 @@ void ScalePsi(PSIMESH* pMesh)
 */
 void *ChangeModel( ACTOR *actor, char *model )
 {
-//	actorAnimate( frog[0]->actor, 31, NO, NO, 64, 0 );
-
 	ACTOR *newActor;
-
 	PSIMODEL *newModel;
+	char newName[16];
+	int i;
 
-/*	MDX_ACTOR *a = (MDX_ACTOR *)actor->actualActor;
-
-	a->LODObjectController = a->objectController;
-	FindObject( &a->objectController, UpdateCRC(model), model );
-	InitAnims( a );*/
+	while( model[i] != '.' && model[i] != '\0' )
+	{
+		newName[i] = model[i];
+		i++;
+	}
+	newName[i] = '\0';
+	strcat( newName, ".psi" );
 
 	oldModel = actor->psiData;
-
-	newModel = psiCheck ( model );
+	newModel = psiCheck ( newName );
 
 	utilPrintf("Trying To Find New Model %s : %s................\n", model);
 
-	if ( !newModel )
+	if( !newModel )
 	{
 		utilPrintf("Could Not Find Replacment Model................\n");
 		return;
 	}
-	// ENDIF
 
 	newActor = actorCreate ( newModel, 1, 0 );
-
 	oldModel = actor->psiData;
 
 	actor->psiData = newActor->psiData;
 
 	actorInitAnim ( actor );										// initialise animation structure
 	actorSetAnimation ( actor, 0, 1 );										// initialise animation structure
-
 }
 
 
