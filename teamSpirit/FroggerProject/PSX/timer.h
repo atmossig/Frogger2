@@ -8,21 +8,21 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-//#define TIMER_SET_0
-//#define TIMER_START0(x) 	 TIMER_START(x)
-//#define TIMER_STOP0(x)  	 TIMER_STOP(x)
-//#define TIMER_STOP_ADD0(x) TIMER_STOP_ADD(x)
-#define TIMER_START0(x)
-#define TIMER_STOP0(x)
-#define TIMER_STOP_ADD0(x)
+#define TIMER_SET_0
+#define TIMER_START0(x) 	 TIMER_START(x)
+#define TIMER_STOP0(x)  	 TIMER_STOP(x)
+#define TIMER_STOP_ADD0(x) TIMER_STOP_ADD(x)
+// #define TIMER_START0(x)
+// #define TIMER_STOP0(x)
+// #define TIMER_STOP_ADD0(x)
 
-#define TIMER_SET_1
-#define TIMER_START1(x)    TIMER_START(x)
-#define TIMER_STOP1(x) 	   TIMER_STOP(x)
-#define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
-//#define TIMER_START1(x)
-//#define TIMER_STOP1(x)
-//#define TIMER_STOP_ADD1(x)
+// #define TIMER_SET_1
+// #define TIMER_START1(x)    TIMER_START(x)
+// #define TIMER_STOP1(x) 	   TIMER_STOP(x)
+// #define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
+#define TIMER_START1(x)
+#define TIMER_STOP1(x)
+#define TIMER_STOP_ADD1(x)
 
 
 
