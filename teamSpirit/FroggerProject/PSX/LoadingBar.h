@@ -1,23 +1,13 @@
 #ifndef LOADINGBAR_H_INCLUDE
 #define LOADINGBAR_H_INCLUDE
 
-#define NUM_WATER_TILESX 1
-#define NUM_WATER_TILESY 1
+#define NUM_WATER_TILESX 8
+#define NUM_WATER_TILESY 8
 
 
-typedef struct _LOADINGSCREEN
-{
-	int				numWaterTilesX;
-	int				numWaterTilesY;
-	POLY_GT4	waterPolys [ NUM_WATER_TILESX * NUM_WATER_TILESY ];
-} LOADINGSCREEN;
-
-extern LOADINGSCREEN loadingScreen;
-
-//extern unsigned char waterimage[];
-//extern unsigned short waterpal[];
 
 extern int barProgress;
+extern int loadFrameCount;
 
 void StepProgressBar ( int percentAmount );
 

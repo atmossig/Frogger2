@@ -754,6 +754,8 @@ static int textureSetSPRPointers(NSPRITE *pHeader)
 	RETURNS:	Ptr to texture bank info
 **************************************************************************/
 
+extern unsigned char waterimage[];
+int waterBankLoaded = 0;
 TextureBankType *textureLoadBank(char *sFile)
 {
  	TextureBankType	*newBank;
@@ -776,9 +778,23 @@ TextureBankType *textureLoadBank(char *sFile)
 		}
 	}
 
-	nspr = (NSPRITE *)fileLoad(sFile, NULL);
+	if(*sFile)
+	{
+		nspr = (NSPRITE *)fileLoad(sFile, NULL);
+		numTextures = textureSetSPRPointers(nspr);
+	}
+	else
+	{
+		nspr = (NSPRITE *)waterimage;
+		if(waterBankLoaded == 0)
+		{
+			numTextures = textureSetSPRPointers(nspr);
+			waterBankLoaded = 1;
+		}
+		else
+			numTextures = 1;
+	}
 
-	numTextures = textureSetSPRPointers(nspr);
 	
 	mallocSize = (sizeof(TextureBankType)) + (numTextures*4+((numTextures+7)/8)) + (sizeof(TextureType)*numTextures);
 

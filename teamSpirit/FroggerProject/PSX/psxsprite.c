@@ -347,7 +347,7 @@ void PrintSpriteOverlays ( char num )
 	{
 		cur = &spriteOverlayList.block [ counter ];
 
-		if((cur->draw) && (cur->used))
+		if((cur->draw) && (cur->used) && ((loadingDisplay == 0) || (cur->flags & SPRITE_LOADING)))
 		{
 			// Go to destination, if specified
 			fixed spd = FMul(gameSpeed, cur->speed)>>12;

@@ -298,50 +298,20 @@ int LoadSfx(long worldID )
 	strcat( path, SFX_BASE );
 
 	// Load all generic samples first and put in array
-	strcat( path, "GENERIC\\SFX" );
+//	strcat( path, "GENERIC\\SFX" );
 
-	LoadSfxSet(path, &soundList.genericBank,0,&soundList.array[0],&soundList.count);
+//	LoadSfxSet(path, &soundList.genericBank,0,&soundList.array[0],&soundList.count);
 
-	genSfx[GEN_FROG_HOP] = FindSample(utilStr2CRC("hopongrass"));
-	genSfx[GEN_SUPER_HOP] = FindSample(utilStr2CRC("hop2"));
-	genSfx[GEN_DOUBLE_HOP] = FindSample(utilStr2CRC("doublehop"));
-	genSfx[GEN_COLLECT_BABY] = FindSample(utilStr2CRC("getbabyfrog"));
-	genSfx[GEN_COLLECT_COIN] = FindSample(utilStr2CRC("pickupcoin"));
-	genSfx[GEN_BABYHAPPY] = FindSample(utilStr2CRC("babyhappy"));
-	genSfx[GEN_BABYSAD] = FindSample(utilStr2CRC("babysad"));
-	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
-	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
-	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
-
-// JH: changed file name to some thing else coz we don't have this one yet....
-//	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("hopongrass"));
-
-	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
-
-	genSfx[GEN_CLOCKTICK] = FindSample(utilStr2CRC("clocktick"));
-	genSfx[GEN_POWERTICK] = FindSample(utilStr2CRC("puptick"));
-
-	genSfx[GEN_DEATHDROWN] = FindSample(utilStr2CRC("frogdrown1"));
-	genSfx[GEN_DEATHCRUSH] = FindSample(utilStr2CRC("frogcrush"));
-	genSfx[GEN_DEATHEXPLODE] = FindSample(utilStr2CRC("frogexplode"));
-	genSfx[GEN_DEATHFALL] = FindSample(utilStr2CRC("frogfall"));
-	genSfx[GEN_DEATHMOWED] = FindSample(utilStr2CRC("frogmowed"));
-	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frog_gib"));
-	genSfx[GEN_DEATHCHOP] = FindSample(utilStr2CRC("frogchop"));
-	genSfx[GEN_DEATHELECTRIC] = FindSample(utilStr2CRC("electrocute"));
-	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));
-
-	
-	if(worldID == -1)
-		return 1;	
-
-	for(j = 0;j < NUM_FROGS;j++)
+	if(worldID != -1)
 	{
-		path[len] = '\0';
-		voiceCount[j] = 0;
-		strcat(path,frogPool[player[j].character].name);
-		strcat(path,"\\SFX");
-		LoadSfxSet(path, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
+		for(j = 0;j < NUM_FROGS;j++)
+		{
+			path[len] = '\0';
+			voiceCount[j] = 0;
+			strcat(path,frogPool[player[j].character].name);
+			strcat(path,"\\SFX");
+			LoadSfxSet(path, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
+		}
 	}
 
 	path[len] = '\0';
@@ -378,6 +348,32 @@ int LoadSfx(long worldID )
 
 	LoadSfxSet(path, &soundList.levelBank,0,&soundList.array[0],&soundList.count);
 
+	genSfx[GEN_FROG_HOP] = FindSample(utilStr2CRC("hopongrass"));
+	genSfx[GEN_SUPER_HOP] = FindSample(utilStr2CRC("hop2"));
+	genSfx[GEN_DOUBLE_HOP] = FindSample(utilStr2CRC("doublehop"));
+	genSfx[GEN_COLLECT_BABY] = FindSample(utilStr2CRC("getbabyfrog"));
+	genSfx[GEN_COLLECT_COIN] = FindSample(utilStr2CRC("pickupcoin"));
+	genSfx[GEN_BABYHAPPY] = FindSample(utilStr2CRC("babyhappy"));
+	genSfx[GEN_BABYSAD] = FindSample(utilStr2CRC("babysad"));
+	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
+	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
+	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
+
+	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
+
+	genSfx[GEN_CLOCKTICK] = FindSample(utilStr2CRC("clocktick"));
+	genSfx[GEN_POWERTICK] = FindSample(utilStr2CRC("puptick"));
+
+	genSfx[GEN_DEATHDROWN] = FindSample(utilStr2CRC("frogdrown1"));
+	genSfx[GEN_DEATHCRUSH] = FindSample(utilStr2CRC("frogcrush"));
+	genSfx[GEN_DEATHEXPLODE] = FindSample(utilStr2CRC("frogexplode"));
+	genSfx[GEN_DEATHFALL] = FindSample(utilStr2CRC("frogfall"));
+	genSfx[GEN_DEATHMOWED] = FindSample(utilStr2CRC("frogmowed"));
+	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frog_gib"));
+	genSfx[GEN_DEATHCHOP] = FindSample(utilStr2CRC("frogchop"));
+	genSfx[GEN_DEATHELECTRIC] = FindSample(utilStr2CRC("electrocute"));
+	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));
+
 
 // JH: Quite Possibly fix it!!!!!!!!!!!!!!!!!!!!!!!!!!
 	path[len] = '\0';
@@ -385,12 +381,15 @@ int LoadSfx(long worldID )
 
 //load the looping level samples
 
- 	len = strlen(path);
+	if(worldID != -1)
+	{
+		len = strlen(path);
 
-	strcat( path, "LOOP" );
+		strcat( path, "LOOP" );
 
-	LoadSfxSet(path, &soundList.loopBank,SFXFLAGS_LOOP,&soundList.array[0],&soundList.count);
-
+		LoadSfxSet(path, &soundList.loopBank,SFXFLAGS_LOOP,&soundList.array[0],&soundList.count);
+	}
+			
 	FREE( path );
 
 	return 1;

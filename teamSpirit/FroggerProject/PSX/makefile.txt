@@ -55,7 +55,7 @@ LIBISL = c:\ps\psx\library\lib\release
 #OPT = -DPSX_VERSION -DPALMODE=0 -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DE3_DEMO -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
-OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00010000 -comments-c++
+OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -g -O2 -mgpopt -G0 -X0$00010000 -comments-c++
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++
 LIBISL = c:\ps\psx\library\lib\debug
 !endif
@@ -85,9 +85,8 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj bff_load.obj cam.obj collect.ob
 				psxsprite.obj ptexture.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
 				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj font.obj \
 				objviewer.obj options.obj snapshot.obj training.obj fadeout.obj isltex.obj savegame.obj \
-				memcard.obj flatpack.obj islvideo.obj frogger.lnk
-				
-				 #waterbin.obj waterpal.obj
+				memcard.obj flatpack.obj islvideo.obj frogger.lnk \
+				waterbin.obj
 
 			
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
@@ -123,11 +122,8 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj bff_load.obj cam.obj collect.ob
 # GAME COMPONENTS
 #
 
-#waterbin.obj:	waterbin.s waterbin.bin
-#		asmpsx /zd /l waterbin.s,waterbin.obj
-
-#waterpal.obj:	waterpal.s waterpal.bin
-#		asmpsx /zd /l waterpal.s,waterpal.obj
+waterbin.obj:	waterbin.s water.spt
+		asmpsx /zd /l waterbin.s,waterbin.obj
 
 acostab.obj:	acostab.s acostab.bin
 		asmpsx /zd /l acostab.s,acostab.obj

@@ -7,12 +7,17 @@
 #include "textover.h"
 #include "frogger.h"
 #include "loadingbar.h"
+#include "textures.h"
+#include "frontend.h"
+#include "fadeout.h"
+#include "menus.h"
+#include "options.h"
+#include "game.h"
+#include "multi.h"
 
 int barProgress = 0;
 
 int barLength = 400;
-
-LOADINGSCREEN loadingScreen;
 
 TEXTOVERLAY *worldName;
 TEXTOVERLAY *levelName;
@@ -20,46 +25,175 @@ TEXTOVERLAY *parTimeText;
 TEXTOVERLAY *parNameText;
 TEXTOVERLAY *coinsText;
 
-char temp[256];
-char tempCoins[128];
+SPRITEOVERLAY *backgrounds[4] = {NULL,NULL,NULL,NULL};
+
+static VERT waterPoints[NUM_WATER_TILESX][NUM_WATER_TILESY];
+static long waterXYs[NUM_WATER_TILESX][NUM_WATER_TILESY];
+static long waterZs[NUM_WATER_TILESX][NUM_WATER_TILESY];
+static char waterShade[NUM_WATER_TILESX][NUM_WATER_TILESY];
+
+char recordStr[256];
+char coinStr[128];
+char chaptStr[32];
 short loadingDisplay = 0;
+TextureType *waterTex = NULL;
+
+void loadingTransformPoints()
+{
+	long loop1, loop2;
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+	
+	for(loop1 = 0; loop1 < NUM_WATER_TILESX; loop1 ++)
+	{
+		for(loop2 = 0; loop2 < NUM_WATER_TILESY; loop2 += 3)
+		{
+			gte_ldv3(&waterPoints[loop1][loop2], &waterPoints[loop1][loop2 + 1], &waterPoints[loop1][loop2 + 2]);
+			gte_rtpt();
+			gte_stsxy3(&waterXYs[loop1][loop2], &waterXYs[loop1][loop2 + 1], &waterXYs[loop1][loop2 + 2]);
+			gte_stsz3(&waterZs[loop1][loop2], &waterZs[loop1][loop2 + 1], &waterZs[loop1][loop2 + 2]);
+		}
+	}
+}
+
+static GsRVIEW2	loadingCam;
+
+static void setCamera(int vpx,int vpy,int vpz, int vrx,int vry,int vrz)
+{
+	GsSetProjection(900);
+	loadingCam.vpx = vpx;
+	loadingCam.vpy = vpy;
+	loadingCam.vpz = vpz;
+	loadingCam.vrx = vrx;
+	loadingCam.vry = vry;
+	loadingCam.vrz = vrz;
+	GsSetRefView2L(&loadingCam);
+  	SetGeomOffset(0, 0);
+}
+
+int loadwaterx = 1000;
+int loadwatery = 1000;
+void loadingInitPolys()
+{
+	int i,c;
+
+	for ( i = 0; i < NUM_WATER_TILESX; i++ )
+	{
+		for ( c = 0; c < NUM_WATER_TILESY; c++ )
+		{
+			waterPoints[i][c].vx = (i-NUM_WATER_TILESX/2)*1200 + loadwaterx;
+			waterPoints[i][c].vy = (c-NUM_WATER_TILESY/2)*1000 + loadwatery;
+			waterPoints[i][c].vz = 0;
+		}
+	}
+}
 
 void loadingInit ( int worldID, int levelID )
 {
 	int i, c;
 	RECT rect;
+	int store = actFrameCount;
+	int y = 500;
 
+	waterTex = NULL;
+	LoadTextureBank ( LOADING_TEX_BANK );
 	loadingDisplay = 1;
+
+	actFrameCount = loadFrameCount = 0;
+	ScreenFade(0,255,30);
+	actFrameCount = store;
+	keepFade = NO;
 
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_SetTransMatrix(&GsWSMATRIX);
 
-	if ( worldID == 8 )
-		return;
+//	if ( worldID == 8 )
+//		return;
 
-	worldName = CreateAndAddTextOverlay( 2048 + 4096, 200, GAMESTRING(worldVisualData[worldID].description_str), YES, 255, font, 0 ); 
+	setCamera(0,0,-12000, 0,0,0);
+
+	worldName = CreateAndAddTextOverlay( 2048 + 4096, y, chaptStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+
+	if(gameState.mode == FRONTEND_MODE)
+		chaptStr[0] = 0;
+	else if((gameState.single == STORY_MODE) && (gameState.multi == SINGLEPLAYER))
+	{
+		sprintf(chaptStr,GAMESTRING(STR_CHAPTER),options.pageNum + 1);
+		backgrounds[0] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+		backgrounds[0]->r = backgrounds[0]->g = backgrounds[0]->b = 128;
+		y += 700;
+	}
+	else
+		chaptStr[0] = 0;
+
 	worldName->r = 0;
 	worldName->b = 0;
 	worldName->xPosTo = 2048;
-	worldName->speed = 4096*20;
+	worldName->speed = 4096*40;
 
-	levelName = CreateAndAddTextOverlay( 2048 + 4096, 500, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, 0 ); 
+	if(gameState.mode == FRONTEND_MODE)
+	{
+		y = 1900;
+		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+	}
+	else
+		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+
+
+	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+	backgrounds[1]->r = backgrounds[1]->g = backgrounds[1]->b = 128;
+
+	y += 1200;
+
 	levelName->r = 0;
 	levelName->b = 0;
 	levelName->xPosTo = 2048;
-	levelName->speed = 4096*20;
+	levelName->speed = 4096*40;
 
-	sprintf(temp,GAMESTRING(STR_RECORD),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
-	parTimeText = CreateAndAddTextOverlay ( 2048 + 4096, 1400, temp, YES, 255, font, 0 );
+	parTimeText = CreateAndAddTextOverlay( 2048 + 4096*3, y, recordStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+	if(gameState.mode == FRONTEND_MODE)
+		recordStr[0] = 0;
+	else if(gameState.multi == SINGLEPLAYER) 
+	{
+		if(gameState.single == ARCADE_MODE)
+		{
+			sprintf(recordStr,GAMESTRING(STR_RECORD),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
+			backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,800,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+			backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
+			y += 400;
+		}
+		else
+			recordStr[0] = 0;
+	}
+	else
+	{
+//		recordStr[0] = 0;
+		sprintf(recordStr,GAMESTRING(STR_MULTI_DESC_1 + multiGameTypes[player[0].worldNum] - 1),worldVisualData[worldID].levelVisualData[levelID].parName,((int)worldVisualData[worldID].levelVisualData[levelID].parTime/60)%60,((int)worldVisualData[worldID].levelVisualData[levelID].parTime)%60);
+		backgrounds[2] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
+		backgrounds[2]->r = backgrounds[2]->g = backgrounds[2]->b = 128;
+	}
 	parTimeText->xPosTo = 2048;
-	parTimeText->speed = 4096 * 20;
+	parTimeText->speed = 4096*40;
 
-	sprintf ( tempCoins, "NUM COINS : %d", worldVisualData[worldID].levelVisualData[levelID].maxCoins );
-	coinsText = CreateAndAddTextOverlay ( 2048 + 4096, 1800, tempCoins, YES, 255, font, 0 );
+
+	if(gameState.mode == FRONTEND_MODE)
+		coinStr[0] = 0;
+	else if(gameState.multi == SINGLEPLAYER)
+	{
+		if(gameState.single == ARCADE_MODE)
+			sprintf ( coinStr, "%s: %d",GAMESTRING(STR_COINS), worldVisualData[worldID].levelVisualData[levelID].maxCoins );
+		else
+			coinStr[0] = 0;
+	}
+	else
+		coinStr[0] = 0;
+	coinsText = CreateAndAddTextOverlay( 2048 - 4096*4, y, coinStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
 	coinsText->xPosTo = 2048;
-	coinsText->speed = 4096*20;
+	coinsText->speed = 4096*40;
 
-	/*rect.x = 1024-64;
+/*
+	rect.x = 1024-64;
 	rect.y = 260;
 	rect.w = 32;
 	rect.h = 64;
@@ -74,150 +208,150 @@ void loadingInit ( int worldID, int levelID )
 
 	DrawSync(0);
 	LoadImage (&rect, (unsigned long*)waterpal );
+*/
+	loadingInitPolys();
 
-	loadingScreen.numWaterTilesX = NUM_WATER_TILESX;
-	loadingScreen.numWaterTilesY = NUM_WATER_TILESY;*/
-
-	/*for ( i = 0; i < loadingScreen.numWaterTilesX; i++ )
-	{
-		for ( c = 0; c < loadingScreen.numWaterTilesY; c++ )
-		{
-			loadingScreen.waterPolys[i+(c*1)].r0 = 0;
-			loadingScreen.waterPolys[i+(c*1)].g0 = 0;
-			loadingScreen.waterPolys[i+(c*1)].b0 = 0;
-
-			loadingScreen.waterPolys[i+(c*1)].r1 = 0;
-			loadingScreen.waterPolys[i+(c*1)].g1 = 0;
-			loadingScreen.waterPolys[i+(c*1)].b1 = 0;
-
-			loadingScreen.waterPolys[i+(c*1)].r2 = 0;
-			loadingScreen.waterPolys[i+(c*1)].g2 = 0;
-			loadingScreen.waterPolys[i+(c*1)].b2 = 0;
-
-			loadingScreen.waterPolys[i+(c*1)].r3 = 0;
-			loadingScreen.waterPolys[i+(c*1)].g3 = 0;
-			loadingScreen.waterPolys[i+(c*1)].b3 = 100;
-
-			loadingScreen.waterPolys[i+(c*1)].x0 = -256;
-			loadingScreen.waterPolys[i+(c*1)].y0 = -120;
-
-			loadingScreen.waterPolys[i+(c*1)].x1 = 256;
-			loadingScreen.waterPolys[i+(c*1)].y1 = -120;
-
-			loadingScreen.waterPolys[i+(c*1)].x2 = -256;
-			loadingScreen.waterPolys[i+(c*1)].y2 = 120;
-
-			loadingScreen.waterPolys[i+(c*1)].x3 = 256;
-			loadingScreen.waterPolys[i+(c*1)].y3 = 120;
-
-	rect.x = 1024-64;
-	rect.y = 260;
-	rect.w = 32;
-	rect.h = 64;
-			loadingScreen.waterPolys[i+(c*1)].tpage = getTPage ( 0,0, rect.x, rect.y );
-
-	rect.x = 1024-64;
-	rect.y = 258;
-	rect.w = 16;
-	rect.h = 1;
-
-	loadingScreen.waterPolys[i+(c*1)].clut	= getClut(0,0);
-
-			loadingScreen.waterPolys[i+(c*1)].code	= 0;
-
-			loadingScreen.waterPolys[i+(c*1)].u0 = 1024-64;
-			loadingScreen.waterPolys[i+(c*1)].v0 = 258;
-			loadingScreen.waterPolys[i+(c*1)].u1 = 1024;
-			loadingScreen.waterPolys[i+(c*1)].v1 = 258;
-
-			loadingScreen.waterPolys[i+(c*1)].u2 = 1024-64;
-			loadingScreen.waterPolys[i+(c*1)].v2 = 258+32;
-			loadingScreen.waterPolys[i+(c*1)].u3 = 1024;
-			loadingScreen.waterPolys[i+(c*1)].v3 = 258+32;
-		}
-		// ENDIF
-	}
-	// ENDIF*/
 }
 
-void loadingFree ( void )
+void loadingFree()
 {
+	int i;
+
+	for(i = 0;i < 4;i++)
+	{
+		SubSpriteOverlay(backgrounds[i]);
+		backgrounds[i] = NULL;
+	}
+
 	loadingDisplay		= 0;
-	worldName->draw		= 0;
-	levelName->draw		= 0;
-	parTimeText->draw = 0;
-	coinsText->draw		= 0;
+	frameCount = 1;
+	gameSpeed = 4096;
+	SubTextOverlay(worldName);
+	SubTextOverlay(levelName);
+	SubTextOverlay(parTimeText);
+	SubTextOverlay(coinsText);
+	GsSetProjection(350);
+	waterTex = NULL;
 }
 
+int loadwatershadefac = 20;
+int loadwatershadeval = 128;
+int loadFrameCount = 0;
 void loadingWaterFrame ( void )
 {
 	int i, c;
+	register PACKET*		packet;
+	int temp = actFrameCount;
+	RECT rect;
+	
+//	frameCount++;
+//	actFrameCount++;
 
+	actFrameCount = ++loadFrameCount;
+	DrawScreenTransition();
+	actFrameCount = temp;
 	PrintTextOverlays();
-		
-	/*register PACKET*		packet;
+	PrintSpriteOverlays(0);
 
-	for ( i = 0; i <loadingScreen.numWaterTilesX; i++ )
+	if(waterTex == NULL)
 	{
-		for ( c = 0; c <loadingScreen.numWaterTilesY; c++ )
-		{
-#define si ((POLY_GT4*)packet)
-	BEGINPRIM(si, POLY_GT4);
+		waterTex = FindTexture("LOADWAT");
+		if(!waterTex)
+			return;
+	}
 
-	setPolyGT4(si);
+	loadingTransformPoints();
 
 	
-	si->r0 = loadingScreen.waterPolys[i+(c*1)].r0;
-	si->g0 = loadingScreen.waterPolys[i+(c*1)].g0;
-	si->b0 = loadingScreen.waterPolys[i+(c*1)].b0;
-	si->r1 = loadingScreen.waterPolys[i+(c*1)].r1;
-	si->g1 = loadingScreen.waterPolys[i+(c*1)].g1;
-	si->b1 = loadingScreen.waterPolys[i+(c*1)].b1;
-	si->r2 = loadingScreen.waterPolys[i+(c*1)].r2;
-	si->g2 = loadingScreen.waterPolys[i+(c*1)].g2;
-	si->b2 = loadingScreen.waterPolys[i+(c*1)].b2;
-	si->r3 = loadingScreen.waterPolys[i+(c*1)].r3;
-	si->g3 = loadingScreen.waterPolys[i+(c*1)].g3;
-	si->b3 = loadingScreen.waterPolys[i+(c*1)].b3;
+	for ( i = 0; i <NUM_WATER_TILESX - 1; i++ )
+	{
+		for ( c = 0; c <NUM_WATER_TILESY - 1; c++ )
+		{
+			waterPoints[i][c].vz = (rcos((loadFrameCount<<5) + ((waterPoints[i][c].vx) | (waterPoints[i][c].vy)))>>2);
+		}
+	}
+	for ( i = 0; i <NUM_WATER_TILESX - 1; i++ )
+	{
+		for ( c = 0; c <NUM_WATER_TILESY - 1; c++ )
+		{
+			temp = (waterPoints[i][c].vz)/loadwatershadefac + loadwatershadeval;
+			if (temp > 180) temp = 180;
+			if (temp < 0) temp = 0;
+			waterShade[i][c] = 255-temp;
+		}
+	}
 
-	si->x0 = loadingScreen.waterPolys[i+(c*1)].x0;
-	si->y0 = loadingScreen.waterPolys[i+(c*1)].y0;
-	si->x1 = loadingScreen.waterPolys[i+(c*1)].x1;
-	si->y1 = loadingScreen.waterPolys[i+(c*1)].y1;
-	si->x2 = loadingScreen.waterPolys[i+(c*1)].x2;
-	si->y2 = loadingScreen.waterPolys[i+(c*1)].y2;
-	si->x3 = loadingScreen.waterPolys[i+(c*1)].x3;
-	si->y3 = loadingScreen.waterPolys[i+(c*1)].y3;
+	for ( i = 0; i <NUM_WATER_TILESX - 1; i++ )
+	{
+		for ( c = 0; c <NUM_WATER_TILESY - 1; c++ )
+		{
+#define si ((POLY_GT4*)packet)
+			BEGINPRIM(si, POLY_GT4);
 
-	si->u0 = loadingScreen.waterPolys[i+(c*1)].u0;
-	si->v0 = loadingScreen.waterPolys[i+(c*1)].v0;
-	si->u1 = loadingScreen.waterPolys[i+(c*1)].u1;
-	si->v1 = loadingScreen.waterPolys[i+(c*1)].v1;
-	si->u2 = loadingScreen.waterPolys[i+(c*1)].u2;
-	si->v2 = loadingScreen.waterPolys[i+(c*1)].v2;
-	si->u3 = loadingScreen.waterPolys[i+(c*1)].u3;
-	si->v3 = loadingScreen.waterPolys[i+(c*1)].v3;
+			setPolyGT4(si);
 
-	si->code = GPU_COM_TG4;
+	
+			si->r0 = waterShade[i][c];
+			si->g0 = waterShade[i][c];
+			si->b0 = 180;//waterShade[i][c];
+			si->r1 = waterShade[i][c+1];
+			si->g1 = waterShade[i][c+1];
+			si->b1 = 180;//waterShade[i][c+1];
+			si->r2 = waterShade[i+1][c];
+			si->g2 = waterShade[i+1][c];
+			si->b2 = 180;//waterShade[i+1][c];
+			si->r3 = waterShade[i+1][c+1];
+			si->g3 = waterShade[i+1][c+1];
+			si->b3 = 180;//waterShade[i+1][c+1];
 
-	si->clut	= loadingScreen.waterPolys[i+(c*1)].clut;
-	si->tpage = loadingScreen.waterPolys[i+(c*1)].tpage;
+			*(long *)&si->x0 = *(long *)&waterXYs[i][c];
+			*(long *)&si->x1 = *(long *)&waterXYs[i][c + 1];
+			*(long *)&si->x2 = *(long *)&waterXYs[i + 1][c];
+			*(long *)&si->x3 = *(long *)&waterXYs[i + 1][c + 1];
 
 
-	ENDPRIM(si, 100, POLY_GT4);
+			si->u0 = waterTex->u0;
+			si->v0 = waterTex->v0;
+			si->u1 = waterTex->u1;
+			si->v1 = waterTex->v0;
+			si->u2 = waterTex->u2;
+			si->v2 = waterTex->v2;
+			si->u3 = waterTex->u3;
+			si->v3 = waterTex->v3;
 
+			si->code = GPU_COM_TG4;
+
+/*
+			rect.x = 1024-64;
+			rect.y = 260;
+			rect.w = 32;
+			rect.h = 64;
+			si->tpage = getTPage ( 0,0, rect.x, rect.y );
+
+			rect.x = 1024-64;
+			rect.y = 258;
+			rect.w = 16;
+			rect.h = 1;
+
+			si->clut	= getClut(rect.x,rect.y);
+*/
+			si->clut = waterTex->clut;
+			si->tpage = waterTex->tpage;
+
+
+			ENDPRIM(si, 100, POLY_GT4);
 #undef si
 		}
-		// ENDFOR
 	}
-	// ENDFOR*/
 }
 
 void loadingDisplayFrame ( void )
 {
-	if ( player[0].worldNum == 8 )
-		return;
+//	if ( player[0].worldNum == 8 )
+//		return;
 
+
+	gameSpeed = 4096*3;
 	loadingWaterFrame();
 }
 

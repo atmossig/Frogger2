@@ -73,6 +73,7 @@ void LoadTextureBank ( int textureBank )
 		case FRONTEND_TEX_BANK: sprintf ( fileName, "TEXTURES\\HUB.SPT" ); break;
 		case INGAMEGENERIC_TEX_BANK: sprintf ( fileName, "TEXTURES\\GENERIC.SPT" ); break;
 		case TITLES_TEX_BANK: sprintf ( fileName, "TEXTURES\\TITLES.SPT" ); break;
+		case LOADING_TEX_BANK: fileName[0] = 0; break;
 	}
 
 	utilPrintf("FileName : %s\n", fileName );
