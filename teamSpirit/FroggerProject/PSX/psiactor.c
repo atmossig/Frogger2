@@ -1705,7 +1705,7 @@ void UpdateFrogCroak( int pl )
 			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, 200, 0, 4, 6144 )) )
 			{
 				fx->spin = 20;
-				SetFXColour( fx, 64,64,64);
+				SetFXColour( fx, 191,255,0);
 				fx->a = 128;
 				fx->fade = 2;
 			}
