@@ -1075,14 +1075,22 @@ void CheckForFroggerLanding(long pl)
 		{
 			if(!player[pl].dead.time)
 			{
-				SPECFX *fx;
 				CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
-				player[pl].deathBy = DEATHBY_DROWNING;
 
-				AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
-
-				player[pl].frogState |= FROGSTATUS_ISDEAD;
-				GTInit( &player[pl].dead, 3 );
+				// If single player or not a race mode
+				if( gameState.multi == SINGLEPLAYER || !(multiplayerMode == MULTIMODE_RACE_NORMAL || multiplayerMode == MULTIMODE_RACE_KNOCKOUT) )
+				{
+					AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
+					player[pl].frogState |= FROGSTATUS_ISDEAD;
+					player[pl].deathBy = DEATHBY_DROWNING;
+					GTInit( &player[pl].dead, 3 );
+				}
+				else // Race multiplayer mode
+				{
+					KillMPFrog(pl);
+					if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
+						RaceRespawn(pl);
+				}
 			}
 			return;
 		}
