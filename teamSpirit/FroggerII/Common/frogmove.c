@@ -574,6 +574,9 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 
 		dest = joiningTile->tilePtrs[direction];
 
+		if (!dest)
+			 return NULL;
+
 		if (dest->state == TILESTATE_BARRED)
 			return NULL;
 /*
