@@ -111,6 +111,11 @@ void GetArgs(char *arglist)
 						dprintf"Buffer swap by %s\n", rFlipOK?"flip":"blit"));
 						break;
 
+					case 'i': case 'I':
+						shotMode = !shotMode;
+						dprintf"Screenshot mode, using old flip style\n"));
+						break;
+
 					case ' ':
 					case 0:
 						cmdMode = 0;

@@ -95,6 +95,9 @@ char	aiSurf				= 0;
 char	UseAAMode			= 0;
 char	UseZMode			= 1;
 
+// Screenshots needed?
+char shotMode = 0;
+
 char	desiredFrameRate	= 2;
 char	newDesiredFrameRate = 2;
 
@@ -495,8 +498,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if (actFrameCount>10)
 			{
-				// THIS SHOULD BE DETECTED AUTOMATICALLY
-				if( rFlipOK )
+				// Screengrab needs old flip method
+				if( !shotMode )
 					DDrawFlip();
 				else
 					DirectXFlip();

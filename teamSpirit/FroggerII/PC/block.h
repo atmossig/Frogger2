@@ -52,6 +52,7 @@ extern char	newDesiredFrameRate;
 extern int runQuit;
 extern float gameSpeed;
 extern float vMatrix[4][4];
+extern char shotMode;
 
 #ifdef FULL_BUILD
 #define debugPrintf(n)
