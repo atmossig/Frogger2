@@ -18,6 +18,7 @@ VECTOR zero = {{0, 0, 0}};
 QUATERNION zeroQuat = {0,0,0,1};
 QUATERNION vertQ = {0,1,0,0};
 MATRIXSTACK	matrixStack;
+MATRIXSTACK	rMatrixStack;
 
 VECTOR upVec	= { 0,1,0 };
 VECTOR inVec	= { 0,0,1 };
@@ -1257,6 +1258,38 @@ void InitMatrixStack()
 }
 
 /*	--------------------------------------------------------------------------------
+	Function 	: InitMatrixStack()
+	Purpose 	: clears the matrix stack and resets the position pointer
+	Parameters 	: none
+	Returns 	: none
+	Info 		:
+*/
+void InitRMatrixStack()
+{
+	int	x, y, i;
+	
+	rMatrixStack.stackPosition = 0;
+	for(i = 0; i < MAX_STACK_SIZE; i++)
+	{
+		for(x = 0; x < 4; x++)
+		{
+			for(y = 0; y < 4; y++)
+			{
+				rMatrixStack.stack[i][x][y] = 0;
+			}
+		}
+	}
+	
+	//set first matrix in stack to be a unit matrix
+	rMatrixStack.stack[0][0][0] = 1.0;
+	rMatrixStack.stack[0][1][1] = 1.0;
+	rMatrixStack.stack[0][2][2] = 1.0;
+	rMatrixStack.stack[0][3][3] = 1.0;
+}
+
+
+
+/*	--------------------------------------------------------------------------------
 	Function 	: SetMatrix()
 	Purpose 	: copies one matrix into another
 	Parameters 	: float*, float*
@@ -1292,7 +1325,7 @@ void LoadMatrix(float *matrix)
 	Returns 	: none
 	Info 		:
 */
-void PushMatrix(float *matrix)
+/*void PushMatrix(float *matrix)
 {
 	char sPos;
 	
@@ -1305,13 +1338,13 @@ void PushMatrix(float *matrix)
 		Crash("PUSH MATRIX");
 	}
 */
-	SetMatrix(*(matrixStack.stack[sPos]), matrix);
+/*	SetMatrix(*(matrixStack.stack[sPos]), matrix);
 
 	guMtxCatF(matrixStack.stack[sPos], matrixStack.stack[sPos-1], matrixStack.stack[sPos]);
 
 
 }
-
+  */
 
 /*	--------------------------------------------------------------------------------
 	Function 	: PopMatrix()
@@ -1320,7 +1353,7 @@ void PushMatrix(float *matrix)
 	Returns 	: none
 	Info 		:
 */
-void PopMatrix()
+/*void PopMatrix()
 {
 	if(matrixStack.stackPosition == -1)
 	{
@@ -1331,7 +1364,7 @@ void PopMatrix()
 	matrixStack.stackPosition--;
 
 }
-
+  */
 /*	--------------------------------------------------------------------------------
 	Function 	: ComputeResultMatrix()
 	Purpose 	: multiplies all the matrices currently on the stack, puts result into .result
