@@ -130,12 +130,6 @@ void GameLoop(void)
 	{
 #ifdef PC_VERSION
 	case STARTUP_MODE:
-		if(!rHardware)
-		{
-			DrawBackdrop();
-			DrawScreenTransition();
-			DDrawFlip();
-		}
 		if(modeTimer.time)
 		{
 			GTUpdate(&modeTimer,-1);

@@ -24,6 +24,8 @@ extern int flashScreen;
 void ScreenFade(int start, int end, long time);
 void DrawScreenTransition(void);
 
+extern int (*fadeProc)(void);
+
 
 #ifdef __cplusplus
 }

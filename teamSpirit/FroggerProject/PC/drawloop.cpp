@@ -143,20 +143,35 @@ long DrawLoop(void)
 {
 	POINT	t;
 
-	if(gameState.mode == ARTVIEWER_MODE)
+	if(gameState.mode == ARTVIEWER_MODE || gameState.mode == STARTUP_MODE)
 	{
-		BeginDraw();
+		if( rHardware )
+			BeginDraw();
+
 		DrawBackdrop();
-		DrawScreenTransition();
-		EndDraw();
+
+		// Can't use fading in SW - it uses a poly which fucks with the backdrop...
+		if( rHardware )
+		{
+			DrawScreenTransition();
+			EndDraw();
+		}
+		else // But we do have to complete the fade
+		{
+			fadingOut = 0;
+			fadeProc = NULL;
+		}
+
 		DDrawFlip();
+
 		return 0;
 	}
 
-	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
 	StartTimer (2,"Viewing, bg, fog");
 //	DrawActorList();
+
+	D3DSetupRenderstates(D3DDefaultRenderstates);
 
 	if ((gameState.mode != FRONTEND_MODE) && (editorOk || fixedPos))
 		CalcViewMatrix(0);
