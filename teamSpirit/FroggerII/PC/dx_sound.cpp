@@ -143,8 +143,8 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 	}
 
 	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
-	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
-	wfx.nChannels		= 2; 
+	wfx.wFormatTag		= WAVE_FORMAT_PCM;
+	wfx.nChannels		= 1;
 	wfx.nSamplesPerSec	= 22050; 
 	wfx.wBitsPerSample	= 16; 
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
@@ -283,7 +283,7 @@ int LoadWav( SAMPLE *sample )
 	memset(&pcmwf, 0, sizeof(WAVEFORMATEX));
 
 	pcmwf.wFormatTag	  = WAVE_FORMAT_PCM;  // pulse code modulation
-	pcmwf.nChannels		  = 2;                // stereo 
+	pcmwf.nChannels		  = 1;                // stereo 
 	pcmwf.nSamplesPerSec  = 22050;            // always this rate
 	pcmwf.wBitsPerSample  = 16;
 	pcmwf.nBlockAlign	  = pcmwf.wBitsPerSample / 8 * pcmwf.nChannels;                
