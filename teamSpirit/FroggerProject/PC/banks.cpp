@@ -35,6 +35,11 @@ void LoadObjectBank(int objectBank)
 		case MULTIPLAYER_OBJ_BANK:
 			strcpy(fileName, "multiplayer"); break;
 
+		case FROGGER_OBJ_BANK:
+			strcpy(fileName, "frogger"); break;
+
+		case LILLI_OBJ_BANK:
+			strcpy(fileName, "lilli"); break;
 			
 // Garden
 
