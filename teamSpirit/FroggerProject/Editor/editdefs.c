@@ -18,7 +18,6 @@
 #include "editdefs.h"
 #include "edcommand.h"
 #include "edmaths.h"
-#include "editor.h"
 
 #include "mdx.h"
 
@@ -257,7 +256,7 @@ void EditorSubCreateNode(CREATEENTITY *node)
 	Returns			: 
 */
 
-PATH *EditorPathMake(const EDITPATH *editPath)
+PATH *EditorPathMake(const EDITPATH *editPath, int startnode)
 {
 	int count, i;
 	EDITPATHNODE *path;
@@ -273,14 +272,18 @@ PATH *EditorPathMake(const EDITPATH *editPath)
 	newPath->numNodes = count;
 
 	// allocate memory for path nodes
-	newPath->nodes = (PATHNODE *)calloc(1,sizeof(PATHNODE));
+	newPath->nodes = (PATHNODE *)calloc(count,sizeof(PATHNODE));
 
 	i = 0;
 	node = newPath->nodes;
 
 	for (path = editPath->nodes; path; path = path->link, node++, i++)
 	{
-		node->worldTile = path->tile;
+		if (!(node->worldTile = path->tile))
+		{
+			utilPrintf("worldtile is NULL!\n");
+		}
+
 		node->speed		= GAMEFLOAT(path->speed);
 		node->offset	= GAMEFLOAT(path->offset)*10;
 		node->offset2	= GAMEFLOAT(path->offset2)*10;
@@ -291,7 +294,16 @@ PATH *EditorPathMake(const EDITPATH *editPath)
 		node->sample	= FindSample(path->sample);
 #endif
 
-		if (path->start) newPath->startNode = i;
+		//if (path->start) newPath->startNode = i;
+	}
+
+	if (startnode < count)
+		newPath->startNode = startnode;
+	else
+	{
+		utilPrintf("start node (%d) > number of nodes (%d)?\n",
+			startnode, count);
+		newPath->startNode = 0;
 	}
 
 	AddPathNodesToList(newPath->nodes);
@@ -716,7 +728,6 @@ int CountGroupMembers(EDITGROUP *group)
 	Function		: FreeEnemyList
 	Parameters		: 
 	Returns			: 
-*/
 
 void FreeEnemyList(void)
 {
@@ -730,12 +741,12 @@ void FreeEnemyList(void)
 	}
 	FreeEnemyLinkedList();
 }
+*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: FreePlatformList
 	Parameters		: 
 	Returns			: 
-*/
 
 void FreePlatformList(void)
 {
@@ -749,6 +760,7 @@ void FreePlatformList(void)
 	}
 	FreePlatformLinkedList();
 }
+*/
 
 #define CAMVECTSCALE (1.0f/40960.0f)
 

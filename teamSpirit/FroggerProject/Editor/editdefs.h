@@ -39,7 +39,7 @@ extern CREATEENTITY *EditorAddCreateNode(const char *id, int flags, int ID, CREA
 extern void EditorSubCreateNode(CREATEENTITY *node);
 extern void FreeEditPath(EDITPATH *path);
 extern void FreeCreateList(void);
-extern PATH *EditorPathMake(const EDITPATH *path);
+extern PATH *EditorPathMake(const EDITPATH *path, int startnode);
 extern EDITPATH *EditorGetPath(const PATH *path);
 //EDITPATH *DuplicateEditPath(EDITPATH *path);
 extern void EditorCreateEntities(void);
