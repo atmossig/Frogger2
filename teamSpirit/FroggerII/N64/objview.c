@@ -131,7 +131,7 @@ void SelectObjectBank()
 		StartDrawing("objbank");
 	}
 
-	tOverObjBank->a = 255 * fabs(sinf(frameCount/12.5));
+	tOverObjBank->a = 255 * Fabs(sinf(frameCount/12.5));
 		
 	button = controllerdata[ActiveController].button;
 

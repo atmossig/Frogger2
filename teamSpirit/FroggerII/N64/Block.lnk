@@ -706,7 +706,7 @@ _objBank_6_1_SegmentRomEnd          alias   _objBank61_orgend
 
         section.16      objBank61.data,objBank61
 
-oBank61  incbin  "objects/dummy.nob",objBank61.data,64
+oBank61  incbin  "objects/lablev1.nob",objBank61.data,64
 
 ; [ LAB WORLD LEVEL 2 ] >>>>>
 
@@ -1569,7 +1569,7 @@ _texBank_6_1_SegmentRomEnd          alias   _texBank61_orgend
 
         section.16      texBank61.data,texBank61
 
-tBank61  incbin  "textures/dummy.fla",texBank61.data,64
+tBank61  incbin  "textures/level1_lab.fla",texBank61.data,64
 
 ; [ LEVEL 2 LAB ] >>>>>
 

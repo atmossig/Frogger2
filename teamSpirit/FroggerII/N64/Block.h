@@ -683,9 +683,6 @@ enum
 	MEM_SHOW_INGAMEINFO = 1,
 };
 
-extern unsigned long memFix_SpriteOverlaysAlloced;
-extern unsigned long memFix_SpriteOverlaysFreed;
-
 float ConvertKb(unsigned long op1);
 
 int GetNumStaticBlocksUsed();

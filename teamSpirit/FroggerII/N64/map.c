@@ -113,6 +113,18 @@ void LoadCollision(short worldID,short levelID)
 				case LEVELID_ANCIENTLEV3:
 					tnum = ANCIENTS3_COLL_BANK;
 					break;
+				case LEVELID_ANCIENTBOSSA:
+					break;
+				case LEVELID_ANCIENTBOSSB:
+					break;
+				case LEVELID_ANCIENTBOSSC:
+					break;
+				case LEVELID_ANCIENTBOSSD:
+					break;
+				case LEVELID_ANCIENTBONUS:
+					break;
+				case LEVELID_ANCIENTMULTI:
+					break;
 			}
 			break;
 
@@ -131,13 +143,47 @@ void LoadCollision(short worldID,short levelID)
 				case LEVELID_SPACEBOSSA:
 					tnum = SPACEBOSS_COLL_BANK;
 					break;
+				case LEVELID_SPACEBONUS:
+					break;
+				case LEVELID_SPACEMULTI:
+					break;
 			}
 			break;
 	
 		case WORLDID_CITY:
+			switch(levelID)
+			{
+				case LEVELID_CITYLEV1:
+					break;
+				case LEVELID_CITYLEV2:
+					break;
+				case LEVELID_CITYLEV3:
+					break;
+				case LEVELID_CITYBOSSA:
+					break;
+				case LEVELID_CITYBONUS:
+					break;
+				case LEVELID_CITYMULTI:
+					break;
+			}
 			break;
 
 		case WORLDID_SUBTERRANEAN:
+			switch(levelID)
+			{
+				case LEVELID_SUBTERRANEANLEV1:
+					break;
+				case LEVELID_SUBTERRANEANLEV2:
+					break;
+				case LEVELID_SUBTERRANEANLEV3:
+					break;
+				case LEVELID_SUBTERRANEANBOSSA:
+					break;
+				case LEVELID_SUBTERRANEANBONUS:
+					break;
+				case LEVELID_SUBTERRANEANMULTI:
+					break;
+			}
 			break;
 
 		case WORLDID_LABORATORY:
@@ -152,16 +198,67 @@ void LoadCollision(short worldID,short levelID)
 				case LEVELID_LABORATORYLEV3:
 					tnum = LAB3_COLL_BANK;
 					break;
+				case LEVELID_LABORATORYBOSSA:
+					break;
+				case LEVELID_LABORATORYBONUS:
+					break;
+				case LEVELID_LABORATORYMULTI:
+					break;
 			}
 			break;
 		
 		case WORLDID_TOYSHOP:
+			switch(levelID)
+			{
+				case LEVELID_TOYSHOPLEV1:
+					break;
+				case LEVELID_TOYSHOPLEV2:
+					break;
+				case LEVELID_TOYSHOPLEV3:
+					break;
+				case LEVELID_TOYSHOPBOSSA:
+					break;
+				case LEVELID_TOYSHOPBONUS:
+					break;
+				case LEVELID_TOYSHOPMULTI:
+					break;
+			}
 			break;
 		
 		case WORLDID_HALLOWEEN:
+			switch(levelID)
+			{
+				case LEVELID_HALLOWEENLEV1:
+					break;
+				case LEVELID_HALLOWEENLEV2:
+					break;
+				case LEVELID_HALLOWEENLEV3:
+					break;
+				case LEVELID_HALLOWEENBOSSA:
+					break;
+				case LEVELID_HALLOWEENBONUS:
+					break;
+				case LEVELID_HALLOWEENMULTI:
+					break;
+			}
 			break;
 		
 		case WORLDID_SUPERRETRO:
+			switch(levelID)
+			{
+				case LEVELID_SUPERRETROLEV1:
+					break;
+				case LEVELID_SUPERRETROLEV2:
+					break;
+				case LEVELID_SUPERRETROLEV3:
+					break;
+				case LEVELID_SUPERRETROBOSSA:
+					break;
+				case LEVELID_SUPERRETROBONUS:
+					break;
+				case LEVELID_SUPERRETROMULTI:
+					break;
+			}
 			break;
 	}
 	
@@ -290,7 +387,7 @@ void LoadScenics(short worldID,short levelID)
 					break;
 			}
 			break;
-			
+
 		case WORLDID_ANCIENT:
 			switch(levelID)
 			{
@@ -302,6 +399,18 @@ void LoadScenics(short worldID,short levelID)
 					break;
 				case LEVELID_ANCIENTLEV3:
 					tnum = ANCIENTS3_COLL_BANK;
+					break;
+				case LEVELID_ANCIENTBOSSA:
+					break;
+				case LEVELID_ANCIENTBOSSB:
+					break;
+				case LEVELID_ANCIENTBOSSC:
+					break;
+				case LEVELID_ANCIENTBOSSD:
+					break;
+				case LEVELID_ANCIENTBONUS:
+					break;
+				case LEVELID_ANCIENTMULTI:
 					break;
 			}
 			break;
@@ -321,13 +430,47 @@ void LoadScenics(short worldID,short levelID)
 				case LEVELID_SPACEBOSSA:
 					tnum = SPACEBOSS_COLL_BANK;
 					break;
+				case LEVELID_SPACEBONUS:
+					break;
+				case LEVELID_SPACEMULTI:
+					break;
 			}
 			break;
 	
 		case WORLDID_CITY:
+			switch(levelID)
+			{
+				case LEVELID_CITYLEV1:
+					break;
+				case LEVELID_CITYLEV2:
+					break;
+				case LEVELID_CITYLEV3:
+					break;
+				case LEVELID_CITYBOSSA:
+					break;
+				case LEVELID_CITYBONUS:
+					break;
+				case LEVELID_CITYMULTI:
+					break;
+			}
 			break;
 
 		case WORLDID_SUBTERRANEAN:
+			switch(levelID)
+			{
+				case LEVELID_SUBTERRANEANLEV1:
+					break;
+				case LEVELID_SUBTERRANEANLEV2:
+					break;
+				case LEVELID_SUBTERRANEANLEV3:
+					break;
+				case LEVELID_SUBTERRANEANBOSSA:
+					break;
+				case LEVELID_SUBTERRANEANBONUS:
+					break;
+				case LEVELID_SUBTERRANEANMULTI:
+					break;
+			}
 			break;
 
 		case WORLDID_LABORATORY:
@@ -342,16 +485,67 @@ void LoadScenics(short worldID,short levelID)
 				case LEVELID_LABORATORYLEV3:
 					tnum = LAB3_COLL_BANK;
 					break;
+				case LEVELID_LABORATORYBOSSA:
+					break;
+				case LEVELID_LABORATORYBONUS:
+					break;
+				case LEVELID_LABORATORYMULTI:
+					break;
 			}
 			break;
 		
 		case WORLDID_TOYSHOP:
+			switch(levelID)
+			{
+				case LEVELID_TOYSHOPLEV1:
+					break;
+				case LEVELID_TOYSHOPLEV2:
+					break;
+				case LEVELID_TOYSHOPLEV3:
+					break;
+				case LEVELID_TOYSHOPBOSSA:
+					break;
+				case LEVELID_TOYSHOPBONUS:
+					break;
+				case LEVELID_TOYSHOPMULTI:
+					break;
+			}
 			break;
 		
 		case WORLDID_HALLOWEEN:
+			switch(levelID)
+			{
+				case LEVELID_HALLOWEENLEV1:
+					break;
+				case LEVELID_HALLOWEENLEV2:
+					break;
+				case LEVELID_HALLOWEENLEV3:
+					break;
+				case LEVELID_HALLOWEENBOSSA:
+					break;
+				case LEVELID_HALLOWEENBONUS:
+					break;
+				case LEVELID_HALLOWEENMULTI:
+					break;
+			}
 			break;
 		
 		case WORLDID_SUPERRETRO:
+			switch(levelID)
+			{
+				case LEVELID_SUPERRETROLEV1:
+					break;
+				case LEVELID_SUPERRETROLEV2:
+					break;
+				case LEVELID_SUPERRETROLEV3:
+					break;
+				case LEVELID_SUPERRETROBOSSA:
+					break;
+				case LEVELID_SUPERRETROBONUS:
+					break;
+				case LEVELID_SUPERRETROMULTI:
+					break;
+			}
 			break;
 	}
 
@@ -566,6 +760,23 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
+			case LABORATORYLEV1_ENT:
+					bankRomStart	= (u32)&_levData_6_1_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_6_1_SegmentRomEnd;
+					sprintf(message, "LAB_ENT1");				
+				break;
+
+			case LABORATORYLEV2_ENT:
+					bankRomStart	= (u32)&_levData_6_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_6_2_SegmentRomEnd;
+					sprintf(message, "LAB_ENT2");				
+				break;
+
+			case LABORATORYLEV3_ENT:
+					bankRomStart	= (u32)&_levData_6_3_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_6_3_SegmentRomEnd;
+					sprintf(message, "LAB_ENT3");				
+				break;
 		}
 	}
 	else if(worldID == WORLDID_TOYSHOP)
@@ -683,7 +894,6 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 	// make the teleport 'to' tile the current tile
 	currTile[pl] = tile;
 	SetVector(&act->actor->pos,&tile->centre);
-	player[pl].frogState |= FROGSTATUS_ISSTANDING;
 	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
 
 	frog[pl]->actor->scale.v[X] = globalFrogScale;

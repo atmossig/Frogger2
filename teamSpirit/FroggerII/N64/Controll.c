@@ -27,8 +27,6 @@ OSPfs	rumble;
 
 OSContStatus    statusdata[MAXCONTROLLERS];
 OSContPad       controllerdata[MAXCONTROLLERS];
-unsigned long	playerInputPause;
-unsigned long	playerInputPause2;
 
 static u16		lastbutton;
 
@@ -37,8 +35,6 @@ char			debugCtrlMode[20];
 
 //extern char UseAAMode;
 extern char useFilt;
-
-unsigned long	INPUT_POLLPAUSE = 0;
 
 
 /*	--------------------------------------------------------------------------------
@@ -64,16 +60,13 @@ int initControllers()
     osSetEventMesg(OS_EVENT_SI, &controllerMsgQ, (OSMesg)0);
 	Wait(10000);
 
-	playerInputPause = INPUT_POLLPAUSE;
-	playerInputPause2 = INPUT_POLLPAUSE;
+	for(i=0; i<4; i++)
+		player[i].inputPause = INPUT_POLLPAUSE;
 
-	res = osMotorInit (&controllerMsgQ, &rumble, 0 );
-
-    
-	if ( res == 0 )
-		dprintf"Ya Baby\n"));
+	if(osMotorInit(&controllerMsgQ,&rumble,0) == 0)
+		dprintf"RumblePak : YES\n"));
 	else
-		dprintf"No Baby\n"));
+		dprintf"RumblePak : NO\n"));
 	// ENDIF
 
     for(i=0; i<MAXCONTROLLERS; i++)
@@ -267,11 +260,14 @@ void ReadDebugPad()
 
 void ReadController()
 {
+	int i = 4;
+
 	ReadControllerData();
 	ReadDebugPad();
 
-	if(playerInputPause)
-		playerInputPause--;
-	if(playerInputPause2)
-		playerInputPause2--;
+	while(i--)
+	{
+		if(player[i].inputPause)
+			player[i].inputPause--;
+	}
 }

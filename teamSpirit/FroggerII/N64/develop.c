@@ -159,7 +159,7 @@ void RunDevelopmentMenu()
 		switch (currentSelection)
 		{
 			case 0:
-				objView->a = 255 * fabs(sinf(frameCount/12.5));
+				objView->a = 255 * Fabs(sinf(frameCount/12.5));
 				objView->waveAmplitude = 6.0F;
 				andysplay->a = 91; //255;
 				recordkey->a = 91; //255;				
@@ -187,7 +187,7 @@ void RunDevelopmentMenu()
 				break;
 			
 			case 1:
-				andysplay->a = 255 * fabs(sinf(frameCount/12.5));
+				andysplay->a = 255 * Fabs(sinf(frameCount/12.5));
 				andysplay->waveAmplitude = 6.0F;
 				objView->a = 91; //255;				
 				recordkey->a = 91; //255;				
@@ -215,7 +215,7 @@ void RunDevelopmentMenu()
 				break;
 
 			case 2:
-				recordkey->a = 255  * fabs(sinf(frameCount/12.5));				
+				recordkey->a = 255  * Fabs(sinf(frameCount/12.5));				
 				recordkey->waveAmplitude = 6.0F;
 				objView->a = 91; //255;				
 				andysplay->a = 91; //255;				
@@ -243,7 +243,7 @@ void RunDevelopmentMenu()
 				break;
 
 			case 3:
-				levelSel->a = 255  * fabs(sinf(frameCount/12.5));				
+				levelSel->a = 255  * Fabs(sinf(frameCount/12.5));				
 				levelSel->waveAmplitude = 6.0F;
 				objView->a = 91; //255;				
 				andysplay->a = 91; //255;				
@@ -271,7 +271,7 @@ void RunDevelopmentMenu()
 				break;
 
 			case 4:
-				dev->a = 255  * fabs(sinf(frameCount/12.5));				
+				dev->a = 255  * Fabs(sinf(frameCount/12.5));				
 				dev->waveAmplitude = 6.0F;
 				objView->a = 91; //255;				
 				andysplay->a = 91; //255;				
