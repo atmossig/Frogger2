@@ -8,37 +8,60 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#define TIMER_SET 0
+
 //*** TIMER SET 0 - GAME LOOP ***/
+#if TIMER_SET==0
 #define TIMER_SET_0
 #define TIMER_START0(x) 	 TIMER_START(x)
 #define TIMER_STOP0(x)  	 TIMER_STOP(x)
 #define TIMER_STOP_ADD0(x) TIMER_STOP_ADD(x)
-// #define TIMER_START0(x)
-// #define TIMER_STOP0(x)
-// #define TIMER_STOP_ADD0(x)
+#else
+#define TIMER_START0(x)
+#define TIMER_STOP0(x)
+#define TIMER_STOP_ADD0(x)
+#endif
 
 //*** TIMER SET 0 - DrawActorList ***//
-//#define TIMER_SET_1
-//#define TIMER_START1(x)    TIMER_START(x)
-//#define TIMER_STOP1(x) 	   TIMER_STOP(x)
-//#define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
+#if TIMER_SET==1
+#define TIMER_SET_1
+#define TIMER_START1(x)    TIMER_START(x)
+#define TIMER_STOP1(x) 	   TIMER_STOP(x)
+#define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
+#else
 #define TIMER_START1(x)
 #define TIMER_STOP1(x)
 #define TIMER_STOP_ADD1(x)
+#endif
 
 //*** TIMER SET 2 - actorDraw ***/
-//#define TIMER_SET_2
-//#define TIMER_START2(x) 	 TIMER_START(x)
-//#define TIMER_STOP2(x)  	 TIMER_STOP(x)
-//#define TIMER_STOP_ADD2(x) TIMER_STOP_ADD(x)
+#if TIMER_SET==2
+#define TIMER_SET_2
+#define TIMER_START2(x) 	 TIMER_START(x)
+#define TIMER_STOP2(x)  	 TIMER_STOP(x)
+#define TIMER_STOP_ADD2(x)   TIMER_STOP_ADD(x)
+#else
 #define TIMER_START2(x)
 #define TIMER_STOP2(x)
 #define TIMER_STOP_ADD2(x)
+#endif
+
+//*** TIMER SET 3 - RunGameLoop ***/
+#if TIMER_SET==3
+#define TIMER_SET_3
+#define TIMER_START3(x) 	 TIMER_START(x)
+#define TIMER_STOP3(x)  	 TIMER_STOP(x)
+#define TIMER_STOP_ADD3(x)   TIMER_STOP_ADD(x)
+#else
+#define TIMER_START3(x)
+#define TIMER_STOP3(x)
+#define TIMER_STOP_ADD3(x)
+#endif
 
 
 
 
-//*** TIMER SET 0 - GAME LOOP ***//
+//*** TIMER SET 0 - MAIN LOOP ***//
 #ifdef TIMER_SET_0
 enum {
 	TIMER_TOTAL,
@@ -53,7 +76,6 @@ enum {
 	TIMER_PRINT_OVERS,
 	TIMER_PROCTEX,
 	TIMER_DRAWSYNC,
-	TIMER_INTERPRET,
 	TIMER_TIMERS,
 
 	TIMER_NUMTIMERS
@@ -71,7 +93,6 @@ enum {
 						"PRINT_OVERS", \
 						"PROCTEX", \
 						"DRAWSYNC", \
-						"INTERPRET", \
 						"TIMERS"
 #endif //TIMER_SET_0
 
@@ -117,8 +138,44 @@ enum {
 						"MTX", \
 						"SEG", \
 						"TIMERS"
-#endif //TIMER_SET_1
+#endif //TIMER_SET_2
 
+
+
+//*** TIMER SET 3 - actorDraw ***//
+#ifdef TIMER_SET_3
+enum {
+	TIMER_TOTAL,
+	TIMER_CAM_POS,
+	TIMER_SET_CAM,
+	TIMER_FROG_POS,
+	TIMER_UP_PLAT,
+	TIMER_UP_ENEM,
+	TIMER_UP_SPEC,
+	TIMER_UP_EVEN,
+	TIMER_UP_AMBI,
+	TIMER_COLLECT,
+	TIMER_ONSCREEN,
+	TIMER_TILENUM,
+	TIMER_TIMERS,
+
+	TIMER_NUMTIMERS
+};
+
+#define TIMER_NAMES	   	"TOTAL", \
+						"CAM_POS", \
+						"SET_CAM", \
+						"FROG_POS", \
+						"UP_PLAT", \
+						"UP_ENEM", \
+						"UP_SPEC", \
+						"UP_EVEN", \
+						"UP_AMBI", \
+						"COLLECT", \
+						"ONSCREEN", \
+						"TILENUM", \
+						"TIMERS"
+#endif //TIMER_SET_3
 
 
 

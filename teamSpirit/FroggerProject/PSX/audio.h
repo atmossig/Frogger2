@@ -13,9 +13,12 @@
  
 
 
+#include "types.h"
 #include <islsfx2.h> 
 #include "types.h"
 #include "actor2.h"
+#include <libcd.h>
+#include <islxa.h>
 
 // //***********************************
 // // Defines
@@ -65,6 +68,7 @@ enum
 };
 
 extern char *musicNames[];
+extern XAFileType *xaFileData[MUSIC_NUM_TRACKS];
 
 
  

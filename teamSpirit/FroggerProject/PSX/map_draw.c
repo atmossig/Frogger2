@@ -238,6 +238,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	if(max_depth > 1024-mesh->extra_depth)
 		max_depth = 1024-mesh->extra_depth;
 
+	//bbopt - get a version with depth>>=2
 	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
 
 // This should really by in the (or an alternative) transformvertexlist function
@@ -282,6 +283,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		gte_stotz_cpu(depth);
 
 
+		//bbopt - 2 ifs
 		if(depth > min_depth && depth < max_depth)
 		{
 // Skip the poly if all the verts are off screen.

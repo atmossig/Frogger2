@@ -18,14 +18,11 @@
 #include "main.h"
 
 #include "memload.h"
-#include "types.h"
 #include "frogger.h"
 #include "layout.h"
-#include <libcd.h>
-#include <islxa.h>
 
 
-
+/*
 char *musicNames[] = { "CD2.XA",//
 					   "CD3.XA",
 					   "CD4.XA",
@@ -36,6 +33,17 @@ char *musicNames[] = { "CD2.XA",//
 					   "CD9.XA",//
 					   "CD10.XA",//
 					   "CD11.XA"};//
+*/
+char *musicNames[] = { "CD3.XA",//
+					   "CD3.XA",
+					   "CD4.XA",
+					   "CD3.XA",//
+					   "CD3.XA",//
+					   "CD3.XA",//
+					   "CD8.XA",
+					   "CD3.XA",//
+					   "CD3.XA",//
+					   "CD3.XA"};//
 
 
 
@@ -691,7 +699,6 @@ void PrepareSong(short worldID)
 void StopSong( )
 {
 	XAstop();
-	XAsetStatus(0);		// This should disable all xa functions allowing normal cd access
 }
 
 

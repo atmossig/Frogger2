@@ -286,8 +286,13 @@ int lastpolyCount=0;
 int lastactorCount=0;
 int maxInterpretTimer=0;
 
+//used to save normal stack pointer,
+//when using dchace for stack
+char* oldStackPointer;
+
 int main ( )
 {
+
 	while ( 1 )
 	{
 		RAMstart = (unsigned long)__bss_orgend;
@@ -367,6 +372,98 @@ int main ( )
 */
 
 		bb_InitXA();
+
+/*
+		//bb xa test
+		{
+			enum {SINGLE_SPEED, DOUBLE_SPEED};
+
+			int curSpeed=SINGLE_SPEED;
+			int curTrack=0;
+			char tempText[64];
+
+			padHandler();
+			XAstart(curSpeed);
+			XAplayChannel(xaFileData[curTrack], 0,0,100);
+			
+			while( !(padData.debounce[0]&PAD_START) )
+			{
+				padHandler();
+
+				if(padData.debounce[0]&PAD_L1)
+				{
+					curSpeed ^= 1;
+					
+					XAstop();
+					XAstart(curSpeed);
+					XAplayChannel(xaFileData[curTrack], 0,0,100);
+				}
+
+				if(padData.debounce[0]&PAD_RIGHT)
+				{
+					curTrack++;
+					if(curTrack>=MUSIC_NUM_TRACKS)
+						curTrack=MUSIC_NUM_TRACKS-1;
+
+					XAstop();
+					XAstart(curSpeed);
+					XAplayChannel(xaFileData[curTrack], 0,0,100);
+				}
+
+				if(padData.debounce[0]&PAD_LEFT)
+				{
+					curTrack--;
+					if(curTrack<0)
+						curTrack=0;
+
+					XAstop();
+					XAstart(curSpeed);
+					XAplayChannel(xaFileData[curTrack], 0,0,100);
+				}
+
+
+				//display
+ 				currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+ 				ClearOTagR(currentDisplayPage->ot, 1024);
+ 				currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+ 				DrawSync(0);
+ 				VSync(2);
+ 				PutDispEnv(&currentDisplayPage->dispenv);
+ 				PutDrawEnv(&currentDisplayPage->drawenv);
+ 				DrawOTag(currentDisplayPage->ot+(1024-1));
+
+				sprintf(tempText, "Cur Track %d", curTrack);
+				fontPrint(font, -50,-50, tempText, 64,192,192);
+				sprintf(tempText, "%s Speed", curSpeed?"Double":"Single");
+				fontPrint(font, -50,-70, tempText, 64,192,192);
+				sprintf(tempText, "Press Start To Exit");
+				fontPrint(font, -50,-90, tempText, 64,192,192);
+
+ 				currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+ 				ClearOTagR(currentDisplayPage->ot, 1024);
+ 				currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+ 				DrawSync(0);
+ 				VSync(2);
+ 				PutDispEnv(&currentDisplayPage->dispenv);
+ 				PutDrawEnv(&currentDisplayPage->drawenv);
+ 				DrawOTag(currentDisplayPage->ot+(1024-1));
+
+
+			}//end while
+
+			//allow normal access after this
+			XAstop();
+		}
+*/
+
+
+
+
+
+
+
 
 		
 		StartSound();//mmsfx
@@ -450,7 +547,9 @@ int main ( )
 			actorCount = 0;
 
 
+#if GOLDCD==0
 			timerDisplay();
+#endif
 
 //		TIMER_START(TIMER_TOTAL);
 
@@ -476,7 +575,9 @@ TIMER_START(TIMER_GAMELOOP);
 TIMER_STOP(TIMER_GAMELOOP);
 */
 			TIMER_START0(TIMER_GAMELOOP);
+//			oldStackPointer = SetSp(0x1f800400);
 			GameLoop();
+//			SetSp(oldStackPointer);
 			TIMER_STOP0(TIMER_GAMELOOP);
 			
 			TIMER_START0(TIMER_UPDATE_WATER);
@@ -498,9 +599,8 @@ TIMER_STOP(TIMER_GAMELOOP);
 			TIMER_STOP(TIMER_TOTAL);
 			TIMER_ENDFRAME;
 
-			//store timer peaks here
-			if(globalTimer[TIMER_INTERPRET] > maxInterpretTimer)
-				maxInterpretTimer = globalTimer[TIMER_INTERPRET];
+			//store any timer peaks here
+
 
 			TIMER_ZERO;
 			VSync(2);
@@ -561,6 +661,20 @@ TIMER_STOP(TIMER_GAMELOOP);
  						gameSpeed>>12, lastactorCount, lastpolyCount); 
  				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 
+ 				sprintf(tempText, "%2df", gameSpeed>>12); 
+ 				switch(gameSpeed>>12)
+				{
+					case 2:
+						fontPrint(fontSmall, 0,-60, tempText, 64,255,64);
+						break;
+					case 3:
+						fontPrint(fontSmall, 0,-60, tempText, 64,255,255);
+						break;
+					default:
+						fontPrint(fontSmall, 0,-60, tempText, 255,64,64);
+				}
+				
+
 //				sprintf(tempText, "% 2d frames  % 2d actors  % 4d maxintrpt",
 // 						gameSpeed>>12, lastactorCount, maxInterpretTimer); 
 // 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
@@ -605,6 +719,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 		}//end main loop
 
 
+		XAsetStatus(0);
 		StopSound();
 
 		utilPrintf("\nFROGGER2 QUIT/RESET\n");
@@ -628,52 +743,55 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 void MainDrawFunction ( void )
 {
-			TIMER_START0(TIMER_DRAW_WORLD);
+	TIMER_START0(TIMER_DRAW_WORLD);
 
-//			if ( drawLandscape && drawGame )
-				DrawWorld();
+//	if ( drawLandscape && drawGame )
+		DrawWorld();
 
-			TIMER_STOP0(TIMER_DRAW_WORLD);
+	TIMER_STOP0(TIMER_DRAW_WORLD);
 
-			TIMER_START0(TIMER_DRAW_SPECFX);
-			DrawSpecialFX();
-			TIMER_STOP0(TIMER_DRAW_SPECFX);
+	TIMER_START0(TIMER_DRAW_SPECFX);
+	oldStackPointer = SetSp(0x1f800400);
+	DrawSpecialFX();
+	SetSp(oldStackPointer);
+	TIMER_STOP0(TIMER_DRAW_SPECFX);
 
-			TIMER_START0(TIMER_PRINT_SPRITES);
-			PrintSprites();
-			TIMER_STOP0(TIMER_PRINT_SPRITES);
+	TIMER_START0(TIMER_PRINT_SPRITES);
+	oldStackPointer = SetSp(0x1f800400);
+	PrintSprites();
+	SetSp(oldStackPointer);
+	TIMER_STOP0(TIMER_PRINT_SPRITES);
 
-			TIMER_START0(TIMER_DRAW_SCENICS);
+	TIMER_START0(TIMER_DRAW_SCENICS);
 
-			if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
-				DrawScenicObjList();
+	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
+		DrawScenicObjList();
 
-			TIMER_STOP0(TIMER_DRAW_SCENICS);
-			
-			TIMER_START0(TIMER_DRAW_WATER);
-			if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
-				DrawWaterList();
-			TIMER_STOP0(TIMER_DRAW_WATER);
+	TIMER_STOP0(TIMER_DRAW_SCENICS);
+	
+	TIMER_START0(TIMER_DRAW_WATER);
+	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
+		DrawWaterList();
+	TIMER_STOP0(TIMER_DRAW_WATER);
 
-			TIMER_START0(TIMER_ACTOR_DRAW);
-			if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
-				DrawActorList();
-			TIMER_STOP0(TIMER_ACTOR_DRAW);
+	TIMER_START0(TIMER_ACTOR_DRAW);
+	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
+		DrawActorList();
+	TIMER_STOP0(TIMER_ACTOR_DRAW);
 
-// 			if ( !( frameCount % 10 ) )
-// 				utilPrintf ( "Poly Count : %d\n", polyCount );
-			// ENDIF
+//	if ( !( frameCount % 10 ) )
+//		utilPrintf ( "Poly Count : %d\n", polyCount );
 
-			TIMER_START0(TIMER_PRINT_OVERS);
-			PrintSpriteOverlays(1);
-			PrintTextOverlays();
-			PrintSpriteOverlays(0);
-			TIMER_STOP0(TIMER_PRINT_OVERS);
+	TIMER_START0(TIMER_PRINT_OVERS);
+	PrintSpriteOverlays(1);
+	PrintTextOverlays();
+	PrintSpriteOverlays(0);
+	TIMER_STOP0(TIMER_PRINT_OVERS);
 
-			TIMER_START0(TIMER_PROCTEX);
-			ProcessProcTextures( );
-			TIMER_STOP0(TIMER_PROCTEX);
+	TIMER_START0(TIMER_PROCTEX);
+	ProcessProcTextures( );
+	TIMER_STOP0(TIMER_PROCTEX);
 
-			DrawBackDrop();
+	DrawBackDrop();
 }
 
