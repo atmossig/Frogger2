@@ -312,6 +312,9 @@ void EditorCreateEntities(void)
 			// PUT THIS IN LATER
 //			act->actor->objectController->object->flags = create->objFlags;
 
+			if(gstrcmp(create->type,"nothing.obe") == 0)
+				act->draw = 0;
+
 			counts[0]++;
 			break;
 
@@ -345,6 +348,8 @@ void EditorCreateEntities(void)
 			act->animSpeed = create->animSpeed;
 			// PUT THIS IN LATER
 //			act->actor->objectController->object->flags = create->objFlags;
+			if(gstrcmp(create->type,"nothing.obe") == 0)
+				act->draw = 0;
 
 			counts[1]++;
 			break;
