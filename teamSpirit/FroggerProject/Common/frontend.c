@@ -287,6 +287,7 @@ char *trophyName[3] =
 };
 
 
+extern int storeLives;
 void LevelCompleteProcessController(long pl)
 {
 	unsigned long changedLevel = 0;
@@ -318,7 +319,7 @@ void LevelCompleteProcessController(long pl)
 
 		levCompleteState = LEV_COMPLETE_FADING_OUT;
 
-		if((grade == 0) || (moreCoins) || (levelOpened) || (levelBeaten))
+		if((grade == 0) || (moreCoins) || (levelOpened) || (levelBeaten) || ((gameState.single == STORY_MODE) && (player[0].lives != storeLives)))
 			SaveGame();
 
 		if (cOption == 1)
@@ -359,6 +360,13 @@ void RunGameComplete( )
 }
 
 
+short numLives[3] = 
+{
+	10,		//EASY
+	5,		//NORMAL
+	5		//HARD
+};
+
 /*	--------------------------------------------------------------------------------
 	Function		: RunGameOver
 	Purpose			: Runs the game-over screen
@@ -381,7 +389,7 @@ void RunGameOver( )
 #else
 		gameState.mode = FRONTEND_MODE;
 
-		player[0].lives = 10;
+		player[0].lives = numLives[gameState.difficulty];
 		player[0].levelNum = LEVELID_FRONTEND1;
 		player[0].worldNum = WORLDID_FRONTEND;
 		player[0].frogState &= ~FROGSTATUS_ISDEAD;

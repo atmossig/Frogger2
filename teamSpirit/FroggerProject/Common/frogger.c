@@ -47,6 +47,7 @@ SPRITELIST sprList;
 
 TEXTOVERLAYLIST	textOverlayList;			// the text overlay linked list
 
+int storeLives = 5;
 unsigned int xseed = (7789<<16)+13399;	
 int pauseController = 0;
 

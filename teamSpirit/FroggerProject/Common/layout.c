@@ -612,12 +612,10 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID)
 #ifdef PSX_VERSION
 void InitLoadingScreen( const char *filename )
 {
-	return;
-/*
-	SetProgressBar(0);
+//	SetProgressBar(0);
 
 	// JH: Lets load up the backdrop before we do any thing
-	InitBackdrop ( "LOADING" );
+	InitBackdrop(filename);
 
 	SetCurrentDisplayPage ( 1, 0 );
 
@@ -628,7 +626,6 @@ void InitLoadingScreen( const char *filename )
 	SendOTDisp();
 
 	displayPage[0].drawenv.isbg = displayPage[1].drawenv.isbg = 0;
-*/
 }
 
 void UpdateLoadingScreen( short addprog )
@@ -666,6 +663,7 @@ extern unsigned long actTickCountModifier;
 extern unsigned long actTickCount;
 int loadingLevel = NO;
 long numLevelsPlayed = 0;
+extern short numLives[3];
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i,temp;
@@ -897,8 +895,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	// ------ Reset miscellaneous pieces of data ------------
 
 	// Stuff that used to be in RunGameLoop
-	if( gameState.single != STORY_MODE )
-		player[0].lives = 10;
+	if((gameState.single != STORY_MODE) && (gameState.mode != FRONTEND_MODE))
+		player[0].lives = numLives[gameState.difficulty];
 
 //	player[0].score				= 0;
 	player[0].spawnTimer		= 0;
@@ -1268,10 +1266,11 @@ void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
 int quitAllVideo;
 void CommonInit(void)
 {
+#ifdef PC_VERSION
 	utilPrintf("Playing FMV.....\n");
 	StartVideoPlayback(FMV_ATARI_LOGO);
-	if(quitAllVideo == 0)
-		StartVideoPlayback(FMV_BLITZ_LOGO);
+	StartVideoPlayback(FMV_BLITZ_LOGO);
+#endif
 
 	frameCount=1;
 	lastActFrameCount = actFrameCount = 1;
@@ -1302,6 +1301,7 @@ void CommonInit(void)
 	StartE3LevelSelect();
 #else
 	gameState.mode = FRONTEND_MODE;
+	gameState.difficulty = DIFFICULTY_NORMAL;
 	InitLevel(player[0].worldNum,player[0].levelNum);
 #ifdef PC_VERSION
 	LoadGame();

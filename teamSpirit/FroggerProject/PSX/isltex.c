@@ -1110,7 +1110,7 @@ static void VRAMdrawPalette(unsigned long clut, int y)
 	setPolyF4(f4);
 	setXYWH(f4, -230-2,y-1, 16*20+3,10);
 	setRGB0(f4, 128,128,128);
-	ENDPRIM(f4, 1, POLY_F4);
+	ENDPRIM(f4, 11, POLY_F4);
 	for(loop=0; loop<16; loop++)
 	{
 		BEGINPRIM(f4, POLY_F4);
@@ -1119,7 +1119,7 @@ static void VRAMdrawPalette(unsigned long clut, int y)
 		setRGB0(f4, 8*((currentPal16[loop]>>0) & 0x1f),
 					8*((currentPal16[loop]>>5) & 0x1f),
 					8*((currentPal16[loop]>>10) & 0x1f));
-   		ENDPRIM(f4, 0, POLY_F4);
+   		ENDPRIM(f4, 10, POLY_F4);
    	}
 
 	for(pal=0; pal<VRAM_PALETTES; pal++)
@@ -1154,7 +1154,7 @@ static void VRAMdrawPalette256(unsigned long clut, int y)
 	setPolyF4(f4);
 	setXYWH(f4, -230-2,y-1, 16*20+3,10);
 	setRGB0(f4, 128,128,128);
-	ENDPRIM(f4, 1, POLY_F4);
+	ENDPRIM(f4, 11, POLY_F4);
 
 	palPtr = &currentPal256[0];
 
@@ -1168,7 +1168,7 @@ static void VRAMdrawPalette256(unsigned long clut, int y)
 			setRGB0(f4, 8*(((*palPtr)>>0) & 0x1f),
 						8*(((*palPtr)>>5) & 0x1f),
 						8*(((*palPtr)>>10) & 0x1f));
-   			ENDPRIM(f4, 0, POLY_F4);
+   			ENDPRIM(f4, 10, POLY_F4);
 			palPtr ++;
    		}
 		y += 2;
@@ -1211,7 +1211,7 @@ static void VRAMviewTextures(int *currTex)
 		setUVWH(ft4, tex->x,tex->y, tex->w-1, tex->h-1);
 		ft4->tpage = tex->tpage;
 		ft4->clut = tex->clut;
-		ENDPRIM(ft4, 0, POLY_FT4);
+		ENDPRIM(ft4, 10, POLY_FT4);
 
 		BEGINPRIM(ft4, POLY_FT4);
 		setPolyFT4(ft4);
@@ -1220,7 +1220,7 @@ static void VRAMviewTextures(int *currTex)
 		setUVWH(ft4, tex->x,tex->y, tex->w-1, tex->h-1);
 		ft4->tpage = tex->tpage;
 		ft4->clut = tex->clut;
-		ENDPRIM(ft4, 1, POLY_FT4);
+		ENDPRIM(ft4, 11, POLY_FT4);
 
 		if(tex->tpage & (1 << 7))
 			VRAMdrawPalette256(tex->clut, -90);
@@ -1246,7 +1246,7 @@ static void VRAMviewTextures(int *currTex)
 			setUVWH(ft4, tex->x,tex->y, tex->w-1, tex->h-1);
 			ft4->tpage = tex->tpage;
 			ft4->clut = tex->clut;
-			ENDPRIM(ft4, 2, POLY_FT4);
+			ENDPRIM(ft4, 12, POLY_FT4);
 			yu -= tex->h+8;
 		}
 		tex = textureFindTextureN(*currTex+loop);
@@ -1259,7 +1259,7 @@ static void VRAMviewTextures(int *currTex)
 			setUVWH(ft4, tex->x,tex->y, tex->w-1, tex->h-1);
 			ft4->tpage = tex->tpage;
 			ft4->clut = tex->clut;
-			ENDPRIM(ft4, 2, POLY_FT4);
+			ENDPRIM(ft4, 12, POLY_FT4);
 			yd += tex->h+8;
 		}
 	}

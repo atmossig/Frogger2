@@ -135,7 +135,7 @@ void InitArcadeHUD(void)
 		GTInit(&goTimer,5);
 	}
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+	if((gameState.difficulty != DIFFICULTY_HARD) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		arcadeHud.timeBar->draw = 0;
 		arcadeHud.timeBak->draw = 0;
@@ -285,7 +285,7 @@ void InitArcadeHUD(void)
 
 	arcadeHud.timedOut = 0;
 
-	if(((gameState.difficulty == DIFFICULTY_EASY) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
+	if(((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 		{
@@ -460,7 +460,7 @@ void DisableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 0;
 
-	if(((gameState.difficulty == DIFFICULTY_EASY) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
+	if(((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 0;
@@ -504,7 +504,7 @@ void EnableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 1;
 	
-	if((((gameState.difficulty == DIFFICULTY_EASY) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
+	if((((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
 //	if(((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
@@ -711,7 +711,7 @@ void UpDateOnScreenInfo ( void )
 		}
 
 		// Sparklies
-		if(((gameState.difficulty == DIFFICULTY_EASY) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
+		if(((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
 		{
 			for (i=0; i<MAX_HUD_SPARKLES; i++)
 			{	

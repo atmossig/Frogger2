@@ -20,6 +20,7 @@
 #include <islmem.h>
 #include "Main.h"
 #include "maths.h"
+#include "game.h"
 
 #ifdef PC_VERSION
 #include <pcaudio.h>
@@ -90,6 +91,7 @@ char *MemLoadString(UBYTE **p)
 	Load enemies, platforms etc.
 */
 
+short createExtraLife;
 int MemLoadEntities(const void* data)
 {
 	UBYTE thing;
@@ -98,6 +100,7 @@ int MemLoadEntities(const void* data)
 	int n, count;
 	int totalPathNodes, totalEnemies, totalPlatforms, totalGaribs, totalCameraCases, totalPlaceholders;
 
+	createExtraLife = 1;
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
 
@@ -364,7 +367,10 @@ int MemLoadEntities(const void* data)
 				ScaleVectorFF(&w, offs * SCALE );
 				AddVectorSSF(&v, &tile->centre, &w);
 
-				CreateNewGarib(v, n);
+				if((n != EXTRALIFE_GARIB) || (gameState.difficulty == DIFFICULTY_EASY) || (createExtraLife))
+					CreateNewGarib(v, n);
+				if(n == EXTRALIFE_GARIB)
+					createExtraLife = 1 - createExtraLife;
 				break;
 			}
 

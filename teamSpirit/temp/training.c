@@ -28,6 +28,7 @@ char *currStr = NULL;
 
 TRAININGMODE *train;
 
+extern short numLives[3];
 void InitTrainingMode()
 {
 	int i;
@@ -56,6 +57,7 @@ void InitTrainingMode()
 		train->txtover[i]->speed = 75<<12;
 	}
 	currStr = lastStr = NULL;
+	player[0].lives = numLives[gameState.difficulty];
 }
 
 void RunTrainingMode(void)

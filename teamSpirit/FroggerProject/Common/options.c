@@ -906,7 +906,7 @@ void ExtraSelect(void)
 		switch(switchVal)
 		{
 			case EXTRA_DIFFICULTY:
-				gameState.difficulty = 1 - gameState.difficulty;
+				gameState.difficulty = (gameState.difficulty + 1) MOD 3;
 				sprintf(diffStr,GAMESTRING(STR_EXTRAS_1),GAMESTRING(STR_DIFFICULTY_1 + gameState.difficulty));
 				break;
 

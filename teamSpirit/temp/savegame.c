@@ -17,6 +17,7 @@
 #include "layout.h"
 #include "frogger.h"
 #include "menus.h"
+#include "game.h"
 
 
 #ifdef PSX_VERSION
@@ -24,6 +25,7 @@ extern char saveicon[];  // Included TIM data created from a 16-col BMP by TIMUT
 #endif
 
 
+extern int storeLives;
 /*	--------------------------------------------------------------------------------
 	Function		: SaveGameInfo
 	Parameters		: 
@@ -76,7 +78,10 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 
 	strcpy( header->playername, player[0].name );
 	// TODO: language, controller setup & audio settings here
-	header->lives = player[0].lives;
+	if(gameState.single == STORY_MODE)
+		storeLives = header->lives = player[0].lives;
+	else
+		header->lives = storeLives;
 	header->vol_musicvol = globalMusicVol;
 	header->vol_effect = globalSoundVol;
 	
@@ -136,6 +141,7 @@ int LoadSaveGameBlock(void* ptr, unsigned long size)
 	else
 		player[0].lives = 3;
 
+	storeLives = player[0].lives;
 	globalMusicVol = header->vol_musicvol;
 	globalSoundVol = header->vol_effect;
 

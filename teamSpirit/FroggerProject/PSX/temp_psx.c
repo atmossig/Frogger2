@@ -1197,7 +1197,6 @@ void myPadHandleInput()
 	}
 }
 
-extern int quitAllVideo;
 static short videoKeyPress()
 {
 	if(padData.digital[0] & PAD_START)

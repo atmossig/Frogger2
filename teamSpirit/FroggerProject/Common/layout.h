@@ -672,6 +672,7 @@ extern int	gameTextLang;
 
 extern short loadingDisplay;
 
+extern int quitAllVideo;
 
 
 //----- [ FUNCTION PROTOTYPES ] -----

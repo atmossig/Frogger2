@@ -91,6 +91,7 @@
 #include "lang.h"
 #include "fadeout.h"
 #include "objects.h"
+#include "story.h"
 
 #ifdef FINAL_MASTER
 int useMemCard = 1;
@@ -102,6 +103,7 @@ SAVE_INFO saveInfo;
 SCENICOBJLIST scenicObjList;
 
 long turbo = 4096;
+int loadCodeOverlays = YES;
 
 TextureAnimType* timerAnim = NULL;
 int animFrame;
@@ -142,8 +144,6 @@ char textString[255] = "A--";
 
 long drawGame = 1;
 
-int artback = 0;
-
 //fixed gameSpeed = 4096;
 //char quitMainLoop;
 //unsigned long actFrameCount = 0;
@@ -166,6 +166,8 @@ extern char _video_obj[];
 
 void LoadCodeOverlay(int num)
 {
+	if(loadCodeOverlays == NO)
+		return;
 #if GOLDCD == 0
 	strcpy(FILEIO_PCROOT, "C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\");
 #endif
@@ -470,7 +472,6 @@ int maxInterpretTimer=0;
 int oldStackPointer;
 
 extern char _SN_OVL_video_orgend[];
-
 int main ( )
 {
 	static int frameAdvance = 0;
@@ -502,6 +503,19 @@ int main ( )
 		utilSeedRandomInt(398623);
 
 
+
+		//bb - MUST INIT PAD BEFORE MEM CARD - SONY RULES!
+		padInitialise(1); // 0 = No multi tap support
+		MemCardInit(1);
+		MemCardStart();
+		videoInit ( 1024, 2400, VIDEO_INIT_AND_MALLOC );
+
+		textureInitialise ( NUM_16COLOURPALS, NUM_256COLOURPALS );
+
+		VSyncCallback(&vsyncCallback);
+
+		StartSound();//mmsfx
+
 #if GOLDCD == NO
 		fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
 //		fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
@@ -511,46 +525,57 @@ int main ( )
 //		XAsetStatus(CdInit());
 #endif
 
+		actFrameCount = 0;
 
-//		LoadCodeOverlay(GAME_OVERLAY);
-
-		//Init_BB_AcosTable();
-		
-		//bb - MUST INIT PAD BEFORE MEM CARD - SONY RULES!
-		padInitialise(1); // 0 = No multi tap support
-		MemCardInit(1);
-		MemCardStart();
-		videoInit ( 1024, 2400, VIDEO_INIT_AND_MALLOC );
-
-/*		saveicon = fileLoad("saveicon.tim", NULL);
-		if(!saveicon)
+		InitBackdrop("LOADING");
+		ScreenFade(0,255,30);
+		while(actFrameCount < 180)
 		{
-			utilPrintf("ERROR! Could not load save icon\n");
-			for(;;)
-			{}
+			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+			ClearOTagR(currentDisplayPage->ot, 1024);
+			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+			if((fadingOut == 0) && (fontSmall == NULL))
+			{
+				genBank = textureLoadBank("TEXTURES\\MEMCARD.SPT");
+				textureDownloadBank(genBank);
+				textureDestroyBank(genBank);
+		 		fontSmall = fontLoad("FONT12.FON");
+
+				fontInitButtonSprites();
+				gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+				memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
+				LoadSfx(-1);
+				LoadCodeOverlay(VIDEO_OVERLAY);
+				actFrameCount = 180 - 32;
+				ScreenFade(255,0,30);
+			}
+
+
+   			DrawBackDrop(0, 0);
+   			DrawScreenTransition();
+
+			DrawSync(0);
+			VSync(0);
+			PutDispEnv(&currentDisplayPage->dispenv);
+			PutDrawEnv(&currentDisplayPage->drawenv);
+			DrawOTag(currentDisplayPage->ot+(1024-1));
+			actFrameCount++;
 		}
-*/
-		//		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
-		//#if GOLDCD==0
-		//		XAenable = CdInit();
-		//#else
-		//		XAenable = 1;
-		//#endif
 
-		textureInitialise ( NUM_16COLOURPALS, NUM_256COLOURPALS );
-
-//		sfxInitialise();
-//		sfxStartSound();
-
-		// SL: Right... here, I make up and store the index for an all black palette, used to do true transparency...
-		//EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
-
-		VSyncCallback(&vsyncCallback);
-
-		StartSound();//mmsfx
 
 		actFrameCount = 0;
-		LoadSfx(-1);
+
+		loadCodeOverlays = NO;
+		StartVideoPlayback(FMV_ATARI_LOGO);
+		if(quitAllVideo == 0)
+		{
+			StartVideoPlayback(FMV_BLITZ_LOGO);
+			if(quitAllVideo == 0)
+				StartVideoPlayback(FMV_INTRO);
+		}
+		loadCodeOverlays = YES;
+
 #if PALMODE==1
 #define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
@@ -564,6 +589,7 @@ int main ( )
 
 			myPadHandleInput();
 			languageFrame();
+			DrawBackDrop(0,0);
 			DrawScreenTransition();
 			actFrameCount++;
 
@@ -576,23 +602,17 @@ int main ( )
 		actFrameCount = 0;
 #endif
 #endif
+		FreeBackdrop();
 		LoadCodeOverlay(GAME_OVERLAY);
 		myPadHandleInput();
 		LoadGame();
 		
 		if(saveInfo.saveFrame)
 		{
-		 	fontSmall = fontLoad("FONT12.FON");
-			genBank = textureLoadBank("TEXTURES\\MEMCARD.SPT");
-			textureDownloadBank(genBank);
-			textureDestroyBank(genBank);
-
-			fontInitButtonSprites();
-			gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 			InitTiledBackdrop("LOGO");
-			memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
 			ScreenFade(0,255,20);
 			keepFade = NO;
+
 			while((saveInfo.saveFrame) || (fadingOut))
 			{
 				currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
@@ -748,7 +768,7 @@ int main ( )
 			// JH:  Main Draw Function That Runs All The Draw Functions.
 			if(gameState.mode == ARTVIEWER_MODE)
 			{
-				DrawBackDrop(0, artback);
+				DrawBackDrop(0, 0);
 				DrawScreenTransition();
 			}
 			else

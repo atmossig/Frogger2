@@ -76,12 +76,6 @@ void ScreenFade(int start, int end, long time)
 }
 
 
-void StopFadeout()
-{
-	fadeProc = NULL;
-	fadingOut = 0;
-}
-
 /*	-------------------------------------------------------------------------------
 	Function:	MainWndProc
 	Params:		As WNDPROC

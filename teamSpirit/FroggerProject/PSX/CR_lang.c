@@ -299,8 +299,8 @@ void languageFrame()
 	long loop1,loop2,temp;
 		
 
-	if(languageData.frame < 20)
-		ScreenFade(0,255,30);
+//	if(languageData.frame < 20)
+//		ScreenFade(0,255,30);
 
 //	utilPrintf("Frame\n");
 	wind[0] += utilRandomInt(800)-100+rsin(languageData.frame*200)/15;
