@@ -118,6 +118,20 @@ void UpdateRace( )
 			total = mpl[i].timer + mpl[i].penalty;
 			sprintf( raceTimeOver[i]->text, "%i %i %i", (total/3600), ((total%3600)/60), (total%60) );
 
+			// If waiting to respawn, update timer and check for respawn timeout
+			if( player[i].dead.time )
+			{
+				GTUpdate( &player[i].dead, -1 );
+
+				if( !player[i].dead.time )
+				{
+					RaceRespawn(i);
+					frog[i]->draw = 1;
+					GTInit( &player[i].safe, 3 );
+				}
+				else continue;
+			}
+
 			// Kill frogs that have fallen off screen
 			if( (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
 			{
@@ -576,8 +590,8 @@ void KillMPFrog(int num)
 		raceTimeOver[num]->r = mpl[num].r;
 		raceTimeOver[num]->g = mpl[num].g;
 		raceTimeOver[num]->b = mpl[num].b;
-		RaceRespawn(num);
-		GTInit( &player[num].safe, 3 );
+		GTInit( &player[num].dead, 2 );
+		frog[num]->draw = 0;
 	}
 	else
 	{
