@@ -28,7 +28,9 @@
 #include "mavis.h"
 #include "config.h"
 
+#ifdef _DEBUG
 #define USE_EDITOR
+#endif
 
 void SetupViewMatrix(void);
 void AnimateTexturePointers(void);

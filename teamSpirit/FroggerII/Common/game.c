@@ -395,9 +395,10 @@ void GameProcessController(long pl)
 			
 			EnableTextOverlay ( continueText );
 			EnableTextOverlay ( quitText );
+#ifdef _DEBUG
 			EnableTextOverlay ( posText );
 			EnableTextOverlay ( levelnameText );
-
+#endif
 			if (NUM_FROGS == 1)
 			{
 				livesTextOver->oa = livesTextOver->a;
