@@ -238,6 +238,7 @@ void DrawActor(MDX_ACTOR *actor)
 
 	// If we are skinned then XForm all the vertices first and then draw the skin, otherwise draw it as we transform it.
 	overrideTex = actor->overrideTex;
+	softDepthOff = actor->depthOff;
 
 	if (objectC->isSkinned)
 	{
@@ -270,6 +271,8 @@ void DrawActor(MDX_ACTOR *actor)
 	{
 		DrawObject(objectC->object, FALSE, objectC->object->mesh);		
 	}
+
+	softDepthOff = 0;
 }
 
 

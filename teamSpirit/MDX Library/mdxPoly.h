@@ -83,6 +83,7 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size);
 
 void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry);
+void ClearSoftwareSortBuffer(void);
 
 #define PushPolys(v,vC,fce,fC,tEntry)\
 {\
@@ -182,6 +183,7 @@ void BlankAllFrames(void);
 void DrawAllFrames(void);
 void SetSoftwareState(unsigned long *me);
 
+void DrawSoftwarePolys (void);
 
 #define FULL_TEXTURE 0,0,1,1
 
@@ -212,6 +214,8 @@ extern unsigned long numSeperates;
 extern unsigned long fogging;
 
 extern short softScreen[640*480];
+
+extern long softDepthOff;
 
 #ifdef __cplusplus
 }

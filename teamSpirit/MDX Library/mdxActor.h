@@ -46,6 +46,7 @@ typedef struct TAG_MDX_ACTOR
 	unsigned char				visible;
 
 	MDX_TEXENTRY				*overrideTex;
+	long						depthOff;
 
 	long						draw;
 	long						xform;
