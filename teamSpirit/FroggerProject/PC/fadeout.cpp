@@ -37,7 +37,7 @@ int DrawScreenFade(void)
 	RECT r = { 0, 0, rXRes, rYRes };
 	int col;
 	
-	if (actFrameCount > (fadeoutStart+fadeoutLength))
+	if (actFrameCount >= (fadeoutStart+fadeoutLength))
 		col = endIntensity;
 	else
 		col = startIntensity + ((endIntensity-startIntensity)*(long)(actFrameCount-fadeoutStart))/fadeoutLength;
