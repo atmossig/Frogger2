@@ -189,7 +189,7 @@ void GetArgs(char *arglist)
 					break;
 				case 'C':
 				case 'c':
-//					swingCam = 0;
+					swingCam = 0;
 					break;
 			}
 		}
