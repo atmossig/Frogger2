@@ -773,6 +773,8 @@ void FreeSampleList( void )
 	SAMPLE *cur,*next;
 	unsigned long stat, i;
 
+	if( sfx_anim_map ) FREE( sfx_anim_map );
+
 	// check if any elements in list
 	if( !soundList.numEntries )
 		return;
@@ -796,7 +798,6 @@ void FreeSampleList( void )
 	for( i=0; i<NUM_GENERIC_SFX; i++ )
 		genSfx[i] = NULL;
 
-	if( sfx_anim_map ) FREE( sfx_anim_map );
 	sfx_anim_map = NULL;
 
 	dispSample = NULL;
