@@ -370,7 +370,7 @@ void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 			{
 				nX=(float)(x-16)/16;
 				nY=(float)(y-16)/16;
-				nZ= 1-sqrt(nX*nX + nY*nY);
+				nZ= 1-sqrtf(nX*nX + nY*nY);
 				if( nZ < 0 ) nZ=0;
 				bump[(y*32)+x] = (unsigned char)(Fabs(nZ)*256);
 			}
