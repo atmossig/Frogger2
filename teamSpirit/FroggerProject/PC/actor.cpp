@@ -16,10 +16,6 @@
 #define F3DEX_GBI_2
 #define LEAVEOUT_MATH
 
-extern "C"
-{
-
-
 #include "actor.h"
 #include "frogger.h"
 #include "babyfrog.h"
@@ -127,7 +123,7 @@ void FindFrogSubObjects( int p )
 	{
 		MDX_OBJECT *obj;
 
-		sprintf( objName, "fghed" );
+		strcpy( objName, "fghed" );
 		if( player[0].character == FROG_LILLIE )
 			objName[1] = 'm';
 
@@ -146,7 +142,7 @@ void FindFrogSubObjects( int p )
 	{
 		MDX_OBJECT *obj;
 
-		sprintf( objName, "fgshld" );
+		strcpy( objName, "fgshld" );
 		if( player[0].character == FROG_LILLIE )
 			objName[1] = 'm';
 		if( (obj = FindActorSubObject( (MDX_ACTOR *)frog[0]->actor->actualActor, objName )) )
@@ -269,6 +265,4 @@ void UpdateFrogCroak( int pl )
 			croakDir = 0;
 		}
 	}
-}
-
 }
