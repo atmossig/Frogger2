@@ -79,7 +79,7 @@ unsigned long cLevelPlay = 0;
 unsigned long levelPlayList[] = 
 {
 	4,1,
-	0,0,
+	1,2,
 	5,2,
 	1000,1000
 };

@@ -796,6 +796,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	}
 
 	lastActFrameCount = 0;
+
+	for (i = 3; i>=0; i--)
+		controllerdata[i].button = controllerdata[i].lastbutton = 0;
 }
 
 

@@ -88,8 +88,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	autoHop			= 0;
 	longTongue		= 0;
 
-	camFacing		= 0;
-	controlCamera	= 0;
+	//camFacing		= 0;
+	//controlCamera	= 0;
 
 	InitActorAnim(frog[p]->actor);
 	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.25F,0,0);
@@ -1251,6 +1251,9 @@ BOOL KillFrog(long pl)
 		}
 
 		SetFroggerStartPos(gTStart[0],pl);
+		//currTile[pl] = gTStart[pl];
+		//SetVector(&frog[pl]->actor->pos,&startTile->centre);
+
 		ResetPlatformFlags();
 
 		return FALSE;

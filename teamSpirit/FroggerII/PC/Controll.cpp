@@ -676,7 +676,7 @@ void ProcessUserInput(HWND hWnd)
 
 	if (pressed)
 	{
-		GTInit(&idletimer, 30);
+		GTInit(&idletimer, 50);
 	}
 	else
 	{
