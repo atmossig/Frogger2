@@ -989,6 +989,12 @@ void LoadLevelEntities(short worldID,short levelID)
 					sprintf(message, "SPC_ENT3");				
 				break;
 
+//			case SPACEBOSSA_ENT:
+//					bankRomStart	= (u32)&_levData_3_4_SegmentRomStart;
+//					bankRomEnd		= (u32)&_levData_3_4_SegmentRomEnd;
+//					sprintf(message, "SPC_BOSS");				
+//				break;
+
 			default:
 				return;
 		}
@@ -1335,6 +1341,12 @@ void LoadLevelScript(int worldID,int levelID)
 			case SPACELEV1_ENT:
 					bankRomStart	= (u32)&_scrData_3_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_scrData_3_1_SegmentRomEnd;
+					sprintf(message, "SPC_SCR1");				
+				break;
+
+			case SPACELEV2_ENT:
+					bankRomStart	= (u32)&_scrData_3_2_SegmentRomStart;
+					bankRomEnd		= (u32)&_scrData_3_2_SegmentRomEnd;
 					sprintf(message, "SPC_SCR1");				
 				break;
 

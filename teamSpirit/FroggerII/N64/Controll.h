@@ -18,7 +18,7 @@ extern OSMesg		controllerMsgBuf[];
 extern OSMesgQueue     serialMsgQ;
 extern OSMesg          serialMsg;
 
-extern OSPfs	rumble;
+extern OSPfs	pfsRumble[MAXCONTROLLERS];
 
 extern int initControllers(void);
 extern OSContStatus     statusdata[MAXCONTROLLERS];
@@ -26,6 +26,8 @@ extern OSContPad        controllerdata[MAXCONTROLLERS];
 
 extern int ControllerMode;
 extern char debugCtrlMode[20];
+extern char	controllerPresent;
+extern char rumblePresent[4];
 
 extern int initControllers(void);
 extern void ReadController1(void);

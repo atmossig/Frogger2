@@ -24,7 +24,7 @@ extern SHORT2DVECTOR *mTC[MAX_N64_WATEROBJECTS];
 
 
 void RunWaterDemo();
-void UpdateWater(ACTOR *wAct);
+void UpdateWater(ACTOR2 *wAct);
 
 void AddN64WaterObjectResource(ACTOR *wAct);
 void FreeN64WaterResources();

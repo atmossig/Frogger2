@@ -78,6 +78,9 @@ void TransformSkinnedObject(OBJECT *obj, float time);
 
 void XfmPoint(VECTOR *vTemp2,VECTOR *in);
 
+void ConvertQuatShortToQuat(QUATERNIONSHORT *quatShort,QUATERNION *quat);
+void FindToFromKeysSHORT(KEYFRAMESHORT *keys,short *from,short *to,float *interp,float time,int numKeys);
+
 
 extern TEXTURE	*tempTexture;
 extern char		*tempObjectPtr, *tempObjectPtr2;

@@ -1154,6 +1154,10 @@ void DrawGraphics(void *arg)
 
 				DrawSpecialFX();
 
+				ClearViewing();
+
+				// draw non-transformed objects / actors here (perhaps)....
+
 				oldFogMode = fog.mode;
 				fog.mode = 0;
 				SetRenderMode();
@@ -1464,6 +1468,7 @@ void ControllerProc(void *arg)
 	NNScClient client;
 	static short	disableController = FALSE;
 	short *msg_type = NULL;
+	int j;
 
 	osCreateMesgQueue(&lmsgQ, lmsgbuf, 8);
 
@@ -1474,7 +1479,51 @@ void ControllerProc(void *arg)
 		if(disableController == FALSE)
 		{
 			(void)osRecvMesg(&lmsgQ,(OSMesg *)&msg_type, OS_MESG_BLOCK);
-			if(*msg_type == NN_SC_GFX_RETRACE_MSG)
+
+			if(*msg_type == NN_SC_RETRACE_MSG)
+			{
+				if(anyRumblePresent)
+					UpdateRumble();
+				if(eepromMessageQueue[0] != EEPROM_IDLE)
+				{
+					BOOL oldDC=disableController;
+
+					disableController = TRUE;
+						
+					switch(eepromMessageQueue[0])
+					{
+/*						case EEPROM_SAVESLOT:
+							EepromSaveSlots();
+							break;
+						case EEPROM_LOADSLOT:
+							EepromLoadSlots();
+							break;
+						case EEPROM_SAVESCORES:
+							EepromSaveHiScores();
+							break;
+						case EEPROM_LOADSCORES:
+							EepromLoadHiScores();
+							break;
+						case EEPROM_VALID:
+							EepromValid();
+							break;
+						case EEPROM_SAVEID:
+							EepromSaveID();
+							break;
+						case EEPROM_SAVECRC:
+							EepromSaveCRC();
+							break;
+						case EEPROM_LOADCRC:
+							EepromLoadCRC();
+							break;
+*/					}
+
+					GetEepromMessage();
+
+					disableController = oldDC;
+				}
+			}
+			else if(*msg_type == NN_SC_GFX_RETRACE_MSG)
 			{			
 				frameStart = osGetCount();
 				TIMER_ClearTimers();
@@ -1490,70 +1539,20 @@ void ControllerProc(void *arg)
 //						ReadControllerFromData(ActiveController);
 //					}
 //					else
-//					{
-						ReadController(ActiveController);
-//					}
-#ifndef FINAL_RELEASE
-					ReadController(3);
-#endif
-					TIMER_EndTimer(2);
-
-					if(eepromMessageQueue[0] != EEPROM_IDLE)
 					{
-						BOOL oldDC=disableController;
-
-//						StopDrawing("eeprom");
-						disableController = TRUE;
-						
-						switch(eepromMessageQueue[0])
+						for(j=0; j<NUM_FROGS; j++)
 						{
-							case EEPROM_SAVELEVELSCORES:
-								EepromSaveLevelScores();
-								break;
-							case EEPROM_LOADLEVELSCORES:
-								EepromLoadLevelScores();
-								break;
-							case EEPROM_VALID:
-								EepromValid();
-								break;
-							case EEPROM_SAVEGAME:
-								EepromSaveGame();
-								break;
-							case EEPROM_LOADGAME:
-								EepromLoadGame();
-								break;
-								
-				/*			case EEPROM_SAVEHISCORES:
-								EepromSaveHiscoreTable();
-								break;
-							case EEPROM_LOADHISCORES:
-								EepromLoadHiscoreTable();
-								break;
-							case EEPROM_SAVETIMES:
-								EepromSaveBestTimes();
-								break;
-							case EEPROM_LOADTIMES:
-								EepromLoadBestTimes();
-								break;
-							case EEPROM_SAVEID:
-								EepromSaveID();
-								break;
-							case EEPROM_SAVECRC:
-								EepromSaveCRC();
-								break;
-							case EEPROM_LOADCRC:
-								EepromLoadCRC();
-								break;	 */
+							ActiveController = j;
+							ReadController(j);
 						}
-
-						GetEepromMessage();
-
-//						if(!oldDG)
-//							StartDrawing("eeprom");
-							
-//help						disableGraphics = oldDG;
-						disableController = oldDC;
 					}
+
+					if(NUM_FROGS == 1)
+						ReadController(1);
+					if(NUM_FROGS < 4)
+						ReadController(3);
+
+					TIMER_EndTimer(2);
 				}
 			}
 		}

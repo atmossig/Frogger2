@@ -450,6 +450,7 @@ void DeformTextureCoords(OBJECT *obj)
 QUATERNION	tempQuat,morphFromQuat,morphToQuat,morphResultQuat;
 void TransformObject(OBJECT *obj, float time)
 {
+	QUATERNION quat1,quat2;
 	VECTOR translation,scale;
 	VECTOR	morphFrom,morphTo;
 	SPRITE	*sprite;
@@ -516,6 +517,7 @@ void TransformObject(OBJECT *obj, float time)
 	{
 		if(currentDrawActor->animation->numMorphFrames)
 		{
+/*
 			// Find from vector
 			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
 			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphFromQuat);
@@ -529,19 +531,57 @@ void TransformObject(OBJECT *obj, float time)
 			QuatSlerp(&morphFromQuat, &morphToQuat, tempFloat, &morphResultQuat);
 
 			QuaternionToMatrix(&morphResultQuat, (MATRIX *)rotmat);
+*/
+
+			// USE NEW QUATERNIONSHORT DATA TYPE
+
+			// Find from vector
+			FindToFromKeysSHORT(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
+			ConvertQuatShortToQuat(&obj->rotateKeys[fromKey].quat,&quat1);
+			ConvertQuatShortToQuat(&obj->rotateKeys[toKey].quat,&quat2);
+			QuatSlerp(&quat1,&quat2,interp,&morphFromQuat);
+
+			// Find to vector
+			FindToFromKeysSHORT(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numRotateKeys);
+			ConvertQuatShortToQuat(&obj->rotateKeys[fromKey].quat,&quat1);
+			ConvertQuatShortToQuat(&obj->rotateKeys[toKey].quat,&quat2);
+			QuatSlerp(&quat1,&quat2,interp,&morphToQuat);
+
+			// Slerp between from and to vectors
+			tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+			QuatSlerp(&morphFromQuat,&morphToQuat,tempFloat,&morphResultQuat);
+
+			// convert back to rotation matrix
+			QuaternionToMatrix(&morphResultQuat,(MATRIX *)rotmat);
 		}
 		else
 		{
+/*
 			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
 			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
 
 			// convert back to rotation matrix
 			QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
+*/
+
+			// USE NEW QUATERNIONSHORT DATA TYPE
+
+			FindToFromKeysSHORT(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
+			ConvertQuatShortToQuat(&obj->rotateKeys[fromKey].quat,&quat1);
+			ConvertQuatShortToQuat(&obj->rotateKeys[toKey].quat,&quat2);
+			QuatSlerp(&quat1,&quat2,interp,&tempQuat);
+
+			// convert back to rotation matrix
+			QuaternionToMatrix(&tempQuat,(MATRIX *)rotmat);
 		}
 	}
 	else
 	{
-		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
+//		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
+
+		// USE NEW QUATERNIONSHORT DATA TYPE
+		ConvertQuatShortToQuat(&obj->rotateKeys[0].quat,&quat1);
+		QuaternionToMatrix(&quat1,(MATRIX *)rotmat);
 	}
 
 	rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];
@@ -628,6 +668,7 @@ void TransformObject(OBJECT *obj, float time)
 */
 void TransformSkinnedObject(OBJECT *obj, float time)
 {
+	QUATERNION quat1,quat2;
 	VECTOR translation,scale, rotation;
 	VECTOR	morphFrom,morphTo;
 	SPRITE	*sprite;
@@ -697,6 +738,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 	{
 		if(currentDrawActor->animation->numMorphFrames)
 		{
+/*
 			// Find from vector
 			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
 			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphFromQuat);
@@ -710,19 +752,57 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 			QuatSlerp(&morphFromQuat, &morphToQuat, tempFloat, &morphResultQuat);
 
 			QuaternionToMatrix(&morphResultQuat, (MATRIX *)rotmat);
+*/
+
+			// USE NEW QUATERNIONSHORT DATA TYPE
+
+			// Find from vector
+			FindToFromKeysSHORT(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
+			ConvertQuatShortToQuat(&obj->rotateKeys[fromKey].quat,&quat1);
+			ConvertQuatShortToQuat(&obj->rotateKeys[toKey].quat,&quat2);
+			QuatSlerp(&quat1,&quat2,interp,&morphFromQuat);
+
+			// Find to vector
+			FindToFromKeysSHORT(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numRotateKeys);
+			ConvertQuatShortToQuat(&obj->rotateKeys[fromKey].quat,&quat1);
+			ConvertQuatShortToQuat(&obj->rotateKeys[toKey].quat,&quat2);
+			QuatSlerp(&quat1,&quat2,interp,&morphToQuat);
+
+			// Slerp between from and to vectors
+			tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+			QuatSlerp(&morphFromQuat,&morphToQuat,tempFloat,&morphResultQuat);
+
+			// convert back to rotation matrix
+			QuaternionToMatrix(&morphResultQuat,(MATRIX *)rotmat);
 		}
 		else
 		{
+/*
 			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
 			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
 
 			// convert back to rotation matrix
 			QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
+*/
+
+			// USE NEW QUATERNIONSHORT DATA TYPE
+
+			FindToFromKeysSHORT(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
+			ConvertQuatShortToQuat(&obj->rotateKeys[fromKey].quat,&quat1);
+			ConvertQuatShortToQuat(&obj->rotateKeys[toKey].quat,&quat2);
+			QuatSlerp(&quat1,&quat2,interp,&tempQuat);
+
+			// convert back to rotation matrix
+			QuaternionToMatrix(&tempQuat,(MATRIX *)rotmat);
 		}
 	}
 	else
 	{
-		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
+//		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
+
+		// USE NEW QUATERNIONSHORT DATA TYPE
+		ConvertQuatShortToQuat(&obj->rotateKeys[0].quat,&quat1);
+		QuaternionToMatrix(&quat1,(MATRIX *)rotmat);
 	}
 
 	//transform the objects vertex normals ONLY if the object is lit.
@@ -1480,4 +1560,100 @@ void XfmPoint(VECTOR *vTemp2,VECTOR *in)
 		}
 		else
 			vTemp2->v[Z] = 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ConvertQuatShortToQuat
+	Purpose			: converts a short based quaternion to normal float based quaternion
+	Parameters		: QUATERNIONSHORT *,QUATERNION *
+	Returns			: void
+	Info			: 
+*/
+void ConvertQuatShortToQuat(QUATERNIONSHORT *quatShort,QUATERNION *quat)
+{
+	quat->x = quatShort->x;
+	quat->x /= 32768;
+	quat->y = quatShort->y;
+	quat->y /= 32768;
+	quat->z = quatShort->z;
+	quat->z /= 32768;
+	quat->w = quatShort->w;
+	quat->w /= 32768;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FindToFromKeysSHORT
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FindToFromKeysSHORT(KEYFRAMESHORT *keys,short *from,short *to,float *slerp,float time,int numKeys)
+{
+	int			i;
+	int			low,high;
+	short		fromKey,toKey;
+	float		tempFloat;
+
+	low=0;
+	high=numKeys-1;
+
+	if (time < keys[low].time)
+	{
+		*from = 0;
+		*to = 1;
+		*slerp = 0;
+		return;
+	}
+	if (time > keys[high].time)
+	{
+		*from = high-1;
+		*to = high-1;
+		*slerp = 1;
+		return;
+	}
+
+	for (;;)
+	{
+		i= (low+high) >> 1;
+		if (keys[i].time==time)
+		{
+			low = i;
+			high = i+1;
+			break;
+		}
+		else
+		{
+			if (time<keys[i].time)
+			{
+				high = i;
+				if ((high-low)<2) break;
+			}
+			else
+			{
+				low = i;
+				if ((high-low)<2) break;
+			}
+		}
+	}
+
+	fromKey = low;
+	toKey = low+1;
+
+	if(fromKey != -1)		//time is within valid keyframes
+	{
+		tempFloat = abs(keys[toKey].time - keys[fromKey].time);
+		tempFloat = (time - (float)keys[fromKey].time) / tempFloat;
+	}
+	else					// must be between last and first keyframe
+	{
+		fromKey = numKeys-1;
+		toKey = fromKey;
+		tempFloat = 1;
+	}
+	*from = fromKey;
+	*to = toKey;
+	*slerp = tempFloat;
 }

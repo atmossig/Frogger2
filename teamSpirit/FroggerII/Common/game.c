@@ -235,6 +235,9 @@ void GameProcessController(long pl)
 			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
 			// To enable endless double jumping
 			//player[pl].hasDoubleJumped = 0;
+#ifdef N64_VERSION
+			StartRumble(100,1,3,ActiveController);
+#endif
 		}
 		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{
@@ -420,7 +423,23 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		}
 		else
 		{
-			
+/*
+#ifdef N64_VERSION
+			for( i=0; i<4; i++ )
+				tmp[i] = ts->name[i];
+			tmp[4] = '\0';
+
+			if(!gstrcmp(tmp,"wat_\0"))
+			{
+				ts = ts->next;
+			}
+
+			if(!gstrcmp(tmp,"spl_\0"))
+			{
+				ts = ts->next;
+			}
+#endif
+*/			
 			theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 			dprintf"Added actor '%s'\n",ts->name));
 
@@ -432,19 +451,18 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 			for( i=0; i<4; i++ )
 				tmp[i] = ts->name[i];
-
 			tmp[4] = '\0';
 			// If a water object, draw always
 			if( !gstrcmp( tmp, "wat_\0" ) )
 			{
 				theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS;
 
+				if (ts->name[4]=='f')
+					theActor->flags |= ACTOR_SLIDYTEX;
+
 #ifdef N64_VERSION
 				AddN64WaterObjectResource(theActor->actor);
 #endif
-
-				if (ts->name[4]=='f')
-					theActor->flags |= ACTOR_SLIDYTEX;
 			}
 
 			tv = ts->rot.y;

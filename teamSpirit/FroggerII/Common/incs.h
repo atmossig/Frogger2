@@ -118,6 +118,7 @@
 #ifndef PC_VERSION
 #include "sfx.h"
 #include "mbuffer.h"
+#include "rumblepak.h"
 #endif
 
 #ifndef PC_VERSION

@@ -21,6 +21,10 @@ short numN64WaterObjects = 0;
 short currN64WaterObject = 0;
 SHORT2DVECTOR *mTC[MAX_N64_WATEROBJECTS];
 
+short numN64SlidyObjects = 0;
+short currN64SlidyObject = 0;
+SHORT2DVECTOR *slidyTC[MAX_N64_WATEROBJECTS];
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunWaterDemo
@@ -125,7 +129,9 @@ int modc1 = 128;
 int modc2 = 150;
 int modc3 = 8;
 
-void UpdateWater(ACTOR *wAct)
+int slideSpeed = 0;
+
+void UpdateWater(ACTOR2 *wAct)
 {
 	// update the water - assumes drawlisted and skinned object....
 	if(wAct)
@@ -134,34 +140,45 @@ void UpdateWater(ACTOR *wAct)
 		Vtx *in = NULL;
 		int i,colMod;
 
-		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
-		i = wAct->objectController->numVtx;
+		in = wAct->actor->objectController->vtx[wAct->actor->objectController->vtxBuf];
+		i = wAct->actor->objectController->numVtx;
 
 		t = actFrameCount * modi1;
 		while(i--)
 		{
-			xval = in->v.ob[X] * modi2;
-			zval = in->v.ob[Z] * modi2;
+			if(wAct->flags & ACTOR_SLIDYTEX)
+			{
+				in->v.tc[1] -= (gameSpeed * slideSpeed * 1024);
 
-			t2 = sinf(t + xval * zval * 0.5) - cosf(t + xval * 0.3 * zval);
+				in->v.cn[3] = modc2;
+			}
+			else
+			{
+				// modge vertices
+				xval = in->v.ob[X] * modi2;
+				zval = in->v.ob[Z] * modi2;
 
-			mV = t2 * modi4;
+				t2 = sinf(t + xval * zval * 0.5) - cosf(t + xval * 0.3 * zval);
 
-			in->v.ob[Y] += t2 * modi3;
+				mV = t2 * modi4;
 
-			colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
-			if(colMod > 255)
-				colMod = 255;
-			else if(colMod < modc1)
-				colMod = modc1;
+				in->v.ob[Y] += t2 * modi3;
 
-			in->v.cn[0] = colMod;
-			in->v.cn[1] = colMod;
-			in->v.cn[2] = colMod;
-			in->v.cn[3] = colMod;
+				colMod = modc2 + (modc3 * (in->v.ob[Y] + 20));
+				if(colMod > 255)
+					colMod = 255;
+				else if(colMod < modc1)
+					colMod = modc1;
 
-			in->v.tc[0] = mTC[currN64WaterObject][i].v[0] + mV;
-			in->v.tc[1] = mTC[currN64WaterObject][i].v[1] + mV;
+				in->v.cn[0] = colMod;
+				in->v.cn[1] = colMod;
+				in->v.cn[2] = colMod;
+				in->v.cn[3] = colMod;
+
+				// modge texture co-ordinates
+				in->v.tc[0] = mTC[currN64WaterObject][i].v[0] + mV;
+				in->v.tc[1] = mTC[currN64WaterObject][i].v[1] + mV;
+			}
 
 			in++;
 		}

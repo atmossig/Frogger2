@@ -408,35 +408,7 @@ BOOL QuatSlerpAtFixedSpeedOld(QUATERNION *src1, QUATERNION *src2, float speed, Q
 void QuaternionToMatrix(QUATERNION *squat, MATRIX *dmatrix)
 {
 	float	s, xs,ys,zs, wx,wy,wz, xx,xy,xz, yy,yz,zz;
-/*
-	if((squat->x == 0) && (squat->y == 0) && (squat->z == 0) && (squat->w == 0))
-	{
-		dprintf"Woops\n"));
 
-		// Return identity...
-		dmatrix->matrix[0][0] = 1,0;
-		dmatrix->matrix[0][1] = 0.0;
-		dmatrix->matrix[0][2] = 0.0;
-	
-		dmatrix->matrix[1][0] = 0.0;
-		dmatrix->matrix[1][1] = 1.0;
-		dmatrix->matrix[1][2] = 0.0;
-
-		dmatrix->matrix[2][0] = 0.0;
-		dmatrix->matrix[2][1] = 0.0;
-		dmatrix->matrix[2][2] = 1.0;
-
-		dmatrix->matrix[0][3] = 0.0;
-		dmatrix->matrix[1][3] = 0.0;
-		dmatrix->matrix[2][3] = 0.0;
-		dmatrix->matrix[3][3] = 1.0;
-		dmatrix->matrix[3][0] = 0.0;
-		dmatrix->matrix[3][1] = 0.0;
-		dmatrix->matrix[3][2] = 0.0;
-
-		return;
-	}
-*/
 	s = ((float)2.0)/(squat->x*squat->x + squat->y*squat->y + squat->z*squat->z + squat->w*squat->w);
 
 	xs = squat->x*s;
@@ -1701,7 +1673,7 @@ void OrientateQuaternion(QUATERNION *q, VECTOR *fwd, VECTOR *up)
 		ScaleVector(&axis, 1.0f/mag);
 
 		thetaOver2 = (float)acos(mag) * 0.5f;
-		sinThetaOver2 = sin(thetaOver2);
+		sinThetaOver2 = sinf(thetaOver2);
 
 		q->x = sinThetaOver2 * fwd->v[0];
 		q->y = sinThetaOver2 * fwd->v[1];

@@ -23,7 +23,7 @@ OSMesg          serialMsg;
 
 int initControllers(void);
 
-OSPfs	rumble;
+OSPfs			pfsRumble[MAXCONTROLLERS];
 
 OSContStatus    statusdata[MAXCONTROLLERS];
 OSContPad       controllerdata[MAXCONTROLLERS];
@@ -32,6 +32,9 @@ static u16		lastbutton;
 
 int				ControllerMode = 0;
 char			debugCtrlMode[20];
+
+char			controllerPresent = FALSE;
+char			rumblePresent[4];
 
 //extern char UseAAMode;
 extern char useFilt;
@@ -47,8 +50,8 @@ extern char useFilt;
 
 int initControllers()
 {
-    int             i;
-    u8              pattern;
+    int i,lowestPad = -1;
+    u8 pattern;
 	short res;
 
     osCreateMesgQueue(&serialMsgQ, &serialMsg, 1);
@@ -60,23 +63,39 @@ int initControllers()
     osSetEventMesg(OS_EVENT_SI, &controllerMsgQ, (OSMesg)0);
 	Wait(10000);
 
-	for(i=0; i<4; i++)
+	i = 4;
+	while(i--)
 		player[i].inputPause = INPUT_POLLPAUSE;
 
-	if(osMotorInit(&controllerMsgQ,&rumble,0) == 0)
-		dprintf"RumblePak : YES\n"));
-	else
-		dprintf"RumblePak : NO\n"));
-	// ENDIF
-
-    for(i=0; i<MAXCONTROLLERS; i++)
+	i = MAXCONTROLLERS - 1;
+	while(i--)
 	{
 		if((pattern & (1<<i)) && !(statusdata[i].errno & CONT_NO_RESPONSE_ERROR))
-			return i;
+		{
+			lowestPad = i;
+			res = osMotorInit(&controllerMsgQ,&pfsRumble[i],i);
+			if(res == PFS_ERR_DEVICE)
+				dprintf"Controller %d : RumblePak - PFS_ERR_DEVICE\n",i));
+			if(res == PFS_ERR_NOPACK)
+				dprintf"Controller %d : RumblePak - PFS_ERR_NOPACK\n",i));
+
+			if(res == 0)
+				rumblePresent[i] = TRUE;
+		}
     }
 
+	if(lowestPad != 0)
+	{
+		controllerPresent = FALSE;
+		lowestPad = 0;
+	}
+	else
+		controllerPresent = TRUE;
 
-	return -1;
+	if(controllerPresent)
+		InitRumble();
+
+    return lowestPad;
 }
 
 /*	--------------------------------------------------------------------------------

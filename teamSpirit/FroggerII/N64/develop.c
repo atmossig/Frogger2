@@ -38,7 +38,7 @@ void RunDevelopmentMenu()
 	{
 		FreeAllLists();
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
 		dev = CreateAndAddTextOverlay(30,24,"DEVELOPMENT MENU",NO,255,smallFont,0,0);
 		dev = CreateAndAddTextOverlay(32,26,"DEVELOPMENT MENU",NO,255,smallFont,0,0);

@@ -76,7 +76,7 @@ void DrawFXRing(SPECFX *ring);
 void DrawFXTrail(SPECFX *trail);
 
 void ProcessShadows();
-void DrawShadow(VECTOR *pos,VECTOR *normal,float size,float offset,short alpha,TEXTURE *sTxtr,Vtx *sVtx);
+void DrawShadow(VECTOR *pos,VECTOR *normal,float size,float offset,short alpha,Vtx *sVtx);
 
 
 SPRITE *PrintSpritesOpaque();

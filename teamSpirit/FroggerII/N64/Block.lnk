@@ -93,6 +93,7 @@ _codeSegmentEnd         alias   _code_objend
 		include	"rdp_out0.obj",code
 
 		include "graphic.obj",code
+		include "rumblepak.obj",code
 
 ; REQUIRED FOR NEW MICROCODE --> START
 		include "c:/n64/PR/gspF3Dex2.fifo.obj",code
@@ -1506,7 +1507,6 @@ _levData_3_1_SegmentRomEnd   alias _levData31_orgend
         section.64       levData31.data,levData31
 
 levDat31  incbin "leveldata/entity-2-0.cef",levData31.data, 32
-;levDat31  incbin "c:/levtemp/entity-2-0.dat",levData31.data, 32
 
 ; [ SPACE LEVEL 2 ] >>>>>
 
@@ -2313,7 +2313,7 @@ _scrData_3_2_SegmentRomEnd   alias _scrData32_orgend
 
         section.64       scrData32.data,scrData32
 
-scrDat32  incbin "leveldata/dummy.csf",scrData32.data, 32
+scrDat32  incbin "leveldata/script-2-1.csf",scrData32.data, 32
 
 ; [ SPACE LEVEL 3 ] >>>>>
 

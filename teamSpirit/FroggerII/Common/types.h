@@ -82,6 +82,23 @@ typedef struct
 	float	x, y, z, w;
 }QUATERNION;
 
+// NEW DATA TYPE FOR REDUCING MEMORY REQUIREMENT OF N64 VERSION ----------------------------------
+
+typedef struct
+{
+	short x,y,z,w;
+
+} QUATERNIONSHORT;
+
+typedef struct
+{
+	QUATERNIONSHORT	quat;
+	int	time;
+
+} KEYFRAMESHORT;
+
+// -----------------------------------------------------------------------------------------------
+
 typedef struct
 {
 	float	matrix[4][4];
@@ -406,7 +423,13 @@ typedef struct OBJECT
 
 	VKEYFRAME	*scaleKeys;
 	VKEYFRAME	*moveKeys;
+
+#ifdef PC_VERSION
 	QKEYFRAME	*rotateKeys;
+#else
+	KEYFRAMESHORT *rotateKeys;
+#endif
+
 	short		numScaleKeys;
 	short		numMoveKeys;
 	short		numRotateKeys;
