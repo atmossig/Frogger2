@@ -43,10 +43,10 @@ float camLookOfs			= 50;
 float camLookOfsNew			= 50;
 
 VECTOR camDist				= { 0,680,192 };
-float camSpeed				= 30;//9;
-float camSpeed2				= 25;//9;
-float camSpeed3				= 30;//8;
-float camSpeed4				= 25;//8;
+float camSpeed				= 15; //30; //9;
+float camSpeed2				= 15; //25; //9;
+float camSpeed3				= 15; //30; //8;
+float camSpeed4				= 15; //25; //8;
 float fovSpd				= 2;
 float transCamSpeedMult		= 1.0F;
 
@@ -58,7 +58,7 @@ char controlCamera			= 0;
 char fixedDir = 0;
 char fixedPos = 0;
 char firstPerson = 0;
-char fixedUp = 1;
+char fixedUp = 0;
 TRANSCAMERA *transCameraList = NULL;
 
 
