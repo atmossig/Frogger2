@@ -87,6 +87,7 @@ bss     group   bss
 	include "cr_lang.obj"
 	include "story.obj"
 	include "timer.obj"
+	include "psxtongue.obj"
 
 
 ;	include "ANIM.obj"

@@ -48,6 +48,8 @@ void customDrawSortedPrimitives(int depth)
 	if (!primsleft)
 		return;
 
+	polyCount += primsleft;	
+
 	lightmode = modctrl->lighting;
 	opcd = 0;
 	while(primsleft)

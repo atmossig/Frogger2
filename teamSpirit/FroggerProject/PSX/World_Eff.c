@@ -155,6 +155,8 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
 
+	polyCount += mesh->n_gt4s;
+
 	op = mesh->gt4s;
 
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
@@ -700,6 +702,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	packet = (PACKET *)currentDisplayPage->primPtr;
 
 
+	polyCount += mesh->n_gt4s;
+
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
 
@@ -1060,6 +1064,7 @@ void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )
 	texRect.w = tex->w;
 	texRect.h = tex->h;
 	
+	// JH: 
 	LoadImage ( &texRect, (unsigned long*)buf );
 
 

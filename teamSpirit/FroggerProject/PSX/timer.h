@@ -22,6 +22,9 @@ enum {
 	TIMER_PROCTEX,
 	TIMER_DRAWSYNC,
 	TIMER_TIMERS,
+	TIMER_TRANSFORM,
+	TIMER_GTFOR,
+	TIMER_GTTHREE,
 
 	TIMER_NUMTIMERS
 };
@@ -39,7 +42,10 @@ enum {
 						"PRINT_OVERS", \
 						"PROCTEX", \
 						"DRAWSYNC", \
-						"TIMERS"
+						"TIMERS", \
+						"TRANSFORM", \
+						"GT4", \
+						"GT3"
 
 
 

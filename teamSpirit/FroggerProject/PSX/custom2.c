@@ -35,8 +35,7 @@ const USHORT EXPLORE_black_ref_palette[16] =
 
 USHORT EXPLORE_black_CLUT;
 
-TextureType *globalClut;
-unsigned short globalClut1;
+unsigned short globalClut;
 
 /**************************************************************************
 	FUNCTION:	customDrawPrimitives2
@@ -50,6 +49,7 @@ void customDrawPrimitives2(int depth)
 	register PACKET		*packet;
 	register long		*tfv = transformedVertices;
 	VERT 				*tfn = transformedNormals;
+	register long			*tfd = transformedDepths;
 	register TMD_P_GT4I	*opcd;
 	long				clipflag;
 	PSIMODELCTRL		*modctrl = &PSImodelctrl;
@@ -60,12 +60,16 @@ void customDrawPrimitives2(int depth)
 	
 	//utilPrintf("Bugger\n");
 
+	int						gteH;
+
 	depth=depth>>2;
 
 	prims = (int)modctrl->PrimTop;
 	sorts = modctrl->SortOffs;
 	primsleft = modctrl->PrimLeft;
 	lightmode = modctrl->lighting;
+
+	polyCount += primsleft;	
 
 	while(primsleft)
 	{	
@@ -311,63 +315,47 @@ void customDrawPrimitives2(int depth)
 #define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 			case GPU_COM_TF4SPR :
-		   	{
-				SHORT		spritez;
-				int		width, height;
-				TMD_P_FT4I *testpol;
-				POLY_FT4 *testsi;
 
-				si = (POLY_FT4*)packet;
-				op = (TMD_P_FT4I*)(opcd);
+		/*		if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
+				{
+					int			width, height;
 
-				BEGINPRIM(si, POLY_FT4);
+					BEGINPRIM(si, POLY_FT4);
 
-				testpol = op;
-				testsi = si;
+	/*
+		We can't use the "quick" scaling method in psi objects, since we don't know which
+		bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
+		so we have to do the scaling based on the distance ourselves.
+	*/
 
-	// scaling-and-transform-in-one-go code from the Action Man people...
-				width = op->v1;
-				gte_SetLDDQB(0);			// clear offset control reg (C2_DQB)
-				gte_ldv0(&vp[op->v0]);		// Load centre point
-				gte_SetLDDQA(width);		// shove sprite width into control reg (C2_DQA)
-				gte_rtps();					// do the rtps
-				gte_stsxy(&si->x0);			// get screen x and y
-				gte_stsz(&spritez);		// get order table z
-	// end of scaling-and-transform
+		/*			width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
+					// JH : Temp Fix
+//					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 
-	// tbd - make this ditch according to on-screen SIZE
-	// limit to "max poly depth", and we can ditch the "MAXDEPTH" "and" below...
+					si->r0 = ( op->r0 << 7 ) >> 8;			// Texture coords / colors
+					si->g0 = ( op->g0 << 7 ) >> 8;			// Texture coords / colors
+					si->b0 = ( op->b0 << 7 ) >> 8;			// Texture coords / colors
 
+					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
+					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
+					*(u_long *)&si->u2 = *(u_long *)&op->tu2;
+					*(u_long *)&si->u3 = *(u_long *)&op->tu3;
 
-				if (spritez < 20)
-					break;
+					si->x1 = si->x3 = ((DVECTOR *)tfv)[op->v0].vx + width;
+					si->x0 = si->x2 = ((DVECTOR *)tfv)[op->v0].vx - width;
+			 	
+					si->y2 = si->y3 = ((DVECTOR *)tfv)[op->v0].vy + height;
+					si->y0 = si->y1 = ((DVECTOR *)tfv)[op->v0].vy - height;
+					setPolyFT4(si);
 
-				gte_stopz(&width);		// get scaled width of sprite
-				width >>= 17;
-
+					si->code |= modctrl->semitrans;
 			
-
- 				*(u_long *) & si->r0 = *(u_long *) & op->r0;			// Texture coords / colors
-				*(u_long *) & si->u0 = *(u_long *) & op->tu0;
-				*(u_long *) & si->u1 = *(u_long *) & op->tu1;
-				*(u_long *) & si->u2 = *(u_long *) & op->tu2;
-				*(u_long *) & si->u3 = *(u_long *) & op->tu3;
-
-				si->x1 = si->x3=si->x0+width;
-				si->x0 = si->x2=si->x0-width;
-			
- 		 		height = width>>1;//(LONG)(width*(3))/spritez;
-			
-				si->y2 = si->y3=si->y0+height;
-				si->y0 = si->y1=si->y0-height;
-
-				setPolyFT4(si);
-				si->code = GPU_COM_TF4 | modctrl->semitrans;
-
-				ENDPRIM(si, depth & 1023, POLY_FT4);
+	 				ENDPRIM(si, depth & 1023, POLY_FT4);
+					op = op->next;
+				}*/
 				break;
-			}	
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
@@ -1431,8 +1419,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				if ( globalClut )
 				{
-					si->clut	= globalClut->clut;
-					si->tpage = globalClut->tpage;
+					si->clut	= globalClut;
 				}
 				// ENDIF
 
@@ -1478,8 +1465,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				if ( globalClut )
 				{
-					si->clut	= globalClut->clut;
-					si->tpage = globalClut->tpage;
+					si->clut	= globalClut;
 				}
 				// ENDIF
 
@@ -1532,8 +1518,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				if ( globalClut )
 				{
-					si->clut	= globalClut->clut;
-					si->tpage = globalClut->tpage;
+					si->clut	= globalClut;
 				}
 				// ENDIF
 
@@ -1559,6 +1544,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				*(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
 				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);
 					
+
 				gte_stsxy3_gt4(si);
 				
 						
@@ -1573,29 +1559,28 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 //				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 //				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 		
-				si->r0 = ( op->r0 * 128 ) >> 8;
-				si->g0 = ( op->g0 * 128 ) >> 8;
-				si->b0 = ( op->b0 * 128 ) >> 8;
+				si->r0 = ( op->r0 << 7 ) >> 8;
+				si->g0 = ( op->g0 << 7 ) >> 8;
+				si->b0 = ( op->b0 << 7 ) >> 8;
 
-				si->r1 = ( op->r1 * 128 ) >> 8;
-				si->g1 = ( op->g1 * 128 ) >> 8;
-				si->b1 = ( op->b1 * 128 ) >> 8;
+				si->r1 = ( op->r1 << 7 ) >> 8;
+				si->g1 = ( op->g1 << 7 ) >> 8;
+				si->b1 = ( op->b1 << 7 ) >> 8;
 
-				si->r2 = ( op->r2 * 128 ) >> 8;
-				si->g2 = ( op->g2 * 128 ) >> 8;
-				si->b2 = ( op->b2 * 128 ) >> 8;
+				si->r2 = ( op->r2 << 7 ) >> 8;
+				si->g2 = ( op->g2 << 7 ) >> 8;
+				si->b2 = ( op->b2 << 7 ) >> 8;
 
-				si->r3 = ( op->r3 * 128 ) >> 8;
-				si->g3 = ( op->g3 * 128 ) >> 8;
-				si->b3 = ( op->b3 * 128 ) >> 8;
+				si->r3 = ( op->r3 << 7 ) >> 8;
+				si->g3 = ( op->g3 << 7 ) >> 8;
+				si->b3 = ( op->b3 << 7 ) >> 8;
 
 				// SL: put in the additive poly...
 				setPolyGT4(si);
 
 				if ( globalClut )
 				{
-					si->clut	= globalClut->clut;
-					si->tpage = globalClut->tpage;
+					si->clut	= globalClut;
 				}
 				// ENDIF
 
@@ -1633,9 +1618,9 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					// JH : Temp Fix
 //					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 
-					si->r0 = ( op->r0 * 128 ) >> 8;			// Texture coords / colors
-					si->g0 = ( op->g0 * 128 ) >> 8;			// Texture coords / colors
-					si->b0 = ( op->b0 * 128 ) >> 8;			// Texture coords / colors
+					si->r0 = ( op->r0 << 7 ) >> 8;			// Texture coords / colors
+					si->g0 = ( op->g0 << 7 ) >> 8;			// Texture coords / colors
+					si->b0 = ( op->b0 << 7 ) >> 8;			// Texture coords / colors
 
 					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
 					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
@@ -1704,7 +1689,7 @@ void DrawSortedPrimitivesFaded ( int depth )
 	if (!primsleft)
 		return;
 
-//	polyCount += primsleft;	
+	polyCount += primsleft;	
 
 	opcd = 0;
 
