@@ -538,7 +538,7 @@ int main ( )
 			DrawSpecialFX();
 
 			TimerStart(&tPrintSprites);
-			PrintSprites();
+//			PrintSprites();
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);

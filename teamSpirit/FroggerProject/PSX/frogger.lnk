@@ -77,7 +77,7 @@ bss     group   bss
 	include "bbtimer.obj"
 	include "eff_draw.obj"
 	include "temp_psx.obj"
-
+	include "world_eff.obj"
 
 
 ;	include "ANIM.obj"

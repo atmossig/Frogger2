@@ -5,6 +5,7 @@ typedef struct _WATER
 {
 	struct _WATER *next,*prev;			// ptr to next / prev platform
 
+	int						flags;
 	FMA_WORLD*		fma_water;
 	SVECTOR				position;
 } WATER;
@@ -18,7 +19,7 @@ typedef struct _WATERLIST
 extern WATERLIST waterList;
 
 
-void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz );
+void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz, int newFlags );
 
 void InitWaterLinkedList ( void );
 

@@ -70,6 +70,14 @@ void LoadScenics ( int collBank )
 			sprintf ( fileName, "SCENICS\\SPACE2.SCE" );
 			break;
 
+		case CITYLEV1_COL:
+			sprintf ( fileName, "SCENICS\\CITY1.SCE" );
+			break;
+
+		case CITYLEV2_COL:
+			sprintf ( fileName, "SCENICS\\CITY2.SCE" );
+			break;
+
 		case CITYLEV3_COL:
 			sprintf ( fileName, "SCENICS\\CITY3.SCE" );
 			break;
@@ -208,6 +216,9 @@ void LoadCollision ( int collBank )
 	GAMETILE *cur;
 	GAMETILE *next;
 
+
+//	GAMETILE *
+
 //	fileName = MALLOC0( sizeof(32) );
 	switch ( collBank )
 	{
@@ -241,6 +252,14 @@ void LoadCollision ( int collBank )
 
 		case SPACELEV2_COL:
 			sprintf ( fileName, "COLLISION\\SPACE2.COL" );
+			break;
+
+		case CITYLEV1_COL:
+			sprintf ( fileName, "COLLISION\\CITY1.COL" );
+			break;
+
+		case CITYLEV2_COL:
+			sprintf ( fileName, "COLLISION\\CITY2.COL" );
 			break;
 
 		case CITYLEV3_COL:
@@ -351,6 +370,7 @@ void LoadCollision ( int collBank )
 	c = 0;
 	cur = firstTile;
 
+	utilPrintf("%d", sizeof(GAMETILE));
 
 	for ( c = 0; c < tileCount; c++, cur++ )
 	{

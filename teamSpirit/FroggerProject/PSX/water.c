@@ -6,7 +6,7 @@
 
 WATERLIST waterList;
 
-void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz )
+void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz, int newFlags )
 {
 	WATER *newItem;
 
@@ -17,8 +17,10 @@ void CreateAndAddWaterObject ( char *name, short posx, short posy, short posz )
 	newItem->position.vx = posx;
 	newItem->position.vy = posy;
 	newItem->position.vz = posz;
+
+	newItem->flags = newFlags;
 	
-//	utilPrintf("%s\n", name);
+	utilPrintf("Creating water object : %s\n", name);
 	utilUpperStr ( name );
 
 	newItem->fma_water = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( name ) );
@@ -42,10 +44,10 @@ void DrawWaterList ( void )
 		next = cur->next;
 
 		if ( cur->fma_water )
-			MapDraw_DrawFMA_Water ( cur->fma_water, -cur->position.vx, cur->position.vy, cur->position.vz );
-		// ENDIF
-	    
-
+		{
+			MapDraw_DrawFMA_Water ( cur );
+		}
+		// ENDIF	    
 	}
 	// ENDFOR
 

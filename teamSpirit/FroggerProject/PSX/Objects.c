@@ -112,6 +112,16 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE2.BFF" );
 			break;
 
+		case CITYLEV1_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY1.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY1.PIL" );
+			break;
+
+		case CITYLEV2_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY2.PIL" );
+			break;
+
 		case CITYLEV3_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\CITY\\CITY3.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
