@@ -196,7 +196,7 @@ long StartVideoPlayback(int num)
 	DDINIT(ddsd);
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
 	if (rHardware)
-		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
+		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_SYSTEMMEMORY;// | DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
 	else
 		ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
 	ddsd.dwWidth = bink->Width;
