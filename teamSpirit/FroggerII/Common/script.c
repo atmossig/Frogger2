@@ -82,7 +82,8 @@ GAMETILE *GetTileFromNumber(int number)
 void InterpretEvent( EVENT *e )
 {
 	UBYTE *buffer = (UBYTE *)e->data[0];
-	Interpret(buffer);
+	if (!Interpret(buffer))
+		dprintf "Error running script within trigger!\n"));
 }
 
 int ANDtrigger(TRIGGER *t)

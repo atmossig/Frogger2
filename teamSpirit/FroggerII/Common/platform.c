@@ -74,6 +74,8 @@ PLATFORM *GetPlatformFromUID(long uid)
 	for(cur = platformList.head.next; cur != &platformList.head; cur = cur->next)
 		if (cur->uid == uid)
 			return cur;
+
+	dprintf"GetPlatformFromUID: Couldn't find platform %d\n", uid));
 	return NULL;
 }
 

@@ -43,6 +43,7 @@ ENEMY *GetEnemyFromUID (long uid)
 		if (cur->uid == uid)
 			return cur;
 
+	dprintf"GetEnemyFromUID: Couldn't find enemy %d\n", uid));
 	return NULL;
 }
 
