@@ -24,6 +24,7 @@ extern SPRITEOVERLAY *sprOver;
 
 void RunTitleScreen();
 void RunLevelSelect();
+void RunCharSelect();
 void RunPauseMenu();
 void FreeMenuItems();
 

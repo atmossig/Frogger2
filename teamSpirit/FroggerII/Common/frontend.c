@@ -110,6 +110,10 @@ void GameLoop(void)
 					RunLevelSelect();
 					break;
 
+				case CHARSELECT_MODE:
+					RunCharSelect();
+					break;
+
 #ifdef N64_VERSION
 				case DEVELOPMENT_MODE:
 					switch(developmentMode)

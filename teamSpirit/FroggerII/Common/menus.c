@@ -222,6 +222,69 @@ void RunTitleScreen()
 	lastbutton = button;
 }
 
+#define NUM_CHARS 3
+char texNames[3][16] = {"frogger","lillie","toad"};
+char frogNames[3][16] = {"frogger.obe","femfrog.obe","toad.obe"};
+
+extern char frogModel[4][16];
+
+void RunCharSelect()
+{
+	static u16 button;
+	static u16 lastbutton;
+	static TEXTOVERLAY *charSelText[NUM_CHARS];
+	static TEXTOVERLAY *charSelTitle;
+	static int curSel = 0;
+	unsigned long i;
+
+	if (frameCount == 1)
+	{
+		FreeMenuItems();
+
+		for( i=0; i < NUM_CHARS; i++ )
+			charSelText[i] = CreateAndAddTextOverlay( 150, (i*20)+90, texNames[i],	YES,100, currFont, TEXTOVERLAY_NORMAL,0 );		
+		charSelTitle = CreateAndAddTextOverlay( 150, 30, "Char Select",	YES,100, currFont, TEXTOVERLAY_NORMAL,0 );		
+	}
+
+	// Sod it, it's only a menu.
+	for( i=0; i < NUM_CHARS; i++ )
+			charSelText[i]->a = 100;
+	
+	charSelText[curSel]->a = 0xff;
+
+	button = controllerdata [ ActiveController ].button;
+
+	// move between worlds or levels
+	if((button & CONT_UP) && !(lastbutton & CONT_UP))
+    {
+		if (curSel>0)
+			curSel--;
+	}
+	    
+	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+    {
+		if (curSel<NUM_CHARS-1)
+			curSel++;
+	}
+
+	if (frameCount>15)
+	{
+		if ((button & CONT_A) && !(lastbutton & CONT_A))
+		{
+			strcpy(frogModel[0],frogNames[curSel]);
+
+			FreeAllLists();
+			InitLevel(player[0].worldNum,player[0].levelNum);
+
+			gameState.mode = INGAME_MODE;
+				
+			frameCount = 0;
+			lastbutton = 0;
+		}
+	}
+
+	lastbutton = button;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: RunLevelSelect
@@ -377,7 +440,21 @@ void RunLevelSelect()
 		if( (((button & CONT_A) && !(lastbutton & CONT_A)))
 			&& currentLevelSelect != 255)
 		{
-			player[0].worldNum = currentWorldSelect;
+				FreeMenuItems();
+				
+				player[0].worldNum = currentWorldSelect;
+				player[0].levelNum = currentLevelSelect;
+				
+				gameState.menuMode = CHARSELECT_MODE;
+
+				frameCount = 0;
+				lastbutton = 0;
+				return;
+		}
+
+
+
+		/*	player[0].worldNum = currentWorldSelect;
 			player[0].levelNum = currentLevelSelect;
 
 			FreeAllLists();
@@ -386,9 +463,10 @@ void RunLevelSelect()
 			gameState.mode = INGAME_MODE;
 				
 			frameCount = 0;
-			lastbutton = 0;
-			return;
-		}			
+			lastbutton = 0;*/
+
+		//	return;
+		//}			
 	}
 
 	// set selected text solid
