@@ -300,7 +300,7 @@ void LoadTextureForTrophy( TEXTURE *tex )
 void *fileLoad(const char* filename, int *bytesRead)
 {
 	void *buffer;
-	int size, read;
+	DWORD size, read;
 	HANDLE h;
 
 	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
