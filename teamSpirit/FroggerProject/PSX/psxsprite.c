@@ -22,9 +22,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 	atbdx = (spr->xPos/8)-256;
 #if PALMODE==1
-	atbdy = (spr->yPos/16)-120;
+	atbdy = (spr->yPos/16)-128;
 #else
-	atbdy = (spr->yPos/17)-128;
+	atbdy = (spr->yPos/17)-120;
 #endif
 
 	tPtr = spr->frames[0];
