@@ -286,28 +286,28 @@ extern long initialCamera;
 void SlurpCamPosition(long cam)
 {
 	float s1,s2,s3,s4;
-	unsigned long afc = actFrameCount;
+//	unsigned long afc = actFrameCount;
 
 	if (idleCamera)
 	{
-		s1 = camSpeed * transCamSpeedMult * 6;
-		s2 = camSpeed2 * transCamSpeedMult * 6;
-		s3 = camSpeed3 * transCamSpeedMult * 6;
-		s4 = camSpeed4 * transCamSpeedMult * 6;
+		s1 = (camSpeed * transCamSpeedMult * 6) / gameSpeed;
+		s2 = (camSpeed2 * transCamSpeedMult * 6) / gameSpeed;
+		s3 = (camSpeed3 * transCamSpeedMult * 6) / gameSpeed;
+		s4 = (camSpeed4 * transCamSpeedMult * 6) / gameSpeed;
 	}
 	else
 	{
-		s1 = camSpeed * transCamSpeedMult;
-		s2 = camSpeed2 * transCamSpeedMult;
-		s3 = camSpeed3 * transCamSpeedMult;
-		s4 = camSpeed4 * transCamSpeedMult;
+		s1 = (camSpeed * transCamSpeedMult) / gameSpeed;
+		s2 = (camSpeed2 * transCamSpeedMult) / gameSpeed;
+		s3 = (camSpeed3 * transCamSpeedMult) / gameSpeed;
+		s4 = (camSpeed4 * transCamSpeedMult) / gameSpeed;
 	}
 
-	if( !lastActFrameCount )
-		lastActFrameCount = afc - 1;
+//	if( !lastActFrameCount )
+//		lastActFrameCount = afc - 1;
 	
-	while( lastActFrameCount < afc )
-	{
+//	while( lastActFrameCount < afc )
+//	{
 		if (!initialCamera)
 		{
 			currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/s1;
@@ -385,8 +385,8 @@ void SlurpCamPosition(long cam)
 //		yFOV		-= (yFOV - yFOVNew) / (s1*fovSpd);
 		camLookOfs	-= (camLookOfs - camLookOfsNew) / s1;
 
-		lastActFrameCount++;
-	}
+//		lastActFrameCount++;
+//	}
 }
 
 
