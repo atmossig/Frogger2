@@ -698,7 +698,6 @@ void main()
 	utilPrintf("DEBUG ACTIVE!!!!!\n");
 #endif
 
-
 	// ** Main loop
 
 	// *ASL* 08/08/2000 - Until user quits or opens the lid
@@ -712,9 +711,9 @@ void main()
 		psiActorCount = 0;
 		fmaActorCount = 0;
 
-			// *ASL* 14/08/2000 - sprite counts
-			spriteRotNum = 0;
-			spriteNum = 0;
+		// *ASL* 14/08/2000 - sprite counts
+		spriteRotNum = 0;
+		spriteNum = 0;
 
 		padCounter = 0;
 		i=0;
@@ -844,47 +843,60 @@ void main()
 			DCTIMER_STOP(1);
 		}
 
-		DCTIMER_START(2);		
-		DrawSpecialFX();
-		PrintSprites();
-		DCTIMER_STOP(2);
-
-		DCTIMER_START(3);		
-		if(drawLandscape && drawGame)
-			DrawWorld();		
-		DCTIMER_STOP(3);		
-
-
-		DCTIMER_START(4);
-		if(drawLandscape && drawGame)
-			DrawScenicObjList();
-		if(drawLandscape && drawGame)
-			DrawWaterList();
-		DCTIMER_STOP(4);
-		
-		DCTIMER_START(5);		
-		if(drawGame)
-			DrawActorList();
-		DCTIMER_STOP(5);		
-
-		if( gameState.multi == SINGLEPLAYER )
+		// JH:  Main Draw Function That Runs All The Draw Functions.
+		if(gameState.mode == ARTVIEWER_MODE)
 		{
-			UpdateFrogTongue(0);
-			UpdateFrogCroak(0);
+			DrawArtBackDrop(0, 0);
+			DrawScreenTransition();
 		}
-
-		if(tileTexture[0])
-			DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
-
-		DCTIMER_START(6);				
-		if( !saveInfo.saveFrame && !afterSaveFlag )
+		else if(gameState.mode == THEEND_MODE)
 		{
-			PrintSpriteOverlays(1);
-			PrintSpriteOverlays(0);
 			PrintTextOverlays();
+			DrawScreenTransition();
 		}
-		DrawScreenTransition();
-		DCTIMER_STOP(6);		
+		else
+		{
+			DCTIMER_START(2);		
+			DrawSpecialFX();
+			PrintSprites();
+			DCTIMER_STOP(2);
+
+			DCTIMER_START(3);		
+			if(drawLandscape && drawGame)
+				DrawWorld();		
+			DCTIMER_STOP(3);		
+
+			DCTIMER_START(4);
+			if(drawLandscape && drawGame)
+				DrawScenicObjList();
+			if(drawLandscape && drawGame)
+				DrawWaterList();
+			DCTIMER_STOP(4);
+			
+			DCTIMER_START(5);		
+			if(drawGame)
+				DrawActorList();
+			DCTIMER_STOP(5);		
+
+			if( gameState.multi == SINGLEPLAYER )
+			{
+				UpdateFrogTongue(0);
+				UpdateFrogCroak(0);
+			}
+
+			if(tileTexture[0])
+				DrawTiledBackdrop(saveInfo.saveFrame ? NO : YES);
+
+			DCTIMER_START(6);				
+			if( !saveInfo.saveFrame && !afterSaveFlag )
+			{
+				PrintSpriteOverlays(1);
+				PrintSpriteOverlays(0);
+				PrintTextOverlays();
+			}
+			DrawScreenTransition();
+			DCTIMER_STOP(6);		
+		}
 
 		gte_SetRotMatrix(&GsWSMATRIX);
 		gte_SetTransMatrix(&GsWSMATRIX);
