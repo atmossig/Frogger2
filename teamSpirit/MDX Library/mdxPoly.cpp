@@ -2032,14 +2032,18 @@ void DrawAllFrames(void)
 		if (!sortMode)
 		{
 			// ds- is there any benefit to doing this? 
-			// we could probably just set the tight alpha compare state and do DrawBatchedPolys()..
-
+			// I'll just set the tight alpha compare state and do DrawBatchedPolys() instead..
+			/*
 			DrawBatchedOpaquePolys();
 
 			D3DSetupRenderstates(tightAlphaCmpRS);
 			DrawBatchedKeyedPolys();
 			
 			D3DSetupRenderstates(normalAlphaCmpRS);
+			*/
+
+			D3DSetupRenderstates(tightAlphaCmpRS);
+			DrawBatchedPolys();
 
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
 			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
@@ -2051,7 +2055,6 @@ void DrawAllFrames(void)
 			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 			//pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
-	
 		}
 		else
 			DrawSortedPolys();

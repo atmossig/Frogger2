@@ -302,6 +302,7 @@ void DeathExplosion( int pl )
 
 	player[pl].deathBy = DEATHBY_EXPLOSION;
 	player[pl].idleEnable = 0;
+	player[pl].jumpTime = -1;	// ds- stop moving
 
 	// Drop in replacement model and animate gib explosion
 	ChangeModel( frog[pl]->actor, "dth-gib" );
@@ -349,6 +350,7 @@ void DeathGibbing( int pl )
 
 	player[pl].deathBy = DEATHBY_GIBBING;
 	player[pl].idleEnable = 0;
+	player[pl].jumpTime = -1;	// ds- stop moving
 
 	// Drop in replacement model and animate gib explosion
 	ChangeModel( frog[pl]->actor, "dth-gib" );
