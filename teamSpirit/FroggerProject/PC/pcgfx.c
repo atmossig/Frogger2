@@ -352,7 +352,7 @@ void DrawFXDecal( SPECFX *fx )
 		// If we want a pseudo-cheaty-bumpmap effect, shift vertices slightly and draw another, additive, copy.
 		if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
 		{
-			vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
+			vT[0].color = D3DRGBA((float)fx->r*ONEOVER255,(float)fx->g*ONEOVER255,(float)fx->b*ONEOVER255,(float)fx->a*ONEOVER255);
 			for( i=0; i<4; i++ )
 			{
 				vT[i].sx += 3;			
