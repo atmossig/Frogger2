@@ -85,7 +85,7 @@ FROGSTORE frogPool[FROG_NUMFROGS] =
 	{ "Wart",	  	"toad.obe",		"mtoad.obe",	"WART",		0, FANIM_ALL,	110,60, 55 },
 	{ "Tank",	  	"tank.obe",		"mtank.obe",	"ROBOFROG",	0, FANIM_ALL,	220,220,220 },
 	{ "Roobie", 	"roobie.obe",	"mhopper.obe",	"HOPPER",	0, FANIM_ALL,	220,220,30 },
-	{ "Swampy", 	"mswampy.obe",	"mswampy.obe",	"SWAMPY",	0, FANIM_NONE,	0,	100,0 },
+	{ "Swampy", 	"swampy.obe",	"mswampy.obe",	"SWAMPY",	0, FANIM_ALL,	0,	100,0 },
 };
 #else
 FROGSTORE frogPool[FROG_NUMFROGS] = 
@@ -97,7 +97,7 @@ FROGSTORE frogPool[FROG_NUMFROGS] =
 	{ "Wart",		"toad.obe",		"mtoad.obe",	"WART",		1, FANIM_ALL,	110,60, 55 },
 	{ "Tank",		"tank.obe",		"mtank.obe",	"ROBOFROG",	1, FANIM_ALL,	220,220,220 },
 	{ "Roobie", 	"roobie.obe",	"mhopper.obe",	"HOPPER",	1, FANIM_ALL,	220,220,30 },
-	{ "Swampy", 	"mswampy.obe",	"mswampy.obe",	"SWAMPY",	1, FANIM_NONE,	0,	100,0 },
+	{ "Swampy", 	"swampy.obe",	"mswampy.obe",	"SWAMPY",	1, FANIM_ALL,	0,	100,0 },
 };
 #endif
 

@@ -107,7 +107,7 @@ char *headNames[] =
 	"TDHED",	//FROG_WART
 	"THED",		//FROG_ROBOFROG
 	"ROOBHED",	//FROG_HOPPER
-	"MSPYHED",	//FROG_SWAMPY
+	"SSPYHED",	//FROG_SWAMPY
 };
 
 #ifdef PC_VERSION
@@ -1264,7 +1264,7 @@ void CheckForFroggerLanding(long pl)
 	// Finish anims when floating
 	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
-		if( frogPool[player[pl].character].anim )
+		if((frogPool[player[pl].character].anim) && (gameState.multi == SINGLEPLAYER))
 		{
 			actorAnimate(frog[0]->actor, FROG_ANIM_FALLLAND, NO, NO, 128, 0);
 			actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);

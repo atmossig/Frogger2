@@ -714,7 +714,14 @@ void CalcTongueSource( int pl )
 		
 		// JIM: Nasty special case until I can be bothered working out another way
 		if( player[pl].character == FROG_HOPPER )
+		{
 			ScaleVectorFF( &fwd, -12000 );
+		}
+		else if( player[pl].character == FROG_SWAMPY )
+		{
+			ScaleVectorFF(&fwd,12000);
+			ScaleVectorFF(&up,-2000);
+		}
 
 		// Store in tongue forward as unit vector
 		SetVectorFF(&tongue[pl].fwd, &fwd);
