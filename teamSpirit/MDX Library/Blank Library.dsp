@@ -232,5 +232,13 @@ SOURCE=.\mgeReport.h
 
 SOURCE=.\resource.h
 # End Source File
+# Begin Source File
+
+SOURCE=X:\TeamManta\MajikPR\lib\MajikPR.lib
+# End Source File
+# Begin Source File
+
+SOURCE="\\JSTEELE3\C\Program Files\Intel\Compiler4.0\lib\libm.lib"
+# End Source File
 # End Target
 # End Project
