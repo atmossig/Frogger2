@@ -498,7 +498,8 @@ int main ( )
 		
 		if(saveInfo.saveFrame)
 		{
-			fontSmall = fontLoad("FONT12.FON");
+			LoadSfx(-1);
+		 	fontSmall = fontLoad("FONT12.FON");
 			genBank = textureLoadBank("TEXTURES\\GENERIC.SPT");
 			textureDownloadBank(genBank);
 			textureDestroyBank(genBank);

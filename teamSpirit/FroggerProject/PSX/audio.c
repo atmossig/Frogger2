@@ -294,7 +294,7 @@ int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *
 	Info			: 
 */
 short voiceCount[4];
-int LoadSfx( unsigned long worldID )
+int LoadSfx(long worldID )
 {
 	char *path;
 	int len,j;
@@ -339,7 +339,8 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));
 
 	
-	
+	if(worldID == -1)
+		return 1;	
 
 	for(j = 0;j < NUM_FROGS;j++)
 	{
