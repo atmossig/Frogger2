@@ -29,7 +29,7 @@
 #include "pcmisc.h"
 #include "menus.h"
 #include "cam.h"
-
+#include "game.h"
 #include "controll.h"
 
 #define MAX_AMBIENT_SFX		50
@@ -197,6 +197,13 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHFIRE] = FindSample(UpdateCRC("burnbum"));
 
 	InitVoices( path, len );
+
+	if( gameState.multi != SINGLEPLAYER )
+	{
+		strcat( path, "multi\\" );
+		LoadSfxSet( path );
+		path[len] = '\0';
+	}
 
 	switch( worldID )
 	{
