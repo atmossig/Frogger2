@@ -37,6 +37,9 @@ void LoadObjectBank(int objectBank)
 		case GARDENLEV2_OBJ_BANK:
 			strcpy(fileName, "garden1"); break;
 
+		case GARDENMULTI_OBJ_BANK:
+			strcpy(fileName, "gardenmulti"); break;
+
 // Ancient
 
 		case ANCIENTMASTER_OBJ_BANK:
