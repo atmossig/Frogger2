@@ -105,7 +105,12 @@ PATHNODE debug_pathNodes5[] =					// TEST PATH - ANDYE
 
 PATHNODE debug_pathNodes6[] =					// TEST PATH - ANDYE
 { 
-	21,10,110,2,0
+	139,5,500,1,0
+};
+
+PATHNODE debug_pathNodes7[] =					// TEST PATH - ANDYE
+{ 
+	154,5,500,1,0
 };
 
 PATH debug_path1 = { 1,0,0,0,debug_pathNodes1 };
@@ -114,6 +119,7 @@ PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
 PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
 PATH debug_path5 = { 1,0,0,0,debug_pathNodes5 };
 PATH debug_path6 = { 1,0,0,0,debug_pathNodes6 };
+PATH debug_path7 = { 1,0,0,0,debug_pathNodes7 };
 
 
 
@@ -170,6 +176,14 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 
 		if(levelID == LEVELID_GARDENVEGPATCH)
 		{
+		}
+		if(levelID == LEVELID_GARDENTREETOPSA)
+		{
+			devPlat1 = CreateAndAddPlatform("plank.obe");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path6,PATH_MAKENODETILEPTRS);
+
+			devPlat1 = CreateAndAddPlatform("plank.obe");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path7,PATH_MAKENODETILEPTRS);
 		}
 	}
 
@@ -856,11 +870,13 @@ PLATFORM *CreateAndAddPlatform(char *pActorName)
 	PLATFORM *newItem = (PLATFORM *)JallocAlloc(sizeof(PLATFORM),YES,"PLAT");
 	AddPlatform(newItem);
 
+	stringChange ( pActorName );
+
 	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,INIT_ANIMATION,0,0);
 	if(newItem->pltActor->actor->objectController)
 	{
 		InitActorAnim(newItem->pltActor->actor);
-		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F);
+		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F, 0, 0);
 	}
 
 	// currently set all surrounding platform ptrs to null
