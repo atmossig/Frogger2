@@ -448,14 +448,14 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			effect->particles[i].vel.v[Y] += (Random(2)-1)*effect->speed*0.3;
 			effect->particles[i].vel.v[Z] += (Random(2)-1)*effect->speed*0.3;
 
+			if( effect->type == FXTYPE_FIERYSMOKE )
+			{
+				s->g = 180;
+				s->b = 0;
+			}
+
 			if( (effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE) && !(Random(4)) )
 			{
-				if( effect->type == FXTYPE_FIERYSMOKE )
-				{
-					s->g = 180;
-					s->b = 0;
-				}
-
 				s->scaleX = effect->scale.v[X] + Random(21)-10;
 				s->scaleY = effect->scale.v[Y] + Random(21)-10;
 
