@@ -11,7 +11,7 @@
 
 #define F3DEX_GBI_2
 
-//#define SHOW_ME_THE_TILE_NUMBERS
+#define SHOW_ME_THE_TILE_NUMBERS
 
 #include <ultra64.h>
 #include "incs.h"

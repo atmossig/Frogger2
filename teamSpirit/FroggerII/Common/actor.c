@@ -36,7 +36,6 @@ float ACTOR_DRAWDISTANCEINNER = 100000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
 #endif
 
-
 int objectMatrix = 0;
 
 ACTOR2 *actList = NULL;				// entire actor list
@@ -74,7 +73,7 @@ void XformActorList()
 
 			// transform actor
 //			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
-			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER || cur->flags & ACTOR_DRAW_ALWAYS)
+			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER || cur->flags & ACTOR_DRAW_ALWAYS)
 				XformActor(cur->actor);
 
 			// determine this actor's visibility
@@ -117,8 +116,7 @@ void DrawActorList()
 {
 	ACTOR2 *cur,*next;
 	float distance;
-	float ACTOR_DRAWFADERANGE = ACTOR_DRAWDISTANCEOUTER-ACTOR_DRAWDISTANCEINNER;
-	
+		
 	objectMatrix = 0;
 //	SetRenderMode();
 	
@@ -139,21 +137,21 @@ void DrawActorList()
 	cur = actList;
 	while(cur)
 	{
-		if( !(cur->flags & ACTOR_DRAW_ALWAYS) )
-			cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-
-		// Need to set this once for each actor
-		cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
-
 		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
 		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
-			if( cur->draw )
-			if( cur->actor->objectController )
-			if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
-			if( (cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER) || (cur->flags & ACTOR_DRAW_ALWAYS) )
-				DrawActor(cur->actor);
+			if(cur->draw)
+			if (cur->actor->objectController)
+					if (!(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU))
+					{
+						//cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+//						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						if (cur->draw)
+						{
+							DrawActor(cur->actor);
+						}
+					}
 		}
 	
 		cur = cur->next;
@@ -166,15 +164,17 @@ void DrawActorList()
 		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
-			if( cur->draw && cur->actor->objectController )
-			if( cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
-			if( (cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER) || (cur->flags & ACTOR_DRAW_ALWAYS) )
-			{
-				if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER )
-					cur->actor->xluOverride = ((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE)*100;
-
-				DrawActor(cur->actor);
-			}
+			if(cur->draw)
+				if (cur->actor->objectController)
+					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
+					{
+						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+//						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						if (cur->draw)
+						{
+							DrawActor(cur->actor);
+						}
+					}
 		}
 	
 		cur = cur->next;
