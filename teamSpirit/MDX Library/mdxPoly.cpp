@@ -35,8 +35,20 @@ extern "C"
 {
 
 // Instance of FRAME_INFO, for storing... Surprisingly.. The frame information./
+// Would be ideal to choose what to alloc when render hardware/software is chosen!
+
 FRAME_INFO frameInfo[MA_MAX_FRAMES];
 FRAME_INFO *cFInfo = &frameInfo[0], *oFInfo = &frameInfo[1];
+
+unsigned long numSoftPolys,numSoftVertex;
+SOFTPOLY softPolyBuffer[MA_MAX_FACES];
+SOFTPOLY *softDepthBuffer[MA_SOFTWARE_DEPTH];
+D3DTLVERTEX softV[MA_MAX_VERTICES];
+
+unsigned long numHaloPoints;
+
+short haloZVals[MA_MAX_HALOS];
+MDX_VECTOR haloPoints[MA_MAX_HALOS];
 
 unsigned long lightingMapRS[] = 
 {
@@ -71,6 +83,15 @@ unsigned long normalZRS[] =
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
 
+unsigned long xluZRS[] = 
+{
+	D3DRENDERSTATE_ZFUNC,D3DCMP_LESSEQUAL,
+	D3DRENDERSTATE_ZWRITEENABLE,FALSE,	
+	D3DRENDERSTATE_ZENABLE,TRUE,
+	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
 unsigned long xluSubRS[] = 
 {
 	D3DRENDERSTATE_SRCBLEND,D3DBLEND_ZERO,
@@ -95,6 +116,30 @@ unsigned long xluSemiRS[] =
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
 
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
+
+void ClearSoftwareSortBuffer(void)
+{
+	numSoftPolys = 0;
+	numSoftVertex = 0;
+	for (int i=0; i<MA_SOFTWARE_DEPTH; i++)
+		softDepthBuffer[i] = 0;
+}
+
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
+
 void InitFrames(void)
 {
 	for (int i=0; i<MA_MAX_FRAMES; i++)
@@ -103,15 +148,62 @@ void InitFrames(void)
 		BlankFrame;
 	}
 	SwapFrame(0);
+	numHaloPoints = 0;
+	ClearSoftwareSortBuffer();
 }
 
-#ifdef _DEBUG
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
+
+void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf )
+{
+	long i,zVal;
+	SOFTPOLY *m;
+
+	for (i=0; i<fC; i+=3)
+	{
+		m = &softPolyBuffer[numSoftPolys++];
+		m->f[0] = fce[i]+numSoftVertex;
+		m->f[1] = fce[i+1]+numSoftVertex;
+		m->f[2] = fce[i+2]+numSoftVertex;
+		m->t = tSrf;
+
+		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
+		zVal += v[fce[i+1]].sz * MA_SOFTWARE_DEPTH;		
+		zVal >>= 1;
+
+		if (softDepthBuffer[zVal])
+			m->next = softDepthBuffer[zVal];
+		else
+			m->next = NULL;
+		
+		softDepthBuffer[zVal] = m;
+	}
+}
+
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
 
 void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf )
 {
 	long cnt;
 	short *mfce = fce;
 
+	// Push for software/sorting...
+/*	PushPolys_Software(v,vC,fce,fC,tSrf );
+	memcpy(&softV[numSoftVertex],v,vC*sizeof(D3DTLVERTEX));
+	numSoftVertex+=vC;
+*/	
 	// discard excess polys
 	if ((cFInfo->nV + vC) > MA_MAX_VERTICES || (cFInfo->nF + fC) > MA_MAX_FACES)
 		return;
@@ -132,7 +224,49 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE
 	cFInfo->nF+=fC;
 }
 
-#endif
+//#endif
+
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
+
+void AddHalo(MDX_VECTOR *point)
+{
+	SetVector(&haloPoints[numHaloPoints++], point);
+}
+
+/*  --------------------------------------------------------------------------------
+    Function      : DrawBatchedPolys
+	Purpose       :	-
+	Parameters    : -
+	Returns       : -
+	Info          : -
+*/
+
+
+void DrawSoftwarePolys (void)
+{
+	SOFTPOLY *cur;
+	for (int i=MA_SOFTWARE_DEPTH-1; i>0; i--)
+	{
+		cur = (SOFTPOLY *)softDepthBuffer[i];
+		while (cur)
+		{
+			pDirect3DDevice->SetTexture(0,cur->t);
+		
+			while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,softV,numSoftVertex,cur->f,3,D3DDP_WAIT)!=D3D_OK)
+			{
+			}
+
+			pDirect3DDevice->SetTexture(0,0);
+			cur = cur->next;
+		}
+	}
+}
 
 /*  --------------------------------------------------------------------------------
     Function      : DrawBatchedPolys
@@ -229,7 +363,7 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 	if (pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK)
 		dp("Could not draw flat rectangle\n");
 	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -275,22 +409,22 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 	D3DLVERTEX v[4] = {
 		{
 			r.left,r.top,0,0,
-			colour,D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,0),
 			u0,v0
 		},
 		{
 			r.left,r.bottom,0,0,
-			colour,D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,0),
 			u0,v1
 			},
 		{
 			r.right,r.bottom,0,0,
-			colour,D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,0),
 			u1,v1
 		},
 		{
 			r.right,r.top,0,0,
-			colour,D3DRGBA(0,0,0,1),
+			colour,D3DRGBA(0,0,0,0),
 			u1,v0
 	}};
 
@@ -305,18 +439,17 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
 
-	if (pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK)
-		dp("Could not draw flat rectangle\n");
-	
+	while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+			
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->SetTexture(0,NULL);
 }
 
 /*	--------------------------------------------------------------------------------
-	Function		: DrawFlatRect
+	Function		: DrawFlatRec
 	Purpose			: draw a flat rectangle
 	Parameters		: 
 	Returns			: 
@@ -330,6 +463,99 @@ void BlankAllFrames(void)
 		SwapFrame(i);
 		BlankFrame;
 	}	
+	numHaloPoints = 0;
+	
+	ClearSoftwareSortBuffer();
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void StoreHaloPoints(void)
+{
+	DDSURFACEDESC2		ddsd;
+	MDX_VECTOR v;
+
+	DDINIT(ddsd);
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
+	
+	ddsd.lPitch /= sizeof(short);
+
+	for (int i=0; i<numHaloPoints; i++)
+	{
+		XfmPoint(&v,&haloPoints[i],NULL);
+		haloPoints[i].vx = (unsigned long)v.vx;
+		haloPoints[i].vy = (unsigned long)v.vy;
+		haloPoints[i].vz = v.vz;
+		
+		if (haloPoints[i].vz)
+			haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))];
+	}
+
+	surface[ZBUFFER_SRF]->Unlock(NULL);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void CheckHaloPoints(void)
+{
+	DDSURFACEDESC2		ddsd;
+	MDX_VECTOR v;
+	unsigned long i;
+
+	DDINIT(ddsd);
+	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR| DDLOCK_NOSYSLOCK,0)!=DD_OK);
+	
+	ddsd.lPitch /= sizeof(short);
+
+	for (i=0; i<numHaloPoints; i++)
+		if (haloPoints[i].vz)
+			if (haloZVals[i] == ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))])
+				haloPoints[i].vz = 0;
+	
+	surface[ZBUFFER_SRF]->Unlock(NULL);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+LPDIRECTDRAWSURFACE7 haloS;
+
+void DrawHalos(void)
+{
+	RECT r;
+	D3DSetupRenderstates(xluAddRS);
+
+	for (int i=0; i<numHaloPoints; i++)
+	{
+		if (haloPoints[i].vz)
+		{
+			r.left = haloPoints[i].vx - 30;
+			r.right = haloPoints[i].vx + 30;
+
+			r.top = haloPoints[i].vy - 30;
+			r.bottom = haloPoints[i].vy + 30;
+
+			DrawTexturedRect(r,D3DRGBA(1,1,1,1),haloS,FULL_TEXTURE);
+		}
+	}
+
 }
 
 /*	--------------------------------------------------------------------------------
@@ -345,11 +571,32 @@ unsigned long drawPhong = 0;
 
 void DrawAllFrames(void)
 {
+/*	pDirect3DDevice->BeginScene();
+	DrawSoftwarePolys();
+	pDirect3DDevice->EndScene();
+*/
 	pDirect3DDevice->BeginScene();
 	
 	// Draw Normal Polys
 	SwapFrame(MA_FRAME_NORMAL);
 	DrawBatchedPolys();
+	
+	pDirect3DDevice->EndScene();
+	
+	// Need to test the ZBuffer on these polys...
+	StoreHaloPoints();
+
+	pDirect3DDevice->BeginScene();
+
+	SwapFrame(MA_FRAME_GLOW);
+	DrawBatchedPolys();
+
+	pDirect3DDevice->EndScene();
+
+	CheckHaloPoints();
+	
+	pDirect3DDevice->BeginScene();
+
 	D3DSetupRenderstates(tightAlphaCmpRS);
 
 	if (drawLighting || drawPhong)
@@ -374,12 +621,24 @@ void DrawAllFrames(void)
 		}
 
 		// Switch Back to normal
-		D3DSetupRenderstates(xluSemiRS);
-		D3DSetupRenderstates(normalZRS);
+		
 	}
+	
+	D3DSetupRenderstates(xluZRS);
+	D3DSetupRenderstates(xluSemiRS);
+	SwapFrame(MA_FRAME_XLU);
+	DrawBatchedPolys();	
 
-	D3DSetupRenderstates(normalAlphaCmpRS);
+	D3DSetupRenderstates(xluAddRS);	
+	SwapFrame(MA_FRAME_ADDITIVE);
+	DrawBatchedPolys();	
+	
+	D3DSetupRenderstates(normalZRS);
+	D3DSetupRenderstates(normalAlphaCmpRS);	
 
+	DrawHalos();
+	D3DSetupRenderstates(xluSemiRS);
+	
 	pDirect3DDevice->EndScene();
 }
 

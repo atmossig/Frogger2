@@ -95,9 +95,10 @@ long DrawLoop(void)
 	EndTimer(1);
 
 	DrawAllFrames();
-	PrintTextOverlays();
 	pDirect3DDevice->EndScene();
-
+	
+	PrintTextOverlays();
+	
 
 	EndTimer(0);
 	if (consoleDraw)

@@ -44,6 +44,9 @@ float globalXLU;
 float globalXLU2;
 MDX_MATRIX vMatrix;
 MDX_VECTOR tV[MAX_OBJECT_VERTICES];
+float tMx[MAX_OBJECT_VERTICES];
+float tMy[MAX_OBJECT_VERTICES];
+float tMz[MAX_OBJECT_VERTICES];
 MDX_VECTOR tN[MAX_OBJECT_VERTICES];
 
 short facesON[3] = {0,1,2};
@@ -321,6 +324,73 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 	}
 }
 
+void PCCalcModgeValues(MDX_OBJECT *obj)
+{
+	float *mTemp,*mTemp2,*mTemp3;
+	MDX_VECTOR *in;
+	long i;
+
+	in = obj->mesh->vertices;
+	mTemp = tMx;
+	mTemp2 = tMz;
+	mTemp3 = tMy;
+
+	for (i=0; i<obj->mesh->numVertices; i++)
+	{
+		*mTemp  = (sinf((in->vz*(1.5/35)+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/26.0)))+timeInfo.frameCount*(1.5/30.0))+1)*0.1;
+		*mTemp2 = (cosf((in->vx*(1.5/49)+sinf((in->vz*(1.3/29))+timeInfo.frameCount*(1.0/26.0)))+timeInfo.frameCount*(1.5/26.0))+1)*0.1;
+		*mTemp3 = (sinf(	(in->vz*(1.2/26))+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/26.0))+timeInfo.frameCount*(1.0/26.0))+1)*5;
+		mTemp++;
+		mTemp2++;
+		mTemp3++;
+		in++;
+	}
+}
+
+void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
+{
+	float f[4][4],*mTemp,*mTemp2,ty;
+	MDX_VECTOR *in;
+	MDX_VECTOR *vTemp2;
+	long i;
+
+	in = obj->mesh->vertices;
+
+	guMtxCatF(m,vMatrix.matrix,f);
+	
+	vTemp2 = tV;
+	mTemp = tMy;
+	
+	for (i=0; i<obj->mesh->numVertices; i++)
+	{
+		ty = in->vy + *mTemp;
+
+		vTemp2->vx = (f[0][0]*in->vx)+(f[1][0]*ty)+(f[2][0]*in->vz)+(f[3][0]);
+		vTemp2->vy = (f[0][1]*in->vx)+(f[1][1]*ty)+(f[2][1]*in->vz)+(f[3][1]);
+		vTemp2->vz = (f[0][2]*in->vx)+(f[1][2]*ty)+(f[2][2]*in->vz)+(f[3][2]);
+
+		if (((vTemp2->vz+DIST)>nearClip) &&
+			(((vTemp2->vz+DIST)<farClip) &&
+			((vTemp2->vx)>-horizClip) &&
+			((vTemp2->vx)<horizClip) &&
+			((vTemp2->vy)>-vertClip) &&
+			((vTemp2->vy)<vertClip)))
+		{
+			long x = (long)vTemp2->vz+DIST;
+			float oozd = -FOV * oneOver[x];
+			
+			vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
+			vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
+		}
+		else
+			vTemp2->vz = 0;
+
+		vTemp2++;
+		mTemp++;
+		in++;
+	}
+}
+
 void PCPrepareObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 {
 	float f[4][4];
@@ -546,6 +616,26 @@ void DrawLandscape(MDX_LANDSCAPE *me)
 
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 {
+	SaveFrame;
+
+	if (obj->flags & OBJECT_FLAGS_GLOW)
+	{
+		MDX_VECTOR v;
+		
+		v.vx = obj->objMatrix.matrix[3][0];
+		v.vy = obj->objMatrix.matrix[3][1];
+		v.vz = obj->objMatrix.matrix[3][2];
+		
+		AddHalo(&v);
+		SwapFrame(MA_FRAME_GLOW);		
+	}
+	
+	if (obj->flags & OBJECT_FLAGS_XLU)
+		SwapFrame(MA_FRAME_XLU);
+
+	if (obj->flags & OBJECT_FLAGS_ADDITIVE)
+		SwapFrame(MA_FRAME_ADDITIVE);		
+	
 	// If we are a skinned object then we just need to prepare all the skinned vertices, so do that for this sub-object.
 	if (skinned)
 	{
@@ -561,7 +651,14 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 			{
 				globalXLU2 = (((float)obj->xlu) / ((float)0xff)) * globalXLU;
 				
-				PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+				if ((obj->flags & OBJECT_FLAGS_MODGE) || (obj->flags & OBJECT_FLAGS_WAVE))
+					PCCalcModgeValues(obj);					
+					
+				if (obj->flags & OBJECT_FLAGS_WAVE)
+					PCPrepareModgyObject(obj, obj->mesh,  obj->objMatrix.matrix);
+				else
+					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
+
 				if (obj->phong)
 				{
 					phong = obj->phong;
@@ -569,11 +666,16 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 					PCRenderObjectPhong(obj);
 				}
 				else
-					PCRenderObject(obj);
+					if (obj->flags & OBJECT_FLAGS_MODGE)
+						PCRenderModgyObject(obj);
+					else
+						PCRenderObject(obj);
 
 			}
 		}
 	}
+
+	RestoreFrame;
 
 	// Recurse.
 	if(obj->children)
@@ -605,7 +707,7 @@ void PCRenderObject (MDX_OBJECT *obj)
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
 	cols = obj->mesh->gouraudColors;
-	alphaVal = (long)(globalXLU*255.0);
+	alphaVal = (long)(globalXLU2*255.0);
 
 	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
 	{
@@ -622,7 +724,6 @@ void PCRenderObject (MDX_OBJECT *obj)
 		tN0 = &tN[v0];
 		tN1 = &tN[v1];
 		tN2 = &tN[v2];
-
 		
 		tex = (MDX_TEXENTRY *)(*tex2);
 		
@@ -724,7 +825,7 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
 	cols = obj->mesh->gouraudColors;
-	alphaVal = (long)(globalXLU*255.0);
+	alphaVal = (long)(globalXLU2*255.0);
 
 	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
 	{
@@ -846,6 +947,262 @@ void PCRenderObjectPhong (MDX_OBJECT *obj)
 	}
 }
 
+
+void PCRenderModgyWaterObject (MDX_OBJECT *obj)
+{
+	long i,j;
+	unsigned short fce[3] = {0,1,2};		
+	MDX_QUATERNION *c1,*c2,*c3;
+	D3DTLVERTEX v[3],*vTemp;
+	MDX_SHORTVECTOR *facesIdx;
+	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long v0,v1,v2;
+	unsigned long v0a,v1a,v2a;
+	float m1x,m2x,m3x;
+	float m1z,m2z,m3z;
+	long alphaVal;
+	MDX_TEXENTRY *tex;
+	MDX_TEXENTRY **tex2;
+	MDX_VECTOR *tV0,*tV1,*tV2, *tN0,*tN1,*tN2;
+	MDX_QUATERNION *cols;
+	
+	facesIdx = obj->mesh->faceIndex;
+	tex2 = obj->mesh->textureIDs;
+	cols = obj->mesh->gouraudColors;
+	alphaVal = (long)(globalXLU2*255.0);
+
+	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
+	{
+		// Get information from the mesh!
+		v0 = facesIdx->v[0];
+		v1 = facesIdx->v[1];
+		v2 = facesIdx->v[2];
+		
+		
+		tV0 = &tV[v0];
+		tV1 = &tV[v1];
+		tV2 = &tV[v2];
+
+		tN0 = &tN[v0];
+		tN1 = &tN[v1];
+		tN2 = &tN[v2];
+		
+		m1x = tMx[v0];
+		m2x = tMx[v1];
+		m3x = tMx[v2];
+		m1z = tMz[v0];
+		m2z = tMz[v1];
+		m3z = tMz[v2];
+		
+		tex = (MDX_TEXENTRY *)(*tex2);
+		
+		// If we are to be drawn.
+		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+		{
+			// Get rest of info from mesh
+			v0a = j;
+			v1a = j+1;
+			v2a = j+2;
+
+			c1 = &(cols[v0a]);
+			c2 = &(cols[v1a]);
+			c3 = &(cols[v2a]);
+			
+			// Fill out D3DVertices...
+			vTemp = v;
+				
+			vTemp->sx = tV0->vx;
+			vTemp->sy = tV0->vy;
+			vTemp->sz = (tV0->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			
+			vTemp->color = MODALPHA(*((unsigned long *)(&(c1->x))),alphaVal);
+			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x;
+			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z;
+			
+			//vTemp->tv = (tN0->vy+0.5);
+			//vTemp->tu = (tN0->vx+0.5);
+			vTemp++;
+
+			vTemp->sx = tV1->vx;
+			vTemp->sy = tV1->vy;
+			vTemp->sz = (tV1->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			vTemp->color = MODALPHA(*((unsigned long *)(&(c2->x))),alphaVal);
+			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x;
+			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z;
+			//vTemp->tv = (tN1->vy+0.5);
+			//vTemp->tu = (tN1->vx+0.5);
+			vTemp++;
+			
+			vTemp->sx = tV2->vx;
+			vTemp->sy = tV2->vy;
+			vTemp->sz = (tV2->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			
+			vTemp->color = MODALPHA(*((unsigned long *)(&(c3->x))),alphaVal);
+			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x;
+			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z;
+			//vTemp->tv = (tN2->vy+0.5);
+			//vTemp->tu = (tN2->vx+0.5);
+			
+			x1on = BETWEEN(v[0].sx,clx0,clx1);
+			x2on = BETWEEN(v[1].sx,clx0,clx1);
+			x3on = BETWEEN(v[2].sx,clx0,clx1);
+			y1on = BETWEEN(v[0].sy,cly0,cly1);
+			y2on = BETWEEN(v[1].sy,cly0,cly1);
+			y3on = BETWEEN(v[2].sy,cly0,cly1);
+
+			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			{
+				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
+					PushPolys(v,3,facesON,3,tex->surf);
+				}
+				else
+				{
+					Clip3DPolygon(v,tex->surf);
+				}
+			}
+		}
+		
+		// Update our pointers
+		facesIdx++;
+		tex2++;
+	}
+}
+
+void PCRenderModgyObject (MDX_OBJECT *obj)
+{
+	long i,j;
+	unsigned short fce[3] = {0,1,2};		
+	MDX_QUATERNION *c1,*c2,*c3;
+	D3DTLVERTEX v[3],*vTemp;
+	MDX_SHORTVECTOR *facesIdx;
+	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
+	unsigned long v0,v1,v2;
+	unsigned long v0a,v1a,v2a;
+	float m1x,m2x,m3x;
+	float m1z,m2z,m3z,cVal;
+	long alphaVal;
+	MDX_TEXENTRY *tex;
+	MDX_TEXENTRY **tex2;
+	MDX_VECTOR *tV0,*tV1,*tV2, *tN0,*tN1,*tN2;
+	MDX_QUATERNION *cols;
+	
+	facesIdx = obj->mesh->faceIndex;
+	tex2 = obj->mesh->textureIDs;
+	cols = obj->mesh->gouraudColors;
+	alphaVal = (long)(globalXLU2*255.0);
+
+	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
+	{
+		// Get information from the mesh!
+		v0 = facesIdx->v[0];
+		v1 = facesIdx->v[1];
+		v2 = facesIdx->v[2];
+		
+		
+		tV0 = &tV[v0];
+		tV1 = &tV[v1];
+		tV2 = &tV[v2];
+
+		tN0 = &tN[v0];
+		tN1 = &tN[v1];
+		tN2 = &tN[v2];
+		
+		m1x = tMx[v0];
+		m2x = tMx[v1];
+		m3x = tMx[v2];
+		m1z = tMz[v0];
+		m2z = tMz[v1];
+		m3z = tMz[v2];
+		
+		tex = (MDX_TEXENTRY *)(*tex2);
+		
+		// If we are to be drawn.
+		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+		{
+			// Get rest of info from mesh
+			v0a = j;
+			v1a = j+1;
+			v2a = j+2;
+
+			c1 = &(cols[v0a]);
+			c2 = &(cols[v1a]);
+			c3 = &(cols[v2a]);
+			
+			// Fill out D3DVertices...
+			vTemp = v;
+				
+			vTemp->sx = tV0->vx;
+			vTemp->sy = tV0->vy;
+			vTemp->sz = (tV0->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+
+			cVal = 1;//(m1x-m1z)*2.5;		
+			vTemp->color = D3DRGBA(cVal,cVal,1,(m1x+m1z)*2.5);
+			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x;
+			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z;
+			
+			//vTemp->tv = (tN0->vy+0.5);
+			//vTemp->tu = (tN0->vx+0.5);
+			vTemp++;
+
+			vTemp->sx = tV1->vx;
+			vTemp->sy = tV1->vy;
+			vTemp->sz = (tV1->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			cVal = 1;//(m2x-m2z)*2.5;			
+			vTemp->color = D3DRGBA(cVal,cVal,1,(m2x+m2z)*2.5);
+			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x;
+			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z;
+			//vTemp->tv = (tN1->vy+0.5);
+			//vTemp->tu = (tN1->vx+0.5);
+			vTemp++;
+			
+			vTemp->sx = tV2->vx;
+			vTemp->sy = tV2->vy;
+			vTemp->sz = (tV2->vz) * 0.00025F;
+			vTemp->rhw = 1/vTemp->sz;
+			cVal = 1;//(m3x-m3z)*2.5;			
+			vTemp->color = D3DRGBA(cVal,cVal,1,(m3x+m3z)*2.5);
+			vTemp->specular = D3DRGBA(0,0,0,0);
+			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x;
+			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z;
+			//vTemp->tv = (tN2->vy+0.5);
+			//vTemp->tu = (tN2->vx+0.5);
+			
+			x1on = BETWEEN(v[0].sx,clx0,clx1);
+			x2on = BETWEEN(v[1].sx,clx0,clx1);
+			x3on = BETWEEN(v[2].sx,clx0,clx1);
+			y1on = BETWEEN(v[0].sy,cly0,cly1);
+			y2on = BETWEEN(v[1].sy,cly0,cly1);
+			y3on = BETWEEN(v[2].sy,cly0,cly1);
+
+			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			{
+				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				{
+					PushPolys(v,3,facesON,3,tex->surf);
+				}
+				else
+				{
+					Clip3DPolygon(v,tex->surf);
+				}
+			}
+		}
+		
+		// Update our pointers
+		facesIdx++;
+		tex2++;
+	}
+}
 
 #ifdef __cplusplus
 }

@@ -65,7 +65,6 @@ void FreeActor(MDX_ACTOR **toFree);
 unsigned long AddActorToList(MDX_ACTOR *me);
 void ActorListDraw(void);
 
-
 #ifdef __cplusplus
 }
 #endif

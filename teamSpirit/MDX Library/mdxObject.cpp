@@ -41,6 +41,130 @@ WORD fpuState;
 	Info 		:
 */
 
+void SubdivideObject(MDX_OBJECT *me)
+{
+	MDX_MESH *mesh;
+	MDX_VECTOR *newVerts,tVect;
+	MDX_SHORTVECTOR *newFace;
+	MDX_USHORT2DVECTOR *newFaceTC,tTC;
+	MDX_QUATERNION *newGouraudColors;
+	MDX_TEXENTRY **newTextures;
+	unsigned long i,v0,v1,v2;
+	float mag1,mag2,mag3,biggest,ut,vt;
+		
+	mesh = me->mesh;
+	
+	// Allocate enough vertices for double the current number of faces - too many at present, but enough just in case
+	newVerts = new MDX_VECTOR[(mesh->numFaces*3) * 2];
+
+	// The face structure should be the correct size.
+	newFace = new MDX_SHORTVECTOR[mesh->numFaces * 2];
+	newFaceTC = new MDX_USHORT2DVECTOR[(mesh->numFaces*3) * 2];
+	
+	// Gouraud colors!
+	newGouraudColors = new MDX_QUATERNION[(mesh->numFaces*3) * 2];
+	
+	// Texture ID's
+	newTextures = new MDX_TEXENTRY *[mesh->numFaces * 2];
+
+	for (i=0; i<mesh->numFaces; i++)
+	{
+		// Need to reJig the face so we know which the hypotinuse is...
+		SubVector(&tVect,&mesh->vertices[mesh->faceIndex[i].v[0]],&mesh->vertices[mesh->faceIndex[i].v[1]]);
+		mag1 = mdxMagnitudeSquared(&tVect);
+
+		SubVector(&tVect,&mesh->vertices[mesh->faceIndex[i].v[1]],&mesh->vertices[mesh->faceIndex[i].v[2]]);
+		mag2 = mdxMagnitudeSquared(&tVect);
+
+		SubVector(&tVect,&mesh->vertices[mesh->faceIndex[i].v[2]],&mesh->vertices[mesh->faceIndex[i].v[0]]);
+		mag3 = mdxMagnitudeSquared(&tVect);
+
+		// v0-v1 is hyp
+		biggest = mag1;	
+		v0 = 0; v1 = 1; v2 = 2;
+		
+		if (mag2>biggest)
+		{
+			biggest = mag2;
+			v0 = 1; v1 = 2; v2 = 0;
+		
+		}
+
+		if (mag3>biggest)
+		{
+			biggest = mag3;
+			v0 = 2; v1 = 0; v2 = 1;
+		}
+		
+		// Calculate the center vertex.
+		SubVector(&tVect,&mesh->vertices[mesh->faceIndex[i].v[v1]],&mesh->vertices[mesh->faceIndex[i].v[v0]]);
+		ScaleVector(&tVect,0.5);
+		AddVector(&tVect,&mesh->vertices[mesh->faceIndex[i].v[v0]],&tVect);
+		
+		// Set the new Faces
+		newFace[(i*2)].v[0] = (i*4)+0;
+		newFace[(i*2)].v[1] = (i*4)+3;
+		newFace[(i*2)].v[2] = (i*4)+2;
+		newFace[1+(i*2)].v[0] = (i*4)+1;
+		newFace[1+(i*2)].v[1] = (i*4)+2;
+		newFace[1+(i*2)].v[2] = (i*4)+3;
+		
+		// Set the new Vectors
+		SetVector(&newVerts[(i*4)],&mesh->vertices[mesh->faceIndex[i].v[v0]]);
+		SetVector(&newVerts[(i*4)+1],&mesh->vertices[mesh->faceIndex[i].v[v1]]);
+		SetVector(&newVerts[(i*4)+2],&mesh->vertices[mesh->faceIndex[i].v[v2]]);
+		SetVector(&newVerts[(i*4)+3],&tVect);
+
+		// Texture Coords
+		tTC.v[0] = mesh->faceTC[(i*3) + v0].v[0] + (mesh->faceTC[(i*3) + v1].v[0] - mesh->faceTC[(i*3) + v0].v[0])/2;
+		tTC.v[1] = mesh->faceTC[(i*3) + v0].v[1] + (mesh->faceTC[(i*3) + v1].v[1] - mesh->faceTC[(i*3) + v0].v[1])/2;
+
+		newFaceTC[(i*6)+0] = mesh->faceTC[(i*3) + v0];
+		newFaceTC[(i*6)+1] = tTC;
+		newFaceTC[(i*6)+2] = mesh->faceTC[(i*3) + v2];
+		newFaceTC[(i*6)+3] = mesh->faceTC[(i*3) + v1];
+		newFaceTC[(i*6)+4] = mesh->faceTC[(i*3) + v2];
+		newFaceTC[(i*6)+5] = tTC;
+		
+		// Texture IDs
+		newTextures[(i*2)] = mesh->textureIDs[i];
+		newTextures[(i*2)+1] = mesh->textureIDs[i];
+	}
+
+	if (me->flags & OBJECT_FLAGS_SUBDIVIDED)
+	{
+		delete mesh->vertices;
+		delete mesh->faceIndex;
+		delete mesh->faceTC;
+		delete mesh->gouraudColors;
+		delete mesh->textureIDs;
+	}
+
+	mesh->numVertices = mesh->numFaces*4;
+	mesh->numFaces *= 2;	
+	mesh->vertices = newVerts;
+	mesh->faceIndex = newFace;
+	mesh->faceTC = newFaceTC;
+	mesh->gouraudColors = newGouraudColors;
+	mesh->textureIDs = newTextures;
+	
+	me->flags |= OBJECT_FLAGS_SUBDIVIDED;
+	
+	if (me->next)
+		SubdivideObject(me->next);
+
+	if (me->children)
+		SubdivideObject(me->children);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
 void FindToFromVKeys(MDX_VKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys)
 {
 	int			i;
@@ -239,58 +363,6 @@ void TransformObject(MDX_OBJECT *obj, float time)
 		SetVector(&obj->attachedActor->scale,actorScale);
 		MatrixToQuaternion ((MDX_MATRIX *)matrixStack.stack[matrixStack.stackPosition],&(obj->attachedActor->qRot));
 	}
-
-/*
-//	maintain posision of all objects sprites        
-	if(obj->numSprites > 0)
-	{
-		for(i = 0; i < obj->numSprites; i++)
-		{
-			sprite = obj->sprites[i].sprite;
-			if(sprite)
-			{
-				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
-				{
-					sprite->red2 = obj->colour.r;
-					sprite->green2 = obj->colour.g;
-					sprite->blue2 = obj->colour.b;
-					sprite->alpha2 = obj->colour.a;
-					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND;
-				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT)
-				{
-					sprite->red2 = obj->colour.r;
-					sprite->green2 = obj->colour.g;
-					sprite->blue2 = obj->colour.b;
-					sprite->alpha2 = obj->colour.a;
-					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-				}
-				else
-					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
-				obj->sprites[i].sprite->scaleX = 2*((float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X]);
-				obj->sprites[i].sprite->scaleY = 2*((float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y]);
-				xluVal = ((int)(obj->xlu * xluOverride))/100;
-				if(xluOverride <= 10)
-					xluVal = 0;
-
-				obj->sprites[i].sprite->a = xluVal;
-				sprite->offsetX = -16;
-				sprite->offsetY = -16;
-
-				
-				//	"TEMPORARY" SPRITE FIX (ahahaha..) - Dave
-
-				//	I'm not sure why this works; clearly the sprite's z-value is the
-				//	negative of what it should be. Where does this negative creep in? 
-				
-				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, -obj->sprites[i].z,
-												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
-			}
-		}
-	}
-	*/
 	
 	MatrixSet (&obj->objMatrix.matrix,&matrixStack.stack[matrixStack.stackPosition]);
 

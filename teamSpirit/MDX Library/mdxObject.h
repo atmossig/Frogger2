@@ -95,7 +95,7 @@ typedef struct
 	short			numVertices;
 	MDX_VECTOR			*vertices;
 	MDX_SHORTVECTOR		*faceIndex;
-	MDX_BYTEVECTOR		*faceNormals;
+	MDX_BYTEVECTOR		*notUsed;//faceNormals;
 	MDX_USHORT2DVECTOR	*faceTC;
 	MDX_VECTOR			*vertexNormals;
 	MDX_QUATERNION		*gouraudColors;
@@ -243,15 +243,15 @@ typedef struct
 #define OBJECT_FLAGS_PRELIT					   	(1<<3)		// 8
 #define OBJECT_FLAGS_MIP_MAP				   	(1<<4)		// 16
 #define OBJECT_FLAGS_MODGE					   	(1<<5)		// 32
-#define OBJECT_FLAGS_TEXTURE_BLEND			   	(1<<6)		// 64
-#define OBJECT_FLAGS_IA						   	(1<<7)		// 128
+#define OBJECT_FLAGS_ADDITIVE				   	(1<<6)		// 64
+#define OBJECT_FLAGS_WAVE					   	(1<<7)		// 128
 #define OBJECT_FLAGS_PHONG					   	(1<<8)		// 256
 #define OBJECT_FLAGS_FADEOUT				   	(1<<9)		// 512
 #define OBJECT_FLAGS_FACE_COLOUR			   	(1<<10)		// 1024
 #define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)		// 2048
 #define OBJECT_FLAGS_TEXTURE_BLEND_ENV		   	(1<<12)		// 4096
-#define OBJECT_FLAGS_COLOUR_BLEND			   	(1<<13)		// 8192
-#define OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT   	(1<<14)		// 16384
+#define OBJECT_FLAGS_SUBDIVIDED				   	(1<<13)		// 8192
+#define OBJECT_FLAGS_GLOW					  	(1<<14)		// 16384
 
 #define OBJECT_FLAGS_CLIPPED				  	(1<<15)		
 
@@ -259,6 +259,7 @@ typedef struct
 void FindObject(MDX_OBJECT_CONTROLLER **objCPtr, int objID, char *name);
 void LoadObjBank(char *bank, char *baseDir);
 void TransformObject(MDX_OBJECT *obj, float time);
+void SubdivideObject(MDX_OBJECT *me);
 extern WORD fpuState;
 
 #ifdef __cplusplus

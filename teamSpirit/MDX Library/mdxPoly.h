@@ -13,9 +13,18 @@ extern "C"
 
 #define MA_MAX_VERTICES		24000	// Maximum number of VERTICES that can be drawn in a frame
 #define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn in a frame
+#define MA_MAX_HALOS		50		// Maximum number of halo points that can be drawn in a frame
+#define MA_SOFTWARE_DEPTH	3000	// Maximum depth of a software polygon.
 //#define MA_MAX_FRAMES		6		// Maximum number of frames that may be active at once.
 
-enum {MA_FRAME_NORMAL,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_MAX_FRAMES};
+enum {MA_FRAME_NORMAL,MA_FRAME_GLOW,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_MAX_FRAMES};
+
+typedef struct TAG_SOFTPOLY
+{
+	struct TAG_SOFTPOLY *next; 
+	unsigned short f[3];
+	LPDIRECTDRAWSURFACE7 t;
+} SOFTPOLY;
 
 // A type for storing all the vertices and polygons in a frame
 typedef struct TAG_FRAME_INFO	
@@ -53,9 +62,10 @@ cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFI
 void DrawBatchedPolys (void);
 void InitFrames(void);
 
+// Add a halo point to be tested at draw time/
+void AddHalo(MDX_VECTOR *point);
 
 // Push a poly onto the buffers
-#ifdef MAVIS_DEBUG
 
 void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE7 tSrf );
 void DrawFlatRect(RECT r, D3DCOLOR colour);
@@ -67,28 +77,10 @@ void DrawAllFrames(void);
 
 extern unsigned long drawLighting;
 extern unsigned long drawPhong;
+extern LPDIRECTDRAWSURFACE7 haloS;
 unsigned long xluSubRS[]; 
 unsigned long xluAddRS[];
 unsigned long xluSemiRS[]; 
-
-
-#else
-
-#define PushPolys(v,vC,fce,fC,h) \
-{	unsigned long cnt;\
-	short *mfce = fce;\
-	for (cnt=0;cnt<fC; cnt++)\
-	{\
-		*cFInfo->cF = (*mfce) + cFInfo->nV;\
-		*cFInfo->cT = h;\
-		cFInfo->cF++;\
-		cFInfo->cT++;\
-		mfce++;\
-	}\
-	memcpy(cFInfo->cV,v,vC*sizeof(D3DTLVERTEX)); cFInfo->cV+=vC; cFInfo->nV+=vC; cFInfo->nF+=fC;\
-}
-
-#endif
 
 #ifdef __cplusplus
 }

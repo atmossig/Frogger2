@@ -90,7 +90,6 @@ typedef struct TAG_SETDATA
 	char *type;
 } SETDATA;
 
-
 SETDATA setInfo[] = 
 {
 	"lighting",&drawLighting,"%lu",

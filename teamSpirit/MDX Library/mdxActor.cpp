@@ -27,6 +27,7 @@
 #include "gelf.h"
 #include "mdxLandscape.h"
 #include "mdxRender.h"
+#include "mdxPoly.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -80,6 +81,7 @@ void DrawActor(MDX_ACTOR *actor)
 	// Optimisation.
 	MDX_OBJECT_CONTROLLER *objectC = actor->objectController;
 
+
 	// I can't see you...
 	if(actor->visible == FALSE)
 		return;
@@ -90,12 +92,12 @@ void DrawActor(MDX_ACTOR *actor)
 
 	// If we are skinned then XForm all the vertices first and then draw the skin, otherwise draw it as we transform it.
 
-	
 	if (objectC->isSkinned)
 	{
+		globalXLU2 = (((float)objectC->object->xlu) / ((float)0xff)) * globalXLU;
 		if (objectC->object->flags & OBJECT_FLAGS_CLIPPED)
 			return;
-		
+	
 		if (objectC->object->phong)
 		{
 			phong = objectC->object->phong;
@@ -109,7 +111,7 @@ void DrawActor(MDX_ACTOR *actor)
 		}
 	}
 	else
-		DrawObject(objectC->object, FALSE, objectC->object->mesh);
+		DrawObject(objectC->object, FALSE, objectC->object->mesh);		
 }
 
 void QueueFlush(MDX_ACTOR *myActor)
@@ -362,7 +364,7 @@ void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int 
 
 	tempActor->pos.vx = x;	tempActor->pos.vy = y;	tempActor->pos.vz = z;
 	tempActor->scale.vx = tempActor->scale.vy = tempActor->scale.vz = 1;
-
+	tempActor->flags = 0;
 	ZeroQuaternion(&tempActor->qRot);
 }
 
