@@ -271,7 +271,7 @@ int LoadWav( SAMPLE *sample, char *name )
 	// set up the directsound buffer
 
 	// allocate the memory to load sound data
-	snd_buffer = ( UCHAR * ) malloc ( child.cksize );
+	snd_buffer = ( UCHAR * ) AllocMem( child.cksize );
 
 	// read the wave data 
 	mmioRead ( hwav, ( char * ) snd_buffer, child.cksize );
@@ -309,7 +309,7 @@ int LoadWav( SAMPLE *sample, char *name )
 		utilPrintf("CreateSoundBuffer failed on file '%s' - '%s'\n", name, DSoundErrorToString(dsrVal));
 
 		// release memory
-		free ( snd_buffer );
+		FreeMem ( snd_buffer );
 
 		// return error
 		return ( -1 );
@@ -333,7 +333,7 @@ int LoadWav( SAMPLE *sample, char *name )
  									 return(0);
 
 	// release the temp buffer
-	free(snd_buffer);
+	FreeMem(snd_buffer);
 
 	return 1;
 }
