@@ -48,68 +48,32 @@ TEXTUREANIMLIST textureAnimList;
 
 TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc );
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: LoadTextureBank
+	Purpose			: Set of textures
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void LoadTextureBank ( int textureBank )
 {
-	int fileLength, counter, counter1;
 	char fileName[256];
-	unsigned char *p, *textureAnims;
-
-	TEXTUREANIM *textureAnim;
-
-	short numAnimations = 0;
 
 	switch ( textureBank )
 	{
-		case GARDEN_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\GARDEN.SPT" );
-			break;
-
-		case ANCIENT_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\ANCIENTS.SPT" );
-			break;
-
-		case SPACE_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\SPACE.SPT" );
-			break;
-
-		case CITY_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\CITY.SPT" );
-			break;
-
-		case SUBTERRANEAN_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\SUB.SPT" );
-			break;
-
-		case LABORATORY_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\LAB.SPT" );
-			break;
-
-		case HALLOWEEN_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" );
-			break;
-
-		case SUPERRETRO_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\SUPER.SPT" );
-			break;
-
-		case FRONTEND_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\HUB.SPT" );
-			break;
-
-		case INGAMEGENERIC_TEX_BANK:
-//				textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
-
-//				textureDownloadBank ( textureBanks [ numTextureBanks ]   );
-//				textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
-				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
-//				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
-			break;
-
-		case TITLES_TEX_BANK:
-				sprintf ( fileName, "TEXTURES\\TITLES.SPT" );
-			break;
+		case GARDEN_TEX_BANK: sprintf ( fileName, "TEXTURES\\GARDEN.SPT" );	break;
+		case ANCIENT_TEX_BANK: sprintf ( fileName, "TEXTURES\\ANCIENTS.SPT" ); break;
+		case SPACE_TEX_BANK: sprintf ( fileName, "TEXTURES\\SPACE.SPT" ); break;
+		case CITY_TEX_BANK: sprintf ( fileName, "TEXTURES\\CITY.SPT" ); break;
+		case SUBTERRANEAN_TEX_BANK: sprintf ( fileName, "TEXTURES\\SUB.SPT" ); break;
+		case LABORATORY_TEX_BANK: sprintf ( fileName, "TEXTURES\\LAB.SPT" ); break;
+		case HALLOWEEN_TEX_BANK: sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" ); break;
+		case SUPERRETRO_TEX_BANK: sprintf ( fileName, "TEXTURES\\SUPER.SPT" ); break;
+		case FRONTEND_TEX_BANK: sprintf ( fileName, "TEXTURES\\HUB.SPT" ); break;
+		case INGAMEGENERIC_TEX_BANK: sprintf ( fileName, "TEXTURES\\GENERIC.SPT" ); break;
+		case TITLES_TEX_BANK: sprintf ( fileName, "TEXTURES\\TITLES.SPT" ); break;
 	}
-	// ENDSWITCH - textureBank
 
 	utilPrintf("FileName : %s\n", fileName );
 
@@ -124,39 +88,21 @@ void LoadTextureBank ( int textureBank )
 	{
 		utilPrintf("Error Loading: %s, Max Texture Banks Reached", fileName );
 	}
-	// ENDELSEIF - 	if ( numTextureBanks < MAX_TEXTURE_BANKS )
-	
-	/*textureAnims = (unsigned char *)fileLoad ( titFileName, &fileLength );
-
-	if ( !textureAnims )
-		return;
-	
-	p = ( unsigned char* ) textureAnims;
-	numAnimations = (short)*p;
-	p += 2;
-
-	for ( counter = 0; counter < (short*)p; counter++ )
-	{
-		p += 2;
-
-		textureAnim = CreateTextureAnimation( ( long ) *p+2, ( short ) *p );
-		p += 2;
-		for ( counter1 = 0; counter1 < ( short ) *p-2; counter1 )
-		{
-			AddAnimFrame ( textureAnim, (long*)p, (short*)p+4, counter1 );			
-			p += 6;
-		}
-		// ENDFOR
-	}
-	// ENDFOR*/
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: LoadTextureAnimBank
+	Purpose			: Animating textures from .tit file
+	Parameters		: 
+	Returns			: void
+	Info			: Hur hur - you said tit :)
+*/
 void LoadTextureAnimBank( int textureBank )
 {
 	TextureType *dummyTexture;
 	int fileLength, counter, counter1, numframes, waitTime;
 	unsigned long crc, destCrc, dummyCrc;
-	char fileName[256], dummyString [ 256 ];
+	char dummyString [ 256 ];
 	char titFileName[256];
 	unsigned long *p, *textureAnims;
 
@@ -179,20 +125,14 @@ void LoadTextureAnimBank( int textureBank )
 
 	textureAnims = FindStakFileInAllBanks ( titFileName, &fileLength );
 
-	//textureAnims = getFileFromStack ( stakFile, titFileName, &fileLength);
-
-	//textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
-
 	if ( !textureAnims )
 		return;
 	
 	p = textureAnims;
 	numAnimations = *p; p++;
 
-
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
-		DR_MOVE *siMove;
 		RECT moveRect;
 
 		numframes = *p;	p++;
@@ -213,26 +153,12 @@ void LoadTextureAnimBank( int textureBank )
 		if ( !dummyTexture )
 			utilPrintf("Cound Not Find Dummy Texture....\n");
 
-		
-//		CopyTexture ( dummyTexture, textureAnim->animation->dest, 0 );
-
-
-
 		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
 		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
 		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
 		moveRect.h = textureAnim->animation->dest->h;
 
-		// check for 256 colour mode
-		//if(textureAnim->animation->dest->tpage & (1 << 7))
-		//	moveRect.w *= 2;
-
-		// copy bit of vram
-		//BEGINPRIM ( siMove, DR_MOVE );
-		//SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
-		//ENDPRIM ( siMove, 1023, DR_MOVE );
-
- 		DrawSync(0);
+		DrawSync(0);
 		MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
  		DrawSync(0);
 
@@ -250,12 +176,27 @@ void LoadTextureAnimBank( int textureBank )
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: FreeTextureBank
+	Purpose			: Free textures
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void FreeTextureBank ( TextureBankType *textureBank )
 {
 	textureDestroyBank	( textureBank );
 	textureUnloadBank		( textureBank );
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeAllTextureBanks
+	Purpose			: Free all textures
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void FreeAllTextureBanks ( void )
 {
 	short c;
@@ -266,10 +207,10 @@ void FreeAllTextureBanks ( void )
 	{
 		if ( textureBanks[c] )
 			FreeTextureBank ( textureBanks [c] );
-		// ENDIF - if ( textureBanks[c] )
+
 		textureBanks[c] = NULL;
 	}
-	// ENDIF - 	for ( c = o; c < MAX_TEXTURE_BANKS; c++ )
+
 	numTextureBanks = 0;
 	numUsedDummys		= 0;
 	numUsedDummys64	= 0;
@@ -452,17 +393,15 @@ static int LOADPAL_LoadPCPalette(char * const file,
 //////////////////////////////////////////////////////////////////
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: CreateTextureAnimation
+	Purpose			: 
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 TEXTUREANIM *CreateTextureAnimation ( unsigned long crc, int numframes )
 {
-	int fileLength, counter, n;
-
-	unsigned char *p;
-
-	char line[255];
-	char tempName[255];
-
-	signed char type[20];
-
 	TEXTUREANIM *textureAnim = NULL;
 
 	textureAnim = MALLOC0 ( sizeof ( TEXTUREANIM ) );
@@ -491,26 +430,17 @@ TEXTUREANIM *CreateTextureAnimation ( unsigned long crc, int numframes )
 	textureAnim->animation->anim = (TextureType **)((unsigned char *)textureAnim->animation + sizeof(TextureAnimType));
 	textureAnim->animation->waitTimes = (short *)MALLOC0( sizeof(short)*numframes );
 
-//	for ( counter = 0; counter < textureAnim->numFrames; counter++ )
-//	{
-//		utilPrintf("Counter : %d\n", counter );
-
-//		if ( counter < 9 )
-//			sprintf( type, "%s%d", fileName, counter+1 );
-//		else
-//			sprintf( type, "%s%d", fileName, counter+1 );
-
-//		utilPrintf("Trying To Load Texture : %s\n", type );
-//		textureAnim->animation->anim [ counter ] = textureFindCRCInAllBanks ( utilStr2CRC ( type ) );
-
-//		if ( !textureAnim->animation->anim [ counter ] )
-//			utilPrintf("Could Not Find Texture : %s\n", type );
-//	}
-
 	return textureAnim;
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: AddAnimFrame
+	Purpose			: Add a frame to an animating texture
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void AddAnimFrame( TEXTUREANIM *anim, unsigned long crc, short waitTime, int num )
 {
 	anim->animation->waitTimes[num] = waitTime;
@@ -519,6 +449,14 @@ void AddAnimFrame( TEXTUREANIM *anim, unsigned long crc, short waitTime, int num
 		utilPrintf("Could Not Find Texture : %lu\n", crc );
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateTextureAnimations
+	Purpose			: Advance frames if necessary
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void UpdateTextureAnimations( void )
 {
 	TEXTUREANIM *cur;
@@ -541,7 +479,7 @@ void UpdateTextureAnimations( void )
 			}
 			else
 			{
-				while( cur->lastTime + cur->animation->waitTimes[cur->frame] < frame )
+				while( cur->lastTime + cur->animation->waitTimes[cur->frame] < actFrameCount )
 				{
 					cur->lastTime += cur->animation->waitTimes[cur->frame];
 					
@@ -557,6 +495,14 @@ void UpdateTextureAnimations( void )
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: Boring list funcs
+	Purpose			: 
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void InitTextureAnimLinkedList ( void )
 {
 	textureAnimList.numEntries = 0;
@@ -604,6 +550,13 @@ void SubTextureAnim ( TEXTUREANIM *textureAnim )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: CreateSpareTextureSurface
+	Purpose			: Make dummy surface in vram to copy ani textures to
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc )
 {
 	RECT			rect;
@@ -621,7 +574,6 @@ TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc )
 		utilPrintf ("Could Not Find Replacement Texture.....\n");
 		return NULL;
 	}
-	// ENDIF - !texture
 
 	dummy->handle = textureVRAMalloc ( texture->w, texture->h );
 
@@ -630,7 +582,6 @@ TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc )
 		utilPrintf("Could Not VRAM Alloc : Width : %d : Height : %d\n", texture->w, texture->h );
 		return NULL;
 	}
-	// ENDIF
 
 	rect.x = VRAM_CALCVRAMX(dummy->handle);
 	rect.y = VRAM_CALCVRAMY(dummy->handle);
@@ -643,14 +594,14 @@ TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc )
 	dummy->w = texture->w;
 	dummy->h = texture->h;
 
-  dummy->u0 = texture->x;
-  dummy->v0 = texture->y;
-  dummy->u1 = 255;
-  dummy->v1 = texture->y;
-  dummy->u2 = texture->x;
-  dummy->v2 = 255;
-  dummy->u3 = 255;
-  dummy->v3 = 255;
+	dummy->u0 = texture->x;
+	dummy->v0 = texture->y;
+	dummy->u1 = 255;
+	dummy->v1 = texture->y;
+	dummy->u2 = texture->x;
+	dummy->v2 = 255;
+	dummy->u3 = 255;
+	dummy->v3 = 255;
 
 	dummy->imageCRC = dummyCrc;
 
@@ -676,8 +627,13 @@ TextureType *CreateSpareTextureSpace ( unsigned long dummyCrc )
 }
 
 
-
-
+/*	--------------------------------------------------------------------------------
+	Function		: CopyTexture
+	Purpose			: Copy vram->vram
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 {
 	DR_MOVE *siMove;
