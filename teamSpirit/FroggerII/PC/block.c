@@ -41,6 +41,8 @@ int runQuit = 0;
 extern long numFacesDrawn;
 extern long numPixelsDrawn;
 
+long winMode = 1;
+long scaleMode = 0;
 
 char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
@@ -130,6 +132,29 @@ int GetRegistryInformation(void)
 	return 1;
 }
 
+
+void GetArgs(char *arglist)
+{
+	int i;
+	for (i=0; arglist[i]!=0; i++)
+	{
+		if ((arglist[i]=='+') || (arglist[i]=='-') || (arglist[i]=='/'))
+		{
+			switch(arglist[i+1])
+			{
+				case 'W':
+				case 'w':
+					winMode = 1;
+					break;
+				case 'S':
+				case 's':
+					scaleMode = 1;
+					break;
+			}
+		}
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: WinMain
 	Purpose			: entry point
@@ -140,6 +165,9 @@ int GetRegistryInformation(void)
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow);
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+	winMode = 0;
+	scaleMode = 0;
+	GetArgs(lpCmdLine);
 //	__try
 //	{
 		WinMain2(hInstance,hPrevInstance,lpCmdLine,nCmdShow);
@@ -411,12 +439,12 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 		WS_EX_TOPMOST,
         "Frogger2PC",
         "Frogger2PC",
-		WS_POPUP,
+		winMode?WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE:WS_POPUP,
 		//WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE,			// window style
         0,
 		0,
-		GetSystemMetrics(SM_CXSCREEN), // 640
-		GetSystemMetrics(SM_CYSCREEN), // 480
+		winMode?640:GetSystemMetrics(SM_CXSCREEN), // 640
+		winMode?480:GetSystemMetrics(SM_CYSCREEN), // 480
         NULL,				// parent window
         NULL,				// menu handle
         hInstance,			// program handle

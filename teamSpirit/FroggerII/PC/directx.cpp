@@ -50,6 +50,9 @@ LPDIRECT3DDEVICE2		pDirect3DDevice;
 LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 LPDIRECTDRAW4			pDirectDraw4;
 
+extern long winMode;
+extern long scaleMode;
+
 struct dxDevice
 {
 	GUID *guid;
@@ -653,7 +656,8 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					break;
 				case IDOK:
 				{
-					ShowCursor(0);
+					if (!winMode)
+						ShowCursor(0);
 					
 					for (i=0; i<SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMCOUNT,0,0); i++)
 						if (SendMessage (GetDlgItem(hwndDlg,IDC_LIST2),LVM_GETITEMSTATE,i,LVIS_SELECTED))
@@ -775,16 +779,27 @@ long DirectXInit(HWND window, long hardware )
 		return FALSE;
 	}
 
-	if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX)) != DD_OK)
+	if (winMode)
 	{
-		dp("Failed setting cooperative level: %s\n", ddError2String(res));
-		return FALSE;
+		if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_NORMAL)) != DD_OK)
+		{
+			dp("Failed setting cooperative level: %s\n", ddError2String(res));
+			return FALSE;
+		}
 	}
-
-	if ((res = pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS)) != DD_OK)
+	else
 	{
-		dp("Failed setting display mode: %s\n", ddError2String(res));
-		return FALSE;
+		if ((res = pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX)) != DD_OK)
+		{
+			dp("Failed setting cooperative level: %s\n", ddError2String(res));
+			return FALSE;
+		}
+
+		if ((res = pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS)) != DD_OK)
+		{
+			dp("Failed setting display mode: %s\n", ddError2String(res));
+			return FALSE;
+		}
 	}
 
 	// Get the primary display surface
@@ -816,12 +831,13 @@ long DirectXInit(HWND window, long hardware )
 		dp("Error creating backbuffer: %s\n", ddError2String(res));
 		return FALSE;
 	}
-	
-	if (primarySrf->AddAttachedSurface(hiddenSrf) != DD_OK)
-	{
-		dp("Error attaching backbuffer: %s\n", ddError2String(res));
-		return FALSE;
-	}
+
+	if (!winMode)
+		if ((res = primarySrf->AddAttachedSurface(hiddenSrf)) != DD_OK)
+		{
+			dp("Error attaching backbuffer: %s\n", ddError2String(res));
+			return FALSE;
+		}
 
 //	if (hardware)
 	{
@@ -930,10 +946,47 @@ void DirectXFlip(void)
 	// ENDIF
 
 	// Flip the back buffer to the primary surface
-	primarySrf->Flip(NULL,DDFLIP_WAIT);
-//	while (primarySrf->Blt(NULL,hiddenSrf,NULL,NULL,NULL)!=DD_OK);
+	if (!winMode)
+		primarySrf->Flip(NULL,DDFLIP_WAIT);
+	else
+	{
+		RECT clientR,windowR;
 
-	
+		GetClientRect(win,&clientR);
+		GetWindowRect(win,&windowR);
+		
+		if (!scaleMode)
+		{
+			if (clientR.right>640)
+				clientR.right = 640;
+
+			if (clientR.bottom>480)
+				clientR.bottom = 480;
+		
+			windowR.top+=GetSystemMetrics(SM_CYCAPTION)+GetSystemMetrics(SM_CYSIZEFRAME);
+			windowR.left+=GetSystemMetrics(SM_CXSIZEFRAME);
+			windowR.bottom = clientR.bottom+windowR.top;
+			windowR.right = clientR.right+windowR.left;
+			while (primarySrf->Blt(&windowR,hiddenSrf,&clientR,NULL,NULL)!=DD_OK);
+		
+		}
+		else
+		{
+			windowR.top+=GetSystemMetrics(SM_CYCAPTION)+GetSystemMetrics(SM_CYSIZEFRAME);
+			windowR.left+=GetSystemMetrics(SM_CXSIZEFRAME);
+
+			windowR.bottom-=GetSystemMetrics(SM_CYSIZEFRAME);
+			windowR.right-=GetSystemMetrics(SM_CXSIZEFRAME);
+			
+			clientR.right = 640;
+			clientR.bottom = 480;
+			while (primarySrf->Blt(&windowR,hiddenSrf,&clientR,NULL,NULL)!=DD_OK);
+		
+		}
+
+		
+	}
+
 	DDINIT(m);
 	m.dwFillColor = D3DRGB((bRed/(float)0xff),(bGreen/(float)0xff),(bBlue/(float)0xff));
 	while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);

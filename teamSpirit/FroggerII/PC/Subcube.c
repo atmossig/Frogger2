@@ -120,10 +120,25 @@ float xl = 1;
 
 float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-	float bx = x2-x1;
-	float by = y2-y1;
-	float base=sqrt(bx*bx+by*by);
+	VECTOR base,ubase;
+	VECTOR side,uside;
+	float dp,mb,ms;
 
+	base.v[X] = x2-x1;
+	base.v[Y] = y2-y1;
+	
+	SetVector2D (&ubase,&base);
+	MakeUnit2D (&ubase);
+	mb = Magnitude2D(&base);
+	
+	side.v[X] = x3-x1;
+	side.v[Y] = y3-y1;
+	
+	SetVector2D (&uside,&side);
+	MakeUnit2D (&uside);
+
+	return ((mb/2) * (Magnitude2D(&side) * DotProduct2D(&uside,&ubase)));
+	
 }
 
 /*---------------------------------------------------------------------------------------------
