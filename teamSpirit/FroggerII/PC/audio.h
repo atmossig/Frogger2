@@ -15,7 +15,7 @@
 //***********************************
 // Defines
 
-#define PLAY_INGAMEMUSIC
+//#define USE_AUDIO
 
 #define FLAGS_NONE			0
 #define FLAGS_3D_SAMPLE		( 1 << 0 )
