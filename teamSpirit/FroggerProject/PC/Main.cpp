@@ -482,8 +482,18 @@ void TextInput( char c )
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	int i;
 	switch (msg)
 	{
+		case WM_ACTIVATEAPP:
+			if(wParam)
+			{
+				for(i = 0;i < NUM_SRF;i++)
+					if(surface[i])
+						surface[i]->Restore();
+			}
+			break;
+
 		case WM_LBUTTONDOWN:
 			lButton = 1;
 			break;
