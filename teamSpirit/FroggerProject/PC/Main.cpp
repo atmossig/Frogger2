@@ -843,6 +843,8 @@ int GameStartup()
 
 int GameShutdown()
 {
+	UndoChangeModel( frog[0]->actor );
+
 	SaveGame();
 
 #ifndef FINAL_MASTER
