@@ -8,6 +8,8 @@
 #include "types2d.h"
 #include "psxsprite.h"
 #include "sprite.h"
+#include "layout.h"
+#include "maths.h"
 
 
 
@@ -120,8 +122,35 @@ void PrintSpriteOverlays ( char num )
 		}
 		// ENDIF
 
-		if ( cur->draw )
+
+		// update the sprite animation if an animated sprite overlay
+		if(cur->draw)
 		{
+			// Go to destination, if specified
+			fixed spd = FMul(gameSpeed, cur->speed)>>12;
+
+			if( Fabs(cur->xPosTo-cur->xPos) )
+			{
+				cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
+				
+				if( Fabs(cur->xPosTo-cur->xPos) < Fabs(spd) )
+				{
+					cur->speed = 0;
+					cur->xPos = cur->xPosTo;
+				}
+			}
+			else if( Fabs(cur->yPosTo-cur->yPos) )
+			{
+				cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+
+				if( Fabs(cur->yPosTo-cur->yPos) < Fabs(spd) )
+				{
+					cur->speed = 0;
+					cur->yPos = cur->yPosTo;
+				}
+			}
+		
+
 			DrawSprite ( cur );
 		}
 		// ENDIF
