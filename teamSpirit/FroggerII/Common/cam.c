@@ -59,7 +59,7 @@ TRANSCAMERA *transCameraList = NULL;
 extern long idleCamera;
 VECTOR idleCamDist	= { 0,100,102 };
 
-float sideSwaySpeed = 0.005,sideSwayAmt=50;
+float sideSwaySpeed = 0.005,sideSwayAmt=50,swayModifier = 1.0f;
 
 float camSideOfs = 0;
 GAMETILE *lastTile = NULL;
@@ -514,7 +514,21 @@ void UpdateCameraPosition(long cam)
 	}
 
 	if( swingCam )
-		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
+	{
+		// if the player is on their last life - give the swaying camera more 'urgency' - subtle
+		if(player[0].lives < 3)
+		{
+			swayModifier	= 3.0f;
+			sideSwayAmt		= 25.0f;
+		}
+		else
+		{
+			swayModifier	= 1.0f;
+			sideSwayAmt		= 50.0f;
+		}
+
+		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed*swayModifier)*sideSwayAmt) * camDist.v[2]) / 350.0;
+	}
 }
 
 
