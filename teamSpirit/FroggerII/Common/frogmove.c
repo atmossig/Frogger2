@@ -49,8 +49,10 @@ float floatGravity		= -1.0F;
 */
 
 float	hopHeight		= 30;
-float	superhopHeight	= 100;
-float	doublehopHeight = 150;
+float	superhopHeight	= 75;
+float	doublehopHeight = 100;
+
+float	floatMultiply	= 0.25f;
 
 BOOL cameoMode			= FALSE;
 
@@ -271,42 +273,14 @@ void UpdateFroggerPos(long pl)
 	if( player[pl].jumpTime < 1.0f )
 	{
 		VECTOR up, fwd, pos;
-		float p, t;
+		float p, t, delta;
 
+		delta = (player[pl].jumpSpeed * gameSpeed);
 
-/* THIS CODE MOVED TO GAME.C - ANDYE ----------------------------
+		if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+			delta *= floatMultiply;
 
-		// If superjumping during a double jump, start floating - if button released, stop floating
-		if( player[pl].hasDoubleJumped )
-		{
-			if( (controllerdata[pl].button & CONT_A) && !(controllerdata[pl].lastbutton & CONT_A) )
-			{
-				player[pl].frogState |= FROGSTATUS_ISFLOATING;
-			}
-			else if( !(controllerdata[pl].button & CONT_A) && (controllerdata[pl].lastbutton & CONT_A) )
-			{
-				player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
-			}
-		}
-
----------------------------- THIS CODE MOVED TO GAME.C - ANDYE */
-
-/*		if( player[pl].frogState & FROGSTATUS_ISFLOATING )
-		{
-			a = frogGravity*0.5;
-			hs = player[pl].hInitialVelocity * 0.5;
-			vs = player[pl].vInitialVelocity * 0.5;
-		}
-		else
-		{
-			a = frogGravity;
-			hs = player[pl].hInitialVelocity;
-			vs = player[pl].vInitialVelocity;
-//		}
-*/
-
-		//t = actFrameCount - player[pl].jumpStartFrame;
-		player[pl].jumpTime += (player[pl].jumpSpeed * gameSpeed);
+		player[pl].jumpTime += delta;
 
 		t = player[pl].jumpTime;
 

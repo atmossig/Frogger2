@@ -28,15 +28,27 @@
 #define FS_SET_VIS			5
 #define FS_SET_TOGGLEVIS	6
 
+#define SCRIPT_MAX_FLAGS	64
+#define SCRIPT_FLAGS_BYTES	(SCRIPT_MAX_FLAGS/8)
+#define SCRIPT_MAX_COUNTERS	16
+
+unsigned char scriptFlags[SCRIPT_FLAGS_BYTES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+short scriptCounters[SCRIPT_MAX_COUNTERS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+
+
 #ifdef DEBUG_SCRIPTING
 int lineNumber = 0;
 
+#define SCRIPT_VALIDATE_FLAG(x)		if ((x) < 0 || (x) > SCRIPT_MAX_FLAGS) { PrintScriptDebugMessage("Invalid toggle number"); return 0; }
+#define SCRIPT_VALIDATE_COUNTER(x)	if ((x) < 0 || (x) > SCRIPT_MAX_COUNTERS) { PrintScriptDebugMessage("Invalid counter number"); return 0; }
+
+#else
+
+#define SCRIPT_VALIDATE_FLAG(x)
+#define SCRIPT_VALIDATE_COUNTER(x)
+
 #endif
-
-#define SCRIPT_MAX_FLAGS	64
-#define SCRIPT_FLAGS_BYTES	(SCRIPT_MAX_FLAGS/8)
-
-unsigned char scriptFlags[SCRIPT_FLAGS_BYTES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 /* --------------------------------------------------------------------------------- */
 
@@ -51,7 +63,7 @@ float volTest = 0.5;
 
 float ChangeVolume(int a, float delta)
 {
-	volTest += delta;
+	volTest += (delta*gameSpeed);
 	return volTest;
 }
 
@@ -165,6 +177,12 @@ int OnFlagSet(TRIGGER *t)
 {
 	int f = (int)t->data[0];
 	return (scriptFlags[f >> 3] & (1 << (f & 7))) != 0;
+}
+
+int OnCounterEquals(TRIGGER *t)
+{
+	int c = (int)t->data[0], v = (int)t->data[1];
+	return (scriptCounters[c] == v);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -331,6 +349,16 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			params = AllocArgs(1);
 			(int)params[0] = flag;
 			trigger = MakeTrigger(OnFlagSet, params);
+		}
+		break;
+
+	case TR_COUNTEREQUALS:
+		{
+			int counter = MEMGETBYTE(p), value = MEMGETWORD(p);
+			params = AllocArgs(2);
+			(int)params[0] = counter;
+			(int)params[1] = value;
+			trigger = MakeTrigger(OnCounterEquals, params);
 		}
 		break;
 		
@@ -855,6 +883,30 @@ BOOL ExecuteCommand(UBYTE **p)
 			speed = MEMGETFLOAT(p);
 
 			ScalePathSpeed(plat->path, speed);
+			break;
+		}
+
+	case EV_INC_COUNTER:
+		{
+			unsigned char counter = MEMGETBYTE(p);
+			SCRIPT_VALIDATE_COUNTER(counter);
+			scriptCounters[counter]++;
+			break;
+		}
+
+	case EV_DEC_COUNTER:
+		{
+			unsigned char counter = MEMGETBYTE(p);
+			SCRIPT_VALIDATE_COUNTER(counter);
+			scriptCounters[counter]--;
+			break;
+		}
+
+	case EV_SET_COUNTER:
+		{
+			unsigned char counter = MEMGETBYTE(p);
+			SCRIPT_VALIDATE_COUNTER(counter);
+			scriptCounters[counter] = MEMGETWORD(p);
 			break;
 		}
 /*

@@ -42,10 +42,10 @@ long useNear = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 float nearClip = 10;
-float farClip = 1100;
+float farClip = 2000;
 
-float horizClip = 600;
-float vertClip = 550;
+float horizClip = 1000;
+float vertClip = 800;
 
 long DIST=-10;
 long FOV=450;
