@@ -899,7 +899,7 @@ void RunFrontendGameLoop (void)
 				options.chapterNameText[i][0]->draw = 0;
 				options.chapterNameText[i][1]->draw = 0;
 
-				options.chapterPic[i] = CreateAndAddSpriteOverlay(2400,1500,chapterPic[options.pageNum],1024,1024,0,0);
+				options.chapterPic[i] = CreateAndAddSpriteOverlay(2400,1500,chapterPic[options.pageNum],1024,1024,0,i==1 ? SPRITE_CLIP1 : SPRITE_CLIP2);
 				options.chapterPic[i]->draw = 0;
 			}
 			player[0].hasJumped = 0;

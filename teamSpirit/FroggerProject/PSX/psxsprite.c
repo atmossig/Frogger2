@@ -12,7 +12,9 @@
 #include "maths.h"
 #include "textures.h"
 
-
+RECT clipBox1 = {0,0,64,64};
+RECT clipBox2 = {0,0,0,64};
+RECT *currClipBox;
 
 void DrawSprite ( SPRITEOVERLAY *spr )
 {
@@ -165,6 +167,89 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	}
 }
 
+
+void DrawSpriteClipped(SPRITEOVERLAY *spr)
+{
+	int			atbdx,atbdy, w,h;
+	POLY_F4		*f4;
+	POLY_FT4	*ft4;
+	DR_MODE		*dm;
+	TextureType	*tPtr;
+	uchar alpha,r,g,b;
+	int depth;
+
+	if((currClipBox->x >= currClipBox->w) || (currClipBox->y >= currClipBox->h))
+		return;
+
+	depth = 4 - spr->num;
+
+	atbdx = (spr->xPos>>3)-256 + currClipBox->x*2;
+	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8 + currClipBox->y;
+
+	tPtr = spr->tex;
+
+	if((spr->a == 255) && (!(spr->flags & (SPRITE_ADDITIVE | SPRITE_SUBTRACTIVE))))
+	{
+		alpha = 0;
+//		r = (spr->r * 128) >> 8;
+//		g = (spr->g * 128) >> 8;
+//		b = (spr->b * 128) >> 8;
+		r = spr->r>>1;
+		g = spr->g>>1;
+		b = spr->b>>1;
+	}
+	else
+	{
+		alpha = 2;
+		r = (spr->r * spr->a) >> 9;
+		g = (spr->g * spr->a) >> 9;
+		b = (spr->b * spr->a) >> 9;
+	}
+
+
+	w = (currClipBox->w - currClipBox->x)*2 - 2;
+	h = currClipBox->h - currClipBox->y - 1;
+
+//	w = tPtr->w-1;
+//	h = tPtr->h-1;
+
+	BEGINPRIM(ft4, POLY_FT4);
+	setPolyFT4(ft4);
+	ft4->x0 = atbdx;
+	ft4->y0 = atbdy;
+	ft4->x1 = atbdx + w;
+	ft4->y1 = atbdy;
+	ft4->x2 = atbdx;
+	ft4->y2 = atbdy + h;
+	ft4->x3 = atbdx + w;
+	ft4->y3 = atbdy + h;
+	ft4->r0 = r;//( spr->r * 128 ) >> 8;
+	ft4->g0 = g;//( spr->g * 128 ) >> 8;
+	ft4->b0 = b;//( spr->b * 128 ) >> 8;
+	ft4->u0 = tPtr->u0 + currClipBox->x;
+	ft4->v0 = tPtr->v0 + currClipBox->y;
+	ft4->u1 = tPtr->u0 + currClipBox->w - 1;
+	ft4->v1 = tPtr->v0 + currClipBox->y;
+	ft4->u2 = tPtr->u0 + currClipBox->x;
+	ft4->v2 = tPtr->v0 + currClipBox->h - 1;
+	ft4->u3 = tPtr->u0 + currClipBox->w - 1;
+	ft4->v3 = tPtr->v0 + currClipBox->h - 1;
+	ft4->tpage = tPtr->tpage;
+	if(alpha)
+	{
+		if(spr->flags & SPRITE_SUBTRACTIVE)
+		{
+			SETSEMIPRIM(ft4, SEMITRANS_SUB);
+		}
+		else
+		{
+			SETSEMIPRIM(ft4, SEMITRANS_ADD);
+		}
+	}
+	ft4->clut = tPtr->clut;
+	setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
+	ENDPRIM(ft4, depth, POLY_FT4);
+}
 
 void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 {
@@ -379,7 +464,18 @@ void PrintSpriteOverlays ( char num )
 			{
 				if(cur->xPos > 4095)
 					continue;
-				DrawSprite ( cur );
+				if(cur->flags & SPRITE_CLIP1)
+				{
+					currClipBox = &clipBox1;
+					DrawSpriteClipped(cur);
+				}
+				else if(cur->flags & SPRITE_CLIP2)
+				{
+					currClipBox = &clipBox2;
+					DrawSpriteClipped(cur);
+				}
+				else
+					DrawSprite ( cur );
 			}
 			else
 				DrawSpriteOverlayRotating ( cur );

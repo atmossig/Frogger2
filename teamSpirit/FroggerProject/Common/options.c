@@ -71,10 +71,16 @@ extern FVECTOR storeCurrCamOffset;
 extern FVECTOR storeCamVect;
 
 
+#ifdef PSX_VERSION
+extern RECT clipBox1;
+extern RECT clipBox2;
+#endif
+
 char warnStr[256];
 char diffStr[128];
 char playingFMV = NO;
 char onOffStr[NUM_EXTRAS][64];
+short pageDir;
 // JH: A list of CRCs that define the char textures.
 unsigned long frogTexturePool[FROG_NUMFROGS] = 
 {
@@ -1867,7 +1873,28 @@ void RunOptionsMenu(void)
 				if((DistanceBetweenPointsFF(&currCamSource,&camSource) <= 4096) && (DistanceBetweenPointsFF(&currCamTarget,&camTarget) <= 4096))
 				{
 					INC_ALPHA(options.chapterPic[0],255);
+#ifdef PSX_VERSION
+					INC_ALPHA(options.chapterPic[1],255);
+					if(pageDir < 0)
+					{
+						if(clipBox1.x <= 60)
+							clipBox1.x += 4;
+						if(clipBox2.w <= 60)
+							clipBox2.w += 4;
+					}
+					else if(pageDir > 0)
+					{
+						if(clipBox1.x >= 4)
+							clipBox1.x -= 4;
+						if(clipBox2.w >= 4)
+							clipBox2.w -= 4;
+					}
+#else
 					DEC_ALPHA(options.chapterPic[1]);
+#endif
+
+					options.chapterPic[0]->draw = options.chapterPic[1]->draw = 1;
+					
 					INC_ALPHA(options.chapterText[0],255);
 					DEC_ALPHA(options.chapterText[1]);
 					INC_ALPHA(options.chapterNameText[0][0],255);
@@ -2072,7 +2099,7 @@ void BookLeft(void)
 		if(options.pageDir == 0)
 		{
 			PlaySample( FindSample(utilStr2CRC("page2")), NULL, 0, SAMPLE_VOLUME, -1 );
-			options.pageDir = -1;					
+			options.pageDir = pageDir = -1;					
 			options.pageNum--;
 			if(options.page)
 			{
@@ -2084,7 +2111,15 @@ void BookLeft(void)
 			{
 				options.chapterPic[1]->draw = 1;
 				options.chapterPic[1]->a = options.chapterPic[0]->a;
+#ifdef PSX_VERSION
+				options.chapterPic[0]->a = 255;
+				clipBox1.x = 0;
+				clipBox2.w = 0;
+				options.chapterPic[0]->flags = SPRITE_CLIP2;
+				options.chapterPic[1]->flags = SPRITE_CLIP1;
+#else
 				options.chapterPic[0]->a = 0;
+#endif
 				options.chapterPic[1]->tex = options.chapterPic[0]->tex;
 				options.chapterPic[0]->tex = FindTexture(chapterPic[options.pageNum]);
 
@@ -2115,7 +2150,7 @@ void BookRight(void)
 		if (options.pageDir == 0)
 		{
 			PlaySample( FindSample(utilStr2CRC("page3")), NULL, 0, SAMPLE_VOLUME, -1 );
-			options.pageDir = 1;
+			options.pageDir = pageDir = 1;
 			options.pageNum++;
 			if(options.page)
 			{
@@ -2127,7 +2162,15 @@ void BookRight(void)
 			{
 				options.chapterPic[1]->draw = 1;
 				options.chapterPic[1]->a = options.chapterPic[0]->a;
+#ifdef PSX_VERSION
+				options.chapterPic[0]->a = 255;
+				options.chapterPic[0]->flags = SPRITE_CLIP1;
+				options.chapterPic[1]->flags = SPRITE_CLIP2;
+				clipBox1.x = 64;
+				clipBox2.w = 64;
+#else
 				options.chapterPic[0]->a = 0;
+#endif
 				options.chapterPic[1]->tex = options.chapterPic[0]->tex;
 				options.chapterPic[0]->tex = FindTexture(chapterPic[options.pageNum]);
 

@@ -27,6 +27,8 @@ extern "C" {
 #define SPRITE_ADDITIVE							(1 << 5)
 #define SPRITE_SUBTRACTIVE						(1 << 6)
 #define SPRITE_LOADING							(1 << 7)
+#define SPRITE_CLIP1							(1 << 8)
+#define SPRITE_CLIP2							(1 << 9)
 
 
 typedef struct TAGSPRITE
