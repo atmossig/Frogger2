@@ -481,9 +481,10 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 
 	// load the relevant master object / texture banks
 	dprintf"LoadVisualBanksForWorld(%d,%d)...\n",worldID,levelID));
-#ifdef N64_VERSION
+
+	// Contains frogger and froglet - probably quite important
 	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
-#endif
+
 	LoadTextureBank(texBankToUse);
 	LoadObjectBank(objBankToUse);
 
