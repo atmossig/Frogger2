@@ -39,6 +39,121 @@ extern "C" {
 
 DPID netPlayers[MAX_MULTIPLAYERS];
 
+unsigned char playersReady[MAX_MULTIPLAYERS] = {0,0,0,0};
+unsigned char serverReady = 0;
+
+/*	--------------------------------------------------------------------------------
+	Function		: HandleSynchMessage
+	Purpose			: interpret a game update from the network
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void HandleSynchMessage( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
+{
+	unsigned int i;
+	
+	if (lpMsg->actFrameCount == 0)
+	{
+		if (DPInfo.bIsHost)
+		{
+			for( i=1; i<MAX_MULTIPLAYERS; i++ )
+				if( netPlayers[i] == idFrom )
+					playersReady[i] == 1;
+		}
+		else
+		{
+			serverReady = 1;
+		}
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitialPlayerSynch
+	Purpose			: Tell the server we are ready and then wait until we get a go message.
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+HRESULT InitialPlayerSynch(void)
+{
+	// *NB* Should wait for the server to send a ready message, for now we assume the server enters the game first. (Shouldn't really just wait)
+	LPMSG_SYNCHGAME lpMessage = NULL;
+	HRESULT	hRes;
+	
+	// Check the DPlay device
+	if(!DPInfo.lpDP4A )
+		return DPERR_ABORTED;
+	
+	// Alloc the message
+	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
+		return DPERR_OUTOFMEMORY;
+	
+	// build message	
+	lpMessage->dwType = APPMSG_SYNCHGAME;
+	lpMessage->actFrameCount = 0;
+	
+	// send this data to all other players
+	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpMessage,sizeof(MSG_SYNCHGAME));
+	
+	// Free the message
+	GlobalFreePtr(lpMessage);
+	
+	// *NB* Wait for the GO message! (Again shouldn't really just wait, but still!) (Also add a timeout!)
+	while (!serverReady);
+
+	return hRes;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitialServerSynch
+	Purpose			: Wait for everyone to be ready, synch clocks, and agree a start time
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+HRESULT InitialServerSynch(void)
+{
+	LPMSG_SYNCHGAME lpMessage = NULL;
+	HRESULT	hRes;
+	unsigned long everyoneReady = 0;
+	int i;
+	
+	// Check the DPlay device
+	if(!DPInfo.lpDP4A )
+		return DPERR_ABORTED;
+
+	// *NB* Wait for all the players to be ready to synch (Need a timeout!)
+	while (!everyoneReady)
+	{
+		everyoneReady = TRUE;
+		for (i=0 ; i<NUM_FROGS; i++)
+		if (!playersReady[i])
+			everyoneReady = 0;
+	}
+
+	// Lets try just starting them all!
+	//------
+	
+	// Alloc the message
+	if(!(lpMessage = (LPMSG_SYNCHGAME)GlobalAllocPtr(GHND,sizeof(MSG_SYNCHGAME))))
+		return DPERR_OUTOFMEMORY;
+	
+	// build message	
+	lpMessage->dwType = APPMSG_SYNCHGAME;
+	lpMessage->actFrameCount = 0;
+	
+	// send this data to all other players
+	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpMessage,sizeof(MSG_SYNCHGAME));
+
+	// Free the message.
+	GlobalFreePtr(lpMessage);
+
+	return hRes;		
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: HandleUpdateMessage
@@ -47,6 +162,7 @@ DPID netPlayers[MAX_MULTIPLAYERS];
 	Returns			: 
 	Info			: 
 */
+
 void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
 {
 	long i;
@@ -68,7 +184,6 @@ void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMs
 		}
 }
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: SendUpdateMessage
 	Purpose			: sends an update message
@@ -76,7 +191,8 @@ void HandleUpdateMessage( LPDPLAYINFO lpDPInfo,LPMSG_UPDATEGAME lpMsg,DWORD dwMs
 	Returns			: 
 	Info			: 
 */
-HRESULT SendUpdateMessage( )
+
+HRESULT SendUpdateMessage()
 {
 	LPMSG_UPDATEGAME lpUpdateMessage = NULL;
 	HRESULT	hRes;

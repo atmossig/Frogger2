@@ -20,6 +20,7 @@ DEFINE_GUID(DPCHAT_GUID, 0x37097b21, 0x5635, 0x11d3, 0x8f, 0xa8, 0x0, 0xa0, 0xc9
 
 extern const DWORD APPMSG_UPDATEGAME;			// message type for game update
 extern const DWORD APPMSG_GAMECHAT;				// message type for in game chat
+extern const DWORD APPMSG_SYNCHGAME;			// message type for game synch
 extern const DWORD MAX_STRLEN;					// max size of a temporary string
 
 

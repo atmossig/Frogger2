@@ -305,7 +305,7 @@ void SlurpCamPosition(long cam)
 
 	if( !lastActFrameCount )
 		lastActFrameCount = afc - 1;
-
+	
 	while( lastActFrameCount < afc )
 	{
 		if (!initialCamera)

@@ -567,6 +567,11 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
 
+#ifdef PC_VERSION
+	actFrameCount = 0;
+	gameSpeed = 1;
+#endif 
+
 	// prepare screen for fade in
 	fadeOut		= 255;
 	fadeStep	= 8;

@@ -472,10 +472,27 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
 
-			newTickCount = GetTickCount()-actTickCountModifier;
-			gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
-			actTickCount = newTickCount;
-			actFrameCount = (actTickCount/(1000.0/60.0));
+			if ((frameCount == 1) && (gameState.mode == INGAME_MODE))
+			{
+				if( gameState.multi == MULTIREMOTE )
+				{
+					if (DPInfo.bIsHost)
+						InitialPlayerSynch();
+					else
+						InitialPlayerSynch();
+				}
+
+				actTickCountModifier = GetTickCount()-1;
+				gameSpeed = 1;
+				actTickCount = actFrameCount = 1;
+			}
+			else
+			{
+				newTickCount = GetTickCount()-actTickCountModifier;
+				gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
+				actTickCount = newTickCount;
+				actFrameCount = (actTickCount/(1000.0/60.0));
+			}
 			
 
 		}
