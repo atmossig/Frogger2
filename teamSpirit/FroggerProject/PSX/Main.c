@@ -590,7 +590,6 @@ int main ( )
 			psiActorCount=0;
 			fmaActorCount=0;
 
-
 			worldPolyCount = 0;
 
 			//restore the frog's depthshifts
@@ -612,38 +611,14 @@ int main ( )
 			timerDisplay();
 #endif
 
-//		TIMER_START(TIMER_TOTAL);
-
-			//for timing optimised functions
-			//remember to stop really timing GameLoop
-/*			TIMER_START(TIMER_GAMELOOP);
-			{
-				int i;
-// 				int res1, res2, res3, res4;
-// 				SVECTOR sv1 = {10,10,10};
-// 				SVECTOR sv2 = {23456,23456,23456};
-// 				SVECTOR sv3 = {-10,-10,-10};
-// 				SVECTOR sv4 = {-12345,-12345,-12345};
-TIMER_START(TIMER_GAMELOOP);
-				for(i=0; i<1000; i++)
-				{
-// 					res1 = Magnitude2DF(&v1);
-// 					res2 = Magnitude2DF(&v2);
-// 					res3 = Magnitude2DF(&v3);
-// 					res4 = Magnitude2DF(&v4);
-				}
-			}
-TIMER_STOP(TIMER_GAMELOOP);
-*/
 			TIMER_START0(TIMER_GAMELOOP);
 //			oldStackPointer = SetSp(0x1f800400);
-
 			if ( !objViewer )
 				GameLoop();
 			else
 				RunObjectViewer();
-			// ENDIF
-
+//			SetSp(oldStackPointer);
+			TIMER_STOP0(TIMER_GAMELOOP);
 
 			if ( currPlatform[0] )
 			{
@@ -655,12 +630,10 @@ TIMER_STOP(TIMER_GAMELOOP);
 			}
 			// ENDIF
 
-//			SetSp(oldStackPointer);
-			TIMER_STOP0(TIMER_GAMELOOP);
 			
-			TIMER_START0(TIMER_UPDATE_WATER);
+//			TIMER_START0(TIMER_UPDATE_WATER);
 //			UpdateWater();
-			TIMER_STOP0(TIMER_UPDATE_WATER);
+//			TIMER_STOP0(TIMER_UPDATE_WATER);
 
 	//		if(spriteList.numEntries)
 	//			AnimateSprites();
@@ -698,6 +671,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 				DisplayOnScreenInfo();
 			// ENDIF
 #endif
+
 			/*if ( ++animFrame == 8 )
 				animFrame = 0;*/
 

@@ -8,7 +8,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#define TIMER_SET 1
+#define TIMER_SET 0
 
 //*** TIMER SET 0 - GAME LOOP ***/
 #if TIMER_SET==0
@@ -66,12 +66,10 @@
 enum {
 	TIMER_TOTAL,
 	TIMER_GAMELOOP,
-	TIMER_UPDATE_WATER,
 	TIMER_DRAW_WORLD,
 	TIMER_DRAW_SPECFX,
 	TIMER_PRINT_SPRITES,
 	TIMER_DRAW_SCENICS,
-	TIMER_DRAW_WATER,
 	TIMER_ACTOR_DRAW,
 	TIMER_PRINT_OVERS,
 	TIMER_PROCTEX,
@@ -84,12 +82,10 @@ enum {
 
 #define TIMER_NAMES	   	"TOTAL", \
 						"GAMELOOP", \
-						"UPDATE_WATER", \
 						"DRAW_WORLD", \
 						"DRAW_SPECFX", \
 						"PRINT_SPRITES", \
 						"DRAW_SCENICS", \
-						"DRAW_WATER", \
 						"ACTOR_DRAW", \
 						"PRINT_OVERS", \
 						"PROCTEX", \

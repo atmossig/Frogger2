@@ -1,9 +1,5 @@
-For E3
-	fixed music (?)
-	disabled timers
 
 Optimisation
-  - get our own version of transformvertexlistA with depth>>=2
   - (small) nest ifs in cutsomdraw2
   - Remove FMul/FDiv where poss
   - Use DistBetweenPointsSquared where poss
