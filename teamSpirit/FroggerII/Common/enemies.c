@@ -159,17 +159,21 @@ void UpdateEnemies()
 		{
 			if (NUM_FROGS==1)
 			{
-				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[0]->action.dead && !frog[0]->action.safe &&
-					(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
+				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
 				{
-					NMEDamageFrog(0,cur);
+					if (!frog[0]->action.dead && !frog[0]->action.safe &&
+						(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
+					{
+						NMEDamageFrog(0,cur);
+					}
 				}
-				else if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
+				else 
+					if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
 						(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 						!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
-				{
-					NMEDamageFrog(0,cur);
-				}
+					{
+						NMEDamageFrog(0,cur);
+					}
 			}
 			else
 			{
