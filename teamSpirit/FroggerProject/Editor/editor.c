@@ -1050,8 +1050,6 @@ void DrawEditor(void)
 			}
 		}
 
-	DrawMouse();
-
 	DrawStatusInfo();
 
 	if (selectRect.valid)
@@ -1064,7 +1062,9 @@ void DrawEditor(void)
 	}
 
 	womble+=0.2f;
-	//if (!winMode)
+
+//	if (!winMode)
+		DrawMouse();
 }
 
 
@@ -1343,10 +1343,7 @@ void EditorUpdateCamera()
 	camVect.vy = (fixed)(up.vy * 4096);
 	camVect.vz = (fixed)(up.vz * 4096);
 
-	guLookAtF(vMatrix.matrix,
-		currCamTarget.vx,currCamTarget.vy,currCamTarget.vz,
-		currCamSource.vx,currCamSource.vy,currCamSource.vz,
-		camVect.vx,camVect.vy,camVect.vz);	
+	CalcViewMatrix();
 }
 
 
