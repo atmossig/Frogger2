@@ -671,7 +671,7 @@ int main ( )
 
 	
 #if GOLDCD == NO
-			//if ( padData.digital[1] & PAD_L1 )
+			if ( padData.digital[1] & PAD_L1 )
 				DisplayOnScreenInfo();
 			// ENDIF
 #endif
