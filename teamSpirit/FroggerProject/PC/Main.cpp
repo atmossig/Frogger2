@@ -577,7 +577,10 @@ long DrawLoop(void)
 {
 	POINT t;
 	
-	
+	// Begin software overlay drawing - rather than use ssbeginscene in every call to drawpoly :)
+	if( !rHardware )
+		ssBeginScene(softScreen, 1280);
+
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
 	StartTimer (2,"DrawActorList (old)");
@@ -709,10 +712,6 @@ long DrawLoop(void)
 		BlankAllFrames();
 	}
 
-	// Begin software overlay drawing - rather than use ssbeginscene in every call to drawpoly :)
-	if( !rHardware )
-		ssBeginScene(softScreen, 1280);
-
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
 
@@ -721,10 +720,6 @@ long DrawLoop(void)
 
 	if (editorOk)
 		DrawEditor();
-
-	// End software overlay draw
-	if( !rHardware )
-		ssEndScene();
 
 	if( chatFlags && gameState.mode == INGAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
@@ -780,6 +775,9 @@ long DrawLoop(void)
 		grabToTexture = 2;
 	}
 	
+	if( !rHardware )
+		ssEndScene( );
+
 	GetCursorPos(&t);
 	camZ = t.x*8;
 	camY = t.y*8;
