@@ -16,7 +16,7 @@ extern "C"
 LPDIRECTDRAW			pDirectDraw;		// Our Direct Draw Object
 LPDIRECTDRAW4			pDirectDraw4;		// A modern view of our direct draw object
 LPDIRECTDRAWCLIPPER		pClipper;
-unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale, rFlipOK = 0;
+unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale, rFlipOK = 1;
 HWND					rWin;
 
 LPDIRECTDRAWSURFACE	surface[NUM_SRF] = {NULL,NULL,NULL};
