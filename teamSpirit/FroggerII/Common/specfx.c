@@ -1715,12 +1715,12 @@ void ProcessAttachedEffects( void *entity, int type )
 		// Restart effect timer
 		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) )
 			r = 57;
-		else if( (int)act->value1 )
+		else if( act->value1 > 0.0001 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
-				r = 60/(Random((int)act->value1)+1);
+				r = 60000/(Random( (int)(max((act->value1*1000),1000)) ));
 			else
-				r = 60/act->value1;
+				r = 60000/(act->value1*1000);
 		}
 		else r = 60;
 
