@@ -223,12 +223,16 @@ void GameLoop(void)
 #ifdef PC_DEMO
 			gameState.mode = INGAME_MODE;
 #else
-//			StartVideoPlayback(FMV_ATARI_LOGO);
+//			StartVideoPlayback(FMV_ATARI_LOGO, 1);
 			if(quitAllVideo == 0)
 			{
-				StartVideoPlayback(FMV_BLITZ_LOGO);
+				// *ASL* 12/08/2000 - Force allow quit on video playback
+				StartVideoPlayback(FMV_BLITZ_LOGO, 1);
 				if(quitAllVideo == 0)
-					StartVideoPlayback(FMV_INTRO);
+				{
+					// *ASL* 12/08/2000 - Force allow quit on video playback
+					StartVideoPlayback(FMV_INTRO, 1);
+				}
 			}
 			gameState.mode = FRONTEND_MODE;
 #endif
@@ -1924,7 +1928,8 @@ void RunLevelComplete()
 
 					if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
 					{
-						StartVideoPlayback(FMV_VICTORY);
+						// *ASL* 12/08/2000 - Force allow quit on video playback
+						StartVideoPlayback(FMV_VICTORY, 1);
 						gameState.storySequenceLevel = 0;
 						player[0].worldNum = WORLDID_FRONTEND;
 						player[0].levelNum = LEVELID_FRONTEND1;
