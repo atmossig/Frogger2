@@ -62,7 +62,9 @@
 extern "C"
 {
 	psFont *font = 0;
+	psFont *fontSmall = 0;
 	MDX_FONT *pcFont;
+	MDX_FONT *pcFontSmall;
 }
 
 extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
@@ -160,6 +162,7 @@ long DrawLoop(void)
 	ActorListDraw();
 	EndTimer(1);
 
+	/*MC
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
@@ -172,7 +175,7 @@ long DrawLoop(void)
 
 	// FX and shadows
 	DrawSpecialFX();
-
+*/
 /*	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
 	// Light halos
@@ -181,6 +184,8 @@ long DrawLoop(void)
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
 */
+
+	/*MC
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 
@@ -189,17 +194,23 @@ long DrawLoop(void)
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);//D3DFILTER_LINEAR);
 	PrintSpriteOverlays(1);	
 
-/*	if( text3DList.numEntries )
-	{
-		Calculate3DText( );
-		Print3DText( );
-	}
-*/
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-
+*/
 
 	DrawAllFrames();
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+
+	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
+	PrintSpriteOverlays(1);	
 
 	if (editorOk)
 		DrawEditor();
@@ -329,7 +340,10 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	CommonInit();
 
 	pcFont = InitFont("FontA",baseDirectory);
+	pcFontSmall = InitFont("FontB",baseDirectory);
+
 	font = (psFont *)pcFont;
+	fontSmall = (psFont *)pcFontSmall;
 
 	InitTiming(60.0);
 

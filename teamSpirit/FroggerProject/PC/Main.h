@@ -56,7 +56,8 @@ extern char	newDesiredFrameRate;
 extern unsigned long currentFrameTime;
 
 extern psFont* font;	// todo: put this somewhere sensible for heaven's sake
-
+extern psFont *fontSmall;
+	
 extern char lButton, rButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
