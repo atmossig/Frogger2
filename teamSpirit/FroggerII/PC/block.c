@@ -299,8 +299,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (!USE_MENUS)
 	{
 		FreeAllLists();
+		StartGameIntro();
+
+/*		FreeAllLists();
 		InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
-	}
+*/	}
 	else
 	{
 		gameState.mode = MENU_MODE;
