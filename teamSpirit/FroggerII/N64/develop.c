@@ -138,7 +138,7 @@ void RunDevelopmentMenu()
 					return;
 				case 1:  // andysplay pen
 					FreeAllLists();
-					frontEndState.mode = SNDVIEW_MODE;
+//					frontEndState.mode = SNDVIEW_MODE;
 					FreeBackdrop(myBackdrop);
 					return;
 				case 2:  // record keying
@@ -155,7 +155,7 @@ void RunDevelopmentMenu()
 					return;
 				case 4:  // test area
 					FreeAllLists();
-					frontEndState.mode = DEVELOPMENT_MODE;
+//					frontEndState.mode = DEVELOPMENT_MODE;
 					FreeBackdrop(myBackdrop);
 					return;
 			}
