@@ -4,12 +4,12 @@
 #include <stdio.h>
 #include "memload.h"
 #include "eventfuncs.h"
-#include "codes.h"
+#include "script.h"
 
 /*	-------------------------------------------------------------------------------- */
 
 #define MEMLOAD_ENTITY_VERSION 11
-#define MEMLOAD_EVENT_VERSION 1
+#define MEMLOAD_SCRIPT_VERSION 2
 
 int MemLoadTrigger(UBYTE** p, long size);
 
@@ -202,245 +202,13 @@ int MemLoadEntities(const void* data, long size)
 int MemLoadEvents(const void* data, long size)
 {
 	int ver, s;
-	UBYTE *pp, *p = (UBYTE*)data;
+	UBYTE *p = (UBYTE*)data;
 
-	ver = MEMGETBYTE(&p);
-
-	if (ver != MEMLOAD_EVENT_VERSION) {
-		dprintf"ERROR: Attempting to load incorrect version (%03d) of event file (should be %03d)\n",
-			ver, MEMLOAD_EVENT_VERSION));
+	if (*p != MEMLOAD_SCRIPT_VERSION) {
+		dprintf"ERROR: Attempting to load incorrect version (%03d) of script (should be %03d)\n",
+			ver, MEMLOAD_SCRIPT_VERSION));
 		return 0;
 	}
 
-	size -= 1;
-
-	while (size)
-	{
-		s = MEMGETINT(&p);
-		pp = p;
-		dprintf"Adding trigger, %d bytes (%08x)\n", s, pp));
-		if (!MemLoadTrigger(&pp, s))
-		{
-			dprintf"Failed to create trigger\n"));
-		} // return 0;
-		p += s; size -= (s + 4);
-	}
-
-	return 1;
-}
-
-int DebugTrigger(TRIGGER *trigger)
-{
-	return 1;
-}
-
-void DebugEvent(EVENT *event)
-{
-	char *str = (char*)event->data[0];
-	sprintf(statusMessage, "Debug event: %s", str);
-}
-
-GAMETILE *GetTileFromNumber(int number)
-{
-	GAMETILE *tile;
-	for (tile = firstTile; number; number--, tile = tile->next);
-	return tile;
-}
-
-ACTOR2 *GetUniqueActor2(int UID)
-{
-	ENEMY *e;
-	PLATFORM *p;
-
-	e = GetEnemyFromUID(UID);
-	if (e)
-		return e->nmeActor;
-	
-	p = GetPlatformFromUID(UID);
-	if (p)
-		return p->pltActor;
-
-	return NULL;
-}
-
-EVENT* MemLoadEvent(UBYTE** p, int type)
-{
-	EVENT* event = NULL;
-	ACTOR2 *actor;
-	VECTOR *v;
-	float f;
-	void **params;
-
-	switch (type)
-	{
-	case EV_DEBUG: // string
-		params = AllocArgs(1);
-		params[0] = MemLoadString(p);
-		event =	MakeEvent(DebugEvent, 1, params);
-		break;
-/*
-	case EV_CHANGEACTORSCALE: // ID, float
-		params = AllocArgs(2);
-		if (!(actor = GetUniqueActor2(MEMGETINT(p)))) return 0;
-		params[0] = (void*)actor->actor;
-		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
-		v->v[X] = v->v[Y] = v->v[Z] = MEMGETFLOAT(p);
-		params[1] = (void*)v;
-		event =	MakeEvent(ChangeActorScale, 2, params);
-		break;
-*/
-	case EV_TOGGLEPLATFORMMOVE:
-		params = AllocArgs(1);
-		params[0] = (void*)GetPlatformFromUID(MEMGETINT(p));
-		event = MakeEvent(TogglePlatformMove, 1, params);
-		break;
-
-	case EV_TOGGLEENEMYMOVE:
-		params = AllocArgs(1);
-		params[0] = (void*)GetEnemyFromUID(MEMGETINT(p));
-		event = MakeEvent(ToggleEnemyMove, 1, params);
-		break;
-
-	case EV_TOGGLETILELINK:
-		params = AllocArgs(1);
-		params[0] = (void*)GetTileFromNumber(MEMGETINT(p));
-		event = MakeEvent(ToggleTileLink, 1, params);
-		break;
-
-	case EV_ANIMATEACTOR:
-		params = AllocArgs(4);
-		if (!(actor = GetUniqueActor2(MEMGETINT(p)))) return 0;
-		params[0] = (void*)actor->actor;
-		
-		params[1] = JallocAlloc(sizeof(int), NO, "");
-		params[2] = JallocAlloc(sizeof(int), NO, "");
-		params[3] = JallocAlloc(sizeof(float), NO, "");
-
-		*(int*)params[1] = MEMGETINT(p);
-		*(int*)params[2] = MEMGETINT(p);
-		*(float*)params[3] = MEMGETFLOAT(p);
-
-		event = MakeEvent(EvAnimateActor, 4, params);
-		break;
-	}
-
-	return event;
-}
-
-int MemLoadTrigger(UBYTE** p, long size)
-{
-	UBYTE type, psize;
-	UBYTE* buf;
-	TRIGGER* trigger;
-	EVENT* event;
-	int events;
-	VECTOR *v;
-
-	ENEMY *enemy;
-	PLATFORM *platform;
-	ACTOR2 *actor;
-
-	void **params;
-
-	type = MEMGETBYTE(p);
-	psize = MEMGETINT(p);
-
-	switch (type)
-	{
-	case TR_ENEMYONTILE:
-		params = AllocArgs(2);
-		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
-
-		params[0] = (void*)enemy;
-		params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
-		trigger = MakeTrigger(EnemyOnTile, 2, params);
-		break;
-
-	case TR_FROGONTILE:
-		params = AllocArgs(2);
-		params[0] = (void*)JallocAlloc(sizeof(int), NO, "int");	*(int*)params[0] = MEMGETINT(p);
-		params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
-		trigger = MakeTrigger(FrogOnTile, 2, params);
-		break;
-
-	case TR_FROGONPLATFORM:
-		params = AllocArgs(2);
-		params[0] = (void*)frog[MEMGETINT(p)];
-		if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
-		params[1] = (void*)platform;
-		trigger = MakeTrigger(FrogOnPlatform, 2, params);
-		break;
-
-	case TR_PLATNEARPOINT:
-		params = AllocArgs(3);
-		if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
-		params[0] = platform->pltActor->actor;
-		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
-		v->v[X] = MEMGETFLOAT(p);
-		v->v[Y] = MEMGETFLOAT(p);
-		v->v[Z] = MEMGETFLOAT(p);
-		params[1] = (void*)v;
-		params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
-		trigger = MakeTrigger(ActorWithinRadius, 3, params);
-		break;
-
-	case TR_ENEMYNEARPOINT:
-		params = AllocArgs(3);
-		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
-		params[0] = enemy->nmeActor->actor;
-		v = (VECTOR*)JallocAlloc(sizeof(VECTOR), NO, "vect");
-		v->v[X] = MEMGETFLOAT(p);
-		v->v[Y] = MEMGETFLOAT(p);
-		v->v[Z] = MEMGETFLOAT(p);
-		params[1] = (void*)v;
-		params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
-		trigger = MakeTrigger(ActorWithinRadius, 3, params);
-		break;
-
-	case TR_ENEMYATFLAG:
-		params = AllocArgs(2);
-		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
-		params[0] = enemy->path;
-		params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
-		trigger = MakeTrigger(PathAtFlag, 2, params);
-		break;
-
-	case TR_PLATATFLAG:
-		params = AllocArgs(2);
-		if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
-		params[0] = enemy->path;
-		params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
-		trigger = MakeTrigger(PathAtFlag, 2, params);
-		break;
-
-	default:
-		dprintf"Unrecognised trigger type %02x, skipping\n", type));
-		return 0;
-	}
-
-	if (!trigger) return 0;
-
-	events = MEMGETBYTE(p);
-	dprintf"Loading %d events\n", events));
-
-	while (events--)
-	{
-		type = MEMGETBYTE(p);
-		psize = MEMGETINT(p);
-		buf = *p;
-
-		dprintf"Adding event, %d bytes, type %d (%08x)\n", psize, type, buf));
-
-		event = MemLoadEvent(&buf, type);
-
-		if (!event)
-		{
-			dprintf"Failed loading event\n"));
-		}
-
-		(*p) += psize;
-		AttachEvent(trigger, event, TRIGGER_RISING, 0);
-	}
-
-	return 1;
+	return (Interpret(p + 1));
 }
