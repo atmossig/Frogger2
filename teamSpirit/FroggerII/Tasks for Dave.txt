@@ -1,0 +1,67 @@
+TASK----------- Camera - constrain to box
+COMPLETION BY--	Jan 28th
+PRIORITY------- High
+RESPONSIBILTY-- Dave
+NOTES---------- 
+
+BUG------------ Can't collect baby on a platform in Space 1
+COMPLETION BY-- Jan 28th
+INSTANCE-------	Space1
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
+FIXED NOTES----
+
+BUG------------ Cant select polys for placing paths etc in the editor unless the camera is a specific distance from the poly in question
+COMPLETION BY-- Jan 28th
+INSTANCE-------	Any time you want to pick a poly in the editor
+SENT BY-------- Bruce
+RESPONSIBILTY-- Dave?
+FIXED NOTES----
+
+BUG------------ As below, but also with pushing off barred tiles from platforms & you 
+		can't use ESC to quit
+COMPLETION BY-- Jan 28th
+INSTANCE-------	Ancients 1 in croc river & other places
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
+FIXED NOTES----
+
+BUG------------ If you hit a teleporter when you die it still teleports you, except it 
+		thinks you're dead and won't let you move and won't kill you.
+COMPLETION BY-- Jan 28th
+INSTANCE-------	Space 1, by the vents
+SENT BY-------- Jim
+RESPONSIBILTY-- Dave
+FIXED NOTES---- 
+
+TASK----------- Implement coin / credit system
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Mostly there, needs uncommenting and testing
+
+TASK----------- Health flies and other bonuses
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Invent some bonuses first
+
+BUG------------ Push Blocks need to be Fixed so the squares they leave are barred etc.	
+COMPLETION BY-- Feb 15th
+INSTANCE-------	Whereever push blocks are
+SENT BY-------- Bruce
+RESPONSIBILTY-- Dave?
+FIXED NOTES----
+
+BUG------------ Conveyors & Ice are not very smooth - they look a bit jerky
+COMPLETION BY-- Feb 15th
+INSTANCE-------	
+SENT BY-------- David
+RESPONSIBILTY-- David
+FIXED NOTES----	don't snap to tile in CheckForFroggerLanding; account for overrun in 'jumptime'
+
+TASK----------- Story, including cutscenes, hub level and hub character
+COMPLETION BY-- Feb 28th
+PRIORITY------- Medium
+RESPONSIBILTY-- Dave
+NOTES---------- 

@@ -1,0 +1,45 @@
+
+TASK----------- Sound stuff, including sfx loading/mapping rewrite and doppler effects and CD track calculation
+COMPLETION BY-- Jan 28th
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+BUG------------ Ice tiles are being weird - the whole world disappears
+COMPLETION BY--	Jan 28th
+INSTANCE-------	Space boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES----
+
+BUG------------ Can run through line of moving enemies
+COMPLETION BY-- Jan 28th
+INSTANCE-------	Lab1
+SENT BY-------- Brucie Baby
+RESPONSIBILTY-- Jim
+FIXED NOTES----
+
+TASK----------- Hub character
+COMPLETION BY-- Feb 15th
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Network and Multiplayer testing, bug fix and completion
+COMPLETION BY-- Feb 15th
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim 
+NOTES---------- 
+
+TASK----------- Different shadow types, and scale and fade depending on height
+COMPLETION BY-- Feb 28th
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
+TASK----------- Environmental effects including fog (diffuse and fudged volumetric), rain and small miscellaneous critters
+COMPLETION BY--	Feb 28th
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- 
+
