@@ -11,6 +11,7 @@
 #include <ultra64.h>
 #include "incs.h"
 #include "gelf.h"
+#include <commctrl.h>
 
 extern "C"
 {
@@ -28,6 +29,7 @@ short mouseY = 20;
 void InitPCSpecifics()
 {
 	gelfInit();
+	InitCommonControls();
 }
 
 /*	--------------------------------------------------------------------------------

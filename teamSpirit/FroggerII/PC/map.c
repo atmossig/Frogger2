@@ -15,8 +15,8 @@
 #define F3DEX_GBI
 
 #include <ultra64.h>
-
 #include "incs.h"
+#include "memload.h"
 
 HINSTANCE mapHandle = NULL;
 HINSTANCE sceHandle = NULL;
@@ -592,6 +592,7 @@ extern void LoadLevelEntities(int worldID, int levelID)
 
 	size = GetFileSize(h, NULL);
 	buffer = JallocAlloc(size, NO, "entLoad");
+
 	ReadFile(h, buffer, size, &read, NULL);
 	CloseHandle(h);
 
@@ -602,5 +603,38 @@ extern void LoadLevelEntities(int worldID, int levelID)
 		dprintf"MemLoadEntities failed\n"));
 	}
 
-	JallocFree(&buffer);
+	JallocFree((UBYTE**)&buffer);
+}
+
+extern void LoadLevelEvents(int worldID, int levelID)
+{
+	char file[MAX_PATH];
+	HANDLE h;
+	long size, read;
+	void* buffer;
+
+	sprintf(file, "%s%sevent-%d-%d.dat", baseDirectory, ENTITY_BASE, worldID, levelID);
+
+	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (h == INVALID_HANDLE_VALUE)
+	{
+		dprintf"Couldn't load event file %s\n", file)); return;
+	}
+
+	size = GetFileSize(h, NULL);
+	buffer = JallocAlloc(size, NO, "entLoad");
+
+	ReadFile(h, buffer, size, &read, NULL);
+	CloseHandle(h);
+
+	dprintf"LoadLevelEvents: Loaded %d of %d bytes\n", (int)read, (int)size));
+
+	if (!MemLoadEvents(buffer, size))
+	{
+		dprintf"MemLoadEvents failed\n"));
+	}
+
+	JallocFree((UBYTE**)&buffer);
 }

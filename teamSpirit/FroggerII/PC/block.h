@@ -42,6 +42,8 @@ extern char	UseAAMode;
 extern char	UseZMode;
 extern char	desiredFrameRate;
 extern char	newDesiredFrameRate;
+extern int runQuit;
+
 
 void debugPrintf(int num);
 void Crash(char *mess);
@@ -50,7 +52,5 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow);
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
 void DrawGraphics();
-
-
 
 #endif
