@@ -22,9 +22,9 @@ void CreateAndAddWaterObject ( SCENIC *water )
 
 	QuatToPSXMatrix ( &water->rot, &newItem->matrix );
 
-	newItem->position.vx = water->pos.vx;
-	newItem->position.vy = water->pos.vy;
-	newItem->position.vz = water->pos.vz;
+	newItem->matrix.t[0] =  water->pos.vx;
+	newItem->matrix.t[1] =  water->pos.vy;
+	newItem->matrix.t[2] =  water->pos.vz;
 
 //	newItem->flags = newFlags;
 	

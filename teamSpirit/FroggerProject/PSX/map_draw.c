@@ -778,7 +778,7 @@ void MapDraw_SetWaterMatrix ( FMA_MESH_HEADER* mesh, WATER* sc )
 	gte_SetTransMatrix(&GsWSMATRIX);
 
 	mesh->posx = -sc->matrix.t[0];
-	mesh->posy = sc->matrix.t[1];
+	mesh->posy = -sc->matrix.t[1];
 	mesh->posz = sc->matrix.t[2];
 
 	// Unnecessary maths for landscape segments, where pos is always zero.
