@@ -31,7 +31,9 @@
 #include "shell.h"
 
 int numTextureBanks = 0;
-int numUsedDummys = 0;
+int numUsedDummys		= 0;
+int numUsedDummys64 = 0;
+
 
 //char *palNames [ 5 ] = { "BFG01", "BFG02", "BFG03", "BFG04", "BFG05"};
 char *palNames [ 5 ] = { "GREENBABY.PAL", "YELLOWBABY.PAL", "BLUEBABY.PAL", "PINKBABY.PAL", "REDBABY.PAL"};
@@ -104,10 +106,10 @@ void LoadTextureBank ( int textureBank )
 			break;
 
 		case INGAMEGENERIC_TEX_BANK:
-				//textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
+				textureBanks [ numTextureBanks ] = textureLoadBank ( "TEXTURES\\NEW.SPT" );
 
-				//textureDownloadBank ( textureBanks [ numTextureBanks ]   );
-				//textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
+				textureDownloadBank ( textureBanks [ numTextureBanks ]   );
+				textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );
 				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 //				sprintf ( fileName, "TEXTURES\\GENERIC.SPT" );
 			break;
@@ -184,9 +186,9 @@ void LoadTextureAnimBank ( int textureBank )
 				sprintf ( titFileName, "TEXTURES\\SPACE.TIT" );
 			break;
 
-		case CITY_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
-			break;
+	//	case CITY_TEX_BANK:
+	//			sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
+	//		break;
 
 		case SUBTERRANEAN_TEX_BANK:
 				sprintf ( titFileName, "TEXTURES\\SUB.TIT" );
@@ -204,9 +206,9 @@ void LoadTextureAnimBank ( int textureBank )
 				sprintf ( titFileName, "TEXTURES\\RETRO.TIT" );
 			break;
 
-		case FRONTEND_TEX_BANK:
-				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
-			break;
+//		case FRONTEND_TEX_BANK:
+//				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
+//			break;
 
 		case TITLES_TEX_BANK:
 				sprintf ( titFileName, "TEXTURES\\TITLES.TIT" );
@@ -214,6 +216,10 @@ void LoadTextureAnimBank ( int textureBank )
 
 		case INGAMEGENERIC_TEX_BANK:
 				sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" );
+			break;
+
+		default:
+			return;
 			break;
 	}
 	// ENDSWITCH - textureBank
@@ -238,7 +244,18 @@ void LoadTextureAnimBank ( int textureBank )
 
 		textureAnim = CreateTextureAnimation( crc, numframes );
 
-		sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
+
+		if ( textureAnim->animation->dest->h == 64 )
+		{
+			sprintf ( dummyString, "64DUMMY%d", numUsedDummys64++ );
+		}
+		else
+		{
+			sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
+		}
+		// ENDIF
+
+
 		dummyCrc = utilStr2CRC ( dummyString );
 		dummyTexture = textureFindCRCInAllBanks ( dummyCrc );
 
@@ -261,8 +278,8 @@ void LoadTextureAnimBank ( int textureBank )
 		moveRect.h = textureAnim->animation->dest->h;
 
 		// check for 256 colour mode
-		if(textureAnim->animation->dest->tpage & (1 << 7))
-			moveRect.w *= 2;
+		//if(textureAnim->animation->dest->tpage & (1 << 7))
+			//moveRect.w *= 2;
 
 		// copy bit of vram
 /*		BEGINPRIM ( siMove, DR_MOVE );
@@ -272,8 +289,6 @@ void LoadTextureAnimBank ( int textureBank )
  		DrawSync(0);
 		MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
  		DrawSync(0);
-
-		//froggerShowVRAM(1);
 
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
@@ -315,6 +330,7 @@ void FreeAllTextureBanks ( void )
 	// ENDIF - 	for ( c = o; c < MAX_TEXTURE_BANKS; c++ )
 	numTextureBanks = 0;
 	numUsedDummys		= 0;
+	numUsedDummys64	= 0;
 
 	textureDestroy();
 }
@@ -525,7 +541,7 @@ TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 
 	if ( !textureAnim->animation )
 	{
-		utilPrintf ( "Could Not Malloc Animation.\n" );
+		utilPrintf ( "Could Not Malloc Animation. %d\n",  textureAnim->numFrames );
 		FREE ( textureAnim );
 		return NULL;
 	}

@@ -34,23 +34,19 @@ void DrawSpecialFX ( void )
 {
 	int i;
 
-	if ( ( gameState.mode == INGAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
-		 ( gameState.mode == CAMEO_MODE ) )
+	ProcessShadows();
+	
+	if( sfxList.count )
 	{
-		ProcessShadows();
-		
-		if( sfxList.count )
-		{
-			SPECFX *fx;
-			for( fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next )
-				if( fx->Draw )
-					fx->Draw( fx );
-		}
-
-		for( i=0; i<NUM_FROGS; i++ )
-			if( tongue[i].flags & TONGUE_BEINGUSED )
-				DrawTongue( i );
+		SPECFX *fx;
+		for( fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next )
+			if( fx->Draw )
+				fx->Draw( fx );
 	}
+
+	for( i=0; i<NUM_FROGS; i++ )
+		if( tongue[i].flags & TONGUE_BEINGUSED )
+			DrawTongue( i );
 }
 
 

@@ -562,7 +562,8 @@ void Actor2ClipCheck(ACTOR2* act)
 	int distTop, distRight, distBott, distLeft;
 	int radius, FOV;
 
-	int CLIP_FAR = fog.max;//worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
+//	int CLIP_FAR = fog.max;//worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
+	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
 
 	SVECTOR pos = act->actor->position;
 	pos.vx = -pos.vx;

@@ -398,8 +398,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		//RAMsize = (0x1fff00 - RAMstart)-8192;
-		RAMsize = 6291264;
+		RAMsize = (0x1fff00 - RAMstart)-8192;
+		//RAMsize = 6291264;
 #endif
 
 		memset((void *)0x1f8000,0,0x8000);
@@ -431,7 +431,7 @@ int main ( )
 		MemCardInit(1);
 		MemCardStart();
 		padInitialise(1); // 0 = No multi tap support
-		videoInit ( 1024, 2500, VIDEO_INIT_AND_MALLOC );
+		videoInit ( 1024, 2400, VIDEO_INIT_AND_MALLOC );
 
 		saveicon = fileLoad("saveicon.tim", NULL);
 		if(!saveicon)
@@ -448,7 +448,7 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		textureInitialise ( 500, 30);
+		textureInitialise ( 490, 30);
 
 //		sfxInitialise();
 //		sfxStartSound();
@@ -936,8 +936,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-	//RAMsize = (0x1fff00 - RAMstart)-8192;
-	RAMsize = 6291264;
+	RAMsize = (0x1fff00 - RAMstart)-8192;
+	//RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
@@ -961,8 +961,8 @@ void MainReset ( void )
 		MemCardInit(1);
 		MemCardStart();
 //		padInitialise(1); // 0 = No multi tap support
-		videoInit ( 1024, 2500, 0 );
-		textureInitialise ( 500, 30);
+		videoInit ( 1024, 2400, 0 );
+		textureInitialise ( 490, 30);
 }
 
 

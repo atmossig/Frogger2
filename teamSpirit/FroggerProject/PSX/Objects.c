@@ -133,7 +133,7 @@ void LoadObjectBank ( int objectBank )
 
 		case LABORATORYMULTI1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI.PIL" );
+				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI" );
 			break;
 
 		case LABORATORYMULTI2_OBJ_BANK:

@@ -391,7 +391,7 @@ void PrintSpriteOverlays ( char num )
 			}
 			else
 			{
-				DrawSpriteOverlayRotating ( cur );
+				//DrawSpriteOverlayRotating ( cur );
 			}
 			// ENDELSEIF
 		}

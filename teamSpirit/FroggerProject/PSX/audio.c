@@ -24,16 +24,15 @@
 
 
 
-char *musicNames[] = { "CD2.XA",//
-					   "CD3.XA",//
-					   "CD4.XA",//
-					   "CD5.XA",//
-					   "CD6.XA",//
-					   "CD7.XA",//
-					   "CD8.XA",//
-					   "CD9.XA",//
-					   "CD10.XA",//
-					   "CD11.XA"};//
+char *musicNames[] = { "CDA.XA",//
+											 "CDB.XA",//
+					   "CDA.XA",//
+					   "CDA.XA",//
+					   "CDA.XA",//
+					   "CDA.XA",//
+					   "CDA.XA",//
+					   "CDA.XA",//
+					   "CDA.XA"};//
 
 
 /*
@@ -809,7 +808,7 @@ void bb_InitXA(void)
 #if GOLDCD==1
 	int i=0;
 	
-	for(i=0; i<MUSIC_NUM_TRACKS; i++)
+	for(i=0; i<2; i++)
 		xaFileData[i] = XAgetFileInfo(musicNames[i]);
 #endif
 }
@@ -841,11 +840,44 @@ void PrepareSong(short worldID)
 
 
 #if GOLDCD==1
-	XAstart(1);
-	utilPrintf ( "World ID : %d \n", worldID );
-	XAplayChannel(xaFileData[worldID], 0,1,100);
-	MAIN_PrintXAData ( xaFileData [ worldID ] );
+
+//	XAstart(1);
+//	utilPrintf ( "World ID : %d \n", worldID );
+//	XAplayChannel(xaFileData[0], worldID, 1,100);
+//	MAIN_PrintXAData ( xaFileData [ 0 ] );
+
+	{
+		//default use first xa file
+		int xaNum = 0;
+		int chan = worldID;
+
+		//do we need to use the second xa file?
+		if(chan > 8)
+		{
+				xaNum = 0;
+				chan = 7;
+		}
+
+		if ( chan == 5 )
+		{
+			xaNum = 0;
+			chan = 4;
+		}
+
+		if ( chan == 8 )
+		{
+			xaNum = 0;
+			chan = 1;
+		}
+
+		XAstart(1);
+		utilPrintf ( "World ID : %d \n", worldID );
+		XAplayChannel ( xaFileData[xaNum], chan, 1, 100 );
+		MAIN_PrintXAData ( xaFileData [ 0 ] );
+	}
+
 #endif
+
 }
 
 
