@@ -423,5 +423,5 @@ void TeleportFrog( EVENT *event )
 	GAMETILE *tile = (GAMETILE*)event->data[1];
 
 	TeleportActorToTile(frog[f], tile, f);
-	CreateTeleportEffect(&frog[f]->actor->pos, &upVec, 255,255,255);
+//	CreateTeleportEffect(&frog[f]->actor->pos, &upVec, 255,255,255);
 }

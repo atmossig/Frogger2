@@ -641,6 +641,8 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 //	player[pl].frogState = 0;
 	player[pl].frogState &= ~FROGSTATUS_ISTELEPORTING;
 	player[pl].canJump = 1;
+
+	Orientate( &act->actor->qRot, &tile->dirVector[frogFacing[pl]], &tile->normal );
 }
 
 

@@ -767,7 +767,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			player[fNum].canJump = 0;
 			FrogLeavePlatform(fNum);	// bah
 
-			CreateTeleportEffect( &frog[fNum]->actor->pos, &upVec, 255, 255, 255 );
+			CreateTeleportEffect( &frog[fNum]->actor->pos, &currTile[fNum]->normal, 255, 255, 255 );
 
 			param = AllocArgs(1);
 			param[0] = (void *)time;
@@ -1098,7 +1098,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			player[fNum].canJump = 0;
 			FrogLeavePlatform(fNum);	// bah
 
-			CreateTeleportEffect( &frog[fNum]->actor->pos, &upVec, 255, 255, 255 );
+			CreateTeleportEffect( &frog[fNum]->actor->pos, &currTile[fNum]->normal, 255, 255, 255 );
 
 			param = AllocArgs(1);
 			param[0] = (void *)time;
