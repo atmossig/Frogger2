@@ -217,7 +217,7 @@ void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, 
 		vT[i].sx = m.vx;
 		vT[i].sy = m.vy;
 		if( !m.vz ) zeroZ++;
-		else vT[i].sz = (m.vz+DIST+4)*0.00025;
+		else vT[i].sz = (m.vz+DIST-4)*0.00025;
 	}
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
@@ -321,7 +321,7 @@ void DrawFXDecal( SPECFX *fx )
 		vT[i].sy = m.vy;
 		vT[i].color = D3DRGBA(0.2,0.2,0.5,fx->a/255.0);
 		if( !m.vz ) zeroZ++;
-		else vT[i].sz = (m.vz+DIST+4)*0.00025;
+		else vT[i].sz = (m.vz+DIST-4)*0.00025;
 	}
 
 	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
@@ -336,7 +336,7 @@ void DrawFXDecal( SPECFX *fx )
 		{
 			for( i=0; i<4; i++ )
 			{
-				vT[i].sx +=3;
+				vT[i].sx += 3;
 				vT[i].color = D3DRGBA(fx->r/255.0,fx->g/255.0,fx->b/255.0,fx->a/255.0);
 			}
 
