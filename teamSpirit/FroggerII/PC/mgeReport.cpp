@@ -95,7 +95,7 @@ char *rptGetString(unsigned long value, VALUESTRING *me)
 {
 	while (me->string)
 	{
-		if (me->value & value)
+		if (me->value == value)
 			return me->string;
 		me++;
 	}

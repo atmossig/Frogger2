@@ -15,6 +15,7 @@ extern "C"
 
 LPDIRECTDRAW			pDirectDraw;		// Our Direct Draw Object
 LPDIRECTDRAW4			pDirectDraw4;		// A modern view of our direct draw object
+LPDIRECTDRAW7			pDirectDraw7;
 LPDIRECTDRAWCLIPPER		pClipper;
 unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale, rFlipOK = 1;
 HWND					rWin;
@@ -44,6 +45,13 @@ unsigned long DDrawInitObject (GUID *guid)
 
 	// Get and interface to a DDraw4 object, NOTE: might change when we go to DX7
 	if ((res = pDirectDraw->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDirectDraw4)) != S_OK)
+	{
+		dp("Failed getting DirectDraw4 interface.\n");
+		ddShowError(res);
+		return 0;
+	}
+
+	if ((res = pDirectDraw->QueryInterface(IID_IDirectDraw7, (LPVOID *)&pDirectDraw7)) != S_OK)
 	{
 		dp("Failed getting DirectDraw4 interface.\n");
 		ddShowError(res);
