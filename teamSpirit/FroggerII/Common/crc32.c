@@ -10,6 +10,7 @@
 #include "crc32.h"
 
 #define POLYNOMIAL 0x04c11db7L
+#define CRC_MAGIC_NUMBER 'ÿ'
 
 static unsigned long CRCtable[256];
 
@@ -48,20 +49,36 @@ void InitCRCTable()
 	Parameters : existing CRC, data ptr, size of data in bytes
 	Returns : 
 	Info : 
+
+
+	Modified 08/07/99 by David Swift
+	To allow "Magic number" strings starting with 0xFF followed by a hex number
+	which is directly returned.
 */
 
 unsigned long UpdateCRC(char *ptr)
 {
 	register int i, j;
+	int code;
 	int size = strlen(ptr);
 	unsigned long CRCaccum = 0;
 
-	for (j=0; j<size; j++)
-		{
-		i = ((int)(CRCaccum>>24)^(*ptr++))&0xff;
-		CRCaccum = (CRCaccum<<8)^CRCtable[i];
-		}
-	return CRCaccum;
+	/* If the first byte is a "magic number" the string is already a CRC, encoded in the
+	   next (sizeof(int)) bytes */
+	if (*ptr == CRC_MAGIC_NUMBER)
+	{
+		sscanf(ptr+1, "%x", &code);
+		return code;
+	}
+	else
+	{
+		for (j=0; j<size; j++)
+			{
+			i = ((int)(CRCaccum>>24)^(*ptr++))&0xff;
+			CRCaccum = (CRCaccum<<8)^CRCtable[i];
+			}
+		return CRCaccum;
+	}
 }
 
 /*	--------------------------------------------------------------------------------

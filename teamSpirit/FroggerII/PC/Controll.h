@@ -21,6 +21,7 @@ extern "C"
 extern unsigned long	playerInputPause;
 extern unsigned long	playerInputPause2;
 
+extern BOOL keysEnabled;
 
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
 

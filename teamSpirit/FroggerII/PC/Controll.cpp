@@ -34,7 +34,7 @@ DIJOYSTATE joy;
 unsigned long	playerInputPause;
 unsigned long	playerInputPause2;
 
-
+BOOL keysEnabled = TRUE;
 long joyAvail = 1;
 /*	--------------------------------------------------------------------------------
 	Function	: InitInputDevices
@@ -265,9 +265,12 @@ void ProcessUserInput(HWND hWnd)
 	HRESULT hRes;
 
 	// read keyboard data
-	hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
-	if(FAILED(hRes))
-		return;
+	if (keysEnabled)
+	{
+		hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
+		if(FAILED(hRes))
+			return;
+	}
 	
 	if (joyAvail)
 	{
