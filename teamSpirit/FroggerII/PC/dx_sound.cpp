@@ -308,7 +308,7 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 	// prepare to create sounds buffer
 	ZeroMemory ( &dsbd, sizeof ( DSBUFFERDESC ) );
 	dsbd.dwSize			= sizeof(DSBUFFERDESC);
-	dsbd.dwFlags		= DSBCAPS_CTRLDEFAULT | DSBCAPS_STATIC;
+	dsbd.dwFlags		= DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC;
 	if ( sample->map->flags & FLAGS_3D_SAMPLE )
 	{
 		dsbd.dwFlags |= DSBCAPS_CTRL3D;

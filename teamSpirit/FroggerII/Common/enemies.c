@@ -37,7 +37,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur );
 void UpdateFlappyThing( ENEMY *cur );
 void UpdateFrogWatcher( ENEMY *cur );
 void UpdateRandomMoveNME( ENEMY *cur );
-
+void UpdateTileHomingNME( ENEMY *cur );
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -778,7 +778,7 @@ void UpdateHomingNME( ENEMY *cur )
 
 	SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 	MakeUnit( &moveVec );
-	chTile = FindNearestTile( cur->nmeActor->actor->pos );
+	chTile = FindJoinedTileByDirection( cur->inTile, &moveVec );
 
 	// Do check for close direction vector from tile. If none match closely, do not move.
 	for( i=0; i<4; i++ )
@@ -809,6 +809,84 @@ void UpdateHomingNME( ENEMY *cur )
 		}
 		if( distance < 35 || !bFlag )
 			cur->nmeActor->actor->pos = tVec;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateTileHomingNME
+	Purpose			: Home in on the frog using tiles
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: waitTime -> radius of activation; 
+*/
+void UpdateTileHomingNME( ENEMY *cur )
+{
+	VECTOR up, fwd;
+	PATH *path = cur->path;
+	ACTOR2 *act = cur->nmeActor;
+	float length;
+
+	if( path->numNodes < 3 )
+		return;
+
+	if( act->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
+	{
+		cur->isIdle = 0;
+		path->nodes[2].worldTile = NULL;
+		return;
+	}
+
+	if( !cur->isSnapping )
+	{
+		path->nodes[1].worldTile = NULL;
+		path->nodes[2].worldTile = path->nodes[0].worldTile;
+		cur->isSnapping = 1; // This is a completely random misuse of isSnapping. And I don't care.
+	}
+
+	// If enemy is on the next path node, set startnode worldtile and the next to zero
+	if( path->nodes[2].worldTile )
+	{
+		if( actFrameCount > path->endFrame )
+		{
+			path->nodes[1].worldTile = path->nodes[2].worldTile;
+			path->nodes[2].worldTile = NULL;
+		}
+		else if( actFrameCount > path->startFrame+(0.5*(path->endFrame-path->startFrame)) )
+		{
+			cur->inTile = path->nodes[2].worldTile;
+		}
+	}
+
+	// If we need a new destination tile, find it by the direction to the frog
+	if( !path->nodes[2].worldTile )
+	{
+		VECTOR frogVec;
+		SubVector( &frogVec, &currTile[0]->centre, &act->actor->pos ); 
+		path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
+
+		path->startFrame = actFrameCount;
+		path->endFrame = path->startFrame + (60*path->nodes[0].speed);
+	}
+
+	// Move towards next node - third condition is so fwd is not scaled to zero
+	if( path->nodes[1].worldTile && path->nodes[2].worldTile && (actFrameCount > path->startFrame) )
+	{
+		// Move towards frog
+		SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
+		length = (float)(actFrameCount - path->startFrame)/(float)(path->endFrame - path->startFrame);
+		ScaleVector(&fwd,length);
+		AddVector(&act->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
+
+		// Orientate to direction of travel
+		MakeUnit( &fwd );
+		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
+			Orientate(&act->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+
+		// Elevate above gametile
+		SetVector( &up, &cur->inTile->normal );
+		ScaleVector( &up, path->nodes[0].offset );
+		AddToVector( &act->actor->pos, &up );
 	}
 }
 
@@ -855,7 +933,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
 		}
-		else if( actFrameCount > path->startFrame+(0.5*(path->endFrame-path->startFrame)) )
+		else if( actFrameCount > path->startFrame+((1-cur->speed)*(path->endFrame-path->startFrame)) )
 		{
 			cur->inTile = path->nodes[2].worldTile;
 		}
@@ -1298,6 +1376,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 		newItem->Update = UpdateFlappyThing;
 	else if( newItem->flags & ENEMY_NEW_RANDOMMOVE )
 		newItem->Update = UpdateRandomMoveNME;
+	else if( newItem->flags & ENEMY_NEW_TILEHOMING )
+		newItem->Update = UpdateTileHomingNME;
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
 	{

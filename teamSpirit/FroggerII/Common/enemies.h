@@ -43,6 +43,7 @@
 #define ENEMY_NEW_BABYFROG				(1 << 25)	// Babies are everyones enemies
 #define ENEMY_NEW_RANDOMMOVE			(1 << 26)	// Go to a random adjacent tile
 #define ENEMY_NEW_SHADOW				(1 << 27)	// Has a shadow
+#define ENEMY_NEW_TILEHOMING			(1 << 28)	// Homes in using tiles
 
 
 typedef struct TAGENEMY
