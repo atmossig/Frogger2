@@ -272,7 +272,7 @@ void UpdatePlatforms()
 
 		// special fx associated with platform
 		if(cur->pltActor->effects)
-			ProcessAttachedEffects((void *)cur,1);
+			ProcessAttachedEffects((void *)cur,0);
 	}
 }
 
