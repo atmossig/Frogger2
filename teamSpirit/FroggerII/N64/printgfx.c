@@ -1119,17 +1119,17 @@ void PrintSprite(SPRITE *sprite)
 	Purpose			: Grabs primary frame buffer into a 2D array of 32x32 textures
 	Parameters		: 
 	Returns			: Pointer to the created array of textures
-	Info			:	8192 is the number of pixels for one row of 32x32 textures.
+	Info			:	10240 is the number of pixels for one row of 32x32 textures.
 						81920 is the number of pixels in the whole screen, including the unused
 						half a row at the bottom.
 */
-//#define DUMP_FILE 1
+//#define DUMP_FILE 1  // Uncomment this to write a bmp file of the texture array
 
 short *Screen2Texture( )
 {
 	u16 *screen = cfb_16_a;
 	unsigned short *grab;
-	int xTex = 0, yTex = 0, tStep = 0, x = 0, y = 81919, xt = 0;
+	int xTex = 0, yTex = 0, tStep = 0, x = 0, y = 81919;
 	
 	// Write standard bmp header for this image size
 	#ifdef DUMP_FILE
@@ -1141,23 +1141,23 @@ short *Screen2Texture( )
 	char *writeData;
 	#endif
 
-	StopDrawing( "Screen Grab" );
+	//StopDrawing( "TGrab" );
 	dontClearScreen = TRUE;
 
 	#ifdef DUMP_FILE
 	file = PCcreat( "d:\\FroggerDump.bmp", 0);
 	if(file == -1)
 	{
-		StartDrawing( "Screen Grab" );
+		StartDrawing( "TGrab" );
 		dprintf"FILEERROR:could not open file:\n"));
 		return;
 	}
 	PCwrite(file, header, sizeof(header));
 	#endif
 
-	grab = (short *)JallocAlloc( sizeof(short)*81920, YES, "Texture Array" );
+	grab = (unsigned short *)JallocAlloc(16384,NO,"TGrab"); //sizeof(short)*81920
 
-	// Because the screen comes halfway down a row of textures, fill up the rest with blanks
+	// Because the screen ends halfway down a row of textures, fill up the rest with blanks
 	for( ; y > 76480; y-- )
 		grab[y] = 0;
 
@@ -1165,14 +1165,9 @@ short *Screen2Texture( )
 	{
 		while( x < SCREEN_WD )
 		{
-			grab[xt+tStep+xTex+yTex] = screen[x+y];
-			x++;
-
-			if( ++xt >= 32 )
-			{
-				xTex += 1024;
-				xt = 0;
-			}
+			memcpy( &grab[tStep+xTex+yTex], &screen[x+y], 64 ); // 32 * sizeof(short)
+			x += 32;
+			xTex += 1024;
 		}
 
 		y -= SCREEN_WD;
@@ -1188,14 +1183,14 @@ short *Screen2Texture( )
 	}
 
 	#ifdef DUMP_FILE
-	writeData = (char *)JallocAlloc( sizeof(char)*3072,YES,"Image Line");
+	writeData = (char *)JallocAlloc(3072,NO,"Image Line"); //sizeof(char)*3072
 	for( y=0; y<81920; y+=1024 )
 	{
-		for( x=0,xt=0; x<1024; x++,xt+=3 )
+		for( x=0,xTex=0; x<1024; x++,xTex+=3 )
 		{
-			writeData[xt] = (char)((grab[x+y]>>1)<<3)&0xFF;
-			writeData[xt+1] = (char)((grab[x+y]>>6)<<3)&0xFF;
-			writeData[xt+2] = (char)((grab[x+y]>>11)<<3)&0xFF;
+			writeData[xTex] = (char)((grab[x+y]>>1)<<3)&0xFF;
+			writeData[xTex+1] = (char)((grab[x+y]>>6)<<3)&0xFF;
+			writeData[xTex+2] = (char)((grab[x+y]>>11)<<3)&0xFF;
 		}
 		PCwrite( file, writeData, 3072 );
 	}
@@ -1203,7 +1198,7 @@ short *Screen2Texture( )
 	#endif
 
 	dontClearScreen = FALSE;
-	StartDrawing( "Screen Grab" );
+	//StartDrawing( "TGrab" );
 
 	return grab;
 }
