@@ -1191,8 +1191,8 @@ int SetupKeyboardDialog(int player, HWND hParent)
 
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-	long i, j, code, item;
-	char itmTxt[64], usedKey;
+	long i, j, code, item, usedKey;
+	char itmTxt[64];
 	HWND list;
 	static DWORD keyIndex = 0;
 
@@ -1251,7 +1251,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 								break;
 
 							// Check if another player has a control mapped already
-							for( usedKey=0, j=0; j<56; j+=14 )
+							for( usedKey=-1, j=0; j<56; j+=14 )
 							{
 								if( j != keyIndex )
 								{
@@ -1259,14 +1259,20 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 									{
 										if( keymap[j+i].key == code )
 										{
-											usedKey = 1;
+											usedKey = j/14;
 											break;
 										}
 									}
 								}
 							}
-							if( usedKey )
+							if( usedKey != -1 )
+							{
+								char errorString[1024];
+
+								sprintf( errorString, GAMESTRING(STR_CONFIG_KEYUSED), usedKey+1 );
+								MessageBox( hDlg, errorString, GAMESTRING(STR_PCSETUP_CONTROLS), MB_ICONEXCLAMATION|MB_OK );
 								break;
+							}
 
 							for (i=0; i<NUM_CONTROLS; i++)
 								if (keymap[keyIndex+i].key == code)
