@@ -68,6 +68,7 @@ _codeSegmentEnd         alias   _code_objend
 		include "textoverlays.obj",code
 		include "backdrops.obj",code
 		include "printgfx.obj",code
+		include "3dtext.obj",code
 		include "sfx.obj",code
 		include "mbuffer.obj",code
 		include "audio.obj",code
