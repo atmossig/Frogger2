@@ -81,7 +81,7 @@ _codeSegmentEnd         alias   _code_objend
 		include "levelprogression.obj",code
 		include "event.obj",code
 		include "eventfuncs.obj",code
-		include "objview.obj",code
+		;include "objview.obj",code
 
 		include "develop.obj",code
 		include	"rdp_out0.obj",code
@@ -817,7 +817,7 @@ _texBank7SegmentRomEnd          alias   _texBank7_orgend
 
         section.16      texBank7.data,texBank7
 
-tBank7  incbin  "textures/retro.fla",texBank7.data,64
+tBank7  incbin  "textures/ancients.fla",texBank7.data,64
 
 
 ; [ TITLE ] >>>>>
