@@ -301,7 +301,11 @@ void KeyboardDump(HKEY hkey, bool write)
 		for (int i=0;i<56;i++)
 		{
 			*(p++) = keymap[i].player;
-			*(p++) = keymap[i].button;
+			
+			for (int b=0;b<16;b++)
+				if ((1<<b) == keymap[i].button) break;
+
+			*(p++) = b;
 			*(p++) = keymap[i].key;
 		}
 
@@ -321,7 +325,7 @@ void KeyboardDump(HKEY hkey, bool write)
 			for (int i=0;i<56;i++)
 			{
 				keymap[i].player = *(p++);
-				keymap[i].button = *(p++);
+				keymap[i].button = 1 << *(p++);
 				keymap[i].key = *(p++);
 			}
 		}
@@ -392,7 +396,7 @@ int SaveControllerSetup(void)
 				RegSetValueEx(hkey, name, NULL, REG_SZ, (unsigned char*)value, 8);
 			}
 
-			//KeyboardDump(hkey, 1);
+			KeyboardDump(hkey, 1);
 		}
 		RegCloseKey(hkey);
 	}
