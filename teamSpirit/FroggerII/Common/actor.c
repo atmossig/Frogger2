@@ -286,9 +286,6 @@ void FreeActorList()
 			// NEW
 			RemoveUniqueObject(cur->actor->objectController->object);
 			JallocFree((UBYTE **)&cur->actor->objectController);
-
-			if(cur->actor->objectController)
-				JallocFree((UBYTE **)&cur->actor->objectController);
 		}
 
 		if(cur->actor->LODObjectController)
