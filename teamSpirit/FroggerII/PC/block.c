@@ -698,7 +698,7 @@ void DrawGraphics()
 	currCamSource[screenNum] = zero;
 	currCamTarget[screenNum] = inVec;
 	
-	if( (gameState.mode == GAME_MODE || frontEndState.mode == HISCORE_MODE) && text3DList.numEntries )
+	if( gameState.mode == GAME_MODE && text3DList.numEntries )
 	{
 		Calculate3DText( );
 		Print3DText( );

@@ -183,18 +183,6 @@ void RunTitleScreen( )
 			return;		// DON'T try to do any menu stuff! Duh
 		}			
 
-		if( (button & CONT_B) && !(lastbutton & CONT_B) )
-		{
-//			MakeHiscoreText( );
-			/*
-			FreeAllLists();
-			frameCount = 0;
-			lastbutton = 0;
-			frontEndState.mode = HISCORE_MODE;
-			PlaySampleNot3D(2,192,128,128);
-			*/
-		}
-
 		if( (button & CONT_START) && !(lastbutton & CONT_START) )
 		{
 			StopDrawing( "Title Screen" );
@@ -594,13 +582,6 @@ void CreateOverlays()
 	
 	konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
 	atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
-}
-
-
-// REMOVE THIS WHEN I CAN GET ALL THE FILES
-void RunHiscoreScreen( )
-{
-
 }
 
 
@@ -2162,27 +2143,20 @@ void RunGameMode()
 		{
 			switch (currentSelection)
 			{
-				case 0:   // Single Player Mode
-					FreeAllLists();
-					frameCount		= 0;
-					lastbutton		= 0;
-					frontEndState.mode	= LEVELSELECT_MODE;
-					PlaySampleNot3D(2,,192,128,128);
-					return;
-				case 1:  // Multiplayer Mode
-					FreeAllLists();
-					frameCount		= 0;
-					lastbutton		= 0;
-					frontEndState.mode	= MULTIPLAYER_MODE;
-					PlaySampleNot3D(2,192,128,128);
-					return;
-				case 2:	 // Classic Frogger Menu Mode
-					FreeAllLists();
-					frameCount		= 0;
-					lastbutton		= 0;
-					gameState.mode	= OLDEFROGGER_MODE;
-					PlaySampleNot3D(2,192,128,128);
-					return;
+			case 0:   // Single Player Mode
+				FreeAllLists();
+				frameCount		= 0;
+				lastbutton		= 0;
+				frontEndState.mode	= LEVELSELECT_MODE;
+				PlaySampleNot3D(2,,192,128,128);
+				return;
+			case 1:  // Multiplayer Mode
+				FreeAllLists();
+				frameCount		= 0;
+				lastbutton		= 0;
+				frontEndState.mode	= MULTIPLAYER_MODE;
+				PlaySampleNot3D(2,192,128,128);
+				return;
 			}
 		}			
 	

@@ -38,10 +38,6 @@ void RunFrontEndStates( )
 	case LEVELSELECT_MODE:
 		RunLevelSelect();
 		break;
-	case HISCORE_MODE:
-		RunHiscoreScreen();
-		break;
-
 #ifndef PC_VERSION
 	case DEVELOPMENTMENU_MODE:
 		RunDevelopmentMenu();
@@ -105,17 +101,6 @@ void GameLoop(void)
 
 		RunFrontEndStates();
 		frameCount++;
-		break;
-	case OLDEFROGGER_MODE:
-		// olde original 2D Frogger mode
-		/*desiredFrameRate = newDesiredFrameRate = 1;
-		currFont = smallFont;
-		if(frameCount == 15)
-			StartDrawing("gameloop");
-
-		RunOldeFrogger();
-		frameCount++;*/
-		gameState.mode = FRONTEND_MODE;
 		break;
 	}
 
