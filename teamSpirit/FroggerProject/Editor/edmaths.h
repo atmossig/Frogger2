@@ -14,7 +14,7 @@
 #define MagnitudeSquared(vect) ((vect)->vx*(vect)->vx + (vect)->vy*(vect)->vy + (vect)->vz*(vect)->vz)
 #define EdMagnitude(vect) ((float)sqrt((vect)->vx*(vect)->vx + (vect)->vy*(vect)->vy + (vect)->vz*(vect)->vz))
 #define AddVector(res,v1,v2) {(res)->vx = (v1)->vx + (v2)->vx;(res)->vy = (v1)->vy + (v2)->vy;(res)->vz = (v1)->vz + (v2)->vz;}
-#define AddToVector(res,v1) {(res)->vx += (v1)->vx;(res)->vy += (v1)->vy;(res)->vz += (v1)->vy;}
+#define AddToVector(res,v1) {(res)->vx += (v1)->vx;(res)->vy += (v1)->vy;(res)->vz += (v1)->vz;}
 #define SubFromVector(res,v1) {(res)->vx -= (v1)->vx;(res)->vy -= (v1)->vy;(res)->vz -= (v1)->vz;}
 #define SubVector(res,v1,v2) {(res)->vx = (v1)->vx - (v2)->vx;(res)->vy = (v1)->vy - (v2)->vy;(res)->vz = (v1)->vz - (v2)->vz;}
 

@@ -1318,7 +1318,7 @@ GAMETILE *FindClickedTile(int x, int y)
 */
 void EditorUpdateCamera()
 {
-	EDVECTOR v = { 0.0, 0.0, -409600 };
+	EDVECTOR v = { 0.0, 0.0, -40960 };
 	EDVECTOR up = { 0.0, 1.0, 0.0 };
 
 	// Work out point to look at
@@ -1343,12 +1343,10 @@ void EditorUpdateCamera()
 	camVect.vy = (fixed)(up.vy * 4096);
 	camVect.vz = (fixed)(up.vz * 4096);
 
-	/*
-	guLookAtF(vMatrix,
+	guLookAtF(vMatrix.matrix,
 		currCamTarget.vx,currCamTarget.vy,currCamTarget.vz,
 		currCamSource.vx,currCamSource.vy,currCamSource.vz,
 		camVect.vx,camVect.vy,camVect.vz);	
-	*/
 }
 
 
