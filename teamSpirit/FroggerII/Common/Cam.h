@@ -35,9 +35,9 @@ typedef struct TAGTRANSCAMERA
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
-extern ACTOR	camera;
+//extern ACTOR	camera;
 
-extern VECTOR	cameraUpVect;
+//extern VECTOR	cameraUpVect;
 extern VECTOR	camVect;
 extern VECTOR	camDist;
 
@@ -47,7 +47,7 @@ extern float	camSpeed3;
 extern float	camLookOfs;
 extern float	camLookOfsNew;
 extern int		camFacing;
-extern int		camFacing2;
+//extern int		camFacing2;
 
 extern VECTOR	camSource[4];
 extern VECTOR	camTarget[4];
@@ -57,11 +57,11 @@ extern VECTOR	currCamTarget[4];
 extern VECTOR	actualCamSource[2][4];
 extern VECTOR	actualCamTarget[2][4];
 
-extern float	xValuesFOV[4];
-extern float	yValuesFOV[4];
-extern float	camValuesLookOfs[4];
-extern VECTOR	camValuesDist[4];
-extern short	currCamSetting;
+//extern float	xValuesFOV[4];
+//extern float	yValuesFOV[4];
+//extern float	camValuesLookOfs[4];
+//extern VECTOR	camValuesDist[4];
+//extern short	currCamSetting;
 extern float	xFOV;				// actually the SCREEN RATIO, i.e. 4/3
 extern float	xFOVNew;
 extern float	yFOV;				// THIS is the field of view
