@@ -171,11 +171,8 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	/* Lives and score */
 
-	if (gameState.multi==SINGLEPLAYER)
-	{
-		livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,255,currFont,0,0);
-		scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,255,currFont,0,0);
-	}
+	livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,255,currFont,0,0);
+	scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,255,currFont,0,0);
 	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
 
 #ifdef TOYFAIR_BUILD

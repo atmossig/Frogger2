@@ -746,7 +746,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		}
 	}
 
-	if (player[0].worldNum==8)
+	if (player[0].worldNum==8 || gameState.multi != SINGLEPLAYER)
 	{
 	//	CreateOverlays();
 		timeTextOver->draw = 0;
