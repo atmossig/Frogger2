@@ -3,6 +3,8 @@
 
 #include "type.h"
 
+/*	----------------------------------------------------------------------- */
+
 class VarTableEntry
 {
 public:
@@ -15,6 +17,8 @@ public:
 };
 
 
+/*	----------------------------------------------------------------------- */
+
 class LookupEntry;
 
 class Lookup
@@ -24,10 +28,33 @@ public:
 	Lookup();
 	~Lookup();
 
-	void AddEntry(char* name, int token, TokenType* params = 0, int nt = 0);
-	int GetToken(char *name);
+	bool AddEntry(const char* name, void* whatever);
+	void* GetEntry(const char *name);
 };
 
+/*	----------------------------------------------------------------------- */
+
+struct ScriptToken
+{
+	int token;
+	ParamType *params;
+	ScriptToken *next;
+};
+
+class ScriptTokenList
+{
+	ScriptToken *list;
+	Lookup lookup;
+
+public:
+	ScriptTokenList();
+	~ScriptTokenList();
+	
+	bool AddEntry(const char* name, int token, const ParamType *params, int n);
+	ScriptToken *GetEntry(const char* name);
+};
+
+/*	----------------------------------------------------------------------- */
 
 class CharSet
 {
@@ -37,5 +64,11 @@ public:
 	inline bool is_member(char c) { return (table[(unsigned char)c] != 0); }
 };
 
+/*	----------------------------------------------------------------------- */
+
+void GetPath(char *path, const char *filename);
+void GetFilenameStart(char *str, const char *filename);
+
+/*	----------------------------------------------------------------------- */
 
 #endif

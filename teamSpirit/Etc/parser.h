@@ -17,5 +17,6 @@ char *GetStringToken(void);
 bool GetNumberToken(double *value);
 
 void Error(const char* message);
+const char* CurrentFilename();
 
 #endif

@@ -64,7 +64,14 @@ void Buffer::AddChar(char c)
 
 void Buffer::AddInt(int value)
 {
-	AddData(&value, 4);
+	unsigned char foo[4];
+
+	foo[0] = (value & 0xff);			// ALWAYS store little-endian regardless of platform
+	foo[1] = ((value >> 8) & 0xff);
+	foo[2] = ((value >> 16) & 0xff);
+	foo[3] = ((value >> 24) & 0xff);
+
+	AddData(foo, 4);
 }
 
 void Buffer::AddFloat(float value)

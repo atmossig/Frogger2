@@ -91,10 +91,6 @@ SOURCE=.\buffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\codes.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\errors.h
 # End Source File
 # Begin Source File

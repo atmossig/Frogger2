@@ -31,7 +31,6 @@ Lookup tokenList;
 
 char token[80];
 TokenType tokenType;
-int error;
 
 struct FILESTACKENTRY
 {
@@ -59,6 +58,11 @@ VarTableEntry *GetVariable(const char* name)
 
 /* ------------------------------------------------------------------------ */
 
+const char* CurrentFilename()
+{
+	return currfileentry->filename;
+}
+
 void Error(const char* message)
 {
 	fprintf(stderr, "%s(%d) : %s\n",
@@ -77,13 +81,22 @@ bool OpenFile(const char* filename)
 	}
 
 	f = fopen(filename, "r");
-	if (!f) return false;
+	if (!f)
+	{
+		if (currFile >= 0)
+		{
+			char err[255];
+			sprintf(err, "Couldn't open '%s'", filename);
+			Error(err);
+		}
+		return false;
+	}
 
 	FILESTACKENTRY *fe = &FileStack[++currFile];
 	
 	strcpy(fe->filename, filename);
 	fe->input = f;
-	fe->line = 0;
+	fe->line = 1;
 
 	currfileentry = fe;
 
@@ -109,6 +122,7 @@ int NextChar(void) {
 	else if (c == ';')
 	{
 		do { c = getc(FileStack[currFile].input); } while (c != EOF && c != '\n');
+		FileStack[currFile].line++;
 		return NextChar();
 	}
 
@@ -125,9 +139,8 @@ int NextToken(void)
 	tokenType = T_NONE;
 	token[0] = 0;
 
-	if (c == EOF) return 0;
-	while (strchr(WHITESPACE, c)) c = NextChar(); // skip whitespace
-	if (c == EOF) return 0;
+	while (strchr(WHITESPACE, c)) { c = NextChar(); } ; // skip whitespace
+	if (c == EOF) { c = ' '; return 0; }
 
 	char *t = token;
 
@@ -136,6 +149,7 @@ int NextToken(void)
 		*t = c; *(t+1) = 0;
 		tokenType = T_SYMBOL;
 		c = NextChar();
+		return 1;
 	}
 
 	else if (c == '%')
@@ -144,7 +158,7 @@ int NextToken(void)
 		while (c != EOF && VARIABLESET.is_member(c)) { *(t++) = c; c = NextChar(); }
 		*t = 0;
 		tokenType = T_VARIABLE;
-		//ungetc(c, input);
+		return 1;
 	}
 
 	else if (strchr("0123456789+-", c))
@@ -155,7 +169,7 @@ int NextToken(void)
 		
 		*t = 0;
 		tokenType = T_NUMBER;
-		//ungetc(c, input);
+		return 1;
 	}
 
 	else if (c == '"')
@@ -175,6 +189,7 @@ int NextToken(void)
 		*t = 0;
 		tokenType = T_STRING;
 		c = NextChar();
+		return 1;
 	}
 
 	else if (VARIABLESET.is_member(c))
@@ -185,20 +200,19 @@ int NextToken(void)
 		} while (c != EOF && VARIABLESET.is_member(c));
 		*t = 0;
 		tokenType = T_COMMAND;
+		return 1;
 	}
 
 	else
-	{
 		Error(ERR_INVALIDCHAR);
-		return 0;
-	}
 /*
 	printf("%-6s%-3d%-10s%s\n",
 		FileStack[currFile].filename,
 		FileStack[currFile].line,
 		tokenNames[tokenType], token);
 */
-	return 1;
+	c = ' ';
+	return 0;	// failure
 }
 
 char *GetStringToken(void)
@@ -238,6 +252,7 @@ void CloseAllFiles(void)
 {
 	for (int i = currFile; i>=0; i--)
 		fclose(FileStack[currFile].input);
+	currFile = -1;
 }
 
 /* ------------------------------------------------------------------------

@@ -12,7 +12,8 @@ enum ParamTypeEnum
 	PARAM_FLOAT,
 	PARAM_STRING,
 	PARAM_TRIGGER,
-	PARAM_BLOCK
+	PARAM_BLOCK,
+	NUMPARAMTYPE
 };
 
 typedef BYTE ParamType;
@@ -28,12 +29,12 @@ enum TokenType
 	NUMTOKENTYPE
 };
 
-typedef struct TAGCOMMANDTABLE
+struct COMMAND_TABLE
 {
 	const char *str;
 	int token;
 	ParamType params[8];
-} COMMAND_TABLE;
+};
 
 
 #endif

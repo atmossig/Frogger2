@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "util.h"
 
@@ -38,38 +39,45 @@ CharSet::CharSet(const char *chars)
 	for (char *c = (char*)chars; *c; c++) table[unsigned char(*c)] = 1;
 }
 
+/*	-----------------------------------------------------------------------
+	LookupEntry
+*/
+
 class LookupEntry
 {
 	char *name;
-	int token;
-	TokenType *params;
-	int numParams;
+	void *thing;
+	//TokenType *params;
+	//int numParams;
 
-	LookupEntry *next;
+	LookupEntry *left, *right;
 
-	LookupEntry(char* name, int token, TokenType* params = 0, int nt = 0);
+	LookupEntry(const char* name, void *whatever);
 	~LookupEntry();
+
+	void Add(LookupEntry*);
+
+	void LookupEntry::debug();
 
 	friend class Lookup;
 };
 
-LookupEntry::LookupEntry(char* n, int t, TokenType *p, int num)
+LookupEntry::LookupEntry(const char* n, void *t)
 {
 	name = new char[strlen(n) + 1];
 	strcpy(name, n);
 	strupr(name);
-	token = t;
-	numParams = num;
+	thing = t;
 
-	params = new TokenType[num + 1];
-	if (num) memcpy(params, p, sizeof(TokenType)*num);
-	params[num] = T_NONE;
+	left = NULL; right = NULL;
 }
 
 LookupEntry::~LookupEntry()
 {
 	delete [] name;
-	delete [] params;
+
+	if (left) delete left;
+	if (right) delete right;
 }
 
 Lookup::Lookup()
@@ -79,20 +87,155 @@ Lookup::Lookup()
 
 Lookup::~Lookup()
 {
-	LookupEntry *e, *n;
+	if (list) delete list;
+}
 
-	for (e = list; e; e = n)
+void *Lookup::GetEntry(const char *name)
+{
+	LookupEntry *e = list;
+	int len = strlen(name);
+	char *str = new char[len+1];
+	
+	strcpy(str, name);
+	strupr(str);
+	
+	while (e)
 	{
-		n = e->next;
-		delete e;
+		int res = strcmp(str, e->name);
+
+		if (res == 0)	// we've found the entry! return it.
+		{
+			delete [] str;
+			return e->thing;
+		}
+		else if (res > 0)	
+			e = e->right;	// name is alphabetically higher, search RIGHT tree
+		else
+			e = e->left;	// search LEFT tree
+	}
+	
+	return 0;
+}
+
+
+
+bool Lookup::AddEntry(const char *name, void *thing)
+{
+	LookupEntry *l = list, *e = new LookupEntry(name, thing);
+
+	if (!list)
+		list = e;
+	else while(1)
+	{
+		int r = strcmp(e->name, l->name);
+
+		if (r == 0)		// there is already an entry with this name
+		{
+			delete e;
+			return false;
+		}
+		if (r < 0)		// new entry is alphabetically lower, so store on LEFT
+		{
+			if (l->left)
+				l = l->left;
+			else
+			{
+				l->left = e; break;
+			}
+		}
+		else			// alphabetically higher, store on RIGHT
+		{
+			if (l->right)
+				l = l->right;
+			else
+			{
+				l->right = e; break;
+			}
+		}
+	}
+
+	return true;
+}
+
+/*	----------------------------------------------------------------------- */
+
+ScriptTokenList::ScriptTokenList()
+{
+	list = NULL;
+}
+
+bool ScriptTokenList::AddEntry(const char* name, int token, const ParamType *params, int numParams)
+{
+	ScriptToken *t;
+
+	t = new ScriptToken;
+
+	if (!lookup.AddEntry(name, (void*)t))
+	{
+		delete t;
+		return false;
+	}
+
+	t->token = token;
+	t->params = new ParamType[numParams + 1];
+	memcpy(t->params, params, numParams * sizeof(ParamType));
+	t->params[numParams] = 0;
+	
+	t->next = list;
+	list = t;
+
+	return true;
+}
+
+ScriptTokenList::~ScriptTokenList()
+{
+	ScriptToken *n, *t = list;
+
+	for (t = list; t; t = n)
+	{
+		n = t->next;
+		delete [] t->params;
+		delete t;
 	}
 }
 
-int Lookup::GetToken(char *name)
+ScriptToken *ScriptTokenList::GetEntry(const char* name)
 {
-	strupr(name);
-	for (LookupEntry *e = list; e; e = e->next)
-		if (!strcmp(name, e->name)) return e->token;
+	return (ScriptToken*)lookup.GetEntry(name);
+}
+
+/*	----------------------------------------------------------------------- */
+// Returns the path of the given filename
+// i.e. the string up to and including the last '\' or '/'.
+
+void GetPath(char *path, const char *filename)
+{
+	char *c;
+	int i, length = 0;
+	for (c = (char*)filename, i = 0; *c; c++)
+	{
+		i++;
+		if (*c == '\\' || *c == '/') length = i;
+	}
 	
-	return 0;
+	memcpy(path, filename, length);
+	path[length] = 0;
+}
+
+
+// Returns the complete filename and path, without the extension
+// i.e. the string up to but NOT including the last '.'.
+
+void GetFilenameStart(char *str, const char *filename)
+{
+	char *c;
+	int i, length = 0;
+	for (c = (char*)filename, i = 0; *c; c++)
+	{
+		if (*c == '.') length = i;
+		i++;
+	}
+	
+	memcpy(str, filename, length);
+	str[length] = 0;
 }
