@@ -565,8 +565,8 @@ int main ( )
 			TimerStop(&tDrawWaterList);
 			
 			TimerStart(&tDrawWaterList);
-			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
-				DrawWaterList();
+//			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+//				DrawWaterList();
 			TimerStop(&tDrawWaterList);
 
 			TimerStart(&tDrawActorList);

@@ -266,7 +266,17 @@ void CreateAndAddScenicObject(SCENIC *sc)
 //	newItem->position = sc.pos;
 	newItem->flags = 0;
 	//rot
+
+	
+
+	utilPrintf("%s, %d, %d, %d, %d\n", sc->name, sc->rot.x, sc->rot.y, sc->rot.z, sc->rot.w);
+
 	QuatToPSXMatrix(&sc->rot, &newItem->matrix);
+
+	
+
+
+
 	//scale
 // 	newItem->matrix.m[0][0] = FMul(newItem->matrix.m[0][0], sc->scale);
 // 	newItem->matrix.m[1][1] = FMul(newItem->matrix.m[1][1], sc->scale);
@@ -320,7 +330,7 @@ void DrawScenicObjList ( void )
 			for ( i = cur->fmaObj->n_meshes; i != 0; i--, mesh++ )
 			{
 //bb dont need this, they don't move/rotate, just animate.
-//				MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
+//				MapDraw_SetMatrix ( *mesh, *-mesh->posx, *mesh->posy, *mesh->posz );
 //				MapDraw_SetMatrix ( *mesh, -cur->matrix.t[0], cur->matrix.t[1], cur->matrix.t[2] );
 				MapDraw_SetScenicMatrix(*mesh, cur);
 
