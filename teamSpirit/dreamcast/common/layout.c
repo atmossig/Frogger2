@@ -1178,12 +1178,12 @@ void CommonInit(void)
 //	player[0].levelNum = LEVELID_FRONTEND1;
 //	player[0].worldNum = WORLDID_FRONTEND;
 //	player[0].levelNum = LEVELID_FRONTEND4;
-//	player[0].worldNum = WORLDID_GARDEN;
-//	player[0].levelNum = LEVELID_GARDEN1;
+	player[0].worldNum = WORLDID_GARDEN;
+	player[0].levelNum = LEVELID_GARDEN1;
 //	player[0].worldNum = WORLDID_ANCIENT;
 //	player[0].levelNum = LEVELID_ANCIENT1;
-	player[0].worldNum = WORLDID_SUBTERRANEAN;
-	player[0].levelNum = LEVELID_SUBTERRANEAN1;
+//	player[0].worldNum = WORLDID_SUBTERRANEAN;
+//	player[0].levelNum = LEVELID_SUBTERRANEAN1;
 //	player[0].worldNum = WORLDID_LABORATORY;
 //	player[0].levelNum = LEVELID_LABORATORY1;
 //	player[0].worldNum = WORLDID_SPACE;
