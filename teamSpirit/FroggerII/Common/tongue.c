@@ -22,7 +22,7 @@
 
 float tongueRadius			= 200.0;
 
-unsigned char tongueState	= TONGUE_NONE | TONGUE_IDLE;
+unsigned long tongueState	= TONGUE_NONE | TONGUE_IDLE;
 
 int tongueCoordIndex		= 0;
 int tongueSegment			= 0;
@@ -135,7 +135,11 @@ void UpdateFrogTongue()
 		{
 			tongueSegment--;
 
-			if(tongueToCollect == TONGUE_GET_GARIB)
+			tongueState |= TONGUE_PULLFROG;
+
+			if( tongueState & TONGUE_PULLFROG )
+				SetVector(&frog[0]->actor->pos,&tongueCoords[tongueSegment]);
+			else if(tongueToCollect == TONGUE_GET_GARIB)
 			{
 				SetVector(&nearestColl->sprite.pos,&tongueCoords[tongueSegment]);
 				nearestColl->scale *= 0.9;
@@ -168,7 +172,7 @@ void UpdateFrogTongue()
 
 				// Set frog idle animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,3,YES,YES,0.5, 10, 0);
+				AnimateActor(frog[0]->actor,3,YES,YES,0.5/*, 10, 0*/);
 				frog[0]->actor->animation->animationSpeed = 1.79;
 
 				RemoveFrogTongue();
@@ -221,7 +225,7 @@ void UpdateFrogTongue()
 
 				// Set frog mouth open animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,1,NO,NO,0.5, 10, 0);
+				AnimateActor(frog[0]->actor,1,NO,NO,0.5/*, 10, 0*/);
 				frog[0]->actor->animation->animationSpeed = 0.25;
 
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
@@ -273,7 +277,7 @@ void UpdateFrogTongue()
 
 				// Set frog mouth open animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,1,NO,NO,0.5, 10, 0);
+				AnimateActor(frog[0]->actor,1,NO,NO,0.5/*, 10, 0*/);
 				frog[0]->actor->animation->animationSpeed = 0.25;
 
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;

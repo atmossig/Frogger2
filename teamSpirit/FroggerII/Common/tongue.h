@@ -45,13 +45,14 @@ enum
 #define TONGUE_HASITEMINMOUTH	(1 << 5)
 #define TONGUE_THROWING			(1 << 6)
 #define TONGUE_SEARCHING		(1 << 7)
+#define TONGUE_PULLFROG         (1 << 8)
 
 //----- [ GLOBALS ] --------------------------------------------------------
 
 
 extern float			tongueRadius;
 
-extern unsigned char	tongueState;
+extern unsigned long	tongueState;
 
 extern VECTOR			tonguePos;
 extern Vtx				*tongueVtx;
