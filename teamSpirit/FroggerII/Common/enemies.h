@@ -134,6 +134,9 @@ void UpdateEnemyPathNodes(ENEMY *nme);
 void CalcEnemyNormalInterps(ENEMY *nme);
 ENEMY *GetEnemyFromUID (long uid);
 
+int EnumEnemies(long id, int (*func)(ENEMY*, int), int param);
+int MoveEnemyToNode(ENEMY *nme, int node);
+
 //------------------------------------------------------------------------------------------------
 
 #endif

@@ -209,47 +209,6 @@ int OnCounterEquals(TRIGGER *t)
 }
 
 /*	--------------------------------------------------------------------------------
-    Function	: EnumPlatforms
-	Purpose		: Calls a function for every platform with a given UID
-	Parameters	: 
-	Returns		: 
-
-	func takes two params, the platform and the 'param' passed to EnumPlatforms
-*/
-
-int EnumPlatforms(long id, int (*func)(PLATFORM*, int), int param)
-{
-	PLATFORM *cur;
-	int count;
-
-	for(cur = platformList.head.next; cur != &platformList.head; cur = cur->next, count++)
-	{
-		if (!id || cur->uid == id)
-		{
-			if (!func(cur, param)) break;
-		}
-	}
-
-	return count;
-}
-
-int EnumEnemies(long id, int (*func)(ENEMY*, int), int param)
-{
-	ENEMY *cur;
-	int count;
-
-	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next, count++)
-	{
-		if (!id || cur->uid == id)
-		{
-			if (!func(cur, param)) break;
-		}
-	}
-
-	return count;
-}
-
-/*	--------------------------------------------------------------------------------
     Function		: LoadTrigger
 	Parameters		: UBYTE*
 	Returns			: TRIGGER*
@@ -510,6 +469,7 @@ Move:
 			plt->isWaiting = 0;
 			plt->path->startFrame = actFrameCount;
 			plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
+			RecalculatePlatform(plt);
 		}
 		break;
 Stop:			
@@ -533,38 +493,9 @@ Vis:
 		if (plt->active) goto Invis; else goto Vis;
 	}
 
-	RecalculatePlatform(plt);
-
 	return 1;
 }
 
-
-int MovePlatform(PLATFORM *plt, int flag)
-{
-	if (flag > 0 && flag < plt->path->numNodes)
-	{
-		plt->path->toNode = flag;
-		plt->inTile[0] = plt->path->nodes[flag].worldTile;
-		plt->isWaiting = 1;
-		plt->path->endFrame = actFrameCount;
-		RecalculatePlatform(plt);
-		plt->destOrientation = plt->srcOrientation;
-	}
-	return 1;
-}
-
-int MoveEnemy(ENEMY *nme, int flag)
-{
-	if (flag > 0 && flag < nme->path->numNodes)
-	{
-		// Cunning cheat (that probably flies apart)6
-		nme->path->toNode = flag;
-		nme->path->endFrame = actFrameCount;
-		UpdateEnemyPathNodes(nme);
-		nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
-	}
-	return 1;
-}
 
 int PathEffect(ENEMY *nme, int params)
 {
@@ -584,6 +515,13 @@ int PathEffect(ENEMY *nme, int params)
 	return 1;
 }
 
+int EnemyEffect(ENEMY *nme, int params)
+{
+	SCRIPT_EFFECT_PARAMS *p;
+	(int)p = params;
+	CreateAndAddSpecialEffect(p->type, &nme->nmeActor->actor->pos, &nme->inTile->normal, p->size, p->speed, p->accn, p->lifetime);
+	return 1;
+}
 /*	-------------------------------------------------------------------------------- */
 
 
@@ -795,12 +733,20 @@ BOOL ExecuteCommand(UBYTE **p)
 		}
 
 	case EV_MOVEENEMY:
-		EnumEnemies(MEMGETWORD(p), MoveEnemy, MEMGETWORD(p));
-		break;
+		{
+			long id = MEMGETWORD(p);
+			int flag = MEMGETWORD(p);
+			EnumEnemies(id, MoveEnemyToNode, flag);
+			break;
+		}
 
 	case EV_MOVEPLAT:
-		EnumPlatforms(MEMGETWORD(p), MovePlatform, MEMGETWORD(p));
-		break;
+		{
+			long id = MEMGETWORD(p);
+			int flag = MEMGETWORD(p);
+			EnumPlatforms(id, MovePlatformToNode, flag);
+			break;
+		}
 
 	case EV_DROPGARIB:
 		{
@@ -925,6 +871,25 @@ BOOL ExecuteCommand(UBYTE **p)
 			d = MEMGETFLOAT(p);
 
 			CreateAndAddSpecialEffect(type, &tile->centre, &tile->normal, a, b, c, d);
+			break;
+		}
+
+	case EV_SFX_ENEMY:
+		{
+			int id;
+			SCRIPT_EFFECT_PARAMS params;
+			//float a, b, c, d;
+			GAMETILE *tile;
+
+			id = MEMGETWORD(p);
+
+			params.type = MEMGETBYTE(p);
+			params.size = MEMGETFLOAT(p);
+			params.speed = MEMGETFLOAT(p);
+			params.accn = MEMGETFLOAT(p);
+			params.lifetime = MEMGETFLOAT(p);
+
+			EnumEnemies(id, EnemyEffect, (int)&params);
 			break;
 		}
 

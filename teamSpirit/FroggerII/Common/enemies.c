@@ -1856,3 +1856,48 @@ void FreeEnemyLinkedList()
 	// initialise list for future use
 	InitEnemyLinkedList();
 }
+
+
+/*	--------------------------------------------------------------------------------
+    Function	: EnumEnemies
+	Purpose		: Calls a function for every enemy with a given UID
+	Parameters	: 
+	Returns		: 
+
+	func takes two params, the platform and the 'param' passed to EnumPlatforms
+*/
+int EnumEnemies(long id, int (*func)(ENEMY*, int), int param)
+{
+	ENEMY *cur;
+	int count;
+
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = cur->next, count++)
+	{
+		if (!id || cur->uid == id)
+		{
+			if (!func(cur, param)) break;
+		}
+	}
+
+	return count;
+}
+
+/*	--------------------------------------------------------------------------------
+    Function	: MoveEnemy
+	Purpose		: Moves an enemy to a given node in its path
+	Parameters	: ENEMY*, int [suitable for enumEnemies]
+	Returns		: 1 for success
+*/
+int MoveEnemyToNode(ENEMY *nme, int flag)
+{
+	if (flag > 0 && flag < nme->path->numNodes)
+	{
+		// Cunning cheat (that probably flies apart)6
+		nme->path->toNode = flag;
+		nme->path->endFrame = actFrameCount;
+		UpdateEnemyPathNodes(nme);
+		nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
+	}
+	return 1;
+}
+

@@ -829,44 +829,8 @@ void UpdatePathPlatform(PLATFORM *plat)
 
 	float n;
 
-	// update the platform position
-	GetPositionForPathNode(&toPosition,&plat->path->nodes[plat->path->toNode]);
-	GetPositionForPathNode(&fromPosition,&plat->path->nodes[plat->path->fromNode]);
-	
-	SubVector(&fwd,&toPosition,&fromPosition);
-	
-	length = (float)(actFrameCount - plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
-	
-	ScaleVector(&fwd,length);
-	AddVector(&plat->pltActor->actor->pos,&fwd,&fromPosition);
-	MakeUnit(&fwd);
-
-/*
-	SetVector(&norm, &plat->deltaNormal);
-	ScaleVector(&norm, 
-
-	AddToVector(&plat->currNormal,&norm);
-*/
-
-	if(!(plat->flags & PLATFORM_NEW_FACEFORWARDS))
-	{
-		//Orientate(&plat->pltActor->actor->qRot,&fwd,&inVec,&plat->currNormal);
-
-		QuatSlerp(&plat->srcOrientation, &plat->destOrientation, length, &plat->pltActor->actor->qRot);
-	}
-
-/*	else	// if we orientate the platform correctly at the start of the path,
-			// we shouldn't ever need to re-orientate it. Er. I think.
-	{
-		SubVector(&moveVec,&plat->path->nodes[plat->path->startNode+1].worldTile->centre, &plat->path->nodes[plat->path->startNode].worldTile->centre );
-		if (plat->flags & PLATFORM_NEW_BACKWARDS) ScaleVector (&fwd,-1);
-		MakeUnit(&moveVec);
-		Orientate(&plat->pltActor->actor->qRot,&moveVec,&inVec,&plat->currNormal);
-	}
-*/
-
 	// check if this platform has arrived at a path node
-	if(actFrameCount > plat->path->endFrame)
+	if(actFrameCount >= plat->path->endFrame)
 	{
 		UpdatePlatformPathNodes(plat);
 	
@@ -878,6 +842,24 @@ void UpdatePathPlatform(PLATFORM *plat)
 		plat->inTile[0] = plat->path->nodes[plat->path->toNode].worldTile;
 	}
 
+	// update the platform position
+	GetPositionForPathNode(&toPosition,&plat->path->nodes[plat->path->toNode]);
+	GetPositionForPathNode(&fromPosition,&plat->path->nodes[plat->path->fromNode]);
+	
+	SubVector(&fwd,&toPosition,&fromPosition);
+	
+	length = (float)(actFrameCount - plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
+	
+	ScaleVector(&fwd,length);
+	AddVector(&plat->pltActor->actor->pos,&fwd,&fromPosition);
+	//MakeUnit(&fwd);
+
+	if(!(plat->flags & PLATFORM_NEW_FACEFORWARDS))
+	{
+		//Orientate(&plat->pltActor->actor->qRot,&fwd,&inVec,&plat->currNormal);
+
+		QuatSlerp(&plat->srcOrientation, &plat->destOrientation, length, &plat->pltActor->actor->qRot);
+	}
 }
 
 
@@ -1000,3 +982,52 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 		}
 	}
 }
+
+/*	--------------------------------------------------------------------------------
+    Function	: EnumPlatforms
+	Purpose		: Calls a function for every platform with a given UID
+	Parameters	: 
+	Returns		: 
+
+	func takes two params, the platform and the 'param' passed to EnumPlatforms
+*/
+
+int EnumPlatforms(long id, int (*func)(PLATFORM*, int), int param)
+{
+	PLATFORM *cur;
+	int count;
+
+	for(cur = platformList.head.next; cur != &platformList.head; cur = cur->next, count++)
+	{
+		if (!id || cur->uid == id)
+		{
+			if (!func(cur, param)) break;
+		}
+	}
+
+	return count;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: MovePlatform
+	Purpose			: moves a platform to a given node in its path
+	Parameters		: PLATFORM*, int [can be used with EnumPlatforms]
+	Returns			: 1 for success
+*/
+int MovePlatformToNode(PLATFORM *plt, int flag)
+{
+	VECTOR fwd;
+
+	if (flag > 0 && flag < plt->path->numNodes)
+	{
+		plt->path->toNode = flag;
+		plt->inTile[0] = plt->path->nodes[flag].worldTile;
+		plt->isWaiting = 1;		// I'm not entirely sure why we need this, but it works and I'm not pushing it.
+		plt->path->endFrame = actFrameCount;
+		RecalculatePlatform(plt);
+
+		plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
+	}
+	return 1;
+}
+

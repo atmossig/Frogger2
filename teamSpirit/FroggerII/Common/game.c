@@ -248,12 +248,19 @@ void GameProcessController(long pl)
 		player[pl].idleTime = MAX_IDLE_TIME;
 		idleCamera = 0;
 
+		// ------------------- DOUBLE JUMP -------------------------
+
 		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped ) // && (player[pl].heightJumped > -125.0F)
 		{
 			GAMETILE *old;
+			int oldCamFacing;
 			PlaySample(genSfx[GEN_DOUBLE_HOP],&frog[pl]->actor->pos,0,200,60);
 
+			// we have to keep track here of the previous tile so if it fails we don't
+			// just sit in mid-air...
 			old = currTile[pl];
+			oldCamFacing = camFacing;
+
 			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
 			currTile[pl] = destTile[pl];
 
@@ -269,7 +276,13 @@ void GameProcessController(long pl)
 				SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
 			}
 			else
+			{
+				// Restore old state :oP
+				destTile[pl] = currTile[pl];
 				currTile[pl] = old;
+				camFacing = oldCamFacing;
+				player[pl].canJump = 0;
+			}
 
 			AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.35F,0,0);
 			//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
