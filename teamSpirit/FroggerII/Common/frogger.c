@@ -101,20 +101,19 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 	{
 		if(createFrogOverlays)
 		{
+			int f;
 			// get health icons ready
 			i = 3;
 			while(i--)
 			{
-				sprHeart[i] = CreateAndAddSpriteOverlay(20+(i*10),205,"heart001.bmp",16,16,255,255,255,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-				AddFrameToSpriteOverlay(sprHeart[i],"heart002.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart003.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart004.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart005.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart006.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart007.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart008.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart009.bmp");
-				AddFrameToSpriteOverlay(sprHeart[i],"heart010.bmp");
+				sprHeart[i] = CreateAndAddSpriteOverlay((short)(20+(i*10)), 205, "heart001.bmp",
+					16,16,255,255,255,192,ANIMATION_FORWARDS | ANIMATION_CYCLE);
+				for (f = 2; f <= 10; f++)
+				{
+					char fname[13];
+					sprintf(fname, "heart%03d.bmp", f);
+					AddFrameToSpriteOverlay(sprHeart[i], fname);
+				}
 				SetSpriteOverlayAnimSpeed(sprHeart[i],1.0F);
 				sprHeart[i]->animTime = (i * 3);
 			}
@@ -129,7 +128,9 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 			k = !k;
 			while(i--)
 			{
-				sprHeart[i+j*3] = CreateAndAddSpriteOverlay(((j>1)?270:20)+(i*10),(k?35:205),"mplaypts.bmp",32,32,255,255,255,192,0);
+				sprHeart[i+j*3] = CreateAndAddSpriteOverlay((
+					(short)(j>1)?270:20)+(i*10),(short)(k?35:205),
+					"mplaypts.bmp",32,32,255,255,255,192,0);
 			}
 		}
 		
