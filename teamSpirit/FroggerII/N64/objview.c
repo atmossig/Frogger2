@@ -288,7 +288,7 @@ void ViewObjectBank()
 	if(!msgTxt)
 		msgTxt	= CreateAndAddTextOverlay(30,205,NULL,NO,255,smallFont,0,0);
 
-	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum,objectViewer.numObjects-1);
+	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum,objectViewer.numObjects);
 	viewTxt->text = objName;
 
 	objectMatrix = 0;
@@ -358,7 +358,7 @@ void ObjViewGotoNextObject()
 	ACTOR2 *cur;
 
 	objectViewer.currObj->flags = ACTOR_DRAW_NEVER;
-	if(++objectViewer.currObjNum >= objectViewer.numObjects)
+	if(++objectViewer.currObjNum > objectViewer.numObjects)
 		objectViewer.currObjNum = 0;
 
 	// free object sprites
@@ -390,7 +390,7 @@ void ObjViewGotoPreviousObject()
 
 	objectViewer.currObj->flags = ACTOR_DRAW_NEVER;
 	if(--objectViewer.currObjNum < 0)
-		objectViewer.currObjNum = objectViewer.numObjects - 1;
+		objectViewer.currObjNum = objectViewer.numObjects;
 
 	// free object sprites
 	FreeObjectSprites(objectViewer.currObj->actor->objectController->object);
