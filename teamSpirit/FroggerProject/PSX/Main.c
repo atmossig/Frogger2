@@ -546,7 +546,7 @@ int main ( )
 
 			TimerStart(&tDrawWorld);
 //			DrawWorld();
-			if(gameState.mode == INGAME_MODE)
+			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawWorld();
 			TimerStop(&tDrawWorld);
 
@@ -557,17 +557,17 @@ int main ( )
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);
-			if(gameState.mode == INGAME_MODE)
+			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawScenicObjList();
 			TimerStop(&tDrawWaterList);
 			
 			TimerStart(&tDrawWaterList);
-			if(gameState.mode == INGAME_MODE)
+			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawWaterList();
 			TimerStop(&tDrawWaterList);
 
 			TimerStart(&tDrawActorList);
-			if(gameState.mode == INGAME_MODE)
+			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawActorList();
 			TimerStop(&tDrawActorList);
 

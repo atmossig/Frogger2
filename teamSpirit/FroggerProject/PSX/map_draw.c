@@ -173,7 +173,7 @@ asm(\
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (1000<<3)
+#define MAX_MAP_DEPTH (1000<<2)
 
 
 
@@ -249,12 +249,12 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 // This should really by in the (or an alternative) transformvertexlist function
 // It scales the OTZ's down so that they actually fit into the size of the ordering table.
-#ifdef MAP_SCALE_DEPTH_DOWN
+/*#ifdef MAP_SCALE_DEPTH_DOWN
 	{
 		for(i = 0; i < mesh->n_verts; i++)
 			tfd[i] = tfd[i] >> MAP_SCALE_DEPTH_DOWN;
 	}
-#endif
+#endif*/
 
 	//test !!!!!
 	for(i = 0; i < mesh->n_verts; i++)
@@ -1009,14 +1009,14 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 	//		else
 	//		{
 				MapDraw_DrawFMA_Mesh2(*mesh);
-	//		}
+			}
 
-		}
+	//	}
 
-		else
-		{
+//		else
+//		{
 		//	removed_models++;
-		}
+//		}
 
 	}
 
