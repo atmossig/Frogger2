@@ -92,7 +92,7 @@ void ProcessPTForcefield( PROCTEXTURE *pt )
 	TEXTURE *tx = pt->tex;
 
 	// N64 surface blit
-	memcpy(pt->tex->data,pt->buf1,928);
+	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
 	p = ((Random(30)+1)*32) + Random(30)+1;
@@ -135,7 +135,7 @@ void ProcessPTWaterDrops( PROCTEXTURE *pt )
 	TEXTURE *tx = pt->tex;
 
 	// N64 surface blit
-	memcpy(pt->tex->data,pt->buf1,928);
+	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
 	if( Random(2) )
@@ -178,7 +178,7 @@ void ProcessPTWaterBubbler( PROCTEXTURE *pt )
 	TEXTURE *tx = pt->tex;
 
 	// N64 surface blit
-	memcpy(pt->tex->data,pt->buf1,928);
+	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
 	x += Random(3)-1;
@@ -228,7 +228,7 @@ void ProcessPTWaterTrail( PROCTEXTURE *pt )
 	TEXTURE *tx = pt->tex;
 
 	// N64 surface blit
-	memcpy(pt->tex->data,pt->buf1,928);
+	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
 	if( Random(10) > 8 )
@@ -294,7 +294,7 @@ void ProcessPTWaterRipples( PROCTEXTURE *pt )
 	TEXTURE *tx = pt->tex;
 
 	// N64 surface blit
-	memcpy(pt->tex->data,pt->buf1,928);
+	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
 	pt->buf1[(Random(30)+1)+960] = 255;
@@ -335,7 +335,7 @@ void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 	TEXTURE *tx = pt->tex;
 
 	// N64 surface blit
-	memcpy(pt->tex->data,pt->buf1,928);
+	memcpy(pt->tex->data,pt->buf1,1024);
 #endif
 
 	pt->buf1[(Random(30)+1)+960] = 255;
