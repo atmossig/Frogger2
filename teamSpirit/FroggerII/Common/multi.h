@@ -14,5 +14,6 @@ void RunMultiplayer( );
 void PickupBabyFrogMulti( ENEMY *baby, int pl );
 void KillMPFrog(int num);
 
+void CalcMPCamera( VECTOR *target );
 
 #endif

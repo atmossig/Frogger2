@@ -6,9 +6,13 @@
 int multiplayerMode;
 long started = 0;
 
-int UpdateCTF( );
-int UpdateRace( );
-int UpdateDM( );
+void UpdateCTF( );
+void UpdateRace( );
+void UpdateDM( );
+
+void CalcDMCamera( VECTOR *target );
+void CalcCTFCamera( VECTOR *target );
+void CalcRaceCamera( VECTOR *target );
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateCTF
@@ -17,7 +21,7 @@ int UpdateDM( );
 	Returns			: 
 	Info			:
 */
-int UpdateCTF( )
+void UpdateCTF( )
 {
 	unsigned long i;
 	static TIMER endTimer, multiTimer;
@@ -45,10 +49,8 @@ int UpdateCTF( )
 			started = frameCount = 0;
 			fixedPos = fixedDir = 0;
 			StartDrawing("game over");
-
-			return FALSE;
 		}
-		return TRUE;
+		return;
 	}
 	else // Is anyone still alive?
 	{
@@ -72,7 +74,7 @@ int UpdateCTF( )
 
 		// If on a froggers area tile, check for babies on the tile
 		for (t = firstTile; t != NULL; t = t->next)
-			if( (t->state == TILESTATE_FROGGER1AREA) || (t->state == TILESTATE_FROGGER2AREA) || (t->state == TILESTATE_FROGGER3AREA) || (t->state == TILESTATE_FROGGER4AREA) )
+			if( (t->state >= TILESTATE_FROGGER1AREA) && (t->state <= TILESTATE_FROGGER4AREA) )
 				for( nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
 					if( (nme->flags & ENEMY_NEW_BABYFROG) && (t == nme->inTile) )
 						babyCount[t->state-TILESTATE_FROGGER1AREA]++;
@@ -84,15 +86,14 @@ int UpdateCTF( )
 				winner = i;
 			}
 
-		if( !best ) sprintf( timeTextOver->text, "No winner" );
+		if( winner == -1 ) sprintf( timeTextOver->text, "No winner" );
 		else sprintf( timeTextOver->text, "P%i won", winner );
 
 		GTInit( &endTimer, 10 );
-		return TRUE;
+		return;
 	}
 
 	sprintf(timeTextOver->text,"%d",multiTimer.time);
-	return TRUE;
 }
 
 
@@ -103,25 +104,62 @@ int UpdateCTF( )
 	Returns			: 
 	Info			:
 */
-int UpdateRace( )
+char checkPoint[4];
+
+void UpdateRace( )
 {
-	static TIMER endTimer;
-	int i, j;
+	static TIMER endTimer, multiTimer;
+	int i, j, dead=0;
 
-	multiplayerMode = MULTIMODE_RACE;
-
+	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
-		GTInit( &endTimer, 0 );
-		started = 1;
+		multiplayerMode = MULTIMODE_RACE;
+		timeTextOver->text[0] = '\0';
+
+		for( i=0,j=0; i<NUM_FROGS; i++ )
+			if( currTile[i]->state == TILESTATE_FROGGER1AREA )
+			{
+				j++;
+				player[i].canJump = 0;
+				checkPoint[i] = -1;
+			}
+
+		if( j==NUM_FROGS )
+		{
+			GTInit( &endTimer, 0 );
+			GTInit( &multiTimer, 3 );
+			started = 1;
+		}
+
+		if( !started ) return;
 	}
 
-	if( endTimer.time )
+	// When all players are ready, start a countdown
+	if( multiTimer.time )
+	{
+		sprintf( timeTextOver->text, "%d", multiTimer.time );
+		GTUpdate( &multiTimer, -1 );
+
+		if( !multiTimer.time )
+		{
+			sprintf( timeTextOver->text, "Go" );
+
+			for( i=0; i<NUM_FROGS; i++ )
+			{
+				player[i].canJump = 1;
+				checkPoint[i] = TILESTATE_FROGGER1AREA;
+			}
+		}
+		else return;
+	}
+	else if( endTimer.time ) // If finished the race then wait before replaying
 	{
 		GTUpdate( &endTimer, -1 );
 
 		if( !endTimer.time )
 		{
+			timeTextOver->text[0] = '\0';
 			StopDrawing("game over");
 			FreeAllLists();
 
@@ -131,47 +169,51 @@ int UpdateRace( )
 			started = frameCount = 0;
 			fixedPos = fixedDir = 0;
 			StartDrawing("game over");
-
-			return FALSE;
 		}
-		return TRUE;
+		return;
 	}
-	else // Is anyone still alive?
-	{
-		for( i=0; i<NUM_FROGS; i++ )
-			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) break;
-
-		if( i==NUM_FROGS )
-		{
-			GTInit( &endTimer, 10 );
-			fixedPos = fixedDir = 1;
-		}
-	}
-
+	
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		if( !(player[i].safe.time) && (frameCount > 20))
-		if(!IsPointVisible(&frog[i]->actor->pos))
+		// Check for frog off screen - death
+		if( (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
 		{
 			KillMPFrog(i);
 
 			for( j=0; j<NUM_FROGS; j++ )
-				if (IsPointVisible(&frog[j]->actor->pos))
+				if( !(player[j].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[j]->actor->pos) )
 				{
 					TeleportActorToTile(frog[i],currTile[j],i);
+					checkPoint[i] = checkPoint[j];
 					destTile[i] = currTile[j];
 				}
 		}
-		else if( currTile[i]->state == TILESTATE_FROGGER1AREA )
+		else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA )
 		{
-			sprintf( timeTextOver->text, "P%i won", i );
+			if( currTile[i]->state == checkPoint[i]+1 ) // If we've reached the next checkpoint
+			{
+				timeTextOver->text[0] = '\0';
+				checkPoint[i]++;
+			}
+			else if( checkPoint[i] == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER1AREA )
+			{
+				// Else we've gotback to the start - winner!
+				sprintf( timeTextOver->text, "P%i won", i );
 
-			GTInit( &endTimer, 10 );
-			return TRUE;
+				GTInit( &endTimer, 5 );
+				return;
+			}
 		}
+
+		if( !(player[i].healthPoints) && (player[i].frogState & FROGSTATUS_ISDEAD) ) dead++;
 	}
 
-	return TRUE;
+	// Is anyone still alive?
+	if( dead == NUM_FROGS )
+	{
+		GTInit( &endTimer, 5 );
+		fixedPos = fixedDir = 1;
+	}
 }
 
 
@@ -182,7 +224,7 @@ int UpdateRace( )
 	Returns			: 
 	Info			:
 */
-int UpdateDM( )
+void UpdateDM( )
 {
 	static TIMER endTimer;
 	int i, j;
@@ -211,10 +253,8 @@ int UpdateDM( )
 			started = frameCount = 0;
 			fixedPos = fixedDir = 0;
 			StartDrawing("game over");
-
-			return FALSE;
 		}
-		return TRUE;
+		return;
 	}
 	else // Is anyone still alive?
 	{
@@ -242,8 +282,6 @@ int UpdateDM( )
 			GTInit( &endTimer, 10 );
 		}
 	}
-
-	return TRUE;
 }
 
 
@@ -255,9 +293,10 @@ void RunMultiplayer( )
 		UpdateRace( );
 		break;
 	case WORLDID_SUBTERRANEAN:
+	case WORLDID_HALLOWEEN:
 		UpdateCTF( );
 		break;
-	case WORLDID_HALLOWEEN:
+	default:
 		UpdateDM( );
 		break;
 	}
@@ -331,4 +370,85 @@ void KillMPFrog(int num)
 
 		frog[num]->draw = 0;
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CalcMPCamera
+	Purpose			: Do different cameras for different game types
+	Parameters		: target vector
+	Returns			: void
+	Info			:
+*/
+void CalcMPCamera( VECTOR *target )
+{
+	switch( player[0].worldNum )
+	{
+	case WORLDID_GARDEN:
+		CalcRaceCamera( target );
+		break;
+	case WORLDID_SUBTERRANEAN:
+	case WORLDID_HALLOWEEN:
+		CalcCTFCamera( target );
+		break;
+	default:
+		CalcDMCamera( target );
+		break;
+	}
+}
+
+void CalcRaceCamera( VECTOR *target )
+{
+	int lead=0, i, best=TILESTATE_FROGGER1AREA;
+
+	for( i=0; i<NUM_FROGS; i++ )
+		if( checkPoint[i] > best && player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		{
+			best = checkPoint[i];
+			lead = i;
+		}
+
+	SetVector( target, &frog[lead]->actor->pos );
+}
+
+void CalcDMCamera( VECTOR *target )
+{
+	CalcCTFCamera( target );
+}
+
+void CalcCTFCamera( VECTOR *target )
+{
+	VECTOR v;
+	int i,l;
+	float sc, t;
+
+	ZeroVector( target );
+
+	for( i=0,l=0; i<NUM_FROGS; i++ )
+	{
+		if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		{
+			t = player[i].jumpTime;
+			
+			if (t > 0)	// jumping; calculate linear position
+			{
+				AddToVector(target, &player[i].jumpOrigin);
+
+				SetVector(&v, &player[i].jumpFwdVector);
+				ScaleVector(&v, t);
+				AddToVector(target, &v);
+			}										
+			else
+				AddToVector(target, &frog[i]->actor->pos);
+
+			l++;
+		}
+
+		// Zoom in/out to keep multiplayer frogs in view
+		sc = FindMaxInterFrogDistance( );
+		if( sc != -1 ) scaleV = (sc*0.00115) + 0.6;
+	}
+	
+	if (l > 1)
+		ScaleVector(target, 1.0f/l);
 }
