@@ -1641,8 +1641,8 @@ static void RunIntro()
 		fireSprite->a = 160;
 		CreateAndAddProceduralTexture(fireSprite->texture,"prc_fire1");
 
-		sOv = AddNewSpriteToList(0,0,100,128,"prc_watrd.bmp",0);
-		fireSprite->a = 255;
+		sOv = AddNewSpriteToList(0,0,256,1280,"prc_watrd.bmp",SPRITE_TRANSLUCENT);
+		sOv->a = 64;
 		CreateAndAddProceduralTexture(sOv->texture,"prc_watrd");
 		
 		// prepare music
