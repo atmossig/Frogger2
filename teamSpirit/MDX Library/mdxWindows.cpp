@@ -73,8 +73,6 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			if (!displayDebugInfo)
 				break;
 
-			HiliteUp(2);
-			
 			switch ((int)wParam)
 			{				
 				case VK_F3:
