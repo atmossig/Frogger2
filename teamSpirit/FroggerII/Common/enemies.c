@@ -132,8 +132,6 @@ unsigned long waspPath20[] = { 5,	100,101,109,118,119 };
 unsigned long gatePath1[]    = { 1,		12};
 unsigned long gatePath2[]    = { 1,		15};
 
-unsigned long debug_nmePath[]	= { 4,	33,34,35,36 };
-
 
 static BOOL JumpedOnEnemy(ENEMY *enemy);
 static void GetActiveTile(ENEMY *enemy);
