@@ -112,7 +112,7 @@ void ChangeActorScale( EVENT *event )
 /*----- [ LEVEL SETUPS ] -----------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
-	Function 	: SetupEventsForLevel
+	Function 	: InitEventsForLevel
 	Purpose 	: Adds all triggers and events for the current level
 	Parameters 	: 
 	Returns 	: 
