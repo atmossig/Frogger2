@@ -35,12 +35,16 @@ void RunFrontEnd( )
 	switch ( frontEndState.mode )
 	{
 	case TITLE_MODE:
-			RunTitleScreen();
+		RunTitleScreen();
 		break;
 	case LEVELSELECT_MODE:
-			multiplayerRun = 0;
-			RunLevelSelect();
+		multiplayerRun = 0;
+		RunLevelSelect();
 		break;
+	case HISCORE_MODE:
+		RunHiscoreScreen();
+		break;
+
 	}
 }
 

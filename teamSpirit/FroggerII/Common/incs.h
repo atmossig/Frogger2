@@ -32,6 +32,7 @@
 #include "font.h"
 #include "types2dgfx.h"
 #include "general.h"
+#include "3DText.h"
 
 #ifndef PC_VERSION
 #include "nnsched.h"

@@ -7,6 +7,7 @@
 #define PI			3.141592654
 #define PI_OVER_2	3.141592654/2.0F
 #define PI_OVER_4	3.141592654/4.0F
+#define PI2			3.141592654*2.0F
 
 #define ULONG unsigned long
 

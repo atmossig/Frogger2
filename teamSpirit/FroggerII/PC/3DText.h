@@ -28,7 +28,7 @@
 typedef struct _TEXT3D
 {
 	struct _TEXT3D *next, *prev;
-	Vtx *vT;				// Store polygon vertices
+	D3DTLVERTEX *vT;		// Store polygon vertices
 	char *string;			// Text string on which the 3DText is based
 	char vR, vG, vB, vA;    // Vertex rgb
 	short type;				// Line, circle, etc

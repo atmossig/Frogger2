@@ -1279,6 +1279,7 @@ void DoHiscores( )
 	HISCORE *hs = &worldHiScoreData[player[0].worldNum][player[0].levelNum];
 	long i, place = MAX_HISCORE_SLOTS;
 	
+	// TEST
 	player[0].score = 9999999;
 
 	// Level hiscores

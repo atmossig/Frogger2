@@ -1,5 +1,3 @@
-#define F3DEX_GBI
-
 #include <ultra64.h>
 #include "incs.h"
 
@@ -54,7 +52,7 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 
 	//t3d->timer = T360_TIMER; // Default value
 
-	t3d->vT = (Vtx *)JallocAlloc(sizeof(Vtx)*len*4, NO, "Vtx");
+	t3d->vT = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*len*4, NO, "D3DTLVERTEX");
 
 	// Finally, add new text3D to global list
 	t = text3DList.head.next;
@@ -74,24 +72,26 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	Returns			: 
 	Info			: 
 */
+long tNum;
+
 void Print3DText( )
 {
 	TEXT3D *t3d;
-	unsigned long v, c, len;
+	unsigned long v, c, len, i;
 	char texName[13];
 	TEXTURE *texture;
+	TEXENTRY *tEntry;
+
+	VECTOR m, tmp;
 
 	QUATERNION q;
 	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
 	float newRotMtx[4][4];
 
-	gDPPipeSync(glistp++);
+	static short f[6] = {0,1,2,0,2,3};
 
-	gSPDisplayList(glistp++,polyNoZ_dl);
-	gSPClearGeometryMode( glistp++, G_LIGHTING );
-	gDPSetTextureFilter(glistp++,G_TF_BILERP);
-	gSPSetGeometryMode( glistp++, G_ZBUFFER );
-	gDPSetRenderMode(glistp++, G_RM_ZB_XLU_SURF,G_RM_ZB_XLU_SURF2);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 
 	guTranslateF(transMtx,-0.5,-0.5,10);
 
@@ -99,12 +99,7 @@ void Print3DText( )
 	QuaternionToMatrix(&q,(MATRIX *)rotMtx);
 	guMtxCatF(rotMtx,transMtx,tempMtx);
 
-	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
-	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-										G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
-
-	gDPSetPrimColor(glistp++,0,0,255,255,255,255);
-	gDPSetEnvColor(glistp++,128,128,128,255);
+	PushMatrix(&tempMtx[0][0]);
 
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
@@ -114,8 +109,6 @@ void Print3DText( )
 		len = strlen(t3d->string);
 		for( c=0,v=0; c < len; c++,v+=4 )
 		{
-			gSPVertex(glistp++,&t3d->vT[v],4,0);
-
 			switch( t3d->string[c] )
 			{
 			case '0': cmemcpy( texName, "zero_32.bmp\0", 12 ); break;
@@ -138,21 +131,28 @@ void Print3DText( )
 			if( texName[0] != '_' )
 			{
 				FindTexture( &texture, UpdateCRC(texName), YES, texName );
-
 				LoadTexture(texture);
+				tEntry = ((TEXENTRY *)texture);
+				tNum = (long)tEntry->hdl;	
 
-				gDPLoadTextureBlock_4b(glistp++,texture->data,G_IM_FMT_CI,texture->sx,texture->sy,
-										0,G_TX_CLAMP|G_TX_NOMIRROR,G_TX_CLAMP|G_TX_NOMIRROR,
-										0,0,G_TX_NOLOD,G_TX_NOLOD);
+				// Transform to screen coords (I HOPE)
+				for( i=0; i<4; i++ )
+				{
+					tmp.v[0] = t3d->vT[v+i].sx;
+					tmp.v[1] = t3d->vT[v+i].sy;
+					tmp.v[2] = t3d->vT[v+i].sz;
+					XfmPoint( &m, &tmp );
+					t3d->vT[v+i].sx = m.v[0];
+					t3d->vT[v+i].sy = m.v[1];
+					t3d->vT[v+i].sz = m.v[2];
+				}
 
-				gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+				DrawAHardwarePoly(&t3d->vT[v],4,f,6,tNum);
 			}
 		}
-
-		gDPPipeSync(glistp++);
 	}
 
-	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
+	PopMatrix( );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -188,7 +188,6 @@ void Calculate3DText( )
 */
 void MakeTextCircle( TEXT3D *t3d )
 {
-	Vtx *vPtr = t3d->vT;
 	float tesa, tesb, teca,tecb;
 	float arcStep = PI2 / strlen(t3d->string);
 	int v;
@@ -232,10 +231,34 @@ void MakeTextCircle( TEXT3D *t3d )
 			yPd += sf1;
 		}
 
-		V((&vPtr[v+0]),tesa,	teca,	yPa,	0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+1]),tesb,	tecb,	yPb,	0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+2]),tesb,	tecb,	yPc,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+3]),tesa,	teca,	yPd,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		t3d->vT[v+0].sx = tesa;
+		t3d->vT[v+0].sy = teca;
+		t3d->vT[v+0].sz = yPa;
+		t3d->vT[v+0].tu = 0;
+		t3d->vT[v+0].tv = 0;
+		t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		t3d->vT[v+0].specular = D3DRGB(0,0,0);
+		t3d->vT[v+1].sx = tesb;
+		t3d->vT[v+1].sy = tecb;
+		t3d->vT[v+1].sz = yPb;
+		t3d->vT[v+1].tu = 1024;
+		t3d->vT[v+1].tv = 0;
+		t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		t3d->vT[v+1].specular = D3DRGB(0,0,0);
+		t3d->vT[v+2].sx = tesb;
+		t3d->vT[v+2].sy = tecb;
+		t3d->vT[v+2].sz = yPc;
+		t3d->vT[v+2].tu = 1024;
+		t3d->vT[v+2].tv = 1024;
+		t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		t3d->vT[v+2].specular = D3DRGB(0,0,0);
+		t3d->vT[v+3].sx = tesa;
+		t3d->vT[v+3].sy = teca;
+		t3d->vT[v+3].sz = yPd;
+		t3d->vT[v+3].tu = 0;
+		t3d->vT[v+3].tv = 1024;
+		t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		t3d->vT[v+3].specular = D3DRGB(0,0,0);
 	}
 }
 
@@ -249,7 +272,6 @@ void MakeTextCircle( TEXT3D *t3d )
 */
 void MakeTextLine( TEXT3D *t3d )
 {
-	Vtx *vPtr = t3d->vT;
 	float pB;
 	int v;
 	unsigned long len = strlen(t3d->string), i;
@@ -325,10 +347,34 @@ void MakeTextLine( TEXT3D *t3d )
 				zPd = t3d->zOffs - sfz1;
 			}
 
-			V((&vPtr[v+0]),-pB+t3d->xOffs,		zPa,	yPa,	0,	0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	zPb,	yPb,	0,	1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	zPc,	yPc,	0,	1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+3]),-pB+t3d->xOffs,		zPd,	yPd,	0,	0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+0].sx = -pB+t3d->xOffs;
+			t3d->vT[v+0].sy = zPa;
+			t3d->vT[v+0].sz = yPa;
+			t3d->vT[v+0].tu = 0;
+			t3d->vT[v+0].tv = 0;
+			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+0].specular = D3DRGB(0,0,0);
+			t3d->vT[v+1].sx = -pB-tS+t3d->xOffs;
+			t3d->vT[v+1].sy = zPb;
+			t3d->vT[v+1].sz = yPb;
+			t3d->vT[v+1].tu = 1024;
+			t3d->vT[v+1].tv = 0;
+			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+1].specular = D3DRGB(0,0,0);
+			t3d->vT[v+2].sx = -pB-tS+t3d->xOffs;
+			t3d->vT[v+2].sy = zPc;
+			t3d->vT[v+2].sz = yPc;
+			t3d->vT[v+2].tu = 1024;
+			t3d->vT[v+2].tv = 1024;
+			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+2].specular = D3DRGB(0,0,0);
+			t3d->vT[v+3].sx = -pB+t3d->xOffs;
+			t3d->vT[v+3].sy = zPd;
+			t3d->vT[v+3].sz = yPd;
+			t3d->vT[v+3].tu = 0;
+			t3d->vT[v+3].tv = 1024;
+			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
 	}
 	else
@@ -426,11 +472,34 @@ void MakeTextLine( TEXT3D *t3d )
 				zPd = t3d->zOffs + sfz2;
 			}
 			*/
-
-			V((&vPtr[v+0]),xPa,	zPa, yPa, 0, 0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+1]),xPb,	zPb, yPb, 0, 1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+2]),xPc,	zPc, yPc, 0, 1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-			V((&vPtr[v+3]),xPd,	zPd, yPd, 0, 0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+0].sx = xPa;
+			t3d->vT[v+0].sy = zPa;
+			t3d->vT[v+0].sz = yPa;
+			t3d->vT[v+0].tu = 0;
+			t3d->vT[v+0].tv = 0;
+			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+0].specular = D3DRGB(0,0,0);
+			t3d->vT[v+1].sx = xPb;
+			t3d->vT[v+1].sy = zPb;
+			t3d->vT[v+1].sz = yPb;
+			t3d->vT[v+1].tu = 1024;
+			t3d->vT[v+1].tv = 0;
+			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+1].specular = D3DRGB(0,0,0);
+			t3d->vT[v+2].sx = xPc;
+			t3d->vT[v+2].sy = zPc;
+			t3d->vT[v+2].sz = yPc;
+			t3d->vT[v+2].tu = 1024;
+			t3d->vT[v+2].tv = 1024;
+			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+2].specular = D3DRGB(0,0,0);
+			t3d->vT[v+3].sx = xPd;
+			t3d->vT[v+3].sy = zPd;
+			t3d->vT[v+3].sz = yPd;
+			t3d->vT[v+3].tu = 0;
+			t3d->vT[v+3].tv = 1024;
+			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
 	}
 }
@@ -652,7 +721,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 			}
 		}
 	}
-
+	/* CAN'T DO Z BOUNCING BECAUSE OF MATTS WEIRD 3D-NESS
 	if( t3d->type == T3D_CIRCLE )
 	{
 		if( t3d->zOffs+t3d->radius >= farPlaneDist && (t3d->motion & T3D_MOVE_OUT) )
@@ -711,6 +780,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 			}
 		}
 	}
+	*/
 }
 
 /*	--------------------------------------------------------------------------------

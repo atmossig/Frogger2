@@ -1537,7 +1537,7 @@ void DrawGraphics(void *arg)
 
 					DrawCameraSpaceActorList( );
 
-					if( gameState.mode == GAME_MODE && text3DList.numEntries )
+					if( (gameState.mode == GAME_MODE || frontEndState.mode == HISCORE_MODE) && text3DList.numEntries )
 						Print3DText( );					
 
 					if(darkenedLevel)

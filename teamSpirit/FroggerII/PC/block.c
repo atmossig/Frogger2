@@ -402,6 +402,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 	Returns			: 
 	Info			: 
 */
+VECTOR oldCCSource, oldCCTarget;
 
 void DrawGraphics() 
 {
@@ -438,6 +439,22 @@ void DrawGraphics()
 		DrawEditor();
 	
 	EndTimer(0);
+
+	/* CAMERA SPACE STUFF */
+	// Back up currCamSource and currCamTarget
+	oldCCSource = currCamSource[screenNum];
+	oldCCTarget = currCamTarget[screenNum];
+	// Set them so we don't do any modelling transforms
+	currCamSource[screenNum] = zero;
+	currCamTarget[screenNum] = inVec;
+	
+	if( (gameState.mode == GAME_MODE || frontEndState.mode == HISCORE_MODE) && text3DList.numEntries )
+		Print3DText( );
+
+	// Restore currCam vectors
+	currCamSource[screenNum] = oldCCSource;
+	currCamTarget[screenNum] = oldCCTarget;
+	/* END CAMERA SPACE STUFF */
 
 	if (drawTimers)
 		PrintTimers();
