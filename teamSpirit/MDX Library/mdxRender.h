@@ -24,6 +24,8 @@ extern unsigned long drawingSwampy;
 extern unsigned long numObjDrawn;
 extern float clx0, cly0, clx1, cly1;
 
+extern float farClip, nearClip;
+
 void InitOneOverTable(void);
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh);
 void DrawLandscape(MDX_LANDSCAPE *me);
