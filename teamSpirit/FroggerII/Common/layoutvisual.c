@@ -576,7 +576,11 @@ void FreeAllGameLists()
 #ifdef PC_VERSION
 	StopSong( );
 	FreeSampleList();
-	if( sfx_anim_map ) JallocFree((UBYTE **)&sfx_anim_map);
+	if( sfx_anim_map )
+	{
+		JallocFree((UBYTE **)&sfx_anim_map);
+		sfx_anim_map = NULL;
+	}
 #endif
 
 	KillAllTriggers();
@@ -735,7 +739,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		}
 	}
 
-	if (player[0].worldNum==9)
+	if (player[0].worldNum==8)
 	{
 	//	CreateOverlays();
 		timeTextOver->draw = 0;

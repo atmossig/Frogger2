@@ -816,6 +816,8 @@ BOOL ExecuteCommand(UBYTE **p)
 			player[0].levelNum = level;
 
 			gameState.mode = LEVELCOMPLETE_MODE;
+			gameState.multi = SINGLEPLAYER;
+
 			GTInit( &modeTimer, 1 );
 			showEndLevelScreen = 0;
 			break;
