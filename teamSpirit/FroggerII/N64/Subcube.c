@@ -1287,8 +1287,6 @@ void SetupRenderModeForObject ( OBJECT *obj )
 				gDPSetPrimColor(glistp++,0, 0, 255, 255, 255, xluFact);
 
 
-				LoadPhongTexture(obj->phongTex);
-
 				if(obj->flags & OBJECT_FLAGS_FACE_COLOUR)
 				{
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Light 1 colour

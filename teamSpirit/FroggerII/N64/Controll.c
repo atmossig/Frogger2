@@ -199,7 +199,7 @@ void ReadDebugPad()
 
 	if((button2 & CONT_A) && !(lastbutton2 & CONT_A))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE1,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,42,NO,NO,0.4F,0,0);
 		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_B) && !(lastbutton2 & CONT_B))

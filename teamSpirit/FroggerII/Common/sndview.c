@@ -54,327 +54,329 @@ char *sfxNames[] =
 	"FX CHUCK CALL",
 	"FX CHUCK ATTACK",
 	"FX CHUCK JUGGLE",
-"FX_CHUCK_WALK",
-"FX_BUGLE_CALL",
-"FX_BUGLE_ATTACK",
-"FX_BUGLE_DEATH",
-"FX_KLOSET_CALL",
-"FX_KLOSET_WALK_LEFT",
-"FX_KLOSET_WALK_RIGHT",
-"FX_KLOSET_ATTACK",
-"FX_KLOSET_SPINFLOOR",
-"FX_KLOSET_BOXINGGLOVE",
-"FX_KLOSET_BOMB",
-"FX_CRUMPET_ATTACK",
-"FX_CRUMPET_CALL",
-"FX_TRACY_DANCING",
-"FX_TRACY_CALL",
-"FX_TRACY_WALK_LEFT",
-"FX_TRACY_WALK_RIGHT",
-"FX_TRACY_LAND",
-"FX_TRACY_CHARGE",
-"FX_TREX_CALL",
-"FX_TREX_ATTACK",
-"FX_TREX_FOOTSTEP_LEFT",
-"FX_TREX_FOOTSTEP_RIGHT",
-"FX_FLANNEL_WINGFLAP",
-"FX_FLANNEL_CALL",
-"FX_THRICE_ATTACK",
-"FX_THRICE_IDLE",
-"FX_MIKE_WALK_LEFT",
-"FX_MIKE_WALK_RIGHT",
-"FX_MIKE_ATTACK",
-"FX_FUMBLE_CALL",
-"FX_FUMBLE_WALK",
-"FX_ETHEL_CALL",
-"FX_ETHEL_WIND",
-"FX_ETHEL_ATTACK",
- "FX_FRANKIE_ATTACK_LOOPED",
- "FX_FRANKIE_ATTACK",
- "FX_FRANKIE_ATTACK2",
- "FX_FRANKIE_GENERALHUM",
- "FX_FRANKIE_WALK_LEFT",
- "FX_FRANKIE_WALK_RIGHT",
- "FX_FRANKIE_CALL",
- "FX_FRANKIE_DEATH",
- "FX_REGGIE_WALK",
- "FX_REGGIE_DEATH",
- "FX_SWISH_WALK_LEFT",
- "FX_SWISH_WALK_RIGHT",
- "FX_SWISH_ATTACK",
- "FX_KEG_CALL",
- "FX_KEG_WALK",
- "FX_CHESTER_ATTACK",
- "FX_CHESTER_WALK",
- "FX_CHESTER_CALL",
- "FX_SPANK_CALL_1",
- "FX_SPANK_CALL_2",
- "FX_SPANK_SWING",
- "FX_SPANK_ATTACK",
- "FX_SPANK_DROP",
- "FX_YOOFOW_FLY",
- "FX_YOOFOW_ATTACK",
- "FX_OPEC_IDLE",
- "FX_OPEC_ATTACK_LOOP",
- "FX_OPEC_ATTACK_SINGLE",
- "FX_CYMON_GENERAL",
- "FX_CYMON_WALK_LEFT",
- "FX_CYMON_WALK_RIGHT",
- "FX_SUCKER_ATTACK_LOOP",
- "FX_SUCKER_ATTACK",
- "FX_SUCKER_SPIT",
- "FX_SUCKER_CALL_1",
- "FX_SUCKER_CALL_2",
- "FX_SUCKER_CALL_3",
- "FX_SUCKER_CRYSTAL",
- "FX_ROBOT_WALK",
- "FX_ROBOT_ATTACK",
- "FX_ROBOT_GENERAL",
- "FX_BOVVA_GENERAL",
- "FX_BOVVA_ATTACK",
- "FX_CANNONBALL_WALK",
- "FX_SAMTEX_WALK",
- "FX_SAMTEX_FUSE",
- "FX_SAMTEX_EXPLODE",
- "FX_CHICKEN_CLUCKNORMAL",
- "FX_CHICKEN_CLUCKHALFMAD",
- "FX_CHICKEN_CLUCKMAD",
- "FX_CHICKEN_FART",
- "FX_CHICKEN_BELCH",
- "FX_SCUTTLE_GENERIC_1",
- "FX_SCUTTLE_GENERIC_2",
- "FX_SCUTTLE_GENERIC_3",
- "FX_SPANK_CALL_3",
- "FX_SPANK_CALL_4",
- "FX_SPANK_OOF",
- "FX_CHESTER_GROWL",
- "FX_ROBOT_GENERAL_2",
- "FX_ROBOT_GENERAL_3",
- "FX_ROBOT_GENERAL_4",
- "FX_ROBOT_GENERAL_5",
- "FX_GENERALWU_PULLUP ",
- "FX_CHUCK_JUGGLE_ENDING",
- "FX_TRACEY_JUMP",
- "FX_TREX_PANTING_LOOP",
- "FX_FUMBLE_SPOTBALL",
- "FX_FUMBLE_KEEPBALANCE",
- "FX_FUMBLE_PANTING_LOOP", 
- "FX_KLOSET_PIANOFALL",
- "FX_BALLBOUNCE_RUBBER",
- "FX_BALLBOUNCE_BOWLING",  
- "FX_BALLBOUNCE_POWER", 
- "FX_BALLBOUNCE_BEARING",   
- "FX_BALLBOUNCE_BEACH",
- "FX_BALLBOUNCE_SNOW",   
- "FX_BALLBOUNCE_CRYSTAL",
- "FX_BALLBOUNCE_CRYSTAL_SMASH",
- "FX_BALL_BURST",
- "FX_COLLECT_BONUS_1",
- "FX_COLLECT_BONUS__ECHO",
- "FX_COLLECT_BONUS_1",
- "FX_COLLECT_POWERUP_1",
- "FX_COLLECT_POWERUP_2",
- "FX_COLLECT_POWERUP_3",
- "FX_COLLECT_POWERUP_4", 
- "FX_COLLECT_POWERUP_5",
- "FX_HAND_FOOTSTEP_LEFT",
- "FX_HAND_FOOTSTEP_RIGHT",
- "FX_HAND_SKID",
- "FX_HAND_SKID_LOOP",
- "FX_HAND_JUMP_SMALL",
- "FX_HAND_JUMP_BIG",
- "FX_HAND_LAND",
- "FX_HAND_HURT_1",
- "FX_HAND_HURT_2",
- "FX_HAND_HURT_3",
- "FX_HAND_PUSH_1",
- "FX_HAND_PUSH_2",
- "FX_HAND_FALL",
- "FX_HAND_DIE_1",
- "FX_HAND_DIE_2",
- "FX_HAND_FINGERTAP_1",
- "FX_HAND_FINGERTAP_2",
- "FX_HAND_FINGERCLICK",
- "FX_HAND_FISTSLAM",
- "FX_HAND_THROW_1",
- "FX_HAND_THROW_2",
- "FX_HAND_THROW_3",
- "FX_HAND_THROW__LOOP",
- "FX_HAND_WHACKBALL",
- "FX_HAND_BOUNCETAP_1",
- "FX_HAND_BOUNCETAP_2",
- "FX_CAST_SPELL_1",
- "FX_CAST_SPELL_2",
- "FX_CAST_SPELL_3",
- "FX_POINT_DIRECTION_1",
- "FX_POINT_DIRECTION_2",
- "FX_GENERIC_BLEEP_1",
- "FX_GENERIC_BLEEP_2",
- "FX_GENERIC_BLEEP_3",
- "FX_GENERIC_BLEEP_4",
- "FX_ROLLING_SNOWBALL",
-/* "FX_IMPACT_STONE_SMALL   
- "FX_IMPACT_STONE_MEDIUM  
- "FX_IMPACT_STONE_LARGE   
- "FX_IMPACT_WOOD_SMALL    
- "FX_IMPACT_WOOD_MEDIUM   
- "FX_IMPACT_WOOD_LARGE    
- "FX_IMPACT_METAL_SMALL   
- "FX_IMPACT_METAL_MEDIUM  
- "FX_IMPACT_METAL_LARGE   
- "FX_IMPACT_SAND_SMALL    
- "FX_IMPACT_SAND_MEDIUM   
- "FX_IMPACT_SAND_LARGE    
- "FX_IMPACT_SNOW_SMALL    
- "FX_IMPACT_SNOW_MEDIUM   
- "FX_IMPACT_SNOW_LARGE    
- "FX_IMPACT_MUD_SMALL     
- "FX_IMPACT_MUD_MEDIUM    
- "FX_IMPACT_MUD_LARGE     
- "FX_STONE_SCAPE_LARGE    
- "FX_STONE_SCAPE_SMALL    
- "FX_METAL_SCRAPE_LARGE   
- "FX_METAL_SCRAPE_SMALL   
- "FX_WOOD_SCRAPE_LARGE    
- "FX_WOOD_SCRAPE_SMALL    
- "FX_ICE_SCRAPE_LARGE     
- "FX_ICE_SCRAPE_SMALL     
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_SWITCH_             
- "FX_FROG_CALL            
- "FX_TROUSERS_FALLDOWN    
- "FX_IMPACT_WATER_SMALL   
- "FX_IMPACT_WATER_MEDIUM  
- "FX_IMPACT_WATER_LARGE   
- "FX_EERIE_WIND           
- "FX_BIRD_TWEET_         
- "FX_BIRD_TWEET_         
- "FX_BIRD_TWEET_         
- "FX_BIRD_TWEET_         
- "FX_BIRD_TWEET_         
- "FX_BIRD_TWEET_         
- "FX_WATERFALL            
- "FX_WATERFALL_STEREO     
- "FX_LAVA_               
- "FX_LAVA_               
- "FX_BAT_WINGFLAP         
- "FX_BAT_CALL             
- "FX_BAT_CALL_ECHO        
- "FX_DRIPING_WATER        
- "FX_FOUNTAIN_           
- "FX_FOUNTAIN_           
- "FX_FOUNTAIN_STEREO      
- "FX_SEA_WAVES_          
- "FX_SEA_WAVES_          
- "FX_SEA_OFF_EDGE         
- "FX_HEAVY_SWITCH         
- "FX_BADGLOVE_LAUGH_     
- "FX_RAIN                 
- "FX_RAIN_HEAVY           
- "FX_THUNDER              
- "FX_HAND_JUMP          
- "FX_HAND_JUMP          
- "FX_HAND_JUMP          
- "FX_HAND_JUMP          
- "FX_HAND_RUNJUMP       
- "FX_HAND_RUNJUMP       
- "FX_HAND_RUNJUMP       
- "FX_HAND_RUNJUMP       
- "FX_HAND_PUSH          
- "FX_HAND_PUSH          
- "FX_HAND_PUSH          
- "FX_HAND_PUSH          
- "FX_HAND_HURT          
- "FX_HAND_HURT          
- "FX_HAND_HURT          
- "FX_HAND_HURT          
- "FX_HAND_SPELL         
- "FX_HAND_SPELL         
- "FX_HAND_SPELL         
- "FX_HAND_SPELL         
- "FX_HAND_VICTORY       
- "FX_HAND_VICTORY       
- "FX_HAND_VICTORY       
- "FX_HAND_VICTORY       
- "FX_HAND_DIE           
- "FX_HAND_DIE           
- "FX_HAND_DIE           
- "FX_HAND_FALL           
- "FX_BUBBLES_            
- "FX_BUBBLES_            
- "FX_BUBBLES_            
- "FX_COLLECT_BONUS_      
- "FX_COLLECT_BONUS_      
- "FX_COLLECT_BONUS_      
- "FX_CAST_SPELL_         
- "FX_CAST_SPELL_         
- "FX_HAND_WOW            
- "FX_BIGSPELL             
- "FX_INTRO_BUBBLES        
- "FX_INTRO_THUNDER        
- "FX_INTRO_HANDOFF        
- "FX_INTRO_SPLASH         
- "FX_INTRO_HANDOUTWINDOW  
- "FX_INTRO_FLOORBREAK     
- "FX_INTRO_WIZARDFALL     
- "FX_INTRO_RUMBLE         
- "FX_INTRO_EXPLOSION      
- "FX_INTRO_WIND           
- "FX_INTRO_CHANGETOBALL   
- "FX_INTRO_BALLBOUNCE     
- "FX_INTRO_HANDHITGROUND  
- "FX_INTRO_HANDOUCH       
- "FX_INTRO_HANDGETUP      
- "FX_INTRO_HANDYEAH       
- "FX_INTRO_BADGLOVELAUGH  
- "FX_PORTCULLIS          
- "FX_PORTCULLIS          
- "FX_WATER_LAPPING_      
- "FX_WATER_LAPPING_      
- "FX_SPLASH_SMALL        
- "FX_SPLASH_SMALL        
- "FX_SPLASH_SMALL        
- "FX_SPLASH_SMALL        
- "FX_ROTORBLADE           
- "FX_SUCKER               
- "FX_ROCK_SMASH_         
- "FX_ROCK_SMASH_         
- "FX_ROCK_SMASH_         
- "FX_TELEPORT_           
- "FX_TELEPORT_           
- "FX_ENTRO_WIND           
- "FX_ENTRO_WHOOSH         
- "FX_ENTRO_STONELAND      
- "FX_ENTRO_FSTEP          
- "FX_ENTRO_BIRD          
- "FX_ENTRO_BIRD          
- "FX_ENTRO_WHAA           
- "FX_ENTRO_WHOA           
- "FX_ENTRO_BGFALL         
- "FX_ENTRO_BGLAND         
- "FX_ENTRO_JUMP           
- "FX_ENTRO_HANDATTACH     
- "FX_ENTRO_BGRUN          
- "FX_ENTRO_CASTSPELL      
- "FX_ENTRO_SPELLHIT       
- "FX_ENTRO_TRANSFORM      
- "FX_ENTRO_CHANGE         
- "FX_ENTRO_BLOW           
- "FX_ENTRO_WIZWALK        
- "FX_ENGINE_FAIL          
- "FX_ENGINE_START         
- "FX_ENGINE_RUNNING       
- "FX_ENGINE_FAIL         
- "FX_JETPACK              */
+	"FX CHUCK WALK",
+	"FX BUGLE CALL",
+	"FX BUGLE ATTACK",
+	"FX BUGLE DEATH",
+	"FX KLOSET CALL",
+	"FX KLOSET WALK_LEFT",
+	"FX KLOSET WALK_RIGHT",
+	"FX KLOSET ATTACK",
+	"FX KLOSET SPINFLOOR",
+	"FX KLOSET BOXINGGLOVE",
+	"FX KLOSET BOMB",
+	"UNKNOWN",
+	"FX CRUMPET ATTACK",
+	"FX CRUMPET CALL",
+	"FX TRACY DANCING",
+	"FX TRACY CALL",
+	"FX TRACY WALK_LEFT",
+	"FX TRACY WALK_RIGHT",
+	"FX TRACY LAND",
+	"FX TRACY CHARGE",
+	"FX TREX CALL",
+	"FX TREX ATTACK",
+	"FX TREX FOOTSTEP_LEFT",
+	"FX TREX FOOTSTEP_RIGHT",
+	"FX FLANNEL WINGFLAP",
+	"FX FLANNEL CALL",
+	"FX THRICE ATTACK",
+	"FX THRICE IDLE",
+	"FX MIKE_WALK LEFT",
+	"FX MIKE_WALK RIGHT",
+	"FX MIKE ATTACK",
+	"FX FUMBLE CALL",
+	"FX FUMBLE WALK",
+	"FX ETHEL CALL",
+	"FX ETHEL WIND",
+	"FX ETHEL ATTACK",
+	"FX FRANKIE ATTACKLOOPED",
+	"FX FRANKIE ATTACK",
+	"FX FRANKIE ATTACK2",
+	"FX FRANKIE GENERALHUM",
+	"FX FRANKIE WALK_LEFT",
+	"FX FRANKIE WALK_RIGHT",
+	"FX FRANKIE CALL",
+	"FX FRANKIE DEATH",
+	"FX REGGIE WALK",
+	"FX REGGIE DEATH",
+	"FX SWISH WALKLEFT",
+	"FX SWISH WALKRIGHT",
+	"FX SWISH_ATTACK",
+	"FX KEG CALL",
+	"FX KEG WALK",
+	"FX CHESTER ATTACK",
+	"FX CHESTER WALK",
+	"FX CHESTER CALL",
+	"FX SPANK CALL1",
+	"FX SPANK CALL2",
+	"FX SPANK SWING",
+	"FX SPANK ATTACK",
+	"FX SPANK DROP",
+	"FX YOOFOW FLY",
+	"FX YOOFOW ATTACK",
+	"FX OPEC IDLE",
+	"FX OPEC ATTACKLOOP",
+	"FX OPEC ATTACKSINGLE",
+	"FX CYMON GENERAL",
+	"FX CYMON WALKLEFT",
+	"FX CYMON WALKRIGHT",
+	"FX SUCKER ATTACKLOOP",
+	"FX SUCKER ATTACK",
+	"FX SUCKER SPIT",
+	"FX SUCKER CALL1",
+	"FX SUCKER CALL2",
+	"FX SUCKER CALL3",
+	"FX SUCKER CRYSTAL",
+	"FX ROBOT WALK",
+	"FX ROBOT ATTACK",
+	"FX ROBOT GENERAL",
+	"FX BOVVA GENERAL",
+	"FX BOVVA ATTACK",
+	"FX CANNONBALL WALK",
+	"FX SAMTEX WALK",
+	"FX SAMTEX FUSE",
+	"FX SAMTEX EXPLODE",
+	"FX CHICKEN CLUCKNORMAL",
+	"FX CHICKEN CLUCKHALFMAD",
+	"FX CHICKEN CLUCKMAD",
+	"FX CHICKEN FART",
+	"FX CHICKEN BELCH",
+	"FX SCUTTLE GENERIC1",
+	"FX SCUTTLE GENERIC2",
+	"FX SCUTTLE GENERIC3",
+	"FX SPANK CALL3",
+	"FX SPANK CALL4",
+	"FX SPANK OOF",
+	"FX CHESTER GROWL",
+	"FX ROBOT GENERAL2",
+	"FX ROBOT GENERAL3",
+	"FX ROBOT GENERAL4",
+	"FX ROBOT GENERAL5",
+	"FX GENERALWU PULLUP",
+	"FX CHUCK JUGGLE ENDING",
+	"FX TRACEY JUMP",
+	"FX TREX PANTING LOOP",
+	"FX FUMBLE SPOTBALL",
+	"FX FUMBLE KEEPBALANCE",
+	"FX FUMBLE PANTING LOOP", 
+	"FX KLOSET PIANOFALL",
+	"FX BALLBOUNCE RUBBER",
+	"FX BALLBOUNCE BOWLING",  
+	"FX BALLBOUNCE POWER", 
+	"FX BALLBOUNCE BEARING",   
+	"FX BALLBOUNCE BEACH",
+	"FX BALLBOUNCE SNOW",   
+	"FX BALLBOUNCE CRYSTAL",
+	"FX BALLBOUNCE CRYSTAL SMASH",
+	"FX BALL BURST",
+	"FX COLLECT BONUS 1",
+	"FX COLLECT BONUS  ECHO",
+	"FX COLLECT BONUS 1",
+	"FX COLLECT POWERUP 1",
+	"FX COLLECT POWERUP 2",
+	"FX COLLECT POWERUP 3",
+	"FX COLLECT POWERUP 4", 
+	"FX COLLECT POWERUP 5",
+	"FX HAND FOOTSTEP LEFT",
+	"FX HAND FOOTSTEP RIGHT",
+	"FX HAND SKID",
+	"FX HAND SKID LOOP",
+	"FX HAND JUMP SMALL",
+	"FX HAND JUMP BIG",
+	"FX HAND LAND",
+	"FX HAND HURT 1",
+	"FX HAND HURT 2",
+	"FX HAND HURT 3",
+	"FX HAND PUSH 1",
+	"FX HAND PUSH 2",
+	"FX HAND FALL",
+	"FX HAND DIE 1",
+	"FX HAND DIE 2",
+	"FX HAND FINGERTAP 1",
+	"FX HAND FINGERTAP 2",
+	"FX HAND FINGERCLICK",
+	"FX HAND FISTSLAM",
+	"FX HAND THROW 1",
+	"FX HAND THROW 2",
+	"FX HAND THROW 3",
+	"FX HAND THROW  LOOP",
+	"FX HAND WHACKBALL",
+	"FX HAND BOUNCETAP 1",
+	"FX HAND BOUNCETAP 2",
+	"FX CAST SPELL 1",
+	"FX CAST SPELL 2",
+	"FX CAST SPELL 3",
+	"FX POINT DIRECTION 1",
+	"FX POINT DIRECTION 2",
+	"FX GENERIC BLEEP 1",
+	"FX GENERIC BLEEP 2",
+	"FX GENERIC BLEEP 3",
+	"FX GENERIC BLEEP 4",
+	"FX ROLLING SNOWBALL",
+
+	"FX IMPACT STONE SMALL",
+	"FX IMPACT STONE MEDIUM",
+	"FX IMPACT STONE LARGE",
+	"FX IMPACT WOOD SMALL", 
+	"FX IMPACT WOOD MEDIUM",  
+	"FX IMPACT WOOD LARGE",    
+	"FX IMPACT METAL SMALL",   
+	"FX IMPACT METAL MEDIUM",  
+	"FX IMPACT METAL LARGE",   
+	"FX IMPACT SAND SMALL",    
+	"FX IMPACT SAND MEDIUM",   
+	"FX IMPACT SAND LARGE",    
+	"FX IMPACT SNOW SMALL",    
+	"FX IMPACT SNOW MEDIUM",   
+	"FX IMPACT SNOW LARGE",    
+	"FX IMPACT MUD SMALL",     
+	"FX IMPACT MUD MEDIUM",    
+	"FX IMPACT MUD LARGE",     
+	"FX STONE SCAPE LARGE",    
+	"FX STONE SCAPE SMALL",    
+	"FX METAL SCRAPE LARGE",   
+	"FX METAL SCRAPE SMALL",   
+	"FX WOOD SCRAPE LARGE",    
+	"FX WOOD SCRAPE SMALL",    
+	"FX ICE SCRAPE LARGE",     
+	"FX ICE SCRAPE SMALL",     
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX SWITCH",              
+	"FX FROG CALL",            
+	"FX TROUSERS FALLDOWN",    
+	"FX IMPACT WATER SMALL",   
+	"FX IMPACT WATER MEDIUM",  
+	"FX IMPACT WATER LARGE",   
+	"FX EERIE WIND",           
+	"FX BIRD TWEET",          
+	"FX BIRD TWEET",         
+	"FX BIRD TWEET",          
+	"FX BIRD TWEET",          
+	"FX BIRD TWEET",          
+	"FX BIRD TWEET",          
+	"FX WATERFALL",            
+	"FX WATERFALL STEREO",     
+	"FX LAVA",                
+	"FX LAVA",                
+	"FX BAT WINGFLAP",         
+	"FX BAT CALL",             
+	"FX BAT CALL ECHO",        
+	"FX DRIPING WATER",        
+	"FX FOUNTAIN",            
+	"FX FOUNTAIN",            
+	"FX FOUNTAIN STEREO",      
+	"FX SEA WAVES",           
+	"FX SEA WAVES",          
+	"FX SEA OFF EDGE",         
+	"FX HEAVY SWITCH",         
+	"FX BADGLOVE LAUGH",      
+	"FX RAIN",                 
+	"FX RAIN HEAVY",           
+	"FX THUNDER",              
+	"FX HAND JUMP",          
+	"FX HAND JUMP",          
+	"FX HAND JUMP",          
+	"FX HAND JUMP",          
+	"FX HAND RUNJUMP",       
+	"FX HAND RUNJUMP",       
+	"FX HAND RUNJUMP",       
+	"FX HAND RUNJUMP",       
+	"FX HAND PUSH",          
+	"FX HAND PUSH",          
+	"FX HAND PUSH",          
+	"FX HAND PUSH",          
+	"FX HAND HURT",          
+	"FX HAND HURT",          
+	"FX HAND HURT",          
+	"FX HAND HURT",          
+	"FX HAND SPELL",         
+	"FX HAND SPELL",         
+	"FX HAND SPELL",         
+	"FX HAND SPELL",         
+	"FX HAND VICTORY",       
+	"FX HAND VICTORY",       
+	"FX HAND VICTORY",       
+	"FX HAND VICTORY",       
+	"FX HAND DIE",           
+	"FX HAND DIE",           
+	"FX HAND DIE",           
+	"FX HAND FALL",           
+	"FX BUBBLES",             
+	"FX BUBBLES",             
+	"FX BUBBLES",             
+	"FX COLLECT BONUS",       
+	"FX COLLECT BONUS",       
+	"FX COLLECT BONUS",       
+	"FX CAST SPELL",          
+	"FX CAST SPELL",          
+	"FX HAND WOW",            
+	"FX BIGSPELL",             
+	"FX INTRO BUBBLES",        
+	"FX INTRO THUNDER",        
+	"FX INTRO HANDOFF",        
+	"FX INTRO SPLASH",         
+	"FX INTRO HANDOUTWINDOW",  
+	"FX INTRO FLOORBREAK",     
+	"FX INTRO WIZARDFALL",     
+	"FX INTRO RUMBLE",         
+	"FX INTRO EXPLOSION",      
+	"FX INTRO WIND",           
+	"FX INTRO CHANGETOBALL",   
+	"FX INTRO BALLBOUNCE",     
+	"FX INTRO HANDHITGROUND",  
+	"FX INTRO HANDOUCH",       
+	"FX INTRO HANDGETUP",      
+	"FX INTRO HANDYEAH",       
+	"FX INTRO BADGLOVELAUGH",  
+	"FX PORTCULLIS",          
+	"FX PORTCULLIS",          
+	"FX WATER LAPPING",       
+	"FX WATER LAPPING",       
+	"FX SPLASH SMALL",        
+	"FX SPLASH SMALL",        
+	"FX SPLASH SMALL",        
+	"FX SPLASH SMALL",        
+	"FX ROTORBLADE",           
+	"FX SUCKER",               
+	"FX ROCK SMASH",         
+	"FX ROCK SMASH",          
+	"FX ROCK SMASH",          
+	"FX TELEPORT",            
+	"FX TELEPORT",            
+	"FX ENTRO WIND",           
+	"FX ENTRO WHOOSH",         
+	"FX ENTRO STONELAND",      
+	"FX ENTRO FSTEP",          
+	"FX ENTRO BIRD",          
+	"FX ENTRO BIRD",          
+	"FX ENTRO WHAA",           
+	"FX ENTRO WHOA",           
+	"FX ENTRO BGFALL",         
+	"FX ENTRO BGLAND",         
+	"FX ENTRO JUMP",           
+	"FX ENTRO HANDATTACH",     
+	"FX ENTRO BGRUN",          
+	"FX ENTRO CASTSPELL",      
+	"FX ENTRO SPELLHIT",       
+	"FX ENTRO TRANSFORM",      
+	"FX ENTRO CHANGE",         
+	"FX ENTRO BLOW",           
+	"FX ENTRO WIZWALK",        
+	"FX ENGINE FAIL",          
+	"FX ENGINE START",         
+	"FX ENGINE RUNNING",       
+	"FX ENGINE FAIL",         
+	"FX JETPACK"
 };
 
-#define NUM_SNDVIEW_SFX		180
+#define NUM_SNDVIEW_SFX		343	//181
 
 TEXTOVERLAY *sfxName,*musName;
 
@@ -399,9 +401,12 @@ void RunSndView()
 	static s16 stickX,stickY;
 	static SPRITEOVERLAY *curPane;
 	SPRITEOVERLAY *sprPane;
+	char sfxNameTxt[256];
+	char musNameTxt[256];
 	
 	if(frameCount == 1)
 	{
+		int i;
 		FreeAllLists();
 		
 		LoadTextureBank(SYSTEM_TEX_BANK);
@@ -425,11 +430,13 @@ void RunSndView()
 		// middle pane --------------------------------------------------------------------------
 		titleSfx = CreateAndAddTextOverlay(40,55,"SNDFX NAMES",NO,NO,0,255,0,255,oldeFont,0,0,0);
 		sfxName = CreateAndAddTextOverlay(45,65,"",NO,NO,255,255,255,255,oldeFont,0,2,0);
-		sfxName->text = sfxNames[sfxNum];
+		sprintf(sfxNameTxt,"%s %d",sfxNames[sfxNum],sfxNum);
+		sfxName->text = sfxNameTxt;
 
 		titleMus = CreateAndAddTextOverlay(40,85,"MUSIC TRACK",NO,NO,0,255,0,95,oldeFont,0,0,0);
 		musName = CreateAndAddTextOverlay(45,95,"",NO,NO,255,255,255,95,oldeFont,0,0,0);
-		musName->text = gameSongs[musNum].tuneName;
+		sprintf(musNameTxt,"%s %d",gameSongs[musNum].tuneName,musNum);
+		musName->text = musNameTxt;
 		// middle pane --------------------------------------------------------------------------
 
 		// bottom pane --------------------------------------------------------------------------
@@ -450,13 +457,22 @@ void RunSndView()
 		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,255,255,255,191,0);
 
 		// add the water actor
-		watActor = CreateAndAddActor("eleven.obe",0,-30,50,0,0,0);
+		watActor = CreateAndAddActor("eleven.obe",0,0,20,0,0,0);
 		watActor->flags = ACTOR_DRAW_ALWAYS;
 
-		watActor->actor->qRot.x = -0.25;
+		watActor->actor->qRot.x = -1;
 		watActor->actor->qRot.y = 0;
 		watActor->actor->qRot.z = 0;
 		watActor->actor->qRot.w = 1;
+
+		// set all vertex normals (Gouraud colours) to max.
+		i = watActor->actor->objectController->object->mesh->numVertices;
+		while(i--)
+		{
+			watActor->actor->objectController->object->mesh->vertexNormals[i].v[X] = 255;
+			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Y] = 255;
+			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Z] = 255;
+		}
 
 		sfxNum	= 0;
 		musNum	= 0;
@@ -502,7 +518,8 @@ void RunSndView()
 				sfxNum--;
 			}
 
-			sfxName->text = sfxNames[sfxNum];
+			sprintf(sfxNameTxt,"%s %d",sfxNames[sfxNum],sfxNum);
+			sfxName->text = sfxNameTxt;
 		}
 		// select required music track
 		else
@@ -514,7 +531,8 @@ void RunSndView()
 				musNum--;
 			}
 
-			musName->text = gameSongs[musNum].tuneName;
+			sprintf(musNameTxt,"%s %d",gameSongs[musNum].tuneName,musNum);
+			musName->text = musNameTxt;
 		}
 	}
 
@@ -529,7 +547,8 @@ void RunSndView()
 				sfxNum++;
 			}
 
-			sfxName->text = sfxNames[sfxNum];
+			sprintf(sfxNameTxt,"%s %d",sfxNames[sfxNum],sfxNum);
+			sfxName->text = sfxNameTxt;
 		}
 		// select required music track
 		else
@@ -541,6 +560,7 @@ void RunSndView()
 				musNum++;
 			}
 
+			sprintf(musNameTxt,"%s %d",gameSongs[musNum].tuneName,musNum);
 			musName->text = gameSongs[musNum].tuneName;
 		}
 	}
@@ -551,7 +571,7 @@ void RunSndView()
 		if(sfx)
 		{
 			MusHandleStop(audioCtrl.musicHandle[0],0);
-//			sfxRes = PlaySampleNot3D(sfxNum,255,128,128);
+			sfxRes = PlaySample(sfxNum,NULL,128,255,128);
 		}
 		// play currently selected music track
 		else
@@ -592,8 +612,10 @@ void RunSndView()
 			musNum = 0;
 		}
 
-		musName->text = gameSongs[musNum].tuneName;
-		sfxName->text = sfxNames[sfxNum];
+		sprintf(musNameTxt,"%s %d",gameSongs[musNum].tuneName,musNum);
+		musName->text = musNameTxt;
+		sprintf(sfxNameTxt,"%s %d",sfxNames[sfxNum],sfxNum);
+		sfxName->text = sfxNameTxt;
 	}
 
 	if((button & CONT_R) && !(lastbutton & CONT_R))
@@ -612,8 +634,10 @@ void RunSndView()
 			musNum = (NUM_TRACKS - 1);
 		}
 
-		musName->text = gameSongs[musNum].tuneName;
-		sfxName->text = sfxNames[sfxNum];
+		sprintf(musNameTxt,"%s %d",gameSongs[musNum].tuneName,musNum);
+		musName->text = musNameTxt;
+		sprintf(sfxNameTxt,"%s %d",sfxNames[sfxNum],sfxNum);
+		sfxName->text = sfxNameTxt;
 	}
 
 	if((button & CONT_G) && !(lastbutton & CONT_G))
@@ -621,9 +645,6 @@ void RunSndView()
 		MusHandleStop(sfxRes,0);
 		MusHandleStop(audioCtrl.musicHandle[0],0);
 		audioCtrl.currentTrack[0] = 0;
-
-		if(waterVel)
-			JallocFree((UBYTE **)&waterVel);
 
 		FreeAllLists();
 		developmentMode = 0;
@@ -655,15 +676,19 @@ void RunSndView()
 	{
 		// assuming non-drawlisted object
 		VECTOR *wv;
+		BYTEVECTOR *wvn;
+		float dp;
 		int k,j,i = watActor->actor->objectController->object->mesh->numVertices;
 		int x,y;
 
-		if(waterVel == NULL)
-			waterVel = (float *)JallocAlloc(waterX*waterY*sizeof(float),YES,"wvel");
+		waterF = 0.6F;
+		waterWaveHeightAmp[0] = 40;		waterWaveHeightAmp[1] = 30;
+		waterWaveHeightFreq[0] = 201;	waterWaveHeightFreq[1] = 202;
 
 		while(i--)
 		{
-			wv = &watActor->actor->objectController->object->mesh->vertices[i];
+			wv	= &watActor->actor->objectController->object->mesh->vertices[i];
+			wvn = &watActor->actor->objectController->object->mesh->vertexNormals[i];
 
 			for(j=0; j<2; j++)
 			{
@@ -674,6 +699,12 @@ void RunSndView()
 			wv->v[Y] =	wv->v[Y] * (1 - waterF) + 
 					(	SineWave2(waterFreq[0],frameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
 						SineWave2(waterFreq[1],frameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
+
+
+			// simple lighting effects
+			wvn->v[X] = 31 + Fabs(wv->v[Y] * 2);
+			wvn->v[Y] = wvn->v[X];
+			wvn->v[Z] = wvn->v[X];
 		}
 
 		for(j = 0;j < 2;j++)

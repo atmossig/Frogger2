@@ -15,11 +15,14 @@
 #include <ultra64.h>
 #include "incs.h"
 
-AUDIOCONTROL	audioCtrl;
+#define MAX_AMBIENT_SFX		50
+#define DEFAULT_SFX_DIST	500
+
+AUDIOCONTROL audioCtrl;
 int MAX_SFX_DIST = 500;
 BOOL reverbOn = 0;
 
-AMBIENT_SOUND_LIST	ambientSoundList;
+AMBIENT_SOUND_LIST ambientSoundList;
 int numContinuousSamples = 0;
 
 TUNE_DATA_BANK gameSongs[] = 
@@ -84,6 +87,35 @@ void InitAmbientSoundList()
 	ambientSoundList.numEntries = 0;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeAmbientSoundList
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeAmbientSoundList()
+{
+	AMBIENT_SOUND *cur,*next;
+
+	// check if any elements in list
+	if(!ambientSoundList.numEntries)
+		return;
+
+	// traverse enemy list and free elements
+	for(cur = ambientSoundList.head.next; cur != &ambientSoundList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubAmbientSound(cur);
+	}
+
+	// initialise list for future use
+	InitAmbientSoundList();
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	: PrepareSong()
 	Purpose 	: dma's down all the bits of a song and sets up the music structure
@@ -129,20 +161,41 @@ void PrepareSong(char num,char slot)
 /*	--------------------------------------------------------------------------------
 	Function 	: PlaySample
 	Purpose 	: Play a sound sample at a given point with no distance attenuation
-	Parameters 	: Index of sample, position, volume, pitch
+	Parameters 	: Index of sample, position, radius, volume, pitch
 	Returns 	: 
 	Info 		:
 */
-int PlaySample(short num,VECTOR *pos,short tempVol,short pitch)
+int PlaySample(short num,VECTOR *pos,long radius,short tempVol,short pitch)
 {
 	int result;
-	float	dist, scale = 1, vol = tempVol;
-	VECTOR	tempVect;
+	float dist,scale = 1, vol = tempVol;
+	VECTOR tempVect;
+
+	float att;
+	long pan;
+	VECTOR diff;
+
 //	MusHandleStop(musresult, 0);
 
-	if(!pos)
-		return 0;
-	
+	if(pos)
+	{
+		// attenuation
+		att = (radius) ? radius : DEFAULT_SFX_DIST;
+
+		SubVector2D( &diff, pos, &frog[0]->actor->pos );
+		// Volume attenuation - check also for radius != 0 and use instead of default
+		dist = Magnitude( &diff );
+		if( dist > att )
+			return 0;
+		
+		vol *= (att-dist)/att;
+
+		//work out pan
+		dist = Aabs(atan2(diff.v[X], diff.v[Z]));
+		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
+	}
+
+/*	
 //work out volume
 	dist = DistanceBetweenPointsSquared(&currCamSource[0],pos);
 	if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
@@ -160,22 +213,23 @@ int PlaySample(short num,VECTOR *pos,short tempVol,short pitch)
 	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 
 	scale *= 255/PI;
-
+*/
 	if(num != FX_NULL)
 	{
-
-		vol *= 1.8;
+//		vol *= 1.8;
 		if(vol > 255)
 			vol = 255;
 
-		result = MusStartEffect2(num, (u8)vol, scale, 0, -1);
+		result = MusStartEffect2(num,(u8)vol,scale,0,-1);
 		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
 		MusHandleSetTempo(result,pitch);
 	}
-	else	result = 0;
+	else
+		result = 0;
   
 	if(reverbOn)
 		MusHandleSetReverb(result,30);
+
 	return result;
 }
 
@@ -601,7 +655,7 @@ void UpdateAmbientSounds()
 					if(ambientSound->sfx.radius)
 						PlaySampleRadius(ambientSound->sfx.sampleNum,&ambientSound->pos,ambientSound->sfx.volume,ambientSound->sfx.pitch,ambientSound->sfx.radius);
 					else
-						PlaySample(ambientSound->sfx.sampleNum,&ambientSound->pos,ambientSound->sfx.volume,ambientSound->sfx.pitch);
+						PlaySample(ambientSound->sfx.sampleNum,&ambientSound->pos,0,ambientSound->sfx.volume,ambientSound->sfx.pitch);
 					ambientSound->counter = ambientSound->freq + Random(ambientSound->randFreq);
 				}
 			}
@@ -941,4 +995,5 @@ void PrepareSongForLevel(short worldID,short levelID)
 
 	PrepareSong(theToon,0);
 }
+
 

@@ -179,8 +179,9 @@ void DoubleBufferSkinVtx()
 	cur = actList;
 	while ( cur )
 	{
-		if(cur->actor->objectController->drawList)
-			cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
+		if(cur->actor->objectController)
+			if(cur->actor->objectController->drawList)
+				cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
 
 		cur = cur->next;
 	}
@@ -240,8 +241,6 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 	}
 
 //////////initialise all sprites within object
-	if(obj->phongTex)
-		FindTexture(&(obj->phongTex), (u32)obj->phongTex,YES);
 	tempInt = (u32)obj->sprites;
 	if(tempInt)
 	{
@@ -781,6 +780,22 @@ void LoadObjectBank(int num)
 			bankRomEnd		= (u32)&_objBank_9_3_SegmentRomEnd;
 			dprintf"RETRO LEVEL 3 OBJECT BANK - "));
 			break;
+		case LEVEL4_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_4_SegmentRomEnd;
+			dprintf"RETRO LEVEL 4 OBJECT BANK - "));
+			break;
+		case LEVEL5_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_5_SegmentRomEnd;
+			dprintf"RETRO LEVEL 5 OBJECT BANK - "));
+			break;
+		case LEVEL6_RETRO_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_9_6_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_9_6_SegmentRomEnd;
+			dprintf"RETRO LEVEL 6 OBJECT BANK - "));
+			break;
+/*
 		case BOSSA_RETRO_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank_9_4_SegmentRomStart;
 			bankRomEnd		= (u32)&_objBank_9_4_SegmentRomEnd;
@@ -796,7 +811,7 @@ void LoadObjectBank(int num)
 			bankRomEnd		= (u32)&_objBank_9_6_SegmentRomEnd;
 			dprintf"RETRO MULTIPLAYER OBJECT BANK - "));
 			break;
-
+*/
 
 		default:
 			dprintf"ERROR: no object bank specified....\n"));
@@ -1230,9 +1245,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
 //				tcp->v[0], (tcp++)->v[1],
-//				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 				0,0,
-				255,255,255,xluFact);
+				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 			vertex = baseVertices + faceIndex->v[Y];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[Y];
@@ -1241,9 +1255,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
 //				tcp->v[0], (tcp++)->v[1],
-//				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 				0,1024,
-				255,255,255,xluFact);
+				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 			vertex = baseVertices + faceIndex->v[Z];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[Z];
@@ -1252,9 +1265,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
 //				tcp->v[0], (tcp++)->v[1],
-//				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 				1024,1024,
-				255,255,255,xluFact);
+				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
   
 			face++;			
 			vtxPtr+=3;
@@ -1274,7 +1286,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				LoadTexture(texture);
 			}
 */
-			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
+//			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
+			FindTexture(&texture,UpdateCRC("fgeye.bmp"),YES);
 		    gDPPipeSync(glistp++);
 			LoadTexture(texture);
 
@@ -1296,9 +1309,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
 //			tcp->v[0], (tcp++)->v[1],
-//			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 			0,0,
-			255,255,255,xluFact);
+			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 		vertex = baseVertices + faceIndex->v[1];
 		vNormalPtr = baseVNormalPtr + faceIndex->v[Y];
@@ -1307,9 +1319,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
 //			tcp->v[0], (tcp++)->v[1],
-//			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 			0,1024,
-			255,255,255,xluFact);
+			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 		vertex = baseVertices + faceIndex->v[2];
 		vNormalPtr = baseVNormalPtr + faceIndex->v[Z];
@@ -1318,9 +1329,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
 //			tcp->v[0], (tcp++)->v[1],
-//			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 			1024,1024,
-			255,255,255,xluFact);
+			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
 
 		face++;			
 		vtxPtr+=3;
@@ -1341,7 +1351,8 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				LoadTexture(texture);
 			}
 */
-			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
+//			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
+			FindTexture(&texture,UpdateCRC("fgeye.bmp"),YES);
 		    gDPPipeSync(glistp++);
 			LoadTexture(texture);
 
@@ -1406,42 +1417,6 @@ void LoadTexture(TEXTURE *texture)
 			{
 				gDPLoadTextureBlock_4b(glistp++, texture->data , texture->format, texture->sx, texture->sy, 0,G_TX_WRAP/* | G_TX_MIRROR*/, G_TX_WRAP/* | G_TX_MIRROR*/,texture->TCScaleX, texture->TCScaleY, G_TX_NOLOD, G_TX_NOLOD);
 			}
-			break;
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void LoadPhongTexture(TEXTURE *texture)
-{
-	if(texture == 0)
-		return;
-
-	switch(texture->pixSize)
-	{
-		case G_IM_SIZ_16b:
-			gDPSetTextureLUT(glistp++,	G_TT_NONE);
-			_gDPLoadTextureBlockTile(glistp++,texture->data,256,1,texture->format,G_IM_SIZ_16b, texture->sx, texture->sy,0,G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, texture->TCScaleX, texture->TCScaleY, G_TX_NOLOD, G_TX_NOLOD);
-			break;
-
-		case G_IM_SIZ_8b:
-
-			gDPSetTextureLUT(glistp++,	G_TT_RGBA16);
-			gDPLoadTLUT_pal256(glistp++, texture->palette);
-			_gDPLoadTextureBlockTile(glistp++,texture->data,0,1,texture->format,G_IM_SIZ_8b, texture->sx, texture->sy,0,G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, texture->TCScaleX, texture->TCScaleY, G_TX_NOLOD, G_TX_NOLOD);
-			break;
-
-		case G_IM_SIZ_4b:
-
-			gDPSetTextureLUT(glistp++,	G_TT_RGBA16);
-			gDPLoadTLUT_pal16(glistp++,0,texture->palette);
-			_gDPLoadTextureBlockTile(glistp++,texture->data,0,1,texture->format,G_IM_SIZ_4b, texture->sx, texture->sy,0,G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, texture->TCScaleX, texture->TCScaleY, G_TX_NOLOD, G_TX_NOLOD);
 			break;
 	}
 }

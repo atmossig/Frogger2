@@ -506,6 +506,18 @@ void DrawFXRing(SPECFX *ring)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: DrawFXTrail
+	Purpose			: draws the trail based FX
+	Parameters		: SPECFX *
+	Returns			: void
+	Info			: 
+*/
+void DrawFXTrail(SPECFX *trail)
+{
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: ProcessShadows
 	Purpose			: processes the shadows
 	Parameters		: 

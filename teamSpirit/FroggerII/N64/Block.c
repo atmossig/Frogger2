@@ -1051,7 +1051,7 @@ void SendLastFrame()
 	Info			:
 */
 void XformActorList();
-
+int myAA = 0;
 void DrawGraphics(void *arg)
 {
 	SPRITE *sprite = NULL;
@@ -1125,7 +1125,7 @@ void DrawGraphics(void *arg)
 	
 				SetRenderMode();
 				// turn off AA for now on N64....AndyE
-				renderMode.useAAMode = 0;
+				renderMode.useAAMode = myAA;
 
 				//***********************************
 

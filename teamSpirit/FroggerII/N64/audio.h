@@ -113,11 +113,12 @@ enum
 	NUM_TRACKS,
 };
 
+#define GEN_FROG_HOP	133
+#define GEN_SUPER_HOP	104
+
 extern int musresult;
 
-int PlaySample(short num, VECTOR *pos, short vol,short pitch);
 void UpdateContinuousSample(SFX *sfx);
-void PrepareSong(char num,char slot);
 void DmaRomToRam(char *src, char *dest, int len);
 void ReInitMusicDriver(u8 *pointer, u8 *tune, u8 *wave);
 //void SetMaxSfxDist(int dist);
@@ -127,9 +128,7 @@ void KillAmbientSfx();
 void StopContinuousSample(SFX *sfx);
 void PlayContinuousSample(SFX *sfx,short num, short vol, VECTOR *,short pitch);
 void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,short randFreq,short onTime,short platTag,short tag,float radius);
-void UpdateAmbientSounds();
 
-void InitAmbientSoundList();
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 //AMBIENT_SOUND *FindTaggedAmbientSound(AMBIENT_SOUND *startAmbientSound, int tag);
 int PlaySampleNot3D(int num,UBYTE vol,UBYTE pan,UBYTE pitch);
@@ -138,10 +137,22 @@ int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius)
 void InitSFXScript(SFX_SCRIPT *script);
 BOOL ScriptTriggerSound(short second, short frame);
 void ProcessSFXScript();
+
 void InitMusicDriver(void);
 
-int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch);
-
 void PrepareSongForLevel(short worldID,short levelID);
+void PrepareSong(char num,char slot);
+
+
+void InitSampleList();
+void FreeSampleList();
+
+void InitAmbientSoundList();
+void FreeAmbientSoundList();
+
+int PlaySample(short num,VECTOR *pos,long radius,short volume,short pitch);
+AMBIENT_SOUND *AddAmbientSound(short num,VECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,ACTOR *follow);
+void UpdateAmbientSounds();
+
 
 #endif

@@ -84,6 +84,7 @@ void PrintSpriteOverlays();
 void DrawSpecialFX();
 void DrawFXRipple(SPECFX *ripple);
 void DrawFXRing(SPECFX *ring);
+void DrawFXTrail(SPECFX *trail);
 
 void ProcessShadows();
 void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,Vtx *vert,VECTOR *lightDir);
