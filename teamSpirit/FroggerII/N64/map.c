@@ -384,6 +384,12 @@ void LoadLevelEntitys ( short entityNum )
 				sprintf(message, "GAR_ENT3");				
 			break;
 
+		case GARDENLEV4_ENT:
+				bankRomStart	= (u32)&_levData4SegmentRomStart;
+				bankRomEnd		= (u32)&_levData4SegmentRomEnd;
+				sprintf(message, "GAR_BOSA");				
+			break;
+
 		default:
 			return;
 			break;

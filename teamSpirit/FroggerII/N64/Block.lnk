@@ -850,3 +850,14 @@ _levData3SegmentRomEnd   alias _levData3_orgend
 
 levDat3  incbin "leveldata/entity-0-2.dat",levData3.data, 32
 
+; [ GARDEN LEVEL 4 ] >>>>>
+
+levData4        group   obj()
+levData4bss     group   obj(),bss
+
+_levData4SegmentRomStart alias _levData4_org
+_levData4SegmentRomEnd   alias _levData4_orgend
+
+        section.16       levData4.data,levData4
+
+levDat4  incbin "leveldata/entity-0-3.dat",levData4.data, 32
