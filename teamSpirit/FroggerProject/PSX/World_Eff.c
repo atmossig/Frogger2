@@ -11,6 +11,7 @@
 
 SCENICOBJLIST scenicObjList;
 
+extern USHORT EXPLORE_black_CLUT;
 
 #define gte_stotz_cpu(r)\
 asm(\
@@ -361,6 +362,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	register u_long t2 asm("$20");
 
 	register PACKET * packet asm("$17");
+
 	register char *opcd asm("$18");
 
 	long *tfv;
@@ -407,16 +409,19 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	// ENDFOR
 
 
-	packet = (PACKET *)currentDisplayPage->primPtr;
 
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
 
 	op = mesh->gt4s;
 
+	packet = (PACKET *)currentDisplayPage->primPtr;
+
+
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
 		char u,v;
+
 
 		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
    	gte_avsz4();
@@ -433,6 +438,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			}
 			// ENDIF
 
+
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
 			if ( flags & SHIFT_DEPTH )
@@ -441,81 +447,51 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 				addPrimLen ( ot + ( depth ), si, 12, t2 );
 			// ENDELSEIF
 
-			if ( flags & ACTOR_SLIDYTEX )
-				u = op->u0 + ( ( frame / 2 ) % 32 );
-			else
-				u = op->u0;
-			// ENDELSEIF
-
-			v = op->v0;
-
-			if ( flags & TRANSPARENT )
-				t1 = WATERANIM_1 | ( op->clut << 16 ) | WATER_TRANS_CLUT;
-			else
-				t1 = WATERANIM_1 | ( op->clut << 16 );
-			// ENDELSEIF
-
+			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
+			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
 			if ( flags & ACTOR_SLIDYTEX )
-				u = op->u1 + ( ( frame / 2 ) % 32 );
-			else
-				u = op->u1;
-			// ENDELSEIF
-			v = op->v1;
-
-			t2 = WATERANIM_1 | ( op->tpage << 16 );
-
-			*(u_long *)  (&si->u0) = t1;
-			*(u_long *)  (&si->u1) = t2;
-
-			gte_stsxy3_gt4 ( si );	// The first 3 x's & y's are already in the gte, so we may as well use 'em
+			{
+				si->u0 += ( ( frame / 2 ) % 32 );
+				si->u1 += ( ( frame / 2 ) % 32 );
+			}
+			// ENDIF
+			
+			gte_stsxy3_gt4(si);
+								
+			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
+			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
 
 			if ( flags & ACTOR_SLIDYTEX )
-				u = op->u2 + ( ( frame / 2 ) % 32 );
-			else
-				u = op->u2;
-			// ENDELSEIF
-			v = op->v2;
+			{
+				si->u2 += ( ( frame / 2 ) % 32 );
+				si->u3 += ( ( frame / 2 ) % 32 );
+			}
+			// ENDIF
 
-			t1 = WATERANIM_2;
+			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+			*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-			if ( flags & ACTOR_SLIDYTEX )
-				u = op->u3 + ( ( frame / 2 ) % 32 );
-			else
-				u = op->u3;
-			// ENDELSEIF
-			v = op->v3;
-
-			t2 = WATERANIM_2;
-
-			*(u_long *)  (&si->u2) = t1;
-			*(u_long *)  (&si->u3) = t2;
 			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
 
 			if ( flags & TRANSPARENT )
-				t1 = ( *( u_long *) ( &op->r0 ) ) | WATER_TRANS_CODE;
-			else
-				t1 = ( *( u_long *) ( &op->r0 ) );
-			// ENDELSEIF
-				
-			t2 = *(u_long *) (&op->r1);
+				si->code  |= 2;
+			// ENDIF
 
-			*(u_long *)  (&si->r0) = t1;
-			*(u_long *)  (&si->r1) = t2;
-
-			t1 = *(u_long *) (&op->r2);
-			t2 = *(u_long *) (&op->r3);
-
-			*(u_long *)  (&si->r2) = t1;
-			*(u_long *)  (&si->r3) = t2;
-
+			if ( flags & SUBTRACTIVE )
+			{
+ 				si->tpage |= 32;
+			}
+			// ENDIF
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
+
 		}
 	}
-
-#undef si
 #undef op
+#undef si
 
 	currentDisplayPage->primPtr = (char *)packet;
 

@@ -4,6 +4,7 @@
 
 #define SHIFT_DEPTH ( 1 << 0 )
 #define TRANSPARENT ( 1 << 1 )
+#define SUBTRACTIVE ( 1 << 2 )
 
 
 void DrawWater ( FMA_MESH_HEADER *mesh, int flags );
