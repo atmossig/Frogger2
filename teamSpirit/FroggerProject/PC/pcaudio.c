@@ -230,12 +230,6 @@ void LoadSfx( unsigned long worldID )
 		path[len] = '\0';
 	}
 
-#ifdef PC_DEMO
-	strcat( path, "music.wus" );
-	LoadSfxSet( path );
-	path[len] = '\0';
-#endif
-
 	switch( worldID )
 	{
 	case WORLDID_GARDEN: strcat( path, "garden.wus" ); break;

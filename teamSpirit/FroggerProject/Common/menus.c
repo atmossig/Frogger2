@@ -200,8 +200,9 @@ void StartPauseMenu()
 
 	// Fade screen after 300 seconds for Sega reqs.
 	pauseFaded = 0;
+#ifdef DREAMCAST_VERSION
 	pauseFadeTimer = PAUSEFADETIME;
-
+#endif
 	PauseAudio( );
 
 //	EnableTextOverlay ( controllerText );
@@ -357,6 +358,7 @@ void RunPauseMenu()
 	pauseFrameCount += max((pauseGameSpeed>>12),1);
 	if((quittingLevel) && (pauseConfirmMode == 0))
 	{
+#ifdef DREAMCAST_VERSION
 		pauseFadeTimer = PAUSEFADETIME;
 		// Bring screen back if faded
 		if( pauseFaded )
@@ -367,6 +369,7 @@ void RunPauseMenu()
 			pauseFaded = 0;
 //			ScreenFade( 255, 255, 0 );
 		}
+#endif
 		if(fadingOut == 0)
 		{
 #ifdef PC_VERSION
@@ -455,7 +458,7 @@ void RunPauseMenu()
 		}
 	}
 #endif
-
+#ifdef DREAMCAST_VERSION
 	if( padData.debounce[pauseController] )
 	{
 		pauseFadeTimer = PAUSEFADETIME;
@@ -469,7 +472,7 @@ void RunPauseMenu()
 //			ScreenFade( 255, 255, 0 );
 		}
 	}
-
+#endif
 	if (padData.debounce[pauseController]&PAD_SQUARE)
 	{
 		currCheat = 0;		
@@ -541,6 +544,7 @@ void RunPauseMenu()
 	}
 
 	// If no activity for 300 secs, go to "screensaver" mode
+#ifdef DREAMCAST_VERSION
 	pauseFadeTimer -= pauseGameSpeed;
 	if( pauseFadeTimer <= 0 )
 	{
@@ -549,6 +553,7 @@ void RunPauseMenu()
 		keepFade = 1;
 		pauseFaded = 1;
 	}
+#endif
 
 	if((pauseConfirmMode) && (padData.debounce[pauseController] & PAD_TRIANGLE))
 	{
@@ -629,11 +634,12 @@ void RunPauseMenu()
 						}
 					}
 
+#ifdef DREAMCAST_VERSION
 					GTInit( &screenSaveTimer, PAUSEFADETIME );
 					keepFade = 1;
 					fadingOut = 0;
 					fadeProc = NULL;
-
+#endif
 					UnPauseAudio( );
 				}
 				return;

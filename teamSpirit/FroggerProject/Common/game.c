@@ -125,6 +125,7 @@ void GameProcessController(long pl)
 
 	button[pl] = padData.digital[pl];
 
+#ifdef DREAMCAST_VERSION
 	if( padData.debounce[pl] )
 	{
 		GTInit( &screenSaveTimer, PAUSEFADETIMESECS );
@@ -133,6 +134,7 @@ void GameProcessController(long pl)
 		fadingOut = 0;
 		fadeProc = NULL;
 	}
+#endif
 
 	// The only thing we can do when dead is press start
 	if((gameState.multi == SINGLEPLAYER) || ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
@@ -535,6 +537,7 @@ void RunGameLoop (void)
 		arcadeHud.coinsOver->b = arcadeHud.coinsText->b = 0;
 	}
 
+#ifdef DREAMCAST_VERSION
 	GTUpdate( &screenSaveTimer, -1 );
 	if( !screenSaveTimer.time )
 	{
@@ -542,6 +545,7 @@ void RunGameLoop (void)
 		ScreenFade( 255, 63, 30 );
 		keepFade = 1;
 	}
+#endif
 
 //	if( frameCount==2 )
 //	{

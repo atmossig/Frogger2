@@ -2985,7 +2985,7 @@ void RunArtViewer()
 }
 
 
-#define MAX_TEASERS 6
+#define MAX_TEASERS 7
 
 void RunTeaserScreens( )
 {

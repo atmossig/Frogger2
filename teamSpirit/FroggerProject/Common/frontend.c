@@ -1377,6 +1377,11 @@ void StartLevelComplete()
 
 	actorAnimate(frog[0]->actor,FROG_ANIM_DANCE1,YES,NO,80,0);
 
+#ifdef PC_DEMO
+	StopSample( FindSample(UpdateCRC("lp_music")) );
+	PlaySample( FindSample(UpdateCRC("lp_eolmusic")), NULL, 0, SAMPLE_VOLUME/2, -1 );
+#endif
+
 //	if((grade != 0) && ((moreCoins) || (levelOpened)))
 //		SaveGame();
 
@@ -1451,6 +1456,7 @@ TIMER eolTimer;
 
 void CheckEOLLoopTrack()
 {
+#ifndef PC_DEMO
 	if(IsSongPlaying())
 	{
 		if(eolTrackComplete == 0)
@@ -1461,6 +1467,7 @@ void CheckEOLLoopTrack()
 		PrepareSong(AUDIOTRK_LEVELCOMPLETELOOP,YES);
 		eolTrackComplete = 2;
 	}
+#endif
 }
 
 
