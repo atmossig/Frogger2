@@ -142,6 +142,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
 //		PlaySample(42,NULL,192,128);
 		frog[num]->action.safe = 25;
+		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 	}
 	else
 	{
@@ -154,6 +155,8 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		frog[num]->action.healthPoints = 3;
 		frog[num]->action.deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
+		PlaySample(GEN_FROG_DEATH,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
+
 	}
 }
 
