@@ -310,7 +310,7 @@ void DrawObjects(void)
 //					if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER )
 //						cur->actor->xluOverride = 100*(1.0-(sqrtf(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)))/ACTOR_DRAWFADERANGE));
 
-					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
+					if ((cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) || (cur->actor->flags & OBJECT_FLAGS_XLU))
 					{
 						// Draw transparent objects.
 						if (cur->flags & ACTOR_ADDITIVE)
