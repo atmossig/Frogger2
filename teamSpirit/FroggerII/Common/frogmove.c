@@ -190,7 +190,100 @@ BOOL UpdateFroggerControls(long pl)
 }
 
 
-float freeFall = 2.0F;
+/*	---------------------------------------------------------------------------------
+	Notes on Frog Movement
+	by Dave S.
+
+	The frog's vertical motion during a jump is described by the simple parabolic curve equation
+
+	y = h(1-(2mt-1)²)
+
+	where h is the height of the curve and t is the 'time' variable (see below). m is a multiplier
+	calculated using the formula
+
+	m = (1+sqrtf(1-d))/2
+
+	where d is the difference in height between the start and end position. height is displacement
+	parallel to the starting normal vector. Horizontal motion is simply linear,	parallel to the
+	plane described by the starting position and its normal. (phew)
+
+	x = A(1-t) + Bt
+
+	The variable t ranges from 0 (zero) at the start of the jump and 1 (one) at the end of the
+	jump. This makes calculating the end of the jump nice and easy!
+*/
+
+/*	--------------------------------------------------------------------------------
+	Function		: FroggerHop
+	Parameters		: player
+	Returns			: void
+	Info			: See notes above for the maths
+
+	Note that we also check for falling through platforms here! I know it's stupid, shut up.
+*/
+void FroggerHop(long pl)
+{
+	VECTOR up, fwd, pos;
+	float p, t, delta;
+
+	delta = (player[pl].jumpSpeed * gameSpeed);
+
+	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+		delta *= floatMultiply;
+
+	player[pl].jumpTime += delta;
+
+	t = player[pl].jumpTime;
+
+	// Calculate frog's position (see above for the maths)
+	// horizontal (parallel to plane)
+	
+	SetVector(&fwd, &player[pl].jumpFwdVector);
+	ScaleVector(&fwd, t);
+	
+	AddVector(&pos, &fwd, &player[pl].jumpOrigin);
+
+	// vertical
+
+	if (player[pl].jumpMultiplier)
+	{
+		p = (2*t*player[pl].jumpMultiplier - 1);
+		p = 1 - (p*p);
+		SetVector(&up, &player[pl].jumpUpVector);
+		ScaleVector(&up, p);
+		AddToVector(&pos, &up);
+
+		// Check for falling through platforms
+		// TODO: Test, test, test. And possibly find somewhere more sensible for this code.
+		if (!destPlatform[pl] && nearestPlatform[pl])
+		{
+			if (nearestPlatform[pl]->inTile[0] == destTile[pl])	// erm.
+			{
+				VECTOR v, plt;
+				float before, after;	// height above platform before and after moving8
+
+				SetVector(&plt, &nearestPlatform[pl]->pltActor->actor->pos);
+
+				SubVector(&v, &frog[pl]->actor->pos, &plt);
+				before = DotProduct(&v, &currTile[pl]->normal);
+
+				SubVector(&v, &pos, &plt);
+				after = DotProduct(&v, &currTile[pl]->normal);
+
+				if (before > 0 && after < 0)
+				{
+					destPlatform[pl] = nearestPlatform[pl];
+					player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
+					player[pl].jumpTime = 1.0f;	// aaand land.
+				}
+			}
+		}
+	}
+
+	SetVector(&frog[pl]->actor->pos, &pos);
+}
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateFroggerPos
@@ -198,6 +291,8 @@ float freeFall = 2.0F;
 	Returns			: void
 	Info			:
 */
+float freeFall = 2.0F;	// sodding global variables, hate 'em hate 'em hate 'em
+
 void UpdateFroggerPos(long pl)
 {
 	float x,y,z;
@@ -303,40 +398,7 @@ void UpdateFroggerPos(long pl)
 	*/
 
 	if( player[pl].jumpTime >= 0.0f)
-	{
-		VECTOR up, fwd, pos;
-		float p, t, delta;
-
-		delta = (player[pl].jumpSpeed * gameSpeed);
-
-		if (player[pl].frogState & FROGSTATUS_ISFLOATING)
-			delta *= floatMultiply;
-
-		player[pl].jumpTime += delta;
-
-		t = player[pl].jumpTime;
-
-		// Calculate frog's position (see CalculateFrogJump for the maths)
-		// horizontal (parallel to plane)
-		
-		SetVector(&fwd, &player[pl].jumpFwdVector);
-		ScaleVector(&fwd, t);
-		
-		AddVector(&pos, &fwd, &player[pl].jumpOrigin);
-
-		// vertical
-
-		if (player[pl].jumpMultiplier)
-		{
-			p = (2*t*player[pl].jumpMultiplier - 1);
-			p = 1 - (p*p);
-			SetVector(&up, &player[pl].jumpUpVector);
-			ScaleVector(&up, p);
-			AddToVector(&pos, &up);
-		}
-
-		SetVector(&frog[pl]->actor->pos, &pos);
-	}
+		FroggerHop(pl);
 
 	//--------------------------------------------------------------------------------------------
 	
@@ -810,36 +872,6 @@ void CheckForFroggerLanding(long pl)
 	float distance;
 
 	if (player[pl].jumpTime < 0) return;	// we're not even jumping. Duh.
-
-	// If frog is at or past peak of jump, check if he's hit a platform
-	if (!destPlatform[pl] &&
-		nearestPlatform[pl] &&
-		(player[pl].jumpTime > 0.5f))
-	{
-		float height, dist;
-		VECTOR v;
-		GAMETILE *tile;
-
-		tile = nearestPlatform[pl]->inTile[0];
-		
-		//(nearestPlatform[pl]->inTile[0]->state != TILESTATE_BARRED))
-
-		if (tile == destTile[pl])
-		{
-			SubVector(&v, &frog[pl]->actor->pos, &nearestPlatform[pl]->pltActor->actor->pos);
-
-			height = DotProduct(&v, &currTile[pl]->normal);
-			dist = nearestPlatDist[pl];
-
-			if (height < 25.0f && height > -50.0f)
-			{
-				destPlatform[pl] = nearestPlatform[pl];
-				player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
-				
-				if (height < 0) player[pl].jumpTime = 1.0f;	// aaand land.
-			}
-		}
-	}
 
 /*		
 		// ...yep - check for presence of a platform in the destination tile
@@ -1393,29 +1425,6 @@ void ThrowFrogAtScreen(long pl)
 }
 
 
-/*	---------------------------------------------------------------------------------
-	Notes on Frog Movement
-	by Dave S.
-
-	The frog's vertical motion during a jump is described by the simple parabolic curve equation
-
-	y = h(1-(2mt-1)²)
-
-	where h is the height of the curve and t is the 'time' variable (see below). m is a multiplier
-	calculated using the formula
-
-	m = (1+sqrtf(1-d))/2
-
-	where d is the difference in height between the start and end position. height is displacement
-	parallel to the starting normal vector. Horizontal motion is simply linear,	parallel to the
-	plane described by the starting position and its normal. (phew)
-
-	x = A(1-t) + Bt
-
-	The variable t ranges from 0 (zero) at the start of the jump and 1 (one) at the end of the
-	jump. This makes calculating the end of the jump nice and easy!
-*/
-
 /*	--------------------------------------------------------------------------------
 	Function		: CalculateFrogJump
 	Purpose			: Calculates jump curve variables
@@ -1445,13 +1454,20 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	ScaleVector(&pl->jumpUpVector, height);
 
 	// Multiplier
-	if (height > 0)
+	// Set to zero if we don't actually want to do the vertical bit.
+	if (height)
+	{
 		m = 0.5f * (1 + sqrtf(1 - diff/height));
+		pl->jumpSpeed = 1.0f/(m*(float)time); //1/(float)time; 
+		//- longer jumps take longer, kind of thing
+	}
 	else
-		m = 0;
+	{
+		m = 0;	// Probably only happens on conveyors/ice, but still.
+		pl->jumpSpeed = 1.0f/(float)time;
+	}
 
 	pl->jumpMultiplier = m;
-	pl->jumpSpeed = 1/(float)time; //(60.0f)/(float)time;
 	pl->jumpTime = 0;
 	pl->heightJumped = height;
 }

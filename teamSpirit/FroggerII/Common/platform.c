@@ -59,7 +59,7 @@ PLATFORM *currPlatform[MAX_FROGS] = { NULL,NULL,NULL,NULL };	// platform that fr
 PLATFORM *nearestPlatform[MAX_FROGS];	// platform nearest to the frog
 float nearestPlatDist[MAX_FROGS];
 
-float PLATFORM_NEAREST_DIST = 35.0f;	// radius in which to check for nearest platform
+float PLATFORM_NEAREST_DIST = 200.0f;	// radius in which to check for nearest platform
 
 float PLATFORM_GENEROSITY	= 20.0f;	// platform 'forgiveness'
 

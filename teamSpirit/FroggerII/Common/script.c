@@ -362,6 +362,14 @@ TRIGGER *LoadTrigger(UBYTE **p)
 		}
 		break;
 		
+	case TR_FROGISDEAD:
+		{
+			params = AllocArgs(1);
+			(int)params[0] = MEMGETBYTE(p);
+			trigger = MakeTrigger(FrogIsDead, params);
+		}
+		break;
+
 	default:
 #ifdef DEBUG_SCRIPTING
 		dprintf"Unrecognised trigger type %02x, skipping\n", token));
@@ -673,8 +681,10 @@ BOOL ExecuteCommand(UBYTE **p)
 			flag = MEMGETWORD(p);
 			if (flag > 0 && flag < nme->path->numNodes)
 			{
-				nme->path->fromNode = nme->path->toNode = flag;
-				nme->inTile = nme->path->nodes[flag].worldTile;
+				// Cunning cheat (that probably flies apart)6
+				nme->path->toNode = flag;
+				nme->path->endFrame = actFrameCount;
+				UpdateEnemyPathNodes(nme);
 			}
 			break;
 		}
