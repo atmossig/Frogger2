@@ -285,26 +285,13 @@ long LoopFunc(void)
 	if (editorOk)
 		RunEditor();
 
-
 	DrawLoop();
-
-	if (!_CrtCheckMemory())
-	{
-		dp("Heap is corrupt!\n");
-		__asm {int 3};
-	}
 
 	return 0;
 }
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
-	if (!_CrtCheckMemory())
-	{
-		dp("Heap is corrupt!\n");
-		__asm {int 3};
-	}
-
 	// Init common controls
 	InitCommonControls();
 
