@@ -178,6 +178,7 @@ void UpdatePlatforms()
 			{
 				SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
 				if (cur->flags & PLATFORM_NEW_BACKWARDS) ScaleVector (&fwd,-1);
+				MakeUnit( &moveVec );
 				Orientate(&cur->pltActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
 			
