@@ -296,36 +296,36 @@ void EepromLoadLevelScores ( void )
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: SaveGameProgress
+	Function 	: SaveGame
 	Purpose 	: Tell the controller thread to store how far the frog has got to, 
 					and which keys he has collected
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-void SaveGameProgress( void )
+void SaveGame()
 {
-	PostEepromMessage ( EEPROM_SAVEGAMEPROGRESS );
-	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
+	PostEepromMessage(EEPROM_SAVEGAME);
+	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
 }
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: EepromSaveGameProgress
+	Function 	: EepromSaveGame
 	Purpose 	: Store how far the frog has got to, and which keys he has collected
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-void EepromSaveGameProgress( void )
+void EepromSaveGame()
 {
 	short	res = 1;
 
-	if ( eepromPresent )
+	if(eepromPresent)
 	{
 		do
 		{
-			res = osEepromLongWrite(&controllerMsgQ, /*sizeof(LEVEL_HISCORE)+*/1, (u8 *)&gameProgress, sizeof(GAME_PROGRESS));
+			res = osEepromLongWrite(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
@@ -333,40 +333,42 @@ void EepromSaveGameProgress( void )
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: LoadGameProgress
+	Function 	: LoadGame
 	Purpose 	: Tell the controller thread to reload how far the frog has got to, 
 					and which keys he has collected
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-void LoadGameProgress( void )
+void LoadGame()
 {
-	PostEepromMessage ( EEPROM_LOADGAMEPROGRESS );
-	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
+	PostEepromMessage(EEPROM_LOADGAME);
+	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
 }
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: EepromLoadGameProgress
+	Function 	: EepromLoadGame
 	Purpose 	: Reload how far the frog has got to, and which keys he has collected
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-void EepromLoadGameProgress( void )
+void EepromLoadGame()
 {
 	short	res = 1;
 
-	if ( eepromPresent )
+	if(eepromPresent)
 	{
 		do
 		{
-			res = osEepromLongRead(&controllerMsgQ, /*sizeof(LEVEL_HISCORE)+*/1, (u8 *)&gameProgress, sizeof(GAME_PROGRESS));
+			res = osEepromLongRead(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
 			Wait(EEPROM_DELAY);
 		}while(res != 0);
 	}
 }
+
+
 
 //OSMesgQueue	eepromMsgQ;
 //OSMesg		eepromMsgBuf;
@@ -442,17 +444,6 @@ void SaveBestTimes()
 	PostEepromMessage(EEPROM_SAVETIMES);
 	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
 }
-void LoadSlots()
-{
-	PostEepromMessage(EEPROM_LOADSLOT);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-
-void SaveSlots()
-{
-	PostEepromMessage(EEPROM_SAVESLOT);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
 void LoadCRC()
 {
 	PostEepromMessage(EEPROM_LOADCRC);
@@ -518,33 +509,6 @@ void EepromLoadBestTimes()
 
 	}
 } 
-void EepromSaveSlots()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-			res = osEepromLongWrite(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-}
-void EepromLoadSlots()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-			res = osEepromLongRead(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-}
-
 
 /*void EepromSaveCRC()
 {

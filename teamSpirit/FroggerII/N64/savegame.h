@@ -50,11 +50,6 @@ typedef struct
 
 typedef struct
 {
-	unsigned long worldNum, levelNum, keys;
-} GAME_PROGRESS;
-
-typedef struct
-{
 	// Player
 	char	name[3];
 	long	score;
@@ -153,7 +148,6 @@ extern short eepromPresent;
 
 extern LEVEL_HISCORE	levelTable [ MAX_WORLDS*3 ];
 extern SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
-extern GAME_PROGRESS	gameProgress;
 
 //***********************************
 // Function Prototypes
@@ -175,11 +169,11 @@ extern void EepromSaveLevelScores	( void );
 extern void LoadLevelScores			( void );
 extern void EepromLoadLevelScores	( void );
 
-extern void SaveGameProgress();
-extern void EepromSaveGameProgress();
+extern void SaveGame();
+extern void EepromSaveGame();
 
-extern void LoadGameProgress();
-extern void EepromLoadGameProgress();
+extern void LoadGame();
+extern void EepromLoadGame();
 
 /*
 void GetEepromMessage();
