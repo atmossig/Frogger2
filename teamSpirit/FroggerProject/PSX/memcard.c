@@ -818,6 +818,11 @@ void ChooseLoadSave()
 	int alpha = fontSmall->alpha;
 
 
+	if(padData.numPads[0] == 4)
+		sprintf(slotNumStr,"1-A");
+	else
+		sprintf(slotNumStr,"1");
+
 	if(saveInfo.load == 0)
 	{
 		switch(gameSaveGetCardStatus())
