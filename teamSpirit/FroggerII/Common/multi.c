@@ -405,7 +405,7 @@ void RaceRespawn( int pl )
 {
 	int j, respawn=0;
 	GAMETILE *tile;
-	VECTOR diff;
+	VECTOR diff, pos;
 	SPECFX *fx;
 
 	if( playerFocus != pl && player[playerFocus].healthPoints && !(player[playerFocus].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[playerFocus]->actor->pos) )
@@ -449,9 +449,15 @@ void RaceRespawn( int pl )
 
 	TeleportActorToTile(frog[pl],tile,pl);
 
-	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &tile->centre, &tile->normal, 64, 2, 0, 1.7 );
+	SetVector( &pos, &tile->normal );
+	ScaleVector( &pos, 5 );
+	AddToVector( &pos, &tile->centre );
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &pos, &tile->normal, 64, 2, 0, 1.7 );
 	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
-	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &tile->centre, &tile->normal, 80, 2, 0, 1.7 );
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &pos, &tile->normal, 80, 2, 0, 1.7 );
+	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
+
+	fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &tile->normal, 20, 0.1, 0.05, 0.5 );
 	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 
 	// Update progress info
@@ -592,6 +598,7 @@ void KillMPFrog(int pl)
 	if( multiplayerMode == MULTIMODE_RACE )
 	{
 		SPECFX *fx;
+		VECTOR pos;
 
 		mpl[pl].penalty += MULTI_RACE_TIMEPENALTY;
 		raceTimeOver[pl]->r = mpl[pl].r;
@@ -600,9 +607,15 @@ void KillMPFrog(int pl)
 		GTInit( &player[pl].dead, 2 );
 		frog[pl]->draw = 0;
 
+		SetVector( &pos, &currTile[pl]->normal );
+		ScaleVector( &pos, 5 );
+		AddToVector( &pos, &currTile[pl]->centre );
 		fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 64, 2, 0, 1.7 );
 		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 		fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 80, 2, 0, 1.7 );
+		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
+
+		fx = CreateAndAddSpecialEffect( FXTYPE_WAKE, &pos, &currTile[pl]->normal, 20, 0.1, 0.05, 0.5 );
 		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 	}
 	else
