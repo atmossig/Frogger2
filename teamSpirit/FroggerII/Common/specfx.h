@@ -28,11 +28,13 @@ extern char pauseMode;
 // These are used in the editor and translated into effect parameters later
 #define EF_RIPPLE_RINGS					(1 << 0)	// Lillypad thing
 #define EF_SMOKE_STATIC					(1 << 1)	// Smoke that doesn't grow
-#define EF_SPARK_BURSTS					(1 << 2)	// 
-#define EF_FLAMEBURST					(1 << 3)	// Vent up
-#define EF_FLYSWARM						(1 << 4)
-#define EF_BUBBLES						(1 << 5)
+#define EF_SPARKBURST					(1 << 2)	// Explosion of smoke
+#define EF_FLAMES						(1 << 3)	// Fire
+#define EF_FLYSWARM						(1 << 4)	// Crappy fly textures
+#define EF_BUBBLES						(1 << 5)	// From the fishes
 #define EF_SMOKE_GROWS					(1 << 6)	// Grows as it fades
+#define EF_SMOKEBURST					(1 << 7)	// Explosion of smoke
+#define EF_FIERYSMOKE					(1 << 8)	// Red at base, goes black
 
 #define EF_FAST							(1 << 26)
 #define EF_MEDIUM						(1 << 27)
@@ -55,9 +57,11 @@ enum
 	FXTYPE_BASICRING,
 	FXTYPE_SPLASH,
 	FXTYPE_SMOKEBURST,
-	FXTYPE_FIREVENT,
+	FXTYPE_FLAMES,
 	FXTYPE_FLYSWARM,
 	FXTYPE_BUBBLES,
+	FXTYPE_SPARKBURST,
+	FXTYPE_FIERYSMOKE,
 
 	FXTYPE_NUMTYPES
 };
@@ -115,6 +119,8 @@ extern void AddSpecFX( SPECFX *fx );
 extern void SubSpecFX( SPECFX *fx );
 extern void InitSpecFXList( );
 extern void FreeSpecFXList( );
+
+extern void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b );
 
 extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal );
 

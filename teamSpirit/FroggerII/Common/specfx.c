@@ -32,6 +32,7 @@ TEXTURE *txtrSmoke		= NULL;
 TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrFly		= NULL;
 TEXTURE *txtrBubble		= NULL;
+TEXTURE *txtrFire		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -118,11 +119,14 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->Draw = DrawFXRipple;
 		break;
 	case FXTYPE_JUMPBLUR:
+		effect->numP = 1;
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
 
 		effect->size = size;
 		SetVector( &effect->sprites->pos, &effect->origin );
+
 		effect->sprites->texture = txtrSolidRing;
+
 		effect->sprites->scaleX = effect->size;
 		effect->sprites->scaleY = effect->size;
 		effect->sprites->r = 100;
@@ -147,7 +151,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 
 		effect->Update = UpdateFXSmoke;
 		effect->Draw = NULL;
-
 		break;
 	case FXTYPE_FROGSTUN:
 	case FXTYPE_FLYSWARM:
@@ -200,18 +203,24 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 	case FXTYPE_SMOKE_STATIC:
 	case FXTYPE_SMOKE_GROWS:
 	case FXTYPE_BUBBLES:
+	case FXTYPE_FLAMES:
 		effect->lifetime = actFrameCount+life;
 		effect->vel.v[X] = (-2 + Random(4))*speed;
 		effect->vel.v[Y] = (Random(4) + 2)*speed;
 		effect->vel.v[Z] = (-2 + Random(4))*speed;
 		effect->fade = 180 / life;
 		effect->size = size;
-		
+
+		effect->numP = 1;
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
+
 		if( effect->type == FXTYPE_BUBBLES )
 			effect->sprites->texture = txtrBubble;
+		else if( effect->type == FXTYPE_FLAMES )
+			effect->sprites->texture = txtrFire;
 		else
 			effect->sprites->texture = txtrSmoke;
+
 		SetVector( &effect->sprites->pos, &effect->origin );
 		effect->sprites->scaleX = effect->size;
 		effect->sprites->scaleY = effect->size;
@@ -236,6 +245,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		break;
 	case FXTYPE_SMOKEBURST:
 	case FXTYPE_SPLASH:
+	case FXTYPE_SPARKBURST:
 		effect->numP = 10;
 		i = effect->numP;
 
@@ -245,6 +255,13 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
 		SetVector( &effect->rebound->point, &effect->origin );
 		SetVector( &effect->rebound->normal, &effect->normal );
+
+		if( effect->type == FXTYPE_SPLASH )
+			effect->tex = txtrBubble;
+		else if( effect->type == FXTYPE_SPARKBURST )
+			effect->tex = txtrSolidRing;
+		else if( effect->type == FXTYPE_SMOKEBURST )
+			effect->tex = txtrSmoke;
 
 		effect->fade = 4;
 		effect->speed = Random(10) * speed;
@@ -258,13 +275,10 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			effect->sprites[i].b = 255;
 			effect->sprites[i].a = 255;
 
+			effect->sprites[i].texture = effect->tex;
+
 			effect->sprites[i].scaleX = size;
 			effect->sprites[i].scaleY = size;
-
-			if( effect->type == FXTYPE_SPLASH )
-				effect->sprites[i].texture = txtrBubble;
-			else if( effect->type == FXTYPE_SMOKEBURST )
-				effect->sprites[i].texture = txtrSmoke;
 
 			effect->sprites[i].offsetX = -16;
 			effect->sprites[i].offsetY = -16;
@@ -405,9 +419,9 @@ void UpdateFXSmoke( SPECFX *fx )
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
 			dist = -(DotProduct(&fx->sprites->pos, &fx->rebound->normal) + fx->rebound->J);
 
-			if(dist > 0)
+			if(dist < 0)
 			{
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.8, 0, 0.2 );
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.2 );
 				JallocFree( (UBYTE **)&fx->rebound );
 				fx->rebound = NULL;
 			}
@@ -536,22 +550,25 @@ void UpdateFXExplode( SPECFX *fx )
 		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y];
 		fx->sprites[i].pos.v[Z] += fx->particles[i].vel.v[Z];
 
-		fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-		dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
-
-		// check if particle has hit (or passed through) the plane
-		if(dist > 0)
+		if( fx->rebound )
 		{
-			SubFromVector( &fx->sprites[i].pos, &fx->particles[i].vel );
+			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
+			dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
 
-			// check if this exploding particle type triggers some other effect or event
-			if( fx->type == FXTYPE_SPLASH )
+			// check if particle has hit (or passed through) the plane
+			if(dist > 0)
 			{
-				fx->sprites[i].a = 1;
-				fx->particles[i].bounce = 1;
+				SubFromVector( &fx->sprites[i].pos, &fx->particles[i].vel );
 
-				ring = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
-				continue;
+				// check if this exploding particle type triggers some other effect or event
+				if( fx->type == FXTYPE_SPLASH )
+				{
+					fx->sprites[i].a = 1;
+					fx->particles[i].bounce = 1;
+
+					ring = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+					continue;
+				}
 			}
 		}
 
@@ -593,6 +610,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrFly,UpdateCRC("fly1.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
+	FindTexture(&txtrFire,UpdateCRC("ai_flame3.bmp"),YES);
 }
 
 
@@ -673,6 +691,41 @@ void SubSpecFX( SPECFX *fx )
 		JallocFree( (UBYTE **)&fx->rebound );
 
 	JallocFree((UBYTE **)&fx);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetFXColour
+	Purpose			: Sets the colour of the effect and any sprites
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b )
+{
+	int i;
+
+	if( !fx ) return;
+
+	fx->r = r;
+	fx->g = g;
+	fx->b = b;
+
+	if( fx->sprites )
+		for( i=0; i<fx->numP; i++ )
+		{
+			fx->sprites[i].r = r;
+			fx->sprites[i].g = g;
+			fx->sprites[i].b = b;
+		}
+
+	if( fx->particles )
+		for( i=0; i<fx->numP; i++ )
+		{
+			fx->particles[i].r = r;
+			fx->particles[i].g = g;
+			fx->particles[i].b = b;
+		}
 }
 
 
