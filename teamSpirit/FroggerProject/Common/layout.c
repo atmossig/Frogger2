@@ -1268,20 +1268,16 @@ void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
 int quitAllVideo;
 void CommonInit(void)
 {
+
+/*	note - this doesn't work! - ds
 #ifdef PC_VERSION
 	utilPrintf("Playing FMV.....\n");
 	StartVideoPlayback(FMV_ATARI_LOGO);
 	StartVideoPlayback(FMV_BLITZ_LOGO);
 #endif
-
-	frameCount=1;
-	lastActFrameCount = actFrameCount = 1;
+*/
 
 	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
-
-#ifdef PC_VERSION
-	memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
-#endif
 
 	frame = 0;
 	quitMainLoop = 0;
@@ -1292,22 +1288,9 @@ void CommonInit(void)
 	gameState.multi = SINGLEPLAYER;
 
 	GTInit( &modeTimer, 1 );
-	frameCount = 0;
-			
-	// JH: This is done at the start of Initlevel, doses this really need to be done here...........
-	//	FreeAllLists();
-	frameCount = 0;
-	player[0].numSpawn	= 0;
 
-#ifdef E3_DEMO
-	StartE3LevelSelect();
-#else
 	gameState.mode = FRONTEND_MODE;
 	gameState.difficulty = DIFFICULTY_NORMAL;
 	InitLevel(player[0].worldNum,player[0].levelNum);
-#ifdef PC_VERSION
-	LoadGame();
-#endif
-#endif
 }
 
