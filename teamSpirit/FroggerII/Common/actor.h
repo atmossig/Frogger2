@@ -15,10 +15,11 @@
 
 //----- [ ACTOR2 DRAWING FLAGS ] -----//
 
-#define	ACTOR_DRAW_NEVER			(1 << 0) //1
-#define ACTOR_DRAW_CULLED			(1 << 1) //2
-#define ACTOR_DRAW_ALWAYS			(1 << 2) //4
-#define ACTOR_DRAW_LAST				(1 << 3) //8
+#define	ACTOR_DRAW_NEVER			(1 << 0)
+#define ACTOR_DRAW_CULLED			(1 << 1)
+#define ACTOR_DRAW_ALWAYS			(1 << 2)
+#define ACTOR_DRAW_LAST				(1 << 3)
+#define ACTOR_LEVEL_TROPHY			(1 << 4) // urgh.
 
 
 //------------------------------------------------------------------------------------------------

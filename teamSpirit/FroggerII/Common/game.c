@@ -648,6 +648,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	levelTrophy = CreateAndAddActor("trophy.obe",0,0,100.0,0,0,0);
 	levelTrophy->draw = 0;
 	levelTrophy->flags |= ACTOR_DRAW_LAST;
+	levelTrophy->flags |= ACTOR_LEVEL_TROPHY;
 	levelTrophy->flags &= ~ACTOR_DRAW_ALWAYS;
 	levelTrophy->flags &= ~ACTOR_DRAW_CULLED;
 	levelTrophy->actor->scale.v[0] = 0.2;
@@ -932,22 +933,22 @@ void RunGameLoop (void)
 	{
 		if ( levelIsOver )
 		{
-			static QUATERNION tSpin = { 0,1,0, PI/60 };
-			
-			MakeUnit ((VECTOR *)&tSpin);
-
-			RunLevelCompleteSequence();
-
 			if( showEndLevelScreen )
 			{
+				static QUATERNION tSpin = { 0,1,0, PI/60 };
+			
+				RunLevelCompleteSequence();
+
 				if( pauseMode != PM_ENDLEVEL )
 				{
 					static char scoreStr[255];
 
-					//levelTrophy->flags |= ACTOR_DRAW_ALWAYS;
+					MakeUnit ((VECTOR *)&tSpin);
+
+					levelTrophy->flags |= ACTOR_DRAW_ALWAYS;
 
 					sprintf( scoreStr, "%s  score %i  time %i  spawn %i of %i   \0", player[0].name, player[0].score, 
-						player[0].timeSec, player[0].numSpawn, 0 );
+						player[0].timeSec, player[0].numSpawn, garibCollectableList.numEntries );
 
 					CreateAndAdd3DText( scoreStr, 600, 128,128,128,255, T3D_CIRCLE,
 										T3D_MOVE_SPIN,
@@ -955,14 +956,14 @@ void RunGameLoop (void)
 					darkenedLevel = 0;
 					pauseMode = PM_ENDLEVEL;
 				}
-			}
 
-			if( levelTrophy->draw )
-			{
-				tSpin.w += PI/60;
-				if( tSpin.w > PI2 )
-					tSpin.w = 0;
-				GetQuaternionFromRotation(&levelTrophy->actor->qRot,&tSpin);
+				if( levelTrophy->draw )
+				{
+					tSpin.w += PI/60;
+					if( tSpin.w > PI2 )
+						tSpin.w = 0;
+					GetQuaternionFromRotation(&levelTrophy->actor->qRot,&tSpin);
+				}
 			}
 
 			levelIsOver--;
@@ -1220,7 +1221,7 @@ void RunLevelCompleteSequence()
 	DisableTextOverlay(babySavedText);
 
 	award = 2;
-
+/*
 	if(carryOnBabies)
 	{					
 		if(numHops_TOTAL < 110)
@@ -1228,7 +1229,7 @@ void RunLevelCompleteSequence()
 		if(numHops_TOTAL < 105)
 			award = 0;
 	}
-
+*/
 	nextLev1->draw = 1;
 	nextLev2->draw = 1;
 

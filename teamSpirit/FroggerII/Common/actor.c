@@ -211,7 +211,31 @@ void DrawCameraSpaceActorList()
 		{
 			if(cur->draw && (cur->flags & ACTOR_DRAW_LAST) )
 			{
-				enviromentMapped = 1;
+				if( cur->flags & ACTOR_LEVEL_TROPHY )
+				{
+					TEXTURE *tex;
+					enviromentMapped = 1;
+					gDPLoadSync(glistp++);
+					gDPSetTextureLUT(glistp++,G_TT_NONE);
+
+					switch( award )
+					{
+					case 0:
+						FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
+						break;
+					case 1:
+						FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
+						break;
+					case 2:
+						FindTexture( &tex, UpdateCRC("chrome.bmp"), YES, "chrome.bmp" );
+						break;
+					}
+
+					gSPTexture(glistp++,32<<6,32<<6,0,G_TX_RENDERTILE, G_ON);
+					LoadTexture(tex);
+					gDPLoadTextureBlock(glistp++,tex->data,G_IM_FMT_RGBA,G_IM_SIZ_16b,tex->sx,tex->sy,
+											0,G_TX_WRAP,G_TX_WRAP,5,5,G_TX_NOLOD,G_TX_NOLOD);
+				}
 				DrawActor(cur->actor);
 			}
 		}
