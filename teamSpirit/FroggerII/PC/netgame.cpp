@@ -144,7 +144,7 @@ void RefreshMPFrogs( )
 	if( !DPInfo.lpDP4A )
 		return;
 
-	for( i=1; i < MAX_MULTIPLAYERS; i++ )
+	for( i=1; i < NUM_FROGS; i++ )
 		if( netPlayers[i] == -1 )
 		{
 			MPRemoveFrog( i );
@@ -174,7 +174,7 @@ int MPAddFrog( int i )
 	SPECFX *fx;
 	long j;
 
-	if( i>=MAX_MULTIPLAYERS || i<1 || gameState.mode != GAME_MODE ) // Not found
+	if( i>=NUM_FROGS || i<1 || gameState.mode != GAME_MODE ) // Not found
 		return 0;
 
 	if( frog[i]->draw ) // Already enabled
@@ -186,7 +186,7 @@ int MPAddFrog( int i )
 
 	frog[i]->draw = TRUE; // Make it visible
 
-	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[0]->normal );
+	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal );
 
 	return 1;
 }
@@ -204,7 +204,7 @@ int MPRemoveFrog( int i )
 	long j;
 	VECTOR telePos;
 
-	if( i>=MAX_MULTIPLAYERS || i<1 || gameState.mode != GAME_MODE ) // Not found
+	if( i>=NUM_FROGS || i<1 || gameState.mode != GAME_MODE ) // Not found
 		return 0;
 
 	if( !frog[i]->draw ) // Already disabled
@@ -219,7 +219,7 @@ int MPRemoveFrog( int i )
 
 	frog[i]->draw = FALSE; // Make it invisible
 
-	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[0]->normal );
+	CreateTeleportEffect( &frog[i]->actor->pos, &currTile[i]->normal );
 
 	return 1;
 }

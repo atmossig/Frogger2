@@ -24,6 +24,7 @@ void NMEDamageFrog( int num, ENEMY *nme );
 void RotateWaitingNME( ENEMY *cur );
 
 void UpdatePathNME( ENEMY *cur );
+void UpdateSlerpPathNME( ENEMY *cur );
 void UpdateSnapper( ENEMY *cur );
 void UpdateTileSnapper( ENEMY *cur );
 void UpdateVent( ENEMY *cur );
@@ -346,12 +347,81 @@ void UpdatePathNME( ENEMY *cur )
 		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdatePathSlerpNME
+	Purpose			: Enemies that move in a smooth curve along a path
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: Use offset2 for slerp speed.
+*/
+void UpdateSlerpPathNME( ENEMY *cur )
+{
+	QUATERNION q1, q2, q3;
+	VECTOR fromPosition,toPosition, fwd, moveVec;
+	PATH *path = cur->path;
+	ACTOR *act = cur->nmeActor->actor;
+	float speed, t;
+	
+	// Find the position of the current 2 nodes
+	GetPositionForPathNode(&toPosition,&path->nodes[path->toNode]);
+	
+	SetQuaternion( &q1, &act->qRot );
+	
+	// Set direction to desired point
+	SubVector(&fwd,&toPosition,&act->pos);
+	MakeUnit(&fwd);
+
+	// Skewer a line to rotate around, and make a rotation
+	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	t = DotProduct(&inVec,&fwd);
+	if (t<-0.999)
+		t=-0.999;
+	if (t>0.999)
+		t = 0.999;
+	q3.w=acos(t);
+	// Duh.
+	GetQuaternionFromRotation(&q2,&q3);
+
+	// Slerp between current and desired orientation
+	speed = path->nodes[path->fromNode].offset2 * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
+
+	// Move forwards a bit in direction of facing
+	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+	ScaleVector( &fwd, cur->speed*gameSpeed );
+	AddToVector( &act->pos, &fwd );
+
+	AddToVector(&cur->currNormal,&cur->deltaNormal);
+
+	// Update path nodes
+	if( DistanceBetweenPointsSquared(&act->pos,&toPosition) < 100 )
+	{
+		UpdateEnemyPathNodes(cur);
+
+		cur->path->startFrame = actFrameCount + cur->isWaiting * waitScale;
+	}
+
+	// Set inTile
+	GetPositionForPathNode(&fromPosition,&path->nodes[path->fromNode]);
+	GetPositionForPathNode(&toPosition,&path->nodes[path->toNode]);
+
+	t = DistanceBetweenPoints(&fromPosition,&toPosition) / 2.0F;
+
+	if(DistanceBetweenPointsSquared(&fromPosition,&act->pos) < (t*t))
+		cur->inTile = path->nodes[path->fromNode].worldTile;
+	else
+		cur->inTile = path->nodes[path->toNode].worldTile;
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateSnapper
 	Purpose			: Snap at the frog
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: Path speed -> Slerp speed; waitTime -> Snap delay; 
 */
 void UpdateSnapper( ENEMY *cur )
 {
@@ -434,7 +504,7 @@ void UpdateSnapper( ENEMY *cur )
 	Purpose			: Snap at a sequence of tiles
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: waitTime -> snap delay; path speed -> slerp speed
 */
 void UpdateTileSnapper( ENEMY *cur )
 {
@@ -502,7 +572,8 @@ void UpdateTileSnapper( ENEMY *cur )
 	Purpose			: Blow hurt at the frog
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: radius -> delay before first fire; waitTime -> time between bursts; speed -> burst time;
+					animSpeed -> particle speed; value1 -> particle lifetime
 */
 void UpdateVent( ENEMY *cur )
 {
@@ -578,7 +649,7 @@ void UpdateVent( ENEMY *cur )
 	Purpose			: Enemy moves up and down
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: 
 */
 void UpdateMoveVerticalNME( ENEMY *cur )
 {
@@ -616,7 +687,7 @@ void UpdateMoveVerticalNME( ENEMY *cur )
 	Purpose			: Enemy that flies around a point
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: 
 */
 void UpdateRotatePathNME( ENEMY *cur )
 {
@@ -669,7 +740,7 @@ void UpdateRotatePathNME( ENEMY *cur )
 	Purpose			: Enemy moves towards frog
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: 
 */
 void UpdateHomingNME( ENEMY *cur )
 {
@@ -702,7 +773,7 @@ void UpdateHomingNME( ENEMY *cur )
 	// Also check that we're over a tile.
 	if( best > 0.7 )
 	{
-		ScaleVector( &moveVec, cur->speed );
+		ScaleVector( &moveVec, cur->speed * gameSpeed );
 		AddVector( &tVec, &moveVec, &cur->nmeActor->actor->pos );
 		chTile = FindNearestTile( tVec );
 		if( bFlag )
@@ -721,7 +792,7 @@ void UpdateHomingNME( ENEMY *cur )
 	Purpose			: Move when frog has moved
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: waitTime -> radius of activation; 
 */
 void UpdateMoveOnMoveNME( ENEMY *cur )
 {
@@ -817,7 +888,8 @@ void UpdateFrogWatcher( ENEMY *cur )
 	Purpose			: Make the enemy fly around in a box
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: One day, some enemies will be done this way...
+	Info			: waitTime -> how long to wait on a point of Interest; node[0].speed -> slerp speed;
+					node[1].speed -> move speed
 */
 void UpdateFlappyThing( ENEMY *nme )
 {
@@ -1063,7 +1135,9 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
 
 	AssignPathToEnemy(newItem,path,0);
 
-	if( newItem->flags & ENEMY_NEW_FOLLOWPATH )
+	if( newItem->flags & ENEMY_NEW_SLERPPATH )
+		newItem->Update = UpdateSlerpPathNME;
+	else if( newItem->flags & ENEMY_NEW_FOLLOWPATH )
 		newItem->Update = UpdatePathNME;
 	else if( newItem->flags & ENEMY_NEW_WATCHFROG )
 		newItem->Update = UpdateFrogWatcher;
@@ -1279,7 +1353,6 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 
 	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
 
-	
 	CalcEnemyNormalInterps(nme);
 }
 
