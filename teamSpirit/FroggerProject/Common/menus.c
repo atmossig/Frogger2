@@ -175,7 +175,7 @@ TEXTOVERLAY *titleHudText[4];
 int pauseFrameCount;
 int pauseFaded = 0;
 long pauseFadeTimer;
-#define PAUSEFADETIME ((10<<12)*60)
+#define PAUSEFADETIME ((295<<12)*60)
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
