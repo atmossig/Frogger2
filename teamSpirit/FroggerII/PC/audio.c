@@ -18,7 +18,7 @@
 
 #define VOLUME_MIN		-5000
 #define VOLUME_PERCENT (VOLUME_MIN/100)
-#define PITCH_STEP		(DSBFREQUENCY_MAX/255)
+#define PITCH_STEP		(DSBFREQUENCY_MAX/512)
 
 SAMPLEMAP genericMapping[] = 
 {
@@ -29,7 +29,8 @@ SAMPLEMAP genericMapping[] =
 	"generic\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,	FLAGS_NONE,
 	"generic\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,		FLAGS_NONE,
 	"generic\\superhop.wav",		2, 22050, 16, GEN_SUPER_HOP,	FLAGS_NONE,
-	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE
+	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE,
+	"generic\\froggerF.wav",		2, 22050, 16, GEN_FROG_TONGUE,	FLAGS_NONE
 };
 
 
@@ -214,7 +215,7 @@ int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch )
 	}
 	else
 	{
-		sample->lpdsBuffer->lpVtbl->SetFrequency( bufSample->lpdsBuffer, pitch*PITCH_STEP );
+		sample->lpdsBuffer->lpVtbl->SetFrequency( sample->lpdsBuffer, pitch*PITCH_STEP );
 		sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
 		sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
 		sample->lpdsBuffer->lpVtbl->Play( sample->lpdsBuffer, 0, 0, 0 );
