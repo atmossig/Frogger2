@@ -809,7 +809,8 @@ void CheckForFroggerLanding(long pl)
 	// If frog is at or past peak of jump, check if he's hit a platform
 	if (!destPlatform[pl] &&
 		nearestPlatform[pl] &&
-		(player[pl].jumpTime > 0.5f))
+		(player[pl].jumpTime > 0.5f) &&
+		(nearestPlatform[pl]->inTile[0]->state != TILESTATE_BARRED))
 	{
 		float height, dist;
 		VECTOR v;
@@ -1270,11 +1271,11 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &currTile[pl]->normal,
-			0, standardHopFrames, pl);
+			20.0f, standardHopFrames, pl);
 	else
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
-			0, standardHopFrames, pl);
+			20.0f, standardHopFrames, pl);
 
 	currTile[pl] = destTile[pl];
 }
