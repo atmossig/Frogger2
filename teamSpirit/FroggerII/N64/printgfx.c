@@ -746,7 +746,7 @@ void PrintSprite(SPRITE *sprite)
 	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
 		return;
 
-	dist = DistanceBetweenPointsSquared(&actualCamSource[draw_buffer][screenNum],&sprite->pos);
+	dist = DistanceBetweenPointsSquared(&actualCamSource[draw_buffer],&sprite->pos);
 	if((dist > farPlaneDist * farPlaneDist) || (dist < nearPlaneDist * nearPlaneDist))
 		return;
 

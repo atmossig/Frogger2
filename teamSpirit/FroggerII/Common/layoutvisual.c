@@ -469,7 +469,9 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	dprintf"Loading...\n"));
 	LoadTextureBank(SYSTEM_TEX_BANK);
 	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
-//	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
+#ifdef N64_VERSION
+	LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
+#endif
 	LoadTextureBank(texBankToUse);
 	LoadObjectBank(objBankToUse);
 

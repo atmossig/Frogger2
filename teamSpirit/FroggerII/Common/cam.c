@@ -21,8 +21,8 @@ VECTOR	camVect;
 VECTOR	currCamSource[4] = {{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 }};
 VECTOR	currCamTarget[4] = {{ 0,0,0 },{ 0,0,0 },{ 0,0,0 },{ 0,0,0 }};
 
-VECTOR	actualCamSource[2][4];
-VECTOR	actualCamTarget[2][4];
+VECTOR	actualCamSource[2];
+VECTOR	actualCamTarget[2];
 
 VECTOR currCamDist = {0,0,10};
 
@@ -53,8 +53,6 @@ float transCamSpeedMult		= 1.0F;
 int	camFacing				= 0;
 char camZoom				= 1;
 float scaleV				= 1.1F;
-
-short cameraShake			= 0;
 
 char controlCamera			= 0;
 char fixedDir = 0;
@@ -349,21 +347,9 @@ void SlurpCamPosition(long cam)
 			
 		}
 
-		xFOV		-= (xFOV - xFOVNew) / (s1*fovSpd);
-		yFOV		-= (yFOV - yFOVNew) / (s1*fovSpd);
+//		xFOV		-= (xFOV - xFOVNew) / (s1*fovSpd);
+//		yFOV		-= (yFOV - yFOVNew) / (s1*fovSpd);
 		camLookOfs	-= (camLookOfs - camLookOfsNew) / s1;
-
-		if(cameraShake)
-		{
-			currCamSource[cam].v[0] += (-16 + Random(32));
-			currCamSource[cam].v[1] += (-16 + Random(32));
-			currCamSource[cam].v[2] += (-16 + Random(32));
-			cameraShake--;
-		}
-		else
-		{
-	//		osMotorStop ( &rumble );
-		}
 
 		lastActFrameCount++;
 	}
@@ -427,10 +413,10 @@ void UpdateCameraPosition(long cam)
 			afz2/=l;
 		}
 
-		camSource[cam].v[0] = afx+afx2+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
-		camSource[cam].v[1] = afy+afy2+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
-		camSource[cam].v[2] = afz+afz2+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
+		camSource[0].v[0] = afx+afx2+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
+		camSource[0].v[1] = afy+afy2+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
+		camSource[0].v[2] = afz+afz2+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
 	}
 
-	SlurpCamPosition(cam);
+	SlurpCamPosition(0);
 }

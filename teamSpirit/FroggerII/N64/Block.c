@@ -288,20 +288,6 @@ void CreateTaskStructure(int n,int ucode)
 	tlistp[n+1]->list.t.data_ptr		= (u64 *)glistp;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: ApplyGlobalTransformations()
-	Purpose			: loads a translation matrix onto the modelling matrix stack
-	Parameters		: none
-	Returns			: none
-	Info			:
-*/
-
-void ApplyGlobalTransformations()
-{
-	guTranslate(&dynamicp->TranslateOut,0,0,0);
-	
-	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->TranslateOut)),G_MTX_MODELVIEW|G_MTX_LOAD|G_MTX_NOPUSH);
-}
 
 // Create light structure with ambient colour amd 1 diffuse light source
 Lights1 diffuseL1 = gdSPDefLights1(0x10,0x10,0x10,			// Ambient light colour
@@ -320,30 +306,33 @@ void SetupViewing()
 {
 	u16 perspNorm;
 
-	guPerspective(&dynamicp->projection[screenNum],&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
+	guPerspective(&dynamicp->projection[0],&perspNorm,yFOV,xFOV,nearPlaneDist,farPlaneDist,precScaleFactor);
 
 //	if(ShadingMode == LIGHTING)
+/*
 	{
-		guLookAtHilite(&(dynamicp->viewing[screenNum]),&(dynamicp->lookat[screenNum]),&(dynamicp->hilite[screenNum]),
-			actualCamSource[draw_buffer][screenNum].v[X],actualCamSource[draw_buffer][screenNum].v[Y],actualCamSource[draw_buffer][screenNum].v[Z],
-			actualCamTarget[draw_buffer][screenNum].v[X],actualCamTarget[draw_buffer][screenNum].v[Y],actualCamTarget[draw_buffer][screenNum].v[Z],
+		guLookAtHilite(&(dynamicp->viewing[0]),&(dynamicp->lookat[0]),&(dynamicp->hilite[0]),
+			actualCamSource[draw_buffer].v[X],actualCamSource[draw_buffer].v[Y],actualCamSource[draw_buffer].v[Z],
+			actualCamTarget[draw_buffer].v[X],actualCamTarget[draw_buffer].v[Y],actualCamTarget[draw_buffer].v[Z],
 			camVect.v[X],camVect.v[Y],camVect.v[Z],
 			0.0, 0.0, 127.0, 
 			0.0, 0.0, 127.0,
 			32,32);					
 	}
-/*	else
+*/
+//	else
+
 	{
-		guLookAt(&dynamicp->viewing[screenNum], 
-			actualCamSource[draw_buffer][screenNum].v[X],actualCamSource[draw_buffer][screenNum].v[Y],actualCamSource[draw_buffer][screenNum].v[Z],
-			actualCamTarget[draw_buffer][screenNum].v[X],actualCamTarget[draw_buffer][screenNum].v[Y],actualCamTarget[draw_buffer][screenNum].v[Z],
+		guLookAt(&dynamicp->viewing[0], 
+			actualCamSource[draw_buffer].v[X],actualCamSource[draw_buffer].v[Y],actualCamSource[draw_buffer].v[Z],
+			actualCamTarget[draw_buffer].v[X],actualCamTarget[draw_buffer].v[Y],actualCamTarget[draw_buffer].v[Z],
 			camVect.v[X],camVect.v[Y],camVect.v[Z]);
     }
-*/
-	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->projection[screenNum])),
+
+	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->projection[0])),
 		G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
 
-	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->viewing[screenNum])),
+	gSPMatrix(glistp++, OS_K0_TO_PHYSICAL(&(dynamicp->viewing[0])),
 		G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);  
 
 	gSPPerspNormalize(glistp++,perspNorm);  
@@ -1101,7 +1090,7 @@ void DrawGraphics(void *arg)
 				glistp = dynamicp->glist;
 				currentTask = 1;
 				tlistp[currentTask]->list.t.data_ptr = (u64 *)glistp;
-		
+
 				InitDisplayLists();
 				ClearZBuffer();		
 				ClearFrameBuffer();				
@@ -1111,12 +1100,8 @@ void DrawGraphics(void *arg)
 				if(gfxIsDrawing == FALSE)
 					goto cleanup;
 
-				i = 4;
-				while(i--)
-				{
-					SetVector(&actualCamSource[draw_buffer][i],&currCamSource[i]);
-					SetVector(&actualCamTarget[draw_buffer][i],&currCamTarget[i]);
-				}
+				SetVector(&actualCamSource[draw_buffer],&currCamSource[0]);
+				SetVector(&actualCamTarget[draw_buffer],&currCamTarget[0]);
 
 				SetupViewing();
 //				PrintBackdrops();
@@ -1139,8 +1124,6 @@ void DrawGraphics(void *arg)
 				//***********************************
 	
 				SetRenderMode();
-				ApplyGlobalTransformations();
-
 				// turn off AA for now on N64....AndyE
 				renderMode.useAAMode = 0;
 

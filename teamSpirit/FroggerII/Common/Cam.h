@@ -49,8 +49,10 @@ extern VECTOR	camTarget[4];
 extern VECTOR	currCamSource[4];
 extern VECTOR	currCamTarget[4];
 
-extern VECTOR	actualCamSource[2][4];
-extern VECTOR	actualCamTarget[2][4];
+extern VECTOR	currCamDist;
+
+extern VECTOR	actualCamSource[2];
+extern VECTOR	actualCamTarget[2];
 
 //extern float	xValuesFOV[4];
 //extern float	yValuesFOV[4];
@@ -63,8 +65,6 @@ extern float	precScaleFactor;
 
 extern char		camZoom;
 extern float	scaleV;
-
-extern short	cameraShake;
 
 extern char		controlCamera;
 extern char		fixedDir;

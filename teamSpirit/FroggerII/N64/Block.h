@@ -693,7 +693,6 @@ extern unsigned int			TicksPerFrame;
 
 extern int gfxTasks;
 
-extern void					ApplyGlobalTransformations();
 extern void					ClearViewing();
 extern void					DrawGraphics(void *arg);
 extern void					SetRenderMode();
