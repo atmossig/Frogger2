@@ -338,7 +338,7 @@ void UpdateFroggerPos(long pl)
 		if (tile != currTile[pl])
 		{
 			// if we're moving onto a barred tile, push the frog in the other direction
-			if (plat->inTile[0]->state == TILESTATE_BARRED)
+			if (tile->state == TILESTATE_BARRED)
 			{
 				VECTOR v;
 				

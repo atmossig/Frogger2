@@ -353,6 +353,7 @@ void SubPlatform(PLATFORM *plat)
 void FreePlatformLinkedList()
 {
 	PLATFORM *cur,*next;
+	int pl;
 
 	// check if any elements in list
 	if(platformList.numEntries == 0)
@@ -367,6 +368,9 @@ void FreePlatformLinkedList()
 
 		SubPlatform(cur);
 	}
+
+	for (pl=0; pl<MAX_FROGS; pl++)
+		currPlatform[pl] = NULL;
 
 	// initialise list for future use
 	InitPlatformLinkedList();
