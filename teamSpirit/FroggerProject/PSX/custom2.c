@@ -1417,7 +1417,12 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				gte_stsxy3_ft3(si);
 			
-				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);
+				// JH : Temp Fix.................
+
+				si->r0 = ( op->r0 * 128 ) >> 8;
+				si->g0 = ( op->g0 * 128 ) >> 8;
+				si->b0 = ( op->b0 * 128 ) >> 8;
+
 
 				// SL: put in the additive poly...
 				setPolyFT3(si);
@@ -1448,7 +1453,12 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				*(u_long *) (&si->x3) = *(u_long *) (&tfv[op->v3]);
 
-				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+				// JH : Temp Fix
+				//				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+
+				si->r0 = ( op->r0 * 128 ) >> 8;
+				si->g0 = ( op->g0 * 128 ) >> 8;
+				si->b0 = ( op->b0 * 128 ) >> 8;
 
 				*(u_long *) (&si->u2) = *(u_long *) (&op->tu2);
 				*(u_long *) (&si->u3) = *(u_long *) (&op->tu3);
@@ -1481,9 +1491,23 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
 
-				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				// JH : Temp Fix.........
+
+//				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
+				si->r0 = ( op->r0 * 128 ) >> 8;
+				si->g0 = ( op->g0 * 128 ) >> 8;
+				si->b0 = ( op->b0 * 128 ) >> 8;
+
+				si->r1 = ( op->r1 * 128 ) >> 8;
+				si->g1 = ( op->g1 * 128 ) >> 8;
+				si->b1 = ( op->b1 * 128 ) >> 8;
+
+				si->r2 = ( op->r2 * 128 ) >> 8;
+				si->g2 = ( op->g2 * 128 ) >> 8;
+				si->b2 = ( op->b2 * 128 ) >> 8;
 
 				// SL: put in the additive poly...
 				setPolyGT3(si);
@@ -1516,11 +1540,28 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
 		
-				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
-				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
-				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+				// JH Temp Fix.......................
+//				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+//				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 		
+				si->r0 = ( op->r0 * 128 ) >> 8;
+				si->g0 = ( op->g0 * 128 ) >> 8;
+				si->b0 = ( op->b0 * 128 ) >> 8;
+
+				si->r1 = ( op->r1 * 128 ) >> 8;
+				si->g1 = ( op->g1 * 128 ) >> 8;
+				si->b1 = ( op->b1 * 128 ) >> 8;
+
+				si->r2 = ( op->r2 * 128 ) >> 8;
+				si->g2 = ( op->g2 * 128 ) >> 8;
+				si->b2 = ( op->b2 * 128 ) >> 8;
+
+				si->r3 = ( op->r3 * 128 ) >> 8;
+				si->g3 = ( op->g3 * 128 ) >> 8;
+				si->b3 = ( op->b3 * 128 ) >> 8;
+
 				// SL: put in the additive poly...
 				setPolyGT4(si);
 				si->code = op->cd | modctrl->semitrans;
@@ -1554,7 +1595,13 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 					width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
 					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
-	 				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
+					// JH : Temp Fix
+//					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
+
+					si->r0 = ( op->r0 * 128 ) >> 8;			// Texture coords / colors
+					si->g0 = ( op->g0 * 128 ) >> 8;			// Texture coords / colors
+					si->b0 = ( op->b0 * 128 ) >> 8;			// Texture coords / colors
+
 					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
 					*(u_long *)&si->u1 = *(u_long *)&op->tu1;
 					*(u_long *)&si->u2 = *(u_long *)&op->tu2;
