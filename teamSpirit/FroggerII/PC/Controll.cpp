@@ -78,9 +78,10 @@ extern "C"
 void StopKeying(void);
 char rKeyFile[MAX_PATH] = "";
 unsigned long rKeying = 0;
-unsigned long rKeyOK = 0;
+unsigned long rKeyOK = 0;				// TODO: put these in a structure somewhere SENSIBLE
 unsigned long rPlaying = 0;
 unsigned long rPlayOK = 0;
+long rEndFrame;
 }
 
 int numJoypads = 0;
@@ -265,6 +266,7 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 		
 		curPlayKey = 0;
 		rPlayOK = 1;
+		rEndFrame = actFrameCount + (15 * 60);
 
 		fclose(fp);
 	}
