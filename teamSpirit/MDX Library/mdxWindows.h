@@ -28,6 +28,7 @@ extern unsigned long consoleDraw;
 extern unsigned long timerDraw;
 extern unsigned long textureDraw;
 extern long windowActive;
+extern long displayDebugInfo;
 
 int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode);
 void RunWindowsLoop(long (*AppLoop)());

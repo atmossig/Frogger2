@@ -43,6 +43,7 @@ WNDPROC userWndProc;
 unsigned long consoleDraw = 0;
 unsigned long timerDraw = 0;
 unsigned long textureDraw = 0;
+long displayDebugInfo = 1;
 char winAppName[128];
 long windowActive;
 
@@ -69,10 +70,13 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
             break;
 		case WM_KEYDOWN:
 		{
-			HiliteUp(2);
+			if (!displayDebugInfo)
+				break;
 
+			HiliteUp(2);
+			
 			switch ((int)wParam)
-			{
+			{				
 				case VK_F3:
 					UpdateConsole((int)wParam);
 					break;
