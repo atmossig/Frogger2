@@ -147,34 +147,37 @@ void UpdateEnemies()
 			cur->Update(cur);
 
 		// Single and multiplayer damage to frog
-		if (NUM_FROGS==1)
+		if( frameCount > 10 )
 		{
-			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[0]->action.dead && 
-				!frog[0]->action.safe && ActorsHaveCollided(frog[0],cur->nmeActor) )
+			if (NUM_FROGS==1)
 			{
-				NMEDamageFrog(0,cur);
+				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[0]->action.dead && 
+					!frog[0]->action.safe && ActorsHaveCollided(frog[0],cur->nmeActor) )
+				{
+					NMEDamageFrog(0,cur);
+				}
+				else if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
+						(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+						!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
+				{
+					NMEDamageFrog(0,cur);
+				}
 			}
-			else if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
-					(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-					!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
+			else
 			{
-				NMEDamageFrog(0,cur);
+				for (i=0; i<NUM_FROGS; i++)
+					if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
+						ActorsHaveCollided(frog[i],cur->nmeActor) )
+					{
+						KillMPFrog(i);
+					}
+					else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
+							(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+							!(player[i].frogState & FROGSTATUS_ISFLOATING))
+					{
+						KillMPFrog(i);
+					}
 			}
-		}
-		else
-		{
-			for (i=0; i<NUM_FROGS; i++)
-				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
-					ActorsHaveCollided(frog[i],cur->nmeActor) )
-				{
-					KillMPFrog(i);
-				}
-				else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
-						(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-						!(player[i].frogState & FROGSTATUS_ISFLOATING))
-				{
-					KillMPFrog(i);
-				}
 		}
 
 		// Do Special Effects attached to enemies
