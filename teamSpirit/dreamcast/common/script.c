@@ -1119,8 +1119,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			if( !(bbSamp = FindSample(utilStr2CRC(name))) )
 			{
 				sprintf(buffer,"Couldn't find sample: '%s'",name);
-				utilPrintf2(buffer);
-//				PrintScriptDebugMessage(buffer);
+				PrintScriptDebugMessage(buffer);
 				break;
 			}
 
