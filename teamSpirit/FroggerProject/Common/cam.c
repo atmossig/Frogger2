@@ -62,7 +62,7 @@ SVECTOR camDist				= {0,680*SCALE,192*SCALE};
 
 
 fixed camSpeed				= 15<<12; //30; //9;
-fixed camSpeed2				= 15<<12;; //25; //9;
+fixed camSpeed2				= 20<<12;; //25; //9;
 fixed camSpeed3				= 20<<12;	// source & target interp.
 fixed camSpeed4				= 15<<12;; //25; //8;
 fixed fovSpd				= 2<<12;;
@@ -78,7 +78,7 @@ char fixedPos = 0;
 char firstPerson = 0;
 char fixedUp = 0;
 
-extern long idleCamera;
+//extern long idleCamera;
 VECTOR idleCamDist	= {0,100,102};
 
 fixed sideSwaySpeed = 20, sideSwayAmt=50<<12, swayModifier = 4096;
@@ -531,20 +531,20 @@ void SlurpCamPosition( )
 	if(camControlMode)
 		return;
 
-	if (idleCamera)
-	{
-		s1 = min(4096, (gameSpeed<<12)/(FMul(camSpeed ,transCamSpeedMult)*6));
-		s2 = min(4096, (gameSpeed<<12)/(FMul(camSpeed2,transCamSpeedMult)*6));
-		s3 = min(4096, (gameSpeed<<12)/(FMul(camSpeed3,transCamSpeedMult)*6));
-		s4 = min(4096, (gameSpeed<<12)/(FMul(camSpeed4,transCamSpeedMult)*6));
-	}
-	else
-	{
+//	if (idleCamera)
+//	{
+//		s1 = min(4096, (gameSpeed<<12)/(FMul(camSpeed ,transCamSpeedMult)*6));
+//		s2 = min(4096, (gameSpeed<<12)/(FMul(camSpeed2,transCamSpeedMult)*6));
+//		s3 = min(4096, (gameSpeed<<12)/(FMul(camSpeed3,transCamSpeedMult)*6));
+//		s4 = min(4096, (gameSpeed<<12)/(FMul(camSpeed4,transCamSpeedMult)*6));
+//	}
+//	else
+//	{
 		s1 = min(4096, (gameSpeed<<12)/FMul(camSpeed ,transCamSpeedMult) );
 		s2 = min(4096, (gameSpeed<<12)/FMul(camSpeed2,transCamSpeedMult) );
 		s3 = min(4096, (gameSpeed<<12)/FMul(camSpeed3,transCamSpeedMult) );
 		s4 = min(4096, (gameSpeed<<12)/FMul(camSpeed4,transCamSpeedMult) );
-	}
+//	}
 
 	SubVectorFFF(&v, &camTarget, &currCamTarget);
 	ScaleVectorFF(&v, s3);

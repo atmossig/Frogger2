@@ -82,7 +82,7 @@ unsigned long INPUT_POLLPAUSE	= 10;
 struct gameStateStruct gameState;
 
 //unsigned long fadingLogos = 0;
-long idleCamera = 0;
+//long idleCamera = 0;
 char tileString[16], dkPressed=0;
 
 short showEndLevelScreen = 1;
@@ -205,7 +205,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 
 			player[pl].extendedHopDir = MOVE_UP;
 		}
@@ -231,7 +231,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 
 			player[pl].extendedHopDir = MOVE_RIGHT;
 		}
@@ -257,7 +257,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 
 			player[pl].extendedHopDir = MOVE_DOWN;
 		}
@@ -283,7 +283,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 			
 			player[pl].extendedHopDir = MOVE_LEFT;
 		}
@@ -317,7 +317,7 @@ void GameProcessController(long pl)
 
 		// update player idleTime
 		player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-		idleCamera = 0;
+		//idleCamera = 0;
 
 		// ------------------- DOUBLE JUMP -------------------------
 
@@ -439,7 +439,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 		}
 
 		if( (padData.debounce[pl] & PAD_SQUARE) && !player[pl].isCroaking.time )
@@ -455,7 +455,7 @@ void GameProcessController(long pl)
 
 			// update player idleTime
 			player[pl].idleTime = ToFixed(MAX_IDLE_TIME);
-			idleCamera = 0;
+			//idleCamera = 0;
 		}
 //#endif
 	}
