@@ -65,9 +65,6 @@ void UpdateRace( )
 	}
 
 	// When all players are ready, start a countdown
-
-
-	
 	if( multiTimer.time)
 	{
 		GTUpdate( &multiTimer, -1 );
@@ -452,9 +449,9 @@ void RaceRespawn( int pl )
 
 	TeleportActorToTile(frog[pl],tile,pl);
 
-	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 64, 2, 0, 1.7 );
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &tile->centre, &tile->normal, 64, 2, 0, 1.7 );
 	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
-	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 80, 2, 0, 1.7 );
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &tile->centre, &tile->normal, 80, 2, 0, 1.7 );
 	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 
 	// Update progress info
