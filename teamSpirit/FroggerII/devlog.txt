@@ -1932,3 +1932,47 @@ Byron Blay:
 	
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------
+27/01/00 - Thursday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Over the past few days, I have:
+	
+	- Waited for meeting that never happened
+	- Went to meetings that accomplished little
+	- Went to meetings that accomplished something
+	- Added support for drop-in models so the frog can die in new and interesting ways
+	- Tried to make a decent shield effect and failed miserably cos the sprite engine is a big pile of offal
+	- Done some other things that I can't remember, but which were dead important at the time
+	- Invented a lot of bonuses and cool features
+	- Made many many lists of tasks and missing features
+
+	In the future, my ambition is to get around to actually programming some stuff without all this organising crap.
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
