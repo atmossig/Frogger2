@@ -58,6 +58,16 @@ typedef struct TAGFX_SMOKELIST
 } FX_SMOKELIST;
 
 
+//----- [ SWARM SPECIAL FX ] -----//
+
+typedef struct TAGFX_SWARMLIST
+{
+	int					numEntries;
+	FX_SWARM			head;
+
+} FX_SWARMLIST;
+
+
 //----- [ PARTICLE EXPLODE SPECIAL FX ] -----//
 
 typedef struct TAGFX_EXPLODEPARTICLELIST
@@ -82,6 +92,7 @@ typedef struct TAGFX_OBJECTBLURLIST
 
 extern FX_RIPPLELIST rippleFXList;
 extern FX_SMOKELIST smokeFXList;
+extern FX_SWARMLIST swarmFXList;
 extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
 extern FX_OBJECTBLURLIST objectBlurFXList;
 
@@ -116,6 +127,12 @@ extern void FreeFXSmokeLinkedList();
 extern void AddFXSmoke(FX_SMOKE *smoke);
 extern void SubFXSmoke(FX_SMOKE *smoke);
 extern void UpdateFXSmoke();
+
+extern FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset);
+extern void FreeFXSwarmLinkedList();
+extern void AddFXSwarm(FX_SWARM *swarm);
+extern void SubFXSwarm(FX_SWARM *swarm);
+extern void UpdateFXSwarm();
 
 extern FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origin,VECTOR *normal,float maxSpeed,short size,PLANE2 *reboundPlane,float lifetime);
 extern void FreeFXExplodeParticleLinkedList();

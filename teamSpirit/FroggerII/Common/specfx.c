@@ -15,6 +15,7 @@
 
 FX_RIPPLELIST rippleFXList;
 FX_SMOKELIST smokeFXList;
+FX_SWARMLIST swarmFXList;
 FX_EXPLODEPARTICLELIST explodeParticleFXList;
 FX_OBJECTBLURLIST objectBlurFXList;
 
@@ -396,6 +397,234 @@ void UpdateFXSmoke()
 
 			if(!smoke->lifetime)
 				smoke->deadCount = 5;
+		}
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAndAddFXSwarm
+	Purpose			: creates and initialises a swarm based effect
+	Parameters		: char,VECTOR *,short,float
+	Returns			: FX_SWARM *
+	Info			: 
+*/
+FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset)
+{
+	int i = MAX_SWARM_ELEMENTS;
+	FX_SWARM *swarm;
+	TEXTURE *theTexture;
+	
+	swarm = (FX_SWARM *)JallocAlloc(sizeof(FX_SWARM),YES,"FX_SWM");
+	AddFXSwarm(swarm);
+
+	swarm->centroid = centroid;
+	swarm->swarmType	= swarmType;
+/*
+	switch(swarmType)
+	{
+		case SWARM_TYPE_STARSTUN:
+		*/
+			FindTexture(&theTexture,UpdateCRC("star.bmp"),YES,"star.bmp");
+/*			break;
+
+		case SWARM_TYPE_CROWS:
+		case SWARM_TYPE_FLIES:
+			FindTexture(&theTexture,UpdateCRC("fly1.bmp"),YES,"fly1.bmp");
+			break;
+	}
+*/
+	while(i--)
+	{
+		swarm->sprite[i].texture	= theTexture;
+		SetVector(&swarm->sprite[i].pos,centroid);
+		SetVector(&swarm->swarmOffs[i],&zero);
+		swarm->swarmOffs[i].v[Y] += offset;
+
+		swarm->sprite[i].scaleX		= size;
+		swarm->sprite[i].scaleY		= size;
+		swarm->sprite[i].r			= 255;
+		swarm->sprite[i].g			= 255;
+		swarm->sprite[i].b			= 255;
+		swarm->sprite[i].a			= 255;
+
+		swarm->sprite[i].offsetX	= -16;
+		swarm->sprite[i].offsetY	= -16; //swarm->sprite[i].texture->sy / 2\
+		swarm->sprite[i].flags		= SPRITE_TRANSLUCENT;
+
+		AddSprite(&swarm->sprite[i],NULL);
+
+//		if(swarmType == SWARM_TYPE_STARSTUN)
+//		{
+			swarm->xVelocity[i] = -8 + Random(16);
+			swarm->yVelocity[i] = -6 + Random(12);
+			swarm->zVelocity[i] = -8 + Random(16);
+/*		}
+		else if( swarmType == SWARM_TYPE_CROWS )
+		{
+			swarm->xVelocity[i] = -8 + Random(16);
+			swarm->yVelocity[i] = -8 + Random(16);
+			swarm->zVelocity[i] = -8 + Random(16);
+		}
+		else
+		{
+			swarm->xVelocity[i] = -12 + Random(24);
+			swarm->yVelocity[i] = -8 + Random(16);
+			swarm->zVelocity[i] = -12 + Random(24);
+		}*/
+	}
+
+	swarm->lifetime			= lifetime;
+
+	return swarm;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeFXSwarmLinkedList
+	Purpose			: frees the fx linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeFXSwarmLinkedList()
+{
+	FX_SWARM *cur,*next;
+
+	if(swarmFXList.numEntries == 0)
+		return;
+
+	dprintf"Freeing linked list : FX_SWARM : (%d elements)\n",swarmFXList.numEntries));
+	for(cur = swarmFXList.head.next; cur != &swarmFXList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubFXSwarm(cur);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddFXSwarm
+	Purpose			: adds swarm fx element to the list
+	Parameters		: FX_SWARM *
+	Returns			: void
+	Info			: 
+*/
+void AddFXSwarm(FX_SWARM *swarm)
+{
+	if(swarm->next == NULL)
+	{
+		swarmFXList.numEntries++;
+		swarm->prev = &swarmFXList.head;
+		swarm->next = swarmFXList.head.next;
+		swarmFXList.head.next->prev = swarm;
+		swarmFXList.head.next = swarm;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubFXSwarm
+	Purpose			: removes a swarm fx element from the list
+	Parameters		: FX_SWARM *
+	Returns			: void
+	Info			: 
+*/
+void SubFXSwarm(FX_SWARM *swarm)
+{
+	int i = MAX_SWARM_ELEMENTS;
+
+	if(swarm->next == NULL)
+		return;
+
+	while(i--)
+		SubSprite(&swarm->sprite[i]);
+
+	swarm->prev->next = swarm->next;
+	swarm->next->prev = swarm->prev;
+	swarm->next = NULL;
+	swarmFXList.numEntries--;
+
+	JallocFree((UBYTE **)&swarm);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFXSwarm
+	Purpose			: updates the swarm based fx
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void UpdateFXSwarm()
+{
+	int i;
+	FX_SWARM *swarm,*swarm2;
+
+	// go through swarm fx list and remove 'dead' effects
+	for(swarm = swarmFXList.head.next; swarm != &swarmFXList.head; swarm = swarm2)
+	{
+		swarm2 = swarm->next;
+		if(swarm->deadCount)
+		{
+			swarm->deadCount--;
+			if(!swarm->deadCount)
+			{
+				SubFXSwarm(swarm);
+				continue;
+			}
+		}
+	}
+
+	// update swarm fx
+	for(swarm = swarmFXList.head.next; swarm != &swarmFXList.head; swarm = swarm2)
+	{
+		swarm2 = swarm->next;
+
+		if(swarm->lifetime)
+		{
+			if( swarm->lifetime != 65535 )
+				swarm->lifetime--;
+
+/*			if(swarm->swarmType == SWARM_TYPE_STARSTUN)
+			{
+				swarm->sprite[0].a -= 8;
+				swarm->sprite[1].a -= 8;
+				swarm->sprite[2].a -= 8;
+				swarm->sprite[3].a -= 8;
+
+				if(swarm->sprite[0].a < 10)
+				{
+					swarm->lifetime	= 0;
+					swarm->deadCount = 5;
+					continue;
+				}
+			}
+*/			
+			i = MAX_SWARM_ELEMENTS;
+			while(i--)
+			{
+				if(swarm->sprite[i].pos.v[X] > swarm->centroid->v[X])
+					swarm->xVelocity[i] -= 1.0F;
+				else
+					swarm->xVelocity[i] += 1.0F;
+
+				if(swarm->sprite[i].pos.v[Y] > swarm->centroid->v[Y])
+					swarm->yVelocity[i] -= 1.0F;
+				else
+					swarm->yVelocity[i] += 1.0F;
+
+				if(swarm->sprite[i].pos.v[Z] > swarm->centroid->v[Z])
+					swarm->zVelocity[i] -= 1.0F;
+				else
+					swarm->zVelocity[i] += 1.0F;
+
+				swarm->swarmOffs[i].v[X] += swarm->xVelocity[i];
+				swarm->swarmOffs[i].v[Y] += swarm->yVelocity[i];
+				swarm->swarmOffs[i].v[Z] += swarm->zVelocity[i];
+
+				AddVector( &swarm->sprite[i].pos, swarm->centroid, &swarm->swarmOffs[i] );
+			}
+
+			if(!swarm->lifetime)
+				swarm->deadCount = 5;
 		}
 	}
 }

@@ -136,6 +136,29 @@ typedef struct TAGFX_SMOKE
 } FX_SMOKE;
 
 
+#define MAX_SWARM_ELEMENTS		4
+
+typedef struct TAGFX_SWARM
+{
+	struct TAGFX_SWARM	*next;
+	struct TAGFX_SWARM	*prev;
+
+	unsigned char		swarmType;
+	SPRITE				sprite[MAX_SWARM_ELEMENTS];
+	VECTOR				swarmOffs[MAX_SWARM_ELEMENTS];
+
+	VECTOR				*centroid;
+	
+	float				xVelocity[MAX_SWARM_ELEMENTS];
+	float				yVelocity[MAX_SWARM_ELEMENTS];
+	float				zVelocity[MAX_SWARM_ELEMENTS];
+
+	float				lifetime;
+	unsigned char		deadCount;
+
+} FX_SWARM;
+
+
 #define MAX_EXPLODE_PARTICLES	8
 
 typedef struct TAGFX_EXPLODEPARTICLE
