@@ -76,6 +76,7 @@ int drawLandscape = 1;
 long textEntry = 0;	
 char textString[255] = "";
 
+long drawGame = 1;
 
 
 //fixed gameSpeed = 4096;
@@ -602,8 +603,10 @@ int main ( )
 void MainDrawFunction ( void )
 {
 			TIMER_START0(TIMER_DRAW_WORLD);
-			if(drawLandscape)
+
+			if ( drawLandscape && drawGame )
 				DrawWorld();
+
 			TIMER_STOP0(TIMER_DRAW_WORLD);
 
 			TIMER_START0(TIMER_DRAW_SPECFX);
@@ -615,17 +618,19 @@ void MainDrawFunction ( void )
 			TIMER_STOP0(TIMER_PRINT_SPRITES);
 
 			TIMER_START0(TIMER_DRAW_SCENICS);
-			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+
+			if ( ( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) && drawGame )
 				DrawScenicObjList();
+
 			TIMER_STOP0(TIMER_DRAW_SCENICS);
 			
 			TIMER_START0(TIMER_DRAW_WATER);
-			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+			if ( ( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) && drawGame )
 				DrawWaterList();
 			TIMER_STOP0(TIMER_DRAW_WATER);
 
 			TIMER_START0(TIMER_ACTOR_DRAW);
-			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
+			if ( ( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) && drawGame )
 				DrawActorList();
 			TIMER_STOP0(TIMER_ACTOR_DRAW);
 

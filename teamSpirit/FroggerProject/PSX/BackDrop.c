@@ -41,6 +41,8 @@ void InitBackdrop ( char * filename )
 //	INTERUPT_ScreenClear(INTERUPT_CLEAR_OFF);
 }
 
+#define ScreenGetBuffer()			( (currentDisplayPage==displayPage)?0:1 )
+
 void DrawBackDrop ( void )
 {
 //	register PACKET			*packet;//, *packetNext;
@@ -52,6 +54,31 @@ void DrawBackDrop ( void )
 	if ( ( backDrop.init ) && ( backDrop.data ) )
 	{
 
+//	rect.x = 0;
+//	rect.y = 0;//(TITAN_SCREEN_H-OVERLAY_BACKDROP_H)/2;		// Center on screen
+//	rect.w = 512; 
+//	rect.h = 256;
+
+	if( !ScreenGetBuffer() )
+	{
+		backDrop.rect.y = 0;
+		DrawSync(0);
+		LoadImage ( &backDrop.rect, (ULONG *) backDrop.data );
+	}
+	else
+	{
+		backDrop.rect.y+=256;
+		DrawSync(0);
+		LoadImage ( &backDrop.rect, (ULONG *) backDrop.data );
+	}
+
+	DrawSync(0);
+
+	}
+
+/*
+
+
 				backDrop.rect.y = 256;
 				DrawSync(0);
 				LoadImage(&backDrop.rect, (ULONG *)backDrop.data);
@@ -59,7 +86,7 @@ void DrawBackDrop ( void )
 				backDrop.rect.y = 0;
 				DrawSync(0);
 				LoadImage(&backDrop.rect, (ULONG *)backDrop.data);
-				DrawSync(0);
+				DrawSync(0);*/
 			//VSync(2);
 
 /*				if ( frameCount > 50 )
@@ -203,7 +230,7 @@ void DrawBackDrop ( void )
 #undef siNext*/
 
 
-	}
+//	}
 	// ENDIF
 }
 

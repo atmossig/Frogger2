@@ -165,11 +165,11 @@ asm(\
 // which looks horrible!
 //#define MIN_MAP_DEPTH 140
 //#define MIN_MAP_DEPTH 100
-#define MIN_MAP_DEPTH (5)
+#define MIN_MAP_DEPTH (10)
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (800)
+#define MAX_MAP_DEPTH (30000)
 
 
 // ===================================================

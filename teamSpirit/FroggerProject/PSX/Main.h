@@ -17,6 +17,7 @@ extern long textEntry;
 extern char textString[255];
 
 extern int drawLandscape;
+extern long drawGame;
 
 
 #define ASSERT(A)	if(!(A)) {utilPrintf("Debug ASSERT failed at line %d, in "__FILE__, __LINE__);CRASH;}
