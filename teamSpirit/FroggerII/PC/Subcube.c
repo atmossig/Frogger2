@@ -16,6 +16,9 @@
 
 #define LODDist (700 * 700)
 
+VECTOR pointVec = {0,0,1};
+
+float hedSpeed = 0.2;
 void TransformObject(OBJECT *obj, float time);
 void PCDrawObject(OBJECT *obj, float m[4][4]);
 
@@ -747,24 +750,39 @@ void TransformObject(OBJECT *obj, float time)
 	{
 		float rotmat2[4][4];
 		QUATERNION quat, rot = {0,1,0,0};
-		VECTOR pointVec;
+		VECTOR actVec;
 
 		if (pointOfInterest)
 		{
-			SubVector (&pointVec,pointOfInterest,&(frog[0]->actor->pos));
-			MakeUnit (&pointVec);
-			//nextCamFacing
-			if (currTile[0])
-			{
-				CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
-				rot.w = acos(DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]])));
-
-				GetQuaternionFromRotation (&quat,&rot);
-				QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
-				guMtxCatF(rotmat,rotmat2,rotmat);
-				//translation.v[Z]+=50;
-			}
+			SubVector (&actVec,pointOfInterest,&(frog[0]->actor->pos));
 		}
+		else
+		{
+			SetVector (&actVec,&(currTile[0]->dirVector[frogFacing[0]]));
+		}
+
+		MakeUnit (&actVec);
+
+		pointVec.v[X] += (actVec.v[X] - pointVec.v[X]) * hedSpeed;
+		pointVec.v[Y] += (actVec.v[Y] - pointVec.v[Y]) * hedSpeed;
+		pointVec.v[Z] += (actVec.v[Z] - pointVec.v[Z]) * hedSpeed;
+		
+		MakeUnit (&pointVec);
+
+		// Could cause problems if point pass through frog... Should never Happen.
+	
+		CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
+		rot.w = DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
+		if (rot.w>1)
+			rot.w = 0;
+		else
+			rot.w = acos(rot.w);
+
+		
+		GetQuaternionFromRotation (&quat,&rot);
+		QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
+		guMtxCatF(rotmat,rotmat2,rotmat);
+
 	}
 
 	rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];

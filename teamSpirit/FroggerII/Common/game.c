@@ -664,7 +664,12 @@ void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 		if(m > 0.0001)
 		{
 			ScaleVector((VECTOR *)&rotn,1/m);
-			rotn.w = acos(dp);
+
+			if (dp<0.99)
+				rotn.w = acos(dp);
+			else
+				rotn.w = 0;
+			
 			GetQuaternionFromRotation(&q,&rotn);
 			QuaternionMultiply(me,&q,me);
 		}
