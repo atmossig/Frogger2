@@ -140,23 +140,16 @@ void RunTitleScreen( )
 				break;
 			case 2:
 				FreeAllLists();
-				worldNum = 0;
-				levelNum = 0;
-				//osMotorStop ( &rumble );
-				InitLevel ( 0, 0 );
-
-				gameState.oldMode = FRONTEND_MODE;
-				gameState.mode = GAME_MODE;
-
 				frameCount = 0;
 				lastbutton = 0;
+				frontEndState.mode = LEVELSELECT_MODE;
 				PlaySample ( 2,NULL,255,128);
 				NUM_FROGS = numPlayers;
 				break;
 			case 3:
 				FreeAllLists();
 				gameState.oldMode = FRONTEND_MODE;
-				gameState.mode = DEVELOPMENTMENU_MODE;
+				//gameState.mode = DEVELOPMENTMENU_MODE;
 				frameCount = 0;
 				lastbutton = 0;
 				PlaySample ( 2,NULL,255,128);
