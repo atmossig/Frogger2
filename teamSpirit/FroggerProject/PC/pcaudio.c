@@ -1426,9 +1426,11 @@ void FreeAmbientSoundList( )
 		if( stat & DSBSTATUS_PLAYING && stat & DSBSTATUS_LOOPING )
 		{
 			bufs->lpdsBuffer->lpVtbl->Stop( bufs->lpdsBuffer );
-			RemoveBufSample( bufferList.head.next );
+			//RemoveBufSample( bufferList.head.next );
 		}
 	}
+
+	CleanBufferSamples();
 }
 
 
