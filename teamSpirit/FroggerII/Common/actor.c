@@ -23,7 +23,10 @@
 #include <assert.h>
 
 #include "incs.h"
+
+#ifdef PC_VERSION
 #include "mavis.h"
+#endif
 
 #define MAX_UNIQUE_ACTORS	50
 
