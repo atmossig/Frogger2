@@ -23,7 +23,7 @@ WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
 
-char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
+char baseDirectory[MAX_PATH] = "";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
@@ -161,7 +161,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitInputDevices())
 		ok = 0;
 	
-/*	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
+	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
 	{
 		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
 	} 
@@ -180,7 +180,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	//InitSaveData();
 
 	playCDTrack ( winInfo.hWndMain, 1 );
-*/
+
+/*	InitSaveData();
+	SaveGameData();*/
 	gameState.mode		= FRONTEND_MODE;
 	//frontEndState.mode	= TITLE_MODE;
 
