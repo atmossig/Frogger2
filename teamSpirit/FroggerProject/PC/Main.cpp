@@ -102,10 +102,11 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			rButton = 0;
 			break;
 
+		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			switch (wParam)
 			{
-			case VK_F2:
+			case VK_F10:
 				editorOk = !editorOk; keysEnabled = !keysEnabled; break;
 			default:
 				return 1;
@@ -118,6 +119,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				EditorKeypress((char)wParam);
 				return 0;
 			}
+			return 1;
 			break;
 
 	default:
@@ -149,7 +151,7 @@ long DrawLoop(void)
 
 	CalcViewMatrix();
 
-	pDirect3DDevice->BeginScene();
+//	pDirect3DDevice->BeginScene();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
 
@@ -163,6 +165,9 @@ long DrawLoop(void)
 	EndTimer(1);
 
 	DrawAllFrames();
+	BlankAllFrames();
+	
+	pDirect3DDevice->BeginScene();
 
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
@@ -204,11 +209,10 @@ long DrawLoop(void)
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
 	PrintSpriteOverlays(1);	
-
 	if (editorOk)
 		DrawEditor();
-
 	pDirect3DDevice->EndScene();
+
 
 	EndTimer(0);
 	if (consoleDraw)
@@ -262,9 +266,9 @@ long LoopFunc(void)
 			a->pos.vy = c->actor->position.vy * 0.1f;
 			a->pos.vz = c->actor->position.vz * 0.1f;
 
-			a->scale.vx = c->actor->size.vx * (1.0f/4096.0f);
-			a->scale.vy = c->actor->size.vy * (1.0f/4096.0f);
-			a->scale.vz = c->actor->size.vz * (1.0f/4096.0f);
+			a->scale.vx = 1;//c->actor->size.vx * (1.0f/4096.0f);
+			a->scale.vy = 1;//c->actor->size.vy * (1.0f/4096.0f);
+			a->scale.vz = 1;//c->actor->size.vz * (1.0f/4096.0f);
 
 			if (c->actor->qRot.w || c->actor->qRot.x || c->actor->qRot.y || c->actor->qRot.z)
 			{

@@ -338,8 +338,8 @@ void PCCalcModgeValues(MDX_OBJECT *obj)
 
 	for (i=0; i<obj->mesh->numVertices; i++)
 	{
-		*mTemp  = (sinf((in->vz*(1.5/35)+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/26.0)))+timeInfo.frameCount*(1.5/30.0))+1)*0.1;
-		*mTemp2 = (cosf((in->vx*(1.5/49)+sinf((in->vz*(1.3/29))+timeInfo.frameCount*(1.0/26.0)))+timeInfo.frameCount*(1.5/26.0))+1)*0.1;
+		*mTemp  = (sinf((in->vz*(1.5/35)+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/56.0)))+timeInfo.frameCount*(1.5/70.0))+1)*0.1;
+		*mTemp2 = (cosf((in->vx*(1.5/49)+sinf((in->vz*(1.3/29))+timeInfo.frameCount*(1.0/66.0)))+timeInfo.frameCount*(1.5/66.0))+1)*0.1;
 		*mTemp3 = (sinf(	(in->vz*(1.2/26))+cosf((in->vx*(1.3/49))+timeInfo.frameCount*(1.0/26.0))+timeInfo.frameCount*(1.0/26.0))+1)*5;
 		mTemp++;
 		mTemp2++;
@@ -1147,8 +1147,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			cVal = 1;//(m1x-m1z)*2.5;		
 			vTemp->color = D3DRGBA(cVal,cVal,1,(m1x+m1z)*2.5);
 			vTemp->specular = D3DRGBA(0,0,0,0);
-			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x;
-			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z;
+			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F) + m1x*0.4;
+			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F) + m1z*0.4;
 			
 			//vTemp->tv = (tN0->vy+0.5);
 			//vTemp->tu = (tN0->vx+0.5);
@@ -1161,8 +1161,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			cVal = 1;//(m2x-m2z)*2.5;			
 			vTemp->color = D3DRGBA(cVal,cVal,1,(m2x+m2z)*2.5);
 			vTemp->specular = D3DRGBA(0,0,0,0);
-			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x;
-			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z;
+			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F) + m2x*0.4;
+			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F) + m2z*0.4;
 			//vTemp->tv = (tN1->vy+0.5);
 			//vTemp->tu = (tN1->vx+0.5);
 			vTemp++;
@@ -1174,8 +1174,8 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 			cVal = 1;//(m3x-m3z)*2.5;			
 			vTemp->color = D3DRGBA(cVal,cVal,1,(m3x+m3z)*2.5);
 			vTemp->specular = D3DRGBA(0,0,0,0);
-			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x;
-			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z;
+			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F) + m3x *0.4;
+			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F) + m3z *0.4;
 			//vTemp->tv = (tN2->vy+0.5);
 			//vTemp->tu = (tN2->vx+0.5);
 			

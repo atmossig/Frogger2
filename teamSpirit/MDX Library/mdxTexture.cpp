@@ -148,7 +148,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				LPDIRECTDRAWSURFACE7 temp;
 				//MDX_TEXPAGE *page = GetFreeTexturePage();
 
-				newE->surf = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1);
+				newE->surf = D3DCreateTexSurface(xDim,yDim, 0x7c1f, 0, 1);
 					
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)

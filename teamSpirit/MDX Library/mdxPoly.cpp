@@ -673,7 +673,7 @@ void DrawAllFrames(void)
 	SwapFrame(MA_FRAME_NORMAL);
 	DrawBatchedPolys();
 	
-	pDirect3DDevice->EndScene();
+/*	pDirect3DDevice->EndScene();
 	
 	// Need to test the ZBuffer on these polys...
 	StoreHaloPoints();
@@ -688,7 +688,7 @@ void DrawAllFrames(void)
 	CheckHaloPoints();
 	
 	pDirect3DDevice->BeginScene();
-
+*/
 	D3DSetupRenderstates(tightAlphaCmpRS);
 
 	if (drawLighting || drawPhong)
@@ -715,9 +715,10 @@ void DrawAllFrames(void)
 		// Switch Back to normal
 		
 	}
-	
+	D3DSetupRenderstates(normalAlphaCmpRS);	
 	D3DSetupRenderstates(xluZRS);
 	D3DSetupRenderstates(xluSemiRS);
+
 	SwapFrame(MA_FRAME_XLU);
 	DrawBatchedPolys();	
 
@@ -730,7 +731,7 @@ void DrawAllFrames(void)
 
 	DrawHalos();
 	D3DSetupRenderstates(xluSemiRS);
-	
+
 	pDirect3DDevice->EndScene();
 }
 
