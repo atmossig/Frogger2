@@ -631,7 +631,11 @@ long DrawLoop(void)
 			D3DSetupRenderstates(xluZRS);
 			D3DSetupRenderstates(normalAlphaCmpRS);
 			ProcessShadows();
+			BeginDraw();
+
 			DrawBatchedPolys();
+
+			EndDraw();
 			BlankAllFrames();
 			D3DSetupRenderstates(normalZRS);
 			SwapFrame(0);
