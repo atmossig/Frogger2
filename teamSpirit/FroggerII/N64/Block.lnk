@@ -32,7 +32,6 @@ _codeSegmentEnd         alias   _code_objend
 
         include "font.obj",code
         include "title.obj",code
-        include "objview.obj",code
         include "actor.obj",code
 
         include "subcube.obj",code
@@ -60,7 +59,6 @@ _codeSegmentEnd         alias   _code_objend
 		include "path.obj",code
 		include "babyfrogs.obj",code
 		include "levelplaying.obj",code
-		include "singlemodetitle.obj",code
 		include "frogger.obj",code
 		include "frontend.obj",code
 		include "hud.obj",code

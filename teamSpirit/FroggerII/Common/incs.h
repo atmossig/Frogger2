@@ -18,17 +18,34 @@
 #include "types2dgfx.h"
 #include "general.h"
 
+#ifndef PC_VERSION
 #include "nnsched.h"
+#endif
+
+
 #include "title.h"
+
+
+#ifndef PC_VERSION
 #include "actor.h"
+#endif
+
+
 #include "layoutvisual.h"
-#include "objview.h"
+
+#ifndef PC_VERSION
 #include "timerbar.h"
+#endif
+
+
 #include "levelplaying.h"
 
 #include "jalloc.h"
 
+#ifndef PC_VERSION
 #include "sprite.h"
+#endif
+
 #include "backdrops.h"
 #include "overlays.h"
 #include "textoverlays.h"
