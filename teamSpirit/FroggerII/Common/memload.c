@@ -86,7 +86,7 @@ int MemLoadEntities(const void* data, long size)
 		return 0;
 	}
 
-	dprintf"Testing prototype memload functions ---------------------\n"));
+	dprintf"MemLoadEntities ---------------------\n"));
 
 	count = MEMGETWORD(&p);
 
