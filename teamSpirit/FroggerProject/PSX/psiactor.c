@@ -413,6 +413,10 @@ void actorDraw(ACTOR *actor)
 	world = actor->psiData.object;
 
 	//convert qRot to matrix
+
+// 	if(actor->qRot.x==0 && actor->qRot.y==0 && actor->qRot.z==0 && actor->qRot.w==0)
+// 		utilPrintf("ZERO QUAT !\n");
+
 	QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
 
 	if(actor->psiData.flags & ACTOR_MOTIONBONE)
