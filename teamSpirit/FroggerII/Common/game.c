@@ -58,6 +58,7 @@ TIMER gameIsOver;
 TIMER levelIsOver;
 TIMER scoreTimer;
 
+void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID);
 void DoHiscores();
 extern float gCamDist;
 extern TEXTURE *frogEyeOpen,*frogEyeClosed;
@@ -539,18 +540,29 @@ unsigned char *credits[] =
 
 unsigned long cNumber = 0;
 unsigned long cFrame = 0;
+unsigned long creditsActive = 0;
+GAMETILE *credTile;
 
-#define CRED_SPEED		(60*6)
-#define CRED_BORDERIN	(60*1)
-#define CRED_BORDEROUT	(60*1)
+#define CRED_SPEED		(60*3)
+#define CRED_BORDERIN	(60*0.8)
+#define CRED_BORDEROUT	(60*0.8)
 
 
 void RunCredits()
 {
 	unsigned long cn;
 
+	if (creditsActive==0)
+		return;
+
 	if (actFrameCount>cFrame)
 	{
+		if (creditsActive==2)
+		{
+			creditsActive=3;
+			return;
+		}
+
 		cFrame = actFrameCount + CRED_SPEED;
 		cNumber+= 4;
 
@@ -579,7 +591,9 @@ void RunCredits()
 			if ((credits[cNumber+cn]) && (credits[cNumber+cn][0]!=1))
 			{
 				cText[cn]->vA = amt; 
-				cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+				//cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+				cText[cn]->yScale = 3-(amt/128.0);
+				cText[cn]->sinA = 6-(amt/(256.0/6));
 			}
 		
 	}
@@ -589,10 +603,12 @@ void RunCredits()
 		unsigned long amt;
 		amt = 0xff - (((actFrameCount-(cFrame-CRED_BORDEROUT)) * 255) / CRED_BORDEROUT);
 		for (cn=0; cn<4; cn++)
-			if ((credits[cNumber+cn+4]) && (credits[cNumber+cn+4][0]!=1))
+			if ((creditsActive == 2) || ((credits[cNumber+cn+4]) && (credits[cNumber+cn+4][0]!=1)))
 			{
 				cText[cn]->vA = amt; 
-				cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+				//cText[cn]->angle = 90+ ((amt * 360 * 2) / 0xff);
+				cText[cn]->yScale = 3-(amt/128.0);
+				cText[cn]->sinA = 6-(amt/(256.0/6));
 			}
 	}
 
@@ -600,8 +616,119 @@ void RunCredits()
 	{
 		rText[cn]->angle = (360*8) - (cText[cn]->angle);
 		rText[cn]->vA = ((unsigned char) cText[cn]->vA) / (6-(cn*2));
+		rText[cn]->yScale = cText[cn]->yScale;
 	}
 }
+
+void DeactivateCredits(void)
+{
+	unsigned long cn;
+	if (creditsActive)
+	{
+		if (creditsActive == 1)
+		{
+			creditsActive = 2;
+			cFrame = actFrameCount + CRED_BORDEROUT;
+		}
+
+		if (creditsActive == 3)
+		{
+			for (cn=0; cn<4; cn++)
+				cText[cn]->motion &= ~T3D_CREATED;
+			for (cn=1; cn<3; cn++)
+				rText[cn]->motion &= ~T3D_CREATED;
+			creditsActive = 0;
+			
+		}
+	}
+}
+
+void ActivateCredits(void)
+{
+	unsigned long cn;
+
+	if (creditsActive == 0)
+	{
+		for (cn=0; cn<4; cn++)
+			cText[cn]->motion |= T3D_CREATED;
+		for (cn=1; cn<3; cn++)
+			rText[cn]->motion |= T3D_CREATED;
+		creditsActive = 1;
+
+		cFrame = actFrameCount + CRED_SPEED;
+		cNumber = 0;
+
+		Modify3DText(cText[0], credits[cNumber],220);
+		Modify3DText(cText[1], credits[cNumber+1],220);
+		Modify3DText(cText[2], credits[cNumber+2],220);
+		Modify3DText(cText[3], credits[cNumber+3],220);
+
+		Modify3DText(rText[1], credits[cNumber+1],220);
+		Modify3DText(rText[2], credits[cNumber+2],220);
+
+	}
+}
+
+void InitCredits(void)
+{
+	cText[0] = CreateAndAdd3DText( credits[cNumber], 180,
+		255,30,0,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,120,-440,
+		0, 0.2, 0.0 );
+	
+	
+	cText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
+		255,30,0,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,90,-440,
+		0, 0.3, 0.0 );
+
+	cText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
+		255,220,30,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,60,-440,
+		0, 0.25, 0.0 );
+
+	cText[3] = CreateAndAdd3DText( credits[cNumber+3], 250,
+		255,220,30,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,30,-440,
+		0, 0.28, 0.0 );
+			
+				
+	rText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
+		255,30,130,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,-90-30,-440,
+		3, 0.3, 0.0 );
+
+	rText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
+		255,220,130,220,
+		T3D_HORIZONTAL,
+		T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
+		&zero,
+		0,0,
+		-30,-60-30,-440,
+		3, 0.25, 0.0 );
+}
+
+///////////////////////////////////////////////////////
 
 void RunGameLoop (void)
 {
@@ -630,63 +757,9 @@ void RunGameLoop (void)
 		{
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
-				
-				cText[0] = CreateAndAdd3DText( credits[cNumber], 180,
-						255,30,0,220,
-						T3D_HORIZONTAL,
-						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
-						&zero,
-						0,0,
-						-30,120,-440,
-						2, 0.02, 0.0 );
-				
-				
-				cText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
-						255,30,0,220,
-						T3D_HORIZONTAL,
-						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
-						&zero,
-						0,0,
-						-30,90,-440,
-						2, 0.03, 0.0 );
-
-				cText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
-						255,220,30,220,
-						T3D_HORIZONTAL,
-						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
-						&zero,
-						0,0,
-						-30,60,-440,
-						2, 0.025, 0.0 );
-
-				cText[3] = CreateAndAdd3DText( credits[cNumber+3], 250,
-						255,220,30,220,
-						T3D_HORIZONTAL,
-						T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
-						&zero,
-						0,0,
-						-30,30,-440,
-						2, 0.028, 0.0 );
-			
-				
-				rText[1] = CreateAndAdd3DText( credits[cNumber+1], 180,
-						255,30,130,220,
-						T3D_HORIZONTAL,
-						T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
-						&zero,
-						0,0,
-						-30,-90-30,-440,
-						3, 0.3, 0.0 );
-
-				rText[2] = CreateAndAdd3DText(credits[cNumber+2], 250,
-						255,220,130,220,
-						T3D_HORIZONTAL,
-						T3D_MOVE_MODGE | T3D_MOVE_SPIN | T3D_ALIGN_CENTRE,
-						&zero,
-						0,0,
-						-30,-60-30,-440,
-						3, 0.25, 0.0 );
-
+				InitCredits();			
+				creditsActive = 3;
+				DeactivateCredits();
 			
 				DisableTextOverlay(scoreTextOver);
 #ifdef PC_VERSION
@@ -765,7 +838,17 @@ void RunGameLoop (void)
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
+			{
+				if ((currTile[0] == &(firstTile[22])))
+				{
+					if (creditsActive==0)
+						ActivateCredits();
+				}
+				else
+					DeactivateCredits();
+				
 				RunCredits();
+			}
 	
 	if	((player[0].worldNum == WORLDID_FRONTEND) &&
 	     (player[0].levelNum == LEVELID_FRONTEND1) )
@@ -833,7 +916,7 @@ void RunGameLoop (void)
 			}
 
 			levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
-			levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;
+			levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;			
 		}
 
 		GTUpdate( &levelIsOver, -1 );
@@ -885,7 +968,7 @@ void RunGameLoop (void)
 			camDist.v[X]	= 0;
 			camDist.v[Y]	= 680;
 			camDist.v[Z]	= 192;
-		
+			UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
 			GTInit( &levelIsOver, 15 );
 		}
 		else
@@ -1149,4 +1232,5 @@ void DoHiscores( )
 		hiScoreData[place].time = scoreTimer.time;
 		hiScoreData[place].cup = award;
 	}*/
+
 }

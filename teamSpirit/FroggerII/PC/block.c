@@ -48,6 +48,7 @@ long totalFacesDrawn;
 extern long numFacesDrawn;
 extern long numPixelsDrawn;
 extern long runHardware;
+extern unsigned long USE_MENUS;
 long keyInput = 1;
 
 extern long displayingTile;
@@ -191,6 +192,11 @@ void GetArgs(char *arglist)
 				case 'c':
 					swingCam = 0;
 					break;
+				case 'M':
+				case 'm':
+					USE_MENUS = 1;
+					break;
+
 			}
 		}
 	}
@@ -319,13 +325,16 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (!runHardware)
 		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
-#ifndef USE_MENUS
-	FreeAllLists();
-	InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
-#else
-	gameState.mode = MENU_MODE;
-	gameState.menuMode = TITLE_MODE;
-#endif
+	if (!USE_MENUS)
+	{
+		FreeAllLists();
+		InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+	}
+	else
+	{
+		gameState.mode = MENU_MODE;
+		gameState.menuMode = TITLE_MODE;
+	}
 
     while(ok)
 	{
@@ -755,19 +764,22 @@ void DrawGraphics()
 	else
 		SoftwareBeginFrame();
 
+	
+	
 	StartTimer(3,"DrawActorList");
 	DrawActorList();	
 	EndTimer(3);
 
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
-
+	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 
 	DrawBatchedPolys();
 	BlankFrame();
-
+	
+	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
 	DrawSpecialFX();

@@ -24,6 +24,8 @@ SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 SPRITEOVERLAY *sprOver = NULL;
 
+unsigned long USE_MENUS = 0;
+
 /* LOGO information for Frogger 2 logo */
 
 LOGO Frogger2Logo =
@@ -443,13 +445,30 @@ void RunPauseMenu()
 			case 1:   // quit game
 				FreeAllLists();
 
-#ifndef USE_MENUS
-				gameState.mode = INGAME_MODE;
-				InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND2);
-#else
+			if (!USE_MENUS)
+			{
+				if (player[0].worldNum == WORLDID_FRONTEND)
+				{
+					#ifdef PC_VERSION
+						if (player[0].levelNum == LEVELID_FRONTEND1)
+							PostQuitMessage(0);
+//							DestroyWindow (winInfo.hWndMain);
+						else
+							gameState.mode = INGAME_MODE;
+							InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);						
+					#endif
+				}
+				else
+				{
+					gameState.mode = INGAME_MODE;
+					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND2);
+				}
+			}
+			else
+			{
 				gameState.mode = MENU_MODE;
 				gameState.menuMode = TITLE_MODE;
-#endif
+			}
 
 				frameCount = 0;
 				lastbutton = 0;

@@ -186,6 +186,9 @@ void NMEDamageFrog( int num, ENEMY *nme )
 			if (reactiveAnims[nme->reactiveNumber].type & 0x02) //Center
 				SetVector(&(frog[num]->actor->pos),&(nme->nmeActor->actor->pos));
 
+			if (reactiveAnims[nme->reactiveNumber].type & 0x04) //FixedPos
+				nme->doNotMove = 1;
+			
 			AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
 			AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
@@ -341,15 +344,19 @@ void UpdatePathNME( ENEMY *cur )
 	length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
 	
 	ScaleVector(&fwd,length);
-	AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
+
+	if (!cur->doNotMove)
+		AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
+
 	MakeUnit (&fwd);
 
 	AddToVector(&cur->currNormal,&cur->deltaNormal);
 
-	if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
-		Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-	else // Need to do this so normals still work
-		Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
+	if (!cur->doNotMove)
+		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+		else // Need to do this so normals still work
+			Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
 
 	// check if this enemy has arrived at a path node
 	if( actFrameCount > cur->path->endFrame )
@@ -372,7 +379,7 @@ void UpdatePathNME( ENEMY *cur )
 		AddVector(&v, &cur->nmeActor->actor->pos, &fwd);
 		SubFromVector(&v, &frog[0]->actor->pos);
 
-		if (MagnitudeSquared(&v) < 1000 && player[0].canJump)
+		if ((MagnitudeSquared(&v) < 1000) && player[0].canJump)
 		{
 			PushFrog(&cur->nmeActor->actor->pos, &fwd, 0);
 			player[0].canJump = 0;
@@ -1354,6 +1361,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	newItem->accel			= 0.0F;
 	newItem->uid = ID;
 	newItem->isSnapping = 0;
+	newItem->doNotMove = 0;
 
 	AssignPathToEnemy(newItem,path,0);
 

@@ -1450,12 +1450,12 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 		lastH = h;
 	}
 
-	if ((z>0.01) | (z<-0.01))
+	if ((z>0.01) || (z<-0.01))
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 	else	
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
-	
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);	
 	
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	

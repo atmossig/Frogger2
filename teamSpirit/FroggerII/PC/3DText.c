@@ -29,7 +29,7 @@ void Modify3DText(TEXT3D *t3d, char *str,unsigned char a)
 
 	}
 	else
-		t3d->motion &= !T3D_CREATED;
+		t3d->motion &= ~T3D_CREATED;
 		
 //	JallocFree (&t3d->vT);
 //	t3d->vT = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*len*4, NO, "D3DTLVERTEX");
@@ -52,7 +52,7 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 	t3d->width = w;
 	// Scale factor - desired width over normal width of texture (32*numChars)
 	t3d->scale = (float)w/((float)len*32);
-
+	t3d->yScale = 1;
 	t3d->angle = initAngle;
 	
 	t3d->sinA = sinA;
@@ -365,14 +365,14 @@ void MakeTextLine( TEXT3D *t3d )
 					sfa = sinf(twa)*10,
 					sfb = cosf(twa)*10;
 					
-				yPa = t3d->yOffs + sfa;
-				yPb = t3d->yOffs + sfa;
-				yPc = t3d->yOffs - sfa;
-				yPd = t3d->yOffs - sfa;
-				zPa = t3d->zOffs + sfb;
-				zPb = t3d->zOffs + sfb;
-				zPc = t3d->zOffs - sfb;
-				zPd = t3d->zOffs - sfb;
+				yPa = t3d->yOffs + sfa * t3d->yScale;
+				yPb = t3d->yOffs + sfa * t3d->yScale;
+				yPc = t3d->yOffs - sfa * t3d->yScale;
+				yPd = t3d->yOffs - sfa * t3d->yScale;
+				zPa = t3d->zOffs + sfb ;
+				zPb = t3d->zOffs + sfb ;
+				zPc = t3d->zOffs - sfb ;
+				zPd = t3d->zOffs - sfb ;
 			}
 			if( t3d->motion & T3D_MOVE_TWIST )
 			{

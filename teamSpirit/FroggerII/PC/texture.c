@@ -14,6 +14,8 @@
 
 #include "incs.h"
 
+//#define PRINT_TEXTURE_DEBUG
+
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
 TEXTURE *tempTexture;
 

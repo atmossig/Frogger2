@@ -247,7 +247,7 @@ void FreeAnimationList ( void )
 
 FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS] =
 {
-	{ NULL,0,0,"spa" },				// SPAWN_ANIM			//0
+	{ NULL,0,0,"coin00"},				// SPAWN_ANIM			//0
 	{ NULL,0,0,"spa" },				// EXTRAHEALTH_ANIM		//1
 	{ NULL,0,0,"spa" },				// EXTRALIFE_ANIM		//2
 	{ NULL,0,0,"spa" },				// AUTOHOP_ANIM			//3
