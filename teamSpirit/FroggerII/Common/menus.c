@@ -224,7 +224,7 @@ void LevelSelProcessController(long pl);
 
 TEXTOVERLAY *worldText, *arcadeText,*selectText,*statusText,*pcText,*bestText,*parText;
 TEXTOVERLAY *levelText[MAX_LEVELSTRING];
-SPRITEOVERLAY *worldBak,*titleBak,*statusBak, *infoBak, *levelPic;
+SPRITEOVERLAY *worldBak,*titleBak,*statusBak, *infoBak, *levelPic, *multiBak;
 SPRITEOVERLAY *sparkles[MAX_SPARKLES];
 
 char arcadeStr[64];
@@ -287,6 +287,28 @@ void RunFrontendGameLoop (void)
 		for (i=0; i<MAX_LEVELSTRING; i++)
 			levelText[i] = CreateAndAddTextOverlay(20,85+i*10,levelStr[i],NO,255,smallFont,TEXTOVERLAY_WAVECHARS,0);		
 			
+		for( i=0; i<MULTI_NUM_CHARS; i++ )
+		{
+			charPortraits[i] = CreateAndAddSpriteOverlay(	90 + ((i%3)*50), 50 + ((i/3)*50),
+															frogPool[i].icon, 32, 32, 0, 0 );
+			charPortraits[i]->draw = 0;
+		}
+
+		mpl[0].r = 30; mpl[0].g = 230; mpl[0].b = 30;
+		mpl[1].r = 230; mpl[1].g = 30; mpl[1].b = 30;
+		mpl[2].r = 180; mpl[2].g = 180; mpl[2].b = 230;
+		mpl[3].r = 30; mpl[3].g = 30; mpl[3].b = 230;
+
+		for( i=0; i<MAX_FROGS; i++ )
+		{
+			charSelectIcons[i] = CreateAndAddSpriteOverlay(	85 + ((i%3)*50), 45 + ((i/3)*50),
+															"wback2.bmp", 42, 42, 0, 0 );
+			charSelectIcons[i]->r = mpl[i].r;
+			charSelectIcons[i]->g = mpl[i].g;
+			charSelectIcons[i]->b = mpl[i].b;
+			charSelectIcons[i]->draw = 0;
+		}
+
 		cLevel = 0;
 		cWorld = 0;
 		worldBak = CreateAndAddSpriteOverlay(10,55,"wback.bmp",130,80,190,0);
@@ -313,6 +335,11 @@ void RunFrontendGameLoop (void)
 		statusBak->g = worldBak->g;
 		statusBak->b = worldBak->b;
 
+		multiBak = CreateAndAddSpriteOverlay(75,35,"wback.bmp",160,160,190,0);
+		multiBak->r = worldBak->r;
+		multiBak->g = worldBak->g;
+		multiBak->b = worldBak->b;
+
 		arcadeText->draw = 0;
 		selectText->draw = 0;
 		worldText->draw = 0;
@@ -321,31 +348,13 @@ void RunFrontendGameLoop (void)
 		infoBak->draw = 0;
 		titleBak->draw = 0;
 		statusBak->draw = 0;
+		multiBak->draw = 0;
 		levelPic->draw = 0;
 		pcText->draw = 0;
 		bestText->draw = 0;
 		parText->draw = 0;
-		
-		for( i=0; i<MULTI_NUM_CHARS; i++ )
-		{
-			charPortraits[i] = CreateAndAddSpriteOverlay(	90 + ((i%3)*50), 50 + ((i/3)*50),
-															frogPool[i].icon, 32, 32, 0, 0 );
-			charPortraits[i]->draw = 0;
-		}
-
-		for( i=0; i<numPlayers; i++ )
-		{
-			charSelectIcons[i] = CreateAndAddSpriteOverlay(	85 + ((i%3)*50), 45 + ((i/3)*50),
-															"wback2.bmp", 42, 42, 0, 0 );
-			charSelectIcons[i]->r = mpl[i].r;
-			charSelectIcons[i]->g = mpl[i].g;
-			charSelectIcons[i]->b = mpl[i].b;
-			charSelectIcons[i]->draw = 0;
-		}
 	}
 
-	
-	
 	for (i=0; i<MAX_LEVELSTRING; i++)
 		levelStr[i][0] = 0;
 
@@ -483,8 +492,6 @@ void RunFrontendGameLoop (void)
 				levelText[i]->centred = 0;
 			}
 		}
-
-		
 	}
 	if (currTileNum==1)
 	{
@@ -600,7 +607,6 @@ void RunFrontendGameLoop (void)
 
 			worldBak->xPos = worldBak->xPosTo;
 			
-					
 			bestText->r = levelText[cWorld]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
 			bestText->g = levelText[cWorld]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
 			bestText->b = levelText[cWorld]->b = 10;
@@ -627,10 +633,10 @@ void RunFrontendGameLoop (void)
 			INC_ALPHA(worldBak,0xff);
 			INC_ALPHA(worldText,0xff);
 
+			DEC_ALPHA(multiBak);
 			DEC_ALPHA(pcText);
 			DEC_ALPHA(bestText);
 			DEC_ALPHA(parText);
-					
 			
 			DEC_ALPHA(infoBak);
 			DEC_ALPHA(levelPic);
@@ -1010,17 +1016,29 @@ void RunMPSelect( )
 		}
 		else
 		{
-			INC_ALPHA( charPortraits[i], 0x30 );
+			INC_ALPHA( charPortraits[i], 0x33 );
 		}
 	}
 
-	for( i=0; i<numPlayers; i++ )
-		INC_ALPHA( charSelectIcons[i], 0xf8 );
+	INC_ALPHA( multiBak, 0xff );
 
 	for( i=0; i<numPlayers; i++ )
 	{
-		if( !ready[i] )
+		short inc = gameSpeed*fadeSpeed;
+		INC_ALPHA( charSelectIcons[i], 190 );
+
+		if( ready[i] )
 		{
+			if( charSelectIcons[i]->r < 0xff-inc ) charSelectIcons[i]->r += inc; else charSelectIcons[i]->r = 0xff;
+			if( charSelectIcons[i]->g < 0xff-inc ) charSelectIcons[i]->g += inc; else charSelectIcons[i]->g = 0xff;
+			if( charSelectIcons[i]->b < 0xff-inc ) charSelectIcons[i]->b += inc; else charSelectIcons[i]->b = 0xff;
+		}
+		else
+		{
+			if( charSelectIcons[i]->r > mpl[i].r+inc ) charSelectIcons[i]->r -= inc; else charSelectIcons[i]->r = mpl[i].r;
+			if( charSelectIcons[i]->g > mpl[i].g+inc ) charSelectIcons[i]->g -= inc; else charSelectIcons[i]->g = mpl[i].g;
+			if( charSelectIcons[i]->b > mpl[i].b+inc ) charSelectIcons[i]->b -= inc; else charSelectIcons[i]->b = mpl[i].b;
+
 			if( (controllerdata[i].button & CONT_UP) && !(controllerdata[i].lastbutton & CONT_UP) && (charSelectIcons[i]->yPos > 80) )
 				charSelectIcons[i]->yPos -= 50;
 
@@ -1142,6 +1160,7 @@ void InitMPSelect( )
 {
 	int i;
 
+	multiBak->draw = 1;
 	charSelectMode = 1;
 
 	for( i=0; i<MULTI_NUM_CHARS; i++ )
