@@ -15,7 +15,7 @@
 
 #include "incs.h"
 
-#define USE_AUDIO
+//#define USE_AUDIO
 
 unsigned long worldNum;
 unsigned long levelNum;
