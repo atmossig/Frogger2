@@ -1952,17 +1952,30 @@ void SetEnemyMoving(ENEMY *nme, int moving)
 	Parameters	: ENEMY*, int [suitable for enumEnemies]
 	Returns		: 1 for success
 */
-int MoveEnemyToNode(ENEMY *nme, int flag)
+int MoveEnemyToNode(ENEMY *nme, int node)
 {
-	if (flag >= 0 && flag < nme->path->numNodes)
+	// Gratuitous hack to make move-on-move enemies work
+	if( nme->flags & ENEMY_NEW_MOVEONMOVE )
 	{
-		nme->path->toNode  = flag;
-		nme->inTile = nme->path->nodes[flag].worldTile;
+		ENEMY *ph = GetEnemyFromUID(node);
+
+		if( ph )
+		{
+			nme->path->nodes[0].worldTile = ph->path->nodes[0].worldTile;
+			nme->isSnapping = 0;
+		}
+		else
+			dprintf"MoveEnemyToNode(): Could not find placeholder %d\n", node));
+	}
+	else if (node >= 0 && node < nme->path->numNodes)
+	{
+		nme->path->toNode  = node;
+		nme->inTile = nme->path->nodes[node].worldTile;
 		nme->path->endFrame = actFrameCount;
 		nme->Update(nme);
 	}
 	else
-		dprintf"MoveEnemyToNode(): Flag (%d) out of range\n", flag));
+		dprintf"MoveEnemyToNode(): Flag (%d) out of range\n", node));
 	return 1;
 }
 
