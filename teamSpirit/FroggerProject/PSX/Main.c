@@ -267,6 +267,8 @@ unsigned long CRC;
 TextureType *texture;
 
 extern int polyCount;
+//extern int countMakeUnit;
+//extern int countQuatToPSXMatrix;
 
 int main ( )
 {
@@ -397,12 +399,47 @@ int main ( )
 
 			polyCount = 0;
 			actorCount = 0;
+//			countMakeUnit = 0;
+//			countQuatToPSXMatrix = 0;
 
 			DrawBackDrop();
 
-			TIMER_START(TIMER_GAMELOOP);
-			GameLoop();
+
+			//for timing optimised functions
+			//remember to stop really timing GameLoop
+/*			TIMER_START(TIMER_GAMELOOP);
+			{
+				int i;
+				int res1, res2, res3, res4;
+// 				SVECTOR sv1 = {10,10,10};
+// 				SVECTOR sv2 = {23456,23456,23456};
+// 				SVECTOR sv3 = {-10,-10,-10};
+// 				SVECTOR sv4 = {-12345,-12345,-12345};
+//  				VECTOR v1 = {10,10,10};
+//  				VECTOR v2 = {23456,23456,23456};
+//  				VECTOR v3 = {-10,-10,-10};
+//  				VECTOR v4 = {-12345,-12345,-12345};
+ 				FVECTOR fv1 = {10<<12, 10<<12, 10<<12};
+ 				FVECTOR fv2 = {23456<<12, 23456<<12, 23456<<12};
+ 				FVECTOR fv3 = {-10<<12, -10<<12, -10<<12};
+ 				FVECTOR fv4 = {-12345<<12, -12345<<12, -12345<<12};
+				for(i=0; i<1000; i++)
+				{
+// 					res1 = Magnitude2DF(&v1);
+// 					res2 = Magnitude2DF(&v2);
+// 					res3 = Magnitude2DF(&v3);
+// 					res4 = Magnitude2DF(&v4);
+					MakeUnit(&fv1);
+					MakeUnit(&fv2);
+					MakeUnit(&fv3);
+					MakeUnit(&fv4);
+				}
+			}
 			TIMER_STOP(TIMER_GAMELOOP);
+*/
+//			TIMER_START(TIMER_GAMELOOP);
+			GameLoop();
+//			TIMER_STOP(TIMER_GAMELOOP);
 			
 			TIMER_START(TIMER_UPDATE_WATER);
 			UpdateWater();
@@ -491,6 +528,9 @@ int main ( )
 
 
 			timerDisplay();
+
+//			utilPrintf("countMakeUnit %d\n", countMakeUnit);
+//			utilPrintf("countQuatToPSXMatrix %d\n", countQuatToPSXMatrix);
 
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);
