@@ -1271,7 +1271,7 @@ void RunFrontendGameLoop (void)
 			sparkles[i]->a-= gameSpeed * 3;
 		else
 		{
-			if (currTileNum == 5)
+			if (currTileNum == 5 || currTileNum == 4)
 				spkLev = cLevel;
 			else
 				spkLev = cWorld;
@@ -1318,7 +1318,7 @@ void RunFrontendGameLoop (void)
 	}
 
 	
-	if (currTileNum!=5 && currTileNum!=3 && currTileNum!=1)
+	if (currTileNum!=5 && currTileNum!=3 && currTileNum!=1 && currTileNum!=4)
 	{
 		if( frameCount > 15 )
 			GameProcessController(0);                                      
@@ -1552,6 +1552,7 @@ void RunFrontendGameLoop (void)
 		levelText[cLevel]->waveAmplitude = 4;
 
 		strcpy(arcadeStr,"Arcade Mode");
+
 		frogFacing[0] = 3;
 		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
 	
@@ -1599,6 +1600,77 @@ void RunFrontendGameLoop (void)
 		{
 			levelText[i]->draw = 1;
 			INC_ALPHA(levelText[i],0xff);
+		}
+	}
+
+	if (currTileNum==4)
+	{
+		sprintf (worldStr,"Chapter %i",cWorld+1);
+		worldBak->height = worldVisualData[cWorld].numLevels*10 + 40;
+		worldBak->xPosTo = 95;
+
+		levelText[cLevel]->waveAmplitude = 4;
+		for (i=0; i<worldVisualData[cWorld].numLevels; i++)
+		{
+				strcpy (levelStr[i],worldVisualData[cWorld].levelVisualData[i].description);
+				levelText[i]->b = 0;
+				levelText[i]->g = 100;
+				levelText[i]->r = 200;
+				levelText[i]->waveAmplitude = 0;
+		}
+
+		bestText->r = levelText[cLevel]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
+		bestText->g = levelText[cLevel]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
+		bestText->b = levelText[cLevel]->b = 10;
+	
+		levelText[cLevel]->waveAmplitude = 4;
+
+		strcpy(arcadeStr,"Story Mode");
+
+		frogFacing[0] = 3;
+		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+		
+		worldBak->xPos = worldBak->xPosTo;
+		
+		LevelSelProcessController(0);
+		arcadeText->yPos = titleBak->yPos+5;
+		selectText->yPos = titleBak->yPos+23;
+		pcText->xPos = infoBak->xPos+52;
+		bestText->xPos = infoBak->xPos+10;
+		parText->xPos = infoBak->xPos+10;
+		
+		statusText->yPos = statusBak->yPos+5;
+		worldText->xPos = worldBak->xPos + 10;
+		for (i=0; i<MAX_LEVELSTRING; i++)
+			levelText[i]->xPos = worldText->xPos;
+
+		arcadeText->draw = 1;
+		selectText->draw = 1;
+		worldText->draw = 1;
+		statusText->draw = 1;
+		worldBak->draw = 1;
+		infoBak->draw = 1;
+		titleBak->draw = 1;
+		statusBak->draw = 1;
+		
+		INC_ALPHA(arcadeText,0xff);
+		INC_ALPHA(pcText,0xff);
+		
+		//INC_ALPHA(bestText,0xff);
+		//INC_ALPHA(parText,0xff);
+		INC_ALPHA(selectText,0xff);
+		INC_ALPHA(worldText,0xff);
+		INC_ALPHA(statusText,0xff);
+		INC_ALPHA(worldBak,0xff);
+		INC_ALPHA(titleBak,0xff);
+		INC_ALPHA(statusBak,0xff);
+		//INC_ALPHA(levelPic,0xff);
+		
+		for (i=0; i<MAX_LEVELSTRING; i++)
+		{
+			levelText[i]->draw = 1;
+			INC_ALPHA(levelText[i],0xff);
+			levelText[i]->centred = 1;
 		}
 	}
 
@@ -1673,7 +1745,7 @@ void LevelSelProcessController(long pl)
 	
 	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && player[pl].canJump)
 	{
-		if (currTileNum==5)
+		if (currTileNum==5 || currTileNum==4)
 		{		
 			if (cLevel>0)
 				cLevel--;
@@ -1689,7 +1761,7 @@ void LevelSelProcessController(long pl)
 	}	    
 	else if((button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT) && player[pl].canJump)
 	{
-		if (currTileNum==5)
+		if (currTileNum==5 || currTileNum==4)
 		{				
 			if (cWorld<8)
 				cWorld++;
@@ -1704,7 +1776,7 @@ void LevelSelProcessController(long pl)
 	}
     else if((button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN) && player[pl].canJump)
 	{
-		if (currTileNum==5)
+		if (currTileNum==5 || currTileNum==4)
 		{				
 			if (cLevel<worldVisualData[cWorld].numLevels-1)
 				cLevel++;
@@ -1720,7 +1792,7 @@ void LevelSelProcessController(long pl)
 	}
     else if((button[pl] & CONT_LEFT) && !(lastbutton[pl] & CONT_LEFT) && (player[pl].canJump))
 	{
-		if (currTileNum==5)
+		if (currTileNum==5 || currTileNum==4)
 		{		
 		
 			if (cWorld>0)
