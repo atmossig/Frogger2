@@ -28,6 +28,7 @@
 
 LPDIRECTSOUND           lpDS			= NULL;
 LPDIRECTSOUNDBUFFER		lpdsbPrimary	= NULL;
+LPDIRECTSOUND3DLISTENER lpds3DListener	= NULL;
 
 //***********************************
 // Function Definitions
@@ -89,108 +90,13 @@ static char *DSoundErrorToString ( int dxerror )
 }
 
 
-int DSoundEnumerate ( LPGUID lpGUID, HINSTANCE hInst,  HWND hWndMain )
+/*int DSoundEnumerate ( LPGUID lpGUID, HINSTANCE hInst,  HWND hWndMain )
 {
   /*  if ( DialogBoxParam ( hInst, MAKEINTRESOURCE ( IDD_SOUNDDRIVER ), hWndMain, (DLGPROC)DSEnumDlgProc, ( LPARAM ) lpGUID ))
 		return TRUE;
 	// ENDIF
 */
-    return FALSE;
-}
-
-
-/*BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
-				LPSTR lpszDrvName, LPVOID lpContext )
-    {
-    HWND   hCombo = *(HWND *)lpContext;
-    LPGUID lpTemp = NULL;
-
-    if( lpGUID != NULL )
-	{
-//		lpTemp = LocalAlloc ( LMEM_FIXED | LMEM_ZEROINIT , sizeof ( GUID ) );
-		if ( ( lpTemp = (GUID*)LocalAlloc ( LPTR , sizeof ( GUID ) ) ) == NULL )
-			return( TRUE );
-
-		memcpy( lpTemp, lpGUID, sizeof(GUID));
-	}
-
-    ComboBox_AddString( hCombo, lpszDesc );
-    ComboBox_SetItemData( hCombo,
-			ComboBox_FindString( hCombo, 0, lpszDesc ),
-			lpTemp );
-    return( TRUE );
-    }
-
-*/
-/*BOOL CALLBACK DSEnumDlgProc( HWND hDlg, UINT msg,
-				WPARAM wParam, LPARAM lParam )
-{
- /*   static HWND   hCombo;
-    static LPGUID lpGUID;
-    LPGUID        lpTemp;
-    int           i;
-
-    switch( msg )
-	{
-	case WM_INITDIALOG:
-	    hCombo = GetDlgItem( hDlg, IDC_SOUNDCOMBO );
-	    lpGUID = (LPGUID)lParam;
-
-	    if( DirectSoundEnumerate( (LPDSENUMCALLBACK)DSEnumProc, &hCombo ) != DS_OK )
-		{
-		EndDialog( hDlg, TRUE );
-		return( TRUE );
-		}
-	    if( ComboBox_GetCount( hCombo ))
-		ComboBox_SetCurSel( hCombo, 0 );
-	    else
-		{
-		EndDialog( hDlg, TRUE );
-		return( TRUE );
-		}
-	    return( TRUE );
-
-
-	case WM_COMMAND:
-	    switch( LOWORD( wParam ))
-		{
-		case ID_SOUNDOK:
-		    for( i = 0; i < ComboBox_GetCount( hCombo ); i++ )
-			{
-			lpTemp = (LPGUID)ComboBox_GetItemData( hCombo, i );
-			if( i == ComboBox_GetCurSel( hCombo ))
-			    {
-			    if( lpTemp != NULL )
-				memcpy( lpGUID, lpTemp, sizeof(GUID));
-			    else
-				lpGUID = NULL;
-			    }
-			if( lpTemp )
-			    LocalFree( lpTemp );
-			}
-		    // If we got the NULL GUID, then we want to open the default
-		    // sound driver, so return with an error and the init code
-		    // will know not to pass in the guID and will send NULL
-		    // instead.
-		    if( lpGUID == NULL )
-			EndDialog( hDlg, TRUE );
-		    else
-			EndDialog( hDlg, FALSE );
-		    return( TRUE );
-
-		case ID_SOUNDCANCEL:
-		    // Force a NULL GUID
-		    EndDialog( hDlg, TRUE );
-		    return( TRUE );
-		}
-	    break;
-
-
-	default:
-	    return( FALSE );
-	}*/
-
-   /* return( FALSE );
+   /* return FALSE;
 }*/
 
 
@@ -227,7 +133,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 
 	ZeroMemory ( &dsbdesc, sizeof ( DSBUFFERDESC ) );
 	dsbdesc.dwSize	= sizeof ( DSBUFFERDESC );
-	dsbdesc.dwFlags = DSBCAPS_PRIMARYBUFFER;
+	dsbdesc.dwFlags = DSBCAPS_CTRL3D | DSBCAPS_PRIMARYBUFFER;
 
 	
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbdesc, &lpdsbPrimary, NULL ) ;
@@ -256,6 +162,17 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 		dp("Set Format failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
+	// ENDIF
+
+    dsrVal = lpdsbPrimary->QueryInterface( IID_IDirectSound3DListener, ( void** ) &lpds3DListener );
+
+	if ( dsrVal != DS_OK )
+	{
+		dp("Query Interface For 3d Listener Failed - '%s'\n", DSoundErrorToString(dsrVal));
+		return 0;
+	}
+	// ENDIF
+
 
 	return 1;
 }
@@ -392,6 +309,11 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 	ZeroMemory ( &dsbd, sizeof ( DSBUFFERDESC ) );
 	dsbd.dwSize			= sizeof(DSBUFFERDESC);
 	dsbd.dwFlags		= DSBCAPS_CTRLDEFAULT | DSBCAPS_STATIC;
+	if ( sample->flags & FLAGS_3D_SAMPLE )
+	{
+		dsbd.dwFlags |= DSBCAPS_CTRL3D;
+	}
+	// ENDIF
 	dsbd.dwBufferBytes	= child.cksize;
 	dsbd.lpwfxFormat	= &pcmwf;
 
@@ -439,3 +361,32 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 }
 
 
+void Update3DListener ( float sourceX, float sourceY, float sourceZ )
+{
+	lpds3DListener->SetPosition			( 0.0, 0.0, 0.0, DS3D_IMMEDIATE );
+	lpds3DListener->SetDopplerFactor	( 1.0f, DS3D_IMMEDIATE );
+	lpds3DListener->SetDistanceFactor	( 5.0f, DS3D_IMMEDIATE );
+
+//	lpds3DListener->CommitDeferredSettings
+
+}
+
+
+
+
+void Get3DInterface ( LPDIRECTSOUNDBUFFER lpdsBuffer, LPDIRECTSOUND3DBUFFER lpds3DBuffer )
+{
+	lpdsBuffer->QueryInterface ( IID_IDirectSound3DBuffer, (void**)&lpds3DBuffer );
+}
+
+
+void ReleaseBuffer ( LPDIRECTSOUNDBUFFER lpdsBuffer )
+{
+	lpdsBuffer->Release();
+}
+
+void Set3DPosition ( LPDIRECTSOUND3DBUFFER lpds3DBuffer, float xPos, float yPos, float zPos )
+{
+	lpds3DBuffer->SetPosition ( 0.0f, 0.0f, 10.0f, DS3D_IMMEDIATE );
+	lpds3DBuffer->SetMinDistance ( 4.0, DS3D_IMMEDIATE );
+}

@@ -12,50 +12,77 @@
 #include "..\resource.h"
 #include "incs.h"
 
-#define _MYDEBUG
+#define MYDEBUG
 
-SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\sfx\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,
-								"x:\\teamspirit\\pcversion\\sfx\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,
-								"x:\\teamspirit\\pcversion\\sfx\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,
-								"x:\\teamspirit\\pcversion\\sfx\\clocktock.wav",		2, 22050, 16, GEN_CLOCK_TOCK,
-								"x:\\teamspirit\\pcversion\\sfx\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,
-								"x:\\teamspirit\\pcversion\\sfx\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,
-								"x:\\teamspirit\\pcversion\\sfx\\superhop.wav",			2, 22050, 16, GEN_SUPER_HOP,
-								"x:\\teamspirit\\pcversion\\sfx\\babyfrog.wav",			2, 22050, 16, GEN_BABY_FROG };
+SAMPLEMAP genericMapping [] = {
+	"generic\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,	FLAGS_NONE,
+	"generic\\targetcomplete.wav",	2, 22050, 16, GEN_TARGET_COM,	FLAGS_NONE,
+	"generic\\timeout.wav",			2, 22050, 16, GEN_TIME_OUT,		FLAGS_NONE,
+	"generic\\clocktock.wav",		2, 22050, 16, GEN_CLOCK_TOCK,	FLAGS_NONE,
+	"generic\\clocktick.wav",		2, 22050, 16, GEN_CLOCK_TICK,	FLAGS_NONE,
+	"generic\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,		FLAGS_NONE,
+	"generic\\superhop.wav",		2, 22050, 16, GEN_SUPER_HOP,	FLAGS_NONE,
+	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE };
+
+SAMPLEMAP gardenMapping [] = {
+	"generic\\babyfrog.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE };
+
 
 //***********************************
 // Function Prototypes
 
-SOUNDLIST soundList;
-
-BUFFERLIST bufferList;
+SOUNDLIST soundList;					// Actual Sound Samples List
+			
+BUFFERLIST bufferList;					// Buffered Sound Samples List
 
 //***********************************
 // Function Prototypes
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
+	Function		: LoadWorldSfx
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
 	Info			: 
 */
-void LoadDemoSamples ( void )
+void LoadWorldSfx ( SAMPLEMAP mapping[], char numSfx  )
 {
 	int i;
 
 #ifdef MYDEBUG
-	dprintf"NUM_SAMPLE : %d\n", NUM_SAMPLES));
+	dprintf"NUM_SAMPLE : %d\n", numSfx));
 #endif
-	for ( i = NUM_SAMPLES - 1; i >= 0; i-- )
+	for ( i = numSfx - 1; i >= 0; i-- )
 	{
 #ifdef MYDEBUG
-		dprintf"NUM_SAMPLE : %d - i : %d \n", NUM_SAMPLES, i));
-		dprintf"sampleMapping[%d] - sampleFileName : %s\n", i, sampleMapping[i].sampleFileName));
+		dprintf"numSfx : %d - i : %d \n", numSfx, i));
+		dprintf"mapping[%d] - sampleFileName : %s\n", i, mapping[i].sampleFileName));
 #endif
-		CreateAndAddSample ( sampleMapping [ i ] );
+		CreateAndAddSample ( mapping [ i ] );
 	}
 	// ENDFOR
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: LoadSfx
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void LoadSfx ( unsigned long worldID )
+{
+
+	LoadWorldSfx ( genericMapping, NUM_GENERIC_SFX );
+
+	switch ( worldID )
+	{
+		case WORLDID_GARDEN:
+				LoadWorldSfx ( gardenMapping, NUM_GARDEN_SFX );	
+			break;
+	}
+	// ENDSWITCH
 }
 
 
@@ -69,11 +96,12 @@ void LoadDemoSamples ( void )
 SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 {
 	SAMPLE *newItem;
+	HRESULT dsrVal;
 	
 	if ( !lpDS )
 	{
 #ifdef MYDEBUG
-		dprintf"Returned from Create Sample, because lpDS was NULL!!!!!!!!"));
+		dprintf"Returned from Create Sample, because lpDS was NULL!!!!!!!!\n"));
 #endif
 		return NULL;
 	}
@@ -87,9 +115,13 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 	}
 	// ENDIF
 
-	sprintf ( newItem->idName, "%s", sampleMap.sampleFileName );
+	newItem->flags = sampleMap.flags;
+
+	sprintf ( newItem->idName, "%s%s%s", baseDirectory, SFX_BASE, sampleMap.sampleFileName );
 
 	newItem->lpDSound = lpDS;
+
+
 
 	if ( LoadWav		( newItem->idName, newItem ) == 0 )
 	{
@@ -99,7 +131,23 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 		return NULL;
 	}
 	// ENDIF
+
 	
+	if ( newItem->flags & FLAGS_3D_SAMPLE )
+	{
+		dprintf"Getting 3D Interface\n"));
+//		Get3DInterface ( newItem->lpdsBuffer, newItem->lpds3DBuffer );
+		newItem->lpdsBuffer->lpVtbl->QueryInterface ( newItem->lpdsBuffer, &IID_IDirectSound3DBuffer, (void**)&newItem->lpds3DBuffer );
+		if ( newItem->lpds3DBuffer )
+			dprintf"3D Buffer Ok\n"));
+		else
+			dprintf"Error On Interface, No 3D Buffer\n"));
+
+
+	}
+	// ENDIF
+
+
 	newItem->numChannels	= sampleMap.numChannels;
 	newItem->sampleRate		= sampleMap.sampleRate;
 	newItem->bitsPerSample	= sampleMap.bitsPerSample;
@@ -224,7 +272,10 @@ void RemoveBufSampleFromList ( BUFSAMPLE *bufSample )
 	bufSample->next		= NULL;
 	bufferList.numEntries--;
 
-	bufSample->lpdsBuffer->lpVtbl->Release ( bufSample->lpdsBuffer );
+	ReleaseBuffer ( bufSample->lpdsBuffer );
+
+//	bufSample->lpdsBuffer->lpVtbl->Release ( bufSample->lpdsBuffer );
+
 	JallocFree ( ( UBYTE ** ) &bufSample );
 }
 
@@ -308,6 +359,7 @@ SAMPLE *GetEntryFromSampleList ( int num )
 		
 		if ( cur->sampleID == num )
 		{
+			dprintf"cur->sampleID %d - num %d\n", cur->sampleID, num));
 			return cur;
 		}
 		// ENDIF
@@ -315,11 +367,10 @@ SAMPLE *GetEntryFromSampleList ( int num )
 	// ENDFOR
 
 #ifdef MYDEBUG
-	dprintf"sampleID : %d - numEntries : %d", cur->sampleID, soundList.numEntries));
+	dprintf"sampleID : %d - numEntries : %d\n", cur->sampleID, soundList.numEntries));
 #endif
 	return NULL;
 }
-
 
 
 /*	--------------------------------------------------------------------------------
@@ -369,6 +420,23 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 #ifdef MYDEBUG
 	dprintf"About to Play Sample - %d\n", num));
 #endif
+
+	if ( sample->flags & FLAGS_3D_SAMPLE )
+	{
+		if ( sample->lpds3DBuffer )
+		{
+			dprintf"yes\n"));
+			sample->lpds3DBuffer->lpVtbl->SetMode ( sample->lpds3DBuffer, DS3DMODE_NORMAL/*DS3DMODE_HEADRELATIVE*/, DS3D_IMMEDIATE );
+			//Set3DMode ( DS3DMODE_HEADRELATIVE, DS3D_IMMEDIATE );
+			Set3DPosition ( sample->lpds3DBuffer, pos->v[X], pos->v[Y], pos->v[Z] );
+		}
+		else
+		{
+			dprintf"no\n"));
+		}
+		// ENDELSEIF
+	}
+	// ENDIF
 
 	// Now test if the sample is playing if it is then make an instance of it to play.
 
@@ -443,7 +511,7 @@ void SetSampleFormat ( SAMPLE *sample )
 #endif
 	sample->lpdsBuffer->lpVtbl->SetFormat ( sample->lpdsBuffer, &wfx );
 #ifdef MYDEBUG
-	dprintf"Set Sample Format : Buffer = (&%x)", sample->lpdsBuffer));
+	dprintf"Set Sample Format : Buffer = (&%x)\n", sample->lpdsBuffer));
 #endif
 }
 
@@ -466,6 +534,13 @@ int PlaySampleRadius ( short num, VECTOR *pos, short vol, short pitch, float rad
 
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: PlaySampleRadius
+	Purpose			: 
+	Parameters		: short,VECTOR,short,short,float
+	Returns			: int
+	Info			: 
+*/
 void CleanBufferSamples ( void )
 {
 	BUFSAMPLE *cur, *next;
@@ -513,6 +588,11 @@ void CleanBufferSamples ( void )
 
 
 }
+
+
+
+
+
 
 
 
@@ -602,3 +682,6 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
 
     return 0L;
 }
+
+
+

@@ -19,12 +19,18 @@ extern "C"
 {
 #endif
 
-extern LPDIRECTSOUND           lpDS;
+extern LPDIRECTSOUND			lpDS;
+extern LPDIRECTSOUNDBUFFER		lpdsbPrimary;
+extern LPDIRECTSOUND3DLISTENER	lpds3DListener;
 
 extern int LoadWav ( char *fileName, SAMPLE *sample );
 
 extern int InitDirectSound ( LPGUID guid, HINSTANCE hInst,  HWND hWndMain, int prim );
-extern int DSoundEnumerate ( LPGUID lpGUID, HINSTANCE hInst,  HWND hWndMain );
+
+extern void Update3DListener ( float sourceX, float sourceY, float sourceZ  );
+extern void Get3DInterface ( LPDIRECTSOUNDBUFFER lpdsBuffer, LPDIRECTSOUND3DBUFFER lpds3DBuffer );
+extern void ReleaseBuffer ( LPDIRECTSOUNDBUFFER lpdsBuffer );
+extern void Set3DPosition ( LPDIRECTSOUND3DBUFFER lpds3DBuffer, float xPos, float yPos, float zPos );
 
 #ifdef __cplusplus
 }

@@ -15,6 +15,26 @@
 //***********************************
 // Defines
 
+#define FLAGS_NONE			0
+#define FLAGS_3D_SAMPLE		( 1 << 0 )
+
+
+enum
+{
+	GARDEN_CDAUDIO,
+	ANCIENTS_CDAUDIO,
+	SPACE_CDAUDIO,
+	CITY_CDAUDIO,
+	SUBTERRANEAN_CDAUDIO,
+	LABORATORY_CDAUDIO,
+	TOYSHOP_CDAUDIO,
+	HALLOWEEN_CDAUDIO,
+	SUPERRETRO_CDAUDIO,
+
+	NUM_CD_TRACKS,
+};
+
+// All generic sfx
 enum
 {
 	GEN_FROG_HOP,
@@ -26,10 +46,17 @@ enum
 	GEN_TARGET_COM,
 	GEN_LEVEL_COMP,
 
-	NUM_SAMPLES,
+	NUM_GENERIC_SFX,
 };
 
+// All Garden sfx
+enum
+{
+	GAR_MOWER = 100,
+	END_GARDEN_SFX,
+};
 
+#define NUM_GARDEN_SFX ( END_GARDEN_SFX - 100 )
 
 //***********************************
 // Type Defines
@@ -41,6 +68,7 @@ typedef struct _SAMPLEMAP
 	int				sampleRate;
 	char			bitsPerSample;
 	unsigned char	sampleID;	
+	unsigned long   flags;
 } SAMPLEMAP;
 
 typedef struct _SAMPLE
@@ -52,14 +80,15 @@ typedef struct _SAMPLE
 	int					sampleRate;
 	char				bitsPerSample;
 	unsigned char		sampleID;
+	unsigned long		flags;
 
 
-	LPWAVEFORMATEX		lpWavFmt;
-	BYTE				*Data;
-	DWORD				Len;
-	LPDIRECTSOUND		lpDSound;
-	LPDIRECTSOUNDBUFFER lpdsBuffer;	
-
+	LPWAVEFORMATEX			lpWavFmt;
+	BYTE					*Data;
+	DWORD					Len;
+	LPDIRECTSOUND			lpDSound;
+	LPDIRECTSOUNDBUFFER		lpdsBuffer;	
+    LPDIRECTSOUND3DBUFFER   lpds3DBuffer;	// DirectSound 3D buffer interface
 } SAMPLE;
 
 typedef struct _SOUNDLIST
@@ -83,7 +112,8 @@ typedef struct _BUFFERLIST
 extern SOUNDLIST soundList;
 
 
-extern SAMPLEMAP sampleMapping [ NUM_SAMPLES ];
+extern SAMPLEMAP genericMapping [ NUM_GENERIC_SFX ];
+extern SAMPLEMAP gardenMapping  [ NUM_GARDEN_SFX ];
 
 //***********************************
 // Function Prototypes
@@ -91,9 +121,7 @@ extern SAMPLEMAP sampleMapping [ NUM_SAMPLES ];
 //***************
 // Sound list functions.
 
-extern void LoadDemoSamples ( void );
-
-
+extern void LoadSfx ( unsigned long worldID );
 
 extern void InitSampleList				( void );
 extern void FreeSampleList				( void );
