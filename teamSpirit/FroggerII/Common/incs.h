@@ -57,6 +57,7 @@
 #include "graphic.h"
 #endif
 
+#include "language.h"
 #include "levelplaying.h"
 #include "jalloc.h"
 #include "sprite.h"

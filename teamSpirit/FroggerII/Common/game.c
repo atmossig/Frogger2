@@ -242,20 +242,23 @@ void GameProcessController(long pl)
 		ChangeCameraSetting();
 	}
 
-	if((button[0] & CONT_F) && !(lastbutton[0] & CONT_F))
-    {
-		camFacing--;
-		camFacing &= 3;
-		if ( recordKeying )
-			AddPlayingActionToList ( CAMERA_LEFT, frameCount );
-	}
+	if( !fixedPos && !fixedDir )
+	{
+		if((button[0] & CONT_F) && !(lastbutton[0] & CONT_F))
+		{
+			camFacing--;
+			camFacing &= 3;
+			if ( recordKeying )
+				AddPlayingActionToList ( CAMERA_LEFT, frameCount );
+		}
 
-	if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
-    {
-		camFacing++;
-		camFacing &= 3;		
-		if ( recordKeying )
-			AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
+		if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
+		{
+			camFacing++;
+			camFacing &= 3;		
+			if ( recordKeying )
+				AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
+		}
 	}
 
 	// Croak and Croak Float
@@ -1108,9 +1111,9 @@ void RunGameLoop (void)
 	}  
 
 #ifdef PC_VERSION
-	//if( NUM_FROGS > 1 )
-		//if( controllerdata[0].button == 0 || controllerdata[0].button != controllerdata[0].lastbutton )
-
+	if( NUM_FROGS > 1 )
+		if( controllerdata[0].button == 0 || (controllerdata[0].button != controllerdata[0].lastbutton) )
+			SendUpdateMessage( );
 #endif
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS

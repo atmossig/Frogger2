@@ -74,7 +74,6 @@ extern short	cameraShake;
 
 extern char		controlCamera;
 extern char		fixedDir;
-extern char		fixedSource;
 extern char		fixedPos;
 
 extern TRANSCAMERA *transCameraList;
