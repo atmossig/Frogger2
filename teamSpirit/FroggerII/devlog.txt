@@ -650,9 +650,10 @@ David Swift:
 	
 	o Stop jumping into barred tiles through join tiles
 	o Queue "landed" animation if a jump fails (fixes the wierd handstand thing)
+	o Double jump landing in mid-air
 	
-	Trying to fix the double-jump bug, but right now I'm waiting on game.c for the
-	controller processing part.
+	(Some of these fixes look a little naff - they'll probably need a little work to get them
+	looking polished)
 	
 	Subtle puzzling bug in WorldConv has appeared, related to my new adjacent-tile
 	test. I'm looking into it.
