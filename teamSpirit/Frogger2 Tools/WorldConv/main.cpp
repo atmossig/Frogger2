@@ -187,7 +187,7 @@ build_camera_box testcambox;
 #define BC 1
 #define CA 2
 
-int mat[10000];
+int mat[50];
 
 vtx vertexList [20000];
 int nVtx = 0;
@@ -281,8 +281,13 @@ char *get_delim_str(char *dest, const char *str, const char d)
 
 void InitTables(void)
 {
-	for (int i=1; i<NUM_MATERIALS; i++)
+	int i;
+
+	for (i=1; i<NUM_MATERIALS; i++)
 		materialLookup.AddEntry(materialnames[i], i);
+
+	for (i=0; i<NUM_MATERIALS; i++)
+		mat[i] = 0;
 
 //	testcambox.num_planes = 0;
 	testcambox.num_triangles = 0;
@@ -894,6 +899,9 @@ int ProcessMeshInfo(char *in, vtx* verts, int *nv, face* faces, int *nf)
 		in += 5;	// skip vertex num.. boh
 
 		sscanf (in,"%f%f%f",&x,&y,&z);
+
+		printf("%f %f %f\n", x, y, z);
+		
 		verts[*nv].x = x;
 		verts[*nv].y = z;		// convert to our coord space
 		verts[*nv].z = -y;
@@ -903,7 +911,8 @@ int ProcessMeshInfo(char *in, vtx* verts, int *nv, face* faces, int *nf)
 	}
 	else if (getToken(&in,"*MESH_FACE "))
 	{
-		ProcessFaceInfo(&faces[(*nf)++], in);
+		ProcessFaceInfo(&faces[*nf], in);
+		(*nf)++;
 
 		return 1;
 	}
