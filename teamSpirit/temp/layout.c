@@ -1118,6 +1118,8 @@ void FreeAllLists()
 
 #ifdef PSX_VERSION
 
+	lightBeamGouraudValues = NULL;
+
 	memoryReset();
 	memoryDestroy();
 
