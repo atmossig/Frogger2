@@ -31,8 +31,6 @@
 
 //------------------------------------------------------------------------------------------------
 
-//struct TIMER;
-
 #include "general.h"
 
 typedef struct TAGACTION
@@ -98,8 +96,6 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags);
 void RemoveObjectSprites(OBJECT *obj,BOOL free);
 void FreeObjectSprites(OBJECT *obj);
 
-BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
-
 void MakeUniqueActor(ACTOR *actor,int type);
 void RemoveUniqueActor(ACTOR *actor,int type);
 
@@ -108,7 +104,6 @@ OBJECT *MakeUniqueObject(OBJECT *object);
 void RemoveUniqueObject(OBJECT *object);
 
 void ResetUniqueActorList();
-void CopyDrawlist(u8 *dest,u8 *source);
 
 void ActorLookAt( ACTOR *act, VECTOR *at, long flags );
 void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);

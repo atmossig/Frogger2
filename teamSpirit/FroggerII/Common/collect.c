@@ -21,7 +21,6 @@ unsigned long autoHop			= 0;
 unsigned long longTongue		= 0;
 unsigned long superFrog			= 0;
 unsigned long croakFloat		= 0;
-unsigned long babiesSaved		= 0;
 
 unsigned char garibStoreList [4][storeListLength ];
 
@@ -43,39 +42,6 @@ SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 	{ &spriteFrameList[HALFLKEY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 	{ &spriteFrameList[HALFRKEY_ANIM],0,SPRITE_ANIM_CYCLE,255,255,GARIB_SCALE,GARIB_SCALE,0 },
 };
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitCollectablesForLevel
-	Purpose			: Initialises the collectables / bonuses for a level
-	Parameters		: unsigned long,unsigned long
-	Returns			: void
-	Info			: 
-*/
-void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID)
-{
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: CreateLevelCollectables
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void CreateLevelCollectables(unsigned long *tileList, int type)
-{
-	unsigned long i;
-	GARIB *garib = NULL;
-	VECTOR v;
-
-	for(i=0; i<tileList[0]; i++)
-	{
-		v = firstTile[tileList[i+1]].centre;
-		v.v[Y] += 20;
-//		garib = CreateNewGarib(v, type);
-	}
-}
 
 
 /*	--------------------------------------------------------------------------------
@@ -135,36 +101,6 @@ void ProcessCollectables()
 	}
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: PickupCollectable
-	Purpose			: called when a collectable is picked up...
-	Parameters		: GARIB *
-	Returns			: void
-	Info			:
-*/
-
-void AddScreenSpawn(long x, long y, long xa, long ya)
-{
-	SCREENSPAWN *me = (SCREENSPAWN *)JallocAlloc(sizeof(SCREENSPAWN),0,"sspa");
-
-	me->x = x;
-	me->y = y;
-
-	me->ax = xa;
-	me->ay = ya;
-	
-	me->next = spawnList;
-
-	me->sp = CreateAndAddSpriteOverlay(x,y,"rdfrg001.bmp",16,16,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-
-	if (spawnList)
-		spawnList->prev = me;
-
-	spawnList = me;
-
-}
-
-float spawnSpeed = 0.5;
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -173,41 +109,6 @@ float spawnSpeed = 0.5;
 	Returns			: 
 	Info			: 
 */
-
-void UpdateScreenSpawn(void)
-{
-	SCREENSPAWN *cur = spawnList;
-
-	while (cur)
-	{
-		cur->x -= (cur->x - cur->ax) * spawnSpeed;
-		cur->y -= (cur->y - cur->ay) * spawnSpeed;
-		
-		if (cur->x==cur->ax)
-			if (cur->y==cur->ay)
-			{
-				SubSpriteOverlay(cur->sp);
-
-				if (cur->prev)
-					cur->prev->next = cur->next;
-				if (cur->next)
-					cur->next->prev = cur->prev;
-
-				JallocFree((UBYTE**)&cur);
-			}
-
-		cur = cur->next;
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: 
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-
 void PickupCollectable(GARIB *garib, int pl)
 {
 	switch(garib->type)
@@ -221,9 +122,6 @@ void PickupCollectable(GARIB *garib, int pl)
 					player[0].spawnScoreLevel++;
 
 				XfmPoint (&m,&garib->sprite.pos);
-				
-			//	if (m.v[3]>0)
-			//		AddScreenSpawn(m.v[0], m.v[1],0,0);
 			}
 
 			player[0].spawnTimer = SPAWN_SCOREUPTIMER;
@@ -295,7 +193,7 @@ void InitGaribLinkedList()
 		memset ( garibStoreList, 0xff, storeListLength*4 );
 		reset = 1;
 	}
-	// ENDIF
+
 	garibListPos = 0;
 }
 
@@ -366,37 +264,6 @@ void FreeGaribLinkedList()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitGaribSprite
-	Purpose			: initialises the sprite for the specified garib
-	Parameters		: GARIB *
-	Returns			: void
-	Info			: 
-*/
-void InitGaribSprite(GARIB *garib)
-{
-	switch(garib->type)
-	{
-		case SPAWN_GARIB:
-		case EXTRAHEALTH_GARIB:
-		case EXTRALIFE_GARIB:
-		case AUTOHOP_GARIB:
-		case LONGTONGUE_GARIB:
-		case WHOLEKEY_GARIB:
-		case HALFLKEY_GARIB:
-		case HALFRKEY_GARIB:
-		case QUICKHOP_GARIB:
-			InitSpriteAnimation(&garib->sprite,&garibAnimation[garib->type],0);
-			garib->sprite.r = 255;
-			garib->sprite.g = 255;
-			garib->sprite.b = 255;
-			garib->sprite.a = 127;
-			break;
-	}
-
-	garib->sprite.scaleX = garib->sprite.scaleY = 0;
-}
-
-/*	--------------------------------------------------------------------------------
 	Function		: CreateNewGarib
 	Purpose			: creates a new garib
 	Parameters		: VECTOR,int
@@ -438,11 +305,17 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 #ifndef PC_VERSION
 	memcpy(&garib->shadow.vert,shadowVtx,sizeof(Vtx) * 4);
 #endif
-	garib->shadow.altitude	= 0;
+//	garib->shadow.altitude	= 0;
 	garib->shadow.radius	= 20;
 	garib->shadow.alpha		= 192;
 
-	InitGaribSprite(garib);
+	// Initialise garib sprite
+	InitSpriteAnimation(&garib->sprite,&garibAnimation[garib->type],0);
+	garib->sprite.r = 255;
+	garib->sprite.g = 255;
+	garib->sprite.b = 255;
+	garib->sprite.a = 127;
+	garib->sprite.scaleX = garib->sprite.scaleY = 0;
 	
 #ifndef PC_VERSION
 	garib->sprite.offsetX = -garib->sprite.texture->sx / 2;
@@ -527,8 +400,6 @@ void UpdateGaribs()
 			garib->sprite.pos.v[Z] += ( fwd.v[Z] * garib->dropSpeed );
 
 		}
-		// ENDIF
-
 	}
 }
 

@@ -42,10 +42,10 @@ typedef struct TAGPATHNODE
 
 typedef struct TAGPATH
 {
-	int						numNodes;				// number of nodes in path
-	int						fromNode;				// from node
-	int						toNode;					// node we're heading towards
-	int						startNode;				// start node for this path
+	short					numNodes;				// number of nodes in path
+	short					fromNode;				// from node
+	short					toNode;					// node we're heading towards
+	short					startNode;				// start node for this path
 	unsigned long			startFrame;				// The start frame
 	unsigned long			endFrame;				// The start frame
 	PATHNODE				*nodes;					// actual path nodes

@@ -25,6 +25,7 @@ int lastBabySaved	= -1;
 SPRITEOVERLAY *babyIcons[NUM_BABIES];
 
 unsigned long numBabies = 0;
+unsigned long babiesSaved = 0;
 
 const char* baby_filenames[NUM_BABIES] = { "frog", "ylfrg", "blfrog", "prfrg", "rdfrg" };
 

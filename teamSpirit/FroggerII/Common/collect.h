@@ -95,9 +95,6 @@ extern SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES];
 
 // ----- [ FUNCTION PROTOTYPES ] --------------- //
 
-void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID);
-void CreateLevelCollectables(unsigned long *tileList, int type);
-
 void CheckTileForCollectable(GAMETILE *tile,long pl);
 
 void ProcessCollectables();

@@ -166,17 +166,7 @@ typedef struct
 {
 	VECTOR	normal;
 	float	J;
-	VECTOR	vertex[3];
-	VECTOR	edge[3];
-	float	edgeLen[3];
-#ifdef STORE_EDGE_J
-	float	edgeJ[3];
-#endif
-	float	u1,u2;
-	float	v1,v2;
-	UBYTE	terrain;
-	UBYTE	i[2];
-	UBYTE	space;
+
 }PLANE;
 
 typedef struct
@@ -257,14 +247,16 @@ typedef struct
 
 typedef struct
 {
-	float			altitude;
-	PLANE			*altPlane;
+//	float			altitude;
+//	PLANE			*altPlane;
 	float			radius;
 	UBYTE			alpha;
 	UBYTE			alphaAim;
 	UBYTE			alphaAimSpeed;
-	char			collSphere;
+//	char			collSphere;
+#ifndef PC_VERSION
 	Vtx				vert[4];
+#endif
 } ACTOR_SHADOW;
 
 
@@ -494,31 +486,31 @@ typedef struct TAGACTOR
 	float						distanceFromCamera;
 
 	Mtx							*matrix;
-	SHORT						type;
-	SHORT						objectType;
+//	SHORT						type;
+//	SHORT						objectType;
 	BYTE						status;
-	UBYTE						sparkly;
-	float						lifetime;
+//	UBYTE						sparkly;
+//	float						lifetime;
 	short						xluOverride;
 	int							flags;
-	struct TAGACTOR				*owner;
+//	struct TAGACTOR				*owner;
 
 	float						maxRadius;
-//vitals struct
+
 	VECTOR						pos;
 	VECTOR						oldpos;
 	VECTOR						vel;
-	VECTOR						oldVel;
-	float						velInertia;
-	float						speed;
+//	VECTOR						oldVel;
+//	float						velInertia;
+//	float						speed;
 	VECTOR						rot;
 	VECTOR						rotaim;
-	VECTOR						rotvel;
+//	VECTOR						rotvel;
 								
 	QUATERNION					qRot;
 												
 	VECTOR	  					scale;
-//end
+
 	OBJECT_CONTROLLER			*objectController;
 	OBJECT_CONTROLLER			*LODObjectController;
 	ACTOR_SHADOW				*shadow;
@@ -526,14 +518,15 @@ typedef struct TAGACTOR
 //	ACTOR_STATS					*stats;
 //	ACTOR_COLLISION				*collision;	
 	ACTOR_ANIMATION				*animation;
-	PLANE  						*planes;
+//	PLANE  						*planes;
 //	struct TAG_THOUGHT_BUBBLE	*thoughtBubble;
-	OBJECT_CONTROLLER			*shatterBit;
+//	OBJECT_CONTROLLER			*shatterBit;
 //	CLUSTER						*cluster;
 	int							visible;
 
 } ACTOR;
 
+/*
 typedef struct TAGTEXT
 {
 	struct TAGTEXT *next,*prev;
@@ -549,7 +542,7 @@ typedef struct
 	TEXT head;
 	int numEntries;
 }TEXTLIST;
-
+*/
 
 typedef struct TAGPLANE2
 {
