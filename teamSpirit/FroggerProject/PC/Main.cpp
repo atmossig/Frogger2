@@ -344,7 +344,7 @@ long DrawLoop(void)
 	camZ = t.x*8;
 	camY = t.y*8;
 
-	if( gameState.mode == INGAME_MODE )
+	if( gameState.mode != PAUSE_MODE )
 		ProcessProcTextures( );
 	
 //	AnimateTexturePointers();
