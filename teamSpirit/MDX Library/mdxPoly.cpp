@@ -1390,24 +1390,24 @@ void mdxPolyDrawTextureRect(RECT rc, D3DCOLOR colour, MDX_TEXENTRY *mdxTexture, 
 	// hardware?
 	if (rHardware)
 	{
-		D3DLVERTEX v[4] = {
+		D3DTLVERTEX v[4] = {
 			{
-				rc.left,rc.top,0,0,
+				rc.left,rc.top,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u0,v0
 			},
 			{
-				rc.left,rc.bottom,0,0,
+				rc.left,rc.bottom,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u0,v1
 				},
 			{
-				rc.right,rc.bottom,0,0,
+				rc.right,rc.bottom,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u1,v1
 			},
 			{
-				rc.right,rc.top,0,0,
+				rc.right,rc.top,0,1,
 				colour,D3DRGBA(0,0,0,1),
 				u1,v0
 			}
