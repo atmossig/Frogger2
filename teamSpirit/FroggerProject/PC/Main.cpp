@@ -562,7 +562,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		case WM_CHAR:
 
-			if (textEntry)
+			if (textEntry > 0)
 			{
 				TextInput((char)wParam);
 			}

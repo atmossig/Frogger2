@@ -181,15 +181,22 @@ static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, uns
 	RETURNS:	
 **************************************************************************/
 
+extern psFont *fontSmall;
 void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b)
 {
 	unsigned char	*strPtr, c;
-	int				cx,cy, loop;
+	int				cx,cy, loop,yAdd;
 	TextureType		*letter;
 
 	strPtr = text;
 	cx = x;
 	cy = y;
+
+	if(font == fontSmall)
+		yAdd = -3;
+	else
+		yAdd = 3;
+
 	while(*strPtr)
 	{
 		c = *strPtr;
@@ -207,22 +214,22 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 			switch(*(strPtr+1))
 			{
 			case 'X':
-			    fontDispSprite(buttonSprites[2], x+3,y);
+			    fontDispSprite(buttonSprites[2], x+3,y + yAdd);
 				strPtr++;
 				x += buttonSprites[2]->w+6;
 				break;
 			case 'C':
-			   	fontDispSprite(buttonSprites[1], x+3,y);
+			   	fontDispSprite(buttonSprites[1], x+3,y + yAdd);
 				strPtr++;
 				x += buttonSprites[1]->w+6;
 				break;
 			case 'S':
-			   	fontDispSprite(buttonSprites[3], x+3,y);
+			   	fontDispSprite(buttonSprites[3], x+3,y + yAdd);
 				strPtr++;
 				x += buttonSprites[3]->w+6;
 				break;
 			case 'T':
-			   	fontDispSprite(buttonSprites[0], x+3,y);
+			   	fontDispSprite(buttonSprites[0], x+3,y + yAdd);
 				strPtr++;
 				x += buttonSprites[0]->w+6;
 				break;

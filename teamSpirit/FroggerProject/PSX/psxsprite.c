@@ -161,6 +161,174 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 {
+	int			atbdx,atbdy, w,h;
+	POLY_F4		*f4;
+	POLY_FT4	*ft4;
+	TextureType	*tPtr;
+	uchar alpha,r,g,b;
+	int depth;
+	fixed	cosine,sine,newX,newY;
+	fixed halfWidth,halfHeight;
+
+	cosine = rcos(-spr->angle);
+	sine = rsin(-spr->angle);
+	halfWidth = spr->width/2;
+	halfHeight = spr->height/2;
+
+
+	depth = 4 - spr->num;
+
+	atbdx = spr->xPos-2048;
+	atbdy = spr->yPos-((120+PALMODE*8)*(17-PALMODE));
+	tPtr = spr->tex;
+
+	if(spr->a == 255)
+	{
+		alpha = 0;
+		r = (spr->r * 128) >> 8;
+		g = (spr->g * 128) >> 8;
+		b = (spr->b * 128) >> 8;
+	}
+	else
+	{
+		alpha = 2;
+		r = (spr->r * spr->a) >> 9;
+		g = (spr->g * spr->a) >> 9;
+		b = (spr->b * spr->a) >> 9;
+	}
+
+	if(spr->tex == 0)
+	{
+		BEGINPRIM(f4,POLY_F4);
+		setPolyF4(f4);
+
+		f4->x0 = -halfWidth;
+		f4->x1 = halfWidth;
+		f4->x2 = -halfWidth;
+		f4->x3 = halfWidth;
+
+		f4->y0 = -halfHeight;
+		f4->y1 = -halfHeight;
+		f4->y2 = halfHeight;
+		f4->y3 = halfHeight;
+
+
+		newX = FMul(f4->x0,cosine) + FMul(f4->y0,sine);
+		newY = FMul(f4->y0,cosine) - FMul(f4->x0,sine);
+
+		f4->x0 = (newX + atbdx + halfWidth)/8;
+		f4->y0 = (newY + atbdy + halfHeight)/(17-PALMODE);
+
+		newX = FMul(f4->x1,cosine) + FMul(f4->y1,sine);
+		newY = FMul(f4->y1,cosine) - FMul(f4->x1,sine);
+
+		f4->x1 = (newX + atbdx + halfWidth)/8;
+		f4->y1 = (newY + atbdy + halfHeight)/(17-PALMODE);
+
+		newX = FMul(f4->x2,cosine) + FMul(f4->y2,sine);
+		newY = FMul(f4->y2,cosine) - FMul(f4->x2,sine);
+
+		f4->x2 = (newX + atbdx + halfWidth)/8; 
+		f4->y2 = (newY + atbdy + halfHeight)/(17-PALMODE);
+
+		newX = FMul(f4->x3,cosine) + FMul(f4->y3,sine);
+		newY = FMul(f4->y3,cosine) - FMul(f4->x3,sine);
+
+		f4->x3 = (newX + atbdx + halfWidth)/8; 
+		f4->y3 = (newY + atbdy + halfHeight)/(17-PALMODE);
+
+
+		f4->r0 = spr->r;
+		f4->g0 = spr->g;
+		f4->b0 = spr->b;
+		if ( spr->flags & SPRITE_ADDITIVE )
+		{
+			f4->code  |= 2;
+		}
+		else if ( spr->flags & SPRITE_SUBTRACTIVE )
+		{
+			f4->code  |= 2;
+		}
+		ENDPRIM(f4, depth, POLY_F4);
+	}
+	else
+	{
+		BEGINPRIM(ft4, POLY_FT4);
+		setPolyFT4(ft4);
+
+
+		ft4->x0 = -halfWidth;
+		ft4->x1 = halfWidth;
+		ft4->x2 = -halfWidth;
+		ft4->x3 = +halfWidth;
+
+		ft4->y0 = -halfHeight;
+		ft4->y1 = -halfHeight;
+		ft4->y2 = halfHeight;
+		ft4->y3 = halfHeight;
+
+
+		newX = FMul(ft4->x0,cosine) + FMul(ft4->y0,sine);
+		newY = FMul(ft4->y0,cosine) - FMul(ft4->x0,sine);
+
+		ft4->x0 = (newX + atbdx + halfWidth)/8; 
+		ft4->y0 = (newY + atbdy + halfHeight)/(17 - PALMODE);
+
+		newX = FMul(ft4->x1,cosine) + FMul(ft4->y1,sine);
+		newY = FMul(ft4->y1,cosine) - FMul(ft4->x1,sine);
+
+		ft4->x1 = (newX + atbdx + halfWidth)/8; 
+		ft4->y1 = (newY + atbdy + halfHeight)/(17 - PALMODE);
+
+		newX = FMul(ft4->x2,cosine) + FMul(ft4->y2,sine);
+		newY = FMul(ft4->y2,cosine) - FMul(ft4->x2,sine);
+
+		ft4->x2 = (newX + atbdx + halfWidth)/8; 
+		ft4->y2 = (newY + atbdy + halfHeight)/(17 - PALMODE);
+
+		newX = FMul(ft4->x3,cosine) + FMul(ft4->y3,sine);
+		newY = FMul(ft4->y3,cosine) - FMul(ft4->x3,sine);
+
+		ft4->x3 = (newX + atbdx + halfWidth)/8; 
+		ft4->y3 = (newY + atbdy + halfHeight)/(17 - PALMODE);
+
+
+
+		ft4->r0 = r;//( spr->r * 128 ) >> 8;
+		ft4->g0 = g;//( spr->g * 128 ) >> 8;
+		ft4->b0 = b;//( spr->b * 128 ) >> 8;
+		ft4->u0 = tPtr->u0;
+		ft4->v0 = tPtr->v0;
+		ft4->u1 = tPtr->u1;
+		ft4->v1 = tPtr->v1;
+		ft4->u2 = tPtr->u2;
+		ft4->v2 = tPtr->v2;
+		ft4->u3 = tPtr->u3;
+		ft4->v3 = tPtr->v3;
+		ft4->tpage = tPtr->tpage;
+		if ( spr->flags & SPRITE_ADDITIVE )
+		{
+			ft4->code  |= 2;
+			ft4->tpage |= 32;
+		}
+		else if ( spr->flags & SPRITE_SUBTRACTIVE )
+		{
+			ft4->code  |= 2;
+			ft4->tpage = tPtr->tpage | 64;
+		}
+		ft4->clut = tPtr->clut;
+		setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
+		if(alpha)
+			SETSEMIPRIM(ft4, alpha);
+		ENDPRIM(ft4, depth, POLY_FT4);
+	}
+
+
+
+
+
+
+
 /*	int			atbdx,atbdy, w,h, i;
 
 	fixed cosine, sine, newX, newY;
@@ -392,7 +560,7 @@ void PrintSpriteOverlays ( char num )
 			}
 			else
 			{
-				//DrawSpriteOverlayRotating ( cur );
+				DrawSpriteOverlayRotating ( cur );
 			}
 			// ENDELSEIF
 		}
