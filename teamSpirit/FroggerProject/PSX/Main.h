@@ -11,6 +11,7 @@ extern GsRVIEW2	camera;
 extern ULONG	frame;
 extern char baseDirectory[256];
 extern psFont *font;
+extern psFont *fontSmall;
 
 
 #define ASSERT(A)	if(!(A)) {utilPrintf("Debug ASSERT failed at line %d, in "__FILE__, __LINE__);CRASH;}
