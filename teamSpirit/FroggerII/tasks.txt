@@ -20,6 +20,10 @@ NOTES----------
 |-----------------------------------------------------------------------------------|
 |-----------------------------------------------------------------------------------|
 
+TASK----------- Audio niceness (3D Sounds, doppler etc)
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- 
 
 TASK----------- Rotating sprites
 PRIORITY------- Medium
@@ -41,19 +45,9 @@ PRIORITY------- Low
 RESPONSIBILTY-- 
 NOTES---------- Invent some bonuses first
 
-TASK----------- Specify animation for enemy when it hurts / kills the frog
-PRIORITY------- Low
-RESPONSIBILTY-- Jim
-NOTES---------- 
-
 TASK----------- Network and Multiplayer testing, bug fix and completion
 PRIORITY------- Medium
 RESPONSIBILTY-- Jim and Matt and testers
-NOTES---------- 
-
-TASK----------- Sound stuff, including sfx loading/mapping rewrite and doppler effects and CD track calculation
-PRIORITY------- Medium
-RESPONSIBILTY-- Jim
 NOTES---------- 
 
 TASK----------- Better effects, e.g. fire, smoke, glows, cosmic stuff, SPARKLIES, wraparound proc fire, heat haze
@@ -110,3 +104,22 @@ TASK----------- Optimisations for engine, static sprite list etc
 PRIORITY------- Low
 RESPONSIBILTY-- All
 NOTES---------- 
+
+
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|		These tasks have been done.													|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+|-----------------------------------------------------------------------------------|
+
+TASK----------- Specify animation for enemy when it hurts / kills the frog
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- Uses C-Anim field in reactive.txt as per reactives
+
+TASK----------- Sound stuff, including sfx loading/mapping rewrite and and CD track calculation
+PRIORITY------- Medium
+RESPONSIBILTY-- Jim
+NOTES---------- Done. See me for details.
