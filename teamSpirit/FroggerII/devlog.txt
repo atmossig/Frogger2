@@ -1386,7 +1386,7 @@ Chris Wilson:
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
-07/01/00 - Tuesday
+07/01/00 - Friday
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 Matt Cloy:
@@ -1399,6 +1399,14 @@ Andy Eder:
 
 David Swift:
 ------------------------------------------------
+	Implemented and tested a greatly helpful addition to the scripting.
+
+	When specifying an ID in most commands, it will affect ALL enemies or platforms
+	with that ID number. This will also work for certain triggers, although there is a
+	little inconsistency.
+	
+	By grouping enemies together, they can be activated, animated or otherwise effected
+	all at once. This change makes the scripts smaller and easier to write and maintain!
 
 
 James Hubbard:
@@ -1422,3 +1430,38 @@ Chris Wilson:
 ------------------------------------------------
 
 
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+10/01/00 - Monday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+	Morning: Philip Crisp session on assistant managering.
+
+
+James Hubbard:
+------------------------------------------------
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
