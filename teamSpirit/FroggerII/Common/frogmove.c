@@ -326,6 +326,17 @@ void UpdateFroggerPos(long pl)
 		}
 
 		SetVector(&frog[pl]->actor->pos, &pos);
+
+		// NEW STUFF START - ANDYE ------------------------------------------
+
+		// check if frog is at (or passed) 75% point of jump...
+		if(player[pl].jumpTime >= 0.75f)
+		{
+			// ...yep - check for presence of a platform in the destination tile
+			destPlatform[pl] = CheckDestForPlatform(destTile[pl],pl);
+		}
+
+		// NEW STUFF END - ANDYE --------------------------------------------
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -633,88 +644,40 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		return FALSE;
 	}
 
-	// check if a platform is in the destination tile
-	destPlatform[pl] = JumpingToTileWithPlatform(dest,pl);
-
-	// ---------------------------------------------------------
-	
-	/*
-	
-	  TODO: Jumping on other frogs could do with re-working slightly to use
-	  player.canJump
-
-	if(dest)
-	{
-		int i;
-
-		if (frog[pl]->action.frogon!=-1)
-		{
-			frog[frog[pl]->action.frogon]->action.frogunder = -1;
-			frog[pl]->action.frogon = -1;
-		}
-
-		for (i=0; i<NUM_FROGS; i++)
-		{
-			if (currTile[i] == destTile[pl])
-			{
-				if (frog[i]->action.frogunder==-1)
-				{
-					frog[i]->action.frogunder = pl;
-					frog[pl]->action.frogon = i;
-				}
-			}
-		}
-	}
-	*/
-
 	if(currPlatform[pl])
 	{
 		currPlatform[pl]->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 		currPlatform[pl]->carrying = NULL;
 	}
 
-	// ------------------ Check for valid jumps -----------------------
+	// NEW STUFF START - ANDYE ----------------------------------------------
 
-	if(destPlatform[pl])
-	{
-		// check if platform is too high to reach
-		if(PlatformTooHigh(destPlatform[pl],pl))
+	// check destination tile
+	if(GameTileTooHigh(dest, pl))
+	{			
+		// gametile is too high
+		player[pl].canJump = 1;
+		player[pl].isSuperHopping = 0;
+
+		player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
+
+		// if frog was on platform, place back on the platform
+		if(currPlatform[pl])
 		{
-			// platform too high (smoked too many funny fags ?)
-			dprintf"Platform TOO HIGH\n"));
-
-			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-			if(destPlatform[pl]->flags & PLATFORM_NEW_NOWALKUNDER)
-			{
-				// cannot fall to tile 'under' platform as cannot walk under this platform
-				player[pl].canJump = 1;
-				player[pl].isSuperHopping = 0;
-
-				player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
-
-				// if frog was on platform, place back on the platform
-				if(currPlatform[pl])
-				{
-					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-					currPlatform[pl]->carrying = frog[pl];
-				}
-
-				destPlatform[pl] = NULL;
-				return FALSE;
-			}
-
-			destPlatform[pl] = NULL;
-
-			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+			currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+			currPlatform[pl]->carrying = frog[pl];
 		}
+			
+		return FALSE;
 	}
-	
-	if (!destPlatform[pl])
+	else if(dest->state == TILESTATE_SMASH)
 	{
-		if(GameTileTooHigh(dest, pl))
-		{			
-			// gametile is too high
+		// smash tiles
+
+		if(!(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING))
+		{
+			dprintf"Must superhop to smash\n"));
+
 			player[pl].canJump = 1;
 			player[pl].isSuperHopping = 0;
 
@@ -726,51 +689,30 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
 				currPlatform[pl]->carrying = frog[pl];
 			}
-			
+
 			return FALSE;
 		}
-		else if(dest->state == TILESTATE_SMASH)
+		else
 		{
-			// smash tiles
-
-			if(!(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING))
-			{
-				dprintf"Must superhop to smash\n"));
-
-				player[pl].canJump = 1;
-				player[pl].isSuperHopping = 0;
-
-				player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
-
-				// if frog was on platform, place back on the platform
-				if(currPlatform[pl])
-				{
-					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-					currPlatform[pl]->carrying = frog[pl];
-				}
-
-				return FALSE;
-			}
-			else
-			{
-				dest->state = TILESTATE_NORMAL;
+			dest->state = TILESTATE_NORMAL;
 				
-				player[pl].canJump = 1;
-				player[pl].isSuperHopping = 0;
+			player[pl].canJump = 1;
+			player[pl].isSuperHopping = 0;
 
-				player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
+			player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
 
-				// if frog was on platform, place back on the platform
-				if(currPlatform[pl])
-				{
-					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-					currPlatform[pl]->carrying = frog[pl];
-				}
-
-				return FALSE;
+			// if frog was on platform, place back on the platform
+			if(currPlatform[pl])
+			{
+				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+				currPlatform[pl]->carrying = frog[pl];
 			}
+
+			return FALSE;
 		}
 	}
+
+	// NEW STUFF END - ANDYE ------------------------------------------------
 
 	// ------------------------------------------------------------------------------------------
 	// If we get this far, it's a valid jump! Celebrations! Fizzy pop and lime jelly all round.
@@ -821,12 +763,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	{	
 		CalculateFrogJump(
 			&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
-			h, t, pl);
-	}
-	else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
-	{
-		CalculateFrogJump(
-			&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &currTile[pl]->normal,
 			h, t, pl);
 	}
 
@@ -995,9 +931,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			{
 				int speed;
 
-				if (state > TILESTATE_CONVEYOR_FAST)
+				if (state >= TILESTATE_CONVEYOR_FAST)
 					speed = 2;
-				else if (state > TILESTATE_CONVEYOR_MED)
+				else if (state >= TILESTATE_CONVEYOR_MED)
 					speed = 1;
 				else
 					speed = 0;
@@ -1307,89 +1243,3 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	pl->jumpTime = 0;
 	pl->heightJumped = height;
 }
-
-/*	--------------------------------------------------------------------------------
-	Function		: CalculateFrogJump
-	Purpose			: calculates values to describe frog jump movement
-	Parameters		: VECTOR *,VECTOR *,float,long
-	Returns			: void
-	Info			: 
-
-void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl,float gravity, float initVelocity)
-{
-	float sH,sV,a;
-
-	// STAGE 1 - frog's movement - new stuff - AndyE
-
-	// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
-	SetVector(&player[pl].jumpUpVector,startNormal);
-	AddToVector(&player[pl].jumpUpVector,endNormal);
-	ScaleVector(&player[pl].jumpUpVector,0.5F);
-
-	SubVector(&player[pl].jumpFwdVector,endPos,startPos);
-	sH = Magnitude(&player[pl].jumpFwdVector);
-	MakeUnit(&player[pl].jumpFwdVector);
-	sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
-
-	// STAGE 2 - considering vertical motion
-
-	// modify t and a depending on sV - i.e. jumping up or down
-	frogGravity = gravity;
-
-	if (!player[pl].hasDoubleJumped)
-	{
-		if(player[pl].isSuperHopping)
-		{
-			if(sV < -40)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / superHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 15;
-					frogGravity = -0.75F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.75F,0,0);
-				}
-			}
-		}
-		else
-		{
-			if(sV < -10)
-			{
-				// alter t to modify jump heights
-				t += (Fabs(sV) / standardHopJumpDownDivisor);
-
-				if(sV < -125)
-				{
-					// frog has fallen too far !!!
-					t += 15;
-					frogGravity = -0.75F;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.75F,0,0);
-				}
-			}
-		}
-	}
-
-	// using s = ut + 0.5at^2
-	a = frogGravity;
-
-	if (initVelocity > NOINIT_VELOCITY)
-		player[pl].vInitialVelocity = initVelocity;
-	else
-		player[pl].vInitialVelocity = ((-a * t * t) + (2 * sV)) / (2 * t);
-
-	// STAGE 3 - considering horizontal motion
-	a = 0;
-	player[pl].hInitialVelocity = ((-a * t * t) + (2 * sH)) / (2 * t);
-
-	// set variables to process frog's jump
-	player[pl].jumpStartFrame = actFrameCount;
-	player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
-
-	// get frogs origin of jump and height jumped between source and dest
-	SetVector(&player[pl].jumpOrigin,&frog[pl]->actor->pos);
-	player[pl].heightJumped = sV;
-}
-*/

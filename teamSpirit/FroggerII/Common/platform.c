@@ -281,85 +281,6 @@ void UpdatePlatforms()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: JumpingToTileWithPlatform
-	Purpose			: checks if frog is jumping to a tile that has a platform(s)
-	Parameters		: GAMETILE *,long
-	Returns			: PLATFORM *
-	Info			: platform returned is platform frog is attempting to jump to
-*/
-PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
-{
-	PLATFORM *cur,*next;
-	PLATFORM *platsDetected[4];
-	float t,distance = 99999999;
-	short platNum = 0;
-	
-	// NOTE : due to the way platforms work, it may be possible that more than one platform
-	//			occupies the same game tile.
-
-	// determine if a platform is in the tile(s) that the frog is jumping to
-
-	if(!platformList.numEntries)
-		return NULL;				// no platforms in the platform list
-
-	// traverse platform list and search for platform in the specified tile(s)
-	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
-	{
-		next = cur->next;
-
-		// process only visible platforms and not the current one (if any)
-		if((!cur->pltActor->draw) || (cur == currPlatform[pl]))
-			continue;				// skip to next platform in list
-
-		if(cur->inTile[0] && cur->inTile[1])
-		{
-			// platform is 'in' two tiles currently
-			if(cur->inTile[0] == tile)
-				platsDetected[platNum++] = cur;
-			else if(cur->inTile[1] == tile)
-				platsDetected[platNum++] = cur;
-		}
-		else
-		{
-			// platform is 'in' a single tile
-			if(cur->inTile[0] == tile)
-			{
-				// platform is in single tile currently
-				platsDetected[platNum++] = cur;
-			}
-		}
-	}
-
-	if(platNum)
-	{
-		// at least one platform was detected in the specified tile
-		int i;
-
-		cur = platsDetected[0];
-		for(i=0; i<platNum; i++)
-		{
-			t = DistanceBetweenPointsSquared(&platsDetected[i]->pltActor->actor->pos,&frog[pl]->actor->pos);
-			if(t < distance)
-			{
-				cur = platsDetected[i];
-				distance = t;
-			}
-		}
-
-		player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-		return cur;
-	}
-
-	// so....frog is not jumping to a platform (i.e. no platform detected)
-	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-	player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-
-	return NULL;
-}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: GetNextLocalPlatform
 	Purpose			: checks if there is an adjacent 'local' platform / platform segment
 	Parameters		: unsigned long
@@ -1165,6 +1086,119 @@ void FrogLeavePlatform(long pl)
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: CheckDestForPlatform
+	Purpose			: checks destination for presence of a platform
+	Parameters		: GAMETILE *,long
+	Returns			: PLATFORM *
+	Info			: 
+*/
+PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
+{
+	PLATFORM *cur,*next;
+	PLATFORM *platsDetected[4];
+	float t,distance = 99999999;
+	short platNum = 0;
+	
+	// NOTE : due to the way platforms work, it may be possible that more than one platform
+	//			occupies the same game tile.
+
+	// determine if a platform is in the tile(s) that the frog is jumping to
+
+	if(!platformList.numEntries)
+		return NULL;				// no platforms in the platform list
+
+	// traverse platform list and search for platform in the specified tile(s)
+	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
+	{
+		next = cur->next;
+
+		// process only visible platforms and not the current one (if any)
+		if((!cur->pltActor->draw) || (cur == currPlatform[pl]))
+			continue;				// skip to next platform in list
+
+		if(cur->inTile[0] && cur->inTile[1])
+		{
+			// platform is 'in' two tiles currently
+			if(cur->inTile[0] == tile)
+				platsDetected[platNum++] = cur;
+			else if(cur->inTile[1] == tile)
+				platsDetected[platNum++] = cur;
+		}
+		else
+		{
+			// platform is 'in' a single tile
+			if(cur->inTile[0] == tile)
+			{
+				// platform is in single tile currently
+				platsDetected[platNum++] = cur;
+			}
+		}
+	}
+
+	if(platNum)
+	{
+		// at least one platform was detected in the specified tile...
+		int i;
+
+		// .....so get nearest platform
+		cur = platsDetected[0];
+		for(i=0; i<platNum; i++)
+		{
+			t = DistanceBetweenPointsSquared(&platsDetected[i]->pltActor->actor->pos,&frog[pl]->actor->pos);
+			if(t < distance)
+			{
+				cur = platsDetected[i];
+				distance = t;
+			}
+		}
+
+		// check if platform too high, etc.
+		// check if platform is too high to reach
+		if(PlatformTooHigh(cur,pl))
+		{
+			// platform too high (smoked too many funny fags ?)
+			dprintf"Platform TOO HIGH\n"));
+
+			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+
+			if(cur->flags & PLATFORM_NEW_NOWALKUNDER)
+			{
+				// cannot fall to tile 'under' platform as cannot walk under this platform
+				player[pl].canJump = 1;
+				player[pl].isSuperHopping = 0;
+
+				player[pl].frogState &= ~( FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING );
+
+				// if frog was on platform, place back on the platform
+				if(currPlatform[pl])
+				{
+					currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+					currPlatform[pl]->carrying = frog[pl];
+				}
+
+				return NULL;
+			}
+
+			cur = NULL;
+			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+		}
+
+		player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+
+		return cur;
+	}
+
+	// so here we are....frog is not jumping to a platform (i.e. no platform detected)
+	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+
+	return NULL;
+}
+
+
+
 
 //----- [ PLATFORM UPDATE FUNCTIONS ] ------------------------------------------------------------
 
@@ -1371,4 +1405,3 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 		}
 	}
 }
-
