@@ -83,6 +83,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].isSuperHopping	= 0;
 	player[p].isLongHopping		= 0;
 	player[p].isCroakFloating	= 0;
+	player[p].isSinking			= 0;
 
 	player[p].jumpStartFrame	= 0;
 	player[p].jumpEndFrame		= 0;
@@ -199,6 +200,7 @@ void UpdateFroggerPos(long pl)
 	FX_RIPPLE *rip;
 	VECTOR effectPos;
 	PLANE2 ground;
+	VECTOR moveVec;
 	float dist,glowRange;
 	static float glowSeed = 0.0F;
 		
@@ -213,6 +215,47 @@ void UpdateFroggerPos(long pl)
 	}
 
 	//--------------------------------------------------------------------------------------------
+
+	if( currTile[pl]->state == TILESTATE_SINK )
+	{
+		if( player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR) )
+		{
+			if( player[pl].isSinking > 2 )
+				player[pl].isSinking-=3;
+			else
+				player[pl].isSinking = 0;
+
+			SetVector( &moveVec, &currTile[pl]->normal );
+			ScaleVector( &moveVec, 0.6 );
+			AddVector( &frog[pl]->actor->pos, &frog[pl]->actor->pos, &moveVec );
+
+			dprintf"Climb little frog, climb! %d\n",player[pl].isSinking));
+		}
+		else if( player[pl].isSinking )
+		{
+			player[pl].isSinking++;
+			SetVector( &moveVec, &currTile[pl]->normal );
+			ScaleVector( &moveVec, -0.2 );
+			AddVector( &frog[pl]->actor->pos, &frog[pl]->actor->pos, &moveVec );
+			
+			dprintf"Frog is SINKING! %d\n",player[pl].isSinking));
+		}
+
+		if( player[pl].isSinking > 50 )
+		{
+			frog[pl]->action.dead = 50;
+			frog[pl]->action.healthPoints = 3;
+			frog[pl]->action.deathBy = DEATHBY_DROWNING;
+			player[pl].frogState |= FROGSTATUS_ISDEAD;
+			player[pl].isSinking = 0;
+		}
+		else if( player[pl].isSinking )
+		{
+			AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.5F,0,0);
+			return;
+		}
+
+	}
 
 	if(!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR)))
 	{
@@ -571,33 +614,33 @@ void AnimateFrogHop( unsigned long direction, long pl )
 	case 0:
 		switch( frogFacing[pl] )
 		{
-		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0);  dprintf"HopLeft\n")); break;
-		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); dprintf"HopRight\n")); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); dprintf"HopStraight\n")); break;
+		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
+		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
 		}
 		break;
 	case 1:
 		switch( frogFacing[pl] )
 		{
-		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0);dprintf"HopRight\n")); break;
-		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); dprintf"HopLeft\n")); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);dprintf"HopStraight\n")); break;
+		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
+		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
 		}
 		break;
 	case 2:
 		switch( frogFacing[pl] )
 		{
-		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); dprintf"HopLeft\n")); break;
-		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0);dprintf"HopRight\n")); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);dprintf"HopStraight\n")); break;
+		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
+		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
 		}
 		break;
 	case 3:
 		switch( frogFacing[pl] )
 		{
-		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); dprintf"HopLeft\n")); break;
-		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0);dprintf"HopRight\n")); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);dprintf"HopStraight\n")); break;
+		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed2,0,0); break;
+		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed2,0,0); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
 		}
 		break;
 	}
@@ -790,6 +833,10 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				
 				return FALSE;			
 			}
+			else if(destTile[pl]->state == TILESTATE_SINK)
+			{
+				player[pl].isSinking = 10;
+			}
 			else if(destTile[pl]->state == TILESTATE_BARRED)
 			{
 				// Can't get into this tile at the moment
@@ -879,7 +926,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		MakeUnit(&player[pl].jumpFwdVector);
 		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
 
-		dprintf"sV: %f\n",sV));
+		//dprintf"sV: %f\n",sV));
 
 		// STAGE 2 - considering vertical motion
 

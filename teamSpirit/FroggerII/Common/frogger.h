@@ -79,6 +79,7 @@ typedef struct _PLAYER
 	unsigned char 	canJump;
 	unsigned char	isSuperHopping;
 	unsigned char	isLongHopping;
+	unsigned char	isSinking;
 
 	unsigned char	extendedHopDir;
 
