@@ -217,7 +217,6 @@ void DrawCameraSpaceActorList()
 					static short lastA = -1;
 
 					environmentMapped = 1;
-					gDPSetTextureLUT(glistp++,G_TT_NONE);
 
 					if( lastA != award )
 					{
@@ -237,9 +236,7 @@ void DrawCameraSpaceActorList()
 						}
 					}
 
-					gSPTexture(glistp++,32<<6,32<<6,0,G_TX_RENDERTILE, G_ON);
-					gDPLoadTextureBlock(glistp++,tex->data,G_IM_FMT_RGBA,G_IM_SIZ_16b,tex->sx,tex->sy,
-											0,G_TX_WRAP,G_TX_WRAP,5,5,G_TX_NOLOD,G_TX_NOLOD);
+					LoadTextureForTrophy( tex );
 				}
 
 				DrawActor(cur->actor);

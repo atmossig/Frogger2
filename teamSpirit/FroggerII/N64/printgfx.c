@@ -1250,7 +1250,7 @@ void DrawScreenGrab( unsigned long flags )
 		SetGrabData( );
 	}
 
-	if( grabData.fxTimer )
+	if( grabData.afterEffect == FROG_DEATH_OUT && grabData.fxTimer )
 		grabData.fxTimer--;
 
 	// Recalc vertices every frame
@@ -1580,4 +1580,13 @@ void ScreenShot()
 	StartDrawing("bum");
 //help	disableGraphics = FALSE;
 
+}
+
+void LoadTextureForTrophy( TEXTURE *tex )
+{
+	gDPSetTextureLUT(glistp++,G_TT_NONE);
+
+	gSPTexture(glistp++,32<<6,32<<6,0,G_TX_RENDERTILE, G_ON);
+	gDPLoadTextureBlock(glistp++,tex->data,G_IM_FMT_RGBA,G_IM_SIZ_16b,tex->sx,tex->sy,
+							0,G_TX_WRAP,G_TX_WRAP,5,5,G_TX_NOLOD,G_TX_NOLOD);
 }

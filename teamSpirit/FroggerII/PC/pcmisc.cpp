@@ -256,3 +256,8 @@ void PrintTimers(void)
 
 
 }
+
+void LoadTextureForTrophy( TEXTURE *tex )
+{
+
+}

@@ -94,4 +94,6 @@ void SetActorCollisionRadius(ACTOR2 *act,float radius);
 
 extern void MakeUniqueActor(ACTOR *actor,int type);
 
+extern void LoadTextureForTrophy( TEXTURE *tex );
+
 #endif

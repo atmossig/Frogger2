@@ -1521,7 +1521,11 @@ void DrawGraphics(void *arg)
 						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
 					else if( pauseMode == PM_ENDLEVEL )
 					{
-						DrawScreenGrab( MOTION_BLUR | TINT_RED );
+						if( grabData.fxTimer < 50 )
+							DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
+						else
+							DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | USE_GRAB_BUFFER );
+
 						DrawSwirlFX( );
 					}
 					else if( grabData.afterEffect == PAUSE_EXIT )
