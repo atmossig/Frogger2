@@ -30,18 +30,20 @@
 FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
 	"",0,
-	"BLOGO25S",147,
-	"02S",1085,
-	"03S",677,
-	"04S",525,
-	"05S",386,
-	"06S",518,
-	"07S",527,
-	"08S",943,
-	"09S",968,
-	"10S",462,
-	"11S",948,
-	"12S",737,
+	"ATARIS",250,		//	FMV_ATARI_LOGO,            
+	"BLITZS",147,		//	FMV_BLITZ_LOGO,            
+	"01S",147,			//	FMV_INTRO,
+	"02S",1085,			//	FMV_FROGGER_LILLIE_BABIES, 
+	"03S",677,			//	FMV_SWAMPY_PLAN,           
+	"04S",525,			//	FMV_SWAMPY_ESCAPES,        
+	"05S",386,			//	FMV_LILLIE_TO_GATE,        
+	"06S",518,			//	FMV_BOTH_AT_GATE,          
+	"07S",527,			//	FMV_LILLIE_COMPUTER,       
+	"08S",943,			//	FMV_SWAMPY_COMMERCIAL,     
+	"09S",968,			//	FMV_TELEPORT_TO_EARTH,     
+	"10S",462,			//	FMV_ENTER_HAUNTED_HOUSE,   
+	"11S",948,			//	FMV_LILLIE_IN_CAGE,        
+	"12S",737,			//	FMV_VICTORY,               
 };
 
 short storySequenceLevelToChapter[] = 

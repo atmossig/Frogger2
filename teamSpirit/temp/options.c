@@ -2458,10 +2458,10 @@ void StartCredits()
 		spacing += creditData[j].spacing;
 #ifdef PSX_VERSION
 		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
+	 	creditsText[j]->draw = 0;
 #else
 		creditsText[j] = CreateAndAddTextOverlay(2048,min(10000,4096 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
 #endif	 
-	 	creditsText[j]->draw = 0;
 	 	creditsText[j]->r = creditData[j].r;
 		creditsText[j]->g = creditData[j].g;
 		creditsText[j]->b = creditData[j].b;

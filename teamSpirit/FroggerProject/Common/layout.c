@@ -1447,10 +1447,13 @@ void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
 }
 */
 
+int quitAllVideo;
 void CommonInit(void)
 {
 	utilPrintf("Playing FMV.....\n");
-//	StartVideoPlayback(FMV_INTRO);
+	StartVideoPlayback(FMV_ATARI_LOGO);
+	if(quitAllVideo == 0)
+		StartVideoPlayback(FMV_BLITZ_LOGO);
 
 	frameCount=1;
 	lastActFrameCount = actFrameCount = 1;
