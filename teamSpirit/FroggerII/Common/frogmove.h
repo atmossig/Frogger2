@@ -105,7 +105,6 @@ void CheckForFroggerLanding(int whereTo,long pl);
 void SlideFroggerPosition(ACTOR2 *actor2);
 
 BOOL GameTileTooHigh(GAMETILE *tile,long pl);
-BOOL GameTileTooLow(GAMETILE *tile,long pl);
 
 BOOL KillFrog(long pl);
 

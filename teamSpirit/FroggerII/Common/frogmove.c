@@ -1088,10 +1088,13 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			// Okay - Frogger has landed - snap him to the centre of the platform
 			SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 			
+			frog[pl]->action.deathBy	= -1;
+			frog[pl]->action.dead		= 0;
+
 			player[pl].canJump = 1;
 			player[pl].isSuperHopping = 0;
 			player[pl].isLongHopping = 0;
-
+/*
 			if(player[pl].frogState & FROGSTATUS_ISDEAD)
 			{
 				cameraShake = 35;
@@ -1103,20 +1106,39 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			{
 				frog[pl]->action.deathBy = -1;
 			}
+*/
 
 			destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
 			player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
 			destPlatform[pl]->carrying	= frog[pl];
 			
-			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-			player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
-			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-			player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
-			currPlatform[pl] = destPlatform[pl];
-
 			frog[pl]->actor->scale.v[X] = globalFrogScale;	//0.09F;
 			frog[pl]->actor->scale.v[Y] = globalFrogScale;	//0.09F;
 			frog[pl]->actor->scale.v[Z] = globalFrogScale;	//0.09F;
+
+			player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISFLOATING |
+										FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING);
+			currPlatform[pl] = destPlatform[pl];
+
+			if(player[pl].heightJumped < -125.0F)
+			{
+				if(!frog[pl]->action.dead)
+				{
+					PLANE2 rebound;
+					SetVector(&rebound.point,&destTile[pl]->centre);
+					SetVector(&rebound.normal,&destTile[pl]->normal);
+
+					CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
+					frog[pl]->action.deathBy = DEATHBY_NORMAL;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.5F,0,0);
+
+					player[pl].frogState |= FROGSTATUS_ISDEAD;
+					frog[pl]->action.dead = 50;
+
+//					PlaySample(2,NULL,255,128);
+				}
+				return;
+			}
 
 			CheckTileForCollectable(NULL,0);
 		}
