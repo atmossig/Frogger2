@@ -515,6 +515,13 @@ void UpdatePlatforms()
 			if(cur->visible < cur->visibleTime)
 				cur->visible++;
 		}
+
+		// Add ripples around a platform
+		if( cur->flags & PLATFORM_NEW_MAKERIPPLES )
+		{
+			if( !(actFrameCount%10) )
+				CreateAndAddFXRipple( RIPPLE_TYPE_RING, &cur->pltActor->actor->pos, &cur->currNormal, 50, 1, 0.1, 30 );
+		}
 	}
 }
 
