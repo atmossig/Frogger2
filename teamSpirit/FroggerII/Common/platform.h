@@ -113,7 +113,6 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 
 void FrogLeavePlatform(long pl);
 
-void RotateWaitingPlatform(PLATFORM *cur);
 
 //------------------------------------------------------------------------------------------------
 
