@@ -111,7 +111,7 @@ PATH debug_path5 = { 1,0,0,0,debug_pathNodes5 };
 
 
 
-static void	GetActiveTile(PLATFORM *pform);
+static void	GetPlatformActiveTile(PLATFORM *pform);
 
 
 /*	--------------------------------------------------------------------------------
@@ -343,7 +343,7 @@ void UpdatePlatforms()
 
 		// determine which world tile the platform is currently 'in'
 		oldTile[0] = currTile[0];
-		GetActiveTile(cur);
+		GetPlatformActiveTile(cur);
 
 		// determine if platform is carrying frog
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
@@ -434,7 +434,7 @@ void UpdatePlatforms()
 
 /*	--------------------------------------------------------------------------------
 	Function		: JumpingToTileWithPlatform
-	Purpose			: checks if frog is jumping to a tile that has a platform
+	Purpose			: checks if frog is jumping to a tile that has a platform(s)
 	Parameters		: GAMETILE *,long
 	Returns			: PLATFORM *
 	Info			: platform returned is platform frog is attempting to jump to
@@ -453,7 +453,7 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 	if(platformList.numEntries == 0)
 		return NULL;
 
-	// go thru platform list and check for platform in the specified tile
+	// go thru platform list and check for platforms in the specified tile
 	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
 	{
 		next = cur->next;
@@ -471,19 +471,6 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 
 		if(cur->inTile == tile)
 		{
-/*
-			// check if this platform can be walked under
-			if(cur->flags & PLATFORM_CANWALKUNDER)
-			{
-				// check height of platform
-				if(Fabs(cur->pltActor->actor->pos.v[Y] - frog[pl]->actor->pos.v[Y]) > 25.0F)
-				{
-					player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-					player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-					return NULL;
-				}
-			}
-*/
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
 			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
 
@@ -662,13 +649,13 @@ void ResetPlatformFlags()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: GetActiveTile
+	Function		: GetPlatformActiveTile
 	Purpose			: gets the currently active tile for the platform
 	Parameters		: PLATFORM *
 	Returns			: void
 	Info			: 
 */
-static void	GetActiveTile(PLATFORM *pform)
+static void	GetPlatformActiveTile(PLATFORM *pform)
 {
 	VECTOR v1,v2,diff;
 	float halfdist;
@@ -894,7 +881,7 @@ void AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path
 	pform->flags	|= platformFlags;
 	pform->path		= path;
 
-	dprintf"Add path : "));
+	dprintf"Add pform path : "));
 
 	// check if pathnode indices need converting to game tile pointers
 	if(pathFlags & PATH_MAKENODETILEPTRS)

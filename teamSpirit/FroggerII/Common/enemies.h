@@ -66,7 +66,7 @@ enum
 
 };
 
-
+/*
 // ENEMY FLAGS
 #define ENEMY_NONE					0
 #define ENEMY_HASPATH				(1 << 0)
@@ -81,6 +81,21 @@ enum
 #define ENEMY_ACCELERATECONST		(1 << 9)
 #define ENEMY_DECELERATECONST		(1 << 10)
 #define ENEMY_RADIUSBASEDCOLLISION	(1 << 11)
+*/
+
+//----- [ PLATFORM FLAGS ] ---------------------------------------------------------------------//
+
+#define ENEMY_NEW_NONE					0
+#define ENEMY_NEW_FOLLOWPATH			(1 << 0)	// enemy follows a path (>1 node)
+#define ENEMY_NEW_FORWARDS				(1 << 1)	// enemy moves forwards thru path nodes
+#define ENEMY_NEW_BACKWARDS				(1 << 2)	// enemy moves backwards thru path nodes
+#define ENEMY_NEW_PINGPONG				(1 << 3)	// enemy moves back and forth thru nodes
+#define ENEMY_NEW_CYCLE					(1 << 4)	// enemy cycles thru nodes continuously
+#define ENEMY_NEW_MOVEUP				(1 << 5)	// enemy moves up (1 node paths only)
+#define ENEMY_NEW_MOVEDOWN				(1 << 6)	// enemy moves down (1 node paths only)
+#define ENEMY_NEW_NOJUMPOVER			(1 << 7)	// enemy cannot be jumped over
+#define ENEMY_NEW_RADIUSBASEDCOLLISION	(1 << 8)	// enemy collision based on radius
+
 
 
 typedef struct TAGENEMY
@@ -91,9 +106,15 @@ typedef struct TAGENEMY
 	unsigned long			flags;					// enemy flags
 	
 	float					startSpeed;				// enemy start speed
-	float					endSpeed;				// enemy end speed
+//	float					endSpeed;				// enemy end speed
 	float					speed;					// enemy current speed
 	float					accel;					// enemy acceleration
+
+	VECTOR					currNormal;
+	VECTOR					deltaNormal;
+
+	UBYTE					active;					// enemy active state
+	short					isWaiting;				// enemy pause time at node
 
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
 	PATH					*path;					// ptr to enemy path data
@@ -117,15 +138,15 @@ extern ENEMY *testEnemy;
 // FUNCTION PROTOTYPES
 
 extern void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID);
-extern ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,float offset2,int startNode,float eSpeed,unsigned long eFlags);
-extern ENEMY *CreateAndAddEnemyWithPath(char *eActorName, PATH *path, int startNode, float eSpeed, unsigned long eFlags);
+//extern ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,float offset2,int startNode,float eSpeed,unsigned long eFlags);
+//extern ENEMY *CreateAndAddEnemyWithPath(char *eActorName, PATH *path, int startNode, float eSpeed, unsigned long eFlags);
 
 extern void InitEnemyLinkedList();
 extern void FreeEnemyLinkedList();
 extern void AddEnemy(ENEMY *enemy);
 extern void SubEnemy(ENEMY *enemy);
 
-extern PATH *CreateEnemyPathFromTileList(unsigned long *pIndex,float offset,float offset2);
+//extern PATH *CreateEnemyPathFromTileList(unsigned long *pIndex,float offset,float offset2);
 extern void UpdateEnemies();
 
 extern void ProcessNMEMower(ACTOR2 *nme);
@@ -139,7 +160,17 @@ extern void ProcessNMETruck(ACTOR2 *nme);
 extern void ProcessNMEDog(ACTOR2 *nme);
 extern void ProcessNMEShark(ACTOR2 *nme);
 
-extern BOOL EnemyHasArrivedAtNode(ENEMY *enemy, int toNodeID);
+//extern BOOL EnemyHasArrivedAtNode(ENEMY *enemy, int toNodeID);
 
+//------------------------------------------------------------------------------------------------
+
+ENEMY *CreateAndAddEnemy(char *eActorName);
+void AssignPathToEnemy(ENEMY *nme,unsigned long enemyFlags,PATH *path,unsigned long pathFlags);
+BOOL EnemyHasArrivedAtNode(ENEMY *nme);
+BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
+void UpdateEnemyPathNodes(ENEMY *nme);
+void CalcEnemyNormalInterps(ENEMY *nme);
+
+//------------------------------------------------------------------------------------------------
 
 #endif
