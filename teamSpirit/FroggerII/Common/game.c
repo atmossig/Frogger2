@@ -681,7 +681,6 @@ void RunGameLoop (void)
 
 			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
 			{
-				frog[i]->draw = 1;
 				if (player[i].safe.time)
 				{
 					GTUpdate( &player[i].safe, -1 );
