@@ -163,7 +163,7 @@ void UpdatePlatforms()
 			// don't include the *current* plat in the check
 			// and only consider platforms in the dest tile?? (TODO: debug!)
 
-			if (cur->inTile[0] != destTile[pl] || cur == currPlatform[pl]) continue;
+			if (cur->inTile[0] != destTile[pl] /*|| cur == currPlatform[pl]*/) continue;
 
 			dist = DistanceBetweenPointsSquared(&cur->pltActor->actor->pos, &frog[pl]->actor->pos);
 			if (dist < nearestPlatDist[pl])
