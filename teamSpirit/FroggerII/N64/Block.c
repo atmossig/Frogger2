@@ -1153,11 +1153,22 @@ void DrawGraphics(void *arg)
 
 					ClearViewing();
 
-//					if(drawScreenGrab)
-//						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE );
+					if( drawScreenGrab && gameState.mode == GAME_MODE )
+						DrawScreenGrab( MOTION_BLUR );
 
-					if(testPause)
-						DrawPauseFX();
+					if( pauseMode == PM_PAUSE )
+						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
+					else if( pauseMode == PM_ENDLEVEL )
+					{
+						DrawScreenGrab( MOTION_BLUR | TINT_RED );
+						DrawSwirlFX( );
+					}
+					else if( grabData.afterEffect == PAUSE_EXIT )
+						DrawScreenGrab( MOTION_BLUR | TINT_BLUE | TILE_SHRINK_HORZ | TILE_SHRINK_VERT );
+					else if( grabData.afterEffect == FROG_DEATH_OUT )
+						DrawScreenGrab( MOTION_BLUR | RECALC_VTX | USE_GRAB_BUFFER );
+					else if( grabData.afterEffect == FROG_DEATH_IN )
+						DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
 
 					if(darkenedLevel)
 						DrawDarkenedLevel();
@@ -1203,13 +1214,6 @@ void DrawGraphics(void *arg)
 
 			case NN_SC_DONE_MSG:
 				gfxTasks--;
-				if (!gfxTasks)
-				{
-					StartTimer(3,"GRABB");
-//					if(gameState.mode == GAME_MODE && grabFlag )
-//						Screen2Texture( );
-					EndTimer(3);
-				}
 
 				break;
 		}
