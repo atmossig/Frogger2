@@ -560,12 +560,15 @@ void MapDraw_SetScenicMatrix(FMA_MESH_HEADER* mesh, SCENICOBJ* sc)
 
 	
 	gte_MulMatrix0(&GsWSMATRIX, &sc->matrix, &tx);
+
 	rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = 4096;
+
 	rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+
 	RotMatrixY(2048, &rY);
 	gte_MulMatrix0(&tx, &rY, &tx);
-	gte_SetRotMatrix(&tx);
 	gte_SetTransMatrix(&tx);
+	gte_SetRotMatrix(&tx);
 
 /*
 	MATRIX t1;
