@@ -417,10 +417,7 @@ void CameraLookAtFrog(void)
 		}
 		
 		if (l > 1)
-		{
-			l = 1.0f/l;
-			ScaleVector(&target, l);
-		}
+			ScaleVector(&target, 1.0f/l);
 
 /*		if (!idleCamera)
 		{
