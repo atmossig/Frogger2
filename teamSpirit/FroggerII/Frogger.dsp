@@ -1164,11 +1164,11 @@ SOURCE=.\Editor\edittypes.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Editor\toolbars.c
+SOURCE=.\Editor\edtoolbars.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\Editor\toolbars.h
+SOURCE=.\Editor\edtoolbars.h
 # End Source File
 # End Group
 # Begin Source File
@@ -1178,6 +1178,13 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # End Target
 # End Project
