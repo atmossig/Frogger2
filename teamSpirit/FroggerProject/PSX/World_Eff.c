@@ -656,7 +656,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	int i;
 
-//	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
+	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
 
 	tfv = (long*)transformedVertices;
@@ -714,7 +714,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
    	gte_avsz4();
 		gte_stotz_cpu ( depth );
 
-	/*	if ( depth > min_depth && depth < max_depth )
+		if ( depth > min_depth && depth < max_depth )
 		{
 			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
 					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
@@ -722,7 +722,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
 			{
 				continue;
-			}*/
+			}
 			// ENDIF
 
 
@@ -927,7 +927,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
 
-	//	}
+		}
 	}
 #undef op
 #undef si
@@ -946,20 +946,21 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	{
 
 
-		/*gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
+		gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
    	gte_avsz3();
-		gte_stotz_cpu ( depth );*/
+		gte_stotz_cpu ( depth );
 
-	/*	if ( depth > min_depth && depth < max_depth )
+		if ( depth > min_depth && depth < max_depth )
 		{
-			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) &
-					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
-			{
-				continue;
-			}*/
-			// ENDIF
+			if(
+			((GETV(op->vert0) & 0xff80ff00) + 0x00800100)
+			&
+			((GETV(op->vert1) & 0xff80ff00) + 0x00800100)
+			&
+			((GETV(op->vert2) & 0xff80ff00) + 0x00800100)
+			& 0x01000200
+			)
+			continue;
 
 
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
@@ -1163,10 +1164,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
 
-	//	}
+		}
 	}
 #undef op
-#undef si
+#undef si*/
 
 	currentDisplayPage->primPtr = (char *)packet;
 

@@ -102,7 +102,7 @@ typedef struct _PSIOBJECT
 
 	
  	SVECTOR		rotate;			// calculated angle of object vx,vy,vz
-   	VECTOR		scale;			// calculated scale
+  VECTOR		scale;			// calculated scale
 
 
 	int	depth;

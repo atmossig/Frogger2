@@ -25,7 +25,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	while (cur)
 	{
 		utilPrintf("%s, %d, %d, %d\n", cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz);
-		if ( (gstrcmp ( cur->name,"world.psi") != 0) && (gstrcmp ( cur->name,"backdrop.psi") ) )
+		if ( (gstrcmp ( cur->name,"world.psi") != 0)  )
 		{
 			for( i=0; i<4; i++ )
 				tmp[i] = cur->name[i];
@@ -57,10 +57,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
 									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
 									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
-//									( compare = strstr ( cur->name, "window" ) )   ) 
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
-//					CreateAndAddScenicObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
 					CreateAndAddScenicObject(cur);
 				}
 				else
@@ -70,7 +68,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
 					{
 						theActor->flags |= ACTOR_DRAW_ALWAYS;
-//						theActor->depthShift = 3000;
+						theActor->depthShift = 0;
 					}
 					// ENDIF
 

@@ -2418,6 +2418,8 @@ void psiDrawSegments(PSIDATA *psiData)
 	}
 	else
 	{
+		char *compare;
+
 		for (loop = 0; loop < obs; loop++)
 		{
 			world = (PSIOBJECT*)psiData->objectTable[loop];
@@ -2434,6 +2436,12 @@ void psiDrawSegments(PSIDATA *psiData)
 			modctrl->VertTop = world->meshdata->vertop;
 		 	modctrl->SortOffs = world->meshdata->sortlistptr[s];
 			modctrl->PrimLeft = world->meshdata->sortlistsize[s];
+
+			if ( ( compare = strstr ( psiData->modelName, "BACKDROP" ) ) )
+			{
+				depth = 4095;
+				//modctrl->depthShift = 0;
+			}
 
 			if(customDrawFunction2)
 				customDrawFunction2(depth >> modctrl->depthShift);
