@@ -643,7 +643,7 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 	}
 #endif
 
-	MapDraw_SetMatrix(*mesh, 0, 0, 0);
+	//MapDraw_SetMatrix(*mesh, 0, 0, 0);
 
 	count=0;
 
@@ -651,6 +651,8 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 	{
 		if ( (*mesh)->flags & DRAW_SEGMENT )
 		{
+			MapDraw_SetMatrix(*mesh, (*mesh)->posx, (*mesh)->posy, (*mesh)->posz);
+
 			if(MapDraw_ClipCheck(*mesh))
 			{
 					MapDraw_DrawFMA_Mesh2(*mesh);
