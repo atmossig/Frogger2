@@ -97,6 +97,6 @@ void cardDisplay(Uint8 *bitmap);
 	RETURNS:	
 **************************************************************************/
 
-int cardBeep( Uint32 time, int play );
+int cardBeep( Uint32 time, int good );
 
 #endif //__ISLCARD_H__

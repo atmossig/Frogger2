@@ -242,14 +242,13 @@ int cardRead(char *memCardName, void *gSaveData, int gameSaveDataSize)
 
 			if (rtn==McErrNone)
 			{
+				if( gSaveData )
+					cardBeep( 20, YES );
+
 				cardDisplay(LCD_ok);
-				cardBeep( 120, YES );
 			}
 			else
-			{
 				cardDisplay(LCD_error);
-				cardBeep( 120, NO );
-			}
 			return rtn;
 		}
 #ifdef _NINJA_
@@ -317,17 +316,12 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 				gState = S_COMPLETE;
 			break;
 		case S_COMPLETE:
+
 			rtn = translateErrorCode();
 			if (rtn==McErrNone)
-			{
 				cardDisplay(LCD_ok);
-				cardBeep( 120, YES );
-			}
 			else
-			{
 				cardDisplay(LCD_error);
-				cardBeep( 120, NO );
-			}
 			return rtn;
 		}
 #ifdef _NINJA_
@@ -392,12 +386,6 @@ int cardBeep( Uint32 time, int good )
 	{
 		data[0] = 0x08;
 		data[1] = 0x80;
-	}
-
-	while(!pdVmsLcdIsReady(vmuPortToUse))
-	{
-		if(timeOut++ > 1000)
-			return PDD_TMRERR_NO_TIMER;
 	}
 
 	res = pdTmrAlarm( vmuPortToUse, data );

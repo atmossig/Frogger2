@@ -865,11 +865,10 @@ void ChooseLoadSave()
 	}
 
 	if( vmuBeepStopTimer )
-	{
 		vmuBeepStopTimer--;
-		if( !vmuBeepStopTimer )
-			cardBeep( 0, NO );
-	}
+
+	if( !vmuBeepStopTimer )
+		cardBeep( 0, NO );
 
 	if(waitCheck < MEMWAIT)
 	{
