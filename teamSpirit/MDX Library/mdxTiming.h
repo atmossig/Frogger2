@@ -20,7 +20,7 @@ extern "C"
 
 typedef struct 
 {
-	unsigned long firstTicks;
+	long firstTicks;		// was unsigned long -ds
 
 	unsigned long tickCount;
 	unsigned long frameCount;
