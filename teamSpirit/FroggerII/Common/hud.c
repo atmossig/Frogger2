@@ -110,7 +110,7 @@ char timeStringHSec[8]	= "00";
 
 char coinsText[32] = "00 of 32";
 char timeOutString[64] = "Out of time";
-char penalString[8][4] = {"00","00","00","00"};
+char penalString[4][8] = {"00","00","00","00"};
 
 TEXTOVERLAY   *polysText;
 char polyString[256] = "";
@@ -231,7 +231,7 @@ void UpDateMultiplayerInfo( void )
 
 	for (i=0; i<NUM_FROGS; i++)
 	{
-		sprintf(penalString[i],"%02i",((int)(mpl[i].penalty)/60)%60);
+		sprintf(penalString[i],"%02i",((int)(mpl[i].penalty/60)));
 
 		if (mpl[i].timer>timeFrames)
 			timeFrames=mpl[i].timer;
