@@ -17,6 +17,7 @@ extern "C"
 {
 #endif
 
+
 typedef struct 
 {
 	unsigned long firstTicks;
