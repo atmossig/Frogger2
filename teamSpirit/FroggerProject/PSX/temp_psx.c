@@ -2,7 +2,9 @@
 #include "temp_psx.h"
 #include <islpad.h>
 #include <isltex.h>
+#include <islcard.h>
 #include "main.h"
+#include "layout.h"
 
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
@@ -441,10 +443,256 @@ static void froggerVRAMdrawPalette256(unsigned long clut, int y)
 	}
 }
 
+
+static int cursPos = 0;
+
 void PsxNameEntryInit(void)
 {
+	cursPos = 0;
+
+	//create new character under cursor?
+	if(textString[cursPos]==0)
+	{
+		textString[cursPos]='A';
+	}
 }
 
 void PsxNameEntryFrame(void)
 {
+	padHandler();
+
+	//move cursor
+	if(padData.debounce[0] & PAD_LEFT)
+	{
+		if(cursPos>0)
+		{
+			cursPos--;
+		}
+	}
+
+	if(padData.debounce[0] & PAD_RIGHT)
+	{
+		if(cursPos<8)
+		{
+			cursPos++;
+
+			//create new character under cursor?
+			if(textString[cursPos]==0)
+			{
+				textString[cursPos]='A';
+			}
+		}
+	}
+
+
+	//change char under cursor
+	if(padData.debounce[0] & PAD_UP)
+	{
+		if(textString[cursPos]==' ')
+			textString[cursPos]='A';
+
+		else if(textString[cursPos]<'Z')
+			textString[cursPos]++;
+	}
+
+	if(padData.debounce[0] & PAD_DOWN)
+	{
+		if(textString[cursPos]=='A')
+			textString[cursPos]=' ';
+
+		else if(textString[cursPos]>'A')
+			textString[cursPos]--;
+	}
+
+	//done?
+	if(padData.debounce[0]&PAD_START)
+	{
+		textEntry=0;
+	}
 }
+
+void SaveGame(void)
+{
+	//N.B this is the first version of this function.
+	//It could do with a new format to save memory => save/load time.
+
+
+	int totalLevels = 0;
+	long saveSize;
+	char *saveBuf = NULL;
+	char *savePtr = NULL;
+	int res;
+
+	int w,l;
+
+	//loop through all worlds,
+	//counting how many levels there are
+	//(so we can work out the total save file size)
+	for(w=0; w<MAX_WORLDS; w++)
+	{
+		totalLevels += worldVisualData[w].numLevels;
+	}
+	saveSize = (MAX_WORLDS*4) + (totalLevels*20);
+
+
+	//make buffer
+	saveBuf = MALLOC0(saveSize);
+	if(!saveBuf)
+	{
+		utilPrintf("\n\nMALLOC ERROR DURING SAVE\n\n");
+		return;
+	}
+	savePtr = saveBuf;
+
+
+	for(w=0; w<MAX_WORLDS; w++)
+	{
+		*((short*)savePtr)++ = worldVisualData[w].worldOpen;
+		*((short*)savePtr)++ = worldVisualData[w].numLevels;
+
+		for(l=0; l<worldVisualData[w].numLevels; l++)
+		{
+			*((short*)savePtr)++ = worldVisualData[w].levelVisualData[l].levelOpen;
+			*((short*)savePtr)++ = worldVisualData[w].levelVisualData[l].worldOpened;
+			*((long*)savePtr)++ = worldVisualData[w].levelVisualData[l].parTime;
+//			*((long*)savePtr)++ = worldVisualData[w].levelVisualData[l].parName;
+			memcpy(savePtr, worldVisualData[w].levelVisualData[l].parName, 12);
+			savePtr+=12;
+		}
+	}
+
+	utilPrintf("Saving %d\n", saveSize);
+	res = cardWrite("frogger2", saveBuf, saveSize);
+
+	switch(res)
+	{
+		case CARDWRITE_OK:
+		{
+			utilPrintf("No errors\n");
+			break;
+		}
+		case CARDWRITE_NOCARD:
+		{
+			utilPrintf("No card in slot\n");
+			break;
+		}
+		case CARDWRITE_BADCARD:
+		{
+			utilPrintf("Bad card in slot\n");
+			break;
+		}
+		case CARDWRITE_NOTFORMATTED:
+		{
+			utilPrintf("Card unformatted\n");
+			break;
+		}
+		case CARDWRITE_FULL:
+		{
+			utilPrintf("Card is full\n");
+			break;
+		}
+	} //end 
+
+
+	FREE(saveBuf);
+}
+
+void LoadGame(void)
+{
+	//N.B this is the first version of this function.
+	//It could do with a new format to save memory => save/load time.
+
+
+	int totalLevels = 0;
+	long loadSize;
+	char *loadBuf = NULL;
+	char *loadPtr = NULL;
+	int res;
+
+	int w,l;
+
+	//loop through all worlds,
+	//counting how many levels there are
+	//(so we can work out the total load file size)
+	//N.B we will count the levels as we read them, to check for discrepency
+	for(w=0; w<MAX_WORLDS; w++)
+	{
+		totalLevels += worldVisualData[w].numLevels;
+	}
+	loadSize = (MAX_WORLDS*4) + (totalLevels*20);
+
+
+	//make buffer
+	loadBuf = MALLOC0(loadSize);
+	if(!loadBuf)
+	{
+		utilPrintf("\n\nMALLOC ERROR DURING LOAD\n\n");
+		return;
+	}
+	
+	//load into buffer
+	utilPrintf("Loading %d\n", loadSize);
+	res = cardRead("frogger2", loadBuf, loadSize);
+
+	switch(res)
+	{
+		case CARDREAD_OK:
+		{
+			utilPrintf("No errors\n");
+			break;
+		}
+		case CARDREAD_NOCARD:
+		{
+			utilPrintf("No card in slot\n");
+			break;
+		}
+		case CARDREAD_BADCARD:
+		{
+			utilPrintf("Bad card in slot\n");
+			break;
+		}
+		case CARDREAD_NOTFORMATTED:
+		{
+			utilPrintf("Card unformatted\n");
+			break;
+		}
+		case CARDREAD_NOTFOUND:
+		{
+			utilPrintf("No game save data found\n");
+			break;
+		}
+		case CARDREAD_CORRUPT:
+		{
+			utilPrintf("Game save data corrupted\n");
+			break;
+		}
+		case CARDREAD_NOTFOUNDANDFULL:
+		{
+			utilPrintf("No game save data found and card is full\n");
+			break;
+		}
+	} //end 
+
+
+	//extract data
+	loadPtr = loadBuf;
+
+	for(w=0; w<MAX_WORLDS; w++)
+	{
+		worldVisualData[w].worldOpen = *((short*)loadPtr)++;
+		worldVisualData[w].numLevels = *((short*)loadPtr)++;
+
+		for(l=0; l<worldVisualData[w].numLevels; l++)
+		{
+			worldVisualData[w].levelVisualData[l].levelOpen   = *((short*)loadPtr)++;
+			worldVisualData[w].levelVisualData[l].worldOpened = *((short*)loadPtr)++;
+			worldVisualData[w].levelVisualData[l].parTime     = *((long*)loadPtr)++;
+			memcpy(worldVisualData[w].levelVisualData[l].parName, loadPtr, 12);
+			loadPtr+=12;
+		}
+	}
+
+
+	FREE(loadBuf);
+}
+
