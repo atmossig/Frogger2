@@ -271,7 +271,7 @@ void languageInitialise()
 		{
 			accel[loop1][loop2] = 0;
 			flagPoints[loop1][loop2].vx = (loop1-FLAGPOINTS/2)*200;
-			flagPoints[loop1][loop2].vy = (loop2-FLAGPOINTS/2)*100;
+			flagPoints[loop1][loop2].vy = (loop2-FLAGPOINTS/2)*100 - 500;
 			if (loop1 > 0) 
 				flagPoints[loop1][loop2].vz = loop1-loop2;
 			else
@@ -367,7 +367,7 @@ void languageFrame()
 
 		fontDispSprite(FindTexture(buttonName[0]),-200, 75,128,128,128,font->alpha);
 		fontDispSprite(FindTexture(buttonName[1]), 180, 75,128,128,128,font->alpha);
-		fontDispSprite(FindTexture(buttonName[2]), -16, 95,128,128,128,font->alpha);
+		fontDispSprite(FindTexture(buttonName[2]), -16, 90,128,128,128,font->alpha);
 
 //		mapScreenDispSquare(gameInfo.buttons[4],-80,80,128,128,128,0,0,4096,-1,0);
 //		mapScreenDispSquare(gameInfo.buttons[5],80,80,128,128,128,0,0,4096,-1,0);
