@@ -739,6 +739,11 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 //this is just MapDraw_ClipCheck,
 //with objects' position taken into account.
 //(where as MapDraw_ClipCheck assumes stationary object)
+
+//BB NOTE:
+//This function now looks exactly like MapDraw_ClipCheck
+//again. We should use that instead.
+
 int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 {
 	ULONG check,totalchecks;
@@ -784,6 +789,9 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 		if(xy[v].y>128 )
 			check|=OFFDOWN;
 
+//bbopt - near/far clipping done in FmaActor2ClipCheck()
+//using the actor's pos, before full on clipping
+/*
 #ifdef MAP_SCALE_DEPTH_DOWN
 	  	if((transformedDepths[v]) <= (MIN_MAP_DEPTH<<(2+MAP_SCALE_DEPTH_DOWN)))
 			check|=OFFFRONT;
@@ -800,7 +808,7 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 		if((transformedDepths[v]) >= (fog.max))
 			check |= OFFBACK;
 #endif
-
+*/
 		totalchecks&=check;
 	}
 

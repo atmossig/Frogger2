@@ -8,7 +8,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#define TIMER_SET 0
+#define TIMER_SET 1
 
 //*** TIMER SET 0 - GAME LOOP ***/
 #if TIMER_SET==0
@@ -103,22 +103,26 @@ enum {
 #ifdef TIMER_SET_1
 enum {
 	TIMER_TOTAL,
-	TIMER_DIST,
-	TIMER_CLIP,
-	TIMER_UPANI,
-	TIMER_SETANI,
-	TIMER_DRAW,
+	TIMER_PSICLIP,
+	TIMER_HEADCHK,
+	TIMER_PSIBACK,
+	TIMER_PSIDRAW,
+	TIMER_FMACLIP,
+	TIMER_SPHERE,
+	TIMER_FMADRAW,
 	TIMER_TIMERS,
 
 	TIMER_NUMTIMERS
 };
 
 #define TIMER_NAMES	   	"TOTAL", \
-						"DIST", \
-						"CLIP", \
-						"UPANI", \
-						"SETANI", \
-						"DRAW", \
+						"PSICLIP", \
+						"HEADCHK", \
+						"PSIBACK", \
+						"PSIDRAW", \
+						"FMACLIP", \
+						"SPHERE", \
+						"FMADRAW", \
 						"TIMERS"
 #endif //TIMER_SET_1
 

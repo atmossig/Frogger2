@@ -736,6 +736,7 @@ PSIOBJECT *psiObjectScan(PSIOBJECT *obj, char *name)
 	
 	while (obj)
 	{
+//bbopt - could we do without this?
 		utilUpperStr(obj->meshdata->name);
 
 		if ( strcmp( obj->meshdata->name, name )==0 )
