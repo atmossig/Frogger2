@@ -768,7 +768,7 @@ void UpdateEnemies()
 		}
 
 		// check which world tile enemy is currently 'in'
-		oldTile = currTile[0];
+		//oldTile = currTile[0];
 		GetActiveTile(cur);
 
 
