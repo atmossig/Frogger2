@@ -150,6 +150,8 @@ int GetRegistryInformation(void)
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) != ERROR_SUCCESS)
 	{
+		// If demo install (no default reg settings) then try to get current directory as base
+#ifdef PC_DEMO
 		int n;
 		char *c;
 
@@ -159,7 +161,7 @@ int GetRegistryInformation(void)
 		for (c=baseDirectory,n=0; *c; c++,n++);
 		for (c--;n;n--,c--)	if (*c == '\\') break;
 		*(c++) = '\\'; *c = 0;
-
+#endif
 		utilPrintf("Couldn't open registry key\n"); return 0;
 	}
 	else
