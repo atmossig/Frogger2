@@ -400,7 +400,7 @@ void UpdatePlatforms()
 		}
 
 		// Add ripples around a platform
-		if( cur->flags & PLATFORM_NEW_MAKERIPPLES )
+		if( cur->pltActor->effects & EF_RIPPLE_RINGS )
 		{
 			long r;
 			VECTOR rPos;
@@ -420,7 +420,7 @@ void UpdatePlatforms()
 					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
 			}
 		}
-		if( cur->flags & PLATFORM_NEW_MAKESMOKE )
+		if( cur->pltActor->effects & EF_SMOKE_CLOUDS )
 		{
 			long r;
 			if( cur->pltActor->value1 )
@@ -431,7 +431,7 @@ void UpdatePlatforms()
 			if( !(actFrameCount%r) )
 				CreateAndAddFXSmoke(&cur->pltActor->actor->pos,80,20);
 		}
-		if( cur->flags & PLATFORM_NEW_MAKESPARKS )
+		if( cur->pltActor->effects & EF_SPARK_BURSTS )
 		{
 			long r;
 			if( cur->pltActor->value1 )
