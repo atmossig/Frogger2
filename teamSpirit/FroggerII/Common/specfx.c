@@ -577,9 +577,9 @@ void UpdateFXSmoke( SPECFX *fx )
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
 			dist = -(DotProduct(&fx->sprites->pos, &fx->rebound->normal) + fx->rebound->J);
 
-			if(dist < 0)
+			if(dist > 0 && dist < 10)
 			{
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.2 );
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.5, 0.1, 1 );
 				JallocFree( (UBYTE **)&fx->rebound );
 				fx->rebound = NULL;
 			}
@@ -864,7 +864,7 @@ void UpdateFXTrail( SPECFX *fx )
 		{
 			fx->start = 0;
 			// If no more particles in list, time to die
-			if( (fx->start == fx->end) && !fx->deadCount )
+			if( (fx->start == fx->end-1) && !fx->follow && !fx->deadCount )
 				fx->deadCount = 5;
 		}
 	}

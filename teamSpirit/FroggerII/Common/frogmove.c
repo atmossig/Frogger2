@@ -17,7 +17,6 @@
 long numHops_TOTAL = 0;
 long speedHops_TOTAL = 0;
 long numHealth_TOTAL = 0;
-long nextCamFacing = 0;
 
 GAMETILE *destTile[4]			= {0,0,0,0};
 GAMETILE *longHopDestTile		= NULL;
@@ -154,7 +153,7 @@ BOOL UpdateFroggerControls(long pl)
 		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
 	
 		AnimateFrogHop((dir + camFacing) & 3,pl);
-		frogFacing[pl] = (frogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+		frogFacing[pl] = (camFacing + dir) & 3;
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
@@ -355,15 +354,6 @@ void UpdateFroggerPos(long pl)
 		AddToVector(&newPos,&player[pl].vMotionDelta);
 		AddToVector(&newPos,&player[pl].hMotionDelta);
 		SetVector(&frog[pl]->actor->pos,&newPos);
-
-		if(player[pl].isSuperHopping || player[pl].isLongHopping)
-		{
-			SetVector(&effectPos,&player[pl].jumpUpVector);
-			ScaleVector(&effectPos,20);
-			AddToVector(&effectPos,&newPos);
-
-			CreateAndAddSpecialEffect( FXTYPE_JUMPBLUR, &effectPos, &currTile[0]->normal, 128, 0, 0, 0.6 );
-		}
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -413,10 +403,7 @@ void UpdateFroggerPos(long pl)
 			// check for nearest baby frog - do radius check ????
 			if(nearestBaby = GetNearestBabyFrog())
 			{
-				fx = CreateAndAddSpecialEffect(
-					FXTYPE_POLYRING, &babies[nearestBaby]->actor->pos,
-					&upVec, 15, 1, 0.1, 1.2 );
-
+				fx = CreateAndAddSpecialEffect(	FXTYPE_POLYRING, &babies[nearestBaby]->actor->pos, &upVec, 15, 1, 0.1, 1.2 );
 				fx->r = babyList[nearestBaby].fxColour[R];
 				fx->g = babyList[nearestBaby].fxColour[G];
 				fx->b = babyList[nearestBaby].fxColour[B];
@@ -838,7 +825,12 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
 
-	if(player[pl].isSuperHopping)
+	if( player[pl].hasDoubleJumped )
+	{
+		t = doubleHopFrames;
+		t2 = doubleGravity;
+	}
+	else if(player[pl].isSuperHopping)
 	{
 		t = superHopFrames;
 		t2 = superGravity;
@@ -914,6 +906,12 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	player[pl].canJump = 1;
 	player[pl].isSuperHopping = 0;
 	player[pl].isLongHopping = 0;
+	player[pl].hasDoubleJumped = 0;
+	if( frogTrail[pl] && frogTrail[pl]->follow )
+	{
+		frogTrail[pl]->follow = NULL;
+		frogTrail[pl] = NULL;
+	}
 
 	if(whereTo == JUMPING_TOPLATFORM)
 	{
@@ -989,8 +987,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			{
 				if(state == TILESTATE_DEADLY)
 				{
-					CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 10, 10, 0, 2 );
-					CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 20, 10, 0, 2 );
+					CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 10, 1, 0, 2 );
+					CreateAndAddSpecialEffect( FXTYPE_SPLASH, &tile->centre, &tile->normal, 20, 1, 0, 2 );
 
 					CreateAndAddSpecialEffect( FXTYPE_WATERRIPPLE, &tile->centre, &tile->normal, 20, 0.8, 0.1, 0.6 );
 					frog[pl]->action.deathBy = DEATHBY_DROWNING;

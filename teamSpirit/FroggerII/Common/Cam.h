@@ -43,6 +43,7 @@ extern VECTOR	camDist;
 extern float	camSpeed;
 extern float	camLookOfs;
 extern int		camFacing;
+extern int		nextCamFacing;
 
 extern VECTOR	camSource[4];
 extern VECTOR	camTarget[4];

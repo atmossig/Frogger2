@@ -90,6 +90,7 @@ extern GAMETILE *prevTile;
 extern unsigned long ice[];
 
 extern int frogFacing[4];
+extern int nextFrogFacing[4];
 
 extern float frogGravity;
 

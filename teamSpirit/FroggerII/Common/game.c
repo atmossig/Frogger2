@@ -201,29 +201,40 @@ void GameProcessController(long pl)
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
 
+//		frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.05, 1 );
+//		frogTrail[pl]->follow = frog[pl]->actor;
+//		SetFXColour( frogTrail[pl], 50, 200, 50 );
+
 		if (((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && (!player[pl].hasDoubleJumped))
 		{
-			float t;
+			int dir=-1;
+
+			if( button[pl] & CONT_UP )
+				dir = MOVE_UP;
+			else if( button[pl] & CONT_DOWN )
+				dir = MOVE_DOWN;
+			else if( button[pl] & CONT_LEFT )
+				dir = MOVE_LEFT;
+			else if( button[pl] & CONT_RIGHT )
+				dir = MOVE_RIGHT;
 
 			// player is superhopping - make frog double jump
-			t = doubleHopFrames;
 			player[pl].hasDoubleJumped = 1;
+			player[pl].canJump = 0;
+			currTile[pl] = destTile[pl];
+			frogFacing[pl] = nextFrogFacing[pl];
+			camFacing = nextCamFacing;
 
-			if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+			if( dir != -1 )
 			{
-				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destTile[pl]->centre,&destTile[pl]->normal,t,pl,doubleGravity,NOINIT_VELOCITY);
-			}
-			else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
-			{
-				CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destPlatform[pl]->pltActor->actor->pos,
-									&destPlatform[pl]->inTile[0]->normal,t,pl,doubleGravity,NOINIT_VELOCITY);
-			}
+				MoveToRequestedDestination( dir, pl );
+				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 
-		
-			//AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,2.0F,0,0);
-			//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.5F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+			}
+			// To enable endless double jumping
+			//player[pl].hasDoubleJumped = 0;
 		}
 
 		if((longHop) && !(player[pl].isLongHopping) && !(player[pl].inputPause))

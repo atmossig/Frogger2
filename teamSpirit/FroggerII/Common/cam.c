@@ -51,6 +51,7 @@ float fovSpd				= 2;
 float transCamSpeedMult		= 1.0F;
 
 int	camFacing				= 0;
+int nextCamFacing			= 0;
 char camZoom				= 1;
 float scaleV				= 1.1F;
 
