@@ -163,6 +163,7 @@ void AddToOneScaledVector2D(VECTOR *result,VECTOR *operand2,float scale2);
 void AddOneScaledVector2D(VECTOR *result,VECTOR *operand1,VECTOR *operand2,float scale2);
 float DistanceBetweenPoints2D(VECTOR *v1, VECTOR *v2);
 float DistanceBetweenPoints(VECTOR *v1, VECTOR *v2);
+float DistanceBetweenPoints2DSquared(VECTOR *v1, VECTOR *v2);
 float DistanceBetweenPointsSquared(VECTOR *v1, VECTOR *v2);
 BOOL IsPointWithinBox(BOX *box, VECTOR *pos);
 BOOL IsPointWithinBoxPlusHeight(BOX *box, VECTOR *pos,float height);
