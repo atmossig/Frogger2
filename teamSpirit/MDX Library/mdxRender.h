@@ -31,6 +31,14 @@ extern float fogRange;
 
 extern long noClip;
 
+extern float halfWidth;
+extern float halfHeight;
+extern float oneOver[];
+
+#define BIAS 127
+#define fftol(v) (((((*((long *)v))&0x007fffff)<<8)|0x80000000)>>((BIAS-(((*((long *)v))&0x7f800000)>>23))+31))
+
+
 void InitOneOverTable(void);
 void InitDOFOneOverTable(int min, int max, int range);
 void SwapOneOver(long num);
