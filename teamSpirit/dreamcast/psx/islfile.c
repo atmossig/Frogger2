@@ -3,6 +3,9 @@
 extern texurestring[256];
 extern texurestring2[256];
 
+char	*genericStak = NULL;
+int		genericStakSize = 0;
+
 char* fileLoad(char *filename,int *bytesRead)
 {
     PKMDWORD    filePtr;
@@ -41,6 +44,12 @@ char* fileLoad(char *filename,int *bytesRead)
 		}
 	}
 	buffer[i] = 0;
+
+//	if((strcmp(buffer,"GENERIC.STK") == 0)&&(genericStak))
+//	{
+//		filePtr = Align32Malloc(genericStakSize);
+//		memcpy(genericStak,filePtr)
+//	}
 	
     // Open input file.
     while((!gdfs) && (retry < 50))

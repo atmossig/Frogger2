@@ -79,6 +79,7 @@ extern MDX_LANDSCAPE *world;
 #endif
 
 #include "lang.h"
+#include "islvideo.h"
 
 //stuff taken out of PSX main,
 //for commonality
@@ -1426,10 +1427,10 @@ void gameTxtInit(char *fName, int numStrings, int numLang, int currLang)
 
 void CommonInit(void)
 {
-//ma	utilPrintf("Playing FMV.....\n");
-//ma	StartVideoPlayback(FMV_ATARI_LOGO);
-//ma	if(quitAllVideo == 0)
-//ma		StartVideoPlayback(FMV_BLITZ_LOGO);
+//	utilPrintf("Playing FMV.....\n");
+//	StartVideoPlayback(FMV_ATARI_LOGO);
+//	if(quitAllVideo == 0)
+//		StartVideoPlayback(FMV_BLITZ_LOGO);
 		
 	frameCount=1;
 	lastActFrameCount = actFrameCount = 1;

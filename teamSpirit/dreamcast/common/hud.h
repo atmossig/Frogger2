@@ -26,7 +26,7 @@ extern "C" {
 
 typedef struct TAG_ARCADE_HUD
 {
-	SPRITEOVERLAY *sparkles[MAX_HUD_SPARKLES];
+//	SPRITEOVERLAY *sparkles[MAX_HUD_SPARKLES];
 	unsigned long sX,sY,sW,sH;
 	unsigned long sTime;
 
@@ -52,6 +52,8 @@ typedef struct TAG_ARCADE_HUD
 	TEXTOVERLAY   *coinsText;
 //	TEXTOVERLAY   *coinsText2;
 	
+	SPRITEOVERLAY *autoHopOver, *quickHopOver;
+
 	SPRITEOVERLAY *timeFaceOver;
 	SPRITEOVERLAY *timeHeadOver;
 	SPRITEOVERLAY *timeHandOver;
@@ -69,6 +71,10 @@ typedef struct TAG_ARCADE_HUD
 //	TEXTOVERLAY   *timeOutText;
 	unsigned long timedOut;
 	SPRITEOVERLAY *coinZoom;
+	SPRITEOVERLAY *timeBar;
+	SPRITEOVERLAY *timeBak;
+	TEXTOVERLAY   *timeBarText;
+	TEXTOVERLAY   *timeOutText;
 } ARCADE_HUD;
 
 

@@ -1355,7 +1355,7 @@ int LoadLevelScript ( int worldID, int levelID )
 	char fileName[256];
 
 #ifdef PSX_VERSION
-	sprintf ( fileName, "SCRIPT_%d_%d.FEV", worldID, levelID );
+	sprintf ( fileName, "SCRIPT-%d-%d.FEV", worldID, levelID );
 
 	scriptFile = (void*)FindStakFileInAllBanks ( fileName, &fileLength );
 #endif

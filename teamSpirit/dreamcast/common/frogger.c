@@ -48,6 +48,7 @@ SPRITELIST sprList;
 TEXTOVERLAYLIST	textOverlayList;			// the text overlay linked list
 
 unsigned int xseed = (7789<<16)+13399;	
+int pauseController = 0;
 
 VECTOR zero = {0, 0, 0};
 //FLVECTOR flZero = {0, 0, 0};
@@ -64,6 +65,7 @@ FVECTOR upVec	= {0,4096,0};
 FVECTOR inVec	= {0,0,4096};
 FVECTOR outVec	= {0,0,-4096};
 FVECTOR rightVec= {4096,0,0};
+FVECTOR oneVec = {4096,4096,4096};
 
 SVECTOR *pointOfInterest;
 fixed pOIDistance = 20000<<12;
@@ -75,26 +77,26 @@ fixed pOIDistance = 20000<<12;
 #ifdef FINAL_MASTER
 FROGSTORE frogPool[FROG_NUMFROGS] = 
 {
-	{ "Frogger",	"frogger.obe",	"mfrogger.obe",	"FROGGER",	1, FANIM_ALL,	80,	255,80 },
-	{ "Lillie",		"lilli.obe",	"mlilli.obe",	"LILLIE",	1, FANIM_ALL,	255,80, 80 },
-	{ "Tad",		"tad.obe",		"mtad.obe",		"BABYFROG",	1, FANIM_ALL,	80,	80,	255 },
-	{ "Swampy",		"mswampy.obe",	"mswampy.obe",	"SWAMPY",	1, FANIM_NONE,	0,	100,0 },
-	{ "Treeby",		"twee.obe",		"mtwee.obe",	"TWEE",		0, FANIM_ALL,	0,	255,255 },
-	{ "Wart",		"toad.obe",		"mtoad.obe",	"WART",		0, FANIM_ALL,	110,60, 55 },
-	{ "Roobie",		"roobie.obe",	"mhopper.obe",	"HOPPER",	0, FANIM_ALL,	220,220,30 },
-	{ "Tank",		"tank.obe",		"mtank.obe",	"ROBOFROG",	0, FANIM_ALL,	220,220,220 },
+	{ "Frogger", 	"frogger.obe",	"mfrogger.obe",	"FROGGER",	1, FANIM_ALL,	80,	255,80 },
+	{ "Lillie", 	"lilli.obe",	"mlilli.obe",	"LILLIE",	1, FANIM_ALL,	255,80, 80 },
+	{ "Tad",	  	"tad.obe",		"mtad.obe",		"BABYFROG",	1, FANIM_ALL,	80,	80,	255 },
+	{ "Treeby", 	"twee.obe",		"mtwee.obe",	"TWEE",		1, FANIM_ALL,	0,	255,255 },
+	{ "Wart",	  	"toad.obe",		"mtoad.obe",	"WART",		0, FANIM_ALL,	110,60, 55 },
+	{ "Tank",	  	"tank.obe",		"mtank.obe",	"ROBOFROG",	0, FANIM_ALL,	220,220,220 },
+	{ "Roobie", 	"roobie.obe",	"mhopper.obe",	"HOPPER",	0, FANIM_ALL,	220,220,30 },
+	{ "Swampy", 	"mswampy.obe",	"mswampy.obe",	"SWAMPY",	0, FANIM_NONE,	0,	100,0 },
 };
 #else
 FROGSTORE frogPool[FROG_NUMFROGS] = 
 {
 	{ "Frogger",	"frogger.obe",	"mfrogger.obe",	"FROGGER",	1, FANIM_ALL,	80,	255,80 },
-	{ "Lillie",		"lilli.obe",	"mlilli.obe",	"LILLIE",	1, FANIM_ALL,	255,80, 80 },
+	{ "Lillie", 	"lilli.obe",	"mlilli.obe",	"LILLIE",	1, FANIM_ALL,	255,80, 80 },
 	{ "Tad",		"tad.obe",		"mtad.obe",		"BABYFROG",	1, FANIM_ALL,	80,	80,	255 },
-	{ "Swampy",		"mswampy.obe",	"mswampy.obe",	"SWAMPY",	1, FANIM_NONE,	0,	100,0 },
-	{ "Treeby",		"twee.obe",		"mtwee.obe",	"TWEE",		1, FANIM_ALL,	0,	255,255 },
+	{ "Treeby", 	"twee.obe",		"mtwee.obe",	"TWEE",		1, FANIM_ALL,	0,	255,255 },
 	{ "Wart",		"toad.obe",		"mtoad.obe",	"WART",		1, FANIM_ALL,	110,60, 55 },
-	{ "Roobie",		"roobie.obe",	"mhopper.obe",	"HOPPER",	1, FANIM_ALL,	220,220,30 },
 	{ "Tank",		"tank.obe",		"mtank.obe",	"ROBOFROG",	1, FANIM_ALL,	220,220,220 },
+	{ "Roobie", 	"roobie.obe",	"mhopper.obe",	"HOPPER",	1, FANIM_ALL,	220,220,30 },
+	{ "Swampy", 	"mswampy.obe",	"mswampy.obe",	"SWAMPY",	1, FANIM_NONE,	0,	100,0 },
 };
 #endif
 
@@ -192,7 +194,8 @@ void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlay
 		}
 	}
 
-	InitCamera();
+// sb removed this 'cus it fucks up the camera on loading
+//	InitCamera();
 }
 
 /*	--------------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 #include "frogger.h"
 #include "hud.h"
 #include "babyfrog.h"
+#include "frogmove.h"
 
 char *lastStr = NULL;
 char *currStr = NULL;
@@ -45,7 +46,7 @@ void InitTrainingMode()
 		babyIcons[i]->draw = 1;
 	}
 
-	train->bg = CreateAndAddSpriteOverlay(0, 4096, NULL, 4096, 800, 254, SPRITE_SUBTRACTIVE);
+	train->bg = CreateAndAddSpriteOverlay(0, 4096, NULL, 4096, 900, 254, SPRITE_SUBTRACTIVE);
 	train->bg->speed = 75<<12;
 	train->bg->r = train->bg->g = train->bg->b = 128;
 
@@ -68,13 +69,14 @@ void RunTrainingMode(void)
 
 void TrainingHint(const char* str)
 {
+	SPECFX *fx;
+
 	if(currStr == NULL)
 		currStr = (char *)str;
 	if (str)
 	{
 		#define MAX_LINES (4)
 
-//		char *lines[2];
 		char *lines[MAX_LINES];
 
 		if (train->bg)
@@ -82,6 +84,14 @@ void TrainingHint(const char* str)
 			if(lastStr != str)
 			{
 				currStr = (char *)str;
+				if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &currTile[0]->centre, &upVec, 81920, 8192*2, 0, 12288 )) )
+				{
+					SetFXColour(fx,255,Random(256),Random(256));
+					SetVectorSS(&fx->rebound->point, &currTile[0]->centre);
+					SetVectorFF(&fx->rebound->normal, &upVec);
+					fx->gravity = 4100;
+				}
+
 				if(train->bg->yPosTo == train->bg->yPos)
 				{
 					if(train->bg->yPos >= 4096)

@@ -87,6 +87,15 @@ typedef struct
 
 extern char multiGameTypes[MAX_WORLDS];
 
+extern unsigned char *mpl0[];
+extern unsigned char *mpl1[];
+extern unsigned char *mpl2[];
+extern unsigned char *mpl3[];
+extern unsigned char *mpl4[];
+extern unsigned char *mpl5[];
+extern unsigned char *mpl6[];
+extern unsigned char *mpl7[];
+
 extern TIMER multiTimer,endTimer;
 extern signed char gameWinner, matchWinner;
 extern MPINFO mpl[];

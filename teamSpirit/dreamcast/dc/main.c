@@ -26,6 +26,7 @@
 #include <am.h>
 
 #include "am_audio.h"
+#include "audio.h"
 #include "bpamsetup.h"
 #include "bpamstream.h"
 #include "bpbuttons.h"
@@ -318,20 +319,8 @@ short videoKeyHandler()
 	return 0;
 }
 
-StrDataType videoStream = 
-{
-		"02s.SFD",					// Stream name
-		STR_MODE24,						// 24-Bit or 16-Bit streaming
-		STR_BORDERS_ON,					// != 0 if borders on
-		640,							// Screen res width
-		0,								// X,Y position
-		50,								//
-		640,							// Stream width and height
-		380,							//
-		-1,								// Last frame No.
-		0,								// Size of each VLC buffer (including header).
-		127,							// Left and Right ADPCM volume. (0..127)
-};
+extern StrDataType 	vStream;
+extern CurrentData	current[24];
 
 void main()
 {
@@ -339,6 +328,7 @@ void main()
 	MWS_PLY_INIT_SFD	iprm;
 	Uint32 				*memfree,*memsize;
 	unsigned long		hyp,test;
+	int					numUsed;
 	
 	#ifdef __GNUC__
 	shinobi_workaround();
@@ -436,8 +426,6 @@ void main()
 
 	numTextureBanks = 0;
 
-//	videoPlayStream(&blitzStream,0,videoKeyHandler);
-
 	CommonInit();
 
 	for(i = 0;i < 4;i++)
@@ -461,15 +449,9 @@ void main()
 		if(strstr(per->info->product_name,"(none)"))
 			padData.present[i] = FALSE;				
 	}
-
-			
+	
 //ma	BuildFogTable();
 
-//	while(TRUE)
-//	{
-//		videoPlayStream(&videoStream,0,videoKeyHandler);
-//	}
-//		
 	// render loop
 	while(TRUE)
 	{
@@ -602,10 +584,6 @@ void main()
 		UpdateFrogTongue(0);
 		UpdateFrogCroak(0);
 
-//		for( i=0; i<NUM_FROGS; i++ )
-//			if( tongue[i].flags & TONGUE_BEINGUSED )
-//				DrawTongue( i );
-
 		if(tileTexture[0])
 			DrawTiledBackdrop(/*saveInfo.saveFrame ? NO : */YES);
 
@@ -625,9 +603,18 @@ void main()
 		if(timerBars)
 		{
 			DCTIMER_PRINTS();
+			
+		 	numUsed = 0;
+			for(i=0; i<24; i++)
+			{
+				if(current[i].sound.isPlaying)
+					numUsed++;
+			}
+ 
+		 	sprintf(textbuffer,"numUsed: %d",numUsed);
+			fontPrint(font, 10,10, textbuffer, 255,255,255);
 
-
-			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
+//			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
 
 			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
 

@@ -86,9 +86,9 @@ void DeathDrowning( int pl )
 	
 	actorAnimate(frog[pl]->actor,FROG_ANIM_DROWN,NO,NO,64,0);
 
-	if( Random(2) )
+//	if( Random(2) )
 		PlaySample(genSfx[GEN_DEATHDROWN],NULL,0,SAMPLE_VOLUME,-1);
-	else
+//	else
 		PlayVoice( pl, "frogdrown2" );
 }
 
@@ -302,6 +302,7 @@ void DeathExplosion( int pl )
 
 	player[pl].deathBy = DEATHBY_EXPLOSION;
 	player[pl].idleEnable = 0;
+	player[pl].jumpTime = -1;	// ds- stop moving
 
 	// Drop in replacement model and animate gib explosion
 	ChangeModel( frog[pl]->actor, "dth-gib" );
@@ -349,6 +350,7 @@ void DeathGibbing( int pl )
 
 	player[pl].deathBy = DEATHBY_GIBBING;
 	player[pl].idleEnable = 0;
+	player[pl].jumpTime = -1;	// ds- stop moving
 
 	// Drop in replacement model and animate gib explosion
 	ChangeModel( frog[pl]->actor, "dth-gib" );

@@ -167,9 +167,7 @@ int MemLoadEntities(const void* data)
 			node->speed = MEMGETFIXED(&p);//mm *SCALE?
 
 			node->waitTime = MEMGETINT(&p);
-//ma			node->sample = FindSample((unsigned long)MEMGETINT(&p));
-			MEMGETINT(&p);
-			node->sample = NULL;
+			node->sample = FindSample((unsigned long)MEMGETINT(&p));
 			node++;
 		}
 	}

@@ -25,6 +25,7 @@
 #include "anim.h"
 #include "game.h"
 #include "enemies.h"
+#include "platform.h"
 #include "babyfrog.h"
 #include "multi.h"
 #include "Cam.h"
@@ -58,11 +59,11 @@ unsigned long tongueColours[] =
 	0xffdd0000, // Frogger - red
 	0xffdd0000, // Lilli - red
 	0xffff9000, // Tad - Orange
-	0xff555500, // Swampy - Dark green
 	0xff8f00ff, // Twee - purple
 	0xffaa0000, // Wart - Deep Red
-	0xffdd0000, // Roobie - Red
 	0xffbbccee, // Tank - Metallic
+	0xffdd0000, // Roobie - Red
+	0xff555500, // Swampy - Dark green
 };
 
 /*	--------------------------------------------------------------------------------
@@ -226,7 +227,7 @@ void UpdateFrogTongue( int pl )
 
 			// JIM: Nasty special case until I can be bothered working out another way
 			if( player[pl].character == FROG_HOPPER )
-				ScaleVector( &fwd, -1 );
+				ScaleVector( &fwd, -3 );
 
 			// Store in tongue forward as unit vector
 			SetVectorFR( &tongue[pl].fwd, &fwd );
@@ -267,7 +268,7 @@ void UpdateFrogTongue( int pl )
 			
 			// JIM: Nasty special case until I can be bothered working out another way
 			if( player[pl].character == FROG_HOPPER )
-				ScaleVector( &fwd, -1 );
+				ScaleVectorFF( &fwd, -12000 );
 	
 			// Store in tongue forward as unit vector
 			SetVectorFF(&tongue[pl].fwd, &fwd);
@@ -304,8 +305,13 @@ void UpdateFrogTongue( int pl )
 
 		if( tongue[pl].flags & TONGUE_OUTGOING )
 		{
+			fixed radcheck = TONGUE_STICKYRADIUS;
+			if( player[0].worldNum == WORLDID_SPACE && player[0].levelNum == LEVELID_SPACE2 )
+				if( currPlatform[pl] && !currPlatform[pl]->isWaiting && currPlatform[pl]->active ) 
+					radcheck += FMul(currPlatform[pl]->currSpeed, gameSpeed)*256;
+
 			// If tongue has not got to the target
-			if( DistanceBetweenPointsSF(&tongue[pl].target,&tongue[pl].interp) > TONGUE_STICKYRADIUS )
+			if( DistanceBetweenPointsSF(&tongue[pl].target,&tongue[pl].interp) > radcheck )
 			{
 				// Extend the tongue a bit more
 				tongue[pl].progress += FMul( TONGUE_FRACTION, FMul(gameSpeed,6144-tongue[pl].progress) );
@@ -332,6 +338,9 @@ void UpdateFrogTongue( int pl )
 		
 		if(tongue[pl].flags & TONGUE_INCOMING)
 		{
+			fixed radcheck = TONGUE_STICKYRADIUS;
+			if( currPlatform[pl] ) radcheck += currPlatform[pl]->currSpeed;
+
 			if( tongue[pl].flags & TONGUE_HASITEMONIT )
 			{
 /*				if(tongue[pl].type == TONGUE_GET_GARIB)
@@ -362,14 +371,14 @@ void UpdateFrogTongue( int pl )
 			CalculateTongue( pl );
 
 			// If tongue has got back to mouth
-			if( DistanceBetweenPointsSF(&tongue[pl].source,&tongue[pl].interp) < TONGUE_STICKYRADIUS )
+			if( DistanceBetweenPointsSF(&tongue[pl].source,&tongue[pl].interp) < radcheck )
 			{
 				if( tongue[pl].flags & TONGUE_HASITEMONIT )
 				{
 					TRIGGER *t;
 					void *arg1;
 
-					t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 45), NULL, NULL, NULL );
+					t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 10), NULL, NULL, NULL );
 
 //					if( actFrameCount&1) 
 						arg1 = (void *)FindVoice(utilStr2CRC("frogbelch1"),pl);
@@ -404,6 +413,7 @@ void UpdateFrogTongue( int pl )
 					}
 				}
 
+				tongue[pl].thing = NULL;
 				RemoveFrogTongue(pl);
 
 				// Set frog idle animation
@@ -527,6 +537,7 @@ void RemoveFrogTongue( int pl )
 				ENEMY *nme = (ENEMY *)tongue[pl].thing;
 				nme->visible = 1;
 				nme->active = 1;
+				SetVectorFF( &nme->nmeActor->actor->size, &oneVec );
 				break;
 			}
 		}
@@ -624,7 +635,7 @@ ENEMY *ScenicIsInRange( fixed radius, int pl )
 		}
 		else
 		{
-			if( (cur->flags & ENEMY_NEW_BABYFROG) || !cur->active || !cur->visible || cur->uid ) 
+			if( (cur->flags & ENEMY_NEW_BABYFROG) || (cur->flags & ENEMY_NEW_PUSHESFROG) || !cur->active || !cur->visible || cur->uid ) 
 				continue;
 		}
 

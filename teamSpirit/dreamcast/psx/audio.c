@@ -34,32 +34,15 @@
 #include "bpprintf.h"
 #include "bpamsfx.h"
 #include "strsfx.h"
+#include "menus.h"
+#include "game.h"
+#include "cam.h"
 
-#define SFX_BASE		"SFX\\"
+int lastSound = -1;
 
- 
-//#define MAX_AMBIENT_SFX		50
-#define DEFAULT_SFX_DIST	500*SCALE
-
-//This value means the pitch can go up to 100000Hz like the PC. This might be a 
-//problem for the PSX but I don't think it goes much above 20000Hz, which seems alright. May
-//cause problems in the future though, so check!!
-#define PITCH_STEP		390 //(DSBFREQUENCY_MAX/256)   //MM NEEDS CHANGING!!!!!
-
- 
-//#define VOLUME_MIN		-5000
-//#define VOLUME_PERCENT (VOLUME_MIN/100)
-//#define PITCH_STEP		(DSBFREQUENCY_MAX/256)
- 
-SAMPLE *genSfx[NUM_GENERIC_SFX];
-// SAMPLE **sfx_anim_map = NULL;
-
-//XAFileType	*xaFileData[NUM_CD_TRACKS];
- 
-// UINT mciDevice = 0;
- 
-SOUNDLIST soundList;					// Actual Sound Samples List
-AMBIENT_SOUND_LIST	ambientSoundList;
+char *musicNames[] = {	"CDA.XA",
+						"CDB.XA",
+					 };
 
 int musicList[] = { 0,//
 					1,//
@@ -75,42 +58,82 @@ int musicList[] = { 0,//
 					2,
 };//
 
-char generic_names[][32] =
-{
-"frogfall",
-"babyhappy",
-"babyreply",
-"babysad",
-"doublehop",
-"frogannoyed",
-"frogbelch2",
-"frogbored",
-"frogchop",
-"frogcroak",
-"frogcrush",
-"frogdeath",
-"frogdrown1",
-"frogdrown2",
-"frogexplode",
-"babycry",
-"frogletsgo",
-"frogmowed",
-"frogokay",
-"frogslide2",
-"froguhoh",
-"getbabyfrog",
-"hop2",
-"hopongrass",
-"pickupcoin",
-};
+#define SFX_BASE		"SFX\\"
+
  
-char garden_names[][32] =
-{
-"lp_area1",
-"lp_mowrs",
-"lp_wwheel",
-};
+//#define MAX_AMBIENT_SFX		50
+#define DEFAULT_SFX_DIST	700*SCALE
+
+//This value means the pitch can go up to 100000Hz like the PC. This might be a 
+//problem for the PSX but I don't think it goes much above 20000Hz, which seems alright. May
+//cause problems in the future though, so check!!
+#define PITCH_STEP		190 //(DSBFREQUENCY_MAX/256)   //MM NEEDS CHANGING!!!!!
+
  
+//#define VOLUME_MIN		-5000
+//#define VOLUME_PERCENT (VOLUME_MIN/100)
+//#define PITCH_STEP		(DSBFREQUENCY_MAX/256)
+
+SAMPLE voiceArray[4][MAX_VOICES];
+ 
+SAMPLE *genSfx[NUM_GENERIC_SFX];
+// SAMPLE **sfx_anim_map = NULL;
+
+//XAFileType	*xaFileData[NUM_CD_TRACKS];
+ 
+// UINT mciDevice = 0;
+ 
+SOUNDLIST soundList;					// Actual Sound Samples List
+AMBIENT_SOUND_LIST	ambientSoundList;
+
+int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol);
+
+int UpdateLoopingSample(AMBIENT_SOUND *sample)
+{
+	int vl,vr,vs;
+	short pitch;
+
+	if (!sample)
+	{
+		utilPrintf("Sample Not Valid!!!!!!\n");
+		return;
+	}
+	
+	if(GetSoundVols(&sample->pos,&vl,&vr,sample->radius,sample->volume) == -1)
+	{
+		if(sample->handle >= 0)
+		{
+			sfxStopChannel(sample->handle);
+			sample->handle = -1;
+		}
+		return;
+	}
+	
+	if(sample->pitch == -1)
+	{
+		pitch = 0;
+	}
+	else
+	{
+		pitch = sample->pitch * PITCH_STEP;
+	}
+
+
+	if((sample->sample->handle == -1) && (sample->sample) && (sample->sample->snd))
+	{
+//		vs = VSync(1);
+//		while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
+
+ 		lastSound = sample->handle = sfxPlaySample(sample->sample->snd, vl,vr, pitch);
+		return;
+	}
+
+	if(pitch)
+		sfxSetChannelPitch(sample->handle,pitch);
+	sfxSetChannelVolume(sample->handle, vl, vr);
+	
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		:StartSound
 	Purpose		    :  Initialises the PSX sound chip and the soundlibraries
@@ -120,10 +143,10 @@ char garden_names[][32] =
 */
 void StartSound()
 {
-//ma	sfxInitialise(0);
-//ma 	sfxStartSound();
-//ma 	sfxOn();
-//ma 	sfxSetGlobalVolume(255);// set to max volume 
+	sfxInitialise(0);
+ 	sfxStartSound();
+ 	sfxOn();
+ 	sfxSetGlobalVolume(255);// set to max volume 
 }
 
 /*	--------------------------------------------------------------------------------
@@ -136,12 +159,10 @@ void StartSound()
 void StopSound()
 {
 	FreeSampleList();
-//free the sfxBankType pointers
-	FREE((UBYTE**)soundList.genericBank);
-	FREE((UBYTE**)soundList.levelBank);
-//ma	sfxOff();
-//ma	sfxStopSound();
-//ma	sfxDestroy();
+	
+	sfxOff();
+	sfxStopSound();
+	sfxDestroy();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -154,21 +175,38 @@ void StopSound()
 void InitSampleList( )
 {
 	//Init the sample list for the real samples.
-	soundList.numEntries	= 0;
-	soundList.head.next		= soundList.head.prev = &soundList.head;
 
-/*ma
-	if(!soundList.genericBank)//first time around
+	int i;
+/*
+	if(soundList.genericBank)
 	{
-		soundList.genericBank = (SfxBankType *)MALLOC0(sizeof(SfxBankType));
-		soundList.levelBank = (SfxBankType *)MALLOC0(sizeof(SfxBankType));
-	}
-	else
-	{
+		sfxUnloadSampleBank(soundList.genericBank);
+		sfxRemoveSampleBank(soundList.genericBank,1);
 		soundList.genericBank = NULL;
+	}
+	if(soundList.levelBank)
+	{
+		sfxUnloadSampleBank(soundList.levelBank);
+		sfxRemoveSampleBank(soundList.levelBank,1);
 		soundList.levelBank = NULL;
 	}
+	if(soundList.loopBank)
+	{
+		sfxUnloadSampleBank(soundList.loopBank);
+		sfxRemoveSampleBank(soundList.loopBank,1);
+		soundList.loopBank = NULL;
+	}
+	for(i = 0;i < 4;i++)
+	{
+		if(soundList.voiceBank[i])
+		{
+			sfxUnloadSampleBank(soundList.voiceBank[i]);
+			sfxRemoveSampleBank(soundList.voiceBank[i],1);
+			soundList.voiceBank[i] = NULL;
+		}
+	}
 */
+	soundList.count = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -179,75 +217,99 @@ void InitSampleList( )
 	Info			: 
 */
 
-int LoadSfxSet( char *path, int generic )
+#define MAX_SAMPLE_BANKS	6
+
+SfxBankType			sampleBanks[MAX_SAMPLE_BANKS];
+AM_BANK_PTR			audio64Banks[MAX_SAMPLE_BANKS];
+
+int	numSoundBanks = 0;
+
+CurrentData			current[24];
+
+int					sfxGlobalVolume,sfxOutputOn;
+
+int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *count)
 {
 	int 			i;
 	SAMPLE 			*sfx;
-	AM_BANK_PTR		*sfxBank;
-
-	if((sfxBank = bpAmLoadBank(path))==KTNULL)
-		return 0;
-
-	if(generic)
-	{
-		for(i=0;i<25;i++)
-		{
-			sfx = (SAMPLE*)MALLOC0(sizeof(SAMPLE));
-			
-			sprintf(sfx->idName,"%s",generic_names[i]);		
-			sfx->uid = utilStr2CRC(sfx->idName);
-			sfx->flags = 0;
-		
-			sfx->bankPtr = sfxBank;
-			sfx->sampleNumber = i;
-
-			AddSample(sfx);
-		}
-	}
-	else
-	{
-		for(i=0;i<3;i++)
-		{
-			sfx = (SAMPLE*)MALLOC0(sizeof(SAMPLE));
-			
-			sprintf(sfx->idName,"%s",garden_names[i]);		
-			sfx->uid = utilStr2CRC(sfx->idName);
-			sfx->flags = 0;
-		
-			sfx->bankPtr = sfxBank;
-			sfx->sampleNumber = i;
-
-			AddSample(sfx);
-		}	
-	}
+	SfxBankType		*bank;
+	AM_BANK_PTR		*am_bank;
+	SAMPLE 			*newItem;
+	int				numSamples,loop,bytesRead;
+	AM_SOUND		soundInfo;
+	char			filename[256],*fPtr;
+	char			*sampleList,*sListPtr;
+	SfxSampleType 	*snd;
 	
-/*	sfxBank = sfxLoadSampleBank(path);	
-	if(!sfxBank)
-	{
-	 	utilPrintf("Can't load sound bank %s\n", path);
+	sprintf(filename,"%s.kat",path);
+	if((am_bank = bpAmLoadBank(filename))==KTNULL)
 		return 0;
+
+	bank = &sampleBanks[numSoundBanks];
+	audio64Banks[numSoundBanks] = am_bank;
+	
+	//Allocate memory for sample data and grab data from .kat file
+	amBankGetNumberOfAssets(am_bank,&numSamples);
+
+	//malloc the bank all in one then fill it in
+	bank->numSamples = numSamples;
+	bank->sample = (SfxSampleType *) syMalloc(sizeof(SfxSampleType)*numSamples);
+
+	for(loop=0; loop<bank->numSamples; loop++)
+	{
+		amSoundFetchSample(audio64Banks[numSoundBanks],loop,&soundInfo);
+		bank->sample[loop].sampleSize	= soundInfo.sizeInBytes;
+		bank->sample[loop].sampleRate	= soundInfo.sampleRate;
+		bank->sample[loop].bankNumber	= numSoundBanks;
+		bank->sample[loop].sampleNumber	= loop;
+		bank->sample[loop].inSPURam		= 1;//Always loaded on DC
 	}
 
-	snd =(SfxSampleType *) sfxBank->sample;
-	for  ( i=0; i<sfxBank->numSamples; i++)
+	//Need name CRC's unfortunately so grab these from a seperate file
+	sprintf(filename,"sfx\\%s.txt",path);
+	
+	sampleList = (char*)fileLoad(filename,&bytesRead);
+	sListPtr = sampleList;
+
+	for(loop=0; loop<bank->numSamples; loop++)
 	{
-		if (!snd)
+		for(fPtr = filename; ((*sListPtr)!='\0') && ((*sListPtr)!='\n'); fPtr++)
+		{
+			*fPtr = *(sListPtr++);
+		}
+		fPtr -= 5;//Take off the .wav extension and the carriage return which seems to have squeezed in
+		*fPtr = '\0';
+		while(*sListPtr =='\n') sListPtr++;
+
+		bank->sample[loop].nameCRC = utilStr2CRC(filename);
+		strcpy(bank->sample[loop].name,filename);
+	}
+
+	Align32Free(sampleList);
+
+	snd = (SfxSampleType *) bank->sample;
+
+	for(i=0;i<bank->numSamples;i++)
+	{
+		if(!snd)
 		{
 			utilPrintf("oops...can't find sample %i in bank %s\n",i,path);
 			continue;
 		}
-		snd = sfxDownloadSample(snd);
-		CreateAndAddSample(snd);
-
+		newItem = array + *count;
+		newItem->uid = snd->nameCRC;
+		newItem->snd = snd;	
+		newItem->flags = flags;
+		newItem->bankPtr = am_bank;
+		newItem->sampleNumber = *count;
+		strcpy(newItem->idName,snd->name);
+		
+		(*count)++;
+			
 		*snd++;
 	}
-*/	
-	if(generic)
-		soundList.genericBank = sfxBank;
-	else
-		soundList.levelBank = sfxBank;
-		
-// 	sfxDestroySampleBank( sfxBank );		
+
+	numSoundBanks++;
 
 	return 1;
 }
@@ -259,17 +321,47 @@ int LoadSfxSet( char *path, int generic )
 	Returns			: Success?
 	Info			: 
 */
-int LoadSfx( unsigned long worldID )
+short voiceCount[4];
+int LoadSfx(long worldID )
 {
-	int		len,i;
-	char	path[256];
-	
-	// Load all generic samples first and put in array
-	LoadSfxSet("GENERIC.KAT", 1);
+	char path[256];
+	int len,j;	
 
-	for(i=0;i<NUM_GENERIC_SFX;i++)
-		genSfx[i] = NULL;
-	
+
+	if(worldID != -1)
+	{
+		for(j = 0;j < NUM_FROGS;j++)
+		{
+			path[len] = '\0';
+			voiceCount[j] = 0;
+			LoadSfxSet(frogPool[player[j].character].fileName, &soundList.voiceBank[j],0,&voiceArray[j][0],&voiceCount[j]);
+		}
+	}
+
+	if ( worldID == 0xffff )
+	{
+		return 0;
+	}
+	else if(gameState.multi == SINGLEPLAYER)
+	{
+		switch( worldID )
+		{
+			case WORLDID_GARDEN: sprintf( path, "GARDEN" ); break;
+			case WORLDID_ANCIENT: sprintf( path, "ANCIENTS" ); break;
+			case WORLDID_SPACE: sprintf( path, "SPACE" ); break;
+			case WORLDID_CITY: sprintf( path, "CITY" ); break;
+			case WORLDID_SUBTERRANEAN: sprintf( path, "SUB" ); break;
+			case WORLDID_LABORATORY: sprintf( path, "LAB" ); break;
+			case WORLDID_HALLOWEEN: sprintf( path, "HALLOWEEN" ); break;
+			case WORLDID_SUPERRETRO: sprintf( path, "SUPERRETRO" ); break;
+			case WORLDID_FRONTEND: sprintf( path, "FRONTEND" ); break;
+		}
+	}
+	else
+		sprintf( path, "MULTI" );
+
+	LoadSfxSet(path, &soundList.levelBank,0,&soundList.array[0],&soundList.count);
+
 	genSfx[GEN_FROG_HOP] = FindSample(utilStr2CRC("hopongrass"));
 	genSfx[GEN_SUPER_HOP] = FindSample(utilStr2CRC("hop2"));
 	genSfx[GEN_DOUBLE_HOP] = FindSample(utilStr2CRC("doublehop"));
@@ -280,9 +372,6 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
 	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
-
-// JH: changed file name to some thing else coz we don't have this one yet....
-//	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("hopongrass"));
 
 	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
 
@@ -299,57 +388,8 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHELECTRIC] = FindSample(utilStr2CRC("electrocute"));
 	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));
 
-	return;
-	
-	//load the non-looping level samples
-	switch(worldID)
-	{
-		case WORLDID_GARDEN:
-			strcat( path, "SFX\\GARDEN.KAT" );
-			break;
-		case WORLDID_ANCIENT:
-			strcat( path, "SFX\\ANCIENTS" );
-			break;
-		case WORLDID_SPACE:
-			strcat( path, "SFX\\SPACE.KAT" );
-			break;
-		case WORLDID_CITY:
-			strcat( path, "SFX\\CITY.KAT" );
-			break;
-		case WORLDID_SUBTERRANEAN:
-			strcat( path, "SFX\\SUB.KAT" );
-			break;
-		case WORLDID_LABORATORY:
-			strcat( path, "SFX\\LAB.KAT" );
-			break;
-		case WORLDID_HALLOWEEN:
-			strcat( path, "SFX\\HALLOWEEN.KAT" );
-			break;
-		case WORLDID_SUPERRETRO:
-			strcat( path, "SFX\\SUPERRETRO.KAT" );
-			break;
-		case WORLDID_FRONTEND:
-			strcat( path, "SFX\\FRONTEND.KAT" );
-			break;
-	}
-
-	LoadSfxSet(path, 0);
-
-/* 	len = strlen(path);
-
-	strcat( path, "SFX" );
-
-	LoadSfxSet( path, 0 );
-
-	//load the looping level samples
-	path[len] = '\0';
-
-	strcat( path, "LOOP" );
-	LoadSfxSet( path, 0 );
-*/
 	return 1;
 }
-
 
 
 
@@ -360,58 +400,22 @@ int LoadSfx( unsigned long worldID )
 	Returns			: 
 	Info			: 
 */
-SAMPLE *CreateAndAddSample( SfxSampleType *snd )
+SAMPLE *CreateAndAddSample(SfxSampleType *snd,int flags,SAMPLE *array,short *count)
 {
-	SAMPLE *sfx;
+	SAMPLE *newItem;
 	
-	sfx = (SAMPLE *)MALLOC0(sizeof(SAMPLE));
+	if(( soundList.count >= MAX_SAMPLES ) || ( !( newItem = array + *count)))
+		return NULL;
 
-	sfx->uid = snd->nameCRC;
-//ma	sfx->snd = snd;
+	//sfx = (SAMPLE *)MALLOC0(sizeof(SAMPLE));
 
-	AddSample( sfx );
+	newItem->uid = snd->nameCRC;
+	newItem->snd = snd;
+	newItem->flags = flags;
 
-	return sfx;
-}
+	(*count)++;
 
-/*	--------------------------------------------------------------------------------
-	Function		: AddSample
-	Purpose			: Adds a sample structure to the list
-	Parameters		: The sample to be added 
-	Returns			: 
-	Info			: 
-*/
-void AddSample( SAMPLE *sample )
-{
-	if( !sample->next )
-	{
-		soundList.numEntries++;
-		sample->prev				= &soundList.head;
-		sample->next				= soundList.head.next;
-		soundList.head.next->prev	= sample;
-		soundList.head.next			= sample;
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: RemoveSample
-	Purpose			: Removes a sample from the list
-	Parameters		: Sample to be removed
-	Returns			: 
-	Info			: 
-*/
-
-void RemoveSample( SAMPLE *sample )
-{
-	if( !sample->next )
-		return;
-
-	sample->prev->next	= sample->next;
-	sample->next->prev	= sample->prev;
-	sample->next		= NULL;
-	soundList.numEntries--;
-
-	FREE( (UBYTE **)sample );
+	return newItem;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -424,46 +428,23 @@ void RemoveSample( SAMPLE *sample )
 
 SAMPLE *FindSample( unsigned long uid )
 {
-	SAMPLE *next, *cur;
+	int i;
 
 	if (!uid)
 		return NULL;
 
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	for(i = 0;i < soundList.count;i++)
 	{
-		next = cur->next;
-		
-		if( cur->uid == uid )
-			return cur;
+		if(soundList.array[i].uid == uid)
+			return &soundList.array[i];
 	}
 
 	return NULL;	
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: FindVoice
-	Purpose			: Search the list for the required sound
-	Parameters		: ID
-	Returns			: Sample or NULL
-	Info			: 
-*/
-
-SAMPLE *FindVoice( unsigned long uid, int pl )
+void FreeSampleBlock( )
 {
-	SAMPLE *next, *cur;
-
-	if (!uid)
-		return NULL;
-
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
-	{
-		next = cur->next;
-		
-		if( cur->uid == uid )
-			return cur;
-	}
-
-	return NULL;	
+	soundList.count = 0;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -476,32 +457,23 @@ SAMPLE *FindVoice( unsigned long uid, int pl )
 
 void FreeSampleList( )
 {
+	int		i;
 	SAMPLE 	*cur,*next;
 	KTBOOL	ktflag;
 	KTU32	memfreeBefore,memfreeAfter;
 
-	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
-
 	amHeapGetFree(&memfreeBefore);
 	
-	// check if any elements in list
-	if( !soundList.numEntries )
-		return;
+	FreeSampleBlock( );
 
-	// traverse enemy list and free elements
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	for(i=(numSoundBanks-1);i>=0;i--)
 	{
-		next = cur->next;
-
-		RemoveSample( cur );
+		ktflag = amHeapFree((unsigned long*)audio64Banks[i]);
+		syFree(sampleBanks[i].sample);
 	}
+	numSoundBanks = 0;
 
-	amHeapGetFree(&memfreeBefore);
-//	ktflag = amHeapFree((unsigned long*)soundList.genericBank);
-	ktflag = amHeapFree(soundList.genericBank);
 	amHeapGetFree(&memfreeAfter);
-
-//	amHeapFree((unsigned long*)soundList.genericBank);
 
 	// initialise list for future use
 	InitSampleList();					
@@ -515,74 +487,54 @@ void FreeSampleList( )
 	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
 */
 
+int sfxwaittime = 5;
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
-//	unsigned long vol=volume;
-	fixed att, dist;
-	SVECTOR diff;
- 	int vl,vr;
-	int i;
-	
-/*	//Stuff to ensure calls to PlaySample can be the same for PC and PSX
+	int vl,vr;
+	int vs;
+
+	if (!sample)
+	{
+		utilPrintf("Sample Not Valid!!!!!!\n");
+		return 0;
+	}
+
+
+//Stuff to ensure calls to PlaySample can be the same for PC and PSX
 	if (pitch ==-1)
+	{
 		pitch = 0;
+	}
 	else
+	{
 		pitch *= PITCH_STEP;
+	}
+//end of stuff
 
 	if( pos )
 	{
-		att = (radius)?radius:DEFAULT_SFX_DIST;
-		att = att<<12;
-
-		SubVectorSSS( &diff, pos, &frog[0]->actor->position );
-		// Volume attenuation - check also for radius != 0 and use instead of default
-		dist = MagnitudeS( &diff );
-		if( dist > (att) )
-			return FALSE;
-
-		vol = (FDiv(att-dist,att)*vol)>>12;
+		if(GetSoundVols(pos,&vl,&vr,radius,volume) == -1)
+			return -1;
 	}
-
-	vl = vol;
-	vr = vol;
-*/
-	if(sample)
+	else
 	{
-		if(sample->bankPtr)
-			bpAmPlaySoundEffect(sample->bankPtr,sample->sampleNumber, 127, AM_PAN_CENTER);
+		vr = vl = (volume*globalSoundVol)/MAX_SOUND_VOL;
 	}
-	
-	return i;
-}
 
-/*	--------------------------------------------------------------------------------
-	Function		: PlayVoice
-	Purpose			: plays a sample
-	Parameters		: ID, position, radius, volume, pitch
-	Returns			: success?
-	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
-*/
-
-int PlayVoice(int player, char *name)
-{
-	long 	vol = 127;
-	fixed 	att, dist;
-	SVECTOR diff;
- 	int 	vl,vr;
-	int 	i;
-	SAMPLE	*sample;
-
-	sample = FindSample(utilStr2CRC(name));
-	if(sample == NULL)
+	if ( !sample->snd )
 		return 0;
+
+//	vs = VSync(1);
+//	while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+sfxwaittime));
+
+//	if(sample->flags)
+//		utilPrintf("playing looping sample the wrong way!!!!!!!!\n");
+	
+	sample->handle = lastSound = sfxPlaySample( sample->snd, vl,vr, pitch);
+	if(lastSound<0)
+		utilPrintf("SOUND NOT WORKED (%i RETURNED)\n",lastSound);
 		
-	if(sample)
-	{
-		if(sample->bankPtr)
-			bpAmPlaySoundEffect(sample->bankPtr,sample->sampleNumber, 127, AM_PAN_CENTER);
-	}
-				
-	return i;
+	return lastSound;	
 }
 
  /*	--------------------------------------------------------------------------------
@@ -598,7 +550,10 @@ int PlayVoice(int player, char *name)
  	AMBIENT_SOUND *ptr;
  	AMBIENT_SOUND *ambientSound;
  
- 	if( !sample ) return NULL;
+ 	if( !sample )
+ 		return NULL;
+// 	if(ambientSoundList.numEntries != 0)
+ //		return NULL;
  
  	ambientSound = (AMBIENT_SOUND *)MALLOC0(sizeof(AMBIENT_SOUND));
  	ptr = &ambientSoundList.head;
@@ -609,7 +564,7 @@ int PlayVoice(int player, char *name)
  	ambientSound->volume = vol;
  	ambientSound->sample = sample;
  	ambientSound->pitch = pitch;
- 	ambientSound->radius = radius * SCALE;//does this need scaling????
+ 	ambientSound->radius = radius;// * SCALE;//does this need scaling????
  
  	ambientSound->freq = freq*60;
  	ambientSound->randFreq = randFreq*60;
@@ -619,7 +574,9 @@ int PlayVoice(int player, char *name)
  	ptr->next->prev = ambientSound;
  	ptr->next = ambientSound;
  	ambientSoundList.numEntries++;
- 
+
+	ambientSound->handle = -1;
+
  	return ambientSound;
  }
  
@@ -635,7 +592,7 @@ int PlayVoice(int player, char *name)
  {
  	AMBIENT_SOUND *amb,*amb2;
  	SVECTOR *pos;
- 
+
  	// Update each ambient in turn
  	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
  	{
@@ -655,11 +612,17 @@ int PlayVoice(int player, char *name)
  //		else	//PUT BACK IN?!?!
  			pos = &amb->pos;
  
- 		PlaySample( amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
+		if(amb->sample->snd->pad & 1)
+			UpdateLoopingSample(amb);
+		else
+		{
+			amb->sample->snd->pad = 1;
+			PlaySample(amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
+		}
  
  		// Freq and randFreq are cunningly pre-multiplied by 60
  		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
- 	}
+ 	} 	
  }
  
  
@@ -678,8 +641,8 @@ int PlayVoice(int player, char *name)
  
  void SubAmbientSound(AMBIENT_SOUND *ambientSound)
  {
- //	if( ambientSound->sample )
-// 		sfxStopSample(ambientSound->sample, -1);
+ 	if(ambientSound->handle != -1)
+		sfxStopChannel(ambientSound->handle);
  
  	ambientSound->prev->next = ambientSound->next;
  	ambientSound->next->prev = ambientSound->prev;
@@ -700,13 +663,17 @@ int PlayVoice(int player, char *name)
  		return;
  
  	// traverse enemy list and free elements
+
  	for( cur = ambientSoundList.head.next; cur != &ambientSoundList.head; cur = next )
  	{
  		next = cur->next;
  
  		SubAmbientSound( cur );
+	 	if(cur->handle != -1)
+			sfxStopChannel(cur->handle);
  	}
  
+
  	// initialise list for future use
  	InitAmbientSoundList();
 }
@@ -725,6 +692,8 @@ void PrepareSong(short worldID,int loop)
 	int 	xaNum = 0;
 	char	buffer[32];
 
+	return;
+	
 	if(!bpAmStreamDone(gStream))
 		StopSong();
 	
@@ -768,6 +737,86 @@ void StopSong( )
 	amHeapGetFree(&memfreeAfter);
 }
 
+long PAN_MAX = 4096*10;
+int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
+{
+	fixed att, dist;
+	SVECTOR diff;
+	long pan = 0;
+	SVECTOR m;
+	SVECTOR tempSvect;
+	
+	vol = (vol * globalSoundVol)/MAX_SOUND_VOL;
+
+	if(vol == 0)
+		return -1;
+
+	att = (radius)?radius/*/SCALE*/:DEFAULT_SFX_DIST;
+	att = att<<12;
+
+	SubVectorSSF(&diff, pos, &currCamSource);
+//	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
+	// Volume attenuation - check also for radius != 0 and use instead of default
+	dist = MagnitudeS(&diff);
+	if( dist > (att) )
+		return -1;
+
+	vol = (FDiv(att-dist,att)*vol)>>12;
+
+	tempSvect.vx = -pos->vx;
+	tempSvect.vy = -pos->vy;
+	tempSvect.vz = pos->vz;
+
+	gte_ldv0(&tempSvect);
+	gte_rtps();
+	gte_stsxy((long *)&m.vx);
+	gte_stsz(&m.vz);	//screen z/4 as otz
+	m.vz >>= 2;
+
+	dist = MagnitudeS(&m);
+	if(dist)
+	{
+		pan = (m.vx*PAN_MAX)/dist;
+		pan *= 4096;
+	}
+	else
+		pan = 0;
+
+	if(pan >= 0)
+	{
+		*vl = ((PAN_MAX - pan)*vol)/PAN_MAX;
+		*vr = vol;
+	}
+	else
+	{
+		*vl = vol;
+		*vr = ((PAN_MAX + pan)*vol)/PAN_MAX;
+	}
+	
+	return TRUE;
+}
+
+
+SAMPLE *FindVoice( unsigned long uid, int pl )
+{
+	int j;
+
+	for(j = 0;j < voiceCount[pl];j++)
+		if(voiceArray[pl][j].uid == uid)
+			return &voiceArray[pl][j];
+
+	return NULL;
+}
+
+void StopSample(SAMPLE *sample)
+{
+	if((sample) && (sample->handle != -1))
+	{
+		sfxStopChannel(sample->handle);
+		sample->handle = -1;
+	}
+}
+
 void PauseAudio( )
 {
 	// CD Pause: Possibly should check return value... Nah, can't be bothered.
@@ -799,4 +848,263 @@ int IsSongPlaying()
 		return TRUE;
 		
 	return	FALSE;
+}
+
+/**************************************************************************
+	FUNCTION:	sfxPlaySample()
+	PURPOSE:	Plays the requested sample
+	PARAMETERS:	pointer to sample, left & right volume (0 - 255), pitch (Hz, 0 for default)
+	RETURNS:	channel number, or -1 if failure
+**************************************************************************/
+
+int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch)
+{
+	AM_SOUND	*sound;
+	int			volAverage,volPan,channel;
+	
+	for(channel=0; channel<24; channel++)
+	{
+		if(!current[channel].sound.isPlaying)
+			break;
+	}
+
+	if(channel==24) return;
+
+	if(volL||volR)
+	{
+		volPan = (127 * volL)/(volL+volR);
+		volAverage = volL > volR ? volL : volR;
+	}
+	else
+	{
+		volPan = 64;
+		volAverage = 0;
+	}
+
+	current[channel].sample = sample;
+	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
+
+//	volAverage = sfxOutputOn ? current[channel].volume : 0;
+
+	sound = bpAmPlaySoundEffect(audio64Banks[sample->bankNumber],&current[channel].sound,sample->sampleNumber,volAverage,volPan);
+
+	if((pitch>0) && sound) 
+		amSoundSetCurrentPlaybackRate(sound,pitch);
+
+	return channel;
+}
+
+/**************************************************************************
+	FUNCTION:	sfxInitialise()
+	PURPOSE:	Initialise the sound library
+	PARAMETERS:	reverb mode (not supported in this version)
+	RETURNS:	none
+**************************************************************************/
+
+void sfxInitialise(int reverbMode)
+{
+	int loop;
+
+	utilInitCRC();//TG: Temp fix
+
+//	if(!bpAmSetup(AC_DRIVER_DA, KTFALSE, KTNULL))
+//		for(;;);
+
+//	acSetTransferMode(AC_TRANSFER_DMA);
+//	acSetTransferMode(AC_TRANSFER_CPU);
+		
+//	acSystemDelay(500000);
+
+//	acErr = acErrorGetLast();
+//	amErr = amErrorGetLast();
+
+	//Initialise all sample banks to null so we know they aren't in use
+	for(loop=0; loop<MAX_SAMPLE_BANKS; loop++)
+	{
+		sampleBanks[loop].used = FALSE;
+		audio64Banks[loop] = NULL;
+	}
+
+	for(loop=0; loop<24; loop++)
+	{
+		current[loop].sound.isPlaying = 0;
+		current[loop].sample = NULL;
+	}
+
+	amSystemSetVolumeMode(USELINEAR);
+
+	sfxGlobalVolume = 255;
+	sfxOutputOn = 1;
+		
+//	a64FileInit();
+}
+
+
+/**************************************************************************
+	FUNCTION:	sfxDestroy()
+	PURPOSE:	Shutdown the sound library
+	PARAMETERS:	none
+	RETURNS:	none
+**************************************************************************/
+
+void sfxDestroy()
+{
+//	acSystemShutdown();
+//	amShutdown();
+}
+
+
+/**************************************************************************
+	FUNCTION:	sfxUpdate()
+	PURPOSE:	update the sound queue
+	PARAMETERS:	none
+	RETURNS:	none
+**************************************************************************/
+
+void sfxUpdate()
+{
+}
+
+/**************************************************************************
+	FUNCTION:	sfxOn()
+	PURPOSE:	Turn sound output on (emulated on DC)
+	PARAMETERS:	none
+	RETURNS:	none
+**************************************************************************/
+
+void sfxOn()
+{
+	int channel;
+
+	sfxOutputOn = 1;
+
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sound.isPlaying)
+			amSoundSetVolume(&current[channel].sound,current[channel].volume);
+	}
+}
+
+
+/**************************************************************************
+	FUNCTION:	sfxOff()
+	PURPOSE:	Turn sound output off (emulated on DC)
+	PARAMETERS:	none
+	RETURNS:	none
+**************************************************************************/
+
+void sfxOff()
+{
+	int channel;
+
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sound.isPlaying)
+			amSoundSetVolume(&current[channel].sound,0);
+	}
+
+	sfxOutputOn = 0;
+}
+
+/**************************************************************************
+	FUNCTION:	sfxSetGlobalVolume()
+	PURPOSE:	Set global sample volume
+	PARAMETERS:	volume
+	RETURNS:	none
+**************************************************************************/
+
+void sfxSetGlobalVolume(int vol)
+{
+	if(vol<0) vol = 0;
+	if(vol>255) vol = 255;
+	sfxGlobalVolume = vol;
+}
+
+/**************************************************************************
+	FUNCTION:	sfxStopChannel
+	PURPOSE:	Stop a channel from playing
+	PARAMETERS:	channel number (0 - 23), or -1 for all
+	RETURNS:	none
+**************************************************************************/
+
+void sfxStopChannel(int channel)
+{
+	if(current[channel].sound.isPlaying)
+		amSoundStop(&current[channel].sound);
+}
+
+/**************************************************************************
+	FUNCTION:	sfxSetChannelPitch()
+	PURPOSE:	set pitch of channel
+	PARAMETERS:	channel number, pitch (Hz)
+	RETURNS:	none
+**************************************************************************/
+
+void sfxSetChannelPitch(int channel, int pitch)
+{
+	if(current[channel].sound.isPlaying) 
+		amSoundSetCurrentPlaybackRate(&current[channel].sound,pitch);
+}
+
+
+/**************************************************************************
+	FUNCTION:	sfxSetChannelVolume()
+	PURPOSE:	set volume of channel
+	PARAMETERS:	channel number, left vol, right vol (0 - 255)
+	RETURNS:	none
+**************************************************************************/
+
+void sfxSetChannelVolume(int channel, int volL, int volR)
+{
+	int			volAverage,volPan;
+
+	if(!current[channel].sound.isPlaying) return;
+	
+	if(volL||volR)
+	{
+		volPan = (127 * volL)/(volL+volR);
+		volAverage = volL > volR ? volL : volR;
+	}
+	else
+	{
+		volPan = 0;
+		volAverage = 0;
+	}
+
+	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
+
+	volAverage = sfxOutputOn ? current[channel].volume : 0;
+
+	amSoundSetPan(&current[channel].sound,volPan);
+
+	amSoundSetVolume(&current[channel].sound,volAverage);
+}
+
+/**************************************************************************
+	FUNCTION:	sfxStartSound()
+	PURPOSE:	Start sound DMA processing
+	PARAMETERS:	none
+	RETURNS:	none
+**************************************************************************/
+
+void sfxStartSound()
+{
+}
+
+/**************************************************************************
+	FUNCTION:	sfxStopSound()
+	PURPOSE:	Stop sound DMA processing (DC just cuts all samples)
+	PARAMETERS:	none
+	RETURNS:	none
+**************************************************************************/
+
+void sfxStopSound()
+{
+	int channel;
+
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sound.isPlaying)
+			amSoundSetVolume(&current[channel].sound,0);
+	}
 }

@@ -61,7 +61,6 @@ typedef struct
 enum
 {
 	CHEAT_OPEN_ALL_LEVELS,
-	CHEAT_REVERSE_MODE,
 	CHEAT_INFINITE_LIVES,
 	CHEAT_OPEN_ALL_CHARS,
 	CHEAT_OPEN_ALL_EXTRAS,
@@ -94,7 +93,6 @@ extern FVECTOR storeCamTarget;
 extern char *chapterPic[BOOK_NUM_PAGES];
 
 extern char levelStr[MAX_LEVELSTRING][64];
-extern int reverseMode;
 
 
 void RunTitleScreen();

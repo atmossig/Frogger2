@@ -157,7 +157,7 @@ void ResetBabies( )
 */
 int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 {
-	unsigned long i;
+	unsigned long i,n;
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
 	if( i==numBabies ) return FALSE;
@@ -166,25 +166,29 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	if(babyList[i].isSaved)
 		return FALSE;
 
-	babyFlashFrame = actFrameCount;
-	babyFlash->r = babyIcons[i]->r;
-	babyFlash->g = babyIcons[i]->g;
-	babyFlash->b = babyIcons[i]->b;
+	// Hack for icon ordering. Bleh.
+	if( babyList[i].enemy->path->nodes->offset2 )
+		n = ((babyList[i].enemy->path->nodes->offset2>>12)/SCALE)-1;
+	else
+		n = i;
 
-	babyFlash->xPos = babyIcons[i]->xPos;	
-	babyFlash->yPos = babyIcons[i]->yPos;
-	babyFlash->width = babyIcons[i]->width;	
-	babyFlash->height = babyIcons[i]->height;		
+	babyFlashFrame = actFrameCount;
+	babyFlash->r = babyIcons[n]->r;
+	babyFlash->g = babyIcons[n]->g;
+	babyFlash->b = babyIcons[n]->b;
+
+	babyFlash->xPos = babyIcons[n]->xPos;	
+	babyFlash->yPos = babyIcons[n]->yPos;
+	babyFlash->width = babyIcons[n]->width;	
+	babyFlash->height = babyIcons[n]->height;		
 
 	babyList[i].isSaved	= 1;
 	babyList[i].collect = 40;
-//	if( babiesSaved == numBabies-1 )
-//		baby->draw = 0;
 
 	lastBabySaved = i;
 
-	babyIcons[i]->a = 255;
-	arcadeHud.babiesBack[i]->r = arcadeHud.babiesBack[i]->g = arcadeHud.babiesBack[i]->b = 255;
+	babyIcons[n]->a = 255;
+	arcadeHud.babiesBack[n]->r = arcadeHud.babiesBack[n]->g = arcadeHud.babiesBack[n]->b = 255;
 
 	babiesSaved++;
 	
@@ -207,9 +211,9 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 
 	// Make a noise (weeble weeble) and do some snazzy effects (*zing!*)
 	PlayVoice(0, "frogokay");
-	PlaySample( genSfx[GEN_COLLECT_BABY], NULL, 0, SAMPLE_VOLUME, -1 );//mmsfx
+	PlaySample( genSfx[GEN_COLLECT_BABY], NULL, 0, SAMPLE_VOLUME, -1 );
 
-	BabyCollectEffect( baby, tile, i );
+	BabyCollectEffect( baby, tile, n );
  	
 	return TRUE;
 }

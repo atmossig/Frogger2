@@ -48,6 +48,7 @@
 
 #define BABY_UID	255
 
+extern int pauseController;
 char penalStr[3] = "+3";
 
 int multiplayerMode;
@@ -486,7 +487,7 @@ void UpdateBattle( )
 					while( node )
 					{
 						temp = node->next;
-						node->tile->state = TILESTATE_NORMAL;
+//						node->tile->state = TILESTATE_NORMAL;
 
 						if( node->fx )
 						{
@@ -501,12 +502,18 @@ void UpdateBattle( )
 				}
 				else
 				{
-					fo = (128*gameSpeed)>>12;
 					node = mpl[i].path;
+					if(node->next)
+						if( node->fx && node->fx->actor->size.vy < 4096-fo )
+							node->fx->actor->size.vy += fo;
+
+
+
+					fo = (128*gameSpeed)>>12;
 
 					while( node->next ) node = node->next;
 
-					node->tile->state = TILESTATE_NORMAL;
+//					node->tile->state = TILESTATE_NORMAL;
 
 					if( node->fx )
 					{
@@ -899,8 +906,11 @@ void BattleProcessController( int pl )
 
 	nextFrogFacing[pl] = frogFacing[pl];
 
-	if( button[pl] & PAD_START )
+	if((button[pl] & PAD_START) && ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
+	{
 		StartPauseMenu();
+		pauseController = pl;
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -957,6 +967,9 @@ void SubBattleTrailNode( BATTLENODE *p )
 	p->next = p->prev = NULL;
 
 	p->fx->draw = 0;
+	if(p->tile)
+		p->tile->state = TILESTATE_NORMAL;
+
 	p->tile = NULL;
 
 	nodePool.count--;
@@ -1008,11 +1021,19 @@ void FaceFrogToCentre(int pl, int toggle)
 */
 void PickupBabyFrogMulti( ENEMY *baby, int pl )
 {
-	int i;
+	int i,n;
 
 	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby->nmeActor ) break;
 
 	if( i==numBabies || babyList[i].isSaved ) return;
+
+	if( baby->path->nodes->offset2 )
+		n = ((baby->path->nodes->offset2>>12)/SCALE)-1;
+	else
+		n = i;
+
+	if( n > numBabies )
+		n = 0;
 
 	lastBabySaved = i;
 	babyList[i].isSaved	= 1;
@@ -1028,7 +1049,7 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 		PlaySample( genSfx[GEN_COLLECT_BABY], NULL, 0, SAMPLE_VOLUME, -1 );
 		PlayVoice(pl, "frogokay");
 
-		BabyCollectEffect( baby->nmeActor, baby->inTile, i );
+		BabyCollectEffect( baby->nmeActor, baby->inTile, n );
 	}
 }
 
@@ -1167,7 +1188,36 @@ void ReinitialiseMultiplayer( )
 			for( i=0; i<NUM_FROGS; i++ )
 			{
 				sprintf( name, "mpl%i.pal", player[i].character );
-				cubePalettes[i] = LOADPAL_Load16( name );
+				//cubePalettes[i] = LOADPAL_Load16( name );
+				switch ( player[i].character )
+				{
+				case FROG_FROGGER:
+						cubePalettes[i] = LOADPAL_Load16( mpl0 );
+					break;
+				case FROG_LILLIE:
+						cubePalettes[i] = LOADPAL_Load16( mpl1 );
+					break;
+				case FROG_BABYFROG:
+						cubePalettes[i] = LOADPAL_Load16( mpl2 );
+					break;
+				case FROG_SWAMPY:
+						cubePalettes[i] = LOADPAL_Load16( mpl3 );
+					break;
+				case FROG_TWEE:
+						cubePalettes[i] = LOADPAL_Load16( mpl4 );
+					break;
+				case FROG_WART:
+						cubePalettes[i] = LOADPAL_Load16( mpl5 );
+					break;
+				case FROG_HOPPER:
+						cubePalettes[i] = LOADPAL_Load16( mpl6 );
+					break;
+				case FROG_ROBOFROG:
+						cubePalettes[i] = LOADPAL_Load16( mpl7 );
+					break;
+				}
+				// ENDSWITCH
+				
 			}
 		}
 #endif
@@ -1176,7 +1226,10 @@ void ReinitialiseMultiplayer( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
+		if(gameState.difficulty == DIFFICULTY_HARD)
+			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH*2;
+		else
+			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
 		mpl[i].lasttile = TILESTATE_FROGGER1AREA;
 		if(multiplayerMode == MULTIMODE_RACE)
 		{
@@ -1230,6 +1283,7 @@ void ResetMultiplayer( )
 			babiesSaved = 0;
 			lastBabySaved = -1;
 			MoveEnemyToNode( babyList[i].enemy, 0 );
+			actorAnimate( babyList[i].baby->actor, BABY_ANIM_SNOOZE, YES, NO, 100, 0 );
 		}
 		break;
 	case MULTIMODE_BATTLE:
@@ -1237,14 +1291,17 @@ void ResetMultiplayer( )
 		BATTLENODE *node, *temp;
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
+			if(gameState.difficulty == DIFFICULTY_HARD)
+				mpl[i].trail = MULTI_BATTLE_TRAILLENGTH*2;
+			else
+				mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
 			mpl[i].ready = 0;
 			mpl[i].score = 0;
 			node = mpl[i].path;
 			while(node)
 			{
 				temp = node->next;
-				node->tile->state = TILESTATE_NORMAL;
+//				node->tile->state = TILESTATE_NORMAL;
 				SubBattleTrailNode(node);
 				node = temp;
 			}
@@ -1372,8 +1429,8 @@ void CalcRaceCircuitCamera( FVECTOR *target )
 */
 void CalcRaceStraightCamera( FVECTOR *target )
 {
-	int i, bestLap=0, bestCheck=0, num, bestZ=999999999;
-	fixed dist, scale;
+	int i, bestLap=0, bestCheck=0, bestZ=999999999;
+	fixed scale, vx, vz;
 
 	target->vx = target->vz = 0;
 
@@ -1394,30 +1451,45 @@ void CalcRaceStraightCamera( FVECTOR *target )
 			playerFocus = i;
 		}
 
-	for( i=0,num=0; i<NUM_FROGS; i++ )
+	for( i=0; i<NUM_FROGS; i++ )
 	{
-		dist = DistanceBetweenPointsSS( &frog[playerFocus]->actor->position, &frog[i]->actor->position );
-		if( mpl[i].lap == bestLap && mpl[i].check == bestCheck && dist < 8192000 )
+		if( player[i].jumpTime > 0 )	// jumping; calculate linear position
 		{
-			num++;
-			if( player[i].jumpTime > 0 )	// jumping; calculate linear position
-			{
-				FVECTOR v;
-				SetVectorFF(&v, &player[i].jumpFwdVector);
-				ScaleVectorFF(&v, player[i].jumpTime);
+			FVECTOR v;
+			SetVectorFF(&v, &player[i].jumpFwdVector);
+			ScaleVectorFF(&v, player[i].jumpTime);
 
-				target->vx += (player[i].jumpOrigin.vx<<12) + v.vx;
-				target->vz += (player[i].jumpOrigin.vz<<12) + v.vz;
-			}										
-			else
+			vx = (player[i].jumpOrigin.vx<<12) + v.vx;
+			vz = (player[i].jumpOrigin.vz<<12) + v.vz;
+
+			target->vx += vx;
+			target->vz += vz;
+
+			// Double weight for lead player
+			if( i == playerFocus )
 			{
-				target->vx += frog[i]->actor->position.vx<<12;
-				target->vz += frog[i]->actor->position.vz<<12;
+				target->vx += vx;
+				target->vz += vz;
+			}
+		}										
+		else
+		{
+			vx = frog[i]->actor->position.vx<<12;
+			vz = frog[i]->actor->position.vz<<12;
+
+			target->vx += vx;
+			target->vz += vz;
+
+			// Double weight for lead player
+			if( i == playerFocus )
+			{
+				target->vx += vx;
+				target->vz += vz;
 			}
 		}
 	}
 
-	scale = 4096/(max(num,1));
+	scale = 4096/(NUM_FROGS+1);
 	target->vx = FMul( target->vx, scale );
 	target->vz = FMul( target->vz, scale );
 }
@@ -1468,9 +1540,9 @@ void CalcCollectCamera( FVECTOR *target )
 					minVect.vz = v.vz;
 				if(v.vx > maxVect.vx)
 					maxVect.vx = v.vx;
-				if(v.vy > minVect.vy)
+				if(v.vy > maxVect.vy)
 					maxVect.vy = v.vy;
-				if(v.vz > minVect.vz)
+				if(v.vz > maxVect.vz)
 					maxVect.vz = v.vz;
 			}
 
@@ -1546,9 +1618,9 @@ void CalcBattleCamera( FVECTOR *target )
 					minVect.vz = v.vz;
 				if(v.vx > maxVect.vx)
 					maxVect.vx = v.vx;
-				if(v.vy > minVect.vy)
+				if(v.vy > maxVect.vy)
 					maxVect.vy = v.vy;
-				if(v.vz > minVect.vz)
+				if(v.vz > maxVect.vz)
 					maxVect.vz = v.vz;
 			}
 			l++;

@@ -13,7 +13,7 @@
  
 
 
-#include <islsfx2.h> 
+#include "newsfx.h" 
 #include "types.h"
 #include "actor2.h"
 #include "am.h"
@@ -27,7 +27,7 @@
 #define SFXFLAGS_LOOP			(1<<2)
 
  
-// #define AMBIENT_VOLUME	255
+#define AMBIENT_VOLUME	255
 #define SAMPLE_VOLUME	255
 
 #define AUDIOTRK_GAMEOVER			100
@@ -37,61 +37,21 @@
 // All generic sfx
 enum
 {
-/*	GEN_FROG_HOP,
-	GEN_SUPER_HOP,
-	GEN_DOUBLE_HOP,
-	GEN_COLLECT_BABY,
-	GEN_COLLECT_COIN,
-	GEN_BABYHAPPY,
-	GEN_BABYSAD,
-	GEN_BABYCRY,
-	GEN_BABYREPLY,
-	GEN_TELEPORT,
-	GEN_POWERUP,
-	GEN_CLOCKTICK,
-	GEN_POWERTICK,
-
-	GEN_DEATHDROWN,
-	GEN_DEATHCRUSH,
-	GEN_DEATHEXPLODE,
-	GEN_DEATHFALL,
-	GEN_DEATHGIB,
-	GEN_DEATHMOWED,
-	GEN_DEATHCHOP,
-	GEN_DEATHELECTRIC,
-	GEN_DEATHFIRE,
-
-	NUM_GENERIC_SFX,
-*/	
 	GEN_FROG_HOP,
 	GEN_SUPER_HOP,
 	GEN_DOUBLE_HOP,
 	GEN_COLLECT_BABY,
-	GEN_FROG_TONGUE,
 	GEN_COLLECT_COIN,
-	GEN_CROAK,
 	GEN_BABYHAPPY,
 	GEN_BABYSAD,
 	GEN_BABYCRY,
 	GEN_BABYREPLY,
-	GEN_FROGBELCH1,
-	GEN_FROGBELCH2,
-	GEN_FROGANNOYED,
-	GEN_FROGSLIDE,
-	GEN_FROGHAPPY,
-	GEN_FROGSCARED,
-	GEN_FROGBORED,
-	GEN_FROGLETSGO,
 	GEN_TELEPORT,
 	GEN_POWERUP,
-
 	GEN_CLOCKTICK,
 	GEN_POWERTICK,
 
-	GEN_DEATHNORMAL,
 	GEN_DEATHDROWN,
-	GEN_DEATHDROWN1,
-	GEN_DEATHDROWN2,
 	GEN_DEATHCRUSH,
 	GEN_DEATHEXPLODE,
 	GEN_DEATHFALL,
@@ -100,9 +60,8 @@ enum
 	GEN_DEATHCHOP,
 	GEN_DEATHELECTRIC,
 	GEN_DEATHFIRE,
-	
-	NUM_GENERIC_SFX,
 
+	NUM_GENERIC_SFX,
 }; 
 
 // //***********************************
@@ -127,46 +86,34 @@ enum
 
 typedef struct _SAMPLE
 {
-	struct _SAMPLE			*next, *prev;
-
+	unsigned long			flags;
+	
 	char					idName[32];
 	unsigned long			uid;
-	unsigned long			flags;
 
+	SfxSampleType			*snd;
+	
 	AM_BANK_PTR				bankPtr;
 	unsigned long			sampleNumber;
 	
-//ma	SfxSampleType			*snd;
+	int						handle;
 } SAMPLE;
 
- 
+#define MAX_SAMPLES 100
+#define MAX_VOICES 12 
  
 typedef struct _SOUNDLIST
 {
-	int				numEntries;
-	AM_BANK_PTR		genericBank;
-	AM_BANK_PTR		levelBank;
-	SAMPLE			head;
-
+	SfxBankType		*genericBank;
+	SfxBankType		*levelBank;
+	SfxBankType		*loopBank;
+	SfxBankType		*voiceBank[4];
+	
+	short count;
+	SAMPLE			array[MAX_SAMPLES];
+	
 } SOUNDLIST;
- 
- 
-// typedef struct _BUFSAMPLE
-// {
-// 	struct _BUFSAMPLE *next, *prev;
-// 	LPDIRECTSOUNDBUFFER lpdsBuffer;
-// 
-// } BUFSAMPLE;
- 
- 
-//typedef struct _BUFFERLIST
-// {
-// 	int			numEntries;
-// 	BUFSAMPLE	head;
-// 
-// } BUFFERLIST;
- 
- 
+
 typedef struct TAG_AMBIENT_SOUND
 {
 	struct TAG_AMBIENT_SOUND *next,*prev;
@@ -183,18 +130,25 @@ typedef struct TAG_AMBIENT_SOUND
 	long		freq;
 	long		randFreq;
 	long		counter;
-
+	int			handle;
 }AMBIENT_SOUND;
  
  
 typedef struct
 {
+	int array;
 	AMBIENT_SOUND head;
 	int numEntries;
 
 }AMBIENT_SOUND_LIST; 
+
+typedef struct {
+	AM_SOUND			sound;
+	SfxSampleType		*sample;
+	int					volume;
+} CurrentData;
  
- extern SAMPLE *genSfx[];
+extern SAMPLE *genSfx[];
  
 //***********************************
 // Function Prototypes
@@ -232,19 +186,18 @@ typedef struct
 // #define FreeAmbientSoundList()
 // #define InitAmbientSoundList()
 
+#define PlayVoice(pl, sound) PlaySample(FindVoice(utilStr2CRC(sound),pl), NULL, 0, SAMPLE_VOLUME, -1)
 
 void StartSound();
 void StopSound();
 void InitSampleList( );
-int LoadSfxSet( char *path, int generic );
-int LoadSfx( unsigned long worldID );
-SAMPLE *CreateAndAddSample( SfxSampleType *snd );
-void AddSample( SAMPLE *sample );
-void RemoveSample( SAMPLE *sample );
+int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *count);
+int LoadSfx( long worldID );
+SAMPLE *CreateAndAddSample(SfxSampleType *snd,int flags,SAMPLE *array,short *count);
 SAMPLE *FindSample( unsigned long uid );
 void FreeSampleList( );
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch );
-int PlayVoice(int player, char *name);
+SAMPLE *FindVoice( unsigned long uid, int pl );
 AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, ACTOR *follow );
 void UpdateAmbientSounds();
 void InitAmbientSoundList();
@@ -256,5 +209,15 @@ void PauseAudio( );
 void UnPauseAudio( );
 
 int IsSongPlaying();
+
+int sfxPlaySample(SfxSampleType *sample, int volL, int volR, int pitch);
+
+void sfxStopChannel(int channel);
+void sfxSetChannelPitch(int channel, int pitch);
+void sfxSetChannelVolume(int channel, int volL, int volR);
+void sfxStartSound();
+void StopSample(SAMPLE *sample);
+void sfxStopSound();
+
 
 #endif

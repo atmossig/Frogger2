@@ -15,9 +15,20 @@
 extern "C" {
 #endif
 
+#define NUM_STAKFILES 10
+
+	typedef struct _STAKFILE
+{
+	char *stakFile;
+} STAKFILE;
+
+extern STAKFILE stakFiles [ NUM_STAKFILES ];
 
 char *getFileFromStack(char *stackFile, char *name, int *length);
 
+void LoadStakFile								( int stakBank );
+char *FindStakFileInAllBanks ( char *name, int *length );
+void FreeStakFiles ( void );
 
 #ifdef __cplusplus
 }

@@ -39,7 +39,6 @@ void DeathSpiked( int pl );
 void DeathMulti( int pl );
 void DeathLightning( int pl );
 
-extern fixed hedRotAmt;
 
 #ifdef __cplusplus
 }

@@ -149,5 +149,3 @@ KTBOOL StreamDestroy()
 	
 	return TRUE;
 }
-
-

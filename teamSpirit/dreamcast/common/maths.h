@@ -71,6 +71,7 @@ extern FVECTOR upVec;
 extern FVECTOR inVec;
 extern FVECTOR outVec;
 extern FVECTOR rightVec;
+extern FVECTOR oneVec;
 
 
 

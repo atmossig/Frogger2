@@ -211,7 +211,10 @@ void *_Align32Malloc (unsigned long Size)
 	
 //	ptr = syMalloc(Size);
     if(ptr == NULL)
-    	return NULL;
+	{
+		j=8;
+		return NULL;
+	}
 
 	mptr = mallocList.list;
 	for(i=0;i<MAX_MALLOC_LIST;i++)

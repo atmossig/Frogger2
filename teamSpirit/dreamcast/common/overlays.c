@@ -25,7 +25,9 @@
 #include <pcmisc.h>
 #endif
 
-#define SPRITELIST_TEMP_IDONTGIVEASHIT_NUMBER	200
+#define SPRITELIST_TEMP_IDONTGIVEASHIT_NUMBER	120
+
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddSpriteOverlay
@@ -83,9 +85,12 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short wi
 
 void SubSpriteOverlay(SPRITEOVERLAY *spr)
 {
-	spr->used = 0;
-	spr->draw = 0;
-	spriteOverlayList.numEntries--;
+	if(spr->used)
+	{
+		spr->used = 0;
+		spr->draw = 0;
+		spriteOverlayList.numEntries--;
+	}
 }
 
 

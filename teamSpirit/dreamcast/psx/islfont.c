@@ -325,6 +325,7 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 						strPtr++;
 						x += buttonSprites[2]->w+6;
 						break;
+					case 'T':
 					case 'C':
 					   	fontDispSprite(buttonSprites[1], x+3,y-3, font->alpha, font->size);
 						strPtr++;
@@ -335,11 +336,11 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 						strPtr++;
 						x += buttonSprites[3]->w+6;
 						break;
-					case 'T':
-					   	fontDispSprite(buttonSprites[0], x+3,y-3, font->alpha, font->size);
-						strPtr++;
-						x += buttonSprites[0]->w+6;
-						break;
+//ma					case 'T':
+//ma					   	fontDispSprite(buttonSprites[0], x+3,y-3, font->alpha, font->size);
+//ma						strPtr++;
+//ma						x += buttonSprites[0]->w+6;
+//ma						break;
 				}
 				break;
 

@@ -24,6 +24,7 @@
 #define TEXTOVERLAY_SHADOW			(1 << 4)
 #define TEXTOVERLAY_PIXELS			(1 << 5)
 #define TEXTOVERLAY_PAUSED			(1 << 6)
+#define TEXTOVERLAY_LOADING			(1 << 7)
 
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
@@ -60,6 +61,10 @@ void FreeTextOverlayLinkedList();
 void PrintTextAsOverlay(TEXTOVERLAY *tOver);
 
 long StringWrap(const char* str, long maxWidth, char* buffer, long bufferSize, char** array, long arraySize, psFont *font);
+
+#ifdef PC_VERSION
+extern int fontFitToWidth(psFont *font, int width, char *text, char *buffer);
+#endif
 
 #ifdef __cplusplus
 }

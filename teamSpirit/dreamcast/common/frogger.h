@@ -78,6 +78,7 @@ enum
 	FROG_ANIM_HOOVER,
 	FROG_ANIM_SCREENSPLAT,
 	FROG_ANIM_SCREENSLIDE,
+	FROG_ANIM_VICTORY,
 
 	NUM_FROG_ANIMS,
 };
@@ -87,11 +88,11 @@ enum
 	FROG_FROGGER,
 	FROG_LILLIE,
 	FROG_BABYFROG,
-	FROG_SWAMPY,
 	FROG_TWEE,
 	FROG_WART,
-	FROG_HOPPER,
 	FROG_ROBOFROG,
+	FROG_HOPPER,
+	FROG_SWAMPY,
 
 	FROG_NUMFROGS
 };
@@ -105,7 +106,7 @@ enum
 
 typedef struct _FROGSTORE
 {
-	char name[16];
+	char fileName[16];
 	char singleModel[16];
 	char multiModel[16];
 	char icon[16];

@@ -18,7 +18,6 @@
 #define RunDesignWorkViewer()
 #define StartControllerView()
 #define RunControllerView()
-#define StopSample(x)
 #define SetCurrentDisplayPage(x,y);		kmBeginScene(&kmSystemConfig);kmBeginPass(&vertexBufferDesc);	
 #define SendOTDisp();					kmEndPass(&vertexBufferDesc);kmRender(KM_RENDER_FLIP);kmEndScene(&kmSystemConfig);			
 

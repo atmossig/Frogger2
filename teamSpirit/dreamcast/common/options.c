@@ -73,6 +73,7 @@ extern FVECTOR storeCamVect;
 char warnStr[256];
 char diffStr[128];
 char playingFMV = NO;
+char onOffStr[NUM_EXTRAS][64];
 // JH: A list of CRCs that define the char textures.
 unsigned long frogTexturePool[FROG_NUMFROGS] = 
 {
@@ -127,7 +128,7 @@ OPTIONSOBJECTS options =
 	0,
 };
 
-#define NUM_ARCADE_WORLDS (NUM_WORLDS - 1)
+int NUM_ARCADE_WORLDS = 8;
 
 #define MAX_CREDITS 200
 TEXTOVERLAY *creditsText[MAX_CREDITS] = {NULL};
@@ -146,8 +147,8 @@ long creditsY = 0;
 CREDIT_DATA creditData[] = 
 {
 	0,GREEN,
-	2,GREEN,
-	0,RED,
+	2,RED,
+	0,GREEN,
 
 	2,RED,		//founded by
 	0,GREEN,
@@ -210,6 +211,20 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 
 	2,RED,		//video
+	0,GREEN,
+	
+	2,RED,		//video producer
+	0,GREEN,
+
+	2,RED,		//video animation modelling and lighting
+	0,RED,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+
+	2,RED,		//video modelling
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 
 	2,RED,		//voices
@@ -705,10 +720,10 @@ void MenuSelect(void)
 		{
 			options.extras[i]->a = 0;
 
-			if(options.extrasState[i])
-				options.extras[i]->g = options.extras[i]->b = 0;
-			else
-				options.extras[i]->g = options.extras[i]->b = 255;
+//			if(options.extrasState[i])
+//				options.extras[i]->g = options.extras[i]->b = 0;
+//			else
+//				options.extras[i]->g = options.extras[i]->b = 255;
 		}
 	}
 	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
@@ -859,6 +874,7 @@ void ExtraDown(void)
 //-----------------------------------------------------------------------------------------------------------
 // Extras Select
 //-----------------------------------------------------------------------------------------------------------
+char fmvStr[NUM_FMV_SEQUENCES][64];
 void ExtraSelect(void)
 {
 	int i,j,switchVal;
@@ -869,14 +885,17 @@ void ExtraSelect(void)
 	else
 	{
 		if(options.extrasToggle[options.extraSelection])
-			options.extrasState[options.extraSelection] = !options.extrasState[options.extraSelection];
-
-		if(options.extrasState[options.extraSelection])
 		{
-			options.extras[options.extraSelection]->g = options.extras[options.extraSelection]->b = 0;
-			options.extras[options.extraSelection]->r = 255;
+			options.extrasState[options.extraSelection] = !options.extrasState[options.extraSelection];
+			sprintf(onOffStr[options.extraSelection],GAMESTRING(STR_EXTRAS_1 + options.extraSelection),GAMESTRING(STR_OFF - options.extrasState[options.extraSelection]));
 		}
-		else
+
+//		if(options.extrasState[options.extraSelection])
+//		{
+//			options.extras[options.extraSelection]->g = options.extras[options.extraSelection]->b = 0;
+//			options.extras[options.extraSelection]->r = 255;
+//		}
+//		else
 			options.extras[options.extraSelection]->r = options.extras[options.extraSelection]->g = options.extras[options.extraSelection]->b = 255;
 
 		if(confirmMode)
@@ -886,7 +905,7 @@ void ExtraSelect(void)
 		switch(switchVal)
 		{
 			case EXTRA_DIFFICULTY:
-				gameState.difficulty = 1 - gameState.difficulty;
+				gameState.difficulty = (gameState.difficulty + 1) MOD 3;
 				sprintf(diffStr,GAMESTRING(STR_EXTRAS_1),GAMESTRING(STR_DIFFICULTY_1 + gameState.difficulty));
 				break;
 
@@ -899,7 +918,13 @@ void ExtraSelect(void)
 					numFMVOpen++;
 				for(i = 0;i < numFMVOpen;i++)
 				{
-					options.fmvText[i] = CreateAndAddTextOverlay(2048,(2048-(numFMVOpen/2)*E_HEIGHT)+(i*E_HEIGHT),GAMESTRING(STR_FMV_1 + i),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+					if(i == 0)
+						sprintf(fmvStr[i],GAMESTRING(STR_FMV_1));
+					else if(i == NUM_FMV_SEQUENCES - 1 - FMV_INTRO)
+						sprintf(fmvStr[i],GAMESTRING(STR_FMV_2));
+					else
+						sprintf(fmvStr[i],"%d - %s %s",i,GAMESTRING(STR_CHAPTER_1a + (i-1)*2),GAMESTRING(STR_CHAPTER_1b + (i-1)*2));
+					options.fmvText[i] = CreateAndAddTextOverlay(2048,(2048-(numFMVOpen/2)*E_HEIGHT)+(i*E_HEIGHT),fmvStr[i],YES,255,fontSmall,TEXTOVERLAY_SHADOW);
 					options.fmvText[i]->r = options.fmvText[i]->g = options.fmvText[i]->b = 200;
 				}
 				break;
@@ -936,6 +961,7 @@ void ExtraSelect(void)
 								strcpy(worldVisualData[i].levelVisualData[j].parName,origWorldVisualData[i].levelVisualData[j].parName);
 							}
 						}
+						worldVisualData[i].levelVisualData[j].levelBeaten = 0;
 						SaveGame();
 					}
 					options.extraSelection = confirmMode;
@@ -1159,8 +1185,15 @@ void CreateOptionsObjects(void)
 			options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),diffStr,YES,255,fontSmall,TEXTOVERLAY_SHADOW);
 		}
 		else
-			options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),GAMESTRING(i + STR_EXTRAS_1),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
-		options.extras[i]->draw = 0;
+		{
+			if(options.extrasToggle[i])
+			{
+				sprintf(onOffStr[i],GAMESTRING(STR_EXTRAS_1 + i),GAMESTRING(STR_OFF - options.extrasState[i]));
+				options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),onOffStr[i],YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+			}
+			else
+				options.extras[i] = CreateAndAddTextOverlay(2048,(2048-(NUM_EXTRAS/2)*E_HEIGHT)+(i*E_HEIGHT),GAMESTRING(i + STR_EXTRAS_1),YES,255,fontSmall,TEXTOVERLAY_SHADOW);
+		}		options.extras[i]->draw = 0;
 	}
 
 	for(i = 0;i < 4;i++)
@@ -1237,7 +1270,6 @@ void InitOptionsMenu(void)
 		options.selection = OP_SOUND;
 		options.soundVol = DEFAULT_VOLUME;
 		options.musicVol = DEFAULT_VOLUME;
-		CreateOptionsObjects();
 		options.init =1;
 		options.extraSelection = 0;
 		options.soundSelection = 0;
@@ -1249,6 +1281,7 @@ void InitOptionsMenu(void)
 		options.extrasToggle[EXTRA_FEEDING_FRENZY] = YES;
 		options.extrasToggle[EXTRA_VIEW_ART] = NO;
 		options.extrasToggle[EXTRA_MINI] = YES;
+		CreateOptionsObjects();
 		gameSelected = 0;
 	}
 	else	
@@ -1571,12 +1604,12 @@ void RunOptionsMenu(void)
 						}
 						else
 						{
-							if(options.extrasState[i])
-							{
-								options.extras[i]->g = options.extras[i]->b = 0;
-								options.extras[i]->r = 255;
-							}
-							else
+//							if(options.extrasState[i])
+//							{
+//								options.extras[i]->g = options.extras[i]->b = 0;
+//								options.extras[i]->r = 255;
+//							}
+//							else
 								options.extras[i]->r = options.extras[i]->g = options.extras[i]->b = 255;
 //							if(options.extras[i]->a <= 150)
 //							{
@@ -1862,7 +1895,7 @@ void RunOptionsMenu(void)
 #ifdef PSX_VERSION
 //ma				SsSetMute( 1 );
 #endif
-				StartVideoPlayback(options.fmvNum + 1);
+					StartVideoPlayback(options.fmvNum + 3);
 #ifdef PSX_VERSION
 //ma				SsSetMute( 0 );
 #endif
@@ -1902,6 +1935,7 @@ void RunOptionsMenu(void)
 	{
 		if(fadingOut == 0)
 		{
+			StopSong();
 			gameState.mode = ARTVIEWER_MODE;
 			GTInit(&artTimer,10);
 			currentArt = 0;
@@ -2365,7 +2399,7 @@ void SPCharBack(void)
 	options.mode = OP_ARCADE;
 	options.parText[0]->draw = options.parText[1]->draw = options.parText[2]->draw = 1;
 	options.worldText->draw = 1;
-	options.worldBak->xPos = options.worldBak->xPosTo = 200;
+	options.worldBak->xPos = options.worldBak->xPosTo = 150;
 	options.worldBak->yPos = options.worldBak->yPosTo = 938;
 	options.worldBak->width = 4096 - 2*options.worldBak->xPos;
 	options.selectText->text = GAMESTRING(STR_SELECT_LEVEL);
@@ -2377,7 +2411,7 @@ void SPCharBack(void)
 		options.levelParText[i]->draw = 1;
 		options.levelSetByText[i]->draw = 1;
 		options.levelText[i]->draw = 1;
-		options.levelText[i]->xPos = options.levelText[i]->xPosTo = 456;
+		options.levelText[i]->xPos = options.levelText[i]->xPosTo = 306;
 		options.levelText[i]->yPos = options.levelText[i]->yPosTo = (1445+i*170);
 	}
 	DoArcadeMenu();
@@ -2393,7 +2427,29 @@ void ArcadeStart(void)
 					
 	lastActFrameCount = actFrameCount;
 	gameState.mode = INGAME_MODE;
-	if(cWorld == WORLDID_GARDEN)
+	// NB: THis is a heowge hack to make race mode work for internet test levels
+	if( cWorld == WORLDID_TEST )
+	{
+		NUM_FROGS = 2;
+
+		player[0].worldNum = (unsigned char)WORLDID_TEST;
+		player[0].levelNum = (unsigned char)options.levelNum;
+
+		player[0].character = FROG_FROGGER;
+		player[1].character = FROG_LILLIE;
+
+		gameState.mode = INGAME_MODE;
+		gameState.single = INVALID_MODE;
+		gameState.multi = MULTILOCAL;
+
+		multiplayerMode = MULTIMODE_RACE;
+
+		InitLevel(player[0].worldNum, player[0].levelNum);
+		fog.max = 25000;
+
+		return;
+	}
+	else if(cWorld == WORLDID_GARDEN)
 	{
 		if(options.levelNum == 0)
 		{
@@ -2593,7 +2649,7 @@ void SetMusicVolume()
 }
 
 
-#define MAX_ARTWORK 22
+#define MAX_ARTWORK 21
 
 #ifdef PSX_VERSION
 // on the PSX everything is read from CD .. we just want to do this specially
@@ -2628,8 +2684,6 @@ void RunArtViewer()
 		}
 		else
 		{
-			if(currentArt == 0)
-				PrepareSong(AUDIOTRK_LEVELCOMPLETE,1);
 			sprintf(name,"ARTWORK%02d",currentArt);
 			InitBackdrop(name);
 			currentArt++;

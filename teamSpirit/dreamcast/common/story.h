@@ -21,6 +21,9 @@ extern "C" {
 enum
 {
 	FMV_NONE,
+	FMV_ATARI_LOGO,
+	FMV_BLITZ_LOGO,
+	FMV_INTRO,
 	FMV_FROGGER_LILLIE_BABIES,
 	FMV_SWAMPY_PLAN,
 	FMV_SWAMPY_ESCAPES,
@@ -31,6 +34,7 @@ enum
 	FMV_TELEPORT_TO_EARTH,
 	FMV_ENTER_HAUNTED_HOUSE,
 	FMV_LILLIE_IN_CAGE,
+	FMV_VICTORY,
 	NUM_FMV_SEQUENCES,
 };
 
@@ -40,6 +44,7 @@ typedef struct
 	int		len;
 }FMV_DATA;
 
+extern short storySequenceLevelToChapter[];
 extern FMV_DATA fmv[NUM_FMV_SEQUENCES];
 
 typedef struct
@@ -49,8 +54,6 @@ typedef struct
 }GAME_LEVEL;
 
 extern GAME_LEVEL storySequence[];
-
-extern unsigned long currentChapter;
 
 void StoryStartLevel(void);
 

@@ -2380,57 +2380,26 @@ StrDataType vStream =
 		STR_BORDERS_ON,					// != 0 if borders on
 		640,							// Screen res width
 		0,								// X,Y position
-		50,								//
-		640,							// Stream width and height
-		380,							//
+		00,								//
+		352,							// Stream width and height
+		240,							//
 		-1,								// Last frame No.
 		0,								// Size of each VLC buffer (including header).
 		127,							// Left and Right ADPCM volume. (0..127)
 };
 
-/*typedef struct _StrDataType
-{
-		char		*strName;					// Stream file name. 
-		short		mode;						// 24-Bit or 16-Bit streaming.
-		short		drawBorders;				// != 0 if borders on.
-		short		scrWidth;					// Screen res width.
-		short		x;							// X,Y position. 
-		short		y;
-		short		width;						// Stream width and height.
-		short		height;
-		long		endFrame;					// Last frame No.
-		long		vlcBufSize;					// Size of each VLC buffer (including header).
-		short		volume;						// Left and Right ADPCM volume.
-} StrDataType
-*/
 void StartVideoPlayback(int num)
 {
 	RECT rect;
 	StrDataType str;
 
-	rect.x = rect.y = 0;
-	rect.w = 512;
-	rect.h = 512;
-
+	gdFsChangeDir("\\");
+	gdFsChangeDir("FMV");
+	
 	StopSong();
 	
-	sprintf(vStream.strName,"%s.sfd",fmv[num].name);
-
-//	if (XAgetStatus())
-	{
-  		sprintf(str.strName,"%s.sfd",fmv[num].name);
-		utilPrintf("Playing stream %s\n",str.strName);
-   		str.mode = STR_MODE24;
-   		str.drawBorders = STR_BORDERS_ON;
-   		str.scrWidth = 640;
-   		str.x = 0;
-   		str.y = 50;
-   		str.width = 640;
-   		str.height = 380;
-   		str.endFrame = -1;//fmv[num].len;
-   		str.vlcBufSize = 0;//50000;
-   		str.volume = 127;
-//   		videoPlayStream(&str, PALMODE, videoKeyPress);
-   		videoPlayStream(&vStream, PALMODE, videoKeyPress);
-	}
+	sprintf(vStream.strName,"%s.SFD",fmv[num].name);
+	videoPlayStream(&vStream, PALMODE, videoKeyPress);
+	
+	gdFsChangeDir("\\");
 }

@@ -23,6 +23,8 @@
 #include "main.h"
 #include <islmem.h>
 #include "layout.h"
+#include "define.h"
+#include "game.h"
 
 #ifdef PC_VERSION
 #include <mdx.h>
@@ -59,9 +61,14 @@ TEXTOVERLAY *CreateAndAddTextOverlay(short x, short y, char *text, char centred,
 		return NULL;
 	}
 
-	for(j = 0;j < textOverlayList.alloc;j++)
-		if(textOverlayList.block[j].used == 0)
-			break;
+	if(textOverlayList.block[textOverlayList.numEntries].used == 0)
+		j = textOverlayList.numEntries;
+	else
+	{
+		for(j = 0;j < textOverlayList.alloc;j++)
+			if(textOverlayList.block[j].used == 0)
+				break;
+	}
 	newItem = &textOverlayList.block[j];
 	textOverlayList.numEntries++;
 	
@@ -115,16 +122,15 @@ void PrintText(TEXTOVERLAY *cur,short xPos,short yPos,uchar r,uchar g,uchar b,uc
 
 	cur->font->alpha = a;
 
-/*	if(a == 255)
-		cur->font->alpha = 0;
-	else
-	{
-		cur->font->alpha = fontAlpha;
-		r = (r * a) / 512;
-		g = (g * a) / 512;
-		b = (b * a) / 512;
-	}
-*/
+//	if(a == 255)
+//		cur->font->alpha = 0;
+//	else
+//	{
+//		cur->font->alpha = fontAlpha;
+//		r = (r * a) / 512;
+//		g = (g * a) / 512;
+//		b = (b * a) / 512;
+//	}
 	if ( cur->centred )
 	{
 		int length = fontExtentW(cur->font, cur->text)/2;
@@ -173,8 +179,11 @@ void PrintTextOverlays()
 
 	for(cur=textOverlayList.block, n=textOverlayList.alloc; n; cur++, n--)
 	{
-
+#ifdef PSX_VERSION
+		if((cur->used) && (cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED)) /*&& ((loadingDisplay == 0) || (cur->flags & TEXTOVERLAY_LOADING))*/)
+#else
 		if((cur->used) && (cur->draw) && ((gameState.mode != PAUSE_MODE) || (cur->flags & TEXTOVERLAY_PAUSED)))
+#endif
 		{
 			if(cur->speed)
 			{
@@ -284,12 +293,13 @@ void FreeTextOverlayLinkedList()
 */
 void SubTextOverlay(TEXTOVERLAY *tOver)
 {
-	tOver->used = 0;
-	tOver->draw = 0;
-	textOverlayList.numEntries--;
+	if(tOver->used)
+	{
+		tOver->used = 0;
+		tOver->draw = 0;
+		textOverlayList.numEntries--;
+	}
 }
-
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: StringWrap

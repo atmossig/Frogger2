@@ -70,7 +70,7 @@ extern void RunMultiWinMatch( );
 extern void StartMultiWinGame( );
 extern void StartMultiWinMatch( );
 
-
+extern void SetTimeForLevel( );
 extern void CreateOverlaysFromLogo(const LOGO *logo, int x, int y);
 void DoEndMulti();
 void SlideSpriteOverlayToPos(SPRITEOVERLAY *s,long x,long y,long fromX,long fromY,long numFrames);
@@ -80,6 +80,7 @@ int GetAnimLoop(ACTOR2 *actor);
 void SetAnimLoop(ACTOR2 *actor,int loop);
 int ReachedEndOfAnim(ACTOR2 *actor);
 
+void CheckEOLLoopTrack();
 
 #ifdef __cplusplus
 }

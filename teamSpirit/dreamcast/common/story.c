@@ -30,20 +30,20 @@
 FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
 	"",0,
-//	"BLOGO25S",147,
-	"ATARI",147,
-//	"02S",1085,
-	"02S",1085,
-	"03S",677,
-	"04S",525,
-	"05S",386,
-	"06S",518,
-	"07S",527,
-	"08S",943,
-	"09S",968,
-	"10S",462,
-	"11S",948,
-	"12S",737,
+	"ATARIS",250,		//	FMV_ATARI_LOGO,            
+	"BLITZS",147,		//	FMV_BLITZ_LOGO,            
+	"01S",147,			//	FMV_INTRO,
+	"02S",1085,			//	FMV_FROGGER_LILLIE_BABIES, 
+	"03S",677,			//	FMV_SWAMPY_PLAN,           
+	"04S",525,			//	FMV_SWAMPY_ESCAPES,        
+	"05S",386,			//	FMV_LILLIE_TO_GATE,        
+	"06S",518,			//	FMV_BOTH_AT_GATE,          
+	"07S",527,			//	FMV_LILLIE_COMPUTER,       
+	"08S",943,			//	FMV_SWAMPY_COMMERCIAL,     
+	"09S",968,			//	FMV_TELEPORT_TO_EARTH,     
+	"10S",462,			//	FMV_ENTER_HAUNTED_HOUSE,   
+	"11S",948,			//	FMV_LILLIE_IN_CAGE,        
+	"12S",737,			//	FMV_VICTORY,               
 };
 
 short storySequenceLevelToChapter[] = 
@@ -80,71 +80,6 @@ GAME_LEVEL storySequence[] =
 	
 	{WORLDID_HALLOWEEN,2,0,FROG_BABYFROG,FMV_LILLIE_IN_CAGE,"ICONCHEATOP"},
 };
-
-unsigned long currentChapter = 1;
-unsigned long currentSubChapter = 1;
-
-unsigned long finishTime = 0;
-
-short *screenInfo;
-
-void LoadCurrentFMVImage(void)
-{
-	char filename[256];
-	//if (screenInfo)
-	//	gelfDefaultFree(screenInfo);
-
-#ifdef PC_VERSION
-	sprintf(filename,"%stextures\\story\\SBscene%lu.%lu.bmp",baseDirectory,currentChapter,currentSubChapter);
-#endif
-	
-	//todo: screen... stuff
-	//screenInfo = GetGelfBmpDataAsShortPtr(filename,NULL,NULL);
-	finishTime = actFrameCount+60*IMAGETIME_SECONDS;	
-}
-
-
-long InitChapterFMV(void)
-{
-	screenInfo = NULL;
-	currentSubChapter = 1;
-	
-	LoadCurrentFMVImage();
-	return 1;
-}
-
-
-
-long ShowChapterFMV(void)
-{
-	if (actFrameCount>finishTime)
-	{
-		return 1;
-	}
-
-	if (screenInfo)
-	{
-		//todo: Screen.. stuff
-		//CopyShortDataToScreen(screenInfo);
-	}
-
-	return 0;
-}
-
-long DoneChapterFMV(void)
-{
-	screenInfo = 0;
-	finishTime = 0;
-
-	gameState.single = STORY_MODE;
-					
-	lastActFrameCount = actFrameCount;
-	gameState.mode = LEVELCOMPLETE_MODE;
-	GTInit( &modeTimer, 1 );
-	showEndLevelScreen = 0;		
-
-	return 1;
-}
 
 	
 /*	--------------------------------------------------------------------------------

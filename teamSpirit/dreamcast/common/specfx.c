@@ -650,14 +650,19 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
  
  			if( effect->type == FXTYPE_FIERYSMOKE )
  			{
+ 				s->g = 180;
+ 				s->b = 0;
+
 				if( !(Random(3)) )
 				{
 					s->flags &= ~SPRITE_ADDITIVE;
 					s->texture = txtrSmoke2;
+#ifdef PSX_VERSION
+					s->r >>= 1;
+					s->g >>= 1;
+					s->b >>= 1;
+#endif
 				}
-
- 				s->g = 180;
- 				s->b = 0;
  			}
 
 			s = s->next;
@@ -2474,7 +2479,7 @@ void PrepForPriorityEffect( )
 	if( (sfxList.stackPtr-1) )
 		return;
 
-	utilPrintf( "Freeing fx to make room\n" );
+//	utilPrintf( "Freeing fx to make room\n" );
 
 	for( fx=sfxList.head.next; fx!=&sfxList.head; fx = next )
 	{
@@ -2485,7 +2490,7 @@ void PrepForPriorityEffect( )
 			fx->type == FXTYPE_DECAL	|| fx->type == FXTYPE_SPLASH		|| fx->type == FXTYPE_WAKE )
 		{
 			DeallocateFX( fx, 1 );
-			utilPrintf( "Found fx to free\n" );
+//			utilPrintf( "Found fx to free\n" );
 			break;
 		}
 	}

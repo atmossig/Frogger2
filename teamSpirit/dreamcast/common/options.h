@@ -18,6 +18,7 @@ extern "C" {
 
 enum
 {
+	EXTRA_DIFFICULTY,
 	EXTRA_VIEW_FMV,
 	EXTRA_CREDITS,
 	EXTRA_RESET_BEST_TIMES,
@@ -29,7 +30,7 @@ enum
 	NUM_EXTRAS,
 };
 
-#define NUM_BASIC_EXTRAS 4
+#define NUM_BASIC_EXTRAS 5
 
 enum
 {
@@ -139,6 +140,9 @@ typedef struct
 	SPRITEOVERLAY *levelCoinMedal[MAX_LEVELSTRING];
 	SPRITEOVERLAY *soundBak[2];
 	TEXTOVERLAY *sfxText[2];
+	TEXTOVERLAY *soundInstrText[2];
+	TEXTOVERLAY *warnText[4];
+	SPRITEOVERLAY *beatenIcon[MAX_LEVELSTRING];
 } OPTIONSOBJECTS;
 
 typedef struct

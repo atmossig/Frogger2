@@ -431,7 +431,7 @@ void GameProcessController(long pl)
 	if( gameState.multi == SINGLEPLAYER )
 	{
 //#ifdef PC_VERSION
-		if((padData.debounce[pl] & PAD_CIRCLE) && (tongue[pl].flags & TONGUE_IDLE))
+		if((padData.debounce[pl] & PAD_TRIANGLE) && (tongue[pl].flags & TONGUE_IDLE))
 		{
 			// want to use tongue
 			tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;

@@ -135,6 +135,9 @@ extern "C" {
 
 extern ENEMYLIST enemyList;
 
+extern DEATHANIM_FUNC deathAnims[];
+
+
 // FUNCTION PROTOTYPES
 
 void InitEnemyLinkedList();

@@ -60,6 +60,12 @@ enum
 	STORY_MODE,
 };
 
+enum
+{
+	DIFFICULTY_EASY,
+	DIFFICULTY_HARD,
+};
+
 struct gameStateStruct
 {
 	unsigned char multi;
@@ -68,6 +74,7 @@ struct gameStateStruct
 	unsigned long oldMode;
 	unsigned long menuMode;
 	unsigned long storySequenceLevel;
+	unsigned char difficulty;
 };
 
 //------------------------------------------------------------------------------------------------
@@ -86,7 +93,7 @@ enum
 	TILESTATE_SMASH,
 	TILESTATE_BARRED,
 	TILESTATE_FALL,
-
+	
 	TILESTATE_FROGGER1AREA,
 	TILESTATE_FROGGER2AREA,
 	TILESTATE_FROGGER3AREA,
@@ -96,6 +103,7 @@ enum
 	TILESTATE_HOT,
 	TILESTATE_ELECTRIC,
 	TILESTATE_NOSUPER,
+	TILESTATE_PANTS,
 	TILESTATE_OCCUPIED,
 
 	TILESTATE_CONVEYOR0SLOW = 0x20,

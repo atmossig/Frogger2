@@ -103,11 +103,11 @@ char *headNames[] =
 	"FGHED",	//FROG_FROGGER
 	"FMHED",	//FROG_LILLIE
 	"TADHED",	//FROG_BABYFROG
-	"MSPYHED",	//FROG_SWAMPY
 	"TWHED",	//FROG_TWEE
 	"TDHED",	//FROG_WART
+	"THED",		//FROG_ROBOFROG
 	"ROOBHED",	//FROG_HOPPER
-	"THED",	//FROG_ROBOFROG
+	"MSPYHED",	//FROG_SWAMPY
 };
 
 #ifdef PC_VERSION
@@ -124,7 +124,7 @@ MATRIX *pBreastMatrix[4]={NULL,NULL,NULL,NULL};
 
 #endif
 
-extern FVECTOR oneVec;
+
 
 // heh heh.. breast.. heh heh..
 
@@ -164,7 +164,12 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 
 	actorAnimate(frog[p]->actor,FROG_ANIM_BREATHE,YES,NO,64,0);
 
-	if( frog[p]->actor->shadow ) frog[p]->actor->shadow->draw = 1;
+	if( frog[p]->actor->shadow ) 
+#ifdef PC_VERSION
+		frog[p]->actor->shadow->draw = 1;
+#else
+		frog[p]->actor->shadow->draw = 0;
+#endif
 
 	if (currPlatform[p])
 	{
@@ -318,7 +323,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		if( jump )
 		{
-			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,100-Random(15),actF);
+			PlaySample(genSfx[GEN_FROG_HOP],NULL,0,200-Random(15),actF);
 			hopCount++;
 			hopTimer = 30;
 		}
