@@ -29,7 +29,7 @@
 #ifndef PC_VERSION
 #define F3DEX_GBI_2
 #define NNSCHED
-/*#include <ultra64.h>
+#include <ultra64.h>
 
 #include <PR/ramrom.h>	// needed for argument passing into the app
 #include <assert.h>
@@ -39,7 +39,7 @@
 
 #include <inttypes.h>
 #include <stdio.h>
-#include <stdarg.h>*/
+#include <stdarg.h>
 #endif
 
 #include "types.h"
@@ -86,8 +86,8 @@
 #include "frogmove.h"
 #include "cam.h"
 #include "tongue.h"
-//#include "event.h"
-//#include "eventfuncs.h"
+#include "event.h"
+#include "eventfuncs.h"
 
 #ifndef PC_VERSION
 #include "develop.h"
