@@ -8,13 +8,32 @@
 #include "collect.h"
 #include "frogmove.h"
 #include "main.h"
+#include "tongue.h"
+#include "map_draw.h"
 
 
+#define gte_stotz_cpu(r)\
+asm(\
+  "mfc2 %0, $7;"\
+  :\
+  : "r" (r)\
+)
+
+#define addPrimLen(ot,p,len,tempvar) \
+{\
+	tempvar = *(u_long *)(ot); \
+    (*(u_long *)(ot) = (u_long)(p)); \
+	tempvar |= (len<<24); \
+	*(unsigned long *)(p) = tempvar; \
+}
 
 
+void DrawTongueSegment ( FMA_GT4 *vt, TextureType *tEntry );
 
-void DrawSpecialFX()
+void DrawSpecialFX ( void )
 {
+	int i;
+
 	if ( ( gameState.mode == INGAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
 		 ( gameState.mode == CAMEO_MODE ) )
 	{
@@ -28,9 +47,9 @@ void DrawSpecialFX()
 					fx->Draw( fx );
 		}
 
-// 		for( i=0; i<NUM_FROGS; i++ )
-// 			if( tongue[i].flags & TONGUE_BEINGUSED )
-// 				DrawTongue( &tongue[i] );
+ 		for( i=0; i<NUM_FROGS; i++ )
+ 			if( tongue[i].flags & TONGUE_BEINGUSED )
+ 				DrawTongue( &tongue[i] );
 	}
 }
 
@@ -522,19 +541,46 @@ void DrawFXLightning( SPECFX *fx )
  
 }
  
-/* 
+ 
 void DrawTongue( TONGUE *t )
 {
-	unsigned long i=0, index = (t->progress*(MAX_TONGUENODES-1)>>12);
-	VERTC vT[4], vTPrev[2];
+/*	unsigned long i=0;
+	unsigned long index = ( t->progress * ( MAX_TONGUENODES - 1 ) >> 12 );
 	TextureType *tEntry;
 
-	tEntry = ((MDX_TEXENTRY *)t->tex);
+	FMA_GT4 vT[4], vTPrev[2];
+
+	tEntry = ( ( TextureType *) t->tex );
 
 	if( !tEntry || index < 2 )
 		return;
 
-	vT[0].tu = 1;
+		//********-[ First 2 points ]-*******
+//		if( i && vTPrev[0].vz && vTPrev[1].vz )
+//			memcpy( vT, vTPrev, sizeof(VERT)*2 );			// Previously transformed vertices
+//		else
+//			CalcTongueNodes( vT, t, i );
+
+		//********-[ Next 2 points ]-********
+//		CalcTongueNodes( &vT[2], t, i+1 );
+//		memcpy( vTPrev, &vT[2], sizeof(VERT)*2 ); 			// Store first 2 vertices of the next segment
+
+		vT[0].x0 = t->pos.vx; 		
+		vT[0].y0 = t->pos.vy; 		
+
+		//********-[ Draw the polys ]-********
+		if( vT[0].vz && vT[1].vz && vT[2].vz && vT[3].vz )
+		{
+			DrawTongueSegment ( vt, tEntry );
+//			DrawTongueSegment();
+//			Clip3DPolygon( vT, tEntry );
+//			Clip3DPolygon( &vT[1], tEntry );
+		}
+
+		i++;
+
+*/
+/*	vT[0].tu = 1;
 	vT[0].tv = 1;
 	vT[1].tu = 0;
 	vT[1].tv = 1;
@@ -563,10 +609,112 @@ void DrawTongue( TONGUE *t )
 		}
 
 		i++;
-	}
+	}*/
 }
 
-void CalcTongueNodes( VERTC *vT, TONGUE *t, int i )
+void CalcTongueNodes ( VERT *vt, TONGUE *t, int i )
+{
+	/*FVECTOR pos;
+	SetVectorFF ( &pos, &t->segment[i] );*/
+
+}
+
+
+void DrawTongueSegment ( FMA_GT4 *vt, TextureType *tEntry )
+{
+/*	register u_long t1 asm("$16");
+	register u_long t2 asm("$20");
+
+	register PACKET * packet asm("$17");
+
+	register char *opcd asm("$18");
+
+	long *tfv;
+	long *tfd;
+
+	#define GETX(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->x )
+	#define GETY(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->y )
+	#define GETV(n)(  *(u_long *)( (int)(tfv) +(n) ) )
+	#define GETD(n)(  *(u_long *)( (int)(tfd) +(n) ) )
+
+	register long depth asm("$16");
+
+	unsigned long *ot = currentDisplayPage->ot;
+
+	int i;
+
+	tfv = ( long* ) transformedVertices;
+	tfd = ( long* ) transformedDepths;
+
+	transformVertexListA ( vt, 1, tfv, tfd );
+
+	for ( i = 0; i < 1; i++ )
+	{
+		tfd [ i ] = tfd [ i ] >> 2;
+	}
+	// ENDFOR
+
+
+#define si ((POLY_GT4*)packet)
+#define op ((FMA_GT4 *)opcd)
+
+	op = vt;
+
+	packet = (PACKET *)currentDisplayPage->primPtr;
+
+	for ( i = 1; i != 0; i--, op++ )
+	{
+		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
+   	gte_avsz4();
+		gte_stotz_cpu ( depth );
+
+	/*	if ( depth > min_depth && depth < max_depth )
+		{
+			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
+			{
+				continue;
+			}*/
+			// ENDIF
+
+
+		/*	gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
+
+			addPrimLen ( ot + ( depth ), si, 12, t2 );
+
+			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
+			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
+
+			
+			gte_stsxy3_gt4(si);
+								
+			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
+			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
+
+
+			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+			*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+
+			*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
+
+			packet = ADD2POINTER ( packet, sizeof ( POLY_GT4 ) );
+
+	//	}
+	}
+#undef op
+#undef si
+
+	currentDisplayPage->primPtr = (char *)packet;
+*/
+}
+
+
+
+/*void CalcTongueNodes( VERTC *vT, TONGUE *t, int i )
 {
 	IQUATERNION q, cross;
 	fixed p;

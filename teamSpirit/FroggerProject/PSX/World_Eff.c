@@ -24,8 +24,10 @@
 #include "map_draw.h"
 #include "actor2.h"
 #include "maths.h"
+#include "layout.h"
 
 #include "World_Eff.h"
+
 
 
 #define VRAM_STARTX			512
@@ -188,8 +190,6 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & FLOW )
 			{
-//#ifdef DEBUG_INFO
-//				utilPrintf ( "" );
 				if ( mesh->flags & USLIDDING )
 				{
 					if ( mesh->flags & PLUSSLIDDING )
@@ -198,6 +198,8 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 					if ( mesh->flags & MINSLIDDING )
 						u = op->u0 - ( ( frame / 2 ) % 32 );
 					// ENDELSEIF
+					v = op->v0;
+
 				}
 				// ENDIF
 
@@ -209,6 +211,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 					if ( mesh->flags & MINSLIDDING )
 						v = op->v0 - ( ( frame / 2 ) % 32 );
 
+					u = op->u0;
 				}
 				// ENDIF
 
@@ -242,6 +245,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 					if ( mesh->flags & MINSLIDDING )
 						u = op->u1 - ( ( frame / 2 ) % 32 );
 					// ENDELSEIF
+					v = op->v1;
 				}
 				// ENDIF
 
@@ -252,6 +256,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 					if ( mesh->flags & MINSLIDDING )
 						v = op->v1 - ( ( frame / 2 ) % 32 );
+					u = op->u1;
 				}
 				// ENDIF
 
@@ -287,10 +292,11 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 				if ( mesh->flags & USLIDDING )
 				{
 					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v2 + ( ( frame / 2 ) % 32 );
+						u = op->u2 + ( ( frame / 2 ) % 32 );
 
 					if ( mesh->flags & MINSLIDDING )
-						v = op->v2 - ( ( frame / 2 ) % 32 );
+						u = op->u2 - ( ( frame / 2 ) % 32 );
+					v = op->v2;
 				}
 				// ENDIF
 
@@ -301,6 +307,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 					if ( mesh->flags & MINSLIDDING )
 						v = op->v2 - ( ( frame / 2 ) % 32 );
+					u = op->u2;
 				}
 				// ENDIF
 
@@ -324,10 +331,11 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 				if ( mesh->flags & USLIDDING )
 				{
 					if ( mesh->flags & PLUSSLIDDING )
-						v = op->v3 + ( ( frame / 2 ) % 32 );
+						u = op->u3 + ( ( frame / 2 ) % 32 );
 
 					if ( mesh->flags & MINSLIDDING )
-						v = op->v3 - ( ( frame / 2 ) % 32 );
+						u = op->u3 - ( ( frame / 2 ) % 32 );
+					v = op->v3;
 				}
 				// ENDIF
 
@@ -338,6 +346,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 					if ( mesh->flags & MINSLIDDING )
 						v = op->v3 - ( ( frame / 2 ) % 32 );
+					u = op->u3;
 				}
 				// ENDIF
 
@@ -925,9 +934,13 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 void PTTextureLoad ( void )
 {
-	CreateProceduralTexture ( "PRC_FIRE1" );		
+/*	CreateProceduralTexture ( "PRC_FIRE1" );		
+
 	CreateProceduralTexture ( "PRC_WATRD1" );		
+
 	CreateProceduralTexture ( "PRC_WATRT1" );		
+//	CreateProceduralTexture ( "00WATE04" );*/
+
 }
 
 void CreateProceduralTexture ( char *name )
@@ -1067,11 +1080,11 @@ void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )
 			si->y1 = atbdy;
 
 			si->x2 = atbdx;
-			si->y2 = atbdy + tex->h+32;
+			si->y2 = atbdy + tex->h;
 			//si->y2 = atbdy + (spr->height);
 
 			si->x3 = atbdx + tex->w;
-			si->y3 = atbdy + tex->h+32;
+			si->y3 = atbdy + tex->h;
 
 	
 			si->r0 = 255;
@@ -1097,4 +1110,155 @@ void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )
 
 #undef si
 
+}
+
+
+unsigned short *realWaterData;
+unsigned short *waterData;
+unsigned short *reflectionData;
+
+unsigned short *waterPalette;
+unsigned short *reflectionPalette;
+
+TextureType *realWater;
+TextureType *water;
+TextureType *reflection;
+
+void InitWater ( void )
+{
+/*	int counter;
+	RECT rect;
+
+	// JH : Get a pointer to texture that we will over right in VRAM.
+	if ( !( realWater = textureFindCRCInAllBanks ( utilStr2CRC ( "00WATE04" ) ) ) )
+	{
+		// JH : Output debug message if not found.
+		utilPrintf("Could Not Find Texture : 00WATE04\n");
+		return;
+	}
+	// ENDIF
+
+	// JH : atempt to find the required texture.
+	if ( !( water = textureFindCRCInAllBanks ( utilStr2CRC ( "WATER" ) ) ) )
+	{
+		// JH : Output debug message if not found.
+		utilPrintf("Could Not Find Texture : WATER\n");
+		return;
+	}
+	// ENDIF
+
+	// JH : atempt to find the required texture.
+	if ( !( reflection = textureFindCRCInAllBanks ( utilStr2CRC ( "REFLECT" ) ) ) )
+	{
+		// JH : Output debug message if not found.
+		utilPrintf("Could Not Find Texture : REFLECT\n");
+		return;
+	}
+	// ENDIF
+
+	// JH : Make sure we can get both textures before we continue. Malloc the space for each texture,
+	// JH : so that we can acces the texture data;
+	realWaterData				= (unsigned short *)MALLOC0( 8192 );
+	waterData				= (unsigned short *)MALLOC0( 8192 );
+	reflectionData	= (unsigned short *)MALLOC0( 8192 );
+
+	waterPalette			= (unsigned char *)MALLOC0( 512 );
+	reflectionPalette	= (unsigned char *)MALLOC0( 512 );
+
+	// JH : Make the rectangle of the texture in VRAM.
+	rect.x = VRAM_CALCVRAMX ( realWater->handle );
+	rect.y = VRAM_CALCVRAMY ( realWater->handle );
+	rect.w = 64;
+	rect.h = 64;
+
+	// JH : Copy the texture data into a buffer.
+	StoreImage ( &rect, (unsigned long*)realWaterData );
+
+	// JH : Make the rectangle of the texture in VRAM.
+	rect.x = VRAM_CALCVRAMX ( water->handle );
+	rect.y = VRAM_CALCVRAMY ( water->handle );
+	rect.w = 64;
+	rect.h = 64;
+
+	// JH : Copy the texture data into a buffer.
+	StoreImage ( &rect, (unsigned long*)waterData );
+
+	// JH : Make the rectangle of the texture in VRAM.
+	rect.x = VRAM_CALCVRAMX ( reflection->handle );
+	rect.y = VRAM_CALCVRAMY ( reflection->handle );
+	rect.w = 64;
+	rect.h = 64;
+
+	// JH : Copy the texture data into a buffer.
+	StoreImage ( &rect, (unsigned long*)reflectionData );
+
+	/*//*/ JH : Make the rectangle of the palette in VRAM.
+	rect.x = ( water->clut & 0x3f ) << 4;
+	rect.y = water->clut >> 6;
+	rect.w = 256;
+	rect.h = 1;
+
+	// JH : Copy the palette data into a buffer.
+	StoreImage ( &rect, (unsigned long*)waterPalette );
+
+	LoadClut ( (unsigned long*)waterPalette, (realWater->clut & 0x3f) << 4, realWater->clut >> 6 );
+
+*/
+	// JH : Make the rectangle of the palette in VRAM.
+	/*rect.x = ( water->clut & 0x3f ) << 4;
+	rect.y = water->clut >> 6;
+	rect.w = 256;
+	rect.h = 1;
+
+	// JH : Copy the palette data into a buffer.
+	StoreImage ( &rect, (unsigned long*)waterPalette );
+
+//	for ( counter = 0; counter < 256; counter++ )
+//		reflectionPalette[counter] = ((( reflectionPalette[counter] >> 10 ) & 0x1f) * 12) / 0x1f;
+
+	// JH : Make the rectangle of the palette in VRAM.
+	rect.x = ( realWater->clut & 0x3f ) << 4;
+	rect.y = realWater->clut >> 6;
+	rect.w = 256;
+	rect.h = 1;
+
+	// JH : Copy the palette data into a buffer.
+	LoadImage ( &rect, (unsigned long*)waterPalette );*/
+}
+
+
+void UpdateWater ( void )
+{
+	/*long wIndex1,wIndex2;
+	long wOffset;
+
+	long x,y,y1,p;
+
+	int counterX, counterY;
+	RECT rect;
+
+//	for ( counterY = 0; counterY < 64; counterY++ )
+//		for ( counterX = 0; counterX < 64; counterX++ )
+//			realWaterData [ counterX + counterY * 64 ] = reflectionData [ counterX + counterY * 64 ];
+		
+wOffset = 0;;
+
+	for (y=0,y1=0; y<64*64; y+= 64,y1+=64)
+		for (x=0; x<64; x++)
+		{
+			wIndex1 = ((x + wOffset) & (64-1)) + y;
+			wIndex2 = ((x + *(reflectionData+wIndex1)) & (64-1)) + y;
+
+			*(realWaterData+x+y1) = *(waterData+wIndex2);
+		}
+
+//memcpy ( realWaterData, waterData, 4096 );
+
+	rect.x = VRAM_CALCVRAMX ( realWater->handle );
+	rect.y = VRAM_CALCVRAMY ( realWater->handle );
+	rect.w = realWater->w;
+	rect.h = realWater->h;
+	
+	LoadImage ( &rect, (unsigned long*)realWaterData );
+*/
 }

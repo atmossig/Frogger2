@@ -7,6 +7,7 @@
 
 #include "types2d.h"
 #include "psxsprite.h"
+#include "sprite.h"
 
 
 
@@ -18,7 +19,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 	static TextureType		*tPtr;
 
-#define si ((POLY_FT4*)packet)
+#define si ((POLY_GT4*)packet)
 
 	atbdx = (spr->xPos/8)-256;
 #if PALMODE==1
@@ -29,8 +30,10 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 	tPtr = spr->frames[0];
 
-			BEGINPRIM(si, POLY_FT4);
+			BEGINPRIM(si, POLY_GT4);
 	
+			setPolyGT4(si);
+
 			si->x0 = atbdx;
 			si->y0 = atbdy;
 
@@ -53,10 +56,22 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 #endif
 
 	
-			si->r0 = spr->r;
-			si->g0 = spr->g;
-			si->b0 = spr->b;
+			si->r0 = ( spr->r * 128 ) >> 8;
+			si->g0 = ( spr->g * 128 ) >> 8;
+			si->b0 = ( spr->b * 128 ) >> 8;
 	
+			si->r1 = ( spr->r * 128 ) >> 8;
+			si->g1 = ( spr->g * 128 ) >> 8;
+			si->b1 = ( spr->b * 128 ) >> 8;
+
+			si->r2 = ( spr->r * 128 ) >> 8;
+			si->g2 = ( spr->g * 128 ) >> 8;
+			si->b2 = ( spr->b * 128 ) >> 8;
+
+			si->r3 = ( spr->r * 128 ) >> 8;
+			si->g3 = ( spr->g * 128 ) >> 8;
+			si->b3 = ( spr->b * 128 ) >> 8;
+
 			si->u0 = tPtr->u0;
 			si->v0 = tPtr->v0;
 			si->u1 = tPtr->u1;
@@ -66,12 +81,24 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			si->u3 = tPtr->u3;
 			si->v3 = tPtr->v3;
 		
-			si->code = GPU_COM_TF4;
+			si->code = GPU_COM_TG4;
 			si->tpage = tPtr->tpage;
+
+			if ( spr->flags & SPRITE_ADDITIVE )
+			{
+				si->code  |= 2;
+ 				si->tpage |= 32;
+			}
+			else if ( spr->flags & SPRITE_SUBTRACTIVE )
+			{
+				si->code  |= 2;
+ 				si->tpage = tPtr->tpage | 64;
+			}
+			// ENDELSEIF
+
 			si->clut = tPtr->clut;
 		
-			setPolyFT4(si);
-			ENDPRIM(si, spr->num*10, POLY_FT4);
+			ENDPRIM(si, 1, POLY_GT4);
 
 
 #undef si

@@ -69,6 +69,11 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\GARDEN\\GARDEN1.PIL" );
 			break;
 
+		case GARDENMULTI_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\GARDEN\\GARDENMULTI.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\GARDEN\\GARDEN1.PIL" );
+			break;
+
 		case ANCIENTLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\ANCIENTS\\ANCIENTS1.PIL" );

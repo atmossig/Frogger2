@@ -377,6 +377,7 @@ int main ( )
 		CommonInit();
 
 
+//		InitWater();
 //		LoadSfx(WORLDID_GENERIC);//mmsfx
 
 
@@ -402,7 +403,10 @@ int main ( )
 			TimerStart(&tGameLoop);
 			GameLoop();
 			TimerStop(&tGameLoop);
+
 			
+			UpdateWater();
+
 	//		if(spriteList.numEntries)
 	//			AnimateSprites();
 			
@@ -415,10 +419,10 @@ int main ( )
 				DrawWorld();
 			TimerStop(&tDrawWorld);
 
-			//DrawSpecialFX();
+			DrawSpecialFX();
 
 			TimerStart(&tPrintSprites);
-			//PrintSprites();
+			PrintSprites();
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);
@@ -444,7 +448,7 @@ int main ( )
 			PrintSpriteOverlays(0);
 
 
-			//ProcessProcTextures( );
+			ProcessProcTextures( );
 
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);

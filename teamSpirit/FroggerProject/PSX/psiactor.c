@@ -224,6 +224,8 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 
 	actor->animFrames = psiModel->animEnd;						// total noof frames of animation
 
+	utilPrintf("actor->animFrames, %d\n", actor->animFrames);
+
 	actor->radius = psiModel->radius;
 	
 	psiInitSortList( (actor->radius * 2) + 8 );	 					// make enough room to z sort polys
