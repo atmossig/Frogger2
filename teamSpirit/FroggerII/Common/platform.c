@@ -226,9 +226,12 @@ void UpdatePlatforms()
 
 						if (pl != -1)
 						{
+							currTile[pl] = destTile[pl] = cur->inTile[0];
+							currPlatform[pl] = NULL;
+							player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 							cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 							cur->carrying = NULL;
-							currTile[pl] = destTile[pl] = cur->inTile[0];
+
 							CalculateFrogJump(&frog[pl]->actor->pos, &destTile[pl]->centre, &destTile[pl]->normal, 0, 20, pl);
 						}
 					}
