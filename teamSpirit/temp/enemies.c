@@ -2734,7 +2734,7 @@ void SetEnemyMoving(ENEMY *nme, int moving)
 		{
 			if( nme->path->nodes[2].worldTile )
 			{
-				nme->inTile = nme->path->nodes[2].worldTile;
+				//nme->inTile = nme->path->nodes[2].worldTile;
 				nme->path->nodes[1].worldTile = nme->path->nodes[2].worldTile;
 				nme->path->nodes[2].worldTile = NULL;
 			}
@@ -2764,6 +2764,9 @@ int MoveEnemyToNode(ENEMY *nme, int node)
 		if( ph )
 		{
 			nme->path->nodes[0].worldTile = ph->path->nodes[0].worldTile;
+
+			nme->inTile = nme->path->nodes[0].worldTile;
+
 			if( nme->flags & ENEMY_NEW_BATTLEMODE )
 			{
 				if( nme->path->nodes[2].worldTile->state == TILESTATE_OCCUPIED )
