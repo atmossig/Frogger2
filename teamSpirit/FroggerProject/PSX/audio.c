@@ -484,16 +484,18 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 void PrepareSongForLevel(short worldID,short levelID)
 {
 	char cdTrack[16];
+	int trackIndex;
 
-	int trackIndex = worldID + GARDEN_CDAUDIO;
+	trackIndex = worldID + GARDEN_CDAUDIO;
 
 	// The frontend is different cos it has different cd tracks for its levels
 	if( worldID == WORLDID_FRONTEND && levelID == LEVELID_FRONTEND2 )
 		trackIndex++;
 
-	sprintf(cdTrack, "CD%i.XA", trackIndex);
+//	sprintf(cdTrack, "CD%i.XA", trackIndex);
 					   
-	xaFileData[trackIndex]=XAgetFileInfo(cdTrack);	// Not sure if you need to tell it its an xa file (looks like you do)
+//	xaFileData[trackIndex]=XAgetFileInfo(cdTrack);	// Not sure if you need to tell it its an xa file (looks like you do)
+	xaFileData[trackIndex]=XAgetFileInfo("CD2.XA");	// Not sure if you need to tell it its an xa file (looks like you do)
 
 	XAsetStatus(1);		// enable for playing
 	XAstart(1);			// set for double speed playback
