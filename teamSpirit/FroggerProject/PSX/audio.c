@@ -124,8 +124,8 @@ void StopSound()
 {
 	FreeSampleList();
 //free the sfxBankType pointers
-	FREE((UBYTE**)soundList.genericBank);
-	FREE((UBYTE**)soundList.levelBank);
+	FREE(soundList.genericBank);
+	FREE(soundList.levelBank);
 	sfxOff();
 	sfxStopSound();
 	sfxDestroy();
@@ -280,7 +280,7 @@ int LoadSfx( unsigned long worldID )
 	LoadSfxSet( path, 0 );
 
 
-	FREE( (UBYTE **)path );
+	FREE( path );
 	return 1;
 }
 
@@ -350,7 +350,7 @@ void RemoveSample( SAMPLE *sample )
 	sample->next		= NULL;
 	soundList.numEntries--;
 
-	FREE( (UBYTE **)sample );
+	FREE( sample );
 }
 
 
@@ -657,12 +657,14 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 void bb_InitXA(void)
 {
+#if GOLDCD==1
 	int i=0;
 	
 	XAsetStatus(CdInit());
 
 	for(i=0; i<MUSIC_NUM_TRACKS; i++)
 		xaFileData[i] = XAgetFileInfo(musicNames[i]);
+#endif
 }
 
 
@@ -690,15 +692,20 @@ void PrepareSong(short worldID)
 	// volume goes from 0 to 100
 */
 
+
+#if GOLDCD==1
 	XAstart(1);
 	XAplayChannel(xaFileData[worldID], 0,0,100);
+#endif
 }
 
 
 
 void StopSong( )
 {
+#if GOLDCD==1
 	XAstop();
+#endif
 }
 
 
