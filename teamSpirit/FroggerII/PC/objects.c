@@ -243,30 +243,30 @@ void LoadObjectBank(int num)
 			break;
 
 		case HALLOWEENMASTER_OBJ_BANK:
-			strcat (file,"haloweenmaster");
+			strcat (file,"halloweenmaster");
 			break;
 		case HALLOWEENBOSS_OBJ_BANK:
-			strcat (file,"haloweenboss");
+			strcat (file,"halloweenboss");
 			break;
 
 		case HALLOWEENLEV1_OBJ_BANK:
-			strcat (file,"haloween1");
+			strcat (file,"halloween1");
 			break;
 
 		case HALLOWEENLEV2_OBJ_BANK:
-			strcat (file,"haloween2");
+			strcat (file,"halloween2");
 			break;
 
 		case HALLOWEENLEV3_OBJ_BANK:
-			strcat (file,"haloween3");
+			strcat (file,"halloween3");
 			break;
 
 		case HALLOWEENBONUS_OBJ_BANK:
-			strcat (file,"haloweenbonus");
+			strcat (file,"halloweenbonus");
 			break;
 
 		case HALLOWEENMULTI_OBJ_BANK:
-			strcat (file,"haloweenmulti");
+			strcat (file,"halloweenmulti");
 			break;
 
 		case ANCIENTMASTER_OBJ_BANK:

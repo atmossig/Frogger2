@@ -327,7 +327,11 @@ void UpdateFroggerPos(long pl)
 		else dir = MOVE_RIGHT;
 
 		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
-		
+	
+		AnimateFrogHop((dir + camFacing) & 3,pl);
+
+		frogFacing[pl] = (frogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+
 		if(!MoveToRequestedDestination(dir,pl))
 		{
 			if(currPlatform[pl])
@@ -586,7 +590,7 @@ void GetNextTile(unsigned long direction,long pl)
 		player[pl].jumpStartFrame = actFrameCount;
 		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
 
-		AnimateFrogHop(direction,pl);
+		
 	}
 
 	if((destTile[pl]) && (player[pl].frogState & FROGSTATUS_ISFLOATING))
@@ -600,33 +604,33 @@ void AnimateFrogHop( unsigned long direction, long pl )
 	case 0:
 		switch( frogFacing[pl] )
 		{
-		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
-		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0);  dprintf"HopLeft\n")); break;
+		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); dprintf"HopRight\n")); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); dprintf"HopStraight\n")); break;
 		}
 		break;
 	case 1:
 		switch( frogFacing[pl] )
 		{
-		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
-		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0);dprintf"HopRight\n")); break;
+		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); dprintf"HopLeft\n")); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);dprintf"HopStraight\n")); break;
 		}
 		break;
 	case 2:
 		switch( frogFacing[pl] )
 		{
-		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
-		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); dprintf"HopLeft\n")); break;
+		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0);dprintf"HopRight\n")); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);dprintf"HopStraight\n")); break;
 		}
 		break;
 	case 3:
 		switch( frogFacing[pl] )
 		{
-		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
-		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
-		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0); break;
+		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); dprintf"HopLeft\n")); break;
+		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0);dprintf"HopRight\n")); break;
+		default: AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);dprintf"HopStraight\n")); break;
 		}
 		break;
 	}

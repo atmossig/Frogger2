@@ -1483,7 +1483,7 @@ void PCRenderObject (OBJECT *obj)
 			vTemp->sz = (tV[v0].v[Z]+DIST)/2000;///2000;
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0));
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0));
-			vTemp->color = D3DRGBA(c1->v[2],c1->v[1],c1->v[0],xl);
+			vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
 			if (xl<0.99)
 			{
 				vTemp->specular = D3DRGB(mV[v0],mV[v0],mV[v0]);
@@ -1501,7 +1501,7 @@ void PCRenderObject (OBJECT *obj)
 			vTemp->sz = (tV[v1].v[Z]+DIST)/2000;//2000;
 			vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0));
 			vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0));
-			vTemp->color = D3DRGBA(c2->v[2],c2->v[1],c2->v[0],xl);
+			vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
 			if (xl<0.99)
 			{
 				vTemp->specular = D3DRGB(mV[v1],mV[v1],mV[v1]);
@@ -1519,7 +1519,7 @@ void PCRenderObject (OBJECT *obj)
 			vTemp->sz = (tV[v2].v[Z]+DIST)/2000;///2000;
 			vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0));
 			vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0));
-			vTemp->color = D3DRGBA(c3->v[2],c3->v[1],c3->v[0],xl);
+			vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
 			if (xl<0.99)
 			{
 				vTemp->specular = D3DRGB(mV[v2],mV[v2],mV[v2]);
