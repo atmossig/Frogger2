@@ -24,6 +24,10 @@ enum
 {
 	NORMAL,
 	FROG,
+	FROG0,
+	FROG1,
+	FROG2,
+	FROG3,
 	BABY,
 	AUTOHOP,
 	SAFE,
@@ -365,6 +369,25 @@ void BuildSquareList(void)
 								frogs[numFrogs++] = nSquare;
 								printf("f");
 								break;
+							case FROG0:
+								frogs[0] = nSquare;
+								printf("1");
+								break;
+							case FROG1:
+								frogs[1] = nSquare;
+								if (numFrogs<2) numFrogs = 2;
+								printf("2");
+								break;
+							case FROG2:
+								frogs[2] = nSquare;
+								if (numFrogs<3) numFrogs = 3;
+								printf("3");
+								break;
+							case FROG3:
+								frogs[3] = nSquare;
+								if (numFrogs<4) numFrogs = 4;
+								printf("4");
+								break;
 							case BABY:
 								babys[numBabys++] = nSquare;
 								printf("b");
@@ -653,6 +676,30 @@ void ProcessLine(char *in)
 		mat[cMat] = FROG;
 	}
 
+	if (strncmp(in,"*MATERIAL_NAME \"frogger1start\"",29) == 0)
+	{
+		printf("FROG material %i found.\n",cMat);
+		mat[cMat] = FROG0;
+	}
+
+	if (strncmp(in,"*MATERIAL_NAME \"frogger2start\"",29) == 0)
+	{
+		printf("FROG material %i found.\n",cMat);
+		mat[cMat] = FROG1;
+	}
+
+	if (strncmp(in,"*MATERIAL_NAME \"frogger3start\"",29) == 0)
+	{
+		printf("FROG material %i found.\n",cMat);
+		mat[cMat] = FROG2;
+	}
+
+	if (strncmp(in,"*MATERIAL_NAME \"frogger4start\"",29) == 0)
+	{
+		printf("FROG material %i found.\n",cMat);
+		mat[cMat] = FROG3;
+	}
+
 	if (strncmp(in,"*MATERIAL_NAME \"babystart\"",26) == 0)
 	{
 		printf("BABY material %i found.\n",cMat);
@@ -837,8 +884,8 @@ void WriteTiles (FILE *fp)
 				(squareList[i].adj[3]==-1)?"":"tiles+",
 				(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
 
-//			fprintf (fp,"	%s%03i,\n",(i==(nSquare-1))?"":"tiles+",(i==(nSquare-1))?0:i+1);
-			fprintf (fp,"	tiles + %i,\n",(i==(nSquare-1))?0:i+1);
+			fprintf (fp,"	%s%3i,\n",(i==(nSquare-1))?"":"tiles+",(i==(nSquare-1))?0:i+1);
+//			fprintf (fp,"	tiles + %i,\n",(i==(nSquare-1))?0:i+1);
 			fprintf (fp,"	0,\n");
 			fprintf (fp,"	%lu,\n",squareList[i].status);
 			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].p[0],squareList[i].p[2],squareList[i].p[1]);
@@ -940,14 +987,14 @@ void WriteHeaders (FILE *fp)
 		(frogs[0]==-1)?0:frogs[0],
 
 		(frogs[1]==-1)?"":"tiles+",
-		(frogs[1]==-1)?0:frogs[0],
+		(frogs[1]==-1)?0:frogs[1],
 
 		(frogs[2]==-1)?"":"tiles+",
-		(frogs[2]==-1)?0:frogs[0],
+		(frogs[2]==-1)?0:frogs[2],
 
 
 		(frogs[3]==-1)?"":"tiles+",
-		(frogs[3]==-1)?0:frogs[0]
+		(frogs[3]==-1)?0:frogs[3]
 		);
 
 	fprintf(fp,"\nunsigned long t_numBabies = %i;\n",numBabys);
