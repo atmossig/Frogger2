@@ -587,6 +587,8 @@ int main ( )
 			lastactorCount = actorCount;
 			polyCount = 0;
 			actorCount = 0;
+			psiActorCount=0;
+			fmaActorCount=0;
 
 
 			worldPolyCount = 0;
@@ -766,6 +768,13 @@ TIMER_STOP(TIMER_GAMELOOP);
 	// ENDIF
 #endif
 
+	if(timerActive)
+	{
+		char tempText[128];
+ 		sprintf(tempText, "% 2d psiactors, %2d fmaactors",
+ 				psiActorCount, fmaActorCount); 
+ 		fontPrint(fontSmall, -200,40, tempText, 200,128,128);
+	}
 
 #if GOLDCD==0
 			if ( padData.digital[1] & PAD_L1 )
