@@ -687,22 +687,25 @@ void psiInitialise(int maxModels)
 void psiDestroy()
 {
 
-	FREE(transformedNormals);
-	FREE(transformedDepths);
-	FREE(transformedVertices);
+//	FREE(transformedNormals);
+//	FREE(transformedDepths);
+//	FREE(transformedVertices);
 
 
-	while (psiModelListLen)
-	{
-	 	psiModelListLen--;
-	 	FREE(psiModelList[psiModelListLen]);
-	}
+//	while (psiModelListLen)
+//	{
+//	 	psiModelListLen--;
+//	 	FREE(psiModelList[psiModelListLen]);
+//	}
 
-	while (pilLibraryLen)
-	{
-		pilLibraryLen--;
-	 	FREE(pilLibraryList[pilLibraryLen]);
-	}
+	psiModelListLen = 0;
+	pilLibraryLen = 0;
+
+//	while (pilLibraryLen)
+//	{
+//		pilLibraryLen--;
+//	 	FREE(pilLibraryList[pilLibraryLen]);
+//	}
 
 	transformedVertices = 0;
 	transformedDepths = 0;
@@ -710,14 +713,14 @@ void psiDestroy()
 	biggestVertexModel = 0;
 	biggestPrimModel = 0;
 	
-	if (sortedIndex)
-		FREE(sortedIndex);
+//	if (sortedIndex)
+//		FREE(sortedIndex);
 
 	sortedIndex = NULL;
 	maxDepthRange = 0;
 
-	FREE(psiModelList);
-	FREE(psiModelListCRC);
+//	FREE(psiModelList);
+//	FREE(psiModelListCRC);
 
 	
 }
