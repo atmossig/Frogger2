@@ -309,6 +309,17 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Go on - have a guess what I've been working on ! Ok, I'll tell you anyway. I've been working
+	on the procedural texture stuff again. It now works using 5551 RGBA so some of the nice alpha
+	blending effects of the PC cannot be done on the N64, but it still looks good N64 stylee.
+	Started to rewrite the procedural texture creation routines to handle the 5551 format, then
+	realised about an hour later that BankManager already does this anyway ! Ok, so I forgot...
+
+	Afternoon:
+
+
 
 David Swift:
 ------------------------------------------------
