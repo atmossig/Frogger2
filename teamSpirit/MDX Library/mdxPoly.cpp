@@ -293,7 +293,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	for (cnt=0;cnt<fC; cnt++)
 	{
 		*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);
-		*cFInfo->cT = tEntry->surf;
+		*cFInfo->cT = tEntry ? tEntry->surf : 0;
 		cFInfo->cF++;
 		cFInfo->cT++;
 		mfce++;
