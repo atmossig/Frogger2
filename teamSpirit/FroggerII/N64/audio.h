@@ -14,7 +14,6 @@
 
 
 
-
 typedef struct
 {
 
@@ -29,22 +28,20 @@ typedef struct
 	int	musicHandle;		//music handle
 	int currentTrack;		//current track number
 
-}AUDIOCONTROL;
+} AUDIOCONTROL;
 
 
-/*typedef struct
+typedef struct
 {
 	s16	triggerSecond,triggerFrame;
 	s16	stopSecond,stopFrame;
 	short	sfxNum;
 	char	vol,pan;
 	int		handle;
-}SFX_SCRIPT;*/
+} SFX_SCRIPT;
 
 
-
-
-/*typedef struct TAG_AMBIENT_SOUND
+typedef struct TAG_AMBIENT_SOUND
 {
 	struct TAG_AMBIENT_SOUND *next,*prev;
 	SFX			sfx;
@@ -58,9 +55,9 @@ typedef struct
 	short		origVol;
 	short		tag;
 }AMBIENT_SOUND;
-  */
 
-/*typedef struct
+
+typedef struct
 {
 	AMBIENT_SOUND head;
 	int numEntries;
@@ -68,11 +65,9 @@ typedef struct
 
 
 #define MAX_AMBIENT_SFX	50
-  */
 
 
-
-//extern AMBIENT_SOUND_LIST	ambientSoundList;
+extern AMBIENT_SOUND_LIST	ambientSoundList;
 extern AUDIOCONTROL audioCtrl;
 extern int MAX_SFX_DIST;
 extern int numberOfEnemies;
@@ -82,10 +77,10 @@ extern BOOL reverbOn;
 extern unsigned long sfxVol;
 extern unsigned long musicVol;
 
-/*extern SFX_SCRIPT	introSfxScript[];
-extern SFX_SCRIPT	entroSfxScript[];
-  */
-
+/*
+extern SFX_SCRIPT	introSfxScript[];
+extern SFX_SCRIPT	activeSfxScript[];
+*/
 
 enum
 {
@@ -160,22 +155,23 @@ void UpdateContinuousSample(SFX *sfx);
 void PrepareSong(char num);
 void DmaRomToRam(char *src, char *dest, int len);
 void ReInitMusicDriver(u8 *pointer, u8 *tune, u8 *wave);
-void SetMaxSfxDist(int dist);
+//void SetMaxSfxDist(int dist);
 void AddAmbientSfx(int num, int vol, int pan);
 void ClearAmbientSfx();
+void KillAmbientSfx();
 void StopContinuousSample(SFX *sfx);
 void PlayContinuousSample(SFX *sfx,short num, short vol, VECTOR *,short pitch);
 void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,short randFreq,short onTime,short platTag,short tag,float radius);
 void UpdateAmbientSounds();
 
 void InitAmbientSoundList();
-//void SubAmbientSound(AMBIENT_SOUND *ambientSound);
+void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 //AMBIENT_SOUND *FindTaggedAmbientSound(AMBIENT_SOUND *startAmbientSound, int tag);
 int PlaySampleNot3D(int num,UBYTE vol,UBYTE pan,UBYTE pitch);
 int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius);
 
-//void InitSFXScript(SFX_SCRIPT *script);
-//BOOL ScriptTriggerSound(short second, short frame);
+void InitSFXScript(SFX_SCRIPT *script);
+BOOL ScriptTriggerSound(short second, short frame);
 void ProcessSFXScript();
 void InitMusicDriver(void);
 

@@ -13,57 +13,51 @@
 #define NNSCHED
 
 #include <ultra64.h>
-#include "nnsched.h"
-#include "libmus.h"
-#include "libmus_data.h"
-
-#include "types.h"
-#include "block.h"
-#include "maths.h"
-#include "audio.h"
-#include "mbuffer.h"
+#include "incs.h"
 
 AUDIOCONTROL	audioCtrl;
-int MAX_SFX_DIST = 800;
+int MAX_SFX_DIST = 500;
 BOOL reverbOn = 0;
 
-//AMBIENT_SOUND_LIST	ambientSoundList;
+AMBIENT_SOUND_LIST	ambientSoundList;
 int numContinuousSamples = 0;
-
 
 unsigned long sfxVol	= 100;
 unsigned long musicVol	= 100;
 
+short currentScriptEntry = 0;
+int musresult;
 
-short	currentScriptEntry = 0;
-	int musresult;
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
+	Function 	: SubAmbientSound
+	Purpose 	: Remove ambient sound from playlist
+	Parameters 	: Ambient sound to remove
 	Returns 	: 
 	Info 		:
 */
-/*void SubAmbientSound(AMBIENT_SOUND *ambientSound)
+void SubAmbientSound(AMBIENT_SOUND *ambientSound)
 {
 	ambientSound->prev->next = ambientSound->next;
 	ambientSound->next->prev = ambientSound->prev;
 	ambientSoundList.numEntries--;
 }
-*/
+
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
+	Function 	: InitAmbientSoundList
+	Purpose 	: Initialise the ambient list to empty.
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-/*void InitAmbientSoundList()
+void InitAmbientSoundList()
 {
 	ambientSoundList.head.next = ambientSoundList.head.prev = &ambientSoundList.head;
 	ambientSoundList.numEntries = 0;
 }
-  */
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	: PrepareSong()
 	Purpose 	: dma's down all the bits of a song and sets up the music structure
@@ -381,10 +375,11 @@ void PrepareSong(char num)
 
 }
 
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
+	Function 	: PlaySample
+	Purpose 	: Play a sound sample at a given point with no distance attenuation
+	Parameters 	: Index of sample, position, volume, pitch
 	Returns 	: 
 	Info 		:
 */
@@ -443,24 +438,23 @@ int PlaySample(short num, VECTOR *pos, short tempVol,short pitch)
 
 }
 
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
+	Function 	: PlaySampleRadius
+	Purpose 	: Play a sample at a given point using spherical volume attenuation
+	Parameters 	: Index of sample, position, volume, pitch, attenuation radius
 	Returns 	: 
 	Info 		:
 */
 
 int PlaySampleRadius(short num, VECTOR *pos, short tempVol,short pitch,float radius)
 {
-/*	int result;
+	int result;
 	float	dist, scale, vol = tempVol;
 	VECTOR	tempVect;
-//	MusHandleStop(result, 10);
-
 
 //work out volume
-	dist = Max(0,DistanceBetweenPoints(&camera.pos, pos) - radius);
+	dist = Max(0,DistanceBetweenPoints(&frog[0]->actor->pos, pos) - radius);
 	if(dist > MAX_SFX_DIST)
 		return 0;
 
@@ -470,16 +464,16 @@ int PlaySampleRadius(short num, VECTOR *pos, short tempVol,short pitch,float rad
 	vol *= scale;
 
 //work out pan
-	SubVector2D(&tempVect, pos, &camera.pos);
+	SubVector2D(&tempVect, pos, &frog[0]->actor->pos);
 	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
-	scale = FindShortestAngle(Aabs(camera.rot.v[Y]+PI/2),dist);
+	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 
 	scale *= 255/PI;
 
 
 	if(num != FX_NULL)
 	{
-		vol *= 1.8;
+		//vol *= 1.8;
 		if(vol > 255)
 			vol = 255;
 
@@ -489,23 +483,25 @@ int PlaySampleRadius(short num, VECTOR *pos, short tempVol,short pitch,float rad
 		MusHandleSetTempo(result,pitch);
 	}
 	else	result = 0;
-
+/*
 	if((reverbOn) || (camera.stats->inWater))
 		MusHandleSetReverb(result, 30);
-	return result;
 */
+
+	return result;
 }
 
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
+	Function 	: PlayContinuousSample
+	Purpose 	: Loop sound effect???
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
 void PlayContinuousSample(SFX *sfx,short num,short vol,VECTOR *pos,short pitch)
 {
-/*	if(num == 0)
+	if(num == 0)
 		return;
 	if(sfx->handle)
 		StopContinuousSample(sfx);		
@@ -520,11 +516,13 @@ void PlayContinuousSample(SFX *sfx,short num,short vol,VECTOR *pos,short pitch)
 	sfx->pitch = pitch;
 
 	if(sfx->handle)
-		numContinuousSamples++;*/
+		numContinuousSamples++;
 }
+
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
+	Function 	: StopContinuousSample
+	Purpose 	: Interrupt a looping sample
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
@@ -541,16 +539,18 @@ void StopContinuousSample(SFX *sfx)
 	sfx->handle = 0;
   
 }
+
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
+	Function 	: UpdateContinuousSample
+	Purpose 	: Recalculates distance attenuation for a continuous sample
+	Parameters 	: Sound effect structure
 	Returns 	: 
-	Info 		:
+	Info 		: See also PlaySampleRadius
 */
 void UpdateContinuousSample(SFX *sfx)
 {
-/*	float	dist, scale;
+	float	dist, scale;
 	VECTOR	tempVect;
 
 	//if sfx is not playing return
@@ -559,7 +559,7 @@ void UpdateContinuousSample(SFX *sfx)
 
 	if(sfx->radius)
 	{
-		dist = Max(0,DistanceBetweenPoints(&camera.pos, sfx->pos) - sfx->radius);
+		dist = Max(0,DistanceBetweenPoints(&frog[0]->actor->pos, sfx->pos) - sfx->radius);
 		if(dist > MAX_SFX_DIST)
 		{
 			if(sfx->handle)
@@ -573,7 +573,7 @@ void UpdateContinuousSample(SFX *sfx)
 	}
 	else
 	{
-		dist = DistanceBetweenPointsSquared(&camera.pos, sfx->pos);
+		dist = DistanceBetweenPointsSquared(&frog[0]->actor->pos, sfx->pos);
 		if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
 		{
 			if(sfx->handle)
@@ -601,9 +601,9 @@ void UpdateContinuousSample(SFX *sfx)
 
 
 //work out pan
-	SubVector2D(&tempVect, sfx->pos, &camera.pos);
+	SubVector2D(&tempVect, sfx->pos, &frog[0]->actor->pos);
 	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
-	scale = FindShortestAngle(Aabs(camera.rot.v[Y]+PI/2),dist);
+	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 
 	scale *= 255/PI;
 
@@ -611,8 +611,11 @@ void UpdateContinuousSample(SFX *sfx)
 	{
 //		sfx->handle = MusBankStartEffect2(audioCtrl.sfxPtr, sfx->sampleNum, sfx->actualVolume, scale, 0, -1);
 		sfx->handle = MusStartEffect2(sfx->sampleNum, sfx->actualVolume, scale, 0, -1);
+
+/*
 		if((reverbOn) || (camera.stats->inWater))
 			MusHandleSetReverb(sfx->handle, 30);
+*/
 		numContinuousSamples++;
 	}
 	else
@@ -620,29 +623,18 @@ void UpdateContinuousSample(SFX *sfx)
 
 	MusHandleSetPan(sfx->handle, scale);
 	MusHandleSetFreqOffset(sfx->handle, (float)(sfx->pitch-128)/10.0);
-	MusHandleSetTempo(sfx->handle, sfx->pitch);*/
+	MusHandleSetTempo(sfx->handle, sfx->pitch);
 }
 
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
+	Function 	: AddAmbientSfx
+	Purpose 	: Put a new sourceless ambient effect into the list
+	Parameters 	: Sample index, volume, pan
 	Returns 	: 
-	Info 		:
+	Info 		: eg. AddAmbientSfx( FX_RAIN_HEAVY, 255, 0 )
 */
-/*void SetMaxSfxDist(int dist)
-{
-	MAX_SFX_DIST = dist;
-}
-  */
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-/*void AddAmbientSfx(int num, int vol, int pan)
+void AddAmbientSfx(int num, int vol, int pan)
 {
 	AMBIENT_SOUND *ptr = ambientSoundList.head.next;
 	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
@@ -666,17 +658,19 @@ void UpdateContinuousSample(SFX *sfx)
 	ambientSound->sfx.actualVolume = vol;
 	ambientSound->sfx.sampleNum = num;
 }
-  */
+
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
+	Function 	: AddAmbientSfxAtPoint
+	Purpose 	: As above, but has a definite source
+	Parameters 	: Index, volume, positon, pitch, repeat frequency, random offset frequency, repeat timeperiod,
+					platform to attach to(NOT IMPLEMENTED), tag???, radius of attenuation
 	Returns 	: 
 	Info 		:
 */
 void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,short randFreq,short onTime,short platTag,short tag,float radius)
 {
-/*	AMBIENT_SOUND *ptr = ambientSoundList.head.next;
+	AMBIENT_SOUND *ptr = ambientSoundList.head.next;
 	AMBIENT_SOUND *ambientSound = (AMBIENT_SOUND *)JallocAlloc(sizeof(AMBIENT_SOUND),YES,"AmbSnd");
 	
 	ambientSound->prev = ptr;
@@ -684,17 +678,17 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 	ptr->next->prev = ambientSound;
 	ptr->next = ambientSound;
 	ambientSoundList.numEntries++;
-
+/*
 	if(platTag)
 	{
 		SetVector(&ambientSound->offsetPos,pos);
 		ambientSound->platform = TagToFirstPlatform(platTag);
 	}
 	else
-	{
+	{*/
 		SetVector(&ambientSound->pos,pos);
 		ambientSound->platform = NULL;
-	}
+	//}
 	ambientSound->sfx.volume = vol;
 	ambientSound->sfx.sampleNum = num;
 	ambientSound->sfx.pitch = pitch;
@@ -718,44 +712,74 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 	ambientSound->freq = freq;
 	ambientSound->randFreq = randFreq;
 	ambientSound->onTime = onTime;
-	ambientSound->tag = tag;*/
+	ambientSound->tag = tag;
 }
+
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
+	Function 	: ClearAmbientSfx
+	Purpose 	: Stop all ambients
 	Parameters 	: 
 	Returns 	: 
-	Info 		:
+	Info 		: Does not actually delete anything, just stops them
 */
-/*void ClearAmbientSfx()
+void ClearAmbientSfx()
 {
 	AMBIENT_SOUND *ambientSound;
 
 	for(ambientSound = ambientSoundList.head.next;ambientSound != &ambientSoundList.head;ambientSound = ambientSound->next)
 	{
 		if(ambientSound->sfx.handle)
-		{
 			StopContinuousSample(&ambientSound->sfx);
-//			MusHandleStop(ambientSound->sfx.handle, 0);
-//			numContinuousSamples--;
-		}
+
 		ambientSound->sfx.pos = &zero;
 	}
 }
-*/
+
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
+	Function 	: KillAmbientSfx
+	Purpose 	: Deletes all ambient sounds from the list, after stopping them
+	Parameters 	: 
+	Returns 	: 
+	Info 		: 
+*/
+void KillAmbientSfx()
+{
+	AMBIENT_SOUND *ambientSound, *tmp;
+
+	for(ambientSound = ambientSoundList.head.next;ambientSound != &ambientSoundList.head; )
+	{
+		if( ambientSound != NULL )
+		{
+			if(ambientSound->sfx.handle)
+				StopContinuousSample(&ambientSound->sfx);
+
+			ambientSound->sfx.pos = &zero;
+			SubAmbientSound( ambientSound );
+
+			tmp = ambientSound->next;
+			JallocFree( (UBYTE **)&ambientSound );
+			ambientSound = tmp;
+		}
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: UpdateAmbientSounds
 	Purpose 	: 
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-/*void UpdateAmbientSounds()
+void UpdateAmbientSounds()
 {
 	AMBIENT_SOUND *ambientSound,*ambientSound2;
 	float pitch;
 
-	if((gamePaused) || (gameInfo.flags & LEVEL_OVER))
+	// Silence ambients if paused or level over?
+	if((gameState.mode == PAUSE_MODE) || levelIsOver )
 	{
 		for(ambientSound = ambientSoundList.head.next;ambientSound != &ambientSoundList.head;ambientSound = ambientSound->next)
 		{
@@ -765,14 +789,17 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 		return;
 	}
 
+	// Update each ambient in turn
 	for(ambientSound = ambientSoundList.head.next;ambientSound != &ambientSoundList.head;ambientSound = ambientSound2)
 	{
 		ambientSound2 = ambientSound->next;
 
+		// If sound doesn't have a source
 		if(ambientSound->sfx.pos == &zero)
 		{
 			if(ambientSound->sfx.sampleNum == FX_EERIE_WIND)
 			{
+				// Oscillating tone for wind
 				pitch = 128 + SineWave(50,frameCount,0)*30;
 				MusHandleSetFreqOffset(ambientSound->sfx.handle,(float)(pitch-128)/10.0);
 				MusHandleSetTempo(ambientSound->sfx.handle,pitch);
@@ -785,15 +812,18 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 			else if(ambientSound->sfx.handle)
 				MusHandleSetVolume(ambientSound->sfx.handle, (ambientSound->sfx.actualVolume*sfxVol)/32768);
 		}
-		else
+		else // If ambient is sourced
 		{
+			// If it is attached to a platform, make ambient follow that platform
 			if(ambientSound->platform)
 			{
-				RotateVectorByQuaternion(&ambientSound->pos,&ambientSound->offsetPos,&ambientSound->platform->actor.qRot);
-				AddToVector(&ambientSound->pos,&ambientSound->platform->actor.pos);
+				RotateVectorByQuaternion(&ambientSound->pos,&ambientSound->offsetPos,&ambientSound->platform->pltActor->actor->qRot);
+				AddToVector(&ambientSound->pos,&ambientSound->platform->pltActor->actor->pos);
 			}
 			if(ambientSound->sfx.volume)
 				UpdateContinuousSample(&ambientSound->sfx);	
+
+			// If ambient is on a timed loop, play on timeout
 			if(ambientSound->onTime)
 			{
 				if(ambientSound->counter)
@@ -828,10 +858,11 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 					}
 				}
 			}
-			else if(ambientSound->freq)
+			else if(ambientSound->freq) // Else if it plays after a randomly modified time
 			{
 				if(--ambientSound->counter == 0)
 				{
+					// If attenuated
 					if(ambientSound->sfx.radius)
 						PlaySampleRadius(ambientSound->sfx.sampleNum,&ambientSound->pos,ambientSound->sfx.volume,ambientSound->sfx.pitch,ambientSound->sfx.radius);
 					else
@@ -840,17 +871,18 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 				}
 			}
 		}
-	}*/
-//}
+	}
+}
+
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
+	Function 	: PlaySampleNot3D
 	Purpose 	: 
 	Parameters 	: 
 	Returns 	: 
 	Info 		:
 */
-/*int PlaySampleNot3D(int num,UBYTE vol,UBYTE pan,UBYTE pitch)
+int PlaySampleNot3D(int num,UBYTE vol,UBYTE pan,UBYTE pitch)
 {
 	int handle;
 
@@ -858,12 +890,12 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 	handle = MusStartEffect2(num,vol,pan, 0, -1);
 	MusHandleSetFreqOffset(handle,(float)(pitch-128)/10.0);
 	MusHandleSetTempo(handle,pitch);
-	return handle;*/
-//}
+	return handle;
+}
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
+	Function 	: InitSFXScript
 	Purpose 	: 
 	Parameters 	: 
 	Returns 	: 
@@ -874,8 +906,10 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 	currentScriptEntry = 0;
 	activeSFXScript = script;
 }
+*/
+
 /*	--------------------------------------------------------------------------------
-	Function 	: 
+	Function 	: ScriptTriggerSound
 	Purpose 	: 
 	Parameters 	: 
 	Returns 	: 
@@ -883,18 +917,16 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 */
 /*BOOL ScriptTriggerSound(short second, short frame)
 {
-	float	temp;
+	float temp;
 	short targetFrame;
 
 	if(activeSFXScript == &introSfxScript[0])
 	{
 		if(second+4 == frameCount)
 			return TRUE;
-
 	}
 	else
 	{
-
 		targetFrame = second * 20;
 		temp = (float)frame * 0.8;
 		targetFrame += temp;
@@ -904,9 +936,10 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 	}
 	return FALSE;
 }
+*/
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
+	Function 	: ProcessSFXScript
 	Purpose 	: 
 	Parameters 	: 
 	Returns 	: 
@@ -922,9 +955,9 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 
 	while(script->triggerSecond >= 0)
 	{
- 		if((script->stopSecond != -1) || (gameInfo.flags & LEVEL_OVER))
+ 		if((script->stopSecond != -1) || levelIsOver )
 		{
-			if((gameInfo.flags & LEVEL_OVER) || (ScriptTriggerSound(script->stopSecond, script->stopFrame)))
+			if( levelIsOver || (ScriptTriggerSound(script->stopSecond, script->stopFrame)))
 			{
 				MusHandleStop(script->handle, 0);
 			}		
@@ -932,8 +965,7 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 		script++;
 	}
 
-	if(gameInfo.flags & LEVEL_OVER)
-		return;
+	if( levelIsOver ) return;
 
 	script = activeSFXScript;
 
@@ -954,8 +986,7 @@ void AddAmbientSfxAtPoint(int num, int vol,VECTOR *pos,short pitch,short freq,sh
 			}
  		}
 		script++;
-	}
-	
+	}	
 }
-
 */
+
