@@ -108,7 +108,6 @@ BOOL PlatformTooHigh(PLATFORM *plat,long pl);
 BOOL PlatformTooLow(PLATFORM *plat,long pl);
 
 PLATFORM *GetPlatformFrogIsOn(long pl);
-PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 
 void FrogLeavePlatform(long pl);
 
@@ -128,6 +127,8 @@ void SetPlatformRegenerateTime(PLATFORM *pform,short time);
 
 PLATFORM *GetNearestPlatformBelowFrog(GAMETILE *tile,long pl);
 PLATFORM *GetPlatformFromUID(long uid);
+
+PLATFORM *CheckDestForPlatform(GAMETILE *dest,long pl);
 
 //------------------------------------------------------------------------------------------------
 
