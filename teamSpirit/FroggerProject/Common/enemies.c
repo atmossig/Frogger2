@@ -228,9 +228,11 @@ void DoEnemyCollision( ENEMY *cur )
 		}
 	}
 	else
-	{
-		int i;
-		for (i=0; i<NUM_FROGS; i++)
+	{ 
+		// We only want to do collision with player 1 in a REMOTE multiplayer game
+		int i = (gameState.multi==MULTIREMOTE)?0:(NUM_FROGS-1);
+
+		for (;i>=0;i--)
 		{
 			if( cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION )
 			{
