@@ -1141,7 +1141,7 @@ int SetupKeyboardDialog(int player, HWND hParent)
 
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-	long i, code;
+	long i, code, item;
 	char itmTxt[64];
 	HWND list;
 	static DWORD keyIndex = 0;
@@ -1193,15 +1193,19 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 					{
 						case LBN_SELCHANGE:
 							// Get index of new selection
-							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
-							if(i == LB_ERR || i < 0 || i >= NUM_CONTROLS )
+							item = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
+							if(item == LB_ERR || item < 0 || item >= NUM_CONTROLS )
 								break;
 
 							if ((code = GetButtonDialog(lpKeyb, hDlg)) == -1)
 								break;
 
+							for (i=0; i<NUM_CONTROLS; i++)
+								if (keymap[keyIndex+i].key == code)
+									keymap[keyIndex+i].key = 0;
+
 							// Set DInput key in keymap
-							keymap[keyIndex+i].key = code;
+							keymap[keyIndex+item].key = code;
 
 							// Reset and remake the key list
 							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
