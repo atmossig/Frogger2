@@ -27,7 +27,10 @@
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
-unsigned long actFrameCount, currentFrameTime,actTickCount;
+unsigned long actFrameCount,
+			lastActFrameCount = 0,
+			currentFrameTime,
+			actTickCount;
 unsigned long speedKill = 0;
 float gameSpeed = 1;
 

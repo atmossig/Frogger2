@@ -436,61 +436,64 @@ float camSpeed4 = 8;
 
 void SlurpCamPosition(long cam)
 {
-	float cam1, cam2, cam3;
+	float cam1 = camSpeed,
+		cam2 = camSpeed3,
+		cam3 = camSpeed4;
 
-	cam1 = camSpeed;
-	cam2 = camSpeed3;
-	cam3 = camSpeed4;
-
-	currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cam1;
-	currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cam1;
-	currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cam1;
-
-	currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cam2;
-	currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cam2;
-	currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cam2;
-
-	currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cam3;
-	currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cam3;
-	currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cam3;
-
-	if ( gameState.mode != CAMEO_MODE )
+	while( lastActFrameCount < actFrameCount )
 	{
-		VECTOR t = { 0,0,0 };
-		int i;
-	
-		for (i=0; i<NUM_FROGS; i++)
+		currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cam1;
+		currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cam1;
+		currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cam1;
+
+		currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cam2;
+		currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cam2;
+		currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cam2;
+
+		currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cam3;
+		currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cam3;
+		currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cam3;
+
+		if ( gameState.mode != CAMEO_MODE )
 		{
-			if (frog[i]->action.healthPoints > 0)
+			VECTOR t = { 0,0,0 };
+			int i;
+		
+			for (i=0; i<NUM_FROGS; i++)
 			{
-				t.v[0]+=currTile[i]->normal.v[0];
-				t.v[1]+=currTile[i]->normal.v[1];
-				t.v[2]+=currTile[i]->normal.v[2];
+				if (frog[i]->action.healthPoints > 0)
+				{
+					t.v[0]+=currTile[i]->normal.v[0];
+					t.v[1]+=currTile[i]->normal.v[1];
+					t.v[2]+=currTile[i]->normal.v[2];
+				}
 			}
+
+			MakeUnit (&t);
+			
+			camVect.v[0] -= (camVect.v[0] - t.v[0])/camSpeed2;
+			camVect.v[1] -= (camVect.v[1] - t.v[1])/camSpeed2;
+			camVect.v[2] -= (camVect.v[2] - t.v[2])/camSpeed2;
+			
 		}
 
-		MakeUnit (&t);
-		
-		camVect.v[0] -= (camVect.v[0] - t.v[0])/camSpeed2;
-		camVect.v[1] -= (camVect.v[1] - t.v[1])/camSpeed2;
-		camVect.v[2] -= (camVect.v[2] - t.v[2])/camSpeed2;
-		
-	}
+		xFOV		-= (xFOV - xFOVNew) / (camSpeed*fovSpd);
+		yFOV		-= (yFOV - yFOVNew) / (camSpeed*fovSpd);
+		camLookOfs	-= (camLookOfs - camLookOfsNew) / camSpeed;
 
-	xFOV		-= (xFOV - xFOVNew) / (camSpeed*fovSpd);
-	yFOV		-= (yFOV - yFOVNew) / (camSpeed*fovSpd);
-	camLookOfs	-= (camLookOfs - camLookOfsNew) / camSpeed;
+		if(cameraShake)
+		{
+			currCamSource[cam].v[0] += (-16 + Random(32));
+			currCamSource[cam].v[1] += (-16 + Random(32));
+			currCamSource[cam].v[2] += (-16 + Random(32));
+			cameraShake--;
+		}
+		else
+		{
+	//		osMotorStop ( &rumble );
+		}
 
-	if(cameraShake)
-	{
-		currCamSource[cam].v[0] += (-16 + Random(32));
-		currCamSource[cam].v[1] += (-16 + Random(32));
-		currCamSource[cam].v[2] += (-16 + Random(32));
-		cameraShake--;
-	}
-	else
-	{
-//		osMotorStop ( &rumble );
+		lastActFrameCount++;
 	}
 }
 
@@ -795,6 +798,8 @@ void RunGameLoop (void)
 
 		gameIsOver = 0;
 		levelIsOver = 0;
+		lastActFrameCount = 0;
+		actFrameCount = 0;
 
 //		LoadTextureBank ( SYSTEM_TEX_BANK )
 		//LoadObjectBank  ( SYSTEM_OBJ_BANK );
