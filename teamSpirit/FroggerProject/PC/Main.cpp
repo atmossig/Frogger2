@@ -705,6 +705,8 @@ long DrawLoop(void)
 	
 	UpdateAnimatingTextures();
 
+	//UpdateTextureText();
+
 	return 0;
 }
 
