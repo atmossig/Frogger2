@@ -635,15 +635,30 @@ void UpdateEnemies()
 
 //			NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->currNormal);
 //			or
-			if (cur->flags & ENEMY_NEW_FORWARDS)
-				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+
+			if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+			{
+				if (cur->flags & ENEMY_NEW_FORWARDS)
+					Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+				else
+				{
+					ScaleVector (&fwd,-1);
+					Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+				}
+			}
 			else
 			{
-				ScaleVector (&fwd,-1);
-				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+				if (cur->flags & ENEMY_NEW_FORWARDS)
+				{
+					SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
+				}
+				else
+				{
+					SubVector( &moveVec, &cur->path->nodes[cur->path->startNode].worldTile->centre, &cur->path->nodes[cur->path->startNode+1].worldTile->centre );
+				}
+
+				Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
-
-
 //--------------------->
 
 			// check if this enemy has arrived at a path node
@@ -772,9 +787,6 @@ void UpdateEnemies()
 					(cur->flags & ENEMY_NEW_ROTATEPATH_XY) ||
 					(cur->flags & ENEMY_NEW_ROTATEPATH_ZY) )
 				{
-					VECTOR v1,v2,v3,nmeup;
-					fromPosition = cur->nmeActor->actor->pos;
-
 					length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
 					length *= PI2;
 
@@ -799,7 +811,8 @@ void UpdateEnemies()
 
 					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
 					{
-						SubVector(&v1,&fromPosition,&toPosition);
+						VECTOR v1,v2,v3,nmeup;
+						SubVector(&v1,&cur->nmeActor->actor->pos,&toPosition);
 						MakeUnit(&v1);
 						RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
 						CrossProduct(&v2,&v1,&nmeup);
