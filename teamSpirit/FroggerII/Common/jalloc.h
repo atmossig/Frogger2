@@ -40,6 +40,8 @@ typedef struct
 
 
 void CheckJalloc();
+void ListJallocBlocks(UBYTE **blk);
+
 void JallocInit(ULONG base,ULONG size);
 UBYTE *JallocAlloc(LONG size, int clear,char *name);
 UBYTE *JallocAllocDynamic(LONG size, int clear,char *name);
