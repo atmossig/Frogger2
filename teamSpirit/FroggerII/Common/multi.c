@@ -91,9 +91,28 @@ void UpdateRace( )
 		return;
 	}
 
+	// Mini-loop for respawning before race start
 	if( started != 2 )
-		return;
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			// If waiting to respawn, update timer and check for respawn timeout
+			if( player[i].dead.time )
+			{
+				GTUpdate( &player[i].dead, -1 );
 
+				if( !player[i].dead.time )
+				{
+					RaceRespawn(i);
+					frog[i]->draw = 1;
+					GTInit( &player[i].safe, 3 );
+				}
+			}
+		}
+		return;
+	}
+
+	// Proper game loop thing
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		raceTimeOver[i]->r = (raceTimeOver[i]->r < 250)?(raceTimeOver[i]->r + 3):255;
