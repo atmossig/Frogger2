@@ -19,6 +19,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	int			atbdx,atbdy, w,h;
 	POLY_F4		*f4;
 	POLY_FT4	*ft4;
+	DR_MODE		*dm;
 	TextureType	*tPtr;
 	uchar alpha,r,g,b;
 	int depth;
@@ -57,18 +58,22 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		f4->y2 = atbdy + (spr->height/(17-PALMODE));
 		f4->x3 = atbdx + (spr->width/8);
 		f4->y3 = atbdy + (spr->height/(17-PALMODE));
-		f4->r0 = spr->r;
-		f4->g0 = spr->g;
-		f4->b0 = spr->b;
-		if ( spr->flags & SPRITE_ADDITIVE )
-		{
-			f4->code  |= 2;
-		}
-		else if ( spr->flags & SPRITE_SUBTRACTIVE )
-		{
-			f4->code  |= 2;
-		}
+		f4->r0 = r*2;
+		f4->g0 = g*2;
+		f4->b0 = b*2;
+		if(alpha)
+			setSemiTrans(f4,1);
 		ENDPRIM(f4, depth, POLY_F4);
+
+		if(alpha)
+		{
+			BEGINPRIM(dm, DR_MODE);
+			if(spr->flags & SPRITE_SUBTRACTIVE)
+				SetDrawMode(dm, 0,1, ((SEMITRANS_SUB-1)<<5),0);
+			else
+				SetDrawMode(dm, 0,1, ((SEMITRANS_ADD-1)<<5),0);
+			ENDPRIM(dm, depth, DR_MODE);
+		}
 	}
 	else
 	{
@@ -99,20 +104,19 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			ft4->u3 = tPtr->u3;
 			ft4->v3 = tPtr->v3;
 			ft4->tpage = tPtr->tpage;
-			if ( spr->flags & SPRITE_ADDITIVE )
+			if(alpha)
 			{
-				ft4->code  |= 2;
- 				ft4->tpage |= 32;
-			}
-			else if ( spr->flags & SPRITE_SUBTRACTIVE )
-			{
-				ft4->code  |= 2;
-				ft4->tpage |= 64;
+				if(spr->flags & SPRITE_SUBTRACTIVE)
+				{
+					SETSEMIPRIM(ft4, SEMITRANS_SUB);
+				}
+				else
+				{
+					SETSEMIPRIM(ft4, SEMITRANS_ADD);
+				}
 			}
 			ft4->clut = tPtr->clut;
 			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-			if(alpha)
-				SETSEMIPRIM(ft4, alpha);
 			ENDPRIM(ft4, depth, POLY_FT4);
 		}
 		else
@@ -139,20 +143,19 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			ft4->u3 = tPtr->u3;
 			ft4->v3 = tPtr->v3;
 			ft4->tpage = tPtr->tpage;
-			if ( spr->flags & SPRITE_ADDITIVE )
+			if(alpha)
 			{
-				ft4->code  |= 2;
-				ft4->tpage |= 32;
-			}
-			else if ( spr->flags & SPRITE_SUBTRACTIVE )
-			{
-				ft4->code  |= 2;
-				ft4->tpage = tPtr->tpage | 64;
+				if(spr->flags & SPRITE_SUBTRACTIVE)
+				{
+					SETSEMIPRIM(ft4, SEMITRANS_SUB);
+				}
+				else
+				{
+					SETSEMIPRIM(ft4, SEMITRANS_ADD);
+				}
 			}
 			ft4->clut = tPtr->clut;
 			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-			if(alpha)
-				SETSEMIPRIM(ft4, alpha);
 			ENDPRIM(ft4, depth, POLY_FT4);
 		}
 	}
@@ -164,6 +167,7 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 	int			atbdx,atbdy, w,h;
 	POLY_F4		*f4;
 	POLY_FT4	*ft4;
+	DR_MODE		*dm;
 	TextureType	*tPtr;
 	uchar alpha,r,g,b;
 	int depth;
@@ -238,18 +242,23 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 		f4->y3 = (newY + atbdy + halfHeight)/(17-PALMODE);
 
 
-		f4->r0 = spr->r;
-		f4->g0 = spr->g;
-		f4->b0 = spr->b;
-		if ( spr->flags & SPRITE_ADDITIVE )
-		{
-			f4->code  |= 2;
-		}
-		else if ( spr->flags & SPRITE_SUBTRACTIVE )
-		{
-			f4->code  |= 2;
-		}
+		f4->r0 = r*2;
+		f4->g0 = g*2;
+		f4->b0 = b*2;
+		if(alpha)
+			setSemiTrans(f4,1);
+
 		ENDPRIM(f4, depth, POLY_F4);
+
+		if(alpha)
+		{
+			BEGINPRIM(dm, DR_MODE);
+			if(spr->flags & SPRITE_SUBTRACTIVE)
+				SetDrawMode(dm, 0,1, ((SEMITRANS_SUB-1)<<5),0);
+			else
+				SetDrawMode(dm, 0,1, ((SEMITRANS_ADD-1)<<5),0);
+			ENDPRIM(dm, depth, DR_MODE);
+		}
 	}
 	else
 	{
@@ -306,20 +315,19 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 		ft4->u3 = tPtr->u3;
 		ft4->v3 = tPtr->v3;
 		ft4->tpage = tPtr->tpage;
-		if ( spr->flags & SPRITE_ADDITIVE )
+		if(alpha)
 		{
-			ft4->code  |= 2;
-			ft4->tpage |= 32;
-		}
-		else if ( spr->flags & SPRITE_SUBTRACTIVE )
-		{
-			ft4->code  |= 2;
-			ft4->tpage = tPtr->tpage | 64;
+			if(spr->flags & SPRITE_SUBTRACTIVE)
+			{
+				SETSEMIPRIM(ft4, SEMITRANS_SUB);
+			}
+			else
+			{
+				SETSEMIPRIM(ft4, SEMITRANS_ADD);
+			}
 		}
 		ft4->clut = tPtr->clut;
 		setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-		if(alpha)
-			SETSEMIPRIM(ft4, alpha);
 		ENDPRIM(ft4, depth, POLY_FT4);
 	}
 

@@ -23,7 +23,7 @@
 #include "layout.h"
 #include "menus.h"
 #include "game.h"
-
+#include "cam.h"
 
 int lastSound = -1;
 
@@ -852,9 +852,10 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	att = (radius)?radius/*/SCALE*/:DEFAULT_SFX_DIST;
 	att = att<<12;
 
-	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
+	SubVectorSSF(&diff, pos, &currCamSource);
+//	SubVectorSSS( &diff, pos, &frog[0]->actor->position );
 	// Volume attenuation - check also for radius != 0 and use instead of default
-	dist = MagnitudeS( &diff );
+	dist = MagnitudeS(&diff);
 	if( dist > (att) )
 		return -1;
 
