@@ -23,8 +23,6 @@ ENEMYLIST enemyList;						// the enemy linked list
 void NMEDamageFrog( int num, ENEMY *nme );
 void RotateWaitingNME( ENEMY *cur );
 void SlerpWaitingFlappyThing( ENEMY *cur );
-void ProcessEnemyEffects( ENEMY *cur );
-void SetEnemyFXColour( SPECFX *fx, ACTOR2 *act );
 
 void UpdatePathNME( ENEMY *cur );
 void UpdateSlerpPathNME( ENEMY *cur );
@@ -190,7 +188,7 @@ void UpdateEnemies()
 
 		// Do Special Effects attached to enemies
 		if( cur->nmeActor->effects )
-			ProcessEnemyEffects( cur );
+			ProcessAttachedEffects( (void *)cur, 1 );
 	}
 }
 
@@ -995,149 +993,6 @@ void SlerpWaitingFlappyThing( ENEMY *cur )
 	QuatSlerp( &q1, &q2, speed, &cur->nmeActor->actor->qRot );
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessEnemyEffects
-	Purpose			: Add special effects to the enemy
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void ProcessEnemyEffects( ENEMY *cur )
-{
-	long r;
-	VECTOR rPos, up;
-	SPECFX *fx = NULL;
-	float fxDist;
-
-	if( cur->nmeActor->value1 )
-		r = Random(cur->nmeActor->value1)+1;
-	else
-		r = 10;
-
-	fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos);
-
-	if(fxDist < ACTOR_DRAWDISTANCEOUTER)
-	{
-		if( !(actFrameCount%r) )
-		{
-			if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
-			{
-				SetVector( &rPos, &cur->nmeActor->actor->pos );
-				rPos.v[Y] = cur->inTile->centre.v[Y];
-				if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 30, 1, 0.2, 0.5 );
-				else // Gentle ripples
-					fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &rPos, &cur->currNormal, 50, 0.5, 0.1, 0.8 );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-			if( cur->nmeActor->effects & EF_SMOKE_STATIC )
-			{
-				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0.4, 0, 1.5 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0.1, 0, 1.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0.2, 0, 1.5 );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-			if( cur->nmeActor->effects & EF_SMOKE_GROWS )
-			{
-				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.4, 0, 1.5 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.1, 0, 1.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.2, 0, 1.5 );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-			if( cur->nmeActor->effects & EF_SPARKBURST )
-			{
-				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 3, 0, 0.7 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 0.5, 0, 0.7 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 1.5, 0, 0.7 );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-			if( cur->nmeActor->effects & EF_SMOKEBURST )
-			{
-				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 3, 0, 0.7 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 0.5, 0, 0.7 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 1.5, 0, 0.7 );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-			if( cur->nmeActor->effects & EF_FLAMES )
-			{
-				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 2, 0, 0.7 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 0.2, 0, 0.7 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 0.9, 0, 0.7 );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-			if( cur->nmeActor->effects & EF_BUBBLES )
-			{
-				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 8, 0.5, 0, 0.5 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 8, 0.1, 0, 0.5 );
-				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 8, 0.3, 0, 0.5 );
-
-				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-				SetVector( &up, &cur->path->nodes[0].worldTile->normal );
-				SetVector( &fx->rebound->normal, &up );
-				ScaleVector( &up, cur->nmeActor->radius );
-				AddVector( &fx->rebound->point, &cur->nmeActor->actor->pos, &up );
-
-				SetEnemyFXColour( fx, cur->nmeActor );
-			}
-		}
-		if( cur->nmeActor->effects & EF_FLYSWARM )
-		{
-			fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &cur->nmeActor->actor->pos, &cur->currNormal, 25, 0, 0, 0 );
-			fx->follow = cur->nmeActor->actor;
-			if( cur->flags & ENEMY_NEW_FLAPPYTHING )
-			{
-				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-				GetPositionForPathNode( &rPos, &cur->path->nodes[0] );
-				SetVector( &fx->rebound->point, &rPos );
-				SetVector( &fx->rebound->normal, &cur->path->nodes[0].worldTile->normal );
-			}
-			cur->nmeActor->effects &= ~EF_FLYSWARM;
-		}
-	}
-}
-
-
-void SetEnemyFXColour( SPECFX *fx, ACTOR2 *act )
-{
-	unsigned char r=60, g=60, b=60;
-
-	if( act->effects & EF_TINTRED )
-		r = 255;
-	if( act->effects & EF_TINTGREEN )
-		g = 255;
-	if( act->effects & EF_TINTBLUE )
-		b = 255;
-
-	if( r == g && r == b && g == b )
-		r = g = b = 255;
-
-	SetFXColour( fx, r, g, b );
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitEnemyLinkedList

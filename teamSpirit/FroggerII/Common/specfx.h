@@ -121,6 +121,8 @@ extern void InitSpecFXList( );
 extern void FreeSpecFXList( );
 
 extern void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b );
+extern void SetAttachedFXColour( SPECFX *fx, int effects );
+extern void ProcessAttachedEffects( void *entity, int type );
 
 extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal );
 
