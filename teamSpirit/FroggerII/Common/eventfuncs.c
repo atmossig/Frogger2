@@ -433,11 +433,15 @@ void SpringFrog( EVENT *event )
 
 		start = 0;
 		end = 0;
-
+/*
 		// Delete this trigger/event pair
-		SubTrigger( trigger );
-		JallocFree( trigger );
-	}
+		// WRONG! The event code does this; freeing events during execution will cause crashes
+		SubTrigger(trigger);
+		KillAllEvents(trigger);
+		JallocFree(trigger);
+*/
+		trigger->flags = TRIGGER_ONCE;	// Make the trigger delete itself!
+  }
 }
 
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
