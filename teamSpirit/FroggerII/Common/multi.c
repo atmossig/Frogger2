@@ -6,6 +6,8 @@
 int multiplayerMode;
 long started = 0;
 
+TIMER powerupTimer;
+
 void UpdateCTF( );
 void UpdateRace( );
 void UpdateBattle( );
@@ -14,7 +16,16 @@ void CalcBattleCamera( VECTOR *target );
 void CalcCTFCamera( VECTOR *target );
 void CalcRaceCamera( VECTOR *target );
 
-MPINFO mpl[4];
+void BattleProcessController( int pl );
+void AddBattleTrailNode( int i );
+
+MPINFO mpl[4] = 
+{
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  230, 30,	0, 0, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	230, 30,  30,	0, 0, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	180, 180, 230,	0, 0, NULL },
+	{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  30,  230,	0, 0, NULL },
+};
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateCTF
@@ -247,6 +258,7 @@ void UpdateBattle( )
 			if( count == NUM_FROGS )
 			{
 				GTInit( &endTimer, 0 );
+				GTInit( &powerupTimer, Random(10)+10 );
 				started = 1;
 			}
 		}
@@ -271,27 +283,85 @@ void UpdateBattle( )
 		return;
 	}
 
+	GTUpdate( &powerupTimer, -1 );
+	if( !(powerupTimer.time) )
+	{
+		VECTOR pos;
+		GARIB *g;
+		int r=Random(numTiles);
+
+		SetVector( &pos, &firstTile[r].normal );
+		ScaleVector( &pos, 250 );
+		AddToVector( &pos, &firstTile[r].centre );
+
+		// TODO: Randomise garib type with preference for trail extension
+		g = CreateNewGarib( pos, SPAWN_GARIB );
+		DropGaribToTile( g, &firstTile[r], 10 );
+		GTInit( &powerupTimer, (Random(10)+10) );
+	}
+
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		// Check for frog off screen - death
+		// Change desired frog facing
+		BattleProcessController(i);
+
 		if( started )
 		{
-			res = 1;
-
+			AIPATHNODE *node, *temp;
 			// If the frog can move then continue in current direction
-			if( player[i].canJump )	
+			if( player[i].canJump )
+			{
 				res = MoveToRequestedDestination( ((frogFacing[i] - camFacing) & 3), i );
+				player[i].canJump = 0;
 
-			// If move failed then we've hit summat, so die. Also die if we've hit another players trail
-			if( !res || (currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA && (currTile[i]->state-TILESTATE_FROGGER1AREA != i)) )
-				player[i].frogState |= FROGSTATUS_ISDEAD;
-			
+				// Add a new node to the trail
+				if( res )
+					AddBattleTrailNode( i );
+				else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA && (currTile[i]->state-TILESTATE_FROGGER1AREA != i) )
+					player[i].frogState |= FROGSTATUS_ISDEAD;
+			}
+
+			// Update trail. For 0->length, increase alpha to limit. 
+			for( j=0, node=mpl[i].path; node && j<mpl[i].trail; j++,node = node->next )
+			{
+				int fo = 20*gameSpeed;
+				if( node->fx && node->fx->a < 255-fo )
+					node->fx->a += fo;
+			}
+			// For length->endoflist, fade out and make not deadly
+			while( node )
+			{
+				int fo = 10*gameSpeed;
+
+				temp = node->next;
+				node->tile->state = TILESTATE_NORMAL;
+
+				if( node->fx->a <= fo )
+					SubAIPathNode( node );
+				else
+					node->fx->a -= fo;
+
+				node = temp;
+			}
 		}
 
-		if( player[i].frogState & FROGSTATUS_ISDEAD ) dead++;
+		if( player[i].frogState & FROGSTATUS_ISDEAD )
+		{
+			player[i].deathBy = DEATHBY_NORMAL;
+			frog[i]->draw = 0;
+			dead++;
+		}
 	}
 
 	// The last player alive wins!
+	if( dead == NUM_FROGS-1 )
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
+				break;
+
+
+	}
 
 	// Or if everyone is dead, declare a draw
 	if( dead == NUM_FROGS )
@@ -438,6 +508,76 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: Battle process controller
+	Purpose			: Just change direction, and maybe use tongue
+	Parameters		: player
+	Returns			: void
+	Info			:
+*/
+void BattleProcessController( int pl )
+{
+	u16 button[4],lastbutton[4];
+
+	button[pl] = controllerdata[pl].button;
+	lastbutton[pl] = controllerdata[pl].lastbutton;
+
+	// Change frog facing on direction keys
+	player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
+
+	if( (button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP))
+		frogFacing[pl] = (camFacing + MOVE_UP) & 3;
+	else if( (button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN))
+		frogFacing[pl] = (camFacing + MOVE_DOWN) & 3;
+	else if( (button[pl] & CONT_LEFT) && !(lastbutton[pl] & CONT_LEFT))
+		frogFacing[pl] = (camFacing + MOVE_LEFT) & 3;
+	else if( (button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT))
+		frogFacing[pl] = (camFacing + MOVE_RIGHT) & 3;
+
+	nextFrogFacing[pl] = frogFacing[pl];
+
+	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
+	{
+		gameState.mode = PAUSE_MODE;
+		pauseMode = 1;
+
+		EnableTextOverlay ( continueText );
+		EnableTextOverlay ( quitText );
+
+		timeTextOver->oa = timeTextOver->a;
+		timeTextOver->a = 0;
+    }
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddBattleTrailNode
+	Purpose			: Add an aipathnode to the trail and put an effect on it
+	Parameters		: player
+	Returns			: void
+	Info			:
+*/
+void AddBattleTrailNode( int i )
+{
+	AIPATHNODE *node = (AIPATHNODE *)JallocAlloc(sizeof(AIPATHNODE),YES,"battletrail");
+	
+	node->tile = currTile[i];
+	node->tile->state = TILESTATE_FROGGER1AREA + i;
+	// Create the effect that marks the trails
+	if( (node->fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &currTile[i]->centre, &currTile[i]->normal, 25, 0, 0, 9999999 )) )
+	{
+		node->fx->fade = 0;
+		node->fx->tex = txtrSolidRing;
+		node->fx->a = 1;
+		SetFXColour( node->fx, mpl[i].r, mpl[i].g, mpl[i].b );
+	}
+
+	// Add to list
+	node->next = mpl[i].path;
+	if( mpl[i].path ) mpl[i].path->prev = node;
+	mpl[i].path = node;
+}
+
 void KillMPFrog(int num)
 {
 	int i=0;
@@ -463,6 +603,7 @@ void ResetMultiplayer( )
 
 	started = 0;
 	playerFocus = 0;
+	GTInit( &powerupTimer, 0 );
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
@@ -475,12 +616,22 @@ void ResetMultiplayer( )
 		break;
 
 	case MULTIMODE_BATTLE:
+	{
+		AIPATHNODE *node, *temp;
 		for( i=0; i<NUM_FROGS; i++ )
 		{
-			mpl[i].trail = MULTI_BATTLE_TRAILLEN;
+			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
+			mpl[i].ready = 0;
+			node = mpl[i].path;
+			while(node)
+			{
+				temp = node->next;
+				SubAIPathNode(node);
+				node = temp;
+			}
 		}
 		break;
-
+	}
 	case MULTIMODE_RACE_NORMAL:
 	case MULTIMODE_RACE_KNOCKOUT:
 		for( i=0; i<NUM_FROGS; i++ )

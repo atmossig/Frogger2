@@ -115,6 +115,9 @@ void GameProcessController(long pl)
 		runAttractMode = actFrameCount+attractTime;
 
 	player[pl].hasJumped = 0;
+
+	if( multiplayerMode == MULTIMODE_BATTLE )
+		return;
 	
 	// check if frog is using extended hop ability
 	if(player[pl].isSuperHopping)
@@ -444,7 +447,6 @@ void GameProcessController(long pl)
 			for(i=0; i<numBabies; i++)
 				babyIcons[i]->draw = 0;
 		}
-		lastbutton[pl] = button[pl];
     }
 }
 
