@@ -1,6 +1,7 @@
 
 #include "sonylibs.h"
 #include <islutil.h>
+#include <isltex.h>
 #include "shell.h"
 #include "types.h"
 #include "main.h"
@@ -9,6 +10,24 @@
 #include "maths.h"
 
 #include "World_Eff.h"
+
+
+#define VRAM_STARTX			512
+#define VRAM_PAGECOLS		8
+#define VRAM_PAGEROWS		2
+#define VRAM_PAGES			16
+#define VRAM_PAGEW			32
+#define VRAM_PAGEH			32
+#define VRAM_SETX(X)		(X)
+#define VRAM_SETY(Y)		((Y)*VRAM_PAGEW)
+#define VRAM_SETXY(X,Y)		((X)+((Y)*VRAM_PAGEW))
+#define VRAM_SETPAGE(P)		((P)<<16)
+#define VRAM_GETX(HND)		((HND) & (VRAM_PAGEW-1))
+#define VRAM_GETY(HND)		(((HND)/VRAM_PAGEW) & (VRAM_PAGEW-1))
+#define VRAM_GETXY(HND)		((HND) & 0xffff)
+#define VRAM_GETPAGE(HND)	((HND)>>16)
+#define VRAM_CALCVRAMX(HND)	(512+((VRAM_GETPAGE(HND)%(VRAM_PAGECOLS))*64)+(VRAM_GETX(HND)*2))
+#define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
 
 
 SCENICOBJLIST scenicObjList;
@@ -590,6 +609,170 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 }
 
-void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
+void PTTextureLoad ( void )
 {
+	CreateProceduralTexture ( "PRC_FIRE1" );		
+	CreateProceduralTexture ( "PRC_WATRD1" );		
+	CreateProceduralTexture ( "PRC_WATRT1" );		
+}
+
+void CreateProceduralTexture ( char *name )
+{
+	unsigned long i;
+	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
+	unsigned short newCol,nR,nG,nB,nA;
+
+	unsigned char *tempBuf;
+
+	unsigned short *tempPalette;
+	int counter;
+
+	RECT texRect;
+
+
+	PROCTEXTURE *pt = (PROCTEXTURE *)MALLOC0( sizeof(PROCTEXTURE) );
+
+	// Add to procedural text list
+	pt->next = prcTexList;
+	prcTexList = pt;
+
+	// Set proc texture members
+	pt->tex = textureFindCRCInAllBanks ( utilStr2CRC ( name ) );
+
+	pt->buf1 = (unsigned char *)MALLOC0( 2048 );
+	pt->buf2 = (unsigned char *)MALLOC0( 2048 );
+	pt->palette = (unsigned short *)MALLOC0( 512 );
+
+	tempPalette = (unsigned short *)MALLOC0( 512 );
+
+	pt->active = 1;
+
+	texRect.x = VRAM_CALCVRAMX(pt->tex->handle);
+	texRect.y = VRAM_CALCVRAMY(pt->tex->handle);
+	texRect.w = 16;
+	texRect.h = 32;
+
+	DrawSync(0);
+	StoreImage ( &texRect, (unsigned long*)pt->buf1 );
+	DrawSync(0);
+
+	
+	StoreImage ( &texRect, (unsigned long*)pt->buf2 );
+	DrawSync(0);
+
+	texRect.x = (pt->tex->clut & 0x3f) << 4;
+	texRect.y = pt->tex->clut >> 6;
+	texRect.w = 256;
+	texRect.h = 1;
+
+	DrawSync(0);
+	StoreImage ( &texRect, (unsigned long*)pt->palette );
+	DrawSync(0);
+
+	for( i=0; i<256; i++ )
+	{
+		nB = ( pt->palette [ pt->buf1 [ i ] ] >> 10 ) & 31;
+		nG = ( pt->palette [ pt->buf1 [ i ] ] >> 5  ) & 31;
+		nR =   pt->palette [ pt->buf1 [ i ] ] & 31;
+
+		newCol = ( ( ( nB ) << 10 ) | ( ( nG ) << 5 ) | ( nR ) );
+		
+		((unsigned short *)tempPalette)[i] = newCol;
+	}
+			
+	LoadClut ( (unsigned long*)tempPalette, (pt->tex->clut & 0x3f) << 4, pt->tex->clut >> 6 );
+	
+	// Set update function and type depending on filename
+	if( name[4]=='F' && name[5]=='I' && name[6]=='R' && name[7]=='E' )
+		pt->Update = ProcessPTFire;
+	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
+		pt->Update = ProcessPTForcefield;
+	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
+	{
+		if( name[8]=='r' )
+			pt->Update = ProcessPTWaterRipples;
+		else if( name[8]=='d' )
+			pt->Update = ProcessPTWaterDrops;
+		else if( name[8]=='b' )
+			pt->Update = ProcessPTWaterBubbler;
+		else if( name[8]=='t' )
+			pt->Update = ProcessPTWaterTrail;
+		else if( name[8]=='w' )
+			pt->Update = ProcessPTWaterWaves;
+	}
+	else if( name[4]=='s' && name[5]=='t' && name[6]=='e' && name[7]=='a' )
+	{
+		pt->Update = ProcessPTSteam;
+//		pt->active = 0;
+//		steamTex = pt;
+	}
+	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
+		pt->Update = ProcessPTCandle;
+}
+
+void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )
+{
+	RECT texRect;
+
+	int			atbdx,atbdy;
+
+	register PACKET*		packet;
+
+	static TextureType		*tPtr;
+
+	texRect.x = VRAM_CALCVRAMX(tex->handle);
+	texRect.y = VRAM_CALCVRAMY(tex->handle);
+	texRect.w = tex->w;
+	texRect.h = tex->h;
+	
+	LoadImage ( &texRect, (unsigned long*)buf );
+
+
+
+#define si ((POLY_FT4*)packet)
+
+	atbdx = 32;
+	atbdy = 32;
+
+	tPtr = tex;
+
+			BEGINPRIM(si, POLY_FT4);
+	
+			si->x0 = atbdx;
+			si->y0 = atbdy;
+
+			si->x1 = atbdx + tex->w;
+			si->y1 = atbdy;
+
+			si->x2 = atbdx;
+			si->y2 = atbdy + tex->h+32;
+			//si->y2 = atbdy + (spr->height);
+
+			si->x3 = atbdx + tex->w;
+			si->y3 = atbdy + tex->h+32;
+
+	
+			si->r0 = 255;
+			si->g0 = 255;
+			si->b0 = 255;
+	
+			si->u0 = tPtr->u0;
+			si->v0 = tPtr->v0;
+			si->u1 = tPtr->u1;
+			si->v1 = tPtr->v1;
+			si->u2 = tPtr->u2;
+			si->v2 = tPtr->v2;
+			si->u3 = tPtr->u3;
+			si->v3 = tPtr->v3;
+		
+			si->code = GPU_COM_TF4;
+			si->tpage = tPtr->tpage;
+			si->clut = tPtr->clut;
+		
+			setPolyFT4(si);
+			ENDPRIM(si, 1, POLY_FT4);
+
+
+#undef si
+
 }

@@ -47,6 +47,7 @@
 #include "World_Eff.h"
 //#include "sfx.h"//mmsound
 #include "audio.h" //mmsfx
+#include "ptexture.h"
 
 
 void customDrawPrimitives2(int);
@@ -582,6 +583,8 @@ int main ( )
 			PrintTextOverlays();
 			PrintSpriteOverlays(0);
 
+
+			ProcessProcTextures( );
 
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);

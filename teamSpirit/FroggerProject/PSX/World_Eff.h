@@ -8,8 +8,11 @@
 #define ADDATIVE	  ( 1 << 3 )
 
 
+#include "sonylibs.h"
 #include "map_draw.h"
 #include "actor2.h"
+
+#include "ptexture.h"
 
 void DrawWater ( FMA_MESH_HEADER *mesh, int flags );
 
@@ -52,6 +55,13 @@ void SubScenicObject ( SCENICOBJ *scenicObj );
 
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags );
 
-void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal );
+// JH: Loads in the procedual textures
+void PTTextureLoad ( void );
+
+// JH: Creates a procedual texture from a given texture name
+void CreateProceduralTexture ( char *name );
+
+// JH: Blits the new texture buffer on to the video memory of the texture.
+void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal );
 
 #endif
