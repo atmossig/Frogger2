@@ -183,6 +183,37 @@ int LogicalOR( TRIGGER *trigger )
 	return 0;
 }
 
+int EnemyAtFlag(TRIGGER *trigger)
+{
+	int id, flag, n;
+	ENEMY *e;
+	
+	id = (int)trigger->data[0];
+	flag = (int)trigger->data[1];
+
+	for(e = enemyList.head.next, n = enemyList.numEntries; n; e = e->next, n--)
+	{
+		if ((!id || e->uid == id) && (e->path->fromNode == flag))
+			return 1;
+	}
+	return 0;
+}
+
+int PlatformAtFlag(TRIGGER *trigger)
+{
+	int id, flag, n;
+	PLATFORM *p;
+	
+	id = (int)trigger->data[0];
+	flag = (int)trigger->data[1];
+
+	for(p = platformList.head.next, n = platformList.numEntries; n; p = p->next, n--)
+	{
+		if ((!id || p->uid == id) && (p->path->fromNode == flag))
+			return 1;
+	}
+	return 0;
+}
 
 int PathAtFlag( TRIGGER *trigger )
 {

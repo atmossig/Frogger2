@@ -36,6 +36,8 @@ extern int PathAtFlag( TRIGGER *trigger );
 extern int BitCheck( TRIGGER *trigger );
 extern int FrogIsDead( TRIGGER *trigger );
 extern int LevelIsOpen( TRIGGER *trigger );
+extern int EnemyAtFlag(TRIGGER *trigger);
+extern int PlatformAtFlag(TRIGGER *trigger);
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
 extern void ChangeActorScale( EVENT *event );

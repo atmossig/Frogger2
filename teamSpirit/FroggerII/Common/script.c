@@ -463,25 +463,19 @@ TRIGGER *LoadTrigger(UBYTE **p)
 
 	case TR_ENEMYATFLAG:
 		{
-			ENEMY *enemy;
-
 			params = AllocArgs(2);
-			if (!(enemy = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
-			params[0] = enemy->path;
-			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
-			trigger = MakeTrigger(PathAtFlag, params);
+			(int)params[0] = MEMGETWORD(p);
+			(int)params[1] = MEMGETWORD(p);
+			trigger = MakeTrigger(EnemyAtFlag, params);
 		}
 		break;
 
 	case TR_PLATATFLAG:
 		{
-			PLATFORM *plt;
-
 			params = AllocArgs(2);
-			if (!(plt = GetPlatformFromUID(MEMGETWORD(p)))) return 0;
-			params[0] = plt->path;
-			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETWORD(p);
-			trigger = MakeTrigger(PathAtFlag, params);
+			(int)params[0] = MEMGETWORD(p);
+			(int)params[1] = MEMGETWORD(p);
+			trigger = MakeTrigger(PlatformAtFlag, params);
 		}
 		break;
 
@@ -582,7 +576,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			(int)params[0] = MEMGETBYTE(p);
 			
 			if (!(e = GetEnemyFromUID(MEMGETWORD(p))))
-				return 0;;
+				return 0;
 			
 			(PATH*)params[1] = e->path;
 			trigger = MakeTrigger(FrogOnPath, params);
@@ -1057,7 +1051,9 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_SETSTARTTILE_P:
 		{
-			gTStart[0] = GetEnemyFromUID(MEMGETWORD(p))->path->nodes->worldTile; 
+			ENEMY *e;
+			if (!(e = GetEnemyFromUID(MEMGETWORD(p)))) return 0;
+			gTStart[0] = e->path->nodes->worldTile; 
 			break;
 		}
 
@@ -1218,6 +1214,7 @@ int InitLevelScript(void *buffer)
 
 	if (err)
 	{
+		KillAllTriggers();
 		JallocFree((UBYTE**)&scriptBuffer);
 		scriptBuffer = NULL;
 		return 0;
