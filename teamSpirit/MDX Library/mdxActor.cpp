@@ -45,6 +45,10 @@ MDX_ACTOR *currentDrawActor;
 
 MDX_ACTOR *actorList = NULL;
 
+#define NUM_DLISTS 1
+
+MDX_ACTOR *actorDrawList[NUM_DLISTS] = {NULL};
+
 #define MAX_UNIQUE_ACTORS	100
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 long numActorsUniqe = 0;
@@ -59,8 +63,9 @@ void (*StartAnim)(MDX_ACTOR *me) = NULL;
 	Info		:
 */
 
-unsigned long AddActorToList(MDX_ACTOR *me)
+unsigned long AddActorToList(MDX_ACTOR *me, unsigned long listNum)
 {
+	
 	if (!me)
 		return 0;
 
@@ -78,6 +83,21 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 	{
 		me->prev = me->next = NULL;
 		actorList = me;
+	}
+
+	me->listNum = listNum;
+
+	if (actorDrawList[listNum])
+	{
+		actorDrawList[listNum]->prevDraw = me;
+		me->prevDraw = NULL;
+		me->nextDraw = actorDrawList[listNum];
+		actorDrawList[listNum] = me;
+	}
+	else
+	{
+		me->prevDraw = me->nextDraw = NULL;
+		actorDrawList[listNum] = me;
 	}
 
 	return 1;
@@ -121,54 +141,60 @@ void ActorListDraw(void)
 	MDX_ACTOR *cur = actorList;	
 	MDX_VECTOR where,tPos,tPos2;
 	float radius,scale;
+	int i;
 	MDX_MATRIX rotmat;
 
-	while (cur)
+	for (i=0; i<NUM_DLISTS; i++)
 	{
-		drawThisObjectsSprites = cur->draw;
+		cur = actorDrawList[i];
 
-		SetVector(&tPos,&cur->trueCentre);
-
-		tPos.vx *= cur->scale.vx;
-		tPos.vy *= cur->scale.vy;
-		tPos.vz *= cur->scale.vz;
-		
-		QuaternionToMatrix(&cur->qRot,&rotmat);
-		guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&(tPos2.vx),&(tPos2.vy),&(tPos2.vz));
-	
-		AddVector(&tPos,&cur->pos,&tPos2);
-		
-		XfmPoint(&where,&tPos,NULL);
-
-		if (where.vz>10 || noClip)
+		while (cur)
 		{
-			scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
-			scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
+			drawThisObjectsSprites = cur->draw;
+
+			SetVector(&tPos,&cur->trueCentre);
+
+			tPos.vx *= cur->scale.vx;
+			tPos.vy *= cur->scale.vy;
+			tPos.vz *= cur->scale.vz;
 			
-			radius = (FOV * cur->radius * scale)/(where.vz+DIST);
+			QuaternionToMatrix(&cur->qRot,&rotmat);
+			guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&(tPos2.vx),&(tPos2.vy),&(tPos2.vz));
+		
+			AddVector(&tPos,&cur->pos,&tPos2);
 			
-			if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
-				((where.vy > -radius) && (where.vy<rYRes+radius)))
-			{	
-				XformActor(cur,0);		
-				if (cur->draw)
-				{
-					if (cur->flags & ACTOR_WRAPTC)
-						wrapCoords = 1;
-					else
-						wrapCoords = 0;
-					DrawActor(cur);
+			XfmPoint(&where,&tPos,NULL);
+
+			if (where.vz>10 || noClip)
+			{
+				scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
+				scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
+				
+				radius = (FOV * cur->radius * scale)/(where.vz+DIST);
+				
+				if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
+					((where.vy > -radius) && (where.vy<rYRes+radius)))
+				{	
+					XformActor(cur,0);		
+					if (cur->draw)
+					{
+						if (cur->flags & ACTOR_WRAPTC)
+							wrapCoords = 1;
+						else
+							wrapCoords = 0;
+						DrawActor(cur);
+					}
 				}
+				else
+					KillObjectSprites(cur->objectController->object);
+				
 			}
 			else
 				KillObjectSprites(cur->objectController->object);
-			
-		}
-		else
-			KillObjectSprites(cur->objectController->object);
-			
+				
 
-		cur = cur->next;
+			cur = cur->nextDraw;
+		}
 	}
 }
 
@@ -772,10 +798,20 @@ void FreeActor(MDX_ACTOR **toFree)
 	FreeMem (a->objectController);
 
 	if (a->next) a->next->prev = a->prev;
+	
 	if (a->prev)
 		a->prev->next = a->next;
 	else
 		actorList = a->next;
+
+
+	if (a->nextDraw) a->nextDraw->prevDraw = a->prevDraw;
+	
+	if (a->prevDraw)
+		a->prevDraw->nextDraw = a->nextDraw;
+	else
+		actorDrawList[a->listNum] = a->nextDraw;
+
 
 	FreeMem (a->animation);
 

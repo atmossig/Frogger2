@@ -792,6 +792,7 @@ long turbo = 4096;
 // Stop things pinging in pause mode
 long pFrameModifier = 0;
 long beenPaused = 0;
+long lastFrames,lastTicks;
 
 long LoopFunc(void)
 {
@@ -805,17 +806,23 @@ long LoopFunc(void)
 
 		if (beenPaused)
 		{
-			pFrameModifier = (actFrameCount - lastActFrameCount);		
-			actFrameCount = lastActFrameCount+10;
+			pFrameModifier += (actFrameCount - lastActFrameCount);		
+			actFrameCount = lastActFrameCount;
 			beenPaused = 0;
 		}
 
 		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
+		lastFrames = timeInfo.frameCount;
+		lastTicks = timeInfo.tickCount;
+
 	}
 	else
 	{
 		beenPaused = 1;
 		gameSpeed = 0;
+		timeInfo.speed = 0;
+		timeInfo.frameCount = lastFrames;
+		timeInfo.tickCount = lastTicks;
 	}
 
 	StartTimer(10,"Controller");

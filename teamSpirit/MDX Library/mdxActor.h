@@ -16,6 +16,9 @@ typedef struct
 typedef struct TAG_MDX_ACTOR
 {
 	struct TAG_MDX_ACTOR		*next,*prev;
+	struct TAG_MDX_ACTOR		*nextDraw,*prevDraw;
+	unsigned long				listNum;
+
 	float						distanceFromCamera;
 
 	MDX_MATRIX					*matrix;
@@ -74,7 +77,7 @@ void InitAnims(MDX_ACTOR *tempActor);
 void FreeUniqueActorList(void);
 void FreeActor(MDX_ACTOR **toFree);
 
-unsigned long AddActorToList(MDX_ACTOR *me);
+unsigned long AddActorToList(MDX_ACTOR *me, unsigned long listNum);
 void ActorListDraw(void);
 
 #ifdef __cplusplus
