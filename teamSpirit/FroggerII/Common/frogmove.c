@@ -273,7 +273,9 @@ void UpdateFroggerPos(long pl)
 
 	}
 
-	if(!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR)))
+	/*!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR))*/
+
+	if ((actFrameCount < player[pl].jumpEndFrame))
 	{
 		FX_OBJECTBLUR *blur;
 		VECTOR newPos;
@@ -857,10 +859,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				
 				return FALSE;			
 			}
-			else if(destTile[pl]->state == TILESTATE_SINK)
-			{
-				player[pl].isSinking = 10;
-			}
 			else if(destTile[pl]->state == TILESTATE_BARRED)
 			{
 				// Can't get into this tile at the moment
@@ -1088,6 +1086,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					FROGSTATUS_ISONMOVINGPLATFORM | FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING |
 					FROGSTATUS_ISFLOATING);
 
+				currTile[pl] = destTile[pl];
+
 				// check tile to see if frog has jumped onto a certain tile type
 				if((destTile[pl]->state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
 				{
@@ -1121,6 +1121,29 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					}
 					return;
 				}
+				else if (destTile[pl]->state & TILESTATE_CONVEYOR)
+				{	
+					// -------------------------------- Conveyors ----------------------------
+
+					int dir = destTile[pl]->state & (TILESTATE_CONVEYOR-1);
+
+					MoveToRequestedDestination(dir, pl);
+
+					if (destTile[pl])
+						CalculateFrogJump(
+							&currTile[pl]->centre, &currTile[pl]->normal, 
+							&destTile[pl]->centre, &currTile[pl]->normal,
+							15.0, pl, 0.0, NOINIT_VELOCITY);
+
+					dprintf"conveyor %08x %08x\n", currTile[pl], destTile[pl]));
+				}
+				else if(destTile[pl]->state == TILESTATE_SINK)
+				{
+					player[pl].isSinking = 10;
+				}
+
+				// Check for camera transitions on the tile
+				CheckForDynamicCameraChange(currTile[pl]);
 
 				// Next, check if frog has landed on a collectable
 				CheckTileForCollectable(destTile[pl],pl);
@@ -1129,37 +1152,6 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 				if (pl == 0)
 					camFacing = nextCamFacing;
-
-
-				// check if the tile is a teleport tile
-/*				if(IsATeleportTile(destTile[pl]))
-				{
-					// frog is teleporting
-					player[pl].frogState |= FROGSTATUS_ISTELEPORTING;
-					frog[pl]->action.isTeleporting = 25;
-					frog[pl]->action.safe = 65;
-
-					fadeDir		= FADE_OUT;
-					fadeOut		= 1;
-					fadeStep	= 8;
-					doScreenFade = 63;
-
-  					SetVector(&telePos,&frog[pl]->actor->pos);
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,30,0,0,15);
-					telePos.v[Y] += 20;
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,25,0,0,20);
-					telePos.v[Y] += 40;
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,20,0,0,25);
-					telePos.v[Y] += 60;
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,15,0,0,30);
-					PlayActorBasedSample(88,frog[pl]->actor,255,128);
-				}
-*/
-				// Check for camera transitions on the tile
-				CheckForDynamicCameraChange(currTile[pl]);
-
-				// update and get the new current tile
-				currTile[pl] = destTile[pl];
 			}
 		}
 	}
@@ -1546,6 +1538,43 @@ void RotateFrog ( ACTOR2 *frog, unsigned long fFacing )
 	// ENDIF
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: HopFrogToTile
+	Purpose			: Hop the frog to a tile
+	Parameters		: 
+	Returns			: void
+*/
+
+void HopFrogToTile(GAMETILE *tile, int pl)
+{
+	VECTOR v;
+	float maxdot, dot = 0.0;
+	int j, dir = 0;
+
+	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	destTile[pl] = tile;
+
+	SubVector(&v, &currTile[pl]->centre, &tile->centre);
+
+	for(j=0; j<4; j++)
+	{	
+		dot = DotProduct(&currTile[pl]->dirVector[j], &v);
+		if(dot > maxdot)
+		{
+			maxdot = dot;
+			dir = j; //(j - camFacing + 2) & 3;
+		}
+	}
+
+	AnimateFrogHop(dir, pl);	
+	nextFrogFacing[pl] = (dir + 2) & 3;
+
+	CalculateFrogJump(
+		&frog[pl]->actor->pos, &currTile[pl]->normal,
+		&destTile[pl]->centre, &destTile[pl]->normal,
+		standardHopFrames, pl, hopGravity, NOINIT_VELOCITY);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: CalculateFrogJump

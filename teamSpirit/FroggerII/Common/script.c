@@ -61,7 +61,10 @@ ACTOR2 *GetActorFromUID(int UID)
 	dprintf"Finding actor %d: ", UID));
 	e = GetEnemyFromUID(UID);
 	if (e)
+	{
+		dprintf"Found\n"));
 		return e->nmeActor;
+	}
 	
 	dprintf"Searching plats: "));
 	p = GetPlatformFromUID(UID);
@@ -270,6 +273,15 @@ TRIGGER *LoadTrigger(UBYTE **p)
 	return trigger;
 }
 
+void PrintScriptDebugMessage(const char* str)
+{
+	dprintf"[Interpreter Debug] %s", str));
+
+	if(lineNumber) dprintf" (line %d)", lineNumber));
+
+	dprintf"\n"));
+}
+
 /*	--------------------------------------------------------------------------------
     Function		: ExecuteCommand
 	Parameters		: UBYTE*
@@ -296,11 +308,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			memcpy(string, buffer, len);
 			string[len] = 0;
 
-			dprintf"[Interpreter Debug] %s", string));
-
-			if(lineNumber) dprintf" (line %d)", lineNumber));
-
-			dprintf"\n"));
+			PrintScriptDebugMessage(string);
 			break;
 		}
 #endif
@@ -686,13 +694,20 @@ Vis:
 	case EV_NO_FOG:	fog.mode = 0; break;
 
 	case EV_CAMEOMODE_ON:
-		gameState.oldMode = gameState.mode;
-		gameState.mode = CAMEO_MODE;
+		PrintScriptDebugMessage("CameoModeOn() : CAMEO MODE IS BROKEN!!");
 		break;
 
 	case EV_CAMEOMODE_OFF:
-		gameState.mode = gameState.oldMode;
+		PrintScriptDebugMessage("CameoModeOff() : CAMEO MODE IS BROKEN!!");
 		break;
+
+	case EV_HOP:
+		{
+			int pl = MEMGETBYTE(p);
+			GAMETILE *tile = GetTileFromNumber(MEMGETINT(p));
+			HopFrogToTile(tile, pl);
+			break;
+		}
 
 #ifdef DEBUG_SCRIPTING
 	case C_DEBUG:
@@ -703,7 +718,7 @@ Vis:
 
 	default:
 #ifdef DEBUG_SCRIPTING
-		dprintf"[Interpreter] Unrecognised command\n"));
+		PrintScriptDebugMessage("Unrecognised command");
 #endif
 		return 0;
 	}

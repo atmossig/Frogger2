@@ -289,107 +289,117 @@ void UpdatePlatforms()
 		// determine if platform is carrying frog
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
-			// check if this is a disappearing or crumbling platform
-			if((cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG) || (cur->flags & PLATFORM_NEW_CRUMBLES))
+
+			if (!cur->carrying)
 			{
-				if(cur->visible)
-				{
-					// give some visual indication that this platform is about to vanish
-					if(cur->visible < 30)
-					{
-						SetVector(&cur->pltActor->actor->pos,&frog[0]->actor->pos);
-						cur->pltActor->actor->pos.v[X] += (-2 + Random(5));
-						cur->pltActor->actor->pos.v[Y] += (-2 + Random(5));
-						cur->pltActor->actor->pos.v[Z] += (-2 + Random(5));
-					}
-
-					cur->visible--;
-					if(!cur->visible)
-					{
-						cur->pltActor->actor->xluOverride = 0;
-						cur->pltActor->draw = 0;
-						
-					//cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
-					//	cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
-				//		cur->pltActor->flags |= ACTOR_DRAW_NEVER;
-
-						cur->active = 0;
-						cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
-						cur->carrying = NULL;
-						currTile[0] = cur->inTile;
-
-						if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
-						{
-							// platform disappears and will regenerate
-							cur->regen = cur->regenTime;
-						}
-						else
-						{
-							// platform crumbles and will not regenerate
-							SetVector(&rebound.point,&cur->inTile->centre);
-							SetVector(&rebound.normal,&cur->inTile->normal);
-							cur->regen = cur->regenTime;	//0;
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,6,16,&rebound,30);
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,12,32,&rebound,40);
-						}
-
-						CreateAndAddFXSmoke(&cur->pltActor->actor->pos,128,30);
-						
-						SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
-						FlipVector(&frog[0]->actor->vel);
-
-						GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
-						SetVector(&cur->pltActor->actor->pos,&fromPosition);
-
-						// check if there are any platforms below the frog over the same tile
-/*
-						if(destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0))
-						{
-							// set frog falling to nearest dest platform below
-							player[0].frogState |= FROGSTATUS_ISFALLINGTOPLATFORM;
-						}
-						else
-						{
-							// set frog falling to game tile below
-							player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
-						}
-*/
-						
-						// frog is free-falling - check for platform below the frog
-						destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0);
-						player[0].frogState |= FROGSTATUS_ISFREEFALLING;
-					}
-				}
-
+				dprintf"Platform is NOT carrying but flag is set!\n"));
+				cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
 			}
 			else
 			{
-				float distance;
-				long nCamFac = 0, j = 0;
 
-				distance = -10000;
-			
-				for(j=0; j<4; j++)
+				// check if this is a disappearing or crumbling platform
+				if((cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG) || (cur->flags & PLATFORM_NEW_CRUMBLES))
 				{
-					float t = DotProduct(&(cur->inTile->dirVector[j]),&(currTile[0]->dirVector[camFacing]));
-					if(t > distance)
+					if(cur->visible)
 					{
-						distance = t;
-						nCamFac = j;
-					}							
-				}		
-	
-				for(j=0; j<NUM_FROGS; j++)
-					if (cur->carrying == frog[j])
-						currTile[j] = cur->inTile;
+						// give some visual indication that this platform is about to vanish
+						if(cur->visible < 30)
+						{
+							SetVector(&cur->pltActor->actor->pos,&frog[0]->actor->pos);
+							cur->pltActor->actor->pos.v[X] += (-2 + Random(5));
+							cur->pltActor->actor->pos.v[Y] += (-2 + Random(5));
+							cur->pltActor->actor->pos.v[Z] += (-2 + Random(5));
+						}
 
-				camFacing = nCamFac;
-				//cur->carrying = frog[0];
+						cur->visible--;
+						if(!cur->visible)
+						{
+							cur->pltActor->actor->xluOverride = 0;
+							cur->pltActor->draw = 0;
+							
+						//cur->pltActor->flags &= ~ACTOR_DRAW_ALWAYS;
+						//	cur->pltActor->flags &= ~ACTOR_DRAW_CULLED;
+					//		cur->pltActor->flags |= ACTOR_DRAW_NEVER;
 
-				SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
+							cur->active = 0;
+							cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+							cur->carrying = NULL;
+							currTile[0] = cur->inTile;
 
-				if(!cur->flags & PLATFORM_NEW_NONMOVING)
-					SetQuaternion(&cur->carrying->actor->qRot,&cur->pltActor->actor->qRot);
+							if(cur->flags & PLATFORM_NEW_DISAPPEARWITHFROG)
+							{
+								// platform disappears and will regenerate
+								cur->regen = cur->regenTime;
+							}
+							else
+							{
+								// platform crumbles and will not regenerate
+								SetVector(&rebound.point,&cur->inTile->centre);
+								SetVector(&rebound.normal,&cur->inTile->normal);
+								cur->regen = cur->regenTime;	//0;
+								CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,6,16,&rebound,30);
+								CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,12,32,&rebound,40);
+							}
+
+							CreateAndAddFXSmoke(&cur->pltActor->actor->pos,128,30);
+							
+							SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
+							FlipVector(&frog[0]->actor->vel);
+
+							GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
+							SetVector(&cur->pltActor->actor->pos,&fromPosition);
+
+							// check if there are any platforms below the frog over the same tile
+	/*
+							if(destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0))
+							{
+								// set frog falling to nearest dest platform below
+								player[0].frogState |= FROGSTATUS_ISFALLINGTOPLATFORM;
+							}
+							else
+							{
+								// set frog falling to game tile below
+								player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
+							}
+	*/
+							
+							// frog is free-falling - check for platform below the frog
+							destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0);
+							player[0].frogState |= FROGSTATUS_ISFREEFALLING;
+						}
+					}
+
+				}
+				else
+				{
+					float distance;
+					long nCamFac = 0, j = 0;
+
+					distance = -10000;
+				
+					for(j=0; j<4; j++)
+					{
+						float t = DotProduct(&(cur->inTile->dirVector[j]),&(currTile[0]->dirVector[camFacing]));
+						if(t > distance)
+						{
+							distance = t;
+							nCamFac = j;
+						}							
+					}		
+		
+					for(j=0; j<NUM_FROGS; j++)
+						if (cur->carrying == frog[j])
+							currTile[j] = cur->inTile;
+
+					camFacing = nCamFac;
+					//cur->carrying = frog[0];
+
+					SetVector(&cur->carrying->actor->pos,&cur->pltActor->actor->pos);
+
+					if(!cur->flags & PLATFORM_NEW_NONMOVING)
+						SetQuaternion(&cur->carrying->actor->qRot,&cur->pltActor->actor->qRot);
+				}
 			}
 		}
 		else
