@@ -198,6 +198,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 }
 
 long InitOneOverTable(void);
+extern float camSideOfs;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
@@ -330,13 +331,29 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					speedKill--;
 */
 			if (KEYPRESS(DIK_F3))
-				camDist.v[2]+=2*gameSpeed;
-
+			{
+				if (KEYPRESS(DIK_LCONTROL))
+					camSideOfs+=2*gameSpeed;
+				else
+					camDist.v[2]+=2*gameSpeed;
+			}
+		
 			if (KEYPRESS(DIK_F4))
-				camDist.v[2]-=2*gameSpeed;
+			{
+				if (KEYPRESS(DIK_LCONTROL))
+					camSideOfs-=2*gameSpeed;
+				else
+					camDist.v[2]-=2*gameSpeed;
+			}
 
+		
 			if (KEYPRESS(DIK_F8))
-				displayingTile=!displayingTile;
+			{
+				if (KEYPRESS(DIK_LCONTROL))
+					dumpScreen = 1;
+				else
+					displayingTile=!displayingTile;
+			}
 
 			if (!keyDelay)
 			{

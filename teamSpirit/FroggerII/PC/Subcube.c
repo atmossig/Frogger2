@@ -752,6 +752,7 @@ void TransformObject(OBJECT *obj, float time)
 		if(currentDrawActor->animation->numMorphFrames)
 		{
 			// Find from vector
+			
 			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
 			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphFromQuat);
 
@@ -769,9 +770,11 @@ void TransformObject(OBJECT *obj, float time)
 		{
 			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
 			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
-
+			
 			// convert back to rotation matrix
 			QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
+			
+
 		}
 	}
 	else

@@ -46,6 +46,7 @@ long modgyObject = 0;
 int objectMatrix = 0;
 
 ACTOR2 *actList = NULL;				// entire actor list
+ACTOR2 *backGnd = NULL;
 ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
 
 //used to keep a count of how many of each enemy are present at the same time
@@ -136,8 +137,9 @@ float waterWaveHeight[2];
 VECTOR waterCentre[2] = {{1000,0,1000},{-1500,0,0}};
 float dist[2];
 VECTOR tempVect;
-
-
+float bFOV = 450.0;
+extern float fStart,fEnd, FOV;
+extern long noClipping;
 void DrawActorList()
 {
 	/****************************************************************************************/
@@ -158,7 +160,38 @@ void DrawActorList()
 
 #ifdef PC_VERSION
 	
+
+	if (backGnd)
+	{
+		float oFs = fStart, oFe = fEnd;
+		
+		fStart = 7000.0;
+		fEnd = 7001.0;
+
+		backGnd->actor->visible = 1;
+		
+		noClipping = 1;
+
+		SetVector (&(backGnd->actor->pos),&(currCamSource[0]));
+		XformActor(backGnd->actor);
+		DrawActor(backGnd->actor);
+
+		noClipping = 0;
+
+		fStart = oFs;
+		fEnd = oFe;
+
+	}
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,FALSE);
 	
+	DrawBatchedPolys();
+	BlankFrame();
+	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
+		
 	cur = actList;
 	waterObject = 0;
 	while(cur)
@@ -482,7 +515,45 @@ void FreeActorList()
 	}
 	
 	actList = NULL;
+
+	if (backGnd)
+	{
+		cur = backGnd;
+		backGnd = NULL;
+
+		if((cur->actor->objectController) && (cur->actor->objectController->object))
+		{
+	 		FreeObjectSprites(cur->actor->objectController->object);
+
+			// NEW
+			if(cur->actor->objectController->drawList)
+			{
+				JallocFree((UBYTE **)&cur->actor->objectController->vtx[0]);
+				JallocFree((UBYTE **)&cur->actor->objectController->drawList);
+			}
+
+			// NEW
+			RemoveUniqueObject(cur->actor->objectController->object);
+			JallocFree((UBYTE **)&cur->actor->objectController);
+		}
+
+		if(cur->actor->LODObjectController)
+			JallocFree((UBYTE **)&cur->actor->LODObjectController);
+
+		if(cur->actor->matrix)
+			JallocFree((UBYTE **)&cur->actor->matrix);
+
+		if(cur->actor->animation)
+			JallocFree((UBYTE **)&cur->actor->animation);
+
+		if(cur->actor->shadow)
+			JallocFree((UBYTE **)&cur->actor->shadow);
+
+		JallocFree((UBYTE**)&cur->actor);
+		JallocFree((UBYTE**)&cur);
+	}
 }
+
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: CreateAndAddActor 
@@ -558,9 +629,10 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 
 	newItem->next = actList;
 	newItem->prev = NULL;
+	
 	if (actList) actList->prev = newItem;
 	actList = newItem;
-
+	
 	return newItem;
 }
 

@@ -58,7 +58,7 @@ char controlCamera			= 0;
 char fixedDir = 0;
 char fixedPos = 0;
 char firstPerson = 0;
-
+char fixedUp = 1;
 TRANSCAMERA *transCameraList = NULL;
 
 
@@ -340,9 +340,19 @@ void SlurpCamPosition(long cam)
 
 			MakeUnit (&t);
 			
-			camVect.v[0] -= (camVect.v[0] - t.v[0])/s2;
-			camVect.v[1] -= (camVect.v[1] - t.v[1])/s2;
-			camVect.v[2] -= (camVect.v[2] - t.v[2])/s2;
+			if (!fixedUp)
+			{
+				camVect.v[0] -= (camVect.v[0] - t.v[0])/s2;
+				camVect.v[1] -= (camVect.v[1] - t.v[1])/s2;
+				camVect.v[2] -= (camVect.v[2] - t.v[2])/s2;
+			}
+			else
+			{
+				camVect.v[0] = 0;
+				camVect.v[1] = 1;
+				camVect.v[2] = 0;
+			}
+			
 			
 		}
 
@@ -363,6 +373,8 @@ void SlurpCamPosition(long cam)
 	Parameters	: (void)
 	Returns		: void 
 */
+float camSideOfs = 0;
+
 void UpdateCameraPosition(long cam)
 {
 	VECTOR result;
@@ -374,7 +386,8 @@ void UpdateCameraPosition(long cam)
 	{
 		float afx,afy,afz;
 		float afx2,afy2,afz2;
-
+		float afx3,afy3,afz3;
+		long nC;
 		int i,l;
 		afx = afy = afz = 0;
 		afx2 = afy2 = afz2 = 0;
@@ -383,15 +396,27 @@ void UpdateCameraPosition(long cam)
 		{
 			if (frog[i]->action.healthPoints > 0)
 			{
-
 				afx += frog[i]->actor->pos.v[0];
 				afy += frog[i]->actor->pos.v[1];
 				afz += frog[i]->actor->pos.v[2];
 
-				afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
-				afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
-				afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
-			
+		//		afx += frog[i]->actor->pos.v[0];
+		//		afy += frog[i]->actor->pos.v[1];
+		//		afz += frog[i]->actor->pos.v[2];
+
+				if (fixedUp)
+				{
+					afx2 += 0;
+					afy2 += 1*currCamDist.v[1];
+					afz2 += 0;
+				}
+				else
+				{
+					afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
+					afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
+					afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
+				}
+
 				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
 				afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
 				afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
@@ -399,7 +424,13 @@ void UpdateCameraPosition(long cam)
 				l++;
 			}
 		}
-		
+
+		nC = (camFacing+1)&3;
+
+		afx3 = currTile[0]->dirVector[nC].v[0]*camSideOfs;
+		afy3 = currTile[0]->dirVector[nC].v[1]*camSideOfs;
+		afz3 = currTile[0]->dirVector[nC].v[2]*camSideOfs;
+	
 		if (l)
 		{
 		
@@ -412,9 +443,9 @@ void UpdateCameraPosition(long cam)
 			afz2/=l;
 		}
 
-		camSource[0].v[0] = afx+afx2+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
-		camSource[0].v[1] = afy+afy2+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
-		camSource[0].v[2] = afz+afz2+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
+		camSource[0].v[0] = afx+afx2+afx3+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
+		camSource[0].v[1] = afy+afy2+afy3+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
+		camSource[0].v[2] = afz+afz2+afz3+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
 	}
 
 	SlurpCamPosition(0);

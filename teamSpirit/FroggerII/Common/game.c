@@ -406,6 +406,8 @@ void GameProcessController(long pl)
 	Returns			: void
 	Info			: 
 */
+extern ACTOR2 *backGnd;
+
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	ACTOR2 *theActor;
@@ -421,68 +423,81 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 		stringChange(ts->name);
 
-		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
-		dprintf"Added actor '%s'\n",ts->name));
-
-		if(gstrcmp(ts->name,"world.obe") == 0)
+		if(gstrcmp(ts->name,"backdrop.obe") == 0)
 		{
-			theActor->flags = ACTOR_DRAW_ALWAYS;
-			globalLevelActor = theActor;
+			backGnd = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
+			backGnd->actor->scale.v[0] = 5;
+			backGnd->actor->scale.v[1] = 5;
+			backGnd->actor->scale.v[2] = 5;
+			actList = actList->next;
+			if (actList)
+				actList->prev = NULL;
 		}
-
-		for( i=0; i<4; i++ )
-			tmp[i] = ts->name[i];
-
-		tmp[4] = '\0';
-		// If a water object, draw always
-		if( !gstrcmp( tmp, "wat_\0" ) )
+		else
 		{
-			theActor->flags |= ACTOR_WATER;
-
-			if (ts->name[4]=='f')
-				theActor->flags |= ACTOR_SLIDYTEX;
-		}
-
-		tv = ts->rot.y;
-		ts->rot.y = ts->rot.z;
-		ts->rot.z = tv;
-
-		GetQuaternionFromRotation (&theActor->actor->qRot,&ts->rot);
-
-		AnimateActor(theActor->actor,0,YES,NO,0.35,0,0);
-		if(ts->name[0] == 'a')
-		{
-			float rMin,rMax,rNum;
-			if(ts->name[2] == '_')
-			{
-				rMin = ts->name[1] - 30;
-				if(rMin = 0) 
-					rMin = 10;
-				rMin /= 10.0;
-				AnimateActor(theActor->actor,0,YES,NO,rMin, 0, 0);
-			}
-			else if(ts->name[3] == '_')
-			{
-				rMin = ts->name[1] - 30;
-				if(rMin == 0) 
-					rMin = 10;
-				rMin /= 10.0;
 			
-				rMax = ts->name[1] - 30;
-				if (rMax == 0) 
-					rMax = 10;
-				rMax /= 10.0;
+			theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
+			dprintf"Added actor '%s'\n",ts->name));
 
-				rNum = Random(1000);
-				rNum= rMin + ((rNum * (rMax - rMin)) / 1000);
-									
-				AnimateActor(theActor->actor,0,YES,NO,rNum, 0, 0);
+			if(gstrcmp(ts->name,"world.obe") == 0)
+			{
+				theActor->flags = ACTOR_DRAW_ALWAYS;
+				globalLevelActor = theActor;
 			}
+
+			for( i=0; i<4; i++ )
+				tmp[i] = ts->name[i];
+
+			tmp[4] = '\0';
+			// If a water object, draw always
+			if( !gstrcmp( tmp, "wat_\0" ) )
+			{
+				theActor->flags |= ACTOR_WATER;
+
+				if (ts->name[4]=='f')
+					theActor->flags |= ACTOR_SLIDYTEX;
+			}
+
+			tv = ts->rot.y;
+			ts->rot.y = ts->rot.z;
+			ts->rot.z = tv;
+
+			GetQuaternionFromRotation (&theActor->actor->qRot,&ts->rot);
+
+			AnimateActor(theActor->actor,0,YES,NO,0.35,0,0);
+			if(ts->name[0] == 'a')
+			{
+				float rMin,rMax,rNum;
+				if(ts->name[2] == '_')
+				{
+					rMin = ts->name[1] - 30;
+					if(rMin = 0) 
+						rMin = 10;
+					rMin /= 10.0;
+					AnimateActor(theActor->actor,0,YES,NO,rMin, 0, 0);
+				}
+				else if(ts->name[3] == '_')
+				{
+					rMin = ts->name[1] - 30;
+					if(rMin == 0) 
+						rMin = 10;
+					rMin /= 10.0;
+				
+					rMax = ts->name[1] - 30;
+					if (rMax == 0) 
+						rMax = 10;
+					rMax /= 10.0;
+
+					rNum = Random(1000);
+					rNum= rMin + ((rNum * (rMax - rMin)) / 1000);
+										
+					AnimateActor(theActor->actor,0,YES,NO,rNum, 0, 0);
+				}
+			}
+			actCount++;
 		}
 
 		ts = ts->next;
-
-		actCount++;
 	}
 
 	dprintf"\n\n** ADDED %d ACTORS **\n\n",actCount));	
@@ -847,9 +862,8 @@ void RunGameLoop (void)
 	i = NUM_FROGS;
 	while(i--)
 	{
-		PLAYER
-		player[i].idleTime-=gameSpeed/3.0;
-		if(!player[i].idleTime)
+		player[i].idleTime-=gameSpeed;
+		if(player[i].idleTime<1)
 		{
 			unsigned long iAnim = Random(4);
 			
@@ -879,7 +893,7 @@ void RunGameLoop (void)
 					break;
 			}
 
-			player[i].idleTime = 100 + Random(100);
+			player[i].idleTime = 180 + Random(100);
 		}
 	}
 

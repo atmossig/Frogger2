@@ -304,9 +304,9 @@ void QuatSlerp(QUATERNION *src1, QUATERNION *sp2, float t, QUATERNION *dquat)
 		if ((((float)1.0)-cosom) > QEPSILON)
 		{
 			omega = (float)acosBetter(cosom);
-			sinom = (float)sinf(omega);
-			sclp = (float)sinf(((float)1.0-t)*omega)/sinom;
-			sclq = (float)sinf(t*omega)/sinom;
+			sinom = (float)1.0/sinf(omega);
+			sclp = (float)sinf(((float)1.0-t)*omega)*sinom;
+			sclq = (float)sinf(t*omega)*sinom;
 		}
 		else
 		{
