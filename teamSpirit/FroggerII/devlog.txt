@@ -1165,6 +1165,9 @@ James Hubbard:
 	This morning I more or less finished my search routine, apart from a small bug with the depth
 	limit not working properly.
 
+	This afternoon we met, and then I got a character using the search routine to find its way to the frog.
+	And tested stuff like command queues, deletion of everything etc.
+
 
 James Healey:
 ------------------------------------------------
@@ -1182,6 +1185,47 @@ Chris Wilson:
 
 
 
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+05/01/00 - Wednesday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Naughty people not writing devlog entries. Tch.
+
+	My character follows the frog around, can either walk or fly (kinda) and it no longer
+	crashes so much. Don't know what I was thinking before Christmas, there were so many bugs
+	in the code I wrote on the last day. 
+
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
 
 
 
