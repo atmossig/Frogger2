@@ -184,6 +184,7 @@ Matt Cloy:
 		I cant think straight today, maybe I'm getting the brain rot cold bug that Chris, Kevin, and Alex have had. Hope not.
 
 		Fixed the bug with the frogs head, bloody dotproduct returning 1.000000000000001... grrr.		
+		Fixed the bug with actor shadows, it was just using the fromtile, not the tile the nme is in!
 
 Andy Eder:
 ------------------------------------------------
