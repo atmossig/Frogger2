@@ -517,8 +517,8 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 		return 1;
 		
 	
-	if (onscreen==0)
-		return 1;
+//	if (onscreen==0)
+//		return 1;
 
 	//if ((left>7) || (right>7) || (top>7) || (bottom>7))
 	
