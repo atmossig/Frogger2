@@ -176,6 +176,7 @@ int MemLoadEntities(const void* data, long size)
 					enemy = JallocAlloc(sizeof(ENEMY), YES, "place");
 					enemy->path = path;
 					enemy->active = 0;
+					enemy->uid = ID;
 					act = NULL;
 					AddEnemy(enemy);
 					break;
