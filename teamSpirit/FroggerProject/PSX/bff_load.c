@@ -225,39 +225,6 @@ BFF_Header *BFF_FindObject(int id, unsigned long crc)
 	return NULL;	// yes there are occasions when we need to try to find things that aren't there
 }
 
-BFF_Header *BFF_FindNamedObject(int id, char *name)
-{
-	int i;
-	unsigned long crc;
-
-	BFF_Header *work;
-
-	crc = utilStr2CRC(name);
-	for(i = 0; i < MAX_BFF_FILES; i++)
-	{
-		if(BFF_Pointers[i])
-		{
-//			printf(" scanning bff %d",i);
-			work = BFF_Pointers[i];
-			for(;;)
-			{
-
-//				printf(".");
-				if(work->id == id && (crc == 0 || work->crc == crc))
-				{
-//					printf("\n");
-					return work;
-				}
-				if(work->len & 0x80000000)
-					break;
-				work = ADD2POINTER(work,work->len);
-			}
-//			printf("\n");
-		}
-	}
-//	printf("null\n");
-	return 0;	// yes there are occasions when we need to try to find things that aren't there
-}
 
 BFF_Header *BFF_LoadFile(char *filename)
 {
@@ -408,3 +375,36 @@ int BFF_IsInBFF(void *addr)
 }
 
 
+BFF_Header *BFF_FindNamedObject(int id, char *name)
+{
+	int i;
+	unsigned long crc;
+
+	BFF_Header *work;
+
+	crc = utilStr2CRC(name);
+	for(i = 0; i < MAX_BFF_FILES; i++)
+	{
+		if(BFF_Pointers[i])
+		{
+//			printf(" scanning bff %d",i);
+			work = BFF_Pointers[i];
+			for(;;)
+			{
+
+//				printf(".");
+				if(work->id == id && (crc == 0 || work->crc == crc))
+				{
+//					printf("\n");
+					return work;
+				}
+				if(work->len & 0x80000000)
+					break;
+				work = ADD2POINTER(work,work->len);
+			}
+//			printf("\n");
+		}
+	}
+//	printf("null\n");
+	return 0;	// yes there are occasions when we need to try to find things that aren't there
+}

@@ -23,34 +23,6 @@ BFF_Header *objectBanks [ MAX_OBJECT_BANKS ];
 int		PSIFileListPos = 0;
 char	PSIFileList [ 10 ][12];
 
-void ExtractPsiNames ( void )
-{
-	char *addr;
-	char *PSIname=0;
-
-	int psiM;
-	int *table;//,*crcs;
-	int i;
-
-
-	addr = (char*)pilLibraryList[1];// = (long*)addr;
-
-	i = (int)*addr;
-	(char*)table = addr+4;
-
-	while ( i )
-	{
-		i--;
-		psiM = *(table++);		psiM += (int)addr;
-
-		PSIname = (char*)(psiM);
-		utilPrintf("Extracting PSI File Name : %s\n",PSIname);
-		sprintf ( PSIFileList [ PSIFileListPos++ ], "%s",  PSIname );
-
-		psiM += 36;
-	}
-	// ENDWHILE
-}
 
 void LoadObjectBank ( int objectBank )
 {
@@ -318,3 +290,32 @@ void FreeAllObjectBanks ( void )
 	numObjectBanks = 0;
 }
 
+
+void ExtractPsiNames ( void )
+{
+	char *addr;
+	char *PSIname=0;
+
+	int psiM;
+	int *table;//,*crcs;
+	int i;
+
+
+	addr = (char*)pilLibraryList[1];// = (long*)addr;
+
+	i = (int)*addr;
+	(char*)table = addr+4;
+
+	while ( i )
+	{
+		i--;
+		psiM = *(table++);		psiM += (int)addr;
+
+		PSIname = (char*)(psiM);
+		utilPrintf("Extracting PSI File Name : %s\n",PSIname);
+		sprintf ( PSIFileList [ PSIFileListPos++ ], "%s",  PSIname );
+
+		psiM += 36;
+	}
+	// ENDWHILE
+}
