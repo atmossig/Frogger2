@@ -308,7 +308,7 @@ void UpdateEnemies()
 			else if (cur->flags & ENEMY_NEW_SNAPFROG)
 			{
 				static GAMETILE *tile = NULL;
-				float angle;
+				QUATERNION q1, q2;
 
 				// Idle animations
 				switch( cur->isSnapping )
@@ -330,13 +330,21 @@ void UpdateEnemies()
 							AnimateActor(cur->nmeActor->actor,0,NO,YES,cur->nmeActor->animSpeed, 0, 0);
 					}
 
+					// Slerp orientation towards frog
+					SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
 					ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos, LOOKAT_2D );
+					SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
+					QuatSlerp( &q1, &q2, cur->path->nodes[0].speed, &cur->nmeActor->actor->qRot );
 
 					// If the snapper has just spotted the frog, set snap time
 					if( cur->nmeActor->distanceFromFrog < 5625 ) // 75*75
 					{
 						tile = FindNearestTile( frog[0]->actor->pos );
+
+						SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
 						ActorLookAt( cur->nmeActor->actor, &tile->centre, LOOKAT_2D );
+						SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
+						QuatSlerp( &q1, &q2, cur->path->nodes[0].speed, &cur->nmeActor->actor->qRot );
 
 						cur->path->startFrame = actFrameCount;
 						cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[0].waitTime * waitScale);
@@ -368,6 +376,8 @@ void UpdateEnemies()
 			}
 			else if( cur->flags & ENEMY_NEW_SNAPTILES )
 			{
+				QUATERNION q1, q2;
+
 				switch( cur->isSnapping )
 				{
 				case 0:
@@ -384,9 +394,6 @@ void UpdateEnemies()
 						cur->path->fromNode = cur->path->toNode;
 						cur->path->toNode++;
 					}
-
-					GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
-					ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_2D );
 
 					cur->path->startFrame = actFrameCount;
 					cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
@@ -407,8 +414,15 @@ void UpdateEnemies()
 					break;
 
 				case SNAPPER_TIME:
-					if( (actFrameCount-cur->path->startFrame) < 0.5*(cur->path->endFrame-cur->path->startFrame) )
+					if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
+					{
+						GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
+						SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
+						ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_2D );
+						SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
+						QuatSlerp( &q1, &q2, cur->path->nodes[0].speed, &cur->nmeActor->actor->qRot );
 						break;
+					}
 
 					AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
 					cur->isSnapping = 1;
