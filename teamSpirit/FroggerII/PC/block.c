@@ -35,6 +35,10 @@ unsigned long actFrameCount,
 			lastActFrameCount = 0,
 			currentFrameTime,
 			actTickCount;
+
+unsigned long actTickCountModifier = 0;
+unsigned long modFactor = 100;
+
 unsigned long speedKill = 0;
 float gameSpeed = 1;
 char dprintbuf[255] = "---";
@@ -354,6 +358,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			if (KEYPRESS(DIK_F1))
 				camDist.v[1]+=2*gameSpeed;
 
+				
 			if (KEYPRESS(DIK_F2))
 				camDist.v[1]-=2*gameSpeed;
 
@@ -391,6 +396,18 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			if (keyDelay<1)
 			{
+				if (KEYPRESS(DIK_F9))
+				{
+					actTickCountModifier -= modFactor;
+					keyDelay = 30;
+				}
+			
+				if (KEYPRESS(DIK_F11))
+				{
+					modFactor *= 2;
+					keyDelay = 30;
+				}
+
 				if( KEYPRESS(DIK_F7) && chatFlags )
 				{
 					if( chatFlags & CHAT_INPUT )
@@ -454,12 +471,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 			//Update3DListener ( currCamSource[0].v[X], currCamSource[0].v[Y], currCamSource[0].v[Z]);
 
-			newTickCount = GetTickCount();
+			newTickCount = GetTickCount()-actTickCountModifier;
 			gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
-			
 			actTickCount = newTickCount;
-			
-			actFrameCount = (GetTickCount()/(1000.0/60.0));
+			actFrameCount = (actTickCount/(1000.0/60.0));
 			
 
 		}
