@@ -106,9 +106,6 @@ void customDrawPrimitives2(int depth)
 				//no lighting
 				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
 
-//  				si->r0 = ( op->r0 << 7 ) >> 8;
-//  				si->g0 = ( op->g0 << 7 ) >> 8;
-//  				si->b0 = ( op->b0 << 7 ) >> 8;
 //  				si->r0 = op->r0 >> 1;
 //  				si->g0 = op->g0 >> 1;
 //  				si->b0 = op->b0 >> 1;
@@ -152,9 +149,6 @@ void customDrawPrimitives2(int depth)
 
 				//no lighting
 				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
-//  				si->r0 = ( op->r0 << 7 ) >> 8;
-//  				si->g0 = ( op->g0 << 7 ) >> 8;
-//  				si->b0 = ( op->b0 << 7 ) >> 8;
 //  				si->r0 = op->r0 >> 1;
 //  				si->g0 = op->g0 >> 1;
 //  				si->b0 = op->b0 >> 1;
@@ -206,26 +200,14 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
-//  				si->r0 = ( op->r0 << 7 ) >> 8;
-//  				si->g0 = ( op->g0 << 7 ) >> 8;
-//  				si->b0 = ( op->b0 << 7 ) >> 8;
-//  
-//  				si->r1 = ( op->r1 << 7 ) >> 8;
-//  				si->g1 = ( op->g1 << 7 ) >> 8;
-//  				si->b1 = ( op->b1 << 7 ) >> 8;
-//  
-//  				si->r2 = ( op->r2 << 7 ) >> 8;
-//  				si->g2 = ( op->g2 << 7 ) >> 8;
-//  				si->b2 = ( op->b2 << 7 ) >> 8;
-
 //  				si->r0 = op->r0 >> 1;
 //  				si->g0 = op->g0 >> 1;
 //  				si->b0 = op->b0 >> 1;
-//  
+  
 //  				si->r1 = op->r1 >> 1;
 //  				si->g1 = op->g1 >> 1;
 //  				si->b1 = op->b1 >> 1;
-//  
+  
 //  				si->r2 = op->r2 >> 1;
 //  				si->g2 = op->g2 >> 1;
 //  				si->b2 = op->b2 >> 1;
@@ -280,34 +262,18 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-//  				si->r0 = ( op->r0 << 7 ) >> 8;
-//  				si->g0 = ( op->g0 << 7 ) >> 8;
-//  				si->b0 = ( op->b0 << 7 ) >> 8;
-//  
-//  				si->r1 = ( op->r1 << 7 ) >> 8;
-//  				si->g1 = ( op->g1 << 7 ) >> 8;
-//  				si->b1 = ( op->b1 << 7 ) >> 8;
-//  
-//  				si->r2 = ( op->r2 << 7 ) >> 8;
-//  				si->g2 = ( op->g2 << 7 ) >> 8;
-//  				si->b2 = ( op->b2 << 7 ) >> 8;
-//  
-//  				si->r3 = ( op->r3 << 7 ) >> 8;
-//  				si->g3 = ( op->g3 << 7 ) >> 8;
-//  				si->b3 = ( op->b3 << 7 ) >> 8;
-
 //  				si->r0 = op->r0 >> 1;
 //  				si->g0 = op->g0 >> 1;
 //  				si->b0 = op->b0 >> 1;
-//  
+  
 //  				si->r1 = op->r1 >> 1;
 //  				si->g1 = op->g1 >> 1;
 //  				si->b1 = op->b1 >> 1;
-//  
+  
 //  				si->r2 = op->r2 >> 1;
 //  				si->g2 = op->g2 >> 1;
 //  				si->b2 = op->b2 >> 1;
-//  
+  
 //  				si->r3 = op->r3 >> 1;
 //  				si->g3 = op->g3 >> 1;
 //  				si->b3 = op->b3 >> 1;
@@ -404,34 +370,18 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-//  				si->r0 = ( op->r0 << 7 ) >> 8;
-//  				si->g0 = ( op->g0 << 7 ) >> 8;
-//  				si->b0 = ( op->b0 << 7 ) >> 8;
-//  
-//  				si->r1 = ( op->r1 << 7 ) >> 8;
-//  				si->g1 = ( op->g1 << 7 ) >> 8;
-//  				si->b1 = ( op->b1 << 7 ) >> 8;
-//  
-//  				si->r2 = ( op->r2 << 7 ) >> 8;
-//  				si->g2 = ( op->g2 << 7 ) >> 8;
-//  				si->b2 = ( op->b2 << 7 ) >> 8;
-//  
-//  				si->r3 = ( op->r3 << 7 ) >> 8;
-//  				si->g3 = ( op->g3 << 7 ) >> 8;
-//  				si->b3 = ( op->b3 << 7 ) >> 8;
-
 //  				si->r0 = op->r0 >> 1;
 //  				si->g0 = op->g0 >> 1;
 //  				si->b0 = op->b0 >> 1;
-//  
+  
 //  				si->r1 = op->r1 >> 1;
 //  				si->g1 = op->g1 >> 1;
 //  				si->b1 = op->b1 >> 1;
-//  
+  
 //  				si->r2 = op->r2 >> 1;
 //  				si->g2 = op->g2 >> 1;
 //  				si->b2 = op->b2 >> 1;
-//  
+  
 //  				si->r3 = op->r3 >> 1;
 //  				si->g3 = op->g3 >> 1;
 //  				si->b3 = op->b3 >> 1;
@@ -464,8 +414,6 @@ void customDrawPrimitives2(int depth)
 
  
 				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
-
-//				si->r0 = ( op->r0 << 7 ) >> 8;
 //				si->r0 = op->r0 >> 1;
  				gte_nclip_b();	// takes 8 cycles
 		
@@ -484,15 +432,13 @@ void customDrawPrimitives2(int depth)
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 
 
-//				si->r0 = ( op->r0 << 7 ) >> 8;
-// 				si->g0 = op->g0 >> 1;
+//				si->g0 = op->g0 >> 1;
 // 				si->b0 = op->b0 >> 1;
-
-//  
+  
 //  				si->r1 = op->r1 >> 1;
 //  				si->g1 = op->g1 >> 1;
 //  				si->b1 = op->b1 >> 1;
-//  
+  
 //  				si->r2 = op->r2 >> 1;
 //  				si->g2 = op->g2 >> 1;
 //  				si->b2 = op->b2 >> 1;
