@@ -1939,9 +1939,13 @@ void UpdateBattleEnemy( ENEMY *cur )
 			SubVectorFSS( &fwd, &path->nodes[2].worldTile->centre, &path->nodes[1].worldTile->centre );
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 
+			path->nodes[2].worldTile->state = TILESTATE_NORMAL;
 			path->nodes[2].worldTile = FindJoinedTileByDirectionAndType( path->nodes[1].worldTile, &fwd, TILESTATE_NORMAL );
+
 			if( !path->nodes[2].worldTile )
 				path->nodes[2].worldTile = path->nodes[1].worldTile;
+
+			path->nodes[2].worldTile->state = TILESTATE_OCCUPIED;
 
 			path->startFrame = actFrameCount;
 			path->endFrame = path->startFrame + ((path->nodes[0].speed*60)>>12);
@@ -2704,6 +2708,8 @@ int MoveEnemyToNode(ENEMY *nme, int node)
 			nme->path->nodes[0].worldTile = ph->path->nodes[0].worldTile;
 			if( nme->flags & ENEMY_NEW_BATTLEMODE )
 			{
+				if( nme->path->nodes[2].worldTile->state == TILESTATE_OCCUPIED )
+					nme->path->nodes[2].worldTile->state = TILESTATE_NORMAL;
 				nme->path->nodes[1].worldTile = ph->path->nodes[1].worldTile;
 				nme->path->nodes[2].worldTile = ph->path->nodes[2].worldTile;
 			}
