@@ -73,6 +73,7 @@
 #include "path.h"
 #include "enemies.h"
 #include "platform.h"
+#include "character.h"
 #include "cam.h"
 #include "game.h"
 #include "multi.h"
