@@ -22,7 +22,14 @@
 
 //------------------------------------------------------------------------------------------------
 
-typedef struct _ACTION
+typedef struct TAGCOLLSPHERE2
+{
+	VECTOR	origin;
+	VECTOR	radius;
+
+} COLLSPHERE2;
+
+typedef struct TAGACTION
 {	
 //	QUATERNION rot;
 	
@@ -41,12 +48,12 @@ typedef struct _ACTION
 } ACTION;
 
 
-typedef struct _ACTOR2
+typedef struct TAGACTOR2
 {
 	ACTOR			*actor;
 	ACTION			action;	
 	
-	struct _ACTOR2	*next,*prev;
+	struct TAGACTOR2	*next,*prev;
 
 	char			draw;
 	int				flags;
@@ -58,6 +65,7 @@ typedef struct _ACTOR2
 	float			offset;
 
 	SPRITE			sprite;
+	COLLSPHERE2		*collSphere;
 
 } ACTOR2;
 
@@ -69,14 +77,15 @@ extern int objectMatrix;
 
 extern ACTOR2 *actList;
 
-extern ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode);
-extern void DrawActorList();
-extern void FreeActorList();
+ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode);
+void DrawActorList();
+void FreeActorList();
 
-extern void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags);
-extern void RemoveObjectSprites(OBJECT *obj,BOOL free);
-extern void FreeObjectSprites(OBJECT *obj);
+void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags);
+void RemoveObjectSprites(OBJECT *obj,BOOL free);
+void FreeObjectSprites(OBJECT *obj);
 
+void CreateCollisionSphereForActor(ACTOR2 *act,float xOffset,float yOffset,float zOffset,float radius);
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
 
 

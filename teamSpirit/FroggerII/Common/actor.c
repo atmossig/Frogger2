@@ -193,6 +193,8 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->offset				= 0.0;
 	newItem->distanceFromFrog	= 0.0F;
 
+	newItem->collSphere			= NULL;
+
 	newItem->next = actList;
 	actList = newItem;
 
@@ -333,6 +335,16 @@ void FreeObjectSprites(OBJECT *obj)
 
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: CreateCollisionSphereForActor
+	Purpose			: creates and assigns a collision sphere to an actor
+	Parameters		: ACTOR2 *,float,float,float,float
+	Returns			: void
+	Info			: 
+*/
+void CreateCollisionSphereForActor(ACTOR2 *act,float xOffset,float yOffset,float zOffset,float radius)
+{
+}
 
 /* --------------------------------------------------------------------------------
 	Function	: CollideSphereToSphere 
