@@ -136,7 +136,7 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 	i = ReadByte(f);
 	ReadFile(f, name, i, &bytesRead, NULL);
 	name[i] = 0;
-	stringChange(name);	// auto convert ".ndo" to ".obe"
+	//stringChange(name);	// auto convert ".ndo" to ".obe"
 
 	flags = ReadInt(f);
 	ID = ReadInt(f);
