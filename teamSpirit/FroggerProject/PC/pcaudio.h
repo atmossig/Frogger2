@@ -204,7 +204,7 @@ extern void InitVoices( char *path, int len );
 extern void PrepareSong(short num, short loop);
 extern void LoopSong();
 extern void StopSong( );
-extern int IsSongFinished();
+extern int IsSongPlaying();
 
 extern void PauseAudio( );
 extern void UnPauseAudio( );
