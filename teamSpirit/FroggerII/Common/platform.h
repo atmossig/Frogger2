@@ -117,12 +117,13 @@ extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 #define PLATFORM_NEW_FORWARDS			(1 << 1)	// platform moves forwards thru path nodes
 #define PLATFORM_NEW_BACKWARDS			(1 << 2)	// platform moves backwards thru path nodes
 #define PLATFORM_NEW_PINGPONG			(1 << 3)	// platform moves back and forth thru nodes
-#define PLATFORM_NEW_MOVEUP				(1 << 4)	// platform moves up (1 node paths only)
-#define PLATFORM_NEW_MOVEDOWN			(1 << 5)	// platform moves down (1 node paths only)
-#define PLATFORM_NEW_STEPONACTIVATED	(1 << 6)	// platform is activated when frog is on it
-#define PLATFORM_NEW_SINKWITHFROG		(1 << 7)	// platform sinks when frog is on it
-#define PLATFORM_NEW_RISEWITHFROG		(1 << 8)	// platform sinks when frog is on it
-#define PLATFORM_NEW_CARRYINGFROG		(1 << 9)	// platform is carrying a frog
+#define PLATFORM_NEW_CYCLE				(1 << 4)	// platform cycles thru nodes continuously
+#define PLATFORM_NEW_MOVEUP				(1 << 5)	// platform moves up (1 node paths only)
+#define PLATFORM_NEW_MOVEDOWN			(1 << 6)	// platform moves down (1 node paths only)
+#define PLATFORM_NEW_STEPONACTIVATED	(1 << 7)	// platform is activated when frog is on it
+#define PLATFORM_NEW_SINKWITHFROG		(1 << 8)	// platform sinks when frog is on it
+#define PLATFORM_NEW_RISEWITHFROG		(1 << 9)	// platform sinks when frog is on it
+#define PLATFORM_NEW_CARRYINGFROG		(1 << 10)	// platform is carrying a frog
 
 
 PLATFORM *NEW_CreateAndAddPlatform(char *pActorName);

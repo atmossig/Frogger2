@@ -112,8 +112,6 @@ PLATFORM *bus3		= NULL;
 
 PLATFORM *devPlat1	= NULL;
 PLATFORM *devPlat2	= NULL;
-PLATFORM *devPlat3	= NULL;
-PLATFORM *devPlat4	= NULL;
 
 
 
@@ -185,17 +183,12 @@ float			devPathSpeed[]	= { 6,		4,4,4,4,4,4 };
 
 
 
-PATHNODE debug_pathNodes1[] = { 20,20,0, 21,50,0, 22,20,0, 23,50,0 };
-PATH debug_path1 = { 4,0,0,0,debug_pathNodes1 };
+PATHNODE debug_pathNodes1[] = { 20,20,0, 21,50,0, 22,20,0, 23,50,0, 15,20,0, 11,50,0, 10,20,0, 9,50,0, 8,20,0, 12,50,0 };
+PATH debug_path1 = { 10,0,0,0,debug_pathNodes1 };
 
 PATHNODE debug_pathNodes2[] = { 14,5,45 };
 PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
 
-PATHNODE debug_pathNodes3[] = { 15,45,5 };
-PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
-
-PATHNODE debug_pathNodes4[] = { 11,5,45 };
-PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
 
 static void	GetActiveTile(PLATFORM *pform);
 
@@ -218,20 +211,14 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		if(levelID == LEVELID_GARDENLAWN)
 		{
 			devPlat1 = NEW_CreateAndAddPlatform("pltlilly.ndo");
-			devPlat1->currSpeed = 3.0F;
-			NEW_AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
+			devPlat1->currSpeed = 6.0F;
+//			NEW_AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_PINGPONG,&debug_path1,PATH_MAKENODETILEPTRS);
+			NEW_AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path1,PATH_MAKENODETILEPTRS);
+//			NEW_AssignPathToPlatform(devPlat1,PLATFORM_NEW_BACKWARDS | PLATFORM_NEW_CYCLE,&debug_path1,PATH_MAKENODETILEPTRS);
 
 			devPlat2 = NEW_CreateAndAddPlatform("pltlilly.ndo");
 			devPlat2->currSpeed = 2.0F;
 			NEW_AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path2,PATH_MAKENODETILEPTRS);
-
-			devPlat3 = NEW_CreateAndAddPlatform("pltlilly.ndo");
-			devPlat3->currSpeed = 1.0F;
-			NEW_AssignPathToPlatform(devPlat3,PLATFORM_NEW_MOVEDOWN | PLATFORM_NEW_STEPONACTIVATED,&debug_path3,PATH_MAKENODETILEPTRS);
-
-			devPlat4 = NEW_CreateAndAddPlatform("pltlilly.ndo");
-			devPlat4->currSpeed = 1.0F;
-			NEW_AssignPathToPlatform(devPlat4,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_STEPONACTIVATED,&debug_path4,PATH_MAKENODETILEPTRS);
 		}
 
 		if ( levelID == LEVELID_GARDENMAZE )
@@ -677,6 +664,7 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 
 PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex, unsigned long *hightIndex, float offset,float offset2,int startNode,float *moveSpeed, float riseSpeed, unsigned long pFlags)
 {
+/*
 	VECTOR toPosition;
 	VECTOR vfd	= { 0,0,1 };
 	VECTOR vup	= { 0,1,0 };
@@ -763,6 +751,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex, unsign
 	}
 
 	return newItem;
+*/
 }
 
 
@@ -775,6 +764,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex, unsign
 */
 PATH *CreatePlatformPathFromTileList(unsigned long *pIndex, unsigned long *hIndex, float offset,float offset2)
 {
+/*
 	int i;
 	PATH *newPath = (PATH *)JallocAlloc(sizeof(PATH),YES,"ppath");
 
@@ -802,6 +792,7 @@ PATH *CreatePlatformPathFromTileList(unsigned long *pIndex, unsigned long *hInde
 	}
 
 	return newPath;
+*/
 }
 
 
@@ -1869,7 +1860,10 @@ BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform)
 	// check if path node is reached
 	GetPositionForPathNode(&nodePos,&path->nodes[path->toNode]);
 	if(DistanceBetweenPointsSquared(&pform->pltActor->actor->pos,&nodePos) <  ((pform->currSpeed + 0.1F) * (pform->currSpeed + 0.1F)))
+	{
+		dprintf"%d\n",path->fromNode));
 		return TRUE;
+	}
 
 	return FALSE;
 }
@@ -1919,7 +1913,7 @@ BOOL NEW_PlatformReachedTopOrBottomPoint(PLATFORM *pform)
 void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 {
 	VECTOR pformPos;
-	int nextNode;
+	int nextToNode,nextFromNode;
 	PATH *path = pform->path;
 	unsigned long flags = pform->flags;
 
@@ -1928,9 +1922,9 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 	if(flags & PLATFORM_NEW_FORWARDS)
 	{
 		// platform moves forward through path nodes
-		nextNode = path->toNode + 1;
+		nextToNode = path->toNode + 1;
 
-		if(nextNode > GET_PATHLASTNODE(path))
+		if(nextToNode > GET_PATHLASTNODE(path))
 		{
 			// reached end of path nodes
 			// check if this platform has ping-pong movement
@@ -1943,6 +1937,13 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
 				return;
 			}
+			else if(flags & PLATFORM_NEW_CYCLE)
+			{
+				// platform has cyclic movement
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= 0;
+				return;
+			}
 
 			path->fromNode	= 0;
 			path->toNode	= 1;
@@ -1952,6 +1953,15 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 		}
 		else
 		{
+			nextFromNode = path->fromNode + 1;
+
+			if((pform->flags & PLATFORM_NEW_CYCLE) && (nextFromNode > GET_PATHLASTNODE(path)))
+			{
+				path->fromNode	= 0;
+				path->toNode	= 1;
+				return;
+			}
+			
 			path->fromNode++;
 			path->toNode++;
 		}
@@ -1959,9 +1969,9 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 	else if(flags & PLATFORM_NEW_BACKWARDS)
 	{
 		// platform moves backwards through path nodes
-		nextNode = path->toNode - 1;
+		nextToNode = path->toNode - 1;
 
-		if(nextNode < 0)
+		if(nextToNode < 0)
 		{
 			// reached beginning of path nodes
 			// check if this platform has ping-pong movement
@@ -1974,6 +1984,13 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 				path->toNode	= 1;
 				return;
 			}
+			else if(flags & PLATFORM_NEW_CYCLE)
+			{
+				// platform has cyclic movement
+				path->fromNode	= 0;
+				path->toNode	= GET_PATHLASTNODE(path);
+				return;
+			}
 
 			path->fromNode	= GET_PATHLASTNODE(path);
 			path->toNode	= GET_PATHLASTNODE(path) - 1;
@@ -1983,6 +2000,15 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 		}
 		else
 		{
+			nextFromNode = path->fromNode - 1;
+
+			if((pform->flags & PLATFORM_NEW_CYCLE) && (nextFromNode < 0))
+			{
+				path->fromNode	= GET_PATHLASTNODE(path);
+				path->toNode	= GET_PATHLASTNODE(path) - 1;
+				return;
+			}
+
 			path->fromNode--;
 			path->toNode--;
 		}
