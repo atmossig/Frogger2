@@ -34,12 +34,12 @@ void D3DSetupRenderstates(unsigned long *me);
 /*	--------------------------------------------------------------------------------
 	Function	: D3DInit
 	Purpose		: Setup D3D
-	Parameters	: 
+	Parameters	: x, y pixel resolution
 	Returns		: 
 	Info		: 
 */
 
-unsigned long D3DInit(void);
+unsigned long D3DInit(int xRes, int yRes);
 
 /*	--------------------------------------------------------------------------------
 	Function	: D3DCreateTexSurface

@@ -491,7 +491,8 @@ void DrawSoftwarePolys (void)
 
 				if (cur->tEntry->softData)
 				{
-					ssSetTexture(cur->tEntry->softData,cur->tEntry->xSize,cur->tEntry->ySize);
+					// *ASL* 12/06/2000 - added colour key hint
+					ssSetTexture(cur->tEntry->softData,cur->tEntry->xSize,cur->tEntry->ySize, cur->tEntry->keyed ? 0 : SSTEXHINT_NOTRANS);
 				}
 				else
 					ssSetTexture(NULL, 0,0);
@@ -965,7 +966,8 @@ HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LP
 
 				if (cTexture->softData)
 				{
-					ssSetTexture(cTexture->softData,cTexture->xSize,cTexture->ySize);
+					// *ASL* 12/06/2000 - added colour key hint
+					ssSetTexture(cTexture->softData,cTexture->xSize,cTexture->ySize, cTexture->keyed ? 0 : SSTEXHINT_NOTRANS);
 				}
 				else
 					ssSetTexture(NULL, 0,0);

@@ -95,20 +95,21 @@ void D3DSetupRenderstates(unsigned long *me)
 /*	--------------------------------------------------------------------------------
 	Function	: D3DInit
 	Purpose		: Setup D3D
-	Parameters	: 
+	Parameters	: x, y pixel resolution
 	Returns		: 
 	Info		: 
 */
 
-unsigned long D3DInit(void)
+unsigned long D3DInit(int xRes, int yRes)
 {
 	HRESULT			res;
-    D3DVIEWPORT7	vp = {0, 0, rXRes, rYRes, 0.0f, 1.0f};
+    D3DVIEWPORT7	vp = {0, 0, xRes, yRes, 0.0f, 1.0f};
 
 	if (!rHardware)
 	{
 		ssInit(r565?SSPIXELFORMAT_565:SSPIXELFORMAT_555);
-		ssSetViewport(0,0,640,480);
+		ssUseMMX(1);
+		ssSetViewport(0, 0, xRes, yRes);
 		return TRUE;
 	}
 

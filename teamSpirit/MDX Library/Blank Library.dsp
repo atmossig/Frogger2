@@ -25,7 +25,7 @@ CFG=Blank Library - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""$/teamSpirit/MDX Library", TLNBAAAA"
 # PROP Scc_LocalPath "."
-CPP=cl.exe
+CPP=xicl6.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "Blank Library - Win32 Release"
@@ -47,7 +47,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
+LIB32=xilink6.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"mdx.lib"
 
@@ -70,7 +70,7 @@ LIB32=link.exe -lib
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LIB32=link.exe -lib
+LIB32=xilink6.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"Blank_Library___Win32_Debug\mdx.lib"
 
@@ -267,6 +267,10 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\SoftStation.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SoftStation.lib
 # End Source File
 # End Target
 # End Project

@@ -131,9 +131,13 @@ char *languageText[NUM_LANGUAGES] = {"English","Français","Deutsch","Italiano","
 
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	HWND list;
-	int i,lastIdx;
+	static int	initFlag;
+	int			i,lastIdx;
+	char		text[32];
+	HWND		list;
 
+
+	// this dialog appears to handle the video radio buttons
 	if (userDlgProc)
 		if (userDlgProc(hwndDlg,uMsg,wParam, lParam))
 			return TRUE;
@@ -142,6 +146,9 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	{
 		case WM_INITDIALOG:
 		{
+			// starting to initialise.. ignore notifications
+			initFlag = 0;					
+
 			RECT meR;
 			LV_ITEM itm;
 			int index = 0;	
@@ -182,8 +189,22 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 						index = i;
 				}
 			}
-
 			ListView_SetItemState(list, index, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
+
+			// if the hardware renderer is currently selected..
+			if (stricmp(dxDeviceList[index].desc, softwareString) != NULL)
+			{
+				// do not allow the 320x240 resolution
+				if (SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_GETCHECK, 0, 0))
+				{
+					SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_SETCHECK, 0, 0);
+					SendMessage(GetDlgItem(hwndDlg, IDC_640), BM_SETCHECK, 1, 0);
+				}
+				EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
+			}
+
+			// initialised.. notifications valid
+			initFlag = 1;
 
 			return TRUE;
 			break;
@@ -219,7 +240,54 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					break;
 				}
 			}
-			break;		
+			break;
+
+			case WM_NOTIFY:
+
+				// ready to accept control notifications?
+				if (initFlag == 0)
+					break;
+				// is this from the video device list box?
+				if (((NMHDR *)lParam)->idFrom == IDC_LIST2)
+				{
+					switch (((NMHDR *)lParam)->code)
+					{
+						// user changed selection..
+						case LVN_ITEMCHANGED:
+							if (((NMLISTVIEW *)lParam)->uChanged & LVIF_STATE && ((NMLISTVIEW *)lParam)->uNewState & LVIS_SELECTED)
+							{
+								// to what?
+								ListView_GetItemText(((NMHDR *)lParam)->hwndFrom, ((NMLISTVIEW *)lParam)->iItem, 0, text, 32);
+								if (stricmp(text, softwareString) == NULL)
+								{
+									// User selected software renderer
+
+									// allow 320x240 resolution
+									EnableWindow(GetDlgItem(hwndDlg, IDC_320), TRUE);
+								}
+								else
+								{
+									// User selected hardware renderer
+
+									// do not allow 320x240 resolution
+									if (SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_GETCHECK, 0, 0))
+									{
+										SendMessage(GetDlgItem(hwndDlg, IDC_320), BM_SETCHECK, 0, 0);
+										SendMessage(GetDlgItem(hwndDlg, IDC_640), BM_SETCHECK, 1, 0);
+									}
+									EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
+								}
+							}
+							break;
+
+						// user double-clicked on video selection..
+						case NM_DBLCLK:
+							// use current configuration and exit
+							PostMessage(hwndDlg, WM_COMMAND, MAKEWPARAM(IDOK, 0), 0);
+							break;
+					}
+				}
+				break;
 	}
 
 	return FALSE;
