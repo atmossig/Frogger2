@@ -81,6 +81,7 @@ extern psFont *fontWhite;
 extern MDX_FONT *pcFont;
 extern MDX_FONT *pcFontSmall;
 extern long fogEnable;
+extern long turbo;
 void debugPrintf(int num);
 void Crash(char *mess);
 
