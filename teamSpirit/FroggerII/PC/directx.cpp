@@ -382,6 +382,63 @@ void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, floa
 
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void DrawFlatRect(RECT r, D3DCOLOR colour)
+{
+	D3DLVERTEX v[4] = {
+		{
+			r.left,r.top,0,0,
+			colour,D3DRGB(0,0,0),
+			0,0
+		},
+		{
+			r.left,r.bottom,0,0,
+			colour,D3DRGB(0,0,0),
+			0,0
+		},
+		{
+			r.right,r.bottom,0,0,
+			colour,D3DRGB(0,0,0),
+			0,0
+		},
+		{
+			r.right,r.top,0,0,
+			colour,D3DRGB(0,0,0),
+			0,0
+	}};
+
+	if (lastH) {
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,NULL);
+		lastH = NULL;
+	}
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+
+	if (pDirect3DDevice->DrawPrimitive(
+		D3DPT_TRIANGLEFAN,
+		D3DVT_TLVERTEX,
+		v,
+		4,
+		D3DDP_DONOTCLIP 
+			| D3DDP_DONOTLIGHT 
+			| D3DDP_DONOTUPDATEEXTENTS 
+			| D3DDP_WAIT)!=D3D_OK)
+	{
+		dp("Could not draw flat rectangle\n");
+		// ARSE! Can't draw flat rect
+	}
+}
+
 D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)
 {
 	D3DTEXTUREHANDLE textureHandle;
