@@ -33,7 +33,7 @@
 #ifdef PC_VERSION
 #define MAX_SPRITES	512
 #else
-#define MAX_SPRITES	128
+#define MAX_SPRITES	180
 #endif
 
 /*	--------------------------------------------------------------------------------
