@@ -105,15 +105,13 @@ void PTTextureLoad( )
 		if( t->name[0]=='p' && t->name[1]=='r' && t->name[2]=='c' )
 			CreateProceduralTexture( (TextureType *)t, t->name );		
 	}
-
 /*
 	t = GetTexEntryFromCRC(UpdateCRC("00wate04.bmp"));
 
 	if (t)
 		testS = t->surf;
-
-	pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
 */
+	pSurface = D3DCreateTexSurface( 32,32,0xf81f, 1,1);
 }
 
 

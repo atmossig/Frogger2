@@ -109,11 +109,6 @@ unsigned rPlaying = 0;
 unsigned rPlayOK = 0;
 long rEndFrame;
 
-#ifdef FULL_BUILD
-// TODO: remove this timer
-TIMER idletimer;
-#endif
-
 // -------------------------------------------------
 
 extern KEYENTRY keymap[56];
@@ -287,6 +282,52 @@ void RecordButtons(unsigned long b0,unsigned long pnum)
 	}
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function	: GetControllerSetup
+	Purpose		: saves the current controller setup
+	Parameters	: 
+	Returns		: BOOL - TRUE on success, else FALSE
+	Info		: 
+*/
+void KeyboardDump(HKEY hkey, bool write)
+{
+	unsigned char* buffer[56*3];
+	unsigned char* p = (unsigned char*)buffer;
+	DWORD len;
+
+	if (write)
+	{
+		for (int i=0;i<56;i++)
+		{
+			*(p++) = keymap[i].player;
+			*(p++) = keymap[i].button;
+			*(p++) = keymap[i].key;
+		}
+
+		RegSetValueEx(hkey, "Keymap", NULL, REG_BINARY, (unsigned char*)buffer, 56*3);
+	}
+	else
+	{
+		len = 56*3;
+		if (RegQueryValueEx(hkey, "Keymap", NULL, NULL, (unsigned char*)buffer, &len) == ERROR_SUCCESS)
+		{
+			if (len < 56*3)
+			{
+				utilPrintf("KeyboardDump(read): Buffer full of rubbish, ignoring\n");
+				return;
+			}
+
+			for (int i=0;i<56;i++)
+			{
+				keymap[i].player = *(p++);
+				keymap[i].button = *(p++);
+				keymap[i].key = *(p++);
+			}
+		}
+	}
+}
+
 /*	--------------------------------------------------------------------------------
 	Function	: GetControllerSetup
 	Purpose		: saves the current controller setup
@@ -297,20 +338,61 @@ void RecordButtons(unsigned long b0,unsigned long pnum)
 int GetControllerSetup(void)
 {
 	HKEY hkey;
-	char name[256], value[256];
-	DWORD len = 256;
+	char name[9] = "Control ";
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{
 		for (int pl=0; pl<4; pl++)
 		{
-			strcpy(name, "Control_");
-			name[6] = pl+'1';
+			char value[10];
+			DWORD len = 16;
+			name[7] = pl+'1';
 			
 			if (RegQueryValueEx(hkey, name, NULL, NULL, (unsigned char*)value, &len) == ERROR_SUCCESS)
 			{
-				
+				if (strnicmp(value, "joypad", 7) == 0)
+				{
+					if (value[7] >= '1' && value[7] <= '9')
+						controllers[pl] = GAMEPAD + (value[7] - '1');
+					else
+						controllers[pl] = GAMEPAD;
+				}
+				else
+				{
+					controllers[pl] = KEYBOARD;					
+				}
 			}
+
+			KeyboardDump(hkey, 0);
+		}
+		RegCloseKey(hkey);
+	}
+
+	return 1;
+}
+
+int SaveControllerSetup(void)
+{
+	HKEY hkey;
+	char name[9] = "Control ";
+
+	if ((RegCreateKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, 0, 0, KEY_WRITE, NULL, &hkey, NULL)) == ERROR_SUCCESS)
+	{
+		for (int pl=0; pl<4; pl++)
+		{
+			char value[10];
+			name[7] = pl+'1';
+
+			if (controllers[pl] == KEYBOARD)
+				RegSetValueEx(hkey, name, NULL, REG_SZ, (unsigned char*)"Keyboard", 9);
+			else
+			{
+				strcpy(value, "Joypad ");
+				value[6] = (controllers[pl] & (GAMEPAD-1)) + '1';
+				RegSetValueEx(hkey, name, NULL, REG_SZ, (unsigned char*)value, 8);
+			}
+
+			KeyboardDump(hkey, 1);
 		}
 		RegCloseKey(hkey);
 	}
@@ -343,6 +425,8 @@ BOOL InitInputDevices()
 	{
 		DeInitJoystick();
 	}
+
+	GetControllerSetup();
 
 	// Read control map
 /*
@@ -377,6 +461,8 @@ void DeInitInputDevices()
 		lpDI->Release();
 		lpDI = NULL;
 	}
+
+	SaveControllerSetup();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -493,7 +579,9 @@ BOOL InitJoystickControl()
 	polling the joypad in a different thread, we can pretty much choose our time resolution.
 
 	We have to avoid running this bit of code while the controller code in the main thread
-	is processing our data - a Mutex (mutually exclusive lock) is used to achieve this.
+	is processing our data
+
+								* * * WORK IN PROGRESS * * *
 */
 DWORD WINAPI JoypadThreadProc(LPVOID param)
 {
@@ -737,7 +825,7 @@ void ProcessKeyboardInput()
 
 		}
 
-		if (KEYPRESS(DIK_NUMPAD9))
+		if (KEYPRESS(DIK_NUMPAD9) && fog.max > 5)
 		{
 			fog.max/=1.2;
 //			horizClip/=1.2;
@@ -875,25 +963,6 @@ void ProcessUserInput()
 
 #ifdef JOYPADTHREAD
 	ReleaseMutex(hJoyMutex);
-#endif
-
-#ifdef FULL_BUILD
-	if (pressed)
-	{
-		GTInit(&idletimer, 75);
-	}
-	else
-	{
-		GTUpdate(&idletimer, -1);
-		if (!idletimer.time && (player[0].worldNum != 8))
-		{
-			player[0].worldNum = 8;	player[0].levelNum = 0;
-			gameState.mode = LEVELCOMPLETE_MODE;
-			gameState.multi = SINGLEPLAYER;
-			GTInit( &modeTimer, 1 );
-			showEndLevelScreen = 0;
-		}
-	}
 #endif
 }
 
@@ -1240,66 +1309,3 @@ int GetButtonDialog(LPDIRECTINPUTDEVICE lpDID, HWND hParent)
 
 	return button;
 }
-
-
-// todo: move these
-/*	--------------------------------------------------------------------------------
-
-typedef struct {
-	TEXTOVERLAY *control[14];
-	TEXTOVERLAY *button[14];
-} CONTROLVIEWSTUFF;
-
-CONTROLVIEWSTUFF* ctv;
-
-	Function		: StartControllerView
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-
-
-void StartControllerView()
-{
-	int ctrl;
-
-	gameState.mode = CONTROLLERVIEW_MODE;
-	DisableHUD();
-	drawGame = 0;
-
-	InitBackdrop("CONTROLS");
-
-	ctv = (CONTROLVIEWSTUFF*)MALLOC0(sizeof(CONTROLVIEWSTUFF));
-
-	for (ctrl=0; ctrl<14; ctrl++)
-	{
-		ctv->control[ctrl] = CreateAndAddTextOverlay(
-			450, ctrl*150+800,
-			controlDesc[ctrl],
-			NO, 255, fontSmall, 0);
-
-		ctv->button[ctrl] =  CreateAndAddTextOverlay(
-			2500, ctrl*150+800,
-			DIKStrings[keymap[ctrl].key],
-			NO, 255, fontSmall, 0);
-	}
-}
-
-
-void RunControllerView()
-{
-	if (padData.debounce[0])
-	{
-		for (int ctrl=0; ctrl<14; ctrl++)
-		{
-			SubTextOverlay(ctv->control[ctrl]);
-			SubTextOverlay(ctv->button[ctrl]);
-		}
-
-		FreeBackdrop();
-		gameState.mode = INGAME_MODE;
-		EnableHUD();
-		drawGame = 1;
-		return;
-	}
-}
-*/
