@@ -34,7 +34,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	while (cur)
 	{
 		utilPrintf("%s, %d, %d, %d\n", cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz);
-		if ( (gstrcmp ( cur->name,"world.psi") != 0) && (gstrcmp ( cur->name,"backdrop.psi") != 0) )
+		if ( (gstrcmp ( cur->name,"world.psi") != 0) /*&& (gstrcmp ( cur->name,"backdrop.psi") != 0)*/ )
 		{
 			for( i=0; i<4; i++ )
 				tmp[i] = cur->name[i];
