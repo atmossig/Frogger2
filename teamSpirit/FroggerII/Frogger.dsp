@@ -1039,6 +1039,14 @@ SOURCE=.\Pc\texture.h
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\Editor\editdefs.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Editor\editdefs.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Editor\editfile.c
 # End Source File
 # Begin Source File
