@@ -19,6 +19,14 @@ char pauseMode		= 0;
 
 #define NUM_TRAIL_ELEMENTS 32
 
+// Defines and data for the static sprite list
+#define MAX_FXSPRITES	512
+SPRITE *fxSpriteList = NULL;
+short fxsCount=0;
+
+// Defines and data for the sprite allocation stack
+SPRITE *fxSpriteStack[MAX_FXSPRITES];
+short fxsStackPtr=0;
 
 
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
@@ -51,6 +59,9 @@ void CreateGloopEffects( SPECFX *parent );
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
 
+SPRITE *AllocateSprites( int number );
+void DeallocateSprites( SPRITE *head, int number );
+
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
 D3DTLVERTEX *ringVtx = NULL;
@@ -66,8 +77,11 @@ D3DTLVERTEX *ringVtx = NULL;
 SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime )
 {
 	SPECFX *effect = NULL;
+	SPRITE *s;
 	long i,n;
 	float life = lifetime * 60;
+
+//	return NULL;
 
 	effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
 
@@ -198,32 +212,37 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->numP = 6;
 		i = effect->numP;
 
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
+		if( !(effect->sprites = AllocateSprites( effect->numP )) )
+		{
+			SubSpecFX( effect );
+			return NULL;
+		}
+
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
 
 		effect->tex = txtrStar;
 
-		while(i--)
+		s = effect->sprites;
+		while( i-- )
 		{
-			effect->sprites[i].texture = effect->tex;
-			SetVector( &effect->sprites[i].pos, &effect->origin );
+			s->texture = effect->tex;
+			SetVector( &s->pos, &effect->origin );
 
-			effect->sprites[i].scaleX = effect->scale.v[X];
-			effect->sprites[i].scaleY = effect->scale.v[Y];
-			effect->sprites[i].r = effect->r;
-			effect->sprites[i].g = effect->g;
-			effect->sprites[i].b = effect->b;
-			effect->sprites[i].a = effect->a;
+			s->scaleX = effect->scale.v[X];
+			s->scaleY = effect->scale.v[Y];
+			s->r = effect->r;
+			s->g = effect->g;
+			s->b = effect->b;
+			s->a = effect->a;
 
-			effect->sprites[i].offsetX	= -16;
-			effect->sprites[i].offsetY	= -16;
-			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
-
-			AddSprite( &effect->sprites[i], NULL );
+			s->offsetX	= -16;
+			s->offsetY	= -16;
+			s->flags = SPRITE_TRANSLUCENT;
 
 			effect->particles[i].pos.v[X] = -8 + Random(16);
 			effect->particles[i].pos.v[Y] = -6 + Random(12);
 			effect->particles[i].pos.v[Z] = -8 + Random(16);
+			s = s->next;
 		}
 
 		effect->Update = UpdateFXSwarm;
@@ -249,9 +268,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				SPECFX *fx;
 				effect->act[i] = CreateAndAddActor( "xx_saus.obe", 0,0,0, INIT_ANIMATION);
 
-				fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &effect->origin, &effect->normal, 2, 0.99, 0, 2 );
-				fx->follow = effect->act[i]->actor;
-				SetFXColour( fx, 255, 100, 100 );
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &effect->origin, &effect->normal, 2, 0.99, 0, 2 )) )
+				{
+					fx->follow = effect->act[i]->actor;
+					SetFXColour( fx, 255, 100, 100 );
+				}
 			}
 
 			if( effect->act[i]->actor->objectController )
@@ -312,39 +333,48 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->vel.v[Z] += (-1 + Random(3))*speed*0.4;
 		effect->fade = 180 / life;
 
-		effect->numP = i = 2;
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE) * effect->numP, YES, "Sprite" );
+		if( effect->type == FXTYPE_BUBBLES )
+			effect->numP = i = 1;
+		else
+			effect->numP = i = 2;
 
-		while(i--)
+		if( !(effect->sprites = AllocateSprites( effect->numP )) )
+		{
+			SubSpecFX( effect );
+			return NULL;
+		}
+
+		s = effect->sprites;
+		while( i-- )
 		{
 			if( effect->type == FXTYPE_BUBBLES )
-				effect->sprites[i].texture = txtrBubble;
+				s->texture = txtrBubble;
 			else
-				effect->sprites[i].texture = txtrSmoke;
+				s->texture = txtrSmoke;
 
-			SetVector( &effect->sprites[i].pos, &effect->origin );
-			effect->sprites[i].scaleX = effect->scale.v[X];
-			effect->sprites[i].scaleY = effect->scale.v[Y];
+			SetVector( &s->pos, &effect->origin );
+			s->scaleX = effect->scale.v[X];
+			s->scaleY = effect->scale.v[Y];
 
-			effect->sprites[i].r = effect->r;
-			effect->sprites[i].g = effect->g;
-			effect->sprites[i].b = effect->b;
-			effect->sprites[i].a = effect->a;
+			s->r = effect->r;
+			s->g = effect->g;
+			s->b = effect->b;
+			s->a = effect->a;
 
-			effect->sprites[i].offsetX = -16;
-			effect->sprites[i].offsetY = -16;
-			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
-
-			AddSprite( &effect->sprites[i], NULL );
+			s->offsetX = -16;
+			s->offsetY = -16;
+			s->flags = SPRITE_TRANSLUCENT;
 
 			if( effect->type == FXTYPE_SMOKE_GROWS || effect->type == FXTYPE_SMOKE_STATIC )
 			{
-				effect->sprites[i].flags		|= SPRITE_FLAGS_ROTATE;
-				effect->sprites[i].angle		= 0.0f;
-				effect->sprites[i].angleInc		= 1.0 / (float)(12 + (rand() % 16));
+				s->flags |= SPRITE_FLAGS_ROTATE;
+				s->angle = 0.0f;
+				s->angleInc = 1.0 / (float)(12 + (rand() % 16));
 				if(i == 0)
-					effect->sprites[i].angleInc *= -1;
+					s->angleInc *= -1;
 			}
+
+			s = s->next;
 		}
 
 		effect->Update = UpdateFXSmoke;
@@ -359,7 +389,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->numP = 5;
 		i = effect->numP;
 
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
+		if( !(effect->sprites = AllocateSprites( effect->numP )) )
+		{
+			SubSpecFX( effect );
+			return NULL;
+		}
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
 
 		effect->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
@@ -377,40 +411,30 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->fade = (255/life)*2;
 
-		while(i--)
+		s = effect->sprites;
+		while( i-- )
 		{
-			SetVector( &effect->sprites[i].pos, &effect->origin );
+			SetVector( &s->pos, &effect->origin );
 
-			effect->sprites[i].r = effect->r;
-			effect->sprites[i].g = effect->g;
-			effect->sprites[i].b = effect->b;
-			effect->sprites[i].a = effect->a;
+			s->r = effect->r;
+			s->g = effect->g;
+			s->b = effect->b;
+			s->a = effect->a;
 
 			if( effect->type == FXTYPE_FIERYSMOKE )
 			{
-				effect->sprites[i].g = 180;
-				effect->sprites[i].b = 0;
+				s->g = 180;
+				s->b = 0;
 			}
 
-			effect->sprites[i].texture = effect->tex;
+			s->texture = effect->tex;
 
-			effect->sprites[i].scaleX = effect->scale.v[X];
-			effect->sprites[i].scaleY = effect->scale.v[Y];
+			s->scaleX = effect->scale.v[X];
+			s->scaleY = effect->scale.v[Y];
 
-			effect->sprites[i].offsetX = -16;
-			effect->sprites[i].offsetY = -16;
-			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
-			
-			AddSprite( &effect->sprites[i], NULL );
-
-			if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
-			{
-				effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
-				effect->sprites->angle		= 0.0f;
-				effect->sprites->angleInc	= 1.0 / (float)(8 + (rand() % 12));
-				if(!(actFrameCount & 1))
-					effect->sprites->angleInc *= -1;
-			}
+			s->offsetX = -16;
+			s->offsetY = -16;
+			s->flags = SPRITE_TRANSLUCENT;
 
 			if( effect->type == FXTYPE_SPARKBURST || effect->type == FXTYPE_SPARKLYTRAIL )
 				effect->particles[i].bounce = 1;
@@ -423,6 +447,17 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			effect->particles[i].vel.v[X] += (-1 + Random(3))*effect->speed*0.4;
 			effect->particles[i].vel.v[Y] += (-1 + Random(3))*effect->speed*0.4;
 			effect->particles[i].vel.v[Z] += (-1 + Random(3))*effect->speed*0.4;
+
+			s = s->next;
+		}
+
+		if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
+		{
+			effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
+			effect->sprites->angle		= 0.0f;
+			effect->sprites->angleInc	= 1.0 / (float)(8 + (rand() % 12));
+			if(!(actFrameCount & 1))
+				effect->sprites->angleInc *= -1;
 		}
 
 		effect->Update = UpdateFXExplode;
@@ -456,7 +491,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	case FXTYPE_TWINKLE:
 		effect->numP = 1;
 
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "shield" );
+		if( !(effect->sprites = AllocateSprites( effect->numP )) )
+		{
+			SubSpecFX( effect );
+			return NULL;
+		}
 
 		if( effect->type == FXTYPE_GLOW )
 			effect->sprites->texture = txtrSolidRing;
@@ -494,7 +533,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->fade = 255 / life;
 
 		effect->numP = 1;
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
+		if( !(effect->sprites = AllocateSprites( effect->numP )) )
+		{
+			SubSpecFX( effect );
+			return NULL;
+		}
 		effect->sprites->texture = txtrBubble;
 
 		SetVector( &effect->sprites->pos, &effect->origin );
@@ -651,11 +694,6 @@ void UpdateFXBolt( SPECFX *fx )
 	fx->origin.v[Z] += fx->vel.v[Z] * gameSpeed;
 	fx->angle += fx->spin * gameSpeed;
 
-	if( fx->type == FXTYPE_FROGSHIELD )
-	{
-		SetVector( &fx->sprites->pos, &fx->origin );
-	}
-
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
@@ -670,8 +708,9 @@ void UpdateFXBolt( SPECFX *fx )
 */
 void UpdateFXSmoke( SPECFX *fx )
 {
-	int fo, i;
+	int fo, i = fx->numP;
 	float dist, vS = 1;
+	SPRITE *s;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -686,46 +725,46 @@ void UpdateFXSmoke( SPECFX *fx )
 
 	if( fx->follow )
 		SetVector( &fx->origin, &fx->follow->pos );
-
 	
-	i = fx->numP;
+	s = fx->sprites;
 	while(i--)
 	{
 		fo = fx->fade * gameSpeed;
-		if( fx->sprites[i].a > fo ) fx->sprites[i].a -= fo;
-		else fx->sprites->a = 0;
+		if( s->a > fo ) s->a -= fo;
+		else s->a = 0;
 
-		fx->sprites[i].pos.v[X] += fx->vel.v[X] * gameSpeed;
-		fx->sprites[i].pos.v[Y] += fx->vel.v[Y] * gameSpeed;
-		fx->sprites[i].pos.v[Z] += fx->vel.v[Z] * gameSpeed;
+		s->pos.v[X] += fx->vel.v[X] * gameSpeed;
+		s->pos.v[Y] += fx->vel.v[Y] * gameSpeed;
+		s->pos.v[Z] += fx->vel.v[Z] * gameSpeed;
 
 		// Slow down gameSpeed times
 		vS = 1-(0.02*gameSpeed);
 		ScaleVector( &fx->vel, vS );
 
-		if(fx->sprites[i].flags & SPRITE_FLAGS_ROTATE)
-			fx->sprites[i].angle += (fx->sprites[i].angleInc * gameSpeed);
+		if(s->flags & SPRITE_FLAGS_ROTATE)
+			s->angle += (s->angleInc * gameSpeed);
 
 		if( fx->type == FXTYPE_SMOKE_GROWS )
 		{
-			fx->sprites[i].scaleX += fx->accn*gameSpeed;
-			fx->sprites[i].scaleY += fx->accn*gameSpeed;
+			s->scaleX += fx->accn*gameSpeed;
+			s->scaleY += fx->accn*gameSpeed;
 		}
 		else if( fx->type == FXTYPE_BUBBLES )
 		{
 			if( fx->rebound )
 			{
 				fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-				dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
+				dist = -(DotProduct(&s->pos, &fx->rebound->normal) + fx->rebound->J);
 
 				if(dist > 0 && dist < 10)
 				{
-					CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
+					CreateAndAddSpecialEffect( FXTYPE_DECAL, &s->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
 					JallocFree( (UBYTE **)&fx->rebound );
 					fx->rebound = NULL;
 				}
 			}
 		}
+		s = s->next;
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
@@ -743,6 +782,7 @@ void UpdateFXSmoke( SPECFX *fx )
 void UpdateFXSwarm( SPECFX *fx )
 {
 	VECTOR up, pos;
+	SPRITE *s;
 	int i = fx->numP;
 	float dist;
 
@@ -763,18 +803,19 @@ void UpdateFXSwarm( SPECFX *fx )
 		AddVector( &fx->origin, &up, &frog[0]->actor->pos );
 	}
 
+	s = fx->sprites;
 	while(i--)
 	{
 		// Set world check position from either sprite or actor
 		if( !fx->act )
-			SetVector( &pos, &fx->sprites[i].pos );
+			SetVector( &pos, &s->pos );
 		else
 			SetVector( &pos, &fx->act[i]->actor->pos );
 
 		// Fade out star stun
 		if( fx->type == FXTYPE_FROGSTUN )
-			if( fx->sprites[i].a > 7 ) fx->sprites[i].a -= 8;
-			else fx->sprites[i].a = 0;
+			if( s->a > 7 ) s->a -= 8;
+			else s->a = 0;
 
 		// Update particle velocity to oscillate around the point
 		if( pos.v[X] > fx->origin.v[X])
@@ -807,15 +848,16 @@ void UpdateFXSwarm( SPECFX *fx )
 		// Add velocity to local particle position
 		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
 		// Add local particle pos to swarm origin to get world coords for sprite or actor
-		if( !fx->act )
-		{
-			AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
-			SetVector( &pos, &fx->sprites[i].pos );
-		}
-		else
+		if( fx->act )
 		{
 			AddVector( &fx->act[i]->actor->pos, &fx->origin, &fx->particles[i].pos );
 			SetVector( &pos, &fx->act[i]->actor->pos );
+		}
+		else
+		{
+			AddVector( &s->pos, &fx->origin, &fx->particles[i].pos );
+			SetVector( &pos, &s->pos );
+			s = s->next;
 		}
 
 		if( fx->rebound )
@@ -846,6 +888,7 @@ void UpdateFXExplode( SPECFX *fx )
 	float dist, vS;
 	int i = fx->numP, j, fo, ele;
 	VECTOR up;
+	SPRITE *s;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -860,6 +903,7 @@ void UpdateFXExplode( SPECFX *fx )
 	// Slow down gameSpeed times
 	vS = 1-(0.02*gameSpeed);
 
+	s = fx->sprites;
 	while(i--)
 	{
 		if( fx->particles[i].bounce == 2 )
@@ -877,7 +921,7 @@ void UpdateFXExplode( SPECFX *fx )
 		if( fx->rebound )
 		{
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-			dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
+			dist = -(DotProduct(&s->pos, &fx->rebound->normal) + fx->rebound->J);
 
 			// check if particle has hit (or passed through) the plane
 			if(dist > 0)
@@ -890,40 +934,42 @@ void UpdateFXExplode( SPECFX *fx )
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
 					if( dist < 5 )
-						CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.2, 0.1, 0.3 );
+						CreateAndAddSpecialEffect( FXTYPE_DECAL, &s->pos, &fx->rebound->normal, 5, 0.2, 0.1, 0.3 );
 			}
 		}
 
-		if(fx->sprites[i].flags & SPRITE_FLAGS_ROTATE)
-			fx->sprites[i].angle += (fx->sprites[i].angleInc * gameSpeed);
+		if(s->flags & SPRITE_FLAGS_ROTATE)
+			s->angle += (s->angleInc * gameSpeed);
 
-		fx->sprites[i].pos.v[X] += fx->particles[i].vel.v[X] * gameSpeed;
-		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y] * gameSpeed;
-		fx->sprites[i].pos.v[Z] += fx->particles[i].vel.v[Z] * gameSpeed;
+		s->pos.v[X] += fx->particles[i].vel.v[X] * gameSpeed;
+		s->pos.v[Y] += fx->particles[i].vel.v[Y] * gameSpeed;
+		s->pos.v[Z] += fx->particles[i].vel.v[Z] * gameSpeed;
 
 		fo = (Random(4) + fx->fade) * gameSpeed;
 
 		// For fiery (of whatever colour) smoke, fade to black then fade out
-		if( fx->type == FXTYPE_FIERYSMOKE && (fx->sprites[i].r || fx->sprites[i].g || fx->sprites[i].b) )
+		if( fx->type == FXTYPE_FIERYSMOKE && (s->r || s->g || s->b) )
 		{
-			if( fx->sprites[i].r > fo/2 ) fx->sprites[i].r -= fo/2;
-			else fx->sprites[i].r = 0;
-			if( fx->sprites[i].g > fo ) fx->sprites[i].g -= fo;
-			else fx->sprites[i].g = 0;
+			if( s->r > fo/2 ) s->r -= fo/2;
+			else s->r = 0;
+			if( s->g > fo ) s->g -= fo;
+			else s->g = 0;
 		}
 		else
 		{
-			if( fx->sprites[i].a > fo ) fx->sprites[i].a -= fo;
-			else fx->sprites[i].a = 0;
+			if( s->a > fo ) s->a -= fo;
+			else s->a = 0;
 
-			if( fx->sprites[i].a < 16 )
+			if( s->a < 16 )
 			{
-				fx->sprites[i].scaleX	= 0;
-				fx->sprites[i].scaleY	= 0;
-				fx->sprites[i].a		= 0;
+				s->scaleX	= 0;
+				s->scaleY	= 0;
+				s->a		= 0;
 				fx->particles[i].bounce = 2;
 			}
 		}
+
+		s = s->next;
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
@@ -1259,6 +1305,8 @@ void UpdateFXTwinkle( SPECFX *fx )
 */
 void InitSpecFXList( )
 {
+	int i;
+
 	specFXList.head.next = specFXList.head.prev = &specFXList.head;
 	specFXList.numEntries = 0;
 
@@ -1273,6 +1321,16 @@ void InitSpecFXList( )
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
 	FindTexture(&txtrFlash,UpdateCRC("ai_flash.bmp"),YES);
 	FindTexture(&txtrShield,UpdateCRC("00spaw04.bmp"),YES);
+
+	// Allocate a big bunch of sprites
+	if( !fxSpriteList ) fxSpriteList = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_FXSPRITES, YES, "FXSprites" );
+	fxsCount = 0;
+
+	// Initially, all sprites are available
+	for( i=0; i<MAX_FXSPRITES; i++ )
+		fxSpriteStack[i] = &fxSpriteList[i];
+
+	fxsStackPtr = i-1;
 }
 
 
@@ -1294,6 +1352,19 @@ void FreeSpecFXList()
 	{
 		next = cur->next;
 		SubSpecFX(cur);
+	}
+
+	if( fxSpriteList )
+	{
+		int i;
+		// Remove all sprites in array from sprite list so they don't get removed after deallocation
+		for( i=0; i<MAX_FXSPRITES; i++ )
+			SubSprite( &fxSpriteList[i] );
+
+		JallocFree( (UBYTE **)&fxSpriteList );
+		fxSpriteList = NULL;
+		fxsCount = 0;
+		fxsStackPtr = 0;
 	}
 }
 
@@ -1336,15 +1407,7 @@ void SubSpecFX( SPECFX *fx )
 	specFXList.numEntries--;
 
 	if( fx->sprites )
-	{
-		if( fx->numP )
-			for( i=fx->numP; i; i-- )
-				SubSprite( &fx->sprites[i-1] );
-		else
-			SubSprite( fx->sprites );
-
-		JallocFree( (UBYTE **)&fx->sprites );
-	}
+		DeallocateSprites( fx->sprites, fx->numP );
 
 	if( fx->particles )
 	{
@@ -1541,11 +1604,14 @@ void ProcessAttachedEffects( void *entity, int type )
 			else // EF_MEDIUM
 				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 20, 2, 0, 5 );
 
-			SetVector( &fx->rebound->point, &tile->centre );
-			SetVector( &fx->rebound->normal, &tile->normal );
-			fx->gravity = act->radius;
+			if( fx )
+			{
+				SetVector( &fx->rebound->point, &tile->centre );
+				SetVector( &fx->rebound->normal, &tile->normal );
+				fx->gravity = act->radius;
 
-			SetAttachedFXColour( fx, act->effects );
+				SetAttachedFXColour( fx, act->effects );
+			}
 		}
 		if( act->effects & EF_SPARKBURST )
 		{
@@ -1556,11 +1622,14 @@ void ProcessAttachedEffects( void *entity, int type )
 			else // EF_MEDIUM
 				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 10, 2, 0, 5 );
 
-//			SetVector( &fx->rebound->point, &tile->centre );
-//			SetVector( &fx->rebound->normal, &tile->normal );
-			fx->gravity = act->radius;
+			if( fx )
+			{
+//				SetVector( &fx->rebound->point, &tile->centre );
+//				SetVector( &fx->rebound->normal, &tile->normal );
+				fx->gravity = act->radius;
 
-			SetAttachedFXColour( fx, act->effects );
+				SetAttachedFXColour( fx, act->effects );
+			}
 		}
 		if( act->effects & EF_SMOKEBURST )
 		{
@@ -1593,13 +1662,16 @@ void ProcessAttachedEffects( void *entity, int type )
 			else // EF_MEDIUM
 				fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &act->actor->pos, &normal, 8, 0.7, 0, 0.5 );
 
-			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-			SetVector( &up, &path->nodes[0].worldTile->normal );
-			SetVector( &fx->rebound->normal, &up );
-			ScaleVector( &up, act->radius );
-			AddVector( &fx->rebound->point, &act->actor->pos, &up );
+			if( fx )
+			{
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				SetVector( &up, &path->nodes[0].worldTile->normal );
+				SetVector( &fx->rebound->normal, &up );
+				ScaleVector( &up, act->radius );
+				AddVector( &fx->rebound->point, &act->actor->pos, &up );
 
-			SetAttachedFXColour( fx, act->effects );
+				SetAttachedFXColour( fx, act->effects );
+			}
 		}
 		if( act->effects & EF_TWINKLE )
 		{
@@ -1623,13 +1695,16 @@ void ProcessAttachedEffects( void *entity, int type )
 			else // EF_MEDIUM
 				fx = CreateAndAddSpecialEffect( FXTYPE_GREENGLOOP, &act->actor->pos, &normal, act->radius, 0.7, 0, 0.5 );
 
-			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-			SetVector( &up, &path->nodes[0].worldTile->normal );
-			SetVector( &fx->rebound->normal, &up );
-			ScaleVector( &up, act->radius );
-			AddVector( &fx->rebound->point, &act->actor->pos, &up );
+			if( fx )
+			{
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				SetVector( &up, &path->nodes[0].worldTile->normal );
+				SetVector( &fx->rebound->normal, &up );
+				ScaleVector( &up, act->radius );
+				AddVector( &fx->rebound->point, &act->actor->pos, &up );
 
-			SetAttachedFXColour( fx, act->effects );
+				SetAttachedFXColour( fx, act->effects );
+			}
 		}
 	}
 
@@ -1646,7 +1721,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		else if( act->effects & EF_SLOW )
 			fx->tilt = 0;
 
-		act->effects &= ~EF_GLOW;
+		if( fx ) act->effects &= ~EF_GLOW;
 	}
 
 	if( (act->effects & EF_BUTTERFLYSWARM) || (act->effects & EF_BATSWARM) || (act->effects & EF_SPACETHING1) )
@@ -1660,7 +1735,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		{
 			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
 			act->effects &= ~EF_BUTTERFLYSWARM;
-			if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
+			if( fx && type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
 			{
 				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
 				GetPositionForPathNode( &rPos, &path->nodes[0] );
@@ -1674,7 +1749,7 @@ void ProcessAttachedEffects( void *entity, int type )
 			act->effects &= ~EF_SPACETHING1;
 		}
 
-		fx->follow = act->actor;
+		if( fx ) fx->follow = act->actor;
 	}
 
 	if( act->effects & EF_TRAIL )
@@ -1686,12 +1761,15 @@ void ProcessAttachedEffects( void *entity, int type )
 		else
 			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.00, 2 );
 
-		if( type == ENTITY_PLATFORM )
-			fx->gravity = -30;
+		if( fx )
+		{
+			if( type == ENTITY_PLATFORM )
+				fx->gravity = -30;
 
-		fx->follow = act->actor;
-		SetAttachedFXColour( fx, act->effects );
-		act->effects &= ~EF_TRAIL;
+			fx->follow = act->actor;
+			SetAttachedFXColour( fx, act->effects );
+			act->effects &= ~EF_TRAIL;
+		}
 	}
 	else if( act->effects & EF_BILLBOARDTRAIL )
 	{
@@ -1702,9 +1780,12 @@ void ProcessAttachedEffects( void *entity, int type )
 		else
 			fx = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 2 );
 
-		fx->follow = act->actor;
-		SetAttachedFXColour( fx, act->effects );
-		act->effects &= ~EF_BILLBOARDTRAIL;
+		if( fx )
+		{
+			fx->follow = act->actor;
+			SetAttachedFXColour( fx, act->effects );
+			act->effects &= ~EF_BILLBOARDTRAIL;
+		}
 	}
 }
 
@@ -1744,25 +1825,27 @@ void CreateGloopEffects( SPECFX *parent )
 	AddToVector( &surface, &parent->origin );
 
 	// Create the second wave of bubbles
-	fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &parent->origin, &up, 22, 0.7, 0, 0.5 );
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &parent->origin, &up, 22, 0.7, 0, 0.5 )) )
+	{
+		fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+		SetVector( &fx->rebound->normal, &up );
+		SetVector( &fx->rebound->point, &surface );
 
-	fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-	SetVector( &fx->rebound->normal, &up );
-	SetVector( &fx->rebound->point, &surface );
-
-	SetFXColour( fx, parent->r, parent->g, parent->b );
-
+		SetFXColour( fx, parent->r, parent->g, parent->b );
+	}
 	// Green smoke created at the _surface_ of the water
 	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &surface, &up, 50, 1, 0, 1.7 );
 	SetFXColour( fx, parent->r, parent->g, parent->b );
 
 	// Ditto for splash
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPLASH, &surface, &up, 14, 2.5, 0, 2 );
-	fx->gravity = 0.1;
-	fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-	SetVector( &fx->rebound->normal, &up );
-	SetVector( &fx->rebound->point, &surface );
-	SetFXColour( fx, parent->r, parent->g, parent->b );
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPLASH, &surface, &up, 14, 2.5, 0, 2 ) ))
+	{
+		fx->gravity = 0.1;
+		fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+		SetVector( &fx->rebound->normal, &up );
+		SetVector( &fx->rebound->point, &surface );
+		SetFXColour( fx, parent->r, parent->g, parent->b );
+	}
 }
 
 
@@ -1784,27 +1867,29 @@ void CreateLightningEffect( VECTOR *p1, VECTOR *p2, unsigned long effects, long 
 
 	for( ; i; i-- )
 	{
-		fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, p2, &dir, 5, distance, 25.0/(float)distance, life/60 );
-		SetAttachedFXColour( fx, effects );
+		if( (fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, p2, &dir, 5, distance, 25.0/(float)distance, life/60 ) ))
+		{
+			SetAttachedFXColour( fx, effects );
 
-		// Randomise colours a bit
-		rn = fx->r * 0.5;
-		rn += Random(rn+1)-(rn*0.5);
-		if( rn > 255 ) fx->r = 255;
-		else if( rn < 0 ) fx->r = 0;
-		else fx->r = rn;
+			// Randomise colours a bit
+			rn = fx->r * 0.5;
+			rn += Random(rn+1)-(rn*0.5);
+			if( rn > 255 ) fx->r = 255;
+			else if( rn < 0 ) fx->r = 0;
+			else fx->r = rn;
 
-		rn = fx->g * 0.5;
-		rn += Random(rn+1)-(rn*0.5);
-		if( rn > 255 ) fx->g = 255;
-		else if( rn < 0 ) fx->g = 0;
-		else fx->g = rn;
+			rn = fx->g * 0.5;
+			rn += Random(rn+1)-(rn*0.5);
+			if( rn > 255 ) fx->g = 255;
+			else if( rn < 0 ) fx->g = 0;
+			else fx->g = rn;
 
-		rn = fx->b * 0.5;
-		rn += Random(rn+1)-(rn*0.5);
-		if( rn > 255 ) fx->b = 255;
-		else if( rn < 0 ) fx->b = 0;
-		else fx->b = rn;
+			rn = fx->b * 0.5;
+			rn += Random(rn+1)-(rn*0.5);
+			if( rn > 255 ) fx->b = 255;
+			else if( rn < 0 ) fx->b = 0;
+			else fx->b = rn;
+		}
 	}
 }
 
@@ -1870,6 +1955,59 @@ void CreateBlastRing( )
 void CreateBlastRing()
 {
 }
-
-
 #endif
+
+/*	--------------------------------------------------------------------------------
+	Function		: AllocateSprites
+	Purpose			: Find a number of sprites and return a sublist
+	Parameters		: number of sprites
+	Returns			: pointer to first one
+	Info			: 
+*/
+SPRITE *AllocateSprites( int number )
+{
+	// Return if allocation is impossible for any reason
+	if( (number <= 0) || (fxsStackPtr-number < 0) || (number >= MAX_FXSPRITES-fxsCount) ) return NULL;
+
+	// Now we can go and allocate sprites with gay abandon
+	while( number-- )
+	{
+		AddSprite( fxSpriteStack[fxsStackPtr--], &spriteList.head );
+		fxsCount++;
+	}
+
+	return fxSpriteStack[fxsStackPtr+1];
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: DeallocateSprites
+	Purpose			: Remove sprites from list and flag as unused
+	Parameters		: number of sprites
+	Returns			: 
+	Info			: 
+*/
+void DeallocateSprites( SPRITE *head, int number )
+{
+	SPRITE *s=head, *t;
+
+	if( !head ) return;
+
+	if( (number<=0) || (fxsStackPtr+number >= MAX_FXSPRITES) )
+	{
+		dprintf"Couldn't deallocate %i sprites to the stack!\n",number));
+		return;
+	}
+
+	while( number-- )
+	{
+		t = s->next;
+
+		SubSprite( s );
+		fxsCount--;
+		fxSpriteStack[++fxsStackPtr] = s;
+
+		s = t;
+	}
+}
+
