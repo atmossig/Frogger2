@@ -21,6 +21,11 @@ NOTES----------
 |-----------------------------------------------------------------------------------|
 
 
+TASK----------- Interchanging objects (drop in replacement models)
+PRIORITY------- Low
+RESPONSIBILTY-- Matt
+NOTES---------- Not too many cos of playstation, bu this lets us do frags and deformations and stuff
+
 TASK----------- Implement coin / credit system
 PRIORITY------- Low
 RESPONSIBILTY-- 
