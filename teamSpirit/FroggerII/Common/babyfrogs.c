@@ -116,7 +116,6 @@ void ResetBabies( )
 	{
 		babyList[i].isSaved = 0;
 		babyList[i].baby = NULL;
-		babyIcons[i]->a = 128;
 		babiesSaved = 0;
 		lastBabySaved = -1;
 		nearestBaby = -1;

@@ -743,19 +743,19 @@ void DrawFXRipple( SPECFX *ripple )
 	tempVect[3].v[Y] = 0;
 	tempVect[3].v[Z] = -ripple->scale.v[Z];
 
-	SetVector( (VECTOR *)&q, &ripple->normal );
-	q.w = ripple->angle;
-
 	if( ripple->type == FXTYPE_GARIBCOLLECT )
 	{
+		SetVector( (VECTOR *)&q, &ripple->normal );
+		q.w = ripple->angle;
+
 		for( i=0; i<4; i++ )
 			RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
+	}
 
-		for(i=0; i<4; i++)
-		{
-			AddToVector( &tempVect[i], &ripple->origin );
-			XfmPoint (&m[i],&tempVect[i]);
-		}
+	for(i=0; i<4; i++)
+	{
+		AddToVector( &tempVect[i], &ripple->origin );
+		XfmPoint (&m[i],&tempVect[i]);
 	}
 	
 	if (m[0].v[Z])

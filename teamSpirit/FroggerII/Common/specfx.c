@@ -579,7 +579,7 @@ void UpdateFXSmoke( SPECFX *fx )
 
 			if(dist > 0 && dist < 10)
 			{
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.5, 0.1, 1 );
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
 				JallocFree( (UBYTE **)&fx->rebound );
 				fx->rebound = NULL;
 			}
@@ -684,8 +684,8 @@ void UpdateFXSwarm( SPECFX *fx )
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
 			dist = -(DotProduct(&pos, &fx->rebound->normal) + fx->rebound->J);
 
-			if(dist > 0 && dist < 3.5)
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+			if(dist > 0 && dist < 3)
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &fx->rebound->normal, 5, 0.5, 0.1, 0.3 );
 		}
 	}
 
@@ -1253,7 +1253,7 @@ void ProcessAttachedEffects( void *entity, int type )
 	{
 		fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
 		fx->follow = act->actor;
-		if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
+		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
 		{
 			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
 			GetPositionForPathNode( &rPos, &path->nodes[0] );
