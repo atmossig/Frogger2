@@ -231,8 +231,8 @@ void GameProcessController(long pl)
 		else if( button[pl] & CONT_RIGHT )
 			dir = MOVE_RIGHT;
 
-//		frogFacing[pl] = nextFrogFacing[pl];
-		camFacing = nextCamFacing;
+		frogFacing[pl] = nextFrogFacing[pl];
+		//camFacing = nextCamFacing;
 
 		nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 		player[pl].extendedHopDir = dir;
@@ -251,6 +251,7 @@ void GameProcessController(long pl)
 			PlaySample(genSfx[GEN_DOUBLE_HOP],&frog[pl]->actor->pos,0,200,60);
 
 			old = currTile[pl];
+			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
 			currTile[pl] = destTile[pl];
 
 			// player is superhopping - make frog double jump
@@ -259,7 +260,7 @@ void GameProcessController(long pl)
 				player[pl].hasDoubleJumped = 1;
 				player[pl].canJump = 0;
 
-				camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
+				//camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
 				player[pl].extendedHopDir = dir;
 				SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
@@ -575,21 +576,21 @@ TEXT3D *rText[4];
 
 unsigned char *credits[] = 
 {
-	"","Programmers",		"Matthew Cloy",		"",
-	"","\x1",				"Andy Eder",		"",
-	"","\x1",				"James Hubbard",	"",
-	"","\x1",				"David Swift",		"",
-	"","\x1",				"James Healey",		"",
+	"","Programming",	"Matthew Cloy",		"",
+	"","\x1",			"Andy Eder",		"",
+	"","\x1",			"James Hubbard",	"",
+	"","\x1",			"David Swift",		"",
+	"","\x1",			"James Healey",		"",
 
 
-	"","Artists",			"Alex Rigby","",
-	"","\x1",				"Joff Scarcliffe","", 
-	"","\x1",				"Bruce Millar","",
-	"","\x1",				"Lauren Grindrod","",
-	"","\x1",				"Simon Little","",
-	"","\x1",				"Sandro Da Cruz","",
-	"","\x1",				"Richard Whale","",
-	"","\x1",				"Mark Turner","",
+	"","Art",			"Alex Rigby","",
+	"","\x1",			"Joff Scarcliffe","", 
+	"","\x1",			"Bruce Millar","",
+	"","\x1",			"Lauren Grindrod","",
+	"","\x1",			"Simon Little","",
+	"","\x1",			"Sandro Da Cruz","",
+	"","\x1",			"Richard Whale","",
+	"","\x1",			"Mark Turner","",
 	0,0,0,0,0,0,0,0
 };
 
