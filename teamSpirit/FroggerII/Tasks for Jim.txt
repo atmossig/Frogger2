@@ -10,14 +10,14 @@ TASK----------- Sound stuff, including sfx loading/mapping rewrite and CD track 
 COMPLETION BY-- Jan 28th - *******Completed*******
 PRIORITY------- Medium
 RESPONSIBILTY-- Jim
-NOTES---------- 
+NOTES---------- Still a bug with looping samples - see buglist
 
 BUG------------ Can run through line of moving enemies
-COMPLETION BY-- Jan 28th
+COMPLETION BY-- Jan 28th - *******Completed*******
 INSTANCE-------	Lab1
 SENT BY-------- Brucie Baby
 RESPONSIBILTY-- Jim
-FIXED NOTES----
+FIXED NOTES---- Fixed - someone put in a check for canJump, so it didn't work when the frog was jumping. Hmm.
 
 TASK----------- Hub character
 COMPLETION BY-- Feb 15th
