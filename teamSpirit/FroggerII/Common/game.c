@@ -508,7 +508,6 @@ long carryOnBabies = 1;
 long clearTiles = 0;
 
 SPRITEOVERLAY *atari,*konami,*flogo[10];
-float sideSwaySpeed = 0.005,sideSwayAmt=50;
 
 void RunGameLoop (void)
 {
@@ -604,184 +603,151 @@ void RunGameLoop (void)
 #endif
 		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,255,smallFont,0,0);
 
-		if(clearTiles)
-		{
-			cur = firstTile;
-			while ( cur )
-			{
-				cur->state = TILESTATE_NORMAL;
-				cur = cur->next;
-			}
-		}
-
 		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 		lastActFrameCount = 0;
 	}
-
-	if (player[0].hasJumped == 1)
-		fadingLogos = 1;
-
+	// FINISH FIRST FRAME STUFF
 
 	if	((player[0].worldNum == WORLDID_FRONTEND) &&
-	     (player[0].levelNum == LEVELID_FRONTEND1) &&
-		 (fadingLogos))
+	     (player[0].levelNum == LEVELID_FRONTEND1) )
 	{
-#ifdef PC_VERSION
-		if (atari->xPos < 500)
+		if( fadingLogos )
 		{
-			atari->xPos+=2*gameSpeed;
-			konami->xPos-=2*gameSpeed;
-			for (i=0; i<10; i++)
-				flogo[i]->yPos+=3*gameSpeed;
-		}
+#ifdef PC_VERSION
+			if (atari->xPos < 500)
+			{
+				atari->xPos+=2*gameSpeed;
+				konami->xPos-=2*gameSpeed;
+				for (i=0; i<10; i++)
+					flogo[i]->yPos+=3*gameSpeed;
+			}
 #endif
+		}
+		else
+		{
+			if (player[0].hasJumped == 1)
+				fadingLogos = 1;
+		}
 	}
 
-	if(keyFound)
-		RunLevelKeyFound();
-
-//	if(babySaved && !gameIsOver && !levelIsOver)
-//		RunBabySavedSequence(lastBabySaved);
-	
-	if(player[0].frogState & FROGSTATUS_ISDEAD)
+	if(gameIsOver.time)
 	{
-		if(gameIsOver.time)
+		if (NUM_FROGS == 1)
 		{
-			if (NUM_FROGS == 1)
-			{
-				DisableTextOverlay(livesTextOver);
-				DisableTextOverlay(scoreTextOver);
-			}
+			DisableTextOverlay(livesTextOver);
+			DisableTextOverlay(scoreTextOver);
+		}
 //				livesIcon->active = 0;
-			DisableTextOverlay(timeTextOver);
+		DisableTextOverlay(timeTextOver);
 
+		RunGameOverSequence();
+		GTUpdate( &gameIsOver, -1 );
+		if(!gameIsOver.time)
+		{
+			StopDrawing("game over");
+			FreeAllLists();
 
-			RunGameOverSequence();
-			GTUpdate( &gameIsOver, -1 );
-			if(!gameIsOver.time)
+			player[0].levelNum = LEVELID_FRONTEND1;
+			player[0].worldNum = WORLDID_FRONTEND;
+			player[0].frogState &= ~FROGSTATUS_ISDEAD;
+			InitLevel(player[0].worldNum,player[0].levelNum);
+
+			frameCount = 0;
+			StartDrawing("game over");
+			return;
+		}
+	}
+	else if ( levelIsOver.time )
+	{
+		if( showEndLevelScreen )
+		{
+			RunLevelCompleteSequence();
+
+			if(!levelComplete1->draw)
 			{
-				StopDrawing("game over");
-				FreeAllLists();
-
-				player[0].levelNum = LEVELID_FRONTEND1;
-				player[0].worldNum = WORLDID_FRONTEND;
-				player[0].frogState &= ~FROGSTATUS_ISDEAD;
-				InitLevel(player[0].worldNum,player[0].levelNum);
-
-				frameCount = 0;
-				StartDrawing("game over");
-				return;
+				darkenedLevel = 0;
+				pauseMode = 1;
+				EnableTextOverlay(levelComplete1);
+				EnableTextOverlay(levelComplete2);
+				scoreTextOver->a = 255;
+				EnableTextOverlay(scoreTextOver);
 			}
+
+			levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
+			levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;
+		}
+
+		GTUpdate( &levelIsOver, -1 );
+
+		if(!levelIsOver.time)
+		{
+			DoHiscores( );
+
+			// Only go to next level if in normal level progression.
+			if( showEndLevelScreen )
+			{
+				player[0].levelNum++;
+
+#ifndef PC_VERSION
+				StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
+				SaveGame(); // Write save games into eeprom
+#else
+//				SaveGameData();
+#endif
+			}
+
+			FreeAllLists();
+			frameCount = 0;
+
+			player[0].numSpawn	= 0;
+			spawnCounter = 0;
+
+			worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
+			InitLevel(player[0].worldNum,player[0].levelNum);
+
+			showEndLevelScreen = 1; // Normal level progression is default
+			return;
 		}
 	}
 	else
 	{
-		if ( levelIsOver.time )
+		if(keyFound)
+			RunLevelKeyFound();
+//		if( babySaved )
+//			RunBabySavedSequence(lastBabySaved);
+
+		if ( babiesSaved==numBabies && numBabies && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum ].multiPartLevel == NO_MULTI_LEV) )
 		{
-			if( showEndLevelScreen )
-			{
-				RunLevelCompleteSequence();
+			camDist.v[X]	= 0;
+			camDist.v[Y]	= 680;
+			camDist.v[Z]	= 192;
 
-				if(!levelComplete1->draw)
-				{
-					darkenedLevel = 0;
-					pauseMode = 1;
-					//sprintf(levelComplete3->text,"you scored %s",scoreText);
-					EnableTextOverlay(levelComplete1);
-					EnableTextOverlay(levelComplete2);
-					scoreTextOver->a = 255;
-					EnableTextOverlay(scoreTextOver);
-					//EnableTextOverlay(levelComplete3);
-				}
-
-				levelComplete1->a -= (levelComplete1->a - 255) / 20.0F;
-				levelComplete2->a -= (levelComplete2->a - 255) / 20.0F;
-				//levelComplete3->a -= (levelComplete3->a - 255) / 20.0F;
-			}
-
-			GTUpdate( &levelIsOver, -1 );
-
-			if(!levelIsOver.time)
-			{
-				DoHiscores( );
-
-				// Only go to next level if in normal level progression.
-				if( showEndLevelScreen )
-				{
-#ifdef MBR_DEMO
-					player[0].levelNum = 0;
-					player[0].worldNum = WORLDID_LABORATORY;
-#else
-					player[0].levelNum++;
-#endif
-
-#ifndef PC_VERSION
-					StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
-
-					SaveGame(); // Write save games into eeprom
-#endif
-				}
-
-				// Save out the game data to the currently selected slot
-//				SaveGameData();
-
-				FreeAllLists();
-				frameCount = 0;
-
-				player[0].numSpawn	= 0;
-				spawnCounter = 0;
-
-				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
-				InitLevel(player[0].worldNum,player[0].levelNum);
-
-				showEndLevelScreen = 1; // Normal level progression is default
-
-				return;
-			}
-				
+			GTInit( &levelIsOver, 15 );
 		}
 		else
 		{
-			if ( ( babiesSaved == numBabies ) && ( numBabies ) &&
-				 ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == NO_MULTI_LEV ) )
+			if( frameCount > 15 )
 			{
-				{
-					camDist.v[X]	= 0;
-					camDist.v[Y]	= 680;
-					camDist.v[Z]	= 192;
-
-					GTInit( &levelIsOver, 15 );
-//					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
-				}
+				for (i=0; i<NUM_FROGS; i++)
+					if( !frog[i]->action.dead.time && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+						if ( frog[i]->action.stun.time)
+						{
+							GTUpdate( &frog[i]->action.stun, -1 );
+						}
+						else
+						{
+							GameProcessController(i);                                      
+						}
 			}
-			else
-			{
-				if ( ( frameCount > 15 ) )
-				{
-					for (i=0; i<NUM_FROGS; i++)
-						if( !frog[i]->action.dead.time )
-							if ( frog[i]->action.stun.time)
-							{
-								GTUpdate( &frog[i]->action.stun, -1 );
-							}
-							else
-							{
-								GameProcessController(i);                                      
-							}
-				}
 
-				if(frog[0])
-				{
-					CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
+			CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
-					CameraLookAtFrog();
-					UpdateCameraPosition(0);
+			CameraLookAtFrog();
+			UpdateCameraPosition(0);
 
-					for (i=0; i<NUM_FROGS; i++)
-						if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
-				}	  
-			}
+			for (i=0; i<NUM_FROGS; i++)
+				if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
 		}
 	}
 
@@ -793,27 +759,61 @@ void RunGameLoop (void)
 
 	ProcessCollectables();
 
-	for (i=0; i<NUM_FROGS; i++)
+	for( i=0; i<NUM_FROGS; i++ )
 	{
-		if (frog[i])
+		if( frog[i] )
 		{
 			UpdateFroggerPos(i);
-			if (frog[i]->actor)
-			{
-				if (frog[i]->action.healthPoints > 0)
-					frog[i]->draw = 1;
-				else
-					frog[i]->draw = 0;
 
-			} 
-			if (frog[i]->action.safe.time)
+			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
 			{
-				frog[i]->actor->xluOverride = 50;
-				
-				GTUpdate( &frog[i]->action.safe, -1 );
-				if( !frog[i]->action.safe.time )
-					frog[i]->actor->xluOverride = 100;
+				frog[i]->draw = 1;
+				if (frog[i]->action.safe.time)
+				{
+					frog[i]->actor->xluOverride = 50;
+					
+					GTUpdate( &frog[i]->action.safe, -1 );
+					if( !frog[i]->action.safe.time )
+						frog[i]->actor->xluOverride = 100;
+				}
 			}
+
+			if( player[i].idleEnable )
+			{
+				player[i].idleTime-=gameSpeed;
+				if(player[i].idleTime<1)
+				{
+					unsigned long iAnim = Random(4);
+					switch (iAnim)
+					{
+						case 0:
+							AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
+							if (Random(10)>6)
+								AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
+							AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+							break;
+						case 1:
+							AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
+							break;
+						case 2:
+							AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
+							break;
+						case 3:
+							AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
+							if (Random(10)>6)
+								AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
+							else
+								AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+							break;
+						case 4:
+							AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+							break;
+					}
+
+					player[i].idleTime = 400 + Random(300);
+				}
+			}
+
 		}
 	}  
 
@@ -836,67 +836,7 @@ void RunGameLoop (void)
 		if( !res ) return;
 	}
 
-	// check if player is idle
-	i = NUM_FROGS;
-	
-	// Had to take this out because it was driving everyone nuts
-	if( swingCam )
-		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
-
-	while(i--)
-	{
-		if (!(player[i].frogState & FROGSTATUS_ISDEAD) && player[i].idleEnable )
-		{
-			player[i].idleTime-=gameSpeed;
-			if(player[i].idleTime<1)
-			{
-				unsigned long iAnim = Random(4);
-
-/*	
-				if ((Random(4) > 1) && (frogFacing[0] != ((camFacing+2) & 3)))
-				{
-					if ((frogFacing[0] - camFacing) != 1)
-						AnimateActor(frog[i]->actor,FROG_ANIM_HOPRIGHT,NO,NO,0.4F,0,0);
-					else
-						AnimateActor(frog[i]->actor,FROG_ANIM_HOPLEFT,NO,NO,0.4F,0,0);
-					frogFacing[0] = (camFacing+2) & 3;
-					idleCamera = 1;
-				}
-				else
-*/
-
-				switch (iAnim)
-				{
-					case 0:
-						AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
-						if (Random(10)>6)
-							AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
-						AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-						break;
-					case 1:
-						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
-						break;
-					case 2:
-						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
-						break;
-					case 3:
-						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
-						if (Random(10)>6)
-							AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
-						else
-							AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-						break;
-					case 4:
-						AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-						break;
-				}
-
-				player[i].idleTime = 180 + Random(100);
-			}
-		}
-	}
-
-
+	// Send network update packet
 #ifdef PC_VERSION
 	if( gameState.multi == MULTIREMOTE )
 		if( controllerdata[0].button == 0 || (controllerdata[0].button != controllerdata[0].lastbutton) )
@@ -904,7 +844,6 @@ void RunGameLoop (void)
 #endif
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
-
 	// displays the tile numbers
 	cur = &firstTile[0];
 	currTileNum = 0;
@@ -933,7 +872,6 @@ void RunGameLoop (void)
 			else
 				sprintf(tileNum->text,"",currTileNum);
 		}
-
 #endif
 }
 

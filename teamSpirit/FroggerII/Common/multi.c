@@ -186,8 +186,16 @@ void KillMPFrog(int num)
 	}
 	else
 	{
-		frog[num]->action.healthPoints = 3;
 		frog[num]->action.deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
+
+		if (frog[num]->actor)
+		{
+			if (frog[num]->action.healthPoints > 0)
+				frog[num]->draw = 1;
+			else
+				frog[num]->draw = 0;
+
+		} 
 	}
 }

@@ -59,6 +59,7 @@ TRANSCAMERA *transCameraList = NULL;
 extern long idleCamera;
 VECTOR idleCamDist	= { 0,100,102 };
 
+float sideSwaySpeed = 0.005,sideSwayAmt=50;
 
 float FindMaxInterFrogDistance( );
 
@@ -486,6 +487,10 @@ void UpdateCameraPosition(long cam)
 	}
 
 	SlurpCamPosition(0);
+
+	// Had to take this out because it was driving everyone nuts
+	if( swingCam )
+		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
 }
 
 
