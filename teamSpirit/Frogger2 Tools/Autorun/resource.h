@@ -13,7 +13,7 @@
 #define IDB_FRENCH                      102
 #define IDB_GERMAN                      103
 #define IDB_ITALIAN                     104
-#define IDB_SPANISH                     105
+//#define IDB_SPANISH                     105
 #define IDD_LANGUAGE                    106
 #define IDI_BLITZ                       107
 #define IDB_FROGGER2                    110

@@ -138,10 +138,6 @@ SOURCE=.\Italy.bmp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Spain.bmp
-# End Source File
-# Begin Source File
-
 SOURCE=.\start.bmp
 # End Source File
 # Begin Source File

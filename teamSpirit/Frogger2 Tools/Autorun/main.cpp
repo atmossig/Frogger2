@@ -282,7 +282,7 @@ int SetupLanguage()
 {
 	HRESULT res;
 	HKEY hkey;
-	int language = 0;
+	int language = -1;
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
 	{	
@@ -301,7 +301,8 @@ int SetupLanguage()
 
 		RegCloseKey(hkey);
 	}
-	else
+
+	if (language < 0)
 	{
 		if ((language = SelectLanguage()) == -1)
 			return -1;
