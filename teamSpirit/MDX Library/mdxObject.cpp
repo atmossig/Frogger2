@@ -52,6 +52,9 @@ void SlideObjectTextures(MDX_OBJECT *obj,long speed)
 {
 	int i, f;
 	float fisp = timeInfo.speed * speed;
+
+	if( !rHardware )
+		return;
 	
 	// For all the faces.....
 	for (i=obj->mesh->numFaces-1; i>=0; i--)
