@@ -626,10 +626,10 @@ BOOL ExecuteCommand(UBYTE **p)
 
 				if (t->func(t))
 					Interpret(q);
-				else
-					(*p) += size;
 
 				SubTrigger(t);
+				
+				(*p) += size;
 			}
 			else return 0;
 			break;
