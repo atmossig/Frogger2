@@ -40,12 +40,10 @@ unsigned char scriptFlags[SCRIPT_FLAGS_BYTES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 /* --------------------------------------------------------------------------------- */
 
-//int Interpret(const UBYTE *buffer);
-TRIGGER *LoadTrigger(UBYTE **p);
-BOOL ExecuteCommand(UBYTE *buffer);
+TRIGGER *LoadTrigger(UBYTE**);
+BOOL ExecuteCommand(UBYTE**);
 
 UBYTE* scriptBuffer;
-
 
 /* --------------------------------------------------------------------------------- */
 
