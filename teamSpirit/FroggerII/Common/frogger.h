@@ -103,12 +103,12 @@ typedef struct _PLAYER
 
 	unsigned char	extendedHopDir;
 
+	//	Parabolic curve variables
+	//	See frogmove.c for a longwinded and esoteric explanation
 	unsigned long	jumpStartFrame;
-	unsigned long	jumpEndFrame;
-	float			vInitialVelocity;
-	float			hInitialVelocity;
-	VECTOR			vMotionDelta;
-	VECTOR			hMotionDelta;
+	float			jumpTime;
+	float			jumpSpeed;
+	float			jumpMultiplier;
 	VECTOR			jumpFwdVector;
 	VECTOR			jumpUpVector;
 	VECTOR			jumpOrigin;

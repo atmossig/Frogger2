@@ -6,7 +6,8 @@
 	Programmer	: Andrew Eder
 	Date		: 11/13/98
 
------------------------------------------------------------------------------------------------ */
+-----------------------------------------------------------------------------------------------*/
+
 
 #define F3DEX_GBI_2
 
@@ -39,13 +40,23 @@ unsigned long conveyorFrames[3] = { 60, 30, 15 };
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 
+/*
 float superGravity		= -0.7F;
 float hopGravity		= -5.0F;
 float frogGravity		= -9.0F;
 float doubleGravity		= -0.5F;
 float floatGravity		= -1.0F;
+*/
+
+float	hopHeight		= 30;
+float	superhopHeight	= 100;
+float	doublehopHeight = 150;
 
 BOOL cameoMode			= FALSE;
+
+/* ---------------- Local functions -------------- */
+
+void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float height, long time, long player);
 
 
 /*	--------------------------------------------------------------------------------
@@ -91,8 +102,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].isQuickHopping	= 0;
 	player[p].idleTime			= MAX_IDLE_TIME;
 	player[p].heightJumped		= 0;
-	player[p].jumpStartFrame	= 0;
-	player[p].jumpEndFrame		= 0;
+	player[p].jumpTime			= 2;
 
 	for (i=0; i<numBabies; i++)
 	{
@@ -278,7 +288,7 @@ void UpdateFroggerPos(long pl)
 		*/
 		if (destTile[pl] &&
 			player[pl].canJump &&
-			(actFrameCount > (player[pl].jumpEndFrame + player[pl].jumpStartFrame)/2))
+			(player[pl].jumpTime > 0.5))
 		{
 			currTile[pl] = destTile[pl];
 		}
@@ -288,10 +298,10 @@ void UpdateFroggerPos(long pl)
 		Calculate frog hop
 	*/
 
-	if( actFrameCount < player[pl].jumpEndFrame )
+	if( player[pl].jumpTime < 1.0f )
 	{
-		VECTOR newPos;
-		float t,s,a,hs,vs;
+		VECTOR up, fwd, pos;
+		float p, t;
 
 		// If superjumping during a double jump, start floating - if button released, stop floating
 		if( player[pl].hasDoubleJumped )
@@ -314,28 +324,37 @@ void UpdateFroggerPos(long pl)
 		}
 		else
 		{
-*/			a = frogGravity;
+			a = frogGravity;
 			hs = player[pl].hInitialVelocity;
 			vs = player[pl].vInitialVelocity;
 //		}
+*/
 
-		t = actFrameCount - player[pl].jumpStartFrame;
+		//t = actFrameCount - player[pl].jumpStartFrame;
+		player[pl].jumpTime += (player[pl].jumpSpeed * gameSpeed);
 
-		// calculate position considering vertical motion using s = ut + 0.5at^2
-		s = (vs * t) + (0.5F * a * (t * t));
-		SetVector(&player[pl].vMotionDelta,&player[pl].jumpUpVector);
-		ScaleVector(&player[pl].vMotionDelta,s);
+		t = player[pl].jumpTime;
 
-		// calculate position considering horizontal motion using s = ut + 0.5at^2
-		a = 0;
-		s = (hs * t) + (0.5F * a * (t * t));
-		SetVector(&player[pl].hMotionDelta,&player[pl].jumpFwdVector);
-		ScaleVector(&player[pl].hMotionDelta,s);
+		// Calculate frog's position (see CalculateFrogJump for the maths)
+		// horizontal (parallel to plane)
+		
+		SetVector(&fwd, &player[pl].jumpFwdVector);
+		ScaleVector(&fwd, t);
+		
+		AddVector(&pos, &fwd, &player[pl].jumpOrigin);
 
-		SetVector(&newPos,&player[pl].jumpOrigin);
-		AddToVector(&newPos,&player[pl].vMotionDelta);
-		AddToVector(&newPos,&player[pl].hMotionDelta);
-		SetVector(&frog[pl]->actor->pos,&newPos);
+		// vertical
+
+		if (player[pl].jumpMultiplier)
+		{
+			p = (2*t*player[pl].jumpMultiplier - 1);
+			p = 1 - (p*p);
+			SetVector(&up, &player[pl].jumpUpVector);
+			ScaleVector(&up, p);
+			AddToVector(&pos, &up);
+		}
+
+		SetVector(&frog[pl]->actor->pos, &pos);
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -462,7 +481,7 @@ GAMETILE *GetNextTile(unsigned long direction,long pl)
 
 	GAMETILE *dest = NULL;
 	VECTOR vecUp;
-	float t2,at2;
+	float t2, at2;
 		
 	if(pl == 0)
 	{
@@ -605,7 +624,7 @@ long speedFrameCount = 0;
 BOOL MoveToRequestedDestination(int dir,long pl)
 {
 	GAMETILE *dest, *from;
-	float t,t2,sV=NOINIT_VELOCITY;
+	float t,t2,h;
 	
 	// clear movement request flags
 	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
@@ -801,44 +820,42 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	if( player[pl].hasDoubleJumped )
 	{
-		float time = (float)(actFrameCount - player[pl].jumpStartFrame)/(float)(player[pl].jumpEndFrame-player[pl].jumpStartFrame),
-			v = player[pl].vInitialVelocity;
+//		float time = (float)(actFrameCount - player[pl].jumpStartFrame)/(float)(player[pl].jumpEndFrame-player[pl].jumpStartFrame),
+//			v = player[pl].vInitialVelocity;
 		t = doubleHopFrames;
-		t2 = doubleGravity;
+		h = doublehopHeight;
 		// Current velocity is initial velocity of superhop + (acceleration * time)
-		sV = v + (superGravity*time);
+//		sV = v + (superGravity*time);
 	}
 	else if(player[pl].isSuperHopping)
 	{
 		t = superHopFrames;
-		t2 = superGravity;
+		h = superhopHeight;
 	}
 	else if(player[pl].isQuickHopping)
 	{
 		t = quickHopFrames;
-		t2 = hopGravity;
+		h = hopHeight;
 	}
 	else
 	{
 		t = standardHopFrames;
-		t2 = hopGravity;
+		h = hopHeight;
 	}
 
 	// determine where frog is going to land...
 
-	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+    if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 	{	
 		CalculateFrogJump(
-			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destTile[pl]->centre, &destTile[pl]->normal,
-			t,pl,t2,sV);
+			&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
+			h, t, pl);
 	}
 	else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
 		CalculateFrogJump(
-			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
-			t,pl,t2,NOINIT_VELOCITY);
+			&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &currTile[pl]->normal,
+			h, t, pl);
 	}
 
 	// ------------------------------------------------------------------------------------------
@@ -864,7 +881,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	unsigned long i;
 	float distance;
 
-	if (actFrameCount < player[pl].jumpEndFrame) return;
+	if (player[pl].jumpTime < 1) return;
 
 	// Frog has landed - set camera to new rotation, face frog correctly, blahblahblah
 
@@ -1006,14 +1023,12 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
-						&frog[pl]->actor->pos, &tile->normal,
-						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
-						conveyorFrames[speed], pl, 0.0, NOINIT_VELOCITY);
+						&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &tile->normal,
+						0, conveyorFrames[speed], pl);
 				else
 					CalculateFrogJump(
-						&frog[pl]->actor->pos, &tile->normal, 
-						&destTile[pl]->centre, &destTile[pl]->normal,
-						conveyorFrames[speed], pl, 0.0, NOINIT_VELOCITY);
+						&frog[pl]->actor->pos, &destTile[pl]->centre, &tile->normal, 
+						0, conveyorFrames[speed], pl);
 			}
 		}
 		else if (state == TILESTATE_ICE)
@@ -1022,16 +1037,16 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 			if (res)
 			{
+				//AnimateActor(frog[pl], FROG_ANIM_ICE1, YES, NO, 0.5, NO, NO);
+
 				if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 					CalculateFrogJump(
-						&frog[pl]->actor->pos, &tile->normal,
-						&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
-						iceFrames, pl, 0.0, NOINIT_VELOCITY);
+						&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &tile->normal,
+						0, iceFrames, pl);
 				else
 					CalculateFrogJump(
-						&frog[pl]->actor->pos, &tile->normal, 
-						&destTile[pl]->centre, &destTile[pl]->normal,
-						iceFrames, pl, 0.0, NOINIT_VELOCITY);
+						&frog[pl]->actor->pos, &destTile[pl]->centre, &tile->normal, 
+						0, iceFrames, pl);
 
 				player[pl].canJump = FALSE;
 			}
@@ -1206,9 +1221,8 @@ void HopFrogToTile(GAMETILE *tile, long pl)
 	nextFrogFacing[pl] = (dir + 2) & 3;
 
 	CalculateFrogJump(
-		&frog[pl]->actor->pos, &currTile[pl]->normal,
-		&destTile[pl]->centre, &destTile[pl]->normal,
-		standardHopFrames, pl, hopGravity, NOINIT_VELOCITY);
+		&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
+		hopHeight, standardHopFrames, pl);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1240,16 +1254,77 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 
 	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 		CalculateFrogJump(
-			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destPlatform[pl]->pltActor->actor->pos, &destPlatform[pl]->inTile[0]->normal,
-			standardHopFrames, pl, 0.0, NOINIT_VELOCITY);
+			&frog[pl]->actor->pos, &destPlatform[pl]->pltActor->actor->pos, &currTile[pl]->normal,
+			0, standardHopFrames, pl);
 	else
 		CalculateFrogJump(
-			&frog[pl]->actor->pos, &currTile[pl]->normal,
-			&destTile[pl]->centre, &destTile[pl]->normal,
-			standardHopFrames, pl, 0.0, NOINIT_VELOCITY);
+			&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
+			0, standardHopFrames, pl);
 
 	currTile[pl] = destTile[pl];
+}
+
+/*	---------------------------------------------------------------------------------
+	Notes on Frog Movement
+	by Dave S.
+
+	The frog's vertical motion during a jump is described by the simple parabolic curve equation
+
+	y = h(1-(2mt-1)²)
+
+	where h is the height of the curve and t is the 'time' variable (see below). m is a multiplier
+	calculated using the formula
+
+	m = (1+sqrt(1-d))/2
+
+	where d is the difference in height between the start and end position. height is displacement
+	parallel to the starting normal vector. Horizontal motion is simply linear,	parallel to the
+	plane described by the starting position and its normal. (phew)
+
+	x = A(1-t) + Bt
+
+	The variable t ranges from 0 (zero) at the start of the jump and 1 (one) at the end of the
+	jump. This makes calculating the end of the jump nice and easy!
+*/
+
+/*	--------------------------------------------------------------------------------
+	Function		: CalculateFrogJump
+	Purpose			: Calculates jump curve variables
+	Parameters		: VECTOR*, VECTOR*, VECTOR*, float, float, long
+	Returns			: void
+*/
+void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float height, long time, long p)
+{
+	VECTOR F, V, Q;
+	float diff, m;
+	PLAYER *pl = &player[p];
+
+	SetVector(&pl->jumpOrigin, startPos);
+	SubVector(&V, endPos, startPos);
+	
+	// Forward vector
+	diff = DotProduct(normal, &V);		// projection of V onto normal
+	SetVector(&Q, normal);
+	ScaleVector(&Q, diff);
+	SubVector(&F, &V, &Q);			// F = V - N(N.V)
+	SetVector(&pl->jumpFwdVector, &F);
+
+	if (diff > 0) height += diff;		// When we're jumping UP, add height
+
+	// Up vector
+	SetVector(&pl->jumpUpVector, normal);
+	ScaleVector(&pl->jumpUpVector, height);
+
+	// Multiplier
+	if (height > 0)
+		m = 0.5f * (1 + sqrt(1 - diff/height));
+	else
+		m = 0;
+
+	pl->jumpMultiplier = m;
+	pl->jumpSpeed = 1/(float)time; //(60.0f)/(float)time;
+	pl->jumpTime = 0;
+	pl->heightJumped = height;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1258,7 +1333,6 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 	Parameters		: VECTOR *,VECTOR *,float,long
 	Returns			: void
 	Info			: 
-*/
 
 void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl,float gravity, float initVelocity)
 {
@@ -1337,3 +1411,4 @@ void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTO
 	SetVector(&player[pl].jumpOrigin,&frog[pl]->actor->pos);
 	player[pl].heightJumped = sV;
 }
+*/
