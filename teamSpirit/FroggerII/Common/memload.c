@@ -204,7 +204,6 @@ int MemLoadEntities(const void* data, long size)
 				{
 					// null object - do not display
 					act->flags = ACTOR_DRAW_NEVER;
-					act = NULL;
 				}
 
 				if (act)
