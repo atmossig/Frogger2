@@ -59,3 +59,15 @@ void stringChange ( char *name )
 	dprintf"%c\n", name ));
 
 }
+
+inline void smemcpy( unsigned short *a, unsigned short *b, unsigned long size )
+{
+	while( size-- )
+		a[size] = b[size];
+}
+
+inline void lmemcpy( unsigned long *a, unsigned long *b, unsigned long size )
+{
+	while( size-- )
+		a[size] = b[size];
+}
