@@ -490,6 +490,7 @@ int main ( )
 		}
 		actFrameCount = 0;
 #endif
+		padHandleInput();
 		LoadGame();
 		
 		if(saveInfo.saveFrame)

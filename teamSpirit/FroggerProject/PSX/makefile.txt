@@ -82,7 +82,7 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 				path.obj platform.obj psiactor.obj script.obj sndview.obj specfx.obj sprite.obj textover.obj \
 				tongue.obj types.obj newpsx.obj map.obj objects.obj textures.obj main.obj world.obj water.obj \
 				bbtimer.obj backdrop.obj eff_draw.obj temp_psx.obj world_eff.obj acostab.obj particle.obj \
-				psxsprite.obj ptexture.obj charsel.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
+				psxsprite.obj ptexture.obj cr_lang.obj story.obj timer.obj psxtongue.obj \
 				e3_demo.obj psi.obj bbpsiani.obj quatern.obj asm.obj loadingbar.obj font.obj \
 				objviewer.obj options.obj snapshot.obj training.obj fadeout.obj isltex.obj savegame.obj \
 				memcard.obj
@@ -91,8 +91,12 @@ frogger.cpe:    actor2.obj anim.obj babyfrog.obj block.obj bff_load.obj cam.obj 
 #                slink /psx /c /strip /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 #                slink /l $(LIBISL) /psx /c /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 #				 slink /l $(LIBISL) /psx /c /wo /v /strip /nostriplib @frogger.lnk,frogger.cpe
-				 slink /l $(LIBISL) /psx /c /wo /v /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 
+
+
+#				 slink /l $(LIBISL) /psx /c /wo /v /nostriplib @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
+
+				 slink /l $(LIBISL) /psx /c /wo /v /strip @frogger.lnk,frogger.cpe,frogger.sym,frogger.map
 
 
 

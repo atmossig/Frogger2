@@ -26,7 +26,7 @@ extern TextureType	*buttonSprites[6];
 
 int framePause = 0;
 static int	optChosen, optFrame, optSaveAlready, optSaveSlot;
-static char	optStr[256];
+static char	optStr[1024];
 
 #ifdef FINAL_MASTER
 int useMemCard = 1;
@@ -34,7 +34,8 @@ int useMemCard = 1;
 int useMemCard = 1;
 #endif
 
-
+char memmessage[1024];
+char slotNumStr[4] = "1-A";
 
 SAVE_INFO saveInfo;
 
@@ -232,7 +233,10 @@ int FontInSpace(int x, int y, char *str, int w, int l, uchar r, uchar g, uchar b
 	char	buf[200], *bufPtr;
 	int		loop, numLines;
 
-	numLines = fontFitToWidth(fontSmall, w, str, buf);
+
+	sprintf(memmessage,str,slotNumStr);
+
+	numLines = fontFitToWidth(fontSmall, w, memmessage, buf);
 	if (numLines<l)
 		y += (l-numLines)*6;
 	bufPtr = buf;
@@ -252,7 +256,10 @@ void SimpleMessage(char *msg, uchar rgb)
 	POLY_F4	*f4;
 	DR_MODE	*dm;
 
-	numLines = fontFitToWidth(fontSmall, 420, msg, optStr);
+
+	sprintf(memmessage,msg,slotNumStr);
+
+	numLines = fontFitToWidth(fontSmall, 420, memmessage, optStr);
 	bufPtr = optStr;
 	y = -47-numLines*6;
 
@@ -440,6 +447,10 @@ void StartChooseLoadSave(int load)
 	saveInfo.load = load;
 	framePause++;
 	StartChooseOption();
+	if(padData.numPads[0] == 4)
+		sprintf(slotNumStr,"1-A");
+	else
+		sprintf(slotNumStr,"1");
 }
 
 
