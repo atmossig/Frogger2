@@ -1303,7 +1303,11 @@ void UpdateVent( ENEMY *cur )
 			if( cur->nmeActor->effects & EF_FIERYSMOKE )
 			{
 				PrepForPriorityEffect( );
+#ifdef PSX_VERSION
+				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 12288 );
+#else
 				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 8192 );
+#endif
 			}
 			else if( cur->nmeActor->effects & EF_LASER )
 			{
