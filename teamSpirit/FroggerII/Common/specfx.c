@@ -37,7 +37,8 @@ TEXTURE *txtrStar		= NULL;
 TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
-
+TEXTURE *txtrWaterDrop	= NULL;
+TEXTURE *txtrBlastRing	= NULL;
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddFXRipple
@@ -431,7 +432,7 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 	SetVector(&explode->reboundPlane.point,&reboundPlane->point);
 	SetVector(&explode->reboundPlane.normal,&reboundPlane->normal);
 
-	explode->explodeType	= explodeType;
+	explode->explodeType = explodeType;
 
 	while(i--)
 	{
@@ -439,28 +440,25 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 		explode->hasHitPlane[i]		= 0;
 		explode->alphaDecay[i]		= Random(4) + 4;
 
+		explode->sprite[i].r		= 255;
+		explode->sprite[i].g		= 255;
+		explode->sprite[i].b		= 255;
+
+		explode->sprite[i].scaleX	= size;
+		explode->sprite[i].scaleY	= size;
+
 		if(explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 		{
 			explode->sprite[i].texture	= txtrSmoke;
 			explode->alphaDecay[i]		*= 2;
-
-			explode->sprite[i].r		= 255;
-			explode->sprite[i].g		= 255;
-			explode->sprite[i].b		= 255;
-
-			explode->sprite[i].scaleX	= 1;
-			explode->sprite[i].scaleY	= 1;
+		}
+		else if(explodeType == EXPLODEPARTICLE_TYPE_SPLASH)
+		{
+			explode->sprite[i].texture	= txtrWaterDrop;
 		}
 		else
 		{
 			explode->sprite[i].texture	= txtrStar;
-
-			explode->sprite[i].r		= 255;
-			explode->sprite[i].g		= 255;
-			explode->sprite[i].b		= 255;
-
-			explode->sprite[i].scaleX	= size;
-			explode->sprite[i].scaleY	= size;
 		}
 
 		explode->sprite[i].a		= 255;
@@ -614,7 +612,7 @@ void UpdateFXExplodeParticle()
 					SubFromVector(&explode->sprite[i].pos,&explode->velocity[i]);
 
 					// check if this exploding particle type triggers some other effect or event
-					if(explode->explodeType == EXPLODEPARTICLE_TYPE_TRIGGERRIPPLE)
+					if(explode->explodeType == EXPLODEPARTICLE_TYPE_SPLASH)
 					{
 						explode->hasHitPlane[i] = 1;
 						explode->sprite[i].a = 1;
@@ -698,6 +696,8 @@ void InitFXLinkedLists()
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
+	FindTexture(&txtrWaterDrop,UpdateCRC("watdrop.bmp"),YES);
+	FindTexture(&txtrBlastRing,UpdateCRC("ai_blastring.bmp"),YES);
 }
 
 /*	--------------------------------------------------------------------------------

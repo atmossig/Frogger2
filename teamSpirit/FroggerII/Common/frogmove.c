@@ -20,13 +20,13 @@ long speedHops_TOTAL = 0;
 long numHealth_TOTAL = 0;
 long nextCamFacing = 0;
 
-GAMETILE *destTile[4]		= {0,0,0,0};
-GAMETILE *longHopDestTile	= NULL;
-GAMETILE *currTile[4]		= {0,0,0,0};
-GAMETILE *prevTile			= NULL;
+GAMETILE *destTile[4]			= {0,0,0,0};
+GAMETILE *longHopDestTile		= NULL;
+GAMETILE *currTile[4]			= {0,0,0,0};
+GAMETILE *prevTile				= NULL;
 
-static float frogAnimSpeed	= 0.5F;
-static float frogAnimSpeed2	= 0.9F;
+static float frogAnimSpeed		= 0.5F;
+static float frogAnimSpeed2		= 0.9F;
 
 int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
@@ -35,19 +35,11 @@ unsigned long standardHopFrames = 7;
 unsigned long superHopFrames	= 18;
 unsigned long longHopFrames		= 24;
 
-unsigned long jumpVariation1	= 3;
-unsigned long jumpVariation2	= 6;
-unsigned long jumpVariation3	= 9;
-
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 unsigned long longHopJumpDownDivisor		= 12;
 
 float frogGravity		= -4.0F;
-float gravityModifier	= 1.0F;
-
-
-void AnimateFrogHop(unsigned long direction,long pl);
 
 
 /*	--------------------------------------------------------------------------------
@@ -306,7 +298,7 @@ void UpdateFroggerPos(long pl)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 15;
-			rip = CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&effectPos,&upVec,15,2,1,15);
+			rip = CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&effectPos,&currTile[pl]->normal,15,2,1,15);
 			rip->r = 191;
 			rip->g = 255;
 			rip->b = 0;
@@ -765,7 +757,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				if ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
 				{
 					player[pl].frogState |= FROGSTATUS_ISDEAD;
-					frog[pl]->action.deathBy = DEATHBY_FALLINGTOPLATFORM;
 					frog[pl]->action.dead = 50;
 				}
 				// ENDIF
@@ -1158,7 +1149,6 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING | FROGSTATUS_ISFLOATING);
 				croakFloat = 0;
 				camSpeed   = 1;
-				frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
 				dprintf"SPRING TILE\n"));
 			}
 			else
@@ -1189,8 +1179,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 						if(destTile[pl]->state == TILESTATE_DEADLY)
 						{
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,5,30,&rebound,25);
-							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_TRIGGERRIPPLE,&destTile[pl]->centre,&destTile[pl]->normal,8,30,&rebound,30);
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SPLASH,&destTile[pl]->centre,&destTile[pl]->normal,5,30,&rebound,25);
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SPLASH,&destTile[pl]->centre,&destTile[pl]->normal,8,30,&rebound,30);
 
 							CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,30);
 							frog[pl]->action.deathBy = DEATHBY_DROWNING;
@@ -1198,6 +1188,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 						}
 						else
 						{
+							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,6,30,&rebound,25);
 							CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
 							frog[pl]->action.deathBy = DEATHBY_NORMAL;
 							AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.5F,0,0);
@@ -1234,13 +1225,13 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					doScreenFade = 63;
 
   					SetVector(&telePos,&frog[pl]->actor->pos);
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
+					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,30,0,0,15);
 					telePos.v[Y] += 20;
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
+					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,25,0,0,20);
 					telePos.v[Y] += 40;
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
+					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,20,0,0,25);
 					telePos.v[Y] += 60;
-					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
+					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,15,0,0,30);
 					PlaySample(88,NULL,255,128);
 				}
 */
@@ -1298,6 +1289,10 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 */
 BOOL KillFrog(long pl)
 {
+	TEXTURE *txtr1,*txtr2;
+	float modifier;
+	int rVal;
+	
 	frog[pl]->action.dead--;
 	if(!frog[pl]->action.dead || frog[pl]->action.deathBy == DEATHBY_INSTANT)
 	{
@@ -1311,6 +1306,17 @@ BOOL KillFrog(long pl)
 		}
 
 		player[pl].frogState &= ~FROGSTATUS_ISDEAD;
+
+		if(frog[pl]->action.deathBy == DEATHBY_ELECTRICSHOCK)
+		{
+			// reset frog texture !
+#ifndef PC_VERSION
+			FindTexture(&txtr1,UpdateCRC("fg.bmp"),NO);
+			FindTexture(&txtr2,UpdateCRC("ai_wake.bmp"),NO);
+			ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)txtr2->data,(u32)txtr1->data,NO);
+#endif
+		}
+
 		SetFroggerStartPos(gTStart[0],pl);
 		ResetPlatformFlags();
 
@@ -1320,12 +1326,26 @@ BOOL KillFrog(long pl)
 	switch(frog[pl]->action.deathBy)
 	{
 		case DEATHBY_NORMAL:
+			// throw some stars about
+			if(!(actFrameCount & 31))
+			{
+				FX_EXPLODEPARTICLE *fxPtcle;
+				PLANE2 rebound;
+
+				SetVector(&rebound.point,&destTile[pl]->centre);
+				SetVector(&rebound.normal,&destTile[pl]->normal);
+
+				fxPtcle = CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,6,30,&rebound,20);
+			}
 			break;
 
 		case DEATHBY_RUNOVER:
 			break;
 
 		case DEATHBY_DROWNING:
+			// create some ripples round the drowing frog
+			if(!(actFrameCount & 31))
+				CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&destTile[pl]->normal,15,1,0.1,25);
 			break;
 
 		case DEATHBY_SQUASHED:
@@ -1334,14 +1354,22 @@ BOOL KillFrog(long pl)
 		case DEATHBY_EXPLOSION:
 			break;
 
-		case DEATHBY_FALLINGTOPLATFORM:
-			dprintf"FALLINGTOPLATFORM\n"));
-			CheckForFroggerLanding(JUMPING_TOPLATFORM,pl);
-			break;
+		case DEATHBY_ELECTRICSHOCK:
+			frog[pl]->actor->pos.v[X] += (-0.5F + Random(2));
+			frog[pl]->actor->pos.v[Y] += (-0.5F + Random(2));
+			frog[pl]->actor->pos.v[Z] += (-0.5F + Random(2));
 
-		case DEATHBY_FALLINGTOTILE:
-			dprintf"FALLINGTOTILE\n"));
-			CheckForFroggerLanding(JUMPING_TOTILE,pl);
+#ifndef PC_VERSION
+
+			FindTexture(&txtr1,UpdateCRC("fg.bmp"),NO);
+			FindTexture(&txtr2,UpdateCRC("ai_wake.bmp"),NO);
+
+			rVal = Random(10);
+			if(rVal > 5)
+				ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)txtr1->data,(u32)txtr2->data,NO);
+			else
+				ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)txtr2->data,(u32)txtr1->data,NO);
+#endif
 			break;
 
 		case DEATHBY_CHOCOLATE:
