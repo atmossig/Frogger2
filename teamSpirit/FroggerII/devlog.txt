@@ -1867,4 +1867,14 @@ Mike Movel:
 
 Byron Blay:
 ------------------------------------------------
+Oops, been forgetting again.
+We're getting the game elements into the PSX version now.
+
+Currently in (but rough):
+	frog move, platforms, garden1, garibs.
+
+To work on next:
+	running speed, frog model, enemies, frog move(finish),
+	timers.
+
 
