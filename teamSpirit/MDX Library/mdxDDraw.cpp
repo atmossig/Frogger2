@@ -325,6 +325,13 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 	// To run fullscreen - exclusive, ensure bitdepth is nonzero
 	if (rFullscreen)
 	{
+		SetWindowLong(mdxWinInfo.hWndMain, GWL_STYLE, WS_POPUP);
+		
+		SetWindowPos(window,HWND_TOP,0,0,
+			GetSystemMetrics(SM_CXSCREEN),
+			GetSystemMetrics(SM_CYSCREEN),
+			SWP_SHOWWINDOW|SWP_FRAMECHANGED);
+
 		ShowWindow(mdxWinInfo.hWndMain,SW_SHOWMAXIMIZED);
 
 		// Fullscreen Exclusive
@@ -343,7 +350,6 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			return 0;
 		}
 	
-		SetWindowPos(window,HWND_TOP,0,0,rXRes,rYRes,SWP_SHOWWINDOW);
   		// Create a primary surface
 		DDINIT(ddsd);
 		ddsd.dwFlags = DDSD_CAPS | DDSD_BACKBUFFERCOUNT;
