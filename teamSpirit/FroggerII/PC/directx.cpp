@@ -1657,6 +1657,6 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, short *pal )
 
 	pSurface->Unlock(ddsd.lpSurface);
 
-	res = to->Blt(NULL,pSurface,NULL,DDBLT_WAIT,0);
+	res = to->BltFast(0,0,pSurface,NULL,0);
 	ddShowError(res);
 }

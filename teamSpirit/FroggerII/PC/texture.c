@@ -233,9 +233,13 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	if (newE->data)
 	{
-		if( isAnim == 2 ) CreateAndAddProceduralTexture( newE, mys );
-
-		if (((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
+		if( isAnim == 2 )
+		{
+			CreateAndAddProceduralTexture( newE, mys );
+			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
+			newE->type = TEXTURE_AI;
+		}
+		else if(((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
 			newE->type = TEXTURE_AI;

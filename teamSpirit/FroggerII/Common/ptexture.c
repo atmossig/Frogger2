@@ -28,7 +28,8 @@ void ProcessPTFire( PROCTEXTURE *pt )
 {
 	unsigned long i = 1024,j;
 	unsigned char *tmp;
-	short c, p;
+	unsigned long t;
+	short p;
 
 	// Copy resultant buffer into texture
 #ifdef PC_VERSION
@@ -44,13 +45,13 @@ void ProcessPTFire( PROCTEXTURE *pt )
 
 	for( i=0; i<9; i++ )
 	{
-		c = Random(30)-15;
-		pt->buf1[1008+c] = 0xff;
-		pt->buf1[1008+c+1] = 0xff;
-		pt->buf1[1008+c-1] = 0xff;
-		pt->buf1[1008+c-32] = 0xff;
-		pt->buf1[1008+c-31] = 0xff;
-		pt->buf1[1008+c-33] = 0xff;
+		p = Random(30)-15;
+		pt->buf1[1008+p] = 0xff;
+		pt->buf1[1008+p+1] = 0xff;
+		pt->buf1[1008+p-1] = 0xff;
+		pt->buf1[1008+p-32] = 0xff;
+		pt->buf1[1008+p-31] = 0xff;
+		pt->buf1[1008+p-33] = 0xff;
 	}
 	
 	// Smooth, move up and fade
@@ -58,7 +59,8 @@ void ProcessPTFire( PROCTEXTURE *pt )
 		for( j=30; j; j-- )
 		{
 			p = (i<<5)+j;
-			pt->buf2[p] = ( pt->buf1[p+31]+ pt->buf1[p+33] + pt->buf1[p+64] + pt->buf1[p-32])>>2;
+			t = ( pt->buf1[p+31]+ pt->buf1[p+33] + pt->buf1[p+64] );
+			pt->buf2[p]=((t+pt->buf1[p-64])+(t+pt->buf1[p-32]))>>3;
 		}
 
 	// Swap buffers
@@ -78,8 +80,6 @@ void ProcessPTFire( PROCTEXTURE *pt )
 void ProcessProcTextures( )
 {
 	PROCTEXTURE *pt;
-
-//	return;
 
 	for( pt=prcTexList; pt; pt=pt->next )
 		if( pt->Update ) pt->Update( pt );
@@ -124,6 +124,9 @@ void FreeProcTextures( )
 */
 void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 {
+	unsigned long i;
+	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
+	unsigned short newCol,nR,nG,nB,nA;
 #ifdef PC_VERSION
 	TEXENTRY *tx = (TEXENTRY *)tex;
 #else
@@ -141,7 +144,49 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	pt->buf1 = (unsigned char *)JallocAlloc( 1024, YES, "ptdata" );  // sizeof(char)*32*32
 	pt->buf2 = (unsigned char *)JallocAlloc( 1024, YES, "ptdata" );  // sizeof(char)*32*32
 	pt->palette = (short *)JallocAlloc( 512, NO, "ptpal" );  // sizeof(short)*256
-	memcpy( pt->palette, tx->data, 512 );	// Texture contains palette - real image is dynamically generated
+
+	// Convert palette to 4444 format
+	if (a565Card)
+	{
+		rVand = 0x1f;
+		gVand = 0x3f;
+		bVand = 0x1f;
+		rVshr = 11;
+		gVshr = 5;
+		bVshr = 0;
+	}
+	else
+	{
+		rVand = 0x1f;
+		gVand = 0x1f;
+		bVand = 0x1f;
+		rVshr = 10;
+		gVshr = 5;
+		bVshr = 0;
+	}
+
+	i=0xff;
+	while( i-- )
+	{
+		nR = ((unsigned short *)tx->data)[i] >> rVshr;
+		nG = ((unsigned short *)tx->data)[i] >> gVshr;
+		nB = ((unsigned short *)tx->data)[i] >> bVshr; 
+		nA = ((unsigned short *)tx->data)[i+0xff] >> bVshr; 
+		
+		nR &= rVand;
+		nG &= gVand;
+		nB &= bVand;
+		nA &= bVand;
+		
+		nR = (nR * 0x0f )/rVand;
+		nG = (nG * 0x0f )/gVand;
+		nB = (nB * 0x0f )/bVand;
+		nA = (nA * 0x0f )/bVand;
+		
+		newCol = ((nA << 12) | (nR<<8) | (nG<<4) | (nB));
+		
+		((unsigned short *)pt->palette)[i] = newCol;
+	}
 
 	// Set update function and type depending on filename
 	if( name[4]=='f' && name[5]=='i' && name[6]=='r' && name[7]=='e' )
@@ -156,7 +201,7 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	Returns			: 
 	Info			: 
 */
-void CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, float w, float h )
+POLYGON *CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, float w, float h )
 {
 	POLYGON *p = (POLYGON *)JallocAlloc( sizeof(POLYGON), YES, "Poly" );
 	
@@ -184,8 +229,15 @@ void CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, float w,
 	p->b = 255;
 	p->a = 255;
 
+	p->u = 0;
+	p->v = 0;
+	p->u1 = 1;
+	p->v1 = 1;
+
 	p->next = rpList;
 	rpList = p;
+
+	return p;
 }
 
 
