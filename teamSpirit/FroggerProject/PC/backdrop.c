@@ -43,6 +43,26 @@ int InitBackdrop(const char *filename)
 	return 1;
 }
 
+int InitCDBackdrop(const char *filename)
+{
+	char path[MAX_PATH];
+
+	strcpy(path, cdromDrive);
+	strcat(path, "Gallery\\");
+	strcat(path, filename);
+	strcat(path, ".bmp");
+
+	utilPrintf("Load backdrop from CD: %s...", path);
+
+	mdxLoadBackdrop(path);
+
+	utilPrintf("ok!\n");
+
+	UpdateTiming();
+	
+	return 1;
+}
+
 void DrawBackdrop(void)
 {
 	mdxDrawBackdrop();

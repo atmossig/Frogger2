@@ -19,6 +19,7 @@ extern "C"
 
 
 int InitBackdrop(const char *filename);
+int InitCDBackdrop(const char *filename);
 void FreeBackdrop(void);
 void DrawBackdrop(void);
 
