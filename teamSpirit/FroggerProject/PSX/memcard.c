@@ -31,7 +31,7 @@ static char	optStr[256];
 #ifdef FINAL_MASTER
 int useMemCard = 1;
 #else
-int useMemCard = 0;
+int useMemCard = 1;
 #endif
 
 

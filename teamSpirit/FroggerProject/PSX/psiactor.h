@@ -58,42 +58,30 @@ typedef struct
 // Actor data structure
 typedef struct _ACTOR
 {
-
-//mm use ACTOR_ANIMATION if possible	USHORT			animFrames;				// number of animation frames
-//mm moved to ACTOR_ANIMATION	USHORT			*animSegments;			// list of start-end frames (shorts)
-
-
-	
 	struct _ACTOR	*next,*prev;
 
-USHORT			animFrames;				// number of animation frames
-USHORT			*animSegments;			// list of start-end frames (shorts)
+	USHORT					animFrames;				// number of animation frames
+	USHORT					*animSegments;			// list of start-end frames (shorts)
 	ACTOR_ANIMATION	animation;
-	VECTOR			oldPosition;	//
-	VECTOR			accumulator;	// for animation movement;
-	SVECTOR			position;		// real position
-   	VECTOR			size; //mm only ever set to 1(4096)
-	ULONG			radius;
-	BOUNDINGBOX		bounding;//mm not used in PC
-	PSIDATA			psiData;
+	VECTOR					oldPosition;	//
+	VECTOR					accumulator;	// for animation movement;
+	SVECTOR					position;		// real position
+  VECTOR					size; //mm only ever set to 1(4096)
+	ULONG						radius;
+	BOUNDINGBOX			bounding;//mm not used in PC
+	PSIDATA					psiData;
 
-	//Additions from Frogger2
-	FVECTOR vel;
+	FVECTOR					vel;
 
-/*  	short			xluOverride;//mm used in PC to force actor to appear                                     */
- 	SVECTOR			rotaim;//mm not used in the PSX at the moment, but may make it easier to determine direction 
- 	ACTOR_SHADOW	*shadow; //mm added from PC  //mmshadow
-/* 	int				visible;//mm added from PC                                                                   */
+ 	SVECTOR					rotaim;//mm not used in the PSX at the moment, but may make it easier to determine direction 
+ 	ACTOR_SHADOW		*shadow; //mm added from PC  //mmshadow
 
-//bb - for merge
-	IQUATERNION qRot;
+	IQUATERNION			qRot;
 
-//	unsigned short clutOverride;
+	unsigned short	clutOverride;
+	unsigned long		flags;
 
-	unsigned short clutOverride;
-	unsigned long flags;
-
-	MATRIX bffMatrix;
+	MATRIX					bffMatrix;  // JH: Used to store the matrix of a scenic object.
 
 } ACTOR;
 
