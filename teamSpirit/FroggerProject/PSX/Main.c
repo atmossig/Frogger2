@@ -398,8 +398,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		RAMsize = (0x1fff00 - RAMstart)-8192;
-//		RAMsize = 6291264;
+		//RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 #endif
 
 		memset((void *)0x1f8000,0,0x8000);
@@ -638,8 +638,12 @@ TIMER_STOP(TIMER_GAMELOOP);
 			UpdateTextureAnimations();
 			TIMER_STOP0(TIMER_UPDATETEXANIM);
 
-			DisplayOnScreenInfo();
-
+	
+#if GOLDCD == NO
+			if ( padData.digital[1] & PAD_L1 )
+				DisplayOnScreenInfo();
+			// ENDIF
+#endif
 			/*if ( ++animFrame == 8 )
 				animFrame = 0;*/
 
@@ -712,7 +716,7 @@ TIMER_STOP(TIMER_GAMELOOP);
 
 
 #if GOLDCD==0
-			if(gameState.mode!=PAUSE_MODE)
+			if ( padData.digital[1] & PAD_L1 )
 			{
 				char tempText[128];
  				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys  %d : TotalActors",
@@ -932,8 +936,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-	RAMsize = (0x1fff00 - RAMstart)-8192;
-	//RAMsize = 6291264;
+	//RAMsize = (0x1fff00 - RAMstart)-8192;
+	RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);

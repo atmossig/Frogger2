@@ -160,11 +160,50 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 void PrintSpriteOverlays ( char num )
 {
+	int counter;
 	SPRITEOVERLAY *cur;
 
-	cur = spriteOverlayList.head.next;
+	for ( counter = 0; counter < spriteOverlayList.numEntries; counter++ )
+	{
+		cur = &spriteOverlayList.block [ counter ];
 
-	while ( cur != &spriteOverlayList.head )
+		if(cur->draw)
+		{
+			// Go to destination, if specified
+			fixed spd = FMul(gameSpeed, cur->speed)>>12;
+
+			if( Fabs(cur->xPosTo-cur->xPos) )
+			{
+				cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
+				
+				if( Fabs(cur->xPosTo-cur->xPos) < Fabs(spd) )
+				{
+					cur->speed = 0;
+					cur->xPos = cur->xPosTo;
+				}
+			}
+			else if( Fabs(cur->yPosTo-cur->yPos) )
+			{
+				cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+
+				if( Fabs(cur->yPosTo-cur->yPos) < Fabs(spd) )
+				{
+					cur->speed = 0;
+					cur->yPos = cur->yPosTo;
+				}
+			}
+		
+			DrawSprite ( cur );
+		}
+		// ENDIF
+
+
+	}
+	// ENDFOR
+
+
+
+/*	while ( cur != &spriteOverlayList.head )
 	{
 /*		if ( cur->num != num )
 		{
@@ -176,7 +215,7 @@ void PrintSpriteOverlays ( char num )
 
 
 		// update the sprite animation if an animated sprite overlay
-		if(cur->draw)
+	/*	if(cur->draw)
 		{
 			// Go to destination, if specified
 			fixed spd = FMul(gameSpeed, cur->speed)>>12;
@@ -208,5 +247,5 @@ void PrintSpriteOverlays ( char num )
 
 		cur = cur->next;
 	}
-	// ENDWHILE
+	// ENDWHILE*/
 }

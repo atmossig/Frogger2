@@ -211,6 +211,10 @@ void LoadTextureAnimBank ( int textureBank )
 		case TITLES_TEX_BANK:
 				sprintf ( titFileName, "TEXTURES\\TITLES.TIT" );
 			break;
+
+		case INGAMEGENERIC_TEX_BANK:
+				sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" );
+			break;
 	}
 	// ENDSWITCH - textureBank
 
