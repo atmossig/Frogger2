@@ -398,5 +398,29 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			AttachEvent( trigger, event, TRIGGER_DELAY, 100 );
 			*/
 		}
+		else if( levelID == LEVELID_GARDENTREETOPSA )
+		{
+			/*// This should change to level when you hop onto the first platform
+			args = AllocArgs(2);
+			args[0] = (void *)frog[0];
+			args[1] = (void *)platformList.head.next;
+			trigger = MakeTrigger( FrogOnPlatform, 2, args );
+
+			args = AllocArgs(2);
+
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 0;
+			args[0] = (void *)inum;
+
+			inum = (int *)JallocAlloc( sizeof(int),YES,"Int" );
+			*inum = 2;
+			args[1] = (void *)inum;
+
+			event = MakeEvent( ChangeLevel, 2, args );
+
+			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
+			*/
+
+		}
 	} // etc
 }
