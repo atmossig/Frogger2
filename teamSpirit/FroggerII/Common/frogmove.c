@@ -388,7 +388,7 @@ void UpdateFroggerPos(long pl)
 		}
 		move = moveVal;
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-		PlaySample ( 24,NULL,255,128);
+		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -510,7 +510,7 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState |= FROGSTATUS_ISSTANDING;
 		}
 		move = moveVal;
-		PlaySample ( 104,NULL,255,128);
+		PlaySample ( 1,0,0,0);
 
 		CreateAndAddFXRipple(RIPPLE_TYPE_DUST,&frog[pl]->actor->pos,&upVec,5,1,0.15,15);
 	}
@@ -528,7 +528,7 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState |= FROGSTATUS_ISSTANDING;
 		}
 		move = moveVal;
-		PlaySample ( 104,NULL,255,128);
+		PlaySample ( 1,0,0,0);
 
 		CreateAndAddFXRipple(RIPPLE_TYPE_DUST,&frog[pl]->actor->pos,&upVec,5,1,0.15,15);
 	}
@@ -546,7 +546,7 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState |= FROGSTATUS_ISSTANDING;
 		}
 		move = moveVal;
-		PlaySample ( 104,NULL,255,128);
+		PlaySample ( 1,0,0,0);
 
 		CreateAndAddFXRipple(RIPPLE_TYPE_DUST,&frog[pl]->actor->pos,&upVec,5,1,0.15,15);
 	}
@@ -564,7 +564,7 @@ void UpdateFroggerPos(long pl)
 			player[pl].frogState |= FROGSTATUS_ISSTANDING;
 		}
 		move = moveVal;
-		PlaySample ( 104,NULL,255,128);
+		PlaySample ( 1,0,0,0);
 
 		CreateAndAddFXRipple(RIPPLE_TYPE_DUST,&frog[pl]->actor->pos,&upVec,5,1,0.15,15);
 	}
