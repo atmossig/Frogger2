@@ -30,18 +30,10 @@
 
 #define MAX_UNIQUE_ACTORS	50
 
-#ifdef PC_VERSION
 
-float ACTOR_DRAWDISTANCEINNER = 80000.0F;
-float ACTOR_DRAWDISTANCEOUTER = 150000.0F;
-float ACTOR_DRAWDISTANCESTART = 300000.0F;
+unsigned long ACTOR_DRAWDISTANCEINNER = 100000;
+unsigned long ACTOR_DRAWDISTANCEOUTER = 150000;
 
-#else
-
-float ACTOR_DRAWDISTANCEINNER = 100000.0F;
-float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
-
-#endif
 
 #define WATER_XLU 70
 long waterObject = 0;
@@ -139,7 +131,7 @@ void DrawActorList()
 	/****************************************************************************************/
 
 #ifdef PC_VERSION
-	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER);
+	float ACTOR_DRAWFADERANGE = sqrtf((float)ACTOR_DRAWDISTANCEOUTER - (float)ACTOR_DRAWDISTANCEINNER);
 	
 	BlankFrame(hello);
 
@@ -213,7 +205,9 @@ void DrawActorList()
 		else
 			modgyObject = 0;
 
-		if((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
+		if( (cur->flags & ACTOR_DRAW_CULLED) &&
+			(cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) &&
+			!(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
@@ -575,7 +569,8 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 					newItem->flags |= ACTOR_SLIDYTEX2;
 					break;
 				case 'f':
-					newItem->flags |= ACTOR_SLIDYTEX & ACTOR_SLIDYTEX2;
+					newItem->flags |= ACTOR_SLIDYTEX;
+					newItem->flags |= ACTOR_SLIDYTEX2;
 					break;
 			}
 		}
