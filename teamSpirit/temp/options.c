@@ -1860,7 +1860,7 @@ void RunOptionsMenu(void)
 #ifdef PSX_VERSION
 				SsSetMute( 1 );
 #endif
-				StartVideoPlayback(options.fmvNum + 1);
+				StartVideoPlayback(options.fmvNum + 3);
 #ifdef PSX_VERSION
 				SsSetMute( 0 );
 #endif
