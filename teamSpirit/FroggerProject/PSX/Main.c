@@ -923,18 +923,18 @@ void MainDrawFunction ( void )
 		DrawActorList();
 	TIMER_STOP0(TIMER_ACTOR_DRAW);
 
+	if( gameState.multi == SINGLEPLAYER )
+	{
+		UpdateFrogTongue(0);
+		UpdateFrogCroak(0);
+	}
+
 	//bb - draw tongue.
 	//Moved from DrawSpecFX because we need the frog
 	//to have been drawn first, for latest position.
 	for( i=0; i<NUM_FROGS; i++ )
 		if( tongue[i].flags & TONGUE_BEINGUSED )
 			DrawTongue( i );
-
-	//if( gameState.multi == SINGLEPLAYER )
-	{
-		UpdateFrogTongue(0);
-		UpdateFrogCroak(0);
-	}
 
 //	if ( !( frameCount % 10 ) )
 //		utilPrintf ( "Poly Count : %d\n", polyCount );
