@@ -420,21 +420,6 @@ int UpdateLoopingSample( AMBIENT_SOUND *sample )
 		//work out pan
 		dist = Fabs(atan2((float)diff.vx, (float)diff.vz));
 		pan = (255.0/PI) * (FindShortestAngle( (fixed)(Fabs(check.vy+PI/2)*4096), (fixed)(dist*4096) )/4096.0);
-/*
-		att = (sample->radius)?sample->radius:DEFAULT_SFX_DIST;
-
-		SubVector( &diff, &sample->pos, &frog[0]->actor->position );
-		// Volume attenuation - check also for radius != 0 and use instead of default
-		dist = mdxMagnitude( &diff );
-		if( dist > att )
-			vol=0;
-
-		vol *= (att-dist)/att;
-
-		//work out pan
-		dist = Aabs(atan2(diff.vx, diff.vz));
-		pan = (255/PI) * FindShortestAngle(Aabs(frog[0]->actor->position.vy+PI/2),dist);
-		*/
 	}
 
 	// Now test if the sample is playing - if it is then make a buffered instance of it to play.
