@@ -435,22 +435,22 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 	Function		: PlayActorBasedSample
 	Purpose			: 
 	Parameters		: sample num, actor, volume, pitch
-	Returns			: void
+	Returns			: 
 */
 int PlayActorBasedSample( short num, ACTOR* act, short tempVol, short pitch )
 {
-	dprintf"La la la la\n"));
+	return 0;
 }
 
 /*	--------------------------------------------------------------------------------
 	Function		: PlayActorBasedSample
 	Purpose			: 
 	Parameters		: sample num, playback volume, volume, pitch
-	Returns			: void
+	Returns			: 
 */
 int PlaySampleNot3D( short num, UBYTE vol, short tempVol, short pitch )
 {
-	dprintf"Dooby dooby doo\n"));
+	return 0;
 }
 
 
