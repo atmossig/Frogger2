@@ -12,6 +12,7 @@
 #include <windows.h>
 #include <d3d.h>
 #include <mdx.h>
+#include <softstation.h>
 #include "fadeout.h"
 #include "layout.h"
 #include "islutil.h"
@@ -45,12 +46,22 @@ int DrawScreenFade(void)
 //		col = startIntensity + ((endIntensity-startIntensity)*(actFrameCount-fadeoutStart))/fadeoutLength;
 
 	if(flashScreen)
+	{
 		D3DSetupRenderstates(xluAddRS);
+		if( !rHardware )
+			ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_ADD);
+	}
 	else
+	{
 		D3DSetupRenderstates(xluSubRS);
+		if( !rHardware )
+			ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SUB);
+	}
 	DrawFlatRect(r, RGBA_MAKE(col, col, col, 255));
 
 	D3DSetupRenderstates(xluSemiRS);
+	if( !rHardware )
+		ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SEMI);
 
 	return (actFrameCount > (fadeoutStart+fadeoutLength));
 }
