@@ -351,7 +351,8 @@ long DrawLoop(void)
 	// *ASL* 13/06/2000
 	SurfaceDraw();
 
-	DDrawFlip();
+	if((rHardware) || (gameState.mode != STARTUP_MODE))
+		DDrawFlip();
 	EndTimer(17);
 
 // This ain't printing to the screen but to the textures - used specifically for the storybook in the frontend
