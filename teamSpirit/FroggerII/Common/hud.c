@@ -96,6 +96,7 @@ typedef struct TAG_MULTI_HUD
 	SPRITEOVERLAY *backPenalise[MAX_FROGS];
 	SPRITEOVERLAY *backChars[MAX_FROGS];
 	TEXTOVERLAY   *penaliseText[MAX_FROGS];
+	TEXTOVERLAY	  *winsText[MAX_FROGS];
 
 	TEXTOVERLAY   *timeTextMin;
 	TEXTOVERLAY   *timeTextSec;
@@ -115,6 +116,7 @@ char timeStringHSec[8]	= "00";
 char coinsText[32] = "00 of 32";
 char timeOutString[64] = "Out of time";
 char penalString[4][8] = {"00","00","00","00"};
+char winsString[4][8] = {"00","00","00","00"};
 
 char countdownString[64] = "00";
 
@@ -189,6 +191,8 @@ void InitMultiHUD()
 		multiHud.backPenalise[i] = CreateAndAddSpriteOverlay(xPos_multi[i],yPos_multi[i],"wback2.bmp",80,45,170,0);
 		multiHud.penaliseText[i] = CreateAndAddTextOverlay(xPos_multi[i]+5,yPos_multi[i]+5,penalString[i],NO,255,currFont,0,0);
 		multiHud.penaliseText[i]->scale = 2;
+		multiHud.winsText[i] = CreateAndAddTextOverlay(xPos_multi[i]+64,yPos_multi[i]+24,winsString[i],NO,255,currFont,0,0);
+		multiHud.winsText[i]->scale = 0.5;
 	}
 
 }
@@ -297,6 +301,7 @@ void UpDateMultiplayerInfo( void )
 	for (i=0; i<NUM_FROGS; i++)
 	{
 		sprintf(penalString[i],"%02i",((int)(mpl[i].penalty/60)));
+		sprintf(winsString[i],"%02i",mpl[i].wins);
 
 		if (mpl[i].timer>timeFrames)
 			timeFrames=mpl[i].timer;
