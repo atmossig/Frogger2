@@ -79,6 +79,7 @@ void InitTongue(char toCollect)
 	RotateVectorByQuaternion(&ff,&v,&frog[0]->actor->qRot);
 	SetVector(&fu,&currTile[0]->normal);
 	CrossProduct(&fr,&ff,&fu);
+	PlaySample(GEN_FROG_TONGUE,&frog[0]->actor->pos,0,100-Random(15),100-Random(15));
 }
 
 /*	--------------------------------------------------------------------------------
