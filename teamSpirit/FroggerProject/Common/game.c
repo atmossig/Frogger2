@@ -566,8 +566,11 @@ void RunGameLoop (void)
 		}
 
 		UpdateBabies( );
-		UpdateEnemies();
-		UpdatePlatforms();
+		if((player[0].worldNum != WORLDID_SPACE) || (player[0].levelNum != LEVELID_SPACE2))
+		{
+			UpdatePlatforms();
+			UpdateEnemies();
+		}
 		UpdateSpecialEffects( );
 		return;
 	}
