@@ -356,7 +356,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->texture = txtrBubble;
 			else
 			{
-				s->flags |= XLU_ADD | XLU_SUBFIRST;
+				s->flags |= XLU_ADD;
 				s->texture = txtrSmoke;
 			}
 
@@ -378,7 +378,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->flags |= SPRITE_FLAGS_ROTATE;
 				s->angle = 0.0f;
 				s->angleInc = 1.0 / (float)(12 + (rand() % 16));
-				if(i == 0)
+				if( !i )
 					s->angleInc *= -1;
 			}
 			else
@@ -456,17 +456,18 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 				s->b = 0;
 			}
 
-			if( (effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE) && !(Random(4)) )
+			if( (effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE) )
 			{
+				s->flags |= SPRITE_FLAGS_ROTATE | XLU_ADD;
+
 				s->scaleX = effect->scale.v[X] + Random(21)-10;
 				s->scaleY = effect->scale.v[Y] + Random(21)-10;
 
 				s->texture = (Random(2))?txtrSmoke:txtrSmoke2;
-				s->flags |= SPRITE_FLAGS_ROTATE;
 				s->angle = 0.0f;
 				s->angleInc = 1.0 / (float)(8 + (rand() % 12));
-				if(!(actFrameCount & 1))
-					effect->sprites->angleInc *= -1;
+				if( i & 1 )
+					s->angleInc *= -1;
 			}
 			else
 			{
