@@ -85,6 +85,7 @@ PC merge/update related
 
 Unassigned tasks
 ----------------
+- don't draw under status bar
 - city plank across building - x = sort problem
 - lab1 needs trans rotors, + sprites in.
 - help text (see poliver e-mail, 06/03/00) elieve this has been changed to a training level
