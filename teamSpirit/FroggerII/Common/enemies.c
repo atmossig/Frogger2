@@ -765,12 +765,17 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	cur->isIdle += player[0].hasJumped;
 
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
-	if( (path->nodes[2].worldTile) && (actFrameCount > path->endFrame) )
+	if( path->nodes[2].worldTile )
 	{
-		cur->inTile = FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
-
-		path->nodes[1].worldTile = path->nodes[2].worldTile;
-		path->nodes[2].worldTile = NULL;
+		if( actFrameCount > path->endFrame )
+		{
+			path->nodes[1].worldTile = path->nodes[2].worldTile;
+			path->nodes[2].worldTile = NULL;
+		}
+		else if( (actFrameCount-path->startFrame) > (0.5*(float)(path->endFrame-path->startFrame)) )
+		{
+			cur->inTile = path->nodes[2].worldTile;//FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
+		}
 	}
 
 	// If we need a new destination tile, find it by the direction to the frog
