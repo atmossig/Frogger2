@@ -509,19 +509,22 @@ void DrawSoftwarePolys (void)
 
 			// alpha blend all vertex rgbs
 			alphaVal = RGBA_GETALPHA(softV[v0].color);
-			ssVerts[0].r = (ssVerts[0].r * alphaVal) >>8;
-			ssVerts[0].g = (ssVerts[0].g * alphaVal) >>8;
-			ssVerts[0].b = (ssVerts[0].b * alphaVal) >>8;
+			if( alphaVal != 0xff )
+			{
+				ssVerts[0].r = (ssVerts[0].r * alphaVal) >>8;
+				ssVerts[0].g = (ssVerts[0].g * alphaVal) >>8;
+				ssVerts[0].b = (ssVerts[0].b * alphaVal) >>8;
 
-			alphaVal = RGBA_GETALPHA(softV[v1].color);
-			ssVerts[1].r = (ssVerts[1].r * alphaVal) >>8;
-			ssVerts[1].g = (ssVerts[1].g * alphaVal) >>8;
-			ssVerts[1].b = (ssVerts[1].b * alphaVal) >>8;
+				alphaVal = RGBA_GETALPHA(softV[v1].color);
+				ssVerts[1].r = (ssVerts[1].r * alphaVal) >>8;
+				ssVerts[1].g = (ssVerts[1].g * alphaVal) >>8;
+				ssVerts[1].b = (ssVerts[1].b * alphaVal) >>8;
 
-			alphaVal = RGBA_GETALPHA(softV[v2].color);
-			ssVerts[2].r = (ssVerts[2].r * alphaVal) >>8;
-			ssVerts[2].g = (ssVerts[2].g * alphaVal) >>8;
-			ssVerts[2].b = (ssVerts[2].b * alphaVal) >>8;
+				alphaVal = RGBA_GETALPHA(softV[v2].color);
+				ssVerts[2].r = (ssVerts[2].r * alphaVal) >>8;
+				ssVerts[2].g = (ssVerts[2].g * alphaVal) >>8;
+				ssVerts[2].b = (ssVerts[2].b * alphaVal) >>8;
+			}
 
 			// is this polygon textured?
 			if (polyPtr->t)
