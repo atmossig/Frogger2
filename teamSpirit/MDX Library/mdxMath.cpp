@@ -77,15 +77,29 @@ void guTranslateF(float a[4][4], float dx, float dy, float dz)
 	a[3][2] = dz;		
 }
 
-void guMtxCatF(float b[4][4], float a[4][4], float ret[4][4])
+
+void guMtxCatF(float *b, float *a, float *ret)
 {
 	float adj[4][4]={0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
-	int i,j,k;
+	float *p,*o,*n,*m = (float *)adj;
+	long i,j,k,l;
+	
+	i=4;
 
- 	for (i=0; i<4; i++) 
+ 	while(i--)
+	{		
 		for (j=0; j<4; j++) 
-			for (k=0; k<4; k++) 
-				adj[i][j] += a[k][j] * b[i][k];
+		{
+			n = a+j;
+			o = m+j;
+			p = b;
+			k=4;
+			while(k--) *o += *n * *p++, n+=4;
+			
+		}
+		m+=4;
+		b+=4;		
+	}
 
 	memcpy (ret,adj,sizeof(float)*16);
 }
@@ -178,6 +192,7 @@ void GetQuaternionFromRotation(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ)
 void QuaternionToMatrix(MDX_QUATERNION *squat, MDX_MATRIX *dmatrix)
 {
 	float	s, xs,ys,zs, wx,wy,wz, xx,xy,xz, yy,yz,zz;
+	float	*m = (float *)dmatrix->matrix;
 
 	s = ((float)2.0)/(squat->x*squat->x + squat->y*squat->y + squat->z*squat->z + squat->w*squat->w);
 
@@ -197,25 +212,47 @@ void QuaternionToMatrix(MDX_QUATERNION *squat, MDX_MATRIX *dmatrix)
 	yz = squat->y*zs;
 	zz = squat->z*zs;
 
+	*m++ = ((float)1.0)-(yy+zz);
+	*m++ = xy+wz;
+	*m++ = xz-wy;
+	*m++ = (float)0.0;
+	
+	*m++ = xy-wz;
+	*m++ = ((float)1.0)-(xx+zz);
+	*m++ = yz+wx;
+	*m++ = (float)0.0;
+	
+	*m++ = xz+wy;
+	*m++ = yz-wx;
+	*m++ = ((float)1.0)-(xx+yy);
+	*m++ = (float)0.0;
+	
+	*m++ = (float)0.0;
+	*m++ = (float)0.0;
+	*m++ = (float)0.0;
+	*m++ = (float)1.0;
+	
+	/*
 	dmatrix->matrix[0][0] = ((float)1.0)-(yy+zz);
 	dmatrix->matrix[0][1] = xy+wz;
 	dmatrix->matrix[0][2] = xz-wy;
-
+	dmatrix->matrix[0][3] = (float)0.0;
+	
 	dmatrix->matrix[1][0] = xy-wz;
 	dmatrix->matrix[1][1] = ((float)1.0)-(xx+zz);
 	dmatrix->matrix[1][2] = yz+wx;
-
+	dmatrix->matrix[1][3] = (float)0.0;
+	
 	dmatrix->matrix[2][0] = xz+wy;
 	dmatrix->matrix[2][1] = yz-wx;
 	dmatrix->matrix[2][2] = ((float)1.0)-(xx+yy);
-
-	dmatrix->matrix[0][3] = (float)0.0;
-	dmatrix->matrix[1][3] = (float)0.0;
 	dmatrix->matrix[2][3] = (float)0.0;
-	dmatrix->matrix[3][3] = (float)1.0;
+	
 	dmatrix->matrix[3][0] = (float)0.0;
 	dmatrix->matrix[3][1] = (float)0.0;
 	dmatrix->matrix[3][2] = (float)0.0;
+	dmatrix->matrix[3][3] = (float)1.0;
+	*/
 }
 
 void QuatSlerp(MDX_QUATERNION *src1, MDX_QUATERNION *sp2, float t, MDX_QUATERNION *dquat)

@@ -63,7 +63,7 @@ long FOV=450 / (640.0/640.0);
 float oneOver[65535];
 float posAddr[10000];
 
-#define MAX_ADDER 2
+#define MAX_ADDER 1
 
 float halfWidth;
 float halfHeight;
@@ -253,7 +253,7 @@ void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d)
 
 	if (d)
 	{
-		guMtxCatF(d->matrix,vMatrix.matrix,c);
+		guMtxCatF((float *)d->matrix,(float *)vMatrix.matrix,(float *)c);
 		guMtxXFMF(c,in->vx,in->vy,in->vz,&(vTemp2->vx),&(vTemp2->vy),&(vTemp2->vz));
 	}
 	else
@@ -315,7 +315,7 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 
 	in = obj->mesh->vertices;
 
-	guMtxCatF(m,vMatrix.matrix,f);
+	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	
 	vTemp2 = tV;
 	
@@ -378,7 +378,7 @@ void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 
 	in = obj->mesh->vertices;
 
-	guMtxCatF(m,vMatrix.matrix,f);
+	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 	
 	vTemp2 = tV;
 	mTemp = tMy;
@@ -420,7 +420,7 @@ void PCPrepareObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	MDX_VECTOR *vTemp2;
 	long i,j;
 	
-	guMtxCatF(m,vMatrix.matrix,f);
+	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 
 	vTemp2 = tN;
 	in = obj->mesh->vertexNormals;
@@ -449,7 +449,7 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	MDX_VECTOR *vTemp2;
 	long i,j;
 	
-	guMtxCatF(m,vMatrix.matrix,f);
+	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 
 	// Go thru the affected vertices, and xfm the corresponding vertices
 	for (i=0; i<obj->numVerts; i++)
@@ -492,7 +492,7 @@ void PCPrepareSkinnedObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4
 	MDX_VECTOR *vTemp2;
 	long i,j;
 	
-	guMtxCatF(m,vMatrix.matrix,f);
+	guMtxCatF((float *)m,(float *)vMatrix.matrix,(float *)f);
 
 	if (mesh->vertexNormals)
 	{
@@ -628,7 +628,7 @@ void __fastcall PCPrepareLandscape2 (MDX_LANDSCAPE *me)
 			oozd = -FOV * *(oneOver+x);
 			y = *(posAddr+x);
 			vTemp2->sx = y + halfWidth+(vTemp2->sx * oozd);
-			vTemp2->sy =/* y +*/ halfHeight+(vTemp2->sy * oozd);
+			vTemp2->sy = y + halfHeight+(vTemp2->sy * oozd);
 		
 		}
 		else
@@ -690,8 +690,8 @@ void __fastcall PCPrepareLandscape3 (MDX_LANDSCAPE *me)
 			x = (long)vTemp2->sz + DIST;
 			oozd = -FOV * *(oneOver+x);
 			y = *(posAddr+x);
-			vTemp2->sx = y - halfWidth+(vTemp2->sx * oozd);
-			vTemp2->sy =/* y +*/ halfHeight+(vTemp2->sy * oozd);
+			vTemp2->sx = halfWidth+(vTemp2->sx * oozd) - y;
+			vTemp2->sy =/* y -*/ halfHeight+(vTemp2->sy * oozd) - y;
 		
 		}
 		else
@@ -786,9 +786,35 @@ void DrawLandscape2(MDX_LANDSCAPE *me)
 
 }
 
+void DrawLandscape3(MDX_LANDSCAPE *me)
+{
+	if (CheckBoundingBox(me->bBox,&me->objMatrix)==0)
+	{
+		PCPrepareLandscape3(me);
+		PCRenderLandscape(me);
+		
+		numObjDrawn++;
+	}
+
+	if (me->next)
+		DrawLandscape3(me->next);
+
+	if (me->children)
+		DrawLandscape3(me->children);
+
+
+}
+
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 {
 	SaveFrame;
+
+	
+	if (obj->flags & OBJECT_FLAGS_XLU)
+		SwapFrame(MA_FRAME_XLU);
+
+	if (obj->flags & OBJECT_FLAGS_ADDITIVE)
+		SwapFrame(MA_FRAME_ADDITIVE);		
 
 	if (obj->flags & OBJECT_FLAGS_GLOW)
 	{
@@ -801,13 +827,7 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 		AddHalo(&v,vMatrix.matrix[2][0],vMatrix.matrix[2][2]);
 		SwapFrame(MA_FRAME_GLOW);		
 	}
-	
-	if (obj->flags & OBJECT_FLAGS_XLU)
-		SwapFrame(MA_FRAME_XLU);
 
-	if (obj->flags & OBJECT_FLAGS_ADDITIVE)
-		SwapFrame(MA_FRAME_ADDITIVE);		
-	
 	// If we are a skinned object then we just need to prepare all the skinned vertices, so do that for this sub-object.
 	if (skinned)
 	{

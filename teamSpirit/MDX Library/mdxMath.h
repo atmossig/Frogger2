@@ -56,7 +56,7 @@ extern MDX_MATRIXSTACK	matrixStack;
 extern MDX_VECTOR upV, rightV, inV;
 
 void guTranslateF(float a[4][4], float dx, float dy, float dz);
-void guMtxCatF(float b[4][4], float a[4][4], float ret[4][4]);
+void guMtxCatF(float *b, float *a, float *ret);
 void guScaleF(float a[4][4], float dx, float dy, float dz);
 void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, float yAt, float zAt,float xUp, float yUp, float zUp);
 void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float *destY,float *destZ);
@@ -73,7 +73,7 @@ void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float
 #define Bound(a,x,b) Min(b,Max(a,x))
 #define Max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 #define Min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
-#define PushMatrix(matrix)	{ guMtxCatF((matrix), matrixStack.stack[matrixStack.stackPosition], matrixStack.stack[matrixStack.stackPosition+1]); matrixStack.stackPosition++; }
+#define PushMatrix(matrix)	{ guMtxCatF((float *)(matrix), (float *)matrixStack.stack[matrixStack.stackPosition], (float *)matrixStack.stack[matrixStack.stackPosition+1]); matrixStack.stackPosition++; }
 #define PopMatrix() (matrixStack.stackPosition--)
 #define SetVector(v1,v2)	(*(v1)) = (*(v2))
 #define MatrixSet(m1,m2) (*((MDX_MATRIX *)m1)) = (*((MDX_MATRIX *)m2))

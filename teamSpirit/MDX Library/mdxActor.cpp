@@ -42,9 +42,9 @@ MDX_ACTOR *currentDrawActor;
 
 MDX_ACTOR *actorList = NULL;
 
-#define MAX_UNIQUE_ACTORS	50
+#define MAX_UNIQUE_ACTORS	100
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
-char numActorsUniqe = 0;
+long numActorsUniqe = 0;
 void (*StartAnim)(MDX_ACTOR *me) = NULL;
 
 
@@ -398,9 +398,41 @@ void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int 
 	ZeroQuaternion(&tempActor->qRot);
 }
 
+void FreeUniqueActorList(void)
+{
+	for (int i=0; i<numActorsUniqe; i++)
+		uniqueActorCRC[i] = 0;
+	numActorsUniqe = 0;
+
+}
+
+
+void FreeUniqueObject(MDX_OBJECT *object)
+{
+	if (object)
+	{
+		if (object->numSprites)
+			delete object->sprites;
+
+		if(object->children)
+			FreeUniqueObject(object->children);
+
+		if(object->next)
+			FreeUniqueObject(object->next);	
+
+		delete object;
+	}
+}
+
+
+
 void FreeActor(MDX_ACTOR **toFree)
 {
 	MDX_ACTOR *a = *toFree;
+
+	if (a->objectController)
+		FreeUniqueObject(a->objectController->object);
+
 
 	if (a->next) a->next->prev = a->prev;
 	if (a->prev)

@@ -174,14 +174,17 @@ typedef struct TAG_MDX_OBJECT
 	
 	short		flags;
 
-	short			padVal2;///////////////////////////
+	short			lastRKey;
 
 	struct TAG_MDX_OBJECT	*children;
 	struct TAG_MDX_OBJECT	*next;
 
-	unsigned long	padVal1;///////////////////////////
+	short lastMKey;
+	short lastSKey;
+	
 	MDX_MATRIX		objMatrix;
 
+	
 }MDX_OBJECT;
 
 //----------------animation

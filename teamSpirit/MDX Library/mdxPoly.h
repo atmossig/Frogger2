@@ -11,8 +11,8 @@ extern "C"
 
 //-------------------------------------------------------------
 
-#define MA_MAX_VERTICES		24000	// Maximum number of VERTICES that can be drawn in a frame
-#define MA_MAX_FACES		24000	// Maximum number of FACES that can be drawn in a frame
+#define MA_MAX_VERTICES		124000	// Maximum number of VERTICES that can be drawn in a frame
+#define MA_MAX_FACES		124000	// Maximum number of FACES that can be drawn in a frame
 #define MA_MAX_HALOS		50		// Maximum number of halo points that can be drawn in a frame
 #define MA_SOFTWARE_DEPTH	3000	// Maximum depth of a software polygon.
 //#define MA_MAX_FRAMES		6		// Maximum number of frames that may be active at once.
@@ -84,6 +84,8 @@ void DrawTexturedRect2(RECT r, D3DCOLOR colour, float u0, float v0, float u1, fl
 void BlankAllFrames(void);
 void DrawAllFrames(void);
 void SetSoftwareState(unsigned long *me);
+void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
+void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
 
 #define FULL_TEXTURE 0,0,1,1
 

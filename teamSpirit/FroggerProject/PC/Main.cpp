@@ -493,7 +493,9 @@ long LoopFunc(void)
 
 	ProcessUserInput();
 
+	StartTimer(5,"Gameloop");
 	GameLoop();
+	EndTimer(5);
 
 	for (c = actList; c; c = c->next)
 	{

@@ -33,6 +33,7 @@ void SwapOneOver(long num);
 void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh);
 void DrawLandscape(MDX_LANDSCAPE *me);
 void DrawLandscape2(MDX_LANDSCAPE *me);
+void DrawLandscape3(MDX_LANDSCAPE *me);
 void SetupDOF(long min, long max, float range);
 
 void PCRenderObject (MDX_OBJECT *obj);

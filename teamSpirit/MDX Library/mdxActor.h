@@ -62,7 +62,7 @@ MDX_OBJECT *FindActorSubObject(MDX_ACTOR *me, char *subName);
 void AttachActorToSubobject(MDX_OBJECT *dest, MDX_ACTOR *src);
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m);
 void InitAnims(MDX_ACTOR *tempActor);
-
+void FreeUniqueActorList(void);
 void FreeActor(MDX_ACTOR **toFree);
 
 unsigned long AddActorToList(MDX_ACTOR *me);

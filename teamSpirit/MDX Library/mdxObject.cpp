@@ -195,15 +195,22 @@ void SubdivideObject(MDX_OBJECT *me)
 	Info 		:
 */
 
-void FindToFromVKeys(MDX_VKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys)
+void FindToFromVKeys(MDX_VKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys, short eKey)
 {
 	int			i;
 	int			low,high;
 	short		fromKey = -1, toKey;
 	float		tempFloat;
+	
+	low = eKey;
+	high = eKey+1;
 
-	low = 0;
-	high = numKeys - 1;
+	if (keys[high].time<time)
+		high = numKeys - 1;	
+
+	if (keys[low].time>time)
+		low = 0;
+	
 
 	while(low <= high)
 	{
@@ -253,7 +260,7 @@ void FindToFromVKeys(MDX_VKEYFRAME *keys,short *from,short *to,float *interp,flo
 	}
 	
 	*from = fromKey;
-	*to = toKey;
+	*to = toKey;	
 }
 
 /*	--------------------------------------------------------------------------------
@@ -264,16 +271,22 @@ void FindToFromVKeys(MDX_VKEYFRAME *keys,short *from,short *to,float *interp,flo
 	Info 		:
 */
 
-void FindToFromQKeys(MDX_QKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys)
+void FindToFromQKeys(MDX_QKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys, short eKey)
 {
 	int			i;
 	int			low,high;
 	short		fromKey = -1, toKey;
 	float		tempFloat;
 
-	low = 0;
-	high = numKeys - 1;
+	low = eKey;
+	high = eKey+1;
 
+	if (keys[high].time<time)
+		high = numKeys - 1;	
+
+	if (keys[low].time>time)
+		low = 0;
+	
 	while(low <= high)
 	{
 		i = (low + high)>>1;
@@ -340,7 +353,8 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	//handle position keyframes
 	if((obj->numMoveKeys > 1) && (currentDrawActor->animation))
 	{
-		FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,time,obj->numMoveKeys);
+		FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,time,obj->numMoveKeys,obj->lastMKey);
+		obj->lastMKey = fromKey;
 		LinearInterp(&translation,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
 	}
 	else
@@ -351,7 +365,8 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	// Handle Scale Keyframes
 	if((obj->numScaleKeys > 1) && (currentDrawActor->animation))
 	{
-		FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,time,obj->numScaleKeys);
+		FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,time,obj->numScaleKeys,obj->lastSKey);
+		obj->lastSKey = fromKey;
 		LinearInterp(&scale,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
 	}
 	else
@@ -362,7 +377,8 @@ void TransformObject(MDX_OBJECT *obj, float time)
 	// handle rotation keyframes
 	if((obj->numRotateKeys > 1) && (currentDrawActor->animation))
 	{
-		FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
+		FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys,obj->lastRKey);
+		obj->lastRKey = fromKey;
 		QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
 			
 		// convert back to rotation matrix
@@ -495,6 +511,8 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 	
 	obj->attachedActor = NULL;
 	
+	obj->lastRKey = obj->lastMKey = obj->lastSKey = 0;
+
 	if(obj->phong)
 		obj->phong = GetTexEntryFromCRC ((long)obj->phong);
 

@@ -428,7 +428,6 @@ void PrintSprite(SPRITE *sprite)
 	Parameters		: 
 	Returns			: 
 	Purpose			: Draw an alpha-ed, non-rotating sprite
-*/
 void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
 {
 	D3DTLVERTEX v[4];
@@ -462,13 +461,6 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 		ys -= (y-SPRITECLIPBOTTOM);
 		y2 = SPRITECLIPBOTTOM;
 	}
-	
-/*	fogAmt = FOGADJ(z);
-	if (fogAmt<0)
-		fogAmt=0;
-	if (fogAmt>1)
-		fogAmt=1;
-*/	
 	v[0].sx = x; v[0].sy = y; v[0].sz = z; v[0].rhw = 0;
 	v[0].color = colour; v[0].specular = D3DRGBA(0,0,0,1);
 	v[0].tu = u1; v[0].tv = v1;
@@ -538,7 +530,7 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 	Clip3DPolygon( v, tex );
 	Clip3DPolygon( &v[2], tex );
 }	
-
+*/
 
 //----- [ SORTING STUFF ] -----------------------------------------------------------------------
 
