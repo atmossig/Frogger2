@@ -41,6 +41,7 @@ unsigned long jumpVariation3	= 9;
 
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
+unsigned long longHopJumpDownDivisor		= 12;
 
 float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
@@ -798,23 +799,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				
 				return FALSE;			
 			}
-/*
-			else if(GameTileTooLow(destTile[pl],pl) && (!( player[pl].frogState & FROGSTATUS_ISFLOATING)))
-			{
-				// platform too far below
-				dprintf"GameTile TOO LOW\n"));
-
-				player[pl].frogState |= FROGSTATUS_ISDEAD;
-				frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
-				frog[pl]->action.dead = 50;
-
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING |
-											FROGSTATUS_ISLONGHOPPING);
-
-				return FALSE;			
-			}
-*/
 			else if(destTile[pl]->state == TILESTATE_BARRED)
 			{
 				// Can't get into this tile at the moment
@@ -928,6 +912,20 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		}
 		else if(player[pl].isLongHopping)
 		{
+			frogGravity = -1;
+			if(sV < -10)
+			{
+				// alter t to modify jump heights
+				t += (Fabs(sV) / longHopJumpDownDivisor);
+
+				if(sV < -125)
+				{
+					// frog has fallen too far !!!
+					t += 25;
+					frogGravity = -0.5F;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				}
+			}
 		}
 		else
 		{
@@ -999,6 +997,20 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		}
 		else if(player[pl].isLongHopping)
 		{
+			frogGravity = -1;
+			if(sV < -10)
+			{
+				// alter t to modify jump heights
+				t += (Fabs(sV) / longHopJumpDownDivisor);
+
+				if(sV < -125)
+				{
+					// frog has fallen too far !!!
+					t += 25;
+					frogGravity = -0.5F;
+					AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				}
+			}
 		}
 		else
 		{
@@ -1254,35 +1266,6 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 	// tile can be jumped to
 	return FALSE;
 }
-
-/*	--------------------------------------------------------------------------------
-	Function		: GameTileTooLow
-	Purpose			: checks is destination tile is too low to jump to
-	Parameters		: GAMETILE *
-	Returns			: BOOL
-	Info			: 
-*/
-BOOL GameTileTooLow(GAMETILE *tile,long pl)
-{
-	VECTOR vec;
-	float height,h;
-	VECTOR diff;
-		
-	SubVector(&diff,&tile->centre,&frog[pl]->actor->pos);
-	h = Magnitude(&diff);
-	MakeUnit(&diff);
-	height = (h * DotProduct(&diff,&tile->normal));
-
-	if(height < -125.0F)
-	{
-		// tile too far below
-		return TRUE;
-	}
-	
-	// tile can be jumped down to
-	return FALSE;
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: KillFrog
