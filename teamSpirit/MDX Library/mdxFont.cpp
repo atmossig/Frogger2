@@ -277,7 +277,7 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 		cx+=DrawFontCharAtLoc(cx,y,*c,color,font,scale);
 		c++;
 	}
-	return x;
+	return cx;
 }
 
 #ifdef __cplusplus
