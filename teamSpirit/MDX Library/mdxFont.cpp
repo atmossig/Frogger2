@@ -70,6 +70,8 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale);
 long GetCharWidth(char c, MDX_FONT *font, float scale);
 
 
+#define FONT_TRANSVAL	0xf81f
+
 
 /* -----------------------------------------------------------------------
    Function: InitFont
@@ -114,10 +116,10 @@ MDX_FONT *InitFont(const char *filename)
 	//for (charSize=1;charSize<bmpHeight;charSize<<=1);	
 	scratch = (unsigned short*)AllocMem(2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
 	for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++)
-		scratch[clear]=0xf81f;
+		scratch[clear]=FONT_TRANSVAL;
 
-	//surfaces[0] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
-	surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
+	//surfaces[0] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, FONT_TRANSVAL, 0, 1);
+	surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, FONT_TRANSVAL, 0, 1);
 
 	// build all font characters
 	alphaLen = strlen((const char *)alphabet);
@@ -170,13 +172,13 @@ MDX_FONT *InitFont(const char *filename)
 			if (charUV.y >= (FONT_TEXTURE_SIZE-charSize))
 			{
 				DDrawCopyToSurface(surfaces[currSurf], (unsigned short *)scratch,0,FONT_TEXTURE_SIZE,FONT_TEXTURE_SIZE,0);
-				for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=0xf81f;
+				for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=FONT_TRANSVAL;
 				charUV.y = 0;
 
 				if ((++currSurf) == FONT_TEMP_SURFACES)
 					break;
 
-				surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
+				surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, FONT_TRANSVAL, 0, 1);
 			}
 		}
 
@@ -189,8 +191,10 @@ MDX_FONT *InitFont(const char *filename)
 				//unsigned long d,r,g,b;
 				dt = &tData[(x+left)+(y*bmpWidth)];
 
-				//if (*dt==transparent)
-				//	*dt = 0xf81f;
+				if (*dt==transparent)
+					*dt = FONT_TRANSVAL;
+				//else
+				//	*dt |= 0x8000;	//set alpha bit for ARGB 1555? - ds
 
 				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = *dt;
 			}
@@ -231,7 +235,7 @@ MDX_FONT *InitFont(const char *filename)
 					for (cy=0; cy<charSize; cy++)
 						for (cx=0; cx<width; cx++)
 						{
-							if ((rgb555 = tData[(cx + left) + (cy*bmpWidth)]) == 0xf81f)
+							if ((rgb555 = tData[(cx + left) + (cy*bmpWidth)]) == FONT_TRANSVAL)
 								*cp++ = 0xff00ff;
 							else
 								*cp++ = ((((unsigned long)rgb555) & 0x7c00)<<(16-10)) | ((((unsigned long)rgb555) & 0x03e0)<<( 8- 3)) | ((((unsigned long)rgb555) & 0x001f)<<( 0- 0));
@@ -323,7 +327,7 @@ void CopyCharSoftware(MDX_FONT *font, char c, int x, int y)
 		for (int j=(ch->width>>1)-1; j; j--)
 		{
 			unsigned short p = (unsigned short)*cx; cx+=2;
-			if (p != 0xf81f)
+			if (p != FONT_TRANSVAL)
 				*(px++) = p;
 		}
 
