@@ -271,14 +271,6 @@ void ChangeLevel( EVENT *event )
 	showEndLevelScreen = 0;
 }
 
-
-void ScreenGrab( EVENT *event )
-{
-#ifndef PC_VERSION
-	Screen2Texture();
-#endif
-}
-
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
@@ -304,21 +296,6 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 	{
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
-			/* //Does a screen grab to a texture array
-			fnum = (float *)JallocAlloc( sizeof(float),YES,"Float" );
-			*fnum = 100;
-
-			args = AllocArgs(3);
-			args[0] = (void *)frog[0]->actor;
-			args[1] = (void *)&bTStart[0]->centre;
-			args[2] = (void *)fnum;
-
-			trigger = MakeTrigger( ActorWithinRadius, 3, args );
-
-			event = MakeEvent( ScreenGrab, 0, NULL );
-
-			AttachEvent( trigger, event, TRIGGER_ALWAYS, 0 );
-			*/
 			/*// This should change to level when you hop onto the first platform
 			args = AllocArgs(2);
 			args[0] = (void *)frog[0];
