@@ -286,9 +286,13 @@ void UpdatePlatforms()
 */
 PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 {
-	// VERSION FROM (21.10.1999) - ANDYE
-
 	PLATFORM *cur,*next;
+	PLATFORM *platsDetected[4];
+	float t,distance = 99999999;
+	short platNum = 0;
+	
+	// NOTE : due to the way platforms work, it may be possible that more than one platform
+	//			occupies the same game tile.
 
 	// determine if a platform is in the tile(s) that the frog is jumping to
 
@@ -308,31 +312,40 @@ PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl)
 		{
 			// platform is 'in' two tiles currently
 			if(cur->inTile[0] == tile)
-			{
-				// platform found - return this platform
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-				return cur;
-			}
+				platsDetected[platNum++] = cur;
 			else if(cur->inTile[1] == tile)
-			{
-				// platform found - return this platform
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-				return cur;
-			}
+				platsDetected[platNum++] = cur;
 		}
 		else
 		{
 			// platform is 'in' a single tile
 			if(cur->inTile[0] == tile)
 			{
-				// platform found - return this platform
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
-				return cur;
+				// platform is in single tile currently
+				platsDetected[platNum++] = cur;
 			}
 		}
+	}
+
+	if(platNum)
+	{
+		// at least one platform was detected in the specified tile
+		int i;
+
+		cur = platsDetected[0];
+		for(i=0; i<platNum; i++)
+		{
+			t = DistanceBetweenPointsSquared(&platsDetected[i]->pltActor->actor->pos,&frog[pl]->actor->pos);
+			if(t < distance)
+			{
+				cur = platsDetected[i];
+				distance = t;
+			}
+		}
+
+		player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
+		player[pl].frogState |= FROGSTATUS_ISJUMPINGTOPLATFORM;
+		return cur;
 	}
 
 	// so....frog is not jumping to a platform (i.e. no platform detected)
