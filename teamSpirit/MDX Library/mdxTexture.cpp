@@ -505,13 +505,24 @@ void UpdateAnimatingTextures(void)
 	{
 		if (me->numFrames>1)
 		{
-			while ((me->lastGameFrame+me->frameTimes[me->lastFrame])<timeInfo.frameCount)
+			if( me->frameTimes[me->lastFrame] == -1 )
 			{
-				me->lastGameFrame+=me->frameTimes[me->lastFrame];
-				
+				me->lastGameFrame++;
+
 				me->lastFrame++;
 				if (me->lastFrame>=me->numFrames)
 					me->lastFrame = 0;
+			}
+			else
+			{
+				while ((me->lastGameFrame+me->frameTimes[me->lastFrame])<timeInfo.frameCount)
+				{
+					me->lastGameFrame+=me->frameTimes[me->lastFrame];
+					
+					me->lastFrame++;
+					if (me->lastFrame>=me->numFrames)
+						me->lastFrame = 0;
+				}
 			}
 			
 			me->surf = me->frames[me->lastFrame];
