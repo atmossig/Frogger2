@@ -185,31 +185,45 @@ void EndTimer(int number)
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+extern long drawTimers;
+
 void PrintTimers(void)
 {
 	RECT r;
 	int i;
+	HDC hdc;
 
+	
 	r.top = 50-(200/MAX_TIMERS);
 	r.bottom = 49+((MAX_TIMERS+2)*(200/MAX_TIMERS));
 	r.left = 40;
 	r.right = 600;
+	DrawFlatRect(r, D3DRGBA(0,0.1,0,0.8));
+
+	r.right = 45;
+	DrawFlatRect(r, D3DRGBA(0,0,1,0.8));
+
+	r.left = 595;
+	r.right = 600;
+	DrawFlatRect(r, D3DRGBA(0,0,1,0.8));
 	
-	DrawFlatRect(r, D3DRGBA(0,0,0,0.8) );
-	HDC hdc;
-	HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
-	if (res == DD_OK)
-		{
-			SetBkMode(hdc, TRANSPARENT);
-			SetTextColor(hdc, RGB(255,0,0));
-			
-			for (i=0; i<MAX_TIMERS; i++)
-				if (tName[i])
-					TextOut(hdc, 60, 48+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
-			IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);
-		}
-
-
+	r.bottom = r.top+9;
+	r.bottom -= 17;
+	r.left = 40;
+	r.right = 600;
+	DrawFlatRect(r, D3DRGBA(0,0,1,0.8));
+	
+	r.bottom = 49+((MAX_TIMERS+2)*(200/MAX_TIMERS));
+	r.top = r.bottom - 5;
+	DrawFlatRect(r, D3DRGBA(0,0,1,0.8));
+	
 	for ( i=0; i<MAX_TIMERS; i++)
 	{
 		r.top = 50+(i*(200/MAX_TIMERS));
@@ -218,42 +232,57 @@ void PrintTimers(void)
 		r.right = (52+tHold[i]/timerscale);
 		
 		DrawFlatRect(r, D3DRGBA(1,0.5,1,0.8) );
-
-		
 	}
 	
 	for (i=0; i<MAX_TIMERS; i++)
 	{
 		r.top = 50+(i*(200/MAX_TIMERS));
 		r.bottom = 49+((i+1)*(200/MAX_TIMERS));
-
-		r.left = 350;
-		r.right = 352;
-		DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
-
 		r.left = 50;
 		r.right = 52;
 		DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
-
 		r.right = (50+tTotal[i]/timerscale);
-		
 		DrawFlatRect(r, D3DRGBA(1,0,0,0.5) );
-		
-		r.left = (350+(tStart[i]-tS));
-		r.right= r.left+(tTotal[i]);
-
-		DrawFlatRect(r, D3DRGBA(0,1,1,0.5) );
-		
-		r.left = (350+(tStart[i]-tS));
-		r.right= r.left+2;
-
-		DrawFlatRect(r, D3DRGBA(0.5,1,1,0.5) );
-
-		
-		
 	}
 
+	r.top = 50+(0*(200/MAX_TIMERS));
+	r.bottom = 49+((MAX_TIMERS)*(200/MAX_TIMERS));
+	
+	r.left = (50+(1000/60)/timerscale);;
+	r.right = (52+(1000/60)/timerscale);
+	DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
+	
+	r.left = (50+(1000/30)/timerscale);;
+	r.right = (52+(1000/30)/timerscale);
+	DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
+	
+	r.left = (50+(1000/15)/timerscale);;
+	r.right = (52+(1000/15)/timerscale);
+	DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
 
+	r.left = (50+(1000/7)/timerscale);;
+	r.right = (52+(1000/7)/timerscale);
+	DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
+
+	
+	if (drawTimers==2)
+	{
+		HRESULT res = IDirectDrawSurface4_GetDC(hiddenSrf, &hdc);
+
+		if (res == DD_OK)
+		{
+			SetBkMode(hdc, TRANSPARENT);
+			SetTextColor(hdc, RGB(255,0,0));
+			
+			for (i=0; i<MAX_TIMERS; i++)
+				if (tName[i])
+					TextOut(hdc, 60, 49+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
+
+			IDirectDrawSurface4_ReleaseDC(hiddenSrf, hdc);	
+		}
+	}
+
+	
 }
 
 

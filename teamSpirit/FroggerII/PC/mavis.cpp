@@ -1,3 +1,5 @@
+#define SHOW_OUTLINES
+
 /*
 
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
@@ -48,6 +50,9 @@ FRAME_INFO frameInfo;
 	Returns       : -
 	Info          : -
 */
+extern long totalFacesDrawn;
+float lx1,ly1,lx2,ly2;
+extern long drawTimers;
 
 void DrawBatchedPolys (void)
 {
@@ -56,11 +61,12 @@ void DrawBatchedPolys (void)
 
 	frameInfo.cF = frameInfo.f;
 	frameInfo.cH = frameInfo.h;
-
+	StartTimer(4,"Mavis");
 	
 
 	nFace = 3;
 	i=0;
+	totalFacesDrawn+=frameInfo.nF/3;
 
 	while (i<frameInfo.nF)
 	{
@@ -69,6 +75,38 @@ void DrawBatchedPolys (void)
 
 		while (((*(frameInfo.cH)) == lHandle) && (i<frameInfo.nF))
 		{
+
+#ifdef SHOW_OUTLINES
+			if (drawTimers==3)
+			{
+				pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,0);
+
+				lx1 = frameInfo.v[frameInfo.f[i]].sx;
+				ly1 = frameInfo.v[frameInfo.f[i]].sy;
+				
+				lx2 = frameInfo.v[frameInfo.f[i+1]].sx;
+				ly2 = frameInfo.v[frameInfo.f[i+1]].sy;
+				
+				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
+
+				lx1 = frameInfo.v[frameInfo.f[i+1]].sx;
+				ly1 = frameInfo.v[frameInfo.f[i+1]].sy;
+				
+				lx2 = frameInfo.v[frameInfo.f[i+2]].sx;
+				ly2 = frameInfo.v[frameInfo.f[i+2]].sy;
+				
+				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
+
+				lx1 = frameInfo.v[frameInfo.f[i]].sx;
+				ly1 = frameInfo.v[frameInfo.f[i]].sy;
+				
+				lx2 = frameInfo.v[frameInfo.f[i+2]].sx;
+				ly2 = frameInfo.v[frameInfo.f[i+2]].sy;
+				
+				DrawALine (lx1,ly1,lx2,ly2, D3DRGB(1,1,1));
+			}
+	#endif
+
 			frameInfo.cH+=3;
 			nFace+=3;
 			i+=3;
@@ -87,9 +125,11 @@ void DrawBatchedPolys (void)
 				D3DDP_DONOTLIGHT |
 				D3DDP_DONOTUPDATEEXTENTS) !=D3D_OK) dp("!");
 		
-	
+		
 		frameInfo.cF+=nFace;
 	}
+
+	EndTimer(4);
 }
 
 }

@@ -11,7 +11,6 @@
 #ifndef SUBCUBE_H_INCLUDED
 #define SUBCUBE_H_INCLUDED
 
-
 extern void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags);
 extern void InitActorStructures(ACTOR *tempActor, int initFlags);
 extern void InitActorList();
