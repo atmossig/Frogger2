@@ -92,15 +92,15 @@ void timerDisplay()
 
 
 		// Sub total
-		fontPrint(fontSmall, x,y, "SUB-TOTAL", 0,128,128);
+		fontPrint(fontSmall, x,y, "SUB-TOTAL", 90,90,255);
 		sprintf(str, "%d%%", (100*subtotal)/(1+prevTimer[TIMER_TOTAL]));
-		fontPrint(fontSmall, x+300,y, str, 0,128,128);
+		fontPrint(fontSmall, x+300,y, str, 90,90,255);
 
 		// Total
-		fontPrint(fontSmall, x,95, timerName[TIMER_TOTAL], 128,128,128);
+		fontPrint(fontSmall, x,95, timerName[TIMER_TOTAL], 90,90,255);
 //		sprintf(str, "%d [%d]", prevTimer[TIMER_TOTAL],framerate);
 		sprintf(str, "%d [%d]", prevTimer[TIMER_TOTAL], gameSpeed);
-		fontPrint(fontSmall, 100,95, str, 128,128,128);
+		fontPrint(fontSmall, 100,95, str, 90,90,255);
 //		subtotal = (100*prevTimer[TIMER_TOTAL])/(((PALMODE)?(310):(260))*TITAN_DEFAULT_FRAME_LOCK);
 #define IDEAL_FRAME_RATE 2
 		subtotal = (100*prevTimer[TIMER_TOTAL])/(((PALMODE)?(310):(260))*IDEAL_FRAME_RATE);
