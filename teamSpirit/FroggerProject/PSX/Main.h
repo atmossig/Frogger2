@@ -9,6 +9,7 @@
 
 #define VIDEO_INIT_AND_MALLOC 1
 
+extern long turbo;
 
 extern GsRVIEW2	camera;
 extern ULONG	frame;

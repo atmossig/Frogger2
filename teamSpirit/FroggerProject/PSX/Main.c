@@ -78,6 +78,8 @@
 #include "objviewer.h"
 #include "platform.h"
 
+long turbo = 4096;
+
 TextureAnimType* timerAnim = NULL;
 int animFrame;
 
@@ -394,8 +396,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		RAMsize = (0x1fff00 - RAMstart)-8192;
-//		RAMsize = 6291264;
+//		RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 #endif
 
 		memset((void *)0x1f8000,0,0x8000);
@@ -412,9 +414,13 @@ int main ( )
 
 #if GOLDCD == NO
 	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+	XAsetStatus(CdInit());
 #else
 	fileInitialise("\\FROGGER.DAT;1");
+	XAsetStatus(CdInit());
 #endif
+
+
 
 		//Init_BB_AcosTable();
 
@@ -439,8 +445,6 @@ int main ( )
 		//EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
 
 		VSyncCallback(&vsyncCallback);
-
-		bb_InitXA();
 
 		StartSound();//mmsfx
 
@@ -865,8 +869,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-		RAMsize = (0x1fff00 - RAMstart)-8192;
-//		RAMsize = 6291264;
+//		RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
