@@ -16,6 +16,7 @@
 FX_RIPPLELIST rippleFXList;
 FX_SMOKELIST smokeFXList;
 FX_EXPLODEPARTICLELIST explodeParticleFXList;
+FX_OBJECTBLURLIST objectBlurFXList;
 
 char doScreenFade	= 0;
 char fadeDir		= FADE_OUT;
@@ -655,6 +656,170 @@ void UpdateFXExplodeParticle()
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAndAddFXObjectBlur
+	Purpose			: creates and initialises an object blur effect
+	Parameters		: VECTOR *,short,short,short
+	Returns			: FX_OBJECTBLUR
+	Info			: 
+*/
+FX_OBJECTBLUR *CreateAndAddFXObjectBlur(VECTOR *origin,short size,short startFade,float lifetime)
+{
+	FX_OBJECTBLUR *blur;
+
+	blur = (FX_OBJECTBLUR *)JallocAlloc(sizeof(FX_OBJECTBLUR),YES,"FX_BLR");
+	AddFXObjectBlur(blur);
+
+	SetVector(&blur->sprite.pos,origin);
+
+	blur->sprite.texture	= txtrSolidRing;
+	blur->sprite.scaleX		= size;
+	blur->sprite.scaleY		= size;
+	blur->sprite.r			= 255;
+	blur->sprite.g			= 255;
+	blur->sprite.b			= 255;
+	blur->sprite.a			= startFade;
+
+	blur->lifetime			= lifetime;
+	blur->fadeVal			= startFade / lifetime;
+
+#ifndef PC_VERSION
+	blur->sprite.offsetX	= -blur->sprite.texture->sx / 2;
+	blur->sprite.offsetY	= -blur->sprite.texture->sy / 2;
+#else
+	blur->sprite.offsetX	= -16;
+	blur->sprite.offsetY	= -16;
+#endif
+
+	blur->sprite.flags		= SPRITE_TRANSLUCENT;
+
+	AddSprite(&blur->sprite,NULL);
+
+	return blur;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeFXObjectBlurLinkedList
+	Purpose			: frees the fx linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeFXObjectBlurLinkedList()
+{
+	FX_OBJECTBLUR *cur,*next;
+
+	if(objectBlurFXList.numEntries == 0)
+		return;
+
+	dprintf"Freeing linked list : FX_OBJECTBLUR : (%d elements)\n",objectBlurFXList.numEntries));
+	for(cur = objectBlurFXList.head.next; cur != &objectBlurFXList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubFXObjectBlur(cur);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddFXObjectBlur
+	Purpose			: adds object blur fx element to the list
+	Parameters		: FX_OBJECTBLUR *
+	Returns			: void
+	Info			: 
+*/
+void AddFXObjectBlur(FX_OBJECTBLUR *blur)
+{
+	if(blur->next == NULL)
+	{
+		objectBlurFXList.numEntries++;
+		blur->prev = &objectBlurFXList.head;
+		blur->next = objectBlurFXList.head.next;
+		objectBlurFXList.head.next->prev = blur;
+		objectBlurFXList.head.next = blur;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubFXObjectBlur
+	Purpose			: removes an object blur fx element from the list
+	Parameters		: FX_OBJECTBLUR *
+	Returns			: void
+	Info			: 
+*/
+void SubFXObjectBlur(FX_OBJECTBLUR *blur)
+{
+	if(blur->next == NULL)
+		return;
+
+	SubSprite(&blur->sprite);
+
+	blur->prev->next = blur->next;
+	blur->next->prev = blur->prev;
+	blur->next = NULL;
+	objectBlurFXList.numEntries--;
+
+	JallocFree((UBYTE **)&blur);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFXObjectBlur
+	Purpose			: updates the object blur based fx
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void UpdateFXObjectBlur()
+{
+	FX_OBJECTBLUR *blur,*blur2;
+
+	// go through object blur fx list and remove 'dead' effects
+	for(blur = objectBlurFXList.head.next; blur != &objectBlurFXList.head; blur = blur2)
+	{
+		blur2 = blur->next;
+		if(blur->deadCount)
+		{
+			blur->deadCount--;
+			if(!blur->deadCount)
+			{
+				blur->sprite.a = 0;
+				SubFXObjectBlur(blur);
+				continue;
+			}
+		}
+	}
+
+	// update object blur fx
+	for(blur = objectBlurFXList.head.next; blur != &objectBlurFXList.head; blur = blur2)
+	{
+		blur2 = blur->next;
+
+		if(blur->lifetime)
+		{
+			blur->lifetime--;
+
+			blur->sprite.a -= blur->fadeVal;
+			if(blur->sprite.a < blur->fadeVal)
+			{
+				blur->lifetime	= 0;
+				blur->sprite.a = 0;
+				blur->deadCount = 5;
+			}
+
+			blur->sprite.scaleX--;
+			blur->sprite.scaleY--;
+
+			if(!blur->lifetime)
+				blur->deadCount = 5;
+		}
+	}
+}
+
+
+
+
+
+
 
 
 
@@ -679,6 +844,10 @@ void InitFXLinkedLists()
 	// initialise the explode particle fx list
 	explodeParticleFXList.numEntries = 0;
 	explodeParticleFXList.head.next = explodeParticleFXList.head.prev = &explodeParticleFXList.head;
+
+	// initialise the object blur fx list
+	objectBlurFXList.numEntries = 0;
+	objectBlurFXList.head.next = objectBlurFXList.head.prev = &objectBlurFXList.head;
 
 	// get the textures used for the various special effects
 	FindTexture(&txtrRipple,UpdateCRC("ai_ripple.bmp"),YES);
@@ -706,6 +875,9 @@ void UpdateSpecialFX()
 
 	if(explodeParticleFXList.numEntries)
 		UpdateFXExplodeParticle();
+
+	if(objectBlurFXList.numEntries)
+		UpdateFXObjectBlur();
 }
 
 

@@ -58,7 +58,7 @@ typedef struct TAGFX_SMOKELIST
 } FX_SMOKELIST;
 
 
-//----- [ PAPTICLE EXPLODE SPECIAL FX ] -----//
+//----- [ PARTICLE EXPLODE SPECIAL FX ] -----//
 
 typedef struct TAGFX_EXPLODEPARTICLELIST
 {
@@ -68,11 +68,22 @@ typedef struct TAGFX_EXPLODEPARTICLELIST
 } FX_EXPLODEPARTICLELIST;
 
 
+//----- [ OBJECT BLUR SPECIAL FX ] -----//
+
+typedef struct TAGFX_OBJECTBLURLIST
+{
+	int					numEntries;
+	FX_OBJECTBLUR		head;
+
+} FX_OBJECTBLURLIST;
+
+
 //----- [ GLOBALS ] -----------------------------------------------------------------------------//
 
 extern FX_RIPPLELIST rippleFXList;
 extern FX_SMOKELIST smokeFXList;
 extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
+extern FX_OBJECTBLURLIST objectBlurFXList;
 
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
@@ -111,6 +122,13 @@ extern void FreeFXExplodeParticleLinkedList();
 extern void AddFXExplodeParticle(FX_EXPLODEPARTICLE *explode);
 extern void SubFXExplodeParticle(FX_EXPLODEPARTICLE *explode);
 extern void UpdateFXExplodeParticle();
+
+extern FX_OBJECTBLUR *CreateAndAddFXObjectBlur(VECTOR *origin,short size,short startFade,float lifetime);
+extern void FreeFXObjectBlurLinkedList();
+extern void AddFXObjectBlur(FX_OBJECTBLUR *blur);
+extern void SubFXObjectBlur(FX_OBJECTBLUR *blur);
+extern void UpdateFXObjectBlur();
+
 
 extern void InitFXLinkedLists();
 extern void UpdateSpecialFX();

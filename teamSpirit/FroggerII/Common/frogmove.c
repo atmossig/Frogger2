@@ -197,10 +197,15 @@ void SpringFrog( EVENT *event )
 
 float freeFall = 2.0F;
 
+short blurSize = 128;
+short blurFrames = 6;
+char blurR = 0;
+char blurG = 255;
+char blurB = 0;
+
 void UpdateFroggerPos(long pl)
 {
 	float x,y,z;
-	FX_RIPPLE *rip;
 	VECTOR effectPos;
 	PLANE2 ground;
 	VECTOR moveVec;
@@ -265,6 +270,7 @@ void UpdateFroggerPos(long pl)
 
 	if(!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR)))
 	{
+		FX_OBJECTBLUR *blur;
 		VECTOR newPos;
 		float t,s,a;
 
@@ -294,8 +300,10 @@ void UpdateFroggerPos(long pl)
 			ScaleVector(&effectPos,20);
 			AddToVector(&effectPos,&newPos);
 
-			rip = CreateAndAddFXRipple(RIPPLE_TYPE_SOLIDCROAK,&effectPos,&player[pl].jumpUpVector,20,0,0,(16 * gameSpeed));
-			rip->r = 0;	rip->g = 255; rip->b = 0;
+			blur = CreateAndAddFXObjectBlur(&effectPos,blurSize,255,blurFrames);
+			blur->sprite.r = blurR;
+			blur->sprite.g = blurG;
+			blur->sprite.b = blurB;
 		}
 	}
 
@@ -343,6 +351,8 @@ void UpdateFroggerPos(long pl)
 	// frog is croaking
 	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
 	{
+		FX_RIPPLE *rip;
+
 		if((frog[pl]->action.isCroaking & 3) == 0)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);

@@ -161,6 +161,22 @@ typedef struct TAGFX_EXPLODEPARTICLE
 
 } FX_EXPLODEPARTICLE;
 
+
+typedef struct TAGFX_OBJECTBLUR
+{
+	struct TAGFX_OBJECTBLUR	*next;
+	struct TAGFX_OBJECTBLUR	*prev;
+
+	SPRITE				sprite;
+	unsigned char		fadeVal;
+
+	float				lifetime;
+	unsigned char		deadCount;
+
+} FX_OBJECTBLUR;
+
+
+
 #define MOTION_BLUR			(1<<0)	// Standard effect - sets up basic blur data
 #define VERTEX_WODGE		(1<<1)  // Wibble vertices to make water / haze effect
 #define TILE_SHRINK_HORZ	(1<<2)	// Start shrinking tiles to nothing horizontally

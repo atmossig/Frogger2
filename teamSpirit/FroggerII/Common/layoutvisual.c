@@ -622,6 +622,7 @@ void FreeAllLists()
 	FreeFXSmokeLinkedList();
 	FreeFXRippleLinkedList();
 	FreeFXExplodeParticleLinkedList();
+	FreeFXObjectBlurLinkedList();
 	FreeSpriteFrameLists();
 	FreeGaribLinkedList();
 	FreeTextOverlayLinkedList();
