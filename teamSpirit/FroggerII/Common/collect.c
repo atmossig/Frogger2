@@ -410,8 +410,6 @@ void UpdateScreenSpawn(void)
 
 void PickupCollectable(GARIB *garib, int pl)
 {
-	CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->sprite.pos, &upVec, 50, 0, 0, 1.5 );
-
 	switch(garib->type)
 	{
 		case SPAWN_GARIB:
@@ -431,6 +429,9 @@ void PickupCollectable(GARIB *garib, int pl)
 			player[0].spawnTimer = SPAWN_SCOREUPTIMER;
 
 			CreateAndAddSpawnScoreSprite(&garib->sprite.pos,player[0].spawnScoreLevel);
+
+			CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->sprite.pos, &upVec, 25, 0.0, 0.1, 1.5 );
+
 			player[0].score += (player[0].spawnScoreLevel * 10);
 			player[0].numSpawn++;
 			PlaySample(0,&garib->sprite.pos,192,118 + (player[0].spawnScoreLevel * 10));

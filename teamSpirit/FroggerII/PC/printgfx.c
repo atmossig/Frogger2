@@ -767,9 +767,9 @@ void DrawFXRipple( SPECFX *ripple )
 
 	if(	ripple->type == FXTYPE_GARIBCOLLECT )
 	{
-		q.x = ripple->normal.v[X];
-		q.y = ripple->normal.v[Y];
-		q.z = ripple->normal.v[Z];
+		SetVector( (VECTOR *)&q, &ripple->normal );
+		ripple->speed += ripple->accn;
+		q.w = ripple->speed * gameSpeed;
 
 		for( i=0; i<4; i++ )
 			RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
