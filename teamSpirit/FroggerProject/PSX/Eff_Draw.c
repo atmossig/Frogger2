@@ -259,7 +259,11 @@ void DrawFXRipple( SPECFX *ripple )
 
 	}
 
+	#ifdef PSX_VERSION
+	Print3D3DSprite ( ripple, vT, colour );
+	#else
 	Print3D3DSprite ( ripple->tex, vT, colour,ripple->a );
+	#endif
 }
 
 
@@ -319,7 +323,12 @@ void DrawFXRing( SPECFX *ring )
 			vT[j].vy += ring->origin.vy;
 			vT[j].vz += ring->origin.vz;
  		}
-		Print3D3DSprite ( ring->tex, vT, colour, ring->a );
+		#ifdef PSX_VERSION
+		Print3D3DSprite ( ring, vT, colour );
+		#else
+		Print3D3DSprite ( ring->tex, vT, colour,ring->a );
+		#endif
+
  	}
 }
  
@@ -370,7 +379,12 @@ void DrawFXTrail( SPECFX *trail )
 		vT[3].vy += trail->origin.vy;
 		vT[3].vz += trail->origin.vz;
 
-		Print3D3DSprite ( trail->tex, vT, colour, trail->a );
+		#ifdef PSX_VERSION
+		Print3D3DSprite ( trail, vT, colour );
+		#else
+		Print3D3DSprite ( trail->tex, vT, colour,ripple->a );
+		#endif
+
  
  		if( ++i >= trail->numP ) i=0;
  
@@ -484,7 +498,11 @@ void DrawFXLightning( SPECFX *fx )
 // 		memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 // Draw polys, if they're not clipped
 
-		Print3D3DSprite ( fx->tex, vT, colour, fx->a );
+		#ifdef PSX_VERSION
+		Print3D3DSprite ( fx, vT, colour );
+		#else
+		Print3D3DSprite ( fx->tex, vT, colour,ripple->a );
+		#endif
  
  		i++;
  	} 
