@@ -154,6 +154,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	actor = (ACTOR *)MALLOC0(len);
 	
 	// flush memory
+	//bbxx don't need this zeroing
 	amem = (ULONG *)actor;
 	for (i=0; i<(len/4); i++)
 		*amem++ = 0;
