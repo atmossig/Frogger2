@@ -145,6 +145,15 @@ BEGIN
     PUSHBUTTON      "&Setup...",ID_SETUP,245,92,50,14,WS_DISABLED
 END
 
+IDD_KEYPRESS DIALOG DISCARDABLE  0, 0, 97, 52
+STYLE DS_MODALFRAME | WS_POPUP
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,23,35,50,14
+    CTEXT           "Press your desired key, or click Cancel",IDC_STATIC,1,
+                    10,95,20
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -192,6 +201,14 @@ BEGIN
         RIGHTMARGIN, 295
         TOPMARGIN, 7
         BOTTOMMARGIN, 106
+    END
+
+    IDD_KEYPRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 90
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 45
     END
 END
 #endif    // APSTUDIO_INVOKED

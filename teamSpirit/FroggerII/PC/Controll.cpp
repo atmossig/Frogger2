@@ -664,6 +664,21 @@ BOOL SetupControllers(HWND hwnd)
 		(DLGPROC)ControllerDlgProc);
 }
 
+BOOL CALLBACK KeypressDlg(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDCANCEL:
+			EndDialog(hDlg, wParam);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: MakeKeyMap

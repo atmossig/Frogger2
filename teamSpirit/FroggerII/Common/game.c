@@ -782,39 +782,6 @@ void RunGameLoop (void)
 			}
 		}
 
-		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,0);
-		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,0);
-		bronzeCup[2] = CreateAndAddSpriteOverlay(230,52,"bronz003.bmp",32,32,255,0);
-		bronzeCup[3] = CreateAndAddSpriteOverlay(262,52,"bronz004.bmp",32,32,255,0);
-		bronzeCup[4] = CreateAndAddSpriteOverlay(20,20,"bronz001.bmp",32,32,255,0);
-		bronzeCup[5] = CreateAndAddSpriteOverlay(52,20,"bronz002.bmp",32,32,255,0);
-		bronzeCup[6] = CreateAndAddSpriteOverlay(20,52,"bronz003.bmp",32,32,255,0);
-		bronzeCup[7] = CreateAndAddSpriteOverlay(52,52,"bronz004.bmp",32,32,255,0);
-		for(i=0; i<8; i++)
-			DisableSpriteOverlay(bronzeCup[i]);
-		
-		silverCup[0] = CreateAndAddSpriteOverlay(230,20,"silv001.bmp",32,32,255,0);
-		silverCup[1] = CreateAndAddSpriteOverlay(262,20,"silv002.bmp",32,32,255,0);
-		silverCup[2] = CreateAndAddSpriteOverlay(230,52,"silv003.bmp",32,32,255,0);
-		silverCup[3] = CreateAndAddSpriteOverlay(262,52,"silv004.bmp",32,32,255,0);
-		silverCup[4] = CreateAndAddSpriteOverlay(20,20,"silv001.bmp",32,32,255,0);
-		silverCup[5] = CreateAndAddSpriteOverlay(52,20,"silv002.bmp",32,32,255,0);
-		silverCup[6] = CreateAndAddSpriteOverlay(20,52,"silv003.bmp",32,32,255,0);
-		silverCup[7] = CreateAndAddSpriteOverlay(52,52,"silv004.bmp",32,32,255,0);
-		for(i=0; i<8; i++)
-			DisableSpriteOverlay(silverCup[i]);
-
-		goldCup[0] = CreateAndAddSpriteOverlay(230,20,"gold001.bmp",32,32,255,0);
-		goldCup[1] = CreateAndAddSpriteOverlay(262,20,"gold002.bmp",32,32,255,0);
-		goldCup[2] = CreateAndAddSpriteOverlay(230,52,"gold003.bmp",32,32,255,0);
-		goldCup[3] = CreateAndAddSpriteOverlay(262,52,"gold004.bmp",32,32,255,0);
-		goldCup[4] = CreateAndAddSpriteOverlay(20,20,"gold001.bmp",32,32,255,0);
-		goldCup[5] = CreateAndAddSpriteOverlay(52,20,"gold002.bmp",32,32,255,0);
-		goldCup[6] = CreateAndAddSpriteOverlay(20,52,"gold003.bmp",32,32,255,0);
-		goldCup[7] = CreateAndAddSpriteOverlay(52,52,"gold004.bmp",32,32,255,0);
-		for(i=0; i<8; i++)
-			DisableSpriteOverlay(goldCup[i]);
-
 		if (player[0].worldNum==9)
 		{
 		//	CreateOverlays();
@@ -1174,22 +1141,6 @@ void RunLevelCompleteSequence()
 		babyIcons[i]->xPos -= ((float)babyIcons[i]->xPos - ((20.0F*i)+115.0F)) / 16.0F;
 		babyIcons[i]->yPos -= ((float)babyIcons[i]->yPos - (65.0F)) / 16.0F;
 		babyIcons[i]->animSpeed = 1.5F;
-	}
-							
-	switch(award)
-	{
-		case 0:
-			for(i=0; i<8; i++)
-				EnableSpriteOverlay(goldCup[i]);
-			break;
-		case 1:
-			for(i=0; i<8; i++)
-				EnableSpriteOverlay(silverCup[i]);
-			break;
-		case 2:
-			for(i=0; i<8; i++)
-				EnableSpriteOverlay(bronzeCup[i]);
-			break;
 	}
 }
 
