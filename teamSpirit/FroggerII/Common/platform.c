@@ -144,7 +144,7 @@ void UpdatePlatforms()
 			}
 		}
 
-		// check if this enemy is currently 'waiting' at a node
+		// check if this paltform is currently 'waiting' at a node
 		if(cur->isWaiting)
 		{
 			if(cur->isWaiting == -1)
@@ -153,14 +153,7 @@ void UpdatePlatforms()
 			if(actFrameCount > cur->path->startFrame)
 				cur->isWaiting = 0;
 			else
-			{
-				// if enemy is following a path, do a slerp so it'll rotate nicely
-				// (except the way I do it is a bit poo - Dave)
-				if(cur->flags & PLATFORM_NEW_FOLLOWPATH && !(cur->flags & PLATFORM_NEW_FACEFORWARDS))
-					RotateWaitingPlatform(cur);
-
 				continue;
-			}
 		}
 
 		// call update function for individual platform type
@@ -1171,36 +1164,6 @@ void FrogLeavePlatform(long pl)
 	}
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: RotateWaitingPlatform
-	Purpose			: rotates a currently waiting platform
-	Parameters		: PLATFORM *
-	Returns			: void
-	Info			: 
-*/
-void RotateWaitingPlatform(PLATFORM *cur)
-{
-	QUATERNION q,res;
-	float t;
-	VECTOR fromPosition,toPosition,fwd;
-	long start_t,end_t,time;
-	
-	end_t = cur->path->startFrame;
-	time = cur->isWaiting*waitScale;
-	start_t = end_t - time;
-
-	t = 1.0 - (float)(actFrameCount-start_t)/(float)(time);
-
-	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
-	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
-	
-	SubVector(&fwd,&toPosition,&fromPosition);
-	MakeUnit(&fwd);
-	Orientate(&q,&fwd,&inVec,&cur->currNormal);
-	QuatSlerp(&q,&cur->pltActor->actor->qRot,t,&res);
-	SetQuaternion(&cur->pltActor->actor->qRot,&res);
-}
 
 
 //----- [ PLATFORM UPDATE FUNCTIONS ] ------------------------------------------------------------

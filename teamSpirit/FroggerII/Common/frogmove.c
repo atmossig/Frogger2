@@ -717,13 +717,14 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		// check if platform is too high to reach
 		if(PlatformTooHigh(destPlatform[pl],pl))
 		{
-			// platform too high (too many joints ?)
+			// platform too high (smoked too many funny fags ?)
 			dprintf"Platform TOO HIGH\n"));
 
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 			if(destPlatform[pl]->flags & PLATFORM_NEW_NOWALKUNDER)
 			{
+				// cannot fall to tile 'under' platform as cannot walk under this platform
 				player[pl].canJump = 1;
 				player[pl].isSuperHopping = 0;
 				player[pl].isLongHopping = 0;
@@ -743,14 +744,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			}
 
 			destPlatform[pl] = NULL;
-
-			// if frog was on platform, place back on the platform
-			if(currPlatform[pl])
-			{
-				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-				currPlatform[pl]->carrying = frog[pl];
-				return FALSE;
-			}
 
 			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 		}

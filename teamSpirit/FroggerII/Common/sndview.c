@@ -384,28 +384,6 @@ unsigned long sfx		= 1;
 unsigned long mus		= 0;
 int sfxRes				= 0;
 
-float waterFreq[2] = { 80, 41 };
-float waterFactor[2] = { 0.004, 0.008 };
-float waterF = 0.1;
-float waterWaveHeight[2] = { 20, -10 };
-VECTOR waterCentre[2] = { { 25,0,25 },{ -15,0,0 } };
-
-float waterWaveHeightBase[2] = { 10,8 };
-float waterWaveHeightAmp[2] = { 20,10 };
-float waterWaveHeightFreq[2] = { 101, 102 };
-float watRot[2] = { 0,0 };
-
-int waterMode = 1;
-int waterX = 11;
-int waterY = 11;
-
-float *waterVel = NULL;
-
-float dist[2];
-VECTOR tempVect;
-
-float watX = 0,watY = -30,watZ = 50;
-ACTOR2 *watActor = NULL;
 
 /*	--------------------------------------------------------------------------------
 	Function		: RunSndView
@@ -472,7 +450,7 @@ void RunSndView()
 		sprPane = CreateAndAddSpriteOverlay(25,115,"tippane.bmp",270,105,255,255,255,191,0);
 
 		// add the water actor
-		watActor = CreateAndAddActor("eleven.obe",watX,watY,watZ,0,0,0);
+		watActor = CreateAndAddActor("eleven.obe",0,-30,50,0,0,0);
 		watActor->flags = ACTOR_DRAW_ALWAYS;
 
 		watActor->actor->qRot.x = -0.25;
