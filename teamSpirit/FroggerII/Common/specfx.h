@@ -27,6 +27,10 @@ extern short fadeStep;
 extern char pauseMode;
 
 
+#define ENTITY_PLATFORM		1
+#define ENTITY_ENEMY		2
+
+
 // These are used in the editor and translated into effect parameters later
 #define EF_RIPPLE_RINGS					(1 << 0)	// Lillypad thing
 #define EF_SMOKE_STATIC					(1 << 1)	// Smoke that doesn't grow
