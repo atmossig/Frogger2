@@ -36,28 +36,16 @@ TEXENTRY *texList = NULL;
 void FreeAllTextureBanks()
 {
 	TEXENTRY *cur, *next;
+	int numTextures;
 
-	cur		= texList;
-
-	numTextures = 0;
-	while ( cur )
+	for (cur = texList, numTextures = 0; cur; cur = next, numTextures++)
 	{
 		next = cur->next;
-
-		//ReleaseSurface(cur->surf); cur->surf = NULL; // aaaghhh
-		//dprintf "Releasing %08x returns %d\n", cur->surf, IDirectDraw_Release(cur->surf)));
-
 		IDirectDraw_Release(cur->surf);
 		cur->surf = NULL;
 
 		JallocFree((BYTE**)&cur->data);
-//		JallocFree((BYTE**)&tme->hdl);
 		JallocFree((BYTE**)&cur);
-
-		cur = next;
-
-
-		numTextures++;
 	}
 
 	dprintf"Freed %d Textures\n",numTextures ));
