@@ -80,7 +80,7 @@ typedef struct _SAMPLE
 {
 	struct _SAMPLE			*next, *prev;
 
-//	char					*idName;
+	char					*idName;
 	unsigned long			flags;
 	unsigned long			uid;
 
@@ -172,6 +172,7 @@ extern void SetSampleFormat ( SAMPLE *sample );
 
 
 extern int PlaySample(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch);
+int StopSample( SAMPLE *sample );
 void PlaySfxMappedSample( MDX_ACTOR *act );
 extern void UpdateAmbientSounds();
 

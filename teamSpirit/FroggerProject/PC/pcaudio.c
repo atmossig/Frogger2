@@ -180,6 +180,9 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 
 	sfx->uid = UpdateCRC(name);
 
+	sfx->idName = (char *)MALLOC0(strlen(name)+2);
+	strcpy( sfx->idName, name );
+
 	// Create full name
 	fileName = (char *)MALLOC0( (strlen(path) + strlen(file))+5 );
 	strcpy( fileName, path );
@@ -293,6 +296,28 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	return (int)lpdsBuffer;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: StopSample
+	Purpose			: stops a playing sample
+	Parameters		: sample
+	Returns			: success?
+	Info			: Only works for unique samples - any buffered copies will keep playing
+*/
+int StopSample( SAMPLE *sample )
+{
+	unsigned long bufStatus;
+
+	sample->lpdsBuffer->lpVtbl->GetStatus( sample->lpdsBuffer, &bufStatus );
+
+	if( bufStatus & DSBSTATUS_PLAYING )
+	{
+		sample->lpdsBuffer->lpVtbl->Stop( sample->lpdsBuffer );
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: PlaySample
