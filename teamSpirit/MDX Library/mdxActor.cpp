@@ -45,7 +45,7 @@ MDX_ACTOR *actorList = NULL;
 #define MAX_UNIQUE_ACTORS	50
 int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 char numActorsUniqe = 0;
-void (*StartAnim)(TAG_MDX_ACTOR *me) = NULL;
+void (*StartAnim)(MDX_ACTOR *me) = NULL;
 
 
 unsigned long AddActorToList(MDX_ACTOR *me)
