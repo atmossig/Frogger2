@@ -166,6 +166,17 @@ typedef struct
 {
 	VECTOR	normal;
 	float	J;
+	VECTOR	vertex[3];
+	VECTOR	edge[3];
+	float	edgeLen[3];
+#ifdef STORE_EDGE_J
+	float	edgeJ[3];
+#endif
+	float	u1,u2;
+	float	v1,v2;
+	UBYTE	terrain;
+	UBYTE	i[2];
+	UBYTE	space;
 
 }PLANE;
 
