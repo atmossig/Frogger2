@@ -330,11 +330,36 @@ void UpdateFroggerPos(long pl)
 	// But first... platforms
 	if (currPlatform[pl])
 	{
-		currTile[pl] = currPlatform[pl]->inTile[0];
+		//currTile[pl] = currPlatform[pl]->inTile[0];
 	
-/*
 		PLATFORM *plat = currPlatform[pl];
-		GAMETILE *dest = plat->inTile[0];
+		GAMETILE *tile = plat->inTile[0];
+
+		if (tile != currTile[pl])
+		{
+			// if we're moving onto a barred tile, push the frog in the other direction
+			if (plat->inTile[0]->state == TILESTATE_BARRED)
+			{
+				VECTOR v;
+				
+				SubVector(&v,
+					&plat->path->nodes[plat->path->fromNode].worldTile->centre,
+					&plat->path->nodes[plat->path->toNode].worldTile->centre);
+					
+				PushFrog(&plat->pltActor->actor->pos, &v, pl);
+				AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
+			}
+
+			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
+			currTile[pl] = tile;
+			
+			SitAndFace(frog[pl], tile, frogFacing[pl]); // this is kinda unreliable..
+
+			CheckTileForCollectable(tile, pl);
+		}
+		
+		
+/*		GAMETILE *dest = plat->inTile[0];
 		if (dest != currTile[pl])
 		{
 			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, dest);

@@ -870,43 +870,9 @@ void UpdatePathPlatform(PLATFORM *plat)
 	}
 	else if (actFrameCount > ((plat->path->startFrame + plat->path->endFrame) / 2))
 	{
-		// when we've gone past half-way (i.e. after half the current movement time),
-		// set the current "in" tile to halfway.
-		GAMETILE *nextTile = plat->path->nodes[plat->path->toNode].worldTile;
-
-		// TODO[: Move this section to FROGMOVE.c
-		if (plat->carrying)
-		{
-			int i, pl = -1;
-			// We need to find which frog we're carrying (yeeeeeesh)
-			for (i=0; i<4; i++)
-				if (frog[i] == plat->carrying)
-				{
-					pl = i; break;
-				}
-
-			// if we're moving onto a barred tile, push the frog in the other direction
-			if (nextTile->state == TILESTATE_BARRED)
-			{
-				VECTOR v;
-				
-				SubVector(&v,
-					&plat->path->nodes[plat->path->fromNode].worldTile->centre,
-					&plat->path->nodes[plat->path->toNode].worldTile->centre);
-					
-				PushFrog(&plat->pltActor->actor->pos, &v, pl);
-				AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
-			}
-
-			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], nextTile);
-			currTile[pl] = plat->inTile[0];
-			SitAndFace(frog[pl],currTile[pl],frogFacing[pl]);
-
-			CheckTileForCollectable( nextTile, pl );
-		}
-
-		plat->inTile[0] = nextTile;
+		plat->inTile[0] = plat->path->nodes[plat->path->toNode].worldTile;
 	}
+
 }
 
 
