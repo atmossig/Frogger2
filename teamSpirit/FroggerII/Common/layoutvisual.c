@@ -590,13 +590,13 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	// initialise the various lists
 	InitSpriteFrameLists();
+	InitSpriteOverlayLinkedList();
+	InitTextOverlayLinkedList();
 	InitSpecFXList();
 	InitBabyList( TRUE ); // MUST BE DONE BEFORE ENEMY INITS!
 	InitEnemyLinkedList();
 	InitPlatformLinkedList();
 	InitGaribLinkedList();
-	InitSpriteOverlayLinkedList();
-	InitTextOverlayLinkedList();
 	InitTriggerList();
 	Init3DTextList( );
 	InitTongues( );
