@@ -230,6 +230,8 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->draw	= 0;
 	newItem->flags	|= ACTOR_DRAW_CULLED;
 	newItem->radius	= 0.0F;
+	newItem->animSpeed = 1.0F;
+	newItem->value1 = 0.0F;
 
 	// add actor object sprites to sprite list
 	if((newItem->actor->objectController) && (newItem->actor->objectController->object))

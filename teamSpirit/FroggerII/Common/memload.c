@@ -8,7 +8,7 @@
 
 /*	-------------------------------------------------------------------------------- */
 
-#define MEMLOAD_ENTITY_VERSION 10
+#define MEMLOAD_ENTITY_VERSION 11
 #define MEMLOAD_EVENT_VERSION 1
 
 int MemLoadTrigger(UBYTE** p, long size);
@@ -59,7 +59,7 @@ inline char *MemLoadString(UBYTE **p)
 int MemLoadEntities(const void* data, long size)
 {
 	int count, flags, numNodes, startNode, n, ID;
-	float scale, radius;
+	float scale, radius, animSpeed, value1;
 	UBYTE thing;
 	char type[20];
 	PATH *path;
@@ -95,6 +95,8 @@ int MemLoadEntities(const void* data, long size)
 			ID		= MEMGETINT(&p);
 			scale	= MEMGETFLOAT(&p);
 			radius	= MEMGETFLOAT(&p);
+			animSpeed = MEMGETFLOAT(&p);
+			value1 = MEMGETFLOAT(&p);
 			startNode = MEMGETINT(&p);
 		
 			numNodes = MEMGETINT(&p);
@@ -142,6 +144,8 @@ int MemLoadEntities(const void* data, long size)
 			act->actor->scale.v[X] = scale;
 			act->actor->scale.v[Y] = scale;
 			act->actor->scale.v[Z] = scale;
+			act->animSpeed = animSpeed;
+			act->value1 = value1;
 
 			break;
 
@@ -159,6 +163,11 @@ int MemLoadEntities(const void* data, long size)
 			v.v[Y] = MEMGETFLOAT(&p);
 			v.v[Z] = MEMGETFLOAT(&p);
 			
+			// A vector that isn't used yet
+			MEMGETFLOAT(&p);
+			MEMGETFLOAT(&p);
+			MEMGETFLOAT(&p);
+
 			numNodes = MEMGETINT(&p);
 			while (numNodes--)
 			{
