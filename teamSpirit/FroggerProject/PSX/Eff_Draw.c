@@ -97,7 +97,7 @@ void ProcessShadows()
 			size = FDiv( frog[i]->actor->shadow->radius, scale );
 			alpha = FDiv( ToFixed(frog[i]->actor->shadow->alpha), scale )>>13;
 
-			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, frog[i]->depthShift+1 );
+			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, frog[i]->depthShift+5 );
 		}
 
 	//------------------------------------------------------------------------------------------------
@@ -123,9 +123,9 @@ void ProcessShadows()
 			alpha = FDiv( ToFixed(nme->nmeActor->actor->shadow->alpha), scale )>>13;
 
 			if (nme->path->nodes[nme->path->fromNode].worldTile==nme->inTile)
-				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, nme->nmeActor->depthShift+1 );
+				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, nme->nmeActor->depthShift+5 );
 			else
-				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, nme->nmeActor->depthShift+1 );
+				DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, nme->nmeActor->depthShift+5 );
 		}
 	}
 
@@ -149,7 +149,7 @@ void ProcessShadows()
 			size = FDiv( plat->pltActor->actor->shadow->radius, scale );
 			alpha = FDiv( ToFixed(plat->pltActor->actor->shadow->alpha), scale )>>13;
 
-			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, plat->pltActor->depthShift+1 );
+			DrawShadow( &pos, &up, size>>12, -(height>>12)+10, alpha, tex, plat->pltActor->depthShift+5 );
 		}
 	}
 }
