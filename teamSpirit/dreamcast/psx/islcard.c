@@ -26,6 +26,22 @@ static Uint32					gState;
 static BUS_BACKUPFILEHEADER		saveHeader;
 static char						loadSaveBuffer[8192];
 
+Uint32 portNos[] = { 
+  PDD_PORT_A1, PDD_PORT_A2,
+  PDD_PORT_B1, PDD_PORT_B2,
+  PDD_PORT_C1, PDD_PORT_C2,
+  PDD_PORT_D1, PDD_PORT_D2,
+};
+Sint8 *portlit[] = {
+  "A1", "A2",
+  "B1", "B2",
+  "C1", "C2",
+  "D1", "D2",
+};
+
+unsigned long vmuPortToUse = PDD_PORT_A1;
+unsigned long vmuDriveToUse = BUD_DRIVE_A1;
+
 /**************************************************************************
 	FUNCTION:	cardInitialise()
 	PURPOSE:	Initialise memory card routines
@@ -54,7 +70,7 @@ static int translateErrorCode()
 {
 	Sint32	err;
 
-	err = buGetLastError(DRIVE);
+	err = buGetLastError(vmuDriveToUse);
 	switch(err)
 	{
 	case BUD_ERR_OK:				// No error
@@ -87,7 +103,7 @@ static int translateErrorCodeRead()
 {
 	Sint32	err;
 
-	err = buGetLastError(DRIVE);
+	err = buGetLastError(vmuDriveToUse);
 	switch(err)
 	{
 	case BUD_ERR_OK:				// No error
@@ -180,31 +196,35 @@ int cardRead(char *memCardName, void *gSaveData, int gameSaveDataSize)
 	
 	
 	cardDisplay(LCD_loading);
-	while(!pdVmsLcdIsReady(PDD_PORT_A1))
+	while(!pdVmsLcdIsReady(vmuPortToUse))
 	{
 		if(timeOut++ > 1000)
 			return 	CARDREAD_NOCARD;
 	}
 
 	gState = S_NOT_READY;
+	timeOut = 0;
 
 	while(1)
 	{
-		binfo = BupGetInfo(DRIVE);
+		binfo = BupGetInfo(vmuDriveToUse);
 		switch (gState)
 		{
 		case S_NOT_READY:
+			if(timeOut++ > 1000)
+				return 	CARDREAD_NOCARD;
+
 			if (binfo->Ready)
 				gState = S_READY;
 			break;
 		case S_READY:
-			BupLoad(DRIVE, memCardName, loadSaveBuffer);
+			BupLoad(vmuDriveToUse, memCardName, loadSaveBuffer);
 			gState = S_LOAD;
 			if (!binfo->Ready)
 				gState = S_NOT_READY;
 			break;
 		case S_LOAD:
-			if (buStat(DRIVE) == BUD_STAT_READY)
+			if (buStat(vmuDriveToUse) == BUD_STAT_READY)
 				gState = S_COMPLETE;
 			break;
 		case S_COMPLETE:
@@ -244,7 +264,7 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 	int						rtn;
 
 	cardDisplay(LCD_saving);
-	while(!pdVmsLcdIsReady(PDD_PORT_A1));
+	while(!pdVmsLcdIsReady(vmuPortToUse));
 
 	memset(&hdr, 0, sizeof(hdr));
 	strcpy(hdr.vms_comment, GAMENAME16);
@@ -266,7 +286,7 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 
 	while(1)
 	{
-		binfo = BupGetInfo(DRIVE);
+		binfo = BupGetInfo(vmuDriveToUse);
 		switch (gState)
 		{
 		case S_NOT_READY:
@@ -274,13 +294,13 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 				gState = S_READY;
 			break;
 		case S_READY:
-			BupSave(DRIVE, memCardName, buf, nblock);
+			BupSave(vmuDriveToUse, memCardName, buf, nblock);
 			gState = S_SAVE;
 			if (!binfo->Ready)
 				gState = S_NOT_READY;
 			break;
 		case S_SAVE:
-			if (buStat(DRIVE) == BUD_STAT_READY)
+			if (buStat(vmuDriveToUse) == BUD_STAT_READY)
 				gState = S_COMPLETE;
 			break;
 		case S_COMPLETE:
@@ -310,10 +330,10 @@ int cardWrite(char *memCardName, void *gSaveData, int gSaveDataSize)
 void cardDisplay(Uint8 *bitmap)
 {
 	int		loop;
-	pdGetPeripheral(PDD_PORT_A1);
-	pdLcdGetDirection(PDD_PORT_A1);
-	if (pdVmsLcdIsReady(PDD_PORT_A1))
-		while(pdVmsLcdWrite(PDD_PORT_A1, bitmap, PDD_LCD_FLAG_HVFLIP) == PDD_LCDERR_BUSY);
+	pdGetPeripheral(vmuPortToUse);
+	pdLcdGetDirection(vmuPortToUse);
+	if (pdVmsLcdIsReady(vmuPortToUse))
+		while(pdVmsLcdWrite(vmuPortToUse, bitmap, PDD_LCD_FLAG_HVFLIP) == PDD_LCDERR_BUSY);
 
 /*	for(loop=0; loop<60; loop++)
 #ifdef _NINJA_
@@ -321,7 +341,7 @@ void cardDisplay(Uint8 *bitmap)
 #else
 		kmWaitVBlank();
 #endif
-	pdVmsLcdWrite(PDD_PORT_A1, LCD_saving, PDD_LCD_FLAG_HVFLIP);
+	pdVmsLcdWrite(vmuPortToUse, LCD_saving, PDD_LCD_FLAG_HVFLIP);
 	for(loop=0; loop<60; loop++)
 #ifdef _NINJA_
 		njWaitVSync();

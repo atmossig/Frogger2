@@ -27,7 +27,7 @@
 /*===============================================================*/
 
 #define MAX_DRIVES 8
-#define USE_DRIVES BUD_USE_DRIVE_A1
+#define USE_DRIVES BUD_USE_DRIVE_ALL
 
 
 /*===============================================================*/

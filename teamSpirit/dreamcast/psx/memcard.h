@@ -16,4 +16,6 @@ int gameSaveGetCardStatus();
 void SaveGame(void);
 void LoadGame(void);
 
+int CheckVMUs( );
+
 #endif

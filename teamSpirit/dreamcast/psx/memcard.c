@@ -171,53 +171,7 @@ int gameSaveHandleLoad(int justChecking)
 	if(justChecking)
 	{
 		utilPrintf("Checking Save Game\n");
-		res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
-		switch(res)
-		{
-			case CARDREAD_OK:
-			{
-				utilPrintf("No errors\n");
-				break;
-			}
-			case CARDREAD_NOCARD:
-			{
-				utilPrintf("No card in slot\n");
-				break;
-			}
-			case CARDREAD_BADCARD:
-			{
-				utilPrintf("Bad card in slot\n");
-				break;
-			}
-			case CARDREAD_NOTFORMATTED:
-			{
-				utilPrintf("Card unformatted\n");
-				break;
-			}
-			case CARDREAD_NOTFOUND:
-			{
-				utilPrintf("No game save data found\n");
-				break;
-			}
-			case CARDREAD_CORRUPT:
-			{
-				utilPrintf("Game save data corrupted\n");
-				break;
-			}
-			case CARDREAD_NOTFOUNDANDFULL:
-			{
-				utilPrintf("No game save data found and card is full\n");
-				break;
-			}
-			default:
-			{
-				utilPrintf("MESSAGE: %d\n",res);				
-				break;
-			}
-		} //end 
-
-
-		return res;
+		return CheckVMUs();
 	}
 
 	//make buffer
@@ -1021,4 +975,45 @@ void LoadGame(void)
 		StartChooseLoadSave(YES);
 }
 
+int CheckVMUs( )
+{
+	int i, j, port, pad, fcStat=CARDREAD_NOCARD, res;
 
+	// Check 4 pads
+	for( i=0,pad=firstPad; i<4; i++, pad=(pad+1)%4 )
+	{
+		if( !padData.present[pad] )
+			continue;
+
+		// each with 6 possible expansions.
+		for( j=0; j<2; j++ )
+		{
+			// Port calculated from pad*6 (6 ports per pad) plus j (2 ports available as backup devices)
+			// plus 1 because PDD_PORT_x0 is the actual controller
+			vmuPortToUse = portNos[(pad*2)+j];
+			// 2 drives per controller
+			vmuDriveToUse = (pad*2)+j;
+			res = cardRead(SAVE_FILENAME, 0, SAVEGAME_SIZE+PSXCARDHEADER_SIZE); //checking, not loading
+
+			// Store state of first expansion of firstPad
+			if( !i && !j ) 
+				fcStat = res;
+
+			switch(res)
+			{
+				case CARDREAD_OK:
+					return res;
+				case CARDREAD_NOCARD:
+				case CARDREAD_BADCARD:
+				case CARDREAD_NOTFORMATTED:
+				case CARDREAD_NOTFOUND:
+				case CARDREAD_CORRUPT:
+				case CARDREAD_NOTFOUNDANDFULL:
+				default:
+					break;
+			}
+		}
+	}
+
+	return fcStat;
+}

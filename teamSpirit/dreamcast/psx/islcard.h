@@ -33,6 +33,10 @@
 #define CARDWRITE_NOTFORMATTED		4
 #define CARDWRITE_FULL				7
 
+extern Uint32 portNos[];
+extern Sint8 *portlit[];
+
+extern unsigned long vmuPortToUse, vmuDriveToUse;
 
 /**************************************************************************
 	FUNCTION:	cardInitialise()
