@@ -6,16 +6,13 @@
 	Programmer	: Andy Eder
 	Date		: 19/04/99 12:39:48
 
+	Define PRINT_TEXTURE_DEBUG to print lots of debug stuff!
+
 ----------------------------------------------------------------------------------------------- */
 
 #include <ultra64.h>
 
 #include "incs.h"
-
-
-#ifndef FOR_GODS_SAKE_STOP_PRINTING_CRAP
-#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
-#endif
 
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
 TEXTURE *tempTexture;
