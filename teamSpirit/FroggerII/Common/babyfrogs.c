@@ -280,7 +280,7 @@ void UpdateBabies( )
 	long dist;
 	float speed;
 
-	for( i=0; i<numBabies; i++ )
+	for( i=0; i<numBabies, babyList[i].baby; i++ )
 	{
 		baby = babyList[i].baby;
 		act = baby->actor;
