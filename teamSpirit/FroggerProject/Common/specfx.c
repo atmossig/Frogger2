@@ -40,14 +40,14 @@
 
 
 #ifdef PC_VERSION
-#define MAX_SPECFX	128
-#define MAX_PLANES	64
+int maxSpecfx = 128;
+int maxPlanes = 64;
 #else
-#define MAX_SPECFX	64
-#define MAX_PLANES	16
+int maxSpecfx	= 64;
+int maxPlanes	= 32;
 #endif
 
-#define FX_CLIPSTEP	(ACTOR_DRAWDISTANCEOUTER>>12)/MAX_SPECFX
+#define FX_CLIPSTEP	(ACTOR_DRAWDISTANCEOUTER>>12)/maxSpecfx
 
 SPECFXLIST sfxList;
 PLANE2LIST p2List;
@@ -1497,22 +1497,36 @@ void InitSpecFXList( )
 
 	sfxList.head.next = sfxList.head.prev = &sfxList.head;
 
+#ifdef PSX_VERSION
+	if ( ( player[0].worldNum == WORLDID_HALLOWEEN ) && ( player[0].levelNum == LEVELID_HALLOWEEN2 ) )
+	{
+		maxSpecfx = 128;
+		maxPlanes = 64;
+	}
+	else
+	{
+		maxSpecfx = 64;
+		maxPlanes = 32;
+	}
+	// ENDELSEIF
+#endif
+
 	sfxList.lastAdded = (SPECFX **)MALLOC0( sizeof(SPECFX *)*NUM_FXUPDATES );
 	// Allocate a big bunch of effects
-	sfxList.array = (SPECFX *)MALLOC0( sizeof(SPECFX)*MAX_SPECFX );
-	sfxList.stack = (SPECFX **)MALLOC0( sizeof(SPECFX*)*MAX_SPECFX );
+	sfxList.array = (SPECFX *)MALLOC0( sizeof(SPECFX)*maxSpecfx );
+	sfxList.stack = (SPECFX **)MALLOC0( sizeof(SPECFX*)*maxSpecfx );
 
 	// Initially, all effects are available
-	for( i=0; i<MAX_SPECFX; i++ )
+	for( i=0; i<maxSpecfx; i++ )
 		sfxList.stack[i] = &sfxList.array[i];
 
 	sfxList.count = 0;
 	sfxList.stackPtr = i-1;
 
 	// Allocate a big bunch of PLANE2s
-	p2List.array = (PLANE2 *)MALLOC0( sizeof(PLANE2)*MAX_PLANES );
-	p2List.stack = (PLANE2 **)MALLOC0( sizeof(PLANE2*)*MAX_PLANES );
-	for( i=0; i<MAX_PLANES; i++ )
+	p2List.array = (PLANE2 *)MALLOC0( sizeof(PLANE2)*maxPlanes );
+	p2List.stack = (PLANE2 **)MALLOC0( sizeof(PLANE2*)*maxPlanes );
+	for( i=0; i<maxPlanes; i++ )
 		p2List.stack[i] = &p2List.array[i];
 
 	p2List.count = 0;
@@ -1604,7 +1618,7 @@ SPECFX *AllocateFX( int number, int type )
 	short update;
 
 	// Return if allocation is impossible for any reason
-	if( (number <= 0) || (sfxList.stackPtr-number < 0) || (number >= MAX_SPECFX-sfxList.count) ) 
+	if( (number <= 0) || (sfxList.stackPtr-number < 0) || (number >= maxSpecfx-sfxList.count) ) 
 		return NULL;
 
 	update = updateMapping[type];
@@ -1639,7 +1653,7 @@ PLANE2 *AllocateP2( )
 	PLANE2 *p;
 
 	// Return if allocation is impossible for any reason
-	if( !p2List.stackPtr || p2List.count >= MAX_PLANES ) return NULL;
+	if( !p2List.stackPtr || p2List.count >= maxPlanes ) return NULL;
 
 	p = p2List.stack[p2List.stackPtr--];
 	p2List.count++;
@@ -1659,7 +1673,7 @@ void DeallocateFX( SPECFX *head, int number )
 	SPECFX *fx=head, *t;
 	int i;
 
-	if( !fx || !fx->next || (number<=0) || (sfxList.stackPtr+number >= MAX_SPECFX) ) 
+	if( !fx || !fx->next || (number<=0) || (sfxList.stackPtr+number >= maxSpecfx) ) 
 		return;
 
 	while( number-- )
@@ -1718,7 +1732,7 @@ void DeallocateFX( SPECFX *head, int number )
 
 void DeallocateP2( PLANE2 *p )
 {
-	if( !p || p2List.stackPtr >= MAX_PLANES ) 
+	if( !p || p2List.stackPtr >= maxPlanes ) 
 		return;
 
 	p2List.count--;

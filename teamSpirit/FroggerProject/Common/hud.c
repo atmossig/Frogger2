@@ -151,9 +151,9 @@ void InitArcadeHUD(void)
 	{
 		arcadeHud.timeFaceOver = CreateAndAddSpriteOverlay(3300,2932,"FROGWATCH01",4096,546,0xff,0);
 		arcadeHud.timeFaceOver->num = 0;
-		arcadeHud.timeHandOver = CreateAndAddSpriteOverlay(3300,2900,"CLK_HAND",600,700,0xff,0);
+		arcadeHud.timeHandOver = CreateAndAddSpriteOverlay(3300,3000,"CLK_HAND",600,700,0xff,0);
 		arcadeHud.timeHandOver->num = 1;
-		arcadeHud.timeHeadOver = CreateAndAddSpriteOverlay(3300,2900,"CLK_HEAD",600,700,0xff,0);
+		arcadeHud.timeHeadOver = CreateAndAddSpriteOverlay(3300,3000,"CLK_HEAD",600,700,0xff,0);
 		arcadeHud.timeHeadOver->num = 2;
 
 		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(2800,3600,timeStringMin,NO,255,fontSmall,TEXTOVERLAY_SHADOW);

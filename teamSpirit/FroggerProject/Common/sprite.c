@@ -28,12 +28,13 @@
 #include "newpsx.h"
 #include "Shell.h"
 #include "Main.h"
+#include "frogger.h"
 
 
 #ifdef PC_VERSION
-#define MAX_SPRITES	512
+int maxSprites	= 512;
 #else
-#define MAX_SPRITES	180
+int maxSprites	= 180;
 #endif
 
 /*	--------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ SPRITE *AllocateSprites( int number )
 {
 	SPRITE *s;
 	// Return if allocation is impossible for any reason
-	if( (number <= 0) || (sprList.stackPtr-number < 0) || (number >= MAX_SPRITES-sprList.count) ) return NULL;
+	if( (number <= 0) || (sprList.stackPtr-number < 0) || (number >= maxSprites-sprList.count) ) return NULL;
 
 	// Now we can go and allocate sprites with gay abandon
 	while( number-- )
@@ -78,7 +79,7 @@ void DeallocateSprites( SPRITE *head, int number )
 {
 	SPRITE *s=head, *t;
 
-	if( !s || !s->next || (number<=0) || (sprList.stackPtr+number >= MAX_SPRITES) ) return;
+	if( !s || !s->next || (number<=0) || (sprList.stackPtr+number >= maxSprites) ) return;
 
 	while( number-- )
 	{
@@ -111,7 +112,7 @@ void FreeSpriteList( )
 	if( sprList.array )
 	{
 		// Remove all sprites in array from sprite list so they don't get removed after deallocation
-		for( i=0; i<MAX_SPRITES; i++ )
+		for( i=0; i<maxSprites; i++ )
 		{
 			if( !sprList.array[i].next ) continue;
 
@@ -147,14 +148,22 @@ void InitSpriteList( )
 {
 	int i;
 
+#ifdef PSX_VERSION
+	if ( ( player[0].worldNum == WORLDID_HALLOWEEN ) && ( player[0].levelNum == LEVELID_HALLOWEEN2 ) )
+		maxSprites = 256;
+	else
+		maxSprites = 180;
+	// ENDELSEIF
+#endif
+
 	sprList.head.next = sprList.head.prev = &sprList.head;
 
 	// Allocate a big bunch of sprites
-	sprList.array = (SPRITE *)MALLOC0( sizeof(SPRITE)*MAX_SPRITES );
-	sprList.stack = (SPRITE **)MALLOC0( sizeof(SPRITE*)*MAX_SPRITES );
+	sprList.array = (SPRITE *)MALLOC0( sizeof(SPRITE)*maxSprites );
+	sprList.stack = (SPRITE **)MALLOC0( sizeof(SPRITE*)*maxSprites );
 
 	// Initially, all sprites are available
-	for( i=0; i<MAX_SPRITES; i++ )
+	for( i=0; i<maxSprites; i++ )
 		sprList.stack[i] = &sprList.array[i];
 
 	sprList.count = 0;
