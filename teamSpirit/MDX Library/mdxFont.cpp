@@ -533,6 +533,7 @@ long WrapStringToArray(const char* str, long maxWidth, char* buffer, long buffer
 		
 		if(c == '@')
 		{
+			float rScale = (float)rXRes/640.0;
 			p++;
 			lineChars++;
 			wordChars++;
@@ -540,21 +541,21 @@ long WrapStringToArray(const char* str, long maxWidth, char* buffer, long buffer
 			switch(c)
 			{
 				case 'T':
-					charWidth = CalcStringWidth(DIKStrings[keymap[6].key][gameTextLang],font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[6].key][gameTextLang],font,rScale);
 					break;
 				case 'X':
-					charWidth = CalcStringWidth(DIKStrings[keymap[4].key][gameTextLang],font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[4].key][gameTextLang],font,rScale);
 					break;
 				case 'S':
-					charWidth = CalcStringWidth(DIKStrings[keymap[5].key][gameTextLang],font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[5].key][gameTextLang],font,rScale);
 					break;
 				case 'C':
-					charWidth = CalcStringWidth(DIKStrings[keymap[7].key][gameTextLang],font,1.0f);
+					charWidth = CalcStringWidth(DIKStrings[keymap[7].key][gameTextLang],font,rScale);
 					break;
 			}
 		}
 		else
-			charWidth = GetCharWidth(c, font, 1.0f);
+			charWidth = GetCharWidth(c, font, rScale);
 		
 		if (lineWidth+charWidth >= maxWidth || c == 0)
 		{
