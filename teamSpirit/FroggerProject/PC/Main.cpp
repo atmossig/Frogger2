@@ -624,6 +624,7 @@ long DrawLoop(void)
 		// Draw shadows between landscape and actors so we don't get z-buffer artifacts
 		if( !backdrop )
 		{
+			int i;
 			// Draw landscape
 			DrawAllFrames();
 			BlankAllFrames();
@@ -631,6 +632,9 @@ long DrawLoop(void)
 			D3DSetupRenderstates(xluZRS);
 			D3DSetupRenderstates(normalAlphaCmpRS);
 			ProcessShadows();
+			for( i=0; i<NUM_FROGS; i++ )
+				if( tongue[i].flags & TONGUE_BEINGUSED )
+					DrawTongue( i );
 			BeginDraw();
 
 			DrawBatchedPolys();

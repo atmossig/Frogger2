@@ -28,6 +28,7 @@ void DrawFXTrail( SPECFX *fx );
 void DrawFXLightning( SPECFX *fx );
 
 void ProcessShadows();
+void DrawTongue( int pl );
 
 #ifdef __cplusplus
 }

@@ -34,7 +34,6 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *fx, int i );
 void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i );
 
 void DrawShadow( MDX_VECTOR *pos, MDX_VECTOR *normal, float size, float offset, short alpha, MDX_TEXENTRY *tex );
-void DrawTongue( int pl );
 
 
 /*	--------------------------------------------------------------------------------
@@ -57,10 +56,6 @@ void DrawSpecialFX()
 			if( fx->Draw )
 				fx->Draw( fx );
 	}
-
-	for( i=0; i<NUM_FROGS; i++ )
-		if( tongue[i].flags & TONGUE_BEINGUSED )
-			DrawTongue( i );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -800,7 +795,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	// Precalculated rotation
 	PushMatrix( (MDX_MATRIX *)rMtrx );
 
-	p1.vx = -20480+(i*1638);
+	p1.vx = (i)?(-20480+(i*1638)):0;
 	p1.vy = 0;
 	p1.vz = 0;
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
@@ -809,7 +804,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	vT[0].sz = p2.vz*ONEOVERFIXED;
 	vT[0].color = D3DRGBA(1,0,0,1);
 
-	p1.vx = 20480-(i*1638);
+	p1.vx = (i)?(20480-(i*1638)):0;
 	p1.vy = 0;
 	p1.vz = 0;
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
