@@ -127,7 +127,7 @@ static void vsyncCallback()
 {
 	frame++;
 	vsyncCounter++;
-	SpuFlush(SPU_EVENT_ALL);
+	//SpuFlush(SPU_EVENT_ALL);
 #if GOLDCD==0
 	asm("break 1024");
 #endif
@@ -361,7 +361,7 @@ int main ( )
 
 		MemCardInit(1);
 		MemCardStart();
-		padInitialise(1); // 0 = No multi tap support
+		padInitialise(0); // 0 = No multi tap support
 		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
 		textureInitialise ( 600, 24);
 
