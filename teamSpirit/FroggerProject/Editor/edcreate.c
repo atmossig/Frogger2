@@ -44,7 +44,7 @@ void EditorCreateEntities(void)
 	EDVECTOR v;
 	EDITPATHNODE *pn;
 	ACTOR2 *act;
-	int counts[4];
+	int counts[5];
 	int i;
 
 	for (i=0; i<4; i++) counts[i] = 0;
@@ -64,6 +64,14 @@ void EditorCreateEntities(void)
 	InitSpriteSortArray( );
 	FreeParticleList( );
 	InitParticleList( );
+
+	// count up each of our entity types
+
+	memset(counts, 0, sizeof(int) * 5);
+	for (i=0, node=createList->nodes; node; node=node->link, i++)
+		counts[((CREATEENTITY*)(node->thing))->thing]++;
+
+	AllocNmeBlock(counts[CREATE_ENEMY]+counts[CREATE_PLACEHOLDER]);
 
 	for (i=0; i<4; i++)
 		if (currPlatform[i])
@@ -120,8 +128,6 @@ void EditorCreateEntities(void)
 			// null object - do not display
 			if( !(stricmp(create->type,"TRANSOBJ.OBE")) || !(stricmp(create->type,"NOTHING.OBE")) || !(strnicmp(create->type,"NULL_",5)) )
 				act->draw = 0;
-
-			counts[0]++;
 			break;
 
 		case CREATE_PLACEHOLDER:
@@ -134,8 +140,6 @@ void EditorCreateEntities(void)
 			enemy->uid = create->ID;
 			enemy->nmeActor = act = NULL;
 			AddEnemy(enemy);
-
-			counts[0]++;
 			break;
 
 		case CREATE_PLATFORM:
@@ -162,8 +166,6 @@ void EditorCreateEntities(void)
 			// null object - do not display
 			if( !(stricmp(create->type,"TRANSOBJ.OBE")) || !(stricmp(create->type,"NOTHING.OBE")) || !(strncmp(create->type,"NULL_",5)) )
 				act->draw = 0;
-
-			counts[1]++;
 			break;
 
 		case CREATE_GARIB:
@@ -176,7 +178,6 @@ void EditorCreateEntities(void)
 		
 				SetVectorSR(&pos, &v);
 				CreateNewGarib(pos, create->flags);
-				counts[2]++;
 			}
 			break;
 
@@ -199,12 +200,10 @@ void EditorCreateEntities(void)
 				c->camLookAt.vy = GAMEFLOAT((float)((char)((create->startNode>>8) & 0xFF))/0x7F);		// oof! :o)
 				c->camLookAt.vz = GAMEFLOAT((float)((char)((create->startNode>>16) & 0xFF))/0x7F);
 			}
-
-			counts[3]++;
 			break;
 		}
 	}
 
-	sprintf(statusMessage, "Created %d enemies, %d plats, %d garibs, %d cam trans",
-		counts[0], counts[1], counts[2], counts[3]);
+	sprintf(statusMessage, "Created %d enemies, %d plats, %d garibs, %d cam trans, %d placeholders",
+		counts[0], counts[1], counts[2], counts[3], counts[4]);
 }
