@@ -159,11 +159,14 @@ void RunTitleScreen( )
 
 		if( (button & CONT_B) && !(lastbutton & CONT_B) )
 		{
+			MakeHiscoreText( );
+			/*
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
 			frontEndState.mode = HISCORE_MODE;
 			PlaySample ( 2,NULL,255,128);
+			*/
 		}
 
 		if( (button & CONT_START) && !(lastbutton & CONT_START) )
@@ -544,69 +547,11 @@ void RunPauseMenu( )
 	lastbutton = button;
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function 	: RunHiscoreScreen
-	Purpose 	: Draws 3d text of hiscore table as if floating on water
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
+// REMOVE THIS WHEN I CAN GET ALL THE FILES
 void RunHiscoreScreen( )
 {
-	static u16 button,lastbutton = 0;
 
-	button = controllerdata[ActiveController].button;
-
-	if( frameCount == 1 )
-	{
-		long i;
-		char hiScoreStr[32];
-
-		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
-
-		Init3DTextList( );
-
-		for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
-		{
-			// Create a 3D text object for each hiscore entry.
-			// Increase z and alter y so they form a perspective plane,
-			// in a StarWars stylee.
-
-			sprintf( hiScoreStr, /*"%s  %i  %i\0"*/"me"/*, hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time */);
-
-			CreateAndAdd3DText( hiScoreStr, 350,
-								128,128,128,255,
-								T3D_HORIZONTAL,
-								T3D_MOVE_SPIN,
-								&zero,
-								0,30,
-								0,30,300+(i*20),
-								0,0.0,0.0 );
-		}
-		CreateOverlays();
-	}
-
-	if(frameCount > 15)
-	{
-		// Move back in menus
-		if( ((button & CONT_A) && !(lastbutton & CONT_A)) ||
-			((button & CONT_B) && !(lastbutton & CONT_B)) )
-		{
-			FreeAllLists();
-			frameCount = 0;
-			lastbutton = 0;
-			frontEndState.mode	= TITLE_MODE;
-			PlaySample ( 2,NULL,255,128);
-			return;
-		}
-
-	}
-
-	lastbutton = button;
 }
-
 
 
 
