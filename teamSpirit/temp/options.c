@@ -907,7 +907,7 @@ void ExtraSelect(void)
 				{
 					if(i == 0)
 						sprintf(fmvStr[i],GAMESTRING(STR_FMV_1));
-					else if(i == NUM_FMV_SEQUENCES - 1)
+					else if(i == NUM_FMV_SEQUENCES - 1 - FMV_INTRO)
 						sprintf(fmvStr[i],GAMESTRING(STR_FMV_2));
 					else
 						sprintf(fmvStr[i],"%d - %s %s",i,GAMESTRING(STR_CHAPTER_1a + (i-1)*2),GAMESTRING(STR_CHAPTER_1b + (i-1)*2));
