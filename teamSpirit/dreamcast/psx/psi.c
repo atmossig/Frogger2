@@ -12,6 +12,7 @@ typedef struct{
 	SHORT x,y,z,w;
 }SHORTQUAT;
 
+
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
 //#define max(a,b) (((a) > (b)) ? (a) : (b))
 
@@ -29,6 +30,13 @@ extern int				biggestVertexModel;
 
 //#define SHOWNORM 1
 /***************************************************************************************************/
+
+
+// -------
+// Globals
+
+// *ASL* 1/08/2000 - Transformed vertices buffer
+TDCTransVector *alignedTransformedVertices = NULL;
 
 MATRIX		cameraAndGlobalscale;
 VECTOR 		*PSIactorScale = 0;
@@ -124,6 +132,9 @@ void *psiRegisterDrawFunction2(void (*drawHandler)(int))
 
 	return olddraw;
 }
+
+
+
 
 
 /***************************************************************************************************/
@@ -382,6 +393,9 @@ void psiInitialise(int maxModels)
 	biggestVertexModel = 0;
 	biggestPrimModel = 0;
 
+	// *ASL* 1/08/2000 - Initialise transformed vertices
+	alignedTransformedVertices = NULL;
+
 	psiModelListLen = 0;
 	pilLibraryLen = 0;
 
@@ -406,6 +420,12 @@ void psiInitialise(int maxModels)
 **************************************************************************/
 void psiDestroy()
 {
+	// *ASL* 1/08/2000 - Free our transformed vertices
+	if (alignedTransformedVertices != NULL)
+	{
+		FREE(alignedTransformedVertices);
+	}
+
 	FREE(transformedNormals);
 	FREE(transformedDepths);
 	FREE(transformedDepths2);
@@ -422,6 +442,9 @@ void psiDestroy()
 		pilLibraryLen--;
 	 	FREE(pilLibraryList[pilLibraryLen]);
 	}
+
+	// *ASL* 1/08/2000 - Zero transformed vertices
+	alignedTransformedVertices = NULL;
 
 	transformedVertices = 0;
 	transformedDepths = 0;
@@ -714,7 +737,7 @@ void psiFixupMesh(PSIMESH *mesh)
 
 	mesh->scalekeys  = (SVKEYFRAME*)((int)mesh + (int)mesh->scalekeys);
 	mesh->movekeys   = (SVKEYFRAME*)((int)mesh + (int)mesh->movekeys);
-	mesh->rotatekeys = (SVKEYFRAME*)((int)mesh + (int)mesh->rotatekeys);
+	mesh->rotatekeys = (SQKEYFRAME*)((int)mesh + (int)mesh->rotatekeys);
 
 	// sortlist pointers
 	p = (int)mesh;
@@ -937,6 +960,9 @@ void psiAllocWorkspace()
 	transformedDepths = (long*)MALLOC0( ((biggestVertexModel*2) + 2) * sizeof(long) );
 	transformedDepths2 = (float*)MALLOC0( ((biggestVertexModel*2) + 2) * sizeof(float) );
 	transformedNormals = (VERT*)MALLOC0( ((biggestVertexModel*2) + 2) * sizeof(VERT));
+
+	// *ASL* 1/08/2000 - Allocate our transformed vertices buffer
+	alignedTransformedVertices = (TDCTransVector *)MALLOC0(((biggestVertexModel*2)+2) * sizeof(TDCTransVector));
 }
 
 
@@ -1017,8 +1043,11 @@ void *psiLoadPIL(char *pilName)
 //		utilPrintf("#%d $%x (%s)\n",i,psiM,(psiM+(int)addr));
 		psiM += (int)addr;
 		PSIname = (char*)(psiM);
-		(char*)crcs = (char*)(psiM+16);
-		utilPrintf("CRC=%x\n",*crcs);
+
+//		// *ASL* 21/07/2000 - Commented out below two lines as not irrelevent
+//		(char*)crcs = (char *)(psiM+16);
+//		utilPrintf("CRC=%x\n",*crcs);
+
 		psiFixup( (char*)(psiM+20) );	
 	}
 	
@@ -3481,3 +3510,142 @@ void transformVertexListB(VERT *verts, long numverts, long *transformedVerts, fl
 	}
 }
 
+
+// *ASL* 10/08/2000 - SH4 XD functions
+
+/* ---------------------------------------------------------
+   Function : PSIDC_SetSH4XDMatrix
+   Purpose : load 3x3 matrix and translate vector into SH4 XD registers (XMTRX)
+   Parameters : rotation / scale MATRIX pointer, translate VECTOR pointer
+   Returns : 
+   Info : matrix needs to be transposed as DC uses opposite rc notation
+*/
+
+void PSIDC_SH4XD_SetMatrix(MATRIX *inMat, VECTOR *inVec)
+{
+	float	xdMat[4][4];
+	float	fd;
+	
+	// scale matrix down from fixed point
+	fd = 1.0f / 4096.0f;
+	xdMat[0][0] = (float)inMat->m[0][0] * fd;
+	xdMat[1][0] = (float)inMat->m[0][1] * fd;
+	xdMat[2][0] = (float)inMat->m[0][2] * fd;
+	xdMat[3][0] = inVec->vx;
+	xdMat[0][1] = (float)inMat->m[1][0] * fd;
+	xdMat[1][1] = (float)inMat->m[1][1] * fd;
+	xdMat[2][1] = (float)inMat->m[1][2] * fd;
+	xdMat[3][1] = inVec->vy;
+	xdMat[0][2] = (float)inMat->m[2][0] * fd;
+	xdMat[1][2] = (float)inMat->m[2][1] * fd;
+	xdMat[2][2] = (float)inMat->m[2][2] * fd;
+	xdMat[3][2] = inVec->vz;
+	xdMat[0][3] = 0.0f;
+	xdMat[1][3] = 0.0f;
+	xdMat[2][3] = 0.0f;
+	xdMat[3][3] = 1.0f;
+
+	// load into SH4 XD registers
+	ld_ext(xdMat);
+}
+
+
+/* ---------------------------------------------------------
+   Function : PSIDC_SH4XD_TransformVertices
+   Purpose : Transform vertices with the 
+   Parameters : input verts, output verts, number of verts
+   Returns : 
+   Info : because of rhe way this function interleaves and fetches the next pass
+		: early we need to allow extra data in the source vertices
+*/
+
+void PSIDC_SH4XD_TransformVertices(TDCVector4 *verts, TDCTransVector *transVerts, int noof)
+{
+	// working vectors
+	TDCVector4	v1, v2;
+
+	// integer registers
+	register TDCVector4	*p1, *p2;
+	register float		*outvs = (float *)transVerts, *end = (float *)(transVerts + noof);
+
+	// float registers
+	register float		gshalf = fGShHalf, gshlimit = fGShLimit;
+	register float		gsx = fGSx, gsy = fGSy, gsh = fGSh;
+	register float		s, x1, y1, z1, z2;
+	register float		div4 = 0.25f, rcp = 1.0f;
+
+	// pre-calc the first vertex
+	p1 = verts;
+	p2 = p1 + 1;
+	ftrv((float *)p1, (float *)&v1);
+
+	// prefetch the next vertex pair
+	p1 += 2;
+	prefetch(p1);
+
+	// unrolled, prefetched, pipelined vertex transform loop
+	while (outvs < end)
+	{
+		// transform the second vertex
+		ftrv((float *)p2, (float *)&v2);
+
+		// project the first vertex
+		z1 = v1.z;
+		y1 = v1.y;
+		x1 = v1.x;
+
+		p2 += 2;
+
+		if (z1 >= gshalf)
+			s = gsh / z1;
+		else
+			s = gshlimit;
+
+		z2 = z1 * div4;
+
+		x1 *= s;
+		y1 *= s;
+		x1 += gsx;
+		y1 += gsy;
+
+		z1 = rcp / z2;
+
+		// save the first vertex
+		*outvs++ = z2;
+		*outvs++ = x1;
+		*outvs++ = y1;
+		*outvs++ = z1;
+
+
+		// transform the first vertex
+		ftrv((float *)p1, (float *)&v1);
+
+		z1 = v2.z;
+		y1 = v2.y;
+		x1 = v2.x;
+
+		// prefetch the next vertex pair
+		p1 += 2;
+		prefetch(p1);
+
+		if (z1 >= gshalf)
+			s = gsh / z1;
+		else
+			s = gshlimit;
+
+		z2 = z1 * div4;
+
+		x1 *= s;
+		y1 *= s;
+		x1 += gsx;
+		y1 += gsy;
+
+		z1 = rcp / z2;
+
+		// save the second vertex
+		*outvs++ = z2;
+		*outvs++ = x1;
+		*outvs++ = y1;
+		*outvs++ = z1;
+	}
+}

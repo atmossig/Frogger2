@@ -108,6 +108,13 @@ extern int GSh;
 extern int GSx;
 extern int GSy;
 
+// *ASL* 26/07/2000 - Screen geometry floats
+extern float fGSx;
+extern float fGSy;
+extern float fGSh;
+extern float fGShHalf;
+extern float fGShLimit;
+
 extern MATRIX RotMatrix;
 
 extern short ls0[3];

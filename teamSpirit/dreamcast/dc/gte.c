@@ -57,6 +57,13 @@ int GSh = 950;
 int GSx = 0;
 int GSy = 0;
 
+// *ASL* 26/07/2000 - Screen geometry floats
+float fGSx = 0;
+float fGSy = 0;
+float fGSh = 950.0f;
+float fGShHalf = 950.0f * 0.5f;
+float fGShLimit = 950.0f / (950.0f * 0.5f);
+
 // Rotation matrix
 MATRIX RotMatrix;
 

@@ -1,14 +1,19 @@
+
+
+// *ASL* 10/08/2000 - Use the latest Kamui macros
 #define _KM_USE_VERTEX_MACRO_
-#define _KM_USE_VERTEX_MACRO_L4_
+#define _KM_USE_VERTEX_MACRO_L5_
+
+#include <shinobi.h>
+#include <kamui2.h>
+#include <kamuix.h>
 
 #include "include.h"
 #include "main.h"
 #include "gte.h"
 #include "frogger.h"
 
-#include <shinobi.h>
-#include <kamui2.h>
-#include <kamuix.h>
+
 
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
@@ -183,6 +188,56 @@ asm(\
 
 
 
+// *ASL* 20/07/2000 - Dreamcast specific headers
+
+/* --------------------------------------------------------------------------------
+   Structure : TDCWorldMesh
+   Purpose : world segment mesh structure for holding pre-compiled polygon lists
+   Info : 
+*/
+typedef struct _TDCWorldMesh
+{
+	int				noofQuadPolys;					// number of quad polygons
+	int				*quadIndices;					// quad indices
+	KMDWORD			*quadVerts;						// quad vertices pointer
+	int				noofTriPolys;					// number of tri polygons
+	int				*triIndices;					// quad indices
+	KMDWORD			*triVerts;						// triangle vertices pointer
+	int				noofVerts;						// number of map vertices
+	TDCVector4		*vertices;						// map vertices pointer
+} TDCWorldMesh;
+
+
+// world meshes for current world
+static TDCWorldMesh	*dcWorldMeshes = NULL;
+
+// number of meshes in the current world
+static int dcNoofWorldMeshes = 0;
+
+
+/* ---------------------------------------------------------
+   Function : MapDraw_Dreamcast_DrawMesh
+   Purpose : draw dreamcast pre-compiled world segment mesh
+   Parameters : FMA_MESH_HEADER structure pointer, pre-compiled dreamcast mesh poiinter
+   Returns : 
+   Info : 
+*/
+
+static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMesh);
+
+
+/* ---------------------------------------------------------
+   Function : MapDraw_Dreamcast_SetMatrix
+   Purpose : set map draw matrix
+   Parameters : FMA_MESH_HEADER structure pointer, position x,y,z
+   Returns : 
+   Info : 
+*/
+
+static void MapDraw_Dreamcast_SetMatrix(FMA_MESH_HEADER *mesh, float posx, float posy, float posz);
+
+
+
 
 // ===================================================
 // New, mega-optimised landscape plotter
@@ -234,7 +289,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	if(max_depth > 1024-mesh->extra_depth)
 		max_depth = 1024-mesh->extra_depth;
 
-	transformVertexListA(mesh->verts, mesh->n_verts, map_tfv, map_tfd);
+	transformVertexListA((VERT*)mesh->verts, mesh->n_verts, map_tfv, map_tfd);
 
 	// This should really by in the (or an alternative) transformvertexlist function
 	// It scales the OTZ's down so that they actually fit into the size of the ordering table.
@@ -256,7 +311,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	// "!=0" is also marginally faster than ">0" here.
 	// n_gt4s CAN be zero. Otherwise,a (do,while) loop would be ever-so-slightly faster.than the (for...) one.
 
-	kmxxGetCurrentPtr(&vertexBufferDesc);
+//	kmxxGetCurrentPtr(&vertexBufferDesc);
 		
 	for(i = mesh->n_gt4s; i != 0; i--,opgt4++)
 	{
@@ -324,8 +379,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 				vertices_GT4_FMA[3].fV = opgt4->v3 / 127.0;		
 				vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(opgt4->r3,opgt4->g3,opgt4->b3,255);
 				
-				if(tex->animated)
-				{
+//				if(tex->animated)
+//				{
 					// check to see if alpha channel is to be used
 					if(tex->colourKey)
 					{
@@ -335,7 +390,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 							kmChangeStripTextureSurface(&StripHead_GT4_FMA_Alpha,KM_IMAGE_PARAM1,tex->surfacePtr);
 							stripGT4FMAtextureID_A = opgt4->tpage;
 						}
-						kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA_Alpha);
+						kmStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA_Alpha);
 					}	
 					else
 					{
@@ -345,31 +400,32 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 							kmChangeStripTextureSurface(&StripHead_GT4_FMA,KM_IMAGE_PARAM1,tex->surfacePtr);		
 							stripGT4FMAtextureID = opgt4->tpage;
 						}
-						kmxxStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);	
+						kmStartStrip(&vertexBufferDesc, &StripHead_GT4_FMA);	
 					}
-				}
-				else
-				{								
-					kmxxStartStrip(&vertexBufferDesc, &tex->stripHead);	
-				}
+//				}
+//				else
+//				{								
+//					kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+//				}
 				
-//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-//				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-//				kmEndStrip(&vertexBufferDesc);				
+				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+				kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+				kmEndStrip(&vertexBufferDesc);				
 
-				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[0].fX,vertices_GT4_FMA[0].fY,vertices_GT4_FMA[0].u.fZ,vertices_GT4_FMA[0].fU,vertices_GT4_FMA[0].fV,vertices_GT4_FMA[0].uBaseRGB.dwPacked,vertices_GT4_FMA[0].uBaseRGB.dwPacked);	
-				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[1].fX,vertices_GT4_FMA[1].fY,vertices_GT4_FMA[1].u.fZ,vertices_GT4_FMA[1].fU,vertices_GT4_FMA[1].fV,vertices_GT4_FMA[1].uBaseRGB.dwPacked,vertices_GT4_FMA[1].uBaseRGB.dwPacked);	
-				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[2].fX,vertices_GT4_FMA[2].fY,vertices_GT4_FMA[2].u.fZ,vertices_GT4_FMA[2].fU,vertices_GT4_FMA[2].fV,vertices_GT4_FMA[2].uBaseRGB.dwPacked,vertices_GT4_FMA[2].uBaseRGB.dwPacked);	
-				kmxxSetVertex_3(KM_VERTEXPARAM_ENDOFSTRIP,vertices_GT4_FMA[3].fX,vertices_GT4_FMA[3].fY,vertices_GT4_FMA[3].u.fZ,vertices_GT4_FMA[3].fU,vertices_GT4_FMA[3].fV,vertices_GT4_FMA[3].uBaseRGB.dwPacked,vertices_GT4_FMA[3].uBaseRGB.dwPacked);	
+
+//				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[0].fX,vertices_GT4_FMA[0].fY,vertices_GT4_FMA[0].u.fZ,vertices_GT4_FMA[0].fU,vertices_GT4_FMA[0].fV,vertices_GT4_FMA[0].uBaseRGB.dwPacked,vertices_GT4_FMA[0].uBaseRGB.dwPacked);	
+//				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[1].fX,vertices_GT4_FMA[1].fY,vertices_GT4_FMA[1].u.fZ,vertices_GT4_FMA[1].fU,vertices_GT4_FMA[1].fV,vertices_GT4_FMA[1].uBaseRGB.dwPacked,vertices_GT4_FMA[1].uBaseRGB.dwPacked);	
+//				kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,    vertices_GT4_FMA[2].fX,vertices_GT4_FMA[2].fY,vertices_GT4_FMA[2].u.fZ,vertices_GT4_FMA[2].fU,vertices_GT4_FMA[2].fV,vertices_GT4_FMA[2].uBaseRGB.dwPacked,vertices_GT4_FMA[2].uBaseRGB.dwPacked);	
+//				kmxxSetVertex_3(KM_VERTEXPARAM_ENDOFSTRIP,vertices_GT4_FMA[3].fX,vertices_GT4_FMA[3].fY,vertices_GT4_FMA[3].u.fZ,vertices_GT4_FMA[3].fU,vertices_GT4_FMA[3].fV,vertices_GT4_FMA[3].uBaseRGB.dwPacked,vertices_GT4_FMA[3].uBaseRGB.dwPacked);	
 			
 				polyCount++;
 			}
 		}
 	}
 
-	kmxxReleaseCurrentPtr(&vertexBufferDesc);
+//	kmxxReleaseCurrentPtr(&vertexBufferDesc);
 
 	// That's the quads done, now let's do the triangles...
 
@@ -754,12 +810,17 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 		if ( (*mesh)->flags & DRAW_SEGMENT )
 		{
 			MapDraw_SetMatrix(*mesh, (*mesh)->posx, (*mesh)->posy, (*mesh)->posz);
+//			MapDraw_DreamCast_SetMatrix(*mesh, (*mesh)->posx, (*mesh)->posy, (*mesh)->posz);
 
 			if(MapDraw_ClipCheck(*mesh))
 			{
+				// *ASL* 20/07/2000 - Draw the dreamcast world segment mesh
+//				if (dcNoofWorldMeshes > 0 && dcWorldMeshes != NULL)
+//					MapDraw_Dreamcast_DrawMesh(*mesh, &dcWorldMeshes[world->n_meshes-i]);
+//				else
 					MapDraw_DrawFMA_Mesh2(*mesh);
-			}
 			// ENDIF
+			}
 		}
 		// ENDIF
 
@@ -802,7 +863,7 @@ int MapDraw_ClipCheck(FMA_MESH_HEADER *mesh)
 
 
 // Check to see whether ALL of the vertices are on the outisde of ANY of the 6 planes of the view-frustrum
-	(ULONG*)xy=transformedVertices;
+	xy = (SHORTXY*)transformedVertices;
 	totalchecks=0xffff;
 	for(v=0; v<8; v++)
 	{
@@ -868,7 +929,7 @@ int FmaActor_ClipCheck(FMA_MESH_HEADER *mesh)
 
 
 // Check to see whether ALL of the vertices are on the outisde of ANY of the 6 planes of the view-frustrum
-	(ULONG*)xy=transformedVertices;
+	xy = (SHORTXY*)transformedVertices;
 	totalchecks=0xffff;
 	for(v=0; v<8; v++)
 	{
@@ -936,7 +997,7 @@ void FmaActor_GetSBox(FMA_MESH_HEADER *mesh, SHORTXY *sBox)
 	transformVertexListA(pBBox, 9, transformedVertices, transformedDepths);
 
 	//copy to dest
-	(ULONG*)xy=transformedVertices;
+	xy = (SHORTXY*)transformedVertices;
 	for(v=0; v<8; v++)
 	{
 		sBox[v].x = xy[v].x;
@@ -1029,4 +1090,535 @@ void MapDraw_DrawFMA_Water ( WATER *cur )
 	}
 	// ENDFOR
 
+}
+
+
+
+// *ASL* 20/07/2000
+
+/* ---------------------------------------------------------
+   Function : MapDraw_Dreamcast_InitWorld
+   Purpose : pre-compile FMA_WORLD dreamcast polygons
+   Parameters : FMA_WORLD structure pointer
+   Returns : 
+   Info : 
+*/
+
+void MapDraw_Dreamcast_InitWorld(FMA_WORLD *fma_world)
+{
+	FMA_MESH_HEADER		**mesh;
+	FMA_GT4				*psxQuads;
+	FMA_GT3				*psxTris;
+	FMA_SPR				*psxSprites;
+	SVECTOR				*psxVerts;
+	KMDWORD				*vp;
+	TDCVector4			*verts;
+	TextureType			*map;
+	int					i, j, *ip;
+
+	union
+	{
+		KMFLOAT f[2];
+		KMWORD  f16[4];
+	} f;
+
+
+	// allocate our current world mesh array
+	if ((dcNoofWorldMeshes = fma_world->n_meshes) == 0)
+		return;
+	dcWorldMeshes = (TDCWorldMesh *)MALLOC0(fma_world->n_meshes * sizeof(TDCWorldMesh));
+
+	// loop around all this world segment meshes..
+	mesh = ADD2POINTER(fma_world, sizeof(FMA_WORLD));
+	for (i=0; i<fma_world->n_meshes; i++)
+	{
+		// ** Convert all SVECTOR vertices
+
+		// allocate aligned memory for mesh vertices - (allow an possible extra 2 entries for the interleaved transform)
+		dcWorldMeshes[i].noofVerts = (*mesh)->n_verts;
+		dcWorldMeshes[i].vertices = (TDCVector4 *)MALLOC0(((((*mesh)->n_verts +1) &-2) +1) * sizeof(TDCVector4));
+
+		// convert vertices to TDCVectors
+		verts = dcWorldMeshes[i].vertices;
+		for (j=0, psxVerts = (*mesh)->verts; j<(*mesh)->n_verts; j++, psxVerts++)
+		{
+			verts->x = (float)psxVerts->vx;
+			verts->y = (float)psxVerts->vy;
+			verts->z = (float)psxVerts->vz;
+			verts->w = 1.0f;
+
+			verts++;
+		}
+
+
+		// ** Pre-compile all Quad Polygon Vertices
+
+		// allocate quad vertices
+		dcWorldMeshes[i].noofQuadPolys = (*mesh)->n_gt4s;
+		dcWorldMeshes[i].quadVerts = (KMDWORD *)MALLOC0(((*mesh)->n_gt4s * 4) * 2 * sizeof(KMDWORD));
+		// allocate quad indices and strip header
+		dcWorldMeshes[i].quadIndices = (int *)MALLOC0(((*mesh)->n_gt4s * 8) * sizeof(int));
+
+		// compile vertices - 4verts in 1 32byte cache line
+		vp = dcWorldMeshes[i].quadVerts;
+		ip = dcWorldMeshes[i].quadIndices;
+		for (j=0, psxQuads = (*mesh)->gt4s; j<(*mesh)->n_gt4s; j++, psxQuads++)
+		{
+			// vertex0
+			*vp++ = (KMDWORD)RGBA(psxQuads->r0, psxQuads->g0, psxQuads->b0, 255);
+			f.f[1] = (KMFLOAT)psxQuads->u0 / 127.0f;
+			f.f[0] = (KMFLOAT)psxQuads->v0 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			// vertex1
+			*vp++ = (KMDWORD)RGBA(psxQuads->r1, psxQuads->g1, psxQuads->b1, 255);
+			f.f[1] = (KMFLOAT)psxQuads->u1 / 127.0f;
+			f.f[0] = (KMFLOAT)psxQuads->v1 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			// vertex2
+			*vp++ = (KMDWORD)RGBA(psxQuads->r2, psxQuads->g2, psxQuads->b2, 255);
+			f.f[1] = (KMFLOAT)psxQuads->u2 / 127.0f;
+			f.f[0] = (KMFLOAT)psxQuads->v2 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			// vertex3
+			*vp++ = (KMDWORD)RGBA(psxQuads->r3, psxQuads->g3, psxQuads->b3, 255);
+			f.f[1] = (KMFLOAT)psxQuads->u3 / 127.0f;
+			f.f[0] = (KMFLOAT)psxQuads->v3 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+
+			// polygon indices and strip header.. 1 32byte cache line
+			map = &DCKtextureList[psxQuads->tpage];
+			ip[3] = (int)&map->stripHead;
+
+			// ** These indices directly need to reference directly into our transform vertices list whoose
+			// ** entries are 16bytes in size (xf,yf,zf,wf). Since they are already pre-multiplied by 4 for
+			// ** the PSX, we need to multiply them again by 4.
+
+			ip[4] = psxQuads->vert3 << 2;
+			ip[5] = psxQuads->vert2 << 2;
+			ip[6] = psxQuads->vert1 << 2;
+			ip[7] = psxQuads->vert0 << 2;
+			ip += 8;
+		}
+
+
+		// ** Pre-compile all Triangle Polygon Vertices
+
+		// allocate tri vertices
+		dcWorldMeshes[i].noofTriPolys = (*mesh)->n_gt3s;
+		dcWorldMeshes[i].triVerts = (KMDWORD *)MALLOC0(((*mesh)->n_gt3s*3) * 2 * sizeof(KMDWORD));
+		// allocate tri indices and strip header
+		dcWorldMeshes[i].triIndices = (int *)MALLOC0(((*mesh)->n_gt3s * 8) * sizeof(int));
+
+		// compile vertices
+		vp = dcWorldMeshes[i].triVerts;
+		ip = dcWorldMeshes[i].triIndices;
+		for (j=0, psxTris = (*mesh)->gt3s; j<(*mesh)->n_gt3s; j++, psxTris++)
+		{
+			// vertex0
+			*vp++ = (KMDWORD)RGBA(psxTris->r0, psxTris->g0, psxTris->b0, 255);
+			f.f[1] = (KMFLOAT)psxTris->u0 / 127.0f;
+			f.f[0] = (KMFLOAT)psxTris->v0 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			// vertex1
+			*vp++ = (KMDWORD)RGBA(psxTris->r1, psxTris->g1, psxTris->b1, 255);
+			f.f[1] = (KMFLOAT)psxTris->u1 / 127.0f;
+			f.f[0] = (KMFLOAT)psxTris->v1 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+			// vertex2
+			*vp++ = (KMDWORD)RGBA(psxTris->r2, psxTris->g2, psxTris->b2, 255);
+			f.f[1] = (KMFLOAT)psxTris->u2 / 127.0f;
+			f.f[0] = (KMFLOAT)psxTris->v2 / 127.0f;
+			*vp++ = ((KMDWORD)f.f16[3] << 16) | (KMDWORD)f.f16[1];
+
+			// polygon indices and strip header.. 1 32byte cache line
+			map = &DCKtextureList[psxTris->tpage];
+			ip[4] = (int)&map->stripHead;
+
+			// indices
+			ip[5] = psxTris->vert2 << 2;
+			ip[6] = psxTris->vert1 << 2;
+			ip[7] = psxTris->vert0 << 2;
+			ip += 8;
+		}
+
+		mesh++;
+	}
+}
+
+
+/* ---------------------------------------------------------
+   Function : MapDraw_Dreamcast_ReleaseWorld
+   Purpose : release the pre-compiled dreamcast world
+   Parameters :
+   Returns : 
+   Info : 
+*/
+
+void MapDraw_Dreamcast_ReleaseWorld()
+{
+	if (dcWorldMeshes != NULL)
+	{
+		while (dcNoofWorldMeshes--)
+		{
+			FREE(dcWorldMeshes[dcNoofWorldMeshes].vertices);
+			FREE(dcWorldMeshes[dcNoofWorldMeshes].quadIndices);
+			FREE(dcWorldMeshes[dcNoofWorldMeshes].quadVerts);
+			FREE(dcWorldMeshes[dcNoofWorldMeshes].triIndices);
+			FREE(dcWorldMeshes[dcNoofWorldMeshes].triVerts);
+		}
+		FREE(dcWorldMeshes);
+	}
+	dcNoofWorldMeshes = 0;
+	dcWorldMeshes = NULL;
+}
+
+
+/* ---------------------------------------------------------
+   Function : MapDraw_Dreamcast_DrawMesh
+   Purpose : draw dreamcast pre-compiled world segment mesh
+   Parameters : FMA_MESH_HEADER structure pointer, pre-compiled dreamcast mesh poiinter
+   Returns : 
+   Info : 
+*/
+
+static void MapDraw_Dreamcast_DrawMesh(FMA_MESH_HEADER *mesh, TDCWorldMesh *dcMesh)
+{
+	float	mapmin, mapmax;
+	float	x0, x1, x2, x3;
+	float	y0, y1, y2, y3;
+	float	z0, z1, z2, z3;
+
+	mapCount++;
+
+	// calculate polygon maximum and minimum z depths
+	mapmin = MIN_MAP_DEPTH + ((float)mesh->extra_depth);
+	mapmax = MAX_MAP_DEPTH + ((float)mesh->extra_depth);
+	mapmax = min(mapmax, (1024.0f - ((float)mesh->extra_depth)));
+
+	// transform our map vertices to 
+	PSIDC_SH4XD_TransformVertices(dcMesh->vertices, alignedTransformedVertices, dcMesh->noofVerts);
+
+	// push all map world polygons to KAMUI..
+	kmxxGetCurrentPtr(&vertexBufferDesc);
+	{
+		// integer registers
+		register int		tvs = (int)alignedTransformedVertices;
+		register int		*vis;
+		register int		r0;
+		register float		*v0, *v1, *v2, *v3;
+		register int		*kmvs;
+		register int		*visEnd;
+		register int		shLast;
+
+		// float registers
+		register float		zmin, zmax, fr0, fr1;
+
+
+		// force first strip set
+		shLast = 0;
+
+
+		// ** Push all quads to KAMUI
+
+		// prefetch our first polygon..
+		if (dcMesh->quadIndices)
+			prefetch(dcMesh->quadIndices);
+
+		// set quad minimum and maximum z clip.. 1/(4*4)
+		zmin = mapmin * 16.0f;
+		zmax = mapmax * 16.0f;
+
+		// push all quads..
+		kmvs = (int *)dcMesh->quadVerts;
+		visEnd = dcMesh->quadIndices + (dcMesh->noofQuadPolys * 8);
+		for (vis = dcMesh->quadIndices + 8; vis <= visEnd; vis += 13)
+		{
+			// prefetch the next polygon
+			prefetch(vis);
+
+			// load all this polygons z's
+			r0 = *--vis;										// z0
+			v0 = (float *)((int)tvs + r0);
+			fr0 = *v0;
+
+			r0 = *--vis;										// z1
+			v1 = (float *)((int)tvs + r0);
+			fr1 = *v1;
+			fr0 += fr1;
+
+			r0 = *--vis;										// z2
+			v2 = (float *)((int)tvs + r0);
+			fr1 = *v2;
+			fr0 += fr1;
+
+			r0 = *--vis;										// z3
+			v3 = (float *)((int)tvs + r0);
+			fr1 = *v3;
+			fr0 += fr1;											// z0+z1+z2+z3
+
+			r0 = *--vis;										// load ahead this polygons texture strip
+
+			// z clip check
+			if (fr0 < zmin || fr0 > zmax)
+			{
+				kmvs += 8;
+				continue;
+			}
+
+			// inc all vertices
+			v0++;
+			v1++;
+			v2++;
+			v3++;
+
+			// load all 2d x's
+			x0 = *v0++;
+			x1 = *v1++;
+			x2 = *v2++;
+			x3 = *v3++;
+
+			// completely off at the LHS or RHS?
+			if ((x0 > 640.0f && x1 > 640.0f && x2 > 640.0f && x3 > 640.0f) ||
+				(x0 <   0.0f && x1 <   0.0f && x2 <   0.0f && x3 <   0.0f))
+			{
+				kmvs += 8;
+				continue;
+			}
+
+			// load all 2d y's
+			y0 = *v0++;
+			y1 = *v1++;
+			y2 = *v2++;
+			y3 = *v3++;
+
+			// completely off at the TOP or BOTTOM?
+			if ((y0 > 480.0f && y1 > 480.0f && y2 > 480.0f && y3 > 480.0f) ||
+				(y0 <   0.0f && y1 <   0.0f && y2 <   0.0f && y3 <   0.0f))
+			{
+				kmvs += 8;
+				continue;
+			}
+
+			// ** Print the polygon
+
+			// load all 1/z's
+			z0 = *v0;
+			z1 = *v1;
+			z2 = *v2;
+			z3 = *v3;
+
+			// need to change the texture strip header?
+			if (r0 != shLast)
+			{
+				// change render state
+				kmxxStartStrip(&vertexBufferDesc, r0);
+				shLast = r0;
+			}
+
+			// vertex 0
+			r0 = *kmvs++;										// ->rgb
+			pkmCurrentPtr += 8;
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z0;
+			*(PKMFLOAT)--pkmCurrentPtr = y0;
+			*(PKMFLOAT)--pkmCurrentPtr = x0;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_NORMAL;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8+8;
+
+			// vertex 1
+			r0 = *kmvs++;										// ->rgb
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z1;
+			*(PKMFLOAT)--pkmCurrentPtr = y1;
+			*(PKMFLOAT)--pkmCurrentPtr = x1;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_NORMAL;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8+8;
+
+			// vertex 2
+			r0 = *kmvs++;										// ->rgb
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z2;
+			*(PKMFLOAT)--pkmCurrentPtr = y2;
+			*(PKMFLOAT)--pkmCurrentPtr = x2;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_NORMAL;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8+8;
+
+			// vertex 3
+			r0 = *kmvs++;										// ->rgb
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z3;
+			*(PKMFLOAT)--pkmCurrentPtr = y3;
+			*(PKMFLOAT)--pkmCurrentPtr = x3;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_ENDOFSTRIP;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8;
+		}
+
+
+		// ** Push all triangles to KAMUI
+
+		// prefetch our first polygon..
+		if (dcMesh->triIndices)
+			prefetch(dcMesh->triIndices);
+
+		// set triangle minimum and maximum z clip.. 1/(3*4)
+		zmin = mapmin * 12.0f;
+		zmax = mapmax * 12.0f;
+
+		// push all triangles..
+		kmvs = (int *)dcMesh->triVerts;
+		visEnd = dcMesh->triIndices + (dcMesh->noofTriPolys * 8);
+		for (vis = dcMesh->triIndices + 8; vis <= visEnd; vis += 12)
+		{
+			// prefetch the next polygon
+			prefetch(vis);
+
+			// load all this polygons z's
+			r0 = *--vis;										// z0
+			v0 = (float *)((int)tvs + r0);
+			fr0 = *v0;
+
+			r0 = *--vis;										// z1
+			v1 = (float *)((int)tvs + r0);
+			fr1 = *v1;
+			fr0 += fr1;
+
+			r0 = *--vis;										// z2
+			v2 = (float *)((int)tvs + r0);
+			fr1 = *v2;
+			fr0 += fr1;											// z0+z1+z2
+
+			r0 = *--vis;										// load ahead this polygons texture strip
+
+			// z clip check
+			if (fr0 < zmin || fr0 > zmax)
+			{
+				kmvs += 6;
+				continue;
+			}
+
+			// inc all vertices
+			v0++;
+			v1++;
+			v2++;
+
+			// load all 2d x's
+			x0 = *v0++;
+			x1 = *v1++;
+			x2 = *v2++;
+
+			// completely off at the LHS or RHS?
+			if ((x0 > 640.0f && x1 > 640.0f && x2 > 640.0f) ||
+				(x0 <   0.0f && x1 <   0.0f && x2 <   0.0f))
+			{
+				kmvs += 6;
+				continue;
+			}
+
+			// load all 2d y's
+			y0 = *v0++;
+			y1 = *v1++;
+			y2 = *v2++;
+
+			// completely off at the TOP or BOTTOM?
+			// completely off at the LHS or RHS?
+			if ((y0 > 480.0f && y1 > 480.0f && y2 > 480.0f) ||
+				(y0 <   0.0f && y1 <   0.0f && y2 <   0.0f))
+			{
+				kmvs += 6;
+				continue;
+			}
+
+			// ** Print the polygon
+
+			// load all 1/z's
+			z0 = *v0;
+			z1 = *v1;
+			z2 = *v2;
+
+			// need to change the texture strip header?
+			if (r0 != shLast)
+			{
+				// change render state
+				kmxxStartStrip(&vertexBufferDesc, r0);
+				shLast = r0;
+			}
+
+			// vertex 0
+			r0 = *kmvs++;										// ->rgb
+			pkmCurrentPtr += 8;
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z0;
+			*(PKMFLOAT)--pkmCurrentPtr = y0;
+			*(PKMFLOAT)--pkmCurrentPtr = x0;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_NORMAL;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8+8;
+
+			// vertex 1
+			r0 = *kmvs++;										// ->rgb
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z1;
+			*(PKMFLOAT)--pkmCurrentPtr = y1;
+			*(PKMFLOAT)--pkmCurrentPtr = x1;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_NORMAL;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8+8;
+
+			// vertex 2
+			r0 = *kmvs++;										// ->rgb
+			*--pkmCurrentPtr = r0;
+			*--pkmCurrentPtr = r0;
+			r0 = *kmvs++;										// ->uv
+			--pkmCurrentPtr;
+			*--pkmCurrentPtr = r0;
+			*(PKMFLOAT)--pkmCurrentPtr = z2;
+			*(PKMFLOAT)--pkmCurrentPtr = y2;
+			*(PKMFLOAT)--pkmCurrentPtr = x2;
+			*--pkmCurrentPtr = KM_VERTEXPARAM_ENDOFSTRIP;
+			prefetch((void *)pkmCurrentPtr);
+			pkmCurrentPtr += 8;
+		}
+	}
+	kmxxReleaseCurrentPtr(&vertexBufferDesc);
+}
+
+
+/* ---------------------------------------------------------
+   Function : MapDraw_Dreamcast_SetMatrix
+   Purpose : set map draw matrix
+   Parameters : FMA_MESH_HEADER structure pointer, position x,y,z
+   Returns : 
+   Info : 
+*/
+
+static void MapDraw_Dreamcast_SetMatrix(FMA_MESH_HEADER *mesh, float posx, float posy, float posz)
+{
 }

@@ -446,4 +446,57 @@ void transformVertexListA(VERT *vertPtr, long numVerts, long *transformedVerts, 
 
 extern PSIMODEL *psiCheck(char *psiName);
 
+
+// *ASL* 27/07/2000
+
+/* ---------------------------------------------------------
+   Structure : TDCVector4
+   Purpose : 4 float component vector
+   Info : 
+*/
+
+typedef struct tagTDCVector4
+{
+	float	x, y, z, w;
+} TDCVector4;
+
+
+/* ---------------------------------------------------------
+   Structure : TDCTransVector
+   Purpose : transformed vector
+   Info : 
+*/
+
+typedef struct tagTDCTransVector
+{
+	float	z;							// projected z
+	float	x, y;						// projected xy
+	float	invz;						// projected 1/z
+} TDCTransVector;
+
+
+// export aligned transformed vertices buffer
+extern TDCTransVector *alignedTransformedVertices;
+
+/* ---------------------------------------------------------
+   Function : PSIDC_SetSH4XDMatrix
+   Purpose : load 3x3 matrix and translate vector into SH4 XD registers (XMTRX)
+   Parameters : rotation / scale MATRIX pointer, translate VECTOR pointer
+   Returns : 
+   Info : matrix needs to be transposed as DC uses opposite rc notation
+*/
+
+void PSIDC_SH4XD_SetMatrix(MATRIX *inMat, VECTOR *inVec);
+
+
+/* ---------------------------------------------------------
+   Function : PSIDC_SH4XD_TransformVertices
+   Purpose : Transform vertices with the 
+   Parameters : input vertices, output vertices, noof verts
+   Returns : 
+   Info : 
+*/
+
+void PSIDC_SH4XD_TransformVertices(TDCVector4 *verts, TDCTransVector *transVerts, int noof);
+
 #endif //__ISLPSI_H__

@@ -385,6 +385,15 @@ void LoadObjectBank ( int objectBank )
 				}
 			}
 			// ENDIF
+
+			// ** *ASL* 19/07/2000
+			// ** Re-structure the fma world into a dreamcast friendly format.
+
+			// valid world object found?
+			if (fma_world != NULL)
+			{
+				MapDraw_Dreamcast_InitWorld(fma_world);
+			}
 		}
 		else
 		{
@@ -436,6 +445,13 @@ void FreeAllObjectBanks ( void )
 //	Align32Free(fma_world);
 	numObjectBanks = 0;
 	fma_world = NULL;	
+
+
+	// ** *ASL* 19/07/2000
+	// ** Release the pre-compiled dreamcast world
+
+	// release dreamcast world
+	MapDraw_Dreamcast_ReleaseWorld();
 }
 
 void ExtractPsiNames ( void )
@@ -451,7 +467,8 @@ void ExtractPsiNames ( void )
 	addr = (char*)pilLibraryList[1];// = (long*)addr;
 
 	i = (int)*addr;
-	(char*)table = addr+4;
+
+	table = (int*)(addr+4);
 
 	while ( i )
 	{
