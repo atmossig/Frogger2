@@ -115,6 +115,8 @@ int InitScripting(void)
 	Returns			: 
 */
 
+#ifdef DEBUG_SCRIPTING
+
 void PrintScriptDebugMessage(const char* str)
 {
 	dprintf"[Interpreter Debug] %s", str));
@@ -123,6 +125,10 @@ void PrintScriptDebugMessage(const char* str)
 
 	dprintf"\n"));
 }
+
+#else
+#define PrintScriptDebugMessage(foo)
+#endif
 
 /*	--------------------------------------------------------------------------------
     Function		: GetTileFromNumber

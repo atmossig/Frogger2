@@ -388,10 +388,10 @@ void ChangeLevel( EVENT *event )
 
 void TeleportFrog( EVENT *event )
 {
-	int fNum = (int)event->data[0],
-		tNum = (int)event->data[1];
-	GAMETILE *tile = (GAMETILE*)GetTileFromNumber(tNum);
+	int f = (int)event->data[0],
+		t = (int)event->data[1];
+	GAMETILE *tile = (GAMETILE*)(&firstTile[t]);
 
-	TeleportActorToTile(frog[fNum],tile,fNum);
-	CreateTeleportEffect(&frog[fNum]->actor->pos,&upVec,255,255,255);
+	TeleportActorToTile(frog[f], tile, f);
+	CreateTeleportEffect(&frog[f]->actor->pos, &upVec, 255,255,255);
 }
