@@ -147,7 +147,7 @@ BOOL UpdateFroggerControls(long pl)
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 		frogFacing[pl] = (camFacing + dir) & 3;
 
-		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+		//nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 		
 		
 		if ((actFrameCount-lastHopOn)<frogPitchTime)
@@ -288,7 +288,6 @@ void FroggerHop(long pl)
 	Returns			: void
 	Info			:
 */
-float freeFall = 2.0F;	// sodding global variables, hate 'em hate 'em hate 'em
 
 void UpdateFroggerPos(long pl)
 {
@@ -914,11 +913,15 @@ void CheckForFroggerLanding(long pl)
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
+		GAMETILE *tile = destPlatform[pl]->inTile[0];
+
 		// ok - frog has landed
 		SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
 
+		frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
+		
 		if(pl == 0)
-			camFacing = GetTilesMatchingDirection(currTile[pl],camFacing,destPlatform[pl]->inTile[0]);
+			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, tile);
 
 		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
 		player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
@@ -968,6 +971,10 @@ void CheckForFroggerLanding(long pl)
 			// set frog to centre of tile
 			SetVector(&frog[pl]->actor->pos, &tile->centre);
 		}
+
+		//frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
+
+		frogFacing[pl] = nextFrogFacing[pl];
 
 		state = tile->state;
 
@@ -1039,7 +1046,7 @@ void CheckForFroggerLanding(long pl)
 		}
 		else if (state == TILESTATE_ICE)
 		{
-			int res = MoveToRequestedDestination((nextFrogFacing[pl] - camFacing) & 3, pl);
+			int res = MoveToRequestedDestination((frogFacing[pl] - camFacing) & 3, pl);
 
 			if (res)
 			{
