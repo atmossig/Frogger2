@@ -2431,7 +2431,33 @@ void ArcadeStart(void)
 					
 	lastActFrameCount = actFrameCount;
 	gameState.mode = INGAME_MODE;
-	if(cWorld == WORLDID_GARDEN)
+
+	// NB: THis is a heowge hack to make race mode work for internet test levels
+	if( cWorld == WORLDID_TEST )
+	{
+		NUM_FROGS = 4;
+
+		player[0].worldNum = (unsigned char)WORLDID_TEST;
+		player[0].levelNum = (unsigned char)options.levelNum;
+
+		player[0].character = FROG_FROGGER;
+		player[1].character = FROG_LILLIE;
+		player[2].character = FROG_BABYFROG;
+		player[3].character = FROG_TWEE;
+
+		fog.max = 25000;
+
+		gameState.mode = INGAME_MODE;
+		gameState.single = INVALID_MODE;
+		gameState.multi = MULTILOCAL;
+
+		multiplayerMode = MULTIMODE_RACE;
+
+		InitLevel(player[0].worldNum, player[0].levelNum);
+
+		return;
+	}
+	else if(cWorld == WORLDID_GARDEN)
 	{
 		if(options.levelNum == 0)
 		{
@@ -2449,6 +2475,7 @@ void ArcadeStart(void)
 		player[0].worldNum = (unsigned char)cWorld;
 		player[0].levelNum = (unsigned char)options.levelNum;			
 	}
+
 	player[0].character = options.spChar;
 	InitLevel(player[0].worldNum, player[0].levelNum);
 }
