@@ -141,7 +141,7 @@ void EditorCreateEntities(void)
 			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
-			platform = CreateAndAddPlatform(create->type,create->flags,create->ID,path,(int)(create->animSpeed*256));
+			platform = CreateAndAddPlatform(create->type,create->flags,create->ID,path,(int)(create->animSpeed*256),create->facing);
 			if (!platform) continue;
 
 			act = platform->pltActor;
