@@ -855,7 +855,7 @@ void UpdateEnemies()
 			}
 		}
 
-		if (NUM_FROGS!=0)
+		if (NUM_FROGS!=1)
 		{
 			long p;
 
