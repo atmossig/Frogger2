@@ -443,12 +443,12 @@ void UpdatePathNME( ENEMY *cur )
 	}
 
 	// Occasionally do the extra walk anim, then go back to normal
-	if( Random(1000) > 995 )
+/*	if( Random(1000) > 995 )
 	{
 		AnimateActor( cur->nmeActor->actor, NMEANIM_PATH_WALK2, NO, YES, cur->nmeActor->animSpeed, 0, 0 );
 		AnimateActor( cur->nmeActor->actor, NMEANIM_PATH_WALK1, YES, YES, cur->nmeActor->animSpeed, 0, 0 );
 	}
-
+*/
 	if( actFrameCount < cur->path->startFrame+(0.5*(cur->path->endFrame-cur->path->startFrame)) )
 		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
 	else
