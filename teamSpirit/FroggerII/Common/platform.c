@@ -143,7 +143,9 @@ void UpdatePlatforms()
 				{
 					//cur->pltActor->actor->xluOverride = 100;
 					cur->pltActor->draw = 1;
+					GetPositionForPathNode(&cur->pltActor->actor->pos, &cur->path->nodes[0]);
 					cur->active	= 1;
+					cur->pltActor->actor->xluOverride = 0;
 					cur->countdown = -1;
 				}
 				else continue;
@@ -196,6 +198,17 @@ void UpdatePlatforms()
 		// check if this is a disappearing or crumbling platform
 		if(cur->flags & (PLATFORM_NEW_DISAPPEARWITHFROG| PLATFORM_NEW_CRUMBLES))
 		{
+			if (cur->pltActor->actor->xluOverride < 100)
+			{
+				if ((cur->pltActor->actor->xluOverride += (gameSpeed * 4)) > 100)
+				{
+					cur->pltActor->actor->xluOverride = 100;
+					cur->pltActor->actor->flags &= ~OBJECT_FLAGS_XLU;
+				}
+				else
+					cur->pltActor->actor->flags |= OBJECT_FLAGS_XLU;
+			}
+	
 			if (cur->countdown < 0)
 			{
 				if (cur->flags & PLATFORM_NEW_CARRYINGFROG)
