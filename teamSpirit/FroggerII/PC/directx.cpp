@@ -24,6 +24,7 @@
 #include "commctrl.h"
 #include "network.h"
 
+#include <fstream.h>
 #include <windowsx.h>
 #include <mmsystem.h>
 #include <memory.h>
@@ -58,6 +59,8 @@ struct dxDevice
 	char *name;
 	long idx;
 };
+
+char keyFileName[] = "frogkeys.map";
 
 dxDevice dxDeviceList[100];
 unsigned long dxNumDevices = 0;
@@ -525,6 +528,16 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 		{
 			RECT meR;
 			LV_COLUMN clm;
+			ifstream in;
+
+			in.open( keyFileName, ios::nocreate, filebuf::sh_read );
+			if( in.is_open() )
+			{
+				for( i=0; i<56; i++ )
+					in >> keymap[i].key;
+
+				in.close();
+			}
 			
 			GetWindowRect(hwndDlg, &meR);
 			
@@ -1415,138 +1428,93 @@ char listText2[] = "Key";
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
 	long i;
+	HRESULT hRes;
+	char itmTxt[64];
+	MSG pMsg;
 	HWND list;
 	static DWORD keyIndex = 0;
 	static long kMapSet = 0;
-	LV_ITEM itm;
-	HRESULT hRes;
 
     switch(msg)
 	{
 		case WM_INITDIALOG:
 		{
 			RECT meR;
-			LV_COLUMN clm;
 			
 			GetWindowRect(hDlg, &meR);
-			
 			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-
-			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
-			clm.fmt = LVCFMT_LEFT;
-			clm.cx = 400;
-			clm.pszText = listText1;
-			clm.cchTextMax = 255; 
-			clm.iSubItem = 0; 
-			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
-
-			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-			clm.pszText = listText2;
-			clm.cx = 120;
-			clm.iSubItem = 1; 
-			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
-			
-			// Print the commands available in the left hand list
 
 			for( i=0; i<14; i++ )
 			{
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.iSubItem = 0;
-				itm.state = 0;
-				itm.stateMask = 0; 
-				
-				itm.pszText = controlDesc[i];
-
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-
-				SendMessage( list,LVM_INSERTITEM,0,(long)&itm );
-
-				itm.iSubItem = 1;
-
-				itm.pszText = DIKStrings[keymap[keyIndex+i].key];
-
-				SendMessage( list,LVM_SETITEM,0,(long)&itm );
+				strcpy( itmTxt, controlDesc[i] );
+				strcat( itmTxt, " -> " );
+				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
 			}
 
 			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 
  			return TRUE;
 		}
-/*
+
         case WM_CLOSE:
 			keyIndex = 0;
 			kMapSet = 0;
 			EndDialog(hDlg,TRUE);
             return TRUE;
-*/
-		case WM_NOTIFY:
-			switch( wParam )
-			{
-				case IDC_KEYMAPLIST:
-					switch( ((LPNMHDR)lParam)->code )
-					{
-						case LVN_KEYDOWN:
-							if( kMapSet == 14 )
-							{
-								kMapSet = 0;
-								EnableDlgButton(hDlg,IDC_CONTROLLER1,TRUE);
-								EnableDlgButton(hDlg,IDC_CONTROLLER2,TRUE);
-								EnableDlgButton(hDlg,IDC_CONTROLLER3,TRUE);
-								EnableDlgButton(hDlg,IDC_CONTROLLER4,TRUE);
-								EnableDlgButton(hDlg,IDOK,TRUE);
-								EnableDlgButton(hDlg,IDCANCEL,TRUE);
-
-							}
-							else if( kMapSet == 0 )
-							{
-								EnableDlgButton(hDlg,IDC_CONTROLLER1,FALSE);
-								EnableDlgButton(hDlg,IDC_CONTROLLER2,FALSE);
-								EnableDlgButton(hDlg,IDC_CONTROLLER3,FALSE);
-								EnableDlgButton(hDlg,IDC_CONTROLLER4,FALSE);
-								EnableDlgButton(hDlg,IDOK,FALSE);
-								EnableDlgButton(hDlg,IDCANCEL,FALSE);
-							}
-
-							hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
-							if(FAILED(hRes))
-								break;
-
-							for( i=0; i<256; i++ )
-								if( KEYPRESS( i ) )
-								{
-									keymap[keyIndex+kMapSet].key = i;
-
-									list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-
-									itm.mask = LVIF_TEXT ;
-									itm.iItem = kMapSet; 
-									itm.iSubItem = 1;
-									itm.state = 0;
-									itm.stateMask = 0; 
-									itm.cchTextMax = 255; 
-									itm.iImage = NULL; 
-									itm.lParam = kMapSet;
-									itm.pszText = DIKStrings[keymap[keyIndex+kMapSet].key];
-
-									SendMessage( list,LVM_SETITEM,0,(long)&itm );
-
-									// Set next key with next keypress
-									kMapSet++;
-									break;
-								}
-
-							break;
-					}
-					break;
-			}
-			break;
 
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
+				case IDC_KEYMAPLIST:
+					switch(HIWORD(wParam))
+					{
+						case LBN_SELCHANGE:
+							// Get index of new selection
+							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
+							if(i == LB_ERR || i < 0 || i > 14 )
+								break;
+
+							kMapSet = i;
+							i=256;
+
+							// Wait for a key to be pressed
+							while( i==256 && IDirectInputDevice_GetDeviceState(lpKeyb, sizeof(keyTable),&keyTable) == DI_OK )
+							{
+								for( i=1; i<256; i++ )
+								{
+									if( KEYPRESS( i ) )
+									{
+										break;
+									}
+								}
+							}
+
+							// Dispense with windows message cack - we don't care
+							while( PeekMessage(&pMsg, hDlg, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE) );
+        
+							// Set DInput key in keymap
+							keymap[keyIndex+kMapSet].key = i;
+
+							// Reset and remake the key list
+							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+							SendMessage( list,LB_RESETCONTENT,(WPARAM)0,(LPARAM)0 );
+
+							for( i=0; i<14; i++ )
+							{
+								strcpy( itmTxt, controlDesc[i] );
+								strcat( itmTxt, " -> " );
+								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
+								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
+							}
+
+							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
+
+							kMapSet = 0;
+							break;
+					}
+					break;
+
 				case IDC_CONTROLLER1:
 					// Set pointer to correct part of keymap and refresh display
 					keyIndex = 0;
@@ -1565,38 +1533,41 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 					kMapSet = 0;
 					break;
 
-				// And some more commands for setting entries in the keymap
-
-				
 				case IDCANCEL:
+				{
+					ifstream in;
+					in.open( keyFileName, ios::nocreate, filebuf::sh_read );
+					if( in.is_open() )
+					{
+						for( i=0; i<56; i++ )
+							in >> keymap[i].key;
+
+						in.close();
+					}
+
 					keyIndex = 0;
 					kMapSet = 0;
 					EndDialog(hDlg,FALSE);
 					break;
+				}
 
 				case IDOK:
-					// TODO: Write keymap to disk
+				{
+					ofstream out;
+					out.open( keyFileName, ios::out, filebuf::sh_read );
+					if( out.is_open() )
+					{
+						for( i=0; i<56; i++ )
+							out << keymap[i].key << ' ';
+
+						out.close( );
+					}
+
 					keyIndex = 0;
 					kMapSet = 0;
 					EndDialog(hDlg,TRUE);
 					break;
-			}
-
-			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
-
-			for( i=0; i<14; i++ )
-			{
-				itm.mask = LVIF_TEXT ;
-				itm.iItem = i; 
-				itm.iSubItem = 1;
-				itm.state = 0;
-				itm.stateMask = 0; 
-				itm.cchTextMax = 255; 
-				itm.iImage = NULL; 
-				itm.lParam = i; 
-				itm.pszText = DIKStrings[keymap[keyIndex+i].key];
-
-				SendMessage( list,LVM_SETITEM,0,(long)&itm );
+				}
 			}
 
 			return TRUE;

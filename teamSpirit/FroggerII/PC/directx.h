@@ -32,6 +32,10 @@ extern long a565Card;
 extern int dumpScreen;
 extern int prim;
 
+extern unsigned char doKeyMap;
+extern DWORD keyIndex;
+extern long kMapSet;
+
 long DirectXInit(HWND window, long hardware );
 void SetupRenderstates(void);
 void DirectXFlip(void);

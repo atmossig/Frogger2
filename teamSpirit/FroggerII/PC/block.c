@@ -161,7 +161,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	int ok = 1;
 	long i;
 	long zero = 0;
-	HRESULT	dsrVal;
+	HRESULT	dsrVal, hRes;
 	
 	SAMPLE *test;
 
