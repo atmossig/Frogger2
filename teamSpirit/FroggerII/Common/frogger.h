@@ -61,6 +61,7 @@ extern float startLongSpeed;
 extern ACTOR2	*frog;
 extern ACTOR2	*frog2;
 extern SPRITEOVERLAY *sprHeart[3];
+extern TEXTOVERLAY *txtFrog1Info;
 
 extern float	croakRadius;
 extern float	croakVelocity;
@@ -73,6 +74,7 @@ extern char		croakR,croakG,croakB;
 extern void CreateFrogger ( unsigned long createFrogActor, unsigned long createFrogOverlays,
 							 unsigned long createBabyActors, unsigned long createBabyOverlays );
 
+extern void ShowFrogInfo();
 
 #endif
 

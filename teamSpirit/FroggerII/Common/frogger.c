@@ -27,6 +27,7 @@ PLAYER player[4];
 ACTOR2 *frog					= NULL;
 ACTOR2 *frog2					= NULL;
 SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL };
+TEXTOVERLAY *txtFrog1Info		= NULL;
 
 float CROAK_SOUND_RANGE			= 400;
 
@@ -104,4 +105,19 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		}
 	}
 	// ENDIF 
+
+	txtFrog1Info = CreateAndAddTextOverlay(30,60,"************************************************",NO,NO,255,255,255,255,smallFont,0,0,0);
+	DisableTextOverlay(txtFrog1Info);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: ShowFrogInfo
+	Purpose			: display info for specified frog actor
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void ShowFrogInfo()
+{
+	txtFrog1Info->draw ^= 1;
 }

@@ -252,7 +252,7 @@ void InitCameraForLevel(unsigned long worldID,unsigned long levelID)
 	int i=0;
 	TRANSCAMERA *tcam;
 
-	txtCamDist = CreateAndAddTextOverlay(30,50,"************************",NO,NO,255,255,255,255,smallFont,0,0,0);
+	txtCamDist = CreateAndAddTextOverlay(30,40,"************************************************",NO,NO,255,255,255,255,smallFont,0,0,0);
 	DisableTextOverlay(txtCamDist);
 
 	switch(worldID)
@@ -370,7 +370,7 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 	static VECTOR stdVector = { 0,480,192 };
 	
 	// display current camera position
-	sprintf(txtCamDist->text,"(%.0f,%.0f,%.0f) - %d",camDist.v[X],camDist.v[Y],camDist.v[Z],camFacing);
+	sprintf(txtCamDist->text,"cam at (%.0f,%.0f,%.0f) CF:%d",camDist.v[X],camDist.v[Y],camDist.v[Z],camFacing);
 
 	cur = transCameraList;
 	while(cur)
