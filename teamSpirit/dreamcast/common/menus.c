@@ -190,6 +190,8 @@ extern TEXTOVERLAY *removeControllerText3;
 int pauseFrameCount;
 int pauseFaded = 0;
 long pauseFadeTimer;
+
+
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
@@ -970,6 +972,10 @@ char goingToDemo = NO;
 extern SCENICOBJ *lightBeam;
 #endif
 
+// *ASL* 12/08/2000 - Frog logo timer
+TIMER frogLogoTimer;
+
+
 void RunFrontendGameLoop (void)
 {
 	unsigned long i,j;
@@ -981,6 +987,9 @@ void RunFrontendGameLoop (void)
 	// setup for frogger point of interest
 	pOIDistance = 20000<<12;
 	pointOfInterest = NULL;
+
+	// *ASL* 12/08/2000 - Update frog logo active timer
+	GTUpdate(&frogLogoTimer, -1);
 
 /*ma
 #ifdef PSX_VERSION
@@ -1471,10 +1480,11 @@ void RunFrontendGameLoop (void)
 		frogLogo->draw = 0;
 	}
 
-	if((fadingLogos == NO) && (currTileNum != TILENUM_START))
+	// *ASL* 12/08/2000 - Fade off logo after moving from start tile or active time finished
+	if (fadingLogos == 0 && ((currTileNum != TILENUM_START) || (frogLogoTimer.time <= 0)))
 		fadingLogos = 1;
 
-	if(fadingLogos)
+	if (fadingLogos)
 	{
 	  	DEC_ALPHA(frogLogo);
 	}

@@ -11,6 +11,10 @@
 
 #define F3DEX_GBI_2
 
+// *ASL* 12/08/2000 - Seconds the frog logo is active in the frontend
+#define FROG_LOGO_ACTIVE_SECS	5
+
+
 #include "prefix_dc.h"
 
 #ifndef PSX_VERSION
@@ -114,6 +118,9 @@ short lightIntensity	= 255;
 //Gotta do a get-around 'cos psiDestroy doesn't work
 //if psiAllocWorkspace hasn't been called.
 int AllowPsiDestroy = 0;
+
+// *ASL* 12/08/2000 - Frog logo timer
+extern TIMER frogLogoTimer;
 
 
 #ifdef PSX_VERSION
@@ -860,7 +867,12 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	player[0].levelNum = levelID;
 
 	if((worldID == WORLDID_FRONTEND) &&(levelID == LEVELID_FRONTEND1))
-			player[0].character = FROG_FROGGER;
+	{
+		player[0].character = FROG_FROGGER;
+
+		// *ASL* 12/08/2000 - Set frog logo active for at least n secs in the frontend
+		GTInit(&frogLogoTimer, FROG_LOGO_ACTIVE_SECS);
+	}
 			
 #ifdef PC_VERSION
 	dp("                                                                                 %lu Levels Played\n",numLevelsPlayed);
