@@ -106,7 +106,7 @@ KEYENTRY keymap[56] =
 	{ 0, PAD_R2, DIK_NUMPAD6 },
 	{ 0, PAD_SELECT, DIK_NUMPAD0 },
 	{ 0, PAD_L1, DIK_NUMPAD1 },
-	{ 0, PAD_R1, DIK_NUMPAD3 },
+	{ 0, PAD_R1, DIK_R },
 
 	{ 1, PAD_UP, DIK_W },
 	{ 1, PAD_DOWN, DIK_S },
