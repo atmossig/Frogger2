@@ -706,6 +706,14 @@ SOURCE=.\N64\objects.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\N64\objview.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\N64\objview.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\N64\printgfx.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
