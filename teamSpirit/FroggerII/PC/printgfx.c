@@ -54,7 +54,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 	unsigned int pos = 0,length;
 	unsigned int x,y,width;
 	unsigned char letter,letterCount;
-	
+	char *c;
 	short u,v,letterID;
 				
 	x = tOver->xPos * RES_DIFF2;
@@ -62,13 +62,16 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 
 	if(tOver->centred)
 	{
-		// Centre text along screen x-axis
-		length	= strlen(tOver->text);
-		width	= length * (tOver->font->xSpacing[0]);
-		x		= (SCREEN_WIDTH-width)/2;
+		for (c = tOver->text, width = 0; *c; c++)
+		{
+			letterID = characterMap[*c];
+			width += tOver->font->xSpacing[letterID];
+		}
 
-		if((length & 1) != 0)
-			x -= 5;
+		x = (SCREEN_WIDTH-width)/2;
+
+		//if((length & 1) != 0)
+		//	x -= 5;
 	}
 	else // If told to move, goto destination
 	{
@@ -85,7 +88,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 	}
 
 	letterCount = 0;
-	while(tOver->text[pos] != '\0')
+	for(c = tOver->text; *c; c++)
 	{
 		letter = tOver->text[pos];
 		letterID = characterMap[letter];
