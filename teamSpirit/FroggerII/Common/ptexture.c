@@ -242,7 +242,7 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 #ifdef PC_VERSION
 		a565Card
 #else
-		TRUE
+		FALSE
 #endif
 		)
 	{
