@@ -85,7 +85,9 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
 //bb - for merge
 	IQUATERNION qRot;
 
-	unsigned short clutOverride;
+//	unsigned short clutOverride;
+
+	TextureType *clutOverride;
 
 } ACTOR;
 
