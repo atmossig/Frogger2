@@ -47,6 +47,7 @@ void UpdateRace( )
 	if( !started )
 	{
 		timeTextOver->text[0] = '\0';
+		scoreTextOver->text[0] = '\0';
 
 		for( i=0,j=0; i<NUM_FROGS; i++ )
 			if( currTile[i]->state == TILESTATE_FROGGER1AREA )
@@ -72,6 +73,7 @@ void UpdateRace( )
 		if( !multiTimer.time )
 		{
 			sprintf( timeTextOver->text, "Go" );
+			started = 2;
 
 			for( i=0; i<NUM_FROGS; i++ )
 				player[i].canJump = 1;
@@ -89,17 +91,29 @@ void UpdateRace( )
 		return;
 	}
 
+	if( started )
+	{
+		sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
+	}
+
+	if( started != 2 )
+		return;
+
 	for( i=0; i<NUM_FROGS; i++ )
 	{
 		// Check for frog off screen - death
-		if( started )
+		if( !mpl[i].ready )
 		{
 			unsigned long total;
+
+			// Increase timer if not finished
 			mpl[i].timer += actFrameCount - lastActFrameCount;
 
+			// Format and print players lap time
 			total = mpl[i].timer + mpl[i].penalty;
 			sprintf( raceTimeOver[i]->text, "%i %i %i", (total/3600), ((total%3600)/60), (total%60) );
 
+			// Kill frogs that have fallen off screen
 			if( (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
 			{
 				KillMPFrog(i);
@@ -116,18 +130,8 @@ void UpdateRace( )
 					// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
 					if( mpl[i].lap >= 1)//MULTI_RACE_NUMLAPS )
 					{
-						unsigned long best, time, winner;
-
-						for( j=0,best=999999999; j<NUM_FROGS; j++ )
-						{
-							time = mpl[j].timer + mpl[j].penalty;
-							if( time < best )
-							{
-								best = time;
-								winner = j;
-							}
-						}
-
+						mpl[i].ready = 1;
+						player[i].canJump = 0;
 					}
 				}
 				// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
@@ -139,6 +143,46 @@ void UpdateRace( )
 				}
 			}
 		}
+	}
+
+	// Check players for finish
+	for( i=0; i<NUM_FROGS; i++ )
+		if( !mpl[i].ready ) break;
+
+	// If all players finished, check win conditions
+	if( i==NUM_FROGS )
+	{
+		unsigned long best, time, winner, draw;
+		// Find best time
+		for( j=0,best=999999999; j<NUM_FROGS; j++ )
+		{
+			// So it doesn't really belong here, sue me...
+			player[j].canJump = 1;
+
+			time = mpl[j].timer + mpl[j].penalty;
+			if( time < best )
+			{
+				best = time;
+				winner = j;
+			}
+		}
+		// If more then one on best time, draw
+		for( j=0,draw=0; j<NUM_FROGS; j++ )
+		{
+			time = mpl[j].timer + mpl[j].penalty;
+			if( j!=winner && time == best )
+				draw=1;
+		}
+
+		if( draw )
+			sprintf( timeTextOver->text, "Draw" );
+		else
+		{
+			mpl[winner].wins++;
+			sprintf( timeTextOver->text, "P%i won", winner );
+		}
+
+		GTInit( &endTimer, 5 );
 	}
 }
 
@@ -175,7 +219,6 @@ void UpdateBattle( )
 			GTInit( &powerupTimer, Random(4)+3 );
 			started = 1;
 			timeTextOver->text[0] = '\0';
-			scoreTextOver->draw = 1;
 		}
 	}
 
@@ -576,9 +619,9 @@ void ReinitialiseMultiplayer( )
 		break;
 	case MULTIMODE_RACE:
 		raceTimeOver[0] = CreateAndAddTextOverlay( 20, 40, raceTimeText[0], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
-		raceTimeOver[1] = CreateAndAddTextOverlay( 280, 40, raceTimeText[1], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
+		raceTimeOver[1] = CreateAndAddTextOverlay( 260, 40, raceTimeText[1], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
 		raceTimeOver[2] = CreateAndAddTextOverlay( 20, 220, raceTimeText[2], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
-		raceTimeOver[3] = CreateAndAddTextOverlay( 280, 220, raceTimeText[3], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
+		raceTimeOver[3] = CreateAndAddTextOverlay( 260, 220, raceTimeText[3], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
 
 		for( i=0; i<NUM_FROGS; i++ ) sprintf(raceTimeOver[i]->text, "00 00 00");
 		for( ; i<4; i++ ) DisableTextOverlay( raceTimeOver[i] );
