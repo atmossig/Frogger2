@@ -841,6 +841,9 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 			h, t, pl);
 	}
 
+	if( player[pl].heightJumped < -125 )
+		AnimateActor(frog[pl]->actor, FROG_ANIM_TRYTOFLY, YES, NO, 0.25, 0, 0 );
+
 	// ------------------------------------------------------------------------------------------
 
 	numHops_TOTAL++;
@@ -1191,7 +1194,7 @@ BOOL KillFrog(long pl)
 	int rVal;
 	
 	GTUpdate( &player[pl].dead, -1 );
-	if(!player[pl].dead.time || player[pl].deathBy == DEATHBY_INSTANT)
+	if( !player[pl].dead.time )
 	{
 		numHealth_TOTAL++;
 		// lose a life
@@ -1249,7 +1252,7 @@ BOOL KillFrog(long pl)
 		case DEATHBY_SQUASHED:
 			break;
 
-		case DEATHBY_EXPLOSION:
+		case DEATHBY_FIRE:
 			break;
 
 		case DEATHBY_ELECTRICSHOCK:
@@ -1268,6 +1271,15 @@ BOOL KillFrog(long pl)
 			else
 				ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)txtr2->data,(u32)txtr1->data,NO);
 #endif
+			break;
+
+		case DEATHBY_FALLING:
+			break;
+
+		case DEATHBY_WHACKING:
+			break;
+
+		case DEATHBY_VACUUM:
 			break;
 
 		case DEATHBY_CHOCOLATE:

@@ -60,14 +60,16 @@ enum
 
 enum
 {
-	DEATHBY_NORMAL,
-	DEATHBY_INSTANT,
-	DEATHBY_RUNOVER,
-	DEATHBY_DROWNING,
-	DEATHBY_SQUASHED,
-	DEATHBY_EXPLOSION,
-	DEATHBY_ELECTRICSHOCK,
-	DEATHBY_CHOCOLATE,
+	DEATHBY_NORMAL,				// Cutting, prodding
+	DEATHBY_RUNOVER,			// Roller, car, bus
+	DEATHBY_DROWNING,			// Water, seminal fluid
+	DEATHBY_SQUASHED,			// Big fat rock star, piano
+	DEATHBY_FIRE,				// Hot plate, camp fire, jacket potato up jacksy
+	DEATHBY_ELECTRICSHOCK,		// Zappy turrets, faulty vibrator
+	DEATHBY_FALLING,			// Splat from a height
+	DEATHBY_WHACKING,			// Big fast things hitting froggy against screen
+	DEATHBY_VACUUM,				// Floating in space, inside of my head
+	DEATHBY_CHOCOLATE,			// Mmm, chocolate...
 };
 
 
