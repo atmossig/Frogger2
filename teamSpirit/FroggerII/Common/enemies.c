@@ -1564,7 +1564,11 @@ void AssignPathToEnemy(ENEMY *nme,PATH *path,unsigned long pathFlags)
 			nme->path->nodes[i].worldTile = &firstTile[(unsigned long)path->nodes[i].worldTile];
 
 	// set the start position for the enemy
-	nme->path->fromNode	= nme->path->startNode;
+	if( path->startNode < path->numNodes )
+		path->fromNode = path->startNode;
+	else
+		path->fromNode = path->startNode = 0;
+
 
 	if(nme->flags & ENEMY_NEW_FORWARDS)
 	{

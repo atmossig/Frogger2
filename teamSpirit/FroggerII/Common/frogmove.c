@@ -597,7 +597,7 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 	if (!dest || dest->state == TILESTATE_BARRED)
 		return NULL;
 
-	while (dest->state == TILESTATE_JOIN)	// || dest->state == TILESTATE_SUPERHOP
+	if(dest->state == TILESTATE_JOIN)	// || dest->state == TILESTATE_SUPERHOP
 	{
 		GAMETILE *joiningTile = dest;
 
