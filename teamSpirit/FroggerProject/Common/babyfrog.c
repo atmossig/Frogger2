@@ -131,12 +131,14 @@ void InitBabyList( unsigned char createOverlays )
 			babyIcons[i]->g = babyList[i].fxColour[G];
 			babyIcons[i]->b = babyList[i].fxColour[B];
 
+#ifdef PC_VERSION
 			if( !rHardware )
 			{
 				babyIcons[i]->r /= 2;
 				babyIcons[i]->g /= 2;
 				babyIcons[i]->b /= 2;
 			}
+#endif
 		}
 	}
 	babyFlashFrame = -1;
@@ -182,12 +184,14 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 	else
 		n = i;
 
+#ifdef PC_VERSION
 	if( !rHardware )
 	{
 		babyIcons[n]->r *= 2;
 		babyIcons[n]->g *= 2;
 		babyIcons[n]->b *= 2;
 	}
+#endif
 
 	babyFlashFrame = actFrameCount;
 	babyFlash->r = babyIcons[n]->r;

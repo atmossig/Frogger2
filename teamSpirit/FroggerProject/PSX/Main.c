@@ -547,11 +547,6 @@ int main ( )
 
 			if((fadingOut == 0) && (fontSmall == NULL))
 			{
-#if GOLDCD==1		
-#if PALMODE==1
-				initialiseCrypt();
-#endif
-#endif
 				genBank = textureLoadBank("TEXTURES\\MEMCARD.SPT");
 				textureDownloadBank(genBank);
 				textureDestroyBank(genBank);
@@ -564,6 +559,11 @@ int main ( )
 				LoadCodeOverlay(VIDEO_OVERLAY);
 				actFrameCount = 180 - 32;
 				ScreenFade(255,0,30);
+#if GOLDCD==1		
+#if PALMODE==1
+				initialiseCrypt();
+#endif
+#endif
 			}
 
 
