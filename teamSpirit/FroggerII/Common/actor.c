@@ -28,12 +28,16 @@
 #define MAX_UNIQUE_ACTORS	50
 
 #ifdef PC_VERSION
+
 float ACTOR_DRAWDISTANCEINNER = 80000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 150000.0F;
 float ACTOR_DRAWDISTANCESTART = 300000.0F;
+
 #else
+
 float ACTOR_DRAWDISTANCEINNER = 100000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
+
 #endif
 
 #define WATER_XLU 70
@@ -116,38 +120,43 @@ void XformActorList()
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: DrawActorList
+	Purpose			: draws the actors in the actor list....doh !!
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
 void DrawActorList()
 {
-	ACTOR2 *cur;
-	float ACTOR_DRAWFADERANGE = ACTOR_DRAWDISTANCEOUTER-ACTOR_DRAWDISTANCEINNER;
+	/****************************************************************************************/
+	// IMPORTANT NOTE FROM SHARKY...
+	// I HAVE USED #ifdef's TO SPLIT UP THE DRAWING OF ACTORS BASED ON THE HARDWARE BEING
+	//	USED...I.E. PC OR N64...
+	//	THIS IS BECAUSE IT'S BEING A PAIN IN THE ARSE ON THE N64 AND I'M GONNA KICK IT'S
+	//	COCK OFF AND FIX IT AS SOON AS I CAN.
+	/****************************************************************************************/
 	
-#ifndef PC_VERSION
-	vtxPtr = &(objectsVtx[draw_buffer][0]);
+	ACTOR2 *cur;
+	float ACTOR_DRAWFADERANGE = ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER;
 
-	InitDisplayLists();
-	SetRenderMode();
-	SetupViewing();
+	/****************************************************************************************/
+	/* PC SPECIFIC VERSION																	*/
+	/****************************************************************************************/
 
-	if(fog.mode)
-	{
-	   gDPSetFogColor(glistp++,fog.r,fog.g,fog.b,255);
-	   gSPFogPosition(glistp++,fog.min,fog.max);
-	}
-#else
+#ifdef PC_VERSION
+	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-#endif
 
 	cur = actList;
 	waterObject = 0;
 	while(cur)
 	{
-#ifdef PC_VERSION // TEMPORARY MEASURE UNTIL N64 CAN USE NON-DRAWLISTED OBJECTS...ANDYE
 		if(cur->flags & ACTOR_SLIDYTEX)
 			if (cur->actor->objectController)
 				SlideObjectTextures(cur->actor->objectController->object);
-#endif
 	
-		if( ((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
+		if(((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
 		{
 			cur = cur->next;
 			continue;
@@ -189,9 +198,7 @@ void DrawActorList()
 		cur = cur->next;
 	}
 	
-	#ifdef PC_VERSION
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	#endif
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 
 	waterObject = 1;
 	cur = actList;
@@ -235,28 +242,119 @@ void DrawActorList()
 		cur = cur->next;
 	}
 
-}
+#endif
 
-void DrawCameraSpaceActorList()
-{
-	ACTOR2	*cur;
 
+
+	/****************************************************************************************/
+	/* N64 SPECIFIC VERSION																	*/
+	/****************************************************************************************/
+	
+#ifdef N64_VERSION
+	
+	vtxPtr = &(objectsVtx[draw_buffer][0]);
+
+	// fogging ?
+	if(fog.mode)
+	{
+	   gDPSetFogColor(glistp++,fog.r,fog.g,fog.b,255);
+	   gSPFogPosition(glistp++,fog.min,fog.max);
+	}
+
+	// draw non-xlu objects and calculate xlu values for actor fading
+	cur = actList;
+	waterObject = 0;
+	while(cur)
+	{
+		// slide texture coordinates here for water objects ??? AndyE
+	
+		if(((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController) || (cur->flags & ACTOR_DRAW_LAST))
+		{
+			// ignore this actor for now...not drawing water
+			cur = cur->next;
+			continue;
+		}
+
+		if(cur->flags & ACTOR_DRAW_ALWAYS)
+		{
+			// always draw this actor without "xlu-culling"
+			DrawActor(cur->actor);
+		}
+		else
+		{
+			// check if distance from frog is outside inner draw distance radius
+			if(cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
+			{
+				// do not draw for now...
+			}
+			else
+			{
+				// draw for now...
+				DrawActor(cur->actor);
+			}
+		}
+
+		cur = cur->next;
+	}
+
+	// go ahead and draw the xlu water objects
+	waterObject = 1;
 	cur = actList;
 	while(cur)
 	{
-		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
-		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
-		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+		// only draw xlu water objects
+		if(cur->flags & ACTOR_WATER)
 		{
-			if(cur->draw && (cur->flags & ACTOR_DRAW_LAST) )
+			int i;
+			OBJECT *obj = cur->actor->objectController->object;
+			SetXluInDrawList(obj->drawList,WATER_XLU);
+			DrawActor(cur->actor);
+		}
+		
+		cur = cur->next;
+	}
+
+/*
+	// now draw the xlu objects that aren't water objects
+	waterObject = 0;
+	cur = actList;
+	while(cur)
+	{
+		// don't draw the water objects
+		if((cur->flags & ACTOR_WATER) || !(cur->flags & ACTOR_DRAW_CULLED))
+		{
+			cur = cur->next;
+			continue;
+		}
+
+		if(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
+		{
+			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER)
 			{
 				DrawActor(cur->actor);
 			}
 		}
-	
+		
 		cur = cur->next;
-	} 
+	}
+*/
+	// now draw non-transformed actors
+	ClearViewing();
+
+	cur = actList;
+	while(cur)
+	{
+		if(cur->flags & ACTOR_DRAW_LAST)
+		{
+			DrawActor(cur->actor);
+		}
+
+		cur = cur->next;
+	}
+
+#endif
 }
+
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -341,14 +439,13 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->effects = 0;
 
 	// add actor object sprites to sprite list
-	if( (newItem->actor->objectController) && (newItem->actor->objectController->object) )
+	if((newItem->actor->objectController) && (newItem->actor->objectController->object))
 		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
 
-	if (name[0]!='x' && name[1]!='x')
+	if(name[0] != 'x' && name[1] != 'x')
 		newItem->flags = ACTOR_DRAW_CULLED;
 	else
 		newItem->flags = ACTOR_DRAW_ALWAYS;
-
 
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
