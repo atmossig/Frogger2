@@ -57,6 +57,7 @@ unsigned long utilSqrt(unsigned long num)
 	return (int)((atan2(adj,opp) / 6.283185308) * 4096.0);
 }*/
 
+#ifndef FINAL_MASTER
 
 int utilPrintf(char* fmt, ...)				
 {
@@ -76,3 +77,5 @@ int utilPrintf(char* fmt, ...)
 
 	return 0;
 }
+
+#endif

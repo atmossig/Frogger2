@@ -754,7 +754,7 @@ void PauseAudio( )
 		a->lpdsBuffer = NULL;
 
 	if( mciDevice )
-		mciSendCommand(mciDevice, MCI_STOP, 0, NULL);
+		mciSendCommand(mciDevice, MCI_STOP, 0, (DWORD)NULL);
 }
 
 
@@ -787,7 +787,7 @@ void UnPauseAudio( )
 		MCI_PLAY_PARMS mciPlayParms;
 
 		mciPlayParms.dwCallback = (DWORD)mdxWinInfo.hWndMain;
-		mciSendCommand(mciDevice, MCI_PLAY, MCI_NOTIFY, &mciPlayParms);
+		mciSendCommand(mciDevice, MCI_PLAY, MCI_NOTIFY, (DWORD)&mciPlayParms);
 	}
 }
 
@@ -995,7 +995,7 @@ DWORD stopCDTrack ( HWND hWndNotify )
 
 int pauseCDTrack()
 {
-    return mciSendCommand(mciDevice, MCI_STOP, 0, NULL);
+    return mciSendCommand(mciDevice, MCI_STOP, 0, 0);
 }
 
 // Plays a specified audio track using MCI_OPEN, MCI_PLAY. Returns as 
@@ -1395,6 +1395,8 @@ void SubAmbientSound(AMBIENT_SOUND *ambientSound)
 
 void FreeAmbientSoundList( )
 {
+	BUFSAMPLE *bufs;
+
 	// traverse enemy list and free elements
 	while( ambientSoundList.head.next && ambientSoundList.head.next != &ambientSoundList.head )
 	{
@@ -1406,6 +1408,18 @@ void FreeAmbientSoundList( )
 
 	// initialise list for future use
 	InitAmbientSoundList();
+
+	// eat up looping, buffered samples - ds
+	for (bufs=bufferList.head.next; bufs!=&bufferList.head; bufs=bufs->next)
+	{
+		DWORD stat;
+		bufs->lpdsBuffer->lpVtbl->GetStatus( bufs->lpdsBuffer, &stat );
+		if( stat & DSBSTATUS_PLAYING && stat & DSBSTATUS_LOOPING )
+		{
+			bufs->lpdsBuffer->lpVtbl->Stop( bufs->lpdsBuffer );
+			RemoveBufSample( bufferList.head.next );
+		}
+	}
 }
 
 

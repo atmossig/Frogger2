@@ -797,6 +797,7 @@ int GameStartup()
 	InitFrames();
 	InitFontSystem();
 	ClearTimers();
+	InitSampleList();
 
 	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
 	pcFont = InitFont(path);

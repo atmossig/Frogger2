@@ -9,7 +9,11 @@ extern "C"
 {
 #endif
 
+#ifdef FINAL_MASTER
+#define utilPrintf(x)		// disables debug output
+#else
 int utilPrintf(char* fmt, ...);
+#endif
 
 unsigned long utilSqrt(unsigned long num);
 
