@@ -432,24 +432,29 @@ void CalcSPCamera( VECTOR *target )
 
 void CameraSetOffset(void)
 {
-	float afx=0,afy=0,afz=0;
 	long nC;
 	int i, l=0;
 
 	if( gameState.multi == SINGLEPLAYER )
 	{
+		VECTOR v;
 		nC = (camFacing+1)&3;
 
-		afx = currTile[playerFocus]->normal.v[0]*currCamDist.v[1] - currTile[playerFocus]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
-		afy = currTile[playerFocus]->normal.v[1]*currCamDist.v[1] - currTile[playerFocus]->dirVector[camFacing].v[1]*currCamDist.v[2];
-		afz = currTile[playerFocus]->normal.v[2]*currCamDist.v[1] - currTile[playerFocus]->dirVector[camFacing].v[2]*currCamDist.v[2];
+		SetVector(&v, &camVect);
+		ScaleVector(&v, currCamDist.v[1]);
+		SetVector(&camOffset, &v);
 
-		camOffset.v[0] = afx + currTile[0]->dirVector[nC].v[0]*camSideOfs;
-		camOffset.v[1] = afy + currTile[0]->dirVector[nC].v[1]*camSideOfs;
-		camOffset.v[2] = afz + currTile[0]->dirVector[nC].v[2]*camSideOfs;
+		SetVector(&v, &currTile[playerFocus]->dirVector[camFacing]);
+		ScaleVector(&v, -currCamDist.v[2]);
+		AddToVector(&camOffset, &v);
+
+		SetVector(&v, &currTile[0]->dirVector[nC]);
+		ScaleVector(&v, camSideOfs);
+		AddToVector(&camOffset, &v);
 	}
 	else
 	{
+		float afx=0,afy=0,afz=0;
 		nC = (camFacing+1)&3;
 	
 		for( i=0; i<NUM_FROGS; i++ )
@@ -578,12 +583,12 @@ void SlurpCamPosition( )
 			camVect.v[1] -= s2 * (camVect.v[1] - t.v[1]);
 			camVect.v[2] -= s2 * (camVect.v[2] - t.v[2]);
 		}
-		else
+		/*else
 		{
 			camVect.v[0] = 0;
 			camVect.v[1] = 1;
 			camVect.v[2] = 0;
-		}
+		}*/
 	}
 
 	camLookOfs	-= s1 * (camLookOfs - camLookOfsNew);

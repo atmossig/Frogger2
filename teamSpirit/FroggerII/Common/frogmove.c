@@ -23,8 +23,8 @@ GAMETILE *destTile[4]			= {0,0,0,0};
 GAMETILE *currTile[4]			= {0,0,0,0};
 GAMETILE *prevTile				= NULL;
 
-static float frogAnimSpeed		= 0.4F;
-static float frogAnimSpeed2		= 0.75F;
+static float frogAnimSpeed		= 0.8F;
+static float frogAnimSpeed2		= 1.6F;
 
 int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
@@ -167,7 +167,6 @@ BOOL UpdateFroggerControls(long pl)
 
 		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 
-		frogFacing[pl] = (camFacing + dir) & 3;
 
 		//nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 		
@@ -187,8 +186,9 @@ BOOL UpdateFroggerControls(long pl)
 
 		prevTile = currTile[pl];
 
+		AnimateFrogHop((dir - camFacing) & 3, pl);
+		frogFacing[pl] = (camFacing + dir) & 3;
 		jump = MoveToRequestedDestination(dir,pl);
-		AnimateFrogHop((dir + camFacing) & 3,pl);
 
 		if (!jump) AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6f, NO, NO);
 	}
@@ -339,7 +339,7 @@ void UpdateFroggerPos(long pl)
 			FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR);
 		//player[pl].canJump = 0;
 	}
-	
+
 	if( player[pl].autohop.time )
 		GTUpdate( &player[pl].autohop, -1 );
 	if( player[pl].quickhop.time )
@@ -445,6 +445,7 @@ void UpdateFroggerPos(long pl)
 			(player[pl].jumpTime > 0.5))
 		{
 			currTile[pl] = destTile[pl];
+			//destTile[pl] = 0;
 		}
 	}
 
@@ -943,7 +944,7 @@ void CheckForFroggerLanding(long pl)
 	}
 	else if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
 	}
 	else if( player[pl].deathBy == DEATHBY_WHACKING )
 	{
@@ -1029,6 +1030,7 @@ void CheckForFroggerLanding(long pl)
 		//frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 
 		frogFacing[pl] = nextFrogFacing[pl];
+		SitAndFace(frog[pl], tile, frogFacing[pl]);
 
 		state = tile->state;
 /*
