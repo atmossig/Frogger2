@@ -1364,7 +1364,7 @@ BOOL KillFrog(long pl)
 			// throw some stars about
 			if(!(actFrameCount & 31))
 			{
-				CreateAndAddSpecialEffect( FXTYPE_SPLASH, &destTile[pl]->centre, &destTile[pl]->normal, 6, 15, 0, 2 );
+				CreateAndAddSpecialEffect( FXTYPE_SPLASH, &currTile[pl]->centre, &currTile[pl]->normal, 6, 15, 0, 2 );
 			}
 			break;
 
