@@ -885,7 +885,13 @@ int InitLevelScript(void *buffer)
 
 	if (err)
 	{
-		JallocFree(&scriptBuffer); scriptBuffer = NULL;
+#ifdef PC_VERSION
+		JallocFree(&scriptBuffer);
+#else
+		JallocFree((UBYTE**)scriptBuffer);
+#endif
+
+		scriptBuffer = NULL;
 		return 0;
 	}
 
@@ -894,7 +900,16 @@ int InitLevelScript(void *buffer)
 
 int FreeLevelScript(void)
 {
-	JallocFree(&scriptBuffer); scriptBuffer = NULL; return 1;
+	if(scriptBuffer)
+	{
+#ifdef PC_VERSION
+		JallocFree(&scriptBuffer);
+#else
+		JallocFree((UBYTE**)scriptBuffer);
+#endif
+
+		scriptBuffer = NULL;
+	}
+
+	return 1;
 }
-
-

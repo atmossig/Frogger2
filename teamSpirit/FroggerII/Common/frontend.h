@@ -1,36 +1,18 @@
 /*
 
-	This file is part of Frogger2, (c) 1997 Interactive Studios Ltd.
-
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
 	File		: frontend.h
-	Programmer	: James Healey
-	Date		: 30/03/99
+	Programmer	: Andy Eder (originally Random Healey, but now rewritten)
+	Date		: 14/10/99 11:58:26
 
 ----------------------------------------------------------------------------------------------- */
 
 #ifndef FRONTEND_H_INCLUDED
 #define FRONTEND_H_INCLUDED
 
-enum frontEndModes
-{
-	//  Frontend / Title screen Modes
-	TITLE_MODE,
-	LEVELSELECT_MODE,
-	OBJVIEW_MODE,
-	SNDVIEW_MODE,
-	DEVELOPMENTMENU_MODE
-};
-
-struct frontEndStateStruct
-{
-	unsigned long mode;
-};
-
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
-
-extern struct frontEndStateStruct frontEndState;
 
 extern int frameCount;
 extern int frameCount2;
@@ -41,10 +23,9 @@ extern char	ActiveController;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-extern void RunFrontEndStates	( void );
-extern void GameLoop			( void );
+extern void GameLoop();
 
-extern void RunLevelSelect		( void );
-extern void RunTitleScreen		( void );
+extern void RunLevelSelect();
+extern void RunTitleScreen();
 
 #endif

@@ -17,8 +17,6 @@
 
 //------ [ GLOBALS ] ---------------------------------------------------------------------------//
 
-struct frontEndStateStruct frontEndState;
-
 int frameCount			= 0;
 int	frameCount2			= 0;
 int dispFrameCount		= 0;
@@ -26,82 +24,51 @@ int dispFrameCount		= 0;
 char ActiveController	= 0;
 
 
-//------ [ FUNCTION IMPLEMENTATION ] -----------------------------------------------------------//
 
-void RunFrontEndStates( )
-{
-	switch ( frontEndState.mode )
-	{
-	case TITLE_MODE:
-		RunTitleScreen();
-		break;
-	case LEVELSELECT_MODE:
-		RunLevelSelect();
-		break;
-#ifndef PC_VERSION
-	case DEVELOPMENTMENU_MODE:
-		RunDevelopmentMenu();
-		break;
-	case OBJVIEW_MODE:
-		RunObjectViewer();
-		break;
-	case SNDVIEW_MODE:
-		RunSndView();
-		break;
-#endif
-
-	}
-}
-
-
-
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: GameLoop 
-
-	Purpose		:
-	Parameters	: (void)
-	Returns		: static void 
+/*	--------------------------------------------------------------------------------
+	Function		: GameLoop
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
 */
-
-long ingameRate = 3;
-
 void GameLoop(void)
 {
-	int i = 4;
+	int i;
 
 	switch (gameState.mode)
 	{
-	case GAME_MODE:
-		desiredFrameRate = newDesiredFrameRate = ingameRate;
-		if(frameCount == 15)
-			StartDrawing("gameloop");
+		case GAME_MODE:
+		case INGAME_MODE:
+		case FRONTEND_MODE:
+			if(frameCount == 15)
+				StartDrawing("gameloop");
 
-#ifdef PC_VERSION
-		UseAAMode = 2;
-		UseZMode = 1;
-#endif
+	#ifdef PC_VERSION
+			UseAAMode = 2;
+			UseZMode = 1;
+	#endif
 	
-		RunGameLoop();
-		frameCount++;
-		break;
-	case CAMEO_MODE:
-	case PAUSE_MODE:
-		desiredFrameRate = newDesiredFrameRate = ingameRate;
-		if(frameCount == 15)
-			StartDrawing("pausemode");
+			RunGameLoop();
+			frameCount++;
+			break;
+	
+		case CAMEO_MODE:
+		case PAUSE_MODE:
+			if(frameCount == 15)
+				StartDrawing("gameloop");
 
-		RunPauseMenu();
-		frameCount++;
-		break;
-	case FRONTEND_MODE:
-		desiredFrameRate = newDesiredFrameRate = 1;
-		if ( frameCount == 15 )
-			StartDrawing ( "frontend" );
+			RunPauseMenu();
+			frameCount++;
+			break;
 
-		RunFrontEndStates();
-		frameCount++;
-		break;
+		case DEVELOPMENT_MODE:
+			if(frameCount == 15)
+				StartDrawing("gameloop");
+
+			RunDevelopmentMenu();
+			frameCount++;
+			break;
 	}
 
 	i = NUM_FROGS;

@@ -18,6 +18,4 @@
 extern char *DIKStrings[256];
 #endif
 
-extern void RunLanguageSelect	( void );
-
 #endif

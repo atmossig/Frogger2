@@ -7,7 +7,10 @@ extern void LoadTestScript(const char* filename);
 extern int Interpret(const UBYTE *);
 
 extern int InitLevelScript(void *buffer);
+
+#ifdef PC_VERSION
 extern int FreeLevelScript(void);
+#endif
 
 extern UBYTE* scriptBuffer;
 

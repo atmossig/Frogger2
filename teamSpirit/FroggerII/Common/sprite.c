@@ -602,12 +602,13 @@ void InitSpriteFrameLists()
 */
 void FreeSpriteFrameLists()
 {
-	dprintf"!!! FreeSpriteFrameLists !!! Fix me! Fix me!\n"));
-/*		
-	if(spriteFrameList[0].texture)
-		JallocFree((UBYTE **)&spriteFrameList[0].texture);
-*/
-	// FIX IT! Grr.
+	int j;
+
+	for(j=0; j<NUM_SPRITE_ANIMS; j++)
+		if(spriteFrameList[j].texture)
+			JallocFree((UBYTE **)&spriteFrameList[j].texture);
+
+	dprintf"FREED SPRITE FRAME LISTS\n"));
 }
 
 /*	--------------------------------------------------------------------------------

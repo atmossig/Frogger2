@@ -547,7 +547,8 @@ long initialCamera = 0;
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
-	StopDrawing("initlev");
+
+	frameCount = 1;
 
 	// prepare screen for fade in
 	fadeOut		= 255;
@@ -578,11 +579,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	InitTriggerList();
 
 	LoadLevelEntities(worldID,levelID);
-
-#ifdef PC_VERSION
-	/* Whoever it is, stop fucking well deleting this line */
-	LoadLevelScript(worldID, levelID);
-#endif
+	LoadLevelScript(worldID,levelID);
 
 	i=0;
 	initialCamera = 1;
@@ -611,8 +608,6 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	fStart = worldVisualData[worldID].levelVisualData[levelID].fogNearDist * 0.0005;
 	fEnd = 	(worldVisualData[worldID].levelVisualData[levelID].fogFarDist * 0.0005);
 #endif
-
-	StartDrawing("initlev");
 }
 
 
@@ -631,6 +626,8 @@ void FreeAllLists()
 #endif
 
 	dprintf"----- FREEING ALL LISTS -----\n"));
+
+	StopDrawing("FREELIST");
 
 	KillAllTriggers();
 
@@ -653,6 +650,7 @@ void FreeAllLists()
 	FreeLevelEntitys();
 	FreeGrabData();
 #endif
+	FreeLevelScript();
 	FreeMapBank();
 
 	FreeActorList();

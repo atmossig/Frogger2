@@ -50,7 +50,6 @@ void RunTitleScreen( )
 
 	if ( frameCount == 1 )
 	{
-		StopDrawing ( "Title Screen" );
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
@@ -59,8 +58,6 @@ void RunTitleScreen( )
 #else
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 #endif
-
-		//myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
 
 		currFont	= smallFont;
 		startText = CreateAndAddTextOverlay(100,112,"start game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
@@ -74,8 +71,6 @@ void RunTitleScreen( )
 		CreateOverlays();
 		ResetParameters();
 
-		StartDrawing ( "Title Screen" );
-
 #ifdef MBR_DEMO
 #ifdef PC_VERSION
 		FreeAllLists();
@@ -84,7 +79,7 @@ void RunTitleScreen( )
 		InitLevel( player[0].worldNum, player[0].levelNum );
 
 		gameState.oldMode = FRONTEND_MODE;
-		gameState.mode = GAME_MODE;
+		gameState.mode = INGAME_MODE;
 
 		frameCount = 0;
 		lastbutton = 0;
@@ -146,7 +141,7 @@ void RunTitleScreen( )
 				InitLevel ( 0, 0 );
 
 				gameState.oldMode = FRONTEND_MODE;
-				gameState.mode = GAME_MODE;
+				gameState.mode = INGAME_MODE;
 
 				frameCount = 0;
 				lastbutton = 0;
@@ -158,14 +153,12 @@ void RunTitleScreen( )
 				FreeAllLists();
 				frameCount = 0;
 				lastbutton = 0;
-				frontEndState.mode = LEVELSELECT_MODE;
 				PlaySampleNot3D(2,192,128,128);
 				break;
 			case 2:
 				FreeAllLists();
 				frameCount = 0;
 				lastbutton = 0;
-				frontEndState.mode = LEVELSELECT_MODE;
 				PlaySampleNot3D(2,192,128,128);
 				NUM_FROGS = numPlayers;
 				gameState.multi = MULTILOCAL;
@@ -173,7 +166,6 @@ void RunTitleScreen( )
 			case 3:
 				FreeAllLists();
 				gameState.oldMode = FRONTEND_MODE;
-				frontEndState.mode = DEVELOPMENTMENU_MODE;
 				frameCount = 0;
 				lastbutton = 0;
 				PlaySampleNot3D(2,192,128,128);
@@ -196,7 +188,7 @@ void RunTitleScreen( )
 			InitLevel( player[0].worldNum, player[0].levelNum );
 
 			gameState.oldMode = FRONTEND_MODE;
-			gameState.mode = GAME_MODE;
+			gameState.mode = INGAME_MODE;
 			gameState.multi = SINGLEPLAYER;
 
 			frameCount = 0;
@@ -247,8 +239,6 @@ void RunLevelSelect( )
 
 	if ( frameCount == 1 )
 	{
-		StopDrawing ( "demo option" );
-
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
@@ -278,8 +268,6 @@ void RunLevelSelect( )
 		}
 
 		ResetParameters();
-
-		StartDrawing ( "demo option" );
 	}
 
 
@@ -394,7 +382,6 @@ void RunLevelSelect( )
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
-			frontEndState.mode	= TITLE_MODE;
 			PlaySampleNot3D(2,192,128,128);
 			return;
 		}
@@ -414,7 +401,7 @@ void RunLevelSelect( )
 				InitLevel ( currentWorldSelect, currentLevelSelect );
 
 				gameState.oldMode = FRONTEND_MODE;
-				gameState.mode = GAME_MODE;
+				gameState.mode = INGAME_MODE;
 
 				
 				if( gameState.multi != MULTIREMOTE )
@@ -455,11 +442,11 @@ void RunLevelSelect( )
 	Returns 	: 
 	Info 		:
 */
-void RunPauseMenu( )
+void RunPauseMenu()
 {
 	static unsigned long currentSelection = 0;
 	static u16 button,lastbutton = 0;
-
+	
 	button = controllerdata[ActiveController].button;
 
 	pauseTitle->a -= 16;
@@ -497,7 +484,7 @@ void RunPauseMenu( )
 			case 0:   // Continue Game
 			{
 				long i;
-				gameState.mode	= GAME_MODE;
+				gameState.mode	= INGAME_MODE;
 
 				livesTextOver->a = livesTextOver->oa;
 				timeTextOver->a = timeTextOver->oa;
@@ -509,15 +496,17 @@ void RunPauseMenu( )
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 1;
 
-//				grabData.afterEffect = PAUSE_EXIT;
+				// free memory associated with screen grab effects
+				FreeGrabData();
 				return;
 			}
 			case 1:   // Quit Game
-				StopDrawing("Quit Game");
 				FreeAllLists();
-				gameState.mode = FRONTEND_MODE;
+				InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND2);
+				gameState.mode = INGAME_MODE;
+
 				frameCount = 0;
-				StartDrawing("Quit Game");
+				lastbutton = 0;
 				return;
 		}
 
@@ -917,7 +906,6 @@ void RunSaveLoadSelect ( void )
 							break;
 						case 2:
 								FreeAllLists();
-								frontEndState.mode = TITLE_MODE;
 								frameCount		= 0;
 								lastbutton		= 0;
 							break;
@@ -1216,7 +1204,6 @@ void RunSaveLoadSelect ( void )
 						FreeAllLists();
 						frameCount		= 0;
 						lastbutton		= 0;
-						frontEndState.mode = TITLE_MODE;
 						return;
 					}
 					// ENDIF
@@ -1233,7 +1220,6 @@ void RunSaveLoadSelect ( void )
 
 				if ( ( button & CONT_START ) && !( lastbutton & CONT_START ) )
 				{
-					frontEndState.mode	= TITLE_MODE;
 					sprintf ( player[0].name, enteredName );
 				}
 				// ENDIF
@@ -1277,8 +1263,6 @@ void RunTitleScreen()
 
 	if(frameCount == 1)
 	{	
-		StopDrawing("title screen");
-
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
@@ -1296,9 +1280,6 @@ void RunTitleScreen()
 		CreateOverlays();
 
 		ResetParameters();
-
-
-		StartDrawing("title screen");
 	}	
 
 		
@@ -1327,7 +1308,6 @@ void RunTitleScreen()
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
 			return;
@@ -1343,13 +1323,10 @@ void RunTitleScreen()
 			switch (currentSelection)
 			{
 				case 0:   // Start Game
-					frontEndState.mode	= GAMETYPE_MODE;
 					return;
 				case 1:   // Options Mode
-					frontEndState.mode	= OPTIONS_MODE;
 					return;
 				case 2:   // Development Mode
-					frontEndState.mode	= DEVELOPMENTMENU_MODE;
 					return;
 			}
 		}			
@@ -1491,16 +1468,6 @@ void RunLevelSelect ( void )
 
 	button = controllerdata [ ActiveController ].button;
 
-	/*if ( ( button & CONT_B ) && !( lastbutton & CONT_B ) )
-	{
-		FreeAllLists();
-		frontEndState.mode	= GAMETYPE_MODE;
-		frameCount		= 0;
-		lastbutton		= 0;
-		return;
-	}
-	// ENDIF
-	   */
 	if ( frameCount > 15 )
 	{
 		if ( ( button & CONT_L ) && !( lastbutton & CONT_L ) )
@@ -1643,7 +1610,7 @@ void RunLevelSelect ( void )
 				if ( currentSelection == 0 && currentLevelSelection == 0 )
 					gameState.mode	  = CAMEO_MODE;
 				else
-					gameState.mode	  = GAME_MODE;
+					gameState.mode	  = INGAME_MODE;
 				// ENDELSEIF
 				frameCount = 0;
 				lastbutton = 0;
@@ -1737,7 +1704,6 @@ void RunOptionsMode()
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
 			return;
@@ -1753,13 +1719,10 @@ void RunOptionsMode()
 			switch (currentSelection)
 			{
 				case 0:   // Sound Mode
-					frontEndState.mode	= SOUNDADJUST_MODE;
 					return;
 				case 1:  // Controller Config Mode
-					frontEndState.mode	= CONTROLCONFIG_MODE;
 					return;
 				case 2:	 // High Score Mode
-					frontEndState.mode	= HIGHSCORE_MODE;
 					return;
 			}
 		}			
@@ -1914,7 +1877,6 @@ void RunSoundAdjust()
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frontEndState.mode = OPTIONS_MODE;
 			frameCount = 0;
 			lastbutton = 0;
 		}
@@ -2042,7 +2004,6 @@ void RunHiScoreMode ( void )
 	if((button & CONT_B) && !(lastbutton & CONT_B))
 	{
 		FreeAllLists();
-		frontEndState.mode = OPTIONS_MODE;
 		frameCount = 0;
 		lastbutton = 0;
 	}
@@ -2133,7 +2094,6 @@ void RunGameMode()
 		if((button & CONT_B) && !(lastbutton & CONT_B))
 		{
 			FreeAllLists();
-			frontEndState.mode = TITLE_MODE;
 			frameCount = 0;
 			lastbutton = 0;
 		}
@@ -2147,14 +2107,12 @@ void RunGameMode()
 				FreeAllLists();
 				frameCount		= 0;
 				lastbutton		= 0;
-				frontEndState.mode	= LEVELSELECT_MODE;
 				PlaySampleNot3D(2,,192,128,128);
 				return;
 			case 1:  // Multiplayer Mode
 				FreeAllLists();
 				frameCount		= 0;
 				lastbutton		= 0;
-				frontEndState.mode	= MULTIPLAYER_MODE;
 				PlaySampleNot3D(2,192,128,128);
 				return;
 			}

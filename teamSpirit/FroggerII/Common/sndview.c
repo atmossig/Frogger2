@@ -613,7 +613,6 @@ void RunSndView()
 		audioCtrl.currentTrack[0] = 0;
 
 		FreeAllLists();
-		frontEndState.mode = TITLE_MODE;
 	}
 
 	lastbutton = button;

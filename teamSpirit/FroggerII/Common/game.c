@@ -205,7 +205,7 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
     {
 		if ( gameState.mode == CAMEO_MODE )
-			gameState.mode = GAME_MODE;
+			gameState.mode = INGAME_MODE;
 
 		// update player idleTime
 		player[pl].idleTime = MAX_IDLE_TIME;
@@ -299,14 +299,16 @@ void GameProcessController(long pl)
 		player[pl].idleTime = MAX_IDLE_TIME;
 	}
 
-	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))
+	if((button[0] & CONT_E) && !(lastbutton[0] & CONT_E))
     {
+		StartDrawing("start");
 	}
 
 	if((button[0] & CONT_D) && !(lastbutton[0] & CONT_D))
     {
 		// toggle between zoom in or out camera view
-		ChangeCameraSetting();
+//		ChangeCameraSetting();
+		StopDrawing("end");
 	}
 
 	if( !fixedPos && !fixedDir )
@@ -540,7 +542,7 @@ void RunGameLoop (void)
 	unsigned long i,j;
 	GAMETILE *cur;
 	
-	// Setup for frogger point of interest
+	// setup for frogger point of interest
 	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
 
@@ -557,8 +559,6 @@ void RunGameLoop (void)
 
 		gameIsOver = 0;
 		levelIsOver = 0;
-
-		ChangeCameraSetting();
 
 		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,255,255,255,0);
 		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,255,255,255,0);
@@ -604,15 +604,11 @@ void RunGameLoop (void)
 				sprHeart[i]->draw = 0;			
 		}
 
-//		sp = AddNewSpriteToList(firstTile[],firstTile[],firstTile[],0,"wholekey.bmp",0);
-
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,NO,255,255,255,255,smallFont,0,0,0);
 #endif
 
-		//CreateAndAddTextOverlay(0,218,"milestone 5",YES,NO,255,255,255,91,smallFont,0,0,0);
-
-		if (clearTiles)
+		if(clearTiles)
 		{
 			cur = firstTile;
 			while ( cur )
@@ -651,35 +647,19 @@ void RunGameLoop (void)
 			gameIsOver--;
 			if(!gameIsOver)
 			{
-				StopDrawing ( "game over" );
+				StopDrawing("game over");
 				FreeAllLists();
 
-#ifdef MBR_DEMO
-#ifdef PC_VERSION
-				player[0].levelNum = LEVELID_FRONTEND5;
-				player[0].worldNum = WORLDID_LANGUAGE;
+				player[0].levelNum = LEVELID_FRONTEND1;
+				player[0].worldNum = WORLDID_FRONTEND;
 				player[0].frogState &= ~FROGSTATUS_ISDEAD;
-				InitLevel ( player[0].worldNum, player[0].levelNum );
-				SetFroggerStartPos(gTStart[0],0);
-#endif
-#else
-				gameState.mode = FRONTEND_MODE;
-				frontEndState.mode = TITLE_MODE;
-#endif
+				InitLevel(player[0].worldNum,player[0].levelNum);
+
 				frameCount = 0;
-				StartDrawing ( "game over" );
+				StartDrawing("game over");
 				return;
 			}
 		}
-		else
-		{
-			//osMotorStop ( &rumble );
-		}
-		 
-//		camDist.v[Y] -= (camDist.v[Y] - 100) / 10.0F;
-//		camDist.v[Z] -= (camDist.v[Z] - 125) / 10.0F;
-
-		//UpdateCameraPosition(0);
 	}
 	else
 	{
@@ -710,8 +690,6 @@ void RunGameLoop (void)
 
 			if(!levelIsOver)
 			{
-				StopDrawing ( "EndGame" );
-
 				DoHiscores( );
 
 				// Only go to next level if in normal level progression.
@@ -743,19 +721,12 @@ void RunGameLoop (void)
 
 				spawnCounter = 0;
 
-				/*if ( player[0].levelNum == 4 )
-				{
-					frontEndState.mode	= TITLE_MODE;
-					gameState.mode		= FRONTEND_MODE;
-				}*/
-
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
 
-				InitLevel ( player[0].worldNum, player[0].levelNum );
+				InitLevel(player[0].worldNum,player[0].levelNum);
 
 				showEndLevelScreen = 1; // Normal level progression is default
 
-				StartDrawing ( "EndGame" );
 				return;
 			}
 				
