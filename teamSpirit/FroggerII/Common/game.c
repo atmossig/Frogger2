@@ -392,6 +392,7 @@ void GameProcessController(long pl)
 */
 extern ACTOR2 *backGnd;
 
+
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	ACTOR2 *theActor;
@@ -436,7 +437,11 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			// If a water object, draw always
 			if( !gstrcmp( tmp, "wat_\0" ) )
 			{
-				theActor->flags |= ACTOR_WATER;
+				theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS;
+
+#ifdef N64_VERSION
+				AddN64WaterObjectResource(theActor->actor);
+#endif
 
 				if (ts->name[4]=='f')
 					theActor->flags |= ACTOR_SLIDYTEX;
@@ -531,6 +536,7 @@ void RunGameLoop (void)
 		if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
+#ifdef PC_VERSION
 				frogFacing[0] = 3;
 				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
 				konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,0);
@@ -545,6 +551,7 @@ void RunGameLoop (void)
 				flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,0);
 				flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,0);
 				flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,0);
+#endif
 				fadingLogos = 0;
 			}
 
@@ -620,6 +627,7 @@ void RunGameLoop (void)
 	     (player[0].levelNum == LEVELID_FRONTEND1) &&
 		 (fadingLogos))
 	{
+#ifdef PC_VERSION
 		if (atari->xPos < 500)
 		{
 			atari->xPos+=2*gameSpeed;
@@ -627,6 +635,7 @@ void RunGameLoop (void)
 			for (i=0; i<10; i++)
 				flogo[i]->yPos+=3*gameSpeed;
 		}
+#endif
 	}
 
 	if(keyFound)
