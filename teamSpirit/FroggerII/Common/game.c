@@ -956,10 +956,11 @@ void RunGameLoop (void)
 				if( showEndLevelScreen )
 				{
 					player[0].levelNum++;
-
+#ifndef PC_VERSION
 					StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0
 
 					SaveGame(); // Write save games into eeprom
+#endif
 				}
 
 				FreeAllLists();
