@@ -128,6 +128,30 @@ void GameLoop(void)
 
 	switch (gameState.mode)
 	{
+#ifdef PC_VERSION
+	case STARTUP_MODE:
+		if(modeTimer.time)
+		{
+			GTUpdate(&modeTimer,-1);
+			if(!modeTimer.time)
+			{
+				StartVideoPlayback(FMV_ATARI_LOGO);
+				if(quitAllVideo == 0)
+				{
+					StartVideoPlayback(FMV_BLITZ_LOGO);
+					if(quitAllVideo == 0)
+						StartVideoPlayback(FMV_INTRO);
+				}
+				actFrameCount = 0;
+				GTInit(&modeTimer,1);
+				gameState.mode = FRONTEND_MODE;
+				InitLevel(player[0].worldNum,player[0].levelNum);
+				return;
+			}
+		}
+		break;
+#endif
+
 	case INGAME_MODE:
 		RunGameLoop();
 

@@ -1293,8 +1293,14 @@ void CommonInit(void)
 
 	GTInit( &modeTimer, 1 );
 
-	gameState.mode = FRONTEND_MODE;
 	gameState.difficulty = DIFFICULTY_NORMAL;
+#ifdef PC_VERSION
+	gameState.mode = STARTUP_MODE;
+	InitBackdrop("FR2LEGAL");
+	GTInit(&modeTimer,4);
+#else
+	gameState.mode = FRONTEND_MODE;
 	InitLevel(player[0].worldNum,player[0].levelNum);
+#endif
 }
 
