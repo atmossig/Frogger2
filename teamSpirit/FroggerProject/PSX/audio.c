@@ -778,9 +778,6 @@ void PrepareSong ( short worldID,  short loop )
 	{
 		case AUDIOTRK_GAMEOVER:				worldID = 9; xaNum = 1; break;
 		case AUDIOTRK_LEVELCOMPLETE:	worldID = 10; xaNum = 1; break;
-
-		default:
-			return;
 	}
 
 	chan = musicList  [ worldID ];
