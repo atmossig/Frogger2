@@ -650,7 +650,7 @@ BACKDROP *SetupBackdrop(BACKDROP *backdrop,int texID,int sourceX,int sourceY,int
 void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex )
 {
 	VECTOR tempVect, m, fwd;
-	D3DTLVERTEX vT[4], vT2[3];
+	D3DTLVERTEX vT[5];
 	QUATERNION cross, q, up;
 	long i, zeroZ=0;
 	float t;
@@ -659,9 +659,9 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
-	vT[0].sx = -size;
+	vT[0].sx = size;
 	vT[0].sy = offset;
-	vT[0].sz = -size;
+	vT[0].sz = size;
 	vT[0].tu = 0;
 	vT[0].tv = 0;
 	vT[0].color = D3DRGBA(0,0,0,alpha/255.0);
@@ -670,14 +670,14 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 	vT[1].sx = size;
 	vT[1].sy = offset;
 	vT[1].sz = -size;
-	vT[1].tu = 1;
-	vT[1].tv = 0;
+	vT[1].tu = 0;
+	vT[1].tv = 1;
 	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
-	vT[2].sx = size;
+	vT[2].sx = -size;
 	vT[2].sy = offset;
-	vT[2].sz = size;
+	vT[2].sz = -size;
 	vT[2].tu = 1;
 	vT[2].tv = 1;
 	vT[2].color = vT[0].color;
@@ -686,8 +686,8 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 	vT[3].sx = -size;
 	vT[3].sy = offset;
 	vT[3].sz = size;
-	vT[3].tu = 0;
-	vT[3].tv = 1;
+	vT[3].tu = 1;
+	vT[3].tv = 0;
 	vT[3].color = vT[0].color;
 	vT[3].specular = vT[0].specular;
 
@@ -719,13 +719,12 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 		else vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
 	}
 
+	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
+
 	if( tex && !zeroZ )
 	{
-		memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
-		memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
-		memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
 		Clip3DPolygon( vT, tex );
-		Clip3DPolygon( vT2, tex );
+		Clip3DPolygon( &vT[2], tex );
 	}
 
 	PopMatrix( ); // Rotation
@@ -737,7 +736,7 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 void DrawFXRipple( SPECFX *ripple )
 {
 	VECTOR tempVect, m, fwd;
-	D3DTLVERTEX vT[4], vT2[3];
+	D3DTLVERTEX vT[5];
 	TEXENTRY *tEntry;
 	QUATERNION q1, q2, q3;
 	long i, zeroZ=0;
@@ -758,27 +757,27 @@ void DrawFXRipple( SPECFX *ripple )
 	vT[0].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
-	vT[1].sx = -ripple->scale.v[X];
+	vT[1].sx = ripple->scale.v[X];
 	vT[1].sy = 0;
-	vT[1].sz = ripple->scale.v[Z];
-	vT[1].tu = 1;
-	vT[1].tv = 0;
+	vT[1].sz = -ripple->scale.v[Z];
+	vT[1].tu = 0;
+	vT[1].tv = 1;
 	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
-	vT[2].sx = ripple->scale.v[X];
+	vT[2].sx = -ripple->scale.v[X];
 	vT[2].sy = 0;
 	vT[2].sz = -ripple->scale.v[Z];
-	vT[2].tu = 0;
+	vT[2].tu = 1;
 	vT[2].tv = 1;
 	vT[2].color = vT[0].color;
 	vT[2].specular = vT[0].specular;
 	
 	vT[3].sx = -ripple->scale.v[X];
 	vT[3].sy = 0;
-	vT[3].sz = -ripple->scale.v[Z];
+	vT[3].sz = ripple->scale.v[Z];
 	vT[3].tu = 1;
-	vT[3].tv = 1;
+	vT[3].tv = 0;
 	vT[3].color = vT[0].color;
 	vT[3].specular = vT[0].specular;
 
@@ -821,14 +820,13 @@ void DrawFXRipple( SPECFX *ripple )
 		else vT[i].sz = (m.v[Z]+DIST+4)*0.0005;
 	}
 
+	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
+
 	tEntry = ((TEXENTRY *)ripple->tex);
 	if( tEntry && !zeroZ )
 	{
-		memcpy( &vT2[0], &vT[2], sizeof(D3DTLVERTEX) );
-		memcpy( &vT2[1], &vT[1], sizeof(D3DTLVERTEX) );
-		memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
 		Clip3DPolygon( vT, tEntry->hdl );
-		Clip3DPolygon( vT2, tEntry->hdl );
+		Clip3DPolygon( &vT[2], tEntry->hdl );
 	}
 
 	PopMatrix( ); // Rotation
