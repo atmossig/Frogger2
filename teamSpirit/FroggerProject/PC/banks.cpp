@@ -16,8 +16,11 @@
 #include "actor2.h"
 #include "game.h"
 #include "define.h"
+#include <islmem.h>
 #include <islutil.h>
 #include <stdio.h>
+#include <islfile.h>
+#include "savegame.h"
 
 char saveName[32];
 
@@ -380,46 +383,31 @@ void newobj(char* fn)
 void LoadGame(void)
 {
 	char file[MAX_PATH];
-	char hdr[2];
+	void *info; int size;
 	FILE *fp;
 
 	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
 	
-	fp = fopen(file,"rb");
-	
-	if (!fp)
+	info = fileLoad(file, &size);
+	if (!info)
 	{
 		utilPrintf("Couldn't load savegame %s\n", file);
 		return;
 	}
 
-	fread(&hdr,2,1,fp);
-
-	if ((hdr[0] == 'M') && (hdr[1] == 'T'))
-	{
-		fclose(fp);
-		return;
-	}
-
-	for (int i = 0; i<MAX_WORLDS; i++)
-		for (int j=0; j<worldVisualData[i].numLevels; j++)
-		{
-			fread(&(worldVisualData[i].levelVisualData[j].levelOpen),4,1,fp);
-			fread(&(worldVisualData[i].levelVisualData[j].parTime),4,1,fp);
-			fread(&(worldVisualData[i].levelVisualData[j].parName),9,1,fp);
-		}
-
-	fclose(fp);
+	LoadSaveGameBlock(info, size);
+	FREE(info);
 }
 
 void SaveGame(void)
 {
 	char file[MAX_PATH];
-	char hdr[3] = "GD";
+	void *info; unsigned long size;
 	FILE *fp;
 
 	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
 	
+
 	fp = fopen(file,"wb");
 	if (!fp)
 	{
@@ -427,15 +415,9 @@ void SaveGame(void)
 		return;
 	}
 
-	fwrite(&hdr,2,1,fp);
-
-	for (int i = 0; i<MAX_WORLDS; i++)
-		for (int j=0; j<worldVisualData[i].numLevels; j++)
-		{
-			fwrite(&(worldVisualData[i].levelVisualData[j].levelOpen),4,1,fp);
-			fwrite(&(worldVisualData[i].levelVisualData[j].parTime),4,1,fp);
-			fwrite(&(worldVisualData[i].levelVisualData[j].parName),9,1,fp);
-		}
+	MakeSaveGameBlock(&info, &size);
+	fwrite(info, size, 1, fp);
+	FREE(info);
 
 	fclose(fp);	
 }
