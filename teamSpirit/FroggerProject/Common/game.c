@@ -291,7 +291,7 @@ void GameProcessController(long pl)
 
 	// Do not allow superhop if in retro mode
 	if( ((doubleQueue[pl] && player[pl].jumpTime > 2048 ) || (padData.debounce[pl] & PAD_CROSS))
-		&& (player[0].worldNum != WORLDID_SUPERRETRO) && (gameState.mode != FRONTEND_MODE))
+		&& (player[0].worldNum != WORLDID_SUPERRETRO) && (gameState.mode != FRONTEND_MODE) && !cameoMode )
     {
 		int dir = player[pl].extendedHopDir;
 
