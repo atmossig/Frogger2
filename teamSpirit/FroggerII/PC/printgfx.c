@@ -379,6 +379,7 @@ void PrintSprite(SPRITE *sprite)
 		numSprites++;
 		if (runHardware)
 		{
+			/*
 			if (sprite->flags & XLU_SUBFIRST)
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_DESTCOLOR);
@@ -396,7 +397,7 @@ void PrintSprite(SPRITE *sprite)
 				}
 
 			}
-			
+			*/
 			if (sprite->flags & XLU_ADD)
 			{
 				pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);

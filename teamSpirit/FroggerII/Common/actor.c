@@ -239,8 +239,7 @@ void RenderObjects(void)
 	// Draw the third mavis frame set, Transparent objects (non water objects)
 	SwapFrame(2);
 	DrawBatchedPolys();
-	BlankFrame(_);
-	
+	BlankFrame(_);	
 	
 	SwapFrame(4);
 	DrawBatchedPolys();
