@@ -287,8 +287,8 @@ void customDrawPrimitives2 ( int depth )
 		so we have to do the scaling based on the distance ourselves.
 	*/
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
-					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
+					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
 
 					//width = ((op->v2 * gteH) / (tfd[op->v0]));
 					//height = ((op->v3 * gteH) / (tfd[op->v0]));
@@ -729,8 +729,8 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 				//width = ((op->v2 * gteH) / tfd[op->v0]);
 				//height = ((op->v3 * gteH) / tfd[op->v0]);
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
-					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
+					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 				*(u_long *)&si->u0 = *(u_long *)&op->tu0;
@@ -1120,8 +1120,8 @@ void DrawSortedPrimitivesFaded ( int depth )
 					//width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
 					//height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
-					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
+					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
 
 	 				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
@@ -1703,8 +1703,8 @@ void dcache_LSCAPE_DrawSortedPrimitives ( int depth, long *tfv )
 				//width = ((op->v2 * gteH) / tfd[op->v0]);
 				//height = ((op->v3 * gteH) / tfd[op->v0]);
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
-					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
+					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 				*(u_long *)&si->u0 = *(u_long *)&op->tu0;
@@ -1968,8 +1968,8 @@ void dcacheCustomDrawPrimitives2 ( int depth, long *tfv, long *tfd )
 					//width = ((op->v2 * gteH) / (tfd[op->v0]));
 					//height = ((op->v3 * gteH) / (tfd[op->v0]));
 
-					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
-					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
+					width = (((op->v2 * gteH) / (tfd[op->v0]<<2))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]<<2))*2)/6;
 
 					// JH : Temp Fix
 					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors

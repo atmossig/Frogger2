@@ -136,7 +136,8 @@ void actorSub(ACTOR *actor);
 void actorFree(ACTOR *actor);
 
 //ACTOR *actorCreate(PSIMODEL *psiModel);
-ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel );
+//ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel );
+ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned );
 
 void actorInitAnim(ACTOR *actor);
 

@@ -140,7 +140,7 @@ static void actorSetTree(PSIOBJECT *obj,PSIMESH *mesh)
 	RETURNS:	ACTOR*
 **************************************************************************/
 
-ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel )
+ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 {
 
 	ULONG len,parts,i;
@@ -264,7 +264,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel )
 	//scale skinned objects (if not already scaled)
 	if(psiModel->flags & 1)
 	{
-		if( !(actor->psiData.flags&PSIACTOR_SCALED) )
+		if( !(actor->psiData.flags&PSIACTOR_SCALED) && ( scaleSkinned ) )
 		{
 			ScalePsi(actor->psiData.object->meshdata);
 			actor->radius *= 10;
@@ -286,7 +286,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel )
 		{
 			utilPrintf("Found It................................................................\n");
 			sprintf ( globalActors [ globalCount ].modelName, psiModel->name );
-			globalActors [ globalCount ].actor	= actorCreate ( psiModel, 0 );
+			globalActors [ globalCount ].actor	= actorCreate ( psiModel, 0, 0 );
 			globalActors [ globalCount ].done		= 0;
 			globalCount++;
 		}
@@ -1159,7 +1159,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	}
 	// ENDIF
 
-	newActor = actorCreate ( newModel, 1 );
+	newActor = actorCreate ( newModel, 1, 0 );
 
 	oldModel = actor->psiData;
 

@@ -688,7 +688,13 @@ void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 	{
 		moveRect.x = (src->clut & 0x3f) << 4;		// Copy up the palette
 		moveRect.y = (src->clut >> 6);
-		moveRect.w = 16;
+
+		if ( dest->tpage & (1 << 7) )
+			moveRect.w = 256;
+		else		
+			moveRect.w = 16;
+		// ENDELSEIF
+
 		moveRect.h = 1;
 
 		BEGINPRIM		( siMove, DR_MOVE );
