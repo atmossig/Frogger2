@@ -977,7 +977,6 @@ void RunGameLoop (void)
 					}
 		}
 
-		CameraLookAtFrog();
 		UpdateCameraPosition(0);
 	}
 

@@ -1935,10 +1935,13 @@ void SetEnemyMoving(ENEMY *nme, int moving)
 {
 	if (moving)
 	{
-		nme->isWaiting = 0;
-		//nme->path->toNode = nme->path->fromNode;
-		nme->path->startFrame = actFrameCount;
-		nme->path->endFrame = actFrameCount + (60*nme->speed);
+		if (nme->isWaiting)
+		{
+			nme->isWaiting = 0;
+			//nme->path->toNode = nme->path->fromNode;
+			nme->path->startFrame = actFrameCount;
+			nme->path->endFrame = actFrameCount + (60*nme->speed);
+		}
 	}
 	else
 	{
