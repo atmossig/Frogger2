@@ -707,10 +707,28 @@ SOURCE=.\N64\objects.h
 # Begin Source File
 
 SOURCE=.\N64\objview.c
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\N64\objview.h
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
