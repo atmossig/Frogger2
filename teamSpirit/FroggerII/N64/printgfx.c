@@ -8,9 +8,9 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
 
-#include <ultra64.h>
+//************************************************************************************************
+//	System Includes
 
 #include "incs.h"
 
@@ -69,6 +69,29 @@ Gfx rdpInitForBackdrops_dl[] =
 	gsDPPipeSync(),
 	gsSPEndDisplayList(),
 };
+
+/*Gfx rdpInitForBackdrops_dl[] = 
+{
+	gsDPSetCycleType(G_CYC_1CYCLE),    
+	gsDPPipelineMode(G_PM_NPRIMITIVE), 
+	gsDPSetTextureLOD(G_TL_TILE),
+	gsDPSetTextureLUT(G_TT_RGBA16),
+	gsDPSetTextureDetail(G_TD_CLAMP),
+	gsDPSetTexturePersp(G_TP_NONE),
+#ifdef NOFILTER
+	gsDPSetTextureFilter(G_TF_POINT),
+#else
+	gsDPSetTextureFilter(G_TF_BILERP),
+#endif
+	gsDPSetTextureConvert(G_TC_FILT),
+	gsDPSetCombineMode(G_CC_MODULATEPRIMRGBA, G_CC_MODULATEPRIMRGBA),
+	gsDPSetCombineKey(G_CK_NONE),
+	gsDPSetAlphaCompare(G_AC_NONE),
+	gsDPSetRenderMode(G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2),
+	gsDPSetColorDither(G_CD_BAYER),
+	gsDPPipeSync(),
+	gsSPEndDisplayList(),
+};*/
 
 Gfx rspInitForBackdrops_dl[] = 
 {
@@ -182,7 +205,68 @@ void PrintBackdrop(BACKDROP *bDrop)
 
 	gSPSprite2DDraw(glistp++,bDrop->xPos,bDrop->yPos);
 
-	gDPSetCycleType(glistp++,G_CYC_1CYCLE);	   
+	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
+
+/*	gDPPipeSync(glistp++);
+	gSPDisplayList(glistp++, rdpInitForBackdrops_dl);
+	gSPObjRenderMode(glistp ++, G_OBJRM_XLU);
+//	for(backdrop = backdropList.head.next;backdrop != &backdropList.head;backdrop = backdrop->next)
+//	{
+//		if((backdrop->draw) && (backdrop->texture))
+//		{
+//			if(backdrop->flags & BACKDROP_FILTER)
+//			{
+				gDPSetTextureFilter(glistp++,G_TF_BILERP);
+//			}
+//			else
+//			{
+//				gDPSetTextureFilter(glistp++,G_TF_POINT);
+//			}
+
+//			if((backdrop->a == 255) && (backdrop->texture->format != G_IM_FMT_IA))
+//			{
+//				if(backdrop->flags & BACKDROP_FILTER)
+//				{
+					gSPObjRenderMode(glistp ++, G_OBJRM_BILERP);
+//				}
+//				else
+//				{
+//					gSPObjRenderMode(glistp ++, 0);
+//				}
+				gDPSetRenderMode(glistp++, G_RM_SPRITE, G_RM_SPRITE2);
+//			}
+//			else
+//			{
+//				if(backdrop->flags & BACKDROP_FILTER)
+//				{
+//					gSPObjRenderMode(glistp ++, G_OBJRM_XLU | G_OBJRM_BILERP);
+//				}
+//				else
+//				{
+//					gSPObjRenderMode(glistp ++, G_OBJRM_XLU);
+//				}
+//				gDPSetRenderMode(glistp++, G_RM_XLU_SPRITE, G_RM_XLU_SPRITE2);
+//			}
+
+			switch(bDrop->texture->pixSize)
+			{
+				case G_IM_SIZ_4b:
+					gDPSetTextureLUT(glistp++,G_TT_RGBA16);
+					gDPLoadTLUT_pal16(glistp++,0,bDrop->texture->palette);
+					break;
+				case G_IM_SIZ_8b:
+					gDPSetTextureLUT(glistp++,G_TT_RGBA16);
+					gDPLoadTLUT_pal256(glistp++,bDrop->texture->palette);
+					break;
+				case G_IM_SIZ_16b:
+					gDPSetTextureLUT(glistp++,G_TT_NONE);
+					break;
+			}
+			gDPSetPrimColor(glistp++,0,0,bDrop->r,bDrop->g,bDrop->b,bDrop->a);
+			gSPBgRect1Cyc(glistp++,&bDrop->background);
+		//}
+//	}
+	gDPPipeSync(glistp++); */
 }
 
 
@@ -456,7 +540,7 @@ void DrawFXRipples()
 		gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 		gSPVertex(glistp++,&ripple->verts[0],4,0);
-		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+//		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 		gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 	}
@@ -603,7 +687,7 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
 	gSPVertex(glistp++,vert,4,0);
-	gSP2Triangles(glistp++,0,1,2,2,0,2,3,2);
+//	gSP2Triangles(glistp++,0,1,2,2,0,2,3,2);
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
@@ -653,7 +737,7 @@ void DrawPauseFX()
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+//	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 
@@ -698,7 +782,7 @@ void ScreenFade(UBYTE dir,UBYTE step)
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+//	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 
@@ -756,7 +840,7 @@ void DrawDarkenedLevel()
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
-	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+//	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
