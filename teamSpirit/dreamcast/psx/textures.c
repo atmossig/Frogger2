@@ -101,15 +101,23 @@ void LoadTextureAnimBank ( int textureBank )
 		numframes = *p;	p++;
 		crc = *p; p++;
 
-		textureAnim = CreateTextureAnimation( crc, numframes );
+		if(crc == 0xcad6c1c7)
+			textureAnim = CreateTextureAnimation( crc, numframes );
 
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
 			crc = *p;
 			p++;
-			waitTime = *p;
+			if((crc == 0xcad6c1c7)||(crc == 0x91771d0d)||(crc == 0x7d957853))
+			{
+				waitTime = -1;
+			}
+			else
+				waitTime = *p;
+
 			p++;
-			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
+			if((crc == 0xcad6c1c7)||(crc == 0x91771d0d)||(crc == 0x7d957853))
+				AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
 		}
 	}
 }
@@ -230,6 +238,7 @@ void AddAnimFrame ( TEXTUREANIM *anim, long crc, short waitTime, int num )
 	// ENDIF
 }
 
+extern short timerBars;
 void UpdateTextureAnimations ( void )
 {
 	DR_MOVE *siMove;
@@ -251,7 +260,11 @@ void UpdateTextureAnimations ( void )
 
 				cur->frame++;
 				if( cur->frame >= cur->numFrames )
+				{
 					cur->frame = 0;
+					if(timerBars)
+						utilPrintf("\n");
+				}
 			}
 			else
 			{
@@ -267,6 +280,9 @@ void UpdateTextureAnimations ( void )
 			// JH: Copy the required texture into vram.
 
 			cur->animation->dest->surfacePtr = &cur->animation->anim[cur->frame]->surface;
+
+			if(timerBars)	
+				utilPrintf("frame: %d => '0x%x'",cur->frame,cur->animation->dest->surfacePtr);
 //			CopyTexture ( cur->animation->dest, cur->animation->anim[cur->frame], 0 );
 		}
 		
