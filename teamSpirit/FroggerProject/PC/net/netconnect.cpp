@@ -226,18 +226,15 @@ bool CheckLobby(HWND hwnd)
 	};
 
 	// Set our session flags
-	dplConnection->lpSessionDesc->dwFlags = 
-			DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
+	dplConnection->lpSessionDesc->dwFlags |= 
+			DPSESSION_KEEPALIVE|DPSESSION_MIGRATEHOST|DPSESSION_DIRECTPLAYPROTOCOL;
  
 	// Let lobby know our connection flags
 	if ( FAILED( hr = dpLobby->SetConnectionSettings( 
 			0, 0, dplConnection ) ) )
 		return false;
 
-	if (dplConnection->dwFlags == DPLCONNECTION_CREATESESSION)
-	{
-		isHost = TRUE;
-	}
+	isHost = (dplConnection->dwFlags == DPLCONNECTION_CREATESESSION);
 
 	if ( FAILED( hr = dpLobby->ConnectEx( 0, IID_IDirectPlay4A, 
         (VOID**)&dplay, NULL ) ) )
