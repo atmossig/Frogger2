@@ -690,7 +690,7 @@ void gte_MulMatrix0(MATRIX *m0, MATRIX *m1, MATRIX *m2)
 	// are our matrices are non-aliased?
 	if (m1 != m2)
 	{
-		// ** non-aliased matries
+		// ** non-aliased matrices
 
 		register short	*mp0, *mp1, *mp2;
 		register int	r0,r1,r2, a0,a1,a2;
