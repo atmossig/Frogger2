@@ -6,14 +6,16 @@
 
 HINSTANCE hinstance;
 
-HBITMAP hbmp, hmask;
+HBITMAP hbmp, hmask, hOpt[3];
 HWND	hwndMain;
 
 #define WINDOWCLASS "Frogger2autorun"
 
-#define BMPWIDTH	357
-#define BMPHEIGHT	363
-#define IDC_INSTALL	1001
+#define BMPWIDTH		357
+#define BMPHEIGHT		363
+#define BMPOPTWIDTH		88
+#define BMPOPTHEIGHT	23
+#define IDC_INSTALL		1001
 
 #define COLOUR_TEXTSEL	RGB(255,228,0)
 #define COLOUR_TEXTDROP	RGB(3,132,0)
@@ -23,7 +25,7 @@ POINT textPositions[3] = { {178, 218}, {178, 255}, {178,292} };
 
 RECT  buttons[3] = { {50,200,308,234}, {50,240,308,272}, {50,278,308,310} };
 
-char options[3][40] = { "Play", "Setup", "Close" };
+//char options[3][40] = { "Play", "Setup", "Close" };
 
 char *languages[5] = { "English", "Français", "Deutsch", "Italiano", "Espanõl" };
 
@@ -31,7 +33,7 @@ char baseDirectory[MAX_PATH] = "";
 
 int selection = -1, installed = 0;
 
-const char* REGISTRY_KEY	= "Software\\Atari\\Frogger2";
+const char* REGISTRY_KEY	= "Software\\Hasbro Interactive\\Frogger2";
 const char* FROGGER2		= "Frogger2 - Swampy's Revenge";
 const char* SETUP_EXE		= "Frogger2\\setup.exe";
 const char* FROGGER2_EXE	= "Frogger2.exe";
@@ -199,6 +201,7 @@ int PaintWindow(HWND hwnd)
 	PAINTSTRUCT ps;
 	HDC hdc, hbmpDC;
 	HBITMAP holdbmp;
+	int i;
 
 	BeginPaint(hwnd, &ps);
 
@@ -216,10 +219,27 @@ int PaintWindow(HWND hwnd)
 	BitBlt(ps.hdc, 0,0, BMPWIDTH, BMPHEIGHT, hbmpDC, 0,0, SRCPAINT);
 	SelectObject(hbmpDC, holdbmp);
 
-	ReleaseDC(hwnd, hbmpDC);
 
 	// Step 2: Print text onto the window
 
+	for( i=0; i<3; i++ )
+	{
+		if( !hOpt[i] )
+			continue;
+
+		POINT pt;
+
+		pt.x = textPositions[i].x-BMPOPTWIDTH/2;
+		pt.y = textPositions[i].y-BMPOPTHEIGHT/2;
+
+		holdbmp = (HBITMAP)SelectObject(hbmpDC, hOpt[i]);
+		BitBlt(ps.hdc, pt.x, pt.y, BMPOPTWIDTH, BMPOPTHEIGHT, hbmpDC, 0,0, SRCCOPY);
+		SelectObject(hbmpDC, holdbmp);
+	}
+	
+	ReleaseDC(hwnd, hbmpDC);
+
+	/*
 	int i;
 	SetBkMode(hdc, TRANSPARENT);
 
@@ -252,7 +272,7 @@ int PaintWindow(HWND hwnd)
 
 	SelectObject(hdc, oldFont);
 	DeleteObject(font);
-
+*/
 	EndPaint(hwnd, &ps);
 
 	return 0;
@@ -329,15 +349,20 @@ int CreateMainWindow(HWND hwnd)
 
 	if (!IsFrogger2Installed())
 	{
-		LoadString(hinstance, IDS_INSTALL, options[0], 40);
-		options[1][0]=0;
+//		LoadString(hinstance, IDS_INSTALL, options[0], 40);
+		hOpt[0] = (HBITMAP)LoadImage(hinstance, MAKEINTRESOURCE(IDB_BMPINSTALL), IMAGE_BITMAP, 0, 0, 0);
+		hOpt[1] = 0;
+//		options[1][0]=0;
 	}
 	else
 	{
-		LoadString(hinstance, IDS_PLAY, options[0], 40);
-		LoadString(hinstance, IDS_UNINST, options[1], 40);
+		hOpt[0] = (HBITMAP)LoadImage(hinstance, MAKEINTRESOURCE(IDB_BMPPLAY), IMAGE_BITMAP, 0, 0, 0);
+		hOpt[1] = (HBITMAP)LoadImage(hinstance, MAKEINTRESOURCE(IDB_BMPUNINSTALL), IMAGE_BITMAP, 0, 0, 0);
+//		LoadString(hinstance, IDS_PLAY, options[0], 40);
+//		LoadString(hinstance, IDS_UNINST, options[1], 40);
 	}
 
+	hOpt[2] = (HBITMAP)LoadImage(hinstance, MAKEINTRESOURCE(IDB_BMPCLOSE), IMAGE_BITMAP, 0, 0, 0);
 /*
 	wnd = CreateWindow("BUTTON", "Play",
 		BS_PUSHBUTTON|BS_TEXT|WS_CHILD|WS_VISIBLE|WS_TABSTOP|WS_DISABLED,
@@ -461,7 +486,7 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE hprevinstance, LPSTR cmdline, int 
 		wc.cbClsExtra = 0;
 		wc.cbWndExtra = 0;
 		wc.hInstance = hinstance;
-		wc.hIcon = LoadIcon(hinstance, MAKEINTRESOURCE(IDI_BLITZ));
+		wc.hIcon = LoadIcon(hinstance, MAKEINTRESOURCE(IDI_FROGGER));
 		wc.hCursor = LoadCursor(0, IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 		wc.lpszMenuName = 0;
@@ -470,7 +495,7 @@ int WINAPI WinMain(HINSTANCE hinst, HINSTANCE hprevinstance, LPSTR cmdline, int 
 		res = RegisterClass(&wc);
 	}
 
-	if (SetupLanguage()) return -1;
+	//if (SetupLanguage()) return -1;
 
 	hwndMain = CreateWindowEx(0,WINDOWCLASS, FROGGER2,
 		WS_POPUP|WS_CLIPCHILDREN,

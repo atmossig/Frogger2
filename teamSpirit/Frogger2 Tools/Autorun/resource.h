@@ -13,11 +13,15 @@
 #define IDB_FRENCH                      102
 #define IDB_GERMAN                      103
 #define IDB_ITALIAN                     104
-//#define IDB_SPANISH                     105
 #define IDD_LANGUAGE                    106
 #define IDI_BLITZ                       107
 #define IDB_FROGGER2                    110
 #define IDB_FROGGER2MASK                113
+#define IDI_FROGGER                     116
+#define IDB_BMPINSTALL                  117
+#define IDB_BMPPLAY                     118
+#define IDB_BMPUNINSTALL                119
+#define IDB_BMPCLOSE                    120
 #define IDC_LANGUAGE1                   1000
 #define IDC_LANGUAGE2                   1001
 #define IDC_LANGUAGE3                   1002
@@ -29,7 +33,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        115
+#define _APS_NEXT_RESOURCE_VALUE        121
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101

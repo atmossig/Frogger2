@@ -126,7 +126,27 @@ SOURCE=.\blitz.ico
 # End Source File
 # Begin Source File
 
+SOURCE=.\bmpclose.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\bmpinsta.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\bmpplay.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\bmpunins.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\French.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\frogger2.ico
 # End Source File
 # Begin Source File
 
