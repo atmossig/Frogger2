@@ -415,10 +415,9 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 
 			//WriteEditPath(create->path, f);
 			i = FindPtrIndex(create->path, pathBuf, numPaths);
-			if (i == -1)
-			{
-				utilPrintf("AAAAaaggghhh. File saving went wrong, cause I'm stupid. - Dave\n");
-				i = 0;
+			
+			if (i == -1) {
+				utilPrintf("Error in path saving!\n"); i = 0;
 			}
 
 			WriteWord(i, f);
@@ -426,7 +425,7 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 
 		case CREATE_GARIB:
 			WriteByte((BYTE)create->flags, f);
-			SetVectorF(&v, &create->path->nodes->tile->centre);
+			GetTilePos(&v, create->path->nodes->tile);
 			WriteVector(&v, f);
 			WriteFloat(create->path->nodes->offset, f);
 			break;
@@ -578,7 +577,7 @@ void WriteTileGroup(EDITGROUP *group, HANDLE f)
 	for (node = group->nodes; count--; node = node->link)
 	{
 		EDVECTOR v;
-		SetVectorS(&v, &((GAMETILE*)node->thing)->centre);
+		GetTilePos(&v, (GAMETILE*)node->thing);
 		WriteVector(&v, f);
 	}
 }
