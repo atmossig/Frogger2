@@ -27,6 +27,11 @@
 #define FS_SET_VIS			5
 #define FS_SET_TOGGLEVIS	6
 
+#ifdef DEBUG_SCRIPTING
+int lineNumber = 0;
+
+#endif
+
 /* --------------------------------------------------------------------------------- */
 
 //int Interpret(const UBYTE *buffer);
@@ -34,6 +39,9 @@ TRIGGER *LoadTrigger(UBYTE **p);
 BOOL ExecuteCommand(UBYTE *buffer);
 
 UBYTE* scriptBuffer;
+
+
+/* --------------------------------------------------------------------------------- */
 
 float volTest = 0.5;
 
@@ -278,6 +286,7 @@ BOOL ExecuteCommand(UBYTE *buffer)
 
 	switch (command)
 	{
+#ifdef DEBUG_SCRIPTING
 	case EV_DEBUG:
 		{
 			char string[80];
@@ -287,9 +296,14 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			memcpy(string, buffer, len);
 			string[len] = 0;
 
-			dprintf"[Interpreter Debug] %s\n", string));
+			dprintf"[Interpreter Debug] %s", string));
+
+			if(lineNumber) dprintf" (line %d)", lineNumber));
+
+			dprintf"\n"));
 			break;
 		}
+#endif
 		
 	case EV_SETTILE:
 		{
@@ -374,9 +388,12 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			{
 Move:
 			case FS_SET_MOVE:
-				nme->isWaiting = 0;
-				nme->path->startFrame = actFrameCount;
-				nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
+				if (nme->isWaiting)
+				{
+					nme->isWaiting = 0;
+					nme->path->startFrame = actFrameCount;
+					nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
+				}
 				break;
 Stop:			
 			case FS_SET_STOP:
@@ -411,9 +428,12 @@ Vis:
 			switch (MEMGETBYTE(p))
 			{
 			case FS_SET_MOVE:
-				plt->isWaiting = 0;
-				plt->path->startFrame = actFrameCount;
-				plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
+				if (plt->isWaiting)
+				{
+					plt->isWaiting = 0;
+					plt->path->startFrame = actFrameCount;
+					plt->path->endFrame = plt->path->startFrame + (int)(60.0*plt->currSpeed);
+				}
 				break;
 			case FS_SET_STOP:
 				plt->isWaiting = -1; break;
@@ -442,7 +462,7 @@ Vis:
 			if (t = LoadTrigger(p))
 			{
 				flags = MEMGETBYTE(p);
-				*param = *p;
+				param[0] = *p;
 				e = MakeEvent( InterpretEvent, param );
 				AttachEvent(t, e, (short)flags, 0);
 			}
@@ -577,7 +597,8 @@ Vis:
 			flag = MEMGETWORD(p);
 			if (flag > 0 && flag < plt->path->numNodes)
 			{
-				plt->path->fromNode = plt->path->toNode = flag;
+				plt->path->fromNode = flag;
+				RecalculatePlatform(plt);
 			}
 			break;
 		}
@@ -636,6 +657,50 @@ Vis:
 			break;
 		}
 
+	case EV_CHANGELEVEL:
+		{
+			int world = MEMGETBYTE(p);
+			int level = MEMGETBYTE(p);
+
+			player[0].worldNum = world;
+			player[0].levelNum = level;
+
+			levelIsOver = 10;
+			showEndLevelScreen = 0;
+			break;
+		}
+
+	case EV_SETSTARTTILE:	SetFroggerStartPos(GetTileFromNumber(MEMGETINT(p)), 0); break;
+
+	case EV_FOG:
+		{
+			fog.r = MEMGETBYTE(p);
+			fog.g = MEMGETBYTE(p);
+			fog.b = MEMGETBYTE(p);
+			fog.min = MEMGETWORD(p);
+			fog.max = MEMGETWORD(p);
+			fog.mode = 1;
+			break;
+		}
+
+	case EV_NO_FOG:	fog.mode = 0; break;
+
+	case EV_CAMEOMODE_ON:
+		gameState.oldMode = gameState.mode;
+		gameState.mode = CAMEO_MODE;
+		break;
+
+	case EV_CAMEOMODE_OFF:
+		gameState.mode = gameState.oldMode;
+		break;
+
+#ifdef DEBUG_SCRIPTING
+	case C_DEBUG:
+		MEMGETWORD(p);	// blank
+		lineNumber = MEMGETWORD(p);
+		break;
+#endif
+
 	default:
 #ifdef DEBUG_SCRIPTING
 		dprintf"[Interpreter] Unrecognised command\n"));
@@ -664,7 +729,14 @@ int Interpret(const UBYTE *buffer)
 	{
 		size = MEMGETINT(&p);
 		q = p;
-		if (!ExecuteCommand(q)) return 0;
+		if (!ExecuteCommand(q))
+		{
+#ifdef DEBUG_SCRIPTING
+			if (lineNumber)
+				dprintf"Possibly an error on line %d?\n", lineNumber));
+#endif
+			return 0;
+		}
 		p += size;
 	}
 
@@ -715,6 +787,7 @@ int InitLevelScript(void *buffer)
 {
 	int err = 0;
 
+	KillAllTriggers();
 	FreeLevelScript();
 
 	scriptBuffer = buffer;
