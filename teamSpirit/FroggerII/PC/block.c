@@ -161,28 +161,9 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(!InitInputDevices())
 		ok = 0;
 	
-	/*if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
-	{
-		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
-	} 
-	else 
-	{
-		InitDirectSound ( NULL, hInstance, winInfo.hWndMain, 0 );
-	}
-	// ENDELSIF
-	
-	InitSampleList();
-	// TEST
-	test = CreateAndAddSample ( "x:\\teamspirit\\pcversion\\test.wav" );
-
-//	test
-	PlaySample ( 0, 0, 0, 0 );
-//	test->lpdsBuffer->lpVtbl->Play ( test->lpdsBuffer, 0, 0, 0 );
 	//InitSaveData();
 
 	PrepareSong ( 1 );
-//	playCDTrack ( winInfo.hWndMain, 1 );
-
 /*	InitSaveData();
 	SaveGameData();*/
 	gameState.mode		= FRONTEND_MODE;
@@ -196,17 +177,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		exit (0);
 
 	InitSampleList();
-	// TEST
-	test = CreateAndAddSample ( "x:\\teamspirit\\pcversion\\test.wav" );
-
-//	test
-	PlaySample ( 0, 0, 0, 0 );
-//	test->lpdsBuffer->lpVtbl->Play ( test->lpdsBuffer, 0, 0, 0 );
-	//InitSaveData();
-
-	//PrepareSong ( 1 );
-//	playCDTrack ( winInfo.hWndMain, 1 );
-
 
 	InitFont();
 	InitEditor();

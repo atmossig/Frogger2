@@ -218,6 +218,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 
 	if ( dsrVal != DS_OK )
 	{
+		dp("Set Cooperative Level failed - '%s'\n", DSoundErrorToString(dsrVal));
 		lpDS->Release();
 		lpDS = NULL;
 		return 0;
@@ -232,6 +233,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 	dsrVal = lpDS->CreateSoundBuffer ( &dsbdesc, &lpdsbPrimary, NULL ) ;
 	if ( dsrVal != DS_OK )
 	{
+		dp("Create Sound Buffer failed - '%s'\n", DSoundErrorToString(dsrVal));
 		lpDS->Release();
 		lpDS = NULL;
 		return 0;
@@ -251,6 +253,7 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 
 	if ( dsrVal != DS_OK )
 	{
+		dp("Set Format failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
 

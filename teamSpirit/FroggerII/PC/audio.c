@@ -39,6 +39,8 @@ SAMPLE *CreateAndAddSample ( char *lpFile )
 		LoadWav		( lpFile, newItem );
 	// ENDIF
 
+	SetSampleFormat ( newItem, 2, 22050, 16 );
+
 	AddSampleToList ( newItem );
 	dprintf"LEAVING : CreateAndAddSample\n"));
 }
@@ -99,13 +101,14 @@ void FreeSampleList ( void )
 }
 
 
-SAMPLE * GetEntryFromSampleList ( int num )
+SAMPLE *GetEntryFromSampleList ( int num )
 {
 	int i;
 	SAMPLE *next, *cur;
 
+	dprintf"Num Samples %d\n", soundList.numEntries ));
+
 	i = 0;
-	// traverse enemy list and free elements
 	for ( cur = soundList.head.next; cur != &soundList.head; cur = next )
 	{
 		next = cur->next;
@@ -148,7 +151,7 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 	
 	SAMPLE *sample;
 //	return 0;
-//	if ( num != 0
+
 	sample = GetEntryFromSampleList ( num );
 
 	if ( ( !sample ) || ( !lpDS ) )
@@ -163,8 +166,25 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 
 
 	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
-	dprintf"Played Sample Ok"));
+	dprintf"Played Sample Ok - %d", num));
 }
+
+
+void SetSampleFormat ( SAMPLE *sample, char numChannels, int newSampleRate, char bitsPerSample )
+{
+	WAVEFORMATEX	wfx;
+
+	memset ( &wfx, 0, sizeof ( WAVEFORMATEX ) ); 
+	wfx.wFormatTag		= WAVE_FORMAT_PCM; 
+	wfx.nChannels		= numChannels; 
+	wfx.nSamplesPerSec	= newSampleRate; 
+	wfx.wBitsPerSample	= bitsPerSample; 
+	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
+	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+
+	sample->lpdsBuffer->lpVtbl->SetFormat ( sample->lpdsBuffer, &wfx );
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: PlaySampleRadius
@@ -181,6 +201,7 @@ int PlaySampleRadius ( short num, VECTOR *pos, short vol, short pitch, float rad
 
 	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrepareSong

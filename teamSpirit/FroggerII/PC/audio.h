@@ -60,6 +60,7 @@ extern SAMPLE * GetEntryFromSampleList	( int num );
 
 extern int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch );
 
+extern void SetSampleFormat ( SAMPLE *sample, char numChannels, int newSampleRate, char bitsPerSample );
 
 extern int PlaySampleRadius(short num, VECTOR *pos, short vol,short pitch,float radius);
 extern void PrepareSong(char num);

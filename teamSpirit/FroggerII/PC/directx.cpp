@@ -661,37 +661,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					runQuit = 0;
 					break;
 				}
-			case ID_SOUNDOK:
-				for( i = 0; i < ComboBox_GetCount( hCombo ); i++ )
-				{
-				lpTemp = (LPGUID)ComboBox_GetItemData( hCombo, i );
-				if( i == ComboBox_GetCurSel( hCombo ))
-					{
-					if( lpTemp != NULL )
-					memcpy( lpGUID, lpTemp, sizeof(GUID));
-					else
-					lpGUID = NULL;
-					}
-				if( lpTemp )
-					LocalFree( lpTemp );
-				}
-				// If we got the NULL GUID, then we want to open the default
-				// sound driver, so return with an error and the init code
-				// will know not to pass in the guID and will send NULL
-				// instead.
-				if( lpGUID == NULL )
-				{
-					prim = 0;
-					EndDialog ( hwndDlg, TRUE );
-				}
-				else
-				{
-					prim = 1;
-					EndDialog ( hwndDlg, FALSE );
-				}
-				// ENDELSEIF
-				return( TRUE );
-
+	
 			}
 			break;
 	}

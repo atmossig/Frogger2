@@ -391,6 +391,9 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
 
+	CreateAndAddSample ( "x:\\teamspirit\\pcversion\\superhop.wav" );
+	CreateAndAddSample ( "x:\\teamspirit\\pcversion\\froghop.wav" );
+
 	StartDrawing("initlev");
 
 #ifndef PC_VERSION

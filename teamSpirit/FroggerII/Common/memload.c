@@ -158,7 +158,7 @@ int MemLoadEntities(const void* data, long size)
 			v.v[X] = MEMGETFLOAT(&p);
 			v.v[Y] = MEMGETFLOAT(&p);
 			v.v[Z] = MEMGETFLOAT(&p);
-			CreateNewGarib(v, n);
+			CreateNewGarib(v, n, &firstTile[1], 0.0f);
 			break;
 
 		case CREATE_CAMERACASE:
