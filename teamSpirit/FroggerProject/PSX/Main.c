@@ -490,45 +490,49 @@ int main ( )
 		}
 		actFrameCount = 0;
 #endif
-		fontSmall = fontLoad("FONT12.FON");
-		genBank = textureLoadBank("TEXTURES\\GENERIC.SPT");
-		textureDownloadBank(genBank);
-		textureDestroyBank(genBank);
-
-		fontInitButtonSprites();
-		gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUM_LANGUAGES, gameTextLang);
-		InitTiledBackdrop("FROGTILE");
-		memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
 		LoadGame();
-		ScreenFade(0,255,20);
-		keepFade = NO;
-		while((saveInfo.saveFrame) || (fadingOut))
+		
+		if(saveInfo.saveFrame)
 		{
-			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
-			ClearOTagR(currentDisplayPage->ot, 1024);
-			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+			fontSmall = fontLoad("FONT12.FON");
+			genBank = textureLoadBank("TEXTURES\\GENERIC.SPT");
+			textureDownloadBank(genBank);
+			textureDestroyBank(genBank);
 
-			padHandleInput();
-
-			if(actFrameCount > 20)
-				ChooseLoadSave();
-			DrawTiledBackdrop(NO);
-			DrawScreenTransition();
-			actFrameCount++;
-
-			DrawSync(0);
-			VSync(0);
-			PutDispEnv(&currentDisplayPage->dispenv);
-			PutDrawEnv(&currentDisplayPage->drawenv);
-			DrawOTag(currentDisplayPage->ot+(1024-1));
-			
-			if((saveInfo.saveFrame == 0) && (keepFade == 0))
+			fontInitButtonSprites();
+			gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUM_LANGUAGES, gameTextLang);
+			InitTiledBackdrop("FROGTILE");
+			memcpy(worldVisualData,origWorldVisualData,sizeof(worldVisualData));
+			ScreenFade(0,255,20);
+			keepFade = NO;
+			while((saveInfo.saveFrame) || (fadingOut))
 			{
-				ScreenFade(255,0,20);
-				keepFade = YES;
+				currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
+				ClearOTagR(currentDisplayPage->ot, 1024);
+				currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
+
+				padHandleInput();
+
+				if(actFrameCount > 20)
+					ChooseLoadSave();
+				DrawTiledBackdrop(NO);
+				DrawScreenTransition();
+				actFrameCount++;
+
+				DrawSync(0);
+				VSync(0);
+				PutDispEnv(&currentDisplayPage->dispenv);
+				PutDrawEnv(&currentDisplayPage->drawenv);
+				DrawOTag(currentDisplayPage->ot+(1024-1));
+				
+				if((saveInfo.saveFrame == 0) && (keepFade == 0))
+				{
+					ScreenFade(255,0,20);
+					keepFade = YES;
+				}
 			}
+			FreeTiledBackdrop();
 		}
-		FreeTiledBackdrop();
 	
 
 		InitCam();
