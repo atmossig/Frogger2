@@ -1074,10 +1074,6 @@ void UpdateFXTrail( SPECFX *fx )
 // Check the follow actor for quaternion and rotate the points about it. If no actor, don't add.
 void AddTrailElement( SPECFX *fx, int i )
 {
-	float t;
-	QUATERNION cross;
-	VECTOR offset;
-
 	fx->particles[i].r = fx->r;
 	fx->particles[i].g = fx->g;
 	fx->particles[i].b = fx->b;
@@ -1091,7 +1087,11 @@ void AddTrailElement( SPECFX *fx, int i )
 	// Hack to make effect lower for platforms
 	if( fx->gravity )
 	{
-		SetVector( &offset, &fx->normal );
+		QUATERNION offset;
+
+		GetRotationFromQuaternion(&offset, &fx->follow->qRot );
+		MakeUnit( (VECTOR *)&offset );
+//		SetVector( &offset, &fx->normal );
 		ScaleVector( (VECTOR *)&offset, fx->gravity );
 		AddToVector( &fx->particles[i].pos, (VECTOR *)&offset );
 	}

@@ -524,8 +524,14 @@ void MatrixToQuaternion(MATRIX *smatrix, QUATERNION *dquat)
 
 void QuaternionMultiply(QUATERNION *res,QUATERNION *q1,QUATERNION *q2)
 {
-	float dp;
 	QUATERNION temp;
+
+	temp.w = q1->w*q2->w - q1->x*q2->x - q1->y*q2->y - q1->z*q2->z;
+	temp.x = q1->w*q2->x + q1->x*q2->w + q1->y*q2->z - q1->z*q2->y;
+	temp.y = q1->w*q2->y + q1->y*q2->w + q1->z*q2->x - q1->x*q2->z;
+	temp.z = q1->w*q2->z + q1->z*q2->w + q1->x*q2->y - q1->y*q2->x;
+/*    
+	float dp;
 
 	dp = q1->x*q2->x + q1->y*q2->y + q1->z*q2->z;
 
@@ -533,7 +539,7 @@ void QuaternionMultiply(QUATERNION *res,QUATERNION *q1,QUATERNION *q2)
 	temp.x = q1->w*q2->x + q2->w*q1->x + q1->y*q2->z - q1->z*q2->y;
 	temp.y = q1->w*q2->y + q2->w*q1->y + q1->z*q2->x - q1->x*q2->z;
 	temp.z = q1->w*q2->z + q2->w*q1->z + q1->x*q2->y - q1->y*q2->x;
-
+*/
 	res->w = temp.w;
 	res->x = temp.x;
 	res->y = temp.y;
@@ -550,6 +556,24 @@ void QuaternionMultiply(QUATERNION *res,QUATERNION *q1,QUATERNION *q2)
 */
 void GetRotationFromQuaternion(QUATERNION *destQ,QUATERNION *srcQ)
 {
+	float length2 = srcQ->x*srcQ->x+srcQ->y*srcQ->y+srcQ->z*srcQ->z;
+    if ( length2 > 0.0 )
+    {
+        float invlen = 1.0/sqrtf(length2);
+        destQ->w = 2.0*acos(srcQ->w);
+        destQ->x = srcQ->x*invlen;
+        destQ->y = srcQ->y*invlen;
+        destQ->z = srcQ->z*invlen;
+    }
+    else
+    {
+        // angle is 0 (mod 2*pi), so any axis will do
+        destQ->w = 0;
+        destQ->x = 1.0;
+        destQ->y = 0.0;
+        destQ->z = 0.0;
+    }
+/*
 	float theta,sinThetaOver2,m;
 
 	theta = 2 * acos(srcQ->w);
@@ -576,6 +600,7 @@ void GetRotationFromQuaternion(QUATERNION *destQ,QUATERNION *srcQ)
 		destQ->y = 1;
 		destQ->z = 0;
 	}
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -590,7 +615,7 @@ void GetQuaternionFromRotation(QUATERNION *destQ,QUATERNION *srcQ)
 	float thetaOver2;
 	float sinThetaOver2;
 
-	thetaOver2 = srcQ->w/2;
+	thetaOver2 = srcQ->w*0.5;
 	sinThetaOver2 = sinf(thetaOver2);
 
 	destQ->w = cosf(thetaOver2);
@@ -1107,9 +1132,10 @@ void MakeUnit(VECTOR *vect)
 
 	if(m != 0)
 	{
-		vect->v[X] /= m;
-		vect->v[Y] /= m;
-		vect->v[Z] /= m;
+		m = 1/m;
+		vect->v[X] *= m;
+		vect->v[Y] *= m;
+		vect->v[Z] *= m;
 	}
 }
 
@@ -1130,6 +1156,21 @@ void MakeUnit2D(VECTOR *vect)
 		vect->v[Z] /= m;
 	}
 }
+
+void MakeUnitQuat( QUATERNION *q )
+{
+    float m = MagnitudeQuat(q);
+
+	if( m != 0 )
+	{
+		m = 1/m;
+		q->x *= m;
+		q->y *= m;
+		q->z *= m;
+		q->w *= m;
+	}
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function 	: ScaleVector()

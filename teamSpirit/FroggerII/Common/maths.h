@@ -17,7 +17,7 @@
 #define MagnitudeSquared2D(vect) ((vect)->v[X]*(vect)->v[X] + (vect)->v[Z]*(vect)->v[Z])
 #define Magnitude2D(vect) (sqrtf((vect)->v[X]*(vect)->v[X] + (vect)->v[Z]*(vect)->v[Z]))
 #define Magnitude(vect) (sqrtf((vect)->v[X]*(vect)->v[X] + (vect)->v[Y]*(vect)->v[Y] + (vect)->v[Z]*(vect)->v[Z]))
-
+#define MagnitudeQuat(q) (sqrt(q->w*q->w + q->x*q->x + q->y*q->y + q->z*q->z))
 
 /*
 #define ZeroVector(vect) SetVector(vect,&zero)
@@ -145,6 +145,7 @@ float FindShortestAngleSigned(float ang1,float ang2);
 //float Magnitude(VECTOR *vect);
 void MakeUnit(VECTOR *vect);
 void MakeUnit2D(VECTOR *vect);
+void MakeUnitQuat( QUATERNION *q );
 //void ScaleVector(VECTOR *vect,float scale);
 //void ScaleVector2D(VECTOR *vect,float scale);
 float Aabs(float angle);
