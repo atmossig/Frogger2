@@ -92,7 +92,7 @@ void EditorCreateEntities(void)
 			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
-			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, (fixed)(create->animSpeed*4096), create->facing);
+			enemy = CreateAndAddEnemy(create->type,create->flags,create->ID,path, (int)(create->animSpeed*256), create->facing);
 			if (!enemy) continue;
 
 			act = enemy->nmeActor;
@@ -141,7 +141,7 @@ void EditorCreateEntities(void)
 			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
-			platform = CreateAndAddPlatform(create->type,create->flags,create->ID,path,GAMEFLOAT(create->animSpeed));
+			platform = CreateAndAddPlatform(create->type,create->flags,create->ID,path,(int)(create->animSpeed*256));
 			if (!platform) continue;
 
 			act = platform->pltActor;
