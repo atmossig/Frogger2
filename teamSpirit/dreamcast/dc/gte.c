@@ -14,7 +14,7 @@
 // -------
 // Globals
 
-MATRIX	GsIDMATRIX;
+MATRIX	GsIDMATRIX = {4096, 0, 0, 0, 4096, 0, 0, 0, 4096, 0, 0, 0};
 MATRIX	GsWSMATRIX;
 
 // Vertex registers
