@@ -9,12 +9,11 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#ifdef PC_VERSION
-#include <windows.h>
-#endif
-
 #include "jalloc.h"
 
+#ifdef PC_VERSION
+#include "pcmisc.h"
+#endif
 
 #define MALLOC(size)	JallocAlloc(size, 0, "l10n")
 #define FREE(ptr)		JallocFree((UBYTE**)&(ptr))
@@ -24,27 +23,6 @@ char		**gameTextStr;
 static char *gameTextBuffer;
 
 //static int		oldLang, currStr, incDelay, holdTime, bkg = 0;
-
-#ifdef PC_VERSION
-
-void *fileLoad(const char* filename, int *bytesRead)
-{
-	void *buffer;
-	int size, read;
-	HANDLE h;
-
-	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (h == INVALID_HANDLE_VALUE) return NULL;
-	size = GetFileSize(h, NULL);
-	buffer = JallocAlloc(size, 0, "entLoad");
-	ReadFile(h, buffer, size, &read, NULL);
-	CloseHandle(h);
-	
-	if (bytesRead) *bytesRead = read;
-	return buffer;
-}
-
-#endif
 
 /**************************************************************************
 	FUNCTION:	gameTextInit

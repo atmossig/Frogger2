@@ -290,3 +290,27 @@ void LoadTextureForTrophy( TEXTURE *tex )
 }
 
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: fileLoad
+	Purpose			: loads a file into a memory buffer, allocating memory
+	Parameters		: char *filename(in), int *bytesRead(out)
+	Returns			: void*
+*/
+void *fileLoad(const char* filename, int *bytesRead)
+{
+	void *buffer;
+	int size, read;
+	HANDLE h;
+
+	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (h == INVALID_HANDLE_VALUE) return NULL;
+	size = GetFileSize(h, NULL);
+	buffer = JallocAlloc(size, 0, "entLoad");
+	ReadFile(h, buffer, size, &read, NULL);
+	CloseHandle(h);
+	
+	if (bytesRead) *bytesRead = read;
+	return buffer;
+}
+

@@ -33,6 +33,8 @@ void EndTimer(int number);
 void PrintTimers(void);
 void HoldTimers(void);
 
+void *fileLoad(const char* filename, int *bytesRead);
+
 #ifdef __cplusplus
 }
 #endif

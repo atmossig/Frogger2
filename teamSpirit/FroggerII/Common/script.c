@@ -1171,29 +1171,17 @@ int Interpret(const UBYTE *buffer)
 	Parameters		: const char*
 	Returns			: 
 */
-#ifdef PC_VERSION
 void LoadTestScript(const char* filename)
 {
-	HANDLE h;
-	long size, read;
 	UBYTE* buffer;
 	
 	dprintf"Testing script %s\n", filename));
 
-	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (h == INVALID_HANDLE_VALUE)
+	if (!(buffer = (UBYTE*)loadFile(filename, 0))
 	{
 		sprintf(statusMessage, "Couldn't load script file %s", filename);
 		dprintf "%s\n", statusMessage)); return;
 	}
-
-	size = GetFileSize(h, NULL);
-	buffer = JallocAlloc(size, NO, "entLoad");
-
-	ReadFile(h, buffer, size, &read, NULL);
-	CloseHandle(h);
 
 	if (!InitLevelScript(buffer))
 	{
@@ -1203,7 +1191,6 @@ void LoadTestScript(const char* filename)
 
 	sprintf(statusMessage, "Loaded script %s", filename);
 }
-#endif
 
 int InitLevelScript(void *buffer)
 {
