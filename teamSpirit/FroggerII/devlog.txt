@@ -1844,6 +1844,18 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Morning:
+		Strangely muted response to the email about Andy and Alex, even from those who didn't know already. Very odd.
+
+		I rewrote my sound stuff at the weekend, so this morning I just had to write looping samples. Along the way though,
+		I realised that the stuff I wrote had a bug in it that screwed up a pointer so only one actor could have a sample map.
+		That'll teach me to test my code properly next time...
+		Fixed it, and did the looping samples, and it turned out that I could do them in a nicer way than I had planned, which
+		is also strange. A peculiar morning all round.
+
+	Afternoon:
+		Fixed bug with pushblocks with the help of Dave who wrote them, and probably figured out a baby collection bug.
+
 
 James Healey:
 ------------------------------------------------
