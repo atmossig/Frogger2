@@ -1056,6 +1056,7 @@ void MainReset ( void )
 //	fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
 #else
 	fileInitialise("\\FROGGER.DAT;1");
+	XAsetStatus(CdInit());
 #endif
 
 //		padInitialise(1); // 0 = No multi tap support

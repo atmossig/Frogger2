@@ -559,7 +559,7 @@ void textureDownLoad(NSPRITE *nspr, TextureType *txPtr)
 	imageCRC = utilBlockCRC((char *)nspr->image, imageLength);
 	
 	// for each texture bank
-	for(loop = 0; loop < MAXTEXBANKS; loop ++)
+	/*for(loop = 0; loop < MAXTEXBANKS; loop ++)
 	{
 		if (texBank[loop]!=NULL)
 		{
@@ -597,7 +597,7 @@ void textureDownLoad(NSPRITE *nspr, TextureType *txPtr)
 				}
 			}
 		}
-	}
+	}*/
 
 	// if we've found matching textures, return
 	if(foundMatch)
@@ -873,7 +873,9 @@ void textureDownloadBank(TextureBankType *bank)
 	int	loop;
 
 	for(loop=0; loop<bank->numTextures; loop++)
+	{
 		textureDownloadFromBank(bank, loop);
+	}
 }
 
 

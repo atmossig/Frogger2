@@ -41,6 +41,12 @@ extern char *palNames [ 5 ];
 // For PSX, no need to add .bmp extension
 #define FindTexture(x) textureFindCRCInAllBanks(utilStr2CRC(x))
 
+extern unsigned char *redpal[];
+extern unsigned char *greenpal[];
+extern unsigned char *bluepal[];
+extern unsigned char *pinkpal[];
+extern unsigned char *yellowpal[];
+
 void LoadTextureBank			( int textureBank );
 void LoadTextureAnimBank ( int textureBank );
 void FreeTextureBank			( TextureBankType *textureBank );

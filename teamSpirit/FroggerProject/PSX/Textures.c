@@ -248,18 +248,18 @@ void FreeAllTextureBanks ( void )
 
 
 
-static int LOADPAL_LoadPCPalette(char * const file, LOADPAL_PCPalette16Str * const pc_palette);
+static int LOADPAL_LoadPCPalette(unsigned char *palette, LOADPAL_PCPalette16Str * const pc_palette);
 //////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////
-signed short LOADPAL_Load16(char * const file)
+signed short LOADPAL_Load16(unsigned char *palette)
 {
 	signed short psx_palette[16];
 	LOADPAL_PCPalette16Str pc_palette;
 	int clut;
 
 	// Load the palette into 24bit rgb components
-	if (!LOADPAL_LoadPCPalette(file, &pc_palette))
+	if (!LOADPAL_LoadPCPalette(palette, &pc_palette))
 		return 0;
 
 	// Now convert the pc palette to the playstation version
@@ -289,29 +289,29 @@ signed short LOADPAL_Load16(char * const file)
 //////////////////////////////////////////////////////////////////
 //					Internal functions							//
 //////////////////////////////////////////////////////////////////
-static int LOADPAL_LoadPCPalette(char * const file, 
+static int LOADPAL_LoadPCPalette(unsigned char *palette, 
 							   LOADPAL_PCPalette16Str * const pc_palette)
 {
-	unsigned char *palette = NULL;
+	//unsigned char *palette = NULL;
 	unsigned char *file_ptr;
 	int file_length;
 	int i;
 
-	if (!file)
+/*	if (!file)
 	{
 		utilPrintf("ERROR: File address passed to palette load is NULL.\n");
 		utilPrintf("Palette not loaded.\n");
 		return 0;
-	}
+	}*/
 
-	palette = (unsigned char*)fileLoad(file, &file_length);
+	//palette = (unsigned char*)fileLoad(file, &file_length);
 
-	if (!palette)
+/*	if (!palette)
 	{
 //		utilPrintf("ERROR: Could not load palette file %s.\n", file);
 //		utilPrintf("Palette not loaded.\n");
 		return 0;
-	}
+	}*/
 
 	// Let's just check the 1st 3 letters for the right format
 	if ( (palette[0] != 'J') ||
@@ -412,9 +412,9 @@ static int LOADPAL_LoadPCPalette(char * const file,
 		pc_palette->component[i].b = b;
 	}
 
-	FREE(palette);
+	//FREE(palette);
 
-	return file_length;
+	return 1;
 }
 //////////////////////////////////////////////////////////////////
 
@@ -572,7 +572,8 @@ void SubTextureAnim ( TEXTUREANIM *textureAnim )
 	textureAnim->next = NULL;
 	textureAnimList.numEntries--;
 
-	FREE(textureAnim);
+	//FREE(textureAnim);
+	textureAnim = NULL;
 }
 
 

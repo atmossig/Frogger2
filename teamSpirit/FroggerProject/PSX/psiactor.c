@@ -102,11 +102,18 @@ void actorSub(ACTOR *actor)
 
 void actorFree(ACTOR *actor)
 {
-	FREE(actor->psiData.objectTable);
-	if (actor->shadow)
-		FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
+//	FREE(actor->psiData.objectTable);
+	actor->psiData.objectTable = NULL;
+
+	//if (actor->shadow)
+		//FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
+
+	actor->shadow = NULL;
+
 	actorSub(actor);
-	FREE(actor);
+	//FREE(actor);
+
+	actor = NULL;
 }
 
 

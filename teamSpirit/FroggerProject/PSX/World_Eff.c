@@ -202,7 +202,8 @@ void SubScenicObject ( SCENICOBJ *scenicObj )
 	scenicObj->next = NULL;
 	scenicObjList.numEntries--;
 
-	FREE(scenicObj);
+//	FREE(scenicObj);
+	scenicObj = NULL;
 }
 
 unsigned long oldperiod=0, oldfr=0;
