@@ -10,14 +10,20 @@ extern "C"
 
 enum APPMSGTYPE
 {
+	APPMSG_LEVELSEL,
+	APPMSG_START,
 	APPMSG_CHAT,
 	APPMSG_UPDATE,
+	APPMSG_PING,
+	APPMSG_PINGREPLY
 };
 
 typedef struct _NETPLAYER
 {
 	DPID	dpid;		// DirectPlay player identifier - passed to IDirectPlay to query address stuff
 	bool	isHost;		// true if this player is the host, false otherwise
+
+	unsigned long lastUpdateMsg;	// the tick count of the last update msg
 	
 	struct _NETPLAYER *next, *prev;
 } NETPLAYER;
@@ -32,6 +38,8 @@ extern NETPLAYER netPlayerList[4];
 
 typedef int (*NET_MESSAGEHANDLER)(void *data, unsigned long size, NETPLAYER *player);
 
+void NetStartGame();
+
 NET_MESSAGEHANDLER NetInstallMessageHandler(NET_MESSAGEHANDLER handler);
 void NetProcessMessages();
 void SetupNetPlayerList();
@@ -39,6 +47,7 @@ void SetupNetPlayerList();
 int GetPlayerNumFromID(DPID id);
 
 int NetBroadcastMessage(void *data, unsigned long size);
+int NetBroadcastUrgentMessage(void *data, unsigned long size);
 
 #ifdef __cplusplus
 }

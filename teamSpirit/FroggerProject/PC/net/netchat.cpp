@@ -138,7 +138,7 @@ void UpdateChatWindow()
 	}
 
 	EnableWindow(GetDlgItem(hwndChat, IDC_LEVEL), isServer);
-	EnableWindow(GetDlgItem(hwndChat, IDC_START), isServer && count>=2);
+	EnableWindow(GetDlgItem(hwndChat, IDC_START), isServer); // && count>=2);
 }
 
 
@@ -193,6 +193,10 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				dplay->SetSessionDesc(&dpsd, 0);
 
+				unsigned char msg = APPMSG_START;
+
+				NetBroadcastUrgentMessage(&msg, 1);
+
 				EndDialog(hDlg, 0);
 				return TRUE;
 			}
@@ -244,6 +248,13 @@ int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 			strncat(buffer, ((char*)data) + 4, 1024);
 
 			ShowMessage(buffer, CHAT_NORMAL);
+		}
+		return 0;
+
+	case APPMSG_START:
+		{
+			utilPrintf("NET: starting the joined game... drumroll please ...\n");
+			EndDialog(hwndChat, 0);
 		}
 		return 0;
 	}

@@ -41,6 +41,12 @@ NET_MESSAGEHANDLER messageHandler;	// callback for interpreting game messages
 
 NETPLAYER netPlayerList[MAX_FROGS];
 
+
+
+
+
+
+
 NETPLAYER *GetPlayerFromID(DPID id)
 {
 	for (int p=0; p<MAX_FROGS; p++)
@@ -171,10 +177,10 @@ HRESULT ReceiveMessages()
 			recieveBufferSize = messageSize;
 		}
 		else
-		if((SUCCEEDED(hRes)) && (messageSize >= sizeof(DPMSG_GENERIC)))
+		if (SUCCEEDED(hRes)) /*&& (messageSize >= sizeof(DPMSG_GENERIC)))*/
 		{
 			// check for system message
-			if(idFrom == DPID_SYSMSG)
+			if (idFrom == DPID_SYSMSG)
 				HandleSystemMessage((LPDPMSG_GENERIC)recieveBuffer, messageSize, idFrom, idTo);
 			else
 			{
@@ -195,41 +201,10 @@ HRESULT ReceiveMessages()
 
 void NetProcessMessages()
 {
-	// handle pending messages
-	ReceiveMessages();
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: HandleApplicationMessage
-	Purpose			: handles application message for multiplay
-	Parameters		: LPDPLAYINFO,LPDPMSG_GENERIC,DWORD,DPID,DPID
-	Returns			: void
-	Info			: 
-*/
-void HandleApplicationMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo)
-{
-	switch(lpMsg->dwType)
+	if (dplay)
 	{
-/*
-		case APPMSG_UPDATEGAME:
-			HandleUpdateMessage( lpDPInfo, (LPMSG_UPDATEGAME)lpMsg, dwMsgSize, idFrom, idTo );
-		break;
-
-		case APPMSG_GAMECHAT:
-			HandleChatMessage( lpDPInfo, (LPMSG_CHATSTRING)lpMsg, dwMsgSize, idFrom, idTo );
-		break;
-
-		case APPMSG_SYNCHGAME:
-			HandleSynchMessage( lpDPInfo, (LPMSG_SYNCHGAME)lpMsg, dwMsgSize, idFrom, idTo );
-		break;
-
-		case APPMSG_SYNCHPING:
-			if (DPInfo.bIsHost)
-				HandlePingMessageServer( lpDPInfo, (LPMSG_SYNCHGAME)lpMsg, dwMsgSize, idFrom, idTo );
-			else
-				HandlePingMessagePlayer( lpDPInfo, (LPMSG_SYNCHGAME)lpMsg, dwMsgSize, idFrom, idTo );
-		break;
-*/
+		// handle pending messages
+		ReceiveMessages();
 	}
 }
 
@@ -293,7 +268,21 @@ int NetBroadcastMessage(void *data, unsigned long size)
 	return res;
 }
 
+int NetBroadcastUrgentMessage(void *data, unsigned long size)
+{
+	HRESULT res;
 
+	res = dplay->Send(dpidLocalPlayer, DPID_ALLPLAYERS, DPSEND_GUARANTEED, data, size);
+
+	return res;
+}
+
+void NetStartGame()
+{
+
+	//.. net-specific stuff after the game's started!
+	// (i.e. timer synchronisation and stuff)
+}
 
 /*	ds - more hacked network shit
 

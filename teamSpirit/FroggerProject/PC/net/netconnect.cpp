@@ -450,12 +450,15 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
     {
         case WM_INITDIALOG:
             {
-                searchingForSessions = FALSE;
-                SetDlgItemText( hDlg, IDC_SEARCH, "Start Search" );
+                searchingForSessions = TRUE;
+				ShowNetGames(hDlg, true);
+
+                SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
 
 				// Disable the join button until sessions are found
 				EnableWindow( GetDlgItem( hDlg, IDC_JOIN ), FALSE );
 				InitSessionsDialog(hDlg);
+
             }
             break;
 

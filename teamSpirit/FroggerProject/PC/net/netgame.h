@@ -6,6 +6,9 @@ extern "C"
 {
 #endif
 
+void NetgameStartGame();
+void NetgameRun();
+
 /*
 extern DPID netPlayers[MAX_MULTIPLAYERS]; // Index is local player number. Zero -> local DPID.
 
