@@ -599,7 +599,7 @@ int main ( )
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 
-			if(gameState.mode!=PAUSE_MODE)
+//			if(gameState.mode!=PAUSE_MODE)
 			{
 				char tempText[64];
 

@@ -168,7 +168,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 		actor->psiData.flags = ACTOR_BONED;
 		actor->psiData.flags |= ACTOR_DYNAMICSORT;
 
-		//ScalePsi(actor->psiData.object->meshdata);
+//		ScalePsi(actor->psiData.object->meshdata);
 // 		#define PSI_SCALED_FLAG (1<<30)
 // 		if( ! (actor->psiData.flags&&PSI_SCALED_FLAG) )
 // 		{
@@ -247,6 +247,14 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	actorSetBoundingRotated(actor,0,0,0,0);						// fill in bounding box info
 
 	actor->clutOverride = NULL;
+
+	if (psiModel->flags & 1)
+	{
+		ScalePsi(actor->psiData.object->meshdata);
+		actor->radius *= 10;
+		psiInitSortList(actor->radius*2+8);
+	}
+	// ENDIF
 
 	return actor;
 }

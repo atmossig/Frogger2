@@ -30,7 +30,7 @@ asm(\
 
 void DrawSpecialFX ( void )
 {
-/*	int i;
+	int i;
 
 	if ( ( gameState.mode == INGAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
 		 ( gameState.mode == CAMEO_MODE ) )
@@ -48,7 +48,7 @@ void DrawSpecialFX ( void )
  		for( i=0; i<NUM_FROGS; i++ )
  			if( tongue[i].flags & TONGUE_BEINGUSED )
  				DrawTongue( &tongue[i] );
-	}*/
+	}
 }
 
 

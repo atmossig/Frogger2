@@ -88,7 +88,10 @@ bss     group   bss
 	include "story.obj"
 	include "timer.obj"
 	include "psxtongue.obj"
-
+	include "e3_demo.obj"
+	include "psi.obj"
+	include "bbpsiani.obj"
+	include "quatern.obj"
 
 ;	include "ANIM.obj"
 ;	include "TEXTOVER.obj"
@@ -147,11 +150,11 @@ bss     group   bss
 ;	include "bff_load.obj"
 ;	include "quatern.obj"
 ;	include "psi.obj"
-;	include "asm.obj"
+	include "asm.obj"
 ;	include "custom.obj"
 ;	include "custom2.obj"
 
-    inclib  "islpsi.lib"
+;    inclib  "islpsi.lib"
     inclib  "islmem.lib"
     inclib  "islfile.lib"
     inclib  "isltex.lib"

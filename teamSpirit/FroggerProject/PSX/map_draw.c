@@ -15,6 +15,9 @@
 //#define WATERANIM_1 (u+((rcos(frame<<6)+4096)>>11))|((v+((rsin(frame<<6)+4096)>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6)+4096)>>11))|((v+((rcos(frame<<6)+4096)>>11))<<8)
 
+
+
+
 extern EXPLORE_black_CLUT;
 
 #define WATERANIM_1  ( ( u )  ) | ( ( v + ( ( 4096 ) >> 11 ) ) << 8 )
@@ -162,11 +165,11 @@ asm(\
 // which looks horrible!
 //#define MIN_MAP_DEPTH 140
 //#define MIN_MAP_DEPTH 100
-#define MIN_MAP_DEPTH (10)
+#define MIN_MAP_DEPTH (5)
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (9000)
+#define MAX_MAP_DEPTH (800)
 
 
 // ===================================================
@@ -283,8 +286,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		{
 // Skip the poly if all the verts are off screen.
 // A fairly hefty check, but one that gives us a 20% code-speed increase & 30% less gpu work.
-			//if ( (GETX(op->vert0)+256)&(GETX(op->vert1)+256)&(GETX(op->vert2)+256)&(GETX(op->vert3)+256)&512) continue;
-			//if ( (GETY(op->vert0)+128)&(GETY(op->vert1)+128)&(GETY(op->vert2)+128)&(GETY(op->vert3)+128)&256) continue;
+//			if ( (GETX(op->vert0)+256)&(GETX(op->vert1)+256)&(GETX(op->vert2)+256)&(GETX(op->vert3)+256)&512) continue;
+//			if ( (GETY(op->vert0)+100)&(GETY(op->vert1)+100)&(GETY(op->vert2)+100)&(GETY(op->vert3)+100)&200) continue;
 
 // Here's an entertaining little optimisation for the above that does X & Y at the same time,
 // masking off the low bits to avoid overflow problems, and knocks a further 10% off the code side of things
@@ -387,8 +390,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // Skip the poly if all the verts are off screen.
 // A fairly hefty check, but one that gives us a 20% code-speed increase & 30% less gpu work.
 
-			if ( (GETX(op->vert0)+256)&(GETX(op->vert1)+256)&(GETX(op->vert2)+256)&512) continue;
-			if ( (GETY(op->vert0)+128)&(GETY(op->vert1)+128)&(GETY(op->vert2)+128)&256) continue;
+//			if ( (GETX(op->vert0)+256)&(GETX(op->vert1)+256)&(GETX(op->vert2)+256)&512) continue;
+//			if ( (GETY(op->vert0)+128)&(GETY(op->vert1)+128)&(GETY(op->vert2)+128)&256) continue;
 
 // Optimisation - X & Y at the same time
 			if(

@@ -12,7 +12,7 @@ BACKDROP backDrop;
 
 extern USHORT EXPLORE_black_CLUT;
 
-void InitBackdrop ( char * const filename )
+void InitBackdrop ( char * filename )
 {
 	if (backDrop.init)
 		return;
@@ -33,6 +33,7 @@ void InitBackdrop ( char * const filename )
 
 	backDrop.rect.y = 0;
 
+	strcat ( filename, ".RAW" );
 	backDrop.data = fileLoad(filename, NULL);
 
 
@@ -54,29 +55,16 @@ void DrawBackDrop ( void )
 				backDrop.rect.y = 256;
 				DrawSync(0);
 				LoadImage(&backDrop.rect, (ULONG *)backDrop.data);
+				DrawSync(0);
 				backDrop.rect.y = 0;
 				DrawSync(0);
 				LoadImage(&backDrop.rect, (ULONG *)backDrop.data);
 				DrawSync(0);
+			//VSync(2);
 
-				if ( frameCount > 50 )
+/*				if ( frameCount > 50 )
 				{
-					backDrop.init = 0;
-
-					backDrop.rect.y = 0;
-					DrawSync(0);
-					ClearImage2(&backDrop.rect, 0,0,0);
-					DrawSync(0);
-					backDrop.rect.y = 256;
-					DrawSync(0);
-					ClearImage2(&backDrop.rect, 0,0,0);
-					DrawSync(0);
-
-					backDrop.rect.y = 0;
-
-					FREE(backDrop.data);
-
-				}
+				}*/
 				// ENDIF
 
 
@@ -219,3 +207,21 @@ void DrawBackDrop ( void )
 	// ENDIF
 }
 
+void FreeBackdrop ( void )
+{
+	backDrop.init = 0;
+
+	backDrop.rect.y = 0;
+	DrawSync(0);
+	ClearImage2(&backDrop.rect, 0,0,0);
+	DrawSync(0);
+	backDrop.rect.y = 256;
+	DrawSync(0);
+	ClearImage2(&backDrop.rect, 0,0,0);
+	DrawSync(0);
+
+	backDrop.rect.y = 0;
+
+	FREE(backDrop.data);
+
+}

@@ -1,6 +1,9 @@
 #ifndef _BACKDROP_H_INCLUDE
 #define _BACKDROP_H_INCLUDE
 
+#include "Shell.h"
+#include "SonyLibs.h"
+
 typedef struct _BACKDROP
 {
 	char *data;
@@ -15,5 +18,6 @@ extern BACKDROP backDrop;
 void InitBackdrop ( char * const filename );
 
 void DrawBackDrop ( void );
+void FreeBackdrop ( void );
 
 #endif

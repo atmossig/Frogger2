@@ -69,6 +69,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
 					{
 						theActor->flags |= ACTOR_DRAW_ALWAYS;
+//						theActor->depthShift = 3000;
 					}
 					// ENDIF
 
