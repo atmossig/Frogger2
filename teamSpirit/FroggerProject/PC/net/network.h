@@ -33,7 +33,8 @@ enum APPMSGTYPE
 	APPMSG_HOSTREADY,	// the host is ready to sync
 	APPMSG_DEATH,		// this player was deaded
 	APPMSG_PLAYERNUM,	// you are player (x) - sent by host only
-	APPMSG_WONGAME		// I won, whoopee!
+
+	GAMEMSG_START
 };
 
 typedef struct _NETPLAYER

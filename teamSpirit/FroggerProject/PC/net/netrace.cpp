@@ -32,6 +32,19 @@
 #include "frontend.h"	// why is 'SlideTextOverlayToPos' defined here?
 
 
+enum
+{
+	GAMEMSG_RACEWON = GAMEMSG_START
+};
+
+
+struct MSG_RACEWON
+{
+	UBYTE id;
+	DWORD frame, penalty;
+};
+
+
 long started = 0;
 
 int countdown = 4;
@@ -139,6 +152,7 @@ int NetRaceRun()
 
 	if (actFrameCount > gameStartTime)
 	{
+		mpl[0].timer = actFrameCount - gameStartTime;
 
 		if( player[0].dead.time )
 		{
@@ -198,6 +212,14 @@ int NetRaceRun()
 			// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
 			if( mpl[0].lap >= 1)//MULTI_RACE_NUMLAPS )
 			{
+				MSG_RACEWON msg;
+				
+				msg.id		= GAMEMSG_RACEWON;
+				msg.penalty	= mpl[0].penalty;
+				msg.frame	= actFrameCount;
+
+				NetBroadcastUrgentMessage(&msg, sizeof(msg));
+
 				mpl[0].ready = 1;
 				player[0].canJump = 0;
 			}
@@ -206,7 +228,7 @@ int NetRaceRun()
 		UpDateMultiplayerInfo( );
 	}
 
-	if (isHost)
+	//if (isHost)
 		NetRaceCheckWin();
 
 	return 0;
@@ -265,5 +287,21 @@ int NetRaceCheckWin()
 
 int NetRaceMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 {
+	int pl;
+
+	switch (*(UBYTE*)data)
+	{
+	case GAMEMSG_RACEWON:
+		MSG_RACEWON *won = (MSG_RACEWON*)data;
+
+		utilPrintf("Player 0x08 finished on frame %d with penalty %d\n", won->frame, (int)won->penalty);
+
+		pl = GetPlayerNumFromID(player->dpid);
+		mpl[pl].timer = (won->frame-gameStartTime);
+		mpl[pl].penalty = won->penalty;
+		mpl[pl].ready = 1;
+		return 0;
+	};
+
 	return -1;
 }

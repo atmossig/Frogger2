@@ -11,6 +11,8 @@
 #ifndef NETRACE_H
 #define NETRACE_H
 
+#include "network.h"
+
 extern int NetRaceInit();
 
 #endif

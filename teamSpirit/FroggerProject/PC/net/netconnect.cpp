@@ -452,6 +452,7 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
             {
                 searchingForSessions = TRUE;
 				ShowNetGames(hDlg, true);
+				SetTimer( hDlg, 1, 250, NULL );
 
                 SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
 
