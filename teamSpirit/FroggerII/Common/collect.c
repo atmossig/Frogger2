@@ -1299,10 +1299,15 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 
 	InitGaribSprite(garib);
 	
+#ifndef PC_VERSION
 	garib->sprite.offsetX = -garib->sprite.texture->sx / 2;
 	garib->sprite.offsetY = -garib->sprite.texture->sy / 2;
 	garib->sprite.flags &= -1 - SPRITE_TRANSLUCENT;
-
+#else
+	garib->sprite.offsetX = -16;
+	garib->sprite.offsetY = -16;
+	garib->sprite.flags &= -1 - SPRITE_TRANSLUCENT;
+#endif
 	if(garib->active)
 		AddSprite(&garib->sprite,NULL);
 	
@@ -1398,8 +1403,8 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 	sprintf(bmpBuff,"spnu%d.bmp",(scoreType * 10));
 	FindTexture(&sprite->texture,UpdateCRC(bmpBuff),YES,bmpBuff);
 	
-	sprite->offsetX = -sprite->texture->sx / 2;
-	sprite->offsetY = -sprite->texture->sy / 2;
+	sprite->offsetX = -16;
+	sprite->offsetY = -16;
 
 	AddSprite(sprite,NULL);
 }

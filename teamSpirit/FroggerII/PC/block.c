@@ -15,6 +15,7 @@
 
 
 WININFO winInfo;
+long lButton = 0;
 
 char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
 
@@ -108,6 +109,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	InitFont();
 	InitEditor();
 	
+	gameState.mode		= FRONTEND_MODE;
+	frontEndState.mode	= DEMO_MODE;
+
     while(ok)
 	{
         while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
@@ -129,7 +133,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			RunEditor();
 			
 			DrawGraphics();
-			DrawEditor();
+			
 
 			DirectXFlip();
 		}
@@ -181,8 +185,8 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 		WS_EX_TOPMOST,
         "Frogger2PC",
         "Frogger2PC",
-		//WS_POPUP,
-		WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE,			// window style
+		WS_POPUP,
+		//WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE,			// window style
         0,
 		0,
 		640,	//GetSystemMetrics(SM_CXSCREEN),
@@ -202,7 +206,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 	appActive = 1;
 	ShowWindow(winInfo.hWndMain,SW_SHOW);
 	UpdateWindow(winInfo.hWndMain);
-	ShowCursor(1);
+	ShowCursor(0);
 
     return 1;
 }
@@ -224,13 +228,23 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 	{
         case WM_DESTROY:
 			PostQuitMessage(0);
+			appActive = 0;
             break;
 
 		case WM_PAINT:
 			dc = BeginPaint(winInfo.hWndMain,&ps);
 			EndPaint(winInfo.hWndMain,&ps);
 			break;
-    }
+		
+		
+		case WM_LBUTTONDOWN:
+			lButton = 1;
+			break;
+		
+		case WM_LBUTTONUP:
+			lButton = 0;
+			break;
+	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);
 }
@@ -244,10 +258,19 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 	Info			: 
 */
 
-void DrawGraphics()
+void DrawGraphics() 
 {
 	XformActorList();
+
+	// Actual stuff that draws
 	BeginDrawHardware();
-	DrawActorList();
+	
+	DrawActorList();	
+
+	PrintSpriteOverlays();	
+	PrintTextOverlays();
+
+	DrawEditor();
+
 	EndDrawHardware();
 }

@@ -929,21 +929,26 @@ void RunGameLoop (void)
 			goText->yPos += 4;
 			goText->a -= 7;
 			
-			backPanel->yPos -= 4;
-			backPanel->a -= 4;
-
+			
 			if(goText->yPos > 239)
 				goText->kill = 1;
 
-			if((backPanel->yPos + backPanel->height) < 0)
+			if (backPanel)
 			{
-				backPanel->draw = 0;
-				backPanel->a = 127;
-				backPanel->yPos = 83;
+				backPanel->yPos -= 4;
+				backPanel->a -= 4;
+
+				if((backPanel->yPos + backPanel->height) < 0)
+				{
+					backPanel->draw = 0;
+					backPanel->a = 127;
+					backPanel->yPos = 83;
+				}
 			}
 		}
 		else
-			backPanel->a += 3;
+			if (backPanel)
+				backPanel->a += 3;
 	}
 		 
 	if(keyFound)
@@ -1204,8 +1209,9 @@ void RunGameLoop (void)
 
 		currTileNum++;
 	}
-
-	sprintf(tileNum->text,"%d",currTileNum);
+	
+	if (tileNum)
+		sprintf(tileNum->text,"%d",currTileNum);
 #endif
 }
 

@@ -520,7 +520,12 @@ void InitSpriteAnimation(SPRITE *sprite,SPRITE_ANIMATION_TEMPLATE *temp,USHORT l
 		sprite->anim.currentFrame = Random(sprite->anim.frameList->numFrames);
 		sprite->anim.type = SPRITE_ANIM_CYCLE;
 	}
+
+#ifndef PC_VERSION
 	sprite->texture = *(temp->frameList->texture + sprite->anim.currentFrame);
+#else
+	sprite->texture = temp->frameList->texture;
+#endif
 }
 
 

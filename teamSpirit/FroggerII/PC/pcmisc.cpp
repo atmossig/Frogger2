@@ -64,5 +64,17 @@ short *GetGelfBmpDataAsShortPtr(char *filename)
 	return bmp;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void FreeGelfData(void *me)
+{
+	gelfDefaultFree(me);
+}
 
 }

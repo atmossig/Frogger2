@@ -16,8 +16,14 @@
 #include <d3d.h>
 #include <dinput.h>
 
+#ifndef __cplusplus
+
+#include <math.h>
+#endif
+
 #include "pcmisc.h"
 #include "directx.h"
+
 #endif
 
 

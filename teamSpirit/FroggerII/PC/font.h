@@ -28,6 +28,9 @@ typedef struct TAGFONT
 
 	unsigned long xSpacing[MAX_FONT_CHARS];			// X spacing for our individual font characters
 	unsigned long ySpacing[MAX_FONT_CHARS];			// Y spacing for our individual font characters
+	
+	D3DTEXTUREHANDLE hdl;
+	LPDIRECTDRAWSURFACE srf;
 
 } FONT;
 

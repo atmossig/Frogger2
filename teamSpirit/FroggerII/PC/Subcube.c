@@ -96,30 +96,37 @@ float clx0 = 1,
 
 int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
 {
-	float segLen, totalLen;
+	float segLen, totalLen, vt;
+	long r1,g1,b1,a1;
+	long r2,g2,b2,a2;
+
 	switch(outcode)
 	{
 		case OUTCODE_LEFT:
 			segLen = cx0-v0->sx;
 			totalLen = v1->sx-v0->sx;
+			vt = segLen/totalLen;
 			vOut->sx = cx0;
 			vOut->sy = v0->sy+((v1->sy-v0->sy)*segLen)/totalLen;
 			break;
 		case OUTCODE_RIGHT:
 			segLen = cx1-v0->sx;
 			totalLen = v1->sx-v0->sx;
+			vt = segLen/totalLen;
 			vOut->sx = cx1;
 			vOut->sy = v0->sy+((v1->sy-v0->sy)*segLen)/totalLen;
 			break;
 		case OUTCODE_TOP:
 			segLen = cy0-v0->sy;
 			totalLen = v1->sy-v0->sy;
+			vt = segLen/totalLen;
 			vOut->sx = v0->sx+((v1->sx-v0->sx)*segLen)/totalLen;
 			vOut->sy = cy0;
 			break;
 		case OUTCODE_BOTTOM:
 			segLen = cy1-v0->sy;
 			totalLen = v1->sy-v0->sy;
+			vt = segLen/totalLen;
 			vOut->sx = v0->sx+((v1->sx-v0->sx)*segLen)/totalLen;
 			vOut->sy = cy1;
 			break;		
@@ -128,7 +135,19 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 	vOut->tu = (v0->tu+((v1->tu-v0->tu)*segLen)/totalLen);
     vOut->tv = (v0->tv+((v1->tv-v0->tv)*segLen)/totalLen);	
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*segLen)/totalLen);				
-	vOut->color = D3DRGB(1,1,1);
+	
+	a1 = RGBA_GETALPHA(v0->color);
+	r1 = RGBA_GETRED(v0->color);
+	g1 = RGBA_GETGREEN(v0->color);
+	b1 = RGBA_GETBLUE(v0->color);
+
+	a2 = RGBA_GETALPHA(v1->color);
+	r2 = RGBA_GETRED(v1->color);
+	g2 = RGBA_GETGREEN(v1->color);
+	b2 = RGBA_GETBLUE(v1->color);
+
+	vOut->color = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
+
 	vOut->specular = 0;
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
@@ -285,6 +304,11 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 		if (tV[v2].v[Z]+DIST>0)
 		{
 			D3DTLVERTEX v[3];
+			VECTOR *c1 = &(((VECTOR *)obj->mesh->vertexNormals)[v0a]);
+			VECTOR *c2 = &(((VECTOR *)obj->mesh->vertexNormals)[v1a]);
+			VECTOR *c3 = &(((VECTOR *)obj->mesh->vertexNormals)[v2a]);
+
+
 			short fce[3] = {0,1,2};
 			v[0].sx = tV[v0].v[X];
 			v[0].sy = tV[v0].v[Y];
@@ -292,7 +316,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			v[0].rhw = 1/v[0].sz;
 			v[0].tu = obj->mesh->faceTC[v0a].v[0]/1024.0;
 			v[0].tv = obj->mesh->faceTC[v0a].v[1]/1024.0;
-			v[0].color = D3DRGB(1,1,1);
+			v[0].color = D3DRGB(c1->v[0],c1->v[1],c1->v[2]);
 			v[0].specular = D3DRGB(0,0,0);
 
 			v[1].sx = tV[v1].v[X];
@@ -301,7 +325,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			v[1].rhw = 1/v[1].sz;
 			v[1].tu = obj->mesh->faceTC[v1a].v[0]/1024.0;
 			v[1].tv = obj->mesh->faceTC[v1a].v[1]/1024.0;
-			v[1].color = D3DRGB(1,1,1);
+			v[1].color = D3DRGB(c2->v[0],c2->v[1],c2->v[2]);
 			v[1].specular = D3DRGB(0,0,0);
 
 			v[2].sx = tV[v2].v[X];
@@ -310,12 +334,11 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			v[2].rhw = 1/v[2].sz;
 			v[2].tu = obj->mesh->faceTC[v2a].v[0]/1024.0;
 			v[2].tv = obj->mesh->faceTC[v2a].v[1]/1024.0;
-			v[2].color = D3DRGB(1,1,1);
+			v[2].color = D3DRGB(c3->v[0],c3->v[1],c3->v[2]);
 			v[2].specular = D3DRGB(0,0,0);
 	
 			Clip3DPolygon(v,obj->mesh->textureIDs[i]);
-
-	
+		
 		/*	SetTexture (obj->mesh->textureIDs[i]);
 			if (obj->mesh->textureIDs[i])
 			{

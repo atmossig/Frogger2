@@ -13,7 +13,11 @@ typedef unsigned char 	uchar;
 //typedef unsigned short 	ushort;
 typedef unsigned long	ulong;
 
+#ifndef PC_VERSION
 #define MAXJALLOCS	1280
+#else
+#define MAXJALLOCS	4096
+#endif
 
 typedef struct 
 {

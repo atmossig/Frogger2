@@ -22,6 +22,43 @@ unsigned long numTextureBanks = 0;
 
 char message[32];
 
+typedef struct tTEXENTRY
+{
+	long CRC;
+	short *data;
+	struct tTEXENTRY *next;
+	LPDIRECTDRAWSURFACE surf;
+	D3DTEXTUREHANDLE hdl;
+
+} TEXENTRY;
+
+TEXENTRY *texList = NULL;
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeAllTextureBanks
+	Purpose			: frees up ALL texture banks
+	Parameters		: 
+	Returns			: void
+	Info			: NOTE: leaves system texture bank alone !
+*/
+void FreeAllTextureBanks()
+{
+	TEXENTRY *me = texList;
+	TEXENTRY *tme = texList;
+
+	while (me)
+	{
+		tme=me;
+		me=me->next;
+
+		ReleaseSurface(tme->surf);
+		JallocFree(&tme);
+	}
+
+	dprintf"AllTextureBanksAreFreed---------\n"));
+	texList = NULL;
+}
+
 /*	--------------------------------------------------------------------------------
 	Function 	: 
 	Purpose 	: 
@@ -50,17 +87,6 @@ void InitTextureBanks()
 	Info 		:
 */
 
-typedef struct tTEXENTRY
-{
-	long CRC;
-	short *data;
-	struct tTEXENTRY *next;
-	LPDIRECTDRAWSURFACE surf;
-	D3DTEXTUREHANDLE hdl;
-
-} TEXENTRY;
-
-TEXENTRY *texList = NULL;
 
 short *GetTexDataFromCRC (long CRC)
 {
@@ -108,7 +134,7 @@ void AddTextureToTexList(char *file, char *shortn)
 	newE->data = GetGelfBmpDataAsShortPtr(file);
 	if (newE->data)
 	{
-		newE->surf = CreateTextureSurface(32,32, newE->data, 1);
+		newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f);
 		newE->hdl = ConvertSurfaceToTexture(newE->surf);
 		if (newE->hdl==0)
 			dprintf"De-bugger\n"));
@@ -191,6 +217,7 @@ void LoadTextureBank(int num)
 			break;
 	}
 
+
 	strcpy (Sfilename,filename);
 	strcat (Sfilename,"*.bmp");
 	dprintf"Loading %s from %s\n",message,filename));
@@ -227,29 +254,7 @@ void FindTexture(TEXTURE **texPtr, int texID, BOOL report)
 	TEXTURE *tex;
 	char *temp;
 			
-	for(x = MAX_TEXTURE_BANKS - 1; x >= 0; x--)
-//	for(x = 0; x < MAX_TEXTURE_BANKS; x++)
-	{
-		if(textureBanks[x].freePtr)
-		{
-			temp = textureBanks[x].data;
-			for(y = 0; y < textureBanks[x].numTextures; y++)
-			{
-				tex = (TEXTURE *)temp;
-				if(tex->texID == texID)
-				{
-					(*texPtr) = tex;
-					
-					return;
-				}
-				temp += tex->size;
-			}
-		}
-	}
-	*texPtr = NULL;
-	if(report)
-		dprintf"Whoops, texture '%X' not found!\n", texID));
+	*texPtr = GetTexHandleFromCRC(texID);
 
-//	(*texPtr) = &fadeTexture;
 	return;
 }

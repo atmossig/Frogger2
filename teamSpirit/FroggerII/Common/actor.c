@@ -63,7 +63,7 @@ void XformActorList()
 			XformActor(cur->actor);
 
 			// determine this actor's visibility
-			cur->draw = 0;
+			cur->draw = 1;
 			if(cur->flags & ACTOR_DRAW_ALWAYS)
 			{
 				// always draw this actor

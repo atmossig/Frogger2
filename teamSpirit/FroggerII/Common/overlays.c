@@ -72,7 +72,7 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short wi
 void AddFrameToSpriteOverlay(SPRITEOVERLAY *sOver,char *txtrName)
 {
 	short i = 0;
-
+	
 	FindTexture(&sOver->frames[sOver->numFrames++],UpdateCRC(txtrName),YES,txtrName);
 
 	// check animation flags to determine where animation starts (frame)

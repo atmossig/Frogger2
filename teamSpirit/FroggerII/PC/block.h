@@ -13,8 +13,8 @@
 
 
 #define COLLISION_BASE	"collision\\"
-#define SCENIC_BASE		"scenic\\"
-#define OBJECT_BASE		"object\\"
+#define SCENIC_BASE		"scenics\\"
+#define OBJECT_BASE		"objects\\"
 #define TEXTURE_BASE	"textures\\"
 
 #define sinf(x)			((float)sin(x))
@@ -29,7 +29,7 @@ typedef struct TAGWININFO
 } WININFO;
 
 extern WININFO winInfo;
-
+extern long lButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
 

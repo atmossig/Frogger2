@@ -36,12 +36,14 @@ void PrintBackdrop(BACKDROP *bDrop)
 	Returns			: void
 	Info			:
 */
+float wSeed = 0.0F;
+
 void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 {
 	unsigned int pos = 0,length;
 	unsigned int x,y,width;
 	unsigned char letter,letterCount;
-	static float wSeed = 0.0F;
+	
 	short u,v,letterID;
 				
 	x = tOver->xPos;
@@ -52,7 +54,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		// Centre text along screen x-axis
 		length	= strlen(tOver->text);
 		width	= length * (tOver->font->xSpacing[0]);
-		x		= (SCREEN_WIDTH >> 1) - (width >> 1);
+		x		= (320 >> 1) - (width >> 1);
 
 		if((length & 1) != 0)
 			x -= 5;
@@ -64,10 +66,12 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		letter = tOver->text[pos];
 		letterID = characterMap[letter];
 
+		
 		if(tOver->flags & TEXTOVERLAY_WAVECHARS)
 		{
+			float t = sinf(wSeed);
 			letterCount++;
-			y = tOver->yPos + sinf(wSeed + tOver->waveStart + (letterCount * (PI_OVER_4))) * tOver->waveAmplitude;
+			y = tOver->yPos + sinf((float)wSeed + (float)tOver->waveStart + ((float)letterCount * (PI_OVER_4))) * tOver->waveAmplitude;
 		}
 
 		if(letter == 32)
@@ -76,29 +80,21 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		}
 		else
 		{
-//			SetTexture(tOver->font->data);
-//			SetRaster(COLORKEY);
-//			SetCullMode(CULLPOLY_NONE);
-//			SetColorTex(0xffff);
-
 			u = tOver->font->offset[letterID].v[X];
 			v = tOver->font->offset[letterID].v[Y];
-/*			
-			ClipPolygon(x,y,u,v,
-						x+tOver->font->width,y,u+tOver->font->width-1,v,
-						x+tOver->font->width,y+tOver->font->height,u+tOver->font->width-1,v+tOver->font->height-1);
+			
+			DrawASprite (x*2,y*2,tOver->font->height*2,tOver->font->width*2,
+				(float)u/256.0,(float)v/256.0,
+				((float)u+tOver->font->width-1)/256.0,
+				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl );
 
-			ClipPolygon(x+tOver->font->width,y+tOver->font->height,u+tOver->font->width-1,v+tOver->font->height-1,
-						x,y+tOver->font->height,u,v+tOver->font->height-1,
-						x,y,u,v);
-*/
 			x += tOver->font->xSpacing[letterID];
 		}
 
 		pos++;
 	}
 
-	wSeed += 0.1F;
+	wSeed += 0.1;
 }
 
 
@@ -111,14 +107,15 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 */
 void PrintSpriteOverlays()
 {
-/*
+
 	SPRITEOVERLAY *cur;
 	short *texture,x,y;
 
-//	SetRaster(COLORKEY);
-	cur = spriteOverlayList;
-	while(cur)
+	cur = spriteOverlayList.head.next;
+	if (spriteOverlayList.numEntries)
+	while(cur!=&spriteOverlayList.head)
 	{
+		
 		// update the sprite animation if an animated sprite overlay
 		if(cur->draw)
 		{
@@ -186,15 +183,13 @@ void PrintSpriteOverlays()
 			}
 
 			texture = cur->frames[cur->currFrame];
-
-			// use this function until texture sizes other than 256x256 are supported
-//			PrintSpriteSize(cur->xPos,cur->yPos,texture,cur->width,cur->height);
+			DrawASprite (cur->xPos*2,cur->yPos*2,cur->width*2,cur->height*2,0,0,0.99,0.99,texture);
 
 		}
 
 		cur = cur->next;
 	}
-*/
+
 }
 
 

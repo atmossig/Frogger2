@@ -23,6 +23,29 @@ unsigned long numTextureBanks = 0;
 char message[32];
 
 /*	--------------------------------------------------------------------------------
+	Function		: FreeAllTextureBanks
+	Purpose			: frees up ALL texture banks
+	Parameters		: 
+	Returns			: void
+	Info			: NOTE: leaves system texture bank alone !
+*/
+void FreeAllTextureBanks()
+{
+	unsigned long i;
+
+	for(i=0; i<MAX_TEXTURE_BANKS; i++)
+	{
+		if(textureBanks[i].freePtr)
+		{
+			dprintf"Freeing TBank %d...",i));
+			JallocFree((UBYTE**)&textureBanks[i].freePtr);
+			dprintf"done !\n",i));
+		}
+	}
+	numTextureBanks = 0;
+}
+
+/*	--------------------------------------------------------------------------------
 	Function 	: 
 	Purpose 	: 
 	Parameters 	: 

@@ -14,8 +14,9 @@
 #include <ddraw.h>
 #include <d3d.h>
 #include "stdlib.h"
+#include "stdio.h"
 #include "directx.h"
-
+#include <crtdbg.h>
 #define SCREEN_WIDTH	640	//320
 #define SCREEN_HEIGHT	480	//240
 #define SCREEN_BITS		16
@@ -35,7 +36,18 @@ LPDIRECT3DDEVICE2		pDirect3DDevice;
 LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 
 long a565Card = 0;
+void dp(char *format, ...)
+{
+	va_list			argp;
 
+	static char		debugprintfbuffer[2048];
+
+	va_start(argp, format);
+	vsprintf(debugprintfbuffer, format, argp);
+	va_end(argp);
+
+	_CrtDbgReport(_CRT_WARN, NULL, NULL, "A3Ddemo", debugprintfbuffer);
+}
 long DirectXInit(HWND window, long hardware)
 {
 	D3DVIEWPORT				viewport;
@@ -166,54 +178,44 @@ void DirectXFlip(void)
 {
 	D3DRECT rect;
 	RECT r,a;
+	DDBLTFX m;
+
 	// Flip the back buffer to the primary surface
 	primarySrf->Flip(NULL,DDFLIP_WAIT);
-	
-/*	GetClientRect (win,&r);
-	GetWindowRect (win,&a);
-	a.left+=GetSystemMetrics(SM_CXSIZEFRAME);
-	a.top+=GetSystemMetrics(SM_CYSIZEFRAME);
-
-	a.top+=GetSystemMetrics(SM_CYSIZE)+1;
-
-	r.left+=a.left;
-	r.top+=a.top;
-	r.right+=a.left;
-	r.bottom+=a.top;
-
-	primarySrf->Blt(&r,hiddenSrf,NULL,DDBLT_WAIT,NULL);
-	// Clear the z-buffer
-	rect.x1 = 0;
-	rect.y1 = 0;
-	rect.x2 = SCREEN_WIDTH;
-	rect.y2 = SCREEN_HEIGHT;*/
-	pDirect3DViewport->Clear(1, &rect, D3DCLEAR_ZBUFFER | D3DCLEAR_TARGET);
+	DDINIT(m);
+	m.dwFillColor = D3DRGB(0,0,0);
+	while (hiddenSrf->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_COLORFILL,&m)!=DD_OK);
+	DDINIT(m);
+	m.dwFillDepth = -1;//D3DRGB(0,0,0);
+	while (srfZBuffer->Blt(NULL,NULL,NULL,DDBLT_WAIT | DDBLT_DEPTHFILL,&m)!=DD_OK);
 }
 
 void SetupRenderstates(void)
 {
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,NULL);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE,FALSE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND,D3DTBLEND_COPY);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAPBLEND,D3DTBLEND_MODULATE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_COLORKEYENABLE,TRUE);
 
-	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
-	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_LINEAR);
+//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_LINEAR);
+
+
 
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SUBPIXEL,TRUE);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SHADEMODE,D3DSHADE_FLAT);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SHADEMODE,D3DSHADE_GOURAUD);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
-	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DITHERENABLE,FALSE);
-	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);
-	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);	
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DITHERENABLE,TRUE);
+	
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESSEQUAL);
 }
 
 // Split this out into two functions (CreateTextureSurface and CopyToSurface)
-LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware)
+LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware, long cKey)
 { 
-	LPDIRECTDRAWSURFACE pSurface = NULL;
+	LPDIRECTDRAWSURFACE pSurface,pTSurface = NULL;
 	DDSURFACEDESC ddsd;
 
 	//Create the surface
@@ -227,16 +229,42 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	ddsd.ddpfPixelFormat.dwRBitMask=5<<11;
     ddsd.ddpfPixelFormat.dwGBitMask=6<<5;
     ddsd.ddpfPixelFormat.dwBBitMask=5;
-    if (hardware)
-		ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_VIDEOMEMORY;
-	else
-		ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
+    
+	ddsd.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY;
 	
 	if (pDirectDraw->CreateSurface(&ddsd, &pSurface, NULL) != DD_OK)
 	{
 		RELEASE(pSurface); 
 		return NULL;
 	}
+
+	//Create the surface
+	DDINIT(ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;// | DDSD_PIXELFORMAT;
+	ddsd.dwWidth = xs;
+	ddsd.dwHeight = ys;
+	ddsd.ddpfPixelFormat.dwSize = sizeof (DDPIXELFORMAT);
+	ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
+    ddsd.ddpfPixelFormat.dwRGBBitCount = 16;
+	ddsd.ddpfPixelFormat.dwRBitMask=5<<11;
+    ddsd.ddpfPixelFormat.dwGBitMask=6<<5;
+    ddsd.ddpfPixelFormat.dwBBitMask=5;
+    
+	if (hardware)
+		ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_VIDEOMEMORY;
+	else
+		ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE | DDSCAPS_SYSTEMMEMORY;
+	
+	if (pDirectDraw->CreateSurface(&ddsd, &pTSurface, NULL) != DD_OK)
+	{
+		RELEASE(pSurface); 
+		return NULL;
+	}
+
+	DDCOLORKEY cK;
+	cK.dwColorSpaceLowValue = cKey;
+	cK.dwColorSpaceHighValue = cKey;
+	pTSurface->SetColorKey (DDCKEY_SRCBLT,&cK);
 
 	// Copy the data into the surface
 
@@ -252,7 +280,14 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 		
 	pSurface->Unlock(ddsd.lpSurface);
 
-	return pSurface;
+	pTSurface->Blt(NULL,pSurface,NULL,DDBLT_WAIT,0);
+	RELEASE(pSurface);
+	return pTSurface;
+}
+
+void ReleaseSurface(LPDIRECTDRAWSURFACE me)
+{
+	RELEASE(me);
 }
 
 D3DTEXTUREHANDLE lastH = NULL;
@@ -274,9 +309,11 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
 		lastH = h;
 	}
+	
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
+	
 	if (pDirect3DDevice->DrawIndexedPrimitive(
 		D3DPT_TRIANGLELIST,
 		D3DVT_TLVERTEX,
@@ -287,10 +324,64 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 		D3DDP_DONOTCLIP 
 			| D3DDP_DONOTLIGHT 
 			| D3DDP_DONOTUPDATEEXTENTS 
+			/*| D3DDP_WAIT*/)!=D3D_OK)
+	{
+		dp("UGGER !!!!! CAN'T DRAW POLY JOBBY\n");
+	}
+}
+
+void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h)
+{
+	short fce[] = {0,1,2,2,3,0};
+	D3DTLVERTEX v[4] = {
+		{
+			x,y,0,0,
+			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			u1,v1
+		},
+		{
+			x+xs,y,0,0,
+			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			u2,v1
+		},
+		{
+			x+xs,y+ys,0,0,
+			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			u2,v2
+		},
+		{
+			x,y+ys,0,0,
+			D3DRGB(1,1,1),D3DRGB(0,0,0),
+			u1,v2
+	}};
+
+	if (h!=lastH)
+	{
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
+		lastH = h;
+	}
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+
+	if (pDirect3DDevice->DrawIndexedPrimitive(
+		D3DPT_TRIANGLELIST,
+		D3DVT_TLVERTEX,
+		v,
+		4,
+		(unsigned short *)fce,
+		6,
+		D3DDP_DONOTCLIP 
+			| D3DDP_DONOTLIGHT 
+			| D3DDP_DONOTUPDATEEXTENTS 
 			| D3DDP_WAIT)!=D3D_OK)
 	{
+		dp("Could not print sprite\n");
 		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
 	}
+
 }
 
 D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)

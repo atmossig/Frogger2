@@ -22,9 +22,10 @@ extern short mouseY;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-extern void InitPCSpecifics();
-extern void DeInitPCSpecifics();
-extern short *GetGelfBmpDataAsShortPtr(char *filename);
+void InitPCSpecifics();
+void DeInitPCSpecifics();
+short *GetGelfBmpDataAsShortPtr(char *filename);
+void FreeGelfData(void *me);
 
 #ifdef __cplusplus
 }

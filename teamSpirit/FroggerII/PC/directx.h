@@ -34,11 +34,14 @@ long DirectXInit(HWND window, long hardware);
 void SetupRenderstates(void);
 void DirectXFlip(void);
 
-LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware);
+LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware, long cKey);
 D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf);
 void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h);
+void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, D3DTEXTUREHANDLE h);
 void BeginDrawHardware (void);
 void EndDrawHardware (void);
+void ReleaseSurface(LPDIRECTDRAWSURFACE me);
+
 
 
 #ifdef __cplusplus

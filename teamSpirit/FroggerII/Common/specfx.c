@@ -259,8 +259,14 @@ FX_SMOKE *CreateAndAddFXSmoke(char smokeType,VECTOR *origin,short size,float vel
 	smoke->sprite.b			= 255;
 	smoke->sprite.a			= 255;
 
+#ifndef PC_VERSION
 	smoke->sprite.offsetX	= -smoke->sprite.texture->sx / 2;
 	smoke->sprite.offsetY	= -smoke->sprite.texture->sy / 2;
+#else
+	smoke->sprite.offsetX	= -16;
+	smoke->sprite.offsetY	= -16;
+#endif
+
 	smoke->sprite.flags		= SPRITE_TRANSLUCENT;
 
 	AddSprite(&smoke->sprite,NULL);
@@ -428,8 +434,8 @@ FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float l
 		swarm->sprite[i].b			= 255;
 		swarm->sprite[i].a			= 255;
 
-		swarm->sprite[i].offsetX	= -swarm->sprite[i].texture->sx / 2;
-		swarm->sprite[i].offsetY	= -swarm->sprite[i].texture->sy / 2;
+		swarm->sprite[i].offsetX	= -16;
+		swarm->sprite[i].offsetY	= -16; //swarm->sprite[i].texture->sy / 2\
 		swarm->sprite[i].flags		= SPRITE_TRANSLUCENT;
 
 		AddSprite(&swarm->sprite[i],NULL);
@@ -662,8 +668,8 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 
 		explode->sprite[i].a		= 255;
 
-		explode->sprite[i].offsetX	= -explode->sprite[i].texture->sx / 2;
-		explode->sprite[i].offsetY	= -explode->sprite[i].texture->sy / 2;
+		explode->sprite[i].offsetX	= -16;
+		explode->sprite[i].offsetY	= -16;
 		explode->sprite[i].flags	= SPRITE_TRANSLUCENT;
 		
 		AddSprite(&explode->sprite[i],NULL);
