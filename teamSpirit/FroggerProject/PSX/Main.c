@@ -71,6 +71,8 @@ psFont *fontSmall;
 
 //PC has this in their main
 int drawLandscape = 1;
+long textEntry = 0;	
+char textString[255] = "";
 
 
 
@@ -274,7 +276,8 @@ int main ( )
 
 
 //		RAMsize = (0x1fff00 - RAMstart)-8192;
-		RAMsize = (0x7fff00 - RAMstart)-8192;
+//		RAMsize = (0x7fff00 - RAMstart)-8192;
+		RAMsize = 6291264;
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 4096);
@@ -412,10 +415,10 @@ int main ( )
 				DrawWorld();
 			TimerStop(&tDrawWorld);
 
-			DrawSpecialFX();
+			//DrawSpecialFX();
 
 			TimerStart(&tPrintSprites);
-			PrintSprites();
+			//PrintSprites();
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);
@@ -429,6 +432,7 @@ int main ( )
 			TimerStop(&tDrawWaterList);
 
 			TimerStart(&tDrawActorList);
+			utilPrintf("...............   %d\n", gameState.mode);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawActorList();
 			TimerStop(&tDrawActorList);
@@ -440,7 +444,7 @@ int main ( )
 			PrintSpriteOverlays(0);
 
 
-			ProcessProcTextures( );
+			//ProcessProcTextures( );
 
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);
