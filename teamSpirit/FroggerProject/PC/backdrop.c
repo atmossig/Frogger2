@@ -166,7 +166,6 @@ int CheckUS()
 	HKEY lid;
 	long type, size=32;
 	char data[32];
-	DWORD value;
 
 	if( (RegOpenKeyEx( HKEY_CURRENT_USER, "Control Panel\\International\0", 0, KEY_READ, &lid )) != ERROR_SUCCESS )
 		return TRUE;
@@ -174,9 +173,7 @@ int CheckUS()
 	if( (RegQueryValueEx(lid, "Locale", NULL, &type, data, &size)) != ERROR_SUCCESS )
 		return TRUE;
 
-	value = atoi(data);
-
-	if( value == 0x0409 || value == 0x0C0C )
+	if( !gstrcmp(data, "00000409") || !gstrcmp(data, "00000C0C") )
 		return TRUE;
 
 	return FALSE;
