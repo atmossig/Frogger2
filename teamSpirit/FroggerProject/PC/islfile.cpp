@@ -4,8 +4,6 @@
 #include "islfile.h"
 #include "Main.h"
 
-#define PSX_BASEDIR	"X:\\TeamSpirit\\psxversion\\cd\\"
-
 void fileInitialise(char *fileSystem)
 {
 }
@@ -16,7 +14,7 @@ unsigned char *fileLoad(const char *filename, int *bytesRead)
 	DWORD size, read;
 	HANDLE h;
 
-	SetCurrentDirectory(PSX_BASEDIR);
+	SetCurrentDirectory(baseDirectory);
 	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (h == INVALID_HANDLE_VALUE) return NULL;
 	size = GetFileSize(h, NULL);
