@@ -9,8 +9,8 @@
 extern int multiplayerMode;
 
 
-void UpdateCTF( );
-void UpdateRace( );
+int UpdateCTF( );
+int UpdateRace( );
 
 void PickupBabyFrogMulti( ENEMY *baby, int pl );
 void KillMPFrog(int num);

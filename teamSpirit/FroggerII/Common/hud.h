@@ -19,10 +19,6 @@ extern char timeText[32];
 
 extern char timeTemp[6];
 
-//extern long timeMin,timeSec;
-//extern long score,lives;
-//extern long gameIsOver;
-//extern long levelIsOver;
 
 extern char countdownTimer;
 extern char displayFullScreenPoly;

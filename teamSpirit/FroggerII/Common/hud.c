@@ -26,14 +26,6 @@ char timeTemp[6];
 char countdownTimer	= 1;
 char displayFullScreenPoly = 0;
 
-//long timeMin	 = 0, timeSec = 0;
-//long timeMin	 = 2, timeSec = (90*30);
-
-//long score		 = 0l
-//long lives   = 0;
-long gameIsOver  = 0;
-long levelIsOver = 0;
-
 ANIM_STRUCTURE *livesIcon;
 
 TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
@@ -70,7 +62,7 @@ void UpDateOnScreenInfo ( void )
 	sprintf(livesText,"*%lu",player[0].lives);	
 	sprintf(scoreText,"%lu",player[0].score);
 
-	if(scoreTextOver->a && !levelIsOver)
+	if(scoreTextOver->a && !levelIsOver.time)
 	{
 		scoreTextOver->a -= 8;
 		if(scoreTextOver->a < 8)
@@ -79,13 +71,9 @@ void UpDateOnScreenInfo ( void )
 
 	if(countdownTimer)
 	{
-		if( actFrameCount > (lastCount+60) )
-		{
-			lastCount = actFrameCount;
-			player[0].timeSec--;
-		}
+		GTUpdate( &scoreTimer, -1 );
 
-		if (player[0].timeSec < 0)
+		if( !scoreTimer.time )
 		{
 			countdownTimer = 0;
 //			PlaySample(GEN_TIME_OUT,0,0,0);
@@ -94,9 +82,9 @@ void UpDateOnScreenInfo ( void )
 				timeTextOver->draw = 50;
 		}
 
-		if((player[0].timeSec < 11) && !(player[0].timeSec%2) )
+		if( (scoreTimer.time < 11) && !(scoreTimer.time%2) )
 		{
-			if ( tickTock )
+			if( tickTock )
 			{
 //				PlaySample(GEN_CLOCK_TOCK,0,0,0);
 				tickTock = 0;
@@ -108,8 +96,7 @@ void UpDateOnScreenInfo ( void )
 			}
 		}
 								   
-		if(player[0].timeSec >= 0)
-			sprintf(timeText,"%02lu",player[0].timeSec);
+		if( scoreTimer.time ) sprintf(timeText,"%02lu",scoreTimer.time);
 	}
 	else
 	{
@@ -259,19 +246,19 @@ void RunGameOverSequence ( void )
 		EnableTextOverlay(gameOverScore);
 	}
 
-	if((gameOverScore->yPos < 120) && (gameIsOver > 200))
+	if((gameOverScore->yPos < 120) && (gameIsOver.time > 7))
 		gameOverScore->yPos += 8;
-	else if(gameIsOver < 50)
+	else if(gameIsOver.time < 3)
 	{
 		gameOverScore->centred = 0;
 		gameOverScore->xPos += 8;
 	}
 
-	if((gameOver1->yPos > 80) && (gameIsOver > 150))
+	if((gameOver1->yPos > 80) && (gameIsOver.time > 1))
 	{
 		gameOver1->yPos -= 5;
 	}
-	else if(gameIsOver < 90)
+	else if(gameIsOver.time < 1)
 	{
 		gameOver1->centred = 0;
 		gameOver1->xPos -= 4;

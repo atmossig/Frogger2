@@ -90,7 +90,6 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	SetFroggerStartPos(where,p);
 
 	me->action.healthPoints	= 3;
-	me->action.isOnFire		= 0;
 	me->action.frogon		= -1;
 	me->action.frogunder		= -1;
 

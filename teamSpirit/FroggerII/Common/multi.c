@@ -4,33 +4,68 @@
 #define BABY_UID	255
 
 int multiplayerMode;
-long multiTimer = -1;
-long lastCount = 0;
+long started = 0;
 
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateCTF
-	Purpose			: Do game mechanics for Capture the Frog multipleyer mode
+	Purpose			: Do game mechanics for Capture the Frog multiplayer mode
 	Parameters		: 
 	Returns			: 
 	Info			:
 */
-void UpdateCTF( )
+int UpdateCTF( )
 {
+	unsigned long i;
+	static TIMER endTimer, multiTimer;
 	multiplayerMode = MULTIMODE_CTF;
 
-	if( multiTimer == -1 )	// Initialise timer
-		multiTimer = 100;
-	else if( (actFrameCount > (lastCount+60)) && multiTimer ) // Decrement timer
+	if( !started )
 	{
-		lastCount = actFrameCount;
-		multiTimer--;
+		GTInit( &multiTimer, 90 );
+		GTInit( &endTimer, 0 );
+		started = 1;
 	}
-	else if( !multiTimer )	// Check win conditions
+
+	if( endTimer.time )
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+		{
+			StopDrawing("game over");
+			FreeAllLists();
+
+			InitLevel(player[0].worldNum,player[0].levelNum);
+			gameState.mode = INGAME_MODE;
+
+			started = frameCount = 0;
+			fixedPos = fixedDir = 0;
+			StartDrawing("game over");
+
+			return FALSE;
+		}
+		return TRUE;
+	}
+	else // Is anyone still alive?
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+			if( frog[i]->action.healthPoints ) break;
+
+		if( i==NUM_FROGS )
+		{
+			GTInit( &endTimer, 10 );
+			fixedPos = fixedDir = 1;
+		}
+	}
+
+	GTUpdate( &multiTimer, -1 );
+
+	if( !multiTimer.time )	// Check win conditions
 	{
 		GAMETILE *t;
 		ENEMY *nme;
-		short babyCount[4] = {0,0,0,0}, winner=-1, best=0, i;
+		short babyCount[4] = {0,0,0,0}, winner=-1, best=0;
 
 		// If on a froggers area tile, check for babies on the tile
 		for (t = firstTile; t != NULL; t = t->next)
@@ -39,23 +74,22 @@ void UpdateCTF( )
 					if( (nme->flags & ENEMY_NEW_BABYFROG) && (t == nme->inTile) )
 						babyCount[t->state-TILESTATE_FROGGER1AREA]++;
 
-		for( i=0; i<4; i++ )
+		for( i=0; i<NUM_FROGS; i++ )
 			if( babyCount[i] > best )
 			{
 				best = babyCount[i];
 				winner = i;
 			}
 
-		if( !best )
-			sprintf( timeTextOver->text, "No winner" );
-		else
-			sprintf( timeTextOver->text, "P%i won", winner );
+		if( !best ) sprintf( timeTextOver->text, "No winner" );
+		else sprintf( timeTextOver->text, "P%i won", winner );
 
-		return;
+		GTInit( &endTimer, 10 );
+		return TRUE;
 	}
 
-//	_itoa( multiTimer, timeTextOver->text, 10 );
-	sprintf(timeTextOver->text,"%d",multiTimer);
+	sprintf(timeTextOver->text,"%d",multiTimer.time);
+	return TRUE;
 }
 
 
@@ -66,7 +100,7 @@ void UpdateCTF( )
 	Returns			: 
 	Info			:
 */
-void UpdateRace( )
+int UpdateRace( )
 {
 	int i, j;
 
@@ -74,8 +108,8 @@ void UpdateRace( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		if ((frog[i]->action.safe == 0) && (frameCount > 20))
-		if (!IsPointVisible(&frog[i]->actor->pos))
+		if( !(frog[i]->action.safe.time) && (frameCount > 20))
+		if(!IsPointVisible(&frog[i]->actor->pos))
 		{
 			KillMPFrog(i);
 
@@ -141,9 +175,13 @@ void PickupBabyFrogMulti( ENEMY *baby, int pl )
 
 void KillMPFrog(int num)
 {
-	frog[num]->action.stun = 50;
-	frog[num]->action.safe = 80;
+	int i=0;
+	GTInit( &frog[num]->action.stun, 2 );
+	GTInit( &frog[num]->action.safe, 3 );
 	
 	if (frog[num]->action.healthPoints > 0)
-		sprHeart[num*3+(--frog[num]->action.healthPoints)]->draw = 0;
+	{
+		i=num*3+(--frog[num]->action.healthPoints);
+		if( sprHeart[i] ) sprHeart[i]->draw = 0;
+	}
 }

@@ -54,6 +54,10 @@ long babySaved = 0;
 short spawnCounter = 0;
 long displayingTile=0;
 
+TIMER gameIsOver;
+TIMER levelIsOver;
+TIMER scoreTimer;
+
 void DoHiscores();
 extern float gCamDist;
 extern TEXTURE *frogEyeOpen,*frogEyeClosed;
@@ -303,11 +307,11 @@ void GameProcessController(long pl)
 	}
 
 	// Croak and Croak Float
-	if(!(player[pl].frogState & FROGSTATUS_ISDEAD) && !(frog[pl]->action.isCroaking))
+	if(!(player[pl].frogState & FROGSTATUS_ISDEAD) && !(frog[pl]->action.isCroaking.time))
 	{
 		if((button[pl] & CONT_L) && !(lastbutton[pl] & CONT_L))
 		{
-			frog[pl]->action.isCroaking	= 15;
+			GTInit( &frog[pl]->action.isCroaking, 2 );
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 //			PlayActorBasedSample(218,frog[pl]->actor,255,128);
 
@@ -510,13 +514,13 @@ void RunGameLoop (void)
 		{
 			player[0].lives				= 3;
 			player[0].score				= 0;
-			player[0].timeSec			= 90;
 			player[0].spawnTimer		= 0;
 			player[0].spawnScoreLevel	= 1;
+			GTInit( &scoreTimer, 90 );
 		}
 
-		gameIsOver = 0;
-		levelIsOver = 0;
+		GTInit( &gameIsOver, 0 );
+		GTInit( &levelIsOver, 0 );
 		
 		if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
@@ -627,7 +631,7 @@ void RunGameLoop (void)
 	
 	if(player[0].frogState & FROGSTATUS_ISDEAD)
 	{
-		if(gameIsOver)
+		if(gameIsOver.time)
 		{
 			if (NUM_FROGS == 1)
 			{
@@ -639,8 +643,8 @@ void RunGameLoop (void)
 
 
 			RunGameOverSequence();
-			gameIsOver--;
-			if(!gameIsOver)
+			GTUpdate( &gameIsOver, -1 );
+			if(!gameIsOver.time)
 			{
 				StopDrawing("game over");
 				FreeAllLists();
@@ -658,7 +662,7 @@ void RunGameLoop (void)
 	}
 	else
 	{
-		if ( levelIsOver )
+		if ( levelIsOver.time )
 		{
 			if( showEndLevelScreen )
 			{
@@ -681,9 +685,9 @@ void RunGameLoop (void)
 				//levelComplete3->a -= (levelComplete3->a - 255) / 20.0F;
 			}
 
-			levelIsOver--;
+			GTUpdate( &levelIsOver, -1 );
 
-			if(!levelIsOver)
+			if(!levelIsOver.time)
 			{
 				DoHiscores( );
 
@@ -708,16 +712,12 @@ void RunGameLoop (void)
 //				SaveGameData();
 
 				FreeAllLists();
-
 				frameCount = 0;
 
 				player[0].numSpawn	= 0;
-				player[0].timeSec	= 90;
-
 				spawnCounter = 0;
 
 				worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelOpen |= LEVEL_OPEN;
-
 				InitLevel(player[0].worldNum,player[0].levelNum);
 
 				showEndLevelScreen = 1; // Normal level progression is default
@@ -736,8 +736,7 @@ void RunGameLoop (void)
 					camDist.v[Y]	= 680;
 					camDist.v[Z]	= 192;
 
-					levelIsOver		= 400;	
-
+					GTInit( &levelIsOver, 15 );
 //					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
 				}
 			}
@@ -745,13 +744,17 @@ void RunGameLoop (void)
 			{
 				if ( ( frameCount > 15 ) )
 				{
-					if(!frog[0]->action.dead)	
+					if( !frog[0]->action.dead.time )
 					{
 						for (i=0; i<NUM_FROGS; i++)
-                        if (frog[i]->action.stun)
-							frog[i]->action.stun--;
-                        else
-							GameProcessController(i);                                      
+							if (frog[i]->action.stun.time)
+							{
+								GTUpdate( &frog[i]->action.stun, -1 );
+							}
+							else
+							{
+								GameProcessController(i);                                      
+							}
         			}
 				}
 
@@ -790,11 +793,12 @@ void RunGameLoop (void)
 					frog[i]->draw = 0;
 
 			} 
-			if (frog[i]->action.safe) 
+			if (frog[i]->action.safe.time)
 			{
 				frog[i]->actor->xluOverride = 50;
 				
-				if( !(--frog[i]->action.safe) )
+				GTUpdate( &frog[i]->action.safe, -1 );
+				if( !frog[i]->action.safe.time )
 					frog[i]->actor->xluOverride = 100;
 			}
 		}
@@ -804,16 +808,19 @@ void RunGameLoop (void)
 		UpDateOnScreenInfo();
 	else
 	{
+		int res;
 		switch( player[0].worldNum )
 		{
 		case WORLDID_GARDEN:
-			UpdateRace( );
+			res = UpdateRace( );
 			break;
 		case WORLDID_SUBTERRANEAN:
 		case WORLDID_HALLOWEEN:
-			UpdateCTF( );
+			res = UpdateCTF( );
 			break;
 		}
+
+		if( !res ) return;
 	}
 
 	// check if player is idle
@@ -962,7 +969,7 @@ void RunLevelCompleteSequence()
 
 	sprintf ( spawnCollected->text, "%d / 150", spawnCounter );
 
-	sprintf ( timeTemp, "%i secs", 90-player[0].timeSec );
+	sprintf ( timeTemp, "%i secs", 90-scoreTimer.time );
 
 	i = numBabies;
 	while(i--)
@@ -1004,7 +1011,7 @@ void DoHiscores( )
 		hs->name[0] = player[0].name[0];
 		hs->name[1] = player[0].name[1];
 		hs->name[2] = player[0].name[2];
-		hs->time = player[0].timeSec;
+		hs->time = scoreTimer.time;
 		hs->cup = award;
 	}
 
@@ -1025,7 +1032,7 @@ void DoHiscores( )
 		hiScoreData[place].name[0] = player[0].name[0];
 		hiScoreData[place].name[1] = player[0].name[1];
 		hiScoreData[place].name[2] = player[0].name[2];
-		hiScoreData[place].time = player[0].timeSec;
+		hiScoreData[place].time = scoreTimer.time;
 		hiScoreData[place].cup = award;
 	}*/
 }

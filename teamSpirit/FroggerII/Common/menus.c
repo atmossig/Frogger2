@@ -128,8 +128,8 @@ void RunTitleScreen()
 					if(gameState.multi != MULTIREMOTE)
 						gameState.multi = SINGLEPLAYER;
 
-					ACTOR_DRAWDISTANCEINNER = 100000;
-					ACTOR_DRAWDISTANCEOUTER = 150000;
+					ACTOR_DRAWDISTANCEINNER = 150000;
+					ACTOR_DRAWDISTANCEOUTER = 200000;
 
 					NUM_FROGS = 1;
 					frameCount = 0;
@@ -147,8 +147,8 @@ void RunTitleScreen()
 						gameState.multi = SINGLEPLAYER;
 					}
 
-					ACTOR_DRAWDISTANCEINNER = 100000;
-					ACTOR_DRAWDISTANCEOUTER = 150000;
+					ACTOR_DRAWDISTANCEINNER = 150000;
+					ACTOR_DRAWDISTANCEOUTER = 200000;
 
 					frameCount = 0;
 					lastbutton = 0;

@@ -95,7 +95,7 @@ void DoEnemyCollision( ENEMY *cur )
 	{
 		if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
 		{
-			if (!frog[0]->action.dead && !frog[0]->action.safe &&
+			if (!frog[0]->action.dead.time && !frog[0]->action.safe.time &&
 				(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
@@ -108,7 +108,7 @@ void DoEnemyCollision( ENEMY *cur )
 		}
 		else
 		{
-			if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
+			if( (currTile[0] == cur->inTile) && !frog[0]->action.dead.time && !frog[0]->action.safe.time &&
 				(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 				!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
 			{
@@ -125,7 +125,7 @@ void DoEnemyCollision( ENEMY *cur )
 	{
 		int i;
 		for (i=0; i<NUM_FROGS; i++)
-			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
+			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe.time &&
 				(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
@@ -134,7 +134,7 @@ void DoEnemyCollision( ENEMY *cur )
 				else
 					KillMPFrog(i);
 			}
-			else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
+			else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe.time && 
 					(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 					!(player[i].frogState & FROGSTATUS_ISFLOATING))
 			{
@@ -165,7 +165,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
 		CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
 //		PlaySample(42,NULL,192,128);
-		frog[num]->action.safe = 25;
+		GTInit( &frog[num]->action.safe, 2 );
 		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 	}
 	else
@@ -181,12 +181,11 @@ void NMEDamageFrog( int num, ENEMY *nme )
 			AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
 			AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
-			frog[num]->action.dead = 100;
-		
+			GTInit( &frog[num]->action.dead, 5 );
 		}
 		else
 		{
-			frog[num]->action.dead = 50;
+			GTInit( &frog[num]->action.dead, 3 );
 		
 			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
 		}
@@ -199,7 +198,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		Check for NME flags and do different effects
 //		PlaySample(110,NULL,192,128);
 		AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
-		frog[num]->action.dead = 50;
+		GTInit( &frog[num]->action.dead, 2 );
 		frog[num]->action.healthPoints = 3;
 		frog[num]->action.deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
@@ -522,7 +521,7 @@ void UpdateSnapper( ENEMY *cur )
 		cur->isSnapping = 0;
 
 		if( (DistanceBetweenPointsSquared(&act->rotaim,&frog[0]->actor->pos)<900) && 
-			!frog[0]->action.dead && !frog[0]->action.safe ) // If frog is within hitting distance
+			!frog[0]->action.dead.time && !frog[0]->action.safe.time ) // If frog is within hitting distance
 		{
 			NMEDamageFrog(0,cur);
 		}
@@ -583,7 +582,7 @@ void UpdateTileSnapper( ENEMY *cur )
 		cur->isSnapping = 0;
 
 		// If the frog is on our current target tile
-		if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )//FindNearestTile(frog[0]->actor->pos) )
+		if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead.time) && (!frog[0]->action.safe.time) )//FindNearestTile(frog[0]->actor->pos) )
 			NMEDamageFrog(0,cur);
 		break;
 
@@ -691,7 +690,7 @@ void UpdateVent( ENEMY *cur )
 
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
-			if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )
+			if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead.time) && (!frog[0]->action.safe.time) )
 				NMEDamageFrog(0,cur);
 
 		break;

@@ -31,21 +31,24 @@
 
 //------------------------------------------------------------------------------------------------
 
+//struct TIMER;
+
+#include "general.h"
 
 typedef struct TAGACTION
 {	
-	unsigned long safe;
-	unsigned long stun;
+	TIMER safe;
+	TIMER stun;
+	TIMER dead;
+
+	TIMER isCroaking;
+	TIMER isOnFire;
 
 	short frogon;
 	short frogunder;
 
 	unsigned long healthPoints;
-	unsigned long dead;
 	unsigned long deathBy;
-
-	unsigned long isCroaking;
-	unsigned long isOnFire;
 
 } ACTION;
 

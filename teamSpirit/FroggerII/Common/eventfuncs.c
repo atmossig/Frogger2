@@ -364,7 +364,7 @@ void ChangeLevel( EVENT *event )
 	NUM_FROGS = 1;*/
 
 
-	levelIsOver = 400;
+	GTInit( &levelIsOver, 15 );
 	showEndLevelScreen = 0;
 }
 

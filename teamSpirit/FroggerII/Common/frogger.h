@@ -79,7 +79,6 @@ typedef struct _PLAYER
 	unsigned long	score;
 	short			lives;
 	short			numSpawn;
-	short			timeSec;
 
 	unsigned char	inputPause;			// used for controller input
 

@@ -44,8 +44,7 @@ extern unsigned long INPUT_POLLPAUSE;
 extern VECTOR *pointOfInterest;
 extern float	pOIDistance;
 
-extern long gameIsOver;
-extern long levelIsOver;
+extern TIMER gameIsOver, levelIsOver, scoreTimer;
 extern short showEndLevelScreen;
 
 extern unsigned short screenNum;

@@ -15,6 +15,17 @@
 
 #define inline __inline
 
+
+typedef struct
+{
+	unsigned long time;
+	unsigned long lastCount;
+
+} TIMER;
+
+#define GTInit( t, s ) { (t)->time = s; (t)->lastCount = 0; }
+#define GTUpdate( t, s ) { if(actFrameCount > ((t)->lastCount+(60*Fabs(s)))){(t)->lastCount=actFrameCount; (t)->time+=s;} }
+
 extern unsigned long gstrcmp(char *a, char *b);
 extern unsigned long gstrlen(const char *a);
 extern void stringChange ( char *name );
