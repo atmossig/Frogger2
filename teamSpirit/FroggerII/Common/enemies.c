@@ -31,10 +31,15 @@
 
 #include "incs.h"
 
+// lookup arrays for reactive and non-reactive deaths
 REACTIVEANIM reactiveAnims[] = {
 #include "x:\teamspirit\pcversion\reactive.txt"
 };
 
+DEATHANIM_FUNC deathAnims[NUM_DEATHTYPES*2];
+
+
+// Basic enemy stuff
 ENEMYLIST enemyList;						// the enemy linked list
 
 #define ENEMY_RANDOMNESS (0.5 + (Random(100)/100.0))	// returns a value from 0.5 to 1.5
@@ -186,79 +191,41 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		GTInit( &player[num].safe, 2 );
 		PlaySample(GEN_FROG_HURT,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
 
-		// Check for NME flags and do different effects
-		if( nme->flags & ENEMY_NEW_VENT )
+		if (nme->reactiveNumber!=-1)
 		{
-			// Smoke effect and ass clutch
-			CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &frog[num]->actor->pos, &currTile[num]->normal, 50, 0.5, 0, 2 );
-			AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+			// Special damage type
+			if( reactiveAnims[nme->reactiveNumber].type & 0xFF )
+				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (num);
 		}
-		else
-		{
-			// Generic jump and ouch
-			AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
-			CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[num]->actor->pos, &currTile[num]->normal, 30, 0, 0, 3.0 );
-			// Hop the frog up in the air and do a somersault
-			/*CalculateFrogJump(&frog[num]->actor->pos, &currTile[num]->centre, &currTile[num]->normal,
-				hurtJumpHeight, hurtJumpTime, num);
-
-			player[num].canJump = 0;*/
-		}
+		else deathAnims[0] (num); // Normal damage
 	}
 	else
 	{
 		player[num].healthPoints = 3;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 
-		// Special deaths that interact with the enemy
-		if( nme->uid == 128 )
+		if (nme->reactiveNumber!=-1)
 		{
-			player[num].deathBy = DEATHBY_WHACKING;
-			ThrowFrogAtScreen( num );
-			GTInit( &player[num].dead, 5 );
-		}
-		else if (nme->reactiveNumber!=-1)
-		{
-			if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
-				SetQuaternion(&(frog[num]->actor->qRot),&(nme->nmeActor->actor->qRot));
-			
-			if (reactiveAnims[nme->reactiveNumber].type & 0x02) //Center
-				SetVector(&(frog[num]->actor->pos),&(nme->nmeActor->actor->pos));
+			if( reactiveAnims[nme->reactiveNumber].type & 0xFF )
+				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (num);
+			else
+			{
+				if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
+					SetQuaternion(&(frog[num]->actor->qRot),&(nme->nmeActor->actor->qRot));
+				
+				if (reactiveAnims[nme->reactiveNumber].type & 0x02) //Center
+					SetVector(&(frog[num]->actor->pos),&(nme->nmeActor->actor->pos));
 
-			if (reactiveAnims[nme->reactiveNumber].type & 0x04) //FixedPos
-				nme->doNotMove = 1;
-			
-			AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
-			AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
+				if (reactiveAnims[nme->reactiveNumber].type & 0x04) //FixedPos
+					nme->doNotMove = 1;
 
-			GTInit( &player[num].dead, 5 );
-		}
-		// Effects dependent on nme type
-		else if( nme->nmeActor->effects & EF_LIGHTNING )
-		{
-			// Electrocute
-			player[num].deathBy = DEATHBY_ELECTRICSHOCK;
-			CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &frog[num]->actor->pos, &currTile[num]->normal, 5, 40, 0.25, 0.5 );
-			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
-			GTInit( &player[num].dead, 3 );
-		}
-		else if( nme->flags & ENEMY_NEW_VENT )
-		{
-			// Burn baby
-			player[num].deathBy = DEATHBY_FIRE;
-			AnimateActor(frog[num]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+				AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
+				AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
-			BounceFrog( num, 100, 50 );
-
-			GTInit( &player[num].dead, 3 );
+				GTInit( &player[num].dead, 5 );
+			}
 		}
-		else
-		{
-			// Generic
-			player[num].deathBy = DEATHBY_NORMAL;
-			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
-			GTInit( &player[num].dead, 3 );
-		}
+		else deathAnims[NUM_DEATHTYPES] (num); // DEATHBY_NORMAL
 	}
 }
 
@@ -1784,6 +1751,29 @@ void InitEnemyLinkedList()
 {
 	enemyList.numEntries = 0;
 	enemyList.head.next = enemyList.head.prev = &enemyList.head;
+
+	// Setup damage & death animation function pointers
+	deathAnims[DEATHBY_NORMAL]			= DamageNormal;
+	deathAnims[DEATHBY_RUNOVER]			= DamageRunOver;
+	deathAnims[DEATHBY_DROWNING]		= DamageDrowning;
+	deathAnims[DEATHBY_SQUASHED]		= DamageSquashed;
+	deathAnims[DEATHBY_FIRE]			= DamageFire;
+	deathAnims[DEATHBY_ELECTRIC]		= DamageElectric;
+	deathAnims[DEATHBY_FALLING]			= DamageFalling;
+	deathAnims[DEATHBY_WHACKING]		= DamageWhacking;
+	deathAnims[DEATHBY_VACUUM]			= DamageVacuum;
+	deathAnims[DEATHBY_POISON]			= DamagePoison;
+
+	deathAnims[DEATHBY_NORMAL+NUM_DEATHTYPES]		= DeathNormal;
+	deathAnims[DEATHBY_RUNOVER+NUM_DEATHTYPES]		= DeathRunOver;
+	deathAnims[DEATHBY_DROWNING+NUM_DEATHTYPES]		= DeathDrowning;
+	deathAnims[DEATHBY_SQUASHED+NUM_DEATHTYPES]		= DeathSquashed;
+	deathAnims[DEATHBY_FIRE+NUM_DEATHTYPES]			= DeathFire;
+	deathAnims[DEATHBY_ELECTRIC+NUM_DEATHTYPES]		= DeathElectric;
+	deathAnims[DEATHBY_FALLING+NUM_DEATHTYPES]		= DeathFalling;
+	deathAnims[DEATHBY_WHACKING+NUM_DEATHTYPES]		= DeathWhacking;
+	deathAnims[DEATHBY_VACUUM+NUM_DEATHTYPES]		= DeathVacuum;
+	deathAnims[DEATHBY_POISON+NUM_DEATHTYPES]		= DeathPoison;
 }
 
 /*	--------------------------------------------------------------------------------

@@ -1238,7 +1238,7 @@ BOOL KillFrog(long pl)
 
 		player[pl].frogState &= ~FROGSTATUS_ISDEAD;
 
-		if(player[pl].deathBy == DEATHBY_ELECTRICSHOCK)
+		if(player[pl].deathBy == DEATHBY_ELECTRIC)
 		{
 			// reset frog texture !
 #ifndef PC_VERSION
@@ -1284,7 +1284,7 @@ BOOL KillFrog(long pl)
 				CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &frog[pl]->actor->pos, &currTile[pl]->normal, 50, 0.5, 0, 1.5 );
 			break;
 
-		case DEATHBY_ELECTRICSHOCK:
+		case DEATHBY_ELECTRIC:
 			frog[pl]->actor->pos.v[X] += (-0.5F + Random(2));
 			frog[pl]->actor->pos.v[Y] += (-0.5F + Random(2));
 			frog[pl]->actor->pos.v[Z] += (-0.5F + Random(2));
@@ -1309,9 +1309,6 @@ BOOL KillFrog(long pl)
 			break;
 
 		case DEATHBY_VACUUM:
-			break;
-
-		case DEATHBY_CHOCOLATE:
 			break;
 	}
 

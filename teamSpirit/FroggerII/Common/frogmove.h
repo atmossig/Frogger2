@@ -65,11 +65,13 @@ enum
 	DEATHBY_DROWNING,			// Water, seminal fluid
 	DEATHBY_SQUASHED,			// Big fat rock star, piano
 	DEATHBY_FIRE,				// Hot plate, camp fire, jacket potato up jacksy
-	DEATHBY_ELECTRICSHOCK,		// Zappy turrets, faulty vibrator
+	DEATHBY_ELECTRIC,			// Zappy turrets, faulty vibrator
 	DEATHBY_FALLING,			// Splat from a height
 	DEATHBY_WHACKING,			// Big fast things hitting froggy against screen
 	DEATHBY_VACUUM,				// Floating in space, inside of my head
-	DEATHBY_CHOCOLATE,			// Mmm, chocolate...
+	DEATHBY_POISON,				// Wasps and other stingie thingies
+
+	NUM_DEATHTYPES,
 };
 
 

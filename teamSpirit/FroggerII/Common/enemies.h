@@ -13,6 +13,8 @@
 #define ENEMIES_H_INCLUDED
 
 
+//----- [ ANIMATION BITS ] ---------------------------------------------------------------------//
+
 #define NMEANIM_HOMER_WALK		0
 #define NMEANIM_HOMER_IDLE		1
 #define NMEANIM_HOMER_ATTACK	2
@@ -24,6 +26,9 @@
 #define NMEANIM_SNAP_ATTACK		1
 #define NMEANIM_SNAP_EXTRA1		2
 #define NMEANIM_SNAP_EXTRA2		3
+
+
+typedef void (*DEATHANIM_FUNC) (int);
 
 
 //----- [ ENEMY FLAGS ] ---------------------------------------------------------------------//
@@ -87,7 +92,7 @@ typedef struct TAGENEMY
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
 	PATH					*path;					// ptr to enemy path data
 
-	void					(*Update) ();			// Enemy update function
+	void					(*Update) (struct TAGENEMY*);	// Enemy update function
 
 } ENEMY;
 

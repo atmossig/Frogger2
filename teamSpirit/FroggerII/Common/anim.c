@@ -350,3 +350,136 @@ void FroggerIdleAnim( int i )
 		player[i].idleTime = 400 + Random(300);
 	}
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: Damage functions
+	Purpose 	: Frog is hurt but not dead
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void DamageNormal( int pl )
+{
+	AnimateActor(frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+	CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 0, 0, 3.0 );
+}
+
+void DamageRunOver( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageDrowning( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageSquashed( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageFire( int pl )
+{
+	CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &frog[pl]->actor->pos, &currTile[pl]->normal, 50, 0.5, 0, 2 );
+	AnimateActor(frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+}
+
+void DamageElectric( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageFalling( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageWhacking( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamageVacuum( int pl )
+{
+	DamageNormal(pl);
+}
+
+void DamagePoison( int pl )
+{
+	DamageNormal(pl);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: Death functions
+	Purpose 	: Frog is dead
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void DeathNormal( int pl )
+{
+	player[pl].deathBy = DEATHBY_NORMAL;
+	AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+	GTInit( &player[pl].dead, 3 );
+}
+
+void DeathRunOver( int pl )
+{
+	DeathNormal(pl);
+}
+
+void DeathDrowning( int pl )
+{
+	DeathNormal(pl);
+}
+
+void DeathSquashed( int pl )
+{
+	DeathNormal(pl);
+}
+
+void DeathFire( int pl )
+{
+	player[pl].deathBy = DEATHBY_FIRE;
+	AnimateActor(frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
+
+	BounceFrog( pl, 100, 50 );
+
+	GTInit( &player[pl].dead, 3 );
+}
+
+void DeathElectric( int pl )
+{
+	player[pl].deathBy = DEATHBY_ELECTRIC;
+	CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &frog[pl]->actor->pos, &currTile[pl]->normal, 5, 40, 0.25, 0.5 );
+	AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+	GTInit( &player[pl].dead, 3 );
+}
+
+void DeathFalling( int pl )
+{
+	DeathNormal(pl);
+}
+
+void DeathWhacking( int pl )
+{
+	player[pl].deathBy = DEATHBY_WHACKING;
+	ThrowFrogAtScreen( pl );
+	GTInit( &player[pl].dead, 5 );
+}
+
+void DeathVacuum( int pl )
+{
+	DeathNormal(pl);
+}
+
+void DeathPoison( int pl )
+{
+	player[pl].deathBy = DEATHBY_POISON;
+	AnimateActor(frog[pl]->actor, FROG_ANIM_LANDONHEAD, NO, NO, 0.5F, 0, 0);
+	GTInit( &player[pl].dead, 3 );
+}
+

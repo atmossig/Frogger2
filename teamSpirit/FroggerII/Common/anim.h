@@ -13,6 +13,30 @@
 
 #define ANIM_RANDOM_START	(1 << 0)
 
+// Frogger death and damage functions
+void DamageNormal( int pl );
+void DamageRunOver( int pl );
+void DamageDrowning( int pl );
+void DamageSquashed( int pl );
+void DamageFire( int pl );
+void DamageElectric( int pl );
+void DamageFalling( int pl );
+void DamageWhacking( int pl );
+void DamageVacuum( int pl );
+void DamagePoison( int pl );
+
+void DeathNormal( int pl );
+void DeathRunOver( int pl );
+void DeathDrowning( int pl );
+void DeathSquashed( int pl );
+void DeathFire( int pl );
+void DeathElectric( int pl );
+void DeathFalling( int pl );
+void DeathWhacking( int pl );
+void DeathVacuum( int pl );
+void DeathPoison( int pl );
+
+
 // Needs using on N64
 extern float hedRotAmt;
 
