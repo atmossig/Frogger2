@@ -42,6 +42,17 @@ typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE, C
 
 int memload_fast = 0;
 
+#ifdef PC_VERSION
+#define NUM_SORTHACKED_OBJECTS 14
+#define SORTHACK_OFFSET -50
+
+char *sortHackNames[] = 
+{
+	"ada_info", "lillies", "gator", "turtle2", "turtle3", "plt4log", "plt5log",
+	"barup", "baruptwo", "barupthree", "beetle", "roach", "louse", "pkin"
+};
+#endif
+
 /*	-------------------------------------------------------------------------------- */
 
 #define MEMGETBYTE(p) (*((*p)++))
@@ -207,7 +218,7 @@ int MemLoadEntities(const void* data)
 //bb
 //				int count, flags, numNodes, startNode, n, ID, effects, pathIndex;
 				unsigned char facing;
-				int flags, startNode, n, ID, effects, pathIndex, objFlags;
+				int flags, startNode, n, ID, effects, pathIndex, objFlags, j;
 				fixed scale, radius, animSpeed, value1;
 				PATH *path;
 				ENEMY *enemy;
@@ -324,6 +335,22 @@ int MemLoadEntities(const void* data)
 
 					act->depthShift = depthShift;
 					act->dffClipping = dffClipping;
+
+					if( !rHardware )
+					{
+						char name[16], *c = type, *d = name;
+						while( *c != '.' ) *d++ = *c++;
+						*d = '\0';
+
+						for( j=0; j<NUM_SORTHACKED_OBJECTS; j++ )
+						{
+							if( !(stricmp(name,sortHackNames[j])) )
+							{
+								act->depthShift += SORTHACK_OFFSET;
+								break;
+							}
+						}
+					}
 				}
 
 #ifdef MEMLOAD_PRINT_ENTITIES

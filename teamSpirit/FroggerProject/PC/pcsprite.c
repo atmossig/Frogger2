@@ -31,6 +31,8 @@
 #define MAX_ARRAY_SPRITES			768
 #define SPRITE_ZSORT_DRAWDISTANCE	450
 
+#define SPRITE_DEPTH_OFF -50
+
 int numSortArraySprites = 0;
 SPRITE *spriteSortArray[MAX_ARRAY_SPRITES];
 
@@ -118,10 +120,14 @@ void PrintSprites()
 	}
 	ZSortSpriteList();
 
+	softDepthOff = SPRITE_DEPTH_OFF;
+
 	// draw from the newly sorted static array
 	i = numSortArraySprites;
 	while(i--) if( spriteSortArray[i]->draw ) 
 		PrintSprite(spriteSortArray[i]);
+
+	softDepthOff = 0;
 }
 
 

@@ -20,7 +20,7 @@ extern "C"
 #define MA_MAX_VERTICES		124000	// Maximum number of VERTICES that can be drawn in a frame
 #define MA_MAX_FACES		124000	// Maximum number of FACES that can be drawn in a frame
 #define MA_MAX_HALOS		50		// Maximum number of halo points that can be drawn in a frame
-#define MA_SOFTWARE_DEPTH	3000	// Maximum depth of a software polygon.
+#define MA_SOFTWARE_DEPTH	4096	// Maximum depth of a software polygon.
 //#define MA_MAX_FRAMES		6		// Maximum number of frames that may be active at once.
 
 #define MA_SORTNONE			0
