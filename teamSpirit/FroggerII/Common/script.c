@@ -705,6 +705,8 @@ BOOL ExecuteCommand(UBYTE **p)
 			VECTOR telePos;
 			void **param;
 
+			if( player[fNum].frogState & FROGSTATUS_ISDEAD ) break;
+
 			player[fNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL other flags
 			player[fNum].canJump = 0;
 			FrogLeavePlatform(fNum);	// bah
