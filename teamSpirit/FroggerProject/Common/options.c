@@ -57,6 +57,7 @@
 #include "main.h"
 #include "memcard.h"
 #include "font.h"
+#include <libspu.h>
 #endif
 #include "layout.h"
 
