@@ -515,7 +515,7 @@ typedef struct
 	PLANE	*planes;
 	ACTOR_ANIMATION	*animation;
 	Gfx		*drawList;
-	Vtx		*Vtx[2];
+	Vtx		*vtx[2];
 	MESH	*LOCMesh;
 	short	vtxBuf;
 	short	numVtx;

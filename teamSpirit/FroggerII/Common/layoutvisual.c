@@ -328,7 +328,7 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	InitTextOverlayLinkedList();
 	
 	// Load level entitys
-	//LoadLevelEntitys ( worldVisualData[worldID].levelVisualData[levelID].entityDat );
+	LoadLevelEntitys ( worldVisualData[worldID].levelVisualData[levelID].entityDat );
 
 	//InitPlatformsForLevel(worldID,levelID);
 	//InitEnemiesForLevel(worldID,levelID);

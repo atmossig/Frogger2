@@ -388,11 +388,27 @@ void DrawActor(ACTOR *actor)
 		else
 			DrawObject(objectC->object, objectC->object->drawList, FALSE);*/
 //	}
+	//quick draw
+	/*if(objectC->objectSize == 1)
+	{
+		SetupRenderModeForObject(objectC->object);
+		gSPDisplayList(glistp++, objectC->object->drawList);
+	}
+	else
+	{
+		if(objectC->drawList)	//if object is skinned, draw mesh now
+ 		{
+			gSPSegment(glistp++, 1, objectC->Vtx[objectC->vtxBuf]);
+			DrawObject(objectC->object, objectC->drawList, TRUE);
+		}
+		else
+			DrawObject(objectC->object, objectC->object->drawList, FALSE);
+	} */
 	if(objectC->drawList)	//if object is skinned, draw mesh now
  		DrawObject(objectC->object, objectC->drawList, TRUE);
 	else
 		DrawObject(objectC->object, objectC->object->drawList, FALSE);
-
+  
 }
 
 
@@ -667,7 +683,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 	short i, j;
 	short	fromKey, toKey;
 	short	xluVal;
-	Vtx		*vtx = currentObjectController->Vtx[1 - currentObjectController->vtxBuf];
+	Vtx		*vtx = currentObjectController->vtx[1 - currentObjectController->vtxBuf];
 
 //handle position keyframes
 	if((obj->numMoveKeys > 1) && (currentDrawActor->animation))

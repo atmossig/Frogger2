@@ -493,6 +493,10 @@ void UpdateEnemies()
 			continue;
 		}
 
+		if ( cur->isIdle )
+			cur->isIdle--;
+		// ENDIF
+
 		if(cur->flags & ENEMY_NEW_FOLLOWPATH)
 		{
 			// process enemies that follow a path (>1 node in path)
@@ -569,7 +573,7 @@ void UpdateEnemies()
 									else
 									{
 										PlaySample(110,NULL,192,128);
-										AnimateActor(frog[0]->actor,2,NO,NO,0.367, 0, 0);
+										AnimateActor(frog[0]->actor,21,NO,NO,0.3, 0, 0);
 										frog[0]->action.dead = 50;
 										frog[0]->action.lives = 3;
 										frog[0]->action.deathBy = DEATHBY_NORMAL;
@@ -703,11 +707,81 @@ void UpdateEnemies()
 		// process enemies (update anims, etc.)
 		switch(cur->nmeActor->actor->type)
 		{
+			case NMETYPE_MOLE:
+				ProcessNMEMole(cur);
+				break;
 			case NMETYPE_MOWER:
 				ProcessNMEMower(cur->nmeActor);
 				break;
 		}
 	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessNMEMole
+	Purpose			: 
+	Parameters		: ACTOR2 *
+	Returns			: void
+	Info			:
+*/
+void ProcessNMEMole(ENEMY *nme)
+{
+	switch ( nme->nmeActor->actor->status )
+	{
+		case NMESTATE_MOLE_IDLE:
+			break;
+		case NMESTATE_MOLE_SNAPPING:
+			break;
+		case NMESTATE_MOLE_UNDER_GROUND:
+				if ( ( nme->isIdle ) && ( nme->nmeActor->actor->animation->currentAnimation == 0 ) )
+					nme->nmeActor->actor->animation->animTime = 1;
+				else
+				{
+					if ( nme->nmeActor->actor->animation->reachedEndOfAnimation )
+					{	
+						if ( Random(2) == 1 )
+						{
+							nme->nmeActor->actor->status = NMESTATE_MOLE_LOOK;
+							AnimateActor ( nme->nmeActor->actor, 5, NO, NO, 0.01F, 10, 0 );
+						}
+						else
+						{
+							nme->nmeActor->actor->status = NMESTATE_MOLE_SCRATCH;
+							AnimateActor ( nme->nmeActor->actor, 6, NO, NO, 0.01F, 10, 0 );
+						}
+						// ENDIF
+					}
+					// ENDIF
+				}
+				// ENDIF
+			break;
+		case NMESTATE_MOLE_LOOK:
+				if ( nme->nmeActor->actor->animation->reachedEndOfAnimation )
+				{	
+					AnimateActor ( nme->nmeActor->actor, 2, NO, NO, 0.01F, 10, 1 );
+//					AnimateActor ( nme->nmeActor->actor, 0, NO, YES, 0.5F, 5, 1 );
+//					nme->nmeActor->actor->status = NMESTATE_MOLE_UNDER_GROUND;
+//					nme->isIdle = Random(500);
+				}
+				// ENDIF
+				
+			break;
+
+		case NMESTATE_MOLE_SCRATCH:
+				if ( nme->nmeActor->actor->animation->reachedEndOfAnimation )
+				{	
+					AnimateActor ( nme->nmeActor->actor, 2, NO, NO, 0.01F,10, 0 );
+//					AnimateActor ( nme->nmeActor->actor, 0, NO, YES, 0.5F, 5, 1 );
+//					nme->nmeActor->actor->status = NMESTATE_MOLE_UNDER_GROUND;
+//					nme->isIdle = Random(500);
+
+				}
+				// ENDIF
+				
+			break;
+
+	}
+	// ENDSWITCH
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1066,18 +1140,20 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 
 	//stringChange ( eActorName );
 	// check the actor name to determine the enemy type
-	if(gstrcmp(eActorName,"roto.ndo") == 0)
+	if(gstrcmp(eActorName,"roto.obe") == 0)
 		enemyType = NMETYPE_MOWER;
-	else if(gstrcmp(eActorName,"lomoa.ndo") == 0)
+	else if(gstrcmp(eActorName,"lomoa.obe") == 0)
 		enemyType = NMETYPE_MOWER;
-	else if(gstrcmp(eActorName,"moa.ndo") == 0)
+	else if(gstrcmp(eActorName,"moa.obe") == 0)
 		enemyType = NMETYPE_MOWER;
-	else if(gstrcmp(eActorName,"roll.ndo") == 0)
+	else if(gstrcmp(eActorName,"roll.obe") == 0)
 		enemyType = NMETYPE_ROLLER;
 	else if(gstrcmp(eActorName,"wasp.obe") == 0)
 		enemyType = NMETYPE_WASP;
-	else if(gstrcmp(eActorName,"b.ndo") == 0)
+	else if(gstrcmp(eActorName,"b.obe") == 0)
 		enemyType = NMETYPE_WASP;
+	else if(gstrcmp(eActorName,"mole.obe") == 0)
+		enemyType = NMETYPE_MOLE;
 
 	// check nme type and assign shadow if necessary
 	initFlags |= INIT_ANIMATION;
@@ -1117,6 +1193,15 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 
 		switch(enemyType)
 		{
+			case NMETYPE_MOLE:
+					AnimateActor(newItem->nmeActor->actor,3,NO,NO,0.1F, 0, 0);
+					newItem->nmeActor->actor->status = NMESTATE_MOLE_IDLE;
+					newItem->nmeActor->actor->scale.v[X] = 0.0075F;
+					newItem->nmeActor->actor->scale.v[Y] = 0.0075F;
+					newItem->nmeActor->actor->scale.v[Z] = 0.0075F;
+					newItem->isIdle = Random(500);
+				break;
+
 			case NMETYPE_MOWER:
 			case NMETYPE_ROLLER:
 				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F, 0, 0);

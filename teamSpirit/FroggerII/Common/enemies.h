@@ -30,6 +30,9 @@ enum
 
 	NMETYPE_MOWER,
 	NMETYPE_ROLLER,
+
+	NMETYPE_MOLE,
+
 };
 
 // Enemy actor state types
@@ -40,6 +43,13 @@ enum
 	NMESTATE_SNAPPER_IDLE,
 	NMESTATE_SNAPPER_READYTOSNAP,
 	NMESTATE_SNAPPER_SNAPPING,
+
+	NMESTATE_MOLE_IDLE,
+	NMESTATE_MOLE_SNAPPING,
+	NMESTATE_MOLE_UNDER_GROUND,
+	NMESTATE_MOLE_LOOK,
+	NMESTATE_MOLE_SCRATCH,
+
 
 	NMESTATE_WASP_IDLE,
 	NMESTATE_WASP_MOVING,
@@ -118,6 +128,7 @@ typedef struct TAGENEMY
 	UBYTE					active;					// enemy active state
 	short					isWaiting;				// enemy pause time at node
 	long					isSnapping;				// enemy is snapping (snapping time left)
+	short					isIdle;					// enemy idle state for starting animation
 
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
 	PATH					*path;					// ptr to enemy path data
@@ -149,6 +160,8 @@ extern void SubEnemy(ENEMY *enemy);
 
 extern void UpdateEnemies();
 
+
+extern void ProcessNMEMole ( ENEMY *nme );
 
 extern void ProcessNMESnapperPlant(ACTOR2 *nme);
 extern void ProcessNMECar(ACTOR2 *nme);

@@ -556,8 +556,8 @@ void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
 
 //	dprintf"make unique vtx %s\n", objC->object->name));
 
-	oldVtxa = objC->Vtx[0];
-	oldVtxb = objC->Vtx[1];
+	oldVtxa = objC->vtx[0];
+	oldVtxb = objC->vtx[1];
 
 	vtxa = (Vtx *)JallocAlloc(sizeof(Vtx) * objC->numVtx * 2, NO, "unqVtx");
 	vtxb = vtxa + objC->numVtx;
@@ -566,10 +566,10 @@ void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
 	memcpy(vtxb, oldVtxb, sizeof(Vtx) * objC->numVtx);
 
 	//controller now references new vtx's, must also make sure that drawlist is updated
-	objC->Vtx[0] = vtxa;
-	objC->Vtx[1] = vtxb;
+	objC->vtx[0] = vtxa;
+	objC->vtx[1] = vtxb;
 	offset = (int)oldVtxa - (int)vtxa;// - objC->Vtx[0];
-	AddOffsetToVertexLoads(-offset, objC->drawList);
+	AddOffsetToVertexLoads(-offset, objC->drawList);  
 	
 }
 
@@ -605,6 +605,8 @@ void MakeUniqueDrawlist(OBJECT_CONTROLLER *objC)
 OBJECT *MakeUniqueObject(OBJECT *object)
 {
 
+
+
 	OBJECT	*obj;	
 	OBJECTSPRITE **spr, *tempSpr;
 	int		i;
@@ -637,7 +639,7 @@ OBJECT *MakeUniqueObject(OBJECT *object)
 	if(object->next)
 		object->next = MakeUniqueObject(object->next);
 		
-	return object;
+	return object; 
 }
 
 
@@ -667,7 +669,6 @@ void MakeUniqueActor(ACTOR *actor,int type)
 		XformActor(actor);
 		SwapVtxReferencesInDrawlist(actor->objectController);
 	}
-
 }
 
 

@@ -224,7 +224,7 @@ short grabFlag = 0;
 */
 void PrintBackdrop(BACKDROP *bDrop)
 {
-	gDPPipeSync(glistp++);
+/*	gDPPipeSync(glistp++);
 
 	gSPDisplayList(glistp++, rdpInitForBackdrops_dl);
 	gSPDisplayList(glistp++, rspInitForBackdrops_dl);
@@ -243,7 +243,7 @@ void PrintBackdrop(BACKDROP *bDrop)
 	gSPSprite2DDraw(glistp++,bDrop->xPos,bDrop->yPos);
 
 	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
-
+					   */
 /*	gDPPipeSync(glistp++);
 	gSPDisplayList(glistp++, rdpInitForBackdrops_dl);
 	gSPObjRenderMode(glistp ++, G_OBJRM_XLU);

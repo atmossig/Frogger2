@@ -66,7 +66,10 @@ extern char *_texBank4SegmentRomEnd;
 
 extern char *_levData1SegmentRomStart;
 extern char *_levData1SegmentRomEnd;
-
+extern char *_levData2SegmentRomStart;
+extern char *_levData2SegmentRomEnd;
+extern char *_levData3SegmentRomStart;
+extern char *_levData3SegmentRomEnd;
 
 /*extern char *_pbank1SegmentRomStart;
 extern char *_pbank1SegmentRomEnd;

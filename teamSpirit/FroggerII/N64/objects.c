@@ -60,13 +60,13 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 		{
 			//loadvertices
 			case 0x04:
-			//	if(offsetVtx)
-			//	{
+				//if(offsetVtx)
+				//{
 					addrP = (u32 *)(temp + 4);
 					address = *addrP;
 					address = Rom2Ram(address, offset);
 					*addrP = address;
-			//	}
+				//}
 				// ENDIF
 				temp += 8;
 				break;
@@ -96,7 +96,7 @@ void RestoreDrawList(Gfx *dl, u32 offset)
 							}
 							else
 								temp += 16;
-								
+									
 							break;
 
 
@@ -124,9 +124,9 @@ void SwapVtxReferencesInDrawlist(OBJECT_CONTROLLER *objectC)
 
 
 	if(objectC->vtxBuf)
-		offset = objectC->Vtx[0] - objectC->Vtx[1];
+		offset = objectC->vtx[0] - objectC->vtx[1];
 	else
-		offset = objectC->Vtx[1] - objectC->Vtx[0];
+		offset = objectC->vtx[1] - objectC->vtx[0];
 
 	offset *= sizeof(Vtx);
 
@@ -237,6 +237,7 @@ void DoubleBufferSkinVtx ( void )
 		if ( cur->actor->objectController )
 			if ( cur->actor->objectController->drawList )
 				SwapVtxReferencesInDrawlist ( cur->actor->objectController );
+//				cur->actor->objectController->vtxBuf = 1 - cur->actor->objectController->vtxBuf;
 			// ENDIF
 		// ENDIF
 		cur = cur->next;
@@ -625,21 +626,21 @@ void LoadObjectBank(int num)
 		RestoreObjectPointers(objCont->object, (u32)objectBank);
 		if(objCont->drawList)
 		{
-/*			objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
+			/*objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
 			if(objCont->drawList)
 				offsetVtx = FALSE;
 			else
 				offsetVtx = TRUE;		
 			RestoreDrawList(objCont->drawList, (u32)objectBank);
 			offsetVtx = TRUE;
-  */
+  			*/
 			objCont->drawList = (Gfx *)Rom2Ram((u32)objCont->drawList, (u32)objectBank);
 			RestoreDrawList(objCont->drawList, (u32)objectBank);
 		}
-		if(objCont->Vtx[0])
-			objCont->Vtx[0] = (Vtx *)Rom2Ram((u32)objCont->Vtx[0], (u32)objectBank);
-		if(objCont->Vtx[1])
-			objCont->Vtx[1] = (Vtx *)Rom2Ram((u32)objCont->Vtx[1], (u32)objectBank);
+		if(objCont->vtx[0])
+			objCont->vtx[0] = (Vtx *)Rom2Ram((u32)objCont->vtx[0], (u32)objectBank);
+		if(objCont->vtx[1])
+			objCont->vtx[1] = (Vtx *)Rom2Ram((u32)objCont->vtx[1], (u32)objectBank);
 
 		if(objCont->LOCMesh)
 		{

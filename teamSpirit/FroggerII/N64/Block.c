@@ -11,10 +11,11 @@
 
 //#define ROM_BUILD
 
+//#define F3DEX_GBI
 #define F3DEX_GBI
-
 #include <ultra64.h>
 #include <assert.h>
+//#include <pr/gs2dex.h>
 
 #ifndef PC_VERSION
 #include <PR/ramrom.h>					// Needed for argument passing into the app
@@ -279,7 +280,7 @@ void CreateTaskStructure(int n,int ucode)
 			tlistp[n]->list.t.ucode			= (u64 *)gspSprite2DTextStart;
 			tlistp[n]->list.t.ucode_data	= (u64 *)gspSprite2DDataStart;
 
-			break;
+			break;		  
 	}
 
 	tlistp[n]->list.t.output_buff_size	= (u64 *)&rdp_output[rdp_output_size];
@@ -359,7 +360,364 @@ void SetupViewing()
 */
 void SetRenderMode()
 {
+
+	changeRenderMode = 0;
     gDPPipeSync(glistp++);
+
+	gSPSetGeometryMode(glistp++,
+						G_ZBUFFER |
+						G_SHADE |
+						G_SHADING_SMOOTH);
+
+	if(fog.mode == 1)
+	{
+		gSPSetGeometryMode(glistp++, G_FOG);
+
+
+	    gDPSetCycleType(glistp++, G_CYC_2CYCLE);
+
+		if(renderMode.xluSurf)
+		{
+			if(renderMode.faceColour)
+			{
+				gDPSetEnvColor(glistp++,255,255,255,xluFact);
+				gDPSetCombineMode(glistp++,G_CC_MODULATEPRIM_ENVALPHA, G_CC_MODULATEPRIM_ENVALPHA);
+			}
+			else if(renderMode.transparentSurf)
+			{
+				gDPSetCombineMode(glistp++,G_CC_MODULATERGB_MODULATEPRIMA, G_CC_PASS2);
+			}
+			else
+			{
+				gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_PASS2);
+			}
+			gDPSetPrimColor(glistp++,0,0,255,255,255,xluFact);
+
+			if(renderMode.pixelOut)
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetPrimColor(glistp++,0,0,255,255,255,renderMode.pixelOut);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_ZB_CLD_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_FULL) && (renderMode.useZMode))
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++,
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_NONE) && (renderMode.useZMode))
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_ZB_XLU_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_FULL) && (!renderMode.useZMode))
+			{
+				gSPClearGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_XLU_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_REDUCED) && (renderMode.useZMode))
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_ZB_OPA_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_REDUCED) && (!renderMode.useZMode))
+			{
+				gSPClearGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);      
+			}
+			else
+			{
+				gSPClearGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_XLU_SURF2);      
+			}  
+		}
+		else	//fog
+		{
+			if(renderMode.transparentSurf)
+			{
+				gDPSetCombineMode(glistp++, G_CC_MODULATERGB_MODULATEPRIMA, G_CC_PASS2);
+
+				if(renderMode.pixelOut)
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetPrimColor(glistp++,0,0,255,255,255,renderMode.pixelOut);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2);
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_NONE) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A , G_RM_AA_ZB_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_TEX_EDGE2);      
+				}
+				else
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_TEX_EDGE2);      
+				}  
+			}
+			else
+			{
+				if(renderMode.faceColour)
+				{
+					gDPSetCombineMode(glistp++,G_CC_MODULATEPRIM, G_CC_MODULATEPRIM);
+				}
+				else
+				{
+					gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_PASS2);
+				}
+
+				if(renderMode.pixelOut)
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetPrimColor(glistp++,0,0,255,255,255,renderMode.pixelOut);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_PCL_SURF, G_RM_AA_ZB_PCL_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_ZB_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_NONE) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A , G_RM_ZB_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_AA_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_ZB_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_RA_OPA_SURF2);      
+				}
+				else
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_FOG_SHADE_A, G_RM_OPA_SURF2);      
+				}  
+
+			}
+		}
+	}
+	else
+	{
+		if(renderMode.faceColour)
+		{
+			gDPSetCombineMode(glistp++,G_CC_MODULATEPRIM, G_CC_MODULATEPRIM);
+		}
+		else if(renderMode.transparentSurf) //nofog+transparent
+		{
+			gDPSetCombineMode(glistp++,G_CC_MODULATERGB_MODULATEPRIMA,G_CC_MODULATERGB_MODULATEPRIMA);
+//			gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGBA);
+		}
+		else
+		{
+			gDPSetCombineMode(glistp++, G_CC_MODULATERGBPRIMA, G_CC_MODULATERGBPRIMA);
+		}
+		gDPSetPrimColor(glistp++,0,0,255,255,255,xluFact);
+
+		//nofog & xlu
+		if(renderMode.xluSurf)
+		{
+			if(!renderMode.faceColour)
+			{
+				gDPSetCombineMode(glistp++,G_CC_MODULATERGB_MODULATEPRIMA,G_CC_MODULATERGB_MODULATEPRIMA);
+			}
+			else
+			{
+				gDPSetEnvColor(glistp++,255,255,255,xluFact);
+				gDPSetCombineMode(glistp++,G_CC_MODULATEPRIM_ENVALPHA, G_CC_MODULATEPRIM_ENVALPHA);
+			}
+			if(renderMode.pixelOut)
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetPrimColor(glistp++,0,0,255,255,255,renderMode.pixelOut);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_ZB_CLD_SURF, G_RM_ZB_CLD_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_FULL) && (renderMode.useZMode))
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++,
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_NONE) && (renderMode.useZMode))
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_ZB_XLU_SURF , G_RM_ZB_XLU_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_FULL) && (!renderMode.useZMode))
+			{
+				gSPClearGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_REDUCED) && (renderMode.useZMode))
+			{
+				gSPSetGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_RA_ZB_OPA_SURF, G_RM_RA_ZB_OPA_SURF2);      
+			}
+			else if((renderMode.useAAMode == AA_MODE_REDUCED) && (!renderMode.useZMode))
+			{
+				gSPClearGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_RA_OPA_SURF, G_RM_RA_OPA_SURF2);      
+			}
+			else
+			{
+				gSPClearGeometryMode(glistp++, G_ZBUFFER);
+				gDPSetRenderMode(glistp++, 
+					(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_XLU_SURF, G_RM_XLU_SURF2);      
+			}  
+		}
+		else
+		{
+			if(renderMode.transparentSurf) //nofog+transparent
+			{
+				if(renderMode.pixelOut)
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetPrimColor(glistp++,0,0,255,255,255,renderMode.pixelOut);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2);
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_NONE) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE , G_RM_AA_ZB_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_TEX_EDGE, G_RM_AA_TEX_EDGE2);      
+				}
+				else
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_TEX_EDGE, G_RM_TEX_EDGE2);      
+				}  
+			}
+			else	//nofog + solid
+			{
+				if(renderMode.pixelOut)
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetPrimColor(glistp++,0,0,255,255,255,renderMode.pixelOut);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_PCL_SURF, G_RM_AA_ZB_PCL_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_NONE) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_ZB_OPA_SURF , G_RM_ZB_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_FULL) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_AA_OPA_SURF, G_RM_AA_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (renderMode.useZMode))
+				{
+					gSPSetGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_RA_ZB_OPA_SURF, G_RM_RA_ZB_OPA_SURF2);      
+				}
+				else if((renderMode.useAAMode == AA_MODE_REDUCED) && (!renderMode.useZMode))
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_RA_OPA_SURF, G_RM_RA_OPA_SURF2);      
+				}
+				else
+				{
+					gSPClearGeometryMode(glistp++, G_ZBUFFER);
+					gDPSetRenderMode(glistp++, 
+						(renderMode.useTextureMode != TEXTURE_MODE_NORMAL) ? G_RM_PASS : G_RM_OPA_SURF, G_RM_OPA_SURF2);      
+				}  
+			}
+		}
+	}
+
+
+
+/*    gDPPipeSync(glistp++);
 
 	gSPSetGeometryMode(glistp++,G_ZBUFFER |	G_SHADE | G_SHADING_SMOOTH);
 
@@ -516,7 +874,7 @@ void SetRenderMode()
 
 ********************************************************************************************/
 
-	{
+/*	{
 //	    gDPSetCycleType(glistp++, G_CYC_1CYCLE);
 //		gDPSetCombineMode(glistp++, G_CC_MODULATERGB, G_CC_MODULATERGBA);
 
@@ -655,7 +1013,7 @@ void SetRenderMode()
 				}  
 			}
 		}
-	}
+	}*/
 }
 
 
@@ -1040,7 +1398,7 @@ void DrawGraphics(void *arg)
 
 					if(codeDrawingRequest == FALSE)
 						gfxIsDrawing = FALSE;
-					DoubleBufferSkinVtx();
+					//DoubleBufferSkinVtx();
 				}
 
 				if ( dontClearScreen )
@@ -1110,7 +1468,6 @@ void DrawGraphics(void *arg)
 
 					AnimateSprites();
 					XformActorList();
-					// ENDIF
 
 					switch (playMode)
 					{	
@@ -1287,7 +1644,7 @@ static void doPoly(void *arg)
 			GameLoop();
 
 
-			//DoubleBufferSkinVtx();
+			DoubleBufferSkinVtx();
 		}
 	}
 }

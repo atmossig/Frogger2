@@ -1517,6 +1517,14 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
 				dprintf"SPRING TILE\n"));
 			}
+			else if ( destTile[pl]->state == TILESTATE_ENDLEVEL )
+			{
+				StopDrawing ( "New Sub Level" );
+				FreeAllLists();
+				InitLevel ( player[0].worldNum, player[0].levelNum+1 );
+				StartDrawing ( "New Sub Level" );
+				return;
+			}
 			else
 			{
 				// Okay - Frogger has landed - snap him to the centre of the current tile
