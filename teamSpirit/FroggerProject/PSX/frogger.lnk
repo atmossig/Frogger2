@@ -79,6 +79,7 @@ bss     group   bss
 	include "temp_psx.obj"
 	include "world_eff.obj"
 	include "acostab.obj"
+	include "particle.obj"
 
 
 ;	include "ANIM.obj"
