@@ -114,6 +114,10 @@ IDI_BLITZ               ICON    DISCARDABLE     "blitz.ico"
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_FROGGER2            "Frogger2 - Swampy's Revenge"
+    IDS_INSTALL             "Install"
+    IDS_PLAY                "Play"
+    IDS_CLOSE               "Close"
+    IDS_UNINST              "Uninstall"
 END
 
 STRINGTABLE DISCARDABLE 

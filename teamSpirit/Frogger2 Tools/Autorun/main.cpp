@@ -33,6 +33,8 @@ int selection = -1, installed = 0;
 
 const char* REGISTRY_KEY	= "Software\\Atari\\Frogger2";
 const char* FROGGER2		= "Frogger2 - Swampy's Revenge";
+const char* SETUP_EXE		= "Frogger2\\setup.exe";
+const char* FROGGER2_EXE	= "Frogger2.exe";
 
 // -------------------------------------------------------------------
 
@@ -46,39 +48,84 @@ void StripPath(char *str)
 	{
 		if (*(--c) == '\\')
 		{
-			*c = 0;
+			*(c+1) = 0;
 			break;
 		}
 		len--;
 	}
 }
 
+/*
+BOOL CALLBACK MsgDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_INITDIALOG:
+		SetWindowText(GetDlgItem(hdlg, IDC_TEXT), (char*)lParam);
+		break;
+
+	case WM_COMMAND:
+		switch (LOWORD(lParam))
+		{
+		case IDOK:
+		case IDCANCEL:
+			EndDialog(hdlg, LOWORD(lParam));
+			return TRUE;
+		}
+		break;
+	}
+
+	return FALSE;
+}
+*/
 
 int ShowMessage(UINT str_id)
 {
 	char str[1024];
+	int res;
 
 	LoadString(hinstance, str_id, str, 1024);
 	
-	return MessageBox(hwndMain, str, FROGGER2, MB_ICONEXCLAMATION|MB_OK);
+	res = MessageBox(hwndMain, str, FROGGER2, MB_ICONEXCLAMATION|MB_OK);
+
+	return res; 
 }
 
-// -------------------------------------------------------------------
 
-int RunInstaller(void)
-{	
+int StartApp(char* cmdline)
+{
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
-	char path[MAX_PATH];
-
-	GetModuleFileName(NULL, path, MAX_PATH);
-	StripPath(path);
-	strcat(path, "\\setup.exe");
 
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 
-	if (CreateProcess(0, path, NULL, NULL, 0, 0, 0, 0, &si, &pi))
+	int res = CreateProcess(0, cmdline, NULL, NULL, 0, 0, 0, 0, &si, &pi);
+
+	return res;
+}
+
+/*
+int StartApp(char* cmdline)
+{
+	int res = (int)ShellExecute(hwndMain, "open", cmdline, NULL, NULL, SW_SHOWNORMAL);
+	return (res > 32);
+
+}
+*/
+// -------------------------------------------------------------------
+
+int RunInstaller(void)
+{	
+	char path[MAX_PATH];
+
+	path[0] = '\"';
+	GetModuleFileName(NULL, path+1, MAX_PATH);
+	StripPath(path);
+	strcat(path, SETUP_EXE);
+	strcat(path, "\"");
+
+	if (StartApp(path))
 	{
 		DestroyWindow(hwndMain);
 		return 0;
@@ -90,28 +137,49 @@ int RunInstaller(void)
 	}
 }
 
-
-int RunFrogger2(int config)
-{
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
+int RunUninstaller(void)
+{	
+	// C:\WINDOWS\IsUninst.exe -f"C:\Program Files\Atari\Frogger2\uninst.isu"
 
 	char path[MAX_PATH];
 
-	strcpy(path, baseDirectory);
+	GetWindowsDirectory(path, MAX_PATH);
+	strcat(path, "\\IsUninst.exe -f\"");
+	strcat(path, baseDirectory);
+	if (path[strlen(path)-1] != '\\')
+		strcat(path, "\\");
+	strcat(path, "uninst.isu\"");
+
+	if (StartApp(path))
+	{
+		DestroyWindow(hwndMain);
+		return 0;
+	}
+	else
+	{
+		ShowMessage(IDS_FROGGER2_ERROR);
+		return 1;
+	}
+}
+
+int RunFrogger2(int config)
+{
+	char path[MAX_PATH];
+
+	// enclose the app name in ""s to keep windows happy.. sigh
+	path[0] = '\"';
+	strcpy(path+1, baseDirectory);
 	
 	if (path[strlen(path)-1] != '\\')
 		strcat(path, "\\");
 
-	strcat(path, "Frogger2.exe");
+	strcat(path, FROGGER2_EXE);
+	strcat(path, "\"");
 	
 	if (config)
 		strcat(path, " -c");
 
-	ZeroMemory(&si, sizeof(STARTUPINFO));
-	si.cb = sizeof(STARTUPINFO);
-
-	if (CreateProcess(0, path, NULL, NULL, 0, 0, 0, 0, &si, &pi))
+	if (StartApp(path))
 	{
 		DestroyWindow(hwndMain);
 		return 0;
@@ -260,8 +328,13 @@ int CreateMainWindow(HWND hwnd)
 
 	if (!IsFrogger2Installed())
 	{
-		strcpy(options[0], "Install");
-		strcpy(options[1], "");
+		LoadString(hinstance, IDS_INSTALL, options[0], 40);
+		options[1][0]=0;
+	}
+	else
+	{
+		LoadString(hinstance, IDS_PLAY, options[0], 40);
+		LoadString(hinstance, IDS_UNINST, options[1], 40);
 	}
 
 /*
@@ -343,7 +416,8 @@ long CALLBACK MainWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 		case 1:
 			if (installed)
-				RunFrogger2(1);
+				//RunFrogger2(1);
+				RunUninstaller();
 			break;
 
 		case 2:
@@ -352,10 +426,14 @@ long CALLBACK MainWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		}
 		break;
 
+/*	How to shoot yourself in the foot, lesson 23:
+	Deleting your parent window when a child window gets focus
+
 	case WM_ACTIVATE:
 		if (LOWORD(wparam) == WA_INACTIVE)
 			DestroyWindow(hwnd);
 		break;
+*/
 
 	default:
 		return DefWindowProc(hwnd, msg, wparam, lparam);
