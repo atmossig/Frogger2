@@ -204,6 +204,8 @@ SAMPLE *CreateAndAddSample( char *path, char *file )
 	if( !(LoadWav(sfx,fileName)) )
 	{
 		FREE( fileName );
+		FREE( sfx->idName );
+		FREE( sfx );
 		utilPrintf("Could not load wave file\n");
 		return NULL;
 	}
