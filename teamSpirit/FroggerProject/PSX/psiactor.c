@@ -26,6 +26,9 @@ ACTORLIST	actorList;
 //#define Bound(a,x,b) min(b,max(a,x))
 
 
+int globalCount = 0;
+ACTORSETANIM globalActors [ 50 ];
+
 extern PSIMODEL *psiCheck(char *psiName);
 
 PSIDATA oldModel;
@@ -141,6 +144,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	ACTOR *actor;
 	PSIOBJECT *psiobRoot;
 	PSIMESH *meshRoot;
+	char *compare;
 	char	actorName[32];
 
 	if (psiModel==NULL)
@@ -258,6 +262,21 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 		ScalePsi(actor->psiData.object->meshdata);
 		actor->radius *= 10;
 		psiInitSortList((actor->radius*2)+8);
+	}
+	// ENDIF
+
+
+	if ( ( psiCheck ( actor->psiData.modelName ) ) &&
+		   ( ( compare = strstr ( actor->psiData.modelName, "ROLL" ) ) ||
+		   ( ( compare = strstr ( actor->psiData.modelName, "BEE" ) ) ||
+		    ( compare = strstr ( actor->psiData.modelName, "MOA" ) )
+			 ) ) ) 		// already loaded ?
+	{
+		utilPrintf("Found It................................................................\n");
+		sprintf ( globalActors [ globalCount ].modelName, psiModel->name );
+		globalActors [ globalCount ].actor	= actor;
+		globalActors [ globalCount ].done		= 0;
+		globalCount++;
 	}
 	// ENDIF
 
@@ -587,7 +606,7 @@ void actorUpdateAnimations(ACTOR *actor)
 	RETURNS:	
 **************************************************************************/
 
-void actorSetAnimation(ACTOR *actor, ULONG frame)
+void actorSetAnimation(ACTOR *actor, ULONG frame, int setKeys)
 {
 	PSIOBJECT *world;
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
@@ -601,7 +620,8 @@ void actorSetAnimation(ACTOR *actor, ULONG frame)
 
 //bbopt
   //psiSetKeyFrames(world, frame);
-	bb_psiSetKeyFrames(world, frame);
+	if ( setKeys )
+		bb_psiSetKeyFrames(world, frame);
 
 	/*
 		
@@ -947,7 +967,7 @@ void actorSetBoundingRotated(ACTOR *actor,int frame,int rotX,int rotY, int rotZ)
 	actor->psiData.object->rotate.vz = rotZ;
 
 	// set the model 'pose'
-	actorSetAnimation(actor, frame);
+	actorSetAnimation(actor, frame, 1);
 
 	PSIrootScale = &actor->psiData.object->scale;
 	psiCalcLocalMatrix(actor->psiData.object);
@@ -1228,7 +1248,7 @@ void actorMove(ACTOR *actor)
 		modctrl->sorttable=i;
 	}
 
-	actorSetAnimation(actor, actor->animation.frame);
+	actorSetAnimation(actor, actor->animation.frame, 1);
 
 
 	if (actor->psiData.flags&ACTOR_MOTIONBONE)
@@ -1512,3 +1532,92 @@ void actorSetBounding(ACTOR *actor,int frame)
 {
 	actorSetBoundingRotated(actor,frame,0,0,0);
 }
+
+
+void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src )
+{
+	MATRIX		rotmat1;
+	int j, i;
+
+	
+	while ( dest )
+	{
+		for ( i = 0; i < 3; i++ )
+			for ( j = 0; j < 3; j++ )
+				dest->matrix.m[i][j] = src->matrix.m[i][j];
+/*		for ( i = 0; i < 3; i++ )
+			for ( j = 0; j < 3; j++ )
+				dest->matrixscale.m[i][j] = src->matrixscale.m[i][j];
+
+		for ( j = 0; j < 3; j++ )
+			dest->matrix.t[j] = src->matrix.t[j];
+		for ( j = 0; j < 3; j++ )
+			dest->matrixscale.t[j] = src->matrixscale.t[j];
+
+		dest->scale.vx = src->scale.vx;
+		dest->scale.vy = src->scale.vy;
+		dest->scale.vz = src->scale.vz;
+
+		dest->rotate.vx = src->rotate.vx;
+		dest->rotate.vy = src->rotate.vy;
+		dest->rotate.vz = src->rotate.vz;*/
+
+		dest->meshdata->center.vx = src->meshdata->center.vx;
+		dest->meshdata->center.vy = src->meshdata->center.vy;
+		dest->meshdata->center.vz = src->meshdata->center.vz;
+
+		if((src->rotate.vx) || (src->rotate.vy) || (src->rotate.vz))
+		{
+			RotMatrixYXZ_gte(&src->rotate,&rotmat1);
+			gte_MulMatrix0(&rotmat1,&src->matrix,&dest->matrix);
+		}
+
+//		RotMatrixYXZ_gte ( &dest->rotate, &rotmat1 );
+//		gte_MulMatrix0 ( &rotmat1, &dest->matrix, &dest->matrix );
+
+		if ( src->child )
+			CopyKeyFrames ( dest->child, src->child );
+
+		dest	= dest->next;
+		src		= src->next;
+		
+	}
+	
+
+
+/*	for ( i = 0; i < 3; i++ )
+		for ( j = 0; j < 3; j++ )
+			dest->psiData.object->matrix.m[i][j] = src->psiData.object->matrix.m[i][j];
+
+/*	for ( i = 0; i < 3; i++ )
+		for ( j = 0; j < 3; j++ )
+			dest->psiData.object->matrixscale.m[i][j] = src->psiData.object->matrixscale.m[i][j];*/
+
+/*	for ( j = 0; j < 3; j++ )
+		dest->psiData.object->matrix.t[j] = src->psiData.object->matrix.t[j];
+	/*for ( j = 0; j < 3; j++ )
+		dest->psiData.object->matrixscale.t[j] = src->psiData.object->matrixscale.t[j];
+*/
+/*	dest->psiData.object->rotate.vx = src->psiData.object->rotate.vx;
+	dest->psiData.object->rotate.vy = src->psiData.object->rotate.vy;
+	dest->psiData.object->rotate.vz = src->psiData.object->rotate.vz;
+
+	dest->psiData.object->scale.vx = src->psiData.object->scale.vx;
+	dest->psiData.object->scale.vy = src->psiData.object->scale.vy;
+	dest->psiData.object->scale.vz = src->psiData.object->scale.vz;
+
+
+	if ( src->psiData.object->child )
+		KeyFrameScan ( src->psiData.object->child, dest->psiData.object->child );
+
+	if ( src->psiData.object->next )*
+		KeyFrameScan ( src->psiData.object->next, dest->psiData.object->next );*/
+}
+
+
+
+
+
+
+
+
