@@ -405,6 +405,7 @@ void UpdatePathNME( ENEMY *cur )
 	MakeUnit (&fwd);
 
 	AddToVector(&cur->currNormal,&cur->deltaNormal);
+	MakeUnit( &cur->currNormal );
 
 	if (!cur->doNotMove)
 		if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
