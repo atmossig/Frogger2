@@ -23,6 +23,7 @@
 #define ZeroVector(vect) SetVector(vect,&zero)
 */
 
+#define CreateVector(v,x,y,z) { v->v[X] = x; v->v[Y] = y; v->v[Z] = z; }
 #define AddVector(res,v1,v2) {(res)->v[X] = (v1)->v[X] + (v2)->v[X];(res)->v[Y] = (v1)->v[Y] + (v2)->v[Y];(res)->v[Z] = (v1)->v[Z] + (v2)->v[Z];}
 #define AddToVector(res,v1) {(res)->v[X] += (v1)->v[X];(res)->v[Y] += (v1)->v[Y];(res)->v[Z] += (v1)->v[Z];}
 #define SubFromVector(res,v1) {(res)->v[X] -= (v1)->v[X];(res)->v[Y] -= (v1)->v[Y];(res)->v[Z] -= (v1)->v[Z];}
