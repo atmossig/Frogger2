@@ -676,6 +676,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 						obj->sprites[i].sx *= 2;
 						break;
 					case 32:
+						obj->sprites[i].sx *= 3;
 						break;
 				}
 				switch(sprite->texture->sy)
@@ -687,6 +688,7 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags)
 						obj->sprites[i].sy *= 2;
 						break;
 					case 32:
+						obj->sprites[i].sy *= 3;
 						break;
 				}
 #endif
