@@ -196,7 +196,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 }
 
 
-
+/*
 
 extern unsigned short	currentPal16[16];
 extern unsigned short	*VRAMpalBlock;
@@ -208,12 +208,12 @@ int VRAM_PALETTES = 500;
 int VRAM_256PALETTES = 40;
 
 
+*/
 
 
 
 
-
-void froggerShowVRAM(unsigned char palMode)
+/*void froggerShowVRAM(unsigned char palMode)
 {
 	DISPENV		dispenv;
 	int			xOffs,yOffs, viewMode, currTex;
@@ -238,10 +238,10 @@ void froggerShowVRAM(unsigned char palMode)
 		if (padData.debounce[0] & PAD_SELECT)
 			viewMode = (viewMode+1) % 2;
 	}
-}
+}*/
 
 
-static void froggerVRAMviewNormal(DISPENV *dispenv, int *xOffs,int *yOffs, unsigned char palMode)
+/*static void froggerVRAMviewNormal(DISPENV *dispenv, int *xOffs,int *yOffs, unsigned char palMode)
 {
 	if (padData.digital[0] & PAD_LEFT)
 		*xOffs -= 6;
@@ -266,9 +266,9 @@ static void froggerVRAMviewNormal(DISPENV *dispenv, int *xOffs,int *yOffs, unsig
 
 	VSync(0);
 	PutDispEnv(dispenv);
-}
+}*/
 
-static void froggerVRAMviewTextures(int *currTex)
+/*static void froggerVRAMviewTextures(int *currTex)
 {
 	POLY_FT4 	*ft4;
 	TextureType	*tex;
@@ -380,9 +380,9 @@ static void froggerVRAMviewTextures(int *currTex)
 	PutDispEnv(&currentDisplayPage->dispenv);
 	PutDrawEnv(&currentDisplayPage->drawenv);
 	DrawOTag(currentDisplayPage->ot+(1024-1));
-}
+}*/
 
-static void froggerVRAMdrawPalette(unsigned long clut, int y)
+/*static void froggerVRAMdrawPalette(unsigned long clut, int y)
 {
 	POLY_F4		*f4;
 	char		str[40];
@@ -423,9 +423,9 @@ static void froggerVRAMdrawPalette(unsigned long clut, int y)
 		}
 	}
 
-}
+}*/
 
-static void froggerVRAMdrawPalette256(unsigned long clut, int y)
+/*static void froggerVRAMdrawPalette256(unsigned long clut, int y)
 {
 	POLY_F4			*f4;
 	char			str[40];
@@ -474,7 +474,7 @@ static void froggerVRAMdrawPalette256(unsigned long clut, int y)
 			break;
 		}
 	}
-}
+}*/
 
 
 static int cursPos = 0;

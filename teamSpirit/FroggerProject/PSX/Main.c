@@ -47,7 +47,7 @@
 //mmsound #include <islsound.h>
 #include <islpad.h>
 #include <islmem.h>
-#include <islfile.h>
+#include "islfile.h"
 //#include <islpsi.h>
 #include "sonylibs.h"
 #include "shell.h"
@@ -847,7 +847,7 @@ totalObjs = 0;
 			{
 				if( (padData.debounce[0] & PAD_L1))
 				{
-					froggerShowVRAM(1);
+					textureShowVRAM(1);
 				}
 			}
 #endif
