@@ -812,6 +812,7 @@ void Actor2ClipCheck(ACTOR2* act)
 	long sxy,sz;
 	long sx, sy;//extracted from sxy
 	int distTop, distRight, distBott, distLeft;
+	int radius;
 
 	SVECTOR pos = act->actor->position;
 	pos.vx = -pos.vx;
@@ -845,10 +846,16 @@ void Actor2ClipCheck(ACTOR2* act)
 
 
 	//calc dists from edges
-	distTop		= sy - CLIP_TOP;
-	distRight	= sx - CLIP_RIGHT;
-	distBott	= sy - CLIP_BOTT;
-	distLeft	= sx - CLIP_LEFT;
+//	distTop		= sy - CLIP_TOP;
+//	distRight	= sx - CLIP_RIGHT;
+//	distBott	= sy - CLIP_BOTT;
+//	distLeft	= sx - CLIP_LEFT;
+	//now with radius check
+	radius = act->actor->radius;
+	distTop		= (sy+radius) - CLIP_TOP;
+	distRight	= (sx-radius) - CLIP_RIGHT;
+	distBott	= (sy-radius) - CLIP_BOTT;
+	distLeft	= (sx+radius) - CLIP_LEFT;
 
 
 	//clip?
