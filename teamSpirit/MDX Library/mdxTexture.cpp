@@ -30,7 +30,7 @@
 #include "mdxProfile.h"
 #include "mdxWindows.h"
 #include "gelf.h"
-
+#include <stdio.h>
 
 
 #ifdef __cplusplus
