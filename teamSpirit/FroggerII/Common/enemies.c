@@ -31,6 +31,12 @@
 
 #include "incs.h"
 
+#define ANI_FACE		(1 << 0)
+#define ANI_CENTRE		(1 << 1)
+#define ANI_FIXED		(1 << 2)
+#define ANI_REACTIVE	(1 << 3)
+
+
 // lookup arrays for reactive and non-reactive deaths
 REACTIVEANIM reactiveAnims[] = {
 #include "x:\teamspirit\pcversion\reactive.txt"
@@ -199,8 +205,8 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 //		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 200 );
 //		fx->follow = frog[pl]->actor;
 
-		// Special death anim
-		if( (nme->reactiveNumber != -1) && (reactiveAnims[nme->reactiveNumber].type == 0xFF) )
+		// Special hurt anim
+		if( (nme->reactiveNumber != -1) && !(reactiveAnims[nme->reactiveNumber].type & ANI_REACTIVE) )
 			deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (pl);
 		else
 			deathAnims[0] (pl); // Normal damage
@@ -210,31 +216,30 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 		player[pl].healthPoints = 3;
 		player[pl].frogState |= FROGSTATUS_ISDEAD;
 
-/*		if( nme->flags & ENEMY_NEW_VENT )
-			deathAnims[DEATHBY_FIRE+NUM_DEATHTYPES] (pl);
-		else */if (nme->reactiveNumber!=-1)
+		if (nme->reactiveNumber!=-1)
 		{
-			if( reactiveAnims[nme->reactiveNumber].type == 0xFF )
-			{
-				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (pl);
-				if( reactiveAnims[nme->reactiveNumber].animChar != -1 )
-					AnimateActor( nme->nmeActor->actor, reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25, 0, 0 );
-			}
-			else
-			{
-				if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
-					SetQuaternion(&(frog[pl]->actor->qRot),&(nme->nmeActor->actor->qRot));
-				
-				if (reactiveAnims[nme->reactiveNumber].type & 0x02) //Center
-					SetVector(&(frog[pl]->actor->pos),&(nme->nmeActor->actor->pos));
+			if (reactiveAnims[nme->reactiveNumber].type & ANI_FACE)
+				SetQuaternion(&(frog[pl]->actor->qRot),&(nme->nmeActor->actor->qRot));
+			
+			if (reactiveAnims[nme->reactiveNumber].type & ANI_CENTRE)
+				SetVector(&(frog[pl]->actor->pos),&(nme->nmeActor->actor->pos));
 
-				if (reactiveAnims[nme->reactiveNumber].type & 0x04) //FixedPos
-					nme->doNotMove = 1;
+			if (reactiveAnims[nme->reactiveNumber].type & ANI_FIXED)
+				nme->doNotMove = 1;
 
+			// Matts reactive animations
+			if( reactiveAnims[nme->reactiveNumber].type & ANI_REACTIVE )
+			{
 				AnimateActor(frog[pl]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
 				AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
 				GTInit( &player[pl].dead, 3 );
+			}
+			else // My death animations
+			{
+				deathAnims[reactiveAnims[nme->reactiveNumber].animFrog+NUM_DEATHTYPES] (pl);
+				if( reactiveAnims[nme->reactiveNumber].animChar != -1 )
+					AnimateActor( nme->nmeActor->actor, reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25, 0, 0 );
 			}
 		}
 		else deathAnims[NUM_DEATHTYPES] (pl); // DEATHBY_NORMAL
