@@ -495,7 +495,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	//count = 0;
 
-	utilPrintf ( "Number Of Sprite : %d\n", mesh->n_sprs );
+	//utilPrintf ( "Number Of Sprite : %d\n", mesh->n_sprs );
 
 	for(i = mesh->n_sprs; i != 0; i--,op++)
 	{
