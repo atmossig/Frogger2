@@ -190,6 +190,14 @@ SOURCE=.\Common\event.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\eventfuncs.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\eventfuncs.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\frogger.c
 # End Source File
 # Begin Source File

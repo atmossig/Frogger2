@@ -79,7 +79,8 @@ _codeSegmentEnd         alias   _code_objend
 		include "menus.obj",code
 		include "defaultdata.obj",code
 		include "levelprogression.obj",code
-		
+		include "event.obj",code
+		include "eventfuncs.obj",code
 
 		include "develop.obj",code
 		include	"rdp_out0.obj",code
