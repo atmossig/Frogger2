@@ -14,6 +14,7 @@
 #include <d3d.h>
 #include <crtdbg.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "mdxDDraw.h"
 #include "mdxD3D.h"
