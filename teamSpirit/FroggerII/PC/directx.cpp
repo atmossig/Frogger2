@@ -1,14 +1,13 @@
-/*	A demo of i-MAGE (Written for E3'99)
-	Written by Matthew Cloy (c)1999 Interactive Studios Ltd.
-	
-	directx.cpp		: All directx related gumph.
+/*
 
-	Created			: Sat 01 May 1999 - Matthew Cloy - Chesham
-	Modified		: Sat 01 May 1999 - Matthew Cloy - Chesham: r0.0.01 - Project started
-					: Sun 02 May 1999 - Matthew Cloy - Chesham: r0.0.01 - Direct3D Working
-					: Mon 03 May 1999 - Matthew Cloy - Train:	r0.0.01 - Adding texture support
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
-********************************************************************************************/
+
+	File		: directx.cpp
+	Programmer	: Matthew Cloy
+	Date		: 
+
+----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
 #include <ddraw.h>
