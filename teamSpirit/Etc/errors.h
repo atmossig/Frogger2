@@ -3,15 +3,16 @@
 
 
 
-#define ERR_NOCLOSINGQUOTE	100
-#define ERR_INVALIDCHAR		101
-#define ERR_EXPECTFILENAME	102
-#define ERR_COULDNTOPEN		103
-#define ERR_TOOMANYFILES	104
-#define ERR_UNEXPECTEDEOF	105
-#define ERR_EXPECTPARAMS	106
+#define ERR_NOCLOSINGQUOTE	"No closing quote"
+#define ERR_INVALIDCHAR		"Invalid character"
+#define ERR_EXPECTFILENAME	"Expected filename"
+#define ERR_COULDNTOPEN		"Couldn't open file"
+#define ERR_TOOMANYFILES	"Too many open files"
+#define ERR_UNEXPECTEDEOF	"Unexpected end of file"
+#define ERR_EXPECTPARAMS	"Expected parameter list"
 
-#define ERR_EXPECTVARIABLE	200
-#define ERR_EXPECTNUMBER	201
+#define ERR_EXPECTVARIABLE	"Expected variable name"
+#define ERR_EXPECTNUMBER	"Expected number"
+#define ERR_EXPECTEVENT		"Expected event"
 
 #endif

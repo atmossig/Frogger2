@@ -3,14 +3,24 @@
 #ifndef _INCLUDED_BUFFER_H
 #define _INCLUDED_BUFFER_H
 
-typedef struct TAGBUFFER {
-	unsigned char* p;
+class Buffer
+{
+	char* p;
 	int size, alloc;
-} BUFFER;
 
-
-BUFFER* MakeBuffer(void);
-void FreeBuffer(BUFFER*b);
-void AddToBuffer(const void *data, int size, BUFFER *buffer);
+public:
+	Buffer();
+	~Buffer();
+	void Clear();
+	void AddData(const void *data, int size);
+	void AddChar(char);
+	void AddInt(int);
+	void AddString(const char*);
+	void AddFloat(float);
+	void CopyData(void **data);
+	void Append(Buffer &b);
+	inline int Size()	{ return size; };
+	inline void *Data()	{ return p; };
+};
 
 #endif

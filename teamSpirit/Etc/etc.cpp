@@ -29,12 +29,13 @@
 
 -------------------------------------------------------------------------- */
 
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "etc.h"
 #include "buffer.h"
+#include "parser.h"
+#include "errors.h"
 
 /*-------------------------------------------------------------------------*/
 
@@ -44,437 +45,260 @@ typedef unsigned char UBYTE;
 #define ETC_VERSION 1
 
 int line, files = 0, triggers = 0, events = 0;
-char filename[80] = "~~standard input~~";
 char error[80];
-
-HANDLE output;
 
 #define s(n) ((n != 1) ? "s" : "")
 
 /*-------------------------------------------------------------------------*/
 
-typedef struct TAGTRIGGER {
-	BYTE type;
-	int numEvents, size;
-	BUFFER* params;
-	BUFFER* events[10];
-} TRIGGER;
+bool AddEvent(Buffer &buffer);
+bool AddBlock(Buffer &buffer);
+bool AddTrigger(Buffer &output);
+bool AddParamsToBuffer(Buffer &buffer, ParamType* params);
 
+/*-------------------------------------------------------------------------*/
 
-TRIGGER trigger;
-
-void AddStringToBuffer(char *str, BUFFER *buffer)
+bool AddParamsToBuffer(Buffer &b, ParamType* params)
 {
-	BYTE len = strlen(str);
-
-	AddToBuffer(&len, 1, buffer);
-	AddToBuffer(str, len, buffer);
-}
-
-void AddFloatToBuffer(float value, BUFFER *buffer)
-{
-	int v = (int)(value * (float)0x10000);
-	AddToBuffer(&v, 4, buffer);
-}
-
-void AddIntToBuffer(int v, BUFFER *buffer)
-{
-	AddToBuffer(&v, 4, buffer);
-}
-
-int SizeOfParams(PARAM *params)
-{
-	PARAM *p;
-	int size = 0;
-
-	for (p = params; p->type; p++)
-	{
-		switch (p->type)
-		{
-		case PARAM_STRING:
-			size += strlen(p->vString) + 1;
-			break;
-		case PARAM_INT:
-			size += 4;
-			break;
-		case PARAM_FLOAT:
-			size += 4;
-			break;
-		}
-	}
-
-	return size;
-}
-
-void AddParamsToBuffer(PARAM* params, BUFFER *buffer)
-{
-	PARAM *p;
-
-	AddIntToBuffer(SizeOfParams(params), buffer);
+	ParamType *type;
 	
-	for (p = params; p->type; p++)
+	char *c;
+	double v;
+
+	//AddIntToBuffer(SizeOfParams(params), buffer);
+
+	if (!(NextToken() && tokenType == T_SYMBOL && token[0] == '(')) {
+		Error("Expecting '('"); return false;
+	}
+	
+	type = params;
+	while(true)
 	{
-		switch (p->type)
+		switch (*type)
 		{
 		case PARAM_STRING:
-			AddStringToBuffer(p->vString, buffer);
+			if (!(c = GetStringToken())) {
+				Error("Expecting string"); return false;
+			}
+			b.AddString(token);
 			break;
 
 		case PARAM_INT:
-			AddToBuffer(&p->vInt, 4, buffer);
+			if (!GetNumberToken(&v)) {
+				Error("Expecting number"); return false;
+			}
+			b.AddInt((int)v);
 			break;
 
 		case PARAM_FLOAT:
-			AddFloatToBuffer(p->vFloat, buffer);
+			if (!GetNumberToken(&v)) {
+				Error("Expecting number"); return false;
+			}
+			b.AddFloat((float)v);
 			break;
+
+		case PARAM_BLOCK:
+			if (!AddBlock(b)) return false;
+			break;
+
+		case PARAM_TRIGGER:
+			if (!AddTrigger(b)) return false;
+			break;
+
+		case PARAM_NONE:
+			
+			if (!(NextToken() && tokenType == T_SYMBOL && token[0] == ')')) {
+				Error("Expecting ')'"); return false;
+			}
+			return true;
 		}
-	}
-}
 
-/*-------------------------------------------------------------------------*/
-
-int bytesWritten, bytesRead;
-
-void WriteByte(UBYTE v, HANDLE f)	{ WriteFile(f, &v, 1, &bytesWritten, NULL); }
-void WriteInt(int v, HANDLE f)		{ WriteFile(f, &v, 4, &bytesWritten, NULL); }
-void WriteFloat(float v, HANDLE f)	{ WriteInt((int)(v * 0x10000), f); }
-
-void WriteBuffer(BUFFER *buffer, HANDLE f)
-{
-	//WriteInt(buffer->size, f);
-	WriteFile(f, buffer->p, buffer->size, &bytesWritten, NULL);
-}
-
-void WriteTrigger(TRIGGER *trigger)
-{
-	int i;
-	BUFFER **b;
-
-	WriteInt(trigger->size + 2, output);	// +2 bytes for trigger type & number of events
-	WriteByte(trigger->type, output);
-	WriteBuffer(trigger->params, output);
-	WriteByte((BYTE)trigger->numEvents, output);
-
-	for (i=trigger->numEvents, b = trigger->events; i; i--, b++)
-		WriteBuffer(*b, output);
-}
-
-void WriteCurrentTrigger(void)
-{
-	if (trigger.size) WriteTrigger(&trigger);
-}
-
-BOOL OpenOutput(const char *filename)
-{
-	char s[80];
-
-	int i;
-
-	strcpy(s, filename);
-
-	for (i=strlen(filename); i; i--)
-	{
-		if (s[i] == '.') { s[i] = 0; break; }
-	}
-
-	strcat(s, OUTPUT_FILE_EXT);
-
-	output = CreateFile(s, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (output == INVALID_HANDLE_VALUE) return 0;
-
-	WriteByte(ETC_VERSION, output);
-	return 1;
-}
-
-void CloseOutput(void)
-{
-	CloseHandle(output);
-}
-
-
-/*-------------------------------------------------------------------------*/
-
-void Error(const char* message)
-{
-	fprintf(stderr, "%s[%d] : %s\n", filename, line, message);
-}
-
-int IsNumeric(char *token)
-{
-	while (*(token++))
-		if (!strchr(NUMERIC, *token)) return 0;
-
-	return 1;
-}
-
-int IsInteger(char *token)
-{
-	if (strchr(token, '.')) return 0;
-	return 1;
-}
-
-PARAM GetParam(char *token)
-{
-	PARAM p;
-
-	if (IsNumeric(token))
-	{
-		if (IsInteger(token))
+		if (*++type)
 		{
-			p.type = PARAM_INT;
-			p.vInt = atoi(token);
+			if (!(NextToken() && tokenType == T_SYMBOL && token[0] == ','))
+			{
+				Error("Expecting ','"); return false;
+			}
 		}
 		else
 		{
-			p.type = PARAM_FLOAT;
-			p.vFloat = (float)atof(token);
+			if (!(NextToken() && tokenType == T_SYMBOL && token[0] == ')'))
+			{
+				Error("Expecting ')'"); return false;
+			}
+			buffer.AddInt(b.Size());
+			buffer.Append(b);
+		return true;
 		}
 	}
-	else
-	{
-		p.type = PARAM_STRING;
-		p.vString = (char*)malloc(strlen(token));
-		strcpy(p.vString, token);
-	}
-
-	return p;
+	return false;
 }
 
-int CheckParameters(PARAMTYPE *expect, PARAM *params)
+bool AddEvent(Buffer &buffer)
 {
-	PARAM *p;
-	
-	for (p = params; p->type; p++, expect++)
-	{
-		if (*expect == 0)
-		{
-			Error("Too many parameters");
-			return 1;
-		}
-		else if (p->type != *expect)
-		{
-			sprintf(error, "Found %s when expecting %s",
-				PARAMNAMESTRING[p->type], PARAMNAMESTRING[*expect]);
-			Error(error);
-			return 1;
-		}
-	}
+	strupr(token);
 
-	if (*expect != PARAM_NONE)
-	{
-		Error("Not enough parameters");
-		return 1;
-	}
-
-	return 0;
-}
-
-int AddEvent(BYTE command, PARAM *params)
-{
-	BUFFER *b;
-
-	if (triggers < 1)
-	{
-		Error("No trigger defined for this event");
-		return 1;
-	}
-	
-	if (CheckParameters(commandLookup[command].params, params)) return 1;
-
-	b = trigger.events[trigger.numEvents];
-	if (!b) b = trigger.events[trigger.numEvents] = MakeBuffer();
-
-	b->size = 0;
-	AddToBuffer(&command, 1, b);
-	AddParamsToBuffer(params, b);
-
-	trigger.numEvents++;
-	trigger.size += b->size;
-	events++;
-	return 0;
-}
-
-int AddTrigger(PARAM *params)
-{
-	BYTE command;
-	int i;
-
-	strupr(params[0].vString);
-
-	if (params[0].type != PARAM_STRING)
-	{
-		sprintf(error, "Found %s when expecting a trigger name", PARAMNAMESTRING[params[0].type]);
-		Error(error);
-		return 1;
-	}
-
-	command = NOSUCHCOMMAND;
-	for (i = 0; i < NUMTRIGGERS; i++)
-		if (strcmp(params[0].vString, triggerLookup[i].str) == 0)
+	int command = NOSUCHCOMMAND;
+	for (char i = 0; i < NUMEVENTS; i++)
+		if (strcmp(token, eventLookup[i].str) == 0)
 		{
 			command = i; break;
 		}
 
 	if (command == NOSUCHCOMMAND)
 	{
-		sprintf(error, "'%s' is not a valid trigger", params[0].vString);
+		sprintf(error, "'%s' is not a valid event", token);
 		Error(error);
-		return 1;
+		return false;
 	}
 
-	if (CheckParameters(triggerLookup[i].params, params+1)) return 1;
+	buffer.AddChar(command);
 
-	WriteCurrentTrigger();
+	if (!AddParamsToBuffer(buffer, eventLookup[command].params)) return false;
 
+	events++;
+	return true;
+}
+
+bool AddBlock(Buffer &buffer)
+{
+	Buffer b;
+
+	if (!NextToken())
+	{
+		Error(ERR_EXPECTEVENT);
+		return false;	
+	}
+
+	if (tokenType != T_SYMBOL)
+	{
+		if (!AddEvent(b)) return false;
+		buffer.AddInt(1);
+		buffer.AddInt(b.Size());
+		buffer.Append(b);
+	}
+	else if (token[0] = '{')
+	{
+		int e = 0;
+		while (true)
+		{
+			NextToken();
+			if (tokenType == T_SYMBOL && token[0] == '}')
+				break;
+			else
+			{
+				Buffer bb;
+				if (!AddEvent(bb)) return false;
+				b.AddInt(bb.Size());
+				b.Append(bb);
+				e++;
+			}
+		}
+		buffer.AddInt(e);
+		buffer.Append(b);
+	}
+	else
+	{
+		Error(ERR_INVALIDCHAR); return false;
+	}
+	return true;
+}
+
+bool AddTrigger(Buffer &output)
+{
+	BYTE command;
+	int i;
+
+	NextToken();
+
+	if (tokenType != T_COMMAND)
+	{
+		sprintf(error, "Found %s when expecting a trigger name", tokenNames[tokenType]);
+		Error(error);
+		return false;
+	}
+
+	strupr(token);
+	command = NOSUCHCOMMAND;
+	for (i = 0; i < NUMTRIGGERS; i++)
+		if (strcmp(token, triggerLookup[i].str) == 0)
+		{
+			command = i; break;
+		}
+
+	if (command == NOSUCHCOMMAND)
+	{
+		sprintf(error, "'%s' is not a valid trigger", token);
+		Error(error);
+		return false;
+	}
+
+/*
 	trigger.type = triggerLookup[command].token;
 	trigger.numEvents = 0;
 	trigger.params->size = 0;
 	AddParamsToBuffer(params+1, trigger.params);
-
 	trigger.size = trigger.params->size;
-
-	triggers++;
-	return 0;
-}
-
-void Tokenise(char *buffer, PARAM *params)
-{
-	PARAM *p = params;
-	char *token;
-	
-	token = buffer;
-/*
-	for (;;)
-	{
-		while (strchr(WHITESPACE, *(token++)));
-		if (!*token) break;
-	}
-  	token = strtok(buffer, WHITESPACE);
-	if (!token) return;
-
-	for (p = params; token; p++)
-	{
-		*p = GetParam(token);
-		token = strtok(NULL, WHITESPACE);
-	}
 */
 
-	p->type = PARAM_NONE;
+	output.AddChar(command);
+
+	if (!AddParamsToBuffer(output, triggerLookup[command].params)) return false;
+
+	triggers++;
+	return true;
 }
 
 int compile(const char* filename)
 {
-	char buffer[128];
-	PARAM params[10];
-	PARAM *p;
-	char *token;
-	int i, err;
-	BYTE command;
+	int err = 0;
+	Buffer buffer;
+	line = 0;
 	
-	line = 0; err = 0;
+	printf("Compiling %s\n", filename);
 
-	printf("Compiling %s...\n", filename);
+	OpenFile(filename);
 
-	while (!feof(f) && !err)
-	{
-		if (!fgets(buffer, 127, f)) break;
-		line++;
+	if (!AddBlock(buffer)) return 1;
 
-		if ((token = strchr(buffer, ';')) != NULL) *token = 0;	// strip comments
-
-		if (!buffer[0]) continue; // skip empty lines
-
-		Tokenise(buffer, params);
-		p->type = PARAM_NONE;
-
-		if (params[0].type != PARAM_STRING)
-		{
-			Error("Line does not start with a command");
-			err = 1; break;
-		}
-
-		strupr(params[0].vString);
-
-		command = NOSUCHCOMMAND;
-		for (i = 0; i < NUMCOMMANDS; i++)
-			if (strcmp(params[0].vString, commandLookup[i].str) == 0)
-			{
-				command = i; break;
-			}
-
-		if (command == NOSUCHCOMMAND)
-		{
-			sprintf(error, "'%s' is not a valid command", params[0].vString);
-			Error(error);
-			err = 1; break;
-		}
-
-		switch (commandLookup[command].token)
-		{
-		case C_IF:
-			err = AddTrigger(params+1);
-			// interpret conditional
-			break;
-
-		default:
-			Error("Unsupported command"); err= 1;
-			break;
-		}
-	}
-
-	if (!err) WriteCurrentTrigger();
-
-	return err;
+	files++;
+	return 0;
 }
 
-int main(int argc, void **argv)
+int main(int argc, char **argv)
 {
-	FILE *f;
+	bool hold = false;
 	int error = 0;
 	int i;
-
-	trigger.params = MakeBuffer();
-	for (i=10; i; i--) trigger.events[i] = MakeBuffer();
+	char param[80];
+	char *p;
 
 	if (argc>1)
 	{
 		for (i=1; i<argc; i++)
 		{
-			strcpy(filename, argv[i]);
+			strcpy(param, argv[i]);
 
-			f = fopen(filename, "r");
-			if (!f)
-			{
-				fprintf(stderr, "Could not open %s, skipping\n", filename);
-				error = 1;
-				continue;
-			}
-
-			if (!OpenOutput(filename))
-			{
-				fprintf(stderr, "Couldn't open output file!\n");
-				error = 1;
-				continue;
-			}
-			if (!compile(f)) error = 1;
-			fclose(f);
-			CloseOutput();
-			files++;
+			if (param[0] == '-')
+				for (p = param + 1; *p; p++)
+					switch (*p)
+					{
+					case 'p':
+						hold = true; break;
+					}
+			else
+				compile(param);
 		}
 	}
-	else
-	{
-		OpenOutput("etc");
-		compile(stdin);
-	}
 
-	printf("\nCompiled %d trigger%s and %d event%s in %d file%s\n\n",
+	printf("\nCompiled %d trigger%s and %d event%s in %d file%s\n",
 		triggers, s(triggers), events, s(events), files, s(files));
 
-#ifdef _DEBUG
-	puts("Press return");
-	getchar();
-#endif
+	if (hold)
+	{
+		puts("\nPress return");
+		getchar();
+	}
 
-	return error;
+  	return error;
 }

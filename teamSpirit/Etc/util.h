@@ -1,17 +1,7 @@
 #ifndef _UTIL_H_INCLUDED
 #define _UTIL_H_INCLUDED
 
-enum TokenType
-{
-	T_NONE = 0,
-	T_NUMBER,
-	T_STRING,
-	T_VARIABLE,
-	T_COMMAND,
-	T_SYMBOL,
-	NUMTOKENTYPE
-};
-
+#include "type.h"
 
 class VarTableEntry
 {

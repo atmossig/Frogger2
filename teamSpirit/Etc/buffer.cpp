@@ -1,38 +1,75 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
+#include "string.h"
 #include "buffer.h"
 
-BUFFER* MakeBuffer(void)
+Buffer::Buffer()
 {
-	BUFFER *b = (BUFFER*)malloc(sizeof(BUFFER));
-	b->p = (unsigned char*)malloc(100);
-	b->size = 0; b->alloc = 100;
-	return b;
+	size = 0;
+	alloc = 100;
+	p = new char[alloc];
 }
 
-void FreeBuffer(BUFFER*b)
+Buffer::~Buffer()
 {
-	if (b)
+	delete [] p;
+}
+
+void Buffer::Clear()
+{
+	size = 0;	// set "size" to zero, but leave memory allocated to be reused. Efficient!
+}
+
+void Buffer::AddData(const void *data, int s)
+{
+	char* newBuffer;
+
+	if (size + s > alloc)
 	{
-		free(b->p);
-		free(b);
+		alloc *= 2;
+		newBuffer = new char[alloc];
+		memcpy(newBuffer, p, size);
+		delete [] p;
+		p = newBuffer;
 	}
+
+	memcpy(p + size, data, s);
+	size += s;
 }
 
-void AddToBuffer(const void *data, int size, BUFFER *buffer)
+void Buffer::CopyData(void **data)
 {
-	unsigned char* newBuffer;
-
-	if (buffer->size + size > buffer->alloc)
-	{
-		buffer->alloc *= 2;
-		newBuffer = (unsigned char*)malloc(buffer->alloc);
-		memcpy(newBuffer, buffer->p, buffer->size);
-		free(buffer->p);
-		buffer->p = newBuffer;
-	}
-
-	memcpy(buffer->p + buffer->size, data, size);
-	buffer->size += size;
+	char *foo = new char[size];
+	memcpy(foo, p, size);
+	*data = (void*)foo;
 }
+
+void Buffer::Append(Buffer &b)
+{
+	AddData(b.p, b.size);
+}
+
+void Buffer::AddString(const char *str)
+{
+	unsigned char len = strlen(str);
+
+	AddData(&len, 1);
+	AddData(str, len);
+}
+
+void Buffer::AddChar(char c)
+{
+	AddData(&c, 1);
+}
+
+void Buffer::AddInt(int value)
+{
+	AddData(&value, 4);
+}
+
+void Buffer::AddFloat(float value)
+{
+	int v = (int)(value * (float)0x10000);
+	AddInt(v);
+}
+

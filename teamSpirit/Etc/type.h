@@ -5,9 +5,17 @@
 typedef unsigned char BYTE;
 #endif
 
-typedef enum { PARAM_NONE = 0, PARAM_INT, PARAM_FLOAT, PARAM_STRING } PARAMTYPES;
+enum ParamTypeEnum
+{
+	PARAM_NONE = 0,
+	PARAM_INT,
+	PARAM_FLOAT,
+	PARAM_STRING,
+	PARAM_TRIGGER,
+	PARAM_BLOCK
+};
 
-typedef BYTE PARAMTYPE;
+typedef BYTE ParamType;
 
 enum TokenType
 {
@@ -19,5 +27,13 @@ enum TokenType
 	T_SYMBOL,
 	NUMTOKENTYPE
 };
+
+typedef struct TAGCOMMANDTABLE
+{
+	const char *str;
+	int token;
+	ParamType params[8];
+} COMMAND_TABLE;
+
 
 #endif

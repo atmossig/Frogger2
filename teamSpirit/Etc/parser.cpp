@@ -11,7 +11,7 @@ const char* WHITESPACE = " \t\n\r";
 const char* SYMBOLS = "{}(),";
 const char* VARIABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
 
-const char* tokenNames[] = { NULL, "NUMBER", "STRING", "VARIABLE", "COMMAND", "SYMBOL" };
+const char* tokenNames[] = { NULL, "number", "string", "variable", "command", "symbol" };
 
 enum CommandCodes
 {
@@ -59,11 +59,11 @@ VarTableEntry *GetVariable(const char* name)
 
 /* ------------------------------------------------------------------------ */
 
-void Error(int code)
+void Error(const char* message)
 {
-	fprintf(stderr, "%s(%d) : error %d\n",
-		currfileentry->filename, currfileentry->line, code);
-	error = code;
+	fprintf(stderr, "%s(%d) : %s\n",
+		currfileentry->filename, currfileentry->line, message);
+	//error = code;
 }
 
 bool OpenFile(const char* filename)
@@ -106,6 +106,11 @@ int NextChar(void) {
 	}
 	else if (c == '\n')
 		FileStack[currFile].line++;
+	else if (c == ';')
+	{
+		do { c = getc(FileStack[currFile].input); } while (c != EOF && c != '\n');
+		return NextChar();
+	}
 
 	return c;
 }
@@ -187,12 +192,12 @@ int NextToken(void)
 		Error(ERR_INVALIDCHAR);
 		return 0;
 	}
-
+/*
 	printf("%-6s%-3d%-10s%s\n",
 		FileStack[currFile].filename,
 		FileStack[currFile].line,
 		tokenNames[tokenType], token);
-
+*/
 	return 1;
 }
 
@@ -227,43 +232,6 @@ bool GetNumberToken(double *value)
 	return true;
 }
 
-/* ------------------------------------------------------------------------ */
-
-bool GetTokenParams(void)
-{
-	double v;
-	int tok, i, nparam;
-	char name[80];
-	TokenType paramList[20];
-	char *s;
-
-	NextToken();
-	if (tokenType != T_SYMBOL || token[0] != '(') { Error(ERR_EXPECTPARAMS); return false; }
-
-	if (!GetNumberToken(&v)) { Error(ERR_EXPECTNUMBER); return false; }
-	tok = (int)v;
-
-	if (!(s = GetStringToken())) { Error(ERR_EXPECTSTRING); return false; }
-	strcpy(name, s);
-
-	nparam = 0;
-
-	while (true)
-	{
-		GetNextToken();
-
-		if (!GetNumberToken(&v)) { Error(ERR_EXPECTNUMBER); return false; }
-		i = (int)v;
-		if (i < 1 || i >= NUMTOKENTYPE) { Error(ERR_INVALIDTOKENNUM); return false; }
-		paramList[nparam++] = i;
-
-
-
-		if (tokenType == T_SYMBOL && token[0] == ')') break;
-	}
-
-
-}
 
 
 void CloseAllFiles(void)

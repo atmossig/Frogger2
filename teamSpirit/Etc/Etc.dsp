@@ -83,7 +83,7 @@ LINK32=link.exe
 # Name "Etc - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\buffer.c
+SOURCE=.\buffer.cpp
 # End Source File
 # Begin Source File
 
@@ -91,11 +91,39 @@ SOURCE=.\buffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\etc.c
+SOURCE=.\codes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\errors.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\etc.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\etc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\type.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util.h
 # End Source File
 # End Target
 # End Project

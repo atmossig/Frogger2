@@ -3,12 +3,19 @@
 #ifndef _INCLUDED_PARSER_H
 #define _INCLUDED_PARSER_H
 
+#include "type.h"
+
+extern char token[80];
+extern TokenType tokenType;
+extern const char* tokenNames[];
 
 bool OpenFile(const char* filename);
 void CloseCurrFile();
 void CloseAllFiles();
+int NextToken();
+char *GetStringToken(void);
+bool GetNumberToken(double *value);
 
-extern char token[80];
-extern TokenType tokenType;
+void Error(const char* message);
 
 #endif
