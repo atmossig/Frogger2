@@ -137,6 +137,9 @@ void LoadObjectBank(int objectBank)
 		case LABORATORYBOSSC_OBJ_BANK:
 			strcat (fileName, "labbossc"); break;
 
+		case LABORATORYMULTI_OBJ_BANK:
+			strcpy(fileName, "labmulti"); break;
+
 // Halloween
 
 		case HALLOWEENMASTER_OBJ_BANK:
