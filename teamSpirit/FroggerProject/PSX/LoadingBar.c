@@ -103,7 +103,7 @@ void loadingInitText(int worldID, int levelID)
 {
 	int i,c,y = 500;
 
-	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_LOADING); 
+	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 52, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_LOADING); 
 
 	if(gameState.mode == FRONTEND_MODE)
 		chaptStr[0] = 0;

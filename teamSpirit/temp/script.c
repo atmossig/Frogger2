@@ -1208,11 +1208,13 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_ENDLEVEL:
 		{
-			UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
+//			UpdateCompletedLevel(player[0].worldNum,player[0].levelNum);
 			gameState.mode = LEVELCOMPLETE_MODE;
 			gameState.multi = SINGLEPLAYER;
 
 			GTInit( &modeTimer, 8 );
+			SetTimeForLevel();
+			PrepareSong(AUDIOTRK_LEVELCOMPLETE, NO);
 			StartLevelComplete();
 			break;
 		}

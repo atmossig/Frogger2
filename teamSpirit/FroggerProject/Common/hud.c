@@ -996,6 +996,7 @@ void UpDateOnScreenInfo ( void )
 				arcadeHud.timeOutText->a = 255;
 				arcadeHud.timeOutText->draw = 1;
 				GTInit(&endLevelTimer,4);
+				SetTimeForLevel();
 				PlaySample( FindSample(utilStr2CRC("alarm")), NULL, 0, SAMPLE_VOLUME, -1 );
 				PrepareSong(AUDIOTRK_GAMEOVER,0);
 			}
