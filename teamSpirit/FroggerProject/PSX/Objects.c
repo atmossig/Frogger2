@@ -32,35 +32,35 @@ void LoadObjectBank ( int objectBank )
 	switch ( objectBank )
 	{
 		case FROGGER_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\FROGGER.PIL" );					
+					sprintf ( PILfileName, "FROGGER.PIL" );					
 				break;
 
 		case LILLI_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\LILLI.PIL" );					
+					sprintf ( PILfileName, "LILLI.PIL" );					
 				break;
 
 		case TAD_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TAD.PIL" );					
+					sprintf ( PILfileName, "TAD.PIL" );					
 				break;
 
 		case SWAMPY_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\SWAMPY.PIL" );					
+					sprintf ( PILfileName, "SWAMPY.PIL" );					
 				break;
 
 		case TWEE_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TWEE.PIL" );					
+					sprintf ( PILfileName, "TWEE.PIL" );					
 				break;
 
 		case WART_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\WART.PIL" );					
+					sprintf ( PILfileName, "TOAD.PIL" );					
 				break;
 
 		case ROOBIE_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\ROOBIE.PIL" );					
+					sprintf ( PILfileName, "ROOBIE.PIL" );					
 				break;
 
 		case TANK_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\CHARACTERS\\TANK.PIL" );					
+					sprintf ( PILfileName, "TANK.PIL" );					
 				break;
 
 /*	// Multiplayer object banks
@@ -75,12 +75,12 @@ void LoadObjectBank ( int objectBank )
 
 		case INGAMEGENERIC_OBJ_BANK:
 					sprintf ( BFFfileName, "OBJECTS\\GENERIC.BFF" );					
-					sprintf ( PILfileName, "OBJECTS\\GENERIC.PIL" );					
+					sprintf ( PILfileName, "GENERIC.PIL" );					
 				break;
 
 		case GARDENLEV1_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\GARDEN\\GARDEN1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\GARDEN\\GARDEN1.PIL" );
+				sprintf ( BFFfileName, "GARDEN1.BFF" );
+				sprintf ( PILfileName, "GARDEN1.PIL" );
 			break;
 
 		case GARDENMULTI_OBJ_BANK:
@@ -315,11 +315,11 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		case FRONTEND_OBJ_BANK:
-				sprintf ( PILfileName, "OBJECTS\\HUB\\HUB.PIL" );
+				sprintf ( PILfileName, "HUB.PIL" );
 			break;
 
 		case FRONTEND1_OBJ_BANK:
- 				sprintf ( BFFfileName, "OBJECTS\\HUB\\HUB1.BFF" );
+ 				sprintf ( BFFfileName, "HUB1.BFF" );
 			break;
 
 		case FRONTEND2_OBJ_BANK:
@@ -393,6 +393,9 @@ void LoadObjectBank ( int objectBank )
 	// ENDELSEIF - 	if ( numObjectBanks < MAX_OBJECT_BANKS )
 
 //	ExtractPsiNames();
+
+	sprintf ( PILfileName, "" );					
+	sprintf ( BFFfileName, "" );					
 
 
 }

@@ -14,7 +14,7 @@
 #define VRAM_GETPAGE(HND)	((HND)>>16)
 #define VRAM_CALCVRAMX(HND)	(512+((VRAM_GETPAGE(HND)%(VRAM_PAGECOLS))*64)+(VRAM_GETX(HND)*2))
 #define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
-#define LOADPAL_PRINT_OUT_PALETTE
+#define _LOADPAL_PRINT_OUT_PALETTE
 
 #include "Ultra64.h"
 #include <stdio.h>
@@ -29,6 +29,7 @@
 #include "Main.h"
 #include "memload.h"
 #include "shell.h"
+#include "flatpack.h"
 
 int numTextureBanks = 0;
 int numUsedDummys		= 0;
@@ -51,7 +52,6 @@ void LoadTextureBank ( int textureBank )
 {
 	int fileLength, counter, counter1;
 	char fileName[256];
-	char titFileName[256];
 	unsigned char *p, *textureAnims;
 
 	TEXTUREANIM *textureAnim;
@@ -62,47 +62,38 @@ void LoadTextureBank ( int textureBank )
 	{
 		case GARDEN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\GARDEN.SPT" );
-				sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" );
 			break;
 
 		case ANCIENT_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\ANCIENTS.SPT" );
-				sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" );
 			break;
 
 		case SPACE_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SPACE.SPT" );
-				sprintf ( titFileName, "TEXTURES\\SPACE.TIT" );
 			break;
 
 		case CITY_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\CITY.SPT" );
-				sprintf ( titFileName, "TEXTURES\\CITY.TIT" );
 			break;
 
 		case SUBTERRANEAN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SUB.SPT" );
-				sprintf ( titFileName, "TEXTURES\\SUB.TIT" );
 			break;
 
 		case LABORATORY_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\LAB.SPT" );
-				sprintf ( titFileName, "TEXTURES\\LAB.TIT" );
 			break;
 
 		case HALLOWEEN_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\HALLOWEEN.SPT" );
-				sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" );
 			break;
 
 		case SUPERRETRO_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\SUPER.SPT" );
-				sprintf ( titFileName, "TEXTURES\\SUPER.TIT" );
 			break;
 
 		case FRONTEND_TEX_BANK:
 				sprintf ( fileName, "TEXTURES\\HUB.SPT" );
-				sprintf ( titFileName, "TEXTURES\\HUB.TIT" );
 			break;
 
 		case INGAMEGENERIC_TEX_BANK:
@@ -174,19 +165,23 @@ void LoadTextureAnimBank( int textureBank )
 
 	switch ( textureBank )
 	{
-		case GARDEN_TEX_BANK: sprintf ( titFileName, "TEXTURES\\GARDEN.TIT" ); break;
-		case ANCIENT_TEX_BANK: sprintf ( titFileName, "TEXTURES\\ANCIENTS.TIT" ); break;
-		case SPACE_TEX_BANK: sprintf ( titFileName, "TEXTURES\\SPACE.TIT" ); break;
-		case SUBTERRANEAN_TEX_BANK: sprintf ( titFileName, "TEXTURES\\SUB.TIT" ); break;
-		case LABORATORY_TEX_BANK: sprintf ( titFileName, "TEXTURES\\LAB.TIT" ); break;
-		case HALLOWEEN_TEX_BANK: sprintf ( titFileName, "TEXTURES\\HALLOWEEN.TIT" ); break;
-		case SUPERRETRO_TEX_BANK: sprintf ( titFileName, "TEXTURES\\RETRO.TIT" ); break;
-		case TITLES_TEX_BANK: sprintf ( titFileName, "TEXTURES\\TITLES.TIT" ); break;
-		case INGAMEGENERIC_TEX_BANK: sprintf ( titFileName, "TEXTURES\\GENERIC.TIT" ); break;
+		case GARDEN_TEX_BANK: sprintf ( titFileName, "GARDEN.TIT" ); break;
+		case ANCIENT_TEX_BANK: sprintf ( titFileName, "ANCIENTS.TIT" ); break;
+		case SPACE_TEX_BANK: sprintf ( titFileName, "SPACE.TIT" ); break;
+		case SUBTERRANEAN_TEX_BANK: sprintf ( titFileName, "SUB.TIT" ); break;
+		case LABORATORY_TEX_BANK: sprintf ( titFileName, "LAB.TIT" ); break;
+		case HALLOWEEN_TEX_BANK: sprintf ( titFileName, "HALLOWEEN.TIT" ); break;
+		case SUPERRETRO_TEX_BANK: sprintf ( titFileName, "RETRO.TIT" ); break;
+		case TITLES_TEX_BANK: sprintf ( titFileName, "HUB.TIT" ); break;
+		case INGAMEGENERIC_TEX_BANK: sprintf ( titFileName, "GENERIC.TIT" ); break;
 		default: return;
 	}
 
-	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
+	textureAnims = FindStakFileInAllBanks ( titFileName, &fileLength );
+
+	//textureAnims = getFileFromStack ( stakFile, titFileName, &fileLength);
+
+	//textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
 
 	if ( !textureAnims )
 		return;

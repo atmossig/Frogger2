@@ -9,6 +9,7 @@
 #include <islfile.h>
 #include <islutil.h>
 #include "bff_load.h"
+#include "flatpack.h"
 /*
 Quickie guide to BFF files:-
 
@@ -237,9 +238,19 @@ BFF_Header *BFF_LoadFile(char *filename)
 // Oh lovely, Frogger's makefile didn't warn me about duff numbers of parameters being sent to functions...
 // Someone's not got the warning level set high enough!
 
-	addr = (void *)fileLoad(filename, &lastfilelength);
+
+	addr = (BFF_Header*)FindStakFileInAllBanks ( filename, &lastfilelength );
+
+	//addr = (BFF_Header*)getFileFromStack ( stakFile, filename, &lastfilelength );
+
+//	addr = (void *)fileLoad(filename, &lastfilelength);
+
+
 	if(!addr)
+	{
+		utilPrintf("Could Not Load Bff File.\n");
 		return NULL;
+	}
 
 	ending = ADD2POINTER(addr, lastfilelength);
 
@@ -249,16 +260,16 @@ BFF_Header *BFF_LoadFile(char *filename)
 // because the "findobject" routines won't know the length.
 	for(;;)
 	{
-/*
-				printf("Scanning BFF class %d (%c%c%c%d), len &%8x\n",
+
+/*				utilPrintf("Scanning BFF class %d (%c%c%c%d), len &%8x\n",
 					work->id,
 					((char *)(&work->id))[0],
 					((char *)(&work->id))[1],
 					((char *)(&work->id))[2],
 					(int)(((char *)(&work->id))[3]),
 					work->len
-					);
-*/
+					);*/
+
 
 
 		if((void *)ADD2POINTER(work,work->len) >= (void *)ending)

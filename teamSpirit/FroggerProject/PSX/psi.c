@@ -25,6 +25,7 @@
 #include <isltex.h>
 #include <islutil.h>
 #include "timer.h"
+#include "flatpack.h"
 //#include "main.h"
 
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
@@ -1439,9 +1440,15 @@ void *psiLoadPIL(char *pilName)
 	int *table,*crcs;
 	int lastfilelength,i;
 
-	addr = (void *)fileLoad(pilName, &lastfilelength);
+	//addr = (void *)fileLoad(pilName, &lastfilelength);
+	addr = FindStakFileInAllBanks ( pilName, &lastfilelength );
+
+	//addr = getFileFromStack ( stakFile, pilName, &lastfilelength );
+
 	if(!addr)
+	{
 		return NULL;
+	}
 
 	i = (int)*addr;
 	(char*)table = addr+4;
@@ -1453,11 +1460,11 @@ void *psiLoadPIL(char *pilName)
 
 		i--;
 		psiM = *(table++);
-//		utilPrintf("#%d $%x (%s)\n",i,psiM,(psiM+(int)addr));
+		utilPrintf("#%d $%x (%s)\n",i,psiM,(psiM+(int)addr));
 		psiM += (int)addr;
 		PSIname = (char*)(psiM);
 		(char*)crcs = (char*)(psiM+16);
-//		utilPrintf("CRC=%x\n",*crcs);
+		utilPrintf("CRC=%x\n",*crcs);
 		psiFixup( (char*)(psiM+20) );
 	}
 	
