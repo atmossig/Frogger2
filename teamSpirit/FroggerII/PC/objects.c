@@ -141,8 +141,7 @@ void RestoreObjectPointers(OBJECT *obj, u32 memoryOffset)
 						if (fabs(obj->mesh->vertices[x].v[1] - obj->mesh->vertices[y].v[1])<0.009)
 							if (fabs(obj->mesh->vertices[x].v[2] - obj->mesh->vertices[y].v[2])<0.009)
 							{dupCount++; dprintf"Duplicate Vertex in %s\n",obj->name));}
-			}
-		
+			}			
 		}
 
 		dprintf"Duplicates: %lu\n",dupCount));

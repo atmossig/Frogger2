@@ -33,6 +33,7 @@ struct gameStateStruct gameState;
 
 unsigned short screenNum = 0;
 unsigned long fadingLogos = 0;
+unsigned long runAttractMode = 0;
 
 GAMETILE *firstTile;
 GAMETILE **gTStart;
@@ -61,10 +62,21 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID);
 void DoHiscores();
 extern float gCamDist;
 extern TEXTURE *frogEyeOpen,*frogEyeClosed;
+extern unsigned long rPlaying;
+extern TEXTOVERLAY *demoText;
 
 // Switch for irritating swingy camera
 unsigned char swingCam = 1;
 
+unsigned long cLevelPlay = 0;
+unsigned long levelPlayList[] = 
+{
+	4,1,
+	0,0,
+	2,2,
+	5,2,
+	1000,1000
+};
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -74,6 +86,7 @@ unsigned char swingCam = 1;
 	Parameters	: (void)
 	Returns		: void 
 */
+
 void GameProcessController(long pl)
 {
 	static u16 button[4],lastbutton[4];
@@ -85,16 +98,6 @@ void GameProcessController(long pl)
 		
 	player[pl].hasJumped = 0;
 	
-	if ( autoPlaying )
-	{
-		LevelPlayingProcessController();
-		button[pl] = 0;
-		stickX[pl] = 0;
-		stickY[pl] = 0;
-		// find frame keys
-		button[pl] = GetCurrentRecordKey();
-	}
-
 	// check if frog is using extended hop ability
 	if(player[pl].isSuperHopping)
 		player[pl].canJump = 0;
@@ -352,39 +355,50 @@ void GameProcessController(long pl)
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
 		long i;
-		//ScreenShot();
 		
-		gameState.mode = PAUSE_MODE;
-		pauseMode = 1;
-	
-//		grabData.afterEffect = NO_EFFECT;
-
-//		EnableTextOverlay ( pauseTitle );
-		EnableTextOverlay ( continueText );
-		EnableTextOverlay ( quitText );
-
-		if (NUM_FROGS == 1)
+		if (rPlaying)
 		{
-			livesTextOver->oa = livesTextOver->a;
-			scoreTextOver->oa = scoreTextOver->a;
-
-			livesTextOver->a = 0;
-			scoreTextOver->a = 0;
+			PlayKeyDone();
+			player[0].worldNum = WORLDID_FRONTEND;
+			player[0].levelNum = LEVELID_FRONTEND1;
+			lastActFrameCount = actFrameCount;
+			gameState.mode = LEVELCOMPLETE_MODE;
+			GTInit( &modeTimer, 1 );
+			showEndLevelScreen = 0;
 		}
-
-		timeTextOver->oa = timeTextOver->a;
-		timeTextOver->a = 0;
-
-		if (NUM_FROGS == 1)
+		else
 		{
+			
+			gameState.mode = PAUSE_MODE;
+			pauseMode = 1;
 		
-			for ( i = 0; i < 3; i++ )
-				sprHeart[i]->draw = 0;
+	//		grabData.afterEffect = NO_EFFECT;
+	//		EnableTextOverlay ( pauseTitle );
+
+			EnableTextOverlay ( continueText );
+			EnableTextOverlay ( quitText );
+
+			if (NUM_FROGS == 1)
+			{
+				livesTextOver->oa = livesTextOver->a;
+				scoreTextOver->oa = scoreTextOver->a;
+
+				livesTextOver->a = 0;
+				scoreTextOver->a = 0;
+			}
+
+			timeTextOver->oa = timeTextOver->a;
+			timeTextOver->a = 0;
+
+			if (NUM_FROGS == 1)
+			{
+				for ( i = 0; i < 3; i++ )
+					sprHeart[i]->draw = 0;
+			}
+
+			for(i=0; i<numBabies; i++)
+				babyIcons[i]->draw = 0;
 		}
-
-		for(i=0; i<numBabies; i++)
-			babyIcons[i]->draw = 0;
-
 		lastbutton[pl] = button[pl];
     }
 
@@ -747,7 +761,7 @@ void RunGameLoop (void)
 	pointOfInterest = NULL;
 
 	// Take this out for release
-	if( !frameCount )
+	if( frameCount==1 )
 	{
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,bigFont,0,0);
@@ -769,10 +783,31 @@ void RunGameLoop (void)
 				
 				RunCredits();
 			}
-	
+
+	if (rPlaying)
+	{
+		demoText->oa = demoText->a = (sinf(actFrameCount*0.05)+1) * 128;
+	}
+
 	if	((player[0].worldNum == WORLDID_FRONTEND) &&
 	     (player[0].levelNum == LEVELID_FRONTEND1) )
 	{
+		if ((frameCount > 15) && (gameState.mode != LEVELCOMPLETE_MODE) && (runAttractMode < actFrameCount))
+		{
+			player[0].worldNum = levelPlayList[cLevelPlay];
+			player[0].levelNum = levelPlayList[cLevelPlay+1];
+			
+			cLevelPlay+=2;
+			if (levelPlayList[cLevelPlay]>100)
+				cLevelPlay = 0;
+			
+			rPlaying = 1;
+			lastActFrameCount = actFrameCount;
+			gameState.mode = LEVELCOMPLETE_MODE;
+			GTInit( &modeTimer, 1 );
+			showEndLevelScreen = 0;
+		}
+
 		if( fadingLogos )
 		{
 			if (atari->xPos < 500)
@@ -782,11 +817,20 @@ void RunGameLoop (void)
 				for (i=0; i<10; i++)
 					flogo[i]->yPos+=3*gameSpeed;
 			}
+			else
+			{
+				atari->draw = 0;
+				for (i=0; i<10; i++)
+					flogo[i]->draw = 0;
+			}
 		}
 		else
 		{
 			if (player[0].hasJumped == 1)
+			{
+
 				fadingLogos = 1;
+			}
 		}
 	}
 #endif
@@ -894,20 +938,16 @@ void RunGameLoop (void)
 	while(cur)
 	{
 		cur = cur->next;
-
 		if(cur == currTile[0])
 		{
 			currTileNum++;
 			break;
 		}
-
 		currTileNum++;
 	}
-	
 //	if (faceNum)
 //		if (faceNum->text)
 //			sprintf(faceNum->text,"%d",camFacing);
-
 	if (tileNum)
 		if (tileNum->text)
 		{

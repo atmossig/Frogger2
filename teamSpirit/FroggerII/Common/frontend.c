@@ -54,18 +54,22 @@ void GameLoop(void)
 
 		case LEVELCOMPLETE_MODE:
 			RunLevelComplete( );
+			frameCount++;
 			break;
 
 		case WORLDCOMPLETE_MODE:
 			RunWorldComplete( );
+			frameCount++;
 			break;
 
 		case GAMECOMPLETE_MODE:
 			RunGameComplete( );
+			frameCount++;
 			break;
 
 		case GAMEOVER_MODE:
 			RunGameOver( );
+			frameCount++;
 			break;
 			
 		case INTRO_MODE:

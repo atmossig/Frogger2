@@ -26,7 +26,8 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS];
 
 UBYTE darkenedLevel		= 0;
 short lightIntensity	= 255;
-
+extern unsigned long runAttractMode;
+unsigned long attractTime = 60 * 10;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 //************************************************************************************************
 // PC VERSION ONLY - PC VERSION ONLY - PC VERSION ONLY - PC VERSION ONLY - PC VERSION ONLY
@@ -563,6 +564,10 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID)
 	Returns		: void 
 */
 long initialCamera = 0;
+TEXTOVERLAY *demoText = NULL;
+const char *demoStr = "Demo Mode";
+extern long rPlaying;
+
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
@@ -660,6 +665,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	{
 		if (player[0].levelNum == LEVELID_FRONTEND1)
 		{
+			runAttractMode = attractTime;
 #ifdef PC_VERSION
 			InitCredits();			
 			creditsActive = 3;
@@ -697,6 +703,27 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		i = 3;
 		while(i--)
 			sprHeart[i]->draw = 0;			
+	}
+	
+	demoText = NULL;
+
+	if (rPlaying)
+	{
+		demoText = CreateAndAddTextOverlay(160,5,demoStr,YES,128,currFont,0,0);
+		DisableTextOverlay(livesTextOver);
+		DisableTextOverlay(timeTextOver);
+		DisableTextOverlay(babySavedText);
+		DisableTextOverlay(garibCount);
+		DisableTextOverlay(creditCount);
+		DisableTextOverlay(scoreTextOver);
+		
+		i = 3;
+		while(i--)
+			sprHeart[i]->draw = 0;			
+
+		i = numBabies;
+		while(i--)
+			babyIcons[i]->draw = 0;
 	}
 
 	CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!

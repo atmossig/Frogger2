@@ -277,6 +277,23 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 	Info		: 
 */
 
+void PlayKeyDone(void)
+{
+	playKeyCount = 0;
+	curPlayKey = 0;
+	delete playKeyList;
+	rPlayOK = 0;
+	rPlaying = 0;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function	: InitInputDevices
+	Purpose		: initialises input devices
+	Parameters	: 
+	Returns		: BOOL - TRUE on success, else FALSE
+	Info		: 
+*/
+
 void RecordButtons(unsigned long b0,unsigned long pnum)
 {
 	FILE *fp = fopen(rKeyFile,"a+b");
@@ -573,9 +590,6 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
 
-	for (i = 0; i<NUM_FROGS * 14; i++)
-		if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
-			controllerdata[keymap[i].player].button |= keymap[i].button;
 
 	if (rPlayOK)
 	{
@@ -585,54 +599,59 @@ void ProcessUserInput(HWND hWnd)
 			curPlayKey++;
 		}
 	}
-	
-	for( i=0; i < NUM_FROGS; i++ )
+	else
 	{
-		
-		if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
-			RecordButtons(controllerdata[i].button,i);
+		for (i = 0; i<NUM_FROGS * 14; i++)
+				if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
+					controllerdata[keymap[i].player].button |= keymap[i].button;
 
-
-		if (controllers[i] & GAMEPAD)
+		for( i=0; i < NUM_FROGS; i++ )
 		{
-			LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[controllers[i] & 0xFF];
-			DIJOYSTATE joy;
+			
+			if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
+				RecordButtons(controllerdata[i].button,i);
 
-			if (!lpJoy) break;
-
-			lpJoy->Acquire();
-
-			hRes = lpJoy->Poll();
-			if (hRes == DD_OK || hRes == DI_NOEFFECT)
+			if (controllers[i] & GAMEPAD)
 			{
-				hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
-				if (FAILED(hRes))
+				LPDIRECTINPUTDEVICE2 lpJoy = lpJoystick[controllers[i] & 0xFF];
+				DIJOYSTATE joy;
+
+				if (!lpJoy) break;
+
+				lpJoy->Acquire();
+
+				hRes = lpJoy->Poll();
+				if (hRes == DD_OK || hRes == DI_NOEFFECT)
 				{
-					dprintf"GetDeviceState() failed\n"));
-					return;
+					hRes = lpJoy->GetDeviceState(sizeof(joy), &joy);
+					if (FAILED(hRes))
+					{
+						dprintf"GetDeviceState() failed\n"));
+						return;
+					}
+
+					unsigned long b = 0;
+
+					for (int m=0; m < MAXBUTTONS; m++)
+						if (joy.rgbButtons[m]) b |= joymap[m];
+					
+					if (joy.lX < -DEAD_ZONE)
+						b |= (b & CONT_SHIFT) ? CONT_C : CONT_LEFT;		// if shift rotate L else hop L
+					else if (joy.lX > DEAD_ZONE)
+						b |= (b & CONT_SHIFT) ? CONT_F : CONT_RIGHT;	// if shift rotate R else hop R
+
+					//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
+					//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
+
+					if (joy.lY < -DEAD_ZONE)
+						b |= (b & CONT_SHIFT) ? 0 : CONT_UP;
+					else if (joy.lY > DEAD_ZONE)
+						b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
+
+					controllerdata[i].button |= b;
+
+					//lpJoystick->UnAcquire();
 				}
-
-				unsigned long b = 0;
-
-				for (int m=0; m < MAXBUTTONS; m++)
-					if (joy.rgbButtons[m]) b |= joymap[m];
-				
-				if (joy.lX < -DEAD_ZONE)
-					b |= (b & CONT_SHIFT) ? CONT_C : CONT_LEFT;		// if shift rotate L else hop L
-				else if (joy.lX > DEAD_ZONE)
-					b |= (b & CONT_SHIFT) ? CONT_F : CONT_RIGHT;	// if shift rotate R else hop R
-
-				//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
-				//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
-
-				if (joy.lY < -DEAD_ZONE)
-					b |= (b & CONT_SHIFT) ? 0 : CONT_UP;
-				else if (joy.lY > DEAD_ZONE)
-					b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
-
-				controllerdata[i].button |= b;
-
-				//lpJoystick->UnAcquire();
 			}
 		}
 	}

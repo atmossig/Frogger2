@@ -85,6 +85,8 @@ extern BOOL SetupControllers(HWND hwnd);
 extern void MakeKeyMap( );
 extern void RecordKeyInit(unsigned long worldNum, unsigned long levelNum);
 extern void PlayKeyInit(unsigned long worldNum, unsigned long levelNum);
+extern void PlayKeyDone(void);
+
 /* -------------------------------------------------- */
 
 #ifdef __cplusplus
