@@ -283,7 +283,7 @@ int LoadSfx( unsigned long worldID )
 		case WORLDID_SUBTERRANEAN: strcat( path, "SUB\\" ); break;
 		case WORLDID_LABORATORY: strcat( path, "LAB\\" ); break;
 		case WORLDID_HALLOWEEN: strcat( path, "HALLOWEEN\\" ); break;
-		case WORLDID_SWAMPYWORLD: strcat( path, "SWAMPYWORLD\\" ); break;
+//		case WORLDID_SWAMPYWORLD: strcat( path, "SWAMPYWORLD\\" ); break;
 		case WORLDID_SUPERRETRO: strcat( path, "SUPERRETRO\\" ); break;
 		case WORLDID_FRONTEND: strcat( path, "FRONTEND\\" ); break;
 	}
