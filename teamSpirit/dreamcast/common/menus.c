@@ -1097,8 +1097,9 @@ void RunFrontendGameLoop (void)
 		#endif	
 //	#endif
 
-	for(i=0;i<NUMCHEATCOMBOS;i++)
-		ComboCheat(i);
+//	// *ASL* 15/08/2000 - Enable / disable all cheats..
+//	for(i=0;i<NUMCHEATCOMBOS;i++)
+//		ComboCheat(i);
 
 #else
 	#ifndef FINAL_MASTER
