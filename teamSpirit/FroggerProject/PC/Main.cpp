@@ -769,11 +769,11 @@ long DrawLoop(void)
 	}
 
 //	D3DSetupRenderstates(cullCWRS);
+	D3DSetupRenderstates(cullNoneRS);
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
 
-	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
 	PrintSpriteOverlays(2);	
 

@@ -140,9 +140,10 @@ void PrintSpriteOverlays(long num)
 
 	if( !drawOverlays || !spriteOverlayList.numEntries ) return;
 
-	cur = spriteOverlayList.block;
+	n = spriteOverlayList.numEntries;
+	cur = spriteOverlayList.block + (n-1);
 	
-	for(n = spriteOverlayList.numEntries; n; n--,cur++)
+	for(;n; n--,cur--)
 	{
 		if (cur->num!=num)
 			continue;
