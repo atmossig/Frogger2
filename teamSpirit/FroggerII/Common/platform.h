@@ -38,6 +38,7 @@
 #define PLATFORM_NEW_MAKERIPPLES		(1 << 17)	// generate ripples under the platform
 #define PLATFORM_NEW_MAKESMOKE			(1 << 18)	// generate smoke
 #define PLATFORM_NEW_MAKESPARKS			(1 << 19)	// generate sparks
+#define PLATFORM_NEW_FACEFORWARDS		(1 << 20)	// Face same direction
 
 
 typedef struct TAGPLATFORM
