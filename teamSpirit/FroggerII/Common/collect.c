@@ -172,8 +172,8 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case INVULNERABILITY_GARIB:
-			fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 10 );
-			fx->follow = frog[pl]->actor;
+//			fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 10 );
+//			fx->follow = frog[pl]->actor;
 			GTInit( &player[pl].safe, 10 );
 			break;
 	}

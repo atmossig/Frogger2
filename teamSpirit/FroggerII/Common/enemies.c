@@ -195,12 +195,12 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 	
 	if(player[pl].healthPoints != 0)
 	{
-		SPECFX *fx;
+//		SPECFX *fx;
 
 		GTInit( &player[pl].safe, 2 );
 
-		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 2 );
-		fx->follow = frog[pl]->actor;
+//		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 150, 0, 0, 2 );
+//		fx->follow = frog[pl]->actor;
 
 		// Special hurt anim
 		if( (nme->reactiveNumber != -1) && !(reactiveAnims[nme->reactiveNumber].type & ANI_REACTIVE) )

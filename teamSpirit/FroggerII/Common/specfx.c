@@ -150,7 +150,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "shield" );
 
-		effect->sprites->texture = txtrShield;
+		InitSpriteAnimation( effect->sprites, &garibAnimation[INVULNERABILITY_GARIB], 0 );
+
 		effect->sprites->r = 255;
 		effect->sprites->g = 255;
 		effect->sprites->b = 255;
@@ -160,11 +161,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->sprites->offsetY	= -16;
 		effect->sprites->flags = SPRITE_TRANSLUCENT | SPRITE_FLAGS_NOZB;
 
-		effect->sprites->scaleX = size;
-		effect->sprites->scaleY = size;
 		SetVector( &effect->sprites->pos, &effect->origin );
 
-		InitSpriteAnimation( effect->sprites, &garibAnimation[INVULNERABILITY_GARIB], 0 );
+		effect->sprites->scaleX = effect->sprites->scaleY = size;
+			//= effect->sprites->anim.startScale = effect->sprites->anim.endScale = size;
+
+		
 		AddSprite( effect->sprites, NULL );
 
 		effect->fade = effect->sprites->a / life;
@@ -1129,6 +1131,7 @@ void UpdateFXFly( SPECFX *fx )
 	MakeUnit(&fwd);
 
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	MakeUnit( (VECTOR *)&q3 );
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
 		t=-0.999;
