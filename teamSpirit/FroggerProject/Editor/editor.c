@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <islmem.h>
+
 #include "edmaths.h"
 #include "editfile.h"
 #include "editdefs.h"
@@ -1477,3 +1479,41 @@ void EditorKeypress(char c)
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void SubActor(ACTOR2 *actor)
+{
+	if (!actor) return;
+
+	if (actor->next)
+		actor->next->prev = actor->prev;
+
+	if (actor->prev)
+		actor->prev->next = actor->next;
+	else
+		actList = actor->next;
+
+	if(actor->actor)
+	{
+		if(actor->actor->shadow)
+		{
+			// free any shadow associated with ACTOR type
+			FREE( actor->actor->shadow );
+		}
+
+		if( actor->actor->actualActor )
+		{
+			FreeActor( (MDX_ACTOR **)&actor->actor->actualActor);
+		}
+
+		// free associated ACTOR type
+		FREE( actor->actor );
+	}
+
+	FREE( actor );
+}

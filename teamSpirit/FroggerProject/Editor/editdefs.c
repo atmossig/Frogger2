@@ -18,6 +18,7 @@
 #include "editdefs.h"
 #include "edcommand.h"
 #include "edmaths.h"
+#include "editor.h"
 
 #include "mdx.h"
 
@@ -715,6 +716,7 @@ int CountGroupMembers(EDITGROUP *group)
 	Function		: FreeEnemyList
 	Parameters		: 
 	Returns			: 
+*/
 
 void FreeEnemyList(void)
 {
@@ -728,12 +730,12 @@ void FreeEnemyList(void)
 	}
 	FreeEnemyLinkedList();
 }
-*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: FreePlatformList
 	Parameters		: 
 	Returns			: 
+*/
 
 void FreePlatformList(void)
 {
@@ -747,7 +749,6 @@ void FreePlatformList(void)
 	}
 	FreePlatformLinkedList();
 }
-*/
 
 #define CAMVECTSCALE (1.0f/40960.0f)
 
