@@ -1037,16 +1037,17 @@ void DrawEditor(void)
 			if (v.vz != 0)
 				DrawEditorIcon(v.vx - 8, v.vy - 8, 62, FALSE);
 
-			// Mark all affected tiles of a camera case
-			if( ((CREATEENTITY *)node->thing)->thing == CREATE_CAMERACASE )
-			{
-				for( flag = ((CREATEENTITY *)node->thing)->group->nodes; flag; flag = flag->link )
+				if (selectFunc == Select_Create)
+				// Mark all affected tiles of a camera case
+				if( ((CREATEENTITY *)node->thing)->thing == CREATE_CAMERACASE )
 				{
-					EdXfmPoint(&v, &flag->pos);
-					if (v.vz != 0)
-						DrawEditorIcon(v.vx - 8, v.vy - 8, 89, FALSE);
+					for( flag = ((CREATEENTITY *)node->thing)->group->nodes; flag; flag = flag->link )
+					{
+						EdXfmPoint(&v, &flag->pos);
+						if (v.vz != 0)
+							DrawEditorIcon(v.vx - 8, v.vy - 8, 89, FALSE);
+					}
 				}
-			}
 		}
 
 	DrawStatusInfo();

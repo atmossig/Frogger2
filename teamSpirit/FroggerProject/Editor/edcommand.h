@@ -40,6 +40,11 @@ extern void FUNC_SetPathSpeed(const char *str);
 
 #define ENABLEICON(entry, flag) (entry).icon = (flag) ? (entry).icon | TB_ON : (entry).icon & ~TB_ON
 
+
+void Select_Create(int ax, int ay, int bx, int by);
+void Select_Tiles(int ax, int ay, int bx, int by);
+void Select_Flags(int ax, int ay, int bx, int by);
+
 #ifdef __cplusplus
 }
 #endif
