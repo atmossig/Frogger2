@@ -758,13 +758,11 @@ void DrawFXRipples()
 		tempVect[3].v[Y] = 0;
 		tempVect[3].v[Z] = -ripple->radius;
 
-		if(	ripple->rippleType == RIPPLE_TYPE_PICKUP ||
-			ripple->rippleType == RIPPLE_TYPE_DUST )
+		if(	ripple->rippleType == RIPPLE_TYPE_PICKUP )
 		{
 			q.x = ripple->normal.v[X];
 			q.y = ripple->normal.v[Y];
 			q.z = ripple->normal.v[Z];
-			q.w = ripple->yRot;
 
 			for( i=0; i<4; i++ )
 				RotateVectorByRotation( &tempVect[i], &tempVect[i], &q );
@@ -814,7 +812,7 @@ void DrawFXRipples()
 			vT[3].specular = D3DRGB(0,0,0);
 
 			tEntry = ((TEXENTRY *)ripple->txtr);
-			if (runHardware)
+			if (tEntry)
 				DrawAHardwarePoly(vT,4,f,6,tEntry->hdl);
 		}
 	}
