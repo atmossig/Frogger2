@@ -541,7 +541,7 @@ void DrawFXRipples()
 		gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 		gSPVertex(glistp++,&ripple->verts[0],4,0);
-//		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 		gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 	}
@@ -688,7 +688,7 @@ void DrawShadow(VECTOR *pos,PLANE *plane,float size,float altitude,short alpha,V
 				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
 	gSPVertex(glistp++,vert,4,0);
-//	gSP2Triangles(glistp++,0,1,2,2,0,2,3,2);
+	gSP2Triangles(glistp++,0,1,2,2,0,2,3,2);
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
@@ -738,7 +738,7 @@ void DrawPauseFX()
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
-//	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 
@@ -783,7 +783,7 @@ void ScreenFade(UBYTE dir,UBYTE step)
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
-//	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 
@@ -841,7 +841,7 @@ void DrawDarkenedLevel()
 	gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
 
 	gSPVertex(glistp++,&verts[0],4,0);
-//	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
+	gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);
 
 	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
