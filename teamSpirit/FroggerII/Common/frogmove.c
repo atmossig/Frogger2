@@ -40,6 +40,8 @@ unsigned long conveyorFrames[3] = { 60, 30, 15 };
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 
+extern GAMETILE *lastTile;
+
 struct {
 	int lastHopOn;
 	int freq;
@@ -89,7 +91,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	longTongue		= 0;
 
 	//camFacing		= 0;
-	//controlCamera	= 0;
+	controlCamera	= 0;
 
 	InitActorAnim(frog[p]->actor);
 	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.25F,0,0);
@@ -119,6 +121,9 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].idleEnable		= 1;
 	player[p].heightJumped		= 0;
 	player[p].jumpTime			= -1;
+
+	CheckForDynamicCameraChange(currTile[p]);
+	lastTile = NULL; // force camera recalculation
 
 	SitAndFace(frog[p],currTile[p],frogFacing[p]);
 }
