@@ -80,16 +80,6 @@ void GameProcessController(long pl)
 		// find frame keys
 		button[pl] = GetCurrentRecordKey();
 	}
-	else if ( ( gameState.mode == CAMEO_MODE ) && !( button && CONT_A ) )
-	{
-		CameoProcessController();
-		button[pl] = 0;
-		stickX[pl] = 0;
-		stickY[pl] = 0;
-
-		// Find any movement keys for the frog
-		button[pl] = GetCurrentCameoKey();
-	}
 
 	// check if frog is using extended hop ability
 	if(player[pl].isSuperHopping || player[pl].isLongHopping)
@@ -861,8 +851,8 @@ void RunGameLoop (void)
 		if(!player[i].idleTime)
 		{
 			// play a random idle animation and set new idle time
-			AnimateActor(frog[i]->actor,15 + Random(6),NO,NO,0.8F,0,0);
-			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.65F,0,0);
+			AnimateActor(frog[i]->actor,15 + Random(6),NO,NO,0.4F,0,0);
+			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 			player[i].idleTime = 400 + Random(200);
 		}
 	}
