@@ -26,6 +26,8 @@ unsigned long currTileNum = 0;
 
 //----------------------------------------------------------------------
 
+unsigned long INPUT_POLLPAUSE	= 10;
+
 struct gameStateStruct gameState;
 
 unsigned short screenNum = 0;
