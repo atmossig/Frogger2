@@ -258,16 +258,18 @@ static BOOL FAR PASCAL EnumDDDevices(GUID FAR* lpGUID, LPSTR lpDriverDesc, LPSTR
 	lpDD->QueryInterface(IID_IDirectDraw4, (LPVOID *)&pDD4);
 	pDD4->GetDeviceIdentifier(&ddId,0);
 
-	// Pick desired card if at all possible!
+	/* Pick desired card if at all possible!
 
 	if (videoCardName[0] && (strcmp(ddId.szDescription, videoCardName) == 0))
 	{
 		if (lpGUID)
 			memcpy(lpContext, lpGUID, sizeof(GUID));
+		else
+			memset(lpContext, 0, sizeof(GUID));
 		foundDesiredVideo = 1;
 		lpDD->Release();
 		return DDENUMRET_CANCEL;	// yay, we found it
-	}
+	}*/
 
 	dxDeviceList[dxNumDevices].desc = new char [strlen (ddId.szDescription)];
 	dxDeviceList[dxNumDevices].name = new char [strlen (ddId.szDriver)];
