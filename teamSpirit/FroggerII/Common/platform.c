@@ -456,7 +456,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 {
 	int i;
-	VECTOR platformStartPos;
+	VECTOR platformStartPos, fwd;
 
 	pform->path	= path;
 
@@ -506,7 +506,14 @@ void AssignPathToPlatform(PLATFORM *pform,PATH *path,unsigned long pathFlags)
 		GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
 
 	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
-	NormalToQuaternion(&pform->pltActor->actor->qRot,&path->nodes[pform->path->fromNode].worldTile->normal);
+	//NormalToQuaternion(&pform->pltActor->actor->qRot,&path->nodes[pform->path->fromNode].worldTile->normal);
+
+	SubVector(&fwd,
+		&pform->path->nodes[pform->path->toNode].worldTile->centre,
+		&pform->path->nodes[pform->path->fromNode].worldTile->centre);
+	MakeUnit(&fwd);
+
+	Orientate(&pform->pltActor->actor->qRot, &fwd, &inVec, &pform->path->nodes[pform->path->fromNode].worldTile->normal);
 
 	// set platform current 'in' tile and speeds and pause times
 	pform->inTile[0]	= path->nodes[pform->path->fromNode].worldTile;
@@ -568,7 +575,7 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	PATH *path;
 	PATHNODE *fromNode,*toNode;
 	float numSteps;
-	VECTOR destNormal,fromPos,toPos;
+	VECTOR fwd;
 
 	path = pform->path;
 	if(path->numNodes < 2)
@@ -576,6 +583,15 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 
 	fromNode	= &path->nodes[path->fromNode];
 	toNode		= &path->nodes[path->toNode];
+
+	pform->srcOrientation = pform->pltActor->actor->qRot;
+
+	SubVector(&fwd, &toNode->worldTile->centre, &fromNode->worldTile->centre);
+	MakeUnit(&fwd);
+
+	Orientate(&pform->destOrientation, &fwd, &inVec, &toNode->worldTile->normal);
+
+/*	 v v v v This isn't game speed independant at ALL! v v v v
 
 	// set the current platform normal to that of the 'from' node and get the dest normal
 	SetVector(&pform->currNormal,&fromNode->worldTile->normal);
@@ -596,6 +612,10 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	pform->deltaNormal.v[X] /= numSteps;
 	pform->deltaNormal.v[Y] /= numSteps;
 	pform->deltaNormal.v[Z] /= numSteps;
+
+	 ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
+*/
+
 }
 
 /*	--------------------------------------------------------------------------------
@@ -798,7 +818,7 @@ void UpdateSlerpPathPlatform( PLATFORM *cur )
 */
 void UpdatePathPlatform(PLATFORM *plat)
 {
-	VECTOR fromPosition,toPosition,fwd,moveVec;
+	VECTOR fromPosition,toPosition,fwd,moveVec,norm;
 	float length;
 
 	float n;
@@ -815,11 +835,18 @@ void UpdatePathPlatform(PLATFORM *plat)
 	AddVector(&plat->pltActor->actor->pos,&fwd,&fromPosition);
 	MakeUnit(&fwd);
 
-	AddToVector(&plat->currNormal,&plat->deltaNormal);
+/*
+	SetVector(&norm, &plat->deltaNormal);
+	ScaleVector(&norm, 
+
+	AddToVector(&plat->currNormal,&norm);
+*/
 
 	if(!(plat->flags & PLATFORM_NEW_FACEFORWARDS))
 	{
-		Orientate(&plat->pltActor->actor->qRot,&fwd,&inVec,&plat->currNormal);
+		//Orientate(&plat->pltActor->actor->qRot,&fwd,&inVec,&plat->currNormal);
+
+		QuatSlerp(&plat->srcOrientation, &plat->destOrientation, length, &plat->pltActor->actor->qRot);
 	}
 
 /*	else	// if we orientate the platform correctly at the start of the path,
