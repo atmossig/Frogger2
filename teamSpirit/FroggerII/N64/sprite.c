@@ -1,0 +1,908 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+
+	File		: sprite.c
+	Programmer	: Matthew Cloy
+	Date		: 13/11/98
+
+----------------------------------------------------------------------------------------------- */
+
+#define F3DEX_GBI
+
+#include <ultra64.h>
+
+#include "incs.h"
+
+
+#define MOVE
+#define ANIM
+
+unsigned int numTextures   = -1;
+unsigned int numOverlays   = -1;
+unsigned int numAnimations = -1;
+
+TEXTURE_STRUCTURE   *textureList	 = NULL;
+ANIM_STRUCTURE		*animationList	 = NULL;
+
+
+	/***********************************************************************************
+	/********* TEXTURE LIST FUNCTIONS **************************************************
+	/***********************************************************************************
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddTextureToList
+	Purpose			: adds a texture to the texture list
+	Parameters		:
+	Returns			: 
+	Info			:
+*/
+void AddTextureToList ( char *txtrName, char *textID )
+{
+	TEXTURE_STRUCTURE *newItem;
+
+	newItem = ( TEXTURE_STRUCTURE * ) JallocAlloc ( sizeof ( TEXTURE_STRUCTURE ), YES, "TXTRLIST" );
+
+
+	FindTexture ( &newItem->txtr, UpdateCRC ( txtrName ), YES ,txtrName);
+	
+	numTextures++;
+
+	newItem->textID				= textID;
+	newItem->ID					= numTextures;
+
+		
+	newItem->next		= textureList;
+	textureList			= newItem;
+	
+/*	if ( numTextures == 0 )
+	{
+		textureList		= newItem;
+		currentTexture	= textureList;
+	}
+	else
+	{
+		currentTexture->next	= newItem;
+		currentTexture			= currentTexture->next;
+	}
+	// endif
+
+*/
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeTextureList
+	Purpose			: adds a texture to the texture list
+	Parameters		:
+	Returns			: 
+	Info			:
+*/
+void FreeTextureList ( void )
+{
+	TEXTURE_STRUCTURE *next,*cur;
+	
+	cur = textureList;
+	while ( cur )
+	{
+		next = cur->next;		
+		JallocFree ( (UBYTE**)&cur );
+		cur  = next;
+	}
+	// endwhile
+	textureList		= NULL;
+	numTextures		= -1;
+}
+
+	/***********************************************************************************
+	/********* ANIMATION FUNCTIONS *****************************************************
+	/***********************************************************************************
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAnimation
+	Purpose			: 
+	Parameters		:
+	Returns			: ptr to a anim_structure
+	Info			:
+*/
+ANIM_STRUCTURE *CreateAnimation ( char *textID[], int numFrames, int numAnimFrames,
+  	    					      int initX, int initY, int initZ,
+ 	    					      int startX, int startY, int startZ,
+ 	    					      int finishX, int finishY, int finishZ,
+								  int width, int height,
+								  char r, char g, char b, char a,
+								  int animFlags, int moveFlags, int delay,
+								  int active, int animated, float velocityCounter, int type )
+{
+	int c;
+	int i;
+	ANIM_STRUCTURE	  *newItem;
+	TEXTURE_STRUCTURE *tstruct;
+
+	newItem = ( ANIM_STRUCTURE * ) JallocAlloc ( sizeof ( ANIM_STRUCTURE ), YES, "ANIMATION" );
+
+	if ( animated )
+		for ( c = 0; c <= numAnimFrames; c++ )
+		{
+			(char*) newItem->textID[c] = textID[c];
+			(int)   newItem->ID[c]     = -1;
+		}
+		// endfor
+	else
+		for ( c = 0; c < numFrames; c++ )
+		{
+			(char*) newItem->textID[c] = textID[c];
+			(int)   newItem->ID[c]     = -1;
+		}
+		// endfor
+	// endelseif
+
+	for ( c = 0; c <= numTextures; c++ )
+	{
+		tstruct = &textureList[c];
+		if ( !animated )
+			for ( i = 0; i < numFrames; i++ )
+			{
+				if ( tstruct->textID == newItem->textID[i] )
+				{
+					(int)   newItem->ID[i] = c;
+				}
+				// endif
+			}
+			// endfor
+		else
+			for ( i = 0; i < numAnimFrames; i++ )
+			{
+				if ( tstruct->textID == newItem->textID[i] )
+				{
+					(int)   newItem->ID[i] = c;
+				}
+				// endif
+			}
+			// endfor
+		// endelseif
+	}
+	// endfor
+
+
+	newItem->active			= active;
+	newItem->animated		= animated;
+	newItem->numFrames		= numFrames;
+	newItem->numAnimFrames  = numAnimFrames;
+
+	newItem->currFrameNum	= 0;
+
+	newItem->curXPos  = initX;
+	newItem->curYPos  = initY;
+	newItem->curZPos  = initZ;
+
+	newItem->startXPos  = startX;
+	newItem->startYPos  = startY;
+	newItem->startZPos  = startZ;
+
+	newItem->finishXPos = finishX;
+	newItem->finishYPos = finishY;
+	newItem->finishZPos	= finishZ;
+
+	newItem->velocityCounter = velocityCounter;
+
+	newItem->width		= width;
+	newItem->height		= height;
+
+	newItem->r			= r;
+	newItem->g			= g;
+	newItem->b			= b;
+	newItem->a			= a;
+
+	newItem->animFlags	= animFlags;
+	newItem->moveFlags	= moveFlags;
+	newItem->delay		= delay;
+	newItem->counterDelay = 0;
+
+	newItem->type		= type;
+
+	numAnimations++;
+
+	newItem->next	   = animationList;
+	animationList	   = newItem;
+
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAnimation
+	Purpose			: 
+	Parameters		:
+	Returns			: ptr to a anim_structure
+	Info			:
+*/
+void FreeAnimationList ( void )
+{
+	ANIM_STRUCTURE *next,*cur;
+	
+	cur = animationList;
+	while ( cur )
+	{
+		next = cur->next;		
+		JallocFree ( (UBYTE**)&cur );
+		cur  = next;
+	}
+	// endwhile
+	animationList	= NULL;
+}
+
+
+
+
+
+//----- [ SPRITE RELATED ] ----------------------------------------------------------------------//
+
+#define NUM_template_BMS	2
+
+static Bitmap template_bm[NUM_template_BMS];
+static Gfx template_dl[NUM_DL(NUM_template_BMS)];
+
+Sprite template_sprite =
+{
+	0,0,						// xy position
+	0,0,						// sprite size in xy (in texels)
+	1.0,1.0,					// sprite scale in xy
+	0,0,						// explosion spacing
+	SP_TRANSPARENT,				// sprite attributes
+	0x00,						// sprite depth in z
+	255,255,255,255,			// sprite RGBA colour
+	0,1,NULL,					// CLUT : start index, length, address
+	0,1,						// sprite bitmap index: start index, step increment
+	NUM_template_BMS,			// number of bitmaps
+	NUM_DL(NUM_template_BMS),	// number of allocated dl locations
+	128,208,					// sprite bm height: used height, physical height
+	G_IM_FMT_RGBA,				// sprite image format
+	G_IM_SIZ_16b,				// sprite bitmap texel size
+	template_bm,				// ptr to bitmaps
+	template_dl,				// dl memory
+	NULL,						// HACK : dynamic_dl ptr
+};
+
+
+// FRAMELISTS FOR SPRITE ANIMS
+
+FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS] =
+{
+	{ NULL,0,0,"spa" },				// SPAWN_ANIM			//0
+	{ NULL,0,0,"spa" },				// EXTRAHEALTH_ANIM		//1
+	{ NULL,0,0,"spa" },				// EXTRALIFE_ANIM		//2
+	{ NULL,0,0,"spa" },				// AUTOHOP_ANIM			//3
+	{ NULL,0,0,"spa" },				// LONGHOP_ANIM			//4
+	{ NULL,0,0,"spa" },				// LONGTONGUE_ANIM		//5
+	{ NULL,0,0,"wholekey" },		// WHOLEKEY_ANIM		//6
+	{ NULL,0,0,"halflkey" },		// WHOLEKEY_ANIM		//7
+	{ NULL,0,0,"halfrkey" },		// WHOLEKEY_ANIM		//8
+};
+
+
+
+SPRITELIST spriteList;
+
+float printSpritesProj[4][4][4];
+float fm;
+
+SPRITE *testSpr = NULL;
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSpriteLinkedList
+	Purpose			: initialises the sprite list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitSpriteLinkedList()
+{
+	spriteList.head.next = spriteList.head.prev = &spriteList.head;
+	spriteList.numEntries = 0;
+	spriteList.head.flags = SPRITE_TRANSLUCENT;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeSpriteLinkedList
+	Purpose			: frees the sprite linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeSpriteLinkedList()
+{
+	SPRITE *cur,*next;
+
+	if(spriteList.numEntries == 0)
+		return;
+
+	dprintf"Freeing linked list : SPRITE : (%d elements)\n",spriteList.numEntries));
+	for(cur = spriteList.head.next; cur != &spriteList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubSprite(cur);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddSprite
+	Purpose			: adds a sprite to the sprite list
+	Parameters		: SPRITE *,SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void AddSprite(SPRITE *sprite,SPRITE *after)
+{
+	SPRITE *ptr;
+
+	if(sprite->next == NULL)
+	{
+		if(after)
+			ptr = after;
+		else
+		{
+			for(ptr = &spriteList.head; ptr != spriteList.head.prev; ptr = ptr->next)
+			{
+				if(((sprite->flags & SPRITE_TRANSLUCENT) && ((sprite->flags & SPRITE_FLAGS_CHEAT) == 0)) && (((ptr->next->flags & SPRITE_TRANSLUCENT) == 0) || (ptr->next->flags & SPRITE_FLAGS_CHEAT)))
+					continue;
+				if((((sprite->flags & SPRITE_TRANSLUCENT) == 0) || (sprite->flags & SPRITE_FLAGS_CHEAT)) && ((ptr->next->flags & SPRITE_TRANSLUCENT) || ((ptr->next->flags & SPRITE_FLAGS_CHEAT) == 0)))
+					break;
+			}
+		}
+
+		sprite->kill	= 0;
+
+		sprite->prev	= ptr;
+		sprite->next	= ptr->next;
+		ptr->next->prev	= sprite;
+		ptr->next		= sprite;
+		spriteList.numEntries++;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrintSpritesOpaque
+	Purpose			: prints opaque sprites
+	Parameters		: 
+	Returns			: SPRITE *
+	Info			: 
+*/
+SPRITE *PrintSpritesOpaque()
+{
+	SPRITE *cur,*next;
+	Mtx temp;
+
+	spriteList.lastTexture = NULL;
+
+	gSPDisplayList(glistp++,rspInitForSprites_dl);
+	gSPDisplayList(glistp++,rdpInitForSprites_dl);
+	gDPSetScissor(glistp++,G_SC_NON_INTERLACE,0,0,SCREEN_WD,SCREEN_HT);
+
+	guMtxCatL(&(dynamicp->viewing[screenNum]),&(dynamicp->projection[screenNum]),&temp);
+	guMtxL2F(printSpritesProj[screenNum],&temp);
+
+	spriteList.xluMode = NO;
+
+	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+
+	if(!testPause)
+	{
+		for(cur = spriteList.head.next; (cur != &spriteList.head) && ((cur->flags & SPRITE_TRANSLUCENT) == 0); cur = next)
+		{
+			next = cur->next;
+
+			PrintSprite(cur);
+		}
+	}
+
+	return cur;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrintSpritesTranslucent
+	Purpose			: prints translucent sprites
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void PrintSpritesTranslucent(SPRITE *sprite)
+{
+	Mtx temp;
+	
+	spriteList.lastTexture = NULL;
+
+	gSPDisplayList(glistp++,rspInitForSprites_dl);
+	gSPDisplayList(glistp++,rdpInitForSprites_dl);
+	gDPSetScissor(glistp++,G_SC_NON_INTERLACE,0,0,SCREEN_WD,SCREEN_HT);
+
+	guMtxCatL(&(dynamicp->viewing[screenNum]),&(dynamicp->projection[screenNum]),&temp);
+	guMtxL2F(printSpritesProj[screenNum],&temp);
+
+	gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+
+	if(!testPause)
+	{
+		for(; sprite != &spriteList.head; sprite = sprite->next)
+		{
+			PrintSprite(sprite);
+		}
+	}
+
+	// IMPORTANT - MUST SET THESE STATES
+	gDPSetDepthSource(glistp++,G_ZS_PIXEL);
+	gDPSetTexturePersp(glistp++,G_TP_PERSP);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: TileRectangle
+	Purpose			: displays a tile rectangle
+	Parameters		: Gfx**,SPRITE *,f32,f32,int,int,int
+	Returns			: void
+	Info			: 
+*/
+void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY)
+{
+	Gfx *gfx = *glistp;
+	int incx,incy;
+	float tempx,tempy;
+	int s,t;
+	int sval,tval;
+
+	gDPSetPrimDepth(gfx++,z,0);
+
+	if(sprite->flags & SPRITE_FLIPX)
+		incx = -scaleX;
+	else
+		incx = scaleX;
+
+	if(sprite->flags & SPRITE_FLIPY)
+		incy = -scaleY;
+	else
+		incy = scaleY;
+
+	t = (scaleX < 512 ? -16 : -16 - (((int)y0) & 3) * 8);
+	s = -16;
+
+	if(sprite->texture != spriteList.lastTexture)
+	{
+		switch(sprite->texture->pixSize)
+		{
+			case G_IM_SIZ_4b:
+				gDPSetTextureLUT(gfx++,G_TT_RGBA16);
+				gDPLoadTLUT_pal16(gfx++,0,sprite->texture->palette);
+				gDPLoadTextureTile_4b(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+
+			case G_IM_SIZ_8b:
+				gDPSetTextureLUT(gfx++,G_TT_RGBA16);
+				gDPLoadTLUT_pal256(gfx++,sprite->texture->palette);
+				gDPLoadTextureTile(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					G_IM_SIZ_8b,sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+
+			case G_IM_SIZ_16b:
+				gDPSetTextureLUT(gfx++,G_TT_NONE);
+				gDPLoadTextureTile(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					G_IM_SIZ_16b,sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+
+			case G_IM_SIZ_32b:
+				gDPLoadTextureTile(gfx++,(void *)sprite->texture->data,sprite->texture->format,
+					G_IM_SIZ_32b,sprite->texture->sx,sprite->texture->sy,
+					0,0,sprite->texture->sx - 1,sprite->texture->sy - 1,0,
+					G_TX_NOMIRROR | G_TX_CLAMP,G_TX_NOMIRROR | G_TX_CLAMP,
+					0,0,G_TX_NOLOD,G_TX_NOLOD);
+				break;
+		}
+	}
+
+	tempx = sprite->texture->sx;
+	tempx *= (1 << 12);
+	tempx /= (float)scaleX;
+	tempx = x0 + tempx;
+
+	tempy = sprite->texture->sy;
+	tempy *= (1 << 12);
+	tempy /= (float)scaleY;
+	tempy = y0 + tempy;
+
+	if(sprite->flags & SPRITE_FLIPX)
+		sval = ((sprite->texture->sx) << 5) - s - 32;
+	else
+		sval = s;
+
+	if(sprite->flags & SPRITE_FLIPY)
+		tval = ((sprite->texture->sy) << 5) - t - 32;
+	else
+		tval = t;
+
+	gSPScisTextureRectangle(gfx++,x0,y0,(int)tempx,(int)tempy,G_TX_RENDERTILE,sval,tval,incx,incy);
+	*glistp = gfx;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrintSprite
+	Purpose			: prints a sprite
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void PrintSprite(SPRITE *sprite)
+{
+	float x,y,z,w;
+	float dist;
+	int scaleX,scaleY;
+	int sprScaleX,sprScaleY;
+
+	if((!sprite->texture) || (sprite->scaleX == 0) || (sprite->scaleY == 0))
+		return;
+
+	dist = DistanceBetweenPointsSquared(&actualCamSource[draw_buffer][screenNum],&sprite->pos);
+	if((dist > farPlaneDist * farPlaneDist) || (dist < nearPlaneDist * nearPlaneDist))
+		return;
+
+	w = printSpritesProj[screenNum][0][3] * sprite->pos.v[X] + 
+		printSpritesProj[screenNum][1][3] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][3] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][3];
+
+	if(w <= 0)
+		return;
+
+	z = printSpritesProj[screenNum][0][2] * sprite->pos.v[X] + 
+		printSpritesProj[screenNum][1][2] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][2] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][2];
+
+	if(z < 0)
+		return;
+
+	x = printSpritesProj[screenNum][0][0] * sprite->pos.v[X] +
+		printSpritesProj[screenNum][1][0] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][0] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][0];
+
+	y = printSpritesProj[screenNum][0][1] * sprite->pos.v[X] +
+		printSpritesProj[screenNum][1][1] * sprite->pos.v[Y] +
+		printSpritesProj[screenNum][2][1] * sprite->pos.v[Z] +
+		printSpritesProj[screenNum][3][1];
+
+	x = ((x * dynamicp->vp[screenNum].vp.vscale[0] / w) + dynamicp->vp[screenNum].vp.vtrans[0]);
+	y = ((-y * dynamicp->vp[screenNum].vp.vscale[1] / w) + dynamicp->vp[screenNum].vp.vtrans[1]);
+	z = 32 * ((z * dynamicp->vp[screenNum].vp.vscale[2] / w) + dynamicp->vp[screenNum].vp.vtrans[2]);
+
+	dist = sqrtf(dist);
+
+	sprScaleX = 33 * sprite->scaleX * ((float)dynamicp->vp[screenNum].vp.vscale[0] / (float)(SCREEN_WD * 2));
+	x = (f32)x + (f32)(sprite->offsetX * sprScaleX << 4) / (dist * yFOV);
+	if((x > SCREEN_WD * 4) || (x + (sprite->texture->sx * sprScaleX << 4) / (dist * yFOV) <= 0))
+		return;
+
+	sprScaleY = 33 * sprite->scaleY * ((float)dynamicp->vp[screenNum].vp.vscale[1] / (float)(SCREEN_HT * 2));
+	y = (f32)y + (f32)(sprite->offsetY * sprScaleY << 4) / (dist * yFOV);
+	if((y > SCREEN_HT * 4) || (y + (sprite->texture->sy * sprScaleY << 4) / (dist * yFOV) <= 0))
+		return;
+
+	gDPSetPrimColor(glistp++,0,0,sprite->r,sprite->g,sprite->b,sprite->a);
+	gDPSetAlphaCompare(glistp++,G_AC_NONE);
+
+	if(sprite->flags & SPRITE_TRANSLUCENT)
+	{
+		gDPSetRenderMode(glistp++,G_RM_ZB_CLD_SURF,G_RM_ZB_CLD_SURF2);
+	}
+	else
+	{
+		gDPSetRenderMode(glistp++,G_RM_AA_ZB_TEX_EDGE,G_RM_AA_ZB_TEX_EDGE2);
+	}
+
+	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
+	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
+	
+	scaleY = dist * yFOV;
+	scaleX = (scaleY << 8) / sprScaleX;
+	scaleY = (scaleY << 8) / sprScaleY;
+
+	TileRectangle(&glistp,sprite,x,y,z,scaleX,scaleY);
+	gDPPipeSync(glistp++);
+
+	spriteList.lastTexture = sprite->texture;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubSprite
+	Purpose			: removes a sprite
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void SubSprite(SPRITE *sprite)
+{
+	if(sprite->next == NULL)
+		return;
+
+	sprite->anim.type	= SPRITE_ANIM_NONE;
+	sprite->prev->next	= sprite->next;
+	sprite->next->prev	= sprite->prev;
+
+	sprite->next		= NULL;
+	spriteList.numEntries--;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AnimateSprites
+	Purpose			: goes through the spritelist and animates
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void AnimateSprites()
+{
+	SPRITE *cur,*next;
+
+	for(cur = spriteList.head.next; cur != &spriteList.head; cur = next)
+	{
+		next = cur->next;
+
+		// check for sprites to be killed
+		if(cur->kill)
+		{
+			SubSprite(cur);
+			continue;
+		}
+
+		// check if this sprite is a spawn score anim...
+		if(cur->anim.type == SPRITE_ANIM_SPAWNSCORE)
+		{
+			cur->pos.v[Y] += 6;
+			cur->a -= 12;
+			if(cur->a < 20)
+				cur->kill = 1;
+			
+			continue;
+		}
+
+		if(cur->anim.type != SPRITE_ANIM_NONE)
+			AnimateSprite(cur);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AnimateSprite
+	Purpose			: animates a sprite
+	Parameters		: SPRITE *
+	Returns			: void
+	Info			: 
+*/
+void AnimateSprite(SPRITE *sprite)
+{
+	SPRITE_ANIMATION *anim = &sprite->anim;
+
+	if(anim->lifespan > 0)
+	{
+		anim->lifespan--;
+		if(!anim->lifespan)
+		{
+			sprite->texture = NULL;
+			anim->type		= SPRITE_ANIM_NONE;
+			return;
+		}
+	}
+
+	if(anim->type == SPRITE_ANIM_LIFETIME)
+		return;
+
+	// sort out alphas...
+	if(anim->endAlpha != anim->startAlpha)
+	{
+		if(anim->lifespan > 0)
+			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * anim->lifetime) / anim->lifespan;
+		else
+			sprite->a = anim->endAlpha + ((anim->startAlpha - anim->endAlpha) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
+	}
+
+	// sort out scales...
+	if(anim->endScale != anim->startScale)
+	{
+		if(anim->lifespan > 0)
+			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * anim->lifetime) / anim->lifespan;
+		else
+			sprite->scaleX = sprite->scaleY = anim->endScale + ((anim->startScale - anim->endScale) * (anim->frameList->numFrames - anim->currentFrame - 1)) / (anim->frameList->numFrames - 1);
+	}
+
+	if(anim->type != SPRITE_ANIM_SCALE_ALPHA)
+	{
+		if(anim->currentFrame >= anim->frameList->numFrames)
+		{
+			if(anim->type == SPRITE_ANIM_CYCLE)
+				anim->currentFrame = 0;
+			else if(anim->type == SPRITE_ANIM_ONESHOT)
+			{
+				sprite->texture = NULL;
+				return;
+			}
+		}
+		else if((anim->type == SPRITE_ANIM_REVERSE) && (anim->currentFrame == 0))
+		{
+			sprite->texture = NULL;
+			return;
+		}
+
+		sprite->texture = *(anim->frameList->texture + anim->currentFrame);
+
+		if(anim->counter > 0)
+		{
+			anim->counter -= 32;
+		}
+		else
+		{
+			if(sprite->flags & SPRITE_REVERSING)
+				anim->currentFrame--;
+			else
+				anim->currentFrame++;
+			anim->counter += anim->delay;
+			if(anim->type == SPRITE_ANIM_FLIPFLOP)
+			{
+				if(anim->currentFrame >= anim->frameList->numFrames)
+				{
+					sprite->flags |= SPRITE_REVERSING;
+					anim->currentFrame--;
+				}
+				else if(anim->currentFrame == 0)
+				{
+					sprite->flags &= -1 - SPRITE_REVERSING;
+				}
+			}
+		}
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSpriteAnimation
+	Purpose			: initialises a sprite animation
+	Parameters		: SPRITE *,SPRITE_ANIMATION_TEMPLATE *,USHORT
+	Returns			: void
+	Info			: 
+*/
+void InitSpriteAnimation(SPRITE *sprite,SPRITE_ANIMATION_TEMPLATE *temp,USHORT lifespan)
+{
+	memcpy(&sprite->anim,temp,sizeof(SPRITE_ANIMATION_TEMPLATE));
+
+	sprite->flags	= sprite->anim.spriteFlags;
+	sprite->a		= sprite->anim.startAlpha;
+
+	sprite->anim.counter = 0;
+	if(sprite->anim.type == SPRITE_ANIM_REVERSE)
+	{
+		sprite->anim.currentFrame = sprite->anim.frameList->numFrames - 1;
+		sprite->flags |= SPRITE_REVERSING;
+		sprite->scaleX = sprite->scaleY = sprite->anim.endScale;
+	}
+	else
+	{
+		sprite->anim.currentFrame = 0;
+		sprite->flags &= -1 - SPRITE_REVERSING;
+		sprite->scaleX = sprite->scaleY = sprite->anim.startScale;
+	}
+
+	sprite->anim.lifespan = lifespan;
+	sprite->anim.lifetime = lifespan;
+
+	if(sprite->anim.type == SPRITE_ANIM_CYCLE_RANDOM)
+	{
+		sprite->anim.currentFrame = Random(sprite->anim.frameList->numFrames);
+		sprite->anim.type = SPRITE_ANIM_CYCLE;
+	}
+	sprite->texture = *(temp->frameList->texture + sprite->anim.currentFrame);
+}
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSpriteFrameLists
+	Purpose			: initialises the sprite frame lists
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitSpriteFrameLists()
+{
+	int i,j,found,totalFrames = 0;
+	char temp[256];
+	TEXTURE *texture;
+
+	for(i=0; i<NUM_SPRITE_ANIMS; i++)
+	{
+		if(spriteFrameList[i].overrideNumFrames)
+		{
+			totalFrames += spriteFrameList[i].numFrames;
+			continue;
+		}
+		found = YES;
+		j = 0;
+		while(found == YES)
+		{
+			sprintf(temp,"%s%02d.bmp",spriteFrameList[i].filename,j+1);
+			FindTexture(&texture,UpdateCRC(temp),NO,temp);
+			if(!texture)
+				found = NO;
+			else
+				j++;
+		}
+
+		spriteFrameList[i].numFrames = j;
+		totalFrames += j;
+	}
+
+	spriteFrameList[0].texture = (TEXTURE **)JallocAlloc(totalFrames * sizeof(TEXTURE *),NO,"SFL");
+	for(i=0; i<NUM_SPRITE_ANIMS; i++)
+	{
+		if(i)
+			spriteFrameList[i].texture = spriteFrameList[i - 1].texture + spriteFrameList[i - 1].numFrames;
+
+		if(spriteFrameList[i].numFrames)
+		{
+			for(j=0; j<spriteFrameList[i].numFrames; j++)
+			{
+				sprintf(temp,"%s%02d.bmp",spriteFrameList[i].filename,j+1);
+				FindTexture(&texture,UpdateCRC(temp),YES,temp);
+				*(spriteFrameList[i].texture + j) = texture;
+			}
+		}
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddNewSpriteToList
+	Purpose			: adds an arbitrary sprite to the list
+	Parameters		: float, float, float, short, char *, short
+	Returns			: SPRITE *
+	Info			: 
+*/
+SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,short flags)
+{
+	SPRITE *sprite;
+
+	sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"sprite");
+
+	FindTexture(&sprite->texture,UpdateCRC(txtrName),YES,txtrName);
+
+	sprite->pos.v[X]	= x;
+	sprite->pos.v[Y]	= y;
+	sprite->pos.v[Z]	= z;
+
+	sprite->r			= 255;
+	sprite->g			= 255;
+	sprite->b			= 255;
+	sprite->a			= 255;
+
+	sprite->offsetX		= -sprite->texture->sx / 2;
+	sprite->offsetY		= -sprite->texture->sy / 2;
+	sprite->flags		= flags;
+
+	sprite->scaleX		= size;
+	sprite->scaleY		= size;
+
+	sprite->anim.type	= SPRITE_ANIM_NONE;
+
+	AddSprite(sprite,NULL);
+
+	return sprite;
+}
