@@ -194,7 +194,6 @@ long DrawLoop(void)
 
 		if(!backdrop)
 		{
-			// Draw landscape
 			DrawAllFrames();
 			BlankAllFrames();
 
