@@ -395,22 +395,22 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 	D3DLVERTEX v[4] = {
 		{
 			r.left,r.top,0,0,
-			colour,D3DRGB(0,0,0),
+			colour,0,
 			0,0
 		},
 		{
 			r.left,r.bottom,0,0,
-			colour,D3DRGB(0,0,0),
+			colour,0,
 			0,0
 		},
 		{
 			r.right,r.bottom,0,0,
-			colour,D3DRGB(0,0,0),
+			colour,0,
 			0,0
 		},
 		{
 			r.right,r.top,0,0,
-			colour,D3DRGB(0,0,0),
+			colour,0,
 			0,0
 	}};
 
@@ -422,7 +422,9 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
-	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_SRCBLEND,D3DBLEND_BOTHSRCALPHA);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_DESTBLEND,D3DBLEND_BOTHSRCALPHA);
 
 	if (pDirect3DDevice->DrawPrimitive(
 		D3DPT_TRIANGLEFAN,
@@ -437,6 +439,8 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 		dp("Could not draw flat rectangle\n");
 		// ARSE! Can't draw flat rect
 	}
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 }
 
 D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)
