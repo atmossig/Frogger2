@@ -120,7 +120,7 @@ extern SPECFXLIST specFXList;
 extern D3DTLVERTEX *ringVtx;
 #endif
 
-extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, int size, float speed, float accn, float lifetime );
+extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );
 
 extern void UpdateSpecialEffects( );
 

@@ -45,8 +45,9 @@ void UpdateFXExplode( SPECFX *fx );
 void CreateBlastRing( );
 
 // Used to store precalculated blast ring shape
+#ifdef PC_VERSION
 D3DTLVERTEX *ringVtx = NULL;
-
+#endif
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddSpecialEffect
@@ -55,7 +56,7 @@ D3DTLVERTEX *ringVtx = NULL;
 	Returns			: Created effect
 	Info			: 
 */
-SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, int size, float speed, float accn, float lifetime )
+SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime )
 {
 	SPECFX *effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
 	long i;
@@ -213,7 +214,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->Draw = NULL;
 		break;
 	case FXTYPE_BUTTERFLYSWARM:
-		effect->numP = 2;
+		effect->numP = (int)lifetime; // Nasty Nasty Nasty
 		i = effect->numP;
 
 		effect->act = (ACTOR2 **)JallocAlloc( sizeof(ACTOR2 *)*effect->numP, YES, "Actor2s" );
@@ -226,9 +227,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 				InitActorAnim( effect->act[i]->actor );
 
 			AnimateActor( effect->act[i]->actor,0,YES,NO,1.0F, 0, 0);
-			effect->act[i]->actor->scale.v[X] = 1/effect->scale.v[X];
-			effect->act[i]->actor->scale.v[Y] = 1/effect->scale.v[Y];
-			effect->act[i]->actor->scale.v[Z] = 1/effect->scale.v[Z];
+			effect->act[i]->actor->scale.v[X] = effect->scale.v[X];
+			effect->act[i]->actor->scale.v[Y] = effect->scale.v[Y];
+			effect->act[i]->actor->scale.v[Z] = effect->scale.v[Z];
 
 			effect->particles[i].pos.v[X] = -8 + Random(16);
 			effect->particles[i].pos.v[Y] = -6 + Random(12);
@@ -967,22 +968,22 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_SMOKE_GROWS )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 32, 0.4, 0, 1.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.4, 0, 1.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 32, 0.1, 0, 1.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.1, 0, 1.5 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 32, 0.2, 0, 1.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, 0, 1.5 );
 
 				SetAttachedFXColour( fx, act->effects );
 			}
 			if( act->effects & EF_SPARKBURST )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 5, 1.5, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 1.5, 0, 0.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 5, 0.5, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.5, 0, 0.5 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 5, 1.0, 0, 0.5 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 1.0, 0, 0.5 );
 
 				SetVector( &fx->rebound->point, &tile->centre );
 				SetVector( &fx->rebound->point, &tile->normal );
@@ -1055,7 +1056,7 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		if( act->effects & EF_BUTTERFLYSWARM )
 		{
-			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, 2, 0, 0, 0 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->actor->scale.v[X], 0, 0, act->value1 );
 			fx->follow = act->actor;
 			if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
 			{
