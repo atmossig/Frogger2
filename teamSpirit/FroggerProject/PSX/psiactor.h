@@ -187,4 +187,7 @@ void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int spe
 //void CopyKeyFrames ( ACTOR *dest, ACTOR *src );
 void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src );
 
+void FindFrogSubObjects( int p );
+void UpdateFrogCroak( int pl  );
+
 #endif //__ACTOR_H__

@@ -80,6 +80,9 @@ int UndoChangeModel( ACTOR *actor );
 
 void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip);
 
+void FindFrogSubObjects( int p );
+void UpdateFrogCroak( int pl );
+
 #ifdef __cplusplus
 }
 #endif

@@ -22,14 +22,20 @@ extern "C"
 
 #include "actor.h"
 #include "frogger.h"
+#include "babyfrog.h"
 #include "game.h"
 #include "Types.h"
 #include "maths.h"
 #include "cam.h"
 #include "sprite.h"
+#include "frogmove.h"
 #include <islmem.h>
 #include <islutil.h>
+#include "Main.h"
 #include "mdx.h"
+#include "pcaudio.h"
+#include "tongue.h"
+#include "pcmisc.h"
 
 
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
@@ -111,6 +117,158 @@ void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int spe
 
  	if (a->animation->currentAnimation != animNum)
  		actorAnimate(actor, animNum, loop, queue, speed, skip);
+}
+
+void FindFrogSubObjects( int p )
+{
+	char objName[8];
+
+	if( !headMatrix )
+	{
+		MDX_OBJECT *obj;
+
+		sprintf( objName, "fghed" );
+		if( player[0].character == FROG_LILLIE )
+			objName[1] = 'm';
+
+		if( (obj = FindActorSubObject( (MDX_ACTOR *)frog[0]->actor->actualActor, objName )) )
+		{
+			headMatrix = (float *)obj->objMatrix.matrix;
+
+			if( !obj->postMatrix )
+			{
+				headPostMatrix = obj->postMatrix = (float *)MALLOC0(sizeof(float)*16);
+				mtxSetIdent(headPostMatrix);
+			}
+		}
+	}
+	if( !breastMatrix )
+	{
+		MDX_OBJECT *obj;
+
+		sprintf( objName, "fgshld" );
+		if( player[0].character == FROG_LILLIE )
+			objName[1] = 'm';
+		if( (obj = FindActorSubObject( (MDX_ACTOR *)frog[0]->actor->actualActor, objName )) )
+			if( !obj->postMatrix )
+			{
+				breastMatrix = obj->postMatrix = (float *)MALLOC0(sizeof(float)*16);
+				mtxSetIdent(breastMatrix);
+			}
+	}
+}
+
+char croakDir			= 0;
+
+void UpdateFrogCroak( int pl )
+{
+	SVECTOR effectPos;
+
+	// frog is croaking
+	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
+	{
+		SPECFX *fx;
+
+		if( breastMatrix )
+		{
+			if( croakDir > 1 )
+			{
+				croakDir -= max((int)timeInfo.speed, 1);
+				if( croakDir < 1 ) croakDir = 1;
+			}
+			else if( breastMatrix[0] < 1.5 && !croakDir )
+			{
+				breastMatrix[0] *= 1+(0.1*timeInfo.speed);
+				breastMatrix[5] *= 1+(0.1*timeInfo.speed);
+				breastMatrix[10] *= 1+(0.1*timeInfo.speed);
+
+				if( breastMatrix[0] >= 1.5 )
+				{
+					croakDir = 10;
+					breastMatrix[0] = breastMatrix[5] = breastMatrix[10] = 1.5;
+				}
+
+				headPostMatrix[0] *= 1+(0.08*timeInfo.speed);
+				headPostMatrix[5] *= 1+(0.08*timeInfo.speed);
+				headPostMatrix[10] *= 1+(0.08*timeInfo.speed);
+
+				if( headPostMatrix[0] >= 1.5 )
+				{
+					headPostMatrix[0] = headPostMatrix[5] = headPostMatrix[10] = 1.5;
+				}
+			}
+			else if( breastMatrix[0] > 1 && croakDir == 1 )
+			{
+				breastMatrix[0] *= 1-(0.1*timeInfo.speed);
+				breastMatrix[5] *= 1-(0.1*timeInfo.speed);
+				breastMatrix[10] *= 1-(0.1*timeInfo.speed);
+
+				if( breastMatrix[0] <= 1 )
+				{
+					croakDir = 2;
+					breastMatrix[0] = breastMatrix[5] = breastMatrix[10] = 1;
+				}
+
+				headPostMatrix[0] *= 1-(0.08*timeInfo.speed);
+				headPostMatrix[5] *= 1-(0.08*timeInfo.speed);
+				headPostMatrix[10] *= 1-(0.08*timeInfo.speed);
+
+				if( headPostMatrix[0] <= 1 )
+				{
+					headPostMatrix[0] = headPostMatrix[5] = headPostMatrix[10] = 1;
+				}
+			}
+		}
+
+		if( !(player[pl].isCroaking.time%2) )
+		{
+			SetVectorSS(&effectPos, &frog[pl]->actor->position);
+			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, 81920, 4096, 410, 6144 )) )
+			{
+				fx->spin = 25;
+				SetFXColour( fx, 191, 255, 0 );
+			}
+			PlayVoice( pl, "frogcroak" );
+		}
+
+		GTUpdate( &player[pl].isCroaking, -1 );
+		if( !player[pl].isCroaking.time )
+		{
+			int baby;
+
+			player[pl].frogState &= ~FROGSTATUS_ISCROAKING;
+
+			// check for nearest baby frog - do radius check ????
+			baby = GetNearestBabyFrog();
+
+			if( baby != -1 )
+			{
+				FVECTOR up;
+				SVECTOR pos;
+				SetVectorFF( &up, &upVec );
+				ScaleVector( &up, 20 );
+				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
+
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[pl]->normal, 81920, 4096, 410, 6144 )) )
+				{
+					fx->spin = 25;
+					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
+				}
+
+				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
+			}
+		}
+	}
+	else
+	{
+		if( breastMatrix )
+		{
+			breastMatrix[0] = breastMatrix[5] = breastMatrix[10] = 1;
+			headPostMatrix[0] = headPostMatrix[5] = headPostMatrix[10] = 1;
+
+			croakDir = 0;
+		}
+	}
 }
 
 }

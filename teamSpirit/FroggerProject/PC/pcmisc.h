@@ -79,6 +79,7 @@ extern void CreateProceduralTexture( TextureType *tex, char *name );
 #define FOGADJ(x) (1.0-((x-fStart)*fEnd))
 #define FOGVAL(y) (((unsigned long)(255*y) << 24))
 
+void mtxSetIdent( float *m );
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,9 @@
 
 int drawOverlays = 1;
 
+float imtx[4][4]={1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+
+
 LPDIRECTDRAWSURFACE7 pSurface = NULL;
 
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
@@ -347,3 +350,7 @@ void PcNameEntryInit(void)
 	textString[0] = 0;
 }
 
+void mtxSetIdent( float *m )
+{
+	memcpy (m,imtx,sizeof(float)*16);
+}
