@@ -25,15 +25,13 @@
 #include <mdxddraw.h>
 #endif
 
-#define IMAGETIME_SECONDS 10
-
 FMV_DATA fmv[NUM_FMV_SEQUENCES] = 
 {
 	"",0,
 	"ATARIS",250,		//	FMV_ATARI_LOGO,            
 	"BLITZS",147,		//	FMV_BLITZ_LOGO,            
-	"02S",1085,			//	FMV_INTRO,
-	"02S",1085,			//	FMV_FROGGER_LILLIE_BABIES, 
+	"02S",1094,			//	FMV_INTRO,
+	"02S",1094,			//	FMV_FROGGER_LILLIE_BABIES, 
 	"03S",674,			//	FMV_SWAMPY_PLAN,           
 	"04S",667,			//	FMV_SWAMPY_ESCAPES,        
 	"05S",295,			//	FMV_LILLIE_TO_GATE,        
@@ -42,7 +40,7 @@ FMV_DATA fmv[NUM_FMV_SEQUENCES] =
 	"08S",1029,			//	FMV_SWAMPY_COMMERCIAL,     
 	"09S",846,			//	FMV_TELEPORT_TO_EARTH,     
 	"10S",421,			//	FMV_ENTER_HAUNTED_HOUSE,   
-	"11S",948,			//	FMV_LILLIE_IN_CAGE,        
+	"11S",947,			//	FMV_LILLIE_IN_CAGE,        
 	"12S",737,			//	FMV_VICTORY,               
 };
 
@@ -85,7 +83,7 @@ GAME_LEVEL storySequence[] =
 /*	--------------------------------------------------------------------------------
     Function		: StoryStartLevel
 	Parameters		: void
-	Returns			: 1 if we went into a new mode, 0 if we want to do a default 'next level' thing
+	Returns			: 
 */
 void StoryStartLevel(void)
 {
