@@ -94,7 +94,11 @@ void InitDemoMode()
 	CreateAndAddTextOverlay(2048, 128, GAMESTRING(STR_DEMO_MODE), YES, 128, NULL, 0);
 #endif
 
+#ifdef PC_VERSION
+	CreateAndAddTextOverlay(2048, 3500, GAMESTRING(STR_PRESSENTER), YES, 128, NULL, 0);
+#else
 	CreateAndAddTextOverlay(2048, 3500, GAMESTRING(STR_PRESSSTART), YES, 128, NULL, 0);
+#endif
 //	CreateAndAddSpriteOverlay( 3000, 2700, "BLITZGAMES", 800, 1000, 190, 0 );
 //	CreateAndAddSpriteOverlay( 250, 3200, "FROGGER2", 600, 800, 255, 0 );
 
