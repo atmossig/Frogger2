@@ -17,6 +17,7 @@
 #include "enemies.h"
 #include "babyfrog.h"
 #include "audio.h"
+#include "game.h"
 
 ACTORLIST	actorList;
 
@@ -550,6 +551,9 @@ void actorUpdateAnimations(ACTOR *actor)
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
 	ANIMATION *anim;
 	int i;
+
+	if( gameState.mode == PAUSE_MODE )
+		return;
 
 	//reject all objects which have no animation
 	if(actorAnim->numAnimations == 0)
