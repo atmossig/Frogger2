@@ -97,12 +97,14 @@ void loadingInitPolys()
 	}
 }
 
+int fontsLoaded;
 void loadingInit ( int worldID, int levelID )
 {
 	int i, c;
 	RECT rect;
 	int y = 500;
 
+	fontsLoaded = NO;
 	if(NUM_FROGS == 4)
 		NUM_WATER_TILESX = NUM_WATER_TILESY = 6;
 	else
@@ -125,6 +127,7 @@ void loadingInit ( int worldID, int levelID )
 	setCamera(0,0,-12000, 0,0,0);
 
 	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+	worldName->draw = 0;
 
 	if(gameState.mode == FRONTEND_MODE)
 		chaptStr[0] = 0;
@@ -152,6 +155,7 @@ void loadingInit ( int worldID, int levelID )
 		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
 
 
+	levelName->draw = 0;
 	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
 	backgrounds[1]->r = backgrounds[1]->g = backgrounds[1]->b = 128;
 
@@ -166,6 +170,7 @@ void loadingInit ( int worldID, int levelID )
 	levelName->speed = 4096*40;
 
 	parTimeText = CreateAndAddTextOverlay( 2048 + 4096*3, y, recordStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+	parTimeText->draw = 0;
 	if(gameState.mode == FRONTEND_MODE)
 		recordStr[0] = 0;
 	else if(gameState.multi == SINGLEPLAYER) 
@@ -220,6 +225,7 @@ void loadingInit ( int worldID, int levelID )
 	coinsText = CreateAndAddTextOverlay( 2048 - 4096*4, y, coinStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
 	coinsText->xPosTo = 2048;
 	coinsText->speed = 4096*40;
+	coinsText->draw = 0;
 
 /*
 	rect.x = 1024-64;
@@ -279,15 +285,36 @@ void loadingWaterFrame ( void )
 	int temp;
 	
 
-	for(i = 0;i < NUM_FROGS;i++)
+	if(fontsLoaded == NO)
 	{
-		if((playerFace[i]) && (playerFace[i]->draw == 0))
+		if((fontSmall) && (font))
 		{
-			playerFace[i]->tex = FindTexture(frogPool[player[i].character].icon);
-			if(playerFace[i]->tex)
-				playerFace[i]->draw = playerText[i]->draw = 1;
+			fontsLoaded = YES;
+			for(i = 0;i < NUM_FROGS;i++)
+				playerText[i]->font = font;
+			worldName->font = fontSmall;
+			levelName->font = font;
+			parTimeText->font = font;
+			coinsText->font = font;
+			worldName->draw = 1;
+			levelName->draw = 1;
+			parTimeText->draw = 1;
+			coinsText->draw = 1;
 		}
 	}
+	else
+	{
+		for(i = 0;i < NUM_FROGS;i++)
+		{
+			if((playerFace[i]) && (playerFace[i]->draw == 0))
+			{
+				playerFace[i]->tex = FindTexture(frogPool[player[i].character].icon);
+				if(playerFace[i]->tex)
+					playerFace[i]->draw = playerText[i]->draw = 1;
+			}
+		}
+	}
+
 
 	++loadFrameCount;
 	DrawScreenTransition();

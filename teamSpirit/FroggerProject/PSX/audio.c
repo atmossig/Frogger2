@@ -324,7 +324,9 @@ int LoadSfx(long worldID )
 	utilPrintf ( "WorldID Is : %d\n", worldID );
 //load the non-looping level samples
 
-	if(gameState.multi == SINGLEPLAYER)
+	if(worldID == -1)
+		strcat(path,"SYSTEM\\");
+	else if(gameState.multi == SINGLEPLAYER)
 	{
 		switch( worldID )
 		{
