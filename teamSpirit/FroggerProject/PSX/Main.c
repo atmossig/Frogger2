@@ -527,7 +527,7 @@ int main ( )
 
 		actFrameCount = 0;
 
-		InitBackdrop("LOADING");
+		InitBackdrop("FR2LEGAL");
 		ScreenFade(0,255,30);
 		while(actFrameCount < 180)
 		{
