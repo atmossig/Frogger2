@@ -30,7 +30,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	SCENIC *cur = firstScenic;
 
 
-	char *compare;
+//	char *compare;
 
 	/*int actCount = 0;
 	*/
@@ -60,29 +60,29 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 			//		CreateAndAddScenicObject(cur);
 
 				//}
-				/*else*/ if ( ( compare = strstr ( cur->name, "xx_" ) ) || ( compare = strstr ( cur->name, "lea_" ) ) ||
-									( compare = strstr ( cur->name, "xxa_" ) ) || ( compare = strstr ( cur->name, "spl_" ) ) ||
-									( compare = strstr ( cur->name, "wh" ) ) || ( compare = strstr ( cur->name, "wat_" ) )||
-									( compare = strstr ( cur->name, "slu_" ) ) || ( compare = strstr ( cur->name, "spm_" ) )||
-									( compare = strstr ( cur->name, "log" ) )|| ( compare = strstr ( cur->name, "cfence" ) )||
-									( compare = strstr ( cur->name, "bar" ) )|| ( compare = strstr ( cur->name, "submush" ) )||
-									( compare = strstr ( cur->name, "pylon" ) )|| ( compare = strstr ( cur->name, "spf_" ) )||
-									( compare = strstr ( cur->name, "gunk" ) )|| ( compare = strstr ( cur->name, "mini" ) )||
-									( compare = strstr ( cur->name, "plat" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
-									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
-									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
-									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "torch" ) )||
-									( compare = strstr ( cur->name, "framea" ) )|| ( compare = strstr ( cur->name, "frameb" ) )||
-									( compare = strstr ( cur->name, "framec" ) )|| ( compare = strstr ( cur->name, "framed" ) )||
-									( compare = strstr ( cur->name, "levels" ) )|| ( compare = strstr ( cur->name, "players" ) )||
-									( compare = strstr ( cur->name, "babyfrog" ) )|| ( compare = strstr ( cur->name, "froggr" ) )||
-									( compare = strstr ( cur->name, "hopper" ) )|| ( compare = strstr ( cur->name, "lillie" ) )||
-									( compare = strstr ( cur->name, "wart" ) )|| ( compare = strstr ( cur->name, "twee" ) )||
-									( compare = strstr ( cur->name, "swampy" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
-									( compare = strstr ( cur->name, "glass" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
-									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "vs" ) )||
-									( compare = strstr ( cur->name, "wat_" ) )|| ( compare = strstr ( cur->name, "rails" ) )||
-									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
+				/*else*/ if ( ( strstr ( cur->name, "xx_" ) ) || ( strstr ( cur->name, "lea_" ) ) ||
+									( strstr ( cur->name, "xxa_" ) ) || ( strstr ( cur->name, "spl_" ) ) ||
+									( strstr ( cur->name, "wh" ) ) || ( strstr ( cur->name, "wat_" ) )||
+									( strstr ( cur->name, "slu_" ) ) || ( strstr ( cur->name, "spm_" ) )||
+									( strstr ( cur->name, "log" ) )|| ( strstr ( cur->name, "cfence" ) )||
+									( strstr ( cur->name, "bar" ) )|| ( strstr ( cur->name, "submush" ) )||
+									( strstr ( cur->name, "pylon" ) )|| ( strstr ( cur->name, "spf_" ) )||
+									( strstr ( cur->name, "gunk" ) )|| ( strstr ( cur->name, "mini" ) )||
+									( strstr ( cur->name, "plat" ) )|| ( strstr ( cur->name, "poper" ) )||
+									( strstr ( cur->name, "powerl" ) )|| ( strstr ( cur->name, "lamp" ) )||
+									( strstr ( cur->name, "tubtank" ) )|| ( strstr ( cur->name, "cityrub" ) )||
+									( strstr ( cur->name, "candle" ) )|| ( strstr ( cur->name, "torch" ) )||
+									( strstr ( cur->name, "framea" ) )|| ( strstr ( cur->name, "frameb" ) )||
+									( strstr ( cur->name, "framec" ) )|| ( strstr ( cur->name, "framed" ) )||
+									( strstr ( cur->name, "levels" ) )|| ( strstr ( cur->name, "players" ) )||
+									( strstr ( cur->name, "babyfrog" ) )|| ( strstr ( cur->name, "froggr" ) )||
+									( strstr ( cur->name, "hopper" ) )|| ( strstr ( cur->name, "lillie" ) )||
+									( strstr ( cur->name, "wart" ) )|| ( strstr ( cur->name, "twee" ) )||
+									( strstr ( cur->name, "swampy" ) )|| ( strstr ( cur->name, "robofrog" ) )||
+									( strstr ( cur->name, "glass" ) )|| ( strstr ( cur->name, "robofrog" ) )||
+									( strstr ( cur->name, "ancnt2" ) )|| ( strstr ( cur->name, "vs" ) )||
+									( strstr ( cur->name, "wat_" ) )|| ( strstr ( cur->name, "rails" ) )||
+									( strstr ( cur->name, "window" ) )|| ( strstr ( cur->name, "anspike" ) )  ) 
 				{
 					utilUpperStr ( cur->name );
 					CreateAndAddScenicObject(cur);
