@@ -13,6 +13,7 @@
 
 #include "incs.h"
 
+SCREENSPAWN *spawnList = NULL;
 
 unsigned long autoHop			= 0;
 unsigned long longHop			= 0;
@@ -371,6 +372,74 @@ void ProcessCollectables()
 	Returns			: void
 	Info			:
 */
+
+void AddScreenSpawn(long x, long y, long xa, long ya)
+{
+	SCREENSPAWN *me ;
+	
+	me = JallocAlloc(sizeof(SCREENSPAWN),"sspa",0);
+
+	me->x = x;
+	me->y = y;
+
+	me->ax = xa;
+	me->ay = ya;
+	
+	me->next = spawnList;
+
+	me->sp = CreateAndAddSpriteOverlay(x,y,"rdfrg001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
+
+	if (spawnList)
+		spawnList->prev = me;
+
+	spawnList = me;
+
+}
+
+float spawnSpeed = 0.5;
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void UpdateScreenSpawn(void)
+{
+	SCREENSPAWN *cur = spawnList;
+
+	while (cur)
+	{
+		cur->x -= (cur->x - cur->ax) * spawnSpeed;
+		cur->y -= (cur->y - cur->ay) * spawnSpeed;
+		
+		if (cur->x==cur->ax)
+			if (cur->y==cur->ay)
+			{
+				SubSpriteOverlay(cur->sp);
+
+				if (cur->prev)
+					cur->prev->next = cur->next;
+				if (cur->next)
+					cur->next->prev = cur->prev;
+
+				JallocFree(cur);
+			}
+
+		cur = cur->next;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
 void PickupCollectable(GARIB *garib)
 {
 	FX_RIPPLE *rip;
@@ -386,9 +455,15 @@ void PickupCollectable(GARIB *garib)
 		case SPAWN_GARIB:
 			if(player[0].spawnTimer)
 			{
+				VECTOR m;
 				// increase player score bonus
 				if(player[0].spawnScoreLevel < 5)
 					player[0].spawnScoreLevel++;
+
+				XfmPoint (&m,&garib->sprite.pos);
+				
+				if (m.v[3]>0)
+					AddScreenSpawn(m.v[0], m.v[1],0,0);
 			}
 
 			player[0].spawnTimer = SPAWN_SCOREUPTIMER;

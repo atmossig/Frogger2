@@ -50,6 +50,16 @@ typedef struct TAGGARIBLIST
 
 } GARIBLIST;
 
+typedef struct TAG_SCREENSPAWN
+{
+	float x,y;
+	float ax,ay;
+	
+	SPRITEOVERLAY *sp;
+	struct TAG_SCREENSPAWN *next,*prev;
+
+} SCREENSPAWN;
+
 
 enum
 {

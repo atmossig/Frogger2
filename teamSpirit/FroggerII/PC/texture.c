@@ -46,7 +46,6 @@ void FreeAllTextureBanks()
 		JallocFree(&tme);		
 	}
 
-	dprintf"AllTextureBanksAreFreed---------\n"));
 	texList = NULL;
 }
 
@@ -143,9 +142,6 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	
 	newE->CRC  = UpdateCRC (mys);
 	
-	if (strncmp(shortn,"frog1",5)==0)
-		dprintf"mmmh\n"));
-	
 	newE->data = GetGelfBmpDataAsShortPtr(file);
 	
 	if (newE->data)
@@ -154,8 +150,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
 			newE->hdl = ConvertSurfaceToTexture(newE->surf);
-			dprintf"%x\n",newE->hdl));
-
+			
 		}
 		else
 		{

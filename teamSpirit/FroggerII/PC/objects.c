@@ -292,7 +292,15 @@ void LoadObjectBank(int num)
 		case ANCIENTMULTI_OBJ_BANK:
 			strcat (file,"ancientsmulti");
 			break;
-
+	
+	case LABORATORYMASTER_OBJ_BANK:
+			strcat (file,"labmaster");
+			break;
+	
+	case LABORATORYLEV1_OBJ_BANK:
+			strcat (file,"lab1");
+			break;
+			
 		case RETROMASTER_OBJ_BANK:
 			strcat (file,"haloween");
 			break;
