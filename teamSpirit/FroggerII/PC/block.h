@@ -29,7 +29,7 @@
 typedef struct TAGWININFO
 {
 	HWND	hWndMain;
-	HANDLE	hInstance;
+	HINSTANCE	hInstance;
 
 } WININFO;
 
