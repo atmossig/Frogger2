@@ -59,6 +59,7 @@ BOOL cameoMode			= FALSE;
 /* ---------------- Local functions -------------- */
 
 void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float height, long time, long player);
+void CheckForFroggerLanding(long pl);
 
 
 /*	--------------------------------------------------------------------------------
@@ -292,7 +293,7 @@ void UpdateFroggerPos(long pl)
 		Calculate frog hop
 	*/
 
-	if( player[pl].jumpTime < 1.0f )
+	if( player[pl].jumpTime >= 0.0f && player[pl].jumpTime < 1.0f )
 	{
 		VECTOR up, fwd, pos;
 		float p, t, delta;
@@ -334,12 +335,12 @@ void UpdateFroggerPos(long pl)
 		{
 			// ...yep - check for presence of a platform in the destination tile
 			destPlatform[pl] = CheckDestForPlatform(destTile[pl],pl);
-			if(!destPlatform[pl])
+/*			if(!destPlatform[pl])
 			{
 				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 				player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 			}
-		}
+*/		}
 
 		// NEW STUFF END - ANDYE --------------------------------------------
 	}
@@ -360,10 +361,7 @@ void UpdateFroggerPos(long pl)
 		dprintf"FROGSTATUS_ISFREEFALLING\n"));
 
 		// frog is free-falling under gravity
-		if(destPlatform[pl])
-			CheckForFroggerLanding(JUMPING_TOPLATFORM,pl);
-		else
-			CheckForFroggerLanding(JUMPING_TOTILE,pl);
+		CheckForFroggerLanding(pl);
 
 		return;
 	}
@@ -405,10 +403,8 @@ void UpdateFroggerPos(long pl)
 	if (cameoMode || !UpdateFroggerControls(pl))
 	{
 		// process frog's jump
-		if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
-			CheckForFroggerLanding(JUMPING_TOPLATFORM,pl);
-		else if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
-			CheckForFroggerLanding(JUMPING_TOTILE,pl);
+		if (player[pl].jumpTime > 0)
+			CheckForFroggerLanding(pl);
 	}
 
 	/* ---------------------------------------------------- */
@@ -788,7 +784,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	Returns			: void
 	Info			:
 */
-void CheckForFroggerLanding(int whereTo,long pl)
+void CheckForFroggerLanding(long pl)
 {
 	VECTOR telePos;
 	unsigned long i;
@@ -809,6 +805,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	player[pl].canJump = 1;
 	player[pl].isSuperHopping = 0;
 	player[pl].hasDoubleJumped = 0;
+	player[pl].jumpTime = -1;
+
 	if( frogTrail[pl] && frogTrail[pl]->follow )
 	{
 		frogTrail[pl]->follow = NULL;
@@ -816,15 +814,18 @@ void CheckForFroggerLanding(int whereTo,long pl)
 	}
 
 	// Finish anims
-	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+	if (player[pl].frogState & (FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISJUMPINGTOTILE))
 	{
-		AnimateActor(frog[0]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
+		if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+		{
+			AnimateActor(frog[0]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
+			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
+		}
+		else
+			AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
 	}
-	else
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
 
-	if(whereTo == JUMPING_TOPLATFORM)
+	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
 		// ok - frog has landed
 		SetVector(&frog[pl]->actor->pos,&destPlatform[pl]->pltActor->actor->pos);
@@ -865,7 +866,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 		CheckTileForCollectable(NULL,0);
 	}
-	else
+	else if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
 	{
 		GAMETILE *tile;
 		int state;
@@ -979,6 +980,15 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 		// Next, check if frog has landed on a collectable
 		CheckTileForCollectable(tile, pl);
+	}
+	else
+	{
+		VECTOR pos;
+
+		SetVector(&pos, &player[pl].jumpOrigin);
+		AddToVector(&pos, &player[pl].jumpFwdVector);
+		AddToVector(&pos, &player[pl].jumpUpVector);
+		SetVector(&frog[pl]->actor->pos, &pos);
 	}
 }
 
@@ -1149,6 +1159,35 @@ void HopFrogToTile(GAMETILE *tile, long pl)
 }
 
 /*	--------------------------------------------------------------------------------
+	Function		: HopFrogToTile
+	Purpose			: Hop the frog to a tile
+	Parameters		: 
+	Returns			: void
+*/
+
+void SpringFrogToTile(GAMETILE *tile, float height, float time, long pl)
+{
+	long t = (long)(time * 60);
+
+	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	player[pl].canJump = 0;
+	destTile[pl] = tile;
+
+	player[pl].canJump = 0;
+	player[pl].frogState = FROGSTATUS_ISJUMPINGTOTILE;
+	if (currPlatform[pl])
+	{
+		currPlatform[pl]->carrying = NULL;
+		currPlatform[pl] = NULL;
+	}
+	destTile[pl] = tile;
+
+	CalculateFrogJump(
+		&frog[pl]->actor->pos, &destTile[pl]->centre, &currTile[pl]->normal,
+		height, t, pl);
+}
+
+/*	--------------------------------------------------------------------------------
 	Function		: PushFrog
 	Purpose			: Push the frog in a given direction
 	Parameters		: VECTOR, VECTOR, long
@@ -1186,6 +1225,48 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 
 	currTile[pl] = destTile[pl];
 }
+
+/*	--------------------------------------------------------------------------------
+	Function		: ThrowFrogAtScreen
+	Purpose			: Throw the frog at the screen
+	Parameters		: 
+	Returns			: void
+*/
+
+#define THROWFROG_FRAMES	12
+
+void ThrowFrogAtScreen(long pl)
+{
+	VECTOR target, v;
+	float dist, time, animSpeed, screenDist = 70.0f;
+	long frameTime;
+
+	SubVector(&v, &currCamTarget[0], &currCamSource[0]);
+	dist = Magnitude(&v);
+	ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
+
+	ScaleVector(&v,	screenDist/dist);
+
+	AddVector(&target, &v, &currCamSource[0]);
+
+	time = 1.0f;
+	frameTime = (long)(time*60);
+	animSpeed = 1.0f / (THROWFROG_FRAMES * time * 60.0f);
+
+	fixedPos = 1;
+	controlCamera = 1;
+	fixedDir = 1;
+
+	player[pl].frogState = 0;
+	player[pl].idleTime = 1000000;	// arbitrary big number
+
+	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal,
+		0, frameTime, pl);
+
+	AnimateActor(frog[pl]->actor, FROG_ANIM_TO_SCREENSPLAT, NO, NO, 0.5f, NO, NO);
+	//AnimateActor(frog[pl]->actor, FROG_ANIM_SCREENSPLAT, NO, YES, 0.25f, YES, YES);
+}
+
 
 /*	---------------------------------------------------------------------------------
 	Notes on Frog Movement

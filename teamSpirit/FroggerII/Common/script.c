@@ -120,22 +120,22 @@ ACTOR2 *GetActorFromUID(int UID)
 }
 
 
+#ifdef DEBUG_SCRIPTING
 GAMETILE *GetTileFromNumber(int number)
 {
 	GAMETILE *tile;
 	for (tile = firstTile; number && tile; number--, tile = tile->next);
-#ifdef DEBUG_SCRIPTING
 	if (!tile)
 	{
 		char buf[40];
 		sprintf(buf, "Invalid tile number: %d", number);
 		PrintScriptDebugMessage(buf);
 	}
-#endif
-
 	return tile;
 }
-
+#else
+#define GetTileFromNumber(i) (&firstTile[i])
+#endif
 
 /*	--------------------------------------------------------------------------------
     Function		: InterpretEvent
@@ -605,7 +605,7 @@ BOOL ExecuteCommand(UBYTE **p)
 			if (t = LoadTrigger(p))
 			{
 				UBYTE *q = (*p);
-				int size = MEMGETINT(q);
+				int size = MEMGETINT(&q);
 
 				if (t->func(t))
 					Interpret(q);
@@ -650,45 +650,14 @@ BOOL ExecuteCommand(UBYTE **p)
 
 	case EV_SPRING:
 		{
-			TRIGGER *t;
-			EVENT *e;
-			void **param;
-			SPRINGINFO *info;
-			GAMETILE *tile;
-			int frogNum, tileNum;
-			float height, time;
+			GAMETILE *tile;	int pl;	float height, time;
 
-			frogNum = MEMGETBYTE(p);
-			tileNum = MEMGETWORD(p);
+			pl = MEMGETBYTE(p);
+			tile = GetTileFromNumber(MEMGETWORD(p));
 			height = MEMGETFLOAT(p);
 			time = MEMGETFLOAT(p);
 
-			player[frogNum].frogState = FROGSTATUS_ISTELEPORTING;	// clear ALL flags
-			player[frogNum].canJump = 0;
-			FrogLeavePlatform(frogNum);	// bah
-
-			info = (SPRINGINFO*)JallocAlloc(sizeof(SPRINGINFO), NO, "spring");
-
-			info->frog = frogNum;
-			tile = GetTileFromNumber(tileNum);
-			info->dest = tile;
-			SetVector(&info->S, &frog[frogNum]->actor->pos);
-			SubVector(&info->V, &tile->centre, &info->S);
-			SetVector(&info->H, &tile->normal);
-			ScaleVector(&info->H, height);
-
-			info->start = actFrameCount;
-			info->end = actFrameCount + (time * 60.0);
-
-			t = MakeTrigger( AlwaysTrigger, NULL );
-
-			param = AllocArgs(2);
-			param[0] = (void*)info;
-			param[1] = (void*)t;
-
-			e = MakeEvent( SpringFrog, param );
-			
-			AttachEvent( t, e, TRIGGER_ALWAYS, 0 );
+			SpringFrogToTile(tile, height, time, pl);
 
 			break;
 		}
