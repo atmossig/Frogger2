@@ -378,7 +378,7 @@ void UpdateFrogTongue( int pl )
 					TRIGGER *t;
 					void *arg1;
 
-					t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 45), NULL, NULL, NULL );
+					t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 10), NULL, NULL, NULL );
 
 //					if( actFrameCount&1) 
 						arg1 = (void *)FindVoice(utilStr2CRC("frogbelch1"),pl);
