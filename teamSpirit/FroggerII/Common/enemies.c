@@ -20,7 +20,19 @@ ENEMYLIST enemyList;						// the enemy linked list
 
 #define ENEMY_RANDOMNESS (0.5 + (Random(100)/100.0))	// returns a value from 0.5 to 1.5
 
-static void GetEnemyActiveTile(ENEMY *enemy);
+void NMEDamageFrog( int num, ENEMY *nme );
+void RotateWaitingNME( ENEMY *cur );
+
+void UpdatePathNME( ENEMY *cur );
+void UpdateSnapper( ENEMY *cur );
+void UpdateTileSnapper( ENEMY *cur );
+void UpdateVent( ENEMY *cur );
+void UpdateMoveVerticalNME( ENEMY *cur );
+void UpdateRotatePathNME( ENEMY *cur );
+void UpdateHomingNME( ENEMY *cur );
+void UpdateMoveOnMoveNME( ENEMY *cur );
+void UpdateFlappyThing( ENEMY *cur );
+void UpdateFrogWatcher( ENEMY *cur );
 
 /*	--------------------------------------------------------------------------------
 	Function		: 
@@ -41,69 +53,6 @@ ENEMY *GetEnemyFromUID (long uid)
 	return NULL;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: GetEnemyActiveGameTile
-	Purpose			: determines which tile the enemy is currently 'in'
-	Parameters		: ENEMY *
-	Returns			: void
-	Info			: 
-*/
-static void GetEnemyActiveTile(ENEMY *nme)
-{
-	VECTOR v1,v2,diff;
-	float halfdist;
-
-	if(nme->flags & ENEMY_NEW_FOLLOWPATH)
-	{
-		GetPositionForPathNode(&v1,&nme->path->nodes[nme->path->fromNode]);
-		GetPositionForPathNode(&v2,&nme->path->nodes[nme->path->toNode]);
-
-		halfdist = DistanceBetweenPoints(&v1,&v2) / 2.0F;
-
-		if(DistanceBetweenPointsSquared(&v1,&nme->nmeActor->actor->pos) < (halfdist * halfdist))
-			nme->inTile = nme->path->nodes[nme->path->fromNode].worldTile;
-		else
-			nme->inTile = nme->path->nodes[nme->path->toNode].worldTile;
-	}
-	else if( (nme->flags & ENEMY_NEW_ROTATEPATH_XZ) ||
-			(nme->flags & ENEMY_NEW_ROTATEPATH_XY) ||
-			(nme->flags & ENEMY_NEW_ROTATEPATH_ZY) )
-	{
-		nme->inTile = FindNearestTile( nme->nmeActor->actor->pos );
-	}
-	else
-	{
-		// no path associated with this enemy
-		nme->inTile = nme->path->nodes[0].worldTile;
-	}
-}
-/*	--------------------------------------------------------------------------------
-	Function		: 
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-
-GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d )
-{
-	float distance = 100000, t;
-	int i;
-	GAMETILE *res = NULL;
-
-	for (i=0; i<4; i++)
-	{
-		t = DotProduct( d, &st->dirVector[i] );
-		if( (t < distance) && st->tilePtrs[i] )
-		if( st->tilePtrs[i]->state == TILESTATE_NORMAL )
-		{
-			distance = t;
-			res = st->tilePtrs[i];
-		}
-	}
-
-	return res;
-}
 
 void NMEDamageFrog( int num, ENEMY *nme )
 {
@@ -142,16 +91,10 @@ void NMEDamageFrog( int num, ENEMY *nme )
 	Returns			: void
 	Info			: 
 */
-float rotLimit = 0.7;
-
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
-	VECTOR fromPosition,toPosition;
-	VECTOR fwd;
-	VECTOR moveVec;
-	PLANE2 rebound;
-	float length,fxDist;
+	float fxDist;
 	long i;
 
 	if(enemyList.numEntries == 0)
@@ -168,11 +111,12 @@ void UpdateEnemies()
 		// Set point of interest for frog
 		if( cur->nmeActor->distanceFromFrog < pOIDistance )
 		{
+			VECTOR moveVec;
 			float angle;
 			SubVector( &moveVec, &cur->nmeActor->actor->pos, &frog[0]->actor->pos );
 			MakeUnit( &moveVec );
 			angle = acos(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec ));
-			if( angle < rotLimit )
+			if( angle < 0.7 )
 			{
 				pOIDistance = cur->nmeActor->distanceFromFrog;
 				pointOfInterest = &cur->nmeActor->actor->pos;
@@ -191,544 +135,48 @@ void UpdateEnemies()
 			{
 				// if enemy is following a path, do a slerp so it'll rotate nicely
 				// (except the way I do it is a bit poo - Dave)
-
 				if (cur->flags & ENEMY_NEW_FOLLOWPATH && !(cur->flags & ENEMY_NEW_FACEFORWARDS))
-				{
-					QUATERNION q, res;
-					float t;
-					long start_t, end_t, time;
-					
-					end_t = cur->path->startFrame;
-					time = cur->isWaiting*waitScale;
-					start_t = end_t - time;
+					RotateWaitingNME( cur );
 
-					t = 1.0 - (float)(actFrameCount-start_t)/(float)(time);
-
-					GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
-					GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
-					
-					SubVector(&fwd,&toPosition,&fromPosition);
-					MakeUnit( &fwd );
-					Orientate(&q,&fwd,&inVec,&cur->currNormal);
-
-					QuatSlerp(&q, &cur->nmeActor->actor->qRot, t, &res);
-
-					SetQuaternion(&cur->nmeActor->actor->qRot, &res);
-				}
 				continue;
 			}
 		}
 
-		if(cur->flags & ENEMY_NEW_FOLLOWPATH)
+		// Do update functions for individual enemy types
+		cur->Update(cur);
+
+		// Single and multiplayer damage to frog
+		if (NUM_FROGS==1)
 		{
-			// process enemies that follow a path (>1 node in path)
-			
-			// first, update the enemy position
-			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
-			GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
-			
-			SubVector(&fwd,&toPosition,&fromPosition);
-			
-			length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
-			
-			ScaleVector(&fwd,length);
-			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
-			MakeUnit (&fwd);
-/*
-			if (cur->flags & ENEMY_NEW_PUSHESFROG)
+			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[0]->action.dead && 
+				!frog[0]->action.safe && ActorsHaveCollided(frog[0],cur->nmeActor) )
 			{
-				if( DistanceBetweenPointsSquared(&cur->nmeActor->actor->pos,&frog[0]->actor->pos) < (frog[0]->radius*frog[0]->radius) )
-				{
-					GAMETILE *tile = NULL;
-					
-					SetVector( &moveVec, &fwd );
-					ScaleVector( &moveVec, frog[0]->radius );
-
-					AddVector( &frog[0]->actor->pos, &cur->nmeActor->actor->pos, &moveVec );
-
-					currTile[0] = FindNearestTile( frog[0]->actor->pos );
-					destTile[0] = currTile[0];
-				}
+				NMEDamageFrog(0,cur);
 			}
-*/
-			AddToVector(&cur->currNormal,&cur->deltaNormal);
-
-			if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-			{
-				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-			}
-			else
-			{
-				SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
-				if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
-				MakeUnit( &moveVec );
-				Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
-			}
-
-			// check if this enemy has arrived at a path node
-			if( actFrameCount > cur->path->endFrame )
-			{
-				UpdateEnemyPathNodes(cur);
-
-				cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
-
-				if (cur->flags & ENEMY_NEW_RANDOMSPEED)
-					cur->path->endFrame = cur->path->startFrame + (60*((float)Random(100)/100.0F) );
-				else
-					cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
-			}
-/*
-			Dave's new push block code will go in here ...
-
-			if (cur->flags & ENEMY_NEW_PUSHESFROG)
-			{
-				GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
-
-				if (currTile[0] == tile)
-				{
-					// USE FROG MOVE CODE TO PUSH FROG!
-
-					// Except I can't, so just do something fairly random for now.
-
-					if (cur->path->toNode < (cur->path->numNodes - 1))
-						tile = cur->path->nodes[cur->path->toNode+1].worldTile;
-
-					currTile[0] = destTile[0] = tile;
-					SetVector( &frog[0]->actor->pos, &tile->centre);
-
-					// i hate frogs
-				}
-			}
-*/
-		}
-		else
-			if(cur->flags & ENEMY_NEW_WATCHFROG)
-				ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos, LOOKAT_ANYWHERE );
-			else if (cur->flags & ENEMY_NEW_SNAPFROG)
-			{
-				static GAMETILE *tile = NULL;
-				QUATERNION q1, q2;
-
-				// Idle animations
-				switch( cur->isSnapping )
-				{
-				case 0:
-					if( actFrameCount < cur->path->endFrame )
-						break;
-
-					tile = NULL;
-
-					if (Random(1000)>980)
-						AnimateActor(cur->nmeActor->actor,2,NO,NO,cur->nmeActor->animSpeed, 0, 0);
-				
-					if (Random(1000)>950)
-					{
-						if (Random(1000)>950)
-							AnimateActor(cur->nmeActor->actor,3,NO,YES,cur->nmeActor->animSpeed, 0, 0);
-						else
-							AnimateActor(cur->nmeActor->actor,0,NO,YES,cur->nmeActor->animSpeed, 0, 0);
-					}
-
-					// Slerp orientation towards frog
-					SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
-					ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos, LOOKAT_2D );
-					SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
-					QuatSlerp( &q1, &q2, cur->path->nodes[0].speed, &cur->nmeActor->actor->qRot );
-
-					// If the snapper has just spotted the frog, set snap time
-					if( cur->nmeActor->distanceFromFrog < 5625 ) // 75*75
-					{
-						tile = FindNearestTile( frog[0]->actor->pos );
-
-						SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
-						ActorLookAt( cur->nmeActor->actor, &tile->centre, LOOKAT_2D );
-						SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
-						QuatSlerp( &q1, &q2, cur->path->nodes[0].speed, &cur->nmeActor->actor->qRot );
-
-						cur->path->startFrame = actFrameCount;
-						cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[0].waitTime * waitScale);
-
-						cur->isSnapping = 2;
-					}
-					break;
-
-				case 1: // Time to snap and hope
-					if( actFrameCount < cur->path->endFrame )
-						break;
-
-					cur->path->startFrame = actFrameCount;
-					cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[0].waitTime * waitScale);
-					cur->isSnapping = 0;
-
-					if( (tile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) ) // If frog is still on the target tile
-						NMEDamageFrog(0,cur);
-					break;
-
-				case 2: 				// Snap animation
-					if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
-						break;
-
-					AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
-					cur->isSnapping = 1;
-					break;
-				}
-			}
-			else if( cur->flags & ENEMY_NEW_SNAPTILES )
-			{
-				QUATERNION q1, q2;
-
-				switch( cur->isSnapping )
-				{
-				case 0:
-					if( actFrameCount < cur->path->endFrame )
-						break;
-
-					if(cur->path->toNode >= GET_PATHLASTNODE(cur->path))	// reached end of path nodes
-					{
-						cur->path->fromNode	= GET_PATHLASTNODE(cur->path);
-						cur->path->toNode	= 1; // Don't snap at the tile we're sitting on
-					}
-					else
-					{
-						cur->path->fromNode = cur->path->toNode;
-						cur->path->toNode++;
-					}
-
-					cur->path->startFrame = actFrameCount;
-					cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
-					cur->isSnapping = 2;
-					break;
-
-				case 1:
-					if( actFrameCount < cur->path->endFrame )
-						break;
-
-					cur->path->startFrame = actFrameCount;
-					cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
-					cur->isSnapping = 0;
-
-					// If the frog is on our current target tile
-					if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )//FindNearestTile(frog[0]->actor->pos) )
-						NMEDamageFrog(0,cur);
-					break;
-
-				case 2:
-					if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
-					{
-						GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
-						SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
-						ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_2D );
-						SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
-						QuatSlerp( &q1, &q2, cur->path->nodes[0].speed, &cur->nmeActor->actor->qRot );
-						break;
-					}
-
-					AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
-					cur->isSnapping = 1;
-					break;
-				}
-			}
-			else if( cur->flags & ENEMY_NEW_VENT ) // Speed on flag is how long the vent fires for, waittime is delay between bursts
-			{
-				PATH *path = cur->path;
-
-				switch( cur->isSnapping )
-				{
-				case -2:
-					path->startFrame = actFrameCount;
-					path->endFrame = actFrameCount + (60*cur->nmeActor->radius);
-
-					cur->isSnapping = -1;
-					break;
-
-				case -1:
-					if( actFrameCount > path->endFrame )
-						cur->isSnapping = 0;
-
-					break;
-
-				case 0: // Start timer
-					// Delay until fire
-					path->startFrame = actFrameCount;
-					path->endFrame = actFrameCount + (60*path->nodes[0].waitTime);
-
-					cur->isSnapping = 1;
-					break;
-
-				case 1:
-					if( actFrameCount < path->endFrame )
-						break;
-
-					// Delay until stop
-					path->startFrame = actFrameCount;
-					path->endFrame = actFrameCount + (60*path->nodes[0].speed);
-
-					cur->isSnapping = 2;
-					break;
-
-				case 2:
-					// Stop firing on timeout, and reset
-					if( actFrameCount > path->endFrame )
-					{
-						cur->isSnapping = 0;
-						break;
-					}
-
-					// Create fx
-					/* TODO: Options for different types of effects specified in the effects thing. Need effects first...
-					if( cur->nmeActor->effects & EF_FLAMEBURST_UP )
-					{
-
-					}
-					else if...
-					*/
-					SetVector(&rebound.point,&cur->inTile->centre);
-					SetVector(&rebound.normal,&cur->inTile->normal);
-					CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, cur->nmeActor->animSpeed*path->numNodes, 30, &rebound, cur->nmeActor->value1*path->numNodes );
-
-					// Check for collision with frog, and do damage
-					for( i=0; i < path->numNodes; i++ )
-						if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )
-							NMEDamageFrog(0,cur);
-
-					break;
-				}
-			}
-			else
-			{
-				// process enemies that are based on a single node
-	
-				if( (cur->flags & ENEMY_NEW_MOVEUP) || (cur->flags & ENEMY_NEW_MOVEDOWN) )
-				{
-					// get up vector for this enemy
-					SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
-				
-					moveVec.v[X] *= cur->speed;
-					moveVec.v[Y] *= cur->speed;
-					moveVec.v[Z] *= cur->speed;
-
-					// check if this enemy is moving up or down
-					if(cur->flags & ENEMY_NEW_MOVEUP)
-					{
-						// enemy is moving up
-						AddToVector(&cur->nmeActor->actor->pos,&moveVec);
-					}
-					else if(cur->flags & ENEMY_NEW_MOVEDOWN)
-					{
-						// enemy is moving down
-						SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
-					}
-			
-					if(EnemyReachedTopOrBottomPoint(cur))
-					{
-						UpdateEnemyPathNodes(cur);
-						cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
-						cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
-					}
-				}
-
-				// Move around a single flag
-				if( (cur->flags & ENEMY_NEW_ROTATEPATH_XZ ) ||
-					(cur->flags & ENEMY_NEW_ROTATEPATH_XY) ||
-					(cur->flags & ENEMY_NEW_ROTATEPATH_ZY) )
-				{
-					length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
-					length *= PI2;
-					length += cur->path->nodes->offset2 * PI2; // Fraction of circumference it starts at
-
-					if( cur->speed < 0 )
-						length = PI2 - length;
-
-					if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
-					{
-						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
-						toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf(length));
-						toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + cur->path->nodes->offset;
-					}
-					else if( cur->flags & ENEMY_NEW_ROTATEPATH_XY )
-					{
-						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
-						toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
-						toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z];
-					}
-					else if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
-					{
-						toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
-						toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * sinf(length));
-						toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X];
-					}
-
-					if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) ) // Look in direction of travel
-						ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_ANYWHERE );
-
-					SetVector( &cur->nmeActor->actor->pos, &toPosition );
-
-					if( actFrameCount > cur->path->endFrame )
-					{
-						cur->path->startFrame = cur->path->endFrame;
-						cur->path->endFrame = cur->path->startFrame+(60*Fabs(cur->speed));
-					}
-				}
-			}
-
-		// determine which world tile the enemy is currently 'in'
-		GetEnemyActiveTile(cur);
-
-		// Enemy homes in on frog - no tiles!
-		if( cur->flags & ENEMY_NEW_HOMING )
-		{
-			GAMETILE *chTile;
-			VECTOR nmeup, tVec;
-			float distance=10000, best=-2;
-			short bFlag = 0;
-
-			SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
-			MakeUnit( &moveVec );
-			chTile = FindNearestTile( cur->nmeActor->actor->pos );
-
-			// Do check for close direction vector from tile. If none match closely, do not move.
-			for( i=0; i<4; i++ )
-				if( chTile->tilePtrs[i] )
-				{
-					// Direction to tile
-					SubVector( &tVec, &chTile->tilePtrs[i]->centre, &chTile->centre );
-					MakeUnit( &tVec );
-					// Cosine of angle between vectors
-					distance = DotProduct(&tVec,&moveVec);
-					if( distance > best )
-						best = distance;
-				}
-				else
-					bFlag = 1; // There is some invalid tile
-
-			// If the best direction match is close enough we can carry on (approx 45 degrees)
-			// Also check that we're over a tile.
-			if( best > 0.7 )
-			{
-				ScaleVector( &moveVec, cur->speed );
-				AddVector( &tVec, &moveVec, &cur->nmeActor->actor->pos );
-				chTile = FindNearestTile( tVec );
-				if( bFlag )
-				{
-					SubVector( &moveVec, &chTile->centre, &tVec );
-					distance = abs(Magnitude( &moveVec ));
-				}
-				if( distance < 35 || !bFlag )
-					cur->nmeActor->actor->pos = tVec;
-			}
-		}
-		else if( cur->flags & ENEMY_NEW_MOVEONMOVE )
-		{
-			VECTOR frogVec, up;
-			PATH *path = cur->path;
-
-			if( cur->nmeActor->distanceFromFrog > 100000 )
-			{
-				cur->isIdle = 0;
-				continue;
-			}
-
-			// Check if the enemy has 3 path nodes. Allocate if not ( first time through )
-			if( cur->path->numNodes < 3 )
-			{
-				PATHNODE n;
-
-				memcpy( &n, path->nodes, sizeof(PATHNODE) );
-				JallocFree( (UBYTE **)&path->nodes );
-				path->nodes = (PATHNODE *)JallocAlloc( sizeof(PATHNODE)*3,YES,"Path" );
-				path->numNodes = 3;
-				memcpy( path->nodes, &n, sizeof(PATHNODE) );
-
-				// Find initial move for enemy to make
-				path->nodes[1].worldTile = NULL;
-				path->nodes[2].worldTile = path->nodes[0].worldTile;
-			}
-
-			// If frog has moved
-			cur->isIdle += player[0].hasJumped;
-
-			// If enemy is on the next path node, set startnode worldtile and the next to zero
-			if( (path->nodes[2].worldTile) && (actFrameCount > path->endFrame) )
-			{
-				path->nodes[1].worldTile = path->nodes[2].worldTile;
-				path->nodes[2].worldTile = NULL;
-			}
-
-			// If we need a new destination tile, find it by the direction to the frog
-			if( cur->isIdle && !path->nodes[2].worldTile )
-			{
-				SubVector( &frogVec, &currTile[0]->centre, &cur->nmeActor->actor->pos ); 
-				path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
-
-				path->startFrame = actFrameCount;
-				path->endFrame = path->startFrame + (60*path->nodes[0].speed);
-				cur->isIdle--;
-			}
-
-			// Move towards next node - third condition is so fwd is not scaled to zero
-			if( path->nodes[1].worldTile && path->nodes[2].worldTile && (actFrameCount > path->startFrame) )
-			{
-				// Move towards frog
-				SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
-				length = (float)(actFrameCount - path->startFrame)/(float)(path->endFrame - path->startFrame);
-				ScaleVector(&fwd,length);
-				AddVector(&cur->nmeActor->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
-
-				// Orientate to direction of travel
-				MakeUnit( &fwd );
-				if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
-					Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
-
-				cur->inTile = FindNearestTile( cur->nmeActor->actor->pos );
-
-				// Elevate above gametile
-				SetVector( &up, &cur->inTile->normal );
-				ScaleVector( &up, path->nodes[0].offset );
-				AddVector( &cur->nmeActor->actor->pos, &cur->nmeActor->actor->pos, &up );
-			}
-		}
-		else if( cur->flags & ENEMY_NEW_FLAPPYTHING )
-		{
-			UpdateFlappyThing(cur);
-		}
-
-		if (NUM_FROGS!=1)
-		{
-			for (i=0; i<NUM_FROGS; i++)
-			{
-				if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
-				{
-					if((!frog[i]->action.safe) && ActorsHaveCollided(frog[i],cur->nmeActor))
-						KillMPFrog(i);
-				}
-				else
-					if((currTile[i] == cur->inTile) && 	(!frog[i]->action.safe) && (!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-						!(player[i].frogState & FROGSTATUS_ISFLOATING))
-					{
-						KillMPFrog(i);
-					}
-			}
-		}
-		else
-		{
-			// check if frog has been 'killed' by current enemy - radius based collision
-			if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
-			{
-				// perform radius collision check between frog and current enemy
-				if((!frog[0]->action.dead) && (!frog[0]->action.safe) && ActorsHaveCollided(frog[0],cur->nmeActor))
-				{
-					NMEDamageFrog(0,cur);
-				}
-			}
-			// check if frog has been 'killed' by current enemy - tile based collision
-			else if((currTile[0] == cur->inTile) && (!frog[0]->action.dead) &&
-					(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-					(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE))
+			else if( (currTile[0] == cur->inTile) && !frog[0]->action.dead && !frog[0]->action.safe &&
+					(!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+					!currPlatform[0] && !(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
 			{
 				NMEDamageFrog(0,cur);
 			}
 		}
+		else
+		{
+			for (i=0; i<NUM_FROGS; i++)
+				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
+					ActorsHaveCollided(frog[i],cur->nmeActor) )
+				{
+					KillMPFrog(i);
+				}
+				else if( (currTile[i] == cur->inTile) && !frog[i]->action.safe && 
+						(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
+						!(player[i].frogState & FROGSTATUS_ISFLOATING))
+				{
+					KillMPFrog(i);
+				}
+		}
 
+		// Do Special Effects attached to enemies
 		if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
 		{
 			long r;
@@ -773,12 +221,603 @@ void UpdateEnemies()
 
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
 			{
+				PLANE2 rebound;
 				SetVector(&rebound.point,&cur->inTile->centre);
 				SetVector(&rebound.normal,&cur->inTile->normal);
 				CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->currNormal, 5, 30, &rebound, 10 );
 			}
 		}
 	}
+}
+
+void RotateWaitingNME( ENEMY *cur )
+{
+	QUATERNION q, res;
+	float t;
+	VECTOR fromPosition, toPosition, fwd;
+	long start_t, end_t, time;
+	
+	end_t = cur->path->startFrame;
+	time = cur->isWaiting*waitScale;
+	start_t = end_t - time;
+
+	t = 1.0 - (float)(actFrameCount-start_t)/(float)(time);
+
+	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
+	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
+	
+	SubVector(&fwd,&toPosition,&fromPosition);
+	MakeUnit( &fwd );
+	Orientate(&q,&fwd,&inVec,&cur->currNormal);
+
+	QuatSlerp(&q, &cur->nmeActor->actor->qRot, t, &res);
+
+	SetQuaternion(&cur->nmeActor->actor->qRot, &res);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdatePathNME
+	Purpose			: update enemies that move along a path
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdatePathNME( ENEMY *cur )
+{
+	VECTOR fromPosition,toPosition, fwd, moveVec;
+	float length;
+	
+	// first, update the enemy position
+	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
+	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
+	
+	SubVector(&fwd,&toPosition,&fromPosition);
+	
+	length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
+	
+	ScaleVector(&fwd,length);
+	AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
+	MakeUnit (&fwd);
+/*
+	if (cur->flags & ENEMY_NEW_PUSHESFROG)
+	{
+		if( DistanceBetweenPointsSquared(&cur->nmeActor->actor->pos,&frog[0]->actor->pos) < (frog[0]->radius*frog[0]->radius) )
+		{
+			GAMETILE *tile = NULL;
+			
+			SetVector( &moveVec, &fwd );
+			ScaleVector( &moveVec, frog[0]->radius );
+
+			AddVector( &frog[0]->actor->pos, &cur->nmeActor->actor->pos, &moveVec );
+
+			currTile[0] = FindNearestTile( frog[0]->actor->pos );
+			destTile[0] = currTile[0];
+		}
+	}
+*/
+	AddToVector(&cur->currNormal,&cur->deltaNormal);
+
+	if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
+	{
+		Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
+	}
+	else
+	{
+		SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
+		if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
+		MakeUnit( &moveVec );
+		Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
+	}
+
+	// check if this enemy has arrived at a path node
+	if( actFrameCount > cur->path->endFrame )
+	{
+		UpdateEnemyPathNodes(cur);
+
+		cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+
+		if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+			cur->path->endFrame = cur->path->startFrame + (60*((float)Random(100)/100.0F) );
+		else
+			cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+	}
+/*
+	Dave's new push block code will go in here ...
+
+	if (cur->flags & ENEMY_NEW_PUSHESFROG)
+	{
+		GAMETILE *tile = cur->path->nodes[cur->path->toNode].worldTile;
+
+		if (currTile[0] == tile)
+		{
+			// USE FROG MOVE CODE TO PUSH FROG!
+
+			// Except I can't, so just do something fairly random for now.
+
+			if (cur->path->toNode < (cur->path->numNodes - 1))
+				tile = cur->path->nodes[cur->path->toNode+1].worldTile;
+
+			currTile[0] = destTile[0] = tile;
+			SetVector( &frog[0]->actor->pos, &tile->centre);
+
+			// i hate frogs
+		}
+	}
+*/
+	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
+	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
+
+	length = DistanceBetweenPoints(&fromPosition,&toPosition) / 2.0F;
+
+	if(DistanceBetweenPointsSquared(&fromPosition,&cur->nmeActor->actor->pos) < (length * length))
+		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
+	else
+		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateSnapper
+	Purpose			: Snap at the frog
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateSnapper( ENEMY *cur )
+{
+	QUATERNION q1, q2;
+	ACTOR *act = cur->nmeActor->actor;
+	PATH *path = cur->path;
+	float speed;
+
+	// Idle animations
+	switch( cur->isSnapping )
+	{
+	case 0:
+		if( actFrameCount < path->endFrame )
+			break;
+
+		if (Random(1000)>980)
+			AnimateActor(act,2,NO,NO,cur->nmeActor->animSpeed, 0, 0);
+	
+		if (Random(1000)>950)
+		{
+			if (Random(1000)>950)
+				AnimateActor(act,3,NO,YES,cur->nmeActor->animSpeed, 0, 0);
+			else
+				AnimateActor(act,0,NO,YES,cur->nmeActor->animSpeed, 0, 0);
+		}
+
+		// Slerp orientation towards frog
+		SetQuaternion( &q1, &act->qRot );
+		ActorLookAt( act, &frog[0]->actor->pos, LOOKAT_2D );
+		SetQuaternion( &q2, &act->qRot );
+		speed = path->nodes[0].speed * gameSpeed;
+		if( speed > 0.999 ) speed = 0.999;
+		QuatSlerp( &q1, &q2, speed, &act->qRot );
+
+		// If the snapper has just spotted the frog, set snap time
+		if( cur->nmeActor->distanceFromFrog < 5625 ) // 75*75
+		{
+			SetVector( &act->rotaim, &currTile[0]->centre );
+
+			SetQuaternion( &q1, &act->qRot );
+			ActorLookAt( act, &act->rotaim, LOOKAT_2D );
+			SetQuaternion( &q2, &act->qRot );
+			QuatSlerp( &q1, &q2, speed, &act->qRot );
+
+			path->startFrame = actFrameCount;
+			path->endFrame = path->startFrame + (path->nodes[0].waitTime * waitScale);
+
+			cur->isSnapping = 2;
+		}
+		break;
+
+	case 1: // Time to snap and hope
+		if( actFrameCount < path->endFrame )
+			break;
+
+		path->startFrame = actFrameCount;
+		path->endFrame = path->startFrame + (path->nodes[0].waitTime * waitScale);
+		cur->isSnapping = 0;
+
+		if( (DistanceBetweenPointsSquared(&act->rotaim,&frog[0]->actor->pos)<900) && 
+			!frog[0]->action.dead && !frog[0]->action.safe ) // If frog is within hitting distance
+		{
+			NMEDamageFrog(0,cur);
+		}
+		break;
+
+	case 2: 				// Snap animation
+		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
+			break;
+
+		AnimateActor(act,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
+		cur->isSnapping = 1;
+		break;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateTileSnapper
+	Purpose			: Snap at a sequence of tiles
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateTileSnapper( ENEMY *cur )
+{
+	QUATERNION q1, q2;
+	VECTOR toPosition;
+	float speed;
+
+	switch( cur->isSnapping )
+	{
+	case 0:
+		if( actFrameCount < cur->path->endFrame )
+			break;
+
+		if(cur->path->toNode >= GET_PATHLASTNODE(cur->path))	// reached end of path nodes
+		{
+			cur->path->fromNode	= GET_PATHLASTNODE(cur->path);
+			cur->path->toNode	= 1; // Don't snap at the tile we're sitting on
+		}
+		else
+		{
+			cur->path->fromNode = cur->path->toNode;
+			cur->path->toNode++;
+		}
+
+		cur->path->startFrame = actFrameCount;
+		cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
+		cur->isSnapping = 2;
+		break;
+
+	case 1:
+		if( actFrameCount < cur->path->endFrame )
+			break;
+
+		cur->path->startFrame = actFrameCount;
+		cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
+		cur->isSnapping = 0;
+
+		// If the frog is on our current target tile
+		if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )//FindNearestTile(frog[0]->actor->pos) )
+			NMEDamageFrog(0,cur);
+		break;
+
+	case 2:
+		if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
+		{
+			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
+			SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
+			ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_2D );
+			SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
+			speed = cur->path->nodes[0].speed * gameSpeed;
+			if( speed > 0.999 ) speed = 0.999;
+			QuatSlerp( &q1, &q2, speed, &cur->nmeActor->actor->qRot );
+			break;
+		}
+
+		AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
+		cur->isSnapping = 1;
+		break;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateVent
+	Purpose			: Blow hurt at the frog
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateVent( ENEMY *cur )
+{
+	PLANE2 rebound;
+	PATH *path = cur->path;
+	unsigned long i;
+
+	switch( cur->isSnapping )
+	{
+	case -2:
+		path->startFrame = actFrameCount;
+		path->endFrame = actFrameCount + (60*cur->nmeActor->radius);
+
+		cur->isSnapping = -1;
+		break;
+
+	case -1:
+		if( actFrameCount > path->endFrame )
+			cur->isSnapping = 0;
+
+		break;
+
+	case 0: // Start timer
+		// Delay until fire
+		path->startFrame = actFrameCount;
+		path->endFrame = actFrameCount + (60*path->nodes[0].waitTime);
+
+		cur->isSnapping = 1;
+		break;
+
+	case 1:
+		if( actFrameCount < path->endFrame )
+			break;
+
+		// Delay until stop
+		path->startFrame = actFrameCount;
+		path->endFrame = actFrameCount + (60*path->nodes[0].speed);
+
+		cur->isSnapping = 2;
+		break;
+
+	case 2:
+		// Stop firing on timeout, and reset
+		if( actFrameCount > path->endFrame )
+		{
+			cur->isSnapping = 0;
+			break;
+		}
+
+		// Create fx
+		/* TODO: Options for different types of effects specified in the effects thing. Need effects first...
+		if( cur->nmeActor->effects & EF_FLAMEBURST_UP )
+		{
+
+		}
+		else if...
+		*/
+		SetVector(&rebound.point,&cur->inTile->centre);
+		SetVector(&rebound.normal,&cur->inTile->normal);
+		CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->inTile->normal, cur->nmeActor->animSpeed*path->numNodes, 30, &rebound, cur->nmeActor->value1*path->numNodes );
+
+		// Check for collision with frog, and do damage
+		for( i=0; i < path->numNodes; i++ )
+			if( (path->nodes[i].worldTile == currTile[0]) && (!frog[0]->action.dead) && (!frog[0]->action.safe) )
+				NMEDamageFrog(0,cur);
+
+		break;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateMoveVerticalNME
+	Purpose			: Enemy moves up and down
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateMoveVerticalNME( ENEMY *cur )
+{
+	VECTOR moveVec;
+
+	// get up vector for this enemy
+	SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
+
+	moveVec.v[X] *= cur->speed;
+	moveVec.v[Y] *= cur->speed;
+	moveVec.v[Z] *= cur->speed;
+
+	// check if this enemy is moving up or down
+	if(cur->flags & ENEMY_NEW_MOVEUP)
+	{
+		// enemy is moving up
+		AddToVector(&cur->nmeActor->actor->pos,&moveVec);
+	}
+	else if(cur->flags & ENEMY_NEW_MOVEDOWN)
+	{
+		// enemy is moving down
+		SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
+	}
+
+	if(EnemyReachedTopOrBottomPoint(cur))
+	{
+		UpdateEnemyPathNodes(cur);
+		cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+		cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateRotatePathNME
+	Purpose			: Enemy that flies around a point
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateRotatePathNME( ENEMY *cur )
+{
+	float length;
+	VECTOR toPosition;
+
+	length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
+	length *= PI2;
+	length += cur->path->nodes->offset2 * PI2; // Fraction of circumference it starts at
+
+	if( cur->speed < 0 )
+		length = PI2 - length;
+
+	if( cur->flags & ENEMY_NEW_ROTATEPATH_XZ )
+	{
+		toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
+		toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf(length));
+		toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + cur->path->nodes->offset;
+	}
+	else if( cur->flags & ENEMY_NEW_ROTATEPATH_XY )
+	{
+		toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf(length));
+		toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
+		toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z];
+	}
+	else if( cur->flags & ENEMY_NEW_ROTATEPATH_ZY )
+	{
+		toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y] + (cur->nmeActor->radius * cosf(length)) + cur->path->nodes->offset;
+		toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * sinf(length));
+		toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X];
+	}
+
+	if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) ) // Look in direction of travel
+		ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_ANYWHERE );
+
+	SetVector( &cur->nmeActor->actor->pos, &toPosition );
+
+	if( actFrameCount > cur->path->endFrame )
+	{
+		cur->path->startFrame = cur->path->endFrame;
+		cur->path->endFrame = cur->path->startFrame+(60*Fabs(cur->speed));
+	}
+
+	cur->inTile = FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateHomingNME
+	Purpose			: Enemy moves towards frog
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateHomingNME( ENEMY *cur )
+{
+	GAMETILE *chTile;
+	VECTOR nmeup, tVec, moveVec;
+	float distance=10000, best=-2;
+	short bFlag = 0;
+	unsigned long i;
+
+	SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
+	MakeUnit( &moveVec );
+	chTile = FindNearestTile( cur->nmeActor->actor->pos );
+
+	// Do check for close direction vector from tile. If none match closely, do not move.
+	for( i=0; i<4; i++ )
+		if( chTile->tilePtrs[i] )
+		{
+			// Direction to tile
+			SubVector( &tVec, &chTile->tilePtrs[i]->centre, &chTile->centre );
+			MakeUnit( &tVec );
+			// Cosine of angle between vectors
+			distance = DotProduct(&tVec,&moveVec);
+			if( distance > best )
+				best = distance;
+		}
+		else
+			bFlag = 1; // There is some invalid tile
+
+	// If the best direction match is close enough we can carry on (approx 45 degrees)
+	// Also check that we're over a tile.
+	if( best > 0.7 )
+	{
+		ScaleVector( &moveVec, cur->speed );
+		AddVector( &tVec, &moveVec, &cur->nmeActor->actor->pos );
+		chTile = FindNearestTile( tVec );
+		if( bFlag )
+		{
+			SubVector( &moveVec, &chTile->centre, &tVec );
+			distance = abs(Magnitude( &moveVec ));
+		}
+		if( distance < 35 || !bFlag )
+			cur->nmeActor->actor->pos = tVec;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateMoveOnMoveNME
+	Purpose			: Move when frog has moved
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: One day, some enemies will be done this way...
+*/
+void UpdateMoveOnMoveNME( ENEMY *cur )
+{
+	VECTOR frogVec, up, fwd;
+	PATH *path = cur->path;
+	float length;
+
+	if( cur->nmeActor->distanceFromFrog > 100000 )
+	{
+		cur->isIdle = 0;
+		return;
+	}
+
+	// Check if the enemy has 3 path nodes. Allocate if not ( first time through )
+	if( cur->path->numNodes < 3 )
+	{
+		PATHNODE n;
+
+		memcpy( &n, path->nodes, sizeof(PATHNODE) );
+		JallocFree( (UBYTE **)&path->nodes );
+		path->nodes = (PATHNODE *)JallocAlloc( sizeof(PATHNODE)*3,YES,"Path" );
+		path->numNodes = 3;
+		memcpy( path->nodes, &n, sizeof(PATHNODE) );
+
+		// Find initial move for enemy to make
+		path->nodes[1].worldTile = NULL;
+		path->nodes[2].worldTile = path->nodes[0].worldTile;
+	}
+
+	// If frog has moved
+	cur->isIdle += player[0].hasJumped;
+
+	// If enemy is on the next path node, set startnode worldtile and the next to zero
+	if( (path->nodes[2].worldTile) && (actFrameCount > path->endFrame) )
+	{
+		path->nodes[1].worldTile = path->nodes[2].worldTile;
+		path->nodes[2].worldTile = NULL;
+	}
+
+	// If we need a new destination tile, find it by the direction to the frog
+	if( cur->isIdle && !path->nodes[2].worldTile )
+	{
+		SubVector( &frogVec, &currTile[0]->centre, &cur->nmeActor->actor->pos ); 
+		path->nodes[2].worldTile = FindJoinedTileByDirection( path->nodes[1].worldTile, &frogVec );
+
+		path->startFrame = actFrameCount;
+		path->endFrame = path->startFrame + (60*path->nodes[0].speed);
+		cur->isIdle--;
+	}
+
+	// Move towards next node - third condition is so fwd is not scaled to zero
+	if( path->nodes[1].worldTile && path->nodes[2].worldTile && (actFrameCount > path->startFrame) )
+	{
+		// Move towards frog
+		SubVector(&fwd,&path->nodes[2].worldTile->centre,&path->nodes[1].worldTile->centre);
+		length = (float)(actFrameCount - path->startFrame)/(float)(path->endFrame - path->startFrame);
+		ScaleVector(&fwd,length);
+		AddVector(&cur->nmeActor->actor->pos,&fwd,&path->nodes[1].worldTile->centre);
+
+		// Orientate to direction of travel
+		MakeUnit( &fwd );
+		if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
+			Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&path->nodes[1].worldTile->normal);
+
+		cur->inTile = FindNearestJoinedTile( cur->inTile, &cur->nmeActor->actor->pos );
+
+		// Elevate above gametile
+		SetVector( &up, &cur->inTile->normal );
+		ScaleVector( &up, path->nodes[0].offset );
+		AddVector( &cur->nmeActor->actor->pos, &cur->nmeActor->actor->pos, &up );
+	}
+}
+
+
+void UpdateFrogWatcher( ENEMY *cur )
+{
+	QUATERNION q1, q2;
+	ACTOR *act = cur->nmeActor->actor;
+	float speed;
+
+	SetQuaternion( &q1, &act->qRot );
+	ActorLookAt( act, &frog[0]->actor->pos, LOOKAT_ANYWHERE );
+	SetQuaternion( &q2, &act->qRot );
+	speed = cur->path->nodes[0].speed * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
 }
 
 
@@ -795,7 +834,7 @@ void UpdateFlappyThing( ENEMY *nme )
 	ACTOR *act = nme->nmeActor->actor;
 	VECTOR fwd;
 	QUATERNION q1, q2, q3;
-	float t, best = 10000000;
+	float t, best = 10000000, speed;
 	unsigned long i;
 		
 	// If nme is very close to destination (stored in nmeactor->actor->rotaim) then choose a new destination.
@@ -879,7 +918,9 @@ void UpdateFlappyThing( ENEMY *nme )
 	GetQuaternionFromRotation(&q2,&q3);
 
 	// Slerp between current and desired orientation
-	QuatSlerp( &q1, &q2, path->nodes[0].speed*gameSpeed, &act->qRot );
+	speed = path->nodes[0].speed * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
 
 	// Move forwards a bit in direction of facing
 	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
@@ -980,7 +1021,7 @@ void FreeEnemyLinkedList()
 }
 
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int flags )
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path )
 {
 	int enemyType = 0;
 	float shadowRadius = 0;
@@ -1026,11 +1067,34 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags )
 	newItem->speed			= 1.0F;
 	newItem->startSpeed		= 1.0F;
 	newItem->accel			= 0.0F;
+	newItem->uid = ID;
+	newItem->isSnapping = 0;
 
-	if( flags & ENEMY_NEW_VENT )
+	AssignPathToEnemy(newItem,path,0);
+
+	if( newItem->flags & ENEMY_NEW_FOLLOWPATH )
+		newItem->Update = UpdatePathNME;
+	else if( newItem->flags & ENEMY_NEW_WATCHFROG )
+		newItem->Update = UpdateFrogWatcher;
+	else if( newItem->flags & ENEMY_NEW_SNAPFROG )
+		newItem->Update = UpdateSnapper;
+	else if( newItem->flags & ENEMY_NEW_SNAPTILES )
+		newItem->Update = UpdateTileSnapper;
+	else if( newItem->flags & ENEMY_NEW_VENT )
+	{
 		newItem->isSnapping = 2;
-	else
-		newItem->isSnapping = 0;
+		newItem->Update = UpdateVent;
+	}
+	else if( (newItem->flags & ENEMY_NEW_MOVEUP) || (newItem->flags & ENEMY_NEW_MOVEDOWN) )
+		newItem->Update = UpdateMoveVerticalNME;
+	else if( (newItem->flags & ENEMY_NEW_ROTATEPATH_XZ ) || (newItem->flags & ENEMY_NEW_ROTATEPATH_XY) || (newItem->flags & ENEMY_NEW_ROTATEPATH_ZY) )
+		newItem->Update = UpdateRotatePathNME;
+	else if( newItem->flags & ENEMY_NEW_HOMING )
+		newItem->Update = UpdateHomingNME;
+	else if( newItem->flags & ENEMY_NEW_MOVEONMOVE )
+		newItem->Update = UpdateMoveOnMoveNME;
+	else if( newItem->flags & ENEMY_NEW_FLAPPYTHING )
+		newItem->Update = UpdateFlappyThing;
 
 	return newItem;
 }

@@ -147,3 +147,22 @@ GAMETILE* FindNearestJoinedTile( GAMETILE *tile, VECTOR *pos )
 	return closest;
 }
 
+GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d )
+{
+	float distance = 100000, t;
+	int i;
+	GAMETILE *res = NULL;
+
+	for (i=0; i<4; i++)
+	{
+		t = DotProduct( d, &st->dirVector[i] );
+		if( (t < distance) && st->tilePtrs[i] )
+		if( st->tilePtrs[i]->state == TILESTATE_NORMAL )
+		{
+			distance = t;
+			res = st->tilePtrs[i];
+		}
+	}
+
+	return res;
+}

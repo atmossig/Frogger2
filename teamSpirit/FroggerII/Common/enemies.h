@@ -65,6 +65,8 @@ typedef struct TAGENEMY
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
 	PATH					*path;					// ptr to enemy path data
 
+	void					(*Update) ();			// Enemy update function
+
 } ENEMY;
 
 
@@ -86,12 +88,10 @@ void AddEnemy(ENEMY *enemy);
 void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
-void NMEDamageFrog( int num, ENEMY *nme );
-void UpdateFlappyThing( ENEMY *nme );
 
 //------------------------------------------------------------------------------------------------
 
-ENEMY *CreateAndAddEnemy(char *eActorName, int flags);
+ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path);
 void AssignPathToEnemy(ENEMY *nme,PATH *path,unsigned long pathFlags);
 BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme);
 void UpdateEnemyPathNodes(ENEMY *nme);
