@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib uuid.lib gelf.lib mdx.lib softstation.lib ddraw.lib d3dim.lib dsound.lib dinput.lib winmm.lib comctl32.lib softstation.lib libc.lib libci.lib msvcrt.lib oldnames.lib binkw32.lib /nologo /subsystem:windows /machine:I386 /nodefaultlib /out:"Release/Frogger2.exe" /libpath:"..\mdx" /libpath:"\sdk\bink"
+# ADD LINK32 dxguid.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib uuid.lib gelf.lib mdx.lib softstation.lib ddraw.lib d3dim.lib dsound.lib dinput.lib winmm.lib comctl32.lib softstation.lib libc.lib libci.lib msvcrt.lib oldnames.lib binkw32.lib dplay.lib /nologo /subsystem:windows /machine:I386 /nodefaultlib /out:"Release/Frogger2.exe" /libpath:"..\mdx" /libpath:"\sdk\bink"
 # SUBTRACT LINK32 /verbose /debug
 
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
@@ -940,6 +940,8 @@ SOURCE=.\Psx\islfile.c
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -952,12 +954,25 @@ SOURCE=.\Psx\islfile.c
 # Begin Source File
 
 SOURCE=.\Psx\islfile.h
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\Psx\islmem.c
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
@@ -973,6 +988,8 @@ SOURCE=.\Psx\islmem.c
 SOURCE=.\Psx\islmem.h
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
@@ -1220,6 +1237,8 @@ SOURCE=.\Psx\memcard.c
 SOURCE=.\Psx\memcard.h
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
@@ -1696,6 +1715,8 @@ SOURCE=.\Psx\water.spt
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
 
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
 # PROP Exclude_From_Build 1
@@ -1710,6 +1731,8 @@ SOURCE=.\Psx\water.spt
 SOURCE=.\Psx\waterbin.s
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
 
@@ -1809,6 +1832,10 @@ SOURCE=.\Psx\World_Eff.h
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\Pc\net\dputil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\net\netchat.cpp
 # End Source File
 # Begin Source File
@@ -1826,18 +1853,62 @@ SOURCE=.\Pc\net\netconnect.h
 # Begin Source File
 
 SOURCE=.\Pc\net\netgame.cpp
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\Pc\net\netgame.h
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\Pc\net\network.cpp
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\Pc\net\network.h
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Source File
