@@ -253,10 +253,21 @@ void NetgameRun()
 	}
 	else
 	{
-		gameReady = false;
-		hostSync = isHost;
-
 		GameLoop();
+
+		if (gameState.mode == INGAME_MODE)
+		{
+			gameReady = false;
+			hostSync = isHost;
+
+			for (int pl=1; pl<NUM_FROGS; pl++)
+				mpl[pl].ready = false;
+
+			mpl[0].ready = true;
+
+			UBYTE msg = APPMSG_READY;
+			NetBroadcastUrgentMessage(&msg, 1);
+		}
 	}
 }
 

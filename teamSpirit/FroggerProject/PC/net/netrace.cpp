@@ -174,10 +174,13 @@ int NetRaceRun()
 				GTInit( &player[0].safe, 3 );
 			}
 		}
-		else if( frog[0]->draw && !(IsPointVisible(&frog[0]->actor->position)) )
+/*		else if( frog[0]->draw && !(IsPointVisible(&frog[0]->actor->position)) )
 		{
 			KillMPFrog(0);
 		}
+*/
+		int leadingPlayer=0;
+		for (i=1; i<NUM_FROGS; i++)
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
@@ -188,6 +191,9 @@ int NetRaceRun()
 				if((mpl[i].penalText->xPos == backTextX[i]) && (mpl[i].penalText->yPos == backTextY[i]))
 					mpl[i].penalText->draw = 0;
 			}
+
+			if (frog[i]->actor->position.vz > frog[leadingPlayer]->actor->position.vz)
+				leadingPlayer = i;
 
 			if(!frog[i]) continue;
 
@@ -210,6 +216,8 @@ int NetRaceRun()
 				mpl[i].lasttile = currTile[i]->state;
 			}
 		}
+
+		if (leadingPlayer != 0)	GTInit( &player[i].quickhop, 3 );
 
 		if( currTile[0]->state == TILESTATE_FINISHLINE && mpl[0].lasttile != TILESTATE_FINISHLINE )
 		{

@@ -131,6 +131,13 @@ bool SetupChatDialog(HWND hdlg)
 	hwndChatEdit = GetDlgItem(hdlg, IDC_RICHCHAT);
 	hwndChat = hdlg;
 
+	PARAFORMAT pf;
+
+	pf.cbSize = sizeof(pf);
+	pf.dwMask = PFM_OFFSET;
+	pf.dxOffset = 512;
+	SendMessage(hwndChatEdit, EM_SETPARAFORMAT, 0, (LPARAM)&pf);
+
 	ShowMessage(isHost?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
 
 	HWND hList = GetDlgItem(hdlg, IDC_LEVEL);
@@ -154,6 +161,7 @@ bool SetupChatDialog(HWND hdlg)
 			SendMessage(hList, CB_SETITEMDATA, index, i);
 		}
 	}
+
 
 	SendMessage(hList, CB_SETCURSEL, 0, 0);
 
@@ -182,6 +190,7 @@ void ShowMessage(const char* string, CHAT_FORMAT f)
 	SendMessage(hwndChatEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&fmt);
 	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)string);
 	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)"\n");
+
 }
 
 void UpdateChatWindow()
@@ -291,6 +300,14 @@ int RunNetChatWindow(HWND parent)
 {
 	int res;
 	LoadLibrary("Riched32.dll");
+
+	// re-enable join and new player, if previously disabled
+	DPSESSIONDESC2 dpsd;
+	ZeroMemory(&dpsd, sizeof(dpsd));
+	dpsd.dwSize = sizeof(dpsd);
+	dpsd.dwFlags = 0;;
+
+	dplay->SetSessionDesc(&dpsd, 0);
 
 	NetInstallMessageHandler(ChatHandler);
 	res = DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_START), parent, dialogProc);

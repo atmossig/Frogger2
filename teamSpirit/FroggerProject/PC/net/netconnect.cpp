@@ -117,24 +117,27 @@ void ShutdownNetworkGame()
 */
 int StartNetworkGame(HWND hwnd, int flag)
 {
-	bool connected = false;
+	bool connected = (dplay != NULL);
 
-	if (!SetupNetworking())	// if we can't set networking up at all, fail
-		return 0;
-
-	// if the flag's set, we're definitely running networked
-	if (flag)
+	if (!connected)
 	{
-		// .. so we need to get LAN/modem/etc. settings
-		
-		if (SelectProvider(hwnd))
-			if (FindNetGame(hwnd))
+		if (!SetupNetworking())	// if we can't set networking up at all, fail
+			return 0;
+
+		// if the flag's set, we're definitely running networked
+		if (flag)
+		{
+			// .. so we need to get LAN/modem/etc. settings
+			
+			if (SelectProvider(hwnd))
+				if (FindNetGame(hwnd))
+					connected = true;
+		}
+		else
+		{
+			if (CheckLobby(hwnd))
 				connected = true;
-	}
-	else
-	{
-		if (CheckLobby(hwnd))
-			connected = true;
+		}
 	}
 
 	if (connected)
