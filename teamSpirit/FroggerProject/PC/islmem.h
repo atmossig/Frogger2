@@ -3,6 +3,8 @@
 
 #define FREE(x) 
 #define memoryAllocateZero(size, file, line) (NULL)
+#define memoryShow()
+#define memoryShowStats()
 
 
 #endif
