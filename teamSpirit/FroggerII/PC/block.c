@@ -203,6 +203,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			GameLoop();
 			EndTimer(4);
 
+			keysEnabled = !editorOk;
 			ProcessUserInput(winInfo.hWndMain);
 			
 			DrawGraphics();
@@ -340,7 +341,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			break;
 
 		case WM_CHAR:
-			if (editorOk && !keysEnabled)	// only when editor is set up to "grab" keyboard data
+			if (editorOk)	// only when editor is set up to "grab" keyboard data
 			{
 				EditorKeypress((char)wParam);
 				return 0;

@@ -265,13 +265,10 @@ void ProcessUserInput(HWND hWnd)
 	HRESULT hRes;
 
 	// read keyboard data
-	if (keysEnabled)
-	{
-		hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
-		if(FAILED(hRes))
-			return;
-	}
-	
+	hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
+	if(FAILED(hRes))
+		return;
+
 //	if (joyAvail)
 //	{
 //		hRes = lpJoystick2->Poll();
@@ -302,6 +299,8 @@ void ProcessUserInput(HWND hWnd)
 	controllerdata[2].button = 0;
 	controllerdata[3].button = 0;
 
+	if (!keysEnabled) return;
+	
 	if (KEYPRESS(DIK_UP))// | (joy.lY < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_UP;
 
