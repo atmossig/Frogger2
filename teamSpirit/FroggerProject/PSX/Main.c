@@ -327,6 +327,7 @@ void videoInit(int otDepth, int maxPrims)
 #if PALMODE==1
 	utilPrintf("Setting Mode For PAL\n");
 	SetVideoMode(MODE_PAL);
+//	GsInitGraph(512,273, 4,1,0);
 	GsInitGraph(512,273, 4,1,0);
 	GsInit3D();
 	SetGeomOffset(512/2, 256/2);
@@ -575,7 +576,9 @@ int main ( )
 
 //			utilPrintf ( "Poly Count : %d\n", polyCount );
 
+			PrintSpriteOverlays(1);
 			PrintTextOverlays();
+			PrintSpriteOverlays(0);
 
 
 			gte_SetRotMatrix(&GsWSMATRIX);
@@ -614,8 +617,8 @@ int main ( )
 //			gameSpeed=3<<12;
 			if(gameState.mode!=PAUSE_MODE)
 			{
-				actFrameCount += 4;//(GetTickCount()/(1000/60));
-				gameSpeed=4<<12;
+				actFrameCount += 3;//(GetTickCount()/(1000/60));
+				gameSpeed=3<<12;
 			}
 
 		}
