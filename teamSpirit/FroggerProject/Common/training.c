@@ -89,8 +89,11 @@ void TrainingHint(const char* str)
 				if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &currTile[0]->centre, &upVec, 81920, 8192*2, 0, 12288 )) )
 				{
 					SetFXColour(fx,255,Random(256),Random(256));
-					SetVectorSS(&fx->rebound->point, &currTile[0]->centre);
-					SetVectorFF(&fx->rebound->normal, &upVec);
+					if(fx->rebound)
+					{
+						SetVectorSS(&fx->rebound->point, &currTile[0]->centre);
+						SetVectorFF(&fx->rebound->normal, &upVec);	
+					}
 					fx->gravity = 4100;
 				}
 

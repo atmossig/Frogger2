@@ -1921,8 +1921,11 @@ void ProcessAttachedEffects( void *entity, int type )
 
 			if( fx )
 			{
-				SetVectorSS( &fx->rebound->point, &tile->centre );
-				SetVectorFF( &fx->rebound->normal, &tile->normal );
+				if(fx->rebound)
+				{
+					SetVectorSS( &fx->rebound->point, &tile->centre );
+					SetVectorFF( &fx->rebound->normal, &tile->normal );
+				}
 				fx->gravity = act->radius*SCALE;
 
 				SetAttachedFXColour( fx, act->effects );
