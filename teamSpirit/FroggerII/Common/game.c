@@ -796,6 +796,10 @@ void RunGameLoop (void)
 
 	ACTOR2 *bee;
 
+	// Ambient Sound test
+	VECTOR ambpos = { -75,0,-375 };
+	static int ambrad = 10;
+
 	if(frameCount == 1)
 	{	
 		//StopDrawing("game");
@@ -885,7 +889,10 @@ void RunGameLoop (void)
 //		runningWaterStuff = 0;
 		ChangeCameraSetting();
 
-		//StartDrawing("game");
+		/* Ambient Sound test */
+		InitAmbientSoundList( );
+
+		AddAmbientSfxAtPoint( FX_CHICKEN_BELCH, 150, &ambpos, 50, 50, 10, 0, 0, 0, ambrad );
 	}
 
 	if(!goText->kill)
@@ -932,6 +939,9 @@ void RunGameLoop (void)
 			DisableTextOverlay(scoreTextOver);
 //				livesIcon->active = 0;
 
+			if( ambientSoundList.numEntries )
+				KillAmbientSfx( );
+
 			RunGameOverSequence();
 
 			gameIsOver--;
@@ -964,6 +974,9 @@ void RunGameLoop (void)
 
 		if ( levelIsOver )
 		{
+			if( ambientSoundList.numEntries )
+				KillAmbientSfx( );
+
 			RunLevelCompleteSequence();
 
 			if(!levelComplete1->draw)
@@ -1094,7 +1107,8 @@ void RunGameLoop (void)
 	UpdatePlatforms();
 	UpdateEnemies();
 	UpdateSpecialFX();
-//	UpdateWater();
+	UpdateAmbientSounds();
+	//	UpdateWater();
 
 	//*****************//
 
