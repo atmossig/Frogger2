@@ -189,11 +189,16 @@ int FrogOnPath(TRIGGER *t)
 {
 	PATHNODE *node;
 	int n;
-	int player = (int)t->data[0];
-	PATH *p = (PATH*)t->data[1];
+	int pl;
+	PATH *p;
+	
+	pl = (int)t->data[0];
+	if (!player[pl].canJump) return 0;
+
+	p = (PATH*)t->data[1];
 
 	for (node = p->nodes, n = p->numNodes; n; n--, node++)
-		if (node->worldTile == currTile[player]) return 1;
+		if (node->worldTile == currTile[pl]) return 1;
 
 	return 0;
 }

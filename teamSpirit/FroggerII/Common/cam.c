@@ -38,10 +38,10 @@ float camLookOfs			= 50;
 float camLookOfsNew			= 50;
 
 VECTOR camDist				= { 0,680,192 };
-float camSpeed				= 15; //30; //9;
-float camSpeed2				= 15; //25; //9;
-float camSpeed3				= 15; //30; //8;
-float camSpeed4				= 15; //25; //8;
+float camSpeed				= 15; 
+float camSpeed2				= 15; 
+float camSpeed3				= 20;	// source & target interp.
+float camSpeed4				= 15;
 float fovSpd				= 2;
 float transCamSpeedMult		= 1.0F;
 
@@ -65,8 +65,6 @@ float camSideOfs = 0;
 GAMETILE *lastTile = NULL;
 long prevCamFacing = 0;
 
-float FindMaxInterFrogDistance( );
-
 CAM_BOX_LIST cameraBoxes;
 CAM_BOX *currCamBox;
 float cam_edge_spacing = 100;
@@ -74,12 +72,17 @@ float cam_edge_spacing = 100;
 float cam_shakiness = 0.0f;
 float cam_shake_falloff = 0.1f;
 
+// functions
+
+float FindMaxInterFrogDistance( );
+void CameraSetSource(void);
+int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge);
+
 /*	--------------------------------------------------------------------------------
 	Function		: CameraBoundPosition
 	Purpose			: limits a vector to a camera space, with edge padding
 	Parameters		: VECTOR *, CAM_BOX *, float
 	Returns			: 
-*/
 
 int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge)
 {
@@ -122,7 +125,7 @@ int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge)
 
 	return count;
 }
-
+*/
 
 int GetCamLimitVector(VECTOR *out, VECTOR *v, CAM_BOX *box, float edge)
 {
@@ -375,8 +378,8 @@ void CameraLookAtFrog(void)
 	if(frog[0] && !fixedDir && !controlCamera)
 	{
 		// Average frog position	
-		VECTOR target;
-		float sc;
+		VECTOR target, v;
+		float sc, t;
 		int i,l;
 		l = 0;
 
@@ -386,7 +389,25 @@ void CameraLookAtFrog(void)
 		{
 			if( player[i].healthPoints )
 			{
-				AddToVector(&target, &frog[i]->actor->pos);
+				t = player[i].jumpTime;
+				
+				if (t > 0)	// jumping; calculate linear position
+				{
+					AddToVector(&target, &player[i].jumpOrigin);
+
+					// horizontal
+					SetVector(&v, &player[i].jumpFwdVector);
+					ScaleVector(&v, t);
+					AddToVector(&target, &v);
+
+					// vertical
+					//SetVector(&v, &player[i].jumpUpVector);
+					//ScaleVector(&v, player[i].heightJumped);
+					//AddToVector(&target, &v);
+				}										
+				else
+					AddToVector(&target, &frog[i]->actor->pos);
+
 				l++;
 			}
 
@@ -466,26 +487,37 @@ void SlurpCamPosition(long cam)
 		else
 		{*/
 
-	SubVector(&v, &camSource[cam], &currCamSource[cam]);
-	ScaleVector(&v, s3);
-	AddToVector(&currCamSource[cam], &v);
-
-	GetCamLimitVector(&v, &currCamSource[cam], currCamBox, cam_edge_spacing);
-	ScaleVector(&v, s3*2);
-	AddToVector(&currCamSource[cam], &v);
-
-
 	// Cam target
 
 	SubVector(&v, &camTarget[cam], &currCamTarget[cam]);
 	ScaleVector(&v, s3);
 	AddToVector(&currCamTarget[cam], &v);
 
-	GetCamLimitVector(&v, &currCamTarget[cam], currCamBox, cam_edge_spacing);
-	ScaleVector(&v, s3*2);
-	AddToVector(&currCamTarget[cam], &v);
+//	GetCamLimitVector(&v, &currCamTarget[cam], currCamBox, cam_edge_spacing);
+//	ScaleVector(&v, s3);
+//	AddToVector(&currCamTarget[cam], &v);
 
-	SetVector (&camVect,&currTile[0]->normal);
+	//CameraSetSource();
+
+	SubVector(&v, &camSource[cam], &currCamSource[cam]);
+	ScaleVector(&v, s3);
+	AddToVector(&currCamSource[cam], &v);
+
+	// do we actually WANT to limit the camera source?
+//	GetCamLimitVector(&v, &currCamSource[cam], currCamBox, cam_edge_spacing);
+//	ScaleVector(&v, s3);
+//	AddToVector(&currCamSource[cam], &v);
+
+	// camVect (up vector)
+
+	if (!fixedUp)
+	{
+		SubVector(&v, &currTile[0]->normal, &camVect);
+		ScaleVector(&v, s2);
+		AddToVector(&camVect, &v);
+	}
+
+	// camDist
 
 	currCamDist.v[0] = camDist.v[0]*scaleV;
 	currCamDist.v[1] = camDist.v[1]*scaleV;
@@ -524,12 +556,7 @@ void SlurpCamPosition(long cam)
 		
 	}
 
-//		xFOV		-= (xFOV - xFOVNew) / (s1*fovSpd);
-//		yFOV		-= (yFOV - yFOVNew) / (s1*fovSpd);
 	camLookOfs	-= s1 * (camLookOfs - camLookOfsNew);
-
-//		lastActFrameCount++;
-//	}
 }
 
 void CameraSetSource(void)
@@ -550,10 +577,6 @@ void CameraSetSource(void)
 
 	ZeroVector(&avgFrogPos);
 	ZeroVector(&avgUpVec);
-
-	// Multiplier here should probably be related to tan(FOV) somehow..
-
-	//CameraBoundPosition(&camTarget[0], currCamBox, cam_edge_spacing);
 
 	// Average for multiplayer
 /*
@@ -587,7 +610,6 @@ void CameraSetSource(void)
 		}
 	}
 */
-		//SetVector(&currCamTarget[0], &camTarget[0]);
 		SetVector(&avgFrogPos, &camTarget[0]);
 
 		afx2 = currTile[0]->normal.v[0]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
@@ -604,8 +626,6 @@ void CameraSetSource(void)
 	{
 		float scale = 1.0f/l;
 		ScaleVector(&avgFrogPos, scale);
-
-		//afx2/=l; afy2/=l;	afz2/=l;
 	}
 
 	SetVector(&camSource[0], &avgFrogPos);
@@ -613,19 +633,6 @@ void CameraSetSource(void)
 	camSource[0].v[0] += afx2+afx3;
 	camSource[0].v[1] += afy2+afy3;
 	camSource[0].v[2] += afz2+afz3;
-/*
-	if (idleCamera)
-	{
-	}
-	else
-	{
-		camSource[0].v[0] = afx+afx2+afx3+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
-		camSource[0].v[1] = afy+afy2+afy3+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
-		camSource[0].v[2] = afz+afz2+afz3+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
-	}
-*/
-
-	//CameraBoundPosition(&camSource[0], currCamBox, cam_edge_spacing * 0.95);
 }
 
 
@@ -656,9 +663,7 @@ void UpdateCameraPosition(long cam)
 	CameraLookAtFrog();
 
 	if ( gameState.mode != CAMEO_MODE && !fixedPos )
-	{
 		CameraSetSource();
-	}
 
 	if (fixedUp)
 	{
@@ -666,8 +671,6 @@ void UpdateCameraPosition(long cam)
 		camVect.v[1] = 1;
 		camVect.v[2] = 0;
 	}
-
-	//SetVector(&currCamSource[0], &camSource[0]);
 
 	SlurpCamPosition(0);
 
