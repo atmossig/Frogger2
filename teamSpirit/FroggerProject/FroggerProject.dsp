@@ -2299,11 +2299,23 @@ SOURCE=.\frogger2.ico
 # End Source File
 # Begin Source File
 
+SOURCE=.\frogger2site.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\games.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\Psx\gametext.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\Psx\greenbaby.pal
+# End Source File
+# Begin Source File
+
+SOURCE=.\hasbroi.ico
 # End Source File
 # Begin Source File
 
