@@ -167,7 +167,7 @@ void InitFont()
 
 	dprintf"OK !\n"));
 
-	// Initialise the 16x16 font ----------------------------------------------------
+/*	// Initialise the 16x16 font ----------------------------------------------------
 
 	dprintf"Initialising 16x16 font..."));
 	sprintf(filenameBuffer,"%s%sfont\\font16x16.bmp",baseDirectory,TEXTURE_BASE);
@@ -212,14 +212,16 @@ void InitFont()
 	dprintf"Initialising 8x8 font...(NOT USED IN PC VERSION YET !) "));
 
 	dprintf"OK !\n"));
-	
+*/	
 	dprintf"Initialising font texture surfaces\n"));
 
 	bigFont->srf		= CreateTextureSurface (256,256,bigFont->data,1,0,0);
-	smallFont->srf		= CreateTextureSurface (256,256,smallFont->data,1,0,0);
 	bigFont->hdl		= ConvertSurfaceToTexture (bigFont->srf);
-	smallFont->hdl	= ConvertSurfaceToTexture (smallFont->srf);
 
+	//smallFont->srf		= CreateTextureSurface (256,256,smallFont->data,1,0,0);
+	//smallFont->hdl	= ConvertSurfaceToTexture (smallFont->srf);
+
+	smallFont = bigFont;
 	
 	// Make 16x16 font the current font
 	currFont = smallFont;

@@ -57,15 +57,15 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 	
 	short u,v,letterID;
 				
-	x = tOver->xPos;
-	y = tOver->yPos;
+	x = tOver->xPos * RES_DIFF2;
+	y = tOver->yPos * RES_DIFF2;
 
 	if(tOver->centred)
 	{
 		// Centre text along screen x-axis
 		length	= strlen(tOver->text);
 		width	= length * (tOver->font->xSpacing[0]);
-		x		= (320 >> 1) - (width >> 1);
+		x		= (640-width)/2;
 
 		if((length & 1) != 0)
 			x -= 5;
@@ -96,7 +96,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			
 			if (runHardware)
 			{
-				DrawAlphaSprite (x*RES_DIFF2,y*RES_DIFF2,0,tOver->font->height*RES_DIFF2,tOver->font->width*RES_DIFF2,
+				DrawAlphaSprite (x, y, 0, tOver->font->height, tOver->font->width,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width-1)/256.0,
 				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,D3DRGBA(1,1,1,tOver->a/255.0));

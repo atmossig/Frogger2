@@ -200,6 +200,7 @@ void RunLevelSelect()
 
 	if(frameCount == 1)
 	{
+/*
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
@@ -208,12 +209,16 @@ void RunLevelSelect()
 #else
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 #endif
+*/
+		FreeTextOverlayLinkedList();
+		FreeSpriteOverlayLinkedList();
+		FreeSpriteLinkedList();
 
 		currFont = smallFont;
 
 		// draw list of worlds on left
 		for( i=0; i < MAX_WORLDS; i++ )
-			worldSelText[i] = CreateAndAddTextOverlay( 20, (i*20)+30,
+			worldSelText[i] = CreateAndAddTextOverlay( 5, (i*20)+30,
 														worldVisualData[i].description,
 														NO,NO,255,255,255,100,
 														currFont, TEXTOVERLAY_NORMAL,0,0 );
@@ -222,7 +227,7 @@ void RunLevelSelect()
 		for( i=0; i < MAX_LEVELS; i++ )
 		{
 			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
-			levelSelText[i] = CreateAndAddTextOverlay( 160, (i*20)+30,
+			levelSelText[i] = CreateAndAddTextOverlay( 150, (i*20)+30,
 														lNames[i].name,
 														NO,NO,255,255,255,100,		
 														currFont,TEXTOVERLAY_NORMAL,0,0);
