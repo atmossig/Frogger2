@@ -633,6 +633,9 @@ void InitSampleList( )
 	bufferList.numEntries	= 0;
 	bufferList.head.next	= bufferList.head.prev = &bufferList.head;
 
+	// Setup animation callback
+	StartAnim = PlaySfxMappedSample;
+
 	sfx_anim_map = NULL;
 }
 
