@@ -1564,6 +1564,7 @@ void CheckTileState(GAMETILE *tile, int pl)
 	{
 		if(!player[pl].dead.time)
 			DeathPoison(pl);
+		break;
 	}
 	
 	case TILESTATE_FALL:
