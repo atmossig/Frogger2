@@ -1650,9 +1650,6 @@ void ControllerProc(void *arg)
 // MEMORY DEBUGGING / CHECKING ROUTINES - ANDYE - CURRENTLY SPECIFIC TO N64
 // -----------------------------------------------------------------------------------------------
 
-unsigned long memFix_SpriteOverlaysAlloced = 0;
-unsigned long memFix_SpriteOverlaysFreed = 0;
-
 float ConvertKb(unsigned long op1)
 {
 	return ((float)op1 / 1024.0F);
