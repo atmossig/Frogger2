@@ -348,7 +348,7 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 {
 	char *str;
 
-	if (!font)
+	if (!font || !string)
 		return 0;
 
 	long width = 0;
