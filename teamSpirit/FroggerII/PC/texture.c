@@ -167,7 +167,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	char mys[255];
 	short *dat;
 
-	TEXENTRY *newE = JallocAlloc (sizeof(TEXENTRY),NO,"txtur");
+	TEXENTRY *newE = (TEXENTRY*)JallocAlloc (sizeof(TEXENTRY),NO,"txtur");
 
 	newE->next = texList;
 	

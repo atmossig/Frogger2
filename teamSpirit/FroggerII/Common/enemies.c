@@ -562,17 +562,6 @@ void UpdateEnemies()
 			// process enemies that follow a path (>1 node in path)
 			
 			// first, update the enemy position
-/*
-			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
-			SubVector(&fwd,&toPosition,&cur->nmeActor->actor->pos);
-			MakeUnit(&fwd);
-
-			length = (float)(actFrameCount-cur->path->startFrame)/(float)(cur->path->endFrame-cur->path->startFrame);
-			
-			ScaleVector(&fwd,length);
-			AddVector (&cur->nmeActor->actor->pos,&fwd,&toPosition);
-*/
-
 			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
 			GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
 			
@@ -620,8 +609,10 @@ void UpdateEnemies()
 				}
 			}
 
-//			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
-//				if (Random(100)>50)
+			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+				if (Random(1))
+					cur->path->endFrame += (Random(100)/1000.0)*cur->speed;
+
 //					cur->speed = (Random(100)/100.0)*cur->path->nodes[cur->path->fromNode].speed;
 				
 //			cur->nmeActor->actor->pos.v[X] += (cur->speed * fwd.v[X]);
@@ -636,27 +627,15 @@ void UpdateEnemies()
 //			NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->currNormal);
 //			or
 
-			if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+			if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
 			{
-				if (cur->flags & ENEMY_NEW_FORWARDS)
-					Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-				else
-				{
-					ScaleVector (&fwd,-1);
-					Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
-				}
+				if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
+				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 			}
 			else
 			{
-				if (cur->flags & ENEMY_NEW_FORWARDS)
-				{
-					SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
-				}
-				else
-				{
-					SubVector( &moveVec, &cur->path->nodes[cur->path->startNode].worldTile->centre, &cur->path->nodes[cur->path->startNode+1].worldTile->centre );
-				}
-
+				SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
+				if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
 				Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
 //--------------------->
@@ -666,8 +645,8 @@ void UpdateEnemies()
 			{
 				UpdateEnemyPathNodes(cur);
 
-				cur->path->startFrame += cur->isWaiting * waitScale;
-				cur->path->endFrame += cur->isWaiting * waitScale;
+				cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+				cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
 			}
 		}
 		else
@@ -779,7 +758,11 @@ void UpdateEnemies()
 					}
 			
 					if(EnemyReachedTopOrBottomPoint(cur))
+					{
 						UpdateEnemyPathNodes(cur);
+						cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+						cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+					}
 				}
 
 				// Move around a single flag
@@ -1642,181 +1625,83 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 void UpdateEnemyPathNodes(ENEMY *nme)
 {
 	VECTOR nmePos;
-	int nextToNode,nextFromNode;
+	int wait;
 	PATH *path = nme->path;
 	unsigned long flags = nme->flags;
 	
-	VECTOR *n1,*n2;
-	
-	// determine to/from nodes for the current enemy
-	path->startFrame = path->endFrame;
-	path->endFrame = path->startFrame+(60*nme->speed);
-	nme->isWaiting = 0;
-
-	if(flags & ENEMY_NEW_FORWARDS)
+	if(flags & ENEMY_NEW_FORWARDS)	// enemy moves forward through path nodes
 	{
-		// enemy moves forward through path nodes
-		nextToNode = path->toNode + 1;
-
-		if(nextToNode > GET_PATHLASTNODE(path))
+		if(path->toNode >= GET_PATHLASTNODE(path))	// reached end of path nodes
 		{
-			// reached end of path nodes
-			// check if this enemy has ping-pong movement
-			if(flags & ENEMY_NEW_PINGPONG)
+			if(flags & ENEMY_NEW_PINGPONG)		// this enemy has ping-pong movement
 			{
-				// reverse enemy path movement
-				nme->flags		&= ~ENEMY_NEW_FORWARDS;
-				nme->flags		|= ENEMY_NEW_BACKWARDS;
+				nme->flags		^= (ENEMY_NEW_FORWARDS | ENEMY_NEW_BACKWARDS);	// reverse enemy path movement
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
-
-				nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-				nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcEnemyNormalInterps(nme);
-				return;
 			}
-			else if(flags & ENEMY_NEW_CYCLE)
+			else if(flags & ENEMY_NEW_CYCLE) 	// enemy has cyclic movement
 			{
-				// enemy has cyclic movement
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= 0;
-				
-				nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-				nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcEnemyNormalInterps(nme);
-				return;
 			}
-
-			path->fromNode	= 0;
-			path->toNode	= 1;
-
-			nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-			nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcEnemyNormalInterps(nme);
-
-			GetPositionForPathNode(&nmePos,&path->nodes[0]);
-			SetVector(&nme->nmeActor->actor->pos,&nmePos);
-		}
-		else
-		{
-			nextFromNode = path->fromNode + 1;
-
-			if((nme->flags & ENEMY_NEW_CYCLE) && (nextFromNode > GET_PATHLASTNODE(path)))
+			else
 			{
 				path->fromNode	= 0;
 				path->toNode	= 1;
-
-				nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-				nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcEnemyNormalInterps(nme);
-				return;
+				GetPositionForPathNode(&nmePos,&path->nodes[0]);
+				SetVector(&nme->nmeActor->actor->pos,&nmePos);
 			}
-			
-			path->fromNode++;
+		}
+		else
+		{
+			path->fromNode = path->toNode;
 			path->toNode++;
-
-			nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-			nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcEnemyNormalInterps(nme);
 		}
 	}
-	else if(flags & ENEMY_NEW_BACKWARDS)
+	else if(flags & ENEMY_NEW_BACKWARDS) // enemy moves backwards through path nodes
 	{
-		// enemy moves backwards through path nodes
-		nextToNode = path->toNode - 1;
-
-		if(nextToNode < 0)
+		if(path->toNode <= 0)
 		{
 			// reached beginning of path nodes
 			// check if this enemy has ping-pong movement
 			if(flags & ENEMY_NEW_PINGPONG)
 			{
 				// reverse enenmy path movement
-				nme->flags		&= ~ENEMY_NEW_BACKWARDS;
-				nme->flags		|= ENEMY_NEW_FORWARDS;
+				nme->flags		^= (ENEMY_NEW_FORWARDS | ENEMY_NEW_BACKWARDS);	// reverse enemy path movement
 				path->fromNode	= 0;
 				path->toNode	= 1;
-
-				nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-				nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcEnemyNormalInterps(nme);
-				return;
 			}
 			else if(flags & ENEMY_NEW_CYCLE)
 			{
 				// enenmy has cyclic movement
 				path->fromNode	= 0;
 				path->toNode	= GET_PATHLASTNODE(path);
-
-				nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-				nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcEnemyNormalInterps(nme);
-				return;
 			}
-
-			path->fromNode	= GET_PATHLASTNODE(path);
-			path->toNode	= GET_PATHLASTNODE(path) - 1;
-
-			nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-			nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcEnemyNormalInterps(nme);
-
-			GetPositionForPathNode(&nmePos,&path->nodes[GET_PATHLASTNODE(path)]);
-			SetVector(&nme->nmeActor->actor->pos,&nmePos);
-		}
-		else
-		{
-			nextFromNode = path->fromNode - 1;
-
-			if((nme->flags & ENEMY_NEW_CYCLE) && (nextFromNode < 0))
+			else
 			{
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
-
-				nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-				nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcEnemyNormalInterps(nme);
-				return;
+				GetPositionForPathNode(&nmePos,&path->nodes[GET_PATHLASTNODE(path)]);
+				SetVector(&nme->nmeActor->actor->pos,&nmePos);
 			}
-
-			path->fromNode--;
+		}
+		else
+		{
+			path->fromNode = path->toNode;
 			path->toNode--;
-
-			nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-			nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcEnemyNormalInterps(nme);
 		}
+
 	}
-	else if(flags & ENEMY_NEW_MOVEUP)
+	else if((flags & ENEMY_NEW_PINGPONG) && flags & (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN))
 	{
-		// path has reached 'top' of path
-		// check if this enenmy has ping-pong movement
-		if(flags & ENEMY_NEW_PINGPONG)
-		{
-			// reverse enemy movement
-			nme->flags	&= ~ENEMY_NEW_MOVEUP;
-			nme->flags	|= ENEMY_NEW_MOVEDOWN;
-
-			nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-			nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-			return;
-		}
+		nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
 	}
-	else if(flags & ENEMY_NEW_MOVEDOWN)
-	{
-		// path has reached 'bottom' of path
-		// check if this enemy has ping-pong movement
-		if(flags & ENEMY_NEW_PINGPONG)
-		{
-			// reverse enemy movement
-			nme->flags	|= ENEMY_NEW_MOVEUP;
-			nme->flags	&= ~ENEMY_NEW_MOVEDOWN;
 
-			nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
-			nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
-			return;
-		}
-	}
+	nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
+	nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
+	CalcEnemyNormalInterps(nme);
+
+	dprintf"%d -> %d  (of %d) with flags %8x\n", path->fromNode, path->toNode, path->numNodes, nme->flags));
 }
 
 

@@ -321,9 +321,8 @@ void UpdatePlatforms()
 			{
 				UpdatePlatformPathNodes(cur);
 				
-				cur->path->startFrame += cur->isWaiting * waitScale;
-				cur->path->endFrame += cur->isWaiting * waitScale;
-	
+				cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+				cur->path->endFrame = cur->path->startFrame + (60*cur->currSpeed);
 			}
 		}
 		else
@@ -1154,184 +1153,77 @@ BOOL PlatformReachedTopOrBottomPoint(PLATFORM *pform)
 void UpdatePlatformPathNodes(PLATFORM *pform)
 {
 	VECTOR pformPos;
-	int nextToNode,nextFromNode;
 	PATH *path = pform->path;
 	unsigned long flags = pform->flags;
 	
-	VECTOR *n1,*n2;
-	
-	// determine to/from nodes for the current platform
-	path->startFrame = path->endFrame;
-	path->endFrame = path->startFrame+(60*pform->currSpeed);
-	pform->isWaiting = 0;
-	
-	if(flags & PLATFORM_NEW_FORWARDS)
+	if(flags & PLATFORM_NEW_FORWARDS)	// platform moves forward through path nodes
 	{
-		// platform moves forward through path nodes
-		nextToNode = path->toNode + 1;
-
-		if(nextToNode > GET_PATHLASTNODE(path))
+		if(path->toNode >= GET_PATHLASTNODE(path))
 		{
-			// reached end of path nodes
-			// check if this platform has ping-pong movement
 			if(flags & PLATFORM_NEW_PINGPONG)
 			{
-				// reverse platform path movement
-				pform->flags	&= ~PLATFORM_NEW_FORWARDS;
-				pform->flags	|= PLATFORM_NEW_BACKWARDS;
+				pform->flags	^= (PLATFORM_NEW_FORWARDS | PLATFORM_NEW_BACKWARDS);
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
-
-				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcPlatformNormalInterps(pform);
-				return;
 			}
 			else if(flags & PLATFORM_NEW_CYCLE)
 			{
 				// platform has cyclic movement
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= 0;
-				
-				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-
-				CalcPlatformNormalInterps(pform);
-				return;
 			}
-
-			path->fromNode	= 0;
-			path->toNode	= 1;
-
-			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcPlatformNormalInterps(pform);
-
-			GetPositionForPathNode(&pformPos,&path->nodes[0]);
-			SetVector(&pform->pltActor->actor->pos,&pformPos);
-		}
-		else
-		{
-			nextFromNode = path->fromNode + 1;
-
-			if((pform->flags & PLATFORM_NEW_CYCLE) && (nextFromNode > GET_PATHLASTNODE(path)))
+			else
 			{
 				path->fromNode	= 0;
 				path->toNode	= 1;
-
-				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcPlatformNormalInterps(pform);
-				return;
+				GetPositionForPathNode(&pformPos,&path->nodes[0]);
+				SetVector(&pform->pltActor->actor->pos,&pformPos);
 			}
-			
-			path->fromNode++;
+		}
+		else
+		{
+			path->fromNode = path->toNode;
 			path->toNode++;
-
-			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcPlatformNormalInterps(pform);
 		}
 	}
 	else if(flags & PLATFORM_NEW_BACKWARDS)
 	{
 		// platform moves backwards through path nodes
-		nextToNode = path->toNode - 1;
-
-		if(nextToNode < 0)
+		if(path->toNode <= 0)
 		{
-			// reached beginning of path nodes
-			// check if this platform has ping-pong movement
 			if(flags & PLATFORM_NEW_PINGPONG)
 			{
-				// reverse platform path movement
-				pform->flags	&= ~PLATFORM_NEW_BACKWARDS;
-				pform->flags	|= PLATFORM_NEW_FORWARDS;
+				pform->flags	^= (PLATFORM_NEW_FORWARDS | PLATFORM_NEW_BACKWARDS);
 				path->fromNode	= 0;
 				path->toNode	= 1;
-
-				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcPlatformNormalInterps(pform);
-				return;
 			}
 			else if(flags & PLATFORM_NEW_CYCLE)
 			{
-				// platform has cyclic movement
 				path->fromNode	= 0;
 				path->toNode	= GET_PATHLASTNODE(path);
-
-				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcPlatformNormalInterps(pform);
-				return;
 			}
-
-			path->fromNode	= GET_PATHLASTNODE(path);
-			path->toNode	= GET_PATHLASTNODE(path) - 1;
-
-			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcPlatformNormalInterps(pform);
-
-			GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
-			SetVector(&pform->pltActor->actor->pos,&pformPos);
-		}
-		else
-		{
-			nextFromNode = path->fromNode - 1;
-
-			if((pform->flags & PLATFORM_NEW_CYCLE) && (nextFromNode < 0))
+			else
 			{
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
-
-				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-				CalcPlatformNormalInterps(pform);
-				return;
+				GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
+				SetVector(&pform->pltActor->actor->pos,&pformPos);
 			}
-
-			path->fromNode--;
+		}
+		else
+		{
+			path->fromNode = path->toNode;
 			path->toNode--;
-
-			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-			CalcPlatformNormalInterps(pform);
 		}
 	}
-	else if(flags & PLATFORM_NEW_MOVEUP)
+	else if((flags & PLATFORM_NEW_PINGPONG) && flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 	{
-		// path has reached 'top' of path
-		// check if this platform has ping-pong movement
-		if(flags & PLATFORM_NEW_PINGPONG)
-		{
-			// reverse platform movement
-			pform->flags	&= ~PLATFORM_NEW_MOVEUP;
-			pform->flags	|= PLATFORM_NEW_MOVEDOWN;
-
-			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-			return;
-		}
-	}
-	else if(flags & PLATFORM_NEW_MOVEDOWN)
-	{
-		// path has reached 'bottom' of path
-		// check if this platform has ping-pong movement
-		if(flags & PLATFORM_NEW_PINGPONG)
-		{
-			// reverse platform movement
-			pform->flags	|= PLATFORM_NEW_MOVEUP;
-			pform->flags	&= ~PLATFORM_NEW_MOVEDOWN;
-
-			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
-			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
-			return;
-		}
+		pform->flags	^= (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN);
 	}
 
-	
+	pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+	pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+	CalcPlatformNormalInterps(pform);
 }
 
 
