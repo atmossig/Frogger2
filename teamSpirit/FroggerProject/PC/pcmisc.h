@@ -80,6 +80,7 @@ extern void CreateProceduralTexture( TextureType *tex, char *name );
 #define FOGVAL(y) (((unsigned long)(255*y) << 24))
 
 void mtxSetIdent( float *m );
+void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette );
 
 #ifdef __cplusplus
 }

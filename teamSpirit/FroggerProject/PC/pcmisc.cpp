@@ -360,3 +360,8 @@ void mtxSetIdent( float *m )
 {
 	memcpy (m,imtx,sizeof(float)*16);
 }
+
+void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
+{
+}
+
