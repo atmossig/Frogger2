@@ -57,11 +57,18 @@ typedef struct
 	//bb
 	IQUATERNION qRot;
 
+	//bb - temp to compile
+	//pc
+	char* name;
+
 } ACTOR;
 
 void actorFree(ACTOR *actor);
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe);
 
+void actorDraw(ACTOR *actor)						{return;}
+void actorSetAnimation(ACTOR *actor, ULONG frame)	{return;}
+void actorUpdateAnimations(ACTOR *actor)			{return;}
 
 
 #endif
