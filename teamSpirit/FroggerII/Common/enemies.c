@@ -107,6 +107,7 @@ void UpdateEnemies()
 
 	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
 	{
+		ACTOR2 *act = cur->nmeActor;
 		next = cur->next;
 
 		// check if enemy is active
@@ -158,8 +159,8 @@ void UpdateEnemies()
 		{
 			if (NUM_FROGS==1)
 			{
-				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[0]->action.dead && 
-					!frog[0]->action.safe && ActorsHaveCollided(frog[0],cur->nmeActor) )
+				if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[0]->action.dead && !frog[0]->action.safe &&
+					(DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos)<((frog[0]->radius+act->radius)*(frog[0]->radius+act->radius))) )
 				{
 					NMEDamageFrog(0,cur);
 				}
@@ -174,7 +175,7 @@ void UpdateEnemies()
 			{
 				for (i=0; i<NUM_FROGS; i++)
 					if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && !frog[i]->action.safe &&
-						ActorsHaveCollided(frog[i],cur->nmeActor) )
+						(DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 					{
 						KillMPFrog(i);
 					}

@@ -575,6 +575,11 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
 	LoadVisualBanksForWorld(worldID,levelID);
 
+	InitSampleList( );
+#ifdef USE_AUDIO
+	LoadSfx(worldID);
+#endif
+
 	// initialise the various lists
 	InitSpriteFrameLists();
 	InitSpecFXList();
@@ -611,7 +616,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	MusSetMasterVolume(MUSFLAG_SONGS,32000);
 #endif
 
-#ifdef PLAY_INGAMEMUSIC
+#ifdef USE_AUDIO
 	PrepareSongForLevel(worldID,levelID);
 #endif
 
@@ -639,6 +644,13 @@ void FreeAllLists()
 #ifdef N64_VERSION
 	MusHandleStop(audioCtrl.musicHandle[0],0);
 	audioCtrl.currentTrack[0] = 0;
+#endif
+
+#ifdef PC_VERSION
+#ifdef USE_AUDIO
+	stopCDTrack( winInfo.hWndMain );
+	FreeSampleList();
+#endif
 #endif
 
 	dprintf"----- FREEING ALL LISTS -----\n"));

@@ -74,7 +74,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	(*me)->action.frogon		= -1;
 	(*me)->action.frogunder		= -1;
 
-	(*me)->radius				= 37.0F;
+	(*me)->radius				= 22.0F;
 
 }
 
