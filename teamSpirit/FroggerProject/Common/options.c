@@ -1987,7 +1987,7 @@ void RunOptionsMenu(void)
 			else
 			{
 				options.numPlayers = min(maxPlayers,max(2,options.numPlayers));
-				sprintf(options.numPStr,"%d %s",options.numPlayers,GAMESTRING(STR_PLAYER));
+				sprintf(options.numPStr,"%d %s",options.numPlayers,GAMESTRING(STR_PLAYERS));
 				options.numPStr2[0] = 0;
 			}
 
