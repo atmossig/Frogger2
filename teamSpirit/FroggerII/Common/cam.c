@@ -123,6 +123,50 @@ int CameraBoundPosition(VECTOR *v, CAM_BOX *box, float edge)
 	return count;
 }
 
+
+int GetCamLimitVector(VECTOR *out, VECTOR *v, CAM_BOX *box, float edge)
+{
+	int p;
+	float dist, foo;
+	CAM_PLANE *plane;
+	VECTOR a, res;
+	int count;
+
+	if (!box)
+		return 0;
+
+	count = 0;
+	plane = box->planes;
+	ZeroVector(&res);
+	foo = edge;
+
+	for (p = box->numPlanes; p; p--, plane++)
+	{
+		if (!plane->status) continue;
+
+		dist = DotProduct(v, &plane->normal) - plane->k;
+
+		if (dist < edge)
+		{
+			if (dist < foo)
+				foo = dist;
+
+			dist -= edge;
+
+			SetVector(&a, &plane->normal);
+			ScaleVector(&a, -dist);
+			AddToVector(&res, &a);
+			
+			count++;
+		}
+	}
+
+	SetVector(out, &res);
+
+	return count;
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: IsPointInCameraBox
 	Purpose			: checks if a 3D point is within a camera space
@@ -322,8 +366,7 @@ void FreeTransCameraList()
 
 /* --------------------------------------------------------------------------------
 	Function	: CameraLookAtFrog
-
-	Purpose		:
+	Purpose		: Sets camTarget to the frog, or an average position
 	Parameters	: (void)
 	Returns		: void 
 */
@@ -332,33 +375,18 @@ void CameraLookAtFrog(void)
 	if(frog[0] && !fixedDir && !controlCamera)
 	{
 		// Average frog position	
-		float afx,afy,afz,sc;
+		VECTOR target;
+		float sc;
 		int i,l;
-		afx = afy = afz = 0;
 		l = 0;
+
+		ZeroVector(&target);
+
 		for (i=0; i<NUM_FROGS; i++)
 		{
 			if( player[i].healthPoints )
 			{
-/*
-				if (currPlatform[i])
-				{
-					afx += currPlatform[i]->pltActor->actor->pos.v[0];
-					afy += currPlatform[i]->pltActor->actor->pos.v[1];
-					afz += currPlatform[i]->pltActor->actor->pos.v[2];
-				}
-				else
-				{
-					afx += currTile[i]->centre.v[0];
-					afy += currTile[i]->centre.v[1];
-					afz += currTile[i]->centre.v[2];
-				}
-*/
-
-				afx += frog[i]->actor->pos.v[0];
-				afy += frog[i]->actor->pos.v[1];
-				afz += frog[i]->actor->pos.v[2];
-
+				AddToVector(&target, &frog[i]->actor->pos);
 				l++;
 			}
 
@@ -367,53 +395,36 @@ void CameraLookAtFrog(void)
 			if( sc != -1 ) scaleV = (sc*0.00115) + 0.6;
 		}
 		
-		if (l)
+		if (l > 1)
 		{
-			afx/=l;
-			afy/=l;
-			afz/=l;
+			l = 1.0f/l;
+			ScaleVector(&target, l);
 		}
 
-		if (fixedPos)
+/*		if (!idleCamera)
 		{
-			camTarget[0].v[0] = afx + currTile[0]->normal.v[0];	
-			camTarget[0].v[1] = afy + currTile[0]->normal.v[1];	
-			camTarget[0].v[2] = afz + currTile[0]->normal.v[2];
+			VECTOR v;
+			SetVector(&v, currTile[0]->dirVector[frogFacing[0]]);
+			ScaleVector(&v, camLookOfs);
+			AddToVector(&target, v);
 		}
-		else
-		{
-			if (!idleCamera)
-			{
-				camTarget[0].v[0] = afx+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs + currTile[0]->normal.v[0];
-				camTarget[0].v[1] = afy+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs + currTile[0]->normal.v[1];
-				camTarget[0].v[2] = afz+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs + currTile[0]->normal.v[2];
-			}
-			else
-			{
-				camTarget[0].v[0] = afx+currTile[0]->normal.v[0];	
-				camTarget[0].v[1] = afy+currTile[0]->normal.v[1];	
-				camTarget[0].v[2] = afz+currTile[0]->normal.v[2];
-			}
-		}
-		
+*/
+		SetVector(&camTarget[0], &target);
 	}
 	
 }
 
 
 /* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
 	Function	: SlurpCamPosition
-
 	Purpose		:
 	Parameters	: (void)
 	Returns		: void 
 */
-extern long initialCamera;
-
 void SlurpCamPosition(long cam)
 {
 	float s1,s2,s3,s4;
+	VECTOR v, w;
 //	unsigned long afc = actFrameCount;
 
 	if (idleCamera)
@@ -436,15 +447,8 @@ void SlurpCamPosition(long cam)
 	
 //	while( lastActFrameCount < afc )
 //	{
-		if (!initialCamera)
+		/*if (!initialCamera)
 		{
-			currCamSource[cam].v[0] -= s1 * (currCamSource[cam].v[0] - camSource[cam].v[0]);
-			currCamSource[cam].v[1] -= s1 * (currCamSource[cam].v[1] - camSource[cam].v[1]);
-			currCamSource[cam].v[2] -= s1 * (currCamSource[cam].v[2] - camSource[cam].v[2]);
-
-			currCamTarget[cam].v[0] -= s3 * (currCamTarget[cam].v[0] - camTarget[cam].v[0]);
-			currCamTarget[cam].v[1] -= s3 * (currCamTarget[cam].v[1] - camTarget[cam].v[1]);
-			currCamTarget[cam].v[2] -= s3 * (currCamTarget[cam].v[2] - camTarget[cam].v[2]);
 
 			if (idleCamera)
 			{
@@ -460,64 +464,170 @@ void SlurpCamPosition(long cam)
 			}
 		}
 		else
-		{
-			SetVector (&camVect,&currTile[0]->normal);
-		
-			currCamSource[cam].v[0] = camSource[cam].v[0];
-			currCamSource[cam].v[1] = camSource[cam].v[1];
-			currCamSource[cam].v[2] = camSource[cam].v[2];
+		{*/
 
-			currCamTarget[cam].v[0] = camTarget[cam].v[0];
-			currCamTarget[cam].v[1] = camTarget[cam].v[1];
-			currCamTarget[cam].v[2] = camTarget[cam].v[2];
-		
-			currCamDist.v[0] = camDist.v[0]*scaleV;
-			currCamDist.v[1] = camDist.v[1]*scaleV;
-			currCamDist.v[2] = camDist.v[2]*scaleV;
+	SubVector(&v, &camSource[cam], &currCamSource[cam]);
+	ScaleVector(&v, s3);
+	AddToVector(&currCamSource[cam], &v);
+
+	GetCamLimitVector(&v, &currCamSource[cam], currCamBox, cam_edge_spacing);
+	ScaleVector(&v, s3*2);
+	AddToVector(&currCamSource[cam], &v);
+
+
+	// Cam target
+
+	SubVector(&v, &camTarget[cam], &currCamTarget[cam]);
+	ScaleVector(&v, s3);
+	AddToVector(&currCamTarget[cam], &v);
+
+	GetCamLimitVector(&v, &currCamTarget[cam], currCamBox, cam_edge_spacing);
+	ScaleVector(&v, s3*2);
+	AddToVector(&currCamTarget[cam], &v);
+
+	SetVector (&camVect,&currTile[0]->normal);
+
+	currCamDist.v[0] = camDist.v[0]*scaleV;
+	currCamDist.v[1] = camDist.v[1]*scaleV;
+	currCamDist.v[2] = camDist.v[2]*scaleV;
 	
-			if (initialCamera) initialCamera--;
-		}
-		
-		if ( gameState.mode != CAMEO_MODE )
+	if ( gameState.mode != CAMEO_MODE )
+	{
+		VECTOR t = { 0,0,0 };
+		int i;
+	
+		for (i=0; i<NUM_FROGS; i++)
 		{
-			VECTOR t = { 0,0,0 };
-			int i;
-		
-			for (i=0; i<NUM_FROGS; i++)
+			if( player[i].healthPoints )
 			{
-				if( player[i].healthPoints )
-				{
-					t.v[0]+=currTile[i]->normal.v[0];
-					t.v[1]+=currTile[i]->normal.v[1];
-					t.v[2]+=currTile[i]->normal.v[2];
-				}
+				t.v[0]+=currTile[i]->normal.v[0];
+				t.v[1]+=currTile[i]->normal.v[1];
+				t.v[2]+=currTile[i]->normal.v[2];
 			}
-
-			MakeUnit (&t);
-			
-			if (!fixedUp)
-			{
-				camVect.v[0] -= s2 * (camVect.v[0] - t.v[0]);
-				camVect.v[1] -= s2 * (camVect.v[1] - t.v[1]);
-				camVect.v[2] -= s2 * (camVect.v[2] - t.v[2]);
-			}
-			else
-			{
-				camVect.v[0] = 0;
-				camVect.v[1] = 1;
-				camVect.v[2] = 0;
-			}
-			
-			
 		}
+
+		MakeUnit (&t);
+		
+		if (!fixedUp)
+		{
+			camVect.v[0] -= s2 * (camVect.v[0] - t.v[0]);
+			camVect.v[1] -= s2 * (camVect.v[1] - t.v[1]);
+			camVect.v[2] -= s2 * (camVect.v[2] - t.v[2]);
+		}
+		else
+		{
+			camVect.v[0] = 0;
+			camVect.v[1] = 1;
+			camVect.v[2] = 0;
+		}
+		
+		
+	}
 
 //		xFOV		-= (xFOV - xFOVNew) / (s1*fovSpd);
 //		yFOV		-= (yFOV - yFOVNew) / (s1*fovSpd);
-		camLookOfs	-= s1 * (camLookOfs - camLookOfsNew);
+	camLookOfs	-= s1 * (camLookOfs - camLookOfsNew);
 
 //		lastActFrameCount++;
 //	}
 }
+
+void CameraSetSource(void)
+{
+	VECTOR avgFrogPos;
+	VECTOR avgUpVec;
+
+	//float afx,afy,afz;
+	float afx2,afy2,afz2;
+	float afx3,afy3,afz3;
+	long nC;
+	int i,l;
+	//afx = afy = afz = 0;
+	afx2 = afy2 = afz2 = 0;
+	l=0;
+
+	CheckCameraBoxes();
+
+	ZeroVector(&avgFrogPos);
+	ZeroVector(&avgUpVec);
+
+	// Multiplier here should probably be related to tan(FOV) somehow..
+
+	//CameraBoundPosition(&camTarget[0], currCamBox, cam_edge_spacing);
+
+	// Average for multiplayer
+/*
+	for (i=0; i<NUM_FROGS; i++)
+	{
+		if( player[i].healthPoints )
+		{
+			AddToVector(&avgFrogPos, &frog[i]->actor->pos);
+
+			if (fixedUp)
+			{
+				avgUpVec.v[1] +=afx2 += 0;
+				afy2 += 1*currCamDist.v[1];
+				afz2 += 0;
+			}
+			else
+
+			{
+
+			//AddToVector(avgUpVec, &currTile[i]->normal
+				afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
+				afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
+				afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
+			}
+
+			afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
+			afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
+			afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+
+			l++;
+		}
+	}
+*/
+		//SetVector(&currCamTarget[0], &camTarget[0]);
+		SetVector(&avgFrogPos, &camTarget[0]);
+
+		afx2 = currTile[0]->normal.v[0]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
+		afy2 = currTile[0]->normal.v[1]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
+		afz2 = currTile[0]->normal.v[2]*currCamDist.v[1] - currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
+
+	nC = (camFacing+1)&3;
+
+	afx3 = currTile[0]->dirVector[nC].v[0]*camSideOfs;
+	afy3 = currTile[0]->dirVector[nC].v[1]*camSideOfs;
+	afz3 = currTile[0]->dirVector[nC].v[2]*camSideOfs;
+
+	if (l > 1)
+	{
+		float scale = 1.0f/l;
+		ScaleVector(&avgFrogPos, scale);
+
+		//afx2/=l; afy2/=l;	afz2/=l;
+	}
+
+	SetVector(&camSource[0], &avgFrogPos);
+
+	camSource[0].v[0] += afx2+afx3;
+	camSource[0].v[1] += afy2+afy3;
+	camSource[0].v[2] += afz2+afz3;
+/*
+	if (idleCamera)
+	{
+	}
+	else
+	{
+		camSource[0].v[0] = afx+afx2+afx3+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
+		camSource[0].v[1] = afy+afy2+afy3+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
+		camSource[0].v[2] = afz+afz2+afz3+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
+	}
+*/
+
+	//CameraBoundPosition(&camSource[0], currCamBox, cam_edge_spacing * 0.95);
+}
+
 
 
 /* --------------------------------------------------------------------------------
@@ -543,86 +653,11 @@ void UpdateCameraPosition(long cam)
 		CheckForDynamicCameraChange(currTile[0]);
 	}
 
+	CameraLookAtFrog();
+
 	if ( gameState.mode != CAMEO_MODE && !fixedPos )
 	{
-		float afx,afy,afz;
-		float afx2,afy2,afz2;
-		float afx3,afy3,afz3;
-		long nC;
-		int i,l;
-		afx = afy = afz = 0;
-		afx2 = afy2 = afz2 = 0;
-		l=0;
-
-		CheckCameraBoxes();
-
-		// Multiplier here should probably be related to tan(FOV) somehow..
-
-		CameraBoundPosition(&camTarget[0], currCamBox, cam_edge_spacing);
-
-		for (i=0; i<NUM_FROGS; i++)
-		{
-			if( player[i].healthPoints )
-			{
-				afx += camTarget[0].v[0]; //frog[i]->actor->pos.v[0];
-				afy += camTarget[0].v[1]; //frog[i]->actor->pos.v[1];
-				afz += camTarget[0].v[2]; //frog[i]->actor->pos.v[2];
-
-				if (fixedUp)
-				{
-					afx2 += 0;
-					afy2 += 1*currCamDist.v[1];
-					afz2 += 0;
-				}
-				else
-				{
-						afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
-						afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
-						afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
-				}
-
-				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
-				afy2 -= currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2];
-				afz2 -= currTile[0]->dirVector[camFacing].v[2]*currCamDist.v[2];
-
-				l++;
-			}
-		}
-
-		nC = (camFacing+1)&3;
-
-		afx3 = currTile[0]->dirVector[nC].v[0]*camSideOfs;
-		afy3 = currTile[0]->dirVector[nC].v[1]*camSideOfs;
-		afz3 = currTile[0]->dirVector[nC].v[2]*camSideOfs;
-	
-		if (l)
-		{
-		
-			afx/=l;
-			afy/=l;
-			afz/=l;
-		
-			afx2/=l;
-			afy2/=l;
-			afz2/=l;
-		}
-
-		camSource[0].v[0] = afx+afx2+afx3;
-		camSource[0].v[1] = afy+afy2+afy3;
-		camSource[0].v[2] = afz+afz2+afz3;
-/*
-		if (idleCamera)
-		{
-		}
-		else
-		{
-			camSource[0].v[0] = afx+afx2+afx3+currTile[0]->dirVector[frogFacing[0]].v[0]*camLookOfs;
-			camSource[0].v[1] = afy+afy2+afy3+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
-			camSource[0].v[2] = afz+afz2+afz3+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
-		}
-*/
-
-		CameraBoundPosition(&camSource[0], currCamBox, cam_edge_spacing * 0.95);
+		CameraSetSource();
 	}
 
 	if (fixedUp)
@@ -632,31 +667,30 @@ void UpdateCameraPosition(long cam)
 		camVect.v[2] = 0;
 	}
 
+	//SetVector(&currCamSource[0], &camSource[0]);
+
 	SlurpCamPosition(0);
 
+	// Handle shaky camera nonsense
+	
 	if (cam_shakiness > 0.0)
 	{
 		int i;
-		
 		for (i = 0; i < 3; i++)
+		{
 			currCamTarget[0].v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
-		for (i = 0; i < 3; i++)
 			currCamSource[0].v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
-
+		}
 		cam_shakiness -= cam_shake_falloff * gameSpeed;
 	}
 
 	// edge spacing should probably related to tan(FOV/2)
 	cam_edge_spacing = DistanceBetweenPoints(&currCamSource[0], &currCamTarget[0]) * 0.75f;
 
-	if (initialCamera)
-	{
-		
-	}
-
 	if( swingCam )
 	{
-		// if the player is on their last life - give the swaying camera more 'urgency' - subtle - stoopid
+		// if the player is on their last life - give the swaying camera more 'urgency' - subtle
+		// bunch of arse, more like
 		if(player[0].lives < 3)
 		{
 			swayModifier	= 3.0f;
