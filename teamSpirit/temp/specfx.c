@@ -1008,7 +1008,7 @@ void UpdateFXSmoke( SPECFX *fx )
 void UpdateFXSwarm( SPECFX *fx )
 {
 	SVECTOR pos;
-	int i = fx->numP;
+	int i = fx->numP,j;
 	fixed speed, limit;
 	SPRITE *s;
 	PARTICLE *p;
@@ -1021,45 +1021,17 @@ void UpdateFXSwarm( SPECFX *fx )
 
 	s = fx->sprites;
 	p = fx->particles;
+
+	j = (((int)fx) & 40);
+
 	while(i--)
 	{
-		// Set world check position from sprite
-		SetVectorSS( &pos, &s->pos );
-
-		// Update particle velocity to oscillate around the point
-		if( pos.vx > fx->origin.vx)
-			p->vel.vx -= speed;
-		else
-			p->vel.vx += speed;
-		if( pos.vy > fx->origin.vy )
-			p->vel.vy -= speed;
-		else
-			p->vel.vy += speed;
-		if( pos.vz > fx->origin.vz)
-			p->vel.vz -= speed;
-		else
-			p->vel.vz += speed;
-
-		// Limit velocity of particles
-		if( p->vel.vx > limit )
-			p->vel.vx -= limit;
-		else if( p->vel.vx < -limit )
-			p->vel.vx += limit;
-		if( p->vel.vy > limit )
-			p->vel.vy -= limit;
-		else if( p->vel.vy < -limit )
-			p->vel.vy += limit;
-		if( p->vel.vz > limit )
-			p->vel.vz -= limit;
-		else if( p->vel.vz < -limit )
-			p->vel.vz += limit;
-
-		// Add velocity to local particle position
-		AddToVectorSF( &p->pos, &p->vel );
+		p->pos.vx = FMul(FMul(rsin((actFrameCount + (i+j)*10)*43),limit),4);
+		p->pos.vy = FMul(FMul(rsin((actFrameCount - (i+j)*15)*57),limit),4);
+		p->pos.vz = FMul(FMul(rsin((actFrameCount + (i+j)*20)*71),limit),4);
 
 		// Add local particle pos to swarm origin to get world coords for sprite
 		AddVectorSSS( &s->pos, &fx->origin, &p->pos );
-		SetVectorSS( &pos, &s->pos );
 
 		s = s->next;
 		p = p->next;

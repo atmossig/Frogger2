@@ -1340,7 +1340,7 @@ void StartLevelComplete()
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #elif PC_VERSION
-		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) / (OVERLAY_X * 2);
+		w = (float)(CalcStringWidth(nText->text,(MDX_FONT *)nText->font,1)) * 3.2;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #endif

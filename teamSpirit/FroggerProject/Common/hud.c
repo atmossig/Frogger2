@@ -613,8 +613,8 @@ void UpDateMultiplayerInfo( void )
 		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentWScaled(multiHud.timeTextSec->font,multiHud.timeTextSec->text,multiHud.timeTextSec->scale)*8 + 2*8;
 		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentWScaled(multiHud.timeTextMin->font,multiHud.timeTextMin->text,multiHud.timeTextMin->scale)*8 - 2*8;
 #elif PC_VERSION
-		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + (float)(CalcStringWidth(multiHud.timeTextSec->text,(MDX_FONT *)multiHud.timeTextSec->font,((float)multiHud.timeTextSec->scale)/4096.0) + 2) / OVERLAY_X;
-		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - (float)(CalcStringWidth(multiHud.timeTextMin->text,(MDX_FONT *)multiHud.timeTextMin->font,((float)multiHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
+		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + (float)(CalcStringWidth(multiHud.timeTextSec->text,(MDX_FONT *)multiHud.timeTextSec->font,((float)multiHud.timeTextSec->scale)/4096.0) + 2) * 6.4;
+		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - (float)(CalcStringWidth(multiHud.timeTextMin->text,(MDX_FONT *)multiHud.timeTextMin->font,((float)multiHud.timeTextMin->scale)/4096.0) + 2) * 6.4;
 #endif
 		break;
 	case MULTIMODE_BATTLE:
@@ -947,7 +947,7 @@ void UpDateOnScreenInfo ( void )
 		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentWScaled(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text,arcadeHud.timeTextMin->scale)*8 - 2*8;
 #elif PC_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + (float)(CalcStringWidth(arcadeHud.timeTextSec->text,(MDX_FONT *)arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->scale) + 2) / OVERLAY_X;
-		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - (float)(CalcStringWidth(arcadeHud.timeTextMin->text,(MDX_FONT *)arcadeHud.timeTextMin->font,((float)arcadeHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
+		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - (float)(CalcStringWidth(arcadeHud.timeTextMin->text,(MDX_FONT *)arcadeHud.timeTextMin->font,((float)arcadeHud.timeTextMin->scale)/4096.0) + 2) * 6.4;
 #endif
 	}	
 	
