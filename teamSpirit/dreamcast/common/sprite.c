@@ -246,6 +246,10 @@ int Print3DSprite ( SPRITE *spr)
    	if(y0 > 480)
    		return 0;
 
+	r = spr->r;	
+	g = spr->g;	
+	b = spr->b;	
+	
 	if(spr->flags & SPRITE_TRANSLUCENT )//Only do additive if the 'sprite' fades or is translucent
 	{
 		// SL: modge the RGBs accordingly
@@ -253,12 +257,21 @@ int Print3DSprite ( SPRITE *spr)
 	  	g = ((spr->a*(short)spr->g)/255);
 	  	b = ((spr->a*(short)spr->b)/255);
 	}
-	else
+	if(spr->flags & SPRITE_SUBTRACTIVE )//Subtractive for shadows
 	{
-		r = spr->r;	
-		g = spr->g;	
-		b = spr->b;	
-	}	
+		// SL: modge the RGBs accordingly
+	  	r = ((spr->a*(short)spr->r)/255);
+	  	g = ((spr->a*(short)spr->g)/255);
+	  	b = ((spr->a*(short)spr->b)/255);
+	}
+	if(spr->flags & SPRITE_ADDITIVE )//Subtractive for shadows
+	{
+		// SL: modge the RGBs accordingly
+	  	r = ((spr->a*(short)spr->r)/255);
+	  	g = ((spr->a*(short)spr->g)/255);
+	  	b = ((spr->a*(short)spr->b)/255);
+	}
+	
 	rgba = RGBA(r,g,b,spr->a);
 
 	spritez = spritez >> 2;
@@ -298,8 +311,16 @@ int Print3DSprite ( SPRITE *spr)
 	}
 	else
 	{
-		kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+		if(spr->flags & SPRITE_SUBTRACTIVE)
+		{
+			kmChangeStripTextureSurface(&StripHead_Sprites_Sub,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Sub);	
+		}
+		else
+		{
+			kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+		}
 	}		
 
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
@@ -488,9 +509,6 @@ int Print3DSpriteRotating( SPRITE *spr )
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 	kmEndStrip(&vertexBufferDesc);
 
-// 	addPrim(currentDisplayPage->ot+(spritez>>4), pp);
- //	currentDisplayPage->primPtr += sizeof(POLY_FT4);
-
 	return 1;
 }
 
@@ -520,10 +538,6 @@ int Print3D3DSprite ( SPECFX *fx, SVECTOR *vect, unsigned long colour )
 	tempVect[2].vy = -vect[3].vy;
 	tempVect[2].vz = vect[3].vz;
 
-// 	pp = (POLY_FT4 *)(currentDisplayPage->primPtr);
-//	setPolyFT4(pp);
-// 	setRGB0(pp, (colour&255),((colour>>8)&255),((colour>>16)&255));
-	
 	gte_SetLDDQB(0);			// clear offset control reg (C2_DQB)
 
 	gte_SetRotMatrix(&GsWSMATRIX);
@@ -598,7 +612,6 @@ int Print3D3DSprite ( SPECFX *fx, SVECTOR *vect, unsigned long colour )
 	  	b = ((fx->a*(short)fx->b)/255);
 	}
 	rgba = RGBA(r,g,b,fx->a);
-//	rgba = RGBA(255,0,0,255);
 
 	vertices_GT4[0].fX = x0;
 	vertices_GT4[0].fY = y0;
@@ -635,12 +648,18 @@ int Print3D3DSprite ( SPECFX *fx, SVECTOR *vect, unsigned long colour )
 	}
 	else
 	{
-		kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,fx->tex->surfacePtr);
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+		if(fx->flags & SPRITE_SUBTRACTIVE)
+		{
+			kmChangeStripTextureSurface(&StripHead_Sprites_Sub,KM_IMAGE_PARAM1,fx->tex->surfacePtr);
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Sub);	
+		}
+		else
+		{
+			kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,fx->tex->surfacePtr);
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+		}
 	}	
-//	kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,fx->tex->surfacePtr);
 	
-//	kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 	kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	

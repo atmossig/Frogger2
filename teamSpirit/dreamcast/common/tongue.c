@@ -368,8 +368,10 @@ void UpdateFrogTongue( int pl )
 
 					t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 45), NULL, NULL, NULL );
 
-//ma					if( actFrameCount&1) arg1 = (void *)FindVoice(utilStr2CRC("frogbelch1"),pl);
-//ma					else arg1 = (void *)FindVoice(utilStr2CRC("frogbelch2"),pl);
+//					if( actFrameCount&1) arg1 = (void *)FindVoice(utilStr2CRC("frogbelch1"),pl);
+//					else arg1 = (void *)FindVoice(utilStr2CRC("frogbelch2"),pl);
+					
+					arg1 = (void *)FindVoice(utilStr2CRC("frogbelch2"),pl);
 
 					AttachEvent( t, TRIGGER_ONCE, 0, PlaySFX, arg1, (void *)(&frog[pl]->actor->position), NULL, NULL );
 

@@ -180,7 +180,7 @@ void StartPauseMenu()
 	gameState.mode = PAUSE_MODE;
 	pauseMode = 1;
 
-//ma	PauseAudio( );
+	PauseAudio( );
 
 //	EnableTextOverlay ( controllerText );
 	EnableTextOverlay ( continueText );
@@ -450,7 +450,7 @@ void RunPauseMenu()
 					}
 				}
 
-//ma				UnPauseAudio( );
+				UnPauseAudio( );
 
 				return;
 			}

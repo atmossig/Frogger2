@@ -88,7 +88,7 @@ unsigned long actFrameCount = 0;
 unsigned long lastActFrameCount = 0;
 ULONG	frame;
 VECTOR bbsrc, bbtar;
-char useAudio = 0;
+char useAudio = 1;
 char screenshotEnable = 0;
 int gameTextLang = LANG_DEFAULT;
 
@@ -942,9 +942,9 @@ void FreeAllLists()
 	//memoryShow();
 	//memoryShowStats();
 
-#ifdef PC_VERSION
+//#ifdef PC_VERSION
 	StopSong( );
-#endif
+//#endif
 //ma	FreeStakFiles();
 
 	FreeMap();
@@ -1174,12 +1174,12 @@ void CommonInit(void)
 	InitMatrixStack();
 
 
-//	player[0].worldNum = WORLDID_FRONTEND;
-//	player[0].levelNum = LEVELID_FRONTEND1;
+	player[0].worldNum = WORLDID_FRONTEND;
+	player[0].levelNum = LEVELID_FRONTEND1;
 //	player[0].worldNum = WORLDID_FRONTEND;
 //	player[0].levelNum = LEVELID_FRONTEND4;
-	player[0].worldNum = WORLDID_GARDEN;
-	player[0].levelNum = LEVELID_GARDEN1;
+//	player[0].worldNum = WORLDID_GARDEN;
+//	player[0].levelNum = LEVELID_GARDEN1;
 //	player[0].worldNum = WORLDID_ANCIENT;
 //	player[0].levelNum = LEVELID_ANCIENT1;
 //	player[0].worldNum = WORLDID_SUBTERRANEAN;
@@ -1187,7 +1187,7 @@ void CommonInit(void)
 //	player[0].worldNum = WORLDID_LABORATORY;
 //	player[0].levelNum = LEVELID_LABORATORY1;
 //	player[0].worldNum = WORLDID_SPACE;
-//	player[0].levelNum = LEVELID_SPACE2;
+//	player[0].levelNum = LEVELID_SPACE3;
 //	player[0].worldNum = WORLDID_HALLOWEEN;
 //	player[0].levelNum = LEVELID_HALLOWEEN1;
 //	player[0].worldNum = WORLDID_SUPERRETRO;
@@ -1205,8 +1205,8 @@ void CommonInit(void)
 #ifdef E3_DEMO
 	StartE3LevelSelect();
 #else
-//	gameState.mode = FRONTEND_MODE;
-	gameState.mode = INGAME_MODE;
+	gameState.mode = FRONTEND_MODE;
+//	gameState.mode = INGAME_MODE;
 	InitLevel(player[0].worldNum,player[0].levelNum);
 #ifdef PC_VERSION
 	LoadGame();

@@ -355,7 +355,7 @@ void MenuRight(void)
 	options.selection--;
 	if (options.selection<0)
 		options.selection = (NUM_OPTIONS-1);
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -366,7 +366,7 @@ void MenuLeft(void)
 	options.selection++;
 	if (options.selection>(NUM_OPTIONS-1))
 		options.selection = 0;
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -379,7 +379,7 @@ void NumPLeft(void)
 		options.numPlayers--;
 		if (options.numPlayers<2)
 			options.numPlayers = maxPlayers;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -391,7 +391,7 @@ void NumPSelect(void)
 	if((camStill) && (maxPlayers > 1))
 	{
 		options.mode=OP_LEVELSEL;	
-//ma		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -401,7 +401,7 @@ void MPCharLeft()
 	if(camStill)
 	{
 		options.multiSelection = (options.multiSelection - 1 + NUM_MULTICHARS) MOD NUM_MULTICHARS;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -410,7 +410,7 @@ void MPCharRight()
 	if(camStill)
 	{
 		options.multiSelection = (options.multiSelection + 1) MOD NUM_MULTICHARS;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -478,7 +478,7 @@ void MPCharBack()
 {
 	int i;
 
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	if(options.currentPlayer)
 	{
 		options.currentPlayer--;
@@ -510,7 +510,7 @@ void MPLevLeft()
 		{
 			if(worldVisualData[multiWorldNum[j]].levelVisualData[multiLevelNum[j]].levelOpen)
 			{
-//ma				PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+				PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 				options.levelSelection = j;
 				break;
 			}
@@ -528,7 +528,7 @@ void MPLevRight()
 		{
 			if(worldVisualData[multiWorldNum[j]].levelVisualData[multiLevelNum[j]].levelOpen)
 			{
-//ma				PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+				PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 				options.levelSelection = j;
 				break;
 			}
@@ -545,7 +545,7 @@ void MPLevSelect()
 		options.mode = OP_CHARSEL;
 		options.multiSelection = 0;
 		options.currentPlayer = 0;
-//ma		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 		for(i = 0;i < options.numPlayers;i++)
 			options.playerNum[i]->draw = 1;
 	}
@@ -555,7 +555,7 @@ void MPLevSelect()
 void MPLevBack()
 {
 	options.mode = OP_MULTIPLAYERNUMBER;
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -568,7 +568,7 @@ void NumPRight(void)
 		options.numPlayers++;
 		if (options.numPlayers>maxPlayers)
 			options.numPlayers = 2;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -671,7 +671,7 @@ void MenuSelect(void)
 				options.extras[i]->g = options.extras[i]->b = 255;
 		}
 	}
-//ma	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -709,7 +709,7 @@ void SoundUp(void)
 		options.soundBar[1]->r = options.soundBar[1]->g = options.soundBar[1]->b = 255;
 
 		options.soundSelection--;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 		soundSwapTime = actFrameCount;
 	}
 }
@@ -727,7 +727,7 @@ void SoundDown(void)
 		options.soundBar[1]->g = options.soundBar[1]->b = 0;
 
 		options.soundSelection++;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 		soundSwapTime = actFrameCount;
 	}
 }
@@ -751,7 +751,7 @@ void SoundLeft(void)
 				globalSoundVol--;
 				if(soundCount <= 0)
 				{
-//ma					PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+					PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 					soundCount = 4096*10;
 				}
 			}
@@ -777,7 +777,7 @@ void SoundRight(void)
 				globalSoundVol++;
 				if(soundCount <= 0)
 				{
-//ma					PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+					PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 					soundCount = 4096*10;
 				}
 			}
@@ -797,7 +797,7 @@ void ExtraUp(void)
 			options.extraSelection = 1 - options.extraSelection;
 		else
 			options.extraSelection = (options.extraSelection - 1 + numExtrasAvailable) MOD numExtrasAvailable;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -812,7 +812,7 @@ void ExtraDown(void)
 			options.extraSelection = 1 - options.extraSelection;
 		else
 			options.extraSelection = (options.extraSelection + 1) MOD numExtrasAvailable;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -823,7 +823,7 @@ void ExtraSelect(void)
 {
 	int i,j,switchVal;
 
-//ma	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	if(creditsRunning)
 		endingCredits = YES;
 	else
@@ -1013,7 +1013,7 @@ void OptionBack(void)
 			options.extras[i]->draw = 0;	
 		}
 	}
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -1375,7 +1375,7 @@ void RunOptionsMenu(void)
 				
 				if((chestTimer.time == 2) && (oldTime == 3))
 				{
-//ma					PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
+					PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
 					for(i = 0;i < 5;i++)
 					{
 						tempVect2.vx = tempVect.vx + Random(101) - 50;
@@ -1855,7 +1855,7 @@ void BookLeft(void)
 	{
 		if(options.pageDir == 0)
 		{
-//ma			PlaySample( FindSample(utilStr2CRC("page2")), NULL, 0, SAMPLE_VOLUME, -1 );
+			PlaySample( FindSample(utilStr2CRC("page2")), NULL, 0, SAMPLE_VOLUME, -1 );
 			options.pageDir = -1;					
 			options.pageNum--;
 			if(options.page)
@@ -1898,7 +1898,7 @@ void BookRight(void)
 	{
 		if (options.pageDir == 0)
 		{
-//ma			PlaySample( FindSample(utilStr2CRC("page3")), NULL, 0, SAMPLE_VOLUME, -1 );
+			PlaySample( FindSample(utilStr2CRC("page3")), NULL, 0, SAMPLE_VOLUME, -1 );
 			options.pageDir = 1;
 			options.pageNum++;
 			if(options.page)
@@ -1948,7 +1948,7 @@ void BookSelect(void)
 	ScreenFade(255,0,30);
 	keepFade = 1;
 	gameSelected = 1;
-//ma	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 void BookStart()
@@ -2021,7 +2021,7 @@ void ArcadeUp(void)
 	if(options.levelNum != oldLev)
 	{
 		staticFlash = 5;
-//ma		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -2049,7 +2049,7 @@ void ArcadeDown(void)
 	if(options.levelNum != oldLev)
 	{
 		staticFlash = 5;
-//ma		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -2084,7 +2084,7 @@ void ArcadeLeft(void)
 	if(cWorld != oldWorld)
 	{
 		staticFlash = 5;
-//ma		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -2119,7 +2119,7 @@ void ArcadeRight(void)
 	if(cWorld != oldWorld)
 	{
 		staticFlash = 5;
-//ma		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample( FindSample(utilStr2CRC("espark1")), NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -2127,7 +2127,7 @@ extern int lastArcade;
 
 void SPCharSelect(void)
 {
-//ma	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	ScreenFade(128,0,30);
 	keepFade = 1;
 	gameSelected = 1;
@@ -2148,7 +2148,7 @@ void ArcadeSelect()
 {
 	int i;
 
-//ma	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	options.mode = OP_SP_CHARSEL;
 	options.parText[0]->draw = options.parText[1]->draw = options.parText[2]->draw = 0;
 	options.worldText->draw = 0;
@@ -2202,7 +2202,7 @@ void SPCharUp(void)
 	{
 		options.spChar = (options.spChar + FROG_NUMFROGS - 1) MOD FROG_NUMFROGS;
 	}while(frogPool[options.spChar].active == 0);
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 void SPCharDown(void)
@@ -2211,7 +2211,7 @@ void SPCharDown(void)
 	{
 		options.spChar = (options.spChar + 1) MOD FROG_NUMFROGS;
 	}while(frogPool[options.spChar].active == 0);
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 void SPCharBack(void)
@@ -2241,7 +2241,7 @@ void SPCharBack(void)
 		options.levelText[i]->yPos = options.levelText[i]->yPosTo = (1445+i*170);
 	}
 	DoArcadeMenu();
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 void ArcadeStart(void)
@@ -2401,7 +2401,7 @@ void FMVUp(void)
 	if(numFMVOpen > 1)
 	{
 		options.fmvNum = (options.fmvNum + numFMVOpen - 1) MOD numFMVOpen;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
@@ -2410,13 +2410,13 @@ void FMVDown(void)
 	if(numFMVOpen > 1)
 	{
 		options.fmvNum = (options.fmvNum + 1) MOD numFMVOpen;
-//ma		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+		PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 	}
 }
 
 void FMVSelect(void)
 {
-//ma	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 void FMVBack(void)
@@ -2428,7 +2428,7 @@ void FMVBack(void)
 		SubTextOverlay(options.fmvText[i]);
 	for(i = 0;i < numExtrasAvailable;i++)
 		options.extras[i]->draw = 1;
-//ma	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	PlaySample(genSfx[GEN_FROG_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
 }
 
 
