@@ -130,7 +130,6 @@ void PrintSpriteOverlays(long num)
 	SPRITEOVERLAY *cur;
 	short x,y;
 	MDX_TEXENTRY *tEntry;
-	float gs = gameSpeed>>12;
 
 	if( !drawOverlays || !spriteOverlayList.numEntries ) return;
 
@@ -150,13 +149,13 @@ void PrintSpriteOverlays(long num)
 		if(cur->draw)
 		{
 			// Go to destination, if specified
-			float spd = (cur->speed>>12) * gs;
+			float spd = FMul(cur->speed,gameSpeed)>>12;
 			
 			if (Fabs(spd)>0)
 			{
 				if (Fabs(cur->xPosTo-cur->xPos) > 0)
 				{
-					cur->speed += ToFixed(gs*0.2);
+					cur->speed += FMul(gameSpeed,819);
 					cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
 					
 					if( Fabs(cur->xPosTo-cur->xPos) < Fabs(spd) )
@@ -169,10 +168,9 @@ void PrintSpriteOverlays(long num)
 							cur->xPos = cur->xPosTo;
 						}
 
-						spd = cur->speed * gs;
+						spd = FMul(cur->speed,gameSpeed)>>12;
+//						spd = cur->speed * gs;
 					}
-			
-					
 				}
 				else
 					if (Fabs(cur->yPosTo-cur->yPos) > 0)
@@ -194,8 +192,6 @@ void PrintSpriteOverlays(long num)
 
 							spd = cur->speed * gameSpeed;
 						}
-				
-						
 					}
 			}
 			
