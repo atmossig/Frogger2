@@ -1407,62 +1407,54 @@ void UpdateNonMovingPlatform(PLATFORM *plat)
 */
 void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 {
-	VECTOR moveVec,fromPosition,toPosition;
+	VECTOR moveVec, v;
+	float offs, startOffs, destOffs, speed;
+
+	startOffs = plat->path->nodes->offset;
+	destOffs = plat->path->nodes->offset2;
 
 	// get up vector for this platform
 	SetVector(&moveVec,&plat->path->nodes[0].worldTile->normal);
-	ScaleVector(&moveVec,plat->currSpeed);
+
+	SubVector(&v, &plat->pltActor->actor->pos, &plat->path->nodes->worldTile->centre);
+	offs = DotProduct(&v, &moveVec);
+
+	speed = plat->currSpeed * gameSpeed;
+
+	ScaleVector(&moveVec, speed);
 
 	// platform only moves when frog is it - otherwsie returns to start position
 	if(plat->flags & PLATFORM_NEW_CARRYINGFROG)
 	{
-		// platform has frog on it
-		if(plat->flags & PLATFORM_NEW_SINKWITHFROG)
+		if (offs > (destOffs + speed))
 		{
-			GetPositionForPathNode(&fromPosition,&plat->path->nodes[0]);
-			GetPositionForPathNodeOffset2(&toPosition,&plat->path->nodes[0]);
-		
-			if(DistanceBetweenPointsSquared(&plat->pltActor->actor->pos,&fromPosition) < DistanceBetweenPointsSquared(&fromPosition,&toPosition))
-			{
-				SubFromVector(&plat->pltActor->actor->pos,&moveVec);
-			}
-			else
-			{
-				if(plat->flags & PLATFORM_NEW_KILLSFROG)
-				{
-					if (!(player[0].frogState & FROGSTATUS_ISDEAD))
-					{
-						AnimateActor(frog[0]->actor,FROG_ANIM_FWDSOMERSAULT,NO,NO,0.5F,0,0);
-						frog[0]->action.deathBy = DEATHBY_DROWNING;
-						player[0].frogState |= FROGSTATUS_ISDEAD;
-						frog[0]->action.dead = 50;
-					}
-				}
-			}
+			SubFromVector(&plat->pltActor->actor->pos, &moveVec);
 		}
-		else if(plat->flags & PLATFORM_NEW_RISEWITHFROG)
+		else if (offs < (destOffs - speed))
 		{
-			GetPositionForPathNode(&fromPosition,&plat->path->nodes[0]);
-			GetPositionForPathNodeOffset2(&toPosition,&plat->path->nodes[0]);
-
-			if(DistanceBetweenPointsSquared(&plat->pltActor->actor->pos,&fromPosition) < DistanceBetweenPointsSquared(&fromPosition,&toPosition))
-				AddToVector(&plat->pltActor->actor->pos,&moveVec);
+			AddToVector(&plat->pltActor->actor->pos, &moveVec);
+		}
+		
+		if(offs < 0 && plat->flags & PLATFORM_NEW_KILLSFROG)
+		{
+			if (!(player[0].frogState & FROGSTATUS_ISDEAD))
+			{
+				//AnimateActor(frog[0]->actor,FROG_ANIM_,NO,NO,0.5F,0,0);
+				frog[0]->action.deathBy = DEATHBY_DROWNING;
+				player[0].frogState |= FROGSTATUS_ISDEAD;
+				frog[0]->action.dead = 50;
+			}
 		}
 	}
 	else
 	{
-		// platform has no frog on it - return to original position
-		GetPositionForPathNode(&fromPosition,&plat->path->nodes[0]);
-		if(DistanceBetweenPointsSquared(&plat->pltActor->actor->pos,&fromPosition) > 5.0F)
+		if (offs > (startOffs + speed))
 		{
-			if(plat->flags & PLATFORM_NEW_SINKWITHFROG)
-			{
-				AddToVector(&plat->pltActor->actor->pos,&moveVec);
-			}
-			else if(plat->flags & PLATFORM_NEW_RISEWITHFROG)
-			{
-				SubFromVector(&plat->pltActor->actor->pos,&moveVec);
-			}
+			SubFromVector(&plat->pltActor->actor->pos, &moveVec);
+		}
+		else if (offs < (startOffs - speed))
+		{
+			AddToVector(&plat->pltActor->actor->pos, &moveVec);
 		}
 	}
 }

@@ -809,24 +809,30 @@ void CheckForFroggerLanding(long pl)
 	// If frog is at or past peak of jump, check if he's hit a platform
 	if (!destPlatform[pl] &&
 		nearestPlatform[pl] &&
-		(player[pl].jumpTime > 0.5f) &&
-		(nearestPlatform[pl]->inTile[0]->state != TILESTATE_BARRED))
+		(player[pl].jumpTime > 0.5f))
 	{
 		float height, dist;
 		VECTOR v;
+		GAMETILE *tile;
 
-		SubVector(&v, &frog[pl]->actor->pos, &nearestPlatform[pl]->pltActor->actor->pos);
+		tile = nearestPlatform[pl]->inTile[0];
+		
+		//(nearestPlatform[pl]->inTile[0]->state != TILESTATE_BARRED))
 
-		height = DotProduct(&v, &currTile[pl]->normal);
-
-		dist = nearestPlatDist[pl];
-
-		if (height < 25.0f && height > -50.0f)
+		if (tile == destTile[pl])
 		{
-			destPlatform[pl] = nearestPlatform[pl];
-			player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
-			
-			if (height < 0) player[pl].jumpTime = 1.0f;	// aaand land.
+			SubVector(&v, &frog[pl]->actor->pos, &nearestPlatform[pl]->pltActor->actor->pos);
+
+			height = DotProduct(&v, &currTile[pl]->normal);
+			dist = nearestPlatDist[pl];
+
+			if (height < 25.0f && height > -50.0f)
+			{
+				destPlatform[pl] = nearestPlatform[pl];
+				player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
+				
+				if (height < 0) player[pl].jumpTime = 1.0f;	// aaand land.
+			}
 		}
 	}
 
@@ -847,8 +853,8 @@ void CheckForFroggerLanding(long pl)
 
 	frogFacing[pl] = nextFrogFacing[pl];
 	
-	if (pl == 0)
-		camFacing = nextCamFacing;
+	//if (pl == 0)
+	//	camFacing = nextCamFacing;
 
 	frog[pl]->action.deathBy = -1;
 	frog[pl]->action.dead	 = 0;
