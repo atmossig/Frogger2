@@ -886,7 +886,8 @@ void DrawFXLightning( SPECFX *fx )
 			gte_ldv0(&tempSvect);
 			gte_rtps();
 			gte_stsxy(&vT[0].vx);
-			gte_stotz(&otz);
+//			gte_stotz(&otz);
+			gte_stszotz(&otz);
 			vT[0].vz = otz;
 //			vT[0].sx = m.vx;
 //			vT[0].sy = m.vy;
@@ -905,7 +906,8 @@ void DrawFXLightning( SPECFX *fx )
 			gte_ldv0(&tempSvect);
 			gte_rtps();
 			gte_stsxy(&vT[1].vx);
-			gte_stotz(&otz);
+//			gte_stotz(&otz);
+			gte_stszotz(&otz);
 			vT[1].vz = otz;
 //			vT[1].sx = m.vx;
 //			vT[1].sy = m.vy;
@@ -931,7 +933,8 @@ void DrawFXLightning( SPECFX *fx )
 		gte_ldv0(&tempSvect);
 		gte_rtps();
 		gte_stsxy(&vT[2].vx);
-		gte_stotz(&otz);
+//		gte_stotz(&otz);
+		gte_stszotz(&otz);
 		vT[2].vz = otz;
 
 
@@ -951,7 +954,8 @@ void DrawFXLightning( SPECFX *fx )
 		gte_ldv0(&tempSvect);
 		gte_rtps();
 		gte_stsxy(&vT[3].vx);
-		gte_stotz(&otz);
+//		gte_stotz(&otz);
+		gte_stszotz(&otz);
 		vT[3].vz = otz;
 
 		// Store first 2 vertices of the next segment
@@ -1000,10 +1004,10 @@ void DrawFXLightning( SPECFX *fx )
 //			ft4->g0 = p->g;
 //			ft4->b0 = p->b;
 
-/*			utilPrintf ( "ft4->z0 : %d\n", vT[0].vz  );
-			utilPrintf ( "ft4->z1 : %d\n", vT[1].vz  );
-			utilPrintf ( "ft4->z2 : %d\n", vT[2].vz  );
-			utilPrintf ( "ft4->z3 : %d\n", vT[3].vz  );*/
+//			utilPrintf ( "ft4->z0 : %d\n", vT[0].vz  );
+//			utilPrintf ( "ft4->z1 : %d\n", vT[1].vz  );
+//			utilPrintf ( "ft4->z2 : %d\n", vT[2].vz  );
+//			utilPrintf ( "ft4->z3 : %d\n", vT[3].vz  );
 
 
 			ft4->r0 = (p->r*p->a)>>8;
@@ -1019,12 +1023,13 @@ void DrawFXLightning( SPECFX *fx )
 			ft4->v3 = tEntry->v3;
 			ft4->tpage = tEntry->tpage;
 			ft4->clut  = tEntry->clut;
-			setSemiTrans(ft4, 1);
-			//ft4->code  |= 2;//semi-trans on
- 			//ft4->tpage |= 32;//add
+//			setSemiTrans(ft4, 1);
+			ft4->code  |= 2;//semi-trans on
+ 			ft4->tpage |= 32;//add
 	// 		ft4->tpage = si->tpage | 64;//sub
 	//		ENDPRIM(ft4, 1, POLY_FT4);
-			ENDPRIM(ft4, 1, POLY_FT4);
+//			ENDPRIM(ft4, (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)>>2, POLY_FT4);
+			ENDPRIM(ft4, (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)>>4, POLY_FT4);
 		}
 
 		i++;
