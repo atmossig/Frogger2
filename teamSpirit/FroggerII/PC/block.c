@@ -76,6 +76,7 @@ int		appActive		= 0;
 #define REGISTRY_KEY "Software\\Atari\\Frogger2"
 
 static GUID     guID;
+extern TEXTURE *frogEyeOpen,*frogEyeClosed;
 
 /*	--------------------------------------------------------------------------------
 	Function		: debugPrintf(int num)
@@ -672,11 +673,44 @@ long useBilerpN = 0;
 long useBilerpF = 0;
 extern D3DTEXTUREHANDLE lastH;
 
+unsigned long oldTH = 0;
+
+unsigned long blinkTimer = 0;
+unsigned long blinkSpeed = 5;
+unsigned long blinkRand = 7;
+
 void DrawGraphics() 
 {
+
 	totalFacesDrawn = 0;
 
 	StartTimer(1,"Draw Gfx");
+
+	FindTexture(&frogEyeOpen,UpdateCRC("fgeye.bmp"),1);
+	FindTexture(&frogEyeClosed,UpdateCRC("fgeye2.bmp"),1);
+
+	if (frogEyeOpen)
+	{
+		
+		if (oldTH==0)
+		{
+			if (Random(600)<2)
+			{
+				unsigned long newH = ((TEXENTRY *)frogEyeClosed)->hdl;
+				oldTH = ((TEXENTRY *)frogEyeOpen)->hdl;
+				((TEXENTRY *)frogEyeOpen)->hdl = newH;
+				blinkTimer = actFrameCount + blinkSpeed + Random(blinkRand);
+			}
+		}
+		else
+		{
+			if (actFrameCount>blinkTimer)
+			{
+				((TEXENTRY *)frogEyeOpen)->hdl = oldTH;
+				oldTH = 0;
+			}
+		}
+	}
 
 	if (useBilerpN)
 		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
