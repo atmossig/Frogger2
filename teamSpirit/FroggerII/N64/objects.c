@@ -1219,9 +1219,9 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 		batchPtr = vtxPtr;
 
 		for(y = 0; y < 10; y++)
-		{		
+		{
 			faceIndex = baseFaceIndex + face;
-			tcp = mesh->faceTC + face;
+//			tcp = mesh->faceTC + face;
 
 			vertex = baseVertices + faceIndex->v[X];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[X];
@@ -1229,8 +1229,10 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[0],
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+//				tcp->v[0], (tcp++)->v[1],
+//				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+				0,0,
+				255,255,255,xluFact);
 
 			vertex = baseVertices + faceIndex->v[Y];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[Y];
@@ -1238,8 +1240,10 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[0],
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+//				tcp->v[0], (tcp++)->v[1],
+//				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+				0,1024,
+				255,255,255,xluFact);
 
 			vertex = baseVertices + faceIndex->v[Z];
 			vNormalPtr = baseVNormalPtr + faceIndex->v[Z];
@@ -1247,8 +1251,10 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 				(int)vertex->v[0],
 				(int)vertex->v[1],
 				(int)vertex->v[2],0,
-				tcp->v[0], (tcp++)->v[1],
-				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+//				tcp->v[0], (tcp++)->v[1],
+//				vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+				1024,1024,
+				255,255,255,xluFact);
   
 			face++;			
 			vtxPtr+=3;
@@ -1261,12 +1267,17 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 
 		for(j = 0;j < 10;j++)
 		{
-			if(texture != obj->mesh->textureIDs[face-10+j]	)
+/*			if(texture != obj->mesh->textureIDs[face-10+j]	)
 			{
 				texture = obj->mesh->textureIDs[face-10+j];
 			    gDPPipeSync(glistp++);
 				LoadTexture(texture);
 			}
+*/
+			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
+		    gDPPipeSync(glistp++);
+			LoadTexture(texture);
+
 			gSP1Triangle(glistp++, j*3, j*3+1, j*3+2, 2);
 		}
 	}
@@ -1284,8 +1295,10 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[0],
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+//			tcp->v[0], (tcp++)->v[1],
+//			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+			0,0,
+			255,255,255,xluFact);
 
 		vertex = baseVertices + faceIndex->v[1];
 		vNormalPtr = baseVNormalPtr + faceIndex->v[Y];
@@ -1293,8 +1306,10 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[0],
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+//			tcp->v[0], (tcp++)->v[1],
+//			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+			0,1024,
+			255,255,255,xluFact);
 
 		vertex = baseVertices + faceIndex->v[2];
 		vNormalPtr = baseVNormalPtr + faceIndex->v[Z];
@@ -1302,8 +1317,10 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 			(int)vertex->v[0],
 			(int)vertex->v[1],
 			(int)vertex->v[2],0,
-			tcp->v[0], (tcp++)->v[1],
-			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+//			tcp->v[0], (tcp++)->v[1],
+//			vNormalPtr->v[X], vNormalPtr->v[Y], vNormalPtr->v[Z], xluFact);
+			1024,1024,
+			255,255,255,xluFact);
 
 		face++;			
 		vtxPtr+=3;
@@ -1317,12 +1334,17 @@ void WriteObjectDisplayListGouraud(OBJECT *obj)
 		temp = 0;
 		for(x = 0; x < mod; x++)
 		{
-			if(texture != obj->mesh->textureIDs[face])
+/*			if(texture != obj->mesh->textureIDs[face])
 			{
 				texture = obj->mesh->textureIDs[face];
 			    gDPPipeSync(glistp++);
 				LoadTexture(texture);
 			}
+*/
+			FindTexture(&texture,UpdateCRC("water2.bmp"),YES);
+		    gDPPipeSync(glistp++);
+			LoadTexture(texture);
+
 			gSP1Triangle(glistp++, temp++, temp++, temp++, 2);
 			face++;
 		}

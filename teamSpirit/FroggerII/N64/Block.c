@@ -1146,28 +1146,6 @@ void DrawGraphics(void *arg)
 				fog.mode = 0;
 				SetRenderMode();
 
-				if( drawScreenGrab && gameState.mode == INGAME_MODE )
-					DrawScreenGrab( MOTION_BLUR );
-
-				if( drawScreenGrab && gameState.mode == INGAME_MODE )
-					DrawScreenGrab( MOTION_BLUR );
-
-				if( pauseMode == PM_PAUSE )
-					DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
-				else if( pauseMode == PM_ENDLEVEL )
-				{
-					// Because this screen stays on between levels, we have one screen grab drawn
-					// twice to simulate doing a vertex wodge over the normal level.
-					DrawScreenGrab( MOTION_BLUR | USE_GRAB_BUFFER | BLUR_INWARD | OVERLAY_SOLID | RECALC_VTX );
-					DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | BLUR_LIGHT );
-				}
-				else if( grabData.afterEffect == PAUSE_EXIT )
-					DrawScreenGrab( MOTION_BLUR | TINT_BLUE | TILE_SHRINK_HORZ | TILE_SHRINK_VERT );
-				else if( grabData.afterEffect == FROG_DEATH_OUT )
-					DrawScreenGrab( MOTION_BLUR | RECALC_VTX | USE_GRAB_BUFFER );
-				else if( grabData.afterEffect == FROG_DEATH_IN )
-					DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
-
 				if( gameState.mode == INGAME_MODE && text3DList.numEntries )
 					Print3DText( );					
 

@@ -42,7 +42,6 @@ void RunDevelopmentMenu()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
-		developmentMode = 0;
 		currFont = smallFont;
 
 		dev		= CreateAndAddTextOverlay(20,20,"DEVELOPMENT MENU",NO,NO,255,255,255,255,currFont,0,0,0);
@@ -87,7 +86,6 @@ void RunDevelopmentMenu()
 		if (((button & CONT_A) && !(lastbutton & CONT_A)) ||
 		   ((button & CONT_START) && !(lastbutton & CONT_START)))
 		{
-			PlaySampleNot3D(2,255,128,128);
 			frameCount = 0;
 			lastbutton = 0;
 
@@ -102,7 +100,18 @@ void RunDevelopmentMenu()
 					FreeAllLists();
 					return;
 			}
+		}
+
+		if ((button & CONT_G) && !(lastbutton & CONT_G))
+		{
+			frameCount = 0;
+			lastbutton = 0;
+
+			FreeAllLists();
+			developmentMode = 0;
+			gameState.mode = TITLE_MODE;
 		}			
+
 	
 		switch(currentSelection)
 		{

@@ -13,7 +13,9 @@
 #define DEVELOP_H_INCLUDED
 
 
-extern void RunDevelopmentMenu();
+unsigned long developmentMode;
+
+void RunDevelopmentMenu();
 
 
 #endif

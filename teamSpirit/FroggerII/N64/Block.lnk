@@ -876,7 +876,7 @@ _objBank_7_1_SegmentRomEnd          alias   _objBank71_orgend
 
         section.16      objBank71.data,objBank71
 
-oBank71  incbin  "objects/dummy.nob",objBank71.data,64
+oBank71  incbin  "objects/toy1.nob",objBank71.data,64
 
 ; [ TOYSHOP WORLD LEVEL 2 ] >>>>>
 
@@ -1798,7 +1798,7 @@ _texBank_7_0_SegmentRomEnd          alias   _texBank70_orgend
 
         section.16      texBank70.data,texBank70
 
-tBank70  incbin  "textures/dummy.fla",texBank70.data,64
+tBank70  incbin  "textures/toymaster.fla",texBank70.data,64
 
 ; [ LEVEL 1 TOYSHOP ] >>>>>
 
@@ -2263,6 +2263,7 @@ _levData_3_1_SegmentRomEnd   alias _levData31_orgend
         section.16       levData31.data,levData31
 
 levDat31  incbin "leveldata/entity-2-0.cef",levData31.data, 32
+;levDat31  incbin "c:/levtemp/entity-2-0.dat",levData31.data, 32
 
 ; [ SPACE LEVEL 2 ] >>>>>
 
