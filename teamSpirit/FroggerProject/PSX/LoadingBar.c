@@ -101,7 +101,6 @@ void loadingInit ( int worldID, int levelID )
 {
 	int i, c;
 	RECT rect;
-	int store = actFrameCount;
 	int y = 500;
 
 	if(NUM_FROGS == 4)
@@ -113,9 +112,8 @@ void loadingInit ( int worldID, int levelID )
 	LoadTextureBank ( LOADING_TEX_BANK );
 	loadingDisplay = 1;
 
-	actFrameCount = loadFrameCount = 0;
+	loadFrameCount = 0;
 	ScreenFade(0,255,30);
-	actFrameCount = store;
 	keepFade = NO;
 
 	gte_SetRotMatrix(&GsWSMATRIX);
@@ -276,12 +274,9 @@ void loadingWaterFrame ( void )
 {
 	int i, c;
 	register PACKET*		packet;
-	int temp = actFrameCount;
 	RECT rect;
+	int temp;
 	
-//	frameCount++;
-//	actFrameCount++;
-
 
 	for(i = 0;i < NUM_FROGS;i++)
 	{
@@ -293,9 +288,8 @@ void loadingWaterFrame ( void )
 		}
 	}
 
-	actFrameCount = ++loadFrameCount;
+	++loadFrameCount;
 	DrawScreenTransition();
-	actFrameCount = temp;
 	PrintTextOverlays();
 	PrintSpriteOverlays(0);
 

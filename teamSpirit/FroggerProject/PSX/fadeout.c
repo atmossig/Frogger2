@@ -13,6 +13,8 @@
 #include "layout.h"
 #include "sonylibs.h"
 #include "shell.h"
+#include "LoadingBar.h"
+
 
 long fadeoutStart, fadeoutLength;
 int fadingOut = 0, keepFade = 0;
@@ -38,16 +40,22 @@ int DrawScreenFade(void)
 	DR_MODE *dm;
 	int col;
 	int halfX=256, halfY,depth;
+	int count;
+
+	if(loadingDisplay)
+		count = loadFrameCount;
+	else
+		count = actFrameCount;
 	
-	if (actFrameCount > (fadeoutStart+fadeoutLength))
+	if (count > (fadeoutStart+fadeoutLength))
 	{
 		col = endIntensity;
 		fadedOutCount++;
 	}
 	else
-		col = startIntensity + ((endIntensity-startIntensity)*(long)(actFrameCount-fadeoutStart))/fadeoutLength;
+		col = startIntensity + ((endIntensity-startIntensity)*(long)(count-fadeoutStart))/fadeoutLength;
 
-//		col = startIntensity + ((endIntensity-startIntensity)*(actFrameCount-fadeoutStart))/fadeoutLength;
+//		col = startIntensity + ((endIntensity-startIntensity)*(count-fadeoutStart))/fadeoutLength;
 
 //	D3DSetupRenderstates(xluSubRS);
 //	DrawFlatRect(r, RGBA_MAKE(col, col, col, 255));
@@ -100,7 +108,10 @@ int DrawScreenFade(void)
 void ScreenFade(int start, int end, long time)
 {
 	fadeProc = DrawScreenFade;
-	fadeoutStart = actFrameCount;
+	if(loadingDisplay)
+		fadeoutStart = loadFrameCount;
+	else
+		fadeoutStart = actFrameCount;
 	fadeoutLength = time;
 	fadingOut = 1;
 
