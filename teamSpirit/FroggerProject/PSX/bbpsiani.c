@@ -214,6 +214,8 @@ static void bb_psiSetRotateKeyFrames(PSIOBJECT *world, ULONG frame)
 									(SHORTQUAT *)&tmprotatekeys->vect,
 									t,
 									&world->matrix);
+//bbopt - noticable opn some enemies
+//					ShortquaternionGetMatrix((SHORTQUAT *)&tmprotatekeys->vect, &world->matrix);
 				}
 			}
 		}
