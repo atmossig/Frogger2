@@ -169,9 +169,33 @@ void NMEDamageFrog( int num, ENEMY *nme )
 	}
 	else
 	{
+		if (nme->reactiveNumber!=-1)
+		{
+			if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
+				SetQuaternion(&(frog[num]->actor->qRot),&(nme->nmeActor->actor->qRot));
+			
+			if (reactiveAnims[nme->reactiveNumber].type & 0x02) //Center
+				SetVector(&(frog[num]->actor->pos),&(nme->nmeActor->actor->pos));
+
+			AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
+			AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
+
+			frog[num]->action.dead = 100;
+		
+		}
+		else
+		{
+			frog[num]->action.dead = 50;
+		
+			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
+		}
+
+		frog[num]->action.healthPoints = 3;
+		frog[num]->action.deathBy = DEATHBY_NORMAL;
+		player[num].frogState |= FROGSTATUS_ISDEAD;
+
 		/* 
 		Check for NME flags and do different effects
-		*/
 //		PlaySample(110,NULL,192,128);
 		AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
 		frog[num]->action.dead = 50;
@@ -179,6 +203,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		frog[num]->action.deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 		PlaySample(GEN_FROG_DEATH,&frog[0]->actor->pos,0,100-Random(15),60-Random(15));
+*/
 
 	}
 }

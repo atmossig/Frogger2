@@ -834,7 +834,7 @@ void RunGameLoop (void)
 	i = NUM_FROGS;
 	
 	// Had to take this out because it was driving everyone nuts
-	//camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
+	camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;
 
 	while(i--)
 	{
@@ -845,9 +845,7 @@ void RunGameLoop (void)
 			{
 				unsigned long iAnim = Random(4);
 
-/*	We had to take this out too, because it drives everyone nuts and makes placing
-	cameras practically impossible.
-
+/*	
 				if ((Random(4) > 1) && (frogFacing[0] != ((camFacing+2) & 3)))
 				{
 					if ((frogFacing[0] - camFacing) != 1)
@@ -859,6 +857,7 @@ void RunGameLoop (void)
 				}
 				else
 */
+
 				switch (iAnim)
 				{
 					case 0:

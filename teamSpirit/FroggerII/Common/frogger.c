@@ -26,6 +26,8 @@ float	pOIDistance = 20000.0;
 PLAYER player[MAX_FROGS];
 
 ACTOR2 *frog[MAX_FROGS]					= {0,0,0,0};
+ACTOR2 *hat[MAX_FROGS]					= {0,0,0,0};
+
 SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL};
 SPECFX *frogTrail[MAX_FROGS] = {NULL,NULL,NULL,NULL};
 
@@ -54,6 +56,14 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	ACTOR2 *me;
 
 	me = frog[p] = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+	
+	hat[p] = CreateAndAddActor("hat-shad.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+	
+	if (hat[p])
+	{
+		actList = actList->next;
+		actList->prev = 0;
+	}
 
 	me->actor->shadow->radius = 30;
 	me->actor->shadow->alpha = 191;

@@ -676,12 +676,16 @@ extern D3DTEXTUREHANDLE lastH;
 unsigned long oldTH = 0;
 
 unsigned long blinkTimer = 0;
+unsigned long blinkTimer2 = 0;
+
 unsigned long blinkSpeed = 5;
-unsigned long blinkRand = 7;
+unsigned long blinkRand = 5;
+
+unsigned long blinkSpeed2 = 10;
+unsigned long blinkRand2 = 300;
 
 void DrawGraphics() 
 {
-
 	totalFacesDrawn = 0;
 
 	StartTimer(1,"Draw Gfx");
@@ -694,7 +698,7 @@ void DrawGraphics()
 		
 		if (oldTH==0)
 		{
-			if (Random(600)<2)
+			if (actFrameCount>blinkTimer2)
 			{
 				unsigned long newH = ((TEXENTRY *)frogEyeClosed)->hdl;
 				oldTH = ((TEXENTRY *)frogEyeOpen)->hdl;
@@ -708,6 +712,8 @@ void DrawGraphics()
 			{
 				((TEXENTRY *)frogEyeOpen)->hdl = oldTH;
 				oldTH = 0;
+				blinkTimer2 = actFrameCount + blinkSpeed2 + Random(blinkRand2);
+
 			}
 		}
 	}

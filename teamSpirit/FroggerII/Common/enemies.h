@@ -85,7 +85,7 @@ typedef struct TAGENEMYLIST
 
 typedef struct TAG_REACTIVEANIM
 {
-	char name[8];
+	char name[12];
 	short animChar;
 	short animFrog;
 	long type;
