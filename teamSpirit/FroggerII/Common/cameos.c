@@ -156,7 +156,7 @@ void CreateAndAddCameoObject ( char *cameoObject, float x, float y, float z, int
 {
 	CAMEOOBJECT *newItem = ( CAMEOOBJECT * ) JallocAlloc ( sizeof ( CAMEOOBJECT ), YES, "camobj" );
 
-	newItem->cameoActor = CreateAndAddActor ( cameoObject, x, y, z, initFlags, 0, 0, 0 );
+	newItem->cameoActor = CreateAndAddActor ( cameoObject, x, y, z, initFlags, 0, 0 );
 	newItem->objectName = cameoObject;
 
 	newItem->next	= cameoObjectList;

@@ -670,7 +670,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		
 	ACTOR2 *theActor;
 	SCENIC *ts = Sc_000;
-	int enemyType		= 0;
 	int actCount = 0;
 	OBJECT_CONTROLLER *objCont;
 	
@@ -695,7 +694,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	{
 		float tv;
 
-		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,enemyType,0,0);
+		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
 
 		if ( gstrcmp ( ts->name, "world.ndo" ) == 0 )
@@ -1098,6 +1097,8 @@ void RunGameLoop (void)
 						CameraLookAtFrog();
 					}
 					// ENDIF
+					for (i=0; i<4; i++)
+						UpdateCameraPosition(i);
 					
 					if ( !( frogState & FROGSTATUS_ISFLOATING ) )
 						SitAndFace(frog,currTile,frogFacing);
@@ -1109,8 +1110,7 @@ void RunGameLoop (void)
 					}
 					// ENDELSEIF
 					SitAndFace(frog2,currTile2,frogFacing2);
-					
-					
+
 				}	  
 			}
 			// ENDIF 
@@ -1151,7 +1151,7 @@ void RunGameLoop (void)
 		}
 	} 
 
-	// ----- FOR DEMO PURPOSES - ANDYE -----
+// ----- FOR DEMO PURPOSES - ANDYE -----
 	if(actList && demoTug)
 	{
 		demoTug->actor->pos.v[Y] = (demoTug->actor->oldpos.v[Y] - 20.0F) + (sinf(demoTugSeed) * demoTugAmp);
@@ -1188,10 +1188,6 @@ void RunGameLoop (void)
 		} 
 	}  
 
-	if (frog)
-		for (i=0; i<4; i++)
-			UpdateCameraPosition(i);
-					
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers

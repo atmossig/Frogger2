@@ -51,7 +51,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 
 	if ( createFrogActor )
 	{
-		frog		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,NMETYPE_NONE, 0, 0);
+		frog		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog->actor->shadow->radius = 30;
 		frog->actor->shadow->alpha = 191;
 		frog->flags	|= ACTOR_DRAW_ALWAYS;
@@ -67,7 +67,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		frog->action.lives		= 3;
 		frog->action.isOnFire	= 0;
 
-		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,NMETYPE_NONE, 0, 0);
+		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog2->actor->shadow->radius = 30;
 		frog2->actor->shadow->alpha = 191;
 		frog2->flags |= ACTOR_DRAW_ALWAYS;

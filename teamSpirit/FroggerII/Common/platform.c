@@ -656,7 +656,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex, unsign
 	PLATFORM *newItem = (PLATFORM *)JallocAlloc(sizeof(PLATFORM),YES,"plat");
 	AddPlatform(newItem);
 
-	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,INIT_ANIMATION,NMETYPE_NONE,0,0);
+	newItem->pltActor = CreateAndAddActor(pActorName,0,0,0,INIT_ANIMATION,0,0);
 	if(newItem->pltActor->actor->objectController)
 	{
 		InitActorAnim(newItem->pltActor->actor);
