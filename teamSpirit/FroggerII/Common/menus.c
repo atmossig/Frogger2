@@ -378,24 +378,28 @@ void RunLevelSelect( )
 		// Run selected world and level
 		if ( (button & CONT_A) && !(lastbutton & CONT_A) && currentLevelSelect != 255 )
 		{
-			StopDrawing( "Title Screen" );
+//			if( worldVisualData[currentWorldSelect].levelVisualData[currentLevelSelect].levelOpen == LEVEL_OPEN )
+//			{
+				StopDrawing( "Title Screen" );
 
-			FreeAllLists();
+				FreeAllLists();
 
-			player[0].worldNum = currentWorldSelect;
-			player[0].levelNum = currentLevelSelect;
+				player[0].worldNum = currentWorldSelect;
+				player[0].levelNum = currentLevelSelect;
 
-			InitLevel ( currentWorldSelect, currentLevelSelect );
+				InitLevel ( currentWorldSelect, currentLevelSelect );
 
-			gameState.oldMode = FRONTEND_MODE;
-			gameState.mode = GAME_MODE;
+				gameState.oldMode = FRONTEND_MODE;
+				gameState.mode = GAME_MODE;
 
-			frameCount = 0;
-			lastbutton = 0;
-			PlaySample ( 2,NULL,255,128);
+				frameCount = 0;
+				lastbutton = 0;
+				PlaySample ( 2,NULL,255,128);
 
-			StartDrawing ( "Title Screen" );
-			return;
+				StartDrawing ( "Title Screen" );
+				return;
+//			}
+			// ENDIF
 		}			
 	}
 
@@ -559,6 +563,9 @@ void RunHiscoreScreen( )
 		long i;
 		char hiScoreStr[32];
 
+		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(TITLES_TEX_BANK);
+
 		Init3DTextList( );
 
 		for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
@@ -567,7 +574,7 @@ void RunHiscoreScreen( )
 			// Increase z and alter y so they form a perspective plane,
 			// in a StarWars stylee.
 
-			sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
+			sprintf( hiScoreStr, /*"%s  %i  %i\0"*/"me"/*, hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time */);
 
 			CreateAndAdd3DText( hiScoreStr, 350,
 								128,128,128,255,
@@ -578,6 +585,7 @@ void RunHiscoreScreen( )
 								0,30,300+(i*20),
 								0,0.0,0.0 );
 		}
+		CreateOverlays();
 	}
 
 	if(frameCount > 15)
