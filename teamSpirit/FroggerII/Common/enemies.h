@@ -111,11 +111,13 @@ enum
 #define ENEMY_NEW_FACEFORWARDS			(1 << 12)	// enemy faces forwards
 #define ENEMY_NEW_PUSHESFROG			(1 << 13)	// enemy pushes the frog, (Doesn't harm him!)
 #define ENEMY_NEW_HOMING				(1 << 14)	// No path, moves blindly towards frog
+#define ENEMY_NEW_SWARM					(1 << 15)	// No different mechanics, but does swarming thing about centre
+#define ENEMY_NEW_ROTATEPATH			(1 << 16)	// Move in a circle around a point. Use tiles though.
 
 
 typedef struct TAGENEMY
 {
-	struct TAGENEMY			*next,*prev;			// ptr to next / prev platform
+	struct TAGENEMY			*next,*prev;			// ptr to next / prev enemy
 	
 	long					uid;					// Unique ID
 

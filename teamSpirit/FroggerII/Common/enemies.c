@@ -462,6 +462,10 @@ static void GetEnemyActiveTile(ENEMY *nme)
 		else
 			nme->inTile = nme->path->nodes[nme->path->toNode].worldTile;
 	}
+	else if( nme->flags & ENEMY_NEW_ROTATEPATH )
+	{
+		nme->inTile = FindNearestTile( nme->nmeActor->actor->pos );
+	}
 	else
 	{
 		// no path associated with this enemy
@@ -739,27 +743,63 @@ void UpdateEnemies()
 			{
 				// process enemies that are based on a single node
 	
-				// get up vector for this enemy
-				SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
-			
-				moveVec.v[X] *= cur->speed;
-				moveVec.v[Y] *= cur->speed;
-				moveVec.v[Z] *= cur->speed;
+				if( (cur->flags & ENEMY_NEW_MOVEUP) || (cur->flags & ENEMY_NEW_MOVEDOWN) )
+				{
+					// get up vector for this enemy
+					SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
+				
+					moveVec.v[X] *= cur->speed;
+					moveVec.v[Y] *= cur->speed;
+					moveVec.v[Z] *= cur->speed;
 
-				// check if this enemy is moving up or down
-				if(cur->flags & ENEMY_NEW_MOVEUP)
-				{
-					// enemy is moving up
-					AddToVector(&cur->nmeActor->actor->pos,&moveVec);
+					// check if this enemy is moving up or down
+					if(cur->flags & ENEMY_NEW_MOVEUP)
+					{
+						// enemy is moving up
+						AddToVector(&cur->nmeActor->actor->pos,&moveVec);
+					}
+					else if(cur->flags & ENEMY_NEW_MOVEDOWN)
+					{
+						// enemy is moving down
+						SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
+					}
+			
+					if(EnemyReachedTopOrBottomPoint(cur))
+						UpdateEnemyPathNodes(cur);
 				}
-				else if(cur->flags & ENEMY_NEW_MOVEDOWN)
+
+				// Move around a single flag
+				if( cur->flags & ENEMY_NEW_ROTATEPATH )
 				{
-					// enemy is moving down
-					SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
+					VECTOR v1,v2,v3,nmeup;
+					fromPosition = cur->nmeActor->actor->pos;
+
+					toPosition.v[X] = cur->path->nodes->worldTile->centre.v[X] + (cur->nmeActor->radius * sinf( cur->nmeActor->angle/57.6 ));
+					toPosition.v[Z] = cur->path->nodes->worldTile->centre.v[Z] + (cur->nmeActor->radius * cosf( cur->nmeActor->angle/57.6 ));
+					toPosition.v[Y] = cur->path->nodes->worldTile->centre.v[Y];
+
+					if( cur->flags & ENEMY_NEW_FACEFORWARDS ) // Look in direction of travel
+					{
+						SubVector(&v1,&fromPosition,&toPosition);
+					}
+					else // Look at the start node
+					{
+						SubVector(&v1,&toPosition,&cur->path->nodes->worldTile->centre);
+					}
+
+					MakeUnit(&v1);
+					RotateVectorByQuaternion(&nmeup,&upVec,&cur->nmeActor->actor->qRot);
+					CrossProduct(&v2,&v1,&nmeup);
+					CrossProduct(&v3,&v2,&nmeup);
+					Orientate(&cur->nmeActor->actor->qRot,&v3,&inVec,&nmeup);
+
+					cur->nmeActor->actor->pos = toPosition;
+					cur->nmeActor->angle += cur->speed;
+					if( cur->nmeActor->angle >= 360 )
+						cur->nmeActor->angle -= 360;
+					else if( cur->nmeActor->angle < 0 )
+						cur->nmeActor->angle += 360;
 				}
-		
-				if(EnemyReachedTopOrBottomPoint(cur))
-					UpdateEnemyPathNodes(cur);
 			}
 
 		// determine which world tile the enemy is currently 'in'
@@ -1425,6 +1465,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 	newItem->startSpeed		= 1.0F;
 	newItem->accel			= 0.0F;
 	newItem->isSnapping 	= 0;
+	newItem->nmeActor->angle	= 0.0F;
 
 	return newItem;
 }
