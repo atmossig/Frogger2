@@ -52,7 +52,7 @@ MDX_VECTOR tN[MAX_OBJECT_VERTICES];
 
 short facesON[3] = {0,1,2};
 
-float nearClip = 1;
+float nearClip = 10;
 float farClip = 1200;
 
 float horizClip = 3000;
@@ -98,12 +98,16 @@ float xl = 1;
 
 void SetupRenderer(long xRes, long yRes)
 {
-	clx0 = 10;
-	cly0 = 10;
-	clx1 = xRes - 10;
-	cly1 = yRes - 10;
-	FOV = 450; 		
+	clx0 = 0;
+	cly0 = 0;
+	clx1 = xRes - 1;
+	cly1 = yRes - 1;
+	FOV = 450; 			
 }
+
+#define BIAS 127
+#define fftol(v) (((((*((long *)v))&0x007fffff)<<8)|0x80000000)>>((BIAS-(((*((long *)v))&0x7f800000)>>23))+31))
+
 /*---------------------------------------------------------------------------------------------
 	Function	: calcIntVertex
 	Parameters	: (D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
@@ -112,7 +116,7 @@ void SetupRenderer(long xRes, long yRes)
 
 float   rCol,gCol,bCol;
 
-int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
+inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
 {
 	float segLen, totalLen, vt;
 	long r1,g1,b1,a1;
@@ -124,6 +128,15 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 			segLen = cx0-v0->sx;
 			totalLen = v1->sx-v0->sx;
 			vt = segLen/totalLen;
+			a1 = RGBA_GETALPHA(v0->color);
+			r1 = RGBA_GETRED(v0->color);
+			g1 = RGBA_GETGREEN(v0->color);
+			b1 = RGBA_GETBLUE(v0->color);
+
+			a2 = RGBA_GETALPHA(v1->color);
+			r2 = RGBA_GETRED(v1->color);
+			g2 = RGBA_GETGREEN(v1->color);
+			b2 = RGBA_GETBLUE(v1->color);
 			vOut->sx = cx0;
 			vOut->sy = v0->sy+((v1->sy-v0->sy)*vt);
 			break;
@@ -131,6 +144,15 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 			segLen = cx1-v0->sx;
 			totalLen = v1->sx-v0->sx;
 			vt = segLen/totalLen;
+			a1 = RGBA_GETALPHA(v0->color);
+			r1 = RGBA_GETRED(v0->color);
+			g1 = RGBA_GETGREEN(v0->color);
+			b1 = RGBA_GETBLUE(v0->color);
+
+			a2 = RGBA_GETALPHA(v1->color);
+			r2 = RGBA_GETRED(v1->color);
+			g2 = RGBA_GETGREEN(v1->color);
+			b2 = RGBA_GETBLUE(v1->color);
 			vOut->sx = cx1;
 			vOut->sy = v0->sy+((v1->sy-v0->sy)*vt);
 			break;
@@ -138,6 +160,15 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 			segLen = cy0-v0->sy;
 			totalLen = v1->sy-v0->sy;
 			vt = segLen/totalLen;
+			a1 = RGBA_GETALPHA(v0->color);
+			r1 = RGBA_GETRED(v0->color);
+			g1 = RGBA_GETGREEN(v0->color);
+			b1 = RGBA_GETBLUE(v0->color);
+
+			a2 = RGBA_GETALPHA(v1->color);
+			r2 = RGBA_GETRED(v1->color);
+			g2 = RGBA_GETGREEN(v1->color);
+			b2 = RGBA_GETBLUE(v1->color);
 			vOut->sx = v0->sx+((v1->sx-v0->sx)*vt);
 			vOut->sy = cy0;
 			break;
@@ -145,51 +176,53 @@ int calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v
 			segLen = cy1-v0->sy;
 			totalLen = v1->sy-v0->sy;
 			vt = segLen/totalLen;
+			a1 = RGBA_GETALPHA(v0->color);
+			r1 = RGBA_GETRED(v0->color);
+			g1 = RGBA_GETGREEN(v0->color);
+			b1 = RGBA_GETBLUE(v0->color);
+
+			a2 = RGBA_GETALPHA(v1->color);
+			r2 = RGBA_GETRED(v1->color);
+			g2 = RGBA_GETGREEN(v1->color);
+			b2 = RGBA_GETBLUE(v1->color);
+
 			vOut->sx = v0->sx+((v1->sx-v0->sx)*vt);
 			vOut->sy = cy1;
 			break;		
 	}
-	if (vOut->sx > 6400000)
-		vOut->sx += 0;
-	if (vOut->sy > 4800000)
-		vOut->sy += 0;
-
+	
 	vOut->tu = (v0->tu+((v1->tu-v0->tu)*vt));
     vOut->tv = (v0->tv+((v1->tv-v0->tv)*vt));
 	vOut->sz = (v0->sz+((v1->sz-v0->sz)*vt));
-	vOut->rhw = 1/vOut->sz;
+	vOut->rhw = 1;///vOut->sz;
 	
-	vOut->specular = D3DRGBA(0,0,0,0);
+	vOut->specular = 0;//D3DRGBA(0,0,0,0);
 	
-	a1 = RGBA_GETALPHA(v0->color);
-	r1 = RGBA_GETRED(v0->color);
-	g1 = RGBA_GETGREEN(v0->color);
-	b1 = RGBA_GETBLUE(v0->color);
-
-	a2 = RGBA_GETALPHA(v1->color);
-	r2 = RGBA_GETRED(v1->color);
-	g2 = RGBA_GETGREEN(v1->color);
-	b2 = RGBA_GETBLUE(v1->color);
-
+	
 	vOut->color = RGBA_MAKE ((long)(r1+(r2-r1)*vt),(long)(g1+(g2-g1)*vt),(long)(b1+(b2-b1)*vt),(long)(a1+(a2-a1)*vt));
 
 	return !((vOut->sx==v0->sx)&&(vOut->sy==v0->sy));
 }
 
-void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
+void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 {
 	D3DTLVERTEX		vList[10];
 	int				out0, out1;
-	D3DTLVERTEX 	*v0ptr, *v1ptr, vBuf1[8], vBuf2[8], *vIn, *vOut, *vTmp;
+	D3DTLVERTEX 	*v0ptr, *v1ptr, vBuf1[8], vBuf2[8], *vIn, *vOut, *vTmp,*vOut2,*vIn2;
 	int				vInCount, vOutCount;
 	int				sideLp, vertLp, sideMask;
 	short			faceList[8*3];
+	short			*fL;
 	long			numFaces,i,j;
 	// Set up in & out buffers											
-
+	
 	vIn = vBuf1;
 	
-	memcpy (vIn,in,sizeof(D3DTLVERTEX)*3);
+	vIn[0] = in[0];
+	vIn[1] = in[1];
+	vIn[2] = in[2];
+	
+	//memcpy (vIn,in,sizeof(D3DTLVERTEX)*3);
 	
 	vInCount = 3;
 	vOut = vBuf2;
@@ -199,11 +232,14 @@ void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 	for(sideLp=0; sideLp<4; sideLp++)
 	{
 		sideMask = 1<<sideLp;
+		vOut2 = vOut;
+		vIn2 = vIn;
 		for(vertLp=0; vertLp<vInCount; vertLp++)
 		{
-			v0ptr = &vIn[vertLp];
+			v0ptr = vIn2;
+			
 			if ((vertLp+1)<vInCount)
-				v1ptr = &vIn[(vertLp+1)];
+				v1ptr = vIn2+1;
 			else
 				v1ptr = vIn;
 
@@ -211,24 +247,33 @@ void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 			out1 = CALC_OUTCODE(v1ptr->sx,v1ptr->sy, clx0,cly0,clx1,cly1);
 			if ((out0 & sideMask)==0)		// v0 on
 			{
-				// add v0 to output
-				memcpy(&vOut[vOutCount++], v0ptr, sizeof(D3DTLVERTEX));
+				*vOut2 = *v0ptr;
+				vOut2++;
+				vOutCount++;
 				if (out1 & sideMask)		// v0 on, v1 off
 				{
 					// add intersection to output
-					if (calcIntVertex(&vOut[vOutCount], sideLp, v0ptr, v1ptr, clx0,cly0,clx1,cly1))
+					if (calcIntVertex(vOut2, sideLp, v0ptr, v1ptr, clx0,cly0,clx1,cly1))
+					{
 						vOutCount++;
+						vOut2++;
+					}
 				}
 			}
 			else
 			{
-				if ((out1 & sideMask)==0)	// v0 off, v1 on
+				if (!(out1 & sideMask))	// v0 off, v1 on
 				{
 					// add intersection to output
-					if (calcIntVertex(&vOut[vOutCount], sideLp, v1ptr, v0ptr, clx0,cly0,clx1,cly1))
+					if (calcIntVertex(vOut2, sideLp, v1ptr, v0ptr, clx0,cly0,clx1,cly1))
+					{
 						vOutCount++;
+						vOut2++;
+					}
 				}
 			}
+
+			vIn2++;
 		}
 		vTmp = vIn;					// Swap in & out bufs
 		vIn = vOut;
@@ -239,11 +284,15 @@ void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 
 	numFaces = 0;
 	j=0;
+	fL = faceList;
 	for (i=1; i<(vInCount-1); i++, j+=3)
 	{
-		faceList[j] = 0;
-		faceList[j+1] = i;
-		faceList[j+2] = i+1;
+		*fL = 0;
+		*(fL+1) = i;
+		*(fL+2) = i+1;
+//		faceList[j+1] = i;
+//		faceList[j+2] = i+1;
+		fL+=3;
 		numFaces++;
 	}
 	
@@ -256,7 +305,7 @@ void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 
 void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d)
 {
-	float c[4][4];
+	float c[4][4],oozd;
 
 	if (d)
 	{
@@ -273,8 +322,10 @@ void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d)
 		((vTemp2->vy)>-vertClip) &&
 		((vTemp2->vy)<vertClip))
 	{
-		long x = (long)vTemp2->vz+DIST;
-		float oozd = -FOV * oneOver[x];
+		oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
+
+//		long x = (long)vTemp2->vz+DIST;
+//		float oozd = -FOV * oneOver[x];
 			
 		vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
 		vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
@@ -315,7 +366,7 @@ void SetupDOF(long min, long max, float range)
 
 void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {
-	float f[4][4];
+	float f[4][4],oozd;
 	MDX_VECTOR *in;
 	MDX_VECTOR *vTemp2;
 	long i;
@@ -339,15 +390,16 @@ void PCPrepareObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 			((vTemp2->vy)>-vertClip) &&
 			((vTemp2->vy)<vertClip)))
 		{
-			long x = (long)vTemp2->vz+DIST;
-			float oozd = -FOV * oneOver[x];
+			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 			
 			vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
 			vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
+			vTemp2->vz *= 0.00025F;
 		}
 		else
 			vTemp2->vz = 0;
 
+		
 		vTemp2++;
 		in++;
 	}
@@ -378,7 +430,7 @@ void PCCalcModgeValues(MDX_OBJECT *obj)
 
 void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 {
-	float f[4][4],*mTemp,*mTemp2,ty;
+	float f[4][4],*mTemp,*mTemp2,ty,oozd;
 	MDX_VECTOR *in;
 	MDX_VECTOR *vTemp2;
 	long i;
@@ -405,8 +457,10 @@ void PCPrepareModgyObject (MDX_OBJECT *obj, MDX_MESH *me, float m[4][4])
 			((vTemp2->vy)>-vertClip) &&
 			((vTemp2->vy)<vertClip)))
 		{
-			long x = (long)vTemp2->vz+DIST;
-			float oozd = -FOV * oneOver[x];
+			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
+
+//			long x = (long)vTemp2->vz+DIST;
+//			float oozd = -FOV * oneOver[x];
 			
 			vTemp2->vx = halfWidth+(vTemp2->vx * oozd);
 			vTemp2->vy = halfHeight+(vTemp2->vy * oozd);
@@ -448,10 +502,6 @@ void PCPrepareObjectNormals(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 	}
 }
 
-#define BIAS 127
-
-
-#define fftol(v) (((((*((long *)v))&0x007fffff)<<8)|0x80000000)>>((BIAS-(((*((long *)v))&0x7f800000)>>23))+31))
 
 
 
@@ -491,6 +541,8 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 			vTemp2->vx = halfWidth + (vTemp2->vx * oozd);
 			vTemp2->vy = halfHeight+ (vTemp2->vy * oozd);
+			vTemp2->vz *= 0.00025F;
+
 		}
 		else
 			vTemp2->vz = 0;
@@ -729,27 +781,32 @@ void PCRenderLandscape(MDX_LANDSCAPE *me)
 	D3DTLVERTEX *v = me->xfmVert;
 	MDX_TEXENTRY **tEnt = me->tEntrys;
 
-	for (int i=0; i<me->numFaces; i++)
+	for (int i=me->numFaces; i; i--)
 	{
-		if (v[0].sz && v[1].sz && v[2].sz)
+		if (v->sz && (v+1)->sz && (v+2)->sz)
 		{
-			x1on = BETWEEN(v[0].sx,clx0,clx1);
-			x2on = BETWEEN(v[1].sx,clx0,clx1);
-			x3on = BETWEEN(v[2].sx,clx0,clx1);
 			y1on = BETWEEN(v[0].sy,cly0,cly1);
 			y2on = BETWEEN(v[1].sy,cly0,cly1);
 			y3on = BETWEEN(v[2].sy,cly0,cly1);
-			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+
+			if ((y1on || y2on || y3on))
 			{
-				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				x1on = BETWEEN(v[0].sx,clx0,clx1);
+				x2on = BETWEEN(v[1].sx,clx0,clx1);
+				x3on = BETWEEN(v[2].sx,clx0,clx1);
+	
+				if (x1on || x2on || x3on)
 				{
-					PushPolys(v,3,facesON,3,(*tEnt));
-				}
-				else
-				{
-					Clip3DPolygon(v,*tEnt);
-				}
-			}	
+					if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+					{
+						PushPolys(v,3,facesON,3,(*tEnt));
+					}
+					else
+					{
+						Clip3DPolygon(v,*tEnt);
+					}
+				}	
+			}
 		}
 			tEnt++;
 			v+=3;		
@@ -762,13 +819,13 @@ void DrawLandscape(MDX_LANDSCAPE *me)
 {
 	if (CheckBoundingBox(me->bBox,&me->objMatrix)==0)
 	{
-		StartTimer(8,"Prepare landscape");	
+//		StartTimer(8,"Prepare landscape");	
 		PCPrepareLandscape(me);
-		EndTimer(8);
+//		EndTimer(8);
 
-		StartTimer(9,"Render landscape");	
+//		StartTimer(9,"Render landscape");	
 		PCRenderLandscape(me);
-		EndTimer(9);
+//		EndTimer(9);
 		numObjDrawn++;
 	}
 
@@ -878,6 +935,7 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 				else
 					PCPrepareObject(obj, obj->mesh,  obj->objMatrix.matrix);
 
+				
 				if (obj->phong)
 				{
 					//phong = obj->phong;
@@ -1429,102 +1487,71 @@ void PCRenderModgyObject (MDX_OBJECT *obj)
 
 void PCRenderObject (MDX_OBJECT *obj)
 {
-	long i,j;
-	unsigned short fce[3] = {0,1,2};		
-	MDX_QUATERNION *c1,*c2,*c3;
-	D3DTLVERTEX v[3],*vTemp;
+	long i;//,j;
+	//unsigned short fce[3] = {0,1,2};		
+	//MDX_QUATERNION *c1,*c2,*c3;
+	//D3DTLVERTEX v[3],*vTemp;
 	MDX_SHORTVECTOR *facesIdx;
 	unsigned long x1on,x2on,x3on,y1on,y2on,y3on;
-	unsigned long v0,v1,v2;
+	//unsigned long v0,v1,v2;
 	unsigned long v0a,v1a,v2a;
-	long alphaVal;
+	//long alphaVal;
 	MDX_TEXENTRY *tex;
 	MDX_TEXENTRY **tex2;
-	MDX_VECTOR *tV0,*tV1,*tV2, *tN0,*tN1,*tN2,*fTC;
-	MDX_QUATERNION *cols;
+	MDX_VECTOR *tV0,*tV1,*tV2;
+	D3DTLVERTEX *dVtx;
+	//MDX_QUATERNION *cols;
 	
-	fTC = obj->mesh->faceTC2;
+	dVtx = obj->mesh->d3dVtx;
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
-	cols = obj->mesh->gouraudColors;
-	alphaVal = (long)(globalXLU2*255.0);
+	//cols = obj->mesh->gouraudColors;
+	//alphaVal = (long)(globalXLU2*255.0);
 
-	for (j=0, i=obj->mesh->numFaces; i; i--, j+=3)
+	for (i=obj->mesh->numFaces; i; i--)
 	{
-		// Get information from the mesh!
-		v0 = facesIdx->v[0];
-		v1 = facesIdx->v[1];
-		v2 = facesIdx->v[2];
-				
-		tV0 = tV+v0;
-		tV1 = tV+v1;
-		tV2 = tV+v2;
+								
+		tV0 = tV+*(((short *)facesIdx->v));
+		tV1 = tV+*(((short *)facesIdx->v)+1);
+		tV2 = tV+*(((short *)facesIdx->v)+2);
 
 		tex = (MDX_TEXENTRY *)(*tex2);
 		
 		// If we are to be drawn.
 		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
 		{
-			// Get rest of info from mesh
-			v0a = j;
-			v1a = j+1;
-			v2a = j+2;
-
-			c1 = cols+v0a;
-			c2 = cols+v1a;
-			c3 = cols+v2a;
+			(dVtx)->sx = tV0->vx;
+			(dVtx)->sy = tV0->vy;
+			(dVtx)->sz = tV0->vz;
 			
-			// Fill out D3DVertices...
-			vTemp = v;
-				
-			vTemp->sx = tV0->vx;
-			vTemp->sy = tV0->vy;
-			vTemp->sz = (tV0->vz) * 0.00025F;
-			vTemp->rhw = 1;
+			(dVtx+1)->sx = tV1->vx;
+			(dVtx+1)->sy = tV1->vy;
+			(dVtx+1)->sz = tV1->vz;
 			
-			vTemp->color = *((unsigned long *)c1);
-			vTemp->specular = 0;
-			vTemp->tu = fTC[v0a].vx;
-			vTemp->tv = fTC[v0a].vy;
-			vTemp++;
-
-			vTemp->sx = tV1->vx;
-			vTemp->sy = tV1->vy;
-			vTemp->sz = (tV1->vz) * 0.00025F;
-			vTemp->rhw = 1;
-
-			vTemp->color = *((unsigned long *)c2);
-			vTemp->specular = 0;
-			vTemp->tu = fTC[v1a].vx;
-			vTemp->tv = fTC[v1a].vy;
-			vTemp++;
+			(dVtx+2)->sx = tV2->vx;
+			(dVtx+2)->sy = tV2->vy;
+			(dVtx+2)->sz = tV2->vz;
 			
-			vTemp->sx = tV2->vx;
-			vTemp->sy = tV2->vy;
-			vTemp->sz = (tV2->vz) * 0.00025F;
-			vTemp->rhw = 1;
+			y1on = BETWEEN(tV0->vy,cly0,cly1) +
+				   BETWEEN(tV1->vy,cly0,cly1) +
+				   BETWEEN(tV2->vy,cly0,cly1);
 			
-			vTemp->color = *((unsigned long *)c3);
-			vTemp->specular = 0;
-			vTemp->tu = fTC[v2a].vx;
-			vTemp->tv = fTC[v2a].vy;
-
-			x1on = BETWEEN(v[0].sx,clx0,clx1);
-			x2on = BETWEEN(v[1].sx,clx0,clx1);
-			x3on = BETWEEN(v[2].sx,clx0,clx1);
-			y1on = BETWEEN(v[0].sy,cly0,cly1);
-			y2on = BETWEEN(v[1].sy,cly0,cly1);
-			y3on = BETWEEN(v[2].sy,cly0,cly1);
-
-			if ((x1on || x2on || x3on) && (y1on || y2on || y3on))
+			if (y1on)
 			{
-				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
+				x1on = BETWEEN(tV0->vx,clx0,clx1) +
+					   BETWEEN(tV1->vx,clx0,clx1) +
+					   BETWEEN(tV2->vx,clx0,clx1);
+				
+				if (x1on)
 				{
-					PushPolys(v,3,facesON,3,tex);
-				}
-				else
-				{
-					Clip3DPolygon(v,tex);
+					if ((x1on+y1on==6))
+					{
+						PushPolys(dVtx,3,facesON,3,tex);
+					}
+					else
+					{
+						Clip3DPolygon(dVtx,tex);
+					}
 				}
 			}
 		}
@@ -1532,6 +1559,7 @@ void PCRenderObject (MDX_OBJECT *obj)
 		// Update our pointers
 		facesIdx++;
 		tex2++;
+		dVtx+=3;
 	}
 }
 

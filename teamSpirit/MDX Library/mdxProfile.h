@@ -24,7 +24,9 @@ void ClearTimers(void);
 void HoldTimers(void);
 void StartTimer(int number,char *name);
 void EndTimer(int number);
-void PrintTimers(void);;
+void PrintTimers(void);
+void InitProfile(void);
+
 
 #ifdef __cplusplus
 }

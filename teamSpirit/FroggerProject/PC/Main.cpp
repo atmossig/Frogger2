@@ -487,7 +487,6 @@ long DrawLoop(void)
 	// Just to get functionality... ;)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();
-	EndTimer(2);
 
 	CalcViewMatrix();
 
@@ -497,11 +496,14 @@ long DrawLoop(void)
 	SwapFrame(MA_FRAME_NORMAL);
 
 	D3DSetupRenderstates(cullCWRS);
+	EndTimer(2);
+
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
 
+	StartTimer(14,"Landscape");
 	if (world && drawLandscape)
 		DrawLandscape(world);
-
+	EndTimer(14);
 	StartTimer(1,"Actors");
 	
 	ActorListDraw();
@@ -509,12 +511,15 @@ long DrawLoop(void)
 
 	BeginDraw();
 	
+	StartTimer(15,"DAF");
 	if (rHardware)
 	{
 		DrawAllFrames();
 		BlankAllFrames();
 	}
+	EndTimer(15);
 	
+	StartTimer(16,"Sprites,text & SpecFX");
 //	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	D3DSetupRenderstates(xluZRS);
 	D3DSetupRenderstates(cullNoneRS);
@@ -555,8 +560,10 @@ long DrawLoop(void)
 	}
 
 	PrintSpriteOverlays(0);	
+	
 	PrintTextOverlays();
 	PrintSpriteOverlays(1);	
+
 	if (editorOk)
 		DrawEditor();
 
@@ -564,8 +571,9 @@ long DrawLoop(void)
 		DrawChatBuffer( 100, 20, 540, 150 );
 
 	EndDraw();
+	EndTimer(16);
 
-	CopySoftScreenToSurface(surface[RENDER_SRF]);
+	//CopySoftScreenToSurface(surface[RENDER_SRF]);
 
 	EndTimer(0);
 	if (consoleDraw)
@@ -574,17 +582,25 @@ long DrawLoop(void)
 		PrintTimers();
 	ClearTimers();
 	StartTimer(0,"Everything");
+	
+	
+	StartTimer(17,"Flip");
 	BeginDraw();
 	EndDraw();
+	
 	DDrawFlip();
+	EndTimer(17);
+	StartTimer(18,"Clear");
 	D3DClearView();
-
+	EndTimer(18);
 	GetCursorPos(&t);
 	camZ = t.x*8;
 	camY = t.y*8;
 
-	if( gameState.mode != PAUSE_MODE )
-		ProcessProcTextures( );
+	StartTimer(19,"PText");
+	//if( gameState.mode != PAUSE_MODE )
+	//	ProcessProcTextures( );
+	EndTimer(19);
 	
 //	AnimateTexturePointers();
 
@@ -599,12 +615,15 @@ long LoopFunc(void)
 	actFrameCount = timeInfo.frameCount;
 	gameSpeed = 4096*timeInfo.speed;
 
+	StartTimer(10,"Controller");
 	ProcessUserInput();
+	EndTimer(10);
 
 	StartTimer(5,"Gameloop");
 	GameLoop();
 	EndTimer(5);
 
+	StartTimer(11,"UpdateStuff");
 	for (c = actList; c; c = c->next)
 	{
 		if (c->actor->actualActor)
@@ -645,9 +664,12 @@ long LoopFunc(void)
 			}
 		}
 	}
+	EndTimer(11);
 
+	StartTimer(12,"Editor");
 	if (editorOk)
 		RunEditor();
+	EndTimer(12);
 
 	if( KEYPRESS(DIK_F7) && chatFlags )
 	{
@@ -665,7 +687,10 @@ long LoopFunc(void)
 		}
 	}
 
+	StartTimer(13,"WaterUpdate");
 	UpdateWater();
+	EndTimer(13);
+
 	DrawLoop();
 	
 	if(networkPlay && (gameState.mode == INGAME_MODE))
@@ -770,6 +795,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	// Setup the renderer
 	SetupRenderer(xRes, yRes);
+
+	// Setup the profiler
+	InitProfile();
 
 	// Setup D3D
 	if (!D3DInit())

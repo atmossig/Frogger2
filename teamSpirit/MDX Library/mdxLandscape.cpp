@@ -86,6 +86,7 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 	{
 		short *tFace;
 		me->faceIndex = new short[me->numFaces * 3];
+		//me->clipFlags = new long[me->numFaces * 3];
 		me->xfmVert = new D3DTLVERTEX[me->numFaces * 3];
 		me->textures = new LPDIRECTDRAWSURFACE7[me->numFaces];
 		me->tEntrys = new MDX_TEXENTRY *[me->numFaces];
@@ -148,6 +149,8 @@ void FreeLandscape(MDX_LANDSCAPE **me)
 	
 	if ((*me)->vertices)
 		delete (*me)->vertices;
+	//if ((*me)->clipFlags)
+	//	delete (*me)->clipFlags;
 	if ((*me)->faceIndex)
 		delete (*me)->faceIndex;
 	if ((*me)->xfmVert)

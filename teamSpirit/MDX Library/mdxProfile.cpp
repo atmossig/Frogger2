@@ -23,6 +23,7 @@
 #include "mdxCRC.h"
 #include "mgeReport.h"
 #include "mdxPoly.h"
+#include "mdxWindows.h"
 #include "gelf.h"
 
 #ifdef __cplusplus
@@ -31,7 +32,7 @@ extern "C"
 #endif
 
 #define MAX_TIMERS 20
-
+#define FRAMES_DISP 5
 long tStart[MAX_TIMERS];
 long tTotal[MAX_TIMERS];
 long tEnd[MAX_TIMERS];
@@ -40,7 +41,8 @@ long tS;
 long tHold[MAX_TIMERS];
 
 char *tName[MAX_TIMERS];
-float timerscale = 0.4;
+float timerscale = 0.15*1000;
+long pFreq;
 
 #define MAX_SAMPLES 32000
 
@@ -50,6 +52,14 @@ long graphNumPoints;
 long graphMax;
 long graphStart;
 long graphEnd;
+
+void InitProfile(void)
+{
+	LARGE_INTEGER c;
+
+	QueryPerformanceFrequency(&c);
+	pFreq = c.QuadPart;
+}
 
 void StartGraph(void)
 {
@@ -80,6 +90,14 @@ void SampleGraph(long value)
 	graphSValues[graphNumPoints++] = value;
 }
 
+long GetTimer(void)
+{
+	LARGE_INTEGER pCount;
+	QueryPerformanceCounter(&pCount);
+	return pCount.QuadPart;
+
+}
+
 /*	--------------------------------------------------------------------------------
 	Function		: 
 	Purpose			: 
@@ -104,7 +122,8 @@ void ClearTimers(void)
 		tName[i] = 0;
 		tEnd[i] = 0;
 		tTotal[i] = 0;
-		tS = timeGetTime();
+		//tS = timeGetTime();
+		tS = GetTimer();
 		if (first)
 		{
 			if (fp)
@@ -150,7 +169,7 @@ void StartTimer(int number,char *name)
 	if (number<MAX_TIMERS)
 	{
 		tName[number] = name;
-		tStart[number] = timeGetTime();
+		tStart[number] = GetTimer();
 	}
 }
 
@@ -166,7 +185,7 @@ void EndTimer(int number)
 {
 	if (number<MAX_TIMERS)
 	{
-		tEnd[number] = timeGetTime();
+		tEnd[number] = GetTimer();
 		tTotal[number]+=tEnd[number]-tStart[number];		
 	}
 }
@@ -191,7 +210,6 @@ void PrintTimers(void)
 	
 	float gMult = 560.0/(graphEnd-graphStart);
 	float gVMult = 100.0/graphMax;
-	
 	
 	r.top = timeY+50-(200/MAX_TIMERS);
 	r.bottom = timeY+49+((MAX_TIMERS+2)*(200/MAX_TIMERS));
@@ -237,36 +255,7 @@ void PrintTimers(void)
 		}
 
 	
-
-	EndDraw();
-
-	HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
-
-	if (res == DD_OK)
-	{
-		HFONT hfnt, hOldFont;      
-		hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
-		if (hOldFont = (HFONT)SelectObject(hdc, hfnt)) 
-		{
-			SetBkMode(hdc, TRANSPARENT);
-				
-			for (i=0; i<MAX_TIMERS; i++)
-				if (tName[i])
-				{			
-					SetTextColor(hdc, RGB(55,0,0));
-					TextOut(hdc, 61, timeY+49+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
-					SetTextColor(hdc, RGB(255,255,255));
-					TextOut(hdc, 60, timeY+48+(i*(200/MAX_TIMERS)), tName[i], strlen(tName[i]));
-				}
-
-			SelectObject(hdc, hOldFont); 
-		}
-
-		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
-	}
-
-	BeginDraw();
-	for ( i=0; i<MAX_TIMERS; i++)
+for ( i=0; i<MAX_TIMERS; i++)
 	{
 		r.top = timeY+50+(i*(200/MAX_TIMERS));
 		r.bottom = timeY+49+((i+1)*(200/MAX_TIMERS));
@@ -283,29 +272,73 @@ void PrintTimers(void)
 		r.left = 50;
 		r.right = 52;
 		DrawFlatRect(r, D3DRGBA(1,1,1,0.8) );
-		r.right = (50+tTotal[i]/timerscale);
+		//r.left = 50+(tStart[i] - tStart[0])/timerscale;
+		r.right = (r.left+tTotal[i]/timerscale);
 		DrawFlatRect(r, D3DRGBA(1,0,0,0.5) );
+
+		r.left = 50+(tStart[i] - tStart[0])/timerscale;
+		r.right = (r.left+tTotal[i]/timerscale);
+		DrawFlatRect(r, D3DRGBA(0,1,0,0.25) );
+
 	}
 
-	r.top = timeY+50+(0*(200/MAX_TIMERS));
-	r.bottom = timeY+49+((MAX_TIMERS)*(200/MAX_TIMERS));
-	
-	r.left = (50+(1000/60)/timerscale);;
-	r.right = (52+(1000/60)/timerscale);
-	DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
-	
-	r.left = (50+(1000/30)/timerscale);;
-	r.right = (52+(1000/30)/timerscale);
-	DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
-	
-	r.left = (50+(1000/15)/timerscale);;
-	r.right = (52+(1000/15)/timerscale);
-	DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
 
-	r.left = (50+(1000/7)/timerscale);;
-	r.right = (52+(1000/7)/timerscale);
-	DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
+	if (timerDraw==2)
+	{
+		EndDraw();
+			
+		HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
+
+		
+		if ((res == DD_OK))
+		{
+			char tText[256];
+			long tPC = 0,cPC;
+			HFONT hfnt, hOldFont;      
+			hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
+			if (hOldFont = (HFONT)SelectObject(hdc, hfnt)) 
+			{
+				SetBkMode(hdc, TRANSPARENT);
+					
+				for (i=0; i<MAX_TIMERS; i++)
+					if (tName[i])
+					{		
+						cPC = (tTotal[i]*100)/tTotal[0];
+						sprintf(tText,"(%05lu) = %02lu%% - %s",tTotal[i],cPC,tName[i]);
+						tPC+=cPC;
+						SetTextColor(hdc, RGB(55,0,0));
+						TextOut(hdc, 61, timeY+49+(i*(200/MAX_TIMERS)), tText, strlen(tText));
+						SetTextColor(hdc, RGB(255,255,255));
+						TextOut(hdc, 60, timeY+48+(i*(200/MAX_TIMERS)), tText, strlen(tText));
+					}
+
+				tPC-=100;
+				
+				sprintf(tText,"%02lu%%",tPC);
+				SetTextColor(hdc, RGB(255,255,255));
+				TextOut(hdc, 61, timeY, tText, strlen(tText));
+						
+				SelectObject(hdc, hOldFont); 
+			}
+
+			IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
+		}
+
+		BeginDraw();
+	}
+
+
+	for (i=0; i<FRAMES_DISP; i++)
+	{
+		r.top = timeY+50+(0*(200/MAX_TIMERS));
+		r.bottom = timeY+49+((MAX_TIMERS)*(200/MAX_TIMERS));
 	
+		r.left = (50+((i*pFreq)/60)/timerscale);;
+		r.right = (52+((i*pFreq)/60)/timerscale);
+
+		DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
+	}
+
 	EndDraw();
 	
 }

@@ -523,6 +523,8 @@ void FindObject(MDX_OBJECT_CONTROLLER **objCPtr, int objID, char *name)
 	return;
 }
 
+
+
 void RestoreObjectPointers(MDX_OBJECT *obj)
 {
 	int x,y;
@@ -546,24 +548,16 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 		float r,g,b,a;
 		unsigned long dupCount = 0;
 	
-		obj->mesh->faceTC2 = new MDX_VECTOR[obj->mesh->numFaces * 3];
+		obj->mesh->d3dVtx = new D3DTLVERTEX[obj->mesh->numFaces * 3];
 	
 		// Sort object by texture for speedy drawing! OPTIMISE! Put in bankmanager!
 		if (obj->mesh->numFaces)
 		{
 			unsigned long cTex = (unsigned long)obj->mesh->textureIDs[0];
 
-			for (x=1; x<obj->mesh->numFaces; x++)
+			for (x=0; x<obj->mesh->numFaces; x++)
 			{
-				obj->mesh->faceTC2[x*3].vx = obj->mesh->faceTC[x*3].v[0] * 0.000975F;
-				obj->mesh->faceTC2[x*3].vy = obj->mesh->faceTC[x*3].v[1] * 0.000975F;
-
-				obj->mesh->faceTC2[x*3+1].vx = obj->mesh->faceTC[x*3+1].v[0] * 0.000975F;
-				obj->mesh->faceTC2[x*3+1].vy = obj->mesh->faceTC[x*3+1].v[1] * 0.000975F;
-
-				obj->mesh->faceTC2[x*3+2].vx = obj->mesh->faceTC[x*3+2].v[0] * 0.000975F;
-				obj->mesh->faceTC2[x*3+2].vy = obj->mesh->faceTC[x*3+2].v[1] * 0.000975F;
-
+				
 				if ((unsigned long)obj->mesh->textureIDs[x] != cTex)
 				{
 					for (y=x; y<obj->mesh->numFaces; y++)
@@ -610,6 +604,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 					}
 				}
 
+
 				cTex = (unsigned long)obj->mesh->textureIDs[x];
 			}
 		}
@@ -617,9 +612,10 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 		for (x=0; x<obj->mesh->numFaces; x++)
 		{
 			obj->mesh->textureIDs[x] = GetTexEntryFromCRC( (long)obj->mesh->textureIDs[x]);
+			/*
 			if (obj->mesh->textureIDs[x])
 			{
-			/*	if (obj->mesh->textureIDs[x]->type == TEXTURE_NORMAL)
+				if (obj->mesh->textureIDs[x]->type == TEXTURE_NORMAL)
 				{
 					obj->mesh->faceTC[x*3+0].v[0]/=textureAdjustDivider;
 					obj->mesh->faceTC[x*3+0].v[1]/=textureAdjustDivider;
@@ -638,8 +634,9 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 
 					obj->mesh->faceTC[x*3+2].v[0]+=((obj->mesh->textureIDs[x]->xPos)*1024)/256;
 					obj->mesh->faceTC[x*3+2].v[1]+=((obj->mesh->textureIDs[x]->yPos)*1024)/256;
-				}*/
+				}
 			} 
+			*/
 		}
 		
 		for (x=0; x<obj->mesh->numFaces*3; x++)
@@ -649,6 +646,11 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 			b = ((MDX_QUATERNION *)obj->mesh->gouraudColors)[x].z;
 			a = ((MDX_QUATERNION *)obj->mesh->gouraudColors)[x].w;
 			((long *)(& ((MDX_QUATERNION *)obj->mesh->gouraudColors)[x].x))[0] = D3DRGBA(r,g,b,a);			
+			obj->mesh->d3dVtx[x].tu = obj->mesh->faceTC[x].v[0] * 0.000975F;
+			obj->mesh->d3dVtx[x].tv = obj->mesh->faceTC[x].v[1] * 0.000975F;
+			obj->mesh->d3dVtx[x].color = D3DRGBA(r,g,b,a);
+			obj->mesh->d3dVtx[x].specular = 0;
+			obj->mesh->d3dVtx[x].rhw = 1;			
 		}
 
 		

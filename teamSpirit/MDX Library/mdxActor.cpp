@@ -28,6 +28,7 @@
 #include "mdxLandscape.h"
 #include "mdxRender.h"
 #include "mdxPoly.h"
+#include "mdxProfile.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -72,15 +73,26 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 void ActorListDraw(void)
 {
 	MDX_ACTOR *cur = actorList;	
+	MDX_VECTOR where;
+
 	while (cur)
 	{
 		drawThisObjectsSprites = cur->draw;
-		
-		//if (cur->xform)
-		XformActor(cur);
-		
-		if (cur->draw)
-			DrawActor(cur);
+		XfmPoint(&where,&cur->pos,NULL);
+		if (((where.vx > -50) && (where.vx<640+50)) &&
+			((where.vy > -50) && (where.vy<480+50)))
+		{
+
+//	StartTimer(3,"Xform actor");
+			XformActor(cur);		
+//	EndTimer(3);
+			if (cur->draw)
+			{
+//		StartTimer(4,"Draw Actor");
+				DrawActor(cur);
+//		EndTimer(4);
+			}
+		}
 	
 		cur = cur->next;
 	}
@@ -311,10 +323,6 @@ void XformActor(MDX_ACTOR *actor)
 
 	if (!objectC)
 		return;
-
-	if (objectC->object)
-		if ((objectC->object->bBox) && CheckBoundingBox(objectC->object->bBox,&objectC->object->objMatrix))
-			return;
 
 	UpdateAnims(actor);
 

@@ -99,15 +99,15 @@ typedef struct TAG_MDX_OBJECTSPRITE
 
 typedef struct
 {
-	short			numFaces;
-	short			numVertices;
+	short				numFaces;
+	short				numVertices;
 	MDX_VECTOR			*vertices;
 	MDX_SHORTVECTOR		*faceIndex;
-	MDX_VECTOR			*faceTC2;
+	D3DTLVERTEX			*d3dVtx;
 	MDX_USHORT2DVECTOR	*faceTC;
 	MDX_VECTOR			*vertexNormals;
 	MDX_QUATERNION		*gouraudColors;
-	char		 	*faceFlags;
+	char			 	*faceFlags;
 	MDX_TEXENTRY		**textureIDs;
 
 }MDX_MESH;

@@ -46,7 +46,7 @@ void PCCalcModgeValues(MDX_OBJECT *obj);
 void XfmPoint(MDX_VECTOR *vTemp2,MDX_VECTOR *in,MDX_MATRIX *d);
 void SetupRenderer(long xRes, long yRes);
 
-void Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry);
+void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry);
 extern unsigned long noClipping;
 
 #ifdef __cplusplus

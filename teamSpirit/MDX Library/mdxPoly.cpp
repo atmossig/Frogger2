@@ -153,6 +153,24 @@ unsigned long xluSemiRS[] =
 	D3DRENDERSTATE_FORCE_DWORD,			NULL
 };
 
+unsigned long xluNoneRS[] = 
+{
+	D3DRENDERSTATE_SRCBLEND,D3DBLEND_ONE,
+	D3DRENDERSTATE_DESTBLEND,D3DBLEND_ZERO,
+	D3DRENDERSTATE_ALPHABLENDENABLE,0,
+
+	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
+unsigned long xluEnableRS[] = 
+{
+	D3DRENDERSTATE_ALPHABLENDENABLE,1,
+
+	//
+	D3DRENDERSTATE_FORCE_DWORD,			NULL
+};
+
 unsigned long cullNoneRS[] = 
 {
 	D3DRENDERSTATE_CULLMODE,D3DCULL_NONE,
@@ -612,8 +630,8 @@ void DrawSortedPolys (void)
 void DrawBatchedPolys (void)
 {
 	unsigned long i;
-	unsigned long nFace;
-	LPDIRECTDRAWSURFACE7 lSurface;
+	unsigned long nFace,nFace2,done;
+	LPDIRECTDRAWSURFACE7 lSurface,*cT;
 
 	
 	cFInfo->cF = cFInfo->f;
@@ -623,32 +641,34 @@ void DrawBatchedPolys (void)
 	i=0;
 
 	numSeperates = 0;
-
-	while (i<cFInfo->nF)
-	{
-		lSurface = *cFInfo->cT;
+	done=0;
+	cT = cFInfo->cT;
+		
+	while ((i<cFInfo->nF))
+	{				
+		lSurface = *cT;
 		nFace = 0;
-
-		while ((((*(cFInfo->cT)) == lSurface) || (limTex)) && (i<cFInfo->nF)) 
+		while ((((*(cT)) == lSurface) || (limTex)) && (i<cFInfo->nF)) 
 		{
-			cFInfo->cT+=3;
+			cT+=3;
 			nFace+=3;			
 			i+=3;
 		}
-		
+
 		pDirect3DDevice->SetTexture(0,lSurface);
 		
 		numSeperates++;
 				
-		while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,D3DDP_WAIT)!=D3D_OK)
+		while(pDirect3DDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,cFInfo->v,cFInfo->nV,cFInfo->cF,nFace,0)!=D3D_OK)
 		{
-			// Idle Time
 		}
 
 		pDirect3DDevice->SetTexture(0,0);
 		
 		cFInfo->cF+=nFace;
-		totalFacesDrawn+=nFace/3;
+		//totalFacesDrawn+=nFace/3;	// Idle Time
+		
+		
 	}
 }
 
@@ -1149,30 +1169,33 @@ void StoreHaloPoints(void)
 	DDSURFACEDESC2		ddsd;
 	MDX_VECTOR v,t;
 
-	DDINIT(ddsd);
-	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
-	
-	ddsd.lPitch /= sizeof(short);
-
-	for (int i=0; i<numHaloPoints; i++)
+	if (numHaloPoints)
 	{
-		SetVector(&t,&haloPoints[i]);
-		XfmPoint(&v,&haloPoints[i],NULL);
+		DDINIT(ddsd);
+		while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK,0)!=DD_OK);
+		
+		ddsd.lPitch /= sizeof(short);
 
-		if (((v.vx>0) && (v.vx<640)) && ((v.vy>0) && (v.vy<480)))
+		for (int i=0; i<numHaloPoints; i++)
 		{
-			haloPoints[i].vx = (unsigned long)v.vx;
-			haloPoints[i].vy = (unsigned long)v.vy;
-			haloPoints[i].vz = v.vz;
-			
-			if (haloPoints[i].vz)
-				haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))];
-		}	
-		else
-			haloPoints[i].vz = 0;
-	}
+			SetVector(&t,&haloPoints[i]);
+			XfmPoint(&v,&haloPoints[i],NULL);
 
-	surface[ZBUFFER_SRF]->Unlock(NULL);
+			if (((v.vx>0) && (v.vx<640)) && ((v.vy>0) && (v.vy<480)))
+			{
+				haloPoints[i].vx = (unsigned long)v.vx;
+				haloPoints[i].vy = (unsigned long)v.vy;
+				haloPoints[i].vz = v.vz;
+				
+				if (haloPoints[i].vz)
+					haloZVals[i] = ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))];
+			}	
+			else
+				haloPoints[i].vz = 0;
+		}
+
+		surface[ZBUFFER_SRF]->Unlock(NULL);
+	}
 }
 
 void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned long color, unsigned long size)
@@ -1198,17 +1221,20 @@ void CheckHaloPoints(void)
 	MDX_VECTOR v;
 	unsigned long i;
 
-	DDINIT(ddsd);
-	while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR| DDLOCK_NOSYSLOCK,0)!=DD_OK);
-	
-	ddsd.lPitch /= sizeof(short);
+	if (numHaloPoints)
+	{
+		DDINIT(ddsd);
+		while (surface[ZBUFFER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR| DDLOCK_NOSYSLOCK,0)!=DD_OK);
+		
+		ddsd.lPitch /= sizeof(short);
 
-	for (i=0; i<numHaloPoints; i++)
-		if (haloPoints[i].vz)
-			if (haloZVals[i] == ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))])
-				haloPoints[i].vz = 0;
-	
-	surface[ZBUFFER_SRF]->Unlock(NULL);
+		for (i=0; i<numHaloPoints; i++)
+			if (haloPoints[i].vz)
+				if (haloZVals[i] == ((short *)ddsd.lpSurface)[(unsigned long)(haloPoints[i].vx+(haloPoints[i].vy*ddsd.lPitch))])
+					haloPoints[i].vz = 0;
+		
+		surface[ZBUFFER_SRF]->Unlock(NULL);
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1418,7 +1444,7 @@ void DrawAllFrames(void)
 	BeginDraw();
 	
 	// Draw Normal Polys
-//	D3DSetupRenderstates(xluAddRS);
+	D3DSetupRenderstates(xluNoneRS);
 	SwapFrame(MA_FRAME_NORMAL);
 
 	if (!rHardware)
@@ -1433,29 +1459,31 @@ void DrawAllFrames(void)
 		else
 			DrawSortedPolys();
 	
+	D3DSetupRenderstates(xluEnableRS);
+	if (numHaloPoints)
+	{
+		EndDraw();
+
+		BeginDraw();
+		EndDraw();
+
+		// Need to test the ZBuffer on these polys...
+		StoreHaloPoints();
+
+		BeginDraw();
+
+		SwapFrame(MA_FRAME_GLOW);
+		D3DSetupRenderstates(xluInvisibleRS);
+		DrawBatchedPolys();
+
+		EndDraw();
+		BeginDraw();
+		EndDraw();
+
+		CheckHaloPoints();
 	
-	
-	EndDraw();
-
-	BeginDraw();
-	EndDraw();
-
-	// Need to test the ZBuffer on these polys...
-	StoreHaloPoints();
-
-	BeginDraw();
-
-	SwapFrame(MA_FRAME_GLOW);
-	D3DSetupRenderstates(xluInvisibleRS);
-	DrawBatchedPolys();
-
-	EndDraw();
-	BeginDraw();
-	EndDraw();
-
-	CheckHaloPoints();
-	
-	BeginDraw();
+		BeginDraw();
+	}
 
 
 	D3DSetupRenderstates(tightAlphaCmpRS);
@@ -1502,8 +1530,7 @@ void DrawAllFrames(void)
 	DrawBatchedPolys();	
 	
 	D3DSetupRenderstates(normalZRS);
-	D3DSetupRenderstates(normalAlphaCmpRS);	
-	
+	D3DSetupRenderstates(normalAlphaCmpRS);		
 	
 	D3DSetupRenderstates(xluSemiRS);
 

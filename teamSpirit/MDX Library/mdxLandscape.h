@@ -19,6 +19,8 @@ extern "C"
 typedef struct TAG_MDX_LANDSCAPE
 {
 	short *faceIndex;
+	long  *clipFlags;	
+	
 	MDX_VECTOR *vertices;
 	D3DTLVERTEX *xfmVert;	
 	LPDIRECTDRAWSURFACE7 *textures;
