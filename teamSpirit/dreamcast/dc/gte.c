@@ -938,6 +938,7 @@ void gte_ld_intpol_sv1(VOID *v)
 
 // (rt * v0) + tr
 #if 1
+#pragma inline(gte_rtpt)
 // ** Hopefully optimised PSX emulation transform
 void gte_rtps(void)
 {
@@ -1093,8 +1094,7 @@ void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag)
 */
 
 // (rt * v0) + tr for all 3
-#pragma inline(gte_rtpt)
-#if 0
+#if 1
 // ** Hopefully optimised PSX emulation transform
 void gte_rtpt(void)
 {
@@ -1103,11 +1103,10 @@ void gte_rtpt(void)
 	float			vr0x = (float)vr0.vx, vr0y = (float)vr0.vy, vr0z = (float)vr0.vz;
 	float			vr1x = (float)vr1.vx, vr1y = (float)vr1.vy, vr1z = (float)vr1.vz;
 	float			vr2x = (float)vr2.vx, vr2y = (float)vr2.vy, vr2z = (float)vr2.vz;
-	float			ps, psz;
 	// working world space floats
 	float			worlds[3*3], *wp;
 
-	register float	tx = fTransVector[0], ty = fTransVector[1], tz = fTransVector[2];
+	register float	ps, psz;
 	register float	screenvx, screenvy, screenvz;
 	register float	*mp = &fRotMatrix[0][0];
 
@@ -1117,46 +1116,32 @@ void gte_rtpt(void)
 	wp = worlds;
 
 	// load and calc all xs
+	psz = fTransVector[0];
 	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
-	psz = 
-	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += tx;
+	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += psz;
 	*wp++ = ps;
-	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += tx;
+	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += psz;
 	*wp++ = ps;
-	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += tx;
+	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += psz;
 	*wp++ = ps;
 	// load and calc all ys
+	psz = fTransVector[1];
 	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
-	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += ty;
+	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += psz;
 	*wp++ = ps;
-	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += ty;
+	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += psz;
 	*wp++ = ps;
-	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += ty;
+	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += psz;
 	*wp++ = ps;
-
-	ps =  screenvx * vr1x;
-	ps += screenvy * vr1y;
-	ps += screenvz * vr1z;
-	ps += tx;
-	*wp++ = ps;
-	ps =  screenvx * vr2x;
-	ps += screenvy * vr2y;
-	ps += screenvz * vr2z;
-	ps += tx;
-	*wp++ = ps;
-
-
-
-	// load and calc all ys
-	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
-	*wp++ = screenvx * vr0x + screenvy * vr0y + screenvz * vr0z + ty;
-	*wp++ = screenvx * vr1x + screenvy * vr1y + screenvz * vr1z + ty;
-	*wp++ = screenvx * vr2x + screenvy * vr2y + screenvz * vr2z + ty;
 	// load and calc all zs
-	screenvx = *mp++; screenvy = *mp++; screenvz = *mp;
-	*wp++ = screenvx * vr0x + screenvy * vr0y + screenvz * vr0z + tz;
-	*wp++ = screenvx * vr1x + screenvy * vr1y + screenvz * vr1z + tz;
-	*wp++ = screenvx * vr2x + screenvy * vr2y + screenvz * vr2z + tz;
+	psz = fTransVector[2];
+	screenvx = *mp++; screenvy = *mp++; screenvz = *mp++;
+	ps =  screenvx * vr0x; ps += screenvy * vr0y; ps += screenvz * vr0z; ps += psz;
+	*wp++ = ps;
+	ps =  screenvx * vr1x; ps += screenvy * vr1y; ps += screenvz * vr1z; ps += psz;
+	*wp++ = ps;
+	ps =  screenvx * vr2x; ps += screenvy * vr2y; ps += screenvz * vr2z; ps += psz;
+	*wp++ = ps;
 
 
 	// ** Vertex 0
