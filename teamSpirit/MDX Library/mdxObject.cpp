@@ -492,7 +492,13 @@ void TransformObject(MDX_OBJECT *obj, float time)
 		}
 	}
 
+	if (obj->postMatrix)
+		PushMatrix(obj->postMatrix);
+
 	MatrixSet (&obj->objMatrix.matrix,&matrixStack.stack[matrixStack.stackPosition]);
+
+	if (obj->postMatrix)
+		PopMatrix();
 
 	if ((obj->bBox) && CheckBoundingBox(obj->bBox,&obj->objMatrix) && (!noClip))
 		obj->flags |= OBJECT_FLAGS_CLIPPED;
@@ -604,6 +610,7 @@ void RestoreObjectPointers(MDX_OBJECT *obj)
 {
 	int x,y;
 
+	obj->postMatrix = NULL;
 	obj->flags &= ~(OBJECT_FLAGS_MODGE | OBJECT_FLAGS_WAVE | OBJECT_FLAGS_ADDITIVE);
 	obj->attachedActor = NULL;
 	

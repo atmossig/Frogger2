@@ -155,7 +155,7 @@ typedef struct TAG_MDX_OBJECT
 	MDX_MESH			*mesh;
 	void			*drawList;
 
-	unsigned long	padVal4;///////////////////////////
+	float			*postMatrix;
 	
 	//for skinning
 	MDX_SKINVTX		*effectedVerts;

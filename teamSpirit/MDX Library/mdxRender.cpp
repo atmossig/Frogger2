@@ -610,11 +610,7 @@ void PCPrepareSkinnedObject(MDX_OBJECT *obj, MDX_MESH *mesh, float m[4][4])
 		oozd = vTemp2->vz+DIST; 
 		// Transform to screen space
 		if ((oozd>nearClip) &&
-			((oozd<farClip) &&
-			((vTemp2->vx)>-horizClip) &&
-			((vTemp2->vx)<horizClip) &&
-			((vTemp2->vy)>-vertClip) &&
-			((vTemp2->vy)<vertClip)))
+			(oozd<farClip))
 		{
 			oozd = -FOV * *(oneOver+fftol((((long *)vTemp2)+2))+DIST);
 			vTemp2->vx = halfWidth + (vTemp2->vx * oozd);
