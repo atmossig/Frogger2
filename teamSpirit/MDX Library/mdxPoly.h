@@ -63,7 +63,7 @@ void DrawBatchedPolys (void);
 void InitFrames(void);
 
 // Add a halo point to be tested at draw time/
-void AddHalo(MDX_VECTOR *point);
+void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB);
 
 // Push a poly onto the buffers
 
@@ -78,6 +78,8 @@ void DrawAllFrames(void);
 extern unsigned long drawLighting;
 extern unsigned long drawPhong;
 extern LPDIRECTDRAWSURFACE7 haloS;
+extern LPDIRECTDRAWSURFACE7 flareS;
+extern LPDIRECTDRAWSURFACE7 flareS2;
 unsigned long xluSubRS[]; 
 unsigned long xluAddRS[];
 unsigned long xluSemiRS[]; 

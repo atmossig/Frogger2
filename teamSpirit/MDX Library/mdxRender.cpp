@@ -627,7 +627,7 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 		v.vy = obj->objMatrix.matrix[3][1];
 		v.vz = obj->objMatrix.matrix[3][2];
 		
-		AddHalo(&v);
+		AddHalo(&v,vMatrix.matrix[2][0],vMatrix.matrix[2][2]);
 		SwapFrame(MA_FRAME_GLOW);		
 	}
 	

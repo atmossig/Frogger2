@@ -193,11 +193,12 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long te
 
 	//Create the surface
 	DDINIT(ddsd);
-	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT ;
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
 	ddsd.dwWidth = xs;
 	ddsd.dwHeight = ys;
 	
-	ddsd.ddsCaps.dwCaps = (videoRam?DDSCAPS_VIDEOMEMORY:DDSCAPS_SYSTEMMEMORY) | (texSrf?DDSCAPS_TEXTURE:0);
+	ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+	ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE | DDSCAPS2_HINTDYNAMIC;
 
 	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{

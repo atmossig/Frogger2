@@ -49,6 +49,8 @@ unsigned long numHaloPoints;
 
 short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
+float flareScales[MA_MAX_HALOS];
+float flareScales2[MA_MAX_HALOS];
 
 unsigned long lightingMapRS[] = 
 {
@@ -234,9 +236,12 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, LPDIRECTDRAWSURFACE
 	Info          : -
 */
 
-void AddHalo(MDX_VECTOR *point)
+void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB)
 {
+	flareScales[numHaloPoints] = flareScaleA;
+	flareScales2[numHaloPoints] = flareScaleB;
 	SetVector(&haloPoints[numHaloPoints++], point);
+	
 }
 
 /*  --------------------------------------------------------------------------------
@@ -449,6 +454,85 @@ void DrawTexturedRect(RECT r, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u
 }
 
 /*	--------------------------------------------------------------------------------
+	Function		: DrawFlatRect
+	Purpose			: draw a flat rectangle
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+void DrawTexturedRectRotated(float x, float y, float width, float height, D3DCOLOR colour, LPDIRECTDRAWSURFACE7 tex, float u0, float v0, float u1, float v1, float ang)
+{
+	float widthover2 = width/2, heightover2 = height /2;
+	float x1,x2,x3,x4,y1,y2,y3,y4;
+	D3DTLVERTEX v[4] = {
+		{
+			0,0,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u0,v0
+		},
+		{
+			0,0,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u0,v1
+			},
+		{
+			0,0,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u1,v1
+		},
+		{
+			0,0,0,0,
+			colour,D3DRGBA(0,0,0,0),
+			u1,v0
+	}};
+
+	// Can be optimised lot's... I know... I know...
+    x1 = -widthover2;
+	y1 = -heightover2;
+
+	x2 = +widthover2;
+	y2 = -heightover2;
+
+	x3 = +widthover2;
+	y3 = +heightover2;
+
+	x4 = -widthover2;
+	y4 = +heightover2;
+
+	v[0].sx =x+ cosf(ang) * x1 - sinf(ang) * y1;
+	v[0].sy =y+ sinf(ang) * x1 + cosf(ang) * y1;
+	
+	v[1].sx =x+ cosf(ang) * x2 - sinf(ang) * y2;
+	v[1].sy =y+ sinf(ang) * x2 + cosf(ang) * y2;
+	
+	v[2].sx =x+ cosf(ang) * x3 - sinf(ang) * y3;
+	v[2].sy =y+ sinf(ang) * x3 + cosf(ang) * y3;
+	
+	v[3].sx =x+ cosf(ang) * x4 - sinf(ang) * y4;
+	v[3].sy =y+ sinf(ang) * x4 + cosf(ang) * y4;
+	
+	pDirect3DDevice->SetTexture(0,tex);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+
+	while ((pDirect3DDevice->DrawPrimitive(D3DPT_TRIANGLEFAN,D3DFVF_TLVERTEX,v,4,D3DDP_WAIT)!=D3D_OK));
+			
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+	
+//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->SetTexture(0,NULL);
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: DrawFlatRec
 	Purpose			: draw a flat rectangle
 	Parameters		: 
@@ -536,23 +620,31 @@ void CheckHaloPoints(void)
 */
 
 LPDIRECTDRAWSURFACE7 haloS;
+LPDIRECTDRAWSURFACE7 flareS;
+LPDIRECTDRAWSURFACE7 flareS2;
 
 void DrawHalos(void)
 {
-	RECT r;
+	RECT rec;
 	D3DSetupRenderstates(xluAddRS);
-
+	float r = 1, g = 80/256.0, b = 10/256.0;
+	float r1 = 1, g1 = 130/256.0, b1 = 110/256.0;
 	for (int i=0; i<numHaloPoints; i++)
 	{
 		if (haloPoints[i].vz)
 		{
-			r.left = haloPoints[i].vx - 30;
-			r.right = haloPoints[i].vx + 30;
+			rec.left = haloPoints[i].vx - 60;
+			rec.right = haloPoints[i].vx + 60;
 
-			r.top = haloPoints[i].vy - 30;
-			r.bottom = haloPoints[i].vy + 30;
+			rec.top = haloPoints[i].vy - 60;
+			rec.bottom = haloPoints[i].vy + 60;
 
-			DrawTexturedRect(r,D3DRGBA(1,1,1,1),haloS,FULL_TEXTURE);
+			DrawTexturedRect(rec,D3DRGBA(r1,g1,b1,1),haloS,FULL_TEXTURE);
+
+			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(200 * flareScales[i]),60 * (fabs(flareScales[i])),D3DRGBA(r,g,b,0.8-fabs(flareScales[i])*0.5),flareS,FULL_TEXTURE,1.57);
+			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,fabs(150 * flareScales2[i]),20,D3DRGBA(r,g,b,1-fabs(flareScales2[i])*0.5),flareS,FULL_TEXTURE,1);
+			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales2[i]),30+fabs(80 * flareScales2[i]),D3DRGBA(r,g,b,1-fabs(flareScales2[i])),flareS2,FULL_TEXTURE,3*flareScales2[i]);
+			DrawTexturedRectRotated(haloPoints[i].vx,haloPoints[i].vy,30+fabs(80 * flareScales[i]),30+fabs(80 * flareScales[i]),D3DRGBA(r,g,b,1-fabs(flareScales[i])),flareS2,FULL_TEXTURE,0);			
 		}
 	}
 
@@ -641,5 +733,6 @@ void DrawAllFrames(void)
 	
 	pDirect3DDevice->EndScene();
 }
+
 
 }
