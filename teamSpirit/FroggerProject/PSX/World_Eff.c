@@ -536,7 +536,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			continue;
 
 		width = ( op->w * SCALEX ) / spritez;
-		if(width < 2 )
+		if(width < 2 || width > 256)
 			continue;
 
  		si->x1 = si->x3 = si->x0 + width;
