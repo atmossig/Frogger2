@@ -21,6 +21,7 @@ GAMETILE **bTStart;
 ACTOR2 *babies[NUM_BABIES];
 ACTOR2 *nearestBaby		= NULL;
 ACTOR2 *lastBabySaved	= NULL;
+ACTOR *babyFollow[NUM_BABIES];
 
 SPRITEOVERLAY *babyIcons[NUM_BABIES];
 
@@ -57,6 +58,8 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 			babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
 			babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
 			babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+
+			babyFollow[i] = NULL;
 
 			// determine baby colour and set values accordingly
 			switch(i)

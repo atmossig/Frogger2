@@ -20,6 +20,7 @@ extern GAMETILE **bTStart;
 extern ACTOR2 *babies[NUM_BABIES];
 extern ACTOR2 *nearestBaby;
 extern ACTOR2 *lastBabySaved;
+extern ACTOR *babyFollow[NUM_BABIES];
 
 extern SPRITEOVERLAY *babyIcons[NUM_BABIES];
 extern unsigned long babiesSaved;

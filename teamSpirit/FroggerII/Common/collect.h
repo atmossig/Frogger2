@@ -14,7 +14,8 @@
 
 // ----- [ DEFINES ] --------------- //
 
-#define PICKUP_RADIUS		25.0F
+#define PICKUP_RADIUS			25.0F
+#define PICKUP_RADIUS_SQUARED	625.0F
 
 #define	FRAMES_PER_SEC		20
 

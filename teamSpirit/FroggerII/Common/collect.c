@@ -285,7 +285,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		if(garib->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
-		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[pl]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
+		if(garib->distanceFromFrog < PICKUP_RADIUS_SQUARED)
 		{
 			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib,pl);
@@ -297,12 +297,9 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 	i = numBabies;
 	while(i--)
 	{
-		if ( babies[i] )
-			if(DistanceBetweenPointsSquared(&babies[i]->actor->pos,&frog[pl]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
-			{
-				PickupBabyFrog(babies[i]);
-				return;
-			}
+		if( babies[i] )
+		if(babies[i]->distanceFromFrog < PICKUP_RADIUS_SQUARED)
+			PickupBabyFrog(babies[i]);
 	}
 }
 

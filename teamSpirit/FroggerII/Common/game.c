@@ -709,16 +709,19 @@ void RunGameLoop (void)
 							GameProcessController(i);                                      
         			}
 				}
-				// ENDIF  
+
 				if(frog[0])
 				{
 					for (i=0; i<numBabies; i++)
 					{
 						if ( babies[i] )
-				//		InitActorAnim(babies[i]->actor);
-						AnimateActor(babies[i]->actor,0,YES,NO,1.0,0,0);
+						{
+							if( babyFollow[i] )
+								SetVector( &babies[i]->actor->pos, &babyFollow[i]->pos );
+
+							AnimateActor(babies[i]->actor,0,YES,NO,1.0,0,0);
+						}
 					}
-					// ENDIF
 
 					CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
