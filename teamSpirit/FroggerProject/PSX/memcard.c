@@ -61,9 +61,9 @@ int gameSaveGetCardStatus()
 }
 
 #if PALMODE==1
-#define SAVE_FILENAME "BESLES-00000FROGGER2"
+#define SAVE_FILENAME "BESLES-02853FROGGER2"
 #else
-#define SAVE_FILENAME "BASLUS-00000FROGGER2"
+#define SAVE_FILENAME "BASLUS-01172FROGGER2"
 #endif
 
 int gameSaveHandleSave()
