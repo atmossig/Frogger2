@@ -389,6 +389,7 @@ char* oldStackPointer;
 
 int main ( )
 {
+	static int frameAdvance = 0;
 
 	while ( 1 )
 	{
@@ -449,7 +450,7 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		textureInitialise ( 490, 30);
+		textureInitialise ( 490, 50);
 
 //		sfxInitialise();
 //		sfxStartSound();
@@ -524,7 +525,10 @@ int main ( )
 
 			//turn on/off timers + display
 			if(padData.debounce[0] & PAD_SELECT)
+			{
 				timerActive ^= 1;
+				frameAdvance ^= 1;
+			}
 
 			TIMER_START(TIMER_TOTAL);
 
@@ -773,6 +777,31 @@ totalObjs = 0;
 
 
 
+			if ( padData.digital[1] == PAD_L1 )
+			{
+				frameAdvance = 1;
+			}
+
+			if ( frameAdvance )
+			{
+				while ( frameAdvance )
+				{
+					padHandleInput();
+
+					if ( padData.digital[0] == PAD_SELECT )
+					{
+						frameAdvance = 0;
+					}
+
+					if ( padData.debounce[0] == PAD_L2 )
+					{
+						break;
+					}
+				}
+				// ENDIF
+			}
+			// ENDIF
+
 			if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
 			{
 				//bb
@@ -845,17 +874,16 @@ void MainDrawFunction ( void )
 
 	TIMER_STOP0(TIMER_DRAW_SCENICS);
 	
-//	TIMER_START0(TIMER_DRAW_WATER);
-//	if ( drawLandscape && drawGame )
+	//TIMER_START0(TIMER_DRAW_WATER);
+	//if ( drawLandscape && drawGame )
 //	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
-//		DrawWaterList();
-//	TIMER_STOP0(TIMER_DRAW_WATER);
+		//DrawWaterList();
+	//TIMER_STOP0(TIMER_DRAW_WATER);
 
 	TIMER_START0(TIMER_ACTOR_DRAW);
 	if ( /*( gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE ) &&*/ drawGame )
 		DrawActorList();
 	TIMER_STOP0(TIMER_ACTOR_DRAW);
-
 
 	//bb - draw tongue.
 	//Moved from DrawSpecFX because we need the frog
@@ -863,8 +891,7 @@ void MainDrawFunction ( void )
 	for( i=0; i<NUM_FROGS; i++ )
 		if( tongue[i].flags & TONGUE_BEINGUSED )
 			DrawTongue( i );
-	
-	
+
 	//if( gameState.multi == SINGLEPLAYER )
 	{
 		UpdateFrogTongue(0);
@@ -880,8 +907,12 @@ void MainDrawFunction ( void )
 		DrawTiledBackdrop();
 
 //	PrintSpriteOverlays(1);
-	PrintTextOverlays();
-	PrintSpriteOverlays(0);
+	//if ( padData.digital[0] == PAD_TRIANGLE )
+	{
+		PrintTextOverlays();
+		PrintSpriteOverlays(0);
+	}
+	// ENDIF
 
 	TIMER_STOP0(TIMER_PRINT_OVERS);
 
@@ -977,7 +1008,7 @@ void MainReset ( void )
 		MemCardStart();
 //		padInitialise(1); // 0 = No multi tap support
 		videoInit ( 1024, 2400, 0 );
-		textureInitialise ( 490, 30);
+		textureInitialise ( 490, 50);
 }
 
 
