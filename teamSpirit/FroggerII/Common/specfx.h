@@ -17,6 +17,8 @@
 #define FADE_IN				0
 #define FADE_OUT			1
 
+#define NUM_RINGSEGS 16
+
 extern char doScreenFade;
 extern char	fadeDir;
 extern short fadeOut;
@@ -35,6 +37,7 @@ extern char pauseMode;
 #define EF_SMOKE_GROWS					(1 << 6)	// Grows as it fades
 #define EF_SMOKEBURST					(1 << 7)	// Explosion of smoke
 #define EF_FIERYSMOKE					(1 << 8)	// Red at base, goes black
+#define EF_BUTTERFLYSWARM				(1 << 9)	// Swarm of butterflies. Uses models
 
 #define EF_FAST							(1 << 26)
 #define EF_MEDIUM						(1 << 27)
@@ -62,6 +65,8 @@ enum
 	FXTYPE_BUBBLES,
 	FXTYPE_SPARKBURST,
 	FXTYPE_FIERYSMOKE,
+	FXTYPE_POLYRING,
+	FXTYPE_BUTTERFLYSWARM,
 
 	FXTYPE_NUMTYPES
 };
@@ -78,14 +83,15 @@ typedef struct TAGSPECFX
 {
 	struct TAGSPECFX *next, *prev;
 
-	VECTOR normal, origin, vel;
+	VECTOR normal, origin, vel, scale;
 	PLANE2 *rebound;
 	PARTICLE *particles;						// For swarm, explosions etc.
+	ACTOR2 **act;								// For models
 
 	Vtx *verts;									// Persistent vertices on N64
 
 	short type, fade;
-	float speed, accn, angle, size, spin;
+	float speed, accn, angle, spin, tilt;
 	long lifetime, deadCount, numP;				// numP is number of particles
 
 	unsigned char r, g, b, a, gravity;
@@ -109,6 +115,7 @@ typedef struct
 
 
 extern SPECFXLIST specFXList;
+extern D3DTLVERTEX *ringVtx;
 
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, int size, float speed, float accn, float lifetime );

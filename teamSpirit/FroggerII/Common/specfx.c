@@ -33,12 +33,20 @@ TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrFly		= NULL;
 TEXTURE *txtrBubble		= NULL;
 TEXTURE *txtrFire		= NULL;
+TEXTURE *txtrBlank		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
+void UpdateFXRing( SPECFX *fx );
 void UpdateFXSmoke( SPECFX *fx );
 void UpdateFXSwarm( SPECFX *fx );
 void UpdateFXExplode( SPECFX *fx );
+
+void CreateBlastRing( );
+
+// Used to store precalculated blast ring shape
+D3DTLVERTEX *ringVtx = NULL;
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddSpecialEffect
@@ -56,6 +64,12 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 	effect->type = type;
 	SetVector( &effect->origin, origin );
 	SetVector( &effect->normal, normal );
+	effect->scale.v[X] = size;
+	effect->scale.v[Y] = size;
+	effect->scale.v[Z] = size;
+	effect->speed = speed;
+	effect->accn = accn;
+	effect->lifetime = actFrameCount + life;
 
 	switch( type )
 	{
@@ -64,11 +78,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->g = 200;
 		effect->b = 255;
 		effect->a = 255;
-		
-		effect->size = size;
-		effect->speed = speed;
-		effect->accn = accn;
-		effect->lifetime = actFrameCount + life;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
@@ -83,12 +92,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->g = 255;
 		effect->b = 0;
 		effect->a = 255;
-		
-		effect->size = size;
-		effect->speed = speed;
-		effect->accn = accn;
 		effect->spin = 0.15;
-		effect->lifetime = actFrameCount + life;
 		effect->fade = effect->a / life;
 
 		effect->origin.v[X] += (effect->normal.v[X] * 10);
@@ -105,11 +109,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->g = 255;
 		effect->b = 255;
 		effect->a = 200;
-		
-		effect->size = size;
-		effect->speed = speed;
-		effect->accn = accn;
-		effect->lifetime = actFrameCount + life;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
@@ -118,23 +117,40 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->Update = UpdateFXRipple;
 		effect->Draw = DrawFXRipple;
 		break;
+	case FXTYPE_POLYRING:
+		if( !ringVtx )
+			CreateBlastRing( );
+
+		effect->r = 255;
+		effect->g = 255;
+		effect->b = 255;
+		effect->a = 255;
+		effect->fade = effect->a / life;
+
+		AddToVector(&effect->origin,&effect->normal);
+
+		effect->scale.v[Y] /= 8;
+		effect->vel.v[X] = effect->speed;
+		effect->vel.v[Y] = effect->speed/8;
+		effect->vel.v[Z] = effect->speed;
+		effect->tilt = 0.9;
+
+		effect->tex = txtrBlank;
+		effect->Update = UpdateFXRing;
+		effect->Draw = DrawFXRing;
+		break;
 	case FXTYPE_JUMPBLUR:
 		effect->numP = 1;
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
 
-		effect->size = size;
 		SetVector( &effect->sprites->pos, &effect->origin );
-
 		effect->sprites->texture = txtrSolidRing;
-
-		effect->sprites->scaleX = effect->size;
-		effect->sprites->scaleY = effect->size;
+		effect->sprites->scaleX = effect->scale.v[X];
+		effect->sprites->scaleY = effect->scale.v[Y];
 		effect->sprites->r = 100;
 		effect->sprites->g = 255;
 		effect->sprites->b = 100;
 		effect->sprites->a = 200;
-
-		effect->lifetime = actFrameCount + life;
 		effect->fade = effect->sprites->a / life;
 
 #ifndef PC_VERSION
@@ -160,7 +176,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
 		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
 
-		effect->size = size;
 		effect->r = 255;
 		effect->g = 255;
 		effect->b = 255;
@@ -175,10 +190,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		{
 			effect->sprites[i].texture = effect->tex;
 			SetVector( &effect->sprites[i].pos, &effect->origin );
-			SetVector( &effect->particles[i].pos, &zero );
 
-			effect->sprites[i].scaleX = effect->size;
-			effect->sprites[i].scaleY = effect->size;
+			effect->sprites[i].scaleX = effect->scale.v[X];
+			effect->sprites[i].scaleY = effect->scale.v[Y];
 			effect->sprites[i].r = effect->r;
 			effect->sprites[i].g = effect->g;
 			effect->sprites[i].b = effect->b;
@@ -195,20 +209,43 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			effect->particles[i].pos.v[Z] = -8 + Random(16);
 		}
 
-		effect->lifetime = actFrameCount + life;
 		effect->Update = UpdateFXSwarm;
 		effect->Draw = NULL;
-		
+		break;
+	case FXTYPE_BUTTERFLYSWARM:
+		effect->numP = 2;
+		i = effect->numP;
+
+		effect->act = (ACTOR2 **)JallocAlloc( sizeof(ACTOR2 *)*effect->numP, YES, "Actor2s" );
+		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "Particles" );
+
+		while( i-- )
+		{
+			effect->act[i] = CreateAndAddActor( "bfly.obe", 0,0,0, INIT_ANIMATION, 0, 0 );
+			if( effect->act[i]->actor->objectController )
+				InitActorAnim( effect->act[i]->actor );
+
+			AnimateActor( effect->act[i]->actor,0,YES,NO,1.0F, 0, 0);
+			effect->act[i]->actor->scale.v[X] = 1/effect->scale.v[X];
+			effect->act[i]->actor->scale.v[Y] = 1/effect->scale.v[Y];
+			effect->act[i]->actor->scale.v[Z] = 1/effect->scale.v[Z];
+
+			effect->particles[i].pos.v[X] = -8 + Random(16);
+			effect->particles[i].pos.v[Y] = -6 + Random(12);
+			effect->particles[i].pos.v[Z] = -8 + Random(16);
+		}
+
+		effect->Update = UpdateFXSwarm;
+		effect->Draw = NULL;
+
 		break;
 	case FXTYPE_SMOKE_STATIC:
 	case FXTYPE_SMOKE_GROWS:
 	case FXTYPE_BUBBLES:
-		effect->lifetime = actFrameCount+life;
 		effect->vel.v[X] = (-2 + Random(4))*speed;
 		effect->vel.v[Y] = (Random(4) + 2)*speed;
 		effect->vel.v[Z] = (-2 + Random(4))*speed;
 		effect->fade = 180 / life;
-		effect->size = size;
 
 		effect->numP = 1;
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
@@ -219,8 +256,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			effect->sprites->texture = txtrSmoke;
 
 		SetVector( &effect->sprites->pos, &effect->origin );
-		effect->sprites->scaleX = effect->size;
-		effect->sprites->scaleY = effect->size;
+		effect->sprites->scaleX = effect->scale.v[X];
+		effect->sprites->scaleY = effect->scale.v[Y];
 		effect->sprites->r = 255;
 		effect->sprites->g = 255;
 		effect->sprites->b = 255;
@@ -245,7 +282,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 	case FXTYPE_SPARKBURST:
 	case FXTYPE_FLAMES:
 	case FXTYPE_FIERYSMOKE:
-		effect->numP = 10;
+		effect->numP = 5;
 		i = effect->numP;
 
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
@@ -276,7 +313,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			effect->gravity = 0;
 		}
 
-		effect->fade = 4;
+		effect->fade = (255/life)*2;
 		effect->speed = (float)Random(10) * speed;
 
 		while(i--)
@@ -288,10 +325,16 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			effect->sprites[i].b = 255;
 			effect->sprites[i].a = 255;
 
+			if( effect->type == FXTYPE_FIERYSMOKE )
+			{
+				effect->sprites[i].g = 180;
+				effect->sprites[i].b = 0;
+			}
+
 			effect->sprites[i].texture = effect->tex;
 
-			effect->sprites[i].scaleX = size;
-			effect->sprites[i].scaleY = size;
+			effect->sprites[i].scaleX = effect->scale.v[X];
+			effect->sprites[i].scaleY = effect->scale.v[Y];
 
 			effect->sprites[i].offsetX = -16;
 			effect->sprites[i].offsetY = -16;
@@ -305,11 +348,10 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 				effect->particles[i].bounce = 0;
 
 			effect->particles[i].vel.v[X] = (effect->speed * effect->normal.v[X]) + (speed*(-2 + Random(4)));
-			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + (speed*(-2 + Random(4)));
+			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + (speed*Random(2));
 			effect->particles[i].vel.v[Z] = (effect->speed * effect->normal.v[Z]) + (speed*(-2 + Random(4)));
 		}
 
-		effect->lifetime = actFrameCount + life;
 		effect->Update = UpdateFXExplode;
 		effect->Draw = NULL;
 		
@@ -371,13 +413,45 @@ void UpdateFXRipple( SPECFX *fx )
 	else fx->a = 0;
 
 	fx->speed += fx->accn * gameSpeed;
-	fx->size += fx->speed * gameSpeed;
+	fx->scale.v[X] += fx->speed * gameSpeed;
 	
 	if( fx->type == FXTYPE_GARIBCOLLECT )
 	{
 		fx->angle += fx->spin * gameSpeed;
 	}
 
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
+		fx->deadCount = 5;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFXRing
+	Purpose			: Grow and fade
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void UpdateFXRing( SPECFX *fx )
+{
+	int fo;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	fo = fx->fade * gameSpeed;
+	if( fx->a > fo ) fx->a -= fo;
+	else fx->a = 0;
+
+	fx->speed += fx->accn * gameSpeed;
+	fx->scale.v[X] += fx->speed * gameSpeed;
+	fx->scale.v[Y] += (fx->speed * gameSpeed)/8;
+	fx->scale.v[Z] += fx->speed * gameSpeed;
+	
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 		fx->deadCount = 5;
 }
@@ -460,7 +534,7 @@ void UpdateFXSmoke( SPECFX *fx )
 */
 void UpdateFXSwarm( SPECFX *fx )
 {
-	VECTOR up;
+	VECTOR up, pos;
 	int i = fx->numP;
 	float dist;
 
@@ -480,25 +554,32 @@ void UpdateFXSwarm( SPECFX *fx )
 
 	while(i--)
 	{
+		// Set world check position from either sprite or actor
+		if( !fx->act )
+			SetVector( &pos, &fx->sprites[i].pos );
+		else
+			SetVector( &pos, &fx->act[i]->actor->pos );
+
+		// Fade out star stun
 		if( fx->type == FXTYPE_FROGSTUN )
 			if( fx->sprites[i].a > 7 ) fx->sprites[i].a -= 8;
 			else fx->sprites[i].a = 0;
 
-		if( fx->sprites[i].pos.v[X] > fx->origin.v[X])
+		// Update particle velocity to oscillate around the point
+		if( pos.v[X] > fx->origin.v[X])
 			fx->particles[i].vel.v[X] -= max(gameSpeed/3, 1);
 		else
 			fx->particles[i].vel.v[X] += max(gameSpeed/3, 1);
-
-		if( fx->sprites[i].pos.v[Y] > fx->origin.v[Y] )
+		if( pos.v[Y] > fx->origin.v[Y] )
 			fx->particles[i].vel.v[Y] -= max(gameSpeed/3, 1);
 		else
 			fx->particles[i].vel.v[Y] += max(gameSpeed/3, 1);
-
-		if( fx->sprites[i].pos.v[Z] > fx->origin.v[Z])
+		if( pos.v[Z] > fx->origin.v[Z])
 			fx->particles[i].vel.v[Z] -= max(gameSpeed/3, 1);
 		else
 			fx->particles[i].vel.v[Z] += max(gameSpeed/3, 1);
 
+		// Limit velocity of particles
 		if( fx->particles[i].vel.v[X] > gameSpeed*3 )
 			fx->particles[i].vel.v[X] = gameSpeed*3;
 		else if( fx->particles[i].vel.v[X] < -gameSpeed*3 )
@@ -512,23 +593,34 @@ void UpdateFXSwarm( SPECFX *fx )
 		else if( fx->particles[i].vel.v[Z] < -gameSpeed*3 )
 			fx->particles[i].vel.v[Z] = -gameSpeed*3;
 
-
 		// Add velocity to local particle position
 		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
-		// Add local particle pos to swarm origin to get world coords for sprite
-		AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
+		// Add local particle pos to swarm origin to get world coords for sprite or actor
+		if( !fx->act )
+		{
+			AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
+		}
+		else
+		{
+			AddVector( &fx->act[i]->actor->pos, &fx->origin, &fx->particles[i].pos );
+		}
+
+		if( !fx->act )
+			SetVector( &pos, &fx->sprites[i].pos );
+		else
+			SetVector( &pos, &fx->act[i]->actor->pos );
 
 		if( fx->rebound )
 		{
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-			dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
+			dist = -(DotProduct(&pos, &fx->rebound->normal) + fx->rebound->J);
 
 			if(dist > 0)
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
 		}
 	}
 
-	if( fx->type != FXTYPE_FLYSWARM )
+	if( fx->type != FXTYPE_FLYSWARM && fx->type != FXTYPE_BUTTERFLYSWARM )
 		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
 			fx->deadCount = 5;
 }
@@ -603,12 +695,10 @@ void UpdateFXExplode( SPECFX *fx )
 		// For fiery (of whatever colour) smoke, fade to black then fade out
 		if( fx->type == FXTYPE_FIERYSMOKE && (fx->sprites[i].r || fx->sprites[i].g || fx->sprites[i].b) )
 		{
-			if( fx->sprites[i].r > fo ) fx->sprites[i].r -= fo;
+			if( fx->sprites[i].r > fo/2 ) fx->sprites[i].r -= fo/2;
 			else fx->sprites[i].r = 0;
 			if( fx->sprites[i].g > fo ) fx->sprites[i].g -= fo;
 			else fx->sprites[i].g = 0;
-			if( fx->sprites[i].b > fo ) fx->sprites[i].b -= fo;
-			else fx->sprites[i].b = 0;
 		}
 		else
 		{
@@ -651,6 +741,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrFly,UpdateCRC("fly1.bmp"),YES);
 	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
 	FindTexture(&txtrFire,UpdateCRC("ai_flame3.bmp"),YES);
+	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 }
 
 
@@ -729,6 +820,13 @@ void SubSpecFX( SPECFX *fx )
 
 	if( fx->rebound )
 		JallocFree( (UBYTE **)&fx->rebound );
+
+	if( fx->act )
+	{
+		for( i=fx->numP; i; i-- )
+			SubActor(fx->act[i-1]);
+		JallocFree( (UBYTE **)&fx->act );
+	}
 
 	JallocFree((UBYTE **)&fx);
 }
@@ -904,13 +1002,13 @@ void ProcessAttachedEffects( void *entity, int type )
 			if( act->effects & EF_FIERYSMOKE )
 			{
 				if( act->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2.5, 0, 2 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 2.5, 0, 2.5 );
 				else if( act->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.5, 0, 2 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 0.5, 0, 2.5 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.2, 0, 2 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->pos, &normal, 50, 1.2, 0, 2.5 );
 
-				SetAttachedFXColour( fx, act->effects );
+//				SetAttachedFXColour( fx, act->effects );
 			}
 			if( act->effects & EF_FLAMES )
 			{
@@ -954,6 +1052,19 @@ void ProcessAttachedEffects( void *entity, int type )
 			}
 			act->effects &= ~EF_FLYSWARM;
 		}
+		if( act->effects & EF_BUTTERFLYSWARM )
+		{
+			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, 2, 0, 0, 0 );
+			fx->follow = act->actor;
+			if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
+			{
+				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+				GetPositionForPathNode( &rPos, &path->nodes[0] );
+				SetVector( &fx->rebound->point, &rPos );
+				SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
+			}
+			act->effects &= ~EF_BUTTERFLYSWARM;
+		}
 	}
 }
 
@@ -970,4 +1081,62 @@ void SetAttachedFXColour( SPECFX *fx, int effects )
 		b = 255;
 
 	SetFXColour( fx, r, g, b );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateBlastRing
+	Purpose			: Make a generic ring of polys
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void CreateBlastRing( )
+{
+	float tesa, tesb, teca, tecb, pB, arcStep = PI2 / NUM_RINGSEGS;
+	unsigned long i, v;
+
+	if( !ringVtx )
+		ringVtx = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*NUM_RINGSEGS*4, NO, "D3DTLVERTEX");
+
+	for( i=0; i<NUM_RINGSEGS; i++ )
+	{
+		pB = i*arcStep;
+		v = i*4;
+
+		tesa = sinf(pB);
+		tesb = sinf(pB+arcStep);
+
+		teca = cosf(pB);
+		tecb = cosf(pB+arcStep);
+
+		ringVtx[v+0].sx = tesa;
+		ringVtx[v+0].sy = 0.5;
+		ringVtx[v+0].sz = teca;
+		ringVtx[v+0].color = D3DRGBA(1,1,1,1);
+		ringVtx[v+0].specular = D3DRGB(0,0,0);
+		ringVtx[v+0].tu = 1;
+		ringVtx[v+0].tv = 1;
+		ringVtx[v+1].sx = tesb;
+		ringVtx[v+1].sy = 0.5;
+		ringVtx[v+1].sz = tecb;
+		ringVtx[v+1].color = D3DRGBA(1,1,1,1);
+		ringVtx[v+1].specular = D3DRGB(0,0,0);
+		ringVtx[v+1].tu = 0;
+		ringVtx[v+1].tv = 1;
+		ringVtx[v+2].sx = tesb;
+		ringVtx[v+2].sy = -0.5;
+		ringVtx[v+2].sz = tecb;
+		ringVtx[v+2].color = D3DRGBA(1,1,1,1);
+		ringVtx[v+2].specular = D3DRGB(0,0,0);
+		ringVtx[v+2].tu = 0;
+		ringVtx[v+2].tv = 0;
+		ringVtx[v+3].sx = tesa;
+		ringVtx[v+3].sy = -0.5;
+		ringVtx[v+3].sz = teca;
+		ringVtx[v+3].color = D3DRGBA(1,1,1,1);
+		ringVtx[v+3].specular = D3DRGB(0,0,0);
+		ringVtx[v+3].tu = 1;
+		ringVtx[v+3].tv = 0;
+	}
 }

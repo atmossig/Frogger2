@@ -753,21 +753,21 @@ void DrawFXRipple( SPECFX *ripple )
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	
-	tempVect[0].v[X] = -ripple->size;
+	tempVect[0].v[X] = -ripple->scale.v[X];
 	tempVect[0].v[Y] = 0;
-	tempVect[0].v[Z] = ripple->size;
+	tempVect[0].v[Z] = ripple->scale.v[Z];
 
-	tempVect[1].v[X] = ripple->size;
+	tempVect[1].v[X] = ripple->scale.v[X];
 	tempVect[1].v[Y] = 0;
-	tempVect[1].v[Z] = ripple->size;
+	tempVect[1].v[Z] = ripple->scale.v[Z];
 
-	tempVect[2].v[X] = ripple->size;
+	tempVect[2].v[X] = ripple->scale.v[X];
 	tempVect[2].v[Y] = 0;
-	tempVect[2].v[Z] = -ripple->size;
+	tempVect[2].v[Z] = -ripple->scale.v[Z];
 
-	tempVect[3].v[X] = -ripple->size;
+	tempVect[3].v[X] = -ripple->scale.v[X];
 	tempVect[3].v[Y] = 0;
-	tempVect[3].v[Z] = -ripple->size;
+	tempVect[3].v[Z] = -ripple->scale.v[Z];
 
 	if(	ripple->type == FXTYPE_GARIBCOLLECT )
 	{
@@ -795,7 +795,7 @@ void DrawFXRipple( SPECFX *ripple )
 		vT[0].sz = (m[1].v[Z]+DIST)/2000;
 		vT[0].tu = 0;
 		vT[0].tv = 0;
-		vT[0].color = D3DRGBA(ripple->r/256.0,ripple->g/256.0,ripple->b/256.0,ripple->a/256.0);
+		vT[0].color = D3DRGBA(ripple->r/255.0,ripple->g/255.0,ripple->b/255.0,ripple->a/255.0);
 		vT[0].specular = D3DRGB(0,0,0);
 
 		vT[1].sx = m[0].v[X];
@@ -834,6 +834,66 @@ void DrawFXRipple( SPECFX *ripple )
 	}
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+}
+
+
+void DrawFXRing( SPECFX *ring )
+{
+	unsigned long vx, i, j;
+	D3DTLVERTEX vT[4], vT2[3];
+	TEXENTRY *tEntry;
+	VECTOR tempVect[4], m[4];
+	float tilt;
+	int zeroZ = 0;
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+
+	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=4 )
+	{
+		memcpy( vT, &ringVtx[vx], sizeof(D3DTLVERTEX)*4 );
+		// Transform to proper coords
+		for( j=0; j<4; j++ )
+		{
+			// Slant the polys
+			tilt = (j < 2) ? ring->tilt : 1;
+			// Scale first, since at origin
+			tempVect[j].v[X] = (vT[j].sx * tilt) * (float)ring->scale.v[X];
+			tempVect[j].v[Y] = (vT[j].sy * tilt) * (float)ring->scale.v[Y];
+			tempVect[j].v[Z] = (vT[j].sz * tilt) * (float)ring->scale.v[Z];
+
+			// Then translate to position
+			AddToVector( &tempVect[j], &ring->origin );
+			XfmPoint (&m[j],&tempVect[j]);
+
+			// Assign back to vT array
+			vT[j].sx = m[j].v[X];
+			vT[j].sy = m[j].v[Y];
+			vT[j].sz = m[j].v[Z];
+			if( !vT[j].sz ) zeroZ++;
+
+			vT[j].color = D3DRGBA(ring->r/255.0,ring->g/255.0,ring->b/255.0,ring->a/255.0);
+		}
+
+		tEntry = ((TEXENTRY *)ring->tex);
+		if( tEntry && !zeroZ)
+		{
+			memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
+			memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
+			memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
+			Clip3DPolygon( vT, tEntry->hdl );
+			Clip3DPolygon( vT2, tEntry->hdl );
+		}
+	}
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
