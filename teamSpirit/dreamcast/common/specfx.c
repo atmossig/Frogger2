@@ -43,7 +43,9 @@
 #define MAX_SPECFX	128
 #define MAX_PLANES	64
 #else
+// 128
 #define MAX_SPECFX	128
+// 64
 #define MAX_PLANES	64
 #endif
 

@@ -184,16 +184,17 @@ void InitSpriteList( )
 }
 
 
-
 #ifdef PSX_VERSION
 
 extern int spriteRotNum;
 extern int spriteNum;
 
-#define MAX_SPRITEWIDTH 256
+#define MAX_SPRITEWIDTH		160
 
 int Print3DSprite(SPRITE *spr);
 int Print3DSpriteRotating(SPRITE *spr);
+
+KMSURFACEDESC *lastSurface;
 
 
 /* --------------------------------------------------------------------------------
@@ -208,7 +209,7 @@ void PrintSprites()
 {
 	SPRITE *cur;
 	unsigned long colour;
-	
+
 	for (cur = sprList.head.next; cur != &sprList.head; cur = cur->next)
 	{
 		if (!cur)
@@ -258,6 +259,8 @@ int Print3DSprite(SPRITE *spr)
 	VERT 		tempVect;
 	uchar		r,g,b;
 	KMUINT32	rgba;
+
+	KMSTRIPHEAD	*strip;
 
 	tempVect.vx = -spr->pos.vx;
 	tempVect.vy = -spr->pos.vy;
@@ -361,8 +364,8 @@ int Print3DSprite(SPRITE *spr)
 
 	if(spr->texture->colourKey)
 	{
-		kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+		kmChangeStripTextureSurface(&StripHead_Sprites, KM_IMAGE_PARAM1, spr->texture->surfacePtr);
+		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);
 	}
 	else
 	{
@@ -480,7 +483,23 @@ int Print3DSpriteRotating(SPRITE *spr)
 	y3 = newY + atbdy;
 
 	spritez = spritez >> 2;
-	
+
+	{
+		int	xmax, xmin, xd;
+
+		xmax = x0;
+		xmax = max(xmax, x1);
+		xmax = max(xmax, x2);
+		xmax = max(xmax, x3);
+		xmin = x0;
+		xmin = min(xmin, x1);
+		xmin = min(xmin, x2);
+		xmin = min(xmin, x3);
+		xd = xmax - xmin;
+		if (xd > MAX_SPRITEWIDTH)
+			return 1;
+	}
+
 	// completely off at the LHS or RHS?
 	if ((x0 > 640.0f && x1 > 640.0f && x2 > 640.0f && x3 > 640.0f) ||
 		(x0 <   0.0f && x1 <   0.0f && x2 <   0.0f && x3 <   0.0f))
@@ -540,7 +559,7 @@ int Print3DSpriteRotating(SPRITE *spr)
 	if(spr->texture->colourKey)
 	{
 		kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);
 	}
 	else
 	{
@@ -556,12 +575,6 @@ int Print3DSpriteRotating(SPRITE *spr)
 
 	return 1;
 }
-
-
-
-
-
-
 
 
 int Print3D3DSprite ( SPECFX *fx, SVECTOR *vect, unsigned long colour ) 
@@ -721,197 +734,4 @@ int Print3D3DSprite ( SPECFX *fx, SVECTOR *vect, unsigned long colour )
 	return 1;
 }
 
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-int Print3DSpriteRotating(SPRITE *spr)
-{
-	POLY_FT4 *pp;
-	LONG width, height, spritez;
-	VERT tempVect;
-	long		x0,y0,z0;
-	long		x1,y1,z1;
-	long		x2,y2,z2;
-	long		x3,y3,z3;
-	uchar		r,g,b;
-	KMUINT32	rgba;
-
-	fixed cosine,sine,newX,newY;
-	int atbdx, atbdy;
-
-	cosine = rcos(spr->angle);
-	sine = rsin(spr->angle);
-
-	tempVect.vx = -spr->pos.vx;
-	tempVect.vy = -spr->pos.vy;
-	tempVect.vz = spr->pos.vz;
-
-//	pp = (POLY_FT4 *)(currentDisplayPage->primPtr);
-// 	setPolyFT4(pp);
-// 	setRGB0(pp, spr->r>>1, spr->g>>1, spr->b>>1 );
-	
-// ------------- scary scaling-and-transform-in-one-go code from the Action Man people...
-	width = spr->texture->w;
-	gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
-
-	gte_ldv0(&tempVect);
-	gte_SetLDDQA(width);	// shove sprite width into control reg (C2_DQA)
-	gte_rtps();				// do the rtps
-	x0 = screenxy[2].vx;
-	y0 = screenxy[2].vy;	
-//	gte_stsxy(&pp->x0);		// get screen x and y
-	gte_stsz(&spritez);		// get screen z
-// ------------- end of scaling-and-transform
-	
-	// Sprite depth check
-	if( spritez <= 0 || spritez >= fog.max ) 
-		return 0;
-
-	width = (spr->scaleX*SCALEX) / spritez;
-	if( width < 2 || width > MAX_SPRITEWIDTH )
-		return 0;	// better max-distance check // JIM: Not really. A good thing to do but not a substitute for an actual distance check.
-
-	// Scaled height of sprite. This is different from width - probably due to screen res.
-	// NOTE: Random multiply that looks more or less OK :)
-	height = (spr->scaleY*SCALEY) / spritez;
-
-	atbdx = x0;
-	atbdy = y0;
-
-	x0 = -width;
-	x1 = width;
-	x2 = -width;
-	x3 = width;
-
-	y0 = -height;
-	y1 = -height;
-	y2 = height;
-	y3 = height;
-
-	newX = FMul(x0,cosine) + FMul(y0,sine);
-	newY = FMul(y0,cosine) - FMul(x0,sine);
-	x0 = newX + atbdx;
-	y0 = newY + atbdy;
-
-	newX = FMul(x1,cosine) + FMul(y1,sine);
-	newY = FMul(y1,cosine) - FMul(x1,sine);
-	x1 = newX + atbdx;
-	y1 = newY + atbdy;
-
-	newX = FMul(x2,cosine) + FMul(y2,sine);
-	newY = FMul(y2,cosine) - FMul(x2,sine);
-	x2 = newX + atbdx;
-	y2 = newY + atbdy;
-
-	newX = FMul(x3,cosine) + FMul(y3,sine);
-	newY = FMul(y3,cosine) - FMul(x3,sine);
-	x3 = newX + atbdx;
-	y3 = newY + atbdy;
-
-	spritez = spritez >> 2;
-	
-/*	*(USHORT*)&pp->u0=			*(USHORT*)&((TextureType*)spr->texture)->u0;	// u0,v0, and clut info
-	*(USHORT*)&pp->u1=			*(USHORT*)&((TextureType*)spr->texture)->u1;	// u1,v1, and tpage info
-	*(USHORT*)&pp->u2=			*(USHORT*)&((TextureType*)spr->texture)->u2;	// plus pad1
-	*(USHORT*)&pp->u3=			*(USHORT*)&((TextureType*)spr->texture)->u3;	// plus pad2
-	*(USHORT*)&pp->clut=		*(USHORT*)&((TextureType*)spr->texture)->clut;	// plus pad2
-	*(USHORT*)&pp->tpage=		*(USHORT*)&((TextureType*)spr->texture)->tpage;	// plus pad2
-
-	//Only do additive if the 'sprite' fades or is translucent
-	if( spr->flags & SPRITE_TRANSLUCENT )
-	{
-	  	pp->r0 = ((spr->a*(short)pp->r0)>>8);
-	  	pp->g0 = ((spr->a*(short)pp->g0)>>8);
-	  	pp->b0 = ((spr->a*(short)pp->b0)>>8);
-
-		// Set semi
-		setSemiTrans(pp, 1);
-
-		// Make additive
-		if( spr->flags & SPRITE_ADDITIVE )
-			pp->tpage |= 32;
-		else
-		{
-			pp->tpage |= 64;
-			pp->r0>>=1;
-			pp->g0>>=1;
-			pp->b0>>=1;
-		}
-	}
-*/
-
-	if( spr->flags & SPRITE_TRANSLUCENT )
-	{
-		r = ((spr->a*(short)spr->r)/255);
-		g = ((spr->a*(short)spr->g)/255);
-		b = ((spr->a*(short)spr->b)/255);
-	}
-	else
-	{
-		r = spr->r;
-		g = spr->g;
-		b = spr->b;
-	}
-	rgba = RGBA(r,g,b,spr->a);
-		
-	vertices_GT4[0].fX = x0;
-	vertices_GT4[0].fY = y0;
-	vertices_GT4[0].u.fZ = 1.0 / ((float)spritez);
-	vertices_GT4[0].fU = 1.0;
-	vertices_GT4[0].fV = 0.0;
-	vertices_GT4[0].uBaseRGB.dwPacked = rgba;
-
-	vertices_GT4[1].fX = x1;
-	vertices_GT4[1].fY = y1;
-	vertices_GT4[1].u.fZ = 1.0 / ((float)spritez);
-	vertices_GT4[1].fU = 0.0;
-	vertices_GT4[1].fV = 0.0;
-	vertices_GT4[1].uBaseRGB.dwPacked = rgba;
-
-	vertices_GT4[2].fX = x2;
-	vertices_GT4[2].fY = y2;
-	vertices_GT4[2].u.fZ = 1.0 / ((float)spritez);
-	vertices_GT4[2].fU = 1.0;
-	vertices_GT4[2].fV = 1.0;
-	vertices_GT4[2].uBaseRGB.dwPacked = rgba;
-
-	vertices_GT4[3].fX = x3;
-	vertices_GT4[3].fY = y3;
-	vertices_GT4[3].u.fZ = 1.0 / ((float)spritez);
-	vertices_GT4[3].fU = 0.0;
-	vertices_GT4[3].fV = 1.0;
-	vertices_GT4[3].uBaseRGB.dwPacked = rgba;
-
-	if(spr->texture->colourKey)
-	{
-		kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
-	}
-	else
-	{
-		kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,spr->texture->surfacePtr);
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
-	}	
-//	kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
-	
-//	kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
-	kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-	kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-	kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-	kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-	kmEndStrip(&vertexBufferDesc);
-
-	return 1;
-}
 #endif
