@@ -535,33 +535,41 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 	// when we've gone past half-way (i.e. after half the current movement time),
 	// set the current "in" tile to halfway.
-	if (actFrameCount > (pform->path->startFrame + pform->path->endFrame) / 2)
+	if (actFrameCount > ((pform->path->startFrame + pform->path->endFrame) / 2))
 	{
 		GAMETILE *nextTile = pform->path->nodes[pform->path->toNode].worldTile;
 
+		// TODO[: Move this section to FROGMOVE.c
+		if (pform->carrying)
+		{
+			int i, pl = -1;
+			// We need to find which frog we're carrying (yeeeeeesh)
+			for (i=0; i<4; i++)
+				if (frog[i] == pform->carrying)
+				{
+					pl = i; break;
+				}
+
+			// if we're moving onto a barred tile, push the frog in the other direction
+			if (nextTile->state == TILESTATE_BARRED)
+			{
+				VECTOR v;
+				
+				SubVector(&v,
+					&pform->path->nodes[pform->path->fromNode].worldTile->centre,
+					&pform->path->nodes[pform->path->toNode].worldTile->centre);
+					
+				PushFrog(&pform->pltActor->actor->pos, &v, pl);
+				AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
+			}
+
+			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], nextTile);
+			currTile[pl] = pform->inTile[0];
+		}
+		// TODO]
+
 		pform->inTile[0] = nextTile;
 
-		// if we're moving onto a barred tile, push the frog in the other direction
-		if (pform->carrying && nextTile->state == TILESTATE_BARRED)
-		{
-			int pl;
-			VECTOR v;
-			
-			SubVector(&v,
-				&pform->path->nodes[pform->path->fromNode].worldTile->centre,
-				&pform->path->nodes[pform->path->toNode].worldTile->centre);
-				
-			//pform->inTile[0] = nextTile;
-
-			// We need to find which frog we're carrying (yeeeeeesh)
-			for (pl=0; pl<4; pl++)
-				if (currPlatform[pl] == pform)
-				{
-					PushFrog(&pform->pltActor->actor->pos, &v, pl);
-					AnimateActor(frog[pl]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 1.0, NO, NO);
-					break;
-				}
-		}
 	}
 
 	// Stop overshoot when waiting on a path node
