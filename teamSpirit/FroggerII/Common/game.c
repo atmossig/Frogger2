@@ -73,6 +73,9 @@ float debug_globalFloat = 8;
 VECTOR debug_globalEffectPos = { 0,0,0 };
 PLANE2 debug_plane2;
 
+long award = 2;
+
+void DoHiscores();
 
 
 /* --------------------------------------------------------------------------------
@@ -966,6 +969,8 @@ void RunGameLoop (void)
 			{
 				StopDrawing ( "EndGame" );
 
+				DoHiscores( );
+
 				// Only go to next level if in normal level progression.
 				if( showEndLevelScreen )
 				{
@@ -1198,7 +1203,6 @@ void RunGameLoop (void)
 
 void RunLevelCompleteSequence()
 {
-	long award = 2;
 	long i;
 	extern long numHops_TOTAL;
 	extern long speedHops_TOTAL;
@@ -1267,5 +1271,45 @@ void RunLevelCompleteSequence()
 			for(i=0; i<8; i++)
 				EnableSpriteOverlay(bronzeCup[i]);
 			break;
+	}
+}
+
+void DoHiscores( )
+{
+	HISCORE *hs = &worldHiScoreData[player[0].worldNum][player[0].levelNum];
+	long i, place = MAX_HISCORE_SLOTS;
+	
+	player[0].score = 9999999;
+
+	// Level hiscores
+	if( player[0].score > hs->score )
+	{
+		hs->score = player[0].score;
+		hs->name[0] = player[0].name[0];
+		hs->name[1] = player[0].name[1];
+		hs->name[2] = player[0].name[2];
+		hs->time = player[0].timeSec;
+		hs->cup = award;
+	}
+
+	// Overall hiscores
+	for( i=MAX_HISCORE_SLOTS-1; i >= 0; i-- )
+	{
+		if( hiScoreData[i].score < player[0].score )
+			place = i;
+	}
+
+	if( place != MAX_HISCORE_SLOTS )
+	{
+		// Sort hiscore table to make room for new entry
+		for( i=MAX_HISCORE_SLOTS-1; i>place; i-- )
+			cmemcpy( (char *)&hiScoreData[i], (char *)&hiScoreData[i-1], sizeof(HISCORE) );
+
+		hiScoreData[place].score = player[0].score;
+		hiScoreData[place].name[0] = player[0].name[0];
+		hiScoreData[place].name[1] = player[0].name[1];
+		hiScoreData[place].name[2] = player[0].name[2];
+		hiScoreData[place].time = player[0].timeSec;
+		hiScoreData[place].cup = award;
 	}
 }

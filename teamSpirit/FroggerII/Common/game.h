@@ -55,6 +55,7 @@ extern char	timeText[32];
 extern long hopAmt;
 
 extern long babySaved;
+extern long award;
 
 extern void RunGameLoop (void);
 extern void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up);
