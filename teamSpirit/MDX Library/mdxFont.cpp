@@ -24,7 +24,7 @@
 #include "mdxPoly.h"
 #include "mdxddraw.h"
 #include "mdxpoly.h"
-//#include <lang.h>		// no no no no no no no no no no no no. no.
+#include <lang.h>		// yes yes yes yes yes yes yes yes . yes
 
 struct MDX_FONTCHAR
 {
@@ -309,7 +309,7 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 				c++;
 				break;
 
-			default:*/
+			default:
 				cx += DrawFontCharAtLoc(cx,y,*c,color,font,scale);
 				c++;
 				break;
@@ -378,7 +378,7 @@ long CalcStringWidth(const char *string,MDX_FONT *font, float scale)
 				c++;
 				break;
 
-			default:*/
+			default:
 				width += font->characters[*c].width;
 				c++;
 				break;
