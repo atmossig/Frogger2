@@ -217,21 +217,19 @@ void LoadTextureAnimBank ( int textureBank )
 		return;
 	
 	p = ( unsigned char* ) textureAnims;
-	numAnimations = (short)*p;
+	numAnimations = (short)*p; p += 2;
 
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
-		p += 2;
-		numframes = *(short*)p;
-		p += 2;
-		crc = *(long*)p;
+		numframes = *(short*)p;	p += 2;
+		crc = *(long*)p; p += 2;
+		
 		textureAnim = CreateTextureAnimation( crc, numframes );
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
-			crc = *(long*)p;
-			p+=4;
-			waitTime = *(short*)p;
-			p+=2;
+			crc = *(long*)p; p+=4;
+			waitTime = *(short*)p; p+=2;
+
 			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
 		}
 		// ENDFOR
