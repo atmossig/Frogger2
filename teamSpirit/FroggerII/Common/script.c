@@ -756,23 +756,15 @@ Vis:
 
 	case EV_NO_FOG:	fog.mode = 0; break;
 
-	case EV_CAMEOMODE_ON:
-		{
-			//PrintScriptDebugMessage("CameoModeOn() : CAMEO MODE IS BROKEN!!");
-			int pl;
-			for (pl = 0; pl < MAX_FROGS; pl++)
-				player[pl].canJump = 0;
-		}
-		break;
+	case EV_CAMEOMODE_ON: cameoMode = 1; break;
 
 	case EV_CAMEOMODE_OFF:
 		{
-			//PrintScriptDebugMessage("CameoModeOff() : CAMEO MODE IS BROKEN!!");
 			int pl;
-			for (pl = 0; pl < MAX_FROGS; pl++)
+			for (pl=0; pl<4; pl++)
 				player[pl].canJump = 1;
+			cameoMode = 0; break;
 		}
-		break;
 
 	case EV_HOP:
 		{
