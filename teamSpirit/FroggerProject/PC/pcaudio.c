@@ -718,7 +718,7 @@ void RemoveBufSample( BUFSAMPLE *bufSample )
 	bufSample->next		= NULL;
 	bufferList.numEntries--;
 
-	ReleaseBuffer ( bufSample->lpdsBuffer );
+	bufSample->lpdsBuffer->lpVtbl->Release(bufSample->lpdsBuffer);
 
 	FREE( bufSample );
 }
@@ -731,6 +731,8 @@ void FreeSampleList( void )
 	// check if any elements in list
 	if( !soundList.numEntries )
 		return;
+
+	FreeBufSampleList( );
 
 	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
 

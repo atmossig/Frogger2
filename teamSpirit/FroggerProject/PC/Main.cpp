@@ -647,6 +647,8 @@ long DrawLoop(void)
 	camZ = t.x*8;
 	camY = t.y*8;
 
+	CleanBufferSamples( );
+
 	StartTimer(19,"PText");
 	if( gameState.mode != PAUSE_MODE )
 		ProcessProcTextures( );
