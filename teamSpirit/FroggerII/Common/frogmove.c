@@ -89,6 +89,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	longTongue		= 0;
 
 	camFacing		= 0;
+	controlCamera	= 0;
 
 	InitActorAnim(frog[p]->actor);
 	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.25F,0,0);
@@ -118,6 +119,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].idleEnable		= 1;
 	player[p].heightJumped		= 0;
 	player[p].jumpTime			= -1;
+
+	SitAndFace(frog[p],currTile[p],frogFacing[p]);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -922,8 +925,24 @@ void CheckForFroggerLanding(long pl)
 		AnimateActor(frog[0]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
 		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
 	}
-	else
+	else if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
+	{
 		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
+	}
+	else if( player[pl].deathBy == DEATHBY_WHACKING )
+	{
+		VECTOR up, fwd, side;
+		// Now find the forward and up vectors for camera
+		SubVector( &fwd, &currCamSource[0], &currCamTarget[0] );
+		MakeUnit( &fwd );
+
+		CrossProduct( &side, &fwd, &upVec );
+		CrossProduct( &up, &side, &fwd );
+		MakeUnit( &up );
+
+		Orientate( &frog[pl]->actor->qRot, &fwd, &inVec, &up );
+	//	ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
+	}
 
 	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
 	{
@@ -1021,9 +1040,10 @@ void CheckForFroggerLanding(long pl)
 		{
 			// We're bouncing along the ground
 			if( player[pl].deathBy == DEATHBY_FIRE )
+			{
 				BounceFrog( pl, 50, 30 );
-
-			AnimateActor( frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0 );
+				AnimateActor( frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0 );
+			}
 		}
 /*		else if (player[pl].heightJumped < -DROP_HURT_HEIGHT)
 		{
@@ -1416,44 +1436,26 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 void ThrowFrogAtScreen(long pl)
 {
 	VECTOR target, v, w;
-	float dist, time, animSpeed, screenDist = 70.0f;
-	long frameTime;
+	float dist, time, screenDist = 60.0f;
 
+	// Calculate the point to throw the frog to
 	SubVector(&v, &currCamTarget[0], &currCamSource[0]);	// v points from screen to screen target
 	dist = Magnitude(&v);
 	ScaleVector(&v, 1.0f/dist);
-
 	SetVector(&w, &v);
 	ScaleVector(&w,	screenDist);
 	AddVector(&target, &w, &currCamSource[0]);
-/*
-	// Rotate actor to face in the right direction
-	// 1. Get unit vectors FORWARDS and SCREEN->TARGET
-	ScaleVector(&v, 1.0f/dist);		// unit
-	// 2. 
-	CrossProduct(&w, &v, &forwards);
-	//ActorLookAt(frog[pl]->actor, &currCamSource[0], LOOKAT_ANYWHERE);
-	OrientateQuaternion(&frog[pl]->actor->qRot, &v, &upVec);	// ??
-*/
-	frameTime = 120;
-	
-	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal,
-		0, frameTime, pl);
 
-	animSpeed = 60.0f * player[pl].jumpSpeed / ((float)THROWFROG_FRAMES * frameTime);
+	CalculateFrogJump(&frog[pl]->actor->pos, &target, &currTile[pl]->normal, 0, 80, pl);
 
-	AnimateActor(frog[pl]->actor, FROG_ANIM_TO_SCREENSPLAT, NO, NO, animSpeed, NO, NO);
-	//AnimateActor(frog[pl]->actor, FROG_ANIM_SCREENSPLAT, NO, YES, 0.25f, YES, YES);
+//	animSpeed = 60.0f * player[pl].jumpSpeed / ((float)THROWFROG_FRAMES * frameTime);
 
-	// Set up froggy state
+	AnimateActor( frog[pl]->actor, FROG_ANIM_TO_SCREENSPLAT, NO, NO, 0.25, NO, NO );
+	AnimateActor( frog[pl]->actor, FROG_ANIM_SCREENSPLAT, NO, YES, 0.25, NO, NO );
 
-	fixedPos = 1;
 	controlCamera = 1;
-	fixedDir = 1;
 
-	player[pl].frogState = 0;
-	player[pl].idleTime = 1000000;	// arbitrary big number
-
+	player[pl].idleEnable = 0;
 }
 
 
@@ -1502,6 +1504,8 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	pl->jumpMultiplier = m;
 	pl->jumpTime = 0;
 	pl->heightJumped = diff;
+
+	SitAndFace(frog[p],currTile[p],frogFacing[p]);
 }
 
 

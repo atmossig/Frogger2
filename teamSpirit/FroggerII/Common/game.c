@@ -904,9 +904,6 @@ void RunGameLoop (void)
 
 		CameraLookAtFrog();
 		UpdateCameraPosition(0);
-
-		for (i=0; i<NUM_FROGS; i++)
-			if (frog[i]) SitAndFace(frog[i],currTile[i],frogFacing[i]);
 	}
 
 	UpdatePlatforms();
