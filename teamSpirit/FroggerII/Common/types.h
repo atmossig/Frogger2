@@ -53,8 +53,12 @@
 #define Max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 #define Min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
 
+#ifndef min
 #define min Min
+#endif
+#ifndef max
 #define max Max
+#endif
 
 #define BOOL	int
 
