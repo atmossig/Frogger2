@@ -657,7 +657,7 @@ void LoadTestScript(const char* filename)
 
 	if (!InitLevelScript(buffer))
 	{
-		sprintf(statusMessage, "Failed initialising script", filename);
+		sprintf(statusMessage, "Failed initialising script %s", filename);
 		dprintf "%s\n", statusMessage)); return;
 	}
 
