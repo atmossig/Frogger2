@@ -437,7 +437,12 @@ void RaceRespawn( int pl )
 	// Update progress info
 	mpl[pl].check = mpl[respawn].check;
 	mpl[pl].lap = mpl[respawn].lap;
-	mpl[pl].lasttile = mpl[respawn].lasttile;
+
+	// If other frog has finished then we have to be 1 checkpoint behind
+	if( mpl[respawn].ready )
+		mpl[pl].lasttile = TILESTATE_FROGGER4AREA;		
+	else
+		mpl[pl].lasttile = mpl[respawn].lasttile;
 
 	camFacing[pl] = camFacing[respawn];
 	frogFacing[pl] = frogFacing[respawn];
