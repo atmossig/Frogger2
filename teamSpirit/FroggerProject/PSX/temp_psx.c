@@ -19,10 +19,13 @@
 #include "story.h"
 #include "audio.h"
 
+SCENICOBJ *lightBeam;
+
 FVECTOR fmaActorScale;
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
+	SCENICOBJ *obj;
 	short i;
 	char tmp[5];
 	int flags;
@@ -85,8 +88,23 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( strstr ( cur->name, "wat_" ) )|| ( strstr ( cur->name, "rails" ) )||
 									( strstr ( cur->name, "window" ) )|| ( strstr ( cur->name, "anspike" ) )  ) 
 				{
+					int thisistheone = 0;
+
+					if ( strstr ( cur->name, "wat_flbm" ) )
+						thisistheone = 1;
+					else
+						thisistheone = 0;
+					// ENDIF
+
 					utilUpperStr ( cur->name );
-					CreateAndAddScenicObject(cur);
+
+					obj = CreateAndAddScenicObject(cur);
+
+					if ( thisistheone )
+					{
+						lightBeam = obj;
+					}
+					// ENDIF
 				}
 				else
 				{

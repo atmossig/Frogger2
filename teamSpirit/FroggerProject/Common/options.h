@@ -210,6 +210,8 @@ void SetActorGouraudValues(ACTOR2 *actor, int r,int g,int b);
 
 #ifdef PSX_VERSION
 void SetActorGouraudValues(FMA_MESH_HEADER *mesh, int r,int g,int b);
+void SetActorGouraudValuesMinus(FMA_MESH_HEADER *mesh, int r,int g,int b);
+void SetActorGouraudValuesPlus(FMA_MESH_HEADER *mesh, int r,int g,int b);
 #endif
 
 void DoArcadeMenu();

@@ -723,6 +723,10 @@ int bounceDir = 1;
 int bounceSpeed = 5;
 char goingToDemo = NO;
 
+#ifdef PSX_VERSION
+extern SCENICOBJ *lightBeam;
+#endif
+
 void RunFrontendGameLoop (void)
 {
 	unsigned long i,j;
@@ -735,6 +739,39 @@ void RunFrontendGameLoop (void)
 	pOIDistance = 20000<<12;
 	pointOfInterest = NULL;
 
+
+
+#ifdef PSX_VERSION
+	if (	( &firstTile[ TILENUM_CHOICE ]	== currTile[0] ) &&
+				( &firstTile[ TILENUM_BOOK ]		== destTile[0] ) )
+	{
+		FMA_MESH_HEADER **mesh;
+
+		if ( lightBeam )
+		{
+			mesh = ADD2POINTER(lightBeam->fmaObj,sizeof(FMA_WORLD));
+
+			SetActorGouraudValuesMinus	(	*mesh, 5, 5, 5 );
+		}
+		// ENDIF
+	}
+	// ENDIF
+
+	if (	( &firstTile[ TILENUM_BOOK ]		== currTile[0] ) &&
+				( &firstTile[ TILENUM_CHOICE ]	== destTile[0] ) )
+	{
+		FMA_MESH_HEADER **mesh;
+
+		if ( lightBeam )
+		{
+			mesh = ADD2POINTER(lightBeam->fmaObj,sizeof(FMA_WORLD));
+
+			SetActorGouraudValuesPlus	(	*mesh, 5, 5, 5 );
+		}
+		// ENDIF
+	}
+	// ENDIF
+#endif
 
 	if(goingToDemo)
 	{

@@ -44,7 +44,7 @@ extern SVECTOR jiggledVerts[250];
 
 
 //void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags );
-void CreateAndAddScenicObject(SCENIC *sc);
+SCENICOBJ *CreateAndAddScenicObject(SCENIC *sc);
 
 void InitScenicObjLinkedList ( void );
 

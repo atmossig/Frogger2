@@ -91,7 +91,7 @@ asm(\
 
 
 
-void CreateAndAddScenicObject(SCENIC *sc)
+SCENICOBJ *CreateAndAddScenicObject(SCENIC *sc)
 {
 	SCENICOBJ *newItem;
 
@@ -127,6 +127,7 @@ void CreateAndAddScenicObject(SCENIC *sc)
 			case 'F': newItem->flags |= (SLIDESPEED | SLIDESPEED2); break;
 		}
 	}
+	return newItem;
 }
 
 
