@@ -4,18 +4,18 @@ PRIORITY------- High
 RESPONSIBILTY-- Dave
 NOTES---------- 
 
-BUG------------ Can't collect baby on a platform in Space 1
-COMPLETION BY-- Jan 28th
-INSTANCE-------	Space1
-SENT BY-------- Lauren
-RESPONSIBILTY-- Dave
-FIXED NOTES----
-
 BUG------------ Cant select polys for placing paths etc in the editor unless the camera is a specific distance from the poly in question
 COMPLETION BY-- Jan 28th
 INSTANCE-------	Any time you want to pick a poly in the editor
 SENT BY-------- Bruce
 RESPONSIBILTY-- Dave?
+FIXED NOTES----
+
+BUG------------ Ice tiles are being weird - the whole world disappears
+COMPLETION BY--	Jan 28th
+INSTANCE-------	Space boss
+SENT BY-------- Lauren
+RESPONSIBILTY-- Dave
 FIXED NOTES----
 
 BUG------------ As below, but also with pushing off barred tiles from platforms & you 
@@ -33,18 +33,6 @@ INSTANCE-------	Space 1, by the vents
 SENT BY-------- Jim
 RESPONSIBILTY-- Dave
 FIXED NOTES---- 
-
-TASK----------- Implement coin / credit system
-COMPLETION BY-- Feb 15th
-PRIORITY------- Low
-RESPONSIBILTY-- Dave
-NOTES---------- Mostly there, needs uncommenting and testing
-
-TASK----------- Health flies and other bonuses
-COMPLETION BY-- Feb 15th
-PRIORITY------- Low
-RESPONSIBILTY-- Dave
-NOTES---------- Invent some bonuses first
 
 BUG------------ Push Blocks need to be Fixed so the squares they leave are barred etc.	
 COMPLETION BY-- Feb 15th

@@ -1,3 +1,9 @@
+BUG------------ Can't collect baby on a platform in Space 1
+COMPLETION BY-- Jan 28th
+INSTANCE-------	Space1
+SENT BY-------- Lauren
+RESPONSIBILTY-- Jim
+FIXED NOTES----
 
 TASK----------- Sound stuff, including sfx loading/mapping rewrite and doppler effects and CD track calculation
 COMPLETION BY-- Jan 28th
@@ -5,12 +11,6 @@ PRIORITY------- Medium
 RESPONSIBILTY-- Jim
 NOTES---------- 
 
-BUG------------ Ice tiles are being weird - the whole world disappears
-COMPLETION BY--	Jan 28th
-INSTANCE-------	Space boss
-SENT BY-------- Lauren
-RESPONSIBILTY-- Jim
-FIXED NOTES----
 
 BUG------------ Can run through line of moving enemies
 COMPLETION BY-- Jan 28th
@@ -24,6 +24,18 @@ COMPLETION BY-- Feb 15th
 PRIORITY------- Medium
 RESPONSIBILTY-- Jim
 NOTES---------- 
+
+TASK----------- Implement coin / credit system
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Jim
+NOTES---------- Mostly there, needs uncommenting and testing
+
+TASK----------- Health flies and other bonuses
+COMPLETION BY-- Feb 15th
+PRIORITY------- Low
+RESPONSIBILTY-- Dave
+NOTES---------- Invent some bonuses first
 
 TASK----------- Network and Multiplayer testing, bug fix and completion
 COMPLETION BY-- Feb 15th
