@@ -31,6 +31,6 @@ void LoadGame(void);
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest);
 
 short videoKeyPress();
-void StartVideoPlayback(int num);
+void StartVideoPlayback(int num, int allowQuit);
 
 #endif
