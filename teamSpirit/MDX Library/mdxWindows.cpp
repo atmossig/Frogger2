@@ -144,7 +144,7 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 		0,
         appName,
         appName,
-		WS_OVERLAPPED | WS_SYSMENU | WS_THICKFRAME,//_POPUP,
+		WS_OVERLAPPED | (rFullscreen? WS_POPUP : WS_SYSMENU|WS_THICKFRAME),//_POPUP,
 		0,
 		0,
 		640,//GetSystemMetrics(SM_CXSCREEN), 
