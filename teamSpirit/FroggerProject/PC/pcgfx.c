@@ -358,12 +358,12 @@ void DrawFXDecal( SPECFX *fx )
 void DrawFXRing( SPECFX *fx )
 {
 	unsigned long vx, i, j, vxj;
-	D3DTLVERTEX vT[5];
+	D3DTLVERTEX vT[5], vTPrev[2];
 	MDX_TEXENTRY *tEntry;
 	MDX_VECTOR tempVect, m, scale, normal, pos;
 	MDX_QUATERNION q1, q2, q3, cross;
 	SVECTOR fxpos;
-	float tilt, t;
+	float tilt, tilt2, t;
 	int zeroZ = 0;
 
 	if( !(tEntry = ((MDX_TEXENTRY *)fx->tex)) )
@@ -420,57 +420,68 @@ void DrawFXRing( SPECFX *fx )
 	if( fx->type == FXTYPE_CROAK )
 		SwapFrame(3);
 
+	tilt2 = (float)fx->tilt*0.000244;
+
 	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=2 )
 	{
 		// Transform to proper coords
 		for( j=0; j<4; j++ )
 		{
-			vxj = (vx+j)%(NUM_RINGSEGS<<1);
-			vT[j].sx = ringVtx[vxj].vx*0.000244;
-			vT[j].sy = ringVtx[vxj].vy*0.000244;
-			vT[j].sz = ringVtx[vxj].vz*0.000244;
-			// Slant the polys
-			tilt = (float)(((i&1)?(j==0||j==3):(j==1||j==2)) ? fx->tilt : 4096)/4096;
-			vT[j].tv = 1-vT[j].tv;//(i&1) ? 1-vT[j].tv : vT[j].tv;
-			// Scale and push
-			guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
-			PushMatrix( sMtrx );
+			if( i && j<2 && vTPrev[0].sz && vTPrev[1].sz )
+				memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );
+			else
+			{
+				vxj = (vx+j)%(NUM_RINGSEGS<<1);
+				vT[j].sx = ringVtx[vxj].vx*0.000244;
+				vT[j].sy = ringVtx[vxj].vy*0.000244;
+				vT[j].sz = ringVtx[vxj].vz*0.000244;
 
-			// Transform point by combined matrix
-			MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
-			guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
+				// Slant the polys
+				tilt = ((i&1)?(j==0||j==3):(j==1||j==2)) ? tilt2 : 1;
+				vT[j].tv = 1-vT[j].tv;
 
-			if( !j ) SetVectorSR( &fxpos, &tempVect );
+				// Scale and push
+				guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
+				PushMatrix( sMtrx );
 
-			XfmPoint( &m, &tempVect, NULL );
+				// Transform point by combined matrix
+				MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+				guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
 
-			// Assign back to vT array
-			vT[j].sx = m.vx;
-			vT[j].sy = m.vy;
-			if( !m.vz ) zeroZ++;
-			else vT[j].sz = (m.vz+DIST)*0.00025;
+				if( j==3 ) SetVectorSR( &fxpos, &tempVect );
 
-			PopMatrix( ); // Pop scale
+				XfmPoint( &m, &tempVect, NULL );
+
+				// Assign back to vT array
+				vT[j].sx = m.vx;
+				vT[j].sy = m.vy;
+				if( !m.vz ) zeroZ++;
+				else vT[j].sz = (m.vz+DIST)*0.00025;
+
+				PopMatrix( ); // Pop scale
+			}
 		}
+
+		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 );
 
 		if( !zeroZ )
 		{
 			memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
 			Clip3DPolygon( vT, tEntry );
 			Clip3DPolygon( &vT[2], tEntry );
-		}
 
-		if( i&1 && (actFrameCount&1) )
-		{
-			SPECFX *trail;
-
-			ScaleVector( &fxpos, 10 );
-
-			if( (trail = CreateSpecialEffect( FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096 )) )
+			if( (i&1) && (actFrameCount&1) )
 			{
-				trail->tilt = 8192;
-				if( i&2 ) SetFXColour( trail, 180, 220, 180 );
-				else SetFXColour( trail, fx->r, fx->g, fx->b );
+				SPECFX *trail;
+
+				ScaleVector( &fxpos, 10 );
+
+				if( (trail = CreateSpecialEffect( FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096 )) )
+				{
+					trail->tilt = 8192;
+					if( i&2 ) SetFXColour( trail, 180, 220, 180 );
+					else SetFXColour( trail, fx->r, fx->g, fx->b );
+				}
 			}
 		}
 	}
