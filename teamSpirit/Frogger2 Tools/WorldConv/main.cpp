@@ -34,6 +34,11 @@ enum
 	TILESTATE_BARRED,
 	TILESTATE_LEVELCHANGE,
 
+	TILESTATE_FROGGER1AREA,
+	TILESTATE_FROGGER2AREA,
+	TILESTATE_FROGGER3AREA,
+	TILESTATE_FROGGER4AREA,
+
 	TILESTATE_CONVEYOR0SLOW = 0x20,
 	TILESTATE_CONVEYOR1SLOW,
 	TILESTATE_CONVEYOR2SLOW,
@@ -86,6 +91,10 @@ enum
 	CONV1FAST,
 	CONV2FAST,
 	CONV3FAST,
+	FROGGER1AREA,
+	FROGGER2AREA,
+	FROGGER3AREA,
+	FROGGER4AREA,
 
 	NUM_MATERIALS
 };
@@ -122,6 +131,10 @@ const char* materialnames[NUM_MATERIALS] =
 	"conveyor1fast",
 	"conveyor2fast",
 	"conveyor3fast",
+	"frogger1area",
+	"frogger2area",
+	"frogger3area",
+	"frogger4area"
 };
 
 unsigned long numFrogs = 0;
@@ -519,6 +532,14 @@ void BuildSquareList(void)
 							case BARRED:
 								printf("£");
 								squareList[nSquare].status = TILESTATE_BARRED;
+								break;
+
+							case FROGGER1AREA:
+							case FROGGER2AREA:
+							case FROGGER3AREA:
+							case FROGGER4AREA:
+								putchar('1'+(faceList[j].mat-FROGGER1AREA));
+								squareList[nSquare].status = TILESTATE_FROGGER1AREA+(faceList[j].mat-FROGGER1AREA);
 								break;
 
 							case CONV0:
