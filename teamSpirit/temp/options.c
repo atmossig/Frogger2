@@ -939,6 +939,7 @@ void ExtraSelect(void)
 							{
 								worldVisualData[i].levelVisualData[j].parTime = origWorldVisualData[i].levelVisualData[j].parTime;
 								strcpy(worldVisualData[i].levelVisualData[j].parName,origWorldVisualData[i].levelVisualData[j].parName);
+								worldVisualData[i].levelVisualData[j].levelBeaten = 0;
 							}
 						}
 						SaveGame();

@@ -1095,6 +1095,7 @@ void StartLevelComplete()
 
 //	PrepareSong(AUDIOTRK_LEVELCOMPLETE,NO);
 
+	UndoChangeModel( frog[0]->actor );
 	eolTrackComplete = 0;
 	if(train)
 	{
