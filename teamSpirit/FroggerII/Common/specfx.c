@@ -506,7 +506,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		}
 
 		if( effect->type == FXTYPE_GLOW )
-			effect->sprites->texture = txtrSolidRing;
+			effect->sprites->texture = txtrFlare;
 		else
 			effect->sprites->texture = txtrFlash;
 
@@ -1458,6 +1458,7 @@ void SubSpecFX( SPECFX *fx )
 void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b )
 {
 	int i;
+	SPRITE *s;
 
 	if( !fx ) return;
 
@@ -1466,11 +1467,11 @@ void SetFXColour( SPECFX *fx, unsigned char r, unsigned char g, unsigned char b 
 	fx->b = b;
 
 	if( fx->sprites )
-		for( i=0; i<fx->numP; i++ )
+		for( i=0,s=fx->sprites; i<fx->numP; i++,s=s->next )
 		{
-			fx->sprites[i].r = r;
-			fx->sprites[i].g = g;
-			fx->sprites[i].b = b;
+			s->r = r;
+			s->g = g;
+			s->b = b;
 		}
 
 	if( fx->particles )
