@@ -287,8 +287,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	InitFont();
 	InitEditor();
 	
-	gameState.mode		= FRONTEND_MODE;
-	//frontEndState.mode	= DEMO_MODE;
 	frameCount = 1;
 	actTickCount = GetTickCount();
 
@@ -301,7 +299,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if (!USE_MENUS)
 	{
 		FreeAllLists();
-	//	StartGameIntro();
+		StartGameIntro();
 
 /*		FreeAllLists();
 		InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
