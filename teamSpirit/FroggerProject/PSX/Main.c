@@ -882,7 +882,12 @@ totalObjs = 0;
 				if(gameSpeed > (5<<12))
 					gameSpeed = (5<<12);
 
- 				actFrameCount += gameSpeed>>12;
+#if PALMODE==1
+				gameSpeed *= 6;
+				gameSpeed /= 5;
+#endif	
+
+ 				actFrameCount += vsyncCounter;
  				vsyncCounter = 0;
 			}
 			else

@@ -35,7 +35,7 @@ LIBISL = c:\ps\psx\library\lib\release
 !if $(PAL) == 1
 !if $(MASTER) == 0
 #OPT = -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O2 -mgpopt -G32 -g -X0$00018000 -comments-c++ -Wall -Wno-unused 
-OPT = -D_DEBUG -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
+OPT = -D_DEBUG -DPSX_VERSION -DPALMODE=1 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++
 LIBISL = c:\ps\psx\library\lib\debug
 !endif
 !endif
