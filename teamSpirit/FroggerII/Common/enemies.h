@@ -110,7 +110,7 @@ enum
 #define ENEMY_NEW_RANDOMSPEED			(1 << 11)	// enemy has random fluctuations in its speed
 #define ENEMY_NEW_FACEFORWARDS			(1 << 12)	// enemy faces forwards
 #define ENEMY_NEW_PUSHESFROG			(1 << 13)	// enemy pushes the frog, (Doesn't harm him!)
-
+#define ENEMY_NEW_HOMING				(1 << 14)	// No path, moves blindly towards frog
 
 
 typedef struct TAGENEMY

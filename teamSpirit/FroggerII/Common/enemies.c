@@ -519,6 +519,7 @@ void UpdateEnemies()
 	VECTOR fwd,swarmPos;
 	VECTOR moveVec;
 	float length;
+	long i;
 
 	float tileRadiusSquared = 
 		snapRadius * snapRadius;
@@ -764,6 +765,46 @@ void UpdateEnemies()
 		// determine which world tile the enemy is currently 'in'
 		oldTile[0] = currTile[0];
 		GetEnemyActiveTile(cur);
+
+		// Enemy homes in on frog - no tiles!
+		if( cur->flags & ENEMY_NEW_HOMING )
+		{
+			GAMETILE *chTile;
+			VECTOR nmeup, tVec, v2, v3;
+			float distance, best=-2;
+			short bFlag = 0;
+			SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
+			MakeUnit( &moveVec );
+			chTile = FindNearestTile( cur->nmeActor->actor->pos );
+
+			// Do check for close direction vector from tile. If none match closely, do not move.
+			for( i=0; i<4; i++ )
+				if( chTile->tilePtrs[i] )
+				{
+					// Direction to tile
+					SubVector( &tVec, &chTile->tilePtrs[i]->centre, &chTile->centre );
+					MakeUnit( &tVec );
+					// Cosine of angle between vectors
+					distance = DotProduct(&tVec,&moveVec);
+					if( distance > best )
+						best = distance;
+				}
+				else
+					bFlag = 1; // There is some invalid tile
+
+			// If the best direction match is close enough we can carry on (approx 45 degrees)
+			// Also check that we're over a tile.
+			if( best > 0.7 )
+			{
+				ScaleVector( &moveVec, cur->speed );
+				AddVector( &tVec, &moveVec, &cur->nmeActor->actor->pos );
+				chTile = FindNearestTile( tVec );
+				SubVector( &moveVec, &chTile->centre, &tVec );
+				distance = abs(Magnitude( &moveVec ));
+				if( distance < 35 || !bFlag )
+					cur->nmeActor->actor->pos = tVec;
+			}
+		}
 
 		// check if frog has been 'killed' by current enemy - radius based collision
 		if(cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
