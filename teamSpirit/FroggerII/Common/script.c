@@ -514,11 +514,11 @@ int EnemyEffect(ENEMY *nme, int params)
 /*	-------------------------------------------------------------------------------- */
 
 
-int SetEnemyFlag(ENEMY *e, int flag)	{ e->flags |= flag; return 1; }
-int ResetEnemyFlag(ENEMY *e, int flag)	{ e->flags &= ~flag; return 1; }
+int SetEnemyFlag(ENEMY *e, int flag)	{ e->flags |= flag; e->Update(e); return 1; }
+int ResetEnemyFlag(ENEMY *e, int flag)	{ e->flags &= ~flag; e->Update(e); return 1; }
 
-int SetPlatformFlag(PLATFORM *p, int flag)		{ p->flags |= flag;	RecalculatePlatform(p); return 1; }
-int ResetPlatformFlag(PLATFORM *p, int flag)	{ p->flags &= ~flag; RecalculatePlatform(p); return 1; }
+int SetPlatformFlag(PLATFORM *p, int flag)		{ p->flags |= flag;	p->Update(p); return 1; }
+int ResetPlatformFlag(PLATFORM *p, int flag)	{ p->flags &= ~flag; p->Update(p); return 1; }
 
 int CollapsePlatform(PLATFORM *p, int time)
 {
