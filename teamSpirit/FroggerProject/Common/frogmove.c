@@ -61,7 +61,9 @@ int nextFrogFacing[4]			= {0,0,0,0};
 
 unsigned long standardHopFrames = 7;
 unsigned long battleHopFrames	= 15;
+unsigned long quickSuperFrames	= 24;
 unsigned long superHopFrames	= 32;
+unsigned long quickDoubleFrames	= 32;
 unsigned long doubleHopFrames	= 44;
 unsigned long quickHopFrames	= 4;
 unsigned long slowHopFrames		= 14;
@@ -357,7 +359,7 @@ BOOL UpdateFroggerControls(long pl)
 
 	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
 	{
-		int dir, jump = 0;
+		int dir, jump = 0, t;
 		
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)		dir = MOVE_UP;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)	dir = MOVE_DOWN;
@@ -395,6 +397,11 @@ BOOL UpdateFroggerControls(long pl)
 				player[pl].canJump = 0;
 				nextFrogFacing[pl] = frogFacing[pl]; // ds
 				
+				if( player[pl].quickhop.time )
+					t = quickSuperFrames;
+				else
+					t = superHopFrames;
+
 				// ds - hAck! Jump to the platform
 				if (currPlatform[pl])
 				{
@@ -404,12 +411,12 @@ BOOL UpdateFroggerControls(long pl)
 					CalculateFrogJumpS(
 						&frog[pl]->actor->position,
 						&currPlatform[pl]->pltActor->actor->position,
-						&currTile[pl]->normal, superhopHeight, superHopFrames, pl);
+						&currTile[pl]->normal, superhopHeight, t, pl);
 				}
 				else
 				{
 					destTile[pl] = currTile[pl];
-					CalculateFrogJumpS( &frog[pl]->actor->position, &currTile[pl]->centre, &currTile[pl]->normal, superhopHeight, superHopFrames, pl);
+					CalculateFrogJumpS( &frog[pl]->actor->position, &currTile[pl]->centre, &currTile[pl]->normal, superhopHeight, t, pl);
 				}
 			}
 			else
@@ -1157,7 +1164,11 @@ BOOL MoveToRequestedDestination(int dir,long pl)
  	}
 	else if(player[pl].isSuperHopping)
 	{
-		t = superHopFrames;
+		if( player[pl].quickhop.time )
+			t = quickSuperFrames;
+		else
+			t = superHopFrames;
+
 		h = superhopHeight;
 	}
 	else if(player[pl].quickhop.time)
