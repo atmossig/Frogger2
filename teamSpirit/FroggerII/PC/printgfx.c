@@ -855,8 +855,6 @@ void DrawFXDecal( SPECFX *ripple )
 	tEntry = ((TEXENTRY *)ripple->tex);
 	if( tEntry && !zeroZ )
 	{
-		SwapFrame(0);
-
 		Clip3DPolygon( vT, tEntry->hdl );
 		Clip3DPolygon( &vT[2], tEntry->hdl );
 
