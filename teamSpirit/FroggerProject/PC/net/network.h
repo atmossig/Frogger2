@@ -10,13 +10,13 @@ extern "C"
 
 enum APPMSGTYPE
 {
-	APPMSG_CHAT
+	APPMSG_CHAT,
+	APPMSG_UPDATE,
 };
 
 typedef struct _NETPLAYER
 {
 	DPID	dpid;		// DirectPlay player identifier - passed to IDirectPlay to query address stuff
-	int		player;		// maps this network player to the in-game player[], frog[] etc. arrays
 	bool	isHost;		// true if this player is the host, false otherwise
 	
 	struct _NETPLAYER *next, *prev;
@@ -30,11 +30,15 @@ extern char		playerName[32];
 extern bool		isServer;
 extern NETPLAYER netPlayerList[4];
 
-typedef int (*NET_MESSAGEHANDLER)(int type, void *data, unsigned long size, NETPLAYER *player);
+typedef int (*NET_MESSAGEHANDLER)(void *data, unsigned long size, NETPLAYER *player);
 
 NET_MESSAGEHANDLER NetInstallMessageHandler(NET_MESSAGEHANDLER handler);
 void NetProcessMessages();
 void SetupNetPlayerList();
+
+int GetPlayerNumFromID(DPID id);
+
+int NetBroadcastMessage(void *data, unsigned long size);
 
 #ifdef __cplusplus
 }

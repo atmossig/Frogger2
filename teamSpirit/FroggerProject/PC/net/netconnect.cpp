@@ -30,15 +30,6 @@
 #define MAX_PLAYER_NAME     14
 #define MAX_SESSION_NAME    256
 
-LPDIRECTPLAY4A dplay		= NULL;
-
-DPID	dpidLocalPlayer;
-HANDLE	hLocalPlayerEvent;
-
-char	sessionName[256]	= "Frogger2";
-char	playerName[32]		= "Player";
-bool	isServer			= false;
-
 // from dpconnect.cpp ...
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
@@ -149,8 +140,7 @@ int StartNetworkGame(HWND hwnd, int flag)
 	if (connected)
 	{
 		SetupNetPlayerList();
-		RunNetChatWindow(hwnd);
-		return 0;
+		return RunNetChatWindow(hwnd);
 	}
 	else
 	{

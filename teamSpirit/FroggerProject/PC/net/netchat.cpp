@@ -6,6 +6,8 @@
 	Programmer	: David Swift
 	Date		: 
 
+	Does the chatting and level select bit at the start of the game
+
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
@@ -21,33 +23,79 @@
 #include "main.h"
 #include "../resource.h"
 
+// stuff for level info
+#include "layout.h"
+#include "lang.h"
+
 #include "netchat.h"
 #include "network.h"
 
 COLORREF systemColor = RGB(0,0x80,0);	// green
 COLORREF errorColor = RGB(0xFF,0,0);		// red
-HWND hwndChatEdit;
+HWND hwndChat, hwndChatEdit;
 
-int ChatHandler(int type, void *data, unsigned long size, NETPLAYER *player);
+#define NUM_MULTI_LEVELS 10
 
-class ChatWindow
-{
-protected:
-	HWND hwndDlg, hwndChatEdit;
-	static BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+struct MULTILEVEL { int world, level; };
 
-	void UpdatePlayerList();
-
-public:
-	bool Run(HWND);
-	~ChatWindow();
-
-	void ShowMessage(const char* message, CHAT_FORMAT format);
+MULTILEVEL multiLevels[NUM_MULTI_LEVELS] = {
+	{ WORLDID_ANCIENT, ANCIENTMULTI_COL },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
 };
 
-ChatWindow *netChat;
 
-void ChatWindow::ShowMessage(const char* string, CHAT_FORMAT f)
+int ChatHandler(void *data, unsigned long size, NETPLAYER *player);
+void ShowMessage(const char* string, CHAT_FORMAT f);
+
+
+// -----------------------------------------------------------------------------------------
+
+
+bool SetupChatDialog(HWND hdlg)
+{
+	int i;
+	hwndChatEdit = GetDlgItem(hdlg, IDC_RICHCHAT);
+	hwndChat = hdlg;
+
+	ShowMessage(isServer?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
+
+	HWND hList = GetDlgItem(hdlg, IDC_LEVEL);
+
+	for (i=0; i<NUM_MULTI_LEVELS; i++)
+	{
+		LEVEL_VISUAL_DATA *data;
+		char *levelname;
+		int index;
+
+		// get level names from worldvisualdata
+
+		data = &worldVisualData[multiLevels[i].world].levelVisualData[multiLevels[i].level];
+
+		if (data->levelOpen)
+		{
+			levelname = GAMESTRING(data->description_str);
+			index = SendMessage(hList, CB_ADDSTRING, 0, (DWORD)levelname);
+			SendMessage(hList, CB_SETITEMDATA, index, i);
+		}
+	}
+
+	SendMessage(hList, CB_SETCURSEL, 0, 0);
+
+	// Timer 1 is used for checking the player list and footling through the message buffers
+	SetTimer(hdlg, 1, 250, NULL);
+
+	return true;
+}
+
+void ShowMessage(const char* string, CHAT_FORMAT f)
 {
 	if (!hwndChatEdit) return;
 
@@ -68,45 +116,38 @@ void ChatWindow::ShowMessage(const char* string, CHAT_FORMAT f)
 	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)"\n");
 }
 
-void ChatWindow::UpdatePlayerList()
+void UpdateChatWindow()
 {
-	int pl;
-	HWND hlist = GetDlgItem(hwndDlg, IDC_PLAYERLIST);
+	int pl, count = 0;
+	HWND hlist = GetDlgItem(hwndChat, IDC_PLAYERLIST);
 
 	SendMessage(hlist, LB_RESETCONTENT, 0, 0);
 
 	for (pl=0; pl<4; pl++)
 	{
-		if (netPlayerList[pl].player != -1)
+		if (netPlayerList[pl].dpid)
 		{
 			char name[256];
 			DWORD size = 256;
 
 			if (DP_OK == dplay->GetPlayerName(netPlayerList[pl].dpid, &name, &size));
 				SendMessage(hlist, LB_ADDSTRING, 0, (DWORD)((DPNAME*)name)->lpszShortNameA);
+
+			count++;
 		}
 	}
+
+	EnableWindow(GetDlgItem(hwndChat, IDC_LEVEL), isServer);
+	EnableWindow(GetDlgItem(hwndChat, IDC_START), isServer && count>=2);
 }
 
 
-BOOL CALLBACK ChatWindow::dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	static ChatWindow *cw;
-
 	switch (msg)
 	{
 	case WM_INITDIALOG:
-		cw = (ChatWindow*)lParam;
-		cw->hwndChatEdit = GetDlgItem(hDlg, IDC_RICHCHAT);
-		cw->hwndDlg = hDlg;
-
-		//SendDlgItemMessage(hDlg, IDC_PLAYERLIST, LB_ADDSTRING, 0, (DWORD)playerName);
-		//SendDlgItemMessage(hDlg, IDC_RICHCHAT, EM_SETBKGNDCOLOR, 0, RGB(0xFF,0xFF,0xA0));
-		
-		cw->ShowMessage(isServer?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
-
-		SetTimer(hDlg, 1, 250, NULL);
-
+		SetupChatDialog(hDlg);
 		return TRUE;
 
 	case WM_COMMAND:
@@ -126,7 +167,7 @@ BOOL CALLBACK ChatWindow::dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM 
 				strcat(buffer, "> ");
 				strncat(buffer, text, 1024);
 
-				netChat->ShowMessage(buffer, CHAT_NORMAL);
+				ShowMessage(buffer, CHAT_NORMAL);
 
 				*(int*)buffer = APPMSG_CHAT;
 				strncpy(buffer+4, text, 1020);
@@ -139,13 +180,28 @@ BOOL CALLBACK ChatWindow::dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM 
 			dplay->Close();
 			EndDialog(hDlg, 1);
 			return TRUE;
+
+		case IDC_START:
+			if (isServer) {
+				// ... drumroll please ..
+				utilPrintf("NET: starting the game... drumroll please ...\n");
+
+				DPSESSIONDESC2 dpsd;
+				ZeroMemory(&dpsd, sizeof(dpsd));
+				dpsd.dwSize = sizeof(dpsd);
+				dpsd.dwFlags = DPSESSION_NEWPLAYERSDISABLED|DPSESSION_JOINDISABLED;
+
+				dplay->SetSessionDesc(&dpsd, 0);
+
+				EndDialog(hDlg, 0);
+				return TRUE;
+			}
 		}
 		break;
 
 	case WM_TIMER:
 		NetProcessMessages();
-		
-		netChat->UpdatePlayerList();
+		UpdateChatWindow();
 		return TRUE;
 
 	case WM_DESTROY:
@@ -156,62 +212,40 @@ BOOL CALLBACK ChatWindow::dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM 
 	return FALSE;
 }
 
+void NetShowMessage(const char* str, CHAT_FORMAT fmt)
+{
+	ShowMessage(str, fmt);
+}
 
-bool ChatWindow::Run(HWND parent)
+int RunNetChatWindow(HWND parent)
 {
 	int res;
 	LoadLibrary("Riched32.dll");
-	
-	res = DialogBoxParam(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_START), parent, dialogProc, (LPARAM)this);
 
-	return (res == 0);
-}
-
-
-
-ChatWindow::~ChatWindow()
-{
-
-}
-
-
-void NetShowMessage(const char* str, CHAT_FORMAT fmt)
-{
-	if (netChat)
-		netChat->ShowMessage(str, fmt);
-}
-
-void RunNetChatWindow(HWND parent)
-{
 	NetInstallMessageHandler(ChatHandler);
-	netChat = new ChatWindow();
-	netChat->Run(parent);
-
-	delete netChat;	netChat = 0;
+	res = DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_START), parent, dialogProc);
+	return res == 0;
 }
 
-int ChatHandler(int type, void *data, unsigned long size, NETPLAYER *player)
+int ChatHandler(void *data, unsigned long size, NETPLAYER *player)
 {
-	if (netChat)
+	switch (*(unsigned char*)data)
 	{
-		switch (type)
+	case APPMSG_CHAT:
 		{
-		case APPMSG_CHAT:
-			{
-				char buffer[1024], name[256];
-				DWORD size = 256;
+			char buffer[1024], name[256];
+			DWORD size = 256;
 
-				dplay->GetPlayerName(player->dpid, &name, &size);
-				
-				strcpy(buffer, "<");
-				strcat(buffer, ((DPNAME*)name)->lpszShortNameA);
-				strcat(buffer, "> ");
-				strncat(buffer, (char*)data, 1024);
+			dplay->GetPlayerName(player->dpid, &name, &size);
+			
+			strcpy(buffer, "<");
+			strcat(buffer, ((DPNAME*)name)->lpszShortNameA);
+			strcat(buffer, "> ");
+			strncat(buffer, ((char*)data) + 4, 1024);
 
-				netChat->ShowMessage(buffer, CHAT_NORMAL);
-			}
-			return 0;
+			ShowMessage(buffer, CHAT_NORMAL);
 		}
+		return 0;
 	}
 
 	return 1;

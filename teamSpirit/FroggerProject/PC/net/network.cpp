@@ -25,10 +25,18 @@
 void *recieveBuffer;
 DWORD recieveBufferSize = 1024;
 
+LPDIRECTPLAY4A dplay		= NULL;
+
+DPID	dpidLocalPlayer;
+HANDLE	hLocalPlayerEvent;
+
+char	sessionName[256]	= "Frogger2";
+char	playerName[32]		= "Player";
+bool	isServer			= false;
+
 //void HandleApplicationMessage(LPDPMSG_GENERIC, DWORD, DPID, DPID);
 void HandleSystemMessage(LPDPMSG_GENERIC, DWORD, DPID, DPID);
 
-NET_MESSAGEHANDLER systemHandler;	// callback for doing special handling of system events
 NET_MESSAGEHANDLER messageHandler;	// callback for interpreting game messages
 
 NETPLAYER netPlayerList[MAX_FROGS];
@@ -42,18 +50,31 @@ NETPLAYER *GetPlayerFromID(DPID id)
 	return NULL;
 }
 
+int GetPlayerNumFromID(DPID id)
+{
+	for (int p=0; p<MAX_FROGS; p++)
+		if (netPlayerList[p].dpid == id)
+			return p;
+
+	return NULL;
+}
+
 int AddNetPlayer(DPID id)
 {
 	int i;
 	NETPLAYER *player;
+	DPCAPS dpc;
+
+	dpc.dwSize = sizeof(dpc);
+	dplay->GetPlayerCaps(id, &dpc, 0);
 
 	for (i=0, player = &netPlayerList[0]; i<MAX_FROGS; i++, player++)
 	{
-		if (player->player == -1)
+		if (!player->dpid)
 		{
 			player->dpid = id;
-			player->isHost = false;
-			player->player = i;	// hmm
+			player->isHost = ((dpc.dwFlags & DPCAPS_ISHOST) != 0);
+			//player->player = i;
 			return i;
 		}
 	}
@@ -69,8 +90,12 @@ int RemoveNetPlayer(DPID id)
 	for (p=0, player=&netPlayerList[0]; p<MAX_FROGS; p++, player++)
 		if (netPlayerList[p].dpid == id)
 		{
-			player->player = -1;
-			player->dpid = 0;
+			while (p<(MAX_FROGS-1))
+			{
+				netPlayerList[p] = netPlayerList[p+1];
+				p++;
+			}
+			netPlayerList[p].dpid = 0;
 			return 1;
 		}
 
@@ -90,7 +115,7 @@ void SetupNetPlayerList()
 	for (int i=0; i<MAX_FROGS; i++)
 	{
 		netPlayerList[i].dpid = 0;
-		netPlayerList[i].player = -1;
+		//netPlayerList[i].player = -1;
 	}
 
 	if (dplay)
@@ -156,7 +181,7 @@ HRESULT ReceiveMessages()
 				NETPLAYER *player = GetPlayerFromID(idFrom);
 
 				if (messageHandler && player)
-					messageHandler(*(int*)recieveBuffer, (VOID*)((int*)recieveBuffer+1), messageSize, player);
+					messageHandler((VOID*)recieveBuffer, messageSize, player);
 	
 				//HandleApplicationMessage((LPDPMSG_GENERIC)recieveBuffer, messageSize, idFrom, idTo);
 			}
@@ -257,6 +282,15 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		}
 		break;
 	}
+}
+
+int NetBroadcastMessage(void *data, unsigned long size)
+{
+	HRESULT res;
+
+	res = dplay->Send(dpidLocalPlayer, DPID_ALLPLAYERS, 0, data, size);
+
+	return res;
 }
 
 

@@ -6,22 +6,7 @@ extern "C"
 {
 #endif
 
-	/*
-typedef struct
-{
-	DWORD			dwType;			// message type (APPMSG_UPDATEGAME)
-	DWORD			data;			// controller data
-	DWORD			tileNum;		// Emergency sync
-	DWORD			tickCount;		// When in game frames this event happened.
-
-} MSG_UPDATEGAME,*LPMSG_UPDATEGAME;
-
-typedef struct
-{
-	DWORD			dwType;
-	DWORD			actTickCount;
-} MSG_SYNCHGAME, *LPMSG_SYNCHGAME;
-
+/*
 extern DPID netPlayers[MAX_MULTIPLAYERS]; // Index is local player number. Zero -> local DPID.
 
 extern long myLatency;
