@@ -1,8 +1,8 @@
 //#define NUM_16COLOURPALS	500
 //#define NUM_256COLOURPALS	78
 
-#define NUM_16COLOURPALS	110
-#define NUM_256COLOURPALS	50
+#define NUM_16COLOURPALS	86
+#define NUM_256COLOURPALS	86
 
 #define VRAM_STARTX			512
 #define VRAM_PAGECOLS		8
@@ -98,6 +98,7 @@ int useMemCard = 1;
 int useMemCard = 1;
 #endif
 
+SAVE_INFO saveInfo;
 SCENICOBJLIST scenicObjList;
 
 long turbo = 4096;
@@ -903,7 +904,7 @@ void MainDrawFunction ( void )
 
 	TIMER_STOP0(TIMER_DRAW_WORLD);
 
-	if((gameState.mode != LEVELCOMPLETE_MODE) && (!skipTextOverlaysSpecFX))
+	if((gameState.mode != MULTI_WINRACE_MODE) && (gameState.mode != MULTI_WINBATTLE_MODE) && (gameState.mode != MULTI_WINCOLLECT_MODE) && (gameState.mode != MULTI_WINMATCH_MODE) && (gameState.mode != LEVELCOMPLETE_MODE) && (!skipTextOverlaysSpecFX))
 	{
 		TIMER_START0(TIMER_DRAW_SPECFX);
 		oldStackPointer = SetSp(0x1f800400);
