@@ -1817,6 +1817,14 @@ SOURCE=.\Pc\net\netchat.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\net\netconnect.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\net\netconnect.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\net\netgame.cpp
 # End Source File
 # Begin Source File
@@ -2352,6 +2360,10 @@ SOURCE=.\Psx\greenbaby.pal
 # End Source File
 # Begin Source File
 
+SOURCE=.\icon1.ico
+# End Source File
+# Begin Source File
+
 SOURCE=.\Psx\mpl0.pal
 # End Source File
 # Begin Source File
@@ -2401,6 +2413,15 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 

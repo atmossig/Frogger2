@@ -83,27 +83,6 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,311,77,50,14
 END
 
-IDD_CONNECTION DIALOGEX 0, 0, 246, 57
-STYLE DS_SYSMODAL | DS_CENTER | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
-    WS_CAPTION
-EXSTYLE WS_EX_TOOLWINDOW
-CAPTION "Connection"
-FONT 7, "Arial", 0, 0, 0x1
-BEGIN
-    PUSHBUTTON      "Join Session",IDC_JOINBUTTON,189,36,52,18,BS_FLAT,
-                    WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
-    PUSHBUTTON      "Host Session",IDC_HOSTBUTTON,189,19,52,18,BS_FLAT,
-                    WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
-    PUSHBUTTON      "Cancel",IDCANCEL,122,19,66,35,BS_FLAT,WS_EX_CLIENTEDGE | 
-                    WS_EX_STATICEDGE
-    COMBOBOX        IDC_CONNECTION,4,2,241,50,CBS_DROPDOWN | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP
-    LISTBOX         IDC_SESSIONLIST,5,19,115,33,LBS_SORT | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP,
-                    WS_EX_CLIENTEDGE | WS_EX_LEFTSCROLLBAR | 
-                    WS_EX_STATICEDGE
-END
-
 IDD_CONTROLS DIALOG DISCARDABLE  0, 0, 302, 113
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Control setup"
@@ -148,6 +127,71 @@ BEGIN
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
+IDD_MULTI_CONNECT DIALOG DISCARDABLE  0, 0, 274, 129
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Frogger2 Multiplayer: Choose connection type"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Player Name:",IDC_STATIC,7,7,43,8
+    EDITTEXT        IDC_PLAYERNAME,7,18,260,14,ES_AUTOHSCROLL
+    LTEXT           "Connection Type:",IDC_STATIC,7,40,57,8
+    LISTBOX         IDC_CONNECTIONLIST,7,51,260,51,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,163,108,50,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,217,108,50,14
+END
+
+IDD_MULTI_GAMES DIALOG DISCARDABLE  0, 0, 249, 119
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Frogger2 Multiplayer: Join a game"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_GAMELIST,7,28,235,64,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Join",IDC_JOIN,7,98,50,14,WS_DISABLED
+    DEFPUSHBUTTON   "&Create",IDC_CREATE,64,98,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,192,98,50,14
+    LTEXT           "Select a game and click 'Join':",IDC_STATIC,7,18,96,8
+    CONTROL         "Search for games",IDC_SEARCH,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,173,7,69,16
+END
+
+IDD_MULTI_START DIALOG DISCARDABLE  0, 0, 362, 206
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Frogger2 Multiplayer: Start the game!"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Leave game",IDCLOSE,291,185,64,14
+    CONTROL         "",IDC_RICHCHAT,"RICHEDIT",ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_AUTOHSCROLL | ES_READONLY | WS_DISABLED | WS_BORDER | 
+                    WS_VSCROLL | WS_TABSTOP,7,19,156,163
+    LTEXT           "Chat:",IDC_STATIC,7,7,156,8
+    LISTBOX         IDC_PLAYERS,175,28,173,51,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Game Settings (host only)",IDC_STATIC,169,93,186,81
+    EDITTEXT        IDC_CHATENTER,7,185,156,14,ES_AUTOHSCROLL | 
+                    ES_WANTRETURN
+    COMBOBOX        IDC_LEVEL,218,107,128,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Level:",IDC_STATIC,175,110,37,8
+    RTEXT           "Description:",IDC_STATIC,176,123,37,8
+    LTEXT           "Blah blah blah blah blah blah blah blah blah blah blah",
+                    IDC_DESCRIPTION,218,124,128,27
+    DEFPUSHBUTTON   "Start the game!",IDC_START,221,150,74,14,WS_DISABLED
+    GROUPBOX        "Players",IDC_STATIC,169,18,186,68
+END
+
+IDD_MULTI_CREATE DIALOG DISCARDABLE  0, 0, 212, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Frogger2 Multiplayer: Start a game"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,98,45,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,155,45,50,14
+    LTEXT           "Create new game:",IDC_STATIC,7,7,198,8
+    EDITTEXT        IDC_NAME,7,18,198,14,ES_AUTOHSCROLL
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -163,14 +207,6 @@ BEGIN
         RIGHTMARGIN, 361
         TOPMARGIN, 6
         BOTTOMMARGIN, 90
-    END
-
-    IDD_CONNECTION, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 239
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 50
     END
 
     IDD_CONTROLS, DIALOG
@@ -196,6 +232,38 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 199
     END
+
+    IDD_MULTI_CONNECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 267
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 122
+    END
+
+    IDD_MULTI_GAMES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 242
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 112
+    END
+
+    IDD_MULTI_START, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 355
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 199
+    END
+
+    IDD_MULTI_CREATE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -208,6 +276,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_FROGGER2            ICON    DISCARDABLE     "frogger2.ico"
+IDI_ICON1               ICON    DISCARDABLE     "icon1.ico"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
