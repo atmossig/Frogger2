@@ -493,7 +493,7 @@ void SlurpCamPosition(long cam)
 	//		osMotorStop ( &rumble );
 		}
 
-		lastActFrameCount++;
+		lastActFrameCount+=2;
 	}
 }
 

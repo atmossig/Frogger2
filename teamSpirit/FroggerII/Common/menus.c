@@ -195,6 +195,8 @@ void RunTitleScreen( )
 			PlaySample ( 2,NULL,255,128);
 
 			StartDrawing ( "Title Screen" );
+
+			return;
 		}
 
 		switch (currentSelection)

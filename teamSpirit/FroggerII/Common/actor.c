@@ -142,18 +142,25 @@ void DrawActorList()
 		// Need to set this once for each actor
 		cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
 
-		if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER )
-			continue;
-		else if( (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
+		if( !(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
-			cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-			cur->actor->xluOverride = ((100-(float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)) / ACTOR_DRAWFADERANGE)*100;
-			continue;
-		}
-		else
-		{
-			cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
-			cur->actor->xluOverride = 100;
+			if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER )
+			{
+				cur = cur->next;
+				continue;
+			}
+			else if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER )
+			{
+				cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
+				cur->actor->xluOverride = ((100-(float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)) / ACTOR_DRAWFADERANGE)*100;
+				cur = cur->next;
+				continue;
+			}
+			else
+			{
+				cur->actor->objectController->object->flags &= ~OBJECT_FLAGS_XLU;
+				cur->actor->xluOverride = 100;
+			}
 		}
 
 		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
@@ -173,7 +180,10 @@ void DrawActorList()
 	while(cur)
 	{
 		if( cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER )
+		{
+			cur = cur->next;
 			continue;
+		}
 
 		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
 		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
