@@ -268,7 +268,6 @@ void FroggerHop(long pl)
 		AddToVector(&pos, &up);
 
 		// Check for falling through platforms
-		// TODO: Test, test, test. And possibly find somewhere more sensible for this code.
 		if (!destPlatform[pl] && nearestPlatform[pl])
 		{
 			VECTOR v, plt;
@@ -287,6 +286,7 @@ void FroggerHop(long pl)
 				destPlatform[pl] = nearestPlatform[pl];
 				player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
 				player[pl].jumpTime = 1.0f;	// aaand land.
+				player[pl].heightJumped = Magnitude(&up);
 			}
 		}
 	}

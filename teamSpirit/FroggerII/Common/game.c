@@ -233,7 +233,7 @@ void GameProcessController(long pl)
 		player[pl].idleTime = MAX_IDLE_TIME;
 		idleCamera = 0;
 
-		if( ((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && !(player[pl].hasDoubleJumped) )
+		if( player[pl].isSuperHopping && !player[pl].hasDoubleJumped ) // && (player[pl].heightJumped > -125.0F)
 		{
 			GAMETILE *old;
 			PlaySample(GEN_FROG_DOUBLEHOP,&frog[pl]->actor->pos,0,200,60);

@@ -50,10 +50,37 @@ int lineNumber = 0;
 
 #endif
 
+typedef struct tagRUNANIMINFO
+{
+	int anim, loop, queue;
+	float speed;
+} RUNANIMINFO;
+
 /* --------------------------------------------------------------------------------- */
 
 TRIGGER *LoadTrigger(UBYTE**);
 BOOL ExecuteCommand(UBYTE**);
+void LoadTestScript(const char* filename);
+
+void InterpretEvent( EVENT *e );
+int ANDtrigger(TRIGGER *t);
+int ORtrigger(TRIGGER *t);
+int NOTtrigger(TRIGGER *t);
+int AlwaysTrigger(TRIGGER *t);
+int OnFlagSet(TRIGGER *t);
+int OnCounterEquals(TRIGGER *t);
+
+int EnumPlatforms(long id, int (*func)(PLATFORM*, int), int param);
+int EnumEnemies(long id, int (*func)(ENEMY*, int), int param);
+
+int SetEnemyFlag(ENEMY *e, int flag);
+int ResetEnemyFlag(ENEMY *e, int flag);
+int SetPlatformFlag(PLATFORM *p, int flag);
+int ResetPlatformFlag(PLATFORM *p, int flag);
+int CollapsePlatform(PLATFORM *p, int time);
+int AnimateEnemy(ENEMY *e, int params);
+int AnimatePlatform(PLATFORM *p, int params);
+
 
 UBYTE* scriptBuffer;
 
@@ -528,6 +555,20 @@ int CollapsePlatform(PLATFORM *p, int time)
 	p->countdown = time + Random(time / 4); return 1;
 }
 
+int AnimateEnemy(ENEMY *e, int params)
+{
+	RUNANIMINFO *i = (RUNANIMINFO*)params;
+	AnimateActor(e->nmeActor->actor, i->anim, i->loop, i->queue, i->speed, NO, NO);
+	return 1;
+}
+
+int AnimatePlatform(PLATFORM *p, int params)
+{
+	RUNANIMINFO *i = (RUNANIMINFO*)params;
+	AnimateActor(p->pltActor->actor, i->anim, i->loop, i->queue, i->speed, NO, NO);	
+	return 1;
+}
+
 /*	--------------------------------------------------------------------------------
     Function		: ExecuteCommand
 	Parameters		: UBYTE*
@@ -600,18 +641,19 @@ BOOL ExecuteCommand(UBYTE **p)
 		
 	case EV_ANIMATEACTOR:
 		{
-			ACTOR2 *actor;
-			char anim, flags;
-			float speed;
+			RUNANIMINFO i;
+			int id, flags;
 
-			actor = GetActorFromUID(MEMGETWORD(p));
-			if (!actor) return 0;
+			id = MEMGETWORD(p);
 
-			anim = MEMGETBYTE(p);
+			i.anim = MEMGETBYTE(p);
 			flags = MEMGETBYTE(p);
-			speed = MEMGETFLOAT(p);
+			i.loop = (flags & 1);
+			i.queue = (flags & 2);
+			i.speed = MEMGETFLOAT(p);
 
-			AnimateActor(actor->actor,anim,(char)(flags & 1),(char)(flags & 2),speed,0,0);
+			EnumEnemies(id, AnimateEnemy, (int)&i);
+			EnumPlatforms(id, AnimatePlatform, (int)&i);
 			break;
 		}
 
