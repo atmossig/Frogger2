@@ -270,6 +270,15 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface(long xs,long ys, long cKey, long alphaS
 	return pSurface;
 }	
 
+
+/*  --------------------------------------------------------------------------------
+	Function	: D3DCreateTexSurfaceScreen
+	Purpose		:
+	Parameters	: (long xs,long ys, long cKey, long alphaSurf, long videoRam)
+	Returns		: LPDIRECTDRAWSURFACE7 
+	Info		:
+*/
+
 LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long alphaSurf, long videoRam)
 { 
 	LPDIRECTDRAWSURFACE7 pSurface,pTSurface = NULL;
@@ -306,6 +315,15 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long 
 }	
 
 
+
+/*  --------------------------------------------------------------------------------
+	Function	: D3DCreateSurface
+	Purpose		:
+	Parameters	: (long xs,long ys, long cKey,long videoRam)
+	Returns		: LPDIRECTDRAWSURFACE7 
+	Info		:
+*/
+
 LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam)
 { 
 	LPDIRECTDRAWSURFACE7 pSurface,pTSurface = NULL;
@@ -340,6 +358,13 @@ LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam)
 	return pSurface;
 }	
 
+/*  -------------------------------------------------------------------------------
+	Function	: D3DCreateTexSurface2
+	Purpose		:
+	Parameters	: (long xs,long ys,long videoRam, long texSrf)
+	Returns		: LPDIRECTDRAWSURFACE7
+	Info		:
+*/
 
 LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long texSrf)
 { 
@@ -411,7 +436,8 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 		}
 		cY+=dY;
 	}
-/*
+
+/* I think this code does a kind of bluring on the resultant image, use instead of code above?
 	for (y = 1; y<nxs-1; y++)
 		for (x = 1; x<nxs-1; x++)
 		{
@@ -459,12 +485,28 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short
 }
 
 
+/*  -------------------------------------------------------------------------------
+	Function	: BeginDraw
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void
+	Info		:
+*/
+
 void BeginDraw(void)
 {
 	if (rHardware)
 		pDirect3DDevice->BeginScene();
 
 }
+
+/*  -------------------------------------------------------------------------------
+	Function	: EndDraw
+	Purpose		:
+	Parameters	: (void)
+	Returns		: void
+	Info		:
+*/
 
 void EndDraw(void)
 {
@@ -510,6 +552,14 @@ unsigned long DDrawCopyToSurface2(LPDIRECTDRAWSURFACE7 pSurface, unsigned short 
 	return texHasMagenta;
 }
 
+
+/*  -------------------------------------------------------------------------------
+	Function	: DDrawCopyToSurface
+	Purpose		:
+	Parameters	: (LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, long convert)
+	Returns		: unsigned long
+	Info		:
+*/
 
 unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, long convert)
 {
