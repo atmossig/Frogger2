@@ -37,6 +37,7 @@ extern void RunDemoOption	( void );
 extern void RunSaveLoadSelect ( void );
 extern void RunTitleScreen ( void );
 extern void RunLevelSelect ( void );
+extern void RunSelectAllLevels( void );
 
 extern void RunGameMode ( void );
 
