@@ -106,7 +106,6 @@ typedef struct TAGENEMY
 	unsigned long			flags;					// enemy flags
 	
 	float					startSpeed;				// enemy start speed
-//	float					endSpeed;				// enemy end speed
 	float					speed;					// enemy current speed
 	float					accel;					// enemy acceleration
 
@@ -138,15 +137,12 @@ extern ENEMY *testEnemy;
 // FUNCTION PROTOTYPES
 
 extern void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID);
-//extern ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,float offset2,int startNode,float eSpeed,unsigned long eFlags);
-//extern ENEMY *CreateAndAddEnemyWithPath(char *eActorName, PATH *path, int startNode, float eSpeed, unsigned long eFlags);
 
 extern void InitEnemyLinkedList();
 extern void FreeEnemyLinkedList();
 extern void AddEnemy(ENEMY *enemy);
 extern void SubEnemy(ENEMY *enemy);
 
-//extern PATH *CreateEnemyPathFromTileList(unsigned long *pIndex,float offset,float offset2);
 extern void UpdateEnemies();
 
 extern void ProcessNMEMower(ACTOR2 *nme);
@@ -159,8 +155,6 @@ extern void ProcessNMECar(ACTOR2 *nme);
 extern void ProcessNMETruck(ACTOR2 *nme);
 extern void ProcessNMEDog(ACTOR2 *nme);
 extern void ProcessNMEShark(ACTOR2 *nme);
-
-//extern BOOL EnemyHasArrivedAtNode(ENEMY *enemy, int toNodeID);
 
 //------------------------------------------------------------------------------------------------
 
