@@ -351,12 +351,19 @@ void UpdateFroggerPos(long pl)
 		}
 	}
 
-	if(player[pl].frogState & FROGSTATUS_ISWANTINGU)
+	/* ----------------------- Frog wants to HOP u/d/l/r ----------------------------- */
+
+	if(player[pl].frogState & (FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD))
 	{
-		if (player[pl].frogState & FROGSTATUS_ISFLOATING )
-			prevTile = currTile[pl];
-		// requests up
-		if(!MoveToRequestedDestination(MOVE_UP,pl))
+		int dir;
+		if (player[pl].frogState & FROGSTATUS_ISWANTINGU)		dir = MOVE_UP;
+		else if (player[pl].frogState & FROGSTATUS_ISWANTINGD)	dir = MOVE_DOWN;
+		else if (player[pl].frogState & FROGSTATUS_ISWANTINGL)	dir = MOVE_LEFT;
+		else dir = MOVE_RIGHT;
+
+		if (player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
+		
+		if(!MoveToRequestedDestination(dir, pl))
 		{
 			if ( !( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
 			{
@@ -375,108 +382,16 @@ void UpdateFroggerPos(long pl)
 			}
 			// ENDELSEIF
 			
-			player[pl].frogState &= ~FROGSTATUS_ISWANTINGU;
+			player[pl].frogState &=
+				~(FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|
+				FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD);
 		}
 		move = moveVal;
-		nextFrogFacing[pl] = nextCamFacing;
-		frogFacing[pl] = camFacing;
+		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
 		PlaySample ( 24,NULL,255,128);
 	}
-	else if(player[pl].frogState & FROGSTATUS_ISWANTINGD)
-	{
-		if (player[pl].frogState & FROGSTATUS_ISFLOATING )
-			prevTile = currTile[pl];
-		// requests up
-		if(!MoveToRequestedDestination(MOVE_DOWN,pl))
-		{
-			if ( !(player[pl].frogState & FROGSTATUS_ISFLOATING )	)
-			{
-				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
-				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
 
-				if ( currPlatform[pl] )
-					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
-				else
-					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
-			}
-			else
-			{
-				destTile[pl] = prevTile;
-			}
-			// ENDELSEIF
-			
-			player[pl].frogState &= ~FROGSTATUS_ISWANTINGD;
-		}
-		move = moveVal;
-		PlaySample ( 24,NULL,255,128);
-		nextFrogFacing[pl] = (nextCamFacing + 2) & 3;
-		frogFacing[pl] = (camFacing + 2) & 3;
-
-	}
-	else if(player[pl].frogState & FROGSTATUS_ISWANTINGL)
-	{
-		if (player[pl].frogState & FROGSTATUS_ISFLOATING )
-			prevTile = currTile[pl];
-		// requests up
-		if(!MoveToRequestedDestination(MOVE_LEFT,pl))
-		{
-			if ( !(player[pl].frogState & FROGSTATUS_ISFLOATING )	)
-			{
-				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
-				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
-
-				if ( currPlatform[pl] )
-					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
-				else
-					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
-			}
-			else
-			{
-				destTile[pl] = prevTile;
-			}
-			// ENDELSEIF
-			
-			player[pl].frogState &= ~FROGSTATUS_ISWANTINGL;
-		}
-		move = moveVal;
-		nextFrogFacing[pl] = (nextCamFacing + 1) & 3;		
-		frogFacing[pl] = (camFacing + 1) & 3;		
-
-		PlaySample ( 24,NULL,255,128);
-	}
-	else if(player[pl].frogState & FROGSTATUS_ISWANTINGR)
-	{
-		if (player[pl].frogState & FROGSTATUS_ISFLOATING )
-			prevTile = currTile[pl];
-		// requests up
-		if(!MoveToRequestedDestination(MOVE_RIGHT,pl))
-		{
-			if ( !(player[pl].frogState & FROGSTATUS_ISFLOATING )	)
-			{
-				frog[pl]->actor->animation->animTime = 0;
-				AnimateActor(frog[pl]->actor,0,NO,NO,frogAnimSpeed);
-				AnimateActor(frog[pl]->actor,3,YES,YES,1.0F);
-
-				if ( currPlatform[pl] )
-					player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
-				else
-					player[pl].frogState |= FROGSTATUS_ISSTANDING;			
-			}
-			else
-			{
-				destTile[pl] = prevTile;
-			}
-			// ENDELSEIF
-			
-			player[pl].frogState &= ~FROGSTATUS_ISWANTINGR;
-		}
-		move = moveVal;
-		nextFrogFacing[pl] = (nextCamFacing + 3) & 3;		
-		frogFacing[pl] = (camFacing + 3) & 3;		
-		PlaySample ( 24,NULL,255,128);
-	}
+	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
 
 	if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPU)
 	{
@@ -579,6 +494,7 @@ void UpdateFroggerPos(long pl)
 		CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&frog[pl]->actor->pos,&upVec,15,1,0.3,15);
 	}
 	
+	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
 	
 	if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)
 	{
@@ -652,6 +568,8 @@ void UpdateFroggerPos(long pl)
 
 		CreateAndAddFXRipple(RIPPLE_TYPE_DUST,&frog[pl]->actor->pos,&upVec,5,1,0.15,15);
 	}
+
+	/* ---------------------------------------------------- */
 
 	// process frog's jump
 	if ( (player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE ) && ( destTile[pl] ) )
@@ -1500,11 +1418,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			{
 				player[pl].frogState |= FROGSTATUS_ISSPRINGING;
 //				frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-				player[pl].frogState &= ~FROGSTATUS_ISONMOVINGPLATFORM;
-				player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
-				player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
-				player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+				player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISONMOVINGPLATFORM |
+						FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING | FROGSTATUS_ISFLOATING);
 				speedTest  = 44.0f;
 				croakFloat = 0;
 				camSpeed   = 1;
@@ -1530,12 +1445,9 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				}
 
 				player[pl].frogState |= FROGSTATUS_ISSTANDING;
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
-				player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
-				player[pl].frogState &= ~FROGSTATUS_ISONMOVINGPLATFORM;
-				player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
-				player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
-				player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
+				player[pl].frogState &= ~(FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISJUMPINGTOPLATFORM |
+					FROGSTATUS_ISONMOVINGPLATFORM |	FROGSTATUS_ISSUPERHOPPING | FROGSTATUS_ISLONGHOPPING |
+					FROGSTATUS_ISFLOATING);
 
 				// Next, check if Frogger has landed on a collectable, too....
 				CheckTileForCollectable(destTile[pl]);
@@ -1573,6 +1485,10 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
 					PlaySample(88,NULL,255,128);
 				}
+
+				// Check for camera transitions on the tile
+				CheckForDynamicCameraChange(currTile[0]);
+				//CameraLookAtFrog();
 			}
 			// ENDELSEIF
 		}

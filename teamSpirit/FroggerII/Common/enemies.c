@@ -26,6 +26,10 @@ VECTOR snapPos;
 ENEMY *devNME1	= NULL;
 
 
+
+#define ENEMY_RANDOMNESS (0.5 + (Random(100)/100.0))	// returns a value from 0.5 to 1.5
+
+
 /**************************************************************************************************************/
 /******  GARDEN LAWN LEVEL  ***********************************************************************************/
 /**************************************************************************************************************/
@@ -609,9 +613,9 @@ void UpdateEnemies()
 				}
 			}
 
-			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
-				if (Random(1))
-					cur->path->endFrame += (Random(100)/1000.0)*cur->speed;
+//			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+//				if (Random(1))
+//					cur->path->endFrame += (Random(100)/1000.0)*cur->speed;
 
 //					cur->speed = (Random(100)/100.0)*cur->path->nodes[cur->path->fromNode].speed;
 				
@@ -1701,6 +1705,9 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 	}
 
 	nme->speed		= GetSpeedFromIndexedNode(path,path->fromNode);
+
+	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
+
 	nme->isWaiting	= GetWaitTimeFromIndexedNode(path,path->fromNode);
 	CalcEnemyNormalInterps(nme);
 }

@@ -55,9 +55,9 @@
 enum
 {
 	MOVE_UP,
-	MOVE_RIGHT,
-	MOVE_DOWN,
 	MOVE_LEFT,
+	MOVE_DOWN,
+	MOVE_RIGHT
 };
 
 enum

@@ -1135,12 +1135,8 @@ void RunGameLoop (void)
 				//		InitActorAnim(babies[i]->actor);
 						AnimateActor(babies[i]->actor,0,YES,NO,1.0);
 					}
-					if ( gameState.mode != CAMEO_MODE )
-					{
-						CheckForDynamicCameraChange(currTile[0]);
-						CameraLookAtFrog();
-					}
 					// ENDIF
+					CameraLookAtFrog();
 					UpdateCameraPosition(0);
 					for (i=0; i<4; i++)
 					{
