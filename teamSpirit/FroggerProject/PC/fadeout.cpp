@@ -59,7 +59,8 @@ void ScreenFade(int start, int end, long time)
 	fadeProc = DrawScreenFade;
 	fadeoutStart = actFrameCount;
 	fadeoutLength = time;
-	
+	fadingOut = 1;
+
 	// cause we're using subtractive
 	startIntensity = 255-start;
 	endIntensity = 255-end;
