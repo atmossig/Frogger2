@@ -526,9 +526,17 @@ void DeathInflation( int pl )
 	FindObject( &frog[pl]->actor->objectController, UpdateCRC("dth-ball.obe"), "dth-ball.obe", NO );
 	InitActorAnim( frog[pl]->actor );
 
-	// TODO: Randomly play different type of inflation anim
-	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.2, 0, 0 );
-	AnimateActor( frog[pl]->actor, 1, YES, YES, 0.2, 0, 0 );
+	// Randomly play different type of inflation anim
+	if( Random(2) )
+	{
+		AnimateActor( frog[pl]->actor, 0, NO, NO, 0.2, 0, 0 );
+		AnimateActor( frog[pl]->actor, 2, YES, YES, 0.2, 0, 0 );
+	}
+	else
+	{
+		AnimateActor( frog[pl]->actor, 1, NO, NO, 0.2, 0, 0 );
+		AnimateActor( frog[pl]->actor, 3, YES, YES, 0.2, 0, 0 );
+	}
 
 	GTInit( &player[pl].dead, 5 );
 }
