@@ -209,7 +209,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	fx.flags = SPRITE_SUBTRACTIVE;
 	fx.a = alpha;
 	fx.zDepthOff = -18;	//bring the shadow closer to the camera
-	fx.r = fx.g = fx.b = 0;
+	fx.r = fx.g = fx.b = 0xff;
 
 	Print3D3DSprite( &fx, vT );
 }
