@@ -626,14 +626,14 @@ void LoadLevelEvents(int worldID, int levelID)
 	long size, read;
 	void* buffer;
 
-	sprintf(file, "%s%sevent-%d-%d.fev", baseDirectory, ENTITY_BASE, worldID, levelID);
+	sprintf(file, "%s%sscript-%d-%d.fev", baseDirectory, ENTITY_BASE, worldID, levelID);
 
 	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (h == INVALID_HANDLE_VALUE)
 	{
-		dprintf"Couldn't load event file %s\n", file)); return;
+		dprintf"Couldn't load script %s\n", file)); return;
 	}
 
 	size = GetFileSize(h, NULL);
