@@ -22,7 +22,7 @@
 #include "islutil.h"
 #include "collect.h"
 
-const UBYTE fileVersion = 15;
+const UBYTE fileVersion = 16;
 const UBYTE releaseVersion = 0x40;
 
 int releaseQuality = 0;
@@ -235,6 +235,14 @@ BOOL LoadCreateList(const char* filename)
 	}
 
 	ver = ReadByte(f);
+	if (ver & releaseVersion)
+	{
+		state.fastLoad = 1;
+		ver &= ~releaseVersion;
+	}
+	else
+		state.fastLoad = 0;
+
 	if (ver > fileVersion || ver < 2)
 	{
 		int i = ver;
@@ -251,14 +259,6 @@ BOOL LoadCreateList(const char* filename)
 		return FALSE;
 	}
 
-	if (ver & releaseVersion)
-	{
-		state.fastLoad = 1;
-		ver &= ~releaseVersion;
-	}
-	else
-		state.fastLoad = 0;
-
 	state.f = f;
 	state.ver = ver;
 
@@ -266,7 +266,10 @@ BOOL LoadCreateList(const char* filename)
 	if (ver >= 13)
 	{
 		int i;
-		
+
+		if (ver >= 16)
+			ReadWord(f);	// total pathnodes
+
 		pathCount = ReadWord(f);
 		pathList = malloc(sizeof(EDITPATH*) * pathCount);
 
@@ -276,6 +279,10 @@ BOOL LoadCreateList(const char* filename)
 		for (i = 0; i < pathCount; i++)
 			pathList[i] = ReadEditPath(&state);
 
+		if (ver >= 16)
+			for (i=0; i<5; i++)
+				ReadWord(f);	// total enemies, platforms, garibs, cameracases and placeholders
+		
 		count = ReadWord(f);
 	}
 	else
@@ -314,6 +321,7 @@ BOOL LoadCreateList(const char* filename)
 					utilPrintf("FindNearestTile() returned NULL\n");
 					continue;
 				}
+				GetTilePos(&pos, tile);
 				ep = CreateEditPath();
 				EditorAddFlag(tile, ep);
 				
@@ -380,6 +388,7 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 	CREATEENTITY *create;
 	EDITGROUPNODE *node;
 	int i, count;
+	int counters[5];
 	EDVECTOR v;
 
 	int numPaths = 0;
@@ -420,6 +429,16 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 		if (!found) pathBuf[numPaths++] = path;
 	}
 
+	// Write the total number of path nodes in the woooooorrrrrrld
+
+	for (i =0; i < numPaths; i++)
+	{
+		EDITPATHNODE *node;
+		for(node=pathBuf[i]->nodes; node; node = node->link, count++);
+	}
+	
+	WriteWord(count, f);
+
 	// Write this list to the start of the file
 
 	WriteWord(numPaths, f);
@@ -428,9 +447,14 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 	
 	// ----------------------- Step 2: Write the entity list ---------------------------
 	
-	for (count = 0, node = list->nodes; node; node = node->link, count++);
-	WriteWord(count, f);
+	for (count = 0, node = list->nodes; node; node = node->link, count++)
+		counters[((CREATEENTITY*)(node->thing))->thing]++;
 
+	for (i=0; i<5; i++)
+		WriteWord(counters[i], f);
+
+	WriteWord(count, f);
+	
 	for (node = list->nodes; node; node = node->link)
 	{
 		create = (CREATEENTITY*)node->thing;
@@ -538,7 +562,6 @@ EDITPATH *ReadEditPath(EDLOADSTATE *state)
 	EDITPATH *path;
 	EDITPATHNODE *node;
 	int count;
-	EDVECTOR v;
 	GAMETILE *tile, *prevtile = NULL;
 	HANDLE f = state->f;
 
