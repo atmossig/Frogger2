@@ -1622,7 +1622,7 @@ void DrawSortedPrimitivesFaded ( int depth )
 	if (!primsleft)
 		return;
 
-	polyCount += primsleft;	
+//	polyCount += primsleft;	
 
 	opcd = 0;
 

@@ -1007,11 +1007,11 @@ void MapDraw_DrawFMA_Mesh2Water(FMA_MESH_HEADER *mesh)
 				addPrimLen(ot+(depth), (si),12,t2);
 // Copy the polygon data over into the OT
 //#ifdef TEMP_STORE
-				u=op->u0+ ((frame/2)%32);
+				u=op->u0;//+ ((frame/2)%32);
 				v=op->v0;
 				t1 = WATERANIM_1|(op->clut<<16)|WATER_TRANS_CLUT;
 
-				u=op->u1 + ((frame/2)%32);
+				u=op->u1;// + ((frame/2)%32);
 				v=op->v1;
 				t2 = WATERANIM_1|(op->tpage<<16);
 
@@ -1019,11 +1019,11 @@ void MapDraw_DrawFMA_Mesh2Water(FMA_MESH_HEADER *mesh)
 				*(u_long *)  (&si->u1) = t2;
 				gte_stsxy3_gt4(si);	// The first 3 x's & y's are already in the gte, so we may as well use 'em
 
-				u=op->u2+ ((frame/2)%32);
+				u=op->u2;//+ ((frame/2)%32);
 				v=op->v2;
 				t1 = WATERANIM_2;
 
-				u=op->u3+ ((frame/2)%32);
+				u=op->u3;//+ ((frame/2)%32);
 				v=op->v3;
 				t2 = WATERANIM_2;
 
