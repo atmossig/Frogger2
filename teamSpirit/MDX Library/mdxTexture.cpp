@@ -323,6 +323,36 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	return NULL;
 }
 
+short tempdata[256*256];
+void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSURFACE7 srf)
+{
+	long xS,yS,mPitch,j;
+	HRESULT res;
+	
+	if (texture)
+	{
+		xS = texture->xSize;
+		yS = texture->ySize;
+
+		DDSURFACEDESC2		ddsd;
+		DDINIT(ddsd);
+
+		
+		while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+		
+		mPitch = ddsd.lPitch/2;
+
+		for (j = 0; j<yS; j++)
+			memcpy(&tempdata[j*xS],&(((short *)ddsd.lpSurface)[x+(j+y)*mPitch]),xS*2);
+		
+		surface[RENDER_SRF]->Unlock(NULL);
+		
+
+		DDrawCopyToSurface2(texture->surf,(unsigned short *)tempdata,xS,yS);
+	}
+
+}
+
 unsigned long LoadTexBank(char *bank, char *baseDir)
 {
 	char	fName[MAX_PATH];
@@ -364,7 +394,7 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 			
 			me = AddTextureToTexList (finalFile,finalShort,!ret);			
 
-			if ((me) && (finalShort[0] == '0'))
+			if (me)
 			{
 				strcpy (fAnim,fPath);
 				strcat (fAnim,finalShort);
@@ -387,13 +417,16 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 					me->frameTimes = new float[me->numFrames];
 					me->frames = new LPDIRECTDRAWSURFACE7[me->numFrames];
 					me->lastGameFrame = me->lastFrame = 0;
-
+					me->updated = 0;
 					for (int i=0; i<me->numFrames; i++)
 					{
 						fgets(line,255,animFp);
 						sscanf(line,"%s",tempName);
 						fgets(line,255,animFp);
-						sscanf(line,"%f",&(me->frameTimes[i]));										
+						if (line[0]=='"')
+							me->frameTimes[i] = me->frameTimes[i-1];
+						else
+							sscanf(line,"%f",&(me->frameTimes[i]));										
 						me->frames[i] = (LPDIRECTDRAWSURFACE7)UpdateCRC(tempName);	
 					}
 					fclose(animFp);
@@ -413,12 +446,15 @@ unsigned long LoadTexBank(char *bank, char *baseDir)
 	// Update CRC's in framelists with relevant surfaces (Will need to add the softdata, when software is implemented!)
 	
 	for( me = texList; me; me = me->next)
-		if (me->numFrames>1)
+		if ((me->numFrames>1) && (!me->updated))
+		{
 			for (int i=0; i<me->numFrames; i++)
 				if (tex = GetTexEntryFromCRC((long)me->frames[i]))
 					me->frames[i] = tex->surf;
 				else
 					me->frames[i] = NULL;
+				me->updated++;
+		}
 	return 1;
 }
 
@@ -455,8 +491,6 @@ void FreeAllTextureBanks()
 	{
 		next = cur->next;
 
-		
-		
 /* Pending animated textures
 
 		cur2 = cur->nextFrame;

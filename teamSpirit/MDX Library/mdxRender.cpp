@@ -213,6 +213,7 @@ inline int __fastcall calcIntVertex(D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX 
 
 void __fastcall Clip3DPolygon (D3DTLVERTEX in[3], MDX_TEXENTRY *tEntry)
 {
+	register
 	D3DTLVERTEX		vList[10];
 	int				out0, out1;
 	D3DTLVERTEX 	*v0ptr, *v1ptr, vBuf1[8], vBuf2[8], *vIn, *vOut, *vTmp,*vOut2,*vIn2;

@@ -193,6 +193,7 @@ void GetArgs(char *arglist)
 
 					case 'K': case 'k':
 						debugKeys = !debugKeys;
+						displayDebugInfo = debugKeys;
 						utilPrintf("Debug keys %s\n",debugKeys?"enabled":"disabled");
 						break;
 
@@ -639,6 +640,8 @@ long DrawLoop(void)
 		if (KEYPRESS(DIK_F9))
 			ScreenShot();
 
+	//GrabSurfaceToTexture(100, 50, GetTexEntryFromCRC(UpdateCRC("febwood.bmp")),surface[RENDER_SRF]);	
+	
 	DDrawFlip();
 	EndTimer(17);
 	StartTimer(18,"Clear");

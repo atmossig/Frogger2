@@ -454,6 +454,37 @@ void EndDraw(void)
 	Info		: 
 */
 
+unsigned long DDrawCopyToSurface2(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long xs, unsigned long ys)
+{
+	DDSURFACEDESC2		ddsd;
+	short val,r,g,b,a,rShift,gShift,gAnd;
+	unsigned long texHasMagenta = 0;
+	
+	// Copy the data into the surface manually
+	DDINIT(ddsd);
+	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+
+	
+	rShift = r565; 		
+	
+	for (unsigned int y=0;y<ys;y++)
+		for (unsigned int x=0;x<xs;x++)
+		{
+			val  = data[x+y*xs];
+			val = ((val>>rShift) & 0x7FE0) | (val&0x1f);
+			
+			if (val!=(0x1f | 0x1f<<10))
+				val |= 0x8000;
+			else
+				texHasMagenta = 1;
+			((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
+		}
+
+	pSurface->Unlock(NULL);
+	return texHasMagenta;
+}
+
+
 unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys, long convert)
 {
 	DDSURFACEDESC2		ddsd;
