@@ -603,9 +603,19 @@ void PsiActor2ClipCheck(ACTOR2* act)
 		actorUpdateAnimations(act->actor);
 		//TIMER_STOP_ADD1(TIMER_UPANI);
 
-		//TIMER_START1(TIMER_SETANI);
-		actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
-		//TIMER_STOP_ADD1(TIMER_SETANI);
+		if ( act->actor->psiData.flags & ACTOR_DYNAMICSORT )
+		{
+			if ( act->actor->animation.blendSpeed )
+			{
+				actorSetAnimation2 ( act->actor,	act->actor->animation.blendStartFrame,
+																					act->actor->animation.blendEndFrame, act->actor->animation.blendFrame );
+			}
+			else
+				actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
+		}
+		else
+			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
+		
 
 		QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
 		act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
