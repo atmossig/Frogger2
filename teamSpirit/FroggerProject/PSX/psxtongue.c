@@ -80,89 +80,63 @@ void DrawTongueSegment(SVECTOR *vt, TextureType *tEntry)
 void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 {
 	TONGUE *t = &tongue[pl];
-	FVECTOR p1, p2;
+	FVECTOR p1, p2, pos, m, normal, tempV;
 	IQUATERNION q, cross;
 	fixed p;
-	FVECTOR pos, m, normal, cam;
-	VECTOR tempVect;
 	SVECTOR tempSvect;
-	long sxy, sz;
-
-	MATRIX tempMtx;
+	MATRIX rMtrx;
+	long sz;
 
 	SetVectorFF(&pos, &t->segment[i]);
-//	ScaleVectorFF(&pos, 410);
-
-
-	SetVectorFF(&cam, &currCamSource);
-	SubVectorFFF(&normal, &cam, &pos);
+	SubVectorFFF(&normal, &currCamSource, &pos);
 	MakeUnit(&normal);
 	CrossProductFFF((FVECTOR*)&cross, &normal, &upVec);
 	MakeUnit((FVECTOR*)&cross);
 	p = DotProductFF(&normal, &upVec);
 	cross.w = -arccos(p);
 	fixedGetQuaternionFromRotation(&q, &cross);
-	QuatToPSXMatrix(&q, &tempMtx);
+	QuatToPSXMatrix(&q, &rMtrx);
 
-	tempMtx.t[0] = -pos.vx>>12;
-	tempMtx.t[1] = -pos.vy>>12;
-	tempMtx.t[2] = pos.vz>>12;
+	rMtrx.t[0] = -pos.vx>>12;
+	rMtrx.t[1] = -pos.vy>>12;
+	rMtrx.t[2] = pos.vz>>12;
 
-
-
-//	p1.vx = 20480-(i*1638);
-	p1.vx = -12000+(i*1024);
-	p1.vx *= SCALE;
-	p1.vy = 0;
-	p1.vz = 0;
+	p1.vx = (-12000+(i*1024))*SCALE;
+	p1.vy = p1.vz = 0;
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
-	vT[0].vx = p2.vx>>12;
-	vT[0].vy = p2.vy>>12;
-	vT[0].vz = p2.vz>>12;
+	SetVectorSF( &vT[0], &p2 );
 
-//	p1.vx = 20480-(i*1638);
-	p1.vx = 12000+(i*1024);
-	p1.vx *= SCALE;
-	p1.vy = 0;
-	p1.vz = 0;
+	p1.vx = (12000+(i*1024))*SCALE;
+	p1.vy = p1.vz = 0;
 	RotateVectorByQuaternionFF( &p2, &p1, &frog[pl]->actor->qRot );
-	vT[1].vx = p2.vx>>12;
-	vT[1].vy = p2.vy>>12;
-	vT[1].vz = p2.vz>>12;
+	SetVectorSF( &vT[1], &p2 );
 
+	// Rotation and translation
+	SetVectorFS(&tempV,&vT[0]);
+	ApplyMatrixLV( &rMtrx, &tempV, &tempV );
+	SetVectorSF(&tempSvect,&tempV);
+	tempSvect.vx += rMtrx.t[0]; tempSvect.vy += rMtrx.t[1]; tempSvect.vz += rMtrx.t[2];
 
-
-
-	ApplyMatrix(&tempMtx, &vT[0], &tempVect);
-	SetVectorSV(&tempSvect, &tempVect);
-	//bbdebug
-	tempSvect.vx += tempMtx.t[0]; tempSvect.vy += tempMtx.t[1]; tempSvect.vz += tempMtx.t[2];
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_ldv0(&tempSvect);
 	gte_rtps();
-	gte_stsxy(&sxy);
-//	gte_stsz(&sz);	//screen z/4 as otz
-	gte_stszotz(&sz);	//screen z/4 as otz
-	vT[0].vx = (short)(sxy&0xffff);
-	vT[0].vy = (short)(sxy>>16);
+	gte_stsxy(&vT[0].vx);
+	gte_stszotz(&sz);
 	vT[0].vz = sz;
 
+	// Rotation and translation
+	SetVectorFS(&tempV,&vT[1]);
+	ApplyMatrixLV( &rMtrx, &tempV, &tempV );
+	SetVectorSF(&tempSvect,&tempV);
+	tempSvect.vx += rMtrx.t[0]; tempSvect.vy += rMtrx.t[1]; tempSvect.vz += rMtrx.t[2];
 
-
-	ApplyMatrix(&tempMtx, &vT[1], &tempVect);
-	SetVectorSV(&tempSvect, &tempVect);
-	//bbdebug
-	tempSvect.vx += tempMtx.t[0]; tempSvect.vy += tempMtx.t[1]; tempSvect.vz += tempMtx.t[2];
 	gte_SetTransMatrix(&GsWSMATRIX);
 	gte_SetRotMatrix(&GsWSMATRIX);
 	gte_ldv0(&tempSvect);
 	gte_rtps();
-	gte_stsxy(&sxy);
-//	gte_stsz(&sz);	//screen z/4 as otz
-	gte_stszotz(&sz);	//screen z/4 as otz
-	vT[1].vx = (short)(sxy&0xffff);
-	vT[1].vy = (short)(sxy>>16);
+	gte_stsxy(&vT[1].vx);
+	gte_stszotz(&sz);
 	vT[1].vz = sz;
 }
 
