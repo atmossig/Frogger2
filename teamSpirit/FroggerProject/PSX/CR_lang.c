@@ -384,7 +384,7 @@ void languageFrame()
 
 	if(finishing)
 		finishing += 2;
-	else if(padData.debounce[0] & PAD_CROSS)
+	else if((fadingOut == 0) && (padData.debounce[0] & PAD_CROSS))
 	{
 		finishing += 2;
 		ScreenFade(255,0,30);
