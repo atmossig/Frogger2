@@ -481,8 +481,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		LONG spritez, width, height;
 		SVECTOR tempVect;
 
-		gte_SetTransMatrix(&GsWSMATRIX);
-		gte_SetRotMatrix(&GsWSMATRIX);
+//		gte_SetTransMatrix(&GsWSMATRIX);
+//		gte_SetRotMatrix(&GsWSMATRIX);
 
 		BEGINPRIM(si, POLY_FT4);
 
