@@ -13,6 +13,9 @@
 #include "Shell.h"
 #include "layout.h"
 #include "bbpsiani.h"
+#include "frogmove.h"
+#include "babyfrog.h"
+#include "audio.h"
 
 ACTORLIST	actorList;
 
@@ -1632,6 +1635,73 @@ void actorResetAnimation ( ACTOR *actor )
 {
 }
 
+
+char croakDir			= 0;
+void UpdateFrogCroak( int pl )
+{
+	SVECTOR effectPos;
+
+	// frog is croaking
+	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
+	{
+		SPECFX *fx;
+
+		if( breastMatrix )
+		{
+			// Put code here
+		}
+
+		if( !(player[pl].isCroaking.time%2) )
+		{
+			SetVectorSS(&effectPos, &frog[pl]->actor->position);
+			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, 200, 0, 4, 6144 )) )
+			{
+				fx->spin = 20;
+				SetFXColour( fx, 64,64,64);
+				fx->a = 128;
+				fx->fade = 2;
+			}
+			PlayVoice( pl, "frogcroak" );
+		}
+
+		GTUpdate( &player[pl].isCroaking, -1 );
+		if( !player[pl].isCroaking.time )
+		{
+			int baby;
+
+			player[pl].frogState &= ~FROGSTATUS_ISCROAKING;
+
+			// check for nearest baby frog - do radius check ????
+			baby = GetNearestBabyFrog();
+
+			if( baby != -1 )
+			{
+				FVECTOR up;
+				SVECTOR pos;
+				SetVectorFF( &up, &upVec );
+				ScaleVector( &up, 20 );
+				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
+
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[pl]->normal, 200, 0, 4, 6144 )) )
+				{
+					fx->spin = 25;
+					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
+				}
+
+				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
+			}
+		}
+	}
+	else
+	{
+		if( breastMatrix )
+		{
+			breastMatrix->m[0][0] = breastMatrix->m[1][1] = breastMatrix->m[2][2] = 1;
+
+			croakDir = 0;
+		}
+	}
+}
 
 
 

@@ -11,6 +11,8 @@
 #include "tongue.h"
 #include "map_draw.h"
 #include "actor2.h"
+#include "fixed.h"
+#include "layout.h"
 
 
 #define gte_stotz_cpu(r)\
@@ -45,9 +47,9 @@ void DrawSpecialFX ( void )
 					fx->Draw( fx );
 		}
 
- 		for( i=0; i<NUM_FROGS; i++ )
- 			if( tongue[i].flags & TONGUE_BEINGUSED )
- 				DrawTongue( &tongue[i] );
+		for( i=0; i<NUM_FROGS; i++ )
+			if( tongue[i].flags & TONGUE_BEINGUSED )
+				DrawTongue( i );
 	}
 }
 
@@ -308,41 +310,49 @@ void DrawFXDecal( SPECFX *ripple )
 
 void DrawFXRing( SPECFX *ring )
 {
+/*
  	unsigned long  vx, i, j, colour;
  	SVECTOR vT[4];
 	FVECTOR tempV[4];
  	IQUATERNION q1, q2, q3, cross;
  	fixed tilt, t;
  
-//PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
+	//PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
 	colour = ring->r>>1;
 	colour += (ring->g>>1)<<8;
 	colour += (ring->b>>1)<<16;
 
  
-// Rotate around axis
+	//Rotate around axis
  	SetVectorFF((FVECTOR *)&q1, &ring->normal);
  	q1.w = ring->angle;
  	fixedGetQuaternionFromRotation( &q2, &q1 );
  
-// Rotate to be around normal
+	//Rotate to be around normal
  	CrossProductFFF((FVECTOR *)&cross, (FVECTOR *)&q1, &upVec );
  	MakeUnit((FVECTOR *)&cross );
 	t = DotProductFF( (FVECTOR *)&q1, &upVec );
 	cross.w = -arccos(t);
  	fixedGetQuaternionFromRotation( &q3, &cross );
 
-// Combine the rotations
+	//Combine the rotations
  	fixedQuaternionMultiply( &q1, &q2, &q3 );
  
 	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=4 )
 	{
+		POLY_FT4 *ft4;
+		LONG width;
+		LONG height;
+		LONG distancescale;
+		LONG z;
+		VERT tempVect;
+
 		memcpy( tempV, &ringVtx[vx], sizeof(FVECTOR)*4 );
 
-// Transform to proper coords
+		//Transform to proper coords
  		for( j=0; j<4; j++ )
  		{
-// Slant the polys
+			//Slant the polys
  			tilt = ((j < 2) ? ring->tilt : 4096);
 
 			tempV[j].vx	= FMul(tempV[j].vx,FMul(tilt,ring->scale.vx));
@@ -352,18 +362,319 @@ void DrawFXRing( SPECFX *ring )
 			RotateVectorByQuaternionFF(&tempV[j],&tempV[j],&q1);
 
 			SetVectorSF(&vT[j],&tempV[j]);
-//add world coords 
+
+			//add world coords 
 			vT[j].vx += ring->origin.vx;
 			vT[j].vy += ring->origin.vy;
 			vT[j].vz += ring->origin.vz;
- 		}
-//		#ifdef PSX_VERSION
-		Print3D3DSprite ( ring, vT, colour );
-//		#else
-//		Print3D3DSprite ( ring->tex, vT, colour,ring->a );
-//		#endif
 
- 	}
+ 		}//end looping seg's 4 verts
+
+#ifdef PC_VERSION
+		Print3D3DSprite ( ring, vT, colour );
+#else
+		//draw a sprite at the first vertex of the 4
+		//(pc uses 4 for a poly)
+
+		//draw 
+		tempVect.vx = -vT[0].vx;
+		tempVect.vy = -vT[0].vy;
+		tempVect.vz =  vT[0].vz;
+
+ 		ft4 = (POLY_FT4*)currentDisplayPage->primPtr;
+ 		setPolyFT4(ft4);
+ 		setRGB0(ft4, (colour&255),((colour>>8)&255),((colour>>16)&255));
+
+		//scary scaling-and-transform-in-one-go code from the Action Man people...
+//bb
+//		width = (spr->texture->w);
+		width = ring->tex->w;
+
+		gte_SetLDDQB(0);		//clear offset control reg (C2_DQB)
+
+		gte_ldv0(&tempVect);
+
+		gte_SetLDDQA(width);	//shove sprite width into control reg (C2_DQA)
+		gte_rtps();				//do the rtps
+		gte_stsxy(&ft4->x0);	//get screen x and y
+		gte_stszotz(&z);		//get order table z
+		//end of scaling-and-transform
+
+
+		//tbd - make this ditch according to on-screen SIZE
+		//limit to "max poly depth", and we can ditch the "MAXDEPTH" "and" below...
+		if(z < 20) return 0;
+
+
+		gte_stopz(&distancescale);		// get scaled width of sprite
+
+//		width = (distancescale * (spr->scaleX * 25 )) >> 24;
+		width = (distancescale * (ring->scale.vx * 25 )) >> 24;
+		width /= 2;
+
+		//mike	if(width < 3)
+		if(width < 2)
+			return 0;	// better max-distance check
+
+ 		ft4->x1=ft4->x3=ft4->x0+width;
+ 		ft4->x0=ft4->x2=ft4->x0-width;
+   		if(ft4->x1 < -256)
+			return 0;
+   		if(ft4->x0 > 256)
+			return 0;
+
+	//bbtest
+//		height = (distancescale * (spr->scaleY * 25)) >> 24;
+		height = (distancescale * (ring->scale.vy * 25)) >> 24;
+		height /= 2;
+		height /= 2;
+	
+//		if(spr->texture->w == spr->texture->h)
+//			height = width;	//(distancescale * scale) >> 8;
+//		else
+//			height = width * spr->texture->h / spr->texture->w;
+	
+
+		ft4->y2=ft4->y3=ft4->y0+height;
+		ft4->y1=ft4->y0=ft4->y0-height;
+   		if (ft4->y2< -128) return 0;
+   		if (ft4->y0> 128) return 0;
+
+		*(USHORT*)&ft4->u0=			*(USHORT*)&(ring->tex)->u0;	// u0,v0, and clut info
+		*(USHORT*)&ft4->u1=			*(USHORT*)&(ring->tex)->u1;	// u1,v1, and tpage info
+		*(USHORT*)&ft4->u2=			*(USHORT*)&(ring->tex)->u2;	// plus pad1
+		*(USHORT*)&ft4->u3=			*(USHORT*)&(ring->tex)->u3;	// plus pad2
+		*(USHORT*)&ft4->clut=		*(USHORT*)&(ring->tex)->clut;	// plus pad2
+		*(USHORT*)&ft4->tpage=		*(USHORT*)&(ring->tex)->tpage;	// plus pad2
+
+
+
+//		if(spr->flags & SPRITE_TRANSLUCENT )//Only do additive if the 'sprite' fades or is translucent
+		if(ring->flags & SPRITE_TRANSLUCENT )//Only do additive if the 'sprite' fades or is translucent
+		{
+		// SL: modge the RGBs accordingly
+	  		ft4->r0 = ((ring->a*(short)ft4->r0)/255);
+	  		ft4->g0 = ((ring->a*(short)ft4->g0)/255);
+	  		ft4->b0 = ((ring->a*(short)ft4->b0)/255);
+
+		// Make additive
+			ft4->code |= 2;
+			ft4->tpage |= 32;
+		}
+
+ 		addPrim(currentDisplayPage->ot+(z>>2), ft4);
+ 		currentDisplayPage->primPtr += sizeof(POLY_FT4);
+#endif
+ 	
+	}//end looping segments
+*/
+
+
+
+	unsigned long vx, i, j, vxj;
+	SVECTOR vT[5], vTPrev[2];
+	TextureType *tEntry;
+	VECTOR tempVect;
+	VECTOR m;
+	SVECTOR tempSvect;
+	FVECTOR normal, scale, tempFVect;
+	IQUATERNION q1, q2, q3, cross;
+	SVECTOR fxpos, pos;
+	fixed tilt, tilt2, t;
+	int zeroZ = 0;
+	MATRIX tempMtx;
+
+	if( !(tEntry=ring->tex) )
+		return;
+
+	SetVectorFF(&scale, &ring->scale);
+	SetVectorFF(&normal, &ring->normal);
+	SetVectorSS(&pos, &ring->origin);
+
+//	ScaleVectorFF(&scale, 410);
+//	ScaleVectorSF(&pos, 410);
+
+	//Translate to current fx pos and push
+//	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
+//	PushMatrix( tMtrx );
+//bb needs to be after QuatToPSXMatrix (or we could stop it zeroing pos)
+//	tempMtx.t[0] = pos.vx;
+//	tempMtx.t[1] = pos.vy;
+//	tempMtx.t[2] = pos.vz;
+
+	//Rotate around axis (q2)
+	SetVectorFF((FVECTOR*)&q1, &normal);
+//	q1.w = fx->angle/57.6;
+	q1.w = ring->angle;
+//	q1.w = 0;
+	fixedGetQuaternionFromRotation(&q2, &q1);
+
+	//Rotate to be around normal (q3)
+	CrossProductFFF((FVECTOR *)&cross, (FVECTOR *)&q1, &upVec);
+	MakeUnit((FVECTOR *)&cross);
+	t = DotProductFF((FVECTOR *)&q1, &upVec);
+	cross.w = -arccos(t);
+	fixedGetQuaternionFromRotation(&q3, &cross);
+
+	//Combine the rotations and push
+	fixedQuaternionMultiply(&q1, &q3, &q2);
+	QuatToPSXMatrix(&q3, &tempMtx);
+//	PushMatrix( rMtrx );
+//	tempMtx.t[0] = -pos.vx;
+//	tempMtx.t[1] = -pos.vy;
+//	tempMtx.t[2] =  pos.vz;
+
+//	if( fx->type == FXTYPE_CROAK )
+//		SwapFrame(3);
+
+//	tilt2 = (float)fx->tilt*0.000244;
+	tilt2 = ring->tilt;
+
+	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=2 )
+	{
+		// Transform to proper coords
+		for( j=0,zeroZ=0; j<4; j++ )
+		{
+			if( i && j<2 && vTPrev[0].vz && vTPrev[1].vz )
+				memcpy( vT, vTPrev, sizeof(SVECTOR)*2 );
+			else
+			{
+				vxj = (vx+j)%(NUM_RINGSEGS<<1);
+
+				//Slant the polys
+				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 4096 : tilt2;
+
+				//Scale and push
+//				tempFVect.vx = FMul(tilt,scale.vx);
+//				tempFVect.vy = FMul(tilt,scale.vy);
+//				tempFVect.vz = FMul(tilt,scale.vz);
+//				tempFVect.vx = scale.vx;
+//				tempFVect.vy = scale.vy;
+//				tempFVect.vz = scale.vz;
+//				ScaleMatrix(&tempMtx, &tempFVect);
+
+//				vT[j].vx = ringVtx[vxj].vx>>12;//;*0.000244;
+//				vT[j].vy = ringVtx[vxj].vy>>12;//;*0.000244;
+//				vT[j].vz = ringVtx[vxj].vz>>12;//;*0.000244;
+//				vT[j].vx = ringVtx[vxj].vx>>1;
+//				vT[j].vy = ringVtx[vxj].vy>>1;
+//				vT[j].vz = ringVtx[vxj].vz>>1;
+//				vT[j].vx = ringVtx[vxj].vx;
+//				vT[j].vy = ringVtx[vxj].vy;
+///				vT[j].vz = ringVtx[vxj].vz;
+
+//				vT[j].vx += ring->origin.vx;
+//				vT[j].vy += ring->origin.vy;
+//				vT[j].vz += ring->origin.vz;
+
+				//Transform point by combined matrix
+//				ApplyMatrix(&tempMtx, &vT[j], &tempVect);
+//				SetVectorVS(&tempVect, &vT[j]);
+//				SetVectorVF(&tempVect, &vT[j]);
+				tempVect.vx = 
+
+//				tempVect.vx += ring->origin.vx;
+//				tempVect.vy += ring->origin.vy;
+//				tempVect.vz += ring->origin.vz;
+				SetVectorSV(&tempSvect, &tempVect);
+
+				if(j==3)
+//					SetVectorSV(&fxpos, &tempVect);
+					SetVectorSF(&fxpos, &tempVect);
+
+//				XfmPoint( &m, &tempVect, NULL );
+				gte_SetTransMatrix(&GsWSMATRIX);
+				gte_SetRotMatrix(&GsWSMATRIX);
+				gte_ldv0(&tempSvect);
+				gte_rtps();
+				gte_stsxy(&m.vx);
+				gte_stsz(&m.vz);	//screen z/4 as otz
+				
+
+				// Assign back to vT array
+				vT[j].vx = m.vx;
+				vT[j].vy = m.vy;
+				if(!m.vz)
+					zeroZ++;
+				else
+//					vT[j].sz = (m.vz+DIST)*0.00025;
+					vT[j].vz = m.vz;
+//					vT[j].sz = m.vz+ring->zDepthOff;
+
+//				PopMatrix( ); // Pop scale
+			}
+		}
+
+		if( !zeroZ )
+		{
+			POLY_FT4 *ft4;
+			int width;
+
+			memcpy(vTPrev, &vT[2], sizeof(SVECTOR)*2);
+			memcpy(&vT[4], &vT[0], sizeof(SVECTOR));
+//			Clip3DPolygon( vT, tEntry );
+//			Clip3DPolygon( &vT[2], tEntry );
+
+			//set up a poly
+			BEGINPRIM(ft4, POLY_FT4);
+			setPolyFT4(ft4);
+//			*(long*)(&ft4->x0) = *(long*)(&vt[0].vx);
+//			*(long*)(&ft4->x1) = *(long*)(&vt[1].vx);
+//			*(long*)(&ft4->x2) = *(long*)(&vt[2].vx);
+//			*(long*)(&ft4->x3) = *(long*)(&vt[3].vx);
+			width = (ring->tex->w*xFOV)/vT[0].vz;
+			width>>=2;
+
+			ft4->x0 = vT[0].vx - width;
+			ft4->y0 = vT[0].vy - width;
+			ft4->x1 = vT[0].vx + width;
+			ft4->y1 = vT[0].vy - width;
+			ft4->x2 = vT[0].vx - width;
+			ft4->y2 = vT[0].vy + width;
+			ft4->x3 = vT[0].vx + width;
+			ft4->y3 = vT[0].vy + width;
+			ft4->r0 = 128;
+			ft4->g0 = 128;
+			ft4->b0 = 128;
+			ft4->u0 = tEntry->u0;
+			ft4->v0 = tEntry->v0;
+			ft4->u1 = tEntry->u1;
+			ft4->v1 = tEntry->v1;
+			ft4->u2 = tEntry->u2;
+			ft4->v2 = tEntry->v2;
+			ft4->u3 = tEntry->u3;
+			ft4->v3 = tEntry->v3;
+			ft4->tpage = tEntry->tpage;
+			ft4->clut  = tEntry->clut;
+			ENDPRIM(ft4, 1, POLY_FT4);
+//			ENDPRIM(ft4, vT[0].vz>>2, POLY_FT4);
+
+
+/*			if( (i&1) && (actFrameCount&1) )
+			{
+				SPECFX *trail;
+
+				ScaleVector( &fxpos, 10 );
+
+				if( (trail = CreateSpecialEffect( FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096 )) )
+				{
+					trail->tilt = 8192;
+					if( i&2 ) SetFXColour( trail, 180, 220, 180 );
+					else SetFXColour( trail, fx->r, fx->g, fx->b );
+				}
+			}
+*/		}
+		else
+		{
+			vTPrev[0].vz = vTPrev[1].vz = 0;
+		}
+	}
+
+//	PopMatrix( ); // Rotation
+//	PopMatrix( ); // Translation
+
+//	if( fx->type == FXTYPE_CROAK )
+//		SwapFrame(0);
 }
  
 
@@ -540,3 +851,175 @@ void DrawFXLightning( SPECFX *fx )
  
 }
  
+SVECTOR *psxCroakVtx = NULL;
+void CreatePsxCroakVtx(void)
+{
+	fixed angStep = 4096/NUM_PSX_CROAK_VTX;
+	fixed ang=0;
+	int i;
+
+	if(!psxCroakVtx)
+	{
+		psxCroakVtx = MALLOC0( sizeof(VECTOR) * NUM_PSX_CROAK_VTX );
+		if(!psxCroakVtx)
+			utilPrintf("\n\nMALLOC ERROR ! ! ! psxCroakVtx\n\n");
+	}
+
+
+	for(i=0; i<NUM_PSX_CROAK_VTX; i++)
+	{
+		//coords with radius 4096
+		psxCroakVtx[i].vx = rsin(ang);
+		psxCroakVtx[i].vy = 0;
+		psxCroakVtx[i].vz = rcos(ang);
+
+		//set radius to 512 (1 tile)
+		psxCroakVtx[i].vx /= 8;
+		psxCroakVtx[i].vz /= 8;
+
+		ang += angStep;
+	}
+}
+
+void UpdatePsxCroak(SPECFX *ring)
+{
+	int fo;
+	fixed speed;
+
+ 	if( ring->follow )
+ 		SetVectorSS( &ring->origin, &ring->follow->position );
+
+	fo = (ring->fade * gameSpeed)>>12;
+	if( ring->a > fo ) ring->a -= fo;
+	else ring->a = 0;
+
+	ring->speed += FMul(ring->accn, gameSpeed);
+	speed = FMul(ring->speed, gameSpeed);
+
+	ring->scale.vx += speed;
+	ring->scale.vy += speed>>2;
+	ring->scale.vz += speed;
+
+	ring->angle += (ring->spin * gameSpeed)>>12;
+	
+	if( actFrameCount > ring->lifetime )
+		DeallocateFX(ring,1);
+}
+
+void DrawPsxCroak(SPECFX *ring)
+{
+	IQUATERNION q1, q2, q3, cross;
+	fixed t;
+	MATRIX rotMtx;
+	VECTOR absPos;
+	SVECTOR scPos;
+	int otz;
+	POLY_FT4 *ft4;
+	int width, height;
+	int i;
+
+	for(i=0; i<NUM_PSX_CROAK_VTX; i++)
+	{
+		//quat to rotate current point by spinning angle
+/*		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
+		q1.w = ring->angle;
+		fixedGetQuaternionFromRotation( &q2, &q1 );
+
+		//quat to rotate to plane (normal)
+		CrossProductFFF( (FVECTOR*)&cross, (FVECTOR*)&q1, &upVec );
+		MakeUnit( (FVECTOR*)&cross );
+		t = DotProductFF( (FVECTOR*)&q1, &upVec );
+		cross.w = -arccos(t);
+		fixedGetQuaternionFromRotation(&q3, &cross);
+
+		//combine and apply quats to current point
+		fixedQuaternionMultiply(&q1, &q3, &q2);
+		QuatToPSXMatrix(&q1, &rotMtx);
+		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
+
+		//center around effect's origin
+		absPos.vx += ring->origin.vx;
+		absPos.vy += ring->origin.vy;
+		absPos.vz += ring->origin.vz;
+*/
+
+		//spinning circle
+		SetVectorFF( (FVECTOR*)&q1, &ring->normal );
+		q1.w = ring->angle;
+		fixedGetQuaternionFromRotation( &q2, &q1 );
+
+		QuatToPSXMatrix(&q2, &rotMtx);
+		ApplyMatrix(&rotMtx, &psxCroakVtx[i], &absPos);
+
+		//apply scale
+//		absPos.vx = (absPos.vx*ring->scale.vx)>>12;
+//		absPos.vy = (absPos.vy*ring->scale.vy)>>12;
+//		absPos.vz = (absPos.vz*ring->scale.vz)>>12;
+		absPos.vx = FMul(absPos.vx, ring->scale.vx);
+		absPos.vy = FMul(absPos.vy, ring->scale.vy);
+		absPos.vz = FMul(absPos.vz, ring->scale.vz);
+		
+		//position around centre
+		absPos.vx += -ring->origin.vx;
+		absPos.vy += -ring->origin.vy;
+		absPos.vz += ring->origin.vz;
+
+
+
+		//calc screen xyz
+		gte_SetTransMatrix(&GsWSMATRIX);
+		gte_SetRotMatrix(&GsWSMATRIX);
+//		gte_ldv0(&absPos);
+		gte_ldlv0(&absPos);
+		gte_rtps();
+		gte_stsxy(&scPos.vx);
+		gte_stsz(&scPos.vz);	//screen z/4 as otz
+		gte_stotz(&otz);	//screen z/4 as otz
+
+		//calc width
+		if(scPos.vz)
+		{
+			width = (ring->tex->w*xFOV)/scPos.vz;
+			width >>= 1;
+
+			height = (ring->tex->w*yFOV)/scPos.vz;
+			height >>= 1;
+		}
+		else
+			width = 1;
+		
+		//draw poly
+		BEGINPRIM(ft4, POLY_FT4);
+		setPolyFT4(ft4);
+		ft4->x0 = scPos.vx-width;
+		ft4->y0 = scPos.vy-width;
+		ft4->x1 = scPos.vx+width;
+		ft4->y1 = scPos.vy-width;
+		ft4->x2 = scPos.vx-width;
+		ft4->y2 = scPos.vy+width;
+		ft4->x3 = scPos.vx+width;
+		ft4->y3 = scPos.vy+width;
+//		ft4->r0 = 128;
+//		ft4->g0 = 128;
+//		ft4->b0 = 128;
+		ft4->r0 = ring->a;
+		ft4->g0 = ring->a;
+		ft4->b0 = ring->a;
+		ft4->u0 = ring->tex->u0;
+		ft4->v0 = ring->tex->v0;
+		ft4->u1 = ring->tex->u1;
+		ft4->v1 = ring->tex->v1;
+		ft4->u2 = ring->tex->u2;
+		ft4->v2 = ring->tex->v2;
+		ft4->u3 = ring->tex->u3;
+		ft4->v3 = ring->tex->v3;
+		ft4->tpage = ring->tex->tpage;
+		ft4->clut  = ring->tex->clut;
+//		setSemiTrans(ft4, 1);
+		ft4->code  |= 2;//semi-trans on
+ 		ft4->tpage |= 32;//add
+// 		ft4->tpage = si->tpage | 64;//sub
+//		ENDPRIM(ft4, 1, POLY_FT4);
+		ENDPRIM(ft4, otz, POLY_FT4);
+	}
+}

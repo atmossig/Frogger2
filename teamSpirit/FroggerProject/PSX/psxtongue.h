@@ -5,8 +5,8 @@
 
 void DrawTongueSegment ( SVECTOR *vt, TextureType *tEntry );
 
-void CalcTongueNodes ( SVECTOR *vt, TONGUE *t, int i );
+void CalcTongueNodes(SVECTOR *vT, int pl, int i);
 
-void DrawTongue ( TONGUE *t );
+void DrawTongue( int pl );
 
 #endif

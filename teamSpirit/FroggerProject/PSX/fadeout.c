@@ -11,6 +11,8 @@
 
 #include "fadeout.h"
 #include "layout.h"
+#include "sonylibs.h"
+#include "shell.h"
 
 long fadeoutStart, fadeoutLength;
 int fadingOut = 0, keepFade = 0;
@@ -51,7 +53,7 @@ int DrawScreenFade(void)
 	BEGINPRIM(f4, POLY_F4);
 	setPolyF4(f4);
 	f4->x0 = -halfX;
-	f4->y0 = -halfY
+	f4->y0 = -halfY;
 	f4->x1 = halfX;
 	f4->y1 = -halfY;
 	f4->x2 = -halfX;
@@ -101,8 +103,8 @@ void StopFadeout()
 */
 void DrawScreenTransition(void)
 {
-	if (KEYPRESS(DIK_F))
-		ScreenFade(0, 255, 60);
+//	if (KEYPRESS(DIK_F))
+//		ScreenFade(0, 255, 60);
 
 	if (fadeProc)
 		if (fadeProc())
