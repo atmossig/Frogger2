@@ -417,7 +417,7 @@ PKMDWORD LoadTextureFile(char *filename)
 	}
 	return pt;
 }
-PKMDWORD LoadTextureFile(char *Filename)
+PKMDWORD LoadTextureFile2(char *Filename)
 {
     PKMDWORD    TexturePtr;
     GDFS        gdfs;
