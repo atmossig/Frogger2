@@ -154,45 +154,48 @@ void PrintSpriteOverlays(long num)
 		if(cur->draw)
 		{
 			// Go to destination, if specified
-			short spd = max((FMul(cur->speed,gameSpeed)>>12), 1);
+			//short spd = max((FMul(cur->speed,gameSpeed)>>12), 1);
+			fixed spd = FMul(gameSpeed, cur->speed)>>12;
 
 			if (Fabs(cur->xPosTo-cur->xPos) > 0)
 			{
-				cur->speed += FMul(gameSpeed,819);
+				//cur->speed += FMul(gameSpeed,819);
 				cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
 				
 				if( Fabs(cur->xPosTo-cur->xPos) < Fabs(spd) )
 				{
-					if (fabs(cur->speed)>2)
+/*					if (fabs(cur->speed)>2)
 						cur->speed = -cur->speed * 0.3;
 					else
+*/
 					{
 						cur->speed = 0;
 						cur->xPos = cur->xPosTo;
 					}
 
-					spd = max((FMul(cur->speed,gameSpeed)>>12), 1);
+					//spd = max((FMul(cur->speed,gameSpeed)>>12), 1);
 				}
 			}
 			else
 				if (Fabs(cur->yPosTo-cur->yPos) > 0)
 				{
 					cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
-					cur->speed += gameSpeed*0.2;					
+					//cur->speed += gameSpeed*0.2;					
 
 					if( Fabs(cur->yPosTo-cur->yPos) < Fabs(spd) )
 					{
-						if (fabs(cur->speed)>2)
+/*						if (fabs(cur->speed)>2)
 						{
 							cur->speed = -cur->speed * 0.3;
 						}
 						else
+*/
 						{
 							cur->speed = 0;
 							cur->yPos = cur->yPosTo;
 						}
 
-						max((FMul(cur->speed,gameSpeed)>>12), 1);
+						//max((FMul(cur->speed,gameSpeed)>>12), 1);
 					}
 				}
 
