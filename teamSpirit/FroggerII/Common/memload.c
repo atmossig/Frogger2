@@ -6,16 +6,9 @@
 #include "eventfuncs.h"
 #include "script.h"
 
-#define MEMLOAD_PROTOTYPE	// uncomment to use old file format temporarily
-
 /*	-------------------------------------------------------------------------------- */
 
-#ifdef MEMLOAD_PROTOTYPE
 #define MEMLOAD_ENTITY_VERSION 13
-#else
-#define MEMLOAD_ENTITY_VERSION 12
-#endif
-
 #define MEMLOAD_SCRIPT_VERSION 2
 
 typedef enum { CREATE_ENEMY, CREATE_PLATFORM, CREATE_GARIB, CREATE_CAMERACASE, CREATE_PLACEHOLDER } CREATETYPE;
@@ -68,8 +61,6 @@ char *MemLoadString(UBYTE **p)
 
 	Load enemies, platforms etc.
 */
-
-#ifdef MEMLOAD_PROTOTYPE
 
 int MemLoadEntities(const void* data, long size)
 {
@@ -139,6 +130,7 @@ int MemLoadEntities(const void* data, long size)
 		{
 		case CREATE_ENEMY:
 		case CREATE_PLATFORM:
+		case CREATE_PLACEHOLDER:
 			{
 				char type[20];
 				int count, flags, numNodes, startNode, n, ID, effects, pathIndex;
@@ -276,6 +268,11 @@ int MemLoadEntities(const void* data, long size)
 				}
 				break;
 			}
+
+		default:
+			dprintf"Invalid entity type: %d\n", thing));
+			count = 0;
+			break;
 		}
 	 }
 
@@ -285,166 +282,6 @@ int MemLoadEntities(const void* data, long size)
 
 	return 1;
 }
-
-#else
-
-int MemLoadEntities(const void* data, long size)
-{
-	int count, flags, numNodes, startNode, n, ID, effects;
-	float scale, radius, animSpeed, value1;
-	UBYTE thing;
-	char type[20];
-	PATH *path;
-	PATHNODE *node;
-	VECTOR v,w;
-	ENEMY *enemy;
-	PLATFORM *platform;
-	UBYTE *p = (UBYTE*)data;
-	ACTOR2 *act;
-	TRANSCAMERA *tcam;
-
-	// Version check - only load files with the current version
-	n = MEMGETBYTE(&p);
-	
-	if (n != MEMLOAD_ENTITY_VERSION ) {
-		dprintf"ERROR: Attempting to load incorrect version (%03d) of level file (should be %03d)\n", n, MEMLOAD_ENTITY_VERSION));
-		return 0;
-	}
-
-	count = MEMGETINT(&p);
-
-#ifdef DEBUG_MEMLOAD
-	dprintf"MemLoadEntities: %d items\n", count));
-#endif
-
-	while (count--)
-	{
-		thing = MEMGETBYTE(&p);
-
-		switch (thing)
-		{
-		case CREATE_ENEMY:
-		case CREATE_PLATFORM:
-			n = MEMGETBYTE(&p);
-			memcpy(type, p, n); type[n] = 0; p+= n;
-			flags	= MEMGETINT(&p);
-			ID		= MEMGETINT(&p);
-			scale	= MEMGETFLOAT(&p);
-			radius	= MEMGETFLOAT(&p);
-			animSpeed = MEMGETFLOAT(&p);
-			value1 = MEMGETFLOAT(&p);
-			effects = MEMGETINT(&p);
-			startNode = MEMGETINT(&p);
-		
-			numNodes = MEMGETINT(&p);
-
-#ifdef DEBUG_MEMLOAD
-			dprintf"'%s' %08x with %d path nodes\n", type, flags, numNodes));
-#endif
-
-			path = (PATH *)JallocAlloc(sizeof(PATH), YES, "epath");
-			node = (PATHNODE *)JallocAlloc(sizeof(PATHNODE) * numNodes,YES,"enode");
-			path->nodes = node;
-			path->startNode = startNode;
-			path->numNodes = numNodes;
-
-			while (numNodes--)
-			{
-				v.v[X] = MEMGETFLOAT(&p);
-				v.v[Y] = MEMGETFLOAT(&p);
-				v.v[Z] = MEMGETFLOAT(&p);
-				node->worldTile = FindNearestTile(v);
-				node->offset = MEMGETFLOAT(&p);
-				node->offset2 = MEMGETFLOAT(&p);
-				node->speed = MEMGETFLOAT(&p);
-				node->waitTime = MEMGETINT(&p);
-				
-				node++;
-			}
-
-			switch (thing)
-			{
-			case CREATE_ENEMY:
-				enemy = CreateAndAddEnemy(type,flags,ID,path,animSpeed);
-				act = enemy->nmeActor;
-				break;
-
-			case CREATE_PLATFORM:
-				platform = CreateAndAddPlatform(type,flags,ID,path,animSpeed);
-				act = platform->pltActor;
-
-#ifdef PLATFORM_NEW_SHAKABLESCENIC
-				// check for platforms that are 'shakable' scenics - TESTING - ANDYE
-				if(	gstrcmp(type,"appltree.obe") == 0 || gstrcmp(type,"appltree.ndo") == 0 ||
-					gstrcmp(type,"barrel.obe") == 0 || gstrcmp(type,"barrel.ndo") == 0 ||
-					gstrcmp(type,"pltbarel.obe") == 0 || gstrcmp(type,"pltbarel.ndo") == 0 ||
-					gstrcmp(type,"bucket.obe") == 0 || gstrcmp(type,"bucket.ndo") == 0)
-				{
-					// make this 'platform' shakable
-					SetVector(&platform->pltActor->actor->oldpos,&platform->pltActor->actor->pos);
-					platform->flags |= PLATFORM_NEW_SHAKABLESCENIC;
-				}
-#endif
-				break;
-			}
-
-			if(gstrcmp(type,"nothing.obe") == 0)
-			{
-				// null object - do not display
-				act->flags = ACTOR_DRAW_NEVER;
-			}
-
-			act->radius = radius;
-			act->actor->scale.v[X] = scale;
-			act->actor->scale.v[Y] = scale;
-			act->actor->scale.v[Z] = scale;
-			act->animSpeed = animSpeed;
-			act->value1 = value1;
-			act->effects = effects;
-
-			break;
-
-		case CREATE_GARIB:
-			n = MEMGETBYTE(&p);
-			v.v[X] = MEMGETFLOAT(&p);
-			v.v[Y] = MEMGETFLOAT(&p);
-			v.v[Z] = MEMGETFLOAT(&p);
-//			CreateNewGarib(v, n, &firstTile[1], 0.0f);
-			CreateNewGarib(v, n);
-			break;
-
-		case CREATE_CAMERACASE:
-			int target;
-			flags = MEMGETINT(&p);
-			v.v[X] = MEMGETFLOAT(&p);
-			v.v[Y] = MEMGETFLOAT(&p);
-			v.v[Z] = MEMGETFLOAT(&p);
-			
-			scale = MEMGETFLOAT(&p);
-			animSpeed = MEMGETFLOAT(&p);
-			target= MEMGETINT(&p);
-
-			numNodes = MEMGETINT(&p);
-			while (numNodes--)
-			{
-				w.v[X] = MEMGETFLOAT(&p);
-				w.v[Y] = MEMGETFLOAT(&p);
-				w.v[Z] = MEMGETFLOAT(&p);
-				tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &v, flags & 0xFFFF);
-				tcam->FOV = scale;
-				tcam->speed = animSpeed;
-				tcam->camLookAt.v[X] = (float)((char)(target & 0xFF))/0x7F;
-				tcam->camLookAt.v[Y] = (float)((char)((target>>8) & 0xFF))/0x7F;
-				tcam->camLookAt.v[Z] = (float)((char)((target>>16) & 0xFF))/0x7F;
-			}
-			break;
-		}
-	 }
-
-	return 1;
-}
-
-#endif	// MEMLOAD_PROTOTYPE
 
 /*	--------------------------------------------------------------------------------
     Function		: MemLoadEvents
