@@ -14,9 +14,14 @@
 
 #include "define.h"
 
-#define STATIC_CAMERA	0
-#define FIXED_SOURCE	1
-#define LOOK_AT_FROG	2
+enum
+{
+	STATIC_CAMERA,
+	FIXED_SOURCE,
+	LOOK_AT_FROG,
+	LOOK_AT_FROG_NOTILT
+};
+
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
@@ -70,6 +75,7 @@ extern float	scaleV;
 extern char		controlCamera;
 extern char		fixedDir;
 extern char		fixedPos;
+extern char		fixedUp;
 extern char		firstPerson;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//

@@ -1179,7 +1179,7 @@ PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
 				return NULL;
 			}
 
-			player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+			//player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
 			
 			return NULL;
 		}
@@ -1192,8 +1192,8 @@ PLATFORM *CheckDestForPlatform(GAMETILE *tile,long pl)
 	}
 
 	// so here we are....frog is not jumping to a platform (i.e. no platform detected)
-	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
-	player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
+	//player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	//player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOPLATFORM;
 
 	return NULL;
 }
