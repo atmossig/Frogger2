@@ -43,6 +43,14 @@ char oldConsoleInput[256] = "";
 unsigned long startPointer = 0;
 unsigned long numText = 0;
 
+/*  -------------------------------------------------------------------------------
+	Function	: cp
+	Purpose		:
+	Parameters	: (char *format, ...)
+	Returns		: void
+	Info		:
+*/
+
 void cp(char *format, ...)
 {
 	va_list			argp;

@@ -709,6 +709,7 @@ long DrawLoop(void)
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();
+	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
 
 	if (editorOk)
@@ -787,13 +788,35 @@ long DrawLoop(void)
 }
 
 long turbo = 4096;
+
+// Stop things pinging in pause mode
+long pFrameModifier = 0;
+long beenPaused = 0;
+
 long LoopFunc(void)
 {
 	ACTOR2 *c;
 
-	lastActFrameCount = actFrameCount * (float)(turbo/4096);
-	actFrameCount = timeInfo.frameCount * (float)(turbo/4096);
-	gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
+	if (gameState.mode!=PAUSE_MODE)
+	{
+		lastActFrameCount = actFrameCount * (float)(turbo/4096);
+		
+		actFrameCount = (timeInfo.frameCount-(pFrameModifier)) * (float)(turbo/4096);
+
+		if (beenPaused)
+		{
+			pFrameModifier = (actFrameCount - lastActFrameCount);		
+			actFrameCount = lastActFrameCount+10;
+			beenPaused = 0;
+		}
+
+		gameSpeed = 4096*timeInfo.speed * (float)(turbo/4096);
+	}
+	else
+	{
+		beenPaused = 1;
+		gameSpeed = 0;
+	}
 
 	StartTimer(10,"Controller");
 	ProcessUserInput();
