@@ -1,7 +1,6 @@
 #include <temp_pc.h>
 #include <islpad.h>
 
-int numBabies = 0;
 TextureBankType *textureBanks [ MAX_TEXTURE_BANKS ];
 
 PadDataType padData;
@@ -31,11 +30,6 @@ void FreeAllTextureBanks(void)
 }
 
 
-
-void LoadMapBank(int collBank)							
-{
-	return;
-}
 
 void actorInitialise()									
 {

@@ -50,7 +50,7 @@ extern char UseZMode;
 extern long winMode;
 extern WININFO winInfo;
 //mm extern BYTE lButton, rButton;
-extern u8 lButton, rButton;
+extern char lButton, rButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
 extern unsigned long actFrameCount, lastActFrameCount;

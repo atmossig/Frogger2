@@ -1,7 +1,8 @@
 #ifndef ISLFILE_H
 #define ISLFILE_H
 
-#define fileLoad(fileName,fileLength)  (0)
+void fileInitialise(char *fileSystem);
+unsigned char *fileLoad(unsigned char *fName, int *length);
 
 #endif
 

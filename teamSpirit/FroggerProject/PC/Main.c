@@ -54,6 +54,8 @@
 
 psFont *font;
 
+extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
+
 
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
