@@ -1299,7 +1299,13 @@ void ProcessAttachedEffects( void *entity, int type )
 	}
 	if( act->effects & EF_TRAIL )
 	{
-		fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->radius, 0.95, 0.05, act->value1 );
+		if( act->effects & EF_FAST )
+			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 0.6 );
+		else if( act->effects & EF_SLOW )
+			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 3 );
+		else
+			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 2 );
+
 		fx->follow = act->actor;
 		SetAttachedFXColour( fx, act->effects );
 		act->effects &= ~EF_TRAIL;
