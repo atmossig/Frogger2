@@ -155,7 +155,7 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
     wc.cbWndExtra		= 0;
     wc.hInstance		= hInstance;
     wc.hIcon			= NULL;
-    wc.hCursor			= NULL;
+    wc.hCursor			= LoadCursor(NULL, IDC_ARROW);		// *ASL* 12/06/2000
     wc.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
     wc.lpszMenuName		= NULL;
     wc.lpszClassName	= appName;
