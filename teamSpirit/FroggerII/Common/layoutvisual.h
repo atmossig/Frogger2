@@ -829,6 +829,11 @@ typedef struct TAGLEVEL_VISUAL_DATA
 	unsigned long		worldOpened;
 	unsigned long		multiPartLevel;
 
+	char				fogR,fogG,fogB;
+	unsigned long		fogNearDist;
+	unsigned long		fogFarDist;
+	unsigned long		farDist;
+
 } LEVEL_VISUAL_DATA;
 
 
