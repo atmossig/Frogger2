@@ -10,12 +10,13 @@
 
 #include <ultra64.h>
 #include "incs.h"
+#include "editor.h"
 #include <crtdbg.h>
 
 
 WININFO winInfo;
 
-char baseDirectory[MAX_PATH] = "c:\\work\\froggerii\\pc\\";
+char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
 
 char outputMessageBuffer[256];
 
@@ -105,6 +106,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	if(!DirectXInit(winInfo.hWndMain,1))
 		ok = 0;
 	InitFont();
+	InitEditor();
 	
     while(ok)
 	{
@@ -124,7 +126,11 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		{
 			GameLoop();
 			ProcessUserInput(winInfo.hWndMain);
+			RunEditor();
+			
 			DrawGraphics();
+			DrawEditor();
+
 			DirectXFlip();
 		}
 	}
@@ -237,6 +243,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 	Returns			: 
 	Info			: 
 */
+
 void DrawGraphics()
 {
 	XformActorList();
