@@ -36,6 +36,8 @@ unsigned long doubleHopFrames	= 28;
 unsigned long longHopFrames		= 24;
 unsigned long quickHopFrames	= 4;
 unsigned long floatFrames       = 30;
+unsigned long iceFrames			= 10;
+unsigned long conveyorFrames	= 15;
 
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
@@ -46,6 +48,7 @@ float hopGravity		= -5.0F;
 float frogGravity		= -9.0F;
 float doubleGravity		= -1.0F;
 float floatGravity		= -1.0F;
+
 
 
 /*	--------------------------------------------------------------------------------
@@ -1071,6 +1074,8 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			}
 			else
 			{
+				int state = destTile[pl]->state;
+
 				frog[pl]->action.deathBy = -1;
 				frog[pl]->action.dead	 = 0;
 
@@ -1089,7 +1094,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				currTile[pl] = destTile[pl];
 
 				// check tile to see if frog has jumped onto a certain tile type
-				if((destTile[pl]->state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
+				if((state == TILESTATE_DEADLY) || (player[pl].heightJumped < -125.0F))
 				{
 					if(!frog[pl]->action.dead)
 					{
@@ -1121,7 +1126,23 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					}
 					return;
 				}
-				else if (destTile[pl]->state & TILESTATE_CONVEYOR)
+				else if(state == TILESTATE_SINK)
+				{
+					player[pl].isSinking = 10;
+				}
+				else if (state == TILESTATE_ICE)
+				{
+					MoveToRequestedDestination((nextFrogFacing[pl] + 2) & 3, pl);	// sliiiiiide!
+
+					if (destTile[pl])
+						CalculateFrogJump(
+							&currTile[pl]->centre, &currTile[pl]->normal, 
+							&destTile[pl]->centre, &currTile[pl]->normal,
+							iceFrames, pl, 0.0, NOINIT_VELOCITY);
+
+					player[pl].canJump = FALSE;
+				}
+				else if (state & TILESTATE_CONVEYOR)
 				{	
 					// -------------------------------- Conveyors ----------------------------
 
@@ -1133,13 +1154,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 						CalculateFrogJump(
 							&currTile[pl]->centre, &currTile[pl]->normal, 
 							&destTile[pl]->centre, &currTile[pl]->normal,
-							15.0, pl, 0.0, NOINIT_VELOCITY);
-
-					dprintf"conveyor %08x %08x\n", currTile[pl], destTile[pl]));
-				}
-				else if(destTile[pl]->state == TILESTATE_SINK)
-				{
-					player[pl].isSinking = 10;
+							conveyorFrames, pl, 0.0, NOINIT_VELOCITY);
 				}
 
 				// Check for camera transitions on the tile
