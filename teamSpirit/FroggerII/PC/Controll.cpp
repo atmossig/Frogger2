@@ -273,11 +273,14 @@ void ProcessUserInput(HWND hWnd)
 	{
 		hRes = lpJoystick2->Poll();
 		if(FAILED(hRes))
-			return;
+		{joyAvail = 0;
+		return;}
 
 		hRes = lpJoystick->GetDeviceState(sizeof(joy),&joy);
 		if(FAILED(hRes))
-			return;
+		{joyAvail = 0;
+		return;}
+
 	}
 
 	//----- [ KEYBOARD CONTROL ] -----//
@@ -298,7 +301,6 @@ void ProcessUserInput(HWND hWnd)
 	controllerdata[2].button = 0;
 	controllerdata[3].button = 0;
 
-	bprintf"X:%i Y:%i",joy.lX,joy.lY);
 	if (KEYPRESS(DIK_UP) | (joy.lY < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_UP;
 
