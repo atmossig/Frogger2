@@ -166,33 +166,6 @@ void GameProcessController(long pl)
 		}
 	}
 
-	if ((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
-	{
-			if (((player[pl].isSuperHopping) && (player[pl].heightJumped > -125.0F)) && (player[pl].hasDoubleJumped))
-			{
-			/*	float t;
-
-				// player is superhopping - make frog double jump
-				t = floatFrames;
-				player[pl].hasDoubleJumped = 1;	
-
-				if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
-				{
-					CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destTile[pl]->centre,&destTile[pl]->normal,t,pl,floatGravity,NOINIT_VELOCITY);
-				}
-				else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
-				{
-					CalculateFrogJump(	&frog[pl]->actor->pos,&currTile[pl]->normal,
-									&destPlatform[pl]->pltActor->actor->pos,
-									&destPlatform[pl]->inTile->normal,t,pl,floatGravity,NOINIT_VELOCITY);
-				}
-*/
-				
-
-			}
-	}
-	
 	if((button[pl] & CONT_A) && !(lastbutton[pl] & CONT_A))
     {
 		if ( gameState.mode == CAMEO_MODE )
@@ -229,6 +202,7 @@ void GameProcessController(long pl)
 			{
 				MoveToRequestedDestination( dir, pl );
 				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
+				player[pl].extendedHopDir = dir;
 
 				AnimateActor(frog[pl]->actor,FROG_ANIM_FORWARDSOMERSAULT,NO,NO,0.5F,0,0);
 				AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
@@ -914,7 +888,7 @@ void RunGameLoop (void)
 	// check if player is idle
 	i = NUM_FROGS;
 	
-	camSideOfs = sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt;
+//	camSideOfs = sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt;
 
 	while(i--)
 	{
