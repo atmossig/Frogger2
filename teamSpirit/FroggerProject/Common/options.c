@@ -1901,6 +1901,8 @@ void RunOptionsMenu(void)
 		if(fadingOut == 0)
 		{
 			gameState.mode = ARTVIEWER_MODE;
+			SpuSetKey(SPU_OFF,0xffffff);
+			PrepareSong(AUDIOTRK_LEVELCOMPLETELOOP,1);
 			GTInit(&artTimer,10);
 			currentArt = 0;
 			goingToArtViewer = 0;
@@ -2626,8 +2628,6 @@ void RunArtViewer()
 		}
 		else
 		{
-			if(currentArt == 0)
-				PrepareSong(AUDIOTRK_LEVELCOMPLETE,1);
 			sprintf(name,"ARTWORK%02d",currentArt);
 			InitBackdrop(name);
 			currentArt++;

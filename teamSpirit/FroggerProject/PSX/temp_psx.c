@@ -1197,8 +1197,12 @@ void myPadHandleInput()
 	}
 }
 
+extern int quitAllVideo;
 static short videoKeyPress()
 {
+	if(padData.digital[0] & PAD_START)
+		quitAllVideo = 1;
+		
 	return ((padData.digital[0] & (PAD_CROSS|PAD_START))>0);
 }
 
@@ -1213,6 +1217,7 @@ void StartVideoPlayback(int num)
 	rect.h = 512;
 
 
+	quitAllVideo = 0;
 	if (XAgetStatus())
 	{
 		LoadCodeOverlay(VIDEO_OVERLAY);
