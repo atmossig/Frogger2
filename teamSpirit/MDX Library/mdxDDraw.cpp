@@ -132,6 +132,7 @@ struct VIDEOMODEINFO
 {
 	HWND hcombo;
 	DWORD totalVidMem;
+	DWORD wantedRes;
 };
 
 HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
@@ -158,7 +159,7 @@ HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 			index = SendMessage(hcmb, CB_ADDSTRING, 0, (LPARAM)mode);
 			SendMessage(hcmb, CB_SETITEMDATA, (WPARAM)index, (LPARAM)videomode);
 
-			if (videomode == ((640<<16)|480))
+			if (videomode == info->wantedRes)
 				SendMessage(hcmb, CB_SETCURSEL, 0, (LPARAM)index);
 		}
 
@@ -169,7 +170,7 @@ HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 }
 
 
-BOOL FillVideoModes(HWND hdlg, GUID *lpGUID)
+BOOL FillVideoModes(HWND hdlg, GUID *lpGUID, DWORD resolution)
 {
 	HWND hctrl = GetDlgItem(hdlg, IDC_SCREENRES);
     LPDIRECTDRAW7	lpDD;
@@ -181,6 +182,9 @@ BOOL FillVideoModes(HWND hdlg, GUID *lpGUID)
 	ZeroMemory(&ddsc, sizeof(ddsc));
 	ddsc.dwCaps = DDSCAPS_3DDEVICE|DDSCAPS_PRIMARYSURFACE;
 
+	if (lpGUID == (GUID*)-1)
+		lpGUID = NULL;
+
 	dp("--- Enumerating video modes ---\n");
 
 	SendMessage(hctrl, CB_RESETCONTENT, 0, 0);
@@ -190,6 +194,7 @@ BOOL FillVideoModes(HWND hdlg, GUID *lpGUID)
 
 	info.hcombo = hctrl;
 	info.totalVidMem = 0xFFFFFFFF;
+	info.wantedRes = resolution;
 
 	if ((res = lpDD->GetAvailableVidMem(&ddsc, &total, &free)) == DD_OK)
 	{
@@ -318,7 +323,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
 			}
 */
-			FillVideoModes(hwndDlg, dxDeviceList[index].guid);
+			FillVideoModes(hwndDlg, dxDeviceList[index].guid, lParam);
 
 			// initialised.. notifications valid
 			initFlag = 1;
@@ -402,7 +407,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 */
 							NMLISTVIEW* nmlv = (NMLISTVIEW*)lParam;
 
-							FillVideoModes(hwndDlg, dxDeviceList[nmlv->iItem].guid);
+							FillVideoModes(hwndDlg, dxDeviceList[nmlv->iItem].guid, (640<<16)|480);
 						}
 						break;
 
@@ -428,7 +433,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	Info		: 
 */
 
-unsigned long DDrawInitObject (int showDialog)
+unsigned long DDrawInitObject (int showDialog, DWORD resolution)
 {
 	HRESULT		res;
 	DDCAPS		ddCaps;
@@ -464,7 +469,7 @@ unsigned long DDrawInitObject (int showDialog)
 
 	if (showDialog)
 	{
-		if (!DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc))
+		if (!DialogBoxParam(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_VIDEODEVICE),NULL,(DLGPROC)HardwareProc, resolution))
 			return -1;
 
 		for (i=0; i<dxNumDevices; i++)

@@ -55,7 +55,8 @@ struct MDX_DXDEVICE
 	Info		: 
 */
 
-unsigned long DDrawInitObject (int showDialog);
+unsigned long DDrawInitObject (int showDialog, DWORD resolution);
+
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawInitObject
 	Purpose		: Initialise Directdraw objects

@@ -87,7 +87,7 @@ int editorOk = 0;
 
 float camY = 100,camZ = 100;
 
-long resolution = 1;
+long resolution = (640<<16) + 480;
 long slideSpeeds[4] = {0,16,32,64};
 
 long fogEnable = 0;
@@ -379,16 +379,6 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetWindowText(GetDlgItem(hWnd, IDOK), GAMESTRING(STR_PCSETUP_OK));
 			SetWindowText(GetDlgItem(hWnd, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
 
-			/*
-			switch (resolution)	{
-				case 0: SendMessage(GetDlgItem(hWnd,IDC_320),BM_SETCHECK,1,0); break;
-				case 1: SendMessage(GetDlgItem(hWnd,IDC_640),BM_SETCHECK,1,0); break;
-				case 2: SendMessage(GetDlgItem(hWnd,IDC_800),BM_SETCHECK,1,0); break;
-				case 3: SendMessage(GetDlgItem(hWnd,IDC_1024),BM_SETCHECK,1,0); break;
-				case 4: SendMessage(GetDlgItem(hWnd,IDC_1280),BM_SETCHECK,1,0); break;
-			}
-			*/
-
 			SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_SETCHECK,!rFullscreen,0);
 
 			if (!InstallChecker(hWnd))
@@ -405,33 +395,16 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					SetupControllers(hWnd);
 					return TRUE;
 
-/*	ds - COPY **ALL** NETWORK-SPECIFIC STUFF TO NETWORK-SPECIFIC FILES!
-				case IDC_MULTI:
-					InitMPDirectPlay(mdxWinInfo.hInstance);
-					return TRUE;
-*/
 				case IDOK:
 				{
-					// *ASL* 13/06/2000
-
-/*
-					// default to 640x480
-					resolution = 1;
-
-					if (SendMessage (GetDlgItem(hWnd,IDC_320),BM_GETCHECK,0,0))
-						resolution=0;
-					else if (SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0))
-						resolution=2;
-					else if (SendMessage (GetDlgItem(hWnd,IDC_1024),BM_GETCHECK,0,0))
-						resolution=3;
-					else if (SendMessage (GetDlgItem(hWnd,IDC_1280),BM_GETCHECK,0,0))
-						resolution=4;
-*/
-
 					HWND hres = GetDlgItem(hWnd, IDC_SCREENRES);
 					int sel = SendMessage(hres, CB_GETCURSEL, 0, 0);
 					
-					resolution = SendMessage(hres, CB_GETITEMDATA, (WPARAM)sel, 0);
+					if (sel >= 0)
+						resolution = SendMessage(hres, CB_GETITEMDATA, (WPARAM)sel, 0);
+					else
+						resolution = (640<<16) + 480;
+
 					rFullscreen = !SendMessage(GetDlgItem(hWnd,IDC_WINDOW),BM_GETCHECK,0,0);
 
 					SendMessage ( GetDlgItem(hWnd,IDC_LIST3),WM_GETTEXT,16,(long)saveName);
@@ -934,7 +907,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	while (1)
 	{
 		// Init DDraw Object
-		if (DDrawInitObject (configDialog) == -1)
+		if (DDrawInitObject (configDialog, resolution) == -1)
 			return 1;
 
 /*
