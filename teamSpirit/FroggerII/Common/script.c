@@ -87,6 +87,13 @@ int AnimatePlatform(PLATFORM *p, int params);
 
 UBYTE* scriptBuffer;
 
+
+typedef struct TAGSCRIPT_EFFECT_PARAMS
+{
+	int type;
+	float size, speed, accn, lifetime;
+} SCRIPT_EFFECT_PARAMS;
+
 /* --------------------------------------------------------------------------------- */
 
 float volTest = 0.5;
@@ -559,6 +566,24 @@ int MoveEnemy(ENEMY *nme, int flag)
 	return 1;
 }
 
+int PathEffect(ENEMY *nme, int params)
+{
+	SCRIPT_EFFECT_PARAMS *p;
+	GAMETILE *tile;
+	PATHNODE *node = nme->path->nodes;
+	int c = nme->path->numNodes;
+	
+	(int)p = params;
+
+	while (c--)
+	{
+		tile = node->worldTile;
+		CreateAndAddSpecialEffect(p->type, &tile->centre, &tile->normal, p->size, p->speed, p->accn, p->lifetime);
+		node++;
+	}
+	return 1;
+}
+
 /*	-------------------------------------------------------------------------------- */
 
 
@@ -903,11 +928,24 @@ BOOL ExecuteCommand(UBYTE **p)
 			break;
 		}
 
-	case EV_SFX_PLATFORM:
-	case EV_SFX_ENEMY:
-		(*p) += 2 + 1 + 4*4;
-		PrintScriptDebugMessage("Enemy/Platform sfx not quite available");
-		break;
+	case EV_SFX_PLACEHOLDER:
+		{
+			int id;
+			SCRIPT_EFFECT_PARAMS params;
+			//float a, b, c, d;
+			GAMETILE *tile;
+
+			id = MEMGETWORD(p);
+
+			params.type = MEMGETBYTE(p);
+			params.size = MEMGETFLOAT(p);
+			params.speed = MEMGETFLOAT(p);
+			params.accn = MEMGETFLOAT(p);
+			params.lifetime = MEMGETFLOAT(p);
+
+			EnumEnemies(id, PathEffect, (int)&params);
+			break;
+		}
 
 	case EV_SCALENMESPEED:
 		{
