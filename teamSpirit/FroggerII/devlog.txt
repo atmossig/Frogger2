@@ -203,3 +203,9 @@ Byron Blay:
 
 Chris Wilson:
 ------------------------------------------------
+	Morning:
+		Trying to work out where to put a water flag, so that we know that what we want to draw is a
+		water object. Think I've just abput cracked it though.
+
+	Afternoon:
+		
