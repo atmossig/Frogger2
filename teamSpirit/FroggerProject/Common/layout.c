@@ -612,7 +612,9 @@ void UpdateCompletedLevel(unsigned long worldID,unsigned long levelID)
 #ifdef PSX_VERSION
 void InitLoadingScreen( const char *filename )
 {
-//	SetProgressBar(0);
+	return;
+	
+	SetProgressBar(0);
 
 	// JH: Lets load up the backdrop before we do any thing
 	InitBackdrop(filename);
@@ -723,9 +725,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 //	memoryShow();
 
-//#ifndef PSX_VERSION
+#ifndef PSX_VERSION
 	InitLoadingScreen( "LOADING01" );
-//#endif
+#endif
 
 	UpdateLoadingScreen( 10 );
 
