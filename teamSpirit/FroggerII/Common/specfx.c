@@ -1673,7 +1673,7 @@ void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, unsigned char r, unsigne
 */
 void ProcessAttachedEffects( void *entity, int type )
 {
-	float r;
+	int r;
 	VECTOR rPos, up, normal;
 	SPECFX *fx = NULL;
 	float fxDist;
