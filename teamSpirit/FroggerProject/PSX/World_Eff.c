@@ -6,6 +6,7 @@
 #include "main.h"
 #include "map_draw.h"
 #include "actor2.h"
+#include "maths.h"
 
 #include "World_Eff.h"
 
@@ -220,7 +221,7 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 
 
 
-
+/*
 void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags )
 {
 	SCENICOBJ *newItem;
@@ -239,6 +240,46 @@ void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, 
 //	utilUpperStr ( name );
 
 	newItem->fmaObj = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( name ) );
+
+//	utilPrintf("Creating Scenic Object : %lu\n", utilStr2CRC ( name ));
+
+	if ( newItem->fmaObj )
+	{
+		SetUpWaterMesh ( newItem->fmaObj );
+	}
+	else
+	{
+		utilPrintf("Could Not Create Scenic Object.\n");
+	}
+	// ENDIF
+
+}
+*/
+void CreateAndAddScenicObject(SCENIC *sc)
+{
+	SCENICOBJ *newItem;
+
+	newItem = ( SCENICOBJ* ) MALLOC0 ( sizeof ( SCENICOBJ ) );
+
+	AddScenicObj ( newItem );
+
+//	newItem->position = sc.pos;
+	newItem->flags = 0;
+	//rot
+	QuatToPSXMatrix(&sc->rot, &newItem->matrix);
+	//scale
+// 	newItem->matrix.m[0][0] = FMul(newItem->matrix.m[0][0], sc->scale);
+// 	newItem->matrix.m[1][1] = FMul(newItem->matrix.m[1][1], sc->scale);
+// 	newItem->matrix.m[2][2] = FMul(newItem->matrix.m[2][2], sc->scale);
+	//pos
+	newItem->matrix.t[0] =  sc->pos.vx;
+	newItem->matrix.t[1] =  sc->pos.vy;
+	newItem->matrix.t[2] =  sc->pos.vz;
+	
+	utilPrintf("Creating Scenic Object : %s\n", sc->name);
+//	utilUpperStr ( name );
+
+	newItem->fmaObj = ( void * ) BFF_FindObject ( BFF_FMA_WORLD_ID, utilStr2CRC ( sc->name ) );
 
 //	utilPrintf("Creating Scenic Object : %lu\n", utilStr2CRC ( name ));
 
@@ -278,7 +319,10 @@ void DrawScenicObjList ( void )
 
 			for ( i = cur->fmaObj->n_meshes; i != 0; i--, mesh++ )
 			{
-				MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
+//bb dont need this, they don't move/rotate, just animate.
+//				MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
+				gte_SetRotMatrix(&cur->matrix);
+				gte_SetTransMatrix(&cur->matrix);
 
 				if ( MapDraw_ClipCheck ( *mesh ) )
 				{
