@@ -32,8 +32,6 @@ char raceTimeText[4][20] =
 	"0000 0000 0000",
 };
 
-char charNames[MULTI_NUM_CHARS][16] = {"frogger.bmp","lillie.bmp","babyfrog.bmp","swampy.bmp","twee.bmp","wart.bmp","gnarly.bmp","funky.bmp","robofrog.bmp"};
-
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateRace
 	Purpose			: Do game mechanics for mulitplayer race mode
@@ -454,6 +452,11 @@ void RaceRespawn( int pl )
 
 	TeleportActorToTile(frog[pl],tile,pl);
 
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 64, 2, 0, 1.7 );
+	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
+	fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 80, 2, 0, 1.7 );
+	SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
+
 	// Update progress info
 	mpl[pl].check = mpl[respawn].check;
 	mpl[pl].lap = mpl[respawn].lap;
@@ -587,36 +590,43 @@ void FaceFrogInwards(int pl)
 	Returns			: void
 	Info			:
 */
-void KillMPFrog(int num)
+void KillMPFrog(int pl)
 {
 	if( multiplayerMode == MULTIMODE_RACE )
 	{
-		mpl[num].penalty += MULTI_RACE_TIMEPENALTY;
-		raceTimeOver[num]->r = mpl[num].r;
-		raceTimeOver[num]->g = mpl[num].g;
-		raceTimeOver[num]->b = mpl[num].b;
-		GTInit( &player[num].dead, 2 );
-		frog[num]->draw = 0;
+		SPECFX *fx;
+
+		mpl[pl].penalty += MULTI_RACE_TIMEPENALTY;
+		raceTimeOver[pl]->r = mpl[pl].r;
+		raceTimeOver[pl]->g = mpl[pl].g;
+		raceTimeOver[pl]->b = mpl[pl].b;
+		GTInit( &player[pl].dead, 2 );
+		frog[pl]->draw = 0;
+
+		fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 64, 2, 0, 1.7 );
+		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
+		fx = CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &currTile[pl]->centre, &currTile[pl]->normal, 80, 2, 0, 1.7 );
+		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
 	}
 	else
 	{
 		int i=0;
 
 		if( currTile[i]->state == TILESTATE_DEADLY )
-			player[num].healthPoints = 0;
+			player[pl].healthPoints = 0;
 
-		GTInit( &player[num].stun, 2 );
-		GTInit( &player[num].safe, 5 );
+		GTInit( &player[pl].stun, 2 );
+		GTInit( &player[pl].safe, 5 );
 		
-		player[num].healthPoints--;
-		i=num*3+player[num].healthPoints;
+		player[pl].healthPoints--;
+		i=pl*3+player[pl].healthPoints;
 
-		if( !player[num].healthPoints )
+		if( !player[pl].healthPoints )
 		{
-			player[num].deathBy = DEATHBY_NORMAL;
-			player[num].frogState |= FROGSTATUS_ISDEAD;
+			player[pl].deathBy = DEATHBY_NORMAL;
+			player[pl].frogState |= FROGSTATUS_ISDEAD;
 
-			frog[num]->draw = 0;
+			frog[pl]->draw = 0;
 		}
 	}
 }

@@ -19,13 +19,19 @@
 VECTOR *pointOfInterest;
 float	pOIDistance = 20000.0;
 
-char frogModel[4][16] = 
+FROGSTORE frogPool[FROG_NUMFROGS] = 
 {
-	"frogger.obe",
-	"toad.obe",
-	"femfrog.obe",
-	"twee.obe"
+	{ "Frogger",	"frogger.obe",	"frogger.bmp",	1 },
+	{ "Lillie",		"femfrog.obe",	"lillie.bmp",	1 },
+	{ "Froglet",	"froglet.obe",	"babyfrog.bmp",	0 },
+	{ "Swampy",		"swampy.obe",	"swampy.bmp",	0 },
+	{ "Twee",		"twee.obe",		"twee.bmp",		1 },
+	{ "Toad",		"toad.obe",		"wart.bmp",		1 },
+	{ "Gnarly",		"frogger.obe",	"gnarly.bmp",	0 },
+	{ "Funky"		"frogger.obe",	"funky.bmp",	0 },
+	{ "Robofrog",	"frogger.obe",	"robofrog.bmp",	0 },
 };
+
 
 //----------------------------------------------------------------------------//
 //----- GLOBALS --------------------------------------------------------------//
@@ -87,18 +93,23 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 
 void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlays )
 {
-	int i;
+	int i, num;
 
 	if(createFrogActor)
 	{
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if (gTStart[i])
-				CreateFrogActor (gTStart[i],frogModel[i],i);
-			else
-				CreateFrogActor (gTStart[0],frogModel[i],i);
+			num = player[i].character;
+			if( num > FROG_NUMFROGS || !frogPool[num].active )
+			{
+				player[i].character = num = 0;
+			}
 
-//			frog[i]->draw = 0;
+			if (gTStart[i])
+				CreateFrogActor (gTStart[i],frogPool[num].model,i);
+			else
+				CreateFrogActor (gTStart[0],frogPool[num].model,i);
+
 			currPlatform[i] = NULL;
 		}
 	}

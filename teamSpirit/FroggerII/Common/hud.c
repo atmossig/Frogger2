@@ -185,8 +185,7 @@ void InitMultiHUD()
 
 	for (i = 0; i<NUM_FROGS; i++)
 	{
-		// TODO: Index into full array of character names with selected multiplayer character, once done
-		multiHud.backChars[i] = CreateAndAddSpriteOverlay(xPos_multi[i]+64,yPos_multi[i]+5,charNames[i],16,16,0xff,0);
+		multiHud.backChars[i] = CreateAndAddSpriteOverlay(xPos_multi[i]+64,yPos_multi[i]+5,frogPool[player[i].character].icon,16,16,0xff,0);
 		multiHud.backPenalise[i] = CreateAndAddSpriteOverlay(xPos_multi[i],yPos_multi[i],"wback2.bmp",80,45,170,0);
 		multiHud.penaliseText[i] = CreateAndAddTextOverlay(xPos_multi[i]+5,yPos_multi[i]+5,penalString[i],NO,255,currFont,0,0);
 		multiHud.penaliseText[i]->scale = 2;
@@ -288,7 +287,7 @@ void UpDateMultiplayerInfo( void )
 				multiHud.centreText->draw = 0;
 			else
 			{
-				sprintf(countdownString,"player %i won",matchWinner);
+				sprintf(countdownString,"%s won",frogPool[player[matchWinner].character].name);
 				multiHud.centreText->draw = 1;
 				multiHud.centreText->a = 128+(sinf(actFrameCount * 0.3) * 128);		
 			}

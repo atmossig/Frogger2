@@ -72,11 +72,40 @@ enum
 	NUM_FROG_ANIMS,
 };
 
+enum
+{
+	FROG_FROGGER,
+	FROG_LILLIE,
+	FROG_BABYFROG,
+	FROG_SWAMPY,
+	FROG_TWEE,
+	FROG_WART,
+	FROG_GNARLY,
+	FROG_FUNKY,
+	FROG_ROBOFROG,
+
+	FROG_NUMFROGS
+};
+
+
 //------------------------------------------------------------------------------------------------
+
+typedef struct _FROGSTORE
+{
+	char name[16];
+	char model[16];
+	char icon[16];
+	char active;
+
+} FROGSTORE;
+
+extern FROGSTORE frogPool[FROG_NUMFROGS];
+
 
 typedef struct _PLAYER
 {
 	char			name[3];
+	unsigned char	character;
 
 	char			frogon;				// Which frog is on this one
 	char			frogunder;			// Which frog this one is on

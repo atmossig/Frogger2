@@ -38,7 +38,7 @@ typedef struct
 
 } MPINFO;
 
-extern char charNames[MULTI_NUM_CHARS][16];
+
 extern TIMER multiTimer,endTimer;
 extern char matchWinner;
 extern MPINFO mpl[];
@@ -50,7 +50,7 @@ void ResetMultiplayer( );
 
 void RaceRespawn( int pl );
 void PickupBabyFrogMulti( ENEMY *baby, int pl );
-void KillMPFrog(int num);
+void KillMPFrog(int pl);
 
 void CalcMPCamera( VECTOR *target );
 
