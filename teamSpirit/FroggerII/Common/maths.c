@@ -1739,9 +1739,9 @@ void guLookAtF (float m[4][4],
 
 	guMtxIdent (m);
 
-	view_dir.v[X] = xAt - xEye;
-	view_dir.v[Y] = yAt - yEye;
-	view_dir.v[Z] = zAt - zEye;
+	view_dir.v[X] = xEye - xAt;
+	view_dir.v[Y] = yEye - yAt;
+	view_dir.v[Z] = zEye - zAt;
 	
 	world_up.v[X] = xUp;
 	world_up.v[Y] = yUp;
