@@ -712,9 +712,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		ts->rot.y = ts->rot.z;
 		ts->rot.z = tv;
 
-		// Set actor's visibilty 'offset' value
-		theActor->visOffset = 0.0;
-
 //		GetQuaternionFromRotation (&t2,&t1);
 		GetQuaternionFromRotation (&theActor->actor->qRot,&ts->rot);
 //		GetQuaternionFromRotation (&t3,&ts->rot);

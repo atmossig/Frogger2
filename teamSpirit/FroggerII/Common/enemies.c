@@ -22,7 +22,6 @@ ENEMYLIST enemyList;						// the enemy linked list
 
 VECTOR snapPos;
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 // TEST ARRAYS DEFINING MOVEMENT PATHS - ANDYE //
 // First number in array is number of nodes in path //
@@ -345,12 +344,61 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	}
 
 	// add and initialise the actor
-	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,enemyType,0,0);
+	newItem->nmeActor	= CreateAndAddActor(eActorName,0,0,0,initFlags,/*enemyType,*/0,0);
 	if(shadowRadius)
 		newItem->nmeActor->actor->shadow->radius = shadowRadius;
 
+	// set animation depending on enemy type
+	// initialise enemy type dudes
+	if(enemyType > NMETYPE_NONE)
+	{
+		// This actor is an enemy so add to enemy actor list
+		InitActorAnim(newItem->nmeActor->actor);
+
+		switch(enemyType)
+		{
+			case NMETYPE_MOWER:
+			case NMETYPE_ROLLER:
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.5F);
+				newItem->nmeActor->actor->status = NMESTATE_MOWER_IDLE;
+				break;
+			case NMETYPE_DOG:
+				AnimateActor(newItem->nmeActor->actor,0,NO,NO,0.75F);
+				newItem->nmeActor->actor->status = NMESTATE_DOG_IDLE;
+				break;
+			case NMETYPE_SNAPPER:
+				AnimateActor(newItem->nmeActor->actor,Random(3)+1,NO,NO,0.75F);
+				newItem->nmeActor->actor->status = NMESTATE_SNAPPER_IDLE;
+				break;
+			case NMETYPE_WASP:
+				AnimateActor(newItem->nmeActor->actor,0,NO,NO,1.0F);
+				newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
+				break;
+			case NMETYPE_SNAKE:
+				AnimateActor(newItem->nmeActor->actor,3,YES,NO,2.0F);
+				newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
+				break;
+			case NMETYPE_CAR:
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.0F);
+				newItem->nmeActor->actor->status = NMESTATE_CAR_MOVING;
+				break;
+			case NMETYPE_TRUCK:
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,1.0F);
+				newItem->nmeActor->actor->status = NMESTATE_TRUCK_MOVING;
+				break;
+			case NMETYPE_SHARK:
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,0.5F);
+				newItem->nmeActor->actor->status = NMESTATE_SHARK_IDLE;
+				break;
+		}
+
+		newItem->nmeActor->actor->type = enemyType;
+		newItem->nmeActor->action.dead = 30;
+	}
+	
+
 	newItem->speed			= eSpeed;
-	newItem->originalSpeed	= eSpeed;
+	newItem->startSpeed		= eSpeed;
 	newItem->accel			= 0.01F;
 
 	newItem->path			= NULL;
@@ -420,7 +468,6 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	}
 
 	newItem->flags			= eFlags;
-	newItem->originalFlags	= eFlags;
 
 	return newItem;
 }
@@ -655,7 +702,7 @@ void UpdateEnemies()
 						if(cur->path->fromNode > (cur->path->numNodes - 1))
 						{
 							cur->path->fromNode = 0;
-							cur->speed = cur->originalSpeed;
+							cur->speed = cur->startSpeed;
 						}
 					}
 					else if(cur->flags & ENEMY_PATHBACKWARDS)
@@ -668,7 +715,7 @@ void UpdateEnemies()
 						if(cur->path->fromNode < 0)
 						{
 							cur->path->fromNode = (cur->path->numNodes - 1);
-							cur->speed = cur->originalSpeed;
+							cur->speed = cur->startSpeed;
 						}
 					}
 				}
@@ -686,7 +733,7 @@ void UpdateEnemies()
 							cur->path->toNode = 1;
 							SetVector(&cur->nmeActor->actor->pos,&cur->path->nodes[cur->path->fromNode].worldTile->centre);
 							NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->path->nodes[cur->path->fromNode].worldTile->normal);
-							cur->speed = cur->originalSpeed;
+							cur->speed = cur->startSpeed;
 						}
 					}
 					else if(cur->flags & ENEMY_PATHBACKWARDS)
@@ -700,7 +747,7 @@ void UpdateEnemies()
 							cur->path->toNode = (cur->path->numNodes - 2);
 							SetVector(&cur->nmeActor->actor->pos,&cur->path->nodes[cur->path->fromNode].worldTile->centre);
 							NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->path->nodes[cur->path->fromNode].worldTile->normal);
-							cur->speed = cur->originalSpeed;
+							cur->speed = cur->startSpeed;
 						}
 					}
 				}
@@ -719,7 +766,7 @@ void UpdateEnemies()
 
 							cur->flags &= ~ENEMY_PATHFORWARDS;
 							cur->flags |= ENEMY_PATHBACKWARDS;
-							cur->speed = cur->originalSpeed;
+							cur->speed = cur->startSpeed;
 						}
 					}
 					else if(cur->flags & ENEMY_PATHBACKWARDS)
@@ -734,7 +781,7 @@ void UpdateEnemies()
 
 							cur->flags &= ~ENEMY_PATHBACKWARDS;
 							cur->flags |= ENEMY_PATHFORWARDS;
-							cur->speed = cur->originalSpeed;
+							cur->speed = cur->startSpeed;
 						}
 					}
 				}
@@ -845,60 +892,6 @@ void UpdateEnemies()
 			cur->speed += cur->accel;
 		else if(cur->flags & ENEMY_DECELERATECONST)
 			cur->speed -= cur->accel;
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ResetEnemyPos
-	Purpose			: 
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void ResetEnemyPos( void )
-{
-	QUATERNION q1,destQ;
-	VECTOR toPosition;
-	VECTOR fwd;
-	ENEMY *cur,*next;
-	float lowest,t;
-	int lowval;
-	int i,j;
-	int newCamFacing,newFrogFacing;
-
-	float m,n,qrspd = 0.0F;
-	VECTOR fromPosition,atPosition;
-
-	VECTOR vfd	= { 0,0,1 };
-	VECTOR vup	= { 0,1,0 };
-	VECTOR nmeup;
-	VECTOR v1,v2,v3;
-						
-	if(enemyList.numEntries == 0)
-		return;
-
-	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
-	{
-		next = cur->next;
-
-		cur->flags = cur->originalFlags;
-		if(cur->flags & ENEMY_HASPATH)
-		{
-			if(cur->flags & ENEMY_PATHFORWARDS)
-			{
-				cur->path->fromNode = cur->path->startNode;
-				cur->path->toNode	= cur->path->fromNode + 1;
-			}
-			
-			if(cur->flags & ENEMY_PATHBACKWARDS)
-			{
-				cur->path->fromNode = cur->path->startNode;
-				cur->path->toNode	= cur->path->fromNode - 1;
-			}
-			SetVector(&cur->nmeActor->actor->pos,&cur->path->nodes[cur->path->fromNode].worldTile->centre);
-			NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->path->nodes[cur->path->fromNode].worldTile->normal);
-		}
 	}
 }
 

@@ -31,8 +31,6 @@ int objectMatrix = 0;
 
 ACTOR2 *actList				= NULL;			// entire actor list
 
-float globalVisOffset		= 0.4;
-
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -168,7 +166,7 @@ void FreeActorList()
 	Parameters	: 
 	Returns		: ACTOR2 *
 */
-ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,int enemyType,float offset,int startNode)
+ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode)
 {
 	ACTOR2 *newItem;
 	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2), 1, "A2");
@@ -185,59 +183,10 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,in
 	// add actor object sprites to sprite list
 	if((newItem->actor->objectController) && (newItem->actor->objectController->object))
 		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
-
-	// initialise enemy type dudes
-	if(enemyType > NMETYPE_NONE)
-	{
-		// This actor is an enemy so add to enemy actor list
-		InitActorAnim(newItem->actor);
-
-		switch(enemyType)
-		{
-			case NMETYPE_MOWER:
-			case NMETYPE_ROLLER:
-				AnimateActor(newItem->actor,0,YES,NO,1.5F);
-				newItem->actor->status = NMESTATE_MOWER_IDLE;
-				break;
-			case NMETYPE_DOG:
-				AnimateActor(newItem->actor,0,NO,NO,0.75F);
-				newItem->actor->status = NMESTATE_DOG_IDLE;
-				break;
-			case NMETYPE_SNAPPER:
-				AnimateActor(newItem->actor,Random(3)+1,NO,NO,0.75F);
-				newItem->actor->status = NMESTATE_SNAPPER_IDLE;
-				break;
-			case NMETYPE_WASP:
-				AnimateActor(newItem->actor,0,NO,NO,1.0F);
-				newItem->actor->status = NMESTATE_WASP_MOVING;
-				break;
-			case NMETYPE_SNAKE:
-				AnimateActor(newItem->actor,3,YES,NO,2.0F);
-				newItem->actor->status = NMESTATE_WASP_MOVING;
-				break;
-			case NMETYPE_CAR:
-				AnimateActor(newItem->actor,0,YES,NO,1.0F);
-				newItem->actor->status = NMESTATE_CAR_MOVING;
-				break;
-			case NMETYPE_TRUCK:
-				AnimateActor(newItem->actor,0,YES,NO,1.0F);
-				newItem->actor->status = NMESTATE_TRUCK_MOVING;
-				break;
-			case NMETYPE_SHARK:
-				AnimateActor(newItem->actor,0,YES,NO,0.5F);
-				newItem->actor->status = NMESTATE_SHARK_IDLE;
-				break;
-		}
-
-		newItem->actor->type = enemyType;
-		newItem->action.dead = 30;
-	}
 	
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
 	newItem->distanceFromFrog	= 0.0F;
-
-	//******************************************************************************//
 
 	newItem->next = actList;
 	actList = newItem;

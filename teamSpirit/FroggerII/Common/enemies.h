@@ -88,10 +88,10 @@ typedef struct TAGENEMY
 	
 	ACTOR2					*nmeActor;				// actor used as enemy
 	unsigned long			flags;					// enemy flags
-	unsigned long			originalFlags;			// copy of original enemy flags
 	
-	float					speed;					// enemy speed
-	float					originalSpeed;			// enemy original speed
+	float					startSpeed;				// enemy start speed
+	float					endSpeed;				// enemy end speed
+	float					speed;					// enemy current speed
 	float					accel;					// enemy acceleration
 	
 	GAMETILE				*inTile;				// tile enemy is currently 'in'
@@ -111,7 +111,8 @@ typedef struct TAGENEMYLIST
 
 extern ENEMYLIST enemyList;
 
-extern ENEMY	*testEnemy;
+extern ENEMY *testEnemy;
+
 
 // FUNCTION PROTOTYPES
 
@@ -125,7 +126,6 @@ extern void SubEnemy(ENEMY *enemy);
 
 extern PATH *CreateEnemyPathFromTileList(unsigned long *pIndex,float offset,float offset2);
 extern void UpdateEnemies();
-extern void ResetEnemyPos();
 
 extern void ProcessNMEMower(ACTOR2 *nme);
 extern void ProcessNMERoller(ACTOR2 *nme);

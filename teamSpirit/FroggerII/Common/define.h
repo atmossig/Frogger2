@@ -106,13 +106,6 @@ typedef struct _SCENIC
 	GAMETILE *tileptrs;
 } SCENIC;
 
-typedef struct _COLSPHERE
-{
-	struct _COLSPHERE *next;
-	VECTOR center;
-	float radius;
-} COLSPHERE;
-
 ////////////////////
 
 //------------------------------------------------------------------------------------------------

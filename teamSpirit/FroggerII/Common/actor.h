@@ -48,22 +48,14 @@ typedef struct _ACTOR2
 	
 	struct _ACTOR2	*next,*prev;
 
-	struct _ACTOR2	*nextCollectable;
-	struct _ACTOR2	*nextEnemy;
-	struct _ACTOR2  *nextPlatform;
-
-	COLSPHERE		*coll;
-
 	char			draw;
 	int				flags;
-	float			visOffset;
-	float			objectRadius;
+	float			radius;
 
-	float			distanceFromFrog;
+	float			distanceFromFrog;		// <--- will need changing !!!
 
 	float			speed;
 	float			offset;
-	float			platformOffset;
 
 	SPRITE			sprite;
 
@@ -77,7 +69,7 @@ extern int objectMatrix;
 
 extern ACTOR2 *actList;
 
-extern ACTOR2 *CreateAndAddActor(char *name, float cx, float cy, float cz,int initFlags, int enemyType, float offset,int startNode);
+extern ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode);
 extern void DrawActorList();
 extern void FreeActorList();
 

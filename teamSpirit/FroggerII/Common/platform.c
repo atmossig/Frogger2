@@ -112,13 +112,6 @@ PLATFORM *bus3		= NULL;
 
 PLATFORM *devPlat	= NULL;
 
-float pltDis;
-
-unsigned long platformOffset = 20;
-
-
-
-
 
 
 unsigned long log1[]	= {	15,		184,181,55,56,57,58,59,60,61,62,63,64,65,178,187 };

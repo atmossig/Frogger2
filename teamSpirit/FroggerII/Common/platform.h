@@ -79,8 +79,6 @@ typedef struct TAGPLATFORMLIST
 extern PLATFORMLIST platformList;
 
 
-extern float pltDis;
-
 extern PLATFORM *destPlatform;			// platform that frog is about to attempt to jump to
 extern PLATFORM *currPlatform;			// platform that frog is currently on
 
