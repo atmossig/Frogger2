@@ -21,17 +21,9 @@
 #include "incs.h"
 
 
-unsigned long sfxNum = 0;
-unsigned long musNum = 0;
-
-TEXTOVERLAY *title[11];
-unsigned long dir[11];
-
-unsigned long sfx = 1;
-unsigned long mus = 0;
-
 char *sfxNames[] =
-{	"FX NULL",
+{
+	"FX NULL",
 	"FX SHIRLEYSWIM FINS",
 	"FX SHIRLEY LAND",
 	"FX SHIRLEY LAUNCH",
@@ -375,269 +367,230 @@ char *sfxNames[] =
  "FX_JETPACK              */
 };
 
-TEXTOVERLAY *sfxName;
+#define NUM_SNDVIEW_SFX		180
 
-TEXTOVERLAY *musName;
+TEXTOVERLAY *sfxName,*musName;
 
-char *musNames[] = 
-{	"NO TRACK",
-/*	"ATLANTIS TRACK",
-	"ATLANTIS 2 TRACK",
-	
-	"ATLANTIS 3 TRACK",
-	"ATLANTIS BOSS TRACK",*/
-	"CARNIVAL TRACK",
-/*	"CARNIVAL 2 TRACK",
-	"CARNIVAL 3 TRACK",
-	"CARNIVAL BOSS TRACK",
-	"PIRATES TRACK",
-	"PIRATES 2 TRACK",
-	"PIRATES 3 TRACK",	
-	"PIRATESBOSS_TRACK",
-	"PREHISTORIC_TRACK",
-	"PREHISTORIC2_TRACK",
-	"PREHISTORIC3_TRACK",
-	"PREHISTORICBOSS_TRACK",
-	"FORTRESS_TRACK",
-	"FORTRESS2_TRACK",
-	"FORTRESS3_TRACK",
-	"FORTRESSBOSS_TRACK",
-	"OOTW_TRACK",
-	"OOTW2_TRACK",
-	"OOTW3_TRACK",
-	"OOTWBOSS_TRACK",
-	"TITLE_TRACK",
-	"INTRO_TRACK",
-	"OUTRO_TRACK",
-	"HUB1_TRACK",
-	"HUB2_TRACK",
-	"HUB3_TRACK",
-	"HUB4_TRACK",
-	"HUB5_TRACK",
-	"HUB6_TRACK",
-	"ATLANTIS_KILL1_TRACK",
-	"ATLANTIS_KILL2_TRACK",
-	"ATLANTIS_WIN1_TRACK",
-	"ATLANTIS_WIN2_TRACK",
-	"CARNIVAL_KILL1_TRACK",
-	"CARNIVAL_KILL2_TRACK",
-	"CARNIVAL_WIN1_TRACK",
-	"CARNIVAL_WIN2_TRACK",
-	"PIRATES_KILL1_TRACK",
-	"PIRATES_KILL2_TRACK",
-	"PIRATES_WIN1_TRACK",
-	"PIRATES_WIN2_TRACK",
-	"PREHISTORIC_KILL1_TRACK",
-	"PREHISTORIC_KILL2_TRACK",
-	"PREHISTORIC_WIN1_TRACK",
-	"PREHISTORIC_WIN2_TRACK",
-	"FORTRESS_KILL1_TRACK",
-	"FORTRESS_KILL2_TRACK",
-	"FORTRESS_WIN1_TRACK",
-	"FORTRESS_WIN2_TRACK",
-	"OOTW_KILL1_TRACK",
-	"OOTW_KILL2_TRACK",
-	"OOTW_WIN1_TRACK",
-	"OOTW_WIN2_TRACK",
-	"BONUS_TRACK",
-	"HASBRO_TRACK",
-	//TITLE2_TRACK,	*/
-};
+unsigned long sfxNum	= 0;
+unsigned long musNum	= 0;
+
+unsigned long sfx		= 1;
+unsigned long mus		= 0;
+
+int sfxRes				= 0;
 
 
-
-void RunSndView ( void )
+void RunSndView()
 {
 	unsigned long counter;
 
-	static unsigned long turn;
-
+	static TEXTOVERLAY *title,*titleSfx,*titleMus;
 	static u16 button,lastbutton;
 	static s16 stickX,stickY;
 
+#ifdef PC_VERSION
+	return;
+#endif
 	
-	if ( frameCount == 1 )
+	if(frameCount == 1)
 	{
 		FreeAllLists();
 		
 		LoadTextureBank(SYSTEM_TEX_BANK);
-//		LoadTextureBank(TITLES_TEX_BANK);
-//		LoadTextureBank ( SNDVIEW_TEX_BANK );
 
 		currFont = smallFont;
-
-		title[0]  = CreateAndAddTextOverlay ( 30, 15, "S", NO,NO, 255, 255, 255, 250, currFont,0,2,0);
-		title[1]  = CreateAndAddTextOverlay ( 30, 50, "O", NO,NO, 255, 255, 255, 200, currFont,0,2,0);
-		title[2]  = CreateAndAddTextOverlay ( 30, 85, "U", NO,NO, 255, 255, 255, 150, currFont,0,2,0);
-		title[3]  = CreateAndAddTextOverlay ( 30, 120, "N", NO,NO, 255, 255, 255, 100,  currFont,0,2,0);
-		title[4]  = CreateAndAddTextOverlay ( 30, 155, "D", NO,NO, 255, 255, 255, 50,  currFont,0,2,0);
-
-		title[5]  = CreateAndAddTextOverlay ( 30, 190, "P", NO,NO, 255, 255, 255, 0,  currFont,0,2,0);
-		title[6]  = CreateAndAddTextOverlay ( 50, 190, "L", NO,NO, 255, 255, 255, 0,  currFont,0,2,0);
-		title[7]  = CreateAndAddTextOverlay ( 85, 190, "A", NO,NO, 255, 255, 255, 0,  currFont,0,2,0);
-		title[8]  = CreateAndAddTextOverlay ( 120, 190, "Y", NO,NO, 255, 255, 255, 0,  currFont,0,2,0);
-		title[9]  = CreateAndAddTextOverlay ( 155, 190, "E", NO,NO, 255, 255, 255, 0,  currFont,0,2,0);
-		title[10] = CreateAndAddTextOverlay ( 190, 190, "R", NO,NO, 255, 255, 255, 0,  currFont,0,2,0);
-
-		dir[0]	= 1; dir[1]	 = 1;
-		dir[2]	= 1; dir[3]	 = 1;
-		dir[4]	= 1; dir[5]	 = 0;
-		dir[6]	= 0; dir[7]	 = 0;
-		dir[8]	= 0; dir[9]	 = 0;
-		dir[10] = 0;
+		title = CreateAndAddTextOverlay(20,20,"sound player",NO,NO,255,255,255,255,currFont,0,0,0);
 
 		currFont = oldeFont;
+		titleSfx = CreateAndAddTextOverlay(30,90,"SNDFX NAMES",NO,NO,255,0,0,255,currFont,0,0,0);
+		sfxName = CreateAndAddTextOverlay(30,105,"",NO,NO,255,255,255,255,currFont,0,2,0);
+		sfxName->text = sfxNames[sfxNum];
 
-		CreateAndAddTextOverlay ( 30, 90, "SFX NAMES", YES,NO, 255, 0, 0, 250, currFont,0,2,0);
-
-		sfxName = CreateAndAddTextOverlay ( 30, 105, "", YES,NO, 255, 255, 255, 250, currFont,0,2,0);
-		sfxName->text = sfxNames [ sfxNum ];
-
-		CreateAndAddTextOverlay ( 30, 130, "MUSIC NAMES", YES,NO, 255, 0, 0, 250, currFont,0,2,0);
-
-		musName = CreateAndAddTextOverlay ( 30, 145, "", YES,NO, 255, 255, 255, 250, currFont,0,2,0);
-		musName->text = musNames [ musNum ];
-
-//		CreateAndAddTextOverlay ( 250, 20, "CONTROLS", NO,NO, 255, 255, 255, 255,  currFont, 0, 2, 0 );
-
-//		CreateAndAddSpriteOverlay ( 250, 40,"n64g.bmp",32,32,255,255,255,255,0);
-//		CreateAndAddTextOverlay   ( 280, 40, "EXIT", NO,NO, 255, 255, 255, 255,  currFont, 0, 2, 0 );
-
-//		CreateAndAddSpriteOverlay ( 250, 60,"n64a.bmp",32,32,255,255,255,255,0);
-//		CreateAndAddTextOverlay   ( 270, 60, "MUSIC", NO,NO, 255, 255, 255, 255,  currFont, 0, 2, 0 );
+		titleMus = CreateAndAddTextOverlay(30,130,"MUSIC TRACK",NO,NO,255,0,0,95,currFont,0,0,0);
+		musName = CreateAndAddTextOverlay(30,145,"",NO,NO,255,255,255,95,currFont,0,0,0);
+		musName->text = gameSongs[musNum].tuneName;
 
 		sfxNum	= 0;
 		musNum	= 0;
-
-		turn	= 10;
+		sfxRes	= 0;
 	}
-	// ENDIF - frameCount == 1
 
 	button = controllerdata[ActiveController].button;
 	stickX = controllerdata[ActiveController].stick_x;
 	stickY = controllerdata[ActiveController].stick_y;
 
-	if((button & CONT_D) && !(lastbutton & CONT_D))
+	if((button & CONT_UP) && !(lastbutton & CONT_UP))
+	{
+		sfx = 1;		// select sound effects
+		mus = 0;
+
+		MusHandleStop(sfxRes,0);
+		MusHandleStop(audioCtrl.musicHandle[0],0);
+		audioCtrl.currentTrack[0] = 0;
+	}
+	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
 	{
 		sfx = 0;
-		mus = 1;
-	}
-	if((button & CONT_E) && !(lastbutton & CONT_E))
-	{
-		sfx = 1;
-		mus = 0;
+		mus = 1;		// select music tracks
+
+		MusHandleStop(sfxRes,0);
+		MusHandleStop(audioCtrl.musicHandle[0],0);
+		audioCtrl.currentTrack[0] = 0;
 	}
 
-	if((button & CONT_L) && !(lastbutton & CONT_L))
+	if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
 	{
-		if ( sfx )
+		// select required sound effect
+		if(sfx)
 		{
-			if ( sfxNum != 0 )
+			if(sfxNum > 0)
 			{
+				MusHandleStop(sfxRes,0);
 				sfxNum--;
 			}
-			// endif
-			sfxName->text = sfxNames [ sfxNum ];
+
+			sfxName->text = sfxNames[sfxNum];
 		}
+		// select required music track
 		else
 		{
-			if ( musNum != 0 )
+			if(musNum > 0)
 			{
+				MusHandleStop(sfxRes,0);
+				audioCtrl.currentTrack[0] = 0;
 				musNum--;
 			}
-			// endif
-			musName->text = musNames [ musNum ];
+
+			musName->text = gameSongs[musNum].tuneName;
 		}
-		// ENDIF
 	}
 
-	if((button & CONT_R) && !(lastbutton & CONT_R))
+	if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
 	{
-		if ( sfx )
+		// select required sound effect
+		if(sfx)
 		{
-			sfxNum++;
-			sfxName->text = sfxNames [ sfxNum ];
+			if(sfxNum < (NUM_SNDVIEW_SFX - 1))
+			{
+				MusHandleStop(sfxRes,0);
+				sfxNum++;
+			}
+
+			sfxName->text = sfxNames[sfxNum];
 		}
+		// select required music track
 		else
 		{
-			musNum++;
-			musName->text = musNames [ musNum ];
+			if(musNum < (NUM_TRACKS - 1))
+			{
+				MusHandleStop(sfxRes,0);
+				audioCtrl.currentTrack[0] = 0;
+				musNum++;
+			}
+
+			musName->text = gameSongs[musNum].tuneName;
 		}
-		// ENDIF
 	}
 
 	if((button & CONT_A) && !(lastbutton & CONT_A))
 	{
-		if ( sfx )
+		// play currently selected sample
+		if(sfx)
 		{
-			PlaySample ( sfxNum, NULL, 255, 128 );
+			MusHandleStop(audioCtrl.musicHandle[0],0);
+			sfxRes = PlaySampleNot3D(sfxNum,255,128,128);
 		}
+		// play currently selected music track
 		else
 		{
+			MusHandleStop(sfxRes,0);
 #ifdef PC_VERSION
-			PrepareSong ( musNum );
+			PrepareSong(musNum);
 #else
-			PrepareSong( musNum, 0 );
+			PrepareSong(musNum,0);
 #endif
 		}
-		// ENDIF
 	}
 
 	if((button & CONT_B) && !(lastbutton & CONT_B))
 	{
-		if ( sfx )
+		// stop current sound effect
+		if(sfx)
 		{
-//			MusHandleStop ( musresult, 0 );
+			MusHandleStop(sfxRes,0);
 		}
+		// stop current music track
 		else
 		{
-//			MusHandleStop ( audioCtrl.musicHandle, 0 );
-//			audioCtrl.currentTrack = 0;
+			MusHandleStop(audioCtrl.musicHandle[0],0);
+			audioCtrl.currentTrack[0] = 0;
 		}
-		// ENDIF
+	}
+
+	if((button & CONT_L) && !(lastbutton & CONT_L))
+	{
+		// set to start of sound effect list
+		if(sfx)
+		{
+			MusHandleStop(sfxRes,0);
+			sfxNum = 0;
+		}
+		// set to start of music track list
+		else
+		{
+			MusHandleStop(audioCtrl.musicHandle[0],0);
+			audioCtrl.currentTrack[0] = 0;
+			musNum = 0;
+		}
+
+		musName->text = gameSongs[musNum].tuneName;
+		sfxName->text = sfxNames[sfxNum];
+	}
+
+	if((button & CONT_R) && !(lastbutton & CONT_R))
+	{
+		// set to end of sound effect list
+		if(sfx)
+		{
+			MusHandleStop(sfxRes,0);
+			sfxNum = (NUM_SNDVIEW_SFX - 1);
+		}
+		// set to start of music track list
+		else
+		{
+			MusHandleStop(audioCtrl.musicHandle[0],0);
+			audioCtrl.currentTrack[0] = 0;
+			musNum = (NUM_TRACKS - 1);
+		}
+
+		musName->text = gameSongs[musNum].tuneName;
+		sfxName->text = sfxNames[sfxNum];
 	}
 
 	if((button & CONT_START) && !(lastbutton & CONT_START))
 	{
+		MusHandleStop(sfxRes,0);
+		MusHandleStop(audioCtrl.musicHandle[0],0);
+		audioCtrl.currentTrack[0] = 0;
+
 		FreeAllLists();
 		frontEndState.mode = TITLE_MODE;
 	}
 
-	if ( !turn )
-	{
-		for ( counter = 0; counter < 11; counter ++ )
-		{
-
-			if ( dir [ counter ] )
-			{
-				title [ counter ]->a -= 10;
-				if ( title [ counter ]->a <= 0 )
-				{
-					dir [ counter ] = 0;
-				}
-				// ENDIF
-			}
-			// ENDIF
-			if ( !dir [ counter ] )
-			{
-				title [ counter ]->a += 10;
-				if ( title [ counter ]->a >= 250 )
-				{
-					dir [ counter ] = 1;
-				}
-				// ENDIF
-			}
-			// ENDIF
-
-		}
-		// ENDFOR
-		turn = 3;
-	}
-	else
-	{
-		turn--;
-	}
-	// ENDIF
-
 	lastbutton = button;
+
+	if(sfx)
+	{
+		sfxName->a	= 255;
+		titleSfx->a = 255;
+		musName->a	= 95;
+		titleMus->a = 95;
+	}
+	else if(mus)
+	{
+		sfxName->a	= 95;
+		titleSfx->a = 95;
+		musName->a	= 255;
+		titleMus->a = 255;
+	}
 }

@@ -13,7 +13,7 @@
 #define FROGGER_H_INCLUDED
 
 
-#define MAX_IDLE_TIME			500
+#define MAX_IDLE_TIME			300
 #define SPAWN_SCOREUPTIMER		15
 #define MAX_FROGS 4
 

@@ -42,6 +42,18 @@ void RunFrontEndStates( )
 		RunHiscoreScreen();
 		break;
 
+#ifndef PC_VERSION
+	case DEVELOPMENTMENU_MODE:
+		RunDevelopmentMenu();
+		break;
+	case OBJVIEW_MODE:
+		RunObjectViewer();
+		break;
+	case SNDVIEW_MODE:
+		RunSndView();
+		break;
+#endif
+
 	}
 }
 
@@ -66,7 +78,6 @@ void GameLoop(void)
 	{
 	case GAME_MODE:
 		desiredFrameRate = newDesiredFrameRate = ingameRate;
-		//runningWaterStuff = 1;
 		if(frameCount == 15)
 			StartDrawing("gameloop");
 
@@ -81,7 +92,6 @@ void GameLoop(void)
 	case CAMEO_MODE:
 	case PAUSE_MODE:
 		desiredFrameRate = newDesiredFrameRate = ingameRate;
-		//runningWaterStuff = 1;
 		if(frameCount == 15)
 			StartDrawing("pausemode");
 

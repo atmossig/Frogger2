@@ -65,7 +65,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	camFacing		= 0;
 
 	InitActorAnim(frog[p]->actor);
-	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.5F,0,0);
+	AnimateActor(frog[p]->actor,FROG_ANIM_DANCE1,YES,NO,0.25F,0,0);
 
 	currTile[p]		= startTile;
 
@@ -116,7 +116,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 				}
 
 				InitActorAnim(babies[i]->actor);
-				AnimateActor(babies[i]->actor,0,YES,NO,1.0F,0,0);
+				AnimateActor(babies[i]->actor,0,YES,NO,0.5F,0,0);
 			}
 		}
 	}
@@ -262,7 +262,7 @@ void UpdateFroggerPos(long pl)
 		}
 		else if( player[pl].isSinking )
 		{
-			AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.5F,0,0);
+			AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 			return;
 		}
 
@@ -1023,7 +1023,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 					CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
 					frog[pl]->action.deathBy = DEATHBY_NORMAL;
-					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.5F,0,0);
+					AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 
 					player[pl].frogState |= FROGSTATUS_ISDEAD;
 					frog[pl]->action.dead = 50;
@@ -1086,14 +1086,14 @@ void CheckForFroggerLanding(int whereTo,long pl)
 
 							CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,30);
 							frog[pl]->action.deathBy = DEATHBY_DROWNING;
-							AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.5F,0,0);
+							AnimateActor(frog[pl]->actor,FROG_ANIM_DROWNING,NO,NO,0.25F,0,0);
 						}
 						else
 						{
 							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_NORMAL,&destTile[pl]->centre,&destTile[pl]->normal,6,30,&rebound,25);
 							CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&destTile[pl]->centre,&destTile[pl]->normal,25,1,0.1,15);
 							frog[pl]->action.deathBy = DEATHBY_NORMAL;
-							AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.5F,0,0);
+							AnimateActor(frog[pl]->actor,FROG_ANIM_BASICSPLAT,NO,NO,0.25F,0,0);
 						}
 
 						player[pl].frogState |= FROGSTATUS_ISDEAD;
@@ -1568,7 +1568,7 @@ void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTO
 				// frog has fallen too far !!!
 				t += 15;
 				frogGravity = -0.75F;
-				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.75F,0,0);
 			}
 		}
 	}
@@ -1585,7 +1585,7 @@ void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTO
 				// frog has fallen too far !!!
 				t += 25;
 				frogGravity = -0.5F;
-				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.75F,0,0);
 			}
 		}
 	}
@@ -1602,7 +1602,7 @@ void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTO
 				// frog has fallen too far !!!
 				t += 15;
 				frogGravity = -0.75F;
-				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,2.0F,0,0);
+				AnimateActor(frog[pl]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.75F,0,0);
 			}
 		}
 	}
