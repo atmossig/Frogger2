@@ -17,9 +17,14 @@ extern "C"
 {
 #endif
 
+
 int InitBackdrop(const char *filename);
 void FreeBackdrop(void);
 void DrawBackdrop(void);
+
+void InitLoadingScreen( const char *filename );
+void UpdateLoadingScreen( short addprog );
+void FreeLoadingScreen( );
 
 #ifdef __cplusplus
 }

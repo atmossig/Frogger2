@@ -13,6 +13,8 @@
 #include "backdrop.h"
 #include "Main.h"
 
+short loadProgress;
+
 /*	--------------------------------------------------------------------------------
 	Function 	: InitBackdrop
 	Purpose 	: Initialises a backdrop from a bitmap file
@@ -45,4 +47,43 @@ void DrawBackdrop(void)
 void FreeBackdrop(void)
 {
 	mdxFreeBackdrop();
+	backdrop = NULL;
+}
+
+
+void InitLoadingScreen( const char *filename )
+{
+	InitBackdrop( filename );
+
+	loadProgress = 0;
+}
+
+void UpdateLoadingScreen( short addprog )
+{
+	RECT r;
+
+	loadProgress += addprog;
+
+	if( loadProgress > 100 )
+		loadProgress = 100;
+
+	BeginDraw( );
+	DrawBackdrop( );
+	EndDraw( );
+
+	r.top = rYRes - rYRes/4;
+	r.bottom = rYRes - rYRes/4.8;
+	r.left = rXRes/4;
+	r.right = (((rXRes-(2*r.left))/100) * loadProgress) + r.left;
+
+	BeginDraw( );
+	DrawFlatRect( r, D3DRGBA(1,0.5,0.5,0.8) );
+	EndDraw( );
+
+	DDrawFlip();
+}
+
+void FreeLoadingScreen( )
+{
+	FreeBackdrop( );
 }

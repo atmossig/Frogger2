@@ -35,6 +35,8 @@ extern LPDIRECTDRAWSURFACE7	surface[NUM_SRF];
 extern unsigned long		rXRes, rYRes, rBitDepth, r565 ,rHardware, rFullscreen, rScale, rFlipOK;
 extern HWND					rWin;
 
+extern LPDIRECTDRAWSURFACE7	backdrop;
+
 struct MDX_DXDEVICE
 {
 	GUID *guid;
