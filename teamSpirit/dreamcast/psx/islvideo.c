@@ -16,6 +16,9 @@
 #include	"fadeout.h"
 #include	"main.h"
 
+extern int byteToDecibelLUT[256];
+extern long globalSoundVol;
+
 static StrDataType *vidStream;
 
 /*	Turn over flag(ON/OFF)	*/
@@ -154,7 +157,8 @@ int ApExec(AP ap, int allowQuit)
 	MWE_PLY_STAT	stat;
 	PDS_PERIPHERAL	*per;
 	char			*fname;
-	int				userQuit;
+	int				userQuit,vol;
+	float			newVolume;
 
 	ply = ap->ply;
 	fname = vidStream->strName;
@@ -201,7 +205,11 @@ int ApExec(AP ap, int allowQuit)
 	if (ap->disp_flag == ON)
 		ap_disp_info(ap);
 
-	mwPlySetOutVol(ply, ap->vol);
+	// set global volume
+	newVolume = (float)globalSoundVol * 2.55;
+	vol = (int)newVolume;
+	vol = byteToDecibelLUT[vol] / 10;
+	mwPlySetOutVol(ply, vol);
 
 	return userQuit;
 }
