@@ -173,6 +173,8 @@ void LoadSfxSet( char *path )
 		// Sample plus format data plus loop flag
 		ptr += shdr.length + sizeof(WAVEFORMATEX);
 	}
+
+	FREE(stak);
 }
 
 
@@ -532,6 +534,7 @@ void InitVoices( char *path, int len )
 		}
 	}
 
+	FREE(stak);
 	path[len] = '\0';
 }
 
