@@ -2130,6 +2130,15 @@ void DrawAlphaSpriteRotating(float *pos,float angle,float x, float y, float z, f
 	{
 		dp("Poo-poo!\n");
 	}
+	
+	for(i=0; i<drawPoly.numVerts; i++)
+	{
+		j = i + 1;
+		if(j == drawPoly.numVerts)
+			j = 0;
+
+		DrawALine(drawPoly.verts[i].sx,drawPoly.verts[i].sy,drawPoly.verts[j].sx,drawPoly.verts[j].sy,0xffffffff);
+	}
 }
 
 // use Sutherland - Hodgman edge clipping algorithm thingyjob - ANDYE
