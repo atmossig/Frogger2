@@ -871,7 +871,7 @@ void TransformObject(OBJECT *obj, float time)
 		float rotmat2[4][4];
 		QUATERNION quat, rot = {0,1,0,hedRotAmt};
 		GetQuaternionFromRotation (&quat,&rot);
-		QuaternionToMatrix(&quat, rotmat2);
+		QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
 		guMtxCatF(rotmat,rotmat2,rotmat);
 	}
 
