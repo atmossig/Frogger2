@@ -1451,6 +1451,13 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Morning was that Phillip Crisp thing that Dave mentioned.
+
+	Afternoon I've been generalising death animations to use Matts reactive animation text file.
+	So you can assign a damage type to an enemy.
+
+	Erm... been to the docs for a checkup. And done a few bug thingies.
+
 
 James Healey:
 ------------------------------------------------
