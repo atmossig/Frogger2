@@ -33,7 +33,7 @@ enum gameModes
 
 	PAUSE_MODE,
 
-	GHOST_MODE,							// Mode To Whit Your Self Against Your Self
+	GHOST_MODE,							// Mode To Whit Your Self Against Your Self [sic]
 
 	LEVELPLAYING_MODE,
 	RECORDKEY_MODE,
@@ -75,6 +75,7 @@ enum
 	TILESTATE_GRAPPLE,
 	TILESTATE_SMASH,
 	TILESTATE_BARRED,
+	TILESTATE_FALL,
 
 	TILESTATE_FROGGER1AREA,
 	TILESTATE_FROGGER2AREA,
