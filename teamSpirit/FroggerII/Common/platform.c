@@ -377,11 +377,12 @@ void UpdatePlatforms()
 
 						CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&cur->pltActor->actor->pos,128,1,0.2,40);
 						
-//						SetVector(&frog[0]->actor->pos,&currTile[0]->centre);
-
 						player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
 						SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
 						FlipVector(&frog[0]->actor->vel);
+
+						GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
+						SetVector(&cur->pltActor->actor->pos,&fromPosition);
 					}
 				}
 
@@ -678,14 +679,11 @@ BOOL PlatformTooHigh(PLATFORM *plat,long pl)
 	VECTOR vec;
 	float height,h;
 	VECTOR diff;
-		
-	SubVector(&diff,&plat->inTile->centre,&frog[pl]->actor->pos);
+
+	SubVector(&diff,&plat->pltActor->actor->pos,&frog[pl]->actor->pos);
 	h = Magnitude(&diff);
 	MakeUnit(&diff);
-	
 	height = (h * DotProduct(&diff,&plat->inTile->normal));
-
-	dprintf"Height to platform is %f\n",height));
 
 	// too high
 	if(height > 51.0F)
@@ -717,13 +715,12 @@ BOOL PlatformTooLow(PLATFORM *plat,long pl)
 	float height,h;
 	VECTOR diff;
 		
-	SubVector(&diff,&plat->inTile->centre,&frog[pl]->actor->pos);
+	SubVector(&diff,&plat->pltActor->actor->pos,&frog[pl]->actor->pos);
 	h = Magnitude(&diff);
 	MakeUnit(&diff);
-	
 	height = (h * DotProduct(&diff,&plat->inTile->normal));
 
-	if(height > 125.0F)
+	if(height < -125.0F)
 	{
 		// platform too far below
 		return TRUE;

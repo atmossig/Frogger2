@@ -222,6 +222,7 @@ void UpdateFroggerPos(long pl)
 			if(MagnitudeSquared(&frog[pl]->actor->vel) < 5.0F)
 			{
 				// stop the frog from bouncing - set to standing
+				SetVector(&frog[pl]->actor->pos,&ground.point);
 				player[pl].frogState &= ~FROGSTATUS_ISFALLINGTOGROUND;
 				player[pl].frogState &= ~FROGSTATUS_ISWANTINGU;
 				player[pl].frogState &= ~FROGSTATUS_ISWANTINGD;
@@ -1890,13 +1891,9 @@ BOOL GameTileTooHigh(GAMETILE *tile,long pl)
 		
 	SubVector(&diff,&tile->centre,&frog[pl]->actor->pos);
 	h = Magnitude(&diff);
-	MakeUnit (&diff);
-	
-	height = h * DotProduct(&diff,&tile->normal);
+	MakeUnit(&diff);
+	height = (h * DotProduct(&diff,&tile->normal));
 
-	//height = (tile->centre.v[Y] - frog[pl]->actor->pos.v[Y]);
-
-//	dprintf"%.f, %.f %.f", tile->centre.v[Y], frog->actor->pos.v[Y], height));
 	if(height > 51.0F)
 	{
 		// cannot be jumped up to either with or without superhop
@@ -1927,11 +1924,10 @@ BOOL GameTileTooLow(GAMETILE *tile,long pl)
 		
 	SubVector(&diff,&tile->centre,&frog[pl]->actor->pos);
 	h = Magnitude(&diff);
-	MakeUnit (&diff);
-	
-	height = h * DotProduct(&diff,&tile->normal);
+	MakeUnit(&diff);
+	height = (h * DotProduct(&diff,&tile->normal));
 
-	if(height > 125.0F)
+	if(height < -125.0F)
 	{
 		// tile too far below
 		return TRUE;
