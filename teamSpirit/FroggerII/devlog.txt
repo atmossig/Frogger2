@@ -1355,6 +1355,11 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Mornin'
+		Death animations again, with more success than yesterday. The drowning is better,
+		fire death is in (bounces along the ground clutching his ass) and basic electrocution
+		is there too. needs to be better though, with skeleton view and juddering.
+
 
 James Healey:
 ------------------------------------------------
