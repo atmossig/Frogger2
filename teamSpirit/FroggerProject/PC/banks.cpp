@@ -121,6 +121,12 @@ void LoadObjectBank(int objectBank)
 		case HALLOWEENLEV3_OBJ_BANK:
 			strcpy(fileName, "halloween3"); break;
 
+		case HALLOWEENBOSS_OBJ_BANK:
+			strcat(fileName, "halloweenboss"); break;
+
+		case HALLOWEENBOSSB_OBJ_BANK:
+			strcat(fileName, "halloweenbossb");	break;
+
 // Front-end
 
 		case FRONTEND_OBJ_BANK:

@@ -16,6 +16,8 @@ extern "C"
 {
 #endif
 
+#include "windef.h"
+
 extern char debugFile[MAX_PATH];
 
 // A value, string pair for reporting purposes!
