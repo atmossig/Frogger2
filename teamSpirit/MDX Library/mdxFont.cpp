@@ -352,9 +352,9 @@ long DrawFontCharAtLoc(long x, long y, char ch, unsigned long colour, MDX_FONT *
 	mdxChar = &font->characters[ch];
 
 	rc.left = x;
-	rc.right = x + (mdxChar->width * scale);
+	rc.right = x + (mdxChar->width*scale);
 	rc.top = y;
-	rc.bottom = y + (font->height * scale);
+	rc.bottom = y + (font->height*scale);
 
 	if (rHardware)
 	{
