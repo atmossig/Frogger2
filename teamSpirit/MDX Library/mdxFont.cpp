@@ -86,6 +86,7 @@ MDX_FONT *InitFont(const char *filename)
 	font->height = charSize;
 
 	scratch = (short*)AllocMem(2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
+	for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=0xf81f;
 
 	//surfaces[0] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
 	surfaces[currSurf] = D3DCreateTexSurface(FONT_TEXTURE_SIZE, FONT_TEXTURE_SIZE, 0xf81f, 0, 1);
@@ -130,7 +131,7 @@ MDX_FONT *InitFont(const char *filename)
 			if (charUV.y >= (FONT_TEXTURE_SIZE-charSize))
 			{
 				DDrawCopyToSurface(surfaces[currSurf], (unsigned short *)scratch,0,FONT_TEXTURE_SIZE,FONT_TEXTURE_SIZE,0);
-				memset(scratch, 0, 2*FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE);
+				for (int clear=0;clear<FONT_TEXTURE_SIZE*FONT_TEXTURE_SIZE;clear++) scratch[clear]=0xf81f;
 				charUV.y = 0;
 
 				currSurf++;
@@ -147,7 +148,7 @@ MDX_FONT *InitFont(const char *filename)
 				//unsigned long d,r,g,b;
 				dt = tData[(x+left)+(y*bmpWidth)];
 
-				if (dt==transparent) dt = (0x1f<<11)+(0x1f);
+				if (dt==transparent) dt = 0xf81f;
 			
 				scratch[(y+charUV.y)*FONT_TEXTURE_SIZE+(x+charUV.x)] = dt;
 			}
