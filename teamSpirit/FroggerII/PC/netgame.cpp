@@ -60,7 +60,7 @@ void HandleSynchMessage( LPDPLAYINFO lpDPInfo,LPMSG_SYNCHGAME lpMsg,DWORD dwMsgS
 		{
 			for( i=1; i<MAX_MULTIPLAYERS; i++ )
 				if( netPlayers[i] == idFrom )
-					playersReady[i] == 1;
+					playersReady[i] = 1;
 		}
 		else
 		{
@@ -130,7 +130,7 @@ HRESULT InitialServerSynch(void)
 	while (!everyoneReady)
 	{
 		everyoneReady = TRUE;
-		for (i=0 ; i<NUM_FROGS; i++)
+		for (i=1; i<NUM_FROGS; i++)
 		if (!playersReady[i])
 			everyoneReady = 0;
 	}
