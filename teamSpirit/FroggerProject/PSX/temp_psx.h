@@ -6,6 +6,8 @@
 
 #define PostQuitMessage(x)
 #define RunDesignWorkViewer()
+#define StartControllerView()
+#define RunControllerView()
 
 
 
