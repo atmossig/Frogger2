@@ -11,7 +11,7 @@
 
 //***********************************
 // Defines
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #define EEPROM_DELAY 30000
 
