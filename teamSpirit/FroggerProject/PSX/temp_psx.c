@@ -548,7 +548,7 @@ void PsxNameEntryFrame(void)
 
 
 
-#define DRAW_SCREEN_CLIP
+#define _DRAW_SCREEN_CLIP
 void Actor2ClipCheck(ACTOR2* act)
 {
 //bbxx - PAL/NTSC specifics needed here
@@ -593,16 +593,25 @@ void Actor2ClipCheck(ACTOR2* act)
 			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
 	//		SetSp(oldStackPointer);
 			TIMER_STOP_ADD1(TIMER_SETANI);
+
+			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
+	// 		act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
+	// 		act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
+	// 		act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
+			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
+			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
+			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
+
+		}
+		else if ( act->bffActor )
+		{
+				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+
+				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
+				act->actor->bffMatrix.t[1] = act->actor->position.vy;
+				act->actor->bffMatrix.t[2] = act->actor->position.vz;
 		}
 
-
-		QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
-// 		act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-// 		act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-// 		act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-		act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-		act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-		act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 
 		act->clipped = 0;
 		return;
