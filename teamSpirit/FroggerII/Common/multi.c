@@ -59,7 +59,7 @@ int UpdateCTF( )
 		}
 	}
 
-//	GTUpdate( &multiTimer, -1 );
+	GTUpdate( &multiTimer, -1 );
 
 	if( !multiTimer.time )	// Check win conditions
 	{
