@@ -243,7 +243,7 @@ typedef struct
 }MDX_OBJECT_BANK;
 
 #define OBJECT_BASE "objects\\"
-#define MAX_OBJECT_BANKS 3
+#define MAX_OBJECT_BANKS 5
 
 #define OBJECT_FLAGS_GOURAUD_SHADED			   	(1<<0)		// 1
 #define OBJECT_FLAGS_XLU					   	(1<<1)		// 2
