@@ -587,16 +587,16 @@ void RunFrontendGameLoop (void)
 		else
 		{
 			worldBak->xPosTo = 95;
-			worldBak->height = 80+20;
+			worldBak->height = 120;
 			strcpy(arcadeStr,"Multiplayer Mode");
 			sprintf(worldStr,"%i player mode",numPlayers);
 			
 			frogFacing[0] = 3;
 			Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
 
-			for (i=0; i<6; i++)
+			for (i=0; i<8; i++)
 			{
-				strcpy (levelStr[i],worldVisualData[i].levelVisualData[3].description);
+				strcpy (levelStr[i],worldVisualData[i].levelVisualData[multiLevelIndex[i]].description);
 				levelText[i]->b = 0;
 				levelText[i]->g = 100;
 				levelText[i]->r = 200;
@@ -782,7 +782,7 @@ void RunFrontendGameLoop (void)
 
 		if (gameState.mode == FMVPLAY_MODE)
 			return;
-
+		
 		arcadeText->yPos = titleBak->yPos+5;
 		selectText->yPos = titleBak->yPos+23;
 		pcText->xPos = infoBak->xPos+52;
@@ -1132,6 +1132,10 @@ void RunMPSelect( )
 		case WORLDID_LABORATORY: 
 			player[0].levelNum = 3;
 			multiplayerMode = MULTIMODE_BATTLE; 
+			break;
+		case WORLDID_SUPERRETRO:
+			player[0].levelNum = 0;
+			multiplayerMode = MULTIMODE_COLLECT;
 			break;
 		}
 
