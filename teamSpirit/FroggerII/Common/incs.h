@@ -26,6 +26,20 @@
 
 #endif
 
+#ifndef PC_VERSION
+#define F3DEX_GBI_2
+#include <ultra64.h>
+
+//#include <PR/ramrom.h>	/* needed for argument passing into the app */
+//#include <assert.h>
+//#include <pr/os.h>
+//#include <pr/gu.h>
+#include <pr/gs2dex.h>
+
+//#include <inttypes.h>
+//#include <stdio.h>
+//#include <stdarg.h>
+#endif
 
 #include "types.h"
 #include "define.h"
@@ -71,7 +85,7 @@
 #include "frogmove.h"
 #include "cam.h"
 #include "tongue.h"
-#include "event.h"
+//#include "event.h"
 
 #ifndef PC_VERSION
 #include "develop.h"
