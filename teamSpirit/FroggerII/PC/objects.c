@@ -301,6 +301,14 @@ void LoadObjectBank(int num)
 			strcat (file,"lab1");
 			break;
 			
+		case LABORATORYLEV2_OBJ_BANK:
+			strcat (file,"lab2");
+			break;
+
+		case LABORATORYLEV3_OBJ_BANK:
+			strcat (file,"lab3");
+			break;
+
 		case RETROMASTER_OBJ_BANK:
 			strcat (file,"haloween");
 			break;
