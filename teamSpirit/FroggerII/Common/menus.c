@@ -66,11 +66,12 @@ void RunTitleScreen()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 #ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+		currFont = bigFont;
 #else
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+		currFont = smallFont;
 #endif
 
-		currFont = smallFont;
 		startText = CreateAndAddTextOverlay(100,112,"start game",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
 
 		selectText = CreateAndAddTextOverlay(100,132,"level select",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
@@ -231,7 +232,7 @@ void RunLevelSelect()
 	{
 		FreeMenuItems();
 
-		currFont = smallFont;
+		//currFont = smallFont;
 
 		// draw list of worlds on left
 		for( i=0; i < MAX_WORLDS; i++ )
