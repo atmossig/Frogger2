@@ -82,7 +82,7 @@ void GameLoop(void)
 			
 		case INTRO_MODE:
 			RunGameIntro( );
-			RunGameLoop();
+			//RunGameLoop();
 			frameCount++;
 			break;
 
@@ -435,7 +435,7 @@ void RunGameIntro( )
 	//CameraLookAtFrog();
 	//UpdateCameraPosition(0);
 
-/*	FroggerHop(0);	// just run the movement part of the frog jump code..
+	FroggerHop(0);	// just run the movement part of the frog jump code..
 
 	if (player[0].jumpTime >= 1.0f)
 	{
@@ -459,7 +459,7 @@ void RunGameIntro( )
 	}
 
 	//CheckForFroggerLanding(0);
-*/
+
 
 	switch (intro->stage)
 	{
@@ -508,16 +508,15 @@ void RunGameIntro( )
 			}
 			else
 			{
+/*				
 				intro->stage = 1;
 				intro->timer = actFrameCount;
-				
 				intro->text[0]->draw = 1;
 				intro->text[0]->a = 255;
-
 				for (i=1;i<=3;i++)
 					intro->text[i]->draw = 0;
-
-				/*JallocFree((UBYTE**)&intro);
+*/
+				JallocFree((UBYTE**)&intro);
 
 				player[0].worldNum = WORLDID_FRONTEND;
 				player[0].levelNum = LEVELID_FRONTEND1;
@@ -526,7 +525,7 @@ void RunGameIntro( )
 
 				gameState.mode = LEVELCOMPLETE_MODE;
 				GTInit( &modeTimer, 1 );
-				showEndLevelScreen = 0;*/
+				showEndLevelScreen = 0;
 			}
 			break;
 		}

@@ -16,7 +16,10 @@
 #include "script.h"
 #include "memload.h"
 
+#ifdef _DEBUG
 #define DEBUG_SCRIPTING
+#endif
+
 #define SCRIPT_FEV_VERSION	3
 
 /* --------------------------------------------------------------------------------- */
@@ -120,32 +123,12 @@ void PrintScriptDebugMessage(const char* str)
 
 	dprintf"\n"));
 }
-/* --------------------------------------------------------------------------------- */
 
-ACTOR2 *GetActorFromUID(int UID)
-{
-	ENEMY *e;
-	PLATFORM *p;
-
-	dprintf"Finding actor %d: ", UID));
-	e = GetEnemyFromUID(UID);
-	if (e)
-	{
-		dprintf"Found\n"));
-		return e->nmeActor;
-	}
-	
-	dprintf"Searching plats: "));
-	p = GetPlatformFromUID(UID);
-	if (p)
-	{
-		dprintf"Found\n"));
-		return p->pltActor;
-	}
-
-	return NULL;
-}
-
+/*	--------------------------------------------------------------------------------
+    Function		: GetTileFromNumber
+	Parameters		: int
+	Returns			: GAMETILE*
+*/
 
 #ifdef DEBUG_SCRIPTING
 GAMETILE *GetTileFromNumber(int number)
@@ -211,7 +194,6 @@ int OnCounterEquals(TRIGGER *t)
 	int c = (int)t->data[0], v = (int)t->data[1];
 	return (scriptCounters[c] == v);
 }
-
 
 /*	--------------------------------------------------------------------------------
     Function	: EnumPlatforms
@@ -972,6 +954,25 @@ BOOL ExecuteCommand(UBYTE **p)
 			int time = MEMGETFLOAT(p) * 60;
 			EnumPlatforms(id, CollapsePlatform, time);
 			break;
+		}
+
+	case EV_CHANGEFROG:
+		{
+			char model[20];
+			int pl, l;
+
+			pl = MEMGETBYTE(p);
+			l = MEMGETBYTE(p);
+			if (l > 19) {
+				PrintScriptDebugMessage("Model names must be < 20 chars");
+				return 0;
+			}
+			memcpy(model, *p, l);
+			model[l] = 0;
+			(*p) += l;
+
+			SwapActorObject(frog[pl], model);
+			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, NO, 0.35f, NO, NO);
 		}
 /*
 	case EV_HURTFROG:
