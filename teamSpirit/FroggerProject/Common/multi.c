@@ -350,23 +350,12 @@ void UpdateBattle( )
 				for( nme=enemyList.head.next; nme!=&enemyList.head; nme=nme->next )
 					if( nme->flags & ENEMY_NEW_BATTLEMODE )
 						nme->isWaiting = 0;
-//					else 
-//						nme->path->nodes->worldTile->state = TILESTATE_BARRED;
 			}
 		}
 		else if( !multiTimer.time )
-//		{
-//			// JH: OK!!! This has been put here because the line above which sets the TILESTATE, kills the frog
-//			// in battle mode.
-//			ENEMY *nme;
-//			for( nme=enemyList.head.next; nme!=&enemyList.head; nme=nme->next )
-//				if( nme->flags & ENEMY_NEW_BATTLEMODE )
-//					nme->isWaiting = 0;
-//				else 
-//					nme->path->nodes->worldTile->state = TILESTATE_NORMAL;
-
+		{
 			PlayVoice( Random(NUM_FROGS), "frogletsgo" );
-//		}
+		}
 		else if( multiTimer.time != oldTime && multiTimer.time < 5 )
 		{
 			PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
@@ -1080,13 +1069,6 @@ void KillMPFrog(int pl)
 		mpl[pl].penalText->yPos = mpl[pl].scrY;
 		GTInit( &player[pl].dead, 2 );
 		frog[pl]->draw = 0;
-
-//		if( (fx = CreateSpecialEffectDirect(FXTYPE_SMOKE_GROWS, &tp, &currTile[pl]->normal, 524288, 4915, 4096, 8192)) )
-//		{
-//			fx->tex = FindTexture("PENALTY");
-//			fx->sprites->texture = fx->tex;
-//			fx->sprites->flags = SPRITE_FLAGS_ROTATE;
-//		}
 		break;
 
 	case MULTIMODE_BATTLE:
@@ -1161,10 +1143,6 @@ void ReinitialiseMultiplayer( )
 	matchWinner = -1;
 
 	memset( mpl, 0, sizeof( MPINFO )*4 );
-//	mpl[0].r = 30; mpl[0].g = 230; mpl[0].b = 30;
-//	mpl[1].r = 230; mpl[1].g = 30; mpl[1].b = 30;
-//	mpl[2].r = 30; mpl[2].g = 230; mpl[2].b = 230;
-//	mpl[3].r = 30; mpl[3].g = 30; mpl[3].b = 230;
 
 	if( multiplayerMode == MULTIMODE_BATTLE )
 	{
@@ -1560,10 +1538,6 @@ void CalcCollectCamera( FVECTOR *target )
 		AddVectorFFF(target,&minVect,&maxVect);
 		ScaleVectorFF(target,2048);
 	}
-//	else
-//	{
-//		SetVectorFS( target, &frog[0]->actor->position );
-//	}
 }
 
 
@@ -1582,17 +1556,10 @@ void CalcBattleCamera( FVECTOR *target )
 	int i,l;
 	fixed sc, scv;
 	FVECTOR minVect,maxVect;
-//	int alive;
-
-/*
-	for( i=0,alive=0; i<NUM_FROGS; i++ )
-		if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
-			alive++;
-*/
 
 	for( i=0,l=0; i<NUM_FROGS; i++ )
 	{
-		if(/* alive < 3 ||*/ !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
 		{
 			if( player[i].jumpTime > 0 )	// jumping; calculate linear position
 			{
@@ -1632,10 +1599,7 @@ void CalcBattleCamera( FVECTOR *target )
 	if( sc > 0 )
 	{
 		scv = (sc/battleCamFac) + battleCamPlus;
-
-		//if( scv > scaleV ) 
-		// JH:  Commented out so the camera can go back in!!!, Please Check Jim
-			scaleV = scv;
+		scaleV = scv;
 	}
 
 	if (l > 0)
@@ -1643,10 +1607,6 @@ void CalcBattleCamera( FVECTOR *target )
 		AddVectorFFF(target,&minVect,&maxVect);
 		ScaleVectorFF(target,2048);
 	}
-//	else
-//	{
-//		SetVectorFS( target, &frog[0]->actor->position );
-//	}
 }
 
 /*	--------------------------------------------------------------------------------
