@@ -49,9 +49,6 @@ void UpdateRace( )
 	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
-//		timeTextOver->text[0] = '\0';
-//		scoreTextOver->text[0] = '\0';
-
 		for( i=0,j=0; i<NUM_FROGS; i++ )
 			if( currTile[i]->state == TILESTATE_FROGGER1AREA )
 			{
@@ -70,12 +67,10 @@ void UpdateRace( )
 	// When all players are ready, start a countdown
 	if( multiTimer.time )
 	{
-//		sprintf( timeTextOver->text, "%d", multiTimer.time );
 		GTUpdate( &multiTimer, -1 );
 
 		if( !multiTimer.time )
 		{
-//			sprintf( timeTextOver->text, "Go" );
 			started = 2;
 
 			for( i=0; i<NUM_FROGS; i++ )
@@ -92,11 +87,6 @@ void UpdateRace( )
 			ResetMultiplayer( );
 		}
 		return;
-	}
-
-	if( started )
-	{
-//		sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
 	}
 
 	if( started != 2 )
@@ -191,15 +181,11 @@ void UpdateRace( )
 				draw=1;
 		}
 
-		if( draw )
-			draw = draw;
-//			sprintf( timeTextOver->text, "Draw" );
-		else
+		if( !draw )
 		{
 			matchWinner = winner;
 			ScaleVector( &camDist, 0.25 );
 			mpl[winner].wins++;
-//			sprintf( timeTextOver->text, "P%i won", winner );
 		}
 
 		GTInit( &endTimer, 5 );
@@ -444,12 +430,6 @@ void RaceRespawn( int pl )
 		}
 	}
 
-/*	if( (fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &frog[pl]->actor->pos, &currTile[pl]->normal, 10, 2, 0.05, 0.6 )) )
-	{
-		fx->spin = 5;
-		SetFXColour( fx, mpl[pl].r, mpl[pl].g, mpl[pl].b );
-	}
-*/
 	TeleportActorToTile(frog[pl],tile,pl);
 
 	// Update progress info
@@ -501,9 +481,6 @@ void BattleProcessController( int pl )
 
 		EnableTextOverlay ( continueText );
 		EnableTextOverlay ( quitText );
-
-//		timeTextOver->oa = timeTextOver->a;
-//		timeTextOver->a = 0;
     }
 }
 
@@ -624,13 +601,6 @@ void KillMPFrog(int num)
 	Parameters		: 
 	Returns			: 
 	Info			:
-		MPINFO mpl[4] = 
-		{
-			{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  230, 30,	0, TILESTATE_FROGGER1AREA, NULL },
-			{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	230, 30,  30,	0, TILESTATE_FROGGER1AREA, NULL },
-			{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	180, 180, 230,	0, TILESTATE_FROGGER1AREA, NULL },
-			{ 0, 0,	0, MULTI_BATTLE_TRAILLENGTH,	30,  30,  230,	0, TILESTATE_FROGGER1AREA, NULL },
-		};
 */
 void ReinitialiseMultiplayer( )
 {
