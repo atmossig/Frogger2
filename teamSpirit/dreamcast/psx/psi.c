@@ -14,7 +14,7 @@ typedef struct{
 
 
 // Swampy texture map
-#define SWAMPTROLLEY_TEXTURE_ID		0x130
+#define SWAMPTROLLEY_TEXTURE_ID		0x4f9b6894
 
 
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -714,7 +714,8 @@ void psiFixupPrims(PSIMODEL *psiModel)
 					{
 						TMD_P_GT4I	*prim;
 						prim = (TMD_P_GT4I *)primitive;
-						if (prim->tpage == SWAMPTROLLEY_TEXTURE_ID)
+//						if (prim->tpage == SWAMPTROLLEY_TEXTURE_ID)
+						if (utilStr2CRC((char*)&currentTextureList[(((TMD_P_GT4I*)primitive)->clut)-1]) == SWAMPTROLLEY_TEXTURE_ID)
 						{
 							prim->tu0 = 0;	prim->tv0 = 0;
 							prim->tu1 = 0;	prim->tv1 = 31;
