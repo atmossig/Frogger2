@@ -92,8 +92,8 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 	4,						// number of levels
 		{ 
 		"space station","space1.bmp",80,		LEVELID_SPACE1,LEVELID_SPACE2,WORLDID_SPACE,SPACELEV1_OBJ_BANK,0,SPACELEV1_COL,LEVEL_CLOSED,-1,0, 0,0, 0,500,6500,1100,
-		"asteroid ride","space1.bmp",80,		LEVELID_SPACE3,LEVELID_SPACE3,WORLDID_SPACE,SPACELEV3_OBJ_BANK,0,SPACELEV3_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
-		"spacesuckers","space1.bmp",65,	LEVELID_SPACE4,LEVELID_LABORATORY1,WORLDID_LABORATORY,SPACEBOSS_OBJ_BANK,0,SPACEMASTER_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
+		"asteroid ride","space2.bmp",80,		LEVELID_SPACE3,LEVELID_SPACE3,WORLDID_SPACE,SPACELEV3_OBJ_BANK,0,SPACELEV3_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
+		"spacesuckers","space3.bmp",65,	LEVELID_SPACE4,LEVELID_LABORATORY1,WORLDID_LABORATORY,SPACEBOSS_OBJ_BANK,0,SPACEMASTER_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
 		"space multiplayer","space1.bmp",0,	LEVELID_SPACE6,LEVELID_LABORATORY1,WORLDID_LABORATORY,SPACEMULTI_OBJ_BANK,0,SPACEMULTI_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
 		},
 	},
@@ -108,9 +108,9 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 	WORLD_OPEN,
 	4,						// number of levels
 		{ 
-		"docks","garden1.bmp",80,		LEVELID_CITY1,LEVELID_CITY2,WORLDID_CITY,CITYLEV1_OBJ_BANK,0,CITYLEV1_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
-		"warehouse","garden1.bmp",80,		LEVELID_CITY2,LEVELID_CITY3,WORLDID_CITY,CITYLEV2_OBJ_BANK,0,CITYLEV2_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
-		"city streets","garden1.bmp",90,		LEVELID_CITY3,LEVELID_SUBTERRANEAN1,WORLDID_SUBTERRANEAN,CITYLEV3_OBJ_BANK,0,CITYLEV3_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
+		"docks","city1.bmp",80,		LEVELID_CITY1,LEVELID_CITY2,WORLDID_CITY,CITYLEV1_OBJ_BANK,0,CITYLEV1_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
+		"warehouse","city2.bmp",80,		LEVELID_CITY2,LEVELID_CITY3,WORLDID_CITY,CITYLEV2_OBJ_BANK,0,CITYLEV2_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
+		"city streets","city3.bmp",90,		LEVELID_CITY3,LEVELID_SUBTERRANEAN1,WORLDID_SUBTERRANEAN,CITYLEV3_OBJ_BANK,0,CITYLEV3_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
 		"city multiplayer","garden1.bmp",0,		LEVELID_CITY6,LEVELID_CITY6,WORLDID_CITY,CITYMULTI_OBJ_BANK,0,CITYMULTI_COL,LEVEL_CLOSED,-1,0, 0,0, 0,1100,1100,800,
 		},
 	},
@@ -717,18 +717,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 			frogFacing[0] = 3;
 			atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
 			konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,0);
-			i = 0;
-			flogo[i++] = CreateAndAddSpriteOverlay(98,136,"flogo01.bmp",32,32,255,0) ;
-			flogo[i++] = CreateAndAddSpriteOverlay(130,136,"flogo02.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(162,136,"flogo03.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(194,136,"flogo04.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(98,168,"flogo05.bmp",32,32,255,0) ;
-			flogo[i++] = CreateAndAddSpriteOverlay(130,168,"flogo06.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(162,168,"flogo07.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,0);
-			flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,0);
-
+			flogo[0] = CreateAndAddSpriteOverlay(98,136,"frogger2.bmp",128,128,255,0) ;
+			
 			islLogo[0] = CreateAndAddSpriteOverlay(250,10,"isl1.bmp",20,20,192,0 );
 			islLogo[1] = CreateAndAddSpriteOverlay(270,10,"isl2.bmp",20,20,192,0 );
 			islLogo[2] = CreateAndAddSpriteOverlay(290,10,"isl3.bmp",20,20,192,0 );

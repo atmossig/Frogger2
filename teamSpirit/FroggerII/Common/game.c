@@ -1194,7 +1194,7 @@ void RunFrontendGameLoop (void)
 		infoBak->b = worldBak->b;
 		
 		
-		titleBak = CreateAndAddSpriteOverlay(20,5,"wback.bmp",320-40,16+8+10,190,0);
+		titleBak = CreateAndAddSpriteOverlay(20,5,"wback.bmp",320-40,16+8+10,190,XLU_ADD);
 		titleBak->r = worldBak->r;
 		titleBak->g = worldBak->g;
 		titleBak->b = worldBak->b;
@@ -1224,8 +1224,7 @@ void RunFrontendGameLoop (void)
 	for (i=0; i<MAX_LEVELSTRING; i++)
 		levelStr[i][0] = 0;
 
-	for (i=0; i<10; i++)
-		flogo[i]->num = 1;
+	//flogo[0]->num = 0;
 		
 	if( fadingLogos )
 	{
@@ -1233,8 +1232,7 @@ void RunFrontendGameLoop (void)
 		{
 			atari->xPos+=2*gameSpeed;
 			konami->xPos-=2*gameSpeed;
-			for (i=0; i<10; i++)
-				flogo[i]->yPos+=3*gameSpeed;
+			flogo[0]->yPos+=3*gameSpeed;
 
 			islLogo[0]->xPos+=2*gameSpeed;
 			islLogo[1]->xPos+=2*gameSpeed;
@@ -1244,8 +1242,7 @@ void RunFrontendGameLoop (void)
 		{
 			atari->draw = 0;
 			konami->draw = 0;
-			for (i=0; i<10; i++)
-				flogo[i]->draw = 0;
+			flogo[0]->draw = 0;
 
 			islLogo[0]->draw = 0;
 			islLogo[1]->draw = 0;
