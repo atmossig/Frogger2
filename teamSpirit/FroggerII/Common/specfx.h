@@ -81,6 +81,7 @@ typedef struct TAGSPECFX
 
 	SPRITE *sprites;
 	TEXTURE *tex;
+	ACTOR *follow;								// Go where it goes
 
 	int (*Update) ();							// Just like C++
 	void (*Draw) ();							// Update and draw functions, specified for different types.

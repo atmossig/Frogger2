@@ -30,6 +30,7 @@ TEXTURE *txtrStar		= NULL;
 TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
 TEXTURE *txtrRing		= NULL;
+TEXTURE *txtrFly		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -148,6 +149,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 
 		break;
 	case FXTYPE_FROGSTUN:
+	case FXTYPE_FLYSWARM:
 		effect->numP = 6;
 		i = effect->numP;
 
@@ -160,9 +162,14 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->b = 255;
 		effect->a = 255;
 
+		if( effect->type == FXTYPE_FLYSWARM )
+			effect->tex = txtrFly;
+		else
+			effect->tex = txtrStar;
+
 		while(i--)
 		{
-			effect->sprites[i].texture = txtrStar;
+			effect->sprites[i].texture = effect->tex;
 			SetVector( &effect->sprites[i].pos, &effect->origin );
 			SetVector( &effect->particles[i].pos, &zero );
 
@@ -294,6 +301,9 @@ void UpdateSpecialEffects( )
 	{
 		fx2 = fx1->next;
 
+		if( fx1->follow )
+			SetVector( &fx1->origin, &fx1->follow->pos );
+
 		if( fx1->Update )
 			fx1->Update( fx1 );
 	}
@@ -395,6 +405,7 @@ void UpdateFXSwarm( SPECFX *fx )
 {
 	VECTOR up;
 	int i = fx->numP;
+	float dist;
 
 	if( fx->deadCount )
 		if( !(--fx->deadCount) )
@@ -435,10 +446,20 @@ void UpdateFXSwarm( SPECFX *fx )
 		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
 		// Add local particle pos to swarm origin to get world coords for sprite
 		AddVector( &fx->sprites[i].pos, &fx->origin, &fx->particles[i].pos );
+
+		if( fx->rebound )
+		{
+			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
+			dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
+
+			if(dist > 0)
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+		}
 	}
 
-	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
-		fx->deadCount = 5;
+	if( fx->type != FXTYPE_FLYSWARM )
+		if( (actFrameCount > fx->lifetime) && !fx->deadCount )
+			fx->deadCount = 5;
 }
 
 
@@ -477,7 +498,7 @@ void UpdateFXExplode( SPECFX *fx )
 		fx->sprites[i].pos.v[Z] += fx->particles[i].vel.v[Z];
 
 		fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-		dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);						
+		dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
 
 		// check if particle has hit (or passed through) the plane
 		if(dist > 0)
@@ -531,6 +552,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
+	FindTexture(&txtrFly,UpdateCRC("fly1.bmp"),YES);
 }
 
 

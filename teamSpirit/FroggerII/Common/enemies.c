@@ -22,6 +22,7 @@ ENEMYLIST enemyList;						// the enemy linked list
 
 void NMEDamageFrog( int num, ENEMY *nme );
 void RotateWaitingNME( ENEMY *cur );
+void SlerpWaitingFlappyThing( ENEMY *cur );
 
 void UpdatePathNME( ENEMY *cur );
 void UpdateSlerpPathNME( ENEMY *cur );
@@ -139,8 +140,10 @@ void UpdateEnemies()
 			{
 				// if enemy is following a path, do a slerp so it'll rotate nicely
 				// (except the way I do it is a bit poo - Dave)
-				if (cur->flags & ENEMY_NEW_FOLLOWPATH && !(cur->flags & ENEMY_NEW_FACEFORWARDS))
+				if (cur->flags & ENEMY_NEW_FOLLOWPATH && !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
 					RotateWaitingNME( cur );
+				else if( cur->flags & ENEMY_NEW_FLAPPYTHING && !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+					SlerpWaitingFlappyThing( cur );
 
 				continue;
 			}
@@ -189,6 +192,7 @@ void UpdateEnemies()
 		{
 			long r;
 			VECTOR rPos;
+			SPECFX *fx;
 
 			if( cur->nmeActor->value1 )
 				r = Random(cur->nmeActor->value1)+1;
@@ -212,8 +216,19 @@ void UpdateEnemies()
 					CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0, 0, 1.5 );
 				if( cur->nmeActor->effects & EF_SPARK_BURSTS )
 					CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->nmeActor->actor->pos, &cur->currNormal, 50, 4, 0, 2 );
-//				if( cur->nmeActor->effects & EF_FLYSWARM )
-//					CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &cur->nmeActor->actor->pos, &cur->currNormal, 25, 0, 0, -1 );
+				if( cur->nmeActor->effects & EF_FLYSWARM )
+				{
+					fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &cur->nmeActor->actor->pos, &cur->currNormal, 25, 0, 0, 0 );
+					fx->follow = cur->nmeActor->actor;
+					if( cur->flags & ENEMY_NEW_FLAPPYTHING )
+					{
+						fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+						GetPositionForPathNode( &rPos, &cur->path->nodes[0] );
+						SetVector( &fx->rebound->point, &rPos );
+						SetVector( &fx->rebound->normal, &cur->path->nodes[0].worldTile->normal );
+					}
+					cur->nmeActor->effects &= ~EF_FLYSWARM;
+				}
 			}
 		}
 	}
@@ -376,7 +391,15 @@ void UpdateSlerpPathNME( ENEMY *cur )
 
 	// Move forwards a bit in direction of facing
 	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
-	ScaleVector( &fwd, cur->speed*gameSpeed );
+	if( cur->flags & ENEMY_NEW_RANDOMSPEED )
+	{
+		ScaleVector( &fwd, cur->speed*gameSpeed*((float)Random(100)/100.0F) );
+	}
+	else
+	{
+		ScaleVector( &fwd, cur->speed*gameSpeed );
+	}
+
 	AddToVector( &act->pos, &fwd );
 
 	AddToVector(&cur->currNormal,&cur->deltaNormal);
@@ -885,7 +908,16 @@ void UpdateFlappyThing( ENEMY *nme )
 	QUATERNION q1, q2, q3;
 	float t, best = 10000000, speed;
 	unsigned long i;
-		
+
+	// Use default values if the user can't be arsed
+	if( path->nodes[0].offset == path->nodes[1].offset )
+	{
+		path->nodes[0].offset = 0;
+		path->nodes[1].offset = 10;
+		path->nodes[0].speed = 0.07;
+		path->nodes[1].speed = 1;
+	}
+
 	// If nme is very close to destination (stored in nmeactor->actor->rotaim) then choose a new destination.
 	if( (DistanceBetweenPointsSquared(&act->pos,&act->rotaim) < 300) || !Magnitude(&act->rotaim) ) // 10 units apart
 	{
@@ -962,6 +994,8 @@ void UpdateFlappyThing( ENEMY *nme )
 		t=-0.999;
 	if (t>0.999)
 		t = 0.999;
+	if(t<0.001 && t>-0.001) // If its trying to move backwards, make it turn
+		t = 0.1;
 	q3.w=acos(t);
 	// Duh.
 	GetQuaternionFromRotation(&q2,&q3);
@@ -978,6 +1012,27 @@ void UpdateFlappyThing( ENEMY *nme )
 
 	nme->flags |= ENEMY_NEW_NODAMAGE;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitEnemyLinkedList
+	Purpose			: initialises the enemy linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void SlerpWaitingFlappyThing( ENEMY *cur )
+{
+	QUATERNION q1, q2;
+	float speed;
+
+	SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
+	SetQuaternion( &q2, &vertQ );
+	speed = cur->path->nodes[0].speed * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &cur->nmeActor->actor->qRot );
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: InitEnemyLinkedList
