@@ -33,6 +33,9 @@ typedef struct TAGPATHNODE
 	float					offset;	 				// offset(1) from underlying world tile
 	float					offset2;	 			// offset(2) from underlying world tile
 
+	float					speed;					// speed at this node
+	short					waitTime;				// pause time at this node
+
 } PATHNODE;
 
 //----- [ PATH DATA STRUCTURE ] -----//
@@ -51,8 +54,18 @@ typedef struct TAGPATH
 
 //----- [ FUNCTION PROTOTYPES ] -----//
 
-extern void GetPositionForPathNode(VECTOR *vecPos,PATHNODE *pNode);
-extern void GetPositionForPathNodeOffset2(VECTOR *vecPos,PATHNODE *pNode);
-extern BOOL ActorHasArrivedAtNode(ACTOR2 *pAct,PATH *pPath,int nodeID);
+void GetPositionForPathNode(VECTOR *vecPos,PATHNODE *pNode);
+void GetPositionForPathNodeOffset2(VECTOR *vecPos,PATHNODE *pNode);
+BOOL ActorHasArrivedAtNode(ACTOR2 *pAct,PATH *pPath,int nodeID);
+
+void SetPathNodeSpeed(PATHNODE *pNode,float speed);
+void SetPathNodeWaitTime(PATHNODE *pNode,short pause);
+void SetAllPathNodesToSetSpeed(PATH *pPath,float speed);
+void SetAllPathNodesToSetWaitTime(PATH *pPath,short pause);
+float GetSpeedFromIndexedNode(PATH *path,short index);
+short GetWaitTimeFromIndexedNode(PATH *path,short index);
+
+void AssignRandomSpeedsToPathNodes(PATH *path,float minSpeed,float maxSpeed);
+void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause);
 
 #endif

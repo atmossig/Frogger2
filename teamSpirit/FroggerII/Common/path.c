@@ -44,3 +44,117 @@ void GetPositionForPathNodeOffset2(VECTOR *vecPos,PATHNODE *pNode)
 	vecPos->v[Y] = pNode->worldTile->centre.v[Y] + (pNode->worldTile->normal.v[Y] * pNode->offset2);
 	vecPos->v[Z] = pNode->worldTile->centre.v[Z] + (pNode->worldTile->normal.v[Z] * pNode->offset2);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetPathNodeSpeed
+	Purpose			: sets the speed for entities reaching this node
+	Parameters		: PATHNODE *,float
+	Returns			: void
+	Info			: 
+*/
+void SetPathNodeSpeed(PATHNODE *pNode,float speed)
+{
+	pNode->speed = speed;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetPathNodeWaitTime
+	Purpose			: sets the pause time for entities reaching this node
+	Parameters		: PATHNODE *,short
+	Returns			: void
+	Info			: 
+*/
+void SetPathNodeWaitTime(PATHNODE *pNode,short pause)
+{
+	pNode->waitTime = pause;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetAllPathNodesToSetSpeed
+	Purpose			: sets all nodes in specified path to specified speed
+	Parameters		: PATH *,float
+	Returns			: void
+	Info			: 
+*/
+void SetAllPathNodesToSetSpeed(PATH *pPath,float speed)
+{
+	int i = pPath->numNodes;
+	while(i--)
+		SetPathNodeSpeed(&pPath->nodes[i],speed);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetAllPathNodesToSetWaitTime
+	Purpose			: sets all nodes in specified path to specified wait time
+	Parameters		: PATH *,short
+	Returns			: void
+	Info			: 
+*/
+void SetAllPathNodesToSetWaitTime(PATH *pPath,short pause)
+{
+	int i = pPath->numNodes;
+	while(i--)
+		SetPathNodeWaitTime(&pPath->nodes[i],pause);
+}
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetSpeedFromIndexedNode
+	Purpose			: returns the speed associated with the specified path node
+	Parameters		: PATH *,short
+	Returns			: float
+	Info			: 
+*/
+float GetSpeedFromIndexedNode(PATH *path,short index)
+{
+	return path->nodes[index].speed;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetWaitTimeFromIndexedNode
+	Purpose			: returns the wait time associated with the specified path node
+	Parameters		: PATH *,short
+	Returns			: short
+	Info			: 
+*/
+short GetWaitTimeFromIndexedNode(PATH *path,short index)
+{
+	return path->nodes[index].waitTime;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AssignRandomSpeedsToPathNodes
+	Purpose			: assigns random speed values to path nodes
+	Parameters		: PATH *,float,float
+	Returns			: void
+	Info			: 
+*/
+void AssignRandomSpeedsToPathNodes(PATH *path,float minSpeed,float maxSpeed)
+{
+	int i = path->numNodes;
+	while(i--)
+		SetPathNodeSpeed(&path->nodes[i],Random(maxSpeed) + minSpeed);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AssignRandomWaitTimesToPathNodes
+	Purpose			: assigns random wait times to path nodes
+	Parameters		: PATH *,short,short
+	Returns			: void
+	Info			: 
+*/
+void AssignRandomWaitTimesToPathNodes(PATH *path,short minPause,float maxPause)
+{
+	int i = path->numNodes;
+	while(i--)
+		SetPathNodeWaitTime(&path->nodes[i],Random(maxPause) + minPause);
+}
+

@@ -216,17 +216,17 @@ float			devPathSpeed[]	= { 6,		4,4,4,4,4,4 };
 PATHNODE debug_pathNodes1[] = 
 /*{ 20,20,0, 21,50,0, 22,20,0, 23,50,0, 15,20,0, 11,50,0, 10,20,0, 9,50,0, 8,20,0, 12,50,0 };*/
 { 
-	20,20,0,	33,20,0,	46,20,0,	59,20,0,	72,20,0,	85,20,0,	
-	98,20,0,	111,20,0,	112,20,0,	113,20,0,	502,20,0,	499,20,0,	
-	500,20,0,	501,20,0,	504,20,0,	114,20,0,	115,20,0,	105,20,0,
-	92,20,0,	79,20,0,	66,20,0,	65,20,0,	64,20,0,	51,20,0,
-	38,20,0,	37,20,0,	36,20,0,	23,20,0,	15,20,0,	11,20,0,
-	10,20,0,	9,20,0,		8,20,0,		12,20,0,
+	20,20,0,6,0,	33,20,0,6,0,	46,20,0,6,0,	59,20,0,6,0,	72,20,0,6,0,	85,20,0,6,0,
+	98,20,0,6,0,	111,20,0,6,0,	112,20,0,6,0,	113,20,0,6,0,	502,20,0,6,0,	499,20,0,6,0,	
+	500,20,0,6,0,	501,20,0,6,0,	504,20,0,6,0,	114,20,0,6,0,	115,20,0,6,0,	105,20,0,6,0,
+	92,20,0,6,0,	79,20,0,6,0,	66,20,0,6,0,	65,20,0,6,0,	64,20,0,6,0,	51,20,0,6,0,
+	38,20,0,6,0,	37,20,0,6,0,	36,20,0,6,0,	23,20,0,6,0,	15,20,0,6,0,	11,20,0,6,0,
+	10,20,0,6,0,	9,20,0,6,0,		8,20,0,6,0,		12,20,0,6,0
 };
 
 PATH debug_path1 = { /*10*/34,0,0,0,debug_pathNodes1 };
 
-PATHNODE debug_pathNodes2[] = { 14,5,45 };
+PATHNODE debug_pathNodes2[] = { 14,5,45,1,0 };
 PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
 
 
@@ -1254,6 +1254,13 @@ void UpdatePlatforms()
 		if(!cur->active)
 			continue;
 
+		// check if this platform is currently 'waiting' at a node
+		if(cur->isWaiting)
+		{
+			cur->isWaiting--;
+			continue;
+		}
+
 		if(cur->flags & PLATFORM_NEW_FOLLOWPATH)
 		{
 			// process platforms that follow a path (>1 node in path)
@@ -1347,6 +1354,7 @@ void UpdatePlatforms()
 		oldTile[0] = currTile[0];
 		GetActiveTile(cur);
 
+		// determine if platform is carrying frog
 		if(cur->flags & PLATFORM_NEW_CARRYINGFROG)
 		{
 			currTile[0] = cur->inTile;
@@ -1878,8 +1886,10 @@ void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *
 	GetPositionForPathNode(&platformStartPos,&path->nodes[pform->path->fromNode]);
 	SetVector(&pform->pltActor->actor->pos,&platformStartPos);
 
-	// set platform current 'in' tile
-	pform->inTile = path->nodes[pform->path->fromNode].worldTile;
+	// set platform current 'in' tile and speeds and pause times
+	pform->inTile		= path->nodes[pform->path->fromNode].worldTile;
+	pform->currSpeed	= path->nodes[pform->path->fromNode].speed;
+	pform->isWaiting	= path->nodes[pform->path->fromNode].waitTime;
 
 	dprintf"\n"));
 }
@@ -1975,6 +1985,9 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 				pform->flags	|= PLATFORM_NEW_BACKWARDS;
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
+
+				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 				return;
 			}
 			else if(flags & PLATFORM_NEW_CYCLE)
@@ -1982,11 +1995,17 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 				// platform has cyclic movement
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= 0;
+				
+				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 				return;
 			}
 
 			path->fromNode	= 0;
 			path->toNode	= 1;
+
+			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 
 			GetPositionForPathNode(&pformPos,&path->nodes[0]);
 			SetVector(&pform->pltActor->actor->pos,&pformPos);
@@ -1999,11 +2018,17 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 			{
 				path->fromNode	= 0;
 				path->toNode	= 1;
+
+				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 				return;
 			}
 			
 			path->fromNode++;
 			path->toNode++;
+
+			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 		}
 	}
 	else if(flags & PLATFORM_NEW_BACKWARDS)
@@ -2022,6 +2047,9 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 				pform->flags	|= PLATFORM_NEW_FORWARDS;
 				path->fromNode	= 0;
 				path->toNode	= 1;
+
+				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 				return;
 			}
 			else if(flags & PLATFORM_NEW_CYCLE)
@@ -2029,11 +2057,17 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 				// platform has cyclic movement
 				path->fromNode	= 0;
 				path->toNode	= GET_PATHLASTNODE(path);
+
+				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 				return;
 			}
 
 			path->fromNode	= GET_PATHLASTNODE(path);
 			path->toNode	= GET_PATHLASTNODE(path) - 1;
+
+			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 
 			GetPositionForPathNode(&pformPos,&path->nodes[GET_PATHLASTNODE(path)]);
 			SetVector(&pform->pltActor->actor->pos,&pformPos);
@@ -2046,11 +2080,17 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 			{
 				path->fromNode	= GET_PATHLASTNODE(path);
 				path->toNode	= GET_PATHLASTNODE(path) - 1;
+
+				pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+				pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 				return;
 			}
 
 			path->fromNode--;
 			path->toNode--;
+
+			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 		}
 	}
 	else if(flags & PLATFORM_NEW_MOVEUP)
@@ -2062,6 +2102,9 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 			// reverse platform movement
 			pform->flags	&= ~PLATFORM_NEW_MOVEUP;
 			pform->flags	|= PLATFORM_NEW_MOVEDOWN;
+
+			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 			return;
 		}
 	}
@@ -2074,6 +2117,9 @@ void NEW_UpdatePlatformPathNodes(PLATFORM *pform)
 			// reverse platform movement
 			pform->flags	|= PLATFORM_NEW_MOVEUP;
 			pform->flags	&= ~PLATFORM_NEW_MOVEDOWN;
+
+			pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
+			pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
 			return;
 		}
 	}
