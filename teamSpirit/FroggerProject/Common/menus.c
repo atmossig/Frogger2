@@ -137,6 +137,7 @@ CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] =
 	{{PAD_RIGHT,PAD_RIGHT,PAD_RIGHT,PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
 	{{PAD_LEFT, PAD_LEFT, PAD_RIGHT,PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
 	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    0},0,0},//CHEAT_SKIP_LEVEL
+	{{PAD_UP,PAD_UP,PAD_DOWN,PAD_DOWN,PAD_LEFT,PAD_RIGHT,0},0,0},//CHEAT_EXTRA_LEVELS
 };
 
 long currentCheatCombo[8];
@@ -255,6 +256,7 @@ int CheatAllowed(int cheat)
 
 void ComboCheat(int cheat)
 {
+	extern NUM_ARCADE_WORLDS;
 	int i,j;
 
 	if(!CheatAllowed(cheat))
@@ -307,6 +309,11 @@ void ComboCheat(int cheat)
 				
 			babiesSaved = numBabies;
 			break;
+
+		case CHEAT_EXTRA_LEVELS:
+			NUM_ARCADE_WORLDS = 10;
+			break;
+
 	}
 }
 

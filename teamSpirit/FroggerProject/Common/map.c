@@ -305,6 +305,12 @@ void LoadScenics ( int collBank )
 		case FRONTEND5_COL:
 			strcat(file,"LANGUAGE.SCE");
 			break;
+		case TEST1_COL:	strcat(file,"TEST1.SCE"); break;
+		case TEST2_COL:	strcat(file,"TEST2.SCE"); break;
+		case TEST3_COL:	strcat(file,"TEST3.SCE"); break;
+		case TEST4_COL:	strcat(file,"TEST4.SCE"); break;
+		case TEST5_COL:	strcat(file,"TEST5.SCE"); break;
+		case TEST6_COL:	strcat(file,"TEST6.SCE"); break;
 	}
 
 #ifdef PSX_VERSION
@@ -774,6 +780,13 @@ void LoadCollision ( int collBank )
 		case FRONTEND5_COL:
 			strcat(file,"LANGUAGE.COL");
 			break;
+
+		case TEST1_COL:	strcat(file,"TEST1.COL"); break;
+		case TEST2_COL:	strcat(file,"TEST2.COL"); break;
+		case TEST3_COL:	strcat(file,"TEST3.COL"); break;
+		case TEST4_COL:	strcat(file,"TEST4.COL"); break;
+		case TEST5_COL:	strcat(file,"TEST5.COL"); break;
+		case TEST6_COL:	strcat(file,"TEST6.COL"); break;
 	}
 
 #ifdef PSX_VERSION
