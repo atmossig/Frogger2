@@ -40,7 +40,7 @@ unsigned long jumpVariation2	= 6;
 unsigned long jumpVariation3	= 9;
 
 unsigned long standardHopJumpDownDivisor	= 10;
-unsigned long superHopJumpDownDivisor		= 10;
+unsigned long superHopJumpDownDivisor		= 12;
 
 float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
