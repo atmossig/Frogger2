@@ -15,8 +15,6 @@
 
 #include "incs.h"
 
-//ACTOR	camera;
-
 VECTOR	cameraUpVect = { 0,1,0 };
 VECTOR	camVect;
 
@@ -48,9 +46,9 @@ VECTOR camDist				= { 0,680,192 };
 float camSpeed				= 9;
 float camSpeed2				= 9;
 float camSpeed3				= 8;
+float transCamSpeedMult		= 1.0F;
 
 int	camFacing				= 0;
-//int	camFacing2				= 0;
 char camZoom				= 1;
 float scaleV				= 1.1F;
 
@@ -92,6 +90,7 @@ TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace
 	SetVector(&newItem->camOffset, v);
 	newItem->flags			= flags;
 	newItem->FOV			= 45.0;
+	newItem->speed			= 1.0;
 
 	newItem->next			= transCameraList;
 	transCameraList			= newItem;
@@ -148,6 +147,8 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 
 			if (cur->dirCamMustFace)
 				camFacing = cur->dirCamMustFace - 1;
+
+			transCamSpeedMult = cur->speed;
 
 			yFOVNew = cur->FOV;
 
@@ -267,23 +268,24 @@ float camSpeed4 = 8;
 
 void SlurpCamPosition(long cam)
 {
-	float cam1 = camSpeed,
-		cam2 = camSpeed3,
-		cam3 = camSpeed4;
+	float cs1 = camSpeed * transCamSpeedMult,
+		cs2 = camSpeed2 * transCamSpeedMult,
+		cs3 = camSpeed3 * transCamSpeedMult,
+		cs4 = camSpeed4 * transCamSpeedMult;
 
 	while( lastActFrameCount < actFrameCount )
 	{
-		currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cam1;
-		currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cam1;
-		currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cam1;
+		currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/cs1;
+		currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/cs1;
+		currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/cs1;
 
-		currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cam2;
-		currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cam2;
-		currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cam2;
+		currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/cs3;
+		currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/cs3;
+		currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/cs3;
 
-		currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cam3;
-		currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cam3;
-		currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cam3;
+		currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/cs4;
+		currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/cs4;
+		currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/cs4;
 
 		if ( gameState.mode != CAMEO_MODE )
 		{
@@ -302,15 +304,15 @@ void SlurpCamPosition(long cam)
 
 			MakeUnit (&t);
 			
-			camVect.v[0] -= (camVect.v[0] - t.v[0])/camSpeed2;
-			camVect.v[1] -= (camVect.v[1] - t.v[1])/camSpeed2;
-			camVect.v[2] -= (camVect.v[2] - t.v[2])/camSpeed2;
+			camVect.v[0] -= (camVect.v[0] - t.v[0])/cs2;
+			camVect.v[1] -= (camVect.v[1] - t.v[1])/cs2;
+			camVect.v[2] -= (camVect.v[2] - t.v[2])/cs2;
 			
 		}
 
-		xFOV		-= (xFOV - xFOVNew) / (camSpeed*fovSpd);
-		yFOV		-= (yFOV - yFOVNew) / (camSpeed*fovSpd);
-		camLookOfs	-= (camLookOfs - camLookOfsNew) / camSpeed;
+		xFOV		-= (xFOV - xFOVNew) / (cs1*fovSpd);
+		yFOV		-= (yFOV - yFOVNew) / (cs1*fovSpd);
+		camLookOfs	-= (camLookOfs - camLookOfsNew) / cs1;
 
 		if(cameraShake)
 		{

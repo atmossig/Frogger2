@@ -75,6 +75,7 @@ int MemLoadEntities(const void* data, long size)
 	PLATFORM *platform;
 	UBYTE *p = (UBYTE*)data;
 	ACTOR2 *act;
+	TRANSCAMERA *tcam;
 
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
@@ -193,8 +194,8 @@ int MemLoadEntities(const void* data, long size)
 			v.v[Z] = MEMGETFLOAT(&p);
 			
 			// A vector that isn't used yet
-			MEMGETFLOAT(&p);
-			MEMGETFLOAT(&p);
+			scale = MEMGETFLOAT(&p);
+			animSpeed = MEMGETFLOAT(&p);
 			MEMGETFLOAT(&p);
 
 			numNodes = MEMGETINT(&p);
@@ -203,7 +204,9 @@ int MemLoadEntities(const void* data, long size)
 				w.v[X] = MEMGETFLOAT(&p);
 				w.v[Y] = MEMGETFLOAT(&p);
 				w.v[Z] = MEMGETFLOAT(&p);
-				CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &w, flags & 0xFFFF);
+				tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &w, flags & 0xFFFF);
+				tcam->FOV = scale;
+				tcam->speed = animSpeed;
 			}
 			break;
 		}
