@@ -243,6 +243,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	frameCount = 1;
 	actTickCount = GetTickCount();
 
+	lastActFrameCount = actFrameCount = (GetTickCount()/(1000.0/60.0));
+
     while(ok)
 	{
         while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
