@@ -60,7 +60,7 @@ extern long idleCamera;
 VECTOR idleCamDist	= { 0,100,102 };
 
 
-FindMaxInterFrogDistance( );
+float FindMaxInterFrogDistance( );
 
 
 /*	--------------------------------------------------------------------------------
