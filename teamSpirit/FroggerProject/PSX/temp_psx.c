@@ -511,6 +511,11 @@ void PsxNameEntryFrame(void)
 	}
 }
 
+
+
+//set to 0 on load failure
+int tempUseCard = 1;
+
 void SaveGame(void)
 {
 	//N.B this is the first version of this function.
@@ -522,8 +527,15 @@ void SaveGame(void)
 	char *saveBuf = NULL;
 	char *savePtr = NULL;
 	int res;
-
 	int w,l;
+
+
+	if(!tempUseCard)
+	{
+		utilPrintf("Mem card not in use\n");
+		return;
+	}
+
 
 	//loop through all worlds,
 	//counting how many levels there are
@@ -627,6 +639,7 @@ void LoadGame(void)
 	if(!loadBuf)
 	{
 		utilPrintf("\n\nMALLOC ERROR DURING LOAD\n\n");
+		tempUseCard = 0;
 		return;
 	}
 	
@@ -644,54 +657,64 @@ void LoadGame(void)
 		case CARDREAD_NOCARD:
 		{
 			utilPrintf("No card in slot\n");
+			tempUseCard = 0;
 			break;
 		}
 		case CARDREAD_BADCARD:
 		{
 			utilPrintf("Bad card in slot\n");
+			tempUseCard = 0;
 			break;
 		}
 		case CARDREAD_NOTFORMATTED:
 		{
 			utilPrintf("Card unformatted\n");
+			tempUseCard = 0;
 			break;
 		}
 		case CARDREAD_NOTFOUND:
 		{
 			utilPrintf("No game save data found\n");
+			tempUseCard = 0;
 			break;
 		}
 		case CARDREAD_CORRUPT:
 		{
 			utilPrintf("Game save data corrupted\n");
+			tempUseCard = 0;
 			break;
 		}
 		case CARDREAD_NOTFOUNDANDFULL:
 		{
 			utilPrintf("No game save data found and card is full\n");
+			tempUseCard = 0;
 			break;
 		}
 	} //end 
 
 
-	//extract data
-	loadPtr = loadBuf;
-
-	for(w=0; w<MAX_WORLDS; w++)
+	//extract data?
+	if(tempUseCard)
 	{
-		worldVisualData[w].worldOpen = *((short*)loadPtr)++;
-		worldVisualData[w].numLevels = *((short*)loadPtr)++;
+		loadPtr = loadBuf;
 
-		for(l=0; l<worldVisualData[w].numLevels; l++)
+		for(w=0; w<MAX_WORLDS; w++)
 		{
-			worldVisualData[w].levelVisualData[l].levelOpen   = *((short*)loadPtr)++;
-			worldVisualData[w].levelVisualData[l].worldOpened = *((short*)loadPtr)++;
-			worldVisualData[w].levelVisualData[l].parTime     = *((long*)loadPtr)++;
-			memcpy(worldVisualData[w].levelVisualData[l].parName, loadPtr, 12);
-			loadPtr+=12;
+			worldVisualData[w].worldOpen = *((short*)loadPtr)++;
+			worldVisualData[w].numLevels = *((short*)loadPtr)++;
+
+			//check num levels here
+
+			for(l=0; l<worldVisualData[w].numLevels; l++)
+			{
+				worldVisualData[w].levelVisualData[l].levelOpen   = *((short*)loadPtr)++;
+				worldVisualData[w].levelVisualData[l].worldOpened = *((short*)loadPtr)++;
+				worldVisualData[w].levelVisualData[l].parTime     = *((long*)loadPtr)++;
+				memcpy(worldVisualData[w].levelVisualData[l].parName, loadPtr, 12);
+				loadPtr+=12;
+			}
 		}
 	}
-
 
 	FREE(loadBuf);
 }
