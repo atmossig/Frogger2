@@ -418,17 +418,17 @@ void SlurpCamPosition(long cam)
 
 	if (idleCamera)
 	{
-		s1 = (camSpeed * transCamSpeedMult * 6) / gameSpeed;
-		s2 = (camSpeed2 * transCamSpeedMult * 6) / gameSpeed;
-		s3 = (camSpeed3 * transCamSpeedMult * 6) / gameSpeed;
-		s4 = (camSpeed4 * transCamSpeedMult * 6) / gameSpeed;
+		s1 = gameSpeed / (camSpeed * transCamSpeedMult * 6);
+		s2 = gameSpeed / (camSpeed2 * transCamSpeedMult * 6);
+		s3 = gameSpeed / (camSpeed3 * transCamSpeedMult * 6);
+		s4 = gameSpeed / (camSpeed4 * transCamSpeedMult * 6);
 	}
 	else
 	{
-		s1 = (camSpeed * transCamSpeedMult) / gameSpeed;
-		s2 = (camSpeed2 * transCamSpeedMult) / gameSpeed;
-		s3 = (camSpeed3 * transCamSpeedMult) / gameSpeed;
-		s4 = (camSpeed4 * transCamSpeedMult) / gameSpeed;
+		s1 = gameSpeed / (camSpeed * transCamSpeedMult);
+		s2 = gameSpeed / (camSpeed2 * transCamSpeedMult);
+		s3 = gameSpeed / (camSpeed3 * transCamSpeedMult);
+		s4 = gameSpeed / (camSpeed4 * transCamSpeedMult);
 	}
 
 //	if( !lastActFrameCount )
@@ -438,25 +438,25 @@ void SlurpCamPosition(long cam)
 //	{
 		if (!initialCamera)
 		{
-			currCamSource[cam].v[0] -= (currCamSource[cam].v[0] - camSource[cam].v[0])/s1;
-			currCamSource[cam].v[1] -= (currCamSource[cam].v[1] - camSource[cam].v[1])/s1;
-			currCamSource[cam].v[2] -= (currCamSource[cam].v[2] - camSource[cam].v[2])/s1;
+			currCamSource[cam].v[0] -= s1 * (currCamSource[cam].v[0] - camSource[cam].v[0]);
+			currCamSource[cam].v[1] -= s1 * (currCamSource[cam].v[1] - camSource[cam].v[1]);
+			currCamSource[cam].v[2] -= s1 * (currCamSource[cam].v[2] - camSource[cam].v[2]);
 
-			currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/s3;
-			currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/s3;
-			currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/s3;
+			currCamTarget[cam].v[0] -= s3 * (currCamTarget[cam].v[0] - camTarget[cam].v[0]);
+			currCamTarget[cam].v[1] -= s3 * (currCamTarget[cam].v[1] - camTarget[cam].v[1]);
+			currCamTarget[cam].v[2] -= s3 * (currCamTarget[cam].v[2] - camTarget[cam].v[2]);
 
 			if (idleCamera)
 			{
-				currCamDist.v[0] -= (currCamDist.v[0] - idleCamDist.v[0])/s4;
-				currCamDist.v[1] -= (currCamDist.v[1] - idleCamDist.v[1])/s4;
-				currCamDist.v[2] -= (currCamDist.v[2] - idleCamDist.v[2])/s4;
+				currCamDist.v[0] -= s4 * (currCamDist.v[0] - idleCamDist.v[0]);
+				currCamDist.v[1] -= s4 * (currCamDist.v[1] - idleCamDist.v[1]);
+				currCamDist.v[2] -= s4 * (currCamDist.v[2] - idleCamDist.v[2]);
 			}
 			else
 			{
-				currCamDist.v[0] -= (currCamDist.v[0] - camDist.v[0]*scaleV)/s4;
-				currCamDist.v[1] -= (currCamDist.v[1] - camDist.v[1]*scaleV)/s4;
-				currCamDist.v[2] -= (currCamDist.v[2] - camDist.v[2]*scaleV)/s4;
+				currCamDist.v[0] -= s4 * (currCamDist.v[0] - camDist.v[0]*scaleV);
+				currCamDist.v[1] -= s4 * (currCamDist.v[1] - camDist.v[1]*scaleV);
+				currCamDist.v[2] -= s4 * (currCamDist.v[2] - camDist.v[2]*scaleV);
 			}
 		}
 		else
@@ -497,9 +497,9 @@ void SlurpCamPosition(long cam)
 			
 			if (!fixedUp)
 			{
-				camVect.v[0] -= (camVect.v[0] - t.v[0])/s2;
-				camVect.v[1] -= (camVect.v[1] - t.v[1])/s2;
-				camVect.v[2] -= (camVect.v[2] - t.v[2])/s2;
+				camVect.v[0] -= s2 * (camVect.v[0] - t.v[0]);
+				camVect.v[1] -= s2 * (camVect.v[1] - t.v[1]);
+				camVect.v[2] -= s2 * (camVect.v[2] - t.v[2]);
 			}
 			else
 			{
@@ -513,7 +513,7 @@ void SlurpCamPosition(long cam)
 
 //		xFOV		-= (xFOV - xFOVNew) / (s1*fovSpd);
 //		yFOV		-= (yFOV - yFOVNew) / (s1*fovSpd);
-		camLookOfs	-= (camLookOfs - camLookOfsNew) / s1;
+		camLookOfs	-= s1 * (camLookOfs - camLookOfsNew);
 
 //		lastActFrameCount++;
 //	}

@@ -1018,13 +1018,14 @@ BOOL ExecuteCommand(UBYTE **p)
 	case EV_SETSTARTTILE_P:
 		{
 			gTStart[0] = GetEnemyFromUID(MEMGETWORD(p))->path->nodes->worldTile; 
+			break;
 		}
 
 	case EV_TELEPORT_P:
 		{
 			TRIGGER *t;
 			EVENT *e;
-			int fNum = MEMGETBYTE(p), time = (MEMGETFLOAT(p) * 60) + actFrameCount;
+			int fNum, time;
 			GAMETILE *tile; 
 			VECTOR telePos;
 			void **param;
