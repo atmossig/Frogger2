@@ -47,9 +47,6 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 
 			InitActorAnim(babies[i]->actor);
 			AnimateActor(babies[i]->actor,0,YES,NO,0.5F,0,0);
-			babies[i]->actor->scale.v[0] = 0.3F;
-			babies[i]->actor->scale.v[1] = 0.3F;
-			babies[i]->actor->scale.v[2] = 0.3F;
 			babies[i]->action.isSaved = 0;
 
 			SetVector( &babies[i]->actor->pos, &bTStart[i]->centre );
