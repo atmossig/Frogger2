@@ -186,31 +186,6 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = DrawFXTrail;
 
 		break;
-	case FXTYPE_SPARKLYTRAIL:
-		effect->numP = 1;
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
-
-		SetVector( &effect->sprites->pos, &effect->origin );
-		effect->sprites->texture = txtrFlash;
-		effect->sprites->scaleX = effect->scale.v[X];
-		effect->sprites->scaleY = effect->scale.v[Y];
-		effect->fade = effect->sprites->a / life;
-
-#ifndef PC_VERSION
-		effect->sprites->offsetX = -effect->sprites->texture->sx / 2;
-		effect->sprites->offsetY = -effect->sprites->texture->sy / 2;
-#else
-		effect->sprites->offsetX = -16;
-		effect->sprites->offsetY = -16;
-#endif
-
-		effect->sprites->flags = SPRITE_TRANSLUCENT;
-
-		AddSprite( effect->sprites, NULL );
-
-		effect->Update = UpdateFXSmoke;
-		effect->Draw = NULL;
-		break;
 	case FXTYPE_FROGSTUN:
 		effect->numP = 6;
 		i = effect->numP;
@@ -321,6 +296,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	case FXTYPE_SMOKE_STATIC:
 	case FXTYPE_SMOKE_GROWS:
 	case FXTYPE_BUBBLES:
+	case FXTYPE_SPARKLYTRAIL:
 		// Velocity is normal scaled by speed, plus a random offset scaled by speed
 		SetVector( &effect->vel, &effect->normal );
 		ScaleVector( &effect->vel, speed );
@@ -334,6 +310,8 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		if( effect->type == FXTYPE_BUBBLES )
 			effect->sprites->texture = txtrBubble;
+		else if( effect->type == FXTYPE_SPARKLYTRAIL )
+			effect->sprites->texture = txtrFlash;
 		else
 			effect->sprites->texture = txtrSmoke;
 
@@ -378,7 +356,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		if( effect->type == FXTYPE_SPLASH )
 			effect->tex = txtrBubble;
 		else if( effect->type == FXTYPE_SPARKBURST )
-			effect->tex = txtrSolidRing;
+			effect->tex = txtrFlash;
 		else if( effect->type == FXTYPE_FLAMES )
 			effect->tex = txtrFire;
 		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
@@ -809,12 +787,8 @@ void UpdateFXExplode( SPECFX *fx )
 
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
-				{
-					fx->sprites[i].a = 1;
-
-					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
-					continue;
-				}
+					if( dist < 5 )
+						CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.3, 0.05, 0.3 );
 			}
 		}
 
@@ -1390,22 +1364,22 @@ void ProcessAttachedEffects( void *entity, int type )
 		if( act->effects & EF_SPARKLYTRAIL )
 		{
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 64, 0, 0, 0.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 32, 0.1, 0, 0.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 64, 0, 0, 2.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 32, 0.1, 0, 2.5 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 64, 0, 0, 1.0 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &act->actor->pos, &normal, 32, 0.1, 0, 1.0 );
 
 			SetAttachedFXColour( fx, act->effects );
 		}
 		if( act->effects & EF_SPARKBURST )
 		{
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 4, 0, 5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 20, 4, 0, 5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 0.5, 0, 5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 20, 0.5, 0, 5 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 7, 2, 0, 5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 20, 2, 0, 5 );
 
 			SetVector( &fx->rebound->point, &tile->centre );
 			SetVector( &fx->rebound->normal, &tile->normal );

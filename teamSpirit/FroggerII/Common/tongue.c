@@ -325,6 +325,7 @@ void UpdateFrogTongue( int pl )
 						else if( controllerdata[pl].button & CONT_LEFT ) dir = MOVE_LEFT;
 						else
 						{
+							player[i].canJump = 0;
 							if( !(controllerdata[pl].button & CONT_B) ) RemoveFrogTongue(pl);
 							return;
 						}
@@ -452,6 +453,7 @@ void RemoveFrogTongue( int pl )
 			if( i != MAX_FROGS )
 			{
 				tongue[i].canTongue = 1;
+				player[i].canJump = 1;
 				TeleportActorToTile( frog[i], FindNearestJoinedTile(currTile[pl],&frog[i]->actor->pos), i );
 			}
 		}
