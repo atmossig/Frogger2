@@ -58,7 +58,23 @@ char numUniqueActors = 0;
 	Returns		: void 
 */
 void XformActor(ACTOR *ptr);
+float texSlideSpeed = 50;
+void SlideObjectTextures(OBJECT *obj)
+{
+	int i;
+	for (i=0; i<obj->mesh->numFaces*3; i++)
+	{
+		obj->mesh->faceTC[i].v[Y] -= (gameSpeed * texSlideSpeed);
+	}
+}
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
 void XformActorList()
 {
 	ACTOR2 *cur;
@@ -86,6 +102,7 @@ void XformActorList()
 		{
 			// transform actor
 			XformActor(cur->actor);
+		
 //			cur->draw = 0;
 //			if(cur->flags & ACTOR_DRAW_ALWAYS)
 //			{
@@ -124,12 +141,16 @@ void DrawActorList()
 	waterObject = 0;
 	while(cur)
 	{
+		if(cur->flags & ACTOR_SLIDYTEX)
+			if (cur->actor->objectController)
+				SlideObjectTextures(cur->actor->objectController->object);
+	
 		if( ((cur->flags & ACTOR_WATER)) || (!cur->actor->objectController))
 		{
 			cur = cur->next;
 			continue;
 		}
-
+		
 		if((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
@@ -322,7 +343,11 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	if( (newItem->actor->objectController) && (newItem->actor->objectController->object) )
 		AddObjectsSpritesToSpriteList(newItem->actor->objectController->object,0);
 
-	newItem->flags |= ACTOR_DRAW_CULLED;
+	if (name[0]!='x' && name[1]!='x')
+		newItem->flags = ACTOR_DRAW_CULLED;
+	else
+		newItem->flags = ACTOR_DRAW_ALWAYS;
+
 
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
