@@ -168,11 +168,18 @@ void NetgameStartGame()
 	}
 	NUM_FROGS = pl;
 
-	for (pl=0; pl<NUM_FROGS; pl++)
+
+	if (isHost)
 	{
-		player[pl].character = pl;
-		//FROG_FROGGER; //(netPlayerList[pl].isHost)?FROG_FROGGER:FROG_LILLIE;
+		player[0].character = FROG_FROGGER;
+		player[1].character = FROG_LILLIE;
 	}
+	else
+	{
+		player[0].character = FROG_LILLIE;
+		player[1].character = FROG_FROGGER;
+	}
+
 
 	NetInstallMessageHandler(NetgameMessageDispatch);
 
@@ -418,7 +425,8 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 	switch (*(unsigned char*)data)
 	{
 	case APPMSG_PLAYERNUM:	// See the remark at the top of the file; this is a little test
-		SetFroggerStartPos(gTStart[((UBYTE*)data)[1]], 0);
+		gTStart[0] = gTStart[((UBYTE*)data)[1]];
+		SetFroggerStartPos(gTStart[0], 0);
 		frog[0]->draw = 1;
 		break;
 
