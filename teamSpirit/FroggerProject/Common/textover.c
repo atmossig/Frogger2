@@ -242,15 +242,15 @@ void PrintTextOverlays()
 					PrintText(cur,-256+cur->xPos,-128+cur->yPos,cur->r,cur->g,cur->b,cur->a);
 				else
 					PrintText(cur,-256+cur->xPos,-120+cur->yPos,cur->r,cur->g,cur->b,cur->a);
-				fontAlpha = 1;
 				if((cur->flags & TEXTOVERLAY_SHADOW) && (cur->a > 120))
 				{
+					fontAlpha = 1;
 					if(PALMODE)
 						PrintText(cur,-256+cur->xPos,-128+cur->yPos + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
 					else
 						PrintText(cur,-256+cur->xPos,-120+cur->yPos + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
+					fontAlpha = 2;
 				}
-				fontAlpha = 2;
 			}
 			else
 			{
@@ -258,15 +258,15 @@ void PrintTextOverlays()
 					PrintText(cur,-256+(cur->xPos>>3),-128+(cur->yPos>>4),cur->r,cur->g,cur->b,cur->a);
 				else
 					PrintText(cur,-256+(cur->xPos>>3),-120+((cur->yPos*15)>>8),cur->r,cur->g,cur->b,cur->a);
-				fontAlpha = 1;
 				if((cur->flags & TEXTOVERLAY_SHADOW) && (cur->a > 120))
 				{
+					fontAlpha = 1;
 					if(PALMODE)
 						PrintText(cur,-256 + (cur->xPos>>3),-128 + (cur->yPos>>4) + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
 					else
 						PrintText(cur,-256 + (cur->xPos>>3),-120 + ((cur->yPos*15)>>8) + (cur->font == font ? 3 : 2),0,0,0,(cur->a * 7)/10);
+					fontAlpha = 2;
 				}
-				fontAlpha = 2;
 			}
 #endif
 
