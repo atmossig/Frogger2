@@ -126,30 +126,33 @@ void GameProcessController(long pl)
 	button[pl] = padData.digital[pl];
 
 	// The only thing we can do when dead is press start
-#ifdef PC_VERSION
-	if(padData.debounce[pl] & PAD_START)
+	if((gameState.multi == SINGLEPLAYER) || ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
-		StartPauseMenu();
-		pauseController = pl;
-		return;
-	}
+#ifdef PC_VERSION
+		if(padData.debounce[pl] & PAD_START)
+		{
+			StartPauseMenu();
+			pauseController = pl;
+			return;
+		}
 #elif PSX_VERSION
 #ifdef FINAL_MASTER
-	if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
-	{
-		StartPauseMenu();
-		pauseController = pl;
-		return;
-	}
+		if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
+		{
+			StartPauseMenu();
+			pauseController = pl;
+			return;
+		}
 #else
-	if(padData.debounce[pl] & PAD_START)
-	{
-		StartPauseMenu();
-		pauseController = pl;
-		return;
+		if(padData.debounce[pl] & PAD_START)
+		{
+			StartPauseMenu();
+			pauseController = pl;
+			return;
+		}
+#endif
+#endif
 	}
-#endif
-#endif
 
 	if( player[pl].stun.time )
 	{
