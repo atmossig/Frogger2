@@ -55,10 +55,11 @@ LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char* filename)
 	Returns 	: 
 	Info 		:
 */
-void PTSurfaceBlit( LPDIRECTDRAWSURFACE7 to, unsigned char *buf, unsigned short *pal )
+void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
 {
 	DDSURFACEDESC2 ddsd;
 	HRESULT res;
+	LPDIRECTDRAWSURFACE7 to = ((MDX_TEXENTRY *)tex)->surf;
 	long i;
 	DDINIT(ddsd);
 
@@ -100,6 +101,105 @@ void PTTextureLoad( )
 
 	if (t)
 		testS = t->surf;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAndAddProceduralTexture
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void CreateProceduralTexture( TextureType *tex, char *name )
+{
+	unsigned long i;
+	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
+	unsigned short newCol,nR,nG,nB,nA;
+
+	MDX_TEXENTRY *tx = (MDX_TEXENTRY *)tex;
+	PROCTEXTURE *pt = (PROCTEXTURE *)MALLOC0( sizeof(PROCTEXTURE) );
+
+	// Add to procedural text list
+	pt->next = prcTexList;
+	prcTexList = pt;
+
+	// Set proc texture members
+	pt->tex = tex;
+	pt->buf1 = (unsigned char *)MALLOC0( 1024 );
+	pt->buf2 = (unsigned char *)MALLOC0( 1024 );
+	pt->palette = (unsigned short *)MALLOC0( 512 );
+
+	pt->active = 1;
+
+	// Convert palette to 4444 format
+	if( r565 )
+	{
+		rVand = 0x1f;
+		gVand = 0x3f;
+		bVand = 0x1f;
+		rVshr = 11;
+		gVshr = 5;
+		bVshr = 0;
+	}
+	else
+	{
+		rVand = 0x1f;
+		gVand = 0x1f;
+		bVand = 0x1f;
+		rVshr = 10;
+		gVshr = 5;
+		bVshr = 0;
+	}
+
+	for( i=0; i<256; i++ )
+	{
+		nR = ((unsigned short *)tx->data)[i] >> rVshr;
+		nG = ((unsigned short *)tx->data)[i] >> gVshr;
+		nB = ((unsigned short *)tx->data)[i] >> bVshr;
+		nA = ((unsigned short *)tx->data)[i+256] >> bVshr;
+		
+		nR &= rVand;
+		nG &= gVand;
+		nB &= bVand;
+		nA &= bVand;
+		
+		nR = (nR * 0x0f )/rVand;
+		nG = (nG * 0x0f )/gVand;
+		nB = (nB * 0x0f )/bVand;
+		nA = (nA * 0x0f )/bVand;
+
+		newCol = ((nA << 12) | (nR<<8) | (nG<<4) | (nB));
+		
+		((unsigned short *)pt->palette)[i] = newCol;
+	}
+
+	// Set update function and type depending on filename
+	if( name[4]=='f' && name[5]=='i' && name[6]=='r' && name[7]=='e' )
+		pt->Update = ProcessPTFire;
+	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
+		pt->Update = ProcessPTForcefield;
+	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
+	{
+		if( name[8]=='r' )
+			pt->Update = ProcessPTWaterRipples;
+		else if( name[8]=='d' )
+			pt->Update = ProcessPTWaterDrops;
+		else if( name[8]=='b' )
+			pt->Update = ProcessPTWaterBubbler;
+		else if( name[8]=='t' )
+			pt->Update = ProcessPTWaterTrail;
+		else if( name[8]=='w' )
+			pt->Update = ProcessPTWaterWaves;
+	}
+	else if( name[4]=='s' && name[5]=='t' && name[6]=='e' && name[7]=='a' )
+	{
+		pt->Update = ProcessPTSteam;
+//		pt->active = 0;
+//		steamTex = pt;
+	}
+	else if( name[4]=='c' && name[5]=='n' && name[6]=='d' && name[7]=='l' )
+		pt->Update = ProcessPTCandle;
 }
 
 
