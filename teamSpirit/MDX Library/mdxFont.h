@@ -37,6 +37,8 @@ void UpdateFontHilite(void);
 extern float charHilite;
 #define HiliteUp(x) {charHilite = x;}
 
+long WrapStringToArray(const char* str, long maxWidth, char* buffer, long bufferSize, char** array, long arraySize, MDX_FONT *font);
+
 #ifdef __cplusplus
 }
 #endif

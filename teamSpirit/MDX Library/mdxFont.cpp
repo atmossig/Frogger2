@@ -34,11 +34,6 @@
 #include "stdio.h"
 #include "mdxException.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #define FONT_NUM32 (256/32)
 float tCoords32[FONT_NUM32][FONT_NUM32][2];
 char symbolChars[] = "!\"£$%^&*()-_+=[]{};'#:@~\\/,.<>?";
@@ -323,6 +318,44 @@ long CalcStringWidth(char *string,MDX_FONT *font, float scale)
 	return tWidth;
 }
 
+long GetCharWidth(char c, MDX_FONT *font, float scale)
+{
+	long fNum = 0;
+
+	for (char *s = symbolChars; *s; s++)
+		if (*s==c)
+		{
+			c = s-symbolChars;
+			fNum=1;
+			break;
+		}
+	
+	if (!fNum)
+	{
+		if (c==' ')
+			return font->widths[fNum][0]*scale*(font->dim/256.0);
+		
+		// Convert c to a 0 indexed letter (if a letter)
+		if (c>='A' && c<='Z')
+			c -= 'A';
+		else
+		if (c>='a' && c<='z')
+			c -= 'a'-26;
+		else	
+		if (c>='1' && c<='9')
+			c -= '1'-26-26;
+		else
+		if (c=='0')
+			c = 26+26+9;
+
+	}
+
+	if (c==' ')
+		return font->widths[fNum][0]*scale*(font->dim/256.0);
+	else
+		return font->widths[fNum][c]*scale*(font->dim/256.0);
+}
+
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX, long centredY)
 {
 	unsigned long cx = x,ox;
@@ -344,6 +377,70 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 	return cx;
 }
 
-#ifdef __cplusplus
+
+long WrapStringToArray(const char* str, long maxWidth, char* buffer, long bufferSize, char** array, long arraySize, MDX_FONT *font)
+{
+	char *wordStart, *lineStart, *p;
+	char **line = array;
+	long lines = 0, lineWidth = 0, lineChars = 0, wordChars = 0;
+
+	memset(array, 0, sizeof(char*)*arraySize);
+
+	lineStart = wordStart = p = (char*)str;
+	*line = buffer;
+
+	while (1)
+	{
+		char c = *p;
+		long charWidth = GetCharWidth(c, font, 1.0f);
+		
+		if (lineWidth+charWidth >= maxWidth || c == 0)
+		{
+			if (c) // && wordChars < lineChars/2)
+				lineChars -= wordChars;		
+
+			if (lines == arraySize-1)
+			{
+				strcpy(*line, lineStart);
+				lines++;
+				break;
+			}
+			else
+			{			
+				memcpy(*line, lineStart, lineChars);
+				*((*line)+lineChars) = 0;
+
+				lines++;
+
+				if (c)
+				{
+					*(line+1) = *line + lineChars + 1;
+					line++;
+					lineStart = p = wordStart;
+					lineWidth = lineChars = 0;
+					continue;
+				}
+				else
+				{
+					break;	// we're done!
+				}
+			}
+		}
+
+		lineChars++;
+
+		if (c == ' ')
+		{
+			wordChars = 0; wordStart = p+1;
+		}			
+		else
+		{
+			wordChars++;
+		}
+		
+		lineWidth += charWidth;
+		p++;
+	}
+
+	return lines;
 }
-#endif
