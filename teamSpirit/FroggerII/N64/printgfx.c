@@ -1115,6 +1115,100 @@ void PrintSprite(SPRITE *sprite)
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: Screen2Texture
+	Purpose			: Grabs primary frame buffer into a 2D array of 32x32 textures
+	Parameters		: 
+	Returns			: Pointer to the created array of textures
+	Info			:	8192 is the number of pixels for one row of 32x32 textures.
+						81920 is the number of pixels in the whole screen, including the unused
+						half a row at the bottom.
+*/
+//#define DUMP_FILE 1
+
+short *Screen2Texture( )
+{
+	u16 *screen = cfb_16_a;
+	unsigned short *grab;
+	int xTex = 0, yTex = 0, tStep = 0, x = 0, y = 81919, xt = 0;
+	
+	// Write standard bmp header for this image size
+	#ifdef DUMP_FILE
+	int file;
+	char header[] ={0x42,0x4D,0x36,0xC0,0x03,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,
+					0x00,0x00,0x20,0x00,0x00,0x00,0x00,0x0A,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,
+					0x00,0x00,0x00,0xC0,0x03,0x00,0x12,0x0B,0x00,0x00,0x12,0x0B,0x00,0x00,0x00,0x00,
+					0x00,0x00,0x00,0x00,0x00,0x00};
+	char *writeData;
+	#endif
+
+	StopDrawing( "Screen Grab" );
+	dontClearScreen = TRUE;
+
+	#ifdef DUMP_FILE
+	file = PCcreat( "d:\\FroggerDump.bmp", 0);
+	if(file == -1)
+	{
+		StartDrawing( "Screen Grab" );
+		dprintf"FILEERROR:could not open file:\n"));
+		return;
+	}
+	PCwrite(file, header, sizeof(header));
+	#endif
+
+	grab = (short *)JallocAlloc( sizeof(short)*81920, YES, "Texture Array" );
+
+	// Because the screen comes halfway down a row of textures, fill up the rest with blanks
+	for( ; y > 76480; y-- )
+		grab[y] = 0;
+
+	while( y >= 0 )
+	{
+		while( x < SCREEN_WD )
+		{
+			grab[xt+tStep+xTex+yTex] = screen[x+y];
+			x++;
+
+			if( ++xt >= 32 )
+			{
+				xTex += 1024;
+				xt = 0;
+			}
+		}
+
+		y -= SCREEN_WD;
+		tStep += 32;
+		x = 0;
+		xTex = 0;
+
+		if( tStep >= 1024 )
+		{
+			tStep = 0;
+			yTex += 10240;
+		}
+	}
+
+	#ifdef DUMP_FILE
+	writeData = (char *)JallocAlloc( sizeof(char)*3072,YES,"Image Line");
+	for( y=0; y<81920; y+=1024 )
+	{
+		for( x=0,xt=0; x<1024; x++,xt+=3 )
+		{
+			writeData[xt] = (char)((grab[x+y]>>1)<<3)&0xFF;
+			writeData[xt+1] = (char)((grab[x+y]>>6)<<3)&0xFF;
+			writeData[xt+2] = (char)((grab[x+y]>>11)<<3)&0xFF;
+		}
+		PCwrite( file, writeData, 3072 );
+	}
+	PCclose( file );
+	#endif
+
+	dontClearScreen = FALSE;
+	StartDrawing( "Screen Grab" );
+
+	return grab;
+}
+
+/*	--------------------------------------------------------------------------------
 	Function		: ScreenShot
 	Purpose			: performs a screen grab
 	Parameters		: 
