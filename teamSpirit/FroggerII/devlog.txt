@@ -704,6 +704,9 @@ James Healey:
 Mike Movel:
 ------------------------------------------------
 
+	With Byron's help, finished rejigging the gametile/camera/actors etc code to allow the original PC 
+	game logic to stay the same on the PSX. Started fixing a bug which prevents my enemies drawing properly
+
 
 Byron Blay:
 ------------------------------------------------
