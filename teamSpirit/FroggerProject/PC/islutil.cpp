@@ -31,8 +31,3 @@ int utilPrintf(char* fmt, ...)
 
 	return 0;
 }
-
-unsigned long utilStr2CRC(char *ptr) 		
-{
-	return 0;
-}
