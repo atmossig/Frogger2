@@ -762,7 +762,7 @@ void RunGameLoop (void)
 	
 	// Setup for frogger point of interest
 	pOIDistance = 10000.0;
-//	pointOfInterest = NULL;
+	pointOfInterest = NULL;
 
 	if(frameCount == 1)
 	{	

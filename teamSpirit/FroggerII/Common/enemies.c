@@ -132,16 +132,16 @@ GAMETILE *FindJoinedTileByDirection(GAMETILE *st,VECTOR *d)
 	Returns			: void
 	Info			: 
 */
+#define SNAPPER_TIME 10
 
 float snapRadius = 75;
 long snapTime = 50;
-long SNAPPER_TIME = 10;
 extern float waitScale;
 
 void UpdateEnemies()
 {
 	ENEMY *cur,*next;
-	VECTOR fromPosition,toPosition, frogVec;
+	VECTOR fromPosition,toPosition;
 	VECTOR fwd;
 	VECTOR moveVec;
 	PLANE2 rebound;
@@ -158,9 +158,6 @@ void UpdateEnemies()
 		// check if enemy is active
 		if(!cur->active)
 			continue;
-
-		// Some common values needed
-		SubVector( &frogVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 
 		// check if this enemy is currently 'waiting' at a node
 		if(cur->isWaiting)
@@ -220,37 +217,25 @@ void UpdateEnemies()
 			
 			ScaleVector(&fwd,length);
 			AddVector(&cur->nmeActor->actor->pos,&fwd,&fromPosition);
-			MakeUnit (&fwd);
 
 			if (cur->flags & ENEMY_NEW_PUSHESFROG)
 			{
-				/*
-				if (DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->nmeActor->actor->pos)<(40*40))
+				if( cur->nmeActor->distanceFromFrog < 30 )
 				{
-					VECTOR direction, pushVec;
-					VECTOR frogDir;
-					GAMETILE *tile;
-					float len;
+					GAMETILE *tile = NULL;
+					AddVector( &frog[0]->actor->pos, &frog[0]->actor->pos, &fwd );
 
-					tile = FindJoinedTileByDirection(currTile[0],&fwd);
+					tile = FindNearestTile( frog[0]->actor->pos );
 
-					SubVector(&direction, &tile->centre, &cur->inTile->centre);
-					//MakeUnit(&direction);
-
-					len = ((float)(actFrameCount - cur->path->startFrame) / (float)(cur->path->endFrame - cur->path->startFrame));
-					ScaleVector( &direction, len );
-
-					AddVector(&frog[0]->actor->pos,&cur->inTile->center,&direction);
-
-					if (tile)
-						if (DistanceBetweenPointsSquared(&currTile[0]->centre,&frog[0]->actor->pos)>(40*40))
+					if( tile != currTile[0] )
 					{
 						currTile[0] = tile;
 						destTile[0] = currTile[0];
 					}
 				}
-				*/
 			}
+
+			MakeUnit (&fwd);
 
 //			if (cur->flags & ENEMY_NEW_RANDOMSPEED)
 //				if (Random(1))
@@ -271,12 +256,14 @@ void UpdateEnemies()
 			{
 				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 			}
+			/*
 			else
 			{
 				SubVector( &moveVec, &cur->path->nodes[cur->path->startNode+1].worldTile->centre, &cur->path->nodes[cur->path->startNode].worldTile->centre );
 				if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
 				Orientate(&cur->nmeActor->actor->qRot,&moveVec,&inVec,&cur->currNormal);
 			}
+			*/
 //--------------------->
 
 			// check if this enemy has arrived at a path node
@@ -295,12 +282,17 @@ void UpdateEnemies()
 			{
 				static GAMETILE *tile = NULL;
 
-				if (cur->isSnapping > 1)
+				if( cur->isSnapping > 1 )
 					cur->isSnapping--;
+				else if( cur->isSnapping < 0 )
+					cur->isSnapping++;
 
 				// Idle animations
-				if (cur->isSnapping == 0)
+				switch( cur->isSnapping )
 				{
+				case 0:
+					tile = NULL;
+
 					if (Random(1000)>980)
 						AnimateActor(cur->nmeActor->actor,2,NO,NO,1, 0, 0);
 				
@@ -313,63 +305,57 @@ void UpdateEnemies()
 					}
 
 					ActorLookAt( cur->nmeActor->actor, &frog[0]->actor->pos );
-				}
-
-				// If frog is on a tile by the snapper
-				if( Magnitude(&frogVec) < snapRadius )
-				{
-					// Snap animation
-					if (cur->isSnapping == SNAPPER_TIME)
-						AnimateActor(cur->nmeActor->actor,1,NO,NO,1, 0, 0);
 
 					// If the snapper has just spotted the frog, set snap time
-					if (cur->isSnapping == 0)
+					if( cur->nmeActor->distanceFromFrog < (snapRadius*snapRadius) )
 					{
 						tile = FindNearestTile( frog[0]->actor->pos );
 						ActorLookAt( cur->nmeActor->actor, &tile->centre );
 
 						cur->isSnapping = cur->path->nodes[0].waitTime;
 					}
-					else if (cur->isSnapping == 1) // Time to snap and hope
+					break;
+
+				case 1: // Time to snap and hope
+					cur->isSnapping = -SNAPPER_TIME;
+
+					if( tile == FindNearestTile(frog[0]->actor->pos) ) // If frog is still on the target tile
 					{
-						cur->isSnapping = 0;
-
-						if( tile == FindNearestTile(frog[0]->actor->pos) ) // If frog is still on the target tile
+						frog[0]->action.healthPoints--;
+						
+						if(frog[0]->action.healthPoints != 0)
 						{
-							frog[0]->action.healthPoints--;
-							
-							if(frog[0]->action.healthPoints != 0)
-							{
-								cameraShake = 25;
-								PlaySample(42,NULL,192,128);
-								frog[0]->action.safe = 25;
-							}
-							else
-							{
-								PlaySample(110,NULL,192,128);
-								AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
-								frog[0]->action.dead = 50;
-								frog[0]->action.healthPoints = 3;
-								frog[0]->action.deathBy = DEATHBY_NORMAL;
-								player[0].frogState |= FROGSTATUS_ISDEAD;
-							}
+							cameraShake = 25;
+							PlaySample(42,NULL,192,128);
+							frog[0]->action.safe = 25;
 						}
-
-						tile = NULL;
+						else
+						{
+							PlaySample(110,NULL,192,128);
+							AnimateActor(frog[0]->actor,FROG_ANIM_TRYTOFLY,NO,NO,0.5F,0,0);
+							frog[0]->action.dead = 50;
+							frog[0]->action.healthPoints = 3;
+							frog[0]->action.deathBy = DEATHBY_NORMAL;
+							player[0].frogState |= FROGSTATUS_ISDEAD;
+						}
 					}
+					break;
+
+				case SNAPPER_TIME: 				// Snap animation
+					AnimateActor(cur->nmeActor->actor,1,NO,NO,1, 0, 0);
+					break;
 				}
 			}
 			else if( cur->flags & ENEMY_NEW_SNAPTILES )
 			{
-				if (cur->isSnapping > 1)
+				if( cur->isSnapping > 1 )
 					cur->isSnapping--;
+				else if( cur->isSnapping < 0 )
+					cur->isSnapping++;
 
-				if (cur->isSnapping == SNAPPER_TIME)
-					AnimateActor(cur->nmeActor->actor,1,NO,NO,1, 0, 0);
-
-				// Get the next node on the path to snap at
-				if (cur->isSnapping == 0)
+				switch( cur->isSnapping )
 				{
+				case 0:
 					if(cur->path->toNode >= GET_PATHLASTNODE(cur->path))	// reached end of path nodes
 					{
 						cur->path->fromNode	= GET_PATHLASTNODE(cur->path);
@@ -381,16 +367,13 @@ void UpdateEnemies()
 						cur->path->toNode++;
 					}
 
-					cur->speed = cur->path->nodes[cur->path->fromNode].speed;
-					cur->isWaiting = cur->path->nodes[cur->path->fromNode].waitTime;
-
 					GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
 					ActorLookAt( cur->nmeActor->actor, &toPosition );
 					cur->isSnapping = cur->path->nodes[cur->path->fromNode].waitTime;
-				}
-				else if (cur->isSnapping == 1) // Time to snap and hope
-				{
-					cur->isSnapping = 0;
+					break;
+
+				case 1:
+					cur->isSnapping = -SNAPPER_TIME;
 
 					// If the frog is on our current target tile
 					if( cur->path->nodes[cur->path->fromNode].worldTile == FindNearestTile(frog[0]->actor->pos) )
@@ -413,6 +396,11 @@ void UpdateEnemies()
 							player[0].frogState |= FROGSTATUS_ISDEAD;
 						}
 					}
+					break;
+
+				case SNAPPER_TIME:
+					AnimateActor(cur->nmeActor->actor,1,NO,NO,1, 0, 0);
+					break;
 				}
 			}
 			else
@@ -499,7 +487,8 @@ void UpdateEnemies()
 			VECTOR nmeup, tVec, v2, v3;
 			float distance=10000, best=-2;
 			short bFlag = 0;
-			SetVector( &moveVec, &frogVec );
+
+			SubVector( &moveVec, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 			MakeUnit( &moveVec );
 			chTile = FindNearestTile( cur->nmeActor->actor->pos );
 
@@ -639,6 +628,18 @@ void UpdateEnemies()
 			case NMETYPE_MOWER:
 				ProcessNMEMower(cur->nmeActor);
 				break;
+		}
+
+		// Set point of interest for frog
+		if( cur->nmeActor->distanceFromFrog < pOIDistance )
+		{
+			SubVector( &moveVec, &cur->nmeActor->actor->pos, &frog[0]->actor->pos );
+			MakeUnit( &moveVec );
+			if( abs(DotProduct( &currTile[0]->dirVector[frogFacing[0]], &moveVec )) < 0.9 )
+			{
+				pOIDistance = cur->nmeActor->distanceFromFrog;
+				pointOfInterest = &cur->nmeActor->actor->pos;
+			}
 		}
 
 		if( cur->flags & ENEMY_NEW_MAKERIPPLES )
