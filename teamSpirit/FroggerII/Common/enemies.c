@@ -27,6 +27,7 @@ void NMEDamageFrog( int num, ENEMY *nme );
 void DoEnemyCollision( ENEMY *cur );
 void RotateWaitingNME( ENEMY *cur );
 void SlerpWaitingFlappyThing( ENEMY *cur );
+void SetSoundEffectsForEnemy( ENEMY *nme );
 
 void UpdatePathNME( ENEMY *cur );
 void UpdateSlerpPathNME( ENEMY *cur );
@@ -858,7 +859,7 @@ void UpdateTileHomingNME( ENEMY *cur )
 	if( path->numNodes < 3 )
 		return;
 
-	if( act->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
+	if( DistanceBetweenPointsSquared(&act->actor->pos, &frog[0]->actor->pos) > (act->radius*act->radius) )
 	{
 		cur->isIdle = 0;
 		path->nodes[2].worldTile = NULL;
@@ -924,7 +925,7 @@ void UpdateTileHomingNME( ENEMY *cur )
 	Purpose			: Move when frog has moved
 	Parameters		: ENEMY
 	Returns			: void
-	Info			: waitTime -> radius of activation; 
+	Info			: radius -> radius of activation; 
 */
 void UpdateMoveOnMoveNME( ENEMY *cur )
 {
@@ -936,7 +937,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 	if( path->numNodes < 3 )
 		return;
 
-	if( act->distanceFromFrog > (path->nodes[0].waitTime*path->nodes[0].waitTime) )
+	if( DistanceBetweenPointsSquared(&act->actor->pos, &frog[0]->actor->pos) > (act->radius*act->radius) )
 	{
 		cur->isIdle = 0;
 		path->nodes[2].worldTile = NULL;
@@ -1422,6 +1423,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 			}
 	}
 
+	SetSoundEffectsForEnemy( newItem );
+
 	return newItem;
 }
 
@@ -1658,3 +1661,18 @@ void CalcEnemyNormalInterps(ENEMY *nme)
 	nme->deltaNormal.v[Z] /= numSteps;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetSoundEffectsForEnemy
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: Add sounds for different enemy types (e.g. motor for moas
+*/
+void SetSoundEffectsForEnemy( ENEMY *nme )
+{
+	ACTOR *act = nme->nmeActor->actor;
+
+	if( !gstrcmp("lomoahrt", act->objectController->object->name) )
+		AddAmbientSound( GEN_CLOCK_TOCK, &act->pos, 1000, 100, 100, 3, 0, act );
+}
