@@ -1181,7 +1181,6 @@ void RunLevelCompleteSequence()
 	{
 		for ( i = 0; i < 3; i++ )
 			sprHeart[i]->draw = 0;
-		// ENDFOR
 	}
 
 	testA = 220;
@@ -1193,7 +1192,6 @@ void RunLevelCompleteSequence()
 	{
 		spawnCounter++;
 	}
-	// ENDIF
 
 	sprintf ( spawnCollected->text, "%d / 150", spawnCounter );
 

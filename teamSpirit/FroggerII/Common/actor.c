@@ -129,16 +129,14 @@ void DrawActorList()
 	InitDisplayLists();
 	SetRenderMode();
 	SetupViewing();
-#endif
 
 	if(fog.mode)
 	{
-#ifndef PC_VERSION
 	   gDPSetFogColor(glistp++,fog.r,fog.g,fog.b,255);
 	   gSPFogPosition(glistp++,fog.min,fog.max);
-#endif
 	}
-	
+#endif
+
 	cur = actList;
 	while(cur)
 	{
