@@ -34,6 +34,12 @@ frameInfo.nV = frameInfo.nF = 0;	frameInfo.cV = frameInfo.v;	frameInfo.cF = fram
 }
 
 // Push a poly onto the buffers
+#ifdef _DEBUG
+
+void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, long h );
+
+#else
+
 #define PushPolys(v,vC,fce,fC,h) \
 {	unsigned long cnt;\
 	short *mfce = fce;\
@@ -48,5 +54,6 @@ frameInfo.nV = frameInfo.nF = 0;	frameInfo.cV = frameInfo.v;	frameInfo.cF = fram
 	memcpy(frameInfo.cV,v,vC*sizeof(D3DTLVERTEX)); frameInfo.cV+=vC; frameInfo.nV+=vC; frameInfo.nF+=fC;\
 }
 
+#endif
 
 #endif

@@ -27,11 +27,14 @@ typedef struct TAGPROCTEXTURE
 
 
 extern PROCTEXTURE *prcTexList;
+extern POLYGON *rpList;
 
 
 extern void CreateAndAddProceduralTexture( TEXENTRY *tex, char *name );
+extern void CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, float w, float h );
 extern void ProcessProcTextures( );
 extern void FreeProcTextures( );
+extern void FreeRandomPolyList( );
 
 extern void ProcessPTFire( PROCTEXTURE *pt );
 

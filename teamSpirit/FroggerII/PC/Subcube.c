@@ -295,7 +295,7 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	
 	if (numFaces)
 	{
-		PushPolys(vIn,vInCount,faceList,j,texture)
+		PushPolys(vIn,vInCount,faceList,j,texture);
 	}
 }
 

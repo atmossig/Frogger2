@@ -15,6 +15,7 @@
 
 
 PROCTEXTURE *prcTexList = NULL;
+POLYGON *rpList = NULL;
 
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessPTFire
@@ -25,16 +26,18 @@ PROCTEXTURE *prcTexList = NULL;
 */
 void ProcessPTFire( PROCTEXTURE *pt )
 {
-	long i = 1024,j,k;
+	long i = 1024,j,c,p;
 	char *tmp;
-#ifdef PC_VERSION
-	TEXENTRY *tx = (TEXENTRY *)pt->tex;
-#else
-	TEXTURE *tx = pt->tex;
-#endif
+	unsigned short res;
 
 	// Copy resultant buffer into texture
-	while( i-- ) tx->data[i] = pt->palette[pt->buf1[i]];
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
 
 	// Set the bottom line to be white-ish
 	for( i=992; i<1024; i++ )
@@ -44,18 +47,27 @@ void ProcessPTFire( PROCTEXTURE *pt )
 	j = Random(3);
 	for( i=0; i<j; i++ )
 	{
-		k=Random(32)+224;
-		pt->buf1[k-32] = k;
-		pt->buf1[k-31] = k;
-		pt->buf1[k-33] = k;
-//		pt->buf1[k-64] = k;
-//		pt->buf1[k-63] = k;
-//		pt->buf1[k-65] = k;
+		c=Random(31)+224;
+		p = 960+Random(32);
+		pt->buf1[p] = c;
+		pt->buf1[p-1] = c;
+		pt->buf1[p+1] = c;
+		pt->buf1[p-32] = c;
+		pt->buf1[p-33] = c;
+		pt->buf1[p-31] = c;
 	}
 
 	// Smooth, move up and fade
-	for( i=990; i>1; i-- )
-		pt->buf2[i] = ((pt->buf1[i+33] + pt->buf1[i+31] + pt->buf1[i-33] + pt->buf1[i-31])>>2)-1;
+	for( i=0; i<32; i++ )
+		for( j=0; j<32; j++ )
+		{
+			p = (i*32)+j;
+			res = (pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+32] + pt->buf1[p-32])>>2;
+			if( res > 0 ) res--;
+			pt->buf2[p] = res;
+		}
+
+	pt->buf2[600] = 254;
 
 	// Swap buffers
 	tmp = pt->buf1;
@@ -140,4 +152,70 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	// Set update function and type depending on filename
 	if( name[4]=='f' && name[5]=='i' && name[6]=='r' && name[7]=='e' )
 		pt->Update = ProcessPTFire;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateAndAddRandomPoly
+	Purpose			: Draw a quad with a procedural texture on it
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void CreateAndAddRandomPoly( TEXTURE *tex, VECTOR *pos, VECTOR *normal, float w, float h )
+{
+	POLYGON *p = (POLYGON *)JallocAlloc( sizeof(POLYGON), YES, "Poly" );
+	
+	SetVector( &p->plane.point, pos );
+	SetVector( &p->plane.normal, normal );
+
+	p->vT = (VECTOR *)JallocAlloc( sizeof(VECTOR)*4, NO, "V" );
+	p->vT[0].v[X] = w;
+	p->vT[0].v[Y] = 0;
+	p->vT[0].v[Z] = -h;
+	p->vT[1].v[X] = w;
+	p->vT[1].v[Y] = 0;
+	p->vT[1].v[Z] = h;
+	p->vT[2].v[X] = -w;
+	p->vT[2].v[Y] = 0;
+	p->vT[2].v[Z] = h;
+	p->vT[3].v[X] = -w;
+	p->vT[3].v[Y] = 0;
+	p->vT[3].v[Z] = -h;
+
+	p->tex = tex;
+
+	p->r = 255;
+	p->g = 255;
+	p->b = 255;
+	p->a = 255;
+
+	p->next = rpList;
+	rpList = p;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeRandomPolyList
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeRandomPolyList( )
+{
+	POLYGON *p;
+
+	if( !rpList ) return;
+
+	for( p=rpList; p; p=rpList )
+	{
+		// Remove from list
+		rpList = p->next;
+
+		if( p->vT ) JallocFree( (UBYTE **)&p->vT );
+
+		// And free the object
+		JallocFree( (UBYTE **)&p );
+	}
 }

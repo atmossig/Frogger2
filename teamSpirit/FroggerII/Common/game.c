@@ -801,6 +801,8 @@ void RunGameLoop (void)
 		CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 		lastActFrameCount = 0;
+
+//		CreateAndAddRandomPoly( prcTexList->tex, &frog[0]->actor->pos, &inVec, 32, 32 );
 	}
 	// FINISH FIRST FRAME STUFF
 	if (player[0].worldNum == WORLDID_FRONTEND)

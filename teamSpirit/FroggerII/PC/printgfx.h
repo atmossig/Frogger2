@@ -63,6 +63,9 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver);
 void PrintOverlays();
 void PrintSpriteOverlays();
 
+void DrawRandomPolyList( );
+void TransformAndDrawPolygon( POLYGON *p );
+
 void DrawSpecialFX();
 void DrawFXRipple( SPECFX *ripple );
 void DrawFXRing( SPECFX *ring );

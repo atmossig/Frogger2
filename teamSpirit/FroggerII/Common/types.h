@@ -566,6 +566,17 @@ typedef struct TAGPLANE2
 } PLANE2;
 
 
+typedef struct TAGPOLY
+{
+	struct TAGPOLY *next;
+
+	PLANE2 plane;
+	unsigned char r, g, b, a;
+	TEXTURE *tex;
+	VECTOR *vT;
+
+} POLYGON;
+
 
 #define dprintf debugPrintf(sprintf(outputMessageBuffer, 
 

@@ -13,7 +13,6 @@
 #define RELEASE(x) if (x) {x->Release(); x=NULL;}
 #define DDINIT(x) {memset(&x,0,sizeof(x)); x.dwSize = sizeof(x);}
 
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -56,6 +55,8 @@ extern void ReleaseSurface(LPDIRECTDRAWSURFACE surf);
 extern void dp(char *format, ...);
 extern float fStart;
 extern float fEnd;
+
+extern void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, char *buf, short *pal );
 
 
 #ifdef __cplusplus

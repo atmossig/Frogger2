@@ -658,10 +658,6 @@ void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short al
 	long i, zeroZ=0;
 	float t;
 
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
-
 	vT[0].sx = size;
 	vT[0].sy = offset;
 	vT[0].sz = size;
@@ -747,10 +743,6 @@ void DrawFXRipple( SPECFX *ripple )
 
 	if(ripple->deadCount)
 		return;
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
 	vT[0].sx = ripple->scale.v[X];
 	vT[0].sy = 0;
@@ -850,10 +842,6 @@ void DrawFXRing( SPECFX *ring )
 	if( ring->deadCount )
 		return;
 
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
-
 	// Translate to current fx pos and push
 	guTranslateF( tMtrx, ring->origin.v[X], ring->origin.v[Y], ring->origin.v[Z] );
 	PushMatrix( tMtrx );
@@ -928,10 +916,6 @@ void DrawFXTrail( SPECFX *trail )
 
 	if( trail->deadCount || (trail->start == trail->end) )
 		return;
-
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
 	vT[0].specular = D3DRGB(0,0,0);
 	vT[0].tu = 1;
@@ -1038,10 +1022,6 @@ void DrawFXLightning( SPECFX *fx )
 	if( fx->deadCount )
 		return;
 
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
-
 	vT[0].specular = D3DRGB(0,0,0);
 	vT[0].tu = 0;
 	vT[0].tv = 0;
@@ -1115,4 +1095,96 @@ void DrawFXLightning( SPECFX *fx )
 
 		i++;
 	} 
+}
+
+
+void DrawRandomPolyList( )
+{
+	POLYGON *p;
+
+	for( p=rpList; p; p=p->next )
+		TransformAndDrawPolygon( p );
+}
+
+void TransformAndDrawPolygon( POLYGON *p )
+{
+	VECTOR tempVect, m, fwd;
+	D3DTLVERTEX vT[5];
+	QUATERNION cross, q, up;
+	long i, zeroZ=0;
+	unsigned long tex;
+	float t;
+
+	vT[0].sx = p->vT[0].v[X];
+	vT[0].sy = p->vT[0].v[Y];
+	vT[0].sz = p->vT[0].v[Z];
+	vT[0].tu = 0;
+	vT[0].tv = 0;
+	vT[0].color = D3DRGBA(p->r/255.0,p->g/255.0,p->b/255.0,p->a/255.0);
+	vT[0].specular = D3DRGB(0,0,0);
+
+	vT[1].sx = p->vT[1].v[X];
+	vT[1].sy = p->vT[1].v[Y];
+	vT[1].sz = p->vT[1].v[Z];
+	vT[1].tu = 0;
+	vT[1].tv = 1;
+	vT[1].color = vT[0].color;
+	vT[1].specular = vT[0].specular;
+
+	vT[2].sx = p->vT[2].v[X];
+	vT[2].sy = p->vT[2].v[Y];
+	vT[2].sz = p->vT[2].v[Z];
+	vT[2].tu = 1;
+	vT[2].tv = 1;
+	vT[2].color = vT[0].color;
+	vT[2].specular = vT[0].specular;
+	
+	vT[3].sx = p->vT[3].v[X];
+	vT[3].sy = p->vT[3].v[Y];
+	vT[3].sz = p->vT[3].v[Z];
+	vT[3].tu = 1;
+	vT[3].tv = 0;
+	vT[3].color = vT[0].color;
+	vT[3].specular = vT[0].specular;
+
+	// Translate to current fx pos and push
+	guTranslateF( tMtrx, p->plane.point.v[X], p->plane.point.v[Y], p->plane.point.v[Z] );
+	PushMatrix( tMtrx );
+
+	// Rotate to be around normal
+	CrossProduct( (VECTOR *)&cross, &p->plane.normal, &upVec );
+	MakeUnit( (VECTOR *)&cross );
+	t = DotProduct( &p->plane.normal, &upVec );
+	cross.w = -acos(t);
+	GetQuaternionFromRotation( &q, &cross );
+	QuaternionToMatrix( &q,(MATRIX *)rMtrx);
+	PushMatrix( rMtrx );
+
+	// Transform point by combined matrix
+	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+
+	for( i=0; i<4; i++ )
+	{
+		guMtxXFMF( dMtrx, vT[i].sx, vT[i].sy, vT[i].sz, &tempVect.v[X], &tempVect.v[Y], &tempVect.v[Z] );
+		XfmPoint( &m, &tempVect );
+
+		// Assign back to vT array
+		vT[i].sx = m.v[X];
+		vT[i].sy = m.v[Y];
+		if( !m.v[Z] ) zeroZ++;
+		else vT[i].sz = (m.v[Z]+DIST)*0.0005;
+	}
+
+	memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
+
+	tex = ((TEXENTRY *)p->tex)->hdl;
+
+	if( tex && !zeroZ )
+	{
+		Clip3DPolygon( vT, tex );
+		Clip3DPolygon( &vT[2], tex );
+	}
+
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
 }

@@ -42,6 +42,31 @@ extern "C"
 // Instance of FRAME_INFO, for storing... Surprisingly.. The frame information./
 FRAME_INFO frameInfo;
 
+#ifdef _DEBUG
+
+void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, long h )
+{
+	unsigned long cnt;
+	short *mfce = fce;
+
+	for (cnt=0;cnt<fC; cnt++)
+	{
+		*frameInfo.cF = (*mfce) + frameInfo.nV;
+		*frameInfo.cH = h;
+		frameInfo.cF++;
+		frameInfo.cH++;
+		mfce++;
+	}
+
+	memcpy(frameInfo.cV,v,vC*sizeof(D3DTLVERTEX));
+	
+	frameInfo.cV+=vC;
+	frameInfo.nV+=vC;
+	frameInfo.nF+=fC;
+}
+
+#endif
+
 /*  --------------------------------------------------------------------------------
     Function      : DrawBatchedPolys
 	Purpose       :	-

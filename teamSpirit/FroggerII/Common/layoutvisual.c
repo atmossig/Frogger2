@@ -689,6 +689,7 @@ void FreeAllLists()
 	Free3DTextList();
 	FreeAnimationList();
 	FreeProcTextures( );
+	FreeRandomPolyList( );
 	FreeTextureList();
 	FreeAllObjectBanks();
 	FreeAllTextureBanks();

@@ -26,6 +26,7 @@
 
 #include "mdxDDraw.h"
 #include "mdxD3D.h"
+#include "mdxInfo.h"
 
 #include <windowsx.h>
 #include <mmsystem.h>
@@ -1631,3 +1632,29 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function 	: PTSurfaceBlit
+	Purpose 	: Copy data into texture surface from procedural texture
+	Parameters 	: Target texture, source data
+	Returns 	: 
+	Info 		:
+*/
+void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, char *buf, short *pal )
+{
+	DDSURFACEDESC ddsd;
+	HRESULT res;
+	long i=1023;
+	DDINIT(ddsd);
+
+	static LPDIRECTDRAWSURFACE pSurface = D3DCreateTexSurface(32,32,0xf81f, 0,0);
+	
+	while( (res = pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR | DDLOCK_WRITEONLY,0)) != DD_OK )
+		ddShowError(res);
+
+	while( i-- ) ((short *)ddsd.lpSurface)[i] = pal[buf[i]];
+
+	pSurface->Unlock(ddsd.lpSurface);
+
+	res = to->Blt(NULL,pSurface,NULL,DDBLT_WAIT,0);
+	ddShowError(res);
+}

@@ -786,6 +786,10 @@ void DrawGraphics()
 	DrawActorList();	
 	EndTimer(3);
 
+	DrawBatchedPolys();
+	BlankFrame();
+	DrawRandomPolyList( );
+
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
 	
@@ -795,11 +799,9 @@ void DrawGraphics()
 	DrawBatchedPolys();
 	BlankFrame();
 	
-	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 
 	DrawSpecialFX();
-	
 	DrawBatchedPolys();
 	BlankFrame();
 	
@@ -880,13 +882,15 @@ void DrawGraphics()
 	StartTimer(1,"Draw Gfx");
 	StartTimer(0,"Everything");
 
+	if( gameState.mode == INGAME_MODE )
+		ProcessProcTextures( );
+
 	if (runHardware)
 		EndDrawHardware();
 	else
 		SoftwareEndFrame();
 
 	AnimateTexturePointers();
-	ProcessProcTextures( );
 
 	EndTimer(1);
 }
