@@ -62,6 +62,8 @@ extern unsigned long USE_MENUS;
 extern unsigned long rKeying;
 extern unsigned long rPlaying;
 extern long synchedFrameCount;
+extern float RES_DIFF;
+extern float RES_DIFF2;
 
 void StopKeying(void);
 
@@ -312,13 +314,19 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	lastActFrameCount = actFrameCount = (GetTickCount()/(1000.0/60.0));
 	InitOneOverTable();	
 	
-    strcpy (filename,baseDirectory);	
-	strcat (filename,TEXTURE_BASE);
-	strcat (filename,"loading.bmp");
+    //strcpy (filename);	
+	//strcat (filename,TEXTURE_BASE);
+	
+	sprintf (filename,"%s%sloading%lu.bmp",baseDirectory,TEXTURE_BASE,SCREEN_WIDTH);
+	
+	dprintf"Loading screen - %s\n",filename));
 	loadScr = GetGelfBmpDataAsShortPtr(filename);
 	
 	if (!runHardware)
 		SoftwareInit(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+
+	RES_DIFF = SCREEN_WIDTH/640.0;
+	RES_DIFF2 = 2*RES_DIFF;
 
 	if (!USE_MENUS)
 	{
