@@ -98,14 +98,15 @@ void LoadCollision (int num)
 
 		// ANCIENTS LEVELS
 		case ANCIENTMASTERA_COL:
+			tnum = TOWER_COLL_BANK;
 			break;
 		case ANCIENTMULTI_COL:
 			break;
 		case ANCIENTLEV1_COL:
-			tnum = RUINEDCITY_COLL_BANK;
+			tnum = VOTG_COLL_BANK;
 			break;
 		case ANCIENTLEV2_COL:
-			tnum = VOTG_COLL_BANK;
+			tnum = RUINEDCITY_COLL_BANK;
 			break;
 		case ANCIENTLEV3_COL:
 			tnum = TEMPLE_COLL_BANK;

@@ -370,7 +370,7 @@ _objBank13SegmentRomEnd          alias   _objBank13_orgend
 
         section.16      objBank13.data,objBank13
 
-oBank13  incbin  "objects/ancientbosslev.nob",objBank13.data,64
+oBank13  incbin  "objects/ancientbossa.nob",objBank13.data,64
 
 ; [ ANCIENT WORLD BONUS ] >>>>>
 
@@ -530,6 +530,107 @@ _texBank10SegmentRomEnd          alias   _texBank10_orgend
 
 tBank10  incbin  "textures/multi_garden.fla",texBank10.data,64
 
+
+
+
+
+
+
+; [ GENERIC ANCIENT ] >>>>>
+
+texBank11        group   obj()
+texBank11bss     group   obj(),bss
+
+_texBank11SegmentRomStart        alias   _texBank11_org
+_texBank11SegmentRomEnd          alias   _texBank11_orgend
+
+        section.16      texBank11.data,texBank11
+
+tBank11  incbin  "textures/generic_ancients.fla",texBank11.data,64
+
+; [ LEVEL 1 ANCIENT ] >>>>>
+
+texBank12        group   obj()
+texBank12bss     group   obj(),bss
+
+_texBank12SegmentRomStart        alias   _texBank12_org
+_texBank12SegmentRomEnd          alias   _texBank12_orgend
+
+        section.16      texBank12.data,texBank12
+
+tBank12  incbin  "textures/level1_ancients.fla",texBank12.data,64
+
+; [ LEVEL 2 ANCIENT ] >>>>>
+
+texBank13        group   obj()
+texBank13bss     group   obj(),bss
+
+_texBank13SegmentRomStart        alias   _texBank13_org
+_texBank13SegmentRomEnd          alias   _texBank13_orgend
+
+        section.16      texBank13.data,texBank13
+
+tBank13  incbin  "textures/level2_ancients.fla",texBank13.data,64
+
+; [ LEVEL 3 ANCIENT ] >>>>>
+
+texBank14        group   obj()
+texBank14bss     group   obj(),bss
+
+_texBank14SegmentRomStart        alias   _texBank14_org
+_texBank14SegmentRomEnd          alias   _texBank14_orgend
+
+        section.16      texBank14.data,texBank14
+
+tBank14  incbin  "textures/level3_ancients.fla",texBank14.data,64
+
+; [ BOSS A ANCIENT ] >>>>>
+
+texBank15        group   obj()
+texBank15bss     group   obj(),bss
+
+_texBank15SegmentRomStart        alias   _texBank15_org
+_texBank15SegmentRomEnd          alias   _texBank15_orgend
+
+        section.16      texBank15.data,texBank15
+
+tBank15  incbin  "textures/bossa_ancients.fla",texBank15.data,64
+
+; [ BOSS B ANCIENT ] >>>>>
+
+texBank16        group   obj()
+texBank16bss     group   obj(),bss
+
+_texBank16SegmentRomStart        alias   _texBank16_org
+_texBank16SegmentRomEnd          alias   _texBank16_orgend
+
+        section.16      texBank16.data,texBank16
+
+tBank16  incbin  "textures/bossb_ancients.fla",texBank16.data,64
+
+; [ BONUS ANCIENT ] >>>>>
+
+texBank17        group   obj()
+texBank17bss     group   obj(),bss
+
+_texBank17SegmentRomStart        alias   _texBank17_org
+_texBank17SegmentRomEnd          alias   _texBank17_orgend
+
+        section.16      texBank17.data,texBank17
+
+tBank17  incbin  "textures/bonus_ancients.fla",texBank17.data,64
+
+; [ MULTI ANCIENT ] >>>>>
+
+texBank18        group   obj()
+texBank18bss     group   obj(),bss
+
+_texBank18SegmentRomStart        alias   _texBank18_org
+_texBank18SegmentRomEnd          alias   _texBank18_orgend
+
+        section.16      texBank18.data,texBank18
+
+tBank18  incbin  "textures/bonus_ancients.fla",texBank18.data,64
 
 
 

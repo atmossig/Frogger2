@@ -48,10 +48,10 @@ char me[100] = "frogger.obe";
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
 	ACTOR2 **me = &frog[p];
-	//if ( p == 0 )
+	if ( p == 0 )
 		(*me)		 = CreateAndAddActor ("frogger.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
-	//else
-	//	(*me)		 = CreateAndAddActor ("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+	else
+		(*me)		 = CreateAndAddActor ("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
@@ -59,11 +59,11 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
-	//if ( p == 0 )
-	//{
+	if ( p == 0 )
+	{
 		InitActorAnim ( (*me)->actor );
 		AnimateActor  ( (*me)->actor, 0,YES, NO, 0.7f, 100, 0 );
-//	}
+	}
 	
 	(*me)->actor->scale.v[0] = 0.0075;
 	(*me)->actor->scale.v[1] = 0.0075;

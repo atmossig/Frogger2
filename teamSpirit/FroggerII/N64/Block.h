@@ -75,6 +75,25 @@ extern char *_texBank9SegmentRomStart;
 extern char *_texBank9SegmentRomEnd;
 extern char *_texBank10SegmentRomStart;
 extern char *_texBank10SegmentRomEnd;
+extern char *_texBank11SegmentRomStart;
+extern char *_texBank11SegmentRomEnd;
+extern char *_texBank12SegmentRomStart;
+extern char *_texBank12SegmentRomEnd;
+extern char *_texBank13SegmentRomStart;
+extern char *_texBank13SegmentRomEnd;
+extern char *_texBank14SegmentRomStart;
+extern char *_texBank14SegmentRomEnd;
+extern char *_texBank15SegmentRomStart;
+extern char *_texBank15SegmentRomEnd;
+extern char *_texBank16SegmentRomStart;
+extern char *_texBank16SegmentRomEnd;
+extern char *_texBank17SegmentRomStart;
+extern char *_texBank17SegmentRomEnd;
+extern char *_texBank18SegmentRomStart;
+extern char *_texBank18SegmentRomEnd;
+
+
+
 
 extern char *_levData1SegmentRomStart;
 extern char *_levData1SegmentRomEnd;
