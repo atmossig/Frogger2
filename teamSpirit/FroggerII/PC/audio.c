@@ -12,7 +12,7 @@
 #include "..\resource.h"
 #include "incs.h"
 
-#define MYDEBUG
+//#define MYDEBUG	- stop printing all that CRAP, man!
 
 SAMPLEMAP genericMapping [] = {
 	"generic\\levelcomp.wav",		2, 22050, 16, GEN_LEVEL_COMP,	FLAGS_NONE,
@@ -388,55 +388,18 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 
 	unsigned long bufStatus;
 
-	if ( !lpDS )
-	{
-#ifdef MYDEBUG
-		dprintf"Returned From PlaySample Because lpDS is NULL!!!!!!!!!\n"));
-#endif
-		return 0;
-	}
-	// ENDIF
+	if (!lpDS) return 0;	// No DirectSound object!
 
-#ifdef MYDEBUG
-	dprintf"Getting Entry From Sample List - %d\n", num));
-#endif
-	sample = GetEntryFromSampleList ( num );
+	if (!(sample = GetEntryFromSampleList ( num ))) return 0;
 
-	if ( ( !sample ) )
-	{
-		if ( !sample )
-		{
-#ifdef MYDEBUG
-			dprintf"Could Not Find Sample : %d\n", num));	//  I will leave this, cos if you enter a
-															// sample number and it's not there then you will not get a sound.
-#endif
-		}
-		// ENDIF
-		return 0;
-	}
-	// ENDIF
-
-
-#ifdef MYDEBUG
-	dprintf"About to Play Sample - %d\n", num));
-#endif
-
-	if ( sample->flags & FLAGS_3D_SAMPLE )
+	if (sample->flags & FLAGS_3D_SAMPLE)
 	{
 		if ( sample->lpds3DBuffer )
 		{
-			dprintf"yes\n"));
-			sample->lpds3DBuffer->lpVtbl->SetMode ( sample->lpds3DBuffer, DS3DMODE_NORMAL/*DS3DMODE_HEADRELATIVE*/, DS3D_IMMEDIATE );
-			//Set3DMode ( DS3DMODE_HEADRELATIVE, DS3D_IMMEDIATE );
+			sample->lpds3DBuffer->lpVtbl->SetMode ( sample->lpds3DBuffer, DS3DMODE_NORMAL, DS3D_IMMEDIATE );
 			Set3DPosition ( sample->lpds3DBuffer, pos->v[X], pos->v[Y], pos->v[Z] );
 		}
-		else
-		{
-			dprintf"no\n"));
-		}
-		// ENDELSEIF
 	}
-	// ENDIF
 
 	// Now test if the sample is playing if it is then make an instance of it to play.
 
@@ -448,42 +411,46 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 			Have a clean buffer function that will go though and check if the sample is playing or not,
 			if the sample is not playing then remove it from the list.
 		*/
-		
-#ifdef MYDEBUG
-		dprintf"Buffering Sample %d\n", num));
-#endif
+
 		// Create the buffer sample.
-		if ( ( bufSample = ( BUFSAMPLE * ) JallocAlloc ( sizeof ( BUFSAMPLE ), YES, "BUFSAM" ) ) == NULL )
+		if ( !(bufSample = (BUFSAMPLE *) JallocAlloc(sizeof(BUFSAMPLE), YES, "BUFSAM" )) )
 		{
-#ifdef MYDEBUG
-			dprintf"PlaySample : bufSample : NULL value from JallocAlloc\n"));
-#endif
 			return NULL;
 		}
-		// ENDIF
 
 		lpDS->lpVtbl->DuplicateSoundBuffer ( lpDS, sample->lpdsBuffer, &(bufSample->lpdsBuffer ) );
 
 		AddBufSampleToList ( bufSample );
 
 		bufSample->lpdsBuffer->lpVtbl->Play ( bufSample->lpdsBuffer, 0, 0, 0 );
-
-
-#ifdef MYDEBUG
-		dprintf"Sorry Sound Playing : %d\n", num));
-#endif
 	}
 	else
 	{
 		sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
 	}
-	// ENDIF
+}
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: PlayActorBasedSample
+	Purpose			: 
+	Parameters		: sample num, actor, volume, pitch
+	Returns			: void
+*/
+int PlayActorBasedSample( short num, ACTOR* act, short tempVol, short pitch )
+{
+	dprintf"La la la la\n"));
+}
 
-#ifdef MYDEBUG
-	dprintf"Played Sample Ok - %d\n", num));
-#endif
+/*	--------------------------------------------------------------------------------
+	Function		: PlayActorBasedSample
+	Purpose			: 
+	Parameters		: sample num, playback volume, volume, pitch
+	Returns			: void
+*/
+int PlaySampleNot3D( short num, UBYTE vol, short tempVol, short pitch )
+{
+	dprintf"Dooby dooby doo\n"));
 }
 
 

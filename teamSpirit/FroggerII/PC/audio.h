@@ -144,6 +144,8 @@ extern void CleanBufferSamples ( void );
 
 
 extern int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch );
+extern int PlayActorBasedSample( short num, ACTOR* act, short tempVol, short pitch );
+extern int PlaySampleNot3D( short num, UBYTE vol, short tempVol, short pitch );
 
 extern void SetSampleFormat ( SAMPLE *sample );
 
