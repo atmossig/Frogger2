@@ -363,11 +363,11 @@ void DrawSpecialFX()
 				if( fx->Draw )
 					fx->Draw( fx );
 		}
-
+/*
 		for( i=0; i<NUM_FROGS; i++ )
 			if( tongue[i].flags & TONGUE_BEINGUSED )
 				DrawTongue( &tongue[i] );
-	}
+*/	}
 }
 
 /*	--------------------------------------------------------------------------------
