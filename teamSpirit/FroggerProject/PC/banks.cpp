@@ -542,7 +542,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					else if( !gstrcmp( tmp, "slu_" ) )
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_SLUDGE | ACTOR_DRAW_ALWAYS;
-						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_MODGE;						
+						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE;
 						if (ts->name[4]=='f')
 							theActor->flags |= ACTOR_SLIDYTEX;
 
