@@ -1235,14 +1235,20 @@ void UpdateVent( ENEMY *cur )
 				{
 					// pre-burn is less important than the smoke itself. - ds
 					//PrepForPriorityEffect( );
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
-					SetFXColour( fx, 255, 255, 255 );
+					if (frameCount&1)
+					{
+						fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
+						SetFXColour( fx, 255, 255, 255 );
+					}
 				}
 				else if( cur->nmeActor->effects & EF_SMOKEBURST )
 				{
 					//PrepForPriorityEffect( );
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
-					SetAttachedFXColour( fx, act->effects );
+					if (frameCount&1)
+					{
+						fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
+						SetAttachedFXColour( fx, act->effects );
+					}
 				}
 				else if( (cur->nmeActor->effects & EF_LIGHTNING) && !cur->isIdle ) // TODO: make this better!
 				{
