@@ -45,7 +45,7 @@ extern TEXTOVERLAYLIST textOverlayList;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-TEXTOVERLAY *CreateAndAddTextOverlay(short x, short y, char *text, char centred, char alpha,
+TEXTOVERLAY *CreateAndAddTextOverlay(short x, short y, char *text, char centred, UBYTE alpha,
 									 psFont *fontPtr, char flags/*, fixed waveAmplitude*/);
 
 extern long grabToTexture;

@@ -46,7 +46,7 @@ long grabToTexture = 0;
 	Returns			: void
 	Info			:
 */
-TEXTOVERLAY *CreateAndAddTextOverlay(short x, short y, char *text, char centred, char alpha,
+TEXTOVERLAY *CreateAndAddTextOverlay(short x, short y, char *text, char centred, unsigned char alpha,
 									 psFont *fontPtr, char flags/*, fixed waveAmplitude*/)
 {
 	TEXTOVERLAY *newItem;
