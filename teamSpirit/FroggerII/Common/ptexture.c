@@ -343,14 +343,14 @@ void ProcessPTWaterRipples( PROCTEXTURE *pt )
 	pt->buf2 = tmp;
 }
 
-
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessPTWaterRipplesBM
 	Purpose			: Procedural water ripple effect with bump map
 	Parameters		: 
 	Returns			: 
-	Info			: DOESN'T WORK YET!
+	Info			: FOOKING great lightcircle on it
 */
+short lightX = 16, lightY = 16;
 void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 {
 	unsigned long i,j;
@@ -363,7 +363,7 @@ void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 		float nX, nY, nZ;
 		int x, y;
 		bump = (unsigned char *)JallocAlloc( 1024, NO, "bumpmap" );
-		result = (unsigned char *)JallocAlloc( 1024, NO, "resultant" );
+		result = (unsigned char *)JallocAlloc( 1024, YES, "resultant" );
 
 		for( y=0; y<32; y++ )
 			for(x=0; x<32; x++ )
@@ -372,7 +372,7 @@ void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 				nY=(float)(y-16)/16;
 				nZ= 1-sqrt(nX*nX + nY*nY);
 				if( nZ < 0 ) nZ=0;
-				bump[(y*32)+x] = (unsigned char)nZ*256;
+				bump[(y*32)+x] = (unsigned char)(Fabs(nZ)*256);
 			}
 	}
 
@@ -380,7 +380,7 @@ void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 #ifdef PC_VERSION
 	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, result, pt->palette );
 #else
-	memcpy(pt->tex->data,pt->buf1,1024);
+	memcpy(pt->tex->data,result,1024);
 #endif
 
 	pt->buf1[(Random(30)+1)+960] = 255;
@@ -397,8 +397,8 @@ void ProcessPTWaterRipplesBM( PROCTEXTURE *pt )
 			ny = pt->buf2[p+32] - pt->buf2[p-32];
 
 			// (5,5) is the light position
-			lx = j - 5;
-			ly = i - 5;
+			lx = j - lightX;
+			ly = i - lightY;
 			nx -= lx;
 			ny -= ly;
 			nx += 16;

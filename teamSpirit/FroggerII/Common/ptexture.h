@@ -28,6 +28,8 @@ typedef struct TAGPROCTEXTURE
 
 extern PROCTEXTURE *steamTex;
 
+extern short lightX, lightY;
+
 
 extern PROCTEXTURE *prcTexList;
 extern POLYGON *rpList;
