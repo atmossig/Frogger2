@@ -7,15 +7,16 @@
 
 class VarTableEntry
 {
-public:
-	char *name, *value;
-	VarTableEntry *link;
+	char *value;
+	VarTableEntry *next;
 
-	VarTableEntry(const char* n, const char *v = 0);
+public:
+	VarTableEntry(const char *v = 0);
 	~VarTableEntry();
 	void SetValue(const char*);
+	void link(VarTableEntry *&list);	// reference to a pointer!
+	inline const char* GetValue() { return value; }
 };
-
 
 /*	----------------------------------------------------------------------- */
 

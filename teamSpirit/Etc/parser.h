@@ -13,10 +13,12 @@ bool OpenFile(const char* filename);
 void CloseCurrFile();
 void CloseAllFiles();
 int NextToken();
-char *GetStringToken(void);
+const char *GetStringToken(void);
 bool GetNumberToken(double *value);
 
 void Error(const char* message);
 const char* CurrentFilename();
+
+void SetVariable(const char* key, const char* value);
 
 #endif

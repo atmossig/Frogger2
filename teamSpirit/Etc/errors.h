@@ -14,5 +14,6 @@
 #define ERR_EXPECTVARIABLE	"Expected variable name"
 #define ERR_EXPECTNUMBER	"Expected number"
 #define ERR_EXPECTEVENT		"Expected event"
+#define ERR_EXPECTSUBNAME	"Expected subroutine name"
 
 #endif

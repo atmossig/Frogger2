@@ -55,6 +55,28 @@ char error[80];
 
 ScriptTokenList triggerList, commandList;
 
+/*
+struct Subroutine
+{
+	Buffer buffer;
+	int address;
+	Subroutine* link;
+};
+
+struct Address
+{
+	Buffer *buffer;
+	int index;
+	Subroutine* sub;
+	Address* link;
+};
+
+
+Subroutine *subList = NULL;
+Address *addList = NULL;
+Lookup SubLookup;
+*/
+
 /*-------------------------------------------------------------------------*/
 
 bool AddEvent(Buffer &buffer);
@@ -73,6 +95,12 @@ bool LoadCommandTable(const char* filename, ScriptTokenList &list)
 	
 	if (!OpenFile(filename)) return false;
 	
+	SetVariable("p_integer", "1");
+	SetVariable("p_float", "2");
+	SetVariable("p_string", "3");
+	SetVariable("p_trigger", "4");
+	SetVariable("p_block", "5");
+
 	while (!err)
 	{
 		char name[40], define[40];
@@ -172,10 +200,13 @@ bool InitTables(const char* exename)
 		return false;	
 	} 
 
-	// Add "INCLUDE" compiler command
+	// Add compiler commands
 
-	ParamType params[] = { PARAM_STRING };
+	ParamType params[] = { 0 };
 	commandList.AddEntry("Include", NULL, C_INCLUDE, params, 1);
+	commandList.AddEntry("Set", NULL, C_SET, params, 1);
+	//commandList.AddEntry("Sub", NULL, C_SUB, params, 1);
+	//commandList.AddEntry("Call", NULL, C_CALL, params, 1);
 
 	return true;
 }
@@ -187,7 +218,7 @@ bool AddParamsToBuffer(Buffer &b, ParamType* params)
 {
 	ParamType *type;
 	
-	char *c;
+	const char *c;
 	double v;
 
 	//AddIntToBuffer(SizeOfParams(params), buffer);
@@ -205,7 +236,7 @@ bool AddParamsToBuffer(Buffer &b, ParamType* params)
 			if (!(c = GetStringToken())) {
 				Error("Expecting string"); return false;
 			}
-			b.AddString(token);
+			b.AddString(c);
 			break;
 
 		case PARAM_INT:
@@ -272,9 +303,31 @@ bool AddEvent(Buffer &buffer)
 */
 	if (!(tokeninfo = commandList.GetEntry(token)))
 	{
-		sprintf(error, "'%s' is not a valid event", token);
-		Error(error);
-		return false;
+		/*Subroutine *sub = (Subroutine*)SubLookup.GetEntry(token);
+
+		if (!sub)
+		{*/
+			sprintf(error, "'%s' is not a valid event", token);
+			Error(error);
+			return false;
+		/*}
+		else
+		{
+			buffer.AddChar(C_CALL);
+
+			if (verbose)
+			{
+				printf("Adding subroutine call \"%s\" at index %04x\n", token, buffer.Size());
+			}
+			
+			Address *addy = new Address;
+			addy->buffer = &buffer;
+			addy->index = buffer.Size();
+			addy->sub = sub;
+
+			buffer.AddInt(0);
+			return true;
+		}*/
 	}
 
 	switch (tokeninfo->token)
@@ -282,7 +335,7 @@ bool AddEvent(Buffer &buffer)
 	case C_INCLUDE:
 		{
 			char foo[255];
-			char *filename = GetStringToken();
+			const char *filename = GetStringToken();
 			if (!filename) { Error(ERR_EXPECTFILENAME); return false; }
 			
 			GetPath(foo, CurrentFilename());
@@ -297,6 +350,56 @@ bool AddEvent(Buffer &buffer)
 			return AddEvent(buffer);
 		}
 
+	case C_SET:
+		{
+			char name[80];
+
+			NextToken();
+			if (tokenType != T_VARIABLE)
+			{
+				Error(ERR_EXPECTVARIABLE); return false;
+			}
+
+			strcpy(name, token);
+
+			NextToken();
+			SetVariable(name, token);
+			return true;
+		}
+
+/*	case C_SUB:
+		{
+			char name[80];
+			Subroutine *sub = new Subroutine;
+
+			NextToken();
+			if (tokenType != T_COMMAND)
+			{
+				Error(ERR_EXPECTSUBNAME); return false;
+			}
+
+			strcpy(name, token);
+
+			if (verbose) printf("Creating subroutine \"%s\"\n", name);
+
+			if (AddBlock(sub->buffer))
+			{			
+				sub->link = subList;
+				subList = sub;
+
+				SubLookup.AddEntry(name, (void*)sub);
+
+				if (verbose) printf("End subroutine \"%s\", %04x bytes\n", name);
+
+				return true;
+			}
+			else
+			{
+				delete sub;
+				return false;
+			}
+		}
+*/
 	default:
 		buffer.AddChar(tokeninfo->token);
 		if (!AddParamsToBuffer(buffer, tokeninfo->params)) return false;

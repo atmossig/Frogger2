@@ -23,9 +23,11 @@ enum CommandCodes
 #define FILESTACKSIZE 10
 
 CharSet VARIABLESET(VARIABLE);
-VarTableEntry *varTable = NULL;
 
 Lookup tokenList;
+
+VarTableEntry *varList;
+Lookup varLookup;
 
 /* ------------------------------------------------------------------------ */
 
@@ -44,16 +46,30 @@ struct FILESTACKENTRY
 int currFile = -1;
 FILESTACKENTRY *currfileentry = NULL;
 
+/* ------------------------------------------------------------------------ */
 
-VarTableEntry *GetVariable(const char* name)
+const char *GetVariable(const char* key)
 {
-	VarTableEntry *vte;
+	VarTableEntry *e = (VarTableEntry*)varLookup.GetEntry(key);
 
-	for (vte = varTable; vte; vte = vte->link)
-		if (!strcmp(vte->name, name))
-			return vte;
+	if (e)
+		return e->GetValue();
+	else
+		return "";
+}
 
-	return NULL;
+void SetVariable(const char* key, const char *value)
+{
+	VarTableEntry *e = (VarTableEntry*)varLookup.GetEntry(key);
+
+	if (e)
+		e->SetValue(value);
+	else
+	{
+		e = new VarTableEntry(value);
+		e->link(varList);
+		varLookup.AddEntry(key, (void*)e);
+	}
 }
 
 /* ------------------------------------------------------------------------ */
@@ -215,12 +231,12 @@ int NextToken(void)
 	return 0;	// failure
 }
 
-char *GetStringToken(void)
+const char *GetStringToken(void)
 {
 	NextToken();
 
 	if (tokenType == T_VARIABLE)
-		return GetVariable(token)->value;
+		return GetVariable(token);
 	else if (tokenType != T_STRING) return NULL;
 
 	return token;
@@ -233,12 +249,13 @@ bool GetNumberToken(double *value)
 	if (tokenType == T_VARIABLE)
 	{
 		char *c, *p;
-		c = p = GetVariable(token)->value;
+		c = p = (char*)GetVariable(token);
 		while (*c >= '0' && *c <= '9') c++;
 		if (*c == '.') while ((*c >= '0' && *c <= '9')) c++;
 		if (*c) return false;
 
 		*value = atof(p);
+		return true;
 	}
 	if (tokenType != T_NUMBER) return false;
 
@@ -254,22 +271,3 @@ void CloseAllFiles(void)
 		fclose(FileStack[currFile].input);
 	currFile = -1;
 }
-
-/* ------------------------------------------------------------------------
-
-int main(int argc, char**argv)
-{
-	if (!OpenFile("foo")) return -1;
-
-	compile();
-
-	for (int i = currFile; i>=0; i--)
-		fclose(FileStack[currFile].input);
-	
-	fflush(stdout);
-
-	getchar();
-
-	return 0;
-}
-*/

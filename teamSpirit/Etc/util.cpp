@@ -2,27 +2,22 @@
 #include <string.h>
 #include "util.h"
 
-VarTableEntry::VarTableEntry(const char* n, const char *v)
+VarTableEntry::VarTableEntry(const char *v)
 {
-	if (n)
-	{
-		name = new char[strlen(n) + 1];
-		strcpy(name, n);
-	}
-	if (v)
-	{
-		value = new char[strlen(v) + 1];
-		strcpy(value, v);
-	}
+	value = NULL;
+	SetValue(v);
 }
 
 VarTableEntry::~VarTableEntry()
 {
-	delete [] name; delete [] value;
+	delete [] value;
 }
 
 void VarTableEntry::SetValue(const char* v)
 {
+	if (value)
+		delete [] value;
+
 	if (v)
 	{
 		value = new char[strlen(v) + 1];
@@ -32,7 +27,11 @@ void VarTableEntry::SetValue(const char* v)
 		value = NULL;
 }
 
-
+void VarTableEntry::link(VarTableEntry *&list)
+{
+	next = list;
+	list = this;
+}
 
 CharSet::CharSet(const char *chars)
 {
