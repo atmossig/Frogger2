@@ -1192,7 +1192,7 @@ int SetupKeyboardDialog(int player, HWND hParent)
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
 	long i, j, code, item, usedKey;
-	char itmTxt[64];
+	char itmTxt[256];
 	HWND list;
 	static DWORD keyIndex = 0;
 
