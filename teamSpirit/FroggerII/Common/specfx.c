@@ -592,8 +592,8 @@ void UpdateFXSmoke( SPECFX *fx )
 
 	if( fx->type == FXTYPE_SMOKE_GROWS )
 	{
-		fx->sprites->scaleX += gameSpeed;
-		fx->sprites->scaleY += gameSpeed;
+		fx->sprites->scaleX += fx->accn*gameSpeed;
+		fx->sprites->scaleY += fx->accn*gameSpeed;
 	}
 	else if( fx->type == FXTYPE_JUMPBLUR )
 	{
@@ -1299,12 +1299,14 @@ void ProcessAttachedEffects( void *entity, int type )
 		}
 		if( act->effects & EF_SMOKE_GROWS )
 		{
+			float gs = (path->nodes[path->fromNode].offset2==0)?1:path->nodes[path->fromNode].offset2;
+
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.5, 0, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 1.5, gs, 1.5 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, 0, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.2, gs, 1.5 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.8, 0, 1.5 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->pos, &normal, 42, 0.8, gs, 1.5 );
 
 			SetAttachedFXColour( fx, act->effects );
 		}
