@@ -38,6 +38,8 @@ unsigned long speedKill = 0;
 float gameSpeed = 1;
 char dprintbuf[255] = "---";
 
+HBITMAP appBackgnd;
+
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
@@ -415,9 +417,6 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	Info			: 
 */
 
-HBITMAP appBackgnd;
-HDC appBackgndDC;
-
 int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 {
     WNDCLASS wc;
@@ -557,6 +556,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		{
 			RECT cRect;
 			int i,j;
+			HDC appBackgndDC;
 
 			GetClientRect (hWnd,&cRect);
 			appBackgndDC=CreateCompatibleDC((HDC)wParam);
