@@ -312,41 +312,39 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->vel.v[Z] += (-1 + Random(3))*speed*0.4;
 		effect->fade = 180 / life;
 
-		effect->numP = 1;
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
+		effect->numP = i = 2;
+		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE) * effect->numP, YES, "Sprite" );
 
-		if( effect->type == FXTYPE_BUBBLES )
-			effect->sprites->texture = txtrBubble;
-		else
-			effect->sprites->texture = txtrSmoke;
-
-		SetVector( &effect->sprites->pos, &effect->origin );
-		effect->sprites->scaleX = effect->scale.v[X];
-		effect->sprites->scaleY = effect->scale.v[Y];
-
-		effect->sprites->r = effect->r;
-		effect->sprites->g = effect->g;
-		effect->sprites->b = effect->b;
-		effect->sprites->a = effect->a;
-
-#ifndef PC_VERSION
-		effect->sprites->offsetX = -effect->sprites->texture->sx / 2;
-		effect->sprites->offsetY = -effect->sprites->texture->sy / 2;
-#else
-		effect->sprites->offsetX = -16;
-		effect->sprites->offsetY = -16;
-#endif
-		effect->sprites->flags = SPRITE_TRANSLUCENT;
-
-		AddSprite( effect->sprites, NULL );
-
-		if( effect->type == FXTYPE_SMOKE_GROWS || effect->type == FXTYPE_SMOKE_STATIC )
+		while(i--)
 		{
-			effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
-			effect->sprites->angle		= 0.0f;
-			effect->sprites->angleInc	= 1.0 / (float)(5 + (rand() % 6));
-			if(!(actFrameCount & 1))
-				effect->sprites->angleInc *= -1;
+			if( effect->type == FXTYPE_BUBBLES )
+				effect->sprites[i].texture = txtrBubble;
+			else
+				effect->sprites[i].texture = txtrSmoke;
+
+			SetVector( &effect->sprites[i].pos, &effect->origin );
+			effect->sprites[i].scaleX = effect->scale.v[X];
+			effect->sprites[i].scaleY = effect->scale.v[Y];
+
+			effect->sprites[i].r = effect->r;
+			effect->sprites[i].g = effect->g;
+			effect->sprites[i].b = effect->b;
+			effect->sprites[i].a = effect->a;
+
+			effect->sprites[i].offsetX = -16;
+			effect->sprites[i].offsetY = -16;
+			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
+
+			AddSprite( &effect->sprites[i], NULL );
+
+			if( effect->type == FXTYPE_SMOKE_GROWS || effect->type == FXTYPE_SMOKE_STATIC )
+			{
+				effect->sprites[i].flags		|= SPRITE_FLAGS_ROTATE;
+				effect->sprites[i].angle		= 0.0f;
+				effect->sprites[i].angleInc		= 1.0 / (float)(5 + (rand() % 6));
+				if(i == 0)
+					effect->sprites[i].angleInc *= -1;
+			}
 		}
 
 		effect->Update = UpdateFXSmoke;
@@ -691,37 +689,42 @@ void UpdateFXSmoke( SPECFX *fx )
 		SetVector( &fx->origin, &fx->follow->pos );
 
 	fo = fx->fade * gameSpeed;
-	if( fx->sprites->a > fo ) fx->sprites->a -= fo;
-	else fx->sprites->a = 0;
-
-	fx->sprites->pos.v[X] += fx->vel.v[X] * gameSpeed;
-	fx->sprites->pos.v[Y] += fx->vel.v[Y] * gameSpeed;
-	fx->sprites->pos.v[Z] += fx->vel.v[Z] * gameSpeed;
-
-	// Slow down gameSpeed times
-	vS = 1-(0.02*gameSpeed);
-	ScaleVector( &fx->vel, vS );
-
-	if(fx->sprites->flags & SPRITE_FLAGS_ROTATE)
-		fx->sprites->angle += (fx->sprites->angleInc * gameSpeed);
-
-	if( fx->type == FXTYPE_SMOKE_GROWS )
+	
+	i = fx->numP;
+	while(i--)
 	{
-		fx->sprites->scaleX += fx->accn*gameSpeed;
-		fx->sprites->scaleY += fx->accn*gameSpeed;
-	}
-	else if( fx->type == FXTYPE_BUBBLES )
-	{
-		if( fx->rebound )
+		if( fx->sprites[i].a > fo ) fx->sprites[i].a -= fo;
+		else fx->sprites->a = 0;
+
+		fx->sprites[i].pos.v[X] += fx->vel.v[X] * gameSpeed;
+		fx->sprites[i].pos.v[Y] += fx->vel.v[Y] * gameSpeed;
+		fx->sprites[i].pos.v[Z] += fx->vel.v[Z] * gameSpeed;
+
+		// Slow down gameSpeed times
+		vS = 1-(0.02*gameSpeed);
+		ScaleVector( &fx->vel, vS );
+
+		if(fx->sprites[i].flags & SPRITE_FLAGS_ROTATE)
+			fx->sprites[i].angle += (fx->sprites[i].angleInc * gameSpeed);
+
+		if( fx->type == FXTYPE_SMOKE_GROWS )
 		{
-			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-			dist = -(DotProduct(&fx->sprites->pos, &fx->rebound->normal) + fx->rebound->J);
-
-			if(dist > 0 && dist < 10)
+			fx->sprites[i].scaleX += fx->accn*gameSpeed;
+			fx->sprites[i].scaleY += fx->accn*gameSpeed;
+		}
+		else if( fx->type == FXTYPE_BUBBLES )
+		{
+			if( fx->rebound )
 			{
-				CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites->pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
-				JallocFree( (UBYTE **)&fx->rebound );
-				fx->rebound = NULL;
+				fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
+				dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
+
+				if(dist > 0 && dist < 10)
+				{
+					CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.4, 0.05, 0.3 );
+					JallocFree( (UBYTE **)&fx->rebound );
+					fx->rebound = NULL;
+				}
 			}
 		}
 	}
