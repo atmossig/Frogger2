@@ -83,6 +83,7 @@ void AutomapBabies( );
 */
 
 void SetPSXshift(CREATEENTITY*node, int shift) { node->PSX_shift = (char)shift; }
+void SetPSXhack(CREATEENTITY*node, int hack) { node->PSX_hack = (char)hack; }
 
 /*	-------------------------------------------------------------------------------- */
 
@@ -561,6 +562,10 @@ void ToolbarSelect(int command)
 
 	case TB_SET_PSXSHIFT:
 		EditVariable("PSX sort hack", EDITVAR_GROUPFUNCINT, SetPSXshift);
+		break;
+
+	case TB_SET_PSXHACK:
+		EditVariable("PSX shite hack", EDITVAR_GROUPFUNCINT, SetPSXhack);
 		break;
 
 	case TB_PASTE_SELECTION:

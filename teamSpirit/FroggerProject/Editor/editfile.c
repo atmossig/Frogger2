@@ -97,7 +97,7 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 {
 	int flags, i, ID, start, effects, objFlags;
 	float scale, radius, animSpeed, value1;
-	char PSXshift;
+	char PSXshift, PSXhack;
 	char name[MAXTYPELENGTH];
 	unsigned char facing;
 	HANDLE f = state->f;
@@ -138,7 +138,8 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 	if (state->ver > 14)
 	{
 		PSXshift = ReadByte(f);
-		for (i=1; i<4; i++) ReadByte(f);
+		PSXhack = ReadByte(f);
+		for (i=2; i<4; i++) ReadByte(f);
 	}
 	else
 		PSXshift = 0;
@@ -174,6 +175,7 @@ BOOL LoadEntity(EDLOADSTATE *state, int type)
 		create->facing = facing;
 		create->objFlags = objFlags;
 		create->PSX_shift = PSXshift;
+		create->PSX_hack = PSXhack;
 	}
 
 	FreeEditPath(ep);
@@ -418,7 +420,8 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 			
 			// version 15+ has 4 bytes of platform-specific info after 'objflags'
 			WriteByte(create->PSX_shift, f);
-			for (i=1; i<4; i++) WriteByte(0, f);
+			WriteByte(create->PSX_hack, f);
+			for (i=2; i<4; i++) WriteByte(0, f);
 
 			WriteInt(create->effects, f);
 			WriteInt(create->startNode, f);

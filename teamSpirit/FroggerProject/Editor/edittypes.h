@@ -61,6 +61,7 @@ typedef struct TAGCREATEENTITY
 	EDVECTOR	camera;
 
 	char	PSX_shift;	// sorting hack value for PSX
+	char	PSX_hack;	// temp HACK for PSX
 
 } CREATEENTITY;
 

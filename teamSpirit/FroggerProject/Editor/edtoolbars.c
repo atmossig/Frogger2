@@ -174,6 +174,7 @@ TOOLBAR_ENTRY TOOLBAR_EFFECTS[] =
 	{ 117,			TB_FLAG_TINTBLUE },
 	{ -1, 0 },
 	{ 140 + TB_ON,	TB_SET_PSXSHIFT },
+	{ 141 + TB_ON,	TB_SET_PSXHACK },
 	{ -1, -1 }
 };
 
@@ -436,5 +437,6 @@ char *tooltips[TBNUMCOMMANDS] =
 	"Sound for flag",		// TB_SET_FLAGSOUND
 	"Faces Direction",		// TB_SET_ORIENTATION
 	"PSX Sorting hack",		// TB_SET_PSXSHIFT
+	"PSX extra hack",		// TB_SET_PSXSHIFT
 };
 
