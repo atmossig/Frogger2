@@ -28,9 +28,9 @@ void DrawSpecialFX()
 					fx->Draw( fx );
 		}
 
-// 		for( i=0; i<NUM_FROGS; i++ )
-// 			if( tongue[i].flags & TONGUE_BEINGUSED )
-// 				DrawTongue( &tongue[i] );
+		for( i=0; i<NUM_FROGS; i++ )
+			if( tongue[i].flags & TONGUE_BEINGUSED )
+				DrawTongue( &tongue[i] );
 	}
 }
 
@@ -522,4 +522,113 @@ void DrawFXLightning( SPECFX *fx )
  
 }
  
- 
+/* 
+void DrawTongue( TONGUE *t )
+{
+	unsigned long i=0, index = (t->progress*(MAX_TONGUENODES-1)>>12);
+	VERTC vT[4], vTPrev[2];
+	TextureType *tEntry;
+
+	tEntry = ((MDX_TEXENTRY *)t->tex);
+
+	if( !tEntry || index < 2 )
+		return;
+
+	vT[0].tu = 1;
+	vT[0].tv = 1;
+	vT[1].tu = 0;
+	vT[1].tv = 1;
+	vT[2].tu = 0;
+	vT[2].tv = 0;
+	vT[3].tu = 1;
+	vT[3].tv = 0;
+
+	while( i < index )
+	{
+		//********-[ First 2 points ]-*******
+		if( i && vTPrev[0].sz && vTPrev[1].sz )
+			memcpy( vT, vTPrev, sizeof(VERTC)*2 );			// Previously transformed vertices
+		else
+			CalcTongueNodes( vT, t, i );
+
+		//********-[ Next 2 points ]-********
+		CalcTongueNodes( &vT[2], t, i+1 );
+		memcpy( vTPrev, &vT[2], sizeof(VERTC)*2 ); 			// Store first 2 vertices of the next segment
+
+		//********-[ Draw the polys ]-********
+		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
+		{
+			Clip3DPolygon( vT, tEntry );
+			Clip3DPolygon( &vT[1], tEntry );
+		}
+
+		i++;
+	}
+}
+
+void CalcTongueNodes( VERTC *vT, TONGUE *t, int i )
+{
+	IQUATERNION q, cross;
+	fixed p;
+	FVECTOR pos, m, normal, cam;
+	MATRIX rMtrx. tMtrx = GsIDMATRIX;
+	FVECTOR upV = {0,4096,0};
+
+	SetVectorFF(&pos, &t->segment[i]);
+//	ScaleVectorFF(&pos, 410);
+	// Translate to current fx pos and push
+// 	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
+// 	PushMatrix( tMtrx );
+	tMtrx.t[0] = pos.vx;
+	tMtrx.t[1] = pos.vy;
+	tMtrx.t[2] = pos.vz;
+	gte_SetTransMatrix(&tMtrx);
+
+	SetVectorFF(&cam, &currCamSource);
+	SubVectorFFF(&normal, &cam, &pos);
+//	Normalise( &normal );
+	MakeUnit(&normal);
+	CrossProductFFF((FVECTOR*)&cross, &normal, &upV);
+	Normalise((FVECTOR*)&cross);
+	p = DotProductFF(&normal, &upV);
+	cross.w = -arccos(p);
+	fixedGetQuaternionFromRotation(&q, &cross);
+//	QuaternionToMatrix( &q, (MDX_MATRIX *)rMtrx );
+	QuatToPSXMatrix(&q, &rMtrx);
+
+	// Precalculated rotation
+//	PushMatrix( (MDX_MATRIX *)rMtrx );
+	gte_SetRotMatrix(&rMtrx);
+
+//	vT[0].vx = -5+(i*0.4);
+	vT[0].vx = -5+((i*2)/5);
+	vT[0].vy = 0;
+	vT[0].vz = 0;
+	vT[0].col.r = 255;
+	vT[0].col.g = 0;
+	vT[0].col.b = 0;
+	vT[0].col.cd= 255;
+//	vT[1].vx = 5-(i*0.4);
+	vT[1].vx = 5-((i*2)/5);
+	vT[1].vy = 0;
+	vT[1].vz = 0;
+	vT[1].col = vT[0].color;
+
+	// Transform point by combined matrix
+	MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+
+	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.vx, &pos.vy, &pos.vz );
+	XfmPoint( &m, &pos, NULL );
+	vT[0].sx = m.vx;
+	vT[0].sy = m.vy;
+	vT[0].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.vx, &pos.vy, &pos.vz );
+	XfmPoint( &m, &pos, NULL );
+	vT[1].sx = m.vx;
+	vT[1].sy = m.vy;
+	vT[1].sz = (m.vz)?((m.vz+DIST)*0.00025):0;
+
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
+}
+*/
