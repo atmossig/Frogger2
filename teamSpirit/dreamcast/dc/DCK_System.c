@@ -248,6 +248,15 @@ int checkForControllerInsertedMulti()
 	return state;
 }
 
+
+/* ---------------------------------------------------------
+   Function : checkForSoftReset
+   Purpose : as user pressed soft reset?
+   Parameters : 
+   Returns : TRUE yes or FALSE
+   Info : 
+*/
+
 int checkForSoftReset()
 {
 	int i;
@@ -283,6 +292,7 @@ int checkForSoftReset()
 
 	return FALSE;
 }
+
 
 int checkForValidControllers()
 {
