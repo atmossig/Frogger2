@@ -149,7 +149,11 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 
 			case LOOK_IN_DIR:
 				SetVector(&camSource[0], &cur->camOffset );
-				AddVector(&camTarget[0], &cur->camLookAt, &camSource[0] );
+				
+				SetVector(&camTarget[0],&cur->camLookAt);
+				ScaleVector(&camTarget[0],200);
+				AddToVector(&camTarget[0], &camSource[0]);
+				
 				fixedDir = 1;
 				fixedPos = 1;
 				fixedUp = 1;
@@ -313,7 +317,7 @@ void SlurpCamPosition(long cam)
 			currCamTarget[cam].v[0] -= (currCamTarget[cam].v[0] - camTarget[cam].v[0])/s3;
 			currCamTarget[cam].v[1] -= (currCamTarget[cam].v[1] - camTarget[cam].v[1])/s3;
 			currCamTarget[cam].v[2] -= (currCamTarget[cam].v[2] - camTarget[cam].v[2])/s3;
-		
+
 			if (idleCamera)
 			{
 				currCamDist.v[0] -= (currCamDist.v[0] - idleCamDist.v[0])/s4;
