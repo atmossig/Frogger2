@@ -366,6 +366,16 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->sprites->flags = SPRITE_TRANSLUCENT;
 
 		AddSprite( effect->sprites, NULL );
+
+		if( effect->type == FXTYPE_SMOKE_GROWS || effect->type == FXTYPE_SMOKE_STATIC )
+		{
+			effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
+			effect->sprites->angle		= 0.0f;
+			effect->sprites->angleInc	= 1.0 / (float)(5 + (rand() % 6));
+			if(!(actFrameCount & 1))
+				effect->sprites->angleInc *= -1;
+		}
+
 		effect->Update = UpdateFXSmoke;
 		effect->Draw = NULL;
 		
@@ -424,6 +434,15 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
 			
 			AddSprite( &effect->sprites[i], NULL );
+
+			if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
+			{
+				effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
+				effect->sprites->angle		= 0.0f;
+				effect->sprites->angleInc	= 1.0 / (float)(5 + (rand() % 6));
+				if(!(actFrameCount & 1))
+					effect->sprites->angleInc *= -1;
+			}
 
 			if( effect->type == FXTYPE_SPARKBURST || effect->type == FXTYPE_SPARKLYTRAIL )
 				effect->particles[i].bounce = 1;
@@ -676,6 +695,9 @@ void UpdateFXSmoke( SPECFX *fx )
 	vS = 1-(0.02*gameSpeed);
 	ScaleVector( &fx->vel, vS );
 
+	if(fx->sprites->flags & SPRITE_FLAGS_ROTATE)
+		fx->sprites->angle += (fx->sprites->angleInc * gameSpeed);
+
 	if( fx->type == FXTYPE_SMOKE_GROWS )
 	{
 		fx->sprites->scaleX += fx->accn*gameSpeed;
@@ -862,6 +884,9 @@ void UpdateFXExplode( SPECFX *fx )
 						CreateAndAddSpecialEffect( FXTYPE_DECAL, &fx->sprites[i].pos, &fx->rebound->normal, 5, 0.3, 0.05, 0.3 );
 			}
 		}
+
+		if(fx->sprites[i].flags & SPRITE_FLAGS_ROTATE)
+			fx->sprites[i].angle += (fx->sprites[i].angleInc * gameSpeed);
 
 		fx->sprites[i].pos.v[X] += fx->particles[i].vel.v[X] * gameSpeed;
 		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y] * gameSpeed;
