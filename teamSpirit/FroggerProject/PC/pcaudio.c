@@ -54,7 +54,7 @@ void RemoveSample( SAMPLE *sample );
 void AddBufSample( BUFSAMPLE *sample );
 void RemoveBufSample( BUFSAMPLE *sample );
 
-AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch,float freq,float rFreq,MDX_ACTOR *follow);
+AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch,int freq,int rFreq,MDX_ACTOR *follow);
 void SubAmbientSound(AMBIENT_SOUND *ambientSound);
 int UpdateLoopingSample( AMBIENT_SOUND *sample );
 
@@ -488,7 +488,7 @@ void CleanBufferSamples ( void )
 	Returns 	: 
 	Info 		:
 */
-AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short vol, short pitch, float freq, float randFreq, MDX_ACTOR *follow )
+AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short vol, short pitch, int freq, int randFreq, MDX_ACTOR *follow )
 {
 	AMBIENT_SOUND *ptr;
 	AMBIENT_SOUND *ambientSound;
