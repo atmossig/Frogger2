@@ -985,6 +985,10 @@ void DrawFXLightning( SPECFX *fx )
 			POLY_FT4 *ft4;
 //			int zAvg = (vT[0].vz + vT[1].vz + vT[2].vz + vT[3].vz)/4;
 
+			otz = (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)/4;
+			otz += fx->zDepthOff;
+
+
 			//draw poly
 			BEGINPRIM(ft4, POLY_FT4);
 			setPolyFT4(ft4);
@@ -1013,9 +1017,7 @@ void DrawFXLightning( SPECFX *fx )
  			ft4->tpage |= 32;//add
 	// 		ft4->tpage = si->tpage | 64;//sub
 	//		ENDPRIM(ft4, 1, POLY_FT4);
-			ENDPRIM(ft4,
-				   (vT[0].vz+vT[1].vz+vT[2].vz+vT[3].vz)/4,
-					POLY_FT4);
+			ENDPRIM(ft4, otz, POLY_FT4);
 		}
 
 		i++;

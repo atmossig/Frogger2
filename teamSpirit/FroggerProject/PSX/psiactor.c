@@ -1387,6 +1387,14 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 	ANIMATION *anim;
 	int	actualSpeed;
 
+	
+	//bb
+	//this func keeps crashing when it couldn't create the actor
+//	if(!actor)
+//		return;
+
+
+
 	if(actorAnim->numAnimations == 0)
 	{
 		return;

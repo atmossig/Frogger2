@@ -79,15 +79,18 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					utilUpperStr ( cur->name );
 					theActor = CreateAndAddActor ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, INIT_ANIMATION, 0, 0 );
 
-					if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
+					//bb - crashes actorAnimate() when null actor
+					if(theActor)
 					{
-						theActor->flags |= ACTOR_DRAW_ALWAYS;
-						theActor->depthShift = 0;
+						if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
+						{
+							theActor->flags |= ACTOR_DRAW_ALWAYS;
+							theActor->depthShift = 0;
+						}
+
+						actorAnimate ( theActor->actor, 0, YES, NO, 150, NO );
 					}
-					// ENDIF
 
-
-					actorAnimate ( theActor->actor, 0, YES, NO, 150, NO );
 				}
 				// ENDELSEIF
 			}
