@@ -63,9 +63,7 @@
 
 #include "..\resource.h"
 #include "fxBlur.h"
-
-// ds - pending new network code
-//#include "net\network.h"
+#include "net\netconnect.h"	// ds - pending new network code
 
 psFont *font = 0;
 psFont *fontSmall = 0;
@@ -77,6 +75,7 @@ long drawLandscape = 1;
 long drawGame = 1;
 long textEntry = 0;	
 char textString[255] = "---";
+int networkGame = 0;
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 char cdromDrive[4] = "";
@@ -85,12 +84,6 @@ char lButton = 0, rButton = 0;
 int editorOk = 0;
 
 float camY = 100,camZ = 100;
-
-unsigned long nextSynchAt;
-unsigned long actTickCountModifier = 0;
-unsigned long synchSpeed = 60 * 1;
-unsigned long pingOffset = 40;
-unsigned long synchRecovery = 1;
 
 long resolution = 1;
 long slideSpeeds[4] = {0,16,32,64};
@@ -241,7 +234,7 @@ int SetRegistryInformation(void)
 */
 void GetArgs(char *arglist)
 {
-	char cmdMode;
+	bool cmdMode;
 
 	do
 	{
@@ -304,6 +297,10 @@ void GetArgs(char *arglist)
 					case ' ':
 					case 0:
 						cmdMode = 0;
+						break;
+
+					case 'N':
+						networkGame = 1;	// Start a non-lobbied network game
 						break;
 				}
 		}
@@ -731,59 +728,6 @@ long LoopFunc(void)
 
 	DrawLoop();
 
-/*	ds - COPY **ALL** NETWORK-SPECIFIC STUFF TO NETWORK-SPECIFIC FILES!
-
-	if(networkPlay && (gameState.mode == INGAME_MODE))
-	{
-		
-		if (!synchedOK)
-		{
-			if (DPInfo.bIsHost)
-				InitialServerSynch();
-			else
-				InitialPlayerSynch();
-			
-			InitTiming(60);
-			synchedOK = 1;
-			nextSynchAt = synchSpeed;
-		}
-		else
-		{
-			SendUpdateMessage();
-
-			if (DPInfo.bIsHost)
-			{
-				if (actFrameCount >	nextSynchAt)
-				{
-					nextSynchAt = timeInfo.frameCount + synchSpeed;
-					SendSynchMessage();
-				}
-			}
-			else
-			{
-				if ((actFrameCount+pingOffset) > nextSynchAt)
-				{
-					nextSynchAt = timeInfo.frameCount + synchSpeed;
-					SendPingMessage();
-				}
-
-				if (synchedFrameCount>0)
-				{
-					synchedFrameCount-=synchRecovery;
-					actTickCountModifier+=synchRecovery;
-					timeInfo.tickModifier = -(long)actTickCountModifier;
-				}
-				else
-				{
-					synchedFrameCount+=synchRecovery;
-					actTickCountModifier-=synchRecovery;
-					timeInfo.tickModifier = -(long)actTickCountModifier;
-				}
-			}
-		}
-	}
-*/
-
 	return 0;
 }
 
@@ -896,6 +840,7 @@ int GameShutdown()
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
 	long xRes,yRes;
+	int res;
 	
 	SYSTEMTIME currTime;
 	GetLocalTime(&currTime);
@@ -928,6 +873,14 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Init windows
 	if (!WindowsInitialise(hInstance,"Frogger2",1))
 		return 1;
+
+	// Init network game, then do a weirdass check - ds
+	res = StartNetworkGame(mdxWinInfo.hWndMain, networkGame);
+
+	if (networkGame && !res)
+		return 1;
+	else if (res)
+		networkGame = 1;
 
 	InitInputDevices();
 
