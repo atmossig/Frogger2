@@ -14,6 +14,7 @@
 #include "codes.h"
 #include "stdio.h"
 #include "script.h"
+#include "memload.h"
 
 #define DEBUG_SCRIPTING
 
@@ -43,21 +44,6 @@ float ChangeVolume(int a, float delta)
 }
 
 /* --------------------------------------------------------------------------------- */
-
-#define MEMGETFLOAT(p)	((float)MEMGETINT(p) / (float)0x10000)
-#define MEMGETBYTE(p)	(*((*p)++))
-//#define MEMGETWORD(p)	((int)*((*p)++) + ((int)*((*p)++) << 8))
-//#define MEMGETINT(p)	((int)*((*p)++) + ((int)*((*p)++) << 8) + ((int)*((*p)++) << 16) + ((int)*((*p)++) << 24))
-
-short MEMGETWORD(UBYTE **p)		// get a little-endian word
-{
-	unsigned short i;
-
-	i = (unsigned int)*((*p)++);
-	i += ((unsigned int)*((*p)++) << 8);
-
-	return (short)i;
-}
 
 ACTOR2 *GetActorFromUID(int UID)
 {
@@ -651,14 +637,15 @@ void LoadTestScript(const char* filename)
 	long size, read;
 	UBYTE* buffer;
 	
-	dprintf"Testing script %s\n", filename));
+	dprintf"Testing script %s\nf", filename));
 
 	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (h == INVALID_HANDLE_VALUE)
 	{
-		dprintf"Couldn't load script file %s\n", filename)); return;
+		sprintf(statusMessage, "Couldn't load script file %s", filename);
+		dprintf "%s\n", statusMessage)); return;
 	}
 
 	size = GetFileSize(h, NULL);
@@ -669,8 +656,11 @@ void LoadTestScript(const char* filename)
 
 	if (!InitLevelScript(buffer))
 	{
-		dprintf"Failed initialising script\n", filename)); return;
+		sprintf(statusMessage, "Failed initialising script", filename);
+		dprintf "%s\n", statusMessage)); return;
 	}
+
+	sprintf(statusMessage, "Loaded script %s", filename);
 }
 #endif
 
