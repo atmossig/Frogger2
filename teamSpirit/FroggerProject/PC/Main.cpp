@@ -1129,6 +1129,83 @@ long LoopFunc(void)
 }
 
 /*	--------------------------------------------------------------------------------
+	Function	: GameStartup
+	Purpose		: Game startup
+	Parameters	: void
+	Returns		: success
+*/
+
+int GameStartup()
+{
+	SetupRenderer(xRes, yRes);
+	InitProfile();
+	GetArgs(lpCmdLine);
+	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
+	InitMaths();
+	gelfInit();
+	InitCRCTable();
+	InitOneOverTable();
+	InitFrames();
+	InitFontSystem();
+	ClearTimers();
+
+	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
+	pcFont = InitFont(path);
+
+	sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
+	pcFontSmall = InitFont(path);
+
+	sprintf(path, "%stextures\\font\\monofont.bmp", baseDirectory);
+	pcFontWhite = InitFont(path);
+
+	LoadTexBank("Phong",baseDirectory);
+
+	if (t = GetTexEntryFromCRC(UpdateCRC("phong.bmp")))
+		phong = t;
+
+	if (t = GetTexEntryFromCRC(UpdateCRC("light.bmp")))
+		lightMap = t;
+
+	font = (psFont *)pcFont;
+	fontSmall = (psFont *)pcFontSmall;
+	fontWhite = (psFont *)pcFontWhite;
+	
+	fxInitBlur();
+
+	sprintf(path,"%stextures\\ProcData\\",baseDirectory);
+	InitWater(path);
+
+	/*SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
+	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);*/
+	InitTiming(60.0);
+
+	InitEditor();
+
+	SPRITECLIPLEFT = clx0;
+	SPRITECLIPTOP = cly0;
+	SPRITECLIPRIGHT	= clx1;
+	SPRITECLIPBOTTOM = cly1;
+
+	return 1;
+}
+
+int GameShutdown()
+{
+	SaveGame();
+
+	FreeAllLists();
+	fxFreeBlur( );
+	ShutdownEditor();
+	DeInitInputDevices();
+	D3DShutdown();
+	DDrawShutdown();	
+	ShutDownDirectSound( );
+	gelfShutdown();
+
+	SetRegistryInformation();
+}
+
+/*	--------------------------------------------------------------------------------
 	Function	: WinMain
 	Purpose		: Application startup and shutdown
 	Parameters	: the usual...
@@ -1211,103 +1288,25 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		DDrawShutdown();
 
 		ShowWindow(mdxWinInfo.hWndMain, 0);
+
+		MessageBox(NULL,
+			"Frogger2 failed to start DirectX. You could try the following:\n\n"
+			"· Run in full-screen mode (uncheck Run Windowed)\n"
+			"· Select a lower video resolution\n"
+			"· Use the software rendering mode\n\n"
+			"If these do not help, consult the accompanying documentation.", "Frogger2",
+			MB_ICONEXCLAMATION|MB_OK);
 	}
 
-	// Setup the renderer
-	SetupRenderer(xRes, yRes);
-
-	// Setup the profiler
-	InitProfile();
-
-	// Command line arguments
-	GetArgs(lpCmdLine);
-
-	// Setup the sound device
-	InitDirectSound( mdxWinInfo.hInstance, mdxWinInfo.hWndMain );
-
-	// Initialise the matrix stack
-	InitMaths();
-	
-	// Initialise Johns BMP loader
-	gelfInit();
-
-	// Init the CRC table
-	InitCRCTable();
-
-	// Init a table for 1/n (Optimisation)
-	InitOneOverTable();
-
-	// Init mavis frameset
-	InitFrames();
-	
-	// Init the font system
-	InitFontSystem();
-
-	// Clear the spare suface (Ready for lotsa nice fx)
-	//DDrawClearSurface(SPARE_SRF, 0, DDBLT_COLORFILL);
-
-	// Clear the timers for the initial frame
-	ClearTimers();
-
-	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
-	pcFont = InitFont(path);
-
-	sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
-	pcFontSmall = InitFont(path);
-
-	sprintf(path, "%stextures\\font\\monofont.bmp", baseDirectory);
-	pcFontWhite = InitFont(path);
-
-	LoadTexBank("Phong",baseDirectory);
-
-	if (t = GetTexEntryFromCRC(UpdateCRC("phong.bmp")))
-		phong = t;
-
-	if (t = GetTexEntryFromCRC(UpdateCRC("light.bmp")))
-		lightMap = t;
-
-	font = (psFont *)pcFont;
-	fontSmall = (psFont *)pcFontSmall;
-	fontWhite = (psFont *)pcFontWhite;
-	
-	fxInitBlur();
-
-	sprintf(path,"%stextures\\ProcData\\",baseDirectory);
-	InitWater(path);
-
-	/*SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS);
-	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);*/
-	InitTiming(60.0);
-
-	InitEditor();
-
+	GameStartup();
 	CommonInit();
 	
 	mdxSetUserWndProc(MainWndProc);
-	SPRITECLIPLEFT = clx0;
-	SPRITECLIPTOP = cly0;
-	SPRITECLIPRIGHT	= clx1;
-	SPRITECLIPBOTTOM = cly1;
 	
 	// tell MDX what callback function to use
 	AppLoop = LoopFunc;
 
 	RunWindowsLoop();
 
-	SaveGame();
-
-	// Byeeeeeeeeeee
-
-	FreeAllLists();
-	fxFreeBlur( );
-	ShutdownEditor();
-	DeInitInputDevices();
-	D3DShutdown();
-	DDrawShutdown();	
-	ShutDownDirectSound( );
-	gelfShutdown();
-
-	SetRegistryInformation();
-
-	return 0;
+	return GameShutdown();
 }
