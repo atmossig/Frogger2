@@ -231,7 +231,7 @@ void XformActor(ACTOR *actor)
 
 
 /*---------------------------------------------------------------------------------------------
-	Function	: DrawMyObject
+	Function	: DrawObject
 	Parameters	: (OBJECT *obj)
 	Returns		: void 
 */
@@ -355,7 +355,9 @@ void DrawActor(ACTOR *actor)
 			DrawObject(objectC->object, objectC->drawList, TRUE);
 		}
 		else
+		{
 			DrawObject(objectC->object, objectC->object->drawList, FALSE);
+		}
 	}
 }
 

@@ -94,6 +94,7 @@ char			viewTextures		= 1;
 char			displayLogos		= 1;
 char			displayOverlays		= TRUE;
 char			onlyDrawBackdrops	= FALSE;
+char			oldFogMode			= 0;
 
 char			codeDrawingRequest	= TRUE;
 char			gfxIsDrawing		= FALSE;
@@ -882,7 +883,7 @@ void InitRSP()
 
     gSPClearGeometryMode(glistp++,G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
 								  G_TEXTURE_GEN_LINEAR | G_LOD | G_ZBUFFER);
-    
+
 	gSPClipRatio(glistp++,FRUSTRATIO_4);
 
 	gSPSetGeometryMode(glistp++,G_ZBUFFER | G_CULL_BACK);
@@ -1084,7 +1085,6 @@ void DrawGraphics(void *arg)
 		switch(*msg_type)
 		{
 			case NN_SC_GFX_RETRACE_MSG:
-				TIMER_StartTimer(1,"GRAPHICS1");
 				
 				if(gfxTasks == 0)
 				{
@@ -1118,18 +1118,16 @@ void DrawGraphics(void *arg)
 				if(gfxIsDrawing == FALSE)
 					goto cleanup;
 
-				InitDisplayLists();
-					
 				i = 4;
 				while(i--)
 				{
 					SetVector(&actualCamSource[draw_buffer][i],&currCamSource[i]);
 					SetVector(&actualCamTarget[draw_buffer][i],&currCamTarget[i]);
 				}
-				SetupViewing();
 
-				PrintBackdrops();
-				CleanupAndSendDisplayList(UCODE_POLY,0);
+				SetupViewing();
+//				PrintBackdrops();
+//				CleanupAndSendDisplayList(UCODE_POLY,0);
 
 				if(onlyDrawBackdrops)
 					goto cleanup;
@@ -1139,61 +1137,41 @@ void DrawGraphics(void *arg)
 				if(spriteList.numEntries)
 				{
 					sprite = PrintSpritesOpaque();
+					gDPPipeSync(glistp++);
 					InitDisplayLists();
+					SetRenderMode();
+					SetupViewing();
 				}
 
 				//***********************************
 	
-				UseZMode = 1;
-				SetRenderMode();
+//				SetRenderMode();
 				ApplyGlobalTransformations();
+
+				// turn off AA for now on N64....AndyE
+				renderMode.useAAMode = 0;
 
 				//***********************************
 
 				AnimateSprites();
 
-				TIMER_EndTimer(1);
-
-				TIMER_StartTimer(4,"XFORMACTLIST");
+				TIMER_StartTimer(3,"XFORMACTLIST");
 				XformActorList();
-				TIMER_EndTimer(4);
+				TIMER_EndTimer(3);
 
-
-				switch (playMode)
-				{	
-						
-					case NORMAL_PMODE:
-						DrawActorList();
-						break;
-					case TWO_PMODE:
-						xFOV = 2.666;
-						screenNum = 0; 
-						SetupViewing();
-						SetScissor();
-						DrawActorList();
-
-						screenNum = 1; 
-						SetupViewing();
-						SetScissor();
-						DrawActorList();
-							
-						break;
-					case FOUR_PMODE:
-						for (screenNum = 0; screenNum<4; screenNum++)
-						{
-							SetScissor();
-							DrawActorList();
-						}		
-
-						break;							
-				}
+				DrawActorList();
 
 				if(spriteList.numEntries)
 					PrintSpritesTranslucent(sprite);
 
 				DrawSpecialFX();
 
+				// for non-transforming stuff...
 				ClearViewing();
+
+				oldFogMode = fog.mode;
+				fog.mode = 0;
+				SetRenderMode();
 
 				if( drawScreenGrab && gameState.mode == GAME_MODE )
 					DrawScreenGrab( MOTION_BLUR );
@@ -1219,8 +1197,6 @@ void DrawGraphics(void *arg)
 				else if( grabData.afterEffect == FROG_DEATH_IN )
 					DrawScreenGrab( MOTION_BLUR | TILE_SHRINK_HORZ | USE_GRAB_BUFFER );
 
-				DrawCameraSpaceActorList( );
-
 				if( gameState.mode == GAME_MODE && text3DList.numEntries )
 					Print3DText( );					
 
@@ -1238,6 +1214,10 @@ void DrawGraphics(void *arg)
 
 cleanup:
 				TIMER_PrintTimers();
+
+			    gDPPipeSync(glistp++);
+				gDPSetCycleType(glistp++, G_CYC_1CYCLE);
+				fog.mode = oldFogMode;
 
 				CleanupAndSendDisplayList(UCODE_POLY,NN_SC_SWAPBUFFER);
 				displayListLength = glistp - dynamicp->glist;

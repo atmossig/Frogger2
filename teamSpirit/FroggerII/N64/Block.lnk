@@ -243,7 +243,7 @@ _objBank_0_2_SegmentRomEnd          alias   _objBank02_orgend
 
         section.16      objBank02.data,objBank02
 
-oBank02  incbin  "objects/dummy.nob",objBank02.data,64
+oBank02  incbin  "objects/levela.nob",objBank02.data,64
 
 ; [ FRONTEND WORLD LEVEL 3 ] >>>>>
 
@@ -279,7 +279,7 @@ _objBank_0_5_SegmentRomEnd          alias   _objBank05_orgend
 
         section.16      objBank05.data,objBank05
 
-oBank05  incbin  "objects/dummy.nob",objBank05.data,64
+oBank05  incbin  "objects/language.nob",objBank05.data,64
 
 
 ; [ GARDEN WORLD MASTER ] ------------------------------------------------------------------------
@@ -2758,6 +2758,69 @@ _levData_9_6_SegmentRomEnd   alias _levData96_orgend
         section.16       levData96.data,levData96
 
 levDat96  incbin "leveldata/dummy.dat",levData96.data, 32
+
+
+; FRONTEND LEVEL ENTITY DATA - BANKS 10+ ---------------------------------------------------------
+
+; [ FRONTEND 1 ] >>>>>
+
+levData101        group   obj()
+levData101bss     group   obj(),bss
+
+_levData_10_1_SegmentRomStart alias _levData101_org
+_levData_10_1_SegmentRomEnd   alias _levData101_orgend
+
+        section.16       levData101.data,levData101
+
+levDat101  incbin "leveldata/entity-9-0.dat",levData101.data, 32
+
+; [ FRONTEND 2 ] >>>>>
+
+levData102        group   obj()
+levData102bss     group   obj(),bss
+
+_levData_10_2_SegmentRomStart alias _levData102_org
+_levData_10_2_SegmentRomEnd   alias _levData102_orgend
+
+        section.16       levData102.data,levData102
+
+levDat102  incbin "leveldata/entity-9-1.dat",levData102.data, 32
+
+; [ FRONTEND 3 ] >>>>>
+
+levData103        group   obj()
+levData103bss     group   obj(),bss
+
+_levData_10_3_SegmentRomStart alias _levData103_org
+_levData_10_3_SegmentRomEnd   alias _levData103_orgend
+
+        section.16       levData103.data,levData103
+
+levDat103  incbin "leveldata/dummy.dat",levData103.data, 32
+
+; [ FRONTEND 4 ] >>>>>
+
+levData104        group   obj()
+levData104bss     group   obj(),bss
+
+_levData_10_4_SegmentRomStart alias _levData104_org
+_levData_10_4_SegmentRomEnd   alias _levData104_orgend
+
+        section.16       levData104.data,levData104
+
+levDat104  incbin "leveldata/dummy.dat",levData104.data, 32
+
+; [ FRONTEND 5 ] >>>>>
+
+levData105        group   obj()
+levData105bss     group   obj(),bss
+
+_levData_10_5_SegmentRomStart alias _levData105_org
+_levData_10_5_SegmentRomEnd   alias _levData105_orgend
+
+        section.16       levData105.data,levData105
+
+levDat105  incbin "leveldata/entity-9-4.dat",levData105.data, 32
 
 
 

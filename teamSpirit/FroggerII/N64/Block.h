@@ -60,6 +60,17 @@ extern char *_texBank_0_5_SegmentRomStart;
 extern char *_texBank_0_5_SegmentRomEnd;
 extern char *_texBank_0_6_SegmentRomStart;
 extern char *_texBank_0_6_SegmentRomEnd;
+// FRONTEND WORLD - Level Entities
+extern char *_levData_10_1_SegmentRomStart;
+extern char *_levData_10_1_SegmentRomEnd;
+extern char *_levData_10_2_SegmentRomStart;
+extern char *_levData_10_2_SegmentRomEnd;
+extern char *_levData_10_3_SegmentRomStart;
+extern char *_levData_10_3_SegmentRomEnd;
+extern char *_levData_10_4_SegmentRomStart;
+extern char *_levData_10_4_SegmentRomEnd;
+extern char *_levData_10_5_SegmentRomStart;
+extern char *_levData_10_5_SegmentRomEnd;
 
 // GARDEN WORLD - Objects ------------------------------------------------------------------------
 extern char *_objBank_1_0_SegmentRomStart;

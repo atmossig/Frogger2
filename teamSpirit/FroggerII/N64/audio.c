@@ -776,3 +776,169 @@ int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch)
 	return result;
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: PrepareSongForLevel
+	Purpose			: loads and starts playback of song for specified level
+	Parameters		: short,short
+	Returns			: void
+	Info			: 
+*/
+void PrepareSongForLevel(short worldID,short levelID)
+{
+	int theToon = -1;
+
+	if(worldID == WORLDID_GARDEN)
+	{
+		switch(levelID)
+		{
+			case LEVELID_GARDENLEV1:
+				theToon = TEST1_TRACK;
+				break;
+
+			case LEVELID_GARDENLEV2:
+				theToon = TEST2_TRACK;
+				break;
+
+			case LEVELID_GARDENLEV3:
+				theToon = TEST3_TRACK;
+				break;
+
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_ANCIENT)
+	{
+		switch(levelID)
+		{
+			case LEVELID_ANCIENTLEV1:
+				theToon = TEST13_TRACK;
+				break;
+
+			case LEVELID_ANCIENTLEV2:
+				theToon = TEST14_TRACK;
+				break;
+
+			case LEVELID_ANCIENTLEV3:
+				theToon = TEST15_TRACK;
+				break;
+
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_SPACE)
+	{
+		switch(levelID)
+		{
+			case LEVELID_SPACELEV1:
+				theToon = TEST16_TRACK;
+				break;
+
+			case LEVELID_SPACELEV2:
+				theToon = TEST17_TRACK;
+				break;
+
+			case LEVELID_SPACELEV3:
+				theToon = TEST18_TRACK;
+				break;
+
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_CITY)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_SUBTERRANEAN)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_LABORATORY)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_TOYSHOP)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_HALLOWEEN)
+	{
+		switch(levelID)
+		{
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_SUPERRETRO)
+	{
+		switch(levelID)
+		{
+			case LEVELID_SUPERRETROLEV1:
+				theToon = TEST12_TRACK;
+				break;
+
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+	else if(worldID == WORLDID_FRONTEND)
+	{
+		switch(levelID)
+		{
+			case LEVELID_FRONTEND1:
+				theToon = TEST12_TRACK;
+				break;
+
+			case LEVELID_FRONTEND2:
+				theToon = TEST19_TRACK;
+				break;
+
+			case LEVELID_FRONTEND3:
+				theToon = TEST12_TRACK;
+				break;
+
+			case LEVELID_FRONTEND4:
+				theToon = TEST12_TRACK;
+				break;
+
+			case LEVELID_FRONTEND5:
+				theToon = TEST12_TRACK;
+				break;
+
+			default:
+				theToon = NOTRACK;
+				break;
+		}
+	}
+
+	PrepareSong(theToon,0);
+}
+

@@ -142,6 +142,6 @@ void InitMusicDriver(void);
 
 int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch);
 
-
+void PrepareSongForLevel(short worldID,short levelID);
 
 #endif

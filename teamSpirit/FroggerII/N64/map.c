@@ -81,7 +81,7 @@ void LoadCollision(short cNum)
 			sprintf(message,"FRONTEND 1");
 			break;
 		case FRONTEND2_COL:
-			tnum = -1;
+			tnum = LEVELA_COLL_BANK;
 			sprintf(message,"FRONTEND 2");
 			break;
 		case FRONTEND3_COL:
@@ -93,7 +93,7 @@ void LoadCollision(short cNum)
 			sprintf(message,"FRONTEND 4");
 			break;
 		case FRONTEND5_COL:
-			tnum = -1;
+			tnum = LANGUAGE_COLL_BANK;
 			sprintf(message,"FRONTEND 5");
 			break;
 
@@ -472,7 +472,7 @@ void LoadScenics(short sNum)
 			sprintf(message,"FRONTEND 1");
 			break;
 		case FRONTEND2_COL:
-			tnum = -1;
+			tnum = LEVELA_COLL_BANK;
 			sprintf(message,"FRONTEND 2");
 			break;
 		case FRONTEND3_COL:
@@ -484,7 +484,7 @@ void LoadScenics(short sNum)
 			sprintf(message,"FRONTEND 4");
 			break;
 		case FRONTEND5_COL:
-			tnum = -1;
+			tnum = LANGUAGE_COLL_BANK;
 			sprintf(message,"FRONTEND 5");
 			break;
 
@@ -790,8 +790,6 @@ void LoadScenics(short sNum)
 
 	while (cSc)
 	{
-		dprintf"SCENIC: %s\n",cSc->name));
-
 		if (cSc->next)
 			cSc->next = Rom2Ram((u32)cSc->next, (u32)objectBank);
 		if (cSc->typedata)
@@ -820,8 +818,15 @@ void LoadLevelEntities(short worldID,short levelID)
 	u32		bankRomStart,bankRomEnd,bankSize;
 	char	message[16];
 
-	// DEBUGGING ONLY ! ANDYE !!
+#ifdef NO_ENTITIES
 	return;
+#endif
+
+	if(worldVisualData[worldID].levelVisualData[levelID].collBank == -1)
+	{
+		dprintf"NO COLLISION BANK SPECIFIED - NOT LOADING LEVEL ENTITIES\n"));
+		return;
+	}
 
 	if(worldID == WORLDID_GARDEN)
 	{
