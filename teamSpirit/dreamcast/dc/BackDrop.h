@@ -77,4 +77,27 @@ void DrawBackDrop(int num, int i);
 
 void FreeBackdrop(void);
 
+
+// *ASL* 14/08/2000
+/* --------------------------------------------------------------------------------
+   Function : DrawLegalBackDrop
+   Purpose : draw the currently loaded background image to the screen
+   Parameters : 
+   Returns : 
+   Info :
+*/
+
+void DrawLegalBackDrop();
+
+
+/* --------------------------------------------------------------------------------
+   Function : FreeLegalBackdrop
+   Purpose : free the currently loaded background image
+   Parameters : 
+   Returns : 
+   Info :
+*/
+
+void FreeLegalBackdrop();
+
 #endif

@@ -11,6 +11,9 @@
 
 #include "prefix_dc.h"
 
+// *ASL* 15/08/2000 - Demo idle time should be 3mins according to Sega standards
+#define DEMO_IDLE_TIME_SECS			(3*60)
+
 #define F3DEX_GBI_2
 #define NSLIPT 4
 
@@ -1272,7 +1275,8 @@ void RunFrontendGameLoop (void)
 		CheckForDynamicCameraChange(currTile[0],0); // TEMPORARY FIX!!
 		lastActFrameCount = 0;
 
-		GTInit(&frontendTimer, 30);	// 30 seconds
+		// *ASL* 15/08/2000 - Fix demo idle time
+		GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,30);	// 30 seconds
 	}
 
 	currTileNum = 0;
@@ -1292,11 +1296,13 @@ void RunFrontendGameLoop (void)
 	{
 		if(currTileNum == TILENUM_START)
 		{
-		GTInit(&frontendTimer, 30);	// 30 seconds
+		// *ASL* 15/08/2000 - Fix demo idle time
+		GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,30);	// 30 seconds
 		}
 		else
 		{
-			GTInit(&frontendTimer, LONG_DEMO_WAIT);
+		// *ASL* 15/08/2000 - Fix demo idle time
+		GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 	}
 
@@ -1304,7 +1310,10 @@ void RunFrontendGameLoop (void)
 	if((frontendTimer.time > 0) && (playDemos) && (!creditsRunning) && (options.mode != OP_GLOBALMENU) && (options.mode != OP_EXTRA))
 	{
 		if((currTileNum == TILENUM_START) && (frontendTimer.time > 30))
-			GTInit(&frontendTimer,30);
+		{
+			// *ASL* 15/08/2000 - Fix demo idle time
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,30);	// 30 seconds
+		}
 		GTUpdate(&frontendTimer, -1);
 		if (!frontendTimer.time)
 		{
@@ -1779,7 +1788,8 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_GLOBALMENU;
-			GTInit(&frontendTimer,LONG_DEMO_WAIT);
+			// *ASL* 15/08/2000 - Fix demo idle time
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 		RunOptionsMenu();
 		if(gameState.mode == ARTVIEWER_MODE)
@@ -1819,7 +1829,8 @@ void RunFrontendGameLoop (void)
 			if (options.mode == -1)
 			{
 				options.mode = OP_MULTIPLAYERNUMBER;
-				GTInit(&frontendTimer,LONG_DEMO_WAIT);
+				// *ASL* 15/08/2000 - Fix demo idle time
+				GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 			}
 			RunOptionsMenu();
 			if (gameState.mode == INGAME_MODE)
@@ -1835,7 +1846,8 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_ARCADE;
-			GTInit(&frontendTimer,LONG_DEMO_WAIT);
+			// *ASL* 15/08/2000 - Fix demo idle time
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 			ScreenFade(255,210,30);
 			keepFade = YES;
 			fadeText = NO;
@@ -1850,7 +1862,8 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_BOOK;
-			GTInit(&frontendTimer,LONG_DEMO_WAIT);
+			// *ASL* 15/08/2000 - Fix demo idle time
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 		RunOptionsMenu();
 		if(gameState.mode != FRONTEND_MODE)

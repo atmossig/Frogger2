@@ -34,12 +34,14 @@ KMVERTEX_03		artBackdropVertices[] =
 { KM_VERTEXPARAM_ENDOFSTRIP, BACKDROP_WIDTH,                0, 1.0f, 1.0f, 0.0f, RGBA(255,255,255,255), 0 }
 };
 
-/*	--------------------------------------------------------------------------------
-	Function 	: InitBackdrop
-	Purpose 	: Load and setup a background imageg
-	Parameters 	: filename
-	Returns 	: none
-	Info 		:
+
+// *ASL* 14/08/2000
+/* --------------------------------------------------------------------------------
+   Function : InitBackdrop
+   Purpose : load and initialiase a backdrop
+   Parameters : filename
+   Returns : 
+   Info :
 */
 
 void InitBackdrop(char * const filename)
@@ -51,41 +53,40 @@ void InitBackdrop(char * const filename)
   	int				headerSize,colFormat,texFormat,texAttrib,attrib;
 	char			r,g,b,a;
 
-	backDrop.draw = TRUE;
+	// exit if backdrop already initialised
+	if (backDrop.init == TRUE)
+		return;
+	backDrop.draw = FALSE;
 
-	if(backDrop.init)
+	// load our backdrop
+	sprintf(buf,"%s.pvr",filename);
+	if (loadPVRFileIntoSurface(buf, "backdrops", &backDrop.surface, FALSE) == FALSE)
 		return;
 
-	sprintf(buf,"%s.pvr",filename);
-	
+	// initialise backdrop structure
 	backDrop.init = TRUE;
-	backDrop.rect.x = 0;			// leave the y till the update
+	backDrop.draw = TRUE;
+	backDrop.rect.x = 0;
 	backDrop.rect.y = 0;
 	backDrop.rect.w = 640; 
 	backDrop.rect.h = 480;
-
-	// load the backdrop into a VRAM surface
-	loadPVRFileIntoSurface(buf, "backdrops", &backDrop.surface, FALSE);
 	backDrop.imageXD = backDrop.surface.u0.USize;
 	backDrop.imageYD = backDrop.surface.u1.VSize;
 
 	// setup (u,v) coordinates vertices
 	backdropVertices[0].fU = 0;
 	backdropVertices[0].fV = 384.0/512;	
-	
 	backdropVertices[1].fU = 0;
 	backdropVertices[1].fV = 0;	
-	
 	backdropVertices[2].fU = 1.0;
 	backdropVertices[2].fV = 384.0/512;
-	
 	backdropVertices[3].fU = 1.0;
 	backdropVertices[3].fV = 0;
-	
+
 	// initialise strip context and head
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_OPAQUE_POLYGON, &backStripContext);
-	memset(&backStripContext,0,sizeof(backStripContext));
-	memset(&backStripHead,0,sizeof(backStripHead));
+	memset(&backStripContext, 0 ,sizeof(backStripContext));
+	memset(&backStripHead, 0, sizeof(backStripHead));
 	backStripContext.nSize = sizeof(KMSTRIPCONTEXT);
     kmInitStripContext(KM_STRIPCONTEXT_SYS_GOURAUD | KM_OPAQUE_POLYGON, &backStripContext);
 	backStripContext.StripControl.nListType		 					= KM_OPAQUE_POLYGON;
@@ -107,10 +108,78 @@ void InitBackdrop(char * const filename)
 	kmGenerateStripHead03(&backStripHead,&backStripContext);
 }
 
-/*	--------------------------------------------------------------------------------
-	Function 	: DrawBackDrop
-	Purpose 	: Draw the current background image to the screen
-	Parameters 	: none
+
+// *ASL* 14/08/2000
+/* --------------------------------------------------------------------------------
+   Function : DrawLegalBackDrop
+   Purpose : draw the currently loaded background image to the screen
+   Parameters : 
+   Returns : 
+   Info :
+*/
+
+void DrawLegalBackDrop()
+{
+	// setup KAMUI..
+	kmBeginScene(&kmSystemConfig);
+	kmBeginPass(&vertexBufferDesc);
+
+	// only draw if initialised and flaged for drawing
+	if (backDrop.init == TRUE && backDrop.draw == TRUE)
+	{
+		// draw the loade backdrop
+		kmStartStrip(&vertexBufferDesc, &backStripHead);	
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmSetVertex(&vertexBufferDesc, &backdropVertices[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+		kmEndStrip(&vertexBufferDesc);
+	}	
+
+	// update the fader
+	DrawScreenTransition();
+	
+	// end KAMUI
+	kmEndPass(&vertexBufferDesc);
+	kmRender(KM_RENDER_FLIP);
+	kmEndScene(&kmSystemConfig);
+}
+
+
+/* --------------------------------------------------------------------------------
+   Function : FreeLegalBackdrop
+   Purpose : free the currently loaded background image
+   Parameters : 
+   Returns : 
+   Info : 
+*/
+
+void FreeLegalBackdrop()
+{
+	// *ASL* 12/08/2000 - Release currently initialised backdrop
+	if (backDrop.init == FALSE)
+		return;
+
+	backDrop.init = FALSE;
+	backDrop.draw = FALSE;
+	kmFreeTexture(&backDrop.surface);
+
+	// clear screen
+	kmBeginScene(&kmSystemConfig);
+	kmBeginPass(&vertexBufferDesc);
+	kmEndPass(&vertexBufferDesc);
+	kmRender(KM_RENDER_FLIP);
+	kmEndScene(&kmSystemConfig);
+}
+
+
+
+
+
+/* --------------------------------------------------------------------------------
+   Function 	: DrawBackDrop
+   Purpose 	: Draw the current background image to the screen
+   Parameters 	: none
 	Returns 	: none
 	Info 		:
 */
@@ -157,67 +226,6 @@ void FreeBackdrop(void)
 //	kmFreeTexture(&backDrop.surface);
 }
 
-/*	--------------------------------------------------------------------------------
-	Function 	: DrawBackDrop
-	Purpose 	: Draw the current background image to the screen
-	Parameters 	: none
-	Returns 	: none
-	Info 		:
-*/
-
-void DrawLegalBackDrop(int num, int i)
-{
-	int	fogFade;
-	
-	fogFade = 100;
-
-	kmBeginScene(&kmSystemConfig);
-	kmBeginPass(&vertexBufferDesc);
-        
-	if((backDrop.init)&&(backDrop.draw))
-	{
-		kmStartStrip(&vertexBufferDesc, &backStripHead);	
-		kmSetVertex(&vertexBufferDesc, &backdropVertices[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-		kmSetVertex(&vertexBufferDesc, &backdropVertices[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-		kmSetVertex(&vertexBufferDesc, &backdropVertices[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-		kmSetVertex(&vertexBufferDesc, &backdropVertices[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-		kmEndStrip(&vertexBufferDesc);
-	}	
-
-	DrawScreenTransition();
-	
-	kmEndPass(&vertexBufferDesc);
-				
-	kmRender(KM_RENDER_FLIP);
-	kmEndScene(&kmSystemConfig);
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: FreeBackdrop
-	Purpose 	: Free the current background image
-	Parameters 	: none
-	Returns 	: none
-	Info 		:
-*/
-
-void FreeLegalBackdrop(void)
-{
-	// *ASL* 12/08/2000 - Release currently initialised backdrop
-	if (backDrop.init == FALSE)		// if(backDrop.draw == TRUE)
-		return;
-		
-	backDrop.init = FALSE;
-	backDrop.draw = FALSE;
-	kmFreeTexture(&backDrop.surface);
-
-	// flip screen
-	kmBeginScene(&kmSystemConfig);
-	kmBeginPass(&vertexBufferDesc);
-	kmEndPass(&vertexBufferDesc);
-				
-	kmRender(KM_RENDER_FLIP);
-	kmEndScene(&kmSystemConfig);
-}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: InitArtBackdrop

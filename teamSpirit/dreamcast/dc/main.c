@@ -448,6 +448,11 @@ int startButtonPressed()
 	return ret;
 }
 
+
+
+
+
+
 void main()
 {
 	int					i,counter,padCounter;
@@ -586,6 +591,10 @@ void main()
 
 	// *ASL* 12/08/2000 - Init soft reset
 	initCheckForSoftReset();
+
+	// *ASL* 14/08/2000 - *Make sure these are cleared before initial call to showLegalFMV*
+	backDrop.init = FALSE;
+	backDrop.draw = FALSE;
 
 	// show all legal screens and FMV
 	showLegalFMV(0);
@@ -1022,7 +1031,7 @@ void showLegalFMV(int allowQuit)
 
 	ret = 0;
 
-	// make sure the backdrop system is free
+	// make sure the currently loaded backdrop image is free
 	FreeLegalBackdrop();
 
 	// play Hasbro FMV
@@ -1039,7 +1048,7 @@ void showLegalFMV(int allowQuit)
 	flag = 0;
 	while (!flag || fadingOut)
 	{
-		DrawLegalBackDrop(0, 0);
+		DrawLegalBackDrop();
 		DrawScreenTransition();
 		actFrameCount++;
 		if (!flag && (actFrameCount > (3*60)))
@@ -1065,7 +1074,7 @@ void showLegalFMV(int allowQuit)
 	flag = 0;
 	while (!flag || fadingOut)
 	{
-		DrawLegalBackDrop(0, 0);
+		DrawLegalBackDrop();
 		DrawScreenTransition();
 		actFrameCount++;
 		if (!flag && (actFrameCount > (3*60)))
