@@ -98,6 +98,7 @@ extern float cam_shakiness;
 extern float cam_shake_falloff;
 
 extern char playerFocus;
+extern VECTOR currCamOffset, camOffset;
 
 extern CAM_BOX_LIST cameraBoxes;
 
