@@ -400,6 +400,7 @@ void UpdateFroggerPos(long pl)
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
 //		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
@@ -434,6 +435,7 @@ void UpdateFroggerPos(long pl)
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
 //		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -464,6 +466,7 @@ void UpdateFroggerPos(long pl)
 		}
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
 //		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
 	}
 
 	/* ---------------------------------------------------- */
@@ -1180,7 +1183,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					player[pl].frogState |= FROGSTATUS_ISDEAD;
 					frog[pl]->action.dead = 50;
 
-//					PlaySample(2,NULL,255,128);
+					PlayActorBasedSample(2,frog[pl]->actor,255,128);
 				}
 				return;
 			}
@@ -1251,7 +1254,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 						player[pl].frogState |= FROGSTATUS_ISDEAD;
 						frog[pl]->action.dead = 50;
 
-//						PlaySample(2,NULL,255,128);
+						PlayActorBasedSample(2,frog[pl]->actor,255,128);
 					}
 					return;
 				}
@@ -1286,7 +1289,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,20,0,0,25);
 					telePos.v[Y] += 60;
 					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&currTile[pl]->normal,15,0,0,30);
-					PlaySample(88,NULL,255,128);
+					PlayActorBasedSample(88,frog[pl]->actor,255,128);
 				}
 */
 				// Check for camera transitions on the tile

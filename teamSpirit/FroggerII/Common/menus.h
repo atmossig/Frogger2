@@ -21,10 +21,12 @@ typedef struct LEVELNAMESTRUCT
 extern SPRITE *sp;
 extern SPRITEOVERLAY *atari;
 extern SPRITEOVERLAY *konami;
+extern SPRITEOVERLAY *sprOver;
 
-extern void RunTitleScreen ( void );
-extern void RunLevelSelect ( void );
-extern void RunPauseMenu ( void );
+void RunTitleScreen();
+void RunLevelSelect();
+void RunPauseMenu();
+void CreateOverlays();
 
 #endif
 

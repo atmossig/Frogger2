@@ -21,6 +21,7 @@ TEXTOVERLAY *closed;
 
 SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
+SPRITEOVERLAY *sprOver = NULL;
 
 SPRITE *sp = NULL;
 
@@ -62,10 +63,10 @@ void RunTitleScreen( )
 		//myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
 
 		currFont	= smallFont;
-		startText = CreateAndAddTextOverlay(100,112,"Start Game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
-		selectText = CreateAndAddTextOverlay(100,132,"Level Select",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		startText = CreateAndAddTextOverlay(100,112,"start game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		selectText = CreateAndAddTextOverlay(100,132,"level select",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 		multiText = CreateAndAddTextOverlay(100,152,mpText,YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
-		devText = CreateAndAddTextOverlay(100,172,"develope",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		devText = CreateAndAddTextOverlay(100,172,"develop",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
 
 		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
 		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
@@ -86,7 +87,7 @@ void RunTitleScreen( )
 
 		frameCount = 0;
 		lastbutton = 0;
-		PlaySample ( 0,0,0,0);
+		PlaySampleNot3D(0,0,0,0);
 		NUM_FROGS = 1;
 		return;
 #endif
@@ -104,7 +105,7 @@ void RunTitleScreen( )
 		if( currentSelection > 0 )
 		{
 			currentSelection--;
-			PlaySample ( 237, NULL, 255, 128 );
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	    
@@ -113,7 +114,7 @@ void RunTitleScreen( )
 		if( currentSelection < 3 )
 		{
 			currentSelection++;
-			PlaySample ( 237, NULL, 255, 128 );
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	
@@ -147,7 +148,7 @@ void RunTitleScreen( )
 
 				frameCount = 0;
 				lastbutton = 0;
-				PlaySample ( 0,0,0,0);
+				PlaySampleNot3D(0,0,0,0);
 				NUM_FROGS = 1;
 				break;
 			case 1:
@@ -155,14 +156,14 @@ void RunTitleScreen( )
 				frameCount = 0;
 				lastbutton = 0;
 				frontEndState.mode = LEVELSELECT_MODE;
-				PlaySample ( 2,NULL,255,128);
+				PlaySampleNot3D(2,192,128,128);
 				break;
 			case 2:
 				FreeAllLists();
 				frameCount = 0;
 				lastbutton = 0;
 				frontEndState.mode = LEVELSELECT_MODE;
-				PlaySample ( 2,NULL,255,128);
+				PlaySampleNot3D(2,192,128,128);
 				NUM_FROGS = numPlayers;
 				break;
 			case 3:
@@ -171,7 +172,7 @@ void RunTitleScreen( )
 				frontEndState.mode = DEVELOPMENTMENU_MODE;
 				frameCount = 0;
 				lastbutton = 0;
-				PlaySample ( 2,NULL,255,128);
+				PlaySampleNot3D(2,192,128,128);
 				break;
 			}
 
@@ -186,7 +187,7 @@ void RunTitleScreen( )
 			frameCount = 0;
 			lastbutton = 0;
 			frontEndState.mode = HISCORE_MODE;
-			PlaySample ( 2,NULL,255,128);
+			PlaySampleNot3D(2,192,128,128);
 			*/
 		}
 
@@ -207,7 +208,7 @@ void RunTitleScreen( )
 
 			frameCount = 0;
 			lastbutton = 0;
-			PlaySample ( 2,NULL,255,128);
+			PlaySampleNot3D(2,192,128,128);
 
 			StartDrawing ( "Title Screen" );
 
@@ -313,7 +314,7 @@ void RunLevelSelect( )
 				}
 				else currentLevelSelect = 255;
 			}
-			PlaySample ( 237, NULL, 255, 128 );
+			PlaySampleNot3D(237,192,128,128);
 		}
 		else if( lrSelect == 1 && currentLevelSelect > 0 ) // Level select
 		{
@@ -322,7 +323,7 @@ void RunLevelSelect( )
 				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
 				{
 					currentLevelSelect = i;
-					PlaySample ( 237, NULL, 255, 128 );
+					PlaySampleNot3D(237,192,128,128);
 					break;
 				}
 			}
@@ -343,7 +344,7 @@ void RunLevelSelect( )
 				}
 				else currentLevelSelect = 255;
 			}
-			PlaySample ( 237, NULL, 255, 128 );
+			PlaySampleNot3D(237,192,128,128);
 		}
 		else if( lrSelect == 1 && currentLevelSelect < MAX_LEVELS )
 		{
@@ -352,7 +353,7 @@ void RunLevelSelect( )
 				if( worldVisualData[currentWorldSelect].levelVisualData[i].collBank != -1 )
 				{
 					currentLevelSelect = i;
-					PlaySample ( 237, NULL, 255, 128 );
+					PlaySampleNot3D(237,192,128,128);
 					break;
 				}
 			}
@@ -365,7 +366,7 @@ void RunLevelSelect( )
 		if( lrSelect == 1 )
 		{
 			lrSelect = 0;
-			PlaySample ( 237, NULL, 255, 128 );
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	    
@@ -374,7 +375,7 @@ void RunLevelSelect( )
 		if( lrSelect == 0 && currentLevelSelect != 255 )
 		{
 			lrSelect = 1;
-			PlaySample ( 237, NULL, 255, 128 );
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 
@@ -401,7 +402,7 @@ void RunLevelSelect( )
 			frameCount = 0;
 			lastbutton = 0;
 			frontEndState.mode	= TITLE_MODE;
-			PlaySample ( 2,NULL,255,128);
+			PlaySampleNot3D(2,192,128,128);
 			return;
 		}
 
@@ -424,7 +425,7 @@ void RunLevelSelect( )
 
 				frameCount = 0;
 				lastbutton = 0;
-				PlaySample ( 2,NULL,255,128);
+				PlaySampleNot3D(2,192,128,128);
 
 				StartDrawing ( "Title Screen" );
 				return;
@@ -471,7 +472,7 @@ void RunPauseMenu( )
 		if(currentSelection > 0)
 		{
 			currentSelection--;
-			PlaySample ( 237,NULL,255,128);
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 
@@ -480,34 +481,20 @@ void RunPauseMenu( )
 		if(currentSelection < 1)
 		{
 			currentSelection++;
-			PlaySample ( 237,NULL,255,128);
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 
 	if( (button & CONT_A) && !(lastbutton & CONT_A) )
 	{
 		lastbutton = button;
-		PlaySample(2,NULL,255,128);
+		PlaySampleNot3D(2,192,128,128);
 
 		DisableTextOverlay ( pauseTitle );
 		DisableTextOverlay ( continueText );
 		DisableTextOverlay ( quitText );
 		pauseMode = 0;
 
-		/*
-		if(backPanel)
-		{
-			backPanel->xPos		= 50;
-			backPanel->yPos		= 83;
-			backPanel->width	= 220;
-			backPanel->height	= 50;
-			backPanel->r		= 15;
-			backPanel->g		= 63;
-			backPanel->b		= 255;
-			backPanel->a		= 127;
-			backPanel->draw		= 0;
-		}
-		*/
 		switch (currentSelection)
 		{
 			case 0:   // Continue Game
@@ -573,6 +560,33 @@ void RunPauseMenu( )
 
 	lastbutton = button;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CreateOverlays
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void CreateOverlays()
+{
+	// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
+	sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(130,20,"flogo02.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(162,20,"flogo03.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(194,20,"flogo04.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(98,52,"flogo05.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(130,52,"flogo06.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(162,52,"flogo07.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
+	
+	konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
+	atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
+}
+
 
 // REMOVE THIS WHEN I CAN GET ALL THE FILES
 void RunHiscoreScreen( )
@@ -888,7 +902,7 @@ void RunSaveLoadSelect ( void )
 					if(currentOptionSelection > 0)
 					{
 						currentOptionSelection--;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 			
@@ -897,7 +911,7 @@ void RunSaveLoadSelect ( void )
 					if(currentOptionSelection < 3)
 					{
 						currentOptionSelection++;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 
@@ -966,7 +980,7 @@ void RunSaveLoadSelect ( void )
 					if(currentSlotSelection > 0)
 					{
 						currentSlotSelection--;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 			
@@ -975,7 +989,7 @@ void RunSaveLoadSelect ( void )
 					if(currentSlotSelection < 5)
 					{
 						currentSlotSelection++;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 
@@ -1066,7 +1080,7 @@ void RunSaveLoadSelect ( void )
 					if(currentSelection > 0)
 					{
 						currentSelection--;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 			
@@ -1075,7 +1089,7 @@ void RunSaveLoadSelect ( void )
 					if(currentSelection < 1)
 					{
 						currentSelection++;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 
@@ -1171,7 +1185,7 @@ void RunSaveLoadSelect ( void )
 					if(currentLetterSelection > 0)
 					{
 						currentLetterSelection--;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 				// ENDIF
@@ -1181,7 +1195,7 @@ void RunSaveLoadSelect ( void )
 					if(currentLetterSelection < 25)
 					{
 						currentLetterSelection++;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 				// ENDIF
@@ -1191,7 +1205,7 @@ void RunSaveLoadSelect ( void )
 					if(currentLetterSelection > 0+6)
 					{
 						currentLetterSelection -= 7;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 				// ENDIF
@@ -1201,7 +1215,7 @@ void RunSaveLoadSelect ( void )
 					if ( currentLetterSelection < 26-7 )
 					{
 						currentLetterSelection += 7;
-						PlaySample ( 237,NULL,255,128);
+						PlaySampleNot3D(237,192,128,128);
 					}
 				}
 				// ENDIF
@@ -1289,9 +1303,6 @@ void RunTitleScreen()
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 #endif
 
-
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-
 		currFont	= smallFont;
 		start		= CreateAndAddTextOverlay(100,122,"start",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
 		options		= CreateAndAddTextOverlay(100,140,"options",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
@@ -1314,8 +1325,7 @@ void RunTitleScreen()
 		if(currentSelection > 0)
 		{
 			currentSelection--;
-	//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-			PlaySample ( 237,NULL,255,128);
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	    
@@ -1324,8 +1334,7 @@ void RunTitleScreen()
 		if(currentSelection < 2)
 		{
 			currentSelection++;
-	//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-			PlaySample ( 237,NULL,255,128);
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	
@@ -1348,7 +1357,7 @@ void RunTitleScreen()
 			frameCount = 0;
 			lastbutton = 0;
 			FreeAllLists();
-			PlaySample(2,NULL,255,128);
+			PlaySampleNot3D(2,192,128,128);
 			switch (currentSelection)
 			{
 				case 0:   // Start Game
@@ -1419,34 +1428,6 @@ void RunTitleScreen()
 					options->waveAmplitude -= 0.10F;
 				break;
 		}
-/*		levelPlayingTimer--;
-		if ( levelPlayingTimer == 0 )
-		{
-			FreeActorList();
-			FreePlatformList();
-			FreeEnemyList();
-			FreeSpriteOverlayList();
-//			FreeTextOverlayList();
-			FreeAnimationList();
-			FreeTextureList();
-			FreeBackdrop(myBackdrop);
-			myBackdrop = NULL;
-			FreeLevel();
-			FreeAllObjectBanks();
-			FreeAllTextureBanks();
-
-			frameCount = 0;
-			lastbutton = 0;
-
-			InitLevel ( 2,0 );
-			gameState.mode = LEVELPLAYING_MODE;
-			autoPlaying = 1;
-			FreeBackdrop(myBackdrop);
-			myBackdrop = NULL;
-			return;
-
-		}
-*/		// endif - levelPlayingTimer == 0
 	}
 
 	lastbutton = button;
@@ -1688,7 +1669,7 @@ void RunLevelSelect ( void )
 				// ENDELSEIF
 				frameCount = 0;
 				lastbutton = 0;
-				PlaySample ( 2,NULL,255,128);
+				PlaySampleNot3D(2,192,128,128);
 				return;
 			}
 			// ENDIF
@@ -1763,14 +1744,14 @@ void RunOptionsMode()
     {
 		if (currentSelection>0)
 			currentSelection--;
-		PlaySample ( 237,NULL,255,128);
+		PlaySampleNot3D(237,192,128,128);
 	}
 
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
 		if (currentSelection<(3-1))
 			currentSelection++;
-		PlaySample ( 237,NULL,255,128);
+		PlaySampleNot3D(237,192,128,128);
 	}
 	
 	if(frameCount > 15)
@@ -1791,7 +1772,7 @@ void RunOptionsMode()
 			FreeAllLists();
 			frameCount		= 0;
 			lastbutton		= 0;
-			PlaySample ( 2, NULL, 255, 128 );
+			PlaySampleNot3D(2,192,128,128);
 			switch (currentSelection)
 			{
 				case 0:   // Sound Mode
@@ -1940,7 +1921,7 @@ void RunSoundAdjust()
 		if(currentSelection > 0)
 		{
 			currentSelection--;
-			PlaySample ( 237,NULL,255,128);
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 
@@ -1949,7 +1930,7 @@ void RunSoundAdjust()
 		if(currentSelection < (2-1))
 		{
 			currentSelection++;
-			PlaySample ( 237,NULL,255,128);
+			PlaySampleNot3D(237,192,128,128);
 		}
 	}
 	
@@ -2124,8 +2105,6 @@ void RunGameMode()
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 #endif
 
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-
 		currFont = smallFont;
 		single	= CreateAndAddTextOverlay(100,122,"single player",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
 		multi	= CreateAndAddTextOverlay(90,140,"multiplayer",YES,NO,255,255,200,255,currFont,TEXTOVERLAY_WAVECHARS,1,3.14/2);
@@ -2164,16 +2143,14 @@ void RunGameMode()
     {
 		if (currentSelection>0)
 			currentSelection--;
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-		PlaySample ( 237,NULL,255,128);
+		PlaySampleNot3D(237,192,128,128);
 	}
 	    
 	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
     {
 		if (currentSelection<(3-1))
 			currentSelection++;
-//		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
-		PlaySample ( 237,NULL,255,128);
+		PlaySampleNot3D(237,192,128,128);
 	}
 	
 	if(frameCount > 15)
@@ -2196,21 +2173,21 @@ void RunGameMode()
 					frameCount		= 0;
 					lastbutton		= 0;
 					frontEndState.mode	= LEVELSELECT_MODE;
-					PlaySample ( 2, NULL, 255, 128 );
+					PlaySampleNot3D(2,,192,128,128);
 					return;
 				case 1:  // Multiplayer Mode
 					FreeAllLists();
 					frameCount		= 0;
 					lastbutton		= 0;
 					frontEndState.mode	= MULTIPLAYER_MODE;
-					PlaySample ( 2, NULL, 255, 128 );
+					PlaySampleNot3D(2,192,128,128);
 					return;
 				case 2:	 // Classic Frogger Menu Mode
 					FreeAllLists();
 					frameCount		= 0;
 					lastbutton		= 0;
 					gameState.mode	= OLDEFROGGER_MODE;
-					PlaySample ( 2,NULL,255,128);
+					PlaySampleNot3D(2,192,128,128);
 					return;
 			}
 		}			
@@ -2269,38 +2246,10 @@ void RunGameMode()
 
 
 		}
-
-/*		levelPlayingTimer--;
-		if ( levelPlayingTimer == 0 )
-		{
-			FreeActorList();
-			FreePlatformList();
-			FreeEnemyList();
-			FreeSpriteOverlayList();
-//			FreeTextOverlayList();
-			FreeAnimationList();
-			FreeTextureList();
-			FreeBackdrop(myBackdrop);
-			myBackdrop = NULL;
-			FreeLevel();
-			FreeAllObjectBanks();
-			FreeAllTextureBanks();
-
-			frameCount = 0;
-			lastbutton = 0;
-
-			InitLevel ( 2,0 );
-			gameState.mode = LEVELPLAYING_MODE;
-			autoPlaying = 1;
-			FreeBackdrop(myBackdrop);
-			myBackdrop = NULL;
-			return;
-
-		}
-*/		// endif - levelPlayingTimer == 0
 	}
 
 	lastbutton = button;
 }
+
 
 #endif

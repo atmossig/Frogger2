@@ -12,18 +12,9 @@
 #ifndef TITLE_H_INCLUDED
 #define TITLE_H_INCLUDED
 
-extern SPRITEOVERLAY *mySpr1;
-extern SPRITEOVERLAY *mySpr2;
-extern SPRITEOVERLAY *sprOver;
 
 
-extern unsigned long levelPlayingTimer;
-
-extern void RunTitleScreen	( void );
-extern void RunLevelsDone	( void );
-extern void RunTmpTitle	( void );
-
-extern void CreateOverlays	( void );
+void CreateOverlays();
 
 
 #endif

@@ -32,9 +32,7 @@ UBYTE testA			= 170;
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
 TEXTURE *txtrRipple		= NULL;
-TEXTURE *txtrWake		= NULL;
 TEXTURE *txtrStar		= NULL;
-TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
 TEXTURE *txtrWaterDrop	= NULL;
@@ -50,7 +48,7 @@ TEXTURE *txtrBlastRing	= NULL;
 FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,float size,float velocity,float acceleration,float lifetime)
 {
 	FX_RIPPLE *ripple;
-
+	
 	ripple = (FX_RIPPLE *)JallocAlloc(sizeof(FX_RIPPLE),YES,"FX_RIP");
 	AddFXRipple(ripple);
 
@@ -73,7 +71,6 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 	ripple->deadCount		= 0;
 
 	ripple->alpha			= 255;
-	ripple->alphaSpeed		= 255 / lifetime;
 	
 	ripple->radius			= size;
 	ripple->velocity		= velocity;
@@ -81,14 +78,11 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 	
 	ripple->lifetime		= lifetime;
 
-	ripple->yRot			= 0;
-	ripple->yRotSpeed		= 0;
-
 	ripple->r = 255;
 	ripple->g = 255;
 	ripple->b = 255;
 
-	ripple->origin.v[Y]++;
+	AddToVector(&ripple->origin,&ripple->normal);
 
 	switch(rippleType)
 	{
@@ -96,24 +90,20 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 			ripple->txtr = txtrRipple;
 			break;
 		
-		case RIPPLE_TYPE_DUST:
-			ripple->alpha = 127;
-			ripple->alphaSpeed >>= 1;
-			ripple->yRotSpeed = -16 + Random(32);
-			ripple->origin.v[Y]++;
-			ripple->txtr = txtrWake;
-			break;
-		
 		case RIPPLE_TYPE_PICKUP:
-			ripple->yRotSpeed = 24;
-			ripple->origin.v[Y] += 10;
+			ripple->origin.v[X] += (ripple->normal.v[X] * 10);
+			ripple->origin.v[Y] += (ripple->normal.v[Y] * 10);
+			ripple->origin.v[Z] += (ripple->normal.v[Z] * 10);
 			ripple->txtr = txtrStar;
 			break;
-		
-		case RIPPLE_TYPE_CROAK:
+
 		case RIPPLE_TYPE_RING:
 		case RIPPLE_TYPE_TELEPORT:
-			ripple->txtr = txtrRing;
+		case RIPPLE_TYPE_CROAK:
+		case RIPPLE_TYPE_BLASTRING:
+			ripple->rippleType = RIPPLE_TYPE_BLASTRING;
+			ripple->txtr = txtrBlastRing;
+			ripple->alpha = 128;
 			break;
 
 		case RIPPLE_TYPE_SOLIDCROAK:
@@ -121,6 +111,8 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 			ripple->txtr = txtrSolidRing;
 			break;
 	}
+
+	ripple->alphaSpeed		= ripple->alpha / lifetime;
 
 	AddFXRipple(ripple);
 
@@ -231,7 +223,6 @@ void UpdateFXRipples()
 			ripple->alpha		-= ripple->alphaSpeed;
 			ripple->velocity	+= ripple->accel;
 			ripple->radius		+= ripple->velocity;
-			ripple->yRot		+= ripple->yRotSpeed;
 
 			if(!(ripple->lifetime) || (ripple->alpha < (ripple->alphaSpeed + 1)))
 				ripple->deadCount = 5;
@@ -244,7 +235,7 @@ void UpdateFXRipples()
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddFXSmoke
 	Purpose			: creates and initialises a smoke based effect
-	Parameters		: char,VECTOR *origin,short,float,float,float
+	Parameters		: char,VECTOR *,VECTOR *,short,float
 	Returns			: FX_SMOKE *
 	Info			: 
 */
@@ -268,9 +259,9 @@ FX_SMOKE *CreateAndAddFXSmoke(VECTOR *origin,short size,float lifetime)
 	smoke->sprite.b			= 255;
 	smoke->sprite.a			= 255;
 
-	smoke->velocity.v[X]	= -2 + Random(5);
-	smoke->velocity.v[Y]	= Random(6) + 8;
-	smoke->velocity.v[Z]	= -2 + Random(5);
+	smoke->velocity.v[X]	= (-2 + Random(5)); //* up->v[X];
+	smoke->velocity.v[Y]	= (Random(6) + 8); //* up->v[Y];
+	smoke->velocity.v[Z]	= (-2 + Random(5));	//* up->v[Z];
 
 #ifndef PC_VERSION
 	smoke->sprite.offsetX	= -smoke->sprite.texture->sx / 2;
@@ -617,7 +608,7 @@ void UpdateFXExplodeParticle()
 						explode->hasHitPlane[i] = 1;
 						explode->sprite[i].a = 1;
 
-						rip = CreateAndAddFXRipple(RIPPLE_TYPE_CROAK,&explode->sprite[i].pos,&explode->reboundPlane.normal,1,0.1,0.1,Random(20)+10);
+						rip = CreateAndAddFXRipple(RIPPLE_TYPE_BLASTRING,&explode->sprite[i].pos,&explode->reboundPlane.normal,1,0.1,0.1,Random(20)+10);
 						rip->r = 255;
 						rip->g = 255;
 						rip->b = 255;
@@ -691,9 +682,7 @@ void InitFXLinkedLists()
 
 	// get the textures used for the various special effects
 	FindTexture(&txtrRipple,UpdateCRC("ai_ripple.bmp"),YES);
-	FindTexture(&txtrWake,UpdateCRC("ai_wake.bmp"),YES);
 	FindTexture(&txtrStar,UpdateCRC("ai_star.bmp"),YES);
-	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrSolidRing,UpdateCRC("ai_circle.bmp"),YES);
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 	FindTexture(&txtrWaterDrop,UpdateCRC("watdrop.bmp"),YES);

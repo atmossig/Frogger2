@@ -574,7 +574,11 @@ void RunSndView ( void )
 		}
 		else
 		{
+#ifdef PC_VERSION
 			PrepareSong ( musNum );
+#else
+			PrepareSong( musNum, 0 );
+#endif
 		}
 		// ENDIF
 	}

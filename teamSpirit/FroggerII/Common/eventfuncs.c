@@ -397,8 +397,6 @@ void SpringFrog( EVENT *event )
 		player[f].frogState &= ~FROGSTATUS_ISTELEPORTING;
 		player[f].frogState |= FROGSTATUS_ISSTANDING;
 
-		//CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&frog[fNum]->actor->pos,128,0,0.5,15);
-
 		JallocFree((UBYTE**)&info);
 
 		trigger->flags = TRIGGER_ONCE;	// Make the trigger delete itself!

@@ -13,9 +13,10 @@
 #define FROGGER_H_INCLUDED
 
 
+#define MAX_IDLE_TIME			500
 #define SPAWN_SCOREUPTIMER		15
-
 #define MAX_FROGS 4
+
 extern long NUM_FROGS;
 
 //----- [ FROG ANIMATION ENUMS ] -----------------------------------------------------------------
@@ -74,6 +75,8 @@ typedef struct _PLAYER
 	short			levelNum;
 	unsigned long	frogState;
 	short			saveSlot;
+
+	unsigned long	idleTime;
 
 	// frog movement related stuff
 	unsigned char 	canJump;

@@ -438,7 +438,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			CreateAndAddSpawnScoreSprite(&garib->sprite.pos,player[0].spawnScoreLevel);
 			player[0].score += (player[0].spawnScoreLevel * 10);
 			player[0].numSpawn++;
-//			PlaySample(0,NULL,192,118 + (player[0].spawnScoreLevel * 10)); //145
+			PlaySample(0,&garib->sprite.pos,192,118 + (player[0].spawnScoreLevel * 10));
 			break;
 
 		case EXTRAHEALTH_GARIB:
@@ -532,7 +532,7 @@ void PickupBabyFrog(ACTOR2 *baby)
 							  
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
-//	PlaySample(GEN_TARGET_COM,0,0,0); // 147
+	PlaySample(147,&baby->actor->pos,192,128);
 }
 
 //-------------------------------------------------------------------------------------------------

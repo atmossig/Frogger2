@@ -112,9 +112,6 @@ typedef struct TAGFX_RIPPLE
 	float				velocity;
 	float				accel;
 	
-	float				yRot;
-	float				yRotSpeed;
-	
 	float				lifetime;
 	unsigned char		deadCount;
 
@@ -131,7 +128,7 @@ typedef struct TAGFX_SMOKE
 	SPRITE				sprite;
 
 	unsigned char		alphaSpeed;
-	VECTOR			velocity;
+	VECTOR				velocity;
 
 	float				lifetime;
 	unsigned char		deadCount;

@@ -22,9 +22,9 @@ enum
 	RIPPLE_TYPE_CROAK,
 	RIPPLE_TYPE_SOLIDCROAK,
 	RIPPLE_TYPE_WATER,
-	RIPPLE_TYPE_DUST,
 	RIPPLE_TYPE_PICKUP,
 	RIPPLE_TYPE_RING,
+	RIPPLE_TYPE_BLASTRING,
 	RIPPLE_TYPE_TELEPORT,
 	RIPPLE_TYPE_NUMTYPES,
 };
@@ -77,11 +77,11 @@ extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
 //----- [ TEXTURES USED FOR SPECIAL FX ] -----//
 
 extern TEXTURE *txtrRipple;
-extern TEXTURE *txtrWake;
 extern TEXTURE *txtrStar;
-extern TEXTURE *txtrRing;
 extern TEXTURE *solidRing;
 extern TEXTURE *txtrSmoke;
+extern TEXTURE *txtrWaterDrop;
+extern TEXTURE *txtrBlastRing;
 
 extern char doScreenFade;
 extern char	fadeDir;
