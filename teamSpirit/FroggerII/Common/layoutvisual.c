@@ -742,8 +742,8 @@ void FreeAllLists()
 	FreePathList();
 	Free3DTextList();
 	FreeAnimationList();
-#ifdef PC_VERSION
 	FreeProcTextures( );
+#ifdef PC_VERSION
 	FreeRandomPolyList( );
 #endif
 	FreeTextureList();
