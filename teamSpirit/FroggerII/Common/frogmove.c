@@ -617,7 +617,52 @@ void GetNextTile(unsigned long direction,long pl)
 	VECTOR vecUp,newVec;
 	float t2,at2;
 	
-	destTile[pl] = currTile[pl]->tilePtrs[ (direction + camFacing + 2) & 3 ]; // hmm...
+	if (pl == 0)
+		destTile[pl] = currTile[pl]->tilePtrs[ (direction + camFacing + 2) & 3 ]; // hmm...
+	else // do this horrible bit of code. blech.
+	{
+		for (i=0; i<4; i++)
+		if (currTile[pl]->tilePtrs[i])
+		{
+			SubVector (&cDir,(&currTile[pl]->centre),(&(currTile[pl]->tilePtrs[i]->centre)));
+			MakeUnit (&cDir);
+			
+			distance = 10000;
+			
+			for (j=0; j<4; j++)
+			{	
+				t = DotProduct(&cDir,&(currTile[pl]->dirVector[j]));
+				if (t<distance)
+				{
+					distance = t;
+					closest[i] = j;					
+				}
+			}
+		}
+
+		
+		destTile[pl] = NULL;
+			
+		for (i=0; i<4; i++)
+		{
+			if (closest[i] == ((direction+camFacing)&3))
+			{
+				distance = -10000;
+				
+				destTile[pl] = currTile[pl]->tilePtrs[i];
+				for (j=0; j<4; j++)
+				{
+					t = DotProduct(&(destTile[pl]->dirVector[j]),&(currTile[pl]->dirVector[camFacing]));
+					if (t>distance)
+					{
+						distance = t;
+						newCamFacing = j;							
+					}
+					
+				}		
+			}
+		}
+	}
 
 	if(destTile[pl])
 	{
