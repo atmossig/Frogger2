@@ -605,7 +605,6 @@ void KillMPFrog(int num)
 		
 		player[num].healthPoints--;
 		i=num*3+player[num].healthPoints;
-	//	if( sprHeart[i] ) sprHeart[i]->draw = 0;
 
 		if( !player[num].healthPoints )
 		{
