@@ -213,7 +213,7 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 
-		case RETROMULTI_OBJ_BANK:
+		case RETROMULTI1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
@@ -247,10 +247,25 @@ void LoadObjectBank ( int objectBank )
 
 		if ( c )
 		{
+			int i;
+			FMA_MESH_HEADER **mesh;
+
+
 			utilPrintf("Loading BFF World %s \n", BFFfileName);
 					//GetWorldFrom_BFF(fileName);
 			objectBanks [ numObjectBanks++ ] = BFF_LoadFile ( BFFfileName );
 			fma_world = (void *)BFF_FindObject(BFF_FMA_WORLD_ID,utilStr2CRC("world.psi"));	// Should only be one world in the BFF
+
+			if ( !fma_world )
+				return 0;
+
+			mesh = ADD2POINTER(fma_world,sizeof(FMA_WORLD));
+			
+			for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
+			{
+				(*mesh)->flags |= DRAW_SEGMENT;
+			}
+
 //			ASSERT(fma_world);
 //			chrisSetUpWaterMesh(fma_world);
 		}
