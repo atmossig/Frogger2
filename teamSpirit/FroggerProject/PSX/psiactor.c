@@ -165,6 +165,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 	{
 		utilPrintf("Skinned Model..............");
 		actor->psiData.flags = ACTOR_BONED;
+		actor->psiData.flags |= ACTOR_DYNAMICSORT;
 
 		//ScalePsi(actor->psiData.object->meshdata);
 // 		#define PSI_SCALED_FLAG (1<<30)
@@ -240,7 +241,7 @@ ACTOR *actorCreate(PSIMODEL *psiModel)
 //	else
 //		utilPrintf("motion bone NOT found\n");
 
-	actor->psiData.flags |= ACTOR_DYNAMICSORT;							// by default
+//	actor->psiData.flags |= ACTOR_DYNAMICSORT;							// by default
 
 	actorSetBoundingRotated(actor,0,0,0,0);						// fill in bounding box info
 
