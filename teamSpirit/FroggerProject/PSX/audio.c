@@ -223,6 +223,7 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_BABYHAPPY] = FindSample(utilStr2CRC("babyhappy"));
 	genSfx[GEN_BABYSAD] = FindSample(utilStr2CRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
+	genSfx[GEN_BABYREPLY] = FindSample(UpdateCRC("babyreply"));
 
 	path[len] = '\0';
 
