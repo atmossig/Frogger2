@@ -2435,15 +2435,13 @@ void ArcadeStart(void)
 	// NB: THis is a heowge hack to make race mode work for internet test levels
 	if( cWorld == WORLDID_TEST )
 	{
-		NUM_FROGS = 4;
+		NUM_FROGS = 2;
 
 		player[0].worldNum = (unsigned char)WORLDID_TEST;
 		player[0].levelNum = (unsigned char)options.levelNum;
 
 		player[0].character = FROG_FROGGER;
 		player[1].character = FROG_LILLIE;
-		player[2].character = FROG_BABYFROG;
-		player[3].character = FROG_TWEE;
 
 		gameState.mode = INGAME_MODE;
 		gameState.single = INVALID_MODE;
