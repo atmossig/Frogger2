@@ -550,10 +550,10 @@ int main ( )
 
 
 //sbond - snapshot removed - triangle is now BACK on menus!!!!!!!!!!!!!!!!!!!
-//			if ( padData.debounce[0] & PAD_TRIANGLE )
-//			{
-//				SnapShot("C:\\");
-//			}
+			if ( padData.debounce[1] & PAD_TRIANGLE )
+			{
+				SnapShot("C:\\");
+			}
 
 #if GOLDCD==0
 			timerDisplay();
