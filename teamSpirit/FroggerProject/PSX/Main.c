@@ -275,9 +275,9 @@ int main ( )
 		RAMstart = (unsigned long)__bss_orgend;
 
 
-//		RAMsize = (0x1fff00 - RAMstart)-8192;
+		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
-		RAMsize = 6291264;
+//		RAMsize = 6291264;
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 4096);
