@@ -739,7 +739,8 @@ void DrawTongue( int pl )
 	D3DTLVERTEX vT[4], vTPrev[2];
 	MDX_TEXENTRY *tEntry;
 
-	tEntry = ((MDX_TEXENTRY *)tongue[pl].tex);
+//	tEntry = ((MDX_TEXENTRY *)tongue[pl].tex);
+	tEntry = ((MDX_TEXENTRY *)txtrBlank);
 
 	if( !tEntry || index < 2 )
 		return;
