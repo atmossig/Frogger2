@@ -21,7 +21,7 @@ float	pOIDistance = 20000.0;
 
 char frogModel[4][16] = 
 {
-	"frogger.obe",
+	"femfrog.obe",//"frogger.obe",
 	"toad.obe",
 	"femfrog.obe",
 	"frogger.obe"

@@ -212,8 +212,11 @@ void RunLevelComplete( )
 		// Only go to next level if in normal level progression.
 		if( showEndLevelScreen )
 		{
-			player[0].worldNum = WORLDID_FRONTEND;
-			player[0].levelNum = LEVELID_FRONTEND1;
+			//player[0].worldNum = WORLDID_FRONTEND;
+			//player[0].levelNum = LEVELID_FRONTEND1;
+
+			player[0].worldNum = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].nextWorldID;
+			player[0].levelNum = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].nextLevelID;
 
 #ifndef PC_VERSION
 			StoreSaveSlot(0, 0); // Write data for Player 0 into Slot 0

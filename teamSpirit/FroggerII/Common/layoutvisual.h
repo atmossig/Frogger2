@@ -687,6 +687,8 @@ typedef struct TAGLEVEL_VISUAL_DATA
 {
 	unsigned char		description[32];
 	unsigned long		levelID;
+	unsigned long		nextLevelID;
+	unsigned long		nextWorldID;
 
 	long				objectBankToUse;
 	long				textureBankToUse;

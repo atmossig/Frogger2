@@ -1731,7 +1731,7 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 	unsigned char col;
 	unsigned char line [ 1280 * 4 ];
 
-	sprintf ( fileName, "c:\\pc-%lu-%04d.raw", SCREEN_WIDTH, picnum++);
+	sprintf ( fileName, "c:\\pc-%04d.raw", picnum++);
 
 	fp = fopen ( fileName, "w" );
 	if ( fp == NULL )
