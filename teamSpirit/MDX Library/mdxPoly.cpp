@@ -1999,10 +1999,14 @@ void DrawAllFrames(void)
 	else
 		if (!sortMode)
 		{
+			// ds- is there any benefit to doing this? 
+			// we could probably just set the tight alpha compare state and do DrawBatchedPolys()..
+
 			DrawBatchedOpaquePolys();
 
 			D3DSetupRenderstates(tightAlphaCmpRS);
 			DrawBatchedKeyedPolys();
+			
 			D3DSetupRenderstates(normalAlphaCmpRS);
 
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
@@ -2088,11 +2092,13 @@ void DrawAllFrames(void)
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
 
 	SwapFrame(MA_FRAME_XLU);
-	DrawBatchedPolys();	
+	DrawBatchedPolys();
 
  	D3DSetupRenderstates(xluAddRS);	
 	SwapFrame(MA_FRAME_ADDITIVE);
-/*
+
+/*	// because this uses the specular component and apparently lots of other code doesn't,
+	// this effectively buggers up lots of polygons seemingly at random. Whatever next, eh? - ds
 	// Sort out additive for fog.
 	i = 0;
 	cV = cFInfo->v;
@@ -2105,7 +2111,7 @@ void DrawAllFrames(void)
 		i++;
 	}
 */
-	DrawBatchedPolys();	
+	DrawBatchedPolys();
 	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
 	SwapFrame(MA_FRAME_OVERLAY);
 
