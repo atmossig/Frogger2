@@ -859,13 +859,12 @@ int SetupKeyboardDialog(int player, HWND hParent)
 
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-	long i;
+	long i, code;
 	HRESULT hRes;
 	char itmTxt[64];
 	MSG pMsg;
 	HWND list;
 	static DWORD keyIndex = 0;
-	static long kMapSet = 0;
 
     switch(msg)
 	{
@@ -900,7 +899,6 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
         case WM_CLOSE:
 			keyIndex = 0;
-			kMapSet = 0;
 			EndDialog(hDlg,TRUE);
             return TRUE;
 
@@ -916,11 +914,11 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 							if(i == LB_ERR || i < 0 || i > 14 )
 								break;
 
-							if ((i = GetButtonDialog(lpKeyb, hDlg)) == -1)
+							if ((code = GetButtonDialog(lpKeyb, hDlg)) == -1)
 								break;
 
 							// Set DInput key in keymap
-							keymap[keyIndex+kMapSet].key = i;
+							keymap[keyIndex].key = code;
 
 							// Reset and remake the key list
 							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
@@ -936,7 +934,6 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 							SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_SETCURSEL,(WPARAM)-1,(LPARAM)0);
 
-							kMapSet = 0;
 							break;
 					}
 					break;
@@ -954,7 +951,6 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 					}
 
 					keyIndex = 0;
-					kMapSet = 0;
 					EndDialog(hDlg,FALSE);
 					break;
 				}
@@ -972,7 +968,6 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 					}
 
 					keyIndex = 0;
-					kMapSet = 0;
 					EndDialog(hDlg,TRUE);
 					break;
 				}
@@ -1026,7 +1021,7 @@ BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam
 			switch (LOWORD(wParam))
 			{
 			case IDCANCEL:
-				DestroyWindow(hDlg);
+				EndDialog(hDlg, FALSE);
 				break;
 			}
 			break;

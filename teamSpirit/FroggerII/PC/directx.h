@@ -32,7 +32,6 @@ extern int dumpScreen;
 extern int prim;
 extern unsigned char doKeyMap;
 extern DWORD keyIndex;
-extern long kMapSet;
 extern float fStart;
 extern float fEnd;
 extern D3DTLVERTEX *screenVtxList;
