@@ -241,6 +241,7 @@ void LoadSfx( unsigned long worldID )
 	case WORLDID_HALLOWEEN: strcat( path, "halloween.wus" ); break;
 	case WORLDID_SUPERRETRO: strcat( path, "superretro.wus" ); break;
 	case WORLDID_FRONTEND: strcat( path, "frontend.wus" ); break;
+	case WORLDID_TEST: strcat(path, "test.wus"); break;
 	default: load = 0; break;
 	}
 
