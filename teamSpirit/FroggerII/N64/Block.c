@@ -1521,6 +1521,8 @@ void DrawGraphics(void *arg)
 						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE );
 					else if( pauseMode == PM_ENDLEVEL )
 					{
+						// Because this screen stays on between levels, we have one screen grab drawn
+						// twice to simulate doing a vertex wodge over the normal level.
 						DrawScreenGrab( MOTION_BLUR | USE_GRAB_BUFFER | BLUR_INWARD | OVERLAY_SOLID | RECALC_VTX );
 						DrawScreenGrab( MOTION_BLUR | VERTEX_WODGE | TINT_BLUE | BLUR_LIGHT );
 
