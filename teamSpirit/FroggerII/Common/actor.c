@@ -198,6 +198,9 @@ void FreeActorList()
 			{
 				// free any object sprites for this actor
 				FreeObjectSprites(cur->actor->objectController->object);
+
+				JallocFree((UBYTE**)&cur->actor->objectController->object);
+				JallocFree((UBYTE**)&cur->actor->objectController);
 			}
 
 			// free associated ACTOR type
