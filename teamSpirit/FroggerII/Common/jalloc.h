@@ -24,7 +24,7 @@ typedef unsigned long	ulong;
 #define JallocAlloc(size, clear, name) ((UBYTE) clear? calloc(1, size): malloc(size))
 #define JallocAllocDynamic JallocAlloc
 #define JallocAllocStatic JallocAlloc
-#define JallocFree(addrptr) free(*addrptr)
+#define JallocFree(addrptr) free(*(addrptr))
 
 #define ShowJalloc()
 #define CheckJalloc();

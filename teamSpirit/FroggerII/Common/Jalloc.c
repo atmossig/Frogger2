@@ -8,6 +8,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#ifndef DONTUSEJALLOC
+
 #include <ultra64.h>
 
 #include "incs.h"
@@ -786,3 +788,7 @@ void CheckJalloc()
 		while(!(controllerdata[ActiveController].button & CONT_A));
 	}
 }
+
+
+#endif
+/* end of #ifndef DONTUSEJALLOC block */
