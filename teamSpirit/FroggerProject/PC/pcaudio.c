@@ -826,29 +826,26 @@ void FreeBufSampleList ( void )
 
 void SubAmbientSound(AMBIENT_SOUND *ambientSound)
 {
-	if( ambientSound->sample && ambientSound->lpdsBuffer )
-		ambientSound->lpdsBuffer->lpVtbl->Stop( ambientSound->lpdsBuffer );
+	if( !ambientSound->next )
+		return;
 
 	ambientSound->prev->next = ambientSound->next;
 	ambientSound->next->prev = ambientSound->prev;
 	ambientSoundList.numEntries--;
+
+	FREE( ambientSound );
 }
 
 
 void FreeAmbientSoundList( )
 {
-	AMBIENT_SOUND *cur,*next;
-
-	// check if any elements in list
-	if( !ambientSoundList.numEntries )
-		return;
-
 	// traverse enemy list and free elements
-	for( cur = ambientSoundList.head.next; cur != &ambientSoundList.head; cur = next )
+	while( ambientSoundList.head.next && ambientSoundList.head.next != &ambientSoundList.head )
 	{
-		next = cur->next;
+		if( ambientSoundList.head.next->sample && ambientSoundList.head.next->lpdsBuffer )
+			ambientSoundList.head.next->lpdsBuffer->lpVtbl->Stop( ambientSoundList.head.next->lpdsBuffer );
 
-		SubAmbientSound( cur );
+		SubAmbientSound( ambientSoundList.head.next );
 	}
 
 	// initialise list for future use
