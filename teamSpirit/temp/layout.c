@@ -1319,6 +1319,8 @@ void FreeAllLists()
 
 
 	//textureInitialise ( 500, 8);
+#endif
+
 	if((gameState.single == STORY_MODE) && (!restartingLevel))
 	{
 		if((player[0].worldNum != WORLDID_FRONTEND) && (storySequence[gameState.storySequenceLevel].fmv != FMV_NONE))
@@ -1338,16 +1340,15 @@ void FreeAllLists()
 
 	InitSpriteOverlayLinkedList();
 
+	//FREE ( jiggledVerts );
+
 #ifdef PSX_VERSION
 	if(loadingLevel)
 		loadingInit(player[0].worldNum,player[0].levelNum);
-#endif
-
 	font = fontLoad("BIGFONT.FON");
 	fontSmall = fontLoad("FONT12.FON");
 
 
-	//FREE ( jiggledVerts );
 #endif
 
 
