@@ -171,6 +171,7 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 		return 0;
 	}
 
+/*
     dsrVal = lpdsbPrimary->QueryInterface( IID_IDirectSound3DListener, ( void** ) &lpds3DListener );
 
 	if ( dsrVal != DS_OK )
@@ -178,7 +179,7 @@ int InitDirectSound( HINSTANCE hInst,  HWND hWndMain )
 		utilPrintf("Query Interface For 3d Listener Failed - '%s'\n", DSoundErrorToString(dsrVal));
 		return 0;
 	}
-
+*/
 	InitCDaudio();
 
 	return 1;
