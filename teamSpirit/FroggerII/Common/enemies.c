@@ -1069,7 +1069,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		path->nodes[2].worldTile = NULL;
 		return;
 	}
-	else if( dist < 33*33 && !frog[0]->action.dead.time && !frog[0]->action.safe.time )
+	else if( dist < 33*33 && !frog[0]->action.dead.time && !frog[0]->action.safe.time ) // Trial and error value of 33
 	{
 		NMEDamageFrog(0,cur);
 	}
@@ -1079,6 +1079,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 		path->nodes[1].worldTile = NULL;
 		path->nodes[2].worldTile = path->nodes[0].worldTile;
 		cur->isSnapping = 1; // This is a completely random misuse of isSnapping. And I don't care.
+		cur->flags |= ENEMY_NEW_NODAMAGE;
 	}
 
 	// If frog has moved
