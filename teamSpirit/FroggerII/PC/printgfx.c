@@ -22,6 +22,7 @@ extern float RES_DIFF2;
 extern long runHardware;
 long numSprites;
 void Clip3DPolygon (D3DTLVERTEX in[3], long texture);
+void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i );
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
@@ -925,12 +926,9 @@ void DrawFXRing( SPECFX *ring )
 
 void DrawFXTrail( SPECFX *trail )
 {
-	unsigned long i = trail->start, j;
-	D3DTLVERTEX vT[4], vT2[3];
+	unsigned long i = trail->start;
+	D3DTLVERTEX vT[4], vTPrev[2];
 	TEXENTRY *tEntry;
-	VECTOR tmp, m, pos;
-	float t;
-	int zeroZ = 0;
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
@@ -940,82 +938,80 @@ void DrawFXTrail( SPECFX *trail )
 	vT[0].tu = 1;
 	vT[0].tv = 1;
 	vT[1].specular = vT[0].specular;
-	vT[1].tu = 1;
+	vT[1].tu = 0;
 	vT[1].tv = 1;
 	vT[2].specular = vT[0].specular;
-	vT[2].tu = 1;
-	vT[2].tv = 1;
+	vT[2].tu = 0;
+	vT[2].tv = 0;
 	vT[3].specular = vT[0].specular;
 	vT[3].tu = 1;
-	vT[3].tv = 1;
+	vT[3].tv = 0;
 
 	do
 	{
-		AddVector( &pos, &trail->origin, &trail->particles[i].pos );
-		// Translate to current fx pos and push
-		guTranslateF( tMtrx, pos.v[X], pos.v[Y], pos.v[Z] );
-		PushMatrix( tMtrx );
+		/*********-[ First 2 points ]-********/
+		if( i != trail->start )
+			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );			// Previously transformed vertices
+		else
+			CalcTrailPoints( vT, trail, i );
 
-		// Precalculated rotation
-		PushMatrix( trail->particles[i].rMtrx );
+		/*********-[ Next 2 points ]-********/
+		CalcTrailPoints( &vT[2], trail, (i+1)%trail->numP );
+		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 ); 			// Store first 2 vertices of the next segment
 
-		vT[0].sx = trail->particles[i].poly[0].v[X];
-		vT[0].sy = trail->particles[i].poly[0].v[Y];
-		vT[0].sz = trail->particles[i].poly[0].v[Z];
-		vT[0].color = D3DRGBA(trail->particles[i].r/255.0, trail->particles[i].g/255.0, trail->particles[i].b/255.0, trail->particles[i].a/255.0);
-		vT[1].sx = trail->particles[i].poly[1].v[X];
-		vT[1].sy = trail->particles[i].poly[1].v[Y];
-		vT[1].sz = trail->particles[i].poly[1].v[Z];
-		vT[1].color = vT[0].color;
-		vT[2].sx = trail->particles[i+1].poly[0].v[X];
-		vT[2].sy = trail->particles[i+1].poly[0].v[Y];
-		vT[2].sz = trail->particles[i+1].poly[0].v[Z];
-		vT[2].color = vT[0].color;
-		vT[3].sx = trail->particles[i+1].poly[1].v[X];
-		vT[3].sy = trail->particles[i+1].poly[1].v[Y];
-		vT[3].sz = trail->particles[i+1].poly[1].v[Z];
-		vT[3].color = vT[0].color;
-
-		// Transform point by combined matrix
-		SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
-
-		guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &tmp.v[X], &tmp.v[Y], &tmp.v[Z] );
-		XfmPoint( &m, &tmp );
-		vT[0].sx = m.v[X];
-		vT[0].sy = m.v[Y];
-		vT[0].sz = m.v[Z];
-		guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &tmp.v[X], &tmp.v[Y], &tmp.v[Z] );
-		XfmPoint( &m, &tmp );
-		vT[1].sx = m.v[X];
-		vT[1].sy = m.v[Y];
-		vT[1].sz = m.v[Z];
-		guMtxXFMF( dMtrx, vT[2].sx, vT[2].sy, vT[2].sz, &tmp.v[X], &tmp.v[Y], &tmp.v[Z] );
-		XfmPoint( &m, &tmp );
-		vT[2].sx = m.v[X];
-		vT[2].sy = m.v[Y];
-		vT[2].sz = m.v[Z];
-		guMtxXFMF( dMtrx, vT[3].sx, vT[3].sy, vT[3].sz, &tmp.v[X], &tmp.v[Y], &tmp.v[Z] );
-		XfmPoint( &m, &tmp );
-		vT[0].sx = m.v[X];
-		vT[0].sy = m.v[Y];
-		vT[0].sz = m.v[Z];
-
+		/*********-[ Draw the polys ]-********/
 		tEntry = ((TEXENTRY *)trail->tex);
 		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
-			memcpy( &vT2[0], &vT[0], sizeof(D3DTLVERTEX) );
-			memcpy( &vT2[1], &vT[2], sizeof(D3DTLVERTEX) );
-			memcpy( &vT2[2], &vT[3], sizeof(D3DTLVERTEX) );
 			Clip3DPolygon( vT, tEntry->hdl );
-			Clip3DPolygon( vT2, tEntry->hdl );
+			Clip3DPolygon( &vT[1], tEntry->hdl );
 		}
 
-		PopMatrix( ); // Rotation
-		PopMatrix( ); // Translation
-		
-	} while( i != ((trail->end+1)%trail->numP) );
+		if( ++i >= trail->numP ) i=0;
+
+	} while( i != trail->end );
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+}
+
+
+void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
+{
+	VECTOR pos, m;
+
+	AddVector( &pos, &trail->origin, &trail->particles[i].pos );
+	// Translate to current fx pos and push
+	guTranslateF( tMtrx, pos.v[X], pos.v[Y], pos.v[Z] );
+	PushMatrix( tMtrx );
+
+	// Precalculated rotation
+	PushMatrix( trail->particles[i].rMtrx );
+
+	vT[0].sx = trail->particles[i].poly[0].v[X];
+	vT[0].sy = trail->particles[i].poly[0].v[Y];
+	vT[0].sz = trail->particles[i].poly[0].v[Z];
+	vT[0].color = D3DRGBA(trail->particles[i].r/255.0, trail->particles[i].g/255.0, trail->particles[i].b/255.0, trail->particles[i].a/255.0);
+	vT[1].sx = trail->particles[i].poly[1].v[X];
+	vT[1].sy = trail->particles[i].poly[1].v[Y];
+	vT[1].sz = trail->particles[i].poly[1].v[Z];
+	vT[1].color = vT[0].color;
+
+	// Transform point by combined matrix
+	SetMatrix( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
+
+	guMtxXFMF( dMtrx, vT[0].sx, vT[0].sy, vT[0].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
+	XfmPoint( &m, &pos );
+	vT[0].sx = m.v[X];
+	vT[0].sy = m.v[Y];
+	vT[0].sz = m.v[Z];
+	guMtxXFMF( dMtrx, vT[1].sx, vT[1].sy, vT[1].sz, &pos.v[X], &pos.v[Y], &pos.v[Z] );
+	XfmPoint( &m, &pos );
+	vT[1].sx = m.v[X];
+	vT[1].sy = m.v[Y];
+	vT[1].sz = m.v[Z];
+
+	PopMatrix( ); // Rotation
+	PopMatrix( ); // Translation
 }

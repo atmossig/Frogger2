@@ -45,7 +45,7 @@ void UpdateFXExplode( SPECFX *fx );
 void UpdateFXTrail( SPECFX *fx );
 
 void CreateBlastRing( );
-void AddTrailElement( SPECFX *fx, int n );
+void AddTrailElement( SPECFX *fx, int i );
 
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
@@ -162,6 +162,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		while( i-- )
 		{
 			effect->particles[i].poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
+			effect->particles[i].a = (i+1)*(255/effect->numP);
 			effect->particles[i].rMtrx = (float *)JallocAlloc( sizeof(float)*16, YES, "Mtx" );
 		}
 
@@ -795,81 +796,108 @@ void UpdateFXTrail( SPECFX *fx )
 	float fo;
 	VECTOR dist;
 
-	// Flag for first time through
-	if( fx->particles[i].bounce )
-	{
-		fx->particles[i].bounce = 0;
-		AddTrailElement( fx, i );
-	}
-
-	do
-	{
-		// If space, add a new particle after end (wrapped). Check the follow actor
-		// for quaternion and rotate the points about it. If no actor, don't add.
-		if( fx->follow )
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
 		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	if( fx->follow )
+	{
+		// Flag for first time through
+		if( fx->particles[i].bounce )
+		{
+			fx->particles[i].bounce = 0;
+			AddTrailElement( fx, i );
+		}
+		else 
+		{
+			// If space, add a new particle after end (wrapped)
 			if( fx->end < fx->start ) 
-				diff = fx->start - fx->end;
+				diff = fx->start - fx->end - 1;
 			else
 				diff = ((fx->numP-1)-fx->end)+fx->start;
 
-			if( diff > 0 )
+			if( diff > 0 && fx->particles[(fx->end+1)%fx->numP].a < 16 )
 			{
-				if( ++fx->end > fx->numP ) fx->end = 0;
+				if( ++fx->end >= fx->numP ) fx->end = 0;
 				AddTrailElement( fx, fx->end );
 			}
 		}
+	}
 
-		// Update particles that are alive - fade, shrink by speed, move by velocity
-		// Note - polys stored in object space
+	// Update particles that are alive - fade, shrink by speed, move by velocity
+	// Note - polys stored in object space
+	do
+	{
 		ScaleVector( &fx->particles[i].poly[0], fx->speed );
 		ScaleVector( &fx->particles[i].poly[1], fx->speed );
-		fo = (Random(4) + fx->fade) * gameSpeed ;
-		if( fx->particles[i].a > fo ) fx->particles[i].a -= fo;
-		else fx->particles[i].a = 0;
 		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
 
-		if( ++i > fx->numP ) i=0;
+		if( ++i >= fx->numP ) i=0;
 
 	} while( i != ((fx->end+1)%fx->numP) );
 
-	// If oldest particle has dies, exclude it from the list
-	if( fx->particles[fx->start].a < 16 || DistanceBetweenPointsSquared(&fx->particles[fx->start].poly[0],&fx->particles[fx->start].poly[0])<25 )
-		if( ++fx->start > fx->numP )
+	// Fade out *all* particles, to get correct delay
+	for( i=0; i<fx->numP; i++ )
+	{
+		fo = fx->fade * gameSpeed ;
+		if( fx->particles[i].a > fo ) fx->particles[i].a -= fo;
+		else fx->particles[i].a = 0;
+	}
+
+	// If oldest particle has died, exclude it from the list
+	if( fx->particles[fx->start].a < 16 || DistanceBetweenPointsSquared(&fx->particles[fx->start].poly[0],&fx->particles[fx->start].poly[1])<2 )
+	{
+		fx->particles[fx->start].a = 0;
+		if( ++fx->start >= fx->numP )
 		{
 			fx->start = 0;
 			// If no more particles in list, time to die
 			if( (fx->start == fx->end) && !fx->deadCount )
 				fx->deadCount = 5;
 		}
+	}
 }
 
-void AddTrailElement( SPECFX *fx, int n )
+// Check the follow actor for quaternion and rotate the points about it. If no actor, don't add.
+void AddTrailElement( SPECFX *fx, int i )
 {
 	float t;
-	QUATERNION q, cross;
+	QUATERNION q, cross, d;
 
-	fx->particles[n].r = fx->r;
-	fx->particles[n].g = fx->g;
-	fx->particles[n].b = fx->b;
-	fx->particles[n].a = fx->a;
-	fx->particles[n].poly[0].v[X] = fx->scale.v[X];
-	fx->particles[n].poly[1].v[X] = -fx->scale.v[X];
-	// Amount of drift
-	SetVector( &fx->particles[n].vel, &fx->follow->vel );
-	ScaleVector( &fx->particles[n].vel, fx->accn );
-	SubVector( &fx->particles[n].pos, &fx->follow->pos, &fx->origin );
+	fx->particles[i].r = fx->r;
+	fx->particles[i].g = fx->g;
+	fx->particles[i].b = fx->b;
+	fx->particles[i].a = fx->a;
+	fx->particles[i].poly[0].v[X] = fx->scale.v[X];
+	fx->particles[i].poly[1].v[X] = -fx->scale.v[X];
+
+	// Distance of this particle from the origin
+	SubVector( &fx->particles[i].pos, &fx->follow->pos, &fx->origin );
+
+	// Amount of drift - distance between this and the last particle scaled. Doesn't work for first one
+	if( i != fx->start )
+	{
+		int j = i-1;
+		if( j < 0 ) j = fx->numP-1;
+		SubVector( &fx->particles[i].vel, &fx->particles[i].pos, &fx->particles[j].pos );
+		ScaleVector( &fx->particles[i].vel, fx->accn );
+	}
+	else SetVector( &fx->particles[i].vel, &zero );
 
 	// Rotate to be around normal
-	CrossProduct( (VECTOR *)&cross, (VECTOR *)&fx->follow->qRot, &upVec );
+	GetRotationFromQuaternion( &q, &fx->follow->qRot );
+	CrossProduct( (VECTOR *)&cross, (VECTOR *)&q, &upVec );
 	MakeUnit( (VECTOR *)&cross );
-	t = DotProduct( (VECTOR *)&fx->follow->qRot, &upVec );
+	t = DotProduct( (VECTOR *)&q, &upVec );
 	if( cross.x >= 0 )
 		cross.w = acos(t);
 	else
 		cross.w = -acos(t);
 	GetQuaternionFromRotation( &q, &cross );
-	QuaternionToMatrix( &q, (MATRIX *)fx->particles[n].rMtrx );
+	QuaternionToMatrix( &q, (MATRIX *)fx->particles[i].rMtrx );
 }
 
 
@@ -1083,15 +1111,15 @@ void ProcessAttachedEffects( void *entity, int type )
 		path = plt->path;
 	}
 
-	if( act->value1 )
+	// For timings value1 has to round down to a non-zero integer
+	if( (int)act->value1 )
 	{
 		if( flags & EF_RANDOMCREATE )
 			r = Random(act->value1)+1;
 		else
 			r = act->value1;
 	}
-	else
-		r = 10;
+	else r = 10;
 
 	fxDist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&act->actor->pos);
 
@@ -1198,32 +1226,41 @@ void ProcessAttachedEffects( void *entity, int type )
 				SetAttachedFXColour( fx, act->effects );
 			}
 		}
-		if( act->effects & EF_FLYSWARM )
+	}
+
+	// Persistent effects
+	if( act->effects & EF_FLYSWARM )
+	{
+		fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &act->actor->pos, &normal, 25, 0, 0, 0 );
+		fx->follow = act->actor;
+		if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
 		{
-			fx = CreateAndAddSpecialEffect( FXTYPE_FLYSWARM, &act->actor->pos, &normal, 25, 0, 0, 0 );
-			fx->follow = act->actor;
-			if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
-			{
-				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-				GetPositionForPathNode( &rPos, &path->nodes[0] );
-				SetVector( &fx->rebound->point, &rPos );
-				SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
-			}
-			act->effects &= ~EF_FLYSWARM;
+			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+			GetPositionForPathNode( &rPos, &path->nodes[0] );
+			SetVector( &fx->rebound->point, &rPos );
+			SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
 		}
-		if( act->effects & EF_BUTTERFLYSWARM )
+		act->effects &= ~EF_FLYSWARM;
+	}
+	if( act->effects & EF_BUTTERFLYSWARM )
+	{
+		fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
+		fx->follow = act->actor;
+		if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
 		{
-			fx = CreateAndAddSpecialEffect( FXTYPE_BUTTERFLYSWARM, &act->actor->pos, &normal, act->radius, 0, 0, act->value1 );
-			fx->follow = act->actor;
-			if( type == 1 && (flags & ENEMY_NEW_FLAPPYTHING) )
-			{
-				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
-				GetPositionForPathNode( &rPos, &path->nodes[0] );
-				SetVector( &fx->rebound->point, &rPos );
-				SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
-			}
-			act->effects &= ~EF_BUTTERFLYSWARM;
+			fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+			GetPositionForPathNode( &rPos, &path->nodes[0] );
+			SetVector( &fx->rebound->point, &rPos );
+			SetVector( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
 		}
+		act->effects &= ~EF_BUTTERFLYSWARM;
+	}
+	if( act->effects & EF_TRAIL )
+	{
+		fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->radius, 0.95, 0.05, act->value1 );
+		fx->follow = act->actor;
+		SetAttachedFXColour( fx, act->effects );
+		act->effects &= ~EF_TRAIL;
 	}
 }
 
