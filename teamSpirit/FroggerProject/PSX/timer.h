@@ -10,29 +10,48 @@
 
 enum {
 	TIMER_TOTAL,
-	TIMER_TIMERS,
-	TIMER_DRAWSYNC,
-	TIMER_LAND_DRAW,
+	TIMER_GAMELOOP,
+	TIMER_UPDATE_WATER,
+	TIMER_DRAW_WORLD,
+	TIMER_DRAW_SPECFX,
+	TIMER_PRINT_SPRITES,
+	TIMER_DRAW_SCENICS,
+	TIMER_DRAW_WATER,
 	TIMER_ACTOR_DRAW,
-	TIMER_UPDATE,
-	TIMER_OVERLAYS,
+	TIMER_PRINT_OVERS,
+	TIMER_PROCTEX,
+	TIMER_DRAWSYNC,
+	TIMER_TIMERS,
 
 	TIMER_NUMTIMERS
 };
 
 
 #define TIMER_NAMES	   	"TOTAL", \
-					   	"TIMERS", \
-					   	"DRAW SYNC", \
-						"LAND DRAW", \
-					   	"ACTOR UPDATE", \
-					   	"UPDATE", \
-					   	"OVERLAYS"
+						"GAMELOOP", \
+						"UPDATE_WATER", \
+						"DRAW_WORLD", \
+						"DRAW_SPECFX", \
+						"PRINT_SPRITES", \
+						"DRAW_SCENICS", \
+						"DRAW_WATER", \
+						"ACTOR_DRAW", \
+						"PRINT_OVERS", \
+						"PROCTEX", \
+						"DRAWSYNC", \
+						"TIMERS"
+
+
+
+
+
+
 
 
 extern char	timerActive;
 extern char	*timerName[TIMER_NUMTIMERS];
 extern int	globalTimer[TIMER_NUMTIMERS];
+extern int	startTimer[TIMER_NUMTIMERS];
 extern int	prevTimer[TIMER_NUMTIMERS];
 
 
@@ -43,7 +62,8 @@ extern int	prevTimer[TIMER_NUMTIMERS];
 	RETURNS:	
 **************************************************************************/
 
-#define TIMER_START(n)		globalTimer[n] = VSync(1)
+//#define TIMER_START(n)		globalTimer[n] = VSync(1)
+#define TIMER_START(n)		startTimer[n] = VSync(1)
 
 
 /**************************************************************************
@@ -53,7 +73,10 @@ extern int	prevTimer[TIMER_NUMTIMERS];
 	RETURNS:	
 **************************************************************************/
 
-#define TIMER_STOP(n)		globalTimer[n] = VSync(1)-globalTimer[n]
+//#define TIMER_STOP(n)		globalTimer[n] = VSync(1)-globalTimer[n]
+#define TIMER_STOP(n)		globalTimer[n] = VSync(1)-startTimer[n]
+
+#define TIMER_STOP_ADD(n)	globalTimer[n] += VSync(1)-startTimer[n]
 
 
 /**************************************************************************
@@ -64,6 +87,9 @@ extern int	prevTimer[TIMER_NUMTIMERS];
 **************************************************************************/
 
 #define TIMER_ENDFRAME		memcpy(prevTimer, globalTimer, sizeof(globalTimer))
+
+//need to zero, cos globalTimer may not be reset if only using TIMER_STOP_ADD
+#define TIMER_ZERO			memset(globalTimer, 0, sizeof(globalTimer))
 
 
 /**************************************************************************

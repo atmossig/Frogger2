@@ -16,6 +16,7 @@
 /////////////////////////////////////////////////////////////////////
 char	timerActive = 0;
 int 	globalTimer[TIMER_NUMTIMERS];
+int 	startTimer[TIMER_NUMTIMERS];
 int 	prevTimer[TIMER_NUMTIMERS];
 char	*timerName[TIMER_NUMTIMERS] = {TIMER_NAMES};
 /////////////////////////////////////////////////////////////////////
@@ -72,31 +73,32 @@ void timerDisplay()
 	if (timerActive)
 	{
 //		h=PSFONT_GetSmallStringHeight(font,"");
-		h=14;
+		h=10;
 
 		// Timers
 		for(loop=1; loop<TIMER_NUMTIMERS; loop++)
 		{
-			utilPrintf(fontSmall, x,y, timerName[loop], (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
+			fontPrint(fontSmall, x,y, timerName[loop], (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
 			sprintf(str, "%d", prevTimer[loop]);
-			utilPrintf(fontSmall, x+300,y, str, (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
+			fontPrint(fontSmall, x+300,y, str, (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
 			dispGraph(x+180,y+4, (100*prevTimer[loop])/(1+prevTimer[TIMER_TOTAL]),2, (loop&1)?(100):(200),(loop&1)?(100):(200),0);
 			dispGraph(x+178,y+2, 104,6, 0,0,0);
 			subtotal += prevTimer[loop];
 
 			y+=h;
 		}
-		
+
+
 		// Sub total
-		utilPrintf(fontSmall, x,y, "SUB-TOTAL", 0,128,128);
+		fontPrint(fontSmall, x,y, "SUB-TOTAL", 0,128,128);
 		sprintf(str, "%d%%", (100*subtotal)/(1+prevTimer[TIMER_TOTAL]));
-		utilPrintf(fontSmall, x+300,y, str, 0,128,128);
+		fontPrint(fontSmall, x+300,y, str, 0,128,128);
 
 		// Total
-		utilPrintf(fontSmall, x,95, timerName[TIMER_TOTAL], 128,128,128);
+		fontPrint(fontSmall, x,95, timerName[TIMER_TOTAL], 128,128,128);
 //		sprintf(str, "%d [%d]", prevTimer[TIMER_TOTAL],framerate);
 		sprintf(str, "%d [%d]", prevTimer[TIMER_TOTAL], gameSpeed);
-		utilPrintf(fontSmall, 100,95, str, 128,128,128);
+		fontPrint(fontSmall, 100,95, str, 128,128,128);
 //		subtotal = (100*prevTimer[TIMER_TOTAL])/(((PALMODE)?(310):(260))*TITAN_DEFAULT_FRAME_LOCK);
 #define IDEAL_FRAME_RATE 2
 		subtotal = (100*prevTimer[TIMER_TOTAL])/(((PALMODE)?(310):(260))*IDEAL_FRAME_RATE);
