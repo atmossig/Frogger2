@@ -786,6 +786,10 @@ TIMER_STOP(TIMER_GAMELOOP);
 				lastActFrameCount = actFrameCount;
 
 				gameSpeed = vsyncCounter<<12;
+
+				if(gameSpeed > (5<<12))
+					gameSpeed = (5<<12);
+
  				actFrameCount += vsyncCounter;
  				vsyncCounter = 0;
 			}
