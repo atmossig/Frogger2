@@ -976,7 +976,6 @@ void RunGameLoop (void)
 			gameIsOver--;
 			if(!gameIsOver)
 			{
-
 				StopDrawing ( "game over" );
 				FreeAllLists();
 				gameState.mode = FRONTEND_MODE;
