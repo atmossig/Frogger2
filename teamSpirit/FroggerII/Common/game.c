@@ -892,6 +892,7 @@ void RunGameLoop (void)
 	}
 	
 	if (tileNum)
+	if (tileNum->text)
 	{
 		if (displayingTile)
 			sprintf(tileNum->text,"%d",currTileNum);

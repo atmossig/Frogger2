@@ -538,7 +538,7 @@ void UpdateFroggerPos(long pl)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 25;
-			CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &effectPos, &currTile[pl]->normal, 30, 5, 0, 2.5 );
+			CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &effectPos, &currTile[pl]->normal, 30, 5, 0, 2.5 );
 		}
 	}
 }
@@ -665,7 +665,12 @@ void GetNextTile(unsigned long direction,long pl)
 		GAMETILE *fromTile,*toTile;
 
 		if (player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM)
-			fromTile = currPlatform[pl]->inTile;
+		{
+			if (currPlatform[pl])
+				fromTile = currPlatform[pl]->inTile;
+			else
+				fromTile = currTile[pl];
+		}
 		else
 			fromTile = currTile[pl];
 

@@ -365,7 +365,7 @@ void UpdatePlatforms()
 								CreateAndAddSpecialEffect( FXTYPE_SMOKEBURST, &cur->pltActor->actor->pos, &cur->inTile->normal, 24, 12, 0, 1.5 );
 							}
 
-							CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->pltActor->actor->pos, &cur->inTile->normal, 32, 10, 0, 2 );
+//							CreateAndAddSpecialEffect( FXTYPE_EXHAUSTSMOKE, &cur->pltActor->actor->pos, &cur->inTile->normal, 32, 10, 0, 2 );
 							
 							SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
 							FlipVector(&frog[0]->actor->vel);
@@ -439,7 +439,7 @@ void UpdatePlatforms()
 			if(cur->visible < cur->visibleTime)
 				cur->visible++;
 		}
-
+/*
 		// Add ripples around a platform
 		if( cur->pltActor->effects & EF_RIPPLE_RINGS )
 		{
@@ -486,7 +486,7 @@ void UpdatePlatforms()
 				SetVector(&rebound.normal,&cur->inTile->normal);
 				CreateAndAddSpecialEffect( FXTYPE_SPLASH, &cur->pltActor->actor->pos, &cur->currNormal, 10, 5, 0, 2 );
 			}
-		}
+		}*/
 	}
 }
 
