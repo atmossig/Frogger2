@@ -59,6 +59,7 @@
 #include "controll.h"
 
 #include "mdx.h"
+#include "mdxException.h"
 
 extern "C"
 {
@@ -361,7 +362,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	SPRITECLIPRIGHT		=ROTSPRITECLIPRIGHT	= clx1;
 	SPRITECLIPBOTTOM	=ROTSPRITECLIPBOTTOM = cly1;
 
-	RunWindowsLoop(&LoopFunc);
+	EXCEPTION_HANDLE(RunWindowsLoop(&LoopFunc););
 
 	// Byeeeeeeeeeee
 	ShutdownEditor();

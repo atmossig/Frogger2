@@ -82,10 +82,10 @@ enum {OUTCODE_LEFT, OUTCODE_RIGHT, OUTCODE_TOP, OUTCODE_BOTTOM};
 						 (((x)<=(x0))<<OUTCODE_LEFT))
 
 // The 2D clip Volume.
-float clx0 = 0,//320-160,
-      cly0 = 0,//240-120,
-	  clx1 = 640,//320+160,
-	  cly1 = 480;//240+120;
+float clx0 = 1,//320-160,
+      cly0 = 1,//240-120,
+	  clx1 = 639,//320+160,
+	  cly1 = 479;//240+120;
 
 // Subtracted Square!
 //#define sbsqr(x,y) ((x-y)*(x-y))

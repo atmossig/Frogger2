@@ -62,7 +62,12 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 {
 	MDX_LANDSCAPE *me = new MDX_LANDSCAPE;
 	unsigned long i;
-	
+
+	me->vertices = 0;
+	me->faceIndex = 0;	
+	me->xfmVert = 0;
+	me->textures = 0;
+
 	// Copy the vertices and the faces
 	if (me->numVertices = obj->mesh->numVertices)
 	{
@@ -131,16 +136,28 @@ MDX_LANDSCAPE *ConvertActorToLandscape(MDX_ACTOR *actor)
 	return ConvertObjectToLandscape(actor->objectController->object);
 }
 
+
 void FreeLandscape(MDX_LANDSCAPE **me)
 {
 	if (!*me)
 		return;
-	delete (*me)->vertices;
-	delete (*me)->faceIndex;
-	delete (*me)->xfmVert;
-	delete (*me)->textures;
+	
+	MDX_LANDSCAPE *next = (*me)->next;
+	MDX_LANDSCAPE *children = (*me)->children;
+	
+	if ((*me)->vertices)
+		delete (*me)->vertices;
+	if ((*me)->faceIndex)
+		delete (*me)->faceIndex;
+	if ((*me)->xfmVert)
+		delete (*me)->xfmVert;
+	if ((*me)->textures)
+		delete (*me)->textures;
 	delete *me;
 	*me = NULL;
+
+	FreeLandscape(&next);
+	FreeLandscape(&children);
 }
 
 #ifdef __cplusplus

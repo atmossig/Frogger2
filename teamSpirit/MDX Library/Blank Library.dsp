@@ -130,6 +130,14 @@ SOURCE=.\mdxDText.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\mdxException.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mdxException.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\mdxFont.cpp
 # End Source File
 # Begin Source File

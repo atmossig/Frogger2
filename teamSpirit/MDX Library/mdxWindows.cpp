@@ -136,7 +136,7 @@ int WindowsInitialise(HINSTANCE hInstance, char *appName, long debugMode)
 		WS_EX_TOPMOST,
         appName,
         appName,
-		WS_POPUP,
+		WS_OVERLAPPED,//_POPUP,
 		0,
 		0,
 		GetSystemMetrics(SM_CXSCREEN), 
