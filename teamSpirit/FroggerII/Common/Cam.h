@@ -94,6 +94,9 @@ extern char		fixedPos;
 extern char		fixedUp;
 extern char		firstPerson;
 
+extern float cam_shakiness;
+extern float cam_shake_falloff;
+
 extern CAM_BOX_LIST cameraBoxes;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//

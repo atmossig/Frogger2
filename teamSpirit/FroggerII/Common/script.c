@@ -978,6 +978,14 @@ BOOL ExecuteCommand(UBYTE **p)
 
 			SwapActorObject(frog[pl], model);
 			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, NO, 0.35f, NO, NO);
+			break;
+		}
+
+	case EV_SHAKECAMERA:
+		{
+			cam_shakiness = MEMGETFLOAT(p);
+			cam_shake_falloff = MEMGETFLOAT(p);
+			break;
 		}
 /*
 	case EV_HURTFROG:

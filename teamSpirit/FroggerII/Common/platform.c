@@ -1014,6 +1014,7 @@ void SetPlatformVisible(PLATFORM *plt, int visible)
 	{
 		plt->active = 1;
 		plt->pltActor->draw = 1;
+		plt->countdown = -1;
 		
 		if (plt->isWaiting != -1)
 			SetPlatformMoving(plt, 1);

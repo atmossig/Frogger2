@@ -57,7 +57,7 @@ char fixedUp = 0;
 TRANSCAMERA *transCameraList = NULL;
 
 extern long idleCamera;
-VECTOR idleCamDist	= { 0,100,182 };
+VECTOR idleCamDist	= { 0,100,102 };
 
 float sideSwaySpeed = 0.005,sideSwayAmt=50,swayModifier = 1.0f;
 
@@ -70,6 +70,9 @@ float FindMaxInterFrogDistance( );
 CAM_BOX_LIST cameraBoxes;
 CAM_BOX *currCamBox;
 float cam_edge_spacing = 100;
+
+float cam_shakiness = 0.0f;
+float cam_shake_falloff = 0.1f;
 
 /*	--------------------------------------------------------------------------------
 	Function		: CameraBoundPosition
@@ -328,7 +331,6 @@ void CameraLookAtFrog(void)
 {
 	if(frog[0] && !fixedDir && !controlCamera)
 	{
-		char numFrogs=0;
 		// Average frog position	
 		float afx,afy,afz,sc;
 		int i,l;
@@ -336,9 +338,9 @@ void CameraLookAtFrog(void)
 		l = 0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
+			if( player[i].healthPoints )
 			{
-				numFrogs++;
+/*
 				if (currPlatform[i])
 				{
 					afx += currPlatform[i]->pltActor->actor->pos.v[0];
@@ -347,34 +349,22 @@ void CameraLookAtFrog(void)
 				}
 				else
 				{
-					if (pauseMode)					
-					{
-						if (frog[i])
-						{
-							afx += frog[i]->actor->pos.v[0];
-							afy += frog[i]->actor->pos.v[1];
-							afz += frog[i]->actor->pos.v[2];
-						}
-					}
-					else
-					{
-						afx += currTile[i]->centre.v[0];
-						afy += currTile[i]->centre.v[1];
-						afz += currTile[i]->centre.v[2];
-					}
+					afx += currTile[i]->centre.v[0];
+					afy += currTile[i]->centre.v[1];
+					afz += currTile[i]->centre.v[2];
 				}
+*/
+
+				afx += frog[i]->actor->pos.v[0];
+				afy += frog[i]->actor->pos.v[1];
+				afz += frog[i]->actor->pos.v[2];
+
 				l++;
 			}
 
 			// Zoom in/out to keep multiplayer frogs in view
 			sc = FindMaxInterFrogDistance( );
-			scaleV = ( sc != -1 ) ? ((sc*0.00115) + 0.6) : 1.1;
-		}
-
-		if( !numFrogs )
-		{
-			fixedPos = fixedDir = 1;
-			return;
+			if( sc != -1 ) scaleV = (sc*0.00115) + 0.6;
 		}
 		
 		if (l)
@@ -536,13 +526,9 @@ void SlurpCamPosition(long cam)
 	Parameters	: (void)
 	Returns		: void 
 */
-QUATERNION camRotn;
-
 void UpdateCameraPosition(long cam)
 {
-	VECTOR camTemp,camTemp2;
-	QUATERNION camQuat;
-	
+
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
@@ -625,21 +611,6 @@ void UpdateCameraPosition(long cam)
 			afz2/=l;
 		}
 
-		if (pauseMode)
-		{
-			camTemp.v[X] = afx2;
-			camTemp.v[Y] = afy2;
-			camTemp.v[Z] = afz2;
-
-			SetVector((VECTOR *)&camRotn,&currTile[0]->normal);
-			camRotn.w+=0.01 * gameSpeed;
-			RotateVectorByRotation (&camTemp2,&camTemp,&camRotn);
-
-			afx2 = camTemp2.v[X];
-			afy2 = camTemp2.v[Y];
-			afz2 = camTemp2.v[Z];
-		}
-
 		camSource[0].v[0] = afx+afx2+afx3;
 		camSource[0].v[1] = afy+afy2+afy3;
 		camSource[0].v[2] = afz+afz2+afz3;
@@ -666,7 +637,19 @@ void UpdateCameraPosition(long cam)
 	}
 
 	SlurpCamPosition(0);
-	
+
+	if (cam_shakiness > 0.0)
+	{
+		int i;
+		
+		for (i = 0; i < 3; i++)
+			currCamTarget[0].v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
+		for (i = 0; i < 3; i++)
+			currCamSource[0].v[i] += (Random(1000)*0.001f - 0.5f)*cam_shakiness;
+
+		cam_shakiness -= cam_shake_falloff * gameSpeed;
+	}
+
 	// edge spacing should probably related to tan(FOV/2)
 	cam_edge_spacing = DistanceBetweenPoints(&currCamSource[0], &currCamTarget[0]) * 0.75f;
 
@@ -691,6 +674,11 @@ void UpdateCameraPosition(long cam)
 
 		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed*swayModifier)*sideSwayAmt) * camDist.v[2]) / 350.0;
 	}
+}
+
+void CameraShake(float amount)
+{
+	cam_shakiness = amount;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -723,16 +711,13 @@ float FindMaxInterFrogDistance( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
-		{
-			SubVector( &sep, &frog[i]->actor->pos, &frog[0]->actor->pos );
-			dist = Magnitude( &sep );
+		SubVector( &sep, &frog[i]->actor->pos, &frog[0]->actor->pos );
+		dist = Magnitude( &sep );
 
-			if( dist > best )
-			{
-				max = i;
-				best = dist;
-			}
+		if( dist > best )
+		{
+			max = i;
+			best = dist;
 		}
 	}
 
