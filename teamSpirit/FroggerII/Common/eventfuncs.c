@@ -409,20 +409,7 @@ void SpringFrog( EVENT *event )
 		SetVector( &sPos, &frog[fNum]->actor->pos );
 	}
 
-	t = (float)(actFrameCount-start) / (float)(end-start);
-
-	SetVector( &dh, &H );
-	ScaleVector( &dh, 1.0 - (((2.0 * t) - 1.0) * ((2.0 * t) - 1.0)) );
-	SetVector( &dd, &D );
-	ScaleVector( &dd, t );
-
-	AddVector( &frog[fNum]->actor->pos, &sPos, &dd );
-	AddVector( &frog[fNum]->actor->pos, &frog[fNum]->actor->pos, &dh );
-
-	// TODO: Slurp frog orientation between source and destination tiles
-
-	// Check if position is close enough to destination tile. If it's landed, set currTile and cancel this event
-	if( DistanceBetweenPoints(&tile->centre,&frog[fNum]->actor->pos) < 5 )
+	if( actFrameCount > end )	// if we've gone past the end frame
 	{
 		currTile[fNum] = tile;
 		SetVector( &frog[fNum]->actor->pos, &tile->centre );
@@ -433,15 +420,23 @@ void SpringFrog( EVENT *event )
 
 		start = 0;
 		end = 0;
-/*
-		// Delete this trigger/event pair
-		// WRONG! The event code does this; freeing events during execution will cause crashes
-		SubTrigger(trigger);
-		KillAllEvents(trigger);
-		JallocFree(trigger);
-*/
+
 		trigger->flags = TRIGGER_ONCE;	// Make the trigger delete itself!
-  }
+	}
+	else
+	{
+		t = (float)(actFrameCount-start) / (float)(end-start);
+
+		SetVector( &dh, &H );
+		ScaleVector( &dh, 1.0 - (((2.0 * t) - 1.0) * ((2.0 * t) - 1.0)) );
+		SetVector( &dd, &D );
+		ScaleVector( &dd, t );
+
+		AddVector( &frog[fNum]->actor->pos, &sPos, &dd );
+		AddVector( &frog[fNum]->actor->pos, &frog[fNum]->actor->pos, &dh );
+
+		// TODO: Slurp frog orientation between source and destination tiles
+	}
 }
 
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/

@@ -360,23 +360,31 @@ BOOL ExecuteCommand(UBYTE *buffer)
 
 			switch (MEMGETBYTE(p))
 			{
+Move:
 			case FS_SET_MOVE:
 				nme->isWaiting = 0;
 				nme->path->startFrame = actFrameCount;
 				nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
 				break;
+Stop:			
 			case FS_SET_STOP:
 				nme->isWaiting = -1; break;
+			
 			case FS_SET_TOGGLEMOVE:
-				if (nme->isWaiting)
-				{
-					nme->isWaiting = 0;
-					nme->path->startFrame = actFrameCount;
-					nme->path->endFrame = nme->path->startFrame + (int)(60.0*nme->speed);
-				}
-				else
-					nme->isWaiting = -1;
+				if (nme->isWaiting) goto Move; else goto Stop;	// gotos! I have no shame - Dave
+Invis:
+			case FS_SET_INVIS:
+				nme->active = 0;
+				nme->nmeActor->actor->xluOverride = 0;
 				break;
+Vis:
+			case FS_SET_VIS:
+				nme->active = 1;
+				nme->nmeActor->actor->xluOverride = 100;
+				break;
+
+			case FS_SET_TOGGLEVIS:
+				if (nme->active) goto Invis; else goto Vis;
 			}
 			break;
 		}
