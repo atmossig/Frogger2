@@ -244,7 +244,7 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 		m->f[0] = fce[i]+numSoftVertex;
 		m->f[1] = fce[i+1]+numSoftVertex;
 		m->f[2] = fce[i+2]+numSoftVertex;
-		m->t = tSrf;
+		m->t = tEntry->surf;
 		m->tEntry = tEntry;
 
 		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
@@ -291,7 +291,7 @@ void PushPolys( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntr
 	for (cnt=0;cnt<fC; cnt++)
 	{
 		*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);
-		*cFInfo->cT = tSrf;
+		*cFInfo->cT = tEntry->surf;
 		cFInfo->cF++;
 		cFInfo->cT++;
 		mfce++;
