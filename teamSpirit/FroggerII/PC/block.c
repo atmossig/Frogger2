@@ -13,11 +13,15 @@
 #include "editor.h"
 #include <crtdbg.h>
 #include <stdio.h>
+#include "..\resource.h"
 
 #define DEBUG_FILE "C:\\frogger2.log"
 
+unsigned long actFrameCount;
+
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
+int runQuit = 0;
 
 char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
@@ -78,16 +82,24 @@ void Crash(char *mess)
 	Returns			: int
 	Info			: 
 */
+
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
 	SYSTEMTIME currTime;
 	ULONG memSizeInBytes = 0;
 	UBYTE *memPtr = NULL;
     MSG msg;
+	FILE *fpp;
 	int ok = 1;
 	
 	GetLocalTime(&currTime);
-
+//	fpp = fopen("c:\frog.ini","rt");
+//	if (fpp)
+//	{
+//		fgets(fpp,&baseDirectory);
+//		fclose(fpp);
+//	}
+	
 	dprintf"\n------------- Starting Frogger II ----------------\n"
 		"Session started %02d/%02d/%d %02d:%02d:%02d\n",
 		currTime.wDay, currTime.wMonth, currTime.wYear,
@@ -128,6 +140,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	InitPCSpecifics();
 	if(!DirectXInit(winInfo.hWndMain,1))
 		ok = 0;
+	if (runQuit)
+		exit (0);
 	InitFont();
 	InitEditor();
 	
@@ -196,7 +210,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			StartTimer(3,"Flip");
 			DirectXFlip();
 			EndTimer(3);
-
+			actFrameCount = (GetTickCount()/(1000/60));
 		}
 	}
 
@@ -219,11 +233,15 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	Returns			: int
 	Info			: 
 */
+
+HBITMAP appBackgnd;
+HDC appBackgndDC;
+
 int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 {
     WNDCLASS wc;
-
-    // save instance handle
+	
+	// save instance handle
     winInfo.hInstance = hInstance;
 
     // set up and register window class
@@ -266,11 +284,14 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
         return 0;
 	}
 
+    appBackgnd=LoadBitmap(winInfo.hInstance,MAKEINTRESOURCE(IDB_BACKGROUND));
+	
 	appActive = 1;
 	ShowWindow(winInfo.hWndMain,SW_SHOW);
 	UpdateWindow(winInfo.hWndMain);
-	ShowCursor(0);
-
+//	ShowCursor(0);
+	
+												
     return 1;
 }
 
@@ -282,6 +303,8 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 	Returns			: long
 	Info			: 
 */
+
+
 long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
 	HDC dc;
@@ -323,6 +346,26 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 				return 0;
 			}
 			break;
+
+		    case WM_ERASEBKGND:
+			{
+				RECT cRect;
+				int i,j;
+
+				GetClientRect (hWnd,&cRect);
+				appBackgndDC=CreateCompatibleDC((HDC)wParam);
+		
+				if (SelectObject (appBackgndDC,appBackgnd)==NULL)
+					dp("sharugar");
+
+				for (i=0; i<cRect.right+128; i+=128)
+					for (j=0; j<cRect.bottom+128; j+=128)
+						if (!BitBlt((HDC)wParam,i,j,128,128,appBackgndDC,0,0,SRCCOPY))
+											 dp("bugger");
+				DeleteDC(appBackgndDC);
+      				
+				return TRUE;
+			 }
 	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);
