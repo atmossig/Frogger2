@@ -176,7 +176,7 @@ void UpdateFrogTongue()
 				PlaySample(111,NULL,192,128);
 
 				if(tongueToCollect == TONGUE_GET_GARIB)
-					PickupCollectable(nearestColl);
+					PickupCollectable(nearestColl,0);
 				else if( tongueToCollect == TONGUE_GET_BABY )
 					PickupBabyFrog(nearestBabyFrog);
 				else if( tongueToCollect == TONGUE_GET_SCENIC )

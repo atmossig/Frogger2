@@ -288,7 +288,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		if(DistanceBetweenPointsSquared(&garib->sprite.pos,&frog[pl]->actor->pos) < (PICKUP_RADIUS * PICKUP_RADIUS))
 		{
 			garibStoreList[player[0].levelNum-3][i / 8] &= ~(1 << (i & 7));
-			PickupCollectable(garib);
+			PickupCollectable(garib,pl);
 			return;
 		}
 	}
@@ -411,7 +411,7 @@ void UpdateScreenSpawn(void)
 	Info			: 
 */
 
-void PickupCollectable(GARIB *garib)
+void PickupCollectable(GARIB *garib, int pl)
 {
 	FX_RIPPLE *rip;
 
@@ -458,6 +458,10 @@ void PickupCollectable(GARIB *garib)
 
 		case LONGHOP_GARIB:
 			longHop	= 150;
+			break;
+
+		case QUICKHOP_GARIB:
+			player[pl].isQuickHopping = 150;
 			break;
 
 		case LONGTONGUE_GARIB:
@@ -649,6 +653,7 @@ void InitGaribSprite(GARIB *garib)
 		case WHOLEKEY_GARIB:
 		case HALFLKEY_GARIB:
 		case HALFRKEY_GARIB:
+		case QUICKHOP_GARIB:
 			InitSpriteAnimation(&garib->sprite,&garibAnimation[garib->type],0);
 			garib->sprite.r = 255;
 			garib->sprite.g = 255;

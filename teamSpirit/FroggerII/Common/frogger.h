@@ -80,6 +80,7 @@ typedef struct _PLAYER
 	unsigned char	isSuperHopping;
 	unsigned char	isLongHopping;
 	unsigned char	isSinking;
+	unsigned char	isQuickHopping;
 
 	unsigned char	extendedHopDir;
 

@@ -34,6 +34,7 @@ int nextFrogFacing[4]			= {0,0,0,0};
 unsigned long standardHopFrames = 7;
 unsigned long superHopFrames	= 18;
 unsigned long longHopFrames		= 24;
+unsigned long quickHopFrames	= 4;
 
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
@@ -84,6 +85,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].isLongHopping		= 0;
 	player[p].isCroakFloating	= 0;
 	player[p].isSinking			= 0;
+	player[p].isQuickHopping	= 0;
 
 	player[p].jumpStartFrame	= 0;
 	player[p].jumpEndFrame		= 0;
@@ -203,7 +205,10 @@ void UpdateFroggerPos(long pl)
 	VECTOR moveVec;
 	float dist,glowRange;
 	static float glowSeed = 0.0F;
-		
+
+	if( player[pl].isQuickHopping )
+		player[pl].isQuickHopping--;
+
 	if(player[pl].frogState & FROGSTATUS_ISFLOATING)
 	{
 		SetVector(&effectPos,&currTile[pl]->normal);
@@ -909,6 +914,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		t = superHopFrames;
 	else if(player[pl].isLongHopping)
 		t = longHopFrames;
+	else if(player[pl].isQuickHopping)
+		t = quickHopFrames;
 	else
 		t = standardHopFrames;
 

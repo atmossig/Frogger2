@@ -75,6 +75,7 @@ enum
 	WHOLEKEY_GARIB,			//6
 	HALFLKEY_GARIB,			//7
 	HALFRKEY_GARIB,			//8
+	QUICKHOP_GARIB,			//9
 
 	NUM_GARIB_TYPES
 };
@@ -105,7 +106,7 @@ ACTOR2 *ScenicIsInTongueRange();
 void CheckTileForCollectable(GAMETILE *tile,long pl);
 
 void ProcessCollectables();
-void PickupCollectable(GARIB *garib);
+void PickupCollectable(GARIB *garib, int pl);
 void PickupBabyFrog(ACTOR2 *baby);
 
 
