@@ -79,7 +79,7 @@ void ScreenFade(UBYTE dir,UBYTE step);
 void DrawDarkenedLevel();
 
 
-SPRITE *PrintSprites();
+void PrintSprites();
 //void PrintSpritesTranslucent(SPRITE *sprite);
 void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,int scaleY);
 void PrintSprite(SPRITE *sprite);

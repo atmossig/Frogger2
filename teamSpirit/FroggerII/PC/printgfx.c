@@ -158,7 +158,7 @@ char IsPointVisible(VECTOR *p)
 	Info			: 
 */
 
-SPRITE *PrintSprites()
+void PrintSprites()
 {
 	int i;
 	SPRITE *cur;
@@ -173,8 +173,6 @@ SPRITE *PrintSprites()
 	
 	i = numSortArraySprites;
 	while(i--) if( spriteSortArray[i].draw ) PrintSprite(&spriteSortArray[i]);
-
-	return cur;
 }
 
 /*	--------------------------------------------------------------------------------
