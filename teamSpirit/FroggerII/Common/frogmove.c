@@ -943,7 +943,7 @@ void CheckForFroggerLanding(long pl)
 	}
 	else if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,No,0.6F,0,0);
 	}
 	else if( player[pl].deathBy == DEATHBY_WHACKING )
 	{
