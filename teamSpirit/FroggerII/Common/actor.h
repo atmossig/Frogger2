@@ -34,14 +34,11 @@
 
 typedef struct TAGACTION
 {	
-//	QUATERNION rot;
-	
-	// non-baby stuff
 	unsigned long safe;
 	unsigned long stun;
 
-	unsigned long frogon;
-	unsigned long frogunder;
+	short frogon;
+	short frogunder;
 
 	unsigned long healthPoints;
 	unsigned long dead;

@@ -47,7 +47,7 @@ float transCamSpeedMult		= 1.0F;
 
 int	camFacing				= 0;
 int nextCamFacing			= 0;
-float scaleV				= 0.7F;
+float scaleV				= 1.1F;
 
 char controlCamera			= 0;
 char fixedDir = 0;
