@@ -260,7 +260,7 @@ void FroggerHop(long pl)
 			if (nearestPlatform[pl]->inTile[0] == destTile[pl])	// erm.
 			{
 				VECTOR v, plt;
-				float before, after;	// height above platform before and after moving8
+				float before, after;	// height above platform before and after moving
 
 				SetVector(&plt, &nearestPlatform[pl]->pltActor->actor->pos);
 
@@ -270,12 +270,16 @@ void FroggerHop(long pl)
 				SubVector(&v, &pos, &plt);
 				after = DotProduct(&v, &currTile[pl]->normal);
 
-				if (before > 0 && after < 0)
+				if (before >= 0 && after <= 0)
 				{
 					destPlatform[pl] = nearestPlatform[pl];
 					player[pl].frogState = FROGSTATUS_ISJUMPINGTOPLATFORM;
 					player[pl].jumpTime = 1.0f;	// aaand land.
 				}
+			}
+			else
+			{
+				dprintf"PLATFORM ERROR! Platform tile and Frogger tile are different!\n"));
 			}
 		}
 	}
@@ -403,6 +407,7 @@ void UpdateFroggerPos(long pl)
 	
 	if( NUM_FROGS == 1 && (player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
+		CheckForFroggerLanding(pl);
 		KillFrog(pl);
 		return;
 	}

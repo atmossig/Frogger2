@@ -112,7 +112,8 @@ void EnableTextOverlay(TEXTOVERLAY *tover)
 */
 void DisableTextOverlay(TEXTOVERLAY *tover)
 {
-	tover->draw = 0;
+	if (tover)
+		tover->draw = 0;
 }
 
 

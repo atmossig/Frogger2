@@ -693,7 +693,7 @@ void RecalculatePlatform(PLATFORM *plat)
 	if (plat->isWaiting && (plat->Update))
 	{
 		//CalcNextPlatformDest(plat);
-		plat->Update();
+		plat->Update(plat);
 	}
 }
 
