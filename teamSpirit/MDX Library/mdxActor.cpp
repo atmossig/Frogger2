@@ -822,14 +822,14 @@ float maxZ,minZ;
 
 /*  --------------------------------------------------------------------------------
 
-	Function	: PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName
+	Function	: FindHierarchyCentre
 	Purpose		: Guess
 	Parameters	: (MDX_OBJECT *me)
 	Returns		: void 
 	Info		:
 */
 
-void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(MDX_OBJECT *me)
+void FindHierarchyCentre(MDX_OBJECT *me)
 {
 	int i;
 	MDX_VECTOR t;
@@ -850,9 +850,9 @@ void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunc
 			}
 
 		if (me->children)
-			PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(me->children);
+			FindHierarchyCentre(me->children);
 		if (me->next)
-			PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(me->next);
+			FindHierarchyCentre(me->next);
 	}
 }
 
@@ -866,13 +866,13 @@ void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunc
 	Info		: Facility for getting radius from centrepoint is commented out.
 */
 
-void CalculateTrueCentreAndRadiusForAnActorSoWeCanCullItSensiblyToTheEdgeOfTheScreenWhenTheHeartIsntAtItsCentre(MDX_ACTOR *t)
+void FindActorCentre(MDX_ACTOR *t)
 {
 	MDX_VECTOR radius;
 	maxX = maxY = maxZ = -BIGVAL;
 	minX = minY = minZ = BIGVAL;
 
-	PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(t->objectController->object);
+	FindHierarchyCentre(t->objectController->object);
 
 
 	t->trueCentre.vx = (minX+maxX)/2;
@@ -933,7 +933,7 @@ MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 	
 	t->flags = ACTOR_NOFLAGS;
 		
-	CalculateTrueCentreAndRadiusForAnActorSoWeCanCullItSensiblyToTheEdgeOfTheScreenWhenTheHeartIsntAtItsCentre(t);
+	FindActorCentre(t);
 
 	return t;
 }
