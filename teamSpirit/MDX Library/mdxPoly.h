@@ -91,8 +91,8 @@ extern unsigned long normalZRS[];
 extern unsigned long xluZRS[];
 extern unsigned long xluSubRS[];
 extern unsigned long xluAddRS[];
+extern unsigned long xluSemiRS[];
 
-unsigned long xluSemiRS[] = 
 extern long softScreen[640*480];
 
 #ifdef __cplusplus
