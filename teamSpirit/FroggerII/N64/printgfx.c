@@ -143,7 +143,8 @@ Gfx croakRing_dl[] =
 	gsSPSetGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
 
 	gsDPSetCombineMode(G_CC_MODULATERGBA,G_CC_MODULATERGBA),
-	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF,G_RM_AA_ZB_XLU_SURF2),
+//	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF,G_RM_AA_ZB_XLU_SURF2),
+	gsDPSetRenderMode(G_RM_ZB_XLU_SURF,G_RM_ZB_XLU_SURF2),
 	gsDPSetCycleType(G_CYC_1CYCLE),
 	gsSPTexture(0xffff,0xffff,0,G_TX_RENDERTILE,G_ON),
     gsDPPipelineMode(G_PM_NPRIMITIVE),
@@ -499,7 +500,7 @@ void DrawFXRipples()
 	FX_RIPPLE *ripple,*ripple2;
 	TEXTURE *theTexture;
 	unsigned long i;
-	float r;
+	float r,tc;
 	QUATERNION q;
 	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
 	
@@ -513,16 +514,8 @@ void DrawFXRipples()
 			continue;
 
 		// build matrices
-		if(	ripple->rippleType == RIPPLE_TYPE_PICKUP ||
-			ripple->rippleType == RIPPLE_TYPE_DUST)
-		{
-			guRotateF(rotMtx,ripple->yRot,ripple->normal.v[X],ripple->normal.v[Y],ripple->normal.v[Z]);
-		}
-		else
-		{
-			NormalToQuaternion(&q,&ripple->normal);
-			QuaternionToMatrix(&q,(MATRIX *)rotMtx);
-		}
+		NormalToQuaternion(&q,&ripple->normal);
+		QuaternionToMatrix(&q,(MATRIX *)rotMtx);
 
 		guTranslateF(transMtx,ripple->origin.v[X],ripple->origin.v[Y],ripple->origin.v[Z]);
 		guMtxCatF(rotMtx,transMtx,tempMtx);
@@ -532,20 +525,22 @@ void DrawFXRipples()
 					G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
 
 		r = ripple->radius;
-		V((&ripple->verts[0]),-r,0,r,0,1024,0,ripple->r,ripple->g,ripple->b,ripple->alpha);
-		V((&ripple->verts[1]),r,0,r,0,0,0,ripple->r,ripple->g,ripple->b,ripple->alpha);
-		V((&ripple->verts[2]),r,0,-r,0,0,1024,ripple->r,ripple->g,ripple->b,ripple->alpha);
-		V((&ripple->verts[3]),-r,0,-r,0,1024,1024,ripple->r,ripple->g,ripple->b,ripple->alpha);
+
+		tc = 1024;
+		if(ripple->rippleType == RIPPLE_TYPE_BLASTRING)
+			tc = 2048;
+
+		V((&ripple->verts[0]),-r,0,r,0,0,tc,ripple->r,ripple->g,ripple->b,ripple->alpha);
+		V((&ripple->verts[1]),r,0,r,0,tc,tc,ripple->r,ripple->g,ripple->b,ripple->alpha);
+		V((&ripple->verts[2]),r,0,-r,0,tc,0,ripple->r,ripple->g,ripple->b,ripple->alpha);
+		V((&ripple->verts[3]),-r,0,-r,0,0,0,ripple->r,ripple->g,ripple->b,ripple->alpha);
 
 		theTexture = ripple->txtr;
-		if(!theTexture || !ripple->txtr)
-		{
-			dprintf"FECK FECK FECK !!!\n"));
-			gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
-			return;
-		}
-
-		gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,theTexture->sx,theTexture->sy,0,G_TX_WRAP,G_TX_WRAP,theTexture->TCScaleX,theTexture->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
+		gDPLoadTextureBlock(glistp++,theTexture->data,G_IM_FMT_IA,G_IM_SIZ_16b,
+							theTexture->sx,theTexture->sy,0,
+							G_TX_MIRROR,G_TX_MIRROR,
+							theTexture->TCScaleX,theTexture->TCScaleY,
+							G_TX_NOLOD,G_TX_NOLOD);
 
 		gSPVertex(glistp++,&ripple->verts[0],4,0);
 		gSP2Triangles(glistp++,0,1,2,0,2,3,0,0);

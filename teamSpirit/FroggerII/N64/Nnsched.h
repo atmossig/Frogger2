@@ -1,5 +1,12 @@
-#ifndef _NN_SCHED_
-#define _NN_SCHED_
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+	
+----------------------------------------------------------------------------------------------- */
+
+#ifndef NNSCHED_H_INCLUDED
+#define NNSCHED_H_INCLUDED
+
 #include <ultra64.h>
 
 #define NN_SC_STACKSIZE    0x2000  
@@ -103,15 +110,10 @@ extern NNScPerf* nnsc_perf_ptr;
 
 #endif /* NN_SC_PERF */
 
-extern char desiredFrameRate;
-extern char newDesiredFrameRate;
-extern float framesPerSec;
-
 extern float accelerator;
-extern float GAME_SPEED;
+extern float gameSpeed;
 extern float GAME_SPEED2;
-
-
+extern float framesPerSec;
 extern void            nnScCreateScheduler(NNSched *sc, u8 videoMode, u8 
 numFields);
 extern void            nnScAddClient(NNSched *sc, NNScClient *, OSMesgQueue *mq);

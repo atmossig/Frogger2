@@ -26,9 +26,6 @@ char message[10];
 
 static TEXTOVERLAY *lev[MAX_LEVELS];
 
-char showObjectInfo				= 1;
-//int objectMatrix				= 0;
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: ObjViewInit()
@@ -75,7 +72,7 @@ void RunObjectViewer()
 			break;
 
 		case VIEWOBJECTBANK_MODE:
-			ViewObjectBank(objectViewer.currWorldID);
+			ViewObjectBank();
 			break;
 	}
 }
@@ -89,7 +86,8 @@ void RunObjectViewer()
 */
 void SelectObjectBank()
 {
-	static unsigned long currentSelection = 0;
+	static unsigned long currentWorldSelection = 0;
+	static unsigned long currentLevelSelection = 0;
 	static u16 button,lastbutton;
 	static TEXTOVERLAY *tOverObjBank = NULL;
 	int i = 0,j = 0;
@@ -106,11 +104,9 @@ void SelectObjectBank()
 		LoadTextureBank(SYSTEM_TEX_BANK);
 		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
-		currFont = smallFont;
-		CreateAndAddTextOverlay(0,30,"OBJECT VIEWER",YES,NO,255,255,255,255,currFont,0,0,0);
-		CreateAndAddTextOverlay(0,60,"SELECT OBJECT BANK",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,6,0);
-		CreateAndAddTextOverlay(0,60,"SELECT OBJECT BANK",YES,NO,255,255,255,127,currFont,TEXTOVERLAY_WAVECHARS,7,PI / 4);
-		CreateAndAddTextOverlay(0,60,"SELECT OBJECT BANK",YES,NO,255,255,255,63,currFont,TEXTOVERLAY_WAVECHARS,9,2 * PI / 4);
+		CreateAndAddTextOverlay(20,20,"object viewer",NO,NO,255,255,255,255,smallFont,0,0,0);
+		CreateAndAddTextOverlay(20,40,"left and right to select a world",NO,NO,255,255,255,95,oldeFont,0,0,0);
+		CreateAndAddTextOverlay(20,50,"up and down to select a level",NO,NO,255,255,255,95,oldeFont,0,0,0);
 
 		for(i=0; i<MAX_LEVELS; i++)
 		{
@@ -128,26 +124,42 @@ void SelectObjectBank()
 		objectViewer.numObjects = 0;
 		objectViewer.currObjNum = 0;
 
+		objectViewer.currWorldID = 0;
+		objectViewer.currLevelID = 0;
+
 		StartDrawing("objbank");
 	}
 
-	tOverObjBank->a = 255 * Fabs(sinf(frameCount/12.5));
-		
 	button = controllerdata[ActiveController].button;
 
-	if((button & CONT_UP) && !(lastbutton & CONT_UP))
+	// select previous world
+	if((button & CONT_LEFT) && !(lastbutton & CONT_LEFT))
     {
-		if (currentSelection>0)
-			currentSelection--;
+		if(currentWorldSelection > 0)
+			currentWorldSelection--;
 	}
-	    
-	if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+	// select next world
+	else if((button & CONT_RIGHT) && !(lastbutton & CONT_RIGHT))
     {
-		if (currentSelection<(MAX_WORLDS-1))
-			currentSelection++;
+		if(currentWorldSelection < (MAX_WORLDS - 1))
+			currentWorldSelection++;
+	}
+	// select previous level
+	else if((button & CONT_UP) && !(lastbutton & CONT_UP))
+    {
+		if(currentLevelSelection > 0)
+			currentLevelSelection--;
+	}
+	// select next level
+	else if((button & CONT_DOWN) && !(lastbutton & CONT_DOWN))
+    {
+		if(currentLevelSelection < (worldVisualData[objectViewer.currWorldID].numLevels - 1))
+			currentLevelSelection++;
 	}
 
-	objectViewer.currWorldID = currentSelection;
+	objectViewer.currWorldID = currentWorldSelection;
+	objectViewer.currLevelID = currentLevelSelection;
+
 	sprintf(tOverObjBank->text,"%s (%d/%d)",worldVisualData[objectViewer.currWorldID].description,objectViewer.currWorldID+1,MAX_WORLDS);
 	for(i=0; i<MAX_LEVELS; i++)
 	{
@@ -166,7 +178,6 @@ void SelectObjectBank()
 		{
 			FreeAllLists();
 			frontEndState.mode = DEVELOPMENTMENU_MODE;
-			runningDevStuff = 0;
 			frameCount		= 0;
 			lastbutton		= 0;
 			objectViewer.currObjNum = 0;
@@ -183,7 +194,7 @@ void SelectObjectBank()
 			FreeAllLists();
 			//LoadTextureBank(SYSTEM_TEX_BANK);
 			//LoadTextureBank(GENERIC_TEX_BANK);
-			LoadVisualBanksForWorld(objectViewer.currWorldID,2);
+			LoadVisualBanksForWorld(objectViewer.currWorldID,objectViewer.currLevelID);
 
 			// ...and get the object ID's from the bank
 			objectViewer.numObjects = 0;
@@ -210,7 +221,9 @@ void SelectObjectBank()
 
 						sprintf(viewActor->actor->objectController->object->name,objCont->object->name);
 						InitActorStructures(viewActor->actor,INIT_ANIMATION);
-						AnimateActor(viewActor->actor,0,YES,NO,0.1f, 100, 0);
+						AnimateActor(viewActor->actor,0,YES,NO,0.5F,0,0);
+
+						MakeUniqueActor(viewActor->actor,0);
 
 						SetVector(&viewActor->actor->pos,&objectViewer.objPos);
 						viewActor->actor->scale.v[X] = viewActor->actor->scale.v[Y] = viewActor->actor->scale.v[Z] = 1;
@@ -250,17 +263,22 @@ void SelectObjectBank()
 	Returns			: 
 	Info			: 
 */
-void ViewObjectBank(unsigned long worldID)
+void ViewObjectBank()
 {
+	static TEXTOVERLAY *viewTxt = NULL;
+	static TEXTOVERLAY *msgTxt = NULL;
 	ACTOR2 *temp;
 	float rotMtxX[4][4],rotMtxY[4][4],rotMtxZ[4][4],resultMtx[4][4];
 	float tempMtx[4][4];
 	int i,j;
 
-//	if(textOverlayList)
-//		FreeTextOverlayList();
+	if(!viewTxt)
+		viewTxt	= CreateAndAddTextOverlay(20,20,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
+	if(!msgTxt)
+		msgTxt	= CreateAndAddTextOverlay(20,35,NULL,NO,NO,255,255,255,255,smallFont,0,0,0);
 
 	sprintf(objName,"%s (%d/%d)",objectViewer.currObj->actor->objectController->object->name,objectViewer.currObjNum+1,objectViewer.numObjects);
+	viewTxt->text = objName;
 
 	objectMatrix = 0;
 
@@ -272,19 +290,11 @@ void ViewObjectBank(unsigned long worldID)
 	guMtxCatF(rotMtxZ,tempMtx,resultMtx);
 	MatrixToQuaternion((MATRIX *)resultMtx,&objectViewer.currObj->actor->qRot);
 
-	if(showObjectInfo)
-	{
-	//	CreateAndAddTextOverlay(20,15,objName,NO,NO,255,255,255,95,smallFont,0,0,0);
-	//	CreateAndAddTextOverlay(20,210,message,NO,NO,255,255,255,95,smallFont,0,0,0);
-		showObjectInfo = 0;
-		
-
-	}
-	
 	switch(objectViewer.viewMode)
 	{
 		case OBJVIEW_GEOM:
 			sprintf(message,"geometry");
+			msgTxt->text = message;
 
 			if(frameCount > 10)
 				ObjViewReadControllerGeom();
@@ -292,6 +302,7 @@ void ViewObjectBank(unsigned long worldID)
 
 		case OBJVIEW_ANIM:
 			sprintf(message,"animation");
+			msgTxt->text = message;
 
 			if(frameCount > 10)
 				ObjViewReadControllerAnim();

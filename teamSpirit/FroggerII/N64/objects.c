@@ -402,6 +402,38 @@ void LoadObjectBank(int num)
 
 	switch(num)
 	{
+		// FRONTEND OBJECTS ----------------------------------------------------------------------
+		case FRONTEND_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_0_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_0_0_SegmentRomEnd;
+			dprintf"GENERIC FRONTEND OBJECT BANK - "));
+			break;
+		case FRONTEND1_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_0_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_0_1_SegmentRomEnd;
+			dprintf"FRONTEND 1 OBJECT BANK - "));
+			break;
+		case FRONTEND2_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_0_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_0_2_SegmentRomEnd;
+			dprintf"FRONTEND 2 OBJECT BANK - "));
+			break;
+		case FRONTEND3_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_0_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_0_3_SegmentRomEnd;
+			dprintf"FRONTEND 3 OBJECT BANK - "));
+			break;
+		case FRONTEND4_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_0_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_0_4_SegmentRomEnd;
+			dprintf"FRONTEND 4 OBJECT BANK - "));
+			break;
+		case FRONTEND5_OBJ_BANK:
+			bankRomStart	= (u32)&_objBank_0_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_objBank_0_5_SegmentRomEnd;
+			dprintf"FRONTEND 5 OBJECT BANK - "));
+			break;
+
 		// GARDEN OBJECTS ------------------------------------------------------------------------
 		case GENERIC_GARDEN_OBJ_BANK:
 			bankRomStart	= (u32)&_objBank_1_0_SegmentRomStart;
@@ -754,6 +786,7 @@ void LoadObjectBank(int num)
 			bankRomEnd		= (u32)&_objBank_9_6_SegmentRomEnd;
 			dprintf"RETRO MULTIPLAYER OBJECT BANK - "));
 			break;
+
 
 		default:
 			dprintf"ERROR: no object bank specified....\n"));

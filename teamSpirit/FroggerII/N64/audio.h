@@ -2,33 +2,36 @@
 
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
-	File		: audio.h
-	Programmer	: James Healey
-	Date		: 20/04/99 14:40:24
-
 ----------------------------------------------------------------------------------------------- */
 
 #ifndef AUDIO_H_INCLUDED
 #define AUDIO_H_INCLUDED
 
 
+typedef struct
+{
+
+	u8	*sfxPtr;			//pointer table for level sfx
+	u8	*sfxWbk;			//wave data for each level   
+
+	u8	*musicPtr;			//pointer table for generic sfx
+	u8	*musicWbk;			//wave data for generic sfx  
+
+	u8	*musicBin[2];		//music data for current tune
+
+	int	musicHandle[2];		//music handle
+	int currentTrack[2];	//current track number
+
+} AUDIOCONTROL;
 
 
 typedef struct
 {
+	u8		*bankStart;
+	u8		*bankEnd;
+	char	tuneName[16];
 
-	u8	*sfxPtr;		//pointer table for level sfx
-	u8	*sfxWbk;		//wave data for each level   
-
-	u8	*musicPtr;		//pointer table for generic sfx
-	u8	*musicWbk;		//wave data for generic sfx  
-
-	u8	*musicBin;			//music data for current tune
-
-	int	musicHandle;		//music handle
-	int currentTrack;		//current track number
-
-} AUDIOCONTROL;
+} TUNE_DATA_BANK;
 
 
 typedef struct
@@ -69,6 +72,7 @@ typedef struct
 
 extern AMBIENT_SOUND_LIST	ambientSoundList;
 extern AUDIOCONTROL audioCtrl;
+extern TUNE_DATA_BANK gameSongs[];
 extern int MAX_SFX_DIST;
 extern int numberOfEnemies;
 extern BOOL reverbOn;
@@ -85,66 +89,27 @@ extern SFX_SCRIPT	activeSfxScript[];
 enum
 {
 	NOTRACK,
-//	ATLANTIS_TRACK,
-//	ATLANTIS2_TRACK,
-//	ATLANTIS3_TRACK,
-//	ATLANTISBOSS_TRACK,
-	CARNIVAL_TRACK,
-	CARNIVAL2_TRACK,
-	CARNIVAL3_TRACK,
-	CARNIVALBOSS_TRACK,
-	PIRATES_TRACK,
-	PIRATES2_TRACK,
-	PIRATES3_TRACK,
-	PIRATESBOSS_TRACK,
-	PREHISTORIC_TRACK,
-	PREHISTORIC2_TRACK,
-	PREHISTORIC3_TRACK,
-	PREHISTORICBOSS_TRACK,
-	FORTRESS_TRACK,
-	FORTRESS2_TRACK,
-	FORTRESS3_TRACK,
-	FORTRESSBOSS_TRACK,
-	OOTW_TRACK,
-	OOTW2_TRACK,
-	OOTW3_TRACK,
-	OOTWBOSS_TRACK,
-	TITLE_TRACK,
+	TEST1_TRACK,
+	TEST2_TRACK,
+	TEST3_TRACK,
+	TEST4_TRACK,
+	TEST5_TRACK,
+	TEST6_TRACK,
+	TEST7_TRACK,
+	TEST8_TRACK,
+	TEST9_TRACK,
+	TEST10_TRACK,
+	TEST11_TRACK,
+	TEST12_TRACK,
+	TEST13_TRACK,
+	TEST14_TRACK,
+	TEST15_TRACK,
+	TEST16_TRACK,
+	TEST17_TRACK,
+	TEST18_TRACK,
+	TEST19_TRACK,
+	TEST20_TRACK,
 	INTRO_TRACK,
-	OUTRO_TRACK,
-	HUB1_TRACK,
-	HUB2_TRACK,
-	HUB3_TRACK,
-	HUB4_TRACK,
-	HUB5_TRACK,
-	HUB6_TRACK,
-	ATLANTIS_KILL1_TRACK,
-	ATLANTIS_KILL2_TRACK,
-	ATLANTIS_WIN1_TRACK,
-	ATLANTIS_WIN2_TRACK,
-	CARNIVAL_KILL1_TRACK,
-	CARNIVAL_KILL2_TRACK,
-	CARNIVAL_WIN1_TRACK,
-	CARNIVAL_WIN2_TRACK,
-	PIRATES_KILL1_TRACK,
-	PIRATES_KILL2_TRACK,
-	PIRATES_WIN1_TRACK,
-	PIRATES_WIN2_TRACK,
-	PREHISTORIC_KILL1_TRACK,
-	PREHISTORIC_KILL2_TRACK,
-	PREHISTORIC_WIN1_TRACK,
-	PREHISTORIC_WIN2_TRACK,
-	FORTRESS_KILL1_TRACK,
-	FORTRESS_KILL2_TRACK,
-	FORTRESS_WIN1_TRACK,
-	FORTRESS_WIN2_TRACK,
-	OOTW_KILL1_TRACK,
-	OOTW_KILL2_TRACK,
-	OOTW_WIN1_TRACK,
-	OOTW_WIN2_TRACK,
-	BONUS_TRACK,
-	HASBRO_TRACK,
-	TITLE2_TRACK,
 	NUM_TRACKS,
 };
 
@@ -152,7 +117,7 @@ extern int musresult;
 
 int PlaySample(short num, VECTOR *pos, short vol,short pitch);
 void UpdateContinuousSample(SFX *sfx);
-void PrepareSong(char num);
+void PrepareSong(char num,char slot);
 void DmaRomToRam(char *src, char *dest, int len);
 void ReInitMusicDriver(u8 *pointer, u8 *tune, u8 *wave);
 //void SetMaxSfxDist(int dist);
@@ -174,6 +139,8 @@ void InitSFXScript(SFX_SCRIPT *script);
 BOOL ScriptTriggerSound(short second, short frame);
 void ProcessSFXScript();
 void InitMusicDriver(void);
+
+int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch);
 
 
 

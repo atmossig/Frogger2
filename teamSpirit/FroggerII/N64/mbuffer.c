@@ -11,7 +11,7 @@
 #include "incs.h"
 
 
-//u8	audio_memory[360000];
-u8	audio_memory[400000];
+//u8	audio_memory[400000];
+u8 audio_memory[AUDIO_HEAP_SIZE + MUSIC_DATA_SIZE];
 
 

@@ -103,9 +103,9 @@ void ResetParameters()
 	}
 
 	SetVector(&camVect,&cameraUpVect);
-	camera.rot.v[0]		= 0;	
-	camera.rot.v[1]		= 0;	
-	camera.rot.v[2]		= 0;
+//	camera.rot.v[0]		= 0;	
+//	camera.rot.v[1]		= 0;	
+//	camera.rot.v[2]		= 0;
 
 	ShadingMode         = LIGHTING;
 	UseGlobalTransforms = 0;
@@ -183,50 +183,50 @@ void ReadDebugPad()
 
 	if((button2 & CONT_UP) && !(lastbutton2 & CONT_UP))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_DOWN) && !(lastbutton2 & CONT_DOWN))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_LOOKDOWN,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_LOOKDOWN,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_LEFT) && !(lastbutton2 & CONT_LEFT))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_LOOKLEFTANDRIGHT,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_LOOKLEFTANDRIGHT,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_RIGHT) && !(lastbutton2 & CONT_RIGHT))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_ASSONFIRE,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_ASSONFIRE,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 
 	if((button2 & CONT_A) && !(lastbutton2 & CONT_A))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE1,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE1,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_B) && !(lastbutton2 & CONT_B))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE2,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE2,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_G) && !(lastbutton2 & CONT_G))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE3,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_DANCE3,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 
 	if((button2 & CONT_C) && !(lastbutton2 & CONT_C))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_HOPLEFT,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_HOPLEFT,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 	if((button2 & CONT_F) && !(lastbutton2 & CONT_F))
     {
-		AnimateActor(frog[0]->actor,FROG_ANIM_HOPRIGHT,NO,NO,0.75F,0,0);
-		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.75F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_HOPRIGHT,NO,NO,0.4F,0,0);
+		AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
 	}
 
 	lastbutton2 = button2;

@@ -30,6 +30,37 @@ extern char *_texBank3SegmentRomEnd;
 
 //----- [ WORLD OBJECT / TEXTURE / ENTITY BANKS ] ------------------------------------------------
 
+// FRONTEND WORLD - Objects ----------------------------------------------------------------------
+extern char *_objBank_0_0_SegmentRomStart;
+extern char *_objBank_0_0_SegmentRomEnd;
+extern char *_objBank_0_1_SegmentRomStart;
+extern char *_objBank_0_1_SegmentRomEnd;
+extern char *_objBank_0_2_SegmentRomStart;
+extern char *_objBank_0_2_SegmentRomEnd;
+extern char *_objBank_0_3_SegmentRomStart;
+extern char *_objBank_0_3_SegmentRomEnd;
+extern char *_objBank_0_4_SegmentRomStart;
+extern char *_objBank_0_4_SegmentRomEnd;
+extern char *_objBank_0_5_SegmentRomStart;
+extern char *_objBank_0_5_SegmentRomEnd;
+extern char *_objBank_0_6_SegmentRomStart;
+extern char *_objBank_0_6_SegmentRomEnd;
+// FRONTEND WORLD - Textures
+extern char *_texBank_0_0_SegmentRomStart;
+extern char *_texBank_0_0_SegmentRomEnd;
+extern char *_texBank_0_1_SegmentRomStart;
+extern char *_texBank_0_1_SegmentRomEnd;
+extern char *_texBank_0_2_SegmentRomStart;
+extern char *_texBank_0_2_SegmentRomEnd;
+extern char *_texBank_0_3_SegmentRomStart;
+extern char *_texBank_0_3_SegmentRomEnd;
+extern char *_texBank_0_4_SegmentRomStart;
+extern char *_texBank_0_4_SegmentRomEnd;
+extern char *_texBank_0_5_SegmentRomStart;
+extern char *_texBank_0_5_SegmentRomEnd;
+extern char *_texBank_0_6_SegmentRomStart;
+extern char *_texBank_0_6_SegmentRomEnd;
+
 // GARDEN WORLD - Objects ------------------------------------------------------------------------
 extern char *_objBank_1_0_SegmentRomStart;
 extern char *_objBank_1_0_SegmentRomEnd;
@@ -597,6 +628,8 @@ extern unsigned short		cfb_16_b[];
 extern void					*cfb_ptrs[2];
 extern unsigned short		zbuffer[];
 
+extern char					musicPriority;
+
 extern char					draw_buffer;
 extern char					codeDrawingRequest;
 extern char					gfxIsDrawing;
@@ -609,7 +642,7 @@ extern char					numtasks;
 extern char					currentTask;
 extern NNSched				sched;
 
-extern unsigned long		actFrameCount,currentFrameTime;
+extern unsigned long		actFrameCount,lastActFrameCount,currentFrameTime;
 
 extern OSThread				mainThread;
 extern OSThread				drawGraphicsThread;

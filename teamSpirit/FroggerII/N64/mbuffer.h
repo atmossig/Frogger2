@@ -3,24 +3,25 @@
 
 
 // permanent RAM buffers 
-#define AUDIO_HEAP_SIZE	300000
+#define AUDIO_HEAP_SIZE	235520
+#define MUSIC_DATA_SIZE	100000
 
 
 // music labels 
 extern char _wbank1SegmentRomStart[];
 extern char _wbank1SegmentRomEnd[];
-extern char _pbank1SegmentRomStart[];
-extern char _pbank1SegmentRomEnd[];
-
 extern char _wbank2SegmentRomStart[];
 extern char _wbank2SegmentRomEnd[];
+
+extern char _pbank1SegmentRomStart[];
+extern char _pbank1SegmentRomEnd[];
 extern char _pbank2SegmentRomStart[];
 extern char _pbank2SegmentRomEnd[];
 
 
 extern char _mBank1SegmentRomStart[];
 extern char _mBank1SegmentRomEnd[];
-/*extern char _mBank2SegmentRomStart[];
+extern char _mBank2SegmentRomStart[];
 extern char _mBank2SegmentRomEnd[];
 extern char _mBank3SegmentRomStart[];
 extern char _mBank3SegmentRomEnd[];
@@ -30,118 +31,34 @@ extern char _mBank5SegmentRomStart[];
 extern char _mBank5SegmentRomEnd[];
 extern char _mBank6SegmentRomStart[];
 extern char _mBank6SegmentRomEnd[];
-/*extern char _tbank7SegmentRomStart[];
-extern char _tbank7SegmentRomEnd[];
-extern char _tbank8SegmentRomStart[];
-extern char _tbank8SegmentRomEnd[];
-extern char _tbank9SegmentRomStart[];
-extern char _tbank9SegmentRomEnd[];
-extern char _tbank10SegmentRomStart[];
-extern char _tbank10SegmentRomEnd[];
-extern char _tbank11SegmentRomStart[];
-extern char _tbank11SegmentRomEnd[];
-extern char _tbank12SegmentRomStart[];
-extern char _tbank12SegmentRomEnd[];
-extern char _tbank13SegmentRomStart[];
-extern char _tbank13SegmentRomEnd[];
-extern char _tbank14SegmentRomStart[];
-extern char _tbank14SegmentRomEnd[];
-extern char _tbank15SegmentRomStart[];
-extern char _tbank15SegmentRomEnd[];
-extern char _tbank16SegmentRomStart[];
-extern char _tbank16SegmentRomEnd[];
-extern char _tbank17SegmentRomStart[];
-extern char _tbank17SegmentRomEnd[];
-extern char _tbank18SegmentRomStart[];
-extern char _tbank18SegmentRomEnd[];
-extern char _tbank19SegmentRomStart[];
-extern char _tbank19SegmentRomEnd[];
-extern char _tbank20SegmentRomStart[];
-extern char _tbank20SegmentRomEnd[];
-extern char _tbank21SegmentRomStart[];
-extern char _tbank21SegmentRomEnd[];
-extern char _tbank22SegmentRomStart[];
-extern char _tbank22SegmentRomEnd[];
-extern char _tbank23SegmentRomStart[];
-extern char _tbank23SegmentRomEnd[];
-extern char _tbank24SegmentRomStart[];
-extern char _tbank24SegmentRomEnd[];
-extern char _tbank25SegmentRomStart[];
-extern char _tbank25SegmentRomEnd[];
-extern char _tbank26SegmentRomStart[];
-extern char _tbank26SegmentRomEnd[];
-extern char _tbank27SegmentRomStart[];
-extern char _tbank27SegmentRomEnd[];
-extern char _tbank28SegmentRomStart[];
-extern char _tbank28SegmentRomEnd[];
-extern char _tbank29SegmentRomStart[];
-extern char _tbank29SegmentRomEnd[];
-extern char _tbank30SegmentRomStart[];
-extern char _tbank30SegmentRomEnd[];
-extern char _tbank31SegmentRomStart[];
-extern char _tbank31SegmentRomEnd[];
-extern char _tbank32SegmentRomStart[];
-extern char _tbank32SegmentRomEnd[];
-extern char _tbank33SegmentRomStart[];
-extern char _tbank33SegmentRomEnd[];
-extern char _tbank34SegmentRomStart[];
-extern char _tbank34SegmentRomEnd[];
-extern char _tbank35SegmentRomStart[];
-extern char _tbank35SegmentRomEnd[];
-extern char _tbank36SegmentRomStart[];
-extern char _tbank36SegmentRomEnd[];
-extern char _tbank37SegmentRomStart[];
-extern char _tbank37SegmentRomEnd[];
-extern char _tbank38SegmentRomStart[];
-extern char _tbank38SegmentRomEnd[];
-extern char _tbank39SegmentRomStart[];
-extern char _tbank39SegmentRomEnd[];
-extern char _tbank40SegmentRomStart[];
-extern char _tbank40SegmentRomEnd[];
-extern char _tbank41SegmentRomStart[];
-extern char _tbank41SegmentRomEnd[];
-extern char _tbank42SegmentRomStart[];
-extern char _tbank42SegmentRomEnd[];
-extern char _tbank43SegmentRomStart[];
-extern char _tbank43SegmentRomEnd[];
-extern char _tbank44SegmentRomStart[];
-extern char _tbank44SegmentRomEnd[];
-extern char _tbank45SegmentRomStart[];
-extern char _tbank45SegmentRomEnd[];
-extern char _tbank46SegmentRomStart[];
-extern char _tbank46SegmentRomEnd[];
-extern char _tbank47SegmentRomStart[];
-extern char _tbank47SegmentRomEnd[];
-extern char _tbank48SegmentRomStart[];
-extern char _tbank48SegmentRomEnd[];
-extern char _tbank49SegmentRomStart[];
-extern char _tbank49SegmentRomEnd[];
-extern char _tbank50SegmentRomStart[];
-extern char _tbank50SegmentRomEnd[];
-extern char _tbank51SegmentRomStart[];
-extern char _tbank51SegmentRomEnd[];
-extern char _tbank52SegmentRomStart[];
-extern char _tbank52SegmentRomEnd[];
-extern char _tbank53SegmentRomStart[];
-extern char _tbank53SegmentRomEnd[];
-extern char _tbank54SegmentRomStart[];
-extern char _tbank54SegmentRomEnd[];
-extern char _tbank55SegmentRomStart[];
-extern char _tbank55SegmentRomEnd[];
-extern char _tbank56SegmentRomStart[];
-extern char _tbank56SegmentRomEnd[];
-extern char _tbank57SegmentRomStart[];
-extern char _tbank57SegmentRomEnd[];
-extern char _tbank58SegmentRomStart[];
-extern char _tbank58SegmentRomEnd[];
-extern char _tbank59SegmentRomStart[];
-extern char _tbank59SegmentRomEnd[];
-extern char _tbank60SegmentRomStart[];
-extern char _tbank60SegmentRomEnd[];
-extern char _tbank61SegmentRomStart[];
-extern char _tbank61SegmentRomEnd[];
-
-  */
+extern char _mBank7SegmentRomStart[];
+extern char _mBank7SegmentRomEnd[];
+extern char _mBank8SegmentRomStart[];
+extern char _mBank8SegmentRomEnd[];
+extern char _mBank9SegmentRomStart[];
+extern char _mBank9SegmentRomEnd[];
+extern char _mBank10SegmentRomStart[];
+extern char _mBank10SegmentRomEnd[];
+extern char _mBank11SegmentRomStart[];
+extern char _mBank11SegmentRomEnd[];
+extern char _mBank12SegmentRomStart[];
+extern char _mBank12SegmentRomEnd[];
+extern char _mBank13SegmentRomStart[];
+extern char _mBank13SegmentRomEnd[];
+extern char _mBank14SegmentRomStart[];
+extern char _mBank14SegmentRomEnd[];
+extern char _mBank15SegmentRomStart[];
+extern char _mBank15SegmentRomEnd[];
+extern char _mBank16SegmentRomStart[];
+extern char _mBank16SegmentRomEnd[];
+extern char _mBank17SegmentRomStart[];
+extern char _mBank17SegmentRomEnd[];
+extern char _mBank18SegmentRomStart[];
+extern char _mBank18SegmentRomEnd[];
+extern char _mBank19SegmentRomStart[];
+extern char _mBank19SegmentRomEnd[];
+extern char _mBank20SegmentRomStart[];
+extern char _mBank20SegmentRomEnd[];
 
 
 // 'dream' generate labels 
@@ -158,7 +75,7 @@ extern int   Priority [];
 #define WBANK2_START _wbank2SegmentRomStart
 #define PBANK2_START _pbank2SegmentRomStart
 #define PBANK2_END	 _pbank2SegmentRomEnd
-  
+
 
 /*
 // ROM addresses 

@@ -40,7 +40,7 @@ void InitMusicDriver(void)
 	musicPlayer.control_flag = 0;//MUSCONTROL_RAM;
 	musicPlayer.channels		= 24;
 	musicPlayer.sched		= &sched;
- 	musicPlayer.thread_priority	= 140;//116;//119;
+ 	musicPlayer.thread_priority	= musicPriority;//116;//119;
 	
 	musicPlayer.heap		= audio_memory;
 	musicPlayer.heap_length	= AUDIO_HEAP_SIZE;
@@ -51,14 +51,17 @@ void InitMusicDriver(void)
 	musicPlayer.fxs		= libmus_sfx_list;
 	musicPlayer.priority		= libmus_priority_list;
 
-	//musicPlayer.syn_output_rate	= 44100;
 	musicPlayer.syn_output_rate	= 22050;
-	musicPlayer.syn_updates	= 512 * 2;
-	musicPlayer.syn_rsp_cmds	= 4096 * 2;// * 2;
+//	musicPlayer.syn_updates	= 512 * 2;
+	musicPlayer.syn_updates	= 256;
+//	musicPlayer.syn_rsp_cmds	= 4096 * 2;// * 2;
+	musicPlayer.syn_rsp_cmds	= 2048;// * 2;
 
-	musicPlayer.syn_retraceCount = 3;
-	musicPlayer.syn_num_dma_bufs = 40;//40 * 2;//36;
-	musicPlayer.syn_dma_buf_size = 0x600;//800;
+	musicPlayer.syn_retraceCount = 1;
+	musicPlayer.syn_num_dma_bufs = 36;//40 * 2;//36;
+//	musicPlayer.syn_num_dma_bufs = 40;//40 * 2;//36;
+	musicPlayer.syn_dma_buf_size = 0x1000;//800;
+//	musicPlayer.syn_dma_buf_size = 0x600;//800;
 
 	musicMemoryUsed = MusInitialize(&musicPlayer);
 

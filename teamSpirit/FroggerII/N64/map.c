@@ -265,6 +265,23 @@ void LoadCollision(short worldID,short levelID)
 					break;
 			}
 			break;
+
+		case WORLDID_FRONTEND:
+			switch(levelID)
+			{
+				case LEVELID_FRONTEND1:
+					tnum = START_COLL_BANK;
+					break;
+				case LEVELID_FRONTEND2:
+					break;
+				case LEVELID_FRONTEND3:
+					break;
+				case LEVELID_FRONTEND4:
+					break;
+				case LEVELID_FRONTEND5:
+					break;
+			}
+			break;
 	}
 	
 	bankRomStart	= (u32)collBanksStart[tnum];
@@ -557,6 +574,23 @@ void LoadScenics(short worldID,short levelID)
 					break;
 			}
 			break;
+
+		case WORLDID_FRONTEND:
+			switch(levelID)
+			{
+				case LEVELID_FRONTEND1:
+					tnum = START_COLL_BANK;
+					break;
+				case LEVELID_FRONTEND2:
+					break;
+				case LEVELID_FRONTEND3:
+					break;
+				case LEVELID_FRONTEND4:
+					break;
+				case LEVELID_FRONTEND5:
+					break;
+			}
+			break;
 	}
 
 	bankRomStart	= (u32)scenBanksStart[tnum];
@@ -829,6 +863,13 @@ void LoadLevelEntities(short worldID,short levelID)
 		{
 		}
 	}
+	else if(worldID == WORLDID_FRONTEND)
+	{
+		switch(levelID)
+		{
+		}
+	}
+
 
 	bankSize = bankRomEnd - bankRomStart;
 

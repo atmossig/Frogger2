@@ -22,6 +22,33 @@ BOOL reverbOn = 0;
 AMBIENT_SOUND_LIST	ambientSoundList;
 int numContinuousSamples = 0;
 
+TUNE_DATA_BANK gameSongs[] = 
+{
+	0,0,"no track",												//	NOTRACK			0 
+	_mBank1SegmentRomStart,_mBank1SegmentRomEnd,"atlantis 1",	//	TEST1_TRACK		1
+	_mBank2SegmentRomStart,_mBank2SegmentRomEnd,"atlantis 2",	//	TEST2_TRACK		2
+	_mBank3SegmentRomStart,_mBank3SegmentRomEnd,"atlantis 3",	//	TEST3_TRACK		3
+	_mBank4SegmentRomStart,_mBank4SegmentRomEnd,"carnival 1",	//	TEST4_TRACK		4
+	_mBank5SegmentRomStart,_mBank5SegmentRomEnd,"carnival 2",	//	TEST5_TRACK		5
+	_mBank6SegmentRomStart,_mBank6SegmentRomEnd,"carnival 3",	//	TEST6_TRACK		6
+	_mBank7SegmentRomStart,_mBank7SegmentRomEnd,"fear 1",		//	TEST7_TRACK		7
+	_mBank8SegmentRomStart,_mBank8SegmentRomEnd,"fear 2",		//	TEST8_TRACK		8
+	_mBank9SegmentRomStart,_mBank9SegmentRomEnd,"fear 3",		//	TEST9_TRACK		9
+	_mBank10SegmentRomStart,_mBank10SegmentRomEnd,"pirate 1",	//	TEST10_TRACK	10
+	_mBank11SegmentRomStart,_mBank11SegmentRomEnd,"pirate 2",	//	TEST11_TRACK	11
+	_mBank12SegmentRomStart,_mBank12SegmentRomEnd,"pirate 3",	//	TEST12_TRACK	12
+	_mBank13SegmentRomStart,_mBank13SegmentRomEnd,"prehist 1",	//	TEST13_TRACK	13
+	_mBank14SegmentRomStart,_mBank14SegmentRomEnd,"prehist 2",	//	TEST14_TRACK	14
+	_mBank15SegmentRomStart,_mBank15SegmentRomEnd,"prehist 3",	//	TEST15_TRACK	15
+	_mBank16SegmentRomStart,_mBank16SegmentRomEnd,"space 1",	//	TEST16_TRACK	16
+	_mBank17SegmentRomStart,_mBank17SegmentRomEnd,"space 2",	//	TEST17_TRACK	17
+	_mBank18SegmentRomStart,_mBank18SegmentRomEnd,"space 3",	//	TEST18_TRACK	18
+
+	_mBank19SegmentRomStart,_mBank19SegmentRomEnd,"title",		//	TEST19_TRACK	19
+	_mBank20SegmentRomStart,_mBank20SegmentRomEnd,"hasbro"		//	TEST20_TRACK	20
+};
+
+
 unsigned long sfxVol	= 100;
 unsigned long musicVol	= 100;
 
@@ -57,7 +84,6 @@ void InitAmbientSoundList()
 	ambientSoundList.numEntries = 0;
 }
 
-
 /*	--------------------------------------------------------------------------------
 	Function 	: PrepareSong()
 	Purpose 	: dma's down all the bits of a song and sets up the music structure
@@ -66,313 +92,37 @@ void InitAmbientSoundList()
 	Info 		:
 */
 
-void PrepareSong(char num)
+void PrepareSong(char num,char slot)
 {
-	u8	*tuneStart, *tuneEnd;
-
-
-	MusHandleSetReverb(audioCtrl.musicHandle,0);
-	MusHandleSetVolume(audioCtrl.musicHandle, 255);//0x20);
+	MusHandleSetReverb(audioCtrl.musicHandle[slot],0);
+	MusHandleSetVolume(audioCtrl.musicHandle[slot],80);
 
 	//stop existing audio track	
-	if(num == audioCtrl.currentTrack)
+	if(num == audioCtrl.currentTrack[slot])
 		return;
 
+	audioCtrl.currentTrack[slot] = num;
 
-
-	audioCtrl.currentTrack = num;
-
-	MusHandleStop(audioCtrl.musicHandle, 1);
-	while(MusHandleAsk(audioCtrl.musicHandle));
+	MusHandleStop(audioCtrl.musicHandle[slot], 1);
+	while(MusHandleAsk(audioCtrl.musicHandle[slot]));
 
 	if(num == NOTRACK)
 		return;
 
-	switch(num)
+	audioCtrl.musicBin[0] = audioCtrl.sfxPtr + (PBANK2_END - PBANK2_START);
+	audioCtrl.musicBin[1] = audioCtrl.musicBin[0] + 20000;//audioCtrl.sfxPtr + (PBANK2_END - PBANK2_START);
+
+	DMAMemory(audioCtrl.musicBin[slot], (u32)gameSongs[num].bankStart, (u32)gameSongs[num].bankEnd);
+
+	audioCtrl.musicHandle[slot] = MusBankStartSong(audioCtrl.musicPtr, audioCtrl.musicBin[slot]);
+	while(!(MusHandleAsk(audioCtrl.musicHandle[slot])));
+
+	MusHandleSetVolume(audioCtrl.musicHandle[slot],80);
+
+	if((num == INTRO_TRACK) && (osTvType == 0))
 	{
-/*		case HUB1_TRACK:
-			tuneStart = _mbank28SegmentRomStart;
-			tuneEnd = _mbank28SegmentRomEnd;
-			break;
-		case HUB2_TRACK:
-			tuneStart = _mbank29SegmentRomStart;
-			tuneEnd = _mbank29SegmentRomEnd;
-			break;
-		case HUB3_TRACK:
-			tuneStart = _mbank30SegmentRomStart;
-			tuneEnd = _mbank30SegmentRomEnd;
-			break;
-		case HUB4_TRACK:
-			tuneStart = _mbank31SegmentRomStart;
-			tuneEnd = _mbank31SegmentRomEnd;
-			break;
-		case HUB5_TRACK:
-			tuneStart = _mbank32SegmentRomStart;
-			tuneEnd = _mbank32SegmentRomEnd;
-			break;
-		case HUB6_TRACK:
-			tuneStart = _mbank33SegmentRomStart;
-			tuneEnd = _mbank33SegmentRomEnd;
-			break;
-					*/
-/*		case ATLANTIS_TRACK:
-			tuneStart = _mBank2SegmentRomStart;
-			tuneEnd = _mBank2SegmentRomEnd;
-			break;
-		case ATLANTIS2_TRACK:
-			tuneStart = _mBank3SegmentRomStart;
-			tuneEnd = _mBank3SegmentRomEnd;
-			break;
-		case ATLANTIS3_TRACK:
-			tuneStart = _mBank4SegmentRomStart;
-			tuneEnd = _mBank4SegmentRomEnd;
-			break;
-		case ATLANTISBOSS_TRACK:
-			tuneStart = _mBank5SegmentRomStart;
-			tuneEnd = _mBank5SegmentRomEnd;
-			break;
-						 */
-		case CARNIVAL_TRACK:
-			tuneStart = _mBank1SegmentRomStart;
-			tuneEnd = _mBank1SegmentRomEnd;
-			break;
-/*		case CARNIVAL2_TRACK:
-			tuneStart = _mbank6SegmentRomStart;
-			tuneEnd = _mbank6SegmentRomEnd;
-			break;
-		case CARNIVAL3_TRACK:
-			tuneStart = _mbank7SegmentRomStart;
-			tuneEnd = _mbank7SegmentRomEnd;
-			break;
-		case CARNIVALBOSS_TRACK:
-			tuneStart = _mbank27SegmentRomStart;
-			tuneEnd = _mbank27SegmentRomEnd;
-			break;
-
-
-		case PIRATES_TRACK:
-			tuneStart = _mbank8SegmentRomStart;
-			tuneEnd = _mbank8SegmentRomEnd;
-			break;
-		case PIRATES2_TRACK:
-			tuneStart = _mbank9SegmentRomStart;
-			tuneEnd = _mbank9SegmentRomEnd;
-			break;
-		case PIRATES3_TRACK:
-			tuneStart = _mbank26SegmentRomStart;
-			tuneEnd = _mbank26SegmentRomEnd;
-			break;
-		case PIRATESBOSS_TRACK:
-			tuneStart = _mbank10SegmentRomStart;
-			tuneEnd = _mbank10SegmentRomEnd;
-			break;
-
-		case PREHISTORIC_TRACK:
-			tuneStart = _mbank11SegmentRomStart;
-			tuneEnd = _mbank11SegmentRomEnd;
-			break;
-		case PREHISTORIC2_TRACK:
-			tuneStart = _mbank12SegmentRomStart;
-			tuneEnd = _mbank12SegmentRomEnd;
-			break;
-		case PREHISTORIC3_TRACK:
-			tuneStart = _mbank13SegmentRomStart;
-			tuneEnd = _mbank13SegmentRomEnd;
-			break;
-		case PREHISTORICBOSS_TRACK:
-			tuneStart = _mbank14SegmentRomStart;
-			tuneEnd = _mbank14SegmentRomEnd;
-			break;
-
-		case FORTRESS_TRACK:
-			tuneStart = _mbank15SegmentRomStart;
-			tuneEnd = _mbank15SegmentRomEnd;
-			break;
-		case FORTRESS2_TRACK:
-			tuneStart = _mbank16SegmentRomStart;
-			tuneEnd = _mbank16SegmentRomEnd;
-			break;
-		case FORTRESS3_TRACK:
-			tuneStart = _mbank17SegmentRomStart;
-			tuneEnd = _mbank17SegmentRomEnd;
-			break;
-		case FORTRESSBOSS_TRACK:
-			tuneStart = _mbank18SegmentRomStart;
-			tuneEnd = _mbank18SegmentRomEnd;
-			break;
-
-		case OOTW_TRACK:
-			tuneStart = _mbank19SegmentRomStart;
-			tuneEnd = _mbank19SegmentRomEnd;
-			break;
-		case OOTW2_TRACK:
-			tuneStart = _mbank20SegmentRomStart;
-			tuneEnd = _mbank20SegmentRomEnd;
-			break;
-		case OOTW3_TRACK:
-			tuneStart = _mbank21SegmentRomStart;
-			tuneEnd = _mbank21SegmentRomEnd;
-			break;
-		case OOTWBOSS_TRACK:
-			tuneStart = _mbank22SegmentRomStart;
-			tuneEnd = _mbank22SegmentRomEnd;
-			break;
-
-		case TITLE_TRACK:
-			tuneStart = _mbank34SegmentRomStart;
-			tuneEnd = _mbank34SegmentRomEnd;
-//			tuneStart = _mbank19SegmentRomStart;
-//			tuneEnd = _mbank34SegmentRomEnd;
-			break;
-		case INTRO_TRACK:
-			tuneStart = _mbank24SegmentRomStart;
-			tuneEnd = _mbank24SegmentRomEnd;
-			break;
-		case OUTRO_TRACK:
-			tuneStart = _mbank25SegmentRomStart;
-			tuneEnd = _mbank25SegmentRomEnd;
-			break;
-
-		case PIRATES_KILL1_TRACK:
-			tuneStart = _mbank47SegmentRomStart;
-			tuneEnd = _mbank47SegmentRomEnd;
-			break;
-		case PIRATES_KILL2_TRACK:
-			tuneStart = _mbank48SegmentRomStart;
-			tuneEnd = _mbank48SegmentRomEnd;
-			break;
-		case PIRATES_WIN1_TRACK:
-			tuneStart = _mbank49SegmentRomStart;
-			tuneEnd = _mbank49SegmentRomEnd;
-			break;
-		case PIRATES_WIN2_TRACK:
-			tuneStart = _mbank50SegmentRomStart;
-			tuneEnd = _mbank50SegmentRomEnd;
-			break;
-
-		case ATLANTIS_KILL1_TRACK:
-			tuneStart = _mbank51SegmentRomStart;
-			tuneEnd = _mbank51SegmentRomEnd;
-			break;
-		case ATLANTIS_KILL2_TRACK:
-			tuneStart = _mbank52SegmentRomStart;
-			tuneEnd = _mbank52SegmentRomEnd;
-			break;
-		case ATLANTIS_WIN1_TRACK:
-			tuneStart = _mbank53SegmentRomStart;
-			tuneEnd = _mbank53SegmentRomEnd;
-			break;
-		case ATLANTIS_WIN2_TRACK:
-			tuneStart = _mbank54SegmentRomStart;
-			tuneEnd = _mbank54SegmentRomEnd;
-			break;
-
-		case CARNIVAL_KILL1_TRACK:
-			tuneStart = _mbank55SegmentRomStart;
-			tuneEnd = _mbank55SegmentRomEnd;
-			break;
-		case CARNIVAL_KILL2_TRACK:
-			tuneStart = _mbank56SegmentRomStart;
-			tuneEnd = _mbank56SegmentRomEnd;
-			break;
-		case CARNIVAL_WIN1_TRACK:
-			tuneStart = _mbank57SegmentRomStart;
-			tuneEnd = _mbank57SegmentRomEnd;
-			break;
-		case CARNIVAL_WIN2_TRACK:
-			tuneStart = _mbank58SegmentRomStart;
-			tuneEnd = _mbank58SegmentRomEnd;
-			break;
-
-		case PREHISTORIC_KILL1_TRACK:
-			tuneStart = _mbank35SegmentRomStart;
-			tuneEnd = _mbank35SegmentRomEnd;
-			break;
-		case PREHISTORIC_KILL2_TRACK:
-			tuneStart = _mbank36SegmentRomStart;
-			tuneEnd = _mbank36SegmentRomEnd;
-			break;
-		case PREHISTORIC_WIN1_TRACK:
-			tuneStart = _mbank37SegmentRomStart;
-			tuneEnd = _mbank37SegmentRomEnd;
-			break;
-		case PREHISTORIC_WIN2_TRACK:
-			tuneStart = _mbank38SegmentRomStart;
-			tuneEnd = _mbank38SegmentRomEnd;
-			break;
-
-		case FORTRESS_KILL1_TRACK:
-			tuneStart = _mbank43SegmentRomStart;
-			tuneEnd = _mbank43SegmentRomEnd;
-			break;
-		case FORTRESS_KILL2_TRACK:
-			tuneStart = _mbank44SegmentRomStart;
-			tuneEnd = _mbank44SegmentRomEnd;
-			break;
-		case FORTRESS_WIN1_TRACK:
-			tuneStart = _mbank45SegmentRomStart;
-			tuneEnd = _mbank45SegmentRomEnd;
-			break;
-		case FORTRESS_WIN2_TRACK:
-			tuneStart = _mbank46SegmentRomStart;
-			tuneEnd = _mbank46SegmentRomEnd;
-			break;
-
-		case OOTW_KILL1_TRACK:
-			tuneStart = _mbank39SegmentRomStart;
-			tuneEnd = _mbank39SegmentRomEnd;
-			break;
-		case OOTW_KILL2_TRACK:
-			tuneStart = _mbank40SegmentRomStart;
-			tuneEnd = _mbank40SegmentRomEnd;
-			break;
-		case OOTW_WIN1_TRACK:
-			tuneStart = _mbank41SegmentRomStart;
-			tuneEnd = _mbank41SegmentRomEnd;
-			break;
-		case OOTW_WIN2_TRACK:
-			tuneStart = _mbank42SegmentRomStart;
-			tuneEnd = _mbank42SegmentRomEnd;
-			break;
-
-		case BONUS_TRACK:
-			tuneStart = _mbank59SegmentRomStart;
-			tuneEnd = _mbank59SegmentRomEnd;
-			break;
-		case HASBRO_TRACK:
-			tuneStart = _mbank60SegmentRomStart;
-			tuneEnd = _mbank60SegmentRomEnd;
-			break;*/
-/*		case TITLE2_TRACK:
-			tuneStart	= _mBank1SegmentRomStart;
-			tuneEnd		= _mBank1SegmentRomEnd;
-			break;
-  */
-
-
-
-		default:
-			dprintf"Error, no song specified\n"));
-			return;
-			break;
+		MusHandleSetTempo(audioCtrl.musicHandle[slot], 0x6a);
 	}
-
-	audioCtrl.musicBin = audioCtrl.sfxPtr + (PBANK2_END - PBANK2_START);
-
-	DMAMemory(audioCtrl.musicBin, (u32)tuneStart, (u32)tuneEnd);
-
-	audioCtrl.musicHandle = MusBankStartSong(audioCtrl.musicPtr, audioCtrl.musicBin);
-	while(!(MusHandleAsk(audioCtrl.musicHandle)));
-//	audioCtrl.musicHandle = MusStartSong(audioCtrl.musicBin);
-
-	MusHandleSetVolume(audioCtrl.musicHandle, 255);//0x20);
-
-//	if((num == INTRO_TRACK) && (osTvType == 0))
-//	if((num == INTRO_TRACK) && (osTvType == 0))
-//	{
-		//MusHandleSetTempo(audioCtrl.musicHandle, 0x6a);
-//	}
-
 }
 
 
@@ -383,59 +133,50 @@ void PrepareSong(char num)
 	Returns 	: 
 	Info 		:
 */
-
-int PlaySample(short num, VECTOR *pos, short tempVol,short pitch)
+int PlaySample(short num,VECTOR *pos,short tempVol,short pitch)
 {
-	float	dist, scale, vol = tempVol;
+	int result;
+	float	dist, scale = 1, vol = tempVol;
 	VECTOR	tempVect;
 //	MusHandleStop(musresult, 0);
 
-//work out volume
-//	dist = DistanceBetweenPointsSquared(&camera.pos, pos);
-//	if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
-//		return 0;
+	if(!pos)
+		return 0;
 	
-//	dist = sqrtf(dist);
-//	scale = MAX_SFX_DIST - dist;
-//	scale = scale / MAX_SFX_DIST;
+//work out volume
+	dist = DistanceBetweenPointsSquared(&currCamSource[0],pos);
+	if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
+		return 0;
+	
+	dist = sqrtf(dist);
+	scale = MAX_SFX_DIST - dist;
+	scale = scale / MAX_SFX_DIST;
 
-//	vol *= scale;
+	vol *= scale;
 
 //work out pan
-//	SubVector2D(&tempVect, pos, &camera.pos);
-//	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
-//	scale = FindShortestAngle(Aabs(camera.rot.v[Y]+PI/2),dist);
+	SubVector2D(&tempVect, pos, &currCamSource[0]);
+	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
+	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 
-//	scale *= 255/PI;
+	scale *= 255/PI;
 
-
-/*	if(num != FX_NULL)
+	if(num != FX_NULL)
 	{
 
 		vol *= 1.8;
 		if(vol > 255)
 			vol = 255;
 
-		
-
-//		result = MusBankStartEffect2(audioCtrl.sfxPtr, num, (u8)vol, scale, 0, -1);
-*/
-		vol *=2;
-		if(vol > 255)
-			vol = 255;
-//vol = 255;
-		scale = 255;
-
-		musresult = MusStartEffect2(num, (u8)vol, scale, 0, -1);
-		MusHandleSetFreqOffset(musresult,(float)(pitch-128)/10.0);
-		MusHandleSetTempo(musresult,pitch);
-/*	}
+		result = MusStartEffect2(num, (u8)vol, scale, 0, -1);
+		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
+		MusHandleSetTempo(result,pitch);
+	}
 	else	result = 0;
-  */
-//	if((reverbOn) || (camera.stats->inWater))
-//		MusHandleSetReverb(result, 30);
-//	return result;
-
+  
+	if(reverbOn)
+		MusHandleSetReverb(result,30);
+	return result;
 }
 
 
@@ -450,11 +191,12 @@ int PlaySample(short num, VECTOR *pos, short tempVol,short pitch)
 int PlaySampleRadius(short num, VECTOR *pos, short tempVol,short pitch,float radius)
 {
 	int result;
-	float	dist, scale, vol = tempVol;
+	float	dist, scale = 1, vol = tempVol;
 	VECTOR	tempVect;
 
 //work out volume
-	dist = Max(0,DistanceBetweenPoints(&frog[0]->actor->pos, pos) - radius);
+/*
+	dist = Max(0,DistanceBetweenPoints(&currCamSource[0], pos) - radius);
 	if(dist > MAX_SFX_DIST)
 		return 0;
 
@@ -462,31 +204,29 @@ int PlaySampleRadius(short num, VECTOR *pos, short tempVol,short pitch,float rad
 	scale = scale / MAX_SFX_DIST;
 
 	vol *= scale;
-
+*/
 //work out pan
-	SubVector2D(&tempVect, pos, &frog[0]->actor->pos);
-	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
-	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
+//	SubVector2D(&tempVect, pos, &currCamSource[0]);
+//	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
+//	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 
-	scale *= 255/PI;
+//	scale *= 255/PI;
 
 
 	if(num != FX_NULL)
 	{
-		//vol *= 1.8;
+		vol *= 1.8;
 		if(vol > 255)
 			vol = 255;
 
-//		result = MusBankStartEffect2(audioCtrl.sfxPtr, num, vol, scale, 0, -1);
 		result = MusStartEffect2(num, vol, scale, 0, -1);
 		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
 		MusHandleSetTempo(result,pitch);
 	}
 	else	result = 0;
-/*
-	if((reverbOn) || (camera.stats->inWater))
+
+	if(reverbOn)
 		MusHandleSetReverb(result, 30);
-*/
 
 	return result;
 }
@@ -559,7 +299,7 @@ void UpdateContinuousSample(SFX *sfx)
 
 	if(sfx->radius)
 	{
-		dist = Max(0,DistanceBetweenPoints(&frog[0]->actor->pos, sfx->pos) - sfx->radius);
+		dist = Max(0,DistanceBetweenPoints(&currCamSource[0], sfx->pos) - sfx->radius);
 		if(dist > MAX_SFX_DIST)
 		{
 			if(sfx->handle)
@@ -573,7 +313,7 @@ void UpdateContinuousSample(SFX *sfx)
 	}
 	else
 	{
-		dist = DistanceBetweenPointsSquared(&frog[0]->actor->pos, sfx->pos);
+		dist = DistanceBetweenPointsSquared(&currCamSource[0], sfx->pos);
 		if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
 		{
 			if(sfx->handle)
@@ -601,21 +341,17 @@ void UpdateContinuousSample(SFX *sfx)
 
 
 //work out pan
-	SubVector2D(&tempVect, sfx->pos, &frog[0]->actor->pos);
-	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
-	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
+//	SubVector2D(&tempVect, sfx->pos, &frog[0]->actor->pos);
+//	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
+//	scale = FindShortestAngle(Aabs(frog[0]->actor->rot.v[Y]+PI/2),dist);
 
-	scale *= 255/PI;
+//	scale *= 255/PI;
 
 	if(sfx->handle == 0)
 	{
-//		sfx->handle = MusBankStartEffect2(audioCtrl.sfxPtr, sfx->sampleNum, sfx->actualVolume, scale, 0, -1);
 		sfx->handle = MusStartEffect2(sfx->sampleNum, sfx->actualVolume, scale, 0, -1);
-
-/*
-		if((reverbOn) || (camera.stats->inWater))
+		if(reverbOn)
 			MusHandleSetReverb(sfx->handle, 30);
-*/
 		numContinuousSamples++;
 	}
 	else
@@ -650,7 +386,6 @@ void AddAmbientSfx(int num, int vol, int pan)
 	if(vol > 255)
 		vol = 255;
 
-//	ambientSound->sfx.handle = MusBankStartEffect2(audioCtrl.sfxPtr, num, vol, pan, 0, -1);
 	ambientSound->sfx.handle = MusStartEffect2(num, vol, pan, 0, -1);
 	numContinuousSamples++;
 	ambientSound->sfx.pos = &zero;
@@ -890,6 +625,7 @@ int PlaySampleNot3D(int num,UBYTE vol,UBYTE pan,UBYTE pitch)
 	handle = MusStartEffect2(num,vol,pan, 0, -1);
 	MusHandleSetFreqOffset(handle,(float)(pitch-128)/10.0);
 	MusHandleSetTempo(handle,pitch);
+
 	return handle;
 }
 
@@ -989,4 +725,54 @@ int PlaySampleNot3D(int num,UBYTE vol,UBYTE pan,UBYTE pitch)
 	}	
 }
 */
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: PlayActorBasedSample
+	Purpose			: play a sample based on actor rotation, rather than camera
+	Parameters		: short,ACTOR *,short,short
+	Returns			: int
+	Info			: 
+*/
+int PlayActorBasedSample(short num,ACTOR *act,short tempVol,short pitch)
+{
+	int result;
+	float	dist, scale = 1, vol = tempVol;
+	VECTOR	tempVect;
+
+//work out volume
+	dist = DistanceBetweenPointsSquared(&currCamSource[0],&act->pos);
+	if(dist > MAX_SFX_DIST*MAX_SFX_DIST)
+		return 0;
+	
+	dist = sqrtf(dist);
+	scale = MAX_SFX_DIST - dist;
+	scale = scale / MAX_SFX_DIST;
+
+	vol *= scale;
+
+//work out pan
+	SubVector2D(&tempVect, &act->pos, &currCamSource[0]);
+	dist = Aabs(atan2(tempVect.v[X], tempVect.v[Z]));
+	scale = FindShortestAngle(Aabs(act->rot.v[Y]+PI/2),dist);
+
+	scale *= 255/PI;
+
+	if(num != FX_NULL)
+	{
+
+		vol *= 1.8;
+		if(vol > 255)
+			vol = 255;
+
+		result = MusStartEffect2(num, (u8)vol, scale, 0, -1);
+		MusHandleSetFreqOffset(result,(float)(pitch-128)/10.0);
+		MusHandleSetTempo(result,pitch);
+	}
+	else	result = 0;
+  
+	if(reverbOn)
+		MusHandleSetReverb(result,30);
+	return result;
+}
 

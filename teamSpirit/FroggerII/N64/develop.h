@@ -13,13 +13,7 @@
 #define DEVELOP_H_INCLUDED
 
 
-extern char runningDevStuff;
-extern char runningWaterStuff;
-
 extern void RunDevelopmentMenu();
-extern void RunDevelopmentRoutines();
-
-extern void DrawTestPause();
 
 
 #endif

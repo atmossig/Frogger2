@@ -37,7 +37,7 @@ NNScPerf* nnsc_perf_ptr;
 #endif 
 
 float framesPerSec = 2;
-float GAME_SPEED = 1;
+float gameSpeed = 1;
 float GAME_SPEED2 = 1;
 float accelerator = 1.0;
 
@@ -164,21 +164,14 @@ void nnScEventHandler(NNSched *sc)
 			gcount++;
 			acount++;
 			fcount++;
-
 			actFrameCount++;
-
 			if((gcount >= desiredFrameRate) && (gfxTasks == 0) && (codeRunning == 0))
 			{
-
-
 				desiredFrameRate = newDesiredFrameRate;
 				gcount = 0;
 				nnScEventBroadcast( sc, &gfxRetraceMsg);
 				framesPerSec = fcount;
 				fcount = 0;
-//				GAME_SPEED = framesPerSec / desiredFrameRate;
-//				GAME_SPEED2 = desiredFrameRate / framesPerSec;
-	//				nnScEventBroadcast( sc, &sc->retraceMsg );
 			}
 			else
 			{
@@ -226,7 +219,8 @@ void nnScEventHandler(NNSched *sc)
 //		if(osTvType == 0)
 		{
 #ifdef AUDIO
-			MusHandleStop(audioCtrl.musicHandle, 20);
+			MusHandleStop(audioCtrl.musicHandle[0], 20);
+			MusHandleStop(audioCtrl.musicHandle[1], 20);
 #endif
 			preNmiCount = 20;
 		}
@@ -499,9 +493,7 @@ void TimerProc(void *arg)
 		{
 			gcount++;
 			acount++;
-
 			actFrameCount++;
-
 			if((gcount >= desiredFrameRate) && (gfxTasks == 0))
 			{
 

@@ -19,7 +19,7 @@
 
 #define RDP_OUTPUT_SIZE		4096
 
-unsigned long actFrameCount = 0,currentFrameTime = 0;
+unsigned long actFrameCount = 0,lastActFrameCount = 0,currentFrameTime = 0;
 char codeRunning = 0;
 
 Mtx Identity;
@@ -31,6 +31,8 @@ TEXTURE *cloudtex	= NULL;
 extern char _codeSegmentEnd[];
 
 u64	bootStack[SMALLSTACKSIZE/sizeof(u64)];
+
+char musicPriority = 140;
 
 static OSThread	idleThread;								// Lowest priority idle thread - must have idle thread !
 static u64 idleThreadStack[SMALLSTACKSIZE/sizeof(u64)];	// Stack used by lowest priority idle thread
@@ -362,7 +364,6 @@ void SetupViewing()
 */
 void SetRenderMode()
 {
-
 	changeRenderMode = 0;
     gDPPipeSync(glistp++);
 
@@ -1147,9 +1148,6 @@ void DrawGraphics(void *arg)
 				SetRenderMode();
 				ApplyGlobalTransformations();
 
-				if(runningWaterStuff)
-					DrawTestWater();
-
 				//***********************************
 
 				AnimateSprites();
@@ -1192,9 +1190,6 @@ void DrawGraphics(void *arg)
 
 				if(spriteList.numEntries)
 					PrintSpritesTranslucent(sprite);
-
-				if(runningDevStuff)
-					RunTestRoutine1();
 
 				DrawSpecialFX();
 
@@ -1274,7 +1269,8 @@ void doPoly(void *arg)
 {	
 	short tmp;
 	short *msg_type = NULL;
-
+	unsigned long newCount;
+	
 	//----- [ MAIN GAME LOOP ] -----//
 
 	ActiveController = initControllers();
@@ -1318,9 +1314,12 @@ void doPoly(void *arg)
 
 		if(*msg_type == NN_SC_GFX_RETRACE_MSG)
 		{
-//			GAME_SPEED2 = framesPerSec / 3;//desiredFrameRate;
-//			GAME_SPEED2 *= accelerator;
-//			GAME_SPEED += (GAME_SPEED2 - GAME_SPEED) / 3;
+/*
+			GAME_SPEED2 = framesPerSec / 3;//desiredFrameRate;
+			GAME_SPEED2 *= accelerator;
+			gameSpeed += (GAME_SPEED2 - gameSpeed) / 3;
+*/
+			gameSpeed = framesPerSec;
 
 			codeRunning = 1;
 

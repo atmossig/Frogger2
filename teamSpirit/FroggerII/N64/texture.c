@@ -97,6 +97,38 @@ void LoadTextureBank(int num)
 			dprintf"GENERIC IN-GAME TEXTURE BANK - "));
 			break;
 		
+		// FRONTEND TEXTURES ---------------------------------------------------------------------
+		case FRONTEND_TEX_BANK:
+			bankRomStart	= (u32)&_texBank_0_0_SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank_0_0_SegmentRomEnd;
+			dprintf"GENERIC FRONTEND TEXTURE BANK - "));
+			break;
+		case FRONTEND1_TEX_BANK:
+			bankRomStart	= (u32)&_texBank_0_1_SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank_0_1_SegmentRomEnd;
+			dprintf"FRONTEND 1 TEXTURE BANK - "));
+			break;
+		case FRONTEND2_TEX_BANK:
+			bankRomStart	= (u32)&_texBank_0_2_SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank_0_2_SegmentRomEnd;
+			dprintf"FRONTEND 2 TEXTURE BANK - "));
+			break;
+		case FRONTEND3_TEX_BANK:
+			bankRomStart	= (u32)&_texBank_0_3_SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank_0_3_SegmentRomEnd;
+			dprintf"FRONTEND 3 TEXTURE BANK - "));
+			break;
+		case FRONTEND4_TEX_BANK:
+			bankRomStart	= (u32)&_texBank_0_4_SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank_0_4_SegmentRomEnd;
+			dprintf"FRONTEND 4 TEXTURE BANK - "));
+			break;
+		case FRONTEND5_TEX_BANK:
+			bankRomStart	= (u32)&_texBank_0_5_SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank_0_5_SegmentRomEnd;
+			dprintf"FRONTEND 5 TEXTURE BANK - "));
+			break;
+
 		// GARDEN TEXTURES -----------------------------------------------------------------------
 		case GENERIC_GARDEN_TEX_BANK:
 			bankRomStart	= (u32)&_texBank_1_0_SegmentRomStart;
@@ -562,7 +594,7 @@ void AnimateTexture(TEXTURE_ANIMATION *anim,Gfx *dl)
 //		return;
 
 	lastFrame = anim->currentFrame;
-	speed = 32 * GAME_SPEED;
+	speed = 32 * gameSpeed;
 	anim->counter -= speed;
 	while(anim->counter <= 0)
 	{

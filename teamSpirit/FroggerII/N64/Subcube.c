@@ -20,6 +20,9 @@
 
 short transform = 1;
 
+VECTOR pointVec = {0,0,1};
+float hedSpeed = 0.2;
+
 Vtx	objectsVtx[2][2000];
 Vtx *vtxPtr;
 
@@ -622,6 +625,7 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 	short i, j;
 	short	fromKey, toKey;
 	short	xluVal;
+	char tmp[6];
 	Vtx		*vtx = currentObjectController->vtx[currentObjectController->vtxBuf];
 
 //handle position keyframes
@@ -726,6 +730,58 @@ void TransformSkinnedObject(OBJECT *obj, float time)
 				vtx[obj->effectedVerts[i].verts[j]].n.n[X] = (s8)rotation.v[X];
 				vtx[obj->effectedVerts[i].verts[j]].n.n[Y] = (s8)rotation.v[Y];
 				vtx[obj->effectedVerts[i].verts[j]].n.n[Z] = (s8)rotation.v[Z];
+			}
+		}
+	}
+
+	if(frontEndState.mode != OBJVIEW_MODE)
+	{
+		for(i=0; i<5; i++)
+			tmp[i] = obj->name[i];
+		tmp[5] = '\0';
+
+		// If a water object, draw always
+		if(!gstrcmp(tmp,"fghed\0"))
+		{
+			float rotmat2[4][4];
+			QUATERNION quat, rot = {0,1,0,0};
+			VECTOR actVec;
+
+			if(player[0].canJump)
+			{
+				if (pointOfInterest)
+				{
+					SubVector (&actVec,pointOfInterest,&(frog[0]->actor->pos));
+				}
+				else
+				{
+					SetVector (&actVec,&(currTile[0]->dirVector[frogFacing[0]]));
+				}
+
+				MakeUnit (&actVec);
+
+				pointVec.v[X] += (actVec.v[X] - pointVec.v[X]) * hedSpeed;
+				pointVec.v[Y] += (actVec.v[Y] - pointVec.v[Y]) * hedSpeed;
+				pointVec.v[Z] += (actVec.v[Z] - pointVec.v[Z]) * hedSpeed;
+		
+				MakeUnit (&pointVec);
+
+				// Could cause problems if point pass through frog... Should never Happen.
+	
+				CrossProduct( (VECTOR *)&rot, &(currTile[0]->dirVector[frogFacing[0]]),&pointVec);
+				rot.w = DotProduct(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
+				if (rot.w>1)
+					rot.w = 0;
+				else
+					rot.w = acos(rot.w);
+
+				GetQuaternionFromRotation (&quat,&rot);
+				QuaternionToMatrix(&quat, (MATRIX*)rotmat2);
+				guMtxCatF(rotmat,rotmat2,rotmat);
+			}
+			else
+			{
+				SetVector(&pointVec,&(currTile[0]->dirVector[frogFacing[0]]));
 			}
 		}
 	}

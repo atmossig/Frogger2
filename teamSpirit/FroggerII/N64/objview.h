@@ -30,6 +30,7 @@ typedef struct _OBJECT_VIEWER
 	unsigned int	viewMode;					// Object viewing mode
 
 	int				currWorldID;				// ID of current world
+	int				currLevelID;				// ID of current level
 	int				currObjNum;					// Current number of object for viewing
 	int				numObjects;					// Number of objects for viewing
 
@@ -64,7 +65,7 @@ extern void ObjViewInit();
 
 extern void RunObjectViewer();
 extern void SelectObjectBank();
-extern void ViewObjectBank(unsigned long worldID);
+extern void ViewObjectBank();
 
 extern void ObjViewResetObjectView();
 extern void ObjViewChangeViewMode();
