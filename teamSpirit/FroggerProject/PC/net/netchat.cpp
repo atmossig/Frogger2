@@ -14,6 +14,7 @@
 #include <dplay.h>
 #include <dplobby.h>
 #include <richedit.h>
+#include <stdio.h>
 
 #include <ddraw.h>
 #include <d3d.h>
@@ -137,7 +138,7 @@ bool SetupChatDialog(HWND hdlg)
 	for (i=0; i<NUM_MULTI_LEVELS; i++)
 	{
 		LEVEL_VISUAL_DATA *data;
-		char *levelname;
+		char levelname[8];
 		int index;
 
 		// get level names from worldvisualdata
@@ -146,7 +147,9 @@ bool SetupChatDialog(HWND hdlg)
 
 		if (data->levelOpen)
 		{
-			levelname = GAMESTRING(data->description_str);
+			sprintf(levelname, "%d:%d", multiLevels[i].world, multiLevels[i].level);
+			//levelname = GAMESTRING(data->description_str);
+
 			index = SendMessage(hList, CB_ADDSTRING, 0, (DWORD)levelname);
 			SendMessage(hList, CB_SETITEMDATA, index, i);
 		}
