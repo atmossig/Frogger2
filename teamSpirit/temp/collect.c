@@ -226,7 +226,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case EXTRALIFE_GARIB:
-			if( player[pl].lives < 999 )
+			if((player[pl].lives < 999) && (gameState.mode != DEMO_MODE))
 				player[pl].lives++;
 
 			CreatePickupEffect( pl, 0, 200, 0, 220, 220, 220 );
