@@ -875,7 +875,7 @@ void LoadSfxMapping( int world, int level )
 		switch( type )
 		{
 		case 0: num = NUM_FROG_ANIMS; break;
-//		case 1: num = NUM_MULTI_ANIMS; break;
+		case 1: num = MULTI_NUM_ANIMS; break;
 		case 2: num = NUM_NME_ANIMS; break;
 		case 3: num = 1; break; // NUM_SCENIC_ANIMS
 		case 4: num = 1; break; // NUM_SCENIC_ANIMS
@@ -946,7 +946,7 @@ void FindSfxMapping( unsigned long uid, ACTOR *actor )
 		switch( type )
 		{
 		case 0: index += NUM_FROG_ANIMS; break;
-//		case 1: index += NUM_MULTI_ANIMS; break;
+		case 1: index += MULTI_NUM_ANIMS; break;
 		case 2: index += NUM_NME_ANIMS; break;
 		case 3: index ++; break; // Number of scenic animations
 		}
