@@ -1736,8 +1736,15 @@ void UpdateFrogCroak( int pl )
 				PrepForPriorityEffect( );
 				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &normal, initcroakscale, 4096, 410, croaklife )) )
 				{
+					int n;
+
+					if( babyList[baby].enemy->path->nodes->offset2 )
+						n = ((babyList[baby].enemy->path->nodes->offset2>>12)/SCALE)-1;
+					else
+						n = baby;
+
 					fx->spin = 25;
-					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
+					SetFXColour( fx, babyList[n].fxColour[R], babyList[n].fxColour[G], babyList[n].fxColour[B] );
 				}
 				else
 					utilPrintf("Failed to create croak!!\n");

@@ -262,8 +262,15 @@ void UpdateFrogCroak( int pl )
 				PrepForPriorityEffect( );
 				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &up, 81920, 4096, 410, 6144 )) )
 				{
+					int n;
+
+					if( babyList[baby].enemy->path->nodes->offset2 )
+						n = ((babyList[baby].enemy->path->nodes->offset2>>12)/SCALE)-1;
+					else
+						n = baby;
+
 					fx->spin = 25;
-					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
+					SetFXColour( fx, babyList[n].fxColour[R], babyList[n].fxColour[G], babyList[n].fxColour[B] );
 				}
 
 				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
