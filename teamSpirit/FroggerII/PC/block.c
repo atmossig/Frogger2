@@ -408,15 +408,7 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		case WM_RBUTTONUP:
 			rButton = 0;
 			break;
-/*
-		case WM_CHAR:
-			if (editorOk)	// only when editor is set up to "grab" keyboard data
-			{
-				EditorKeypress((char)wParam);
-				return 0;
-			}
-			break;
-*/
+
 		case WM_KEYUP:
 			switch( (int)wParam )
 			{
