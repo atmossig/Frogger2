@@ -176,13 +176,21 @@ long yPos_multi[4] = {5,5,240 - 50,240 - 50};
 void InitMultiHUD()
 {
 	int i;
-	multiHud.backTime = CreateAndAddSpriteOverlay(160-40,5,"wback2.bmp",80,25,170,0);
 
-	multiHud.timeTextMin = CreateAndAddTextOverlay(120-8,9,timeStringMin,NO,255,currFont,0,0);
-	multiHud.timeTextSec = CreateAndAddTextOverlay(120+32-8,9,timeStringSec,NO,255,currFont,0,0);
-	multiHud.timeTextHSec = CreateAndAddTextOverlay(120+32+32-8,9,timeStringHSec,NO,255,currFont,0,0);
-	multiHud.timeTextHSec->scale = 0.75;
-	
+	switch( multiplayerMode )
+	{
+	case MULTIMODE_BATTLE:
+	case MULTIMODE_COLLECT:
+		break;
+	case MULTIMODE_RACE:
+		multiHud.backTime = CreateAndAddSpriteOverlay(160-40,5,"wback2.bmp",80,25,170,0);
+		multiHud.timeTextMin = CreateAndAddTextOverlay(120-8,9,timeStringMin,NO,255,currFont,0,0);
+		multiHud.timeTextSec = CreateAndAddTextOverlay(120+32-8,9,timeStringSec,NO,255,currFont,0,0);
+		multiHud.timeTextHSec = CreateAndAddTextOverlay(120+32+32-8,9,timeStringHSec,NO,255,currFont,0,0);
+		multiHud.timeTextHSec->scale = 0.75;
+		break;
+	}
+
 	multiHud.centreText = CreateAndAddTextOverlay(1,100,countdownString,YES,255,currFont,0,0);
 
 	for (i = 0; i<NUM_FROGS; i++)
@@ -194,12 +202,10 @@ void InitMultiHUD()
 		multiHud.winsText[i] = CreateAndAddTextOverlay(xPos_multi[i]+64,yPos_multi[i]+24,winsString[i],NO,255,currFont,0,0);
 		multiHud.winsText[i]->scale = 0.5;
 	}
-
 }
 
 void InitHUD(void)
 {
-	
 	if (gameState.multi == SINGLEPLAYER)
 		InitArcadeHUD();		
 	else
@@ -298,18 +304,31 @@ void UpDateMultiplayerInfo( void )
 		}
 	}
 	
-	for (i=0; i<NUM_FROGS; i++)
+	switch( multiplayerMode )
 	{
-		sprintf(penalString[i],"%02i",((int)(mpl[i].penalty/60)));
-		sprintf(winsString[i],"%02i",mpl[i].wins);
+	case MULTIMODE_RACE:
+		for (i=0; i<NUM_FROGS; i++)
+		{
+			sprintf(winsString[i],"%02i",mpl[i].wins);
+			sprintf(penalString[i],"%02i",((int)(mpl[i].penalty/60)));
+			if (mpl[i].timer>timeFrames)
+				timeFrames=mpl[i].timer;
+		}
+		sprintf(timeStringHSec,"%02i",((int)(timeFrames*100)/60)%100);
+		sprintf(timeStringSec,"%02i",((int)timeFrames/60)%60);
+		sprintf(timeStringMin,"%2i",((int)timeFrames/(60*60))%60);	
 
-		if (mpl[i].timer>timeFrames)
-			timeFrames=mpl[i].timer;
+		break;
+	case MULTIMODE_BATTLE:
+	case MULTIMODE_COLLECT:
+		for (i=0; i<NUM_FROGS; i++)
+		{
+			sprintf(winsString[i],"%02i",mpl[i].wins);
+			sprintf(penalString[i],"%02i",mpl[i].score);
+		}
+
+		break;
 	}
-
-	sprintf(timeStringHSec,"%02i",((int)(timeFrames*100)/60)%100);
-	sprintf(timeStringSec,"%02i",((int)timeFrames/60)%60);
-	sprintf(timeStringMin,"%2i",((int)timeFrames/(60*60))%60);	
 }
 
 void UpDateOnScreenInfo( void )

@@ -98,7 +98,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
 			{
 				mpl[pl].trail++;
-				mpl[pl].score += 10;
+				mpl[pl].score++;
 			}
 			else
 			{

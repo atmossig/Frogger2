@@ -7,18 +7,22 @@ int multiplayerMode;
 long started = 0;
 unsigned long numMultiItems=0;
 char matchWinner = -1;
-
+char multiLevelIndex[MAX_WORLDS] = {1, 3, 3, 3, 3, 3, 5, 9};
 
 TIMER powerupTimer;
+TIMER multiTimer;
+TIMER endTimer;
 
 void UpdateRace( );
 void UpdateBattle( );
+void UpdateCollect( );
 
 void CalcBattleCamera( VECTOR *target );
 void CalcRaceCamera( VECTOR *target );
 
 void BattleProcessController( int pl );
 int AddBattleTrailNode( int i );
+void CollectRespawn( int pl );
 void FaceFrogInwards(int i);
 
 MPINFO mpl[4];
@@ -39,13 +43,10 @@ char raceTimeText[4][20] =
 	Returns			: 
 	Info			:
 */
-
-TIMER multiTimer,endTimer;
 void UpdateRace( )
 {
 	int i, j, score;
 
-	UpDateMultiplayerInfo();
 	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
@@ -68,7 +69,7 @@ void UpdateRace( )
 	if( multiTimer.time)
 	{
 		GTUpdate( &multiTimer, -1 );
-		if(multiTimer.time==1)
+		if(!multiTimer.time)
 		{
 			started = 2;
 			for( i=0; i<NUM_FROGS; i++ )
@@ -219,13 +220,11 @@ void UpdateRace( )
 */
 void UpdateBattle( )
 {
-	static TIMER endTimer;
-	int i, j, res, dead;
+	int i, j, res, dead=0;
 
 	if( !started )
 	{
 		int count=0;
-//		sprintf( timeTextOver->text, "Press A" );
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
@@ -235,17 +234,29 @@ void UpdateBattle( )
 			// Face all frogs towards the centre of the map
 			FaceFrogInwards(i);
 		}
+		GTInit( &multiTimer, 0);
 
 		if( count == NUM_FROGS )
 		{
 			GTInit( &endTimer, 0 );
 			GTInit( &powerupTimer, Random(4)+3 );
+			GTInit( &multiTimer, 6 );
 			started = 1;
-//			timeTextOver->text[0] = '\0';
 		}
 	}
 
-	if( endTimer.time )
+	// When all players are ready, start a countdown
+	if( multiTimer.time)
+	{
+		GTUpdate( &multiTimer, -1 );
+		if(!multiTimer.time)
+		{
+			started = 2;
+			for( i=0; i<NUM_FROGS; i++ )
+				player[i].canJump = 1;
+		}
+	}
+	else if( endTimer.time )
 	{
 		GTUpdate( &endTimer, -1 );
 
@@ -257,10 +268,8 @@ void UpdateBattle( )
 		return;
 	}
 
-//	sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
 	if( started )
 	{
-//		sprintf( timeTextOver->text, "%i %i %i %i", mpl[0].score, mpl[1].score, mpl[2].score, mpl[3].score );
 		GTUpdate( &powerupTimer, -1 );
 		if( !powerupTimer.time )
 		{
@@ -291,7 +300,7 @@ void UpdateBattle( )
 		// Change desired frog facing
 		BattleProcessController(i);
 
-		if( started )
+		if( started == 2 )
 		{
 			AIPATHNODE *node=NULL, *temp;
 			// If the frog can move then continue in current direction
@@ -360,7 +369,6 @@ void UpdateBattle( )
 
 		if( i!=NUM_FROGS )
 		{
-//			sprintf( timeTextOver->text, "P%i won", i );
 			mpl[i].wins++;
 			GTInit( &endTimer, 5 );
 		}
@@ -374,6 +382,118 @@ void UpdateBattle( )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: UpdateCollect
+	Purpose			: Do game mechanics for Frogger1 collection mode
+	Parameters		: 
+	Returns			: 
+	Info			:
+*/
+void UpdateCollect( )
+{
+	int i, j, res, dead=0,total=0;
+
+	if( !started )
+	{
+		int count=0;
+
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			player[i].canJump = 0;
+			if( (controllerdata[i].button & CONT_A) && !(controllerdata[i].lastbutton & CONT_A) ) 
+			{
+				mpl[i].ready = 1;
+				DisableTextOverlay( raceTimeOver[i] );
+			}
+			if( mpl[i].ready ) count++;
+		}
+		GTInit( &multiTimer, 0);
+
+		if( count == NUM_FROGS )
+		{
+			GTInit( &endTimer, 0 );
+			GTInit( &powerupTimer, Random(4)+3 );
+			GTInit( &multiTimer, 6 );
+			started = 1;
+		}
+	}
+
+	// When all players are ready, start a countdown
+	if( multiTimer.time)
+	{
+		GTUpdate( &multiTimer, -1 );
+		if(!multiTimer.time)
+		{
+			started = 2;
+			for( i=0; i<NUM_FROGS; i++ )
+				player[i].canJump = 1;
+		}
+	}
+	else if( endTimer.time )
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+		{
+			frameCount = 2;
+			ResetMultiplayer( );
+		}
+		return;
+	}
+
+	if( started == 2 )
+	{
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			// Check for collection of objects and update total
+			total += mpl[i].score;
+
+			// If waiting to respawn, update timer and check for respawn timeout
+			if( player[i].dead.time )
+			{
+				GTUpdate( &player[i].dead, -1 );
+
+				if( !player[i].dead.time )
+				{
+					CollectRespawn(i);
+					frog[i]->draw = 1;
+				}
+				else continue;
+			}
+
+			// Respawn on start tile when dead, after countdown
+			if( player[i].frogState & FROGSTATUS_ISDEAD )
+				GTInit( &player[i].dead, 4 );
+		}
+
+		// If all objects collected then declare draw or winner
+		if( total == numBabies )
+		{
+			int best=0, winner=-1, draw;
+			
+			for( i=0; i<NUM_FROGS; i++ )
+				if( mpl[i].score > best )
+				{
+					best = mpl[i].score;
+					winner = i;
+				}
+			// If more then one on best score, draw
+			for( i=0,draw=0; i<NUM_FROGS; i++ )
+				if( i!=winner && mpl[i].score == best )
+					draw=1;
+
+			if( !draw )
+			{
+				matchWinner = winner;
+				mpl[winner].wins++;
+			}
+
+			GTInit( &endTimer, 5 );
+		}
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: RunMultiplayer
 	Purpose			: Call update function for each game type
 	Parameters		: player
@@ -382,6 +502,8 @@ void UpdateBattle( )
 */
 void RunMultiplayer( )
 {
+	UpDateMultiplayerInfo();
+
 	switch( multiplayerMode )
 	{
 	case MULTIMODE_RACE:
@@ -389,6 +511,9 @@ void RunMultiplayer( )
 		break;
 	case MULTIMODE_BATTLE:
 		UpdateBattle( );
+		break;
+	case MULTIMODE_COLLECT:
+		UpdateCollect( );
 		break;
 	}
 }
@@ -480,6 +605,22 @@ void RaceRespawn( int pl )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: CollectRespawn
+	Purpose			: Teleport frog to start
+	Parameters		: 
+	Returns			: 
+	Info			: Just respawn on the proper respawn tile
+*/
+void CollectRespawn( int pl )
+{
+	TeleportActorToTile(frog[pl],gTStart[0/*pl*/],pl);
+
+	lastTile[pl] = gTStart[pl];
+	destTile[pl] = gTStart[pl];
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: Battle process controller
 	Purpose			: Just change direction, and maybe use tongue
 	Parameters		: player
@@ -527,6 +668,7 @@ void BattleProcessController( int pl )
 int AddBattleTrailNode( int i )
 {
 	AIPATHNODE *node = (AIPATHNODE *)JallocAlloc(sizeof(AIPATHNODE),YES,"battletrail");
+	VECTOR pos;
 	
 	node->tile = destTile[i];
 
@@ -535,7 +677,10 @@ int AddBattleTrailNode( int i )
 
 	node->tile->state = TILESTATE_FROGGER1AREA + i;
 	// Create the effect that marks the trails
-	if( (node->fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &currTile[i]->centre, &currTile[i]->normal, 25, 0, 0, 9999999 )) )
+	SetVector( &pos, &currTile[i]->normal );
+	ScaleVector( &pos, 5 );
+	AddToVector( &pos, &currTile[i]->centre );
+	if( (node->fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &pos, &currTile[i]->normal, 25, 0, 0, 9999999 )) )
 	{
 		node->fx->fade = 0;
 		node->fx->tex = txtrSolidRing;
@@ -583,6 +728,38 @@ void FaceFrogInwards(int pl)
 
 	frogFacing[pl] = facing;
 	Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: PickupBabyFrogMulti
+	Purpose			: Player has collected baby frog in a multiplayer game
+	Parameters		: ACTOR2
+	Returns			: void
+	Info			: Probably not an actual baby frog, more likely a flag or other level collectable
+*/
+void PickupBabyFrogMulti( ENEMY *baby, int pl )
+{
+	int i;
+	ENEMY *nme;
+	PATH *path = baby->path, *path2;
+
+	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby->nmeActor ) break;
+
+	if( i==numBabies || babyList[i].isSaved ) return;
+
+	lastBabySaved = i;
+	babyList[i].isSaved	= 1;
+	baby->nmeActor->draw = 0;
+	baby->active = 0;
+
+	if( multiplayerMode == MULTIMODE_COLLECT )
+	{
+		mpl[pl].score++;
+		GTInit( &player[pl].dead, 2 );
+
+		// Start flag waving or something
+	}
 }
 
 
@@ -669,6 +846,13 @@ void ReinitialiseMultiplayer( )
 	switch( multiplayerMode )
 	{
 	case MULTIMODE_BATTLE:
+	case MULTIMODE_COLLECT:
+		raceTimeOver[0] = CreateAndAddTextOverlay( 20, 40, raceTimeText[0], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
+		raceTimeOver[1] = CreateAndAddTextOverlay( 260, 40, raceTimeText[1], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
+		raceTimeOver[2] = CreateAndAddTextOverlay( 20, 220, raceTimeText[2], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
+		raceTimeOver[3] = CreateAndAddTextOverlay( 260, 220, raceTimeText[3], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
+		for( i=0; i<NUM_FROGS; i++ ) sprintf(raceTimeOver[i]->text, "Press A");
+		for( ; i<4; i++ ) DisableTextOverlay( raceTimeOver[i] );
 		break;
 	case MULTIMODE_RACE:
 		raceTimeOver[0] = CreateAndAddTextOverlay( 20, 40, raceTimeText[0], 0, 255, smallFont, TEXTOVERLAY_NORMAL, 0 );
@@ -709,6 +893,14 @@ void ResetMultiplayer( )
 
 	switch( multiplayerMode )
 	{
+	case MULTIMODE_COLLECT:
+		for( i=0; i<NUM_FROGS; i++ )
+		{
+			mpl[i].ready = 0;
+			mpl[i].score = 0;
+			SetFroggerStartPos( gTStart[0/*i*/], i );
+		}
+		break;
 	case MULTIMODE_BATTLE:
 	{
 		AIPATHNODE *node, *temp;
@@ -770,6 +962,10 @@ void CalcMPCamera( VECTOR *target )
 		break;
 
 	case MULTIMODE_BATTLE:
+		CalcBattleCamera( target );
+		break;
+
+	case MULTIMODE_COLLECT:
 		CalcBattleCamera( target );
 		break;
 	}
@@ -1011,55 +1207,4 @@ void UpdateCTF( )
 	sprintf(timeTextOver->text,"%d",multiTimer.time);
 }
 	
-*/
-
-/*	--------------------------------------------------------------------------------
-	Function		: PickupBabyFrogMulti
-	Purpose			: Player has collected baby frog in a multiplayer game
-	Parameters		: ACTOR2
-	Returns			: void
-	Info			:
-*/
-/*
-void PickupBabyFrogMulti( ENEMY *baby, int pl )
-{
-	int i;
-	ENEMY *nme;
-	PATH *path = baby->path, *path2;
-
-	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby->nmeActor ) break;
-
-	if( i==numBabies ) return;
-
-	lastBabySaved = i;
-
-	// For different multiplayer modes do different things:
-		// CTF - transport baby back to frogger start point - assumes babies are all randommove nmes
-
-	if( multiplayerMode == MULTIMODE_CTF )
-	{
-		// Find placeholder enemy that holds the baby respawn path for this frog
-		for(nme = enemyList.head.next; nme != &enemyList.head; nme = nme->next )
-			if( nme->uid-BABY_UID == pl ) break;
-
-		if( nme == &enemyList.head ) return;
-
-		path2 = nme->path;
-
-		if( baby->flags & ENEMY_NEW_RANDOMMOVE )
-		{
-			CreateTeleportEffect( &baby->nmeActor->actor->pos, &baby->inTile->normal, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
-			// Baby teleports to froggers base
-			path->nodes[0].worldTile = path2->nodes[0].worldTile;
-			path->nodes[1].worldTile = path2->nodes[1].worldTile;
-			path->nodes[2].worldTile = path2->nodes[2].worldTile;
-			baby->isSnapping = 0;
-
-			// Teleport frog back to base too
-			CreateTeleportEffect( &frog[pl]->actor->pos, &currTile[pl]->normal, 255, 255, 255 );
-			TeleportActorToTile( frog[pl], gTStart[pl], pl );
-			destTile[pl] = gTStart[pl];
-		}
-	}
-}
 */

@@ -160,9 +160,8 @@ void DoEnemyCollision( ENEMY *cur )
 		for (i=0; i<NUM_FROGS; i++)
 			if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION) && (DistanceBetweenPointsSquared(&frog[i]->actor->pos,&act->actor->pos)<((frog[i]->radius+act->radius)*(frog[i]->radius+act->radius))) )
 			{
-				if( cur->flags & ENEMY_NEW_BABYFROG )
-				{}
-//					PickupBabyFrogMulti( cur, i );
+				if( (cur->flags & ENEMY_NEW_BABYFROG) && multiplayerMode == MULTIMODE_COLLECT )
+					PickupBabyFrogMulti( cur, i );
 				else if( !player[i].safe.time )
 					KillMPFrog(i);
 			}
@@ -170,9 +169,8 @@ void DoEnemyCollision( ENEMY *cur )
 					(!(player[i].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
 					!(player[i].frogState & FROGSTATUS_ISFLOATING))
 			{
-				if( cur->flags & ENEMY_NEW_BABYFROG )
-				{}
-//					PickupBabyFrogMulti( cur, i );
+				if( (cur->flags & ENEMY_NEW_BABYFROG) && multiplayerMode == MULTIMODE_COLLECT )
+					PickupBabyFrogMulti( cur, i );
 				else if( !player[i].safe.time )
 					KillMPFrog(i);
 			}
@@ -350,7 +348,8 @@ void UpdateEnemies()
 			ProcessAttachedEffects( (void *)cur, ENTITY_ENEMY );
 	}
 
-	UpdateBabies();
+	if( gameState.multi == SINGLEPLAYER )
+		UpdateBabies();
 }
 
 void RotateWaitingNME( ENEMY *cur )

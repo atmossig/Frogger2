@@ -564,6 +564,10 @@ BOOL LoadObjectBank(int num)
 			strcat(file,"language");
 			break;
 
+		case MULTIPLAYER_OBJ_BANK:
+			strcat(file,"multiplayer");
+			break;
+
 		default:
 			dprintf"ERROR: no object bank specified....\n"));
 			return 0;

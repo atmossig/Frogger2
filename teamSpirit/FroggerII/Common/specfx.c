@@ -157,7 +157,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		AddToVector(&effect->origin,&effect->normal);
 
-		effect->tex = txtrRing;
+		effect->tex = txtrSolidRing;
 		effect->Update = UpdateFXDecal;
 		effect->Draw = DrawFXDecal;
 		break;

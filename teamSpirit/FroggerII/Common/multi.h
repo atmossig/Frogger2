@@ -4,6 +4,7 @@
 
 #define MULTIMODE_RACE				1
 #define MULTIMODE_BATTLE			2
+#define MULTIMODE_COLLECT			3
 
 
 #define MULTI_BATTLE_MAXITEMS		15
@@ -44,6 +45,8 @@ extern char matchWinner;
 extern MPINFO mpl[];
 extern int multiplayerMode;
 extern unsigned long numMultiItems;
+
+extern char multiLevelIndex[];
 
 void RunMultiplayer( );
 void ResetMultiplayer( );

@@ -23,13 +23,13 @@ FROGSTORE frogPool[FROG_NUMFROGS] =
 {
 	{ "Frogger",	"frogger.obe",	"frogger.bmp",	1 },
 	{ "Lillie",		"femfrog.obe",	"lillie.bmp",	1 },
-	{ "Froglet",	"froglet.obe",	"babyfrog.bmp",	0 },
+	{ "Tad",		"tad.obe",		"babyfrog.bmp",	0 },
 	{ "Swampy",		"swampy.obe",	"swampy.bmp",	0 },
 	{ "Twee",		"twee.obe",		"twee.bmp",		1 },
 	{ "Toad",		"toad.obe",		"wart.bmp",		1 },
-	{ "Gnarly",		"frogger.obe",	"gnarly.bmp",	0 },
+	{ "Gnarl",		"frogger.obe",	"gnarly.bmp",	0 },
 	{ "Funky"		"frogger.obe",	"funky.bmp",	0 },
-	{ "Robofrog",	"frogger.obe",	"robofrog.bmp",	0 },
+	{ "Tank",		"tank.obe",		"robofrog.bmp",	0 },
 };
 
 
