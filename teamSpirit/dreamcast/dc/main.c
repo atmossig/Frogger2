@@ -529,7 +529,7 @@ void main()
 	a64FileInit();
 
 	// setup my vb interrupt
-	vblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
+	vblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK, VblCallBack, 0x60, NULL);
 
 //	kmSetCullingRegister(1.0f);
 	
