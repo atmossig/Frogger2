@@ -643,6 +643,23 @@ Matt Cloy:
 Andy Eder:
 ------------------------------------------------
 
+	Morning:
+
+	Andy had a Nintendo dev-kit,
+	It would make you laugh and cough,
+	On top of this is peed me off,
+	So I kicked it's little cock off.
+
+	Fixing a few bugs to make some of the levels on the N64 version playable and presentable.
+	Finished off knocking up a simple title screen to introduce people to the game - simply get
+	as many effects onto a single screen as possible !!! Heh heh heh.
+
+	Afternoon:
+
+	Carrying on with the work carried over from the morning. Whoopee, doo. What does it all mean,
+	Basil ? Oh yeah, how do you keep an idiot in suspense ? I shall tell you later...if you're
+	reading this then you obviously have nothing better to do...*grin*
+
 
 David Swift:
 ------------------------------------------------
