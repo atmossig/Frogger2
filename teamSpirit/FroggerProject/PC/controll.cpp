@@ -678,13 +678,7 @@ void ProcessUserInput()
 	// Get "debounce" states
 
 	for (i = 0; i<8; i++)
-	{
 		padData.debounce[i] = (~oldDigital[i]) & padData.digital[i];
-
-		if (padData.debounce[i])
-			utilPrintf("Controller press %08x\n", padData.debounce[i]);
-	}
-
 
 #ifdef FULL_BUILD
 	if (pressed)
