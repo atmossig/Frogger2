@@ -24,6 +24,8 @@ extern int sortCount;
 
 int polyCount = 0;
 
+char actorShiftDepth;
+
 // SL: This is the pre-made up all black palette.
 const USHORT EXPLORE_black_ref_palette[16] =
 //								{	0x4210,0x4210,0x4210,0x4210,	// rgb = 127	// this version does no trans!
@@ -62,6 +64,8 @@ void customDrawPrimitives2(int depth)
 
 	int						gteH;
 
+	depth += actorShiftDepth;
+
 	depth=depth>>2;
 
 	prims = (int)modctrl->PrimTop;
@@ -99,7 +103,11 @@ void customDrawPrimitives2(int depth)
 				gte_stsxy3_ft3(si);
 			
 				//no lighting
-				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+//				*(u_long *) (&si->r0) = *(u_long *) (&op->r0);		// 9 cycles here
+
+				si->r0 = ( op->r0 << 7 ) >> 8;
+				si->g0 = ( op->g0 << 7 ) >> 8;
+				si->b0 = ( op->b0 << 7 ) >> 8;
 
 				setPolyFT3(si);
 				if ( globalClut )
@@ -1275,7 +1283,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 	if (!primsleft)
 		return;
 
-	polyCount += primsleft;	
+//	polyCount += primsleft;	
 
 	lightmode = modctrl->lighting;
 	opcd = 0;
@@ -1301,6 +1309,9 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 #define op ((TMD_P_FT3I*)opcd)
 
 			case GPU_COM_TF3:
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					polyCount ++;	
 				BEGINPRIM(si, POLY_FT3);
 
 				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
@@ -1332,6 +1343,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 				// SL: move the prim pointer on one...
 				op = op->next;
+				}
 				break;
 #undef si
 #undef siNext
@@ -1343,6 +1355,9 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				
 			case GPU_COM_TF4:
 
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					polyCount ++;	
 				BEGINPRIM(si, POLY_FT4);
    			
 				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
@@ -1377,6 +1392,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				ENDPRIM(si, depth, POLY_FT4);
 
 				op = op->next;
+				}
 				break;
 #undef si
 #undef siNext
@@ -1388,6 +1404,9 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 			case GPU_COM_TG3:
 
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					polyCount ++;	
 				BEGINPRIM(si, POLY_GT3);
 
 				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
@@ -1431,6 +1450,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				ENDPRIM(si, depth, POLY_GT3);
 
 				op = op->next;
+				}
 				break;
 #undef si
 #undef siNext
@@ -1441,6 +1461,9 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 #define op opcd
 
 			case GPU_COM_TG4:
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					polyCount ++;	
 				BEGINPRIM(si, POLY_GT4);
 
 				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
@@ -1492,6 +1515,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 				ENDPRIM(si, depth, POLY_GT4);
 
 				(int)op = op->next;
+				}
 				break;
 
 #undef si
@@ -1504,7 +1528,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 			case GPU_COM_TF4SPR :
 
-				if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
 				{
 					int			width, height;
 
