@@ -291,6 +291,11 @@ void UpdatePathNME( ENEMY *cur )
 		}
 	}
 
+	if( actFrameCount < cur->path->startFrame+(0.5*(cur->path->endFrame-cur->path->startFrame)) )
+		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
+	else
+		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
+/*
 	GetPositionForPathNode(&fromPosition,&cur->path->nodes[cur->path->fromNode]);
 	GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->toNode]);
 
@@ -300,6 +305,7 @@ void UpdatePathNME( ENEMY *cur )
 		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
 	else
 		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
+		*/
 }
 
 
@@ -804,7 +810,7 @@ void UpdateMoveOnMoveNME( ENEMY *cur )
 			path->nodes[1].worldTile = path->nodes[2].worldTile;
 			path->nodes[2].worldTile = NULL;
 		}
-		else if( (actFrameCount-path->startFrame) > (0.8*(float)(path->endFrame-path->startFrame)) )
+		else if( actFrameCount > cur->path->startFrame+(0.5*(cur->path->endFrame-cur->path->startFrame)) )
 		{
 			cur->inTile = path->nodes[2].worldTile;
 		}
@@ -1116,12 +1122,6 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	if(shadowRadius)
 		if (newItem->nmeActor->actor->shadow)
 			newItem->nmeActor->actor->shadow->radius = shadowRadius;
-
-	// specify enemy radius if the enemy is radius based
-	if( flags & ENEMY_NEW_RADIUSBASEDCOLLISION)
-		newItem->nmeActor->radius = 15.0F; 	// set a default collision radius
-	else
-		newItem->nmeActor->radius = 0.0F;	// set radius to zero - not used for collision detection
 
 	AnimateActor(newItem->nmeActor->actor,0,YES,NO,animSpeed, 0, 0);
 	newItem->nmeActor->animSpeed = animSpeed;
