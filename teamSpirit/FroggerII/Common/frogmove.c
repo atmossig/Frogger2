@@ -684,6 +684,12 @@ void GetNextTile(unsigned long direction,long pl)
 	VECTOR vecUp,newVec;
 	float t2,at2;
 	
+/*
+	STARE IN AMAZEMENT!
+
+	Look at this piece of fabulous cloycode and gasp in horror!
+
+
 	for (i=0; i<4; i++)
 		if (currTile[pl]->tilePtrs[i])
 		{
@@ -702,7 +708,8 @@ void GetNextTile(unsigned long direction,long pl)
 				}
 			}
 		}
-		
+
+	
 	destTile[pl] = NULL;
 		
 	for (i=0; i<4; i++)
@@ -724,6 +731,9 @@ void GetNextTile(unsigned long direction,long pl)
 			}		
 		}
 	}
+*/
+
+	destTile[pl] = currTile[pl]->tilePtrs[ (direction + camFacing + 2) & 3 ]; // hmm...
 
 	if(destTile[pl])
 	{
