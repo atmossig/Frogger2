@@ -1446,8 +1446,9 @@ void ProcessAttachedEffects( void *entity, int type )
 	if( fxDist < ACTOR_DRAWDISTANCEOUTER && actFrameCount > act->fxCount )
 	{
 		// Restart effect timer
-/*		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 45;
-		else */if( (int)act->value1 )
+		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) )
+			r = 57;
+		else if( (int)act->value1 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
 				r = 60/(Random((int)act->value1)+1);
