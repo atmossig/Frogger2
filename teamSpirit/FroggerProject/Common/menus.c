@@ -477,6 +477,8 @@ void RunPauseMenu()
 	if (padData.debounce[pauseController]&PAD_SQUARE)
 	{
 		currCheat = 0;		
+		for(i = 0;i < 12;i++)
+			currentCheatCombo[i] = 0;
 	}
 
 	if (padData.digital[pauseController]&PAD_SQUARE)
