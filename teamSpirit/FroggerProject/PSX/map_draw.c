@@ -484,8 +484,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 	count = 0;
 
-	//utilPrintf ( "Number Of Sprite : %d\n", mesh->n_sprs );
-
 	for(i = mesh->n_sprs; i != 0; i--,op++)
 	{
 		LONG spritez, width, height;
@@ -495,16 +493,13 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 
 		setPolyFT4(si);
 
-		//utilPrintf ( "Sprite Position : %d : %d : %d\n", op->x, op->y, op->z );
-
-		tempVect.vx = op->x;
-		tempVect.vy = op->y;
-		tempVect.vz = op->z;
-
-		gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
+		tempVect.vx = -op->x;
+		tempVect.vy = -op->y;
+		tempVect.vz = -op->z;
 
 		width = 32;
 
+		gte_SetLDDQB(0);		// clear offset control reg (C2_DQB)
 		gte_ldv0(&tempVect);
 		gte_SetLDDQA(width);	// shove sprite width into control reg (C2_DQA)
 		gte_rtps();				// do the rtps
@@ -514,7 +509,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		if ( spritez <= 0 || spritez >= fog.max ) 
 			continue;
 
-		width = ( 64 * SCALEX ) / spritez;
+		width = ( op->w * SCALEX ) / spritez;
 		if(width < 2 )
 			continue;
 
@@ -523,7 +518,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
    		if (si->x1<=-256) continue;
    		if (si->x0>=256) continue;
 
-		height = ( 64 * SCALEY ) / spritez;
+		height = ( op->h * SCALEY ) / spritez;
 
 		si->y2 = si->y3 = si->y0 + height;
 		si->y1 = si->y0 = si->y0 - height;
