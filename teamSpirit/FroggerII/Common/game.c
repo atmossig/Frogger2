@@ -262,40 +262,13 @@ void GameProcessController(long pl)
 	}
 
 	// Croak and Croak Float
-	if ( ( frog[pl]->action.deathBy != DEATHBY_FALLINGTOTILE ) && 
-		 ( !(player[pl].frogState & FROGSTATUS_ISDEAD) ) && !frog[pl]->action.isCroaking )
-		if ( ( button[pl] & CONT_L ) && !( lastbutton[pl] & CONT_L ) )
+	if(!(player[pl].frogState & FROGSTATUS_ISDEAD) && !(frog[pl]->action.isCroaking))
+	{
+		if((button[pl] & CONT_L) && !(lastbutton[pl] & CONT_L))
 		{
 			frog[pl]->action.isCroaking	= 15;
 			player[pl].frogState |= FROGSTATUS_ISCROAKING;
 			PlaySample(218,NULL,255,128);
-		}
-
-	// croak / croak-float
-	if ( ( button[pl] & CONT_L ) && ( croakFloat ) )
-    {
-		if(croakFloat)
-		{
-			// following added by JamesH
-			if ( frog[pl]->action.deathBy == DEATHBY_FALLINGTOTILE )
-			{
-				player[pl].frogState		    &= ~FROGSTATUS_ISDEAD;
-				frog[pl]->action.dead	 = 0;
-				player[pl].frogState		    |= FROGSTATUS_ISFLOATING;
-
-				yFOVNew		= 80.0f;
-			}
-		}
-    }
-	else
-	{
-		if ( ( croakFloat ) && ( ( frog[pl]->action.deathBy == DEATHBY_FALLINGTOTILE ) ) &&
-							 ( player[pl].frogState & FROGSTATUS_ISFLOATING ) )
-		{
-			player[pl].frogState		    &= ~FROGSTATUS_ISFLOATING;
-			player[pl].frogState			|= FROGSTATUS_ISDEAD;
-			frog[pl]->action.deathBy = DEATHBY_FALLINGTOTILE;
-			frog[pl]->action.dead	 = 50;
 		}
 	}
 
@@ -1033,7 +1006,7 @@ void RunGameLoop (void)
 
 					levelIsOver		= 400;	
 
-					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
+//					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
 
 				
 					/*for ( i = 0; i < 3; i++ )
