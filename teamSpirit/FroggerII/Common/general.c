@@ -44,34 +44,23 @@ unsigned long gstrcmp(char *a,char *b)
 
 void stringChange ( char *name )
 {
+	char *c, *d, *e;
+	const char *obe = ".obe";
+	const char *ndo = ".ndo";
 
-#ifdef PC_VERSION
-
-	char *c = strstr(name, ".ndo");
-	if (c)
+	for(c = name; *c; c++)
 	{
-		dprintf "Converted %s to ", name));
-		strcpy(c, ".obe");
-		dprintf "%s\n", name));
+		d = (char*)ndo, e = c;
+		while(*e == *d)	// strstr!
+		{
+			e++, d++;
+			if (!*d) {	// end of ".obe" - found substring
+				d = (char*)obe;
+				while(*d) *(c++) = *(d++);	// strcpy!
+				return;
+			}
+		}
 	}
-
-#else
-	
-	char *tmpName;
-
-	while ( *name != '.' )
-	{
-		dprintf"%c", *name ));
-		name++;
-	}
-
-	name[1] = 'o';
-	name[2] = 'b';
-	name[3] = 'e';
-	name[4] = '\0';
-	dprintf"%c\n", name ));
-
-#endif
 }
 
 inline void cmemcpy( char *a, char *b, unsigned long size )
