@@ -194,6 +194,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			
 	strncpy(newE->bank,tBnk,60);
 
+	newE->keyed = 0;
 	if (newE->data)
 	{
 		LPDIRECTDRAWSURFACE7 temp;
@@ -202,14 +203,13 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		{
 			case TEXTURE_NORMAL:
 			{
-				newE->surf = D3DCreateTexSurface(xDim,yDim, 0x7c1f, 0, 1);
+				newE->surf = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1);
 					
 				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
+				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xffff, 0, 1)) == NULL)
 					return;
 
 				newE->keyed = DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim,0);
-				
 				newE->surf->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);
 				newE->xPos = 0;
 				newE->yPos = 0;
@@ -285,7 +285,6 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 			newE->xSize = xDim;
 			newE->ySize = yDim;
-			newE->keyed = 0;
 
 			if( rHardware )
 				newE->softData = NULL;

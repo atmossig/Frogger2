@@ -21,7 +21,7 @@ extern "C"
 #define MA_SORTFRONTBACK	1
 #define MA_SORTBACKFRONT	2
 
-enum {MA_FRAME_NORMAL,MA_FRAME_GLOW,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_FRAME_OVERLAY,MA_MAX_FRAMES};
+enum {MA_FRAME_NORMAL,MA_FRAME_GLOW,MA_FRAME_XLU,MA_FRAME_ADDITIVE,MA_FRAME_LIGHTMAP,MA_FRAME_PHONG,MA_FRAME_OVERLAY,MA_FRAME_COLORKEY,MA_MAX_FRAMES};
 
 typedef struct TAG_SOFTPOLY
 {
@@ -48,6 +48,8 @@ typedef struct TAG_FRAME_INFO
 	// Texture information
 	LPDIRECTDRAWSURFACE7 *cT;				// Current texture;
 	LPDIRECTDRAWSURFACE7 t[MA_MAX_FACES];	// Actual texture pointers
+	char *cK;								// Current Key
+	char key[MA_MAX_FACES];					// Colorkey Flags
 } FRAME_INFO;
 
 //--------------------------------------------------------------
@@ -57,7 +59,7 @@ extern FRAME_INFO *cFInfo,*oFInfo;
 
 // Blanks out current frame
 #define BlankFrame {\
-cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFInfo->cT = cFInfo->t;\
+cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFInfo->cT = cFInfo->t; cFInfo->cK = cFInfo->key;\
 }
 
 // Swap to a different frameset
@@ -79,8 +81,13 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned lo
 {\
 	long cnt;\
 	short *mfce = fce;\
-	LPDIRECTDRAWSURFACE7 tH = (tEntry ? tEntry->surf : 0);\
-\
+	LPDIRECTDRAWSURFACE7 tH = 0;\
+	char key;\
+	if  (tEntry)\
+	{\
+		tH = tEntry->surf;\
+		key = tEntry->keyed;\
+	}\
 	if ((cFInfo->nV + vC) < MA_MAX_VERTICES && (cFInfo->nF + fC) < MA_MAX_FACES)\
 	{\
 	\
@@ -88,8 +95,10 @@ void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB, unsigned lo
 		{\
 			*cFInfo->cF = (unsigned short)((*mfce) + cFInfo->nV);\
 			*cFInfo->cT = tH;\
+			*cFInfo->cK = key;\
 			cFInfo->cF++;\
 			cFInfo->cT++;\
+			cFInfo->cK++;\
 			mfce++;\
 		}\
 	\

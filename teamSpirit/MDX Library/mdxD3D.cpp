@@ -236,7 +236,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface(long xs,long ys, long cKey, long alphaS
 		return NULL;
 	}
 
-	if (!alphaSurf)
+	if (!alphaSurf && cKey!=0xffff)
 	{
 		DDCOLORKEY cK;
 		cK.dwColorSpaceLowValue = cKey;
@@ -245,6 +245,40 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface(long xs,long ys, long cKey, long alphaS
 	}
 	return pSurface;
 }	
+
+LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long alphaSurf, long videoRam)
+{ 
+	LPDIRECTDRAWSURFACE7 pSurface,pTSurface = NULL;
+	DDSURFACEDESC2		ddsd;
+	HRESULT				me;
+
+	//Create the surface
+	DDINIT(ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;//(alphaSurf?DDSD_PIXELFORMAT:0);
+	ddsd.dwWidth = xs;
+	ddsd.dwHeight = ys;
+	
+	ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;//(videoRam?DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM:DDSCAPS_SYSTEMMEMORY) | DDSCAPS_TEXTURE;
+	ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE;
+
+	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
+	{
+		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		ddShowError(me);
+		RELEASE(pSurface); 
+		return NULL;
+	}
+
+	if (!alphaSurf && cKey!=0xffff)
+	{
+		DDCOLORKEY cK;
+		cK.dwColorSpaceLowValue = cKey;
+		cK.dwColorSpaceHighValue = cKey;
+		pSurface->SetColorKey (DDCKEY_SRCBLT,&cK);
+	}
+	return pSurface;
+}	
+
 
 LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam)
 { 
@@ -484,7 +518,7 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 					if (val!=(0x1f | 0x1f<<10))
 						val |= 0x8000;
 					else
-					{
+			//		{
 						texHasMagenta = 1;
 					/*	// Stop magenta "halos"
 						short c;
@@ -504,7 +538,7 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE7 pSurface, unsigned short *
 									val = c;
 								c = 0;
 							}					*/
-					}
+			//		}
 
 					((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
 				}
