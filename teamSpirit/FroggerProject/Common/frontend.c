@@ -206,6 +206,7 @@ void GameLoop(void)
 
 	frameCount++;
 
+	// ds - what the hell?
 	i = NUM_FROGS;
 	while(i--)
 		if(player[i].inputPause > 0)
