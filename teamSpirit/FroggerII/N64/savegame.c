@@ -75,7 +75,7 @@ char	eepromMessageNum;
 short	eepromPresent = FALSE;
 
 //LEVEL_HISCORE	levelTable [ MAX_WORLDS ] [ 4 ];
-SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
+//SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
 
 //***********************************
 // Function Definitions
