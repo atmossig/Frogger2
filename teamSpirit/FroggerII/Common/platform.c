@@ -911,7 +911,7 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 	
 	t = (float)(actFrameCount- plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
 	ScaleVector(&moveVec, t * end_offset + (1-t) * start_offset);
-	AddVector(&plat->pltActor->actor->pos, &plat->path->nodes->worldTile->centre, &moveVec)
+	AddVector(&plat->pltActor->actor->pos, &plat->path->nodes->worldTile->centre, &moveVec);
 }
 
 

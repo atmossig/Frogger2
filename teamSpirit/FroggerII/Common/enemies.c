@@ -820,33 +820,38 @@ void UpdateVent( ENEMY *cur )
 */
 void UpdateMoveVerticalNME( ENEMY *cur )
 {
+	PATH *path = cur->path;
+	ACTOR *act = cur->nmeActor->actor;
 	VECTOR moveVec;
+	float start_offset, end_offset, t;
 
-	// get up vector for this enemy
-	SetVector(&moveVec,&cur->path->nodes[0].worldTile->normal);
-
-	moveVec.v[X] *= cur->speed;
-	moveVec.v[Y] *= cur->speed;
-	moveVec.v[Z] *= cur->speed;
-
-	// check if this enemy is moving up or down
-	if(cur->flags & ENEMY_NEW_MOVEUP)
-	{
-		// enemy is moving up
-		AddToVector(&cur->nmeActor->actor->pos,&moveVec);
-	}
-	else if(cur->flags & ENEMY_NEW_MOVEDOWN)
-	{
-		// enemy is moving down
-		SubFromVector(&cur->nmeActor->actor->pos,&moveVec);
-	}
-
-	if(EnemyReachedTopOrBottomPoint(cur))
+	// check if this platform has arrived at a path node
+	if( actFrameCount > cur->path->endFrame )
 	{
 		UpdateEnemyPathNodes(cur);
-		cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
-		cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+		path->startFrame = path->endFrame + cur->isWaiting * waitScale;
+		path->endFrame = path->startFrame + (60*cur->speed);
+
+		if (cur->isWaiting) return;
 	}
+
+	if (cur->flags & ENEMY_NEW_MOVEUP)
+	{
+		start_offset = path->nodes->offset;
+		end_offset = path->nodes->offset2;
+	}
+	else
+	{
+		start_offset = path->nodes->offset2;
+		end_offset = path->nodes->offset;
+	}
+
+	// get up vector for this platform
+	SetVector(&moveVec,&path->nodes[0].worldTile->normal);
+	
+	t = (float)(actFrameCount- path->startFrame)/(float)(path->endFrame - path->startFrame);
+	ScaleVector(&moveVec, t * end_offset + (1-t) * start_offset);
+	AddVector(&act->pos, &path->nodes->worldTile->centre, &moveVec);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1532,7 +1537,7 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 		// moving up
 		GetPositionForPathNodeOffset2(&toPos,&path->nodes[0]);
 
-		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (nme->speed * nme->speed))
+		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (100 * gameSpeed))
 			return TRUE;
 	}
 	else if(nme->flags & ENEMY_NEW_MOVEDOWN)
@@ -1540,7 +1545,7 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 		// moving down
 		GetPositionForPathNode(&toPos,&path->nodes[0]);
 
-		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (nme->speed * nme->speed))
+		if(DistanceBetweenPointsSquared(&nme->nmeActor->actor->pos,&toPos) < (100 * gameSpeed))
 			return TRUE;
 	}
 
@@ -1625,12 +1630,10 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 		}
 
 	}
-	else if( flags & (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN) )
+	else if( flags & (ENEMY_NEW_MOVEDOWN | ENEMY_NEW_MOVEUP) )
 	{
 		if( flags & ENEMY_NEW_PINGPONG )
 			nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
-		else if( flags & ENEMY_NEW_CYCLE )
-			GetPositionForPathNode(&nme->nmeActor->actor->pos,&path->nodes[path->fromNode]);
 	}
 
 	nme->speed		= path->nodes[path->fromNode].speed;
@@ -1639,7 +1642,11 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 	// Stop overshoot when waiting on a path node
 	if (nme->isWaiting)
 	{
-		GetPositionForPathNode(&nmePos, &path->nodes[path->fromNode]);
+		if( nme->flags & ENEMY_NEW_MOVEDOWN)
+			GetPositionForPathNodeOffset2(&nmePos, &path->nodes[path->fromNode]);
+		else
+			GetPositionForPathNode(&nmePos, &path->nodes[path->fromNode]);
+
 		SetVector(&nme->nmeActor->actor->pos, &nmePos);
 	}
 
