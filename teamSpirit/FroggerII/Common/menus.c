@@ -156,7 +156,7 @@ void RunTitleScreen( )
 				break;
 			}
 		}			
-	
+
 		switch (currentSelection)
 		{
 			case 0: startText->a = 255; break;

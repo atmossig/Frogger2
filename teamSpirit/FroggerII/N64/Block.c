@@ -1515,11 +1515,11 @@ void ControllerProc(void *arg)
 							case EEPROM_VALID:
 								EepromValid();
 								break;
-							case EEPROM_SAVEGAMEPROGRESS:
-								EepromSaveGameProgress();
+							case EEPROM_SAVEGAME:
+								EepromSaveGame();
 								break;
-							case EEPROM_LOADGAMEPROGRESS:
-								EepromLoadGameProgress();
+							case EEPROM_LOADGAME:
+								EepromLoadGame();
 								break;
 								
 				/*			case EEPROM_SAVEHISCORES:
@@ -1533,12 +1533,6 @@ void ControllerProc(void *arg)
 								break;
 							case EEPROM_LOADTIMES:
 								EepromLoadBestTimes();
-								break;
-							case EEPROM_SAVESLOT:
-								EepromSaveSlots();
-								break;
-							case EEPROM_LOADSLOT:
-								EepromLoadSlots();
 								break;
 							case EEPROM_SAVEID:
 								EepromSaveID();
