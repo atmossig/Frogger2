@@ -71,6 +71,54 @@ void ProcessPTFire( PROCTEXTURE *pt )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: ProcessPTForcefield
+	Purpose			: Procedural forcefield effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTForcefield( PROCTEXTURE *pt )
+{
+	unsigned long i = 1024,j;
+	unsigned char *tmp;
+	unsigned long t;
+	short p;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
+
+	for( i=0; i<9; i++ )
+	{
+		p = ((Random(30)+1)*32) + Random(30)+1;
+		pt->buf1[p] = 0xff;
+		pt->buf1[p+1] = 0xff;
+		pt->buf1[p-1] = 0xff;
+		pt->buf1[p-32] = 0xff;
+		pt->buf1[p+32] = 0xff;
+	}
+	
+	// Smooth, move up and fade
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			pt->buf2[p] = (pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p-32] + pt->buf1[p+32])>>2;
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: ProcessProcTextures
 	Purpose			: Call update function pointers for all procedural textures
 	Parameters		: 
@@ -191,6 +239,8 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	// Set update function and type depending on filename
 	if( name[4]=='f' && name[5]=='i' && name[6]=='r' && name[7]=='e' )
 		pt->Update = ProcessPTFire;
+	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
+		pt->Update = ProcessPTForcefield;
 }
 
 

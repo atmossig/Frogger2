@@ -16,6 +16,7 @@ typedef struct TAGPROCTEXTURE
 {
 	struct TAGPROCTEXTURE *next;
 
+	unsigned long timer;
 	unsigned char *buf1, *buf2;
 	short *palette;
 
@@ -40,6 +41,7 @@ extern void FreeProcTextures( );
 extern void FreeRandomPolyList( );
 
 extern void ProcessPTFire( PROCTEXTURE *pt );
+extern void ProcessPTForcefield( PROCTEXTURE *pt );
 
 
 #endif
