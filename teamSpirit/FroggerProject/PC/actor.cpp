@@ -124,9 +124,8 @@ void FindFrogSubObjects( int p )
 	{
 		MDX_OBJECT *obj;
 
-		strcpy( objName, "fghed" );
-		if( player[0].character == FROG_LILLIE )
-			objName[1] = 'm';
+		strcpy(objName, headNames[player[p].character]);
+		strlwr(objName);
 
 		if( (obj = FindActorSubObject( (MDX_ACTOR *)frog[0]->actor->actualActor, objName )) )
 		{
@@ -166,7 +165,7 @@ void UpdateFrogCroak( int pl )
 	{
 		SPECFX *fx;
 
-		if( breastMatrix )
+		if( breastMatrix && headPostMatrix )
 		{
 			if( croakDir > 1 )
 			{
@@ -261,9 +260,9 @@ void UpdateFrogCroak( int pl )
 		if( breastMatrix )
 		{
 			breastMatrix[0] = breastMatrix[5] = breastMatrix[10] = 1;
-			headPostMatrix[0] = headPostMatrix[5] = headPostMatrix[10] = 1;
-
 			croakDir = 0;
 		}
+		if( headPostMatrix )
+			headPostMatrix[0] = headPostMatrix[5] = headPostMatrix[10] = 1;
 	}
 }
