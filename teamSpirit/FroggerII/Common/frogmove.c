@@ -784,7 +784,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	}
 	else if(player[pl].isSuperHopping)
 	{
-		frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.1, 1 );
+		frogTrail[pl] = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 0.95, 0.0, 1 );
 		frogTrail[pl]->follow = frog[pl]->actor;
 		SetFXColour( frogTrail[pl], 50, 200, 50 );
 
