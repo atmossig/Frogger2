@@ -266,7 +266,7 @@ int InstallChecker(HWND hParent)
 
 	if (stricmp(baseDirectory, path) != 0)
 	{
-		if (strncmp(path, "X:\\", 3) == 0)
+		if (strnicmp(path, "X:\\", 3) == 0)
 		{
 			if (MessageBox(hParent,
 				"You are running Frogger2 from the X: drive while a version is installed on your hard drive. "
