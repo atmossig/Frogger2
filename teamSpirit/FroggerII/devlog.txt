@@ -366,6 +366,9 @@ Mike Movel:
 	Morning:
 		Carried on helping Byron with the includes.
 
+	Afternoon:
+		Finished integrating James' code, but there are still a few problems.
+
 
 Byron Blay:
 ------------------------------------------------
@@ -453,6 +456,11 @@ James Healey:
 
 Mike Movel:
 ------------------------------------------------
+	
+	Decided to try to redo the code involved with the playstation's 3D coordinate 
+	system, in order to allow the rest of the gamecode to stay the same as the PC's.
+	At the moment, a lot of the code throughout the game needs to be altered in 
+	various ways to make it work.
 
 
 Byron Blay:
