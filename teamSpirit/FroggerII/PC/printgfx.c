@@ -348,14 +348,12 @@ void ProcessShadows()
 				{
 					if ( bTStart[i] )
 					{
-						vec.v[X] = bTStart[i]->centre.v[X];
-						vec.v[Y] = bTStart[i]->centre.v[Y] + 1;
-						vec.v[Z] = bTStart[i]->centre.v[Z];
+						SetVector( &vec, &babies[i]->actor->pos );
 					}
 					else
 					{
 						vec.v[X] = 0;
-						vec.v[Y] = 0 + 1;
+						vec.v[Y] = 1;
 						vec.v[Z] = 0;
 					}
 					// ENDIF

@@ -40,11 +40,7 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	{
 		for (i=0; i<numBabies; i++)
 		{
-//#ifndef PC_VERSION
 			babies[i] = CreateAndAddActor("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
-//#else
-//			babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
-//#endif
 
 			babies[i]->actor->shadow->radius	= 15;
 			babies[i]->actor->shadow->alpha		= 191;
@@ -55,9 +51,8 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 			babies[i]->actor->scale.v[1] = 0.3F;
 			babies[i]->actor->scale.v[2] = 0.3F;
 			babies[i]->action.isSaved = 0;
-			babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-			babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-			babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
+
+			SetVector( &babies[i]->actor->pos, &bTStart[i]->centre );
 
 			babyFollow[i] = NULL;
 
