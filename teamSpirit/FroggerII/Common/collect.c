@@ -843,6 +843,7 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 		v = firstTile[tileList[i+1]].centre;
 		v.v[Y] += 20;
 		garib = CreateNewGarib(v, type);
+	}
 }
 
 
