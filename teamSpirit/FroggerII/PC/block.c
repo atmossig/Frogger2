@@ -257,9 +257,18 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		currTime.wHour, currTime.wMinute, currTime.wSecond));
 
 	GetRegistryInformation();
+	
 	// create and initialise app window
 	if(!InitialiseWindows(hInstance,nCmdShow))
-		ok = 0;
+		return 1;
+
+	// initialise PC stuff and DirectX / Direct3D
+	InitPCSpecifics();
+	if(!InitInputDevices())
+		return 1;
+
+	if(!DirectXInit(winInfo.hWndMain,1) || runQuit)
+		return 1;
 
 #ifndef DONTUSEJALLOC
 	// create area for memory Jalloc's
@@ -270,7 +279,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	if(memPtr == NULL)
 	{
 		dprintf"ERROR !\n"));
-		ok = 0;
+		return 1;
 	}
 	else
 	{
@@ -285,28 +294,13 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	dprintf"Init matrix stack...\n"));
 	InitMatrixStack();
 
-	if(!InitInputDevices())
-		ok = 0;
-	//FreeAllLists
-	//InitSaveData();
-
-	//PrepareSong ( 1, 0 );
-/*	InitSaveData();
-	SaveGameData();*/
 	gameState.mode		= INGAME_MODE;
-	//frontEndState.mode	= TITLE_MODE;
 
 #ifdef TEXTURE_DEBUG
 	hdlCheck = (unsigned char *)JallocAlloc( MAX_HDLCHECKS, YES, "hdlcheck" );
 #endif
 
-	// initialise PC stuff and DirectX / Direct3D
-	InitPCSpecifics();
-	if(!DirectXInit(winInfo.hWndMain,1))
-		ok = 0;
-	if (runQuit)
-		exit (0);
-
+	ShowWindow(winInfo.hWndMain,SW_SHOW);
 	InitSampleList();
 
 	InitFont();
@@ -749,10 +743,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
     appBackgnd=LoadBitmap(winInfo.hInstance,MAKEINTRESOURCE(IDB_BACKGROUND));
 	
 	appActive = 1;
-	ShowWindow(winInfo.hWndMain,SW_SHOW);
-	UpdateWindow(winInfo.hWndMain);
-//	ShowCursor(0);
-	
+	//ShowWindow(winInfo.hWndMain,SW_SHOW);
 												
     return 1;
 }

@@ -183,6 +183,8 @@ void DeInitKeyboardControl();
 void DeInitJoystick();
 BOOL SetupControllerDlg(HWND hdlg);
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
+int GetButtonDialog(LPDIRECTINPUTDEVICE lpDI, HWND hParent);
+int SetupKeyboardDialog(int player, HWND hParent);
 
 /*	------------------------------------------------------------------------ */
 
@@ -750,6 +752,8 @@ BOOL SetupControllerDlg(HWND hdlg)
 
 BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static int selectedPlayer = -1;
+
 	switch (msg)
 	{
 	case WM_INITDIALOG:
@@ -776,9 +780,8 @@ BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lPara
 			return TRUE;
 
 		case ID_SETUP:
-			// Run Jim's keymap dialog
-			DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX), hdlg,
-				(DLGPROC)DLGKeyMapDialogue);
+			if (selectedPlayer >= 0)
+				SetupKeyboardDialog(selectedPlayer, hdlg);
 			return TRUE;
 		}
 
@@ -789,7 +792,7 @@ BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lPara
 				HWND combo;
 				int cb, controller, id;
 				
-				cb = LOWORD(wParam) - IDC_PLAYER1;
+				selectedPlayer = cb = LOWORD(wParam) - IDC_PLAYER1;
 				controller = SendMessage((HWND)lParam, CB_GETCURSEL, 0, 0);
 				id = controllerInfo[controller].id;
 
@@ -832,24 +835,8 @@ BOOL SetupControllers(HWND hwnd)
 		(DLGPROC)ControllerDlgProc);
 }
 
-BOOL CALLBACK KeypressDlg(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	switch (msg)
-	{
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case IDCANCEL:
-			EndDialog(hDlg, wParam);
-			return TRUE;
-		}
-	}
-
-	return FALSE;
-}
-
 /*	--------------------------------------------------------------------------------
-	Function		: MakeKeyMap
+	Function		: SetupKeyboardDialog
 	Purpose			: Make a dialogue that maps command to keys
 	Parameters		: 
 	Returns			: 
@@ -857,6 +844,14 @@ BOOL CALLBACK KeypressDlg(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 */
 char listText1[] = "Command";
 char listText2[] = "Key";
+BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
+
+
+int SetupKeyboardDialog(int player, HWND hParent)
+{
+	return DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX), hParent,
+		(DLGPROC)DLGKeyMapDialogue, (LPARAM)player);
+}
 
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
@@ -873,19 +868,28 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 		case WM_INITDIALOG:
 		{
 			RECT meR;
+			int player = (int)lParam;
+			int tabstop = 80;
+
+			keyIndex = 14 * player;
 			
+			wsprintf(itmTxt, "Keyboard setup: Player %d", (player+1));
+			SetWindowText(hDlg, itmTxt);
+
 			GetWindowRect(hDlg, &meR);
+			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+
 			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+
+			SendMessage(list, LB_SETTABSTOPS, 1, (LPARAM)&tabstop);
 
 			for( i=0; i<14; i++ )
 			{
 				strcpy( itmTxt, controlDesc[i] );
-				strcat( itmTxt, " -> " );
+				strcat( itmTxt, "\t" );
 				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
 				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
 			}
-
-			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 
  			return TRUE;
 		}
@@ -908,24 +912,9 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 							if(i == LB_ERR || i < 0 || i > 14 )
 								break;
 
-							kMapSet = i;
-							i=256;
+							if ((i = GetButtonDialog(lpKeyb, hDlg)) == -1)
+								break;
 
-							// Wait for a key to be pressed
-							while( i==256 && IDirectInputDevice_GetDeviceState(lpKeyb, sizeof(keyTable),&keyTable) == DI_OK )
-							{
-								for( i=1; i<256; i++ )
-								{
-									if( KEYPRESS( i ) )
-									{
-										break;
-									}
-								}
-							}
-
-							// Dispense with windows message cack - we don't care
-							while( PeekMessage(&pMsg, hDlg, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE) );
-        
 							// Set DInput key in keymap
 							keymap[keyIndex+kMapSet].key = i;
 
@@ -936,7 +925,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 							for( i=0; i<14; i++ )
 							{
 								strcpy( itmTxt, controlDesc[i] );
-								strcat( itmTxt, " -> " );
+								strcat( itmTxt, "\t" );
 								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
 								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
 							}
@@ -946,24 +935,6 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 							kMapSet = 0;
 							break;
 					}
-					break;
-
-				case IDC_CONTROLLER1:
-					// Set pointer to correct part of keymap and refresh display
-					keyIndex = 0;
-					kMapSet = 0;
-					break;
-				case IDC_CONTROLLER2:
-					keyIndex = 14;
-					kMapSet = 0;
-					break;
-				case IDC_CONTROLLER3:
-					keyIndex = 28;
-					kMapSet = 0;
-					break;
-				case IDC_CONTROLLER4:
-					keyIndex = 42;
-					kMapSet = 0;
 					break;
 
 				case IDCANCEL:
@@ -1007,4 +978,67 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 	}
 
 	return FALSE;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetButtonDialog
+	Purpose			: brings up a little dialog prompting to press a button; wait for a keypress and return immediately
+	Parameters		: LPDIRECTINPUT, HWND parent
+	Returns			: scan code of key
+	Info			: 
+*/
+
+BOOL CALLBACK ButtonDialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	static int *button;
+
+	switch (msg)
+	{
+		case WM_INITDIALOG:
+			button = (int*)lParam;
+            
+			SetTimer( hDlg, 0, 100, NULL );	// poll every 100ms
+			return TRUE;
+
+		case WM_TIMER:
+			if (lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable) == DI_OK)
+			{
+				int i;
+
+				for(i=1; i<256; i++ )
+					if( KEYPRESS( i ) )
+						break;
+
+				if (i < 256)
+				{
+					*button = i;
+                    KillTimer(hDlg, 0);
+					EndDialog(hDlg, TRUE);
+				}
+			}
+			break;
+
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+			case IDCANCEL:
+				DestroyWindow(hDlg);
+				break;
+			}
+			break;
+
+		default:
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+int GetButtonDialog(LPDIRECTINPUTDEVICE lpDID, HWND hParent)
+{
+	int button = -1;
+
+	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYPRESS), hParent, ButtonDialogProc, (LPARAM)&button);
+
+	return button;
 }

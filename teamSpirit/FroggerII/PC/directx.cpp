@@ -485,12 +485,6 @@ BOOL CALLBACK SetupDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 			info = (DXSETUPINFO*)lParam;
 			return InitSetupDialog(hwndDlg, info);
 
-        case WM_CLOSE:
-			PostQuitMessage(0);
-			runQuit = 1;
-            return TRUE;
-			break;
-		
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
@@ -499,7 +493,7 @@ BOOL CALLBACK SetupDialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 				break;
 
 			case IDCANCEL:
-				PostQuitMessage(0);
+				EndDialog(hwndDlg, FALSE);
 				runQuit = 1;
 				break;
 			case IDC_MPLAYER:
