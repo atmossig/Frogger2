@@ -345,6 +345,8 @@ int *FindSfxMapping( unsigned long uid )
 {
 	unsigned long index=0;
 
+	if( !sfx_anim_map ) return NULL;
+
 	while( sfx_anim_map[index] && (unsigned long)sfx_anim_map[index] != uid )
 	{
 		switch( sfx_anim_map[index+1] )
