@@ -1341,15 +1341,13 @@ void ProcessAttachedEffects( void *entity, int type )
 		if( act->effects & EF_FLAMES )
 		{
 			if( act->effects & EF_FAST )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 99999 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 2, 0, 0.7 );
 			else if( act->effects & EF_SLOW )
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 99999 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.2, 0, 0.7 );
 			else // EF_MEDIUM
-				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 99999 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_FLAMES, &act->actor->pos, &normal, 50, 0.9, 0, 0.7 );
 
 			SetAttachedFXColour( fx, act->effects );
-
-			act->effects &= ~EF_FLAMES;
 		}
 		if( act->effects & EF_BUBBLES )
 		{
