@@ -230,6 +230,8 @@ void ZSortSpriteList();
 
 //extern int numArraySprites;
 extern SPRITE *spriteArray;
+extern SPRITE *spriteArrayPtr;
+extern int highSpriteArrayIndex;
 
 void InitSpriteArray(int numElements);
 void FreeSpriteArray();

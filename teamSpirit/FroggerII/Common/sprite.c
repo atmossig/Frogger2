@@ -777,8 +777,10 @@ void ZSortSpriteList()
 //----- [ used for static sprite list ] ---------------------------------------------------------
 
 //int numArraySprites		= 0;
-SPRITE *spriteArray		= NULL;
-SPRITE *spriteArrayPtr	= NULL;
+SPRITE *spriteArray			= NULL;
+SPRITE *spriteArrayPtr		= NULL;
+
+int highSpriteArrayIndex	= 0;
 
 
 /*	--------------------------------------------------------------------------------
@@ -798,8 +800,9 @@ void InitSpriteArray(int numElements)
 
 	// allocate memory for sprite array
 	dp("<< Allocating static sprite array >>\n");
-	spriteArray = (SPRITE *)JallocAlloc(sizeof(SPRITE)*numElements,YES,"sprArr");
-	spriteArrayPtr	= NULL;
+	spriteArray				= (SPRITE *)JallocAlloc(sizeof(SPRITE)*numElements,YES,"sprArr");
+	spriteArrayPtr			= NULL;
+	highSpriteArrayIndex	= 0;
 
 	while(n--)
 		spriteArray[n].arrayIndex = -1;
@@ -821,8 +824,9 @@ void FreeSpriteArray()
 		JallocFree((UBYTE**)&spriteArray);
 	}
 
-	spriteArray		= NULL;
-	spriteArrayPtr	= NULL;
+	spriteArray				= NULL;
+	spriteArrayPtr			= NULL;
+	highSpriteArrayIndex	= 0;
 }
 
 
@@ -846,6 +850,10 @@ SPRITE *AssignSpriteToArray()
 	}
 
 	spriteArrayPtr->arrayIndex = n;
+
+	if(n > highSpriteArrayIndex)
+		highSpriteArrayIndex = n;
+
 	return spriteArrayPtr;
 }
 
@@ -859,7 +867,8 @@ SPRITE *AssignSpriteToArray()
 */
 void SubSpriteFromArray(SPRITE *sprite)
 {
-	spriteArray[sprite->arrayIndex].arrayIndex = -1;
+	int n = sprite->arrayIndex;
+	spriteArray[n].arrayIndex = -1;
 }
 
 
