@@ -771,35 +771,6 @@ totalObjs = 0;
 			}
 #endif
 			myPadHandleInput();
-			if (padData.digital[4] == (PAD_SELECT|PAD_START|PAD_L1|PAD_R1|PAD_L2|PAD_R2))
-				quitMainLoop = 1;
-
-
-
-//			if ( padData.digital[1] == PAD_L1 )
-//			{
-//				frameAdvance = 1;
-//			}
-
-//			if ( frameAdvance )
-//			{
-//				while ( frameAdvance )
-//				{
-//					myPadHandleInput();
-
-//					if ( padData.digital[0] == PAD_SELECT )
-//					{
-//						frameAdvance = 0;
-//					}
-
-//					if ( padData.debounce[0] == PAD_L2 )
-//					{
-//						break;
-//					}
-//				}
-//				// ENDIF
-//			}
-			// ENDIF
 
 			if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
 			{
