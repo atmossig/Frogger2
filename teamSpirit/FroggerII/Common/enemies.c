@@ -31,6 +31,7 @@ void SetSoundEffectsForEnemy( ENEMY *nme );
 
 void UpdatePathNME( ENEMY *cur );
 void UpdateSlerpPathNME( ENEMY *cur );
+void UpdateCurvePathNME( ENEMY *cur );
 void UpdateSnapper( ENEMY *cur );
 void UpdateTileSnapper( ENEMY *cur );
 void UpdateVent( ENEMY *cur );
@@ -452,6 +453,118 @@ void UpdateSlerpPathNME( ENEMY *cur )
 		cur->inTile = path->nodes[path->fromNode].worldTile;
 	else
 		cur->inTile = path->nodes[path->toNode].worldTile;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateCurvePathNME
+	Purpose			: Use Hermite curves to get to the next node
+	Parameters		: ENEMY
+	Returns			: void
+	Info			: Beziers would be better, but calculating extra control points is an arse
+*/
+void UpdateCurvePathNME( ENEMY *cur )
+{
+	VECTOR from, to, future, tan1, tan2, last, face;
+	float length;
+	PATH *path = cur->path;
+	ACTOR *act = cur->nmeActor->actor;
+	float gx[4], gy[4], gz[4], cx[4], cy[4], cz[4], t=0, t2, t3, temp;
+	int n, i, index;
+	
+	// first, update the enemy position
+	GetPositionForPathNode(&to,&path->nodes[cur->path->toNode]);
+	GetPositionForPathNode(&from,&path->nodes[cur->path->fromNode]);
+
+	// Find the node after next
+	if(cur->flags & ENEMY_NEW_FORWARDS)
+	{
+		if(path->toNode >= GET_PATHLASTNODE(path))
+		{
+			if(cur->flags & ENEMY_NEW_PINGPONG) GetPositionForPathNode( &future, &path->nodes[GET_PATHLASTNODE(path)-1] );
+			else if(cur->flags & ENEMY_NEW_CYCLE) GetPositionForPathNode( &future, &path->nodes[0] );
+			else GetPositionForPathNode( &future, &path->nodes[0] );
+		}
+		else GetPositionForPathNode( &future, &path->nodes[path->toNode+1] );
+	}
+	else if(cur->flags & ENEMY_NEW_BACKWARDS)
+	{
+		if(path->toNode <= 0)
+		{
+			if(cur->flags & ENEMY_NEW_PINGPONG) GetPositionForPathNode( &future, &path->nodes[1] );
+			else if(cur->flags & ENEMY_NEW_CYCLE) GetPositionForPathNode( &future, &path->nodes[GET_PATHLASTNODE(path)] );
+			else GetPositionForPathNode( &future, &path->nodes[GET_PATHLASTNODE(path)-1] );
+		}
+		else GetPositionForPathNode( &future, &path->nodes[path->toNode-1] );
+	}
+
+	// Find tangents (kind of) at last and next path nodes
+	SubVector( &tan1, &to, &from );
+	SubVector( &tan2, &future, &to );
+	
+	length = (float)(actFrameCount - cur->path->startFrame)/(float)(cur->path->endFrame - cur->path->startFrame);
+
+	length = (length*length*length);
+
+	// Set geometry components
+	gx[0] = from.v[X];
+	gx[1] = to.v[X];
+	gx[2] = tan2.v[X]*-5;
+	gx[3] = tan1.v[X];
+	gy[0] = from.v[Y];
+	gy[1] = to.v[Y];
+	gy[2] = tan2.v[Y]*5;
+	gy[3] = tan1.v[Y];
+	gz[0] = from.v[Z];
+	gz[1] = to.v[Z];
+	gz[2] = tan2.v[Z]*-5;
+	gz[3] = tan1.v[Z];
+
+	t = length;
+	t2 = t*t;
+	t3 = t2*t;
+
+	act->pos.v[X] = ((2*t3 - 3*t2 + 1)*gx[0]) + ((-2*t3 + 3*t2)*gx[1]) + ((t3 - 2*t2 + t)*gx[2]) + ((t2-t2)*gx[3]);
+	act->pos.v[Y] = 0;//((2*t3 - 3*t2 + 1)*gy[0]) + ((-2*t3 + 3*t2)*gy[1]) + ((t3 - 2*t2 + t)*gy[2]) + ((t2-t2)*gy[3]);
+	act->pos.v[Z] = ((2*t3 - 3*t2 + 1)*gz[0]) + ((-2*t3 + 3*t2)*gz[1]) + ((t3 - 2*t2 + t)*gz[2]) + ((t2-t2)*gz[3]);
+
+	t = length*0.9;
+	t2 = t*t;
+	t3 = t2*t;
+
+	last.v[X] = ((2*t3 - 3*t2 + 1)*gx[0]) + ((-2*t3 + 3*t2)*gx[1]) + ((t3 - 2*t2 + t)*gx[2]) + ((t2-t2)*gx[3]);
+	last.v[Y] = 0;//((2*t3 - 3*t2 + 1)*gy[0]) + ((-2*t3 + 3*t2)*gy[1]) + ((t3 - 2*t2 + t)*gy[2]) + ((t2-t2)*gy[3]);
+	last.v[Z] = ((2*t3 - 3*t2 + 1)*gz[0]) + ((-2*t3 + 3*t2)*gz[1]) + ((t3 - 2*t2 + t)*gz[2]) + ((t2-t2)*gz[3]);
+	
+	SubVector( &face, &act->pos, &last );
+	MakeUnit( &face );
+
+	// And back to normal path stuff
+	AddToVector(&cur->currNormal,&cur->deltaNormal);
+
+	if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
+		Orientate(&cur->nmeActor->actor->qRot,&face,&inVec,&cur->currNormal);
+	else // Need to do this so normals still work
+		Orientate(&cur->nmeActor->actor->qRot,&inVec,&inVec,&cur->currNormal);
+
+	// check if this enemy has arrived at a path node
+	if( actFrameCount > cur->path->endFrame )
+	{
+		UpdateEnemyPathNodes(cur);
+		CalcEnemyNormalInterps(cur);
+
+		cur->path->startFrame = cur->path->endFrame + cur->isWaiting * waitScale;
+
+		if (cur->flags & ENEMY_NEW_RANDOMSPEED)
+			cur->path->endFrame = cur->path->startFrame + (60*((float)Random(100)/100.0F) );
+		else
+			cur->path->endFrame = cur->path->startFrame + (60*cur->speed);
+	}
+
+	if( actFrameCount < cur->path->startFrame+(0.5*(cur->path->endFrame-cur->path->startFrame)) )
+		cur->inTile = cur->path->nodes[cur->path->fromNode].worldTile;
+	else
+		cur->inTile = cur->path->nodes[cur->path->toNode].worldTile;
 }
 
 
@@ -1247,92 +1360,6 @@ void SlerpWaitingFlappyThing( ENEMY *cur )
 }
 
 
-/*	--------------------------------------------------------------------------------
-	Function		: InitEnemyLinkedList
-	Purpose			: initialises the enemy linked list
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void InitEnemyLinkedList()
-{
-	enemyList.numEntries = 0;
-	enemyList.head.next = enemyList.head.prev = &enemyList.head;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddEnemy
-	Purpose			: adds an enemy to the linked list
-	Parameters		: ENEMY *
-	Returns			: void
-	Info			: 
-*/
-void AddEnemy(ENEMY *enemy)
-{
-	if(enemy->next == NULL)
-	{
-		enemyList.numEntries++;
-		enemy->prev = &enemyList.head;
-		enemy->next = enemyList.head.next;
-		enemyList.head.next->prev = enemy;
-		enemyList.head.next = enemy;
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: SubEnemy
-	Purpose			: removes an enemy from the linked list
-	Parameters		: ENEMY *
-	Returns			: void
-	Info			: 
-*/
-void SubEnemy(ENEMY *enemy)
-{
-	if(enemy->next == NULL)
-		return;
-
-	if(enemy->path)
-		JallocFree((UBYTE**)&enemy->path);
-
-	enemy->prev->next = enemy->next;
-	enemy->next->prev = enemy->prev;
-	enemy->next = NULL;
-	enemyList.numEntries--;
-
-	JallocFree((UBYTE **)&enemy);
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeEnemyLinkedList
-	Purpose			: frees the enemy linked list
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void FreeEnemyLinkedList()
-{
-	ENEMY *cur,*next;
-
-	// check if any elements in list
-	if(enemyList.numEntries == 0)
-		return;
-
-	dprintf"Freeing linked list : ENEMY : (%d elements)\n",enemyList.numEntries));
-
-	// traverse enemy list and free elements
-	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
-	{
-		next = cur->next;
-
-		SubEnemy(cur);
-	}
-
-	// initialise list for future use
-	InitEnemyLinkedList();
-}
-
-
 ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float animSpeed )
 {
 	int enemyType = 0;
@@ -1384,6 +1411,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 
 	if( newItem->flags & ENEMY_NEW_SLERPPATH )
 		newItem->Update = UpdateSlerpPathNME;
+	else if( newItem->flags & ENEMY_NEW_CURVEPATH )
+		newItem->Update = UpdateCurvePathNME;
 	else if( newItem->flags & ENEMY_NEW_FOLLOWPATH )
 		newItem->Update = UpdatePathNME;
 	else if( newItem->flags & ENEMY_NEW_WATCHFROG )
@@ -1680,4 +1709,90 @@ void SetSoundEffectsForEnemy( ENEMY *nme )
 
 	if( !gstrcmp("lomoahrt", act->objectController->object->name) )
 		AddAmbientSound( GEN_CLOCK_TOCK, &act->pos, 1000, 100, 100, 3, 0, act );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitEnemyLinkedList
+	Purpose			: initialises the enemy linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitEnemyLinkedList()
+{
+	enemyList.numEntries = 0;
+	enemyList.head.next = enemyList.head.prev = &enemyList.head;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddEnemy
+	Purpose			: adds an enemy to the linked list
+	Parameters		: ENEMY *
+	Returns			: void
+	Info			: 
+*/
+void AddEnemy(ENEMY *enemy)
+{
+	if(enemy->next == NULL)
+	{
+		enemyList.numEntries++;
+		enemy->prev = &enemyList.head;
+		enemy->next = enemyList.head.next;
+		enemyList.head.next->prev = enemy;
+		enemyList.head.next = enemy;
+	}
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubEnemy
+	Purpose			: removes an enemy from the linked list
+	Parameters		: ENEMY *
+	Returns			: void
+	Info			: 
+*/
+void SubEnemy(ENEMY *enemy)
+{
+	if(enemy->next == NULL)
+		return;
+
+	if(enemy->path)
+		JallocFree((UBYTE**)&enemy->path);
+
+	enemy->prev->next = enemy->next;
+	enemy->next->prev = enemy->prev;
+	enemy->next = NULL;
+	enemyList.numEntries--;
+
+	JallocFree((UBYTE **)&enemy);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeEnemyLinkedList
+	Purpose			: frees the enemy linked list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeEnemyLinkedList()
+{
+	ENEMY *cur,*next;
+
+	// check if any elements in list
+	if(enemyList.numEntries == 0)
+		return;
+
+	dprintf"Freeing linked list : ENEMY : (%d elements)\n",enemyList.numEntries));
+
+	// traverse enemy list and free elements
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
+	{
+		next = cur->next;
+
+		SubEnemy(cur);
+	}
+
+	// initialise list for future use
+	InitEnemyLinkedList();
 }
