@@ -64,6 +64,7 @@ cFInfo->nV = cFInfo->nF = 0;	cFInfo->cV = cFInfo->v;	cFInfo->cF = cFInfo->f;	cFI
 void DrawBatchedPolys (void);
 void InitFrames(void);
 void SetTexture(MDX_TEXENTRY *me);
+HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags);
 
 // Add a halo point to be tested at draw time/
 void AddHalo(MDX_VECTOR *point, float flareScaleA,float flareScaleB);

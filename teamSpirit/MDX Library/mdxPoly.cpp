@@ -54,6 +54,7 @@ short haloZVals[MA_MAX_HALOS];
 MDX_VECTOR haloPoints[MA_MAX_HALOS];
 float flareScales[MA_MAX_HALOS];
 float flareScales2[MA_MAX_HALOS];
+MDX_TEXENTRY *cTexture = NULL;
 
 unsigned long lightingMapRS[] = 
 {
@@ -487,12 +488,31 @@ void DrawBatchedPolys (void)
 
 }
 
+
 void SetTexture(MDX_TEXENTRY *me)
 {
-	if (me)
-		pDirect3DDevice->SetTexture(0,me->surf);
+	if (rHardware)
+	{
+		if (me)
+			pDirect3DDevice->SetTexture(0,me->surf);
+		else
+			pDirect3DDevice->SetTexture(0,0);
+	}
+	
+	cTexture = me;
+	
+}
+
+HRESULT DrawPoly(D3DPRIMITIVETYPE d3dptPrimitiveType,DWORD  dwVertexTypeDesc, LPVOID lpvVertices, DWORD  dwVertexCount, LPWORD lpwIndices, DWORD  dwIndexCount, DWORD  dwFlags)
+{
+	HRESULT res;
+	
+	if (rHardware)
+		res = pDirect3DDevice->DrawIndexedPrimitive(d3dptPrimitiveType,dwVertexTypeDesc,lpvVertices,dwVertexCount,lpwIndices,dwIndexCount,dwFlags);
 	else
-		pDirect3DDevice->SetTexture(0,0);
+		res = D3D_OK;
+
+	return res;
 }
 
 /*	--------------------------------------------------------------------------------
