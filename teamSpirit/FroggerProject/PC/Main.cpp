@@ -194,6 +194,11 @@ void GetArgs(char *arglist)
 						utilPrintf("Debug keys %s\n",debugKeys?"enabled":"disabled");
 						break;
 
+					case 'L': case 'l':
+						levelAccess = !levelAccess;
+						utilPrintf("All level access mode is %s\n",levelAccess?"enabled":"disabled");
+						break;
+
 					case ' ':
 					case 0:
 						cmdMode = 0;
