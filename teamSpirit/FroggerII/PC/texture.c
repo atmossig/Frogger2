@@ -219,6 +219,9 @@ void LoadTextureBank(int num)
 			strcat (filename,"system\\");
 			break;
 
+		case INGAMEGENERIC_TEX_BANK:
+			break;
+
 		case GARDEN_TEX_BANK:
 			sprintf(message,"GARD_TB");
 			strcat (filename,"garden\\");
@@ -265,6 +268,7 @@ void LoadTextureBank(int num)
 			break;
 
 		case TITLES_TEX_BANK:
+		case TITLESGENERIC_TEX_BANK:
 			sprintf(message,"TITLE_TB");
 			strcat (filename,"titles\\");
 			break;
