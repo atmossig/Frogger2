@@ -7,84 +7,34 @@
 extern "C"
 {
 #endif
-//----- [ MACROS / DEFINES / CONSTANTS ] ---------------------------------------------------------
 
-extern const GUID DPCHAT_GUID;
-
-#define INIT(X) { memset(&X,0,sizeof(X)); (X).dwSize = sizeof(X); }
-
-#define TIMERID					1				// timer ID used for refreshing of connection list
-#define TIMERINTERVAL			250				// timer update value
-
-#define MAX_MULTIPLAYERS		4				// max players allowed
-#define MAX_NAMELEN				200				// max player / session name length
-
-extern const DWORD APPMSG_UPDATEGAME;			// message type for game update
-extern const DWORD APPMSG_GAMECHAT;				// message type for in game chat
-extern const DWORD APPMSG_SYNCHGAME;			// message type for game synch
-extern const DWORD APPMSG_SYNCHPING;			// message type for ping message
-extern const DWORD MAX_STRLEN;					// max size of a temporary string
-
-
-//----- [ DATA TYPES ] ---------------------------------------------------------------------------
-
-typedef struct
+enum APPMSGTYPE
 {
-	LPDIRECTPLAY4A	lpDP4A;			// IDirectPlay4A interface pointer
-	HANDLE			hPlayerEvent;	// player event to use
-	DPID			dpidPlayer;		// ID of player created
-	BOOL			bIsHost;		// TRUE if we are hosting the session
+	APPMSG_CHAT
+};
 
-} DPLAYINFO,*LPDPLAYINFO;
+typedef struct _NETPLAYER
+{
+	DPID	dpid;		// DirectPlay player identifier - passed to IDirectPlay to query address stuff
+	int		player;		// maps this network player to the in-game player[], frog[] etc. arrays
+	bool	isHost;		// true if this player is the host, false otherwise
+	
+	struct _NETPLAYER *next, *prev;
+} NETPLAYER;
 
+extern LPDIRECTPLAY4A dplay;
+extern DPID		dpidLocalPlayer;
+extern HANDLE	hLocalPlayerEvent;
+extern char		sessionName[256];
+extern char		playerName[32];
+extern bool		isServer;
+extern NETPLAYER netPlayerList[4];
 
-extern DPLAYINFO DPInfo;
+typedef int (*NET_MESSAGEHANDLER)(int type, void *data, unsigned long size, NETPLAYER *player);
 
-//----- [ FUNCTION PROTOTYPES ] ------------------------------------------------------------------
-
-extern int InitMPDirectPlay( HINSTANCE hInstance );
-extern void UnInitMPDirectPlay( );
-
-BOOL CALLBACK DLGChooseServiceProvider(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam);
-int ChooseServiceProvider(HINSTANCE hInst,HWND hWndMain);
-
-HRESULT CreateDirectPlayInterface(LPDIRECTPLAY4A *lplpDirectPlay4A);
-HRESULT DestroyDirectPlayInterface(HWND hWnd,LPDIRECTPLAY4A lpDirectPlay4A);
-
-BOOL FAR PASCAL DirectPlayEnumConnectionsCallback(LPCGUID lpguidSP,LPVOID lpConnection,DWORD dwConnectionSize,LPCDPNAME lpName,DWORD dwFlags,LPVOID lpContext);
-BOOL WINAPI EnumPlayersCallback( DPID dpId, DWORD dwPlayerType, LPCDPNAME lpName, DWORD dwFlags, LPVOID lpContext );
-
-void DeleteConnectionList(HWND hWnd);
-void DeleteSessionInstanceList(HWND hWnd);
-
-HRESULT GetConnection(HWND hWnd,LPVOID *lplpConnection);
-HRESULT HostSession(LPDIRECTPLAY4A lpDirectPlay4A,LPSTR lpszSessionName,LPSTR lpszPlayerName,LPDPLAYINFO lpDPInfo);
-HRESULT JoinSession(LPDIRECTPLAY4A lpDirectPlay4A,LPGUID lpguidSessionInstance,LPSTR lpszPlayerName,LPDPLAYINFO lpDPInfo);
-HRESULT EnumSessions(HWND hWnd,LPDIRECTPLAY4A lpDirectPlay4A);
-BOOL FAR PASCAL EnumSessionsCallback(LPCDPSESSIONDESC2 lpSessionDesc,LPDWORD lpdwTimeOut,DWORD dwFlags,LPVOID lpContext);
-HRESULT GetSessionInstanceGuid(HWND hWnd,LPGUID lpguidSessionInstance);
-void SelectSessionInstance(HWND hWnd,LPGUID lpguidSessionInstance);
-
-void EnableDlgButton(HWND hDlg,int nIDDlgItem,BOOL bEnable);
-
-//------------------------------------------------------------------------------------------------
-
-HRESULT SetupMPConnection(HINSTANCE hInstance,LPDPLAYINFO lpDPInfo);
-HRESULT ShutdownMPConnection(LPDPLAYINFO lpDPInfo);
-
-DWORD WINAPI ReceiveThread(LPVOID lpThreadParameter);
-HRESULT ReceiveMessage(LPDPLAYINFO lpDPInfo);
-
-void HandleApplicationMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo);
-void HandleSystemMessage(LPDPLAYINFO lpDPInfo,LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo);
-
-void ErrorBox(LPSTR lpszErrorStr,HRESULT hRes);
-char *GetDirectPlayErrStr(HRESULT hRes);
-
-HRESULT ConnectUsingLobby(LPDPLAYINFO lpDPInfo);
-HRESULT ConnectUsingDialog(HINSTANCE hInstance,LPDPLAYINFO lpDPInfo);
-
-extern unsigned long networkPlay;
+NET_MESSAGEHANDLER NetInstallMessageHandler(NET_MESSAGEHANDLER handler);
+void NetProcessMessages();
+void SetupNetPlayerList();
 
 #ifdef __cplusplus
 }

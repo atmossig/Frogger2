@@ -16,10 +16,10 @@ extern "C"
 {
 #endif
 
+#include <dplay.h>
 
 int StartNetworkGame(HWND hwnd, int flag);
 void ShutdownNetworkGame();
-
 
 #ifdef __cplusplus
 }

@@ -1,434 +1,218 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+	File		: netchat.cpp
+	Programmer	: David Swift
+	Date		: 
+
+----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
-#include <math.h>
-#include <windowsx.h>
-#include <crtdbg.h>
-#include <commctrl.h>
-#include <cguid.h>
-#include <ddraw.h>
-#include <d3d.h>
-#include <dsound.h>
-#include <dinput.h>
 #include <dplay.h>
 #include <dplobby.h>
+#include <richedit.h>
 
-#include "network.h"
-#include "netchat.h"
-#include "netgame.h"
+#include <ddraw.h>
+#include <d3d.h>
+#include <mdx.h>		// because MDX is evil and all-pervasive
 
-extern "C" {
-
-#include <islutil.h>
-#include <islpad.h>
-
-#include <anim.h>
-#include <stdio.h>
-
-#include "game.h"
-#include "types2d.h"
-#include "frogger.h"
-#include "levplay.h"
-#include "frogmove.h"
-#include "cam.h"
-#include "tongue.h"
-#include "enemies.h"
-#include "babyfrog.h"
-#include "hud.h"
-#include "frontend.h"
-#include "textover.h"
-#include "multi.h"
-#include "layout.h"
-#include "platform.h"
-#include "event.h"
+#include "islutil.h"
 #include "main.h"
-#include "newpsx.h"
-#include "Main.h"
-#include "actor2.h"
-#include "bbtimer.h"
-#include "maths.h"
-#include "..\resource.h"
-}
+#include "../resource.h"
 
+#include "netchat.h"
+#include "network.h"
 
-CHATBUFFER chatBuffer;
-unsigned char chatFlags = 0;
-CHATSTRING chatInput;
+COLORREF systemColor = RGB(0,0x80,0);	// green
+COLORREF errorColor = RGB(0xFF,0,0);		// red
+HWND hwndChatEdit;
 
-/*	--------------------------------------------------------------------------------
-	Function		: HandleChatMessage
-	Purpose			: receives a string and adds it to the buffer
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void HandleChatMessage( LPDPLAYINFO lpDPInfo,LPMSG_CHATSTRING lpMsg,DWORD dwMsgSize,DPID idFrom,DPID idTo )
+int ChatHandler(int type, void *data, unsigned long size, NETPLAYER *player);
+
+class ChatWindow
 {
-	LPSTR lpszStr = NULL;
-	HRESULT hRes;
+protected:
+	HWND hwndDlg, hwndChatEdit;
+	static BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	hRes = NewChatMessage(lpDPInfo->lpDP4A,idFrom,lpMsg->szMsg,&lpszStr);
-	if(FAILED(hRes))
-		return;
+	void UpdatePlayerList();
 
-	AddChatMessage( lpszStr );
-}
+public:
+	bool Run(HWND);
+	~ChatWindow();
 
+	void ShowMessage(const char* message, CHAT_FORMAT format);
+};
 
-/*	--------------------------------------------------------------------------------
-	Function		: NewChatMessage
-	Purpose			: creates a new chat string for posting
-	Parameters		: LPDIRECTPLAY4A,DPID,LPSTR,LPSTR *
-	Returns			: HRESULT
-	Info			: 
-*/
-HRESULT NewChatMessage(LPDIRECTPLAY4A lpDirectPlay4A,DPID dpidPlayer,LPSTR lpszMsg,LPSTR *lplpszStr)
+ChatWindow *netChat;
+
+void ChatWindow::ShowMessage(const char* string, CHAT_FORMAT f)
 {
-	LPDPNAME lpName = NULL;
-	LPSTR lpszStr = NULL;
-	LPSTR lpszPlayerName;
-	LPSTR szDisplayFormat = "%s:  %s";
-	HRESULT	hRes;
+	if (!hwndChatEdit) return;
+
+	CHARFORMAT fmt;
+	fmt.cbSize = sizeof(fmt);
+	fmt.dwMask = CFM_COLOR|CFM_BOLD;
+	fmt.dwEffects = 0;
 	
-	// get name of player
-	hRes = GetChatPlayerName(lpDirectPlay4A,dpidPlayer,&lpName);
-	if(FAILED(hRes))
-		goto FAILURE;
-
-	if(lpName->lpszShortNameA)
-		lpszPlayerName = lpName->lpszShortNameA;
-	else
-		lpszPlayerName = "unknown";
-
-	// allocate space for display string
-	lpszStr = (LPSTR)GlobalAllocPtr(GHND,lstrlen(szDisplayFormat) + lstrlen(lpszPlayerName) + lstrlen(lpszMsg) + 1);
-	if(lpszStr == NULL)
+	switch (f)
 	{
-		hRes = DPERR_OUTOFMEMORY;
-		goto FAILURE;
+	case CHAT_NORMAL:	fmt.dwEffects |= CFE_AUTOCOLOR; break;
+	case CHAT_SYSTEM:	fmt.dwEffects |= CFE_BOLD; fmt.crTextColor = systemColor; break;
+	case CHAT_ERROR:	fmt.dwEffects |= CFE_BOLD; fmt.crTextColor = errorColor; break;
 	}
 
-	// build string
-	wsprintf(lpszStr,szDisplayFormat,lpszPlayerName,lpszMsg);
-
-	*lplpszStr = lpszStr;
-	lpszStr = NULL;
-
-FAILURE:
-	if(lpszStr)
-		GlobalFreePtr(lpszStr);
-	
-	if(lpName)
-		GlobalFreePtr(lpName);
-
-	return hRes;
+	SendMessage(hwndChatEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&fmt);
+	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)string);
+	SendMessage(hwndChatEdit, EM_REPLACESEL, FALSE, (DWORD)"\n");
 }
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: GetChatPlayerName
-	Purpose			: gets player name
-	Parameters		: LPDIRECTPLAY4A,DPID,LPDPNAME *
-	Returns			: HRESULT
-	Info			: 
-*/
-HRESULT GetChatPlayerName(LPDIRECTPLAY4A lpDirectPlay4A,DPID dpidPlayer,LPDPNAME *lplpName)
+void ChatWindow::UpdatePlayerList()
 {
-	LPDPNAME lpName = NULL;
-	unsigned long dwNameSize;
-	HRESULT	hRes;
+	int pl;
+	HWND hlist = GetDlgItem(hwndDlg, IDC_PLAYERLIST);
 
-	// get size of player name data
-	hRes = lpDirectPlay4A->GetPlayerName(dpidPlayer,NULL,&dwNameSize);
-	if(hRes != DPERR_BUFFERTOOSMALL)
-		goto FAILURE;
+	SendMessage(hlist, LB_RESETCONTENT, 0, 0);
 
-	// make room for it
-	lpName = (LPDPNAME)GlobalAllocPtr(GHND,dwNameSize);
-	if(lpName == NULL)
+	for (pl=0; pl<4; pl++)
 	{
-		hRes = DPERR_OUTOFMEMORY;
-		goto FAILURE;
-	}
-
-	// get player name data
-	hRes = lpDirectPlay4A->GetPlayerName(dpidPlayer,lpName,&dwNameSize);
-	if(FAILED(hRes))
-		goto FAILURE;
-
-	// return pointer to name structure
-	*lplpName = lpName;
-
-	return DP_OK;
-
-FAILURE:
-	if(lpName)
-		GlobalFreePtr(lpName);
-
-	return hRes;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: SendChatMessage
-	Purpose			: sends a chat message
-	Parameters		: HWND,LPDPLAYINFO
-	Returns			: 
-	Info			: 
-*/
-HRESULT SendChatMessage(LPSTR string, LONG lStrLen )
-{
-	LPSTR lpszChatStr = NULL;
-	LPSTR lpszStr = NULL;
-	LPMSG_CHATSTRING lpChatMessage = NULL;
-	DWORD dwChatMessageSize;
-	HRESULT	hRes;
-	
-	if( !string || lStrLen <= 0 || lStrLen > MAX_CSLENGTH || !DPInfo.lpDP4A )
-	{
-		hRes = DPERR_ABORTED;
-		goto FAILURE;
-	}
-
-	// make room for it
-	lpszChatStr = (LPSTR)GlobalAllocPtr(GHND,lStrLen);
-	if(lpszChatStr == NULL)
-	{
-		hRes = DPERR_OUTOFMEMORY;
-		goto FAILURE;
-	}
-
-	// get item text
-	memcpy(lpszChatStr,string,lStrLen);
-
-	// create string to display this text
-	hRes = NewChatMessage( DPInfo.lpDP4A, DPInfo.dpidPlayer, lpszChatStr, &lpszStr );
-	if(FAILED(hRes))
-		goto FAILURE;
-
-	AddChatMessage( lpszStr );
-
-	// create space for message plus string (string length included in message header)
-	dwChatMessageSize = sizeof(MSG_CHATSTRING) + lStrLen;
-	lpChatMessage = (LPMSG_CHATSTRING)GlobalAllocPtr(GHND,dwChatMessageSize);
-	if(lpChatMessage == NULL)
-	{
-		hRes = DPERR_OUTOFMEMORY;
-		goto FAILURE;
-	}
-
-	// build message	
-	lpChatMessage->dwType = APPMSG_GAMECHAT;
-	memcpy(lpChatMessage->szMsg,lpszChatStr,lStrLen);
-	
-	// send this string to all other players
-	hRes = DPInfo.lpDP4A->Send(DPInfo.dpidPlayer,DPID_ALLPLAYERS,DPSEND_GUARANTEED,lpChatMessage,dwChatMessageSize);
-	if(FAILED(hRes))
-		goto FAILURE;
-
-FAILURE:
-	if(lpszChatStr)
-		GlobalFreePtr(lpszChatStr);
-
-	if(lpszStr)
-		GlobalFreePtr(lpszStr);
-
-	if(lpChatMessage)
-		GlobalFreePtr(lpChatMessage);
-
-	return hRes;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: InitChatBuffer
-	Purpose			: Initialise the buffer 
-	Parameters		: Max number of chat entries
-	Returns			: 
-	Info			: 
-*/
-void InitChatBuffer( )
-{
-	chatBuffer.numEntries = 0;
-	chatBuffer.maxEntries = 1;
-
-	chatBuffer.head.next = NULL;
-	chatBuffer.head.msg = NULL;
-	chatBuffer.head.msgLen = 0;
-
-	chatInput.next = NULL;
-	chatInput.msg = NULL;
-	chatInput.msgLen = 0;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeChatBuffer
-	Purpose			: Delete the list
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void FreeChatBuffer( )
-{
-	CHATSTRING *cs = chatBuffer.head.next;
-
-	// Free all chatstrings by repeatedly removing the head
-	while( cs )
-	{
-		chatBuffer.head.next = cs->next;
-		cs->next = NULL;
-		if( cs->msg )
-			delete cs->msg;
-
-		delete cs;
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddChatMessage
-	Purpose			: Put a new chat message into the list
-	Parameters		: Pointer to string
-	Returns			: 
-	Info			: 
-*/
-void AddChatMessage( char *msg )
-{
-	int len;
-	CHATSTRING *cstring;
-
-	if( !msg )
-		return;
-
-	len = lstrlen( msg );
-
-	if( len > MAX_CSLENGTH )
-		len = MAX_CSLENGTH;
-
-	// Alloc new chatstring and fill it with message
-	cstring = new CHATSTRING;
-	cstring->msgLen = len;
-	cstring->msg = new char[len];
-
-	memcpy( cstring->msg, msg, len );
-
-	// Add new chatstring to head of list
-	cstring->next = chatBuffer.head.next;
-	chatBuffer.head.next = cstring;
-	chatBuffer.numEntries++;
-
-	TruncateChatBuffer( );
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: DrawChatBuffer
-	Purpose			: Print all chat messages
-	Parameters		: screen coords of top left and bottom right
-	Returns			: 
-	Info			: 
-*/
-void DrawChatBuffer( int left, int top, int right, int bottom )
-{
-	CHATSTRING *cstring;
-	RECT r, r2;
-	HRESULT res;
-	HDC hdc;
-	int count, ht, num;
-	
-	r.left = left;
-	r.top = top;
-	r.right = right;
-	r.bottom = bottom;
-
-	DrawFlatRect(r, D3DRGBA(0.3, 0.3, 0.5, 0.6));
-
-	if( chatFlags & CHAT_INPUT )
-	{
-		r2 = r;
-		r2.top = r2.bottom+10;
-		r2.bottom = r2.top+20;
-		DrawFlatRect(r2, D3DRGBA(0.3, 0.3, 0.5, 0.6));
-	}
-
-	ht = bottom - top;
-	num = ht / 20;
-	if( num > 1 )
-		chatBuffer.maxEntries = num;
-	else
-		chatBuffer.maxEntries = 1;
-
-	TruncateChatBuffer( );
-
-	res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
-	if (res == DD_OK)
-	{
-		SetTextAlign( hdc, TA_LEFT );
-		SetBkMode(hdc, TRANSPARENT);
-		SetTextColor(hdc, RGB(255,255,255));
-
-		for( count=0,cstring = chatBuffer.head.next; cstring; cstring = cstring->next,count++ )
-			TextOut( hdc, r.left+5, r.bottom-5-(20*(count+1)), cstring->msg, cstring->msgLen );
-
-		// Draw chat string being typed
-		if( chatFlags & CHAT_INPUT )
-			TextOut( hdc, r2.left+5, r2.top+5, chatInput.msg, chatInput.msgLen );
-
-		IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: TruncateChatBuffer
-	Purpose			: Limit number of chat strings to fit in chat window
-	Parameters		: screen coords of top left and bottom right
-	Returns			: 
-	Info			: 
-*/
-void TruncateChatBuffer( )
-{
-	CHATSTRING *cstring;
-
-	// Do size check on buffer
-	while( chatBuffer.numEntries > chatBuffer.maxEntries )
-	{
-		for( cstring = chatBuffer.head.next; ; cstring = cstring->next )
+		if (netPlayerList[pl].player != -1)
 		{
-			if( !cstring->next->next ) // If next item is the last in the list
-			{
-				if( cstring->next->msg )
-					delete cstring->next->msg;
+			char name[256];
+			DWORD size = 256;
 
-				delete cstring->next;
-				cstring->next = NULL;
-				chatBuffer.numEntries--;
-				break;
-			}
+			if (DP_OK == dplay->GetPlayerName(netPlayerList[pl].dpid, &name, &size));
+				SendMessage(hlist, LB_ADDSTRING, 0, (DWORD)((DPNAME*)name)->lpszShortNameA);
 		}
 	}
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: ChatInput
-	Purpose			: Process characters when typing a chat message
-	Parameters		: char pressed
-	Returns			: 
-	Info			: 
-*/
-void ChatInput( char c )
+
+BOOL CALLBACK ChatWindow::dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	if (c == 8) // backspace
+	static ChatWindow *cw;
+
+	switch (msg)
 	{
-		if( chatInput.msgLen )
-			chatInput.msgLen--;
+	case WM_INITDIALOG:
+		cw = (ChatWindow*)lParam;
+		cw->hwndChatEdit = GetDlgItem(hDlg, IDC_RICHCHAT);
+		cw->hwndDlg = hDlg;
+
+		//SendDlgItemMessage(hDlg, IDC_PLAYERLIST, LB_ADDSTRING, 0, (DWORD)playerName);
+		//SendDlgItemMessage(hDlg, IDC_RICHCHAT, EM_SETBKGNDCOLOR, 0, RGB(0xFF,0xFF,0xA0));
+		
+		cw->ShowMessage(isServer?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
+
+		SetTimer(hDlg, 1, 250, NULL);
+
+		return TRUE;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case ID_SEND:
+			{
+				char buffer[1024], text[1024];
+				HWND hEdit = GetDlgItem(hDlg, IDC_CHATENTER);
+
+				if (!GetWindowText(hEdit, text, 1024))
+					break;
+
+				SetWindowText(hEdit, "");
+				strcpy(buffer, "<");
+				strcat(buffer, playerName);
+				strcat(buffer, "> ");
+				strncat(buffer, text, 1024);
+
+				netChat->ShowMessage(buffer, CHAT_NORMAL);
+
+				*(int*)buffer = APPMSG_CHAT;
+				strncpy(buffer+4, text, 1020);
+
+				dplay->Send(dpidLocalPlayer, DPID_ALLPLAYERS, DPSEND_GUARANTEED, buffer, strlen(text)+4+1);
+				return TRUE;
+			}
+
+		case IDCANCEL:
+			dplay->Close();
+			EndDialog(hDlg, 1);
+			return TRUE;
+		}
+		break;
+
+	case WM_TIMER:
+		NetProcessMessages();
+		
+		netChat->UpdatePlayerList();
+		return TRUE;
+
+	case WM_DESTROY:
+		KillTimer(hDlg, 1);
+		return TRUE;
 	}
-	else if (c == 13) // enter
+
+	return FALSE;
+}
+
+
+bool ChatWindow::Run(HWND parent)
+{
+	int res;
+	LoadLibrary("Riched32.dll");
+	
+	res = DialogBoxParam(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_START), parent, dialogProc, (LPARAM)this);
+
+	return (res == 0);
+}
+
+
+
+ChatWindow::~ChatWindow()
+{
+
+}
+
+
+void NetShowMessage(const char* str, CHAT_FORMAT fmt)
+{
+	if (netChat)
+		netChat->ShowMessage(str, fmt);
+}
+
+void RunNetChatWindow(HWND parent)
+{
+	NetInstallMessageHandler(ChatHandler);
+	netChat = new ChatWindow();
+	netChat->Run(parent);
+
+	delete netChat;	netChat = 0;
+}
+
+int ChatHandler(int type, void *data, unsigned long size, NETPLAYER *player)
+{
+	if (netChat)
 	{
-		SendChatMessage( chatInput.msg, chatInput.msgLen );
-		chatInput.msgLen = 0;
+		switch (type)
+		{
+		case APPMSG_CHAT:
+			{
+				char buffer[1024], name[256];
+				DWORD size = 256;
+
+				dplay->GetPlayerName(player->dpid, &name, &size);
+				
+				strcpy(buffer, "<");
+				strcat(buffer, ((DPNAME*)name)->lpszShortNameA);
+				strcat(buffer, "> ");
+				strncat(buffer, (char*)data, 1024);
+
+				netChat->ShowMessage(buffer, CHAT_NORMAL);
+			}
+			return 0;
+		}
 	}
-	else
-	{
-		chatInput.msg[chatInput.msgLen++] = c;
-	}
+
+	return 1;
 }

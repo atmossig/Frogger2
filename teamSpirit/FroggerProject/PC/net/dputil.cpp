@@ -1,6 +1,6 @@
 #include <dplay.h>
 
-char *GetDirectPlayErrStr(HRESULT hRes)
+const char *GetDirectPlayError(HRESULT hRes)
 {
 	static char szTempStr[12];
 

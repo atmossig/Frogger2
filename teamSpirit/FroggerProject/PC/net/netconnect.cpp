@@ -3,13 +3,15 @@
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
 	File		: netconnect.cpp
-	Programmer	: 
+	Programmer	: David Swift
 	Date		:
 
-	calls functions from Microsoft's dpconnect.cpp support file
+	Based loosely around the MS-supplied dpconnect.cpp only marginally less obnoxious
+	No, only kidding, it's terrible really.
 
 ----------------------------------------------------------------------------------------------- */
 
+#include <stdio.h>
 #include <windows.h>
 #include <dplay.h>
 #include <dplobby.h>
@@ -23,6 +25,7 @@
 #include "../resource.h"
 #include "netconnect.h"
 #include "network.h"
+#include "netchat.h"
 
 #define MAX_PLAYER_NAME     14
 #define MAX_SESSION_NAME    256
@@ -34,6 +37,21 @@ HANDLE	hLocalPlayerEvent;
 
 char	sessionName[256]	= "Frogger2";
 char	playerName[32]		= "Player";
+bool	isServer			= false;
+
+// from dpconnect.cpp ...
+
+#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
+
+struct DPSessionInfo
+{
+	GUID guidSession;
+	TCHAR szSession[MAX_SESSION_NAME];
+	DPSessionInfo* next;
+};
+
+DPSessionInfo               DPSIHead;
+BOOL                        searchingForSessions;
 
 // {D0D2A940-5803-11d4-8832-00A0244E2381}
 static const GUID Frogger2_GUID =
@@ -44,7 +62,8 @@ static const GUID Frogger2_GUID =
 bool SetupNetworking(HWND hwnd);
 bool SelectProvider(HWND hwnd);
 bool FindNetGame(HWND hwnd);
-bool CreateNetGame(HWND hDlg);
+HRESULT CreateNetGame(HWND hDlg);
+HRESULT JoinNetGame(HWND hDlg);
 bool CheckLobby(HWND hwnd);
 
 /*	--------------------------------------------------------------------------------
@@ -71,6 +90,10 @@ bool SetupNetworking()
 		return false;
 	}
 
+    // Setup the g_DPSIHead circular linked list
+    ZeroMemory( &DPSIHead, sizeof( DPSessionInfo ) );
+    DPSIHead.next = &DPSIHead;
+
 	// ... set any other network-spiffic stuff up too ...
 
 	return true;
@@ -87,7 +110,11 @@ void ShutdownNetworkGame()
 {
 	// .. shut down anything networky ..
 
-	if (dplay) dplay->Release();
+	if (dplay)
+	{
+		dplay->Close();
+		dplay->Release();
+	}
 
 }
 
@@ -119,13 +146,17 @@ int StartNetworkGame(HWND hwnd, int flag)
 			connected = true;
 	}
 
-	if (!connected)
+	if (connected)
+	{
+		SetupNetPlayerList();
+		RunNetChatWindow(hwnd);
+		return 0;
+	}
+	else
 	{
 		ShutdownNetworkGame();
 		return 0;
 	}
-	else
-		return 1;
 }
 
 /*	--------------------------------------------------------------------------------
@@ -256,31 +287,167 @@ bool SelectProvider(HWND hwnd)
 	Returns		: success
 */
 
-BOOL CALLBACK EnumSessions(const DPSESSIONDESC2 *lpdpsd, LPDWORD lptimeout, DWORD flags, LPVOID context)
+BOOL CALLBACK EnumSessions(const DPSESSIONDESC2 *pdpsd, LPDWORD lptimeout, DWORD flags, LPVOID context)
 {
+    DPSessionInfo* pDPSINew = NULL;
+
 	if (flags & DPESC_TIMEDOUT)
 		return FALSE;
 
-	HWND hlist = (HWND)context;
-	int item = SendMessage(hlist, LB_ADDSTRING, 0, (LPARAM)lpdpsd->lpszSessionNameA);
+    // Found a good session, save it
+    pDPSINew = new DPSessionInfo; 
+    if( NULL == pDPSINew )
+        return FALSE;
+
+    ZeroMemory( pDPSINew, sizeof(DPSessionInfo) );
+
+    // Copy the information into pDPSINew
+    pDPSINew->guidSession = pdpsd->guidInstance;
+    sprintf( pDPSINew->szSession, "%s (%d/%d)", pdpsd->lpszSessionNameA, 
+             pdpsd->dwCurrentPlayers, pdpsd->dwMaxPlayers );
+
+    // Add pDPSINew to the circular linked list, g_pDPSIFirst
+    pDPSINew->next = DPSIHead.next;
+    DPSIHead.next = pDPSINew;
 
 	return TRUE;
 }
 
-bool ShowNetGames(HWND hdlg, bool start)
+void InitSessionsDialog(HWND hdlg)
 {
-	DPSESSIONDESC2 dpsd;
-	HWND hlist = GetDlgItem(hdlg, IDC_GAMELIST);
+    HWND          hWndListBox = GetDlgItem( hdlg, IDC_GAMELIST );
 
-	if (start)
-		SendMessage(hlist, LB_RESETCONTENT, 0, 0);
+    SendMessage( hWndListBox, LB_RESETCONTENT, 0, 0 );
+}
+
+void SessionCleanup(HWND hdlg)
+{
+    DPSessionInfo* pDPSI = DPSIHead.next;
+    DPSessionInfo* pDPSIDelete;
+
+    while ( pDPSI != &DPSIHead )
+    {
+        pDPSIDelete = pDPSI;       
+        pDPSI = pDPSI->next;
+
+        SAFE_DELETE( pDPSIDelete );
+    }
+
+    // Re-link the DPSIHead circular linked list
+    DPSIHead.next= &DPSIHead;
+}
+
+bool ShowNetGames(HWND hDlg, bool start)
+{
+    HRESULT        hr;
+    DPSESSIONDESC2 dpsd;
+    DPSessionInfo* pDPSISelected = NULL;
+    int            nItemSelected;
+    GUID           guidSelectedSession;
+	HWND hlist = GetDlgItem(hDlg, IDC_GAMELIST);
+    BOOL           bFindSelectedGUID;
+    BOOL           bFoundSelectedGUID;
 
 	ZeroMemory(&dpsd, sizeof(DPSESSIONDESC2));
 	dpsd.dwSize = sizeof(DPSESSIONDESC2);
 	dpsd.guidApplication = Frogger2_GUID;
 
-	dplay->EnumSessions(&dpsd, 0, &EnumSessions, GetDlgItem(hdlg, IDC_GAMELIST),
-		(start)?DPENUMSESSIONS_ASYNC|DPENUMSESSIONS_ALL:DPENUMSESSIONS_STOPASYNC);
+	if (start)
+	{
+	    // Try to keep the same session selected unless it goes away or 
+		// there is no real session currently selected
+		bFindSelectedGUID  = FALSE;
+		bFoundSelectedGUID = TRUE;
+
+		nItemSelected = SendMessage( hlist, LB_GETCURSEL, 0, 0 );
+		if( nItemSelected != LB_ERR )
+		{
+			pDPSISelected = (DPSessionInfo*) SendMessage( hlist, LB_GETITEMDATA, 
+														  nItemSelected, 0 );
+			if( pDPSISelected != NULL )
+			{
+				guidSelectedSession = pDPSISelected->guidSession;
+				bFindSelectedGUID = TRUE;
+			}
+		}
+		
+		// Tell listbox not to redraw itself since the contents are going to change
+		SendMessage( hlist, WM_SETREDRAW, FALSE, 0 );
+
+		SessionCleanup(hDlg);
+
+		hr = dplay->EnumSessions(&dpsd, 0, &EnumSessions, GetDlgItem(hDlg, IDC_GAMELIST),
+			(start)?DPENUMSESSIONS_ASYNC|DPENUMSESSIONS_ALL:DPENUMSESSIONS_STOPASYNC);
+		if( FAILED(hr) )
+		{
+			if( hr == DPERR_USERCANCEL )
+			{
+				// The user canceled the DirectPlay connection dialog, 
+				// so stop the search
+				if( searchingForSessions )
+				{
+					CheckDlgButton( hDlg, IDC_SEARCH, BST_UNCHECKED );
+					SendMessage( hDlg, WM_COMMAND, IDC_SEARCH, 0 );
+				}
+
+				return S_OK;
+			}
+			else 
+			{
+				InitSessionsDialog( hDlg );
+				if ( hr == DPERR_CONNECTING )
+					return S_OK;
+
+				return hr;
+			}
+		}
+
+		// Add the enumerated sessions to the listbox
+		if( DPSIHead.next!= &DPSIHead )
+		{
+			// Clear the contents from the list box and enable the join button
+			SendMessage( hlist, LB_RESETCONTENT, 0, 0 );
+			EnableWindow( GetDlgItem( hDlg, IDC_JOIN ), TRUE );
+        
+			DPSessionInfo* pDPSI = DPSIHead.next;
+			while ( pDPSI != &DPSIHead )
+			{
+				// Add session to the list box
+				int nIndex = SendMessage( hlist, LB_ADDSTRING, 0, 
+										  (LPARAM)pDPSI->szSession );
+				SendMessage( hlist, LB_SETITEMDATA, nIndex, (LPARAM)pDPSI );
+
+				if( bFindSelectedGUID )
+				{
+					// Look for the session the was selected before
+					if( pDPSI->guidSession == guidSelectedSession )
+					{
+						SendMessage( hlist, LB_SETCURSEL, nIndex, 0 );
+						bFoundSelectedGUID = TRUE;
+					}
+				}
+
+				pDPSI = pDPSI->next;
+			}
+
+			if( !bFindSelectedGUID || !bFoundSelectedGUID )
+				SendMessage( hlist, LB_SETCURSEL, 0, 0 );
+		}
+		else
+		{
+			// There are no active session, so just reset the listbox
+			InitSessionsDialog( hDlg );
+		}
+
+		// Tell listbox to redraw itself now since the contents have changed
+		SendMessage( hlist, WM_SETREDRAW, TRUE, 0 );
+		InvalidateRect( hlist, NULL, FALSE );
+	}
+	else
+	{
+        hr = dplay->EnumSessions( &dpsd, 0, &EnumSessions, 
+                                  NULL,  DPENUMSESSIONS_STOPASYNC );
+	}
 
 	return true;
 }
@@ -288,15 +455,17 @@ bool ShowNetGames(HWND hdlg, bool start)
 BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
 {
     HRESULT hr;
-	static searching;
 
     switch( msg )
     {
         case WM_INITDIALOG:
             {
-                searching = FALSE;
+                searchingForSessions = FALSE;
                 SetDlgItemText( hDlg, IDC_SEARCH, "Start Search" );
-//				DPConnect_SessionsDlgInitListbox( hDlg );
+
+				// Disable the join button until sessions are found
+				EnableWindow( GetDlgItem( hDlg, IDC_JOIN ), FALSE );
+				InitSessionsDialog(hDlg);
             }
             break;
 
@@ -308,10 +477,9 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
             switch( LOWORD(wParam) )
             {
                 case IDC_SEARCH:
-                    searching = !searching;
+                    searchingForSessions = !searchingForSessions;
 
-
-                    if (searching)
+                    if (searchingForSessions)
                     {
                         // Start the timer, and start the async enumeratation
                         SetDlgItemText( hDlg, IDC_SEARCH, "Searching..." );
@@ -325,6 +493,8 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
                         KillTimer( hDlg, 1 );
 						ShowNetGames(hDlg, false);
                         SetDlgItemText( hDlg, IDC_SEARCH, "Start Search" );
+
+						InitSessionsDialog(hDlg);
                     }
                     break;
 
@@ -335,17 +505,15 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
                     // Fall through
 
                 case IDC_JOIN:
-/*                    if( FAILED( hr = DPConnect_SessionsDlgJoinGame( hDlg ) ) )
-                    {
-                        MessageBox( hDlg, TEXT("Unable to join game."),
-                                    TEXT("DirectPlay Sample"), 
-                                    MB_OK | MB_ICONERROR );
-                    }    
-*/					
+                    if (SUCCEEDED(hr = JoinNetGame(hDlg)))
+					{
+						EndDialog(hDlg, 0);
+					}
                     break;
 
                 case IDC_CREATE:
-					CreateNetGame(hDlg);
+					if (SUCCEEDED(CreateNetGame(hDlg)))
+						EndDialog(hDlg, 0);
                     break;
 
                 case IDCANCEL: // The close button was press
@@ -363,7 +531,8 @@ BOOL CALLBACK dlgSession( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam )
         
         case WM_DESTROY:
             KillTimer(hDlg, 1);
-            //DPConnect_SessionsDlgCleanup();
+            SessionCleanup(hDlg);
+			//DPConnect_SessionsDlgCleanup();
             break;
 
         default:
@@ -422,14 +591,55 @@ BOOL CALLBACK dlgCreate(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	return TRUE;
 }
 
-bool CreateNetGame(HWND hwnd)
+HRESULT JoinNetGame(HWND hDlg)
+{
+	DPSESSIONDESC2	dpsd;
+	DPNAME			dpname;
+	HRESULT			hr;
+	HWND		   hWndListBox = GetDlgItem( hDlg, IDC_GAMELIST );
+	DPSessionInfo* pDPSISelected = NULL;
+	int			nItemSelected;
+
+	nItemSelected = SendMessage( hWndListBox, LB_GETCURSEL, 0, 0 );
+	
+	if (nItemSelected < 0) return S_FALSE;
+
+	pDPSISelected = (DPSessionInfo*) SendMessage( hWndListBox, LB_GETITEMDATA, 
+												  nItemSelected, 0 );
+	// Setup the DPSESSIONDESC2, and get the session guid from 
+	// the selected listbox item
+	ZeroMemory( &dpsd, sizeof(dpsd) );
+	dpsd.dwSize		  = sizeof(dpsd);
+	dpsd.guidInstance	= pDPSISelected->guidSession;
+	dpsd.guidApplication = Frogger2_GUID;
+
+	// Join the session
+	isServer = FALSE;
+	if( FAILED( hr = dplay->Open( &dpsd, DPOPEN_JOIN ) ) )
+		return hr;
+
+	// Create player based on g_strLocalPlayerName.  
+	// Store the player's DPID in g_LocalPlayerDPID.
+	// Also all DirectPlay messages for this player will signal g_hDPMessageEvent
+	ZeroMemory( &dpname, sizeof(DPNAME) );
+	dpname.dwSize		 = sizeof(DPNAME);
+	dpname.lpszShortNameA = playerName;
+	
+	if( FAILED( hr = dplay->CreatePlayer( &dpidLocalPlayer, &dpname, 
+										  hLocalPlayerEvent, NULL, 0, 0 ) ) )
+		return hr;
+
+	return S_OK;
+}
+
+HRESULT CreateNetGame(HWND hwnd)
 {
     DPSESSIONDESC2	dpsd;
     DPNAME			dpname;
 	HRESULT			res;
 
 	if (DialogBox(mdxWinInfo.hInstance, MAKEINTRESOURCE(IDD_MULTI_CREATE), hwnd, dlgCreate) != 0)
-		return false;
+		return -1;
 
     ZeroMemory( &dpsd, sizeof(dpsd) );
     dpsd.dwSize           = sizeof(dpsd);
@@ -438,22 +648,28 @@ bool CreateNetGame(HWND hwnd)
     dpsd.dwMaxPlayers     = 4;
     dpsd.dwFlags          = DPSESSION_KEEPALIVE|DPSESSION_MIGRATEHOST|DPSESSION_DIRECTPLAYPROTOCOL;
 
-	if (dplay->Open(&dpsd, DPOPEN_CREATE) != DP_OK)
+	isServer = true;
+
+	if ((res = dplay->Open(&dpsd, DPOPEN_CREATE)) != DP_OK)
 	{
 		utilPrintf("CreateNetGame(): dplay->Open() failed\n");
-		return false;
+		return res;
 	}
 
 	ZeroMemory(&dpname, sizeof(dpname));
 	dpname.dwSize			= sizeof(dpname);
 	dpname.lpszShortNameA	= playerName;
 
-	if (dplay->CreatePlayer(&dpidLocalPlayer, &dpname, 0, NULL, 0, DPPLAYER_SERVERPLAYER) != DP_OK)
+	if ((res = dplay->CreatePlayer(&dpidLocalPlayer, &dpname, 0, NULL, 0, DPPLAYER_SERVERPLAYER)) != DP_OK)
 	{
 		dplay->Close();
 		utilPrintf("CreateNetGame(): Failed creating player\n");
-		return false;
+		return res;
 	}
 
-	return true;
+	// .. hoorah, we've created a game and a player!
+	// we can go onto whatever thing we want to go onto next
+
+	return S_OK;
 }
+

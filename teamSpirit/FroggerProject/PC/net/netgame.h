@@ -6,6 +6,7 @@ extern "C"
 {
 #endif
 
+	/*
 typedef struct
 {
 	DWORD			dwType;			// message type (APPMSG_UPDATEGAME)
@@ -44,7 +45,7 @@ extern int MPAddFrog( int i );
 extern int MPRemoveFrog( int i );
 extern long synchedFrameCount;
 extern unsigned char synchedOK;
-
+*/
 
 #ifdef __cplusplus
 }
