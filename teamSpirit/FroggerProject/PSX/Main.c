@@ -507,8 +507,10 @@ int main ( )
 		EXPLORE_black_CLUT = textureAddCLUT16(EXPLORE_black_ref_palette);
 
 		VSyncCallback(&vsyncCallback);
-		font = fontLoad("FONT12.FON");
-		fontSmall = fontLoad("FONT12.FON");
+// 		font = fontLoad("FONT12.FON");
+// 		fontSmall = fontLoad("FONT12.FON");
+		font = fontLoad("FONTL.FON");
+		fontSmall = fontLoad("FONTS.FON");
 		InitCam();
 		actorInitialise();
 		InitBackdrop ( "FROGGER2.RAW" );
