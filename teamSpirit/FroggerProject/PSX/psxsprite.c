@@ -28,6 +28,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 	atbdx = (spr->xPos>>3)-256;
 	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
+
 	tPtr = spr->tex;
 
 	if((spr->a == 255) && (!(spr->flags & (SPRITE_ADDITIVE | SPRITE_SUBTRACTIVE))))
@@ -187,6 +188,7 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 
 	atbdx = spr->xPos-2048;
 	atbdy = spr->yPos-((120+PALMODE*8)*(17-PALMODE));
+
 	tPtr = spr->tex;
 
 	if(spr->a == 255)

@@ -162,11 +162,14 @@ void LoadTextureAnimBank( int textureBank )
 		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
 		moveRect.h = textureAnim->animation->dest->h;
 
+		if ( textureAnim->animation->dest->tpage & (1 << 7) )
+			moveRect.w <<= 1;
+
 		DrawSync(0);
 		MoveImage ( &moveRect, VRAM_CALCVRAMX(dummyTexture->handle), VRAM_CALCVRAMY(dummyTexture->handle) );
  		DrawSync(0);
 
-		moveRect.x = (textureAnim->animation->dest->clut & 0x3f) << 4;		// Copy up the palette
+		/*moveRect.x = (textureAnim->animation->dest->clut & 0x3f) << 4;		// Copy up the palette
 		moveRect.y = (textureAnim->animation->dest->clut >> 6);
 
 		if ( dummyTexture->tpage & (1 << 7) )
@@ -178,7 +181,7 @@ void LoadTextureAnimBank( int textureBank )
 
 		DrawSync(0);
 		MoveImage ( &moveRect, (dummyTexture->clut & 0x3f) << 4, (dummyTexture->clut >> 6) );
- 		DrawSync(0);
+ 		DrawSync(0);*/
 
 		//BEGINPRIM		( siMove, DR_MOVE );
 		//SetDrawMove ( siMove, &moveRect, (dummyTexture->clut & 0x3f) << 4, (dummyTexture->clut >> 6) );
