@@ -827,10 +827,10 @@ void ProcessUserInput()
 		padData.digital[i] = 0;
 	}
 
-	if (!keysEnabled | showSounds) return;
-
 	if (windowActive)
 		ProcessKeyboardInput();
+
+	if (!keysEnabled | showSounds) return;
 
 #ifdef JOYPADTHREAD
 	// Joypad must have been polled at least once, so wait for it just in case
