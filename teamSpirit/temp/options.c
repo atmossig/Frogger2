@@ -1907,6 +1907,7 @@ void RunOptionsMenu(void)
 			pFrameModifier = 0;
 #else
 			SpuSetKey(SPU_OFF,0xffffff);
+			StopSong();
 #endif
 
 			GTInit(&artTimer,10);

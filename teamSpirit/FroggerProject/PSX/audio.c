@@ -775,6 +775,7 @@ void PrepareSong ( short worldID,  short loop )
 	songPlaying = 1;
 	utilPrintf			( "World ID : %d \n", worldID );
 	XAplayChannel		( xaFileData[xaNum], chan, loop, 100 );
+	SetMusicVolume();
 	//MAIN_PrintXAData	( xaFileData [ 0 ] );
 
 #endif
