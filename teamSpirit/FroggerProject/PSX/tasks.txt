@@ -67,8 +67,10 @@ Orientation
 
 Unassigned tasks
 ----------------
-Water reflections on walls
-TIDY UP ! ! !
+- Water reflections on walls
+- TIDY UP ! ! !
+- Get hold of my old timing interrupt code,
+  and CalcAbsAng() quat function
 
 
 

@@ -459,6 +459,33 @@ void actorDraw2(ACTOR *actor)
 	scaleMatrix = GsIDMATRIX;
 	ScaleMatrix(&scaleMatrix, &actor->size);
 
+	gte_MulMatrix0(&GsWSMATRIX, &world->matrix, &world->matrixscale);
+	gte_MulMatrix0(&world->matrixscale, &scaleMatrix, &world->matrixscale);
+
+	// get our position in camera space
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+	gte_ldlvl(&actor->position);
+	gte_rtirtr();
+	gte_stlvl(&world->matrixscale.t);
+
+	psiDrawSegments(&actor->psiData);
+}
+/*
+void actorDraw2(ACTOR *actor)
+{
+	MATRIX		scaleMatrix;
+	PSIOBJECT	*world;
+
+	world = actor->psiData.object;
+
+	// create out rotation matrix
+	RotMatrixYXZ_gte(&world->rotate,&world->matrix);
+
+	// create our scale matrix
+	scaleMatrix = GsIDMATRIX;
+	ScaleMatrix(&scaleMatrix, &actor->size);
+
 	// multiply camera matrix by our scale matrix
 	gte_MulMatrix0(&GsWSMATRIX, &scaleMatrix, &world->matrixscale);
 
@@ -475,6 +502,7 @@ void actorDraw2(ACTOR *actor)
 	psiDrawSegments(&actor->psiData);
 
 }
+*/
 
 void drawBones(PSIOBJECT *world, PSIOBJECT *parent)
 {
