@@ -39,6 +39,7 @@ char memmessage[256];
 char slotNumStr[4];
 
 
+int waitCheck;
 int delayTimer;
 int cardChanged = NO;
 #define DELAY_TIME 200
@@ -461,6 +462,7 @@ void StartChooseLoadSave(int load)
 		sprintf(slotNumStr,"1-A");
 	else
 		sprintf(slotNumStr,"1");
+	waitCheck = 0;
 }
 
 
@@ -538,7 +540,6 @@ static void saveMenuLoad()
 }
 
 /* CHECK CARD PAGE *****************************************************************************************************/
-
 static void saveMenuCheck()
 {
 	int res;
@@ -831,6 +832,7 @@ void saveMenuNeedFormat()
 	}
 }
 
+int MEMWAIT = 10;
 void ChooseLoadSave()
 {
 	int alpha = fontSmall->alpha;
@@ -857,6 +859,11 @@ void ChooseLoadSave()
 		VSync(0);
 	}
 
+	if(waitCheck < MEMWAIT)
+	{
+		waitCheck++;
+		return;
+	}
 	fontSmall->alpha = 2;
 	switch(saveInfo.saveStage)
 	{

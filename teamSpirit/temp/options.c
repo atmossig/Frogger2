@@ -56,6 +56,7 @@
 #include "temp_psx.h"
 #include "main.h"
 #include "memcard.h"
+#include "font.h"
 #endif
 #include "layout.h"
 
@@ -277,6 +278,18 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
+
+	3,WHITE,	//separator
+	0,WHITE,
+	1,WHITE,
+	0,WHITE,
+	1,WHITE,
+	0,WHITE,
+	0,WHITE,
+	1,WHITE,
+	1,WHITE,
+	0,WHITE,
+
 };
 
 #ifdef PSX_VERSION
@@ -2428,6 +2441,7 @@ void ArcadeBack(void)
 void StartCredits()
 {
 	int j,spacing = 0;
+	psFont *credFont = font;
 
 	creditsY = 0;
 	creditsRunning = YES;
@@ -2435,19 +2449,17 @@ void StartCredits()
 
 	for(j = 0;;j++)
 	{
-#ifdef PC_VERSION
-		if(GAMESTRING(j + STR_CREDITS_1)[0] == '*')
-			break;
-#else
 		if( ((char*)GAMESTRING(j+STR_CREDITS_1)) [0] == '*' )
 			break;
-#endif
+
+		if((credFont == font) && ( ((char*)GAMESTRING(j+STR_CREDITS_1)) [0] == '_' ))
+			credFont = fontSmall;
 
 		spacing += creditData[j].spacing;
 #ifdef PSX_VERSION
-		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,font,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
+		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
 #else
-		creditsText[j] = CreateAndAddTextOverlay(2048,min(10000,4096 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,font,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
+		creditsText[j] = CreateAndAddTextOverlay(2048,min(10000,4096 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
 #endif	 
 	 	creditsText[j]->draw = 0;
 	 	creditsText[j]->r = creditData[j].r;
