@@ -72,7 +72,9 @@ void SampleGraph(long value)
 {
 	LARGE_INTEGER c;
 	QueryPerformanceCounter(&c);
-	
+
+	if( graphNumPoints > MAX_SAMPLES )
+		return;
 
 	graphSTimes[graphNumPoints] = c.QuadPart;
 	graphSValues[graphNumPoints++] = value;
