@@ -541,7 +541,7 @@ TIMER idletimer;
 	Returns		: void
 	Info		: 
 */
-void ProcessUserInput(HWND hWnd)
+void ProcessUserInput()
 {
 	HRESULT hRes;
 	long i;
@@ -558,7 +558,7 @@ void ProcessUserInput(HWND hWnd)
 	//----- [ KEYBOARD CONTROL ] -----//
 
 	if(KEYPRESS(DIK_F12))
-		PostMessage(hWnd,WM_CLOSE,0,0);
+		PostMessage(winInfo.hWndMain, WM_CLOSE, 0, 0);
 	
 	controllerdata[0].lastbutton = controllerdata[0].button;
 	controllerdata[1].lastbutton = controllerdata[1].button;

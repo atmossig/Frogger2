@@ -80,7 +80,7 @@ extern LPDIRECTINPUTDEVICE lpMouse;
 
 extern BOOL InitInputDevices();
 extern void DeInitInputDevices();
-extern void ProcessUserInput(HWND hWnd);
+extern void ProcessUserInput();
 extern void ResetParameters();
 extern BOOL SetupControllers(HWND hwnd);
 extern void MakeKeyMap( );
