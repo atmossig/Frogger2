@@ -1703,12 +1703,14 @@ void UpdateFrogCroak( int pl )
 	if(player[pl].frogState & FROGSTATUS_ISCROAKING)
 	{
 		SPECFX *fx;
+		FVECTOR normal;
 
+		SetVectorFF( &normal, &currTile[pl]->normal );
 		if( !(player[pl].isCroaking.time%2) )
 		{
 			SetVectorSS(&effectPos, &frog[pl]->actor->position);
 			specFXAlpha = 128;
-			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, initcroakscale, 4096, 410, croaklife )) )
+			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &normal, initcroakscale, 4096, 410, croaklife )) )
 			{
 				fx->spin = 20;
 				SetFXColour( fx, 191,255,0);
@@ -1729,15 +1731,14 @@ void UpdateFrogCroak( int pl )
 
 			if( baby != -1 )
 			{
-				FVECTOR up;
 				SVECTOR pos;
+				FVECTOR up;
 				SetVectorFF( &up, &upVec );
 				ScaleVector( &up, 20 );
 				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
-				SetVectorFF( &up, &currTile[pl]->normal );
 
 				specFXAlpha = 128;
-				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &up, initcroakscale, 4096, 410, croaklife )) )
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &normal, initcroakscale, 4096, 410, croaklife )) )
 				{
 					fx->spin = 25;
 					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
