@@ -431,7 +431,7 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 
 	// Write the total number of path nodes in the woooooorrrrrrld
 
-	for (i =0; i < numPaths; i++)
+	for (i=0, count=0; i < numPaths; i++)
 	{
 		EDITPATHNODE *node;
 		for(node=pathBuf[i]->nodes; node; node = node->link, count++);
@@ -447,6 +447,7 @@ BOOL SaveCreateList(const char* filename, EDITGROUP *list)
 	
 	// ----------------------- Step 2: Write the entity list ---------------------------
 	
+	memset(counters, 0, sizeof(int) * 5);
 	for (count = 0, node = list->nodes; node; node = node->link, count++)
 		counters[((CREATEENTITY*)(node->thing))->thing]++;
 
