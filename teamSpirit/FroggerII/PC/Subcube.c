@@ -269,8 +269,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 		}
 	}
 	
-	BeginDrawHardware();
-
+	
 	for (i=0; i<obj->mesh->numFaces; i++)
 	{
 		long v0 = obj->mesh->faceIndex[i].v[0];
@@ -335,7 +334,6 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 
 		}
 	}
-	EndDrawHardware();
 	return;
 }
 

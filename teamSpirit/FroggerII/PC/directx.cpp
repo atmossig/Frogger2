@@ -187,7 +187,7 @@ void DirectXFlip(void)
 	rect.y1 = 0;
 	rect.x2 = SCREEN_WIDTH;
 	rect.y2 = SCREEN_HEIGHT;*/
-	pDirect3DViewport->Clear(1, &rect, D3DCLEAR_ZBUFFER);
+	pDirect3DViewport->Clear(1, &rect, D3DCLEAR_ZBUFFER | D3DCLEAR_TARGET);
 }
 
 void SetupRenderstates(void)
