@@ -379,7 +379,7 @@ BOOL LoadObjectBank(int num)
 			break;
 
 		case HALLOWEENBOSSB_OBJ_BANK:
-			strcat (file,"halloweenboss");
+			strcat (file,"halloweenbossb");
 			break;
 
 		case HALLOWEENLEV1_OBJ_BANK:
