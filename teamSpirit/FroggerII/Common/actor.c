@@ -149,6 +149,7 @@ void DrawActorList()
 #ifdef PC_VERSION
 	
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 
 	cur = actList;
 	waterObject = 0;
