@@ -15,8 +15,10 @@
 #include "fadeout.h"
 #include "layout.h"
 
+#include "controll.h"
+
 long fadeoutStart, fadeoutLength;
-int fadingOut = 0;
+int fadingOut = 0, keepFade = 0;
 
 int (*fadeProc)(void);
 
@@ -30,16 +32,20 @@ int startIntensity = 0, endIntensity = 255;
 int DrawScreenFade(void)
 {
 	RECT r = { 0, 0, rXRes, rYRes };
+	int col;
 	
-	if (actFrameCount > (fadeoutStart+fadeoutLength)) return 1;
+	if (actFrameCount > (fadeoutStart+fadeoutLength))
+		col = endIntensity;
+	else
+		col = startIntensity + ((endIntensity-startIntensity)*(long)(actFrameCount-fadeoutStart))/fadeoutLength;
 
-	int col = startIntensity + ((endIntensity-startIntensity)*(actFrameCount-fadeoutStart))/fadeoutLength;
+//		col = startIntensity + ((endIntensity-startIntensity)*(actFrameCount-fadeoutStart))/fadeoutLength;
 
 	D3DSetupRenderstates(xluSubRS);
-	DrawFlatRect(r, RGB_MAKE(col, col, col));
+	DrawFlatRect(r, RGBA_MAKE(col, col, col, 255));
 	D3DSetupRenderstates(xluSemiRS);
 
-	return 0;
+	return (actFrameCount > (fadeoutStart+fadeoutLength));
 }
 
 
@@ -48,7 +54,7 @@ int DrawScreenFade(void)
 	Params:		start, end intensity (0-255), time in frames
 	returns:	
 */
-void ScreenFade(int start, int end, long time, int stay)
+void ScreenFade(int start, int end, long time)
 {
 	fadeProc = DrawScreenFade;
 	fadeoutStart = actFrameCount;
@@ -73,7 +79,15 @@ void StopFadeout()
 */
 void DrawScreenTransition(void)
 {
+	if (KEYPRESS(DIK_F))
+		ScreenFade(0, 255, 60);
+
 	if (fadeProc)
 		if (fadeProc())
+		{
 			fadingOut = 0;
+			
+			if (!keepFade)
+				fadeProc = NULL;
+		}
 }

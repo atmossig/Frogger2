@@ -48,6 +48,7 @@
 
 #include "editor.h"
 
+#include "fadeout.h"
 #include "pcsprite.h"
 #include "pcgfx.h"
 #include "backdrop.h"
@@ -753,6 +754,8 @@ long DrawLoop(void)
 		DrawAllFrames();
 		BlankAllFrames();
 	}
+
+	DrawScreenTransition();
 
 	PrintSpriteOverlays(0);	
 	PrintTextOverlays();

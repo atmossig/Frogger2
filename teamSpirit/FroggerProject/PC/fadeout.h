@@ -17,7 +17,7 @@ extern "C"
 {
 #endif
 
-extern int fadingOut;
+extern int fadingOut, keepFade;
 
 void ScreenFade(int start, int end, long time);
 void DrawScreenTransition(void);
