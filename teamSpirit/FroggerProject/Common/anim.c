@@ -184,6 +184,8 @@ void DeathFalling( int pl )
 
 void DeathWhacking( int pl )
 {
+	TRIGGER *t;
+
 	if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 
 	player[pl].deathBy = DEATHBY_WHACKING;
@@ -195,6 +197,9 @@ void DeathWhacking( int pl )
 	GTInit( &player[pl].dead, 5 );
 
 	PlayVoice(pl, "frogdeath");
+
+	t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 40), NULL, NULL, NULL );
+	AttachEvent( t, TRIGGER_ONCE, 0, PlaySFX, (void *)FindSample(utilStr2CRC("frogcrush")), NULL, NULL, NULL );
 }
 
 void DeathInflation( int pl )
