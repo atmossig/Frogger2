@@ -1,0 +1,219 @@
+[MainWindow]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=0
+Width=1024
+Height=107
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1016
+ClientHeight=60
+
+[PropertyInspector]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=108
+Width=238
+Height=884
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=230
+ClientHeight=857
+SplitPos=97
+
+[ProjectManager]
+Create=1
+Visible=1
+State=0
+Left=1050
+Top=16
+Width=259
+Height=220
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=251
+ClientHeight=193
+LargeButtons=1
+
+[WatchWindow]
+Create=1
+Visible=1
+State=0
+Left=3
+Top=993
+Width=551
+Height=195
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=543
+ClientHeight=167
+
+[HistoryLists\hiWatchExpression]
+Count=9
+H0=bankNum
+H1=objBankList [ 6 ].outputDir
+H2=objBankList [ 0 ].outputDir
+H3=objBankList [ 5 ].outputDir
+H4=noBffFiles
+H5=Form1->ComboBox2->Items->Strings[ 0 ]
+H6=Form1->ComboBox2->Items->Names[ 0 ]
+H7=Form1->ComboBox2->Items->Names [ 0 ]
+H8=Form1->ComboBox2->Items->Names [ Form1->ComboBox2->ItemIndex ]
+
+[HistoryLists\hiEvalExpression]
+Count=22
+H0=(char*)bffFiles [ selected ].objects [ selected1 ].name
+H1=bffFiles [ selected ].objects [ selected1 ].name
+H2=addr
+H3=bffFiles [ selected ].objects [ selected1 ].shift
+H4=(char*)bffFiles [ Form1->ComboBox1->ItemIndex ].objects [ num ].name
+H5=bffFiles [ Form1->ComboBox1->ItemIndex ].objects [ num ].name
+H6=bffFiles [ counter ].noObjects
+H7=bffFiles [ selectedBff ].noObjects
+H8=(char*)bffFiles [ selectedBff ].objects [ bffFiles [ selectedBff ].noObjects-1 ].name
+H9=bffFiles [ selectedBff ].objects [ bffFiles [ selectedBff ].noObjects-1 ].name
+H10=bffFiles [ Form1->ComboBox1->ItemIndex ].noObjects
+H11=(char*)bffFiles [ counter ].name
+H12=bffFiles [ counter ].name
+H13=v
+H14=rotx
+H15=selected
+H16=counter
+H17=bffFiles [ 0 ].objects [ 0 ].flags
+H18=bffFiles [ selected ].objects [ selected1 ].flags
+H19=flags
+H20=file
+H21=filename
+
+[HistoryLists\hiEvalNewValue]
+Count=1
+H0=130
+
+[HistoryLists\hiOpenFile]
+Count=1
+H0=c:\work\tools\bank manager\bankmanager.bpr
+
+[Closed Files]
+File_0=SourceModule,'C:\work\Tools\Object Banker\PropObjectBankModule.cpp',0,1,26,22,45,0,0
+File_1=SourceModule,'C:\PROGRA~1\BORLAND\CBUILD~1\INCLUDE\VCL\dstring.h',0,1,1,1,43,0,0
+File_2=SourceModule,'C:\work\Tools\Object Banker\NewObjectBankModule.cpp',0,1,26,34,47,1,0
+File_3=SourceModule,'C:\work\Tools\Object Banker\ObjBank.cpp',0,1,52,15,77,0,0
+File_4=SourceModule,'C:\work\Tools\Object Banker\unit1.cpp',0,1,236,26,244,1,0
+File_5=SourceModule,'C:\work\Tools\BFF Maker\Main.cpp',0,1,1874,14,1878,1,0
+File_6=SourceModule,'C:\work\Tools\BFF Maker\Main.dfm',0,1,1,1,1,0,0
+File_7=SourceModule,'C:\work\Tools\BFF Maker\Open.cpp',0,1,1,48,22,1,0
+File_8=SourceModule,'C:\work\Tools\BFF Maker\MainForm.cpp',0,1,1,36,29,1,0
+
+[Modules]
+Module0=C:\WORK\TOOLS\OBJECT~2\unit1.cpp
+Module1=C:\WORK\TOOLS\OBJECT~2\ObjBank.cpp
+Module2=C:\Program Files\Borland\CBuilder3\Projects\ProjectGroup1.bpg
+Module3=C:\WORK\TOOLS\OBJECT~2\ObjectBanker.bpr
+Module4=C:\work\Tools\Object Banker\ObjectBanker.bpr
+Count=5
+EditWindowCount=1
+
+[C:\WORK\TOOLS\OBJECT~2\unit1.cpp]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\WORK\TOOLS\OBJECT~2\ObjBank.cpp]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\CBuilder3\Projects\ProjectGroup1.bpg]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\WORK\TOOLS\OBJECT~2\ObjectBanker.bpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\work\Tools\Object Banker\ObjectBanker.bpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[EditWindow0]
+Create=1
+Visible=1
+State=0
+Left=240
+Top=109
+Width=1030
+Height=883
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1022
+ClientHeight=855
+SplitPos=50
+MessagePane=1
+ViewCount=4
+CurrentView=0
+View0=0
+View1=1
+View2=2
+View3=3
+
+[View0]
+Module=C:\WORK\TOOLS\OBJECT~2\unit1.cpp
+CursorX=113
+CursorY=1602
+TopLine=1580
+LeftCol=1
+
+[View1]
+Module=C:\WORK\TOOLS\OBJECT~2\unit1.h
+CursorX=14
+CursorY=105
+TopLine=85
+LeftCol=1
+
+[View2]
+Module=C:\WORK\TOOLS\OBJECT~2\ObjBank.cpp
+CursorX=36
+CursorY=142
+TopLine=142
+LeftCol=1
+
+[View3]
+Module=C:\WORK\TOOLS\OBJECT~2\ObjBank.h
+CursorX=11
+CursorY=1
+TopLine=1
+LeftCol=1
+
+[Breakpoints]
+Count=11
+Breakpoint0='C:\work\Tools\Object Banker\unit1.cpp',1692,'',0,1
+Breakpoint1='C:\work\Tools\Object Banker\unit1.cpp',1690,'',0,1
+Breakpoint2='C:\work\Tools\Object Banker\unit1.cpp',1295,'',0,1
+Breakpoint3='C:\work\Tools\Object Banker\unit1.cpp',1990,'',0,1
+Breakpoint4='C:\work\Tools\Object Banker\unit1.cpp',1596,'',0,1
+Breakpoint5='C:\work\Tools\Object Banker\unit1.cpp',1753,'',0,1
+Breakpoint6='C:\work\Tools\Object Banker\unit1.cpp',1748,'',0,1
+Breakpoint7='C:\WORK\TOOLS\OBJECT~2\unit1.cpp',1773,'',0,1
+Breakpoint8='C:\WORK\TOOLS\OBJECT~2\ObjBank.cpp',90,'',0,1
+Breakpoint9='C:\WORK\TOOLS\OBJECT~2\ObjBank.cpp',76,'',0,1
+Breakpoint10='C:\WORK\TOOLS\OBJECT~2\unit1.cpp',1580,'',0,1
+
+[AddressBreakpoints]
+Count=0
+
+[Watches]
+Count=6
+Watch0='objBankList [ 6 ].outputDir',32,0,18,1
+Watch1='objBankList [ bankNum ].numObjects',256,0,18,1
+Watch2='objBankList',256,0,18,1
+Watch3='objBankList',256,0,18,1
+Watch4='bankNum',256,0,18,1
+Watch5='newString',256,0,18,1
+
