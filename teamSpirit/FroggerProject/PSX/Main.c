@@ -43,6 +43,8 @@
 #include "BackDrop.h"
 #include "menus.h"
 #include "Eff_Draw.h"
+#include "World_Dff.h"
+
 
 void customDrawPrimitives2(int);
 void customDrawSortedPrimitives(int);
@@ -543,6 +545,11 @@ int main ( )
 			PrintSprites();
 			TimerStop(&tPrintSprites);
 
+			TimerStart(&tDrawWaterList);
+			if(gameState.mode == INGAME_MODE)
+				DrawScenicObjList();
+			TimerStop(&tDrawWaterList);
+			
 			TimerStart(&tDrawWaterList);
 			if(gameState.mode == INGAME_MODE)
 				DrawWaterList();
