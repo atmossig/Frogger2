@@ -451,7 +451,7 @@ void RemoveObjectSprites(OBJECT *obj,BOOL f)
 		{
 			if(obj->sprites[i].sprite)
 				SubSprite(obj->sprites[i].sprite);
-			if(free)
+			if(f)
 				JallocFree((UBYTE**)&obj->sprites[i].sprite);
 		}
 	}
