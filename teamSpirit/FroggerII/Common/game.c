@@ -625,7 +625,6 @@ void RunGameLoop (void)
 		ChangeCameraSetting();
 
 		lastActFrameCount = 0;
-		actFrameCount = 0;
 	}
 
 	if(keyFound)

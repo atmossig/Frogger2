@@ -285,6 +285,9 @@ void SlurpCamPosition(long cam)
 	s3 = camSpeed3 * transCamSpeedMult,
 	s4 = camSpeed4 * transCamSpeedMult;
 
+	if( !lastActFrameCount )
+		lastActFrameCount = actFrameCount-1;
+
 	while( lastActFrameCount < actFrameCount )
 	{
 		if (!initialCamera)
