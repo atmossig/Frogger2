@@ -78,6 +78,7 @@ PC merge/update related
 
 
 - editor adds depth shift to entities
+- common code for layoutvisual initialisation
 
 
 
