@@ -44,6 +44,8 @@ MDX_TEXENTRY *cDispTexture = NULL;
 MDX_TEXENTRY *texList = NULL;
 MDX_TEXPAGE	*texPages = NULL;
 
+long surfacesMade = 0;
+
 #define TEX_PAGE_SIZE 64
 
 unsigned long maxTexturesInPage = ((TEX_PAGE_SIZE/32) * (TEX_PAGE_SIZE/32));
@@ -217,6 +219,7 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 				newE->yPos = 0;
 				
 				temp->Release();
+				surfacesMade--;
 				//page->numTex++;
 
 				newE->type = TEXTURE_NORMAL;
@@ -486,7 +489,21 @@ void UpdateAnimatingTextures(void)
 	
 }
 
+void PrintTextureInfo(void)
+{
+	DDSCAPS2 ddCaps;
+	unsigned long dwVidMemTotal, dwVidMemFree;
+
+	ddCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_TEXTURE;
+	pDirectDraw7->GetAvailableVidMem(&ddCaps, &dwVidMemTotal, &dwVidMemFree);					// Get the caps for the device
+	//pDirectDraw->GetCaps(&ddCaps, NULL);														// Get the caps for the device (Old method...)
+	dp ( "Total Mem : %lu : - Total Free : %lu :\n",dwVidMemTotal, dwVidMemFree );
+}
+
 extern MDX_TEXENTRY *haloHandle;
+
+
+_CrtMemState state1,state2,state3;
 
 void FreeAllTextureBanks()
 {
@@ -517,13 +534,28 @@ void FreeAllTextureBanks()
 			delete cur->frames;
 		}
 
-		if( cur->surf )	cur->surf->Release();
+		if( cur->surf )	
+		{
+			cur->surf->Release();
+			surfacesMade--;
+		}
 
 		delete cur;
 	}
 
 	dp("Freed %d Textures\n",numTextures);
+	dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
 
+//CrtMemCheckpoint(&state2);
+//CrtMemDifference(&state3,&state2,&state1);
+	
+//	_CrtMemDumpStatistics(&state3);
+
+//	_CrtMemCheckpoint(&state1);
+
+	dp("%lu Surfaces Made=========================================================================\n",surfacesMade);
+
+	
 	texList = NULL;
 	testS = NULL;
 }

@@ -58,6 +58,15 @@ int Eval_Exception (int n_except,LPEXCEPTION_POINTERS exceptinf)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
+void *AllocMem(unsigned long size)
+{
+	return (void *)new char[size];
+}
+
+void *FreeMem(unsigned long size)
+{
+	return (void *)new char[size];
+}
 
 #ifdef __cplusplus
 }

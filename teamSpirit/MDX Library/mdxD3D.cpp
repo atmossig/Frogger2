@@ -241,8 +241,11 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface(long xs,long ys, long cKey, long alphaS
 		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
 		ddShowError(me);
 		RELEASE(pSurface); 
+		
 		return NULL;
 	}
+
+	surfacesMade++;
 
 	if (!alphaSurf && cKey!=0xffff)
 	{
@@ -276,6 +279,8 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurfaceScreen(long xs,long ys, long cKey, long 
 		RELEASE(pSurface); 
 		return NULL;
 	}
+
+	surfacesMade++;
 
 	if (!alphaSurf && cKey!=0xffff)
 	{
@@ -312,6 +317,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateSurface(long xs,long ys, long cKey,long videoRam)
 		RELEASE(pSurface); 
 		return NULL;
 	}
+	surfacesMade++;
 
 	DDCOLORKEY cK;
 	cK.dwColorSpaceLowValue = cKey;
@@ -353,6 +359,7 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long te
 		return NULL;
 	}
 
+	surfacesMade++;
 	
 	return pSurface;
 }	

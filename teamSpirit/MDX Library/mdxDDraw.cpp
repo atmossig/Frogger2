@@ -356,6 +356,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			return 0;
 		}
 		
+		surfacesMade++;
 		
 		DDINIT(ddsd);
 		ddsd.ddsCaps.dwCaps =  DDSCAPS_BACKBUFFER | rHardware?DDSCAPS_3DDEVICE:0;
@@ -387,6 +388,8 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			ddShowError(res);
 			return 0;
 		}
+		
+		surfacesMade++;
 	
 			// Create a primary surface
 		DDINIT(ddsd);
@@ -403,7 +406,9 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			ddShowError(res);
 			return 0;
 		}
-	
+
+		surfacesMade++;
+
 	}
 
 	
@@ -450,7 +455,9 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 			ddShowError(res);
 			return 0;
 		}
-		
+
+		surfacesMade++;
+
 		DDrawAttachSurface (RENDER_SRF,ZBUFFER_SRF);
 	}
 
@@ -491,11 +498,18 @@ unsigned long DDrawShutdown (void)
 
 	// Delete primary (And implicitly the render) surfaces
 	surface[PRIMARY_SRF]->Release();
+	surfacesMade--;
 	
 	if (surface[SPARE_SRF])
+	{
 		surface[SPARE_SRF]->Release();
+		surfacesMade--;
+	}
 	if (surface[ZBUFFER_SRF])
+	{
 		surface[ZBUFFER_SRF]->Release();
+		surfacesMade--;
+	}
 	pDirectDraw7->Release();
 	return 1;
 }
@@ -733,6 +747,8 @@ void mdxLoadBackdrop(const char* filename)
 		return;
 	}
 
+	surfacesMade++;
+	
 	CopyDataToSurface(data, backdrop);
 
 	free(data);
@@ -748,7 +764,10 @@ void mdxLoadBackdrop(const char* filename)
 void mdxFreeBackdrop()
 {
 	if (backdrop)
+	{
 		backdrop->Release();
+		surfacesMade--;
+	}
 }
 
 #define REDVAL(x) ((((x>>11)&0x1f) * 0xff)/0x1f)
