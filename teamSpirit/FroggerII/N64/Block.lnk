@@ -32,7 +32,6 @@ _codeSegmentEnd         alias   _code_objend
 
         include "font.obj",code
         include "title.obj",code
-        include "water.obj",code
         include "objview.obj",code
         include "actor.obj",code
 
@@ -50,16 +49,13 @@ _codeSegmentEnd         alias   _code_objend
 		include "sprite.obj",code
 		include "nnsched.obj",code
 		include "timerbar.obj",code
-		include "backgnd.obj",code
         include "levext.obj",code
 		include "collect.obj",code
         include "map.obj",code
 		include "tongue.obj",code
-		include "collide.obj",code
 		include "enemies.obj",code
 		include "general.obj",code
 		include "platform.obj",code
-		include "oldefrog.obj",code
 		include "layoutvisual.obj",code
 		include "path.obj",code
 		include "babyfrogs.obj",code
@@ -68,7 +64,6 @@ _codeSegmentEnd         alias   _code_objend
 		include "frogger.obj",code
 		include "frontend.obj",code
 		include "hud.obj",code
-		include "timetrial.obj",code
 		include "overlays.obj",code
 		include "textoverlays.obj",code
 		include "backdrops.obj",code
