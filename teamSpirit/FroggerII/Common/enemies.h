@@ -77,7 +77,7 @@ enum
 };
 
 
-//----- [ PLATFORM FLAGS ] ---------------------------------------------------------------------//
+//----- [ ENEMY FLAGS ] ---------------------------------------------------------------------//
 
 #define ENEMY_NEW_NONE					0
 #define ENEMY_NEW_FOLLOWPATH			(1 << 0)	// enemy follows a path (>1 node)
@@ -99,12 +99,11 @@ enum
 #define ENEMY_NEW_ROTATEPATH_XZ			(1 << 16)	// Move in a circle around a point. Use tiles though.
 #define ENEMY_NEW_ROTATEPATH_XY			(1 << 17)	// Move in a circle around a point. Use tiles though.
 #define ENEMY_NEW_ROTATEPATH_ZY			(1 << 18)	// Move in a circle around a point. Use tiles though.
-#define ENEMY_NEW_MAKERIPPLES			(1 << 19)	// generate ripples under the enemy
-#define ENEMY_NEW_MAKESMOKE				(1 << 20)	// generate smoke
-#define ENEMY_NEW_MAKESPARKS			(1 << 21)	// generate sparks
-#define ENEMY_NEW_SNAPTILES				(1 << 22)	// Snap at a tilelist
-#define ENEMY_NEW_MOVEONMOVE			(1 << 23)	// Move towards frog when it moves
-#define ENEMY_NEW_FOLLOWFROG			(1 << 24)	// Follow where the frog has been
+#define ENEMY_NEW_SNAPTILES				(1 << 19)	// Snap at a tilelist
+#define ENEMY_NEW_MOVEONMOVE			(1 << 20)	// Move towards frog when it moves
+#define ENEMY_NEW_FOLLOWFROG			(1 << 21)	// Follow where the frog has been
+#define ENEMY_NEW_VENT_UP				(1 << 22)	// Like a geyser - one tile
+#define ENEMY_NEW_VENT_ACROSS			(1 << 23)	// Like a flamethrower - path
 
 typedef struct TAGENEMY
 {

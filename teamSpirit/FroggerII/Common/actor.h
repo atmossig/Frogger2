@@ -24,6 +24,13 @@
 #define LOOKAT_ANYWHERE		1
 #define LOOKAT_2D			2
 
+//----- [ EFFECT FLAGS ] ---------------------------------------------------------------------//
+
+#define EF_SMOKE_CLOUDS					(1 << 0)	// As for mowers
+#define EF_SPARK_BURSTS					(1 << 1)	// 
+#define EF_RIPPLE_RINGS					(1 << 2)	// Lillypad thing
+#define EF_FLAMEBURST_UP				(1 << 3)	// Vent up
+#define EF_FLAMEBURST_ACROSS			(1 << 4)	// Flamethrower
 
 //------------------------------------------------------------------------------------------------
 
@@ -63,6 +70,7 @@ typedef struct TAGACTOR2
 
 	char			draw;
 	int				flags;
+	int				effects;
 	float			radius;
 	float			angle;
 	float			animSpeed;

@@ -725,7 +725,7 @@ void UpdateEnemies()
 				break;
 		}
 		*/
-		if( cur->flags & ENEMY_NEW_MAKERIPPLES )
+		if( cur->nmeActor->effects & EF_RIPPLE_RINGS )
 		{
 			long r;
 			VECTOR rPos;
@@ -748,7 +748,7 @@ void UpdateEnemies()
 					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
 			}
 		}
-		if( cur->flags & ENEMY_NEW_MAKESMOKE )
+		if( cur->nmeActor->effects & EF_SMOKE_CLOUDS )
 		{
 			long r;
 			if( cur->nmeActor->value1 )
@@ -759,7 +759,7 @@ void UpdateEnemies()
 			if( !(actFrameCount%r) && (fxDist < ACTOR_DRAWDISTANCEINNER))
 				CreateAndAddFXSmoke(&cur->nmeActor->actor->pos,80,20);
 		}
-		if( cur->flags & ENEMY_NEW_MAKESPARKS )
+		if( cur->nmeActor->effects & EF_SPARK_BURSTS )
 		{
 			long r;
 			if( cur->nmeActor->value1 )

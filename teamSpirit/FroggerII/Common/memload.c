@@ -64,7 +64,7 @@ char *MemLoadString(UBYTE **p)
 
 int MemLoadEntities(const void* data, long size)
 {
-	int count, flags, numNodes, startNode, n, ID;
+	int count, flags, numNodes, startNode, n, ID, effects;
 	float scale, radius, animSpeed, value1;
 	UBYTE thing;
 	char type[20];
@@ -104,6 +104,7 @@ int MemLoadEntities(const void* data, long size)
 			radius	= MEMGETFLOAT(&p);
 			animSpeed = MEMGETFLOAT(&p);
 			value1 = MEMGETFLOAT(&p);
+			effects = MEMGETINT(&p);
 			startNode = MEMGETINT(&p);
 		
 			numNodes = MEMGETINT(&p);
@@ -175,6 +176,7 @@ int MemLoadEntities(const void* data, long size)
 			act->actor->scale.v[Z] = scale;
 			act->animSpeed = animSpeed;
 			act->value1 = value1;
+			act->effects = effects;
 
 			break;
 
