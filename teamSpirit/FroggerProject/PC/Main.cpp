@@ -500,50 +500,47 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
-			if( wParam == VK_F11 && debugKeys )
+			if (debugKeys)
 			{
-				showSounds = !showSounds;
-				return 0;
-			}
-			
-			if (wParam == VK_NUMLOCK)
-			{
-				WriteTexturesToFile();
-				return 0;
-			}
-
-
-			if( showSounds )
-			{
-				if( dispSample )
+				if (wParam == VK_F11)
 				{
-					if( wParam == VK_UP )
-						dispSample = dispSample->prev;
-					else if( wParam == VK_DOWN )
-						dispSample = dispSample->next;
+					showSounds = !showSounds;
+					return 0;
+				}
+				
+				if (wParam == VK_NUMLOCK)
+				{
+					WriteTexturesToFile();
+					return 0;
 				}
 
-				if( wParam == VK_RETURN )
-					siPlaySound = 1;
+				if( showSounds )
+				{
+					if( dispSample )
+					{
+						if( wParam == VK_UP )
+							dispSample = dispSample->prev;
+						else if( wParam == VK_DOWN )
+							dispSample = dispSample->next;
+					}
 
-				if( dispSample == &soundList.head )
-					dispSample = soundList.head.next;
+					if( wParam == VK_RETURN )
+						siPlaySound = 1;
 
-				return 0;
-			}
+					if( dispSample == &soundList.head )
+						dispSample = soundList.head.next;
 
-			switch (wParam)
-			{
-			case VK_F10:
-				if( debugKeys )
+					return 0;
+				}
+
+#ifndef FINAL_MASTER
+				if (wParam == VK_F10)
 				{
 					editorOk = !editorOk;
 					keysEnabled = !keysEnabled;
 					dkPressed += editorOk;
 				}
-				return 0;
-			default:
-				return 1;
+#endif
 			}
 			break;
 
@@ -558,12 +555,13 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				ChatInput((char)wParam);
 				return 0;
 			}
+#ifndef FINAL_MASTER
 			if (editorOk)	// only when editor is set up to "grab" keyboard data
 			{
 				EditorKeypress((char)wParam);
 				return 0;
 			}
-
+#endif
 			return 1;
 			break;
 
@@ -696,10 +694,12 @@ long LoopFunc(void)
 	}
 	EndTimer(11);
 
+#ifndef FINAL_MASTER
 	StartTimer(12,"Editor");
 	if (editorOk)
 		RunEditor();
 	EndTimer(12);
+#endif
 
 	if( KEYPRESS(DIK_F7) && chatFlags )
 	{
@@ -826,7 +826,9 @@ int GameStartup()
 	SetThreadPriority(GetCurrentThread(),THREAD_PRIORITY_TIME_CRITICAL);*/
 	InitTiming(60.0);
 
+#ifndef FINAL_MASTER
 	InitEditor();
+#endif
 
 	SPRITECLIPLEFT = clx0;
 	SPRITECLIPTOP = cly0;
@@ -839,6 +841,10 @@ int GameStartup()
 int GameShutdown()
 {
 	SaveGame();
+
+#ifndef FINAL_MASTER
+	ShutdownEditor();
+#endif
 
 	fontWhite = NULL;
 	fontSmall = NULL;
@@ -853,7 +859,6 @@ int GameShutdown()
 
 	FreeAllLists();
 	fxFreeBlur( );
-	ShutdownEditor();
 	DeInitInputDevices();
 	D3DShutdown();
 	DDrawShutdown();	

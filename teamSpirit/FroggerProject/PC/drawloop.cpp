@@ -310,8 +310,10 @@ long DrawLoop(void)
 	if(fadeText)
 		DrawScreenTransition();
 
+#ifndef FINAL_MASTER
 	if (editorOk)
 		DrawEditor();
+#endif
 
 	if( chatFlags && gameState.mode == INGAME_MODE )
 		DrawChatBuffer( 100, 20, 540, 150 );
