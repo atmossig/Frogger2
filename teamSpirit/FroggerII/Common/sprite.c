@@ -764,7 +764,7 @@ void ZSortSpriteList()
 		next = cur->next;
 
 		// the static array should be large enough to hold sprites
-		if((cur->sc.v[Z] - frogXfm.v[Z]) < SPRITE_ZSORT_DRAWDISTANCE)
+		if((cur->sc.v[Z] - frogXfm.v[Z]) < farClip )
 		{
 			spriteSortArray[numSortArraySprites] = *(cur);
 			numSortArraySprites++;

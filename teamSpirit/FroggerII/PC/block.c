@@ -46,7 +46,7 @@ unsigned long actTickCountModifier = 0;
 unsigned long modFactor = 100;
 
 unsigned long speedKill = 0;
-float gameSpeed = 1;
+float gameSpeed = 1, targetSpeed = 3;
 char dprintbuf[255] = "---";
 
 HBITMAP appBackgnd;
@@ -664,7 +664,13 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					gameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
 					actTickCount = newTickCount;
 					actFrameCount = (actTickCount/(1000.0/60.0));
-				}
+
+/*					if( gameSpeed < targetSpeed ) farClip+=10;
+					else farClip-=10;
+
+					if( farClip > 6000 ) farClip = 6000;
+					else if( farClip < 1000 ) farClip = 1000;
+*/				}
 			}		
 		}
 	}
