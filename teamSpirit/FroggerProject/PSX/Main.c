@@ -538,7 +538,7 @@ int main ( )
 			DrawSpecialFX();
 
 			TimerStart(&tPrintSprites);
-//			PrintSprites();
+			PrintSprites();
 			TimerStop(&tPrintSprites);
 
 			TimerStart(&tDrawWaterList);
@@ -564,7 +564,8 @@ int main ( )
 //			actorDraw(frog[0]->actor);
 
 #if GOLDCD==0
-			if (padData.debounce[0] & PAD_L1)
+//			if (padData.debounce[0] & PAD_L1)
+			if( (padData.debounce[0] & PAD_L1) && (padData.debounce[0] & PAD_R1) )
 			{
 				textureShowVRAM(1); // 1 = PAL mode
 				continue;
@@ -587,10 +588,10 @@ int main ( )
 //			actFrameCount += 1;//(GetTickCount()/(1000/60));
 //			frameCount++;
 
-			actFrameCount += 3;//(GetTickCount()/(1000/60));
-			gameSpeed=3<<12;
-//			actFrameCount += 4;//(GetTickCount()/(1000/60));
-//			gameSpeed=4<<12;
+//			actFrameCount += 3;//(GetTickCount()/(1000/60));
+//			gameSpeed=3<<12;
+			actFrameCount += 4;//(GetTickCount()/(1000/60));
+			gameSpeed=4<<12;
 
 		}
 		// ENDWHILE
