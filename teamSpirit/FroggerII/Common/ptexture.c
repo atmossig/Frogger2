@@ -115,17 +115,16 @@ void ProcessPTForcefield( PROCTEXTURE *pt )
 
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessPTWater
-	Purpose			: Procedural water ripple effect
+	Purpose			: Procedural water drops effect
 	Parameters		: 
 	Returns			: 
 	Info			: 
 */
-void ProcessPTWater( PROCTEXTURE *pt )
+void ProcessPTWaterDrops( PROCTEXTURE *pt )
 {
 	unsigned long i,j;
 	unsigned char *tmp;
-	unsigned short res;
-	short p;
+	short p, res;
 
 	// Copy resultant buffer into texture
 #ifdef PC_VERSION
@@ -136,19 +135,56 @@ void ProcessPTWater( PROCTEXTURE *pt )
 	// N64 surface blit
 #endif
 
-	// Make a new wave every so often
-	if( Random(1000)>995 )
-	{
-		p = ((Random(30)+1)*32) + Random(30)+1;
-		pt->buf1[p] = (pt->buf1[p]>100) ? pt->buf1[p]-100 : 0;
-	}
+	if( Random(2) )
+		pt->buf1[((Random(30)+1)*32) + Random(30)+1] += 200;
 
 	for( i=30; i; i-- )
 		for( j=30; j; j-- )
 		{
 			p = (i<<5)+j;
-			res = ((pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1])>>1)-pt->buf2[p];
-			pt->buf2[p] = res - (pt->buf2[p]>>4);
+			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
+			res -= pt->buf2[p] + (pt->buf2[p]>>2);
+			pt->buf2[p] = max(res,0);
+		}
+
+	// Swap buffers
+	tmp = pt->buf1;
+	pt->buf1 = pt->buf2;
+	pt->buf2 = tmp;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ProcessPTWaterRipples
+	Purpose			: Procedural water ripple effect
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ProcessPTWaterRipples( PROCTEXTURE *pt )
+{
+	unsigned long i,j;
+	unsigned char *tmp;
+	short p, res;
+
+	// Copy resultant buffer into texture
+#ifdef PC_VERSION
+	PTSurfaceBlit( ((TEXENTRY *)pt->tex)->surf, pt->buf1, pt->palette );
+#else
+	TEXTURE *tx = pt->tex;
+
+	// N64 surface blit
+#endif
+
+	pt->buf1[(Random(30)+1)+960] = 255;
+
+	for( i=30; i; i-- )
+		for( j=30; j; j-- )
+		{
+			p = (i<<5)+j;
+			res = (pt->buf1[p+32] + pt->buf1[p-32] + pt->buf1[p+1] + pt->buf1[p-1] + pt->buf1[p+33] + pt->buf1[p+31] + pt->buf1[p-33] + pt->buf1[p-31] )>>2;
+			res -= pt->buf2[p] + (pt->buf2[p]>>3);
+			pt->buf2[p] = max(res,0);
 		}
 
 	// Swap buffers
@@ -291,7 +327,12 @@ void CreateAndAddProceduralTexture( TEXTURE *tex, char *name )
 	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
 		pt->Update = ProcessPTForcefield;
 	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
-		pt->Update = ProcessPTWater;
+	{
+		if( name[8]=='1' )
+			pt->Update = ProcessPTWaterRipples;
+		else if( name[8]=='2' )
+			pt->Update = ProcessPTWaterDrops;
+	}
 }
 
 

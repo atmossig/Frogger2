@@ -38,7 +38,8 @@ extern void FreeRandomPolyList( );
 
 extern void ProcessPTFire( PROCTEXTURE *pt );
 extern void ProcessPTForcefield( PROCTEXTURE *pt );
-extern void ProcessPTWater( PROCTEXTURE *pt );
+extern void ProcessPTWaterRipples( PROCTEXTURE *pt );
+extern void ProcessPTWaterDrops( PROCTEXTURE *pt );
 
 
 #endif
