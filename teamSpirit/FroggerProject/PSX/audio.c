@@ -432,6 +432,9 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 	//bbdebug crash bug
 //	return 0;
+	if(!sample)
+		return 0;
+
 
 //Stuff to ensure calls to PlaySample can be the same for PC and PSX
 	if (pitch ==-1)
