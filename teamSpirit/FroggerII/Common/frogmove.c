@@ -559,7 +559,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		}
 		break;
 	}
-	AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
+	//AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -850,6 +850,15 @@ void CheckForFroggerLanding(int whereTo,long pl)
 		frogTrail[pl]->follow = NULL;
 		frogTrail[pl] = NULL;
 	}
+
+	// Finish anims
+	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+	{
+		AnimateActor(frog[0]->actor, FROG_ANIM_GETUPFROMFLOAT, NO, NO, 0.5f, NO, NO);
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
+	}
+	else
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
 
 	if(whereTo == JUMPING_TOPLATFORM)
 	{
