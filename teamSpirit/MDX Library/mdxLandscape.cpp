@@ -107,7 +107,9 @@ MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 			me->xfmVert[i].rhw = 0;
 			me->xfmVert[i].specular = D3DRGBA(0,0,0,0);
 			me->xfmVert[i].color = (*((long *)(&(obj->mesh->gouraudColors[i].x))));// &0x00ffffff) | D3DRGBA(0,0,0,0.5);
-			
+
+		//	me->xfmVert[i].color = (*((long *)(&(obj->mesh->gouraudColors[i].x))) &0x00ffffff) | D3DRGBA(0,0,0,0.2);
+
 			if (obj->mesh->textureIDs[i/3])
 			{
 				me->textures[i/3] = obj->mesh->textureIDs[i/3]->surf;

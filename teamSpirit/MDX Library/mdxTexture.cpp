@@ -564,11 +564,30 @@ void FreeAllTextureBanks()
 	testS = NULL;
 }
 
+void WriteTexturesToFile(void)
+{
+	MDX_TEXENTRY *me = texList;
+	char tText[255];
+	FILE *fp = fopen("c:\\textures.txt","wt");
+						
+	while (me)
+	{
+		sprintf(tText,"%s			%lu references",me->name,me->refCount);
+		fputs(tText,fp);
+		fputs("\n",fp);
+
+		me = me->next;
+	}
+
+	fclose (fp);
+}
+
 void ShowTextures(void)
 {
 	RECT r;
 	MDX_TEXENTRY *me;
 	HDC hdc;
+	
 
 	if (!cDispTexture)
 		cDispTexture = texList;
@@ -648,6 +667,7 @@ void ShowTextures(void)
 						if (me->refCount)
 						{
 							sprintf(tText,"%lu refernces",me->refCount);
+
 							TextOut(hdc, r.left+70, r.top+45, tText, strlen(tText));
 						}
 						else

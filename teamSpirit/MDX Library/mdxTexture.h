@@ -70,6 +70,7 @@ void mdxSetBackdropToTex(MDX_TEXENTRY *t);
 void UpdateAnimatingTextures(void);
 void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSURFACE7 srf);
 void PrintTextureInfo(void);
+void WriteTexturesToFile(void);
 
 extern long surfacesMade;
 extern char showMemDebug;

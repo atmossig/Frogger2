@@ -416,6 +416,13 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				showSounds = !showSounds;
 				return 0;
 			}
+			
+			if (wParam == VK_NUMLOCK)
+			{
+				WriteTexturesToFile();
+				return 0;
+			}
+
 
 			if( showSounds )
 			{
