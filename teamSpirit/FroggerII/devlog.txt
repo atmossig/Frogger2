@@ -1662,7 +1662,7 @@ Chris Wilson:
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
-17/01/00 - Tuesday
+18/01/00 - Tuesday
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 Matt Cloy:
@@ -1686,6 +1686,46 @@ James Hubbard:
 	Down to 6 entries on the buglist! And fixed quaternion slerps thanks to the PSX
 	guys coming across a bug that isn't obvious on the PC but screws the Playstation.
 	That also seems to fix some of the orientation wierdness on PC, which is good.
+
+
+James Healey:
+------------------------------------------------
+
+
+Mike Movel:
+------------------------------------------------
+
+
+Byron Blay:
+------------------------------------------------
+
+Chris Wilson:
+------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+20/01/00 - Thursday
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Matt Cloy:
+------------------------------------------------
+
+
+Andy Eder:
+------------------------------------------------
+
+
+David Swift:
+------------------------------------------------
+
+
+James Hubbard:
+------------------------------------------------
+
+	Spent the last few days manically fixing bugs for the toy fair, and just a few minutes ago
+	we found a new one. Or several. Bugger.
+
+	Rewriting sound effect loading code completely, which is fun too.
 
 
 James Healey:
