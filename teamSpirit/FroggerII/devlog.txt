@@ -1220,6 +1220,8 @@ James Hubbard:
 	crashes so much. Don't know what I was thinking before Christmas, there were so many bugs
 	in the code I wrote on the last day. 
 
+	Spent the afternoon doing some death anims, and wondering why the frog doesn't animate properly
+	when I tell it to.
 
 
 James Healey:
