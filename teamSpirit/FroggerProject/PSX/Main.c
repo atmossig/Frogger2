@@ -50,7 +50,7 @@
 #include "ptexture.h"
 #include "cr_lang.h"
 #include "cam.h"
-#include "psxtongue.h"
+//#include "psxtongue.h"
 
 
 void customDrawPrimitives2(int);
@@ -539,7 +539,9 @@ int main ( )
  				actFrameCount += vsyncCounter;
  				vsyncCounter = 0;
 
-				utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
+//				utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
+				if(!(actFrameCount%10))
+					utilPrintf("GameSpeed %d\n", gameSpeed>>12); 
 
 			}
 
