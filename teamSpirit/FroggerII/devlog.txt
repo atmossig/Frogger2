@@ -813,7 +813,11 @@ David Swift:
 		a problem with jumping through horizontal join tiles which somehow
 		managed to work even though it shouldn't.
 	
-
+	Also started moving bits of front-end code - starting with the game over
+	screen - to "frontend.c" or "hud.c" so I don't have to keep checking
+	"game.c" out all the time. In the process I'm tidying up front-end
+	related code, so I've probably broken all sorts of things.
+	
 
 James Hubbard:
 ------------------------------------------------
