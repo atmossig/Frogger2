@@ -30,6 +30,7 @@ int	frogFacing[4]				= {0,0,0,0};
 int nextFrogFacing[4]			= {0,0,0,0};
 
 unsigned long standardHopFrames = 7;
+unsigned long battleHopFrames	= 15;
 unsigned long superHopFrames	= 32;
 unsigned long doubleHopFrames	= 44;
 unsigned long quickHopFrames	= 4;
@@ -660,8 +661,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		animSpeed = player[pl].jumpSpeed * 30;
 		AnimateActor(frog[pl]->actor, FROG_ANIM_TRYTOFLY, NO, NO, animSpeed, 0, 0 );
 	}
-	else
-	if(player[pl].isSuperHopping)
+	else if(player[pl].isSuperHopping)
 	{
 		// play animation for superhopping
 		animSpeed = player[pl].jumpSpeed * 15;
@@ -669,6 +669,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		return;
 	}
 	else // Otherwise, play appropriate jump animation
+	{
 		switch ((direction - frogFacing[pl]) & 3)
 		{
 		case 1:
@@ -683,6 +684,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 			AnimateActor(frog[pl]->actor,FROG_ANIM_STDJUMP,NO,NO,frogAnimSpeed,0,0);
 			break;
 		}
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -835,7 +837,12 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
 
-	if( player[pl].hasDoubleJumped )
+	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
+	{
+		t = battleHopFrames;
+		h = hopHeight;
+	}
+	else if( player[pl].hasDoubleJumped )
 	{
 		t = doubleHopFrames;
 		h = doublehopHeight;
