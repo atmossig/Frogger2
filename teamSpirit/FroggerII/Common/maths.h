@@ -59,7 +59,7 @@
 #define PushMatrix(matrix)	{ guMtxCatF((matrix), matrixStack.stack[matrixStack.stackPosition], matrixStack.stack[matrixStack.stackPosition+1]); matrixStack.stackPosition++; }
 #define PopMatrix() matrixStack.stackPosition--
 
-#define PushRMatrix(matrix)	{ guMtxCatF((matrix), rMatrixStack.stack[rMatrixStack.stackPosition++], rMatrixStack.stack[rMatrixStack.stackPosition]); rMatrixStack.stackPosition++ } 
+#define PushRMatrix(matrix)	{ guMtxCatF((matrix), rMatrixStack.stack[rMatrixStack.stackPosition++], rMatrixStack.stack[rMatrixStack.stackPosition]); rMatrixStack.stackPosition++; } 
 #define PopRMatrix() rMatrixStack.stackPosition--
 
 #define LinearInterp(result,from,to,interp) {(result)->v[0] = (from)->v[0] + (((to)->v[0] - (from)->v[0]) * interp);(result)->v[1] = (from)->v[1] + (((to)->v[1] - (from)->v[1]) * interp);(result)->v[2] = (from)->v[2] + (((to)->v[2] - (from)->v[2]) * interp);}
@@ -69,7 +69,7 @@
 #define QEPSILON	((float)0.00001)
 #define QHALFPI		((float)1.570796326794895)
 
-#define MAX_STACK_SIZE	10
+#define MAX_STACK_SIZE	16
 
 typedef struct
 {

@@ -598,7 +598,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 	switch( direction )
 	{
 	case 0:
-		switch( (frogFacing[pl] + direction) & 3 )
+		switch( frogFacing[pl] )
 		{
 		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
 		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
@@ -606,7 +606,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		}
 		break;
 	case 1:
-		switch( (frogFacing[pl] + direction) & 3 )
+		switch( frogFacing[pl] )
 		{
 		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
 		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
@@ -614,7 +614,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		}
 		break;
 	case 2:
-		switch( (frogFacing[pl] + direction) & 3 )
+		switch( frogFacing[pl] )
 		{
 		case 3:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
 		case 1:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
@@ -622,7 +622,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 		}
 		break;
 	case 3:
-		switch( (frogFacing[pl] + direction) & 3 )
+		switch( frogFacing[pl] )
 		{
 		case 0:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPLEFT,NO,NO,frogAnimSpeed,0,0); break;
 		case 2:	AnimateActor(frog[pl]->actor,FROG_ANIM_HOPRIGHT,NO,NO,frogAnimSpeed,0,0); break;
