@@ -1423,7 +1423,7 @@ void PCRenderObject (OBJECT *obj)
 					}
 					else
 					{
-						vTemp->color = MODALPHA(*((long *)(&(c1->x))),alphaVal);
+						vTemp->color = MODALPHA(*((unsigned long *)(&(c1->x))),alphaVal);
 						vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
 						vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
 					}
@@ -1464,7 +1464,7 @@ void PCRenderObject (OBJECT *obj)
 					}
 					else
 					{
-						vTemp->color = MODALPHA(*((long *)(&(c2->x))),alphaVal);
+						vTemp->color = MODALPHA(*((unsigned long *)(&(c2->x))),alphaVal);
 						vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F);
 						vTemp->tv = (obj->mesh->faceTC[v1a].v[1]*0.000975F);
 					}
@@ -1504,7 +1504,7 @@ void PCRenderObject (OBJECT *obj)
 					}
 					else
 					{
-						vTemp->color = MODALPHA(*((long *)(&(c3->x))),alphaVal);
+						vTemp->color = MODALPHA(*((unsigned long *)(&(c3->x))),alphaVal);
 						vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F);
 						vTemp->tv = (obj->mesh->faceTC[v2a].v[1]*0.000975F);
 					}

@@ -50,6 +50,7 @@ unsigned long D3DInit(void);
 */
 
 LPDIRECTDRAWSURFACE D3DCreateTexSurface(long xs,long ys, long cKey, long alphaSurf, long videoRam);
+LPDIRECTDRAWSURFACE D3DCreateTexSurface2(long xs,long ys,long videoRam, long texSrf);
 
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawCopyToSurface

@@ -77,8 +77,7 @@ unsigned long D3DInit(void)
 
 	DDINIT(search);
 	DDINIT(result);
-	search.dwFlags = /*D3DFDS_HARDWARE |*/ D3DFDS_COLORMODEL;
-//	search.bHardware = TRUE;
+	search.dwFlags =  D3DFDS_COLORMODEL;
 	search.dcmColorModel = D3DCOLOR_RGB;
 	
 	if (pDirect3D->FindDevice(&search, &result) != D3D_OK) 
@@ -132,18 +131,24 @@ LPDIRECTDRAWSURFACE D3DCreateTexSurface(long xs,long ys, long cKey, long alphaSu
 
 	//Create the surface
 	DDINIT(ddsd);
-	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | (alphaSurf?DDSD_PIXELFORMAT:0);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;//(alphaSurf?DDSD_PIXELFORMAT:0);
 	ddsd.dwWidth = xs;
 	ddsd.dwHeight = ys;
 	ddsd.ddpfPixelFormat.dwSize = sizeof (DDPIXELFORMAT);
 
 	if (!alphaSurf)
 	{
-		ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
+		ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB | DDPF_ALPHAPIXELS;
 		ddsd.ddpfPixelFormat.dwRGBBitCount = 16;
-		ddsd.ddpfPixelFormat.dwRBitMask=5<<11;
+		
+		ddsd.ddpfPixelFormat.dwRGBAlphaBitMask = 0x8000;
+		ddsd.ddpfPixelFormat.dwRBitMask=0x1f<<10;
+	    ddsd.ddpfPixelFormat.dwGBitMask=0x1f<<5;
+	    ddsd.ddpfPixelFormat.dwBBitMask=0x1f;
+
+		/*ddsd.ddpfPixelFormat.dwRBitMask=5<<11;
 	    ddsd.ddpfPixelFormat.dwGBitMask=6<<5;
-	    ddsd.ddpfPixelFormat.dwBBitMask=5;
+	    ddsd.ddpfPixelFormat.dwBBitMask=5;*/
 	}
 	else
     {
@@ -172,6 +177,34 @@ LPDIRECTDRAWSURFACE D3DCreateTexSurface(long xs,long ys, long cKey, long alphaSu
 		cK.dwColorSpaceHighValue = cKey;
 		pSurface->SetColorKey (DDCKEY_SRCBLT,&cK);
 	}
+	return pSurface;
+}	
+
+LPDIRECTDRAWSURFACE D3DCreateTexSurface2(long xs,long ys,long videoRam, long texSrf)
+{ 
+	HRESULT				capsResult;
+    DDCAPS				ddCaps;
+	LPDIRECTDRAWSURFACE pSurface,pTSurface = NULL;
+	DDSURFACEDESC		ddsd;
+	HRESULT				me;
+
+	//Create the surface
+	DDINIT(ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT ;
+	ddsd.dwWidth = xs;
+	ddsd.dwHeight = ys;
+	
+	ddsd.ddsCaps.dwCaps = (videoRam?DDSCAPS_VIDEOMEMORY:DDSCAPS_SYSTEMMEMORY) | (texSrf?DDSCAPS_TEXTURE:0);
+
+	if ((me = pDirectDraw->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
+	{
+		dp (videoRam?"Failed doing something in video RAM\n":"Failed in system memory\n");
+		ddShowError(me);
+		RELEASE(pSurface); 
+		return NULL;
+	}
+
+	
 	return pSurface;
 }	
 
@@ -251,7 +284,7 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short 
 			
 		}
 */	
-	pSurface->Unlock(ddsd.lpSurface);
+	pSurface->Unlock(NULL);
 
 	return 1;	
 }
@@ -267,7 +300,8 @@ unsigned long DDrawExpandToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short 
 unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short *data, unsigned long IAlpha, unsigned long xs, unsigned long ys)
 {
 	DDSURFACEDESC		ddsd;
-		
+	short val;
+	
 	// Copy the data into the surface manually
 	DDINIT(ddsd);
 	while (pSurface->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
@@ -283,10 +317,15 @@ unsigned long DDrawCopyToSurface(LPDIRECTDRAWSURFACE pSurface, unsigned short *d
 	{
 		for (int y=0;y<ys;y++)
 			for (int x=0;x<xs;x++)
-				((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = data[x+y*xs];
+			{
+				val  = data[x+y*xs];
+				if (val!=(0x1f | 0x1f<<10))
+					val |= 0x8000;
+				((short *)ddsd.lpSurface)[x+y*(ddsd.lPitch/2)] = val;
+			}
 	}
 
-	pSurface->Unlock(ddsd.lpSurface);
+	pSurface->Unlock(NULL);
 	return 1;
 }
 

@@ -59,11 +59,15 @@ extern float fEnd;
 
 extern void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *pal );
 extern LPDIRECTDRAWSURFACE *InitScreenTextureList(void);
-extern void FreeScreenTextures(LPDIRECTDRAWSURFACE *where);
+void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, unsigned long *tex);
 extern LPDIRECTDRAWSURFACE *screenTextureList;
 extern D3DTLVERTEX *InitScreenVertexList(void);
 extern D3DTLVERTEX *screenVtxList;
 extern unsigned long screenGrabbed;
+extern LPDIRECTDRAWSURFACE *screenTextureList2;
+extern unsigned long screenTexList[1000];
+extern void ShowDesignScreen(char *filename);
+
 
 #ifdef __cplusplus
 }

@@ -25,7 +25,7 @@ extern short mouseY;
 
 void InitPCSpecifics();
 void DeInitPCSpecifics();
-short *GetGelfBmpDataAsShortPtr(char *filename);
+short *GetGelfBmpDataAsShortPtr(char *filename, unsigned long format);
 void FreeGelfData(void *me);
 void ClearTimers(void);
 void StartTimer(int number,char *name);

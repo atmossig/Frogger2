@@ -57,7 +57,7 @@ char fixedUp = 0;
 TRANSCAMERA *transCameraList = NULL;
 
 extern long idleCamera;
-VECTOR idleCamDist	= { 0,100,102 };
+VECTOR idleCamDist	= { 0,100,182 };
 
 float sideSwaySpeed = 0.005,sideSwayAmt=50,swayModifier = 1.0f;
 
@@ -345,9 +345,21 @@ void CameraLookAtFrog(void)
 				}
 				else
 				{
-					afx += currTile[i]->centre.v[0];
-					afy += currTile[i]->centre.v[1];
-					afz += currTile[i]->centre.v[2];
+					if (pauseMode)					
+					{
+						if (frog[i])
+						{
+							afx += frog[i]->actor->pos.v[0];
+							afy += frog[i]->actor->pos.v[1];
+							afz += frog[i]->actor->pos.v[2];
+						}
+					}
+					else
+					{
+						afx += currTile[i]->centre.v[0];
+						afy += currTile[i]->centre.v[1];
+						afz += currTile[i]->centre.v[2];
+					}
 				}
 				l++;
 			}
@@ -516,9 +528,13 @@ void SlurpCamPosition(long cam)
 	Parameters	: (void)
 	Returns		: void 
 */
+QUATERNION camRotn;
+
 void UpdateCameraPosition(long cam)
 {
-
+	VECTOR camTemp,camTemp2;
+	QUATERNION camQuat;
+	
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
@@ -599,6 +615,21 @@ void UpdateCameraPosition(long cam)
 			afx2/=l;
 			afy2/=l;
 			afz2/=l;
+		}
+
+		if (pauseMode)
+		{
+			camTemp.v[X] = afx2;
+			camTemp.v[Y] = afy2;
+			camTemp.v[Z] = afz2;
+
+			SetVector((VECTOR *)&camRotn,&currTile[0]->normal);
+			camRotn.w+=0.01 * gameSpeed;
+			RotateVectorByRotation (&camTemp2,&camTemp,&camRotn);
+
+			afx2 = camTemp2.v[X];
+			afy2 = camTemp2.v[Y];
+			afz2 = camTemp2.v[Z];
 		}
 
 		camSource[0].v[0] = afx+afx2+afx3;

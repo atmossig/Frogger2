@@ -196,11 +196,17 @@ void RenderObjects(void)
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
 	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHATESTENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHAREF,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHAFUNC,D3DCMP_NOTEQUAL);
+	
 	DrawBatchedPolys();
 	BlankFrame(_);
 	
 	// Draw the second mavis frame set, Transparent objects (non water objects)
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHATESTENABLE,FALSE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
 	
 	SwapFrame(1);
@@ -822,7 +828,10 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags)
 		if (name[3]=='g')
 		{
 			newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX;
+			if (name[4]=='_')
+				newItem->flags |= ACTOR_SLIDYTEX;
 
+		
 #ifdef N64_VERSION
 			// add support for modgy objects
 			AddN64ModgyTexObjectResource(newItem->actor);

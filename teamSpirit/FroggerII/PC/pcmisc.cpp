@@ -53,16 +53,18 @@ void DeInitPCSpecifics()
 	Returns			: 
 	Info			: 
 */
-short *GetGelfBmpDataAsShortPtr(char *filename)
+
+short *GetGelfBmpDataAsShortPtr(char *filename, unsigned long format)
 {
 	uchar palette[768];
 	int pptr = -1;
 	int xdim,ydim,bpp;
 	short *bmp;
 	
-	bmp = (short *)gelfLoad_BMP(filename,NULL,(void**)&pptr,NULL,NULL,NULL,
-		a565Card?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555
-		,GELF_IMAGEDATA_TOPDOWN);
+	if (!format)
+		format = a565Card?GELF_IFORMAT_16BPP565:GELF_IFORMAT_16BPP555;
+
+	bmp = (short *)gelfLoad_BMP(filename,NULL,(void**)&pptr,NULL,NULL,NULL,format,GELF_IMAGEDATA_TOPDOWN);
 
 	return bmp;
 }

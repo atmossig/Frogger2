@@ -20,7 +20,8 @@ LPDIRECTDRAWCLIPPER		pClipper;
 unsigned long			rXRes, rYRes, rBitDepth, r565 ,rHardware,rFullscreen, rScale, rFlipOK = 1;
 HWND					rWin;
 
-LPDIRECTDRAWSURFACE	surface[NUM_SRF] = {NULL,NULL,NULL};
+LPDIRECTDRAWSURFACE		surface[NUM_SRF] = {NULL,NULL,NULL};
+LPDIRECTDRAWSURFACE		tSurface;
 
 /*	--------------------------------------------------------------------------------
 	Function	: DDrawInitObject
@@ -121,6 +122,18 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		return 0;
 	}
 	
+	DDINIT(ddsd);
+	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
+	ddsd.dwWidth = rXRes;
+	ddsd.dwHeight = rYRes;
+	ddsd.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
+	if ((res = pDirectDraw->CreateSurface(&ddsd, &tSurface, NULL))!= DD_OK)
+	{
+		dp("Failed creating temporary surface\n");
+		ddShowError(res);
+		return 0;
+	}
+
 	// Get Some info for the surface
 	DDINIT(ddsd);
 	if ((res = surface[PRIMARY_SRF]->GetSurfaceDesc(&ddsd)) != DD_OK)
@@ -158,6 +171,7 @@ unsigned long DDrawCreateSurfaces(HWND window, unsigned long xRes, unsigned long
 		ddsd.dwHeight = rYRes;
 		ddsd.dwZBufferBitDepth = zBits;
 		ddsd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | (rHardware?DDSCAPS_VIDEOMEMORY:DDSCAPS_SYSTEMMEMORY);
+		
 		if ((res = pDirectDraw->CreateSurface(&ddsd, &surface[ZBUFFER_SRF], NULL)) != DD_OK)
 		{
 			dp("Error creating Z-buffer surface\n");

@@ -53,10 +53,11 @@ float RES_DIFF2 = 2;
 float fStart = 0.3;
 float fEnd = 0.6;
 LPDIRECTDRAWSURFACE *screenTextureList;
+LPDIRECTDRAWSURFACE *screenTextureList2;
 D3DTLVERTEX *screenVtxList;
 
 long is565;
-void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to);
+void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRECTDRAWSURFACE *to2);
 void DrawScreenOverlays(void);
 
 extern long numPixelsDrawn; 
@@ -930,7 +931,7 @@ void ShowLoadScreen(void)
 	long curTicks;
 	float sVal,fVal;
 
-	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList);
+	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
 	
 	startTicks = GetTickCount();
 	do
@@ -944,7 +945,7 @@ void ShowLoadScreen(void)
 			memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
 	
 		
-		surface[RENDER_SRF]->Unlock(ddsd.lpSurface);
+		surface[RENDER_SRF]->Unlock(NULL);
 
 		for (int i=0; i<numRequired * 4; i++)
 		{
@@ -974,16 +975,60 @@ void ShowLoadScreen(void)
 	} while (curTicks<startTicks+1999);
 
 	
-	FreeScreenTextures(screenTextureList);
+	FreeScreenTextures(screenTextureList,screenTextureList2,screenTexList);
 
 	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
 		memcpy (&((short *)ddsd.lpSurface)[i],&loadScr[j],SCREEN_WIDTH*2);
-	surface[RENDER_SRF]->Unlock(ddsd.lpSurface);
+	surface[RENDER_SRF]->Unlock(NULL);
 	DDrawFlip();	
-	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList);
+	GrabScreenTextures(surface[PRIMARY_SRF], screenTextureList, screenTextureList2);
 	screenGrabbed = 1;
 }
+
+void ShowDesignScreen(char *filename)
+{
+	short *image;
+	char file[MAX_PATH];
+	long i,j;
+	DDSURFACEDESC ddsd;
+	long startTicks;
+	
+	if (SCREEN_WIDTH!=640)
+	{
+		dprintf"Not correct Mode ------------------------------------------\n"));
+		return;
+	}
+
+	sprintf (file,"%s%sDesign\\%s.bmp",baseDirectory,TEXTURE_BASE,filename);
+	
+	if ((image = GetGelfBmpDataAsShortPtr(file,0))==NULL)
+	{
+		dprintf"Not correct Image ---------------------%s\n",file));
+		return;
+	}
+	
+	startTicks = GetTickCount();
+	DDINIT(ddsd);
+
+	while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
+		
+	for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
+		memcpy (&((short *)ddsd.lpSurface)[i],&image[j],SCREEN_WIDTH*2);
+	
+		
+	surface[RENDER_SRF]->Unlock(NULL);
+
+	DDrawFlip();	
+	while ((GetTickCount()<startTicks+5000))
+	{
+	    MSG msg;
+	    while(PeekMessage(&msg,NULL,0,0,PM_REMOVE))
+			if(msg.message == WM_KEYDOWN)
+				return;		
+	}	
+}
+
 
 void PrintTextureInfo(void)
 {
@@ -1015,7 +1060,7 @@ void DirectXFlip(void)
 		ScreenShot ( ddsd );
 
 
-		surface[RENDER_SRF]->Unlock ( ddsd.lpSurface );
+		surface[RENDER_SRF]->Unlock (NULL);
 		dumpScreen = 0;
 	}
 	// ENDIF
@@ -1023,15 +1068,14 @@ void DirectXFlip(void)
 	if (!runHardware)
 	{
 		long i,j;
-		DDSURFACEDESC ddsd;
-	
+		
 		DDINIT(ddsd);
 		while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 	
 		for (i=0,j=0; i<SCREEN_HEIGHT*(ddsd.lPitch/2); i+=(ddsd.lPitch/2),j+=SCREEN_WIDTH)
 			memcpy (&((short *)ddsd.lpSurface)[i],&screen[j],SCREEN_WIDTH*2);
 	
-		surface[RENDER_SRF]->Unlock(ddsd.lpSurface);
+		surface[RENDER_SRF]->Unlock(NULL);
 	}
 
 	// Flip the back buffer to the primary surface
@@ -1720,7 +1764,7 @@ void PTSurfaceBlit( LPDIRECTDRAWSURFACE to, unsigned char *buf, unsigned short *
 
 	while( i-- ) ((unsigned short *)ddsd.lpSurface)[i] = (unsigned short)pal[(unsigned char)buf[i]];
 
-	pSurface->Unlock(ddsd.lpSurface);
+	pSurface->Unlock(NULL);
 
 	if ((res = to->BltFast(0,0,pSurface,NULL,0))!=DD_OK)
 		ddShowError(res);
@@ -1802,7 +1846,7 @@ D3DTLVERTEX *InitScreenVertexList(void)
 	return me;
 }
 
-unsigned long texList[1000];
+unsigned long screenTexList[1000];
 
 void DrawScreenOverlays(void)
 {
@@ -1817,7 +1861,7 @@ void DrawScreenOverlays(void)
 
 	for (int i=0; i<numRequired; i++)
 	{
-		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,texList[i]);
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,screenTexList[i]);
 
 		if (pDirect3DDevice->DrawIndexedPrimitive(
 			D3DPT_TRIANGLELIST,
@@ -1842,14 +1886,19 @@ void DrawScreenOverlays(void)
 	Returns 	: 
 	Info 		:
 */
-void FreeScreenTextures(LPDIRECTDRAWSURFACE *where)
+void FreeScreenTextures(LPDIRECTDRAWSURFACE *where,LPDIRECTDRAWSURFACE *where2, unsigned long *tex)
 {
 	long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
 	for (int i=0; i<numRequired; i++)
 	{
 		if (where[i])
 			where[i]->Release();		
+		if (where2[i])
+			where2[i]->Release();		
+		
 		where[i] = NULL;
+		where2[i] = NULL;
+		tex[i] = NULL;
 	}
 }
 
@@ -1861,37 +1910,42 @@ void FreeScreenTextures(LPDIRECTDRAWSURFACE *where)
 	Info 		:
 */
 
-void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to)
+void GrabScreenTextures(LPDIRECTDRAWSURFACE from, LPDIRECTDRAWSURFACE *to,LPDIRECTDRAWSURFACE *to2)
 {
 	int i, j;
-	LPDIRECTDRAWSURFACE surface, *dds, surface2;
+	LPDIRECTDRAWSURFACE surface, *dds, surface2, *dds2;
 	unsigned long *hdl;
 	HRESULT res;
 	RECT rect;
 
 	dds = &to[0];
-	hdl = texList;
+	dds2 = &to2[0];
+	hdl = screenTexList;
 	
-	for (rect.top = 0, rect.bottom = 31; rect.bottom < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
+	for (rect.top = 0, rect.bottom = 32; rect.top < SCREEN_HEIGHT; rect.top += 32, rect.bottom += 32)
 	{
-		for (rect.left = 0, rect.right = 31; rect.right < SCREEN_WIDTH; rect.left += 32, rect.right += 32)
+		for (rect.left = 0, rect.right = 32; rect.left < SCREEN_WIDTH; rect.left += 32, rect.right += 32)
 		{
-			surface =  D3DCreateTexSurface(32,32,0xf81f, 0,0);
+			if (!*dds2)
+				*dds2 = surface =  D3DCreateTexSurface2(32,32,1,0);
+			else
+				surface = *dds2;
 
 			if (!*dds)
-				*dds = surface2 = D3DCreateTexSurface(32,32,0xf81f, 0,1);
+				*dds = surface2 = D3DCreateTexSurface2(32,32,1,1);
 			else
 				surface2 = *dds;
 
-						
-			res = surface->Blt(NULL, from, &rect, DDBLT_WAIT,NULL);
-			res = surface2->Blt(NULL,surface,NULL,DDBLT_WAIT,0);
-
-			surface->Release();
-			*hdl = ConvertSurfaceToTexture(surface2);
+			//res = surface->Blt(NULL, from, &rect, DDBLT_WAIT,NULL);
+			res = surface->BltFast(0,0,from,&rect,DDBLTFAST_WAIT);
+			res = surface2->BltFast(0,0,surface,NULL,DDBLTFAST_WAIT);
+			
+			if (!*hdl)
+				*hdl = ConvertSurfaceToTexture(surface2);
 			
 			hdl++;
 			dds++;
+			dds2++;
 		}
 	}
 }

@@ -34,7 +34,7 @@
 
 void SetupViewMatrix(void);
 void AnimateTexturePointers(void);
-
+float pauseGameSpeed = 1;
 #define DEBUG_FILE "C:\\frogger2.log"
 
 unsigned long actFrameCount,
@@ -233,6 +233,7 @@ extern float camSideOfs;
 
 int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+	long numRequired;
 	char filename[MAX_PATH];
 	SYSTEMTIME currTime;
 	ULONG memSizeInBytes = 0;
@@ -325,9 +326,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	sprintf (filename,"%s%sloading%lu.bmp",baseDirectory,TEXTURE_BASE,SCREEN_WIDTH);
 	
 	dprintf"Loading screen - %s\n",filename));
-	loadScr = GetGelfBmpDataAsShortPtr(filename);
+	loadScr = GetGelfBmpDataAsShortPtr(filename,0);
 	
 	screenTextureList = InitScreenTextureList();
+	screenTextureList2 = InitScreenTextureList();
 	screenVtxList = InitScreenVertexList();
 	
 	if (!runHardware)
@@ -335,6 +337,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 	RES_DIFF = SCREEN_WIDTH/640.0;
 	RES_DIFF2 = 2*RES_DIFF;
+	
+	numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
+
+	for (i=0; i<numRequired; i++)
+		screenTexList[i] = NULL;
 
 	if (!USE_MENUS)
 	{
@@ -349,6 +356,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		gameState.mode = MENU_MODE;
 		gameState.menuMode = TITLE_MODE;
 	}
+
+	ShowDesignScreen("destest");
 
     while(ok)
 	{
@@ -516,12 +525,11 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 				if (screenGrabbed == 2)
 				{
 					float sVal,fVal;
-					long numRequired = (SCREEN_WIDTH/32) * (SCREEN_HEIGHT/32);
-
+					
 					curTicks = GetTickCount();
 					if (curTicks>startTicks+2000)
 					{
-						FreeScreenTextures(screenTextureList);
+						FreeScreenTextures(screenTextureList,screenTextureList2,screenTexList);
 						screenGrabbed = 0;
 					}
 					else
@@ -529,8 +537,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 						for (i=0; i<numRequired * 4; i++)
 						{
 							sVal = (curTicks-startTicks)/100.0;
-							sVal = sinf(sVal+i)+1;
-							sVal /=2;
+							sVal = sinf(sVal+screenVtxList[i].sx)+cosf(sVal+screenVtxList[i].sy)+2;
+							sVal /=4;
 							fVal = (1-(float)(curTicks-(startTicks+1000))/1000.0);
 							
 							if (fVal>1)
@@ -552,10 +560,22 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 					}
 				}
 
+				if (pauseMode)
+				{
+					for (i=0; i<numRequired * 4; i++)
+						screenVtxList[i].color = D3DRGBA(1,1,1,0.8);
+					
+					DrawScreenOverlays();
+					tSurface->lpVtbl->BltFast(tSurface,0,0,surface[RENDER_SRF],NULL,DDBLTFAST_WAIT);
+					GrabScreenTextures(tSurface, screenTextureList, screenTextureList2);					
+					//FreeScreenTextures(screenTextureList);
+				}
 				if( !shotMode )				
 					DDrawFlip();
 				else
 					DirectXFlip();
+
+				
 			}
 			
 			DDrawClearSurface(RENDER_SRF, 0, DDBLT_COLORFILL);
@@ -621,7 +641,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 				if (gameState.mode == PAUSE_MODE)
 				{
-					gameSpeed = 0;
+					newTickCount = GetTickCount()-actTickCountModifier;
+					pauseGameSpeed = (newTickCount-actTickCount)/(1000.0/60.0);
+					actTickCount = newTickCount;
+					gameSpeed = 0;					
 				}
 				else
 				{

@@ -406,6 +406,7 @@ void RunLevelSelect()
 */
 extern unsigned long actTickCount,actTickCountModifier;
 extern unsigned long idleCamera;
+extern float pauseGameSpeed;
 void RunPauseMenu()
 {
 	static unsigned long currentSelection = 0;
@@ -519,7 +520,7 @@ void RunPauseMenu()
 
 	lastbutton = button;
 
-	gameSpeed = 1;
+	gameSpeed = pauseGameSpeed;
 	CameraLookAtFrog();
 	UpdateCameraPosition(0);
 	SlurpCamPosition(0);

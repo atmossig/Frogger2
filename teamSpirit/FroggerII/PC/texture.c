@@ -11,7 +11,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <ultra64.h>
-
+#include "gelf.h"
 #include "incs.h"
 
 //#define PRINT_TEXTURE_DEBUG
@@ -228,7 +228,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	strcpy (newE->name,mys);
 	newE->CRC  = UpdateCRC (mys);
-	newE->data = GetGelfBmpDataAsShortPtr(file);
+	newE->data = GetGelfBmpDataAsShortPtr(file,GELF_IFORMAT_16BPP555);
 	newE->cFrame = newE;
 
 	if (newE->data)
