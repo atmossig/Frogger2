@@ -298,6 +298,7 @@ void LoadStakFile ( int stakBank )
 
 	stakFiles [ numStakFiles++ ].stakFile = (char*)fileLoad ( file, &fileLength);
 #ifdef PSX_VERSION
+#if PAL_MODE==1
 #if DECRYPTION==1
 #if GOLDCD==1
 	if(stakBank == FRONTEND1_STAK)
@@ -314,6 +315,7 @@ void LoadStakFile ( int stakBank )
 		}
 	}
 */
+#endif
 #endif
 #endif
 #endif

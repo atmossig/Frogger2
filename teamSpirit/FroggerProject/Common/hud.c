@@ -525,7 +525,7 @@ void EnableHUD(void)
 	if((gameState.single != STORY_MODE ) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		arcadeHud.timeHeadOver->draw = arcadeHud.timeHandOver->draw = arcadeHud.timeFaceOver->draw = 1;
-		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = /*arcadeHud.timeOutText->draw =*/ arcadeHud.timeTextHSec->draw = 1;
+		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 1;
 	}
 
 	for(i=0; i<numBabies; i++)
@@ -860,12 +860,12 @@ void UpDateOnScreenInfo ( void )
 		if (timeFrames<0)
 		{
 			timeFrames = 0;
-			arcadeHud.timeTextHSec->draw = 0;
 			if (!arcadeHud.timedOut)
 			{
 				lastSecs = 0;
 //				arcadeHud.timeOutText->a = 0xff;
 //				arcadeHud.timeOutText->draw = 1;
+				arcadeHud.timeTextHSec->draw = 0;
 
 				PlaySample( FindSample(utilStr2CRC("alarm")), NULL, 0, SAMPLE_VOLUME, -1 );
 			}
@@ -891,6 +891,7 @@ void UpDateOnScreenInfo ( void )
 		}
 		else
 		{
+			arcadeHud.timeTextHSec->draw = 1;
 			if ((timeFrames/60)<10)
 			{
 				int secs;

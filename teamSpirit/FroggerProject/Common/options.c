@@ -281,6 +281,11 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 
 	3,RED,		//shadow ...
 	0,RED,		//shadow ...

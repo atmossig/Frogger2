@@ -983,8 +983,11 @@ void RunFrontendGameLoop (void)
 		else
 			options.door = NULL;
 
+		if(options.door)
+			actorAnimate(options.door->actor,1,NO,NO,4000,NO);
 		if(worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted)
 		{
+/*
 			if(doneTraining == 0)
 			{
 				if(options.door)
@@ -995,6 +998,7 @@ void RunFrontendGameLoop (void)
 				if(options.door)
 					actorAnimate(options.door->actor,1,NO,NO,4000,NO);
 			}
+*/
 			doneTraining = 1;
 			staticFlash = 5;
 		}
@@ -1382,21 +1386,22 @@ void RunFrontendGameLoop (void)
 				titleHudText[0]->draw = 1;
 				titleHudText[1]->draw = 1;
 				titleHudText[2]->draw = 1;
-				titleHudText[3]->draw = 1;
+				if(doneTraining)
+					titleHudText[3]->draw = 1;
 				titleHudText[0]->text = GAMESTRING(STR_STORYMODE);
 				titleHudText[1]->text = GAMESTRING(STR_OPTIONS);
 				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
 				titleHudText[3]->text = GAMESTRING(STR_ARCADEMODE);
 				titleHud[2]->yPos = titleHud[2]->yPosTo = titleHud[3]->yPos = titleHud[3]->yPosTo = titleHudY[0][2];
-#ifdef FINAL_MASTER
+//#ifdef FINAL_MASTER
 				if(doneTraining == 0)
 				{
-					currTile[0]->tilePtrs[0] = NULL;
+//					currTile[0]->tilePtrs[0] = NULL;
 					currTile[0]->tilePtrs[2] = NULL;
-					maxHud = 2;
+					maxHud = 3;
 				}
 				GTInit( &modeTimer, 5 );
-#endif
+//#endif
 				hudNum = 2;
 				break;
 

@@ -548,7 +548,9 @@ int main ( )
 			if((fadingOut == 0) && (fontSmall == NULL))
 			{
 #if GOLDCD==1		
+#if PALMODE==1
 				initialiseCrypt();
+#endif
 #endif
 				genBank = textureLoadBank("TEXTURES\\MEMCARD.SPT");
 				textureDownloadBank(genBank);
