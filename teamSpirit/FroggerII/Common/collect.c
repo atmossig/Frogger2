@@ -847,6 +847,27 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 }
 
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: GrapplePointInTOngueRange
+	Purpose			: indicates if a grapple point is in range when tongueing
+	Parameters		: 
+	Returns			: GAMETILE *
+	Info			: returns ptr to the nearest gametile (if in range)
+*/
+GAMETILE *GrapplePointInTongueRange( )
+{
+	VECTOR diff;
+	
+	if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, &gTStart[0]->centre) < tongueRadius * tongueRadius )
+	{
+		return gTStart[0];
+	}
+	
+	return NULL;
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: GaribIsInTongueRange
 	Purpose			: indicates if a garib is in range when tongueing
@@ -1115,6 +1136,22 @@ void PickupCollectable(GARIB *garib)
 
 	// remove the collected garib
 	SubGarib(garib);
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: PutFrogOnGrapplePoint
+	Purpose			: Sets frog tile to gametile
+	Parameters		: GAMETILE *
+	Returns			: void
+	Info			:
+*/
+void PutFrogOnGrapplePoint( GAMETILE *tile )
+{
+	currTile[0] = tile;
+	frog[0]->actor->pos.v[0] = tile->centre.v[0];
+	frog[0]->actor->pos.v[1] = tile->centre.v[1];
+	frog[0]->actor->pos.v[2] = tile->centre.v[2];
 }
 
 

@@ -87,6 +87,7 @@ extern void CreateLevelCollectables(unsigned long *tileList, int type);
 
 extern GARIB *GaribIsInTongueRange();
 extern ACTOR2 *BabyFrogIsInTongueRange();
+extern GAMETILE *GrapplePointInTongueRange();
 
 extern void CheckTileForCollectable(GAMETILE *tile);
 
