@@ -174,102 +174,102 @@ void LoadObjectBank ( int objectBank )
 
 		case RETROLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO1.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV2_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV3_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO3.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV4_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO4.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV5_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO5.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV6_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO6.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV7_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO7.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV8_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO8.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV9_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO9.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROLEV10_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETRO10.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI2_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI2.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI3_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI3.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI4_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI4.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI5_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI5.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI6_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI6.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI7_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI7.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI8_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI8.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI9_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI9.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+				//sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case RETROMULTI10_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\RETRO\\RETROMULTI10.BFF" );
-				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
+//				sprintf ( PILfileName, "OBJECTS\\RETRO\\SUPER.PIL" );
 			break;
 
 		case FRONTEND_OBJ_BANK:
