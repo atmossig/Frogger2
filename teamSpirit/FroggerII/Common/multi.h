@@ -24,6 +24,7 @@ extern int multiplayerMode;
 void RunMultiplayer( );
 void ResetMultiplayer( );
 
+void RaceRespawn( int pl );
 void PickupBabyFrogMulti( ENEMY *baby, int pl );
 void KillMPFrog(int num);
 

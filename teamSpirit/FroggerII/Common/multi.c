@@ -178,16 +178,7 @@ void UpdateRace( )
 		if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) && (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->pos)) )
 		{
 			KillMPFrog(i);
-
-			for( j=0; j<NUM_FROGS; j++ )
-				if( player[j].healthPoints && !(player[j].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[j]->actor->pos) )
-				{
-					TeleportActorToTile(frog[i],currTile[j],i);
-					racer[i].check = racer[j].check;
-					racer[i].lap = racer[j].lap;
-					racer[i].lasttile = racer[j].lasttile;
-					destTile[i] = currTile[j];
-				}
+			RaceRespawn(i);
 		}
 		else if( currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA )
 		{
@@ -315,6 +306,50 @@ void RunMultiplayer( )
 		UpdateBattle( );
 		break;
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: RaceRespawn
+	Purpose			: Teleport frog to a non-dead player
+	Parameters		: 
+	Returns			: 
+	Info			: Oh dear. Respawn near the lead frog if available, or search for another if not
+*/
+void RaceRespawn( int pl )
+{
+	int j, respawn=0;
+	GAMETILE *tile;
+	VECTOR diff;
+
+	if( playerFocus != pl && player[playerFocus].healthPoints && !(player[playerFocus].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[playerFocus]->actor->pos) )
+		respawn = playerFocus;
+	else
+		for( j=0; j<NUM_FROGS; j++ )
+			if( j != pl && j != playerFocus && player[j].healthPoints && !(player[j].frogState & FROGSTATUS_ISDEAD) && IsPointVisible(&frog[j]->actor->pos) )
+			{
+				respawn = j;
+				break;
+			}
+
+	SubVector( &diff, &frog[pl]->actor->pos, &frog[respawn]->actor->pos );
+	MakeUnit(&diff);
+
+	// Find a tile to teleport to - first try a tile next to the target, then on the target if that fails
+	if( !(tile = FindJoinedTileByDirection( currTile[respawn], &diff )) )
+	{
+		if( currPlatform[respawn] ) currPlatform[pl] = currPlatform[respawn];
+		
+		tile = currTile[respawn];
+	}
+
+	TeleportActorToTile(frog[pl],tile,pl);
+
+	// Update progress info
+	racer[pl].check = racer[respawn].check;
+	racer[pl].lap = racer[respawn].lap;
+	racer[pl].lasttile = racer[respawn].lasttile;
+	destTile[pl] = tile;
 }
 
 
