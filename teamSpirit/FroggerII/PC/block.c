@@ -41,6 +41,8 @@ char	newDesiredFrameRate = 2;
 
 int		appActive		= 0;
 
+#define REGISTRY_KEY "Software\\Hasbro Interactive\\Frogger 2"
+
 static GUID     guID;
 
 /*	--------------------------------------------------------------------------------
@@ -76,6 +78,38 @@ void Crash(char *mess)
 	dprintf"\n\nCRASHED %s!!!!!!!!!!!!!!!\n",mess));
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetRegistryInformation(void)
+	Parameters		: 
+	Returns			: int
+	Info			: Gets setup stuff (e.g. install dir) from the registry
+*/
+
+int GetRegistryInformation(void)
+{
+	HKEY hkey;
+	DWORD len = MAX_PATH;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) != ERROR_SUCCESS)
+	{
+		dprintf"Couldn't open registry key\n")); return 0;
+	}
+	else
+	{
+		if (RegQueryValueEx(hkey, "InstallDir", NULL, NULL, baseDirectory, &len) == ERROR_SUCCESS)
+		{
+			if (baseDirectory[strlen(baseDirectory) - 1] != '\\')
+				strcat(baseDirectory, "\\");
+		}
+		else
+			dprintf"Couldn't read InstallDir value from registry\n"));
+
+		RegCloseKey(hkey);
+	}
+
+	return 1;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: WinMain
@@ -132,6 +166,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		currTime.wDay, currTime.wMonth, currTime.wYear,
 		currTime.wHour, currTime.wMinute, currTime.wSecond));
 
+	GetRegistryInformation();
+		
 	// create and initialise app window
 	if(!InitialiseWindows(hInstance,nCmdShow))
 		ok = 0;
