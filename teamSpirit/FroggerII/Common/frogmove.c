@@ -397,7 +397,7 @@ void UpdateFroggerPos(long pl)
 		{
 			SetVector(&effectPos,&frog[pl]->actor->pos);
 			effectPos.v[Y] += 15;
-			fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &effectPos, &currTile[pl]->normal, 20, 15, 1, 1.5 );
+			fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &effectPos, &currTile[pl]->normal, 20, 1, 0.1, 1.5 );
 			fx->r = 191;
 			fx->g = 255;
 			fx->b = 0;
@@ -411,7 +411,7 @@ void UpdateFroggerPos(long pl)
 			// check for nearest baby frog - do radius check ????
 			if(nearestBaby = GetNearestBabyFrog())
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_BASICRING, &nearestBaby->actor->pos, &upVec, 15, 15, 1, 1.2 );
+				fx = CreateAndAddSpecialEffect( FXTYPE_POLYRING, &nearestBaby->actor->pos, &upVec, 15, 1, 0.1, 1.2 );
 				fx->r = nearestBaby->action.fxColour[R];
 				fx->g = nearestBaby->action.fxColour[G];
 				fx->b = nearestBaby->action.fxColour[B];
