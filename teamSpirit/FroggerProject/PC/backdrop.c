@@ -173,7 +173,8 @@ int CheckUS()
 	if( (RegQueryValueEx(lid, "Locale", NULL, &type, data, &size)) != ERROR_SUCCESS )
 		return TRUE;
 
-	if( !gstrcmp(data, "00000409") || !gstrcmp(data, "00000C0C") )
+	// If in US, English or French Canada, return TRUE
+	if( !gstrcmp(data, "00000409") || !gstrcmp(data, "00000C0C") || !gstrcmp(data, "00001009") )
 		return TRUE;
 
 	return FALSE;
