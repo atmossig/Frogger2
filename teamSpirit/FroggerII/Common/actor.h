@@ -44,11 +44,11 @@ typedef struct TAGACTION
 	TIMER isCroaking;
 	TIMER isOnFire;
 
-	short frogon;
-	short frogunder;
+	char frogon;
+	char frogunder;
 
-	unsigned long healthPoints;
-	unsigned long deathBy;
+	char healthPoints;
+	unsigned char deathBy;
 
 } ACTION;
 
@@ -61,9 +61,9 @@ typedef struct TAGACTOR2
 	struct TAGACTOR2	*next,*prev;
 
 	char			draw;
-	int				flags;
-	int				effects;
-	long			fxCount;
+	unsigned short	flags;
+	unsigned long	effects;
+	unsigned long	fxCount;
 	float			radius;
 	float			angle;
 	float			animSpeed;
@@ -73,8 +73,6 @@ typedef struct TAGACTOR2
 
 	float			speed;
 	float			offset;
-
-	SPRITE			sprite;
 
 } ACTOR2;
 
@@ -89,7 +87,6 @@ extern ACTOR2 *globalLevelActor;
 
 extern char dprintbuf[255];
 
-//extern char uniqueEnemyCount[20];
 extern int uniqueActorCRC[];
 extern char numUniqueActors;
 
