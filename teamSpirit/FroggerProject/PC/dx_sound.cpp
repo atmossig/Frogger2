@@ -17,6 +17,7 @@
 #include <d3d.h>
 #include <dsound.h>
 #include <dinput.h>
+#include <stdio.h>
 
 #include <islutil.h>
 #include "frogger.h"
