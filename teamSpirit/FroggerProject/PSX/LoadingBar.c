@@ -14,6 +14,8 @@
 #include "options.h"
 #include "game.h"
 #include "multi.h"
+#include "story.h"
+#include "define.h"
 
 int NUM_WATER_TILESX = 8;
 int NUM_WATER_TILESY = 8;
@@ -130,7 +132,7 @@ void loadingInit ( int worldID, int levelID )
 		chaptStr[0] = 0;
 	else if((gameState.single == STORY_MODE) && (gameState.multi == SINGLEPLAYER))
 	{
-		sprintf(chaptStr,GAMESTRING(STR_CHAPTER),options.pageNum + 1);
+		sprintf(chaptStr,GAMESTRING(STR_CHAPTER),storySequenceLevelToChapter[gameState.storySequenceLevel]);
 		backgrounds[0] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
 		backgrounds[0]->r = backgrounds[0]->g = backgrounds[0]->b = 128;
 		y += 700;
