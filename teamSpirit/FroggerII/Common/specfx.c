@@ -908,6 +908,7 @@ void AddTrailElement( SPECFX *fx, int i )
 {
 	float t;
 	QUATERNION q, cross, d;
+	VECTOR offset;
 
 	fx->particles[i].r = fx->r;
 	fx->particles[i].g = fx->g;
@@ -918,6 +919,14 @@ void AddTrailElement( SPECFX *fx, int i )
 
 	// Distance of this particle from the origin
 	SubVector( &fx->particles[i].pos, &fx->follow->pos, &fx->origin );
+
+	// Hack to make effect lower for platforms
+	if( fx->gravity )
+	{
+		SetVector( &offset, &fx->normal );
+		ScaleVector( &offset, fx->gravity );
+		AddToVector( &fx->particles[i].pos, &offset );
+	}
 
 	// Amount of drift - distance between this and the last particle scaled. Doesn't work for first one
 	if( i != fx->start )
@@ -1479,6 +1488,9 @@ void ProcessAttachedEffects( void *entity, int type )
 			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.00, 3 );
 		else
 			fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.00, 2 );
+
+		if( type == ENTITY_PLATFORM )
+			fx->gravity = -30;
 
 		fx->follow = act->actor;
 		SetAttachedFXColour( fx, act->effects );
