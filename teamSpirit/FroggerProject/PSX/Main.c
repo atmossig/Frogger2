@@ -675,9 +675,12 @@ int main ( )
 				if ( !objViewer )
 					MainDrawFunction();
 
-				TIMER_START0(TIMER_UPDATETEXANIM);
-				UpdateTextureAnimations();
-				TIMER_STOP0(TIMER_UPDATETEXANIM);
+				if( gameState.mode != PAUSE_MODE )
+				{
+					TIMER_START0(TIMER_UPDATETEXANIM);
+					UpdateTextureAnimations();
+					TIMER_STOP0(TIMER_UPDATETEXANIM);
+				}
 			}
 			
 			/*if ( ++animFrame == 8 )
