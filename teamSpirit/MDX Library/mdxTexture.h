@@ -24,7 +24,7 @@ extern "C"
 typedef struct TAG_MDX_TEXENTRY
 {
 	long CRC;
-	char name[12];
+	char name[32];
 //	char bank[64];
 	short *data, *gelfData;
 	long *softData;

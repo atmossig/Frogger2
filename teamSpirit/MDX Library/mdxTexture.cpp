@@ -209,7 +209,8 @@ MDX_TEXENTRY *AddMemoryTexture(char *name, short *data, int xDim, int yDim, int 
 	newE->prev = NULL;
 	texList = newE;
 
-	strcpy (newE->name, name);
+	strncpy(newE->name, name, 31);
+
 	newE->CRC  = UpdateCRC (name);
 	newE->refCount = 0;
 
