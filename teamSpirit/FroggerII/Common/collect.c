@@ -138,25 +138,29 @@ void PickupCollectable(GARIB *garib, int pl)
 			SetVector(&seUp,&upVec);
 			RotateVectorByQuaternion(&seUp,&seUp,&frog[pl]->actor->qRot);
 
-			fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 20, 2, 0, 2 );
-			SetFXColour(fx,255,255,255);
-			SetVector(&fx->rebound->point,&garib->pos);
-			SetVector(&fx->rebound->normal,&seUp);
-			fx->gravity = 0.2;
-
-			fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, player[pl].spawnScoreLevel * 5, player[pl].spawnScoreLevel, 0, 3 );
-			SetFXColour(fx,255,255,0);
-			SetVector(&fx->rebound->point,&garib->pos);
-			SetVector(&fx->rebound->normal,&seUp);
-			fx->gravity = 0.1;
-
-			if(player[pl].spawnScoreLevel == 5)
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 20, 2, 0, 2 )) )
 			{
-				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 50, 4, 0, 6 );
-				SetFXColour(fx,0,255,255);
+				SetFXColour(fx,255,255,255);
 				SetVector(&fx->rebound->point,&garib->pos);
 				SetVector(&fx->rebound->normal,&seUp);
-				fx->gravity = 0.15;
+				fx->gravity = 0.2;
+			}
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, player[pl].spawnScoreLevel * 5, player[pl].spawnScoreLevel, 0, 3 )) )
+			{
+				SetFXColour(fx,255,255,0);
+				SetVector(&fx->rebound->point,&garib->pos);
+				SetVector(&fx->rebound->normal,&seUp);
+				fx->gravity = 0.1;
+			}
+			if(player[pl].spawnScoreLevel == 5)
+			{
+				if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->pos, &seUp, 50, 4, 0, 6 )) )
+				{
+					SetFXColour(fx,0,255,255);
+					SetVector(&fx->rebound->point,&garib->pos);
+					SetVector(&fx->rebound->normal,&seUp);
+					fx->gravity = 0.15;
+				}
 			}
 
 			player[pl].score += (player[pl].spawnScoreLevel * 10);
@@ -174,9 +178,11 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( player[pl].healthPoints < 3 )
 				player[pl].healthPoints++;
 
-			fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 );
-			SetFXColour( fx, 30, 240, 30 );
-			SubSpecFX( garib->fx );
+			if( (fx = CreateAndAddSpecialEffect( FXTYPE_GARIBCOLLECT, &garib->fx->act[pl]->actor->pos, &upVec, 25, 0.0, 0.0, 2.0 )) )
+			{
+				SetFXColour( fx, 30, 240, 30 );
+				SubSpecFX( garib->fx );
+			}
 			break;
 
 		case EXTRALIFE_GARIB:
@@ -352,12 +358,15 @@ GARIB *CreateNewGarib(VECTOR pos,int type)
 	if( garib->type == EXTRAHEALTH_GARIB )
 	{
 		SPECFX *fx;
-		garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 );
-		garib->fx->gravity = -0.5;
-
-		fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 );
-		fx->follow = garib->fx->act[0]->actor;
-		SetFXColour( fx, 0, 128, 255 );
+		if( (garib->fx = CreateAndAddSpecialEffect( FXTYPE_HEALTHFLY, &garib->pos, &upVec, 1, 1, 0.06, 0 )) )
+		{
+			garib->fx->gravity = -0.5;
+		}
+		if( (fx = CreateAndAddSpecialEffect( FXTYPE_TRAIL, &garib->fx->act[0]->actor->pos, &upVec, 5, 0.95, 0.00, 0.6 )) )
+		{
+			fx->follow = garib->fx->act[0]->actor;
+			SetFXColour( fx, 0, 128, 255 );
+		}
 	}
 	else
 	{

@@ -200,11 +200,12 @@ void NMEDamageFrog( int pl, ENEMY *nme )
 
 		GTInit( &player[pl].safe, 2 );
 
-		fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 35, 0, 0, 2 );
-		fx->follow = frog[pl]->actor;
-		fx->tilt = 0.8;
-		fx->spin = 0.05;
-
+		if( (fx = CreateAndAddSpecialEffect( FXTYPE_FROGSHIELD, &frog[pl]->actor->pos, &currTile[pl]->normal, 35, 0, 0, 2 )) )
+		{
+			fx->follow = frog[pl]->actor;
+			fx->tilt = 0.8;
+			fx->spin = 0.05;
+		}
 		// Special hurt anim
 		if( (nme->reactiveNumber != -1) && !(reactiveAnims[nme->reactiveNumber].type & ANI_REACTIVE) )
 			deathAnims[reactiveAnims[nme->reactiveNumber].animFrog] (pl);
@@ -628,8 +629,11 @@ void UpdateSnapper( ENEMY *cur )
 			else
 				fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.5 );
 
-			fx->tilt = cur->nmeActor->value1; // Branching factor
-			SetAttachedFXColour( fx, cur->nmeActor->effects );
+			if( fx )
+			{
+				fx->tilt = cur->nmeActor->value1; // Branching factor
+				SetAttachedFXColour( fx, cur->nmeActor->effects );
+			}
 		}
 
 		cur->isSnapping = 1;
@@ -735,8 +739,11 @@ void UpdateTileSnapper( ENEMY *cur )
 				else
 					fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.5 );
 
-				fx->tilt = cur->nmeActor->value1; // Branching factor
-				SetAttachedFXColour( fx, cur->nmeActor->effects );
+				if( fx )
+				{
+					fx->tilt = cur->nmeActor->value1; // Branching factor
+					SetAttachedFXColour( fx, cur->nmeActor->effects );
+				}
 			}
 		}
 

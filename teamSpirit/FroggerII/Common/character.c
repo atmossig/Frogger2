@@ -536,7 +536,7 @@ void TestPath( )
 	{
 		SPECFX *fx;
 		for( node = path; node; node = node->next )
-			fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &node->tile->centre, &node->tile->normal, 64, 0, 0, 5 );
+			CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &node->tile->centre, &node->tile->normal, 64, 0, 0, 5 );
 	}
 
 	FreeAIPathNodeList( &path );

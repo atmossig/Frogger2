@@ -140,7 +140,7 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 			actorAnim->morphTo = actorAnim->animTime = anim->animStart + proportion*(float)(anim->animEnd-anim->animStart);
 
 		if( actorAnim->sfxMapping && actorAnim->sfxMapping[actorAnim->currentAnimation] )
-			PlaySfxMappedSample( actor, 500, 255, 128 );
+			PlaySfxMappedSample( actor, 500, 255, -1/*128*/ );
 	}
 	else
 	{
@@ -288,7 +288,7 @@ void UpdateAnimations(ACTOR *actor)
 				*actorAnim->queueNumMorphFrames = 0;
 			}
 			if( actorAnim->sfxMapping )
-				PlaySfxMappedSample( actor, 500, 255, 128 );
+				PlaySfxMappedSample( actor, 500, 255, -1/*128*/ );
 		}
 	}
 	else
@@ -301,7 +301,7 @@ void UpdateAnimations(ACTOR *actor)
 			actorAnim->animTime -= (anim->animEnd - anim->animStart);
 
 			if( actorAnim->sfxMapping )
-				PlaySfxMappedSample( actor, 500, 100, 128 );
+				PlaySfxMappedSample( actor, 500, 100, -1/*128*/ );
 
 		}
 		else if(actorAnim->animTime < anim->animStart)
@@ -351,24 +351,35 @@ void DamageNormal( int pl )
 	AnimateActor(frog[pl]->actor, FROG_ANIM_ASSONFIRE, NO, NO, 0.5F, 0, 0);
 	CreateAndAddSpecialEffect( FXTYPE_FROGSTUN, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 0, 0, 3.0 );
 
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 4, 0, 5 );
-	SetFXColour( fx, 255, 255, 0 );
-	fx->gravity = 0.1;
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 3, 0, 5 );
-	SetFXColour( fx, 255, 255, 130 );
-	fx->gravity = 0.1;
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2, 0, 5 );
-	SetFXColour( fx, 255, 255, 130 );
-	fx->gravity = 0.1;
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 );
-	SetFXColour( fx, 255, 255, 255 );
-	fx->gravity = 0.1;
-
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 3, 0, 5 );
-	SetFXColour( fx, 200, 255, 200 );
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 );
-	SetFXColour( fx, 255, 255, 255 );
-	fx->gravity = 0.1;
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 4, 0, 5)) )
+	{
+		SetFXColour( fx, 255, 255, 0 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 3, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 130 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 130 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 255 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 3, 0, 5 )) )
+	{
+		SetFXColour( fx, 200, 255, 200 );
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKLYTRAIL, &frog[pl]->actor->pos, &currTile[pl]->normal, 30, 2.5, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 255 );
+		fx->gravity = 0.1;
+	}
 }
 
 void DamageRunOver( int pl )
@@ -521,17 +532,21 @@ void DeathSlicing( int pl )
 	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.25, 0, 0 );
 	AnimateActor( frog[pl]->actor, 1, YES, YES, 0.25, 0, 0 );
 
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 );
-	SetFXColour( fx, 255, 255, 0 );
-	fx->gravity = 0.1;
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
-	SetFXColour( fx, 255, 255, 130 );
-	fx->gravity = 0.1;
-
-	fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 );
-	SetFXColour( fx, 50, 200, 50 );
-	fx->tex = txtrSolidRing;
-
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 0 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 130 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 )) )
+	{
+		SetFXColour( fx, 50, 200, 50 );
+		fx->tex = txtrSolidRing;
+	}
 	GTInit( &player[pl].dead, 3 );
 }
 
@@ -552,17 +567,21 @@ void DeathExplosion( int pl )
 	AnimateActor( frog[pl]->actor, 0, NO, NO, 0.2, 0, 0 );
 	AnimateActor( frog[pl]->actor, 2, YES, YES, 0.2, 0, 0 );
 
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 );
-	SetFXColour( fx, 255, 255, 0 );
-	fx->gravity = 0.1;
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
-	SetFXColour( fx, 255, 255, 130 );
-	fx->gravity = 0.1;
-
-	fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 );
-	SetFXColour( fx, 50, 200, 50 );
-	fx->tex = txtrSolidRing;
-
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 0 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 130 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 )) )
+	{
+		SetFXColour( fx, 50, 200, 50 );
+		fx->tex = txtrSolidRing;
+	}
 	GTInit( &player[pl].dead, 3 );
 }
 
@@ -583,16 +602,20 @@ void DeathGibbing( int pl )
 	AnimateActor( frog[pl]->actor, 1, NO, NO, 0.2, 0, 0 );
 	AnimateActor( frog[pl]->actor, 3, YES, YES, 0.2, 0, 0 );
 
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 );
-	SetFXColour( fx, 255, 255, 0 );
-	fx->gravity = 0.1;
-	fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 );
-	SetFXColour( fx, 255, 255, 130 );
-	fx->gravity = 0.1;
-
-	fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 );
-	SetFXColour( fx, 50, 200, 50 );
-	fx->tex = txtrSolidRing;
-
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 4, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 0 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &frog[pl]->actor->pos, &currTile[pl]->normal, 20, 3, 0, 5 )) )
+	{
+		SetFXColour( fx, 255, 255, 130 );
+		fx->gravity = 0.1;
+	}
+	if( (fx = CreateAndAddSpecialEffect( FXTYPE_DECAL, &frog[pl]->actor->pos, &currTile[pl]->normal, 40, 0, 0, 5 )) )
+	{
+		SetFXColour( fx, 50, 200, 50 );
+		fx->tex = txtrSolidRing;
+	}
 	GTInit( &player[pl].dead, 3 );
 }
