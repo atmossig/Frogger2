@@ -45,7 +45,7 @@ MDX_ACTOR *currentDrawActor;
 
 MDX_ACTOR *actorList = NULL;
 
-#define NUM_DLISTS 1
+#define NUM_DLISTS 2
 
 MDX_ACTOR *actorDrawList[NUM_DLISTS] = {NULL};
 
@@ -136,66 +136,62 @@ void KillObjectSprites(MDX_OBJECT *me)
 	Info		:
 */
 
-void ActorListDraw(void)
+void ActorListDraw(long i)
 {
 	MDX_ACTOR *cur = actorList;	
 	MDX_VECTOR where,tPos,tPos2;
 	float radius,scale;
-	int i;
 	MDX_MATRIX rotmat;
 
-	for (i=0; i<NUM_DLISTS; i++)
+	cur = actorDrawList[i];
+
+	while (cur)
 	{
-		cur = actorDrawList[i];
+		drawThisObjectsSprites = cur->draw;
 
-		while (cur)
-		{
-			drawThisObjectsSprites = cur->draw;
+		SetVector(&tPos,&cur->trueCentre);
 
-			SetVector(&tPos,&cur->trueCentre);
-
-			tPos.vx *= cur->scale.vx;
-			tPos.vy *= cur->scale.vy;
-			tPos.vz *= cur->scale.vz;
+		tPos.vx *= cur->scale.vx;
+		tPos.vy *= cur->scale.vy;
+		tPos.vz *= cur->scale.vz;
 			
-			QuaternionToMatrix(&cur->qRot,&rotmat);
-			guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&(tPos2.vx),&(tPos2.vy),&(tPos2.vz));
+		QuaternionToMatrix(&cur->qRot,&rotmat);
+		guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&(tPos2.vx),&(tPos2.vy),&(tPos2.vz));
 		
-			AddVector(&tPos,&cur->pos,&tPos2);
+		AddVector(&tPos,&cur->pos,&tPos2);
 			
-			XfmPoint(&where,&tPos,NULL);
+		XfmPoint(&where,&tPos,NULL);
 
-			if (where.vz>10 || noClip)
-			{
-				scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
-				scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
-				
-				radius = (FOV * cur->radius * scale)/(where.vz+DIST);
-				
-				if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
-					((where.vy > -radius) && (where.vy<rYRes+radius)))
-				{	
-					XformActor(cur,0);		
-					if (cur->draw)
-					{
-						if (cur->flags & ACTOR_WRAPTC)
-							wrapCoords = 1;
-						else
-							wrapCoords = 0;
-						DrawActor(cur);
-					}
+		if (where.vz>10 || noClip)
+		{
+			scale = (cur->scale.vx>cur->scale.vy)?cur->scale.vx:cur->scale.vz;
+			scale = (scale>cur->scale.vz)?scale:cur->scale.vz;
+			
+			radius = (FOV * cur->radius * scale)/(where.vz+DIST);
+			
+			if (noClip || ((where.vx > -radius) && (where.vx<rXRes+radius)) &&
+				((where.vy > -radius) && (where.vy<rYRes+radius)))
+			{	
+				XformActor(cur,0);		
+				if (cur->draw)
+				{
+					if (cur->flags & ACTOR_WRAPTC)
+						wrapCoords = 1;
+					else
+						wrapCoords = 0;
+					DrawActor(cur);
 				}
-				else
-					KillObjectSprites(cur->objectController->object);
-				
 			}
 			else
 				KillObjectSprites(cur->objectController->object);
-				
-
-			cur = cur->nextDraw;
+			
 		}
-	}
+		else
+			KillObjectSprites(cur->objectController->object);
+			
+
+		cur = cur->nextDraw;
+	}	
 }
 
 

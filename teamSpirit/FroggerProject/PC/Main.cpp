@@ -620,7 +620,11 @@ long DrawLoop(void)
 		EndTimer(14);
 
 		// Draw shadows between landscape and actors so we don't get z-buffer artifacts
-		if( !backdrop )
+		
+		// Draw Actors before shadows
+		ActorListDraw(0);
+
+		if(!backdrop)
 		{
 			int i;
 			// Draw landscape
@@ -642,7 +646,8 @@ long DrawLoop(void)
 
 		StartTimer(1,"Actors");
 		
-		ActorListDraw();
+		// Draw actors after shadows
+		ActorListDraw(1);
 		EndTimer(1);
 
 		
