@@ -15,95 +15,90 @@
 
 void DrawSprite ( SPRITEOVERLAY *spr )
 {
-	int			atbdx,atbdy;
-
-	register PACKET*		packet;
-
-	static TextureType		*tPtr;
-
-#define si ((POLY_GT4*)packet)
+	int			atbdx,atbdy, w,h;
+	POLY_FT4	*ft4;
+	TextureType	*tPtr;
 
 	atbdx = (spr->xPos/8)-256;
-#if PALMODE==1
-	atbdy = (spr->yPos/16)-128;
-#else
-	atbdy = (spr->yPos/17)-120;
-#endif
-
+	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
 	tPtr = spr->frames[0];
+	w = tPtr->w-1;
+	h = tPtr->h-1;
 
-			BEGINPRIM(si, POLY_GT4);
-	
-			setPolyGT4(si);
-
-			si->x0 = atbdx;
-			si->y0 = atbdy;
-
-			si->x1 = atbdx + (spr->width/8);
-			si->y1 = atbdy;
-
-			si->x2 = atbdx;
-#if PALMODE==1
-	si->y2 = atbdy + (spr->height/16);
-#else
-	si->y2 = atbdy + (spr->height/17);
-#endif
-			//si->y2 = atbdy + (spr->height);
-
-			si->x3 = atbdx + (spr->width/8);
-#if PALMODE==1
-	si->y3 = atbdy + (spr->height/16);
-#else
-	si->y3 = atbdy + (spr->height/17);
-#endif
-
-	
-			si->r0 = ( spr->r * 128 ) >> 8;
-			si->g0 = ( spr->g * 128 ) >> 8;
-			si->b0 = ( spr->b * 128 ) >> 8;
-	
-			si->r1 = ( spr->r * 128 ) >> 8;
-			si->g1 = ( spr->g * 128 ) >> 8;
-			si->b1 = ( spr->b * 128 ) >> 8;
-
-			si->r2 = ( spr->r * 128 ) >> 8;
-			si->g2 = ( spr->g * 128 ) >> 8;
-			si->b2 = ( spr->b * 128 ) >> 8;
-
-			si->r3 = ( spr->r * 128 ) >> 8;
-			si->g3 = ( spr->g * 128 ) >> 8;
-			si->b3 = ( spr->b * 128 ) >> 8;
-
-			si->u0 = tPtr->u0;
-			si->v0 = tPtr->v0;
-			si->u1 = tPtr->u1;
-			si->v1 = tPtr->v1;
-			si->u2 = tPtr->u2;
-			si->v2 = tPtr->v2;
-			si->u3 = tPtr->u3;
-			si->v3 = tPtr->v3;
-		
-			si->code = GPU_COM_TG4;
-			si->tpage = tPtr->tpage;
-
-			if ( spr->flags & SPRITE_ADDITIVE )
-			{
-				si->code  |= 2;
- 				si->tpage |= 32;
-			}
-			else if ( spr->flags & SPRITE_SUBTRACTIVE )
-			{
-				si->code  |= 2;
- 				si->tpage = tPtr->tpage | 64;
-			}
-			// ENDELSEIF
-
-			si->clut = tPtr->clut;
-		
-			ENDPRIM(si, 1, POLY_GT4);
-
-
-#undef si
+	if (spr->width==4096)
+	{	// NEW! 1:1 texels to pixels
+		BEGINPRIM(ft4, POLY_FT4);
+		setPolyFT4(ft4);
+		ft4->x0 = atbdx;
+		ft4->y0 = atbdy;
+		ft4->x1 = atbdx+w;
+		ft4->y1 = atbdy;
+		ft4->x2 = atbdx;
+		ft4->y2 = atbdy+h;
+		ft4->x3 = atbdx+w;
+		ft4->y3 = atbdy+h;
+		ft4->r0 = ( spr->r * 128 ) >> 8;
+		ft4->g0 = ( spr->g * 128 ) >> 8;
+		ft4->b0 = ( spr->b * 128 ) >> 8;
+		ft4->u0 = tPtr->u0;
+		ft4->v0 = tPtr->v0;
+		ft4->u1 = tPtr->u1;
+		ft4->v1 = tPtr->v1;
+		ft4->u2 = tPtr->u2;
+		ft4->v2 = tPtr->v2;
+		ft4->u3 = tPtr->u3;
+		ft4->v3 = tPtr->v3;
+		ft4->tpage = tPtr->tpage;
+		if ( spr->flags & SPRITE_ADDITIVE )
+		{
+			ft4->code  |= 2;
+ 			ft4->tpage |= 32;
+		}
+		else if ( spr->flags & SPRITE_SUBTRACTIVE )
+		{
+			ft4->code  |= 2;
+			ft4->tpage |= 64;
+		}
+		ft4->clut = tPtr->clut;
+		ENDPRIM(ft4, 1, POLY_FT4);
+	}
+	else
+	{	// Original random scaling method (slightly tidier)
+		BEGINPRIM(ft4, POLY_FT4);
+		setPolyFT4(ft4);
+		ft4->x0 = atbdx;
+		ft4->y0 = atbdy;
+		ft4->x1 = atbdx + (spr->width/8);
+		ft4->y1 = atbdy;
+		ft4->x2 = atbdx;
+		ft4->y2 = atbdy + (spr->height/(17-PALMODE));
+		ft4->x3 = atbdx + (spr->width/8);
+		ft4->y3 = atbdy + (spr->height/(17-PALMODE));
+		ft4->r0 = ( spr->r * 128 ) >> 8;
+		ft4->g0 = ( spr->g * 128 ) >> 8;
+		ft4->b0 = ( spr->b * 128 ) >> 8;
+		ft4->u0 = tPtr->u0;
+		ft4->v0 = tPtr->v0;
+		ft4->u1 = tPtr->u1;
+		ft4->v1 = tPtr->v1;
+		ft4->u2 = tPtr->u2;
+		ft4->v2 = tPtr->v2;
+		ft4->u3 = tPtr->u3;
+		ft4->v3 = tPtr->v3;
+		ft4->tpage = tPtr->tpage;
+		if ( spr->flags & SPRITE_ADDITIVE )
+		{
+			ft4->code  |= 2;
+			ft4->tpage |= 32;
+		}
+		else if ( spr->flags & SPRITE_SUBTRACTIVE )
+		{
+			ft4->code  |= 2;
+			ft4->tpage = tPtr->tpage | 64;
+		}
+		ft4->clut = tPtr->clut;
+		ENDPRIM(ft4, 1, POLY_FT4);
+	}
 }
 
 

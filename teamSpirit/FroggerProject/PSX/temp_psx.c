@@ -838,6 +838,24 @@ void Actor2ClipCheck(ACTOR2* act)
 		}
 	}
 
+	if( strstr(act->actor->psiData.modelName, "RISER") )
+//	if( strstr(act->actor->psiData.modelName, "boulder") )
+	{
+		if(act->draw)
+		{
+//			worldVisualData[1].levelVisualData[0].farClip = 21000;
+			act->clipped = 0;
+			act->milesAway = 0;
+			return;
+		}
+		else
+		{
+//			worldVisualData[1].levelVisualData[0].farClip = 7000;
+			act->clipped = 1;
+			act->milesAway = 1;
+			return;
+		}
+	}
 
 	//calc screen coords of actor
 	gte_SetTransMatrix(&GsWSMATRIX);
