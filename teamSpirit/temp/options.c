@@ -1792,7 +1792,7 @@ void RunOptionsMenu(void)
 
 
 
-			StringWrap(GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str), 2000, mpLevNameStr, 1024, mpLevNameArray, 2, font);
+			StringWrap(GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str), 1800, mpLevNameStr, 1024, mpLevNameArray, 2, font);
 			options.numPText->text = mpLevNameArray[0];
 			options.numPText2->text = mpLevNameArray[1];
 //			strcpy(options.numPStr, GAMESTRING(worldVisualData[multiWorldNum[options.levelSelection]].levelVisualData[multiLevelNum[options.levelSelection]].description_str));

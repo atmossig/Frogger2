@@ -64,9 +64,7 @@ extern void	RunGameOver( );
 extern void RunMultiWinRace( );
 extern void RunMultiWinCollect( );
 extern void RunMultiWinBattle( );
-extern void RunMultiWinMatch( );
 extern void StartMultiWinGame( );
-extern void StartMultiWinMatch( );
 
 extern void SetTimeForLevel( );
 extern void CreateOverlaysFromLogo(const LOGO *logo, int x, int y);

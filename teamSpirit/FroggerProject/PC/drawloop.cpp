@@ -269,7 +269,7 @@ long DrawLoop(void)
 
 		D3DSetupRenderstates(xluZRS);
 		// FX and shadows
-		if((gameState.mode != MULTI_WINRACE_MODE) && (gameState.mode != MULTI_WINBATTLE_MODE) && (gameState.mode != MULTI_WINCOLLECT_MODE) && (gameState.mode != MULTI_WINMATCH_MODE) && (gameState.mode != LEVELCOMPLETE_MODE))
+		if((gameState.mode != MULTI_WINRACE_MODE) && (gameState.mode != MULTI_WINBATTLE_MODE) && (gameState.mode != MULTI_WINCOLLECT_MODE) && (gameState.mode != LEVELCOMPLETE_MODE))
 			DrawSpecialFX();
 
 		// Light halos

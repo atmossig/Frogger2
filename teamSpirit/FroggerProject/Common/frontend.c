@@ -211,10 +211,6 @@ void GameLoop(void)
 		RunMultiWinRace( );
 		break;
 
-	case MULTI_WINMATCH_MODE:
-		RunMultiWinMatch( );
-		break;
-
 	case ARTVIEWER_MODE:
 		RunArtViewer();
 		break;
@@ -590,6 +586,9 @@ void RunMultiWinRace( )
 	int n = mgWin->current, i,numArrived;
 	int j;
 
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
 	if( mgWin->mode == MGW_MOVING )
 	{
 		DEC_ALPHA(multiHud.timeTextHSec);
@@ -763,6 +762,9 @@ void RunMultiWinRace( )
 void RunMultiWinCollect( )
 {
 	int i,j,maxScore = 0,numDraw = 0,num = 0;
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
 	switch(mgWin->mode)
 	{
 		case MGW_FLASHING:
@@ -861,6 +863,9 @@ void RunMultiWinBattle( )
 {
 	int j;
 
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
 	switch(mgWin->mode)
 	{
 		case MGW_FLASHING:
@@ -908,18 +913,6 @@ void RunMultiWinBattle( )
 	}
 }
 
-void StartMultiWinMatch( )
-{
-	DisableHUD();
-
-	gameState.mode = MULTI_WINMATCH_MODE;
-}
-
-
-void RunMultiWinMatch( )
-{
-
-}
 
 extern int storeFrameCount;
 void SetTimeForLevel( )
@@ -997,6 +990,9 @@ void DoEndMulti()
 
 			if(menuOption == 0)
 			{
+#ifdef PC_VERSION
+				checkMenuKeys = 0;
+#endif
 				RestartMulti();
 				gameState.mode = INGAME_MODE;
 				menuText[0]->draw = menuText[1]->draw = 0;
@@ -1091,6 +1087,9 @@ void StartLevelComplete()
 #endif
 
 
+#ifdef PC_VERSION
+	checkMenuKeys = 1;
+#endif
 //	PrepareSong(AUDIOTRK_LEVELCOMPLETE,NO);
 
 	UndoChangeModel( frog[0]->actor );

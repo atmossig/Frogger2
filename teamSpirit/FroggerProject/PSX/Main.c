@@ -942,7 +942,7 @@ void MainDrawFunction ( void )
 
 	TIMER_STOP0(TIMER_DRAW_WORLD);
 
-	if((gameState.mode != MULTI_WINRACE_MODE) && (gameState.mode != MULTI_WINBATTLE_MODE) && (gameState.mode != MULTI_WINCOLLECT_MODE) && (gameState.mode != MULTI_WINMATCH_MODE) && (gameState.mode != LEVELCOMPLETE_MODE) && (!skipTextOverlaysSpecFX))
+	if((gameState.mode != MULTI_WINRACE_MODE) && (gameState.mode != MULTI_WINBATTLE_MODE) && (gameState.mode != MULTI_WINCOLLECT_MODE) && (gameState.mode != LEVELCOMPLETE_MODE) && (!skipTextOverlaysSpecFX))
 	{
 		TIMER_START0(TIMER_DRAW_SPECFX);
 		oldStackPointer = SetSp(0x1f800400);

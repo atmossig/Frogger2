@@ -80,6 +80,7 @@
 extern MDX_LANDSCAPE *world;
 #include <pcaudio.h>
 #include <pcmisc.h>
+#include <controll.h>
 #endif
 
 #include "lang.h"
@@ -676,6 +677,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 #ifdef PC_VERSION
 	pFrameModifier = 0;
+	checkMenuKeys = 0;
 #endif
 	numLevelsPlayed++;
 
