@@ -87,7 +87,7 @@ USHORT			*animSegments;			// list of start-end frames (shorts)
 
 //	unsigned short clutOverride;
 
-	TextureType *clutOverride;
+	unsigned short clutOverride;
 
 } ACTOR;
 

@@ -3,9 +3,9 @@
 
 #include "tongue.h"
 
-void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry );
+void DrawTongueSegment ( SVECTOR *vt, TextureType *tEntry );
 
-void CalcTongueNodes ( POLY_G4 *vt, TONGUE *t, int i );
+void CalcTongueNodes ( SVECTOR *vt, TONGUE *t, int i );
 
 void DrawTongue ( TONGUE *t );
 

@@ -23,6 +23,7 @@ enum {
 	TIMER_PROCTEX,
 	TIMER_DRAWSYNC,
 	TIMER_TIMERS,
+	UPDATE_ENEMIES,
 
 	TIMER_NUMTIMERS
 };
@@ -40,7 +41,8 @@ enum {
 						"PRINT_OVERS", \
 						"PROCTEX", \
 						"DRAWSYNC", \
-						"TIMERS"
+						"TIMERS", \
+						"ENEMY"
 
 
 

@@ -25,7 +25,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	while (cur)
 	{
 		utilPrintf("%s, %d, %d, %d\n", cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz);
-		if ( (gstrcmp ( cur->name,"world.psi") != 0) && (gstrcmp ( cur->name,"backdrop.psi") != 0) )
+		if ( (gstrcmp ( cur->name,"world.psi") != 0) )
 		{
 			for( i=0; i<4; i++ )
 				tmp[i] = cur->name[i];
@@ -56,6 +56,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "plat" ) )|| ( compare = strstr ( cur->name, "poper" ) )||
 									( compare = strstr ( cur->name, "powerl" ) )|| ( compare = strstr ( cur->name, "lamp" ) )||
 									( compare = strstr ( cur->name, "tubtank" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
+									( compare = strstr ( cur->name, "candle" ) )|| ( compare = strstr ( cur->name, "cityrub" ) )||
 									( compare = strstr ( cur->name,  "tcone" ))|| ( compare = strstr ( cur->name, "bin" ) )  ) 
 				{
 //					CreateAndAddScenicObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
@@ -64,6 +65,13 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 				else
 				{
 					theActor = CreateAndAddActor ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, INIT_ANIMATION, 0, 0 );
+
+					if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
+					{
+						theActor->flags |= ACTOR_DRAW_ALWAYS;
+					}
+					// ENDIF
+
 
 					actorAnimate ( theActor->actor, 0, YES, NO, 150, NO );
 				}

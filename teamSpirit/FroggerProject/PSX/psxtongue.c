@@ -17,7 +17,7 @@ asm(\
 	*(unsigned long *)(p) = tempvar; \
 }
 
-void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
+void DrawTongueSegment ( SVECTOR *vt, TextureType *tEntry )
 {
 	register u_long t1 asm("$16");
 	register u_long t2 asm("$20");
@@ -43,28 +43,32 @@ void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
 	tfv = ( long* ) transformedVertices;
 	tfd = ( long* ) transformedDepths;
 
-	transformVertexListA ( vt, 1, tfv, tfd );
+	transformVertexListA ( vt, 4, tfv, tfd );
 
-	for ( i = 0; i < 1; i++ )
+	for ( i = 0; i < 4; i++ )
 	{
-//		tfd [ i ] = tfd [ i ] >> 2;
+		tfd [ i ] = tfd [ i ] >> 2;
 	}
 	// ENDFOR
 
 
 #define si ((POLY_G4*)packet)
-#define op ((POLY_G4 *)opcd)
+#define op ((FMA_GT4 *)opcd)
 
-	op = vt;
+	op = tfv;
 
 	packet = (PACKET *)currentDisplayPage->primPtr;
 
-	depth = 1;
-//	for ( i = 1; i != 0; i--, op++ )
-//	{
-//gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
-// 	gte_avsz4();
-//gte_stotz_cpu ( depth );
+	for ( i = 4; i != 0; i--, op++ )
+	{
+		op->vert0 = 0;
+		op->vert1 = 1;
+		op->vert2 = 2;
+		op->vert3 = 3;
+
+		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
+ 		gte_avsz4();
+		gte_stotz_cpu ( depth );
 
 	/*	if ( depth > min_depth && depth < max_depth )
 		{
@@ -78,7 +82,7 @@ void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
 			// ENDIF
 
 
-			//gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
+			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 
 			addPrimLen ( ot + ( depth ), si, 12, t2 );
 
@@ -86,7 +90,7 @@ void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
 //			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
 			
-			gte_stsxy3_gt4(si);
+			gte_stsxy3_g4(si);
 								
 //			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
 //			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
@@ -97,7 +101,7 @@ void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
 			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 			*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
 
-			si->x0 = op->x0;
+/*			si->x0 = op->x0;
 			si->y0 = op->y0;
 
 			si->x1 = op->x1;
@@ -107,13 +111,13 @@ void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
 			si->y2 = op->y2;
 
 			si->x3 = op->x3;
-			si->y3 = op->y3;
+			si->y3 = op->y3;*/
 
 			setPolyG4(si);
 
 			packet = ADD2POINTER ( packet, sizeof ( POLY_G4 ) );
 
-	//	}
+		}
 //	}
 #undef op
 #undef si
@@ -121,7 +125,7 @@ void DrawTongueSegment ( POLY_G4 *vt, TextureType *tEntry )
 	currentDisplayPage->primPtr = (char *)packet;
 }
 
-void CalcTongueNodes ( POLY_G4 *vt, TONGUE *t, int i )
+void CalcTongueNodes ( SVECTOR *vt, TONGUE *t, int i )
 {
 }
 
@@ -131,7 +135,7 @@ void DrawTongue ( TONGUE *t )
 	unsigned long index = ( t->progress * ( MAX_TONGUENODES - 1 ) >> 12 );
 	TextureType *tEntry;
 
-	POLY_G4 vT, vTPrev[2];
+	SVECTOR vT[4], vTPrev[2];
 
 	tEntry = ( ( TextureType *) t->tex );
 
@@ -146,6 +150,9 @@ void DrawTongue ( TONGUE *t )
 	vT.v2 = 0;
 	vT.u3 = 1;
 	vT.v3 = 0;*/
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
 
 	while( i < index )
 	{
@@ -164,37 +171,53 @@ void DrawTongue ( TONGUE *t )
 //		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
 
-			vT.x0 = t->segment[i].vx-5;
-			vT.y0 = t->segment[i].vy-5;
+/*			vT.vert0 = ( t->segment[i].vx >> 12 ) - 5;
+			vT.vert0 += ( (t->segment[i].vy<<4) - (5<<16) ) &0xffff0000;
 
-			vT.x1 = t->segment[i].vx+5;
-			vT.y1 = t->segment[i].vy-5;
+			vT.vert1 = (t->segment[i].vx>>12) + 5;
+			vT.vert1 += ( (t->segment[i].vy<<4) - (5<<16) ) &0xffff0000;
 
-			vT.x2 = t->segment[i].vx-5;
-			vT.y2 = t->segment[i].vy+5;
+			vT.vert2 = ( t->segment[i].vx >> 12 ) - 5;
+			vT.vert2 += ( (t->segment[i].vy<<4) - (5<<16) ) &0xffff0000;
 
-			vT.x3 = t->segment[i].vx+5;
-			vT.y3 = t->segment[i].vy+5;
+			vT.vert3 = ( t->segment[i].vx >> 12 ) + 5;
+			vT.vert3 += ( (t->segment[i].vy<<4) - (5<<16) ) &0xffff0000;*/
 
-			utilPrintf("Segment [ %d ] : %d : %d\n", i, t->segment[i].vx, t->segment[i].vy);
+			vT[0].vx = t->segment[i].vx-5;
+			vT[0].vy = t->segment[i].vy-5;
+			vT[0].vz = t->segment[i].vz;
 
-			vT.r0 = 128;
-			vT.g0 = 128;
-			vT.b0 = 128;
+			vT[1].vx = t->segment[i].vx+5;
+			vT[1].vy = t->segment[i].vy-5;
+			vT[1].vz = t->segment[i].vz;
 
-			vT.r1 = 128;
-			vT.g1 = 128;
-			vT.b1 = 128;
+			vT[2].vx = t->segment[i].vx-5;
+			vT[2].vy = t->segment[i].vy+5;
+			vT[2].vz = t->segment[i].vz;
 
-			vT.r2 = 128;
-			vT.g2 = 128;
-			vT.b2 = 128;
+			vT[3].vx = t->segment[i].vx+5;
+			vT[3].vy = t->segment[i].vy+5;
+			vT[3].vz = t->segment[i].vz;
 
-			vT.r3 = 128;
-			vT.g3 = 128;
-			vT.b3 = 128;
+//			utilPrintf("Segment [ %d ] : %d : %d\n", i, t->segment[i].vx, t->segment[i].vy);
 
-			DrawTongueSegment ( &vT, tEntry );
+/*			vT.r0 = 255;
+			vT.g0 = 0;
+			vT.b0 = 0;
+
+			vT.r1 = 255;
+			vT.g1 = 0;
+			vT.b1 = 0;
+
+			vT.r2 = 255;
+			vT.g2 = 0;
+			vT.b2 = 0;
+
+			vT.r3 = 255;
+			vT.g3 = 0;
+			vT.b3 = 0;*/
+
+			DrawTongueSegment ( (SVECTOR*)&vT, tEntry );
 
 
 //		Clip3DPolygon( vT, tEntry );

@@ -32,11 +32,13 @@ extern int polyCount;
 // coordinate system (probably a temporary measure), by increasing the object-camera
 // distance for the duration of the map-plotting calls.
 
-// #define MAP_SCALE_DEPTH_DOWN 3
+//#define MAP_SCALE_DEPTH_DOWN 3
 // #define MAP_SCALE_ADJUST
 
 // A couple of the optimisations in here are enablable by "#define". Once this is sourcesafed, it
 //may be worth tidying them out to make the source neater.
+
+int count = 0;
 
 // By my reckoning, doing block memory copies via 2 registers instead of via 1 gives us a 2% speed increase in the map plotter
 // (But this define lets you go back to the old stuff if needs be)
@@ -164,7 +166,7 @@ asm(\
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (2000)
+#define MAX_MAP_DEPTH (9000)
 
 
 // ===================================================
@@ -226,6 +228,7 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
 
+
 	tfv = (long*)transformedVertices;
 	tfd = (long*)transformedDepths;
 
@@ -266,7 +269,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // "!=0" is also marginally faster than ">0" here.
 // n_gt4s CAN be zero. Otherwise,a (do,while) loop would be ever-so-slightly faster.than the (for...) one.
 
-	polyCount += mesh->n_gt4s;
 
 	for(i = mesh->n_gt4s; i != 0; i--,op++)
 	{
@@ -315,7 +317,11 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 			{
 
 
-// Put the polygon into the OT (Note that we re-use "depth" as one of the "t" variables)
+				count++;	
+				polyCount ++;
+
+				
+				// Put the polygon into the OT (Note that we re-use "depth" as one of the "t" variables)
 //				addPrimLen(ot+(depth), (si),12,t2);
 				addPrimLen(ot+(depth), (si),12,t2);
 // Copy the polygon data over into the OT
@@ -363,14 +369,16 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 #define si ((POLY_GT3*)packet)
 #define op ((FMA_GT3 *)opcd)
 
-	polyCount += mesh->n_gt3s;
+//	polyCount += mesh->n_gt3s;
 
 	op = mesh->gt3s;
+
+	count = 0;
 	for(i = mesh->n_gt3s; i != 0; i--,op++)
 	{
 // Get average Z of the polygon & use as a depth pointer
 		gte_ldsz3(GETD(op->vert0),GETD(op->vert1),GETD(op->vert2));
-   		gte_avsz3();
+   	gte_avsz3();
 		gte_stotz_cpu(depth);
 
 		if(depth > min_depth && depth < max_depth)
@@ -379,8 +387,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // Skip the poly if all the verts are off screen.
 // A fairly hefty check, but one that gives us a 20% code-speed increase & 30% less gpu work.
 
-//			if ( (GETX(op->vert0)+256)&(GETX(op->vert1)+256)&(GETX(op->vert2)+256)&512) continue;
-//			if ( (GETY(op->vert0)+128)&(GETY(op->vert1)+128)&(GETY(op->vert2)+128)&256) continue;
+			if ( (GETX(op->vert0)+256)&(GETX(op->vert1)+256)&(GETX(op->vert2)+256)&512) continue;
+			if ( (GETY(op->vert0)+128)&(GETY(op->vert1)+128)&(GETY(op->vert2)+128)&256) continue;
 
 // Optimisation - X & Y at the same time
 			if(
@@ -404,6 +412,9 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 #endif
 			if(clipflag < 0)
 			{
+				count++;
+				polyCount ++;
+
 // Put the polygon into the OT (Note that we re-use "depth" as one of the "t" variables)
 				addPrimLen(ot+(depth), (si),9,t2);
 // Copy the polygon data over into the OT
@@ -431,7 +442,6 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
 #endif
 				packet = ADD2POINTER(packet,sizeof(POLY_GT3));
-				polyCount++;
 			}
 		}
 	}
@@ -580,9 +590,8 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 	int i;
 //	int removed_models;
 	FMA_MESH_HEADER **mesh;
+
 	mesh = ADD2POINTER(world,sizeof(FMA_WORLD));
-
-
 
 // If we're rendering the map to a different integer scale to the objects, then we need to
 // move the camera away from the increased-scale map for the duration of the map-plotter.
@@ -596,39 +605,22 @@ void MapDraw_DrawFMA_World(FMA_WORLD *world)
 	}
 #endif
 
-//	printf("draw %d meshes\n",world->n_meshes);
-//	removed_models=0;
 	MapDraw_SetMatrix(*mesh, 0, 0, 0);
+
+	count=0;
 
 	for(i = world->n_meshes; i != 0; i--, mesh++)
 	{
-// TBD - Do A clip-check on the mesh before calling
-
 		if(MapDraw_ClipCheck(*mesh))
 		{
-	//		if((*mesh)->flags & MESH_ISWATER)
-	//		{
-	//			MapDraw_DrawFMA_Mesh2Water(*mesh);
-	//		}
-	//		else
-	//		{
 				MapDraw_DrawFMA_Mesh2(*mesh);
-			}
-
-	//	}
-
-//		else
-//		{
-		//	removed_models++;
-//		}
+		}
+		// ENDIF
 
 	}
+	// ENDFOR
 
-// diagnostic message
-//	if(removed_models)
-//	{
-//		printf("removed %d models\n",removed_models);
-//	}
+//	utilPrintf("Map Draw Poly Count%d\n", count);
 
 #ifdef MAP_SCALE_ADJUST
 	{

@@ -536,7 +536,7 @@ void DrawScenicObjList ( void )
 
 
 
-				if ( MapDraw_ClipCheck ( *mesh ) )
+				//if ( MapDraw_ClipCheck ( *mesh ) )
 				{
 					DrawScenicObj ( *mesh, cur->flags );
 				}
