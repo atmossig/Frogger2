@@ -20,6 +20,7 @@
 #include "memload.h"
 #include "frogger.h"
 #include "layout.h"
+#include "menus.h"
 
 
 /*
@@ -482,7 +483,7 @@ void FreeSampleList( )
 */
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
-	unsigned long vol=volume;
+	unsigned long vol=(volume * globalSoundVol)/MAX_SOUND_VOL;
 	fixed att, dist;
 	SVECTOR diff;
  	int vl,vr;
