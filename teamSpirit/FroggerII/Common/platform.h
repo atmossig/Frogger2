@@ -18,30 +18,31 @@
 
 // PLATFORM FLAGS
 
-#define PLATFORM_NONE				0
-#define PLATFORM_HASPATH			(1 << 0)	// platform has a path (more than one node)
-#define PLATFORM_CARRYINGFROG		(1 << 1)	// platform currently carrying frog
-#define PLATFORM_PATHFORWARDS		(1 << 2)	// platform moves forward thru nodes
-#define PLATFORM_PATHBACKWARDS		(1 << 3)	// platform move backwards thru nodes
-#define PLATFORM_PATHEND2START		(1 << 4)	// platform moves to start of path as soon as end is reached
-#define PLATFORM_SEGMENT			(1 << 5)	// platform is a segment of a larger platform
-#define PLATFORM_FLATLEVEL			(1 << 6)	// platform is moving over a flat level
-#define PLATFORM_MOVEUP				(1 << 7)
-#define PLATFORM_MOVEDOWN			(1 << 8)
-#define PLATFORM_PATHBOUNCE			(1 << 9)
-#define PLATFORM_PATHCYCLE			(1 << 10)
-#define PLATFORM_UPDOWNONLY			(1 << 11)
-#define PLATFORM_SINKABLE			(1 << 12)
-#define PLATFORM_RISABLE			(1 << 13)
+#define PLATFORM_NONE					0
+#define PLATFORM_HASPATH				(1 << 0)	// platform has a path (more than one node)
+#define PLATFORM_CARRYINGFROG			(1 << 1)	// platform currently carrying frog
+#define PLATFORM_PATHFORWARDS			(1 << 2)	// platform moves forward thru nodes
+#define PLATFORM_PATHBACKWARDS			(1 << 3)	// platform move backwards thru nodes
+#define PLATFORM_PATHEND2START			(1 << 4)	// platform moves to start of path as soon as end is reached
+#define PLATFORM_SEGMENT				(1 << 5)	// platform is a segment of a larger platform
+#define PLATFORM_FLATLEVEL				(1 << 6)	// platform is moving over a flat level
+#define PLATFORM_MOVEUP					(1 << 7)
+#define PLATFORM_MOVEDOWN				(1 << 8)
+#define PLATFORM_PATHBOUNCE				(1 << 9)
+#define PLATFORM_PATHCYCLE				(1 << 10)
+#define PLATFORM_UPDOWNONLY				(1 << 11)
+#define PLATFORM_SINKABLE				(1 << 12)
+#define PLATFORM_RISABLE				(1 << 13)
 
-#define PLATFORM_CANWALKUNDER		(1 << 14)
-#define PLATFORM_DISAPPEARING		(1 << 15)
-#define PLATFORM_BRIDGE				(1 << 16)
-#define PLATFORM_PATHFORWARD_BACK	(1 << 17)
-#define PLATFORM_PATH_MOVEUPDOWN	(1 << 18)
-#define PLATFORM_NOORIENTATE		(1 << 19)
-#define PLATFORM_INWATER			(1 << 20)
-#define PLATFORM_INACTIVE			(1 << 21)	// platform is inactive initially - e.g. triggered later
+#define PLATFORM_CANWALKUNDER			(1 << 14)
+#define PLATFORM_DISAPPEARING			(1 << 15)
+#define PLATFORM_BRIDGE					(1 << 16)
+#define PLATFORM_PATHFORWARD_BACK		(1 << 17)
+#define PLATFORM_PATH_MOVEUPDOWN		(1 << 18)
+#define PLATFORM_NOORIENTATE			(1 << 19)
+#define PLATFORM_INWATER				(1 << 20)
+#define PLATFORM_INACTIVE				(1 << 21)	// platform is inactive initially - e.g. triggered later
+#define PLATFORM_RADIUSBASEDCOLLISION	(1 << 22)
 
 typedef struct TAGPLATFORM
 {
@@ -58,8 +59,10 @@ typedef struct TAGPLATFORM
 	unsigned long			flags;					// platform flags
 	unsigned long			originalFlags;			// copy of original flags
 
-	float					*moveSpeed;				// platform speed
+	float					*moveSpeed;
 	float					riseSpeed;
+	
+	float					currSpeed;				// platform current speed
 
 	GAMETILE				*inTile;				// tile platform is currently 'in'
 
@@ -85,7 +88,7 @@ extern PLATFORM *currPlatform;			// platform that frog is currently on
 extern GAMETILE	*oldTile;
 
 extern void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
-extern PLATFORM *CreateAndAddPlatform ( char *pActorName, unsigned long *pathIndex, unsigned long *highIndex, float offset,float offset2,int startNode,float *moveSpeed, float riseSpeed, unsigned long pFlags);
+extern PLATFORM *CreateAndAddPlatform(char *pActorName,unsigned long *pathIndex,unsigned long *highIndex,float offset,float offset2,int startNode,float *moveSpeed,float riseSpeed,unsigned long pFlags);
 extern PATH *CreatePlatformPathFromTileList(unsigned long *pIndex, unsigned long *hIndex, float offset,float offset2);
 
 extern void InitPlatformLinkedList();
@@ -104,8 +107,21 @@ extern BOOL PlatformTooHigh(PLATFORM *plat);
 extern BOOL PlatformTooLow(PLATFORM *plat);
 
 
+//------------------------------------------------------------------------------------------------
+
+#define PLATFORM_NEW_NONE				0
+#define PLATFORM_NEW_FOLLOWPATH			(1 << 0)
+#define PLATFORM_NEW_FORWARDS			(1 << 1)
+#define PLATFORM_NEW_BACKWARDS			(1 << 2)
+#define PLATFORM_NEW_PINGPONG			(1 << 3)
 
 
+PLATFORM *NEW_CreateAndAddPlatform(char *pActorName);
+void NEW_AssignPathToPlatform(PLATFORM *pform,unsigned long platformFlags,PATH *path,unsigned long pathFlags);
+BOOL NEW_PlatformHasArrivedAtNode(PLATFORM *pform);
+void NEW_UpdatePlatformPathNodes(PLATFORM *pform);
+
+//------------------------------------------------------------------------------------------------
 
 
 #endif
