@@ -160,7 +160,7 @@ MDX_FONT *InitFont(const char *filename)
 		c->coords[3] = (charUV.y + charSize)/(float)FONT_TEXTURE_SIZE;
 		c->width = width;
 
-		charUV.x += (width+1);
+		charUV.x += width+1;
 
 		//dp("char '%c' @ %d,0, %d x %d\n", alphabet[i], left, width, bmpHeight);
 	}
@@ -178,6 +178,8 @@ MDX_FONT *InitFont(const char *filename)
 
 	FreeMem(scratch);
 	//free(tData);
+
+	dp("Font '%s' loaded, %d textures used\n", filename, currSurf);
 
 	return font;
 }
@@ -208,13 +210,13 @@ long DrawFontCharAtLoc(long x,long y,char ch,unsigned long color, MDX_FONT *font
 	if (!c->surf) return c->width;
 	
 	r.left = x;
-	r.right = x+c->width;
+	r.right = x+(c->width*scale);
 	r.top = y;
-	r.bottom = y+font->height;
+	r.bottom = y+(font->height*scale);
 
-	DrawTexturedRect(r, 0xFFFFFFFF, c->surf, c->coords[0], c->coords[1], c->coords[2], c->coords[3]);
+	DrawTexturedRect(r, color, c->surf, c->coords[0], c->coords[1], c->coords[2], c->coords[3]);
 
-	return c->width;
+	return c->width*scale;
 }
 
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY)
