@@ -93,9 +93,9 @@ void ProcessShadows()
 			SetVectorRF( &up, &currTile[i]->normal );
 
 			SubVector( &vec, &pos, &tilePos );
-			height = DotProduct( &vec, &up );
-			size = (float)(frog[i]->actor->shadow->radius>>12)/max(height*0.02, 1);
-			alpha = frog[i]->actor->shadow->alpha/max(height*0.02, 1);
+			height = DotProduct( &vec, &up )/SCALE;
+			size = (float)(frog[i]->actor->shadow->radius>>12)/max(height*0.025, 1);
+			alpha = frog[i]->actor->shadow->alpha/max(height*0.025, 1);
 
 			DrawShadow( &pos, &up, size, -height+1, alpha, tex );
 		}
@@ -108,14 +108,14 @@ void ProcessShadows()
 		if( !nme->active || !nme->nmeActor )
 			continue;
 
-		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER)
+		if( nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER<<12 )
 		{
 			SetVectorRS( &tilePos, &nme->inTile->centre );
 			SetVectorRS( &pos, &nme->nmeActor->actor->position );
 			SetVectorRF( &up, &nme->inTile->normal );
 
 			SubVector( &vec, &pos, &tilePos );
-			height = DotProduct( &vec, &up );
+			height = DotProduct( &vec, &up )/SCALE;
 			size = (float)(nme->nmeActor->actor->shadow->radius>>12)/max(height*0.02, 1);
 			alpha = nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1);
 
@@ -132,14 +132,14 @@ void ProcessShadows()
 		if( !plat->active || !plat->pltActor )
 			continue;
 
-		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER)
+		if( plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER<<12 )
 		{
 			SetVectorRS( &tilePos, &plat->inTile[0]->centre );
 			SetVectorRS( &pos, &plat->pltActor->actor->position );
 			SetVectorRF( &up, &plat->inTile[0]->normal );
 
 			SubVector( &vec, &pos, &tilePos );
-			height = DotProduct( &vec, &up );
+			height = DotProduct( &vec, &up )/10;
 			size = (float)(plat->pltActor->actor->shadow->radius>>12)/max(height*0.02, 1);
 			alpha = plat->pltActor->actor->shadow->alpha/max(height*0.02, 1);
 
