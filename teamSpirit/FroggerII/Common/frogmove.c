@@ -337,7 +337,7 @@ void UpdateFroggerPos(long pl)
 		Consider effects of special tile types
 	*/
 
-	player[pl].frogState &= ~FROGSTATUS_ISSAFE;
+//	player[pl].frogState &= ~FROGSTATUS_ISSAFE;
 
 	// But first... platforms
 	if (currPlatform[pl])
@@ -1251,6 +1251,16 @@ BOOL KillFrog(long pl)
 		else
 		{
 */		
+		// If substitute frog model was used then swap them back here
+		if( frog[pl]->actor->LODObjectController )
+		{
+			frog[pl]->actor->objectController = frog[pl]->actor->LODObjectController;
+			frog[pl]->actor->LODObjectController = NULL;
+			InitActorAnim( frog[pl]->actor );
+			AnimateActor( frog[pl]->actor, FROG_ANIM_BREATHE, YES, NO, 0.4, 0, 0 );
+			player[pl].idleEnable = 1;
+		}
+
 		if(--player[pl].lives == 0)
 		{
 			StartGameOver();
