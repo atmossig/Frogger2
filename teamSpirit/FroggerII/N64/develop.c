@@ -325,7 +325,7 @@ void RunDevelopmentRoutines()
 	{
 		StopDrawing("devlp");
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 		myBackdrop	= CreateAndInitBackdrop("n64.bmp");
 
 		ResetParameters();

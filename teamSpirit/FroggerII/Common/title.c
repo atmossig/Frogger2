@@ -54,7 +54,7 @@ void RunTmpTitle()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 	/*	sprOver = CreateAndAddSpriteOverlay(posx,posy,"n64a.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*1),posy,"n64b.bmp",32,32,255,255,255,255,0);

@@ -54,7 +54,7 @@ void RunTitleScreen( )
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 		//myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
 
@@ -223,7 +223,7 @@ void RunLevelSelect( )
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 		currFont = smallFont;
 
@@ -714,7 +714,7 @@ void RunSaveLoadSelect ( void )
 		memset (enteredName,0,3);
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 		currFont	= bigFont;
 		letters[0] = CreateAndAddTextOverlay(42,32,"a",NO,NO,255,255,255,255,currFont,0,0,0);
@@ -1208,7 +1208,7 @@ void RunTitleScreen()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 //		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
 
@@ -1391,7 +1391,7 @@ void RunLevelSelect ( void )
 		FreeAllLists();
 
 		LoadTextureBank ( SYSTEM_TEX_BANK );
-		LoadTextureBank ( TITLES_TEX_BANK );
+		LoadTextureBank ( GENERIC_TEX_BANK );
 
 		currFont	= smallFont;
 		closed		= CreateAndAddTextOverlay ( 160, 115, "closed", NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
@@ -1632,7 +1632,7 @@ void RunOptionsMode()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 //		myBackdrop = CreateAndInitBackdrop("objvscrn.bmp");
 
@@ -1804,7 +1804,7 @@ void RunSoundAdjust()
 		FreeAllLists();
 
 		LoadTextureBank ( SYSTEM_TEX_BANK );
-		LoadTextureBank ( TITLES_TEX_BANK );
+		LoadTextureBank ( GENERIC_TEX_BANK );
 
 		// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
 		sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,255,255,255,0);
@@ -1961,7 +1961,7 @@ void RunHiScoreMode ( void )
 		FreeAllLists();
 
 		LoadTextureBank ( SYSTEM_TEX_BANK );
-		LoadTextureBank ( TITLES_TEX_BANK );
+		LoadTextureBank ( GENERIC_TEX_BANK );
 
 		for ( i = 0; i < MAX_HISCORE_SLOTS; i++ )
 		{
@@ -2022,7 +2022,7 @@ void RunGameMode()
 //		recordKeying = 0;
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 //		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
 

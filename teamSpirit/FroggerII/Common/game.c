@@ -581,12 +581,6 @@ void UpdateCameraPosition(long cam)
 	Returns			: void
 	Info			: 
 */
-
-/*
-TEMPORARY
-*/
-#define DRAW_LAST	(1<<2)
-
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	unsigned long flags = 0;
@@ -650,7 +644,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 //	firstObject = 1;
 
-	levelTrophy = CreateAndAddActor("trophy.ndo",0,0,0,0,0,0);
+	levelTrophy = CreateAndAddActor("trophy.obe",0,0,0,0,0,0);
 	levelTrophy->draw = 0;
 	levelTrophy->flags |= DRAW_LAST;
 	actCount++;
