@@ -15,9 +15,6 @@
 #include <islutil.h>
 #include <islpad.h>
 
-extern "C"
-{
-
 #include <anim.h>
 #include <stdio.h>
 
@@ -52,23 +49,88 @@ extern "C"
 #include "bbtimer.h"
 #include "maths.h"
 
+#include "editor.h"
+
 #include <temp_pc.h>
-}
+#include "controll.h"
 
 #include "mdx.h"
 
 extern "C"
 {
-#include "controll.h"
-psFont *font;
-MDX_FONT *pcFont;
+	psFont *font = 0;
+	MDX_FONT *pcFont;
 }
-
 
 extern char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
+char lButton = 0, rButton = 0;
+int editorOk = 0;
+
 float camY = 100,camZ = 100;
 extern "C" {MDX_LANDSCAPE *world;}
+
+
+/*	-------------------------------------------------------------------------------
+	Function:	MainWndProc
+	Params:		As WNDPROC
+	returns:	0 for success, other to pass on to mdx default handler
+*/
+
+LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+		case WM_LBUTTONDOWN:
+			lButton = 1;
+			break;
+		
+		case WM_LBUTTONUP:
+			lButton = 0;
+			break;
+
+		case WM_RBUTTONDOWN:
+			rButton = 1;
+			break;
+		
+		case WM_RBUTTONUP:
+			rButton = 0;
+			break;
+
+		case WM_KEYDOWN:
+			switch (wParam)
+			{
+			case VK_F2:
+				editorOk = !editorOk; keysEnabled != keysEnabled; break;
+			default:
+				return 1;
+			}
+			break;
+
+		case WM_CHAR:
+			if (editorOk)	// only when editor is set up to "grab" keyboard data
+			{
+				EditorKeypress((char)wParam);
+				return 0;
+			}
+			break;
+
+	default:
+		return 1;
+	}
+
+	return 0;
+}
+
+#define CAMVECTSCALE (1.0f/40960.0f)
+
+void CalcViewMatrix(void)
+{
+	guLookAtF (vMatrix.matrix,
+		currCamTarget[0].vx*CAMVECTSCALE, currCamTarget[0].vy*CAMVECTSCALE, currCamTarget[0].vz*CAMVECTSCALE,
+		currCamSource[0].vx*CAMVECTSCALE, currCamSource[0].vy*CAMVECTSCALE, currCamSource[0].vz*CAMVECTSCALE,
+		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE);
+}
 
 long DrawLoop(void)
 {
@@ -80,10 +142,8 @@ long DrawLoop(void)
 	DrawActorList();
 	EndTimer(2);
 
-	guLookAtF (vMatrix.matrix,
-		currCamTarget[0].vx/40960.0,currCamTarget[0].vy/40960.0,currCamTarget[0].vz/40960.0,
-		currCamSource[0].vx/40960.0,currCamSource[0].vy/40960.0,currCamSource[0].vz/40960.0, 0,1,0);
-	
+	CalcViewMatrix();
+
 	pDirect3DDevice->BeginScene();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
@@ -94,20 +154,21 @@ long DrawLoop(void)
 	StartTimer(1,"Actors");
 	ActorListDraw();
 	EndTimer(1);
-	
-	PrintTextOverlays();
-	pDirect3DDevice->EndScene();
-	
+
 	DrawAllFrames();
-	
-	
+	PrintTextOverlays();
+
+	if (editorOk)
+		DrawEditor();
+
+	pDirect3DDevice->EndScene();
 
 	EndTimer(0);
 	if (consoleDraw)
 		PrintConsole();
 	if (timerDraw)
 		PrintTimers();
-	ClearTimers();	
+	ClearTimers();
 	StartTimer(0,"Everything");
 	
 	DDrawFlip();
@@ -128,6 +189,8 @@ long LoopFunc(void)
 	actFrameCount = timeInfo.frameCount;
 	gameSpeed = 4096*timeInfo.speed;
 
+	ProcessUserInput();
+
 	GameLoop();
 
 	c = actList;
@@ -142,14 +205,16 @@ long LoopFunc(void)
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.x = c->actor->qRot.x / 4096.0;
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.y = c->actor->qRot.y / 4096.0;
 			((MDX_ACTOR *)(c->actor->actualActor))->qRot.z = c->actor->qRot.z / 4096.0;
-			((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = c->actor->qRot.w / 4096.0;			
+			((MDX_ACTOR *)(c->actor->actualActor))->qRot.w = (c->actor->qRot.w / 4096.0) * 6.28;
 		}
 
 		c = c->next;
 	}
 
+	if (editorOk)
+		RunEditor();
+
 	DrawLoop();
-	ProcessUserInput();
 	return 0;
 }
 
@@ -192,6 +257,9 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Init the font system
 	InitFontSystem();
 
+	// Clear the spare suface (Ready for lotsa nice fx)
+	//DDrawClearSurface(SPARE_SRF, 0, DDBLT_COLORFILL);
+
 	// Clear the timers for the initial frame
 	ClearTimers();
 
@@ -203,9 +271,14 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	InitTiming(60.0);
 
+	InitEditor();
+
+	mdxSetUserWndProc(MainWndProc);
+
 	RunWindowsLoop(&LoopFunc);
 
 	// Byeeeeeeeeeee
+	ShutdownEditor();
 	DeInitInputDevices();
 	D3DShutdown();
 	DDrawShutdown();	
