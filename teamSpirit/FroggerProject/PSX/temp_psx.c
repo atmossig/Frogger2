@@ -15,7 +15,7 @@
 #include "map_draw.h"
 #include "timer.h"
 #include "memcard.h"
-#include <islvideo.h>
+#include "slvideo.h"
 #include "story.h"
 
 FVECTOR fmaActorScale;

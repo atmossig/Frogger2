@@ -165,15 +165,19 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 
 //	utilPrintf("New actor: %d bytes\n",len);
 	
+#if CDGOLD==0
 	sprintf(actorName,"%s",psiModel->name);
+#endif
 
 	actor = (ACTOR *)MALLOC0(len);
 	
 	// flush memory
 	//bbxx don't need this zeroing
-	amem = (ULONG *)actor;
+
+// JH: Becuase we use zero the memory when allocated we shouldn't need to do this.
+/*	amem = (ULONG *)actor;
 	for (i=0; i<(len/4); i++)
-		*amem++ = 0;
+		*amem++ = 0;*/
 
 	actor->psiData.flags = 0;
 
@@ -182,24 +186,13 @@ ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel, int scaleSkinned )
 		utilPrintf("Skinned Model..............");
 		actor->psiData.flags = ACTOR_BONED;
 		actor->psiData.flags |= ACTOR_DYNAMICSORT;
-
-//		ScalePsi(actor->psiData.object->meshdata);
-// 		#define PSI_SCALED_FLAG (1<<30)
-// 		if( ! (actor->psiData.flags&&PSI_SCALED_FLAG) )
-// 		{
-// 			ScalePsi(actor->psiData.object->meshdata);
-// 			actor->radius *= 10;
-// 			psiInitSortList(actor->radius*2+8);
-// 			actor->psiData.flags |= PSI_SCALED_FLAG;
-// 		}
 	}
 
 	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 
-	
-
+#if CDGOLD==0
 	actor->psiData.modelName = psiModel->name;
-
+#endif
 
 	utilPrintf("%s : %s\n", actor->psiData.modelName, actorName);
 

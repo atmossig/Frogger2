@@ -223,10 +223,15 @@ void languageInitialise()
 {
 	long loop,loop1,loop2;
 
+	utilPrintf("Just Before screen Fade.\n");
 	ScreenFade(0,255,30);
 	keepFade = 0;
 
+
+	utilPrintf("Just Before font Load.\n");
 	font = fontLoad("BIGFONT.FON");
+
+	utilPrintf("Loaded the Font file.\n");
 
 	imagePtr=0;
 	tex.x = 960;
