@@ -46,7 +46,6 @@ extern void ToggleTileLink( EVENT *event );
 extern void PlaySFX( EVENT *event );
 extern void EvAnimateActor( EVENT *event );
 extern void TeleportFrog( EVENT *event );
-extern void SpringFrog( EVENT *event );
 
 /*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
 //extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );

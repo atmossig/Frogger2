@@ -381,42 +381,6 @@ void TeleportFrog( EVENT *event )
 	doScreenFade = 63;
 }
 
-void SpringFrog( EVENT *event )
-{
-	SPRINGINFO *info = (SPRINGINFO*)event->data[0];
-	TRIGGER *trigger = (TRIGGER *)event->data[1];
-	int f = info->frog;
-
-	if( actFrameCount >= info->end )	// if we've gone past the end frame
-	{
-		currTile[f] = info->dest;
-		SetVector( &(frog[f]->actor->pos), &(info->dest->centre) );
-		player[f].frogState &= ~FROGSTATUS_ISTELEPORTING;
-		player[f].frogState |= FROGSTATUS_ISSTANDING;
-		player[f].canJump = 1;
-
-		JallocFree((UBYTE**)&info);
-
-		trigger->flags = TRIGGER_ONCE;	// Make the trigger delete itself!
-	}
-	else
-	{
-		VECTOR dh, dd;
-
-		float t = (float)(actFrameCount-info->start) / (float)(info->end-info->start);
-
-		SetVector( &dh, &info->H );
-		ScaleVector( &dh, 1.0 - (((2.0 * t) - 1.0) * ((2.0 * t) - 1.0)) );
-		SetVector( &dd, &info->V );
-		ScaleVector( &dd, t );
-
-		AddVector( &frog[f]->actor->pos, &info->S, &dd );
-		AddToVector( &frog[f]->actor->pos, &dh );
-
-		// TODO: Slurp frog orientation between source and destination tiles
-	}
-}
-
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
