@@ -26,6 +26,7 @@ extern "C"
 #include "stdio.h"
 #include "incs.h"
 
+extern long winMode;
 OSContPad controllerdata[4];
 long DEAD_ZONE = 50;
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
@@ -184,7 +185,7 @@ BOOL InitKeyboardControl()
 	hRes = lpKeyb->SetCooperativeLevel(winInfo.hWndMain,DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
 	if(FAILED(hRes))
 		return FALSE;
-
+	
 	hRes = lpKeyb->Acquire();
 	if(FAILED(hRes))
 		return FALSE;
@@ -339,16 +340,20 @@ extern float farClip;
 
 extern float horizClip;
 extern float vertClip;
+extern long keyInput;
 
 void ProcessUserInput(HWND hWnd)
 {
 	HRESULT hRes;
 	long i,j;
-
-	// read keyboard data
-	hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
-	if(FAILED(hRes))
-		return;
+	
+	if (keyInput)
+	{
+		// read keyboard data
+		hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
+		if(FAILED(hRes))
+			return;
+	}
 
 //	if (joyAvail)
 //	{

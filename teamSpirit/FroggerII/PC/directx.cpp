@@ -49,6 +49,7 @@ LPDIRECT3D2				pDirect3D;
 LPDIRECT3DDEVICE2		pDirect3DDevice;
 LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 LPDIRECTDRAW4			pDirectDraw4;
+LPDIRECTDRAWCLIPPER		pClipper;
 
 extern long winMode;
 extern long scaleMode;
@@ -903,6 +904,19 @@ long DirectXInit(HWND window, long hardware )
 	if (pDirect3DDevice->SetCurrentViewport(pDirect3DViewport) != D3D_OK) 
 		return FALSE;
 	
+
+	if (winMode)
+	{
+		if (pDirectDraw->CreateClipper (0,&pClipper,NULL))
+			return FALSE;
+	
+		if (pClipper->SetHWnd (0,win)!=DD_OK) 
+			return FALSE;
+	
+		if (primarySrf->SetClipper (pClipper)!=DD_OK)
+			return FALSE;
+	}
+
 	memset (&sdesc,0,sizeof (sdesc));
 	sdesc.dwSize=sizeof (sdesc);
 

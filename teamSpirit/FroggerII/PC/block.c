@@ -40,6 +40,7 @@ BYTE lButton = 0, rButton = 0;
 int runQuit = 0;
 extern long numFacesDrawn;
 extern long numPixelsDrawn;
+long keyInput = 1;
 
 long winMode = 1;
 long scaleMode = 0;
@@ -436,7 +437,7 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 
 	// create the window
     winInfo.hWndMain = CreateWindowEx(
-		WS_EX_TOPMOST,
+		winMode?0:WS_EX_TOPMOST,
         "Frogger2PC",
         "Frogger2PC",
 		winMode?WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE:WS_POPUP,
@@ -564,6 +565,25 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
       			
 			return TRUE;
 		 }
+
+		case WM_ACTIVATE:
+		{
+			switch (LOWORD(wParam))
+			{
+				
+
+				case WA_ACTIVE:
+				case WA_CLICKACTIVE:
+					keyInput = 1;
+					break;
+				case WA_INACTIVE:
+					keyInput = 0;
+					break;
+			}
+			break;
+		}
+
+
 	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);
