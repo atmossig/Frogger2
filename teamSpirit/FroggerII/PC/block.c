@@ -300,6 +300,10 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	gameState.mode		= INGAME_MODE;
 	//frontEndState.mode	= TITLE_MODE;
 
+#ifdef TEXTURE_DEBUG
+	hdlCheck = (unsigned char *)JallocAlloc( MAX_HDLCHECKS, YES, "hdlcheck" );
+#endif
+
 	// initialise PC stuff and DirectX / Direct3D
 	InitPCSpecifics();
 	if(!DirectXInit(winInfo.hWndMain,1))

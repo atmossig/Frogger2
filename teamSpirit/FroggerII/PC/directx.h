@@ -71,6 +71,14 @@ void PrintTextureInfo(void);
 
 #define SCREENTEX_SIZE 32
 
+// This will print LOTS of debug info and probably slow the game down lots
+//#define TEXTURE_DEBUG
+
+#ifdef TEXTURE_DEBUG
+int CheckTexHDL( unsigned long hdl );
+#endif
+
+
 #ifdef __cplusplus
 }
 #endif

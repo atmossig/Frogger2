@@ -141,6 +141,9 @@ void DrawBatchedPolys (void)
 			i+=3;
 		}
 		
+#ifdef TEXTURE_DEBUG
+		if( CheckTexHDL(lHandle) )
+#endif
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,lHandle);
 
 		if (pDirect3DDevice->DrawIndexedPrimitive(

@@ -233,6 +233,17 @@ void InitFont()
 	smallFont->srf		= CreateTextureSurface (256,256,(short*)smallFont->data,1,0,0);
 	smallFont->hdl	= ConvertSurfaceToTexture (smallFont->srf);
 
+#ifdef TEXTURE_DEBUG
+	if( smallFont->hdl && smallFont->hdl < MAX_HDLCHECKS )
+		hdlCheck[smallFont->hdl] = 1;
+	else
+		dprintf"Invalid texture handle %d\n", smallFont->hdl));
+
+	if( bigFont->hdl && bigFont->hdl < MAX_HDLCHECKS )
+		hdlCheck[bigFont->hdl] = 1;
+	else
+		dprintf"Invalid texture handle %d\n", bigFont->hdl));
+#endif
 	//smallFont = bigFont;
 	
 	// Make 32x32 font the current font

@@ -26,7 +26,6 @@ extern void WriteObjectDisplayListFlat(OBJECT *obj);
 extern void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short animEnd);
 extern void DrawActor(ACTOR *ptr);
 
-extern TEXTURE	*tempTexture;
 extern char		*tempObjectPtr, *tempObjectPtr2;
 extern VECTOR	*actorScale, parentScale;
 extern Vtx		*vtxPtr;

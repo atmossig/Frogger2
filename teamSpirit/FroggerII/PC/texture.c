@@ -6,7 +6,7 @@
 	Programmer	: Andy Eder
 	Date		: 19/04/99 12:39:48
 
-	Define PRINT_TEXTURE_DEBUG to print lots of debug stuff!
+	Define TEXTURE_DEBUG to print lots of debug stuff!
 
 ----------------------------------------------------------------------------------------------- */
 
@@ -14,12 +14,9 @@
 #include "gelf.h"
 #include "incs.h"
 
-//#define PRINT_TEXTURE_DEBUG
-
-TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
-TEXTURE *tempTexture;
-
-unsigned long numTextureBanks = 0;
+#ifdef TEXTURE_DEBUG
+unsigned char *hdlCheck = NULL;
+#endif
 
 char message[32];
 
@@ -54,29 +51,13 @@ void FreeAllTextureBanks()
 
 	dprintf"Freed %d Textures\n",numTextures ));
 
+#ifdef TEXTURE_DEBUG
+	if( hdlCheck ) JallocFree( (UBYTE **)&hdlCheck );
+
+	hdlCheck = (unsigned char *)JallocAlloc( MAX_HDLCHECKS, YES, "hdlcheck" );
+#endif
 
 	texList = NULL;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void InitTextureBanks()
-{
-	int x;
-
-	for(x = 0; x < MAX_TEXTURE_BANKS; x++)
-	{
-		textureBanks[x].freePtr = NULL;
-		textureBanks[x].data = NULL;
-		textureBanks[x].numTextures = 0;
-	}
-
-
 }
 
 
@@ -101,7 +82,7 @@ short *GetTexDataFromCRC (long CRC)
 		me=me->next;
 	}
 
-#ifdef PRINT_TEXTURE_DEBUG
+#ifdef TEXTURE_DEBUG
 	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
 #endif
 	return NULL;
@@ -119,7 +100,7 @@ D3DTEXTUREHANDLE GetTexHandleFromCRC (long CRC)
 		me=me->next;
 	}
 
-#ifdef PRINT_TEXTURE_DEBUG
+#ifdef TEXTURE_DEBUG
 	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
 #endif
 	return NULL;
@@ -137,7 +118,7 @@ TEXENTRY *GetTexEntryFromCRC (long CRC)
 		me=me->next;
 	}
 
-#ifdef PRINT_TEXTURE_DEBUG
+#ifdef TEXTURE_DEBUG
 	dprintf"TEXTURE NOT FOUND %xl\n",CRC));
 #endif
 	return NULL;
@@ -177,7 +158,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	strcpy (mys,shortn);
 	strlwr (mys);
 
-#ifdef PRINT_TEXTURE_DEBUG
+#ifdef TEXTURE_DEBUG
 	dprintf"%s\n",mys));
 #endif
 
@@ -260,7 +241,17 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		}
 
 		if ( newE->surf )
+		{
 			newE->hdl = ConvertSurfaceToTexture(newE->surf);
+
+			// If texture debugging then flag if a surface has been successfully created
+#ifdef TEXTURE_DEBUG
+			if( newE->hdl && newE->hdl < MAX_HDLCHECKS )
+				hdlCheck[newE->hdl] = 1;
+			else
+				dprintf"Invalid texture handle %d\n", newE->hdl));
+#endif
+		}
 		else
 		{
 			newE->hdl = 0;
@@ -378,7 +369,7 @@ void LoadTextureBank(int num)
 
 	strcpy (Sfilename,filename);
 	strcat (Sfilename,"*.bmp");
-#ifdef PRINT_TEXTURE_DEBUG
+#ifdef TEXTURE_DEBUG
 	dprintf"Loading %s from %s\n",message,filename));
 #endif
 	fHandle = FindFirstFile (Sfilename,&fData);
@@ -395,7 +386,7 @@ void LoadTextureBank(int num)
 			strcpy (finalFile,filename);
 			strcat (finalFile,fData.cFileName);
 			strcpy (finalShort,fData.cFileName);
-#ifdef PRINT_TEXTURE_DEBUG
+#ifdef TEXTURE_DEBUG
 			dprintf"Loading %s %s\n",finalFile,fData.cFileName));
 #endif
 			ret = FindNextFile (fHandle,&fData);

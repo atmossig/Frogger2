@@ -12,21 +12,11 @@
 #define TEXTURE_H_INCLUDED
 
 
-#define MAX_TEXTURE_BANKS		5
-
 enum
 {
 	TEXTURE_NORMAL,
 	TEXTURE_AI
 };
-
-typedef struct
-{
-	char	*data;
-	char	*freePtr;
-	int		numTextures;
-
-}TEXTURE_BANK;
 
 typedef struct tTEXENTRY
 {
@@ -46,8 +36,11 @@ typedef struct tTEXENTRY
 	
 } TEXENTRY;
 
-extern TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];
-extern unsigned long numTextureBanks;
+// If texture debugging, flag when a texture handle has been successfully created
+#ifdef TEXTURE_DEBUG
+#define MAX_HDLCHECKS 64000
+extern unsigned char *hdlCheck;
+#endif
 
 extern void LoadTextureBank(int num);
 extern void InitTextureBanks();
