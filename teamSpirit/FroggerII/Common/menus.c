@@ -163,7 +163,9 @@ void RunTitleScreen( )
 
 			FreeAllLists();
 
+#ifndef PC_VERSION
 			ReadSaveSlot(0, 0);
+#endif
 
 			InitLevel( player[0].worldNum, player[0].levelNum );
 
