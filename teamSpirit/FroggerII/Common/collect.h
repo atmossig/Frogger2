@@ -107,7 +107,6 @@ void CheckTileForCollectable(GAMETILE *tile,long pl);
 
 void ProcessCollectables();
 void PickupCollectable(GARIB *garib, int pl);
-void PickupBabyFrog(int baby);
 
 
 // GARIB RELATED

@@ -31,23 +31,21 @@ typedef struct TAGBABY
 {
 	unsigned long isSaved;
 	unsigned char fxColour[4];
+	ACTOR2 *baby;
+
 } BABY;
 
 extern BABY babyList[NUM_BABIES];
-extern ACTOR2 *babies[NUM_BABIES];
 extern int nearestBaby;
 extern int lastBabySaved;
-extern ACTOR *babyFollow[NUM_BABIES];
 
 extern SPRITEOVERLAY *babyIcons[NUM_BABIES];
 extern unsigned long babiesSaved;
 extern unsigned long numBabies;
 
-void CreateBabies(unsigned long createActors,unsigned long createOverlays);
-void RunBabySavedSequence(int);
-
+void CreateBabies(unsigned long createOverlays);
+void ResetBabies( );
+int PickupBabyFrog( ACTOR2 *baby );
 int GetNearestBabyFrog();
-void FaceBabiesTowardsFrog(long pl);
-
 
 #endif

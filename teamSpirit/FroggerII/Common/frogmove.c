@@ -103,36 +103,6 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	player[p].idleTime			= MAX_IDLE_TIME;
 	player[p].heightJumped		= 0;
 	player[p].jumpTime			= 2;
-
-	for (i=0; i<numBabies; i++)
-	{
-		if ( babies[i] )
-		{
-			if(!babyList[i].isSaved)
-			{
-				if ( bTStart[i] )
-				{
-					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
-					NormalToQuaternion(&babies[i]->actor->qRot,&bTStart[i]->normal);
-				}
-				else
-				{
-					babies[i]->actor->pos.v[X] = 0;
-					babies[i]->actor->pos.v[Y] = 0;
-					babies[i]->actor->pos.v[Z] = 0;
-					tmpVec.v[X] = 0;
-					tmpVec.v[Y] = 0;
-					tmpVec.v[Z] = 0;
-					NormalToQuaternion(&babies[i]->actor->qRot,&tmpVec);
-				}
-
-				InitActorAnim(babies[i]->actor);
-				AnimateActor(babies[i]->actor,0,YES,NO,0.5F,0,0);
-			}
-		}
-	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -159,7 +129,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
 
-		PlaySample( GEN_FROG_HOP, &frog[pl]->actor->pos, 255, 128 );
+//		PlaySample( GEN_FROG_HOP, &frog[pl]->actor->pos, 255, 128 );
 
 		MoveToRequestedDestination(dir,pl);
 	}
@@ -180,7 +150,7 @@ BOOL UpdateFroggerControls(long pl)
 
 		MoveToRequestedDestination(dir,pl);
 
-		PlaySample( GEN_SUPER_HOP, &frog[pl]->actor->pos, 255, 128 );
+//		PlaySample( GEN_SUPER_HOP, &frog[pl]->actor->pos, 255, 128 );
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink
@@ -935,7 +905,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				frog[pl]->action.dead = 50;
 
-				PlayActorBasedSample(2,frog[pl]->actor,255,128);
+				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
 			return;
 		}
@@ -995,7 +965,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				player[pl].frogState |= FROGSTATUS_ISDEAD;
 				frog[pl]->action.dead = 50;
 
-				PlayActorBasedSample(2,frog[pl]->actor,255,128);
+				//PlayActorBasedSample(2,frog[pl]->actor,255,128);
 			}
 			return;
 		}

@@ -78,14 +78,13 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 
 }
 
-void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlays,
-					unsigned long createBabyActors,unsigned long createBabyOverlays)
+void CreateFrogger(unsigned char createFrogActor,unsigned char createFrogOverlays, unsigned char createBabyOverlays)
 {
 	int i;
 
 	if(createFrogActor)
 	{
-		CreateBabies(createBabyActors, createBabyOverlays );
+		CreateBabies( createBabyOverlays );
 		for (i=0; i<NUM_FROGS; i++)
 			if (gTStart[i])
 				CreateFrogActor (gTStart[i],"frogger.obe",i);

@@ -611,7 +611,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	SetVector(&(currCamSource[i]),&outVec);
 	SetVector(&(currCamTarget[i]),&inVec);
 		
-	CreateFrogger(1,1,1,1); // This also creates the babies
+	CreateFrogger(1,1,1); // This also creates the babies
 
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
@@ -665,6 +665,7 @@ void FreeAllLists()
 
 	KillAllTriggers();
 
+	ResetBabies( );
 	FreeSpecFXList( );
 	FreeSpriteFrameLists();
 	FreeGaribLinkedList();

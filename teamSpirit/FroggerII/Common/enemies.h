@@ -40,6 +40,7 @@
 #define ENEMY_NEW_FLAPPYTHING			(1 << 22)	// Environmental effect - sets NODAMAGE flag. Can be used with swarm
 #define ENEMY_NEW_ONEHITKILL			(1 << 23)	// Don't just damage the frog, kill it right off
 #define ENEMY_NEW_SLERPPATH				(1 << 24)	// Smooth interpolation between path nodes
+#define ENEMY_NEW_BABYFROG				(1 << 25)	// Babies are everyones enemies
 
 
 typedef struct TAGENEMY

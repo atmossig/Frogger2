@@ -22,7 +22,6 @@ unsigned long longTongue		= 0;
 unsigned long superFrog			= 0;
 unsigned long croakFloat		= 0;
 unsigned long babiesSaved		= 0;
-extern long carryOnBabies;
 
 unsigned char garibStoreList [4][storeListLength ];
 
@@ -179,11 +178,11 @@ ACTOR2 *BabyFrogIsInTongueRange()
 	{
 		for(i=0; i<numBabies; i++)
 		{
-			if ( babies[i] )
-				if((!babyList[i].isSaved) && (babies[i]->distanceFromFrog < (tongueRadius * tongueRadius)))
+			if( babyList[i].baby )
+				if((!babyList[i].isSaved) && (babyList[i].baby->distanceFromFrog < (tongueRadius * tongueRadius)))
 				{
-					mags[numInRange]		= babies[i]->distanceFromFrog;
-					inRange[numInRange++]	= babies[i];
+					mags[numInRange]		= babyList[i].baby->distanceFromFrog;
+					inRange[numInRange++]	= babyList[i].baby;
 				}
 		}
 
@@ -290,15 +289,6 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 			PickupCollectable(garib,pl);
 			return;
 		}
-	}
-
-	// check current tile for a baby frog
-	i = numBabies;
-	while(i--)
-	{
-		if( babies[i] )
-		if( DistanceBetweenPointsSquared(&babies[i]->actor->pos, &frog[pl]->actor->pos) < PICKUP_RADIUS_SQUARED)
-			PickupBabyFrog(i);
 	}
 }
 
@@ -466,41 +456,6 @@ void PickupCollectable(GARIB *garib, int pl)
 
 	// remove the collected garib
 	SubGarib(garib);
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: PickupBabyFrog
-	Purpose			: called when a baby frog is picked up...
-	Parameters		: ACTOR2
-	Returns			: void
-	Info			:
-*/
-void PickupBabyFrog(int b)
-{
-	ACTOR2 *baby = babies[b];
-
-	// check if this baby has been collected
-	if(babyList[b].isSaved)
-		return;
-
-	babyList[b].isSaved	= 1;
-	baby->actor->xluOverride = 0;
-	baby->draw				= 0;
-
-	lastBabySaved = b;
-
-	babyIcons[b]->a = 255;
-	babyIcons[b]->animSpeed = 1.0F;
-	babiesSaved++;
-	
-	// make baby position the new start position ?
-	if(carryOnBabies)
-		gTStart[0] = bTStart[b];
-							  
-	player[0].score += (1500 * babiesSaved);
-	babySaved = 30;
-//	PlaySample(147, &baby->actor->pos, 192, 128);
 }
 
 //-------------------------------------------------------------------------------------------------

@@ -35,6 +35,8 @@ enum
 	FOUR_PMODE = 2
 };
 
+extern long carryOnBabies;
+
 extern struct gameStateStruct gameState;
 
 extern unsigned long INPUT_POLLPAUSE;
@@ -58,7 +60,6 @@ extern long playMode;
 extern GAMETILE *firstTile;
 extern GAMETILE **gTStart;
 
-extern ACTOR2 *babies[NUM_BABIES];
 extern ACTOR2 *levelTrophy;
 
 extern char	scoreText[32];

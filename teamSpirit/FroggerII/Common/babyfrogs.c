@@ -16,8 +16,6 @@
 #include "incs.h"
 
 BABY babyList[NUM_BABIES];
-ACTOR2 *babies[NUM_BABIES];
-ACTOR *babyFollow[NUM_BABIES];
 
 GAMETILE **bTStart;
 
@@ -31,7 +29,7 @@ unsigned long numBabies = 0;
 const char* baby_filenames[NUM_BABIES] = { "frog", "ylfrg", "blfrog", "prfrg", "rdfrg" };
 
 
-void CreateBabies(unsigned long createActors,unsigned long createOverlays)
+void CreateBabies( unsigned char createOverlays )
 {
 	unsigned long i,j;
 
@@ -39,62 +37,49 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	lastBabySaved	= NULL;
 	babiesSaved		= 0;
 	
-	if ( createActors )
+	for (i=0; i<numBabies; i++)
 	{
-		for (i=0; i<numBabies; i++)
+		babyList[i].isSaved = 0;
+		babyList[i].baby = NULL;
+
+		// determine baby colour and set values accordingly
+		switch(i)
 		{
-			babies[i] = CreateAndAddActor("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
-
-			babies[i]->actor->shadow->radius	= 15;
-			babies[i]->actor->shadow->alpha		= 191;
-
-			InitActorAnim(babies[i]->actor);
-			AnimateActor(babies[i]->actor, BABY_ANIM_HOP, YES, NO, 0.5F, NO, NO);
-			babyList[i].isSaved = 0;
-
-			SetVector( &babies[i]->actor->pos, &bTStart[i]->centre );
-
-			babyFollow[i] = NULL;
-
-			// determine baby colour and set values accordingly
-			switch(i)
-			{
-				case 0:
-					// green frog
-					babyList[i].fxColour[R] = 0;
-					babyList[i].fxColour[G] = 255;
-					babyList[i].fxColour[B] = 0;
-					babyList[i].fxColour[A] = 255;
-					break;
-				case 1:
-					// yellow frog
-					babyList[i].fxColour[R] = 255;
-					babyList[i].fxColour[G] = 255;
-					babyList[i].fxColour[B] = 0;
-					babyList[i].fxColour[A] = 255;
-					break;
-				case 2:
-					// blue frog
-					babyList[i].fxColour[R] = 0;
-					babyList[i].fxColour[G] = 0;
-					babyList[i].fxColour[B] = 255;
-					babyList[i].fxColour[A] = 255;
-					break;
-				case 3:
-					// purple frog
-					babyList[i].fxColour[R] = 255;
-					babyList[i].fxColour[G] = 0;
-					babyList[i].fxColour[B] = 255;
-					babyList[i].fxColour[A] = 255;
-					break;
-				case 4:
-					// red frog
-					babyList[i].fxColour[R] = 255;
-					babyList[i].fxColour[G] = 0;
-					babyList[i].fxColour[B] = 0;
-					babyList[i].fxColour[A] = 255;
-					break;
-			}
+			case 0:
+				// green frog
+				babyList[i].fxColour[R] = 0;
+				babyList[i].fxColour[G] = 255;
+				babyList[i].fxColour[B] = 0;
+				babyList[i].fxColour[A] = 255;
+				break;
+			case 1:
+				// yellow frog
+				babyList[i].fxColour[R] = 255;
+				babyList[i].fxColour[G] = 255;
+				babyList[i].fxColour[B] = 0;
+				babyList[i].fxColour[A] = 255;
+				break;
+			case 2:
+				// blue frog
+				babyList[i].fxColour[R] = 0;
+				babyList[i].fxColour[G] = 0;
+				babyList[i].fxColour[B] = 255;
+				babyList[i].fxColour[A] = 255;
+				break;
+			case 3:
+				// purple frog
+				babyList[i].fxColour[R] = 255;
+				babyList[i].fxColour[G] = 0;
+				babyList[i].fxColour[B] = 255;
+				babyList[i].fxColour[A] = 255;
+				break;
+			case 4:
+				// red frog
+				babyList[i].fxColour[R] = 255;
+				babyList[i].fxColour[G] = 0;
+				babyList[i].fxColour[B] = 0;
+				babyList[i].fxColour[A] = 255;
+				break;
 		}
 	}
 
@@ -123,53 +108,55 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	}
 }
 
+void ResetBabies( )
+{
+	int i;
+
+	for( i=0; i<numBabies; i++ )
+	{
+		babyList[i].isSaved = 0;
+		babyList[i].baby = NULL;
+	}
+}
+
 
 /*	--------------------------------------------------------------------------------
-	Function		: RunBabySavedSequence
-	Purpose			: runs sequence when baby is saved
-	Parameters		: ACTOR2 *
+	Function		: PickupBabyFrog
+	Purpose			: called when a baby frog is picked up...
+	Parameters		: ACTOR2
 	Returns			: void
-	Info			: 
+	Info			:
 */
-void RunBabySavedSequence(int i)
+int PickupBabyFrog( ACTOR2 *baby )
 {
-	static VECTOR pos,pos2;		// yuck
-	SPECFX *fx;
+	int i;
 
-	babySaved--;
-	if(!babySavedText->draw)
-	{
-		EnableTextOverlay(babySavedText);
-		SetVector(&pos,&babies[i]->actor->pos);
-		SetVector(&pos2,&pos);
-		pos2.v[Y] += 48;
-	}
-	else
-	{
-		if(babySaved)
-		{
-			babySavedText->a -= 8;
-		}
-		else
-		{
-			DisableTextOverlay(babySavedText);
-			babySavedText->a = 255;
-		}
+	for( i=0; i<numBabies; i++ ) if( babyList[i].baby == baby ) break;
 
-		if((babySaved & 3) == 0)
-		{
-			pos.v[Y] += 6;
-			pos2.v[Y] -= 4;
-			
-			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 5, 1, 0.05, 0.6 );
-			CreateAndAddSpecialEffect( FXTYPE_BASICRING, &pos, &upVec, 10, 0.8, 0.05, 0.3 );
+	if( i==numBabies ) return FALSE;
 
-			fx = CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &babies[i]->actor->pos, &upVec, 64, 0, 0, 2 );
-			fx->sprites->r = babyList[i].fxColour[R];
-			fx->sprites->g = babyList[i].fxColour[G];
-			fx->sprites->b = babyList[i].fxColour[B];
-		}
-	}
+	// check if this baby has been collected
+	if(babyList[i].isSaved)
+		return FALSE;
+
+	babyList[i].isSaved	= 1;
+	baby->draw = 0;
+
+	lastBabySaved = i;
+
+	babyIcons[i]->a = 255;
+	babyIcons[i]->animSpeed = 1.0F;
+	babiesSaved++;
+	
+	// make baby position the new start position ?
+	if(carryOnBabies)
+		gTStart[0] = bTStart[i];
+							  
+	player[0].score += (1500 * babiesSaved);
+	babySaved = 30;
+//	PlaySample(17, &baby->actor->pos, 192, 128);
+
+	return TRUE;
 }
 
 
@@ -189,9 +176,9 @@ int GetNearestBabyFrog()
 	i = numBabies;
 	while(i--)
 	{
-		if(!babyList[i].isSaved)
+		if(!babyList[i].isSaved && babyList[i].baby )
 		{
-			t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
+			t = DistanceBetweenPoints(&frog[0]->actor->pos,&babyList[i].baby->actor->pos);
 			if(t < distance)
 			{
 				distance	= t;
@@ -205,52 +192,3 @@ int GetNearestBabyFrog()
 
 	return i;
 }
-
-/*	--------------------------------------------------------------------------------
-	Function		: FaceBabiesTowardsPlayer
-	Purpose			: makes baby frogs face the frog
-	Parameters		: long
-	Returns			: void
-	Info			: 
-*/
-void FaceBabiesTowardsFrog(long pl)
-{
-	VECTOR vfd	= { 0,0,1 };
-	VECTOR babyup;
-	VECTOR v1,v2,v3;
-	unsigned long i;
-		
-	for(i=0; i<numBabies; i++)
-	{
-		if(babies[i])
-		{
-			if(!(babyList[i].isSaved))
-			{
-				if(bTStart[i])
-				{
-					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
-				}
-				else
-				{
-					babies[i]->actor->pos.v[X] = 0;
-					babies[i]->actor->pos.v[Y] = 0;
-					babies[i]->actor->pos.v[Z] = 0;
-				}
-				babyList[i].isSaved = 0;
-			}
-
-			// face baby towards frog
-			SubVector(&v1,&babies[i]->actor->pos,&frog[pl]->actor->pos);
-			MakeUnit(&v1);
-
-			// calculate baby up vector
-			RotateVectorByQuaternion(&babyup,&upVec,&babies[i]->actor->qRot);
-			CrossProduct(&v2,&v1,&babyup);
-			CrossProduct(&v3,&v2,&babyup);
-			Orientate(&babies[i]->actor->qRot,&v3,&vfd,&babyup);
-		}
-	}
-}
-
