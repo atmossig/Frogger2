@@ -15,6 +15,8 @@
 
 #include "incs.h"
 
+// Because CD playing pisses me off
+//#define USE_AUDIO
 
 unsigned long worldNum;
 unsigned long levelNum;

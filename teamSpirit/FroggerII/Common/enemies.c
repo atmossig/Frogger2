@@ -1300,12 +1300,14 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 		newItem->Update = UpdateRandomMoveNME;
 
 	if( newItem->flags & ENEMY_NEW_BABYFROG )
+	{
 		for( i=0; i<numBabies; i++ )
 			if( !babyList[i].baby )
 			{
 				babyList[i].baby = newItem->nmeActor;
 				break;
 			}
+	}
 
 	return newItem;
 }
