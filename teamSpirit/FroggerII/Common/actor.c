@@ -1036,11 +1036,15 @@ void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
 {
 	/* This seems to be somewhat more expensive (and unreliable!) than it should be. */
 	VECTOR dirn;
-	QUATERNION rotn,q;
+	QUATERNION rotn,q,normal;
 	float dp,m;
 	
 
-	CalculateQuatForPlane2( 0, me, up);
+//	CalculateQuatForPlane2( 0, me, up);
+	SetVector( (VECTOR *)&normal, up );
+	normal.w = 0;
+	GetQuaternionFromRotation( &rotn, &normal );
+
 	RotateVectorByQuaternion( &dirn, mfd, me);
 	dp = DotProduct( fd, &dirn );
 	CrossProduct( (VECTOR *)&rotn, &dirn, fd );

@@ -211,7 +211,13 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 
 		// Special deaths that interact with the enemy
-		if (nme->reactiveNumber!=-1)
+		if( nme->uid == 128 )
+		{
+			player[num].deathBy = DEATHBY_WHACKING;
+			ThrowFrogAtScreen( num );
+			GTInit( &player[num].dead, 5 );
+		}
+		else if (nme->reactiveNumber!=-1)
 		{
 			if (reactiveAnims[nme->reactiveNumber].type & 0x01) //Face
 				SetQuaternion(&(frog[num]->actor->qRot),&(nme->nmeActor->actor->qRot));
@@ -248,15 +254,11 @@ void NMEDamageFrog( int num, ENEMY *nme )
 		}
 		else
 		{
-			player[num].deathBy = DEATHBY_WHACKING;
-			ThrowFrogAtScreen( num );
-			GTInit( &player[num].dead, 5 );
-
 			// Generic
-/*			player[num].deathBy = DEATHBY_NORMAL;
+			player[num].deathBy = DEATHBY_NORMAL;
 			AnimateActor(frog[num]->actor, FROG_ANIM_FWDSOMERSAULT, NO, NO, 0.5F, 0, 0);
 			GTInit( &player[num].dead, 3 );
-*/		}
+		}
 	}
 }
 
