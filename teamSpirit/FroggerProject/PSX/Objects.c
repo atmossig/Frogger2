@@ -67,7 +67,7 @@ void LoadObjectBank ( int objectBank )
 					sprintf ( PILfileName, "MFROGGER.PIL" );					
 				break;
 		case MLILLI_OBJ_BANK:
-					sprintf ( PILfileName, "MLILIE.PIL" );					
+					sprintf ( PILfileName, "MLILLI.PIL" );					
 				break;
 		case MTAD_OBJ_BANK:
 					sprintf ( PILfileName, "MTAD.PIL" );					
