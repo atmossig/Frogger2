@@ -1022,6 +1022,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	DeInitInputDevices();
 	D3DShutdown();
 	DDrawShutdown();	
+	ShutDownDirectSound( );
 	gelfShutdown();
 
 	return 0;
