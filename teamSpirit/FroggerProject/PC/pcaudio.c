@@ -27,6 +27,7 @@
 #include "dx_sound.h"
 #include "pcaudio.h"
 #include "pcmisc.h"
+#include "menus.h"
 
 #include "controll.h"
 
@@ -260,14 +261,14 @@ SAMPLE *CreateSample( char *path, char *file )
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
 	BUFSAMPLE *bufSample=NULL;
-	unsigned long bufStatus, vol=volume;
+	unsigned long bufStatus, vol = (volume*globalSoundVol)/MAX_SOUND_VOL;
 	long pan;
 	float att, dist;
 	SVECTOR diff, check;
 	unsigned long flags=0;
 	LPDIRECTSOUNDBUFFER lpdsBuffer;
 
-	if(!lpDS || !sample) return FALSE;	// No DirectSound object!
+	if(!lpDS || !sample || !vol) return FALSE;	// No DirectSound object!
 
 	if( sample->flags & SFXFLAGS_3D_SAMPLE )
 	{
@@ -304,7 +305,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	//	What we need to do here is create an instance of the buffer and store it in the buffer list.
 	//	Have a clean buffer function that will go though and check if the sample is playing or not,
 	//	if the sample is not playing then remove it from the list.
-	if( bufStatus & DSBSTATUS_PLAYING )
+//	if( bufStatus & DSBSTATUS_PLAYING )
 	{
 		if( !(bufSample = (BUFSAMPLE *)MALLOC0(sizeof(BUFSAMPLE))) )
 			return 0;
@@ -314,15 +315,15 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		AddBufSample( bufSample );
 		lpdsBuffer = bufSample->lpdsBuffer;
 	}
-	else
+/*	else
 	{
 		lpdsBuffer = sample->lpdsBuffer;
 	}
-
+*/
+	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
 	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, (pitch==-1)?(DSBFREQUENCY_ORIGINAL):(pitch*PITCH_STEP) );
 	lpdsBuffer->lpVtbl->SetVolume( lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
 	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
-	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
 
 	// HAAACCK! Bwahahahahahah!
 	return (int)lpdsBuffer;
