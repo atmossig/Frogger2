@@ -162,20 +162,27 @@ extern char _video_obj[];
 
 void LoadCodeOverlay(int num)
 {
+#if GOLDCD == 0
+	strcpy(FILEIO_PCROOT, "C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\");
+#endif
+
 	switch(num)
 	{
 		case GAME_OVERLAY:
-			while(fileLoadBinary("\\GAME.BIN", _video_obj));
+			while(fileLoadBinary("GAME.BIN", _video_obj));
 			break;
 
 		case VIDEO_OVERLAY:
-			while(fileLoadBinary("\\VIDEO.BIN", _video_obj));
+			while(fileLoadBinary("VIDEO.BIN", _video_obj));
 			break;
 
 		case LANG_OVERLAY:
-			while(fileLoadBinary("\\LANG.BIN", _video_obj));
+			while(fileLoadBinary("LANG.BIN", _video_obj));
 			break;
 	}
+#if GOLDCD == 0
+	strcpy(FILEIO_PCROOT, "x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+#endif
 }
 
 

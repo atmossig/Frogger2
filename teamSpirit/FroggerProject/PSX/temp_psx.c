@@ -1194,10 +1194,10 @@ void StartVideoPlayback(int num)
 	rect.w = 512;
 	rect.h = 512;
 
-	LoadCodeOverlay(VIDEO_OVERLAY);
 
 	if (XAgetStatus())
 	{
+		LoadCodeOverlay(VIDEO_OVERLAY);
 		ClearImage(&rect, 0,0,0);
    		sprintf(str.strName,"\\%s.STR;1",fmv[num].name);
    		str.mode = STR_MODE24;
@@ -1211,6 +1211,6 @@ void StartVideoPlayback(int num)
    		str.vlcBufSize = 50000;
    		str.volume = 127;
    		videoPlayStream(&str, PALMODE, videoKeyPress);
+		LoadCodeOverlay(GAME_OVERLAY);
 	}
-	LoadCodeOverlay(GAME_OVERLAY);
 }
