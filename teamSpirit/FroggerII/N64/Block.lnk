@@ -1020,7 +1020,7 @@ _objBank_9_0_SegmentRomEnd          alias   _objBank90_orgend
 
         section.16      objBank90.data,objBank90
 
-oBank90  incbin  "objects/dummy.nob",objBank90.data,64
+oBank90  incbin  "objects/sretromaster.nob",objBank90.data,64
 
 ; [ SUPPERRETRO WORLD LEVEL 1 ] >>>>>
 
@@ -1032,7 +1032,7 @@ _objBank_9_1_SegmentRomEnd          alias   _objBank91_orgend
 
         section.16      objBank91.data,objBank91
 
-oBank91  incbin  "objects/dummy.nob",objBank91.data,64
+oBank91  incbin  "objects/sretro1.nob",objBank91.data,64
 
 ; [ SUPERRETRO WORLD LEVEL 2 ] >>>>>
 
@@ -1954,7 +1954,7 @@ _texBank_9_0_SegmentRomEnd          alias   _texBank90_orgend
 
         section.16      texBank90.data,texBank90
 
-tBank90  incbin  "textures/dummy.fla",texBank90.data,64
+tBank90  incbin  "textures/sretromaster.fla",texBank90.data,64
 
 ; [ LEVEL 1 SUPERRETRO ] >>>>>
 
@@ -1966,7 +1966,7 @@ _texBank_9_1_SegmentRomEnd          alias   _texBank91_orgend
 
         section.16      texBank91.data,texBank91
 
-tBank91  incbin  "textures/dummy.fla",texBank91.data,64
+tBank91  incbin  "textures/sretro1.fla",texBank91.data,64
 
 ; [ LEVEL 2 SUPERRETRO ] >>>>>
 
@@ -2697,7 +2697,7 @@ _levData_9_1_SegmentRomEnd   alias _levData91_orgend
 
         section.16       levData91.data,levData91
 
-levDat91  incbin "leveldata/dummy.dat",levData91.data, 32
+levDat91  incbin "leveldata/entity-8-0.dat",levData91.data, 32
 
 ; [ SUPERRETRO LEVEL 2 ] >>>>>
 
