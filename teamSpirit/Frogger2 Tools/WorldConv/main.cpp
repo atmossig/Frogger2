@@ -35,6 +35,7 @@ enum
 	SAFE,
 	DEADLY,
 	FALL,
+	FALLDEATH,
 	ICE,
 	SINK,
 	JUMP,
@@ -79,6 +80,7 @@ const char* materialnames[NUM_MATERIALS] =
 	"safe",
 	"deadly",
 	"fall",
+	"deadlyfall",
 	"ice",
 	"sink",
 	"platjump",
@@ -511,6 +513,10 @@ void TileMaterial(int mat, int nSquare)
 		case DEADLY:
 			PutTileChar(',');
 			tileType = TILESTATE_DEADLY;
+			break;
+		case FALLDEATH:
+			PutTileChar('\'');
+			tileType = TILESTATE_DEADLYFALL;
 			break;
 		case FALL:
 			PutTileChar('F');
