@@ -519,6 +519,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,fix
 	{
 		newItem->Update = UpdatePathPlatform;
 		OrientateSS( &newItem->pltActor->actor->qRot, &path->nodes->worldTile->dirVector[newItem->facing], &path->nodes->worldTile->normal );
+		SetQuaternion( &newItem->destOrientation, &newItem->pltActor->actor->qRot );
 	}
 	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 	{
