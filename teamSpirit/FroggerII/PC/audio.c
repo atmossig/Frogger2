@@ -29,7 +29,6 @@ int Makebuffer ( SAMPLE *sample );
 SAMPLE *CreateAndAddSample ( char *lpFile )
 {
 	SAMPLE *newItem = ( SAMPLE * ) JallocAlloc ( sizeof ( SAMPLE ), YES, "SAM" );
-	dprintf"ENTERING : CreateAndAddSample\n"));
 
 	sprintf ( newItem->idName, "%s", lpFile );
 
@@ -42,7 +41,6 @@ SAMPLE *CreateAndAddSample ( char *lpFile )
 	SetSampleFormat ( newItem, 2, 22050, 16 );
 
 	AddSampleToList ( newItem );
-	dprintf"LEAVING : CreateAndAddSample\n"));
 }
 
 void InitSampleList ( void )
@@ -106,8 +104,6 @@ SAMPLE *GetEntryFromSampleList ( int num )
 	int i;
 	SAMPLE *next, *cur;
 
-	dprintf"Num Samples %d\n", soundList.numEntries ));
-
 	i = 0;
 	for ( cur = soundList.head.next; cur != &soundList.head; cur = next )
 	{
@@ -157,7 +153,10 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 	if ( ( !sample ) || ( !lpDS ) )
 	{
 		if ( !sample )
-			dprintf"Could Not Find Sample\n"));
+		{
+			dprintf"Could Not Find Sample : %d\n", num));	//  I will leave this, cos if you enter a
+															// sample number and it's not there then you will not get a sound.
+		}
 		if ( !lpDS )
 			dprintf"lpDS duh!!!!\n"));
 		return 0;
