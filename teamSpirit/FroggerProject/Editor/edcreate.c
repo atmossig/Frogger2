@@ -97,7 +97,7 @@ void EditorCreateEntities(void)
 
 			act = enemy->nmeActor;
 
-			act->radius = GAMEFLOAT(create->radius);
+			act->radius = GAMEFLOAT(create->radius)*10;
 			act->value1 = GAMEFLOAT(create->value1);
 
 // todo: object flags?
@@ -150,7 +150,7 @@ void EditorCreateEntities(void)
 			act->actor->size.vy = GAMEFLOAT(create->scale);
 			act->actor->size.vz = GAMEFLOAT(create->scale);
 
-			act->radius = GAMEFLOAT(create->radius);
+			act->radius = GAMEFLOAT(create->radius) * 10;
 			act->value1 = GAMEFLOAT(create->value1);
 			act->effects = create->effects;
 			act->animSpeed = GAMEFLOAT(create->animSpeed);
