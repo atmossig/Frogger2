@@ -298,7 +298,7 @@ void PrintSpriteOverlays()
 */
 void DrawSpecialFX()
 {
-	if ( ( gameState.mode == GAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
+	if ( ( gameState.mode == INGAME_MODE ) || ( gameState.mode == PAUSE_MODE ) ||
 		 ( gameState.mode == CAMEO_MODE ) )
 	{
 		ProcessShadows();
