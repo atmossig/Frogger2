@@ -403,9 +403,13 @@ void RunSndView()
 	SPRITEOVERLAY *sprPane;
 	char sfxNameTxt[256];
 	char musNameTxt[256];
+	int j;
 	
+	static SPRITEOVERLAY *splash[8];
+
 	if(frameCount == 1)
 	{
+		float x,y,z;
 		int i;
 		FreeAllLists();
 		
@@ -469,10 +473,15 @@ void RunSndView()
 		i = watActor->actor->objectController->object->mesh->numVertices;
 		while(i--)
 		{
-			watActor->actor->objectController->object->mesh->vertexNormals[i].v[X] = 255;
-			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Y] = 255;
-			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Z] = 255;
+			watActor->actor->objectController->object->mesh->vertexNormals[i].v[X] = 0;//255;
+			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Y] = 0;//255;
+			watActor->actor->objectController->object->mesh->vertexNormals[i].v[Z] = 0;//255;
 		}
+
+		// add sprite overlays
+		i = 8;
+		while(i--)
+			splash[i] = CreateAndAddSpriteOverlay(Random(320) - 32,Random(240) - 32,"ai_ring.bmp",32,32,255,255,255,127,0);
 
 		sfxNum	= 0;
 		musNum	= 0;
@@ -678,7 +687,7 @@ void RunSndView()
 		VECTOR *wv;
 		BYTEVECTOR *wvn;
 		float dp;
-		int k,j,i = watActor->actor->objectController->object->mesh->numVertices;
+		int k,i = watActor->actor->objectController->object->mesh->numVertices;
 		int x,y;
 
 		waterF = 0.6F;
@@ -711,6 +720,18 @@ void RunSndView()
 		{
 			waterWaveHeight[j] = SineWave2(waterWaveHeightFreq[j],frameCount)*waterWaveHeightAmp[j] + waterWaveHeightBase[j];
 			RotateVector2D(&waterCentre[j],&waterCentre[j],watRot[j]);
+		}
+	}
+
+	j = 8;
+	while(j--)
+	{
+		splash[j]->a -= Random(4) + 4;
+		if(splash[j]->a <= 16)
+		{
+			splash[j]->a = 127;
+			splash[j]->xPos = Random(320) - 32;
+			splash[j]->yPos = Random(240) - 32;
 		}
 	}
 }
