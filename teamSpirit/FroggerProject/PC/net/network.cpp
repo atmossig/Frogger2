@@ -104,12 +104,18 @@ int RemoveNetPlayer(DPID id)
 			if (frog[p])
 				frog[p]->draw = 0;
 
-			if (mpl[p].penalText)	mpl[p].penalText->draw = 0;
+			if (mpl[p].penalText)
+				mpl[p].penalText->draw = 0;
+
 			if (multiHud.backChars[p])
 			{
-				multiHud.backChars[p]->a = 128;
+				multiHud.backChars[p]->draw = false;
 				multiHud.penaliseText[p]->draw = false;
 				multiHud.penalOver[p]->draw = false;
+
+				multiHud.trophies[p][0]->draw = false;
+				multiHud.trophies[p][1]->draw = false;
+				multiHud.trophies[p][2]->draw = false;
 			}
 
 			q = p+1;
