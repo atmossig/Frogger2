@@ -633,9 +633,9 @@ void DrawGraphics()
 		//fog.g = fG;
 	//	fog.b = fB;
 
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
-		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
+	//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGCOLOR, D3DRGBA((float)fog.r/256.0,(float)fog.g/256.0,(float)fog.b/256.0,0) );
+	//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLESTART, *(DWORD *)&fStart );
+	//	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_FOGTABLEEND, *(DWORD *)&fEnd );
 		//pDirect3DDevice->lpVtbl->SetLightState(pDirect3DDevice,D3DLIGHTSTATE_FOGSTART, *(DWORD *)(&fStart));
 		//pDirect3DDevice->lpVtbl->SetLightState(pDirect3DDevice,D3DLIGHTSTATE_FOGEND,   *(DWORD *)(&fEnd));
 	}

@@ -331,8 +331,7 @@ void UpdatePlatforms()
 							{
 								// platform disappears and will regenerate
 								cur->regen = cur->regenTime;
-							}
-							else
+							}							else
 							{
 								// platform crumbles and will not regenerate
 								SetVector(&rebound.point,&cur->inTile->centre);
@@ -375,6 +374,14 @@ void UpdatePlatforms()
 				{
 					float distance;
 					long nCamFac = 0, j = 0;
+
+					if (player[0].frogState & FROGSTATUS_ISONMOVINGPLATFORM)
+					{
+					}
+					else
+					{
+						//camFacing = GetTilesMatchingDirection (
+					}
 
 					distance = -10000;
 				

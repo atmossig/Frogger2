@@ -1270,7 +1270,7 @@ void PCRenderObject (OBJECT *obj)
 	facesIdx = obj->mesh->faceIndex;
 	tex2 = obj->mesh->textureIDs;
 	cols = ((VECTOR *)obj->mesh->vertexNormals);
-	alphaVal = (xl*256.0);
+	alphaVal = (xl*255.0);
 
 	for (j=0, i=0; i<obj->mesh->numFaces; i++, j+=3)
 	{
@@ -1314,7 +1314,8 @@ void PCRenderObject (OBJECT *obj)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
 				
-				vTemp->color = *((long *)(&(c1->x)));//SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				vTemp->color = SETALPHA(*((long *)(&(c1->x))),alphaVal);//SETALPHA(*((long *)(c1->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+		//		vTemp->color = D3DRGBA(1,1,1,1);
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F)+mV[v0];
@@ -1338,8 +1339,9 @@ void PCRenderObject (OBJECT *obj)
 				if (fogAmt>1)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
-				vTemp->color = *((long *)(&(c2->x)));//SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
-				
+				vTemp->color = SETALPHA(*((long *)(&(c2->x))),alphaVal);//SETALPHA(*((long *)(c2->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+//				vTemp->color = D3DRGBA(1,1,1,1);
+
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v1a].v[0]*0.000975F)+mV[v1];
@@ -1363,7 +1365,9 @@ void PCRenderObject (OBJECT *obj)
 				if (fogAmt>1)
 					fogAmt=1;
 				vTemp->specular = FOGVAL(fogAmt);
-				vTemp->color = *((long *)(&(c3->x)));//SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+				vTemp->color = SETALPHA(*((long *)(&(c3->x))),alphaVal);//SETALPHA(*((long *)(c3->v)),alphaVal); //,c1->v[1],c1->v[2],xl);
+	//			vTemp->color = D3DRGBA(1,1,1,1);
+
 				if (waterObject)
 				{
 					vTemp->tu = (obj->mesh->faceTC[v2a].v[0]*0.000975F)+mV[v2];

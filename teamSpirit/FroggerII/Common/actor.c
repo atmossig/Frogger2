@@ -138,7 +138,8 @@ void DrawActorList()
 	/****************************************************************************************/
 	
 	ACTOR2 *cur;
-	float ACTOR_DRAWFADERANGE = ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER;
+//	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER) - sqrtf(ACTOR_DRAWDISTANCEINNER);
+	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER);
 
 	/****************************************************************************************/
 	/* PC SPECIFIC VERSION																	*/
@@ -166,9 +167,10 @@ void DrawActorList()
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
-				float fadeValue =  1.0-sqrtf(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE));
+				float fadeValue =  1.0-(sqrtf(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER)))/ACTOR_DRAWFADERANGE);
+
 				cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-				cur->actor->xluOverride = fadeValue*100;				
+				cur->actor->xluOverride = 95;//fadeValue*100;				
 			}
 			else
 			{

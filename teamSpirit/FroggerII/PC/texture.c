@@ -13,7 +13,7 @@
 #include "incs.h"
 
 
-//#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
+#define PRINT_TEXTURE_DEBUG		// uncomment to print tons of debug messages
 
 
 TEXTURE_BANK	textureBanks[MAX_TEXTURE_BANKS];		//final texture bank is for font
@@ -218,7 +218,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	if (isAnim)
 	{
-		newE->frameTime = (((shortn[6]-'0')+1) * ((shortn[6]-'0')+1));
+		newE->frameTime = (((shortn[7]-'0')+1) * ((shortn[7]-'0')+1));
 	}
 	newE->nextFrameAt=0;
 

@@ -126,6 +126,7 @@ void RotateFrog(ACTOR2* frog,unsigned long fFacing);
 void AnimateFrogHop(unsigned long direction,long pl);
 
 void CalculateFrogJump(VECTOR *startPos,VECTOR *startNormal,VECTOR *endPos,VECTOR *endNormal,float t,long pl,float gravity, float initVelocity);
+long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next);
 
 
 #endif

@@ -537,6 +537,31 @@ void UpdateFroggerPos(long pl)
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: GetNextTile(unsigned long direction)
+	Purpose			: determines the next tile
+	Parameters		:
+	Returns			:
+	Info			:
+*/
+
+long GetTilesMatchingDirection(GAMETILE *me, long direction, GAMETILE *next)
+{
+	long dirNumber,i;
+	float t,distance = 0;
+	
+	for(i=0; i<4; i++)
+	{
+		t = DotProduct(&me->dirVector[direction],&next->dirVector[i]);
+		if(t >= distance)
+		{
+			distance = t;
+			dirNumber = i;			
+		}
+	}
+
+	return dirNumber;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetNextTile(unsigned long direction)
@@ -561,6 +586,9 @@ void GetNextTile(unsigned long direction,long pl)
 		destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3]; // hmm...
 	else
 	{
+		destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3];
+			
+		/* Hmm
 		distance = 0;
 			
 		for(j=0; j<4; j++)
@@ -573,6 +601,7 @@ void GetNextTile(unsigned long direction,long pl)
 				destTile[pl] = currTile[pl]->tilePtrs[j];					
 			}
 		}
+		*/
 	}	
 
 	if(destTile[pl])
@@ -627,11 +656,35 @@ void GetNextTile(unsigned long direction,long pl)
 
 	if(destTile[pl])
 	{
-		distance = 0.0;
+		GAMETILE *fromTile,*toTile;
+
+		if (player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM)
+			fromTile = currPlatform[pl]->inTile;
+		else
+			fromTile = currTile[pl];
+
+		/*if (destTile[pl])
+			toTile = destTile[pl];
+		else
+			toTile = destPlatform[pl]->inTile;*/
+
+		nextCamFacing = GetTilesMatchingDirection(fromTile,camFacing,destTile[pl]);
+		nextFrogFacing[pl] = GetTilesMatchingDirection(fromTile,frogFacing[pl],destTile[pl]);
+
+		dprintf"    camFacing = %lu, (%f,%f,%f)\n",camFacing
+															,fromTile->dirVector[camFacing].v[X]
+															,fromTile->dirVector[camFacing].v[Y]
+															,fromTile->dirVector[camFacing].v[Z]));
+		dprintf"nextCamFacing = %lu, (%f,%f,%f)\n",nextCamFacing
+															,destTile[pl]->dirVector[nextCamFacing].v[X]
+															,destTile[pl]->dirVector[nextCamFacing].v[Y]
+															,destTile[pl]->dirVector[nextCamFacing].v[Z]));
+
+		/*distance = 0.0;
 		
 		for(i=0; i<4; i++)
 		{
-			t = DotProduct(&currTile[pl]->dirVector[camFacing],&destTile[pl]->dirVector[i]);
+			t = DotProduct(&fromTile->dirVector[camFacing],&toTile->dirVector[i]);
 			if(t > distance)
 			{
 				distance = t;
@@ -645,7 +698,37 @@ void GetNextTile(unsigned long direction,long pl)
 		
 		for(i=0; i<4; i++)
 		{
-			t = DotProduct(&currTile[pl]->dirVector[frogFacing[pl]],&destTile[pl]->dirVector[i]);
+			t = DotProduct(&fromTile->dirVector[frogFacing[pl]],&toTile->dirVector[i]);
+			if(t > distance)
+			{
+				distance = t;
+				newCamFacing = i;			
+			}
+		}
+
+		nextFrogFacing[pl] = newCamFacing;*/
+	}
+/*	else
+	{
+		distance = 0.0;
+		
+		for(i=0; i<4; i++)
+		{
+			t = DotProduct(&currTile[pl]->dirVector[camFacing],&destPlatform[pl]->inTile->dirVector[i]);
+			if(t > distance)
+			{
+				distance = t;
+				newCamFacing = i;			
+			}
+		}
+
+		nextCamFacing = newCamFacing;
+
+		distance = 0.0;
+		
+		for(i=0; i<4; i++)
+		{
+			t = DotProduct(&currTile[pl]->dirVector[frogFacing[pl]],&destPlatform[pl]->inTile->dirVector[i]);
 			if(t > distance)
 			{
 				distance = t;
@@ -654,7 +737,7 @@ void GetNextTile(unsigned long direction,long pl)
 		}
 
 		nextFrogFacing[pl] = newCamFacing;
-	}
+	}*/
 
 	if((destTile[pl]) && (player[pl].frogState & FROGSTATUS_ISFLOATING))
 		currTile[pl] = destTile[pl];
@@ -1055,6 +1138,10 @@ void CheckForFroggerLanding(int whereTo,long pl)
 			player[pl].frogState &= ~(	FROGSTATUS_ISJUMPINGTOTILE | FROGSTATUS_ISFLOATING |
 										FROGSTATUS_ISJUMPINGTOPLATFORM | FROGSTATUS_ISSUPERHOPPING);
 			currPlatform[pl] = destPlatform[pl];
+	
+			frogFacing[pl] = nextFrogFacing[pl];
+			if (pl == 0)
+				camFacing = nextCamFacing;
 
 			if(player[pl].heightJumped < -125.0F)
 			{
