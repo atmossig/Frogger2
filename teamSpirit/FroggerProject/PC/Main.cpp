@@ -95,7 +95,7 @@ unsigned long synchSpeed = 60 * 1;
 unsigned long pingOffset = 40;
 unsigned long synchRecovery = 1;
 
-long resolution = 1;
+long resolution = 0;
 long slideSpeeds[4] = {0,16,32,64};
 
 long fogEnable = 0;
@@ -409,6 +409,7 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 */
 			switch (resolution)	{
+				case 0: SendMessage(GetDlgItem(hWnd,IDC_320),BM_SETCHECK,1,0); break;
 				case 1: SendMessage(GetDlgItem(hWnd,IDC_640),BM_SETCHECK,1,0); break;
 				case 2: SendMessage(GetDlgItem(hWnd,IDC_800),BM_SETCHECK,1,0); break;
 				case 3: SendMessage(GetDlgItem(hWnd,IDC_1024),BM_SETCHECK,1,0); break;
@@ -437,10 +438,12 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 				case IDOK:
 				{
-					//if (SendMessage (GetDlgItem(hWnd,IDC_640),BM_GETCHECK,0,0))
-						resolution=1;
-					//else
-					if (SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0))
+					// default: 640x480
+					resolution = 1;
+
+					if (SendMessage (GetDlgItem(hWnd,IDC_320),BM_GETCHECK,0,0))
+						resolution = 0;
+					else if (SendMessage (GetDlgItem(hWnd,IDC_800),BM_GETCHECK,0,0))
 						resolution=2;
 					else if (SendMessage (GetDlgItem(hWnd,IDC_1024),BM_GETCHECK,0,0))
 						resolution=3;
@@ -699,11 +702,29 @@ void DrawBackground(void)
 */
 long DrawLoop(void)
 {
-	POINT t;
-	
+	POINT			t;
+	DDSURFACEDESC2	ddsd;
+	int				dxError;
+
 	// Begin software overlay drawing - rather than use ssbeginscene in every call to drawpoly :)
-	if( !rHardware )
-		ssBeginScene(softScreen, 1280);
+	// *ASL* 12/06/2000
+	if (!rHardware)
+	{
+		DDINIT(ddsd);
+		dxError = surface[RENDER_SRF]->Lock(NULL, &ddsd, DDLOCK_SURFACEMEMORYPTR | DDLOCK_NOSYSLOCK, NULL);
+		if (SUCCEEDED(dxError))
+		{
+			dxError = surface[RENDER_SRF]->Unlock(NULL);
+		}
+		if (SUCCEEDED(dxError))
+		{
+			ssBeginScene((unsigned short *)ddsd.lpSurface, ddsd.lPitch, ddsd.dwWidth, ddsd.dwHeight);
+			ssClearViewport();
+		}
+		else
+			return 1;
+	}
+
 
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
@@ -867,7 +888,8 @@ long DrawLoop(void)
 	EndDraw();
 	EndTimer(16);
 
-	CopySoftScreenToSurface(surface[RENDER_SRF]);
+	// *ASL* 12/06/2000 - commented out as internal buffer is now used
+	//CopySoftScreenToSurface(surface[RENDER_SRF]);
 	EndTimer(0);
 	
 	if (textureDraw)
@@ -915,8 +937,9 @@ long DrawLoop(void)
 		grabToTexture = 2;
 	}
 	
+	// *ASL* 12/06/2000
 	if( !rHardware )
-		ssEndScene( );
+		ssEndScene();
 
 	GetCursorPos(&t);
 	camZ = t.x*8;
@@ -1255,16 +1278,30 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 		switch(resolution)
 		{
-			case 1:
-				xRes = 640; yRes = 480; break;
-			case 2:
-				xRes = 800; yRes = 600; break;
-			case 3:
-				xRes = 1024; yRes = 768; break;
-			case 4:
-				xRes = 1280; yRes = 1024; break;
-			default:
-				xRes = 640; yRes = 480; break;
+		case 0:
+			xRes = 320;
+			yRes = 240;
+			break;
+		case 1:
+			xRes = 640;
+			yRes = 480;
+			break;
+		case 2:
+			xRes = 800;
+			yRes = 600;
+			break;
+		case 3:
+			xRes = 1024;
+			yRes = 768;
+			break;
+		case 4:
+			xRes = 1280;
+			yRes = 1024;
+			break;
+		default:
+			xRes = 640;
+			yRes = 480;
+			break;
 		}
 
 		OVERLAY_X = xRes/4096.0;
@@ -1274,7 +1311,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		if (DDrawCreateSurfaces (mdxWinInfo.hWndMain, xRes, yRes, 16,TRUE, 16))
 		{
 			// Setup D3D
-			if (D3DInit())
+			if (D3DInit(xRes, yRes))
 			{
 				SetupRenderer(xRes, yRes);
 				break;
