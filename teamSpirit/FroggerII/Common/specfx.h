@@ -31,6 +31,7 @@ extern char pauseMode;
 #define EF_SPARK_BURSTS					(1 << 2)	// 
 #define EF_FLAMEBURST					(1 << 3)	// Vent up
 #define EF_FLYSWARM						(1 << 4)
+#define EF_BUBBLES						(1 << 5)
 
 #define EF_TINTRED						(1 << 29)
 #define EF_TINTGREEN					(1 << 30)
@@ -51,6 +52,7 @@ enum
 	FXTYPE_SMOKEBURST,
 	FXTYPE_FIREVENT,
 	FXTYPE_FLYSWARM,
+	FXTYPE_BUBBLES,
 
 	FXTYPE_NUMTYPES
 };

@@ -229,6 +229,8 @@ void UpdateEnemies()
 					}
 					cur->nmeActor->effects &= ~EF_FLYSWARM;
 				}
+				if( cur->nmeActor->effects & EF_BUBBLES )
+					CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0, 0, 0.6 );
 			}
 		}
 	}
@@ -377,7 +379,7 @@ void UpdateSlerpPathNME( ENEMY *cur )
 	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
 	t = DotProduct(&inVec,&fwd);
 	if (t<-0.999)
-		t=-0.999;
+		t=-0.5;
 	if (t>0.999)
 		t = 0.999;
 	q3.w=acos(t);

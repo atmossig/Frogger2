@@ -31,6 +31,7 @@ TEXTURE *txtrSolidRing	= NULL;
 TEXTURE *txtrSmoke		= NULL;
 TEXTURE *txtrRing		= NULL;
 TEXTURE *txtrFly		= NULL;
+TEXTURE *txtrBubble		= NULL;
 
 
 void UpdateFXRipple( SPECFX *fx );
@@ -197,15 +198,19 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		
 		break;
 	case FXTYPE_EXHAUSTSMOKE:
+	case FXTYPE_BUBBLES:
 		effect->lifetime = actFrameCount+life;
-		effect->vel.v[X] = (-2 + Random(5));
-		effect->vel.v[Y] = (Random(6) + 8);
-		effect->vel.v[Z] = (-2 + Random(5));
+		effect->vel.v[X] = (-2 + Random(5))*speed;
+		effect->vel.v[Y] = (Random(6) + 8)*speed;
+		effect->vel.v[Z] = (-2 + Random(5))*speed;
 		effect->fade = 255 / life;
 		effect->size = size;
 		
 		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE), YES, "Sprite" );
-		effect->sprites->texture = txtrSmoke;
+		if( effect->type == FXTYPE_BUBBLES )
+			effect->sprites->texture = txtrBubble;
+		else
+			effect->sprites->texture = txtrSmoke;
 		SetVector( &effect->sprites->pos, &effect->origin );
 		effect->sprites->scaleX = effect->size;
 		effect->sprites->scaleY = effect->size;
@@ -241,7 +246,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		SetVector( &effect->rebound->normal, &effect->normal );
 
 		effect->fade = 4;
-		effect->speed = Random(8) + speed;
+		effect->speed = Random(10) * speed;
 
 		while(i--)
 		{
@@ -256,7 +261,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			effect->sprites[i].scaleY = size;
 
 			if( effect->type == FXTYPE_SPLASH )
-				effect->sprites[i].texture = txtrStar;
+				effect->sprites[i].texture = txtrBubble;
 			else if( effect->type == FXTYPE_SMOKEBURST )
 				effect->sprites[i].texture = txtrSmoke;
 
@@ -266,9 +271,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 			
 			AddSprite( &effect->sprites[i], NULL );
 
-			effect->particles[i].vel.v[X] = (effect->speed * effect->normal.v[X]) + (-2 + Random(4));
-			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + (-2 + Random(4));
-			effect->particles[i].vel.v[Z] = (effect->speed * effect->normal.v[Z]) + (-2 + Random(4));
+			effect->particles[i].vel.v[X] = (effect->speed * effect->normal.v[X]) + ((-2*speed) + Random(4));
+			effect->particles[i].vel.v[Y] = (effect->speed * effect->normal.v[Y]) + ((-2*speed) + Random(4));
+			effect->particles[i].vel.v[Z] = (effect->speed * effect->normal.v[Z]) + ((-2*speed) + Random(4));
 		}
 
 		effect->lifetime = actFrameCount + life;
@@ -428,19 +433,33 @@ void UpdateFXSwarm( SPECFX *fx )
 			else fx->sprites[i].a = 0;
 
 		if( fx->sprites[i].pos.v[X] > fx->origin.v[X])
-			fx->particles[i].vel.v[X] -= gameSpeed;
+			fx->particles[i].vel.v[X] -= max(gameSpeed/3, 1);
 		else
-			fx->particles[i].vel.v[X] += gameSpeed;
+			fx->particles[i].vel.v[X] += max(gameSpeed/3, 1);
 
 		if( fx->sprites[i].pos.v[Y] > fx->origin.v[Y] )
-			fx->particles[i].vel.v[Y] -= gameSpeed;
+			fx->particles[i].vel.v[Y] -= max(gameSpeed/3, 1);
 		else
-			fx->particles[i].vel.v[Y] += gameSpeed;
+			fx->particles[i].vel.v[Y] += max(gameSpeed/3, 1);
 
 		if( fx->sprites[i].pos.v[Z] > fx->origin.v[Z])
-			fx->particles[i].vel.v[Z] -= gameSpeed;
+			fx->particles[i].vel.v[Z] -= max(gameSpeed/3, 1);
 		else
-			fx->particles[i].vel.v[Z] += gameSpeed;
+			fx->particles[i].vel.v[Z] += max(gameSpeed/3, 1);
+
+		if( fx->particles[i].vel.v[X] > gameSpeed*3 )
+			fx->particles[i].vel.v[X] = gameSpeed*3;
+		else if( fx->particles[i].vel.v[X] < -gameSpeed*3 )
+			fx->particles[i].vel.v[X] = -gameSpeed*3;
+		if( fx->particles[i].vel.v[Y] > gameSpeed*3 )
+			fx->particles[i].vel.v[Y] = gameSpeed*3;
+		else if( fx->particles[i].vel.v[Y] < -gameSpeed*3 )
+			fx->particles[i].vel.v[Y] = -gameSpeed*3;
+		if( fx->particles[i].vel.v[Z] > gameSpeed*3 )
+			fx->particles[i].vel.v[Z] = gameSpeed*3;
+		else if( fx->particles[i].vel.v[Z] < -gameSpeed*3 )
+			fx->particles[i].vel.v[Z] = -gameSpeed*3;
+
 
 		// Add velocity to local particle position
 		AddToVector( &fx->particles[i].pos, &fx->particles[i].vel );
@@ -553,6 +572,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrSmoke,UpdateCRC("ai_smoke.bmp"),YES);
 	FindTexture(&txtrRing,UpdateCRC("ai_ring.bmp"),YES);
 	FindTexture(&txtrFly,UpdateCRC("fly1.bmp"),YES);
+	FindTexture(&txtrBubble,UpdateCRC("watdrop.bmp"),YES);
 }
 
 
