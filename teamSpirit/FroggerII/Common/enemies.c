@@ -592,11 +592,9 @@ void UpdateEnemies()
 					SetVector(&direction,&fwd);
 					MakeUnit(&direction);
 
+					//&cur->path->nodes[cur->path->toNode].worldTile->centre, &cur->path->nodes[cur->path->fromNode].worldTile->centre );
 					SubVector( &frogDir, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
-					len = Magnitude(&frogDir);
-
-					//MakeUnit(&frogDir);
-					//len = (len * DotProduct(&direction,&frogDir));
+					len = Magnitude(&frogDir) * ((float)(actFrameCount - cur->path->startFrame) / (float)(cur->path->endFrame - cur->path->startFrame));
 
 					ScaleVector(&direction,len);
 					AddToVector(&frog[0]->actor->pos,&direction);
