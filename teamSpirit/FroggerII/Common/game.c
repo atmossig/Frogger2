@@ -83,7 +83,7 @@ void GameProcessController(long pl)
 	}
 
 	// check if frog is using extended hop ability
-	if(player[pl].isSuperHopping || player[pl].isLongHopping)
+	if(player[pl].isSuperHopping)
 		player[pl].canJump = 0;
 
 	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && (player[pl].canJump))
@@ -209,33 +209,6 @@ void GameProcessController(long pl)
 			}
 			// To enable endless double jumping
 			//player[pl].hasDoubleJumped = 0;
-		}
-
-		if((longHop) && !(player[pl].isLongHopping) && !(player[pl].inputPause))
-		{
-			// frog is wanting longhop
-			player[pl].isLongHopping = 1;
-			player[pl].hasJumped = 1;
-
-			player[pl].inputPause = INPUT_POLLPAUSE;
-			UpdateScore(frog[pl],hopAmt);
-
-			switch(player[pl].extendedHopDir)
-			{
-				case MOVE_UP:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPU;
-					break;
-				case MOVE_RIGHT:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPR;
-					break; 
-				case MOVE_DOWN:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPD;
-					break;
-				case MOVE_LEFT:
-					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPL;
-					break;
-			}
-
 		}
 		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{

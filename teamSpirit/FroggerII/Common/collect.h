@@ -85,7 +85,6 @@ enum
 // ----- [ GLOBAL VARIABLES ] --------------- //
 
 extern unsigned long autoHop;
-extern unsigned long longHop;
 extern unsigned long longTongue;
 extern unsigned long superFrog;
 extern unsigned long croakFloat;

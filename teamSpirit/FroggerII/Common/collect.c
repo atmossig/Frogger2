@@ -18,7 +18,6 @@
 SCREENSPAWN *spawnList = NULL;
 
 unsigned long autoHop			= 0;
-unsigned long longHop			= 0;
 unsigned long longTongue		= 0;
 unsigned long superFrog			= 0;
 unsigned long croakFloat		= 0;
@@ -319,8 +318,6 @@ void ProcessCollectables()
 	// update state of powerups
 	if(autoHop)
 		autoHop--;
-	if(longHop)
-		longHop--;
 	if(longTongue)
 		longTongue--;
 	else
@@ -447,10 +444,6 @@ void PickupCollectable(GARIB *garib, int pl)
 
 		case AUTOHOP_GARIB:
 			autoHop	= 150;
-			break;
-
-		case LONGHOP_GARIB:
-			longHop	= 150;
 			break;
 
 		case QUICKHOP_GARIB:
@@ -636,7 +629,6 @@ void InitGaribSprite(GARIB *garib)
 		case EXTRAHEALTH_GARIB:
 		case EXTRALIFE_GARIB:
 		case AUTOHOP_GARIB:
-		case LONGHOP_GARIB:
 		case LONGTONGUE_GARIB:
 		case WHOLEKEY_GARIB:
 		case HALFLKEY_GARIB:

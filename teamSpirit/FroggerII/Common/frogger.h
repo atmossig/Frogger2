@@ -95,7 +95,6 @@ typedef struct _PLAYER
 	unsigned char	hasJumped;
 	unsigned char	hasDoubleJumped;
 	unsigned char	isSuperHopping;
-	unsigned char	isLongHopping;
 	unsigned char	isSinking;
 	unsigned char	isQuickHopping;
 
