@@ -32,6 +32,7 @@ char raceTimeText[4][20] =
 	"0000 0000 0000",
 };
 
+char charNames[MULTI_NUM_CHARS][16] = {"frogger.bmp","lillie.bmp","babyfrog.bmp","swampy.bmp","twee.bmp","wart.bmp","gnarly.bmp","funky.bmp","robofrog.bmp"};
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateRace

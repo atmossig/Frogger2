@@ -115,7 +115,7 @@ char timeStringHSec[8]	= "00";
 char coinsText[32] = "00 of 32";
 char timeOutString[64] = "Out of time";
 char penalString[4][8] = {"00","00","00","00"};
-char charNames[4][16] = {"frogger.bmp","wart.bmp","lillie.bmp","twee.bmp"};
+
 char countdownString[64] = "00";
 
 TEXTOVERLAY   *polysText;
@@ -185,6 +185,7 @@ void InitMultiHUD()
 
 	for (i = 0; i<NUM_FROGS; i++)
 	{
+		// TODO: Index into full array of character names with selected multiplayer character, once done
 		multiHud.backChars[i] = CreateAndAddSpriteOverlay(xPos_multi[i]+64,yPos_multi[i]+5,charNames[i],16,16,0xff,0);
 		multiHud.backPenalise[i] = CreateAndAddSpriteOverlay(xPos_multi[i],yPos_multi[i],"wback2.bmp",80,45,170,0);
 		multiHud.penaliseText[i] = CreateAndAddTextOverlay(xPos_multi[i]+5,yPos_multi[i]+5,penalString[i],NO,255,currFont,0,0);

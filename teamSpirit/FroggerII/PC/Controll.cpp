@@ -615,14 +615,14 @@ void ProcessUserInput(HWND hWnd)
 	}
 	else
 	{
-		for (i = 0; i<NUM_FROGS * 14; i++)
+		for (i = 0; i<4/*NUM_FROGS*/ * 14; i++)
 				if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
 				{
 					controllerdata[keymap[i].player].button |= keymap[i].button;
 					pressed = 1;
 				}
 
-		for( i=0; i < NUM_FROGS; i++ )
+		for( i=0; i < 4/*NUM_FROGS*/; i++ )
 		{
 			
 			if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))

@@ -85,7 +85,7 @@ void RunPauseMenu()
 			long i;
 			gameState.mode	= INGAME_MODE;
 
-			if( gameState.multi==SINGLEPLAYER )
+			if( gameState.multi==SINGLEPLAYER && player[0].worldNum != WORLDID_FRONTEND )
 			{
 				EnableHUD();
 //				livesTextOver->a = livesTextOver->oa;
@@ -239,6 +239,10 @@ float fadeSpeed = 5;
 unsigned long numPlayers = 2;
 
 char options[MAX_OPTIONS][64] = {"Music Volume","SFX Volume","Controller Config","Play Music Track 0","Play SFX 0"};
+
+void RunMPSelect( );
+void InitMPSelect( );
+char charSelectMode = 0;
 
 void RunFrontendGameLoop (void)
 {
@@ -414,7 +418,7 @@ void RunFrontendGameLoop (void)
 	}
 
 	
-	if (currTileNum!=5 && currTileNum!=3 && currTileNum!=1 && currTileNum!=4)
+	if( (currTileNum!=5 && currTileNum!=3 && currTileNum!=1 && currTileNum!=4) || charSelectMode )
 	{
 		if( frameCount > 15 )
 			GameProcessController(0);                                      
@@ -545,84 +549,93 @@ void RunFrontendGameLoop (void)
 
 	if (currTileNum==3)
 	{
-		worldBak->xPosTo = 95;
-		worldBak->height = 80+20;
-		strcpy(arcadeStr,"Multiplayer Mode");
-		sprintf(worldStr,"%i player mode",numPlayers);
-		
-		frogFacing[0] = 3;
-		Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
-
-		for (i=0; i<6; i++)
+		// Select multiplayer characters
+		if( charSelectMode )
 		{
+			RunMPSelect( );
+			return;
+		}
+		else
+		{
+			worldBak->xPosTo = 95;
+			worldBak->height = 80+20;
+			strcpy(arcadeStr,"Multiplayer Mode");
+			sprintf(worldStr,"%i player mode",numPlayers);
+			
+			frogFacing[0] = 3;
+			Orientate( &frog[0]->actor->qRot, &currTile[0]->dirVector[frogFacing[0]], &currTile[0]->normal );
+
+			for (i=0; i<6; i++)
+			{
 				strcpy (levelStr[i],worldVisualData[i].levelVisualData[3].description);
 				levelText[i]->b = 0;
 				levelText[i]->g = 100;
 				levelText[i]->r = 200;
 				levelText[i]->waveAmplitude = 0;
+			}
+			levelText[cWorld]->waveAmplitude = 4;
+			strcpy (levelStr[0],worldVisualData[0].levelVisualData[1].description);
+
+			worldBak->xPos = worldBak->xPosTo;
+			
+					
+			bestText->r = levelText[cWorld]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
+			bestText->g = levelText[cWorld]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
+			bestText->b = levelText[cWorld]->b = 10;
+		
+			arcadeText->yPos = titleBak->yPos+5;
+			selectText->yPos = titleBak->yPos+23;
+			statusText->yPos = statusBak->yPos+5;
+			
+			worldBak->draw = 1;
+			titleBak->draw = 1;
+			statusBak->draw = 1;
+			statusText->draw = 1;
+			arcadeText->draw = 1;
+			selectText->draw = 1;
+			worldText->draw = 1;
+			
+			worldText->centred = 1;
+			
+			INC_ALPHA(titleBak,0xff);
+			INC_ALPHA(statusBak,0xff);
+			INC_ALPHA(selectText,0xff);
+			INC_ALPHA(arcadeText,0xff);
+			INC_ALPHA(statusText,0xff);
+			INC_ALPHA(worldBak,0xff);
+			INC_ALPHA(worldText,0xff);
+
+			DEC_ALPHA(pcText);
+			DEC_ALPHA(bestText);
+			DEC_ALPHA(parText);
+					
+			
+			DEC_ALPHA(infoBak);
+			DEC_ALPHA(levelPic);
+
+			for (i=0; i<MAX_LEVELSTRING; i++)
+				levelText[i]->xPos = worldText->xPos;
+			
+			for (i=0; i<MAX_LEVELSTRING; i++)
+			{
+				levelText[i]->draw = 1;
+				INC_ALPHA(levelText[i],0xff);
+				levelText[i]->centred = 1;
+			}
+			
+			if (arcadeText->draw == 0)
+			{
+				worldBak->xPos = -100;
+				infoBak->xPos = 350;
+				levelPic->xPos = 400;
+
+				worldBak->speed = 1;
+				infoBak->speed = 1;
+				levelPic->speed = 1;
+			}
+
+			LevelSelProcessController(0);
 		}
-		levelText[cWorld]->waveAmplitude = 4;
-		strcpy (levelStr[0],worldVisualData[0].levelVisualData[1].description);
-
-		worldBak->xPos = worldBak->xPosTo;
-		
-				
-		bestText->r = levelText[cWorld]->r = 128+(sinf(1+actFrameCount*0.09)+1)*64;
-		bestText->g = levelText[cWorld]->g = 128+(sinf(2+actFrameCount*0.07)+1)*64;
-		bestText->b = levelText[cWorld]->b = 10;
-	
-		arcadeText->yPos = titleBak->yPos+5;
-		selectText->yPos = titleBak->yPos+23;
-		statusText->yPos = statusBak->yPos+5;
-		
-		worldBak->draw = 1;
-		titleBak->draw = 1;
-		statusBak->draw = 1;
-		statusText->draw = 1;
-		arcadeText->draw = 1;
-		selectText->draw = 1;
-		worldText->draw = 1;
-		
-		worldText->centred = 1;
-		
-		INC_ALPHA(titleBak,0xff);
-		INC_ALPHA(statusBak,0xff);
-		INC_ALPHA(selectText,0xff);
-		INC_ALPHA(arcadeText,0xff);
-		INC_ALPHA(statusText,0xff);
-		INC_ALPHA(worldBak,0xff);
-		INC_ALPHA(worldText,0xff);
-
-		DEC_ALPHA(pcText);
-		DEC_ALPHA(bestText);
-		DEC_ALPHA(parText);
-				
-		
-		DEC_ALPHA(infoBak);
-		DEC_ALPHA(levelPic);
-
-		for (i=0; i<MAX_LEVELSTRING; i++)
-			levelText[i]->xPos = worldText->xPos;
-		
-		for (i=0; i<MAX_LEVELSTRING; i++)
-		{
-			levelText[i]->draw = 1;
-			INC_ALPHA(levelText[i],0xff);
-			levelText[i]->centred = 1;
-		}
-		
-		if (arcadeText->draw == 0)
-		{
-			worldBak->xPos = -100;
-			infoBak->xPos = 350;
-			levelPic->xPos = 400;
-
-			worldBak->speed = 1;
-			infoBak->speed = 1;
-			levelPic->speed = 1;
-		}
-
-		LevelSelProcessController(0);
 	}
 		
 	if (currTileNum==5)
@@ -787,23 +800,7 @@ void RunFrontendGameLoop (void)
 				frog[i]->draw = 1;
 				if (player[i].safe.time)
 				{
-					SPECFX *fx;
-					VECTOR pos;
-
 					GTUpdate( &player[i].safe, -1 );
-
-					SetVector( &pos, &currTile[i]->normal );
-					ScaleVector( &pos, 15 );
-					pos.v[X] += Random(2)?(Random(20)+5):(-Random(20)-5);
-					pos.v[Y] += Random(2)?(Random(20)+5):(-Random(20)-5);
-					pos.v[Z] += Random(2)?(Random(20)+5):(-Random(20)-5);
-					AddToVector( &pos, &frog[i]->actor->pos );
-
-					if( (fx = CreateAndAddSpecialEffect( FXTYPE_TWINKLE, &pos, &currTile[i]->normal, 20+Random(10), 0, 0, Random(3)+1 )) )
-					{
-						fx->tilt = 2;
-						SetFXColour( fx, 220, 220, 255 );
-					}
 				}
 
 				if( player[i].idleEnable )
@@ -829,8 +826,6 @@ void RunFrontendGameLoop (void)
 	ProcessCollectables();
 
 	UpDateOnScreenInfo();
-
-	// Send network update packet
 }
 
 
@@ -926,27 +921,10 @@ void LevelSelProcessController(long pl)
 					
 		if (currTileNum==3)
 		{
-			gameState.single = INVALID_MODE;
-			if(gameState.multi != MULTIREMOTE)
-				gameState.multi = MULTILOCAL;
-			NUM_FROGS = numPlayers;
-			player[0].worldNum = cWorld;
-	
-			switch( player[0].worldNum )
-			{
-			case WORLDID_ANCIENT: 
-				player[0].levelNum = 3;
-				multiplayerMode = MULTIMODE_RACE; 
-				break;
-			case WORLDID_GARDEN:
-				player[0].levelNum = 1;
-				multiplayerMode = MULTIMODE_RACE; 
-				break;
-			case WORLDID_LABORATORY: 
-				player[0].levelNum = 3;
-				multiplayerMode = MULTIMODE_BATTLE; 
-				break;
-			}
+			// Store in player 1 so the frontend still works :)
+			player[1].worldNum = cWorld;
+			InitMPSelect( );
+			return;
 		}
 
 		lastActFrameCount = actFrameCount;
@@ -986,8 +964,155 @@ void LevelSelProcessController(long pl)
 }
 
 
+SPRITEOVERLAY *charPortraits[MULTI_NUM_CHARS];
+SPRITEOVERLAY *charSelectIcons[MAX_FROGS];
 
+/* --------------------------------------------------------------------------------
+	Function	: RunMPSelect
+	Purpose		: Select characters for multiplayer
+	Parameters	: 
+	Returns		: 
+*/
+void RunMPSelect( )
+{
+	int i;
+	static char ready[4] = {0,0,0,0};
 
+	for( i=0; i<MULTI_NUM_CHARS; i++ )
+		INC_ALPHA( charPortraits[i], 0xff );
+	for( i=0; i<numPlayers; i++ )
+		INC_ALPHA( charSelectIcons[i], 0xf8 );
+
+	for( i=0; i<numPlayers; i++ )
+	{
+		if( !ready[i] )
+		{
+			if( (controllerdata[i].button & CONT_UP) && !(controllerdata[i].lastbutton & CONT_UP) && (charSelectIcons[i]->yPos > 80) )
+				charSelectIcons[i]->yPos -= 50;
+
+			if( (controllerdata[i].button & CONT_DOWN) && !(controllerdata[i].lastbutton & CONT_DOWN) && (charSelectIcons[i]->yPos < 130) )
+				charSelectIcons[i]->yPos += 50;
+
+			if( (controllerdata[i].button & CONT_LEFT) && !(controllerdata[i].lastbutton & CONT_LEFT) && (charSelectIcons[i]->xPos > 100) )
+				charSelectIcons[i]->xPos -= 50;
+
+			if( (controllerdata[i].button & CONT_RIGHT) && !(controllerdata[i].lastbutton & CONT_RIGHT) && (charSelectIcons[i]->xPos < 180) )
+				charSelectIcons[i]->xPos += 50;
+
+			if( (controllerdata[i].button & CONT_A) && !(controllerdata[i].lastbutton & CONT_A) )
+			{
+				// TODO: Set character number in player struct
+				ready[i] = 1;
+			}
+		}
+
+		if( (controllerdata[i].button & CONT_B) && !(controllerdata[i].lastbutton & CONT_B) )
+		{
+			// TODO: Deselect, player can select another character
+			ready[i] = 0;
+		}
+
+		if( (controllerdata[i].button & CONT_START) && !(controllerdata[i].lastbutton & CONT_START) )
+		{
+			charSelectMode = 0;
+			return;
+		}
+	}
+
+	for( i=0; i<numPlayers; i++ ) if( !ready[i] ) break;
+
+	if( i == numPlayers )
+	{
+		NUM_FROGS = numPlayers;
+		gameState.single = INVALID_MODE;
+		if(gameState.multi != MULTIREMOTE)
+			gameState.multi = MULTILOCAL;
+		player[0].worldNum = player[1].worldNum;
+		switch( player[0].worldNum )
+		{
+		case WORLDID_ANCIENT: 
+			player[0].levelNum = 3;
+			multiplayerMode = MULTIMODE_RACE; 
+			break;
+		case WORLDID_GARDEN:
+			player[0].levelNum = 1;
+			multiplayerMode = MULTIMODE_RACE; 
+			break;
+		case WORLDID_LABORATORY: 
+			player[0].levelNum = 3;
+			multiplayerMode = MULTIMODE_BATTLE; 
+			break;
+		}
+		lastActFrameCount = actFrameCount;
+		gameState.mode = LEVELCOMPLETE_MODE;
+		GTInit( &modeTimer, 1 );
+		showEndLevelScreen = 0;
+		return;
+	}
+
+	UpdateCameraPosition();
+	
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		if( frog[i] )
+		{
+//			UpdateFroggerPos(i);
+
+			if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
+			{
+				frog[i]->draw = 1;
+				if (player[i].safe.time)
+				{
+					GTUpdate( &player[i].safe, -1 );
+				}
+
+				if( player[i].idleEnable )
+				{
+					player[i].idleTime-=gameSpeed;
+					if(player[i].idleTime<1)
+					{
+						FroggerIdleAnim(i);
+						player[i].idleTime = MAX_IDLE_TIME + Random(MAX_IDLE_TIME);
+					}
+				}
+			}
+		}
+	}  
+
+	UpdatePlatforms();
+	UpdateEnemies();
+	UpdateSpecialEffects();
+	UpdateEvents();
+	UpdateAmbientSounds();
+
+	ProcessCharacters( );
+	ProcessCollectables();
+
+	UpDateOnScreenInfo();
+
+}
+
+void InitMPSelect( )
+{
+	int i;
+
+	charSelectMode = 1;
+
+	for( i=0; i<MULTI_NUM_CHARS; i++ )
+	{
+		charPortraits[i] = CreateAndAddSpriteOverlay(	90 + ((i%3)*50), 50 + ((i/3)*50),
+														charNames[i], 32, 32, 0, 0 );
+	}
+
+	for( i=0; i<numPlayers; i++ )
+	{
+		charSelectIcons[i] = CreateAndAddSpriteOverlay(	85 + ((i%3)*50), 45 + ((i/3)*50),
+														"wback2.bmp", 42, 42, 0, 0 );
+		charSelectIcons[i]->r = mpl[i].r;
+		charSelectIcons[i]->g = mpl[i].g;
+		charSelectIcons[i]->b = mpl[i].b;
+	}
+}
 
 
 

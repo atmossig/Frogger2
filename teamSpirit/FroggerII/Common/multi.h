@@ -9,6 +9,7 @@
 #define MULTI_BATTLE_MAXITEMS		15
 #define MULTI_BATTLE_TRAILLENGTH	8
 
+#define MULTI_NUM_CHARS				9
 
 #define MULTI_RACE_TIMEPENALTY		180
 
@@ -37,6 +38,7 @@ typedef struct
 
 } MPINFO;
 
+extern char charNames[MULTI_NUM_CHARS][16];
 extern TIMER multiTimer,endTimer;
 extern char matchWinner;
 extern MPINFO mpl[];
