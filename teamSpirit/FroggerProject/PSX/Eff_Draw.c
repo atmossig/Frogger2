@@ -302,6 +302,9 @@ void DrawFXRing(SPECFX *fx)
 	if( !(tEntry = fx->tex) )
 		return;
 
+	vTPrev[0].vz = 0;
+	vTPrev[1].vz = 0;
+
 	SetVectorFF(&scale, &fx->scale);
 
 	scale.vx /= 150;
@@ -485,7 +488,10 @@ void DrawFXTrail( SPECFX *trail )
 //	colour = trail->r>>1;
 //	colour += (trail->g>>1)<<8;
 //	colour += (trail->b>>1)<<16; 
- 
+
+	vTPrev[0].vz = 0;
+	vTPrev[1].vz = 0;
+	
  	do
  	{
  		/*********-[ First 2 points ]-********/
@@ -591,6 +597,9 @@ void DrawFXLightning( SPECFX *fx )
 
 	if(gameState.mode == LEVELCOMPLETE_MODE)
 		return;
+
+	vTPrev[0].vz = 0;
+	vTPrev[1].vz = 0;
 
 	p = fx->particles;
 	while( i < fx->numP-1 )
