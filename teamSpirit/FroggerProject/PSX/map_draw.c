@@ -169,7 +169,7 @@ asm(\
 
 // Must be under 1024 to work with the library's OT
 // Use lower values still to define the far cut-off distance.
-#define MAX_MAP_DEPTH (30000)
+#define MAX_MAP_DEPTH (8000)
 
 
 // ===================================================

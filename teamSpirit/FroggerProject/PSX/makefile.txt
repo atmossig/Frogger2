@@ -53,6 +53,7 @@ LIBISL = c:\psx\isl\lib\release
 !if $(MASTER) == 0
 #OPT = -DPSX_VERSION -DDEBUG -DPALMODE=0 -DGOLDCD=0 -c -O0 -mgpopt -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
+#OPT = -DPSX_VERSION -DPALMODE=0 -O0 -mgpopt -c -G0 -g -X0$00018000 -comments-c++ -Wall -Wno-unused
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 OPT = -DPSX_VERSION -DE3_DEMO -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -X0$00018000 -comments-c++
 #OPT = -DPSX_VERSION -DPALMODE=0 -DGOLDCD=0 -c -O2 -mgpopt -G0 -g -X0$00018000 -comments-c++

@@ -932,6 +932,242 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 #undef op
 #undef si
 
+#define si ((POLY_GT3*)packet)
+#define op ((FMA_GT3 *)opcd)
+
+	op = mesh->gt3s;
+
+	//packet = (PACKET *)currentDisplayPage->primPtr;
+
+
+	polyCount += mesh->n_gt3s;
+
+	for ( i = mesh->n_gt3s; i != 0; i--, op++ )
+	{
+
+
+		/*gte_ldsz3 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ) );
+   	gte_avsz3();
+		gte_stotz_cpu ( depth );*/
+
+	/*	if ( depth > min_depth && depth < max_depth )
+		{
+			if( ( ( GETV ( op->vert0 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert1 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert2 ) & 0xff80ff00 ) + 0x00800100 ) &
+					( ( GETV ( op->vert3 ) & 0xff80ff00 ) + 0x00800100 ) & 0x01000200 )
+			{
+				continue;
+			}*/
+			// ENDIF
+
+
+			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
+
+			if ( mesh->flags & SHIFT_FORWARD )
+				addPrimLen ( ot + ( depth - mesh->shift ), si, 9, t2 )
+			else if ( mesh->flags & SHIFT_BACKWARD )
+				addPrimLen ( ot + ( depth + mesh->shift ), si, 9, t2 )
+			else
+				addPrimLen ( ot + ( depth ), si, 9, t2 );
+			// ENDELSEIF
+
+			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
+			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
+
+			if ( mesh->flags & FLOW )
+			{
+#ifdef DEBUG_INFO
+				utilPrintf ( "Flowing.................................\n" );
+#endif
+				if ( mesh->flags & USLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "U Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->u0 += ( ( frame/2 ) % 32 );
+						si->u1 += ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->u0 -= ( ( frame/2 ) % 32 );
+						si->u1 -= ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "V Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->v0 += ( ( frame/2 ) % 32 );
+						si->v1 += ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->v0 -= ( ( frame/2 ) % 32 );
+						si->v1 -= ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+
+				}
+				// ENDIF
+
+			}
+			// ENDIF
+			
+			if ( mesh->flags & MODGY )
+			{
+				u = si->u0;
+				v = si->v0;
+			
+				si->u0 = ( u + ( ( rsin ( frame << 6 ) + 4096 ) >> 10 ) );
+				si->v0 = ( ( v + ( ( rcos ( frame << 6 ) + 4096 ) >> 10 ) ) );
+
+
+				u = si->u1;
+				v = si->v1;
+
+				si->u1 = (u+((rsin(frame<<6)+4096)>>10));
+				si->v1 = ((v+((rcos(frame<<6)+4096)>>10)));
+			}
+			// ENDIF*/
+			
+			gte_stsxy3_gt3(si);
+								
+			*(u_long *)  (&si->u2) = *(u_long *) (&op->u2);
+//			*(u_long *)  (&si->u3) = *(u_long *) (&op->u3);
+
+			if ( mesh->flags & FLOW )
+			{
+#ifdef DEBUG_INFO
+				utilPrintf ( "Flowing.................................\n" );
+#endif
+				if ( mesh->flags & USLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "U Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->u2 += ( ( frame/2 ) % 32 );
+						//si->u3 += ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->u2 -= ( ( frame/2 ) % 32 );
+						//si->u3 -= ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+				}
+				// ENDIF
+
+				if ( mesh->flags & VSLIDDING )
+				{
+#ifdef DEBUG_INFO
+				utilPrintf ( "V Slidding.................................\n" );
+#endif
+					if ( mesh->flags & PLUSSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "+ Slidding.................................\n" );
+#endif
+						si->v2 += ( ( frame/2 ) % 32 );
+						//si->v3 += ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+
+					if ( mesh->flags & MINSLIDDING )
+					{
+#ifdef DEBUG_INFO
+				utilPrintf ( "- Slidding.................................\n" );
+#endif
+						si->v2 -= ( ( frame/2 ) % 32 );
+						//si->v3 -= ( ( frame/2 ) % 32 );
+					}
+					// ENDIF
+				}
+				// ENDIF
+			}
+			// ENDIF
+
+			if ( mesh->flags & MODGY )
+			{
+				u = si->u2;
+				v = si->v2;
+
+				si->u2 = (u+((rcos(frame<<6)+4096)>>11));
+				si->v2 = ((v+((rsin(frame<<6)+4096)>>11)));
+
+				//u = si->u3;
+				//v = si->v3;
+
+				//si->u3 = (u+((rcos(frame<<6)+4096)>>11));
+				//si->v3 = ((v+((rsin(frame<<6)+4096)>>11)));
+			}
+			// ENDIF
+
+			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+			*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+			*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+			//*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+
+			//*(u_long *)  (&si->x3) = *(u_long *) ( &GETV ( op->vert3 ) );
+
+			if ( mesh->flags & TRANS )
+				si->code  |= 2;
+			// ENDIF
+
+
+			if ( mesh->flags & ADDATIVE )
+			{
+ 				si->tpage |= 32;
+			}
+			// ENDIF
+
+			if ( mesh->flags & SUBTRACTIVE )
+			{
+ 				si->tpage = si->tpage | 64;
+			}
+			// ENDIF
+
+			packet = ADD2POINTER ( packet, sizeof ( POLY_GT3 ) );
+
+	//	}
+	}
+#undef op
+#undef si
+
 	currentDisplayPage->primPtr = (char *)packet;
 
 //	if ( jiggledVerts )
