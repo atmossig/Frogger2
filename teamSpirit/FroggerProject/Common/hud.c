@@ -1094,7 +1094,14 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	continueText	= CreateAndAddTextOverlay ( 2048, 1540, GAMESTRING(STR_CONTINUE), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 	//controllerText	= CreateAndAddTextOverlay ( 0, 1540, "Controls", YES, 255, 0, 0,0 );
 	restartText		= CreateAndAddTextOverlay ( 2048, 1860, GAMESTRING(STR_RESTARTLEVEL), YES, 255, 0,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+#ifdef PC_VERSION
+	if(gameState.mode == FRONTEND_MODE)
+		quitText		= CreateAndAddTextOverlay ( 2048, 2180, GAMESTRING(STR_QUIT_TO_WINDOWS), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+	else
+		quitText		= CreateAndAddTextOverlay ( 2048, 2180, GAMESTRING(STR_QUIT), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+#else
 	quitText		= CreateAndAddTextOverlay ( 2048, 2180, GAMESTRING(STR_QUIT), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+#endif
 
 	posText			= CreateAndAddTextOverlay ( 2048, 640, posString, YES, 255, fontSmall, 0);
 	levelnameText	= CreateAndAddTextOverlay ( 2048, 800, levelString, YES, 255, fontSmall, 0);
