@@ -534,6 +534,8 @@ long WrapStringToArray(const char* str, long maxWidth, char* buffer, long buffer
 		if(c == '@')
 		{
 			p++;
+			lineChars++;
+			wordChars++;
 			c = (unsigned char)*p;
 			switch(c)
 			{
