@@ -1319,6 +1319,7 @@ void CheckForFroggerLanding(long pl)
 
 					player[pl].frogState |= FROGSTATUS_ISDEAD;
 					GTInit( &player[pl].dead, 3 );
+					frog[pl]->actor->shadow->draw = 0;
 				}
 
 				PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);
@@ -1389,6 +1390,7 @@ void CheckForFroggerLanding(long pl)
 
 						player[pl].frogState |= FROGSTATUS_ISDEAD;
 						GTInit( &player[pl].dead, 3 );
+						frog[pl]->actor->shadow->draw = 0;
 					}
 
 					PlaySample(genSfx[GEN_DEATHFALL],NULL,0,SAMPLE_VOLUME,-1);
@@ -1577,6 +1579,7 @@ void CheckTileState(GAMETILE *tile, int pl)
 				fixedPos = 1;
 				fixedDir = 1;
 				SetVectorFF(&camSource, &currCamSource);
+				frog[pl]->actor->shadow->draw = 0;
 			}
 			else
 				KillMPFrog(pl);
