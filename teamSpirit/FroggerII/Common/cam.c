@@ -690,6 +690,7 @@ void InitCamera(void)
 	CheckCameraBoxes();
 	
 	lastTile = 0;
+	cam_shakiness = 0;
 
 	CheckForDynamicCameraChange(currTile[0]);
 	SubVector(&currCamOffset, &camTarget, &camSource);
