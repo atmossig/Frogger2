@@ -610,7 +610,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 //		RemoveFrogTongue(pl);
 
 	// see if frog is currently on a moving platform (i.e. platform that follows a path)
-	if(currPlatform[pl] = GetPlatformFrogIsOn(pl))
+	if(currPlatform[pl])
 	{
 		// frog is on a platform - get current tile
 		currTile[pl] = currPlatform[pl]->inTile[0];
@@ -723,6 +723,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 		for (n = platformList.numEntries, plat = platformList.head.next; n; n--, plat = plat->next)
 		{
+			if (!plat->active) continue;
+
 			if ((40*40) > DistanceBetweenPointsSquared(&v, &plat->pltActor->actor->pos))
 			{
 				

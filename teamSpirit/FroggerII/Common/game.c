@@ -110,7 +110,7 @@ void GameProcessController(long pl)
 		}
 	}
 
-	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && (player[pl].canJump))
+	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && player[pl].canJump)
 	{
 		if(!player[pl].inputPause)
 		{
@@ -131,7 +131,7 @@ void GameProcessController(long pl)
 		}
 	}	    
 
-	else if((button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT) && (player[pl].canJump))
+	else if((button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT) && player[pl].canJump)
 	{
 		if(!player[pl].inputPause)
 		{
@@ -152,7 +152,7 @@ void GameProcessController(long pl)
 		}
 	}
     
-	else if((button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN) && (player[pl].canJump))
+	else if((button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN) && player[pl].canJump)
 	{
 		if(!player[pl].inputPause)
 		{
@@ -232,7 +232,7 @@ void GameProcessController(long pl)
 			// To enable endless double jumping
 			//player[pl].hasDoubleJumped = 0;
 		}
-		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
+		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause) && player[pl].canJump)
 		{
 			// frog is wanting superhop
 			player[pl].isSuperHopping = 1;
