@@ -512,11 +512,8 @@ int main ( )
 
 		CommonInit();
 
-#ifdef PSX_VERSION
-		InitSound();//mmsfx
-		LoadSfx(WORLDID_GENERIC);//mmsfx
-#endif
-
+//		InitSound();//mmsfx
+//		LoadSfx(WORLDID_GENERIC);//mmsfx
 
 		while ( !quitMainLoop )
 		{
