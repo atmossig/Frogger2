@@ -124,7 +124,7 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 		int i;
 		for(i=0; i<MAX_FROGS; i++) if( frog[i] == (ACTOR2 *)tongue[pl].thing ) break;
 
-		if( i!=MAX_FROGS && ((frog[i]->action.frogunder != -1) || (frog[i]->action.frogon != -1) || (tongue[i].flags & TONGUE_BEINGUSED)) ) no=1;
+		if( i!=MAX_FROGS && ((frog[i]->action.frogunder != (char)-1) || (frog[i]->action.frogon != (char)-1) || (tongue[i].flags & TONGUE_BEINGUSED)) ) no=1;
 	}
 
 	// Calculate angle through which the tongue needs to rotate
