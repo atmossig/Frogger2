@@ -123,7 +123,7 @@ void RunDemoOption ( void )
 	{
 		if( (button & CONT_START) && !(lastbutton & CONT_START) )
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
@@ -238,7 +238,7 @@ void RunSelectAllLevels ( void )
 
 		ResetParameters();
 
-		runningDevStuff = 1;
+//		runningDevStuff = 1;
 
 		StartDrawing ( "demo option" );
 	}
@@ -352,7 +352,7 @@ void RunSelectAllLevels ( void )
 		// Move back in menus?
 		if ((button & CONT_B) && !(lastbutton & CONT_B))
 		{
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			FreeAllLists();
 			frameCount = 0;
 			lastbutton = 0;
@@ -368,7 +368,7 @@ void RunSelectAllLevels ( void )
 		{
 			StopDrawing( "demo option" );
 
-			runningDevStuff = 0;
+//			runningDevStuff = 0;
 			FreeAllLists();
 
 			worldNum = currentWorldSelect;
