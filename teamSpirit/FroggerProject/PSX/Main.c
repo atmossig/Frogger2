@@ -391,7 +391,6 @@ int main ( )
 
 			TIMER_START(TIMER_TOTAL);
 
-
 			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
@@ -526,7 +525,7 @@ int main ( )
 			DrawSync(0);
 			TIMER_STOP(TIMER_DRAWSYNC);
 
-			VSync(2);
+			VSync(0);
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
