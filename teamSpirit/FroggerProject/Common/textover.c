@@ -340,7 +340,7 @@ void FreeTextOverlayLinkedList()
 */
 void SubTextOverlay(TEXTOVERLAY *tOver)
 {
-	if(tOver->used)
+	if((tOver) && (tOver->used))
 	{
 		tOver->used = 0;
 		tOver->draw = 0;

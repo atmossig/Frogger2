@@ -852,21 +852,28 @@ void MenuBack(void)
 	if(options.mode == OP_GLOBALMENU)
 	{
 		player[0].extendedHopDir = MOVE_LEFT;
+		prevCamFacing[0] = camFacing[0];
 //		player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
 		frogFacing[0] = (camFacing[0] + MOVE_LEFT) & 3;
 		switch(camFacing[0])
 		{
 			case 0:
 				player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
+				utilPrintf("L\n\n");
 				break;
 			case 1:
 				player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
+				utilPrintf("U\n\n");
+
 				break;
 			case 2:
 				player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
+				utilPrintf("R\n\n");
 				break;
 			case 3:
 				player[0].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
+				utilPrintf("D\n\n");
+
 				break;
 		}
 	}
@@ -912,6 +919,7 @@ void MenuSelect(void)
 {
 	int i;
 
+	
 	options.mode = options.selection;
 	if(options.mode == OP_EXTRA)
 	{
@@ -1588,34 +1596,61 @@ void OptionsProcessController(void)
 	if((options.mode == OP_ARCADE) && ((!CheckCamStill()) || (options.arcadeText->a < 200)))
 		return;
 
+	if((options.mode == OP_GLOBALMENU) && (!CheckCamStill()))
+		return;
+	
 	if((properMultiSelect) && (options.mode == OP_CHARSEL))
 		button = padData.digital[options.currentPlayer];
 	else
 		button = padData.digital[0];
 	
 
-	// Call correct controller funcs.
+		
+// Call correct controller funcs.
 	if((button & PAD_UP) && !(optionsLastButton & PAD_UP) && options.controls[C_UP])
+	{
 		options.controls[C_UP]();
+		optionsLastButton = button;
+		return;
+	}
 
 	if((button & PAD_RIGHT) && ((!(optionsLastButton & PAD_RIGHT)) || (options.mode == OP_SOUND && options.soundSelection != -1)) && options.controls[C_RIGHT])
+	{
 		options.controls[C_RIGHT]();
+		optionsLastButton = button;
+		return;
+	}
 
 	if((button & PAD_DOWN) && !(optionsLastButton & PAD_DOWN) && options.controls[C_DOWN])
+	{
 		options.controls[C_DOWN]();
+		optionsLastButton = button;
+		return;
+	}
 
 	if((button & PAD_LEFT) && ((!(optionsLastButton & PAD_LEFT)) || (options.mode == OP_SOUND && options.soundSelection != -1)) && options.controls[C_LEFT])
+	{
 		options.controls[C_LEFT]();
+		optionsLastButton = button;
+		return;
+	}
 
 	// Currently unimplemented
 	if((button & PAD_CROSS) && !(optionsLastButton & PAD_CROSS) && options.controls[C_SELECT])
+	{
 		options.controls[C_SELECT]();
+		optionsLastButton = button;
+		return;
+	}
 
-    if((button & PAD_TRIANGLE) && !(optionsLastButton & PAD_TRIANGLE) && options.controls[C_BACK])
+  if((button & PAD_TRIANGLE) && !(optionsLastButton & PAD_TRIANGLE) && options.controls[C_BACK])
+	{
 		options.controls[C_BACK]();
+		optionsLastButton = button;
+		return;
+	}
+		optionsLastButton = button;
 
-	// Store button to debounce
-	optionsLastButton = button;
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -2564,12 +2599,14 @@ long pageToStoryLevel[BOOK_NUM_PAGES] =
 };
 
 
+extern short numLives[3];
 void BookSelect(void)
 {
 	ScreenFade(255,0,30);
 	keepFade = 1;
 	gameSelected = 1;
 	PlaySample(genSfx[GEN_SUPER_HOP], NULL, 0, SAMPLE_VOLUME, -1 );
+	player[0].lives = numLives[gameState.difficulty];
 }
 
 void BookStart()

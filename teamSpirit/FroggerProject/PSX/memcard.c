@@ -559,7 +559,9 @@ static void saveMenuLoad()
 	if (optFrame++>4)
 	{
 		if (gameSaveHandleLoad(NO) != CARDREAD_OK)
+		{
 			saveInfo.saveStage = SAVEMENU_LOADERROR;
+		}
 		else
 		{
 			saveInfo.saveStage = SAVEMENU_LOADCOMPLETE;
@@ -580,6 +582,7 @@ static void saveMenuCheck()
 		switch(gameSaveHandleLoad(YES))
 		{
 		case CARDREAD_OK:						// Loaded fine
+		case CARDREAD_CORRUPT:
 			optSaveAlready = 1;
 			if(saveInfo.load)
 			{
@@ -616,6 +619,13 @@ static void saveMenuCheck()
 			saveInfo.saveStage = SAVEMENU_FORMATYN;
 			StartChooseOption();
 			break;
+//		case CARDREAD_CORRUPT:
+			//if(saveInfo.load)
+			//{
+//				saveInfo.saveStage = SAVEMENU_LOAD;
+				//StartChooseOption();
+			//}
+			//break;
 		}
 	}
 }
@@ -713,13 +723,13 @@ static void saveMenuOverwrite()
 
 static void saveMenuFormatYN()
 {
-	switch(ChooseOption(GAMESTRING(STR_MCARD_UNFORMAT), GAMESTRING(STR_MCARD_FORMATCARD), GAMESTRING(STR_MCARD_DONTFORMAT)))
+	switch(ChooseOption(GAMESTRING(STR_MCARD_UNFORMAT), GAMESTRING(STR_MCARD_DONTFORMAT), GAMESTRING(STR_MCARD_FORMATCARD)))
 	{
-	case 3:
+	case 2:
 		saveInfo.saveStage = SAVEMENU_FORMAT;
 		StartChooseOption();
 		break;
-	case 2:
+	case 3:
 		saveInfo.saveStage = SAVEMENU_NEEDFORMAT;
 		StartChooseOption();
 		break;
@@ -851,7 +861,7 @@ void ChooseLoadSave()
 	else
 		sprintf(slotNumStr,"1");
 
-	if(saveInfo.load == 0)
+	if((saveInfo.load == 0) && (saveInfo.saveStage != SAVEMENU_COMPLETE))
 	{
 		switch(gameSaveGetCardStatus())
 		{

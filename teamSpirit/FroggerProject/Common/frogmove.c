@@ -909,10 +909,17 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 	fixed distance, t, t2, at2;
 	VECTOR vecUp;
 		
-	direction = *pdir;
+	if((gameState.mode == FRONTEND_MODE) && (currTileNum == TILENUM_OPTIONS))
+	{
+		dest = currTile[pl]->tilePtrs[1];
+	}
+	else
+	{
+		direction = *pdir;
 
-	i = (direction + camFacing[pl] + 2) & 3;
-	dest = currTile[pl]->tilePtrs[i];
+		i = (direction + camFacing[pl] + 2) & 3;
+		dest = currTile[pl]->tilePtrs[i];
+	}
 
 	*pdir = i;
 
@@ -1258,17 +1265,28 @@ void CheckForFroggerLanding(long pl)
 			int f = player[pl].frogon;
 
 	//bb??		GTInit( &player[f].stun, 1.5 );
-			GTInit( &player[f].stun, 1 );
-			player[f].canJump = 1;
-			player[f].frogunder = -1;
+			if(player[f].frogunder == pl)
+			{
+				player[f].frogunder = -1;
+				GTInit( &player[f].stun, 1 );
+				player[f].canJump = 1;
+			}
+
+			
+				
+				
 			player[pl].frogon = -1;
+//			player[pl].frogunder = -1;
 
 			player[pl].idleEnable = 1;
 
-			if( player[f].frogon == -1 )
+			if(player[f].frogon == -1)
 			{
-				player[f].idleEnable = 1;
-				actorAnimate( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0);
+				if(player[f].frogunder == -1)
+				{
+					player[f].idleEnable = 1;
+					actorAnimate( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, FROG_BREATHE_SPEED, 0);
+				}
 			}
 			else
 			{
@@ -1286,7 +1304,7 @@ void CheckForFroggerLanding(long pl)
 	}
 
 	// Finish anims when floating
-	if (player[pl].frogState & FROGSTATUS_ISFLOATING)
+	if((player[pl].frogState & FROGSTATUS_ISFLOATING) || ((gameState.multi != SINGLEPLAYER) && (frog[pl]->actor->animation.currentAnimation == FROG_ANIM_FALL)))
 	{
 		if((frogPool[player[pl].character].anim) && (gameState.multi == SINGLEPLAYER))
 		{
@@ -1484,13 +1502,13 @@ void CheckForFrogOn(int pl,GAMETILE *tile)
 {
 	int i;
 
-	if((player[pl].frogunder == -1) && (gameState.multi != SINGLEPLAYER) && (multiplayerMode != MULTIMODE_BATTLE))
+	if(((player[pl].frogunder == -1)/* || (player[player[pl].frogunder].canJump == 0)*/) && (gameState.multi != SINGLEPLAYER) && (multiplayerMode != MULTIMODE_BATTLE))
 	{
 		// If we've landed on another frog, sit on his head
 		for( i=(pl+1)%NUM_FROGS; i!=pl; i=(i+1)%NUM_FROGS )
 			if( (tile && currTile[i] == tile) || (currPlatform[i] && currPlatform[i] == currPlatform[pl]) )
 			{
-				if((player[pl].frogState & FROGSTATUS_ISDEAD) || (DistanceBetweenPointsSS( &frog[pl]->actor->position, &frog[i]->actor->position ) > ToFixed(20*SCALE)))
+				if(((destTile[i] != tile) && (destTile[i]) && (tile)) || (player[pl].frogState & FROGSTATUS_ISDEAD) || (DistanceBetweenPointsSS( &frog[pl]->actor->position, &frog[i]->actor->position ) > ToFixed(20*SCALE)))
 					continue;
 
 				// Face all lower frogs to our direction
@@ -1498,15 +1516,19 @@ void CheckForFrogOn(int pl,GAMETILE *tile)
 				SetQuaternion( &frog[i]->actor->qRot, &frog[pl]->actor->qRot );
 				OrientateSS( &frog[i]->actor->qRot, &currTile[i]->dirVector[frogFacing[i]], &currTile[i]->normal );
 
-				if( player[i].frogunder != -1 ) continue;
+				if((player[i].frogunder != -1) && ((player[player[i].frogunder].canJump) || (player[player[i].frogunder].frogunder != -1)))
+//				if((player[i].frogunder != -1) && (player[player[i].frogunder].jumpTime < 0))
+					continue;
 
 				PlaySample(genSfx[GEN_DEATHCRUSH], NULL, 0, SAMPLE_VOLUME, -1 );
 
+				utilPrintf("PLAYER %d PINNING PLAYER %d : CAN JUMP: %d\n",pl,i,player[i].canJump);
 				player[i].canJump = 0;
 
 				player[pl].frogon = i;
 				player[i].frogunder = pl;
 
+				player[i].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 				player[pl].idleEnable = 0;
 				player[i].idleEnable = 0;
 

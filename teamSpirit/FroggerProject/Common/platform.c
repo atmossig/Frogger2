@@ -112,8 +112,9 @@ extern fixed waitScale;
 void UpdatePlatforms()
 {
 	PLATFORM *cur,*next;
-	int pl,j;
+	int j;
 
+	
 	if(platformList.count == 0)
 		return;
 
@@ -223,6 +224,28 @@ void UpdatePlatforms()
 					if (cur->flags & PLATFORM_NEW_CARRYINGFROG)
 					{
 						// What frog are we carrying?
+
+
+						for(i = 0;i < NUM_FROGS;i++)
+						{
+							if(currPlatform[i] == cur)
+							{
+								long t = FsqrtF(path->nodes[0].offset>>2)>>12;
+
+								currTile[i] = destTile[i] = cur->inTile[0];
+								currPlatform[i] = NULL;
+								player[i].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+								cur->flags &= ~PLATFORM_NEW_CARRYINGFROG;
+								cur->carrying = NULL;
+
+								//utilPrintf("And Maybe Here : %d\n", pl); - wtf? - ds
+
+								if (!(player[i].frogState & FROGSTATUS_ISDEAD))
+									CalculateFrogJumpS(&frog[i]->actor->position, &destTile[i]->centre, &destTile[i]->normal, 0,
+										t+1, i);
+							}
+						}
+/*						
 						for (i = 0, pl = -1; i<NUM_FROGS; i++)
 							if (frog[i] == cur->carrying)
 							{
@@ -245,6 +268,7 @@ void UpdatePlatforms()
 								CalculateFrogJumpS(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
 									t+1, pl);
 						}
+*/
 					}
 
 					//cur->pltActor->actor->xluOverride = 0;

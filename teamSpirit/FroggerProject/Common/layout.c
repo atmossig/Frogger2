@@ -1308,7 +1308,6 @@ void CommonInit(void)
 
 	GTInit( &modeTimer, 1 );
 
-	gameState.difficulty = DIFFICULTY_NORMAL;
 #ifdef PC_VERSION
 	gameState.mode = STARTUP_MODE;
 	ScreenFade(0,255,30);

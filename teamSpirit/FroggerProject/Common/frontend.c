@@ -220,8 +220,8 @@ void GameLoop(void)
 #ifdef PSX_VERSION
 		if(padData.present[0] == 0)
 		{
-			StartPauseMenu();
 			pauseController = 0;
+			StartPauseMenu();
 		}
 #endif
 		break;
@@ -341,7 +341,7 @@ char *trophyName[3] =
 };
 
 
-extern int storeLives;
+
 void LevelCompleteProcessController(long pl)
 {
 	unsigned long changedLevel = 0;
@@ -373,8 +373,10 @@ void LevelCompleteProcessController(long pl)
 
 		levCompleteState = LEV_COMPLETE_FADING_OUT;
 
-		if((grade == 0) || (moreCoins) || (levelOpened) || (levelBeaten) || ((gameState.single == STORY_MODE) && (player[0].lives != storeLives)))
+		if((grade == 0) || (moreCoins) || (levelOpened) || (levelBeaten))
+		{
 			SaveGame();
+		}
 
 		if (cOption == 1)
 			goFrontend = 1;
@@ -984,8 +986,8 @@ void DoEndMulti()
 
 	if(menuText[0] == NULL)
 	{
-		menuText[0] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_RESTARTLEVEL),YES,0,font,TEXTOVERLAY_SHADOW);
-		menuText[1] = CreateAndAddTextOverlay(2048,2700,GAMESTRING(STR_QUIT),YES,0,font,TEXTOVERLAY_SHADOW);
+//		menuText[0] = CreateAndAddTextOverlay(2048,2400,GAMESTRING(STR_RESTARTLEVEL),YES,0,font,TEXTOVERLAY_SHADOW);
+//		menuText[1] = CreateAndAddTextOverlay(2048,2700,GAMESTRING(STR_QUIT),YES,0,font,TEXTOVERLAY_SHADOW);
 	}
 
 	if(menuOption == -1)
@@ -1069,7 +1071,7 @@ void DoEndMulti()
 					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 
 					frameCount = 0;
-					menuText[0] = NULL;
+//					menuText[0] = NULL;
 				}
 			}
 			menuOption = -1;

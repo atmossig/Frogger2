@@ -902,6 +902,7 @@ void CollectRespawn( int pl )
 	destTile[pl] = gTStart[pl];
 
 	CreateRespawnEffect( gTStart[pl], pl );
+	CheckForFrogOn(pl,currTile[pl]);
 }
 
 
@@ -934,8 +935,8 @@ void BattleProcessController( int pl )
 
 	if((button[pl] & PAD_START) && ((player[pl].frogState & FROGSTATUS_ISDEAD) == 0))
 	{
-		StartPauseMenu();
 		pauseController = pl;
+		StartPauseMenu();
 	}
 }
 

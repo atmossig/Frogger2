@@ -25,7 +25,7 @@ extern char saveicon[];  // Included TIM data created from a 16-col BMP by TIMUT
 #endif
 
 
-extern int storeLives;
+
 /*	--------------------------------------------------------------------------------
 	Function		: SaveGameInfo
 	Parameters		: 
@@ -78,10 +78,8 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 
 	strcpy( header->playername, player[0].name );
 	// TODO: language, controller setup & audio settings here
-	if(gameState.single == STORY_MODE)
-		storeLives = header->lives = player[0].lives;
-	else
-		header->lives = storeLives;
+	header->lives = player[0].lives;
+	
 	header->vol_musicvol = globalMusicVol;
 	header->vol_effect = globalSoundVol;
 	
@@ -97,7 +95,7 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 			levelvis = &worldVisualData[world].levelVisualData[level];
 
 //sb horrible bodge to remember if training level has been completed!!!
-			levelinfo->flags = (levelvis->levelOpen ? 1:0) + (levelvis->levelCompleted ? 2:0) + (worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted ? 4:0) + (levelvis->levelBeaten ? 8:0);
+			levelinfo->flags = (levelvis->levelOpen ? 1:0) + (levelvis->levelCompleted ? 2:0) + (worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted ? 4:0) + (levelvis->levelBeaten ? 8:0) + ((gameState.difficulty == DIFFICULTY_HARD) ? 16:0) + ((gameState.difficulty == DIFFICULTY_EASY) ? 32:0);
 			levelinfo->bestTime = levelvis->parTime;
 			levelinfo->garibs = levelvis->maxCoins;
 			
@@ -141,7 +139,6 @@ int LoadSaveGameBlock(void* ptr, unsigned long size)
 	else
 		player[0].lives = 3;
 
-	storeLives = player[0].lives;
 	globalMusicVol = header->vol_musicvol;
 	globalSoundVol = header->vol_effect;
 
@@ -164,6 +161,12 @@ int LoadSaveGameBlock(void* ptr, unsigned long size)
 			levelvis->levelBeaten = (levelinfo->flags & 8) ? 1 : 0;
 //sb horrible bodge to remember if training level has been completed!!!
 			worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted = (levelinfo->flags & 4) ? 1 : 0;
+
+			if(levelinfo->flags & 16)
+				gameState.difficulty = DIFFICULTY_HARD;
+			else if(levelinfo->flags & 32)
+				gameState.difficulty = DIFFICULTY_EASY;
+			
 			levelvis->maxCoins = levelinfo->garibs;
 			levelvis->parTime = levelinfo->bestTime;
 			
