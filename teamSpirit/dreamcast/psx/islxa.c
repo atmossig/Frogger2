@@ -125,8 +125,11 @@ void XAstop()
 {
 	if (curXA)						// Is there an adx currently playing ?
 	{								// yup, so........
-		ADXT_Destroy(curXA->adxt);		// Tell middleware to quit playing it......
-		curXA = NULL;
+		if(curXA->adxt)
+		{
+			ADXT_Destroy(curXA->adxt);		// Tell middleware to quit playing it......
+			curXA = NULL;
+		}
 	} // end-if
 }
 

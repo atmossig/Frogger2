@@ -193,7 +193,7 @@ void RunDemoMode()
 	if(quittingDemo)
 		return;
 
-	if (padData.debounce[0] || curPlayKey >= playKeyCount || !demoTimeout.time)
+	if ((padData.debounce[0] & PAD_START) || curPlayKey >= playKeyCount || !demoTimeout.time)
 	{
 		// *ASL* 12/08/2000 - User quit demo?
 		if (padData.debounce[0])

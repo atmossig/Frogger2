@@ -149,7 +149,9 @@ typedef struct {
 } CurrentData;
  
 extern SAMPLE *genSfx[];
- 
+
+extern CurrentData   current[24];
+
 //***********************************
 // Function Prototypes
  

@@ -592,6 +592,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	AMBIENT_SOUND *ptr;
  	AMBIENT_SOUND *ambientSound;
  
+	return NULL;
+
  	if( !sample )
  		return NULL;
  
@@ -632,6 +634,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  {
  	AMBIENT_SOUND *amb,*amb2;
  	SVECTOR *pos;
+
+	return;
 
  	// Update each ambient in turn
  	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
@@ -739,6 +743,8 @@ void PrepareSong(short worldID,int loop)
 	char	buffer[32];
 	float	newVolume;
 
+	return;
+
 	XAstop();
 
 	switch ( worldID )
@@ -764,14 +770,11 @@ void PrepareSong(short worldID,int loop)
 	vol = byteToDecibelLUT[vol] / 10;
 	ADXT_SetOutVol(curXA->adxt,vol);
 
-
 	return;
 }
 
 void StopSong( )
 { 
-	KTU32	memfreeBefore,memfreeAfter;
-
 	XAstop();
 
 	return;
@@ -1150,7 +1153,8 @@ void sfxSetChannelVolume(int channel, int volL, int volR)
 {
 	int	volAverage,volPan;
 
-	if(!current[channel].sound.isPlaying) return;
+	if(!current[channel].sound.isPlaying)
+		return;
 	
 	if(volL||volR)
 	{
@@ -1172,13 +1176,7 @@ void sfxSetChannelVolume(int channel, int volL, int volR)
 	}
 
 	current[channel].volume = (volAverage*sfxGlobalVolume)/512;
-
-	volAverage = sfxOutputOn ? current[channel].volume : 0;
-
-//	current[channel].volume = volAverage;
-
 	amSoundSetPan(&current[channel].sound,volPan);
-
 	amSoundSetVolume(&current[channel].sound,volAverage);
 }
 

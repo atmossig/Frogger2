@@ -233,6 +233,8 @@ void GameLoop(void)
 				{
 					// *ASL* 12/08/2000 - Force allow quit on video playback
 					StartVideoPlayback(FMV_INTRO, 1);
+					if(quitAllVideo == 0)
+						StartVideoPlayback(FMV_INTRO,1);
 				}
 			}
 			gameState.mode = FRONTEND_MODE;
@@ -508,7 +510,7 @@ void LevelCompleteProcessController(long pl)
 		}
 	}
 
-	if(button[pl] & (PAD_CROSS))
+	if((button[pl] & (PAD_CROSS))||(button[pl] & (PAD_START)))
     {
 		PlaySample(genSfx[GEN_SUPER_HOP],NULL,0,SAMPLE_VOLUME,-1);
 		showEndLevelScreen = -1;

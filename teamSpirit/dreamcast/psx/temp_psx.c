@@ -2439,13 +2439,23 @@ StrDataType vStream =
 
 int StartVideoPlayback(int num, int allowQuit)
 {
-	int	ret;
+	int	ret,channel;
 
 	StopSong();
 
 	gdFsChangeDir("\\");
 	gdFsChangeDir("FMV");	
 
+/*	// reset sfx volume
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sample)
+		{
+			if(current[channel].sound.isPlaying)
+				amSoundSetVolume(&current[channel].sound,0);
+		}
+	}
+*/
 	sprintf(vStream.strName, "%s.SFD", fmv[num].name);
 	ret = videoPlayStream(&vStream, (int)PALMODE, allowQuit);
 
