@@ -87,12 +87,11 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					utilUpperStr ( cur->name );
 					theActor = CreateAndAddActor ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, INIT_ANIMATION );
 
-					//bb - crashes actorAnimate() when null actor
 					if(theActor)
 					{
-						if( (compare=strstr( cur->name,"backdrop" )) || 
-							(compare=strstr( cur->name,"boulder" )) ||
-							(compare=strstr( cur->name, "riser" )) )
+						if( (compare=strstr( cur->name,"BACKDROP" )) || 
+							(compare=strstr( cur->name,"BOULDER" )) ||
+							(compare=strstr( cur->name, "RISER" )) )
 						{
 							theActor->flags |= ACTOR_DRAW_ALWAYS;
 							theActor->depthShift = 0;
@@ -100,14 +99,10 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 						actorAnimate ( theActor->actor, 0, YES, NO, 150, NO );
 					}
-
 				}
-				// ENDELSEIF
 			}
-			// ENDIF
-
 		}
-		// ENDIF
+
 		/*fixed tv;
 
 		stringChange(ts->name);
@@ -583,7 +578,11 @@ void Actor2ClipCheck(ACTOR2* act)
 	//such as always draw.
 	if(act->flags & ACTOR_DRAW_ALWAYS)
 	{
-		if(act->actor->psiData.object)
+		if( !act->draw )
+		{
+			act->clipped = 1;
+		}
+		else if(act->actor->psiData.object)
 		{
 			TIMER_START1(TIMER_UPANI);
 	//		oldStackPointer = SetSp(0x1f800400);
@@ -605,6 +604,7 @@ void Actor2ClipCheck(ACTOR2* act)
 			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
 			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 
+			act->clipped = 0;
 		}
 		else if ( act->bffActor )
 		{
@@ -613,10 +613,10 @@ void Actor2ClipCheck(ACTOR2* act)
 			act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 			act->actor->bffMatrix.t[1] = act->actor->position.vy;
 			act->actor->bffMatrix.t[2] = act->actor->position.vz;
+
+			act->clipped = 0;
 		}
 
-
-		act->clipped = 0;
 		return;
 	}
 
@@ -730,7 +730,11 @@ void Actor2ClipCheck(ACTOR2* act)
 
 
 	//not too close/far
-	if(sz>0 && sz<fog.max)
+	if( sz <= 0 || sz >= fog.max )
+	{
+		act->clipped = 1;
+	}
+	else 
 	{
 		sx = (short)(sxy&0xffff);
 		sy = (short)(sxy>>16);
@@ -863,13 +867,6 @@ void Actor2ClipCheck(ACTOR2* act)
 		}//end if(act->bffActor)
 
 	}//end if(sz>0 && sz<CLIP_FAR)
-
-	//sz was too far. clip it.
-	else
-	{
-		act->clipped = 1;
-	}
-
 
 	//miles away?
 // 	if(act->clipped)
