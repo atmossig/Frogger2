@@ -48,6 +48,47 @@ unsigned short			bothdebounces, bothpads;
 
 
 
+// (deadmult is 4096/(128-deadzone)
+#define DEADZONE 50
+#define DEADMULT 53
+#define ABS(x) (x > 0) ? (x) : (-x)
+
+static void NormaliseJoy2(int x,int y,short *nx, short *ny)
+{
+	int ax,ay;
+	x = -(127 - x);
+	y = -(127 - y);
+	ax = ABS(x);
+	ay = ABS(y);
+
+	if(ax < DEADZONE && ay < DEADZONE)
+	{
+		*nx = 0;
+		*ny = 0;
+	}
+	else if (ax <= ay)
+	{
+//		*ny = (ay - DEADZONE) * 4096 / (128 - DEADZONE);
+		*ny = (ay - DEADZONE) * DEADMULT;
+		*nx = (ax * (int)(*ny)) >>7;
+	}
+	else
+	{
+//		*nx = (ax - DEADZONE) * 4096 / (128 - DEADZONE);
+		*nx = (ax - DEADZONE) * DEADMULT;
+		*ny = (ay * (int)(*nx)) >>7;
+	}
+	if(*nx >4096) *nx = 4096;
+	if(*ny >4096) *ny = 4096;
+
+	if(x < 0)
+		*nx = -*nx;
+	if(y < 0)
+		*ny = -*ny;
+}
+
+
+
 /**************************************************************************
 	FUNCTION:	padInitialise()
 	PURPOSE:	Initialise pads
@@ -70,16 +111,23 @@ void padInitialise(unsigned char multiTap)
 	PadStartCom();
 	padData.numPads[0] = 1;
 	padData.numPads[1] = 1;
+	padData.analogAccel = 4;	// default acceleration for analog emulation
 	VSync(5);
 	for(loop=0; loop<8; loop++)
 	{
 		padData.digital[loop] = 0;
-		padData2.digitalPrev[loop] = 0;
 		padData.debounce[loop] = 0;
 		padData.analogX[loop] = 128;
 		padData.analogY[loop] = 128;
 		padData.analogX2[loop] = 128;
 		padData.analogY2[loop] = 128;
+		padData.analogXS[loop] = 0;
+		padData.analogYS[loop] = 0;
+		padData.analogX2S[loop] = 0;
+		padData.analogY2S[loop] = 0;
+
+		padData2.digitalPrev[loop] = 0;
+		padData2.newShock[loop] = 10;
 	}
 }
 
@@ -140,23 +188,29 @@ static void padHandlePort(int port)
 		switch(state)										// Handle (dis)connection states
 		{
 		case PadStateDiscon:
+			if(padData2.newShock[padNo] < 1)
+			{
 #ifdef _DEBUG
-			printf("  Controller disconnected\n");
+				//printf("  Controller disconnected\n");
 #endif
-  			padData.present[padNo] = PADTYPE_NONE;
-			padData2.state[padNo] = PadStateDiscon;
+  				padData.present[padNo] = PADTYPE_NONE;
+				padData2.state[padNo] = PadStateDiscon;
+			}
 			continue;
 		case PadStateFindPad:
+			if(padData2.newShock[padNo] < 1)
+			{
 #ifdef _DEBUG
-			printf("  Find controller connection (checking)\n");
+				//printf("  Find controller connection (checking)\n");
 #endif
-			padData2.state[padNo] = PadStateFindPad;
+				padData2.state[padNo] = PadStateFindPad;
+			}
 			continue;
 		case PadStateFindCTP1:
 			if (padData2.state[padNo]!=PadStateStable)
 			{
 #ifdef _DEBUG
-				printf("  Check for controller connection with controllers other than DUAL SHOCK (Complete the acquisition of controller information)\n");
+				//printf("  Check for controller connection with controllers other than DUAL SHOCK (Complete the acquisition of controller information)\n");
 #endif
 				padData2.state[padNo] = PadStateStable;
 				currPad = PadInfoMode(HWport, InfoModeCurID, 0);
@@ -164,14 +218,14 @@ static void padHandlePort(int port)
 				{
 				case 4:
 #ifdef _DEBUG
-					printf("%d: Standard Pad Connected\n", padNo);
+					//printf("%d: Standard Pad Connected\n", padNo);
 #endif
 					padData.present[padNo] = PADTYPE_DIGITAL;
 					padData.digital[padNo] = 0;
 					break;
 				case 7:
 #ifdef _DEBUG
-					printf("%d: Old Analog Pad (Red Mode) Connected\n", padNo);
+					//printf("%d: Old Analog Pad (Red Mode) Connected\n", padNo);
 #endif
 					padData.present[padNo] = PADTYPE_ANALOG;
 					padData.digital[padNo] = 0;
@@ -182,31 +236,31 @@ static void padHandlePort(int port)
 			break;
 		case PadStateReqInfo:
 #ifdef _DEBUG
-			printf("  Actuator information being retrieved (data being retrieved)\n");
+			//printf("  Actuator information being retrieved (data being retrieved)\n");
 #endif
 			continue;
 		case PadStateStable:
 			if (padData2.state[padNo]!=PadStateStable)
 			{
 #ifdef _DEBUG
-				printf("  Retrieval of actuator information completed, or library-controller communication completed\n");
+				//printf("  Retrieval of actuator information completed, or library-controller communication completed\n");
 #endif
 				padData2.state[padNo] = PadStateStable;
 				currPad = PadInfoMode(HWport, InfoModeCurExID, 0);
 				if(currPad)
 				{
 #ifdef _DEBUG
-					printf("%d: Found DUAL SHOCK controller\n", padNo);
+					//printf("%d: Found DUAL SHOCK controller\n", padNo);
 #endif
 					padData.present[padNo] = PADTYPE_DUALSHOCK;
 					padData.digital[padNo] = 0;
 					padData2.newShock[padNo] = 10;
-					PadSetMainMode(HWport,1,3);
+					PadSetMainMode(HWport,0,3);
 				}
 				else
 				{
 #ifdef _DEBUG
-					printf("  Found unsupported extended controller\n");
+					//printf("  Found unsupported extended controller\n");
 #endif
 					padData.present[padNo] = PADTYPE_NONE;
 				}
@@ -234,17 +288,17 @@ static void padHandlePort(int port)
 				{
 				case PADTYPE_DIGITAL:
 #ifdef _DEBUG
-					printf("%d: Morphing controller became digital\n", padNo);
+					//printf("%d: Morphing controller became digital\n", padNo);
 #endif
 					break;
 				case PADTYPE_ANALOG:
 #ifdef _DEBUG
-					printf("%d: Morphing controller became red analog\n", padNo);
+					//printf("%d: Morphing controller became red analog\n", padNo);
 #endif
 					break;
 				case PADTYPE_NONE:
 #ifdef _DEBUG
-					printf("%d: Morphing controller became unsupported\n", padNo);
+					//printf("%d: Morphing controller became unsupported\n", padNo);
 #endif
 					break;
 				}
@@ -257,6 +311,65 @@ static void padHandlePort(int port)
 			padData.analogY[padNo] = packet->leftY;
 			padData.analogX2[padNo] = packet->rightX;
 			padData.analogY2[padNo] = packet->rightY;
+			
+			if(padData.analog[padNo])
+			{
+				// if we really are an analog pad, do some smoothing stuff
+				NormaliseJoy2(packet->leftX, packet->leftY, &padData.analogXS[padNo], &padData.analogYS[padNo]);
+				NormaliseJoy2(packet->rightX, packet->rightY, &padData.analogX2S[padNo], &padData.analogY2S[padNo]);
+			}
+			else
+			{
+				// analog emulation for digital pads
+
+				if(padData.digital[padNo] & PAD_LEFT)
+				{
+					padData.analogXS[padNo] += (((-4096) - padData.analogXS[padNo]) / padData.analogAccel);
+					if(padData.analogXS[padNo] > -4096)
+						padData.analogXS[padNo] --;
+				}
+				else
+				{
+					if(padData.digital[padNo] & PAD_RIGHT)
+					{
+						padData.analogXS[padNo] += ((4096 - padData.analogXS[padNo]) / padData.analogAccel);
+						if(padData.analogXS[padNo] < 4096)
+							padData.analogXS[padNo] ++;
+					}
+					else
+					{
+						padData.analogXS[padNo] += ((0 - padData.analogXS[padNo]) / padData.analogAccel);
+						if(padData.analogXS[padNo] > 0)
+							padData.analogXS[padNo] --;
+						if(padData.analogXS[padNo] < 0)
+							padData.analogXS[padNo] ++;
+					}
+				}
+
+				if(padData.digital[padNo] & PAD_UP)
+				{
+					padData.analogYS[padNo] += (((-4096) - padData.analogYS[padNo]) / padData.analogAccel);
+					if(padData.analogYS[padNo] > -4096)
+						padData.analogYS[padNo] --;
+				}
+				else
+				{
+					if(padData.digital[padNo] & PAD_DOWN)
+					{
+						padData.analogYS[padNo] += ((4096 - padData.analogYS[padNo]) / padData.analogAccel);
+						if(padData.analogYS[padNo] < 4096)
+							padData.analogYS[padNo] ++;
+					}
+					else
+					{
+						padData.analogYS[padNo] += ((0 - padData.analogYS[padNo]) / padData.analogAccel);
+						if(padData.analogYS[padNo] > 0)
+							padData.analogYS[padNo] --;
+						if(padData.analogYS[padNo] < 0)
+							padData.analogYS[padNo] ++;
+					}
+				}
+			}
 		}
 		else
 			padData.digital[padNo] = 0;
@@ -265,27 +378,43 @@ static void padHandlePort(int port)
 
 
 /**************************************************************************
-	FUNCTION:	padHandler()
+	FUNCTION:	padHandleInput()
 	PURPOSE:	Handle pad reading/connection etc.
 	PARAMETERS:	
 	RETURNS:	
 **************************************************************************/
 
-void padHandler()
+void padHandleInput()
 {
-	int		HWport, loop;
+	int				loop;
 	unsigned short	temp;
 
 	padHandlePort(0);
 	padHandlePort(1);
 
-	for(loop=0; loop<8; loop++)
+	for(loop = 0; loop < 8; loop ++)
 	{
-		padData.analog[loop] = (padData.present[loop]==PADTYPE_ANALOG)||(padData.present[loop]==PADTYPE_DUALSHOCK);
-
 		temp = (padData.digital[loop] ^ padData2.digitalPrev[loop]);
 		padData.debounce[loop] = (temp & padData.digital[loop]);
 		padData2.digitalPrev[loop] = padData.digital[loop];
+	}
+}
+
+
+/**************************************************************************
+	FUNCTION:	padHandleShock()
+	PURPOSE:	Handle pad dual shock stuff
+	PARAMETERS:	
+	RETURNS:	
+**************************************************************************/
+
+void padHandleShock()
+{
+	int		HWport, loop;
+
+	for(loop=0; loop<8; loop++)
+	{
+		padData.analog[loop] = (padData.present[loop]==PADTYPE_ANALOG)||(padData.present[loop]==PADTYPE_DUALSHOCK);
 
 		if (padData.present[loop]==PADTYPE_DUALSHOCK)
 		{
@@ -326,3 +455,4 @@ void padHandler()
 		}
 	}
 }
+

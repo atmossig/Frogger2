@@ -38,12 +38,17 @@ typedef struct _PadDataType {
 	unsigned short	analogY[8];					// Current left analog Y reading
 	unsigned short	analogX2[8];				// Current right analog X reading
 	unsigned short	analogY2[8];				// Current right analog Y reading
+	short			analogXS[8];				// Current left analog X reading (smoothed)
+	short			analogYS[8];				// Current left analog Y reading (smoothed)
+	short			analogX2S[8];				// Current right analog X reading (smoothed)
+	short			analogY2S[8];				// Current right analog Y reading (smoothed)
 	unsigned char	motor[8][2];				// Dual shock motor values
 	int				shock[8];					// 2nd shock dest values
 	int				currShock[8];				// 2nd shock current values
 	int				shockDiv[8];				// 2nd shock inertia divisor
 	int				buzzTime[8];				// Countdown time for 1st shock
 	int				shockEnable;
+	int				analogAccel;				// acceleration for analog emulation
 } PadDataType;
 
 // extern declaration of pad data structure
@@ -53,25 +58,25 @@ extern PadDataType		padData;
 // Dual-shock macros
 
 // Stop dual shock vibration
-#define SHOCK_STOP(p)		if (shockEnable) { padData.motor[(p)][0] = padData.motor[(p)][1] = 0; \
+#define SHOCK_STOP(p)		if (padData.shockEnable) { padData.motor[(p)][0] = padData.motor[(p)][1] = 0; \
 							padData.shock[(p)] = 0; \
 							padData.buzzTime[(p)] = 0; }
 
 // Start 1st shock motor
-#define SHOCK_BUZZ(p)		if (shockEnable) { padData.buzzTime[(p)] = INT_LARGEST; }
+#define SHOCK_BUZZ(p)		if (padData.shockEnable) { padData.buzzTime[(p)] = INT_LARGEST; }
 
 // Stop 1st shock motor
-#define SHOCK_NOBUZZ(p)		if (shockEnable) { padData.buzzTime[(p)] = 0; }
+#define SHOCK_NOBUZZ(p)		if (padData.shockEnable) { padData.buzzTime[(p)] = 0; }
 
 // Start 1st shock motor for given time
-#define SHOCK_BUZZTIME(p,t)	if (shockEnable) { padData.buzzTime[(p)] = (t); }
+#define SHOCK_BUZZTIME(p,t)	if (padData.shockEnable) { padData.buzzTime[(p)] = (t); }
 
 // Set 2nd shock motor value
-#define SHOCK_SET(p,v)		if (shockEnable) { padData.motor[(p)][1] = (v); \
+#define SHOCK_SET(p,v)		if (padData.shockEnable) { padData.motor[(p)][1] = (v); \
 							padData.currShock[(p)] = padData.shock[(p)] = (v)<<16; }
 
 // Slide 2nd shock motor to value
-#define SHOCK_SLIDE(p,v,d)	if (shockEnable) { padData.shock[(p)] = (v)<<16; \
+#define SHOCK_SLIDE(p,v,d)	if (padData.shockEnable) { padData.shock[(p)] = (v)<<16; \
 							padData.shockDiv[(p)] = (d); }
 
 
@@ -86,13 +91,23 @@ void padInitialise(unsigned char multiTap);
 
 
 /**************************************************************************
-	FUNCTION:	padHandler()
+	FUNCTION:	padHandleInput()
 	PURPOSE:	Handle pad reading/connection etc.
 	PARAMETERS:	
 	RETURNS:	
 **************************************************************************/
 
-void padHandler();
+void padHandleInput();
+
+
+/**************************************************************************
+	FUNCTION:	padHandleShock()
+	PURPOSE:	Handle pad dual shock stuff
+	PARAMETERS:	
+	RETURNS:	
+**************************************************************************/
+
+void padHandleShock();
 
 
 #endif

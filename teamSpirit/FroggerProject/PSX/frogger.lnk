@@ -157,7 +157,7 @@ lang	group	over(video),file("lang.bin")
 ;	include "DBERROR.OBJ"
 
 
-;   include "islpad.obj"
+	include "islpad.obj"
 ;	include "map_draw.obj"
 ;	include "bff_load.obj"
 ;	include "quatern.obj"
@@ -172,7 +172,7 @@ lang	group	over(video),file("lang.bin")
 ;    inclib  "isltex.lib"
 ;	inclib  "islfont.lib"
     inclib  "isllocal.lib"
-    inclib  "islpad.lib"
+;    inclib  "islpad.lib"
 ;	inclib  "islsound.lib"
 	inclib	"islsfx2.lib"
     inclib  "islutil.lib"

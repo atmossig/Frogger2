@@ -944,6 +944,25 @@ SOURCE=.\Psx\islmem.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Psx\islpad.c
+
+!IF  "$(CFG)" == "FroggerProject - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Psx\islpad.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Psx\islpsi.h
 
 !IF  "$(CFG)" == "FroggerProject - Win32 Release"
@@ -2350,15 +2369,6 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\resource.rc
-
-!IF  "$(CFG)" == "FroggerProject - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug"
-
-!ELSEIF  "$(CFG)" == "FroggerProject - Win32 Debug with Bink Video"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
