@@ -658,6 +658,7 @@ void DrawFXLightning( SPECFX *fx )
 	PARTICLE *p;
 	long i=0, otz, clipped, sz;
 	POLY_FT4 *ft4;
+	short checky = PALMODE?256:240;
 
 	if( !(tEntry = (fx->tex)) )
 		return;
@@ -665,8 +666,8 @@ void DrawFXLightning( SPECFX *fx )
 	if(gameState.mode == LEVELCOMPLETE_MODE)
 		return;
 
-	gte_SetTransMatrix(&GsWSMATRIX);
-	gte_SetRotMatrix(&GsWSMATRIX);
+//	gte_SetTransMatrix(&GsWSMATRIX);
+//	gte_SetRotMatrix(&GsWSMATRIX);
 
 	p = fx->particles;
 	while( i < fx->numP-1 )
@@ -678,50 +679,58 @@ void DrawFXLightning( SPECFX *fx )
 		else
 		{
 			// Otherwise, transform them again
-			SetVectorSS(&tempSvect, &p->poly[0]);
-			tempSvect.vx = -tempSvect.vx;
-			tempSvect.vy = -tempSvect.vy;
+			tempSvect.vx = -p->poly[0].vx;
+			tempSvect.vy = -p->poly[0].vy;
+			tempSvect.vz = p->poly[0].vz;
 			gte_ldv0(&tempSvect);
 			gte_rtps();
 			gte_stsxy(&vT[0].vx);
 			gte_stszotz(&otz);
 			vT[0].vz = otz;
 			gte_stsz(&sz);
-			clipped += (sz<20 || sz>fog.max);
+			clipped += ( vT[0].vx > 256 || vT[0].vx < -256 ||
+						vT[0].vy > checky || vT[0].vy < -checky ||
+						sz<20 || sz>fog.max);
 
-			SetVectorSS(&tempSvect, &p->poly[1]);
-			tempSvect.vx = -tempSvect.vx;
-			tempSvect.vy = -tempSvect.vy;
+			tempSvect.vx = -p->poly[1].vx;
+			tempSvect.vy = -p->poly[1].vy;
+			tempSvect.vz = p->poly[1].vz;
 			gte_ldv0(&tempSvect);
 			gte_rtps();
 			gte_stsxy(&vT[1].vx);
 			gte_stszotz(&otz);
 			vT[1].vz = otz;
 			gte_stsz(&sz);
-			clipped += (sz<20 || sz>fog.max);
+			clipped += ( vT[1].vx > 256 || vT[1].vx < -256 ||
+						vT[1].vy > checky || vT[1].vy < -checky ||
+						sz<20 || sz>fog.max);
 		}
 
-		SetVectorSS(&tempSvect, &p->next->poly[1]);
-		tempSvect.vx = -tempSvect.vx;
-		tempSvect.vy = -tempSvect.vy;
+		tempSvect.vx = -p->next->poly[1].vx;
+		tempSvect.vy = -p->next->poly[1].vy;
+		tempSvect.vz = p->next->poly[1].vz;
 		gte_ldv0(&tempSvect);
 		gte_rtps();
 		gte_stsxy(&vT[2].vx);
 		gte_stszotz(&otz);
 		vT[2].vz = otz;
 		gte_stsz(&sz);
-		clipped += (sz<20 || sz>fog.max);
+		clipped += ( vT[2].vx > 256 || vT[2].vx < -256 ||
+					vT[2].vy > checky || vT[2].vy < -checky ||
+					sz<20 || sz>fog.max);
 
-		SetVectorSS(&tempSvect, &p->next->poly[0]);
-		tempSvect.vx = -tempSvect.vx;
-		tempSvect.vy = -tempSvect.vy;
+		tempSvect.vx = -p->next->poly[0].vx;
+		tempSvect.vy = -p->next->poly[0].vy;
+		tempSvect.vz = p->next->poly[0].vz;
 		gte_ldv0(&tempSvect);
 		gte_rtps();
 		gte_stsxy(&vT[3].vx);
 		gte_stszotz(&otz);
 		vT[3].vz = otz;
 		gte_stsz(&sz);
-		clipped += (sz<20 || sz>fog.max);
+		clipped += ( vT[3].vx > 256 || vT[3].vx < -256 ||
+					vT[3].vy > checky || vT[3].vy < -checky ||
+					sz<20 || sz>fog.max);
 
 		// Store first 2 vertices of the next segment
 		lmemcpy( (long *)vTPrev, (long *)&vT[3], 2 );
