@@ -124,6 +124,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	// set frog action movement variables
 	ZeroVector(&frog[p]->actor->vel);
 
+	player[p].deathBy			= 0;
 	player[p].canJump			= 1;
 	player[p].frogState			= 0;
 	player[p].isSuperHopping	= 0;
@@ -136,8 +137,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	fixedPos = 0;
 	fixedDir = 0;
 
-	CheckForDynamicCameraChange(currTile[p]);
-
+	InitCamera();
+	
 	frogFacing[p] = camFacing;
 	SitAndFace(frog[p],currTile[p],frogFacing[p]);
 }
@@ -901,7 +902,7 @@ void CheckForFroggerLanding(long pl)
 	unsigned long i, j;
 	float distance, jump_overrun;
 
-	if (player[pl].jumpTime < 1) return;	// we haven't landed yet.
+	if (player[pl].jumpTime < 1 || (player[pl].deathBy == DEATHBY_FALLINGFOREVER)) return;	// we haven't landed yet.
 
 	jump_overrun = player[pl].jumpTime;
 
@@ -1097,9 +1098,8 @@ void CheckForFroggerLanding(long pl)
 
 				if( frog[pl]->actor->shadow ) frog[pl]->actor->shadow->draw = 0;
 				
-				player[pl].jumpSpeed *= 0.01f;
-				player[pl].jumpMultiplier *= 50;
-				player[pl].jumpTime = jump_overrun * 0.02f;
+				player[pl].jumpTime = jump_overrun;
+				
 				fixedPos = 1;	// fix camera, keep looking at frog..
 			}
 			return;

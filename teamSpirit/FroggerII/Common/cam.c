@@ -327,6 +327,8 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 				break;
 			}
 
+			SubVector(&currCamOffset, &currCamSource, &currCamTarget);
+
 			if (cur->dirCamMustFace)
 				camFacing = cur->dirCamMustFace - 1;
 
@@ -411,7 +413,7 @@ void CalcSPCamera( VECTOR *target )
 	VECTOR v;
 	float t = player[0].jumpTime;
 	
-	if (t > 0)	// jumping; calculate linear position
+	if (t > 0 && t < 1)	// jumping; calculate linear position
 	{
 		SetVector(target, &player[0].jumpOrigin);
 
@@ -692,6 +694,8 @@ void InitCamera(void)
 
 	SetVector(&currCamSource, &camSource);
 	SetVector(&currCamTarget, &camTarget);
+	
+	camVect.v[0] = 0; camVect.v[1] = 1; camVect.v[2] = 0;
 
 	cam_shakiness = 0;
 }
