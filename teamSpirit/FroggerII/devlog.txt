@@ -70,6 +70,19 @@ Dave Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Morning:
+
+	Fixed wierd flashing white effect on procedural texture palette.
+	Tweaking of fire effect, worked on forcefield effect.
+	Got a headache.
+
+	Afternoon:
+
+	Normal Dr Pepper is too sugary. Can we get some diet stuff please?
+	Finished (for now) forcefield effect, discovered (with Matt) correct settings for 
+	additive transparency, and moved loads of render state settings about. Started
+	on water effect.
+
 
 James Healey:
 ------------------------------------------------
