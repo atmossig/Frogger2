@@ -659,9 +659,11 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 	// limit the radius on offending levels
 	if ((player[0].worldNum == WORLDID_SUBTERRANEAN && player[0].levelNum == LEVELID_SUBTERRANEAN1) ||
-		(player[0].worldNum == WORLDID_SUBTERRANEAN && player[0].levelNum == LEVELID_SUBTERRANEAN3)||
-		(player[0].worldNum == WORLDID_LABORATORY && player[0].levelNum == LEVELID_LABORATORY3))
+		(player[0].worldNum == WORLDID_HALLOWEEN && player[0].levelNum == LEVELID_HALLOWEEN3))
 	 	ambientSound->radius = (long)(((float)radius) * 0.65f);
+	else if ((player[0].worldNum == WORLDID_SUBTERRANEAN && player[0].levelNum == LEVELID_SUBTERRANEAN3)||
+		(player[0].worldNum == WORLDID_LABORATORY && player[0].levelNum == LEVELID_LABORATORY3))
+	 	ambientSound->radius = (long)(((float)radius) * 0.5f);
 	else
 	 	ambientSound->radius = radius;
  
