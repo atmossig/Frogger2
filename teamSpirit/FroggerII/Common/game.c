@@ -599,7 +599,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 		if (gstrcmp(ts->name,"world.ndo") == 0 || gstrcmp(ts->name,"world.obe") == 0)
 		{
-			theActor->flags = 0;
 			theActor->flags |= ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
 		}

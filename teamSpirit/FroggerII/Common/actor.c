@@ -130,6 +130,12 @@ void DrawActorList()
 	cur = actList;
 	while(cur)
 	{
+		if( !cur->actor->objectController )
+		{
+			cur = cur->next;
+			continue;
+		}
+
 		// Need to set this once for each actor
 		cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
 
@@ -158,7 +164,6 @@ void DrawActorList()
 			   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 			{
 				if( cur->draw )
-				if( cur->actor->objectController )
 				if( !(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU) )
 					DrawActor(cur->actor);
 			}
@@ -170,14 +175,19 @@ void DrawActorList()
 	cur = actList;
 	while(cur)
 	{
+		if( !cur->actor->objectController )
+		{
+			cur = cur->next;
+			continue;
+		}
+
 		if( cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU )
 		if( !((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEOUTER)) )
 		if( gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
 			gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
 			gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
 		{
-			if( cur->draw && cur->actor->objectController )
-				DrawActor(cur->actor);
+			DrawActor(cur->actor);
 		}
 		
 		cur = cur->next;
@@ -286,6 +296,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->actor->oldpos.v[Y]	= cy;
 	newItem->actor->oldpos.v[Z]	= cz;
 
+	newItem->flags = 0;
 	newItem->draw	= 1;
 	newItem->radius	= 0.0F;
 	newItem->animSpeed = 1.0F;
@@ -304,9 +315,10 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 		newItem->flags |= ACTOR_DRAW_CULLED;
 	else
 	{
-		newItem->flags = ACTOR_DRAW_ALWAYS;
+		newItem->flags |= ACTOR_DRAW_ALWAYS;
 		newItem->actor->xluOverride = WATER_XLU;
-		if (newItem->actor->objectController)
+
+		if( newItem->actor->objectController )
 			newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
 	}
 

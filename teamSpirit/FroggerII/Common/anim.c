@@ -27,6 +27,9 @@ float hedRotAmt = 0;
 */
 void InitActorAnim(ACTOR *tempActor)
 {
+	if( !tempActor->objectController )
+		return;
+
 	memcpy(tempActor->animation, tempActor->objectController->animation, sizeof(ACTOR_ANIMATION));	
 	tempActor->animation->currentAnimation = -1;
 

@@ -176,14 +176,14 @@ int MPAddFrog( int i )
 	if( i>=MAX_MULTIPLAYERS || i<1 || gameState.mode != GAME_MODE ) // Not found
 		return 0;
 
-	if( frog[i]->actor->xluOverride == 100 ) // Already enabled
+	if( frog[i]->draw ) // Already enabled
 		return 1;
 
 	// Health sprites need init
 	for( j=0; j<3; j++ )
 		sprHeart[(i*3)+j]->draw = 1;
 
-	frog[i]->actor->xluOverride = 100; // Make it visible
+	frog[i]->draw = TRUE; // Make it visible
 
 	SetVector(&telePos,&frog[i]->actor->pos);
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
@@ -214,7 +214,7 @@ int MPRemoveFrog( int i )
 	if( i>=MAX_MULTIPLAYERS || i<1 || gameState.mode != GAME_MODE ) // Not found
 		return 0;
 
-	if( frog[i]->actor->xluOverride == 0 ) // Already disabled
+	if( !frog[i]->draw ) // Already disabled
 		return 1;
 
 	frog[i]->action.healthPoints = 0;
@@ -222,9 +222,9 @@ int MPRemoveFrog( int i )
 
 	// Disable health sprites
 	for( j=0; j<3; j++ )
-		sprHeart[(i*3)+j]->draw = 0;
+		sprHeart[(i*3)+j]->draw = FALSE;
 
-	frog[i]->actor->xluOverride = 0; // Make it invisible
+	frog[i]->draw = FALSE; // Make it invisible
 
 	SetVector(&telePos,&frog[i]->actor->pos);
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
