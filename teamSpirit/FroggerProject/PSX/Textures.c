@@ -685,15 +685,14 @@ void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 	if((dest == NULL) || (src == NULL))
 		return;
 
-
 	moveRect.x = VRAM_CALCVRAMX(src->handle);
 	moveRect.y = VRAM_CALCVRAMY(src->handle);
-	moveRect.w = (dest->w + 3) / 4;
+	moveRect.w = (dest->w + 3)>>2;
 	moveRect.h = dest->h;
 
 	// check for 256 colour mode
 	if ( dest->tpage & (1 << 7) )
-		moveRect.w *= 2;
+		moveRect.w <<= 1;
 
 //	dest->tpage = src->tpage;
 	//dest->clut = src->clut;
@@ -712,7 +711,6 @@ void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 			moveRect.w = 256;
 		else		
 			moveRect.w = 16;
-		// ENDELSEIF
 
 		moveRect.h = 1;
 
@@ -720,6 +718,4 @@ void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 		SetDrawMove ( siMove, &moveRect, (dest->clut & 0x3f) << 4, (dest->clut >> 6) );
 		ENDPRIM			( siMove, 1023, DR_MOVE );
 	}
-	// ENDIF
-
 }
