@@ -271,7 +271,7 @@ void DrawActorList()
 		DrawActor(hat[0]->actor);	
 	}
 
-	DrawBatchedPolys(x);
+	DrawBatchedPolys();
 	BlankFrame(x);
 	
 	waterObject = 1;
