@@ -125,6 +125,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,245,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,245,24,50,14
     PUSHBUTTON      "&Setup...",ID_SETUP,245,92,50,14,WS_DISABLED
+    PUSHBUTTON      "Defaults",ID_DEFAULT,245,73,50,14
 END
 
 IDD_KEYPRESS DIALOG DISCARDABLE  0, 0, 97, 52
@@ -147,13 +148,6 @@ BEGIN
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_SPLASH              BITMAP  DISCARDABLE     "flog.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

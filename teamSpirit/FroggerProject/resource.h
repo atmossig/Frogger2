@@ -4,6 +4,7 @@
 //
 #define IDOK2                           3
 #define ID_SETUP                        3
+#define ID_DEFAULT                      4
 #define IDD_VIDEODEVICE                 101
 #define IDB_SPLASH                      103
 #define IDD_CONNECTION                  104

@@ -120,7 +120,7 @@ extern unsigned rPlaying;
 
 int numJoypads = 0;
 
-KEYENTRY keymap[56] = 
+KEYENTRY keymap[56], defaultKeymap[56] = 
 {
 	{ 0, PAD_UP, DIK_UP },
 	{ 0, PAD_DOWN, DIK_DOWN },
@@ -315,31 +315,50 @@ void KeyboardDump(HKEY hkey, bool write)
 	}
 	else
 	{
+		bool success = false;
+
 		len = 56*3;
 		if (RegQueryValueEx(hkey, "Keymap", NULL, NULL, (unsigned char*)buffer, &len) == ERROR_SUCCESS)
 		{
 			if (len < 56*3)
-			{
 				utilPrintf("KeyboardDump(read): Buffer full of rubbish, ignoring\n");
-				return;
-			}
-
-			for (int i=0;i<56;i++)
+			else
 			{
-				keymap[i].player = *(p++);
-				keymap[i].button = 1 << *(p++);
-				keymap[i].key = *(p++);
+				for (int i=0;i<56;i++)
+				{
+					keymap[i].player = *(p++);
+					keymap[i].button = 1 << *(p++);
+					keymap[i].key = *(p++);
+				}
+				success = true;
 			}
 		}
+
+		if (!success)
+			memcpy(keymap, defaultKeymap, 56*sizeof(KEYENTRY));
 	}
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function	: ResetControllerSetup
+	Purpose		: resets the controller setup
+	Returns		: BOOL - TRUE on success, else FALSE
+*/
+void ResetControllerSetup(void)
+{
+	for (int pl=0; pl<4; pl++)
+		controllers[pl] = (pl < numJoypads) ? (GAMEPAD+pl) : KEYBOARD;
+
+	memcpy(keymap, defaultKeymap, 56*sizeof(KEYENTRY));
+}
+
 
 /*	--------------------------------------------------------------------------------
 	Function	: GetControllerSetup
 	Purpose		: saves the current controller setup
 	Parameters	: 
 	Returns		: BOOL - TRUE on success, else FALSE
-	Info		: 
 */
 int GetControllerSetup(void)
 {
@@ -1070,6 +1089,21 @@ BOOL CALLBACK ControllerDlgProc(HWND hdlg, UINT msg, WPARAM wParam, LPARAM lPara
 		case ID_SETUP:
 			if (selectedPlayer >= 0)
 				SetupKeyboardDialog(selectedPlayer, hdlg);
+			return TRUE;
+
+		case ID_DEFAULT:
+			if (MessageBox(hdlg, GAMESTRING(STR_PCSETUP_DEFAULTKEYS), GAMESTRING(STR_PCSETUP_CONTROLS), MB_ICONQUESTION|MB_YESNO) == IDYES)
+			{
+				ResetControllerSetup();
+				for (int player = 0; player < 4; player++)
+				{
+					HWND combo = GetDlgItem(hdlg, IDC_PLAYER1 + player);
+					if (controllers[player] == KEYBOARD)
+						SendMessage(combo, CB_SETCURSEL, 0, 0);
+					else
+						SendMessage(combo, CB_SETCURSEL, (controllers[player]&(GAMEPAD-1))+1, 0);
+				}
+			}
 			return TRUE;
 		}
 
