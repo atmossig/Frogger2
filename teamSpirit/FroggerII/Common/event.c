@@ -268,8 +268,9 @@ void UpdateEvents( )
 {
 	TRIGGER *trigger;
 	EVENT *event;
+	int count;
 	
-	for( trigger = triggerList.head.next; trigger != &triggerList.head; trigger = trigger->next )
+	for( trigger = triggerList.head.next, count = triggerList.numEntries; count--; trigger = trigger->next)
 	{
 		/* Check if the trigger condition(s) are true and the trigger is allowed to fire */
 		if( !(((trigger->flags & TRIGGER_ONCE) || (trigger->flags & TRIGGER_DELAY)) && trigger->count) &&
