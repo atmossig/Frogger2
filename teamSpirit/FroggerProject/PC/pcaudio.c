@@ -154,6 +154,7 @@ void LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHGIB] = FindSample(UpdateCRC("frogmowed"));
 	genSfx[GEN_DEATHCHOP] = FindSample(UpdateCRC("frogchop"));
 	genSfx[GEN_DEATHELECTRIC] = FindSample(UpdateCRC("electrocute"));
+	genSfx[GEN_DEATHFIRE] = FindSample(UpdateCRC("burnbum"));
 
 	InitVoices( path, len );
 
@@ -527,7 +528,7 @@ void CleanBufferSamples ( void )
 		// Check if sample is playing
 		cur->lpdsBuffer->lpVtbl->GetStatus ( cur->lpdsBuffer, &bufStatus );
 
-		if ( !( bufStatus & DSBSTATUS_PLAYING )	)
+		if ( !(bufStatus & DSBSTATUS_PLAYING) && !(bufStatus & DSBSTATUS_LOOPING) )
 		{
 			RemoveBufSample( cur );
 
