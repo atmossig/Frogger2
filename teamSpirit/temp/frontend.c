@@ -1015,15 +1015,24 @@ void DoEndMulti()
 				player[0].character = FROG_FROGGER;
 				NUM_FROGS=1;
 
-				if( gameState.multi != MULTIREMOTE )
+				if( gameState.multi == MULTIREMOTE )
+				{
+#ifdef PC_VERSION
+					// I'm sure there's a nicer way of doing this, but this does the job for now - ds
+					PostQuitMessage(0);		
+#endif
+				}
+				else
+				{
 					gameState.multi = SINGLEPLAYER;
 
-				gameState.mode = FRONTEND_MODE;
-				FreeMultiplayer( );
-				InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
+					gameState.mode = FRONTEND_MODE;
+					FreeMultiplayer( );
+					InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
 
-				frameCount = 0;
-				menuText[0] = NULL;
+					frameCount = 0;
+					menuText[0] = NULL;
+				}
 			}
 			menuOption = -1;
 		}
