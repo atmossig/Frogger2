@@ -174,7 +174,7 @@ void GameProcessController(long pl)
 	{
 		if ((button[pl]&PAD_CROSS) && (player[pl].jumpTime > player[pl].jumpMultiplier/2))
 		{
-			StartAnimateActor(frog[pl]->actor, FROG_ANIM_FALL, YES, NO, 256, NO);
+			StartAnimateActor(frog[pl]->actor, FROG_ANIM_FALL, YES, NO, 256, 512);
 			player[pl].frogState |= FROGSTATUS_ISFLOATING;
 		}
 		else

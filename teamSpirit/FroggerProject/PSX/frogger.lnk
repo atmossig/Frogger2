@@ -166,7 +166,7 @@ lang	group	over(video),file("lang.bin")
 ;	include "custom.obj"
 ;	include "custom2.obj"
 
-;	inclib  "islpsi.lib"
+	;inclib  "islpsi.lib"
 ;    inclib  "islmem.lib"
     inclib  "islfile.lib"
 ;    inclib  "isltex.lib"

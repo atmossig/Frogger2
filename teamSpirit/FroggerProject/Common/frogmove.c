@@ -921,7 +921,7 @@ void AnimateFrogHop( unsigned long direction, long pl )
 	{
 		// play animation for superhopping
 		animSpeed = (player[pl].jumpSpeed * 15) >> 4;	// play 15 frames of anim before landing
-		actorAnimate(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, animSpeed, 120);
+		actorAnimate(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, animSpeed, 0);
 		return;
 	}
 	else // Otherwise, play appropriate jump animation
@@ -1234,7 +1234,7 @@ void CheckForFroggerLanding(long pl)
 	{
 		if( frogPool[player[pl].character].anim )
 		{
-			actorAnimate(frog[0]->actor, FROG_ANIM_FALLLAND, NO, NO, 128, 10);
+			actorAnimate(frog[0]->actor, FROG_ANIM_FALLLAND, NO, NO, 128, 0);
 			actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
 		}
 		else
