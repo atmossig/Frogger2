@@ -164,7 +164,7 @@ SPRITE *PrintSpritesOpaque()
 	spriteList.lastTexture = NULL;
 	spriteList.xluMode = NO;
 
-	if(!testPause)
+	if(!pauseMode)
 	{
 		for(cur = spriteList.head.next; (cur != &spriteList.head); cur = next)
 		{

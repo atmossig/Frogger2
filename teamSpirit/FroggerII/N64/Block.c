@@ -1532,6 +1532,9 @@ void DrawGraphics(void *arg)
 
 					//DrawCameraSpaceActorList();
 
+					if( gameState.mode && text3DList.numEntries )
+						Print3DText( );					
+
 					if(darkenedLevel)
 						DrawDarkenedLevel();
 

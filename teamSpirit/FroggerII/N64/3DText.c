@@ -216,14 +216,29 @@ void MakeTextLine( TEXT3D *t3d )
 	unsigned long len = strlen(t3d->string), i;
 	unsigned int tS = t3d->tileSize;
 
-	for( i=0; i<len; i++ )
+	if( t3d->type == T3D_HORIZONTAL )
 	{
-		pB = i*tS;
-		v = i*4;
-		V((&vPtr[v+0]),-pB+t3d->xOffs,		t3d->zOffs,	t3d->yOffs,		0,		0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	t3d->zOffs,	t3d->yOffs,		0,		1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	t3d->zOffs,	tS+t3d->yOffs,	0,		1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
-		V((&vPtr[v+3]),-pB+t3d->xOffs,		t3d->zOffs,	tS+t3d->yOffs,	0,		0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		for( i=0; i<len; i++ )
+		{
+			pB = i*tS;
+			v = i*4;
+			V((&vPtr[v+0]),-pB+t3d->xOffs,		t3d->zOffs,	t3d->yOffs,		0,		0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+1]),-pB-tS+t3d->xOffs,	t3d->zOffs,	t3d->yOffs,		0,		1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+2]),-pB-tS+t3d->xOffs,	t3d->zOffs,	tS+t3d->yOffs,	0,		1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+3]),-pB+t3d->xOffs,		t3d->zOffs,	tS+t3d->yOffs,	0,		0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		}
+	}
+	else
+	{
+		for( i=0; i<len; i++ )
+		{
+			pB = i*tS;
+			v = i*4;
+			V((&vPtr[v+0]),t3d->xOffs,		t3d->zOffs,	pB+t3d->yOffs,			0,		0,		0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+1]),-tS+t3d->xOffs,	t3d->zOffs,	pB+t3d->yOffs,			0,		1024,	0,		t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+2]),-tS+t3d->xOffs,	t3d->zOffs,	pB+tS+t3d->yOffs,		0,		1024,	1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+			V((&vPtr[v+3]),t3d->xOffs,		t3d->zOffs,	pB+tS+t3d->yOffs,		0,		0,		1024,	t3d->vR,t3d->vG,t3d->vB,t3d->vA);
+		}
 	}
 }
 
@@ -299,7 +314,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 
 		// z check
 	}
-	else // Line formation
+	else if( t3d->type == T3D_HORIZONTAL )
 	{
 		if( t3d->xOffs >= 110+t3d->width ) // Off left
 		{
@@ -336,38 +351,103 @@ void UpdateT3DMotion( TEXT3D *t3d )
 
 		// z check
 	}
+	else if( t3d->type == T3D_VERTICAL )
+	{
+		temp = 110+t3d->tileSize;
+		if( t3d->xOffs >= temp ) // Off left
+		{
+			if( t3d->motion & T3D_MOVE_LEFT )
+			{
+				if( t3d->motion & T3D_PATH_BOUNCE )
+				{
+					t3d->motion &= ~T3D_MOVE_LEFT;
+					t3d->motion |= T3D_MOVE_RIGHT;
+					t3d->vel.v[0] *= -1;
+				}
+				else if( t3d->motion & T3D_PATH_LOOP )
+				{
+					t3d->xOffs = -110;
+				}
+			}
+		}
+		else if( t3d->xOffs <= -110 ) // Off right
+		{
+			if( t3d->motion & T3D_MOVE_RIGHT )
+			{
+				if( t3d->motion & T3D_PATH_BOUNCE )
+				{
+					t3d->motion &= ~T3D_MOVE_RIGHT;
+					t3d->motion |= T3D_MOVE_LEFT;
+					t3d->vel.v[0] *= -1;
+				}
+				else if( t3d->motion & T3D_PATH_LOOP )
+				{
+					t3d->xOffs = 110+t3d->tileSize;
+				}
+			}
+		}
+
+		// z check
+	}
 
 	if( t3d->type == T3D_VERTICAL )
 	{
-		// y check
+		if( (t3d->yOffs+t3d->width <= -100) && (t3d->motion & T3D_MOVE_UP) ) // Off the top
+		{
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_UP;
+				t3d->motion |= T3D_MOVE_DOWN;
+				t3d->vel.v[1] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->yOffs = 100;
+			}
+		}
+		else if( t3d->yOffs >= 100 && (t3d->motion & T3D_MOVE_DOWN) )
+		{
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_DOWN;
+				t3d->motion |= T3D_MOVE_UP;
+				t3d->vel.v[1] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->yOffs = -100-t3d->width;
+			}
+		}
 	}
-
-	temp = 100+t3d->tileSize;
-
-	if( (t3d->yOffs <= -temp) && (t3d->motion & T3D_MOVE_UP) ) // Off the top
+	else
 	{
-		if( t3d->motion & T3D_PATH_BOUNCE )
+		temp = 100+t3d->tileSize;
+
+		if( (t3d->yOffs <= -temp) && (t3d->motion & T3D_MOVE_UP) ) // Off the top
 		{
-			t3d->motion &= ~T3D_MOVE_UP;
-			t3d->motion |= T3D_MOVE_DOWN;
-			t3d->vel.v[1] *= -1;
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_UP;
+				t3d->motion |= T3D_MOVE_DOWN;
+				t3d->vel.v[1] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->yOffs = 100;
+			}
 		}
-		else if( t3d->motion & T3D_PATH_LOOP )
+		else if( t3d->yOffs >= 100 && (t3d->motion & T3D_MOVE_DOWN) )
 		{
-			t3d->yOffs = 100;
-		}
-	}
-	else if( t3d->yOffs >= 100 && (t3d->motion & T3D_MOVE_DOWN) )
-	{
-		if( t3d->motion & T3D_PATH_BOUNCE )
-		{
-			t3d->motion &= ~T3D_MOVE_DOWN;
-			t3d->motion |= T3D_MOVE_UP;
-			t3d->vel.v[1] *= -1;
-		}
-		else if( t3d->motion & T3D_PATH_LOOP )
-		{
-			t3d->yOffs = -100-t3d->tileSize;
+			if( t3d->motion & T3D_PATH_BOUNCE )
+			{
+				t3d->motion &= ~T3D_MOVE_DOWN;
+				t3d->motion |= T3D_MOVE_UP;
+				t3d->vel.v[1] *= -1;
+			}
+			else if( t3d->motion & T3D_PATH_LOOP )
+			{
+				t3d->yOffs = -100-t3d->tileSize;
+			}
 		}
 	}
 }
