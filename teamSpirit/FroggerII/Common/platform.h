@@ -124,6 +124,8 @@ extern PLATFORM *JumpingToTileWithPlatform(GAMETILE *tile,long pl);
 #define PLATFORM_NEW_SINKWITHFROG		(1 << 8)	// platform sinks when frog is on it
 #define PLATFORM_NEW_RISEWITHFROG		(1 << 9)	// platform sinks when frog is on it
 #define PLATFORM_NEW_CARRYINGFROG		(1 << 10)	// platform is carrying a frog
+#define PLATFORM_NEW_CRUMBLES			(1 << 11)	// platform crumbles after certain time
+#define PLATFORM_NEW_REGENERATES		(1 << 12)	// platform regenerates after so long
 
 
 PLATFORM *NEW_CreateAndAddPlatform(char *pActorName);
