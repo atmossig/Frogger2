@@ -143,6 +143,7 @@ void ActorListDraw(long i)
 	float radius,scale,depth;
 	MDX_MATRIX rotmat;
 	char drawOverride = 0;
+	int oldNoClip;
 
 	cur = actorDrawList[i];
 
@@ -150,9 +151,13 @@ void ActorListDraw(long i)
 	{
 		drawOverride = 0;
 		drawThisObjectsSprites = cur->draw;
+		oldNoClip = noClip;
 
 		if( noClip || (cur->flags & ACTOR_ALWAYSDRAW) )
+		{
 			drawOverride = 1;
+			noClip = 1;
+		}
 		else
 		{
 			SetVector(&tPos,&cur->trueCentre);
@@ -201,6 +206,7 @@ void ActorListDraw(long i)
 		else
 			KillObjectSprites(cur->objectController->object);
 			
+		noClip = oldNoClip;
 
 		cur = cur->nextDraw;
 	}	
