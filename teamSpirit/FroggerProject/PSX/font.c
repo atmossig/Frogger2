@@ -377,25 +377,38 @@ int fontExtentWScaled(psFont *font, char *text,int scale)
 int fontFitToWidth(psFont *font, int width, char *text, char *buffer)
 {
 	char	buf[256], *bufPtr, *outPtr = buffer;
-	int		pixLen, lines = 0;
+	int		pixLen, lines = 0,space = 0;
 
 	memset(buf, 0, sizeof(buf));
 	bufPtr = buf;
 	while(1)
 	{
 		if (*text>=' ')
+		{
 			*bufPtr++ = *text;
+			if(*text == ' ')
+				space = 1;
+		}
 		pixLen = fontExtentWScaled(font, buf,4096);
 		if ((pixLen>width)||(*text=='\0'))
 		{
-			if (pixLen>width)
+			if(pixLen>width)
 			{
-				while(*bufPtr!=' ')
+				if(space)
+				{
+					space = 0;
+					while(*bufPtr!=' ')
+					{
+						bufPtr--;
+						text--;
+					}
+					text++;
+				}
+				else
 				{
 					bufPtr--;
 					text--;
 				}
-				text++;
 			}
 			*bufPtr = '\0';
 			strcpy(outPtr, buf);
