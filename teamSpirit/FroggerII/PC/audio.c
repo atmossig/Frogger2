@@ -35,18 +35,21 @@ SAMPLEMAP genericMapping[] =
 	"generic\\froggerD.wav",		2, 11025, 16, GEN_FROG_HURT,	FLAGS_NONE,
 	"generic\\froggerE.wav",		2, 11025, 16, GEN_FROG_DEATH,	FLAGS_NONE,
 	"generic\\froggerA.wav",		2, 11025, 16, GEN_FROG_DOUBLEHOP,FLAGS_NONE,
-
+	"frontend\\waterfall.wav,		2, 22050, 16, GEN_WATER,		FlAGS_NONE,
 };
 
 
 SAMPLEMAP gardenMapping[] =
 {
-	"generic\\babyfrog.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE,
+	"garden\\moaA.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE,
+	"garden\\beeA.wav", 2, 22050, 16, GAR_BEE, FLAGS_NONE,
+	"garden\\moleB.wav", 2, 22050, 16, GAR_MOLE_IDLE1, FLAGS_NONE,
+	"garden\\moleA.wav", 2, 22050, 16, GAR_MOLE_ATTACK, FLAGS_NONE,
 };
 
 SAMPLEMAP spaceMapping[] =
 {
-	"space\\bbota.wav",		2, 22050, 16, GAR_MOWER,	FLAGS_NONE,
+	"space\\bbota.wav",		2, 22050, 16, SPC_BBOTA,	FLAGS_NONE,
 	"space\\bbotb.wav",		2, 22050, 16, SPC_BBOTB,	FLAGS_NONE,
 	"space\\bbotc.wav",		2, 22050, 16, SPC_BBOTC,	FLAGS_NONE,
 	"space\\bbotd.wav",		2, 22050, 16, SPC_BBOTD,	FLAGS_NONE,

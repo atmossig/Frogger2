@@ -226,7 +226,7 @@ void NMEDamageFrog( int num, ENEMY *nme )
 				AnimateActor(frog[num]->actor,reactiveAnims[nme->reactiveNumber].animFrog, NO, NO, 0.25F, 0, 0);
 				AnimateActor(nme->nmeActor->actor,reactiveAnims[nme->reactiveNumber].animChar, NO, NO, 0.25F, 0, 0);
 
-				GTInit( &player[num].dead, 5 );
+				GTInit( &player[num].dead, 3 );
 			}
 		}
 		else deathAnims[NUM_DEATHTYPES] (num); // DEATHBY_NORMAL
@@ -584,8 +584,12 @@ void UpdateSnapper( ENEMY *cur )
 		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 			break;
 
-		AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
-		AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
+		// Dirty hack for toy fair demo - fix in reactive file later
+		if( !(player[0].worldNum == WORLDID_GARDEN && player[0].levelNum == LEVELID_GARDEN1) )
+		{
+			AnimateActor( act, NMEANIM_SNAP_ATTACK, NO, NO, cur->nmeActor->animSpeed, 0, 0);
+			AnimateActor( act, NMEANIM_SNAP_IDLE, YES, YES, cur->nmeActor->animSpeed, 0, 0);
+		}
 
 		if( cur->nmeActor->effects & EF_LIGHTNING )
 		{

@@ -22,10 +22,6 @@
 #define PM_ENDLEVEL	2
 #define PM_GAMEOVER	3
 
-#ifndef DEFINITELY_NOT_MBR_DEMO
-//#define MBR_DEMO 1
-#endif
-
 // -----------------
 
 enum
