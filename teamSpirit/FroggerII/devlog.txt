@@ -190,6 +190,15 @@ David Swift:
 
 James Hubbard:
 ------------------------------------------------
+	Morning:
+
+		New water ripple stuff, and new water palette (again)
+		Considered pseudo-bumpmapping the water.
+
+	Afternoon:
+
+		First try at bumpmapping, looks kind of interesting. Spent
+		inordinate amount of time working out how to divide by three without a divide.
 
 
 James Healey:
