@@ -399,7 +399,7 @@ void LoadGame(void)
 	LoadSaveGameBlock(info, size);
 	FREE(info);
 
-	dprintf("Loaded game from %s", file);
+	utilPrintf("Loaded game from %s", file);
 }
 
 void SaveGame(void)
@@ -424,7 +424,7 @@ void SaveGame(void)
 
 	fclose(fp);	
 
-	dprintf("Saved game to %s", file);
+	utilPrintf("Saved game to %s", file);
 }
 
 /*	--------------------------------------------------------------------------------
