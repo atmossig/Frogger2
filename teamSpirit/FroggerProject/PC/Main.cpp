@@ -193,6 +193,7 @@ void GetArgs(char *arglist)
 
 					case 'K': case 'k':
 						debugKeys = !debugKeys;
+						displayDebugInfo = !displayDebugInfo;
 						utilPrintf("Debug keys %s\n",debugKeys?"enabled":"disabled");
 						break;
 
