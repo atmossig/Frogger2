@@ -907,7 +907,8 @@ void UpdateFXTrail( SPECFX *fx )
 void AddTrailElement( SPECFX *fx, int i )
 {
 	float t;
-	QUATERNION cross, offset;
+	QUATERNION cross;
+	VECTOR offset;
 
 	fx->particles[i].r = fx->r;
 	fx->particles[i].g = fx->g;
