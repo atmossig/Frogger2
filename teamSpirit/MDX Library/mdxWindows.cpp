@@ -43,7 +43,7 @@ WNDPROC userWndProc;
 unsigned long consoleDraw = 0;
 unsigned long timerDraw = 0;
 unsigned long textureDraw = 0;
-long displayDebugInfo = 1;
+long displayDebugInfo = 0;
 char winAppName[128];
 long windowActive;
 
