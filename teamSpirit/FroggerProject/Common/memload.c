@@ -49,7 +49,7 @@ int memload_fast = 0;
 char *sortHackNames[] = 
 {
 	"ada_info", "lillies", "gator", "turtle2", "turtle3", "plt4log", "plt5log",
-	"barup", "baruptwo", "barupthree", "beetle", "roach", "louse", "pltpump", "pltlilly"
+	"barup", "baruptwo", "barupthree", "beetle", "roach", "louse", "pltpump", "pltlilly",
 };
 #endif
 
@@ -343,12 +343,19 @@ int MemLoadEntities(const void* data)
 						while( *c != '.' ) *d++ = *c++;
 						*d = '\0';
 
-						for( j=0; j<NUM_SORTHACKED_OBJECTS; j++ )
+						if( player[0].worldNum == WORLDID_SUPERRETRO )
 						{
-							if( !(stricmp(name,sortHackNames[j])) )
+							act->depthShift += SORTHACK_OFFSET/5;
+						}
+						else
+						{
+							for( j=0; j<NUM_SORTHACKED_OBJECTS; j++ )
 							{
-								act->depthShift += SORTHACK_OFFSET;
-								break;
+								if( !(stricmp(name,sortHackNames[j])) )
+								{
+									act->depthShift += SORTHACK_OFFSET;
+									break;
+								}
 							}
 						}
 					}
