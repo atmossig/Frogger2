@@ -298,6 +298,14 @@ SOURCE=.\Common\maths.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\memload.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\memload.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\menus.c
 # End Source File
 # Begin Source File
@@ -429,10 +437,28 @@ SOURCE=.\N64\makefile
 # Begin Source File
 
 SOURCE=.\N64\3DText.c
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\N64\3DText.h
+
+!IF  "$(CFG)" == "Frogger - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
