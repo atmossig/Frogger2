@@ -164,7 +164,7 @@ extern void SetSampleFormat ( SAMPLE *sample );
 
 
 extern int PlaySample(SAMPLE *sample,SVECTOR *pos,long radius,short volume,short pitch);
-void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch );
+void PlaySfxMappedSample( ACTOR *act );
 extern void UpdateAmbientSounds();
 
 

@@ -292,7 +292,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	Returns			: success?
 	Info			: Pass in a valid vector to get attenuation, and a radius to override the default
 */
-void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch )
+void PlaySfxMappedSample( ACTOR *act )
 {
 	MDX_ACTOR *actor = (MDX_ACTOR *)act->actualActor;
 	SAMPLE *sample = act->animation.sfxMapping[actor->animation->currentAnimation];
@@ -304,13 +304,13 @@ void PlaySfxMappedSample( ACTOR *act, long radius, short volume, short pitch )
 	{
 		if( !act->animation.loopFlags[actor->animation->currentAnimation] )
 		{
-			AddAmbientSound( sample, &act->position, radius, volume, pitch, 0, 0, act );
+			AddAmbientSound( sample, &act->position, DEFAULT_SFX_DIST, SAMPLE_VOLUME, -1, 0, 0, act );
 			act->animation.loopFlags[actor->animation->currentAnimation] = 1;
 		}
 		return;
 	}
 
-	PlaySample( sample, &act->position, radius, volume, -1/*pitch*/ );
+	PlaySample( sample, &act->position, DEFAULT_SFX_DIST, SAMPLE_VOLUME, -1 );
 }
 
 
