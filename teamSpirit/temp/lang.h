@@ -11,7 +11,7 @@
 #ifndef LANG_H_INCLUDED
 #define LANG_H_INCLUDED
 
-#include <isllocal.h>
+#include "isllocal.h"
 
 enum {
 	LANG_UK,		// (United Kingdom)
@@ -384,6 +384,13 @@ enum GAMESTRINGS
 	STR_CREDITS_112,
 	STR_CREDITS_113,
 	STR_CREDITS_114,
+	STR_CREDITS_115,
+	STR_CREDITS_116,
+	STR_CREDITS_117,
+	STR_CREDITS_118,
+	STR_CREDITS_119,
+	STR_CREDITS_120,
+	STR_CREDITS_121,
 	STR_LEGAL_1,
 	STR_LEGAL_2,
 	STR_LEGAL_3,
@@ -394,6 +401,7 @@ enum GAMESTRINGS
 	STR_LEGAL_8,
 	STR_LEGAL_9,
 	STR_LEGAL_10,
+	STR_LEGAL_11,
 	STR_PCSETUP_VIDEO,
 	STR_PCSETUP_RESOLUTION,
 	STR_PCSETUP_OK,
@@ -411,6 +419,6 @@ enum GAMESTRINGS
 };
 
 // in case we ever need to debug or do anything sneaky, use a define here
-#define GAMESTRING(n) ((((n)>0) && ((n)<LANG_NUM_STRINGS))?TEXTSTR(n):"out of range string!")
+#define GAMESTRING(n) ((((n)>0) && ((n)<LANG_NUM_STRINGS))?TEXTSTR(n):"out of range string")
 
 #endif
