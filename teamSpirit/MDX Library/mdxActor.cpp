@@ -50,6 +50,14 @@ int uniqueActorCRC[MAX_UNIQUE_ACTORS];
 long numActorsUniqe = 0;
 void (*StartAnim)(MDX_ACTOR *me) = NULL;
 
+/*  --------------------------------------------------------------------------------
+
+	Function	: AddActorToList
+	Purpose		: Add an actor to the MDX actor list
+	Parameters	: (MDX_ACTOR *me)
+	Returns		: unsigned long 
+	Info		:
+*/
 
 unsigned long AddActorToList(MDX_ACTOR *me)
 {
@@ -75,6 +83,16 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 	return 1;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: KillObjectSprites
+	Purpose		: When an object is culled in draw actor list, this tells the spries not to draw
+	Parameters	: (MDX_OBJECT *me)
+	Returns		: void 
+	Info		: Stops the sticky sprite bug.	
+*/
+
 void KillObjectSprites(MDX_OBJECT *me)
 {
 	int i;
@@ -87,6 +105,16 @@ void KillObjectSprites(MDX_OBJECT *me)
 	if (me->children)
 		KillObjectSprites(me->children);
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: ActorListDraw
+	Purpose		: Draw all actors in the actor list
+	Parameters	: (void)
+	Returns		: void 
+	Info		:
+*/
 
 void ActorListDraw(void)
 {
@@ -144,6 +172,16 @@ void ActorListDraw(void)
 	}
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: DrawActor
+	Purpose		: Draw a single actor
+	Parameters	: (MDX_ACTOR *actor)
+	Returns		: void 
+	Info		:
+*/
+
 void DrawActor(MDX_ACTOR *actor)
 {
 	// Optimisation.
@@ -194,6 +232,16 @@ void DrawActor(MDX_ACTOR *actor)
 	}
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: QueueFlush
+	Purpose		: Flush all anims in the queue for a given actor
+	Parameters	: (MDX_ACTOR *myActor)
+	Returns		: void 
+	Info		:
+*/
+
 void QueueFlush(MDX_ACTOR *myActor)
 {
 	int i;
@@ -202,6 +250,16 @@ void QueueFlush(MDX_ACTOR *myActor)
 	for(i = 0;i < MDX_ANIM_QUEUE_LENGTH;i++)
 		myActor->animation->queueAnimation[i] = -1;
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: Animate
+	Purpose		: Animate an actor
+	Paramete	: ( MDX_ACTOR *actor, int animNum, char loop, char queue, float speed)rs	
+	Returns		: void 
+	Info		:
+*/
 
 void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed)
 {
@@ -260,6 +318,16 @@ void Animate(MDX_ACTOR *actor, int animNum, char loop, char queue, float speed)
 		}
 	}
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: UpdateAnims
+	Purpose		: Update an actors anims
+	Parameters	: ( MDX_ACTOR *actor)
+	Returns		: void 
+	Info		: Call once per frame
+*/
 
 void UpdateAnims(MDX_ACTOR *actor)
 {
@@ -340,6 +408,16 @@ void UpdateAnims(MDX_ACTOR *actor)
 	}
 }
 
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: CheckBoundingBox
+	Purpose		: Compare a bounding box to see if it is visible
+	Parameters	: (MDX_VECTOR *bBox,MDX_MATRIX *m)
+	Returns		: unsigned long 
+	Info		: BROKEN!
+*/
 
 unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
@@ -492,6 +570,16 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 */
 
 long halve = 0;
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: XformActor
+	Purpose		: Transform an actor
+	Parameters	: ( MDX_ACTOR *actor,long v)
+	Returns		: void 
+	Info		: Update anims, Interpolate anim keys, and Create object matrix
+*/
+
 void XformActor(MDX_ACTOR *actor,long v)
 {
 	MDX_OBJECT_CONTROLLER *objectC = actor->objectController;
@@ -533,6 +621,16 @@ void XformActor(MDX_ACTOR *actor,long v)
 	matrixStack.stackPosition-=2;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: InitAnims
+	Purpose		: Init actors anim structures
+	Parameters	: ( MDX_ACTOR *tempActor)
+	Returns		: void 
+	Info		:
+*/
+
 void InitAnims(MDX_ACTOR *tempActor)
 {
 
@@ -552,6 +650,16 @@ void InitAnims(MDX_ACTOR *tempActor)
 	tempActor->animation->animTime = 0;
 	tempActor->animation->reachedEndOfAnimation = FALSE;	
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: InitActorStructures
+	Purpose		: Init actors structures
+	Parameters	: (MDX_ACTOR *tempActor, int initFlags)
+	Returns		: void 
+	Info		:
+*/
 
 void InitActorStructures(MDX_ACTOR *tempActor, int initFlags)
 {
@@ -577,6 +685,16 @@ void InitActorStructures(MDX_ACTOR *tempActor, int initFlags)
 	tempActor->xluOverride = 100;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: InitActor
+	Purpose		: Init actor
+	Parameters	: ( MDX_ACTOR *tempActor, char *name, float x, float y, float z, int initFlags)	
+	Returns		: void 
+	Info		:
+*/
+
 void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int initFlags)
 {
 	FindObject(&tempActor->objectController, UpdateCRC(name), name);
@@ -595,6 +713,16 @@ void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int 
 	ZeroQuaternion(&tempActor->qRot);
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: FreeUniqueActorList
+	Purpose		: Frees the Unique actor list.
+	Parameters	: (void)
+	Returns		: void 
+	Info		: Doesn't free the unique actors themselves!!!
+*/
+
 void FreeUniqueActorList(void)
 {
 	for (int i=0; i<numActorsUniqe; i++)
@@ -603,6 +731,16 @@ void FreeUniqueActorList(void)
 
 }
 
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: FreeUniqueObject
+	Purpose		: Free A unique copy of an objects structures
+	Parameters	: (MDX_OBJECT *object)
+	Returns		: void 
+	Info		:
+*/
 
 void FreeUniqueObject(MDX_OBJECT *object)
 {
@@ -647,9 +785,29 @@ void FreeActor(MDX_ACTOR **toFree)
 	*toFree = 0;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: MakeUniqueVtx
+	Purpose		: Make vertices unique, unused
+	Parameters	: (MDX_OBJECT_CONTROLLER *objC)
+	Returns		: void 
+	Info		:
+*/
+
 void MakeUniqueVtx(MDX_OBJECT_CONTROLLER *objC)
 {
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: MakeUniqueObject
+	Purpose		: Make an object into a unique copy of itself
+	Parameters	: (MDX_OBJECT *object)
+	Returns		: MDX_OBJECT *
+	Info		: Make a unique copy of all pointers
+*/
 
 MDX_OBJECT *MakeUniqueObject(MDX_OBJECT *object)
 {
@@ -676,6 +834,16 @@ MDX_OBJECT *MakeUniqueObject(MDX_OBJECT *object)
 		
 	return object;
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: MakeUniqueActor
+	Purpose		: Simmilar to above
+	Parameters	: (MDX_ACTOR *actor,int type)
+	Returns		: void 
+	Info		: but on Actor level
+*/
 
 void MakeUniqueActor(MDX_ACTOR *actor,int type)
 {
@@ -719,6 +887,16 @@ float maxZ,minZ;
 
 #define BIGVAL 10000.0
 #define RADIUS_SCALE 0.95
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName
+	Purpose		: Guess
+	Parameters	: (MDX_OBJECT *me)
+	Returns		: void 
+	Info		:
+*/
+
 void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(MDX_OBJECT *me)
 {
 	int i;
@@ -745,6 +923,16 @@ void PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunc
 			PeruseRadiusInformationFromObjectRecursivelyForNonSkinnedObjectsInATinyFunctionWithAVeryBigName(me->next);
 	}
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: CalculateTrueCentreAndRadius
+	Purpose		: Gets the actual centre of an object (On frame 0) 
+	Parameters	: (MDX_ACTOR *t)
+	Returns		: void 
+	Info		: Facility for getting radius from centrepoint is commented out.
+*/
 
 void CalculateTrueCentreAndRadius(MDX_ACTOR *t)
 {
@@ -777,6 +965,16 @@ void CalculateTrueCentreAndRadius(MDX_ACTOR *t)
 	t->radius = mdxMagnitude(&radius) * RADIUS_SCALE;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: CreateActor
+	Purpose		: Create a new actor
+	Parameters	: (char *name, unsigned long flags)
+	Returns		: MDX_ACTOR *
+	Info		:
+*/
+
 MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 {
 	MDX_ACTOR *t;
@@ -808,6 +1006,16 @@ MDX_ACTOR *CreateActor(char *name, unsigned long flags)
 	return t;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: FindObj
+	Purpose		: Find a sub object with a given name in a hierachy
+	Parameters	: (MDX_OBJECT *me, char *name)
+	Returns		: MDX_OBJECT *
+	Info		: Internal, called by find actor subobject, recursive
+*/
+
 MDX_OBJECT *FindObj(MDX_OBJECT *me, char *name)
 {
 	MDX_OBJECT *t = NULL;
@@ -823,10 +1031,30 @@ MDX_OBJECT *FindObj(MDX_OBJECT *me, char *name)
 	return t;
 }
 
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: FindActorSubObject
+	Purpose		: Find a sub object with a given name in a hierachy
+	Parameters	: (MDX_ACTOR *me, char *subName)
+	Returns		: MDX_OBJECT *
+	Info		: 
+*/
+
 MDX_OBJECT *FindActorSubObject(MDX_ACTOR *me, char *subName)
 {	
 	return FindObj(me->objectController->object,subName);
 }
+
+
+/*  --------------------------------------------------------------------------------
+
+	Function	: AttachActorToSubobject
+	Purpose		: Attach an actors centrepoint to a specific sub-object in the hierachy - ie, hats on frogs or guns on hands.
+	Parameters	: (MDX_OBJECT *dest, MDX_ACTOR *src)
+	Returns		: void 
+	Info		:
+*/
 
 void AttachActorToSubobject(MDX_OBJECT *dest, MDX_ACTOR *src)
 {
