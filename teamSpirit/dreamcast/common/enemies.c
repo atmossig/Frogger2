@@ -92,9 +92,9 @@ typedef struct _NMEHACK {
 
 NMEHACK enemyAnimHack[] = {
 #ifdef DREAMCAST_VERSION
-#include "w:\teamspirit\pcversion\nmehack.txt"
+#include "x:\teamspirit\pcversion\nmehack.txt"
 #else
-#include "w:\teamspirit/pcversion/nmehack.txt"
+#include "x:/teamspirit/pcversion/nmehack.txt"
 #endif
 };
 
@@ -110,9 +110,9 @@ NMEHACK enemyAnimHack[] = {
 
 REACTIVEANIM reactiveAnims[] = {
 #ifdef DREAMCAST_VERSION
-#include "w:\teamspirit\pcversion\reactive.txt"
+#include "x:\teamspirit\pcversion\reactive.txt"
 #else
-#include "w:\teamspirit/pcversion/reactive.txt"
+#include "x:/teamspirit/pcversion/reactive.txt"
 #endif
 };
 
@@ -193,7 +193,7 @@ void DoEnemyCollision( ENEMY *cur )
 {
 	ACTOR2 *act = cur->nmeActor;
 
-	if( (cur->flags & ENEMY_NEW_VENT) || (cur->flags & ENEMY_NEW_MOVEONMOVE) || (cur->flags & ENEMY_NEW_PUSHESFROG) ) 
+	if( (cur->flags & ENEMY_NEW_VENT) /*|| (cur->flags & ENEMY_NEW_MOVEONMOVE)*/ || (cur->flags & ENEMY_NEW_PUSHESFROG) ) 
 		return;
 
 	if (gameState.multi==SINGLEPLAYER)
@@ -215,8 +215,7 @@ void DoEnemyCollision( ENEMY *cur )
 		{
 			// JIM: checking for lasttile causes totally unfair collision.
 			if( ((currTile[0] == cur->inTile) /*|| (lastTile[0] == cur->inTile)*/) && !player[0].dead.time && 
-				(!(player[0].isSuperHopping) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-				!(player[0].frogState & FROGSTATUS_ISFLOATING) )
+				((!(player[0].isSuperHopping)&&!(player[0].frogState & FROGSTATUS_ISFLOATING)) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{
@@ -229,9 +228,11 @@ void DoEnemyCollision( ENEMY *cur )
 		}
 	}
 	else
-	{
-		int i;
-		for (i=0; i<NUM_FROGS; i++)
+	{ 
+		// We only want to do collision with player 1 in a REMOTE multiplayer game
+		int i = (gameState.multi==MULTIREMOTE)?0:(NUM_FROGS-1);
+
+		for (;i>=0;i--)
 		{
 			if( cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION )
 			{
@@ -435,6 +436,56 @@ void UpdateEnemies()
 		// Do Special Effects attached to enemies
 		if( act2->effects && !act2->clipped && !(cur->flags & ENEMY_NEW_VENT) )
 			ProcessAttachedEffects( (void *)cur, ENTITY_ENEMY );
+	}
+
+	UpdateBabies();
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateAllEnemies
+	Purpose			: updates ALL enemies positions; used by network play
+	Parameters		: 
+	Returns			: void
+	
+	This function updates EVERY enemy so they start in the right place. This is needed
+	for the network synchronisation stuff, where the game's timers can suddenly jump forward
+	or backwards a number of seconds as they match the host - ds
+*/
+void UpdateAllEnemies()
+{
+	ENEMY *cur,*next;
+	ENEMY_UPDATEFUNC *update;
+
+	if(enemyList.count == 0)
+		return;
+
+	for(cur = enemyList.head.next; cur != &enemyList.head; cur = next)
+	{
+		ACTOR2 *act2 = cur->nmeActor;
+		ACTOR *act;
+		
+		next = cur->next;
+
+		if (cur->active && act2)
+			act = cur->nmeActor->actor;
+		else
+			continue;
+
+		// check if this enemy is currently 'waiting' at a node
+		if(cur->isWaiting)
+		{
+			if(cur->isWaiting == -1)
+				continue;
+
+			if(actFrameCount > cur->path->startFrame)
+				cur->isWaiting = 0;
+			else
+				continue;
+		}
+
+		// Do update functions for individual enemy types
+		for (update = cur->Update; *update; update++)
+			(*update)(cur);
 	}
 
 	UpdateBabies();
@@ -1183,15 +1234,22 @@ void UpdateVent( ENEMY *cur )
 
 				if( cur->nmeActor->effects & EF_FIERYSMOKE ) // Pilot light type thing
 				{
-					PrepForPriorityEffect( );
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
-					SetFXColour( fx, 255, 255, 255 );
+					// pre-burn is less important than the smoke itself. - ds
+					//PrepForPriorityEffect( );
+					if (frameCount&1)
+					{
+						fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
+						SetFXColour( fx, 255, 255, 255 );
+					}
 				}
 				else if( cur->nmeActor->effects & EF_SMOKEBURST )
 				{
-					PrepForPriorityEffect( );
-					fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
-					SetAttachedFXColour( fx, act->effects );
+					//PrepForPriorityEffect( );
+					if (frameCount&1)
+					{
+						fx = CreateSpecialEffect( FXTYPE_SMOKE_GROWS, &act->actor->position, &up, 90000, 2048, 1024, 4096 );
+						SetAttachedFXColour( fx, act->effects );
+					}
 				}
 				else if( (cur->nmeActor->effects & EF_LIGHTNING) && !cur->isIdle ) // TODO: make this better!
 				{
@@ -1255,7 +1313,11 @@ void UpdateVent( ENEMY *cur )
 			if( cur->nmeActor->effects & EF_FIERYSMOKE )
 			{
 				PrepForPriorityEffect( );
+#ifdef PSX_VERSION
+				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 12288 );
+#else
 				fx = CreateSpecialEffect( FXTYPE_FIERYSMOKE, &act->actor->position, &up, 204800, (act->animSpeed<<3)*path->numNodes, scale, 8192 );
+#endif
 			}
 			else if( cur->nmeActor->effects & EF_LASER )
 			{
@@ -2176,7 +2238,6 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 #endif
 
 #ifdef PSX_VERSION
-
 #ifndef DREAMCAST_VERSION
 				switch ( n )
 				{
@@ -2188,7 +2249,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 				}
 #else
 					newItem->nmeActor->actor->clutOverride = n;
-#endif				
+#endif
 
 #endif
 				babyList[i].baby = newItem->nmeActor;
@@ -2204,6 +2265,16 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 		babyIcons[i]->r = babyList[i].fxColour[0];
 		babyIcons[i]->g = babyList[i].fxColour[1];
 		babyIcons[i]->b = babyList[i].fxColour[2];
+#ifdef PC_VERSION
+		if( !rHardware )
+		{
+			babyList[i].baby->depthShift -= 50;
+
+			babyIcons[i]->r /= 2;
+			babyIcons[i]->g /= 2;
+			babyIcons[i]->b /= 2;
+		}
+#endif
 	}
 
 	if( player[0].worldNum == WORLDID_ANCIENT )
@@ -2685,7 +2756,7 @@ void SetEnemyMoving(ENEMY *nme, int moving)
 		{
 			if( nme->path->nodes[2].worldTile )
 			{
-				nme->inTile = nme->path->nodes[2].worldTile;
+				//nme->inTile = nme->path->nodes[2].worldTile;
 				nme->path->nodes[1].worldTile = nme->path->nodes[2].worldTile;
 				nme->path->nodes[2].worldTile = NULL;
 			}
@@ -2715,6 +2786,9 @@ int MoveEnemyToNode(ENEMY *nme, int node)
 		if( ph )
 		{
 			nme->path->nodes[0].worldTile = ph->path->nodes[0].worldTile;
+
+			nme->inTile = nme->path->nodes[0].worldTile;
+
 			if( nme->flags & ENEMY_NEW_BATTLEMODE )
 			{
 				if( nme->path->nodes[2].worldTile->state == TILESTATE_OCCUPIED )
@@ -2793,4 +2867,35 @@ BOOL EnemyReachedTopOrBottomPoint(ENEMY *nme)
 	}
 
 	return FALSE;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FindEnemyAtNode
+	Purpose			: Search enemy list for an enemy that is on this node
+	Parameters		: Node to compare
+	Returns			: Found enemy or NULL
+	Info			: nme is an optional parameter to allow for exclusions to the search. Also, enemies must share paths
+*/
+ENEMY *FindEnemyAtNode( ENEMY *nme, int n )
+{
+	ENEMY *e;
+	PATH *p = nme->path;
+	int nn, pn, node;
+
+	nn = n+1;
+	if( nn >= p->numNodes ) nn = 0;
+	pn = n-1;
+	if( pn < 0 ) pn = p->numNodes-1;
+
+	for( e = enemyList.head.next; e != &enemyList.head; e = e->next )
+	{
+		node = e->path->toNode;
+
+		if( (nme && e != nme) && e->active && 
+			((&e->path->nodes[node] == &p->nodes[nn]) || (&e->path->nodes[node] == &p->nodes[pn]) || (&e->path->nodes[node] == &p->nodes[n])) )
+			return e;
+	}
+
+	return NULL;
 }

@@ -131,7 +131,7 @@ int ActorWithinRadius( TRIGGER *trigger )
 
 int OnTimeout( TRIGGER *trigger )
 {
-	unsigned long time = (int)trigger->data[0];
+	unsigned long time = (unsigned long)trigger->data[0];
 
 	if (actFrameCount >= time)
 	{
@@ -144,7 +144,7 @@ int OnTimeout( TRIGGER *trigger )
 
 int OnRandomTimeout( TRIGGER *trigger )
 {
-	unsigned long time = (int)trigger->data[0];
+	unsigned long time = (unsigned long)trigger->data[0];
 
 	if (actFrameCount >= time)
 	{
@@ -345,7 +345,8 @@ void AssignFloatToFloat( EVENT *event )
 void AssignIntToInt( EVENT *event )
 {
 	int *ass = (int *)event->data[0];
-	int val = *(int *)event->data[1];
+	int val = (int)event->data[1];
+
 
 	*ass = val;
 }

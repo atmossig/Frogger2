@@ -146,6 +146,7 @@ void AddEnemy(ENEMY *enemy);
 void SubEnemy(ENEMY *enemy);
 
 void UpdateEnemies();
+void UpdateAllEnemies();	// like UpdateEnemies except ALL enemies are updated, even if they're not visible
 
 //------------------------------------------------------------------------------------------------
 
@@ -163,9 +164,13 @@ int EnumEnemies(long id, int (*func)(ENEMY*, int), int param);
 int MoveEnemyToNode(ENEMY *nme, int node);
 void SetEnemyVisible(ENEMY *nme, int visible);
 void SetEnemyMoving(ENEMY *nme, int moving);
+
+ENEMY *FindEnemyAtNode( ENEMY *nme, int n );
+
 //------------------------------------------------------------------------------------------------
 
 #ifdef __cplusplus
 }
 #endif
 #endif
+

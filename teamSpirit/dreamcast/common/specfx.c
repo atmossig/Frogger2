@@ -65,6 +65,7 @@ TextureType *txtrRipple		= NULL;
 TextureType *txtrStar		= NULL;
 TextureType *txtrSolidRing	= NULL;
 TextureType *txtrSmoke		= NULL;
+TextureType *txtrFire		= NULL;
 TextureType *txtrSmoke2		= NULL;
 TextureType *txtrRing		= NULL;
 TextureType *txtrBubble		= NULL;
@@ -589,8 +590,10 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
 			effect->tex = txtrSolidRing;
 		else if( effect->type == FXTYPE_SPARKLYTRAIL )
 			effect->tex = txtrFlash;
-		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
+		else if(effect->type == FXTYPE_SMOKEBURST)
 			effect->tex = txtrSmoke;
+		else if(effect->type == FXTYPE_FIERYSMOKE)
+			effect->tex = txtrFire;
  
  		effect->fade = effect->a/max(life,1);
 		tmp = effect->speed / 30;
@@ -1004,10 +1007,9 @@ void UpdateFXSmoke( SPECFX *fx )
 */
 void UpdateFXSwarm( SPECFX *fx )
 {
-//	FVECTOR up;
 	SVECTOR pos;
-	int i = fx->numP;
-	fixed /*dist, */speed, limit;
+	int i = fx->numP,j;
+	fixed speed, limit;
 	SPRITE *s;
 	PARTICLE *p;
   
@@ -1015,87 +1017,20 @@ void UpdateFXSwarm( SPECFX *fx )
  		SetVectorSS( &fx->origin, &fx->follow->position );
 
 	speed = FMul( fx->speed, gameSpeed );
-	limit = FMul( fx->accn, gameSpeed );
-//	if( fx->type == FXTYPE_FROGSTUN )
-//	{
-//		SetVectorFF( &up, &currTile[0]->normal );
-//		ScaleVectorFF( &up, 20<<12 );
-//		AddVectorSFS( &fx->origin, &up, &frog[0]->actor->position );
-//	}
-
+	limit = fx->accn;//FMul( fx->accn, gameSpeed );
 	s = fx->sprites;
 	p = fx->particles;
+	j = (((int)fx) & (40 + 64 + 128 + 256));
 	while(i--)
 	{
-		// Set world check position from either sprite or actor
-//		if( !fx->act )
-			SetVectorSS( &pos, &s->pos );
-//		else
-//			SetVectorSS( &pos, &fx->act[i]->actor->position );
+		p->pos.vx = FMul(FMul(rsin((actFrameCount + (i+j)*10)*43),limit),4);
+		p->pos.vy = FMul(FMul(rsin((actFrameCount - (i+j)*15)*57),limit),4);
+		p->pos.vz = FMul(FMul(rsin((actFrameCount + (i+j)*20)*71),limit),4);
 
-		// Fade out star stun
-//		if( fx->type == FXTYPE_FROGSTUN )
-//		{		
-//			if( s->a > 7 ) s->a -= 8;
-//			else s->a = 0;
-//		}
+		// Add local particle pos to swarm origin to get world coords for sprite
+		AddVectorSSS( &s->pos, &fx->origin, &p->pos );
 
-		// Update particle velocity to oscillate around the point
-		if( pos.vx > fx->origin.vx)
-			p->vel.vx -= speed;
-		else
-			p->vel.vx += speed;
-		if( pos.vy > fx->origin.vy )
-			p->vel.vy -= speed;
-		else
-			p->vel.vy += speed;
-		if( pos.vz > fx->origin.vz)
-			p->vel.vz -= speed;
-		else
-			p->vel.vz += speed;
-
-		// Limit velocity of particles
-		if( p->vel.vx > limit )
-			p->vel.vx = limit;
-		else if( p->vel.vx < -limit )
-			p->vel.vx = -limit;
-		if( p->vel.vy > limit )
-			p->vel.vy = limit;
-		else if( p->vel.vy < -limit )
-			p->vel.vy = -limit;
-		if( p->vel.vz > limit )
-			p->vel.vz = limit;
-		else if( p->vel.vz < -limit )
-			p->vel.vz = -limit;
-
-		// Add velocity to local particle position
-		AddToVectorSF( &p->pos, &p->vel );
-		// Add local particle pos to swarm origin to get world coords for sprite or actor
-//		if( !fx->act )
-//		{
-			AddVectorSSS( &s->pos, &fx->origin, &p->pos );
-			SetVectorSS( &pos, &s->pos );
-			s = s->next;
-//		}
-//		else
-//		{
-//			AddVectorSSS( &fx->act[i]->actor->position, &fx->origin, &p->pos );
-//			SetVectorSS( &pos, &fx->act[i]->actor->position );
-//		}
-
-//		if( fx->rebound )
-//		{
-//			FVECTOR fRP;
-//			FVECTOR fPos;
-//			SetVectorFS(&fRP,&fx->rebound->point);
-//			fx->rebound->J = -DotProductFF( &fRP, &fx->rebound->normal );
-//			SetVectorFS(&fPos,&pos);
-//			dist = -(DotProductFF(&fPos, &fx->rebound->normal) + fx->rebound->J);
-
-//			if(dist > 0 && dist < 122880)
-//				CreateSpecialEffect( FXTYPE_WAKE, &pos, &fx->rebound->normal, 20480, 2048, 410, 1229 );
-//		}
-
+		s = s->next;
 		p = p->next;
 	}
 
@@ -1103,8 +1038,6 @@ void UpdateFXSwarm( SPECFX *fx )
 //		if( actFrameCount > fx->lifetime )
 //			DeallocateFX(fx, 1);
 }							  
-
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateFXSExplodeParticle
@@ -1585,6 +1518,11 @@ void InitSpecFXList( )
 	txtrStar = FindTexture("STAR_OUTLINE");
 	txtrSolidRing = FindTexture("AI_CIRCLE");
 	txtrSmoke =	FindTexture("00SMOK07");
+#ifdef PSX_VERSION
+	txtrFire =	FindTexture("00FIRE07");
+#else
+	txtrFire =	FindTexture("00SMOK07");
+#endif
 	txtrSmoke2 = FindTexture("AI_SMOKE");
 	txtrRing = FindTexture("AI_RING");
 	txtrBubble = FindTexture("WATDROP");
@@ -1950,8 +1888,11 @@ void ProcessAttachedEffects( void *entity, int type )
 
 			if( fx )
 			{
-				SetVectorSS( &fx->rebound->point, &tile->centre );
-				SetVectorFF( &fx->rebound->normal, &tile->normal );
+				if(fx->rebound)
+				{
+					SetVectorSS( &fx->rebound->point, &tile->centre );
+					SetVectorFF( &fx->rebound->normal, &tile->normal );
+				}
 				fx->gravity = act->radius*SCALE;
 
 				SetAttachedFXColour( fx, act->effects );

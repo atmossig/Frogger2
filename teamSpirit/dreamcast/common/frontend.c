@@ -72,6 +72,7 @@ extern int useMemCard;
 
 int numExtra;
 
+extern int restartingLevel;
 char extraOpenStr[64];
 extern int pauseController;
 int eolTrackComplete;
@@ -114,6 +115,35 @@ TEXTOVERLAY *removeControllerText3;
 // main.c - used to abort the game
 extern unsigned int globalAbortFlag;
 
+TEXTOVERLAY *theEndText = NULL;
+TIMER theEndTimer;
+void RunTheEndMode()
+{
+	if(theEndText == NULL)
+	{
+		FreeTextOverlayLinkedList();
+		InitTextOverlayLinkedList(2);
+		theEndText = CreateAndAddTextOverlay(2048,2000,GAMESTRING(STR_THE_END),YES,255,font,0);
+		GTInit(&theEndTimer,5);
+		ScreenFade(0,255,30);
+	}
+	else if((theEndTimer.time) && (!fadingOut))
+	{
+		GTUpdate(&theEndTimer,-1);
+		if((!theEndTimer.time) || (padData.debounce[0]))
+		{
+			ScreenFade(255,0,30);
+			theEndTimer.time = 0;
+		}
+	}
+	if((!fadingOut) && (theEndTimer.time == 0))
+	{
+		gameState.mode = FRONTEND_MODE;
+		theEndText = NULL;
+		InitLevel(player[0].worldNum,player[0].levelNum);
+		frameCount = 0;		
+	}
+}
 
 /* --------------------------------------------------------------------------------
    Function : GameLoop
@@ -237,6 +267,9 @@ void GameLoop(void)
 		{
 			if(checkForControllerRemovedMulti())
 			{
+
+				pauseController = checkForControllerRemovedMulti()-1;
+
 				pauseFrameCount = 0;
 				quittingLevel = NO;
 				pauseConfirmMode = NO;
@@ -276,6 +309,10 @@ void GameLoop(void)
 		RunDemoMode();
 		break;
 
+	case THEEND_MODE:
+		RunTheEndMode();
+		break;
+	
 	case FRONTEND_MODE:
 		RunFrontendGameLoop();
 		break;
@@ -1258,9 +1295,10 @@ void StartLevelComplete()
 
 	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted == 0)
 		levelOpened = 1;
-	worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
+	if((gameState.difficulty != DIFFICULTY_HARD) || (arcadeHud.timeOutText->draw == 0))
+		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelCompleted = 1;
 
-	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS - 1))
+	if((gameState.single == STORY_MODE) && (gameState.storySequenceLevel < NUM_STORY_LEVELS - 1) && ((gameState.difficulty != DIFFICULTY_HARD) || (arcadeHud.timeOutText->draw == 0)))
 	{
 		gameState.storySequenceLevel++;
 		if(worldVisualData[storySequence[gameState.storySequenceLevel].worldNum].worldOpen == WORLD_CLOSED)
@@ -1369,7 +1407,7 @@ void StartLevelComplete()
 	}
 	else
 	{
-		if((gameState.difficulty == DIFFICULTY_HARD) && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && (timeForLevel <= worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime))
+		if((gameState.difficulty == DIFFICULTY_HARD) && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && (arcadeHud.timeOutText->draw == 0))
 			worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten = levelBeaten = 1;
 		if(timeForLevel < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)
 			grade = 0;
@@ -1453,7 +1491,7 @@ void StartLevelComplete()
 		sprintf(currentName,"%s %s",GAMESTRING(STR_ENTER_NAME),textString);
 		nText = CreateAndAddTextOverlay(4096, 3350, currentName, NO, (char)0xFF, font, TEXTOVERLAY_SHADOW);
 #ifdef PSX_VERSION
-		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*4 + fontExtentWScaled(nText->font,"AAAAA",4096)*4;
+		w = fontExtentWScaled(nText->font,GAMESTRING(STR_ENTER_NAME),4096)*4 + fontExtentWScaled(nText->font,"AAAAAA",4096)*4;
 		nText->xPosTo = 2048 - w;
 		nText->xPos = nText->xPosTo + 4096;
 #elif PC_VERSION
@@ -1663,8 +1701,11 @@ void RunLevelComplete()
 							coinsMissed++;
 							sprintf(coinStr,GAMESTRING(STR_MISSED_COINS),coinsMissed);//,garibList.maxCoins - player[0].numSpawn);
 							coinCounter = 0;
-							PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);
-							coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
+							PlaySample(genSfx[GEN_COLLECT_COIN],NULL,0,SAMPLE_VOLUME,-1);							
+							if(cheatCombos[CHEAT_MAD_GARIBS].state)
+								coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"RGARIB01",205,273,0xff,0);
+							else
+								coinOver = CreateAndAddSpriteOverlay(arcadeHud.coinsOver->xPos,arcadeHud.coinsOver->yPos,"SCOIN0001",205,273,0xff,0);
 							coinOver->xPosTo += 10000;
 							coinOver->speed = 4096*50;
 						}
@@ -1728,6 +1769,7 @@ void RunLevelComplete()
 			if(oldBestText)
 				oldBestText->speed = 4096*75;
 
+#ifndef PC_DEMO
 			if(newBestText)
 				newBestText->speed = 4096*75;
 			if(nText)
@@ -1753,7 +1795,17 @@ void RunLevelComplete()
 					}
 				}
 			}
-
+#else
+			if(eolTimer.time)
+			{
+				GTUpdate(&eolTimer,-1)
+				if((!eolTimer.time) || (padData.debounce[0] & PAD_CROSS))
+				{
+					levCompleteState = LEV_COMPLETE_MENU;
+					eolTimer.time = 0;
+				}
+			}
+#endif
 			break;
 
 		case LEV_COMPLETE_ENTER_NAME:
@@ -1864,7 +1916,7 @@ void RunLevelComplete()
 						gameState.storySequenceLevel = 0;
 						player[0].worldNum = WORLDID_FRONTEND;
 						player[0].levelNum = LEVELID_FRONTEND1;
-						gameState.mode = FRONTEND_MODE;
+						gameState.mode = THEEND_MODE;
 					}
 					else
 					{
@@ -1876,11 +1928,13 @@ void RunLevelComplete()
 				{
 					// todo: place Frogger 
 					gameState.mode = INGAME_MODE;
+					restartingLevel = TRUE;
 				}
 //				FreeAllLists();
 				frameCount = 0;
 
-				InitLevel(player[0].worldNum,player[0].levelNum);
+				if(gameState.mode != THEEND_MODE)
+					InitLevel(player[0].worldNum,player[0].levelNum);
 
 				showEndLevelScreen = 1; // Normal level progression is default
 				frameCount = 0;		

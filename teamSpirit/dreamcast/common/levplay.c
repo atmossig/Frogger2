@@ -37,6 +37,8 @@ unsigned long playKeyCount;
 unsigned long curPlayKey;
 unsigned long *playKeyList;
 
+extern int oldDiffMode;
+
 TIMER demoTimeout;
 
 int demoLevels[NUM_DEMOS][2] = {
@@ -129,6 +131,9 @@ void RunDemoMode()
 #else
 		if( UndoChangeModel( frog[0]->actor ) )
 			player[0].idleEnable = 1;
+
+		gameState.difficulty = oldDiffMode;
+		oldDiffMode = gameState.difficulty;
 
 		gameState.mode = FRONTEND_MODE;
 		player[0].character = FROG_FROGGER;

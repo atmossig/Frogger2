@@ -142,7 +142,7 @@ OPTIONSOBJECTS options =
 
 int NUM_ARCADE_WORLDS = 8;
 
-#define MAX_CREDITS 200
+#define MAX_CREDITS 250
 TEXTOVERLAY *creditsText[MAX_CREDITS] = {NULL};
 
 int camStill;
@@ -266,13 +266,26 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 
-	3,RED,		//published by
-	0,GREEN,
+	3,RED,		//for Hasbro Interactive Europe
+	0,RED,
 
 	3,RED,		//producer
 	0,GREEN,
 
 	3,RED,		//executive producer
+	0,GREEN,
+
+	3,RED,		//european development
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//senior product manager
+	0,GREEN,
+
+	3,RED,		//QA Manager
+	0,GREEN,
+
+	3,RED,		//QA Supervisor
 	0,GREEN,
 
 	3,RED,		//lead tester
@@ -284,26 +297,38 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
-
-	3,RED,		//shadow ...
-	0,RED,		//shadow ...
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 
+	3,RED,		//hardware compatibility testing lab
+	0,RED,
+	0,GREEN,
+	0,GREEN,
+	
 	3,RED,		//localisation
 	0,RED,		//localisation
 	0,GREEN,
 
-	3,RED,		//packaging
-	0,RED,		//packaging
+	3,RED,		//art director
+
 	0,GREEN,
 
-	3,RED,		//product manager US
-	0,RED,		//product manager US
-	0,GREEN,
+	3,RED,		//manual manager
+
 	0,GREEN,
 
-	3,RED,		//product manager ROW
-	0,RED,		//product manager ROW
+	3,RED,		//documentation writer
+	0,GREEN,
+
+	3,RED,		//strategic marketing director
+	0,RED,		
+	0,GREEN,
+
+	3,RED,		//commercial director international
+	0,RED,		
 	0,GREEN,
 
 	3,RED,		//special thanks
@@ -311,10 +336,147 @@ CREDIT_DATA creditData[] =
 	0,GREEN,
 	0,GREEN,
 	0,GREEN,
+
+	3,RED,		//for hasbro interactive US
+	0,RED,		
+
+	3,RED,		//CEO
+	0,GREEN,
+
+	3,RED,		//COO
+	0,GREEN,
+
+	3,RED,		//Product Manager
+	0,GREEN,
+
+	3,RED,		//Senior Product Manager
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Chief Creative Officer
+	0,GREEN,
+
+	3,RED,		//Senior VP Research and Development
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//VP of Technology
+	0,GREEN,
+
+	3,RED,		//VP of External Development
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//VP of Studios
+	0,GREEN,
+
+	3,RED,		//VP of Development Operations
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Director of Quality Assurance
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//QA Certification Manager
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//QA Certification Lead
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//QA Testing Managers
+	0,RED,
+	0,GREEN,
+	0,GREEN,
+
+	3,RED,		//testers
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
+
+	3,RED,		//General Manager
+	0,GREEN,
+
+	3,RED,		//Director of Marketing
+	0,GREEN,
+
+	3,RED,		//Director of Marketing
+	0,GREEN,
+
+	3,RED,		//Director of Marketing
+	0,GREEN,
+
+	3,RED,		//VP of Marketing Services
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Chief Visual Officer
+	0,GREEN,
+
+	3,RED,		//manager of Creative Services
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Manager of Editorial/Documentation Services
+	0,RED,
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Marketing Services Manager
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Senior Graphic Designer
+	0,GREEN,
+
+	3,RED,		//Graphic Designer
+	0,GREEN,
+
+	3,RED,		//Graphic Designer
+	0,GREEN,
+
+	3,RED,		//Documentation Writer
+	0,GREEN,
+
+	3,RED,		//Copywriter
+	0,GREEN,
+
+	3,RED,		//Channel Marketing Director
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//VP of Public Relations
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Manager of Public Relations
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Manager of Technical Services
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//VP of Administration and Operations
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//Operations and specila projects manager
+	0,RED,
+	0,RED,
+	0,GREEN,
+
+	3,RED,		//legal and finance
+	0,GREEN,
+	0,GREEN,
+	0,GREEN,
 	0,GREEN,
 
 	3,WHITE,	//separator
-	0,WHITE,
+
 	1,WHITE,
 	0,WHITE,
 	1,WHITE,
@@ -1779,7 +1941,7 @@ void RunOptionsMenu(void)
 		case OP_MULTIPLAYERNUMBER:
 			maxPlayers = 4;
 #ifdef PSX_VERSION
-			for(i = 0;i < 4;i++)
+/*			for(i = 0;i < 4;i++)
 			{
 				if(padData.present[i] == 0)
 				{
@@ -1787,6 +1949,7 @@ void RunOptionsMenu(void)
 					break;
 				}
 			}
+*/			maxPlayers = checkForValidControllers();
 #endif
 			strcpy(options.titleStr,GAMESTRING(STR_MULTIPLAYER));
 			strcpy(options.mpStr,GAMESTRING(STR_SELECT_NUM_PLAYERS));
@@ -2721,7 +2884,7 @@ void DoCredits()
 	long spacing = 0;
 
 #ifdef PSX_VERSION
-	creditsY -= 1;
+	creditsY -= 2;
 #else
 	creditsY -= (8*gameSpeed)/4096;
 #endif
@@ -2822,7 +2985,7 @@ void SetMusicVolume()
 }
 
 
-#define MAX_ARTWORK 21
+#define MAX_ARTWORK 22
 
 #ifdef PSX_VERSION
 // on the PSX everything is read from CD .. we just want to do this specially
@@ -2835,14 +2998,14 @@ void RunArtViewer()
 {
 	char name[32];
 
-	if(padData.debounce[0] & PAD_START)
+	if(padData.debounce[0] & (PAD_START | PAD_TRIANGLE))
 		currentArt = MAX_ARTWORK;
 
 	GTUpdate(&artTimer,-1);
 	
 	if((!fadingOut) && (keepFade))
 	{
-		FreeBackdrop();
+		FreeArtBackdrop();
 		if(currentArt == MAX_ARTWORK)
 		{
 			gameState.mode = FRONTEND_MODE;
@@ -2853,7 +3016,7 @@ void RunArtViewer()
 		else
 		{
 			sprintf(name,"ARTWORK%02d",currentArt);
-			InitBackdrop(name);
+			InitArtBackdrop(name);
 			currentArt++;
 			ScreenFade(0,255,30);
 			GTInit(&artTimer,10);

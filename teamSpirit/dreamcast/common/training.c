@@ -28,6 +28,7 @@ char *currStr = NULL;
 
 TRAININGMODE *train;
 
+extern short numLives[3];
 void InitTrainingMode()
 {
 	int i;
@@ -56,6 +57,7 @@ void InitTrainingMode()
 		train->txtover[i]->speed = 75<<12;
 	}
 	currStr = lastStr = NULL;
+	player[0].lives = numLives[gameState.difficulty];
 }
 
 void RunTrainingMode(void)
@@ -87,8 +89,11 @@ void TrainingHint(const char* str)
 				if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &currTile[0]->centre, &upVec, 81920, 8192*2, 0, 12288 )) )
 				{
 					SetFXColour(fx,255,Random(256),Random(256));
-					SetVectorSS(&fx->rebound->point, &currTile[0]->centre);
-					SetVectorFF(&fx->rebound->normal, &upVec);
+					if(fx->rebound)
+					{
+						SetVectorSS(&fx->rebound->point, &currTile[0]->centre);
+						SetVectorFF(&fx->rebound->normal, &upVec);	
+					}
 					fx->gravity = 4100;
 				}
 
@@ -96,7 +101,7 @@ void TrainingHint(const char* str)
 				{
 					if(train->bg->yPos >= 4096)
 					{
-						StringWrap(str, 4096-128, train->text, 1024, lines, MAX_LINES, fontSmall);	// eee
+						StringWrap( str, 4096-128, train->text, 1024, lines, MAX_LINES, fontSmall);	// eee
 
 						train->txtover[0]->text = lines[0];
 						train->txtover[1]->text = lines[1];

@@ -37,6 +37,8 @@ extern int pauseConfirmMode;
 extern int pauseGameSpeed;
 extern int controllerRemoved;
 
+extern int oldDiffMode;
+
 #define DEC_ALPHA(x) \
 {													\
 	tValue = FMul(gameSpeed,fadeSpeed)>>12;			\
@@ -62,7 +64,7 @@ extern SPRITEOVERLAY *titleHud[4];
 
 typedef struct
 {
-	int keyString[8];
+	short keyString[12];
 	char state;
 	signed char toggle;
 }CHEAT_COMBO;
@@ -76,6 +78,7 @@ enum
 	CHEAT_OPEN_ALL_EXTRAS,
 	CHEAT_INVULNERABILITY,
 	CHEAT_SKIP_LEVEL,
+	CHEAT_MAD_GARIBS,
 	CHEAT_EXTRA_LEVELS,
 	NUMCHEATCOMBOS,
 };

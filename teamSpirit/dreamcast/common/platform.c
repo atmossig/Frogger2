@@ -241,8 +241,9 @@ void UpdatePlatforms()
 
 							//utilPrintf("And Maybe Here : %d\n", pl); - wtf? - ds
 
-							CalculateFrogJumpS(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
-								t+1, pl);
+							if (!(player[pl].frogState & FROGSTATUS_ISDEAD))
+								CalculateFrogJumpS(&frog[pl]->actor->position, &destTile[pl]->centre, &destTile[pl]->normal, 0,
+									t+1, pl);
 						}
 					}
 
@@ -518,6 +519,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,fix
 	{
 		newItem->Update = UpdatePathPlatform;
 		OrientateSS( &newItem->pltActor->actor->qRot, &path->nodes->worldTile->dirVector[newItem->facing], &path->nodes->worldTile->normal );
+		SetQuaternion( &newItem->destOrientation, &newItem->pltActor->actor->qRot );
 	}
 	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 	{

@@ -52,6 +52,8 @@ TONGUE tongue[MAX_FROGS];
 
 void StartTongue(unsigned char type, SVECTOR *dest, int pl);
 void CalculateTongue( int pl );
+void CalcTongueSource( int pl );
+void CheckForAttachedNMEs( ENEMY *e, int flag );
 
 // ARGB
 unsigned long tongueColours[] = 
@@ -66,6 +68,19 @@ unsigned long tongueColours[] =
 	0xff555500, // Swampy - Dark green
 };
 
+#define DEACTIVATEENEMY( e ) \
+{\
+	e->active = 0;\
+	e->visible = 0;\
+	e->nmeActor->draw = 0;\
+}
+
+#define ACTIVATEENEMY( e ) \
+{\
+	e->visible = 1;\
+	e->active = 1;\
+	SetVectorFF( &e->nmeActor->actor->size, &oneVec );\
+}
 /*	--------------------------------------------------------------------------------
 	Function		: InitTongues
 	Purpose			: Set all tongue data to nothing
@@ -211,91 +226,10 @@ void UpdateFrogTongue( int pl )
 		if( tongue[pl].flags & TONGUE_HASITEMINMOUTH )
 			return;
 
-		// Update source (for frog on platform)
-#ifdef PC_VERSION
-		if( headMatrix )
-		{
-			MDX_VECTOR fwd, up, pos;
+		// Update source from matrix of head bone
+		CalcTongueSource( pl );
 
-			// Store head bone pos and set matrix translate elements to zero
-			SetVector( &pos, (MDX_VECTOR *)&headMatrix[12] );
-			headMatrix[12] = headMatrix[13] = headMatrix[14] = 0;
-
-			// Matrix multiply to get rotation only
-			guMtxXFMF( headMatrix, 0, 0, 1, &fwd.vx, &fwd.vy, &fwd.vz );
-			guMtxXFMF( headMatrix, 0, -1, 0, &up.vx, &up.vy, &up.vz );
-
-			// JIM: Nasty special case until I can be bothered working out another way
-			if( player[pl].character == FROG_HOPPER )
-				ScaleVector( &fwd, -3 );
-
-			// Store in tongue forward as unit vector
-			SetVectorFR( &tongue[pl].fwd, &fwd );
-			MakeUnit( &tongue[pl].fwd );
-			// Scale to get offset to front of head
-			ScaleVector( &fwd, 12 );
-			ScaleVector( &up, 5 );
-
-			// Actual front of head position
-			mdxAddToVector( &fwd, &pos );
-			mdxAddToVector( &fwd, &up );
-			ScaleVector( &fwd, SCALE );
-			// Which is our source
-			SetVectorSR( &tongue[pl].source, &fwd );
-		}
-#else
-		if(pHeadMatrix)
-		{
-			FVECTOR fwd, up;
-			SVECTOR pos;
-			FVECTOR foreVec = {0,0,-4096};
-
-			// Store head bone pos and set matrix translate elements to zero
-			pos.vx = -pHeadMatrix->t[0];
-			pos.vy = -pHeadMatrix->t[1];
-			pos.vz = pHeadMatrix->t[2];
-			pHeadMatrix->t[0] = pHeadMatrix->t[1] = pHeadMatrix->t[2] = 0;
-
-			// Matrix multiply to get rotation only
-			ApplyMatrixLV(pHeadMatrix, &foreVec, &fwd);
-			ApplyMatrixLV(pHeadMatrix, &upVec, &up);
-			//this invert is because we're using a psx matrix
-			//on a pc coordinate. (i think that's why!)
-			fwd.vx = -fwd.vx;
-			fwd.vy = -fwd.vy;
-			up.vx = -up.vx;
-			up.vy = -up.vy;
-			
-			// JIM: Nasty special case until I can be bothered working out another way
-			if( player[pl].character == FROG_HOPPER )
-				ScaleVectorFF( &fwd, -12000 );
-	
-			// Store in tongue forward as unit vector
-			SetVectorFF(&tongue[pl].fwd, &fwd);
-			MakeUnit(&tongue[pl].fwd);
-			// Scale to get offset to front of head
-			ScaleVector(&fwd, 12*SCALE);
-			ScaleVector(&up, 5*SCALE);
-
-			// Actual front of head position
-			AddToVectorFS(&fwd, &pos);
-			AddToVectorFF(&fwd, &up);
-			// Which is our source
-			SetVectorSF(&tongue[pl].source, &fwd);
-		}
-
-#endif
-
-		else
-		{
-			// Update the forward vector
- 			RotateVectorByQuaternionFF(&tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot);
-			tongue[pl].source.vx = frog[pl]->actor->position.vx + ((currTile[pl]->normal.vx * TONGUE_OFFSET_UP)>>12);
-			tongue[pl].source.vy = frog[pl]->actor->position.vy + ((currTile[pl]->normal.vy * TONGUE_OFFSET_UP)>>12);
-			tongue[pl].source.vz = frog[pl]->actor->position.vz + ((currTile[pl]->normal.vz * TONGUE_OFFSET_UP)>>12);
-		}
-
-		// Update the targets position (for moving babies)
+		// Update the targets position
 		switch( tongue[pl].type )
 		{
  		case TONGUE_GET_SCENIC:	SetVectorSS(&tongue[pl].target, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->position ); break;
@@ -399,9 +333,7 @@ void UpdateFrogTongue( int pl )
 					{
 						ENEMY *e = (ENEMY *)tongue[pl].thing;
 
-						e->active = 0;
-						e->visible = 0;
-						e->nmeActor->draw = 0;
+						DEACTIVATEENEMY( e );
 
 						if( eatEverythingMode )
 						{
@@ -409,6 +341,8 @@ void UpdateFrogTongue( int pl )
 							SetVectorFF( &up, &currTile[pl]->normal );
 
 							CreateExplodeEffect( &frog[pl]->actor->position, &up );
+
+							CheckForAttachedNMEs( e, 0 );
 						}
 					}
 				}
@@ -417,7 +351,8 @@ void UpdateFrogTongue( int pl )
 				RemoveFrogTongue(pl);
 
 				// Set frog idle animation
-				actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
+				if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
+					actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,FROG_BREATHE_SPEED,0);
 			}
 		}
 	}
@@ -535,9 +470,12 @@ void RemoveFrogTongue( int pl )
 		case TONGUE_GET_SCENIC: 
 			{
 				ENEMY *nme = (ENEMY *)tongue[pl].thing;
-				nme->visible = 1;
-				nme->active = 1;
-				SetVectorFF( &nme->nmeActor->actor->size, &oneVec );
+
+				ACTIVATEENEMY( nme );
+
+				if( eatEverythingMode )
+					CheckForAttachedNMEs( nme, 1 );
+
 				break;
 			}
 		}
@@ -710,3 +648,175 @@ void ThrowFrogDirection( int thrower, int throwee, int dir )
 
 	SpringFrogToTile(tile, (204800+FMul(count,40960))*SCALE, 410+FMul(count,328), throwee);
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CalcTongueSource
+	Purpose			: Work out the orientation and position of the tongue from froggers head bone matrix
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void CalcTongueSource( int pl )
+{
+#ifdef PC_VERSION
+	if( headMatrix )
+	{
+		MDX_VECTOR fwd, up, pos;
+
+		// Store head bone pos and set matrix translate elements to zero
+		SetVector( &pos, (MDX_VECTOR *)&headMatrix[12] );
+		headMatrix[12] = headMatrix[13] = headMatrix[14] = 0;
+
+		// Matrix multiply to get rotation only
+		guMtxXFMF( headMatrix, 0, 0, 1, &fwd.vx, &fwd.vy, &fwd.vz );
+		guMtxXFMF( headMatrix, 0, -1, 0, &up.vx, &up.vy, &up.vz );
+
+		// JIM: Nasty special case until I can be bothered working out another way
+		if( player[pl].character == FROG_HOPPER )
+		{
+			ScaleVector( &fwd, -3 );
+		}
+		else if( player[pl].character == FROG_SWAMPY )
+		{
+			ScaleVector(&fwd,3);
+			ScaleVector(&up,-0.5);
+		}
+
+
+		// Store in tongue forward as unit vector
+		SetVectorFR( &tongue[pl].fwd, &fwd );
+		MakeUnit( &tongue[pl].fwd );
+		// Scale to get offset to front of head
+		ScaleVector( &fwd, 12 );
+		ScaleVector( &up, 5 );
+
+		// Actual front of head position
+		mdxAddToVector( &fwd, &pos );
+		mdxAddToVector( &fwd, &up );
+		ScaleVector( &fwd, SCALE );
+		// Which is our source
+		SetVectorSR( &tongue[pl].source, &fwd );
+	}
+#else
+	if(pHeadMatrix)
+	{
+		FVECTOR fwd, up;
+		SVECTOR pos;
+		FVECTOR foreVec = {0,0,-4096};
+
+		// Store head bone pos and set matrix translate elements to zero
+		pos.vx = -pHeadMatrix->t[0];
+		pos.vy = -pHeadMatrix->t[1];
+		pos.vz = pHeadMatrix->t[2];
+		pHeadMatrix->t[0] = pHeadMatrix->t[1] = pHeadMatrix->t[2] = 0;
+
+		// Matrix multiply to get rotation only
+		ApplyMatrixLV(pHeadMatrix, &foreVec, &fwd);
+		ApplyMatrixLV(pHeadMatrix, &upVec, &up);
+		//this invert is because we're using a psx matrix
+		//on a pc coordinate. (i think that's why!)
+		fwd.vx = -fwd.vx;
+		fwd.vy = -fwd.vy;
+		up.vx = -up.vx;
+		up.vy = -up.vy;
+		
+		// JIM: Nasty special case until I can be bothered working out another way
+		if( player[pl].character == FROG_HOPPER )
+		{
+			ScaleVectorFF( &fwd, -12000 );
+		}
+		else if( player[pl].character == FROG_SWAMPY )
+		{
+			ScaleVectorFF(&fwd,12000);
+			ScaleVectorFF(&up,-2000);
+		}
+
+		// Store in tongue forward as unit vector
+		SetVectorFF(&tongue[pl].fwd, &fwd);
+		MakeUnit(&tongue[pl].fwd);
+		// Scale to get offset to front of head
+		ScaleVector(&fwd, 12*SCALE);
+		ScaleVector(&up, 5*SCALE);
+
+		// Actual front of head position
+		AddToVectorFS(&fwd, &pos);
+		AddToVectorFF(&fwd, &up);
+		// Which is our source
+		SetVectorSF(&tongue[pl].source, &fwd);
+	}
+
+#endif
+
+	else
+	{
+		// Update the forward vector
+ 		RotateVectorByQuaternionFF(&tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot);
+		tongue[pl].source.vx = frog[pl]->actor->position.vx + ((currTile[pl]->normal.vx * TONGUE_OFFSET_UP)>>12);
+		tongue[pl].source.vy = frog[pl]->actor->position.vy + ((currTile[pl]->normal.vy * TONGUE_OFFSET_UP)>>12);
+		tongue[pl].source.vz = frog[pl]->actor->position.vz + ((currTile[pl]->normal.vz * TONGUE_OFFSET_UP)>>12);
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: CheckForAttachedNMEs
+	Purpose			: Mainly for Sub2 - check back and forward along path for nothing.obes until blank flag reached
+	Parameters		: Starting nme, activeate/deactivate
+	Returns			: 
+	Info			: Not sure how well this will work
+*/
+void CheckForAttachedNMEs( ENEMY *e, int flag )
+{
+	ENEMY *nme;
+	PATH *p = e->path;
+	int i;
+
+	// Search backwards in the path
+	i = p->toNode;
+	while( 1 )
+	{
+		if( (--i) < 0 ) 
+			i = p->numNodes-1;
+
+		if( !(nme = FindEnemyAtNode(e,i)) )
+			break;
+
+		if( nme->uid )
+			continue;
+
+		if( flag )
+		{
+			ACTIVATEENEMY( nme );
+		}
+		else
+		{
+			DEACTIVATEENEMY( nme );
+		}
+	}
+
+	// Then forwards.
+	i = p->toNode;
+	while( 1 )
+	{
+		if( (++i) >= p->numNodes ) 
+			i = 0;
+
+		if( !(nme = FindEnemyAtNode(e,i)) )
+			break;
+
+		if( nme->uid )
+			continue;
+
+		if( flag )
+		{
+			ACTIVATEENEMY( nme );
+		}
+		else
+		{
+			DEACTIVATEENEMY( nme );
+		}
+	}
+}
+
+

@@ -33,6 +33,7 @@
 #include "multi.h"
 #include "frogmove.h"
 #include "lang.h"
+#include "menus.h"
 
 #ifdef PC_VERSION
 #include <pcaudio.h>
@@ -196,8 +197,11 @@ void PickupCollectable(GARIB *garib, int pl)
 					if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->sprite->pos, &seUp, 204800, 16384, 0, 24576 )) )
 					{
 						SetFXColour(fx,0,255,255);
-						SetVectorSS(&fx->rebound->point,&frog[pl]->actor->position);
-						SetVectorFF(&fx->rebound->normal,&seUp);
+						if(fx->rebound)
+						{
+							SetVectorSS(&fx->rebound->point,&frog[pl]->actor->position);
+							SetVectorFF(&fx->rebound->normal,&seUp);
+						}
 						fx->gravity = 6140;
 					}
 				}
@@ -210,15 +214,21 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->sprite->pos, &seUp, 81920, 8192, 0, 8192 )) )
 			{
 				SetFXColour(fx,255,255,255);
-				SetVectorSS(&fx->rebound->point, &garib->sprite->pos);
-				SetVectorFF(&fx->rebound->normal, &seUp);
+				if(fx->rebound)
+				{
+					SetVectorSS(&fx->rebound->point, &garib->sprite->pos);
+					SetVectorFF(&fx->rebound->normal, &seUp);
+				}
 				fx->gravity = 8190;
 			}
 			if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &garib->sprite->pos, &seUp, (player[pl].spawnScoreLevel*10)<<12, player[pl].spawnScoreLevel<<12, 0, 12288 )) )
 			{
 				SetFXColour(fx,255,255,0);
-				SetVectorSS(&fx->rebound->point, &garib->sprite->pos);
-				SetVectorFF(&fx->rebound->normal, &seUp);
+				if(fx->rebound)
+				{
+					SetVectorSS(&fx->rebound->point, &garib->sprite->pos);
+					SetVectorFF(&fx->rebound->normal, &seUp);
+				}
 				fx->gravity = 4100;
 			}
 
@@ -226,7 +236,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			break;
 
 		case EXTRALIFE_GARIB:
-			if( player[pl].lives < 99 )
+			if((player[pl].lives < 999) && (gameState.mode != DEMO_MODE))
 				player[pl].lives++;
 
 			CreatePickupEffect( pl, 0, 200, 0, 220, 220, 220 );
@@ -510,7 +520,10 @@ GARIB *CreateNewGarib(SVECTOR pos,int type)
 		garib->sprite->pos.vy = pos.vy;
 		garib->sprite->pos.vz = pos.vz;
 
-		garib->sprite->texture = FindTexture("SCOIN0001");
+		if(cheatCombos[CHEAT_MAD_GARIBS].state)
+			garib->sprite->texture = FindTexture("RGARIB01");
+		else
+			garib->sprite->texture = FindTexture("SCOIN0001");
 
 		if( type == GOLDCOIN_GARIB )
 		{

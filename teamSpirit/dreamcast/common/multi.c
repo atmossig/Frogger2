@@ -49,7 +49,7 @@
 #define BABY_UID	255
 
 extern int pauseController;
-char penalStr[3] = "+3";
+char penalStr[3] = "+1";
 
 int multiplayerMode;
 long started = 0;
@@ -107,6 +107,9 @@ BATTLENODELIST nodePool;
 	Returns			: 
 	Info			:
 */
+
+fixed initialCamHeight = 0;
+
 void UpdateRace( )
 {
 	int i, j;//, score;
@@ -114,6 +117,9 @@ void UpdateRace( )
 	// Wait for all players to be on the start/finish line
 	if( !started )
 	{
+		// Hack to make camera move up only
+		initialCamHeight = camSource.vy;
+		
 		for( i=0,j=0; i<NUM_FROGS; i++ )
 			if( currTile[i]->state == TILESTATE_FROGGER1AREA )
 			{
@@ -219,6 +225,12 @@ void UpdateRace( )
 				else continue;
 			}
 
+			// Initialise quickhop for everyone but the lead player
+			if( i != playerFocus )
+			{
+				GTInit( &player[i].quickhop, 3 );
+			}
+
 			// Kill frogs that have fallen off screen
 			if( (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->position)) )
 			{
@@ -315,6 +327,7 @@ void UpdateBattle( )
 			{
 				MoveEnemyToNode( nme, count );
 				nme->isWaiting = -1;
+				nme->inTile = 0;
 				count++;
 			}
 
@@ -711,6 +724,14 @@ void UpdateCollect( )
 	Returns			: void
 	Info			:
 */
+
+#ifdef PSX_VERSION
+int mpltextx = 250;
+int mpltexty = -150;
+#elif PC_VERSION
+int mpltextx = 0;
+int mpltexty = -200;
+#endif
 void RunMultiplayer( )
 {
 	int i;
@@ -741,6 +762,14 @@ void RunMultiplayer( )
 			p = player[p].frogon;
 		}
 #endif
+
+		if(multiTimer.time > 1)
+			mpl[i].numText->draw = 1;
+		else
+			mpl[i].numText->draw = 0;
+		TransformPoint(&frog[i]->actor->position,&mpl[i].numText->xPos,&mpl[i].numText->yPos);
+		mpl[i].numText->xPos += mpltextx;
+		mpl[i].numText->yPos += mpltexty;
 
 		if( mpl[i].wins == 3 )
 		{
@@ -1183,6 +1212,7 @@ void FreeMultiplayer( )
 	Returns			: 
 	Info			:
 */
+char numString[4][4] = {"1","2","3","4"};
 void ReinitialiseMultiplayer( )
 {
 	int i;
@@ -1255,6 +1285,7 @@ void ReinitialiseMultiplayer( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
+		mpl[i].numText = CreateAndAddTextOverlay(-1000,0,numString[i],YES,255,font,TEXTOVERLAY_SHADOW);
 		if(gameState.difficulty == DIFFICULTY_HARD)
 			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH*2;
 		else
@@ -1459,15 +1490,18 @@ void CalcRaceCircuitCamera( FVECTOR *target )
 void CalcRaceStraightCamera( FVECTOR *target )
 {
 	int i, bestLap=0, bestCheck=0, bestZ=999999999;
-	fixed scale, vx, vz;
+	fixed scale;//, vx, vz;
+	FVECTOR diff;
 
-	target->vx = target->vz = 0;
+	SetVectorFF( target, &zero );
+//	target->vx = target->vz = 0;
 
 	if( gameWinner != -1 && gameWinner != MULTI_ROUND_DRAW )
 	{
 		playerFocus = gameWinner;
-		target->vx = frog[gameWinner]->actor->position.vx<<12;
-		target->vz = frog[gameWinner]->actor->position.vz<<12;
+		SetVectorFS( target, &frog[gameWinner]->actor->position );
+//		target->vx = frog[gameWinner]->actor->position.vx<<12;
+//		target->vz = frog[gameWinner]->actor->position.vz<<12;
 		return;
 	}
 
@@ -1488,39 +1522,51 @@ void CalcRaceStraightCamera( FVECTOR *target )
 			SetVectorFF(&v, &player[i].jumpFwdVector);
 			ScaleVectorFF(&v, player[i].jumpTime);
 
-			vx = (player[i].jumpOrigin.vx<<12) + v.vx;
-			vz = (player[i].jumpOrigin.vz<<12) + v.vz;
+			SetVectorFS( &diff, &player[i].jumpOrigin );
+			AddToVectorFF( &diff, &v );
+//			diff.vx = (player[i].jumpOrigin.vx<<12) + v.vx;
+//			diff.vy = (player[i].jumpOrigin.vy<<12) + v.vy;
+//			diff.vz = (player[i].jumpOrigin.vz<<12) + v.vz;
 
-			target->vx += vx;
-			target->vz += vz;
+			AddToVectorFF( target, &diff );
+//			target->vx += vx;
+//			target->vz += vz;
 
 			// Double weight for lead player
 			if( i == playerFocus )
 			{
-				target->vx += vx;
-				target->vz += vz;
+				AddToVectorFF( target, &diff );
+//				target->vx += vx;
+//				target->vz += vz;
 			}
 		}										
 		else
 		{
-			vx = frog[i]->actor->position.vx<<12;
-			vz = frog[i]->actor->position.vz<<12;
+			SetVectorFS( &diff, &frog[i]->actor->position );
+//			vx = frog[i]->actor->position.vx<<12;
+//			vz = frog[i]->actor->position.vz<<12;
 
-			target->vx += vx;
-			target->vz += vz;
+			AddToVectorFF( target, &diff );
+//			target->vx += vx;
+//			target->vz += vz;
 
 			// Double weight for lead player
 			if( i == playerFocus )
 			{
-				target->vx += vx;
-				target->vz += vz;
+				AddToVectorFF( target, &diff );
+//				target->vx += vx;
+//				target->vz += vz;
 			}
 		}
 	}
 
 	scale = 4096/(NUM_FROGS+1);
-	target->vx = FMul( target->vx, scale );
-	target->vz = FMul( target->vz, scale );
+	ScaleVectorFF( target, scale );
+
+	if( target->vy < initialCamHeight )
+		target->vy = initialCamHeight;
+//	target->vx = FMul( target->vx, scale );
+//	target->vz = FMul( target->vz, scale );
 }
 
 
@@ -1621,7 +1667,7 @@ void CalcBattleCamera( FVECTOR *target )
 
 	for( i=0,l=0; i<NUM_FROGS; i++ )
 	{
-		if(/* alive < 3 ||*/ !(player[i].frogState & FROGSTATUS_ISDEAD) )
+		if( !(player[i].frogState & FROGSTATUS_ISDEAD) )
 		{
 			if( player[i].jumpTime > 0 )	// jumping; calculate linear position
 			{

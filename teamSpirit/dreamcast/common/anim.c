@@ -130,6 +130,10 @@ void DeathFire( int pl )
 	AttachEvent( t, TRIGGER_ONCE, 0, DeathAnim, (void *)pl, (void *)DeathNormal, NULL, NULL );
 }
 
+char loopElecAnim[] = 
+{
+	1,1,1,1,1,1,0,1
+};
 void DeathElectric( int pl )
 {
 	SPECFX *fx;
@@ -147,7 +151,7 @@ void DeathElectric( int pl )
 	ChangeModel( frog[pl]->actor, frogPool[player[pl].character].singleModel );
 
 	player[pl].deathBy = DEATHBY_ELECTRIC;
-	actorAnimate(frog[pl]->actor, FROG_ANIM_ELECTROCUTE, YES, NO, 128, 0 );
+	actorAnimate(frog[pl]->actor, FROG_ANIM_ELECTROCUTE, loopElecAnim[player[pl].character], NO, 128, 0 );
 	GTInit( &player[pl].dead, 4 );
 
 	t = MakeTrigger( OnTimeout, (void *)(actFrameCount + 80), NULL, NULL, NULL );
@@ -491,7 +495,10 @@ void DeathLightning( int pl )
 		SetFXColour( fx, 220, 60, 60 );
 	}
 
-	PlaySample( genSfx[GEN_DEATHELECTRIC], NULL, 0, SAMPLE_VOLUME, -1 );
+	if((player[0].worldNum == WORLDID_SUBTERRANEAN) && (player[0].levelNum == LEVELID_SUBTERRANEAN3))
+		PlaySample( genSfx[GEN_DEATHEXPLODE], NULL, 0, SAMPLE_VOLUME, -1 );
+	else
+		PlaySample( genSfx[GEN_DEATHELECTRIC], NULL, 0, SAMPLE_VOLUME, -1 );
 
 	player[pl].frogState |= FROGSTATUS_ISDEAD;
 	GTInit( &player[pl].dead, 3 );

@@ -42,10 +42,6 @@ extern long backTextY[4];
 extern long backWinsTextX[4];
 extern long backWinsTextY[4];
 
-extern TEXTOVERLAY *removeControllerText;
-extern TEXTOVERLAY *removeControllerText2;
-extern TEXTOVERLAY *removeControllerText3;
-
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
 extern void GameLoop(void);
@@ -63,16 +59,12 @@ extern void StartGameOver();
 // Run routines
 extern void	RunLevelComplete( );
 extern void	RunWorldComplete( );
-extern void	RunGameComplete( );
 extern void	RunGameOver( );
-extern void RunGameIntro( );
 
 extern void RunMultiWinRace( );
 extern void RunMultiWinCollect( );
 extern void RunMultiWinBattle( );
-extern void RunMultiWinMatch( );
 extern void StartMultiWinGame( );
-extern void StartMultiWinMatch( );
 
 extern void SetTimeForLevel( );
 extern void CreateOverlaysFromLogo(const LOGO *logo, int x, int y);

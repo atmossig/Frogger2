@@ -82,6 +82,8 @@ FVECTOR storeCamOffset;
 FVECTOR storeCurrCamOffset;
 FVECTOR storeCamVect;
 
+int oldDiffMode = 0;
+
 int pauseConfirmMode;
 int pauseGameSpeed;
 
@@ -132,16 +134,17 @@ char cheatStr[64] = "";
 
 CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] = 
 {
-	{{PAD_UP,   PAD_DOWN, PAD_LEFT, PAD_RIGHT, 0},0,-1},//CHEAT_OPEN_ALL_LEVELS
-	{{PAD_DOWN, PAD_DOWN, PAD_DOWN, PAD_DOWN,  0},0,1},	//CHEAT_INFINITE_LIVES
-	{{PAD_LEFT, PAD_LEFT, PAD_LEFT, PAD_LEFT,  0},0,0},	//CHEAT_OPEN_ALL_CHARS
-	{{PAD_RIGHT,PAD_RIGHT,PAD_RIGHT,PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
-	{{PAD_LEFT, PAD_LEFT, PAD_RIGHT,PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
-	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    0},0,0},//CHEAT_SKIP_LEVEL
+	{{PAD_UP,   PAD_DOWN, PAD_LEFT, PAD_RIGHT, PAD_RIGHT, PAD_RIGHT, PAD_DOWN,  PAD_LEFT,  0},0,-1},//CHEAT_OPEN_ALL_LEVELS
+	{{PAD_DOWN, PAD_DOWN, PAD_UP,   PAD_DOWN,  PAD_RIGHT, PAD_DOWN,  PAD_UP,    PAD_UP,    0},0,1},	//CHEAT_INFINITE_LIVES
+	{{PAD_LEFT, PAD_RIGHT,PAD_LEFT, PAD_LEFT,  PAD_LEFT,  PAD_UP,    PAD_LEFT,  PAD_LEFT,  0},0,0},	//CHEAT_OPEN_ALL_CHARS
+	{{PAD_RIGHT,PAD_UP,   PAD_UP,   PAD_DOWN,  PAD_RIGHT, PAD_RIGHT, PAD_DOWN,  PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
+	{{PAD_LEFT, PAD_LEFT, PAD_UP,   PAD_LEFT,  PAD_DOWN,  PAD_RIGHT, PAD_RIGHT, PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
+	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    PAD_UP,    PAD_RIGHT, PAD_LEFT,  PAD_LEFT,  0},0,0},//CHEAT_SKIP_LEVEL
+	{{PAD_RIGHT,PAD_LEFT, PAD_RIGHT,PAD_LEFT,  PAD_UP,    PAD_UP,    PAD_LEFT,  PAD_RIGHT, 0},0,1},//CHEAT_MAD_GARIBS
 	{{PAD_UP,PAD_UP,PAD_DOWN,PAD_DOWN,PAD_LEFT,PAD_RIGHT,0},0,0},//CHEAT_EXTRA_LEVELS
 };
 
-long currentCheatCombo[8];
+long currentCheatCombo[12];
 int currCheat = -1;
 
 
@@ -179,6 +182,10 @@ char *titleHudName[4] =
 };
 SPRITEOVERLAY *titleHud[4];
 TEXTOVERLAY *titleHudText[4];
+
+extern TEXTOVERLAY *removeControllerText;
+extern TEXTOVERLAY *removeControllerText2;
+extern TEXTOVERLAY *removeControllerText3;
 
 int pauseFrameCount;
 int pauseFaded = 0;
@@ -281,7 +288,10 @@ int CheatAllowed(int cheat)
 
 		case CHEAT_SKIP_LEVEL:
 			return ((NUM_FROGS == 1) && (gameState.mode != FRONTEND_MODE));
-		
+
+		case CHEAT_MAD_GARIBS:
+			return TRUE;
+			
 		case CHEAT_EXTRA_LEVELS:
 #ifdef PC_VERSION
 			return TRUE;
@@ -297,6 +307,7 @@ void ComboCheat(int cheat)
 {
 	extern NUM_ARCADE_WORLDS;
 	int i,j;
+	GARIB *garib;
 
 	if(!CheatAllowed(cheat))
 		return;
@@ -348,6 +359,33 @@ void ComboCheat(int cheat)
 				
 			babiesSaved = numBabies;
 			break;
+
+		case CHEAT_MAD_GARIBS:
+			if(cheatCombos[cheat].state)
+			{
+				for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
+				{
+					if(garib->type == SILVERCOIN_GARIB)
+						garib->sprite->texture = FindTexture("RGARIB01");
+				}
+				if(arcadeHud.coinsOver)
+					arcadeHud.coinsOver->tex = FindTexture("RGARIB01");
+				if(arcadeHud.coinZoom)
+					arcadeHud.coinZoom->tex = FindTexture("RGARIB01");
+			}
+			else
+			{
+				for(garib = garibList.head.next; garib != &garibList.head; garib = garib->next)
+				{
+					if(garib->type == SILVERCOIN_GARIB)
+						garib->sprite->texture = FindTexture("SCOIN0001");
+				}
+				if(arcadeHud.coinsOver)
+					arcadeHud.coinsOver->tex = FindTexture("SCOIN0001");
+				if(arcadeHud.coinZoom)
+					arcadeHud.coinZoom->tex = FindTexture("SCOIN0001");
+			}
+			break;
 			
 		case CHEAT_EXTRA_LEVELS:
 			NUM_ARCADE_WORLDS = 10;
@@ -396,7 +434,14 @@ void RunPauseMenu()
 		}
 		else
 		{
-
+			if(checkForControllerInsertedMulti())
+			{
+				SubTextOverlay(removeControllerText);
+				SubTextOverlay(removeControllerText2);
+				SubTextOverlay(removeControllerText3);
+				controllerRemoved = FALSE;
+				StartPauseMenu();
+			}
 		}
 		return;
 	}
@@ -440,6 +485,8 @@ void RunPauseMenu()
 		// check for controller removed from dreamcast
 		if(checkForControllerRemovedMulti())
 		{
+			pauseController = checkForControllerRemovedMulti()-1;
+
 			pauseFrameCount = 0;
 			quittingLevel = NO;
 			pauseConfirmMode = NO;
@@ -581,6 +628,8 @@ void RunPauseMenu()
 	if (padData.debounce[pauseController]&PAD_SQUARE)
 	{
 		currCheat = 0;		
+		for(i = 0;i < 12;i++)
+			currentCheatCombo[i] = 0;
 	}
 
 	if (padData.digital[pauseController]&PAD_SQUARE)
@@ -588,7 +637,7 @@ void RunPauseMenu()
 		if (padData.debounce[pauseController] & ~PAD_SQUARE)
 		{
 			currentCheatCombo[currCheat++] = padData.debounce[pauseController];
-			if (currCheat == 8) currCheat = 0;
+			if (currCheat == 12) currCheat = 0;
 		}
 	}
 	else if (currCheat>0)	// if we've stored a cheat, check it
@@ -917,6 +966,10 @@ int bounceDir = 1;
 int bounceSpeed = 5;
 char goingToDemo = NO;
 
+#ifdef PSX_VERSION
+extern SCENICOBJ *lightBeam;
+#endif
+
 void RunFrontendGameLoop (void)
 {
 	unsigned long i,j;
@@ -929,11 +982,48 @@ void RunFrontendGameLoop (void)
 	pOIDistance = 20000<<12;
 	pointOfInterest = NULL;
 
+/*ma
+#ifdef PSX_VERSION
+	if (	( &firstTile[ TILENUM_CHOICE ]	== currTile[0] ) &&
+				( &firstTile[ TILENUM_BOOK ]		== destTile[0] ) )
+	{
+		FMA_MESH_HEADER **mesh;
 
+		if ( lightBeam )
+		{
+			mesh = ADD2POINTER(lightBeam->fmaObj,sizeof(FMA_WORLD));
+
+			SetActorGouraudValuesMinus	(	*mesh, 5, 5, 5 );
+		}
+		// ENDIF
+	}
+	// ENDIF
+
+	if (	( &firstTile[ TILENUM_CHOICE ]	== destTile[0] ) &&
+				( &firstTile[ TILENUM_BOOK ]	== currTile[0] ) )
+	{
+		FMA_MESH_HEADER **mesh;
+
+		if ( lightBeam )
+		{
+			mesh = ADD2POINTER(lightBeam->fmaObj,sizeof(FMA_WORLD));
+
+			SetActorGouraudValuesPlus ( *mesh, 5, 5, 5, lightBeamGouraudValues );
+
+			//SetObjectGouraudValues ( *mesh, lightBeamGouraudValues );
+		}
+		// ENDIF
+	}
+	// ENDIF
+#endif
+*/
 	if(goingToDemo)
 	{
 		if(fadingOut == 0)
 		{
+			oldDiffMode = gameState.difficulty;
+			gameState.difficulty = DIFFICULTY_NORMAL;
+
 			goingToDemo = NO;
 			InitDemoMode();
 		}
@@ -988,6 +1078,9 @@ void RunFrontendGameLoop (void)
 					ComboCheat(CHEAT_OPEN_ALL_LEVELS);
 		#endif	
 //	#endif
+
+	for(i=0;i<NUMCHEATCOMBOS;i++)
+		ComboCheat(i);
 
 #else
 	#ifndef FINAL_MASTER
@@ -1044,9 +1137,11 @@ void RunFrontendGameLoop (void)
 		else
 			options.door = NULL;
 
+		if(options.door)
+			actorAnimate(options.door->actor,1,NO,NO,4000,NO);
 		if(worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].levelCompleted)
 		{
-			if(doneTraining == 0)
+/*			if(doneTraining == 0)
 			{
 				if(options.door)
 					actorAnimate(options.door->actor,1,NO,NO,40,NO);
@@ -1056,7 +1151,7 @@ void RunFrontendGameLoop (void)
 				if(options.door)
 					actorAnimate(options.door->actor,1,NO,NO,4000,NO);
 			}
-			doneTraining = 1;
+*/			doneTraining = 1;
 			staticFlash = 5;
 		}
 
@@ -1161,7 +1256,7 @@ void RunFrontendGameLoop (void)
 		CheckForDynamicCameraChange(currTile[0],0); // TEMPORARY FIX!!
 		lastActFrameCount = 0;
 
-		GTInit(&frontendTimer, 16);	// 10 seconds
+		GTInit(&frontendTimer, 30);	// 30 seconds
 	}
 
 	currTileNum = 0;
@@ -1181,7 +1276,7 @@ void RunFrontendGameLoop (void)
 	{
 		if(currTileNum == TILENUM_START)
 		{
-			GTInit(&frontendTimer, 16);
+		GTInit(&frontendTimer, 30);	// 30 seconds
 		}
 		else
 		{
@@ -1190,10 +1285,10 @@ void RunFrontendGameLoop (void)
 	}
 
 
-	if( frontendTimer.time > 0 && playDemos )
+	if((frontendTimer.time > 0) && (playDemos) && (!creditsRunning) && (options.mode != OP_GLOBALMENU) && (options.mode != OP_EXTRA))
 	{
-		if((currTileNum == TILENUM_START) && (frontendTimer.time > 16))
-			GTInit(&frontendTimer,16);
+		if((currTileNum == TILENUM_START) && (frontendTimer.time > 30))
+			GTInit(&frontendTimer,30);
 		GTUpdate(&frontendTimer, -1);
 		if (!frontendTimer.time)
 		{
@@ -1440,7 +1535,7 @@ void RunFrontendGameLoop (void)
 				titleHudText[0]->draw = 1;
 				titleHudText[1]->draw = 1;
 				titleHudText[2]->draw = 1;
-				titleHudText[3]->draw = 1;
+				titleHudText[3]->draw = doneTraining;
 				titleHudText[0]->text = GAMESTRING(STR_STORYMODE);
 				titleHudText[1]->text = GAMESTRING(STR_OPTIONS);
 				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
@@ -1455,7 +1550,7 @@ void RunFrontendGameLoop (void)
 				}
 				GTInit( &modeTimer, 5 );
 #endif
-				hudNum = 2;
+				maxHud = 3;
 				break;
 
 			case TILENUM_BOOK:
@@ -1505,7 +1600,7 @@ void RunFrontendGameLoop (void)
 	titleHudText[0]->xPos = 2048;
 	titleHudText[1]->xPos = 2048;
 
-	titleHudText[2]->xPos = titleHudX[0][2] + 100;
+	titleHudText[2]->xPos = titleHudX[0][2] + 164;
 	titleHudText[2]->yPos = titleHud[2]->yPos + 300;
 	titleHudText[3]->yPos = titleHud[3]->yPos + 300;
 #ifdef PSX_VERSION

@@ -35,7 +35,7 @@ extern "C" {
 
 #define MULTI_NUM_CHARS				9
 
-#define MULTI_RACE_TIMEPENALTY		180
+#define MULTI_RACE_TIMEPENALTY		60
 
 #define MULTI_ROUND_DRAW			0x7F
 
@@ -82,7 +82,8 @@ typedef struct
 	BATTLENODE *path;		// Battle
 
 	short scrX,scrY;
-	TEXTOVERLAY *penalText;
+	TEXTOVERLAY *penalText;	// haha... penal.. - ds
+	TEXTOVERLAY *numText;
 } MPINFO;
 
 extern char multiGameTypes[MAX_WORLDS];

@@ -118,8 +118,8 @@ void InitArcadeHUD(void)
 	int i;
 
 
-	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)
-		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime;
+//	if(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)
+//		worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime;
 
 	arcadeHud.timeBar = CreateAndAddSpriteOverlay(1200,3600,NULL,0,100,255,0);
 	arcadeHud.timeBar->num = 1;
@@ -224,9 +224,15 @@ void InitArcadeHUD(void)
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3520,130,"HUD_BGR",450,460,0xff,0);
 	arcadeHud.coinsBack->num = 0;
 	arcadeHud.livesText =		CreateAndAddTextOverlay(520,3650,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
-	arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
+	if(cheatCombos[CHEAT_MAD_GARIBS].state)
+		arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3624,130,"RGARIB01",205,273,0xff,0);
+	else
+		arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinsOver->num = 1;
-	arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
+	if(cheatCombos[CHEAT_MAD_GARIBS].state)
+		arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3624,130,"RGARIB01",205,273,0xff,0);
+	else
+		arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3624,130,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinZoom->draw = 0;
 	arcadeHud.coinZoom->num = 1;
 
@@ -527,7 +533,7 @@ void EnableHUD(void)
 	if((gameState.single != STORY_MODE ) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		arcadeHud.timeHeadOver->draw = arcadeHud.timeHandOver->draw = arcadeHud.timeFaceOver->draw = 1;
-		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = /*arcadeHud.timeOutText->draw =*/ arcadeHud.timeTextHSec->draw = 1;
+		arcadeHud.timeTextMin->draw = arcadeHud.timeTextSec->draw = 1;
 	}
 
 	for(i=0; i<numBabies; i++)
@@ -641,6 +647,7 @@ void UpDateOnScreenInfo ( void )
 	long xPos,yPos;
 	long r,g,b,a;
 	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 6;
+	long hardTimeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 6;
 	long frameCheck = 0;
 	int oldTime;
 	
@@ -806,6 +813,7 @@ void UpDateOnScreenInfo ( void )
 	}
 
 	timeFrames -=actFrameCount;
+	hardTimeFrames -=actFrameCount;
 	if(((gameState.difficulty == DIFFICULTY_HARD) || (gameState.single == ARCADE_MODE)) && (player[0].worldNum != WORLDID_FRONTEND) && (gameState.mode != DEMO_MODE))
 	{
 		if(goTimer.time)
@@ -851,6 +859,7 @@ void UpDateOnScreenInfo ( void )
 			}
 		}
 		timeFrames += storeFrameCount;
+		hardTimeFrames += storeFrameCount;
 	}
 	
 
@@ -893,6 +902,8 @@ void UpDateOnScreenInfo ( void )
 		}
 		else
 		{
+			if(gameState.mode != DEMO_MODE)
+				arcadeHud.timeTextHSec->draw = 1;
 			if ((timeFrames/60)<10)
 			{
 				int secs;
@@ -944,6 +955,8 @@ void UpDateOnScreenInfo ( void )
 
 				arcadeHud.timeHeadOver->angle = rsin(arcadeHud.timeHandOver->angle)>>2;
 			}
+			if(hardTimeFrames < 0)
+				hardTimeFrames = 0;
 		}
 #ifdef PSX_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + fontExtentWScaled(arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->text)*8 + 2*8;
@@ -970,9 +983,9 @@ void UpDateOnScreenInfo ( void )
 		else
 		{
 			DEC_ALPHA(arcadeHud.timeBarText);
-			timeFrames += 6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*6;
-			if(timeFrames > 0)
-				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
+			hardTimeFrames += 6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*6;
+			if(hardTimeFrames > 0)
+				arcadeHud.timeBar->width = max(0,(hardTimeFrames*timeBarWidth)/(6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
 			else
 			{
 				player[0].canJump = 0;

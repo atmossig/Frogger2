@@ -413,25 +413,29 @@ void RunBabyCollect( int bby )
 		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 204800, 12288, 0, 20480 )) )
 		{
 			SetFXColour( fx, babyList[bby].fxColour[0], babyList[bby].fxColour[1], babyList[bby].fxColour[2] );
-			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
+			if(fx->rebound)
+				SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
 		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 163840, 1240, 0, 24576 )) )
 		{
 			SetFXColour( fx, 220, 220, 220 );
-			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
+			if(fx->rebound)
+				SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
 		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 122880, 8192, 0, 28672 )) )
 		{
 			SetFXColour( fx, babyList[bby].fxColour[0], babyList[bby].fxColour[1], babyList[bby].fxColour[2] );
-			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
+			if(fx->rebound)
+				SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
 		if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &act->position, &up, 81920, 6144, 0, 32768 )) )
 		{
 			SetFXColour( fx, 220, 220, 220 );
-			SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
+			if(fx->rebound)
+				SetVectorSS( &fx->rebound->point, &currTile[0]->centre );
 			fx->gravity = 2870;
 		}
 		baby->draw = 0;
