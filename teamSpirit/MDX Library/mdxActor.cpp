@@ -457,18 +457,35 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 {
 	MDX_VECTOR t[8];
 	MDX_VECTOR *r = t;
-	unsigned long ocs[8] = {0,0,0,0,0,0,0,0};
+	unsigned long ocs[8]; // = {0,0,0,0,0,0,0,0};
+
+	float mtx[4][4], oozd;
+
+	guMtxCatF((float *)m->matrix,(float *)vMatrix.matrix,(float *)mtx);
 
 	for( unsigned long i=8, o=7; i; i--, r++, bBox++, o=i-1 )
 	{
-		XfmPoint(r,bBox,m);
+		//XfmPoint(r,bBox,m);
+		ocs[o] = 0;
 
-		if( !r->vz )
+		// do the work of XfmPoint, using the matrix concatenated above
+		guMtxXFMF(mtx,
+			bBox->vx,bBox->vy,bBox->vz,
+			&(r->vx),&(r->vy),&(r->vz));
+
+		// clippage
+
+		if( r->vz < nearClip )
 			ocs[o] |= INWARD;
+		else if( r->vz > farClip )
+				ocs[o] |= OUTWARD;
 		else
 		{
-			if( r->vz > farClip )
-				ocs[o] |= OUTWARD;
+			// Perform XfmPoint's really fucked up perspective calculation
+			// that's "so much more efficient".
+			oozd = -FOV * *(oneOver+fftol((((long *)r)+2))+DIST);
+			r->vx = halfWidth+(r->vx * oozd);
+			r->vy = halfHeight+(r->vy * oozd);
 
 			if( r->vx < 0 )
 				ocs[o] |= LEFT;
