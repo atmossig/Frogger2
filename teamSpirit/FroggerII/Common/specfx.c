@@ -142,22 +142,17 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = DrawFXDecal;
 		break;
 	case FXTYPE_WAKE:
-		effect->a = 255;
-		effect->fade = effect->a / life;
-
-		AddToVector(&effect->origin,&effect->normal);
-
-		effect->tex = txtrRipple;
-		effect->Update = UpdateFXDecal;
-		effect->Draw = DrawFXDecal;
-		break;
 	case FXTYPE_DECAL:
 		effect->a = 255;
 		effect->fade = effect->a / life;
 
 		AddToVector(&effect->origin,&effect->normal);
 
-		effect->tex = txtrSolidRing;
+		if( effect->type == FXTYPE_WAKE )
+			effect->tex = txtrRipple;
+		else
+			effect->tex = txtrSolidRing;
+
 		effect->Update = UpdateFXDecal;
 		effect->Draw = DrawFXDecal;
 		break;
