@@ -158,8 +158,15 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN3.PIL" );
 			break;
 
+		case HALLOWEENBOSS_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSS.BFF");
+				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSS.PIL" );
+			break;
+
+
 		case HALLOWEENBONUS_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSSB.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOBOSSB.PIL" );
 			break;
 
 		case FRONTEND_OBJ_BANK:
