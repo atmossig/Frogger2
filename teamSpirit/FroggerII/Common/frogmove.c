@@ -46,8 +46,6 @@ unsigned long longHopFrames		= 16;
 float frogGravity		= -4.0F;
 float gravityModifier	= 1.0F;
 
-char makeFrogGlow = 0;
-
 
 void AnimateFrogHop(unsigned long direction,long pl);
 
