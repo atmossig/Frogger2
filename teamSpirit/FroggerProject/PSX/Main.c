@@ -81,6 +81,7 @@ psFont *font;
 static void vsyncCallback()
 {
 	frame++;
+	sfxFrame();//mmsound
 #if GOLDCD==0
 	asm("break 1024");
 #endif
@@ -462,6 +463,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 4096);
+		sfxInitialise();//mmsound
+		sfxStartSound();//mmsound
 
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 
@@ -608,6 +611,9 @@ int main ( )
 		utilPrintf("\nFROGGER2 QUIT/RESET\n");
 		DrawSync(0);
 		ClearImage2(&VRAMarea, 0,0,0);
+
+		sfxDestroy();//mmsound
+		sfxStopSound();//mmsound
 
 		StopCallback();
 
