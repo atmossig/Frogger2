@@ -267,6 +267,7 @@ int LoadSfx( unsigned long worldID )
 	genSfx[GEN_DEATHGIB] = FindSample(utilStr2CRC("frogmowed"));
 	genSfx[GEN_DEATHCHOP] = FindSample(utilStr2CRC("frogchop"));
 	genSfx[GEN_DEATHELECTRIC] = FindSample(utilStr2CRC("electrocute"));
+	genSfx[GEN_DEATHFIRE] = FindSample(utilStr2CRC("burnbum"));
 
 	path[len] = '\0';
 
