@@ -26,20 +26,49 @@ VECTOR snapPos;
 ENEMY *devNME1	= NULL;
 
 
-PATHNODE debug_nmeNodes1[] =					// TEST PATH - ANDYE
-{ 
-	20,30,0,8,10,	21,30,0,8,0,	22,30,0,8,0,	23,30,0,2,10,
-	15,30,0,6,5,	14,30,0,6,0,	13,30,0,6,0,	12,30,0,1,5
-};
-
-
-PATH debug_nme1 = { 8,0,0,0,debug_nmeNodes1 };
-
-
 /**************************************************************************************************************/
 /******  GARDEN LAWN LEVEL  ***********************************************************************************/
 /**************************************************************************************************************/
 
+PATHNODE debug_lawnWaspNodes1[] =
+{
+	415,30,0,4,5,	416,30,0,4,0,	417,30,0,4,0,	428,30,0,4,0,
+	441,30,0,2,5,	440,30,0,2,0,	439,30,0,2,0,	426,30,0,2,0
+};
+
+PATHNODE debug_lawnWaspNodes2[] =
+{
+	421,30,0,4,5,	422,30,0,4,0,	423,30,0,2,10,	434,30,0,2,0,
+	447,30,0,8,5,	446,30,0,8,0,	445,30,0,2,10,	432,30,0,2,0
+};
+
+PATHNODE debug_lawnWaspNodes3[] =
+{
+	467,30,0,3,10,	468,30,0,3,0,	469,30,0,3,0,	482,30,0,3,0,
+	493,30,0,6,5,	492,30,0,6,0,	491,30,0,3,0,	480,30,0,3,0
+};
+
+PATHNODE debug_lawnWaspNodes4[] =
+{
+	453,30,0,4,0,	454,30,0,4,0,	455,30,0,4,0,	466,30,0,4,0,
+	479,30,0,4,0,	478,30,0,4,0,	477,30,0,4,0,	464,30,0,4,0
+};
+
+PATHNODE debug_lawnWaspNodes5[] =
+{
+	461,30,0,4,10,	462,30,0,4,0,	463,30,0,2,5,	476,30,0,2,0,
+	487,30,0,4,10,	486,30,0,4,0,	485,30,0,3,5,	474,30,0,3,0
+};
+
+
+PATH debug_lawnWasp1 = { 8,0,0,0,debug_lawnWaspNodes1 };
+PATH debug_lawnWasp2 = { 8,0,0,0,debug_lawnWaspNodes2 };
+PATH debug_lawnWasp3 = { 8,0,0,0,debug_lawnWaspNodes3 };
+PATH debug_lawnWasp4 = { 8,0,0,0,debug_lawnWaspNodes4 };
+PATH debug_lawnWasp5 = { 8,0,0,0,debug_lawnWaspNodes5 };
+
+
+/*
 unsigned long lawnPath1[] = { 17,	287,284,42,43,44,45,46,47,48,49,50,51,52,53,54,278,281 };
 unsigned long lawnPath2[] = { 17,	288,285,68,69,70,71,72,73,74,75,76,77,78,79,80,279,282 };
 unsigned long lawnPath3[] = { 17,	289,286,94,95,96,97,98,99,100,101,102,103,104,105,106,280,283 };
@@ -54,11 +83,6 @@ unsigned long lawnPath4[] = { 55,	141,142,143,144,145,146,147,148,149,150,
 unsigned long lawnPath5[] = { 8,	235,236,237,250,261,260,259,248 };
 unsigned long lawnPath6[] = { 8,	238,239,240,253,264,263,262,251 };
 
-unsigned long lawnPath7[] = { 8,	415,416,417,428,441,440,439,426 };
-unsigned long lawnPath8[] = { 8,	421,422,423,434,447,446,445,432 };
-unsigned long lawnPath9[] = { 8,	467,468,469,482,493,492,491,480 };
-unsigned long lawnPath10[] = { 8,	461,462,463,476,487,486,485,474 };
-unsigned long lawnPath11[] = { 8,	453,454,455,466,479,478,477,464 };
 
 unsigned long lawnPath12[] = { 8,	403,414,425,438,449,460,473,484 };
 
@@ -71,7 +95,7 @@ unsigned long lawnPath17[] = { 7,	583,580,526,527,528,574,577 };
 
 unsigned long lawnPath18[] = { 13,	532,533,534,535,536,541,546,551,571,554,553,552,570 };
 unsigned long lawnPath19[] = { 8,	538,539,540,545,550,549,548,543 };
-
+*/
 
 
 /**************************************************************************************************************/
@@ -162,7 +186,19 @@ void InitEnemiesForLevel(unsigned long worldID, unsigned long levelID)
 		if ( levelID == LEVELID_GARDENLAWN )
 		{
 			devNME1 = CreateAndAddEnemy("wasp.ndo");
-			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_nme1,PATH_MAKENODETILEPTRS);
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp1,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("wasp.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp2,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("wasp.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp3,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("wasp.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp4,PATH_MAKENODETILEPTRS);
+
+			devNME1 = CreateAndAddEnemy("wasp.ndo");
+			AssignPathToEnemy(devNME1,ENEMY_NEW_FORWARDS | ENEMY_NEW_CYCLE,&debug_lawnWasp5,PATH_MAKENODETILEPTRS);
 
 /*
 			testEnemy = CreateAndAddEnemy("roll.ndo",lawnPath1,0,0,5,5.0F, ENEMY_HASPATH | ENEMY_PATHFORWARDS | ENEMY_PATHEND2START | ENEMY_FLATLEVEL);
@@ -431,7 +467,7 @@ void UpdateEnemies()
 		// check if frog has been 'killed' by current enemy - tile based collision
 		else if((currTile[0] == cur->inTile) && (!frog[0]->action.dead) &&
 				(!frog[0]->action.safe) && (!(player[0].frogState & FROGSTATUS_ISSUPERHOPPING) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-				(!currPlatform) && !(player[0].frogState & FROGSTATUS_ISFLOATING))
+				(!currPlatform[0]) && !(player[0].frogState & FROGSTATUS_ISFLOATING))
 		{
 			frog[0]->action.lives--;
 			if(frog[0]->action.lives != 0)
@@ -928,6 +964,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 	else if(gstrcmp(eActorName,"roll.ndo") == 0)
 		enemyType = NMETYPE_ROLLER;
 	else if(gstrcmp(eActorName,"wasp.ndo") == 0)
+		enemyType = NMETYPE_WASP;
+	else if(gstrcmp(eActorName,"b.ndo") == 0)
 		enemyType = NMETYPE_WASP;
 
 	// check nme type and assign shadow if necessary
