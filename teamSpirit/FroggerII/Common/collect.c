@@ -425,7 +425,7 @@ void UpdateScreenSpawn(void)
 				if (cur->next)
 					cur->next->prev = cur->prev;
 
-				JallocFree(cur);
+				JallocFree((UBYTE**)&cur);
 			}
 
 		cur = cur->next;

@@ -373,6 +373,9 @@ void ProcessUserInput(HWND hWnd)
 	if (KEYPRESS(DIK_M))
 		controllerdata[2].button |= CONT_A;
 
+	if (KEYPRESS(DIK_Z))
+		ShowJalloc();
+
 	//if (KEYPRESS(DIK_A))
 	//	controllerdata[1].button |= CONT_B;
 

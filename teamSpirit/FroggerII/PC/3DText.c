@@ -839,15 +839,15 @@ void MakeHiscoreText( )
 
 	for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
 	{
-		sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
+		//sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
 
-		CreateAndAdd3DText( hiScoreStr, 500,
+/*		CreateAndAdd3DText( hiScoreStr, 500,
 							255,255,255,255,
 							T3D_HORIZONTAL,
 							T3D_MOVE_TWIST | T3D_ALIGN_CENTRE,
 							&zero,
 							-5,i*30,
 							0,100+(i*64),20*i,
-							0.0, 0.0, 0.4 );
+							0.0, 0.0, 0.4 );*/
 	}
 }

@@ -117,6 +117,8 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	long zero = 0;
 	HRESULT	dsrVal;
 	
+	SAMPLE *test;
+
 	GetLocalTime(&currTime);
 //	fpp = fopen("c:\frog.ini","rt");
 //	if (fpp)
@@ -158,8 +160,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 
 	if(!InitInputDevices())
 		ok = 0;
-
-	/*
+	
 	if ( !DSoundEnumerate ( &guID, hInstance, winInfo.hWndMain ) )
 	{
 		InitDirectSound ( &guID, hInstance, winInfo.hWndMain, 1 );
@@ -169,7 +170,13 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 		InitDirectSound ( NULL, hInstance, winInfo.hWndMain, 0 );
 	}
 	// ENDELSIF
-	*/
+	
+	InitSampleList();
+	// TEST
+	test = CreateAndAddSample ( "x:\\teamspirit\\pcversion\\test.wav" );
+
+//	test
+	test->lpdsBuffer->lpVtbl->Play ( test->lpdsBuffer, 0, 0, 0 );
 	//InitSaveData();
 
 	gameState.mode		= FRONTEND_MODE;

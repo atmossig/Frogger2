@@ -567,6 +567,12 @@ void InitSpriteFrameLists()
 		totalFrames += j;
 	}
 
+	if ( spriteFrameList[0].texture )
+	{
+		JallocFree((UBYTE **)&spriteFrameList[0].texture);
+	}
+	// ENDIF
+
 	spriteFrameList[0].texture = (TEXTURE **)JallocAlloc(totalFrames * sizeof(TEXTURE *),NO,"SFL");
 	for(i=0; i<NUM_SPRITE_ANIMS; i++)
 	{

@@ -13,12 +13,18 @@
 #include <windows.h>
 #include <ddraw.h>
 #include <d3d.h>
+#include <dsound.h>
 #include "stdlib.h"
 #include "stdio.h"
 #include "directx.h"
 #include "..\resource.h"
 #include <crtdbg.h>
 #include "commctrl.h"
+
+#include <windowsx.h>
+#include <mmsystem.h>
+#include <memory.h>
+#include <winbase.h>
 
 #define SCREEN_WIDTH	640	//320
 #define SCREEN_HEIGHT	480	//240
@@ -454,6 +460,10 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	long i;
 	HWND list;
 
+    static HWND   hCombo;
+    static LPGUID lpGUID;
+    LPGUID        lpTemp;
+
     switch(uMsg)
 	{
 		case WM_INITDIALOG:
@@ -534,6 +544,27 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 			ListView_SetItemState(list, 0, LVIS_SELECTED | LVIS_FOCUSED, 0x00FF);
 
 			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+
+			// Direct Sound Setup part......
+
+/*			hCombo = GetDlgItem ( hwndDlg, IDC_SOUNDSELECT );
+			lpGUID = ( LPGUID ) lParam;
+
+			if ( DirectSoundEnumerate ( ( LPDSENUMCALLBACK ) DSEnumProc, &hCombo ) != DS_OK )
+			{
+				EndDialog ( hwndDlg, TRUE );
+				return( TRUE );
+			}
+
+		    if( ComboBox_GetCount ( hCombo ) )
+				ComboBox_SetCurSel ( hCombo, 0 );
+			else
+			{
+				EndDialog ( hwndDlg, TRUE );
+				return( TRUE );
+			}
+			// ENDELSEIF*/
+
  			return TRUE;
 		}
         case WM_CLOSE:
@@ -566,7 +597,35 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 						return TRUE;
 					}
 
-					EndDialog(hwndDlg,0);
+					// Get selected sound driver........
+
+
+					for ( i = 0; i < ComboBox_GetCount ( hCombo ); i++ )
+					{
+						(GUID*) lpTemp = ( LPGUID ) ComboBox_GetItemData ( hCombo, i );
+						if ( i == ComboBox_GetCurSel ( hCombo ) )
+						{
+							if ( lpTemp != NULL )
+								memcpy ( lpGUID, lpTemp, sizeof ( GUID ) );
+							else
+								lpGUID = NULL;
+						}
+						if ( lpTemp )
+							LocalFree ( lpTemp );
+					}
+					// ENDFOR
+
+					// If we got the NULL GUID, then we want to open the default
+					// sound driver, so return with an error and the init code
+					// will know not to pass in the guID and will send NULL
+					// instead.
+					if ( lpGUID == NULL )
+						EndDialog ( hwndDlg, TRUE );
+					else
+						EndDialog( hwndDlg, FALSE );
+
+
+//					EndDialog(hwndDlg,0);
 					runQuit = 0;
 					break;
 				}
@@ -575,6 +634,34 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	}
 	return FALSE;
 }
+
+
+BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
+				LPSTR lpszDrvName, LPVOID lpContext )
+    {
+    HWND   hCombo = *(HWND *)lpContext;
+    LPGUID lpTemp = NULL;
+
+    if( lpGUID != NULL )
+	{
+//		lpTemp = LocalAlloc ( LMEM_FIXED | LMEM_ZEROINIT , sizeof ( GUID ) );
+		if ( ( lpTemp = (GUID*)LocalAlloc ( LPTR , sizeof ( GUID ) ) ) == NULL )
+			return( TRUE );
+
+		memcpy( lpTemp, lpGUID, sizeof(GUID));
+	}
+
+    ComboBox_AddString( hCombo, lpszDesc );
+    ComboBox_SetItemData( hCombo,
+			ComboBox_FindString( hCombo, 0, lpszDesc ),
+			lpTemp );
+    return( TRUE );
+    }
+
+
+
+
+
 
 long DirectXInit(HWND window, long hardware)
 {
@@ -589,6 +676,7 @@ long DirectXInit(HWND window, long hardware)
 	EnumDXObjects();
 
 	DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc);
+
 	
 	if (runQuit)
 		return 0;
@@ -759,6 +847,9 @@ void SetupRenderstates(void)
 // Split this out into two functions (CreateTextureSurface and CopyToSurface)
 LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hardware, long cKey, long aiSurf)
 { 
+	HRESULT capsResult;
+    DDCAPS			ddCaps;
+
 	LPDIRECTDRAWSURFACE pSurface,pTSurface = NULL;
 	DDSURFACEDESC ddsd;
 	HRESULT me;
@@ -834,6 +925,19 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	
 	if (me = pDirectDraw->CreateSurface(&ddsd, &pTSurface, NULL) != DD_OK)
 	{
+		DDINIT(ddCaps);													// Init caps struct
+		capsResult = pDirectDraw->GetCaps(&ddCaps, NULL);					// Get the caps for the device
+		dp ( "Total Mem : %d : - Total Free : %d :\n",ddCaps.dwVidMemTotal, ddCaps.dwVidMemFree );
+
+//dwVidMemTotal;    DWORD    dwVidMemFree;
+
+ 		/*if (capsResult!=DD_OK)										// Get the caps for the device 	if (lpDD->GetCaps(&ddCaps, NULL)!=DD_OK)						// Get the caps for the device
+		{
+			ddError2String (capsResult);
+			pDirectDraw->Release();											// Oops couldn't get it, release...
+			return NULL;										// And continue looking.
+		}*/
+
 		dp ("Failed TSurf\n");
 		dp (ddError2String(me));
 

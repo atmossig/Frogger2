@@ -12,605 +12,191 @@
 //***********************************
 // Defines
 
-#define EEPROM_DELAY 30000
-
 //***********************************
 // System Includes
+#include <stdio.h>
 #include <ultra64.h>
 
 //***********************************
 // User Includes
+
 #include "incs.h"
 
 //***********************************
 // Globals
-
-SAVE_SLOT saveSlot[NUM_SAVE_SLOTS] = 
-{
-	{"jim", 50000, 0, 0,},
-	{"and", 40000, 0, 0,},
-	{"alx", 30000, 0, 0,},
-	{"mat", 20000, 0, 0,},
-	{"jok", 10000, 0, 0,},
-	{"sim", 5000, 0, 0,},
-};
-
-
-LEVEL_HISCORE levelTable[MAX_WORLDS*3] = {
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-	{ "AAA", 5000 },
-	{ "BBB", 4000 },
-	{ "CCC", 3000 },
-};
-
-char	validEeprom = FALSE;
-
-//char	eepromMessageQueue [ MAX_EEPROM_MESSAGES ];
-char	eepromMessageNum;
-
-short	eepromPresent = FALSE;
-
-//LEVEL_HISCORE	levelTable [ MAX_WORLDS ] [ 4 ];
-SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
-
 
 //***********************************
 // Function Definitions
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
+	Function 	: InitSaveData
+	Purpose 	: calls all of the functions required to setup save data
+	Parameters 	: void
+	Returns 	: void
+	Info 		: void
 */
-void Wait ( short time )
+void InitSaveData ( void )
 {
-/*
-	u64	curTime, stTime;
-
-	stTime = curTime = OS_CYCLES_TO_USEC ( osGetTime ( ) );
-
-	while ( ( curTime - stTime ) < time )
-		curTime = OS_CYCLES_TO_USEC ( osGetTime ( ) );
-	// ENDWHILE
-*/
+	SetUpHiScoreData();
+	SetUpSavedGames();
 }
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
+	Function 	: SetUpHiScoreData
+	Purpose 	: set's up the data file for the hiscore table.
+	Parameters 	: void
+	Returns 	: void
+	Info 		: void
 */
-void InitEepromMessageQueue ( void )
+void SetUpHiScoreData ( void )
 {
-/*
-	char x;
+	FILE *fp;
 
-	//initialise eeprom message queue
-	eepromMessageNum = 0;
-	for(x = 0; x < MAX_EEPROM_MESSAGES; x++)
-		eepromMessageQueue[x] = EEPROM_IDLE;
-	// ENDFOR
-*/
-}
+	fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\hiscore.dat", "r" );
 
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void InitEeprom ( void )
-{
-/*
-	eepromPresent = osEepromProbe(&controllerMsgQ);
-	PostEepromMessage(EEPROM_VALID);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-*/
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void GetEepromMessage ( void )
-{
-/*
-	short x;
-
-	for(x = 0; x < MAX_EEPROM_MESSAGES - 1; x++)
+	if ( fp == NULL )
 	{
-		eepromMessageQueue[x] = eepromMessageQueue[x + 1];
-	}
-	eepromMessageQueue[x] = EEPROM_IDLE;
-	eepromMessageNum--;
-*/
-}
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void PostEepromMessage ( short message ) 
-{
-/*
-	//add new message to the queue
-	eepromMessageQueue[eepromMessageNum++] = message;
-*/
-}
-
-
-
-char *cartID = {"GVR8"};
+		// Let's write out the data to a new file, first time playing or some idiot has deleted the file......
+		fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\hiscore.dat", "w" );
 		
-void SaveID(void)
-{
-/*
-	PostEepromMessage(EEPROM_SAVEID);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-*/
-}	
-
-void EepromSaveID(void )
-{
-/*
-	short	res;
-	char	buffer[8];
-
-	sprintf(buffer, cartID);
-
-	if(eepromPresent)
-	{
-		res = osEepromLongWrite(&controllerMsgQ, 0, (u8 *)buffer, 8);
-		Wait(EEPROM_DELAY);
-	}
-*/
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void EepromValid ( void )
-{
-/*
-	char	buffer[8];
-	short	res;
-
-	if(eepromPresent)
-	{																					
-		res = osEepromLongRead(&controllerMsgQ, 0, (u8 *)buffer, 8);
-		Wait(EEPROM_DELAY);
-		if((buffer[0] == cartID[0]) && (buffer[1] == cartID[1]) && (buffer[2] == cartID[2]) && (buffer[3] == cartID[3]))
+	/*	for ( i = 0; i < MAX_HISCORE_SLOTS; i++ )
 		{
-			//cart is empty - must fill in the data
-			validEeprom = TRUE;
+			Convert3CharTo2Char( &hiScoreData[i].name, scoreName[i] );
 		}
-		else
-			validEeprom = FALSE;
+		// ENDFOR*/
 
+		fwrite ( hiScoreData, sizeof ( HISCORE ), MAX_HISCORE_SLOTS, fp );
 	}
+	else
+	{
+		// This loads in the data from the existing file
+		fread ( hiScoreData, sizeof ( HISCORE ), MAX_HISCORE_SLOTS, fp );
+	}
+	// ENDELSIF
+	close  ( fp );
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: SaveHiScores
+	Purpose 	: saves out the data file containing the hiscores.
+	Parameters 	: void
+	Returns 	: void
+	Info 		: void
 */
+void SaveHiScores ( void )
+{
+	FILE *fp;
+
+	// Save out the new hiscore data, some one has a new hiscore, no cannot be!!!!!!!!
+	fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\hiscore.dat", "w" );
+
+	fwrite ( hiScoreData, sizeof ( HISCORE ), MAX_HISCORE_SLOTS, fp );
+
+	close ( fp );
+
 }
 
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
+	Function 	: SetUpSavedGames
+	Purpose 	: creates an existing data file or loads one in.
+	Parameters 	: void
+	Returns 	: void
+	Info 		: void
 */
-void SaveLevelScores ( void )
+void SetUpSavedGames ( void )
 {
-/*
-	PostEepromMessage ( EEPROM_SAVELEVELSCORES );
-	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
-*/
-}
+	FILE *fp;
 
+	fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\gamedata.dat", "r" );
 
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void EepromSaveLevelScores ( void )
-{
-/*
-	short	res = 1;
-
-	if ( eepromPresent )
+	if ( fp == NULL )
 	{
-		do
-		{
-			res = osEepromLongWrite(&controllerMsgQ, 1, (u8 *)levelTable, sizeof ( LEVEL_HISCORE ) * (MAX_WORLDS*3));
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
+		// Let's write out the data to a new file, first time playing or some idiot has deleted the file......
+		fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\gamedata.dat", "w" );
+		fwrite ( saveSlots, sizeof ( SAVE_SLOT ), MAX_SAVE_SLOTS, fp );
 	}
-	// ENDIF
-*/
+	else
+	{
+		// This loads in the data from the existing file
+		fread ( saveSlots, sizeof ( SAVE_SLOT ), MAX_SAVE_SLOTS, fp );
+	}
+	// ENDELSEIF
+
+	close ( fp );
 }
 
 /*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
+	Function 	: SaveGameData
+	Purpose 	: saves out the data file containing the save games.
+	Parameters 	: void
+	Returns 	: void
+	Info 		: void
 */
-void LoadLevelScores ( void )
+void SaveGameData ( void )
 {
-/*
-	PostEepromMessage ( EEPROM_LOADLEVELSCORES );
-	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
-*/
+	FILE *fp;
+
+	fp = fopen ( "x:\\teamspirit\\pcversion\\savedata\\gamedata.dat", "w" );
+
+	fwrite ( saveSlots, sizeof ( SAVE_SLOT ), MAX_SAVE_SLOTS, fp );
+
+	close ( fp );
 }
 
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-void EepromLoadLevelScores ( void )
+void Convert3CharTo2Char ( char twoChar[2], char threeChar[3] )
 {
-/*
-	short	res = 1;
+	char ta, tb, tc;
+	char a, b, c;
 
-	if ( eepromPresent )
-	{
-		do
-		{
-			res = osEepromLongRead(&controllerMsgQ, 1, (u8 *)levelTable, sizeof ( LEVEL_HISCORE ) * (MAX_WORLDS*3) );
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-	// ENDIF
-*/
-}
+	ta = ( threeChar[0] - 'a' ) & 31;
+	tb = ( threeChar[1] - 'a' ) & 31;
+	tc = ( threeChar[2] - 'a' ) & 31;
+
+	twoChar[0] = ( a << 3 ) | ( ( b >> 2 ) & 7 );
+	twoChar[1] = ( b << 6 ) | ( c << 1 );
 
 
-//OSMesgQueue	eepromMsgQ;
-//OSMesg		eepromMsgBuf;
-//EEPROM_CRCS eepromCRCS;
+/*	char a,b,c;
+	char a1,b2,c3;
+	char c1,c2;
+
+	char t;
+
+	char test[2];
+	char test2[3];
+
+	sprintf ( player[0].name, "jam" );
+
+	a = (player[0].name[0] - 'a') & 31;
+	b = (player[0].name[1] - 'a') & 31;
+	c = (player[0].name[2] - 'a') & 31;
+
+	// aaaa abbb = c1
+	c1 = (a << 3) | ((b >> 2) & 7);
+	// bbcc cccn = c2
+	c2 = (b << 6) | (c << 1);
 
 
+	/// 
 
+	// 000a aaaa
+	a1 = (c1 >> 3) + 'a';
 
- // TEST STUFF
+	// 000b bbbb
+	b2 = (((c1 & 7) << 2) | (c2>>6)) + 'a';
 
-/*HISCORE_ENTRY	hiscoreTable[NUM_HISCORE_ENTRIES] = {
-	{500000, "STE"},
-	{400000, "WUK"},
-	{300000, "JIM"},
-	{200000, "KEV"},
-	{100000, "MAT"},
-	{50000, "DIB"},
-};
-	*/
-/*HISCORE_ENTRY	hiscoreTableCopy[NUM_HISCORE_ENTRIES] = {
-	{500000, "STE"},
-	{400000, "WUK"},
-	{300000, "JIM"},
-	{200000, "KEV"},
-	{100000, "MAT"},
-	{50000, "DIB"},
-};
-	  */
-/*SAVE_SLOT		saveSlot[NUM_SAVE_SLOTS] = {
-	{"JIM", 50000, 3, 2},
-	{"MAT", 40000, 2, 1},
-	{"AND", 30000, 2, 0}, 
-	{"JOF", 20000, 0, 2},
-	{"SIM", 10000, 0, 2}, 
-	{"ALX", 5000,  0, 0},
-};
-
-SAVE_SLOT blankSlot = {"\r",0/*, 0, 0, 0, 0, 0/*DIFFICULTY_MEDIUM, 0, 0, 0, 0, 0*//*};*/
-
-/*short		currentSaveSlot = 0;
-char		currentName[4];
-short	eepromRequest = EEPROM_IDLE;
-
-char	eepromMessageNum = 0;
-	 */
-
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-/*void LoadHiscoreTable()
-{
-	PostEepromMessage(EEPROM_LOADHISCORES);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-void SaveHiscoreTable()
-{
-	PostEepromMessage(EEPROM_SAVEHISCORES);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-void LoadBestTimes()
-{
-	PostEepromMessage(EEPROM_LOADTIMES);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-void SaveBestTimes()
-{
-	PostEepromMessage(EEPROM_SAVETIMES);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-void LoadSlots()
-{
-	PostEepromMessage(EEPROM_LOADSLOT);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-
-void SaveSlots()
-{
-	PostEepromMessage(EEPROM_SAVESLOT);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-void LoadCRC()
-{
-	PostEepromMessage(EEPROM_LOADCRC);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-void SaveCRC()
-{
-	PostEepromMessage(EEPROM_SAVECRC);
-	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
-}
-
-/*void EepromSaveHiscoreTable()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-			res = osEepromLongWrite(&controllerMsgQ, 1, (u8 *)hiscoreTable, sizeof(HISCORE_ENTRY) * NUM_HISCORE_ENTRIES);
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-}
-void EepromLoadHiscoreTable()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-			res = osEepromLongRead(&controllerMsgQ, 1, (u8 *)hiscoreTable, sizeof(HISCORE_ENTRY) * NUM_HISCORE_ENTRIES);
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-
-} */
-/*void EepromSaveBestTimes()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-//			res = osEepromLongWrite(&controllerMsgQ, 7, (u8 *)bestTimes, sizeof(BEST_TIME)*(RL_NUM_LEVELS+2));
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-}
-void EepromLoadBestTimes()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-//			res = osEepromLongRead(&controllerMsgQ, 7, (u8 *)bestTimes, sizeof(BEST_TIME)*(RL_NUM_LEVELS+2));
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-
-	}
-} 
-void EepromSaveSlots()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-			res = osEepromLongWrite(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-}
-void EepromLoadSlots()
-{
-	short	res = 1;
-
-	if(eepromPresent)
-	{
-		do
-		{
-			res = osEepromLongRead(&controllerMsgQ, 7, (u8 *)saveSlot, sizeof(SAVE_SLOT) * NUM_SAVE_SLOTS);
-			Wait(EEPROM_DELAY);
-		}while(res != 0);
-	}
-}
-
-
-/*void EepromSaveCRC()
-{
-	short	res;
-	int j;
-
-	eepromCRCS.hiscoreCRC = UpdateCRCData((char *)hiscoreTable,sizeof(HISCORE_ENTRY)*NUM_HISCORE_ENTRIES);
-	//eepromCRCS.bestTimesCRC = UpdateCRCData((char *)bestTimes,sizeof(BEST_TIME)*(RL_NUM_LEVELS+2));
-	for(j = 0;j < NUM_SAVE_SLOTS;j++)
-		eepromCRCS.slotCRC[j] = UpdateCRCData((char *)&saveSlot[j],sizeof(SAVE_SLOT));
-
-	if(eepromPresent)
-	{
-		res = osEepromLongWrite(&controllerMsgQ, 52, (u8 *)&eepromCRCS, sizeof(EEPROM_CRCS));
-		Wait(EEPROM_DELAY);
-	}
-}
-
-/*void EepromLoadCRC()
-{
-	short	res;
-
-	if(eepromPresent)
-	{
-		res = osEepromLongRead(&controllerMsgQ, 52, (u8 *)&eepromCRCS, sizeof(EEPROM_CRCS));
-		Wait(EEPROM_DELAY);
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-/*void LoadGame(short num)
-{
+	// 0bbc cccc
+	c3 = ((c2 >> 1) & 31) + 'a';*/
 
 }
 
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-/*void SaveGame(short num)
+void Convert2CharTo2Char ( char threeChar[3], char twoChar[2] )
 {
-
+	threeChar[0] = (twoChar[0] >> 3) + 'a';
+	threeChar[1] = (((twoChar[0] & 7) << 2) | (twoChar[1]>>6)) + 'a';
+	threeChar[2] = ((twoChar[1] >> 1) & 31) + 'a';
 }
 
-
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-/*void UpdateSaveSlot(char conquered)
-{
-	saveSlot[currentSaveSlot].name[0] = currentName[0];
-	saveSlot[currentSaveSlot].name[1] = currentName[1];
-	saveSlot[currentSaveSlot].name[2] = currentName[2];
-
-	//saveSlot[currentSaveSlot].score = player.score + player.garibs*10;
-	//saveSlot[currentSaveSlot].lives = player.numLives;
-//	if(gameInfo.flags & LEVEL_COMPLETED)
-//		saveSlot[currentSaveSlot].levelCompleted |= (1 << levelInfo[gameInfo.lastLevel].realLevel);
-//	if(conquered)
-//		saveSlot[currentSaveSlot].levelConquered |= (1 << levelInfo[gameInfo.lastLevel].realLevel);
-
-//	saveSlot[currentSaveSlot].numWorldsCompleted = gameInfo.numWorldsCompleted;
-//	saveSlot[currentSaveSlot].numBallsInPlace = gameInfo.numBallsInPlace;
-
-	SaveSlots();
-	SaveCRC();
-
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-/*void CheckCRC()
-{
-	int j;
-	unsigned int crc;
-
-	for(j = 0;j < NUM_SAVE_SLOTS;j++)
-	{
-		crc = UpdateCRCData((char *)&saveSlot[j],sizeof(SAVE_SLOT));
-		if(crc != eepromCRCS.slotCRC[j])
-		{
-			memcpy((char *)&saveSlot[j],(char *)&blankSlot,sizeof(SAVE_SLOT));
-		}
-	}
-	crc = UpdateCRCData((char *)hiscoreTable,sizeof(HISCORE_ENTRY)*NUM_HISCORE_ENTRIES);
-	if(crc != eepromCRCS.hiscoreCRC)
-	{
-		memcpy (hiscoreTable,hiscoreTableCopy,sizeof (HISCORE_ENTRY) * NUM_HISCORE_ENTRIES);			
-	}
-	//crc = UpdateCRCData((char *)bestTimes,sizeof(BEST_TIME)*(RL_NUM_LEVELS+2));
-	/*if(crc != eepromCRCS.bestTimesCRC)
-	{
-		memcpy (&bestTimes[RL_ATLANTIS_LEVEL1],&bestTimesCopy[RL_ATLANTIS_LEVEL1],sizeof(BEST_TIME)*5);
-		memcpy (&bestTimes[RL_CARNIVAL_LEVEL1],&bestTimesCopy[RL_CARNIVAL_LEVEL1],sizeof(BEST_TIME)*5);
-		memcpy (&bestTimes[RL_PIRATES_LEVEL1],&bestTimesCopy[RL_PIRATES_LEVEL1],sizeof(BEST_TIME)*5);
-		memcpy (&bestTimes[RL_PREHIST_LEVEL1],&bestTimesCopy[RL_PREHIST_LEVEL1],sizeof(BEST_TIME)*5);
-		memcpy (&bestTimes[RL_FORTRESS_LEVEL1],&bestTimesCopy[RL_FORTRESS_LEVEL1],sizeof(BEST_TIME)*5);
-		memcpy (&bestTimes[RL_OOTW_LEVEL1],&bestTimesCopy[RL_OOTW_LEVEL1],sizeof(BEST_TIME)*5);
-	} */
-/*}
-*/

@@ -45,6 +45,7 @@ void BeginDrawHardware (void);
 void EndDrawHardware (void);
 void ReleaseSurface(LPDIRECTDRAWSURFACE me);
 
+extern void dp(char *format, ...);
 
 
 #ifdef __cplusplus

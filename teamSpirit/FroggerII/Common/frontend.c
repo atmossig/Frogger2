@@ -30,7 +30,7 @@ char ActiveController	= 0;
 
 //------ [ FUNCTION IMPLEMENTATION ] -----------------------------------------------------------//
 
-void RunFrontEnd( )
+void RunFrontEndStates( )
 {
 	switch ( frontEndState.mode )
 	{
@@ -47,6 +47,7 @@ void RunFrontEnd( )
 
 	}
 }
+
 
 
 /* --------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ void GameLoop(void)
 		desiredFrameRate = newDesiredFrameRate = ingameRate;
 		//runningWaterStuff = 1;
 		if(frameCount == 15)
-			StartDrawing("gameloop");
+			StartDrawing("pausemode");
 
 		RunPauseMenu();
 		frameCount++;
@@ -89,9 +90,9 @@ void GameLoop(void)
 	case FRONTEND_MODE:
 		desiredFrameRate = newDesiredFrameRate = 1;
 		if ( frameCount == 15 )
-			StartDrawing ( "gameloop" );
+			StartDrawing ( "frontend" );
 
-		RunFrontEnd();
+		RunFrontEndStates();
 		frameCount++;
 		break;
 	case OLDEFROGGER_MODE:

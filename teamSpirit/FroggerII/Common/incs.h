@@ -14,6 +14,7 @@
 #ifdef PC_VERSION
 #include <ddraw.h>
 #include <d3d.h>
+#include <dsound.h>
 #include <dinput.h>
 
 #ifndef __cplusplus
@@ -91,11 +92,11 @@
 #include "menus.h"
 #include "defaultdata.h"
 #include "levelprogession.h"
+#include "audio.h"
 
 #ifndef PC_VERSION
 #include "libmus.h"
 #include "libmus_data.h"
-#include "audio.h"
 #endif
 
 #include "sndview.h"
@@ -108,5 +109,6 @@
 #ifndef PC_VERSION
 #include "levbanks\levext.h"
 #else
+#include "dx_sound.h"
 #include "\work\froggerII\pc\levbanks\levext.h"
 #endif

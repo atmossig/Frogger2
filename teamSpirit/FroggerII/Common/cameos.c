@@ -112,7 +112,7 @@ void FreeCameoList ( void )
 	while ( curObj )
 	{
 		nextObj = curObj->next;
-		JallocFree ( &curObj );
+		JallocFree ( (UBYTE**)&curObj );
 		curObj = nextObj;
 	}
 	// ENDWHILE
@@ -126,7 +126,7 @@ void FreeCameoList ( void )
 	while ( curCameo )
 	{
 		nextCameo = curCameo->next;
-		JallocFree ( &curCameo );
+		JallocFree ( (UBYTE**)&curCameo );
 		curCameo = nextCameo;
 	}
 	// ENDWHILE
@@ -135,7 +135,7 @@ void FreeCameoList ( void )
 		cameoSet->cameos = NULL;
 	// ENDIF - cameoSet
 
-	JallocFree ( &cameoSet );
+	JallocFree ( (UBYTE**)&cameoSet );
 
 	cameoSet = NULL;
 }

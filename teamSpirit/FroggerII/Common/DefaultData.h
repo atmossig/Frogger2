@@ -15,34 +15,36 @@
 //************************************************************************************************
 //	Defines
 
-//#define MAX_LEVELHISCORE_SLOTS	3
+#define MAX_SAVE_SLOTS			5
+
 #define MAX_HISCORE_SLOTS		5
 
 //************************************************************************************************
 //	Type Defines
 
+typedef struct _SAVE_SLOT
+{
+	char name[2];
+	long score;
+} SAVE_SLOT;
+
+typedef struct _SCORENAME
+{
+	char name[3];
+} SCORENAME;
+
 typedef struct _HISCORE
 {
-	char	name[3];
+	char	name[2];
 	long	score;
-	short	time;
-	short	cup;
 } HISCORE;
-/*
-typedef struct _LEVELHISCORES
-{
-	HISCORE	scoreData [ MAX_LEVELHISCORE_SLOTS ];
-} LEVELHISCORES;
 
-typedef struct _WORLDLEVELHISCORES
-{
-	HISCORE levelScoreData[ MAX_LEVELS ];
-} WORLDLEVELHISCORES;
-*/
 //************************************************************************************************
 //	Global Externs
 
-extern HISCORE	worldHiScoreData	[ MAX_WORLDS ][ MAX_LEVELS ];
-extern HISCORE	hiScoreData			[ MAX_HISCORE_SLOTS ];
+extern SAVE_SLOT saveSlots [ MAX_SAVE_SLOTS ];
+
+extern SCORENAME	scoreNames	[ MAX_HISCORE_SLOTS ]; 
+extern HISCORE		hiScoreData [ MAX_HISCORE_SLOTS ];
 
 #endif

@@ -41,10 +41,10 @@ extern char	ActiveController;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-void RunFrontEnd();
-void GameLoop();
+extern void RunFrontEndStates	( void );
+extern void GameLoop			( void );
 
-void RunLevelSelect();
-void RunTitleScreen();
+extern void RunLevelSelect		( void );
+extern void RunTitleScreen		( void );
 
 #endif

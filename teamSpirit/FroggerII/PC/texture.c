@@ -34,6 +34,7 @@ void FreeAllTextureBanks()
 {
 	TEXENTRY *me = texList;
 	TEXENTRY *tme = texList;
+	int numTextures = 0;
 
 	while (me)
 	{
@@ -44,7 +45,11 @@ void FreeAllTextureBanks()
 			ReleaseSurface(tme->surf);
 		JallocFree(&(tme->data));
 		JallocFree(&tme);		
+		numTextures++;
 	}
+
+	dprintf"Freed %d Textures\n",numTextures ));
+
 
 	texList = NULL;
 }
@@ -169,6 +174,7 @@ void LoadTextureBank(int num)
 	char			Sfilename[MAX_PATH];
 	WIN32_FIND_DATA fData;
 	HANDLE			fHandle;
+	int numTextures;
 
     strcpy (filename,baseDirectory);	
 	strcat (filename,TEXTURE_BASE);
@@ -268,6 +274,7 @@ void LoadTextureBank(int num)
 		char finalFile[MAX_PATH];
 		char finalShort[MAX_PATH];
 
+		numTextures = 0;
 		do
 		{
 			strcpy (finalFile,filename);
@@ -277,9 +284,12 @@ void LoadTextureBank(int num)
 			ret = FindNextFile (fHandle,&fData);
 
 			AddTextureToTexList (finalFile,finalShort,!ret);			
+			numTextures++;
 		}
 		while (ret);
 	
+		dprintf"Loaded %d Textures\n",numTextures ));
+
 		FindClose (fHandle);
 	}
 }
