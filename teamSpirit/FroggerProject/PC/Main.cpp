@@ -794,8 +794,18 @@ int GameStartup()
 
 	sprintf(path, "%stextures\\font\\bigfont.bmp", baseDirectory);
 	pcFont = InitFont(path);
-	sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
-	pcFontSmall = InitFont(path);
+
+	if( rHardware || rXRes > 320 )
+	{
+		sprintf(path, "%stextures\\font\\smallfont.bmp", baseDirectory);
+		pcFontSmall = InitFont(path);
+	}
+	else
+	{
+		sprintf(path, "%stextures\\font\\softfont.bmp", baseDirectory);
+		pcFontSmall = InitFont(path);
+	}
+
 	sprintf(path, "%stextures\\font\\monofont.bmp", baseDirectory);
 	pcFontWhite = InitFont(path);
 
