@@ -654,6 +654,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 */
 void FreeAllLists()
 {
+	dprintf"----- FREEING ALL LISTS -----\n"));
+
 	StopDrawing("FREELIST");
 
 #ifdef N64_VERSION
@@ -667,8 +669,6 @@ void FreeAllLists()
 #endif
 
 	FreeAmbientSoundList();
-
-	dprintf"----- FREEING ALL LISTS -----\n"));
 
 	KillAllTriggers();
 
@@ -705,8 +705,6 @@ void FreeAllLists()
 	pOIDistance = 50000.0;
 	pointOfInterest = NULL;
 
-	dprintf"-----------------------------\n"));
-
 	InitTextOverlayLinkedList();
 	InitSpriteOverlayLinkedList();
 	InitSpriteLinkedList();
@@ -715,4 +713,6 @@ void FreeAllLists()
 	fog.mode = 0;
 	pauseMode		= 0;
 	darkenedLevel	= 0;
+
+	dprintf"-----------------------------\n"));
 }

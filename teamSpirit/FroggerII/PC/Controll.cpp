@@ -223,7 +223,7 @@ BOOL InitInputDevices()
 	}
 
 	// Read control map
-
+/*
 	ifstream in;
 
 	in.open( keyFileName, ios::nocreate, filebuf::sh_read );
@@ -234,7 +234,7 @@ BOOL InitInputDevices()
 
 		in.close();
 	}
-	
+*/	
 	return TRUE;
 }
 
