@@ -75,22 +75,16 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	Returns			: 
 	Info			: 
 */
-long tNum;
-
 void Print3DText( )
 {
 	TEXT3D *t3d;
-	unsigned long v, c, len, i;
-	char texName[13];
-	TEXTURE *texture;
-	TEXENTRY *tEntry;
+	unsigned long vx, c, len, i;
 
 	VECTOR m, tmp;
-
 	QUATERNION q;
 	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
 	float newRotMtx[4][4];
-
+	short u, v, letterID;
 	static short f[6] = {0,1,2,0,2,3};
 
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
@@ -110,48 +104,33 @@ void Print3DText( )
 			continue;
 		
 		len = strlen(t3d->string);
-		for( c=0,v=0; c < len; c++,v+=4 )
+		for( c=0,vx=0; c < len; c++,vx+=4 )
 		{
-			switch( t3d->string[c] )
+			letterID = characterMap[t3d->string[c]];
+			u = bigFont->offset[letterID].v[X];
+			v = bigFont->offset[letterID].v[Y];
+			t3d->vT[vx+0].tu = u;
+			t3d->vT[vx+0].tv = v;
+			t3d->vT[vx+1].tu = u+32;
+			t3d->vT[vx+1].tv = v;
+			t3d->vT[vx+2].tu = u+32;
+			t3d->vT[vx+2].tv = v+32;
+			t3d->vT[vx+3].tu = u;
+			t3d->vT[vx+3].tv = v+32;
+
+			// Transform to screen coords (I HOPE)
+			for( i=0; i<4; i++ )
 			{
-			case '0': cmemcpy( texName, "zero_32.bmp\0", 12 ); break;
-			case '1': cmemcpy( texName, "one_32.bmp\0", 11 ); break;
-			case '2': cmemcpy( texName, "two_32.bmp\0", 11 ); break;
-			case '3': cmemcpy( texName, "three_32.bmp\0", 13 ); break;
-			case '4': cmemcpy( texName, "four_32.bmp\0", 12 ); break;
-			case '5': cmemcpy( texName, "five_32.bmp\0", 12 ); break;
-			case '6': cmemcpy( texName, "six_32.bmp\0", 11 ); break;
-			case '7': cmemcpy( texName, "seven_32.bmp\0", 13 ); break;
-			case '8': cmemcpy( texName, "eight_32.bmp\0", 13 ); break;
-			case '9': cmemcpy( texName, "nine_32.bmp\0", 12 ); break;
-			case ' ': cmemcpy( texName, "_\0", 2 ); break;
-			default:
-				cmemcpy( texName, "__32.bmp\0", 9 );
-				texName[0] = t3d->string[c];
-				break; // Character is a letter
+				tmp.v[0] = t3d->vT[vx+i].sx;
+				tmp.v[1] = t3d->vT[vx+i].sy;
+				tmp.v[2] = t3d->vT[vx+i].sz;
+				XfmPoint( &m, &tmp );
+				t3d->vT[vx+i].sx = m.v[0];
+				t3d->vT[vx+i].sy = m.v[1];
+				t3d->vT[vx+i].sz = m.v[2];
 			}
 
-			if( texName[0] != '_' )
-			{
-				FindTexture( &texture, UpdateCRC(texName), YES, texName );
-				LoadTexture(texture);
-				tEntry = ((TEXENTRY *)texture);
-				tNum = (long)tEntry->hdl;	
-
-				// Transform to screen coords (I HOPE)
-				for( i=0; i<4; i++ )
-				{
-					tmp.v[0] = t3d->vT[v+i].sx;
-					tmp.v[1] = t3d->vT[v+i].sy;
-					tmp.v[2] = t3d->vT[v+i].sz;
-					XfmPoint( &m, &tmp );
-					t3d->vT[v+i].sx = m.v[0];
-					t3d->vT[v+i].sy = m.v[1];
-					t3d->vT[v+i].sz = m.v[2];
-				}
-
-				DrawAHardwarePoly(&t3d->vT[v],4,f,6,tNum);
-			}
+			DrawAHardwarePoly(&t3d->vT[vx],4,f,6,(long)bigFont->hdl);
 		}
 	}
 
@@ -239,30 +218,22 @@ void MakeTextCircle( TEXT3D *t3d )
 
 		t3d->vT[v+0].sx = tesa;
 		t3d->vT[v+0].sy = teca;
-		t3d->vT[v+0].sz = (yPa+DIST)/2000;
-		t3d->vT[v+0].tu = 0;
-		t3d->vT[v+0].tv = 0;
+		t3d->vT[v+0].sz = yPa;//+DIST)/2000;
 		t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+0].specular = D3DRGB(0,0,0);
 		t3d->vT[v+1].sx = tesb;
 		t3d->vT[v+1].sy = tecb;
-		t3d->vT[v+1].sz = (yPb+DIST)/2000;
-		t3d->vT[v+1].tu = 1024;
-		t3d->vT[v+1].tv = 0;
+		t3d->vT[v+1].sz = yPb;//+DIST)/2000;
 		t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+1].specular = D3DRGB(0,0,0);
 		t3d->vT[v+2].sx = tesb;
 		t3d->vT[v+2].sy = tecb;
-		t3d->vT[v+2].sz = (yPc+DIST)/2000;
-		t3d->vT[v+2].tu = 1024;
-		t3d->vT[v+2].tv = 1024;
+		t3d->vT[v+2].sz = yPc;//+DIST)/2000;
 		t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+2].specular = D3DRGB(0,0,0);
 		t3d->vT[v+3].sx = tesa;
 		t3d->vT[v+3].sy = teca;
-		t3d->vT[v+3].sz = (yPd+DIST)/2000;
-		t3d->vT[v+3].tu = 0;
-		t3d->vT[v+3].tv = 1024;
+		t3d->vT[v+3].sz = yPd;//+DIST)/2000;
 		t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 		t3d->vT[v+3].specular = D3DRGB(0,0,0);
 	}
@@ -355,30 +326,22 @@ void MakeTextLine( TEXT3D *t3d )
 
 			t3d->vT[v+0].sx = -pB+t3d->xOffs;
 			t3d->vT[v+0].sy = zPa;
-			t3d->vT[v+0].sz = (yPa+DIST)/2000;
-			t3d->vT[v+0].tu = 0;
-			t3d->vT[v+0].tv = 0;
+			t3d->vT[v+0].sz = yPa;//+DIST)/2000;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
 			t3d->vT[v+1].sx = -pB-tS+t3d->xOffs;
 			t3d->vT[v+1].sy = zPb;
-			t3d->vT[v+1].sz = (yPb+DIST)/2000;
-			t3d->vT[v+1].tu = 1024;
-			t3d->vT[v+1].tv = 0;
+			t3d->vT[v+1].sz = yPb;//+DIST)/2000;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
 			t3d->vT[v+2].sx = -pB-tS+t3d->xOffs;
 			t3d->vT[v+2].sy = zPc;
-			t3d->vT[v+2].sz = (yPc+DIST)/2000;
-			t3d->vT[v+2].tu = 1024;
-			t3d->vT[v+2].tv = 1024;
+			t3d->vT[v+2].sz = yPc;//+DIST)/2000;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
 			t3d->vT[v+3].sx = -pB+t3d->xOffs;
 			t3d->vT[v+3].sy = zPd;
-			t3d->vT[v+3].sz = (yPd+DIST)/2000;
-			t3d->vT[v+3].tu = 0;
-			t3d->vT[v+3].tv = 1024;
+			t3d->vT[v+3].sz = yPd;//+DIST)/2000;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
@@ -480,30 +443,22 @@ void MakeTextLine( TEXT3D *t3d )
 			*/
 			t3d->vT[v+0].sx = xPa;
 			t3d->vT[v+0].sy = zPa;
-			t3d->vT[v+0].sz = (yPa+DIST)/2000;
-			t3d->vT[v+0].tu = 0;
-			t3d->vT[v+0].tv = 0;
+			t3d->vT[v+0].sz = yPa;//+DIST)/2000;
 			t3d->vT[v+0].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+0].specular = D3DRGB(0,0,0);
 			t3d->vT[v+1].sx = xPb;
 			t3d->vT[v+1].sy = zPb;
-			t3d->vT[v+1].sz = (yPb+DIST)/2000;
-			t3d->vT[v+1].tu = 1024;
-			t3d->vT[v+1].tv = 0;
+			t3d->vT[v+1].sz = yPb;//+DIST)/2000;
 			t3d->vT[v+1].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+1].specular = D3DRGB(0,0,0);
 			t3d->vT[v+2].sx = xPc;
 			t3d->vT[v+2].sy = zPc;
-			t3d->vT[v+2].sz = (yPc+DIST)/2000;
-			t3d->vT[v+2].tu = 1024;
-			t3d->vT[v+2].tv = 1024;
+			t3d->vT[v+2].sz = yPc;//+DIST)/2000;
 			t3d->vT[v+2].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+2].specular = D3DRGB(0,0,0);
 			t3d->vT[v+3].sx = xPd;
 			t3d->vT[v+3].sy = zPd;
-			t3d->vT[v+3].sz = (yPd+DIST)/2000;
-			t3d->vT[v+3].tu = 0;
-			t3d->vT[v+3].tv = 1024;
+			t3d->vT[v+3].sz = yPd;//+DIST)/2000;
 			t3d->vT[v+3].color = D3DRGBA(t3d->vR,t3d->vG,t3d->vB,t3d->vA);
 			t3d->vT[v+3].specular = D3DRGB(0,0,0);
 		}
