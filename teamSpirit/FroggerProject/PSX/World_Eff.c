@@ -204,8 +204,6 @@ void SubScenicObject ( SCENICOBJ *scenicObj )
 
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 {
-	char u,v;
-
 	register u_long t1 asm("$16");
 	register u_long t2 asm("$20");
 
@@ -225,14 +223,18 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	unsigned long *ot = currentDisplayPage->ot+mesh->extra_depth;
 
-	int i;
+	int i, j;
 
 	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH;// + mesh->extra_depth;
 
+	// Store UV modge vals for a poly
+	short mVs[8];
+
 	// Is this an sp(m/f/l) type slidy thing? If so, what speed?
 	unsigned short pcStyleSlide = ((flags>>10)&3);
-	int sldSpd, rc, rs;
+	int sldSpd;//, rc, rs;
+	unsigned long period1 = frameCount<<5, period2 = frameCount<<7;
 
 	// Multiply speed if we have a multiple
 	if( pcStyleSlide )
@@ -243,13 +245,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	// Reverse if told to
 	if( mesh->flags & MINUSSLIDING )
 		sldSpd = -sldSpd;
-
-	// Precalc modgy amount - NOT different for every vertex you wollocky boy :)
-	if ( mesh->flags & MODGY )
-	{
-		rs = (rsin(frame<<6)+4096)>>11;
-		rc = (rcos(frame<<6)+4096)>>11;
-	}
 
 	if(mesh->n_verts <= 126)	// Not 128. TransformVerts rounds up to nearest 3, remember
 	{
@@ -272,8 +267,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	
 	if( mesh->flags & JIGGLE )
 	{
-		int period1 = frameCount<<5, period2 = frameCount<<7;
-
 		// Interesting. The framecount shift controls the periiod of oscillation,
 		// and the downshift at the end decreases the amplitude from huge.
 		for ( i = 0; i < mesh->n_verts; i++ )
@@ -317,6 +310,18 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			addPrimLen ( ot + ( depth + mesh->shift), si, 12, t2 );
 
+			// Precalc modge values for this quad
+			if ( mesh->flags & MODGY )
+			{
+				int fr=(frame<<5), vv;
+				for( j=3; j>=0; j-- )
+				{
+					vv = fr + (mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
+					mVs[j<<1]		= rsin(vv)>>10;
+					mVs[(j<<1)+1]	= rcos(vv)>>10;
+				}
+			}
+
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);		// Texture coords
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
 
@@ -333,10 +338,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				si->u0 += rs;
-				si->v0 += rc;
-				si->u1 += rs;
-				si->v1 += rc;
+				si->u0 += mVs[0];
+				si->v0 += mVs[1];
+				si->u1 += mVs[2];
+				si->v1 += mVs[3];
 			}
 			
 			gte_stsxy3_gt4(si);
@@ -357,10 +362,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				si->u2 += rc;
-				si->v2 += rs;
-				si->u3 += rc;
-				si->v3 += rs;
+				si->u2 += mVs[4];
+				si->v2 += mVs[5];
+				si->u3 += mVs[6];
+				si->v3 += mVs[7];
 			}
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
@@ -404,9 +409,20 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			)
 			continue;
 
-
 			gte_ldsxy3 ( GETV ( op->vert0 ), GETV ( op->vert1 ), GETV ( op->vert2 ) );
 			addPrimLen ( ot + ( depth + mesh->shift), si, 9, t2 );
+
+			// Precalc modge values for this vertex
+			if ( mesh->flags & MODGY )
+			{
+				int fr=(frame<<5), vv;
+				for( j=2; j>=0; j-- )
+				{
+					vv = fr+(mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
+					mVs[j<<1]		= rsin(vv)>>10;
+					mVs[(j<<1)+1]	= rcos(vv)>>10;
+				}
+			}
 
 			*(u_long *)  (&si->u0) = *(u_long *) (&op->u0);
 			*(u_long *)  (&si->u1) = *(u_long *) (&op->u1);
@@ -424,10 +440,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				si->u0 += rs<<1;
-				si->v0 += rc<<1;
-				si->u1 += rs<<1;
-				si->v1 += rc<<1;
+				si->u0 += mVs[0];
+				si->v0 += mVs[1];
+				si->u1 += mVs[2];
+				si->v1 += mVs[3];
 			}
 			
 			gte_stsxy3_gt3(si);
@@ -440,8 +456,8 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 			if ( mesh->flags & MODGY )
 			{
-				si->u2 += rc;
-				si->v2 += rs;
+				si->u2 += mVs[4];
+				si->v2 += mVs[5];
 			}
 
 			*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
