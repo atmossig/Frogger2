@@ -103,7 +103,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, i
 		effect->r = 255;
 		effect->g = 255;
 		effect->b = 255;
-		effect->a = 128;
+		effect->a = 200;
 		
 		effect->size = size;
 		effect->speed = speed;
@@ -406,7 +406,11 @@ void UpdateFXSmoke( SPECFX *fx )
 			dist = -(DotProduct(&fx->sprites->pos, &fx->rebound->normal) + fx->rebound->J);
 
 			if(dist > 0)
-				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+			{
+				CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites->pos, &fx->rebound->normal, 5, 0.8, 0, 0.2 );
+				JallocFree( (UBYTE **)&fx->rebound );
+				fx->rebound = NULL;
+			}
 		}
 	}
 

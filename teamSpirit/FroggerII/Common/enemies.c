@@ -1032,20 +1032,20 @@ void ProcessEnemyEffects( ENEMY *cur )
 			if( cur->nmeActor->effects & EF_SMOKE_STATIC )
 			{
 				if( cur->nmeActor->effects & EF_FAST )
-					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.6, 0, 1.5 );
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0.4, 0, 1.5 );
 				else if( cur->nmeActor->effects & EF_SLOW )
-					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.2, 0, 1.5 );
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0.1, 0, 1.5 );
 				else // EF_MEDIUM
-					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.4, 0, 1.5 );
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_STATIC, &cur->nmeActor->actor->pos, &cur->currNormal, 64, 0.2, 0, 1.5 );
 			}
 			if( cur->nmeActor->effects & EF_SMOKE_GROWS )
 			{
 				if( cur->nmeActor->effects & EF_FAST )
-					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.6, 0, 1.5 );
-				else if( cur->nmeActor->effects & EF_SLOW )
-					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.2, 0, 1.5 );
-				else // EF_MEDIUM
 					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.4, 0, 1.5 );
+				else if( cur->nmeActor->effects & EF_SLOW )
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.1, 0, 1.5 );
+				else // EF_MEDIUM
+					CreateAndAddSpecialEffect( FXTYPE_SMOKE_GROWS, &cur->nmeActor->actor->pos, &cur->currNormal, 32, 0.2, 0, 1.5 );
 			}
 			if( cur->nmeActor->effects & EF_SPARK_BURSTS )
 			{
@@ -1059,11 +1059,11 @@ void ProcessEnemyEffects( ENEMY *cur )
 			if( cur->nmeActor->effects & EF_BUBBLES )
 			{
 				if( cur->nmeActor->effects & EF_FAST )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.7, 0, 0.6 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.6, 0, 0.6 );
 				else if( cur->nmeActor->effects & EF_SLOW )
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.3, 0, 0.6 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.2, 0, 0.6 );
 				else // EF_MEDIUM
-					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.5, 0, 0.6 );
+					fx = CreateAndAddSpecialEffect( FXTYPE_BUBBLES, &cur->nmeActor->actor->pos, &cur->currNormal, 10, 0.4, 0, 0.6 );
 
 				fx->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
 				SetVector( &up, &cur->path->nodes[0].worldTile->normal );
