@@ -13,9 +13,11 @@ extern "C"
 {
 #endif
 
-#define SCREENTEX_SIZE 32
-#define BLUR_Y 480
-#define BLUR_X 640
+#define SCREENTEX_SIZE 64
+#define BLUR_Y 384+64
+#define BLUR_X 384
+
+#define BLUR_XOFS (320-(384/2))
 
 D3DTLVERTEX *vList;
 LPDIRECTDRAWSURFACE7 *tList;
@@ -69,11 +71,11 @@ void GrabScreenTextures(LPDIRECTDRAWSURFACE7 from, LPDIRECTDRAWSURFACE7 *to)
 	
 	unsigned long *hdl;
 	HRESULT res;
-	RECT rect;
+	RECT rect,r2;
 
 	dds = &to[0];	
 	for (rect.top = 0, rect.bottom = SCREENTEX_SIZE; rect.top < BLUR_Y; rect.top += SCREENTEX_SIZE, rect.bottom += SCREENTEX_SIZE)
-		for (rect.left = 0, rect.right = SCREENTEX_SIZE; rect.left < BLUR_X; rect.left += SCREENTEX_SIZE, rect.right += SCREENTEX_SIZE)
+		for (rect.left = BLUR_XOFS, rect.right = SCREENTEX_SIZE+BLUR_XOFS; rect.left < BLUR_X+BLUR_XOFS; rect.left += SCREENTEX_SIZE, rect.right += SCREENTEX_SIZE)
 		{
 			
 			if (!*dds)
@@ -110,15 +112,15 @@ D3DTLVERTEX *InitScreenVertexList(void)
 		me[i+3].tu = 0;
 		me[i+3].tv = 1;
 		
-		me[i].color = D3DRGBA(1,1,1,0.72);
-		me[i+1].color = D3DRGBA(1,1,1,0.72);
-		me[i+2].color = D3DRGBA(1,1,1,0.72);
-		me[i+3].color = D3DRGBA(1,1,1,0.72);
+		me[i].color = D3DRGBA(1,1,1,0.7);
+		me[i+1].color = D3DRGBA(1,1,1,0.7);
+		me[i+2].color = D3DRGBA(1,1,1,0.7);
+		me[i+3].color = D3DRGBA(1,1,1,0.7);
 
-		me[i].specular = D3DRGB(0,0,0);
-		me[i+1].specular = D3DRGB(0,0,0);
-		me[i+2].specular = D3DRGB(0,0,0);
-		me[i+3].specular = D3DRGB(0,0,0);
+		me[i].specular = D3DRGBA(0,0,0,1);
+		me[i+1].specular = D3DRGBA(0,0,0,1);
+		me[i+2].specular = D3DRGBA(0,0,0,1);
+		me[i+3].specular = D3DRGBA(0,0,0,1);
 		
 		me[i].rhw = 1;
 		me[i+1].rhw = 1;
@@ -132,13 +134,13 @@ D3DTLVERTEX *InitScreenVertexList(void)
 	for (rect.top = 0, rect.bottom = SCREENTEX_SIZE; rect.top < BLUR_Y; rect.top += SCREENTEX_SIZE, rect.bottom += SCREENTEX_SIZE)
 		for (rect.left = 0, rect.right = SCREENTEX_SIZE; rect.left < BLUR_X; rect.left += SCREENTEX_SIZE, rect.right += SCREENTEX_SIZE)
 		{
-			me[i+0].sx = rect.left;
+			me[i+0].sx = rect.left + BLUR_XOFS;
 			me[i+0].sy = rect.top;
-			me[i+1].sx = rect.right;
+			me[i+1].sx = rect.right + BLUR_XOFS;
 			me[i+1].sy = rect.top;
-			me[i+2].sx = rect.right;
+			me[i+2].sx = rect.right + BLUR_XOFS;
 			me[i+2].sy = rect.bottom;
-			me[i+3].sx = rect.left;
+			me[i+3].sx = rect.left + BLUR_XOFS;
 			me[i+3].sy = rect.bottom;
 
 			i+=4;
