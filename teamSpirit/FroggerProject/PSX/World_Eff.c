@@ -54,7 +54,6 @@ long slideSpeeds[] = {0, 1, 2, 4};
 
 SVECTOR jiggledVerts[250];
 
-SCENICOBJLIST scenicObjList;
 
 extern int polyCount;
 

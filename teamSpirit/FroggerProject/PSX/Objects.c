@@ -16,12 +16,12 @@
 #include "world.h"
 #include "bff_load.h"
 
-int numObjectBanks = 0;
+extern int numObjectBanks;
 
-BFF_Header *objectBanks [ MAX_OBJECT_BANKS ];
+extern BFF_Header *objectBanks [ MAX_OBJECT_BANKS ];
 
-int		PSIFileListPos = 0;
-char	PSIFileList [ 10 ][12];
+extern int		PSIFileListPos;
+extern char	PSIFileList [ 10 ][12];
 
 
 void LoadObjectBank ( int objectBank )

@@ -1,5 +1,4 @@
-; output map (Frogger.map)
-; output syms (Frogger.sym)
+
 
         org     $00010000
 		regs    pc=__SN_ENTRY_POINT
@@ -7,6 +6,24 @@
 text    group
 dcache	group	obj(0x1f800000),size(0x400)
 bss     group   bss
+
+
+video	group	file("video.bin")
+game	group	over(video),file("game.bin")
+lang	group	over(video),file("lang.bin")
+
+	section video.*,video
+	section videoecachedata,dcache
+
+	section game.*,game
+	section gamecachedata,dcache
+
+	section lang.*,lang
+	section langcachedata,dcache
+
+
+
+
 
 	section.4096 align4k.text,text
    	section align4k.*,text
@@ -26,8 +43,8 @@ bss     group   bss
 
 
 	include "main.obj"
+	include "font.obj"
 	include "actor2.obj"
-	include "anim.obj"
 	include "backdrop.obj"
 	include "babyfrog.obj"
 	include "bff_load.obj"
@@ -35,7 +52,6 @@ bss     group   bss
 	include "collect.obj"
 ;	include "crc32.obj"
 	;include "custom.obj"
-	include "custom2.obj"
 	;include "defdata.obj"
 	include "enemies.obj"
 	include "evenfunc.obj"
@@ -51,47 +67,32 @@ bss     group   bss
 	include "layout.obj"
 	include "levplay.obj"
 	include "map.obj"
-	include "map_draw.obj"
-	include "maths.obj"
-	include "memload.obj"
 	include "menus.obj"
 	include "multi.obj"
 	;include "newpsx.obj"
-	include "objects.obj"
-	include "overlays.obj"
 	include "path.obj"
 	include "psiactor.obj"
-	include "platform.obj"
 	include "script.obj"
 	;include "sndview.obj"
 	include "specfx.obj"
-	include "sprite.obj"
-	include "textover.obj"
 	include "textures.obj"
 	include "tongue.obj"
 	include "types.obj"
 	;include "water.obj"
 	include "world.obj"
 	;include "bbtimer.obj"
-	include "eff_draw.obj"
 	include "temp_psx.obj"
-	include "world_eff.obj"
 	include "acostab.obj"
 	include "audio.obj"
-	include "particle.obj"
 	include "psxsprite.obj"
 	include "ptexture.obj"
-	include "cr_lang.obj"
 	include "story.obj"
 	include "timer.obj"
-	include "psxtongue.obj"
 	;include "e3_demo.obj"
 	include "psi.obj"
 	;include "bbpsiani.obj"
-	include "quatern.obj"
 	include "loadingbar.obj"
 	;include "file.obj"
-	include "font.obj"
 	include "objviewer.obj"
 	include "options.obj"
 	include "snapshot.obj"
@@ -99,7 +100,6 @@ bss     group   bss
 	include "fadeout.obj"
 	include "isltex.obj"
 	include "savegame.obj"
-	include "memcard.obj"
 	include "flatpack.obj"
 
 ;	include "ANIM.obj"
@@ -175,7 +175,6 @@ bss     group   bss
     inclib  "islutil.lib"
     inclib  "islxa.lib"
     inclib  "islcard.lib"
-	inclib  "islvideo.lib"
 
 	inclib  "libsn.lib"
 	inclib  "libapi.lib"
@@ -191,6 +190,35 @@ bss     group   bss
 	inclib	"libsnd.lib"
 	inclib  "libc2.lib"
     inclib  "libds.lib"
-    inclib  "libpress.lib"
 
     inclib  "libmath.lib"
+
+
+
+
+
+
+
+
+	include "islvideo.obj",video
+    inclib  "libpress.lib",video
+
+	include "memload.obj",game
+	include "maths.obj",game		   
+	include "memcard.obj",game
+	include "anim.obj",game
+	include "custom2.obj",game
+	include "eff_draw.obj",game
+	include "map_draw.obj",game
+	include "particle.obj",game
+	include "objects.obj",game
+	include "psxtongue.obj",game
+	include "quatern.obj",game
+	include "world_eff.obj",game
+	include "textover.obj",game
+	include "sprite.obj",game
+	include "overlays.obj",game
+	include "platform.obj",game
+
+	include "cr_lang.obj",lang
+

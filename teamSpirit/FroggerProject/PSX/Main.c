@@ -87,11 +87,22 @@
 #include "memcard.h"
 #include "lang.h"
 #include "fadeout.h"
+#include "objects.h"
+
+#ifdef FINAL_MASTER
+int useMemCard = 1;
+#else
+int useMemCard = 1;
+#endif
+
+SCENICOBJLIST scenicObjList;
 
 long turbo = 4096;
 
 TextureAnimType* timerAnim = NULL;
 int animFrame;
+
+displayPageType *currentDisplayPage;
 
 void customDrawPrimitives2(int);
 void customDrawSortedPrimitives(int);
@@ -109,6 +120,14 @@ extern char __bss_orgend[];
 displayPageType displayPage[2], *currentDisplayPage;
 psFont *font = NULL;
 psFont *fontSmall = NULL;
+
+
+int numObjectBanks = 0;
+
+BFF_Header *objectBanks [ MAX_OBJECT_BANKS ];
+
+int		PSIFileListPos = 0;
+char	PSIFileList [ 10 ][12];
 
 
 //PC has this in their main
@@ -137,6 +156,28 @@ char objViewer = 0;
 
 int vsyncCounter = 0;
 char *saveicon = NULL;
+
+
+extern char _video_obj[];
+
+void LoadCodeOverlay(int num)
+{
+	switch(num)
+	{
+		case GAME_OVERLAY:
+			while(fileLoadBinary("\\GAME.BIN", _video_obj));
+			break;
+
+		case VIDEO_OVERLAY:
+			while(fileLoadBinary("\\VIDEO.BIN", _video_obj));
+			break;
+
+		case LANG_OVERLAY:
+			while(fileLoadBinary("\\LANG.BIN", _video_obj));
+			break;
+	}
+}
+
 
 
 void DisplayErrorMessage ( char *message )
@@ -394,7 +435,9 @@ int maxInterpretTimer=0;
 
 //used to save normal stack pointer,
 //when using dchace for stack
-char* oldStackPointer;
+int oldStackPointer;
+
+extern char _SN_OVL_video_orgend[];
 
 int main ( )
 {
@@ -403,8 +446,9 @@ int main ( )
 
 	while ( 1 )
 	{
-		RAMstart = (unsigned long)__bss_orgend;
+//		RAMstart = (unsigned long)__bss_orgend;
 
+		RAMstart = (ULONG)_SN_OVL_video_orgend;
 
 #if GOLDCD==1
 		RAMsize = (0x1fff00 - RAMstart)-8192;
@@ -417,7 +461,7 @@ int main ( )
 		memset((void *)0x1f8000,0,0x8000);
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
-		memoryInitialise(RAMstart, RAMsize, 4096);
+		memoryInitialise(RAMstart, RAMsize, 2048);
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 
 		ResetCallback();
@@ -436,6 +480,7 @@ int main ( )
 #endif
 
 
+//		LoadCodeOverlay(GAME_OVERLAY);
 
 		//Init_BB_AcosTable();
 		
@@ -473,8 +518,9 @@ int main ( )
 		StartSound();//mmsfx
 
 		actFrameCount = 0;
-#define ENABLE_LANG_SEL 0
+#define ENABLE_LANG_SEL 1
 #if ENABLE_LANG_SEL==1
+		LoadCodeOverlay(LANG_OVERLAY);
 		languageInitialise();
 		while(!DoneLangSel)
 		{
@@ -495,6 +541,7 @@ int main ( )
 		}
 		actFrameCount = 0;
 #endif
+		LoadCodeOverlay(GAME_OVERLAY);
 		myPadHandleInput();
 		LoadGame();
 		
@@ -948,7 +995,7 @@ void ResetDrawingEnvironment ( void )
 
 void MainReset ( void )
 {
-		RAMstart = (unsigned long)__bss_orgend;
+//		RAMstart = (unsigned long)__bss_orgend;
 
 
 #if GOLDCD==1
@@ -960,7 +1007,7 @@ void MainReset ( void )
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
-		memoryInitialise(RAMstart, RAMsize, 4096);
+		memoryInitialise(RAMstart, RAMsize, 2048);
 
 		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 

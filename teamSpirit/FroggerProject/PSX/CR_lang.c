@@ -69,7 +69,7 @@ unsigned char flagShade[FLAGPOINTS][FLAGPOINTS];
 
 unsigned char textureU[FLAGPOLYS][FLAGPOLYS][4];
 unsigned char textureV[FLAGPOLYS][FLAGPOLYS][4];
-unsigned char tileTexture;
+unsigned char tileTextureNum;
 
 static char enable;
 static short fadeDirection,finishing;
@@ -135,8 +135,8 @@ static void languageDrawPolys()
 		{
 			BEGINPRIM(gt4, POLY_GT4);
 			setPolyGT4(gt4);
-			gt4->tpage = languageData.flagTexture[tileTexture]->tpage;
-			gt4->clut = languageData.flagTexture[tileTexture]->clut;
+			gt4->tpage = languageData.flagTexture[tileTextureNum]->tpage;
+			gt4->clut = languageData.flagTexture[tileTextureNum]->clut;
 
 			*(long *)&gt4->x0 = *(long *)&screenXYs[loop1][loop2];
 			*(long *)&gt4->x1 = *(long *)&screenXYs[loop1][loop2 + 1];
@@ -181,37 +181,37 @@ static void languageDrawPolys()
 
 void calculateTileTexture(int x, int y)
 {
-	if(tileTexture<LANG_NUMLANGS)
+	if(tileTextureNum<LANG_NUMLANGS)
 	{
-		textureU[x][y][0] = textureU[x][y][1] = languageData.flagTexture[tileTexture]->u0
-											  + ((languageData.flagTexture[tileTexture]->u3 + 1
-											  - languageData.flagTexture[tileTexture]->u0)*x)/FLAGPOLYS + 1;
-		textureU[x][y][2] = textureU[x][y][3] = languageData.flagTexture[tileTexture]->u0
-											  + ((languageData.flagTexture[tileTexture]->u3 + 1
-											  - languageData.flagTexture[tileTexture]->u0)*(x+1))/FLAGPOLYS + 1;
+		textureU[x][y][0] = textureU[x][y][1] = languageData.flagTexture[tileTextureNum]->u0
+											  + ((languageData.flagTexture[tileTextureNum]->u3 + 1
+											  - languageData.flagTexture[tileTextureNum]->u0)*x)/FLAGPOLYS + 1;
+		textureU[x][y][2] = textureU[x][y][3] = languageData.flagTexture[tileTextureNum]->u0
+											  + ((languageData.flagTexture[tileTextureNum]->u3 + 1
+											  - languageData.flagTexture[tileTextureNum]->u0)*(x+1))/FLAGPOLYS + 1;
 
-		textureV[x][y][0] = textureV[x][y][2] = languageData.flagTexture[tileTexture]->v0
-											  + ((languageData.flagTexture[tileTexture]->v3 + 1 
-											  - languageData.flagTexture[tileTexture]->v0)*y)/FLAGPOLYS + 1;
-		textureV[x][y][1] = textureV[x][y][3] = languageData.flagTexture[tileTexture]->v0
-											  + ((languageData.flagTexture[tileTexture]->v3 + 1
-											  - languageData.flagTexture[tileTexture]->v0)*(y+1))/FLAGPOLYS + 1;
+		textureV[x][y][0] = textureV[x][y][2] = languageData.flagTexture[tileTextureNum]->v0
+											  + ((languageData.flagTexture[tileTextureNum]->v3 + 1 
+											  - languageData.flagTexture[tileTextureNum]->v0)*y)/FLAGPOLYS + 1;
+		textureV[x][y][1] = textureV[x][y][3] = languageData.flagTexture[tileTextureNum]->v0
+											  + ((languageData.flagTexture[tileTextureNum]->v3 + 1
+											  - languageData.flagTexture[tileTextureNum]->v0)*(y+1))/FLAGPOLYS + 1;
 	}
 	else
 	{
-		textureU[y][x][2] = textureU[y][x][0] = languageData.flagTexture[tileTexture]->u0
-											  + ((languageData.flagTexture[tileTexture]->u3 
-											  - languageData.flagTexture[tileTexture]->u0)*x)/FLAGPOLYS + 1;
-		textureU[y][x][3] = textureU[y][x][1] = languageData.flagTexture[tileTexture]->u0
-											  + ((languageData.flagTexture[tileTexture]->u3 
-											  - languageData.flagTexture[tileTexture]->u0)*(x+1))/FLAGPOLYS + 1;
+		textureU[y][x][2] = textureU[y][x][0] = languageData.flagTexture[tileTextureNum]->u0
+											  + ((languageData.flagTexture[tileTextureNum]->u3 
+											  - languageData.flagTexture[tileTextureNum]->u0)*x)/FLAGPOLYS + 1;
+		textureU[y][x][3] = textureU[y][x][1] = languageData.flagTexture[tileTextureNum]->u0
+											  + ((languageData.flagTexture[tileTextureNum]->u3 
+											  - languageData.flagTexture[tileTextureNum]->u0)*(x+1))/FLAGPOLYS + 1;
 
-		textureV[y][x][1] = textureV[y][x][0] = languageData.flagTexture[tileTexture]->v0
-											  + ((languageData.flagTexture[tileTexture]->v3 
-											  - languageData.flagTexture[tileTexture]->v0)*y)/FLAGPOLYS + 1;
-		textureV[y][x][3] = textureV[y][x][2] = languageData.flagTexture[tileTexture]->v0
-											  + ((languageData.flagTexture[tileTexture]->v3 
-											  - languageData.flagTexture[tileTexture]->v0)*(y+1))/FLAGPOLYS + 1;
+		textureV[y][x][1] = textureV[y][x][0] = languageData.flagTexture[tileTextureNum]->v0
+											  + ((languageData.flagTexture[tileTextureNum]->v3 
+											  - languageData.flagTexture[tileTextureNum]->v0)*y)/FLAGPOLYS + 1;
+		textureV[y][x][3] = textureV[y][x][2] = languageData.flagTexture[tileTextureNum]->v0
+											  + ((languageData.flagTexture[tileTextureNum]->v3 
+											  - languageData.flagTexture[tileTextureNum]->v0)*(y+1))/FLAGPOLYS + 1;
 	}
 }
 
@@ -283,7 +283,7 @@ void languageInitialise()
 		}
 	}
 
-	tileTexture = gameTextLang;
+	tileTextureNum = gameTextLang;
 	// Texture position stuff
 	for(loop1 = 0; loop1 < FLAGPOLYS; loop1 ++)
 		for(loop2 = 0; loop2 < FLAGPOLYS; loop2 ++)
@@ -335,7 +335,7 @@ void languageFrame()
 	if (languageData.lastFade) languageData.lastFade++;
 	if (languageData.lastFade>16)
 	{
-		tileTexture = gameTextLang;
+		tileTextureNum = gameTextLang;
 		languageData.lastFade=-16;
 		for(loop1 = 0; loop1 < FLAGPOLYS; loop1 ++)
 			for(loop2 = 0; loop2 < FLAGPOLYS; loop2 ++)

@@ -1194,6 +1194,8 @@ void StartVideoPlayback(int num)
 	rect.w = 512;
 	rect.h = 512;
 
+	LoadCodeOverlay(VIDEO_OVERLAY);
+
 	if (XAgetStatus())
 	{
 		ClearImage(&rect, 0,0,0);
@@ -1210,4 +1212,5 @@ void StartVideoPlayback(int num)
    		str.volume = 127;
    		videoPlayStream(&str, PALMODE, videoKeyPress);
 	}
+	LoadCodeOverlay(GAME_OVERLAY);
 }

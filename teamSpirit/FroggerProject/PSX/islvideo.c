@@ -21,7 +21,7 @@
 #include <islmem.h>
 #include <islpad.h>
 
-#include "global.h"
+//#include <global.h>
 #include "islvideo.h"
 
 /* ---------------------------------------------------------------------------

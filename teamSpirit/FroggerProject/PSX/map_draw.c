@@ -78,7 +78,6 @@ int count = 0;
 //long *transformedVertices;
 //extern VERT *transformedNormals;
 //long *transformedDepths;
-displayPageType *currentDisplayPage;
 
 
 // I dunno what part of the ISL lib these are in. Part of the psi lib, I think,

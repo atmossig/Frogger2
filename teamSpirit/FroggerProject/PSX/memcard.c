@@ -28,12 +28,7 @@ int framePause = 0;
 static int	optChosen, optFrame, optSaveAlready, optSaveSlot;
 static char	optStr[256];
 
-#ifdef FINAL_MASTER
-int useMemCard = 1;
-#else
-int useMemCard = 1;
-#endif
-
+extern int useMemCard;
 char memmessage[256];
 char slotNumStr[4];
 

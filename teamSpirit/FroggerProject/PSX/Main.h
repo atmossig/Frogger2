@@ -9,6 +9,15 @@
 
 #define VIDEO_INIT_AND_MALLOC 1
 
+enum
+{
+	GAME_OVERLAY,
+	VIDEO_OVERLAY,
+	LANG_OVERLAY,
+};
+
+void LoadCodeOverlay(int num);
+
 extern int skipTextOverlaysSpecFX;
 extern long turbo;
 
