@@ -621,11 +621,11 @@ BOOL ExecuteCommand(UBYTE **p)
 
 			if (t = LoadTrigger(p))
 			{
-				UBYTE *q = (*p);
-				int size = MEMGETINT(&q);
+				UBYTE *q;
+				int size = MEMGETINT(p);
 
 				if (t->func(t))
-					Interpret(q);
+					Interpret(*p);
 
 				SubTrigger(t);
 				
