@@ -63,6 +63,37 @@ line lineList[100];
 obj cur;
 line cul;
 
+// --------------------------
+
+class orientation
+{
+public:
+	float x, y, z, w;
+
+	orientation() : x(0.0f),y(0.0f),z(0.0f),w(0.0f) { }
+	orientation(float a,float b,float c,float d) : x(a), y(b), z(c), w(d) { }
+	void rot2quat();
+};
+
+void orientation::rot2quat()
+{
+	orientation destQ;
+	float thetaOver2;
+	float sinThetaOver2;
+
+	thetaOver2 = w*0.5f;
+	sinThetaOver2 = sinf(thetaOver2);
+
+	destQ.w = cosf(thetaOver2);
+	destQ.x = sinThetaOver2 * x;
+	destQ.y = sinThetaOver2 * y;
+	destQ.z = sinThetaOver2 * z;
+
+	*this = destQ;
+}
+
+// ---------------------
+
 void AddLastObject(void)
 {
 	if (cur.name[0])
@@ -375,12 +406,16 @@ void WritePSXData(void)
 		WriteShort(f, 0);
 
 		// IQUATERNION (4xFIXED) orientation
-		//-objList[i].rx,objList[i].ry,-objList[i].rz,objList[i].rv
-		
-		WriteInt(f, (int)(objList[i].rx * -4096.0f));
-		WriteInt(f, (int)(objList[i].ry * 4096.0f));
-		WriteInt(f, (int)(objList[i].rz * -4096.0f));
-		WriteInt(f, (int)(objList[i].rv * 4096.0f));
+		// we have to convert from axis&rotation first!
+		// remembering to swap y and z...
+
+		orientation o(-objList[i].rx, -objList[i].rz, -objList[i].ry, objList[i].rv);
+		o.rot2quat();
+
+		WriteInt(f, (int)(o.x*4096));
+		WriteInt(f, (int)(o.y*4096));
+		WriteInt(f, (int)(o.z*4096));
+		WriteInt(f, (int)(o.w*4096));
 	}
 
 	fclose (f);
