@@ -15,6 +15,8 @@
 
 #define SPAWN_SCOREUPTIMER		15
 
+#define MAX_FROGS 4
+extern long NUM_FROGS;
 
 typedef struct _PLAYER
 {
@@ -33,9 +35,8 @@ typedef struct _PLAYER
 
 } PLAYER;
 
-extern PLAYER player[4];
-
-
+extern PLAYER player[];
+							
 
 extern float CROAK_SOUND_RANGE;
 

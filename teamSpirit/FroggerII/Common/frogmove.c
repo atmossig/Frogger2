@@ -1246,6 +1246,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	// Select the requested destination tile based on current position and direction
 	if(!moveLocal)
 	{
+		int i;
 		if(player[pl].frogState & FROGSTATUS_ISLONGHOPPING)
 		{
 			switch(dir)
@@ -1266,36 +1267,42 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		}
 		else
 		{
-			switch(dir)
+			if (frog[pl]->action.frogunder==-1)
 			{
-				case MOVE_UP:
-					GetNextTile(0,pl);
-					if(destTile[pl] != NULL)
-					{
-					}
-					break;
+				switch(dir)
+				{
+					case MOVE_UP:
+						GetNextTile(0,pl);
+						break;
 
-				case MOVE_LEFT:
-					GetNextTile(1,pl);
-					if(destTile[pl] != NULL)
-					{
-					}
-					break;
+					case MOVE_LEFT:
+						GetNextTile(1,pl);
+						break;
 
-				case MOVE_DOWN:
-					GetNextTile(2,pl);
-					if(destTile[pl] != NULL)
-					{
-					}
+					case MOVE_DOWN:
+						GetNextTile(2,pl);
+						break;
 
-					break;
-
-				case MOVE_RIGHT:
-					GetNextTile(3,pl);
-					if(destTile[pl] != NULL)
+					case MOVE_RIGHT:
+						GetNextTile(3,pl);
+						break;
+				}		
+				if(destTile[pl] != NULL)
+				{
+					if (frog[pl]->action.frogon!=-1)
 					{
+						frog[frog[pl]->action.frogon]->action.frogunder = -1;
+						frog[pl]->action.frogon = -1;
 					}
-					break;
+	
+					for (i=0; i<NUM_FROGS; i++)
+						if (currTile[i] == destTile[pl])
+							if (frog[i]->action.frogunder==-1)
+							{
+								frog[i]->action.frogunder = pl;
+								frog[pl]->action.frogon = i;
+							}
+				}
 			}
 		}
 		// ENDELSEIF

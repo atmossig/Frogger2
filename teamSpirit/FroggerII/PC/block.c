@@ -114,6 +114,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	
 	gameState.mode		= FRONTEND_MODE;
 	//frontEndState.mode	= DEMO_MODE;
+	frameCount = 1;
 
     while(ok)
 	{

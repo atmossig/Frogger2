@@ -538,16 +538,16 @@ void CameraLookAtFrog(void)
 		int i;
 		afx = afy = afz = 0;
 
-		for (i=0; i<2; i++)
+		for (i=0; i<NUM_FROGS; i++)
 		{
 			afx += frog[i]->actor->pos.v[0];
 			afy += frog[i]->actor->pos.v[1];
 			afz += frog[i]->actor->pos.v[2];
 		}
 		
-		afx/=2;
-		afy/=2;
-		afz/=2;
+		afx/=NUM_FROGS;
+		afy/=NUM_FROGS;
+		afz/=NUM_FROGS;
 
 		{
 			camTarget[0].v[0] = afx+currTile[0]->dirVector[camFacing].v[0]*camLookOfs + currTile[0]->normal.v[0]*upVal;	
@@ -636,16 +636,16 @@ void UpdateCameraPosition(long cam)
 		int i;
 		afx = afy = afz = 0;
 
-		for (i=0; i<2; i++)
+		for (i=0; i<NUM_FROGS; i++)
 		{
 			afx += frog[i]->actor->pos.v[0];
 			afy += frog[i]->actor->pos.v[1];
 			afz += frog[i]->actor->pos.v[2];
 		}
 		
-		afx/=2;
-		afy/=2;
-		afz/=2;
+		afx/=NUM_FROGS;
+		afy/=NUM_FROGS;
+		afz/=NUM_FROGS;
 
 		camSource[cam].v[0] = afx+((currTile[0]->normal.v[0]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2]));
 		camSource[cam].v[1] = afy+((currTile[0]->normal.v[1]*currCamDist.v[1]-currTile[0]->dirVector[camFacing].v[1]*currCamDist.v[2]));
@@ -1095,9 +1095,12 @@ void RunGameLoop (void)
 
 					if(!frog[0]->action.dead)	
 					{
-						for (i=0; i<4; i++)
-							GameProcessController(i);						
-					}
+						for (i=0; i<NUM_FROGS; i++)
+                        if (frog[i]->action.stun)
+							frog[i]->action.stun--;
+                        else
+							GameProcessController(i);                                      
+        			}
 
 					if (!frog2->action.dead)
 					{
@@ -1156,13 +1159,19 @@ void RunGameLoop (void)
 
 	ProcessCollectables();
 
-	for (i=0; i<4; i++)
+	for (i=0; i<NUM_FROGS; i++)
 	{
 		UpdateFroggerPos(i);
-//		if (!IsPointVisible(&frog[i]->actor->pos))
-//			KillFrog (frog[i],i);
+		if (frog[i]->action.frogon!=-1)
+		{
+		  	if (player[i].frogState & FROGSTATUS_ISSTANDING)
+			{
+				frog[i]->actor->pos.v[X] = frog[frog[i]->action.frogon]->actor->pos.v[X]+sinf(frameCount/30.0)*5;
+	           frog[i]->actor->pos.v[Y] = frog[frog[i]->action.frogon]->actor->pos.v[Y]+35;
+	          frog[i]->actor->pos.v[Z] = frog[frog[i]->action.frogon]->actor->pos.v[Z]+cosf(frameCount/27.0)*5;
+			}
+		}
 	}
-
 	
 	UpdateFroggerPos2();
 
@@ -1197,11 +1206,12 @@ void RunGameLoop (void)
 			PlaySample ( 3,NULL,128,128 );
 	} 
 
-	if (frog[0])
+	for (i=0; i<NUM_FROGS; i++)
+	if (frog[i])
 	{
-		if (frog[0]->actor)
+		if (frog[i]->actor)
 		{
-			frog[0]->actor->xluOverride=100;
+			frog[i]->actor->xluOverride=100;
 	
 			if (!multiplayerRun)
 				frog2->actor->xluOverride=0;
@@ -1209,11 +1219,11 @@ void RunGameLoop (void)
 				frog2->actor->xluOverride=100;
 
 		} 
-		if (frog[0]->action.safe) 
+		if (frog[i]->action.safe) 
 		{
 			if ((frameCount % 2)==0)
-				frog[0]->actor->xluOverride=0;
-			frog[0]->action.safe--;
+				frog[i]->actor->xluOverride=0;
+			frog[i]->action.safe--;
 		}  
 		// play some ambient effects
 		if(Random(50) > 48)

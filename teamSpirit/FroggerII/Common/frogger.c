@@ -22,11 +22,13 @@
 //----- GLOBALS --------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-PLAYER player[4];
+PLAYER player[MAX_FROGS];
 
-ACTOR2 *frog[4]					= {0,0,0,0};
+ACTOR2 *frog[MAX_FROGS]					= {0,0,0,0};
 ACTOR2 *frog2					= NULL;
 SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL };
+
+long NUM_FROGS = 1;
 
 float CROAK_SOUND_RANGE			= 400;
 
@@ -65,6 +67,9 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	
 	(*me)->action.lives		= 3;
 	(*me)->action.isOnFire	= 0;
+	(*me)->action.frogon	= -1;
+	(*me)->action.frogunder = -1;
+
 	(*me)->radius			= 37.0F;
 
 }
@@ -77,14 +82,11 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 	if ( createFrogActor )
 	{
 		CreateBabies(createBabyActors, createBabyOverlays );
-		CreateFrogActor (gTStart[0],"frogger.ndo",0);
-		CreateFrogActor (gTStart[0],"frogger.ndo",1);
-		CreateFrogActor (gTStart[0],"frogger.ndo",2);
-		CreateFrogActor (gTStart[0],"frogger.ndo",3);
-
-		frog[1]->actor->currentcolor.v[0] = 255;
-		frog[2]->actor->currentcolor.v[1] = 255;
-		frog[3]->actor->currentcolor.v[2] = 255;
+		for (i=0; i<MAX_FROGS; i++)
+			CreateFrogActor (gTStart[0],"frogger.ndo",i);
+		
+		for (i=4; i>NUM_FROGS; i--)
+			frog[i-1]->actor->xluOverride = 0;
 		
 /*
 		frog[0]		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);

@@ -83,10 +83,10 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			u = tOver->font->offset[letterID].v[X];
 			v = tOver->font->offset[letterID].v[Y];
 			
-			DrawASprite (x*2,y*2,tOver->font->height*2,tOver->font->width*2,
+			DrawAlphaSprite (x*2,y*2,tOver->font->height*2,tOver->font->width*2,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width-1)/256.0,
-				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl );
+				((float)v+tOver->font->height-1)/256.0,tOver->font->hdl,tOver->a/256.0);
 
 			x += tOver->font->xSpacing[letterID];
 		}
@@ -133,7 +133,7 @@ void PrintSprite(SPRITE *sprite)
 		distx = disty = (FOV)/(m.v[Z]+DIST);
 		distx *= sprite->scaleX/64.0;
 		disty *= sprite->scaleY/64.0;
-		DrawASprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,32*distx,32*disty,0,0,0.99,0.99,sprite->texture);
+		DrawAlphaSprite (m.v[X]+sprite->offsetX*distx,m.v[Y]+sprite->offsetY*disty,32*distx,32*disty,0,0,0.99,0.99,sprite->texture,sprite->a/255.0);
 	}
 }
 
@@ -249,7 +249,7 @@ void PrintSpriteOverlays()
 			}
 
 			texture = cur->frames[cur->currFrame];
-			DrawASprite (cur->xPos*2,cur->yPos*2,cur->width*2,cur->height*2,0,0,0.99,0.99,texture);
+			DrawAlphaSprite (cur->xPos*2,cur->yPos*2,cur->width*2,cur->height*2,0,0,0.99,0.99,texture,cur->a/255.0);
 
 		}
 

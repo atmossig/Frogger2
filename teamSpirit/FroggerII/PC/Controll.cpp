@@ -357,7 +357,22 @@ void ProcessUserInput(HWND hWnd)
 	
 	if (KEYPRESS(DIK_Q))
 		controllerdata[1].button |= CONT_A;
+
+	if (KEYPRESS(DIK_I))
+		controllerdata[2].button |= CONT_UP;
+
+	if (KEYPRESS(DIK_K))
+		controllerdata[2].button |= CONT_DOWN;
+
+	if (KEYPRESS(DIK_J))
+		controllerdata[2].button |= CONT_LEFT;
+
+	if (KEYPRESS(DIK_L))
+		controllerdata[2].button |= CONT_RIGHT;
 	
+	if (KEYPRESS(DIK_M))
+		controllerdata[2].button |= CONT_A;
+
 	//if (KEYPRESS(DIK_A))
 	//	controllerdata[1].button |= CONT_B;
 

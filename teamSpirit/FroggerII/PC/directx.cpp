@@ -428,7 +428,7 @@ void DrawAlphaSprite (float x, float y, float xs, float ys, float u1, float v1, 
 		},
 		{
 			x,y+ys,0,0,
-			D3DRGB(1,1,1,alpha),0,
+			D3DRGBA(1,1,1,alpha),0,
 			u1,v2
 	}};
 

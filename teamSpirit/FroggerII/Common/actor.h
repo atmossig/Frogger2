@@ -31,6 +31,11 @@ typedef struct TAGACTION
 	unsigned long isSaved;
 
 	unsigned long safe;
+	unsigned long stun;
+
+	unsigned long frogon;
+	unsigned long frogunder;
+
 	unsigned long lives;
 	unsigned long dead;
 	unsigned long deathBy;
