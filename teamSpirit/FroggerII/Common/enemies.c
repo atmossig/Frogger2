@@ -1183,12 +1183,7 @@ void SubEnemy(ENEMY *enemy)
 		return;
 
 	if(enemy->path)
-	{
-		if(enemy->path->nodes)
-			JallocFree((UBYTE**)&enemy->path->nodes);
-
 		JallocFree((UBYTE**)&enemy->path);
-	}
 
 	enemy->prev->next = enemy->next;
 	enemy->next->prev = enemy->prev;
@@ -1240,8 +1235,12 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	newItem->flags = flags;
 
 	initFlags |= INIT_ANIMATION;
-	initFlags |= INIT_SHADOW;
-	shadowRadius = 20;
+
+	if( newItem->flags & ENEMY_NEW_SHADOW )
+	{
+		initFlags |= INIT_SHADOW;
+		shadowRadius = 20;
+	}
 
 	// create and add the nme actor
 	newItem->nmeActor = CreateAndAddActor(eActorName,0,0,0,initFlags,0,0);
