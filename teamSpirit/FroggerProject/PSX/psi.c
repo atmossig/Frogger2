@@ -2737,7 +2737,7 @@ void psiDrawSegments(PSIDATA *psiData)
 		//else
 			//psiDrawSortedPrimitives(depth >> modctrl->depthShift);
 #ifdef DCACHE_OPTIMISATION
-		dcache_LSCAPE_DrawSortedPrimitives ( depth >> modctrl->depthShift, tfvbase );
+		dcache_LSCAPE_DrawSortedPrimitives ( depth/* >> modctrl->depthShift*/, tfvbase );
 #else
 		LSCAPE_DrawSortedPrimitives ( depth >> modctrl->depthShift );
 #endif

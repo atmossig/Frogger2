@@ -280,8 +280,8 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 // This should really by in the (or an alternative) transformvertexlist function
 // It scales the OTZ's down so that they actually fit into the size of the ordering table.
 
-	for(i = 0; i < mesh->n_verts; i++)
-		tfd[i] = tfd[i] >> 2;
+	//for(i = 0; i < mesh->n_verts; i++)
+		//tfd[i] = tfd[i] >> 2;
 	// ENDFOR
 
 

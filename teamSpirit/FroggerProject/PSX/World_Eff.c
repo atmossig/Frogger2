@@ -24,7 +24,7 @@
 #include "layout.h"
 
 #include "World_Eff.h"
-
+#include "frontend.h"
 
 
 #define VRAM_STARTX			512
@@ -148,9 +148,9 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 	{
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
-			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 6 );
+			jiggledVerts[i].vx = mesh->verts[i].vx;// + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 6 );
 			jiggledVerts[i].vy = mesh->verts[i].vy + ( rcos ( ( frame << 6 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 8 );
-			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vz = mesh->verts[i].vz;// + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
 		}
 		// ENDFOR
 
@@ -164,10 +164,10 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 	}
 	// ENDELSEIF
 
-	for ( i = 0; i < mesh->n_verts; i++ )
-	{
-		tfd [ i ] = tfd [ i ] >> 2;
-	}
+	//for ( i = 0; i < mesh->n_verts; i++ )
+	//{
+	//	tfd [ i ] = tfd [ i ] >> 2;
+	//}
 	// ENDFOR
 
 
@@ -874,13 +874,13 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	{
 		for ( i = 0; i < mesh->n_verts; i++ )
 		{
-			jiggledVerts[i].vx = mesh->verts[i].vx + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
-			jiggledVerts[i].vy = mesh->verts[i].vy + ( rcos ( ( frame << 6 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 5 );
-			jiggledVerts[i].vz = mesh->verts[i].vz + ( rsin ( ( frame << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vx = mesh->verts[i].vx + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx & ( mesh->verts[i].vz ) ) ) >> 7 );
+			jiggledVerts[i].vy = mesh->verts[i].vy + ( rsin ( ( frameCount << 7 ) + ( mesh->verts[i].vx | ( mesh->verts[i].vz ) ) ) >> 6 );
+			jiggledVerts[i].vz = mesh->verts[i].vz + ( rcos ( ( frameCount << 5 ) + ( mesh->verts[i].vx ^ ( mesh->verts[i].vz ) ) ) >> 7 );
 		}
 		// ENDFOR
 		
-		utilPrintf("Jiggle Scenic!!!\n");
+//		utilPrintf("Jiggle Scenic!!!\n");
 		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else
@@ -890,10 +890,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	}
 	// ENDELSEIF
 
-	for ( i = 0; i < mesh->n_verts; i++ )
-	{
-		tfd [ i ] = tfd [ i ] >> 2;
-	}
+	//for ( i = 0; i < mesh->n_verts; i++ )
+	//{
+	//	tfd [ i ] = tfd [ i ] >> 2;
+	//}
 	// ENDFOR
 
 

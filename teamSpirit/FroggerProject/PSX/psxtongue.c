@@ -170,7 +170,7 @@ void DrawTongue( int pl )
 
 	tEntry = tongue[pl].tex;
 
-	if(!tEntry || index<2)
+	if(/*!tEntry ||*/ index<2)
 		return;
 
 	while(i < index)
