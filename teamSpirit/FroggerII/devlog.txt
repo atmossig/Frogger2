@@ -690,6 +690,11 @@ James Hubbard:
 		Good luck using it, let me know (irritably, and in a raised voice) if there are any problems.
 
 	Afternoon:
+		Game-logic-tastic today. Moved all the frog[i]->action stuff into player structure and got rid
+		of action completely! Woohoo! Wrote some stuff to keep track of coins and credits, and to use
+		them in Super Retro. Its commented out cos it wouldn't work until load/save is done. Tidied some
+		code. Took out frog trails because they don't seem to be popular, and since the frogmove code
+		changed recently they don't work anyway.
 
 
 James Healey:
