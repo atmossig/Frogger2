@@ -87,10 +87,11 @@ void AnimateActor(ACTOR *actor, int animNum, char loop, char queue, float speed,
 //	}
 
 	if(animNum > actorAnim->numAnimations)
-	{
+//	{
+		return;
 //		dprintf"Trying to access illegal animation\n"));
-		animNum = 0;
-	}
+//		animNum = 0;
+//	}
 
 	if(speed == 0)
 		actualSpeed = actorAnim->anims[animNum].speed;
