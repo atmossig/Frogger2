@@ -30,8 +30,9 @@ extern LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 extern long a565Card;
 
 extern int dumpScreen;
+extern int prim;
 
-long DirectXInit(HWND window, long hardware);
+long DirectXInit(HWND window, long hardware );
 void SetupRenderstates(void);
 void DirectXFlip(void);
 

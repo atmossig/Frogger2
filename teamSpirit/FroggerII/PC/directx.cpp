@@ -25,7 +25,6 @@
 #include <mmsystem.h>
 #include <memory.h>
 #include <winbase.h>
-//#include "incs.h"
 
 #define SCREEN_WIDTH	640	//320
 #define SCREEN_HEIGHT	480	//240
@@ -34,7 +33,9 @@
 
 extern "C"
 {
-#include "block.h"
+#include <ultra64.h>
+#include "incs.h"
+//#include "block.h"
 
 HWND win;
 
@@ -67,6 +68,11 @@ char *ddError2String(HRESULT error);
 long isHardware = 1;
 
 int dumpScreen = 0;
+int prim = 0;
+
+GUID guID;
+
+//static GUID     guID;
 
 void ScreenShot ( DDSURFACEDESC ddsd );
 
@@ -461,6 +467,29 @@ char col2txt[] = "Caps";
 char hwText[] = "3D Hardware Accelerated";
 char swText[] = "Software Renderer";
 
+BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
+				LPSTR lpszDrvName, LPVOID lpContext )
+    {
+    HWND   hCombo = *(HWND *)lpContext;
+    LPGUID lpTemp = NULL;
+
+    if( lpGUID != NULL )
+	{
+//		lpTemp = LocalAlloc ( LMEM_FIXED | LMEM_ZEROINIT , sizeof ( GUID ) );
+		if ( ( lpTemp = (GUID*)LocalAlloc ( LPTR , sizeof ( GUID ) ) ) == NULL )
+			return( TRUE );
+
+		memcpy( lpTemp, lpGUID, sizeof(GUID));
+	}
+
+    ComboBox_AddString( hCombo, lpszDesc );
+    ComboBox_SetItemData( hCombo,
+			ComboBox_FindString( hCombo, 0, lpszDesc ),
+			lpTemp );
+    return( TRUE );
+    }
+
+
 BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	long i;
@@ -551,25 +580,22 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 			SetWindowPos(hwndDlg, HWND_TOPMOST, (GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
 
-			// Direct Sound Setup part......
+	    hCombo = GetDlgItem( hwndDlg, IDC_SOUNDCOMBO );
+	    lpGUID = (LPGUID)lParam;
 
-/*			hCombo = GetDlgItem ( hwndDlg, IDC_SOUNDSELECT );
-			lpGUID = ( LPGUID ) lParam;
-
-			if ( DirectSoundEnumerate ( ( LPDSENUMCALLBACK ) DSEnumProc, &hCombo ) != DS_OK )
-			{
-				EndDialog ( hwndDlg, TRUE );
-				return( TRUE );
-			}
-
-		    if( ComboBox_GetCount ( hCombo ) )
-				ComboBox_SetCurSel ( hCombo, 0 );
-			else
-			{
-				EndDialog ( hwndDlg, TRUE );
-				return( TRUE );
-			}
-			// ENDELSEIF*/
+	    if( DirectSoundEnumerate( (LPDSENUMCALLBACK)DSEnumProc, &hCombo ) != DS_OK )
+		{
+		EndDialog( hwndDlg, TRUE );
+		return( TRUE );
+		}
+	    if( ComboBox_GetCount( hCombo ))
+		ComboBox_SetCurSel( hCombo, 0 );
+	    else
+		{
+		EndDialog( hwndDlg, TRUE );
+		return( TRUE );
+		}
+		
 
  			return TRUE;
 		}
@@ -635,6 +661,37 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					runQuit = 0;
 					break;
 				}
+			case ID_SOUNDOK:
+				for( i = 0; i < ComboBox_GetCount( hCombo ); i++ )
+				{
+				lpTemp = (LPGUID)ComboBox_GetItemData( hCombo, i );
+				if( i == ComboBox_GetCurSel( hCombo ))
+					{
+					if( lpTemp != NULL )
+					memcpy( lpGUID, lpTemp, sizeof(GUID));
+					else
+					lpGUID = NULL;
+					}
+				if( lpTemp )
+					LocalFree( lpTemp );
+				}
+				// If we got the NULL GUID, then we want to open the default
+				// sound driver, so return with an error and the init code
+				// will know not to pass in the guID and will send NULL
+				// instead.
+				if( lpGUID == NULL )
+				{
+					prim = 0;
+					EndDialog ( hwndDlg, TRUE );
+				}
+				else
+				{
+					prim = 1;
+					EndDialog ( hwndDlg, FALSE );
+				}
+				// ENDELSEIF
+				return( TRUE );
+
 			}
 			break;
 	}
@@ -642,7 +699,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 }
 
 
-BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
+/*BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
 				LPSTR lpszDrvName, LPVOID lpContext )
     {
     HWND   hCombo = *(HWND *)lpContext;
@@ -662,14 +719,14 @@ BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
 			ComboBox_FindString( hCombo, 0, lpszDesc ),
 			lpTemp );
     return( TRUE );
-    }
+    }*/
 
 
 
 
 
 
-long DirectXInit(HWND window, long hardware)
+long DirectXInit(HWND window, long hardware )
 {
 	D3DVIEWPORT				viewport;
 	D3DFINDDEVICERESULT		result;
@@ -679,14 +736,17 @@ long DirectXInit(HWND window, long hardware)
 	int l;
 	win = window;
 
+	GUID guID;
+
 	EnumDXObjects();
 
-	DialogBox(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc);
+	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
 
-	
 	if (runQuit)
 		return 0;
-	
+
+	InitDirectSound ( &guID, winInfo.hInstance, winInfo.hWndMain, prim );
+
 	isHardware = (dxDeviceList[selIdx].caps.dwCaps & DDCAPS_3D);
 	hardware = isHardware;
 

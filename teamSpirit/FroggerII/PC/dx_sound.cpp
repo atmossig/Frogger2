@@ -14,6 +14,7 @@
 
 #include <ultra64.h>
 #include <windowsx.h>
+#include <stdio.h>
 
 //***********************************
 // User Includes
@@ -90,15 +91,15 @@ static char *DSoundErrorToString ( int dxerror )
 
 int DSoundEnumerate ( LPGUID lpGUID, HINSTANCE hInst,  HWND hWndMain )
 {
-    if ( DialogBoxParam ( hInst, MAKEINTRESOURCE ( IDD_SOUNDDRIVER ), hWndMain, (DLGPROC)DSEnumDlgProc, ( LPARAM ) lpGUID ))
+  /*  if ( DialogBoxParam ( hInst, MAKEINTRESOURCE ( IDD_SOUNDDRIVER ), hWndMain, (DLGPROC)DSEnumDlgProc, ( LPARAM ) lpGUID ))
 		return TRUE;
 	// ENDIF
-
+*/
     return FALSE;
 }
 
 
-BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
+/*BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
 				LPSTR lpszDrvName, LPVOID lpContext )
     {
     HWND   hCombo = *(HWND *)lpContext;
@@ -120,11 +121,11 @@ BOOL CALLBACK DSEnumProc( LPGUID lpGUID, LPSTR lpszDesc,
     return( TRUE );
     }
 
-
-BOOL CALLBACK DSEnumDlgProc( HWND hDlg, UINT msg,
+*/
+/*BOOL CALLBACK DSEnumDlgProc( HWND hDlg, UINT msg,
 				WPARAM wParam, LPARAM lParam )
 {
-    static HWND   hCombo;
+ /*   static HWND   hCombo;
     static LPGUID lpGUID;
     LPGUID        lpTemp;
     int           i;
@@ -187,10 +188,10 @@ BOOL CALLBACK DSEnumDlgProc( HWND hDlg, UINT msg,
 
 	default:
 	    return( FALSE );
-	}
+	}*/
 
-    return( FALSE );
-}
+   /* return( FALSE );
+}*/
 
 
 int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
@@ -200,14 +201,18 @@ int InitDirectSound ( GUID *guid, HINSTANCE hInst,  HWND hWndMain, int prim )
 	HRESULT			dsrVal;
 
 	if ( prim )
-	{
-		DirectSoundCreate ( guid, &lpDS, NULL );
-	}
+		dsrVal = DirectSoundCreate ( guid, &lpDS, NULL );
 	else
+		dsrVal = DirectSoundCreate ( NULL, &lpDS, NULL );
+	// ENDELSEIF
+
+	if ( dsrVal != DS_OK )
 	{
-		DirectSoundCreate ( NULL, &lpDS, NULL );
+		dp("DirectSound Create failed - '%s'\n", DSoundErrorToString(dsrVal));
+		lpDS = NULL;
+		return 0;
 	}
-	// ENDELSIF
+	// ENDIF
 
 	dsrVal = lpDS->SetCooperativeLevel ( hWndMain, DSSCL_EXCLUSIVE );
 
@@ -279,7 +284,10 @@ DWORD LoadWavFile ( char *fileName,  SAMPLE *sample )
 
 	// open the WAV file
 	if ( ( hwav = mmioOpen ( fileName, NULL, MMIO_READ | MMIO_ALLOCBUF ) ) == NULL )
+	{
+//		dprintf"RETURNING : LoadWavFile - Opening Wav File.\n"));
 		return 0;
+	}
 	// ENDIF
 
 	// descend into the RIFF 
