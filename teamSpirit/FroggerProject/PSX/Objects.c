@@ -357,7 +357,7 @@ void LoadObjectBank ( int objectBank )
 			break;
 
 		default:
-				utilPrintf ( "Not a valid Object Bank type...............\n" );
+				//utilPrintf ( "Not a valid Object Bank type...............\n" );
 				return;
 			break;
 	}
@@ -373,7 +373,7 @@ void LoadObjectBank ( int objectBank )
 			FMA_MESH_HEADER **mesh;
 
 
-			utilPrintf("Loading BFF World %s \n", BFFfileName);
+			//utilPrintf("Loading BFF World %s \n", BFFfileName);
 					//GetWorldFrom_BFF(fileName);
 			objectBanks [ numObjectBanks++ ] = BFF_LoadFile ( BFFfileName );
 			fma_world = (void *)BFF_FindObject(BFF_FMA_WORLD_ID,utilStr2CRC("WORLD.PSI"));	// Should only be one world in the BFF
@@ -396,24 +396,24 @@ void LoadObjectBank ( int objectBank )
 		}
 		else
 		{
-			utilPrintf("ERROR: Unrecognised BFF file type:  %s \n", BFFfileName);
+			//utilPrintf("ERROR: Unrecognised BFF file type:  %s \n", BFFfileName);
 		}
 		// ENDELSEIF
 
 		if ( ( c = strstr ( PILfileName, ".PIL" ) ) )
 		{
-			utilPrintf("Loading PIL Library %s \n", PILfileName);
+			//utilPrintf("Loading PIL Library %s \n", PILfileName);
 			psiLoadPIL  ( PILfileName );
 		}
 		else
 		{
-			utilPrintf("ERROR: Unrecognised PIL file type:  %s \n", PILfileName);
+			//utilPrintf("ERROR: Unrecognised PIL file type:  %s \n", PILfileName);
 		}
 		// ENDELSEIF
 	}
 	else
 	{
-		utilPrintf("Error Loading: %s : %s, Max Object Banks Reached\n", PILfileName, BFFfileName );
+		//utilPrintf("Error Loading: %s : %s, Max Object Banks Reached\n", PILfileName, BFFfileName );
 	}
 	// ENDELSEIF - 	if ( numObjectBanks < MAX_OBJECT_BANKS )
 
@@ -435,7 +435,7 @@ void FreeAllObjectBanks ( void )
 {
 	short c;
 
-	utilPrintf("Freeing All Object Banks : OBJECT\n");
+	//utilPrintf("Freeing All Object Banks : OBJECT\n");
 
 	for ( c = 0; c < MAX_OBJECT_BANKS; c++ )
 	{
@@ -472,7 +472,7 @@ void ExtractPsiNames ( void )
 		psiM = *(table++);		psiM += (int)addr;
 
 		PSIname = (char*)(psiM);
-		utilPrintf("Extracting PSI File Name : %s\n",PSIname);
+		//utilPrintf("Extracting PSI File Name : %s\n",PSIname);
 		sprintf ( PSIFileList [ PSIFileListPos++ ], "%s",  PSIname );
 
 		psiM += 36;

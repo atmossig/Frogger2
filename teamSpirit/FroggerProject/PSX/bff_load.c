@@ -205,7 +205,7 @@ void BFF_Link_FMA_World(FMA_WORLD *world)
 		mesh = (void *)BFF_FindObject(BFF_FMA_MESH_ID,crcs[i]);
 		if(!mesh)
 		{
-			utilPrintf("Mesh %d of the world not found (crc = &%8x)\n",i,crcs[i]);
+			//utilPrintf("Mesh %d of the world not found (crc = &%8x)\n",i,crcs[i]);
 		}
 		meshes[i] = mesh;
 	}
@@ -278,7 +278,7 @@ BFF_Header *BFF_LoadFile(char *filename)
 
 	if(!addr)
 	{
-		utilPrintf("Could Not Load Bff File.\n");
+		//utilPrintf("Could Not Load Bff File.\n");
 		return NULL;
 	}
 

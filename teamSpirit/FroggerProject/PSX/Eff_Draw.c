@@ -457,6 +457,7 @@ void DrawFXRing(SPECFX *fx)
 			{
 				SPECFX *trail;
 
+				utilPrintf("POSITION : %d : %d : %d\n", fxpos.vx, fxpos.vy, fxpos.vz);
 				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 2048)))
 				{
 					trail->tilt = 8192;

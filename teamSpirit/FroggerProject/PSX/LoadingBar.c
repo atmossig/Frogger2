@@ -251,8 +251,6 @@ void DrawLoadingBar ( int execute )
 
 #define si ((POLY_G4*)packet)
 
-	utilPrintf("Drawing Loadingbar...............................................\n");
-
 	if ( execute )
 	{
 		currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[0]):(&displayPage[1]);

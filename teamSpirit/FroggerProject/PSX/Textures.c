@@ -151,7 +151,7 @@ void LoadTextureAnimBank( int textureBank )
 		dummyTexture = textureFindCRCInAllBanks ( dummyCrc );
 
 		if ( !dummyTexture )
-			utilPrintf("Cound Not Find Dummy Texture....\n");
+			utilPrintf("Cound Not Find Dummy Texture....: %s\n", dummyString);
 
 		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
 		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
@@ -282,8 +282,8 @@ static int LOADPAL_LoadPCPalette(char * const file,
 
 	if (!palette)
 	{
-		utilPrintf("ERROR: Could not load palette file %s.\n", file);
-		utilPrintf("Palette not loaded.\n");
+//		utilPrintf("ERROR: Could not load palette file %s.\n", file);
+//		utilPrintf("Palette not loaded.\n");
 		return 0;
 	}
 
@@ -446,7 +446,7 @@ void AddAnimFrame( TEXTUREANIM *anim, unsigned long crc, short waitTime, int num
 	anim->animation->waitTimes[num] = waitTime;
 	anim->animation->anim[num] = textureFindCRCInAllBanks( crc );
 	if ( !anim->animation->anim[num] )
-		utilPrintf("Could Not Find Texture : %lu\n", crc );
+		utilPrintf("Could Not Find Texture For Anim: %lu\n", crc );
 }
 
 

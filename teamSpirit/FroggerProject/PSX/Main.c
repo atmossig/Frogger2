@@ -1,6 +1,9 @@
 #define NUM_16COLOURPALS	500
 #define NUM_256COLOURPALS	78
 
+//#define NUM_16COLOURPALS	100
+//#define NUM_256COLOURPALS	46
+
 #define VRAM_STARTX			512
 #define VRAM_PAGECOLS		8
 #define VRAM_PAGEROWS		2
@@ -155,7 +158,7 @@ char objViewer = 0;
 
 
 int vsyncCounter = 0;
-char *saveicon = NULL;
+//char *saveicon = NULL;
 
 
 extern char _video_obj[];
@@ -1037,10 +1040,10 @@ void MainReset ( void )
 	RAMsize = 6291264;
 #endif
 
-		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
+		//utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
 		memoryInitialise(RAMstart, RAMsize, 2048);
 
-		utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
+		//utilPrintf ( "\n\nFROGGER2 PSX \n\n" );
 
 		ResetCallback();
 //		memset((void *)0x1f8000,0,0x8000);
