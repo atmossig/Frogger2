@@ -405,7 +405,23 @@ Matt Cloy:
 ------------------------------------------------
 
 	Did some stuff with jims proc-textures in hub/frontend, got an additive mode in for objects (more generic) and fixed 
-	vertex alphas so that they actually work now.
+	vertex alphas so that they actually work now. Talked about next-gen in general.
+
+
+                 \||/      
+                 |  @___oo 
+       /\  /\   / (__,,,,| 
+	  ) /^\) ^\/ _)
+      )   /^\/   _)
+      )   _ /  / _)
+  /\  )/\/ ||  | )_)
+ <  >      |(,,) )__)
+  ||      /    \)___)\
+  | \____(      )___) )___
+   \______(_______;;; __;;;
+
+
+
 
 Andy Eder:
 ------------------------------------------------
