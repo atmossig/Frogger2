@@ -534,13 +534,7 @@ void SubPlatform(PLATFORM *plat)
 	if(plat->next == NULL)
 		return;
 
-	if(plat->path)
-	{
-		if(plat->path->nodes)
-			JallocFree((UBYTE**)&plat->path->nodes);
-
-		JallocFree((UBYTE**)&plat->path);
-	}
+	if(plat->path) JallocFree((UBYTE**)&plat->path);
 
 	plat->prev->next = plat->next;
 	plat->next->prev = plat->prev;
