@@ -69,7 +69,7 @@
 #define QEPSILON	((float)0.00001)
 #define QHALFPI		((float)1.570796326794895)
 
-#define MAX_STACK_SIZE	60
+#define MAX_STACK_SIZE	20	//60
 
 typedef struct
 {
