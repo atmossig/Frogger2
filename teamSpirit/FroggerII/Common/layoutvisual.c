@@ -620,6 +620,8 @@ void FreeAllGameLists()
 	Parameters	: unsigned long , unsigned long
 	Returns		: void 
 */
+void ShowLoadScreen(void);
+
 void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	int i;
@@ -628,6 +630,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	actFrameCount = 0;
 	gameSpeed = 1;
 #endif 
+
+	// Print the "loading..." screen
+	ShowLoadScreen();
 
 	// load the system and in-game generic texture banks
 	LoadTextureBank(SYSTEM_TEX_BANK);
@@ -662,7 +667,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 		worldVisualData[worldID].levelVisualData[levelID].levelID);
 
 	i=0;
-	initialCamera = 1;
+	initialCamera = 2;
 
 	// Set up camera
 	

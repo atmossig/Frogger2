@@ -338,6 +338,8 @@ void SlurpCamPosition(long cam)
 		}
 		else
 		{
+			SetVector (&camVect,&currTile[0]->normal);
+		
 			currCamSource[cam].v[0] = camSource[cam].v[0];
 			currCamSource[cam].v[1] = camSource[cam].v[1];
 			currCamSource[cam].v[2] = camSource[cam].v[2];
@@ -350,7 +352,7 @@ void SlurpCamPosition(long cam)
 			currCamDist.v[1] = camDist.v[1]*scaleV;
 			currCamDist.v[2] = camDist.v[2]*scaleV;
 	
-			initialCamera = 0;
+			if (initialCamera) initialCamera--;
 		}
 		
 		if ( gameState.mode != CAMEO_MODE )
@@ -439,7 +441,10 @@ void UpdateCameraPosition(long cam)
 						afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
 				}
 
-				
+				if (lastTile == NULL)
+				{
+				}
+
 				if (currTile[0] != lastTile)
 				{
 					if ((currTile[0]!=NULL) && (lastTile!=NULL))
@@ -489,6 +494,9 @@ void UpdateCameraPosition(long cam)
 			camSource[0].v[1] = afy+afy2+afy3+currTile[0]->dirVector[frogFacing[0]].v[1]*camLookOfs;
 			camSource[0].v[2] = afz+afz2+afz3+currTile[0]->dirVector[frogFacing[0]].v[2]*camLookOfs;
 		}
+
+		
+
 	}
 
 	if (fixedUp)
@@ -499,6 +507,11 @@ void UpdateCameraPosition(long cam)
 	}
 
 	SlurpCamPosition(0);
+	
+	if (initialCamera)
+	{
+		
+	}
 
 	if( swingCam )
 		camSideOfs = ((sinf(actFrameCount*sideSwaySpeed)*sideSwayAmt) * camDist.v[2]) / 350.0;

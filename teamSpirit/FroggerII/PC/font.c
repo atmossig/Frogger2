@@ -94,7 +94,7 @@ unsigned char letters_spacing[] =
 {
 	30,21,23,25,20,19,	// ABCDEF
 	28,25,10,16,26,20,	// GHIJKL
-	32,25,31,22,32,25,	// MNOPQR
+	31,25,31,22,32,25,	// MNOPQR
 	21,23,24,26,32,29,	// STUVWX
 	28,27,23,16,23,22,	// YZ0123
 	24,21,23,22,22,22,	// 456789
@@ -102,6 +102,18 @@ unsigned char letters_spacing[] =
 	22,22,22,22,22,		// +"/-*
 };
 
+// Spacing (width) of letters in the font
+unsigned char letters_spacing_small[] =
+{
+	9,12,13,13,14,13,	// ABCDEF
+	13,13,10,13,13,12,	// GHIJKL
+	16,13,15,14,13,13,	// MNOPQR
+	13,14,9,12,13,13,	// STUVWX
+	13,13,13,13,13,13,	// YZ0123
+	13,13,13,13,13,13,	// 456789
+	13,13,13,13,13,13,	// ?:,!.(
+	11,11,11,11,11,		// +"/-*
+};
 
 
 // ----- [ FUNCTION IMPLEMENTATIONS ] ----- //
@@ -179,7 +191,7 @@ void InitFont()
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
 		// set spacing for individual font chars
-		smallFont->xSpacing[i] = 11;
+		smallFont->xSpacing[i] = letters_spacing_small[i];
 		smallFont->ySpacing[i] = 11;
 	}
 
