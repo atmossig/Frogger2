@@ -427,12 +427,12 @@ int main ( )
 
 
 #if GOLDCD == NO
-	fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
-	//fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
-	//XAsetStatus(CdInit());
+		fileInitialise("x:\\TEAMSPIRIT\\PSXVERSION\\CD\\");
+		//fileInitialise("C:\\WORK\\FROGGERPROJECT\\PSX\\CODE\\CD\\");
+		//XAsetStatus(CdInit());
 #else
-	fileInitialise("\\FROGGER.DAT;1");
-	XAsetStatus(CdInit());
+		fileInitialise("\\FROGGER.DAT;1");
+		XAsetStatus(CdInit());
 #endif
 
 
@@ -453,12 +453,12 @@ int main ( )
 			{}
 		}
 
-//		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
-//#if GOLDCD==0
-//		XAenable = CdInit();
-//#else
-//		XAenable = 1;
-//#endif
+		//		fileInitialise("C:\\PSX\\FROGGER2\\CD\\");
+		//#if GOLDCD==0
+		//		XAenable = CdInit();
+		//#else
+		//		XAenable = 1;
+		//#endif
 
 		textureInitialise ( NUM_16COLOURPALS, NUM_256COLOURPALS );
 
@@ -578,12 +578,13 @@ int main ( )
 			int i;
 
 			//turn on/off timers + display
+#if GOLDCD==0
 			if(padData.debounce[0] & PAD_SELECT)
 			{
 				timerActive ^= 1;
 				frameAdvance ^= 1;
 			}
-
+#endif
 			TIMER_START(TIMER_TOTAL);
 
 			currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
@@ -609,12 +610,12 @@ int main ( )
 
 
 //sbond - snapshot removed - triangle is now BACK on menus!!!!!!!!!!!!!!!!!!!
+#if GOLDCD==0
 			if ( padData.debounce[1] & PAD_TRIANGLE )
 			{
 				SnapShot("C:\\");
 			}
 
-#if GOLDCD==0
 			timerDisplay();
 #endif
 
@@ -674,17 +675,9 @@ int main ( )
 				if ( !objViewer )
 					MainDrawFunction();
 
-
 				TIMER_START0(TIMER_UPDATETEXANIM);
 				UpdateTextureAnimations();
 				TIMER_STOP0(TIMER_UPDATETEXANIM);
-
-	
-#if GOLDCD == NO
-			//if ( padData.digital[1] & PAD_L1 )
-				//DisplayOnScreenInfo();
-			// ENDIF
-#endif
 			}
 			
 			/*if ( ++animFrame == 8 )
@@ -707,66 +700,45 @@ int main ( )
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 
 
-
-
 #if GOLDCD == NO
-	if ( gameState.multi == SINGLEPLAYER )
-	{
-			if ( padData.digital[1] & PAD_DOWN )
+			if ( gameState.multi == SINGLEPLAYER )
 			{
-				camDist.vy += ( 20 * gameSpeed ) >> 12;
-			}
-			// ENDIF
+					if ( padData.digital[1] & PAD_DOWN )
+						camDist.vy += ( 20 * gameSpeed ) >> 12;
 
-			if ( padData.digital[1] & PAD_UP )
-			{
-				camDist.vy-=(20*gameSpeed)>>12;
-			}
-			// ENDIF
+					if ( padData.digital[1] & PAD_UP )
+						camDist.vy-=(20*gameSpeed)>>12;
 
-			if ( padData.digital[1] & PAD_LEFT )
-			{
-				camSideOfs+=20*gameSpeed;
-			}
-			// ENDIF
-			if ( padData.digital[1] & PAD_RIGHT )
-			{
-				camSideOfs-=20*gameSpeed;
-			}
-			// ENDIF
+					if ( padData.digital[1] & PAD_LEFT )
+						camSideOfs+=20*gameSpeed;
 
-			if ( padData.digital[1] & PAD_TRIANGLE )
-			{
-				camDist.vz+=(20*gameSpeed)>>12;
-			}
-			// ENDIF
-			if ( padData.digital[1] & PAD_CROSS )
-			{
-				camDist.vz-=(20*gameSpeed)>>12;
-			}
-			// ENDIF*/
-			if ( padData.debounce[1] & PAD_SELECT )
-			{
-				if ( !objViewer )
-					InitObjectViewer();
-				else
-					CommonInit();
-				objViewer ^= 1;
-			}
-			// ENDIF
-	}
-	// ENDIF
-#endif
+					if ( padData.digital[1] & PAD_RIGHT )
+						camSideOfs-=20*gameSpeed;
 
-	if(timerActive)
-	{
-		char tempText[128];
- 		sprintf(tempText, "% 2d psiactors, %2d fmaactors",
- 				psiActorCount, fmaActorCount); 
- 		fontPrint(fontSmall, -200,40, tempText, 200,128,128);
-	}
+					if ( padData.digital[1] & PAD_TRIANGLE )
+						camDist.vz+=(20*gameSpeed)>>12;
 
-#if GOLDCD==0
+					if ( padData.digital[1] & PAD_CROSS )
+						camDist.vz-=(20*gameSpeed)>>12;
+
+					if ( padData.debounce[1] & PAD_SELECT )
+					{
+						if ( !objViewer )
+							InitObjectViewer();
+						else
+							CommonInit();
+						objViewer ^= 1;
+					}
+			}
+
+			if(timerActive)
+			{
+				char tempText[128];
+ 				sprintf(tempText, "% 2d psiactors, %2d fmaactors",
+ 						psiActorCount, fmaActorCount); 
+ 				fontPrint(fontSmall, -200,40, tempText, 200,128,128);
+			}
+
 			if ( padData.digital[1] & PAD_L1 )
 			{
 				char tempText[128];
@@ -776,39 +748,17 @@ int main ( )
 
  				sprintf(tempText, "%2df", gameSpeed>>12); 
  				sprintf(tempText, "%df", totalObjs ); 
-/* 				switch(gameSpeed>>12)
-				{
-					case 2:*/
-						fontPrint(fontSmall, 0,-60, tempText, 64,255,64);
-						/*break;
-					case 3:
-						fontPrint(fontSmall, 0,-60, tempText, 64,255,255);
-						break;
-					default:
-						fontPrint(fontSmall, 0,-60, tempText, 255,64,64);
-				}*/
-				
 
-			/*	sprintf(tempText, "% 2d frames  % 2d actors  % 4d maxintrpt",
- 						gameSpeed>>12, lastactorCount, maxInterpretTimer); 
- 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);*/
+				fontPrint(fontSmall, 0,-60, tempText, 64,255,64);
 			}
 
 totalObjs = 0;
 #endif
 
-//			utilPrintf("countMakeUnit %d\n", countMakeUnit);
-//			utilPrintf("countQuatToPSXMatrix %d\n", countQuatToPSXMatrix);
-
 			gte_SetRotMatrix(&GsWSMATRIX);
 			gte_SetTransMatrix(&GsWSMATRIX);
 
-//			actorUpdateAnimations(frog[0]->actor);
-//			actorSetAnimation(frog[0]->actor, frog[0]->actor->animation.frame);
-//			actorDraw(frog[0]->actor);
-
 #if GOLDCD==0
-//			if (padData.debounce[0] & PAD_L1)
 			if(camControlMode == 0)
 			{
 				if( (padData.debounce[0] & PAD_L1))
@@ -823,34 +773,33 @@ totalObjs = 0;
 
 
 
-			if ( padData.digital[1] == PAD_L1 )
-			{
-				frameAdvance = 1;
-			}
+//			if ( padData.digital[1] == PAD_L1 )
+//			{
+//				frameAdvance = 1;
+//			}
 
-			if ( frameAdvance )
-			{
-				while ( frameAdvance )
-				{
-					myPadHandleInput();
+//			if ( frameAdvance )
+//			{
+//				while ( frameAdvance )
+//				{
+//					myPadHandleInput();
 
-					if ( padData.digital[0] == PAD_SELECT )
-					{
-						frameAdvance = 0;
-					}
+//					if ( padData.digital[0] == PAD_SELECT )
+//					{
+//						frameAdvance = 0;
+//					}
 
-					if ( padData.debounce[0] == PAD_L2 )
-					{
-						break;
-					}
-				}
-				// ENDIF
-			}
+//					if ( padData.debounce[0] == PAD_L2 )
+//					{
+//						break;
+//					}
+//				}
+//				// ENDIF
+//			}
 			// ENDIF
 
 			if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
 			{
-				//bb
 				lastActFrameCount = actFrameCount;
 
 				gameSpeed = vsyncCounter<<12;
