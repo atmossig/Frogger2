@@ -245,17 +245,17 @@ void DrawFXDecal( SPECFX *ripple )
 	vT[0].vy = 0;
 	vT[0].vz = (ripple->scale.vz>>12);
 
-	vT[1].vx = (ripple->scale.vx>>12);
+	vT[1].vx = vT[0].vx;//(ripple->scale.vx>>12);
 	vT[1].vy = 0;
-	vT[1].vz = (-ripple->scale.vz>>12);
+	vT[1].vz = -vT[0].vz;//(-ripple->scale.vz>>12);
 
-	vT[2].vx = (-ripple->scale.vx>>12) ;
+	vT[2].vx = -vT[0].vx;//(-ripple->scale.vx>>12) ;
 	vT[2].vy = 0;
-	vT[2].vz = (-ripple->scale.vz>>12) ;
+	vT[2].vz = -vT[0].vz;//(-ripple->scale.vz>>12) ;
 	
-	vT[3].vx = (-ripple->scale.vx>>12);
+	vT[3].vx = -vT[0].vx;//(-ripple->scale.vx>>12);
 	vT[3].vy = 0;
-	vT[3].vz = (ripple->scale.vz>>12) ;
+	vT[3].vz = vT[0].vz;//(ripple->scale.vz>>12) ;
 
 
 // Rotate to be around normal
