@@ -68,6 +68,18 @@ typedef struct _SOUNDLIST
 	SAMPLE			head;
 } SOUNDLIST;
 
+typedef struct _BUFSAMPLE
+{
+	struct _SAMPLE		*next, *prev;
+	LPDIRECTSOUNDBUFFER lpdsBuffer;
+} BUFSAMPLE;
+
+typedef struct _BUFFERLIST
+{
+	int			numEntries;
+	BUFSAMPLE	head;
+} BUFFERLIST;
+
 extern SOUNDLIST soundList;
 
 
@@ -79,18 +91,28 @@ extern SAMPLEMAP sampleMapping [ NUM_SAMPLES ];
 //***************
 // Sound list functions.
 
-//extern int Makebuffer ( SAMPLE *sample );
+extern void LoadDemoSamples ( void );
 
 
-extern SAMPLE *CreateAndAddSample		( SAMPLEMAP sampleMap );
 
 extern void InitSampleList				( void );
 extern void FreeSampleList				( void );
-
 extern void AddSampleToList				( SAMPLE *sample );
 extern void RemoveSampleFromList		( SAMPLE *sample );
 
-extern SAMPLE * GetEntryFromSampleList	( int num );
+extern SAMPLE *CreateAndAddSample		( SAMPLEMAP sampleMap );
+extern SAMPLE *GetEntryFromSampleList	( int num );
+
+
+extern void FreeBufSampleList		( void );
+extern void AddBufSampleToList		( BUFSAMPLE *bufSample );
+extern void RemoveBufSampleFromList ( BUFSAMPLE *bufSample );
+
+
+extern void CleanBufferSamples ( void );
+
+
+
 
 
 extern int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch );

@@ -283,6 +283,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 			StartTimer(3,"Flip");
 			DirectXFlip();
 			EndTimer(3);
+			CleanBufferSamples();
 			actFrameCount = (GetTickCount()/(1000/60));
 			
 			// THIS IS A SPRITE OVERLAY. ASSIGNING A TIME TO IT IS BAD.

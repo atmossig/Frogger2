@@ -28,10 +28,7 @@ SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\sfx\\levelcomp.wav",	
 
 SOUNDLIST soundList;
 
-//***********************************
-// Forward Dech
-
-int Makebuffer ( SAMPLE *sample );
+BUFFERLIST bufferList;
 
 //***********************************
 // Function Prototypes
@@ -119,8 +116,13 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 */
 void InitSampleList ( void )
 {
+	//Init the sample list for the real samples.
 	soundList.numEntries	= 0;
 	soundList.head.next		= soundList.head.prev = &soundList.head;
+
+	// Init the buffer list for samples that are playing
+	bufferList.numEntries	= 0;
+	bufferList.head.next	= bufferList.head.prev = &bufferList.head;
 }
 
 
@@ -150,6 +152,34 @@ void AddSampleToList ( SAMPLE *sample )
 	// ENDIF
 }
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
+void AddBufSampleToList ( BUFSAMPLE *bufSample )
+{
+#ifdef MYDEBUG
+	dprintf"Adding Buffer Sample To List - bufSample->next : (&%x)\n", bufSample->next));
+#endif
+	if ( bufSample->next == NULL )
+	{
+#ifdef MYDEBUG
+		dprintf"Adding Buffer Sample To List\n"));
+#endif
+		bufferList.numEntries++;
+		bufSample->prev				= &bufferList.head;
+		bufSample->next				= bufferList.head.next;
+		bufferList.head.next->prev	= bufSample;
+		bufferList.head.next		= bufSample;
+	}
+	// ENDIF
+}
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: InitDirectSound
 	Purpose			: Set's up Direct Sound
@@ -168,6 +198,28 @@ void RemoveSampleFromList ( SAMPLE *sample )
 	soundList.numEntries--;
 
 	JallocFree ( ( UBYTE ** ) &sample );
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
+void RemoveBufSampleFromList ( BUFSAMPLE *bufSample )
+{
+	if ( bufSample->next == NULL )
+		return;
+
+	bufSample->prev->next	= bufSample->next;
+	bufSample->next->prev	= bufSample->prev;
+	bufSample->next		= NULL;
+	bufferList.numEntries--;
+
+	bufSample->lpdsBuffer->lpVtbl->Release ( bufSample->lpdsBuffer );
+	JallocFree ( ( UBYTE ** ) &bufSample );
 }
 
 
@@ -209,6 +261,37 @@ void FreeSampleList ( void )
 	Returns			: void
 	Info			: 
 */
+void FreeBufSampleList ( void )
+{
+	BUFSAMPLE *cur,*next;
+
+	// check if any elements in list
+	if ( bufferList.numEntries == 0 )
+		return;
+
+	dprintf"Freeing linked list : BUFSAMPLE : (%d elements)\n",bufferList.numEntries));
+
+	// traverse enemy list and free elements
+	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
+	{
+		next = cur->next;
+
+		RemoveBufSampleFromList ( cur );
+	}
+	// ENDFOR
+
+	// initialise list for future use
+	InitSampleList();
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitDirectSound
+	Purpose			: Set's up Direct Sound
+	Parameters		: void
+	Returns			: void
+	Info			: 
+*/
 SAMPLE *GetEntryFromSampleList ( int num )
 {
 	SAMPLE *next, *cur;
@@ -234,18 +317,6 @@ SAMPLE *GetEntryFromSampleList ( int num )
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitDirectSound
-	Purpose			: Set's up Direct Sound
-	Parameters		: void
-	Returns			: void
-	Info			: 
-*/
-//void InitDirectSound ( void )//
-//{
-//}
-
-
-/*	--------------------------------------------------------------------------------
 	Function		: PlaySample
 	Purpose			: plays a sample....doh !
 	Parameters		: short,VETOR,short,short
@@ -255,6 +326,10 @@ SAMPLE *GetEntryFromSampleList ( int num )
 int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 {
 	SAMPLE *sample;
+
+	BUFSAMPLE *bufSample;
+
+	unsigned long bufStatus;
 
 	if ( !lpDS )
 	{
@@ -284,13 +359,57 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 #ifdef MYDEBUG
 	dprintf"About to Play Sample - %d\n", num));
 #endif
-	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
+
+	// Now test if the sample is playing if it is then make an instance of it to play.
+
+	sample->lpdsBuffer->lpVtbl->GetStatus ( sample->lpdsBuffer, &bufStatus );
+
+	if ( bufStatus & DSBSTATUS_PLAYING	)
+	{
+		/*	What we need to do here is create an instance of the buffer and store it in the buffer list.
+			Have a clean buffer function that will go though and check if the sample is playing or not,
+			if the sample is not playing then remove it from the list.
+		*/
+		
+		dprintf"Buffering Sample %d\n", num));
+		// Create the buffer sample.
+		if ( ( bufSample = ( BUFSAMPLE * ) JallocAlloc ( sizeof ( BUFSAMPLE ), YES, "BUFSAM" ) ) == NULL )
+		{
+			dprintf"PlaySample : bufSample : NULL value from JallocAlloc\n"));
+			return NULL;
+		}
+		// ENDIF
+
+		lpDS->lpVtbl->DuplicateSoundBuffer ( lpDS, sample->lpdsBuffer, &(bufSample->lpdsBuffer ) );
+
+		AddBufSampleToList ( bufSample );
+
+		bufSample->lpdsBuffer->lpVtbl->Play ( bufSample->lpdsBuffer, 0, 0, 0 );
+
+
+		dprintf"Sorry Sound Playing : %d\n", num));
+	}
+	else
+	{
+		sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
+	}
+	// ENDIF
+
+
+
 #ifdef MYDEBUG
 	dprintf"Played Sample Ok - %d\n", num));
 #endif
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: SetSampleFormat
+	Purpose			: Changes the format of the sound
+	Parameters		: SAMPLE *sample : Contains the sample to change the format for.
+	Returns			: void
+	Info			: 
+*/
 void SetSampleFormat ( SAMPLE *sample )
 {
 	WAVEFORMATEX	wfx;
@@ -322,12 +441,74 @@ void SetSampleFormat ( SAMPLE *sample )
 */
 int PlaySampleRadius ( short num, VECTOR *pos, short vol, short pitch, float radius )
 {
-	SAMPLE *sample;
+/*	SAMPLE *sample;
 
 	sample = GetEntryFromSampleList ( num );
 
-	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
+	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );*/
 }
+
+
+
+void CleanBufferSamples ( void )
+{
+	BUFSAMPLE *cur, *next;
+
+	unsigned long bufStatus;
+
+	if ( bufferList.numEntries == 0)
+	{
+		dprintf"No Samples in Buffer List\n"));
+		return;
+	}
+	// ENDIF
+
+	for ( cur = bufferList.head.next; cur != &bufferList.head; cur = next )
+	{
+		next = cur->next;
+
+		// Check if sample is playing
+
+		cur->lpdsBuffer->lpVtbl->GetStatus ( cur->lpdsBuffer, &bufStatus );
+
+		if ( !( bufStatus & DSBSTATUS_PLAYING )	)
+		{
+			dprintf"Releasing Buffered Sample\n"));
+//			cur->lpdsBuffer->lpVtbl->Release( cur->lpdsBuffer );
+			RemoveBufSampleFromList ( cur );
+
+			if ( bufferList.numEntries == 0 )
+				return;
+			// ENDIF
+		}
+		else
+		{
+			dprintf"Sample Still Playing\n"));
+		}
+		// ENDIF
+	}
+	// ENDFOR
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*	--------------------------------------------------------------------------------

@@ -382,7 +382,7 @@ int LoadWav ( char *fileName, SAMPLE *sample )
 	memset(&pcmwf, 0, sizeof(WAVEFORMATEX));
 
 	pcmwf.wFormatTag	  = WAVE_FORMAT_PCM;  // pulse code modulation
-	pcmwf.nChannels		  = 2;                // mono 
+	pcmwf.nChannels		  = 2;                // stereo 
 	pcmwf.nSamplesPerSec  = 22050;            // always this rate
 	pcmwf.wBitsPerSample  = 16;
 	pcmwf.nBlockAlign	  = pcmwf.wBitsPerSample / 8 * pcmwf.nChannels;                
