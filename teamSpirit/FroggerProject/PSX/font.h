@@ -50,7 +50,7 @@ void fontUnload(psFont *font);
 	RETURNS:	
 **************************************************************************/
 
-void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b);
+void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b,int scale);
 
 
 /**************************************************************************
@@ -60,7 +60,7 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 	RETURNS:	Width in pixels
 **************************************************************************/
 
-int fontExtentW(psFont *font, char *text);
+int fontExtentWScaled(psFont *font, char *text,int scale);
 
 
 /**************************************************************************

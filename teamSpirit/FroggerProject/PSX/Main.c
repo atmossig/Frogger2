@@ -153,7 +153,7 @@ void DisplayErrorMessage ( char *message )
  		DrawOTag(currentDisplayPage->ot+(1024-1));
 
 
-		fontPrint(font, -80,0, message, 64,16,16);
+		fontPrintScaled(font, -80,0, message, 64,16,16,4096);
 
  		currentDisplayPage = (currentDisplayPage==displayPage)?(&displayPage[1]):(&displayPage[0]);
  		ClearOTagR(currentDisplayPage->ot, 1024);
@@ -739,7 +739,7 @@ int main ( )
 				char tempText[128];
  				sprintf(tempText, "% 2d psiactors, %2d fmaactors",
  						psiActorCount, fmaActorCount); 
- 				fontPrint(fontSmall, -200,40, tempText, 200,128,128);
+ 				fontPrintScaled(fontSmall, -200,40, tempText, 200,128,128,4096);
 			}
 
 			if ( padData.digital[1] & PAD_L1 )
@@ -747,12 +747,12 @@ int main ( )
 				char tempText[128];
  				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys  %d : TotalActors",
  						gameSpeed>>12, lastactorCount, lastpolyCount, actorsCount); 
- 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+ 				fontPrintScaled(fontSmall, -200,80, tempText, 200,128,128,4096);
 
  				sprintf(tempText, "%2df", gameSpeed>>12); 
  				sprintf(tempText, "%df", totalObjs ); 
 
-				fontPrint(fontSmall, 0,-60, tempText, 64,255,64);
+				fontPrintScaled(fontSmall, 0,-60, tempText, 64,255,64,4096);
 			}
 
 totalObjs = 0;
@@ -852,7 +852,7 @@ void MainDrawFunction ( void )
 
 	TIMER_STOP0(TIMER_DRAW_WORLD);
 
-	if(!skipTextOverlaysSpecFX)
+	if((gameState.mode != LEVELCOMPLETE_MODE) && (!skipTextOverlaysSpecFX))
 	{
 		TIMER_START0(TIMER_DRAW_SPECFX);
 		oldStackPointer = SetSp(0x1f800400);
@@ -1031,7 +1031,7 @@ void DisplayOnScreenInfo ( void )
 	g = 255;
 	b = 255;
 
-	fontPrint ( fontSmall, -220, -90, "WORLD POLY COUNT", r, g, b );
+	fontPrintScaled ( fontSmall, -220, -90, "WORLD POLY COUNT", r, g, b,4096 );
 
 	r = 100;
 	g = 100;
@@ -1039,13 +1039,13 @@ void DisplayOnScreenInfo ( void )
 
  	sprintf ( tempText, "%d : Objs %d : %d", worldPolyCount, whichSegment, fma_world->n_meshes ); 
 
-	fontPrint ( fontSmall, 20, -90, tempText, r, g, b );
+	fontPrintScaled ( fontSmall, 20, -90, tempText, r, g, b,4096 );
 
 	r = 255;
 	g = 255;
 	b = 255;
 
-	fontPrint ( fontSmall, -220, -80, "OBJECT POSITION", r, g, b );
+	fontPrintScaled ( fontSmall, -220, -80, "OBJECT POSITION", r, g, b ,4096);
 
 	r = 100;
 	g = 100;
@@ -1053,7 +1053,7 @@ void DisplayOnScreenInfo ( void )
 
  	sprintf ( tempText, "%d : %d : %d", x, y, z ); 
 
-	fontPrint ( fontSmall, 20, -80, tempText, r, g, b );
+	fontPrintScaled ( fontSmall, 20, -80, tempText, r, g, b ,4096);
 
 	if ( (padData.digital[0] & PAD_TRIANGLE) && (padData.debounce[0] & PAD_L2) )
 	{

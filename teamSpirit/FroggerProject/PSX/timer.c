@@ -79,10 +79,10 @@ void timerDisplay()
 		for(loop=1; loop<TIMER_NUMTIMERS; loop++)
 		{
 //			fontPrint(fontSmall, x,y, timerName[loop], (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
-			fontPrint(fontSmall, x,y, timerName[loop], 90,90,90);
+			fontPrintScaled(fontSmall, x,y, timerName[loop], 90,90,90,4096);
 			sprintf(str, "%d", prevTimer[loop]);
 //			fontPrint(fontSmall, x+300,y, str, (loop&1)?(90):(130),(loop&1)?(90):(130),(loop&1)?(90):(130));
-			fontPrint(fontSmall, x+300,y, str, 90,90,255);
+			fontPrintScaled(fontSmall, x+300,y, str, 90,90,255,4096);
 			dispGraph(x+180,y+4, (100*prevTimer[loop])/(1+prevTimer[TIMER_TOTAL]),2, (loop&1)?(100):(200),(loop&1)?(100):(200),0);
 			dispGraph(x+178,y+2, 104,6, 0,0,0);
 			subtotal += prevTimer[loop];
@@ -92,15 +92,15 @@ void timerDisplay()
 
 
 		// Sub total
-		fontPrint(fontSmall, x,y, "SUB-TOTAL", 90,90,255);
+		fontPrintScaled(fontSmall, x,y, "SUB-TOTAL", 90,90,255,4096);
 		sprintf(str, "%d%%", (100*subtotal)/(1+prevTimer[TIMER_TOTAL]));
-		fontPrint(fontSmall, x+300,y, str, 90,90,255);
+		fontPrintScaled(fontSmall, x+300,y, str, 90,90,255,4096);
 
 		// Total
-		fontPrint(fontSmall, x,95, timerName[TIMER_TOTAL], 90,90,255);
+		fontPrintScaled(fontSmall, x,95, timerName[TIMER_TOTAL], 90,90,255,4096);
 //		sprintf(str, "%d [%d]", prevTimer[TIMER_TOTAL],framerate);
 		sprintf(str, "%d [%d]", prevTimer[TIMER_TOTAL], gameSpeed);
-		fontPrint(fontSmall, 100,95, str, 90,90,255);
+		fontPrintScaled(fontSmall, 100,95, str, 90,90,255,4096);
 //		subtotal = (100*prevTimer[TIMER_TOTAL])/(((PALMODE)?(310):(260))*TITAN_DEFAULT_FRAME_LOCK);
 #define IDEAL_FRAME_RATE 2
 		subtotal = (100*prevTimer[TIMER_TOTAL])/(((PALMODE)?(310):(260))*IDEAL_FRAME_RATE);

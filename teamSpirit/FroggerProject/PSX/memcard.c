@@ -242,7 +242,7 @@ int FontInSpace(int x, int y, char *str, int w, int l, uchar r, uchar g, uchar b
 	bufPtr = buf;
 	for(loop=0; loop<numLines; loop++)
 	{
-		fontPrint(fontSmall, x,y, bufPtr, r,g,b);
+		fontPrintScaled(fontSmall, x,y, bufPtr, r,g,b,4096);
 		bufPtr += strlen(bufPtr)+1;
 		y += 12;
 	}
@@ -275,9 +275,9 @@ void SimpleMessage(char *msg, uchar rgb)
 
 	for(loop=0; loop<numLines; loop++)
 	{
-		fontPrint(fontSmall, -fontExtentW(fontSmall, bufPtr)/2,y, bufPtr, rgb,rgb,rgb);
+		fontPrintScaled(fontSmall, -fontExtentWScaled(fontSmall, bufPtr,4096)/2,y, bufPtr, rgb,rgb,rgb,4096);
 		fontSmall->alpha = 3;
-		fontPrint(fontSmall, -fontExtentW(fontSmall, bufPtr)/2,y+2, bufPtr, rgb,rgb,rgb);
+		fontPrintScaled(fontSmall, -fontExtentWScaled(fontSmall, bufPtr,4096)/2,y+2, bufPtr, rgb,rgb,rgb,4096);
 		fontSmall->alpha = 2;
 		bufPtr += strlen(bufPtr)+1;
 		y += 12;
@@ -372,7 +372,7 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 
 	if (!optChosen)
 	{
-		x = -14*(1+(msg2!=NULL))-fontExtentW(fontSmall, GAMESTRING(STR_SELECTOPTION))/2-5;
+		x = -14*(1+(msg2!=NULL))-fontExtentWScaled(fontSmall, GAMESTRING(STR_SELECTOPTION),4096)/2-5;
 		if (msg2!=NULL)
 		{
 			fontDispSprite(buttonSprites[0], x,y-3, 255,255,255, 2);
@@ -383,9 +383,9 @@ int ChooseOption(char *msg, char *msg1, char *msg2)
 		fontDispSprite(buttonSprites[2], x,y-1, 0,0,0, 1);
 		x += 28;
 		x += 10;
-		fontPrint(fontSmall, x,y, GAMESTRING(STR_SELECTOPTION), 128,128,128);
+		fontPrintScaled(fontSmall, x,y, GAMESTRING(STR_SELECTOPTION), 128,128,128,4096);
 		fontSmall->alpha = 3;
-		fontPrint(fontSmall, x,y+2, GAMESTRING(STR_SELECTOPTION), 128,128,128);
+		fontPrintScaled(fontSmall, x,y+2, GAMESTRING(STR_SELECTOPTION), 128,128,128,4096);
 		fontSmall->alpha = 2;
 	}
 
@@ -454,151 +454,6 @@ void StartChooseLoadSave(int load)
 		sprintf(slotNumStr,"1");
 }
 
-
-static void saveChooseSlot()
-{
-/*
-	int		x,y, f[4], f2, loop, p;
-	uchar	r[4],g[4],b[4];
-	char	str[50];
-
-	framePause++;
-	x = -160;
-	y = -57;
-	if (!optChosen)					// Fade in/out lozenges
-		f2 = optFrame<<5;
-	else
-		f2 = MAX((optFrame-40)<<4,0);
-	for(loop=0; loop<4; loop++)
-	{
-		r[loop] = MIN(f2,100); g[loop] = MIN(f2,25); b[loop] = 0;
-	}
-	switch(optChosen)
-	{
-	case 0:		// Fade up
-		f[0] = (optFrame<<4)-0;
-		f[1] = MAX((optFrame<<4)-50,0);
-		f[2] = MAX((optFrame<<4)-100,0);
-		f[3] = MAX((optFrame<<4)-150,0);
-		optFrame++;
-		break;
-	case 1:		// Fade down except 1/triangle
-		f2 = MAX(optFrame-40,0);
-		r[0] = 100; g[0] = 25; b[0] = 0;
-		f[0] = 255;
-		f[1] = MAX((f2<<4)-50,0);
-		f[2] = MAX((f2<<4)-100,0);
-		f[3] = MAX((f2<<4)-150,0);
-		optFrame--;
-		break;
-	case 2:		// Fade down except 2/circle
-		f2 = MAX(optFrame-40,0);
-		r[1] = 100; g[1] = 25; b[1] = 0;
-		f[0] = (f2<<4)-0;
-		f[1] = 255;
-		f[2] = MAX((f2<<4)-100,0);
-		f[3] = MAX((f2<<4)-150,0);
-		optFrame--;
-		break;
-	case 3:		// Fade down except 3/cross
-		f2 = MAX(optFrame-40,0);
-		r[2] = 100; g[2] = 25; b[2] = 0;
-		f[0] = (f2<<4)-0;
-		f[1] = MAX((f2<<4)-50,0);
-		f[2] = 255;
-		f[3] = MAX((f2<<4)-150,0);
-		optFrame--;
-		break;
-	case 4:		// Fade down except 4/square
-		f2 = MAX(optFrame-40,0);
-		r[3] = 100; g[3] = 25; b[3] = 0;
-		f[0] = (f2<<4)-0;
-		f[1] = MAX((f2<<4)-50,0);
-		f[2] = MAX((f2<<4)-100,0);
-		f[3] = 255;
-		optFrame--;
-		break;
-	}
-
-	if ((p = ((optFrame<<2) & 63))>31)
-		p = 31-(p-31);
-	f2 = MIN(f[0],100);
-	streetFontInSpace(x,y, GAMESTRING(STR_MCARD_CANCELSAVE), 375,2, f2,f2,f2);// 1/Triangle
-	menuSprite(street.HUDpieces[HUD_BIGTRIANGLE], x-50,y+1, 0, 0,MIN(f[0],200-63+p*2),0, SEMITRANS_ADD);
-	streetLozenge(x-49,y-5, 425, r[0],g[0],b[0]);
-	y += 38;
-
-	f2 = MIN(f[1],100);
-	if (gameSaveData.slot[0].gamemode!=-1)					// 2/Circle
-		sprintf(str, GAMESTRING(STR_MENU_SLOT), 'A', gameSaveData.slot[0].name);
-	else
-		sprintf(str, GAMESTRING(STR_MENU_SLOTEMPTY), 'A');
-	streetFontInSpace(x,y, str, 375,2, f2,f2,f2);
-	menuSprite(street.HUDpieces[HUD_BIGCIRCLE], x-50,y+1, 0, MIN(f[1],200-31+p),MIN(f[1],40-31+p),MIN(f[1],40-31+p), SEMITRANS_ADD);
-	streetLozenge(x-49,y-5, 425, r[1],g[1],b[1]);
-	y += 38;
-
-	f2 = MIN(f[2],100);
-	if (gameSaveData.slot[1].gamemode!=-1)					// 3/Cross
-		sprintf(str, GAMESTRING(STR_MENU_SLOT), 'B', gameSaveData.slot[1].name);
-	else
-		sprintf(str, GAMESTRING(STR_MENU_SLOTEMPTY), 'B');
-	streetFontInSpace(x,y, str, 375,2, f2,f2,f2);
-	menuSprite(street.HUDpieces[HUD_BIGCROSS], x-50,y+1, 0, MIN(f[2],80-31+p),MIN(f[2],80-31+p),MIN(f[2],200-31+p), SEMITRANS_ADD);
-	streetLozenge(x-49,y-5, 425, r[2],g[2],b[2]);
-	y += 38;
-
-	f2 = MIN(f[3],100);
-	if (gameSaveData.slot[2].gamemode!=-1)					// 4/Square
-		sprintf(str, GAMESTRING(STR_MENU_SLOT), 'C', gameSaveData.slot[2].name);
-	else
-		sprintf(str, GAMESTRING(STR_MENU_SLOTEMPTY), 'C');
-	streetFontInSpace(x,y, str, 375,2, f2,f2,f2);
-	menuSprite(street.HUDpieces[HUD_BIGSQUARE], x-50,y+2, 0, MIN(f[3],200-31+p),MIN(f[3],80-31+p),MIN(f[3],200-31+p), SEMITRANS_ADD);
-	streetLozenge(x-49,y-5, 425, r[3],g[3],b[3]);
-	y += 35;
-												// Help buttons
-	if (!optChosen)
-	{
-		x = -14*4-fontExtentW(font, GAMESTRING(STR_MCARD_SELECTSAVE))/2-5;
-		menuSprite(street.HUDpieces[HUD_TRIANGLE], x,y-2, 0, 128,128,128, 0);
-		x += 28;
-		menuSprite(street.HUDpieces[HUD_CIRCLE], x,y-2, 0, 128,128,128, 0);
-		x += 28;
-		menuSprite(street.HUDpieces[HUD_CROSS], x,y-2, 0, 128,128,128, 0);
-		x += 28;
-		menuSprite(street.HUDpieces[HUD_SQUARE], x,y-2, 0, 128,128,128, 0);
-		x += 28;
-		x += 10;
-		fontPrint(font, x,y, GAMESTRING(STR_MCARD_SELECTSAVE), 80,80,80);
-	}
-
-	if (!optChosen)					// Make selection
-	{
-		if (optFrame>20)
-		{
-			if (padData.debounce[0] & PAD_TRIANGLE)
-				optChosen = 1;
-			if (padData.debounce[0] & PAD_CIRCLE)
-				optChosen = 2;
-			if (padData.debounce[0] & PAD_CROSS)
-				optChosen = 3;
-			if (padData.debounce[0] & PAD_SQUARE)
-				optChosen = 4;
-			if (padData.debounce[0] & (PAD_TRIANGLE|PAD_CIRCLE|PAD_CROSS|PAD_SQUARE))
-				optFrame = 60;
-		}
-	}
-	else
-	{											// Fade complete, trigger mission
-		if (optFrame==1)
-		{
-			optFrame = 0;
-			framePause = 0;
-		}
-	}
-*/
-}
 
 
 /* FULL CARD PAGE ******************************************************************************************************/

@@ -140,7 +140,7 @@ void PrintSpriteOverlays(long num)
 
 	if( !drawOverlays || !spriteOverlayList.numEntries ) return;
 
-	n = spriteOverlayList.numEntries;
+	n = spriteOverlayList.alloc;
 	cur = spriteOverlayList.block + (n-1);
 	
 	for(;n; n--,cur--)
@@ -149,7 +149,7 @@ void PrintSpriteOverlays(long num)
 			continue;
 
 		// update the sprite animation if an animated sprite overlay
-		if(cur->draw && cur->a)
+		if(cur->used && cur->draw && cur->a)
 		{
 			// Go to destination, if specified
 			fixed spd = FMul(gameSpeed, cur->speed)>>12;

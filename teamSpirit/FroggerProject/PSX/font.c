@@ -156,13 +156,13 @@ void fontUnload(psFont *font)
 }
 
 
-static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
+static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha,int scale)
 {
 	POLY_FT4 	*ft4; 
 
 	BEGINPRIM(ft4, POLY_FT4);
 	setPolyFT4(ft4);
-	setXYWH(ft4, x,y, tex->w,tex->h-1);
+	setXYWH(ft4, x,y, FMul(tex->w,scale),FMul(tex->h,scale)-1);
 	setRGB0(ft4, r,g,b);
 	setUVWH(ft4, tex->x,tex->y, tex->w-1, tex->h-1);
 	ft4->tpage = tex->tpage;
@@ -182,7 +182,7 @@ static void fontDispChar(TextureType *tex, short x,short y, unsigned char r, uns
 **************************************************************************/
 
 extern psFont *fontSmall;
-void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b)
+void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b,int scale)
 {
 	unsigned char	*strPtr, c;
 	int				cx,cy, loop,yAdd;
@@ -264,8 +264,8 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 			{
 				letter = &font->txPtr[loop];
 				if ((x>-350)&&(x<320))
-					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b, font->alpha);
-				x += font->pixelwidth[loop]+2;
+					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b, font->alpha,scale);
+				x += FMul(font->pixelwidth[loop]+2,scale);
 			}
 		}
 		strPtr++;
@@ -280,7 +280,7 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 	RETURNS:	Width in pixels
 **************************************************************************/
 
-int fontExtentW(psFont *font, char *text)
+int fontExtentWScaled(psFont *font, char *text,int scale)
 {
 	unsigned char	*strPtr, c;
 	int		loop, x, maxW = 0;
@@ -349,7 +349,7 @@ int fontExtentW(psFont *font, char *text)
 	}
 	if (x>maxW)
 		maxW = x;
-	return maxW;
+	return FMul(maxW,scale);
 }
 
 
@@ -371,7 +371,7 @@ int fontFitToWidth(psFont *font, int width, char *text, char *buffer)
 	{
 		if (*text>=' ')
 			*bufPtr++ = *text;
-		pixLen = fontExtentW(font, buf);
+		pixLen = fontExtentWScaled(font, buf,4096);
 		if ((pixLen>width)||(*text=='\0'))
 		{
 			if (pixLen>width)
@@ -413,7 +413,7 @@ int fontFitToWidth(psFont *font, int width, char *text, char *buffer)
 	RETURNS:	
 **************************************************************************/
 
-void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b, int n)
+void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b, int n,int scale)
 {
 	unsigned char		*strPtr, c;
 	int			cx,cy, loop;
@@ -478,7 +478,7 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 			{
 				letter = &font->txPtr[loop];
 				if ((x>-350)&&(x<320))
-					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b,font->alpha);
+					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b,font->alpha,scale);
 				x += font->pixelwidth[loop]+2;
 			}
 		}

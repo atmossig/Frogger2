@@ -365,7 +365,7 @@ void languageFrame()
 
 	if (gameTextLang < LANG_NUMLANGS)
 	{
-		fontPrint(font,-fontExtentW(font,langName[gameTextLang])/2,70,langName[gameTextLang],128,128,128);
+		fontPrintScaled(font,-fontExtentWScaled(font,langName[gameTextLang],4096)/2,70,langName[gameTextLang],128,128,128,4096);
 
 		fontDispSprite(FindTexture(buttonName[0]),-200, 75,128,128,128,font->alpha);
 		fontDispSprite(FindTexture(buttonName[1]), 180, 75,128,128,128,font->alpha);

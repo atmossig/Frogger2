@@ -343,11 +343,11 @@ void PrintSpriteOverlays ( char num )
 	int counter;
 	SPRITEOVERLAY *cur;
 
-	for ( counter = 0; counter < spriteOverlayList.numEntries; counter++ )
+	for ( counter = 0; counter < spriteOverlayList.alloc; counter++ )
 	{
 		cur = &spriteOverlayList.block [ counter ];
 
-		if(cur->draw)
+		if((cur->draw) && (cur->used))
 		{
 			// Go to destination, if specified
 			fixed spd = FMul(gameSpeed, cur->speed)>>12;

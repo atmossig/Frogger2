@@ -49,6 +49,7 @@ int musicList[] = { 0,//
 					   7,
 	0,
 	1,
+	2,
 };//
 
 /*
@@ -776,8 +777,9 @@ void PrepareSong ( short worldID,  short loop )
 
 	switch ( worldID )
 	{
-		case AUDIOTRK_GAMEOVER:				worldID = 9; xaNum = 1; break;
-		case AUDIOTRK_LEVELCOMPLETE:	worldID = 10; xaNum = 1; break;
+		case AUDIOTRK_GAMEOVER:				worldID = 10; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETE:		worldID = 9; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 11; xaNum = 1; break;
 	}
 
 	chan = musicList  [ worldID ];

@@ -279,7 +279,7 @@ static void froggerVRAMviewTextures(int *currTex)
 	currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
 	sprintf(str, "VRAM: TEXTURE VIEW");
-	fontPrint(font, -230,-110, str, 128,128,128);
+	fontPrintScaled(font, -230,-110, str, 128,128,128,4096);
 
 	tex = textureFindTextureN(*currTex);
 	if (tex!=NULL)
@@ -308,7 +308,7 @@ static void froggerVRAMviewTextures(int *currTex)
 			froggerVRAMdrawPalette(tex->clut, -90);
 
 		sprintf(str, "Texture #%d (%dx%d) (used %dx)", *currTex, tex->w,tex->h, tex->refCount);
-		fontPrint(font, -fontExtentW(font, str)/2,75, str, 128,128,128);
+		fontPrintScaled(font, -fontExtentWScaled(font, str,4096)/2,75, str, 128,128,128,4096);
 		yu = -tex->h/2-8;
 		yd = tex->h/2+8;
 	}
@@ -415,7 +415,7 @@ static void froggerVRAMdrawPalette(unsigned long clut, int y)
    		if ((VRAMpalBlock[pal]) && (clut==VRAMpalCLUT[pal]))
    		{
 			sprintf(str, "Palette #%d (used %dx)", pal, VRAMpalBlock[pal]);
-   			fontPrint(font, -230,y+13, str, 128,128,128);
+   			fontPrintScaled(font, -230,y+13, str, 128,128,128,4096);
 			break;
 		}
 	}
@@ -467,7 +467,7 @@ static void froggerVRAMdrawPalette256(unsigned long clut, int y)
    		if ((VRAMpal256Block[pal]) && (clut==VRAMpal256CLUT[pal]))
    		{
 			sprintf(str, "256Palette #%d (used %dx)", pal, VRAMpal256Block[pal]);
-   			fontPrint(font, -230,y+5, str, 128,128,128);
+   			fontPrintScaled(font, -230,y+5, str, 128,128,128,4096);
 			break;
 		}
 	}
