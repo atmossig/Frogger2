@@ -976,15 +976,11 @@ void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,in
 
 	tempx = sprite->texture->sx;
 	tempx *= (1 << 12);
-	if((float)scaleX == 0)
-		dprintf"BOLLOX !\n"));
 	tempx /= (float)scaleX;
 	tempx = x0 + tempx;
 
 	tempy = sprite->texture->sy;
 	tempy *= (1 << 12);
-	if((float)scaleY == 0)
-		dprintf"BOLLOX !\n"));
 	tempy /= (float)scaleY;
 	tempy = y0 + tempy;
 
@@ -1051,15 +1047,9 @@ void PrintSprite(SPRITE *sprite)
 
 	dist = sqrtf(dist);
 
-	if(w == 0)
-		dprintf"BOLLOX !\n"));
-
 	x = ((x * dynamicp->vp[screenNum].vp.vscale[0] / w) + dynamicp->vp[screenNum].vp.vtrans[0]);
 	y = ((-y * dynamicp->vp[screenNum].vp.vscale[1] / w) + dynamicp->vp[screenNum].vp.vtrans[1]);
 	z = 32 * ((z * dynamicp->vp[screenNum].vp.vscale[2] / w) + dynamicp->vp[screenNum].vp.vtrans[2]);
-
-	if((dist * yFOV) == 0)
-		dprintf"BOLLOX !\n"));
 
 	sprScaleX = 33 * sprite->scaleX * ((float)dynamicp->vp[screenNum].vp.vscale[0] / (float)(SCREEN_WD * 2));
 	x = (f32)x + (f32)(sprite->offsetX * sprScaleX << 4) / (dist * yFOV);
@@ -1173,11 +1163,6 @@ void PrintSprite(SPRITE *sprite)
 	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
 	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
 */
-
-	if(sprScaleX == 0)
-		dprintf"BOLLOX !\n"));
-	if(sprScaleY == 0)
-		dprintf"BOLLOX !\n"));
 
 	scaleY = (dist * yFOV);
 	scaleX = (scaleY << 8) / sprScaleX;

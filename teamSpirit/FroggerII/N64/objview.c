@@ -194,8 +194,6 @@ void SelectObjectBank()
 			frameCount = 0;
 			lastbutton = 0;
 
-			StartDrawing("wldbanks");
-
 			return;
 		}			
 	}
@@ -281,6 +279,8 @@ void ViewObjectBank()
 		// add object sprites to sprite list
 		if((objectViewer.currObj->actor->objectController) && (objectViewer.currObj->actor->objectController->object))
 			AddObjectsSpritesToSpriteList(objectViewer.currObj->actor->objectController->object,0);
+
+		StartDrawing("wldbanks");
 	}
 
 	if(!viewTxt)

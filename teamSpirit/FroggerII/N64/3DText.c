@@ -22,6 +22,7 @@ enum
 
 void Modify3DText(TEXT3D *t3d, char *str,unsigned char a)
 {
+/*
 	unsigned long len = strlen(str);
 	
 	if (len!=0)
@@ -42,7 +43,7 @@ void Modify3DText(TEXT3D *t3d, char *str,unsigned char a)
 	}
 	else
 		t3d->motion &= !T3D_CREATED;
-		
+*/		
 //	JallocFree (&t3d->vT);
 //	t3d->vT = (D3DTLVERTEX *)JallocAlloc(sizeof(D3DTLVERTEX)*len*4, NO, "D3DTLVERTEX");
 }
@@ -57,6 +58,7 @@ void Modify3DText(TEXT3D *t3d, char *str,unsigned char a)
 */
 TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, long xO, long yO, long zO, float sinA, float sinS, float twA )
 {
+/*
 	unsigned long len = strlen(str);
 	float tmp = PI2; // Don't ask why I have to do this, it's due to N64 remedial maths
 	TEXT3D *t, *t3d;
@@ -132,6 +134,8 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 	t3d->motion |= T3D_CREATED;
 
 	return t3d;
+	*/
+	return NULL;
 }
 
 
@@ -224,6 +228,7 @@ void Print3DText( )
 */
 void Calculate3DText( )
 {
+/*
 	TEXT3D *t3d;
 	
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
@@ -240,6 +245,7 @@ void Calculate3DText( )
 
 		t3d->motion |= T3D_CALCULATED;
 	}
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -581,6 +587,7 @@ void MakeTextLine( TEXT3D *t3d )
 */
 void UpdateT3DMotion( TEXT3D *t3d )
 {
+/*
 	int temp;
 
 	if( (t3d->motion & T3D_MOVE_SPIN) || (t3d->motion & T3D_MOVE_TWIST) )
@@ -600,6 +607,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 
 	if( (t3d->motion & T3D_MOVE_IN) || (t3d->motion & T3D_MOVE_OUT) )
 		t3d->zOffs += t3d->vel.v[2];
+*/
 /*
 	if( t3d->motion & T3D_MOVE_360 )
 	{
@@ -620,7 +628,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 	*	The rest of the function is checking whether the text is offscreen, and
 	*	resetting parameters if it is.
 	*/
-
+/*
 	if( t3d->type == T3D_CIRCLE ) // Circular text formation
 	{
 		if( t3d->xOffs >= 110+t3d->radius ) // Off left
@@ -788,7 +796,7 @@ void UpdateT3DMotion( TEXT3D *t3d )
 			}
 		}
 	}
-	/* CAN'T DO Z BOUNCING BECAUSE OF MATTS WEIRD 3D-NESS
+*/	/* CAN'T DO Z BOUNCING BECAUSE OF MATTS WEIRD 3D-NESS
 	if( t3d->type == T3D_CIRCLE )
 	{
 		if( t3d->zOffs+t3d->radius >= farPlaneDist && (t3d->motion & T3D_MOVE_OUT) )
@@ -912,6 +920,7 @@ void Free3DTextList( )
 */
 void MakeHiscoreText( )
 {
+/*
 	long i;
 	char hiScoreStr[32];
 
@@ -920,7 +929,7 @@ void MakeHiscoreText( )
 	for( i=MAX_HISCORE_SLOTS-1; i>=0; i-- )
 	{
 		//sprintf( hiScoreStr, "%s  %i  %i\0", hiScoreData[i].name, hiScoreData[i].score, hiScoreData[i].time );
-
+*/
 /*		CreateAndAdd3DText( hiScoreStr, 500,
 							255,255,255,255,
 							T3D_HORIZONTAL,
@@ -929,7 +938,7 @@ void MakeHiscoreText( )
 							-5,i*30,
 							0,100+(i*64),20*i,
 							0.0, 0.0, 0.4 );*/
-	}
+//	}
 }
 
 

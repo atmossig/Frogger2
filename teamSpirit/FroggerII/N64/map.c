@@ -1068,13 +1068,12 @@ void LoadLevelEntities(short worldID,short levelID)
 	{
 		switch(levelID)
 		{
-/*
 			case LABORATORYLEV1_ENT:
 					bankRomStart	= (u32)&_levData_6_1_SegmentRomStart;
 					bankRomEnd		= (u32)&_levData_6_1_SegmentRomEnd;
 					sprintf(message, "LAB_ENT1");				
 				break;
-
+/*
 			case LABORATORYLEV2_ENT:
 					bankRomStart	= (u32)&_levData_6_2_SegmentRomStart;
 					bankRomEnd		= (u32)&_levData_6_2_SegmentRomEnd;
@@ -1086,13 +1085,13 @@ void LoadLevelEntities(short worldID,short levelID)
 					bankRomEnd		= (u32)&_levData_6_3_SegmentRomEnd;
 					sprintf(message, "LAB_ENT3");				
 				break;
-
+*/
 			case LABORATORYBOSSA_ENT:
-					bankRomStart	= (u32)&_levData_6_3_SegmentRomStart;
-					bankRomEnd		= (u32)&_levData_6_3_SegmentRomEnd;
+					bankRomStart	= (u32)&_levData_6_4_SegmentRomStart;
+					bankRomEnd		= (u32)&_levData_6_4_SegmentRomEnd;
 					sprintf(message, "LAB_ENT3");				
 				break;
-*/
+
 			default:
 				return;
 		}

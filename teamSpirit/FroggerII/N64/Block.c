@@ -144,7 +144,7 @@ u64				dram_stack[SP_DRAM_STACK_SIZE64+2];	// For RSP tasks - used for matrix st
 
 static void idle(void *arg);
 static void main_(void *arg);
-
+static void RunIntro();
 
 /*	--------------------------------------------------------------------------------
 	Function		: debugPrintf(int num)
@@ -1209,6 +1209,8 @@ cleanup:
 	Returns		: void 
 */
 
+char runningIntro = 1;
+
 void doPoly(void *arg)
 {	
 	short tmp;
@@ -1258,13 +1260,10 @@ void doPoly(void *arg)
 	// start the game from the start options level
 	FreeAllLists();
 
-#ifndef USE_MENUS
-	gameState.mode = INGAME_MODE;
-	InitLevel(WORLDID_FRONTEND,LEVELID_FRONTEND1);
-#else
-	gameState.mode		= MENU_MODE;
-	gameState.menuMode	= TITLE_MODE;
-#endif
+//	gameState.mode		= MENU_MODE;
+//	gameState.menuMode	= TITLE_MODE;
+
+	runningIntro = 1;
 
 	while(1) 
 	{
@@ -1278,7 +1277,16 @@ void doPoly(void *arg)
 
 			// Actually handle the game loop
 			TIMER_StartTimer(0,"GAMELOOP");
-			GameLoop();
+			if(runningIntro)
+			{
+				// run (temporary) intro screens
+				RunIntro();
+			}
+			else
+			{
+				// run main game loop
+				GameLoop();
+			}
 			TIMER_EndTimer(0);
 
 			DoubleBufferSkinVtx();
@@ -1562,6 +1570,124 @@ void ControllerProc(void *arg)
 			}
 		}
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RunIntro
+	Purpose 	: runs the intro screens
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+static void RunIntro()
+{
+	static ACTOR2 *fAct = NULL;
+	static TEXTOVERLAY *introTxt = NULL;
+	static u16 button,lastbutton;
+	
+	if(frameCount == 1)
+	{
+		// load relevant texture and object banks
+		LoadTextureBank(SYSTEM_TEX_BANK);
+		LoadTextureBank(INGAMEGENERIC_TEX_BANK);
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+		LoadObjectBank(INGAMEGENERIC_OBJ_BANK);
+
+		// add the deformable mesh actor
+		watActor = CreateAndAddActor("wavemesh.obe",-25,25,125,0,0,0);
+		watActor->flags = ACTOR_WATER;
+		AddN64WaterObjectResource(watActor->actor);
+		watActor->actor->qRot.x = -0.5F;
+		watActor->actor->qRot.y = 0.25F;
+		watActor->actor->qRot.z = 0.0F;
+		watActor->actor->qRot.w = 1.0F;
+		watActor->actor->objectController->object->flags = 11;
+
+		fAct = CreateAndAddActor("frogger.obe",40,-50,50,INIT_ANIMATION,0,0);
+		AnimateActor(fAct->actor,29,YES,NO,0.3,0,0);
+		fAct->actor->qRot.x = 0.0F;
+		fAct->actor->qRot.y = 1.0F;
+		fAct->actor->qRot.z = 0.0F;
+		fAct->actor->qRot.w = -0.25F;
+
+		introTxt = CreateAndAddTextOverlay(25,25,"welcome to frogger2",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,8);
+		introTxt = CreateAndAddTextOverlay(27,27,"welcome to frogger2",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,8);
+		introTxt->r = introTxt->g = introTxt->b = 0;
+
+		PrepareSong(TRACK_LAB,0);
+		PlaySample(136,NULL,0,255,128);
+		
+		player[0].idleTime = MAX_IDLE_TIME;
+
+		StartDrawing("intro");
+	}
+
+	player[0].idleTime -= gameSpeed;
+	if(player[0].idleTime < 1)
+	{
+		unsigned long iAnim = Random(6);
+		switch (iAnim)
+		{
+			case 0:
+				AnimateActor(fAct->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
+				if (Random(10) > 6)
+					AnimateActor(fAct->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
+				AnimateActor(fAct->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+				break;
+			case 1:
+				AnimateActor(fAct->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
+				break;
+			case 2:
+				AnimateActor(fAct->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
+				break;
+			case 3:
+				AnimateActor(fAct->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
+				if (Random(10) > 6)
+					AnimateActor(fAct->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
+				else
+					AnimateActor(fAct->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+				break;
+			case 4:
+				AnimateActor(fAct->actor,FROG_ANIM_DANCE4,YES,NO,0.3F,0,0);
+				break;
+			case 5:
+				AnimateActor(fAct->actor,FROG_ANIM_DANCE5,YES,NO,0.3F,0,0);
+				break;
+			case 6:
+				AnimateActor(fAct->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+				break;
+		}
+
+		player[0].idleTime = 400 + Random(300);
+	}
+
+	if(Random(1000) > 997)
+		PlaySample(136,NULL,0,192,128);
+
+	// read controller
+	button = controllerdata[ActiveController].button;
+
+	if(	(button & CONT_A) && !(lastbutton & CONT_A) ||
+		(button & CONT_B) && !(lastbutton & CONT_B) ||
+		(button & CONT_START) && !(lastbutton & CONT_START) )
+	{
+		MusHandleStop(audioCtrl.musicHandle[0],0);
+		audioCtrl.currentTrack[0] = 0;
+
+		FreeAllLists();
+		gameState.mode		= MENU_MODE;
+		gameState.menuMode	= TITLE_MODE;
+
+		frameCount		= 1;
+		lastbutton		= 0;
+		runningIntro	= 0;
+		return;
+	}
+
+	lastbutton = button;
+
+	frameCount++;
 }
 
 

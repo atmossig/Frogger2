@@ -761,12 +761,13 @@ void RunGameLoop (void)
 		{
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
+#ifdef PC_VERSION
 				InitCredits();			
 				creditsActive = 3;
 				DeactivateCredits();
 			
 				DisableTextOverlay(scoreTextOver);
-#ifdef PC_VERSION
+
 				frogFacing[0] = 3;
 				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
 				konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,0);
@@ -823,6 +824,7 @@ void RunGameLoop (void)
 		fp->v1 = 28.0f/32.0f;
 */	}
 	// FINISH FIRST FRAME STUFF
+#ifdef PC_VERSION
 	if (player[0].worldNum == WORLDID_FRONTEND)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
@@ -842,7 +844,6 @@ void RunGameLoop (void)
 	{
 		if( fadingLogos )
 		{
-#ifdef PC_VERSION
 			if (atari->xPos < 500)
 			{
 				atari->xPos+=2*gameSpeed;
@@ -850,7 +851,6 @@ void RunGameLoop (void)
 				for (i=0; i<10; i++)
 					flogo[i]->yPos+=3*gameSpeed;
 			}
-#endif
 		}
 		else
 		{
@@ -858,6 +858,7 @@ void RunGameLoop (void)
 				fadingLogos = 1;
 		}
 	}
+#endif
 
 	if(gameIsOver.time)
 	{

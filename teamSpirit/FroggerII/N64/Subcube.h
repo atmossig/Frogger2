@@ -55,6 +55,7 @@ extern RENDER_MODE renderMode;
 extern char lookatNum;
 extern char hiliteNum;
 
+extern ACTOR2 *hat[MAX_FROGS];
 
 void InitActor(ACTOR *tempActor, char *name, float x, float y, float z, int initFlags);
 void SubActor(ACTOR2 *actor);

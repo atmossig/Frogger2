@@ -688,6 +688,7 @@ extern int					UseUCode;
 extern int					OutLen;
 
 extern char					mirrorTextures;
+extern char					runningIntro;
 
 extern short				farPlaneDist;
 extern short				nearPlaneDist;

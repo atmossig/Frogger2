@@ -121,10 +121,10 @@ void RunWaterDemo()
 	Returns			: void
 	Info			: 
 */
-float modi1 = 0.065;
+float modi1 = 0.08;		//0.065;
 float modi2 = 1.29;
-float modi3 = 2.5;
-float modi4 = 96.0;
+float modi3 = 4;		//2.5;
+float modi4 = 96;
 
 int modc1 = 32;
 int modc2 = 96;
@@ -176,8 +176,11 @@ void UpdateWaterN64(ACTOR2 *wAct)
 				in->v.cn[3] = colMod;
 
 				// modge texture co-ordinates
-				in->v.tc[0] = wTC[currN64WaterObject][i].v[0] + mV;
-				in->v.tc[1] = wTC[currN64WaterObject][i].v[1] + mV;
+				if(!runningIntro)
+				{
+					in->v.tc[0] = wTC[currN64WaterObject][i].v[0] + mV;
+					in->v.tc[1] = wTC[currN64WaterObject][i].v[1] + mV;
+				}
 			}
 
 			in++;

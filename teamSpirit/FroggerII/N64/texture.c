@@ -208,6 +208,9 @@ void LoadTextureBank(int num)
 		if(tex->palette)
 			tex->palette = (short *)((int)tex->palette + (int)tex);
 		temp += tex->size;
+
+		// check if this is a procedural texture...
+
 	}
 
 	numTextureBanks++;

@@ -1818,7 +1818,7 @@ _levData_6_4_SegmentRomEnd   alias _levData64_orgend
 
         section.64       levData64.data,levData64
 
-levDat64  incbin "leveldata/dummy.cef",levData64.data, 32
+levDat64  incbin "leveldata/entity-5-3.cef",levData64.data, 32
 
 ; [ LAB BONUS ] >>>>>
 
