@@ -184,16 +184,16 @@ long DrawLoop(void)
 	//	changedView = 1;
 
 	SetupFogParams(fog.min,0,0,0,0);
+	DrawBackdrop();
 
 	BeginDraw();
-	DrawBackdrop();
 
 	if(tileTexture[0])
 		DrawTiledBackdrop();
 
 	if((backGnd) && (rHardware))
 		DrawBackground();
-	EndDraw();
+	//EndDraw();
 
 	farClip = (float)fog.max*0.1;
 //	if (fog.mode && fog.min>0)
@@ -232,9 +232,9 @@ long DrawLoop(void)
 			D3DSetupRenderstates(normalAlphaCmpRS);
 			ProcessShadows();
 
-			BeginDraw();
+			//BeginDraw();
 			DrawBatchedPolys();
-			EndDraw();
+			//EndDraw();
 
 			BlankAllFrames();
 			D3DSetupRenderstates(normalZRS);
@@ -259,7 +259,7 @@ long DrawLoop(void)
 		}
 		EndTimer(15);
 
-		BeginDraw();
+		//BeginDraw();
 		
 		StartTimer(16,"Sprites,text & SpecFX");
 	//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
@@ -306,7 +306,7 @@ long DrawLoop(void)
 //		D3DSetupRenderstates(xluAddRS);
 
 		DrawSoftwarePolys();
-		EndDraw();
+		//EndDraw();
 		ClearSoftwareSortBuffer();
 //		DrawAllFrames();
 //		BlankAllFrames();

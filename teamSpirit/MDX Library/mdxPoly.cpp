@@ -2033,7 +2033,7 @@ void DrawAllFrames(void)
 	pDirect3DDevice->EndScene();
 */
 //	GetHaloPoints();
-	BeginDraw();
+	//BeginDraw();
 	
 //	if (numHaloPoints)
 //		WriteHaloPoints();	
@@ -2046,7 +2046,7 @@ void DrawAllFrames(void)
 	if (!rHardware)
 	{
 //		DrawSoftwarePolys();
-		EndDraw();
+		//EndDraw();
 		return;
 	}
 	else
@@ -2182,7 +2182,7 @@ void DrawAllFrames(void)
 	
 	D3DSetupRenderstates(xluSemiRS);
 
-	pDirect3DDevice->EndScene();
+	//pDirect3DDevice->EndScene();
 }
 
 

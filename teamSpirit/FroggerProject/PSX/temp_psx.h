@@ -7,7 +7,7 @@
 
 #define strupr(c) _toupper(c)
 
-#define PostQuitMessage(x)
+#define EndGame(x)
 #define RunDesignWorkViewer()
 #define StartControllerView()
 #define RunControllerView()

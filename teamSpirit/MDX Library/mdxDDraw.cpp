@@ -138,21 +138,20 @@ struct VIDEOMODEINFO
 HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 {
 	char mode[10];
-	const SIZE testdim[4] = {{320,240},{640,480},{800,600},{1024,768}};
+	//const SIZE testdim[4] = {{320,240},{640,480},{800,600},{1024,768}};
 	int index, selIndex = 0;
 	DWORD videomode;
 	VIDEOMODEINFO *info = (VIDEOMODEINFO*)context;
 	
 	HWND hcmb = (HWND)info->hcombo;
 
-	if ((desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
-		(desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
-		(desc->ddpfPixelFormat.dwRGBBitCount == 16))
-	{
-		for (int m=0; m<4; m++)
-			if (testdim[m].cx==desc->dwWidth&&testdim[m].cy==desc->dwHeight) break;
-
-		if (m==4) return DDENUMRET_OK;
+//	if ((desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
+//		(desc->ddpfPixelFormat.dwFlags & DDPF_RGB) &&
+//		(desc->ddpfPixelFormat.dwRGBBitCount == 16))
+//	{
+//		for (int m=0; m<4; m++)
+//			if (testdim[m].cx==desc->dwWidth&&testdim[m].cy==desc->dwHeight) break;
+//		if (m==4) return DDENUMRET_OK;
 
 		int bytes = (desc->dwWidth*desc->dwHeight*2)*3;
 		dp("%d x %d, ~%d bytes (%0.3fMB)\n", desc->dwWidth, desc->dwHeight, bytes, bytes*(1.0f/(1024*1024)));
@@ -168,9 +167,7 @@ HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 			if (videomode == info->wantedRes)
 				SendMessage(hcmb, CB_SETCURSEL, (WPARAM)index, 0);
 		}
-
-		// print out globs of debug stuff
-	}
+//	}
 
 	return DDENUMRET_OK;
 }
@@ -184,6 +181,8 @@ BOOL FillVideoModes(HWND hdlg, GUID *lpGUID, DWORD resolution)
 	DDSCAPS2 ddsc;
 	HRESULT res;
 	VIDEOMODEINFO info;
+
+	const SIZE testdim[4] = {{320,240},{640,480},{800,600},{1024,768}};
 
 	ZeroMemory(&ddsc, sizeof(ddsc));
 	ddsc.dwCaps = DDSCAPS_3DDEVICE|DDSCAPS_PRIMARYSURFACE;
@@ -211,7 +210,23 @@ BOOL FillVideoModes(HWND hdlg, GUID *lpGUID, DWORD resolution)
 		}
 	}
 
-	lpDD->EnumDisplayModes(0, NULL, (LPVOID)&info, VideoModeCallback);
+	for (int mode=0; mode<4; mode++)
+	{
+		DDSURFACEDESC2 ddsd;
+	
+		ZeroMemory(&ddsd, sizeof(ddsd));
+		ddsd.dwSize = sizeof(ddsd);
+		ddsd.dwFlags = DDSD_WIDTH|DDSD_HEIGHT|DDSD_PIXELFORMAT;
+		
+		ddsd.ddpfPixelFormat.dwSize = sizeof(DDPIXELFORMAT);
+		ddsd.ddpfPixelFormat.dwFlags = DDPF_RGB;
+		ddsd.ddpfPixelFormat.dwRGBBitCount = 16;
+
+		ddsd.dwWidth = testdim[mode].cx;
+		ddsd.dwHeight = testdim[mode].cy;
+
+		lpDD->EnumDisplayModes(0, &ddsd, (LPVOID)&info, VideoModeCallback);
+	}
 
 	dp("-------------------------------\n");
 

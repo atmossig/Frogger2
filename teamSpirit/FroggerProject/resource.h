@@ -15,11 +15,10 @@
 #define IDD_CONTROLS                    108
 #define IDD_MULTI_CREATE                109
 #define IDD_KEYPRESS                    110
-#define IDI_HASBROI                     112
-#define IDI_GAMES                       113
 #define IDI_FROGGER2                    200
-#define IDI_ATARI                       201
-#define IDI_BLITZ                       202
+#define IDI_BLITZ                       201
+#define IDI_HASBROI                     202
+#define IDI_GAMES                       203
 #define IDC_LIST2                       1001
 #define IDC_WINDOW                      1002
 #define IDC_LANGUAGE                    1003

@@ -21,7 +21,6 @@ extern "C"
 
 typedef int (*NETGAME_LOOP)(void);
 
-extern TEXTOVERLAY			*netMessage;
 extern unsigned long		gameStartTime;
 
 extern NET_MESSAGEHANDLER	netgameHandler;

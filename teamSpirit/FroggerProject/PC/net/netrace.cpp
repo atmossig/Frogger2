@@ -101,10 +101,10 @@ int NetRaceCountdown()
 				itoa(count, txt, 10);
 				countdown = count;
 				
-				netMessage->a = (char)255;
-				netMessage->draw = 1;
-				netMessage->text = txt;
-				netMessage->scale = 8192;
+				multiHud.centreText->a = (char)255;
+				multiHud.centreText->draw = 1;
+				multiHud.centreText->text = txt;
+				multiHud.centreText->scale = 8192;
 				PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
 			}
 		}
@@ -115,8 +115,8 @@ int NetRaceCountdown()
 	{
 		if (lastActFrameCount < gameStartTime)
 		{
-			netMessage->text = GAMESTRING(STR_GO);
-			netMessage->a = (char)255;
+			multiHud.centreText->text = GAMESTRING(STR_GO);
+			multiHud.centreText->a = (char)255;
 
 			PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
 
@@ -145,12 +145,12 @@ int NetRaceRun()
 	UpdateCameraPosition();
 	GameProcessController(0);                                      
 
-	if (netMessage->a > (gameSpeed>>10))
-		netMessage->a -= (gameSpeed>>10);
+	if (multiHud.centreText->a > (gameSpeed>>10))
+		multiHud.centreText->a -= (gameSpeed>>10);
 	else
 	{
-		netMessage->a = 0;
-		netMessage->draw = 0;
+		multiHud.centreText->a = 0;
+		multiHud.centreText->draw = 0;
 	}
 		
 	UpdateFroggerPos(0);

@@ -35,12 +35,12 @@ int InitBackdrop( const char *filename )
 	strcat(path, filename);
 
 #ifdef PC_DEMO
-	if( !gstrcmp(filename,"TITLES") )
+	if( !gstrcmp(filename,"TITLE") )
 	{
 		if( CheckUS() )
-			strcat( path, "US" );
+			strcat( path, "SUS" );
 		else
-			strcat( path, "EU" );
+			strcat( path, "SEU" );
 	}
 #endif
 

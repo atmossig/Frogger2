@@ -750,15 +750,10 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	InitTextureAnimLinkedList();
 #endif
 
-
 	UpdateLoadingScreen( 10 );
-
-#ifndef E3_DEMO
-	// Only Frogger works on the playStation right now! bahh.
 
 	if ((gameState.mode != FRONTEND_MODE) && (gameState.multi == SINGLEPLAYER) && (gameState.single == STORY_MODE)) // - hello yes, I am testing
 		StoryStartLevel();
-#endif
 
 	// ------ Initialise lists ------------
 
@@ -1319,7 +1314,7 @@ void CommonInit(void)
 #ifdef PC_VERSION
 	gameState.mode = STARTUP_MODE;
 	ScreenFade(0,255,30);
-	InitBackdrop("TITLES");
+	InitBackdrop("TITLE");
 	GTInit(&modeTimer,3);
 #else
 	gameState.mode = FRONTEND_MODE;

@@ -30,6 +30,7 @@
 #include "overlays.h"
 #include "lang.h"
 #include "multi.h"
+#include "hud.h"
 
 #define UPDATE_PERIOD		10		// in 60ths of a second (actFrameCounts)
 #define PING_PERIOD			200		// how often we should ping once we're synchronised
@@ -97,6 +98,7 @@ int WaitForGameReady();
 int SendUpdateMessage();
 void SendPing();
 int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
+void NetgameBegin();
 
 void OnPing(MSG_PING*ping, NETPLAYER *player);
 void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player);
@@ -115,10 +117,6 @@ void NetgameStartGame()
 {
 	int pl;
 
-	nextUpdate = 0;
-	hostSync = hostReady = (isHost);
-	gameReady = false;
-
 	gameState.mode = INGAME_MODE;
 	gameState.multi = MULTIREMOTE;
 	gameState.single = ARCADE_MODE;
@@ -128,15 +126,10 @@ void NetgameStartGame()
 	{
 		if (!netPlayerList[pl].dpid)
 			break;
-
-		netPlayerList[pl].lastUpdateMsg = 0;
-		netPlayerList[pl].isReady = false;
 	}
 	NUM_FROGS = pl;
 
 	NetInstallMessageHandler(NetgameMessageDispatch);
-
-	// Init game mode here ..
 	NetRaceInit();
 
 	GTInit( &modeTimer, 1 );
@@ -153,24 +146,47 @@ void NetgameStartGame()
 		SetFroggerStartPos(gTStart[pl], pl);
 	}
 
-	netMessage = CreateAndAddTextOverlay(2048, 2048, "Waiting for players", YES, (char)255, font, TEXTOVERLAY_SHADOW);
+	if (isHost)
+	{
+		hostSync = hostReady = true;
+		UBYTE msg = APPMSG_HOSTREADY;
+		NetBroadcastUrgentMessage(&msg, 1);
+	}
+	else
+	{
+		hostSync = hostReady = false;
+	}
+
+	NetgameBegin();
+}
+
+void NetgameBegin()
+{
+	int pl;
+
+	nextUpdate = 0;
+	gameReady = false;
+
+	for (pl=1; pl<NUM_FROGS; pl++)
+	{
+		netPlayerList[pl].lastUpdateMsg = 0;
+		//netPlayerList[pl].isReady = false;
+	}
 
 	if (isHost)
 	{
 		unsigned char msg;
 		
-		msg = APPMSG_HOSTREADY;
-		NetBroadcastUrgentMessage(&msg, 1);
-
 		msg = APPMSG_READY;
 		NetBroadcastUrgentMessage(&msg, 1);
+
+		multiHud.centreText->text = "Waiting for players...";	// LOCALISE
 	}
-
-	// Add a little disclaimer to say "it's not my fault it's a bit poo". More or less.
-	TEXTOVERLAY *disclaimer = CreateAndAddTextOverlay(2048, 3800, "Frogger2 Network Test", 1, 0xD0, fontSmall, 0);
-	disclaimer->r = 0xFF; disclaimer->g = 0; disclaimer->b = 0;
+	else
+	{
+		hostSync = wasSync = false;
+	}
 }
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: NetgameRun
@@ -256,18 +272,7 @@ void NetgameRun()
 		GameLoop();
 
 		if (gameState.mode == INGAME_MODE)
-		{
-			gameReady = false;
-			hostSync = isHost;
-
-			for (int pl=1; pl<NUM_FROGS; pl++)
-				mpl[pl].ready = false;
-
-			mpl[0].ready = true;
-
-			UBYTE msg = APPMSG_READY;
-			NetBroadcastUrgentMessage(&msg, 1);
-		}
+			NetgameBegin();
 	}
 }
 
@@ -283,6 +288,8 @@ int WaitForGameReady()
 
 	if (!hostSync)
 	{
+		multiHud.centreText->text = "Synchronising...";	// LOCALISE		
+
 		SendPing();
 		return 0;
 	}
@@ -295,6 +302,8 @@ int WaitForGameReady()
 		UpdateAllEnemies();	// sync all our enemies with the host
 
 		utilPrintf("Net: synchronised with host okay\n");
+
+		multiHud.centreText->text = "Waiting for players...";	// LOCALISE
 	}
 
 	gameReady = true;
@@ -314,7 +323,7 @@ int WaitForGameReady()
 	{
 		utilPrintf("Net: all players ready\n");
 
-		netMessage->draw = 0;
+		multiHud.centreText->draw = 0;
 
 		if (isHost)
 		{

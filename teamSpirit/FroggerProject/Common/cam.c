@@ -413,7 +413,7 @@ void CameraLookAtFrog(void)
 		// Average frog position	
 		FVECTOR target;
 
-		if( gameState.multi == SINGLEPLAYER )
+		if( gameState.multi != MULTILOCAL )
 		{
 			CalcSPCamera( &target );
 			SetVectorFF(&camTarget, &target);
@@ -463,7 +463,7 @@ void CameraSetOffset(void)
 	long nC;
 	int i, l=0;
 
-	if( gameState.multi == SINGLEPLAYER )
+	if( gameState.multi != MULTILOCAL )
 	{
 		FVECTOR v;
 		nC = (camFacing[0]+1)&3;
@@ -546,7 +546,7 @@ void SlurpCamPosition( )
 	ScaleVectorFF(&v, s3);
 	AddToVectorFF(&currCamTarget, &v);
 
-	if( gameState.multi == SINGLEPLAYER && !fixedDir)
+	if( gameState.multi != MULTILOCAL  && !fixedDir)
 	{
   		if(GetCamLimitVector(&v, &currCamTarget, currCamBox, cam_edge_spacing))
 		{
@@ -759,7 +759,7 @@ void InitCamera(void)
 //bbupdate
 //	CheckCameraBoxes();
 
-	if( gameState.multi == SINGLEPLAYER )
+	if( gameState.multi != MULTILOCAL )
 	{
 		lastTile[0] = NULL;
 		CheckForDynamicCameraChange(currTile[0],0);

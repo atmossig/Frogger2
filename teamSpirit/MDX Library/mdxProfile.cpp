@@ -244,7 +244,7 @@ void PrintTimers(void)
 	if (t2.bThrashing)
 		thrashes++;
 
-	BeginDraw();
+	//BeginDraw();
 	
 	float gMult = 560.0/(graphEnd-graphStart);
 	float gVMult = 100.0/graphMax;
@@ -323,7 +323,7 @@ for ( i=0; i<MAX_TIMERS; i++)
 
 	if (timerDraw==2)
 	{
-		EndDraw();
+		//EndDraw();
 			
 		HRESULT res = IDirectDrawSurface4_GetDC(surface[RENDER_SRF], &hdc);
 
@@ -391,7 +391,7 @@ Priority of last evicted texture.
 			IDirectDrawSurface4_ReleaseDC(surface[RENDER_SRF], hdc);	
 		}
 
-		BeginDraw();
+		//BeginDraw();
 	}
 
 
@@ -406,7 +406,7 @@ Priority of last evicted texture.
 		DrawFlatRect(r, D3DRGBA(1,1,1,0.5) );
 	}
 
-	EndDraw();
+	//EndDraw();
 	
 }
 

@@ -909,9 +909,9 @@ void ShowTextures(void)
 	r.right = rXRes - 1;
 	r.bottom = rYRes - 1;
 
-	BeginDraw();
+	//BeginDraw();
 	DrawTexturedRect(r,D3DRGBA(0,0,0,0.8),NULL,0,0,1,1);
-	EndDraw();
+	//EndDraw();
 
 	// Draw the textures
 	r.left = 32;
@@ -929,9 +929,9 @@ void ShowTextures(void)
 		{
 			if (me->type != TEXTURE_NOTEXTURE)	
 			{
-				BeginDraw();
+				//BeginDraw();
 				DrawTexturedRect(r,D3DRGB(1,1,1),me->surf,0,0,1,1);
-				EndDraw();
+				//EndDraw();
 			}
 			else
 				surface[RENDER_SRF]->Blt(&r, me->surf, NULL, DDBLT_WAIT, NULL);
