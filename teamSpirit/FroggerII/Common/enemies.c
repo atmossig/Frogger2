@@ -586,6 +586,19 @@ void UpdateTileSnapper( ENEMY *cur )
 
 	switch( cur->isSnapping )
 	{
+	case -2:
+		path->startFrame = actFrameCount;
+		path->endFrame = actFrameCount + (60*cur->nmeActor->radius);
+
+		cur->isSnapping = -1;
+		break;
+
+	case -1:
+		if( actFrameCount > path->endFrame )
+			cur->isSnapping = 0;
+
+		break;
+
 	case 0:
 		if( actFrameCount < path->endFrame )
 			break;
@@ -1374,7 +1387,10 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 	else if( newItem->flags & ENEMY_NEW_SNAPFROG )
 		newItem->Update = UpdateSnapper;
 	else if( newItem->flags & ENEMY_NEW_SNAPTILES )
+	{
+		newItem->isSnapping = -2;
 		newItem->Update = UpdateTileSnapper;
+	}
 	else if( newItem->flags & ENEMY_NEW_VENT )
 	{
 		newItem->isSnapping = -2;
