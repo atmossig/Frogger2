@@ -83,6 +83,7 @@ long DrawLoop(void)
 	guLookAtF (vMatrix.matrix,
 		currCamTarget[0].vx/40960.0,currCamTarget[0].vy/40960.0,currCamTarget[0].vz/40960.0,
 		currCamSource[0].vx/40960.0,currCamSource[0].vy/40960.0,currCamSource[0].vz/40960.0, 0,1,0);
+	
 	pDirect3DDevice->BeginScene();
 	BlankAllFrames();
 	SwapFrame(MA_FRAME_NORMAL);
@@ -93,11 +94,12 @@ long DrawLoop(void)
 	StartTimer(1,"Actors");
 	ActorListDraw();
 	EndTimer(1);
-
-	DrawAllFrames();
-	pDirect3DDevice->EndScene();
 	
 	PrintTextOverlays();
+	pDirect3DDevice->EndScene();
+	
+	DrawAllFrames();
+	
 	
 
 	EndTimer(0);
