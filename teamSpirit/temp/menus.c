@@ -195,8 +195,6 @@ void StartPauseMenu()
 	pauseConfirmMode = NO;
 	restartingLevel = NO;
 
-	currentPauseSelection = 0;
-
 	gameState.oldMode = gameState.mode;
 	gameState.mode = PAUSE_MODE;
 	pauseMode = 1;
@@ -208,7 +206,12 @@ void StartPauseMenu()
 	PauseAudio( );
 
 //	EnableTextOverlay ( controllerText );
+#ifndef DREAMCAST_VERSION
+	currentPauseSelection = 0;
 	EnableTextOverlay ( continueText );
+#else
+	currentPauseSelection = 1;
+#endif
 	EnableTextOverlay ( xselectText );
 	continueText->r = continueText->g = continueText->b = 255;
 	if(gameState.oldMode == FRONTEND_MODE)
@@ -502,7 +505,13 @@ void RunPauseMenu()
 	{
 		if(padData.debounce[pauseController]&PAD_UP)
 		{
-			if (currentPauseSelection == 0)
+			if (currentPauseSelection ==
+#ifdef DREAMCAST_VERSION
+				1
+#else
+				0
+#endif
+				)
 			{
 				if((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode))
 					currentPauseSelection = 1;
@@ -517,7 +526,13 @@ void RunPauseMenu()
 		if(padData.debounce[pauseController]&PAD_DOWN)
 		{
 			if((((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode)) && (currentPauseSelection == 1)) || (currentPauseSelection == 2))
-				currentPauseSelection = 0;
+				currentPauseSelection =
+#ifdef DREAMCAST_VERSION
+				1
+#else
+				0
+#endif
+				;
 			else
 				currentPauseSelection++;
 		}
