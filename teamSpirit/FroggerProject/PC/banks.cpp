@@ -475,10 +475,13 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					if( !gstrcmp( tmp, "wat_\0" ))
 					{
 						theActor->flags = ACTOR_WATER | ACTOR_DRAW_ALWAYS | ACTOR_ADDITIVE;
-						((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
-						
+						if (!gstrcmp(ts->name,"wat_flo.obe"))
+							((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;// | OBJECT_FLAGS_SHEEN;
+						else
+							((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
+
 						if (ts->name[4]=='f')
-							theActor->flags |= ACTOR_SLIDYTEX;
+							theActor->flags |= ACTOR_SLOWSLIDE;
 
 					}
 

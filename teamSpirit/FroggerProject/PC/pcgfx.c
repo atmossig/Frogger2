@@ -339,7 +339,7 @@ void DrawFXDecal( SPECFX *fx )
 			vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
 			for( i=0; i<4; i++ )
 			{
-				vT[i].sx += 3;
+				vT[i].sx += 3;			
 				vT[i].color = vT[0].color;
 			}
 

@@ -449,6 +449,10 @@ void CalcViewMatrix(long uDate)
 		currCamTarget.vx*CAMVECTSCALE, currCamTarget.vy*CAMVECTSCALE, currCamTarget.vz*CAMVECTSCALE,
 		currCamSource.vx*CAMVECTSCALE, currCamSource.vy*CAMVECTSCALE, currCamSource.vz*CAMVECTSCALE,
 		camVect.vx*CAMVECTSCALE, camVect.vy*CAMVECTSCALE, camVect.vz*CAMVECTSCALE,uDate);
+
+//	sheenCam.vx = currCamSource.vx*CAMVECTSCALE;
+//	sheenCam.vy = currCamSource.vy*CAMVECTSCALE;
+//	sheenCam.vz = currCamSource.vz*CAMVECTSCALE;
 }
 
 void DrawBackground(void)
@@ -507,7 +511,7 @@ long DrawLoop(void)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();
 
-	if (editorOk)
+	if (editorOk || fixedPos)
 		CalcViewMatrix(0);
 	else
 		CalcViewMatrix(1);
@@ -690,8 +694,12 @@ long LoopFunc(void)
 			MDX_ACTOR *a = (MDX_ACTOR*)c->actor->actualActor;
 			long slideVal;
 			slideVal = ((c->flags>>5) & 3);
+			
 			if (slideVal)
 				SlideObjectTextures(a->objectController->object,slideSpeeds[slideVal]);
+
+			if (c->flags&ACTOR_SLOWSLIDE)
+				SlideObjectTextures(a->objectController->object,4);
 
 			if( a->objectController->object->flags & OBJECT_FLAGS_CLIPPED )
 				c->clipped = 1;
