@@ -1777,8 +1777,8 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_GLOBALMENU;
-//			// *ASL* 15/08/2000 - Don't reset the demo idle timer
-//			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
+			// *ASL* 15/08/2000 - Don't reset the demo idle timer
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 		RunOptionsMenu();
 		if(gameState.mode == ARTVIEWER_MODE)
@@ -1818,8 +1818,8 @@ void RunFrontendGameLoop (void)
 			if (options.mode == -1)
 			{
 				options.mode = OP_MULTIPLAYERNUMBER;
-//				// *ASL* 15/08/2000 - Don't reset the demo idle timer
-//				GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
+				// *ASL* 15/08/2000 - Don't reset the demo idle timer
+				GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 			}
 			RunOptionsMenu();
 			if (gameState.mode == INGAME_MODE)
@@ -1835,8 +1835,8 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_ARCADE;
-//			// *ASL* 15/08/2000 - Don't reset the demo idle timer
-//			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
+			// *ASL* 15/08/2000 - Don't reset the demo idle timer
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 			ScreenFade(255,210,30);
 			keepFade = YES;
 			fadeText = NO;
@@ -1851,8 +1851,8 @@ void RunFrontendGameLoop (void)
 		if(options.mode == -1)
 		{
 			options.mode = OP_BOOK;
-//			// *ASL* 15/08/2000 - Don't reset the demo idle timer
-//			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
+			// *ASL* 15/08/2000 - Don't reset the demo idle timer
+			GTInit(&frontendTimer, DEMO_IDLE_TIME_SECS);		// ,LONG_DEMO_WAIT);
 		}
 		RunOptionsMenu();
 		if(gameState.mode != FRONTEND_MODE)
