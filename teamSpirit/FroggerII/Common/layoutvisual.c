@@ -15,7 +15,12 @@
 
 #include "incs.h"
 
-#define USE_AUDIO
+#ifdef PC_VERSION
+int audioEnabled = 1;
+#else
+#define audioEnabled 1
+#endif
+
 
 unsigned long worldNum;
 unsigned long levelNum;
@@ -571,7 +576,6 @@ void FreeAllGameLists()
 #ifdef PC_VERSION
 	StopSong( );
 	FreeSampleList();
-	if( sfx_anim_map ) JallocFree( (UBYTE **)sfx_anim_map );
 #endif
 
 	KillAllTriggers();
@@ -630,11 +634,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 
 	InitGameLists();
 
-#ifdef USE_AUDIO
 #ifdef PC_VERSION
-	LoadSfx(worldID);
-	LoadSfxMapping( worldID, levelID );
-#endif
+	if (audioEnabled)
+		LoadSfx(worldID);
 #endif
 
 	player[0].worldNum = worldID;
@@ -664,7 +666,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 #endif
 
 #ifdef USE_AUDIO
-	PrepareSongForLevel((short)worldID,(short)levelID);
+	if (audioEnabled)
+		PrepareSongForLevel((short)worldID,(short)levelID);
 #endif
 
 #ifdef PC_VERSION // TEMPORARY

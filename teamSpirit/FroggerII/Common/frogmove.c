@@ -138,7 +138,7 @@ BOOL UpdateFroggerControls(long pl)
 
 	if(player[pl].frogState & (FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD))
 	{
-		int dir;
+		int dir, jump;
 		long actF;
 
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGU)		dir = MOVE_UP;
@@ -164,21 +164,19 @@ BOOL UpdateFroggerControls(long pl)
 		PlaySample(GEN_FROG_HOP,&frog[pl]->actor->pos,0,100-Random(15),actF);
 		frogPitch.lastHopOn = actFrameCount;
 
+		prevTile = currTile[pl];
+
+		jump = MoveToRequestedDestination(dir,pl);
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 
-		prevTile = currTile[pl];
-		if (!MoveToRequestedDestination(dir,pl))
-		{
-			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
-		}
-
+		if (!jump) AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6f, NO, NO);
 	}
 
   	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
 
 	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
 	{
-		int dir;
+		int dir, jump;
 		if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)		dir = MOVE_UP;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)	dir = MOVE_DOWN;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
@@ -188,13 +186,12 @@ BOOL UpdateFroggerControls(long pl)
 
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
+		prevTile = currTile[pl];
+		
+		jump = MoveToRequestedDestination(dir,pl);
 		AnimateFrogHop((dir + camFacing) & 3,pl);
 
-		prevTile = currTile[pl];
-		if (!MoveToRequestedDestination(dir,pl))
-		{
-			AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, NO, YES, 1.0f, NO, NO);	// queue a "landed" anim
-		}
+		if (!jump) AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6f, NO, NO);
 	}
 	else
 		return FALSE;	// nope, we didn't do nuffink
@@ -602,16 +599,20 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 */
 void AnimateFrogHop( unsigned long direction, long pl )
 {
-/*	if( player[pl].heightJumped < -100 )
+	float animSpeed; 
+
+	if( player[pl].heightJumped < -100 )
 	{
-		AnimateActor(frog[pl]->actor, FROG_ANIM_TRYTOFLY, YES, NO, 0.25, 0, 0 );
+		// try to fly!
+		animSpeed = player[pl].jumpSpeed * 30;
+		AnimateActor(frog[pl]->actor, FROG_ANIM_TRYTOFLY, NO, NO, animSpeed, 0, 0 );
 	}
-	else */
-	
+	else
 	if(player[pl].isSuperHopping)
 	{
 		// play animation for superhopping
-		AnimateActor(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, 0.5, 0,0);
+		animSpeed = player[pl].jumpSpeed * 15;
+		AnimateActor(frog[pl]->actor, FROG_ANIM_SUPERHOP, NO, NO, animSpeed, 0,0);
 		return;
 	}
 	else // Otherwise, play appropriate jump animation
@@ -876,7 +877,7 @@ void CheckForFroggerLanding(long pl)
 		if( player[f].frogon == (char)-1 )
 		{
 			player[f].idleEnable = 1;
-			AnimateActor( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, 0.6, 0,0 );
+			AnimateActor( frog[f]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6, 0,0 );
 		}
 		else
 			AnimateActor( frog[f]->actor, FROG_ANIM_PINLOOP, YES, NO, 0.5, 0,0 );
@@ -902,7 +903,7 @@ void CheckForFroggerLanding(long pl)
 	}
 	else if( !(player[pl].frogState & FROGSTATUS_ISDEAD) )
 	{
-		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,NO,0.6F,0,0);
+		AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.6F,0,0);
 	}
 	else if( player[pl].deathBy == DEATHBY_WHACKING )
 	{
@@ -1465,7 +1466,7 @@ void CalculateFrogJump(VECTOR *startPos, VECTOR *endPos, VECTOR *normal, float h
 	if (height)
 	{
 		m = 0.5f * (1 + sqrtf(1 - diff/height));
-		pl->jumpSpeed = 1.0f/(m*m*(float)time); //1/(float)time; 
+		pl->jumpSpeed = 1.0f/(m*(float)time); //1/(float)time; 
 		//- longer jumps take longer, kind of thing
 	}
 	else
