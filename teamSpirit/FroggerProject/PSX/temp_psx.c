@@ -5,6 +5,7 @@
 #include <islcard.h>
 #include "main.h"
 #include "layout.h"
+#include "frogger.h"
 
 
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
@@ -798,7 +799,8 @@ void Actor2ClipCheck(ACTOR2* act)
 	#define CLIP_BOTT	120
 	#define CLIP_LEFT	-256
 
-	#define CLIP_FAR	7000
+//	#define CLIP_FAR	7000
+	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
 
 //test
 // 	#define CLIP_TOP	-50
