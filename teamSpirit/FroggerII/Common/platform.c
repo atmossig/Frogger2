@@ -460,12 +460,16 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 	else if(newItem->flags & PLATFORM_NEW_FOLLOWPATH)
 		newItem->Update = UpdatePathPlatform;
 	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
+	{
 		newItem->Update = UpdateUpDownPlatform;
-//	else if(newItem->flags & PLATFORM_NEW_NONMOVING)
-//		newItem->Update = UpdateNonMovingPlatform;
+		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+	}
 	else if(newItem->flags & PLATFORM_NEW_STEPONACTIVATED)
+	{
 		newItem->Update = UpdateStepOnActivatedPlatform;
-	else if( newItem->pltActor->actor && newItem->path && newItem->path->nodes )
+		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
+	}
+	else if( (newItem->flags & PLATFORM_NEW_NONMOVING) || (newItem->pltActor->actor && newItem->path && newItem->path->nodes) )
 		Orientate( &newItem->pltActor->actor->qRot, &newItem->path->nodes->worldTile->dirVector[newItem->facing], &newItem->path->nodes->worldTile->normal );
 
 	return newItem;
@@ -928,7 +932,6 @@ void UpdateUpDownPlatform(PLATFORM *plat)
 
 	// get up vector for this platform
 	SetVector(&moveVec,&plat->path->nodes[0].worldTile->normal);
-	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
 	
 	t = (float)(actFrameCount- plat->path->startFrame)/(float)(plat->path->endFrame - plat->path->startFrame);
 	ScaleVector(&moveVec, t * end_offset + (1-t) * start_offset);
@@ -974,8 +977,6 @@ void UpdateStepOnActivatedPlatform(PLATFORM *plat)
 
 	ScaleVector(&moveVec, speed);
 
-	Orientate( &plat->pltActor->actor->qRot, &plat->path->nodes->worldTile->dirVector[plat->facing], &plat->path->nodes->worldTile->normal );
-	
 	// platform only moves when frog is it - otherwsie returns to start position
 	if(plat->flags & PLATFORM_NEW_CARRYINGFROG)
 	{
