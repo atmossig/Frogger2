@@ -20,6 +20,7 @@
 #include "psxsprite.h"
 #include "tongue.h"
 #include "menus.h"
+#include "audio.h"
 
 #include <ac.h>
 #include <a64thunk.h>
@@ -42,9 +43,14 @@
 #include "savegame.h"
 #include "DCK_system.h"
 #include "islxa.h"
+#include "as.h"
+#include "QueueSfx.h"
 
 // -------
 // Globals
+
+extern CurrentData	current[MAX_CHANNELS];
+
 
 extern XAFileType	*curXA;
 
@@ -129,6 +135,7 @@ int useMemCard = 1;
 
 SAVE_INFO saveInfo;
 
+int showQFXError = 0;
 
 // chained vblank handler
 SYCHAIN vblChain;
@@ -140,7 +147,7 @@ unsigned int globalAbortFlag = 0;
 int spriteRotNum;
 int spriteNum;
 
-
+int	startAudio = FALSE;
 
 // ----------
 // Prototypes
@@ -355,8 +362,7 @@ short videoKeyHandler()
 }
 
 extern StrDataType 	vStream;
-extern CurrentData	current[24];
-
+extern CurrentData	current[MAX_CHANNELS];
 
 int checkForValidControllers();
 
@@ -443,7 +449,7 @@ int startButtonPressed()
 				per = pdGetPeripheral(PDD_PORT_D0);
 				break;
 		}
-		if (per->press & PDD_DGT_ST)
+		if (per->on & PDD_DGT_ST)
 		{
 			ret = 1;
 			break;
@@ -453,10 +459,29 @@ int startButtonPressed()
 	return ret;
 }
 
+int numSfxPlaying()
+{
+	int channel,num = 0;
 
+	for(channel=0; channel<MAX_CHANNELS; channel++)
+	{
+		if(amSoundIsPlaying(&current[channel].sound))
+			num++;
 
+//		if(current[channel].sound.isPlaying)
+//			num++;
+	}
 
+	return num;
+}
 
+void resetToBootROM();
+int quitNow = FALSE;
+
+KTU32 digiNum,midiNum;
+
+#define	MW_MAX_CH		(8)
+#define	MW_SNDRAM_SIZE	(0x4040*MW_MAX_CH)
 
 void main()
 {
@@ -467,6 +492,10 @@ void main()
 	int					numUsed,numPadsDetected=0;
 	Sint32				langNum,soundMode;
 	void				*pbuf;
+	KTBOOL				ret;
+	AM_SOUND			amsnd[8];
+	KTU32				port[8];
+	volatile KTU32		*sndram=KTNULL;
 	
 	#ifdef __GNUC__
 	shinobi_workaround();
@@ -498,7 +527,6 @@ void main()
 
 	// needs to be called before calling ADXT_Init
 	XAinit();
-
 	ADXT_Init();
 
     // check malloc alignment
@@ -515,6 +543,22 @@ void main()
 	{
 		acASEBRK(KTTRUE);
 	}
+
+	// As above in the AC layer, the Middleware library requires a block of sound RAM and
+	// ports.  However, some AM level commands are used to accomplish this.
+	for (i=0; i<MW_MAX_CH; i++) {
+		ret = amSoundAllocateVoiceChannel(&amsnd[i]);
+		if (ret == KTFALSE) {
+			for (;;);
+		}
+		port[i] = amsnd[i].voiceChannel;
+	}
+	ret = amHeapAlloc(&sndram, MW_SNDRAM_SIZE, 32, AM_FIXED_MEMORY, NULL);
+	if (ret == KTFALSE) {
+		for (;;);
+	}
+	mwSetupAudio64(sndram, MW_SNDRAM_SIZE, port, MW_MAX_CH);
+
 	(void)acSetTransferMode(AC_TRANSFER_DMA);
 		
 	acSystemDelay(500000);
@@ -553,8 +597,7 @@ void main()
 	switch(langNum)
 	{
 		case SYD_CFG_JAPANESE:
-//			gameTextLang = LANG_UK;
-			gameTextLang = LANG_US;
+			gameTextLang = LANG_UK;
 			break;
 		case SYD_CFG_ENGLISH:
 			gameTextLang = LANG_UK;
@@ -572,30 +615,41 @@ void main()
 			gameTextLang = LANG_IT;
 			break;
 		default:
-//			gameTextLang = LANG_UK;
-			gameTextLang = LANG_US;
+			gameTextLang = LANG_UK;
 			break;
 	}
 
+#ifdef	NTSC_VERSION
 	// ma - temp fix for us version
 	gameTextLang = LANG_US;
+#endif
 
 	// get sound mode
 	syCfgGetSoundMode(&soundMode);
 	if(soundMode == SYD_CFG_STEREO)
+	{
 		options.stereo = TRUE;
+		acSystemDelay(500000);
+		acSystemSetStereoOrMono(0);
+		acSystemDelay(500000);
+	}
 	else
+	{
 		options.stereo = FALSE;
+		acSystemDelay(500000);
+		acSystemSetStereoOrMono(1);
+		acSystemDelay(500000);
+	}
 
 	syCfgExit();
 	syFree(pbuf);
 
+	qfxInit();
 
 	// *ASL* 09/09/2000
 
 	// ** This flag needs to be cleared before either the vblank or the
 	// ** GD error callbacks are set
-
 	globalAbortFlag = 0;
 
 	// setup our vblank callback
@@ -612,7 +666,7 @@ void main()
 	backDrop.draw = FALSE;
 
 	// show all legal screens and FMV
-//	showLegalFMV(0);
+	showLegalFMV(0);
 
 	// default world data.. needs to be called before CommonInit
 	memcpy((char*)worldVisualData,(char*)origWorldVisualData,sizeof(worldVisualData));
@@ -632,7 +686,9 @@ void main()
 			kmBeginPass(&vertexBufferDesc);
 
 //			fontPrint(font, 10-256,0, GAMESTRING(STR_DC_NOCONTROLLER), 255,255,255);
-			FontInSpace((320-fontExtentWScaled(fontSmall, "No Valid Controller Connected to Dreamcast.",4096)/2),240, "No Valid Controller Connected to Dreamcast.", 380,2, 255,255,255);
+
+//			FontInSpace((320-fontExtentWScaled(fontSmall, "No Valid Controller Connected to Dreamcast.",4096)/2),240, "No Valid Controller Connected to Dreamcast.", 380,2, 255,255,255);
+			FontInSpace((320-fontExtentWScaled(fontSmall, GAMESTRING(STR_DC_START_PAD_NOPAD),4096)/2),240, GAMESTRING(STR_DC_START_PAD_NOPAD), 380,2, 255,255,255);
 
 			utilPrintf("header: %d\n",sizeof(SAVEGAME_HEADER));
 			utilPrintf("level: %d\n",sizeof(SAVEGAME_LEVELINFO));
@@ -649,6 +705,9 @@ void main()
 					
 			kmRender(KM_RENDER_FLIP);
 			kmEndScene(&kmSystemConfig);
+
+			if (globalAbortFlag == 1)
+				resetToBootROM();
 
 			numPadsDetected = checkForValidControllers();
 		}
@@ -668,7 +727,7 @@ void main()
 		ScreenFade(0,255,20);
 		keepFade = NO;
 
-		while((saveInfo.saveFrame) || (fadingOut))
+		while(((saveInfo.saveFrame) || (fadingOut)) && (!quitNow))
 		{
 			updatePads();
 
@@ -688,6 +747,12 @@ void main()
 				keepFade = YES;
 			}
 
+			if(saveInfo.saveStage != SAVEMENU_SAVE)
+			{
+				if (globalAbortFlag == 1)
+					quitNow = TRUE;
+			}
+
 			kmEndPass(&vertexBufferDesc);
 					
 			kmRender(KM_RENDER_FLIP);
@@ -698,11 +763,17 @@ void main()
 		ShowLCDLogo();
 	}
 
+	if(quitNow)
+		resetToBootROM();
+
 #ifdef _DEBUG
 	utilPrintf("DEBUG ACTIVE!!!!!\n");
 #endif
 
 	// ** Main loop
+
+	startAudio = TRUE;
+	PrepareSong((short)WORLDID_FRONTEND, 1);		// loop track
 
 	// *ASL* 08/08/2000 - Until user quits or opens the lid
 	while (globalAbortFlag == 0)
@@ -838,7 +909,6 @@ void main()
 			break;
 		}
 
-
 		// *ASL* 20/08/2000 - Reset all strip cache vars
 		stripFT3textureID = -1;
 		stripFT3textureID_A = -1;
@@ -915,7 +985,7 @@ void main()
 			if(drawLandscape && drawGame)
 				DrawWaterList();
 			DCTIMER_STOP(4);
-			
+
 			DCTIMER_START(5);		
 			if(drawGame)
 				DrawActorList();
@@ -941,13 +1011,65 @@ void main()
 			DCTIMER_STOP(6);		
 		}
 
+		// update the samples and set them to play
+		if((gameState.mode == INGAME_MODE)||(gameState.mode == FRONTEND_MODE))
+		{
+			UpdateAmbientSoundsVolume();
+		}
+
 		gte_SetRotMatrix(&GsWSMATRIX);
 		gte_SetTransMatrix(&GsWSMATRIX);
 
 		DCTIMER_START(7);		
 		DCTIMER_STOP(7);		
+		
+//		acDigiPortsAvailable(&digiNum,&midiNum);
 
-		if(timerBars)
+//		sprintf(textbuffer,"SFX: %d (%d) (%d)",numSfxPlaying(), ambientSoundList.numEntries,digiNum);
+//		fontPrint(font, textPosX-200,textPosY-140, textbuffer, 255,255,255);		
+
+//		sprintf(textbuffer,"QFX: %d", qfxQueryState());
+//		fontPrint(font, textPosX-200,textPosY-140+16, textbuffer, 255,255,255);		
+
+//		if (showQFXError)
+//		{
+//			showQFXError--;
+//			sprintf(textbuffer,"QFX: !!Error!!");
+//			fontPrint(font, textPosX-200,textPosY-140+32, textbuffer, 255,255,255);
+//		}
+
+
+/*		{
+		 	AMBIENT_SOUND *amb,*amb2;
+		 	SVECTOR *pos;
+
+			int	yp = textPosY-140+16;
+
+ 			for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
+ 			{
+ 				amb2 = amb->next;
+ 
+ 				// If it is attached to a platform, make ambient follow that platform
+ 				if( amb->follow )
+ 					SetVectorSS( &amb->pos, &amb->follow->position );
+ 
+ 				// If sound doesn't have a source
+				pos = &amb->pos;
+
+				acSystemDelay(500000);
+
+				if (amb->handle == -1 || amb->sample == NULL)
+					sprintf(textbuffer,"amb err");
+				else
+					sprintf(textbuffer,"%s, %d", amb->sample->idName, current[amb->handle].volume);
+				fontPrint(font, textPosX-200, yp, textbuffer, 255,255,255);
+
+				yp += 16;
+ 			}
+		}
+*/
+
+/*		if(timerBars)
 		{
 			DCTIMER_PRINTS();
 			
@@ -962,7 +1084,8 @@ void main()
 //			sprintf(textbuffer, "%d, %d  %d", spriteNum, spriteRotNum, spriteNum+spriteRotNum);
 //			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 		}
-	
+*/	
+
 		kmEndPass(&vertexBufferDesc);
 				
 		DCTIMER_START(8);		
@@ -983,7 +1106,7 @@ void main()
 			vsyncCounter = 0;
 		}
 */		
-		if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
+		if((gameState.mode!=PAUSE_MODE) || ((quittingLevel)&&(!pauseConfirmMode)))
 		{
 			lastActFrameCount = actFrameCount;
 
@@ -994,10 +1117,10 @@ void main()
 
  			actFrameCount += gameSpeed>>12;
 
-//#ifdef PALMODE
-//			gameSpeed *= 6;
-//			gameSpeed /= 5;
-//#endif	
+#ifndef NTSC_VERSION
+			gameSpeed *= 6;
+			gameSpeed /= 5;
+#endif	
 			vsyncCounter = 0;
 		}
 		else
@@ -1006,15 +1129,25 @@ void main()
 			vsyncCounter = 0;
 		}
 
+		// filter the sound commands to the sound chip
+		if (qfxPumpCommands() == 0)
+		{
+			// acknowledge our error
+			showQFXError = 50;
+		}
+
 		pdExecPeripheralServer();
 		DCTIMER_STOP(8);		
-		DCTIMER_STOP(0);	
+		DCTIMER_STOP(0);
 	}
 
 
 	// *ASL* 10/08/2000
 	// ** We got to here so user must have opened the lid or quit from the frontend. Either
 	// ** way we should shutdown all and return to the BootROM.
+
+	// shutdown the sound effect queue
+	qfxShutdown();
 
 	// shutdown
 	FreeBackdrop();
