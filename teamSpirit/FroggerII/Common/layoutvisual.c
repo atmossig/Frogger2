@@ -570,15 +570,12 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	InitTriggerList();
 
 	LoadLevelEntities(worldID,levelID);
-	
-// NOT NEEDED ANYMORE --->
-//	InitCamera(worldID,levelID);
-//	InitPlatformsForLevel(worldID,levelID);
-//	InitEnemiesForLevel(worldID,levelID);
-//	InitCollectablesForLevel(worldID,levelID);
-//	InitCameraForLevel(worldID,levelID);
-// <--- NOT NEEDED ANYMORE
 
+#ifdef PC_VERSION
+	/* Whoever it is, stop fucking well deleting this line */
+	LoadLevelScript(worldID, levelID);
+#endif
+	
 	//InitCameosForLevel ( worldID, levelID );
 		
 	CreateFrogger(1,1,1,1); // This also creates the babies
