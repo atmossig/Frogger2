@@ -101,13 +101,17 @@ void padInitialise(unsigned char multiTap)
 
 	MULTITAP_SUPPORT = multiTap;
 
-	if(MULTITAP_SUPPORT)
-		PadInitMtap(padData2.buffer[0],padData2.buffer[1]);
-	else
-		PadInitDirect(padData2.buffer[0],padData2.buffer[1]);
+//	*ASL* 21/07/2000 - Routine doesn't exist
+//	if(MULTITAP_SUPPORT)
+//		PadInitMtap(padData2.buffer[0],padData2.buffer[1]);
+//	else
+//		PadInitDirect(padData2.buffer[0],padData2.buffer[1]);
 
 	VSync(5);
-	PadStartCom();
+
+//	*ASL* 21/07/2000 - Routine doesn't exist
+//	PadStartCom();
+
 	padData.numPads[0] = 1;
 	padData.numPads[1] = 1;
 	padData.analogAccel = 4;	// default acceleration for analog emulation
@@ -130,8 +134,8 @@ void padInitialise(unsigned char multiTap)
 	}
 }
 
-
-static inline unsigned char padGetTypeFromPacket(unsigned char id)
+// *ASL* 21/07/2000 - Problem with inline directive
+static unsigned char padGetTypeFromPacket(unsigned char id)
 {
 	switch(id)
 	{
@@ -164,14 +168,20 @@ static void padHandlePort(int port)
 
 	if(MULTITAP_SUPPORT)
 	{
-		if (PadChkMtap(port<<4)==1)					// SORT THIS OUT - COULD BE GREEDY
-		{
-			padData.numPads[port] = 4;
-		}
-		else
-		{
-			padData.numPads[port] = 1;
-		}
+
+//		*ASL* 21/07/2000 - Routine doesn't exist
+//		if (PadChkMtap(port<<4)==1)					// SORT THIS OUT - COULD BE GREEDY
+//		{
+//			padData.numPads[port] = 4;
+//		}
+//		else
+//		{
+//			padData.numPads[port] = 1;
+//		}
+		padData.numPads[port] = 1;
+//		*ASL* 21/07/2000
+
+
 	}
 	else
 	{
@@ -183,7 +193,12 @@ static void padHandlePort(int port)
 	{
 		padNo = padLp|(port<<2);
 		HWport = padLp|(port<<4);
-		state = PadGetState(HWport);
+
+//		*ASL* 21/07/2000 - routine doesn't exist
+//		state = PadGetState(HWport);
+		state = 0;
+//		*ASL* 21/07/2000
+
 		switch(state)										// Handle (dis)connection states
 		{
 		case PadStateDiscon:
@@ -212,7 +227,12 @@ static void padHandlePort(int port)
 				//printf("  Check for controller connection with controllers other than DUAL SHOCK (Complete the acquisition of controller information)\n");
 #endif
 				padData2.state[padNo] = PadStateStable;
-				currPad = PadInfoMode(HWport, InfoModeCurID, 0);
+
+//				*ASL* 21/07/2000 - Routine doesn't exist
+//				currPad = PadInfoMode(HWport, InfoModeCurID, 0);
+				currPad = 0;
+//				*ASL* 21/07/2000
+
 				switch(currPad)
 				{
 				case 4:
@@ -245,7 +265,12 @@ static void padHandlePort(int port)
 				//printf("  Retrieval of actuator information completed, or library-controller communication completed\n");
 #endif
 				padData2.state[padNo] = PadStateStable;
-				currPad = PadInfoMode(HWport, InfoModeCurExID, 0);
+
+//				*ASL* 21/07/2000 - Routine doesn't exist
+//				currPad = PadInfoMode(HWport, InfoModeCurExID, 0);
+				currPad = 0;
+//				*ASL* 21/07/2000
+
 				if(currPad)
 				{
 #ifdef _DEBUG
@@ -254,7 +279,10 @@ static void padHandlePort(int port)
 					padData.present[padNo] = PADTYPE_DUALSHOCK;
 					padData.digital[padNo] = 0;
 					padData2.newShock[padNo] = 10;
-					PadSetMainMode(HWport,1,3);
+
+//					*ASL* 21/07/2000 - Routine doesn't exist
+//					PadSetMainMode(HWport,1,3);
+
 				}
 				else
 				{
@@ -408,8 +436,11 @@ void padHandler()
 					padData.motor[loop][0] = 0;
 					padData.motor[loop][1] = 0;
 					HWport = ((loop & 3)|((loop>>2)<<4));
-					PadSetAct(HWport, padData.motor[loop], 2);
-					PadSetActAlign(HWport,HWalign);
+
+//					*ASL* 21/07/2000 - Routines don't exist
+//					PadSetAct(HWport, padData.motor[loop], 2);
+//					PadSetActAlign(HWport,HWalign);
+
 				}
 				padData2.newShock[loop]--;
 			}

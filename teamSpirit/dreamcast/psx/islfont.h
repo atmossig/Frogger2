@@ -23,6 +23,7 @@ typedef struct _psFont
 	unsigned char		alpha;	
 	
 	DCKFLOAT2DVECTOR	uvOffsets[256];	
+	float				uoffset,voffset;
 	KMSURFACEDESC		surface;
 	float				scale;
 	int					size;
@@ -37,6 +38,7 @@ typedef struct _psFont
 
 psFont *fontLoad(char *fontname);
 
+void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b,int scale);
 
 /**************************************************************************
 	FUNCTION:	fontUnload()
@@ -77,7 +79,7 @@ int fontExtentW(psFont *font, char *text);
 
 int fontFitToWidth(psFont *font, int width, char *text, char *buffer);
 
-void fontDispChar(DCKFLOAT2DVECTOR offset, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha, int size);
+void fontDispChar(psFont *font, DCKFLOAT2DVECTOR offset, short x,short y, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha, int size);
 
 /**************************************************************************
 	FUNCTION:	fontPrintN()

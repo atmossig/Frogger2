@@ -11,9 +11,14 @@
 #include "layout.h"
 #include "maths.h"
 #include "main.h"
+#include "menus.h"
+#include "options.h"
+#include "hud.h"
 
 #define OVERLAY_X 640.0/4096.0
 #define OVERLAY_Y 480.0/4096.0
+
+extern OPTIONSOBJECTS options;
 
 void DrawSprite ( SPRITEOVERLAY *spr )
 {
@@ -26,7 +31,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	atbdx = (float)(spr->xPos>>3)*1.25;//-256;
 	atbdy = (spr->yPos/17)*2;//-120;
 	tPtr = spr->tex;
-			
+	
 	if((spr->a == 255) && (!(spr->flags & (SPRITE_ADDITIVE | SPRITE_SUBTRACTIVE))))
 	{
 		alpha = 0;
@@ -47,9 +52,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		
 	if(spr->tex == NULL)
 	{
-//		BEGINPRIM(f4,POLY_F4);
-//		setPolyF4(f4);
-
+		alpha = spr->a;
 		x0 = atbdx;
 		y0 = atbdy;
 		x1 = atbdx + (spr->width>>3)*1.25;
@@ -59,27 +62,6 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		x3 = atbdx + (spr->width>>3)*1.25;
 		y3 = atbdy + (spr->height/17)*2;
 		
-//		r = r<<1;
-//		g = g<<1;
-//		b = b<<1;
-		r = r>>1;
-		g = g>>1;
-		b = b>>1;
-		if(alpha)
-			alpha = 128;
-//			setSemiTrans(f4,1);
-//		ENDPRIM(f4, depth, POLY_F4);
-
-		if(alpha)
-		{
-//			BEGINPRIM(dm, DR_MODE);
-//			if(spr->flags & SPRITE_SUBTRACTIVE)
-//				SetDrawMode(dm, 0,1, ((SEMITRANS_SUB-1)<<5),0);
-//			else
-//				SetDrawMode(dm, 0,1, ((SEMITRANS_ADD-1)<<5),0);
-//			ENDPRIM(dm, depth, DR_MODE);
-		}
-	
 		vertices_SpritesNoTex[0].fX = x0;
 		vertices_SpritesNoTex[0].fY = y0;
 		vertices_SpritesNoTex[0].u.fZ = spr->num + 1.0;
@@ -123,27 +105,6 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			y2 = atbdy+h;
 			x3 = atbdx+w;
 			y3 = atbdy+h;
-//			r = spr->r;
-//			g = spr->g;
-//			b = spr->b;
-
-//			alpha = 255;
-//			if(alpha)
-			{
-				if(spr->flags & SPRITE_SUBTRACTIVE)
-				{
-					alpha = 128;
-//					SETSEMIPRIM(ft4, SEMITRANS_SUB);
-				}
-				else
-				{
-					alpha = 128;
-//					SETSEMIPRIM(ft4, SEMITRANS_ADD);
-				}
-			}
-//			ft4->clut = tPtr->clut;
-//			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-//			ENDPRIM(ft4, depth, POLY_FT4);			
 		}
 		else
 		{	// Original random scaling method (slightly tidier)
@@ -155,32 +116,14 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			y2 = atbdy + (spr->height/17) * 2;
 			x3 = atbdx + ((float)(spr->width>>3)) * 1.25;
 			y3 = atbdy + (spr->height/17) * 2;
-//			r = spr->r;//( spr->r * 128 ) >> 8;
-//			g = spr->g;//( spr->g * 128 ) >> 8;
-//			b = spr->b;//( spr->b * 128 ) >> 8;
-
-//			alpha = 255;
-			if(alpha)
-			{
-				if(spr->flags & SPRITE_SUBTRACTIVE)
-				{
-					alpha = 64;
-//					SETSEMIPRIM(ft4, SEMITRANS_SUB);
-				}
-				else
-				{
-					alpha = spr->a;
-//					SETSEMIPRIM(ft4, SEMITRANS_ADD);
-				}
-			}
-			else
-			{
-				alpha = spr->a;
-			}
-//			ft4->clut = tPtr->clut;
-//			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-//			ENDPRIM(ft4, depth, POLY_FT4);				
 		}
+
+		alpha = spr->a;
+//		alpha = 255;
+
+//		r = spr->r;
+//		g = spr->g;
+//		b = spr->b;
 		
 		vertices_GT4[0].fX = x0;
 		vertices_GT4[0].fY = y0;
@@ -217,10 +160,15 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		}
 		else
 		{
-			if((spr->flags & SPRITE_SUBTRACTIVE)||(spr->flags & SPRITE_ADDITIVE))
+			if(spr->flags & SPRITE_ADDITIVE)
 			{
 				kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
 				kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+			}
+			else if(spr->flags & SPRITE_SUBTRACTIVE)
+			{
+				kmChangeStripTextureSurface(&StripHead_Sprites_Sub,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
+				kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Sub);	
 			}
 			else
 			{
@@ -488,7 +436,7 @@ void PrintSpriteOverlays ( char num )
 				}
 			}
 		
-			if ( !cur->angle )
+/*ma		if ( !cur->angle )
 			{
 				DrawSprite ( cur );
 			}
@@ -496,6 +444,16 @@ void PrintSpriteOverlays ( char num )
 			{
 				DrawSpriteOverlayRotating ( cur );
 			}
+*/			
+			if (( cur->angle )||(cur == arcadeHud.timeHandOver)||(cur == arcadeHud.timeHeadOver))
+			{
+				DrawSpriteOverlayRotating ( cur );
+			}
+			else
+			{
+				DrawSprite ( cur );
+			}
+
 			// ENDELSEIF
 		}
 		// ENDIF

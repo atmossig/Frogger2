@@ -119,7 +119,8 @@ int UpdateLoopingSample(AMBIENT_SOUND *sample)
 	}
 
 
-	if((sample->sample->handle == -1) && (sample->sample) && (sample->sample->snd))
+//	if((sample->sample->handle == -1) && (sample->sample) && (sample->sample->snd))
+	if((sample->handle == -1) && (sample->sample) && (sample->sample->snd))
 	{
 //		vs = VSync(1);
 //		while((lastSound>=0) && (SpuGetKeyStatus(1<<lastSound)==SPU_ON_ENV_OFF) && (VSync(1)<vs+3));
@@ -233,7 +234,7 @@ int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *
 	int 			i;
 	SAMPLE 			*sfx;
 	SfxBankType		*bank;
-	AM_BANK_PTR		*am_bank;
+	AM_BANK_PTR		am_bank;
 	SAMPLE 			*newItem;
 	int				numSamples,loop,bytesRead;
 	AM_SOUND		soundInfo;
@@ -249,7 +250,7 @@ int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *
 	audio64Banks[numSoundBanks] = am_bank;
 	
 	//Allocate memory for sample data and grab data from .kat file
-	amBankGetNumberOfAssets(am_bank,&numSamples);
+	amBankGetNumberOfAssets(am_bank,(KTU32 *)&numSamples);
 
 	//malloc the bank all in one then fill it in
 	bank->numSamples = numSamples;
@@ -263,6 +264,7 @@ int LoadSfxSet(char *path, SfxBankType **sfxBank,int flags,SAMPLE *array,short *
 		bank->sample[loop].bankNumber	= numSoundBanks;
 		bank->sample[loop].sampleNumber	= loop;
 		bank->sample[loop].inSPURam		= 1;//Always loaded on DC
+		bank->sample[loop].pad			= 0;
 	}
 
 	//Need name CRC's unfortunately so grab these from a seperate file
@@ -593,6 +595,8 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
  	AMBIENT_SOUND *amb,*amb2;
  	SVECTOR *pos;
 
+//	return;
+	
  	// Update each ambient in turn
  	for( amb = ambientSoundList.head.next; amb != &ambientSoundList.head; amb = amb2 )
  	{
@@ -615,11 +619,14 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 		if(amb->sample->snd->pad & 1)
 			UpdateLoopingSample(amb);
 		else
-		{
-			amb->sample->snd->pad = 1;
-			PlaySample(amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch );
+		{		
+			if(PlaySample(amb->sample, &amb->pos, amb->radius, amb->volume, amb->pitch ) != -1)
+			{
+				amb->sample->snd->pad = 1;
+				amb->handle = amb->sample->handle;
+			}
 		}
- 
+		 
  		// Freq and randFreq are cunningly pre-multiplied by 60
  		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
  	} 	
@@ -692,7 +699,7 @@ void PrepareSong(short worldID,int loop)
 	int 	xaNum = 0;
 	char	buffer[32];
 
-	return;
+//	return;
 	
 	if(!bpAmStreamDone(gStream))
 		StopSong();
@@ -770,8 +777,9 @@ int GetSoundVols(SVECTOR *pos,int *vl,int *vr,long radius,unsigned long vol)
 	gte_ldv0(&tempSvect);
 	gte_rtps();
 	gte_stsxy((long *)&m.vx);
-	gte_stsz(&m.vz);	//screen z/4 as otz
-	m.vz >>= 2;
+//	gte_stsz(&m.vz);	//screen z/4 as otz
+	m.vz = (screenxy[2].vz >> 2);
+//	m.vz >>= 2;
 
 	dist = MagnitudeS(&m);
 	if(dist)
@@ -839,7 +847,10 @@ void UnPauseAudio( )
 
 void SpuSetCommonCDVolume(int volume, int volume2)
 {
-
+	float	newVolume;
+	
+	newVolume = (float)globalMusicVol * (2.55);
+	bpAmStreamSetVolume(gStream, (int)newVolume);
 }
 
 int IsSongPlaying()
@@ -921,7 +932,7 @@ void sfxInitialise(int reverbMode)
 	//Initialise all sample banks to null so we know they aren't in use
 	for(loop=0; loop<MAX_SAMPLE_BANKS; loop++)
 	{
-		sampleBanks[loop].used = FALSE;
+		sampleBanks[loop].used = 0;
 		audio64Banks[loop] = NULL;
 	}
 

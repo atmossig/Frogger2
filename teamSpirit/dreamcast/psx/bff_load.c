@@ -425,7 +425,7 @@ BFF_Header *BFF_LoadFile(char *filename)
 	int i,j;
 	int lastfilelength;
 	int	numObjects = 0;
-
+	
 // Oh lovely, Frogger's makefile didn't warn me about duff numbers of parameters being sent to functions...
 // Someone's not got the warning level set high enough!
 

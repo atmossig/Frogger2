@@ -34,10 +34,11 @@
 #include "bpamsfx.h"
 #include "strsfx.h"
 #include "islvideo.h"
+#include "options.h"
 
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
-const PDS_PERIPHERAL 	*per;
+PDS_PERIPHERAL 	*per;
 
 KMSTRIPCONTEXT 	stripContext00;
 KMSTRIPHEAD 	stripHead00;
@@ -98,9 +99,6 @@ int 			vsyncCounter = 0;
 int 			lastframe = 0;
 int 			myVsyncCounter = 0;
 
-//AM_BANK_PTR		gMyBank	= KTNULL;
-//AM_SOUND_PTR	gOneShot;
-
 long 			turbo = 4096;
 
 unsigned short 	globalClut;
@@ -109,7 +107,6 @@ short			timerBars = OFF;
 
 AC_ERROR_PTR	acErr;
 AM_ERROR 		*amErr;
-AM_BANK_PTR		gBank =	KTNULL;
 	
 KMDWORD			FogDensity;
 
@@ -150,11 +147,11 @@ void Kamui_Init()
     kmSystemConfig.nVertexBufferSize          	= 0x100000 * 2;		// 2MB for vertex buffer
     kmSystemConfig.nPassDepth                 	= 1;
     kmSystemConfig.Pass[0].dwRegionArrayFlag  	= KM_PASSINFO_AUTOSORT;
-    kmSystemConfig.Pass[0].fBufferSize[0]     	= 80.0f;
+    kmSystemConfig.Pass[0].fBufferSize[0]     	= 30.0f;
     kmSystemConfig.Pass[0].fBufferSize[1]     	= 0.0f;
-    kmSystemConfig.Pass[0].fBufferSize[2]     	= 20.0f;
+    kmSystemConfig.Pass[0].fBufferSize[2]     	= 35.0f;
     kmSystemConfig.Pass[0].fBufferSize[3]     	= 0.0f;
-    kmSystemConfig.Pass[0].fBufferSize[4]     	= 0.0f;
+    kmSystemConfig.Pass[0].fBufferSize[4]     	= 35.0f;
 
 	kmSetSystemConfiguration(&kmSystemConfig);
 
@@ -214,7 +211,7 @@ void InitCam(void)
 	SetCam(bbsrc,bbtar);
 }
 
-void VblCallBack(void *arg)
+static void VblCallBack(void *arg)
 {
 //	MyStreamServer();
 
@@ -243,8 +240,8 @@ void InitLookupTables()
 {
 	int			fileLength;
 
-	sqrtable = fileLoad("incbin\\Sqrtable.bin",&fileLength);
-	acostable = fileLoad("incbin\\acostab.bin",&fileLength);
+	sqrtable = (unsigned long *)fileLoad("incbin\\Sqrtable.bin",&fileLength);
+	acostable = (short *)fileLoad("incbin\\acostab.bin",&fileLength);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -452,6 +449,10 @@ void main()
 	
 //ma	BuildFogTable();
 
+#ifdef _DEBUG
+	utilPrintf("DEBUG ACTIVE!!!!!\n");
+#endif
+
 	// render loop
 	while(TRUE)
 	{
@@ -551,7 +552,10 @@ void main()
 				padData.digital[i] |= PAD_START;
 		}
 		
-		UpdateTextureAnimations();
+		if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
+		{
+			UpdateTextureAnimations();
+		}
 				
 		GameLoop();
 		DCTIMER_STOP(1);		
@@ -581,8 +585,11 @@ void main()
 			DrawActorList();
 		DCTIMER_STOP(5);		
 
-		UpdateFrogTongue(0);
-		UpdateFrogCroak(0);
+		if( gameState.multi == SINGLEPLAYER )
+		{
+			UpdateFrogTongue(0);
+			UpdateFrogCroak(0);
+		}
 
 		if(tileTexture[0])
 			DrawTiledBackdrop(/*saveInfo.saveFrame ? NO : */YES);
@@ -627,8 +634,8 @@ void main()
 //			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
 //			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
-			sprintf(textbuffer,"Map: %d",mapCount);
-			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
+//			sprintf(textbuffer,"Map: %d",mapCount);
+//			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
 			syMallocStat(memfree,memsize);
 			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
@@ -637,10 +644,16 @@ void main()
 //			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
 //			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
 
-			sprintf(textbuffer,"fog.max: %d",fog.max);		
-			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
+//			sprintf(textbuffer,"fog.max: %d",fog.max);		
+//			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
 
-/*			if(per->press & PDD_DGT_TR)
+//			if(options.titleBak)
+//			{
+//				sprintf(textbuffer,"options.titleBak: %d",options.titleBak->a);		
+//				fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
+//			}
+
+			if(per->press & PDD_DGT_TR)
 			{
 				if(texViewer < DCKnumTextures)
 					texViewer++;
@@ -652,7 +665,7 @@ void main()
 					texViewer--;
 			}
 			
-			vertices_GT4[0].fX = 32;
+/*			vertices_GT4[0].fX = 32;
 			vertices_GT4[0].fY = 32;
 			vertices_GT4[0].u.fZ = 10;
 			vertices_GT4[0].fU = (float)0;
@@ -688,6 +701,21 @@ void main()
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmEndStrip(&vertexBufferDesc);
+*/
+
+
+/*			kmxxGetCurrentPtr(&vertexBufferDesc);					
+
+			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,&DCKtextureList[texViewer].surface);
+
+			kmxxStartStrip(&vertexBufferDesc,&StripHead_Sprites);			
+			
+			kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,32,32,10,0,0,RGBA(255,255,255,255),RGBA(255,255,255,255));
+			kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,32+256,32,10,1,0,RGBA(255,255,255,255),RGBA(255,255,255,255));
+			kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,32,32+256,10,0,1,RGBA(255,255,255,255),RGBA(255,255,255,255));
+			kmxxSetVertex_3(KM_VERTEXPARAM_ENDOFSTRIP,32+256,32+256,10,1,1,RGBA(255,255,255,255),RGBA(255,255,255,255));
+			
+			kmxxReleaseCurrentPtr(&vertexBufferDesc);			
 */			
 		}
 	
@@ -720,7 +748,7 @@ void main()
 	
 	syChainDeleteHandler(VblChain);                   
 	
-	FreeBackDrop();
+	FreeBackdrop();
 
 	sbExitSystem();
 }

@@ -92,9 +92,9 @@ typedef struct _NMEHACK {
 
 NMEHACK enemyAnimHack[] = {
 #ifdef DREAMCAST_VERSION
-#include "w:\teamspirit\pcversion\nmehack.txt"
+#include "x:\teamspirit\pcversion\nmehack.txt"
 #else
-#include "w:/teamspirit/pcversion/nmehack.txt"
+#include "x:/teamspirit/pcversion/nmehack.txt"
 #endif
 };
 
@@ -110,9 +110,9 @@ NMEHACK enemyAnimHack[] = {
 
 REACTIVEANIM reactiveAnims[] = {
 #ifdef DREAMCAST_VERSION
-#include "w:\teamspirit\pcversion\reactive.txt"
+#include "x:\teamspirit\pcversion\reactive.txt"
 #else
-#include "w:/teamspirit/pcversion/reactive.txt"
+#include "x:/teamspirit/pcversion/reactive.txt"
 #endif
 };
 
@@ -797,7 +797,8 @@ void UpdatePathNME( ENEMY *cur )
 			{
 				if( !(cur->flags & ENEMY_NEW_FACEFORWARDS) )
 				{
-					FVECTOR fwdCopy = fwd;
+					FVECTOR fwdCopy;
+					fwdCopy = fwd;
 					MakeUnit( &fwdCopy );
 					Orientate(&act->actor->qRot, &fwdCopy, &cur->currNormal);
 				}
@@ -1440,7 +1441,8 @@ void UpdateRotatePathNME( ENEMY *cur )
 		//bbopt - may not need this MakeUnit here,
 		//put in 'cos Orientate no longer does MakeUnit(fwd)
 		//anyway, fwd is set up with son and cos, so may be a unit.
-		FVECTOR fwdCopy = fwd;
+		FVECTOR fwdCopy;
+		fwdCopy = fwd;
 		MakeUnit(&fwdCopy);
 		OrientateFS( &cur->nmeActor->actor->qRot, &fwdCopy, &cur->path->nodes->worldTile->normal );
 	}
@@ -2174,6 +2176,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 #endif
 
 #ifdef PSX_VERSION
+
 #ifndef DREAMCAST_VERSION
 				switch ( n )
 				{
@@ -2183,7 +2186,10 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, fixed
 					case 3:	newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( pinkpal ); break;
 					case 4: newItem->nmeActor->actor->clutOverride = LOADPAL_Load16 ( redpal ); break;
 				}
+#else
+					newItem->nmeActor->actor->clutOverride = n;
 #endif				
+
 #endif
 				babyList[i].baby = newItem->nmeActor;
 				babyList[i].enemy = newItem;

@@ -63,8 +63,8 @@ char* fileLoad(char *filename,int *bytesRead)
 
     // Get file size (in blocks/sectors).
     if(bytesRead)
-		gdFsGetFileSize(gdfs, bytesRead);
-    gdFsGetFileSctSize(gdfs, &FileBlocks);
+		gdFsGetFileSize(gdfs, (Sint32 *)bytesRead);
+    gdFsGetFileSctSize(gdfs, (Sint32 *)&FileBlocks);
 
     // Allocate memory to nearest block size (2048 bytes).    
 	if((strcmp(buffer,"Sqrtable.bin") == 0)||(strcmp(buffer,"acostab.bin") == 0))
@@ -93,6 +93,6 @@ char* fileLoad(char *filename,int *bytesRead)
     // Close file.
     gdFsClose(gdfs);
 
-    return filePtr;
+    return (char*)filePtr;
 }
 

@@ -9,6 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
 
 #include <islutil.h>
 #include <islpad.h>
@@ -135,7 +136,8 @@ void GameProcessController(long pl)
 			pauseController = pl;
 			return;
 		}
-#else PSX_VERSION
+#endif
+#ifdef PSX_VERSION
 #ifdef FINAL_MASTER
 		if((padData.debounce[pl] & PAD_START) && (gameState.mode != FRONTEND_MODE))
 		{

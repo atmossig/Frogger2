@@ -161,6 +161,7 @@ void textureDestroyBank(TextureBankType *bank)
 	RETURNS:	
 **************************************************************************/
 
+/*
 void textureUnloadBank(TextureBankType *bank)
 {
 	unsigned long	loop, y,b, numTex;
@@ -189,7 +190,7 @@ void textureUnloadBank(TextureBankType *bank)
 	syFree(bank->CRC);
 	syFree(bank);
 }
-
+*/
 
 /**************************************************************************
 	FUNCTION:	textureFindCRCInBank()

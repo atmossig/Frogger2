@@ -10,6 +10,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 //#define ALLOW_FADE
+#include "prefix_dc.h"
 
 #ifndef PSX_VERSION
 #include <windows.h>
@@ -369,22 +370,31 @@ void DrawActorList ( void )
 					fmaActorCount++;
 					globalClut = cur->actor->clutOverride;
 					actorShiftDepth = cur->depthShift;
-				
-					//TIMER_START1(TIMER_SPHERE);
-					//if( (compare = strstr(cur->actor->psiData.modelName, "SPHERE")) )
+
+					if(globalClut)				
 					{
-			 			//TIMER_STOP_ADD1(TIMER_SPHERE);
-						//cur = cur->next;
-						//continue;
-					}
-					//TIMER_STOP_ADD1(TIMER_SPHERE);
-
-					mesh = ADD2POINTER(cur->bffActor, sizeof(FMA_WORLD));
+						mesh = ADD2POINTER(cur->bffActor, sizeof(FMA_WORLD));
 					
-					TIMER_START1(TIMER_FMADRAW);
-					DrawScenicObj ( *mesh, cur->flags );
-					TIMER_STOP_ADD1(TIMER_FMADRAW);
+						DrawCube( *mesh, cur->flags );
+					}
+					else
+					{
+					
+						//TIMER_START1(TIMER_SPHERE);
+						//if( (compare = strstr(cur->actor->psiData.modelName, "SPHERE")) )
+						{
+			 				//TIMER_STOP_ADD1(TIMER_SPHERE);
+							//cur = cur->next;
+							//continue;
+						}
+						//TIMER_STOP_ADD1(TIMER_SPHERE);
 
+						mesh = ADD2POINTER(cur->bffActor, sizeof(FMA_WORLD));
+					
+						TIMER_START1(TIMER_FMADRAW);
+						DrawScenicObj ( *mesh, cur->flags );
+						TIMER_STOP_ADD1(TIMER_FMADRAW);
+					}
 				}
 			}
 		
@@ -656,7 +666,9 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 	else
 		AddActorToList(tAct,0);
 
-#else PSX_VERSION
+#endif
+
+#ifdef PSX_VERSION
 	gstrupr(newname);
 
 	/*if ((strstr(newname,"CARA"))||(strstr(newname,"CARB"))||(strstr(newname,"CARC"))||(strstr(newname,"CARD"))||(strstr(newname,"CARE"))||

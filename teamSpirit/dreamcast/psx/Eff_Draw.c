@@ -510,7 +510,7 @@ void DrawFXRing(SPECFX *fx)
 				tempFVect.vy = FMul(tilt,scale.vy>>4);
 				tempFVect.vz = FMul(tilt,scale.vz>>4);
 				sMtrx = GsIDMATRIX;
-				ScaleMatrix(&sMtrx, &tempFVect);
+				ScaleMatrix(&sMtrx, (VECTOR *)&tempFVect);
 
 				// Transform point by combined matrix
 				tempVect.vx = -vT[j].vx;

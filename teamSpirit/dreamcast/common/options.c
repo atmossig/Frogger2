@@ -8,6 +8,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
+
 #define F3DEX_GBI_2
 #define NSLIPT 4
 
@@ -48,7 +50,8 @@
 #include <banks.h>
 #include <backdrop.h>
 #include <video.h>
-#else PSX_VERSION
+#endif
+#ifdef PSX_VERSION
 #include "backdrop.h"
 #include "Textures.h"
 #include "temp_psx.h"
@@ -307,11 +310,11 @@ CREDIT_DATA creditData[] =
 
 };
 
-#ifdef PSX_VERSION
-int CREDIT_SPACING = 18;
-#else
+//#ifdef PSX_VERSION
+//int CREDIT_SPACING = 18;
+//#else
 int CREDIT_SPACING = 300;
-#endif
+//#endif
 
 u16 optionsLastButton = -1;
 
@@ -958,7 +961,7 @@ void ExtraSelect(void)
 							for(j = 0;j < worldVisualData[i].numLevels;j++)
 							{
 								worldVisualData[i].levelVisualData[j].parTime = origWorldVisualData[i].levelVisualData[j].parTime;
-								strcpy(worldVisualData[i].levelVisualData[j].parName,origWorldVisualData[i].levelVisualData[j].parName);
+								strcpy((char*)worldVisualData[i].levelVisualData[j].parName,(char*)origWorldVisualData[i].levelVisualData[j].parName);
 							}
 						}
 						worldVisualData[i].levelVisualData[j].levelBeaten = 0;
@@ -1002,7 +1005,8 @@ void ExtraSelect(void)
 #ifdef PSX_VERSION
 							CopyTexture ( textureFindCRCInAllBanks ( frogTexturePool[i] ),
 											textureFindCRCInAllBanks ( utilStr2CRC ( "MULTIHIDDEN" ) ), 1 );
-#elif PC_VERSION
+#endif
+#ifdef PC_VERSION
 							((MDX_ACTOR *)portraitActor[i]->actor->actualActor)->overrideTex = GetTexEntryFromCRC(UpdateCRC("multihidden.bmp"));
 #endif
 
@@ -2004,21 +2008,35 @@ void SetActorGouraudValues(ACTOR2 *actor, int r,int g,int b)
 void SetActorGouraudValues(FMA_MESH_HEADER *mesh, int r,int g,int b)
 {
 	int i;
+	int	r0,g0,b0;
 
-	register char *opcd;//ma asm("$18");
+	register FMA_GT4* op;//ma asm("$18");
 
-#define op ((FMA_GT4 *)opcd)
+//#define op ((FMA_GT4 *)opcd)
 
 	op = mesh->gt4s;
 
+	// MA - alter colours to match proper colours
+	r0 = r << 1;
+	if(r0 > 255)
+		r0 = 255;
+
+	g0 = g << 1;
+	if(g0 > 255)
+		g0 = 255;
+
+	b0 = b << 1;
+	if(b0 > 255)
+		b0 = 255;
+
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
-		op->r0 = op->r1 = op->r2 = op->r3 = r;
-		op->g0 = op->g1 = op->g2 = op->g3 = g;
-		op->b0 = op->b1 = op->b2 = op->b3 = b;
+		op->r0 = op->r1 = op->r2 = op->r3 = r0;
+		op->g0 = op->g1 = op->g2 = op->g3 = g0;
+		op->b0 = op->b1 = op->b2 = op->b3 = b0;
 	}
-#undef op
-#undef si
+//#undef op
+//#undef si
 }
 #endif
 
@@ -2514,12 +2532,13 @@ void StartCredits()
 			credFont = fontSmall;
 
 		spacing += creditData[j].spacing;
-#ifdef PSX_VERSION
-		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
-	 	creditsText[j]->draw = 0;
-#else
+//#ifdef PSX_VERSION
+//		creditsText[j] = CreateAndAddTextOverlay(256,min(400,240 + PALMODE*16 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
+//	 	creditsText[j]->draw = 0;
+//#else
 		creditsText[j] = CreateAndAddTextOverlay(2048,min(10000,4096 + (j + spacing)*CREDIT_SPACING),GAMESTRING(STR_CREDITS_1 + j),YES,255,credFont,TEXTOVERLAY_SHADOW + TEXTOVERLAY_PIXELS);
-#endif	 
+	 	creditsText[j]->draw = 0;
+//#endif	 
 	 	creditsText[j]->r = creditData[j].r;
 		creditsText[j]->g = creditData[j].g;
 		creditsText[j]->b = creditData[j].b;
@@ -2586,6 +2605,10 @@ void DoCredits()
 			creditsText[j]->draw = 1;
 #else
 		creditsText[j]->yPos = creditsText[j]->yPosTo = max(-10000,min(10000,4096 + (j + spacing)*CREDIT_SPACING + creditsY));
+		if((creditsText[j]->yPos < -20) || (creditsText[j]->yPos > 640))
+			creditsText[j]->draw = 0;
+		else
+			creditsText[j]->draw = 1;
 #endif
 
 
@@ -2642,7 +2665,8 @@ void SetMusicVolume()
 {
 #ifdef PC_VERSION
 	SetCDVolume((globalMusicVol * 65535)/MAX_SOUND_VOL);
-#else PSX_VERSION
+#endif
+#ifdef PSX_VERSION
 	SpuSetCommonCDVolume((0x7fff*globalMusicVol)/MAX_SOUND_VOL, (0x7fff*globalMusicVol)/MAX_SOUND_VOL);
 //ma	xaFileData[0]->vol = xaFileData[1]->vol = globalMusicVol;
 #endif

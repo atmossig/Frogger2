@@ -182,12 +182,12 @@ extern KMVERTEX_03		vertices_GT4_FMA_Trans[];
 
 extern KMSTRIPCONTEXT	StripContext_Sprites;
 extern KMSTRIPHEAD		StripHead_Sprites;
-extern KMVERTEX_03		vertices_Sprites[];
-
 extern KMSTRIPCONTEXT	StripContext_Sprites_Add;
 extern KMSTRIPHEAD		StripHead_Sprites_Add;
 extern KMSTRIPCONTEXT	StripContext_Sprites_Sub;
 extern KMSTRIPHEAD		StripHead_Sprites_Sub;
+extern KMVERTEX_03		vertices_Sprites[];
+
 extern KMVERTEX_03		vertices_Sprites_Add[];
 
 extern KMSTRIPCONTEXT	StripContext_SpritesNoTex;

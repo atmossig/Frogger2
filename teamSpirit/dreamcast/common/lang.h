@@ -12,6 +12,7 @@
 #define LANG_H_INCLUDED
 
 #include <isllocal.h>
+#include "main.h"
 
 enum {
 	LANG_UK,		// (United Kingdom)

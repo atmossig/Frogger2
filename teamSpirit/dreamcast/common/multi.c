@@ -953,7 +953,36 @@ int AddBattleTrailNode( int i )
 	sprintf(name,"mplt%i.bmp",player[i].character);
 	((MDX_ACTOR*)node->fx->actor->actualActor)->overrideTex = GetTexEntryFromCRC(UpdateCRC(name));
 #else
-	node->fx->actor->clutOverride = cubePalettes[i];
+//	node->fx->actor->clutOverride = cubePalettes[i];
+//	node->fx->actor->clutOverride = cubePalettes[i];
+
+	switch ( player[i].character )
+	{
+		case FROG_FROGGER:
+				node->fx->actor->clutOverride = FindTextureN("MPLT0");
+			break;
+		case FROG_LILLIE:
+				node->fx->actor->clutOverride = FindTextureN("MPLT1");
+			break;
+		case FROG_BABYFROG:
+				node->fx->actor->clutOverride = FindTextureN("MPLT2");
+			break;
+		case FROG_SWAMPY:
+				node->fx->actor->clutOverride = FindTextureN("MPLT3");
+			break;
+		case FROG_TWEE:
+				node->fx->actor->clutOverride = FindTextureN("MPLT4");
+			break;
+		case FROG_WART:
+				node->fx->actor->clutOverride = FindTextureN("MPLT5");
+			break;
+		case FROG_HOPPER:
+				node->fx->actor->clutOverride = FindTextureN("MPLT6");
+			break;
+		case FROG_ROBOFROG:
+				node->fx->actor->clutOverride = FindTextureN("MPLT7");
+			break;
+	}
 #endif
 
 	return 1;
@@ -1220,7 +1249,7 @@ void ReinitialiseMultiplayer( )
 				
 			}
 		}
-#endif
+#endif		
 #endif
 	}
 

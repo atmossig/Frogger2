@@ -48,14 +48,16 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 #ifdef PSX_VERSION
 	{
 		TIM_IMAGE	tim;
-		PsxCardHeaderType *cardHeader = data;
+		// *ASL* 21/07/2000 - Cast to expected
+		PsxCardHeaderType *cardHeader = (PsxCardHeaderType *)data;
 
 		cardHeader->magic[0] = 'S';			// Sony header format
 		cardHeader->magic[1] = 'C';
 		cardHeader->type = 0x11;
 		cardHeader->blockEntry = 1;
 		memset(cardHeader->title, 0, 64);
-		asciiStringToSJIS("Frogger 2", cardHeader->title);
+		// *ASL* 21/07/2000 - (unsigned char *) expected
+		asciiStringToSJIS((unsigned char *)"Frogger 2", (unsigned char *)cardHeader->title);
 		memset(cardHeader->reserved, 0, 28);
 		OpenTIM((u_long *)saveicon);
 		ReadTIM(&tim);
@@ -91,7 +93,8 @@ void *MakeSaveGameBlock(void** ptr, unsigned long *size)
 			levelinfo->bestTime = levelvis->parTime;
 			levelinfo->garibs = levelvis->maxCoins;
 			
-			strncpy(levelinfo->winner, levelvis->parName, 8);
+			// *ASL* 21/07/2000 - (char *) expected
+			strncpy(levelinfo->winner, (char *)levelvis->parName, 8);
 
 			levelinfo++, count++;
 		}
@@ -150,8 +153,10 @@ int LoadSaveGameBlock(void* ptr, unsigned long size)
 			levelvis->levelCompleted = (levelinfo->flags & 2) ? 1 : 0;
 			levelvis->maxCoins = levelinfo->garibs;
 			levelvis->parTime = levelinfo->bestTime;
-			
-			strncpy(levelvis->parName, levelinfo->winner, 8); levelvis->parName[8] = 0;
+
+			// *ASL* 21/07/2000 - (char *) expected
+			strncpy((char *)levelvis->parName, levelinfo->winner, 8);
+			levelvis->parName[8] = 0;
 
 			levelinfo++, count++;
 		}

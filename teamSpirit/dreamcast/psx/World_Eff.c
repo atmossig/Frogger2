@@ -116,11 +116,11 @@ void DrawWater ( FMA_MESH_HEADER *mesh, int flags )
 		}
 		// ENDFOR
 		
-		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
+		transformVertexListA ((VERT *)jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else
 	{
-		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
+		transformVertexListA((VERT *)mesh->verts, mesh->n_verts, tfv, tfd);
 	}
 	// ENDELSEIF
 		
@@ -582,7 +582,7 @@ void SubScenicObject ( SCENICOBJ *scenicObj )
 	FREE(scenicObj);
 }
 
-
+unsigned long oldperiod=0, oldfr=0;
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 {
 //	char 			u,v;
@@ -613,26 +613,43 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	short mVs[8];
 
 	// Is this an sp(m/f/l) type slidy thing? If so, what speed?
-	unsigned short pcStyleSlide = ((flags>>10)&3);
-	int sldSpd;//, rc, rs;
-	unsigned long period1 = frameCount<<5, period2 = frameCount<<7;
+	unsigned short pcStyleSlide;
+	int sldSpd;
+	unsigned long period1, period2, fr;
 
-	// Multiply speed if we have a multiple
-	if( pcStyleSlide )
-		sldSpd = ((frame>>1)*slideSpeeds[pcStyleSlide])%32;
+	if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
+	{
+		pcStyleSlide = ((flags>>10)&3);
+
+		period1 = frameCount<<5; period2 = frameCount<<7;
+		oldperiod = period1;
+
+		fr = frame<<5;
+
+		// Multiply speed if we have a multiple
+		if( pcStyleSlide )
+			sldSpd = ((frame>>1)*slideSpeeds[pcStyleSlide])%32;
+		else
+			sldSpd = (frame>>1)%32;
+
+		// Reverse if told to
+		if( mesh->flags & MINUSSLIDING )
+			sldSpd = -sldSpd;
+	}
 	else
-		sldSpd = (frame>>1)%32;
-
-	// Reverse if told to
-	if( mesh->flags & MINUSSLIDING )
-		sldSpd = -sldSpd;
+	{
+		sldSpd = 0;
+		period1 = oldperiod;
+		period2 = oldperiod<<2;
+		fr = oldfr;
+	}
 
 	tfv = (long*)transformedVertices;
 	tfd = (long*)transformedDepths;
 
 	if ( max_depth > 1024 - mesh->extra_depth )
 		max_depth = 1024 - mesh->extra_depth;
-
+	
 	stripGT3FMAtextureID   = -1;
 	stripGT3FMAtextureID_A = -1;
 	stripGT4FMAtextureID   = -1;
@@ -652,11 +669,11 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 		}
 
 
-		transformVertexListA ( jiggledVerts, mesh->n_verts, tfv, tfd );
+		transformVertexListA ((VERT*)jiggledVerts, mesh->n_verts, tfv, tfd );
 	}
 	else
 	{
-		transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
+		transformVertexListA((VERT*)mesh->verts, mesh->n_verts, tfv, tfd);
 	}
 
 	// determine alpha value for the mesh
@@ -707,7 +724,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			// Precalc modge values for this quad
 			if ( mesh->flags & MODGY )
 			{
-				int fr=(frame<<5), vv;
+				int vv;
 				for( j=3; j>=0; j-- )
 				{
 					vv = fr + (mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
@@ -883,10 +900,10 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			// Precalc modge values for this quad
 			if ( mesh->flags & MODGY )
 			{
-				int fr=(frame<<5), vv;
+				int vv;
 				for( j=2; j>=0; j-- )
 				{
-					vv = fr + (mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
+					vv = fr+(mesh->verts[*(&op->vert0+j)].vx * mesh->verts[*(&op->vert0+j)].vz);
 					mVs[j<<1]		= rsin(vv)>>10;
 					mVs[(j<<1)+1]	= rcos(vv)>>10;
 				}
@@ -1162,11 +1179,11 @@ void CreateProceduralTexture ( char *name )
 	texRect.h = 32;
 
 	DrawSync(0);
-	StoreImage ( &texRect, (unsigned long*)pt->buf1 );
+//MA	StoreImage ( &texRect, (unsigned long*)pt->buf1 );
 	DrawSync(0);
 
 	
-	StoreImage ( &texRect, (unsigned long*)pt->buf2 );
+//MA	StoreImage ( &texRect, (unsigned long*)pt->buf2 );
 	DrawSync(0);
 
 	texRect.x = (pt->tex->clut & 0x3f) << 4;
@@ -1175,7 +1192,7 @@ void CreateProceduralTexture ( char *name )
 	texRect.h = 1;
 
 	DrawSync(0);
-	StoreImage ( &texRect, (unsigned long*)pt->palette );
+//MA	StoreImage ( &texRect, (unsigned long*)pt->palette );
 	DrawSync(0);
 
 	for( i=0; i<256; i++ )
@@ -1189,7 +1206,7 @@ void CreateProceduralTexture ( char *name )
 		((unsigned short *)tempPalette)[i] = newCol;
 	}
 			
-	LoadClut ( (unsigned long*)tempPalette, (pt->tex->clut & 0x3f) << 4, pt->tex->clut >> 6 );
+//MA	LoadClut ( (unsigned long*)tempPalette, (pt->tex->clut & 0x3f) << 4, pt->tex->clut >> 6 );
 	
 	// Set update function and type depending on filename
 	if( name[4]=='F' && name[5]=='I' && name[6]=='R' && name[7]=='E' )
@@ -1236,7 +1253,7 @@ void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal )
 	texRect.w = tex->w;
 	texRect.h = tex->h;
 	
-	LoadImage ( &texRect, (unsigned long*)buf );
+//MA	LoadImage ( &texRect, (unsigned long*)buf );
 
 
 
@@ -1375,9 +1392,9 @@ void InitWater ( void )
 	rect.h = 1;
 
 	// JH : Copy the palette data into a buffer.
-	StoreImage ( &rect, (unsigned long*)waterPalette );
+//MA	StoreImage ( &rect, (unsigned long*)waterPalette );
 
-	LoadClut ( (unsigned long*)waterPalette, (realWater->clut & 0x3f) << 4, realWater->clut >> 6 );
+//MA	LoadClut ( (unsigned long*)waterPalette, (realWater->clut & 0x3f) << 4, realWater->clut >> 6 );
 
 */
 	// JH : Make the rectangle of the palette in VRAM.
@@ -1461,13 +1478,15 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 //	if( max_depth > 1024 - mesh->extra_depth )
 //		max_depth = 1024 - mesh->extra_depth;
 
-	transformVertexListA(mesh->verts, mesh->n_verts, tfv, tfd);
+	transformVertexListA((VERT*)mesh->verts, mesh->n_verts, tfv, tfd);
 
 #define si ((POLY_GT4*)packet)
 #define op ((FMA_GT4 *)opcd)
 
 	op = mesh->gt4s;
 	polyCount += mesh->n_gt4s;
+
+	strip3DBackdropTextureID = -1;
 
 	for( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
@@ -1492,10 +1511,10 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 			continue;
 	
 		// Get average Z of the polygon & use as a depth pointer
-		z0 = GETD(op->vert0) + PSImodelctrl.farclip;
-		z1 = GETD(op->vert1) + PSImodelctrl.farclip;
-		z2 = GETD(op->vert2) + PSImodelctrl.farclip;
-		z3 = GETD(op->vert3) + PSImodelctrl.farclip;
+		z0 = GETD(op->vert0) + (PSImodelctrl.farclip*2);
+		z1 = GETD(op->vert1) + (PSImodelctrl.farclip*2);
+		z2 = GETD(op->vert2) + (PSImodelctrl.farclip*2);
+		z3 = GETD(op->vert3) + (PSImodelctrl.farclip*2);
 		depth = ((z0 + z1 + z2 + z3)*0.0625);
 				
 //		if( depth > min_depth )
@@ -1530,8 +1549,8 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 			vertices_GT4_FMA[3].fV = (float)op->v3 / 127.0;		
 			vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(op->r3,op->g3,op->b3,255);
 
-			if(tex->animated)
-			{
+//			if(tex->animated)
+//			{
 				// check to see if alpha channel is to be used
 				if(tex->colourKey)
 				{
@@ -1553,11 +1572,11 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 					}
 					kmStartStrip(&vertexBufferDesc, &StripHead_3DBackdrop);	
 				}	
-			}
-			else
-			{
-				kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
-			}
+//			}
+//			else
+//			{
+//				kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+//			}
 			
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
@@ -1597,9 +1616,9 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 			continue;
 	
 		// Get average Z of the polygon & use as a depth pointer
-		z0 = GETD(op->vert0) + PSImodelctrl.farclip;
-		z1 = GETD(op->vert1) + PSImodelctrl.farclip;
-		z2 = GETD(op->vert2) + PSImodelctrl.farclip;
+		z0 = GETD(op->vert0) + (PSImodelctrl.farclip*2);
+		z1 = GETD(op->vert1) + (PSImodelctrl.farclip*2);
+		z2 = GETD(op->vert2) + (PSImodelctrl.farclip*2);
 		depth = ((z0 + z1 + z2)*0.0833);
 
 //		if ( depth > min_depth )
@@ -1627,8 +1646,8 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 			vertices_GT3_FMA[2].fV = (float)op->v2 / 127.0;
 			vertices_GT3_FMA[2].uBaseRGB.dwPacked = RGBA(op->r2,op->g2,op->b2,255);
 
-			if(tex->animated)
-			{
+//			if(tex->animated)
+//			{
 				// check to see if alpha channel is to be used
 				if(tex->colourKey)
 				{
@@ -1645,21 +1664,154 @@ void PrintStaticBackdrop( FMA_MESH_HEADER *mesh )
 					// change strip if required
 					if(op->tpage != strip3DBackdropTextureID)
 					{
-						kmChangeStripTextureSurface(&StripHead_3DBackdrop,KM_IMAGE_PARAM1,tex->surfacePtr);		
+						kmChangeStripTextureSurface(&StripHead_3DBackdrop,KM_IMAGE_PARAM1,&DCKtextureList[op->tpage].surface);		
 						strip3DBackdropTextureID = op->tpage;
 					}
 					kmStartStrip(&vertexBufferDesc, &StripHead_3DBackdrop);	
 				}	
-			}
-			else
-			{
-				kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
-			}
+//			}
+//			else
+//			{
+//				kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+//			}
 			
 			kmSetVertex(&vertexBufferDesc, &vertices_GT3_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT3_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT3_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmEndStrip(&vertexBufferDesc);			
+		}
+	}
+#undef op
+#undef si
+}
+
+
+void DrawCube ( FMA_MESH_HEADER *mesh, int flags )
+{
+//	char 			u,v;
+	unsigned long 	t1;
+	unsigned long 	t2;
+	char 			*opcd;
+	long 			*tfv;
+	long 			*tfd;
+	PACKET 			*packet;
+	float			x0,y0,x1,y1,x2,y2,x3,y3;
+	unsigned long	u0,v0,u1,v1,u2,v2,u3,v3;
+	long 			depth;
+	long			z0,z1,z2,z3;
+	TextureType		*tex;
+	unsigned char	alpha;
+
+	#define GETX(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->x )
+	#define GETY(n)( ((SHORTXY *)( (int)(tfv) +(n) ))->y )
+	#define GETV(n)(  *(unsigned long *)( (int)(tfv) +(n) ) )
+	#define GETD(n)(  *(unsigned long *)( (int)(tfd) +(n) ) )
+
+	int i, j;
+
+	int min_depth = MIN_MAP_DEPTH;// + mesh->extra_depth;
+	int max_depth = fog.max>>2;//MAX_MAP_DEPTH;// + mesh->extra_depth;
+
+	tfv = (long*)transformedVertices;
+	tfd = (long*)transformedDepths;
+
+	if ( max_depth > 1024 - mesh->extra_depth )
+		max_depth = 1024 - mesh->extra_depth;
+	
+	stripGT3FMAtextureID   = -1;
+	stripGT3FMAtextureID_A = -1;
+	stripGT4FMAtextureID   = -1;
+	stripGT4FMAtextureID_A = -1;
+	stripGT4FMAtextureID_Add = -1;
+	
+	transformVertexListA((VERT*)mesh->verts, mesh->n_verts, tfv, tfd);
+
+#define si ((POLY_GT4*)packet)
+#define op ((FMA_GT4 *)opcd)
+
+	op = mesh->gt4s;
+
+	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
+	{
+		x0 = GETX(op->vert0);
+		x1 = GETX(op->vert1);
+		x2 = GETX(op->vert2);
+		x3 = GETX(op->vert3);
+
+		if((x0 > 640)&&(x1 > 640)&&(x2 > 640)&&(x3 > 640))
+			continue;
+		if((x0 < 0)&&(x1 < 0)&&(x2 < 0)&&(x3 < 0))
+			continue;
+
+		y0 = GETY(op->vert0);
+		y1 = GETY(op->vert1);
+		y2 = GETY(op->vert2);
+		y3 = GETY(op->vert3);
+			
+		if((y0 > 480)&&(y1 > 480)&&(y2 > 480)&&(y3 > 480))
+			continue;
+		if((y0 < 0)&&(y1 < 0)&&(y2 < 0)&&(y3 < 0))
+			continue;
+	
+		// Get average Z of the polygon & use as a depth pointer
+		z0 = GETD(op->vert0);
+		z1 = GETD(op->vert1);
+		z2 = GETD(op->vert2);
+		z3 = GETD(op->vert3);
+		z0 += 50;
+		z1 += 50;
+		z2 += 50;
+		z3 += 50;
+		depth = ((z0 + z1 + z2 + z3)*0.0625);
+
+		if(depth > min_depth && depth < max_depth)
+		{
+			tex = &DCKtextureList[globalClut];
+			u0 = op->u0;		// Texture coords
+			v0 = op->v0;
+			u1 = op->u1;		// Texture coords
+			v1 = op->v1;
+			u2 = op->u2;		// Texture coords
+			v2 = op->v2;
+			u3 = op->u3;		// Texture coords
+			v3 = op->v3;
+
+			vertices_GT4_FMA[0].fX = x0;
+			vertices_GT4_FMA[0].fY = y0;
+			vertices_GT4_FMA[0].u.fZ = 1.0 / ((float)z0);
+			vertices_GT4_FMA[0].fU = (float)u0 / 127.0;
+			vertices_GT4_FMA[0].fV = (float)v0 / 127.0;
+			vertices_GT4_FMA[0].uBaseRGB.dwPacked = RGBA(op->r0,op->g0,op->b0,alpha);
+
+			vertices_GT4_FMA[1].fX = x1;
+			vertices_GT4_FMA[1].fY = y1;
+			vertices_GT4_FMA[1].u.fZ = 1.0 / ((float)z1);
+			vertices_GT4_FMA[1].fU = (float)u1 / 127.0;
+			vertices_GT4_FMA[1].fV = (float)v1 / 127.0;
+			vertices_GT4_FMA[1].uBaseRGB.dwPacked = RGBA(op->r1,op->g1,op->b1,alpha);
+
+			vertices_GT4_FMA[2].fX = x2;
+			vertices_GT4_FMA[2].fY = y2;
+			vertices_GT4_FMA[2].u.fZ = 1.0 / ((float)z2);
+			vertices_GT4_FMA[2].fU = (float)u2 / 127.0;
+			vertices_GT4_FMA[2].fV = (float)v2 / 127.0;
+			vertices_GT4_FMA[2].uBaseRGB.dwPacked = RGBA(op->r2,op->g2,op->b2,alpha);
+
+			vertices_GT4_FMA[3].fX = x3;
+			vertices_GT4_FMA[3].fY = y3;
+			vertices_GT4_FMA[3].u.fZ = 1.0 / ((float)z3);
+			vertices_GT4_FMA[3].fU = (float)u3 / 127.0;
+			vertices_GT4_FMA[3].fV = (float)v3 / 127.0;		
+			vertices_GT4_FMA[3].uBaseRGB.dwPacked = RGBA(op->r3,op->g3,op->b3,alpha);
+
+			kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+			
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4_FMA[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmEndStrip(&vertexBufferDesc);			
+
 		}
 	}
 #undef op

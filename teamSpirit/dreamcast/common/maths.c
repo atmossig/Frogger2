@@ -1478,10 +1478,12 @@ void Eul_FromHMatrix(SVECTOR* dest, MATRIXI* M)
 //Quat Eul_ToQuat(EulerAngles ea)
 void Eul_ToQuat(IQUATERNION* qu, SVECTOR* src)
 {
-	SVECTOR v = *src;	//bb - work on copy
+	SVECTOR v;
     fixed a[3], ti, tj, th, ci, cj, ch, si, sj, sh, cc, cs, sc, ss;
     int i,j,k,h,n,s,f;
     EulGetOrd(EulOrdZYZr,i,j,k,h,n,s,f);
+
+	v = *src;	//bb - work on copy
 
     if(f==EulFrmR)
     {

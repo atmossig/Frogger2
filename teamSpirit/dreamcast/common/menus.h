@@ -26,6 +26,8 @@ extern long tValue;
 extern fixed fadeSpeed;
 extern unsigned long cWorld;
 extern int fogStore;
+extern int pauseConfirmMode;
+extern int pauseGameSpeed;
 
 #define DEC_ALPHA(x) \
 {													\
@@ -66,6 +68,7 @@ enum
 	CHEAT_OPEN_ALL_EXTRAS,
 	CHEAT_INVULNERABILITY,
 	CHEAT_SKIP_LEVEL,
+	CHEAT_EXTRA_LEVELS,
 	NUMCHEATCOMBOS,
 };
 

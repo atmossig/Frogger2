@@ -26,6 +26,7 @@
 #include "newpsx.h"
 #include "Shell.h"
 #include "Main.h"
+#include "gte.h"
 
 
 #ifdef PC_VERSION

@@ -10,6 +10,8 @@
 
 //#define F3DEX_GBI_2
 
+#include "prefix_dc.h"
+
 #ifndef PSX_VERSION
 #include <windows.h>
 #include <ddraw.h>

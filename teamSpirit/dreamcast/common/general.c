@@ -132,19 +132,19 @@ void stringChangePSIToOBE ( char *name )
 }
 
 
-inline void cmemcpy( char *a, char *b, unsigned long size )
+void cmemcpy( char *a, char *b, unsigned long size )
 {
 	while( size-- )
 		a[size] = b[size];
 }
 
-inline void smemcpy( unsigned short *a, unsigned short *b, unsigned long size )
+void smemcpy( unsigned short *a, unsigned short *b, unsigned long size )
 {
 	while( size-- )
 		a[size] = b[size];
 }
 
-inline void lmemcpy( long *a, long *b, long size )
+void lmemcpy( long *a, long *b, long size )
 {
 	while( size-- )
 		a[size] = b[size];

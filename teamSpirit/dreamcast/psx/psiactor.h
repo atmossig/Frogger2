@@ -124,6 +124,7 @@ void actorAdd(ACTOR *actor);
 void actorSub(ACTOR *actor);
 
 void actorFree(ACTOR *actor);
+void actorFree2(ACTOR *actor);
 
 //ACTOR *actorCreate(PSIMODEL *psiModel);
 //ACTOR *actorCreate(PSIMODEL *psiModel, int checkForModel );
@@ -172,6 +173,9 @@ u8 actorIsVisible(ACTOR *actor);
 void ScalePsi(PSIMESH* pPSI);
 
 void *ChangeModel( ACTOR *actor, char *model );
+void *ChangeBabyModel( ACTOR *actor, char *model );
+void *ChangeBlockModel( ACTOR *actor, char *model );
+
 int UndoChangeModel( ACTOR *actor );
 
 void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip);

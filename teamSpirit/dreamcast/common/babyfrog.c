@@ -229,7 +229,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 int GetNearestBabyFrog()
 {
 	int baby=-1;
-	fixed t,distance = 9999999999;
+	fixed t,distance = 999999999;
 	int i;
 
 	i = numBabies;
@@ -260,7 +260,7 @@ int GetNearestBabyFrog()
 */
 void UpdateBabies( )
 {
-	int i;
+	int i, n;
 	ACTOR *act;
 	ACTOR2 *baby;
 	FVECTOR frogV;
@@ -365,8 +365,13 @@ void UpdateBabies( )
 				PrepForPriorityEffect( );
 				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &up, 81920, 4096, 410, 6144 )) )
 				{
+					if( babyList[i].enemy->path->nodes->offset2 )
+						n = ((babyList[i].enemy->path->nodes->offset2>>12)/SCALE)-1;
+					else
+						n = i;
+
 					fx->spin = 25;
-					SetFXColour( fx, babyList[i].fxColour[R], babyList[i].fxColour[G], babyList[i].fxColour[B] );
+					SetFXColour( fx, babyList[n].fxColour[R], babyList[n].fxColour[G], babyList[n].fxColour[B] );
 				}
 			}
 

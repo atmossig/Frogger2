@@ -42,6 +42,7 @@
 #include <pcmisc.h>
 #endif
 
+int handAngle;
 extern TIMER endLevelTimer;
 char scoreText[32]	= "10000000";
 char livesText[8]	= "xxxx";
@@ -106,6 +107,7 @@ int timeBarStep = 16;
 char timeBarStr[16];
 
 // -----------------------------------------------
+int storeFrameCount = 0;
 
 void InitArcadeHUD(void)
 {
@@ -122,9 +124,9 @@ void InitArcadeHUD(void)
 	arcadeHud.timeBak->r = 128;
 	arcadeHud.timeBak->g = 128;
 	arcadeHud.timeBak->b = 128;
-	sprintf(timeBarStr,"%d:%02d",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/60,worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime%60);
+	sprintf(timeBarStr,"%d:%02d.%d0",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/600,(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/10)%60,(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)%10);
 	arcadeHud.timeBarText = CreateAndAddTextOverlay(2048,3300,timeBarStr,YES,255,font,TEXTOVERLAY_SHADOW);
-	if(gameState.mode == FRONTEND_MODE)
+	if((gameState.mode == FRONTEND_MODE) || (gameState.mode == DEMO_MODE))
 	{
 		GTInit(&goTimer,0);
 	}
@@ -133,7 +135,7 @@ void InitArcadeHUD(void)
 		GTInit(&goTimer,5);
 	}
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+	if((gameState.difficulty != DIFFICULTY_HARD) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		arcadeHud.timeBar->draw = 0;
 		arcadeHud.timeBak->draw = 0;
@@ -234,12 +236,14 @@ void InitArcadeHUD(void)
 	
 
 	arcadeHud.collectText =		CreateAndAddTextOverlay(4096+2048, 2048, collectString,YES, 255, font, TEXTOVERLAY_SHADOW );
+	arcadeHud.collectText->b = 0;
+	arcadeHud.collectText->g = 128;
 	arcadeHud.collectText->draw = 1;
 	GTInit(&pauseTimer,0);
 	pauseFlag = 0;
 
 
-	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+	if(((gameState.difficulty == DIFFICULTY_HARD) || (gameState.single == ARCADE_MODE)) && (player[0].worldNum != WORLDID_FRONTEND))
   		arcadeHud.goText = CreateAndAddTextOverlay(2048,2048,goStr,YES,255,0,TEXTOVERLAY_SHADOW);
 	else
 	{
@@ -283,7 +287,7 @@ void InitArcadeHUD(void)
 
 	arcadeHud.timedOut = 0;
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+	if(((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 		{
@@ -291,16 +295,6 @@ void InitArcadeHUD(void)
 			arcadeHud.goSparkles[i]->num = 1;
 			if((player[0].worldNum == storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum == storySequence[NUM_STORY_LEVELS - 1].levelNum))
 				arcadeHud.goSparkles[i]->draw = 0;
-
-/*			arcadeHud.sparkles[i] = CreateAndAddSpriteOverlay(Random(4096),Random(512)+4096-512,"FLASH2",10,10,0xff,SPRITE_ADDITIVE);
-			arcadeHud.sparkles[i]->r = 200;
-			arcadeHud.sparkles[i]->g = 200;
-			arcadeHud.sparkles[i]->b = 0;
-
-			arcadeHud.sparkles[i]->a = 0;
-			arcadeHud.sparkles[i]->draw = 0;
-			arcadeHud.sparkles[i]->num = 1;
-*/
 		}
 	}
 	if(gameState.mode == FRONTEND_MODE)
@@ -429,6 +423,8 @@ void EnableMultiHUD( )
 
 void InitHUD(void)
 {
+	storeFrameCount = 0;
+	handAngle = 0;
 	if (gameState.multi == SINGLEPLAYER)
 		InitArcadeHUD();		
 	else
@@ -466,7 +462,7 @@ void DisableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 0;
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+	if(((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 0;
@@ -510,7 +506,8 @@ void EnableHUD(void)
 	for (i=0; i<numBabies; i++)
 		arcadeHud.babiesBack[i]->draw = 1;
 	
-	if(((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
+	if((((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
+//	if(((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND)) && (player[0].worldNum != storySequence[NUM_STORY_LEVELS - 1].worldNum) && (player[0].levelNum != storySequence[NUM_STORY_LEVELS - 1].levelNum))
 	{
 		for (i=0; i<MAX_HUD_SPARKLES; i++)
 			arcadeHud.goSparkles[i]->draw = 1;
@@ -612,8 +609,8 @@ void UpDateMultiplayerInfo( void )
 		sprintf(timeStringMin,"%2i:",((int)timeFrames/(60*60))%60);	
 
 #ifdef PSX_VERSION
-//ma		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentWScaled(multiHud.timeTextSec->font,multiHud.timeTextSec->text,multiHud.timeTextSec->scale)*8 + 2*8;
-//ma		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentWScaled(multiHud.timeTextMin->font,multiHud.timeTextMin->text,multiHud.timeTextMin->scale)*8 - 2*8;
+		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + fontExtentWScaled(multiHud.timeTextSec->font,multiHud.timeTextSec->text,multiHud.timeTextSec->scale)*8 + 2*8;
+		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - fontExtentWScaled(multiHud.timeTextMin->font,multiHud.timeTextMin->text,multiHud.timeTextMin->scale)*8 - 2*8;
 #elif PC_VERSION
 		multiHud.timeTextHSec->xPos = multiHud.timeTextSec->xPos + (float)(CalcStringWidth(multiHud.timeTextSec->text,(MDX_FONT *)multiHud.timeTextSec->font,((float)multiHud.timeTextSec->scale)/4096.0) + 2) / OVERLAY_X;
 		multiHud.timeTextMin->xPos = multiHud.timeTextSec->xPos - (float)(CalcStringWidth(multiHud.timeTextMin->text,(MDX_FONT *)multiHud.timeTextMin->font,((float)multiHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
@@ -634,14 +631,12 @@ void UpDateMultiplayerInfo( void )
 	}
 }
 
-long storeFrameCount;
-
 void UpDateOnScreenInfo ( void )
 {
 	long i;
 	long xPos,yPos;
 	long r,g,b,a;
-	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 60;
+	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 6;
 	long frameCheck = 0;
 	int oldTime;
 	
@@ -718,7 +713,7 @@ void UpDateOnScreenInfo ( void )
 		}
 
 		// Sparklies
-		if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
+		if(((gameState.difficulty != DIFFICULTY_HARD) && (gameState.single != ARCADE_MODE)) || (player[0].worldNum == WORLDID_FRONTEND))
 		{
 			for (i=0; i<MAX_HUD_SPARKLES; i++)
 			{	
@@ -807,15 +802,17 @@ void UpDateOnScreenInfo ( void )
 	}
 
 	timeFrames -=actFrameCount;
-	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
+	if(((gameState.difficulty == DIFFICULTY_HARD) || (gameState.single == ARCADE_MODE)) && (player[0].worldNum != WORLDID_FRONTEND) && (gameState.mode != DEMO_MODE))
 	{
 		if(goTimer.time)
 		{
-			player[0].canJump = 0;
 			if(goTimer.time > 1)
+			{
 				storeFrameCount = actFrameCount;
+				player[0].canJump = 0;
+			}
 			oldTime = goTimer.time;
-			GTUpdate(&goTimer,-1);
+			GTUpdate2(&goTimer,-1);
 			if(oldTime != goTimer.time)
 			{
 				switch(goTimer.time)
@@ -827,6 +824,7 @@ void UpDateOnScreenInfo ( void )
 						break;
 
 					case 1:
+						player[0].canJump = 1;
 						PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
 						break;
 				}
@@ -886,6 +884,9 @@ void UpDateOnScreenInfo ( void )
 			sprintf(timeStringHSec,"%02i",((int)(timeFrames*100)/60)%100);
 			sprintf(timeStringSec,"0",((int)timeFrames/60)%60);
 			sprintf(timeStringMin,"",((int)timeFrames/(60*60))%60);	
+			
+			arcadeHud.timeHandOver->angle /= 2;
+			arcadeHud.timeHeadOver->angle /= 2;			
 		}
 		else
 		{
@@ -929,15 +930,21 @@ void UpDateOnScreenInfo ( void )
 					sprintf(timeStringMin,"",((int)timeFrames/(60*60))%60);			
 			}
 
-			arcadeHud.timeHandOver->angle += gameSpeed/60;
-			if( arcadeHud.timeHandOver->angle > 4096 )
-				arcadeHud.timeHandOver->angle -= 4096;
+			if(goTimer.time <= 1)
+			{
+				handAngle += gameSpeed;
+				if(handAngle > 4096*60)
+					handAngle -= 4096*60;
+				arcadeHud.timeHandOver->angle = handAngle/60;
+//				if( arcadeHud.timeHandOver->angle > 4096 )
+//					arcadeHud.timeHandOver->angle -= 4096;
 
-			arcadeHud.timeHeadOver->angle = rsin(arcadeHud.timeHandOver->angle)>>2;
+				arcadeHud.timeHeadOver->angle = rsin(arcadeHud.timeHandOver->angle)>>2;
+			}
 		}
 #ifdef PSX_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + fontExtentWScaled(arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->text)*8 + 2*8;
-//ma		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentWScaled(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text,arcadeHud.timeTextMin->scale)*8 - 2*8;
+		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - fontExtentWScaled(arcadeHud.timeTextMin->font,arcadeHud.timeTextMin->text,arcadeHud.timeTextMin->scale)*8 - 2*8;
 #elif PC_VERSION
 //		arcadeHud.timeTextHSec->xPos = arcadeHud.timeTextSec->xPos + (float)(CalcStringWidth(arcadeHud.timeTextSec->text,(MDX_FONT *)arcadeHud.timeTextSec->font,arcadeHud.timeTextSec->scale) + 2) / OVERLAY_X;
 		arcadeHud.timeTextMin->xPos = arcadeHud.timeTextSec->xPos - (float)(CalcStringWidth(arcadeHud.timeTextMin->text,(MDX_FONT *)arcadeHud.timeTextMin->font,((float)arcadeHud.timeTextMin->scale)/4096.0) + 2) / OVERLAY_X;
@@ -948,33 +955,6 @@ void UpDateOnScreenInfo ( void )
 	sprintf(coinsText,"%2i",player[0].numSpawn);
 //	sprintf(coinsText2,"%2i",player[0].numSpawn);
 
-	if((gameState.difficulty == DIFFICULTY_EASY) || (player[0].worldNum == WORLDID_FRONTEND))
-	{
-/*
-		for (i=0; i<MAX_HUD_SPARKLES; i++)
-		{
-			SPRITEOVERLAY *me = arcadeHud.sparkles[i];
-
-			xPos = arcadeHud.sX + (((rsin(i*80+actFrameCount*60)+4096)*arcadeHud.sW) >> 13);
-			me->xPosTo = me->xPos = xPos;
-
-			yPos = arcadeHud.sY + ((Random(4096)*arcadeHud.sH)>>12);
-			me->height = me->width = 32 + Random(128);
-			me->yPosTo = me->yPos = yPos + 64 - me->height;			
-			me->draw = 1;
-
-			if (actFrameCount>arcadeHud.sTime)
-			{
-				if (me->a > gameSpeed)
-					me->a -= gameSpeed;
-				else
-					me->draw = 0;
-			}
-			else
-				me->a = Random(100)+155;
-		}
-*/
-	}
 	if((gameState.difficulty == DIFFICULTY_HARD) && (player[0].worldNum != WORLDID_FRONTEND))
 	{
 		if(goTimer.time > 1)
@@ -987,15 +967,16 @@ void UpDateOnScreenInfo ( void )
 		else
 		{
 			DEC_ALPHA(arcadeHud.timeBarText);
-			timeFrames += 60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*60;
+			timeFrames += 6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*6;
 			if(timeFrames > 0)
-				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
+				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
 			else
 			{
 				player[0].canJump = 0;
 				arcadeHud.timeOutText->a = 255;
 				arcadeHud.timeOutText->draw = 1;
 				GTInit(&endLevelTimer,4);
+				SetTimeForLevel();
 				PlaySample( FindSample(utilStr2CRC("alarm")), NULL, 0, SAMPLE_VOLUME, -1 );
 				PrepareSong(AUDIOTRK_GAMEOVER,0);
 			}
@@ -1106,8 +1087,6 @@ void UpDateOnScreenInfo ( void )
 	Returns			: void
 	Info			: 
 */
-char levelCompleteText[32];
-char gameOverText[32];
 
 void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
@@ -1116,8 +1095,14 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	continueText	= CreateAndAddTextOverlay ( 2048, 1540, GAMESTRING(STR_CONTINUE), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED );
 	//controllerText	= CreateAndAddTextOverlay ( 0, 1540, "Controls", YES, 255, 0, 0,0 );
 	restartText		= CreateAndAddTextOverlay ( 2048, 1860, GAMESTRING(STR_RESTARTLEVEL), YES, 255, 0,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+#ifdef PC_VERSION
+	if(gameState.mode == FRONTEND_MODE)
+		quitText		= CreateAndAddTextOverlay ( 2048, 2180, GAMESTRING(STR_QUIT_TO_WINDOWS), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+	else
+		quitText		= CreateAndAddTextOverlay ( 2048, 2180, GAMESTRING(STR_QUIT), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+#else
 	quitText		= CreateAndAddTextOverlay ( 2048, 2180, GAMESTRING(STR_QUIT), YES, 255, 0, TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
-
+#endif
 	posText			= CreateAndAddTextOverlay ( 2048, 640, posString, YES, 255, fontSmall, 0);
 	levelnameText	= CreateAndAddTextOverlay ( 2048, 800, levelString, YES, 255, fontSmall, 0);
 

@@ -103,12 +103,34 @@ void actorSub(ACTOR *actor)
 void actorFree(ACTOR *actor)
 {
 	FREE(actor->psiData.objectTable);
+	actor->psiData.objectTable = NULL;
+
 	if (actor->shadow)
 		FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
+
+	actor->shadow = NULL;
+
 	actorSub(actor);
 	FREE(actor);
+
+	actor = NULL;
 }
 
+void actorFree2(ACTOR *actor)
+{
+	FREE(actor->psiData.objectTable);
+	actor->psiData.objectTable = NULL;
+
+	if (actor->shadow)
+		FREE(actor->shadow);//IF SHADOWS ARE ADDED...mm
+
+	actor->shadow = NULL;
+
+	actorSub(actor);
+//	FREE(actor);
+
+//	actor = NULL;
+}
 
 
 static ULONG 	*segTable;
@@ -531,7 +553,7 @@ void actorUpdateAnimations(ACTOR *actor)
 	ANIMATION *anim;
 	int i;
 
-	if( gameState.mode == PAUSE_MODE )
+	if((gameState.mode == PAUSE_MODE ) || (gameState.mode == GAMEOVER_MODE))
 		return;
 		
 	//reject all objects which have no animation
@@ -1118,14 +1140,16 @@ void ScalePsi(PSIMESH* pMesh)
 	Returns 	: void
 	Info 		:
 */
+ACTOR *newActor = NULL;
 void *ChangeModel( ACTOR *actor, char *model )
 {
-	ACTOR *newActor;
 	PSIMODEL *newModel;
 	char newName[16];
 	int i=0;
 
-	//find model
+	UndoChangeModel(actor);
+	actorSub(actor);
+//	actorFree2( &oldActor );
 	while( model[i] != '.' && model[i] != '\0' )
 	{
 		newName[i] = model[i];
@@ -1169,8 +1193,123 @@ void *ChangeModel( ACTOR *actor, char *model )
 	//keep some of the original data
 	actor->position = oldActor.position;
 	actor->qRot			= oldActor.qRot;
+
+//	actorFree( newActor );
 }
 
+/*	--------------------------------------------------------------------------------
+	Function 	: ChangeBabyModel
+	Purpose 	: Swap models within an actor
+	Parameters 	: actor, name of new model
+	Returns 	: void
+	Info 		:
+*/
+void *ChangeBabyModel( ACTOR *actor, char *model )
+{
+	PSIMODEL *newModel;
+	char newName[16];
+	int i=0;
+
+	return;
+//	UndoChangeModel(actor);
+	actorSub(actor);
+//	actorFree2( &oldActor );
+	while( model[i] != '.' && model[i] != '\0' )
+	{
+		newName[i] = model[i];
+		i++;
+	}
+	newName[i] = '\0';
+	strcat( newName, ".psi" );
+
+//	oldModel = actor->psiData;
+	newModel = psiCheck ( newName );
+
+	utilPrintf("Trying To Find New Model %s : %s................\n", model);
+
+	if( !newModel )
+	{
+		utilPrintf("Could Not Find Replacment Model................\n");
+		return;
+	}
+
+	//create new actor
+	newActor = actorCreate ( newModel, 1, 0 );
+
+	newActor->size.vx = globalFrogScale;
+	newActor->size.vy = globalFrogScale;
+	newActor->size.vz = globalFrogScale;
+
+//	if( player[0].character == FROG_BABYFROG )
+		ScaleVectorFF( &newActor->size, 3072 );
+		
+//bb
+//	actor->psiData = newActor->psiData;
+//	actorInitAnim ( actor );				// initialise animation structure
+//	actorSetAnimation ( actor, 0, 1 );		// initialise animation structure
+
+	//backup current actor
+	oldActor = *actor;
+
+	//copy over current actor
+	*actor = *newActor;
+
+	//keep some of the original data
+	actor->position = oldActor.position;
+	actor->qRot			= oldActor.qRot;
+
+//	actorFree( newActor );
+
+/*	UndoChangeModel(actor);
+	actorSub(actor);
+//	actorFree2( &oldActor );
+	while( model[i] != '.' && model[i] != '\0' )
+	{
+		newName[i] = model[i];
+		i++;
+	}
+	newName[i] = '\0';
+	strcat( newName, ".psi" );
+
+//	oldModel = actor->psiData;
+	newModel = psiCheck ( newName );
+
+	utilPrintf("Trying To Find New Model %s : %s................\n", model);
+
+	if( !newModel )
+	{
+		utilPrintf("Could Not Find Replacment Model................\n");
+		return;
+	}
+
+	//create new actor
+	newActor = actorCreate ( newModel, 1, 0 );
+
+	newActor->size.vx = globalFrogScale;
+	newActor->size.vy = globalFrogScale;
+	newActor->size.vz = globalFrogScale;
+
+//	if( player[0].character == FROG_BABYFROG )
+		ScaleVectorFF( &newActor->size, 3072 );
+		
+//bb
+//	actor->psiData = newActor->psiData;
+//	actorInitAnim ( actor );				// initialise animation structure
+//	actorSetAnimation ( actor, 0, 1 );		// initialise animation structure
+
+	//backup current actor
+	oldActor = *actor;
+
+	//copy over current actor
+	*actor = *newActor;
+
+	//keep some of the original data
+	actor->position = oldActor.position;
+	actor->qRot			= oldActor.qRot;
+
+//	actorFree( newActor );
+*/
+}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: UndoChangeModel
@@ -1192,16 +1331,21 @@ int UndoChangeModel( ACTOR *actor )
 
 	return 1;
 */
-
-	ACTOR *oa;
+//	ACTOR *oa;
 
 	//make sure we are resetting to a valid actor
 	if(!oldActor.psiData.object)
 		return 0;
 
-	oa = &oldActor;
+//	oa = &oldActor;
+	actorFree2( actor );
+	FREE(newActor);
 	*actor = oldActor;
-	//actorFree( oa );
+	actor->next = NULL;
+	actorAdd(actor);
+	oldActor.psiData.object = NULL;
+
+//	actorFree( &oldActor );
 
 	return 1;
 }
@@ -1729,8 +1873,18 @@ void UpdateFrogCroak( int pl )
 				PrepForPriorityEffect( );
 				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &normal, initcroakscale, 4096, 410, croaklife )) )
 				{
+//					fx->spin = 25;
+//					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
+
+					int n;
+
+					if( babyList[baby].enemy->path->nodes->offset2 )
+						n = ((babyList[baby].enemy->path->nodes->offset2>>12)/SCALE)-1;
+					else
+						n = baby;
+
 					fx->spin = 25;
-					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
+					SetFXColour( fx, babyList[n].fxColour[R], babyList[n].fxColour[G], babyList[n].fxColour[B] );
 				}
 				else
 					utilPrintf("Failed to create croak!!\n");

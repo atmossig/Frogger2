@@ -9,6 +9,8 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include "prefix_dc.h"
+
 #define F3DEX_GBI_2
 #define NSLIPT 4
 
@@ -86,8 +88,8 @@ FVECTOR storeCamVect;
 #define TILENUM_BOOK	5
 
 
-extern int confirmMode;
-
+int pauseConfirmMode;
+int pauseGameSpeed;
 
 SPRITEOVERLAY *frogLogo = NULL;
 SPRITEOVERLAY *atari = NULL;
@@ -107,9 +109,14 @@ char playDemos = 0;
 
 #ifdef PC_VERSION
  char debugKeys = 0;
-#else
- #if GOLDCD==0
-  char debugKeys = 1;
+#endif
+#ifdef PSX_VERSION
+ #ifdef GOLDCD
+  #if GOLDCD == 0
+   char debugKeys = 1;
+  #else
+   char debugKeys = 0;
+  #endif
  #else
   char debugKeys = 0;
  #endif
@@ -137,6 +144,7 @@ CHEAT_COMBO cheatCombos[NUMCHEATCOMBOS] =
 	{{PAD_RIGHT,PAD_RIGHT,PAD_RIGHT,PAD_RIGHT, 0},0,0},	//CHEAT_OPEN_ALL_EXTRAS
 	{{PAD_LEFT, PAD_LEFT, PAD_RIGHT,PAD_RIGHT, 0},0,0},//CHEAT_INVULNERABILITY
 	{{PAD_RIGHT,PAD_LEFT, PAD_UP,   PAD_UP,    0},0,0},//CHEAT_SKIP_LEVEL
+	{{PAD_UP,PAD_UP,PAD_DOWN,PAD_DOWN,PAD_LEFT,PAD_RIGHT,0},0,0},//CHEAT_EXTRA_LEVELS
 };
 
 long currentCheatCombo[8];
@@ -153,7 +161,9 @@ short titleDir[4] = {1,1,1,1};
 #ifdef PC_VERSION
 short titleHudX[2][4] = {{1898,1898,0,3818},{1898,1898,128,3818-128}};
 short titleHudY[2][4] = {{0,3818,1898,1898},{128,3818-128,1898,1898}};
-#else PSX_VERSION
+#endif
+
+#ifdef PSX_VERSION
 short titleHudX[2][4] = {{1898,1898,96,3700},{1898,1898,96+128,3700-128}};
 short titleHudY[2][4] = {{220,3668,1898,1898},{220+128*2,3668-128*2,1898,1898}};
 #endif
@@ -174,6 +184,7 @@ char *titleHudName[4] =
 };
 SPRITEOVERLAY *titleHud[4];
 
+int pauseFrameCount;
 /*	--------------------------------------------------------------------------------
 	Function 	: StartPauseMenu
 	Purpose 	: Pause the Start menu or something
@@ -185,8 +196,9 @@ void StartPauseMenu()
 {
 	int i;
 
+	pauseFrameCount = 0;
 	quittingLevel = NO;
-	confirmMode = NO;
+	pauseConfirmMode = NO;
 	restartingLevel = NO;
 
 	currentPauseSelection = 0;
@@ -205,13 +217,13 @@ void StartPauseMenu()
 	else
 	{
 		quitText->yPos = quitText->yPosTo = 2180;
+		restartText->r = restartText->b = 64;
+		restartText->g = 160;
 		EnableTextOverlay ( restartText );
-		restartText->r = restartText->b = 100;
-		restartText->g = 200;
 	}
+	quitText->r = quitText->b = 64;
+	quitText->g = 160;
 	EnableTextOverlay ( quitText );
-	quitText->r = quitText->b = 100;
-	quitText->g = 200;
 
 //	if( gameState.multi == SINGLEPLAYER )
 		DisableHUD( );
@@ -248,6 +260,12 @@ int CheatAllowed(int cheat)
 		case CHEAT_SKIP_LEVEL:
 			return ((NUM_FROGS == 1) && (gameState.mode != FRONTEND_MODE));
 		
+		case CHEAT_EXTRA_LEVELS:
+#ifdef PC_VERSION
+			return TRUE;
+#else
+			return FALSE;
+#endif
 		default:
 			return TRUE;
 	}
@@ -255,6 +273,7 @@ int CheatAllowed(int cheat)
 
 void ComboCheat(int cheat)
 {
+	extern NUM_ARCADE_WORLDS;
 	int i,j;
 
 	if(!CheatAllowed(cheat))
@@ -307,6 +326,10 @@ void ComboCheat(int cheat)
 				
 			babiesSaved = numBabies;
 			break;
+			
+		case CHEAT_EXTRA_LEVELS:
+			NUM_ARCADE_WORLDS = 10;
+			break;			
 	}
 }
 
@@ -325,7 +348,8 @@ void RunPauseMenu()
 	int i;
 
 
-	if((quittingLevel) && (confirmMode == 0))
+	pauseFrameCount += max((pauseGameSpeed>>12),1);
+	if((quittingLevel) && (pauseConfirmMode == 0))
 	{
 		if(fadingOut == 0)
 		{
@@ -428,7 +452,7 @@ void RunPauseMenu()
 		{
 			for (i = 0; cheatCombos[cheat].keyString[i] && currentCheatCombo[i]==cheatCombos[cheat].keyString[i]; i++);
 
-			if((i == currCheat) && ((cheatCombos[cheat].state == 0) || (cheatCombos[cheat].toggle >= 0)))
+			if((cheatCombos[cheat].keyString[i] == 0) && ((cheatCombos[cheat].state == 0) || (cheatCombos[cheat].toggle >= 0)))
 			{
 				ComboCheat(cheat);
 				currCheat = 0;
@@ -447,7 +471,7 @@ void RunPauseMenu()
 		{
 			if (currentPauseSelection == 0)
 			{
-				if((gameState.oldMode == FRONTEND_MODE) || (confirmMode))
+				if((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode))
 					currentPauseSelection = 1;
 				else
 					currentPauseSelection = 2;
@@ -459,21 +483,23 @@ void RunPauseMenu()
 
 		if(padData.debounce[pauseController]&PAD_DOWN)
 		{
-			if((((gameState.oldMode == FRONTEND_MODE) || (confirmMode)) && (currentPauseSelection == 1)) || (currentPauseSelection == 2))
+			if((((gameState.oldMode == FRONTEND_MODE) || (pauseConfirmMode)) && (currentPauseSelection == 1)) || (currentPauseSelection == 2))
 				currentPauseSelection = 0;
 			else
 				currentPauseSelection++;
 		}
 	}
 
-	if((confirmMode) && (padData.debounce[pauseController] & PAD_TRIANGLE))
+	if((pauseConfirmMode) && (padData.debounce[pauseController] & PAD_TRIANGLE))
 	{
 		currentPauseSelection = quittingLevel;
-		confirmMode = 0;
+		pauseConfirmMode = 0;
 		SubTextOverlay(yesText);
 		SubTextOverlay(noText);
 		quittingLevel = 0;
-		restartText->draw = quitText->draw = continueText->draw = 1;
+		if(gameState.oldMode != FRONTEND_MODE)
+			restartText->draw = 1;
+		quitText->draw = continueText->draw = 1;
 	}
 	if( (padData.debounce[pauseController]&PAD_CROSS) || (padData.debounce[pauseController]&PAD_START) || (exitPause))
 	{
@@ -487,9 +513,9 @@ void RunPauseMenu()
 		if(padData.debounce[pauseController]&PAD_START)
 		{
 			currentPauseSelection = 0;
-			if(confirmMode)
+			if(pauseConfirmMode)
 			{
-				confirmMode = 0;
+				pauseConfirmMode = 0;
 				SubTextOverlay(yesText);
 				SubTextOverlay(noText);
 			}
@@ -503,9 +529,9 @@ void RunPauseMenu()
 				DisableTextOverlay ( continueText );
 				DisableTextOverlay ( restartText );
 				DisableTextOverlay ( quitText );
-				if(confirmMode)
+				if(pauseConfirmMode)
 				{
-					confirmMode = 0;
+					pauseConfirmMode = 0;
 					ScreenFade(255,0,30);
 					SubTextOverlay(yesText);
 					SubTextOverlay(noText);
@@ -530,6 +556,7 @@ void RunPauseMenu()
 						else
 						{
 							gameState.mode = INGAME_MODE;
+							gameSpeed = pauseGameSpeed;
 							EnableHUD( );
 						}
 					}
@@ -544,14 +571,22 @@ void RunPauseMenu()
 				return;
 */
 			case 1:
-				if(confirmMode)
+				if(pauseConfirmMode)
 				{
-					confirmMode = 0;
-					currentPauseSelection = quittingLevel;
-					quittingLevel = 0;
+					pauseConfirmMode = 0;
+
 					SubTextOverlay(yesText);
 					SubTextOverlay(noText);
-					restartText->draw = continueText->draw = quitText->draw = 1;
+					if(gameState.oldMode == FRONTEND_MODE)
+						currentPauseSelection = 1;
+					else
+					{
+						restartText->draw = 1;
+						currentPauseSelection = quittingLevel;
+					}
+
+					continueText->draw = quitText->draw = 1;
+					quittingLevel = 0;
 					break;
 				}
 				else
@@ -559,9 +594,16 @@ void RunPauseMenu()
 					if(gameState.oldMode != FRONTEND_MODE)
 					{
 						quittingLevel = 1;
-						confirmMode = 1;
+						pauseConfirmMode = 1;
+						restartText->r = restartText->g = restartText->b = 255;
 						yesText = CreateAndAddTextOverlay(2048,restartText->yPos + 400,GAMESTRING(STR_YES),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+						yesText->r = 64;
+						yesText->g = 160;
+						yesText->b = 64;
 						noText = CreateAndAddTextOverlay(2048,restartText->yPos + 700,GAMESTRING(STR_NO),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
+						noText->r = 64;
+						noText->g = 160;
+						noText->b = 64;
 						keepFade = 1;
 						continueText->draw = 0;
 						quitText->draw = 0;
@@ -572,10 +614,11 @@ void RunPauseMenu()
 			//deliberate drop-through!!!!!!!		
 
 			case 2:   // quit game
-				if(confirmMode == 0)
+				if(pauseConfirmMode == 0)
 				{
-					confirmMode = 1;
+					pauseConfirmMode = 1;
 					currentPauseSelection = 1;
+					quitText->r = quitText->g = quitText->b = 255;
 					yesText = CreateAndAddTextOverlay(2048,quitText->yPos + 400,GAMESTRING(STR_YES),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
 					noText = CreateAndAddTextOverlay(2048,quitText->yPos + 700,GAMESTRING(STR_NO),YES,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_PAUSED);
 					continueText->draw = 0;
@@ -588,19 +631,25 @@ void RunPauseMenu()
 
 	}
 
-	if(confirmMode)
+	if(pauseConfirmMode)
 	{
 		switch(currentPauseSelection)
 		{
 			case 0:
-				yesText->r = yesText->g = yesText->b = 255;
+				yesText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				yesText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				yesText->b = 10;
+//				yesText->r = yesText->g = yesText->b = 255;
 				noText->r = 64;
 				noText->g = 160;
 				noText->b = 64;
 				break;
 
 			case 1:
-				noText->r = noText->g = noText->b = 255;
+				noText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				noText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				noText->b = 10;
+//				noText->r = noText->g = noText->b = 255;
 				yesText->r = 64;
 				yesText->g = 160;
 				yesText->b = 64;
@@ -612,7 +661,10 @@ void RunPauseMenu()
 		switch(currentPauseSelection)
 		{
 			case 0:
-				continueText->r = continueText->g = continueText->b = 255;
+				continueText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				continueText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				continueText->b = 10;
+//				continueText->r = continueText->g = continueText->b = 255;
 				restartText->r = restartText->b = quitText->r = quitText->b /*= controllerText->r = controllerText->b*/ = 64;
 				restartText->g = quitText->g /*= controllerText->g*/ = 160;
 				break;
@@ -626,18 +678,23 @@ void RunPauseMenu()
 			case 1:
 				if(gameState.oldMode != FRONTEND_MODE)
 				{
-					restartText->r = restartText->g = restartText->b = 255;
+					restartText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+					restartText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+					restartText->b = 10;
+//					restartText->r = restartText->g = restartText->b = 255;
 					continueText->r = continueText->b = quitText->r = quitText->b /*= controllerText->r = controllerText->b*/ = 64;
 					continueText->g = quitText->g /*= controllerText->g*/ = 160;
 					break;
 				}
 			//deliberate drop-through!!!!!!!		
 			case 2:
-				quitText->r = quitText->g = quitText->b = 255;
+				quitText->r = 127+((rsin(pauseFrameCount*4000)+4096)*64)/4096;
+				quitText->g = 127+((rcos(pauseFrameCount*4000)+4096)*64)/4096;
+				quitText->b = 10;
+//				quitText->r = quitText->g = quitText->b = 255;
 				continueText->r = continueText->b = restartText->r = restartText->b /*= controllerText->r = controllerText->b*/ = 64;
 				continueText->g = restartText->g /*= controllerText->g*/ = 160;
 				break;
-
 		}
 	}
 }
@@ -728,8 +785,10 @@ void RunFrontendGameLoop (void)
 
 		fadingLogos = NO;
 #ifdef PSX_VERSION
-		frogLogo = CreateAndAddSpriteOverlay(1536,3000,"FROGLOGO",4096,1,255,0);
-#elif PC_VERSION
+		frogLogo = CreateAndAddSpriteOverlay(1168,2700,"FROGLOGO",4096,1,255,0);
+#endif
+		
+#ifdef PC_VERSION
 		frogLogo = CreateAndAddSpriteOverlay(1024,2800,"FROGLOGO",2048,2048,255,0);
 #endif
 
@@ -741,17 +800,18 @@ void RunFrontendGameLoop (void)
 		keepFade = 0;
 
 #ifdef PSX_VERSION
-#if GOLDCD==0
-	#ifndef FINAL_MASTER
-			if(cheatCombos[CHEAT_OPEN_ALL_LEVELS].state == 0)
-				ComboCheat(CHEAT_OPEN_ALL_LEVELS);
-	#endif	
-#endif
+//	#if GOLDCD == 0
+		#ifndef FINAL_MASTER
+				if(cheatCombos[CHEAT_OPEN_ALL_LEVELS].state == 0)
+					ComboCheat(CHEAT_OPEN_ALL_LEVELS);
+		#endif	
+//	#endif
+
 #else
-#ifndef FINAL_MASTER
+	#ifndef FINAL_MASTER
 		if(cheatCombos[CHEAT_OPEN_ALL_LEVELS].state == 0)
 			ComboCheat(CHEAT_OPEN_ALL_LEVELS);
-#endif	
+	#endif	
 #endif
 
 
@@ -866,12 +926,13 @@ void RunFrontendGameLoop (void)
 		}
 
 		options.arcadeText = CreateAndAddTextOverlay(2048,270,GAMESTRING(STR_ARCADEMODE),YES,255,font,0); 
+		options.arcadeText->b = 0;
 		options.selectText = CreateAndAddTextOverlay(2048,576,GAMESTRING(STR_SELECT_LEVEL),YES,255,fontSmall,0); 
-		options.worldText = CreateAndAddTextOverlay(456,1105,worldStr,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.worldText = CreateAndAddTextOverlay(306,1105,worldStr,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
-		options.parText[0] = CreateAndAddTextOverlay(2100,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		options.parText[1] = CreateAndAddTextOverlay(2600,1105,GAMESTRING(STR_SET_BY),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		options.parText[2] = CreateAndAddTextOverlay(3200,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[0] = CreateAndAddTextOverlay(1950,1105,GAMESTRING(STR_PAR),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[1] = CreateAndAddTextOverlay(2750,1105,GAMESTRING(STR_SET_BY),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		options.parText[2] = CreateAndAddTextOverlay(3350,1105,GAMESTRING(STR_COINS),NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		
 		options.worldText->r = options.parText[0]->r = options.parText[1]->r = options.parText[2]->r = 255;
 		options.worldText->g = options.parText[0]->g = options.parText[1]->g = options.parText[2]->g = 200;
@@ -879,21 +940,21 @@ void RunFrontendGameLoop (void)
 
 		for (i=0; i<MAX_LEVELSTRING; i++)
 		{
-			options.levelText[i] = CreateAndAddTextOverlay(456,(short)(1445+i*170),levelStr[i],NO,(char)0,fontSmall,TEXTOVERLAY_SHADOW);
+			options.levelText[i] = CreateAndAddTextOverlay(306,(short)(1445+i*170),levelStr[i],NO,(char)0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelText[i]->draw = 0;
-			options.levelParText[i] = CreateAndAddTextOverlay(2100,(short)(1445+i*170),levelParStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+			options.levelParText[i] = CreateAndAddTextOverlay(1950,(short)(1445+i*170),levelParStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelParText[i]->draw = 0;
-			options.levelSetByText[i] = CreateAndAddTextOverlay(2600,(short)(1445+i*170),levelSetByStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+			options.levelSetByText[i] = CreateAndAddTextOverlay(2750,(short)(1445+i*170),levelSetByStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelSetByText[i]->draw = 0;
-			options.levelCoinText[i] = CreateAndAddTextOverlay(3350,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
+			options.levelCoinText[i] = CreateAndAddTextOverlay(3500,(short)(1445+i*170),levelCoinStr[i],NO,0,fontSmall,TEXTOVERLAY_SHADOW);
 			options.levelCoinText[i]->draw = 0;
-			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3332,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
+			options.levelCoinMedal[i] = CreateAndAddSpriteOverlay(3482,(short)(1477+i*170),"COINMEDAL",160,160,0,0);
 			options.levelCoinMedal[i]->draw = 0;
-			options.beatenIcon[i] = CreateAndAddSpriteOverlay(228,(short)(1477+i*170),"FLASH",160,160,0,0);
+			options.beatenIcon[i] = CreateAndAddSpriteOverlay(150,(short)(1477+i*170)-32,"FLASH",160,160,0,SPRITE_ADDITIVE);
 			options.beatenIcon[i]->draw = 0;
 		}
 
-		options.worldBak = CreateAndAddSpriteOverlay(200,938,"WBACK",3696,1365,0,0);
+		options.worldBak = CreateAndAddSpriteOverlay(150,938,"WBACK",3796,1365,0,0);
 		options.worldBak->r = 10;
 		options.worldBak->g = 200;
 		options.worldBak->b = 10;
@@ -972,13 +1033,13 @@ void RunFrontendGameLoop (void)
 				if(cWorld == WORLDID_GARDEN)
 				{
 					if(options.levelNum == 0)
-						CopyTexture ( arcadeScreenTex, FindTexture(worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].texCRC), 1 );
+						CopyTexture ( arcadeScreenTex, FindTexture((char *)worldVisualData[WORLDID_FRONTEND].levelVisualData[LEVELID_FRONTEND4].texCRC), 1 );
 					else
-						CopyTexture ( arcadeScreenTex, FindTexture(worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].texCRC), 1 );
+						CopyTexture ( arcadeScreenTex, FindTexture((char *)worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].texCRC), 1 );
 				}
 				else
 				{
-					CopyTexture ( arcadeScreenTex, FindTexture(worldVisualData[cWorld].levelVisualData[options.levelNum].texCRC), 1 );
+					CopyTexture ( arcadeScreenTex, FindTexture((char *)worldVisualData[cWorld].levelVisualData[options.levelNum].texCRC), 1 );
 				}
 			}
 		}
@@ -1556,6 +1617,7 @@ unsigned long USE_MENUS = 0;
 void DoArcadeMenu()
 {
 	int i;
+	int m,s,ms,t;
 
 
 	INC_ALPHA(options.subTitle,255);
@@ -1610,7 +1672,14 @@ void DoArcadeMenu()
 //		options.levelParText[0]->g = 255;
 //		options.levelParText[0]->r = 255;
 
-		sprintf(levelParStr[1],"%lu:%02i",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/60,worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime%60);
+		t = worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime;
+		m = worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/600;
+		s = ((worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)/10)%60;
+		ms = (worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)%10;
+		
+		sprintf(levelParStr[1],"%d:%02d.%d0",m,s,ms);
+		
+//		sprintf(levelParStr[1],"%d:%02i.%d0",worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime/600,((worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)/10)%60,(worldVisualData[WORLDID_GARDEN].levelVisualData[LEVELID_GARDEN1].parTime)%10);
 		options.levelParText[1]->b = 255;
 		options.levelParText[1]->g = 255;
 		options.levelParText[1]->r = 255;
@@ -1636,7 +1705,7 @@ void DoArcadeMenu()
 		for (i=0; i<worldVisualData[cWorld].numSinglePlayerLevels; i++)
 		{
 			strcpy (levelStr[i], GAMESTRING(worldVisualData[cWorld].levelVisualData[i].description_str));
-			sprintf(levelParStr[i],"%lu:%02i",worldVisualData[cWorld].levelVisualData[i].parTime/60,worldVisualData[cWorld].levelVisualData[i].parTime%60);
+			sprintf(levelParStr[i],"%lu:%02i.%d0",worldVisualData[cWorld].levelVisualData[i].parTime/600,((worldVisualData[cWorld].levelVisualData[i].parTime)/10)%60,(worldVisualData[cWorld].levelVisualData[i].parTime)%10);
 			sprintf(levelSetByStr[i],"%s",worldVisualData[cWorld].levelVisualData[i].parName);
 			if(cWorld == WORLDID_SUPERRETRO)
 				levelCoinStr[i][0] = 0;

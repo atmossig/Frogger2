@@ -50,7 +50,7 @@ int nextDemo = 0;
 void LoadDemoFile(int world, int level)
 {
 	char filename[128]; int count;
-	sprintf(filename, "DEMOS\\RECORD-%lu-%lu.KEY", world, level);
+	sprintf(filename, "DEMOS\\RECORD_%lu_%lu.KEY", world, level);
 	
 	playKeyList = (unsigned long*)fileLoad(filename, &count);
 	

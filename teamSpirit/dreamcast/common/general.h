@@ -46,9 +46,9 @@ void stringChangePSIToOBE ( char *name );
 char *gstrlwr( char *str );
 char *gstrupr( char *str );
 
-inline void smemcpy( unsigned short *a, unsigned short *b, unsigned long size );
-inline void lmemcpy( long *a, long *b, long size );
-inline void cmemcpy( char *a, char *b, unsigned long size );
+void smemcpy( unsigned short *a, unsigned short *b, unsigned long size );
+void lmemcpy( long *a, long *b, long size );
+void cmemcpy( char *a, char *b, unsigned long size );
 
 GAMETILE* FindNearestTileV(VECTOR v);
 GAMETILE* FindNearestTileF(FVECTOR v);

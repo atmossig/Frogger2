@@ -563,10 +563,10 @@ void Actor2ClipCheck(ACTOR2* act)
 	long sx, sy;//extracted from sxy
 	int distTop, distRight, distBott, distLeft;
 	int radius, FOV;
-
 	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
 
-	SVECTOR pos = act->actor->position;
+	SVECTOR pos;
+	pos = act->actor->position;
 	pos.vx = -pos.vx;
 	pos.vy = -pos.vy;
 
@@ -794,12 +794,11 @@ void Actor2ClipCheck(ACTOR2* act)
 //			if(act->bffActor)
 //			{
 //				FMA_MESH_HEADER *pMesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
-				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
 
-
+				// *ASL* 21/07/2000 - Cast to (FMA_MESH_HEADER **)
+				FMA_MESH_HEADER **mesh;
 				MATRIX tx, rY;
-
-
+				mesh = ADD2POINTER(act->bffActor, sizeof(FMA_WORLD));
 
 				//need to do this to transform points
 				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
@@ -807,9 +806,6 @@ void Actor2ClipCheck(ACTOR2* act)
 				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 				act->actor->bffMatrix.t[1] = act->actor->position.vy;
 				act->actor->bffMatrix.t[2] = act->actor->position.vz;
-
-
-
 
 				//calculate local to screen coords for fma mesh.
 				//(camera matrix and objects' pos/rot matrix)
@@ -1789,7 +1785,8 @@ void PsiActor2ClipCheck(ACTOR2* act)
 	int distTop, distRight, distBott, distLeft, distIn, distOut;
 	int radius, FOV;
 
-	SVECTOR pos = act->actor->position;
+	SVECTOR pos;
+	pos = act->actor->position;
 	pos.vx = -pos.vx;
 	pos.vy = -pos.vy;
 
@@ -1980,14 +1977,17 @@ void FmaActor2ClipCheck(ACTOR2* act)
 	long sz;
 	char* oldStackPointer;
 
-	SVECTOR pos = act->actor->position;
+	SVECTOR pos;
+	pos = act->actor->position;
 	pos.vx = -pos.vx;
 	pos.vy = -pos.vy;
 
 	if(act->flags & ACTOR_DRAW_ALWAYS)
 	{
-		FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+		// *ASL* 21/07/2000 - Cast to (FMA_MESH_HEADER **)
+		FMA_MESH_HEADER **mesh;
 		MATRIX tx, rY;
+		mesh = ADD2POINTER(act->bffActor, sizeof(FMA_WORLD));
 
 		//need to do this to transform points
 //#if GOLDCD==1
@@ -2060,8 +2060,10 @@ void FmaActor2ClipCheck(ACTOR2* act)
 	}
 	else 
 	{
-		FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+		// *ASL* 21/07/2000 - Cast to (FMA_MESH_HEADER **)
+		FMA_MESH_HEADER **mesh;
 		MATRIX tx, rY;
+		mesh = ADD2POINTER(act->bffActor, sizeof(FMA_WORLD));
 
 		//need to do this to transform points
 //#if GOLDCD==1
@@ -2308,6 +2310,9 @@ static unsigned short ascii_k_table[] = {		// ASCII code to Shift-JIS code trans
 	0x8150,		// ~ //
 };
 
+// *ASL* 21/07/2000
+// ** Function commented out as seems to be Windows code
+#if 0
 void asciiStringToSJIS(unsigned char *string, unsigned char *dest) 
 {
 	int	i;
@@ -2367,8 +2372,9 @@ void asciiStringToSJIS(unsigned char *string, unsigned char *dest)
 		*dest++ = (sjis_code&0xff);
 	}
 }
+#endif
 
-short videoKeyPress()
+short videoKeyPress(void)
 {
 	return ((padData.digital[0] & (PAD_CROSS|PAD_START))>0);
 }
@@ -2399,7 +2405,8 @@ void StartVideoPlayback(int num)
 	StopSong();
 	
 	sprintf(vStream.strName,"%s.SFD",fmv[num].name);
-	videoPlayStream(&vStream, PALMODE, videoKeyPress);
+	// *ASL* 21/07/2000 - Third parameter expects a callback function pointer
+	videoPlayStream(&vStream, (int)PALMODE, &videoKeyPress);
 	
 	gdFsChangeDir("\\");
 }

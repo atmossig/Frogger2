@@ -62,10 +62,10 @@ SVECTOR camDist				= {0,680*SCALE,192*SCALE};
 
 
 fixed camSpeed				= 15<<12; //30; //9;
-fixed camSpeed2				= 20<<12;; //25; //9;
+fixed camSpeed2				= 20<<12; //25; //9;
 fixed camSpeed3				= 20<<12;	// source & target interp.
 //fixed camSpeed4				= 15<<12;; //25; //8;
-fixed fovSpd				= 2<<12;;
+fixed fovSpd				= 2<<12;
 fixed transCamSpeedMult		= 4096;
 
 int	camFacing[4]			= {0,0,0,0};

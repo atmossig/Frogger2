@@ -38,4 +38,6 @@ void SubScenicObject ( SCENICOBJ *scenicObj );
 
 void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags );
 
+void DrawCube ( FMA_MESH_HEADER *mesh, int flags );
+
 #endif

@@ -75,7 +75,7 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short wi
 
 	newItem->used		= 1;
 
-	if( txtrName )
+	if(( txtrName )&&(*txtrName != 0))
 		if( !(newItem->tex = FindTexture(txtrName)) )
 			utilPrintf("Could Not Find Texture : %s\n", txtrName );
 

@@ -1019,12 +1019,13 @@ void *psiLoadPIL(char *pilName)
 		PSIname = (char*)(psiM);
 		(char*)crcs = (char*)(psiM+16);
 		utilPrintf("CRC=%x\n",*crcs);
-		psiFixup( (char*)(psiM+20) );
+		psiFixup( (char*)(psiM+20) );	
 	}
 	
 	pilLibraryList[pilLibraryLen] = (long*)addr;
 	pilLibraryLen++;
 	utilPrintf("Libray Loaded\n");
+
 
 	return NULL;
 	

@@ -1908,7 +1908,8 @@ MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v)
 
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
 {
-	SVECTOR v = *v0;
+	SVECTOR	v;
+	v = *v0;
 	// Matrix m * SVector v0
 	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
 		+ (m->m[0][2] * v.vz)) >> 12);
@@ -1922,7 +1923,8 @@ VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
 
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 {
-	VECTOR v = *v0;
+	VECTOR v;
+	v = *v0;
 	// Matrix m * Vector v0
 	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
 		+ (m->m[0][2] * v.vz)) >> 12);
@@ -1979,7 +1981,8 @@ MATRIX *RotMatrixZ(long r,MATRIX *m)
 
 SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1)
 {
-	SVECTOR v = *v0;
+	SVECTOR v;
+	v = *v0;
 	// Matrix m * SVector v0
 	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
 		+ (m->m[0][2] * v.vz)) >> 12);
@@ -1993,7 +1996,8 @@ SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1)
 
 VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1)
 {
-	VECTOR v = *v0;
+	VECTOR v;
+	v = *v0;
 	// RotMatrix m * SVector v0
 	v1->vx = (((RotMatrix.m[0][0] * v.vx) + (RotMatrix.m[0][1] * v.vy) 
 		+ (RotMatrix.m[0][2] * v.vz)) >> 12);
@@ -3053,8 +3057,8 @@ void initialisePsxStrips()
 	StripContext_SpritesNoTex.ObjectControl.nDepthCompare			 			= KM_GREATER;
 	StripContext_SpritesNoTex.ObjectControl.nCullingMode			 			= KM_NOCULLING;
 	StripContext_SpritesNoTex.ObjectControl.bZWriteDisable						= KM_TRUE;
-	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_SRCALPHA;//
-	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCALPHA;//
+	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode	= KM_ZERO;
+	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nDSTBlendingMode	= KM_INVSRCCOLOR;	
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].bSRCSelect			= KM_FALSE;
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].bDSTSelect			= KM_FALSE;
 	StripContext_SpritesNoTex.ImageControl[KM_IMAGE_PARAM1].nFogMode			= KM_NOFOG;

@@ -15,7 +15,7 @@
 #endif
 
 #define POLYNOMIAL 0x04c11db7L
-#define CRC_MAGIC_NUMBER 'ÿ'
+#define CRC_MAGIC_NUMBER 152
 
 static unsigned long CRCtable[256];
 
@@ -70,7 +70,7 @@ unsigned long UpdateCRC(char *ptr)
 	unsigned long CRCaccum = 0;
 
 	/* If the first byte is a "magic number", return the global CRC value thing */
-	if (*ptr == CRC_MAGIC_NUMBER)
+	if ((unsigned char)*ptr == CRC_MAGIC_NUMBER)
 	{
 		return objectCRC;
 	}

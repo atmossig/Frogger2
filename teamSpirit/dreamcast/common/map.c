@@ -26,6 +26,8 @@
 
 #include "maths.h"
 #include "flatpack.h"
+#include "babyfrog.h"
+#include "psiactor.h"
 
 #ifdef DREAMCAST_VERSION
 #include "main.h"
@@ -354,6 +356,8 @@ void LoadLevelEntities ( int worldID, int levelID )
 {
 	int fileLength;
 	char fileName[256];
+	int i;
+	char name[32];
 
 #ifdef DREAMCAST_VERSION
 	sprintf ( fileName, "MAPS\\ENTITY_%d_%d.dat", worldID, levelID );
@@ -395,6 +399,16 @@ void LoadLevelEntities ( int worldID, int levelID )
 	{
 		FREE(entityFile);
 		entityFile = 0;
+	}
+
+	// MA - set the baby frogs pointing to the correct coloured froglet
+	for(i=0;i<5;i++)
+	{
+		if(babyList[i].baby)
+		{
+			sprintf(name,"FROGLET0%d",babyList[i].baby->actor->clutOverride+1);
+			ChangeBabyModel(babyList[i].baby->actor, name);
+		}
 	}
 }
 

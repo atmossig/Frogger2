@@ -11,6 +11,7 @@
 #ifndef TYPES_H_INCLUDED
 #define TYPES_H_INCLUDED
 
+#include "prefix_dc.h"
 
 #ifndef PSX_VERSION
 #include <windows.h>
@@ -107,10 +108,8 @@
 #define Max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 #define Min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
 
-#ifndef min
-#define min Min
-#define max Max
-#endif
+#define min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
+#define max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 
 #define SKINNED_SEG (1<<24)
 

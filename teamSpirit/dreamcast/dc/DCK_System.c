@@ -109,12 +109,9 @@ float getFloat(char *ptr)
 	float			testFloat;
 	char			*dest;
 	
-	dest = &testFloat;
+	dest = (char *)&testFloat;
 	for(i=sizeof(float);i>0;i--)
 		*dest++ = *ptr++;
 
 	return testFloat;
 }
-
-
-

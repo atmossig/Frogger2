@@ -115,8 +115,8 @@ void LoadTextureAnimBank ( int textureBank )
 
 void FreeTextureBank(TextureBankType *textureBank)
 {
-	textureDestroyBank(textureBank);
-	textureUnloadBank(textureBank);
+//	textureDestroyBank(textureBank);
+//	textureUnloadBank(textureBank);
 }
 
 void FreeAllTextureBanks(void)
@@ -128,7 +128,7 @@ void FreeAllTextureBanks(void)
 
 	utilPrintf("Freeing All Texture Banks : TEXTURE\n");
 
-	kmGetFreeTextureMem(&pSizeOfTexture,&pMaxBlockSizeOfTexture);
+//	kmGetFreeTextureMem(&pSizeOfTexture,&pMaxBlockSizeOfTexture);
 
 	for(c=0;c<DCKnumTextures;c++)
 	{
@@ -138,7 +138,7 @@ void FreeAllTextureBanks(void)
 	}
 	DCKnumTextures = 0;	
 
-	kmGetFreeTextureMem(&pSizeOfTexture,&pMaxBlockSizeOfTexture);
+//	kmGetFreeTextureMem(&pSizeOfTexture,&pMaxBlockSizeOfTexture);
 	
 	for(c=0;c<MAX_TEXTURE_BANKS;c++)
 	{
@@ -254,7 +254,7 @@ void UpdateTextureAnimations ( void )
 			}
 			else
 			{
-				while( cur->lastTime + cur->animation->waitTimes[cur->frame] < frame )
+				while( cur->lastTime + cur->animation->waitTimes[cur->frame] < actFrameCount )
 				{
 					cur->lastTime += cur->animation->waitTimes[cur->frame];
 					
@@ -395,4 +395,5 @@ TextureType *CreateSpareTextureSpace ( long dummyCrc )
 void CopyTexture(TextureType *source, TextureType *dest, int num)
 {
 	source->surfacePtr = &dest->surface;
+	source->animated = TRUE;
 }

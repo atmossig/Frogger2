@@ -20,6 +20,7 @@
 #include <islmem.h>
 #include "Main.h"
 #include "maths.h"
+#include "game.h"
 
 #ifdef PC_VERSION
 #include <pcaudio.h>
@@ -90,14 +91,16 @@ char *MemLoadString(UBYTE **p)
 	Load enemies, platforms etc.
 */
 
+short createExtraLife;
 int MemLoadEntities(const void* data)
 {
 	UBYTE thing;
 	UBYTE *p = (UBYTE*)data;
 	PATH *pathList;
-	int n, count,i;
+	int i,n, count;
 	int totalPathNodes, totalEnemies, totalPlatforms, totalGaribs, totalCameraCases, totalPlaceholders;
 
+	createExtraLife = 1;
 	// Version check - only load files with the current version
 	n = MEMGETBYTE(&p);
 
@@ -111,6 +114,7 @@ int MemLoadEntities(const void* data)
 	{
 		memload_fast = 0;
 		utilPrintf("MemLoadEntities() ---------------------\n");
+//		while(1);
 	}
 
 	if (n != MEMLOAD_ENTITY_VERSION ) {
@@ -257,7 +261,7 @@ int MemLoadEntities(const void* data)
 						{
 							if(!babyList[i].baby)
 							{
-								sprintf(type,"froglet0%d.psi",i+1);
+								sprintf(type,"froglet0%d.psi",5-(i));
 								break;
 							}
 						}
@@ -363,7 +367,10 @@ int MemLoadEntities(const void* data)
 				ScaleVectorFF(&w, offs * SCALE );
 				AddVectorSSF(&v, &tile->centre, &w);
 
-				CreateNewGarib(v, n);
+				if((n != EXTRALIFE_GARIB) || (gameState.difficulty == DIFFICULTY_EASY) || (createExtraLife))
+					CreateNewGarib(v, n);
+				if(n == EXTRALIFE_GARIB)
+					createExtraLife = 1 - createExtraLife;
 				break;
 			}
 

@@ -518,7 +518,8 @@ void DeathAnim( EVENT *event )
 	
 	//the func about to be called [will/may] overwrite
 	//oldActor. We don't want this.
-	ACTOR oldActorStore = oldActor;
+	ACTOR oldActorStore;
+	oldActorStore = oldActor;
 	func(pl);
 	oldActor = oldActorStore;
 

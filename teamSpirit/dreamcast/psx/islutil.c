@@ -125,7 +125,8 @@ unsigned long utilBlockCRC(char *ptr, int length)
 	RETURNS:
 **************************************************************************/
 
-static inline void DecompressOutputByte(unsigned char data)
+// *ASL* 21/07/2000 - Problem with inline directive
+static void DecompressOutputByte(unsigned char data)
 {
 	*outputBufPtr++ = data;
 	outputBufLen++;
@@ -206,9 +207,9 @@ int utilPrintf(char* fmt, ...)
     r6 = va_arg(arglist, long);
 	va_end(arglist);
     len = sprintf(buffer, fmt, r1, r2, r3, r4, r5, r6);
- 
-//ma	debug_printf(buffer);
-	
+
+	debug_printf(buffer);
+
     return len;    
 }
 

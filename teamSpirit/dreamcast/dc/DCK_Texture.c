@@ -471,7 +471,7 @@ int loadPVRFile(char *Filename, int flags)
     	return FALSE;
 
   	// copy name and create crc
-	sprintf(&buf,"%s",Filename);
+	sprintf(buf,"%s",Filename);
 	ptr = buf;
 	for(i=0;i<strlen(Filename);i++)
 	{
@@ -484,7 +484,7 @@ int loadPVRFile(char *Filename, int flags)
 	}
 	utilUpperStr(buf);		
 	DCKtextureList[DCKnumTextures].imageCRC = UpdateCRC(buf);
-	sprintf(&DCKtextureList[DCKnumTextures].ident,"%s",buf);
+	sprintf(DCKtextureList[DCKnumTextures].ident,"%s",buf);
     
 	// determine type of pvr file
 	headerPtr = (char*)TexturePtr;
@@ -1160,7 +1160,8 @@ int loadBigNSPRITEIntoSurface(TextureBankType *bankPtr, int swidth, int sheight,
 	for(loop=0;loop<snumber;loop++)	
 	{		
 		sprite = &bankPtr->pNSprite[num+loop];
-		dataPtr = (sprite->image)+4;
+		// *ASL* 20/07/2000 Ambig - Cast to char pointer
+		dataPtr = (char *)(sprite->image)+4;
 		palPtr = sprite->pal;		
 		width = sprite->w;
 		height = sprite->h;
