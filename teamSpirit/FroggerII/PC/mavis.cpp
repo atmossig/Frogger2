@@ -51,44 +51,44 @@ FRAME_INFO frameInfo;
 
 void DrawBatchedPolys (void)
 {
-	unsigned long lastHandle,numFaceToSend;
+	unsigned long i;
+	unsigned long lHandle,nFace;
 
 	frameInfo.cF = frameInfo.f;
 	frameInfo.cH = frameInfo.h;
 
-	lastHandle = *(frameInfo.cH);
-	numFaceToSend = 0;
+	
 
-	while (frameInfo.nF)
+	nFace = 3;
+	i=0;
+
+	while (i<frameInfo.nF)
 	{
-		if (*(frameInfo.cH)!=lastHandle)
-		{
-			pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,lastHandle);
-			
-			if (pDirect3DDevice->DrawIndexedPrimitive(
-				D3DPT_TRIANGLELIST,
-				D3DVT_TLVERTEX,
-				frameInfo.v,
-				frameInfo.nV,
-				frameInfo.cF,
-				numFaceToSend,
-					D3DDP_DONOTCLIP |
-					D3DDP_DONOTLIGHT |
-					D3DDP_DONOTUPDATEEXTENTS) !=D3D_OK)
-			{
-				dp("BUGGER !!!!! CAN'T DRAW POLY JOBBY\n");
-			}
+		lHandle = *frameInfo.cH;
+		nFace = 0;
 
-			numFaceToSend = 0;
-			lastHandle = *frameInfo.cH;
-		}
-		else
+		while ((*(frameInfo.cH)) == lHandle)
 		{
-			frameInfo.cH++;
-			frameInfo.cF++;
-			frameInfo.nF--;
-			numFaceToSend++;
+			frameInfo.cH+=3;
+			nFace+=3;
+			i+=3;
 		}
+		
+		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,lHandle);
+
+		if (pDirect3DDevice->DrawIndexedPrimitive(
+			D3DPT_TRIANGLELIST,
+			D3DVT_TLVERTEX,
+			frameInfo.v,
+			frameInfo.nV,
+			frameInfo.cF,
+			nFace,
+				D3DDP_DONOTCLIP |
+				D3DDP_DONOTLIGHT |
+				D3DDP_DONOTUPDATEEXTENTS) !=D3D_OK) dp("!");
+		
+	
+		frameInfo.cF+=nFace;
 	}
 }
 

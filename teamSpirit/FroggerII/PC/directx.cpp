@@ -37,6 +37,7 @@ extern "C"
 #include <ultra64.h>
 #include "incs.h"
 #include "software.h"
+#include "mavis.h"
 
 long SCREEN_WIDTH=320;	//320
 long SCREEN_HEIGHT=240;	//240
@@ -1431,10 +1432,23 @@ void ReleaseSurface(LPDIRECTDRAWSURFACE surf)
 }
 
 D3DTEXTUREHANDLE lastH = NULL;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//PolyBatchStuff
+
+void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h)
+{
+	PushPolys(v,vC,fce,fC,h);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void BeginDrawHardware (void)
 {
 	pDirect3DDevice->BeginScene();
-	lastH = NULL;
+	BlankFrame();
+	
 }
 
 void EndDrawHardware (void)
@@ -1443,16 +1457,18 @@ void EndDrawHardware (void)
 }
 
 extern long drawTimers;
-void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h)
+/*void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREHANDLE h)
 {
 	int i, j, v1, v2, v3, e;
-
+	
 	if (h!=lastH)
 	{
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,h);
 		lastH = h;
 	}
-	
+
+	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,3);
+
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 	//pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
@@ -1465,7 +1481,8 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 									v[fce[i+2]].sx,v[fce[i+2]].sy);
 			numPixelsDrawn += t;
 		}
-	
+//	return;
+
 	if (pDirect3DDevice->DrawIndexedPrimitive(
 		D3DPT_TRIANGLELIST,
 		D3DVT_TLVERTEX,
@@ -1479,7 +1496,7 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	{
 		dp("BUGGER !!!!! CAN'T DRAW POLY JOBBY\n");
 	}
-}
+}*/
 
 void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 {

@@ -124,14 +124,6 @@ SOURCE=.\Common\Cam.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Common\cameos.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\Common\cameos.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Common\codes.h
 # End Source File
 # Begin Source File
@@ -1067,6 +1059,14 @@ SOURCE=.\Pc\map.c
 # Begin Source File
 
 SOURCE=.\Pc\map.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mavis.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\mavis.h
 # End Source File
 # Begin Source File
 

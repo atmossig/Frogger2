@@ -23,7 +23,7 @@
 #include <assert.h>
 
 #include "incs.h"
-
+#include "mavis.h"
 
 #define MAX_UNIQUE_ACTORS	50
 
@@ -158,9 +158,7 @@ void DrawActorList()
 
 #ifdef PC_VERSION
 	
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
-
+	
 	cur = actList;
 	waterObject = 0;
 	while(cur)
@@ -234,8 +232,16 @@ void DrawActorList()
 		cur = cur->next;
 	}
 	
-	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 
+	DrawBatchedPolys();
+	BlankFrame();
+	
+	
 	waterObject = 1;
 	cur = actList;
 	while(cur)
@@ -283,6 +289,7 @@ void DrawActorList()
 		
 		cur = cur->next;
 	}
+	
 
 #endif
 

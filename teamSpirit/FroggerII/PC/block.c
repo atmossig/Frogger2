@@ -25,6 +25,7 @@
 #include "network.h"
 #include "netchat.h"
 #include "software.h"
+#include "mavis.h"
 
 void AnimateTexturePointers(void);
 
@@ -633,8 +634,21 @@ VECTOR oldCCSource, oldCCTarget;
 extern long numSprites;
 extern long numPixelsDrawn;
 char fR,fG,fB;
+long useBilerpN = 0;
+long useBilerpF = 0;
+
 void DrawGraphics() 
 {
+	if (useBilerpN)
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	else
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);
+
+	if (useBilerpF)
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_LINEAR);
+	else
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMIN,D3DFILTER_NEAREST);
+
 //	if( fog.mode )
 	{
 		//fog.r = fR;
@@ -672,15 +686,30 @@ void DrawGraphics()
 
 //	XformActorList();
 	DrawActorList();	
-	
-	EndTimer(1);
-	StartTimer(2,"Draw Sprites");
-
-	DrawSpecialFX();
 
 	if(spriteList.numEntries)
 		PrintSpritesOpaque();
 
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+
+	DrawBatchedPolys();
+	BlankFrame();
+
+	DrawSpecialFX();
+	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+
+	DrawBatchedPolys();
+	BlankFrame();
+	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	
+	EndTimer(1);
+	StartTimer(2,"Draw Sprites");
+	
+	
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
 	
@@ -753,6 +782,7 @@ void DrawGraphics()
 	ClearTimers();
 	StartTimer(5,"EVERYTHING!");
 	StartTimer(7,"EndDraw");
+	
 	if (runHardware)
 		EndDrawHardware();
 	else

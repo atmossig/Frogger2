@@ -7,7 +7,7 @@
 #define MA_MAX_FACES		64000	// Maximum number of FACES that can be drawn
 
 // A type for storing all the vertices and polygons in a frame
-struct FRAME_INFO	
+typedef struct TAG_FRAME_INFO	
 {
 	// Vertex information
 	unsigned long nV;						// Number of vertices
@@ -22,22 +22,31 @@ struct FRAME_INFO
 	// Texture information
 	unsigned long *cH;						// Current handle pointer (handles match to faces in number)
 	unsigned long h[MA_MAX_FACES];			// Actual Handle buffer
-
-};
-extern FRAME_INFO frameInfo;
+} FRAME_INFO;
 
 //--------------------------------------------------------------
 
+extern FRAME_INFO frameInfo;
+
 // Blanks out current frame
-#define BlankFrame(x) {frameInfo.nV = frameInfo.nF = 0;	frameInfo.cV = frameInfo.v;	frameInfo.cF = frameInfo.f;	frameInfo.cH = frameInfo.h;}
+#define BlankFrame(x) {\
+frameInfo.nV = frameInfo.nF = 0;	frameInfo.cV = frameInfo.v;	frameInfo.cF = frameInfo.f;	frameInfo.cH = frameInfo.h;\
+}
 
 // Push a poly onto the buffers
 #define PushPolys(v,vC,fce,fC,h) \
-{	unsigned long i = 0;\
-	for (;i<fC; i++,curF++,curH++,fce++)\
-		{*curF = (*fce) + nVerts; *curH = h;}\
-	memcpy(curV,v,vC*sizeof(D3DTLVERTEX));\
-	curV+=vC; nVerts+=vC; nFaces+=fC;\
+{	unsigned long cnt;\
+	short *mfce = fce;\
+	for (cnt=0;cnt<fC; cnt++)\
+	{\
+		*frameInfo.cF = (*mfce) + frameInfo.nV;\
+		*frameInfo.cH = h;\
+		frameInfo.cF++;\
+		frameInfo.cH++;\
+		mfce++;\
+	}\
+	memcpy(frameInfo.cV,v,vC*sizeof(D3DTLVERTEX)); frameInfo.cV+=vC; frameInfo.nV+=vC; frameInfo.nF+=fC;\
 }
+
 
 #endif

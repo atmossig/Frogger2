@@ -449,7 +449,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 		GetQuaternionFromRotation (&theActor->actor->qRot,&ts->rot);
 
-		AnimateActor(theActor->actor,0,YES,NO,1,0,0);
+		AnimateActor(theActor->actor,0,YES,NO,0.35,0,0);
 		if(ts->name[0] == 'a')
 		{
 			float rMin,rMax,rNum;
@@ -847,13 +847,39 @@ void RunGameLoop (void)
 	i = NUM_FROGS;
 	while(i--)
 	{
-		player[i].idleTime--;
+		PLAYER
+		player[i].idleTime-=gameSpeed/3.0;
 		if(!player[i].idleTime)
 		{
-			// play a random idle animation and set new idle time
-			AnimateActor(frog[i]->actor,15 + Random(6),NO,NO,0.4F,0,0);
-			AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
-			player[i].idleTime = 400 + Random(200);
+			unsigned long iAnim = Random(4);
+			
+			switch (iAnim)
+			{
+				case 0:
+					AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,NO,0.4F,0,0);
+					if (Random(10)>6)
+						AnimateActor(frog[i]->actor,FROG_ANIM_SCRATCHHEAD,NO,YES,0.4F,0,0);
+					AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+					break;
+				case 1:
+					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,NO,0.3F,0,0);
+					break;
+				case 2:
+					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE2,YES,NO,0.3F,0,0);
+					break;
+				case 3:
+					AnimateActor(frog[i]->actor,FROG_ANIM_DANCE3,NO,NO,0.3F,0,0);
+					if (Random(10)>6)
+						AnimateActor(frog[i]->actor,FROG_ANIM_DANCE1,YES,YES,0.3F,0,0);
+					else
+						AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+					break;
+				case 4:
+					AnimateActor(frog[i]->actor,FROG_ANIM_BREATHE,YES,YES,0.4F,0,0);
+					break;
+			}
+
+			player[i].idleTime = 100 + Random(100);
 		}
 	}
 

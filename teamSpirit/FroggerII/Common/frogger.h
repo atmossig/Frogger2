@@ -76,7 +76,7 @@ typedef struct _PLAYER
 	unsigned long	frogState;
 	short			saveSlot;
 
-	unsigned long	idleTime;
+	float			idleTime;
 
 	// frog movement related stuff
 	unsigned char 	canJump;

@@ -12,6 +12,7 @@
 
 #include <ultra64.h>
 #include "incs.h"
+#include "mavis.h"
 
 #define LODDist (700 * 700)
 
@@ -35,6 +36,7 @@ void PCPrepareWaterObject(OBJECT *obj, MESH *mesh, float m[4][4]);
 void PCPrepareModgyObject (OBJECT *obj, MESH *me, float m[4][4]);
 void PCRenderObject(OBJECT *obj);
 void PCPrepareSkinnedObject(OBJECT *obj, MESH *mesh, float m[4][4]);
+long useNear = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +293,7 @@ void Clip3DPolygon (D3DTLVERTEX in[3], long texture)
 	
 	if (numFaces)
 	{
-		DrawAHardwarePoly(vIn,vInCount,faceList,j,texture);
+		PushPolys(vIn,vInCount,faceList,j,texture)
 	}
 }
 
@@ -871,6 +873,7 @@ void TransformObject(OBJECT *obj, float time)
 				xluVal = ((int)(obj->xlu * xluOverride))/100;
 				if(xluOverride <= 10)
 					xluVal = 0;
+
 		/*		if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
 				{
 					obj->sprites[i].sprite->r = 0;
@@ -886,6 +889,8 @@ void TransformObject(OBJECT *obj, float time)
 					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
 			*/
 				obj->sprites[i].sprite->a = xluVal;
+				sprite->offsetX = -16;
+				sprite->offsetY = -16;
 
 				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
 												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
@@ -1183,7 +1188,6 @@ float modi4 = 0.08;
 float modi5 = 0.1; // Small value for calculating normals.
 float modi6 = 5; // Small value for calculating normals.
 
-
 void PCPrepareWaterObject (OBJECT *obj, MESH *me, float m[4][4])
 {
 	float c[4][4];
@@ -1351,7 +1355,6 @@ short facesON[3] = {0,1,2};
 
 float naddr = 0.25;
 float nmult = 4.0;
-
 
 void PCRenderObject (OBJECT *obj)
 {
@@ -1521,19 +1524,17 @@ void PCRenderObject (OBJECT *obj)
 					}
 				}
 				
-				
 				x1on = BETWEEN(v[0].sx,0,SCREEN_WIDTH);
 				x2on = BETWEEN(v[1].sx,0,SCREEN_WIDTH);
 				x3on = BETWEEN(v[2].sx,0,SCREEN_WIDTH);
 				y1on = BETWEEN(v[0].sy,0,SCREEN_HEIGHT);
 				y2on = BETWEEN(v[1].sy,0,SCREEN_HEIGHT);
 				y3on = BETWEEN(v[2].sy,0,SCREEN_HEIGHT);
-
+	
 				if ((x1on && x2on && x3on) && (y1on && y2on && y3on))
 				{
-				numFacesDrawn++;
-					DrawAHardwarePoly(v,3,facesON,3,tex->cFrame->hdl);
-					
+					numFacesDrawn++;
+					PushPolys(v,3,facesON,3,tex->cFrame->hdl);
 				}
 				else
 				{

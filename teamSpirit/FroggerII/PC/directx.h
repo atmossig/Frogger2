@@ -50,6 +50,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 void DrawFlatRect(RECT r, D3DCOLOR colour);
 void BeginDrawHardware (void);
 void EndDrawHardware (void);
+void DrawBatchedPolys(void);
 extern void ReleaseSurface(LPDIRECTDRAWSURFACE surf);
 
 extern void dp(char *format, ...);

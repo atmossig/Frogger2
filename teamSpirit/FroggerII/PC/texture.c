@@ -242,6 +242,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,0);
 			newE->type = TEXTURE_NORMAL;
+	
 			if ( newE->surf )
 				newE->hdl = ConvertSurfaceToTexture(newE->surf);
 		}
