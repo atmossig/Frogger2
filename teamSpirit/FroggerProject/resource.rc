@@ -168,7 +168,7 @@ BEGIN
     RTEXT           "Description:",IDC_STATIC,176,123,37,8
     LTEXT           "Blah blah blah blah blah blah blah blah blah blah blah",
                     IDC_DESCRIPTION,218,124,128,27
-    PUSHBUTTON      "Start the game!",IDC_START,221,150,74,14,WS_DISABLED
+    PUSHBUTTON      "&Start the game!",IDC_START,221,150,74,14,WS_DISABLED
     PUSHBUTTON      "Leave game",IDCANCEL,291,184,64,14
     DEFPUSHBUTTON   "Send",ID_SEND,135,184,27,14
 END
