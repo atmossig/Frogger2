@@ -620,8 +620,8 @@ void RunGameLoop (void)
 	if(keyFound)
 		RunLevelKeyFound();
 
-	if(babySaved && !gameIsOver && !levelIsOver)
-		RunBabySavedSequence(lastBabySaved);
+//	if(babySaved && !gameIsOver && !levelIsOver)
+//		RunBabySavedSequence(lastBabySaved);
 	
 	if(player[0].frogState & FROGSTATUS_ISDEAD)
 	{
@@ -762,17 +762,6 @@ void RunGameLoop (void)
 
 				if(frog[0])
 				{
-					for (i=0; i<numBabies; i++)
-					{
-						if ( babies[i] )
-						{
-							if( babyFollow[i] )
-								SetVector( &babies[i]->actor->pos, &babyFollow[i]->pos );
-
-							AnimateActor(babies[i]->actor,0,YES,NO,1.0,0,0);
-						}
-					}
-
 					CheckForDynamicCameraChange(currTile[0]); // TEMPORARY FIX!!
 
 					CameraLookAtFrog();
