@@ -46,7 +46,7 @@ void DrawSpecialFX()
 {
 	int i;
 
-	if( (gameState.mode == INGAME_MODE) || (gameState.mode == PAUSE_MODE) || (gameState.mode == CAMEO_MODE) )
+	if( gameState.mode != PAUSE_MODE )
 	{
 		SwapFrame(0);
 		ProcessShadows();

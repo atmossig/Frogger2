@@ -26,6 +26,33 @@
 #include "layout.h"
 
 
+// added by ANDYE to facilitate (<- ooh, good word !) Sutherland-Hodgman clipping algorhythmicallythingy
+typedef struct TAGPOLYCLIP
+{
+	int numVerts;
+	D3DTLVERTEX verts[10];
+
+} POLYCLIP;
+
+#define MAX_ARRAY_SPRITES		768
+
+extern int numSortArraySprites;
+extern SPRITE *spriteSortArray;
+
+int SpriteZCompare(const void *arg1,const void *arg2);
+void ZSortSpriteList();
+
+// PC Sprite drawing stuff
+void PrintSprite(SPRITE *sprite);
+
+
+void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color);
+void DrawASprite (float x, float y, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex,DWORD colour);
+void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
+void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
+void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour );
+
+
 //----- [ PRINTING STUFF ] -----------------------------------------------------------------------
 
 long	SPRITECLIPLEFT		=10;
@@ -283,7 +310,7 @@ void PrintSpriteOverlays(long num)
 			else
 				D3DSetupRenderstates(xluSemiRS);
 			
-			DrawAlphaSprite( cur->xPos*OVERLAY_X, cur->yPos*OVERLAY_Y, 0, cur->width*OVERLAY_X, cur->height*OVERLAY_Y, 0, 0, 1, 1, 
+			DrawSpriteOverlay( cur->xPos*OVERLAY_X, cur->yPos*OVERLAY_Y, 0, cur->width*OVERLAY_X, cur->height*OVERLAY_Y, 0, 0, 1, 1, 
 				tEntry,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
 
 			D3DSetupRenderstates(xluSemiRS);
@@ -292,6 +319,71 @@ void PrintSpriteOverlays(long num)
 
 		cur = cur->next;
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+    Function		: DrawAlphaSprite
+	Parameters		: 
+	Returns			: 
+	Purpose			: Draw an alpha-ed, non-rotating sprite
+*/
+void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
+{
+	D3DTLVERTEX v[4];
+	float x2 = (x+xs), y2 = (y+ys);
+
+	if (x < SPRITECLIPLEFT)
+	{
+		if (x2 < SPRITECLIPLEFT) return;
+		u1 += (u2-u1) * (SPRITECLIPLEFT-x)/xs;	// clip u
+		xs += x-SPRITECLIPLEFT; x = SPRITECLIPLEFT;
+	}
+	if (x2 > SPRITECLIPRIGHT)
+	{
+		if (x > SPRITECLIPRIGHT) return;
+		u2 += (u2-u1) * (SPRITECLIPRIGHT-x2)/xs;	// clip u
+		xs -= (x-SPRITECLIPRIGHT);
+		x2 = SPRITECLIPRIGHT;
+	}
+
+	if (y < SPRITECLIPTOP)
+	{
+		if (y2 < SPRITECLIPTOP) return;
+		v1 += (v2-v1) * (SPRITECLIPTOP-y)/ys;	// clip v
+		ys += y-SPRITECLIPTOP; y = SPRITECLIPTOP;
+	}
+	if (y2 > SPRITECLIPBOTTOM)
+	{
+		if (y > SPRITECLIPBOTTOM) return;
+		v2 += (v2-v1) * (SPRITECLIPBOTTOM-y2)/ys;	// clip v
+		ys -= (y-SPRITECLIPBOTTOM);
+		y2 = SPRITECLIPBOTTOM;
+	}
+
+	v[0].sx = x; v[0].sy = y; v[0].sz = z; v[0].rhw = 0;
+	v[0].color = colour; v[0].specular = D3DRGBA(0,0,0,1);
+	v[0].tu = u1; v[0].tv = v1;
+
+	v[1].sx = x2; v[1].sy = y; v[1].sz = z; v[1].rhw = 0;
+	v[1].color = v[0].color; v[1].specular = v[0].specular;
+	v[1].tu = u2; v[1].tv = v1;
+	
+	v[2].sx = x2; v[2].sy = y2; v[2].sz = z; v[2].rhw = 0;
+	v[2].color = v[0].color; v[2].specular = v[0].specular;
+	v[2].tu = u2; v[2].tv = v2;
+
+	v[3].sx = x; v[3].sy = y2; v[3].sz = z; v[3].rhw = 0;
+	v[3].color = v[0].color; v[3].specular = v[0].specular;
+	v[3].tu = u1; v[3].tv = v2;
+
+	SetTexture(tex);
+
+	DrawPoly( D3DPT_TRIANGLEFAN, D3DFVF_TLVERTEX,
+		v, 4, spriteIndices, 6,
+		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS );
+
+	SetTexture(NULL);
 }
 
 
@@ -322,7 +414,12 @@ void PrintSprite(SPRITE *sprite)
 		numSprites++;
 
 		if (sprite->flags & SPRITE_ADDITIVE)
+		{
 			D3DSetupRenderstates(xluAddRS);
+			SwapFrame(3);
+		}
+		else
+			SwapFrame(0);
 
 /*		if(sprite->flags & SPRITE_FLAGS_ROTATE)
 		{
@@ -360,15 +457,9 @@ void DrawALine (float x1, float y1, float x2, float y2, D3DCOLOR color)
 			0.0, 0.0
 		}
 	};
-/*
-	if ( DrawPoly( D3DPT_LINESTRIP,
-		D3DFVF_TLVERTEX,
-		v, 2,
-		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
-	{
-		dp("COULDN'T DRAW LINE");
-	}
-	*/
+	short faces[]={0,1};
+
+	PushPolys(v,2,faces,2,NULL);
 }
 
 
@@ -427,19 +518,7 @@ void DrawASprite(float x, float y, float xs, float ys, float u1, float v1, float
 	v[3].color = v[0].color; v[3].specular = v[0].specular;
 	v[3].tu = u1; v[3].tv = v2;
 
-	SetTexture(tex);
-
-	if (DrawPoly( D3DPT_TRIANGLEFAN,
-		D3DFVF_TLVERTEX,
-		v, 4,
-		spriteIndices, 6,
-		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
-	{
-		dp("Could not print sprite\n");
-		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
-	}
-
-	SetTexture(NULL);
+	PushPolys(v,4,spriteIndices,6,tex);
 }
 
 
@@ -505,27 +584,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	v[3].color = v[0].color; v[3].specular = v[0].specular;
 	v[3].tu = u1; v[3].tv = v2;
 
-	if (v[0].sx>1000)
-		dp("p{%f,%f   %f,%f   %f,%f   %f,%f}\n",v[0].sx,v[0].sy,v[1].sx,v[1].sy,v[2].sx,v[2].sy,v[3].sx,v[3].sy);
-
-	SetTexture(tex);
-
-	if ((z>0.01) || (z<-0.01))
-		D3DSetupRenderstates(xluZRS);
-	else
-		D3DSetupRenderstates(noZRS);
-
-	if (DrawPoly( D3DPT_TRIANGLEFAN,
-		D3DFVF_TLVERTEX,
-		v, 4,
-		spriteIndices, 6,
-		D3DDP_DONOTCLIP | D3DDP_DONOTLIGHT | D3DDP_DONOTUPDATEEXTENTS )!=D3D_OK)
-	{
-		dp("Could not print sprite\n");
-		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
-	}
-
-	SetTexture(NULL);
+	PushPolys(v,4,spriteIndices,6,tex);
 }
 
 
