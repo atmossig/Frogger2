@@ -203,9 +203,12 @@ int MemLoadEntities(const void* data, long size)
 				w.v[X] = MEMGETFLOAT(&p);
 				w.v[Y] = MEMGETFLOAT(&p);
 				w.v[Z] = MEMGETFLOAT(&p);
+
+#ifndef N64_VERSION_ONLY
 				tcam = CreateAndAddTransCamera(FindNearestTile(w), flags >> 16, &w, flags & 0xFFFF);
 				tcam->FOV = scale;
 				tcam->speed = animSpeed;
+#endif
 			}
 			break;
 		}
