@@ -689,7 +689,7 @@ void UpdateAmbientSounds()
 		amb->counter = actFrameCount + amb->freq + ((amb->randFreq)?Random(amb->randFreq):0);
 	}
 
-
+/*
 	if (KEYPRESS(DIK_NUMPADPLUS))
 	{
 		vol += gameSpeed>>4;
@@ -700,6 +700,7 @@ void UpdateAmbientSounds()
 		vol -= gameSpeed>>4;
 		SetCDVolume(vol);
 	}
+*/
 }
 
 
