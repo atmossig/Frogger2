@@ -536,6 +536,11 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 				}
 			}
 		}
+
+		// null object - do not display
+		if( strstr(newname,"TRANSOBJ") || strstr(newname,"NOTHING") || strstr(newname,"NULL_") ||
+			strstr(newname,"transobj") || strstr(newname,"nothing") || strstr(newname,"null_") )
+			newItem->draw = 0;
 	}
 #elif PC_VERSION
 
@@ -566,6 +571,9 @@ ACTOR2 *CreateAndAddActor(char *name, short cx, short cy, short cz, int initFlag
 		FindSfxMapping( tAct->objectController->objectID, newItem->actor );
 	}
 
+	// null object - do not display
+	if( !(strnicmp(newname,"TRANSOBJ",8)) || !(strnicmp(newname,"NOTHING",7)) || !(strnicmp(newname,"NULL_",5)) )
+		newItem->draw = 0;
 #endif
 
 	gstrlwr(newname);

@@ -516,8 +516,6 @@ TIMER endLevelTimer;
 void RunGameLoop (void)
 {
 	unsigned long i;
-//	GAMETILE *cur;
-	
 
 	if(player[0].numSpawn == 25)
 	{
@@ -731,24 +729,16 @@ void RunGameLoop (void)
 //		if( controllerdata[0].button == 0 || (controllerdata[0].button != controllerdata[0].lastbutton) )
 //			SendUpdateMessage( );
 
-#ifndef E3_DEMO
-/*#ifdef SHOW_ME_THE_TILE_NUMBERS
+#ifdef SHOW_ME_THE_TILE_NUMBERS
 	// displays the tile numbers
 	TIMER_START3(TIMER_TILENUM);
-	cur = &firstTile[0];
-	currTileNum = 0;
-	while(cur)
-	{
-		cur = cur->next;
-
-		if(cur == currTile[0])
-		{
-			currTileNum++;
+	i = tileCount;
+	while(i--)
+		if(&firstTile[i] == currTile[0])
 			break;
-		}
 
-		currTileNum++;
-	}
+	currTileNum = i;
+
 	TIMER_STOP_ADD3(TIMER_TILENUM);
 	
  	if (tileNum)
@@ -759,7 +749,6 @@ void RunGameLoop (void)
  			else
 				sprintf(tileString,"");
  		}
-#endif*/
 #endif
 	TIMER_STOP_ADD3(TIMER_TOTAL);
 }
