@@ -1389,8 +1389,8 @@ void RunFrontendGameLoop (void)
 				titleHudText[0]->draw = 1;
 				titleHudText[1]->draw = 1;
 				titleHudText[2]->draw = 1;
-				if(doneTraining)
-					titleHudText[3]->draw = 1;
+				titleHudText[3]->draw = doneTraining;
+
 				titleHudText[0]->text = GAMESTRING(STR_STORYMODE);
 				titleHudText[1]->text = GAMESTRING(STR_OPTIONS);
 				titleHudText[2]->text = GAMESTRING(STR_MULTIPLAYER);
