@@ -545,6 +545,18 @@ short numLives[3] =
 */
 void RunGameOver( )
 {
+	int channel;
+
+	// reset sfx volume
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sample)
+		{
+			if(current[channel].sound.isPlaying)
+				amSoundSetVolume(&current[channel].sound,0);
+		}
+	}
+
 	GTUpdate( &modeTimer, -1 );
 	if((keepFade == 0) && (!modeTimer.time || padData.debounce[0]))
 	{
@@ -1632,9 +1644,19 @@ void CheckEOLLoopTrack()
 
 void RunLevelComplete()
 {
-	int i,dropped = FMul(dropSpeed,gameSpeed),w;
+	int i,dropped = FMul(dropSpeed,gameSpeed),w,channel;
 	SPRITEOVERLAY *coinOver;
 	char tempChar;
+
+	// reset sfx volume
+	for(channel=0; channel<24; channel++)
+	{
+		if(current[channel].sample)
+		{
+			if(current[channel].sound.isPlaying)
+				amSoundSetVolume(&current[channel].sound,0);
+		}
+	}
 
 	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	drawLandscape = 0;
