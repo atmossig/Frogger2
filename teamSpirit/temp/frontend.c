@@ -1498,7 +1498,7 @@ void RunLevelComplete()
 				extraIcon->speed = 4096*75;
 			arcadeHud.coinsOver->speed = 4096*75;
 
-			if(extraText->xPos == extraText->xPosTo)
+			if(((extraText) && (extraText->xPos == extraText->xPosTo)) || ((extraText == NULL) && (coinText->xPos == coinText->xPosTo)))
 			{
 				if(eolTimer.time)
 				{
@@ -1591,7 +1591,7 @@ void RunLevelComplete()
 				}
 			}
 
-			if(!nText)
+			if((!nText) && ((tText == NULL) || (tText->xPosTo == tText->xPos)))
 			{
 				if(eolTimer.time)
 				{
