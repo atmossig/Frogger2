@@ -39,7 +39,7 @@ LPDIRECTINPUTDEVICE lpMouse	= NULL;
 
 // 14 buttons per controller, 4 controllers.
 // Need to store DIK, controller number and controller command
-DWORD keymap[56][3] = 
+KEYENTRY keymap[56] = 
 {
 	{ 0, CONT_UP, DIK_UP },
 	{ 0, CONT_DOWN, DIK_DOWN },
@@ -99,7 +99,7 @@ DWORD keymap[56][3] =
 	{ 3, CONT_F, 0 },
 	{ 3, CONT_G, 0 },
 	{ 3, CONT_L, 0 },
-	{ 3, CONT_R, 0 },
+	{ 3, CONT_R, 0 }
 };
 
 BYTE keyTable[256];
@@ -398,8 +398,8 @@ void ProcessUserInput(HWND hWnd)
 		ShowJalloc();
 
 	for( i=0; i < NUM_FROGS*14; i++ )
-		if( keymap[i][2] > 0 && KEYPRESS(keymap[i][2]) )
-			controllerdata[keymap[i][0]].button |= keymap[i][1];
+		if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
+			controllerdata[keymap[i].player].button |= keymap[i].button;
 }
 
 

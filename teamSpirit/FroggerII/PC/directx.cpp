@@ -38,6 +38,7 @@ extern "C"
 {
 #include <ultra64.h>
 #include "incs.h"
+#include "i13n.h"
 //#include "block.h"
 
 HWND win;
@@ -74,6 +75,23 @@ int dumpScreen = 0;
 int prim = 0;
 
 GUID guID;
+
+char *controlDesc[] = 
+{
+	"Up",
+	"Down",
+	"Left",
+	"Right",
+	"A",
+	"B",
+	"Start",
+	"Camera Left",
+	"Camera Down",
+	"Camera Up",
+	"Camera Right",
+	"Left Shoulder",
+	"Right Shoulder"
+};
 
 //static GUID     guID;
 
@@ -619,7 +637,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					InitMPDirectPlay(winInfo.hInstance); // Pop up multiplayer select dialogue box
 					break;
 				case IDC_KEYMAP:
-					MakeKeyMap( );
+					DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_KEYMAPBOX),winInfo.hWndMain,(DLGPROC)DLGKeyMapDialogue, (LPARAM)&DPInfo );
 					break;
 				case IDOK:
 				{
@@ -703,7 +721,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 
 
 
-
+// It's DirectX, innit?
 
 long DirectXInit(HWND window, long hardware )
 {
@@ -1393,7 +1411,115 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 	Returns			: 
 	Info			: 
 */
-void MakeKeyMap( )
-{
+char listText1[] = "Command";
+char listText2[] = "Key";
 
+BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+{
+	long i;
+	HWND list;
+
+    static HWND   hCombo;
+    static LPGUID lpGUID;
+    LPGUID        lpTemp;
+	static DWORD keyIndex = 0;
+
+    switch(msg)
+	{
+		case WM_INITDIALOG:
+		{
+			RECT meR;
+			LV_COLUMN clm;
+			LV_ITEM itm;
+			
+			GetWindowRect(hDlg, &meR);
+			
+			list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
+
+			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
+			clm.fmt = LVCFMT_LEFT;
+			clm.cx = 400;
+			clm.pszText = listText1;
+			clm.cchTextMax = 255; 
+			clm.iSubItem = 0; 
+			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+
+			clm.mask= LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+			clm.pszText = listText2;
+			clm.cx = 120;
+			clm.iSubItem = 1; 
+			SendMessage (list,LVM_INSERTCOLUMN,0,(long)&clm);
+			
+			// Print the commands available in the left hand list
+
+			for( i=0; i<14; i++ )
+			{
+				itm.mask = LVIF_TEXT ;
+				itm.iItem = i; 
+				itm.iSubItem = 0;
+				itm.state = 0;
+				itm.stateMask = 0; 
+				
+				itm.pszText = controlDesc[i];
+
+				itm.cchTextMax = 255; 
+				itm.iImage = NULL; 
+				itm.lParam = i; 
+
+				SendMessage( list,LVM_INSERTITEM,0,(long)&itm );
+
+				itm.iSubItem = 1;
+
+				itm.pszText = DIKStrings[keymap[keyIndex+i].key];
+
+				SendMessage( list,LVM_SETITEM,0,(long)&itm );
+			}
+
+			SetWindowPos(hDlg,HWND_TOPMOST,(GetSystemMetrics(SM_CXSCREEN)-(meR.right-meR.left))/2,(GetSystemMetrics(SM_CYSCREEN)-(meR.bottom-meR.top))/2, 0,0,SWP_NOSIZE);
+
+			lpGUID = (LPGUID)lParam;
+
+ 			return TRUE;
+		}
+
+        case WM_CLOSE:
+			keyIndex = 0;
+			EndDialog(hDlg,TRUE);
+            return TRUE;
+		
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				case IDC_CONTROLLER1:
+					// Set pointer to correct part of keymap and refresh display
+					keyIndex = 0;
+					break;
+				case IDC_CONTROLLER2:
+					keyIndex = 14;
+					break;
+				case IDC_CONTROLLER3:
+					keyIndex = 28;
+					break;
+				case IDC_CONTROLLER4:
+					keyIndex = 42;
+					break;
+
+				// And some more commands for setting entries in the keymap
+
+				
+				case IDCANCEL:
+					keyIndex = 0;
+					EndDialog(hDlg,FALSE);
+					break;
+
+				case IDOK:
+					// TODO: Write keymap to disk
+					keyIndex = 0;
+					EndDialog(hDlg,TRUE);
+					break;
+			}
+			return TRUE;
+	}
+
+	return FALSE;
 }

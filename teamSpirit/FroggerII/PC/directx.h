@@ -46,6 +46,8 @@ void DrawFlatRect(RECT r, D3DCOLOR colour);
 void BeginDrawHardware (void);
 void EndDrawHardware (void);
 extern void ReleaseSurface(LPDIRECTDRAWSURFACE surf);
+BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam);
+
 
 extern void dp(char *format, ...);
 

@@ -160,7 +160,7 @@ HRESULT SendChatMessage(LPSTR string, LONG lStrLen )
 	DWORD dwChatMessageSize;
 	HRESULT	hRes;
 	
-	if( !string || lStrLen <= 0 || lStrLen > MAX_CSLENGTH )
+	if( !string || lStrLen <= 0 || lStrLen > MAX_CSLENGTH || !DPInfo.lpDP4A )
 	{
 		hRes = DPERR_ABORTED;
 		goto FAILURE;

@@ -252,6 +252,14 @@ SOURCE=.\Common\hud.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\i13n.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\i13n.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\incs.h
 # End Source File
 # Begin Source File

@@ -25,13 +25,21 @@ extern BOOL keysEnabled;
 
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
 
+typedef struct
+{
+	short player;
+	DWORD button;
+	DWORD key;
+
+} KEYENTRY;
+
 
 #define KEYPRESS(keyDIK)	(keyTable[keyDIK] & 0x80)
 
 extern BYTE keyTable[256];
 extern DIMOUSESTATE mouseState;
 
-extern DWORD keymap[56][3];
+extern KEYENTRY keymap[56];
 
 extern LPDIRECTINPUT lpDI;
 extern LPDIRECTINPUTDEVICE lpKeyb;
