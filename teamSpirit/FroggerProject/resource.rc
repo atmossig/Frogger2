@@ -268,9 +268,10 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_FROGGER2            ICON    DISCARDABLE     "frogger2.ico"
-IDI_HASBROI             ICON    DISCARDABLE     "hasbroi.ico"
 IDI_BLITZ               ICON    DISCARDABLE     "blitz.ico"
+IDI_HASBROI             ICON    DISCARDABLE     "hasbroi.ico"
 IDI_GAMES               ICON    DISCARDABLE     "games.ico"
+IDI_FROGGER2SITE        ICON    DISCARDABLE     "frogger2site.ico"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////

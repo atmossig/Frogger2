@@ -19,6 +19,7 @@
 #define IDI_BLITZ                       201
 #define IDI_HASBROI                     202
 #define IDI_GAMES                       203
+#define IDI_FROGGER2SITE                204
 #define IDC_LIST2                       1001
 #define IDC_WINDOW                      1002
 #define IDC_LANGUAGE                    1003
@@ -64,7 +65,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        114
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1052
 #define _APS_NEXT_SYMED_VALUE           101
