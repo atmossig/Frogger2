@@ -898,7 +898,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	
 	GetRegistryInformation();
 	GetArgs(lpCmdLine);
-	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
+	gameTextInit("MAPS\\LANGUAGE.FLA", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 
 	// Load the game here, mostly for network mode - ds
 	LoadGame();
