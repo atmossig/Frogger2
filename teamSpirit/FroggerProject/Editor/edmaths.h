@@ -24,10 +24,10 @@
 //#define ZeroVector(vect) (vect)->v[X] = (vect)->v[Y] = (vect)->v[Z] = 0
 
 #define SetVector(v1,v2)	(*(v1)) = (*(v2))
-#define SetVectorF(v,fv)	(v)->vx=(float)(fv)->vx*(1.0f/4096.0f),(v)->vy=(float)(fv)->vy*(1.0f/4096.0f),(v)->vz=(float)(fv)->vz*(1.0f/4096.0f)
-#define SetVectorS(v,v2)	(v)->vx=(float)(v2)->vx,(v)->vy=(float)(v2)->vy,(v)->vz=(float)(v2)->vy
-#define FSetVector(f,v)		(f)->vx=(fixed)((v)->vx*4096)),(f)->vy=(fixed)((v)->vy*4096),(f)->vz=((fixed)(v)->vz*4096)
-#define SSetVector(f,v)		(f)->vx=(short)(v)->vx,(f)->vy=(short)(v)->vy,(f)->vz=(short)(v)->vz
+#define SetVectorF(v,fv)	((v)->vx=(float)(fv)->vx*(1.0f/4096.0f),(v)->vy=(float)(fv)->vy*(1.0f/4096.0f),(v)->vz=(float)(fv)->vz*(1.0f/4096.0f))
+#define SetVectorS(v,v2)	((v)->vx=(float)(v2)->vx,(v)->vy=(float)(v2)->vy,(v)->vz=(float)(v2)->vz)
+#define FSetVector(v,v2)	((v)->vx=(fixed)((v2)->vx*4096)),(v)->vy=(fixed)((v2)->vy*4096),(v)->vz=((fixed)(v2)->vz*4096))
+#define SSetVector(v,v2)	(v)->vx=(short)((v2)->vx),(v)->vy=(short)((v2)->vy),(v)->vz=(short)((v2)->vz)
 
 #endif // NEW_EDITOR
 
