@@ -48,7 +48,7 @@ VALUESTRING dwCaps[] =
 	DDCAPS_PALETTE ,                        "DDCAPS_PALETTE							Indicates that DirectDraw is capable of creating and supporting DirectDrawPalette objects for more surfaces than only the primary surface. \n",
 	DDCAPS_PALETTEVSYNC ,                   "DDCAPS_PALETTEVSYNC					Indicates that DirectDraw is capable of updating a palette synchronized with the vertical refresh. \n",
 	DDCAPS_READSCANLINE ,                   "DDCAPS_READSCANLINE					Indicates that display hardware is capable of returning the current scan line. \n",
-	DDCAPS_STEREOVIEW ,                     "DDCAPS_STEREOVIEW						Indicates that display hardware has stereo vision capabilities. \n",
+//	DDCAPS_STEREOVIEW ,                     "DDCAPS_STEREOVIEW						Indicates that display hardware has stereo vision capabilities. \n",
 	DDCAPS_VBI ,                            "DDCAPS_VBI								Indicates that display hardware is capable of generating a vertical-blank interrupt. \n",
 	DDCAPS_ZBLTS ,                          "DDCAPS_ZBLTS							Supports the use of z-buffers with blit operations. \n",
 	DDCAPS_ZOVERLAYS ,                      "DDCAPS_ZOVERLAYS						Supports the use of the IDirectDrawSurface4::UpdateOverlayZOrder method as a z-value for overlays to control their layering. \n",
@@ -126,7 +126,7 @@ VALUESTRING dwFXCaps[] =
 	DDFXCAPS_BLTSTRETCHXN ,					"DDFXCAPS_BLTSTRETCHXN :				Supports integer stretching (×1, ×2, and so on) of a surface along the x-axis (horizontally). This flag is valid only for blit operations. \n",
 	DDFXCAPS_BLTSTRETCHY ,					"DDFXCAPS_BLTSTRETCHY :					Supports arbitrary stretching of a surface along the y-axis (vertically). This flag is valid only for blit operations. \n",
 	DDFXCAPS_BLTSTRETCHYN ,					"DDFXCAPS_BLTSTRETCHYN :				Supports integer stretching (×1, ×2, and so on) of a surface along the y-axis (vertically). This flag is valid only for blit operations. \n",
-	DDFXCAPS_BLTTRANSFORM ,					"DDFXCAPS_BLTTRANSFORM :				Supports geometric transformations (or warps) for blitted sprites. Transformations are not currently supported for explicit blit operations. \n",
+//	DDFXCAPS_BLTTRANSFORM ,					"DDFXCAPS_BLTTRANSFORM :				Supports geometric transformations (or warps) for blitted sprites. Transformations are not currently supported for explicit blit operations. \n",
 	DDFXCAPS_OVERLAYALPHA ,					"DDFXCAPS_OVERLAYALPHA :				Supports alpha blending for overlay surfaces. \n",
 	DDFXCAPS_OVERLAYARITHSTRETCHY ,			"DDFXCAPS_OVERLAYARITHSTRETCHY :		Uses arithmetic operations, rather than pixel-doubling techniques, to stretch and shrink overlay surfaces. Occurs along the y-axis (vertically). \n",
 	DDFXCAPS_OVERLAYARITHSTRETCHYN ,		"DDFXCAPS_OVERLAYARITHSTRETCHYN :		Uses arithmetic operations, rather than pixel-doubling techniques, to stretch and shrink overlay surfaces. Occurs along the y-axis (vertically), and works only for integer stretching (×1, ×2, and so on). \n",
@@ -141,7 +141,7 @@ VALUESTRING dwFXCaps[] =
 	DDFXCAPS_OVERLAYSTRETCHXN ,				"DDFXCAPS_OVERLAYSTRETCHXN :			Supports integer stretching (×1, ×2, and so on) of a surface along the x-axis (horizontally). This flag is valid only for DDSCAPS_OVERLAY surfaces. This flag indicates only the capabilities of a surface; it does not indicate that stretching is available. \n",
 	DDFXCAPS_OVERLAYSTRETCHY ,				"DDFXCAPS_OVERLAYSTRETCHY :				Supports arbitrary stretching of a surface along the y-axis (vertically). This flag is valid only for DDSCAPS_OVERLAY surfaces. This flag indicates only the capabilities of a surface; it does not indicate that stretching is available. \n",
 	DDFXCAPS_OVERLAYSTRETCHYN ,				"DDFXCAPS_OVERLAYSTRETCHYN :			Supports integer stretching (×1, ×2, and so on) of a surface along the y-axis (vertically). This flag is valid only for DDSCAPS_OVERLAY surfaces. This flag indicates only the capabilities of a surface; it does not indicate that stretching is available. \n",
-	DDFXCAPS_OVERLAYTRANSFORM ,				"DDFXCAPS_OVERLAYTRANSFORM :			Supports geometric transformations (or warps) for overlay sprites. Transformations are not currently supported for explicitly displayed overlay surfaces (those displayed with calls to IDirectDrawSurface4::UpdateOverlay). \n",
+//	DDFXCAPS_OVERLAYTRANSFORM ,				"DDFXCAPS_OVERLAYTRANSFORM :			Supports geometric transformations (or warps) for overlay sprites. Transformations are not currently supported for explicitly displayed overlay surfaces (those displayed with calls to IDirectDrawSurface4::UpdateOverlay). \n",
 	0,0,
 };
 
