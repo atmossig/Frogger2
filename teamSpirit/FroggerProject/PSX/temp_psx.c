@@ -795,12 +795,12 @@ void LoadGame(void)
 void Actor2ClipCheck(ACTOR2* act)
 {
 //bbxx - PAL/NTSC specifics needed here
- 	#define CLIP_TOP	-120
- 	#define CLIP_RIGHT	256
- 	#define CLIP_BOTT	120
- 	#define CLIP_LEFT	-256
+	#define CLIP_TOP	-120
+	#define CLIP_RIGHT	256
+	#define CLIP_BOTT	120
+	#define CLIP_LEFT	-256
 
-	#define CLIP_FAR	3000
+//	#define CLIP_FAR	3000
 
 //test
 // 	#define CLIP_TOP	-50
@@ -812,7 +812,7 @@ void Actor2ClipCheck(ACTOR2* act)
 	long sxy,sz;
 	long sx, sy;//extracted from sxy
 	int distTop, distRight, distBott, distLeft;
-	int radius;
+	int radius, FOV;
 
 	SVECTOR pos = act->actor->position;
 	pos.vx = -pos.vx;
@@ -826,11 +826,8 @@ void Actor2ClipCheck(ACTOR2* act)
 	gte_ldv0(&pos);
 	gte_rtps();
 	gte_stsxy(&sxy);
-	gte_stszotz(&sz);
-
-
-	sx = (short)(sxy&0xffff);
-	sy = (short)(sxy>>16);
+//	gte_stszotz(&sz);	//screen z/4 as otz
+	gte_stsz(&sz);	//screen z/4 as otz
 
 
 // 	if(act->actor->psiData.flags & ACTOR_DYNAMICSORT)
@@ -844,28 +841,60 @@ void Actor2ClipCheck(ACTOR2* act)
 // 	}
 
 
-
-	//calc dists from edges
-//	distTop		= sy - CLIP_TOP;
-//	distRight	= sx - CLIP_RIGHT;
-//	distBott	= sy - CLIP_BOTT;
-//	distLeft	= sx - CLIP_LEFT;
-	//now with radius check
-	radius = act->actor->radius;
-	distTop		= (sy+radius) - CLIP_TOP;
-	distRight	= (sx-radius) - CLIP_RIGHT;
-	distBott	= (sy-radius) - CLIP_BOTT;
-	distLeft	= (sx+radius) - CLIP_LEFT;
-
-
-	//clip?
-	if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>CLIP_FAR) )
+	//too close to screen?
+	if(sz>0)
 	{
-		act->clipped = 1;
+		sx = (short)(sxy&0xffff);
+		sy = (short)(sxy>>16);
+
+		//calc dists from edges
+		distTop		= sy - CLIP_TOP;
+		distRight	= sx - CLIP_RIGHT;
+		distBott	= sy - CLIP_BOTT;
+		distLeft	= sx - CLIP_LEFT;
+
+		//now with radius check
+//		gte_ReadGeomScreen(&FOV);
+//		radius = (act->actor->radius *FOV) /sz; //n.b *4 'cos we got z/4, not z
+//		distTop		= (sy+radius) - CLIP_TOP;
+//		distRight	= (sx-radius) - CLIP_RIGHT;
+//		distBott	= (sy-radius) - CLIP_BOTT;
+//		distLeft	= (sx+radius) - CLIP_LEFT;
+
+
+		//debug
+//		{
+//			int x0,x1;
+//			int y0,y1;
+//
+//			char c[2] = {'X',0};
+//
+//			x0 = sx - radius;
+//			x1 = sx + radius;
+//			y0 = sy - (radius>>1);
+//			y1 = sy + (radius>>1);
+//
+//			fontPrint(fontSmall, x0,y0, c, 128,128,128);
+//			fontPrint(fontSmall, x1,y0, c, 128,128,128);
+//			fontPrint(fontSmall, x1,y1, c, 128,128,128);
+//			fontPrint(fontSmall, x0,y1, c, 128,128,128);
+//		}
+
+
+		//clip?
+		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0)  )
+//		if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>CLIP_FAR) )
+		{
+			act->clipped = 1;
+		}
+		else
+		{
+			act->clipped = 0;
+		}
 	}
 	else
 	{
-		act->clipped = 0;
+		act->clipped = 1;
 	}
 
 
