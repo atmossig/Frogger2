@@ -172,7 +172,8 @@ void RunTitleScreen()
 				case 2:
 					// select multi player game
 					FreeMenuItems();
-					gameState.multi = MULTILOCAL;
+					if(gameState.multi != MULTIREMOTE)
+						gameState.multi = MULTILOCAL;
 					gameState.menuMode = LEVELSELECT_MODE;
 					ACTOR_DRAWDISTANCEINNER = ULONG_MAX-1;
 					ACTOR_DRAWDISTANCEOUTER = ULONG_MAX;
