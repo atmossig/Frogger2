@@ -164,7 +164,6 @@ struct face
 	long i[3];
 	long e[3];
 	long mat;
-	char parent[100];
 };
 
 struct square
@@ -175,7 +174,6 @@ struct square
 	long ed[4];
 	vtx	  vn;
 	unsigned long adj[4];
-	char parent[100];
 	char status;
 };
 
@@ -505,8 +503,6 @@ void BuildSquareList(void)
 
 			CalculateNormal(&squareList[nSquare]);	// safe since it only uses AB and AC (CD is zero)
 
-			strcpy(squareList[nSquare].parent,faceList[i].parent);
-
 			nSquare++;
 			continue;
 		}
@@ -571,8 +567,6 @@ void BuildSquareList(void)
 					squareList[nSquare].adj[a] = -1;
 
 				CalculateNormal (&squareList[nSquare]);
-				
-				strcpy(squareList[nSquare].parent,faceList[j].parent);
 				
 				nSquare++;
 
@@ -730,11 +724,12 @@ unsigned long lineNo = 0;
 void ProcessLine(char *in)
 {
 	char *cPos = in;
-	static char par[100];
 	static unsigned char inObj = 0;
 	static unsigned long cMat = 0;
 
-	while ((in[0]!='*') && (in[0]!=0))in++;	
+	// Munch whitespace
+	while (*in && (*in != '*')) in++;
+	if (!*in) return;
 	
 	if (inObj == 1)
 		if (strncmp(in,"*NODE_NAME \"collision\"",22) == 0)
@@ -743,37 +738,31 @@ void ProcessLine(char *in)
 	if (strncmp(in,"*GEOMOBJECT {",13) == 0)
 	{
 		inObj = 1;
-		par[0] = 0;
 	}
-
-	if (strncmp(in,"*NODE_PARENT",12) == 0)
-	{
-		strcpy (par,&in[13]);
-	}
-	
-	if (strncmp(in,"*SUBMATERIAL",12) == 0)
+	else if (strncmp(in,"*SUBMATERIAL",12) == 0)
 	{
 		unsigned long k=0;
-		char *in2;
-		while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0)) in++;
-
-		in2 = in;
+		char *num;
 		
-		while (((in[0]>='0') && (in[0]<='9')) && (in[0]!=0)) in++;
-		
-		in[0] = 0;
+		while (*in && (*in<'0' || *in>'9')) in++;
+		if (!*in) return;
 
-		sscanf (in2,"%i",&cMat);		
+		num =in;
+		
+		while (*in<'0' || *in>'9') in++;
+		*in = 0;
+
+		cMat = atoi(num);
 	}
-	
-	/////////////////////////////////////////////////////////////////////////////
-	//17+name
-
-	if (strncmp(in,"*MATERIAL_NAME \"",16) == 0)
+	else if (strncmp(in,"*MATERIAL_NAME \"",16) == 0)
 	{
+		/* Match defined material names with the material numbers in the file */
+		
 		char material[80];
 		char *i = in + 16, *j = material;
 		int m;
+
+		// Find end quote
 
 		while(*i && (*i != '\"'))
 			*(j++) = *(i++);
@@ -787,10 +776,10 @@ void ProcessLine(char *in)
 		return;
 	}
 
-	//////////////////////////////////////////////////////////////////////////////
-
 	if (!inObj)
 	{
+		/* Read in triangles when we're in the collision object */
+
 		lineNo++;
 		if ((lineNo % 50) == 0) PrintSpinner();
 
@@ -842,18 +831,18 @@ void ProcessLine(char *in)
 			faceList[nFace].e[BC]=bc;
 			faceList[nFace].e[CA]=ca;
 
-			while ((in[0]!=0) && (strncmp(in,"*MESH_MTLID",11)!=0))in++;
+			while (*in && (*in != '*')) in++;
 
 			if (strncmp(in,"*MESH_MTLID",11)==0)
 			{
 				unsigned long m;
-				while (((in[0]<'0') || (in[0]>'9')) && (in[0]!=0))in++;
-				sscanf (in,"%i",&m);
+
+				while (*in && (*in < '0' || *in > '9')) in++;
+				m = atoi(in);
+
 				faceList[nFace].mat=mat[m];
 			}
 
-			strcpy(faceList[nFace].parent,par);		
-			printf(par);
 			nFace++;
 		}
 	}
@@ -874,7 +863,9 @@ bool ReadData(void)
 		return false;
 	}
 
-	while (fgets(inStr,200,in))
+	/* Process file one line at a time */
+
+	while (fgets(inStr,254,in))
 	{	
 		ProcessLine (inStr);
 	}
@@ -899,51 +890,68 @@ void WriteTiles (FILE *fp)
 
 	for (int i=0; i<nSquare; i++)
 	{
-		if (squareList[i].parent[0]==0)
-		{
-			fprintf (fp,"  {\t// %u\n", i);
+		fprintf (fp,"  {\t// %u\n", i);
 
-			fprintf(fp, "	{ %s%d, %s%d, %s%d, %s%d },\n",
-				(squareList[i].adj[0]==-1)?"":"tiles+",
-				(squareList[i].adj[0]==-1)?0:squareList[i].adj[0],
-				(squareList[i].adj[1]==-1)?"":"tiles+",
-				(squareList[i].adj[1]==-1)?0:squareList[i].adj[1],
-				(squareList[i].adj[2]==-1)?"":"tiles+",
-				(squareList[i].adj[2]==-1)?0:squareList[i].adj[2],
-				(squareList[i].adj[3]==-1)?"":"tiles+",
-				(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
+		// Yikes! This exciting mess prints "tiles+xxx" or just '0'
+		// for our adjacent tiles.
 
-			fprintf (fp,"	%s%3i,\n",(i==(nSquare-1))?"":"tiles+",(i==(nSquare-1))?0:i+1);
-			fprintf (fp,"	0,\n");
-			fprintf (fp,"	%lu,\n",squareList[i].status);
+		fprintf(fp, "	{ %s%d, %s%d, %s%d, %s%d },\n",
+			(squareList[i].adj[0]==-1)?"":"tiles+",
+			(squareList[i].adj[0]==-1)?0:squareList[i].adj[0],
+			(squareList[i].adj[1]==-1)?"":"tiles+",
+			(squareList[i].adj[1]==-1)?0:squareList[i].adj[1],
+			(squareList[i].adj[2]==-1)?"":"tiles+",
+			(squareList[i].adj[2]==-1)?0:squareList[i].adj[2],
+			(squareList[i].adj[3]==-1)?"":"tiles+",
+			(squareList[i].adj[3]==-1)?0:squareList[i].adj[3]);
+
+		// 'next' pointer
+		
+		if (i < nSquare-1)
+			fprintf(fp, "\ttiles+%d,\n", i+1);
+		else
+			fprintf(fp, "\tNULL,\n");
+		
+		// I don't know what this value is, or why it exists. Heigh ho.
+
+		fprintf (fp,"	NULL,\n");
+
+		// Tile status
+
+		fprintf (fp,"	%lu,\n",squareList[i].status);
+		
+		// centre
+
+		fprintf (fp,"	{%f,%f,%f},\n",
+			squareList[i].centre.x,
+			squareList[i].centre.z,
+			squareList[i].centre.y);
+		
+		// normal
+
+		fprintf (fp,"	{%f,%f,%f},\n",squareList[i].vn.x,squareList[i].vn.z,squareList[i].vn.y);
+		
+		// direction vectors
+
+		fprintf (fp,"	{{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},{%f,%f,%f}},\n",
+			squareList[i].n[1].x,
+			squareList[i].n[1].z,
+			squareList[i].n[1].y,
 			
-			fprintf (fp,"	{%f,%f,%f},\n",
-				squareList[i].centre.x,
-				squareList[i].centre.z,
-				squareList[i].centre.y);
+			squareList[i].n[2].x,
+			squareList[i].n[2].z,
+			squareList[i].n[2].y,
 			
-			fprintf (fp,"	{%f,%f,%f},\n",squareList[i].vn.x,squareList[i].vn.z,squareList[i].vn.y);
+			squareList[i].n[3].x,
+			squareList[i].n[3].z,
+			squareList[i].n[3].y,
 			
-			fprintf (fp,"	{{%f,%f,%f},{%f,%f,%f},{%f,%f,%f},{%f,%f,%f}},\n",
-				squareList[i].n[1].x,
-				squareList[i].n[1].z,
-				squareList[i].n[1].y,
-				
-				squareList[i].n[2].x,
-				squareList[i].n[2].z,
-				squareList[i].n[2].y,
-				
-				squareList[i].n[3].x,
-				squareList[i].n[3].z,
-				squareList[i].n[3].y,
-				
-				squareList[i].n[0].x,
-				squareList[i].n[0].z,
-				squareList[i].n[0].y
-				);
-			
-			fprintf (fp,"  },\n",i);
-		}
+			squareList[i].n[0].x,
+			squareList[i].n[0].z,
+			squareList[i].n[0].y
+			);
+		
+		fprintf (fp,"  },\n",i);
 	}
 
 	fprintf(fp, "} // END OF ARRAY\n;");
@@ -972,18 +980,6 @@ void WriteExterns(FILE *fp)
 
 void WriteHeaders (FILE *fp)
 {
-	if (numFrogs == 0)
-	{
-		puts("Error: No start tiles");
-		exit(1);
-	}
-
-	if (numFrogs>4)
-	{
-		puts("Error: More than 4 start tiles");
-		exit (1);
-	}
-	
 	unsigned long i;
 
 	fprintf (fp,"\nGAMETILE *t_gTStart[4] = {%s%i, %s%i, %s%i, %s%i};\n",
@@ -1059,9 +1055,22 @@ void WriteHeaders (FILE *fp)
 	Returns		: void 
 */
 
-void WriteData(void)
+int WriteData(void)
 {
 	FILE *out;
+
+	if (numFrogs == 0)
+	{
+		puts("Error: No start tiles");
+		return 0;
+	}
+
+	if (numFrogs>4)
+	{
+		puts("Error: More than 4 start tiles");
+		return 0;
+	}
+	
 	printf ("Writing %s..",outF);
 	out = fopen (outF,"wt");
 
@@ -1125,10 +1134,10 @@ void WriteData(void)
 			return (long)tiles;\n\
 		}\n\n");
 		
-
-	
 	fclose (out);
 	printf("done\n");
+
+	return 1;
 }
 
 /* --------------------------------------------------------------------------------
@@ -1168,7 +1177,6 @@ int main (int argc, char *argv[])
 	if (!ReadData()) return 1;
 	BuildSquareList();
 	CalculateAdj();
-	WriteData();
 
-	return 0;
+	return WriteData() ? 0 : 128;
 }
