@@ -212,7 +212,7 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	fx.flags = SPRITE_SUBTRACTIVE;
 	fx.a = alpha;
 	fx.zDepthOff = -1;	//bring the shadow closer to the camera
-	fx.r = fx.g = fx.b = 0xff;
+	fx.r = fx.g = fx.b = 0;//0xff;
 	
 	Print3D3DSprite ( &fx, vT, colour );
 }
@@ -307,33 +307,28 @@ void DrawFXRing(SPECFX *fx)
 	fixed tilt, tilt2, t;
 	int zeroZ = 0;
 	int r,g,b;
-	
+
 	MATRIX tMtrx, rMtrx, sMtrx, tempMtrx;
 
 	if( !(tEntry = fx->tex) )
 		return;
 
 	SetVectorFF(&scale, &fx->scale);
+
 	scale.vx /= 150;
 	scale.vy /= 150;
-	scale.vz /= 150;	
+	scale.vz /= 150;
+
 	SetVectorFF(&normal, &fx->normal);
 	SetVectorSS(&pos, &fx->origin);
 
-//	ScaleVectorFF( &scale, 410 );
-//	ScaleVectorFF( &pos, 410 );
-
-
 	// Translate to current fx pos and push
-//	guTranslateF( tMtrx, pos.vx, pos.vy, pos.vz );
-//	PushMatrix( tMtrx );
 	tMtrx = GsIDMATRIX;
 	tMtrx.t[0] = -pos.vx;
 	tMtrx.t[1] = -pos.vy;
 	tMtrx.t[2] = pos.vz;
 
 	// Rotate around axis
-//	SetVector( (MDX_VECTOR *)&q1, &normal );
 	SetVectorFF((FVECTOR*)&q1, &normal);
 
 	// Rotate to be around normal
@@ -341,33 +336,16 @@ void DrawFXRing(SPECFX *fx)
 	MakeUnit((FVECTOR *)&cross);
 	t = DotProductFF((FVECTOR*)&q1, &upVec);
 	cross.w = -arccos(t);
-//	GetQuaternionFromRotation( &q3, &cross );
 	fixedGetQuaternionFromRotation(&q3, &cross);
 
 	// Combine the rotations and push
-//	QuaternionToMatrix( &q3,(MDX_MATRIX *)rMtrx);
-//	PushMatrix( rMtrx );
 	QuatToPSXMatrix(&q3, &rMtrx);
 
-//	if(fx->type == FXTYPE_CROAK)
-//		SwapFrame(3);
-
-//	tilt2 = (float)fx->tilt*0.000244;
 	tilt2 = fx->tilt;
 
-
-/*	vT[0].tu = tEntry->u0;
-	vT[0].tv = tEntry->v1;
-	vT[1].tu = tEntry->u0;
-	vT[1].tv = tEntry->v0;
-	vT[2].tu = tEntry->u1;
-	vT[2].tv = tEntry->v0;
-	vT[3].tu = tEntry->u1;
-	vT[3].tv = tEntry->v1;
-*/
-	r = fx->r;
-	g = fx->g;
-	b = fx->b;
+	r = (fx->r*fx->a) >>8;
+	g = (fx->g*fx->a) >>8;
+	b = (fx->b*fx->a) >>8;
 
 	vT[0].tu = tEntry->u2;
 	vT[0].tv = tEntry->v2;
@@ -392,28 +370,14 @@ void DrawFXRing(SPECFX *fx)
 				int flg;
 
 				vxj = (vx+j)%(NUM_RINGSEGS<<1);
-//				vT[j].sx = ringVtx[vxj].vx*0.000244;
-//				vT[j].sy = ringVtx[vxj].vy*0.000244;
-//				vT[j].sz = ringVtx[vxj].vz*0.000244;
-				vT[j].vx = ringVtx[vxj].vx;//*0.000244;
-				vT[j].vy = ringVtx[vxj].vy;//*0.000244;
-				vT[j].vz = ringVtx[vxj].vz;//*0.000244;
+				vT[j].vx = ringVtx[vxj].vx;
+				vT[j].vy = ringVtx[vxj].vy;
+				vT[j].vz = ringVtx[vxj].vz;
 
 				// Slant the polys
-//				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 1 : tilt2;
 				tilt = (!(i&1)?(j==0||j==3):(j==1||j==2)) ? 4096 : tilt2;
-
-//				vT[j].tv = 1-vT[j].tv;
 				vT[j].tv = tEntry->v2-(vT[j].tv-tEntry->v0);
 
-
-				// Scale and push
-//				guScaleF( sMtrx, tilt*scale.vx, tilt*scale.vy, tilt*scale.vz );
-//				PushMatrix( sMtrx );
-				//bb - scale was causeing overflows
-//				tempFVect.vx = FMul(tilt,scale.vx);
-//				tempFVect.vy = FMul(tilt,scale.vy);
-//				tempFVect.vz = FMul(tilt,scale.vz);
 				tempFVect.vx = FMul(tilt,scale.vx>>4);
 				tempFVect.vy = FMul(tilt,scale.vy>>4);
 				tempFVect.vz = FMul(tilt,scale.vz>>4);
@@ -421,15 +385,12 @@ void DrawFXRing(SPECFX *fx)
 				ScaleMatrix(&sMtrx, &tempFVect);
 
 				// Transform point by combined matrix
-//				MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
-//				guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
-//				tempVect = vT[j];
 				tempVect.vx = -vT[j].vx;
 				tempVect.vy = -vT[j].vy;
 				tempVect.vz =  vT[j].vz;
 				ApplyMatrixLV(&sMtrx, &tempVect, &tempVect);
 				ApplyMatrixLV(&rMtrx, &tempVect, &tempVect);
-//				ApplyMatrixLV(&tMtrx, &tempVect, &tempVect);
+
 				tempVect.vx -= pos.vx;
 				tempVect.vy -= pos.vy;
 				tempVect.vz += pos.vz;
@@ -441,164 +402,118 @@ void DrawFXRing(SPECFX *fx)
 					fxpos.vz = tempVect.vz;
 				}
 
-//				XfmPoint( &m, &tempVect, NULL );
 				gte_SetTransMatrix(&GsWSMATRIX);
 				gte_SetRotMatrix(&GsWSMATRIX);
 				gte_ldlv0(&tempVect);
 				gte_rtps();
-//ma			gte_stsxy(&m.vx);
-//				gte_stsz(&m.vz);	//screen z/4 as otz
-				m.vx = screenxy[2].vx;
-				m.vy = screenxy[2].vy;
-				m.vz = (screenxy[2].vz)*0.0625;
-//ma				gte_stszotz(&m.vz);	//screen z/4 as otz
+				gte_stsxy(&m.vx);
+				gte_stszotz(&m.vz);	//screen z/4 as otz
 				m.vz>>=2;
-//ma				gte_stflg(&flg);	//screen z/4 as otzz
+//ma				gte_stflg(&flg);	//screen z/4 as otz
 
 				// Assign back to vT array
 				vT[j].vx = m.vx;
 				vT[j].vy = m.vy;
-//				if(!m.vz)
 				if( (m.vz<60) || (m.vz>1000) )
-//				if(flg)
 					zeroZ++;
 				else
-//					vT[j].sz = (m.vz+DIST)*0.00025;
 					vT[j].vz = m.vz;
-
-//				PopMatrix( ); // Pop scale
 			}
 		}
 
 		if(!zeroZ)
 		{
-/*			if( (vT[0].vx>-256) && (vT[0].vx<256)
-			 && (vT[0].vy>-120) && (vT[0].vy<120)
-			 &&	(vT[1].vx>-256) && (vT[1].vx<256)
-			 && (vT[1].vy>-120) && (vT[1].vy<120)
-			 &&	(vT[2].vx>-256) && (vT[2].vx<256)
-			 && (vT[2].vy>-120) && (vT[2].vy<120)
-			 &&	(vT[3].vx>-256) && (vT[3].vx<256)
-			 && (vT[3].vy>-120) && (vT[3].vy<120) )
-*/			{
-			
-				POLY_FT4 *ft4;
-				int width;
+			POLY_FT4 *ft4;
+			int width;
 
-				memcpy( vTPrev, &vT[2], sizeof(VERT)*2 );
-				memcpy( &vT[4], &vT[0], sizeof(VERT) );
-	//			Clip3DPolygon( vT, tEntry );
-	//			Clip3DPolygon( &vT[2], tEntry );
+			vT[0].tu = tEntry->u2;
+			vT[1].tu = tEntry->u0;
+			vT[2].tu = tEntry->u1;
+			vT[3].tu = tEntry->u3;
 
-			
-				//set up a poly
-/*				BEGINPRIM(ft4, POLY_FT4);
-				setPolyFT4(ft4);
-				ft4->x0 = vT[0].vx;
-				ft4->y0 = vT[0].vy;
-				ft4->x1 = vT[3].vx;
-				ft4->y1 = vT[3].vy;
-				ft4->x2 = vT[1].vx;
-				ft4->y2 = vT[1].vy;
-				ft4->x3 = vT[2].vx;
-				ft4->y3 = vT[2].vy;
-				ft4->r0 = 64;
-				ft4->g0 = 64;
-				ft4->b0 = 64;
-				ft4->u0 = tEntry->u0;
-				ft4->v0 = tEntry->v0;
-				ft4->u1 = tEntry->u1;
-				ft4->v1 = tEntry->v1;
-				ft4->u2 = tEntry->u3;
-				ft4->v2 = tEntry->v3;
-				ft4->u3 = tEntry->u2;
-				ft4->v3 = tEntry->v2;
-				ft4->tpage = tEntry->tpage;
-				ft4->clut  = tEntry->clut;
-				ft4->code  |= 2;//semi-trans on
- 				ft4->tpage |= 32;//add
-				ENDPRIM(ft4, 1, POLY_FT4);
-*/
-/*ma				BEGINPRIM(ft4, POLY_FT4);
-				setPolyFT4(ft4);
-				ft4->x0 = vT[0].vx;
-				ft4->y0 = vT[0].vy;
-				ft4->x1 = vT[1].vx;
-				ft4->y1 = vT[1].vy;
-				ft4->x2 = vT[3].vx;
-				ft4->y2 = vT[3].vy;
-				ft4->x3 = vT[2].vx;
-				ft4->y3 = vT[2].vy;
-				ft4->r0 = fx->a>>1;
-				ft4->g0 = fx->a>>1;
-				ft4->b0 = fx->a>>1;
-				ft4->u0 = vT[0].tu;
-				ft4->v0 = vT[0].tv;
-				ft4->u1 = vT[1].tu;
-				ft4->v1 = vT[1].tv;
-				ft4->u2 = vT[3].tu;
-				ft4->v2 = vT[3].tv;
-				ft4->u3 = vT[2].tu;
-				ft4->v3 = vT[2].tv;
-				ft4->tpage = tEntry->tpage;
-				ft4->clut  = tEntry->clut;
-				ft4->code  |= 2;//semi-trans on
- 				ft4->tpage |= 32;//add
-				ENDPRIM(ft4, 1, POLY_FT4);
-*/
-				vertices_GT4[0].fX = vT[0].vx;
-				vertices_GT4[0].fY = vT[0].vy;
-				vertices_GT4[0].u.fZ = 10.0;
-				vertices_GT4[0].fU = (float)0;
-				vertices_GT4[0].fV = (float)0;
-//				vertices_GT4[0].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-				vertices_GT4[0].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			memcpy( vTPrev, &vT[2], sizeof(VERT)*2 );
+			memcpy( &vT[4], &vT[0], sizeof(VERT) );
 
-				vertices_GT4[1].fX = vT[1].vx;
-				vertices_GT4[1].fY = vT[1].vy;
-				vertices_GT4[1].u.fZ = 10.0;
-				vertices_GT4[1].fU = (float)1;
-				vertices_GT4[1].fV = (float)0;
-//				vertices_GT4[1].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-				vertices_GT4[1].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+/*ma
+			BEGINPRIM(ft4, POLY_FT4);
+			setPolyFT4(ft4);
+			ft4->x0 = vT[0].vx;
+			ft4->y0 = vT[0].vy;
+			ft4->x1 = vT[1].vx;
+			ft4->y1 = vT[1].vy;
+			ft4->x2 = vT[3].vx;
+			ft4->y2 = vT[3].vy;
+			ft4->x3 = vT[2].vx;
+			ft4->y3 = vT[2].vy;
+			ft4->r0 = r;
+			ft4->g0 = g;
+			ft4->b0 = b;
+			ft4->u0 = vT[0].tu;
+			ft4->v0 = vT[0].tv;
+			ft4->u1 = vT[1].tu;
+			ft4->v1 = vT[1].tv;
+			ft4->u2 = vT[3].tu;
+			ft4->v2 = vT[3].tv;
+			ft4->u3 = vT[2].tu;
+			ft4->v3 = vT[2].tv;
+			ft4->tpage = tEntry->tpage;
+			ft4->clut  = tEntry->clut;
+			ft4->code  |= 2;//semi-trans on
+ 			ft4->tpage |= 32;//add
+			ENDPRIM(ft4, 1, POLY_FT4);
+*/		
+			vertices_GT4[0].fX = vT[0].vx;
+			vertices_GT4[0].fY = vT[0].vy;
+			vertices_GT4[0].u.fZ = 10.0;
+			vertices_GT4[0].fU = (float)0;
+			vertices_GT4[0].fV = (float)0;
+//			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
+			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(255,255,255,255);
 
-				vertices_GT4[2].fX = vT[2].vx;
-				vertices_GT4[2].fY = vT[2].vy;
-				vertices_GT4[2].u.fZ = 10.0;
-				vertices_GT4[2].fU = (float)0;
-				vertices_GT4[2].fV = (float)1;
-//				vertices_GT4[2].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-				vertices_GT4[2].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			vertices_GT4[1].fX = vT[1].vx;
+			vertices_GT4[1].fY = vT[1].vy;
+			vertices_GT4[1].u.fZ = 10.0;
+			vertices_GT4[1].fU = (float)1;
+			vertices_GT4[1].fV = (float)0;
+//			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
+			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(255,255,255,255);
 
-				vertices_GT4[3].fX = vT[3].vx;
-				vertices_GT4[3].fY = vT[3].vy;
-				vertices_GT4[3].u.fZ = 10.0;
-				vertices_GT4[3].fU = (float)1;
-				vertices_GT4[3].fV = (float)1;
-//				vertices_GT4[3].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-				vertices_GT4[3].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			vertices_GT4[2].fX = vT[2].vx;
+			vertices_GT4[2].fY = vT[2].vy;
+			vertices_GT4[2].u.fZ = 10.0;
+			vertices_GT4[2].fU = (float)0;
+			vertices_GT4[2].fV = (float)1;
+//			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
+			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(255,255,255,255);
 
-				kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,tEntry->surfacePtr);
+			vertices_GT4[3].fX = vT[3].vx;
+			vertices_GT4[3].fY = vT[3].vy;
+			vertices_GT4[3].u.fZ = 10.0;
+			vertices_GT4[3].fU = (float)1;
+			vertices_GT4[3].fV = (float)1;
+//			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
+			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(255,255,255,255);
 
-				kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-				kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-				kmEndStrip(&vertexBufferDesc);			
+			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,tEntry->surfacePtr);
+
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmEndStrip(&vertexBufferDesc);			
 				
-				if((i&1) && (actFrameCount&1))
-				{
-					SPECFX *trail;
+			if((i&1) && (actFrameCount&1))
+			{
+				SPECFX *trail;
 
-					if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
-					{
-						trail->tilt = 8192;
-						if(i&2)
-							SetFXColour(trail, 180, 220, 180);
-						else
-							SetFXColour(trail, fx->r, fx->g, fx->b);
-					}
+				if((trail = CreateSpecialEffect(FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096)))
+				{
+					trail->tilt = 8192;
+					if(i&2)
+						SetFXColour(trail, 180, 220, 180);
+					else
+						SetFXColour(trail, fx->r, fx->g, fx->b);
 				}
 			}
 		}

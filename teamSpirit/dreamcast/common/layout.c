@@ -720,7 +720,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadTextureBank ( INGAMEGENERIC_TEX_BANK );
 #ifdef PSX_VERSION
 	fontInitButtonSprites();
-//	LoadTextureAnimBank ( INGAMEGENERIC_TEX_BANK );
+	LoadTextureAnimBank ( INGAMEGENERIC_TEX_BANK );
 #endif
 
 	LoadVisualBanksForWorld ( worldID, levelID );

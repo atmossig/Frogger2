@@ -85,91 +85,17 @@ TextureBankType *textureLoadBank(char *sFile)
 	// convert and load textures
 	for(loop=0;loop<numTextures;loop++)
 	{
-		if(pNSprite[loop].flags & NSPLIT)
+		if(utilStr2CRC("AI_CIRCLE") == pNSprite[loop].crc)
 		{
-			num = 0;
-			width = pNSprite[loop].w;
-			height = pNSprite[loop].h;
-			while(pNSprite[loop+num].flags & NSPLIT)		
-			{
-				width += pNSprite[loop+num].w;
-				num++;
-			}
-			num++;
-//			loadBigNSPRITEIntoSurface(newBank, width, height, num, loop);
-			loop += (num-1);			
-		}
-		else
-		{
-/*			if((utilStr2CRC("AI_CIRCLE") == pNSprite[loop].crc)||
-			(utilStr2CRC("FLASH") == pNSprite[loop].crc)||
-			(utilStr2CRC("FLASH2") == pNSprite[loop].crc)||
-			(utilStr2CRC("AI_RING") == pNSprite[loop].crc)||
-			(utilStr2CRC("AI_VOLUME") == pNSprite[loop].crc)||
-			(utilStr2CRC("AI_WARPFLASH") == pNSprite[loop].crc)||
-			(utilStr2CRC("AI_RIPPLE2") == pNSprite[loop].crc))
-				pNSprite[loop].flags |= NALPHA;
-
-*/			if(utilStr2CRC("FROGWATCH01") == pNSprite[loop].crc)
-			{
-				j=8;			
-			}
-				
-			loadNSPRITEIntoSurface(&pNSprite[loop]);
-		}
+			pNSprite[loop].flags |= NALPHA;
+		}			
+		loadNSPRITEIntoSurface(&pNSprite[loop]);
 	}
 
 	Align32Free(pNSprite);	
 	Align32Free(bitmapPtr);
 	Align32Free(twiddlePtr);
 
-/*	newBank->pNSprite = (NSPRITE *)fileLoad(sFile, &filelength);
-	newBank->numTextures = textureSetSPRPointers(newBank->pNSprite);
-
-	newBank->CRC = (unsigned long *)Align32Malloc(newBank->numTextures*4+(newBank->numTextures/8)+1);
-	for(loop=0;loop<newBank->numTextures;loop++)
-	{
-		tempCRC = newBank->pNSprite[loop].crc;
-		newBank->CRC[loop] = newBank->pNSprite[loop].crc;
-	}
-
-	newBank->used = (unsigned char *)(newBank->CRC+newBank->numTextures);
-	memset(newBank->used, 0, (newBank->numTextures/8)+1);
-
-	newBank->texture = (TextureType *)Align32Malloc(sizeof(TextureType)*newBank->numTextures);
-	memset(newBank->texture, 0, sizeof(TextureType)*newBank->numTextures);
-
-	// convert and load textures
-	for(loop=0;loop<newBank->numTextures;loop++)
-	{
-		if(newBank->pNSprite[loop].flags & NSPLIT)
-		{
-			num = 0;
-			width = newBank->pNSprite[loop].w;
-			height = newBank->pNSprite[loop].h;
-			while(newBank->pNSprite[loop+num].flags & NSPLIT)		
-			{
-				width += newBank->pNSprite[loop+num].w;
-				num++;
-			}
-			num++;
-//			loadBigNSPRITEIntoSurface(newBank, width, height, num, loop);
-			loop += (num-1);			
-		}
-		else
-		{
-			if((utilStr2CRC("AI_CIRCLE") == newBank->pNSprite[loop].crc)||
-			(utilStr2CRC("FLASH") == newBank->pNSprite[loop].crc)||
-			(utilStr2CRC("FLASH2") == newBank->pNSprite[loop].crc)||
-			(utilStr2CRC("AI_RING") == newBank->pNSprite[loop].crc)||
-			(utilStr2CRC("AI_VOLUME") == newBank->pNSprite[loop].crc)||
-			(utilStr2CRC("AI_RIPPLE2") == newBank->pNSprite[loop].crc))
-				newBank->pNSprite[loop].flags |= NALPHA;
-				
-			loadNSPRITEIntoSurface(&newBank->pNSprite[loop]);
-		}
-	}
-*/
 	return newBank;
 }
 

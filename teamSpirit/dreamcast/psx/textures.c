@@ -137,6 +137,9 @@ void LoadTextureAnimBank ( int textureBank )
 
 	titFileName[0] =0;
 	
+//	if(textureBank != GARDEN_TEX_BANK)
+//		return;
+		
 	switch ( textureBank )
 	{
 		case GARDEN_TEX_BANK:
@@ -195,49 +198,20 @@ void LoadTextureAnimBank ( int textureBank )
 
 	for ( counter = 0; counter < numAnimations; counter++ )
 	{
-//		DR_MOVE *siMove;
-//		RECT moveRect;
 		numframes = *p;	p++;
 		crc = *p; p++;
 
 		textureAnim = CreateTextureAnimation( crc, numframes );
 
-//ma	sprintf ( dummyString, "DUMMY%d", numUsedDummys++ );
-//ma	dummyTexture = textureFindCRCInAllBanks ( utilStr2CRC ( dummyString ) );
-		
-
-//		moveRect.x = VRAM_CALCVRAMX(textureAnim->animation->dest->handle);
-//		moveRect.y = VRAM_CALCVRAMY(textureAnim->animation->dest->handle);
-//		moveRect.w = (textureAnim->animation->dest->w + 3) / 4;
-//		moveRect.h = textureAnim->animation->dest->h;
-
-		// check for 256 colour mode
-//		if(textureAnim->animation->dest->tpage & (1 << 7))
-//			moveRect.w *= 2;
-
-		// copy bit of vram
-//		BEGINPRIM ( siMove, DR_MOVE );
-//		SetDrawMove(siMove, &moveRect, VRAM_CALCVRAMX(dummyTexture->handle),VRAM_CALCVRAMY(dummyTexture->handle));
-//		ENDPRIM ( siMove, 1023, DR_MOVE );
-
 		for ( counter1 = 0; counter1 < numframes; counter1++ )
 		{
-			crc = *p; p++;
-			waitTime = *p; p++;
-
+			crc = *p;
+			p++;
+			waitTime = *p;
+			p++;
 			AddAnimFrame ( textureAnim, crc, waitTime, counter1 );
-
-//			if ( crc == textureAnim->animation->dest->imageCRC )
-//			{
-//				textureAnim->animation->anim [ counter1 ] = dummyTexture;
-//			}
-			// ENDIF
 		}
-		// ENDFOR
-		
 	}
-	// ENDFOR
-	
 }
 
 void FreeTextureBank(TextureBankType *textureBank)
@@ -316,6 +290,9 @@ TEXTUREANIM *CreateTextureAnimation ( long crc, int numframes )
 	// ENDIF
 
 	textureAnim->animation->dest = FindTexture2(crc);
+	textureAnim->animation->dest->animated = TRUE;
+	if(textureAnim->animation->dest == NULL)
+		textureAnim->animation->dest = &DCKtextureList[0];
 	textureAnim->animation->anim = (TextureType **)((unsigned char *)textureAnim->animation + sizeof(TextureAnimType));
 	textureAnim->animation->waitTimes = (short *)MALLOC0( sizeof(short)*numframes );
 
@@ -390,7 +367,6 @@ void UpdateTextureAnimations ( void )
 			// JH: Copy the required texture into vram.
 
 			cur->animation->dest->surfacePtr = &cur->animation->anim[cur->frame]->surface;
-			cur->animation->dest->animated = TRUE;
 //			CopyTexture ( cur->animation->dest, cur->animation->anim[cur->frame], 0 );
 		}
 		

@@ -633,7 +633,11 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 	if ( max_depth > 1024 - mesh->extra_depth )
 		max_depth = 1024 - mesh->extra_depth;
 
-
+	stripGT3FMAtextureID   = -1;
+	stripGT3FMAtextureID_A = -1;
+	stripGT4FMAtextureID   = -1;
+	stripGT4FMAtextureID_A = -1;
+	
 	if( mesh->flags & JIGGLE )
 
 	{
@@ -932,7 +936,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 			vertices_GT3_FMA[2].fV = v2 / 127.0;
 			vertices_GT3_FMA[2].uBaseRGB.dwPacked = RGBA(op->r2,op->g2,op->b2,alpha);
 
-			if((tex->animated)||(alpha!=255))
+//			if((tex->animated)||(alpha!=255))
 			{
 				// check to see if alpha channel is to be used
 				if((tex->colourKey)||(alpha!=255))
@@ -940,7 +944,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 					// change strip if required		
 					if(op->tpage != stripGT3FMAtextureID_A)
 					{
-						kmChangeStripTextureSurface(&StripHead_GT3_FMA_Alpha,KM_IMAGE_PARAM1,&tex->surface);
+						kmChangeStripTextureSurface(&StripHead_GT3_FMA_Alpha,KM_IMAGE_PARAM1,tex->surfacePtr);
 						stripGT3FMAtextureID_A = op->tpage;
 					}
 					kmStartStrip(&vertexBufferDesc, &StripHead_GT3_FMA_Alpha);
@@ -950,16 +954,16 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 					// change strip if required
 					if(op->tpage != stripGT3FMAtextureID)
 					{
-						kmChangeStripTextureSurface(&StripHead_GT3_FMA,KM_IMAGE_PARAM1,&tex->surface);
+						kmChangeStripTextureSurface(&StripHead_GT3_FMA,KM_IMAGE_PARAM1,tex->surfacePtr);
 						stripGT3FMAtextureID = op->tpage;
 					}
 					kmStartStrip(&vertexBufferDesc, &StripHead_GT3_FMA);	
 				}	
 			}
-			else
-			{
-				kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
-			}
+//			else
+//			{
+//				kmStartStrip(&vertexBufferDesc, &tex->stripHead);	
+//			}
 	
 			kmSetVertex(&vertexBufferDesc, &vertices_GT3_FMA[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT3_FMA[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	

@@ -127,7 +127,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			g = spr->g;
 			b = spr->b;
 //			alpha = 255;
-			if(alpha)
+//			if(alpha)
 			{
 				if(spr->flags & SPRITE_SUBTRACTIVE)
 				{
@@ -350,8 +350,8 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 
 //		atbdx = spr->xPos-2048;
 //		atbdy = spr->yPos-(120*17);
-		atbdx = spr->xPos;
-		atbdy = spr->yPos;
+		atbdx = spr->xPos-96;
+		atbdy = spr->yPos-96;
 		tPtr = spr->tex;
 
 		x0 = -halfWidth;

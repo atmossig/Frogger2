@@ -297,5 +297,7 @@ void textureDownLoad(NSPRITE *nspr, TextureType *txPtr);
 
 TextureType* FindTexture(char *name);
 
+extern	USHORT	*bitmapPtr;
+extern	USHORT	*twiddlePtr;
 
 #endif

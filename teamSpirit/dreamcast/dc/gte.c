@@ -1830,42 +1830,32 @@ MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v)
 
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
 {
+	SVECTOR v = *v0;
 	// Matrix m * SVector v0
-	v1->vx = (((m->m[0][0] * v0->vx) + (m->m[0][1] * v0->vy) 
-		+ (m->m[0][2] * v0->vz)) >> 12);
-	v1->vy = (((m->m[1][0] * v0->vx) + (m->m[1][1] * v0->vy) 
-		+ (m->m[1][2] * v0->vz)) >> 12);
-	v1->vz = (((m->m[2][0] * v0->vx) + (m->m[2][1] * v0->vy) 
-		+ (m->m[2][2] * v0->vz)) >> 12);
+	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
+		+ (m->m[0][2] * v.vz)) >> 12);
+	v1->vy = (((m->m[1][0] * v.vx) + (m->m[1][1] * v.vy) 
+		+ (m->m[1][2] * v.vz)) >> 12);
+	v1->vz = (((m->m[2][0] * v.vx) + (m->m[2][1] * v.vy) 
+		+ (m->m[2][2] * v.vz)) >> 12);
 
 	return v1;
 }
 
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 {
+	VECTOR v = *v0;
 	// Matrix m * Vector v0
-	v1->vx = (((m->m[0][0] * v0->vx) + (m->m[0][1] * v0->vy) 
-		+ (m->m[0][2] * v0->vz)) >> 12);
-	v1->vy = (((m->m[1][0] * v0->vx) + (m->m[1][1] * v0->vy) 
-		+ (m->m[1][2] * v0->vz)) >> 12);
-	v1->vz = (((m->m[2][0] * v0->vx) + (m->m[2][1] * v0->vy) 
-		+ (m->m[2][2] * v0->vz)) >> 12);
+	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
+		+ (m->m[0][2] * v.vz)) >> 12);
+	v1->vy = (((m->m[1][0] * v.vx) + (m->m[1][1] * v.vy) 
+		+ (m->m[1][2] * v.vz)) >> 12);
+	v1->vz = (((m->m[2][0] * v.vx) + (m->m[2][1] * v.vy) 
+		+ (m->m[2][2] * v.vz)) >> 12);
 
 	return v1;
 }
 
-SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1)
-{
-	// Matrix m * SVector v0
-	v1->vx = (((m->m[0][0] * v0->vx) + (m->m[0][1] * v0->vy) 
-		+ (m->m[0][2] * v0->vz)) >> 12);
-	v1->vy = (((m->m[1][0] * v0->vx) + (m->m[1][1] * v0->vy) 
-		+ (m->m[1][2] * v0->vz)) >> 12);
-	v1->vz = (((m->m[2][0] * v0->vx) + (m->m[2][1] * v0->vy) 
-		+ (m->m[2][2] * v0->vz)) >> 12);
-
-	return v1;
-}
 
 VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1)
 {
@@ -1876,6 +1866,62 @@ VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1)
 		+ (RotMatrix.m[1][2] * v0->vz)) >> 12);
 	v1->vz = (((RotMatrix.m[2][0] * v0->vx) + (RotMatrix.m[2][1] * v0->vy) 
 		+ (RotMatrix.m[2][2] * v0->vz)) >> 12);
+
+	return v1;
+}
+
+
+// CS: I'm afraid I've spent a few minutes knocking this up - it's not fully tested!
+//PP: seems to work OK now - I just construct the matrix the other way round, ie [0][0] -> [2][2] etc
+//			This matches the way RotMatrixZYX does it.
+extern MATRIX *RotMatrixZ(long r,MATRIX *m)
+{
+//ARM:	changed to use look up tables for sin/cos
+//		this function has speeded up alot, but feel free to improve on it !
+	// Rotation Matrix is manipulated
+
+	//top row
+	m->m[0][0]=4096;
+	m->m[0][1]=0;
+	m->m[0][2]=0;
+
+	//middle row
+	m->m[1][0]=0;
+	m->m[1][1]=MATHSPC_ACos((short)r);
+	m->m[1][2]=-MATHSPC_ASin((short)r);
+
+	//bottom row
+	m->m[2][0]=0;
+	m->m[2][1]=MATHSPC_ASin((short)r);
+	m->m[2][2]=MATHSPC_ACos((short)r);
+
+	return m;
+}
+
+SVECTOR *ApplyMatrixSV(MATRIX *m, SVECTOR *v0, SVECTOR *v1)
+{
+	SVECTOR v = *v0;
+	// Matrix m * SVector v0
+	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
+		+ (m->m[0][2] * v.vz)) >> 12);
+	v1->vy = (((m->m[1][0] * v.vx) + (m->m[1][1] * v.vy) 
+		+ (m->m[1][2] * v.vz)) >> 12);
+	v1->vz = (((m->m[2][0] * v.vx) + (m->m[2][1] * v.vy) 
+		+ (m->m[2][2] * v.vz)) >> 12);
+
+	return v1;
+}
+
+VECTOR *ApplyRotMatrixLV(VECTOR *v0, VECTOR *v1)
+{
+	VECTOR v = *v0;
+	// RotMatrix m * SVector v0
+	v1->vx = (((RotMatrix.m[0][0] * v.vx) + (RotMatrix.m[0][1] * v.vy) 
+		+ (RotMatrix.m[0][2] * v.vz)) >> 12);
+	v1->vy = (((RotMatrix.m[1][0] * v.vx) + (RotMatrix.m[1][1] * v.vy) 
+		+ (RotMatrix.m[1][2] * v.vz)) >> 12);
+	v1->vz = (((RotMatrix.m[2][0] * v.vx) + (RotMatrix.m[2][1] * v.vy) 
+		+ (RotMatrix.m[2][2] * v.vz)) >> 12);
 
 	return v1;
 }

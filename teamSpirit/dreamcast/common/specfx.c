@@ -22,6 +22,7 @@
 #include "tongue.h"
 #include "multi.h"
 #include "babyfrog.h"
+#include "cam.h"
 
 #ifdef PSX_VERSION
 #include "textures.h"
@@ -42,8 +43,8 @@
 #define MAX_SPECFX	128
 #define MAX_PLANES	64
 #else
-#define MAX_SPECFX	128
-#define MAX_PLANES	64
+#define MAX_SPECFX	64
+#define MAX_PLANES	16
 #endif
 
 #define FX_CLIPSTEP	(ACTOR_DRAWDISTANCEOUTER>>12)/MAX_SPECFX
@@ -164,10 +165,12 @@ FVECTOR *ringVtx = NULL;
 */
 SPECFX *CreateSpecialEffect( short type, SVECTOR *origin, FVECTOR *normal, fixed size, fixed speed, fixed accn, fixed lifetime )
 {
-	SVECTOR distance;
+//	SVECTOR distance;
 
-	SubVectorSSS( &distance, origin, &frog[0]->actor->position );
-	if( MagnitudeS(&distance) > ACTOR_DRAWDISTANCEOUTER-((sfxList.count*FX_CLIPSTEP)<<12) )
+//	SubVectorSSS( &distance, origin, &frog[0]->actor->position );
+//	if( MagnitudeS(&distance) > ACTOR_DRAWDISTANCEOUTER-((sfxList.count*FX_CLIPSTEP)<<12) )
+//		return NULL;
+	if( !IsPointVisible( origin ) )
 		return NULL;
 
 	return CreateSpecialEffectDirect( type, origin, normal, size, speed, accn, lifetime );
@@ -570,14 +573,12 @@ SPECFX *CreateSpecialEffectDirect( short type, SVECTOR *origin, FVECTOR *normal,
 			DeallocateFX( effect,1 );
 			return NULL;
 		}
-  		if( !(effect->rebound = AllocateP2()) )
-		{
-			DeallocateFX( effect,1 );
-			return NULL;
-		}
 
-		SetVectorSS( &effect->rebound->point, &effect->origin );
- 		SetVectorFF( &effect->rebound->normal, &effect->normal );
+		if( (effect->rebound = AllocateP2()) )
+		{
+			SetVectorSS( &effect->rebound->point, &effect->origin );
+ 			SetVectorFF( &effect->rebound->normal, &effect->normal );
+		}
  
 		if( effect->type == FXTYPE_SPLASH )
 			effect->tex = txtrBubble;
@@ -840,7 +841,7 @@ void UpdateFXDecal( SPECFX *fx )
 	if( fx->spin )
 		fx->angle += (fx->spin * gameSpeed)>>12;
 
-	if( actFrameCount > fx->lifetime )
+	if( (!fx->a) || (actFrameCount > fx->lifetime) )
 		DeallocateFX(fx,1);
 }
 
@@ -874,7 +875,7 @@ void UpdateFXRing( SPECFX *fx )
 	fx->scale.vz += speed;
 	fx->angle += (fx->spin * gameSpeed)>>12;
 	
-	if( actFrameCount > fx->lifetime )
+	if( (!fx->fadeAlpha) || (actFrameCount > fx->lifetime) )
 		DeallocateFX(fx,1);
 }
 
@@ -1106,7 +1107,6 @@ void UpdateFXSwarm( SPECFX *fx )
 void UpdateFXExplode( SPECFX *fx )
 {
 	fixed dist, vS;
-//	int i = fx->numP, j, fo, ele, alive=0;
 	int i = fx->numP, fo, alive=0;
 	FVECTOR up;
 	SPRITE *s;
@@ -1115,8 +1115,6 @@ void UpdateFXExplode( SPECFX *fx )
  	if( fx->follow )
  		SetVectorSS( &fx->origin, &fx->follow->position );
 
-	// Slow down gameSpeed times
-//bb	vS = 4096-FMul(82,gameSpeed);
 	vS = 4096-gameSpeed/50;
 
 	s = fx->sprites;
@@ -1125,6 +1123,7 @@ void UpdateFXExplode( SPECFX *fx )
 	{
 		if( p->bounce == 2 )
 			continue;
+
 		alive++;
 
 		ScaleVectorFF( &p->vel, vS );
@@ -2001,11 +2000,13 @@ void ProcessAttachedEffects( void *entity, int type )
 
 			if( fx )
 			{
-				fx->rebound = AllocateP2();
 				SetVectorFF( &up, &path->nodes[0].worldTile->normal );
-				SetVectorFF( &fx->rebound->normal, &up );
-				ScaleVectorFF( &up, act->radius );
-				AddVectorSSF( &fx->rebound->point, &act->actor->position, &up );
+				if( (fx->rebound = AllocateP2()) )
+				{
+					SetVectorFF( &fx->rebound->normal, &up );
+					ScaleVectorFF( &up, act->radius );
+					AddVectorSSF( &fx->rebound->point, &act->actor->position, &up );
+				}
 
 				SetAttachedFXColour( fx, act->effects );
 			}
@@ -2034,11 +2035,13 @@ void ProcessAttachedEffects( void *entity, int type )
 
 			if( fx )
 			{
-				fx->rebound = AllocateP2();
 				SetVectorFF( &up, &path->nodes[0].worldTile->normal );
-				SetVectorFF( &fx->rebound->normal, &up );
-				ScaleVectorFF( &up, act->radius );
-				AddVectorSSF( &fx->rebound->point, &act->actor->position, &up );
+				if( (fx->rebound = AllocateP2()) )
+				{
+					SetVectorFF( &fx->rebound->normal, &up );
+					ScaleVectorFF( &up, act->radius );
+					AddVectorSSF( &fx->rebound->point, &act->actor->position, &up );
+				}
 
 				SetAttachedFXColour( fx, act->effects );
 			}
@@ -2072,10 +2075,12 @@ void ProcessAttachedEffects( void *entity, int type )
 			act->effects &= ~EF_BUTTERFLYSWARM;
 			if( fx && type == ENTITY_ENEMY && (flags & ENEMY_NEW_FLAPPYTHING) )
 			{
-				fx->rebound = AllocateP2();
 				GetPositionForPathNode( &rPos, &path->nodes[0] );
-				SetVectorSS( &fx->rebound->point, &rPos );
-				SetVectorFF( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
+				if( (fx->rebound = AllocateP2()) )
+				{
+					SetVectorSS( &fx->rebound->point, &rPos );
+					SetVectorFF( &fx->rebound->normal, &path->nodes[0].worldTile->normal );
+				}
 			}
 		}
 		else
@@ -2161,9 +2166,11 @@ void CreateGloopEffects( SPECFX *parent )
 	// Create the second wave of bubbles
 	if( (fx = CreateSpecialEffect( FXTYPE_BUBBLES, &parent->origin, &up, 90112, 2867, 0, 2048 )) )
 	{
-		fx->rebound = AllocateP2();
-		SetVectorFF( &fx->rebound->normal, &up );
-		SetVectorSF( &fx->rebound->point, &surface );
+		if( (fx->rebound = AllocateP2()) )
+		{
+			SetVectorFF( &fx->rebound->normal, &up );
+			SetVectorSF( &fx->rebound->point, &surface );
+		}
 
 		SetFXColour( fx, parent->r, parent->g, parent->b );
 	}
@@ -2175,9 +2182,11 @@ void CreateGloopEffects( SPECFX *parent )
 	if( (fx = CreateSpecialEffect( FXTYPE_SPLASH, (SVECTOR*)&surface, &up, 57344, 10240, 0, 8192 ) ))
 	{
 		fx->gravity = 4100;
-		fx->rebound = AllocateP2();
-		SetVectorFF( &fx->rebound->normal, &up );
-		SetVectorSF( &fx->rebound->point, &surface );
+		if( (fx->rebound = AllocateP2()) )
+		{
+			SetVectorFF( &fx->rebound->normal, &up );
+			SetVectorSF( &fx->rebound->point, &surface );
+		}
 		SetFXColour( fx, parent->r, parent->g, parent->b );
 	}
 }
@@ -2188,7 +2197,7 @@ void CreateLightningEffect( SVECTOR *p1, SVECTOR *p2, unsigned long effects, lon
 {
 	FVECTOR dir;
 	fixed distance, accn, lifetime;
-	short /*rn,*/ i, draw=0;
+	short i, draw=0;
 	SPECFX *fx;
 
 	if( OutcodeCheck(p1,p2) )
@@ -2219,25 +2228,6 @@ void CreateLightningEffect( SVECTOR *p1, SVECTOR *p2, unsigned long effects, lon
 		if( (fx = CreateSpecialEffectDirect(FXTYPE_LIGHTNING, p2, &dir, 20480, distance, accn, lifetime)) )
 		{
 			SetAttachedFXColour( fx, effects );
-
-			// Randomise colours a bit
-//			rn = fx->r>>1;
-//			rn += Random(rn+1)-(rn>>1);
-//			if( rn > 255 ) fx->r = 255;
-//			else if( rn < 0 ) fx->r = 0;
-//			else fx->r = rn;
-
-//			rn = fx->g>>1;
-//			rn += Random(rn+1)-(rn>>1);
-//			if( rn > 255 ) fx->g = 255;
-//			else if( rn < 0 ) fx->g = 0;
-//			else fx->g = rn;
-
-//			rn = fx->b>>1;
-//			rn += Random(rn+1)-(rn>>1);
-//			if( rn > 255 ) fx->b = 255;
-//			else if( rn < 0 ) fx->b = 0;
-//			else fx->b = rn;
 
 #ifdef PSX_VERSION
 			fx->zDepthOff = zDepthOff;
@@ -2281,28 +2271,29 @@ void CreateBlastRing( )
 void CreatePickupEffect( int pl, char r1, char g1, char b1, char r2, char g2, char b2 )
 {
 	SVECTOR pos;
-	FVECTOR seUp;
+	FVECTOR seUp, up;
 	SPECFX *fx;
 
-	SetVectorFF( &seUp, &currTile[pl]->normal );
+	SetVectorFS( &seUp, &currTile[pl]->normal );
 	ScaleVector( &seUp, 200 );
 	AddVectorSFS( &pos, &seUp, &frog[pl]->actor->position );
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &currTile[pl]->normal, 204800, 12288, 0, 20480 )) )
+	SetVectorFF( &up, &currTile[pl]->normal );
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &up, 204800, 12288, 0, 20480 )) )
 	{
 		SetFXColour( fx, r1, g1, b1 );
 		fx->gravity = 2870;
 	}
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &currTile[pl]->normal, 163480, 10240, 0, 24576 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &up, 163480, 10240, 0, 24576 )) )
 	{
 		SetFXColour( fx, r2, g2, b2 );
 		fx->gravity = 2870;
 	}
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &currTile[pl]->normal, 122880, 8192, 0, 28672 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &up, 122880, 8192, 0, 28672 )) )
 	{
 		SetFXColour( fx, r1, g1, b1 );
 		fx->gravity = 2870;
 	}
-	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &currTile[pl]->normal, 81920, 6144, 0, 32768 )) )
+	if( (fx = CreateSpecialEffectDirect( FXTYPE_SPARKLYTRAIL, &pos, &up, 81920, 6144, 0, 32768 )) )
 	{
 		SetFXColour( fx, r2, g2, b2 );
 		fx->gravity = 2870;
@@ -2315,11 +2306,13 @@ void CreateRingEffect( int i )
 	SVECTOR pos;
 	SPECFX *fx;
 
-	SetVectorFF( &up, &currTile[i]->normal );
+	SetVectorFS( &up, &currTile[i]->normal );
 	ScaleVector( &up, (rsin(actFrameCount<<6)>>4)+250 );
 	SetVectorSF( &pos, &up );
 	AddToVectorSS( &pos, &frog[i]->actor->position );
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &currTile[i]->normal, 123840, 1024, 0, 1024 );
+	SetVectorFF( &up, &currTile[i]->normal );
+
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &up, 123840, 1024, 0, 1024 );
 	SetFXColour( fx, frogPool[player[i].character].r, frogPool[player[i].character].g, frogPool[player[i].character].b );
 }
 
@@ -2329,32 +2322,33 @@ void BabyCollectEffect( ACTOR2 *baby, GAMETILE *tile, int i )
 {
 	SPECFX *fx;
 	SVECTOR pos;
-	FVECTOR up;
+	FVECTOR up, normal;
 
-	SetVectorFF( &up, &tile->normal );
+	SetVectorFS( &up, &tile->normal );
 	ScaleVector( &up, 200 );
 	AddVectorSFS( &pos, &up, &baby->actor->position );
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &tile->normal, 65536, 4096, 82, 4096 );
+	SetVectorFF( &normal, &tile->normal );
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &normal, 65536, 4096, 82, 4096 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 
 	// Ring 2
 	AddToVectorSF( &pos, &up );
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &tile->normal, 32768, 2048, 82, 4915 );
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &normal, 32768, 2048, 82, 4915 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 
 	// Ring 3
 	AddToVectorSF( &pos, &up );
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &tile->normal, 16384, 1229, 82, 5734 );
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &normal, 16384, 1229, 82, 5734 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 	
 	// Ring 4
 	AddToVectorSF( &pos, &up );
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &tile->normal, 8192, 409, 82, 6554 );
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &normal, 8192, 409, 82, 6554 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 
 	// Ring 5
 	AddToVectorSF( &pos, &up );
-	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &tile->normal, 4096, 205, 82, 7373 );
+	fx = CreateSpecialEffectDirect( FXTYPE_WAKE, &pos, &normal, 4096, 205, 82, 7373 );
 	SetFXColour( fx, babyList[i].fxColour[0], babyList[i].fxColour[1], babyList[i].fxColour[2] );
 
 	actorAnimate( baby->actor, BABY_ANIM_COLLECT, NO, NO, 180, 0 );
@@ -2363,3 +2357,31 @@ void BabyCollectEffect( ACTOR2 *baby, GAMETILE *tile, int i )
 	actorAnimate(frog[0]->actor,FROG_ANIM_DANCE4,NO,NO,77,0);
 	actorAnimate(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,102,0);
 }
+
+
+void CreateExplodeEffect( SVECTOR *pos, FVECTOR *normal )
+{
+	SPECFX *fx;
+	SVECTOR p;
+
+	SetVectorSF( &p, normal );
+	ScaleVector( &p, 200 );
+	AddToVectorSS( &p, pos );
+
+	fx = CreateSpecialEffect( FXTYPE_POLYRING, &p, normal, 81920, 410, 256, 3072 );
+	SetFXColour( fx, 255, 50, 50 );
+
+	CreateSpecialEffect( FXTYPE_FIERYSMOKE, &p, normal, 102400, 16384, 2048, 10240 );
+	CreateSpecialEffect( FXTYPE_FIERYSMOKE, &p, normal, 204800, 12268, 2048, 10240 );
+	CreateSpecialEffect( FXTYPE_FIERYSMOKE, &p, normal, 409600, 8191, 2048, 10240 );
+
+	if( (fx = CreateSpecialEffect( FXTYPE_SPARKBURST, &p, normal, 61440, 2048, 0, 20480 )) )
+	{
+		SetFXColour( fx, 255, 80, 80 );
+		fx->gravity = 2048;
+	}
+
+	cam_shakiness = 500;
+	cam_shake_falloff = 10;
+}
+

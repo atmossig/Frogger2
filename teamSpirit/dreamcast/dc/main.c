@@ -356,8 +356,6 @@ void main()
 
 //ma	BuildFogTable();
 
-//ma	debug_printf("debug_printf: Start of Test");
-	
 	// render loop
 	while(TRUE)
 	{
@@ -451,7 +449,7 @@ void main()
 				padData.digital[i] |= PAD_START;
 		}
 		
-//		UpdateTextureAnimations();
+		UpdateTextureAnimations();
 				
 		GameLoop();
 		DCTIMER_STOP(1);		
@@ -482,7 +480,7 @@ void main()
 		DCTIMER_STOP(5);		
 
 //		UpdateFrogTongue(0);
-//		UpdateFrogCroak(0);
+		UpdateFrogCroak(0);
 
 //		for( i=0; i<NUM_FROGS; i++ )
 //			if( tongue[i].flags & TONGUE_BEINGUSED )
@@ -509,6 +507,9 @@ void main()
 //		fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
 
 //		sprintf(textbuffer,"rz: %f",(float)camera.rz / 4096.0);
+//		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
+		
+//		sprintf(textbuffer,"frame: %d",frame);
 //		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 			
 		if(timerBars)

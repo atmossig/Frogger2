@@ -11,6 +11,8 @@
 //#include <malloc.h>
 #include <stdarg.h>
 //#include <libsn.h>
+#include <sn_fcntl.h>   /* LibCross file types. */
+#include <usrsnasm.h>   /* LibCross I/O routines. */
 
 
 #define POLYNOMIAL			0x04c11db7L			// polynomial for crc algorithm
@@ -190,8 +192,7 @@ int utilDecompressBuffer(unsigned char *inBuf, unsigned char *outBuf)
 
 int utilPrintf(char* fmt, ...)
 {
-	return 0;
-/*    va_list	arglist;
+    va_list	arglist;
     long	r1, r2, r3, r4, r5, r6;
     int		len;
 
@@ -204,15 +205,10 @@ int utilPrintf(char* fmt, ...)
     r6 = va_arg(arglist, long);
 	va_end(arglist);
     len = sprintf(buffer, fmt, r1, r2, r3, r4, r5, r6);
-#if _DEBUG
-	buffer[len] = 13;
-	buffer[len+1] = 10;
-    PCwrite(-1, buffer, len+1);
-#else
-	printf(buffer);
-#endif
-    return len;
-*/    
+ 
+//ma	debug_printf(buffer);
+	
+    return len;    
 }
 
 /**************************************************************************
