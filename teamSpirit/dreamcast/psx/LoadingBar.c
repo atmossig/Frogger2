@@ -3,6 +3,9 @@
 
 #include "loadingbar.h"
 
+#include <kamui2.h>
+#include "backdrop.h"
+
 int barProgress = 0;
 int barLength = 560;
 

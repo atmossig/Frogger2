@@ -13,6 +13,8 @@
 #include "layout.h"
 #include "sonylibs.h"
 #include "shell.h"
+#include <kamui2.h>
+#include "backdrop.h"
 
 long fadeoutStart, fadeoutLength;
 int fadingOut = 0, keepFade = 0;
