@@ -51,22 +51,27 @@ long RunVideoPlayback()
 			{
 				// Here's some scaling fun ..
 				// if we're running in a window, we want to keep the right aspect ratio but fit
-				// the whole video in the window. 
+				// the whole video in the window.
+				// 640x400 is 8:5 ratio, so that's what all the 8s and 5s mean
 
 				RECT clientr;
 				int width, height;
 
 				GetClientRect(mdxWinInfo.hWndMain, &clientr);
-				
-				width = clientr.right-clientr.left;
-				height = clientr.bottom-clientr.top;
 
+				width = clientr.right;
+				height = clientr.bottom;
+
+				ClientToScreen(mdxWinInfo.hWndMain, (POINT*)&clientr.left);
+				clientr.right += clientr.left;
+				clientr.bottom += clientr.top;
+				
 				// pick the proportionally biggest dimension (width or height)
 				// centre the rectangle in this direction, spanning the other
 
-				if (width*400 < height*640)
+				if (width*5 < height*8)
 				{
-					r.bottom = (width*400)/640;
+					r.bottom = (width*5)/8;
 					r.left = clientr.left;
 					r.right = clientr.right;
 					r.top = ((height-r.bottom)/2)+clientr.top;
@@ -74,7 +79,7 @@ long RunVideoPlayback()
 				}
 				else
 				{
-					r.right = (height*640)/400;
+					r.right = (height*8)/5;
 					r.top = clientr.top;
 					r.bottom = clientr.bottom;
 					r.left = ((width-r.right)/2)+clientr.left;
@@ -84,7 +89,7 @@ long RunVideoPlayback()
 			else
 			{
 				r.right = rXRes;
-				r.bottom = (rXRes*400)/640;
+				r.bottom = (rXRes*5)/8;
 
 				r.left = 0;
 				r.top = (rYRes-r.bottom)/2;
@@ -127,7 +132,7 @@ long RunVideoPlayback()
 
 		ProcessUserInput();
 
-		if (bink->FrameNum == bink->Frames || padData.debounce[0])
+		if (/*bink->FrameNum == bink->Frames ||*/ padData.debounce[0])
 		{
 			// end playback mode..
 			BinkClose(bink); bink=NULL;

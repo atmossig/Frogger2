@@ -81,6 +81,7 @@ long textEntry = 0;
 char textString[255] = "";
 
 char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
+char cdromDrive[4] = "";
 
 char lButton = 0, rButton = 0;
 int editorOk = 0;
@@ -101,6 +102,47 @@ long fogEnable = 0;
 
 void GetArgs(char *arglist);
 
+
+/*	--------------------------------------------------------------------------------
+	Function		: FindFroggerCD
+	Parameters		: 
+	Returns			: int
+	Info			: 
+*/
+
+int FindFrogger2CD(void)
+{
+	char drives[1024], *d = drives;
+	int len;
+
+	utilPrintf("Locating Frogger2 CD-ROM... ");
+
+	len = GetLogicalDriveStrings(1024, drives);
+	while (len)
+	{
+		if (GetDriveType(d) == DRIVE_CDROM)
+		{
+			utilPrintf("%s ", d);
+
+			char label[20];
+			DWORD serial, maxLen, flags;
+
+			GetVolumeInformation(d, label, 20, &serial, &maxLen, &flags, NULL, 0);
+			if (strcmp(label, "FROGGER2") == 0)
+			{
+				utilPrintf("Volume '%s', serial 0x%08x : ok!\n", label, serial);
+				strncpy(cdromDrive, d, 3);
+				return 1;
+			}
+		}
+
+		while (len && *d) len--, d++;
+		if (len) d++, len--;
+	}
+
+	utilPrintf("Couldn't find Frogger2 CD.. failing!\n");
+	return 0;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: GetRegistryInformation(void)
@@ -1061,6 +1103,18 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		currTime.wHour, currTime.wMinute, currTime.wSecond);
 
 	GetRegistryInformation();
+
+#ifdef FINAL_MASTER
+	while (!FindFrogger2CD())
+	{
+		if (MessageBox(NULL,
+			"Please insert your Frogger2 CD!", "Frogger2",
+			MB_ICONEXCLAMATION|MB_RETRYCANCEL) == IDCANCEL)
+			return -1;
+	}
+#else
+	FindFrogger2CD();
+#endif
 	
 	SetUserVideoProc(MyInitProc);
 	// Init common controls
