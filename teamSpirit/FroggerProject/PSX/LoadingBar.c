@@ -41,7 +41,7 @@ static char waterShade[8][8];
 
 char recordStr[256];
 char coinStr[128];
-char chaptStr[32];
+char chaptStr[128];
 char playerStr[4][32];
 short loadingDisplay = 0;
 TextureType *waterTex = NULL;
@@ -124,13 +124,13 @@ void loadingInit ( int worldID, int levelID )
 
 	setCamera(0,0,-12000, 0,0,0);
 
-	worldName = CreateAndAddTextOverlay( 2048 + 4096, y, chaptStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
 
 	if(gameState.mode == FRONTEND_MODE)
 		chaptStr[0] = 0;
 	else if((gameState.single == STORY_MODE) && (gameState.multi == SINGLEPLAYER))
 	{
-		sprintf(chaptStr,GAMESTRING(STR_CHAPTER),storySequenceLevelToChapter[gameState.storySequenceLevel]);
+		sprintf(chaptStr,"%d - %s %s",storySequenceLevelToChapter[gameState.storySequenceLevel] + 1,GAMESTRING(STR_CHAPTER_1a + storySequenceLevelToChapter[gameState.storySequenceLevel]*2),GAMESTRING(STR_CHAPTER_1b + storySequenceLevelToChapter[gameState.storySequenceLevel]*2));
 		backgrounds[0] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,254,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
 		backgrounds[0]->r = backgrounds[0]->g = backgrounds[0]->b = 128;
 		y += 700;

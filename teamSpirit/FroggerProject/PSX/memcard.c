@@ -265,7 +265,7 @@ void SimpleMessage(char *msg, uchar rgb)
 
 	numLines = fontFitToWidth(fontSmall, 420, memmessage, optStr);
 	bufPtr = optStr;
-	y = -47-numLines*6;
+	y = -67-numLines*6;
 
 	BEGINPRIM(f4, POLY_F4);
 	setXYWH(f4, -256,y-7, 512,numLines*12+15);
