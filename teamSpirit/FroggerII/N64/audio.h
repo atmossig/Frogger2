@@ -18,6 +18,7 @@ typedef struct
 	u8	*musicWbk;			//wave data for generic sfx  
 
 	u8	*musicBin[2];		//music data for current tune
+	u8	*bfx;				//pointer to sfx data
 
 	int	musicHandle[2];		//music handle
 	int currentTrack[2];	//current track number
@@ -98,22 +99,6 @@ enum
 	TEST2_TRACK,
 	TEST3_TRACK,
 	TEST4_TRACK,
-	TEST5_TRACK,
-	TEST6_TRACK,
-	TEST7_TRACK,
-	TEST8_TRACK,
-	TEST9_TRACK,
-	TEST10_TRACK,
-	TEST11_TRACK,
-	TEST12_TRACK,
-	TEST13_TRACK,
-	TEST14_TRACK,
-	TEST15_TRACK,
-	TEST16_TRACK,
-	TEST17_TRACK,
-	TEST18_TRACK,
-	TEST19_TRACK,
-	TEST20_TRACK,
 	INTRO_TRACK,
 	NUM_TRACKS,
 };

@@ -2,9 +2,9 @@
 /*********************************************************
 
   libmus.h : Nintendo 64 Music Tools Programmers Library
-  (c) Copyright 1997, Software Creations (Holdings) Ltd.
+  (c) Copyright 1997/1998, Software Creations (Holdings) Ltd.
 
-  Version 2.01
+  Version 3.14
 
   Music library data definition header file.
 
@@ -15,7 +15,7 @@
 
 #include <libaudio.h>
 
-/* sample pointer bank header structure */
+/* sample pointer bank header structure (will be moved into player.h!) */
 typedef struct
 {
   unsigned char	header_name[16];  /* "Nu64 pointer bank" (or something like that)   */
@@ -188,7 +188,10 @@ typedef struct
 #define	  Cstartfx     	0xa7
 #define	  Cbendrange	0xa8
 #define	  Csweep	0xa9
-#define	  Clast		0xaa
+#define	  Cchangefx	0xaa
+#define	  Cmarker	0xab
+#define	  Clength0	0xac
+#define	  Clast		0xad
 
 
 #endif /* _LIBMUS_DATA_H_ */

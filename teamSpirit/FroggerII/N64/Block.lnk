@@ -23,12 +23,11 @@ _codeSegmentEnd         alias   _code_objend
         section.16      code.sbss,codebss
         section.16      code.bss,codebss
 
-; REQUIRED FOR NEW MICROCODE --> START
-        inclib  "c:/ultra/usr/lib/patch5/patch5.lib",code
-; REQUIRED FOR NEW MICROCODE --> END
 
-		inclib	"c:/gnun64/lib/libsn.lib",code
-		inclib	"lib211b.lib", code
+		inclib	"tonylib2.lib",code
+		inclib	"libsn.lib",code
+;		inclib	"lib211b.lib", code
+		inclib	"lib314.lib", code
         include "c:/n64/PR/rspboot.obj",code
 
         include "snmain.obj",code
@@ -103,9 +102,14 @@ _codeSegmentEnd         alias   _code_objend
 
 		include "c:/n64/pr/aspmain.obj",code
 
-        ;inclib  "libmus.lib",code
-		inclib	"lib.lib", code
-		inclib	"lib211b.lib", code
+;--- new audio stuff ---
+
+		include "c:/gnun64/lib/n_aspMain.obj",code
+		inclib  "libn_gmus.lib",code
+		inclib	"libn_gaudio_sc.lib",code
+
+;-----------------------
+
 
 acostab         incbin  "incbins\acos.bin",code.data,16
 atantab         incbin  "incbins\atan.bin",code.data,16
@@ -2895,7 +2899,7 @@ _pbank1SegmentRomStart alias _pbank1_org
 _pbank1SegmentRomEnd   alias _pbank1_orgend
 
         section.16       pbank1.data,pbank1
-pbnk1	incbin "music/nosfx.ptr",pbank1.data, 32
+pbnk1	incbin "music/new/frogger2.ptr",pbank1.data, 32
 
 ;--
 pbank2        group   obj()
@@ -2918,7 +2922,7 @@ _wbank1SegmentRomStart alias _wbank1_org
 _wbank1SegmentRomEnd   alias _wbank1_orgend
 
         section.16       wbank1.data,wbank1
-wbnk1   incbin "music/nosfx.wbk",wbank1.data, 32
+wbnk1   incbin "music/new/frogger2.wbk",wbank1.data, 32
 
 ;--
 wbank2        group   obj()
@@ -2930,6 +2934,14 @@ _wbank2SegmentRomEnd   alias _wbank2_orgend
         section.16       wbank2.data,wbank2
 wbnk2   incbin "sfx/sfx.wbk",wbank2.data, 32
 
+;--
+sbank1        group   obj()
+sbank1bss     group   obj(),bss
+
+_sbank1SegmentRomStart alias _sbank1_org
+_sbank1SegmentRomEnd   alias _sbank1_orgend
+        section.16       sbank1.data,sbank1
+sbnk1   incbin "sfx/sfx.bfx",sbank1.data, 32
 
 
 
@@ -2941,7 +2953,7 @@ mBank1bss     group   obj(),bss
 _mBank1SegmentRomStart alias _mBank1_org
 _mBank1SegmentRomEnd   alias _mBank1_orgend
         section.16       mBank1.data,mBank1
-mbnk1  incbin "music/atlant1.cad",mBank1.data, 32
+mbnk1  incbin "music/new/garden/garden.bin",mBank1.data, 32
 
 ; [ TEST2_TRACK ] >>>>>
 
@@ -2951,7 +2963,7 @@ mBank2bss     group   obj(),bss
 _mBank2SegmentRomStart alias _mBank2_org
 _mBank2SegmentRomEnd   alias _mBank2_orgend
         section.16       mBank2.data,mBank2
-mbnk2  incbin "music/atlant2.cad",mBank2.data, 32
+mbnk2  incbin "music/new/hub/hub.bin",mBank2.data, 32
 
 ; [ TEST3_TRACK ] >>>>>
 
@@ -2961,7 +2973,7 @@ mBank3bss     group   obj(),bss
 _mBank3SegmentRomStart alias _mBank3_org
 _mBank3SegmentRomEnd   alias _mBank3_orgend
         section.16       mBank3.data,mBank3
-mbnk3  incbin "music/atlant3.cad",mBank3.data, 32
+mbnk3  incbin "music/new/labs/labs.bin",mBank3.data, 32
 
 ; [ TEST4_TRACK ] >>>>>
 
@@ -2971,165 +2983,4 @@ mBank4bss     group   obj(),bss
 _mBank4SegmentRomStart alias _mBank4_org
 _mBank4SegmentRomEnd   alias _mBank4_orgend
         section.16       mBank4.data,mBank4
-mbnk4  incbin "music/carn1.cad",mBank4.data, 32
-
-; [ TEST5_TRACK ] >>>>>
-
-mBank5        group   obj()
-mBank5bss     group   obj(),bss
-
-_mBank5SegmentRomStart alias _mBank5_org
-_mBank5SegmentRomEnd   alias _mBank5_orgend
-        section.16       mBank5.data,mBank5
-mbnk5  incbin "music/carn2.cad",mBank5.data, 32
-
-; [ TEST6_TRACK ] >>>>>
-
-mBank6        group   obj()
-mBank6bss     group   obj(),bss
-
-_mBank6SegmentRomStart alias _mBank6_org
-_mBank6SegmentRomEnd   alias _mBank6_orgend
-        section.16       mBank6.data,mBank6
-mbnk6  incbin "music/carn3.cad",mBank6.data, 32
-
-; [ TEST7_TRACK ] >>>>>
-
-mBank7        group   obj()
-mBank7bss     group   obj(),bss
-
-_mBank7SegmentRomStart alias _mBank7_org
-_mBank7SegmentRomEnd   alias _mBank7_orgend
-        section.16       mBank7.data,mBank7
-mbnk7  incbin "music/fear1.cad",mBank7.data, 32
-
-; [ TEST8_TRACK ] >>>>>
-
-mBank8        group   obj()
-mBank8bss     group   obj(),bss
-
-_mBank8SegmentRomStart alias _mBank8_org
-_mBank8SegmentRomEnd   alias _mBank8_orgend
-        section.16       mBank8.data,mBank8
-mbnk8  incbin "music/fear2.cad",mBank8.data, 32
-
-; [ TEST9_TRACK ] >>>>>
-
-mBank9        group   obj()
-mBank9bss     group   obj(),bss
-
-_mBank9SegmentRomStart alias _mBank9_org
-_mBank9SegmentRomEnd   alias _mBank9_orgend
-        section.16       mBank9.data,mBank9
-mbnk9  incbin "music/fear3.cad",mBank9.data, 32
-
-; [ TEST10_TRACK ] >>>>>
-
-mBank10        group   obj()
-mBank10bss     group   obj(),bss
-
-_mBank10SegmentRomStart alias _mBank10_org
-_mBank10SegmentRomEnd   alias _mBank10_orgend
-        section.16       mBank10.data,mBank10
-mbnk10  incbin "music/pirate1.cad",mBank10.data, 32
-
-; [ TEST11_TRACK ] >>>>>
-
-mBank11        group   obj()
-mBank11bss     group   obj(),bss
-
-_mBank11SegmentRomStart alias _mBank11_org
-_mBank11SegmentRomEnd   alias _mBank11_orgend
-        section.16       mBank11.data,mBank11
-mbnk11  incbin "music/pirate2.cad",mBank11.data, 32
-
-; [ TEST12_TRACK ] >>>>>
-
-mBank12        group   obj()
-mBank12bss     group   obj(),bss
-
-_mBank12SegmentRomStart alias _mBank12_org
-_mBank12SegmentRomEnd   alias _mBank12_orgend
-        section.16       mBank12.data,mBank12
-mbnk12  incbin "music/pirate3.cad",mBank12.data, 32
-
-; [ TEST13_TRACK ] >>>>>
-
-mBank13        group   obj()
-mBank13bss     group   obj(),bss
-
-_mBank13SegmentRomStart alias _mBank13_org
-_mBank13SegmentRomEnd   alias _mBank13_orgend
-        section.16       mBank13.data,mBank13
-mbnk13  incbin "music/prehist1.cad",mBank13.data, 32
-
-; [ TEST14_TRACK ] >>>>>
-
-mBank14        group   obj()
-mBank14bss     group   obj(),bss
-
-_mBank14SegmentRomStart alias _mBank14_org
-_mBank14SegmentRomEnd   alias _mBank14_orgend
-        section.16       mBank14.data,mBank14
-mbnk14  incbin "music/prehist2.cad",mBank14.data, 32
-
-; [ TEST15_TRACK ] >>>>>
-
-mBank15        group   obj()
-mBank15bss     group   obj(),bss
-
-_mBank15SegmentRomStart alias _mBank15_org
-_mBank15SegmentRomEnd   alias _mBank15_orgend
-        section.16       mBank15.data,mBank15
-mbnk15  incbin "music/prehist3.cad",mBank15.data, 32
-
-; [ TEST16_TRACK ] >>>>>
-
-mBank16        group   obj()
-mBank16bss     group   obj(),bss
-
-_mBank16SegmentRomStart alias _mBank16_org
-_mBank16SegmentRomEnd   alias _mBank16_orgend
-        section.16       mBank16.data,mBank16
-mbnk16  incbin "music/space_1.cad",mBank16.data, 32
-
-; [ TEST17_TRACK ] >>>>>
-
-mBank17        group   obj()
-mBank17bss     group   obj(),bss
-
-_mBank17SegmentRomStart alias _mBank17_org
-_mBank17SegmentRomEnd   alias _mBank17_orgend
-        section.16       mBank17.data,mBank17
-mbnk17  incbin "music/space_2.cad",mBank17.data, 32
-
-; [ TEST18_TRACK ] >>>>>
-
-mBank18        group   obj()
-mBank18bss     group   obj(),bss
-
-_mBank18SegmentRomStart alias _mBank18_org
-_mBank18SegmentRomEnd   alias _mBank18_orgend
-        section.16       mBank18.data,mBank18
-mbnk18  incbin "music/space_3.cad",mBank18.data, 32
-
-; [ TEST19_TRACK ] >>>>>
-
-mBank19        group   obj()
-mBank19bss     group   obj(),bss
-
-_mBank19SegmentRomStart alias _mBank19_org
-_mBank19SegmentRomEnd   alias _mBank19_orgend
-        section.16       mBank19.data,mBank19
-mbnk19  incbin "music/title.cad",mBank19.data, 32
-
-; [ TEST20_TRACK ] >>>>>
-
-mBank20        group   obj()
-mBank20bss     group   obj(),bss
-
-_mBank20SegmentRomStart alias _mBank20_org
-_mBank20SegmentRomEnd   alias _mBank20_orgend
-        section.16       mBank20.data,mBank20
-mbnk20  incbin "music/hasbro.cad",mBank20.data, 32
-
+mbnk4  incbin "music/new/toyshop/toyshop.bin",mBank4.data, 32

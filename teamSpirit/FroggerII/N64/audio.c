@@ -28,27 +28,10 @@ int numContinuousSamples = 0;
 TUNE_DATA_BANK gameSongs[] = 
 {
 	0,0,"no track",												//	NOTRACK			0 
-	_mBank1SegmentRomStart,_mBank1SegmentRomEnd,"atlantis 1",	//	TEST1_TRACK		1
-	_mBank2SegmentRomStart,_mBank2SegmentRomEnd,"atlantis 2",	//	TEST2_TRACK		2
-	_mBank3SegmentRomStart,_mBank3SegmentRomEnd,"atlantis 3",	//	TEST3_TRACK		3
-	_mBank4SegmentRomStart,_mBank4SegmentRomEnd,"carnival 1",	//	TEST4_TRACK		4
-	_mBank5SegmentRomStart,_mBank5SegmentRomEnd,"carnival 2",	//	TEST5_TRACK		5
-	_mBank6SegmentRomStart,_mBank6SegmentRomEnd,"carnival 3",	//	TEST6_TRACK		6
-	_mBank7SegmentRomStart,_mBank7SegmentRomEnd,"fear 1",		//	TEST7_TRACK		7
-	_mBank8SegmentRomStart,_mBank8SegmentRomEnd,"fear 2",		//	TEST8_TRACK		8
-	_mBank9SegmentRomStart,_mBank9SegmentRomEnd,"fear 3",		//	TEST9_TRACK		9
-	_mBank10SegmentRomStart,_mBank10SegmentRomEnd,"pirate 1",	//	TEST10_TRACK	10
-	_mBank11SegmentRomStart,_mBank11SegmentRomEnd,"pirate 2",	//	TEST11_TRACK	11
-	_mBank12SegmentRomStart,_mBank12SegmentRomEnd,"pirate 3",	//	TEST12_TRACK	12
-	_mBank13SegmentRomStart,_mBank13SegmentRomEnd,"prehist 1",	//	TEST13_TRACK	13
-	_mBank14SegmentRomStart,_mBank14SegmentRomEnd,"prehist 2",	//	TEST14_TRACK	14
-	_mBank15SegmentRomStart,_mBank15SegmentRomEnd,"prehist 3",	//	TEST15_TRACK	15
-	_mBank16SegmentRomStart,_mBank16SegmentRomEnd,"space 1",	//	TEST16_TRACK	16
-	_mBank17SegmentRomStart,_mBank17SegmentRomEnd,"space 2",	//	TEST17_TRACK	17
-	_mBank18SegmentRomStart,_mBank18SegmentRomEnd,"space 3",	//	TEST18_TRACK	18
-
-	_mBank19SegmentRomStart,_mBank19SegmentRomEnd,"title",		//	TEST19_TRACK	19
-	_mBank20SegmentRomStart,_mBank20SegmentRomEnd,"hasbro"		//	TEST20_TRACK	20
+	_mBank1SegmentRomStart,_mBank1SegmentRomEnd,"garden toon",	//	TEST1_TRACK		1
+	_mBank2SegmentRomStart,_mBank2SegmentRomEnd,"hub toon",		//	TEST2_TRACK		2
+	_mBank3SegmentRomStart,_mBank3SegmentRomEnd,"lab toon",		//	TEST3_TRACK		3
+	_mBank4SegmentRomStart,_mBank4SegmentRomEnd,"toyshop toon",	//	TEST4_TRACK		4
 };
 
 
@@ -146,7 +129,8 @@ void PrepareSong(char num,char slot)
 
 	DMAMemory(audioCtrl.musicBin[slot], (u32)gameSongs[num].bankStart, (u32)gameSongs[num].bankEnd);
 
-	audioCtrl.musicHandle[slot] = MusBankStartSong(audioCtrl.musicPtr, audioCtrl.musicBin[slot]);
+	audioCtrl.musicHandle[slot] = MusStartSong(audioCtrl.musicBin[slot]);
+//	audioCtrl.musicHandle[slot] = MusBankStartSong(audioCtrl.musicPtr, audioCtrl.musicBin[slot]);
 	while(!(MusHandleAsk(audioCtrl.musicHandle[slot])));
 
 	MusHandleSetVolume(audioCtrl.musicHandle[slot],80);
@@ -461,7 +445,7 @@ void UpdateAmbientSounds()
 	VECTOR *pos;
 
 	// Silence ambients if paused or level over?
-	if((gameState.mode == PAUSE_MODE) || levelIsOver )
+	if((gameState.mode == PAUSE_MODE))	// || levelIsOver )
 		return;
 
 	// Update each ambient in turn

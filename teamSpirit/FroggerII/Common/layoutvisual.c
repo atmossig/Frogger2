@@ -690,6 +690,7 @@ void FreeAllLists()
 	FreeTransCameraList();
 #ifndef PC_VERSION
 	FreeLevelEntitys();
+	FreeN64WaterResources();
 #endif
 	FreeLevelScript();
 	FreeMapBank();

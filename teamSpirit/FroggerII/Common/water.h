@@ -14,26 +14,20 @@
 
 #ifdef N64_VERSION
 
-extern float waterFreq[2];
-extern float waterFactor[2];
-extern float waterF;
-extern float waterWaveHeight[2];
-extern VECTOR waterCentre[2];
-
-extern float waterWaveHeightBase[2];
-extern float waterWaveHeightAmp[2];
-extern float waterWaveHeightFreq[2];
-extern float watRot[2];
-
-extern float dist[2];
-extern VECTOR tempVect;
+#define MAX_N64_WATEROBJECTS	4
 
 extern ACTOR2 *watActor;
+
+extern short numN64WaterObjects;
+extern short currN64WaterObject;
+extern SHORT2DVECTOR *mTC[MAX_N64_WATEROBJECTS];
 
 
 void RunWaterDemo();
 void UpdateWater(ACTOR *wAct);
-void UpdateWater2(ACTOR *wAct);
+
+void AddN64WaterObjectResource(ACTOR *wAct);
+void FreeN64WaterResources();
 
 
 #endif

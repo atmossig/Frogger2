@@ -1113,6 +1113,10 @@ void ProcessAttachedEffects( void *entity, int type )
 	unsigned long flags, t;
 	PATH *path;
 
+#ifdef NO_ATTACHEDEFFECTS
+	return;
+#endif
+
 	// Nasty casting - should use generic structure for enemies and platforms"
 	if( type == ENTITY_ENEMY )
 	{

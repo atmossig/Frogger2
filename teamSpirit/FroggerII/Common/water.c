@@ -15,22 +15,11 @@
 
 #ifdef N64_VERSION
 
-
-float waterFreq[2] = { 40, 21 };
-float waterFactor[2] = { 0.008, 0.016 };
-float waterF = 0.1;
-float waterWaveHeight[2] = { 20, -10 };
-VECTOR waterCentre[2] = { { 100,0,100 },{ -75,0,-15 } };
-
-float waterWaveHeightBase[2] = { 60,40 };
-float waterWaveHeightAmp[2] = { 20,10 };
-float waterWaveHeightFreq[2] = { 201, 202 };
-float watRot[2] = { 0,0 };
-
-float dist[2];
-VECTOR tempVect;
-
 ACTOR2 *watActor = NULL;
+
+short numN64WaterObjects = 0;
+short currN64WaterObject = 0;
+SHORT2DVECTOR *mTC[MAX_N64_WATEROBJECTS];
 
 
 /*	--------------------------------------------------------------------------------
@@ -61,7 +50,7 @@ void RunWaterDemo()
 		txtTmp->r = 0;	txtTmp->g = 0;	txtTmp->b = 0;
 
 		// add the water actor
-		watActor = CreateAndAddActor("wat_stop.obe",0,0,100,0,0,0);
+		watActor = CreateAndAddActor("wat_fall.obe",0,0,100,0,0,0);
 		watActor->flags = ACTOR_WATER;
 
 		watActor->actor->qRot.x = -0.5F;
@@ -122,60 +111,6 @@ void RunWaterDemo()
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateWater
-	Purpose			: updates the specified water actor / object
-	Parameters		: ACTOR *
-	Returns			: void
-	Info			: 
-*/
-void UpdateWater(ACTOR *wAct)
-{
-	static Vtx *wv = NULL;
-		
-	// update the water - assumes drawlisted and skinned object....
-	if(wAct)
-	{
-		int i,j;
-		int colMod = 0;
-		
-		wv = wAct->objectController->vtx[wAct->objectController->vtxBuf];
-		i = wAct->objectController->numVtx;
-		while(i--)
-		{
-			for(j=0; j<2; j++)
-			{
-				tempVect.v[X] = wv->v.ob[X] + waterCentre->v[X];
-				tempVect.v[Z] = wv->v.ob[Z] + waterCentre->v[Z];
-				dist[j] = Magnitude2D(&tempVect);
-			}
-
-			wv->v.ob[Y] =	wv->v.ob[Y] * (1 - waterF) + 
-					(	SineWave2(waterFreq[0],frameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
-						SineWave2(waterFreq[1],frameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
-
-			colMod = 128 + (6 * (wv->v.ob[Y] + 20));
-			if(colMod > 255)
-				colMod = 255;
-			else if(colMod < 64)
-				colMod = 64;
-
-			wv->v.cn[0] = colMod;
-			wv->v.cn[1] = colMod;
-			wv->v.cn[2] = colMod;
-			wv->v.cn[3] = colMod;
-
-			wv++;
-		}
-
-		for(j = 0;j < 2;j++)
-		{
-			waterWaveHeight[j] = SineWave2(waterWaveHeightFreq[j],frameCount)*waterWaveHeightAmp[j] + waterWaveHeightBase[j];
-			RotateVector2D(&waterCentre[j],&waterCentre[j],watRot[j]);
-		}
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: UpdateWater2
 	Purpose			: updates the specified water actor / object - new method
 	Parameters		: ACTOR *
 	Returns			: void
@@ -190,34 +125,14 @@ int modc1 = 128;
 int modc2 = 150;
 int modc3 = 8;
 
-short mTC[512][2];
-
-void UpdateWater2(ACTOR *wAct)
+void UpdateWater(ACTOR *wAct)
 {
-	static int firstTime = 1;
-
 	// update the water - assumes drawlisted and skinned object....
 	if(wAct)
 	{
 		float t,t2,xval,zval,mV;
 		Vtx *in = NULL;
 		int i,colMod;
-
-		if(firstTime)
-		{
-			// copy texture co-ords to temp array
-			in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
-			i = wAct->objectController->numVtx;
-			
-			while(i--)
-			{
-				mTC[i][0] = in->v.tc[0];
-				mTC[i][1] = in->v.tc[1];
-				in++;
-			}
-
-			firstTime = 0;
-		}
 
 		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
 		i = wAct->objectController->numVtx;
@@ -245,12 +160,63 @@ void UpdateWater2(ACTOR *wAct)
 			in->v.cn[2] = colMod;
 			in->v.cn[3] = colMod;
 
-			in->v.tc[0] = mTC[i][0] + mV;
-			in->v.tc[1] = mTC[i][1] + mV;
+			in->v.tc[0] = mTC[currN64WaterObject][i].v[0] + mV;
+			in->v.tc[1] = mTC[currN64WaterObject][i].v[1] + mV;
 
 			in++;
 		}
 	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddN64WaterObjectResource
+	Purpose			: adds N64 specific water related stuff
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void AddN64WaterObjectResource(ACTOR *wAct)
+{
+	int i;
+	Vtx *in;
+
+	if(wAct && (numN64WaterObjects < MAX_N64_WATEROBJECTS))
+	{
+		// copy texture co-ords to an array
+		in = wAct->objectController->vtx[wAct->objectController->vtxBuf];
+		i = wAct->objectController->numVtx;
+
+		dprintf"Allocating %d vertices for water object %d\n",i,numN64WaterObjects));
+		mTC[numN64WaterObjects] = (SHORT2DVECTOR *)JallocAlloc(sizeof(SHORT2DVECTOR) * i,YES,"s2dv");
+
+		while(i--)
+		{
+			mTC[numN64WaterObjects][i].v[0] = in->v.tc[0];
+			mTC[numN64WaterObjects][i].v[1] = in->v.tc[1];
+			in++;
+		}
+
+		numN64WaterObjects++;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeN64WaterResources
+	Purpose			: frees N64 specific water related stuff
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeN64WaterResources()
+{
+	int i;
+
+	for(i=0; i<numN64WaterObjects; i++)
+		JallocFree((UBYTE **)&mTC[i]);
+
+	numN64WaterObjects = 0;
 }
 
 
