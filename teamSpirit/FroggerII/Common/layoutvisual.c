@@ -575,8 +575,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	LoadMapBank(worldVisualData[worldID].levelVisualData[levelID].collBank);
 	LoadVisualBanksForWorld(worldID,levelID);
 
-	InitSampleList( );
 #ifdef USE_AUDIO
+	InitSampleList();
 	LoadSfx(worldID);
 #endif
 
@@ -629,6 +629,8 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	fStart = worldVisualData[worldID].levelVisualData[levelID].fogNearDist * 0.0005;
 	fEnd = 	(worldVisualData[worldID].levelVisualData[levelID].fogFarDist * 0.0005);
 #endif
+
+	InitPlatformsForLevel(worldID,levelID);
 }
 
 

@@ -97,27 +97,13 @@ void XformActorList()
 			cur->distanceFromFrog = DistanceBetweenPointsSquared(&cur->actor->pos,&frog[0]->actor->pos);
 
 			// transform actor
-//			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER || cur->flags & ACTOR_DRAW_ALWAYS)
 				XformActor(cur->actor);
-
-//			if(cur->flags & ACTOR_DRAW_ALWAYS)
-//			{
-				// always draw this actor
-//				cur->draw = 1;
-//			}
 		}
 		else
 		{
 			// transform actor
 			XformActor(cur->actor);
-		
-//			cur->draw = 0;
-//			if(cur->flags & ACTOR_DRAW_ALWAYS)
-//			{
-				// always draw this actor
-//				cur->draw = 1;
-//			}
 		}
 
 
@@ -132,14 +118,6 @@ void XformActorList()
 	Returns			: void
 	Info			: 
 */
-
-float waterFreq[2] = {80,41};
-float waterFactor[2] = {0.001,0.002};
-float waterF = 0.08;
-float waterWaveHeight[2];
-VECTOR waterCentre[2] = {{1000,0,1000},{-1500,0,0}};
-float dist[2];
-VECTOR tempVect;
 float bFOV = 450.0;
 extern float fStart,fEnd, FOV;
 extern long noClipping;
@@ -155,13 +133,13 @@ void DrawActorList()
 	
 	ACTOR2 *cur;
 //	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER) - sqrtf(ACTOR_DRAWDISTANCEINNER);
-	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER);
 
 	/****************************************************************************************/
 	/* PC SPECIFIC VERSION																	*/
 	/****************************************************************************************/
 
 #ifdef PC_VERSION
+	float ACTOR_DRAWFADERANGE = sqrtf(ACTOR_DRAWDISTANCEOUTER - ACTOR_DRAWDISTANCEINNER);
 	
 	BlankFrame();
 
@@ -379,13 +357,9 @@ void DrawActorList()
 		else
 		{
 			// check if distance from frog is outside inner draw distance radius
-			if(cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER)
+			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
 			{
-				// do not draw for now...
-			}
-			else
-			{
-				// draw for now...
+				// draw actor
 				DrawActor(cur->actor);
 			}
 		}
@@ -400,29 +374,7 @@ void DrawActorList()
 	{
 		// only draw xlu water objects
 		if(cur->flags & ACTOR_WATER)
-		{
-/* THIS IS FOR NON-DRAWLISTED OBJECTS
-			VECTOR *wv;
-			int j,i = cur->actor->objectController->object->mesh->numVertices;
-
-			while(i--)
-			{
-				wv = &cur->actor->objectController->object->mesh->vertices[i];
-
-				for(j=0; j<2; j++)
-				{
-					AddVector2D(&tempVect,wv,&waterCentre[j]);
-					dist[j] = Magnitude2D(&tempVect);
-				}
-
-				wv->v[Y] =	wv->v[Y] * (1 - waterF) + 
-						(	SineWave2(waterFreq[0],actFrameCount + dist[0] * waterFactor[0] * waterFreq[0]) * waterWaveHeight[0] + 
-							SineWave2(waterFreq[1],actFrameCount + dist[1] * waterFactor[1] * waterFreq[1]) * waterWaveHeight[1]) * waterF;
-			}
-*/
-
 			DrawActor(cur->actor);
-		}
 		
 		cur = cur->next;
 	}
