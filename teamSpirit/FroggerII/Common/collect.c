@@ -52,27 +52,29 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 {
 	GARIB *garib;
 	int i;
+	float dist;
 	VECTOR *check;
 	
 	// check current tile for a garib
 	for(garib = garibCollectableList.head.next, i = garibCollectableList.numEntries-1;
 		garib != &garibCollectableList.head; garib = garib->next, i--)
 	{
+		// Location of actual position of garib depends on type
+		if( garib->fx && garib->type == EXTRAHEALTH_GARIB ) check = &garib->fx->act[pl]->actor->pos;
+		else check = &garib->pos;
+
 		// process only garibs in visual range
-		if( DistanceBetweenPointsSquared(&garib->pos, &frog[pl]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
+		dist = DistanceBetweenPointsSquared(check, &frog[pl]->actor->pos );
+
+		if( dist > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
 		// Also don't pickup garibs that the frog is trying to tongue
 		if( garib == (GARIB *)tongue[pl].thing )
 			continue;
 
-		// Health garibs are buzzy flies
-		if( garib->fx && garib->type == EXTRAHEALTH_GARIB )
-			check = &garib->fx->act[pl]->actor->pos;
-		else
-			check = &garib->pos;
-
-		if( DistanceBetweenPointsSquared( check, &frog[pl]->actor->pos ) < PICKUP_RADIUS_SQUARED)
+		// Now we can actually check for collection
+		if( dist < PICKUP_RADIUS_SQUARED)
 		{
 			garibStoreList[player[pl].levelNum-3][i / 8] &= ~(1 << (i & 7));
 			PickupCollectable(garib,pl);
@@ -288,7 +290,10 @@ void SubGarib(GARIB *garib)
 		return;
 
 	if( garib->type != EXTRAHEALTH_GARIB && garib->sprite )
+	{
 		SubSprite( garib->sprite );
+		JallocFree( (UBYTE **)&garib->sprite );
+	}
 
 	garib->prev->next = garib->next;
 	garib->next->prev = garib->prev;
