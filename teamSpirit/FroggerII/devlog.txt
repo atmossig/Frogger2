@@ -180,6 +180,12 @@ Andy Eder:
 
 David Swift:
 ------------------------------------------------
+	 	 ribbit
+		/
+				Checked my frog facing code - it really does seem to work. Woohoo!
+	/\OO/\		I'm working on Worldconv to accept triangles and those weird foldy-back polygon things
+    |(  )|
+	/\MM/\
 
 
 James Hubbard:
@@ -198,7 +204,7 @@ Byron Blay:
 ------------------------------------------------
 	Morn:
 		New conversion now compiling, not linking yet.
-		C++ has given a few re-defs e.t.c that the C compiler did not pick up.
+		C++ has given a few re-defs etc. that the C compiler did not pick up.
 	Aft:
 
 Chris Wilson:
