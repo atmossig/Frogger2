@@ -57,23 +57,32 @@ long DEAD_ZONE = 500;
 
 char keyFileName[] = "frogkeys.map";
 
-char *controlDesc[] = 
+struct CONTROLSETUP
 {
-	"Fowards",
-	"Backwards",
-	"Left",
-	"Right",
-	"Superhop",
-	"Croak",
-	"Start",
-	"Camera Left",
-	"Camera Down",
-	"Camera Up",
-	"Camera Right",
-	"Trigger",
-	"Left Shoulder",
-	"Right Shoulder"
+	const char* name;
+	unsigned long padCode;
 };
+
+#define NUM_CONTROLS	7
+
+CONTROLSETUP controlDesc[NUM_CONTROLS] = 
+{
+	{ "Fowards",	0 },
+	{ "Backwards",	1 },
+	{ "Left",		2 }, 
+	{ "Right",		3 },
+	{ "Superhop",	4 },
+	{ "Croak",		5 },
+	{ "Start",		6 }
+};
+
+//	"Camera Left",
+//	"Camera Down",
+//	"Camera Up",
+//	"Camera Right",
+//	"Trigger",
+//	"Left Shoulder",
+//	"Right Shoulder"
 
 LPDIRECTINPUT			lpDI		= NULL;
 LPDIRECTINPUTDEVICE		lpKeyb		= NULL;
@@ -980,9 +989,9 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 
 			SendMessage(list, LB_SETTABSTOPS, 1, (LPARAM)&tabstop);
 
-			for( i=0; i<14; i++ )
+			for( i=0; i<NUM_CONTROLS; i++ )
 			{
-				strcpy( itmTxt, controlDesc[i] );
+				strcpy( itmTxt, controlDesc[i].name );
 				strcat( itmTxt, "\t" );
 				strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
 				SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
@@ -1005,7 +1014,7 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 						case LBN_SELCHANGE:
 							// Get index of new selection
 							i = SendDlgItemMessage(hDlg,IDC_KEYMAPLIST,LB_GETCURSEL,(WPARAM)0,(LPARAM)0);
-							if(i == LB_ERR || i < 0 || i > 14 )
+							if(i == LB_ERR || i < 0 || i >= NUM_CONTROLS )
 								break;
 
 							if ((code = GetButtonDialog(lpKeyb, hDlg)) == -1)
@@ -1018,9 +1027,9 @@ BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 							list = GetDlgItem(hDlg,IDC_KEYMAPLIST);
 							SendMessage( list,LB_RESETCONTENT,(WPARAM)0,(LPARAM)0 );
 
-							for( i=0; i<14; i++ )
+							for( i=0; i<NUM_CONTROLS; i++ )
 							{
-								strcpy( itmTxt, controlDesc[i] );
+								strcpy( itmTxt, controlDesc[i].name );
 								strcat( itmTxt, "\t" );
 								strcat( itmTxt, DIKStrings[keymap[keyIndex+i].key] );
 								SendMessage( list,LB_INSERTSTRING,(WPARAM)-1,(LPARAM)itmTxt );
@@ -1141,6 +1150,7 @@ int GetButtonDialog(LPDIRECTINPUTDEVICE lpDID, HWND hParent)
 
 
 // todo: move these
+/*	--------------------------------------------------------------------------------
 
 typedef struct {
 	TEXTOVERLAY *control[14];
@@ -1149,12 +1159,11 @@ typedef struct {
 
 CONTROLVIEWSTUFF* ctv;
 
-/*	--------------------------------------------------------------------------------
 	Function		: StartControllerView
 	Purpose			: 
 	Parameters		: 
 	Returns			: 
-*/
+
 
 void StartControllerView()
 {
@@ -1200,3 +1209,4 @@ void RunControllerView()
 		return;
 	}
 }
+*/
