@@ -73,7 +73,7 @@ void AddStringToBuffer(char *str, BUFFER *buffer)
 
 void AddFloatToBuffer(float value, BUFFER *buffer)
 {
-	int v = (int)(v * 0x10000);
+	int v = (int)(value * (float)0x10000);
 	AddToBuffer(&v, 4, buffer);
 }
 
@@ -279,7 +279,7 @@ int AddEvent(BYTE command, PARAM *params)
 		return 1;
 	}
 	
-	if (CheckParameters(commandList[commandLookup[command].token], params)) return 1;
+	if (CheckParameters(commandLookup[command].params, params)) return 1;
 
 	b = trigger.events[trigger.numEvents];
 	if (!b) b = trigger.events[trigger.numEvents] = MakeBuffer();
@@ -312,7 +312,7 @@ int AddTrigger(PARAM *params)
 	for (i = 0; i < NUMTRIGGERS; i++)
 		if (strcmp(params[0].vString, triggerLookup[i].str) == 0)
 		{
-			command = triggerLookup[i].token; break;
+			command = i; break;
 		}
 
 	if (command == NOSUCHCOMMAND)
@@ -322,11 +322,11 @@ int AddTrigger(PARAM *params)
 		return 1;
 	}
 
-	if (CheckParameters(triggerList[triggerLookup[command].token], params+1)) return 1;
+	if (CheckParameters(triggerLookup[i].params, params+1)) return 1;
 
 	WriteCurrentTrigger();
 
-	trigger.type = command;
+	trigger.type = triggerLookup[command].token;
 	trigger.numEvents = 0;
 	trigger.params->size = 0;
 	AddParamsToBuffer(params+1, trigger.params);
@@ -349,7 +349,6 @@ void Tokenise(char *buffer, PARAM *params)
 		while (strchr(WHITESPACE, *(token++)));
 		if (!*token) break;
 	}
-*/
   	token = strtok(buffer, WHITESPACE);
 	if (!token) return;
 
@@ -358,11 +357,12 @@ void Tokenise(char *buffer, PARAM *params)
 		*p = GetParam(token);
 		token = strtok(NULL, WHITESPACE);
 	}
+*/
 
 	p->type = PARAM_NONE;
 }
 
-int compile(FILE *f)
+int compile(const char* filename)
 {
 	char buffer[128];
 	PARAM params[10];
@@ -399,7 +399,7 @@ int compile(FILE *f)
 		for (i = 0; i < NUMCOMMANDS; i++)
 			if (strcmp(params[0].vString, commandLookup[i].str) == 0)
 			{
-				command = commandLookup[i].token; break;
+				command = i; break;
 			}
 
 		if (command == NOSUCHCOMMAND)
@@ -409,22 +409,20 @@ int compile(FILE *f)
 			err = 1; break;
 		}
 
-		switch (command)
+		switch (commandLookup[command].token)
 		{
 		case C_IF:
-		case C_AND:
-		case C_OR:
 			err = AddTrigger(params+1);
 			// interpret conditional
 			break;
 
 		default:
-			err = AddEvent(command, params+1);
+			Error("Unsupported command"); err= 1;
 			break;
 		}
 	}
 
-	WriteCurrentTrigger();
+	if (!err) WriteCurrentTrigger();
 
 	return err;
 }
@@ -432,6 +430,7 @@ int compile(FILE *f)
 int main(int argc, void **argv)
 {
 	FILE *f;
+	int error = 0;
 	int i;
 
 	trigger.params = MakeBuffer();
@@ -447,15 +446,17 @@ int main(int argc, void **argv)
 			if (!f)
 			{
 				fprintf(stderr, "Could not open %s, skipping\n", filename);
+				error = 1;
 				continue;
 			}
 
 			if (!OpenOutput(filename))
 			{
 				fprintf(stderr, "Couldn't open output file!\n");
+				error = 1;
 				continue;
 			}
-			compile(f);
+			if (!compile(f)) error = 1;
 			fclose(f);
 			CloseOutput();
 			files++;
@@ -475,5 +476,5 @@ int main(int argc, void **argv)
 	getchar();
 #endif
 
-	return 0;
+	return error;
 }
