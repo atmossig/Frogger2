@@ -208,16 +208,11 @@ void *_Align32Malloc (unsigned long Size)
     *((char *) AlignedPtr - 1) = (char) ((long) AlignedPtr - (long) ptr);
 
 	ptr = AlignedPtr;
-// 	ptr = syMalloc(Size);
+	
+//	ptr = syMalloc(Size);
     if(ptr == NULL)
     	return NULL;
 
-/*	mptr = &mallocList.list[mallocList.numEntries];
-	mptr->address = ptr;
-	mptr->size = Size;
-	mallocList.numEntries++;
-	mallocList.totalMalloc += Size;
-*/
 	mptr = mallocList.list;
 	for(i=0;i<MAX_MALLOC_LIST;i++)
 	{
@@ -231,6 +226,12 @@ void *_Align32Malloc (unsigned long Size)
 		j=8;
 		return;
 	}
+
+//	mptr = &mallocList.list[mallocList.numEntries];
+//	mptr->address = ptr;
+//	mptr->size = Size;
+//	mallocList.numEntries++;
+//	mallocList.totalMalloc += Size;
 		
 	mptr->address = ptr;
 	mptr->size = Size;
@@ -291,9 +292,9 @@ void _Align32Free(void *Ptr)
 		mptr->address = NULL;
 		mptr->size = -1;	
 	}
-	mallocList.numEntries--;
-*/	
-		
+	mallocList.numEntries--;	
+*/		
+  
 	// check to see it is actually a malloc
 	mptr = mallocList.list;
 	for(i=0;i<MAX_MALLOC_LIST;i++)
@@ -316,7 +317,6 @@ void _Align32Free(void *Ptr)
 	mallocList.totalMalloc -= mptr->size;
 	mptr->address = NULL;
 	mptr->size = -1;
-
 }
 
 /*	--------------------------------------------------------------------------------
@@ -334,20 +334,17 @@ void memoryReset()
 	void 		*Ptr;
    	char 		Diff;
 	
-//	return;
-	   	
 	mptr = mallocList.list;
 	for(i=0;i<MAX_MALLOC_LIST;i++)
 	{
 		if(mptr->address)
 		{
-			if((mptr->address == sqrtable)||(mptr->address = acostable))
-				continue;
 			Ptr = mptr->address;
 		    Diff = *((char *) Ptr - 1);
 		    Ptr = (void *) ((long) Ptr - Diff);
 			syFree(Ptr);				
 			mptr->address = NULL;
+			mallocList.totalMalloc -= mptr->size;
 			mptr->size = -1;
 			mallocList.numEntries--;
 		}

@@ -47,36 +47,36 @@ static int textureSetSPRPointers(NSPRITE *pHeader, short *maxWidth, short *maxHe
 	RETURNS:	Ptr to texture bank info
 **************************************************************************/
 
+extern char texurestring[32];
+
 TextureBankType *textureLoadBank(char *sFile)
 {
- 	TextureBankType	*newBank;
+ 	TextureBankType	*newBank = NULL;
 	int				loop,j;
 	ULONG			tempCRC;
 	int				filelength;
 	int				num,width,height;
-	NSPRITE			*pNSprite;
+	NSPRITE			*pNSprite = NULL;
 	int				numTextures;
 	short			maxWidth,maxHeight;
+	int				retry = 0;
 
-	
-/*	newBank = Align32Malloc(sizeof(TextureBankType));	
-
-	for(loop=0;loop<MAXTEXBANKS;loop++)
+	while((!pNSprite)&&(retry < 10))
 	{
-		if(texBank[loop]==NULL)
-		{
-			texBank[loop] = newBank;
-			break;
-		}
+		pNSprite = (NSPRITE *)fileLoad(sFile, &filelength);
+		if(pNSprite	== NULL)
+			retry++;
 	}
-	if(loop==MAXTEXBANKS)
-		printf("**** WARNING: OUT OF TEXTURE BANKS\n");
-*/
-	// change to the textures directory
-	gdFsChangeDir("\\");
-	gdFsChangeDir("textures");
-
-	pNSprite = (NSPRITE *)fileLoad(sFile, &filelength);
+	
+	if(pNSprite == NULL)
+	{
+		if(strcmp("TEXTURES\\GENERIC.SPT",sFile)==0)
+			sprintf(texurestring,"can't load");
+		return NULL;
+	}
+	if(strcmp("TEXTURES\\GENERIC.SPT",sFile)==0)
+		sprintf(texurestring,"load %d",filelength);
+	
 	numTextures = textureSetSPRPointers(pNSprite,&maxWidth,&maxHeight);
 
 	bitmapPtr = Align32Malloc(maxWidth*maxHeight*sizeof(USHORT));

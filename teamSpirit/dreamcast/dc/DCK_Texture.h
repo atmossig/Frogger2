@@ -35,7 +35,7 @@ extern void (*FreePtr)(void *);               // Default de-allocation is syFree
 #define Align32Byte(ADR)		(((long) ADR) + 0x1F) & 0xFFFFFFE0)
 
 #define	MAX_TEXTURE_LIST		500
-#define	MAX_MALLOC_LIST			1000
+#define	MAX_MALLOC_LIST			2000
 
 //----- [ TYPEDEFS ] -----------------------------------------------------------------------------
 

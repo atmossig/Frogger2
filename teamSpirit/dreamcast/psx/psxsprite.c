@@ -33,9 +33,9 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 //		r = (spr->r * 128) >> 8;
 //		g = (spr->g * 128) >> 8;
 //		b = (spr->b * 128) >> 8;
-		r = spr->r>>1;
-		g = spr->g>>1;
-		b = spr->b>>1;
+		r = spr->r;
+		g = spr->g;
+		b = spr->b;
 	}
 	else
 	{
@@ -123,9 +123,10 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			y2 = atbdy+h;
 			x3 = atbdx+w;
 			y3 = atbdy+h;
-			r = spr->r;
-			g = spr->g;
-			b = spr->b;
+//			r = spr->r;
+//			g = spr->g;
+//			b = spr->b;
+
 //			alpha = 255;
 //			if(alpha)
 			{
@@ -154,9 +155,10 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			y2 = atbdy + (spr->height/17) * 2;
 			x3 = atbdx + ((float)(spr->width>>3)) * 1.25;
 			y3 = atbdy + (spr->height/17) * 2;
-			r = spr->r;//( spr->r * 128 ) >> 8;
-			g = spr->g;//( spr->g * 128 ) >> 8;
-			b = spr->b;//( spr->b * 128 ) >> 8;
+//			r = spr->r;//( spr->r * 128 ) >> 8;
+//			g = spr->g;//( spr->g * 128 ) >> 8;
+//			b = spr->b;//( spr->b * 128 ) >> 8;
+
 //			alpha = 255;
 			if(alpha)
 			{
@@ -215,12 +217,18 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 		}
 		else
 		{
-			kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
-			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+			if((spr->flags & SPRITE_SUBTRACTIVE)||(spr->flags & SPRITE_ADDITIVE))
+			{
+				kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
+				kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
+			}
+			else
+			{
+				kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
+				kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+			}
 		}
-//		kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
 		
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
@@ -244,10 +252,6 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 	float		y0,y1,y2,y3;
 	uchar		r0,g0,b0;
 
-//	return;
-	
-//	cosine = rcos(0);
-//	sine = rsin(0);
 	cosine = rcos(-spr->angle);
 	sine = rsin(-spr->angle);
 	halfWidth = spr->width/2;
@@ -441,9 +445,6 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);	
 		}
 	
-//		kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,spr->tex->surfacePtr);
-
-		kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 		kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
@@ -460,7 +461,6 @@ void PrintSpriteOverlays ( char num )
 	for ( counter = 0; counter < spriteOverlayList.numEntries; counter++ )
 	{
 		cur = &spriteOverlayList.block [ counter ];
-
 
 		if(cur->draw)
 		{
@@ -579,44 +579,7 @@ void DrawTiledBackdrop(int scroll)
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-			kmEndStrip(&vertexBufferDesc);
-		
-/*			BEGINPRIM(ft4, POLY_FT4);
-			setPolyFT4(ft4);
-			ft4->x0 = atbdx;
-			ft4->y0 = atbdy;
-			ft4->x1 = atbdx + xRes/xTile + 1;
-			ft4->y1 = atbdy;
-			ft4->x2 = atbdx;
-			ft4->y2 = atbdy + yRes/yTile;
-			ft4->x3 = atbdx + xRes/xTile + 1;
-			ft4->y3 = atbdy + yRes/yTile;
-			ft4->r0 = 128;
-			ft4->g0 = 128;
-			ft4->b0 = 128;
-			ft4->u0 = tileTexture->u0;
-			ft4->v0 = tileTexture->v0;
-			ft4->u1 = tileTexture->u1;
-			ft4->v1 = tileTexture->v1;
-			ft4->u2 = tileTexture->u2;
-			ft4->v2 = tileTexture->v2;
-			ft4->u3 = tileTexture->u3;
-			ft4->v3 = tileTexture->v3;
-			ft4->tpage = tileTexture->tpage;
-			ft4->clut = tileTexture->clut;
-			ENDPRIM(ft4, 1023, POLY_FT4);
-*/
-
-
-/*
-
-			r.left = (x*xRes)/xTile + xScroll;
-			r.right = ((x+1)*xRes)/xTile + xScroll;
-			r.top = (y*yRes)/yTile + yScroll;
-			r.bottom = ((y+1)*yRes)/yTile + yScroll;
-
-			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
-*/
+			kmEndStrip(&vertexBufferDesc);	
 		}
 	}
 	if(scroll)

@@ -21,12 +21,19 @@
 #include "types.h"
 #include "frogger.h"
 #include "layout.h"
-//#include <libcd.h>
-//#include <islxa.h>
 
-//#include <am.h>
-//ma#include "am_audio.h"
+#include "am_audio.h"
+#include <ac.h>
+#include <a64thunk.h>
+#include <am.h>
 
+#include "am_audio.h"
+#include "bpamsetup.h"
+#include "bpamstream.h"
+#include "bpbuttons.h"
+#include "bpprintf.h"
+#include "bpamsfx.h"
+#include "strsfx.h"
 
 #define SFX_BASE		"SFX\\"
 
@@ -53,6 +60,20 @@ SAMPLE *genSfx[NUM_GENERIC_SFX];
  
 SOUNDLIST soundList;					// Actual Sound Samples List
 AMBIENT_SOUND_LIST	ambientSoundList;
+
+int musicList[] = { 0,//
+					1,//
+					2,//
+					6,//
+					3,//
+					4,//
+					5,//
+					6,//
+					7,
+					0,
+					1,
+					2,
+};//
 
 char generic_names[][32] =
 {
@@ -164,8 +185,7 @@ int LoadSfxSet( char *path, int generic )
 	SAMPLE 			*sfx;
 	AM_BANK_PTR		*sfxBank;
 
-/*ma
-	if((sfxBank = MyLoadBank(path))==KTNULL)
+	if((sfxBank = bpAmLoadBank(path))==KTNULL)
 		return 0;
 
 	if(generic)
@@ -200,7 +220,7 @@ int LoadSfxSet( char *path, int generic )
 			AddSample(sfx);
 		}	
 	}
-*/	
+	
 /*	sfxBank = sfxLoadSampleBank(path);	
 	if(!sfxBank)
 	{
@@ -241,44 +261,35 @@ int LoadSfxSet( char *path, int generic )
 */
 int LoadSfx( unsigned long worldID )
 {
-	int		len;
+	int		len,i;
 	char	path[256];
 	
 	// Load all generic samples first and put in array
 	LoadSfxSet("GENERIC.KAT", 1);
 
-//	return 0;
+	for(i=0;i<NUM_GENERIC_SFX;i++)
+		genSfx[i] = NULL;
 	
 	genSfx[GEN_FROG_HOP] = FindSample(utilStr2CRC("hopongrass"));
 	genSfx[GEN_SUPER_HOP] = FindSample(utilStr2CRC("hop2"));
 	genSfx[GEN_DOUBLE_HOP] = FindSample(utilStr2CRC("doublehop"));
 	genSfx[GEN_COLLECT_BABY] = FindSample(utilStr2CRC("getbabyfrog"));
-	genSfx[GEN_FROG_TONGUE] = FindSample(utilStr2CRC("tongue"));
 	genSfx[GEN_COLLECT_COIN] = FindSample(utilStr2CRC("pickupcoin"));
-	genSfx[GEN_CROAK] = FindSample(utilStr2CRC("frogcroak"));
-
 	genSfx[GEN_BABYHAPPY] = FindSample(utilStr2CRC("babyhappy"));
 	genSfx[GEN_BABYSAD] = FindSample(utilStr2CRC("babysad"));
 	genSfx[GEN_BABYCRY] = FindSample(utilStr2CRC("babycry"));
 	genSfx[GEN_BABYREPLY] = FindSample(utilStr2CRC("babyreply"));
 	genSfx[GEN_TELEPORT] = FindSample(utilStr2CRC("teleport"));
+
+// JH: changed file name to some thing else coz we don't have this one yet....
+//	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("hopongrass"));
+
 	genSfx[GEN_POWERUP] = FindSample(utilStr2CRC("powerup"));
+
 	genSfx[GEN_CLOCKTICK] = FindSample(utilStr2CRC("clocktick"));
 	genSfx[GEN_POWERTICK] = FindSample(utilStr2CRC("puptick"));
 
-	genSfx[GEN_FROGBELCH1] = FindSample(utilStr2CRC("frogbelch2"));
-	genSfx[GEN_FROGBELCH2] = FindSample(utilStr2CRC("frogbelch2"));
-	genSfx[GEN_FROGANNOYED] = FindSample(utilStr2CRC("frogannoyed"));
-	genSfx[GEN_FROGSLIDE] = FindSample(utilStr2CRC("frogslide2"));
-	genSfx[GEN_FROGHAPPY] = FindSample(utilStr2CRC("frogokay"));
-	genSfx[GEN_FROGSCARED] = FindSample(utilStr2CRC("froguhoh"));
-	genSfx[GEN_FROGBORED] = FindSample(utilStr2CRC("frogbored"));
-	genSfx[GEN_FROGLETSGO] = FindSample(utilStr2CRC("frogletsgo"));
-
-	genSfx[GEN_DEATHNORMAL] = FindSample(utilStr2CRC("frogdeath"));
 	genSfx[GEN_DEATHDROWN] = FindSample(utilStr2CRC("frogdrown1"));
-	genSfx[GEN_DEATHDROWN1] = FindSample(utilStr2CRC("frogdrown1"));
-	genSfx[GEN_DEATHDROWN2] = FindSample(utilStr2CRC("frogdrown2"));
 	genSfx[GEN_DEATHCRUSH] = FindSample(utilStr2CRC("frogcrush"));
 	genSfx[GEN_DEATHEXPLODE] = FindSample(utilStr2CRC("frogexplode"));
 	genSfx[GEN_DEATHFALL] = FindSample(utilStr2CRC("frogfall"));
@@ -430,6 +441,32 @@ SAMPLE *FindSample( unsigned long uid )
 }
 
 /*	--------------------------------------------------------------------------------
+	Function		: FindVoice
+	Purpose			: Search the list for the required sound
+	Parameters		: ID
+	Returns			: Sample or NULL
+	Info			: 
+*/
+
+SAMPLE *FindVoice( unsigned long uid, int pl )
+{
+	SAMPLE *next, *cur;
+
+	if (!uid)
+		return NULL;
+
+	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
+	{
+		next = cur->next;
+		
+		if( cur->uid == uid )
+			return cur;
+	}
+
+	return NULL;	
+}
+
+/*	--------------------------------------------------------------------------------
 	Function		:FreeSampleList
 	Purpose			:Clears the whole sample list and the PSX sound memory
 	Parameters		: 
@@ -445,7 +482,7 @@ void FreeSampleList( )
 
 	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
 
-//ma	amHeapGetFree(&memfreeBefore);
+	amHeapGetFree(&memfreeBefore);
 	
 	// check if any elements in list
 	if( !soundList.numEntries )
@@ -459,12 +496,12 @@ void FreeSampleList( )
 		RemoveSample( cur );
 	}
 
-//ma	amHeapGetFree(&memfreeBefore);
-	//removes the sound banks from PSX memory
-//ma	ktflag = amHeapFree(soundList.genericBank);
-//	sfxUnloadSampleBank(soundList.genericBank);
-//	sfxUnloadSampleBank(soundList.levelBank);
-//ma	amHeapGetFree(&memfreeAfter);
+	amHeapGetFree(&memfreeBefore);
+//	ktflag = amHeapFree((unsigned long*)soundList.genericBank);
+	ktflag = amHeapFree(soundList.genericBank);
+	amHeapGetFree(&memfreeAfter);
+
+//	amHeapFree((unsigned long*)soundList.genericBank);
 
 	// initialise list for future use
 	InitSampleList();					
@@ -480,7 +517,7 @@ void FreeSampleList( )
 
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
-	unsigned long vol=volume;
+//	unsigned long vol=volume;
 	fixed att, dist;
 	SVECTOR diff;
  	int vl,vr;
@@ -509,11 +546,12 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 	vl = vol;
 	vr = vol;
 */
-//ma	i =	sfxPlaySample( sample->snd, vl,vr, pitch);
-//	MyPlaySoundEffectFx(sample->bankPtr,sample->sampleNumber,volume,pan,effectSourceMix,KTFALSE);
-//ma	MyPlaySoundEffectFx(sample->bankPtr,sample->sampleNumber,127,0,75,KTFALSE);
-
-
+	if(sample)
+	{
+		if(sample->bankPtr)
+			bpAmPlaySoundEffect(sample->bankPtr,sample->sampleNumber, 127, AM_PAN_CENTER);
+	}
+	
 	return i;
 }
 
@@ -538,8 +576,12 @@ int PlayVoice(int player, char *name)
 	if(sample == NULL)
 		return 0;
 		
-//ma	MyPlaySoundEffectFx(sample->bankPtr,sample->sampleNumber,127,0,75,KTFALSE);
-
+	if(sample)
+	{
+		if(sample->bankPtr)
+			bpAmPlaySoundEffect(sample->bankPtr,sample->sampleNumber, 127, AM_PAN_CENTER);
+	}
+				
 	return i;
 }
 
@@ -678,25 +720,72 @@ int PlayVoice(int player, char *name)
 */
 void PrepareSong(short worldID)
 {
-	int trackIndex;
+	KTU32	memfreeBefore,memfreeAfter;
+	int 	chan;
+	int 	xaNum = 0;
+	char	buffer[32];
 
-//	trackIndex = worldID + 4;
-//	gdFsDaPlay(trackIndex, trackIndex, 15);
+	amHeapGetFree(&memfreeBefore);
+	
+	switch ( worldID )
+	{
+		case AUDIOTRK_GAMEOVER:				worldID = 10; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETE:		worldID = 9; xaNum = 1; break;
+		case AUDIOTRK_LEVELCOMPLETELOOP:	worldID = 11; xaNum = 1; break;
+	}
 
-/*ma
-	if(music_names[worldID][0] == 0)	
-		return;
-		
-	if(StreamSetup(music_names[worldID])==KTFALSE)
-		return;
+	chan = musicList  [ worldID ] + 1;
 
-	MyStreamStart(gStream);
-*/	
+	if(chan < 10)
+		sprintf(buffer,"track0%d.str",chan);
+	else
+		sprintf(buffer,"track%d.str",chan);
+	
+	// Set up the buffers etc for the stream
+	if(StreamSetup(buffer,1)==KTFALSE)
+	{
+		acASEBRK(KTTRUE);
+	}
+			
+	// Start the stream
+	bpAmStreamStart(gStream);	
+	
+	amHeapGetFree(&memfreeAfter);	
 }
 
 void StopSong( )
 {
-//	gdFsDaStop();
+	KTU32	memfreeBefore,memfreeAfter;
+
+	amHeapGetFree(&memfreeBefore);
+	
+	bpAmStreamDestroy(gStream);
+	StreamDestroy();
+	
+	amHeapGetFree(&memfreeAfter);
 }
 
+void PauseAudio( )
+{
+	// CD Pause: Possibly should check return value... Nah, can't be bothered.
+//	SpuSetCommonCDVolume(0, 0);
 
+	// Mute sound
+//	SsSetMute( 1 );
+	bpAmStreamSetVolume(gStream, 0);
+}
+
+void UnPauseAudio( )
+{
+	// CD Resume
+//	SpuSetCommonCDVolume((0x7fff*globalMusicVol)/MAX_SOUND_VOL, (0x7fff*globalMusicVol)/MAX_SOUND_VOL);
+	
+	// Unmute sound
+//	SsSetMute( 0 );
+	bpAmStreamSetVolume(gStream, 127);
+}
+
+void SpuSetCommonCDVolume(int volume, int volume2)
+{
+
+}

@@ -169,6 +169,8 @@ extern KMSTRIPCONTEXT	StripContext_GT4_FMA;
 extern KMSTRIPHEAD		StripHead_GT4_FMA;
 extern KMSTRIPCONTEXT	StripContext_GT4_FMA_Alpha;
 extern KMSTRIPHEAD		StripHead_GT4_FMA_Alpha;
+extern KMSTRIPCONTEXT	StripContext_GT4_FMA_Add;
+extern KMSTRIPHEAD		StripHead_GT4_FMA_Add;
 extern KMVERTEX_03		vertices_GT4_FMA[];
 
 extern KMSTRIPCONTEXT	StripContext_GT3_FMA_Trans;
@@ -184,6 +186,8 @@ extern KMVERTEX_03		vertices_Sprites[];
 
 extern KMSTRIPCONTEXT	StripContext_Sprites_Add;
 extern KMSTRIPHEAD		StripHead_Sprites_Add;
+extern KMSTRIPCONTEXT	StripContext_Sprites_Sub;
+extern KMSTRIPHEAD		StripHead_Sprites_Sub;
 extern KMVERTEX_03		vertices_Sprites_Add[];
 
 extern KMSTRIPCONTEXT	StripContext_SpritesNoTex;
@@ -222,6 +226,7 @@ extern int	stripGT3FMAtextureID_A;
 
 extern int	stripGT4FMAtextureID;
 extern int	stripGT4FMAtextureID_A;
+extern int	stripGT4FMAtextureID_Add;
 
 extern int	stripTF4SPRtextureID;
 extern int	stripTF4SPRtextureID_A;

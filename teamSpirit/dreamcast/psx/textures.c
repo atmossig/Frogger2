@@ -82,7 +82,7 @@ void LoadTextureBank ( int textureBank )
 
 	if ( numTextureBanks < MAX_TEXTURE_BANKS )
 	{
-		textureLoadBank ( fileName );
+		textureLoadBank(fileName);
 //		textureBanks [ numTextureBanks ] = textureLoadBank ( fileName );
 //		textureDownloadBank ( textureBanks [ numTextureBanks ]   );
 //		textureDestroyBank  ( textureBanks [ numTextureBanks++ ] );

@@ -278,6 +278,9 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		z3 = GETD(opgt4->vert3);		
 		depth = ((z0 + z1 + z2 + z3)*0.0625);
 
+		if(depth < 30)
+			continue;
+			
 		if(depth > min_depth && depth < max_depth)
 		{
 //			if(clipflag<0)
@@ -379,6 +382,9 @@ void MapDraw_DrawFMA_Mesh2(FMA_MESH_HEADER *mesh)
 		z1 = GETD(opgt3->vert1);
 		z2 = GETD(opgt3->vert2);
 		depth = ((z0 + z1 + z2)*0.0833);
+
+		if(depth < 30)
+			continue;
 
 		if(depth > min_depth && depth < max_depth)
 		{

@@ -1,6 +1,13 @@
 #include <am.h>
 #include "include.h"
 
+extern AM_STREAM *gStream;
+extern KTU32 *gPlayBuffer;
+extern KTU32 gPlayBufferSize;
+
+KTBOOL StreamSetup(char *filename, int loop);
+void ReplayStream(void);
+
 /*
 #define MY_FILE_MAX_HANDLES				32
 #define MAX_SFX_INSTANCES				64

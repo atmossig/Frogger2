@@ -3,11 +3,12 @@
 char* fileLoad(char *filename,int *bytesRead)
 {
     PKMDWORD    filePtr;
-    GDFS        gdfs;
+    GDFS        gdfs = NULL;
     long        FileBlocks;
     int			i,flag = TRUE;
     char		buffer[256],*fptr;
 	Sint32		status;
+	int			retry = 0;
 
 //	syCacheICI();
 	
@@ -35,16 +36,25 @@ char* fileLoad(char *filename,int *bytesRead)
 	buffer[i] = 0;
 	
     // Open input file.
-    if(!(gdfs = gdFsOpen(buffer, NULL)))
-        return NULL;
+    while((!gdfs) && (retry < 50))
+    {
+	    gdfs = gdFsOpen(buffer, NULL);
+	    if(gdfs == NULL)
+	    	retry++;
+	}
+	if(gdfs == NULL)
+    	return NULL;
 
     // Get file size (in blocks/sectors).
     if(bytesRead)
 		gdFsGetFileSize(gdfs, bytesRead);
     gdFsGetFileSctSize(gdfs, &FileBlocks);
 
-    // Allocate memory to nearest block size (2048 bytes).
-    filePtr = Align32Malloc(FileBlocks * 2048);
+    // Allocate memory to nearest block size (2048 bytes).    
+	if((strcmp(buffer,"Sqrtable.bin") == 0)||(strcmp(buffer,"acostab.bin") == 0))
+	    filePtr = syMalloc(FileBlocks * 2048);
+	else	
+   		filePtr = Align32Malloc(FileBlocks * 2048);
 	if(filePtr == NULL)
 		utilPrintf("Error\n");
 	
@@ -56,7 +66,11 @@ char* fileLoad(char *filename,int *bytesRead)
     {
 	    status = gdFsGetStat(gdfs);
     	if(status == GDD_STAT_ERR)
+    	{
     		utilPrintf("Error\n");
+  	 		Align32Free(filePtr);
+  	 		return NULL;
+    	}
 
     }
 

@@ -10,8 +10,6 @@
 #include "include.h"		// so we can use mw_pr() which outputs to the debug window
 #include "frogger.h"
 #include "sg_Chain.h"
-//#include <am.h>
-//#include "am_audio.h"
 #include "generic.h"
 #include <shinobi.h>
 #include <kamui2.h>
@@ -22,6 +20,18 @@
 #include "psxsprite.h"
 #include "tongue.h"
 #include "menus.h"
+
+#include <ac.h>
+#include <a64thunk.h>
+#include <am.h>
+
+#include "am_audio.h"
+#include "bpamsetup.h"
+#include "bpamstream.h"
+#include "bpbuttons.h"
+#include "bpprintf.h"
+#include "bpamsfx.h"
+#include "strsfx.h"
 
 KMPACKEDARGB 	borderColour;
 KMDWORD 		FBarea[24576 + 19456];
@@ -96,18 +106,11 @@ signed char 	actorShiftDepth;
 
 short			timerBars = OFF;
 
-//#define MAX_AUDIO_INSTANCES					64
-//#define MAX_ONE_SHOTS						4
-////#define FIRST_Q_CHANNEL						12
-//#define	NUMBER_OF_Q_CHANNELS				4
-
-//KTU32 				effectSourceMix					=	75;
-//KTU32 				firstQChannel					=	FIRST_Q_CHANNEL;
-//KTU32 				numberOfQChannels				=	NUMBER_OF_Q_CHANNELS;
-//KTU32 				volume							=	127;
-//KTU32 				pan								=	0;
-
-KMDWORD				FogDensity;
+AC_ERROR_PTR	acErr;
+AM_ERROR 		*amErr;
+AM_BANK_PTR		gBank =	KTNULL;
+	
+KMDWORD			FogDensity;
 
 /*	--------------------------------------------------------------------------------
 	Function 	: Kamui_Init
@@ -135,7 +138,7 @@ void Kamui_Init()
 	kmSystemConfig.ppSurfaceDescArray			= pFB;
 	kmSystemConfig.fb.nNumOfFrameBuffer			= 2;
 	// for texture memory
-    kmSystemConfig.nTextureMemorySize       	= 0x100000 * 2;		// 2 MB for textures
+    kmSystemConfig.nTextureMemorySize       	= 0x200000 * 2;		// 2 MB for textures
     kmSystemConfig.nNumOfTextureStruct        	= 4096;
     kmSystemConfig.nNumOfSmallVQStruct        	= 0;//1024;
     kmSystemConfig.pTextureWork               	= &FBarea[0];
@@ -237,7 +240,7 @@ void VblCallBack(void *arg)
 
 void InitLookupTables()
 {
-	int	fileLength;
+	int			fileLength;
 
 	sqrtable = fileLoad("incbin\\Sqrtable.bin",&fileLength);
 	acostable = fileLoad("incbin\\acostab.bin",&fileLength);
@@ -297,6 +300,9 @@ extern int frameCount;
 extern int AllowPsiDestroy;
 extern int psiActorCount;
 extern int fmaActorCount;
+extern int numTextureBanks;
+
+char texurestring[64];
 
 void main()
 {
@@ -333,10 +339,24 @@ void main()
 
 	Kamui_Init();
 
-	// setup am sound stuff
-//	if(MyAmSetup(KTFALSE)==KTFALSE)
-//		return;
+	// Open the AM system	
+	if(!bpAmSetup(AC_DRIVER_DA, KTFALSE, KTNULL))
+	{
+		acASEBRK(KTTRUE);
+	}
+	(void)acSetTransferMode(AC_TRANSFER_DMA);
+		
+	acSystemDelay(500000);
 
+	acErr = acErrorGetLast();
+	amErr = amErrorGetLast();
+		
+	// Setup the file system
+	a64FileInit();
+
+	// setup heap buffer
+//	amHeapAlloc(&gPlayBuffer, gPlayBufferSize, 32,	AM_PURGABLE_MEMORY,KTNULL);
+		
 	// setup my vb interrupt
 	VblChain = syChainAddHandler(SYD_CHAIN_EVENT_IML6_VBLANK,VblCallBack,0x60,NULL);
 
@@ -348,18 +368,40 @@ void main()
 	InitCam();
 	actorInitialise();
 
-//	hyp = utilSqrt(17777*17777);
-//	test = sqrt(17777*17777);
-	
 	InitProgressBar();
 	InitTimerbar();
 	
 	initialisePsxStrips();
 
+	numTextureBanks = 0;
+	sprintf(texurestring,"not loaded\n");
+
 	CommonInit();
 
+	for(i = 0;i < 4;i++)
+	{
+		switch(i)
+		{
+			case 0:	
+				per = pdGetPeripheral(PDD_PORT_A0);
+				break;
+			case 1:	
+				per = pdGetPeripheral(PDD_PORT_B0);
+				break;
+			case 2:	
+				per = pdGetPeripheral(PDD_PORT_C0);
+				break;
+			case 3:	
+				per = pdGetPeripheral(PDD_PORT_D0);
+				break;
+		}
+		padData.present[i] = TRUE;				
+		if(strstr(per->info->product_name,"(none)"))
+			padData.present[i] = FALSE;				
+	}
+			
 //ma	BuildFogTable();
-
+	
 	// render loop
 	while(TRUE)
 	{
@@ -373,6 +415,12 @@ void main()
 		fmaActorCount = 0;
 		
 		DCTIMER_STOP(1);		
+
+		bpAmStreamServer();
+		if (bpAmStreamDone(gStream))
+		{
+			ReplayStream();
+		}
 
 		for(i=0;i<NUM_FROGS;i++)
 		{
@@ -453,7 +501,7 @@ void main()
 				padData.digital[i] |= PAD_START;
 		}
 		
-//		UpdateTextureAnimations();
+		UpdateTextureAnimations();
 				
 		GameLoop();
 		DCTIMER_STOP(1);		
@@ -504,37 +552,32 @@ void main()
 		gte_SetTransMatrix(&GsWSMATRIX);
 
 		DCTIMER_START(7);		
-//		MyStreamServer();
 		DCTIMER_STOP(7);		
 
-		sprintf(textbuffer,"rz: %d",camera.rz);
-		fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
-
-		sprintf(textbuffer,"rz: %f",(float)camera.rz / 4096.0);
-		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
-
-		sprintf(textbuffer,"rz: %f",(float)camera.rz / 360);
-		fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
-		
-//		sprintf(textbuffer,"frame: %d",frame);
-//		fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
-			
 		if(timerBars)
 		{
 			DCTIMER_PRINTS();
-			
-			sprintf(textbuffer,"polyCount: %d",polyCount);
-			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
+
+			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
+
+//			sprintf(textbuffer,"polyCount: %d",polyCount);
+//			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
 
 //			sprintf(textbuffer,"Actors: %d (%d,%d)",(psiActorCount+fmaActorCount),psiActorCount, fmaActorCount);
 //			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
 
-			sprintf(textbuffer,"Map: %d",mapCount);
+			sprintf(textbuffer,"DCK: %d",DCKnumTextures);
 			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
+
+//			sprintf(textbuffer,"Map: %d",mapCount);
+//			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
 
 			syMallocStat(memfree,memsize);
 			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
 			fontPrint(font, textPosX,textPosY+48, textbuffer, 255,255,255);						
+
+//			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
+//			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
 		}
 	
 		kmEndPass(&vertexBufferDesc);
@@ -561,8 +604,9 @@ void main()
 		DCTIMER_STOP(8);		
 		DCTIMER_STOP(0);		
 	}
+
+	bpAmShutdown();		
 	
-	amShutdown();
 	syChainDeleteHandler(VblChain);                   
 	
 	FreeBackDrop();
