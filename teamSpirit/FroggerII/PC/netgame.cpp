@@ -174,7 +174,7 @@ int MPAddFrog( int i )
 	SPECFX *fx;
 	long j;
 
-	if( i>=NUM_FROGS || i<1 || gameState.mode != GAME_MODE ) // Not found
+	if( i>=NUM_FROGS || i<1 || gameState.mode != INGAME_MODE ) // Not found
 		return 0;
 
 	if( frog[i]->draw ) // Already enabled
@@ -204,7 +204,7 @@ int MPRemoveFrog( int i )
 	long j;
 	VECTOR telePos;
 
-	if( i>=NUM_FROGS || i<1 || gameState.mode != GAME_MODE ) // Not found
+	if( i>=NUM_FROGS || i<1 || gameState.mode != INGAME_MODE ) // Not found
 		return 0;
 
 	if( !frog[i]->draw ) // Already disabled
