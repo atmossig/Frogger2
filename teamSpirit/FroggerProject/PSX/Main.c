@@ -306,8 +306,8 @@ int main ( )
 
 		Init_BB_AcosTable();
 
-//		MemCardInit(1);
-//		MemCardStart();
+		MemCardInit(1);
+		MemCardStart();
 		padInitialise(1); // 0 = No multi tap support
 		videoInit(1024, 3000);
 		textureInitialise(500, 20);
@@ -353,7 +353,7 @@ int main ( )
 
 		InitCam();
 
-
+/*
 #if GOLDCD==1
 		{
 			int bbRes;
@@ -367,7 +367,7 @@ int main ( )
 			printf("%d\n",bbRes);
 		}
 #endif
-
+*/
 
 
 
@@ -436,7 +436,7 @@ int main ( )
 			TimerStop(&tDrawWaterList);
 
 			TimerStart(&tDrawActorList);
-			utilPrintf("...............   %d\n", gameState.mode);
+//			utilPrintf("...............   %d\n", gameState.mode);
 			if(gameState.mode == INGAME_MODE || gameState.mode == FRONTEND_MODE)
 				DrawActorList();
 			TimerStop(&tDrawActorList);

@@ -626,9 +626,21 @@ void LoadGame(void)
 
 	int w,l;
 
+
+	//loop through all worlds,
+	//counting how many levels there are
+	//(so we can work out the total load file size)
+	//N.B we will count the levels as we read them, to check for discrepency
+	for(w=0; w<MAX_WORLDS; w++)
+	{
+		totalLevels += worldVisualData[w].numLevels;
+	}
+	loadSize = (MAX_WORLDS*4) + (totalLevels*20);
+
+
 	
 	//check for save game
-	utilPrintf("Checking Save Game %d\n", loadSize);
+	utilPrintf("Checking Save Game\n");
 //	res = cardRead("frogger2", loadBuf, loadSize);
 	res = cardRead("frogger2", 0, loadSize);
 	switch(res)
@@ -666,8 +678,8 @@ void LoadGame(void)
 		case CARDREAD_CORRUPT:
 		{
 			utilPrintf("Game save data corrupted\n");
-			tempUseCard = 0;
-//			tempNoLoad = 1;
+//			tempUseCard = 0;
+			tempNoLoad = 1;
 			break;
 		}
 		case CARDREAD_NOTFOUNDANDFULL:
@@ -683,17 +695,6 @@ void LoadGame(void)
 	//load data?
 	if(tempUseCard && !tempNoLoad)
 	{
-		//loop through all worlds,
-		//counting how many levels there are
-		//(so we can work out the total load file size)
-		//N.B we will count the levels as we read them, to check for discrepency
-		for(w=0; w<MAX_WORLDS; w++)
-		{
-			totalLevels += worldVisualData[w].numLevels;
-		}
-		loadSize = (MAX_WORLDS*4) + (totalLevels*20);
-
-
 		//make buffer
 		loadBuf = MALLOC0(loadSize);
 		if(!loadBuf)
@@ -742,8 +743,8 @@ void LoadGame(void)
 			case CARDREAD_CORRUPT:
 			{
 				utilPrintf("Game save data corrupted\n");
-				tempUseCard = 0;
-//				tempNoLoad = 1;
+//				tempUseCard = 0;
+				tempNoLoad = 1;
 				break;
 			}
 			case CARDREAD_NOTFOUNDANDFULL:
