@@ -141,6 +141,9 @@ void RefreshMPFrogs( )
 {
 	long i, count = 0;
 
+	if( !DPInfo.lpDP4A )
+		return;
+
 	for( i=1; i < MAX_MULTIPLAYERS; i++ )
 		if( netPlayers[i] == -1 )
 		{
