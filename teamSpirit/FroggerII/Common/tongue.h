@@ -22,7 +22,7 @@
 #define TONGUE_STICKYRADIUS			5.0
 
 #define TONGUE_OFFSET_UP			-15.0
-#define TONGUE_OFFSET_FORWARD		5.0
+#define TONGUE_OFFSET_FORWARD		0
 
 #define TONGUE_WRAPAROUNDTHRESHOLD	-0.2
 
@@ -45,8 +45,8 @@ typedef struct
 	float radius, progress;
 	unsigned char type, canTongue;
 
-	SPRITE *sprite;
 	TEXTURE *tex;
+	VECTOR *segment;
 
 	void *thing;	// What we're trying to collect
 

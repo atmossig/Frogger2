@@ -38,7 +38,7 @@ void InitTongues( )
 		tongue[i].flags = TONGUE_NONE | TONGUE_IDLE;
 		tongue[i].thing = NULL;
 		tongue[i].radius = TONGUE_RADIUSNORMAL;
-		tongue[i].sprite = NULL;
+		tongue[i].segment = NULL;
 		tongue[i].tex = NULL;
 		tongue[i].type = 0;
 		tongue[i].canTongue = 1;
@@ -63,8 +63,8 @@ void FreeTongues( )
 		tongue[i].thing = NULL;
 		tongue[i].radius = TONGUE_RADIUSNORMAL;
 
-		if( tongue[i].sprite ) JallocFree( (UBYTE **)&tongue[i].sprite );
-		tongue[i].sprite = NULL;
+		if( tongue[i].segment ) JallocFree( (UBYTE **)&tongue[i].segment );
+		tongue[i].segment = NULL;
 		tongue[i].tex = NULL;
 		tongue[i].type = 0;
 		tongue[i].canTongue = 1;
@@ -123,44 +123,14 @@ void StartTongue( unsigned char type, VECTOR *dest, int pl )
 	}
 
 	tongue[pl].type = type;
+	tongue[pl].tex = txtrBlank;
 
-	FindTexture( &tongue[pl].tex,UpdateCRC("tongue1.bmp"),YES);
+	if( !tongue[pl].segment )
+		tongue[pl].segment = (VECTOR *)JallocAlloc( sizeof(VECTOR)*MAX_TONGUENODES, YES, "TSegments" );
 
-	if( !tongue[pl].sprite )
+	for( i=0; i<MAX_TONGUENODES; i++ )
 	{
-		tongue[pl].sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_TONGUENODES, YES, "TSprite" );
-
-		for( i=0; i<MAX_TONGUENODES; i++ )
-		{
-			tongue[pl].sprite[i].texture = tongue[pl].tex;
-
-			tongue[pl].sprite[i].anim.type	= SPRITE_ANIM_NONE;
-			
-			tongue[pl].sprite[i].scaleX		= 32;	//48 - (pl << 2);
-			tongue[pl].sprite[i].scaleY		= 32;
-			tongue[pl].sprite[i].r			= 255;
-			tongue[pl].sprite[i].g			= 70;
-			tongue[pl].sprite[i].b			= 70;
-			tongue[pl].sprite[i].a			= 0;
-
-#ifndef PC_VERSION
-			tongue[pl].sprite[i].offsetX		= -tongue[pl].tex->sx / 2;
-			tongue[pl].sprite[i].offsetY		= -tongue[pl].tex->sy / 2;
-#else
-			tongue[pl].sprite[i].offsetX		= -16;
-			tongue[pl].sprite[i].offsetY		= -16;
-#endif
-			AddSprite( &tongue[pl].sprite[i], NULL );
-		}
-
-	}
-	else
-	{
-		for( i=0; i<MAX_TONGUENODES; i++ )
-		{
-			AddSprite( &tongue[pl].sprite[i], NULL );
-			tongue[pl].sprite[i].a = 0;
-		}
+		SetVector( &tongue[pl].segment[i], &tongue[pl].pos );
 	}
 
 	// Set frog mouth open animation, and the speed
@@ -398,15 +368,12 @@ void CalculateTongue( int pl )
 		t2 = t*t;
 		t3 = t2*t;
 
-		tongue[pl].sprite[i].pos.v[X] = ((2*t3 - 3*t2 + 1)*gx[0]) + ((-2*t3 + 3*t2)*gx[1]) + ((t3 - 2*t2 + t)*gx[2]) + ((t2-t2)*gx[3]);
-		tongue[pl].sprite[i].pos.v[Y] = ((2*t3 - 3*t2 + 1)*gy[0]) + ((-2*t3 + 3*t2)*gy[1]) + ((t3 - 2*t2 + t)*gy[2]) + ((t2-t2)*gy[3]);
-		tongue[pl].sprite[i].pos.v[Z] = ((2*t3 - 3*t2 + 1)*gz[0]) + ((-2*t3 + 3*t2)*gz[1]) + ((t3 - 2*t2 + t)*gz[2]) + ((t2-t2)*gz[3]);
-		tongue[pl].sprite[i].a = 255;
+		tongue[pl].segment[i].v[X] = ((2*t3 - 3*t2 + 1)*gx[0]) + ((-2*t3 + 3*t2)*gx[1]) + ((t3 - 2*t2 + t)*gx[2]) + ((t2-t2)*gx[3]);
+		tongue[pl].segment[i].v[Y] = ((2*t3 - 3*t2 + 1)*gy[0]) + ((-2*t3 + 3*t2)*gy[1]) + ((t3 - 2*t2 + t)*gy[2]) + ((t2-t2)*gy[3]);
+		tongue[pl].segment[i].v[Z] = ((2*t3 - 3*t2 + 1)*gz[0]) + ((-2*t3 + 3*t2)*gz[1]) + ((t3 - 2*t2 + t)*gz[2]) + ((t2-t2)*gz[3]);
 	}
-	for( ; i<n; i++ )
-		tongue[pl].sprite[i].a = 0;
-	
-	SetVector( &tongue[pl].pos, &tongue[pl].sprite[index].pos );
+
+	SetVector( &tongue[pl].pos, &tongue[pl].segment[index] );
 }
 
 
@@ -451,9 +418,6 @@ void RemoveFrogTongue( int pl )
 	tongue[pl].type = 0;
 	tongue[pl].progress = 0;
 	tongue[pl].canTongue = 1;
-
-	for( i=0; i<MAX_TONGUENODES; i++ )
-		SubSprite( &tongue[pl].sprite[i] );
 
 	player[pl].frogState &= ~FROGSTATUS_ISTONGUEING;
 }

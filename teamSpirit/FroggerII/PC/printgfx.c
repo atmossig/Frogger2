@@ -27,10 +27,10 @@ float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
 void Clip3DPolygon (D3DTLVERTEX in[3], long texture);
 
 void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i );
-//void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
+void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i );
 
 void DrawShadow( VECTOR *pos, VECTOR *normal, float size, float offset, short alpha, long tex );
-//void DrawTongue( TONGUE *t );
+void DrawTongue( TONGUE *t );
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrops
@@ -363,11 +363,11 @@ void DrawSpecialFX()
 				if( fx->Draw )
 					fx->Draw( fx );
 		}
-/*
+
 		for( i=0; i<NUM_FROGS; i++ )
 			if( tongue[i].flags & TONGUE_BEINGUSED )
 				DrawTongue( &tongue[i] );
-*/	}
+	}
 }
 
 /*	--------------------------------------------------------------------------------
@@ -1131,7 +1131,6 @@ void TransformAndDrawPolygon( POLYGON *p )
 	PopMatrix( ); // Translation
 }
 
-/*
 void DrawTongue( TONGUE *t )
 {
 	unsigned long i=0, index = (int)(t->progress*(MAX_TONGUENODES-1));
@@ -1196,18 +1195,18 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	CrossProduct( (VECTOR *)&cross, &normal, &upVec );
 	MakeUnit( (VECTOR *)&cross );
 	p = DotProduct( &normal, &upVec );
-	cross.w = acos(p);
+	cross.w = -acos(p);
 	GetQuaternionFromRotation( &q, &cross );
 	QuaternionToMatrix( &q, (MATRIX *)rMtrx );
 
 	// Precalculated rotation
 	PushMatrix( (MATRIX *)rMtrx );
 
-	vT[0].sx = 5;
+	vT[0].sx = -7+(i*0.4);
 	vT[0].sy = 0;
 	vT[0].sz = 0;
-	vT[0].color = D3DRGBA(1,1,1,1);
-	vT[1].sx = -5;
+	vT[0].color = D3DRGBA(1,0,0,1);
+	vT[1].sx = 7-(i*0.4);
 	vT[1].sy = 0;
 	vT[1].sz = 0;
 	vT[1].color = vT[0].color;
@@ -1229,4 +1228,3 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
 }
-*/
