@@ -1829,9 +1829,22 @@ void LevelSelProcessController(long pl)
 				gameState.multi = MULTILOCAL;
 			NUM_FROGS = numPlayers;
 			player[0].worldNum = cWorld;
-			player[0].levelNum = 3;
-			if (cWorld==WORLDID_GARDEN)
-				player[0].levelNum = 1;			
+
+			switch( player[0].worldNum )
+			{
+			case WORLDID_ANCIENT: 
+				player[0].levelNum = 3;
+				multiplayerMode = MULTIMODE_RACE; 
+				break;
+			case WORLDID_GARDEN:
+				player[0].levelNum = 1;
+				multiplayerMode = MULTIMODE_RACE; 
+				break;
+			case WORLDID_LABORATORY: 
+				player[0].levelNum = 3;
+				multiplayerMode = MULTIMODE_BATTLE; 
+				break;
+			}
 		}
 
 		lastActFrameCount = actFrameCount;
