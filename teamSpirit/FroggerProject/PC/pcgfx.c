@@ -80,9 +80,19 @@ void ProcessShadows()
 	for( i=0; i<NUM_FROGS; i++ )
 		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
 		{
-			SetVectorRS( &tilePos, &currTile[i]->centre );
+			if( currPlatform[i] )
+			{
+				SetVectorRS( &tilePos, &currPlatform[i]->pltActor->actor->position );
+				SetVectorRF( &up, &currPlatform[i]->inTile[0]->normal );
+			}
+			else
+			{
+				SetVectorRS( &tilePos, &currTile[i]->centre );
+				SetVectorRF( &up, &currTile[i]->normal );
+			}
+
 			SetVectorRS( &pos, &frog[i]->actor->position );
-			SetVectorRF( &up, &currTile[i]->normal );
+			Normalise( &up );
 
 			SubVector( &vec, &pos, &tilePos );
 			height = DotProduct( &vec, &up )/SCALE;
