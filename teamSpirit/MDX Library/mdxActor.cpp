@@ -376,6 +376,7 @@ void InitActorStructures(MDX_ACTOR *tempActor, int initFlags)
 void InitActor(MDX_ACTOR *tempActor, char *name, float x, float y, float z, int initFlags)
 {
 	FindObject(&tempActor->objectController, UpdateCRC(name), name);
+	tempActor->LODObjectController = NULL;
 	
 	if(!tempActor->objectController)
 		return;

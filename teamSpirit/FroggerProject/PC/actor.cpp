@@ -1214,7 +1214,7 @@ void ChangeModel( ACTOR *actor, char *model )
 
 	a->LODObjectController = a->objectController;
 	FindObject( &a->objectController, UpdateCRC(model), model );
-	//InitActorAnim( actor );
+	InitAnims( a );
 }
 
 
@@ -1233,7 +1233,7 @@ int UndoChangeModel( ACTOR *actor )
 	{
 		a->objectController = a->LODObjectController;
 		a->LODObjectController = NULL;
-		//InitActorAnim( frog[pl]->actor );
+		InitAnims( a );
 		actorAnimate( actor, FROG_ANIM_BREATHE, YES, NO, 102, 0);
 		return 1;
 	}

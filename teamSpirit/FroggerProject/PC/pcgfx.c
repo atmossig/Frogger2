@@ -74,7 +74,7 @@ void DrawSpecialFX()
 */
 void ProcessShadows()
 {
-	MDX_VECTOR vec, pos, up;
+	MDX_VECTOR vec, pos, up, tilePos;
 	ENEMY *nme;
 	PLATFORM *plat;
 	GARIB *garib;
@@ -88,10 +88,11 @@ void ProcessShadows()
 	for( i=0; i<NUM_FROGS; i++ )
 		if( frog[i]->actor->shadow && frog[i]->draw && frog[i]->actor->shadow->draw )
 		{
+			SetVectorRS( &tilePos, &currTile[i]->centre );
 			SetVectorRS( &pos, &frog[i]->actor->position );
 			SetVectorRF( &up, &currTile[i]->normal );
 
-			SubVector( &vec, &pos, &currTile[i]->centre );
+			SubVector( &vec, &pos, &tilePos );
 			height = DotProduct( &vec, &up );
 			size = (float)(frog[i]->actor->shadow->radius>>12)/max(height*0.02, 1);
 			alpha = frog[i]->actor->shadow->alpha/max(height*0.02, 1);
@@ -109,10 +110,11 @@ void ProcessShadows()
 
 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER)
 		{
+			SetVectorRS( &tilePos, &nme->inTile->centre );
 			SetVectorRS( &pos, &nme->nmeActor->actor->position );
 			SetVectorRF( &up, &nme->inTile->normal );
 
-			SubVector( &vec, &pos, &nme->inTile->centre );
+			SubVector( &vec, &pos, &tilePos );
 			height = DotProduct( &vec, &up );
 			size = (float)(nme->nmeActor->actor->shadow->radius>>12)/max(height*0.02, 1);
 			alpha = nme->nmeActor->actor->shadow->alpha/max(height*0.02, 1);
@@ -132,10 +134,11 @@ void ProcessShadows()
 
 		if(plat->pltActor->actor->shadow && plat->inTile && plat->pltActor->distanceFromFrog < BBACTOR_DRAWDISTANCEINNER)
 		{
+			SetVectorRS( &tilePos, &plat->inTile[0]->centre );
 			SetVectorRS( &pos, &plat->pltActor->actor->position );
 			SetVectorRF( &up, &plat->inTile[0]->normal );
 
-			SubVector( &vec, &pos, &plat->inTile[0]->centre );
+			SubVector( &vec, &pos, &tilePos );
 			height = DotProduct( &vec, &up );
 			size = (float)(plat->pltActor->actor->shadow->radius>>12)/max(height*0.02, 1);
 			alpha = plat->pltActor->actor->shadow->alpha/max(height*0.02, 1);
