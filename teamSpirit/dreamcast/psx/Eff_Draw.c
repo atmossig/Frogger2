@@ -44,22 +44,24 @@ asm(\
 void DrawSpecialFX(void)
 {
 	SPECFX	*fx;
+	int		i;
 
 	ProcessShadows();
 
 	// draw all special effects from list
 	if (sfxList.count > 0)
-	{
 		for (fx = sfxList.head.next; fx != &sfxList.head; fx = fx->next)
 		{
 			if (fx->Draw)
 				fx->Draw(fx);
 		}
-	}
 
-//	for( i=0; i<NUM_FROGS; i++ )
-//		if( tongue[i].flags & TONGUE_BEINGUSED )
-//			DrawTongue( i );
+	// draw frog tongue 
+	for (i=0; i<NUM_FROGS; i++)
+		if (tongue[i].flags & TONGUE_BEINGUSED)
+		{
+			DrawTongue(i);
+		}
 }
 
 
@@ -306,52 +308,150 @@ void DrawFXDecal( SPECFX *ripple )
 
 
 
+// 
+
+
+
+/* --------------------------------------------------------------------------------
+   Function : DrawFXRing
+   Purpose : draw special effects ring (used in croak)
+   Parameters : special effects def pointer
+   Returns : 
+   Info : 
+*/
 
 void DrawFXRing(SPECFX *fx)
 {
-	unsigned long vx, i, j, vxj;
-	VERT vT[5], vTPrev[2];
-	TextureType *tEntry;
-	FVECTOR scale, normal;
-	VECTOR tempVect;
-	SVECTOR pos, m;
-	IQUATERNION q1, q3, cross;
-	SVECTOR fxpos;
-	fixed tilt, tilt2, t;
-	int zeroZ = 0;
-	int r,g,b;
-	
-	MATRIX tMtrx, rMtrx, sMtrx, tempMtrx;
+	unsigned long	vx, i, j, vxj;
+	VERT			vT[5], vTPrev[2];
+	TextureType		*tEntry;
+	FVECTOR			scale, normal;
+	VECTOR			tempVect;
+	SVECTOR			pos, m;
+	IQUATERNION		q1, q3, cross;
+	SVECTOR			fxpos;
+	fixed			tilt, tilt2, t;
+	int				zeroZ;
+	int				r, g, b;
+	MATRIX			tMtrx, rMtrx, sMtrx, tempMtrx;
+	long			otz;
 
-	if( !(tEntry = fx->tex) )
+
+	// load texture entry.. NULL?
+	if ((tEntry = fx->tex) == NULL)
 		return;
 
-	SetVectorFF(&scale, &fx->scale);
+// asl test code
+#if 0
+{
+		VECTOR		inVec;
+		SVECTOR		outVec;
+		TextureType	*coin = FindTexture("FLASH");
+		if (coin != NULL)
+		{
+			SetVectorSS(&pos, &fx->origin);
+			inVec.vx = pos.vx - 1000;
+			inVec.vy = pos.vy;
+			inVec.vz = pos.vz - 1000;
+	
+			inVec.vx = -inVec.vx;
+			inVec.vy = -inVec.vy;
+	
+			gte_SetTransMatrix(&GsWSMATRIX);
+			gte_SetRotMatrix(&GsWSMATRIX);
+			gte_ldlv0(&inVec);
+			gte_rtps();
+			gte_stsxy(&outVec.vx);
+			gte_stszotz(&otz);
+			outVec.vz = (short)otz;
+			outVec.vz >>=2;
 
-	scale.vx /= 150;
-	scale.vy /= 150;
-	scale.vz /= 150;
+			// setup all dreamcast vertices
+			vertices_GT4[0].fX = outVec.vx;
+			vertices_GT4[0].fY = outVec.vy;
+			vertices_GT4[0].u.fZ = 1.0f / (float)outVec.vz;
+			vertices_GT4[0].fU = vT[0].tu;
+			vertices_GT4[0].fV = vT[0].tv;
+			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(255, 255, 255, 255);
+
+			vertices_GT4[1].fX = outVec.vx+32;
+			vertices_GT4[1].fY = outVec.vy+0;
+			vertices_GT4[1].u.fZ = 1.0f / (float)outVec.vz;
+			vertices_GT4[1].fU = 1;
+			vertices_GT4[1].fV = 0;
+			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(255, 255, 255, 255);
+
+			vertices_GT4[2].fX = outVec.vx+0;
+			vertices_GT4[2].fY = outVec.vy+32;
+			vertices_GT4[2].u.fZ = 1.0f / (float)outVec.vz;
+			vertices_GT4[2].fU = 0;
+			vertices_GT4[2].fV = 1;
+			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(255, 255, 255, 255);
+
+			vertices_GT4[3].fX = outVec.vx+32;
+			vertices_GT4[3].fY = outVec.vy+32;
+			vertices_GT4[3].u.fZ = 1.0f / (float)outVec.vz;
+			vertices_GT4[3].fU = 1;
+			vertices_GT4[3].fV = 1;
+			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(255, 255, 255, 255);
+
+			// initialise additive polygon strip header
+			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,coin->surfacePtr);
+
+			// initiliase strip vertices
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+
+			// ..and terminate
+			kmEndStrip(&vertexBufferDesc);			
+		
+			return;
+		}
+}
+#endif
+
+	zeroZ = 0;
+
+	vTPrev[0].vz = 0;
+	vTPrev[1].vz = 0;
+		
+	SetVectorFF(&scale, &fx->scale);
+	
+	// scale down the scale vector
+	scale.vx /= 150L;
+	scale.vy /= 150L;
+	scale.vz /= 150L;
+
+//	scale.vx = 500;	//asl my line
+//	scale.vy = 500;	//asl my line
+//	scale.vz = 500;	//asl my line
 
 	SetVectorFF(&normal, &fx->normal);
 	SetVectorSS(&pos, &fx->origin);
 
-	// Translate to current fx pos and push
+//	pos.vx -= 1000;	//asl my line
+//	pos.vz -= 1000;	//asl my line
+
+	// translate to current effect position
 	tMtrx = GsIDMATRIX;
 	tMtrx.t[0] = -pos.vx;
 	tMtrx.t[1] = -pos.vy;
-	tMtrx.t[2] = pos.vz;
+	tMtrx.t[2] =  pos.vz;
 
 	// Rotate around axis
 	SetVectorFF((FVECTOR*)&q1, &normal);
-
-	// Rotate to be around normal
-	CrossProductFFF((FVECTOR*)&cross, (FVECTOR*)&q1, &upVec);
+	
+	// rotate to be around the normal
+	CrossProductFFF((FVECTOR *)&cross, (FVECTOR *)&q1, &upVec);
 	MakeUnit((FVECTOR *)&cross);
-	t = DotProductFF((FVECTOR*)&q1, &upVec);
+	t = DotProductFF((FVECTOR *)&q1, &upVec);
 	cross.w = -arccos(t);
 	fixedGetQuaternionFromRotation(&q3, &cross);
 
-	// Combine the rotations and push
+	// combine the rotations and push
 	QuatToPSXMatrix(&q3, &rMtrx);
 
 	tilt2 = fx->tilt;
@@ -360,6 +460,19 @@ void DrawFXRing(SPECFX *fx)
 	g = (fx->g*fx->a) >>8;
 	b = (fx->b*fx->a) >>8;
 
+	// initialise our effect vertices
+	memset(vT, 0, sizeof(VERT)*4);
+	memset(vTPrev, 0, sizeof(VERT)*2);					// *ASL* 28/06/2000 - !!make sure these are initialised!!
+
+	tEntry->u0 = 0;
+	tEntry->v0 = 0;
+	tEntry->u1 = 1;
+	tEntry->v1 = 0;
+	tEntry->u2 = 1;
+	tEntry->v2 = 1;
+	tEntry->u3 = 0;
+	tEntry->v3 = 1;
+	
 	vT[0].tu = tEntry->u2;
 	vT[0].tv = tEntry->v2;
 	vT[1].tu = tEntry->u0;
@@ -368,14 +481,14 @@ void DrawFXRing(SPECFX *fx)
 	vT[2].tv = tEntry->v1;
 	vT[3].tu = tEntry->u3;
 	vT[3].tv = tEntry->v3;
+	
 
-
-	for( i=0,vx=0; i < NUM_RINGSEGS; i++,vx+=2 )
+	for (i=0, vx=0; i < NUM_RINGSEGS; i++, vx+=2)
 	{
-		// Transform to proper coords
-		for( j=0,zeroZ=0; j<4; j++ )
+		// transform to proper coords
+		for (j=0, zeroZ=0; j<4; j++)
 		{
-			if(i && j<2 && vTPrev[0].vz && vTPrev[1].vz)
+			if (i && j<2 && vTPrev[0].vz && vTPrev[1].vz)
 				memcpy(vT, vTPrev, sizeof(VERT)*2);
 			else
 			{
@@ -420,114 +533,78 @@ void DrawFXRing(SPECFX *fx)
 				gte_ldlv0(&tempVect);
 				gte_rtps();
 				gte_stsxy(&m.vx);
-				
-				// *ASL* 28/06/2000
-				// ** gte_stszotz expects an aligned long rather than a short and definately not a void pointer!
-				// ** The compiler can align memory properly if it knows what types are being passed around. The void pointer
-				// ** will just break this convention and cause memory alignment exceptions.
-				
-				{
-					long	lz;
-					gte_stszotz(&lz);
-					m.vz = (short)lz;
-				}
-				
+				gte_stszotz(&otz);				//asl
+				m.vz = (short)otz;				//asl
 				m.vz>>=2;
 //ma			gte_stflg(&flg);				// screen z/4 as otz
 
 				// Assign back to vT array
 				vT[j].vx = m.vx;
 				vT[j].vy = m.vy;
-				if( (m.vz<60) || (m.vz>1000) )
-					zeroZ++;
-				else
-					vT[j].vz = m.vz;
+				vT[j].vz = m.vz;				//asl
+//asl				if( (m.vz<60) || (m.vz>1000) )
+//asl					zeroZ++;
+//asl				else
+//asl					vT[j].vz = m.vz;
 			}
 		}
 
-		if(!zeroZ)
+		if (zeroZ == 0)
 		{
-			POLY_FT4 *ft4;
-			int width;
-
+			// load the correct texture u's into the vertices
 			vT[0].tu = tEntry->u2;
 			vT[1].tu = tEntry->u0;
 			vT[2].tu = tEntry->u1;
 			vT[3].tu = tEntry->u3;
 
+			// copy print vertices to previous vertices. Saves re-calculating them again above
 			memcpy( vTPrev, &vT[2], sizeof(VERT)*2 );
+			// this really isn't needed as i suspect they are drawing two tris
 			memcpy( &vT[4], &vT[0], sizeof(VERT) );
 
-/*ma
-			BEGINPRIM(ft4, POLY_FT4);
-			setPolyFT4(ft4);
-			ft4->x0 = vT[0].vx;
-			ft4->y0 = vT[0].vy;
-			ft4->x1 = vT[1].vx;
-			ft4->y1 = vT[1].vy;
-			ft4->x2 = vT[3].vx;
-			ft4->y2 = vT[3].vy;
-			ft4->x3 = vT[2].vx;
-			ft4->y3 = vT[2].vy;
-			ft4->r0 = r;
-			ft4->g0 = g;
-			ft4->b0 = b;
-			ft4->u0 = vT[0].tu;
-			ft4->v0 = vT[0].tv;
-			ft4->u1 = vT[1].tu;
-			ft4->v1 = vT[1].tv;
-			ft4->u2 = vT[3].tu;
-			ft4->v2 = vT[3].tv;
-			ft4->u3 = vT[2].tu;
-			ft4->v3 = vT[2].tv;
-			ft4->tpage = tEntry->tpage;
-			ft4->clut  = tEntry->clut;
-			ft4->code  |= 2;//semi-trans on
- 			ft4->tpage |= 32;//add
-			ENDPRIM(ft4, 1, POLY_FT4);
-*/		
+			// setup all dreamcast vertices
 			vertices_GT4[0].fX = vT[0].vx;
 			vertices_GT4[0].fY = vT[0].vy;
-			vertices_GT4[0].u.fZ = 10.0;
-			vertices_GT4[0].fU = (float)0;
-			vertices_GT4[0].fV = (float)0;
-//			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			vertices_GT4[0].u.fZ = 1.0f / (float)vT[0].vz;
+			vertices_GT4[0].fU = vT[0].tu;
+			vertices_GT4[0].fV = vT[0].tv;
+			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(fx->r, fx->g, fx->b, fx->a);
 
 			vertices_GT4[1].fX = vT[1].vx;
 			vertices_GT4[1].fY = vT[1].vy;
-			vertices_GT4[1].u.fZ = 10.0;
-			vertices_GT4[1].fU = (float)1;
-			vertices_GT4[1].fV = (float)0;
-//			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			vertices_GT4[1].u.fZ = 1.0f / (float)vT[1].vz;
+			vertices_GT4[1].fU = vT[1].tu;
+			vertices_GT4[1].fV = vT[1].tv;
+			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(fx->r, fx->g, fx->b, fx->a);
 
-			vertices_GT4[2].fX = vT[2].vx;
-			vertices_GT4[2].fY = vT[2].vy;
-			vertices_GT4[2].u.fZ = 10.0;
-			vertices_GT4[2].fU = (float)0;
-			vertices_GT4[2].fV = (float)1;
-//			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			vertices_GT4[2].fX = vT[3].vx;
+			vertices_GT4[2].fY = vT[3].vy;
+			vertices_GT4[2].u.fZ = 1.0f / (float)vT[3].vz;
+			vertices_GT4[2].fU = vT[3].tu;
+			vertices_GT4[2].fV = vT[3].tv;
+			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(fx->r, fx->g, fx->b, fx->a);
 
-			vertices_GT4[3].fX = vT[3].vx;
-			vertices_GT4[3].fY = vT[3].vy;
-			vertices_GT4[3].u.fZ = 10.0;
-			vertices_GT4[3].fU = (float)1;
-			vertices_GT4[3].fV = (float)1;
-//			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(fx->a>>1,fx->a>>1,fx->a>>1,255);
-			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(255,255,255,255);
+			vertices_GT4[3].fX = vT[2].vx;
+			vertices_GT4[3].fY = vT[2].vy;
+			vertices_GT4[3].u.fZ = 1.0f / (float)vT[2].vz;
+			vertices_GT4[3].fU = vT[2].tu;
+			vertices_GT4[3].fV = vT[2].tv;
+			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(fx->r, fx->g, fx->b, fx->a);
 
-			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,tEntry->surfacePtr);
+			// initialise additive polygon strip header
+			kmChangeStripTextureSurface(&StripHead_Sprites_Add,KM_IMAGE_PARAM1,tEntry->surfacePtr);
 
-			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
+			// initiliase strip vertices
+			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites_Add);
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
 			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
+
+			// ..and terminate
 			kmEndStrip(&vertexBufferDesc);			
-				
-			if((i&1) && (actFrameCount&1))
+
+			if(((actFrameCount MOD 2) == 0) && (i&1))
 			{
 				SPECFX *trail;
 
@@ -547,7 +624,9 @@ void DrawFXRing(SPECFX *fx)
 		}
 	}
 }
- 
+
+
+
 
 
 

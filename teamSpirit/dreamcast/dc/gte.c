@@ -2946,7 +2946,7 @@ void initialisePsxStrips()
 	StripContext_Sprites.StripControl.nUserClipMode	 						= KM_USERCLIP_DISABLE;
 	StripContext_Sprites.StripControl.nShadowMode			 				= KM_NORMAL_POLYGON;
 	StripContext_Sprites.StripControl.bGouraud		 						= KM_TRUE;
-	StripContext_Sprites.ObjectControl.nDepthCompare			 			= KM_ALWAYS;//KM_GREATER;
+	StripContext_Sprites.ObjectControl.nDepthCompare			 			= KM_ALWAYS;
 	StripContext_Sprites.ObjectControl.nCullingMode			 				= KM_NOCULLING;
 	StripContext_Sprites.ObjectControl.bZWriteDisable						= KM_FALSE;
 	StripContext_Sprites.ImageControl[KM_IMAGE_PARAM1].nSRCBlendingMode		= KM_SRCALPHA;
