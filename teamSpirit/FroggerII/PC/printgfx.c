@@ -265,7 +265,9 @@ void PrintSpriteOverlays()
 			}
 			
 			tEntry = ((TEXENTRY *)cur->frames[cur->currFrame]);
-			texture = tEntry->hdl;
+			
+			if (tEntry)
+				texture = tEntry->hdl;
 			
 			//tEntry->xo = 7 * (32.0/256.0);
 			//tEntry->yo = 3 * (32.0/256.0);
