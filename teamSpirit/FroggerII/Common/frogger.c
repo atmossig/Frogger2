@@ -57,7 +57,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 
 	me = frog[p] = CreateAndAddActor(name,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 	
-	hat[p] = CreateAndAddActor("hat-shad.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+	hat[p] = CreateAndAddActor("hat-top.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
 	
 	if (hat[p])
 	{

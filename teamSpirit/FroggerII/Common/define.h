@@ -95,19 +95,24 @@ enum
 #define TILESTATE_CONVEYOR_MED	0x24
 #define TILESTATE_CONVEYOR_FAST	0x28
 
+typedef struct _GAMETILE_INFO
+{
+	VECTOR shading;
+} GAMETILE_INFO;
 
 typedef struct _GAMETILE
 {
 	struct _GAMETILE	*tilePtrs[4];		// north, south, east and west
 	struct _GAMETILE	*next;				// next tile in linked list
-	struct _GAMETILE	*teleportTo;		// tile to teleport to if this tile is a teleporter
+	
+	GAMETILE_INFO		*gameInfo;			// tile to teleport to if this tile is a teleporter
 
 	unsigned char		state;				// state of tile
 	
 	VECTOR		centre;						// centre position
 	VECTOR		normal;						// face normal
 
-	VECTOR		dirVector[4];			// the 4 possible camera vectors for this tile
+	VECTOR		dirVector[4];				// the 4 possible camera vectors for this tile
 
 } GAMETILE;
 
