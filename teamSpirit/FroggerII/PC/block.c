@@ -261,12 +261,20 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 void DrawGraphics() 
 {
 	XformActorList();
+	
+	if(spriteList.numEntries)
+		AnimateSprites();
+
 
 	// Actual stuff that draws
 	BeginDrawHardware();
 	
 	DrawActorList();	
 
+	
+	if(spriteList.numEntries)
+		PrintSpritesOpaque();
+		
 	PrintSpriteOverlays();	
 	PrintTextOverlays();
 

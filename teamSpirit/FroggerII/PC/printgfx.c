@@ -97,6 +97,33 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 	wSeed += 0.1;
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: 
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+SPRITE *PrintSpritesOpaque()
+{
+	SPRITE *cur,*next;
+	
+	spriteList.lastTexture = NULL;
+	spriteList.xluMode = NO;
+
+	if(!testPause)
+	{
+		for(cur = spriteList.head.next; (cur != &spriteList.head) && ((cur->flags & SPRITE_TRANSLUCENT) == 0); cur = next)
+		{
+			next = cur->next;
+
+			//PrintSprite(cur);
+		}
+	}
+
+	return cur;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintSpriteOverlays
