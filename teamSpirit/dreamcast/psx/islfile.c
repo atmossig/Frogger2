@@ -91,9 +91,8 @@ static char* fileLoad2(char *filename,int *bytesRead)
 	if(gdfs == NULL)
     	return NULL;
 
-	FileBlocks = 0;
-
     // Get file size (in blocks/sectors).
+	FileBlocks = 0;
     if(bytesRead)
 		gdFsGetFileSize(gdfs, (Sint32 *)bytesRead);
     gdFsGetFileSctSize(gdfs, (Sint32 *)&FileBlocks);

@@ -428,7 +428,12 @@ PKMDWORD LoadTextureFile2(char *Filename)
         return NULL;
 
     // Get file size (in blocks/sectors).
+	FileBlocks = 0;
     gdFsGetFileSctSize(gdfs, &FileBlocks);
+
+	// trap zero length
+	if (FileBlocks == 0)
+		return NULL;
 
     // Allocate memory to nearest block size (2048 bytes).
     TexturePtr = Align32Malloc(FileBlocks * 2048);
