@@ -845,9 +845,9 @@ void RunGameLoop (void)
 			}
 		}
 
-		Init3DTextList();
+		//Init3DTextList();
 
-		CreateAndAdd3DText( "geezers", 224, 128,128,128,255, T3D_CIRCLE );
+		//CreateAndAdd3DText( "geezers", 224, 128,128,128,255, T3D_CIRCLE );
 
 //		runningWaterStuff = 0;
 		ChangeCameraSetting();
