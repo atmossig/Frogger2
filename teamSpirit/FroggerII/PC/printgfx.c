@@ -65,10 +65,23 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		// Centre text along screen x-axis
 		length	= strlen(tOver->text);
 		width	= length * (tOver->font->xSpacing[0]);
-		x		= (640-width)/2;
+		x		= (SCREEN_WIDTH-width)/2;
 
 		if((length & 1) != 0)
 			x -= 5;
+	}
+	else // If told to move, goto destination
+	{
+		float spd = tOver->speed * gameSpeed;
+		if( Fabs(tOver->xPosTo-tOver->xPos) < spd )
+			tOver->xPos = tOver->xPosTo;
+		else
+			tOver->xPos += (tOver->xPosTo > tOver->xPos)?spd:-spd;
+
+		if( Fabs(tOver->yPosTo-tOver->yPos) < spd )
+			tOver->yPos = tOver->yPosTo;
+		else
+			tOver->yPos += (tOver->yPosTo > tOver->yPos)?spd:-spd;
 	}
 
 	letterCount = 0;
@@ -181,6 +194,18 @@ void PrintSpriteOverlays()
 		// update the sprite animation if an animated sprite overlay
 		if(cur->draw)
 		{
+			// Go to destination, if specified
+			float spd = cur->speed * gameSpeed;
+			if( Fabs(cur->xPosTo-cur->xPos) < spd )
+				cur->xPos = cur->xPosTo;
+			else
+				cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
+
+			if( Fabs(cur->yPosTo-cur->yPos) < spd )
+				cur->yPos = cur->yPosTo;
+			else
+				cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+
 			// check animation playback type - cycle,ping-pong, etc.
 			if(cur->flags & ANIMATION_CYCLE)
 			{

@@ -28,12 +28,13 @@ typedef struct TAGTEXTOVERLAY
 	int			ID;
 	float		waveAmplitude;
 	float		waveStart;
-	short		xPos,yPos,zPos;
-	short		xPosOld,yPosOld;
+	float		xPos,yPos;
+	float		xPosTo, yPosTo;
 	short		centred;
-	
 	short		kill;
 	short		life;
+
+	float		speed;
 
 	UBYTE		r,g,b,a,oa;
 
@@ -47,15 +48,13 @@ typedef struct TAGSPRITEOVERLAY
 {
 	struct		TAGSPRITEOVERLAY *next,*prev;
 
-	short		xPos;
-	short		yPos;
+	float		xPos, yPos;
+	float		xPosTo, yPosTo;
 	short		width;
 	short		height;
 
 	short		flags;
-
-	float		velocityX;
-	float		velocityY;
+	float		speed;
 	
 	UBYTE		r,g,b,a;
 	UBYTE		draw;

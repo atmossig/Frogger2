@@ -155,7 +155,7 @@ void AddScreenSpawn(long x, long y, long xa, long ya)
 	
 	me->next = spawnList;
 
-	me->sp = CreateAndAddSpriteOverlay(x,y,"rdfrg001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
+	me->sp = CreateAndAddSpriteOverlay(x,y,"rdfrg001.bmp",16,16,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
 
 	if (spawnList)
 		spawnList->prev = me;

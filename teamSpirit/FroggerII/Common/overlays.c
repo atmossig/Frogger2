@@ -28,8 +28,7 @@ SPRITEOVERLAY *goldCup[8];
 	Returns			: SPRITEOVERLAY *
 	Info			: 
 */
-SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short width,short height,
-										 unsigned char r,unsigned char g,unsigned char b,unsigned char a,short flags)
+SPRITEOVERLAY *CreateAndAddSpriteOverlay(float x,float y,char *txtrName,short width,short height,unsigned char alpha,short flags)
 {
 	SPRITEOVERLAY *newItem;
 
@@ -38,18 +37,19 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short wi
 
 	newItem->xPos		= x;
 	newItem->yPos		= y;
+	newItem->xPosTo		= x;
+	newItem->yPosTo		= y;
 	newItem->width		= width;
 	newItem->height		= height;
 	newItem->draw		= 1;
 	newItem->flags		= flags;
 
-	newItem->r			= r;
-	newItem->g			= g;
-	newItem->b			= b;
-	newItem->a			= a;
+	newItem->r			= 255;
+	newItem->g			= 255;
+	newItem->b			= 255;
+	newItem->a			= alpha;
 
-	newItem->velocityX	= 0.0F;
-	newItem->velocityY	= 0.0F;
+	newItem->speed		= 0;
 
 	newItem->currFrame	= 0;
 	newItem->animTime	= 0.0F;

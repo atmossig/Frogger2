@@ -35,7 +35,7 @@ extern TEXTOVERLAYLIST textOverlayList;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-extern TEXTOVERLAY *CreateAndAddTextOverlay(short x,short y,char *text,char centred,char del,char r,char g,char b,char a,FONT *fontPtr,char flags,float waveAmplitude,float waveStart);
+extern TEXTOVERLAY *CreateAndAddTextOverlay(float x,float y,char *text,char centred,char a,FONT *fontPtr,char flags,float waveAmplitude);
 extern void PrintTextOverlays();
 extern void EnableTextOverlay(TEXTOVERLAY *tover);
 extern void DisableTextOverlay(TEXTOVERLAY *tover);

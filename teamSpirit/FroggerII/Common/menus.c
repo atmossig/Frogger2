@@ -60,13 +60,14 @@ void RunTitleScreen()
 #endif
 
 		currFont = smallFont;
-		startText = CreateAndAddTextOverlay(100,112,"start game",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
-		selectText = CreateAndAddTextOverlay(100,132,"level select",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
-		multiText = CreateAndAddTextOverlay(100,152,mpText,YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
-		devText = CreateAndAddTextOverlay(100,172,"develop",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_NORMAL,6,0);
+		startText = CreateAndAddTextOverlay(100,112,"start game",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
 
-		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,255,255,255,192,0 );
-		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,255,255,255,192,0 );
+		selectText = CreateAndAddTextOverlay(100,132,"level select",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
+		multiText = CreateAndAddTextOverlay(100,152,mpText,YES,255,currFont,TEXTOVERLAY_NORMAL,6);
+		devText = CreateAndAddTextOverlay(100,172,"develop",YES,255,currFont,TEXTOVERLAY_NORMAL,6);
+
+		konami = CreateAndAddSpriteOverlay(240,35,"konami.bmp",32,32,192,0 );
+		atari = CreateAndAddSpriteOverlay(40,35,"atari.bmp",32,32,192,0 );
 
 		CreateOverlays();
 		ResetParameters();
@@ -222,19 +223,15 @@ void RunLevelSelect()
 
 		// draw list of worlds on left
 		for( i=0; i < MAX_WORLDS; i++ )
-			worldSelText[i] = CreateAndAddTextOverlay( 5, (i*20)+30,
-														worldVisualData[i].description,
-														NO,NO,255,255,255,100,
-														currFont, TEXTOVERLAY_NORMAL,0,0 );
+			worldSelText[i] = CreateAndAddTextOverlay( 5, (i*20)+30, worldVisualData[i].description,
+														NO,100, currFont, TEXTOVERLAY_NORMAL,0 );
 
 		// draw list of levels in current selected world on right
 		for( i=0; i < MAX_LEVELS; i++ )
 		{
 			sprintf( lNames[i].name, worldVisualData[currentWorldSelect].levelVisualData[i].description );
-			levelSelText[i] = CreateAndAddTextOverlay( 150, (i*20)+30,
-														lNames[i].name,
-														NO,NO,255,255,255,100,		
-														currFont,TEXTOVERLAY_NORMAL,0,0);
+			levelSelText[i] = CreateAndAddTextOverlay( 150, (i*20)+30, lNames[i].name,
+														NO,100,	currFont,TEXTOVERLAY_NORMAL,0);
 		}
 
 		ResetParameters();
@@ -484,16 +481,16 @@ void RunPauseMenu()
 void CreateOverlays()
 {
 	// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
-	sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(130,20,"flogo02.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(162,20,"flogo03.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(194,20,"flogo04.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(98,52,"flogo05.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(130,52,"flogo06.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(162,52,"flogo07.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,255,255,255,0);
-	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,255,255,255,0);
+	sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(130,20,"flogo02.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(162,20,"flogo03.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(194,20,"flogo04.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(98,52,"flogo05.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(130,52,"flogo06.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(162,52,"flogo07.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(194,52,"flogo08.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(162,84,"flogo09.bmp",32,32,255,0);
+	sprOver = CreateAndAddSpriteOverlay(194,84,"flogo10.bmp",32,32,255,0);
 }
 
 

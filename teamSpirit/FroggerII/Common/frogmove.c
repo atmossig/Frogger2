@@ -341,7 +341,7 @@ void UpdateFroggerPos(long pl)
 	}
 	
 	// update frog tongue
-	UpdateFrogTongue();
+	UpdateFrogTongue(pl);
 
 	if(player[pl].frogState & FROGSTATUS_ISFREEFALLING)
 	{
@@ -603,8 +603,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
 								FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR);
 
-	if(tongueState & TONGUE_BEINGUSED)
-		RemoveFrogTongue();
+	if( tongue[pl].flags & TONGUE_BEINGUSED)
+		RemoveFrogTongue(pl);
 
 	// see if frog is currently on a moving platform (i.e. platform that follows a path)
 	if(currPlatform[pl] = GetPlatformFrogIsOn(pl))

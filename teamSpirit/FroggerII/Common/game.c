@@ -523,52 +523,52 @@ void RunGameLoop (void)
 			if (player[0].levelNum == LEVELID_FRONTEND1)
 			{
 				frogFacing[0] = 3;
-				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,255,255,255,0);
-				konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,255,255,255,0);
+				atari = CreateAndAddSpriteOverlay(270,195,"atari.bmp",32,32,255,0);
+				konami = CreateAndAddSpriteOverlay(18,195,"konami.bmp",32,32,255,0);
 				i = 0;
-				flogo[i++] = CreateAndAddSpriteOverlay(98,136,"flogo01.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(130,136,"flogo02.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(162,136,"flogo03.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(194,136,"flogo04.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(98,168,"flogo05.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(130,168,"flogo06.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(162,168,"flogo07.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,255,255,255,0);
-				flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,255,255,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(98,136,"flogo01.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(130,136,"flogo02.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(162,136,"flogo03.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(194,136,"flogo04.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(98,168,"flogo05.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(130,168,"flogo06.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(162,168,"flogo07.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(194,168,"flogo08.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(162,200,"flogo09.bmp",32,32,255,0);
+				flogo[i++] = CreateAndAddSpriteOverlay(194,200,"flogo10.bmp",32,32,255,0);
 				fadingLogos = 0;
 			}
 
-		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,255,255,255,0);
-		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,255,255,255,0);
-		bronzeCup[2] = CreateAndAddSpriteOverlay(230,52,"bronz003.bmp",32,32,255,255,255,255,0);
-		bronzeCup[3] = CreateAndAddSpriteOverlay(262,52,"bronz004.bmp",32,32,255,255,255,255,0);
-		bronzeCup[4] = CreateAndAddSpriteOverlay(20,20,"bronz001.bmp",32,32,255,255,255,255,0);
-		bronzeCup[5] = CreateAndAddSpriteOverlay(52,20,"bronz002.bmp",32,32,255,255,255,255,0);
-		bronzeCup[6] = CreateAndAddSpriteOverlay(20,52,"bronz003.bmp",32,32,255,255,255,255,0);
-		bronzeCup[7] = CreateAndAddSpriteOverlay(52,52,"bronz004.bmp",32,32,255,255,255,255,0);
+		bronzeCup[0] = CreateAndAddSpriteOverlay(230,20,"bronz001.bmp",32,32,255,0);
+		bronzeCup[1] = CreateAndAddSpriteOverlay(262,20,"bronz002.bmp",32,32,255,0);
+		bronzeCup[2] = CreateAndAddSpriteOverlay(230,52,"bronz003.bmp",32,32,255,0);
+		bronzeCup[3] = CreateAndAddSpriteOverlay(262,52,"bronz004.bmp",32,32,255,0);
+		bronzeCup[4] = CreateAndAddSpriteOverlay(20,20,"bronz001.bmp",32,32,255,0);
+		bronzeCup[5] = CreateAndAddSpriteOverlay(52,20,"bronz002.bmp",32,32,255,0);
+		bronzeCup[6] = CreateAndAddSpriteOverlay(20,52,"bronz003.bmp",32,32,255,0);
+		bronzeCup[7] = CreateAndAddSpriteOverlay(52,52,"bronz004.bmp",32,32,255,0);
 		for(i=0; i<8; i++)
 			DisableSpriteOverlay(bronzeCup[i]);
 		
-		silverCup[0] = CreateAndAddSpriteOverlay(230,20,"silv001.bmp",32,32,255,255,255,255,0);
-		silverCup[1] = CreateAndAddSpriteOverlay(262,20,"silv002.bmp",32,32,255,255,255,255,0);
-		silverCup[2] = CreateAndAddSpriteOverlay(230,52,"silv003.bmp",32,32,255,255,255,255,0);
-		silverCup[3] = CreateAndAddSpriteOverlay(262,52,"silv004.bmp",32,32,255,255,255,255,0);
-		silverCup[4] = CreateAndAddSpriteOverlay(20,20,"silv001.bmp",32,32,255,255,255,255,0);
-		silverCup[5] = CreateAndAddSpriteOverlay(52,20,"silv002.bmp",32,32,255,255,255,255,0);
-		silverCup[6] = CreateAndAddSpriteOverlay(20,52,"silv003.bmp",32,32,255,255,255,255,0);
-		silverCup[7] = CreateAndAddSpriteOverlay(52,52,"silv004.bmp",32,32,255,255,255,255,0);
+		silverCup[0] = CreateAndAddSpriteOverlay(230,20,"silv001.bmp",32,32,255,0);
+		silverCup[1] = CreateAndAddSpriteOverlay(262,20,"silv002.bmp",32,32,255,0);
+		silverCup[2] = CreateAndAddSpriteOverlay(230,52,"silv003.bmp",32,32,255,0);
+		silverCup[3] = CreateAndAddSpriteOverlay(262,52,"silv004.bmp",32,32,255,0);
+		silverCup[4] = CreateAndAddSpriteOverlay(20,20,"silv001.bmp",32,32,255,0);
+		silverCup[5] = CreateAndAddSpriteOverlay(52,20,"silv002.bmp",32,32,255,0);
+		silverCup[6] = CreateAndAddSpriteOverlay(20,52,"silv003.bmp",32,32,255,0);
+		silverCup[7] = CreateAndAddSpriteOverlay(52,52,"silv004.bmp",32,32,255,0);
 		for(i=0; i<8; i++)
 			DisableSpriteOverlay(silverCup[i]);
 
-		goldCup[0] = CreateAndAddSpriteOverlay(230,20,"gold001.bmp",32,32,255,255,255,255,0);
-		goldCup[1] = CreateAndAddSpriteOverlay(262,20,"gold002.bmp",32,32,255,255,255,255,0);
-		goldCup[2] = CreateAndAddSpriteOverlay(230,52,"gold003.bmp",32,32,255,255,255,255,0);
-		goldCup[3] = CreateAndAddSpriteOverlay(262,52,"gold004.bmp",32,32,255,255,255,255,0);
-		goldCup[4] = CreateAndAddSpriteOverlay(20,20,"gold001.bmp",32,32,255,255,255,255,0);
-		goldCup[5] = CreateAndAddSpriteOverlay(52,20,"gold002.bmp",32,32,255,255,255,255,0);
-		goldCup[6] = CreateAndAddSpriteOverlay(20,52,"gold003.bmp",32,32,255,255,255,255,0);
-		goldCup[7] = CreateAndAddSpriteOverlay(52,52,"gold004.bmp",32,32,255,255,255,255,0);
+		goldCup[0] = CreateAndAddSpriteOverlay(230,20,"gold001.bmp",32,32,255,0);
+		goldCup[1] = CreateAndAddSpriteOverlay(262,20,"gold002.bmp",32,32,255,0);
+		goldCup[2] = CreateAndAddSpriteOverlay(230,52,"gold003.bmp",32,32,255,0);
+		goldCup[3] = CreateAndAddSpriteOverlay(262,52,"gold004.bmp",32,32,255,0);
+		goldCup[4] = CreateAndAddSpriteOverlay(20,20,"gold001.bmp",32,32,255,0);
+		goldCup[5] = CreateAndAddSpriteOverlay(52,20,"gold002.bmp",32,32,255,0);
+		goldCup[6] = CreateAndAddSpriteOverlay(20,52,"gold003.bmp",32,32,255,0);
+		goldCup[7] = CreateAndAddSpriteOverlay(52,52,"gold004.bmp",32,32,255,0);
 		for(i=0; i<8; i++)
 			DisableSpriteOverlay(goldCup[i]);
 
@@ -584,9 +584,9 @@ void RunGameLoop (void)
 		}
 
 #ifdef SHOW_ME_THE_TILE_NUMBERS
-		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,NO,255,255,255,255,smallFont,0,0,0);
+		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,smallFont,0,0);
 #endif
-		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,NO,255,255,255,255,smallFont,0,0,0);
+		faceNum = CreateAndAddTextOverlay(0,35,faceString,YES,255,smallFont,0,0);
 
 		if(clearTiles)
 		{

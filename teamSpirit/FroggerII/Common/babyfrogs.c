@@ -91,11 +91,7 @@ void InitBabyList( unsigned char createOverlays )
 
 			sprintf(fn, "%s001.bmp", baby_filenames[i]);
 			
-			babyIcons[i] = CreateAndAddSpriteOverlay(
-				(short)(280-(i*20)), 205,
-				fn,
-				16,16,255,255,255,91,
-				(short)(ANIMATION_FORWARDS|ANIMATION_CYCLE));
+			babyIcons[i] = CreateAndAddSpriteOverlay( (280-(i*20)),205,fn,16,16,91,ANIMATION_FORWARDS|ANIMATION_CYCLE);
 
 			// Add animation frames
 

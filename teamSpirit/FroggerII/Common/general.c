@@ -157,7 +157,7 @@ GAMETILE *FindJoinedTileByDirection( GAMETILE *st, VECTOR *d )
 	{
 		t = DotProduct( d, &st->dirVector[i] );
 		if( (t < distance) && st->tilePtrs[i] )
-		if( st->tilePtrs[i]->state == TILESTATE_NORMAL )
+		if( (st->tilePtrs[i]->state != TILESTATE_DEADLY) && (st->tilePtrs[i]->state != TILESTATE_SINK) && (st->tilePtrs[i]->state != TILESTATE_BARRED) )
 		{
 			distance = t;
 			res = st->tilePtrs[i];

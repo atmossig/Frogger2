@@ -29,7 +29,7 @@ TEXTOVERLAYLIST	textOverlayList;			// the text overlay linked list
 	Returns			: void
 	Info			:
 */
-TEXTOVERLAY *CreateAndAddTextOverlay(short x,short y,char *text,char centred,char del,char r,char g,char b,char a,FONT *fontPtr,char flags,float waveAmplitude,float waveStart)
+TEXTOVERLAY *CreateAndAddTextOverlay(float x,float y,char *text,char centred,char alpha,FONT *fontPtr,char flags,float waveAmplitude)
 {
 	TEXTOVERLAY *newItem;
 
@@ -43,19 +43,19 @@ TEXTOVERLAY *CreateAndAddTextOverlay(short x,short y,char *text,char centred,cha
 		
 	newItem->xPos		= x;
 	newItem->yPos		= y;
-	newItem->xPosOld	= x;
-	newItem->yPosOld	= y;
+	newItem->xPosTo		= x;
+	newItem->yPosTo		= y;
 	newItem->centred	= centred;
-	newItem->r			= r;
-	newItem->g			= g;
-	newItem->b			= b;
-	newItem->a			= a;
+	newItem->r			= 255;
+	newItem->g			= 255;
+	newItem->b			= 255;
+	newItem->a			= alpha;
 
-	newItem->kill		= del;
-	newItem->life		= del;
+	newItem->kill		= NO;
+	newItem->life		= NO;
 
 	newItem->waveAmplitude	= waveAmplitude;
-	newItem->waveStart		= waveStart;
+	newItem->waveStart		= 0;
 
 	return newItem;
 }

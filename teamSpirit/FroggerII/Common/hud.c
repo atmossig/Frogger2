@@ -165,33 +165,33 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	currFont = smallFont;
 
 //	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
-	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, NO, 255, 255, 255, 255, smallFont, 0,0, 0 );
-	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, NO, 255, 255, 255, 255, smallFont, 0,0, 0 );
+	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, 255, smallFont, 0,0 );
+	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, 255, smallFont, 0,0 );
 //	DisableTextOverlay ( pauseTitle );
 	DisableTextOverlay ( continueText );
 	DisableTextOverlay ( quitText );
 
 	if (NUM_FROGS == 1)
 	{
-		livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,NO,255,255,255,255,currFont,0,0,0);
-		scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,NO,255,255,255,255,currFont,0,0,0);
+		livesTextOver	= CreateAndAddTextOverlay(50,205,livesText,NO,255,currFont,0,0);
+		scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,255,currFont,0,0);
 	}
-	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,NO,255,255,255,255,currFont,0,0,0);
+	timeTextOver	= CreateAndAddTextOverlay(25,20,timeText,NO,255,currFont,0,0);
 
-	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
+	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,255,smallFont,TEXTOVERLAY_WAVECHARS,6);
 	DisableTextOverlay(gameOver1);
-	gameOverScore = CreateAndAddTextOverlay(110,0,gameOverText,YES,NO,255,255,255,255,smallFont,0,0,0);
+	gameOverScore = CreateAndAddTextOverlay(110,0,gameOverText,YES,255,smallFont,0,0);
 	DisableTextOverlay(gameOverScore);
 
-	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,4,0);
+	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,255,smallFont,TEXTOVERLAY_WAVECHARS,4);
 	DisableTextOverlay(babySavedText);
 	babySaved = 0;
 
-	levelComplete1 = CreateAndAddTextOverlay(60,80,"",YES,NO,255,255,255,0,smallFont,0,0,0);
+	levelComplete1 = CreateAndAddTextOverlay(60,80,"",YES,0,smallFont,0,0);
 	DisableTextOverlay(levelComplete1);
-	levelComplete2 = CreateAndAddTextOverlay(0,120,"Level complete !",YES,NO,255,255,255,0,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
+	levelComplete2 = CreateAndAddTextOverlay(0,120,"Level complete !",YES,0,smallFont,TEXTOVERLAY_WAVECHARS,6);
 	DisableTextOverlay(levelComplete2);
-	levelComplete3 = CreateAndAddTextOverlay(0,145,levelCompleteText,YES,NO,255,255,255,0,smallFont,0,6,0);
+	levelComplete3 = CreateAndAddTextOverlay(0,145,levelCompleteText,YES,0,smallFont,0,6);
 	DisableTextOverlay(levelComplete3);
 	  
 //	keyCollected = CreateAndAddTextOverlay(0,100,"",YES,NO,255,255,255,255,smallFont,TEXTOVERLAY_LIFE,0,0);
@@ -200,25 +200,25 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 
 	//  Awards screen
 
-	levelComplete1 = CreateAndAddTextOverlay ( 0, 20, "level", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	levelComplete1 = CreateAndAddTextOverlay ( 0, 20, "level", YES, 255, smallFont, 0, 0 );
 	DisableTextOverlay(levelComplete1);
-	levelComplete2 = CreateAndAddTextOverlay ( 0, 38, "complete", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	levelComplete2 = CreateAndAddTextOverlay ( 0, 38, "complete", YES, 255, smallFont, 0, 0 );
 	DisableTextOverlay(levelComplete2);
 
-	spawnCollected = CreateAndAddTextOverlay ( 100, 130, spawnText, NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	spawnCollected = CreateAndAddTextOverlay ( 100, 130, spawnText, NO, 255, smallFont, 0, 0 );
 	sprintf ( spawnCollected->text, "%d", player[0].numSpawn );
 	DisableTextOverlay ( spawnCollected );
 
-	time = CreateAndAddTextOverlay ( 100, 160, timeTemp, NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	time = CreateAndAddTextOverlay ( 100, 160, timeTemp, NO, 255, smallFont, 0, 0 );
 	DisableTextOverlay ( time );
 
-	nextLev1 = CreateAndAddTextOverlay ( 0, 180, "next", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	nextLev1 = CreateAndAddTextOverlay ( 0, 180, "next", YES, 255, smallFont, 0, 0 );
 	DisableTextOverlay ( nextLev1 );
 
-	nextLev2 = CreateAndAddTextOverlay ( 0, 200, worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum+1 ].description, YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	nextLev2 = CreateAndAddTextOverlay ( 0, 200, worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum+1].description, YES, 255, smallFont, 0, 0 );
 	DisableTextOverlay ( nextLev2 );
 
-	clock = CreateAndAddSpriteOverlay(50,160,"clock001.bmp",32,32,255,255,255,192,ANIMATION_FORWARDS | ANIMATION_PINGPONG );
+	clock = CreateAndAddSpriteOverlay(50,160,"clock001.bmp",32,32,192,ANIMATION_FORWARDS | ANIMATION_PINGPONG );
 	AddFrameToSpriteOverlay(clock,"clock002.bmp");
 	AddFrameToSpriteOverlay(clock,"clock003.bmp");
 	AddFrameToSpriteOverlay(clock,"clock004.bmp");
@@ -229,7 +229,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	SetSpriteOverlayAnimSpeed(clock,0.5F);
 	clock->draw = 0;
 
-	spawn = CreateAndAddSpriteOverlay(50,120,"spa01.bmp",32,32,255,255,255,192,ANIMATION_FORWARDS | ANIMATION_CYCLE );
+	spawn = CreateAndAddSpriteOverlay(50,120,"spa01.bmp",32,32,192,ANIMATION_FORWARDS | ANIMATION_CYCLE );
 	AddFrameToSpriteOverlay(spawn,"spa02.bmp");
 	AddFrameToSpriteOverlay(spawn,"spa03.bmp");
 	AddFrameToSpriteOverlay(spawn,"spa04.bmp");
@@ -237,7 +237,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	spawn->draw = 0;
 		  
 
-	wholeKeyText = CreateAndAddTextOverlay ( 0, 110, "World Open", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );;
+	wholeKeyText = CreateAndAddTextOverlay ( 0, 110, "World Open", YES, 255, smallFont, 0, 0 );
 	wholeKeyText->draw = 0;
 }
 
