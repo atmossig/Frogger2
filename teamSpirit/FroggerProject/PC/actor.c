@@ -41,34 +41,34 @@
 #include <islutil.h>
 
 
-#define MAX_UNIQUE_ACTORS	50
+//#define MAX_UNIQUE_ACTORS	50
 
-unsigned long ACTOR_DRAWDISTANCEINNER = (250000 * SCALE * SCALE);
-unsigned long ACTOR_DRAWDISTANCEOUTER = (500000 * SCALE * SCALE);
+//unsigned long ACTOR_DRAWDISTANCEINNER = (250000 * SCALE * SCALE);
+//unsigned long ACTOR_DRAWDISTANCEOUTER = (500000 * SCALE * SCALE);
 //bb
 //unsigned long BBACTOR_DRAWDISTANCEINNER = sqrtf(250000)*SCALE;
 //unsigned long BBACTOR_DRAWDISTANCEOUTER = sqrtf(500000)*SCALE;
 //bb
 //unsigned long BBACTOR_DRAWDISTANCEINNER = sqrt(250000)*SCALE;
 //unsigned long BBACTOR_DRAWDISTANCEOUTER = sqrt(500000)*SCALE;
-unsigned long BBACTOR_DRAWDISTANCEINNER = 5000;
-unsigned long BBACTOR_DRAWDISTANCEOUTER = 5000;
+//unsigned long BBACTOR_DRAWDISTANCEINNER = 5000;
+//unsigned long BBACTOR_DRAWDISTANCEOUTER = 5000;
 
  
-long waterObject = 0;
-long modgyObject = 0;
-int objectMatrix = 0;
+//long waterObject = 0;
+//long modgyObject = 0;
+//int objectMatrix = 0;
 
-ACTOR2 *actList = NULL;				// entire actor list
-ACTOR2 *backGnd = NULL;
-ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
+//ACTOR2 *actList = NULL;				// entire actor list
+//ACTOR2 *backGnd = NULL;
+//ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
 
 //used to keep a count of how many of each enemy are present at the same time
 //char uniqueEnemyCount[20];
 
-int uniqueActorCRC[MAX_UNIQUE_ACTORS];
-char numUniqueActors = 0;
-extern ACTOR2 *hat[MAX_FROGS];
+//int uniqueActorCRC[MAX_UNIQUE_ACTORS];
+//char numUniqueActors = 0;
+//extern ACTOR2 *hat[MAX_FROGS];
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -81,7 +81,7 @@ extern ACTOR2 *hat[MAX_FROGS];
 //void XformActor(ACTOR *ptr);
 //bb
 //fixed texSlideSpeed =ToFixed(40);
-fixed texSlideSpeed =163840;
+//fixed texSlideSpeed =163840;
 
 // COMMENT:
 
@@ -146,7 +146,7 @@ fixed bFOV = 1843200;
 extern long FOV;
 //extern long noClipping;
 
-void DrawActorList()
+/*void DrawActorList()
 {
 	
 	ACTOR2 *cur;
@@ -211,7 +211,7 @@ void DrawActorList()
  			slideSpeed = ToFixed(32);*/
  
  	
- 		if (slideSpeed>ToFixed(1))
+/* 		if (slideSpeed>ToFixed(1))
  		{
  			texSlideSpeed = slideSpeed;
 // 			if (cur->actor->objectController)
@@ -230,7 +230,7 @@ void DrawActorList()
 		else
 			modgyObject = 0;*/
 
-		if( (cur->flags & ACTOR_DRAW_CULLED) &&
+/*		if( (cur->flags & ACTOR_DRAW_CULLED) &&
 			(cur->distanceFromFrog > ToFixed(BBACTOR_DRAWDISTANCEINNER)) &&
 			!(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
@@ -254,7 +254,7 @@ void DrawActorList()
 // 												)/64
 // 											);
 // */
- 					fixed fadeValue = 4096-(
+/* 					fixed fadeValue = 4096-(
 												FsqrtF
  												(
  													FDiv
@@ -360,11 +360,11 @@ void DrawActorList()
  			modgyObject = 0;*/
  
 // //			DrawActor(cur->actor);
- 		}
+/* 		}
 		
 		cur = cur->next;
 	}	
-}
+}*/
 
 
 /* --------------------------------------------------------------------------------
@@ -424,7 +424,7 @@ void FreeActor(ACTOR2 *c)
 	Parameters	: (void)
 	Returns		: void 
 */
-void FreeActorList()
+/*void FreeActorList()
 {
 	ACTOR2 *cur,*next;
 	
@@ -444,7 +444,7 @@ void FreeActorList()
 
 	FreeActor(hat[0]);		
 	hat[0] = NULL;
-}
+}*/
 
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -453,7 +453,7 @@ void FreeActorList()
 	Parameters	: 
 	Returns		: ACTOR2 *
 */
-ACTOR2 *CreateAndAddActor(char *name,fixed cx,fixed cy,fixed cz,int initFlags,fixed offset,int startNode)
+/*ACTOR2 *CreateAndAddActor(char *name,fixed cx,fixed cy,fixed cz,int initFlags,fixed offset,int startNode)
 {
 	ACTOR2 *newItem;
 	
@@ -518,10 +518,10 @@ ACTOR2 *CreateAndAddActor(char *name,fixed cx,fixed cy,fixed cz,int initFlags,fi
 			{
 				newItem->flags = ACTOR_DRAW_ALWAYS;
 			}
-		}
-	}
+		}*/
+/*	}
 
-	if (name[0] == 's')
+	/*if (name[0] == 's')
 		if (name[1] == 'p')
 		{
 			switch (name[2])
@@ -536,12 +536,12 @@ ACTOR2 *CreateAndAddActor(char *name,fixed cx,fixed cy,fixed cz,int initFlags,fi
 					newItem->flags |= (ACTOR_SLIDYTEX | ACTOR_SLIDYTEX2);
 					break;
 			}
-		}
+		}*/
 
 //mm	newItem->speed				= ToFixed(18.0);
 //mm	newItem->offset				= ToFixed(0.0);
 //mm	newItem->distanceFromFrog	= ToFixed(0.0F);
-	newItem->speed				= 73728;
+/*	newItem->speed				= 73728;
 	newItem->offset				= 0;
 	newItem->distanceFromFrog	= 0;
 
@@ -554,7 +554,7 @@ ACTOR2 *CreateAndAddActor(char *name,fixed cx,fixed cy,fixed cz,int initFlags,fi
 	actList = newItem;
 	
 	return newItem;
-}
+}*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -564,7 +564,7 @@ ACTOR2 *CreateAndAddActor(char *name,fixed cx,fixed cy,fixed cz,int initFlags,fi
 	Returns			: 
 	Info			: 
 */
-void AddObjectsSpritesToSpriteList(PSIOBJECT *obj,short flags)
+/*void AddObjectsSpritesToSpriteList(PSIOBJECT *obj,short flags)
 {
 // 	SPRITE *sprite;
 // 	int i;
@@ -632,7 +632,7 @@ void AddObjectsSpritesToSpriteList(PSIOBJECT *obj,short flags)
 // 
 // 	if(obj->next)
 // 		AddObjectsSpritesToSpriteList(obj->next,flags);
-}
+}*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: RemoveObjectSprites
@@ -641,7 +641,7 @@ void AddObjectsSpritesToSpriteList(PSIOBJECT *obj,short flags)
 	Returns			: 
 	Info			: 
 */
-void RemoveObjectSprites(PSIOBJECT *obj,BOOL f)
+/*void RemoveObjectSprites(PSIOBJECT *obj,BOOL f)
 {
 // 	int i;
 // 
@@ -661,7 +661,7 @@ void RemoveObjectSprites(PSIOBJECT *obj,BOOL f)
 // 	
 // 	if(obj->next)
 // 		RemoveObjectSprites(obj->next, f);
-}
+}*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: FreeObjectSprites
@@ -670,7 +670,7 @@ void RemoveObjectSprites(PSIOBJECT *obj,BOOL f)
 	Returns			: 
 	Info			: 
 */
-void FreeObjectSprites(PSIOBJECT *obj)
+/*void FreeObjectSprites(PSIOBJECT *obj)
 {
 // 	int i;
 // 
@@ -691,7 +691,7 @@ void FreeObjectSprites(PSIOBJECT *obj)
 // 	
 // 	if(obj->next)
 // 		FreeObjectSprites(obj->next);
-}
+}*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -838,7 +838,7 @@ void FreeObjectSprites(PSIOBJECT *obj)
 // 		memcpy(actor->LODObjectController, objCont, sizeof(OBJECT_CONTROLLER));
 // 		actor->LODObjectController->object = MakeUniqueObject(actor->LODObjectController->object);
 // 	}
-// }
+// }*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -848,13 +848,13 @@ void FreeObjectSprites(PSIOBJECT *obj)
 	Returns 	: 
 	Info 		:
 */
-void ResetUniqueActorList()
+/*void ResetUniqueActorList()
 {
 	int i;
 
 	for(i=0; i<MAX_UNIQUE_ACTORS; i++)
 		uniqueActorCRC[i] = 0;
-}
+}*/
 
 
 
@@ -895,7 +895,7 @@ void ResetUniqueActorList()
 	Returns 	: void
 	Info 		:
 */
-void ActorLookAt( ACTOR *act, SVECTOR *at, long flags )
+/*void ActorLookAt( ACTOR *act, SVECTOR *at, long flags )
 {
 // 	FVECTOR forward;
 // 	SVECTOR dir;
@@ -943,10 +943,10 @@ void ActorLookAt( ACTOR *act, SVECTOR *at, long flags )
 // 	{
 // 		GetQuaternionFromRotation(&act->qRot,&q);
 // 	}
-}
+}*/
 
 
-void Orientate(QUATERNION *me, FVECTOR *fd, FVECTOR *mfd, FVECTOR *up)
+/*void Orientate(QUATERNION *me, FVECTOR *fd, FVECTOR *mfd, FVECTOR *up)
 {
 	FVECTOR dirn;
 	QUATERNION rotn,q;
@@ -981,10 +981,10 @@ void Orientate(QUATERNION *me, FVECTOR *fd, FVECTOR *mfd, FVECTOR *up)
 		GetQuaternionFromRotation(&q,&vertQ);
 		QuaternionMultiply(me,me,&q);
 	}
-}
+}*/
 
 
-void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
+/*void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 {
 	MATRIXI tmpMtx;
 
@@ -1076,7 +1076,7 @@ void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 // 		GetQuaternionFromRotation(&q,&vertQ);
 // 		QuaternionMultiply(&me->actor->qRot,&me->actor->qRot,&q);
 // 	}
-}
+}*/
 
 
 
@@ -1115,7 +1115,7 @@ void RemoveUniqueActor(ACTOR *actor,int type)
 */
 
 
-void SubActor(ACTOR2 *actor)
+/*void SubActor(ACTOR2 *actor)
 {
 	if (!actor) return;
 
@@ -1152,4 +1152,6 @@ void SubActor(ACTOR2 *actor)
 	}
 
 	FREE(actor);
-}
+}*/
+
+

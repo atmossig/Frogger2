@@ -1,6 +1,7 @@
-#ifndef _MAP_H_INCLUDE
-#define _MAP_H_INCLUDE
+#include "map.h"
 
-extern GAMETILE *gTStart[4];
 
-#endif
+SCENIC		*firstScenic;
+
+GAMETILE *gTStart[4];
+GAMETILE *firstTile;
