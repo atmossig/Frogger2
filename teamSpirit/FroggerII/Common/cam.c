@@ -17,7 +17,7 @@
 
 //ACTOR	camera;
 
-//VECTOR	cameraUpVect = { 0,1,0 };
+VECTOR	cameraUpVect = { 0,1,0 };
 VECTOR	camVect;
 
 VECTOR	currCamSource[4] = {{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 },{ 0,0,-100 }};

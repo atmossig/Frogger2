@@ -37,7 +37,7 @@ typedef struct TAGTRANSCAMERA
 
 //extern ACTOR	camera;
 
-//extern VECTOR	cameraUpVect;
+extern VECTOR	cameraUpVect;
 extern VECTOR	camVect;
 extern VECTOR	camDist;
 
