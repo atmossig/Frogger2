@@ -510,7 +510,7 @@ void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, f
 	SetTexture(tex);
 
 	if ((z>0.01) || (z<-0.01))
-		D3DSetupRenderstates(normalZRS);
+		D3DSetupRenderstates(xluZRS);
 	else
 		D3DSetupRenderstates(noZRS);
 
@@ -603,7 +603,7 @@ void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float
 	SetTexture(tex);
 
 	if ((z>0.01) || (z<-0.01))
-		D3DSetupRenderstates(normalZRS);
+		D3DSetupRenderstates(xluZRS);
 	else
 		D3DSetupRenderstates(noZRS);
 

@@ -257,7 +257,6 @@ void DrawFXDecal( SPECFX *fx )
 	vT[0].sz = scale.vz;
 	vT[0].tu = 0;
 	vT[0].tv = 0;
-	vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
 	vT[0].specular = D3DRGB(0,0,0);
 
 	vT[1].sx = scale.vx;
@@ -265,7 +264,6 @@ void DrawFXDecal( SPECFX *fx )
 	vT[1].sz = -scale.vz;
 	vT[1].tu = 0;
 	vT[1].tv = 1;
-	vT[1].color = vT[0].color;
 	vT[1].specular = vT[0].specular;
 
 	vT[2].sx = -scale.vx;
@@ -273,7 +271,6 @@ void DrawFXDecal( SPECFX *fx )
 	vT[2].sz = -scale.vz;
 	vT[2].tu = 1;
 	vT[2].tv = 1;
-	vT[2].color = vT[0].color;
 	vT[2].specular = vT[0].specular;
 	
 	vT[3].sx = -scale.vx;
@@ -281,7 +278,6 @@ void DrawFXDecal( SPECFX *fx )
 	vT[3].sz = scale.vz;
 	vT[3].tu = 1;
 	vT[3].tv = 0;
-	vT[3].color = vT[0].color;
 	vT[3].specular = vT[0].specular;
 
 	// Translate to current fx pos and push
@@ -335,8 +331,12 @@ void DrawFXDecal( SPECFX *fx )
 		// If we want a pseudo-cheaty-bumpmap effect, shift vertices slightly and draw another, additive, copy.
 		if( fx->type == FXTYPE_WAKE || fx->type == FXTYPE_WATERRIPPLE )
 		{
+			vT[0].color = D3DRGBA((float)fx->r/255.0,(float)fx->g/255.0,(float)fx->b/255.0,(float)fx->a/255.0);
 			for( i=0; i<4; i++ )
+			{
 				vT[i].sx += 3;
+				vT[i].color = vT[0].color;
+			}
 
 			SwapFrame(3);
 			Clip3DPolygon( vT, tEntry );

@@ -170,6 +170,7 @@ long DrawLoop(void)
 	if(sprList.count)
 		PrintSprites();
 
+	D3DSetupRenderstates(xluZRS);
 	// FX and shadows
 	DrawSpecialFX();
 
