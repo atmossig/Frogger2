@@ -41,4 +41,6 @@ extern void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportTy
 extern BOOL IsATeleportTile(GAMETILE *tile);
 extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
 
+extern void LoadLevelEntities(int worldID, int levelID);
+
 #endif

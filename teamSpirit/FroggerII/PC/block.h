@@ -16,6 +16,7 @@
 #define SCENIC_BASE		"scenics\\"
 #define OBJECT_BASE		"objects\\"
 #define TEXTURE_BASE	"textures\\"
+#define ENTITY_BASE		"maps\\"
 
 #define sinf(x)			((float)sin(x))
 #define cosf(x)			((float)cos(x))

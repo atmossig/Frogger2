@@ -565,3 +565,42 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl)
 */
 }
 
+
+/* --------------------------------------------------------------------------------
+	Programmer	: David Swift
+	Function	: LoadLevelEntities 
+	Parameters	: int, int
+	Returns		: void 
+*/
+
+extern void LoadLevelEntities(int worldID, int levelID)
+{
+	char file[MAX_PATH];
+	HANDLE h;
+	long size, read;
+	void* buffer;
+
+	sprintf(file, "%s%sentity-%d-%d.dat", baseDirectory, ENTITY_BASE, worldID, levelID);
+
+	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+
+	if (h == INVALID_HANDLE_VALUE)
+	{
+		dprintf"Couldn't load entity file %s\n", file)); return;
+	}
+
+	size = GetFileSize(h, NULL);
+	buffer = JallocAlloc(size, NO, "entLoad");
+	ReadFile(h, buffer, size, &read, NULL);
+	CloseHandle(h);
+
+	dprintf"LoadLevelEntities: Loaded %d of %d bytes\n", (int)read, (int)size));
+
+	if (!MemLoadEntities(buffer, size))
+	{
+		dprintf"MemLoadEntities failed\n"));
+	}
+
+	JallocFree(&buffer);
+}
