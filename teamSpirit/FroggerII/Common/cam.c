@@ -194,20 +194,10 @@ void ChangeCameraSetting()
 
 	if(camZoom)
 	{
-#ifndef PC_VERSION
-		ACTOR_DRAWDISTANCEINNER = 100000;
-#else
-		ACTOR_DRAWDISTANCEINNER = 200000;
-#endif
 		scaleV = 0.7F;
 	}
 	else
 	{
-#ifndef PC_VERSION
-		ACTOR_DRAWDISTANCEINNER = 125000;
-#else
-		ACTOR_DRAWDISTANCEINNER = 250000;
-#endif
 		scaleV = 1.1F;
 	}
 }

@@ -588,7 +588,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	while (ts)
 	{
 		float tv;
-		flags = 0;
+		//flags = 0;
 
 //#ifndef PC_VERSION
 		stringChange(ts->name);
@@ -599,11 +599,12 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 		if (gstrcmp(ts->name,"world.ndo") == 0 || gstrcmp(ts->name,"world.obe") == 0)
 		{
-			flags |= ACTOR_DRAW_ALWAYS;
+			theActor->flags = 0;
+			theActor->flags |= ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
 		}
 		
-		theActor->flags = flags;
+		//theActor->flags = flags;
 
 		tv = ts->rot.y;
 		ts->rot.y = ts->rot.z;

@@ -138,7 +138,7 @@ void DrawActorList()
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
 			{
 				cur->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
-				cur->actor->xluOverride = 100-(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE)*100);
+				cur->actor->xluOverride = 100-(((float)(cur->distanceFromFrog - ACTOR_DRAWDISTANCEINNER) / ACTOR_DRAWFADERANGE)*100);				
 			}
 			else
 			{
@@ -304,7 +304,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 		newItem->flags |= ACTOR_DRAW_CULLED;
 	else
 	{
-		newItem->flags |= ACTOR_DRAW_ALWAYS;
+		newItem->flags = ACTOR_DRAW_ALWAYS;
 		newItem->actor->xluOverride = WATER_XLU;
 		newItem->actor->objectController->object->flags |= OBJECT_FLAGS_XLU;
 	}
