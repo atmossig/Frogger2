@@ -284,7 +284,7 @@ void UpdateFrogTongue( int pl )
 						// Throw the frog - no longer a frog on our tongue, so don't try to remove it later
 						if( i != MAX_FROGS )
 						{
-							ThrowFrogDirection( pl, i, (dir+camFacing) &3 );
+							ThrowFrogDirection( pl, i, (dir+camFacing[pl]) &3 );
 							tongue[pl].flags &= ~TONGUE_HASITEMONIT;
 							tongue[i].canTongue = 1;
 						}

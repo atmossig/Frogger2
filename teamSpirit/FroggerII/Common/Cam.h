@@ -69,8 +69,8 @@ extern VECTOR	camDist;
 
 extern float	camSpeed;
 extern float	camLookOfs;
-extern int		camFacing;
-extern int		nextCamFacing;
+extern int		camFacing[];
+extern long		prevCamFacing[];
 
 extern VECTOR	camSource;
 extern VECTOR	camTarget;
@@ -99,13 +99,14 @@ extern float cam_shake_falloff;
 
 extern char playerFocus;
 extern VECTOR currCamOffset, camOffset;
+extern GAMETILE *lastTile[];
 
 extern CAM_BOX_LIST cameraBoxes;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
 TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace, VECTOR *v, unsigned long flags);
-void CheckForDynamicCameraChange(GAMETILE *tile);
+void CheckForDynamicCameraChange(GAMETILE *tile, int pl);
 void FreeTransCameraList();
 
 void CameraLookAtFrog();

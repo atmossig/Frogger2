@@ -41,8 +41,6 @@ unsigned long conveyorFrames[3] = { 60, 30, 15 };
 unsigned long standardHopJumpDownDivisor	= 10;
 unsigned long superHopJumpDownDivisor		= 12;
 
-extern GAMETILE *lastTile;
-
 struct {
 	int lastHopOn;
 	int freq;
@@ -135,7 +133,7 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	fixedPos = 0;
 	fixedDir = 0;
 
-	frogFacing[p] = camFacing;
+	frogFacing[p] = camFacing[p];
 	Orientate( &frog[p]->actor->qRot, &currTile[p]->dirVector[frogFacing[p]], &currTile[p]->normal );
 }
 
@@ -164,10 +162,6 @@ BOOL UpdateFroggerControls(long pl)
 
 		player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 
-
-		//nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-		
-		
 		if ((actFrameCount-frogPitch.lastHopOn)<frogPitch.Time)
 		{
 			if (frogPitch.freq<frogPitch.Max)
@@ -183,8 +177,8 @@ BOOL UpdateFroggerControls(long pl)
 
 		prevTile = currTile[pl];
 
-		AnimateFrogHop((dir - camFacing) & 3, pl);
-		frogFacing[pl] = (camFacing + dir) & 3;
+		AnimateFrogHop((dir - camFacing[pl]) & 3, pl);
+		frogFacing[pl] = (camFacing[pl] + dir) & 3;
 		jump = MoveToRequestedDestination(dir,pl);
 
 		if (!jump) AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6f, NO, NO);
@@ -208,7 +202,7 @@ BOOL UpdateFroggerControls(long pl)
 		prevTile = currTile[pl];
 		
 		jump = MoveToRequestedDestination(dir,pl);
-		AnimateFrogHop((dir + camFacing) & 3,pl);
+		AnimateFrogHop((dir + camFacing[pl]) & 3,pl);
 
 		if (!jump) AnimateActor(frog[pl]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6f, NO, NO);
 	}
@@ -378,16 +372,6 @@ void UpdateFroggerPos(long pl)
 
 			CheckTileForCollectable(tile, pl);
 		}
-		
-		
-/*		GAMETILE *dest = plat->inTile[0];
-		if (dest != currTile[pl])
-		{
-			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, dest);
-			frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], dest);
-			currTile[pl] = dest;
-		}
-*/
 	}
 	else if( currTile[pl]->state == TILESTATE_SINK )
 	{
@@ -573,25 +557,28 @@ GAMETILE *GetNextTile(unsigned long *pdir,long pl)
 		
 	direction = *pdir;
 
+	i = (direction + camFacing[pl] + 2) & 3;
+	dest = currTile[pl]->tilePtrs[i]; // hmm...
+
+/*
 	if(pl == playerFocus)
 	{
-		i = (direction + camFacing + 2) & 3;
+		i = (direction + camFacing[pl] + 2) & 3;
 		dest = currTile[pl]->tilePtrs[i]; // hmm...
 	}
 	else
 	{
-		/*	Alas, this only works when this player's tile and player 0's tile are orientated the same
+		//	Alas, this only works when this player's tile and player 0's tile are orientated the same
 			
-			destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3];
+		//	destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3];
 
-			We have to find the direction on this player's tile corresponding to the direction on
-			player 0's tile!
-		*/
+		//	We have to find the direction on this player's tile corresponding to the direction on
+		//	player 0's tile!
 		
 		i = GetTilesMatchingDirection(currTile[playerFocus], (direction + camFacing + 2) & 3, currTile[pl]);
 		dest = currTile[pl]->tilePtrs[i];
 	}	
-
+*/
 	*pdir = i;
 
 	if (!dest || dest->state == TILESTATE_BARRED)
@@ -840,9 +827,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	player[pl].frogState |= (destPlatform[pl]) ? FROGSTATUS_ISJUMPINGTOPLATFORM : FROGSTATUS_ISJUMPINGTOTILE;
 
-//	if (pl == 0)
-//		nextCamFacing = GetTilesMatchingDirection(from, camFacing, dest);
-
 	nextFrogFacing[pl] = GetTilesMatchingDirection(from, frogFacing[pl], dest);
 
 	if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
@@ -980,9 +964,6 @@ void CheckForFroggerLanding(long pl)
 
 		frogFacing[pl] = GetTilesMatchingDirection(currTile[pl], frogFacing[pl], tile);
 		
-//		if(pl == 0)
-//			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, tile);
-
 		destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
 		player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
 
@@ -1137,7 +1118,7 @@ void CheckForFroggerLanding(long pl)
 			// -------------------------------- Conveyors ----------------------------
 
 			int res = MoveToRequestedDestination(
-				((state & (TILESTATE_CONVEYOR-1)) - camFacing) & 3, pl);
+				((state & (TILESTATE_CONVEYOR-1)) - camFacing[pl]) & 3, pl);
 
 			if (res)
 			{
@@ -1170,7 +1151,7 @@ void CheckForFroggerLanding(long pl)
 		}
 		else if (state == TILESTATE_ICE)
 		{
-			int res = MoveToRequestedDestination((frogFacing[pl] - camFacing) & 3, pl);
+			int res = MoveToRequestedDestination((frogFacing[pl] - camFacing[pl]) & 3, pl);
 
 			if (res)
 			{
@@ -1484,7 +1465,7 @@ void PushFrog(VECTOR *where, VECTOR *direction, long pl)
 		}
 	}
 
-	if (!MoveToRequestedDestination((dir - camFacing) & 3, pl)) return;
+	if (!MoveToRequestedDestination((dir - camFacing[pl]) & 3, pl)) return;
 	//dest = currTile[pl]->tilePtrs[dir];
 
 	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)

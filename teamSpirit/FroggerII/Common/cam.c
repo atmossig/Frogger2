@@ -50,8 +50,7 @@ float camSpeed4				= 15;
 float fovSpd				= 2;
 float transCamSpeedMult		= 1.0F;
 
-int	camFacing				= 0;
-int nextCamFacing			= 0;
+int	camFacing[4]			= {0,0,0,0};
 float scaleV				= 1.1F;
 
 char controlCamera			= 0;
@@ -67,8 +66,8 @@ VECTOR idleCamDist	= { 0,100,102 };
 float sideSwaySpeed = 0.005,sideSwayAmt=50,swayModifier = 1.0f;
 
 float camSideOfs = 0;
-GAMETILE *lastTile = NULL;
-long prevCamFacing = 0;
+GAMETILE *lastTile[4] = {0,0,0,0};
+long prevCamFacing[4] = {0,0,0,0};
 
 CAM_BOX_LIST cameraBoxes;
 CAM_BOX *currCamBox;
@@ -264,7 +263,7 @@ TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace
 	Returns			: void
 	Info			: 
 */
-void CheckForDynamicCameraChange(GAMETILE *tile)
+void CheckForDynamicCameraChange(GAMETILE *tile, int pl)
 {
 	char specialCaseTile = 0;
 	TRANSCAMERA *cur;
@@ -331,7 +330,7 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 			SubVector(&currCamOffset, &currCamSource, &currCamTarget);
 
 			if (cur->dirCamMustFace)
-				camFacing = cur->dirCamMustFace - 1;
+				camFacing[pl] = cur->dirCamMustFace - 1;
 
 			if( cur->speed )
 				transCamSpeedMult = cur->speed;
@@ -370,7 +369,10 @@ void FreeTransCameraList()
 	}
 
 	transCameraList = NULL;
-	lastTile = NULL;
+	lastTile[0] = NULL;
+	lastTile[1] = NULL;
+	lastTile[2] = NULL;
+	lastTile[3] = NULL;
 
 	fixedDir = 0;
 	fixedPos = 0;
@@ -441,13 +443,13 @@ void CameraSetOffset(void)
 	if( gameState.multi == SINGLEPLAYER )
 	{
 		VECTOR v;
-		nC = (camFacing+1)&3;
+		nC = (camFacing[0]+1)&3;
 
 		SetVector(&v, &camVect);
 		ScaleVector(&v, currCamDist.v[1]);
 		SetVector(&camOffset, &v);
 
-		SetVector(&v, &currTile[0]->dirVector[camFacing]);
+		SetVector(&v, &currTile[0]->dirVector[camFacing[0]]);
 		ScaleVector(&v, -currCamDist.v[2]);
 		AddToVector(&camOffset, &v);
 
@@ -458,15 +460,15 @@ void CameraSetOffset(void)
 	else
 	{
 		float afx=0,afy=0,afz=0;
-		nC = (camFacing+1)&3;
 	
 		for( i=0; i<NUM_FROGS; i++ )
 		{
+			nC = (camFacing[i]+1)&3;
 			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
 			{
-				afx += currTile[i]->normal.v[0]*currCamDist.v[1] - currTile[i]->dirVector[camFacing].v[0]*currCamDist.v[2]; 
-				afy += currTile[i]->normal.v[1]*currCamDist.v[1] - currTile[i]->dirVector[camFacing].v[1]*currCamDist.v[2];
-				afz += currTile[i]->normal.v[2]*currCamDist.v[1] - currTile[i]->dirVector[camFacing].v[2]*currCamDist.v[2];
+				afx += currTile[i]->normal.v[0]*currCamDist.v[1] - currTile[i]->dirVector[camFacing[i]].v[0]*currCamDist.v[2]; 
+				afy += currTile[i]->normal.v[1]*currCamDist.v[1] - currTile[i]->dirVector[camFacing[i]].v[1]*currCamDist.v[2];
+				afz += currTile[i]->normal.v[2]*currCamDist.v[1] - currTile[i]->dirVector[camFacing[i]].v[2]*currCamDist.v[2];
 
 				afx += currTile[i]->dirVector[nC].v[0]*camSideOfs;
 				afy += currTile[i]->dirVector[nC].v[1]*camSideOfs;
@@ -606,19 +608,24 @@ void SlurpCamPosition( )
 */
 void UpdateCameraPosition( )
 {
+	int i;
+
 	if(!frog[playerFocus] || !currTile[playerFocus] || controlCamera)
 		return;
-	
-	if (currTile[playerFocus] != lastTile)	//This causes lots of problems with camera transitions..
+
+	for( i=0; i<NUM_FROGS; i++ )
 	{
-		if (currTile[playerFocus] && lastTile)
+		if (currTile[i] != lastTile[i])	//This causes lots of problems with camera transitions..
 		{
-			if (camFacing == prevCamFacing)
-				camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[playerFocus]);
+			if (currTile[i] && lastTile[i])
+			{
+				if (camFacing[i] == prevCamFacing[i])
+					camFacing[i] = GetTilesMatchingDirection(lastTile[i],camFacing[i],currTile[i]);
+			}
+			prevCamFacing[i] = camFacing[i];
+			lastTile[i] = currTile[i];
+			CheckForDynamicCameraChange(currTile[i], i);
 		}
-		prevCamFacing = camFacing;
-		lastTile = currTile[playerFocus];
-		CheckForDynamicCameraChange(currTile[playerFocus]);
 	}
 
 	CameraLookAtFrog();
@@ -704,13 +711,19 @@ void ResetCamera( )
 
 void InitCamera(void)
 {
+	int i;
 	currCamBox = NULL;
 	CheckCameraBoxes();
-	
-	lastTile = 0;
+
+	for( i=0; i<NUM_FROGS; i++ )
+	{
+		camFacing[i] = 0;
+		lastTile[i] = NULL;
+		CheckForDynamicCameraChange(currTile[i],i);
+	}
+
 	cam_shakiness = 0;
 
-	CheckForDynamicCameraChange(currTile[0]);
 	SubVector(&currCamOffset, &camTarget, &camSource);
 
 	UpdateCameraPosition();

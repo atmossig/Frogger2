@@ -229,9 +229,8 @@ void GameProcessController(long pl)
 			dir = MOVE_RIGHT;
 
 		frogFacing[pl] = nextFrogFacing[pl];
-		//camFacing = nextCamFacing;
 
-		nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
+		nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing[pl]) &3;
 		player[pl].extendedHopDir = dir;
 		Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 
@@ -253,9 +252,9 @@ void GameProcessController(long pl)
 			// we have to keep track here of the previous tile so if it fails we don't
 			// just sit in mid-air...
 			old = currTile[pl];
-			oldCamFacing = camFacing;
+			oldCamFacing = camFacing[pl];
 
-			camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
+			camFacing[pl] = GetTilesMatchingDirection(currTile[pl], camFacing[pl], destTile[pl]);
 			currTile[pl] = destTile[pl];
 
 			// player is superhopping - make frog double jump
@@ -264,8 +263,7 @@ void GameProcessController(long pl)
 				player[pl].hasDoubleJumped = 1;
 				player[pl].canJump = 0;
 
-				//camFacing = GetTilesMatchingDirection(currTile[pl], camFacing, destTile[pl]);
-				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing) &3;
+				nextFrogFacing[pl] = frogFacing[pl] = (dir+camFacing[pl]) &3;
 				player[pl].extendedHopDir = dir;
 				Orientate( &frog[pl]->actor->qRot, &currTile[pl]->dirVector[frogFacing[pl]], &currTile[pl]->normal );
 			}
@@ -274,7 +272,7 @@ void GameProcessController(long pl)
 				// Restore old state :oP
 				destTile[pl] = currTile[pl];
 				currTile[pl] = old;
-				camFacing = oldCamFacing;
+				camFacing[pl] = oldCamFacing;
 				player[pl].canJump = 0;
 				
 				CalculateFrogJump(
@@ -346,18 +344,25 @@ void GameProcessController(long pl)
 */
 	if( !fixedPos && !fixedDir )
 	{
+		int j;
 		if((button[pl] & CONT_F) && !(lastbutton[pl] & CONT_F))
 		{
-			camFacing--;
-			camFacing &= 3;
+			for( j=0; j<NUM_FROGS; j++ )
+			{
+				camFacing[j]--;
+				camFacing[j] &= 3;
+			}
 			if ( recordKeying )
 				AddPlayingActionToList ( CAMERA_LEFT, frameCount );
 		}
 
 		if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
 		{
-			camFacing++;
-			camFacing &= 3;		
+			for( j=0; j<NUM_FROGS; j++ )
+			{
+				camFacing[j]++;
+				camFacing[j] &= 3;
+			}
 			if ( recordKeying )
 				AddPlayingActionToList ( CAMERA_RIGHT, frameCount );
 		}

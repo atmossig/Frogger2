@@ -280,7 +280,7 @@ void UpdateBattle( )
 			{
 				int tf=1;
 
-				res = MoveToRequestedDestination( ((frogFacing[i] - camFacing) & 3), i );
+				res = MoveToRequestedDestination( ((frogFacing[i] - camFacing[i]) & 3), i );
 				player[i].canJump = 0;
 
 				// Add a new node to the trail
@@ -440,6 +440,12 @@ void RaceRespawn( int pl )
 	mpl[pl].check = mpl[respawn].check;
 	mpl[pl].lap = mpl[respawn].lap;
 	mpl[pl].lasttile = mpl[respawn].lasttile;
+
+	camFacing[pl] = camFacing[respawn];
+	frogFacing[pl] = frogFacing[respawn];
+	prevCamFacing[pl] = prevCamFacing[respawn];
+
+	lastTile[pl] = tile;
 	destTile[pl] = tile;
 }
 
@@ -462,13 +468,13 @@ void BattleProcessController( int pl )
 	player[pl].frogState &= ~FROGSTATUS_ALLHOPFLAGS;
 
 	if( (button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP))
-		frogFacing[pl] = (camFacing + MOVE_UP) & 3;
+		frogFacing[pl] = (camFacing[pl] + MOVE_UP) & 3;
 	else if( (button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN))
-		frogFacing[pl] = (camFacing + MOVE_DOWN) & 3;
+		frogFacing[pl] = (camFacing[pl] + MOVE_DOWN) & 3;
 	else if( (button[pl] & CONT_LEFT) && !(lastbutton[pl] & CONT_LEFT))
-		frogFacing[pl] = (camFacing + MOVE_LEFT) & 3;
+		frogFacing[pl] = (camFacing[pl] + MOVE_LEFT) & 3;
 	else if( (button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT))
-		frogFacing[pl] = (camFacing + MOVE_RIGHT) & 3;
+		frogFacing[pl] = (camFacing[pl] + MOVE_RIGHT) & 3;
 
 	nextFrogFacing[pl] = frogFacing[pl];
 
