@@ -56,7 +56,7 @@
 #include "controll.h"
 #include "pcmisc.h"
 #include "pcaudio.h"
-
+#include "lang.h"
 #include "mdx.h"
 #include "mdxException.h"
 #include "softstation.h"
@@ -354,6 +354,13 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_INITDIALOG:
 		{
+			SetWindowText(GetDlgItem(hWnd, IDC_TXT_VIDEO), GAMESTRING(STR_PCSETUP_VIDEO));
+			SetWindowText(GetDlgItem(hWnd, IDC_CONTROLS), GAMESTRING(STR_PCSETUP_CONTROLS));
+			SetWindowText(GetDlgItem(hWnd, IDC_TXT_RESOLUTION), GAMESTRING(STR_PCSETUP_RESOLUTION));
+			SetWindowText(GetDlgItem(hWnd, IDC_WINDOW), GAMESTRING(STR_PCSETUP_WINDOWED));
+			SetWindowText(GetDlgItem(hWnd, IDOK), GAMESTRING(STR_PCSETUP_OK));
+			SetWindowText(GetDlgItem(hWnd, IDCANCEL), GAMESTRING(STR_PCSETUP_CANCEL));
+
 			switch (resolution)	{
 				case 0: SendMessage(GetDlgItem(hWnd,IDC_320),BM_SETCHECK,1,0); break;
 				case 1: SendMessage(GetDlgItem(hWnd,IDC_640),BM_SETCHECK,1,0); break;
@@ -740,13 +747,13 @@ long LoopFunc(void)
 				{
 					synchedFrameCount-=synchRecovery;
 					actTickCountModifier+=synchRecovery;
-					timeInfo.tickModifier = -actTickCountModifier;
+					timeInfo.tickModifier = -(long)actTickCountModifier;
 				}
 				else
 				{
 					synchedFrameCount+=synchRecovery;
 					actTickCountModifier-=synchRecovery;
-					timeInfo.tickModifier = -actTickCountModifier;
+					timeInfo.tickModifier = -(long)actTickCountModifier;
 				}
 			}
 		}
@@ -863,15 +870,12 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 	GetRegistryInformation();
 	GetArgs(lpCmdLine);
+	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
 
-#pragma message("*** WinMain(): Copy protection disabled")
 #ifdef FINAL_MASTER
 	while (!FindFrogger2CD())
 	{
-		if (MessageBox(NULL,
-			"Please insert your Frogger2 CD!\n\n"
-			"NOTE: Copy protection is currently disabled; clicking cancel will proceed without a valid Frogger2 CD"
-			, "Frogger2",
+		if (MessageBox(NULL, GAMESTRING(STR_PCSETUP_INSERTCD), "Frogger2",
 			MB_ICONEXCLAMATION|MB_RETRYCANCEL) == IDCANCEL)
 			break;
 
@@ -949,11 +953,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 		ShowWindow(mdxWinInfo.hWndMain, 0);
 
 		MessageBox(NULL,
-			"Frogger2 failed to start DirectX. You could try the following:\n\n"
-			"· Run in full-screen mode (uncheck Run Windowed)\n"
-			"· Select a lower video resolution\n"
-			"· Use the software rendering mode\n\n"
-			"If these do not help, consult the accompanying documentation.", "Frogger2",
+			GAMESTRING(STR_PCSETUP_BADVIDEO), "Frogger2",
 			MB_ICONEXCLAMATION|MB_OK);
 
 		configDialog = true;
