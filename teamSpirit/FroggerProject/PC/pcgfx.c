@@ -49,7 +49,9 @@ void DrawSpecialFX()
 	int i;
 
 	SwapFrame(0);
-	ProcessShadows();
+
+	if( !backdrop )
+		ProcessShadows();
 	
 	if( sfxList.count )
 	{
