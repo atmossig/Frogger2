@@ -439,8 +439,8 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 
 	SetVector(&sprite->pos,pos);
 
-	sprite->scaleX		= 64;
-	sprite->scaleY		= 64;
+	sprite->scaleX		= 16;
+	sprite->scaleY		= 16;
 
 	sprite->anim.type	= SPRITE_ANIM_SPAWNSCORE;
 
@@ -450,7 +450,9 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 	sprite->a			= 255;
 
 //	sprite->kill		= 0;	// commented out to matched glover 2 structures
-	sprite->flags		= SPRITE_TRANSLUCENT;
+	sprite->flags		= SPRITE_TRANSLUCENT | SPRITE_FLAGS_ROTATE;
+	sprite->angle		= 0.0f;
+	sprite->angleInc	= 0.2f;
 
 	sprintf(bmpBuff,"spnu%d.bmp",(scoreType * 10));
 	FindTexture(&sprite->texture,UpdateCRC(bmpBuff),YES);

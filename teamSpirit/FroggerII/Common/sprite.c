@@ -357,6 +357,9 @@ void SubSprite(SPRITE *sprite)
 	Returns			: void
 	Info			: 
 */
+
+VECTOR svUp = { 0,1,0 };
+
 void AnimateSprites()
 {
 	SPRITE *cur,*next;
@@ -375,8 +378,19 @@ void AnimateSprites()
 		// check if this sprite is a spawn score anim...
 		if(cur->anim.type == SPRITE_ANIM_SPAWNSCORE)
 		{
-			cur->pos.v[Y] += 6;
-			cur->a -= 12;
+			// we always want to spawn score sprite to travel 'up'
+			SetVector(&svUp,&upVec);
+			RotateVectorByQuaternion(&svUp,&svUp,&frog[0]->actor->qRot);
+
+			ScaleVector(&svUp,(3.0f * gameSpeed));
+			AddToVector(&cur->pos,&svUp);
+
+			cur->a -= (5 * (unsigned char)gameSpeed);
+			cur->scaleX += (short)gameSpeed;
+			cur->scaleY += (short)gameSpeed;
+
+			cur->angle += (cur->angleInc * gameSpeed);
+			
 			if(cur->a < 20)
 				cur->kill = 1;
 			
