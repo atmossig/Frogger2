@@ -13,6 +13,10 @@
 
 */
 
+#define	FINAL_MASTER
+#define	GOLDCD 1
+#define	DEBUG
+
 #define _KAMUI2_
 #define __SET4__
 #define __SET5__
