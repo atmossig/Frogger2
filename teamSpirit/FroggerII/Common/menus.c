@@ -24,7 +24,9 @@ SPRITEOVERLAY *atari = NULL;
 SPRITEOVERLAY *konami = NULL;
 SPRITEOVERLAY *sprOver = NULL;
 
+#ifdef PC_VERSION
 unsigned long USE_MENUS = 0;
+#endif
 
 /* LOGO information for Frogger 2 logo */
 
