@@ -1750,9 +1750,10 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->action.deathBy = -1;
 			}
 
-			destPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
-			player[pl].frogState	|= FROGSTATUS_ISONMOVINGPLATFORM;
-			player[pl].frogState	|= FROGSTATUS_ISSTANDING;
+			destPlatform[pl]->flags		|= PLATFORM_NEW_CARRYINGFROG;
+			player[pl].frogState		|= FROGSTATUS_ISONMOVINGPLATFORM;
+			player[pl].frogState		|= FROGSTATUS_ISSTANDING;
+			destPlatform[pl]->carrying	= frog[pl];
 			
 			player[pl].frogState &= ~FROGSTATUS_ISJUMPINGTOTILE;
 			player[pl].frogState &= ~FROGSTATUS_ISFLOATING;
