@@ -2217,7 +2217,8 @@ void RunOptionsMenu(void)
 #ifdef PSX_VERSION
 //ma				SsSetMute( 1 );
 #endif
-					StartVideoPlayback(options.fmvNum + 3);
+					// *ASL* 12/08/2000 - Force allow quit on video playback
+					StartVideoPlayback(options.fmvNum + 3, 1);
 #ifdef PSX_VERSION
 //ma				SsSetMute( 0 );
 #endif

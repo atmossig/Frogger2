@@ -1043,60 +1043,57 @@ static void gdFsErrorCallback(void *obj, Sint32 err)
 
 void showLegalFMV(int allowQuit)
 {
-	int	flag;
+	int	ret, flag;
+
+	utilPrintf("Playing FMV.....\n");
 
 	// play Hasbro FMV
-	utilPrintf("Playing FMV.....\n");
-	StartVideoPlayback(FMV_ATARI_LOGO);
-
+	ret = StartVideoPlayback(FMV_ATARI_LOGO, allowQuit);
 	// play our FMV
-	if (quitAllVideo == 0)
-		StartVideoPlayback(FMV_BLITZ_LOGO);
+	ret = StartVideoPlayback(FMV_BLITZ_LOGO, allowQuit);
 
-	// free this backdrop
+	// make sure the backdrop system is free
 	FreeLegalBackdrop();
 
 	// show SoftDec screen
-	InitBackdrop ("SOFDEC");
-	ScreenFade(0,255,20);
 	actFrameCount = 0;
-	flag = FALSE;
-	while ((flag == FALSE) || (fadingOut))
+	InitBackdrop("SOFDEC");
+	ScreenFade(0,255,20);
+	flag = 0;
+	while (!flag || fadingOut)
 	{
 		DrawLegalBackDrop(0, 0);
 		DrawScreenTransition();
 		actFrameCount++;
-
-		if ((actFrameCount > (3*60)) && (flag == 0))
+		if (!flag && (actFrameCount > (3*60)))
 		{
 			ScreenFade(255,0,20);
-			flag = YES;
+			flag = 1;
 		}
-
-//		if(startButtonPressed())
-//			break;
+		if (!flag && allowQuit)
+		{
+		}
 	}
 	FreeLegalBackdrop();
 
 	// show legal screen
+	actFrameCount = 0;
 	InitBackdrop ("FR2LEGAL");
 	ScreenFade(0,255,20);
-	actFrameCount = 0;
-	flag = FALSE;
-	while ((flag == FALSE) || (fadingOut))
+	flag = 0;
+	while (!flag || fadingOut)
 	{
 		DrawLegalBackDrop(0, 0);
 		DrawScreenTransition();
 		actFrameCount++;
-
-		if ((actFrameCount > (3*60)) && (flag == 0))
+		if (!flag && (actFrameCount > (3*60)))
 		{
 			ScreenFade(255,0,20);
-			flag = YES;
+			flag = 1;
 		}
-
-//		if(startButtonPressed())
-//			break;
+		if (!flag && allowQuit)
+		{
+		}
 	}
 	FreeLegalBackdrop();
 }
