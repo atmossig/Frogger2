@@ -1,29 +1,14 @@
-/*	I like textures, textures are my friend, even when their bit depth, drives me round the bend
-
-*/
-
 #define WIN32_LEAN_AND_MEAN
 
-#include <gelf.h>
 #include <windows.h>
+#include <mmsystem.h>
 #include <iostream.h>
 #include <stdlib.h>
+#include <ddraw.h>
+#include <d3d.h>
+#include <dsound.h>
+#include <dinput.h>
 #include <stdio.h>
-
-enum {
-	TEXTURE_NORMAL,
-	TEXTURE_AI,
-	TEXTURE_PROCEDURAL
-};
-
-
-struct TEXTURE_HEADER
-{
-	DWORD flags;
-	DWORD CRC;
-	short dim[2];
-	char name[12];
-};
 
 // ------------------------ CRC shiiite ---------------------
 
@@ -64,21 +49,8 @@ unsigned long utilStr2CRC(char *ptr)
 	return CRCaccum;
 }
 
-const char* ttypeNames[3] = { "RGB", "Alpha", "Procedural" };
 
-int TextureType(const char* filename)
-{
-	if (strncmp(filename,"ai_",3)==0)
-		return TEXTURE_AI;
-//	else if (strncmp(mys,"ac_",3)==0)	god knows...
-//		return TEXTURE_AC;
-	else if (strncmp(filename,"prc",3)==0)
-		return TEXTURE_PROCEDURAL;
-	else
-		return TEXTURE_NORMAL;
-}
-
-int CountTextures(const char *folder)
+int CountSamples(const char *folder)
 {
 	char path[MAX_PATH];
 	int count = 0;
@@ -86,150 +58,177 @@ int CountTextures(const char *folder)
 	HANDLE			hFind;
 
 	strcpy(path, folder);
-	strcat(path, "\\*.bmp");
+	strcat(path, "\\*.wav");
 
 	hFind = FindFirstFile(path, &find);
+	if( hFind == INVALID_HANDLE_VALUE )
+		return 0;
 
-	while (1)
+	do
 	{
 		count++;
-		if (!FindNextFile(hFind, &find)) break;
-	}
+	} while( FindNextFile(hFind, &find) );
 
 	FindClose(hFind);
 
 	return count;
 }
 
-int SquashBitmapToFile(const char* path, const char* shortName, FILE *out)
+typedef struct
 {
-	int pal = -1;
-	int width, height, type;
-	void *data;
-	TEXTURE_HEADER head;
+	unsigned long length, uid, loop;
 
-	data = gelfLoad_BMP((char*)path, NULL, (void**)&pal, &width, &height, NULL, GELF_IFORMAT_16BPP555, GELF_IMAGEDATA_TOPDOWN);
+} SAMPLE_HEADER;
 
-	type = TextureType(shortName);
-	cout << '\t' << width << 'x' << height << ' ' << ttypeNames[type] << '\n';
-	cout.flush();
-
-	head.dim[0] = width;
-	head.dim[1] = height;
-	head.flags = type;
-	strncpy(head.name, shortName, 11);
-	head.name[11] = 0;
-	head.CRC = utilStr2CRC((char*)shortName);
-
-	fwrite(&head, sizeof(head), 1, out);
-	fwrite(data, (width*height*2), 1, out);
-
-	free(data);
-
-	return 0;
-}
-
-
-int MakeSquashedBitmap(const char *file, const char *output)
+int SquashSampleToFile(char* path, char* shortName, FILE *out)
 {
-	char shortName[32], *c;
-	int n = strlen(file);
+	HMMIO 			hwav;    // handle to wave file
+	MMCKINFO		parent,  // parent chunk
+					child;   // child chunk
+	WAVEFORMATEX    wfmtx;   // wave format structure
+	unsigned char *snd_buffer;
+	unsigned long i;
+	SAMPLE_HEADER shdr;
 
-	c = (char*)file + n-1;
-	
-	while (n--)
+  
+	// open the WAV file
+	if( (hwav = mmioOpen( path, NULL, MMIO_READ | MMIO_ALLOCBUF )) == NULL )
+		return 0;
+
+	// descend into the RIFF 
+	parent.fccType = mmioFOURCC ( 'W', 'A', 'V', 'E' );
+
+	if ( mmioDescend ( hwav, &parent, NULL, MMIO_FINDRIFF ) )
+    {
+		// close the file
+		mmioClose ( hwav, 0 );
+
+		// return error, no wave section
+		return 0; 	
+    }
+
+	// descend to the WAVEfmt 
+	child.ckid = mmioFOURCC ( 'f', 'm', 't', ' ' );
+
+	if ( mmioDescend ( hwav, &child, &parent, 0 ) )
+    {
+		// close the file
+		mmioClose ( hwav, 0 );
+
+		// return error, no format section
+		return 0; 	
+    }
+
+	// now read the wave format information from file
+	if ( mmioRead ( hwav, ( char * ) &wfmtx, sizeof ( wfmtx ) ) != sizeof ( wfmtx ) )
+    {
+		// close file
+		mmioClose ( hwav, 0 );
+
+		// return error, no wave format data
+		return 0;
+    }
+
+	// make sure that the data format is PCM
+	if ( wfmtx.wFormatTag != WAVE_FORMAT_PCM )
+    {
+		// close the file
+		mmioClose ( hwav, 0 );
+
+		// return error, not the right data format
+		return 0; 
+    }
+
+	// now ascend up one level, so we can access data chunk
+	if ( mmioAscend ( hwav, &child, 0 ) )
 	{
-		if (*c == '\\') { c++; break; }
+		// close file
+		mmioClose ( hwav, 0 );
+
+		// return error, couldn't ascend
+		return 0; 	
 	}
 
-	strcpy(shortName, c);
-	strlwr(shortName);
+	// descend to the data chunk 
+	child.ckid = mmioFOURCC ( 'd', 'a', 't', 'a' );
 
-	FILE *out = fopen(output, "wb");
-	SquashBitmapToFile(file, shortName, out);
-	fclose(out);
+	if ( mmioDescend ( hwav, &child, &parent, MMIO_FINDCHUNK ) )
+    {
+		// close file
+		mmioClose ( hwav, 0 );
+
+		// return error, no data
+		return 0; 	
+    }
+
+	i=0;
+	while( shortName[i] && shortName[i] != '.' ) i++;
+	shortName[i] = '\0';
+
+	// allocate the memory to load sound data
+	snd_buffer = (unsigned char *)malloc( child.cksize );
+	mmioRead ( hwav, (char *)snd_buffer, child.cksize );
+	mmioClose ( hwav, 0 );
+
+	shdr.length = child.cksize;
+	shdr.loop = (shortName[0] == 'l' && shortName[1] == 'p' && shortName[2] == '_');
+	shdr.uid = utilStr2CRC( shortName );
+
+	// Write a sample header
+	fwrite((void *)&shdr, sizeof(SAMPLE_HEADER), 1, out );
+
+	// And the format information
+	fwrite( (void *)&wfmtx, sizeof(WAVEFORMATEX), 1, out );
+
+	// And then the actual data
+	fwrite((void *)snd_buffer, child.cksize, 1, out);
+	free(snd_buffer);
 
 	return 0;
 }
 
-int SquashTextureBank(const char *folder, const char *output)
+int SquashSampleBank(const char *folder, const char *output)
 {
 	char path[MAX_PATH], shortName[32];
 	WIN32_FIND_DATA find;
 	HANDLE			hFind;
 	FILE			*out;
 	
-	int textures = CountTextures(folder);
+	int samples = CountSamples(folder);
 
 	strcpy(path, folder);
-	strcat(path, "\\*.bmp");
+	strcat(path, "\\*.wav");
 
 	hFind = FindFirstFile(path, &find);
 
 	out = fopen(output, "wb");
 
-	fwrite(&textures, 4, 1, out);
+	fwrite(&samples, 4, 1, out);
 
-	while (1)
+	if( samples > 0 )
 	{
-		cout << find.cFileName;
+		do
+		{
+			cout << find.cFileName << endl;
+			cout.flush();
 
-		strcpy(path, folder);
-		strcat(path, "\\");
-		strcat(path, find.cFileName);
-		
-		strcpy(shortName, find.cFileName);
-		strlwr(shortName);
+			strcpy(path, folder);
+			strcat(path, "\\");
+			strcat(path, find.cFileName);
+			
+			strcpy(shortName, find.cFileName);
+			strlwr(shortName);
 
-		SquashBitmapToFile(path, shortName, out);
+			SquashSampleToFile(path, shortName, out);
 
-		textures++;
+		} while( FindNextFile(hFind, &find) );
 
-		if (!FindNextFile(hFind, &find)) break;
+		FindClose(hFind);
 	}
 
-	FindClose(hFind);
 	fclose(out);
 
-	cout << "\nConverted and saved " << textures << " textures\n";
-
-	return 0;
-}
-
-int MakeLotsaSquashedBitmap(const char *folder)
-{
-	char path[MAX_PATH], out[MAX_PATH], *c;
-	WIN32_FIND_DATA find;
-	HANDLE			hFind;
-	int textures = 0;
-	
-	strcpy(path, folder);
-	strcat(path, "\\*.bmp");
-
-	hFind = FindFirstFile(path, &find);
-
-	while (1)
-	{
-		cout << find.cFileName;
-
-		strcpy(path, folder);
-		strcat(path, "\\");
-		strcat(path, find.cFileName);
-
-		strcpy(out, path);
-		c = out + strlen(out) - 4;
-		strcpy(c, ".bit");
-		
-		MakeSquashedBitmap(path, out);
-
-		textures++;
-
-		if (!FindNextFile(hFind, &find)) break;
-	}
-
-	FindClose(hFind);
-
-	cout << "\nConverted and saved " << textures << " textures\n";
+	cout << "\nConverted and saved " << samples << " samples\n";
 
 	return 0;
 }
@@ -237,23 +236,9 @@ int MakeLotsaSquashedBitmap(const char *folder)
 int main(int argc, char **argv)
 {
 	utilInitCRC();
-	gelfInit();
 
-	cout << "Frogger2 Texture Banker (c)2000 Blitz Games\n";
+	SquashSampleBank(argv[1], argv[2]);
 
-
-	if (argc == 4 && (stricmp(argv[1], "-f") == 0))
-		MakeSquashedBitmap(argv[2], argv[3]);
-	if (argc == 3 && (stricmp(argv[1], "-d") == 0))
-		MakeLotsaSquashedBitmap(argv[2]);
-	else if (argc == 3)
-		SquashTextureBank(argv[1], argv[2]);
-	else
-	{
-		cout << "\ntexturebanker (folder) (output)\nor\ntexturebanker -f (file) (output)\n";
-		return 1;
-	}
-	
-	gelfShutdown();
 	return 0;
 }
+
