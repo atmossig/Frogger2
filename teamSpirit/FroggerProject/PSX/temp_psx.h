@@ -13,6 +13,8 @@ static void froggerVRAMviewNormal(DISPENV *dispenv, int *xOffs,int *yOffs, unsig
 static void froggerVRAMviewTextures(int *currTex);
 static void froggerVRAMdrawPalette(unsigned long clut, int y);
 static void froggerVRAMdrawPalette256(unsigned long clut, int y);
+void PsxNameEntryInit(void);
+void PsxNameEntryFrame(void);
 
 
 

@@ -440,3 +440,11 @@ static void froggerVRAMdrawPalette256(unsigned long clut, int y)
 		}
 	}
 }
+
+void PsxNameEntryInit(void)
+{
+}
+
+void PsxNameEntryFrame(void)
+{
+}
