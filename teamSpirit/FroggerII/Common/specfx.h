@@ -45,6 +45,7 @@ extern char pauseMode;
 #define EF_LASER						(1 << 10)	// Straight bolt
 #define EF_TRAIL						(1 << 11)	// Motion trail
 #define EF_BILLBOARDTRAIL				(1 << 12)	// Always faces camera
+#define EF_LIGHTNING					(1 << 13)	// Emperors hands effect
 
 #define EF_RANDOMCREATE					(1 << 25)
 #define EF_FAST							(1 << 26)
@@ -78,6 +79,7 @@ enum
 	FXTYPE_LASER,
 	FXTYPE_TRAIL,
 	FXTYPE_BILLBOARDTRAIL,
+	FXTYPE_LIGHTNING,
 
 	FXTYPE_NUMTYPES
 };
@@ -102,7 +104,7 @@ typedef struct TAGSPECFX
 	ACTOR2 **act;								// For models
 
 	short type, fade, start, end;
-	float speed, accn, angle, spin, tilt, gravity;
+	float speed, accn, angle, spin, tilt, gravity, startLife;
 	long lifetime, deadCount, numP;				// numP is number of particles
 
 	unsigned char r, g, b, a;

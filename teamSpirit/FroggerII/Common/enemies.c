@@ -588,6 +588,7 @@ void UpdateSnapper( ENEMY *cur )
 	QUATERNION q1, q2;
 	ACTOR *act = cur->nmeActor->actor;
 	PATH *path = cur->path;
+	SPECFX *fx;
 	float speed;
 
 	// Idle animations
@@ -609,6 +610,7 @@ void UpdateSnapper( ENEMY *cur )
 		}
 
 		// Slerp orientation towards frog
+		SetVector( &cur->currNormal, &path->nodes[0].worldTile->normal );
 		SetQuaternion( &q1, &act->qRot );
 		ActorLookAt( act, &frog[0]->actor->pos, LOOKAT_2D );
 		SetQuaternion( &q2, &act->qRot );
@@ -653,6 +655,19 @@ void UpdateSnapper( ENEMY *cur )
 			break;
 
 		AnimateActor(act,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
+
+		if( cur->nmeActor->effects & EF_LIGHTNING )
+		{
+			VECTOR source, dir;
+			SubVector( &dir, &frog[0]->actor->pos, &act->pos );
+			MakeUnit( &dir );
+			SetVector( &source, &cur->currNormal );
+			ScaleVector( &source, path->nodes[0].offset2 );
+			AddToVector( &source, &act->pos );
+			fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 15, 40, 0.2, cur->nmeActor->value1 );
+			SetAttachedFXColour( fx, cur->nmeActor->effects );
+		}
+
 		cur->isSnapping = 1;
 		break;
 	}
@@ -670,57 +685,73 @@ void UpdateTileSnapper( ENEMY *cur )
 {
 	QUATERNION q1, q2;
 	VECTOR toPosition;
+	SPECFX *fx;
+	ACTOR *act = cur->nmeActor->actor;
+	PATH *path = cur->path;
 	float speed;
 
 	switch( cur->isSnapping )
 	{
 	case 0:
-		if( actFrameCount < cur->path->endFrame )
+		if( actFrameCount < path->endFrame )
 			break;
 
-		if(cur->path->toNode >= GET_PATHLASTNODE(cur->path))	// reached end of path nodes
+		if( path->toNode >= GET_PATHLASTNODE(path) )	// reached end of path nodes
 		{
-			cur->path->fromNode	= GET_PATHLASTNODE(cur->path);
-			cur->path->toNode	= 1; // Don't snap at the tile we're sitting on
+			path->fromNode	= GET_PATHLASTNODE(path);
+			path->toNode	= 1; // Don't snap at the tile we're sitting on
 		}
 		else
 		{
-			cur->path->fromNode = cur->path->toNode;
-			cur->path->toNode++;
+			path->fromNode = path->toNode;
+			path->toNode++;
 		}
 
-		cur->path->startFrame = actFrameCount;
-		cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
+		path->startFrame = actFrameCount;
+		path->endFrame = path->startFrame + (path->nodes[path->fromNode].waitTime * waitScale);
 		cur->isSnapping = 2;
 		break;
 
 	case 1:
-		if( actFrameCount < cur->path->endFrame )
+		if( actFrameCount < path->endFrame )
 			break;
 
-		cur->path->startFrame = actFrameCount;
-		cur->path->endFrame = cur->path->startFrame + (cur->path->nodes[cur->path->fromNode].waitTime * waitScale);
+		path->startFrame = actFrameCount;
+		path->endFrame = path->startFrame + (path->nodes[path->fromNode].waitTime * waitScale);
 		cur->isSnapping = 0;
 
 		// If the frog is on our current target tile
-		if( (cur->path->nodes[cur->path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead.time) && (!frog[0]->action.safe.time) )//FindNearestTile(frog[0]->actor->pos) )
+		if( (path->nodes[path->fromNode].worldTile == currTile[0]) && (!frog[0]->action.dead.time) && (!frog[0]->action.safe.time) )
 			NMEDamageFrog(0,cur);
 		break;
 
 	case 2:
-		if( (actFrameCount-cur->path->startFrame) < 0.8*(cur->path->endFrame-cur->path->startFrame) )
+		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 		{
-			GetPositionForPathNode(&toPosition,&cur->path->nodes[cur->path->fromNode]);
-			SetQuaternion( &q1, &cur->nmeActor->actor->qRot );
-			ActorLookAt( cur->nmeActor->actor, &toPosition, LOOKAT_2D );
-			SetQuaternion( &q2, &cur->nmeActor->actor->qRot );
-			speed = cur->path->nodes[0].speed * gameSpeed;
+			GetPositionForPathNode(&toPosition,&path->nodes[path->fromNode]);
+			SetQuaternion( &q1, &act->qRot );
+			ActorLookAt( act, &toPosition, LOOKAT_2D );
+			SetQuaternion( &q2, &act->qRot );
+			speed = path->nodes[0].speed * gameSpeed;
 			if( speed > 0.999 ) speed = 0.999;
-			QuatSlerp( &q1, &q2, speed, &cur->nmeActor->actor->qRot );
+			QuatSlerp( &q1, &q2, speed, &act->qRot );
 			break;
 		}
 
-		AnimateActor(cur->nmeActor->actor,1,NO,NO,cur->nmeActor->animSpeed, 0, 0);
+		if( cur->nmeActor->effects & EF_LIGHTNING )
+		{
+			VECTOR dir, source;
+			GetPositionForPathNode(&toPosition,&path->nodes[path->fromNode]);
+			SubVector( &dir, &toPosition, &act->pos );
+			MakeUnit( &dir );
+			SetVector( &source, &cur->currNormal );
+			ScaleVector( &source, path->nodes[0].offset2 );
+			AddToVector( &source, &act->pos );
+			fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 15, 40, 0.2, cur->nmeActor->value1 );
+			SetAttachedFXColour( fx, cur->nmeActor->effects );
+		}
+
+		AnimateActor( act, 1, NO, NO, cur->nmeActor->animSpeed, 0, 0 );
 		cur->isSnapping = 1;
 		break;
 	}

@@ -306,7 +306,7 @@ BOOL CALLBACK EnumJoypadProc(LPCDIDEVICEINSTANCE dev, LPVOID foundDev)
 	
 	numJoypads++;
 
-	return DIENUM_STOP;
+	return DIENUM_CONTINUE;
 }
  
 

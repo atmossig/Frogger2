@@ -47,6 +47,7 @@ void UpdateFXSmoke( SPECFX *fx );
 void UpdateFXSwarm( SPECFX *fx );
 void UpdateFXExplode( SPECFX *fx );
 void UpdateFXTrail( SPECFX *fx );
+void UpdateFXLightning( SPECFX *fx );
 
 void CreateBlastRing( );
 void AddTrailElement( SPECFX *fx, int i );
@@ -80,6 +81,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	effect->speed = speed;
 	effect->accn = accn;
 	effect->lifetime = actFrameCount + life;
+	effect->startLife = lifetime;
 	effect->r = 255;
 	effect->g = 255;
 	effect->b = 255;
@@ -383,7 +385,35 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->Draw = NULL;
 		
 		break;
-	default: // Custom type
+	case FXTYPE_LIGHTNING:
+		effect->numP = 32;
+		i = effect->numP;
+
+		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
+
+		effect->tex = txtrSolidRing;
+
+		while(i--)
+		{
+			effect->sprites[i].texture = effect->tex;
+			SetVector( &effect->sprites[i].pos, &effect->origin );
+
+			effect->sprites[i].scaleX = effect->scale.v[X];
+			effect->sprites[i].scaleY = effect->scale.v[Y];
+			effect->sprites[i].r = effect->r;
+			effect->sprites[i].g = effect->g;
+			effect->sprites[i].b = effect->b;
+			effect->sprites[i].a = effect->a;
+
+			effect->sprites[i].offsetX	= -16;
+			effect->sprites[i].offsetY	= -16;
+			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
+
+			AddSprite( &effect->sprites[i], NULL );
+		}
+
+		effect->Update = UpdateFXLightning;
+		effect->Draw = NULL;
 		break;
 	}
 
@@ -916,6 +946,80 @@ void AddTrailElement( SPECFX *fx, int i )
 
 
 /*	--------------------------------------------------------------------------------
+	Function		: UpdateFXLightning
+	Purpose			: Emperors hands effect
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void UpdateFXLightning( SPECFX *fx )
+{
+	VECTOR target, aim, to;
+	VECTOR ran, source;
+	float scale, fr;
+	long i, h=fx->numP*0.25;
+
+	if( fx->deadCount )
+		if( !(--fx->deadCount) )
+		{
+			SubSpecFX(fx);
+			return;
+		}
+
+	// Find out where the lightning is being fired at
+	if( fx->follow )
+	{
+		SetVector( &target, &fx->follow->pos );
+		SubVector( &aim, &target, &fx->origin );
+	}
+	else
+	{
+		SetVector( &aim, &fx->normal );
+		ScaleVector( &aim, fx->speed );
+		AddVector( &target, &aim, &fx->origin );
+	}
+
+	// Find a route through space
+	for( i=0; i<fx->numP; i++ )
+	{
+		SetVector( &source, (!i)?(&fx->origin):(&fx->sprites[i-1].pos) );
+		scale = 2/(float)(fx->numP-i);
+		fr = 1-((float)i/(float)fx->numP);
+		// Get direction from last sprite to target
+		SubVector( &to, &target, &source );
+		ScaleVector( &to, scale );
+
+		// Get a random direction, and then modify by the "unit" aim direction (general movement in direction of target)
+		ran.v[X] = Random(21)-8;
+		ran.v[Y] = Random(21)-12;
+		ran.v[Z] = Random(21)-8;
+
+		MakeUnit( &ran );
+		ScaleVector( &ran, fx->accn*(float)min((i-0),(fx->numP-i))*Magnitude(&to) );
+		AddToVector( &to, &ran );
+		AddVector( &fx->sprites[i].pos, &source, &to );
+
+		// Randomly fork a new lightning strand
+		if( (Random(100)>98) && (i<fx->numP-h && i>h) && fx->fade < 4 ) // But not if we're near the end or we're more than 2 layers of forking deep already
+		{
+			VECTOR dir;
+			SPECFX *effect;
+			SubVector( &dir, &fx->sprites[i].pos, &source );
+			MakeUnit( &dir );
+			effect = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &fx->sprites[i].pos,
+												&dir, fx->scale.v[X]-Random(6), fx->speed*fr,
+												fx->accn, fx->startLife*fr );
+			effect->fade = ++fx->fade;
+			SetFXColour( effect, fx->r, fx->g, fx->b );
+		}
+	}
+
+	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
+		fx->deadCount = 5;
+}
+
+
+/*	--------------------------------------------------------------------------------
 	Function		: FreeSpecFXList
 	Purpose			: frees the fx linked list
 	Parameters		: 
@@ -1155,7 +1259,7 @@ void ProcessAttachedEffects( void *entity, int type )
 	if( fxDist < ACTOR_DRAWDISTANCEOUTER && actFrameCount > act->fxCount )
 	{
 		// Restart effect timer
-		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 0.8;
+		if( type == ENTITY_ENEMY && (flags & ENEMY_NEW_BABYFROG) ) r = 45;
 		else if( (int)act->value1 )
 		{
 			if( act->effects & EF_RANDOMCREATE )
@@ -1308,6 +1412,19 @@ void ProcessAttachedEffects( void *entity, int type )
 		fx->follow = act->actor;
 		SetAttachedFXColour( fx, act->effects );
 		act->effects &= ~EF_TRAIL;
+	}
+	else if( act->effects & EF_BILLBOARDTRAIL )
+	{
+		if( act->effects & EF_FAST )
+			fx = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 0.6 );
+		else if( act->effects & EF_SLOW )
+			fx = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 3 );
+		else
+			fx = CreateAndAddSpecialEffect( FXTYPE_BILLBOARDTRAIL, &act->actor->pos, &normal, act->value1, 0.95, 0.05, 2 );
+
+		fx->follow = act->actor;
+		SetAttachedFXColour( fx, act->effects );
+		act->effects &= ~EF_BILLBOARDTRAIL;
 	}
 }
 
