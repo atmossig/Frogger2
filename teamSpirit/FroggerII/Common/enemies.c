@@ -588,23 +588,19 @@ void UpdateEnemies()
 					float len;
 
 					tile = FindJoinedTileByDirection(currTile[0],&fwd);
-					
+
 					SetVector(&direction,&fwd);
 					MakeUnit(&direction);
 
-					SetVector(&frogDir,&frog[0]->actor->pos);
-					SubFromVector(&frogDir,&cur->nmeActor->actor->pos);
-					
+					SubVector( &frogDir, &frog[0]->actor->pos, &cur->nmeActor->actor->pos );
 					len = Magnitude(&frogDir);
 
-					MakeUnit(&frogDir);
-										
-					len = (len * DotProduct(&direction,&frogDir));
-					
-					ScaleVector(&direction,5);//len);	
+					//MakeUnit(&frogDir);
+					//len = (len * DotProduct(&direction,&frogDir));
 
+					ScaleVector(&direction,len);
 					AddToVector(&frog[0]->actor->pos,&direction);
-						
+
 					if (tile)
 						if (DistanceBetweenPointsSquared(&currTile[0]->centre,&frog[0]->actor->pos)>(40*40))
 					{
@@ -629,12 +625,8 @@ void UpdateEnemies()
 
 			AddToVector(&cur->currNormal,&cur->deltaNormal);
 
-//			NormalToQuaternion(&cur->nmeActor->actor->qRot,&cur->currNormal);
-//			or
-
 			if (!(cur->flags & ENEMY_NEW_FACEFORWARDS))
 			{
-				if (cur->flags & ENEMY_NEW_BACKWARDS) ScaleVector (&fwd,-1);
 				Orientate(&cur->nmeActor->actor->qRot,&fwd,&inVec,&cur->currNormal);
 			}
 			else
