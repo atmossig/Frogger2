@@ -30,7 +30,7 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
 	tPtr = spr->tex;
 
-	if(spr->a == 255)
+	if((spr->a == 255) && (!(spr->flags & (SPRITE_ADDITIVE | SPRITE_SUBTRACTIVE))))
 	{
 		alpha = 0;
 //		r = (spr->r * 128) >> 8;

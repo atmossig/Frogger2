@@ -306,6 +306,11 @@ void DrawFXRing(SPECFX *fx)
 		return;
 
 	SetVectorFF(&scale, &fx->scale);
+
+	scale.vx /= 150;
+	scale.vy /= 150;
+	scale.vz /= 150;
+
 	SetVectorFF(&normal, &fx->normal);
 	SetVectorSS(&pos, &fx->origin);
 

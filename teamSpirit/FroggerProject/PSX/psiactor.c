@@ -1680,7 +1680,8 @@ void actorResetAnimation ( ACTOR *actor )
 {
 }
 
-
+int initcroakscale = 0;
+int croaklife = 6000;
 char croakDir			= 0;
 void UpdateFrogCroak( int pl )
 {
@@ -1702,13 +1703,15 @@ void UpdateFrogCroak( int pl )
 		if( !(player[pl].isCroaking.time%2) )
 		{
 			SetVectorSS(&effectPos, &frog[pl]->actor->position);
-			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, 200, 0, 4, 6144 )) )
+			specFXAlpha = 128;
+			if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &effectPos, &currTile[pl]->normal, initcroakscale, 4096, 410, croaklife )) )
 			{
 				fx->spin = 20;
 				SetFXColour( fx, 191,255,0);
-				fx->a = 128;
-				fx->fade = 2;
+//				fx->a = 128;
+//				fx->fade = 2;
 			}
+			specFXAlpha = 255;
 			PlayVoice( pl, "frogcroak" );
 		}
 
@@ -1730,11 +1733,13 @@ void UpdateFrogCroak( int pl )
 				ScaleVector( &up, 20 );
 				AddVectorSFS( &pos, &up, &babyList[baby].baby->actor->position );
 
-				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[pl]->normal, 200, 0, 4, 6144 )) )
+				specFXAlpha = 128;
+				if( (fx = CreateSpecialEffectDirect( FXTYPE_CROAK, &pos, &currTile[pl]->normal, initcroakscale, 4096, 410, croaklife )) )
 				{
 					fx->spin = 25;
 					SetFXColour( fx, babyList[baby].fxColour[R], babyList[baby].fxColour[G], babyList[baby].fxColour[B] );
 				}
+				specFXAlpha = 255;
 
 				PlaySample( genSfx[GEN_BABYREPLY], &pos, 0, SAMPLE_VOLUME, -1 );
 			}
