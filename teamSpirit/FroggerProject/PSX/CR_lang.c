@@ -21,7 +21,6 @@
 
 LanguageDataType languageData;
 
-//bb
 int DoneLangSel = 0;
 
 static char *buttonName[] = 

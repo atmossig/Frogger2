@@ -75,7 +75,6 @@ SAMPLE voiceArray[4][MAX_VOICES];
 SAMPLE *genSfx[NUM_GENERIC_SFX];
 // SAMPLE **sfx_anim_map = NULL;
 
-//bbXAFileType	*xaFileData[NUM_CD_TRACKS];
 XAFileType	*xaFileData[MUSIC_NUM_TRACKS];
  
 // UINT mciDevice = 0;
