@@ -174,10 +174,7 @@ void CreateProceduralTexture( TextureType *tex, char *name )
 	if( name[4]=='f' && name[5]=='i' && name[6]=='r' && name[7]=='e' )
 		pt->Update = ProcessPTFire;
 	else if( name[4]=='f' && name[5]=='f' && name[6]=='l' && name[7]=='d' )
-	{
 		pt->Update = ProcessPTForcefield;
-		dissolveTex = pt;
-	}
 	else if( name[4]=='w' && name[5]=='a' && name[6]=='t' && name[7]=='r' )
 	{
 		if( name[8]=='r' )
@@ -202,6 +199,7 @@ void CreateProceduralTexture( TextureType *tex, char *name )
 	{
 		pt->Update = ProcessPTDissolve;
 		pt->active = 0;
+		dissolveTex = pt;
 	}
 }
 
