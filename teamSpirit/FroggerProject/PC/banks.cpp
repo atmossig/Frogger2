@@ -26,6 +26,10 @@ void LoadObjectBank(int objectBank)
 		case INGAMEGENERIC_OBJ_BANK:
 			strcpy(fileName, "gamegeneric"); break;
 
+		case MULTIPLAYER_OBJ_BANK:
+			strcpy(fileName, "multiplayer"); break;
+
+			
 // Garden
 
 		case GARDENMASTER_OBJ_BANK:
