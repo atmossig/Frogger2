@@ -103,8 +103,7 @@ extern float frogGravity;
 extern float doubleGravity;
 extern float floatGravity;
 
-
-
+extern BOOL cameoMode;
 
 // ----- [ FUNCTION PROTOTYPES ] ---------- //
 
@@ -113,6 +112,7 @@ void UpdateFroggerPos(long p);
 BOOL MoveToRequestedDestination(int dir,long pl);
 void HopFrogToTile(GAMETILE *tile, long pl);
 void GetNextTile(unsigned long direction,long pl);
+void PushFrog(VECTOR *where, VECTOR *direction, long pl);
 
 void CheckForFroggerLanding(int whereTo,long pl);
 void SlideFroggerPosition(ACTOR2 *actor2);

@@ -49,7 +49,7 @@ float frogGravity		= -9.0F;
 float doubleGravity		= -1.0F;
 float floatGravity		= -1.0F;
 
-
+BOOL cameoMode			= FALSE;
 
 /*	--------------------------------------------------------------------------------
 	Function		: SetFroggerStartPos
@@ -203,6 +203,123 @@ void SpringFrog( EVENT *event )
 
 */
 
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFroggerControls
+	Parameters		: player number
+	Returns			: void
+	Info			:
+*/
+BOOL UpdateFroggerControls(long pl)
+{
+	/* ----------------------- Frog wants to HOP u/d/l/r ----------------------------- */
+
+	if(player[pl].frogState & (FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD))
+	{
+		int dir;
+
+		if(player[pl].frogState & FROGSTATUS_ISWANTINGU)		dir = MOVE_UP;
+		else if(player[pl].frogState & FROGSTATUS_ISWANTINGD)	dir = MOVE_DOWN;
+		else if(player[pl].frogState & FROGSTATUS_ISWANTINGL)	dir = MOVE_LEFT;
+		else dir = MOVE_RIGHT;
+
+		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
+	
+		AnimateFrogHop((dir + camFacing) & 3,pl);
+		frogFacing[pl] = (frogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+
+		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+		//PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
+
+		if(!MoveToRequestedDestination(dir,pl))
+		{
+			if(currPlatform[pl])
+				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
+
+			player[pl].canJump = 1;
+
+			player[pl].frogState &=
+				~(FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|
+				FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD);
+
+			destTile[pl] = currTile[pl];
+		}
+	}
+
+  	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
+
+	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
+	{
+		int dir;
+		if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)		dir = MOVE_UP;
+		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)	dir = MOVE_DOWN;
+		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
+		else dir = MOVE_RIGHT;
+
+		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
+
+		AnimateFrogHop((dir + camFacing) & 3,pl);
+
+		nextFrogFacing[pl] = nextCamFacing;
+		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
+
+		if(!MoveToRequestedDestination(dir,pl))
+		{
+			if(currPlatform[pl])
+				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
+
+			player[pl].canJump = 1;
+
+			player[pl].frogState &=
+				~(FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|
+				FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD);
+
+			destTile[pl] = currTile[pl];
+		}
+
+		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
+
+//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
+	}
+
+	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
+
+	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD))
+	{
+		int dir;
+		if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPU)			dir = MOVE_UP;
+		else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPD)	dir = MOVE_DOWN;
+		else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPL)	dir = MOVE_LEFT;
+		else dir = MOVE_RIGHT;
+
+		AnimateFrogHop((dir + camFacing) & 3,pl);
+
+		nextFrogFacing[pl] = nextCamFacing;
+		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
+		
+		if(!MoveToRequestedDestination(dir,pl))
+		{
+			if(currPlatform[pl])
+				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
+
+			player[pl].canJump = 1;
+
+			player[pl].frogState &=
+				~(FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|
+				FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD);
+		}
+		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
+//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		PlayActorBasedSample(24,frog[pl]->actor,255,128);
+	}
+	else
+		return FALSE;	// nope, we didn't do nuffink
+
+	return TRUE;	// yep, we did somefink
+}
+
+
 float freeFall = 2.0F;
 
 short blurSize = 128;
@@ -211,6 +328,12 @@ char blurR = 0;
 char blurG = 255;
 char blurB = 0;
 
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateFroggerPos
+	Parameters		: player number
+	Returns			: void
+	Info			:
+*/
 void UpdateFroggerPos(long pl)
 {
 	float x,y,z;
@@ -220,6 +343,14 @@ void UpdateFroggerPos(long pl)
 	float dist,glowRange;
 	static float glowSeed = 0.0F;
 
+	if (cameoMode)
+	{
+		player[pl].frogState &= 
+			~(FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD |
+			FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR);
+		//player[pl].canJump = 0;
+	}
+	
 	if( player[pl].isQuickHopping )
 		player[pl].isQuickHopping--;
 
@@ -389,112 +520,10 @@ void UpdateFroggerPos(long pl)
 		}
 	}
 
-	/* ----------------------- Frog wants to HOP u/d/l/r ----------------------------- */
-
-	if(player[pl].frogState & (FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD))
-	{
-		int dir;
-
-		if(player[pl].frogState & FROGSTATUS_ISWANTINGU)		dir = MOVE_UP;
-		else if(player[pl].frogState & FROGSTATUS_ISWANTINGD)	dir = MOVE_DOWN;
-		else if(player[pl].frogState & FROGSTATUS_ISWANTINGL)	dir = MOVE_LEFT;
-		else dir = MOVE_RIGHT;
-
-		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
-	
-		AnimateFrogHop((dir + camFacing) & 3,pl);
-		frogFacing[pl] = (frogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-
-		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-		//PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
-
-		if(!MoveToRequestedDestination(dir,pl))
-		{
-			if(currPlatform[pl])
-				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
-
-			player[pl].canJump = 1;
-
-			player[pl].frogState &=
-				~(FROGSTATUS_ISWANTINGU|FROGSTATUS_ISWANTINGL|
-				FROGSTATUS_ISWANTINGR|FROGSTATUS_ISWANTINGD);
-
-			destTile[pl] = currTile[pl];
-		}
-	}
-
-  	/* ----------------------- Frog wants to SUPERHOP u/d/l/r ----------------------------- */
-
-	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD))
-	{
-		int dir;
-		if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPU)		dir = MOVE_UP;
-		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPD)	dir = MOVE_DOWN;
-		else if(player[pl].frogState & FROGSTATUS_ISWANTINGSUPERHOPL)	dir = MOVE_LEFT;
-		else dir = MOVE_RIGHT;
-
-		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
-
-		AnimateFrogHop((dir + camFacing) & 3,pl);
-
-		nextFrogFacing[pl] = nextCamFacing;
-		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
-
-		if(!MoveToRequestedDestination(dir,pl))
-		{
-			if(currPlatform[pl])
-				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
-
-			player[pl].canJump = 1;
-
-			player[pl].frogState &=
-				~(FROGSTATUS_ISWANTINGSUPERHOPU|FROGSTATUS_ISWANTINGSUPERHOPL|
-				FROGSTATUS_ISWANTINGSUPERHOPR|FROGSTATUS_ISWANTINGSUPERHOPD);
-
-			destTile[pl] = currTile[pl];
-		}
-
-		nextFrogFacing[pl] = (nextFrogFacing[pl] + ((camFacing + dir) - frogFacing[pl])) & 3;
-
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
-	}
-
-	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
-
-	else if(player[pl].frogState & (FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD))
-	{
-		int dir;
-		if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPU)			dir = MOVE_UP;
-		else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPD)	dir = MOVE_DOWN;
-		else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPL)	dir = MOVE_LEFT;
-		else dir = MOVE_RIGHT;
-
-		AnimateFrogHop((dir + camFacing) & 3,pl);
-
-		nextFrogFacing[pl] = nextCamFacing;
-		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
-		
-		if(!MoveToRequestedDestination(dir,pl))
-		{
-			if(currPlatform[pl])
-				player[pl].frogState |= FROGSTATUS_ISONMOVINGPLATFORM;
-
-			player[pl].canJump = 1;
-
-			player[pl].frogState &=
-				~(FROGSTATUS_ISWANTINGLONGHOPU|FROGSTATUS_ISWANTINGLONGHOPL|
-				FROGSTATUS_ISWANTINGLONGHOPR|FROGSTATUS_ISWANTINGLONGHOPD);
-		}
-		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-//		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
-		PlayActorBasedSample(24,frog[pl]->actor,255,128);
-	}
 
 	/* ---------------------------------------------------- */
 
-	else
+	if (cameoMode || !UpdateFroggerControls(pl))
 	{
 		// process frog's jump
 		if((player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE) && (destTile[pl]))
@@ -1572,13 +1601,14 @@ void RotateFrog ( ACTOR2 *frog, unsigned long fFacing )
 	Returns			: void
 */
 
-void HopFrogToTile(GAMETILE *tile, int pl)
+void HopFrogToTile(GAMETILE *tile, long pl)
 {
 	VECTOR v;
-	float maxdot, dot = 0.0;
+	float maxdot = 0.0, dot;
 	int j, dir = 0;
 
 	player[pl].frogState |= FROGSTATUS_ISJUMPINGTOTILE;
+	player[pl].canJump = 0;
 	destTile[pl] = tile;
 
 	SubVector(&v, &currTile[pl]->centre, &tile->centre);
@@ -1600,6 +1630,48 @@ void HopFrogToTile(GAMETILE *tile, int pl)
 		&frog[pl]->actor->pos, &currTile[pl]->normal,
 		&destTile[pl]->centre, &destTile[pl]->normal,
 		standardHopFrames, pl, hopGravity, NOINIT_VELOCITY);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: PushFrog
+	Purpose			: Push the frog in a given direction
+	Parameters		: VECTOR, VECTOR, long
+	Returns			: void
+*/
+void PushFrog(VECTOR *where, VECTOR *direction, long pl)
+{
+	VECTOR v;
+	GAMETILE *dest;
+	float maxdot = 0.0, dot;
+	int j, dir = 0;
+
+	for(j=0; j<4; j++)
+	{	
+		dot = DotProduct(&currTile[pl]->dirVector[j], direction);
+		if(dot > maxdot)
+		{
+			maxdot = dot;
+			dir = j; //(j - camFacing + 2) & 3;
+		}
+	}
+
+	MoveToRequestedDestination((dir - camFacing) & 3, pl);
+	//dest = currTile[pl]->tilePtrs[dir];
+
+	if (!destTile[pl]) return;
+
+	if (player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+		CalculateFrogJump(
+			&frog[pl]->actor->pos, &currTile[pl]->normal,
+			&destTile[pl]->centre, &destTile[pl]->normal,
+			standardHopFrames, pl, 0.0, NOINIT_VELOCITY);
+	else
+		CalculateFrogJump(
+			&frog[pl]->actor->pos, &currTile[pl]->normal,
+			&destTile[pl]->centre, &destTile[pl]->normal,
+			standardHopFrames, pl, 0.0, NOINIT_VELOCITY);
+
+	currTile[pl] = destTile[pl];
 }
 
 /*	--------------------------------------------------------------------------------
