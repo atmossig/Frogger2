@@ -1901,7 +1901,9 @@ void RunOptionsMenu(void)
 		if(fadingOut == 0)
 		{
 			gameState.mode = ARTVIEWER_MODE;
+#ifndef PC_VERSION
 			SpuSetKey(SPU_OFF,0xffffff);
+#endif
 			GTInit(&artTimer,10);
 			currentArt = 0;
 			goingToArtViewer = 0;
