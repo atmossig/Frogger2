@@ -412,10 +412,6 @@ void RunPauseMenu()
 				for(i=0; i<numBabies; i++)
 					babyIcons[i]->draw = 1;
 
-#ifdef N64_VERSION
-				// free memory associated with screen grab effects
-				FreeGrabData();
-#endif
 				return;
 			}
 			

@@ -659,7 +659,6 @@ void FreeAllLists()
 	FreeTransCameraList();
 #ifndef PC_VERSION
 	FreeLevelEntitys();
-	FreeGrabData();
 #endif
 	FreeLevelScript();
 	FreeMapBank();
