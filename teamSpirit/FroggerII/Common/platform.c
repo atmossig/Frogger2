@@ -71,11 +71,12 @@ void CalcNextPlatformDest(PLATFORM *plat);
 
 //----- [ PLATFORM UPDATE FUNCTIONS ] ------------------------------------------------------------
 
-void UpdatePathPlatform(PLATFORM *plat);
-void UpdatePathUpDownPlatform(PLATFORM *plat);
-void UpdateUpDownPlatform(PLATFORM *plat);
-void UpdateNonMovingPlatform(PLATFORM *plat);
-void UpdateStepOnActivatedPlatform(PLATFORM *plat);
+void UpdatePathPlatform(PLATFORM *);
+void UpdatePathUpDownPlatform(PLATFORM *);
+void UpdateUpDownPlatform(PLATFORM *);
+void UpdateNonMovingPlatform(PLATFORM *);
+void UpdateStepOnActivatedPlatform(PLATFORM *);
+void UpdateSlerpPathPlatform(PLATFORM *);
 
 
 /*	--------------------------------------------------------------------------------
@@ -435,7 +436,9 @@ PLATFORM *CreateAndAddPlatform(char *pActorName,int flags,long ID,PATH *path,flo
 	}
 
 	// determine relevant platform update function
-	if(newItem->flags & PLATFORM_NEW_FOLLOWPATH)
+	if (newItem->flags & PLATFORM_NEW_SLERPPATH)
+		newItem->Update = UpdateSlerpPathPlatform;
+	else if(newItem->flags & PLATFORM_NEW_FOLLOWPATH)
 		newItem->Update = UpdatePathPlatform;
 	else if(newItem->flags & (PLATFORM_NEW_MOVEUP | PLATFORM_NEW_MOVEDOWN))
 		newItem->Update = UpdateUpDownPlatform;
@@ -709,6 +712,73 @@ void FrogLeavePlatform(long pl)
 
 //----- [ PLATFORM UPDATE FUNCTIONS ] ------------------------------------------------------------
 
+/*	--------------------------------------------------------------------------------
+	Function		: UpdatePathSlerpPlatform
+	Purpose			: Platforms that move in a smooth curve along a path (using Jim's slerpy code)
+	Parameters		: PLATFORM*
+	Returns			: void
+	Info			: Use offset2 for slerp speed.
+*/
+void UpdateSlerpPathPlatform( PLATFORM *cur )
+{
+	QUATERNION q1, q2, q3;
+	VECTOR fromPosition,toPosition, fwd, moveVec;
+	PATH *path = cur->path;
+	ACTOR *act = cur->pltActor->actor;
+	float speed, t;
+	
+	// Find the position of the current 2 nodes
+	GetPositionForPathNode(&toPosition,&path->nodes[path->toNode]);
+	
+	// Set direction to desired point
+	SubVector(&fwd,&toPosition,&act->pos);
+	MakeUnit(&fwd);
+
+	SetQuaternion( &q1, &act->qRot );
+
+	// Skewer a line to rotate around, and make a rotation
+	CrossProduct((VECTOR *)&q3,&inVec,&fwd);
+	t = DotProduct(&inVec,&fwd);
+	if (t<-0.999)
+		t=-0.999;
+	if (t>0.999)
+		t = 0.999;
+	q3.w=acos(t);
+	// Duh.
+	GetQuaternionFromRotation(&q2,&q3);
+
+	// Slerp between current and desired orientation
+	speed = path->nodes[path->fromNode].offset2 * gameSpeed;
+	if( speed > 0.999 ) speed = 0.999;
+	QuatSlerp( &q1, &q2, speed, &act->qRot );
+
+	// Move forwards a bit in direction of facing
+	RotateVectorByQuaternion( &fwd, &inVec, &act->qRot );
+	ScaleVector( &fwd, cur->currSpeed*gameSpeed );
+
+	AddToVector( &act->pos, &fwd );
+
+//	AddToVector(&cur->currNormal,&cur->deltaNormal);
+
+	// Update path nodes
+	if( DistanceBetweenPointsSquared(&act->pos,&toPosition) < 100 )
+	{
+		UpdatePlatformPathNodes(cur);
+
+		cur->path->startFrame = actFrameCount + cur->isWaiting * waitScale;
+	}
+
+	// Set inTile
+	GetPositionForPathNode(&fromPosition,&path->nodes[path->fromNode]);
+	GetPositionForPathNode(&toPosition,&path->nodes[path->toNode]);
+
+	t = DistanceBetweenPoints(&fromPosition,&toPosition) / 2.0F;
+
+	if(DistanceBetweenPointsSquared(&fromPosition,&act->pos) < (t*t))
+		cur->inTile[0] = path->nodes[path->fromNode].worldTile;
+	else
+		cur->inTile[0] = path->nodes[path->toNode].worldTile;
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdatePathPlatform

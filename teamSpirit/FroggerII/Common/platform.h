@@ -35,9 +35,9 @@
 #define PLATFORM_NEW_NOWALKUNDER		(1 << 15)	// platform cannot be walked under
 #define PLATFORM_NEW_KILLSFROG			(1 << 16)	// platform kills when it moves over frog
 #define PLATFORM_NEW_FACEFORWARDS		(1 << 17)	// face same direction
-
 #define PLATFORM_NEW_SHAKABLESCENIC		(1 << 18)	// platform is actually a shakable scenic
 #define PLATFORM_NEW_SHADOW				(1 << 19)	// Has a shadow
+#define PLATFORM_NEW_SLERPPATH			(1 << 20)	// Use slerp-based algorithm to smoothly follow the path
 
 typedef struct TAGPLATFORM
 {
