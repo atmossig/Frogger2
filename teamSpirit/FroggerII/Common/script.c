@@ -662,7 +662,7 @@ void LoadTestScript(const char* filename)
 	long size, read;
 	UBYTE* buffer;
 	
-	dprintf"Testing script %s\nf", filename));
+	dprintf"Testing script %s\n", filename));
 
 	h = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
