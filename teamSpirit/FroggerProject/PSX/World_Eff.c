@@ -590,3 +590,6 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 }
 
+void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal )
+{
+}

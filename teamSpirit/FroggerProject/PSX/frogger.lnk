@@ -82,6 +82,7 @@ bss     group   bss
 	include "audio.obj"
 	include "particle.obj"
 	include "psxsprite.obj"
+	include "ptexture.obj"
 
 
 ;	include "ANIM.obj"

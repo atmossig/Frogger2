@@ -1363,7 +1363,7 @@ void LSCAPE_DrawSortedPrimitives(int depth)
 
 	gte_ReadGeomScreen(&gteH);
 
-	depth=depth>>2;
+	depth = depth >> 2;
 
 	// SL: get the fogdepth, and modge it accordingly.
 	fogdepth = 10000;//(depth << (2+1/*LSCAPE_Data.depthshift*/));
