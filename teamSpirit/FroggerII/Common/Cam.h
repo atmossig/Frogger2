@@ -23,8 +23,8 @@
 typedef struct TAGTRANSCAMERA
 {
 	GAMETILE		*tile;
-	short			dirCamMustFace;
-	short			flags;
+	unsigned long		dirCamMustFace;
+	unsigned long		flags;
 	VECTOR			camOffset;
 
 	struct TAGTRANSCAMERA	*next;
@@ -74,20 +74,19 @@ extern short	cameraShake;
 
 extern char		controlCamera;
 extern char		fixedDir;
+extern char		fixedSource;
 extern char		fixedPos;
 
 extern TRANSCAMERA *transCameraList;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-extern void InitCameraForLevel(unsigned long worldID,unsigned long levelID);
+void InitCameraForLevel(unsigned long worldID,unsigned long levelID);
 
-extern TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ, unsigned long flags);
-extern void CheckForDynamicCameraChange(GAMETILE *tile);
-extern void FreeTransCameraList();
+TRANSCAMERA *CreateAndAddTransCamera(GAMETILE *tile,unsigned long dirCamMustFace,float offsetX,float offsetY,float offsetZ, unsigned long flags);
+void CheckForDynamicCameraChange(GAMETILE *tile);
+void FreeTransCameraList();
 
-extern void ChangeCameraSetting();
-
-extern void ShowCamInfo();
+void ChangeCameraSetting();
 
 #endif

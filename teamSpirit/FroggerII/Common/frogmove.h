@@ -86,44 +86,33 @@ extern GAMETILE *currTile[];
 extern GAMETILE *destTile[];
 extern GAMETILE *prevTile;
 
-extern GAMETILE *currTile2;
-extern GAMETILE *destTile2;
-
-//extern unsigned long frogState;
-extern unsigned long frogState2;
-
 extern float landRadius;
 
-extern unsigned long d;
-extern unsigned long iceTileX;
-extern unsigned long iceTileY;
-extern unsigned long iceTileZ;
 extern unsigned long ice[];
 
-extern int			frogFacing[4];
-extern int			frogFacing2;
+extern int frogFacing[4];
 
 extern float speedTest;
 
 // ----- [ FUNCTION PROTOTYPES ] ---------- //
 
-void SetFroggerStartPos(GAMETILE *startTile,ACTOR2 *act,long p);
+void SetFroggerStartPos(GAMETILE *startTile,long p);
 void UpdateFroggerPos(long p);
 BOOL MoveToRequestedDestination(int dir,long pl);
-void GetNextTile(unsigned long direction, long pl);
+void GetNextTile(unsigned long direction,long pl);
 
 void SlurpFroggerPosition(int whereTo,long pl);
 
 void CheckForFroggerLanding(int whereTo,long pl);
-void SlideFroggerPosition ( ACTOR2 *actor2 );
+void SlideFroggerPosition(ACTOR2 *actor2);
 
 BOOL GameTileTooHigh(GAMETILE *tile,long pl);
 BOOL GameTileTooLow(GAMETILE *tile,long pl);
 
-BOOL KillFrog(ACTOR2 *frogAct,long pl);
+BOOL KillFrog(long pl);
 
-void GetNextTileLongHop ( unsigned long direction );
-void RotateFrog ( ACTOR2* frog, unsigned long fFacing );
+void GetNextTileLongHop (unsigned long direction);
+void RotateFrog(ACTOR2* frog,unsigned long fFacing);
 
 
 #endif

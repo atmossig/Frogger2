@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -32,7 +32,7 @@ void RunLanguageSelect()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 
 		currFont	= smallFont;
 		british		= CreateAndAddTextOverlay(100,122,"english",YES,NO,200,255,200,91,currFont,TEXTOVERLAY_WAVECHARS,6,0);
@@ -88,7 +88,7 @@ void RunLanguageSelect()
 		switch (currentSelection)
 		{
 			case 0:
-				british->a = 255 * fabs(sinf(frameCount/12.5));
+				british->a = 255 * Fabs(sinf(frameCount/12.5));
 				british->waveAmplitude = 6.0F;
 				british->r = british->g = british->b = 255;
 				break;

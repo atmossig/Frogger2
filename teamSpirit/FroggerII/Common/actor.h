@@ -15,9 +15,10 @@
 
 //----- [ ACTOR2 DRAWING FLAGS ] -----//
 
-#define	ACTOR_DRAW_NEVER			(1 << 0)
-#define ACTOR_DRAW_CULLED			(1 << 1)
-#define ACTOR_DRAW_ALWAYS			(1 << 2)
+#define	ACTOR_DRAW_NEVER			(1 << 0)	//1
+#define ACTOR_DRAW_CULLED			(1 << 1)	//2
+#define ACTOR_DRAW_ALWAYS			(1 << 2)	//4
+#define ACTOR_DRAW_LAST				(1 << 3)	//8
 
 
 //------------------------------------------------------------------------------------------------
@@ -27,19 +28,21 @@ typedef struct TAGACTION
 {	
 //	QUATERNION rot;
 	
-	//Babies Stuff
+	// baby stuff
 	unsigned long isSaved;
+	unsigned char fxColour[4];
 
+	// non-baby stuff
 	unsigned long safe;
 	unsigned long stun;
 
-	long frogon;
-	long frogunder;
+	unsigned long frogon;
+	unsigned long frogunder;
 
-	unsigned long lives;
+	unsigned long healthPoints;
 	unsigned long dead;
 	unsigned long deathBy;
-	
+
 	unsigned long isCroaking;
 	unsigned long isTeleporting;
 	unsigned long isOnFire;
@@ -57,6 +60,7 @@ typedef struct TAGACTOR2
 	char			draw;
 	int				flags;
 	float			radius;
+	float			angle;
 	float			animSpeed;
 	float			value1;
 
@@ -76,6 +80,11 @@ extern float ACTOR_DRAWDISTANCEOUTER;
 extern int objectMatrix;
 
 extern ACTOR2 *actList;
+extern ACTOR2 *globalLevelActor;
+
+extern char uniqueEnemyCount[20];
+extern int uniqueActorCRC[];
+extern char numUniqueActors;
 
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode);
 void DrawActorList();
@@ -88,5 +97,15 @@ void FreeObjectSprites(OBJECT *obj);
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
 void SetActorCollisionRadius(ACTOR2 *act,float radius);
 
+void MakeUniqueActor(ACTOR *actor,int type);
+void RemoveUniqueActor(ACTOR *actor,int type);
+
+void MakeUniqueVtx(OBJECT_CONTROLLER *objC);
+OBJECT *MakeUniqueObject(OBJECT *object);
+void RemoveUniqueObject(OBJECT *object);
+
+void ResetUniqueActorList();
+
+void CopyDrawlist(u8 *dest,u8 *source);
 
 #endif

@@ -30,23 +30,8 @@ enum
 
 enum
 {
-	SMOKE_TYPE_NORMAL,
-	SMOKE_TYPE_FLAMING,
-	SMOKE_TYPE_POWERUP,
-};
-
-enum
-{
-	SWARM_TYPE_STARSTUN,
-	SWARM_TYPE_FLIES,
-	SWARM_TYPE_CROWS,
-};
-
-enum
-{
 	EXPLODEPARTICLE_TYPE_NORMAL,
 	EXPLODEPARTICLE_TYPE_TRIGGERRIPPLE,
-	EXPLODEPARTICLE_TYPE_COLOURBURST,
 	EXPLODEPARTICLE_TYPE_SMOKEBURST,
 };
 
@@ -72,16 +57,6 @@ typedef struct TAGFX_SMOKELIST
 } FX_SMOKELIST;
 
 
-//----- [ SWARM SPECIAL FX ] -----//
-
-typedef struct TAGFX_SWARMLIST
-{
-	int					numEntries;
-	FX_SWARM			head;
-
-} FX_SWARMLIST;
-
-
 //----- [ PAPTICLE EXPLODE SPECIAL FX ] -----//
 
 typedef struct TAGFX_EXPLODEPARTICLELIST
@@ -96,11 +71,7 @@ typedef struct TAGFX_EXPLODEPARTICLELIST
 
 extern FX_RIPPLELIST rippleFXList;
 extern FX_SMOKELIST smokeFXList;
-extern FX_SWARMLIST swarmFXList;
 extern FX_EXPLODEPARTICLELIST explodeParticleFXList;
-
-extern VECTOR debug_globalVectorPoint;
-extern VECTOR debug_globalVectorNormal;
 
 extern char doScreenFade;
 extern char	fadeDir;
@@ -119,17 +90,11 @@ extern void AddFXRipple(FX_RIPPLE *ripple);
 extern void SubFXRipple(FX_RIPPLE *ripple);
 extern void UpdateFXRipples();
 
-extern FX_SMOKE *CreateAndAddFXSmoke(char smokeType,VECTOR *origin,short size,float velocity,float acceleration,float lifetime);
+extern FX_SMOKE *CreateAndAddFXSmoke(VECTOR *origin,short size,float lifetime);
 extern void FreeFXSmokeLinkedList();
 extern void AddFXSmoke(FX_SMOKE *smoke);
 extern void SubFXSmoke(FX_SMOKE *smoke);
 extern void UpdateFXSmoke();
-
-extern FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset);
-extern void FreeFXSwarmLinkedList();
-extern void AddFXSwarm(FX_SWARM *swarm);
-extern void SubFXSwarm(FX_SWARM *swarm);
-extern void UpdateFXSwarm();
 
 extern FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origin,VECTOR *normal,float maxSpeed,short size,PLANE2 *reboundPlane,float lifetime);
 extern void FreeFXExplodeParticleLinkedList();

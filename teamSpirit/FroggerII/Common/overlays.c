@@ -21,8 +21,6 @@ SPRITEOVERLAY *bronzeCup[8];
 SPRITEOVERLAY *silverCup[8];
 SPRITEOVERLAY *goldCup[8];
 
-SPRITEOVERLAY *backPanel;
-
 /*	--------------------------------------------------------------------------------
 	Function		: CreateAndAddSpriteOverlay
 	Purpose			: creates and adds a sprite overlay to the list
@@ -56,7 +54,7 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short wi
 	newItem->animTime	= 0.0F;
 	newItem->animSpeed	= 1.0F;
 	newItem->numFrames	= 0;
-	FindTexture(&newItem->frames[newItem->numFrames++],UpdateCRC(txtrName),YES,txtrName);
+	FindTexture(&newItem->frames[newItem->numFrames++],UpdateCRC(txtrName),YES);
 
 	return newItem;
 }
@@ -73,7 +71,7 @@ void AddFrameToSpriteOverlay(SPRITEOVERLAY *sOver,char *txtrName)
 {
 	short i = 0;
 	
-	FindTexture(&sOver->frames[sOver->numFrames++],UpdateCRC(txtrName),YES,txtrName);
+	FindTexture(&sOver->frames[sOver->numFrames++],UpdateCRC(txtrName),YES);
 
 	// check animation flags to determine where animation starts (frame)
 	if(sOver->flags & ANIMATION_FORWARDS)

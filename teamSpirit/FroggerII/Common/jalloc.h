@@ -14,7 +14,7 @@ typedef unsigned char 	uchar;
 typedef unsigned long	ulong;
 
 #ifndef PC_VERSION
-#define MAXJALLOCS	1280
+#define MAXJALLOCS	1600	//1280
 #else
 #define MAXJALLOCS	4096
 #endif
@@ -46,7 +46,7 @@ UBYTE *JallocAllocDynamic(LONG size, int clear,char *name);
 UBYTE *JallocAllocStatic(LONG size, int clear,char *name);
 void JallocFree(UBYTE **blk);
 BOOL JallocFreeDynamic(UBYTE **blk);
-BOOL JallocFreeStaticic(UBYTE **blk);
+BOOL JallocFreeStatic(UBYTE **blk);
 void JallocReset();
 void ShowJalloc();
 void memclear(char *data, int size);

@@ -18,6 +18,11 @@
 #define Y 1
 #define Z 2
 
+#define R	0
+#define G	1
+#define B	2
+#define A	3
+
 #define YES 1
 #define NO  0
 #define ON  1
@@ -40,30 +45,33 @@
 #define INIT_SWARM		(1 << 2)
 
 //object flags
-#define OBJECT_FLAGS_GOURAUD_SHADED	(1 << 0)
-#define OBJECT_FLAGS_XLU			(1 << 1)
-#define OBJECT_FLAGS_TRANSPARENT	(1 << 2)
-#define OBJECT_FLAGS_PRELIT			(1 << 3)
-#define OBJECT_FLAGS_XFORMMESH		(1 << 4)
-#define OBJECT_FLAGS_MODGE			(1 << 5)
-#define OBJECT_FLAGS_CONSTANIM		(1 << 6)
-#define OBJECT_FLAGS_IA				(1 << 7)
+#define OBJECT_FLAGS_GOURAUD_SHADED			   	(1<<0)
+#define OBJECT_FLAGS_XLU					   	(1<<1)
+#define OBJECT_FLAGS_TRANSPARENT			   	(1<<2)
+#define OBJECT_FLAGS_PRELIT					   	(1<<3)
+#define OBJECT_FLAGS_MIP_MAP				   	(1<<4)
+#define OBJECT_FLAGS_MODGE					   	(1<<5)
+#define OBJECT_FLAGS_TEXTURE_BLEND			   	(1<<6)
+#define OBJECT_FLAGS_IA						   	(1<<7)
+#define OBJECT_FLAGS_PHONG					   	(1<<8)
+#define OBJECT_FLAGS_FADEOUT				   	(1<<9)
+#define OBJECT_FLAGS_FACE_COLOUR			   	(1<<10)
+#define OBJECT_FLAGS_OBJECT_COLOUR			   	(1<<11)
+#define OBJECT_FLAGS_TEXTURE_BLEND_ENV		   	(1<<12)
+#define OBJECT_FLAGS_COLOUR_BLEND			   	(1<<13)
+#define OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT   	(1<<14)
 
 
 //--------------
 #define Max(p1,p2)	(((p1) > (p2)) ? (p1) : (p2))
 #define Min(p1,p2)	(((p1) > (p2)) ? (p2) : (p1))
 
-#ifndef min
 #define min Min
-#endif
-#ifndef max
 #define max Max
-#endif
 
 #define BOOL	int
 
-
+#define SKINNED_SEG (1<<24)
 
 typedef struct
 {
@@ -105,6 +113,11 @@ typedef struct
 typedef struct
 {
 	unsigned short	v[2];
+}USHORT2DVECTOR;
+
+typedef struct
+{
+	short	v[2];
 }SHORT2DVECTOR;
 
 typedef struct
@@ -119,12 +132,7 @@ typedef struct
 
 typedef struct
 {
-	unsigned short v[2];
-}USHORT2DVECTOR;
-
-typedef struct
-{
-	char r,g,b,a;
+	UBYTE r,g,b,a;
 }COLOUR;
 
 
@@ -182,13 +190,22 @@ typedef struct
 
 typedef struct
 {
-	VECTOR	offset;
+/*	VECTOR	offset;
 	VECTOR	oldOffset;
 	float	radius;
 	float	radiusAim;
 	UBYTE	posTag;
 	UBYTE	quatTag;
 	short	flags;
+*/
+	VECTOR	offset;
+	float	radius;
+	float	radiusAim;
+	VECTOR	oldOffset;
+	UBYTE	posTag;
+	UBYTE	quatTag;
+	short	flags;
+
 }COLLSPHERE;
 
 
@@ -199,15 +216,27 @@ typedef struct
 	VECTOR			*vertices;
 	SHORTVECTOR		*faceIndex;
 	BYTEVECTOR		*faceNormals;
+	USHORT2DVECTOR	*faceTC;
+	USHORT2DVECTOR	*originalFaceTC;
+	BYTEVECTOR		*vertexNormals;
+	char		 	*faceFlags;
+	TEXTURE			**textureIDs;
+/*
+
+	short			numFaces;
+	short			numVertices;
+	VECTOR			*vertices;
+	SHORTVECTOR		*faceIndex;
+	BYTEVECTOR		*faceNormals;
 	SHORT2DVECTOR	*faceTC;
 	SHORT2DVECTOR	*originalFaceTC;
 	BYTEVECTOR		*vertexNormals;
 	char		 	*faceFlags;
-	TEXTURE			**textureIDs;
+	TEXTURE			**textureIDs;*/
 }MESH;
 
 
-typedef struct
+/*typedef struct
 {
 	union
 	{
@@ -215,8 +244,19 @@ typedef struct
 		VECTOR	vect;
 	}u;
 	int	time;
-}KEYFRAME;
+}KEYFRAME;*/
 
+typedef struct
+{
+	VECTOR	vect;
+	int	time;
+}VKEYFRAME;
+
+typedef struct
+{
+	QUATERNION	quat;
+	int	time;
+}QKEYFRAME;
 
 typedef struct
 {
@@ -253,7 +293,26 @@ typedef struct
 	float		queueAnimationSpeed[ANIM_QUEUE_LENGTH];
 	short 		numberQueued;
 	animation	*anims;
-	float		animTime;//, animTimeDelta;
+	float		animTime;
+	char		queueNumMorphFrames[ANIM_QUEUE_LENGTH];
+	BYTE		numMorphFrames;
+	char		currentMorphFrame;
+	float		morphTo;
+	float		morphFrom;
+/*
+
+
+	short		numAnimations;
+	short		currentAnimation;
+	BOOL		reachedEndOfAnimation;
+	BOOL		loopAnimation;
+	float		animationSpeed;
+	short		queueAnimation[ANIM_QUEUE_LENGTH];
+	BOOL		queueLoopAnimation[ANIM_QUEUE_LENGTH];
+	float		queueAnimationSpeed[ANIM_QUEUE_LENGTH];
+	short 		numberQueued;
+	animation	*anims;
+	float		animTime;//, animTimeDelta;*/
 }ACTOR_ANIMATION;
 
 typedef struct
@@ -261,7 +320,7 @@ typedef struct
 	TEXTURE **texture;
 	short	numFrames;
 	short	overrideNumFrames;
-	char	filename[8];
+	char	filename[16];
 }FRAMELIST;
 
 typedef struct
@@ -288,14 +347,45 @@ typedef struct
 	USHORT		endScale;
 	USHORT		spriteFlags;
 	USHORT		lifespan;
+	USHORT		currentFrame;
+	float		counter;
+	float		lifetime;
+//	USHORT		pad;
+/*
+
+	FRAMELIST	*frameList;
+	UBYTE		delay;
+	UBYTE		type;
+	UBYTE		startAlpha;
+	UBYTE		endAlpha;
+	USHORT		startScale;
+	USHORT		endScale;
+	USHORT		spriteFlags;
+	USHORT		lifespan;
 	USHORT		lifetime;
 	UBYTE		currentFrame;
-	BYTE		counter;
+	BYTE		counter;*/
 }SPRITE_ANIMATION;
 
 typedef struct TAGSPRITE
 {
 	struct TAGSPRITE *next,*prev;
+
+	TEXTURE *texture;
+	VECTOR pos;
+	short scaleX;
+	short scaleY;
+	short flags;
+	UBYTE r,g,b,a;
+	UBYTE red2,green2,blue2,alpha2;
+	BYTE  offsetX;
+	BYTE  offsetY;
+	SPRITE_ANIMATION anim;
+
+	char kill;
+
+
+/*	struct TAGSPRITE *next,*prev;
 
 	TEXTURE *texture;
 	VECTOR pos;
@@ -309,7 +399,7 @@ typedef struct TAGSPRITE
 	UBYTE flags;
 	BYTE  offsetX;
 	BYTE  offsetY;
-	SPRITE_ANIMATION anim;
+	SPRITE_ANIMATION anim;*/
 }SPRITE;
 
 typedef struct OBJECTSPRITE
@@ -325,9 +415,73 @@ typedef struct OBJECTSPRITE
 }OBJECTSPRITE;
 
 
+typedef struct
+{
+	FRAMELIST	*frameList;
+	UBYTE		delay;
+	UBYTE		flags;
+	UBYTE		currentFrame;
+	BYTE		counter;
+}TEXTURE_ANIMATION;
+
+typedef struct
+{
+	s16		*verts;
+//	Vtx		**verts;
+	char	numVerts;
+}SKINVTX;
+
+typedef struct
+{
+	float	v[3];
+	s8		n[3];
+}DUELVECTOR; 
+
+
 typedef struct OBJECT
 {
-	int			objID;
+	u32			objID;
+	u8			name[16];
+	short		pixelOutAlpha;
+	u8			xlu;
+
+	u8			numSprites;
+	OBJECTSPRITE	*sprites;
+
+	//for non skinned objects
+	MESH		*mesh;
+	Gfx			*drawList;
+
+	TEXTURE_ANIMATION *textureAnim;
+	//for skinning
+	SKINVTX		*effectedVerts;
+//	Vtx			**effectedVerts;
+	DUELVECTOR	*originalVerts;
+
+	short		numVerts;
+
+
+	VKEYFRAME	*scaleKeys;
+	VKEYFRAME	*moveKeys;
+	QKEYFRAME	*rotateKeys;
+	short		numScaleKeys;
+	short		numMoveKeys;
+	short		numRotateKeys;
+
+	COLOUR		colour;
+	TEXTURE		*phongTex;	
+
+	short		flags;
+
+	short		numChildren;
+	struct OBJECT	*children;
+	struct OBJECT	*next;
+
+	COLLSPHERE	*collSphere;
+	Mtx			objMatrix;
+
+
+/*	int			objID;
 	char		name[8];
 	u8			active;
 	u8			xlu;
@@ -353,7 +507,7 @@ typedef struct OBJECT
 	struct		OBJECT	*children;
 	struct		OBJECT	*next;
 	COLLSPHERE	*collSphere;
-	Mtx			myMatrix;
+	Mtx			myMatrix;*/
 }OBJECT;
 
 typedef struct
@@ -361,11 +515,25 @@ typedef struct
 	int		objectID;
 
 	Mtx		*matrix;
-	int		objectSize;
+	short	objectSize;
 	OBJECT	*object;
 	float	radius;
 	PLANE	*planes;
 	ACTOR_ANIMATION	*animation;
+	Gfx		*drawList;
+	Vtx		*vtx[2];
+	MESH	*LOCMesh;
+	short	vtxBuf;
+	short	numVtx;
+
+	/*int		objectID;
+
+	Mtx		*matrix;
+	int		objectSize;
+	OBJECT	*object;
+	float	radius;
+	PLANE	*planes;
+	ACTOR_ANIMATION	*animation;*/
 }OBJECT_CONTROLLER;
 
 
@@ -386,7 +554,52 @@ typedef struct
 
 typedef struct TAGACTOR
 {
-	struct TAGACTOR				*next;
+	struct TAGACTOR				*next,*prev;
+//	struct TAGACTOR				*collNext,*collPrev;
+//	struct TAGACTOR				*distNext,*distPrev;
+	float						distanceFromCamera;
+
+	Mtx							*matrix;
+	SHORT						type;
+	SHORT						objectType;
+	BYTE						status;
+	UBYTE						sparkly;
+	float						lifetime;
+	short						xluOverride;
+	int							flags;
+	struct TAGACTOR				*owner;
+
+	float						maxRadius;
+//vitals struct
+	VECTOR						pos;
+	VECTOR						oldpos;
+	VECTOR						vel;
+	VECTOR						oldVel;
+	float						velInertia;
+	float						speed;
+	VECTOR						rot;
+	VECTOR						rotaim;
+	VECTOR						rotvel;
+								
+	QUATERNION					qRot;
+												
+	VECTOR	  					scale;
+//end
+	OBJECT_CONTROLLER			*objectController;
+	OBJECT_CONTROLLER			*LODObjectController;
+	ACTOR_SHADOW				*shadow;
+//	ACTOR_BEHAVIOUR				*behaviour;
+//	ACTOR_STATS					*stats;
+//	ACTOR_COLLISION				*collision;	
+	ACTOR_ANIMATION				*animation;
+	PLANE  						*planes;
+//	struct TAG_THOUGHT_BUBBLE	*thoughtBubble;
+	OBJECT_CONTROLLER			*shatterBit;
+//	CLUSTER						*cluster;
+	int							visible;
+
+
+/*	struct TAGACTOR				*next;
 
 	Mtx							*matrix;
 	SHORT						type;
@@ -416,7 +629,7 @@ typedef struct TAGACTOR
 	BYTEVECTOR					color;
 	BYTEVECTOR					currentcolor;
 	unsigned long	loopCount;
-	int rotateAboutY;
+	int rotateAboutY; */
 }ACTOR;
 
 typedef struct TAGTEXT

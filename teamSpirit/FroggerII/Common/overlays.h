@@ -53,8 +53,6 @@ extern SPRITEOVERLAY *bronzeCup[8];
 extern SPRITEOVERLAY *silverCup[8];
 extern SPRITEOVERLAY *goldCup[8];
 
-extern SPRITEOVERLAY *backPanel;
-
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
 extern SPRITEOVERLAY *CreateAndAddSpriteOverlay(short x,short y,char *txtrName,short width,short height,char r,char g,char b,char a,short flags);

@@ -7,7 +7,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 #include "incs.h"
@@ -15,11 +15,7 @@
 
 FX_RIPPLELIST rippleFXList;
 FX_SMOKELIST smokeFXList;
-FX_SWARMLIST swarmFXList;
 FX_EXPLODEPARTICLELIST explodeParticleFXList;
-
-VECTOR debug_globalVectorPoint	= { 0,0,0 };
-VECTOR debug_globalVectorNormal = { 0,1,0 };
 
 char doScreenFade	= 0;
 char fadeDir		= FADE_OUT;
@@ -45,6 +41,7 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 	FX_RIPPLE *ripple;
 
 	ripple = (FX_RIPPLE *)JallocAlloc(sizeof(FX_RIPPLE),YES,"FX_RIP");
+	AddFXRipple(ripple);
 	
 	// set centre of ripple
 	SetVector(&ripple->origin,origin);
@@ -85,7 +82,7 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 	switch(rippleType)
 	{
 		case RIPPLE_TYPE_WATER:
-			FindTexture(&ripple->txtr,UpdateCRC("ai_ripple.bmp"),YES,"ai_ripple.bmp");
+			FindTexture(&ripple->txtr,UpdateCRC("ai_ripple.bmp"),YES);
 			break;
 		
 		case RIPPLE_TYPE_DUST:
@@ -93,19 +90,19 @@ FX_RIPPLE *CreateAndAddFXRipple(char rippleType,VECTOR *origin,VECTOR *normal,fl
 			ripple->alphaSpeed >>= 1;
 			ripple->yRotSpeed = -16 + Random(32);
 			ripple->origin.v[Y]++;
-			FindTexture(&ripple->txtr,UpdateCRC("ai_wake.bmp"),YES,"ai_wake.bmp");
+			FindTexture(&ripple->txtr,UpdateCRC("ai_wake.bmp"),YES);
 			break;
 		
 		case RIPPLE_TYPE_PICKUP:
 			ripple->yRotSpeed = 24;
 			ripple->origin.v[Y] += 10;
-			FindTexture(&ripple->txtr,UpdateCRC("ai_star.bmp"),YES,"ai_star.bmp");
+			FindTexture(&ripple->txtr,UpdateCRC("ai_star.bmp"),YES);
 			break;
 		
 		case RIPPLE_TYPE_CROAK:
 		case RIPPLE_TYPE_RING:
 		case RIPPLE_TYPE_TELEPORT:
-			FindTexture(&ripple->txtr,UpdateCRC("ai_ring.bmp"),YES,"ai_ring.bmp");
+			FindTexture(&ripple->txtr,UpdateCRC("ai_ring.bmp"),YES);
 			break;
 	}
 
@@ -236,7 +233,7 @@ void UpdateFXRipples()
 	Returns			: FX_SMOKE *
 	Info			: 
 */
-FX_SMOKE *CreateAndAddFXSmoke(char smokeType,VECTOR *origin,short size,float velocity,float acceleration,float lifetime)
+FX_SMOKE *CreateAndAddFXSmoke(VECTOR *origin,short size,float lifetime)
 {
 	FX_SMOKE *smoke;
 
@@ -246,17 +243,19 @@ FX_SMOKE *CreateAndAddFXSmoke(char smokeType,VECTOR *origin,short size,float vel
 	SetVector(&smoke->sprite.pos,origin);
 
 	smoke->alphaSpeed		= 255 / lifetime;
-	smoke->velocity			= velocity;
-	smoke->accel			= acceleration;
 	smoke->lifetime			= lifetime;
 	
-	FindTexture(&smoke->sprite.texture,UpdateCRC("ai_smoke.bmp"),YES,"ai_smoke.bmp");
+	FindTexture(&smoke->sprite.texture,UpdateCRC("ai_smoke.bmp"),YES);
 	smoke->sprite.scaleX	= size;
 	smoke->sprite.scaleY	= size;
 	smoke->sprite.r			= 255;
 	smoke->sprite.g			= 255;
 	smoke->sprite.b			= 255;
 	smoke->sprite.a			= 255;
+
+	smoke->velocity.v[X]	= -2 + Random(5);
+	smoke->velocity.v[Y]	= Random(6) + 8;
+	smoke->velocity.v[Z]	= -2 + Random(5);
 
 #ifndef PC_VERSION
 	smoke->sprite.offsetX	= -smoke->sprite.texture->sx / 2;
@@ -380,238 +379,16 @@ void UpdateFXSmoke()
 				smoke->deadCount = 5;
 			}
 
-			smoke->velocity			+= smoke->accel;
-			smoke->sprite.pos.v[Y]	+= smoke->velocity;
+			AddToVector(&smoke->sprite.pos,&smoke->velocity);
+			smoke->velocity.v[X] *= 0.95;
+			smoke->velocity.v[Y] *= 0.85;
+			smoke->velocity.v[Z] *= 0.95;
+
+			smoke->sprite.scaleX += 4;
+			smoke->sprite.scaleY += 4;
 
 			if(!smoke->lifetime)
 				smoke->deadCount = 5;
-		}
-	}
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: CreateAndAddFXSwarm
-	Purpose			: creates and initialises a swarm based effect
-	Parameters		: char,VECTOR *,short,float
-	Returns			: FX_SWARM *
-	Info			: 
-*/
-FX_SWARM *CreateAndAddFXSwarm(char swarmType,VECTOR *centroid,short size,float lifetime,float offset)
-{
-	int i = MAX_SWARM_ELEMENTS;
-	FX_SWARM *swarm;
-	TEXTURE *theTexture;
-	
-	swarm = (FX_SWARM *)JallocAlloc(sizeof(FX_SWARM),YES,"FX_SWM");
-	AddFXSwarm(swarm);
-
-	swarm->centroid = centroid;
-	swarm->swarmType	= swarmType;
-
-	switch(swarmType)
-	{
-		case SWARM_TYPE_STARSTUN:
-			FindTexture(&theTexture,UpdateCRC("star.bmp"),YES,"star.bmp");
-			break;
-
-		case SWARM_TYPE_CROWS:
-		case SWARM_TYPE_FLIES:
-			FindTexture(&theTexture,UpdateCRC("fly1.bmp"),YES,"fly1.bmp");
-			break;
-	}
-
-	while(i--)
-	{
-		swarm->sprite[i].texture	= theTexture;
-		SetVector(&swarm->sprite[i].pos,centroid);
-		SetVector(&swarm->swarmOffs[i],&zero);
-		swarm->swarmOffs[i].v[Y] += offset;
-
-		swarm->sprite[i].scaleX		= size;
-		swarm->sprite[i].scaleY		= size;
-		swarm->sprite[i].r			= 255;
-		swarm->sprite[i].g			= 255;
-		swarm->sprite[i].b			= 255;
-		swarm->sprite[i].a			= 255;
-
-		swarm->sprite[i].offsetX	= -16;
-		swarm->sprite[i].offsetY	= -16; //swarm->sprite[i].texture->sy / 2\
-		swarm->sprite[i].flags		= SPRITE_TRANSLUCENT;
-
-		AddSprite(&swarm->sprite[i],NULL);
-
-		if(swarmType == SWARM_TYPE_STARSTUN)
-		{
-			swarm->xVelocity[i] = -8 + Random(16);
-			swarm->yVelocity[i] = -6 + Random(12);
-			swarm->zVelocity[i] = -8 + Random(16);
-		}
-		else if( swarmType == SWARM_TYPE_CROWS )
-		{
-			swarm->xVelocity[i] = -8 + Random(16);
-			swarm->yVelocity[i] = -8 + Random(16);
-			swarm->zVelocity[i] = -8 + Random(16);
-		}
-		else
-		{
-			swarm->xVelocity[i] = -12 + Random(24);
-			swarm->yVelocity[i] = -8 + Random(16);
-			swarm->zVelocity[i] = -12 + Random(24);
-		}
-	}
-
-	swarm->lifetime			= lifetime;
-
-	return swarm;
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeFXSwarmLinkedList
-	Purpose			: frees the fx linked list
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void FreeFXSwarmLinkedList()
-{
-	FX_SWARM *cur,*next;
-
-	if(swarmFXList.numEntries == 0)
-		return;
-
-	dprintf"Freeing linked list : FX_SWARM : (%d elements)\n",swarmFXList.numEntries));
-	for(cur = swarmFXList.head.next; cur != &swarmFXList.head; cur = next)
-	{
-		next = cur->next;
-
-		SubFXSwarm(cur);
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: AddFXSwarm
-	Purpose			: adds swarm fx element to the list
-	Parameters		: FX_SWARM *
-	Returns			: void
-	Info			: 
-*/
-void AddFXSwarm(FX_SWARM *swarm)
-{
-	if(swarm->next == NULL)
-	{
-		swarmFXList.numEntries++;
-		swarm->prev = &swarmFXList.head;
-		swarm->next = swarmFXList.head.next;
-		swarmFXList.head.next->prev = swarm;
-		swarmFXList.head.next = swarm;
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: SubFXSwarm
-	Purpose			: removes a swarm fx element from the list
-	Parameters		: FX_SWARM *
-	Returns			: void
-	Info			: 
-*/
-void SubFXSwarm(FX_SWARM *swarm)
-{
-	int i = MAX_SWARM_ELEMENTS;
-
-	if(swarm->next == NULL)
-		return;
-
-	while(i--)
-		SubSprite(&swarm->sprite[i]);
-
-	swarm->prev->next = swarm->next;
-	swarm->next->prev = swarm->prev;
-	swarm->next = NULL;
-	swarmFXList.numEntries--;
-
-	JallocFree((UBYTE **)&swarm);
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: UpdateFXSwarm
-	Purpose			: updates the swarm based fx
-	Parameters		: 
-	Returns			: void
-	Info			: 
-*/
-void UpdateFXSwarm()
-{
-	int i;
-	FX_SWARM *swarm,*swarm2;
-
-	// go through swarm fx list and remove 'dead' effects
-	for(swarm = swarmFXList.head.next; swarm != &swarmFXList.head; swarm = swarm2)
-	{
-		swarm2 = swarm->next;
-		if(swarm->deadCount)
-		{
-			swarm->deadCount--;
-			if(!swarm->deadCount)
-			{
-				SubFXSwarm(swarm);
-				continue;
-			}
-		}
-	}
-
-	// update swarm fx
-	for(swarm = swarmFXList.head.next; swarm != &swarmFXList.head; swarm = swarm2)
-	{
-		swarm2 = swarm->next;
-
-		if(swarm->lifetime)
-		{
-			if( swarm->lifetime != 65535 )
-				swarm->lifetime--;
-
-			if(swarm->swarmType == SWARM_TYPE_STARSTUN)
-			{
-				swarm->sprite[0].a -= 8;
-				swarm->sprite[1].a -= 8;
-				swarm->sprite[2].a -= 8;
-				swarm->sprite[3].a -= 8;
-
-				if(swarm->sprite[0].a < 10)
-				{
-					swarm->lifetime	= 0;
-					swarm->deadCount = 5;
-					continue;
-				}
-			}
-			
-			i = MAX_SWARM_ELEMENTS;
-			while(i--)
-			{
-				if(swarm->sprite[i].pos.v[X] > swarm->centroid->v[X])
-					swarm->xVelocity[i] -= 1.0F;
-				else
-					swarm->xVelocity[i] += 1.0F;
-
-				if(swarm->sprite[i].pos.v[Y] > swarm->centroid->v[Y])
-					swarm->yVelocity[i] -= 1.0F;
-				else
-					swarm->yVelocity[i] += 1.0F;
-
-				if(swarm->sprite[i].pos.v[Z] > swarm->centroid->v[Z])
-					swarm->zVelocity[i] -= 1.0F;
-				else
-					swarm->zVelocity[i] += 1.0F;
-
-				swarm->swarmOffs[i].v[X] += swarm->xVelocity[i];
-				swarm->swarmOffs[i].v[Y] += swarm->yVelocity[i];
-				swarm->swarmOffs[i].v[Z] += swarm->zVelocity[i];
-
-				AddVector( &swarm->sprite[i].pos, swarm->centroid, &swarm->swarmOffs[i] );
-			}
-
-			if(!swarm->lifetime)
-				swarm->deadCount = 5;
 		}
 	}
 }
@@ -649,23 +426,9 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 		explode->hasHitPlane[i]		= 0;
 		explode->alphaDecay[i]		= Random(4) + 4;
 
-		if(explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST)
+		if(explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 		{
-//			FindTexture(&theTexture,UpdateCRC("ai_star.bmp"),YES,"ai_star.bmp");
-			FindTexture(&theTexture,UpdateCRC("spa01.bmp"),YES,"spa01.bmp");
-			explode->sprite[i].texture	= theTexture;
-			explode->alphaDecay[i]		*= 2;
-
-			explode->sprite[i].r		= Random(256);
-			explode->sprite[i].g		= Random(256);
-			explode->sprite[i].b		= Random(256);
-
-			explode->sprite[i].scaleX	= 1;
-			explode->sprite[i].scaleY	= 1;
-		}
-		else if(explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
-		{
-			FindTexture(&theTexture,UpdateCRC("ai_smoke.bmp"),YES,"ai_smoke.bmp");
+			FindTexture(&theTexture,UpdateCRC("ai_smoke.bmp"),YES);
 			explode->sprite[i].texture	= theTexture;
 			explode->alphaDecay[i]		*= 2;
 
@@ -678,7 +441,7 @@ FX_EXPLODEPARTICLE *CreateAndAddFXExplodeParticle(char explodeType,VECTOR *origi
 		}
 		else
 		{
-			FindTexture(&theTexture,UpdateCRC("spa01.bmp"),YES,"spa01.bmp");
+			FindTexture(&theTexture,UpdateCRC("spa01.bmp"),YES);
 			explode->sprite[i].texture	= theTexture;
 
 			explode->sprite[i].r		= 255;
@@ -851,7 +614,7 @@ void UpdateFXExplodeParticle()
 						rip->b = 255;
 						continue;
 					}
-					else if(explode->explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST || explode->explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
+					else if(explode->explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 					{
 						explode->hasHitPlane[i] = 1;
 						explode->sprite[i].a = 1;
@@ -873,7 +636,7 @@ void UpdateFXExplodeParticle()
 				}
 
 				// update specific effects
-				if(explode->explodeType == EXPLODEPARTICLE_TYPE_COLOURBURST || explode->explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
+				if(explode->explodeType == EXPLODEPARTICLE_TYPE_SMOKEBURST)
 				{
 					explode->sprite[i].scaleX	+= 2;
 					explode->sprite[i].scaleY	= explode->sprite[i].scaleX;
@@ -913,10 +676,6 @@ void InitFXLinkedLists()
 	smokeFXList.numEntries = 0;
 	smokeFXList.head.next = smokeFXList.head.prev = &smokeFXList.head;
 
-	// initialise the swarm fx list
-	swarmFXList.numEntries = 0;
-	swarmFXList.head.next = swarmFXList.head.prev = &swarmFXList.head;
-
 	// initialise the explode particle fx list
 	explodeParticleFXList.numEntries = 0;
 	explodeParticleFXList.head.next = explodeParticleFXList.head.prev = &explodeParticleFXList.head;
@@ -936,9 +695,6 @@ void UpdateSpecialFX()
 
 	if(smokeFXList.numEntries)
 		UpdateFXSmoke();
-
-	if(swarmFXList.numEntries)
-		UpdateFXSwarm();
 
 	if(explodeParticleFXList.numEntries)
 		UpdateFXExplodeParticle();

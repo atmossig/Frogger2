@@ -85,7 +85,6 @@ enum
 extern unsigned long autoHop;
 extern unsigned long longHop;
 extern unsigned long longTongue;
-extern unsigned long superHop;
 extern unsigned long superFrog;
 extern unsigned long croakFloat;
 
@@ -95,35 +94,35 @@ extern SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES];
 
 // ----- [ FUNCTION PROTOTYPES ] --------------- //
 
-extern void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID);
-extern void CreateLevelCollectables(unsigned long *tileList, int type);
+void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID);
+void CreateLevelCollectables(unsigned long *tileList, int type);
 
-extern GARIB *GaribIsInTongueRange();
-extern ACTOR2 *BabyFrogIsInTongueRange();
-extern GAMETILE *GrapplePointInTongueRange();
+GARIB *GaribIsInTongueRange();
+ACTOR2 *BabyFrogIsInTongueRange();
+GAMETILE *GrapplePointInTongueRange();
 
-extern void CheckTileForCollectable(GAMETILE *tile,long pl);
+void CheckTileForCollectable(GAMETILE *tile,long pl);
 
-extern void ProcessCollectables();
-extern void PickupCollectable(GARIB *garib);
-extern void PickupBabyFrog(ACTOR2 *baby);
+void ProcessCollectables();
+void PickupCollectable(GARIB *garib);
+void PickupBabyFrog(ACTOR2 *baby);
 
 
 // GARIB RELATED
 
 extern GARIBLIST garibCollectableList;
 
-extern void InitGaribLinkedList();
-extern void FreeGaribLinkedList();
-extern void AddGarib(GARIB *garib);
-extern void SubGarib(GARIB *garib);
+void InitGaribLinkedList();
+void FreeGaribLinkedList();
+void AddGarib(GARIB *garib);
+void SubGarib(GARIB *garib);
 
-extern void InitGaribSprite(GARIB *garib);
-extern GARIB *CreateNewGarib(VECTOR pos, int type);
-extern void UpdateGaribs();
+void InitGaribSprite(GARIB *garib);
+GARIB *CreateNewGarib(VECTOR pos, int type);
+void UpdateGaribs();
 
-extern void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType);
+void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType);
 
-extern void DropGaribToTile(GARIB *garib, GAMETILE *tile, float dropSpeed);
+void DropGaribToTile(GARIB *garib, GAMETILE *tile, float dropSpeed);
 
 #endif

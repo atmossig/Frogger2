@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -114,7 +114,6 @@ void UpdateFrogTongue()
 		// Check if tongue can actually be used
 		if(tongueState & TONGUE_HASITEMINMOUTH)
 		{
-			player[0].frogState |= FROGSTATUS_ISSTANDING;
 			return;
 		}
 
@@ -174,14 +173,12 @@ void UpdateFrogTongue()
 					PutFrogOnGrapplePoint(nearestGrapple);
 
 				// Check if frog has something in his mouth
-				player[0].frogState |= FROGSTATUS_ISSTANDING;
 				player[0].frogState &= ~FROGSTATUS_ISTONGUEING;
 				tongueState = TONGUE_IDLE;
 
 				// Set frog idle animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,3,YES,YES,0.5/*, 10, 0*/);
-				frog[0]->actor->animation->animationSpeed = 1.79;
+				AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
 
 				RemoveFrogTongue();
 			}
@@ -214,7 +211,6 @@ void UpdateFrogTongue()
 			dp = DotProduct(&ff,&p);
 			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
 			{
-				player[0].frogState	|= FROGSTATUS_ISSTANDING;
 				tongueState = TONGUE_NONE | TONGUE_IDLE;
 			}
 			else
@@ -233,8 +229,7 @@ void UpdateFrogTongue()
 
 				// Set frog mouth open animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,1,NO,NO,0.5/*, 10, 0*/);
-				frog[0]->actor->animation->animationSpeed = 0.25;
+				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
 
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
 			}
@@ -266,7 +261,6 @@ void UpdateFrogTongue()
 			dp = DotProduct(&ff,&p);
 			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
 			{
-				player[0].frogState	|= FROGSTATUS_ISSTANDING;
 				tongueState = TONGUE_NONE | TONGUE_IDLE;
 			}
 			else
@@ -285,9 +279,8 @@ void UpdateFrogTongue()
 
 				// Set frog mouth open animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,1,NO,NO,0.5/*, 10, 0*/);
-				frog[0]->actor->animation->animationSpeed = 0.25;
-
+				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
+				
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
 			}
 		}
@@ -312,7 +305,6 @@ void UpdateFrogTongue()
 			dp = DotProduct(&ff,&p);
 			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
 			{
-				player[0].frogState	|= FROGSTATUS_ISSTANDING;
 				tongueState = TONGUE_NONE | TONGUE_IDLE;
 			}
 			else
@@ -331,15 +323,13 @@ void UpdateFrogTongue()
 
 				// Set frog mouth open animation, and the speed
 				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,1,NO,NO,0.5/*, 10, 0*/);
-				frog[0]->actor->animation->animationSpeed = 0.25;
+				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
 
 				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
 			}
 		}
 		else
 		{
-			player[0].frogState	|= FROGSTATUS_ISSTANDING;
 			tongueState = TONGUE_NONE | TONGUE_IDLE;
 		}
 	}
@@ -406,7 +396,7 @@ void RemoveTongueSegment(char idx)
 */
 void AddTongueSprite(short index,float x,float y,float z)
 {
-	FindTexture(&tongueSprite[index].texture,UpdateCRC("tongue1.bmp"),YES,"tongue1.bmp");
+	FindTexture(&tongueSprite[index].texture,UpdateCRC("tongue1.bmp"),YES);
 
 	tongueSprite[index].pos.v[X]	= x;
 	tongueSprite[index].pos.v[Y]	= y;

@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -26,6 +26,8 @@ unsigned int numAnimations = -1;
 TEXTURE_STRUCTURE   *textureList	 = NULL;
 ANIM_STRUCTURE		*animationList	 = NULL;
 
+
+FOG fog = {81,179,255,FOG_OFF,995,5000};
 
 	/***********************************************************************************
 	/********* TEXTURE LIST FUNCTIONS **************************************************
@@ -46,7 +48,7 @@ void AddTextureToList ( char *txtrName, char *textID )
 	newItem = ( TEXTURE_STRUCTURE * ) JallocAlloc ( sizeof ( TEXTURE_STRUCTURE ), YES, "TXTRLIST" );
 
 
-	FindTexture ( &newItem->txtr, UpdateCRC ( txtrName ), YES ,txtrName);
+	FindTexture ( &newItem->txtr, UpdateCRC ( txtrName ), YES);
 	
 	numTextures++;
 
@@ -259,7 +261,7 @@ FRAMELIST spriteFrameList[NUM_SPRITE_ANIMS] =
 
 
 SPRITELIST spriteList;
-
+BACKDROPLIST backdropList;
 
 SPRITE *testSpr = NULL;
 
@@ -556,7 +558,7 @@ void InitSpriteFrameLists()
 		while(found == YES)
 		{
 			sprintf(temp,"%s%02d.bmp",spriteFrameList[i].filename,j+1);
-			FindTexture(&texture,UpdateCRC(temp),NO,temp);
+			FindTexture(&texture,UpdateCRC(temp),NO);
 			if(!texture)
 				found = NO;
 			else
@@ -584,13 +586,25 @@ void InitSpriteFrameLists()
 			for(j=0; j<spriteFrameList[i].numFrames; j++)
 			{
 				sprintf(temp,"%s%02d.bmp",spriteFrameList[i].filename,j+1);
-				FindTexture(&texture,UpdateCRC(temp),YES,temp);
+				FindTexture(&texture,UpdateCRC(temp),YES);
 				*(spriteFrameList[i].texture + j) = texture;
 			}
 		}
 	}
 }
 
+/*	--------------------------------------------------------------------------------
+	Function		: FreeSpriteFrameLists
+	Purpose			: frees the sprite frame lists
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void FreeSpriteFrameLists()
+{
+	if(spriteFrameList[0].texture)
+		JallocFree((UBYTE **)&spriteFrameList[0].texture);
+}
 
 /*	--------------------------------------------------------------------------------
 	Function		: AddNewSpriteToList
@@ -605,7 +619,7 @@ SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,sho
 
 	sprite = (SPRITE *)JallocAlloc(sizeof(SPRITE),YES,"sprite");
 
-	FindTexture(&sprite->texture,UpdateCRC(txtrName),YES,txtrName);
+	FindTexture(&sprite->texture,UpdateCRC(txtrName),YES);
 
 	sprite->pos.v[X]	= x;
 	sprite->pos.v[Y]	= y;

@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -39,6 +39,7 @@ CAMEO_SET *cameoSet = NULL;
 */
 void InitCameosForLevel ( unsigned long worldID, unsigned long levelID )
 {
+/*
 	float x, y, z;
 
 	cameoSet = ( CAMEO_SET * ) JallocAlloc ( sizeof ( CAMEO_SET ), YES, "CAM_SET" );
@@ -48,50 +49,8 @@ void InitCameosForLevel ( unsigned long worldID, unsigned long levelID )
 
 	if ( worldID == WORLDID_GARDEN )
 	{
-		if ( levelID == LEVELID_GARDENLAWN )
-		{
-			//SetFroggerStartPos ( &firstTile[528], frog );
-
-			// Create and add the objects for use in the cameo
-		/*	x = firstTile[12].centre.v[X];
-			y = firstTile[12].centre.v[Y];
-			z = firstTile[12].centre.v[Z];
-			CreateAndAddCameoObject ( "lawngatel.ndo", x, y, z, INIT_ANIMATION );
-			x = firstTile[15].centre.v[X];
-			y = firstTile[15].centre.v[Y];
-			z = firstTile[15].centre.v[Z];
-			CreateAndAddCameoObject ( "lawngater.ndo", x, y, z, INIT_ANIMATION );
-									   */
-			// Create and add the actions for the start and finish flags
-			CreateAndAddCameoAction		( CAMEO_START,   0 );
-			CreateAndAddCameoAction		( CAMEO_FINISH,  200 );
-
-			// Create any camera actions during this cameo
-			CreateAndAddCameoCameraSource	( CAMEO_CAMERA,	 130, 0, 350, 1300, 24 );
-			CreateAndAddCameoCameraSource	( CAMEO_CAMERA,	 150, 0, 476, 1109, 24 );
-
-			// Create any animations during this cameo
-			CreateAndAddCameoAnimation	( CAMEO_ANIMATE, 80, "lawngatel.ndo", 1 ); 
-			CreateAndAddCameoAnimation	( CAMEO_ANIMATE, 80, "lawngater.ndo", 1 ); 
-			CreateAndAddCameoAnimation	( CAMEO_ANIMATE, 160, "lawngatel.ndo", 0 ); 
-			CreateAndAddCameoAnimation	( CAMEO_ANIMATE, 160, "lawngater.ndo", 0 ); 
-
-			// Create any frog movements for this cameo
-			CreateAndAddCameoFrogMovement ( CAMEO_FROGMOVE | CAMEO_UP, 130 );
-			CreateAndAddCameoFrogMovement ( CAMEO_FROGMOVE | CAMEO_UP, 140 );
-			CreateAndAddCameoFrogMovement ( CAMEO_FROGMOVE | CAMEO_UP, 150 );
-			CreateAndAddCameoFrogMovement ( CAMEO_FROGMOVE | CAMEO_UP, 160 );
-			CreateAndAddCameoFrogMovement ( CAMEO_FROGMOVE | CAMEO_UP, 170 );	
-		}
-		else
-		{
-		}
-		// ENDELSEIF
 	}
-	else
-	{
-	}
-	// ENDELSEIF
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -311,7 +270,7 @@ void UpdateCameos ( void )
 
 				if ( cur->flags & CAMEO_ANIMATE )
 				{
-					AnimateActor ( cur->linkObject->cameoActor->actor, cur->animNum, NO, NO, 0.5F );
+					AnimateActor ( cur->linkObject->cameoActor->actor, cur->animNum, NO, NO, 0.5F, 0, 0);
 				}
 				// ENDIF
 

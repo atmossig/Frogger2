@@ -3,14 +3,14 @@
 	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
 
 
-	File		: LevelData.h
+	File		: DefaultData.h
 	Programmer	: James Healey
 	Date		: 14/06/99
 
 ----------------------------------------------------------------------------------------------- */
 
-#ifndef LEVELDATA_H_INCLUDED
-#define LEVELDATA_H_INCLUDED
+#ifndef DEFAULTDATA_H_INCLUDED
+#define DEFAULTDATA_H_INCLUDED
 
 //************************************************************************************************
 //	Defines

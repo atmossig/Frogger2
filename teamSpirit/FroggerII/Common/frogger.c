@@ -10,7 +10,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -25,7 +25,7 @@
 PLAYER player[MAX_FROGS];
 
 ACTOR2 *frog[MAX_FROGS]					= {0,0,0,0};
-SPRITEOVERLAY *sprHeart[12]		= { NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL};
 
 long NUM_FROGS = 1;
 
@@ -39,37 +39,51 @@ char croakR						= 255;
 char croakG						= 255;
 char croakB						= 255;
 
+float globalFrogScale			= 0.6F;
+
 //----------------------------------------------------------------------------//
 //----- FUNCTIONS ------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
+#ifndef PC_VERSION
 char me[100] = "frogger.ndo";
+#else
+char me[100] = "frogger.obe";
+#endif
 
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
 	ACTOR2 **me = &frog[p];
+#ifndef PC_VERSION
+	(*me)		 = CreateAndAddActor ("frogger.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+#else
 	(*me)		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+#endif
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
 	(*me)->flags	|= ACTOR_DRAW_ALWAYS;
 	
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
-	InitActorAnim ( (*me)->actor );
-	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667);
-	
-	(*me)->actor->scale.v[0] = 0.09;
-	(*me)->actor->scale.v[1] = 0.09;
-	(*me)->actor->scale.v[2] = 0.09;
-	
-	SetFroggerStartPos ( where, (*me),p);
-	
-	(*me)->action.lives		= 3;
-	(*me)->action.isOnFire	= 0;
-	(*me)->action.frogon	= -1;
-	(*me)->action.frogunder = -1;
+	InitActorAnim ((*me)->actor);
+	AnimateActor  ((*me)->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);
 
-	(*me)->radius			= 37.0F;
+	// set animation values for frog 'arcade-feel' factor
+	(*me)->actor->animation->anims->animStart	= 6;
+	(*me)->actor->animation->anims->animEnd		= 11;
+	
+	(*me)->actor->scale.v[0] = globalFrogScale;	//0.09;
+	(*me)->actor->scale.v[1] = globalFrogScale;	//0.09;
+	(*me)->actor->scale.v[2] = globalFrogScale;	//0.09;
+	
+	SetFroggerStartPos(where,p);
+	
+	(*me)->action.healthPoints	= 3;
+	(*me)->action.isOnFire		= 0;
+	(*me)->action.frogon		= -1;
+	(*me)->action.frogunder		= -1;
+
+	(*me)->radius				= 37.0F;
 
 }
 

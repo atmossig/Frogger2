@@ -15,6 +15,13 @@
 
 // Tile status flags.
 #define ATTACH (1<<0)
+
+
+// Various modes where the game is paused
+#define PM_PAUSE	1
+#define PM_ENDLEVEL	2
+#define PM_GAMEOVER	3
+
 // -----------------
 
 enum
@@ -34,7 +41,6 @@ extern short showEndLevelScreen;
 
 extern unsigned short screenNum;
 
-extern unsigned long iceMoveDir[];
 extern unsigned long autoPlaying;
 extern unsigned long recordKeying;
 
@@ -48,7 +54,7 @@ extern GAMETILE *firstTile;
 extern GAMETILE **gTStart;
 
 extern ACTOR2 *babies[NUM_BABIES];
-extern ACTOR2 *demoTug;
+extern ACTOR2 *levelTrophy;
 
 extern char	scoreText[32];
 extern char	timeText[32];

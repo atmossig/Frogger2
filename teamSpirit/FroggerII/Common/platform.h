@@ -90,8 +90,6 @@ extern PLATFORMLIST platformList;
 extern PLATFORM *destPlatform[4];		// platform that frog is about to attempt to jump to
 extern PLATFORM *currPlatform[4];		// platform that frog is currently on
 
-extern GAMETILE	*oldTile[4];
-
 
 extern void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID);
 

@@ -21,14 +21,14 @@ extern ACTOR2 *babies[NUM_BABIES];
 extern ACTOR2 *nearestBaby;
 extern ACTOR2 *lastBabySaved;
 
-extern SPRITEOVERLAY *babyIcons[6];
+extern SPRITEOVERLAY *babyIcons[NUM_BABIES];
 extern unsigned long babiesSaved;
 extern unsigned long numBabies;
 
-extern void CreateBabies(unsigned long createActors,unsigned long createOverlays);
-extern void RunBabySavedSequence(ACTOR2 *baby);
+void CreateBabies(unsigned long createActors,unsigned long createOverlays);
+void RunBabySavedSequence(ACTOR2 *baby);
 
-extern ACTOR2 *GetNearestBabyFrog();
+ACTOR2 *GetNearestBabyFrog();
 
 
 #endif

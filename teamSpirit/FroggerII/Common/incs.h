@@ -8,6 +8,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#define F3DEX_GBI_2
 
 //----- [ INCLUDE FILES FOR FROGGER 2 ] -----------------------------------------------------//
 
@@ -18,11 +19,20 @@
 #include <dinput.h>
 
 #ifndef __cplusplus
+
 #include <math.h>
 #endif
 
 #include "pcmisc.h"
 #include "directx.h"
+//#include "dx_sound.h"
+
+#else
+
+#include <pr/gbi.h>
+#include <pr/ucode.h>
+#include <pr/gu.h>
+#include <pr/gs2dex.h>
 
 #endif
 
@@ -44,7 +54,7 @@
 #include "layoutvisual.h"
 
 #ifndef PC_VERSION
-#include "timerbar.h"
+#include "graphic.h"
 #endif
 
 #include "levelplaying.h"
@@ -71,12 +81,14 @@
 #include "frogmove.h"
 #include "cam.h"
 #include "tongue.h"
+#include "script.h"
 #include "event.h"
 #include "eventfuncs.h"	//doesn't need to be global! - Dave
 						// Probably not, but at least include it where it's needed please! - Jim
 
 #ifndef PC_VERSION
 #include "develop.h"
+#include "objview.h"
 #endif
 
 #include "frontend.h"

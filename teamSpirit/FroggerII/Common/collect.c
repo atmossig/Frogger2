@@ -19,7 +19,6 @@ SCREENSPAWN *spawnList = NULL;
 
 unsigned long autoHop			= 0;
 unsigned long longHop			= 0;
-unsigned long superHop			= 0;
 unsigned long longTongue		= 0;
 unsigned long superFrog			= 0;
 unsigned long croakFloat		= 0;
@@ -57,8 +56,6 @@ SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES] =
 */
 void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID)
 {
-//	VECTOR v = { firstTile[15].centre.v[X], 3000, firstTile[15].centre.v[Z] };
-//	CreateNewGarib ( v, 0, 5.0f );
 }
 
 /*	--------------------------------------------------------------------------------
@@ -310,8 +307,6 @@ void ProcessCollectables()
 		autoHop--;
 	if(longHop)
 		longHop--;
-	if(superHop)
-		superHop--;
 	if(longTongue)
 		longTongue--;
 	else
@@ -522,7 +517,7 @@ void PickupBabyFrog(ACTOR2 *baby)
 							  
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
-	PlaySample(GEN_TARGET_COM,0,0,0); // 147
+//	PlaySample(GEN_TARGET_COM,0,0,0); // 147
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -824,7 +819,7 @@ void CreateAndAddSpawnScoreSprite(VECTOR *pos,char scoreType)
 	sprite->flags		= SPRITE_TRANSLUCENT;
 
 	sprintf(bmpBuff,"spnu%d.bmp",(scoreType * 10));
-	FindTexture(&sprite->texture,UpdateCRC(bmpBuff),YES,bmpBuff);
+	FindTexture(&sprite->texture,UpdateCRC(bmpBuff),YES);
 	
 	sprite->offsetX = -16;
 	sprite->offsetY = -16;

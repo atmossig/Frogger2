@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -54,7 +54,11 @@ void RunTitleScreen( )
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
+#ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+#else
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+#endif
 
 		//myBackdrop = CreateAndInitBackdrop ( NULL, "objvscrn.bmp", 0, 0, 0, 0, 0, 320, 240, 1024, 1024, 0 );
 
@@ -128,7 +132,7 @@ void RunTitleScreen( )
 
 				frameCount = 0;
 				lastbutton = 0;
-				//PlaySample ( 0,0,0,0);
+				PlaySample ( 0,0,0,0);
 				NUM_FROGS = 1;
 				break;
 			case 1:
@@ -159,7 +163,7 @@ void RunTitleScreen( )
 
 		if( (button & CONT_B) && !(lastbutton & CONT_B) )
 		{
-			MakeHiscoreText( );
+//			MakeHiscoreText( );
 			/*
 			FreeAllLists();
 			frameCount = 0;
@@ -235,7 +239,11 @@ void RunLevelSelect( )
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
+#ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+#else
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+#endif
 
 		currFont = smallFont;
 
@@ -515,7 +523,7 @@ void RunPauseMenu( )
 	switch (currentSelection)
 	{
 		case 0:
-//			continueText->a = 255 * fabs(sinf(frameCount/12.5));
+//			continueText->a = 255 * Fabs(sinf(frameCount/12.5));
 //			continueText->waveAmplitude = 6.0F;
 			continueText->a = 255;
 			continueText->r = continueText->g = continueText->b = 255;
@@ -529,7 +537,7 @@ void RunPauseMenu( )
 			break;
 		
 		case 1:
-			//quitText->a = 255 * fabs(sinf(frameCount/12.5));
+			//quitText->a = 255 * Fabs(sinf(frameCount/12.5));
 			//quitText->waveAmplitude = 6.0F;
 			quitText->a = 255;
 			quitText->r = quitText->g = quitText->b = 255;
@@ -758,7 +766,11 @@ void RunSaveLoadSelect ( void )
 		memset (enteredName,0,3);
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
+#ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+#else
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+#endif
 
 		currFont	= bigFont;
 		letters[0] = CreateAndAddTextOverlay(42,32,"a",NO,NO,255,255,255,255,currFont,0,0,0);
@@ -1113,7 +1125,7 @@ void RunSaveLoadSelect ( void )
 				switch (currentSelection)
 				{
 					case 0:
-						yesText->a = 255 * fabs(sinf(frameCount/12.5));
+						yesText->a = 255 * Fabs(sinf(frameCount/12.5));
 						yesText->waveAmplitude = 6.0F;
 						yesText->r = yesText->g = yesText->b = 255;
 
@@ -1122,7 +1134,7 @@ void RunSaveLoadSelect ( void )
 						noText->g = 255;
 						break;
 					case 1:
-						noText->a = 255 * fabs(sinf(frameCount/12.5));
+						noText->a = 255 * Fabs(sinf(frameCount/12.5));
 						noText->waveAmplitude = 6.0F;
 						noText->r = noText->g = noText->b = 255;
 
@@ -1252,7 +1264,12 @@ void RunTitleScreen()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
+#ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+#else
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+#endif
+
 
 //		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
 
@@ -1330,7 +1347,7 @@ void RunTitleScreen()
 		switch (currentSelection)
 		{
 			case 0:
-				start->a = 255 * fabs(sinf(frameCount/12.5));
+				start->a = 255 * Fabs(sinf(frameCount/12.5));
 				start->waveAmplitude = 6.0F;
 				start->r = start->g = start->b = 255;
 
@@ -1348,7 +1365,7 @@ void RunTitleScreen()
 				break;
 			
 			case 1:
-				options->a = 255 * fabs(sinf(frameCount/12.5));
+				options->a = 255 * Fabs(sinf(frameCount/12.5));
 				options->waveAmplitude = 6.0F;
 				options->r = options->g = options->b = 255;
 
@@ -1366,7 +1383,7 @@ void RunTitleScreen()
 				break;
 
 			case 2:
-				dev->a = 255 * fabs(sinf(frameCount/12.5));
+				dev->a = 255 * Fabs(sinf(frameCount/12.5));
 				dev->waveAmplitude = 6.0F;
 				dev->r = dev->g = dev->b = 255;
 
@@ -1435,7 +1452,11 @@ void RunLevelSelect ( void )
 		FreeAllLists();
 
 		LoadTextureBank ( SYSTEM_TEX_BANK );
+#ifdef PC_VERSION
 		LoadTextureBank ( TITLES_TEX_BANK );
+#else
+		LoadTextureBank ( TITLESGENERIC_TEX_BANK );
+#endif
 
 		currFont	= smallFont;
 		closed		= CreateAndAddTextOverlay ( 160, 115, "closed", NO, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
@@ -1676,7 +1697,11 @@ void RunOptionsMode()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
+#ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+#else
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+#endif
 
 //		myBackdrop = CreateAndInitBackdrop("objvscrn.bmp");
 
@@ -1768,7 +1793,7 @@ void RunOptionsMode()
 				EnableSpriteOverlay(soundIcon);
 				DisableSpriteOverlay(controllerIcon);
 
-				sound->a = 255 * fabs(sinf(frameCount/12.5));
+				sound->a = 255 * Fabs(sinf(frameCount/12.5));
 				sound->waveAmplitude = 6.0F;
 				cntrl->a = 91; //255;
 				hiscore->a = 91; //255;				
@@ -1787,7 +1812,7 @@ void RunOptionsMode()
 				EnableSpriteOverlay(controllerIcon);
 				DisableSpriteOverlay(soundIcon);
 
-				cntrl->a = 255 * fabs(sinf(frameCount/12.5));
+				cntrl->a = 255 * Fabs(sinf(frameCount/12.5));
 				cntrl->waveAmplitude = 6.0F;
 				sound->a = 91; //255;				
 				hiscore->a = 91; //255;				
@@ -1807,7 +1832,7 @@ void RunOptionsMode()
 				DisableSpriteOverlay(soundIcon);
 				DisableSpriteOverlay(controllerIcon);
 
-				hiscore->a = 255  * fabs(sinf(frameCount/12.5));				
+				hiscore->a = 255  * Fabs(sinf(frameCount/12.5));				
 				hiscore->waveAmplitude = 6.0F;
 				sound->a = 91; //255;				
 				cntrl->a = 91; //255;				
@@ -1848,7 +1873,11 @@ void RunSoundAdjust()
 		FreeAllLists();
 
 		LoadTextureBank ( SYSTEM_TEX_BANK );
+#ifdef PC_VERSION
 		LoadTextureBank ( TITLES_TEX_BANK );
+#else
+		LoadTextureBank ( TITLESGENERIC_TEX_BANK );
+#endif
 
 		// add the texture tiles that comprise the Frogger2 logo / Hasbro logo....
 		sprOver = CreateAndAddSpriteOverlay(98,20,"flogo01.bmp",32,32,255,255,255,255,0);
@@ -1948,7 +1977,7 @@ void RunSoundAdjust()
 		switch (currentSelection)
 		{
 			case 0:
-				start->a = 255 * fabs(sinf(frameCount/12.5));
+				start->a = 255 * Fabs(sinf(frameCount/12.5));
 				start->waveAmplitude = 6.0F;
 				retro->a = 91; //255;
 				retro->r = retro->b = 200;
@@ -1959,7 +1988,7 @@ void RunSoundAdjust()
 					retro->waveAmplitude -= 0.10F;
 				break;
 			case 1:
-				retro->a = 255 * fabs(sinf(frameCount/12.5));
+				retro->a = 255 * Fabs(sinf(frameCount/12.5));
 				retro->waveAmplitude = 6.0F;
 				start->a = 91; //255;				
 				start->r = start->b = 200;
@@ -2005,7 +2034,11 @@ void RunHiScoreMode ( void )
 		FreeAllLists();
 
 		LoadTextureBank ( SYSTEM_TEX_BANK );
+#ifdef PC_VERSION
 		LoadTextureBank ( TITLES_TEX_BANK );
+#else
+		LoadTextureBank ( TITLESGENERIC_TEX_BANK );
+#endif
 
 		for ( i = 0; i < MAX_HISCORE_SLOTS; i++ )
 		{
@@ -2066,7 +2099,11 @@ void RunGameMode()
 //		recordKeying = 0;
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
+#ifdef PC_VERSION
 		LoadTextureBank(TITLES_TEX_BANK);
+#else
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
+#endif
 
 //		levelPlayingTimer =  ( 60 / desiredFrameRate ) * numSecs;
 
@@ -2162,7 +2199,7 @@ void RunGameMode()
 		switch (currentSelection)
 		{
 			case 0:
-				single->a = 255 * fabs(sinf(frameCount/12.5));
+				single->a = 255 * Fabs(sinf(frameCount/12.5));
 				single->waveAmplitude = 6.0F;
 				multi->a = 91; //255;
 				classic->a = 91; //255;				
@@ -2178,7 +2215,7 @@ void RunGameMode()
 					classic->waveAmplitude -= 0.10F;
 				break;
 			case 1:
-				multi->a = 255 * fabs(sinf(frameCount/12.5));
+				multi->a = 255 * Fabs(sinf(frameCount/12.5));
 				multi->waveAmplitude = 6.0F;
 				single->a = 91; //255;				
 				classic->a = 91; //255;				
@@ -2195,7 +2232,7 @@ void RunGameMode()
 				break;
 
 			case 2:
-				classic->a = 255  * fabs(sinf(frameCount/12.5));				
+				classic->a = 255  * Fabs(sinf(frameCount/12.5));				
 				classic->waveAmplitude = 6.0F;
 				single->a = 91; //255;				
 				multi->a = 91; //255;				

@@ -10,7 +10,7 @@
 ----------------------------------------------------------------------------------------------- */
 
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -25,17 +25,30 @@
 #include "incs.h"
 
 
+#define MAX_UNIQUE_ACTORS	50
+
+#ifdef PC_VERSION
 float ACTOR_DRAWDISTANCEINNER = 450000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 600000.0F;
 float ACTOR_DRAWDISTANCESTART = 300000.0F;
-
-float xluFade = 0;
+#else
+float ACTOR_DRAWDISTANCEINNER = 100000.0F;
+float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
+#endif
 
 int objectMatrix = 0;
 
-ACTOR2 *actList				= NULL;			// entire actor list
+ACTOR2 *actList = NULL;				// entire actor list
+ACTOR2 *globalLevelActor = NULL;	// ptr to actor representing level
+
+//used to keep a count of how many of each enemy are present at the same time
+char uniqueEnemyCount[20];
+
+int uniqueActorCRC[MAX_UNIQUE_ACTORS];
+char numUniqueActors = 0;
 
 extern long TestDistanceFromFrog;
+
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -51,9 +64,8 @@ void XformActor(ACTOR *ptr);
 
 void XformActorList()
 {
-	ACTOR2 *cur,*next;
+	ACTOR2 *cur;
 		
-	objectMatrix = 0;
 	cur = actList;
 	while(cur)
 	{
@@ -63,7 +75,9 @@ void XformActorList()
 			cur->distanceFromFrog = DistanceBetweenPointsSquared(&cur->actor->pos,&frog[0]->actor->pos);
 
 			// transform actor
-			XformActor(cur->actor);
+//			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+			if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER || cur->flags & ACTOR_DRAW_ALWAYS)
+				XformActor(cur->actor);
 
 			// determine this actor's visibility
 #ifdef PC_VERSION
@@ -71,6 +85,7 @@ void XformActorList()
 #else
 			cur->draw = 0;
 #endif
+
 			if(cur->flags & ACTOR_DRAW_ALWAYS)
 			{
 				// always draw this actor
@@ -98,7 +113,6 @@ void XformActorList()
 
 		cur = cur->next;
 	}
-	
 }
 
 void DrawActorList()
@@ -108,6 +122,20 @@ void DrawActorList()
 		
 	objectMatrix = 0;
 //	SetRenderMode();
+	
+	vtxPtr = &(objectsVtx[draw_buffer][0]);
+
+	InitDisplayLists();
+	SetRenderMode();
+	SetupViewing();
+
+	if(fog.mode)
+	{
+#ifndef PC_VERSION
+	   gDPSetFogColor(glistp++,fog.r,fog.g,fog.b,255);
+	   gSPFogPosition(glistp++,fog.min,fog.max);
+#endif
+	}
 	
 	cur = actList;
 	while(cur)
@@ -120,33 +148,18 @@ void DrawActorList()
 			if (cur->actor->objectController)
 					if (!(cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU))
 					{
-						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
-						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						//cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+//						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						if (cur->draw)
 						{
-							StartTimer(6,"GameLoop");
-							
 							if (cur->flags & ACTOR_DRAW_ALWAYS)
 								TestDistanceFromFrog = 1;
 							else
 								TestDistanceFromFrog = 0;
-										
-		//					if (cur->flags & ~ACTOR_DRAW_NEVER)
-							xluFade = 1;
+
 							DrawActor(cur->actor);
-
-							EndTimer(6);
 						}
-//						else
-//						{
-//							xluFade = cur->distanceFromFrog - ACTOR_DRAWDISTANCESTART;
-//							if (xluFade>0)
-//							{
-//								xluFade /= (ACTOR_DRAWDISTANCEINNER - ACTOR_DRAWDISTANCESTART);
-//								DrawActor(cur->actor);
-//							}
-//						}
 					}
-
 		}
 	
 		cur = cur->next;
@@ -165,12 +178,11 @@ void DrawActorList()
 				if (cur->actor->objectController)
 					if (cur->actor->objectController->object->flags & OBJECT_FLAGS_XLU)
 					{
-					//	cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
-					//	if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+//						if ((cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) || (cur->flags & ACTOR_DRAW_ALWAYS))
+						if (cur->draw)
 						{
-							StartTimer(6,"GameLoop");
 							DrawActor(cur->actor);
-							EndTimer(6);
 						}
 					}
 		}
@@ -178,6 +190,27 @@ void DrawActorList()
 		cur = cur->next;
 	}
 
+}
+
+void DrawCameraSpaceActorList()
+{
+	ACTOR2	*cur;
+
+	cur = actList;
+	while(cur)
+	{
+		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
+		   gameState.mode == RECORDKEY_MODE || gameState.mode == LEVELPLAYING_MODE ||
+		   gameState.mode == FRONTEND_MODE  || gameState.mode == CAMEO_MODE || gameState.mode == PAUSE_MODE )
+		{
+			if(cur->draw && (cur->flags & ACTOR_DRAW_LAST) )
+			{
+				DrawActor(cur->actor);
+			}
+		}
+	
+		cur = cur->next;
+	} 
 }
 
 /* --------------------------------------------------------------------------------
@@ -191,39 +224,51 @@ void DrawActorList()
 void FreeActorList()
 {
 	ACTOR2 *next,*cur;
+
+	dprintf"Freeing linked list : ACTOR2\n"));
 	cur = actList;
 	while (cur)
 	{
 		next = cur->next;
 
-		if(cur->actor)
+		if((cur->actor->objectController) && (cur->actor->objectController->object))
 		{
-			if(cur->actor->animation)
+		 	FreeObjectSprites(cur->actor->objectController->object);
+
+			// NEW
+			if(cur->actor->objectController->drawList)
 			{
-				// free any animation associated with ACTOR type
-				JallocFree((UBYTE**)&cur->actor->animation);
+				JallocFree((UBYTE **)&cur->actor->objectController->vtx[0]);
+				JallocFree((UBYTE **)&cur->actor->objectController->drawList);
 			}
 
-			if(cur->actor->shadow)
-			{
-				// free any shadow associated with ACTOR type
-				JallocFree((UBYTE**)&cur->actor->shadow);
-			}
+			// NEW
+			RemoveUniqueObject(cur->actor->objectController->object);
+			JallocFree((UBYTE **)&cur->actor->objectController);
 
-			if((cur->actor->objectController) && (cur->actor->objectController->object))
-			{
-				// free any object sprites for this actor
-				FreeObjectSprites(cur->actor->objectController->object);
-			}
-
-			// free associated ACTOR type
-			JallocFree((UBYTE**)&cur->actor);
+			if(cur->actor->objectController)
+				JallocFree((UBYTE **)&cur->actor->objectController);
 		}
 
+		if(cur->actor->LODObjectController)
+			JallocFree((UBYTE **)&cur->actor->LODObjectController);
+
+		if(cur->actor->matrix)
+			JallocFree((UBYTE **)&cur->actor->matrix);
+
+		if(cur->actor->animation)
+			JallocFree((UBYTE **)&cur->actor->animation);
+
+		if(cur->actor->shadow)
+			JallocFree((UBYTE **)&cur->actor->shadow);
+
+		JallocFree((UBYTE**)&cur->actor);
 		JallocFree((UBYTE**)&cur);
+		
 		cur = next;
 	}
-	actList				= NULL;
+	
+	actList = NULL;
 }
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
@@ -235,16 +280,18 @@ void FreeActorList()
 ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,float offset,int startNode)
 {
 	ACTOR2 *newItem;
-	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2), 1, "A2");
-	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR), 1, "A");
+	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2),YES,"ACTOR2");
+	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR),YES,"ACTOR");
+
 	InitActor(newItem->actor,name,cx,cy,cz,initFlags);
+	MakeUniqueActor(newItem->actor,0);
 
 	newItem->actor->oldpos.v[X]	= cx;
 	newItem->actor->oldpos.v[Y]	= cy;
 	newItem->actor->oldpos.v[Z]	= cz;
 
 	newItem->draw	= 0;
-	newItem->flags	= ACTOR_DRAW_CULLED;
+	newItem->flags	|= ACTOR_DRAW_CULLED;
 	newItem->radius	= 0.0F;
 	newItem->animSpeed = 1.0F;
 	newItem->value1 = 0.0F;
@@ -430,4 +477,286 @@ BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2)
 void SetActorCollisionRadius(ACTOR2 *act,float radius)
 {
 	act->radius = radius;
+}
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: MakeUniqueDrawList
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void MakeUniqueDrawlist(OBJECT_CONTROLLER *objC)
+{
+	Gfx *newDl;
+	int size;
+
+	size = CalculateSizeOfDrawlist(objC->drawList);
+	
+	newDl = (Gfx *)JallocAlloc(size * sizeof(Gfx), NO, "uniqDl");
+
+	CopyDrawlist((u8 *)newDl, (u8 *)objC->drawList);
+	objC->drawList = newDl;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: CopyDrawList
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void CopyDrawlist(u8 *dest, u8 *source)
+{
+	while(*source != 0xDF)
+	{
+		*(Gfx *)dest = *(Gfx *)source;
+		dest+=8;
+		source+=8;
+	}
+	//must copy last entry (end drawlist)
+	*(Gfx *)dest = *(Gfx *)source;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: CalculateSizeOfDrawList
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+int CalculateSizeOfDrawlist(Gfx *dl)
+{
+	u8	*temp = (u8 *)dl; 
+	int size = 0;
+
+	while(*temp != 0xDF)
+	{
+		temp += 8;
+		size++;
+	}
+	size++;
+	return size;	
+}
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
+{
+	short i;
+	Vtx *vtxa;
+	Vtx *vtxb;
+	Vtx *oldVtxa, *oldVtxb;
+	int offset;
+
+	oldVtxa = objC->vtx[0];
+	oldVtxb = objC->vtx[1];
+
+	vtxa = (Vtx *)JallocAlloc(sizeof(Vtx) * objC->numVtx * 2, NO, "unqVtx");
+	vtxb = vtxa + objC->numVtx;
+
+	memcpy(vtxa, oldVtxa, sizeof(Vtx) * objC->numVtx);
+	memcpy(vtxb, oldVtxb, sizeof(Vtx) * objC->numVtx);
+
+	//controller now references new vtx's, must also make sure that drawlist is updated
+	objC->vtx[0] = vtxa;
+	objC->vtx[1] = vtxb;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: MakeUniqueObject
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+
+OBJECT *MakeUniqueObject(OBJECT *object)
+{
+	OBJECT	*obj;	
+	OBJECTSPRITE **spr, *tempSpr;
+	int		i;
+		
+	obj = object;
+	object = (OBJECT *)JallocAlloc(sizeof(OBJECT), YES, "UniqObj");
+	memcpy(object, obj, sizeof(OBJECT));
+
+	if(obj->numSprites)
+	{
+		spr = &object->sprites;
+		tempSpr = (OBJECTSPRITE *)JallocAlloc(sizeof(OBJECTSPRITE) * obj->numSprites, YES, "UniqSpr");
+		memcpy(tempSpr, *spr, sizeof(OBJECTSPRITE) * obj->numSprites);
+		*spr = tempSpr;
+/*		for(i = 0; i < obj->numSprites; i++)
+		{
+			spr = &object->sprites;
+			spr += i;
+			tempSpr = (OBJECTSPRITE *)JallocAlloc(sizeof(OBJECTSPRITE), YES, "UniqSpr");
+			memcpy(tempSpr, *spr, sizeof(OBJECTSPRITE));
+			*spr = tempSpr;
+		}
+ */
+	}
+
+	if(object->children)
+		object->children = MakeUniqueObject(object->children);
+
+	if(object->next)
+		object->next = MakeUniqueObject(object->next);
+		
+	return object;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: MakeUniqueActor
+	Purpose 	: Makes an actor unique by giving it its own object controller, and calls
+        		  make unique object, to sort out the object (including children)
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void MakeUniqueActor(ACTOR *actor,int type)
+{
+	OBJECT_CONTROLLER	*objCont;
+	short	unique = TRUE;
+	short	i;
+	int		CRC = UpdateCRC(actor->objectController->object->name);
+
+	//check all crc's to see if actor is among them
+	for(i = 0; i < numUniqueActors; i++)
+	{
+		if(uniqueActorCRC[i] == CRC)
+		{
+			//if it is, actor is not unique and must have seperate stuff
+			dprintf"found duplicate actor %s\n", actor->objectController->object->name));
+			unique = FALSE;
+			break;
+		}
+	}
+	//if actor is not in list
+	if(unique == TRUE)
+	{
+		uniqueActorCRC[numUniqueActors++] = CRC;
+	}	
+
+	objCont = actor->objectController;
+	actor->objectController = (OBJECT_CONTROLLER *)JallocAlloc(sizeof(OBJECT_CONTROLLER), YES, "UniqObjC");
+	memcpy(actor->objectController, objCont, sizeof(OBJECT_CONTROLLER));
+	actor->objectController->object = MakeUniqueObject(actor->objectController->object);
+
+	if(unique == FALSE)
+	{
+		//if actor is skinned, duplicate Vtx's
+		if(actor->objectController->drawList)
+		{
+			MakeUniqueVtx(actor->objectController);
+			XformActor(actor);
+		}
+	}
+
+	objCont = actor->LODObjectController;
+	if(objCont)
+	{
+		actor->LODObjectController = (OBJECT_CONTROLLER *)JallocAlloc(sizeof(OBJECT_CONTROLLER), YES, "UniqObjC");
+		memcpy(actor->LODObjectController, objCont, sizeof(OBJECT_CONTROLLER));
+		actor->LODObjectController->object = MakeUniqueObject(actor->LODObjectController->object);
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: ResetUniqueActorList
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void ResetUniqueActorList()
+{
+	int i;
+
+	for(i=0; i<MAX_UNIQUE_ACTORS; i++)
+		uniqueActorCRC[i] = 0;
+}
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RemoveUniqueObject
+	Purpose 	: Frees all the unique stuff from an object
+	Parameters 	: OBJECT *object
+	Returns 	: OBJECT *
+	Info 		:
+*/
+void RemoveUniqueObject(OBJECT *object)
+{
+	OBJECT	*obj;	
+	OBJECTSPRITE **spr;
+	int		i;
+		
+	obj = object;
+
+	if(object->numSprites)
+	{
+		spr = &object->sprites;
+		JallocFree((UBYTE**)spr);
+	}
+
+	if(object->children)
+		RemoveUniqueObject(object->children);
+
+	if(object->next)
+		RemoveUniqueObject(object->next);
+		
+	JallocFree((UBYTE**)&obj);
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RemoveUniqueActor
+	Purpose 	: removes unique actors
+	Parameters 	: ACTOR *,int
+	Returns 	: void
+	Info 		:
+*/
+void RemoveUniqueActor(ACTOR *actor,int type)
+{
+/*
+	if((actor->objectController) && (actor->objectController->object))
+	{
+		if((type < 0) || ((type >= 0) && (type < CAMEO_ACTOR)))
+		{
+			SubActor(actor);
+			FreeObjectSprites(actor->objectController->object);
+
+			if(actor->objectController->drawList)
+			{
+				JallocFree((UBYTE **)&actor->objectController->Vtx[0]);
+				JallocFree((UBYTE **)&actor->objectController->drawList);
+			}
+
+
+			RemoveUniqueObject(actor->objectController->object);
+			JallocFree((UBYTE **)&actor->objectController);
+		
+			if((actor->LODObjectController) && (actor->LODObjectController->object))
+			{
+				RemoveUniqueObject(actor->LODObjectController->object);
+				JallocFree((UBYTE **)&actor->LODObjectController);
+			}
+		}
+	}
+*/
 }

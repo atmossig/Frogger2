@@ -99,6 +99,10 @@ int MemLoadEntities(const void* data, long size)
 		
 			numNodes = MEMGETINT(&p);
 
+#ifndef PC_VERSION
+			stringChange(type);
+#endif
+
 			dprintf"'%s' %08x with %d path nodes\n", type, flags, numNodes));
 
 			path = (PATH *)JallocAlloc(sizeof(PATH), YES, "epath");
@@ -125,14 +129,14 @@ int MemLoadEntities(const void* data, long size)
 			{
 			case CREATE_ENEMY:
 				if( flags & ENEMY_NEW_SWARM )
-					enemy = CreateAndAddEnemy(type,INIT_SWARM);
+					enemy = CreateAndAddEnemy(type,0/*INIT_SWARM*/);
 				else
 					enemy = CreateAndAddEnemy(type,0);
 				enemy->uid = ID;
 				AssignPathToEnemy(enemy, flags, path, 0);
 				act = enemy->nmeActor;
-				if( enemy->flags & ENEMY_NEW_SWARM )
-					CreateAndAddFXSwarm( SWARM_TYPE_CROWS, &act->actor->pos, 32, 65535, 0 );
+//				if( enemy->flags & ENEMY_NEW_SWARM )
+//					CreateAndAddFXSwarm( SWARM_TYPE_CROWS, &act->actor->pos, 32, 65535, 0 );
 
 				break;
 
@@ -158,7 +162,8 @@ int MemLoadEntities(const void* data, long size)
 			v.v[X] = MEMGETFLOAT(&p);
 			v.v[Y] = MEMGETFLOAT(&p);
 			v.v[Z] = MEMGETFLOAT(&p);
-			CreateNewGarib(v, n, &firstTile[1], 0.0f);
+//			CreateNewGarib(v, n, &firstTile[1], 0.0f);
+			CreateNewGarib(v, n);
 			break;
 
 		case CREATE_CAMERACASE:

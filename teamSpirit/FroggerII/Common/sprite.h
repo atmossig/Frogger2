@@ -33,6 +33,22 @@
 #define LAND   1
 #define WATER  2
 
+
+////////   Fog related
+enum
+{
+	FOG_OFF,
+	FOG_TO_COLOUR,
+};
+
+typedef struct
+{
+	UBYTE r,g,b,mode;
+	short min,max;
+}FOG;
+
+extern FOG fog;
+
 enum
 {
 	SPRITE_ANIM_NONE,
@@ -143,6 +159,7 @@ extern void FreeAnimationList (void );
 
 #define SPRITE_FLAGS_CHEAT						(1 << 8)
 #define SPRITE_FLAGS_PAUSE						(1 << 9)
+#define SPRITE_FLAGS_NOZB						(1 << 10)
 
 #define MAX_OVERLAYS	260
 
@@ -183,18 +200,18 @@ extern SPRITE *testSpr;
 extern SPRITELIST spriteList;
 extern float printSpritesProj[4][4][4];
 
-extern void InitSpriteLinkedList();
-extern void FreeSpriteLinkedList();
-extern void AddSprite(SPRITE *sprite,SPRITE *after);
-extern void SubSprite(SPRITE *sprite);
-extern void AnimateSprites();
-extern void AnimateSprite(SPRITE *sprite);
-extern void InitSpriteAnimation(SPRITE *sprite,SPRITE_ANIMATION_TEMPLATE *temp,USHORT lifespan);
+void InitSpriteLinkedList();
+void FreeSpriteLinkedList();
+void AddSprite(SPRITE *sprite,SPRITE *after);
+void SubSprite(SPRITE *sprite);
+void AnimateSprites();
+void AnimateSprite(SPRITE *sprite);
+void InitSpriteAnimation(SPRITE *sprite,SPRITE_ANIMATION_TEMPLATE *temp,USHORT lifespan);
 
 
-extern void InitSpriteFrameLists();
+void InitSpriteFrameLists();
 
-extern SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,short flags);
+SPRITE *AddNewSpriteToList(float x,float y,float z,short size,char *txtrName,short flags);
 
 
 #endif

@@ -514,6 +514,7 @@ void
 ShowJalloc()
 {
 	int n = 0,m = 0;
+	int sizeUsed = 0,sizeEmpty = 0;
 	ULONG      l;
 	JALLOCTYPE *jp = &jallocControl;
 
@@ -527,21 +528,34 @@ ShowJalloc()
 	for(l = 0; l <= jp->lastUsedStatic; l++)
 	{
 		if(jp->blocks[l].inuse)
+		{
 			n++;
+			sizeUsed += jp->blocks[l].size;
+		}
 		else
+		{
 			m++;
+			sizeEmpty += jp->blocks[l].size;
+		}
 		dprintf"    block #%d (%s): at (&%x), size %d status %d\n", (int)l, jp->blocks[l].name,(int)jp->blocks[l].address, (int)jp->blocks[l].size, (int)jp->blocks[l].inuse));
 	}
 	for(l = MAXJALLOCS-1; l >= jp->lastUsedDynamic; l--)
 	{
 		if(jp->blocks[l].inuse)
+		{
 			n++;
+			sizeUsed += jp->blocks[l].size;
+		}
 		else
+		{
 			m++;
+			sizeEmpty += jp->blocks[l].size;
+		}
 		dprintf"    block #%d (%s): at (&%x), size %d status %d\n", (int)l, jp->blocks[l].name,(int)jp->blocks[l].address, (int)jp->blocks[l].size, (int)jp->blocks[l].inuse));
 	}
     dprintf"\n"));
 	dprintf"%d blocks used; %d blocks empty\n",n,m));
+	dprintf"%d bytes used; %d bytes wasted\n",sizeUsed,sizeEmpty));
 }
 
 
@@ -574,7 +588,7 @@ u32 DMAGetSize(u32 ROMStart, u32 ROMEnd)
 
 	if(header[0] == 0x464C4132)	//FLA2 identifier
 	{
-		dprintf"Compressed file found"));
+//		dprintf"Compressed file found"));
 
 		temp++;
 		swapChar = header[1];	//temp holds the uncompressed file size (backwards!)
@@ -590,7 +604,7 @@ u32 DMAGetSize(u32 ROMStart, u32 ROMEnd)
 		x = bankSize;
 	}
 
-	dprintf"DMAGetSize:%d\n", x));
+//	dprintf"DMAGetSize:%d\n", x));
 	return x;
 }
 
@@ -622,7 +636,7 @@ void DMAMemory(char *ramPtr, u32 ROMStart, u32 ROMEnd)
 
 	if(header[0] == 0x464C4132)	//FLA2 identifier
 	{
-		dprintf"Compressed file found"));
+//		dprintf"Compressed file found"));
 
 		temp++;
 		swapChar = header[1];	//temp holds the uncompressed file size (backwards!)
@@ -652,7 +666,7 @@ void DMAMemory(char *ramPtr, u32 ROMStart, u32 ROMEnd)
 		DecompressBuffer(decompBuffer+8, ramPtr);
 		JallocFree((UBYTE**)&decompBuffer);
 
-		dprintf"DMAMemory:%d\n", x));
+//		dprintf"DMAMemory:%d\n", x));
 
 	}
 	else	//just download normaly
@@ -669,7 +683,7 @@ void DMAMemory(char *ramPtr, u32 ROMStart, u32 ROMEnd)
 
 	//wait for completion
 		(void) osRecvMesg(&dmaMessageQ, NULL, OS_MESG_BLOCK);
-		dprintf"DMAMemory:%d\n", bankSize));
+//		dprintf"DMAMemory:%d\n", bankSize));
 	}
 }
 

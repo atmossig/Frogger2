@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 #include "incs.h"
@@ -71,8 +71,10 @@ void GameLoop(void)
 		if(frameCount == 15)
 			StartDrawing("gameloop");
 
+#ifdef PC_VERSION
 		UseAAMode = 2;
 		UseZMode = 1;
+#endif
 	
 		RunGameLoop();
 		frameCount++;
@@ -98,7 +100,7 @@ void GameLoop(void)
 	case OLDEFROGGER_MODE:
 		// olde original 2D Frogger mode
 		/*desiredFrameRate = newDesiredFrameRate = 1;
-		currFont = bigFont;
+		currFont = smallFont;
 		if(frameCount == 15)
 			StartDrawing("gameloop");
 

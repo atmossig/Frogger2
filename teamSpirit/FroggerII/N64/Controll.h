@@ -13,10 +13,6 @@
 #define CONTROLL_H_INCLUDED
 
 
-//#define INPUT_POLLPAUSE		0	//3
-extern unsigned long	INPUT_POLLPAUSE;
-extern long INPUT_PENALTY;
-
 extern OSMesgQueue	controllerMsgQ;
 extern OSMesg		controllerMsgBuf[];
 extern OSMesgQueue     serialMsgQ;
@@ -27,8 +23,6 @@ extern OSPfs	rumble;
 extern int initControllers(void);
 extern OSContStatus     statusdata[MAXCONTROLLERS];
 extern OSContPad        controllerdata[MAXCONTROLLERS];
-extern unsigned long	playerInputPause;
-extern unsigned long	playerInputPause2;
 
 extern int ControllerMode;
 extern char debugCtrlMode[20];

@@ -45,83 +45,18 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
 #include "incs.h"
 
 
-/**************************************************************************************************************/
-/******  GARDEN MAZE LEVEL  ***********************************************************************************/
-/**************************************************************************************************************/
+PLATFORMLIST platformList;								// the platform list
 
-
-/**************************************************************************************************************/
-/******  GARDEN VEGPATCH LEVEL  *******************************************************************************/
-/**************************************************************************************************************/
-
-
-
-/**************************************************************************************************************/
-
-  
-PLATFORMLIST platformList;					// the platform list
-
-PLATFORM *destPlatform[4];					// platform that frog is about to attempt to jump to
-PLATFORM *currPlatform[4];					// platform that frog is currently on
-PLATFORM *nearestPlatform[4];				// platform nearest to the frog
-
-GAMETILE *oldTile[4];
-
-PLATFORM *devPlat1	= NULL;
-PLATFORM *devPlat2	= NULL;
-
-
-PATHNODE debug_pathNodes1[] =					// TEST PATH - ANDYE
-{ 
-	345,40,0,0,0
-};
-
-PATHNODE debug_pathNodes2[] =					// TEST PATH - ANDYE
-{ 
-	346,80,0,0,0
-};
-
-PATHNODE debug_pathNodes3[] =					// TEST PATH - ANDYE
-{ 
-	347,40,80,1,0
-};
-
-PATHNODE debug_pathNodes4[] =					// TEST PATH - ANDYE
-{ 
-	347,80,0,0,0
-};
-
-PATHNODE debug_pathNodes5[] =					// TEST PATH - ANDYE
-{ 
-	347,120,0,0,0
-};
-
-PATHNODE debug_pathNodes6[] =					// TEST PATH - ANDYE
-{ 
-	139,5,500,1,0
-};
-
-PATHNODE debug_pathNodes7[] =					// TEST PATH - ANDYE
-{ 
-	154,5,500,1,0
-};
-
-PATH debug_path1 = { 1,0,0,0,0,debug_pathNodes1 };
-PATH debug_path2 = { 1,0,0,0,0,debug_pathNodes2 };
-PATH debug_path3 = { 1,0,0,0,0,debug_pathNodes3 };
-PATH debug_path4 = { 1,0,0,0,0,debug_pathNodes4 };
-PATH debug_path5 = { 1,0,0,0,0,debug_pathNodes5 };
-PATH debug_path6 = { 1,0,0,0,0,debug_pathNodes6 };
-PATH debug_path7 = { 1,0,0,0,0,debug_pathNodes7 };
-
-
+PLATFORM *destPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is about to attempt to jump to
+PLATFORM *currPlatform[4] = { NULL,NULL,NULL,NULL };	// platform that frog is currently on
+PLATFORM *nearestPlatform[4] = { NULL,NULL,NULL,NULL };	// platform nearest to the frog
 
 static void	GetPlatformActiveTile(PLATFORM *pform);
 
@@ -132,7 +67,6 @@ static void	GetPlatformActiveTile(PLATFORM *pform);
 	Returns			: 
 	Info			: 
 */
-
 PLATFORM *GetPlatformFromUID(long uid)
 {
 	PLATFORM *cur;
@@ -152,79 +86,7 @@ PLATFORM *GetPlatformFromUID(long uid)
 */
 void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 {
-	int i,c;
-
-	dprintf"Initialising platforms (world %d, level %d)...\n",worldID,levelID));
-
-	if(worldID == WORLDID_GARDEN)
-	{
-		if(levelID == LEVELID_GARDENLAWN)
-		{
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path1,PATH_MAKENODETILEPTRS);
-			SetPlatformVisibleTime(devPlat1,75);
-			SetPlatformRegenerateTime(devPlat1,100);
-
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path2,PATH_MAKENODETILEPTRS);
-			SetPlatformVisibleTime(devPlat1,75);
-			SetPlatformRegenerateTime(devPlat1,100);
-
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path3,PATH_MAKENODETILEPTRS);
-/*
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path4,PATH_MAKENODETILEPTRS);
-			SetPlatformVisibleTime(devPlat1,45);
-			SetPlatformRegenerateTime(devPlat1,100);
-*/
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path5,PATH_MAKENODETILEPTRS);
-			SetPlatformVisibleTime(devPlat1,45);
-			SetPlatformRegenerateTime(devPlat1,100);
-
-			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path6,PATH_MAKENODETILEPTRS);
-		}
-
-		if(levelID == LEVELID_GARDENMAZE)
-		{
-		}	   
-
-		if(levelID == LEVELID_GARDENVEGPATCH)
-		{
-		}
-/*		if(levelID == LEVELID_GARDENTREETOPSA)
-		{
-			devPlat1 = CreateAndAddPlatform("plank.obe");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path6,PATH_MAKENODETILEPTRS);
-
-			devPlat1 = CreateAndAddPlatform("plank.obe");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path7,PATH_MAKENODETILEPTRS);
-		}*/
-	}
-
-	else if(worldID == WORLDID_SUPERRETRO)
-	{
-	}
-	
-	else if(worldID == WORLDID_CITY)
-	{
-		if(levelID == LEVELID_CITYDOCKS)
-		{
-		}
-		else if(levelID == LEVELID_CITYSTREETS)
-		{
-		}
-		else if(levelID == LEVELID_CITYWAREHOUSE)
-		{
-		}
-		else if(levelID == LEVELID_CITYBONUS)
-		{
-		}
-	}
 }
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdatePlatforms
@@ -365,7 +227,7 @@ void UpdatePlatforms()
 							{
 								if (!(player[0].frogState & FROGSTATUS_ISDEAD))
 								{
-									AnimateActor(frog[0]->actor,2,NO,NO,0.35F, 0);
+									AnimateActor(frog[0]->actor,FROG_ANIM_FWDSOMERSAULT,NO,NO,0.5F,0,0);
 									frog[0]->action.deathBy = DEATHBY_DROWNING;
 									player[0].frogState |= FROGSTATUS_ISDEAD;
 									frog[0]->action.dead = 50;
@@ -418,7 +280,6 @@ void UpdatePlatforms()
 		}
 
 		// determine which world tile the platform is currently 'in'
-		oldTile[0] = currTile[0];
 		GetPlatformActiveTile(cur);
 
 		// determine if platform is carrying frog
@@ -468,7 +329,7 @@ void UpdatePlatforms()
 							CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_SMOKEBURST,&cur->pltActor->actor->pos,&rebound.normal,12,32,&rebound,40);
 						}
 
-						CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&cur->pltActor->actor->pos,128,1,0.2,40);
+						CreateAndAddFXSmoke(&cur->pltActor->actor->pos,128,30);
 						
 						SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
 						FlipVector(&frog[0]->actor->vel);
@@ -558,7 +419,7 @@ void UpdatePlatforms()
 				r = 10;
 
 			if( !(actFrameCount%r) )
-				CreateAndAddFXSmoke( SMOKE_TYPE_NORMAL, &cur->pltActor->actor->pos, 80, 1, 0.1, 20 );
+				CreateAndAddFXSmoke(&cur->pltActor->actor->pos,80,20);
 		}
 		if( cur->flags & PLATFORM_NEW_MAKESPARKS )
 		{
@@ -852,7 +713,7 @@ BOOL PlatformTooHigh(PLATFORM *plat,long pl)
 	}
 
 	// too high for normal hop
-	if(height > 25.0F && !superHop)
+	if(height > 25.0F && !player[pl].isSuperHopping)
 	{
 		// too high - need superhop for this jump up
 		return TRUE;
@@ -1000,7 +861,7 @@ PLATFORM *CreateAndAddPlatform(char *pActorName)
 	if(newItem->pltActor->actor->objectController)
 	{
 		InitActorAnim(newItem->pltActor->actor);
-		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F, 0);
+		AnimateActor(newItem->pltActor->actor,0,YES,NO,1.0F,0,0);
 	}
 
 	// currently set all surrounding platform ptrs to null
@@ -1327,6 +1188,8 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 	GetPositionForPathNode(&toPos,toNode);
 	
 	numSteps = DistanceBetweenPoints(&fromPos,&toPos);
+	if(numSteps == 0)
+		numSteps = 1;
 	numSteps /= pform->currSpeed;
 
 	pform->deltaNormal.v[X] /= numSteps;

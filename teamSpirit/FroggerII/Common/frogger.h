@@ -18,6 +18,38 @@
 #define MAX_FROGS 4
 extern long NUM_FROGS;
 
+//----- [ FROG ANIMATION ENUMS ] -----------------------------------------------------------------
+
+enum
+{
+	FROG_ANIM_STDJUMP,
+	FROG_ANIM_BREATHE,
+	FROG_ANIM_FWDSOMERSAULT,
+	FROG_ANIM_LANDONHEAD,
+	FROG_ANIM_ASSONFIRE,
+	FROG_ANIM_GOTOFLOAT,
+	FROG_ANIM_JUMPBEFOREFALL,
+	FROG_ANIM_DROWNING,
+	FROG_ANIM_TRYTOFLY,
+	FROG_ANIM_FLOATFALL,
+	FROG_ANIM_GETUPFROMFLOAT,
+	FROG_ANIM_UNKNOWN2,
+	FROG_ANIM_LOOKLEFTANDRIGHT,
+	FROG_ANIM_LOOKDOWN,
+	FROG_ANIM_GALLOPINGFROG,
+	FROG_ANIM_FORWARDSOMERSAULT,
+	FROG_ANIM_USINGTONGUE,
+	FROG_ANIM_SCRATCHHEAD,
+	FROG_ANIM_DANCE1,
+	FROG_ANIM_DANCE2,
+	FROG_ANIM_DANCE3,
+	FROG_ANIM_UNKNOWN4,
+
+	NUM_FROG_ANIMS,
+};
+
+//------------------------------------------------------------------------------------------------
+
 typedef struct _PLAYER
 {
 	char			name[3];
@@ -25,6 +57,8 @@ typedef struct _PLAYER
 	short			lives;
 	short			numSpawn;
 	short			timeSec;
+
+	unsigned char	inputPause;			// used for controller input
 
 	short			spawnTimer;
 	short			spawnScoreLevel;
@@ -34,6 +68,15 @@ typedef struct _PLAYER
 	unsigned long	frogState;
 	short			saveSlot;
 
+	// frog movement related stuff
+	unsigned char 	canJump;
+	unsigned char	isSuperHopping;
+	unsigned char	isLongHopping;
+
+	unsigned char	extendedHopDir;
+
+	VECTOR			jumpVelocity;
+
 } PLAYER;
 
 extern PLAYER player[];
@@ -41,17 +84,7 @@ extern PLAYER player[];
 
 extern float CROAK_SOUND_RANGE;
 
-/**/
-extern long isJump[];
-extern float jumpSpeed[];
-extern float jumpAmt[];
-
-extern float changeJumpSpeed;
-extern float bounceJumpSpeed;
-extern float finalJumpSpeed;
-extern float startJumpSpeed;
-
-/**/
+extern float globalFrogScale;
 
 extern long isLong;
 extern float longSpeed;
@@ -62,7 +95,7 @@ extern float startLongSpeed;
 
 
 extern ACTOR2	*frog[];
-extern SPRITEOVERLAY *sprHeart[12];
+extern SPRITEOVERLAY *sprHeart[3];
 
 extern float	croakRadius;
 extern float	croakVelocity;

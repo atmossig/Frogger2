@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -85,7 +85,7 @@ void UpDateOnScreenInfo ( void )
 		if (player[0].timeSec < 0)
 		{
 			countdownTimer = 0;
-			PlaySample(GEN_TIME_OUT,0,0,0);
+//			PlaySample(GEN_TIME_OUT,0,0,0);
 			sprintf(timeText,"NO BONUS !");
 			if (NUM_FROGS==1)
 				timeTextOver->draw = 50;
@@ -95,12 +95,12 @@ void UpDateOnScreenInfo ( void )
 		{
 			if ( tickTock )
 			{
-				PlaySample(GEN_CLOCK_TOCK,0,0,0);
+//				PlaySample(GEN_CLOCK_TOCK,0,0,0);
 				tickTock = 0;
 			}
 			else
 			{
-				PlaySample(GEN_CLOCK_TICK,0,0,0);
+//				PlaySample(GEN_CLOCK_TICK,0,0,0);
 				tickTock = 1;
 			}
 		}
@@ -126,7 +126,7 @@ void UpDateOnScreenInfo ( void )
 		{
 			if ( frog[0] )
 			{
-				if(frog[0]->action.lives <= i)
+				if(frog[0]->action.healthPoints <= i)
 					sprHeart[i]->a = 64;
 				else
 					sprHeart[i]->a = 255;
@@ -164,9 +164,9 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 {
 	currFont = smallFont;
 
-	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, bigFont, 0, 0, 0 );
-	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, NO, 255, 255, 255, 255, currFont, 0,0, 0 );
-	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, NO, 255, 255, 255, 255, currFont, 0,0, 0 );
+	pauseTitle		= CreateAndAddTextOverlay ( 50, 70, "pause", YES, NO, 255, 255, 255, 255, smallFont, 0, 0, 0 );
+	continueText	= CreateAndAddTextOverlay ( 50, 110, "continue", YES, NO, 255, 255, 255, 255, smallFont, 0,0, 0 );
+	quitText		= CreateAndAddTextOverlay ( 50, 130, "quit", YES, NO, 255, 255, 255, 255, smallFont, 0,0, 0 );
 	DisableTextOverlay ( pauseTitle );
 	DisableTextOverlay ( continueText );
 	DisableTextOverlay ( quitText );
@@ -178,7 +178,7 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 		scoreTextOver	= CreateAndAddTextOverlay(230,20,scoreText,NO,NO,255,255,255,255,currFont,0,0,0);
 	}
 
-	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,NO,255,255,255,255,bigFont,TEXTOVERLAY_WAVECHARS,6,0);
+	gameOver1 = CreateAndAddTextOverlay(60,239,"game over",NO,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
 	DisableTextOverlay(gameOver1);
 	gameOverScore = CreateAndAddTextOverlay(110,0,"************************",YES,NO,255,255,255,255,smallFont,0,0,0);
 	DisableTextOverlay(gameOverScore);
@@ -187,14 +187,14 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	DisableTextOverlay(babySavedText);
 	babySaved = 0;
 
-	levelComplete1 = CreateAndAddTextOverlay(60,80,"",YES,NO,255,255,255,0,bigFont,0,0,0);
+	levelComplete1 = CreateAndAddTextOverlay(60,80,"",YES,NO,255,255,255,0,smallFont,0,0,0);
 	DisableTextOverlay(levelComplete1);
 	levelComplete2 = CreateAndAddTextOverlay(0,120,"Level complete !",YES,NO,255,255,255,0,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
 	DisableTextOverlay(levelComplete2);
 	levelComplete3 = CreateAndAddTextOverlay(0,145,"********************",YES,NO,255,255,255,0,smallFont,0,6,0);
 	DisableTextOverlay(levelComplete3);
 	  
-//	keyCollected = CreateAndAddTextOverlay(0,100,"",YES,NO,255,255,255,255,bigFont,TEXTOVERLAY_LIFE,0,0);
+//	keyCollected = CreateAndAddTextOverlay(0,100,"",YES,NO,255,255,255,255,smallFont,TEXTOVERLAY_LIFE,0,0);
 //	DisableTextOverlay(keyCollected);
 
 
@@ -233,19 +233,6 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	AddFrameToSpriteOverlay(spawn,"spa02.bmp");
 	AddFrameToSpriteOverlay(spawn,"spa03.bmp");
 	AddFrameToSpriteOverlay(spawn,"spa04.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa05.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa06.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa07.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa08.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa09.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa10.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa11.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa12.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa13.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa14.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa15.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa16.bmp");
-	AddFrameToSpriteOverlay(spawn,"spa17.bmp");
 	SetSpriteOverlayAnimSpeed(spawn,0.5F);
 	spawn->draw = 0;
 		  

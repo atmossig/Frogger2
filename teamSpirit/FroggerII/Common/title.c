@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -54,7 +54,7 @@ void RunTmpTitle()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(TITLESGENERIC_TEX_BANK);
 /*
 		sprOver = CreateAndAddSpriteOverlay(posx,posy,"n64a.bmp",32,32,255,255,255,255,0);
 		sprOver = CreateAndAddSpriteOverlay(posx+(32*1),posy,"n64b.bmp",32,32,255,255,255,255,0);
@@ -74,24 +74,13 @@ void RunTmpTitle()
 		availWorlds	= CreateAndAddTextOverlay(100,122,"complete worlds",YES,NO,200,255,200,91,currFont,TEXTOVERLAY_WAVECHARS,1,0);
 		frontEnd	= CreateAndAddTextOverlay(100,140,"the front end",YES,NO,200,255,200,91,currFont,TEXTOVERLAY_WAVECHARS,1,0);
 			
-		//myBackdrop = CreateAndInitBackdrop("n64.bmp");
-
 		ResetParameters();
 
 //		runningDevStuff = 1;
 
 		StartDrawing ( "tmp title" );
 	}
-	// ENDIF
 
-/*	while (	myBackdrop->a )
-	{
-	}
-	// ENDWHILE
-
-	frontEndState.mode	= GAMETYPE_MODE;
-	frameCount = 0;
-					*/
 	button = controllerdata [ ActiveController ].button;
 
 	if((button & CONT_UP) && !(lastbutton & CONT_UP))
@@ -140,7 +129,7 @@ void RunTmpTitle()
 		switch (currentSelection)
 		{
 			case 0:
-				availWorlds->a = 255 * fabs(sinf(frameCount/12.5));
+				availWorlds->a = 255 * Fabs(sinf(frameCount/12.5));
 				availWorlds->waveAmplitude = 6.0F;
 
 				frontEnd->a = 91;
@@ -153,7 +142,7 @@ void RunTmpTitle()
 					frontEnd->waveAmplitude -= 0.10F;
 				break;
 			case 1:
-				frontEnd->a = 255 * fabs(sinf(frameCount/12.5));
+				frontEnd->a = 255 * Fabs(sinf(frameCount/12.5));
 				frontEnd->waveAmplitude = 6.0F;
 
 				availWorlds->a = 91; //255;

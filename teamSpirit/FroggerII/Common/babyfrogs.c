@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #include <ultra64.h>
 
@@ -22,7 +22,7 @@ ACTOR2 *babies[NUM_BABIES];
 ACTOR2 *nearestBaby		= NULL;
 ACTOR2 *lastBabySaved	= NULL;
 
-SPRITEOVERLAY *babyIcons[6];
+SPRITEOVERLAY *babyIcons[NUM_BABIES];
 
 unsigned long numBabies = 0;
 
@@ -35,46 +35,68 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 	lastBabySaved	= NULL;
 	babiesSaved		= 0;
 	
-	if ( worldVisualData [ player[0].worldNum ].levelVisualData [ player[0].levelNum ].multiPartLevel == MULTI_PART )
-	{
-		numBabies = 5;
-	}
-	// ENDIF
-
 	if ( createActors )
 	{
 		for (i=0; i<numBabies; i++)
 		{
-//			if ( babies[i] )
-//			{
-				babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+#ifndef PC_VERSION
+			babies[i] = CreateAndAddActor("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+#else
+			babies[i] = CreateAndAddActor("froglet.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0,0);
+#endif
 
-				babies[i] ->actor->shadow->radius	= 15;
-				babies[i]->actor->shadow->alpha		= 191;
+			babies[i]->actor->shadow->radius	= 15;
+			babies[i]->actor->shadow->alpha		= 191;
 
-				InitActorAnim(babies[i]->actor);
-				AnimateActor(babies[i]->actor,0,YES,NO,0.667);
-				babies[i]->actor->scale.v[0] = 0.1;
-				babies[i]->actor->scale.v[1] = 0.1;
-				babies[i]->actor->scale.v[2] = 0.1;
-				babies[i]->action.isSaved = 0;
-				if ( bTStart[i] )
-				{
-					babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
-					babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
-					babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
-				}
-				else
-				{
-					babies[i]->actor->pos.v[X] = 0;
-					babies[i]->actor->pos.v[Y] = 0;				// THIS IS JUST A QUICK FIX AT THERE ARE ONLY 3 FROGS IT
-					babies[i]->actor->pos.v[Z] = 0;				// CANT FIND THE OTHER 2 START POSITIONS
-				}
-				// ENDIF
+			InitActorAnim(babies[i]->actor);
+			AnimateActor(babies[i]->actor,0,YES,NO,0.5F,0,0);
+			babies[i]->actor->scale.v[0] = 0.3F;
+			babies[i]->actor->scale.v[1] = 0.3F;
+			babies[i]->actor->scale.v[2] = 0.3F;
+			babies[i]->action.isSaved = 0;
+			babies[i]->actor->pos.v[X] = bTStart[i]->centre.v[X];
+			babies[i]->actor->pos.v[Y] = bTStart[i]->centre.v[Y];
+			babies[i]->actor->pos.v[Z] = bTStart[i]->centre.v[Z];
 
-	//			babies[i]->flags |= ACTOR_DRAW_ALWAYS;
-//			}
-			// ENDIF
+			// determine baby colour and set values accordingly
+			switch(i)
+			{
+				case 0:
+					// green frog
+					babies[i]->action.fxColour[R] = 0;
+					babies[i]->action.fxColour[G] = 255;
+					babies[i]->action.fxColour[B] = 0;
+					babies[i]->action.fxColour[A] = 255;
+					break;
+				case 1:
+					// yellow frog
+					babies[i]->action.fxColour[R] = 255;
+					babies[i]->action.fxColour[G] = 255;
+					babies[i]->action.fxColour[B] = 0;
+					babies[i]->action.fxColour[A] = 255;
+					break;
+				case 2:
+					// blue frog
+					babies[i]->action.fxColour[R] = 0;
+					babies[i]->action.fxColour[G] = 0;
+					babies[i]->action.fxColour[B] = 255;
+					babies[i]->action.fxColour[A] = 255;
+					break;
+				case 3:
+					// purple frog
+					babies[i]->action.fxColour[R] = 255;
+					babies[i]->action.fxColour[G] = 0;
+					babies[i]->action.fxColour[B] = 255;
+					babies[i]->action.fxColour[A] = 255;
+					break;
+				case 4:
+					// red frog
+					babies[i]->action.fxColour[R] = 255;
+					babies[i]->action.fxColour[G] = 0;
+					babies[i]->action.fxColour[B] = 0;
+					babies[i]->action.fxColour[A] = 255;
+					break;
+			}
 		}
 	}
 
@@ -148,19 +170,6 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
 					babyIcons[i]->animTime = i;
 					break;
-
-				case 5:
-					babyIcons[i] = CreateAndAddSpriteOverlay(280-(i*20),205,"frog001.bmp",16,16,255,255,255,91,ANIMATION_FORWARDS | ANIMATION_CYCLE);
-					AddFrameToSpriteOverlay(babyIcons[i],"frog002.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog003.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog004.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog005.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog006.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog007.bmp");
-					AddFrameToSpriteOverlay(babyIcons[i],"frog008.bmp");
-					SetSpriteOverlayAnimSpeed(babyIcons[i],1.0F);
-					babyIcons[i]->animTime = i;
-					break;
 			}
 		}
 	}
@@ -176,9 +185,8 @@ void CreateBabies(unsigned long createActors,unsigned long createOverlays)
 */
 void RunBabySavedSequence(ACTOR2 *baby)
 {
-	static VECTOR pos;
-	FX_EXPLODEPARTICLE *explode;
-	PLANE2 babyPlane;
+	static VECTOR pos,pos2;
+	FX_SMOKE *smoke;
 	int i;
 
 	babySaved--;
@@ -186,6 +194,8 @@ void RunBabySavedSequence(ACTOR2 *baby)
 	{
 		EnableTextOverlay(babySavedText);
 		SetVector(&pos,&baby->actor->pos);
+		SetVector(&pos2,&pos);
+		pos2.v[Y] += 48;
 	}
 	else
 	{
@@ -201,20 +211,15 @@ void RunBabySavedSequence(ACTOR2 *baby)
 
 		if((babySaved & 3) == 0)
 		{
-			pos.v[Y] += 20;
-			CreateAndAddFXRipple(RIPPLE_TYPE_RING,&pos,&upVec,0.1,2,1,15);
+			pos.v[Y] += 6;
+			pos2.v[Y] -= 4;
+			CreateAndAddFXRipple(RIPPLE_TYPE_RING,&pos,&upVec,0.5,1,0.1,15);
+			CreateAndAddFXRipple(RIPPLE_TYPE_RING,&pos2,&upVec,0.5,1,0.25,20);
 
-			SetVector(&babyPlane.point,&baby->actor->pos);
-			SetVector(&babyPlane.normal,&upVec);
-
-			explode = CreateAndAddFXExplodeParticle(EXPLODEPARTICLE_TYPE_COLOURBURST,&baby->actor->pos,&upVec,12,16,&babyPlane,20);
-			i = MAX_EXPLODE_PARTICLES;
-			while(i--)
-			{
-				explode->sprite[i].r = 255;
-				explode->sprite[i].g = 255;
-				explode->sprite[i].b = 0;
-			}
+			smoke = CreateAndAddFXSmoke(&baby->actor->pos,64,35);
+			smoke->sprite.r = baby->action.fxColour[R];
+			smoke->sprite.g = baby->action.fxColour[G];
+			smoke->sprite.b = baby->action.fxColour[B];
 		}
 	}
 }
@@ -236,20 +241,19 @@ ACTOR2 *GetNearestBabyFrog()
 	i = numBabies;
 	while(i--)
 	{
-		if ( babies[i] )
-			if(!babies[i]->action.isSaved)
+		if(!babies[i]->action.isSaved)
+		{
+			t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
+			if(t < distance)
 			{
-				t = DistanceBetweenPoints(&frog[0]->actor->pos,&babies[i]->actor->pos);
-				if(t < distance)
-				{
-					distance	= t;
-					nearest		= babies[i];
-				}
+				distance	= t;
+				nearest		= babies[i];
 			}
+		}
 	}
 
 	if(nearest && (distance < CROAK_SOUND_RANGE))
-		PlaySample(2,NULL,255,128 + (128 - (distance / 4))); //218
+		PlaySample(218,NULL,255,128 + (128 - (distance / 4)));
 
 	return nearest;
 }

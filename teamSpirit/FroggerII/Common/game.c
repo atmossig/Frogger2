@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 #define SHOW_ME_THE_TILE_NUMBERS
 
@@ -36,13 +36,9 @@ GAMETILE **gTStart;
 float rZ = 0,rX = 0 ,rY = 0;
 long hopAmt = 10;
 
-unsigned long iceMoveDir[4] = {-1,-1,-1,-1};
-
-
 float seed = 0.0F;
 float upVal = 1;
 
-unsigned long displayCount = 0;
 long babySaved = 0;
 
 unsigned long autoPlaying = 0;
@@ -50,28 +46,13 @@ unsigned long recordKeying = 0;
 
 unsigned long num = 0;
 
-unsigned long globalLong = 4;
-unsigned long myVar = 4;
 short showEndLevelScreen = 1;
 
-ACTOR2 *demoTug = NULL;
-OBJECT_CONTROLLER *waterObjectCont = NULL;
-OBJECT *waterObject = NULL;
-float demoTugSeed = 0.0F;
-float demoTugAmp = 7.5F;
-float demoTugInc = 0.075F;
 long bby = 0;
-
-long INPUT_PENALTY = 0;
 
 VECTOR currCamDist = {0,0,10};
 
 short spawnCounter = 0;
-
-VECTOR debug_globalVector = { 0,1,0 };
-float debug_globalFloat = 8;
-VECTOR debug_globalEffectPos = { 0,0,0 };
-PLANE2 debug_plane2;
 
 long award = 2;
 
@@ -117,114 +98,69 @@ void GameProcessController(long pl)
 		// Find any movement keys for the frog
 		button[pl] = GetCurrentCameoKey();
 	}
-	// ENDELSEIF
 
-	if((stickX[pl] > 15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
+	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && (player[pl].canJump))
 	{
-		if (lastStickX[pl] < 15)
+		if(!player[pl].inputPause)
 		{
-	    	player[pl].frogState |= FROGSTATUS_ISWANTINGR;
-		}
-	}
-	else if((stickX[pl] < -15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if (lastStickX[pl] > -15)
-		{
-	    	player[pl].frogState |= FROGSTATUS_ISWANTINGL;
-	    }
-	}
-
-	if ((stickY[pl] > 15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if (lastStickY[pl] < 15)
-		{
-		   	player[pl].frogState |= FROGSTATUS_ISWANTINGU;
-	    }
-	}
-	else 
-	if ((stickY[pl] < -15) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-	{
-		if (lastStickY[pl] > -15)
-		{
-	    	player[pl].frogState |= FROGSTATUS_ISWANTINGD;
-	    }
-	}
-
-
-	if((button[pl] & CONT_UP) && (autoHop?1:!(lastbutton[pl] & CONT_UP)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING ))
-	{
-		if(!playerInputPause)
-		{
+			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
 
+			player[pl].canJump = 0;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGU;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_UP, frameCount );
-			iceMoveDir[pl] = MOVE_UP;
-//			if(!autoHop)
-//				playerInputPause = INPUT_POLLPAUSE;
+			player[pl].extendedHopDir = MOVE_UP;
 		}
-		else
-			if (playerInputPause>=INPUT_PENALTY)
-				playerInputPause -= INPUT_PENALTY;
 	}	    
 
-	if((button[pl] & CONT_RIGHT) && (autoHop?1:!(lastbutton[pl] & CONT_RIGHT)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING))
+	else if((button[pl] & CONT_RIGHT) && !(lastbutton[pl] & CONT_RIGHT) && (player[pl].canJump))
 	{
-		if(!playerInputPause)
+		if(!player[pl].inputPause)
 		{
+			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
 
+			player[pl].canJump = 0;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGR;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_RIGHT, frameCount );
-			iceMoveDir[pl] = MOVE_RIGHT;
-//			if(!autoHop)
-//				playerInputPause = INPUT_POLLPAUSE;
+			player[pl].extendedHopDir = MOVE_RIGHT;
 		}
-		else
-			if (playerInputPause>=INPUT_PENALTY)
-				playerInputPause -= INPUT_PENALTY;
 	}
     
-	if((button[pl] & CONT_DOWN) && (autoHop?1:!(lastbutton[pl] & CONT_DOWN)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING))
+	else if((button[pl] & CONT_DOWN) && !(lastbutton[pl] & CONT_DOWN) && (player[pl].canJump))
 	{
-		if(!playerInputPause)
+		if(!player[pl].inputPause)
 		{
+			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
 	    	
+			player[pl].canJump = 0;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGD;
 
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_DOWN, frameCount );
-			iceMoveDir[pl] = MOVE_DOWN;
-//			if(!autoHop)
-//				playerInputPause = INPUT_POLLPAUSE;
+			player[pl].extendedHopDir = MOVE_DOWN;
 		}
-		else
-			if (playerInputPause>=INPUT_PENALTY)
-				playerInputPause -= INPUT_PENALTY;
 	}
     
-	if((button[pl] & CONT_LEFT) && (autoHop?1:!(lastbutton[pl] & CONT_LEFT)) && (player[pl].frogState & FROGSTATUS_ISSTANDING || player[pl].frogState & FROGSTATUS_ISONMOVINGPLATFORM || player[pl].frogState & FROGSTATUS_ISFLOATING))
+	else if((button[pl] & CONT_LEFT) && !(lastbutton[pl] & CONT_LEFT) && (player[pl].canJump))
 	{
-		if(!playerInputPause)
+		if(!player[pl].inputPause)
 		{
+			player[pl].inputPause = INPUT_POLLPAUSE;
 			UpdateScore(frog[pl],hopAmt);
 
+			player[pl].canJump = 0;
 			player[pl].frogState |= FROGSTATUS_ISWANTINGL;
 			
 			if ( recordKeying )
 				AddPlayingActionToList ( MOVEMENT_LEFT, frameCount );
-			iceMoveDir[pl] = MOVE_LEFT;
-//			if(!autoHop)
-//				playerInputPause = INPUT_POLLPAUSE;
+			player[pl].extendedHopDir = MOVE_LEFT;
 		}
-		else
-			if (playerInputPause>=INPUT_PENALTY)
-				playerInputPause -= INPUT_PENALTY;
 	}
 
 
@@ -232,15 +168,13 @@ void GameProcessController(long pl)
     {
 		if ( gameState.mode == CAMEO_MODE )
 			gameState.mode = GAME_MODE;
-		// ENDIF
 		if(longHop)
 		{
 			isLong		= 1;
 			longSpeed	= 30.0f;
-			jumpAmt[pl]		= 0;
 			landRadius	= 41.0f;
 			speedTest	= 12.0f;
-			switch(iceMoveDir[pl])
+			switch(player[pl].extendedHopDir)
 			{
 				case MOVE_UP:
 					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPU;
@@ -259,16 +193,15 @@ void GameProcessController(long pl)
 		}
 		else
 		{
-			if(!isJump[pl])
+			if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 			{
 				// frog is wanting superhop
-				superHop = 5;
+				player[pl].isSuperHopping = 1;
 
-				isJump[pl] = 1;
-				jumpSpeed[pl] = startJumpSpeed;
-				jumpAmt[pl] = 0;
+				player[pl].inputPause = INPUT_POLLPAUSE;
+				UpdateScore(frog[pl],hopAmt);
 
-				switch(iceMoveDir[pl])
+				switch(player[pl].extendedHopDir)
 				{
 					case MOVE_UP:
 						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
@@ -286,10 +219,8 @@ void GameProcessController(long pl)
 			}
 		}
 	}
-
-
 	
-	if((button[pl] & CONT_B) && (player[pl].frogState & FROGSTATUS_ISSTANDING) && (tongueState & TONGUE_IDLE))
+	if((button[pl] & CONT_B) && (player[pl].canJump) && (tongueState & TONGUE_IDLE))
     {
 		// want to use tongue
 		tongueState	= TONGUE_NONE | TONGUE_SEARCHING;
@@ -297,9 +228,6 @@ void GameProcessController(long pl)
 
 	if((button[pl] & CONT_E) && !(lastbutton[pl] & CONT_E))
     {
-		// *** DEBUG - ANDYE ***
-		ShowCamInfo();
-		// *********************
 	}
 
 	if((button[0] & CONT_D) && !(lastbutton[0] & CONT_D))
@@ -350,9 +278,7 @@ void GameProcessController(long pl)
 				yFOVNew		= 80.0f;
 				speedTest	= 2.0f;
 			}
-			// ENDIF
 		}
-		// ENDIF
     }
 	else
 	{
@@ -365,19 +291,17 @@ void GameProcessController(long pl)
 			frog[pl]->action.dead	 = 50;
 			speedTest = 18.0f;
 		}
-		// ENDIF
 	}
-	// ENDELSEIF
-
-	// End Croak And CroakFloat
 
 	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
-	if (numBabies)
-    {
-		bby++;
-		bby %= numBabies;
-		if ( bTStart[bby] )
-			SetFroggerStartPos(bTStart[bby],frog[pl],0);
+	{
+		if(numBabies)
+		{
+			bby++;
+			bby %= numBabies;
+			if(bTStart[bby])
+				SetFroggerStartPos(bTStart[bby],pl);
+		}
     }
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
@@ -416,21 +340,6 @@ void GameProcessController(long pl)
 			babyIcons[i]->draw = 0;
 
 		lastbutton[pl] = button[pl];
-/*		
-		if(backPanel)
-		{
-			backPanel->xPos		= 50;
-			backPanel->yPos		= 60;
-			backPanel->width	= 220;
-			backPanel->height	= 95;
-			backPanel->r		= 15;
-			backPanel->g		= 63;
-			backPanel->b		= 255;
-			backPanel->a		= 127;
-			backPanel->draw		= 1;
-		}
-*/
-//		return;	
     }
   
 	lastbutton[pl] = button[pl];
@@ -446,36 +355,8 @@ void GameProcessController(long pl)
 	Parameters	: (void)
 	Returns		: void 
 */
-
 void InitCamera ( unsigned long worldID, unsigned long levelID )
 {
-	int i;
-	for (i=0; i<4; i++)
-	{
-		switch ( worldID )
-		{
-			case WORLDID_GARDEN:
-					switch ( levelID )
-					{
-						case LEVELID_GARDENLAWN:
-								camSource[i].v[X]	= 0;
-								camSource[i].v[Y]	= 300;
-								camSource[i].v[Z]	= 1165;
-								camTarget[i].v[X]	= 0;
-								camTarget[i].v[Y]	= 0;
-								camTarget[i].v[Z]	= 900;
-								frogFacing[0] = ( camFacing+2 ) & 3;
-							break;
-					}
-					// ENDSWITCH
-				break;
-
-		}
-		// ENDSWITCH
-		SetVector(&currCamSource[i],&camSource[i]);
-		SetVector(&currCamTarget[i],&camTarget[i]);
-		//SetVector(&currCamDist,&camDist);
-	}
 }
 
 /* --------------------------------------------------------------------------------
@@ -499,7 +380,7 @@ void CameraLookAtFrog(void)
 		l = 0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if (frog[i]->action.lives > 0)
+			if (frog[i]->action.healthPoints > 0)
 			{
 				afx += frog[i]->actor->pos.v[0];
 				afy += frog[i]->actor->pos.v[1];
@@ -554,12 +435,12 @@ void SlurpCamPosition(long cam)
 
 	if ( gameState.mode != CAMEO_MODE )
 	{
-		VECTOR t;
+		VECTOR t = { 0,0,0 };
 		int i;
 	
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if (frog[i]->action.lives > 0)
+			if (frog[i]->action.healthPoints > 0)
 			{
 				t.v[0]+=currTile[i]->normal.v[0];
 				t.v[1]+=currTile[i]->normal.v[1];
@@ -619,7 +500,7 @@ void UpdateCameraPosition(long cam)
 		l=0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if (frog[i]->action.lives > 0)
+			if (frog[i]->action.healthPoints > 0)
 			{
 
 				afx += frog[i]->actor->pos.v[0];
@@ -653,7 +534,6 @@ void UpdateCameraPosition(long cam)
 		camSource[cam].v[1] = afy+afy2;
 		camSource[cam].v[2] = afz+afz2;
 	}
-	// ENDIF
 
 	SlurpCamPosition(cam);
 }
@@ -679,41 +559,29 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 	QUATERNION t2,t3;
 	
 	// get water sections for the relevant world levels and set the teleporters - ANDYE
-	if(worldID == WORLDID_GARDEN)
-	{
-		if(levelID == LEVELID_GARDENLAWN)
-		{
-			//MakeTeleportTile(&firstTile[33],&firstTile[420],TELEPORT_TWOWAY);
-			
-			// teleport to secret section (and back)
-			MakeTeleportTile(&firstTile[389],&firstTile[292],TELEPORT_ONEWAY);
-			MakeTeleportTile(&firstTile[573],&firstTile[388],TELEPORT_ONEWAY);
-		}
-	}
-	
+/*	
 	skyActor = CreateAndAddActor("sky.ndo",0,0,0,0,0,0);
 	skyActor->flags |= ACTOR_DRAW_ALWAYS;
 	if (skyActor->actor->objectController)
 		skyActor->actor->objectController->object->name[0]=='_';
-	
+*/	
 	// Go through and add them!
 	while (ts)
 	{
 		float tv;
 		flags = 0;
 
+#ifndef PC_VERSION
+		stringChange(ts->name);
+#endif
+
 		theActor = CreateAndAddActor (ts->name,ts->pos.v[0],ts->pos.v[2],ts->pos.v[1],INIT_ANIMATION,0,0);
 		dprintf"Added actor '%s'\n",ts->name));
 
-		if ( gstrcmp ( ts->name, "world.ndo" ) == 0 )
+		if (gstrcmp(ts->name,"world.ndo") == 0 || gstrcmp(ts->name,"world.obe") == 0)
 			flags |= ACTOR_DRAW_ALWAYS;
 		
 		theActor->flags = flags;
-
-		// ----- FOR DEMO PURPOSES - ANDYE -----
-		if(gstrcmp(ts->name,"tug.ndo") == 0)
-			demoTug = theActor;
-		// ----- FOR DEMO PURPOSES - ANDYE -----
 
 		tv = ts->rot.y;
 		ts->rot.y = ts->rot.z;
@@ -725,7 +593,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 //		QuaternionMultiply (&t->actor->qRot,&t2,&t3);
 
-		AnimateActor(theActor->actor,0,YES,NO,1, 0, 0);
+		AnimateActor(theActor->actor,0,YES,NO,1,0,0);
 /*		if (ts->name[0] == 'a')
 		{
 			float rMin,rMax,rNum;
@@ -842,11 +710,6 @@ void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 	Returns		: void 
 */
 
-float sinkScale = 5;
-//extern long move;
-//extern long playMode;
-//extern long multiplayerRun;
-long move;
 long playMode = NORMAL_PMODE;
 long multiplayerRun;
 
@@ -870,8 +733,8 @@ void KillMPFrog(int num)
 	frog[num]->action.stun = 50;
 	frog[num]->action.safe = 80;
 	
-	if (frog[num]->action.lives > 0)
-		sprHeart[num*3+(--frog[num]->action.lives)]->draw = 0;
+	if (frog[num]->action.healthPoints > 0)
+		sprHeart[num*3+(--frog[num]->action.healthPoints)]->draw = 0;
 }
 
 void RunGameLoop (void)
@@ -951,20 +814,11 @@ void RunGameLoop (void)
 		for(i=0; i<8; i++)
 			DisableSpriteOverlay(goldCup[i]);
 
-		backPanel = CreateAndAddSpriteOverlay(50,83,"backpanel.bmp",32,32,255,255,255,255,0);
-		backPanel->width	= 220;
-		backPanel->height	= 50;
-		backPanel->r		= 15;
-		backPanel->g		= 63;
-		backPanel->b		= 255;
-		backPanel->a		= 0;
-
 		if (player[0].worldNum==9)
 		{
 		//	CreateOverlays();
 			timeTextOver->draw = 0;
 			livesTextOver->draw = 0;
-			backPanel->draw = 0;
 			countdownTimer = 0;
 			i = 3;
 			while(i--)
@@ -1002,26 +856,6 @@ void RunGameLoop (void)
 
 	}
 
-		if(frameCount > 50)
-		{
-
-			if (backPanel)
-			{
-				backPanel->yPos -= 4;
-				backPanel->a -= 4;
-
-				if((backPanel->yPos + backPanel->height) < 0)
-				{
-					backPanel->draw = 0;
-					backPanel->a = 127;
-					backPanel->yPos = 83;
-				}
-			}
-		}
-		else
-			if (backPanel)
-				backPanel->a += 3;
-		 
 	if(keyFound)
 		RunLevelKeyFound();
 
@@ -1111,11 +945,10 @@ void RunGameLoop (void)
 				}
 
 				// Save out the game data to the currently selected slot
-				SaveGameData();
+//				SaveGameData();
 
 				FreeAllLists();
 
-				frog[0] = NULL;
 				frameCount = 0;
 
 				player[0].numSpawn	= 0;
@@ -1152,7 +985,7 @@ void RunGameLoop (void)
 
 					levelIsOver		= 400;	
 
-					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
+//					PlaySample ( GEN_LEVEL_COMP, 0, 0, 0 );
 
 				
 					/*for ( i = 0; i < 3; i++ )
@@ -1182,7 +1015,7 @@ void RunGameLoop (void)
 					{
 						if ( babies[i] )
 				//		InitActorAnim(babies[i]->actor);
-						AnimateActor(babies[i]->actor,0,YES,NO,1.0);
+						AnimateActor(babies[i]->actor,0,YES,NO,1.0,0,0);
 					}
 					// ENDIF
 
@@ -1226,7 +1059,7 @@ void RunGameLoop (void)
 		UpdateFroggerPos(i);
 		if (frog[i]->action.frogon!=-1)
 		{
-		  	if (player[i].frogState & FROGSTATUS_ISSTANDING)
+		  	if(player[i].canJump)
 			{
 				frog[i]->actor->pos.v[X] = frog[frog[i]->action.frogon]->actor->pos.v[X]+sinf(frameCount/30.0)*5;
 				frog[i]->actor->pos.v[Y] = frog[frog[i]->action.frogon]->actor->pos.v[Y]+35;
@@ -1238,85 +1071,33 @@ void RunGameLoop (void)
 		if ((frog[i]->action.safe == 0) && (frameCount > 20))
 		if (!IsPointVisible(&frog[i]->actor->pos))
 			KillMPFrog(i);
-		/*{
-			int j;
-			for (j=0; j<NUM_FROGS; j++)
-			{
-				if (IsPointVisible(&frog[j]->actor->pos))
-				{
-					TeleportActorToTile(frog[i],currTile[j],i);
-					destTile[i] = currTile[j];
-				
-				}
-			}
-
-			frog[i]->action.stun = 50;
-			frog[i]->action.safe = 80;
-	
-			if (frog[i]->action.lives > 0)
-				sprHeart[i*3+(--frog[i]->action.lives)]->draw = 0;
-		}*/
 	}
 	
 	UpDateOnScreenInfo();
 
-	for (i= 0; i<NUM_FROGS; i++)
-	if(player[i].frogState & FROGSTATUS_ISSTANDING)
-	{
-		if((currTile[i]->state == TILESTATE_DEADLY) && !(player[i].frogState & FROGSTATUS_ISONMOVINGPLATFORM))
-		{
-			if(!frog[i]->action.dead)
-			{
-				CreateAndAddFXRipple(RIPPLE_TYPE_WATER,&currTile[i]->centre,&upVec,25,1,0.1,30);
-
-				if (NUM_FROGS==1)
-				{
-					frog[i]->action.deathBy = DEATHBY_DROWNING;
-					player[i].frogState |= FROGSTATUS_ISDEAD;
-					frog[i]->action.dead = 75;
-					PlaySample ( 2,NULL,255,128 );
-				}
-				else
-					KillMPFrog(i);
-			}
-		}
-	} 
-
-// ----- FOR DEMO PURPOSES - ANDYE -----
-	if(actList && demoTug)
-	{
-		demoTug->actor->pos.v[Y] = (demoTug->actor->oldpos.v[Y] - 20.0F) + (sinf(demoTugSeed) * demoTugAmp);
-		demoTug->actor->pos.v[Z] = (demoTug->actor->oldpos.v[Z]) + (sinf(demoTugSeed + PI_OVER_2) * (demoTugAmp));
-
-		demoTug->actor->qRot.z = (sinf(demoTugSeed) * 0.05F);
-		
-		demoTugSeed += demoTugInc;
-		if ( frameCount % 100 == 0 )
-			PlaySample ( 3,NULL,128,128 );
-	} 
-
 	for (i=0; i<NUM_FROGS; i++)
-	if (frog[i])
 	{
-		if (frog[i]->actor)
+		if (frog[i])
 		{
-			if (frog[i]->action.lives > 0)
-				frog[i]->actor->xluOverride=100;
-			else
-				frog[i]->actor->xluOverride=0;
+			if (frog[i]->actor)
+			{
+				if (frog[i]->action.healthPoints > 0)
+					frog[i]->actor->xluOverride=100;
+				else
+					frog[i]->actor->xluOverride=0;
 
-		} 
-		if (frog[i]->action.safe) 
-		{
-			if ((frameCount % 2)==0)
-				frog[i]->actor->xluOverride=0;
-			frog[i]->action.safe--;
-		}  
-		// play some ambient effects
-		if(Random(50) > 48)
-		{
-			PlaySample(Random(3)+226,NULL,92,128);
-		} 
+			} 
+			if (frog[i]->action.safe) 
+			{
+				if ((frameCount % 2)==0)
+					frog[i]->actor->xluOverride=0;
+				frog[i]->action.safe--;
+			}  
+
+			// play some ambient effects
+			if(Random(50) > 48)
+				PlaySample(Random(3)+226,NULL,92,128);
+		}
 	}  
 
 

@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#define F3DEX_GBI
+#define F3DEX_GBI_2
 
 //#define N64_PLAY_SONG
 
@@ -28,8 +28,12 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS];
 UBYTE darkenedLevel		= 0;
 short lightIntensity	= 255;
 
-
-// OVERALL WORLD / LEVEL VISUAL DATA BLUEPRINT
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//************************************************************************************************
+// PC VERSION ONLY - PC VERSION ONLY - PC VERSION ONLY - PC VERSION ONLY - PC VERSION ONLY
+//************************************************************************************************
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef PC_VERSION
 
 WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] = 
 {
@@ -40,13 +44,12 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 	GARDENMASTER_OBJ_BANK,		// master object bank
 	GARDEN_TEX_BANK,		// master texture bank
 	WORLD_OPEN,
-	6,						// number of levels
+	5,						// number of levels
 		{ 
 		"the spawn lawn",		LEVELID_GARDENLAWN,GARDENLEV1_OBJ_BANK,0,GARDENLEV1_COL,LEVEL_OPEN,WORLDID_ANCIENT,0,
 		"a-maze-ing garden",	LEVELID_GARDENMAZE,GARDENLEV2_OBJ_BANK,0,GARDENLEV2_COL,LEVEL_OPEN,WORLDID_SPACE,0,
 		"vegging out",			LEVELID_GARDENVEGPATCH,GARDENLEV3_OBJ_BANK,0,GARDENLEV3_COL,LEVEL_OPEN,WORLDID_CITY,0,
-		"garden boss a",		LEVELID_GARDENBOSSA,GARDENBOSSA_OBJ_BANK,0,GARDENMASTERA_COL,LEVEL_OPEN,WORLDID_SUBTERRANEAN,MULTI_PART,
-		"garden boss b",		LEVELID_GARDENBOSSB,GARDENBOSSB_OBJ_BANK,0,GARDENMASTERB_COL,LEVEL_OPEN,WORLDID_SUBTERRANEAN,MULTI_PART,
+		"garden boss",			LEVELID_GARDEN4,GARDENBOSS_OBJ_BANK,0,GARDENMASTER_COL,LEVEL_OPEN,WORLDID_SUBTERRANEAN,0,
 		"garden bonus",			LEVELID_GARDEN5,GARDENBONUS_OBJ_BANK,0,GARDENBONUS_COL,LEVEL_CLOSED,-1,0,
 		"garden multi",			LEVELID_GARDEN6,GARDENMULTI_OBJ_BANK,0,GARDENMULTI_COL,LEVEL_CLOSED,-1,0,
 		},
@@ -226,6 +229,208 @@ WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] =
 };
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//************************************************************************************************
+// N64 VERSION ONLY - N64 VERSION ONLY - N64 VERSION ONLY - N64 VERSION ONLY - N64 VERSION ONLY
+//************************************************************************************************
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#else
+
+WORLD_VISUAL_DATA worldVisualData[MAX_WORLDS] = 
+{
+//------------------------------------------------ GARDEN
+	{
+	"garden",					// description
+	WORLDID_GARDEN,				// world ID
+	GENERIC_GARDEN_OBJ_BANK,		// master object bank
+	GENERIC_GARDEN_TEX_BANK,	// master texture bank
+	WORLD_OPEN,
+	7,							// number of levels
+		{ 
+		"the spawn lawn",		LEVELID_GARDENLEV1,LEVEL1_GARDEN_OBJ_BANK,LEVEL1_GARDEN_TEX_BANK,GARDENLEV1_COL,LEVEL_OPEN,WORLDID_ANCIENT,0,
+		"a-maze-ing garden",	LEVELID_GARDENLEV2,LEVEL2_GARDEN_OBJ_BANK,LEVEL2_GARDEN_TEX_BANK,GARDENLEV2_COL,LEVEL_OPEN,WORLDID_SPACE,0,
+		"vegging out",			LEVELID_GARDENLEV3,LEVEL3_GARDEN_OBJ_BANK,LEVEL3_GARDEN_TEX_BANK,GARDENLEV3_COL,LEVEL_OPEN,WORLDID_CITY,0,
+		"garden boss",			LEVELID_GARDENBOSSA,BOSSA_GARDEN_OBJ_BANK,BOSSA_GARDEN_TEX_BANK,GARDENMASTERA_COL,LEVEL_OPEN,WORLDID_SUBTERRANEAN,0,
+		"tree tops b", 			LEVELID_GARDENBOSSB,BOSSB_GARDEN_OBJ_BANK,BOSSB_GARDEN_TEX_BANK,GARDENMASTERB_COL,LEVEL_OPEN,0,0,
+		"garden bonus",			LEVELID_GARDENBONUS,BONUS_GARDEN_OBJ_BANK,BONUS_GARDEN_TEX_BANK,GARDENBONUS_COL,LEVEL_OPEN,-1,0,
+		"garden multi",			LEVELID_GARDENMULTI,MULTI_GARDEN_OBJ_BANK,MULTI_GARDEN_TEX_BANK,GARDENMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+//------------------------------------------------ ANCIENT
+
+	{
+	"ancient",			// description
+	WORLDID_ANCIENT,		// world ID
+	GENERIC_ANCIENT_OBJ_BANK,	// master object bank
+	GENERIC_ANCIENT_TEX_BANK,	// master texture bank
+	WORLD_CLOSED,
+	9,						// number of levels
+		{ 
+		"ancient 1",		LEVELID_ANCIENTLEV1,LEVEL1_ANCIENT_OBJ_BANK,LEVEL1_ANCIENT_TEX_BANK,ANCIENTLEV1_COL,LEVEL_OPEN,-1,0,
+		"ancient 2",		LEVELID_ANCIENTLEV2,LEVEL2_ANCIENT_OBJ_BANK,LEVEL2_ANCIENT_TEX_BANK,ANCIENTLEV2_COL,LEVEL_OPEN,-1,0,
+		"ancient 3",		LEVELID_ANCIENTLEV3,LEVEL3_ANCIENT_OBJ_BANK,LEVEL3_ANCIENT_TEX_BANK,ANCIENTLEV3_COL,LEVEL_OPEN,-1,0,
+		"ancient boss",		LEVELID_ANCIENTBOSSA,BOSSA_ANCIENT_OBJ_BANK,BOSSA_ANCIENT_TEX_BANK,ANCIENTMASTERA_COL,LEVEL_OPEN,-1,0,
+		"ancient boss a",	LEVELID_ANCIENTBOSSB,BOSSA_ANCIENT_OBJ_BANK,BOSSA_ANCIENT_TEX_BANK,ANCIENTMASTERA_COL,LEVEL_OPEN,-1,0,
+		"ancient boss b",	LEVELID_ANCIENTBOSSC,BOSSA_ANCIENT_OBJ_BANK,BOSSA_ANCIENT_TEX_BANK,ANCIENTMASTERA_COL,LEVEL_OPEN,-1,0,
+		"ancient boss c",	LEVELID_ANCIENTBOSSD,BOSSA_ANCIENT_OBJ_BANK,BOSSA_ANCIENT_TEX_BANK,ANCIENTMASTERA_COL,LEVEL_OPEN,-1,0,
+		"ancient bonus",	LEVELID_ANCIENTBONUS,BONUS_ANCIENT_OBJ_BANK,BONUS_ANCIENT_TEX_BANK,ANCIENTBONUS_COL,LEVEL_OPEN,-1,0,
+		"ancient multi",	LEVELID_ANCIENTMULTI,MULTI_ANCIENT_OBJ_BANK,MULTI_ANCIENT_TEX_BANK,ANCIENTMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+
+//------------------------------------------------ SPACE
+
+	{
+	"space",			// description
+	WORLDID_SPACE,		// world ID
+	GENERIC_SPACE_OBJ_BANK,		// master object bank
+	GENERIC_SPACE_TEX_BANK,		// master texture bank
+	WORLD_CLOSED,
+	6,						// number of levels
+		{ 
+		"space 1",		LEVELID_SPACELEV1,LEVEL1_SPACE_OBJ_BANK,LEVEL1_SPACE_TEX_BANK,SPACELEV1_COL,LEVEL_OPEN,-1,0,
+		"space 2",		LEVELID_SPACELEV2,LEVEL2_SPACE_OBJ_BANK,LEVEL2_SPACE_TEX_BANK,SPACELEV2_COL,LEVEL_OPEN,-1,0,
+		"space 3",		LEVELID_SPACELEV3,LEVEL3_SPACE_OBJ_BANK,LEVEL3_SPACE_TEX_BANK,SPACELEV3_COL,LEVEL_OPEN,-1,0,
+		"space boss",	LEVELID_SPACEBOSSA,BOSSA_SPACE_OBJ_BANK,BOSSA_SPACE_TEX_BANK,SPACEMASTER_COL,LEVEL_OPEN,-1,0,
+		"space bonus",	LEVELID_SPACEBONUS,BONUS_SPACE_OBJ_BANK,BONUS_SPACE_TEX_BANK,SPACEBONUS_COL,LEVEL_OPEN,-1,0,
+		"space multi",	LEVELID_SPACEMULTI,MULTI_SPACE_OBJ_BANK,MULTI_SPACE_TEX_BANK,SPACEMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+//------------------------------------------------ CITY
+
+	{
+	"city",				// description
+	WORLDID_CITY,		// world ID
+	GENERIC_CITY_OBJ_BANK,		// master object bank
+	GENERIC_CITY_TEX_BANK,		// master texture bank
+	WORLD_OPEN,
+	6,						// number of levels
+		{ 
+		"city 1",		LEVELID_CITYLEV1,LEVEL1_CITY_OBJ_BANK,LEVEL1_CITY_TEX_BANK,CITYLEV1_COL,LEVEL_OPEN,WORLDID_TOYSHOP,0,
+		"city 2",		LEVELID_CITYLEV2,LEVEL2_CITY_OBJ_BANK,LEVEL2_CITY_TEX_BANK,CITYLEV2_COL,LEVEL_OPEN,-1,0,
+		"city 3",		LEVELID_CITYLEV3,LEVEL3_CITY_OBJ_BANK,LEVEL3_CITY_TEX_BANK,CITYLEV3_COL,LEVEL_OPEN,-1,0,
+		"city boss",	LEVELID_CITYBOSSA,BOSSA_CITY_OBJ_BANK,BOSSA_CITY_TEX_BANK,CITYMASTER_COL,LEVEL_OPEN,-1,0,
+		"city bonus",	LEVELID_CITYBONUS,BONUS_CITY_OBJ_BANK,BONUS_CITY_TEX_BANK,CITYBONUS_COL,LEVEL_OPEN,-1,0,
+		"city multi",	LEVELID_CITYMULTI,MULTI_CITY_OBJ_BANK,MULTI_CITY_TEX_BANK,CITYMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+//------------------------------------------------ SUBTERRANEAN
+
+	{
+	"subterranean",				// description
+	WORLDID_SUBTERRANEAN,		// world ID
+	GENERIC_SUBTERRANEAN_OBJ_BANK,		// master object bank
+	GENERIC_SUBTERRANEAN_TEX_BANK,		// master texture bank
+	WORLD_CLOSED,
+	6,						// number of levels
+		{ 
+		"sub 1",		LEVELID_SUBTERRANEANLEV1,LEVEL1_SUBTERRANEAN_OBJ_BANK,LEVEL1_SUBTERRANEAN_TEX_BANK,SUBTERRANEANLEV1_COL,LEVEL_OPEN,-1,0,
+		"sub 2",		LEVELID_SUBTERRANEANLEV2,LEVEL2_SUBTERRANEAN_OBJ_BANK,LEVEL2_SUBTERRANEAN_TEX_BANK,SUBTERRANEANLEV2_COL,LEVEL_OPEN,-1,0,
+		"sub 3",		LEVELID_SUBTERRANEANLEV3,LEVEL3_SUBTERRANEAN_OBJ_BANK,LEVEL3_SUBTERRANEAN_TEX_BANK,SUBTERRANEANLEV3_COL,LEVEL_OPEN,-1,0,
+		"sub boss",		LEVELID_SUBTERRANEANBOSSA,BOSSA_SUBTERRANEAN_OBJ_BANK,BOSSA_SUBTERRANEAN_TEX_BANK,SUBTERRANEANMASTER_COL,LEVEL_OPEN,-1,0,
+		"sub bonus",	LEVELID_SUBTERRANEANBONUS,BONUS_SUBTERRANEAN_OBJ_BANK,BONUS_SUBTERRANEAN_TEX_BANK,SUBTERRANEANBONUS_COL,LEVEL_OPEN,-1,0,
+		"sub multi",	LEVELID_SUBTERRANEANMULTI,MULTI_SUBTERRANEAN_OBJ_BANK,MULTI_SUBTERRANEAN_TEX_BANK,SUBTERRANEANMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+//------------------------------------------------ LABORATORY
+
+	{
+	"laboratory",				// description
+	WORLDID_LABORATORY,		// world ID
+	GENERIC_LABORATORY_OBJ_BANK,		// master object bank
+	GENERIC_LABORATORY_TEX_BANK,		// master texture bank
+	WORLD_CLOSED,
+	6,						// number of levels
+		{ 
+		"lab 1",		LEVELID_LABORATORYLEV1,LEVEL1_LABORATORY_OBJ_BANK,LEVEL1_LABORATORY_TEX_BANK,LABORATORYLEV1_COL,LEVEL_OPEN,-1,0,
+		"lab 2",		LEVELID_LABORATORYLEV2,LEVEL2_LABORATORY_OBJ_BANK,LEVEL2_LABORATORY_TEX_BANK,LABORATORYLEV2_COL,LEVEL_OPEN,-1,0,
+		"lab 3",		LEVELID_LABORATORYLEV3,LEVEL3_LABORATORY_OBJ_BANK,LEVEL3_LABORATORY_TEX_BANK,LABORATORYLEV3_COL,LEVEL_OPEN,-1,0,
+		"lab boss",		LEVELID_LABORATORYBOSSA,BOSSA_LABORATORY_OBJ_BANK,BOSSA_LABORATORY_TEX_BANK,LABORATORYMASTER_COL,LEVEL_OPEN,-1,0,
+		"lab bonus",	LEVELID_LABORATORYBONUS,BONUS_LABORATORY_OBJ_BANK,BONUS_LABORATORY_TEX_BANK,LABORATORYBONUS_COL,LEVEL_OPEN,-1,0,
+		"lab multi",	LEVELID_LABORATORYMULTI,MULTI_LABORATORY_OBJ_BANK,MULTI_LABORATORY_TEX_BANK,LABORATORYMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+//------------------------------------------------ TOYSHOP
+
+	{
+	"toy shop",				// description
+	WORLDID_TOYSHOP,		// world ID
+	GENERIC_TOYSHOP_OBJ_BANK,		// master object bank
+	GENERIC_TOYSHOP_TEX_BANK,		// master texture bank
+	WORLD_CLOSED,
+	6,						// number of levels
+		{ 
+		"toy shop 1",		LEVELID_TOYSHOPLEV1,LEVEL1_TOYSHOP_OBJ_BANK,LEVEL1_TOYSHOP_TEX_BANK,TOYSHOPLEV1_COL,LEVEL_OPEN,-1,0,
+		"toy shop 2",		LEVELID_TOYSHOPLEV2,LEVEL2_TOYSHOP_OBJ_BANK,LEVEL2_TOYSHOP_TEX_BANK,TOYSHOPLEV2_COL,LEVEL_OPEN,-1,0,
+		"toy shop 3",		LEVELID_TOYSHOPLEV3,LEVEL3_TOYSHOP_OBJ_BANK,LEVEL3_TOYSHOP_TEX_BANK,TOYSHOPLEV3_COL,LEVEL_OPEN,-1,0,
+		"toy shop boss",	LEVELID_TOYSHOPBOSSA,BOSSA_TOYSHOP_OBJ_BANK,BOSSA_TOYSHOP_TEX_BANK,TOYSHOPMASTER_COL,LEVEL_OPEN,-1,0,
+		"toy shop bonus",	LEVELID_TOYSHOPBONUS,BONUS_TOYSHOP_OBJ_BANK,BONUS_TOYSHOP_TEX_BANK,TOYSHOPBONUS_COL,LEVEL_OPEN,-1,0,
+		"toy shop multi",	LEVELID_TOYSHOPMULTI,MULTI_TOYSHOP_OBJ_BANK,MULTI_TOYSHOP_TEX_BANK,TOYSHOPMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+
+//------------------------------------------------ HALLOWEEN
+
+	{
+	"halloween",					// description
+	WORLDID_HALLOWEEN,			// world ID
+	GENERIC_HALLOWEEN_OBJ_BANK,			// master object bank
+	GENERIC_HALLOWEEN_TEX_BANK,			// master texture bank
+	WORLD_CLOSED,
+	6,						// number of levels 
+		{ 
+		"halloween 1",		LEVELID_HALLOWEENLEV1,	LEVEL1_HALLOWEEN_OBJ_BANK,LEVEL1_HALLOWEEN_TEX_BANK,HALLOWEENLEV1_COL,LEVEL_OPEN,-1,0,
+		"halloween 2",		LEVELID_HALLOWEENLEV2,	LEVEL2_HALLOWEEN_OBJ_BANK,LEVEL2_HALLOWEEN_TEX_BANK,HALLOWEENLEV2_COL,LEVEL_OPEN,-1,0,
+		"halloween 3",		LEVELID_HALLOWEENLEV3,	LEVEL3_HALLOWEEN_OBJ_BANK,LEVEL3_HALLOWEEN_TEX_BANK,HALLOWEENLEV3_COL,LEVEL_OPEN,-1,0,
+		"halloween boss",	LEVELID_HALLOWEENBOSSA,	BOSSA_HALLOWEEN_OBJ_BANK,BOSSA_HALLOWEEN_TEX_BANK,HALLOWEENMASTER_COL,LEVEL_OPEN,-1,0,
+		"halloween bonus",	LEVELID_HALLOWEENBONUS,	BONUS_HALLOWEEN_OBJ_BANK,BONUS_HALLOWEEN_TEX_BANK,HALLOWEENBONUS_COL,LEVEL_OPEN,-1,0,
+		"halloween multi",	LEVELID_HALLOWEENMULTI,	MULTI_HALLOWEEN_OBJ_BANK,MULTI_HALLOWEEN_TEX_BANK,HALLOWEENMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	},
+
+	
+
+//------------------------------------------------ SUPERRETRO
+
+	{
+	"super retro",			// description
+	WORLDID_SUPERRETRO,		// world ID
+	GENERIC_RETRO_OBJ_BANK,	// master object bank
+	GENERIC_RETRO_TEX_BANK,	// master texture bank
+	WORLD_CLOSED,
+	6,						// number of levels
+		{ 
+		"super 1",		LEVELID_SUPERRETROLEV1,LEVEL1_RETRO_OBJ_BANK,LEVEL1_RETRO_TEX_BANK,RETROLEV1_COL,LEVEL_OPEN,-1,0,
+		"super 2",		LEVELID_SUPERRETROLEV2,LEVEL2_RETRO_OBJ_BANK,LEVEL2_RETRO_TEX_BANK,RETROLEV2_COL,LEVEL_OPEN,-1,0,
+		"super 3",		LEVELID_SUPERRETROLEV3,LEVEL3_RETRO_OBJ_BANK,LEVEL3_RETRO_TEX_BANK,RETROLEV3_COL,LEVEL_OPEN,-1,0,
+		"super boss",	LEVELID_SUPERRETROBOSSA,BOSSA_RETRO_OBJ_BANK,BOSSA_RETRO_TEX_BANK,RETROMASTER_COL,LEVEL_OPEN,-1,0,
+		"super bonus",	LEVELID_SUPERRETROBONUS,BONUS_RETRO_OBJ_BANK,BONUS_RETRO_TEX_BANK,RETROBONUS_COL,LEVEL_OPEN,-1,0,
+		"super multi",	LEVELID_SUPERRETROMULTI,MULTI_RETRO_OBJ_BANK,MULTI_RETRO_TEX_BANK,RETROMULTI_COL,LEVEL_OPEN,-1,0,
+		},
+	}
+
+};
+
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//************************************************************************************************
+// BOTH VERSIONS (PC AND N64)
+//************************************************************************************************
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 /*	--------------------------------------------------------------------------------
 	Function		: LoadVisualBanksForWorld
 	Purpose			: loads the relevant object and texture banks for a world
@@ -245,6 +450,7 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	// load the relevant master object / texture banks
 	dprintf"Loading...\n"));
 	LoadTextureBank(SYSTEM_TEX_BANK);
+	LoadTextureBank(INGAMEGENERIC_TEX_BANK);
 	LoadTextureBank(texBankToUse);
 	LoadObjectBank(objBankToUse);
 
@@ -283,23 +489,27 @@ void LoadVisualBanksForWorld(unsigned long worldID,unsigned long levelID)
 	Info			: 
 */
 
-void FreeObjectBank(long i);
+#ifdef PC_VERSION
+	void FreeObjectBank(long i);
+#endif
 
 void FreeAllObjectBanks()
 {
 	unsigned long i;
+
+#ifdef PC_VERSION
 	
 	for(i=0; i<MAX_OBJECT_BANKS; i++)
 		FreeObjectBank(i);
-
-/*
+#else
 
 	for(i=0; i<MAX_OBJECT_BANKS; i++)
 	{
 		if(objectBanks[i].freePtr)
 			JallocFree((UBYTE**)&objectBanks[i].freePtr);
 	}
-*/
+
+#endif
 }
 
 
@@ -310,7 +520,7 @@ void FreeAllObjectBanks()
 	Parameters	: unsigned long , unsigned long
 	Returns		: void 
 */
-void InitLevel ( unsigned long worldID, unsigned long levelID )
+void InitLevel(unsigned long worldID,unsigned long levelID)
 {
 	StopDrawing("initlev");
 
@@ -319,10 +529,9 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	fadeStep	= 8;
 	fadeDir		= FADE_IN;
 	doScreenFade = 63;
-	
-	LoadMapBank ( worldVisualData[worldID].levelVisualData[levelID].collBank );
 
-	// load relevant texture and object banks
+	// load relevant collison, texture and object banks
+	LoadMapBank(worldID,levelID);
 	LoadVisualBanksForWorld(worldID,levelID);
 
 	InitSpriteFrameLists();
@@ -330,15 +539,6 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;
-
-	InitCamera( worldID, levelID );
-
-	if ( demoTug )
-	{
-		JallocFree ( (UBYTE**)&demoTug );
-		demoTug = NULL;
-	}
-	// ENDIF
 
 	CreateLevelObjects(worldID,levelID);
 
@@ -348,57 +548,25 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
 	InitTriggerList();
-	
+
 	LoadLevelEntities(worldID,levelID);
-	//InitPlatformsForLevel(worldID,levelID);
-	//InitEnemiesForLevel(worldID,levelID);
-	//InitCollectablesForLevel(worldID,levelID);
-	InitCameraForLevel(worldID,levelID);
+	
+// NOT NEEDED ANYMORE --->
+//	InitCamera(worldID,levelID);
+//	InitPlatformsForLevel(worldID,levelID);
+//	InitEnemiesForLevel(worldID,levelID);
+//	InitCollectablesForLevel(worldID,levelID);
+//	InitCameraForLevel(worldID,levelID);
+// <--- NOT NEEDED ANYMORE
+
 	//InitCameosForLevel ( worldID, levelID );
 		
 	CreateFrogger(1,1,1,1); // This also creates the babies
 
-	InitEventsForLevel(worldID, levelID);
-
-#ifdef PC_VERSION
-	LoadLevelScript(worldID, levelID);
-#endif
-
-	//LoadTextureBank ( SYSTEM_TEX_BANK );
-	switch ( worldID )
-	{
-		case WORLDID_GARDEN:
-			switch (levelID)
-			{
-				case LEVELID_GARDENLAWN:
-					camFacing = ((camFacing+2)%4);
-				break;
-			};
-		break;
-		case WORLDID_CITY:
-			switch ( levelID )
-			{
-				case LEVELID_CITYDOCKS:
-					camFacing = ((camFacing+2)%4);
-				break;
-				case LEVELID_CITYWAREHOUSE:
-					//camFacing = ( ( camFacing
-				break;
-			};
-		break;
-	};
+	//InitEventsForLevel(worldID,levelID);
 
 	// prepare the text overlays for the current level
 	InitInGameTextOverlays(worldID,levelID);
-
-#ifdef PC_VERSION
-	LoadSfx ( worldID );
-//	LoadDemoSamples();
-#endif
-
-//	CreateAndAddSample ( "x:\\teamspirit\\pcversion\\babyfrog.wav" );
-//	CreateAndAddSample ( "x:\\teamspirit\\pcversion\\superhop.wav" );
-//	CreateAndAddSample ( "x:\\teamspirit\\pcversion\\froghop.wav" );
 
 	StartDrawing("initlev");
 
@@ -407,27 +575,28 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 #ifdef N64_PLAY_SONG
 	PrepareSong(1);
 #endif
+
 #endif
 }
 
 
-/* --------------------------------------------------------------------------------
-	Programmer	: Matthew Cloy
-	Function	: FreeLevel
-	Purpose		:
-	Parameters	: (void)
-	Returns		: void 
+/*	--------------------------------------------------------------------------------
+	Function		: FreeAllLists
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
 */
-void FreeLevel(void)
+void FreeAllLists()
 {
+	dprintf"----- FREEING ALL LISTS -----\n"));
+
 	KillAllTriggers();
 
-	FreeActorList();
-
-	FreeFXSwarmLinkedList();
 	FreeFXSmokeLinkedList();
 	FreeFXRippleLinkedList();
 	FreeFXExplodeParticleLinkedList();
+	FreeSpriteFrameLists();
 	FreeGaribLinkedList();
 	FreeTextOverlayLinkedList();
 	FreeSpriteOverlayLinkedList();
@@ -441,29 +610,27 @@ void FreeLevel(void)
 	FreeAllTextureBanks();
 	FreeCameoList();
 	FreeTransCameraList();
+#ifndef PC_VERSION
+	FreeLevelEntitys();
+	FreeGrabData();
+#endif
 	FreeMapBank();
+
+	FreeActorList();
+
+#ifndef PC_VERSION
+	// global ptrs
+	aMapBank = NULL;
+	globalPtrEntityBank = NULL;
+#endif
+
+	dprintf"-----------------------------\n"));
 
 	InitTextOverlayLinkedList();
 	InitSpriteOverlayLinkedList();
 	InitSpriteLinkedList();
-	
-//	pauseMode		= 0;
-	darkenedLevel	= 0;
-}
 
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: FreeAllLists
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-*/
-void FreeAllLists ( void )
-{
-	FreeLevel();
-	
+	fog.r = fog.g = fog.b = 0;
 	pauseMode		= 0;
 	darkenedLevel	= 0;
 }

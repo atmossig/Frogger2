@@ -76,22 +76,6 @@ enum
 
 };
 
-/*
-// ENEMY FLAGS
-#define ENEMY_NONE					0
-#define ENEMY_HASPATH				(1 << 0)
-#define ENEMY_PATHCYCLE				(1 << 1)
-#define ENEMY_PATHBOUNCE			(1 << 2)
-#define ENEMY_PATHFORWARDS			(1 << 3)
-#define ENEMY_PATHBACKWARDS			(1 << 4)
-#define ENEMY_PATHEND2START			(1 << 5)
-#define ENEMY_FLATLEVEL				(1 << 6)
-#define ENEMY_NOJUMPOVER			(1 << 7)
-#define ENEMY_PATHFORWARD_BACK		(1 << 8)
-#define ENEMY_ACCELERATECONST		(1 << 9)
-#define ENEMY_DECELERATECONST		(1 << 10)
-#define ENEMY_RADIUSBASEDCOLLISION	(1 << 11)
-*/
 
 //----- [ PLATFORM FLAGS ] ---------------------------------------------------------------------//
 
