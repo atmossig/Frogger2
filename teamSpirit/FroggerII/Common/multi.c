@@ -50,7 +50,7 @@ int UpdateCTF( )
 	else // Is anyone still alive?
 	{
 		for( i=0; i<NUM_FROGS; i++ )
-			if( player[i].healthPoints ) break;
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) break;
 
 		if( i==NUM_FROGS )
 		{
@@ -136,7 +136,7 @@ int UpdateRace( )
 	else // Is anyone still alive?
 	{
 		for( i=0; i<NUM_FROGS; i++ )
-			if( player[i].healthPoints ) break;
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) ) break;
 
 		if( i==NUM_FROGS )
 		{
@@ -237,13 +237,6 @@ void KillMPFrog(int num)
 		player[num].deathBy = DEATHBY_NORMAL;
 		player[num].frogState |= FROGSTATUS_ISDEAD;
 
-		if (frog[num]->actor)
-		{
-			if (player[num].healthPoints > 0)
-				frog[num]->draw = 1;
-			else
-				frog[num]->draw = 0;
-
-		} 
+		frog[num]->draw = 0;
 	}
 }

@@ -328,6 +328,7 @@ void CameraLookAtFrog(void)
 {
 	if(frog[0] && !fixedDir && !controlCamera)
 	{
+		char numFrogs=0;
 		// Average frog position	
 		float afx,afy,afz,sc;
 		int i,l;
@@ -335,8 +336,9 @@ void CameraLookAtFrog(void)
 		l = 0;
 		for (i=0; i<NUM_FROGS; i++)
 		{
-			if( player[i].healthPoints )
+			if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
 			{
+				numFrogs++;
 				if (currPlatform[i])
 				{
 					afx += currPlatform[i]->pltActor->actor->pos.v[0];
@@ -366,7 +368,13 @@ void CameraLookAtFrog(void)
 
 			// Zoom in/out to keep multiplayer frogs in view
 			sc = FindMaxInterFrogDistance( );
-			if( sc != -1 ) scaleV = (sc*0.00115) + 0.6;
+			scaleV = ( sc != -1 ) ? ((sc*0.00115) + 0.6) : 1.1;
+		}
+
+		if( !numFrogs )
+		{
+			fixedPos = fixedDir = 1;
+			return;
 		}
 		
 		if (l)
@@ -715,13 +723,16 @@ float FindMaxInterFrogDistance( )
 
 	for( i=0; i<NUM_FROGS; i++ )
 	{
-		SubVector( &sep, &frog[i]->actor->pos, &frog[0]->actor->pos );
-		dist = Magnitude( &sep );
-
-		if( dist > best )
+		if( player[i].healthPoints && !(player[i].frogState & FROGSTATUS_ISDEAD) )
 		{
-			max = i;
-			best = dist;
+			SubVector( &sep, &frog[i]->actor->pos, &frog[0]->actor->pos );
+			dist = Magnitude( &sep );
+
+			if( dist > best )
+			{
+				max = i;
+				best = dist;
+			}
 		}
 	}
 

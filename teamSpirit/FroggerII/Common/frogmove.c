@@ -454,11 +454,19 @@ void UpdateFroggerPos(long pl)
 
 	//--------------------------------------------------------------------------------------------
 	
-	if( NUM_FROGS == 1 && (player[pl].frogState & FROGSTATUS_ISDEAD) )
+	if( player[pl].frogState & FROGSTATUS_ISDEAD )
 	{
-		CheckForFroggerLanding(pl);
-		KillFrog(pl);
-		return;
+		if( NUM_FROGS == 1 )
+		{
+			CheckForFroggerLanding(pl);
+			KillFrog(pl);
+			return;
+		}
+		else
+		{
+			frog[pl]->draw = 0;
+			return;
+		}
 	}
 	
 	// update frog tongue
@@ -909,7 +917,7 @@ void CheckForFroggerLanding(long pl)
 		if( player[f].frogon == (char)-1 )
 		{
 			player[f].idleEnable = 1;
-			AnimateActor( frog[f]->actor, FROG_ANIM_BREATHE, YES, YES, 0.6, 0,0 );
+			AnimateActor( frog[f]->actor, FROG_ANIM_BREATHE, YES, NO, 0.6, 0,0 );
 		}
 		else
 			AnimateActor( frog[f]->actor, FROG_ANIM_PINLOOP, YES, NO, 0.5, 0,0 );
