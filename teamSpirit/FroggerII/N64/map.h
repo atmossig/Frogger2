@@ -42,7 +42,7 @@ void LoadMapBank(short num);
 void FreeMapBank();
 
 void LoadLevelEntities(short worldID,short levelID);
-void FreeLevelEntitys();
+void FreeLevelEntities();
 
 void LoadLevelScript(int worldID,int levelID);
 

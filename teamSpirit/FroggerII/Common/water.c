@@ -134,8 +134,6 @@ int slideSpeed = 0;
 
 void UpdateWaterN64(ACTOR2 *wAct)
 {
-	return;
-
 	// update the water - assumes drawlisted and skinned object....
 	if(wAct)
 	{
@@ -197,8 +195,6 @@ void UpdateWaterN64(ACTOR2 *wAct)
 */
 void SetWaterModifiersN64(short worldID,short levelID)
 {
-	return;
-
 	// currently based on world - but can go to level based
 	switch(worldID)
 	{
@@ -224,8 +220,6 @@ void AddN64WaterObjectResource(ACTOR *wAct)
 {
 	int i;
 	Vtx *in;
-
-	return;
 
 	if(wAct->objectController && (numN64WaterObjects < MAX_N64_WATEROBJECTS))
 	{
@@ -262,8 +256,6 @@ void FreeN64WaterResources()
 {
 	int i;
 
-	return;
-
 	for(i=0; i<numN64WaterObjects; i++)
 		JallocFree((UBYTE **)&wTC[i]);
 
@@ -286,8 +278,6 @@ float andyMod = 0.05;
 
 void UpdateModgyTexN64(ACTOR2 *mAct)
 {
-	return;
-
 	// update the water - assumes drawlisted and skinned object....
 	if(mAct)
 	{
@@ -331,8 +321,6 @@ void AddN64ModgyTexObjectResource(ACTOR *mAct)
 	int i;
 	Vtx *in;
 
-	return;
-
 	if(mAct->objectController && (numN64ModgyTexObjects < MAX_N64_MODGYTEXOBJECTS))
 	{
 		// copy texture co-ords to an array
@@ -364,8 +352,6 @@ void AddN64ModgyTexObjectResource(ACTOR *mAct)
 void FreeN64ModgyTexResources()
 {
 	int i;
-
-	return;
 
 	for(i=0; i<numN64ModgyTexObjects; i++)
 		JallocFree((UBYTE **)&mTC[i]);

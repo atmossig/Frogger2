@@ -94,6 +94,27 @@ typedef struct
 } PARTICLE;
 
 
+//************************************************************************************************
+#ifdef N64_VERSION
+
+typedef struct TAGSFXSPRITE_ENTRY
+{
+	short index;
+	SPRITE *sprPtr;
+
+} SFXSPRITE_ENTRY;
+
+typedef struct TAGSFXPARTICLE_ENTRY
+{
+	short index;
+	PARTICLE *ptclePtr;
+
+} SFXPARTICLE_ENTRY;
+
+#endif
+//************************************************************************************************
+
+
 typedef struct TAGSPECFX
 {
 	struct TAGSPECFX *next, *prev;
@@ -110,6 +131,11 @@ typedef struct TAGSPECFX
 	unsigned char r, g, b, a;
 
 	SPRITE *sprites;
+
+#ifdef N64_VERSION
+	SFXPARTICLE_ENTRY particleEntry[5];			// For swarm, explosions etc.
+	SFXSPRITE_ENTRY spriteEntry[5];
+#endif
 
 	TEXTURE *tex;
 	ACTOR *follow;								// Go where it goes
@@ -132,8 +158,6 @@ extern SPECFXLIST specFXList;
 
 #ifdef PC_VERSION
 extern D3DTLVERTEX *ringVtx;
-#else
-extern Vtx *ringVtx;
 #endif
 
 extern TEXTURE *txtrRipple;
@@ -146,6 +170,33 @@ extern TEXTURE *txtrBubble;
 extern TEXTURE *txtrFire;
 extern TEXTURE *txtrBlank;
 extern TEXTURE *txtrTrail;
+
+
+
+/*************************************************************************************************
+	NEW SPRITE STUFF - ANDYE
+*************************************************************************************************/
+
+#ifdef N64_VERSION
+
+#define MAX_SFX_SPRITES		400
+#define MAX_SFX_PARTICLES	400
+
+extern SPRITE sfxSpriteList[MAX_SFX_SPRITES];
+extern SPRITE *sfxSpriteListPtr;
+extern char sfxSpriteStatus[MAX_SFX_SPRITES];
+extern short numSfxSprites;
+
+extern PARTICLE sfxParticleList[MAX_SFX_PARTICLES];
+extern PARTICLE *sfxParticleListPtr;
+extern char sfxParticleStatus[MAX_SFX_PARTICLES];
+extern short numSfxParticles;
+
+#endif
+
+//************************************************************************************************
+
+
 
 extern SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime );
 
@@ -161,6 +212,30 @@ extern void SetAttachedFXColour( SPECFX *fx, int effects );
 extern void ProcessAttachedEffects( void *entity, int type );
 
 extern void CreateTeleportEffect( VECTOR *pos, VECTOR *normal, short r, short g, short b );
+
+
+/*************************************************************************************************
+	NEW SPRITE STUFF - ANDYE
+*************************************************************************************************/
+
+#ifdef N64_VERSION
+
+extern void InitSfxSpriteList();
+extern void ClearSfxSpriteList();
+
+extern short GetNextAvailableSfxSprite();
+extern SPRITE *AddSfxSpriteToList(SPRITE sfxSpr,SFXSPRITE_ENTRY *sprEntry);
+extern void SubSfxSpriteFromList(SFXSPRITE_ENTRY *sprEntry);
+extern void UpdateAndDrawSfxSpriteList();
+
+extern short GetNextAvailableSfxparticle();
+extern PARTICLE *AddSfxParticleToList(PARTICLE sfxPtcle,SFXPARTICLE_ENTRY *ptcleEntry);
+extern void SubSfxParticleFromList(SFXPARTICLE_ENTRY *ptcleEntry);
+extern void UpdateAndDrawSfxParticleList();
+
+#endif
+
+//************************************************************************************************
 
 
 #endif

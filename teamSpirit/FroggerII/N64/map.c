@@ -1223,17 +1223,21 @@ void LoadLevelEntities(short worldID,short levelID)
 	}
 	// ENDIF - entityDat
 
+	// create the various entities
 	MemLoadEntities(entityDat,bankSize);
+
+	// we can now free the level entity bank
+	FreeLevelEntities();
 }
 
 /*	--------------------------------------------------------------------------------
-	Function		: FreeLevelEntitys
+	Function		: FreeLevelEntities
 	Purpose			: frees the entity bank associated with the level
 	Parameters		: 
 	Returns			: void
 	Info			: 
 */
-void FreeLevelEntitys()
+void FreeLevelEntities()
 {
 	if(globalPtrEntityBank)
 		JallocFree((UBYTE**)&globalPtrEntityBank);

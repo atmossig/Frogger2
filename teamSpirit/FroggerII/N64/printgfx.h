@@ -55,7 +55,11 @@
 
 #define G_CC_DECALI_MODULATEA_PRIM    TEXEL0, 0, 1, SHADE, TEXEL0, 0, PRIMITIVE, 0
 
+// STATIC VERTICES FOR VARIOUS SPECIAL EFFECTS
 extern Vtx shadowVtx[4];
+extern Vtx rippleVtx[4];
+extern Vtx ringVtx[4];
+
 extern Sprite template_sprite;
 
 extern Gfx rspInitForSprites_dl[];

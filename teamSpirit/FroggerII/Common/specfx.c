@@ -41,6 +41,27 @@ TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 
 
+/*************************************************************************************************
+	NEW SPRITE STUFF - ANDYE
+*************************************************************************************************/
+
+#ifdef N64_VERSION
+
+SPRITE sfxSpriteList[MAX_SFX_SPRITES];
+SPRITE *sfxSpriteListPtr = NULL;
+char sfxSpriteStatus[MAX_SFX_SPRITES];
+short numSfxSprites = 0;
+
+PARTICLE sfxParticleList[MAX_SFX_PARTICLES];
+PARTICLE *sfxParticleListPtr = NULL;
+char sfxParticleStatus[MAX_SFX_PARTICLES];
+short numSfxParticles = 0;
+
+#endif
+
+//************************************************************************************************
+
+
 void UpdateFXRipple( SPECFX *fx );
 void UpdateFXRing( SPECFX *fx );
 void UpdateFXBolt( SPECFX *fx );
@@ -56,8 +77,6 @@ void AddTrailElement( SPECFX *fx, int i );
 // Used to store precalculated blast ring shape
 #ifdef PC_VERSION
 D3DTLVERTEX *ringVtx = NULL;
-#else
-Vtx *ringVtx = NULL;
 #endif
 
 /*	--------------------------------------------------------------------------------
@@ -69,9 +88,16 @@ Vtx *ringVtx = NULL;
 */
 SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, float size, float speed, float accn, float lifetime )
 {
-	SPECFX *effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
+	SPECFX *effect = NULL;
 	long i,n;
-	float life = lifetime*60;
+	float life = lifetime * 60;
+
+#ifdef N64_VERSION
+	SPRITE newSpr;
+	PARTICLE newParticle;
+#endif
+
+	effect = (SPECFX *)JallocAlloc( sizeof(SPECFX), YES, "FX" );
 
 	effect->type = type;
 	SetVector( &effect->origin, origin );
@@ -138,7 +164,11 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		effect->scale.v[Y] /= 8;
 		effect->tilt = 0.9;
 
+#ifdef PC_VERSION
 		effect->tex = txtrBlank;
+#else
+		effect->tex = txtrRing;
+#endif
 		effect->Update = UpdateFXRing;
 		effect->Draw = DrawFXRing;
 
@@ -322,6 +352,9 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 	case FXTYPE_SPARKBURST:
 	case FXTYPE_FLAMES:
 	case FXTYPE_FIERYSMOKE:
+
+#ifdef PC_VERSION // ***** PC VERSION ***** //
+
 		effect->numP = 5;
 		i = effect->numP;
 
@@ -384,6 +417,72 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 
 		effect->Update = UpdateFXExplode;
 		effect->Draw = NULL;
+
+#else	// ***** N64 VERSION ***** //
+
+		effect->numP = 5;
+		i = effect->numP;
+
+		effect->rebound = (PLANE2 *)JallocAlloc( sizeof(PLANE2), YES, "Rebound" );
+		SetVector( &effect->rebound->point, &effect->origin );
+		SetVector( &effect->rebound->normal, &effect->normal );
+
+		if( effect->type == FXTYPE_SPLASH )
+			effect->tex = txtrBubble;
+		else if( effect->type == FXTYPE_SPARKBURST )
+			effect->tex = txtrSolidRing;
+		else if( effect->type == FXTYPE_FLAMES )
+			effect->tex = txtrFire;
+		else if( effect->type == FXTYPE_SMOKEBURST || effect->type == FXTYPE_FIERYSMOKE )
+			effect->tex = txtrSmoke;
+
+		effect->fade = (255/life)*2;
+
+		while(i--)
+		{
+			SetVector(&newSpr.pos,&effect->origin);
+
+			newSpr.r = effect->r;
+			newSpr.g = effect->g;
+			newSpr.b = effect->b;
+			newSpr.a = effect->a;
+
+			if(effect->type == FXTYPE_FIERYSMOKE)
+			{
+				newSpr.g = 180;
+				newSpr.b = 0;
+			}
+
+			newSpr.texture = effect->tex;
+
+			newSpr.scaleX = effect->scale.v[X];
+			newSpr.scaleY = effect->scale.v[Y];
+
+			newSpr.offsetX = -16;
+			newSpr.offsetY = -16;
+			newSpr.flags = SPRITE_TRANSLUCENT;
+			
+			AddSfxSpriteToList(newSpr,&effect->spriteEntry[i]);
+
+			if( effect->type == FXTYPE_SPARKBURST )
+				newParticle.bounce = 1;
+			else
+				newParticle.bounce = 0;
+
+			// Velocity is normal scaled by speed, plus a random offset scaled by speed
+			SetVector( &newParticle.vel, &effect->normal );
+			ScaleVector( &newParticle.vel, effect->speed );
+			newParticle.vel.v[X] += (-1 + Random(3))*effect->speed*0.4;
+			newParticle.vel.v[Y] += (-1 + Random(3))*effect->speed*0.4;
+			newParticle.vel.v[Z] += (-1 + Random(3))*effect->speed*0.4;
+
+			AddSfxParticleToList(newParticle,&effect->particleEntry[i]);
+		}
+
+		effect->Update = UpdateFXExplode;
+		effect->Draw = NULL;
+
+#endif
 		
 		break;
 	case FXTYPE_LIGHTNING:
@@ -753,67 +852,67 @@ void UpdateFXExplode( SPECFX *fx )
 
 	while(i--)
 	{
-		if( fx->particles[i].bounce == 2 )
+		if( fx->particleEntry[i].ptclePtr->bounce == 2 )
 			continue;
 
-		ScaleVector( &fx->particles[i].vel, vS );
+		ScaleVector( &fx->particleEntry[i].ptclePtr->vel, vS );
 
 		if( fx->gravity != 0 )
 		{
 			SetVector( &up, &fx->normal );
 			ScaleVector( &up, fx->gravity*gameSpeed );
-			SubFromVector( &fx->particles[i].vel, &up );
+			SubFromVector( &fx->particleEntry[i].ptclePtr->vel, &up );
 		}
 
 		if( fx->rebound )
 		{
 			fx->rebound->J = -DotProduct( &fx->rebound->point, &fx->rebound->normal );
-			dist = -(DotProduct(&fx->sprites[i].pos, &fx->rebound->normal) + fx->rebound->J);
+			dist = -(DotProduct(&fx->spriteEntry[i].sprPtr->pos, &fx->rebound->normal) + fx->rebound->J);
 
 			// check if particle has hit (or passed through) the plane
 			if(dist > 0)
 			{
-				if( fx->particles[i].bounce )
-					fx->particles[i].vel.v[Y] *= -0.95; // Should be relative to the normal, but it'll do for now
+				if( fx->particleEntry[i].ptclePtr->bounce )
+					fx->particleEntry[i].ptclePtr->vel.v[Y] *= -0.95; // Should be relative to the normal, but it'll do for now
 				else
-					SetVector( &fx->particles[i].vel, &zero );
+					SetVector( &fx->particleEntry[i].ptclePtr->vel, &zero );
 
 				// check if this exploding particle type triggers some other effect or event
 				if( fx->type == FXTYPE_SPLASH )
 				{
-					fx->sprites[i].a = 1;
+					fx->spriteEntry[i].sprPtr->a = 1;
 
-					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->sprites[i].pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
+					CreateAndAddSpecialEffect( FXTYPE_BASICRING, &fx->spriteEntry[i].sprPtr->pos, &fx->rebound->normal, 10, 1, 0.1, 0.3 );
 					continue;
 				}
 			}
 		}
 
-		fx->sprites[i].pos.v[X] += fx->particles[i].vel.v[X] * gameSpeed;
-		fx->sprites[i].pos.v[Y] += fx->particles[i].vel.v[Y] * gameSpeed;
-		fx->sprites[i].pos.v[Z] += fx->particles[i].vel.v[Z] * gameSpeed;
+		fx->spriteEntry[i].sprPtr->pos.v[X] += fx->particleEntry[i].ptclePtr->vel.v[X] * gameSpeed;
+		fx->spriteEntry[i].sprPtr->pos.v[Y] += fx->particleEntry[i].ptclePtr->vel.v[Y] * gameSpeed;
+		fx->spriteEntry[i].sprPtr->pos.v[Z] += fx->particleEntry[i].ptclePtr->vel.v[Z] * gameSpeed;
 
 		fo = (Random(4) + fx->fade) * gameSpeed ;
 
 		// For fiery (of whatever colour) smoke, fade to black then fade out
 		if( fx->type == FXTYPE_FIERYSMOKE && (fx->sprites[i].r || fx->sprites[i].g || fx->sprites[i].b) )
 		{
-			if( fx->sprites[i].r > fo/2 ) fx->sprites[i].r -= fo/2;
-			else fx->sprites[i].r = 0;
-			if( fx->sprites[i].g > fo ) fx->sprites[i].g -= fo;
-			else fx->sprites[i].g = 0;
+			if( fx->spriteEntry[i].sprPtr->r > fo/2 ) fx->spriteEntry[i].sprPtr->r -= fo/2;
+			else fx->spriteEntry[i].sprPtr->r = 0;
+			if( fx->spriteEntry[i].sprPtr->g > fo ) fx->spriteEntry[i].sprPtr->g -= fo;
+			else fx->spriteEntry[i].sprPtr->g = 0;
 		}
 		else
 		{
-			if( fx->sprites[i].a > fo ) fx->sprites[i].a -= fo;
-			else fx->sprites[i].a = 0;
+			if( fx->spriteEntry[i].sprPtr->a > fo ) fx->spriteEntry[i].sprPtr->a -= fo;
+			else fx->spriteEntry[i].sprPtr->a = 0;
 
-			if( fx->sprites[i].a < 16 )
+			if( fx->spriteEntry[i].sprPtr->a < 16 )
 			{
-				fx->sprites[i].scaleX	= 0;
-				fx->sprites[i].scaleY	= 0;
-				fx->sprites[i].a		= 0;
-				fx->particles[i].bounce = 2;
+				fx->spriteEntry[i].sprPtr->scaleX	= 0;
+				fx->spriteEntry[i].sprPtr->scaleY	= 0;
+				fx->spriteEntry[i].sprPtr->a		= 0;
+				fx->particleEntry[i].ptclePtr->bounce = 2;
 			}
 		}
 	}
@@ -1107,6 +1206,25 @@ void SubSpecFX( SPECFX *fx )
 
 		JallocFree( (UBYTE **)&fx->sprites );
 	}
+
+#ifdef N64_VERSION
+
+	if( fx->numP )
+	{
+		i = fx->numP;
+		while(i--)
+		{
+			SubSfxSpriteFromList(&fx->spriteEntry[i]);
+			SubSfxParticleFromList(&fx->particleEntry[i]);
+		}
+	}
+	else
+	{
+		SubSfxSpriteFromList(&fx->spriteEntry[0]);
+		SubSfxParticleFromList(&fx->particleEntry[0]);
+	}
+
+#endif
 
 	if( fx->particles )
 	{
@@ -1499,33 +1617,252 @@ void CreateBlastRing( )
 #else
 void CreateBlastRing()
 {
-	float tesa, tesb, teca, tecb, pB, arcStep = PI2 / NUM_RINGSEGS;
-	unsigned long i, v;
-	Vtx *vRPtr;
-	
-	if(!ringVtx)
-		ringVtx = (Vtx *)JallocAlloc(sizeof(Vtx) * NUM_RINGSEGS * 4,NO,"Vtx");
-
-	for(i=0; i<NUM_RINGSEGS; i++)
-	{
-
-		pB = i * arcStep;
-		v = i * 4;
-
-		tesa = sinf(pB);
-		tesb = sinf(pB + arcStep);
-
-		teca = cosf(pB);
-		tecb = cosf(pB + arcStep);
-
-		vRPtr = &ringVtx[i];
-
-		V(vRPtr++,tesa,0.5,teca,0,1024,1024,255,255,255,255);
-		V(vRPtr++,tesb,0.5,tecb,0,0,1024,255,255,255,255);
-		V(vRPtr++,tesb,-0.5,tecb,0,0,0,255,255,255,255);
-		V(vRPtr++,tesa,-0.5,teca,0,1024,0,255,255,255,255);
-	}
 }
 
 
 #endif
+
+
+/*************************************************************************************************
+	NEW SPRITE STUFF - ANDYE
+*************************************************************************************************/
+
+#ifdef N64_VERSION
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSfxSpriteList
+	Purpose			: initialises the static sfx sprite list (array)
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitSfxSpriteList()
+{
+	short n = MAX_SFX_SPRITES;
+
+	while(n--)
+		sfxSpriteStatus[n] = 0;
+
+	sfxSpriteListPtr	= NULL;
+	numSfxSprites		= 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ClearSfxSpriteList
+	Purpose			: clears the sfx sprite array (list)
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void ClearSfxSpriteList()
+{
+	InitSfxSpriteList();
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetNextAvailableSfxSprite
+	Purpose			: returns the next available index available for a sprite
+	Parameters		: 
+	Returns			: short
+	Info			: returns -1 if no available slot
+*/
+short GetNextAvailableSfxSprite()
+{
+	short n = MAX_SFX_SPRITES;
+
+	if(numSfxSprites > (MAX_SFX_SPRITES-1))
+		return -1;
+
+	while(n--)
+	{
+		if(!sfxSpriteStatus[n])
+			return n;
+	}
+
+	return -1;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddSfxSpriteToList
+	Purpose			: adds sprite to the sfx sprite array (list)
+	Parameters		: SPRITE
+	Returns			: SPRITE *
+	Info			: 
+*/
+SPRITE *AddSfxSpriteToList(SPRITE sfxSpr,SFXSPRITE_ENTRY *sprEntry)
+{
+	short n = GetNextAvailableSfxSprite();
+
+	if(n != -1)
+	{
+		sfxSpriteList[n] = sfxSpr;
+		sfxSpriteStatus[n] = 1;
+		numSfxSprites++;
+
+		sprEntry->index = n;
+		sprEntry->sprPtr = &sfxSpriteList[n];
+
+		return sprEntry->sprPtr;
+	}
+
+	return NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubSfxSpriteFromList
+	Purpose			: removes sprite from the sfx sprite array (list)
+	Parameters		: SFXSPRITE_ENTRY*
+	Returns			: void
+	Info			: 
+*/
+void SubSfxSpriteFromList(SFXSPRITE_ENTRY *sprEntry)
+{
+	if(!sprEntry->sprPtr)
+		return;
+
+	sfxSpriteStatus[sprEntry->index] = 0;
+	numSfxSprites--;
+
+	sprEntry->index = 0;
+	sprEntry->sprPtr = NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateAndDrawSfxSpriteList
+	Purpose			: updates and draws the sfx sprite list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void UpdateAndDrawSfxSpriteList()
+{
+}
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: InitSfxParticleList
+	Purpose			: initialises the static sfx particle list (array)
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void InitSfxParticleList()
+{
+	short n = MAX_SFX_PARTICLES;
+
+	while(n--)
+		sfxParticleStatus[n] = 0;
+
+	sfxParticleListPtr	= NULL;
+	numSfxParticles		= 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ClearSfxParticleList
+	Purpose			: clears the sfx particle array (list)
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void ClearSfxParticleList()
+{
+	InitSfxParticleList();
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetNextAvailableSfxParticle
+	Purpose			: returns the next available index available for a particle
+	Parameters		: 
+	Returns			: short
+	Info			: returns -1 if no available slot
+*/
+short GetNextAvailableSfxParticle()
+{
+	short n = MAX_SFX_PARTICLES;
+
+	if(numSfxParticles > (MAX_SFX_PARTICLES-1))
+		return -1;
+
+	while(n--)
+	{
+		if(!sfxParticleStatus[n])
+			return n;
+	}
+
+	return -1;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: AddSfxParticleToList
+	Purpose			: adds particle to the sfx particle array (list)
+	Parameters		: PARTICLE
+	Returns			: PARTICLE *
+	Info			: 
+*/
+PARTICLE *AddSfxParticleToList(PARTICLE sfxPtcle,SFXPARTICLE_ENTRY *ptcleEntry)
+{
+	short n = GetNextAvailableSfxParticle();
+
+	if(n != -1)
+	{
+		sfxParticleList[n] = sfxPtcle;
+		sfxParticleStatus[n] = 1;
+		numSfxParticles++;
+
+		ptcleEntry->index = n;
+		ptcleEntry->ptclePtr = &sfxParticleList[n];
+
+		return ptcleEntry->ptclePtr;
+	}
+
+	return NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: SubSfxParticleFromList
+	Purpose			: removes particle from the sfx particle array (list)
+	Parameters		: PARTICLE
+	Returns			: PARTICLE *
+	Info			: 
+*/
+void SubSfxParticleFromList(SFXPARTICLE_ENTRY *ptcleEntry)
+{
+	if(!ptcleEntry->ptclePtr)
+		return;
+
+	sfxParticleStatus[ptcleEntry->index] = 0;
+	numSfxParticles--;
+
+	ptcleEntry->index = 0;
+	ptcleEntry->ptclePtr = NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: UpdateAndDrawSfxParticleList
+	Purpose			: updates and draws the sfx particle list
+	Parameters		: 
+	Returns			: void
+	Info			: 
+*/
+void UpdateAndDrawSfxParticleList()
+{
+}
+
+
+
+
+#endif
+
+//************************************************************************************************

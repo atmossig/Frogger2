@@ -16,6 +16,7 @@
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//
 
+// STATIC VERTICES FOR VARIOUS SPECIAL EFFECTS
 Vtx shadowVtx[4] =
 {
 	{ 1,0,1,0,		0,0,63,63,63,255 },
@@ -23,6 +24,23 @@ Vtx shadowVtx[4] =
 	{ -1,0,-1,0,	1024,1024,63,63,63,255 },
 	{ -1,0,1,0,		1024,0,63,63,63,255 }
 };
+
+Vtx rippleVtx[4] =
+{
+	{ 1,0,1,0,		0,0,255,255,255,255 },
+	{ 1,0,-1,0,		0,1024,255,255,255,255 },
+	{ -1,0,-1,0,	1024,1024,255,255,255,255 },
+	{ -1,0,1,0,		1024,0,255,255,255,255 }
+};
+
+Vtx ringVtx[4] =
+{
+	{ 1,0,1,0,		0,0,255,255,255,255 },
+	{ 1,0,-1,0,		0,1024,255,255,255,255 },
+	{ -1,0,-1,0,	1024,1024,255,255,255,255 },
+	{ -1,0,1,0,		1024,0,255,255,255,255 }
+};
+
 
 static Bitmap template_bm[NUM_template_BMS];
 static Gfx template_dl[NUM_DL(NUM_template_BMS)];
@@ -491,7 +509,7 @@ void DrawSpecialFX()
 
 
 /*	--------------------------------------------------------------------------------
-	Function		: DrawFXRipples
+	Function		: DrawFXRipple
 	Purpose			: draws the ripple based FX
 	Parameters		: SPECFX *
 	Returns			: void
@@ -499,6 +517,64 @@ void DrawSpecialFX()
 */
 void DrawFXRipple(SPECFX *ripple)
 {
+	QUATERNION q3,q2,q1,cross;
+	float t;
+
+	if(ripple->deadCount)
+		return;
+
+	// create the translation matrix
+	guTranslateF(transMtx,ripple->origin.v[X],ripple->origin.v[Y],ripple->origin.v[Z]);
+
+	// create the scaling matrix
+	guScaleF(scaleMtx,ripple->scale.v[X],1,ripple->scale.v[Z]);
+
+	// create the rotation matrix
+	CrossProduct((VECTOR *)&q1,&ripple->normal,&upVec);
+	MakeUnit((VECTOR *)&q1);
+	t = DotProduct(&ripple->normal,&upVec);
+	q1.w = -acos(t);
+	GetQuaternionFromRotation(&q2,&q1);
+
+	// determine ripple type
+	if(ripple->type == FXTYPE_GARIBCOLLECT)
+	{
+		// rotate around axis
+		SetVector((VECTOR *)&q1,&ripple->normal);
+		q1.w = ripple->angle;
+		GetQuaternionFromRotation(&q3,&q1);
+		QuaternionMultiply(&q1,&q2,&q3);
+	}
+	else
+	{
+		SetQuaternion(&q1,&q2);
+	}
+
+	QuaternionToMatrix(&q1,(MATRIX *)rotMtx);
+
+	// combine matrices into a single transformation matrix
+	guMtxCatF(rotMtx,transMtx,tempMtx);
+	guMtxCatF(scaleMtx,tempMtx,tempMtx);
+	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
+
+	// push onto matrix stack
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+	// set primitive colour
+	gDPSetPrimColor(glistp++,0,0,ripple->r,ripple->g,ripple->b,ripple->a);
+
+	// load texture - perhaps move this elsewhere to minimise texture loads ??? ANDYE
+	gDPSetTextureLUT(glistp++,G_TT_NONE);
+	gDPLoadTextureBlock(glistp++,ripple->tex->data,G_IM_FMT_IA,G_IM_SIZ_16b,ripple->tex->sx,ripple->tex->sy,0,
+						G_TX_CLAMP,G_TX_CLAMP,ripple->tex->TCScaleX,ripple->tex->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
+
+	// load vertices into vertex cache
+	gSPVertex(glistp++,rippleVtx,4,0);
+	gSP2Triangles(glistp++,0,1,2,0,0,2,3,0);
+
+	// pop modelview matrix stack
+	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
 
@@ -511,6 +587,56 @@ void DrawFXRipple(SPECFX *ripple)
 */
 void DrawFXRing(SPECFX *ring)
 {
+	QUATERNION q3,q2,q1,cross;
+	float t;
+	TEXTURE *tx1 = NULL;
+
+	if(ring->deadCount)
+		return;
+
+	// create the translation matrix
+	guTranslateF(transMtx,ring->origin.v[X],ring->origin.v[Y],ring->origin.v[Z]);
+
+	// create the scaling matrix
+	guScaleF(scaleMtx,ring->scale.v[X],1,ring->scale.v[Z]);
+
+	// create the rotation matrix
+	SetVector((VECTOR *)&q1,&ring->normal);
+	q1.w = ring->angle;
+	GetQuaternionFromRotation(&q2,&q1);
+
+	CrossProduct((VECTOR *)&cross,(VECTOR *)&q1,&upVec);
+	MakeUnit((VECTOR *)&cross);
+	t = DotProduct( (VECTOR *)&q1,&upVec);
+	cross.w = -acos(t);
+	GetQuaternionFromRotation(&q3,&cross);
+
+	QuaternionMultiply(&q1,&q2,&q3);
+	QuaternionToMatrix(&q1,(MATRIX *)rotMtx);
+
+	// combine matrices into a single transformation matrix
+	guMtxCatF(rotMtx,transMtx,tempMtx);
+	guMtxCatF(scaleMtx,tempMtx,tempMtx);
+	guMtxF2L(tempMtx,&dynamicp->modeling4[objectMatrix]);
+
+	// push onto matrix stack
+	gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+				G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+
+	// set primitive colour
+	gDPSetPrimColor(glistp++,0,0,ring->r,ring->g,ring->b,ring->a);
+
+	// load texture - perhaps move this elsewhere to minimise texture loads ??? ANDYE
+	gDPSetTextureLUT(glistp++,G_TT_NONE);
+	gDPLoadTextureBlock(glistp++,ring->tex->data,G_IM_FMT_IA,G_IM_SIZ_16b,ring->tex->sx,ring->tex->sy,0,
+						G_TX_CLAMP,G_TX_CLAMP,ring->tex->TCScaleX,ring->tex->TCScaleY,G_TX_NOLOD,G_TX_NOLOD);
+
+	// load vertices into vertex cache
+	gSPVertex(glistp++,ringVtx,4,0);
+	gSP2Triangles(glistp++,0,1,2,0,0,2,3,0);
+
+	// pop modelview matrix stack
+	gSPPopMatrix(glistp++,G_MTX_MODELVIEW);
 }
 
 
@@ -733,6 +859,7 @@ SPRITE *PrintSpritesOpaque()
 void PrintSpritesTranslucent(SPRITE *sprite)
 {
 	Mtx temp;
+	short n = MAX_SFX_SPRITES;
 
 	spriteList.lastTexture = NULL;
 
@@ -762,9 +889,17 @@ void PrintSpritesTranslucent(SPRITE *sprite)
 
 	if(!pauseMode)
 	{
+		// print sprite listed sprites
 		for(; sprite != &spriteList.head; sprite = sprite->next)
 		{
 			PrintSprite(sprite);
+		}
+
+		// print sfx sprite array
+		while(n--)
+		{
+			if(sfxSpriteStatus[n])
+				PrintSprite(&sfxSpriteList[n]);
 		}
 	}
 
@@ -849,11 +984,15 @@ void TileRectangle(Gfx **glistp,SPRITE *sprite,f32 x0,f32 y0,int z,int scaleX,in
 
 	tempx = sprite->texture->sx;
 	tempx *= (1 << 12);
+	if((float)scaleX == 0)
+		dprintf"BOLLOX !\n"));
 	tempx /= (float)scaleX;
 	tempx = x0 + tempx;
 
 	tempy = sprite->texture->sy;
 	tempy *= (1 << 12);
+	if((float)scaleY == 0)
+		dprintf"BOLLOX !\n"));
 	tempy /= (float)scaleY;
 	tempy = y0 + tempy;
 
@@ -920,10 +1059,15 @@ void PrintSprite(SPRITE *sprite)
 
 	dist = sqrtf(dist);
 
+	if(w == 0)
+		dprintf"BOLLOX !\n"));
+
 	x = ((x * dynamicp->vp[screenNum].vp.vscale[0] / w) + dynamicp->vp[screenNum].vp.vtrans[0]);
 	y = ((-y * dynamicp->vp[screenNum].vp.vscale[1] / w) + dynamicp->vp[screenNum].vp.vtrans[1]);
 	z = 32 * ((z * dynamicp->vp[screenNum].vp.vscale[2] / w) + dynamicp->vp[screenNum].vp.vtrans[2]);
 
+	if((dist * yFOV) == 0)
+		dprintf"BOLLOX !\n"));
 
 	sprScaleX = 33 * sprite->scaleX * ((float)dynamicp->vp[screenNum].vp.vscale[0] / (float)(SCREEN_WD * 2));
 	x = (f32)x + (f32)(sprite->offsetX * sprScaleX << 4) / (dist * yFOV);
@@ -1037,6 +1181,11 @@ void PrintSprite(SPRITE *sprite)
 	gDPSetCombineMode(glistp++,G_CC_MODULATEPRIMRGBA,G_CC_MODULATEPRIMRGBA);
 	gDPSetCycleType(glistp++,G_CYC_1CYCLE);
 */
+
+	if(sprScaleX == 0)
+		dprintf"BOLLOX !\n"));
+	if(sprScaleY == 0)
+		dprintf"BOLLOX !\n"));
 
 	scaleY = (dist * yFOV);
 	scaleX = (scaleY << 8) / sprScaleX;

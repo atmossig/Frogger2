@@ -57,9 +57,11 @@ void Modify3DText(TEXT3D *t3d, char *str,unsigned char a)
 */
 TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, char a, short type, unsigned long motion, VECTOR *spd, float rSpd, float initAngle, long xO, long yO, long zO, float sinA, float sinS, float twA )
 {
-	TEXT3D *t, *t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
 	unsigned long len = strlen(str);
 	float tmp = PI2; // Don't ask why I have to do this, it's due to N64 remedial maths
+	TEXT3D *t, *t3d;
+	
+	t3d = (TEXT3D *)JallocAlloc(sizeof(TEXT3D),YES,"Text3D");
 
 	t3d->width = w;
 	// Scale factor - desired width over normal width of texture (32*numChars)
