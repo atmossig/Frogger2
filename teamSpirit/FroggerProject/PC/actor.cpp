@@ -1170,17 +1170,11 @@ void RemoveUniqueActor(ACTOR *actor,int type)
 
 void actorFree(ACTOR *actor)
 {
-//pc	FREE(actor->psiData.objectTable);
-
-//	if (actor->shadow)
-//	{
-//		FREE((UBYTE **)&actor->shadow);//IF SHADOWS ARE ADDED...mm
-//	}
-
-//pc	actorSub(actor);
-//pc	FREE(actor);
+	// Free the mdx_actor
 	if (actor->actualActor)
 		FreeActor((MDX_ACTOR **)&actor->actualActor);
+
+	FREE(actor);
 }
 
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)

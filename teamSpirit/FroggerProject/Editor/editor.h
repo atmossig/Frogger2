@@ -19,7 +19,6 @@ void InitEditor(void);
 void ShutdownEditor(void);
 
 void EditorKeypress(char c);
-void SubActor(ACTOR2 *actor);
 
 #ifdef __cplusplus
 }
