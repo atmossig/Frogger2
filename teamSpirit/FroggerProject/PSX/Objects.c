@@ -127,16 +127,14 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\CITY\\CITY3.PIL" );
 			break;
 
-		case SUBTERRANEANMASTER_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\SUB.PIL" );					
-				break;
-
 		case SUBTERRANEANLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB1.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB1.PIL" );
 			break;
 
 		case SUBTERRANEANLEV2_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB2.PIL" );
 			break;
 
 
