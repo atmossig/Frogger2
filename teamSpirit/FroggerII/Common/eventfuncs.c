@@ -214,7 +214,7 @@ int BitCheck( TRIGGER *trigger )
 
 int FrogIsDead(TRIGGER *trigger)
 {
-	return (player[*(int*)trigger->data[0]].frogState & FROGSTATUS_ISDEAD) != 0;	// mm, convoluted.
+	return (player[(int)trigger->data[0]].frogState & FROGSTATUS_ISDEAD) != 0;	// mm, convoluted.
 }
 
 /*----- [ EVENT FUNCTIONS ] --------------------------------------------------------------------*/
