@@ -16,6 +16,7 @@ ACTORLIST	actorList;
 
 
 #include "bbtimer.h"
+#include "temp_psx.h"
 
 //#define min(a,b) (((a) < (b)) ? (a) : (b))
 //#define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -411,6 +412,9 @@ void actorDraw(ACTOR *actor)
 	TimerStart(&tActorDraw);
 	world = actor->psiData.object;
 
+	//convert qRot to matrix
+	QuatToPSXMatrix(&actor->qRot, &actor->psiData.object->matrix);
+
 	if(actor->psiData.flags & ACTOR_MOTIONBONE)
 	{
 		world->matrix.t[0] = -actor->position.vx;
@@ -656,6 +660,74 @@ void actorUpdateAnimations(ACTOR *actor)
 	RETURNS:	
 **************************************************************************/
 
+void actorSetAnimation(ACTOR *actor, ULONG frame)
+{
+	PSIOBJECT *world;
+	ACTOR_ANIMATION *actorAnim = &actor->animation;
+	ANIMATION *anim;
+	long temp0,temp1,temp2;
+	VECTOR result;
+
+	world = actor->psiData.object;
+	
+	PSIactorScale = &actor->size;
+
+	psiSetKeyFrames(world, frame);
+
+	/*
+		
+	actor->accumulator.vx = world->matrix.t[0];
+	actor->accumulator.vy = world->matrix.t[1];
+	actor->accumulator.vz = world->matrix.t[2];
+
+	world->matrix.t[0] -= actor->oldPosition.vx;
+	world->matrix.t[1] -= actor->oldPosition.vy;
+	world->matrix.t[2] -= actor->oldPosition.vz;
+
+	actor->oldPosition = actor->accumulator;
+
+	temp0 = world->matrix.t[0];
+	temp1 = world->matrix.t[1];
+	temp2 = world->matrix.t[2];
+	
+	actorRotate(world->rotate.vx,world->rotate.vy,world->rotate.vz,temp0,temp1,temp2,&result);
+
+	world->matrix.t[0] = result.vx;
+	world->matrix.t[1] = result.vy;
+	world->matrix.t[2] = result.vz;
+	*/
+	
+	if (actorAnim->exclusive)  
+	{
+		anim = (ANIMATION*) (actor->animSegments + (actorAnim->currentAnimation*2));
+		if(actorAnim->frame >= anim->animEnd)
+		{
+			actorAnim->frame = anim->animStart;
+			actorAnim->animTime = anim->animStart<<ANIMSHIFT;
+			actorAdjustPosition(actor);
+		}
+		else 
+		{
+			if(actorAnim->frame < anim->animStart)
+			{
+				actorAnim->frame = anim->animEnd;
+				actorAnim->animTime = anim->animEnd <<ANIMSHIFT;
+				actorAdjustPosition(actor);
+			}
+		}
+	}		
+		// Store Root Bone movement
+		// Use Basic Position - IE Set root bone to zero
+}
+
+
+/**************************************************************************
+	FUNCTION:	actorSetAnimation2()
+	PURPOSE:	Set keyframe information for current object ((4096 - blend) * frame0) + (blend * frame1)
+	PARAMETERS:	actor, frame0, frame1, blend
+	RETURNS:	
+**************************************************************************/
+
 void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
 {
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
@@ -743,74 +815,6 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 	RETURNS:	
 **************************************************************************/
 
-
-void actorSetAnimation(ACTOR *actor, ULONG frame)
-{
-	PSIOBJECT *world;
-	ACTOR_ANIMATION *actorAnim = &actor->animation;
-	ANIMATION *anim;
-	long temp0,temp1,temp2;
-	VECTOR result;
-
-	world = actor->psiData.object;
-	
-	PSIactorScale = &actor->size;
-
-	psiSetKeyFrames(world, frame);
-
-	/*
-		
-	actor->accumulator.vx = world->matrix.t[0];
-	actor->accumulator.vy = world->matrix.t[1];
-	actor->accumulator.vz = world->matrix.t[2];
-
-	world->matrix.t[0] -= actor->oldPosition.vx;
-	world->matrix.t[1] -= actor->oldPosition.vy;
-	world->matrix.t[2] -= actor->oldPosition.vz;
-
-	actor->oldPosition = actor->accumulator;
-
-	temp0 = world->matrix.t[0];
-	temp1 = world->matrix.t[1];
-	temp2 = world->matrix.t[2];
-	
-	actorRotate(world->rotate.vx,world->rotate.vy,world->rotate.vz,temp0,temp1,temp2,&result);
-
-	world->matrix.t[0] = result.vx;
-	world->matrix.t[1] = result.vy;
-	world->matrix.t[2] = result.vz;
-	*/
-	
-	if (actorAnim->exclusive)  
-	{
-		anim = (ANIMATION*) (actor->animSegments + (actorAnim->currentAnimation*2));
-		if(actorAnim->frame >= anim->animEnd)
-		{
-			actorAnim->frame = anim->animStart;
-			actorAnim->animTime = anim->animStart<<ANIMSHIFT;
-			actorAdjustPosition(actor);
-		}
-		else 
-		{
-			if(actorAnim->frame < anim->animStart)
-			{
-				actorAnim->frame = anim->animEnd;
-				actorAnim->animTime = anim->animEnd <<ANIMSHIFT;
-				actorAdjustPosition(actor);
-			}
-		}
-	}		
-		// Store Root Bone movement
-		// Use Basic Position - IE Set root bone to zero
-}
-
-
-/**************************************************************************
-	FUNCTION:	actorSetAnimation2()
-	PURPOSE:	Set keyframe information for current object ((4096 - blend) * frame0) + (blend * frame1)
-	PARAMETERS:	actor, frame0, frame1, blend
-	RETURNS:	
-**************************************************************************/
 
 void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
 {
