@@ -667,6 +667,10 @@ void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette )
 	DR_MOVE *siMove;
 	RECT	moveRect;
 
+	if((dest == NULL) || (src == NULL))
+		return;
+
+
 	moveRect.x = VRAM_CALCVRAMX(src->handle);
 	moveRect.y = VRAM_CALCVRAMY(src->handle);
 	moveRect.w = (dest->w + 3) / 4;
