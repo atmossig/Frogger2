@@ -461,6 +461,7 @@ int main ( )
 
 #define ENABLE_LANG_SEL 0
 #if ENABLE_LANG_SEL==1
+		actFrameCount = 0;
 		languageInitialise();
 		while(!DoneLangSel)
 		{
@@ -470,6 +471,8 @@ int main ( )
 
 			padHandler();
 			languageFrame();
+			DrawScreenTransition();
+			actFrameCount++;
 
 			DrawSync(0);
 			VSync(2);
@@ -477,6 +480,7 @@ int main ( )
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 		}
+		actFrameCount = 0;
 #endif
 
 	
@@ -849,7 +853,7 @@ void MainDrawFunction ( void )
 
 	TIMER_START0(TIMER_PRINT_OVERS);
 
-	PrintSpriteOverlays(1);
+//	PrintSpriteOverlays(1);
 	PrintTextOverlays();
 	PrintSpriteOverlays(0);
 
