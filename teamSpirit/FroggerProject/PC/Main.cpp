@@ -300,9 +300,14 @@ LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			switch (LOWORD(wParam))
 			{
+				case IDC_CONTROLS:
+					SetupControllers(mdxWinInfo.hWndMain);
+					return TRUE;
+
 				case IDC_MULTI:
 					InitMPDirectPlay(mdxWinInfo.hInstance);
-					return TRUE;					
+					return TRUE;
+
 				case IDOK:
 				{
 					
