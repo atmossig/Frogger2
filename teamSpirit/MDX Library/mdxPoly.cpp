@@ -212,7 +212,7 @@ long dPoly = 1;
 void CopySoftScreenToSurface(LPDIRECTDRAWSURFACE7 srf)
 {
 	DDSURFACEDESC2		ddsd;
-	unsigned long r,g,b,d;
+//	unsigned long r,g,b,d;
 	static unsigned long mPitch,cPitch,srcAddr,dstAddr;
 
 	if (rHardware || !dPoly)
@@ -334,6 +334,7 @@ void InitFrames(void)
 	Returns       : -
 	Info          : -
 */
+long softDepthOff = 0;
 
 void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENTRY *tEntry)
 {
@@ -349,16 +350,21 @@ void PushPolys_Software( D3DTLVERTEX *v, int vC, short *fce, long fC, MDX_TEXENT
 		if (cFInfo == &frameInfo[MA_FRAME_ADDITIVE])
 			m->flags |= 1;
 	
-		m->f[0] = fce[i]+numSoftVertex;
-		m->f[1] = fce[i+1]+numSoftVertex;
-		m->f[2] = fce[i+2]+numSoftVertex;
+		m->f[0] = (unsigned short)(fce[i]+numSoftVertex);
+		m->f[1] = (unsigned short)(fce[i+1]+numSoftVertex);
+		m->f[2] = (unsigned short)(fce[i+2]+numSoftVertex);
 		m->t = tEntry->surf;
 		m->tEntry = tEntry;
 
-		zVal = v[fce[i]].sz * MA_SOFTWARE_DEPTH;		
-		zVal += v[fce[i+1]].sz * MA_SOFTWARE_DEPTH;		
-		zVal += v[fce[i+2]].sz * MA_SOFTWARE_DEPTH;		
+		zVal = (long)(v[fce[i]].sz * MA_SOFTWARE_DEPTH);
+		zVal += (long)(v[fce[i+1]].sz * MA_SOFTWARE_DEPTH);
+		zVal += (long)(v[fce[i+2]].sz * MA_SOFTWARE_DEPTH);
+		// Shift depth a la psx version
+		zVal += softDepthOff;
 		zVal >>= 2;
+
+		if( zVal >= MA_SOFTWARE_DEPTH )
+			zVal = MA_SOFTWARE_DEPTH-1;
 
 		if (tEntry->type == TEXTURE_AI)
 		{
@@ -561,36 +567,37 @@ void DrawSoftwarePolys (void)
 
 				ssVerts[2].u = SSMAKEUV(ssVerts[2].u);
 				ssVerts[2].v = SSMAKEUV(ssVerts[2].v);
-
-				// ** Additive alpha? Subtactive alpha?, Semi alpha?
-				// ** This cannot be correct?
-
-				// use additive alpha?
-				if (polyPtr->flags & 1)
-					ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_ADD);
-				// use subtractive alpha?
-				else if (polyPtr->flags & 2)
-				{
-					ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SUB);
-					// fix all rgbs to psx max
-					ssVerts[0].r = 127;
-					ssVerts[0].g = 127;
-					ssVerts[0].b = 127;
-					ssVerts[1].r = 127;
-					ssVerts[1].g = 127;
-					ssVerts[1].b = 127;
-					ssVerts[2].r = 127;
-					ssVerts[2].g = 127;
-					ssVerts[2].b = 127;
-				}
-
-				// draw softstation primitive
-				ssDrawPrimitive(ssVerts, 3);
-
-				// what is this!!! reset alpha mode (!!)
-				if (polyPtr->flags)
-					ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_NONE);
 			}
+
+			// ** Additive alpha? Subtactive alpha?, Semi alpha?
+			// ** This cannot be correct?
+
+			// use additive alpha?
+			if (polyPtr->flags & 1)
+				ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_ADD);
+			// use subtractive alpha?
+			else if (polyPtr->flags & 2)
+			{
+				ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SUB);
+				// fix all rgbs to psx max
+				ssVerts[0].r = 127;
+				ssVerts[0].g = 127;
+				ssVerts[0].b = 127;
+				ssVerts[1].r = 127;
+				ssVerts[1].g = 127;
+				ssVerts[1].b = 127;
+				ssVerts[2].r = 127;
+				ssVerts[2].g = 127;
+				ssVerts[2].b = 127;
+			}
+
+			// draw softstation primitive
+			ssDrawPrimitive(ssVerts, 3);
+
+			// what is this!!! reset alpha mode (!!)
+			if (polyPtr->flags)
+				ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_NONE);
+//			}
 			polyPtr = polyPtr->next;
 		}
 	}
@@ -1206,41 +1213,39 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_CW);
 
-
+		return;
 	}
-/*	else
+
+	int sr,sg,sb,sa, su0,sv0, su1,sv1;
+	sr = RGBA_GETRED(colour);
+	sg = RGBA_GETGREEN(colour);
+	sb = RGBA_GETBLUE(colour);
+	sa = RGBA_GETALPHA(colour);
+
+	// alpha rgbs
+	sr = (sr * sa) >>8;
+	sg = (sg * sa) >>8;
+	sb = (sb * sa) >>8;
+
+	su0 = sv0 = su1 = sv1 = 0;
+
+	TSSVertex verts[4] = 
 	{
-			MPR_VERT sv[4];
-			long alpha = (v[0].color & 0xff000000)>>(24+4);
+		{r.left,  r.top,    sr,sg,sb, su0,sv0},
+		{r.left,  r.bottom, sr,sg,sb, su0,sv1},
+		{r.right, r.bottom, sr,sg,sb, su1,sv1},
+		{r.right, r.top,    sr,sg,sb, su1,sv0},
+	};
 
-			
-			sv[0].x = v[0].sx;
-			sv[0].y = v[0].sy;
-			sv[0].argb = v[0].color & 0x00ffffff;
-			
-			sv[1].x = v[1].sx;
-			sv[1].y = v[1].sy;
-			sv[1].argb = v[1].color & 0x00ffffff;
+	ssSetRenderState(SSRENDERSTATE_CULLING, SSCULLING_NONE);
+	ssSetRenderState(SSRENDERSTATE_CLIPPING, SSCLIPPING_OFF);
 
-			sv[2].x = v[2].sx;
-			sv[2].y = v[2].sy;
-			sv[2].argb = v[2].color & 0x00ffffff;
-			
-			sv[3].x = v[3].sx;
-			sv[3].y = v[3].sy;
-			sv[3].argb = v[3].color & 0x00ffffff;
-			
-			alpha = 32;
+	ssSetRenderState(SSRENDERSTATE_SHADEMODE, SSSHADEMODE_FLAT);
+//	ssSetRenderState(SSRENDERSTATE_ALPHAMODE, SSALPHAMODE_SEMI);
 
-			sv[0].argb |= alpha << 24;
-			sv[1].argb |= alpha << 24;
-			sv[2].argb |= alpha << 24;
-			sv[3].argb |= alpha << 24;
+	ssSetTexture(NULL, 0, 0, 0);
 
-			MPR_DrawPoly((unsigned short *)softScreen,sv,4,POLY_GOURAUD,NULL);
-	}
-*/	
-//	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+	ssDrawPrimitive(verts, 4);
 }
 
 /*
@@ -1723,7 +1728,7 @@ void BlankAllFrames(void)
 	}	
 	numHaloPoints = 0;
 	
-	ClearSoftwareSortBuffer();
+//	ClearSoftwareSortBuffer();
 }
 
 /*	--------------------------------------------------------------------------------
@@ -2024,8 +2029,8 @@ void DrawAllFrames(void)
 
 	if (!rHardware)
 	{
-		DrawSoftwarePolys();
-		EndDraw();
+//		DrawSoftwarePolys();
+//		EndDraw();
 		return;
 	}
 	else
