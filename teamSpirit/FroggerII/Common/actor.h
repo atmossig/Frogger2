@@ -95,7 +95,6 @@ void RemoveObjectSprites(OBJECT *obj,BOOL free);
 void FreeObjectSprites(OBJECT *obj);
 
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
-void SetActorCollisionRadius(ACTOR2 *act,float radius);
 
 void MakeUniqueActor(ACTOR *actor,int type);
 void RemoveUniqueActor(ACTOR *actor,int type);
@@ -105,7 +104,7 @@ OBJECT *MakeUniqueObject(OBJECT *object);
 void RemoveUniqueObject(OBJECT *object);
 
 void ResetUniqueActorList();
-
+void ActorLookAt( ACTOR *act, VECTOR *at );
 void CopyDrawlist(u8 *dest,u8 *source);
 
 #endif

@@ -469,19 +469,6 @@ BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2)
 	return FALSE;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: SetActorCollisionRadius
-	Purpose			: sets the specified actor's collision radius
-	Parameters		: ACTOR2 *,float
-	Returns			: void
-	Info			: 
-*/
-void SetActorCollisionRadius(ACTOR2 *act,float radius)
-{
-	act->radius = radius;
-}
-
-
 
 /*	--------------------------------------------------------------------------------
 	Function 	: MakeUniqueDrawList
@@ -765,4 +752,16 @@ void RemoveUniqueActor(ACTOR *actor,int type)
 		}
 	}
 */
+}
+
+void ActorLookAt( ACTOR *act, VECTOR *at )
+{
+	VECTOR v1, v2, v3, up;
+
+	SubVector( &v1, &act->pos, at );
+	MakeUnit(&v1);
+	RotateVectorByQuaternion(&up,&upVec,&act->qRot);
+	CrossProduct(&v2,&v1,&up);
+	CrossProduct(&v3,&v2,&up);
+	Orientate(&act->qRot,&v3,&inVec,&up);
 }

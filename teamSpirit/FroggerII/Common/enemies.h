@@ -102,7 +102,9 @@ enum
 #define ENEMY_NEW_MAKERIPPLES			(1 << 19)	// generate ripples under the enemy
 #define ENEMY_NEW_MAKESMOKE				(1 << 20)	// generate smoke
 #define ENEMY_NEW_MAKESPARKS			(1 << 21)	// generate sparks
-
+#define ENEMY_NEW_SNAPTILES				(1 << 22)	// Snap at a tilelist
+#define ENEMY_NEW_MOVEONMOVE			(1 << 23)	// Move towards frog when it moves
+#define ENEMY_NEW_FOLLOWFROG			(1 << 24)	// Follow where the frog has been
 
 typedef struct TAGENEMY
 {
