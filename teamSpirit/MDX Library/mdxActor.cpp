@@ -77,13 +77,25 @@ unsigned long AddActorToList(MDX_ACTOR *me)
 void ActorListDraw(void)
 {
 	MDX_ACTOR *cur = actorList;	
-	MDX_VECTOR where,tPos;
+	MDX_VECTOR where,tPos,tPos2;
 	float radius,scale;
+	MDX_MATRIX rotmat;
 
 	while (cur)
 	{
 		drawThisObjectsSprites = cur->draw;
-		AddVector(&tPos,&cur->pos,&cur->trueCentre);
+
+		SetVector(&tPos,&cur->trueCentre);
+
+		tPos.vx *= cur->scale.vx;
+		tPos.vy *= cur->scale.vy;
+		tPos.vz *= cur->scale.vz;
+		
+		QuaternionToMatrix(&cur->qRot,&rotmat);
+		guMtxXFMF(rotmat.matrix,tPos.vx,tPos.vy,tPos.vz,&(tPos2.vx),&(tPos2.vy),&(tPos2.vz));
+	
+		AddVector(&tPos,&cur->pos,&tPos2);
+		
 		XfmPoint(&where,&tPos,NULL);
 
 		if (where.vz>10)
@@ -93,8 +105,8 @@ void ActorListDraw(void)
 			
 			radius = (FOV * cur->radius * scale)/(where.vz+DIST);
 			
-			if (((where.vx > -radius) && (where.vx<640+radius)) &&
-				((where.vy > -radius) && (where.vy<480+radius)))
+			if (((where.vx > -radius) && (where.vx<rXRes+radius)) &&
+				((where.vy > -radius) && (where.vy<rYRes+radius)))
 			{	
 				XformActor(cur,0);		
 				if (cur->draw)
@@ -141,12 +153,12 @@ void DrawActor(MDX_ACTOR *actor)
 		{
 			DrawObject(objectC->object, TRUE, objectC->object->mesh);
 			PCRenderObject(objectC->object);
-			if (!(objectC->object->flags & OBJECT_FLAGS_FLATSHADOW))
+			if ((objectC->object->flags & OBJECT_FLAGS_CARTOON))
 			{
-	//			DrawObject(objectC->object, 3, objectC->object->mesh);
-	//			PCRenderObjectOutline(objectC->object);
-	//			AdjustObjectOutline();
-	//			PCRenderObjectOutline(objectC->object);
+				DrawObject(objectC->object, 3, objectC->object->mesh);
+				PCRenderObjectOutline(objectC->object);
+				AdjustObjectOutline();
+				PCRenderObjectOutline(objectC->object);
 			}
 		}
 	}

@@ -1064,7 +1064,9 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 {
 	SaveFrame;
 
-	
+	if (obj->flags & OBJECT_FLAGS_MODGE)
+		SwapFrame(MA_FRAME_WRAP);
+
 	if (obj->flags & OBJECT_FLAGS_XLU)
 		SwapFrame(MA_FRAME_XLU);
 
@@ -1116,6 +1118,8 @@ void DrawObject(MDX_OBJECT *obj, int skinned, MDX_MESH *masterMesh)
 	{ 
 		if (!(obj->flags & OBJECT_FLAGS_CLIPPED) || (noClipping))
 		{
+			numObjectsDrawn++;
+	
 			if (obj->mesh)
 			{
 				globalXLU2 = (((float)obj->xlu) / ((float)0xff)) * globalXLU;
@@ -2075,6 +2079,7 @@ void PCRenderObjectOutline (MDX_OBJECT *obj)
 	}
 }
 
+long cFog;
 
 void PCRenderObject (MDX_OBJECT *obj)
 {
@@ -2169,6 +2174,7 @@ void PCRenderObject (MDX_OBJECT *obj)
 			tFog = FOG(tV1->vz);
 			if (tFog>1) tFog = 1;
 			if (tFog<0) tFog = 0;
+			cFog = FOGVAL(tFog);
 		}
 				
 		for (i=obj->mesh->numFaces; i; i--)
@@ -2183,17 +2189,17 @@ void PCRenderObject (MDX_OBJECT *obj)
 			if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
 			{
 		
-				(dVtx)->specular = FOGVAL(tFog);			
+				(dVtx)->specular = cFog;			
 				(dVtx)->sx = tV0->vx;
 				(dVtx)->sy = tV0->vy;
 				(dVtx)->sz = tV0->vz * 0.00025F;
 	
-				(dVtx+1)->specular = FOGVAL(tFog);			
+				(dVtx+1)->specular = cFog;			
 				(dVtx+1)->sx = tV1->vx;
 				(dVtx+1)->sy = tV1->vy;
 				(dVtx+1)->sz = tV1->vz * 0.00025F;
 	
-				(dVtx+2)->specular = FOGVAL(tFog);			
+				(dVtx+2)->specular = cFog;			
 				(dVtx+2)->sx = tV2->vx;
 				(dVtx+2)->sy = tV2->vy;
 				(dVtx+2)->sz = tV2->vz * 0.00025F;
