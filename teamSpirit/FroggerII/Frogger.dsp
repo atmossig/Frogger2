@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G6 /MT /w /W0 /GX /O2 /D "WIN32" /D "NDEBUG" /D "PC_VERSION" /D "_WINDOWS" /D "DONTUSEJALLOC" /YX /FD /c
+# ADD CPP /nologo /G6 /MT /w /W0 /GX /O2 /D "WIN32" /D "NDEBUG" /D "PC_VERSION" /D "_WINDOWS" /D "DONTUSEJALLOC" /D "USE_EDITOR" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
@@ -762,8 +762,6 @@ SOURCE=.\Pc\font.h
 SOURCE=.\Pc\map.c
 
 !IF  "$(CFG)" == "Frogger - Win32 Release"
-
-# ADD CPP /D "USE_EDITOR"
 
 !ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
 
