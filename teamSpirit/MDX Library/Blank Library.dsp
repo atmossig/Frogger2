@@ -226,7 +226,7 @@ SOURCE=.\mgeReport.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\froggerproject\resource.rc
+SOURCE=.\resource.h
 # End Source File
 # End Target
 # End Project
