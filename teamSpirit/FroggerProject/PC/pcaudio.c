@@ -265,15 +265,15 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 		SubVectorSSS( &diff, pos, &frog[0]->actor->position );
 		// Volume attenuation - check also for radius != 0 and use instead of default
-		dist = MagnitudeS( &diff )>>12;
+		dist = (float)MagnitudeS( &diff )/4096.0;
 		if( dist > att )
 			return FALSE;
 
 		vol *= (att-dist)/att;
 
 		//work out pan
-//		dist = Aabs(atan2(diff.vx, diff.vz));
-//		pan = (255/PI) * FindShortestAngle(Fabs(frog[0]->actor->position.vy+PI/2),dist);
+		dist = Aabs(atan2(diff.vx, diff.vz));
+		pan = (255/PI) * (FindShortestAngle(Fabs(frog[0]->actor->position.vy+PI/2)*4096,dist*4096)/4096.0);
 	}
 
 	if( sample->flags & SFXFLAGS_LOOP )
@@ -302,7 +302,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 
 	lpdsBuffer->lpVtbl->SetFrequency( lpdsBuffer, (pitch==-1)?(DSBFREQUENCY_ORIGINAL):(pitch*PITCH_STEP) );
 	lpdsBuffer->lpVtbl->SetVolume( lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
-//	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
+	lpdsBuffer->lpVtbl->SetPan( lpdsBuffer, pan );
 	lpdsBuffer->lpVtbl->Play( lpdsBuffer, 0, 0, flags );
 
 	// HAAACCK! Bwahahahahahah!

@@ -424,7 +424,7 @@ void ShowSounds(void)
 					SetTextColor(hdc, RGB(255,255,255));
 
 					if( siPlaySound )
-						PlaySample( me, &frog[0]->actor->position, 0, SAMPLE_VOLUME, -1 );
+						PlaySample( me, NULL, 0, SAMPLE_VOLUME, -1 );
 					siPlaySound = 0;
 				}
 				else
