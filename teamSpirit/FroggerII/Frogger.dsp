@@ -1077,6 +1077,22 @@ SOURCE=.\Pc\map.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\netchat.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\netchat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\netgame.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\netgame.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\network.cpp
 # End Source File
 # Begin Source File
@@ -1206,22 +1222,11 @@ SOURCE=.\bmp\f2logo.bmp
 # End Source File
 # Begin Source File
 
-SOURCE=.\bmp\frog1.bmp
-# End Source File
-# Begin Source File
-
 SOURCE=.\resource.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\resource.rc
-
-!IF  "$(CFG)" == "Frogger - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Frogger - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project

@@ -14,12 +14,15 @@
 #include <ddraw.h>
 #include <d3d.h>
 #include <dsound.h>
+#include <dplay.h>
+#include <dplobby.h>
 #include "stdlib.h"
 #include "stdio.h"
 #include "directx.h"
 #include "..\resource.h"
 #include <crtdbg.h>
 #include "commctrl.h"
+#include "network.h"
 
 #include <windowsx.h>
 #include <mmsystem.h>
@@ -710,6 +713,8 @@ long DirectXInit(HWND window, long hardware )
 
 	EnumDXObjects();
 
+	InitMPDirectPlay(winInfo.hInstance);
+
 	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
 
 	if (runQuit)
@@ -719,6 +724,7 @@ long DirectXInit(HWND window, long hardware )
 
 	isHardware = (dxDeviceList[selIdx].caps.dwCaps & DDCAPS_3D);
 	hardware = isHardware;
+
 
 //	while (0==0);
 	// Create main DirectDraw object

@@ -9,9 +9,19 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include <windows.h>
+#include <windowsx.h>
+#include <wtypes.h>
+#include <crtdbg.h>
+#include <commctrl.h>
+#include <cguid.h>
+#include <dplay.h>
+#include <dplobby.h>
+#include "network.h"
+#include "netgame.h"
+
 extern "C"
 {
-
 #include <ultra64.h>
 #include "stdio.h"
 #include "incs.h"
@@ -309,11 +319,10 @@ void ProcessUserInput(HWND hWnd)
 
 	if (KEYPRESS(DIK_LEFT))// | (joy.lX < -DEAD_ZONE))
 		controllerdata[0].button |= CONT_LEFT;
-
 	
 	if (KEYPRESS(DIK_RIGHT))// | (joy.lX > DEAD_ZONE))
 		controllerdata[0].button |= CONT_RIGHT;
-	
+
 	if (KEYPRESS(DIK_RETURN ))// | (joy.rgbButtons[0]))
 		controllerdata[0].button |= CONT_A;
 	
@@ -393,6 +402,8 @@ void ProcessUserInput(HWND hWnd)
 	//if (KEYPRESS(DIK_A))
 	//	controllerdata[1].button |= CONT_B;
 
+	if( gameState.mode == GAME_MODE )
+		SendUpdateMessage( );
 }
 
 
