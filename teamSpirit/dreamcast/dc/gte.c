@@ -946,7 +946,43 @@ void gte_stlvnl(VOID *v)
 	*temp = lv.vz;
 }
 
-// Rotation Matrix * Vertex Register 0
+
+/* ---------------------------------------------------------
+   Function : gte_rtv0
+   Purpose : PSX emulation rotation matrix * vertex register 0
+   Parameters : internals
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
+#if 1
+// ** Hopefully optimised PSX emulation vertex matrix mulitply
+void gte_rtv0(void)
+{
+	register int	vrx = (int)vr0.vx, vry = (int)vr0.vy, vrz = (int)vr0.vz;
+	register int	n, shift = 12;
+	register short	*mp = &RotMatrix.m[0][0];
+	register short	*sp = &sv.vx;
+
+	n  = *mp++ * vrx;
+	n += *mp++ * vry;
+	n += *mp++ * vrz;
+	n >>= shift;
+	*sp++ = (short)n;
+	n  = *mp++ * vrx;
+	n += *mp++ * vry;
+	n += *mp++ * vrz;
+	n >>= shift;
+	*sp++ = (short)n;
+	n  = *mp++ * vrx;
+	n += *mp++ * vry;
+	n += *mp   * vrz;
+	n >>= shift;
+	*sp   = (short)n;
+}
+
+#else
+
 void gte_rtv0(void)
 {
 	sv.vx = (((RotMatrix.m[0][0] * vr0.vx) + 
@@ -956,8 +992,51 @@ void gte_rtv0(void)
 	sv.vz = (((RotMatrix.m[2][0] * vr0.vx) + 
 		(RotMatrix.m[2][1] * vr0.vy) + (RotMatrix.m[2][2] * vr0.vz)) >> 12);
 }
+#endif
+
+
+// *ASL* 18/08/2000
+/* ---------------------------------------------------------
+   Function : gte_rtv0tr
+   Purpose : PSX emulation rotation matrix * vr0 vertex register 0 + translate
+   Parameters : internals
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
 
 // (rt * v0) + tr
+#if 1
+// ** Hopefully optimised PSX emulation vertex matrix mulitply
+void gte_rtv0tr(void)
+{
+	register int	vrx = (int)vr0.vx, vry = (int)vr0.vy, vrz = (int)vr0.vz;
+	register int	tx = TransVector.vx, ty = TransVector.vy, tz = TransVector.vz;
+	register int	n, shift = 12;
+	register short	*mp = &RotMatrix.m[0][0];
+	register short	*sp = &sv.vx;
+
+	n  = *mp++ * vrx;
+	n += *mp++ * vry;
+	n += *mp++ * vrz;
+	n >>= shift;
+	n += tx;
+	*sp++ = (short)n;
+	n  = *mp++ * vrx;
+	n += *mp++ * vry;
+	n += *mp++ * vrz;
+	n >>= shift;
+	n += ty;
+	*sp++ = (short)n;
+	n  = *mp++ * vrx;
+	n += *mp++ * vry;
+	n += *mp   * vrz;
+	n >>= shift;
+	n += tz;
+	*sp   = (short)n;
+}
+
+#else
+
 void gte_rtv0tr(void)
 {
 	sv.vx = ((((RotMatrix.m[0][0] * vr0.vx) + (RotMatrix.m[0][1] * vr0.vy)
@@ -967,6 +1046,8 @@ void gte_rtv0tr(void)
 	sv.vz = ((((RotMatrix.m[2][0] * vr0.vx) + (RotMatrix.m[2][1] * vr0.vy)
 		+ (RotMatrix.m[2][2] * vr0.vz)) >> 12) + TransVector.vz);
 }
+#endif
+
 
 // Transfer Vector + Rotation Matrix * Vertex Register 0
 void gte_rt(void)
@@ -988,7 +1069,49 @@ void gte_rt(void)
 	lv.vz = (long)sv.vz;
 }
 
+
+// *ASL* 18/08/2000
+/* ---------------------------------------------------------
+   Function : gte_rtirtr
+   Purpose : PSX emulation rotation matrix * sv vertex register + translate
+   Parameters : internals
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 // rt * sv + tr
+#if 1
+// ** Hopefully optimised PSX emulation vertex matrix mulitply
+void gte_rtirtr(void)
+{
+	register int	svx = (int)sv.vx, svy = (int)sv.vy, svz = (int)sv.vz;
+	register int	tx = TransVector.vx, ty = TransVector.vy, tz = TransVector.vz;
+	register int	n, shift = 12;
+	register short	*mp = &RotMatrix.m[0][0];
+	register short	*sp = &sv.vx;
+
+	n  = *mp++ * svx;
+	n += *mp++ * svy;
+	n += *mp++ * svz;
+	n >>= shift;
+	n += tx;
+	*sp++ = (short)n;
+	n  = *mp++ * svx;
+	n += *mp++ * svy;
+	n += *mp++ * svz;
+	n >>= shift;
+	n += ty;
+	*sp++ = (short)n;
+	n  = *mp++ * svx;
+	n += *mp++ * svy;
+	n += *mp   * svz;
+	n >>= shift;
+	n += tz;
+	*sp   = (short)n;
+}
+
+#else
+
 void gte_rtirtr(void)
 {
 	register SVECTOR tempsv;
@@ -1006,6 +1129,8 @@ void gte_rtirtr(void)
 		(RotMatrix.m[2][1] * tempsv.vy) + (RotMatrix.m[2][2] * tempsv.vz)) >> 12)
 		 + (short)TransVector.vz);
 }
+#endif
+
 
 // Same but with no nop
 void gte_rtirtr_b(void)
@@ -1226,7 +1351,45 @@ void gte_rtps_b(void)
 	gte_rtps();
 }
 
+
+// *ASL* 18/07/2000
+/* ---------------------------------------------------------
+   Function : RotTrans
+   Purpose : PSX gte emulation rotate matrix vector transform
+   Parameters : vector in pointer, vector out pointer, flag?
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 // Similar to gte_rtps 
+#if 1
+// ** Hopefully optimised PSX emulation transform
+void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag)
+{
+	register int	ivx = v0->vx, ivy = v0->vy, ivz = v0->vz;
+	register int	n, shift = 12;
+	register long	*lp = &v1->vx;
+	register short	*mp = &RotMatrix.m[0][0];
+
+	n  = *mp++ * ivx;
+	n += *mp++ * ivy;
+	n += *mp++ * ivz;
+	n >>= shift;
+	*lp++ = (long)n;
+	n  = *mp++ * ivx;
+	n += *mp++ * ivy;
+	n += *mp++ * ivz;
+	n >>= shift;
+	*lp++ = (long)n;
+	n  = *mp++ * ivx;
+	n += *mp++ * ivy;
+	n += *mp   * ivz;
+	n >>= shift;
+	*lp   = (long)n;
+}
+
+#else
+
 void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag)
 {
 	v1->vx = (((RotMatrix.m[0][0] * v0->vx) + (RotMatrix.m[0][1] * v0->vy)
@@ -1236,7 +1399,7 @@ void RotTrans(SVECTOR *v0, VECTOR *v1, long *flag)
 	v1->vz = (((RotMatrix.m[2][0] * v0->vx) + (RotMatrix.m[2][1] * v0->vy)
 		+ (RotMatrix.m[2][2] * v0->vz)) >> 12);
 }
-
+#endif
 
 
 // *ASL* 16/08/2000
@@ -1561,13 +1724,52 @@ void gte_lddqb(int i)
 	dqb = i;
 }
 
+
+// *ASL* 18/07/2000
+/* ---------------------------------------------------------
+   Function : gte_intpl
+   Purpose : PSX gte emulation interpolate
+   Parameters : internal
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 // Interpolate
+#if 1
+// ** Hopefully optimised PSX emulation transform
+void gte_intpl(void)
+{
+	register long	ldc = dc, ndc = 4096 - dc;
+	register int	n, shift = 12;
+	register long	*fp = &farc.vx, *lp = &lv.vx;
+	register short	*sp = &sv.vx;
+
+	n  = *sp++ * ndc;
+	n += *fp++ * dc;
+	n >>= shift;
+	*lp++ = n;
+
+	n  = *sp++ * ndc;
+	n += *fp++ * dc;
+	n >>= shift;
+	*lp++ = n;
+
+	n  = *sp * ndc;
+	n += *fp * dc;
+	n >>= shift;
+	*lp = n;
+}
+
+#else
+
 void gte_intpl(void)
 {
 	lv.vx = (((4096 - dc) * sv.vx) + (dc * farc.vx)) >> 12;
 	lv.vy = (((4096 - dc) * sv.vy) + (dc * farc.vy)) >> 12;
 	lv.vz = (((4096 - dc) * sv.vz) + (dc * farc.vz)) >> 12;
 }
+#endif
+
 
 // Kernel of DpqColor
 void gte_dpcs(void)
@@ -1927,7 +2129,19 @@ void gte_ncs(void)
 	cr.b = tempcr.vz;
 }
 
+
+// *ASL* 18/08/2000
+/* ---------------------------------------------------------
+   Function : gte_nct
+   Purpose : PSX gte emulation 
+   Parameters : 
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
 // Kernel of NormalColor3
+#if 1
+// ** Hopefully optimised PSX emulation matrix multiply
 void gte_nct(void)
 {
 	SVECTOR sv1;
@@ -2073,6 +2287,156 @@ void gte_nct(void)
 	cr2.g = tempcr2.vy;
 	cr2.b = tempcr2.vz;
 }
+
+#else
+
+void gte_nct(void)
+{
+	SVECTOR sv1;
+	SVECTOR sv2;
+	SVECTOR sv3;
+	SVECTOR tempcr0;
+	SVECTOR tempcr1;
+	SVECTOR tempcr2;
+
+	// Same as above but for all three colour registers
+	sv1.vx = (((ls0[0] * vr0.vx) + (ls0[1] * vr0.vy) 
+		+ (ls0[2] * vr0.vz)) >> 12);
+	sv1.vy = (((ls1[0] * vr0.vx) + (ls1[1] * vr0.vy) 
+		+ (ls1[2] * vr0.vz)) >> 12);
+	sv1.vz = (((ls2[0] * vr0.vx) + (ls2[1] * vr0.vy) 
+		+ (ls2[2] * vr0.vz)) >> 12);
+
+	//Limit number
+	if (sv1.vx < 0)
+		sv1.vx = 0;
+	if (sv1.vy < 0)
+		sv1.vy = 0;
+	if (sv1.vz < 0)
+		sv1.vz = 0;
+
+	if (sv1.vx > 32767)
+		sv1.vx = 32767;
+	if (sv1.vy > 32767)
+		sv1.vy = 32767;
+	if (sv1.vz > 32767)
+		sv1.vz = 32767;
+
+	sv2.vx = (((ls0[0] * vr1.vx) + (ls0[1] * vr1.vy) 
+		+ (ls0[2] * vr1.vz)) >> 12);
+	sv2.vy = (((ls1[0] * vr1.vx) + (ls1[1] * vr1.vy) 
+		+ (ls1[2] * vr1.vz)) >> 12);
+	sv2.vz = (((ls2[0] * vr1.vx) + (ls2[1] * vr1.vy) 
+		+ (ls2[2] * vr1.vz)) >> 12);
+
+	//Limit number
+	if (sv2.vx < 0)
+		sv2.vx = 0;
+	if (sv2.vy < 0)
+		sv2.vy = 0;
+	if (sv2.vz < 0)
+		sv2.vz = 0;
+
+	if (sv2.vx > 32767)
+		sv2.vx = 32767;
+	if (sv2.vy > 32767)
+		sv2.vy = 32767;
+	if (sv2.vz > 32767)
+		sv2.vz = 32767;
+
+	sv3.vx = (((ls0[0] * vr2.vx) + (ls0[1] * vr2.vy) 
+		+ (ls0[2] * vr2.vz)) >> 12);
+	sv3.vy = (((ls1[0] * vr2.vx) + (ls1[1] * vr2.vy) 
+		+ (ls1[2] * vr2.vz)) >> 12);
+	sv3.vz = (((ls2[0] * vr2.vx) + (ls2[1] * vr2.vy) 
+		+ (ls2[2] * vr2.vz)) >> 12);
+
+	//Limit number
+	if (sv3.vx < 0)
+		sv3.vx = 0;
+	if (sv3.vy < 0)
+		sv3.vy = 0;
+	if (sv3.vz < 0)
+		sv3.vz = 0;
+
+	if (sv3.vx > 32767)
+		sv3.vx = 32767;
+	if (sv3.vy > 32767)
+		sv3.vy = 32767;
+	if (sv3.vz > 32767)
+		sv3.vz = 32767;
+
+	tempcr0.vx = ((((sv1.vx * lcr0[0]) + (sv1.vy * lcr1[0]) + (sv1.vz * lcr2[0])) >> 12) + cbk[0]);
+	tempcr0.vy = ((((sv1.vx * lcr0[1]) + (sv1.vy * lcr1[1]) + (sv1.vz * lcr2[1])) >> 12) + cbk[1]);
+	tempcr0.vz = ((((sv1.vx * lcr0[2]) + (sv1.vy * lcr1[2]) + (sv1.vz * lcr2[2])) >> 12) + cbk[2]);
+
+	//Limit number
+	if (tempcr0.vx < 0)
+		tempcr0.vx = 0;
+	if (tempcr0.vy < 0)
+		tempcr0.vy = 0;
+	if (tempcr0.vz < 0)
+		tempcr0.vz = 0;
+
+	if (tempcr0.vx > 255)
+		tempcr0.vx = 255;
+	if (tempcr0.vy > 255)
+		tempcr0.vy = 255;
+	if (tempcr0.vz > 255)
+		tempcr0.vz = 255;
+
+	tempcr1.vx = ((((sv2.vx * lcr0[0]) + (sv2.vy * lcr1[0]) + (sv2.vz * lcr2[0])) >> 12) + cbk[0]);
+	tempcr1.vy = ((((sv2.vx * lcr0[1]) + (sv2.vy * lcr1[1]) + (sv2.vz * lcr2[1])) >> 12) + cbk[1]);
+	tempcr1.vz = ((((sv2.vx * lcr0[2]) + (sv2.vy * lcr1[2]) + (sv2.vz * lcr2[2])) >> 12) + cbk[2]);
+
+	//Limit number
+	if (tempcr1.vx < 0)
+		tempcr1.vx = 0;
+	if (tempcr1.vy < 0)
+		tempcr1.vy = 0;
+	if (tempcr1.vz < 0)
+		tempcr1.vz = 0;
+
+	if (tempcr1.vx > 255)
+		tempcr1.vx = 255;
+	if (tempcr1.vy > 255)
+		tempcr1.vy = 255;
+	if (tempcr1.vz > 255)
+		tempcr1.vz = 255;
+
+	tempcr2.vx = ((((sv3.vx * lcr0[0]) + (sv3.vy * lcr1[0]) + (sv3.vz * lcr2[0])) >> 12) + cbk[0]);
+	tempcr2.vy = ((((sv3.vx * lcr0[1]) + (sv3.vy * lcr1[1]) + (sv3.vz * lcr2[1])) >> 12) + cbk[1]);
+	tempcr2.vz = ((((sv3.vx * lcr0[2]) + (sv3.vy * lcr1[2]) + (sv3.vz * lcr2[2])) >> 12) + cbk[2]);
+
+	//Limit number
+	if (tempcr2.vx < 0)
+		tempcr2.vx = 0;
+	if (tempcr2.vy < 0)
+		tempcr2.vy = 0;
+	if (tempcr2.vz < 0)
+		tempcr2.vz = 0;
+
+	if (tempcr2.vx > 255)
+		tempcr2.vx = 255;
+	if (tempcr2.vy > 255)
+		tempcr2.vy = 255;
+	if (tempcr2.vz > 255)
+		tempcr2.vz = 255;
+
+	cr0.r = tempcr0.vx;
+	cr0.g = tempcr0.vy;
+	cr0.b = tempcr0.vz;
+
+	cr1.r = tempcr1.vx;
+	cr1.g = tempcr1.vy;
+	cr1.b = tempcr1.vz;
+
+	cr2.r = tempcr2.vx;
+	cr2.g = tempcr2.vy;
+	cr2.b = tempcr2.vz;
+}
+#endif
+
 
 void gte_nct_b(void)
 {
@@ -2370,8 +2734,93 @@ MATRIX *RotMatrixY(long y,MATRIX *m)
 	return m;
 }
 
+
+// *ASL* 18/07/2000
+/* ---------------------------------------------------------
+   Function : ScaleMatrix
+   Purpose : PSX gte emulation matrix scale
+   Parameters : matrix to scale pointer, scale vector pointer
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
+#if 1
+// ** Hopefully optimised PSX emulation transform
 MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v)
-{	
+{
+	if (v == NULL)
+	{
+		register short	*mp = &m->m[0][0];
+		register short	i1 = 4096, i0 = 0;
+
+		*mp++ = i0;
+		*mp++ = i1;
+		*mp++ = i1;
+		*mp++ = i1;
+		*mp++ = i0;
+		*mp++ = i1;
+		*mp++ = i1;
+		*mp++ = i1;
+		*mp   = i0;
+	}
+	else
+	{
+		register long	*vp = &v->vx;
+		register short	*mp = &m->m[0][0];
+		register long	vn, n, shift = 12;
+
+		// scale matrix x row
+		vn = *vp++;				// vx
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+
+		// scale matrix y row
+		vn = *vp++;				// vy
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+
+		// scale matrix z row
+		vn = *vp;				// vz
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp++ = (short)n;
+		n = *mp;
+		n *= vn;
+		n >>= shift;
+		*mp   = (short)n;
+	}
+	return m;
+}
+
+#else
+
+MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v)
+{
 	if(v == NULL)//PP: if the vector was NULL....
 	{
 		//PP: return an identity matrix
@@ -2404,21 +2853,47 @@ MATRIX *ScaleMatrix(MATRIX *m, VECTOR *v)
 
 	return m;
 }
+#endif
 
+
+
+// *ASL* 18/07/2000
+/* ---------------------------------------------------------
+   Function : ApplyMatrix
+   Purpose : PSX gte emulation matrix vector multiply
+   Parameters : matrix pointer, vector in pointer, vector out pointer
+   Returns : 
+   Info : change '#if 1' below to '#if 0' to use original PSX version
+*/
+
+#if 1
+// ** Hopefully optimised PSX emulation transform
 VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
 {
-	SVECTOR	v;
-	v = *v0;
-	// Matrix m * SVector v0
-	v1->vx = (((m->m[0][0] * v.vx) + (m->m[0][1] * v.vy) 
-		+ (m->m[0][2] * v.vz)) >> 12);
-	v1->vy = (((m->m[1][0] * v.vx) + (m->m[1][1] * v.vy) 
-		+ (m->m[1][2] * v.vz)) >> 12);
-	v1->vz = (((m->m[2][0] * v.vx) + (m->m[2][1] * v.vy) 
-		+ (m->m[2][2] * v.vz)) >> 12);
+	register short	*mp = &m->m[0][0];
+	register long	*vp = &v1->vx, shift = 12, n;
+	register short	vx = v0->vx, vy = v1->vy, vz = v0->vz;
+
+	n  = *mp++ * vx;
+	n += *mp++ * vy;
+	n += *mp++ * vz;
+	n >>= shift;
+	*vp++ = n;
+	n  = *mp++ * vx;
+	n += *mp++ * vy;
+	n += *mp++ * vz;
+	n >>= shift;
+	*vp++ = n;
+	n  = *mp++ * vx;
+	n += *mp++ * vy;
+	n += *mp   * vz;
+	n >>= shift;
+	*vp   = n;
 
 	return v1;
 }
+
+#else
 
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 {
@@ -2434,6 +2909,8 @@ VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 
 	return v1;
 }
+#endif
+
 
 
 VECTOR *ApplyRotMatrix(SVECTOR *v0, VECTOR *v1)
