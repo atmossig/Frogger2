@@ -783,6 +783,7 @@ void UpdateVent( ENEMY *cur )
 	PATH *path = cur->path;
 	SPECFX *fx;
 	ACTOR2 *act = cur->nmeActor;
+	VECTOR pos;
 	unsigned long i, t;
 
 	switch( cur->isSnapping )
@@ -867,8 +868,22 @@ void UpdateVent( ENEMY *cur )
 
 		// Check for collision with frog, and do damage
 		for( i=0; i < path->numNodes; i++ )
+		{
 			if( (path->nodes[i].worldTile == currTile[0]) && (!player[0].dead.time) && (!player[0].safe.time) )
+			{
+				if( cur->nmeActor->effects & EF_LIGHTNING )
+				{
+					// Get position in the beam to check for
+					SetVector( &pos, &path->nodes[i].worldTile->normal );
+					ScaleVector( &pos, path->nodes[i].offset );
+					AddToVector( &pos, &path->nodes[i].worldTile->centre );
+					if( DistanceBetweenPointsSquared(&frog[0]->actor->pos, &pos) > 400 )
+						continue;
+				}
+				
 				NMEDamageFrog(0,cur);
+			}
+		}
 
 		break;
 	}
