@@ -20,6 +20,7 @@ extern int sortCount;
 extern long minDepth;
 
 
+extern int polyCount;
 // use psiRegisterDrawFunction to register your own draw function with the library
 
 

@@ -441,7 +441,9 @@ int main ( )
 				DrawActorList();
 			TIMER_STOP(TIMER_ACTOR_DRAW);
 
-//			utilPrintf ( "Poly Count : %d\n", polyCount );
+			if ( !( frameCount % 10 ) )
+				utilPrintf ( "Poly Count : %d\n", polyCount );
+			// ENDIF
 
 			TIMER_START(TIMER_PRINT_OVERS);
 			PrintSpriteOverlays(1);

@@ -50,6 +50,8 @@
 
 SCENICOBJLIST scenicObjList;
 
+extern int polyCount;
+
 extern USHORT EXPLORE_black_CLUT;
 
 #define gte_stotz_cpu(r)\
