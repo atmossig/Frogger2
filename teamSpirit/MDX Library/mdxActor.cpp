@@ -83,7 +83,7 @@ void DrawActor(MDX_ACTOR *actor)
 
 
 	// I can't see you...
-	if(actor->visible == FALSE)
+	if(actor->visible == FALSE || !objectC)
 		return;
 
 	// xluOverride is used in the sprite engine, and xl is used within the main polygon engine.
