@@ -43,6 +43,9 @@ extern void DeInitInputDevices();
 extern BOOL InitKeyboardControl();
 extern void DeInitKeyboardControl();
 
+extern BOOL InitJoystickControl();
+extern void DeInitJoystick();
+
 extern BOOL InitMouseControl();
 extern void DeInitMouseControl();
 
