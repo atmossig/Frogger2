@@ -891,7 +891,8 @@ void UpDateOnScreenInfo ( void )
 		}
 		else
 		{
-			arcadeHud.timeTextHSec->draw = 1;
+			if(gameState.mode != DEMO_MODE)
+				arcadeHud.timeTextHSec->draw = 1;
 			if ((timeFrames/60)<10)
 			{
 				int secs;

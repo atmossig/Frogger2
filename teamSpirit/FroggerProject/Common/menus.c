@@ -1136,7 +1136,7 @@ void RunFrontendGameLoop (void)
 	}
 
 
-	if( frontendTimer.time > 0 && playDemos )
+	if((frontendTimer.time > 0) && (playDemos) && (!creditsRunning))
 	{
 		if((currTileNum == TILENUM_START) && (frontendTimer.time > 16))
 			GTInit(&frontendTimer,16);
