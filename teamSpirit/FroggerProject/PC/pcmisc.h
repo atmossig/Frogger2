@@ -35,6 +35,17 @@ void PrintTimers(void);
 void HoldTimers(void);
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char*);
 
+// PC Sprite sorting stuff
+#define MAX_ARRAY_SPRITES		768
+
+extern int numSortArraySprites;
+extern SPRITE *spriteSortArray;
+
+void InitSpriteSortArray(int numElements);
+void FreeSpriteSortArray();
+int SpriteZCompare(const void *arg1,const void *arg2);
+void ZSortSpriteList();
+
 #ifdef __cplusplus
 }
 #endif

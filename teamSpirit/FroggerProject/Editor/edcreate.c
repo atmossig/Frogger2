@@ -16,6 +16,8 @@
 #include "editdefs.h"
 #include "edmaths.h"
 
+#include "particle.h"
+#include "sprite.h"
 #include "specfx.h"
 #include "collect.h"
 #include "enemies.h"
@@ -46,15 +48,20 @@ void EditorCreateEntities(void)
 
 	for (i=0; i<4; i++) counts[i] = 0;
 
-//	FreeSpecFXList( );
-//	InitSpecFXList( );
-//	ResetBabies();
+	FreeSpecFXList( );
+	InitSpecFXList( );
+	ResetBabies();
 	FreePlatformLinkedList();
 	FreeEnemyLinkedList();
 	FreeGaribList();
+	InitGaribList();
 	FreeTransCameraList();
 	FreePathList();
 	KillAllTriggers( );
+	FreeSpriteList( );
+	InitSpriteList( );
+	FreeParticleList( );
+	InitParticleList( );
 
 	for (i=0; i<4; i++)
 		if (currPlatform[i])
@@ -84,7 +91,7 @@ void EditorCreateEntities(void)
 		switch (create->thing)
 		{
 		case CREATE_ENEMY:
-			path = EditorPathMake(create->path);
+			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
 #ifdef NEW_EDITOR
@@ -94,8 +101,8 @@ void EditorCreateEntities(void)
 #endif
 			act = enemy->nmeActor;
 
-			act->radius = GAMEFLOAT(create->radius * 4096);
-			act->value1 = GAMEFLOAT(create->value1 * 4096);
+			act->radius = GAMEFLOAT(create->radius);
+			act->value1 = GAMEFLOAT(create->value1);
 #ifndef NEW_EDITOR
 			act->actor->scale.v[X] = create->scale;
 			act->actor->scale.v[Y] = create->scale;
@@ -105,13 +112,27 @@ void EditorCreateEntities(void)
 //			act->actor->objectController->object->flags = create->objFlags;
 
 			if( !(enemy->flags & ENEMY_NEW_BABYFROG) )
+			{
 				act->effects = create->effects;
+				act->actor->size.vx = create->scale;
+				act->actor->size.vy = create->scale;
+				act->actor->size.vz = create->scale;
+			}
+			else
+			{
+				act->actor->size.vx = create->scale*BABY_SCALE;
+				act->actor->size.vy = create->scale*BABY_SCALE;
+				act->actor->size.vz = create->scale*BABY_SCALE;
+			}
+
+			if(gstrcmp(create->type,"nothing.obe") == 0)
+				act->draw = 0;
 
 			counts[0]++;
 			break;
 
 		case CREATE_PLACEHOLDER:
-			path = EditorPathMake(create->path);
+			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
 			enemy = (ENEMY*)calloc(1,sizeof(ENEMY)); //JallocAlloc(sizeof(ENEMY), YES, "place");
@@ -125,7 +146,7 @@ void EditorCreateEntities(void)
 			break;
 
 		case CREATE_PLATFORM:
-			path = EditorPathMake(create->path);
+			path = EditorPathMake(create->path,create->startNode);
 			path->startNode = create->startNode;
 
 #ifdef NEW_EDITOR
@@ -146,6 +167,9 @@ void EditorCreateEntities(void)
 			act->animSpeed = GAMEFLOAT(create->animSpeed);
 			// PUT THIS IN LATER
 //			act->actor->objectController->object->flags = create->objFlags;
+
+			if(gstrcmp(create->type,"nothing.obe") == 0)
+				act->draw = 0;
 
 			counts[1]++;
 			break;

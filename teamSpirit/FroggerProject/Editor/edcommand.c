@@ -11,6 +11,9 @@
 #include <ultra64.h>
 #include <stdio.h>
 
+#include <islutil.h>
+#include <islmem.h>
+
 #include "edmaths.h"
 
 #include "editdefs.h"
@@ -25,6 +28,7 @@
 
 #include "event.h"
 #include "specfx.h"
+#include "particle.h"
 #include "enemies.h"
 #include "platform.h"
 #include "collect.h"
@@ -275,22 +279,23 @@ void ToolbarSelect(int command)
 		showX = FALSE;*/
 		submenu = TOOLBAR_CLEAR;
 		break;
-/*
+
 	case TB_CLEAR_GARIBS:
-		FreeGaribLinkedList();
+		FreeGaribList();
+		InitGaribList();
 		strcpy(statusMessage, "Emptied garib list");
 		break;
 
 	case TB_CLEAR_ENEMIES:
-		FreeEnemyList();
+		FreeEnemyLinkedList();
 		strcpy(statusMessage, "Emptied enemy list");
 		break;
 
 	case TB_CLEAR_PLATFORMS:
-		FreePlatformList();
+		FreePlatformLinkedList();
 		strcpy(statusMessage, "Emptied platform list");
 		break;
-*/
+
 	case TB_CLEAR_CREATEENEMY:
 		RemoveEntities(CREATE_ENEMY);
 		strcpy(statusMessage, "Removed enemy creation flags");
@@ -358,6 +363,7 @@ void ToolbarSelect(int command)
 		if (cameraMode)	cameraMode = FALSE;
 		controlCamera = 0;
 		TOOLBARBUTTONS[CAMERA_BUTTON].icon = 22;
+		InitCamera();
 		break;
 
 	case TB_SET_SPEED: // set flag speed
@@ -598,9 +604,19 @@ void ToolbarSelect(int command)
 		//TODO: FreeBufSampleList();
 		//TODO:	FreeSampleList();
 
-		FreeGaribList( );
-		//FreeEnemyList( );
-		//FreePlatformList( );
+		FreeSpecFXList( );
+		InitSpecFXList( );
+		FreePlatformLinkedList();
+		FreeEnemyLinkedList();
+		FreeGaribList();
+		InitGaribList();
+		FreeTransCameraList();
+		FreePathList();
+		KillAllTriggers( );
+		FreeSpriteList( );
+		InitSpriteList( );
+		FreeParticleList( );
+		InitParticleList( );
 		RemoveEntities( CREATE_ENEMY );
 		RemoveEntities( CREATE_PLATFORM );
 		RemoveEntities( CREATE_CAMERACASE );
@@ -789,52 +805,6 @@ void EditorUndo()
 	}
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: 
-	Purpose			: 
-	Parameters		: 
-	Returns			: 
-	Info			: 
-
-void SubActor(ACTOR2 *actor)
-{
-	if (!actor) return;
-
-	if (actor->next)
-		actor->next->prev = actor->prev;
-
-	if (actor->prev)
-		actor->prev->next = actor->next;
-	else
-		actList = actor->next;
-
-	if(actor->actor)
-	{
-		if(actor->actor->animation)
-		{
-			// free any animation associated with ACTOR type
-			JallocFree((UBYTE**)&actor->actor->animation);
-		}
-
-		if(actor->actor->shadow)
-		{
-			// free any shadow associated with ACTOR type
-			JallocFree((UBYTE**)&actor->actor->shadow);
-		}
-
-		if((actor->actor->objectController) && (actor->actor->objectController->object))
-		{
-			// free any object sprites for this actor
-			FreeObjectSprites(actor->actor->objectController->object);
-		}
-
-		// free associated ACTOR type
-		JallocFree((UBYTE**)&actor->actor);
-	}
-
-	JallocFree((UBYTE**)&actor);
-}
-*/
 
 /*	--------------------------------------------------------------------------------
 	Function		: ResetEntityFlags
@@ -1235,16 +1205,23 @@ void SetOrientation(const char* str)
 */
 void SetFlagSound(const char* str)
 {
-/* TODO:	unsigned long uid = UpdateCRC(str);
+	unsigned long uid;
 	EDITGROUPNODE *node; 
-	int count;
+	char name[16];
+	int count=0;
+
+	while( str[count] != '\0' && str[count] != '.' )
+	{
+		name[count] = str[count];
+		count++;
+	}
+	name[count] = '\0';
+
+	uid = utilStr2CRC(name);
 
 	for (node = selectionList->nodes, count=0; node; node = node->link, count++)
 		((EDITPATHNODE*)node->thing)->sample = uid;
-	sprintf(statusMessage, "Set flag sample to %s for %d flags", str, count);
-*/
-
-	strcpy(statusMessage, "DON'T PRESS THAT BUTTON AGAIN - it doesn't work");
+	sprintf(statusMessage, "Set flag sample to %s for %d flags", name, count);
 }
 
 
