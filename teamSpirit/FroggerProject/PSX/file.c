@@ -16,19 +16,21 @@
 
 #include "main.h"
 
-#if GOLDCD == NO
-#define _DEBUG
-#endif
+//#if GOLDCD == NO
+//	#define _DEBUG
+//#else
+//	#undef _DEBUG
+//#endif
 
 
 // FlatPacker magic number
 #define FLA_MAGIC			0x32414c46			// Magic number 'FLA2' INTEL
 
-#ifdef _DEBUG
-char FILEIO_PCROOT[64];		//	"C:\\PSX\\MYGAME\\CD\\"
-#else
+//#ifdef _DEBUG
+//char FILEIO_PCROOT[64];		//	"C:\\PSX\\MYGAME\\CD\\"
+//#else
 char FILEIO_CDINDEX[64];	//	"\\MYGAME.DAT;1"
-#endif
+//#endif
 
 typedef struct _FileIODataType
 {
@@ -50,7 +52,7 @@ static int		lastFileSize;
 
 /* PC READING CODE *********************************************************************************/
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 
 /**************************************************************************
 	FUNCTION:	filePCInitialise()
@@ -59,7 +61,7 @@ static int		lastFileSize;
 	RETURNS:	
 **************************************************************************/
 
-static void filePCInitialise(char *fileSystem)
+/*static void filePCInitialise(char *fileSystem)
 {
 	strcpy(FILEIO_PCROOT, fileSystem);
 	if (PCinit())
@@ -74,7 +76,7 @@ static void filePCInitialise(char *fileSystem)
 	RETURNS:	Ptr to file data or NULL
 **************************************************************************/
 
-static unsigned char *filePCLoad(char *fName, int *length)
+/*static unsigned char *filePCLoad(char *fName, int *length)
 {
 	long	fHandle, size;
 	unsigned char	*buffer;
@@ -154,7 +156,7 @@ static unsigned char *filePCLoad(char *fName, int *length)
 	RETURNS:	0 if success, 1 if fail
 **************************************************************************/
 
-static unsigned char filePCLoadBinary(char *fName, char *loc)
+/*static unsigned char filePCLoadBinary(char *fName, char *loc)
 {
 	long	fHandle, size;
 	char	pathName[256];
@@ -188,7 +190,7 @@ static unsigned char filePCLoadBinary(char *fName, char *loc)
 
 /* CD READING CODE *********************************************************************************/
 
-#ifndef _DEBUG
+/*#ifndef _DEBUG
 
 
 /**************************************************************************
@@ -477,7 +479,7 @@ static unsigned char *fileCDLoad(char *fName, int *length)
 				return (unsigned char *)buffer;
 		}		
 		printf("Problem reading file - retry\n");
-		//return NULL;
+		return NULL;
 	}
 	return (unsigned char *)buffer;
 }
@@ -544,13 +546,13 @@ static unsigned char fileCDloadDATbinary(char *fName, int *loc)
 	return 0;
 }
 
-#endif
+/*#endif*/
 
 
 
 /* EXTERNAL INTERFACE ******************************************************************************/
 
-#ifdef _DEBUG
+/*#ifdef _DEBUG
 
 void fileGetLastLoaded()
 {
@@ -558,7 +560,7 @@ void fileGetLastLoaded()
 	//memoryGetLastAlloc();
 }
 
-#endif
+#endif*/
 
 
 /**************************************************************************
@@ -570,11 +572,11 @@ void fileGetLastLoaded()
 
 void fileInitialise(char *fileSystem)
 {
-#ifndef _DEBUG
+//#ifndef _DEBUG
 	fileCDInitialise(fileSystem);
-#else
-	filePCInitialise(fileSystem);
-#endif
+//#else
+//	filePCInitialise(fileSystem);
+//#endif
 	
 	lastFileLoaded[0] = 0;
 	lastFileSize = 0;
@@ -595,11 +597,11 @@ unsigned char *fileLoad(unsigned char *fName, int *length)
 
 	utilUpperStr(fName);
 
-#ifndef _DEBUG
+/*#ifndef _DEBUG*/
 	data = fileCDLoad(fName, &len);
-#else
+/*#else
 	data = filePCLoad(fName, &len);
-#endif
+#endif*/
 	if (data==NULL)
 		return NULL;
 
@@ -641,11 +643,11 @@ unsigned char *fileLoad(unsigned char *fName, int *length)
 
 unsigned char fileLoadBinary(char *fName, char *loc)
 {
-#ifndef _DEBUG
+/*#ifndef _DEBUG*/
 	return fileCDloadDATbinary(fName, loc);
-#else
+/*#else
 	return filePCLoadBinary(fName, loc);
-#endif
+#endif*/
 }
 
 
