@@ -1813,10 +1813,8 @@ void PlayerRaceWin( int pl )
 {
 	mpl[pl].ready = 1;
 	player[pl].canJump = 0;
-	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE1,NO,NO,80,0);
-	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE2,NO,YES,80,0);
-	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE3,NO,YES,80,0);
-	actorAnimate(frog[pl]->actor,FROG_ANIM_DANCE4,NO,YES,80,0);
+	actorAnimate(frog[pl]->actor,FROG_ANIM_LOOKAROUND,NO,NO,80,0);
+	actorAnimate(frog[pl]->actor,FROG_ANIM_HANDSPRING,NO,YES,80,0);
 	actorAnimate(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,50,0);
 
 	CreatePickupEffect( pl, frogPool[player[pl].character].r, frogPool[player[pl].character].g, frogPool[player[pl].character].b, 255, 255, 255 );
