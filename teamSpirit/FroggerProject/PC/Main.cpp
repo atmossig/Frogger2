@@ -59,6 +59,7 @@ extern "C"
 
 extern "C"
 {
+#include "controll.h"
 psFont *font;
 MDX_FONT *pcFont;
 }
@@ -91,6 +92,7 @@ long LoopFunc(void)
 {
 	GameLoop();
 	DrawLoop();
+	ProcessUserInput();
 	return 0;
 }
 
@@ -139,6 +141,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Clear the timers for the initial frame
 	ClearTimers();
 
+	InitInputDevices();
+
 	CommonInit();
 
 	pcFont = InitFont("FontA",baseDirectory);
@@ -146,6 +150,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	RunWindowsLoop(&LoopFunc);
 
 	// Byeeeeeeeeeee
+	DeInitInputDevices();
 	D3DShutdown();
 	DDrawShutdown();	
 	gelfShutdown();

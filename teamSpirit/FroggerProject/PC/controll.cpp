@@ -10,16 +10,19 @@
 ----------------------------------------------------------------------------------------------- */
 
 #include <windows.h>
+#include <ddraw.h>
+#include <d3d.h>
 #include <stdio.h>
 #include <fstream.h>
 #include <islutil.h>
-#include "..\resource.h"
+//#include "..\resource.h"
 
 #include "Main.h"
 #include "frogger.h"
 #include "language.h"
 #include "controll.h"
 #include "islpad.h"
+#include "mdx.h"
 
 /*	------------------------------------------------------------------------
 	Global stuff
@@ -314,7 +317,7 @@ BOOL InitInputDevices()
 {
 	HRESULT hRes;
 
-	hRes = DirectInputCreate(winInfo.hInstance,DIRECTINPUT_VERSION,&lpDI,NULL);
+	hRes = DirectInputCreate(mdxWinInfo.hInstance,DIRECTINPUT_VERSION,&lpDI,NULL);
 	if(FAILED(hRes))
 		return FALSE;
 
@@ -384,7 +387,7 @@ BOOL InitKeyboardControl()
 	if(FAILED(hRes))
 		return FALSE;
 
-	hRes = lpKeyb->SetCooperativeLevel(winInfo.hWndMain,DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
+	hRes = lpKeyb->SetCooperativeLevel(mdxWinInfo.hWndMain,DISCL_NONEXCLUSIVE | DISCL_BACKGROUND);
 	if(FAILED(hRes))
 		return FALSE;
 	
@@ -461,7 +464,7 @@ BOOL InitJoystickControl()
 			return FALSE;
 		}
 
-		hRes = lpJoy->SetCooperativeLevel(winInfo.hWndMain,DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+		hRes = lpJoy->SetCooperativeLevel(mdxWinInfo.hWndMain,DISCL_EXCLUSIVE | DISCL_FOREGROUND);
 		if(FAILED(hRes))
 			return FALSE;
 
@@ -550,6 +553,9 @@ void ProcessUserInput()
 	
 	unsigned short oldDigital[8];
 
+	if (consoleDraw)
+		return;
+
 	//if (keyInput)
 	//{
 		// read keyboard data
@@ -561,7 +567,7 @@ void ProcessUserInput()
 	//----- [ KEYBOARD CONTROL ] -----//
 
 	if(KEYPRESS(DIK_F12))
-		PostMessage(winInfo.hWndMain, WM_CLOSE, 0, 0);
+		PostMessage(mdxWinInfo.hWndMain, WM_CLOSE, 0, 0);
 	
 	// reset states
 	for (i=0; i<8; i++)
