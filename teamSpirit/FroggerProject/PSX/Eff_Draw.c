@@ -429,7 +429,7 @@ void CalcTrailPoints( SVECTOR *vT, SPECFX *trail, int i )
 		IQUATERNION cross;
 		fixed t;
 
-		SubVectorFFS( &normal, &currCamSource[0], &pos );
+		SubVectorFFS( &normal, &currCamSource, &pos );
 		MakeUnit( &normal );
 		CrossProductFFF( (FVECTOR *)&cross, &normal, &upVec );
 		MakeUnit( (FVECTOR *)&cross );
