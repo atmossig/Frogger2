@@ -52,6 +52,11 @@ int				firstPad = 0;
 int				numPads = 0;
 int				padStatus[4] = {0,0,0,0};
 
+
+// *ASL* 12/08/2000 - Soft reset debounce flag
+int softResetDeBounce = 0;
+
+
 //----- [ FUNCTION IMPLEMENTATION ] --------------------------------------------------------------
 
 /*	--------------------------------------------------------------------------------
@@ -258,6 +263,29 @@ int checkForControllerInsertedMulti()
 	return TRUE;
 }
 
+
+/* --------------------------------------------------------------------------------
+   Function : initCheckForSoftReset
+   Purpose : initialise the soft reset check (!)
+   Parameters : 
+   Returns : 
+   Info :
+*/
+
+void initCheckForSoftReset()
+{
+	softResetDeBounce = 0;
+}
+
+
+/* --------------------------------------------------------------------------------
+   Function : checkForSoftReset
+   Purpose : check if user as pressed soft reset
+   Parameters : 
+   Returns : TRUE soft reset, else FALSE
+   Info :
+*/
+
 int checkForSoftReset()
 {
 	int i;
@@ -282,17 +310,37 @@ int checkForSoftReset()
 
 		if(strstr(per->info->product_name,"(none)") == FALSE)
 		{
-			if( (per->on & PDD_DGT_TB)&&
-				(per->on & PDD_DGT_TA)&&
-				(per->on & PDD_DGT_TX)&&
-				(per->on & PDD_DGT_TY)&&
-				(per->on & PDD_DGT_ST))
-				 return TRUE;
+			// *ASL* 12/08/2000 - Check reset debounce
+			if (softResetDeBounce == 1)
+			{
+				if ((!(per->on & PDD_DGT_TB)) &&
+					(!(per->on & PDD_DGT_TA)) &&
+					(!(per->on & PDD_DGT_TX)) &&
+					(!(per->on & PDD_DGT_TY)) &&
+					(!(per->on & PDD_DGT_ST)))
+				{
+					softResetDeBounce = 0;
+				}
+			}
+			else
+			{
+				if ((per->on & PDD_DGT_TB)&&
+					(per->on & PDD_DGT_TA)&&
+					(per->on & PDD_DGT_TX)&&
+					(per->on & PDD_DGT_TY)&&
+					(per->on & PDD_DGT_ST))
+				{
+					softResetDeBounce = 1;
+					return TRUE;
+				}
+			}
 		}
 	}
 
 	return FALSE;
 }
+
+
 
 int checkForValidControllers()
 {

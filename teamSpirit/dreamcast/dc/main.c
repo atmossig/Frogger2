@@ -143,6 +143,9 @@ unsigned int globalAbortFlag = 0;
 // gsFs error function callback
 static void gdFsErrorCallback(void *obj, Sint32 err);
 
+// show all legal screens and FMV
+void showLegalFMV(int allowQuit);
+
 
 /* ---------------------------------------------------------
    Function : Kamui_Init
@@ -571,60 +574,15 @@ void main()
 	syCfgExit();
 	syFree(pbuf);
 
-/*
-	// Play initial FMV
-	numPadsDetected = checkForValidControllers();
-	utilPrintf("Playing FMV.....\n");
-	StartVideoPlayback(FMV_ATARI_LOGO);
-	if(quitAllVideo == 0)
-		StartVideoPlayback(FMV_BLITZ_LOGO);
+	// *ASL* 12/08/2000 - Init soft reset
+	initCheckForSoftReset();
 
-
-	InitBackdrop ("SOFDEC");
-	ScreenFade(0,255,20);
-	actFrameCount = 0;
-	counter = FALSE;
-	while((counter == FALSE)||(fadingOut))
-	{
-		DrawLegalBackDrop(0, 0);
-//		DrawScreenTransition();
-		actFrameCount++;
-
-		if((actFrameCount > (3*60)) && (counter == 0))
-		{
-			ScreenFade(255,0,20);
-			counter = YES;
-		}
-
-//		if(startButtonPressed())
-//			break;
-	}
-	FreeLegalBackdrop();
-*/
-	InitBackdrop ("FR2LEGAL");
-	ScreenFade(0,255,20);
-	actFrameCount = 0;
-	counter = FALSE;
-	while((counter == FALSE)||(fadingOut))
-	{
-		DrawLegalBackDrop(0, 0);
-//		DrawScreenTransition();
-		actFrameCount++;
-
-		if((actFrameCount > (3*60)) && (counter == 0))
-		{
-			ScreenFade(255,0,20);
-			counter = YES;
-		}
-
-//		if(startButtonPressed())
-//			break;
-	}
-	FreeLegalBackdrop();
+	// show all legal screens and FMV
+	showLegalFMV(1);
 
 	CommonInit();
 
-	// don't start up unless valid pad detected
+	// don't continue until at least 1 valid pad detected
 	numPadsDetected = checkForValidControllers();
 	if(numPadsDetected == 0)
 	{
@@ -651,7 +609,7 @@ void main()
 			actFrameCount++;
 
 			kmEndPass(&vertexBufferDesc);
-				
+					
 			kmRender(KM_RENDER_FLIP);
 			kmEndScene(&kmSystemConfig);
 
@@ -659,10 +617,13 @@ void main()
 		}
 	}
 
+	// initialise memory card
 	cardInitialise();
 
+	// ????
 	LoadGame();
-		
+
+	// load game from memory card
 	actFrameCount = 0;
 	if(saveInfo.saveFrame)
 	{
@@ -683,7 +644,7 @@ void main()
 
 			if(actFrameCount > 20)
 				ChooseLoadSave();
-			
+				
 			if((saveInfo.saveFrame == 0) && (keepFade == 0))
 			{
 				ScreenFade(255,0,20);
@@ -691,20 +652,16 @@ void main()
 			}
 
 			kmEndPass(&vertexBufferDesc);
-				
+					
 			kmRender(KM_RENDER_FLIP);
 			kmEndScene(&kmSystemConfig);
 		}
 		FreeTiledBackdrop();
 	}
 
-//ma	BuildFogTable();
-
 #ifdef _DEBUG
 	utilPrintf("DEBUG ACTIVE!!!!!\n");
 #endif
-
-//	syCacheInit(SYD_CACHE_FORM_OC_ENABLE | SYD_CACHE_FORM_IC_ENABLE | SYD_CACHE_FORM_OC_RAM);
 
 
 	// ** Main loop
@@ -1073,4 +1030,73 @@ static void gdFsErrorCallback(void *obj, Sint32 err)
 	{
 		globalAbortFlag = 1;
 	}
+}
+
+
+/* ---------------------------------------------------------
+   Function : showLegalFMV
+   Purpose : show all legal screens and FMV
+   Parameters : allow user to skip the legal stuff
+   Returns : 
+   Info : 
+*/
+
+void showLegalFMV(int allowQuit)
+{
+	int	flag;
+
+	// play Hasbro FMV
+	utilPrintf("Playing FMV.....\n");
+	StartVideoPlayback(FMV_ATARI_LOGO);
+
+	// play our FMV
+	if (quitAllVideo == 0)
+		StartVideoPlayback(FMV_BLITZ_LOGO);
+
+	// free this backdrop
+	FreeLegalBackdrop();
+
+	// show SoftDec screen
+	InitBackdrop ("SOFDEC");
+	ScreenFade(0,255,20);
+	actFrameCount = 0;
+	flag = FALSE;
+	while ((flag == FALSE) || (fadingOut))
+	{
+		DrawLegalBackDrop(0, 0);
+		DrawScreenTransition();
+		actFrameCount++;
+
+		if ((actFrameCount > (3*60)) && (flag == 0))
+		{
+			ScreenFade(255,0,20);
+			flag = YES;
+		}
+
+//		if(startButtonPressed())
+//			break;
+	}
+	FreeLegalBackdrop();
+
+	// show legal screen
+	InitBackdrop ("FR2LEGAL");
+	ScreenFade(0,255,20);
+	actFrameCount = 0;
+	flag = FALSE;
+	while ((flag == FALSE) || (fadingOut))
+	{
+		DrawLegalBackDrop(0, 0);
+		DrawScreenTransition();
+		actFrameCount++;
+
+		if ((actFrameCount > (3*60)) && (flag == 0))
+		{
+			ScreenFade(255,0,20);
+			flag = YES;
+		}
+
+//		if(startButtonPressed())
+//			break;
+	}
+	FreeLegalBackdrop();
 }
