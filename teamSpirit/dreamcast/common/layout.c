@@ -1311,7 +1311,9 @@ void FreeAllLists()
 	if((gameState.single == STORY_MODE) && (!restartingLevel))
 	{
 		if((player[0].worldNum != WORLDID_FRONTEND) && (storySequence[gameState.storySequenceLevel].fmv != FMV_NONE))
-			StartVideoPlayback(storySequence[gameState.storySequenceLevel].fmv);
+		{
+			// *ASL* 12/08/2000 - Force allow quit on video playback
+			StartVideoPlayback(storySequence[gameState.storySequenceLevel].fmv, 1);
 	}
 
 //	gameTextInit("LANGUAGE.TXT", LANG_NUM_STRINGS, LANG_NUMLANGS, gameTextLang);
