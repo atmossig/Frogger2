@@ -74,7 +74,7 @@ void GetArgs(char *arglist)
 						break;
 
 					case 'M': case 'm':
-						USE_MENUS = 1;
+						//USE_MENUS = 1;
 						break;
 
 					case 'R': case 'r':

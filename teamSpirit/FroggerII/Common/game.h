@@ -72,6 +72,7 @@ extern long speedHops_TOTAL;
 extern long numHealth_TOTAL;
 
 extern void RunGameLoop (void);
+extern void RunFrontendGameLoop (void);
 
 extern unsigned char swingCam;
 extern char playDemos;

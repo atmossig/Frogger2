@@ -162,7 +162,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	char mys[255];
 	short *dat;
 	TEXENTRY *newE;
-	long isAnim = 0, i;
+	long isAnim = 0, i,dim;
 	strcpy (mys,shortn);
 	strlwr (mys);
 
@@ -223,9 +223,9 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	newE->CRC  = UpdateCRC (mys);
 
 	if (isAnim != 2)
-		newE->data = GetGelfBmpDataAsShortPtr(file,GELF_IFORMAT_16BPP555);
+		newE->data = GetGelfBmpDataAsShortPtr(file,GELF_IFORMAT_16BPP555,&dim);
 	else
-		newE->data = GetGelfBmpDataAsShortPtr(file,0);
+		newE->data = GetGelfBmpDataAsShortPtr(file,0,0);
 
 	newE->cFrame = newE;
 
@@ -234,17 +234,17 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		if( isAnim == 2 )
 		{
 			CreateAndAddProceduralTexture( (TEXTURE *)newE, mys );
-			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
+			newE->surf = CreateTextureSurface(dim,dim, newE->data, 1,0xf81f,1);
 			newE->type = TEXTURE_AI;
 		}
 		else if(((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
 		{
-			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
+			newE->surf = CreateTextureSurface(dim,dim, newE->data, 1,0xf81f,1);
 			newE->type = TEXTURE_AI;
 		}
 		else
 		{
-			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,0);
+			newE->surf = CreateTextureSurface(dim,dim, newE->data, 1,0xf81f,0);
 			newE->type = TEXTURE_NORMAL;
 		}
 

@@ -56,7 +56,11 @@ void GameLoop(void)
 			UseZMode = 1;
 	#endif
 	
-			RunGameLoop();
+			if (player[0].worldNum == WORLDID_FRONTEND)
+				RunFrontendGameLoop();
+			else
+				RunGameLoop();
+
 			frameCount++;
 			break;
 
@@ -317,7 +321,7 @@ void RunGameOver( )
 		FreeAllLists();
 		gameState.mode = INGAME_MODE;
 
-		player[0].levelNum = LEVELID_FRONTEND1;
+		player[0].levelNum = LEVELID_FRONTEND4;
 		player[0].worldNum = WORLDID_FRONTEND;
 		player[0].frogState &= ~FROGSTATUS_ISDEAD;
 		InitLevel(player[0].worldNum,player[0].levelNum);
@@ -473,7 +477,7 @@ void RunGameIntro( )
 				controlCamera = 0;
 
 				player[0].worldNum = WORLDID_FRONTEND;
-				player[0].levelNum = LEVELID_FRONTEND1;
+				player[0].levelNum = LEVELID_FRONTEND4;
 				
 				gameState.mode = LEVELCOMPLETE_MODE;
 				gameState.multi = SINGLEPLAYER;

@@ -39,6 +39,7 @@ SPRITEOVERLAY *CreateAndAddSpriteOverlay(float x,float y,char *txtrName,short wi
 	newItem->height		= height;
 	newItem->draw		= 1;
 	newItem->flags		= flags;
+	newItem->num		= 0;
 
 	newItem->r			= 255;
 	newItem->g			= 255;

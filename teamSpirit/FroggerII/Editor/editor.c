@@ -215,7 +215,7 @@ void LoadEditIcons()
 		sprintf(texturePath, "%s" TEXTURE_BASE "editor\\editor%d.bmp", baseDirectory, i+1);
 
 		//Load the bitmap
-		textureData = GetGelfBmpDataAsShortPtr(texturePath,GELF_IFORMAT_16BPP555);
+		textureData = GetGelfBmpDataAsShortPtr(texturePath,GELF_IFORMAT_16BPP555,NULL);
 		
 		//Convert it to a texture (copies to a surface)
 		editicons[i].surface = CreateTextureSurface(64, 64, textureData, 1, 0x7C1F,0);

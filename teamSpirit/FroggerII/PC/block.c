@@ -320,7 +320,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	sprintf (filename,"%s%sloading%lu.bmp",baseDirectory,TEXTURE_BASE,SCREEN_WIDTH);
 	
 	dprintf"Loading screen - %s\n",filename));
-	loadScr = GetGelfBmpDataAsShortPtr(filename,0);
+	loadScr = GetGelfBmpDataAsShortPtr(filename,0,0);
 	
 	screenTextureList = InitScreenTextureList();
 	screenTextureList2 = InitScreenTextureList();
@@ -1042,9 +1042,12 @@ void DrawGraphics()
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
 	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
 
-	PrintSpriteOverlays();	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_LINEAR);
+	PrintSpriteOverlays(0);	
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_TEXTUREMAG,D3DFILTER_NEAREST);//D3DFILTER_LINEAR);
 	lastH = -1;
 	PrintTextOverlays();
+	PrintSpriteOverlays(1);	
 	
 	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
 	//pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_COLORKEYENABLE,TRUE);

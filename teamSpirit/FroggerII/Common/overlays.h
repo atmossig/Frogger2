@@ -35,6 +35,7 @@
 #define ANIMATION_RANDOMFRAMES	(1 << 4)
 #define ANIMATION_PLAYONCE		(1 << 5)
 #define ANIMATION_RANDOMSTART	(1 << 6)
+#define XLU_ADD					(1 << 7)
 
 
 //----- [ GLOBALS ] ----------------------------------------------------------------------------//

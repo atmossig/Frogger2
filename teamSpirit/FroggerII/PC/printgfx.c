@@ -56,14 +56,15 @@ float wSeed = 0.0F;
 void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 {
 	int pos = 0,length;
-	int x,y,width;
+	int x,y,width,height;
 	unsigned char letter,letterCount;
 	char *c;
 	short u,v,letterID;
 				
 	x = tOver->xPos * RES_DIFF2;
 	y = tOver->yPos * RES_DIFF2;
-
+	height = tOver->font->height * RES_DIFF * tOver->scale;
+	tOver->wtotal = 0;
 	if(tOver->centred)
 	{
 		for (c = tOver->text, width = 0; *c; c++)
@@ -71,8 +72,10 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			letterID = characterMap[*c];
 			width += tOver->font->xSpacing[letterID] * RES_DIFF;
 		}
-
 		x = (SCREEN_WIDTH-width)/2;
+		
+		tOver->xPos = tOver->xPosTo = x/2;
+		tOver->wtotal = width;
 
 		//if((length & 1) != 0)
 		//	x -= 5;
@@ -102,12 +105,14 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		{
 			float t = sinf(wSeed);
 			letterCount++;
-			y = tOver->yPos + sinf((float)wSeed + (float)tOver->waveStart + ((float)letterCount * (PI_OVER_4))) * tOver->waveAmplitude;
+			y = tOver->yPos*RES_DIFF2 - 4 + sinf((float)wSeed + (float)tOver->waveStart + ((float)letterCount * (PI_OVER_4))) * tOver->waveAmplitude;
+			height = tOver->font->height * RES_DIFF + 4 - sinf((float)wSeed + (float)tOver->waveStart + ((float)letterCount * (PI_OVER_4))) * tOver->waveAmplitude * 2;
 		}
 
 		if(letter == 32)
 		{
-			x += tOver->font->xSpacing[0];
+			x += tOver->font->xSpacing[0] * tOver->scale;
+			
 		}
 		else
 		{
@@ -116,19 +121,21 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			
 			if (runHardware)
 			{
-				DrawAlphaSprite (x, y, 0, tOver->font->height * RES_DIFF, tOver->font->width * RES_DIFF,
+				DrawAlphaSprite (x, y, 0, tOver->font->height * RES_DIFF * tOver->scale, height,
 				(float)u/256.0,(float)v/256.0,
 				((float)u+tOver->font->width)/256.0,
 				((float)v+tOver->font->height)/256.0,tOver->font->hdl,D3DRGBA(tOver->r/255.0,tOver->g/255.0,tOver->b/255.0,tOver->a/255.0));
 			}
 	
-			x += tOver->font->xSpacing[letterID] * RES_DIFF;
+			x += tOver->font->xSpacing[letterID] * RES_DIFF * tOver->scale;
+			
 		}
 
 		pos++;
 	}
-
-	wSeed += 0.1;
+	if (!tOver->centred)
+		tOver->wtotal = x-tOver->xPos * RES_DIFF2;
+	wSeed += 0.01*gameSpeed;
 }
 void XfmPoint (VECTOR *vTemp2, VECTOR *in);
 
@@ -185,7 +192,7 @@ SPRITE *PrintSprites()
 	Returns			: void
 	Info			:
 */
-void PrintSpriteOverlays()
+void PrintSpriteOverlays(long num)
 {
 	SPRITEOVERLAY *cur;
 	short x,y;
@@ -197,21 +204,58 @@ void PrintSpriteOverlays()
 	if (spriteOverlayList.numEntries)
 	while(cur!=&spriteOverlayList.head)
 	{
-		
+		if (cur->num!=num)
+		{
+			cur = cur->next;
+			continue;
+		}
+
 		// update the sprite animation if an animated sprite overlay
 		if(cur->draw)
 		{
 			// Go to destination, if specified
 			float spd = cur->speed * gameSpeed;
-			if( Fabs(cur->xPosTo-cur->xPos) < spd )
-				cur->xPos = cur->xPosTo;
-			else
-				cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
+			
+			if (spd)
+			{
+				if (Fabs(cur->xPosTo-cur->xPos) > 0)
+				{
+					if( Fabs(cur->xPosTo-cur->xPos) < Fabs(spd) )
+					{
+						if (cur->speed>0.01)
+							cur->speed = -cur->speed * 0.3;
+						else
+						{
+							cur->speed = 0;
+							cur->xPos = cur->xPosTo;
+						}
 
-			if( Fabs(cur->yPosTo-cur->yPos) < spd )
-				cur->yPos = cur->yPosTo;
-			else
-				cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+						spd = cur->speed * gameSpeed;
+					}
+			
+					cur->xPos += (cur->xPosTo > cur->xPos)?spd:-spd;
+					cur->speed += gameSpeed*0.2;
+				}
+				else
+					if (Fabs(cur->yPosTo-cur->yPos) > 0)
+					{
+						if( Fabs(cur->yPosTo-cur->yPos) < Fabs(spd) )
+						{
+							cur->speed = -cur->speed * 0.3;
+							spd = cur->speed * gameSpeed;
+						}
+				
+						cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+						cur->speed += gameSpeed*0.2;					
+					}
+			}
+			
+			//if( Fabs(cur->yPosTo-cur->yPos) < spd )
+			//	cur->yPos = cur->yPosTo;
+			//else
+			//	cur->yPos += (cur->yPosTo > cur->yPos)?spd:-spd;
+		
+
 
 			// check animation playback type - cycle,ping-pong, etc.
 			if(cur->flags & ANIMATION_CYCLE)
@@ -285,12 +329,27 @@ void PrintSpriteOverlays()
 			//tEntry->yo = 3 * (32.0/256.0);
 			numSprites++;
 			if (runHardware)
+			{
+				if (cur->flags & XLU_ADD)
+				{
+					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_ONE);
+				}
+
 				DrawAlphaSprite (cur->xPos*RES_DIFF2,cur->yPos*RES_DIFF2,0,cur->width*RES_DIFF2,cur->height*RES_DIFF2,
 				0,
 				0,
 				1,
 				1,
 				texture,D3DRGBA(cur->r/255.0,cur->g/255.0,cur->b/255.0,cur->a/255.0) );
+
+				if (cur->flags & XLU_ADD)
+				{
+					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_SRCBLEND,D3DBLEND_SRCALPHA);
+					pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_DESTBLEND,D3DBLEND_INVSRCALPHA);
+				}
+
+			}
 		}
 
 		cur = cur->next;

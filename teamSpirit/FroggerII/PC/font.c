@@ -134,7 +134,7 @@ void InitFont()
 
 	bigFont->width		= 32;
 	bigFont->height		= 32;
-	bigFont->data		= (unsigned char*)GetGelfBmpDataAsShortPtr(filenameBuffer,GELF_IFORMAT_16BPP555);
+	bigFont->data		= (unsigned char*)GetGelfBmpDataAsShortPtr(filenameBuffer,GELF_IFORMAT_16BPP555,0);
 
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
@@ -186,7 +186,7 @@ void InitFont()
 
 	smallFont->width	= 16;
 	smallFont->height	= 16;
-	smallFont->data		= (unsigned char*)GetGelfBmpDataAsShortPtr(filenameBuffer,GELF_IFORMAT_16BPP555);
+	smallFont->data		= (unsigned char*)GetGelfBmpDataAsShortPtr(filenameBuffer,GELF_IFORMAT_16BPP555,0);
 
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{

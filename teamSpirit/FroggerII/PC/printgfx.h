@@ -61,7 +61,7 @@ extern Gfx rdpInitForSprites_dl[];
 void PrintBackdrops();
 void PrintTextAsOverlay(TEXTOVERLAY *tOver);
 void PrintOverlays();
-void PrintSpriteOverlays();
+void PrintSpriteOverlays(long);
 
 void DrawRandomPolyList( );
 void TransformAndDrawPolygon( POLYGON *p );

@@ -677,7 +677,7 @@ void ShowDesignScreen(char *filename)
 
 	sprintf (file,"%s%sDesign\\%s.bmp",baseDirectory,TEXTURE_BASE,filename);
 	
-	if ((image = GetGelfBmpDataAsShortPtr(file,0))==NULL)
+	if ((image = GetGelfBmpDataAsShortPtr(file,0,0))==NULL)
 	{
 		dprintf"Not correct Image ---------------------%s\n",file));
 		return;

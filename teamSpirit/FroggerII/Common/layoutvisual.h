@@ -686,7 +686,10 @@ enum
 typedef struct TAGLEVEL_VISUAL_DATA
 {
 	unsigned char		description[32];
+	unsigned char		texCRC[16];
+	unsigned char		percent;
 	unsigned long		levelID;
+
 	unsigned long		nextLevelID;
 	unsigned long		nextWorldID;
 

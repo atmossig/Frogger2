@@ -30,6 +30,8 @@ typedef struct TAGTEXTOVERLAY
 	float		waveStart;
 	float		xPos,yPos;
 	float		xPosTo, yPosTo;
+	short		wtotal;
+	float		scale;
 	short		centred;
 	short		kill;
 	short		life;
@@ -56,9 +58,9 @@ typedef struct TAGSPRITEOVERLAY
 	short		flags;
 	float		speed;
 	
-	UBYTE		r,g,b,a;
+	float		r,g,b,a;
 	UBYTE		draw;
-
+	long		num;
 	short		numFrames;
 	short		currFrame;
 	float		animTime;
