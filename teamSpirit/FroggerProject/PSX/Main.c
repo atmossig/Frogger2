@@ -816,6 +816,8 @@ totalObjs = 0;
 
 void MainDrawFunction ( void )
 {
+	int i;
+
 	TIMER_START0(TIMER_DRAW_WORLD);
 
 	if ( drawLandscape && drawGame )
@@ -854,6 +856,15 @@ void MainDrawFunction ( void )
 		DrawActorList();
 	TIMER_STOP0(TIMER_ACTOR_DRAW);
 
+
+	//bb - draw tongue.
+	//Moved from DrawSpecFX because we need the frog
+	//to have been drawn first, for latest position.
+	for( i=0; i<NUM_FROGS; i++ )
+		if( tongue[i].flags & TONGUE_BEINGUSED )
+			DrawTongue( i );
+	
+	
 	//if( gameState.multi == SINGLEPLAYER )
 	{
 		UpdateFrogTongue(0);
