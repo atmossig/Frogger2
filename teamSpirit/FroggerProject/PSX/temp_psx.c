@@ -75,6 +75,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "swampy" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "glass" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "vs" ) )||
+									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "rails" ) )||
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
 					utilUpperStr ( cur->name );
@@ -83,7 +84,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 				else
 				{
 					utilUpperStr ( cur->name );
-					theActor = CreateAndAddActor ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, INIT_ANIMATION, 0, 0 );
+					theActor = CreateAndAddActor ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, INIT_ANIMATION );
 
 					//bb - crashes actorAnimate() when null actor
 					if(theActor)

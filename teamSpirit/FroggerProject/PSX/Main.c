@@ -398,8 +398,8 @@ int main ( )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-//		RAMsize = (0x1fff00 - RAMstart)-8192;
-		RAMsize = 6291264;
+		RAMsize = (0x1fff00 - RAMstart)-8192;
+//		RAMsize = 6291264;
 #endif
 
 		memset((void *)0x1f8000,0,0x8000);
@@ -431,7 +431,7 @@ int main ( )
 		MemCardInit(1);
 		MemCardStart();
 		padInitialise(1); // 0 = No multi tap support
-		videoInit ( 1024, 3000, VIDEO_INIT_AND_MALLOC );
+		videoInit ( 1024, 2500, VIDEO_INIT_AND_MALLOC );
 
 		saveicon = fileLoad("saveicon.tim", NULL);
 		if(!saveicon)
@@ -448,7 +448,7 @@ int main ( )
 //		XAenable = 1;
 //#endif
 
-		textureInitialise ( 400, 100);
+		textureInitialise ( 450, 80);
 
 //		sfxInitialise();
 //		sfxStartSound();
@@ -715,8 +715,8 @@ TIMER_STOP(TIMER_GAMELOOP);
 			if(gameState.mode!=PAUSE_MODE)
 			{
 				char tempText[128];
- 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
- 						gameSpeed>>12, lastactorCount, lastpolyCount); 
+ 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys  %d : TotalActors",
+ 						gameSpeed>>12, lastactorCount, lastpolyCount, actorsCount); 
  				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 
  				sprintf(tempText, "%2df", gameSpeed>>12); 
@@ -932,8 +932,8 @@ void MainReset ( void )
 		RAMsize = (0x1fff00 - RAMstart)-8192;
 //		RAMsize = (0x7fff00 - RAMstart)-8192;
 #else
-//		RAMsize = (0x1fff00 - RAMstart)-8192;
-		RAMsize = 6291264;
+	RAMsize = (0x1fff00 - RAMstart)-8192;
+	//RAMsize = 6291264;
 #endif
 
 		utilPrintf("\nRAM start 0x%x  0x%x (%d)\n", RAMstart, RAMsize, RAMsize);
@@ -957,8 +957,8 @@ void MainReset ( void )
 		MemCardInit(1);
 		MemCardStart();
 //		padInitialise(1); // 0 = No multi tap support
-		videoInit ( 1024, 3000, 0 );
-		textureInitialise ( 400, 100);
+		videoInit ( 1024, 2500, 0 );
+		textureInitialise ( 450, 80);
 }
 
 

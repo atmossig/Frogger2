@@ -214,6 +214,7 @@ void LoadTextureAnimBank ( int textureBank )
 	}
 	// ENDSWITCH - textureBank
 
+
 	textureAnims = (unsigned long *)fileLoad ( titFileName, &fileLength );
 
 	if ( !textureAnims )

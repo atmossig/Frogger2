@@ -177,9 +177,13 @@ extern SAMPLE **sfx_anim_map;
  
 typedef struct _SOUNDLIST
 {
-	int				numEntries;
 	SfxBankType		*genericBank;
 	SfxBankType		*levelBank;
+
+	short count;
+	short blocks;
+
+	SAMPLE			*array;
 	SAMPLE			head;
 
 } SOUNDLIST;
@@ -224,6 +228,7 @@ typedef struct TAG_AMBIENT_SOUND
  
 typedef struct
 {
+	int array;
 	AMBIENT_SOUND head;
 	int numEntries;
 

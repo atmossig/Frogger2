@@ -136,6 +136,16 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI.PIL" );
 			break;
 
+		case LABORATORYMULTI2_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI2.PIL" );
+			break;
+
+		case LABORATORYMULTI3_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\LAB\\LABMULTI3.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\LAB\\LABMULTI3.PIL" );
+			break;
+
 		case HALLOWEENLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN1.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\HALLOWEEN\\HALLOWEEN1.PIL" );

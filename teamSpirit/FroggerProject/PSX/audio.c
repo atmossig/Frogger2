@@ -186,9 +186,6 @@ void StopSound()
 void InitSampleList( )
 {
 	//Init the sample list for the real samples.
-	soundList.numEntries	= 0;
-	soundList.head.next		= soundList.head.prev = &soundList.head;
-
 	if(!soundList.genericBank)//first time around
 	{
 		soundList.genericBank = (SfxBankType *)MALLOC0(sizeof(SfxBankType));
@@ -200,12 +197,24 @@ void InitSampleList( )
 		soundList.levelBank = NULL;
 	}
 
+	soundList.array = NULL;
+	soundList.count = 0;
+	soundList.head.next = soundList.head.prev = &soundList.head;
+
 }
 
+void AllocSampleBlock ( int num )
+{
+	if ( !soundList.array )
+	{
+		utilPrintf ( "Mallocing a list of %d Sample Structures.\n", num );
+		soundList.array = ( SAMPLE * ) MALLOC0 ( sizeof ( SAMPLE ) * num );
+	}
+	// ENDIF
 
-
-
-
+	soundList.count		= 0;
+	soundList.blocks	= num;
+}
 
 
 /*	--------------------------------------------------------------------------------
@@ -229,6 +238,9 @@ int LoadSfxSet( char *path, int generic )
 	}
 
 	snd =(SfxSampleType *) sfxBank->sample;
+
+	AllocSampleBlock ( sfxBank->numSamples );
+
 	for  ( i=0; i<sfxBank->numSamples; i++)
 	{
 		if (!snd)
@@ -392,17 +404,20 @@ int LoadSfx( unsigned long worldID )
 */
 SAMPLE *CreateAndAddSample( SfxSampleType *snd, int flags )
 {
-	SAMPLE *sfx;
+	SAMPLE *newItem;
 	
-	sfx = (SAMPLE *)MALLOC0(sizeof(SAMPLE));
+	if ( ( soundList.count >= soundList.blocks ) || ( !( newItem = &soundList.array [ soundList.count ] ) ) )
+		return NULL;
 
-	sfx->uid = snd->nameCRC;
-	sfx->snd = snd;
-	sfx->flags = flags;
+	//sfx = (SAMPLE *)MALLOC0(sizeof(SAMPLE));
 
-	AddSample( sfx );
+	newItem->uid = snd->nameCRC;
+	newItem->snd = snd;
+	newItem->flags = flags;
 
-	return sfx;
+	AddSample( newItem );
+
+	return newItem;
 }
 
 
@@ -417,15 +432,23 @@ SAMPLE *CreateAndAddSample( SfxSampleType *snd, int flags )
 */
 void AddSample( SAMPLE *sample )
 {
+	SAMPLE *cur;
+
+	if( !sample || sample->next )
+		return;
+
+	// If enemy is the first of its kind, add at head of list
 	if( !sample->next )
 	{
-		soundList.numEntries++;
-		sample->prev				= &soundList.head;
-		sample->next				= soundList.head.next;
-		soundList.head.next->prev	= sample;
-		soundList.head.next			= sample;
+		sample->prev = &soundList.head;
+		sample->next = soundList.head.next;
+		soundList.head.next->prev = sample;
+		soundList.head.next = sample;
 	}
+
+	soundList.count++;
 }
+
 
 
 
@@ -439,7 +462,7 @@ void AddSample( SAMPLE *sample )
 */
 void RemoveSample( SAMPLE *sample )
 {
-	if( !sample->next )
+	/*if( !sample->next )
 		return;
 
 	sample->prev->next	= sample->next;
@@ -447,7 +470,7 @@ void RemoveSample( SAMPLE *sample )
 	sample->next		= NULL;
 	soundList.numEntries--;
 
-	FREE( sample );
+	FREE( sample );*/
 }
 
 
@@ -482,6 +505,29 @@ SAMPLE *FindSample( unsigned long uid )
 }
  
 
+void FreeSampleBlock( )
+{
+	if( soundList.array )
+		FREE( soundList.array );
+
+	soundList.array = NULL;
+	soundList.count = 0;
+	soundList.blocks = 0;
+}
+
+
+void SubSample ( SAMPLE *sample )
+{
+	//n.b paths alloced and freed separately
+
+	if(sample->next == NULL)
+		return;
+
+	sample->prev->next = sample->next;
+	sample->next->prev = sample->prev;
+	sample->next = NULL;
+	soundList.count--;
+}
 
 
 /*	--------------------------------------------------------------------------------
@@ -495,28 +541,18 @@ void FreeSampleList( )
 {
 	SAMPLE *cur,*next;
 
-	utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.numEntries);
-
-	// check if any elements in list
-	if( !soundList.numEntries )
-		return;
+	if(soundList.count)
+		utilPrintf("Freeing linked list : SAMPLE : (%d elements)\n",soundList.count);
 
 	// traverse enemy list and free elements
-	for( cur = soundList.head.next; cur != &soundList.head; cur = next )
-	{
-		next = cur->next;
+	while( soundList.head.next && soundList.head.next != &soundList.head )
+		SubSample ( soundList.head.next );
 
-		RemoveSample( cur );
-	}
-
-	//removes the sound banks from PSX memory
-	sfxUnloadSampleBank(soundList.genericBank);
-	sfxUnloadSampleBank(soundList.levelBank);
+	FreeSampleBlock( );
 
 	// initialise list for future use
-	InitSampleList();					
+	InitSampleList();
 }
-
 
 
 								 

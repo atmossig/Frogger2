@@ -572,11 +572,11 @@ void fileGetLastLoaded()
 
 void fileInitialise(char *fileSystem)
 {
-//#ifndef _DEBUG
+#ifndef _DEBUG
 	fileCDInitialise(fileSystem);
-//#else
-//	filePCInitialise(fileSystem);
-//#endif
+#else
+	filePCInitialise(fileSystem);
+#endif
 	
 	lastFileLoaded[0] = 0;
 	lastFileSize = 0;
@@ -597,11 +597,11 @@ unsigned char *fileLoad(unsigned char *fName, int *length)
 
 	utilUpperStr(fName);
 
-/*#ifndef _DEBUG*/
+#ifndef _DEBUG
 	data = fileCDLoad(fName, &len);
-/*#else
+#else
 	data = filePCLoad(fName, &len);
-#endif*/
+#endif
 	if (data==NULL)
 		return NULL;
 
@@ -643,11 +643,11 @@ unsigned char *fileLoad(unsigned char *fName, int *length)
 
 unsigned char fileLoadBinary(char *fName, char *loc)
 {
-/*#ifndef _DEBUG*/
+#ifndef _DEBUG
 	return fileCDloadDATbinary(fName, loc);
-/*#else
+#else
 	return filePCLoadBinary(fName, loc);
-#endif*/
+#endif
 }
 
 

@@ -45,7 +45,7 @@
 #define VRAM_CALCVRAMY(HND)	(((VRAM_GETPAGE(HND)/(VRAM_PAGECOLS))*256)+(VRAM_GETY(HND)*8))
 
 
-SVECTOR jiggledVerts[700];
+SVECTOR jiggledVerts[250];
 
 
 SCENICOBJLIST scenicObjList;
