@@ -59,7 +59,7 @@ char *DIKStrings[256][LANG_NUMLANGS] =
 	"l",			"l",              	"l",            "l",            "l",                  
 	";",			"m",              	"ö",            "ò",            ";",                  
 	"'",			"ù",              	"ä",            "à",            "'",                  
-	"`",			"²",	          	"^",	        "\",	        "`",
+	"`",			"²",	          	"^",	        "\\",	        "`",
 	"Left Shift",	"Left Shift",     	"Left Shift",   "Left Shift",   "Left Shift",         
 	"#",			"*",		      	"#",		    "ù",		    "#",          
 	"z",			"w",              	"y",            "z",            "z",                  
