@@ -80,12 +80,18 @@ void Crash(char *mess)
 */
 int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,int nCmdShow)
 {
+	SYSTEMTIME currTime;
 	ULONG memSizeInBytes = 0;
 	UBYTE *memPtr = NULL;
     MSG msg;
 	int ok = 1;
 	
-	dprintf"\n------------- Starting Frogger II ----------------\n"));
+	GetLocalTime(&currTime);
+
+	dprintf"\n------------- Starting Frogger II ----------------\n"
+		"Session started %02d/%02d/%d %02d:%02d:%02d\n",
+		currTime.wDay, currTime.wMonth, currTime.wYear,
+		currTime.wHour, currTime.wMinute, currTime.wSecond));
 
 	// create and initialise app window
 	if(!InitialiseWindows(hInstance,nCmdShow))
