@@ -138,7 +138,7 @@ struct VIDEOMODEINFO
 HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 {
 	char mode[10];
-	int index;
+	int index, selIndex = 0;
 	DWORD videomode;
 	VIDEOMODEINFO *info = (VIDEOMODEINFO*)context;
 	
@@ -160,7 +160,7 @@ HRESULT WINAPI VideoModeCallback(LPDDSURFACEDESC2 desc, LPVOID context)
 			SendMessage(hcmb, CB_SETITEMDATA, (WPARAM)index, (LPARAM)videomode);
 
 			if (videomode == info->wantedRes)
-				SendMessage(hcmb, CB_SETCURSEL, 0, (LPARAM)index);
+				SendMessage(hcmb, CB_SETCURSEL, (WPARAM)index, 0);
 		}
 
 		// print out globs of debug stuff
@@ -249,6 +249,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 	LV_ITEM i1 = {LVIF_TEXT,0,0,0,0,NULL,255};
 
 	static int	initFlag;
+	static DWORD resolution;
 	unsigned	i,lastIdx;
 	char		text[32];
 	HWND		list;
@@ -266,7 +267,8 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 		case WM_INITDIALOG:
 		{
 			// starting to initialise.. ignore notifications
-			initFlag = 0;					
+			initFlag = 0;
+			resolution = lParam;
 
 			RECT meR;
 			LV_ITEM itm;
@@ -323,7 +325,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 				EnableWindow(GetDlgItem(hwndDlg, IDC_320), FALSE);
 			}
 */
-			FillVideoModes(hwndDlg, dxDeviceList[index].guid, lParam);
+			FillVideoModes(hwndDlg, dxDeviceList[index].guid, resolution);
 
 			// initialised.. notifications valid
 			initFlag = 1;
@@ -407,7 +409,7 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 */
 							NMLISTVIEW* nmlv = (NMLISTVIEW*)lParam;
 
-							FillVideoModes(hwndDlg, dxDeviceList[nmlv->iItem].guid, (640<<16)|480);
+							FillVideoModes(hwndDlg, dxDeviceList[nmlv->iItem].guid, resolution);
 						}
 						break;
 
