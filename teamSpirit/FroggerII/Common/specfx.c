@@ -724,7 +724,7 @@ void UpdateFXExplode( SPECFX *fx )
 	while(i--)
 	{
 		if( fx->particles[i].bounce == 2 )
-			return;
+			continue;
 
 		ScaleVector( &fx->particles[i].vel, vS );
 
