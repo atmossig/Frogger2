@@ -128,8 +128,6 @@ int MemLoadEntities(const void* data, long size)
 				enemy->uid = ID;
 				AssignPathToEnemy(enemy, flags, path, 0);
 				act = enemy->nmeActor;
-				ScaleVector(&act->actor->scale, scale);
-				act->radius = radius;
 				break;
 
 			case CREATE_PLATFORM:
@@ -137,10 +135,14 @@ int MemLoadEntities(const void* data, long size)
 				platform->uid = ID;
 				AssignPathToPlatform(platform, flags, path, 0);
 				act = platform->pltActor;
-				ScaleVector(&act->actor->scale, scale);
-				act->radius = radius;
 				break;
 			}
+
+			act->radius = radius;
+			act->actor->scale.v[X] = scale;
+			act->actor->scale.v[Y] = scale;
+			act->actor->scale.v[Z] = scale;
+
 			break;
 
 		case CREATE_GARIB:

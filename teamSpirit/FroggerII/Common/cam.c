@@ -384,19 +384,24 @@ void CheckForDynamicCameraChange(GAMETILE *tile)
 
 				// frog on tile where camera change is needed
 				// check if camera if facing right direction for the change
-	//			if(camFacing == cur->dirCamMustFace)
+//				if(camFacing == cur->dirCamMustFace)
 			{
-					// ok - move the camera to the new position
-					SetVector(&camDist,&cur->camOffset);
-					specialCaseTile = 1;
+				// ok - move the camera to the new position
+				SetVector(&camDist,&cur->camOffset);
+				specialCaseTile = 1;
+				controlCamera = 0;
+				fixedSource = 0;
 			}
 			else if ( cur->flags == STATIC_CAMERA )
 			{
 				controlCamera = 1;
+				SetVector(&camSource[0], &cur->camOffset);
 			}
 			else if ( cur->flags == FIXED_SOURCE )
 			{
 				fixedSource = 1;
+				controlCamera = 0;
+				SetVector(&camSource[0], &cur->camOffset);
 			}
 			// ENDELSEIF
 			
