@@ -213,7 +213,7 @@ unsigned short *scrTexGrab = NULL;
 GRABSTRUCT grabData;
 
 short drawScreenGrab = 0;
-short grabFlag = 1;
+short grabFlag = 0;
 
 /*	--------------------------------------------------------------------------------
 	Function		: PrintBackdrop
@@ -1221,27 +1221,14 @@ void SetGrabData( )
 	Returns			: 
 	Info			: 
 */
-long newFlag = 0;
 void DrawScreenGrab( unsigned long flags )
 {
 	QUATERNION q;
 	float transMtx[4][4],rotMtx[4][4],tempMtx[4][4];
 	long x, y, v, x1, y1, x2, y2, tileScale, cx, cy, vStep;
-
-	if( newFlag == 1 || newFlag == 3 )
-	{
-		flags |= TILE_SHRINK_VERT;
-		flags |= BARS_HORZ;
-	}
-	if( newFlag == 2 || newFlag == 3 )
-	{
-		flags |= TILE_SHRINK_HORZ;
-		flags |= BARS_VERT;
-	}
-
 	if( !fsVerts )
 	{
-		fsVerts = (Vtx *)JallocAlloc( sizeof(Vtx)*320, NO, "Vtx Array" );
+		fsVerts = (Vtx *)JallocAlloc( sizeof(Vtx)*160, NO, "Vtx Array" );
 		vPtr = &fsVerts[0];
 		grab = scrTexGrab;
 
@@ -1249,7 +1236,7 @@ void DrawScreenGrab( unsigned long flags )
 		grabData.flags = flags;
 		SetGrabData( );
 	}
-	else if( (flags & NEW_FLAGS) || newFlag )
+	else if( flags & NEW_FLAGS )
 	{
 		flags &= ~NEW_FLAGS;
 		newFlag = 0;
