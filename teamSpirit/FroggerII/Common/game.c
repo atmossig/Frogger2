@@ -919,6 +919,8 @@ void RunGameLoop (void)
 //		runningWaterStuff = 0;
 		ChangeCameraSetting();
 
+		//SetupEventsForLevel( );
+
 		/* Ambient Sound test */
 		//InitAmbientSoundList( );
 
@@ -968,7 +970,10 @@ void RunGameLoop (void)
 			DisableTextOverlay(timeTextOver);
 			DisableTextOverlay(scoreTextOver);
 //				livesIcon->active = 0;
-
+/*
+			if( triggerList.numEntries )
+				KillAllTriggers( );
+*/
 		//	if( ambientSoundList.numEntries )
 		//		KillAmbientSfx( );
 
@@ -1004,8 +1009,12 @@ void RunGameLoop (void)
 
 		if ( levelIsOver )
 		{
-		//	if( ambientSoundList.numEntries )
-		//		KillAmbientSfx( );
+/*
+			if( triggerList.numEntries )
+				KillAllTriggers( );
+*/
+			//	if( ambientSoundList.numEntries )
+			//		KillAmbientSfx( );
 
 			RunLevelCompleteSequence();
 
@@ -1085,6 +1094,8 @@ void RunGameLoop (void)
 			{
 				if ( ( frameCount > 15 ) )
 				{
+					//UpdateEvents( );
+
 					if(!frog[0]->action.dead)	
 					{
 						for (i=0; i<4; i++)
