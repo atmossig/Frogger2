@@ -44,10 +44,10 @@ ACTOR2 *hat[MAX_FROGS];
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 float nearClip = 10;
-float farClip = 2000;
+float farClip = 2500;
 
-float horizClip = 1000;
-float vertClip = 800;
+float horizClip = 3000;
+float vertClip = 2500;
 
 long DIST=-10;
 long FOV=450;
