@@ -925,7 +925,7 @@ void RunMultiWinMatch( )
 
 void SetTimeForLevel( )
 {
-	timeForLevel = actFrameCount/60;
+	timeForLevel = actFrameCount/6;
 }
 
 TEXTOVERLAY *menuText[2] = {NULL,NULL};
@@ -1240,7 +1240,7 @@ void StartLevelComplete()
 	}
 	else
 	{
-		if((worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && timeForLevel <= (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime))
+		if((gameState.difficulty == DIFFICULTY_HARD) && (worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten == 0) && (timeForLevel <= worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime))
 			worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].levelBeaten = levelBeaten = 1;
 		if(timeForLevel < worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)
 			grade = 0;
@@ -1277,7 +1277,7 @@ void StartLevelComplete()
 	if(train)
 		sprintf(levTimeText,"");
 	else
-		sprintf(levTimeText,GAMESTRING(STR_YOUTOOKTIMEMIN),((int)timeForLevel/60)%60,((int)timeForLevel)%60);
+		sprintf(levTimeText,GAMESTRING(STR_YOUTOOKTIMEMIN),((int)timeForLevel/600)%600,((int)timeForLevel/10)%60,((int)timeForLevel)%10);
 
 	
 	levName = CreateAndAddTextOverlay(2048, 200+210,
@@ -1296,7 +1296,7 @@ void StartLevelComplete()
 		bIcon->xPosTo = 2048 - 256;
 		oldBestText = CreateAndAddTextOverlay(2048 + 4096,1950,oldBestStr,YES,255,font,TEXTOVERLAY_SHADOW);
 		oldBestText->xPosTo = 2048;
-		sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/60)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%60);
+		sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	}
 	else
 	{
@@ -1430,7 +1430,7 @@ void RunLevelComplete()
 	int i,dropped = FMul(dropSpeed,gameSpeed);
 	SPRITEOVERLAY *coinOver;
 
-	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/60)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%60);
+	sprintf(oldBestStr,GAMESTRING(STR_RECORD),worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parName,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/600)%600,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime/10)%60,((int)worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime)%10);
 	drawLandscape = 0;
 
 #ifdef PSX_VERSION

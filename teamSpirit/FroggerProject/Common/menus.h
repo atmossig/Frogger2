@@ -26,6 +26,7 @@ extern long tValue;
 extern fixed fadeSpeed;
 extern unsigned long cWorld;
 extern int fogStore;
+extern int pauseConfirmMode;
 
 #define DEC_ALPHA(x) \
 {													\

@@ -607,7 +607,7 @@ long LoopFunc(void)
 {
 	ACTOR2 *c;
 
-	if((gameState.mode!=PAUSE_MODE) || (quittingLevel))
+	if((gameState.mode!=PAUSE_MODE) || ((quittingLevel) && (pauseConfirmMode == 0)))
 	{
 		lastActFrameCount = actFrameCount;
 		

@@ -122,7 +122,7 @@ void InitArcadeHUD(void)
 	arcadeHud.timeBak->r = 128;
 	arcadeHud.timeBak->g = 128;
 	arcadeHud.timeBak->b = 128;
-	sprintf(timeBarStr,"%d:%02d",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/60,worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime%60);
+	sprintf(timeBarStr,"%d:%02d.%d0",worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/600,(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime/10)%60,(worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime)%10);
 	arcadeHud.timeBarText = CreateAndAddTextOverlay(2048,3300,timeBarStr,YES,255,font,TEXTOVERLAY_SHADOW);
 	if(gameState.mode == FRONTEND_MODE)
 	{
@@ -641,7 +641,7 @@ void UpDateOnScreenInfo ( void )
 	long i;
 	long xPos,yPos;
 	long r,g,b,a;
-	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 60;
+	long timeFrames = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime * 6;
 	long frameCheck = 0;
 	int oldTime;
 	
@@ -987,7 +987,7 @@ void UpDateOnScreenInfo ( void )
 		else
 		{
 			DEC_ALPHA(arcadeHud.timeBarText);
-			timeFrames += 60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*60;
+			timeFrames += 6*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime - worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].parTime*6;
 			if(timeFrames > 0)
 				arcadeHud.timeBar->width = max(0,(timeFrames*timeBarWidth)/(60*worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].difficultTime));
 			else

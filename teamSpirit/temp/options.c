@@ -129,7 +129,7 @@ OPTIONSOBJECTS options =
 	0,
 };
 
-int NUM_ARCADE_WORLDS = 7;
+int NUM_ARCADE_WORLDS = 8;
 
 #define MAX_CREDITS 200
 TEXTOVERLAY *creditsText[MAX_CREDITS] = {NULL};
@@ -2381,7 +2381,7 @@ void SPCharBack(void)
 	options.mode = OP_ARCADE;
 	options.parText[0]->draw = options.parText[1]->draw = options.parText[2]->draw = 1;
 	options.worldText->draw = 1;
-	options.worldBak->xPos = options.worldBak->xPosTo = 200;
+	options.worldBak->xPos = options.worldBak->xPosTo = 150;
 	options.worldBak->yPos = options.worldBak->yPosTo = 938;
 	options.worldBak->width = 4096 - 2*options.worldBak->xPos;
 	options.selectText->text = GAMESTRING(STR_SELECT_LEVEL);
@@ -2393,7 +2393,7 @@ void SPCharBack(void)
 		options.levelParText[i]->draw = 1;
 		options.levelSetByText[i]->draw = 1;
 		options.levelText[i]->draw = 1;
-		options.levelText[i]->xPos = options.levelText[i]->xPosTo = 456;
+		options.levelText[i]->xPos = options.levelText[i]->xPosTo = 306;
 		options.levelText[i]->yPos = options.levelText[i]->yPosTo = (1445+i*170);
 	}
 	DoArcadeMenu();
