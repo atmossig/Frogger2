@@ -132,8 +132,21 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 
 		if(appActive)
 		{
+			if (KEYPRESS(DIK_F1))
+				camDist.v[1]+=2;
+
+			if (KEYPRESS(DIK_F2))
+				camDist.v[1]-=2;
+
+			if (KEYPRESS(DIK_F3))
+				camDist.v[2]+=2;
+
+			if (KEYPRESS(DIK_F4))
+				camDist.v[2]-=2;
+
 			if (!keyDelay)
 			{
+
 				if KEYPRESS(DIK_F10)
 				{
 					editorOk = !editorOk; 

@@ -38,7 +38,7 @@ ANIM_STRUCTURE *livesIcon;
 TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
 TEXTOVERLAY	*gameOver1;
 TEXTOVERLAY	*gameOverScore;
-TEXTOVERLAY	*babySavedText,*goText;
+TEXTOVERLAY	*babySavedText;
 
 TEXTOVERLAY	*levelComplete1,
 			*levelComplete2,
@@ -155,8 +155,6 @@ void InitInGameTextOverlays(unsigned long worldID,unsigned long levelID)
 	DisableTextOverlay(gameOver1);
 	gameOverScore = CreateAndAddTextOverlay(110,0,"************************",YES,NO,255,255,255,255,smallFont,0,0,0);
 	DisableTextOverlay(gameOverScore);
-
-	goText = CreateAndAddTextOverlay(0,100,worldVisualData[worldID].levelVisualData[levelID].description,YES,0,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,6,0);
 
 	babySavedText = CreateAndAddTextOverlay(0,110,"BABY SAVED",YES,NO,255,255,255,255,smallFont,TEXTOVERLAY_WAVECHARS,4,0);
 	DisableTextOverlay(babySavedText);

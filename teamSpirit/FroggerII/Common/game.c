@@ -851,16 +851,8 @@ void RunGameLoop (void)
 
 	}
 
-	if(!goText->kill)
-	{
 		if(frameCount > 50)
 		{
-			goText->yPos += 4;
-			goText->a -= 7;
-			
-			
-			if(goText->yPos > 239)
-				goText->kill = 1;
 
 			if (backPanel)
 			{
@@ -878,7 +870,6 @@ void RunGameLoop (void)
 		else
 			if (backPanel)
 				backPanel->a += 3;
-	}
 		 
 	if(keyFound)
 		RunLevelKeyFound();

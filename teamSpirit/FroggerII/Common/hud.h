@@ -32,7 +32,7 @@ extern ANIM_STRUCTURE *livesIcon;
 extern TEXTOVERLAY	*livesTextOver,*timeTextOver,*scoreTextOver;
 extern TEXTOVERLAY	*gameOver1;
 extern TEXTOVERLAY	*gameOverScore;
-extern TEXTOVERLAY	*babySavedText,*goText;
+extern TEXTOVERLAY	*babySavedText;
 
 extern TEXTOVERLAY	*levelComplete1,
 					*levelComplete2,

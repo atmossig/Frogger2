@@ -95,6 +95,8 @@ float clx0 = 1,
 // Subtracted Square!
 #define sbsqr(x,y) ((x-y)*(x-y))
 
+float xl = 1;
+
 /*---------------------------------------------------------------------------------------------
 	Function	: calcIntVertex
 	Parameters	: (D3DTLVERTEX *vOut, int outcode, D3DTLVERTEX *v0,D3DTLVERTEX *v1, float cx0, float cy0, float cx1, float cy1)
@@ -310,7 +312,13 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 	long drawme;
 	
 	in = obj->mesh->vertices;
-	
+
+	if (xl<0.99)
+	{
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,FALSE);
+	}
+
 	guLookAtF(c,
 			currCamSource[screenNum].v[X],currCamSource[screenNum].v[Y],currCamSource[screenNum].v[Z],
 			currCamTarget[screenNum].v[X],currCamTarget[screenNum].v[Y],currCamTarget[screenNum].v[Z],
@@ -375,7 +383,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sz = (tV[v0].v[Z]+DIST)/2000;///2000;
 			vTemp->tu = obj->mesh->faceTC[v0a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v0a].v[1]*(1.0/1024.0);
-			vTemp->color = D3DRGB(c1->v[0],c1->v[1],c1->v[2]);
+			vTemp->color = D3DRGBA(c1->v[0],c1->v[1],c1->v[2],xl);
 			vTemp->specular = D3DRGB(rCol,gCol,bCol);
 			
 			vTemp++;
@@ -386,7 +394,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sz = (tV[v1].v[Z]+DIST)/2000;//2000;
 			vTemp->tu = obj->mesh->faceTC[v1a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v1a].v[1]*(1.0/1024.0);
-			vTemp->color = D3DRGB(c2->v[0],c2->v[1],c2->v[2]);
+			vTemp->color = D3DRGBA(c2->v[0],c2->v[1],c2->v[2],xl);
 			vTemp->specular = D3DRGB(rCol,gCol,bCol);
 
 			vTemp++;
@@ -397,7 +405,7 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 			vTemp->sz = (tV[v2].v[Z]+DIST)/2000;///2000;
 			vTemp->tu = obj->mesh->faceTC[v2a].v[0]*(1.0/1024.0);
 			vTemp->tv = obj->mesh->faceTC[v2a].v[1]*(1.0/1024.0);
-			vTemp->color = D3DRGB(c3->v[0],c3->v[1],c3->v[2]);
+			vTemp->color = D3DRGBA(c3->v[0],c3->v[1],c3->v[2],xl);
 			vTemp->specular = D3DRGB(rCol,gCol,bCol);
 			
 		
@@ -443,6 +451,13 @@ void PCDrawObject(OBJECT *obj, float m[4][4])
 
 		}
 	}
+
+	if (xl<0.99)
+	{
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);
+		pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,TRUE);
+	}
+
 	return;
 }
 
@@ -1386,7 +1401,7 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 	}
 
 	changeRenderMode = 0;
-
+		xluFact = 0xff;
 		if(!aiSurf)
 		{
 			if(obj->flags & OBJECT_FLAGS_TRANSPARENT)
@@ -1477,6 +1492,7 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 
 	if(obj->mesh->numFaces)
 	{
+		xl = xluFact / 256.0;
 		PCDrawObject (obj,matrixStack.result);
 	}
 

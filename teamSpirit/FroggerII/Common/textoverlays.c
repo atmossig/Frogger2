@@ -81,7 +81,7 @@ void PrintTextOverlays()
 
 		if(cur->kill)
 		{
-			SubTextOverlay(cur);
+//			SubTextOverlay(cur);
 			continue;
 		}
 
