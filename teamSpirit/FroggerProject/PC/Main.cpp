@@ -853,7 +853,9 @@ int GameShutdown()
 	ShutDownDirectSound( );
 	gelfShutdown();
 
+#ifndef PC_DEMO
 	SetRegistryInformation();
+#endif
 //	SystemParametersInfo( SPI_SETSCREENSAVERRUNNING, FALSE, NULL, 0 );
 
 	return 0;
