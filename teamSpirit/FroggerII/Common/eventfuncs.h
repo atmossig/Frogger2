@@ -14,8 +14,10 @@
 
 
 /*----- [ TRIGGER PROTOTYPES ] -----------------------------------------------------------------*/
-extern int ActorOnTile( TRIGGER *trigger );
-
+extern int EnemyOnTile( TRIGGER *trigger );
+extern int FrogOnTile( TRIGGER *trigger );
+extern int ActorWithinRadius( TRIGGER *trigger );
+extern int OnTimeout( TRIGGER *trigger );
 
 /*----- [ EVENT PROTOTYPES ] -------------------------------------------------------------------*/
 extern void ChangeActorScale( EVENT *event );

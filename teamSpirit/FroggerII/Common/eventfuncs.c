@@ -20,18 +20,36 @@
 /*----- [ TRIGGER FUNCTIONS ] ------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
-	Function 	: ActorOnTile
-	Purpose 	: Check if the actor in the trigger structure is on the given tile
+	Function 	: EnemyOnTile
+	Purpose 	: Check if an enemy in the trigger structure is on the given tile
 	Parameters 	: Pointer to trigger structure
 	Returns 	: Boolean
 	Info 		:
 */
-int ActorOnTile( TRIGGER *trigger )
+int EnemyOnTile( TRIGGER *trigger )
 {
-	/*
-	* DO THIS LATER
-	*/
-	return 0;
+	ENEMY *nme = (ENEMY *)trigger->data[0];
+	GAMETILE *tile = (GAMETILE *)trigger->data[1];
+
+	if( nme->inTile == tile ) return 1;
+	else return 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: FrogOnTile
+	Purpose 	: Check if a frog in the trigger structure is on the given tile
+	Parameters 	: Pointer to trigger structure
+	Returns 	: Boolean
+	Info 		:
+*/
+int FrogOnTile( TRIGGER *trigger )
+{
+	int frognum = *(int *)trigger->data[0];
+	GAMETILE *tile = (GAMETILE *)trigger->data[1];
+
+	if( currTile[frognum] == tile ) return 1;
+	else return 0;
 }
 
 
@@ -46,10 +64,28 @@ int ActorWithinRadius( TRIGGER *trigger )
 {
 	ACTOR *actor = (ACTOR *)trigger->data[0];
 	VECTOR *pos = (VECTOR *)trigger->data[1];
-	float *radius = (float *)trigger->data[2];
+	float radius = *(float *)trigger->data[2];
 
-	if( DistanceBetweenPoints(&actor->pos, pos) < *radius ) return 1;
+	if( DistanceBetweenPoints(&actor->pos, pos) < radius ) return 1;
 	else return 0;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: OnTimeout
+	Purpose 	: Trigger when counter reaches zero
+	Parameters 	: Pointer to trigger structure
+	Returns 	: Boolean
+	Info 		:
+*/
+int OnTimeout( TRIGGER *trigger )
+{
+	int count = *(int *)trigger->data[0];  // Counter
+	int start = *(int *)trigger->data[1];  // Count down from this
+
+	if( count-- == -1 ) count = start;
+	else if( count-- == 0 ) return 1;
+	else count--;
 }
 
 
