@@ -214,6 +214,14 @@ SOURCE=.\mdxRender.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\mdxSprite.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mdxSprite.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\mdxTexture.cpp
 # End Source File
 # Begin Source File

@@ -768,6 +768,7 @@ long DrawLoop(void)
 
 	D3DSetupRenderstates(cullNoneRS);
 	PrintSpriteOverlays(1);	
+	PrintSpriteOverlays(2);	
 
 	if (editorOk)
 		DrawEditor();

@@ -29,6 +29,7 @@
 #include "mdxDText.h"
 #include "mdxProfile.h"
 #include "mdxWindows.h"
+#include "mdxSprite.h"
 #include "gelf.h"
 #include "softstation.h"
 
@@ -47,7 +48,6 @@ SOFTPOLY softPolyBuffer[MA_MAX_FACES];
 SOFTPOLY *softDepthBuffer[MA_SOFTWARE_DEPTH];
 D3DTLVERTEX softV[MA_MAX_VERTICES];
 short softScreen[640*480];
-short spIndices[] = {0,1,2,2,3,0};
 short Indices[6] = {0,1,2,0,2,3};
 
 unsigned long numHaloPoints;
@@ -1712,124 +1712,6 @@ void DrawHalos(void)
 	}
 
 }
-
-/*	--------------------------------------------------------------------------------
-    Function		: DrawAlphaSprite
-	Parameters		: 
-	Returns			: 
-	Purpose			: Draw an alpha-ed, non-rotating sprite
-*/
-void DrawAlphaSprite (float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
-{
-	D3DTLVERTEX v[4];
-	float x2 = (x+xs), y2 = (y+ys);
-//	float fogAmt;
-	totalFacesDrawn++;
-
-	if (x < clx0)
-	{
-		if (x2 < clx0) return;
-		u1 += (u2-u1) * (clx0-x)/xs;	// clip u
-		xs += x-clx0; x = clx0;
-	}
-	if (x2 > clx1)
-	{
-		if (x > clx1) return;
-		u2 += (u2-u1) * (clx1-x2)/xs;	// clip u
-		xs -= (x-clx1);
-		x2 = clx1;
-	}
-
-	if (y < cly0)
-	{
-		if (y2 < cly0) return;
-		v1 += (v2-v1) * (cly0-y)/ys;	// clip v
-		ys += y-cly0; y = cly0;
-	}
-	if (y2 > cly1)
-	{
-		if (y > cly1) return;
-		v2 += (v2-v1) * (cly1-y2)/ys;	// clip v
-		ys -= (y-cly1);
-		y2 = cly1;
-	}
-	
-/*	fogAmt = FOGADJ(z);
-	if (fogAmt<0)
-		fogAmt=0;
-	if (fogAmt>1)
-		fogAmt=1;
-*/	
-	v[0].sx = x; v[0].sy = y; v[0].sz = z; v[0].rhw = 1;
-	v[0].color = colour; v[0].specular = D3DRGBA(0,0,0,1);
-	v[0].tu = u1; v[0].tv = v1;
-
-	v[1].sx = x2; v[1].sy = y; v[1].sz = z; v[1].rhw = 1;
-	v[1].color = v[0].color; v[1].specular = v[0].specular;
-	v[1].tu = u2; v[1].tv = v1;
-	
-	v[2].sx = x2; v[2].sy = y2; v[2].sz = z; v[2].rhw = 1;
-	v[2].color = v[0].color; v[2].specular = v[0].specular;
-	v[2].tu = u2; v[2].tv = v2;
-
-	v[3].sx = x; v[3].sy = y2; v[3].sz = z; v[3].rhw = 1;
-	v[3].color = v[0].color; v[3].specular = v[0].specular;
-	v[3].tu = u1; v[3].tv = v2;
-
-	PushPolys(v,4,spIndices,6,tex);
-}
-
-
-void DrawAlphaSpriteRotating(MDX_VECTOR *pos,float angle,float x, float y, float z, float xs, float ys, float u1, float v1, float u2, float v2, MDX_TEXENTRY *tex, DWORD colour )
-{
-	D3DTLVERTEX v[5];
-	float x2 = (x+xs), y2 = (y+ys), sine, cosine, newX, newY;
-	int i,j;
-	totalFacesDrawn++;
-
-	if( !tex ) return;
-
-	// populate our structure ready for transforming and clipping the sprite
-	v[0].sx = x - pos->vx;
-	v[1].sx = x2 - pos->vx;
-	v[2].sx = x2 - pos->vx;
-	v[3].sx = x - pos->vx;
-
-	v[0].sy = y - pos->vy;
-	v[1].sy = y - pos->vy;
-	v[2].sy = y2 - pos->vy;
-	v[3].sy = y2 - pos->vy;
-
-	v[0].tu = u1;	v[0].tv = v1;
-	v[1].tu = u2;	v[1].tv = v1;
-	v[2].tu = u2;	v[2].tv = v2;
-	v[3].tu = u1;	v[3].tv = v2;
-
-	// get rotation angle
-	cosine	= (float)cosf(angle);
-	sine	= (float)sinf(angle);
-
-	// populate remaining data members and rotate the vertices comprising the sprite
-	i = 4;
-	while(i--)
-	{
-		v[i].sz			= z;
-		v[i].rhw		= 1;
-		v[i].color		= colour;
-		v[i].specular	= D3DRGBA(0,0,0,1);
-
-		newX = (v[i].sx * cosine) + (v[i].sy * sine);
-		newY = (v[i].sy * cosine) - (v[i].sx * sine);
-
-		v[i].sx = newX + pos->vx;
-		v[i].sy = newY + pos->vy;
-	}
-
-	memcpy( &v[4], &v[0], sizeof(D3DTLVERTEX) );
-
-	Clip3DPolygon( v, tex );
-	Clip3DPolygon( &v[2], tex );
-}	
 
 
 /*	--------------------------------------------------------------------------------

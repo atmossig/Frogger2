@@ -14,6 +14,7 @@
 #include "mdxLandscape.h"
 #include "mdxRender.h"
 #include "mdxPoly.h"
+#include "mdxSprite.h"
 #include "mdxDText.h"
 #include "mdxProfile.h"
 #include "mdxWindows.h"
