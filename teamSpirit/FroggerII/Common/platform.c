@@ -1160,6 +1160,14 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 
 	pform->currSpeed = GetSpeedFromIndexedNode(path,path->fromNode);
 	pform->isWaiting = GetWaitTimeFromIndexedNode(path,path->fromNode);
+
+	// Stop overshoot when waiting on a path node
+	if (pform->isWaiting)
+	{
+		GetPositionForPathNode(&pformPos, &path->nodes[path->fromNode]);
+		SetVector(&pform->pltActor->actor->pos, &pformPos);
+	}
+
 	CalcPlatformNormalInterps(pform);
 }
 

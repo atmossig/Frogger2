@@ -1423,8 +1423,16 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 	nme->speed		= path->nodes[path->fromNode].speed;
 	nme->isWaiting	= path->nodes[path->fromNode].waitTime;
 
+	// Stop overshoot when waiting on a path node
+	if (nme->isWaiting)
+	{
+		GetPositionForPathNode(&nmePos, &path->nodes[path->fromNode]);
+		SetVector(&nme->nmeActor->actor->pos, &nmePos);
+	}
+
 	if (nme->flags & ENEMY_NEW_RANDOMSPEED) nme->speed *= ENEMY_RANDOMNESS;
 
+	
 	CalcEnemyNormalInterps(nme);
 }
 
