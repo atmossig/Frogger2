@@ -49,6 +49,17 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 	unsigned long len = strlen(str);
 	float tmp = PI2; // Don't ask why I have to do this, it's due to N64 remedial maths
 
+	if( !len )
+	{
+		dprintf"Zero length string, NAUGHTY!\n"));
+		len = 1;
+		sprintf( t3d->string, " \0" );
+	}
+	else
+	{
+		sprintf( t3d->string, "%s\0", str );
+	}
+
 	t3d->width = w;
 	// Scale factor - desired width over normal width of texture (32*numChars)
 	t3d->scale = (float)w/((float)len*32);
@@ -66,8 +77,6 @@ TEXT3D *CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, 
 	
 	t3d->radius = (float)w / tmp;
 	t3d->prev = t3d->next = NULL;
-//	t3d->string = (char *)JallocAlloc(len+1,YES,"String");
-	sprintf( t3d->string, "%s\0", str );
 	t3d->vR = (unsigned char)r;
 	t3d->vG = (unsigned char)g;
 	t3d->vB = (unsigned char)b;

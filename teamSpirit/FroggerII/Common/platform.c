@@ -568,6 +568,9 @@ void UpdatePlatformPathNodes(PLATFORM *pform)
 	pform->currSpeed = path->nodes[path->fromNode].speed;
 	pform->isWaiting = path->nodes[path->fromNode].waitTime;
 
+	if( path->nodes[path->fromNode].sample )
+		PlaySample( path->nodes[path->fromNode].sample, &pform->pltActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
+
 	// Stop overshoot when waiting on a path node
 	if (pform->isWaiting)
 	{
