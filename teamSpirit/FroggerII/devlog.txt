@@ -661,6 +661,16 @@ David Swift:
 James Hubbard:
 ------------------------------------------------
 
+	Morning:
+		Woah. Rewrote the main game loop, end level and game screens, and put in provision for
+		title screens and lots more transition stuff. A proliferation of random global variables
+		made this slightly tricky, and it could still do with tidying a lot, but basically
+		it's nicer. Especially when it comes to writing complex transition sequences.
+
+		Good luck using it, let me know (irritably, and in a raised voice) if there are any problems.
+
+	Afternoon:
+
 
 James Healey:
 ------------------------------------------------
