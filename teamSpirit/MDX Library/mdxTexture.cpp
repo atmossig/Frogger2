@@ -315,8 +315,11 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 		}
 
-			newE->xSize = xDim;
-			newE->ySize = yDim;
+		if (newE->surf)
+			pDirect3DDevice->PreLoad(newE->surf);
+			
+		newE->xSize = xDim;
+		newE->ySize = yDim;
 
 			if( rHardware )
 				newE->softData = NULL;

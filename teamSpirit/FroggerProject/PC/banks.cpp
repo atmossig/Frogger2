@@ -509,7 +509,8 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 							((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;// | OBJECT_FLAGS_SHEEN;
 						else
 							((MDX_ACTOR *)(theActor->actor->actualActor))->objectController->object->flags =  OBJECT_FLAGS_WAVE | OBJECT_FLAGS_MODGE | OBJECT_FLAGS_ADDITIVE;
-
+						
+						
 						if (ts->name[4]=='f')
 							theActor->flags |= ACTOR_SLOWSLIDE;
 

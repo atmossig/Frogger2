@@ -1148,9 +1148,13 @@ void DrawFlatRect(RECT r, D3DCOLOR colour)
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,0);
 
 		pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
-	
+		pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG2);
+
 		if (DrawPoly(D3DPT_TRIANGLELIST,D3DFVF_TLVERTEX,v,4,(unsigned short *)Indices, 6,D3DDP_WAIT)!=D3D_OK)
 			dp("Could not draw flat rectangle\n");
+
+		pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
+
 	}
 /*	else
 	{
@@ -1879,7 +1883,7 @@ void DrawAllFrames(void)
 
 	// Draw Normal Polys
 	D3DSetupRenderstates(xluSemiRS);
-	D3DSetupRenderstates(tightAlphaCmpRS);
+	D3DSetupRenderstates(normalAlphaCmpRS);
 	SwapFrame(MA_FRAME_NORMAL);
 
 	if (!rHardware)
@@ -1892,12 +1896,20 @@ void DrawAllFrames(void)
 		if (!sortMode)
 		{
 			DrawBatchedOpaquePolys();
+
+			D3DSetupRenderstates(tightAlphaCmpRS);
 			DrawBatchedKeyedPolys();
+			D3DSetupRenderstates(normalAlphaCmpRS);
+
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_WRAP);
-			
+			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_POINT);  
+			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_POINT);
+
 			SwapFrame(MA_FRAME_WRAP);
 			DrawBatchedPolys();	
-	
+
+			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+			pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
 			pDirect3DDevice->SetTextureStageState(0,D3DTSS_ADDRESS,D3DTADDRESS_CLAMP);
 	
 		}

@@ -801,20 +801,21 @@ void __fastcall PCPrepareLandscape (MDX_LANDSCAPE *me)
 				
 				vTemp2->sx = halfWidth+(vTemp2->sx * oozd);
 				vTemp2->sy = halfHeight+(vTemp2->sy * oozd);
+				
+				tFog = FOG(vTemp2->sz);
+
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+	
+				vTemp2->specular = FOGVAL(tFog);
+	
+				vTemp2->sz *= 0.00025F;
+				vTemp2->rhw = 1;
 			
 			}
 			else
 				vTemp2->sz = 0;
 
-			tFog = FOG(vTemp2->sz);
-
-			if (tFog>1) tFog = 1;
-			if (tFog<0) tFog = 0;
-
-			vTemp2->specular = FOGVAL(tFog);
-
-			vTemp2->sz *= 0.00025F;
-			vTemp2->rhw = 1;
 			
 			vTemp2++;
 			tFace++;
@@ -1244,7 +1245,7 @@ void PCRenderObjectSlow (MDX_OBJECT *obj)
 			vTemp->specular = D3DRGBA(0,0,0,0);
 			vTemp->tu = (obj->mesh->faceTC[v0a].v[0]*0.000975F);
 			vTemp->tv = (obj->mesh->faceTC[v0a].v[1]*0.000975F);
-			
+		
 			//vTemp->tv = (tN0->vy+0.5);
 			//vTemp->tu = (tN0->vx+0.5);
 			vTemp++;
@@ -1912,7 +1913,7 @@ void PCRenderModgyObject2(MDX_OBJECT *obj)
 			vTemp->sx = tV0->vx;
 			vTemp->sy = tV0->vy;
 			vTemp->sz = (tV0->vz) * 0.00025F;
-			vTemp->rhw = 1/vTemp->sz;
+			vTemp->rhw = 1;///vTemp->sz;
 
 			cVal = 1;//cVal = fabs((m1x+m1z)*2.5);		
 		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m1x+m1z)*2);
@@ -1933,7 +1934,7 @@ void PCRenderModgyObject2(MDX_OBJECT *obj)
 			vTemp->sx = tV1->vx;
 			vTemp->sy = tV1->vy;
 			vTemp->sz = (tV1->vz) * 0.00025F;
-			vTemp->rhw = 1/vTemp->sz;
+			vTemp->rhw = 1;///vTemp->sz;
 			cVal = 1;//fabs((m2x+m2z)*2.5);		
 		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m2x+m2z)*2);
 		//	vTemp->color = D3DRGBA(cVal,cVal,1,1);
@@ -1951,7 +1952,7 @@ void PCRenderModgyObject2(MDX_OBJECT *obj)
 			vTemp->sx = tV2->vx;
 			vTemp->sy = tV2->vy;
 			vTemp->sz = (tV2->vz) * 0.00025F;
-			vTemp->rhw = 1/vTemp->sz;
+			vTemp->rhw = 1;///vTemp->sz;
 			cVal = 1;//cVal = fabs((m3x+m3z)*2.5);		
 		//	vTemp->color = D3DRGBA(cVal,cVal,1,0.2+(m3x+m3z)*2);
 		//Temp->color = D3DRGBA(cVal,cVal,1,1);
