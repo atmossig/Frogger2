@@ -455,6 +455,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	SaveRegistryInformation();
 
 	// clean up
+	FreeAllLists();
 	DeInitPCSpecifics();
 	DeInitInputDevices();
 	ShutdownEditor();

@@ -159,5 +159,6 @@ extern void PrepareSong(char num);
 extern void PrepareSongForLevel( short worldID, short levelID );
 
 extern DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack );
+extern DWORD stopCDTrack ( HWND hWndNotify );
 
 #endif

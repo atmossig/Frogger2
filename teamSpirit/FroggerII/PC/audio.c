@@ -28,6 +28,9 @@ SAMPLEMAP gardenMapping [] = {
 	"generic\\babyfrog.wav", 2, 22050, 16, GAR_MOWER, FLAGS_NONE };
 
 
+
+UINT mciDevice = 0;
+
 //***********************************
 // Function Prototypes
 
@@ -589,6 +592,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				break;
 		}
 	}
+/*
 	else if(worldID == WORLDID_ANCIENT)
 	{
 		switch(levelID)
@@ -609,7 +613,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				theToon = ANCIENTS_CDAUDIO;
 				break;
 		}
-	}
+	}*/
 	else if(worldID == WORLDID_SPACE)
 	{
 		switch(levelID)
@@ -631,7 +635,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				break;
 		}
 	}
-	else if(worldID == WORLDID_CITY)
+	/*else if(worldID == WORLDID_CITY)
 	{
 		switch(levelID)
 		{
@@ -649,7 +653,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				break;
 		}
 	}
-	else if(worldID == WORLDID_LABORATORY)
+	*/else if(worldID == WORLDID_LABORATORY)
 	{
 		switch(levelID)
 		{
@@ -658,7 +662,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				break;
 		}
 	}
-	else if(worldID == WORLDID_TOYSHOP)
+	/*else if(worldID == WORLDID_TOYSHOP)
 	{
 		switch(levelID)
 		{
@@ -676,7 +680,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 				break;
 		}
 	}
-	else if(worldID == WORLDID_SUPERRETRO)
+	*/else if(worldID == WORLDID_SUPERRETRO)
 	{
 		switch(levelID)
 		{
@@ -696,7 +700,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 			case LEVELID_FRONTEND1:
 				theToon = FRONTEND_CDAUDIO;
 				break;
-
+/*
 			case LEVELID_FRONTEND2:
 				theToon = LEVELSELECT_CDAUDIO;
 				break;
@@ -716,7 +720,7 @@ void PrepareSongForLevel(short worldID,short levelID)
 			default:
 				theToon = FRONTEND_CDAUDIO;
 				break;
-		}
+*/		}
 	}
 
 	PrepareSong(theToon,0);
@@ -737,7 +741,16 @@ void PrepareSong ( char num )
 }
 
 
+DWORD stopCDTrack ( HWND hWndNotify )
+{
+	MCI_GENERIC_PARMS parms;
 
+	// Stop
+	mciSendCommand(mciDevice, MCI_STOP, MCI_NOTIFY, (DWORD)(LPMCI_GENERIC_PARMS)&parms);
+
+	// Close device
+	mciSendCommand(mciDevice, MCI_CLOSE, MCI_NOTIFY, (DWORD)(LPMCI_GENERIC_PARMS)&parms);
+}
 
 // Plays a specified audio track using MCI_OPEN, MCI_PLAY. Returns as 
 // soon as playback begins. The window procedure function for the 
@@ -789,6 +802,8 @@ DWORD playCDTrack ( HWND hWndNotify, BYTE bTrack )
         return dwReturn;
     }
 	// ENDIF
+
+	mciDevice = wDeviceID;
 
     return 0L;
 }
