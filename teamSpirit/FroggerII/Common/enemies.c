@@ -123,6 +123,8 @@ void DoEnemyCollision( ENEMY *cur )
 {
 	ACTOR2 *act = cur->nmeActor;
 
+	if( cur->flags & ENEMY_NEW_VENT ) return;
+
 	if (gameState.multi==SINGLEPLAYER)
 	{
 		if( (cur->flags & ENEMY_NEW_RADIUSBASEDCOLLISION))
