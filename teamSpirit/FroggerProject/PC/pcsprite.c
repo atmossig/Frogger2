@@ -135,7 +135,6 @@ void PrintSpriteOverlays(long num)
 {
 	SPRITEOVERLAY *cur;
 	int n;
-	short x,y;
 	MDX_TEXENTRY *tEntry;
 
 	if( !drawOverlays || !spriteOverlayList.numEntries ) return;
@@ -295,7 +294,7 @@ void DrawSpriteOverlay( float x, float y, float z, float xs, float ys, float u1,
 */
 void PrintSprite(SPRITE *sprite)
 {
-	MDX_VECTOR m, sc, s = {1,1,0};
+	MDX_VECTOR sc, s = {1,1,0};
 	float distx,disty;
 	MDX_TEXENTRY *tEntry;
 

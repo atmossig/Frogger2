@@ -308,7 +308,6 @@ SAMPLE *CreateSample( char *path, char *file )
 int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short pitch )
 {
 	BUFSAMPLE *bufSample=NULL;
-	unsigned long bufStatus;
 	long vol = (volume*globalSoundVol)/MAX_SOUND_VOL;
 	int pan = 0;
 	float att, dist;

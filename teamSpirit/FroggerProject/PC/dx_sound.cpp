@@ -203,7 +203,7 @@ int LoadWav( SAMPLE *sample, char *name )
 					child;   // child chunk
 	WAVEFORMATEX    wfmtx;   // wave format structure
 
-	WAVEFORMATEX		pcmwf;          // generic waveformat structure
+//	WAVEFORMATEX		pcmwf;          // generic waveformat structure
 
 	UCHAR *snd_buffer,       // temporary sound buffer to hold voc data
 		  *audio_ptr_1=NULL, // data ptr to first write buffer 
@@ -410,7 +410,7 @@ void ShowSounds(void)
 	if ((res == DD_OK))
 	{
 		char tText[256];
-		long tPC = 0,cPC;
+		long tPC = 0;
 		HFONT hfnt, hOldFont;      
 		hfnt = (HFONT)GetStockObject(ANSI_VAR_FONT); 
 		int count=0;

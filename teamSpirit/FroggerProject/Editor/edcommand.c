@@ -35,6 +35,8 @@
 #include "cam.h"
 #include "layout.h"
 #include "pcaudio.h"
+#include "babyfrog.h"
+#include "pcsprite.h"
 
 /* --------------------------------------------------------------
 	Forward declarations

@@ -344,7 +344,6 @@ int GetControllerSetup(void)
 {
 	HKEY hkey;
 	char name[256], value[256];
-	GUID controller;
 	DWORD len = 256;
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) == ERROR_SUCCESS)
@@ -957,9 +956,7 @@ int SetupKeyboardDialog(int player, HWND hParent)
 BOOL CALLBACK DLGKeyMapDialogue(HWND hDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
 	long i, code;
-	HRESULT hRes;
 	char itmTxt[64];
-	MSG pMsg;
 	HWND list;
 	static DWORD keyIndex = 0;
 

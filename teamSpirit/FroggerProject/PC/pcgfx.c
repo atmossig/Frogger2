@@ -377,7 +377,7 @@ void DrawFXRing( SPECFX *fx )
 	D3DTLVERTEX vT[5], vTPrev[2];
 	MDX_TEXENTRY *tEntry;
 	MDX_VECTOR tempVect, m, scale, normal, pos;
-	MDX_QUATERNION q1, q2, q3, cross;
+	MDX_QUATERNION q1, q3, cross;
 	SVECTOR fxpos;
 	float tilt, tilt2, t;
 	int zeroZ = 0;

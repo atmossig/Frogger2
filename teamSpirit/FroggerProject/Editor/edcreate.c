@@ -26,6 +26,7 @@
 #include "babyfrog.h"
 #include "event.h"
 #include "pcmisc.h"
+#include "pcsprite.h"
 
 #include "layout.h"
 

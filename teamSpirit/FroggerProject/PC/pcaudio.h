@@ -195,6 +195,7 @@ extern void FreeSampleList( );
 
 extern void InitAmbientSoundList( );
 extern void FreeAmbientSoundList( );
+AMBIENT_SOUND *AddAmbientSound(SAMPLE *sample, SVECTOR *pos, long radius, short vol, short pitch, int freq, int randFreq, MDX_ACTOR *follow );
 
 extern void FreeBufSampleList( );
 

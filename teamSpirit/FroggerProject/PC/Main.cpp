@@ -300,12 +300,12 @@ int InstallChecker(HWND hParent)
 
 LRESULT CALLBACK MyInitProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	WIN32_FIND_DATA fData;
-	HANDLE			fHandle;
-	char			fName[MAX_PATH];
-	char			fPath[MAX_PATH];
-	long			idx,data;
-	FILE			*fp;
+//	WIN32_FIND_DATA fData;
+//	HANDLE			fHandle;
+//	char			fName[MAX_PATH];
+//	char			fPath[MAX_PATH];
+//	long			idx,data;
+//	FILE			*fp;
 
     switch(msg)
 	{
@@ -678,7 +678,6 @@ long DrawLoop(void)
 
 		if(!backdrop)
 		{
-			int i;
 			// Draw landscape
 			DrawAllFrames();
 			BlankAllFrames();

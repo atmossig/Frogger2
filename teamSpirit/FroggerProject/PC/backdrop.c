@@ -10,6 +10,7 @@
 
 #include <ddraw.h>
 #include <mdxddraw.h>
+#include <islutil.h>
 #include "backdrop.h"
 #include "Main.h"
 

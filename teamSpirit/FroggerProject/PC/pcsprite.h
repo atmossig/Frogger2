@@ -32,6 +32,8 @@ extern long	SPRITECLIPTOP		;
 extern long	SPRITECLIPRIGHT		;
 extern long	SPRITECLIPBOTTOM	;
 
+void AddObjectsSpritesToSpriteList(MDX_OBJECT *obj,short flags);
+
 #ifdef __cplusplus
 }
 #endif
