@@ -313,7 +313,9 @@ void GetArgs(char *arglist)
 
 int InstallChecker(HWND hParent)
 {
-	char path[MAX_PATH];
+// ds - this never really worked, but for release we MIGHT want to do something special to check the install. Perhaps.
+
+/*	char path[MAX_PATH];
 	char *c; int n;
 	GetModuleFileName(NULL, path, MAX_PATH);
 
@@ -344,7 +346,7 @@ int InstallChecker(HWND hParent)
 				return 0;
 #endif
 	}
-
+*/
 	return 1;
 }
 
