@@ -9,96 +9,20 @@
 
 ----------------------------------------------------------------------------------------------- */
 
-#include <windows.h>
 #include "stdio.h"
+#include "string.h"
 #include "math.h"
 
 // | | | | 2048 1024 512 256  128 64 32 16 8 4 2 1
 
-char indata[65535];
-char outdata[65535];
+char indata[256];
+char outdata[256];
 
 int incount;
 int outcount;
 
 int threshhold = 3;
 int maxlength = 7;
-
-/*
-int FindMatch(char *data1, char *data2, int maxlen)
-{
-	int len = 0;
-	while ((data1[len] == data2[len]) && (len<maxlen) && (&data2[len] < data1))	len++;
-	return len;
-}
-
-int main (int argc, char *argv[])
-{
-	FILE *fp;
-	int charin,charout;
-	int largestlength,largestpos;
-
-	if (argc != 3)
-	{
-		printf("Parameters:		infile outfile\n");
-		exit (1);
-	}
-
-	fp = fopen(argv[1],"rb");
-	fseek(fp,0,SEEK_END);
-	incount = ftell(fp);
-	fseek(fp,0,SEEK_SET);
-	fread(indata,1,incount,fp);
-	fclose (fp);
-
-	charin = charout = 0;
-	
-	while (charin<incount)
-	{
-		largestlength = threshhold;
-		largestpos = 0;
-		
-		for (int i=1; i<64; i-=2)
-		{
-			int thislength;
-
-			if (charin<i)
-				continue;
-
-			thislength = FindMatch(&indata[charin],&indata[charin-i],(incount-charin)<maxlength?(incount-charin):maxlength);
-			
-			if ((thislength>maxlength))
-				thislength = maxlength;
-
-			if ((thislength>largestlength))
-			{
-				largestlength = thislength;
-				largestpos = i;
-			}
-		}
-
-		if (largestpos)
-		{
-			outdata[charout++]=0xff;
-			outdata[charout++]=0x00; //Needs replacing with pos/offset			
-//			outdata[charout++]=0x00; //Needs replacing with pos/offset			
-			charin+=largestlength;
-		}
-		else
-		{
-			outdata[charout++] = indata[charin];
-			if (outdata[charout-1]==0xff)
-				outdata[charout++]=0xff;
-			charin++;
-		}
-
-		
-	}
-
-	return 1;
-}
-*/
-
 
 char inF[255],outF[255];
 
@@ -115,27 +39,27 @@ struct vect
 
 struct obj
 {
-	char name[255];
+	char name[32];
 	float x,y,z;
 	float rx,ry,rz,rv;
-	char linename[255];
+	char linename[32];
 	float linepc;
 	int type;
 };
 
 struct line
 {
-	char name[255];
+	char name[32];
 	int nV;
 	int cV;
-	vect v[4000];
+	vect v[100];
 };
 
 long nObj = 0;
 long nLine = 0;
 
-obj objList[4000];
-line lineList[4000];
+obj objList[100];
+line lineList[100];
 obj cur;
 line cul;
 
@@ -186,9 +110,11 @@ void ProcessCommand (char *line)
 		{
 			line+=11;
 			
-			for (int i=0; i<strlen(line); i++)
-				if (line[i]=='"')
-					line[i]=0;
+			for (char *c = line; *c; c++)
+				if (*c=='"')
+				{
+					*c = 0; break;
+				}
 
 			strcpy (cur.name,line);						
 	
@@ -216,9 +142,11 @@ void ProcessCommand (char *line)
 		{
 			cur.type = 1;
 			line+=16;
-			for (int i=0; i<strlen(line); i++)
-				if (line[i]=='"')
-					line[i]=0;
+			for (char *c = line; *c; c++)
+				if (*c=='"')
+				{
+					*c = 0; break;
+				}
 			strcpy (cur.linename,line);
 		}
 
@@ -254,9 +182,11 @@ void ProcessCommand (char *line)
 		{
 			line+=11;
 			
-			for (int i=0; i<strlen(line); i++)
-				if (line[i]=='"')
-					line[i]=0;
+			for (char *c = line; *c; c++)
+				if (*c=='"')
+				{
+					*c = 0; break;
+				}
 
 			strcpy (cul.name,line);			
 		}
@@ -271,7 +201,6 @@ void ProcessCommand (char *line)
 		
 		if (!strncmp(line,"SHAPE_VERTEX_KNOT",17))
 		{
-			float x,y,z;
 			line+=17;
 			while (line[0]<'0' || line [0] >'9') line++;
 			while (line[0]>='0' && line [0] <='9') line++;
@@ -298,8 +227,7 @@ void ProcessLine (char *line)
 void WriteData(void)
 {
 	FILE *out;
-	char inStr[255];
-	unsigned int i,j;
+	int i,j;
 
 	printf ("Writing: %s \n",outF);
 	out = fopen (outF,"wt");
@@ -372,13 +300,82 @@ void WriteData(void)
 	fclose (out);
 }
 
+
+/* ----------------
+	WritePSXData
+	writes lovely raw data
+*/
+
+int WriteInt(FILE *f, int i)
+{
+	int rit = fwrite(&i, 4, 1, f);
+	if (rit != 1)
+		printf("Bugger!\n");
+	return rit;
+}
+
+int WriteShort(FILE *f, short s)
+{
+	int rit = fwrite(&s, 2, 1, f);
+	if (rit != 1)
+		printf("Bugger!\n");
+	return rit;
+}
+
+#define RECORDSIZE		28
+
+void toPsi(char *str)
+{
+	char *c = str;
+	int l = 0;
+	
+	while (*c) c++, l++;	// go to end of string
+	while (l)				// step back to '.' char
+	{
+		c--, l--;
+		if (*c == '.') { strcpy(c, ".psi"); break; }
+	}
+}
+
+void WritePSXData(void)
+{
+	FILE *f;
+	int i;
+
+	printf ("Writing PSX data: %s \n",outF);
+	f = fopen (outF,"wb");
+
+	WriteInt(f, nObj);
+
+	for (i=0; i<nObj; i++)
+	{
+		if (i<(nObj-1))
+			WriteInt(f, (i+1) * RECORDSIZE);
+		else
+			WriteInt(f, -1);
+		
+		//toPsi(objList[i].name);
+		strcat(objList[i].name, ".psi");
+		fwrite(objList[i].name, 16, 1, f);
+
+		WriteShort(f, (short)objList[i].x);
+		WriteShort(f, (short)objList[i].z);
+		WriteShort(f, (short)-objList[i].y);
+		WriteShort(f, 0);
+	}
+
+	fclose (f);
+}
+
+/* ---------------- */
+  
 void ReadData(void)
 {
 	FILE *in;
 	char inStr[255];
 
-	cur.name[0]==0;
-	cul.name[0]==0;
+	cur.name[0]=0;
+	cul.name[0]=0;
 	printf ("Reading: %s \n",inF);
 	in = fopen (inF,"rt");
 	
@@ -406,14 +403,18 @@ void ReadData(void)
 int main (int argc, char *argv[])
 {
 	printf("Object Converter - V1.0 Matthew Cloy - Interactive Studios Ltd \n\n");
-	if (argc != 3)
+	if (argc < 3)
 	{		
 		printf("Parameters: [Infile] [OutFile]\n");
-		exit (1);
+		return 1;
 	}
 	strcpy (inF,argv[1]);
 	strcpy (outF,argv[2]);
 	ReadData();
-	WriteData();
-	return 1;
+
+	if (argc > 3)
+		WritePSXData();
+	else
+		WriteData();
+	return 0;
 }
