@@ -190,7 +190,7 @@ void UpdateFroggerPos(long pl)
 		KillFrog(frog[pl],pl);
 		return;
 	}
-
+/*
 	if(player[pl].frogState & FROGSTATUS_ISTELEPORTING)
 	{
 		// frog is in state of teleportation
@@ -206,7 +206,7 @@ void UpdateFroggerPos(long pl)
 		
 		return;
 	}
-
+*/
 	
 	// update frog tongue
 	UpdateFrogTongue();
@@ -388,7 +388,7 @@ void UpdateFroggerPos(long pl)
 		}
 		move = moveVal;
 		nextFrogFacing[pl] = frogFacing[pl] = (camFacing + dir) & 3;
-		PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
+		//PlaySample ( GEN_FROG_HOP, 0, 0, 0 );
 	}
 
 	/* ----------------------- Frog wants to LONG HOP u/d/l/r ----------------------------- */
@@ -1529,7 +1529,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 				frog[pl]->actor->scale.v[Z] = 0.09F;
 
 				// check if the tile is a teleport tile
-				if(IsATeleportTile(currTile[pl]))
+/*				if(IsATeleportTile(currTile[pl]))
 				{
 					// frog is teleporting
 					player[pl].frogState &= ~FROGSTATUS_ISSTANDING;
@@ -1552,7 +1552,7 @@ void CheckForFroggerLanding(int whereTo,long pl)
 					CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
 					PlaySample(88,NULL,255,128);
 				}
-
+*/
 				// Check for camera transitions on the tile
 				CheckForDynamicCameraChange(currTile[0]);
 				//CameraLookAtFrog();

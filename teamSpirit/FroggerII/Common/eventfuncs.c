@@ -106,23 +106,10 @@ int ActorWithinRadius( TRIGGER *trigger )
 
 int OnTimeout( TRIGGER *trigger )
 {
-	int time = *(int*)trigger->data[0];
+	int time = (int)trigger->data[0];
 
-	return (currentFrameTime >= time);
+	return (actFrameCount >= time);
 }
-
-/*int OnTimeout( TRIGGER *trigger )
-{
-	int count = *(int *)trigger->data[0];  // Counter
-	int start = *(int *)trigger->data[1];  // Count down from this
-
-	if( count-- == -1 )
-		count = start;
-	else if( count-- == 0 )
-		return 1;
-	else
-		count--;
-}*/
 
 
 /*	--------------------------------------------------------------------------------
@@ -365,6 +352,28 @@ void ChangeLevel( EVENT *event )
 	showEndLevelScreen = 0;
 }
 
+void TeleportFrog( EVENT *event )
+{
+	int fNum = (int)event->data[0],
+		tNum = (int)event->data[1],
+		type = (int)event->data[2];
+	GAMETILE *tile = GetTileFromNumber(tNum);
+
+	switch( type )
+	{
+	case TELEPORT_TELEPORT:
+		TeleportActorToTile(frog[fNum],tile,fNum);
+		fadeDir		= FADE_IN;
+		fadeOut		= 255;
+		fadeStep	= 8;
+		doScreenFade = 63;
+		break;
+	case TELEPORT_SPRING:
+
+		break;
+	}
+}
+
 /*----- [ LEVEL SETUP ] ------------------------------------------------------------------------*/
 
 /*	--------------------------------------------------------------------------------
@@ -513,7 +522,7 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			args = AllocArgs(2);
 			args[0] = (void *)0;
 			args[1] = (void *)&firstTile[511];
-			trigger = MakeTrigger( FrogOnTile, 2, args );
+			trigger = MakeTrigger( FrogOnTile, args );
 
 			args = AllocArgs(2);
 
@@ -525,7 +534,7 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			*inum = 4;
 			args[1] = (void *)inum;
 
-			event = MakeEvent( ChangeLevel, 2, args );
+			event = MakeEvent( ChangeLevel, args );
 
 			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
 			
@@ -535,7 +544,7 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			args = AllocArgs(2);
 			args[0] = (void *)0;
 			args[1] = (void *)&firstTile[99];
-			trigger = MakeTrigger( FrogOnTile, 2, args );
+			trigger = MakeTrigger( FrogOnTile, args );
 
 			args = AllocArgs(2);
 
@@ -547,7 +556,7 @@ void InitEventsForLevel( unsigned long worldID, unsigned long levelID )
 			*inum = 3;
 			args[1] = (void *)inum;
 
-			event = MakeEvent( ChangeLevel, 2, args );
+			event = MakeEvent( ChangeLevel, args );
 
 			AttachEvent( trigger, event, TRIGGER_ONCE, 0 );
 			

@@ -20,6 +20,11 @@
 #define TRIGGER_FIRED		(1<<3)
 #define TRIGGER_RISING		(1<<4)
 
+
+// Different ways of teleporting to another tile
+#define TELEPORT_TELEPORT	1
+#define TELEPORT_SPRING		2
+
 /*----- [ STRUCTURES ] -------------------------------------------------------------------------*/
 
 typedef struct TAGEVENT
@@ -59,8 +64,8 @@ extern TRIGGERLIST triggerList;
 
 /*----- [ PROTOTYPES ] ------------------------------------------------------------------------*/
 
-extern TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args );
-extern EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args );
+extern TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), void **args );
+extern EVENT * MakeEvent( void (*func)(EVENT *e), void **args );
 extern void AttachEvent( TRIGGER *trigger, EVENT *event, unsigned short flags, unsigned long time );
 extern void InitTriggerList( );
 extern void InitEventList( );

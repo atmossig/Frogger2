@@ -36,9 +36,8 @@ TRIGGERLIST triggerList;
 	Returns 	: Created trigger structure
 	Info 		:
 */
-TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **args )
+TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), void **args )
 {
-	//va_list args;
 	int i;
 	TRIGGER *trigger = (TRIGGER *)JallocAlloc(sizeof(TRIGGER),YES,"Trigger");
 	
@@ -52,16 +51,6 @@ TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **arg
 	trigger->flags = 0;
 	trigger->delay = 0;
 	trigger->count = 0;
-	
-	/*trigger->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
-
-	// Get variable number of arguments
-	va_start( args, numargs );
-
-	for( i=0; i < numargs; i++ )
-		trigger->data[i] = va_arg(args,void*);
-
-	va_end( args );*/
 
 	return trigger;
 }
@@ -74,10 +63,8 @@ TRIGGER * MakeTrigger( int (*func)(TRIGGER *t), unsigned int numargs, void **arg
 	Returns 	: Event structure
 	Info 		:
 */
-EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args )
+EVENT * MakeEvent( void (*func)(EVENT *e), void **args )
 {
-	//va_list args;
-	int i = 0;
 	EVENT *event = (EVENT *)JallocAlloc(sizeof(EVENT),YES,"Event");
 	
 	event->prev = event->next = NULL;
@@ -85,16 +72,6 @@ EVENT * MakeEvent( void (*func)(EVENT *e), unsigned int numargs, void **args )
 	event->func = func;
 	event->data = args;
 	
-	/*event->data = (void **)JallocAlloc( (sizeof(void *)*numargs),YES,"EventData" );
-
-	// Get variable number of arguments
-	va_start( args, numargs );
-
-	for( i=0; i < numargs; i++ )
-		event->data[i] = va_arg(args,void*);
-
-	va_end( args );*/
-
 	return event;
 }
 
@@ -112,11 +89,12 @@ void AttachEvent( TRIGGER *trigger, EVENT *event, unsigned short flags, unsigned
 	TRIGGER *tp;
 	EVENT *ep;
 
+	if( !trigger || !event ) return;
+
 	// If this trigger has not had an event attached to it before, add it to the active list.
 	if( !(trigger->events.numEntries) )
 	{
 		tp = triggerList.head.next;
-		
 		trigger->prev = tp;
 		trigger->next = tp->next;
 		tp->next->prev = trigger;
@@ -270,7 +248,7 @@ void UpdateEvents( )
 	EVENT *event;
 	int count;
 	
-	for( trigger = triggerList.head.next, count = 0; count < triggerList.numEntries; trigger = next, count++)
+	for( trigger = triggerList.head.next; trigger != &triggerList.head; trigger = next, count++)
 	{
 		next = trigger->next;
 

@@ -129,7 +129,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			params[0] = (void*)enemy;
 			params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
-			trigger = MakeTrigger(EnemyOnTile, 2, params);
+			trigger = MakeTrigger(EnemyOnTile, params);
 		}
 		break;
 
@@ -138,7 +138,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			params = AllocArgs(2);
 			params[0] = (void*)MEMGETINT(p);
 			params[1] = (void*)GetTileFromNumber(MEMGETINT(p));
-			trigger = MakeTrigger(FrogOnTile, 2, params);
+			trigger = MakeTrigger(FrogOnTile, params);
 		}
 		break;
 
@@ -150,7 +150,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			params[0] = (void*)frog[MEMGETINT(p)];
 			if (!(platform = GetPlatformFromUID(MEMGETINT(p)))) return 0;
 			params[1] = (void*)platform;
-			trigger = MakeTrigger(FrogOnPlatform, 2, params);
+			trigger = MakeTrigger(FrogOnPlatform, params);
 		}
 		break;
 
@@ -167,7 +167,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			v->v[Z] = MEMGETFLOAT(p);
 			params[1] = (void*)v;
 			params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
-			trigger = MakeTrigger(ActorWithinRadius, 3, params);
+			trigger = MakeTrigger(ActorWithinRadius, params);
 		}
 		break;
 
@@ -184,7 +184,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			v->v[Z] = MEMGETFLOAT(p);
 			params[1] = (void*)v;
 			params[2] = JallocAlloc(sizeof(float), NO, "float"); *(float*)params[1] = MEMGETFLOAT(p);
-			trigger = MakeTrigger(ActorWithinRadius, 3, params);
+			trigger = MakeTrigger(ActorWithinRadius, params);
 		}
 		break;
 
@@ -196,7 +196,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			params[0] = enemy->path;
 			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
-			trigger = MakeTrigger(PathAtFlag, 2, params);
+			trigger = MakeTrigger(PathAtFlag, params);
 		}
 		break;
 
@@ -208,7 +208,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 			if (!(enemy = GetEnemyFromUID(MEMGETINT(p)))) return 0;
 			params[0] = enemy->path;
 			params[1] = JallocAlloc(sizeof(int), NO, "int"); *(int*)params[1] = MEMGETINT(p);
-			trigger = MakeTrigger(PathAtFlag, 2, params);
+			trigger = MakeTrigger(PathAtFlag, params);
 		}
 		break;
 
@@ -224,7 +224,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 
 			params = AllocArgs(2);
 			params[0] = (void*)a; params[1] = (void*)b;
-			trigger = MakeTrigger(ORtrigger, 2, params);
+			trigger = MakeTrigger(ORtrigger, params);
 		}
 		break;
 
@@ -240,7 +240,7 @@ TRIGGER *LoadTrigger(UBYTE **p)
 
 			params = AllocArgs(2);
 			params[0] = (void*)a; params[1] = (void*)b;
-			trigger = MakeTrigger(ANDtrigger, 2, params);
+			trigger = MakeTrigger(ANDtrigger, params);
 		}
 		break;
 
@@ -338,11 +338,69 @@ BOOL ExecuteCommand(UBYTE *buffer)
 			{
 				flags = MEMGETINT(p);
 				*param = *p;
-				e = MakeEvent( InterpretEvent, 1, param );
+				e = MakeEvent( InterpretEvent, param );
 				AttachEvent(t, e, (short)flags, 0);
 			}
 			else
 				return 0;
+		}
+		break;
+
+	case EV_TELEPORT:
+		{
+			TRIGGER *t;
+			EVENT *e;
+			int fNum = MEMGETINT(p),
+				tNum = MEMGETINT(p),
+				ht = MEMGETINT(p),
+				type = MEMGETINT(p),
+				time = actFrameCount+25;
+
+			VECTOR telePos;
+			void **param;
+
+			switch( type )
+			{
+			case TELEPORT_TELEPORT:
+				player[fNum].frogState &= ~FROGSTATUS_ISSTANDING;
+				player[fNum].frogState |= FROGSTATUS_ISTELEPORTING;
+				//frog[fNum]->action.isTeleporting = 25;
+				//frog[fNum]->action.safe = 65;
+
+				fadeDir		= FADE_OUT;
+				fadeOut		= 1;
+				fadeStep	= 8;
+				doScreenFade = 63;
+
+				SetVector(&telePos,&frog[fNum]->actor->pos);
+				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,30,0,0,15);
+				telePos.v[Y] += 20;
+				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,25,0,0,20);
+				telePos.v[Y] += 40;
+				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,20,0,0,25);
+				telePos.v[Y] += 60;
+				CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,&telePos,&upVec,15,0,0,30);
+				PlaySample(88,NULL,255,128);
+
+				param = AllocArgs(1);
+				param[0] = (void *)time;
+				t = MakeTrigger( OnTimeout, param );
+
+				param = AllocArgs(3);
+				param[0] = (void *)fNum;
+				param[1] = (void *)tNum;
+				param[2] = (void *)type;
+				e = MakeEvent( TeleportFrog, param );
+
+				AttachEvent( t, e, TRIGGER_ONCE, 0 );
+
+				break;
+
+			case TELEPORT_SPRING:
+
+				break;
+			}
+			
 		}
 		break;
 
