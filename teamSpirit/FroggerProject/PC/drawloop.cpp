@@ -38,7 +38,6 @@
 #include "banks.h"
 #include "controll.h"
 #include "pcmisc.h"
-#include "pcaudio.h"
 #include "main.h"
 #include "..\resource.h"
 #include "fxBlur.h"
@@ -151,10 +150,6 @@ long DrawLoop(void)
 		DDrawFlip();
 		return 0;
 	}
-
-
-
-
 
 	D3DSetupRenderstates(D3DDefaultRenderstates);
 	// Just to get functionality... ;)
@@ -289,7 +284,7 @@ long DrawLoop(void)
 	else
 	{
 //		D3DSetupRenderstates(xluAddRS);
-		
+
 		DrawAllFrames();
 		BlankAllFrames();
 	}
@@ -340,8 +335,6 @@ long DrawLoop(void)
 	// ** Flip the screen
 	
 	StartTimer(17,"Flip");
-	BeginDraw();
-	EndDraw();
 
 	if( screenshotEnable )
 		if (KEYPRESS(DIK_F9))
@@ -355,10 +348,6 @@ long DrawLoop(void)
 
 	DDrawFlip();
 	EndTimer(17);
-	StartTimer(18,"Clear");
-	D3DClearView();
-	EndTimer(18);
-
 
 // This ain't printing to the screen but to the textures - used specifically for the storybook in the frontend
 
@@ -368,14 +357,16 @@ long DrawLoop(void)
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256b.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 0;
 	}
-
-	if (grabToTexture == 3)
+	else if (grabToTexture == 3)
 	{
 		DrawPageB();
 		GrabSurfaceToTexture(0, 0, GetTexEntryFromCRC(UpdateCRC("page256a.bmp")),surface[RENDER_SRF]);	
 		grabToTexture = 2;
 	}
 
+	StartTimer(18,"Clear");
+	D3DClearView();
+	EndTimer(18);
 
 	GetCursorPos(&t);
 	camZ = t.x*8;

@@ -428,9 +428,10 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 */
 void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSURFACE7 srf)
 {
+	HRESULT res;
+
 	short tempdata[256*256];
 	long xS,yS,mPitch,j;
-	HRESULT res;
 	
 	if (texture)
 	{
@@ -455,6 +456,21 @@ void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSUR
 		else
 			dp("GrabSurfaceToTexture failed: %d\n", res);
 	}
+
+/*	if only these worked... -ds 
+
+	if (texture)
+	{
+		RECT r = { 0, 0, texture->xSize, texture->ySize };
+
+		//res = texture->surf->Blt(&r, srf, &r, DDBLT_WAIT, 0);
+
+		res = pDirect3DDevice->Load(texture->surf, NULL, srf, &r, 0);
+
+		if (res != DD_OK)
+			ddShowError(res);
+	}
+*/
 
 }
 
