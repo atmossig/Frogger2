@@ -3,8 +3,11 @@
 
 #include "types.h"
 
-void CreateLevelObjects ( unsigned long worldID,unsigned long levelID );
+
 #define PostQuitMessage(x)
+#define RunDesignWorkViewer()
+
+void CreateLevelObjects ( unsigned long worldID,unsigned long levelID );
 void froggerShowVRAM(unsigned char palMode);
 static void froggerVRAMviewNormal(DISPENV *dispenv, int *xOffs,int *yOffs, unsigned char palMode);
 static void froggerVRAMviewTextures(int *currTex);
