@@ -137,6 +137,7 @@ void ap_disp_info(AP ap)
 /*	Playing the animation file	*/
 Sint32 ApExec(AP ap)
 {
+	int				i;
 	MWPLY			ply;
 	MWE_PLY_STAT	stat;
 	PDS_PERIPHERAL	*per;
