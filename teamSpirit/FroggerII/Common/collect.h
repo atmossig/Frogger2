@@ -98,10 +98,6 @@ extern SPRITE_ANIMATION_TEMPLATE garibAnimation[NUM_GARIB_TYPES];
 void InitCollectablesForLevel(unsigned long worldID,unsigned long levelID);
 void CreateLevelCollectables(unsigned long *tileList, int type);
 
-GARIB *GaribIsInTongueRange();
-GAMETILE *GrapplePointInTongueRange();
-ACTOR2 *ScenicIsInTongueRange();
-
 void CheckTileForCollectable(GAMETILE *tile,long pl);
 
 void ProcessCollectables();

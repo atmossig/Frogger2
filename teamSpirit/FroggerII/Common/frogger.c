@@ -60,7 +60,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 //	me->flags	|= ACTOR_DRAW_ALWAYS;
 	me->flags	= ACTOR_DRAW_ALWAYS;
 	
-	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
+	tongue[p].flags = TONGUE_NONE | TONGUE_IDLE;
 	
 	InitActorAnim (me->actor);
 	AnimateActor  (me->actor,FROG_ANIM_DANCE1,YES,NO,0.75F,0,0);

@@ -261,10 +261,10 @@ void GameProcessController(long pl)
 		}
 	}
 	
-	if((button[pl] & CONT_B) && (player[pl].canJump) && (tongueState & TONGUE_IDLE))
+	if((button[pl] & CONT_B) && (player[pl].canJump) && (tongue[pl].flags & TONGUE_IDLE))
     {
 		// want to use tongue
-		tongueState	= TONGUE_NONE | TONGUE_SEARCHING;
+		tongue[pl].flags = TONGUE_NONE | TONGUE_SEARCHING;
 		player[pl].hasJumped = 1;
 
 		// update player idleTime

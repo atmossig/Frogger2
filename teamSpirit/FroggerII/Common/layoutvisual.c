@@ -599,6 +599,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	InitTextOverlayLinkedList();
 	InitTriggerList();
 	Init3DTextList( );
+	InitTongues( );
 
 	player[0].worldNum = worldID;
 	player[0].levelNum = levelID;

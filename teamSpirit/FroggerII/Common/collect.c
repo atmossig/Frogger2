@@ -78,143 +78,6 @@ void CreateLevelCollectables(unsigned long *tileList, int type)
 }
 
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: GrapplePointInTongueRange
-	Purpose			: indicates if a grapple point is in range when tongueing
-	Parameters		: 
-	Returns			: GAMETILE *
-	Info			: returns ptr to the nearest gametile (if in range)
-*/
-GAMETILE *GrapplePointInTongueRange( )
-{
-	GAMETILE *cur, *best = NULL;
-	float min = 100000, dist;
-	cur = firstTile;
-
-	for( ;cur; cur=cur->next )
-	{
-		if( cur->state == TILESTATE_GRAPPLE )
-		{
-			dist = DistanceBetweenPointsSquared(&frog[0]->actor->pos, &cur->centre);
-			if( dist < min ) 
-			{
-				min = dist; 
-				best = cur;
-			}
-		}
-	}
-
-
-	if( best && (min < tongueRadius * tongueRadius))
-		return best;
-	
-	return NULL;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: GaribIsInTongueRange
-	Purpose			: indicates if a garib is in range when tongueing
-	Parameters		: 
-	Returns			: GARIB *
-	Info			: returns ptr to the nearest garib (if in range)
-*/
-GARIB *GaribIsInTongueRange()
-{
-	GARIB *garib,*nearest;
-	GARIB *inRange[8];
-	float dist,mags[8];
-	int i = 0,numInRange = 0;
-		
-	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
-	{
-		// only check for garibs in visual range
-		if(garib->distanceFromFrog > (tongueRadius * tongueRadius))
-			continue;
-
-		if(/*(garib->distanceFromFrog < (tongueRadius * tongueRadius)) &&*/ (garib->active) && (numInRange < 8))
-		{
-			mags[numInRange]		= garib->distanceFromFrog;	//dist;
-			inRange[numInRange++]	= garib;
-		}
-	}
-
-	if(numInRange)
-	{
-		// return closest item
-		dist	= mags[0];
-		nearest	= inRange[0];
-		for(i=1; i<numInRange; i++)
-		{
-			if(mags[i] < dist)
-			{
-				dist	= mags[i];
-				nearest	= inRange[i];
-			}
-		}
-
-		return nearest;
-	}
-
-	return NULL;
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ScenicIsInTongueRange
-	Purpose			: indicates if a scenic is in range when tongueing
-	Parameters		: 
-	Returns			: ACTOR2 *
-	Info			: returns ptr to the nearest scenic (if in range)
-*/
-ACTOR2 *ScenicIsInTongueRange()
-{
-	PLATFORM *cur,*next,*nearest;
-	PLATFORM *inRange[4];
-	float dist,mags[4];
-	int i = 0,numInRange = 0;
-		
-	dprintf"<< ATTEMPTING TO TONGUE A SCENIC >>\n"));
-
-	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
-	{
-		next = cur->next;
-
-		// only check for scenics in visual range
-		dist = DistanceBetweenPointsSquared(&frog[0]->actor->pos,&cur->pltActor->actor->pos);
-		if(dist > (tongueRadius * tongueRadius))
-			continue;
-
-		if((cur->flags & PLATFORM_NEW_SHAKABLESCENIC) && (numInRange < 4))
-		{
-			mags[numInRange]		= dist;
-			inRange[numInRange++]	= cur;
-		}
-	}
-
-	if(numInRange)
-	{
-		// return closest item
-		dist	= mags[0];
-		nearest	= inRange[0];
-		for(i=1; i<numInRange; i++)
-		{
-			if(mags[i] < dist)
-			{
-				dist	= mags[i];
-				nearest	= inRange[i];
-			}
-		}
-
-		// we now have the nearest 'scenic' - return relevant actor
-		return nearest->pltActor;
-	}
-
-	return NULL;
-}
-
-
 /*	--------------------------------------------------------------------------------
 	Function		: CheckTileForCollectable
 	Purpose			: checks frogs position for a collectable item
@@ -262,8 +125,6 @@ void ProcessCollectables()
 		autoHop--;
 	if(longTongue)
 		longTongue--;
-	else
-		tongueRadius = TONGUE_RADIUSNORMAL;
 
 	// update players (for spawn counters / score bonus)
 	if(player[0].spawnTimer)
@@ -394,7 +255,6 @@ void PickupCollectable(GARIB *garib, int pl)
 
 		case LONGTONGUE_GARIB:
 			longTongue = 150;
-			tongueRadius = TONGUE_RADIUSLONG;
 			break;
 		case WHOLEKEY_GARIB:
 			wholeKeyText->draw = 1;

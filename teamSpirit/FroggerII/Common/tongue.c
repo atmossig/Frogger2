@@ -16,73 +16,152 @@
 #include "incs.h"
 
 
-//float TONGUE_RADIUSNORMAL = 85.0;
-//float TONGUE_RADIUSLONG	  = 175.0;
+#define	MAX_TONGUENODES				12
+#define TONGUE_FRACTION				(1/(float)MAX_TONGUENODES)
 
-float tongueRadius			= 200.0;
+#define TONGUE_RADIUSNORMAL			125.0F
+#define TONGUE_RADIUSLONG			225.0F
 
-unsigned long tongueState	= TONGUE_NONE | TONGUE_IDLE;
+#define TONGUE_STICKYRADIUS			5.0
 
-int tongueCoordIndex		= 0;
-int tongueSegment			= 0;
+#define TONGUE_OFFSET_UP			-15.0
+#define TONGUE_OFFSET_FORWARD		5.0
 
-unsigned int numTongueNodes	= MAX_TONGUENODES;
+#define TONGUE_WRAPAROUNDTHRESHOLD	-0.2
 
-VECTOR tongueCoords[MAX_TONGUENODES];
 
-VECTOR tongueUpVector;
-VECTOR tongueCurrPos;
+TONGUE tongue[MAX_FROGS];
 
-VECTOR ff;		// frog facing direction vector
-VECTOR fu;		// frog up vector
-VECTOR fr;		// frog right vector
+float hermiteM[4][4] = 
+{
+	{	2,	-2,	1,	1	},
+	{	-3,	3,	-2,	-1	},
+	{	0,	0,	1,	0	},
+	{	1,	0,	0,	0	}
+};
 
-char tongueToCollect		= 0;
+ENEMY *BabyFrogIsInRange(float radius, int pl);
+GARIB *GaribIsInRange(float radius, int pl);
+ACTOR2 *ScenicIsInRange(float radius, int pl);
 
-GARIB *nearestColl			= NULL;
-ENEMY *nearestBabyFrog		= NULL;
-GAMETILE *nearestGrapple    = NULL;
-ACTOR2 *nearestScenic		= NULL;
+void StartTongue( unsigned char type, VECTOR *dest, int pl );
+void CalculateTongue( int pl );
 
-float tongueMag				= 0;
-float tongueMagStep			= 0;
-
-float tongueRotateAngle		= 0;
-float tongueRotateStep		= 0;
-
-SPRITE tongueSprite[MAX_TONGUENODES];
-
-TEXTURE *txtrTongue = NULL;
-
-ENEMY *BabyFrogIsInTongueRange();
 
 /*	--------------------------------------------------------------------------------
-	Function		: InitTongue
+	Function		: InitTongues
+	Purpose			: Set all tongue data to nothing
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void InitTongues( )
+{
+	long i;
+
+	for( i=0; i<4; i++ )
+	{
+		tongue[i].flags = TONGUE_NONE | TONGUE_IDLE;
+		tongue[i].thing = NULL;
+		tongue[i].radius = TONGUE_RADIUSNORMAL;
+		tongue[i].sprite = NULL;
+		tongue[i].tex = NULL;
+		tongue[i].type = 0;
+	}
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: StartTongue
 	Purpose			: initialises Frogger's tongue for picking up, throwing, etc.
-	Parameters		: char
-	Returns			: void
+	Parameters		: char, dest, player
+	Returns			: 
 	Info			: contains initialisation data for shooting out the tongue
 */
-void InitTongue(char toCollect)
+void StartTongue( unsigned char type, VECTOR *dest, int pl )
 {
-	QUATERNION q;
-	VECTOR v = { 0,0,1 };
-	int i = MAX_TONGUENODES;
-		
-	tongueCoordIndex	= 0;
-	tongueSegment		= 0;
-	numTongueNodes		= MAX_TONGUENODES;
+	float dp;
+	VECTOR to;
+	int i;
 
-	tongueToCollect		= toCollect;
+	// Determine frog's forward vector
+	RotateVectorByQuaternion( &tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot );
 
-	FindTexture(&txtrTongue,UpdateCRC("tongue1.bmp"),YES);
+	// Set source, including forward and up offsets
+	tongue[pl].source.v[X] = frog[pl]->actor->pos.v[X] + (tongue[pl].fwd.v[X] * TONGUE_OFFSET_FORWARD) - (currTile[pl]->normal.v[X] * TONGUE_OFFSET_UP);
+	tongue[pl].source.v[Y] = frog[pl]->actor->pos.v[Y] + (tongue[pl].fwd.v[Y] * TONGUE_OFFSET_FORWARD) - (currTile[pl]->normal.v[Y] * TONGUE_OFFSET_UP);
+	tongue[pl].source.v[Z] = frog[pl]->actor->pos.v[Z] + (tongue[pl].fwd.v[Z] * TONGUE_OFFSET_FORWARD) - (currTile[pl]->normal.v[Z] * TONGUE_OFFSET_UP);
 
-	// Determine frog's forward vector (ff) and up vector (fu) and right vector (fr)
-	RotateVectorByQuaternion(&ff,&v,&frog[0]->actor->qRot);
-	SetVector(&fu,&currTile[0]->normal);
-	CrossProduct(&fr,&ff,&fu);
-	PlaySample(GEN_FROG_TONGUE,&frog[0]->actor->pos,0,100-Random(15),100-Random(15));
+	SetVector( &tongue[pl].pos, &tongue[pl].source );
+
+	// Calculate the vector to the collectable item and its magnitude
+	SetVector( &tongue[pl].target, dest );
+
+	SubVector( &to, &tongue[pl].target, &tongue[pl].source );
+	MakeUnit( &to );
+
+	tongue[pl].progress = 0;
+
+	// Calculate angle through which the tongue needs to rotate
+	dp = DotProduct( &tongue[pl].fwd, &to );
+	if( dp < TONGUE_WRAPAROUNDTHRESHOLD )
+	{
+		tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
+		tongue[pl].thing = NULL;
+	}
+	else
+	{
+		tongue[pl].type = type;
+
+		FindTexture( &tongue[pl].tex,UpdateCRC("tongue1.bmp"),YES);
+
+		if( !tongue[pl].sprite )
+		{
+			tongue[pl].sprite = (SPRITE *)JallocAlloc( sizeof(SPRITE)*MAX_TONGUENODES, YES, "TSprite" );
+
+			for( i=0; i<MAX_TONGUENODES; i++ )
+			{
+				tongue[pl].sprite[i].texture = tongue[pl].tex;
+
+				tongue[pl].sprite[i].anim.type	= SPRITE_ANIM_NONE;
+				
+				tongue[pl].sprite[i].scaleX		= 32;	//48 - (pl << 2);
+				tongue[pl].sprite[i].scaleY		= 32;
+				tongue[pl].sprite[i].r			= 255;
+				tongue[pl].sprite[i].g			= 70;
+				tongue[pl].sprite[i].b			= 70;
+				tongue[pl].sprite[i].a			= 0;
+
+#ifndef PC_VERSION
+				tongue[pl].sprite[i].offsetX		= -tongueSprite[pl].texture->sx / 2;
+				tongue[pl].sprite[i].offsetY		= -tongueSprite[pl].texture->sy / 2;
+#else
+				tongue[pl].sprite[i].offsetX		= -16;
+				tongue[pl].sprite[i].offsetY		= -16;
+#endif
+			}
+
+			AddSprite( &tongue[pl].sprite[i], NULL );
+		}
+		else
+		{
+			for( i=0; i<MAX_TONGUENODES; i++ )
+			{
+				AddSprite( &tongue[pl].sprite[i], NULL );
+				tongue[pl].sprite[i].a = 0;
+			}
+		}
+
+		// Set frog mouth open animation, and the speed
+		frog[pl]->actor->animation->animTime = 0;
+		AnimateActor( frog[pl]->actor, FROG_ANIM_USINGTONGUE, NO, NO, 0.5F, 0, 0 );
+
+		tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
+
+		PlaySample(GEN_FROG_TONGUE,&frog[pl]->actor->pos,0,100-Random(15),100-Random(15));
+	}
 }
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: UpdateFrogTongue
@@ -91,402 +170,163 @@ void InitTongue(char toCollect)
 	Returns			: 
 	Info			:
 */
-void UpdateFrogTongue()
+void UpdateFrogTongue( int pl )
 {
-	VECTOR p;				// vector from end of 1st tongue segment to the pickup
-	VECTOR newVector;
-	
-	QUATERNION q;
-	float dp;
-	float angle;
-	float mag;
-	float x,y,z;
-	int i;
-	
 	// Determine tongue state and perform relevant action / update
 
-	if(tongueState & TONGUE_IDLE)
-	{
-		// Just to test grappling
-		//gTStart[0]->next->state = TILESTATE_GRAPPLE;
-
-		// Tongue idle
+	if( tongue[pl].flags & TONGUE_IDLE )
 		return;
-	}
 
 	// Frogs tongue is ready for action
-	if(tongueState & TONGUE_BEINGUSED)
+	if( tongue[pl].flags & TONGUE_BEINGUSED )
 	{
 		// Check if tongue can actually be used
-		if(tongueState & TONGUE_HASITEMINMOUTH)
-		{
+		if( tongue[pl].flags & TONGUE_HASITEMINMOUTH )
 			return;
-		}
 
-		if(tongueState & TONGUE_OUTGOING)
+		// Update the forward vector
+		RotateVectorByQuaternion( &tongue[pl].fwd, &inVec, &frog[pl]->actor->qRot );
+
+		if( tongue[pl].flags & TONGUE_OUTGOING )
 		{
-			if((tongueSegment < (tongueCoordIndex - 1)))
+			// If tongue has not got to the target
+			if( DistanceBetweenPointsSquared(&tongue[pl].target,&tongue[pl].interp) > TONGUE_STICKYRADIUS*TONGUE_STICKYRADIUS )
 			{
-				x = tongueCoords[tongueSegment].v[X];
-				y = tongueCoords[tongueSegment].v[Y];
-				z = tongueCoords[tongueSegment].v[Z];
-				AddTongueSprite(tongueSegment,x,y,z);
-				tongueSegment++;
+				// Extend the tongue a bit more
+				tongue[pl].progress += TONGUE_FRACTION;
+				LinearInterp( &tongue[pl].interp, &tongue[pl].source, &tongue[pl].target, tongue[pl].progress );
+				CalculateTongue( pl );
+
+				// If we have gone too far
+				if( DistanceBetweenPointsSquared(&tongue[pl].source,&tongue[pl].pos) > tongue[pl].radius*tongue[pl].radius )
+					tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_INCOMING;
 			}
-			else
+			else // Got to target - return with item
 			{
-				tongueState = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_INCOMING | TONGUE_HASITEMONIT;
-				if( tongueToCollect == TONGUE_GET_GRAPPLE ) tongueSegment = 0;
+				tongue[pl].flags = TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_INCOMING | TONGUE_HASITEMONIT;
 				return;
 			}
 		}
 		
-		if(tongueState & TONGUE_INCOMING)
+		if(tongue[pl].flags & TONGUE_INCOMING)
 		{
-			if(tongueToCollect == TONGUE_GET_GARIB)
+			if(tongue[pl].type == TONGUE_GET_GARIB)
 			{
-				tongueSegment--;
-				SetVector(&nearestColl->sprite.pos,&tongueCoords[tongueSegment]);
-				nearestColl->scale *= 0.9;
-				nearestColl->scale *= 0.9;
-				nearestColl->scale *= 0.9;
+				GARIB *g = (GARIB *)tongue[pl].thing;
+				SetVector( &g->sprite.pos, &tongue[pl].pos );
+				g->scale *= 0.9;
 			}
-			else if( tongueToCollect == TONGUE_GET_BABY )
+			else if( tongue[pl].type == TONGUE_GET_BABY )
 			{
-				tongueSegment--;
-				SetVector(&nearestBabyFrog->nmeActor->actor->pos,&tongueCoords[tongueSegment]);
-				nearestBabyFrog->nmeActor->actor->scale.v[X] *= 0.9;
-				nearestBabyFrog->nmeActor->actor->scale.v[Y] *= 0.9;
-				nearestBabyFrog->nmeActor->actor->scale.v[Z] *= 0.9;
+				ENEMY *e = (ENEMY *)tongue[pl].thing;
+				SetVector( &e->nmeActor->actor->pos, &tongue[pl].pos );
+				e->nmeActor->actor->scale.v[X] *= 0.9;
+				e->nmeActor->actor->scale.v[Y] *= 0.9;
+				e->nmeActor->actor->scale.v[Z] *= 0.9;
 			}
-			else if( tongueToCollect == TONGUE_GET_SCENIC )
+			else if( tongue[pl].type == TONGUE_GET_SCENIC )
 			{
-				tongueSegment--;
-				nearestScenic->actor->pos.v[X] += (-3 + Random(7));
-				nearestScenic->actor->pos.v[Y] += (-3 + Random(7));
-				nearestScenic->actor->pos.v[Z] += (-3 + Random(7));
-			}
-			else // TONGUE_GET_GRAPPLE
-			{
-				SetVector(&frog[0]->actor->pos,&tongueCoords[tongueSegment]);
-				tongueSegment++;
+				ACTOR2 *s = (ACTOR2 *)tongue[pl].thing;
+				s->actor->pos.v[X] += (-3 + Random(7));
+				s->actor->pos.v[Y] += (-3 + Random(7));
+				s->actor->pos.v[Z] += (-3 + Random(7));
 			}
 
-			RemoveTongueSegment(tongueSegment);
+			// Retract tongue a bit
+			tongue[pl].progress -= TONGUE_FRACTION;
+			LinearInterp( &tongue[pl].interp, &tongue[pl].source, &tongue[pl].target, tongue[pl].progress );
+			CalculateTongue( pl );
 
-			if(tongueSegment < 1 || tongueSegment > MAX_TONGUENODES )
+			// If tongue has got back to mouth
+			if( DistanceBetweenPointsSquared(&tongue[pl].source,&tongue[pl].interp) < TONGUE_STICKYRADIUS*TONGUE_STICKYRADIUS )
 			{
-//				PlaySample(111,NULL,192,128);
-
-				if(tongueToCollect == TONGUE_GET_GARIB)
-					PickupCollectable(nearestColl,0);
-				else if( tongueToCollect == TONGUE_GET_BABY )
+				if( tongue[pl].type == TONGUE_GET_GARIB )
+					PickupCollectable( (GARIB *)tongue[pl].thing, pl );
+				else if( tongue[pl].type == TONGUE_GET_BABY )
 				{
 					if( gameState.multi == SINGLEPLAYER )
-						PickupBabyFrog(nearestBabyFrog->nmeActor);
+						PickupBabyFrog( ((ENEMY *)tongue[pl].thing)->nmeActor );
 					else
-						PickupBabyFrogMulti(nearestBabyFrog, 0);
+						PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
 				}
-				else if( tongueToCollect == TONGUE_GET_SCENIC )
-					SetVector(&nearestScenic->actor->pos,&nearestScenic->actor->oldpos);
-				else
-				{
-					currTile[0] = nearestGrapple;
-					SetVector( &frog[0]->actor->pos, &nearestGrapple->centre );
-				}
+				else if( tongue[pl].type == TONGUE_GET_SCENIC )
+					SetVector( &((ACTOR2 *)tongue[pl].thing)->actor->pos, &((ACTOR2 *)tongue[pl].thing)->actor->oldpos );
 
-				// Check if frog has something in his mouth
-				player[0].frogState &= ~FROGSTATUS_ISTONGUEING;
-				tongueState = TONGUE_IDLE;
+				player[pl].frogState &= ~FROGSTATUS_ISTONGUEING;
+				tongue[pl].flags = TONGUE_IDLE;
 
-				// Set frog idle animation, and the speed
-				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
+				// Set frog idle animation
+				frog[pl]->actor->animation->animTime = 0;
+				AnimateActor(frog[pl]->actor,FROG_ANIM_BREATHE,YES,YES,0.5F,0,0);
 
-				RemoveFrogTongue();
+				RemoveFrogTongue(pl);
 			}
-		}
-		
-		if(tongueState & TONGUE_THROWING)
-		{
 		}
 	}
 
-	if(tongueState & TONGUE_SEARCHING)
+	if( tongue[pl].flags & TONGUE_SEARCHING )
 	{
 		// first priority - check if baby frog is in range
-		if(nearestBabyFrog = BabyFrogIsInTongueRange())
-		{
-			InitTongue(TONGUE_GET_BABY);
-
-			// Get first tongue position (tongueCoordIndex == 0)
-			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
-			tongueCoordIndex++;
-
-			// Calculate the vector to the collectable item and its magnitude
-			SubVector(&p,&nearestBabyFrog->nmeActor->actor->pos,&tongueCoords[0]);
-			tongueMag = Magnitude(&p);
-			MakeUnit(&p);
-
-			// Calculate angle through which the tongue needs to rotate
-			dp = DotProduct(&ff,&p);
-			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
-			{
-				tongueState = TONGUE_NONE | TONGUE_IDLE;
-			}
-			else
-			{
-				tongueMagStep = tongueMag / numTongueNodes;
-
-				// Determine the tongue up vector about which the tongue rotates
-				CrossProduct(&tongueUpVector,&ff,&p);
-
-				tongueRotateAngle = acos(dp);
-				tongueRotateStep = tongueRotateAngle / numTongueNodes;
-
-				// Create tongue segments
-				while(numTongueNodes--)
-					CreateTongueSegment(tongueCoordIndex);
-
-				// Set frog mouth open animation, and the speed
-				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
-
-				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
-			}
-		}
-		else if(nearestColl = GaribIsInTongueRange())
-		{
-			InitTongue(TONGUE_GET_GARIB);
-
-			// Get first tongue position (tongueCoordIndex == 0)
-			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
-			tongueCoordIndex++;
-
-			// Calculate the vector to the collectable item and its magnitude
-			if(tongueToCollect == TONGUE_GET_GARIB)
-			{
-				SubVector(&p,&nearestColl->sprite.pos,&tongueCoords[0]);
-			}
-			else
-			{
-				SubVector(&p,&nearestBabyFrog->nmeActor->actor->pos,&tongueCoords[0]);
-			}
-
-			tongueMag = Magnitude(&p);
-			MakeUnit(&p);
-
-			// Calculate angle through which the tongue needs to rotate
-			dp = DotProduct(&ff,&p);
-			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
-			{
-				tongueState = TONGUE_NONE | TONGUE_IDLE;
-			}
-			else
-			{
-				tongueMagStep = tongueMag / numTongueNodes;
-
-				// Determine the tongue up vector about which the tongue rotates
-				CrossProduct(&tongueUpVector,&ff,&p);
-
-				tongueRotateAngle = acos(dp);
-				tongueRotateStep = tongueRotateAngle / numTongueNodes;
-
-				// Create tongue segments
-				while(numTongueNodes--)
-					CreateTongueSegment(tongueCoordIndex);
-
-				// Set frog mouth open animation, and the speed
-				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
-				
-				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
-			}
-		}
-		else if(nearestGrapple = GrapplePointInTongueRange())
-		{
-			// Grapple towards point
-			InitTongue(TONGUE_GET_GRAPPLE);
-
-			// Get first tongue position (tongueCoordIndex == 0)
-			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
-			tongueCoordIndex++;
-
-			// Calculate the vector to the collectable item and its magnitude
-			SubVector(&p,&nearestGrapple->centre,&tongueCoords[0]);
-
-			tongueMag = Magnitude(&p);
-			MakeUnit(&p);
-
-			// Calculate angle through which the tongue needs to rotate
-			dp = DotProduct(&ff,&p);
-			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
-			{
-				tongueState = TONGUE_NONE | TONGUE_IDLE;
-			}
-			else
-			{
-				tongueMagStep = tongueMag / numTongueNodes;
-
-				// Determine the tongue up vector about which the tongue rotates
-				CrossProduct(&tongueUpVector,&ff,&p);
-
-				tongueRotateAngle = acos(dp);
-				tongueRotateStep = tongueRotateAngle / numTongueNodes;
-
-				// Create tongue segments
-				while(numTongueNodes--)
-					CreateTongueSegment(tongueCoordIndex);
-
-				// Set frog mouth open animation, and the speed
-				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
-
-				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
-			}
-		}
-		else if(nearestScenic = ScenicIsInTongueRange())
-		{
-			// tongue towards scenic
-			InitTongue(TONGUE_GET_SCENIC);
-
-			// Get first tongue position (tongueCoordIndex == 0)
-			tongueCoords[tongueCoordIndex].v[X] = frog[0]->actor->pos.v[X] + (ff.v[X] * TONGUE_OFFSET_FORWARD) - (fu.v[X] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Y] = frog[0]->actor->pos.v[Y] + (ff.v[Y] * TONGUE_OFFSET_FORWARD) - (fu.v[Y] * TONGUE_OFFSET_UP);
-			tongueCoords[tongueCoordIndex].v[Z] = frog[0]->actor->pos.v[Z] + (ff.v[Z] * TONGUE_OFFSET_FORWARD) - (fu.v[Z] * TONGUE_OFFSET_UP);
-			tongueCoordIndex++;
-
-			// Calculate the vector to the collectable item and its magnitude
-			SubVector(&p,&nearestScenic->actor->pos,&tongueCoords[0]);
-
-			tongueMag = Magnitude(&p);
-			MakeUnit(&p);
-
-			// Calculate angle through which the tongue needs to rotate
-			dp = DotProduct(&ff,&p);
-			if(dp < TONGUE_WRAPAROUNDTHRESHOLD)
-			{
-				tongueState = TONGUE_NONE | TONGUE_IDLE;
-			}
-			else
-			{
-				tongueMagStep = tongueMag / numTongueNodes;
-
-				// Determine the tongue up vector about which the tongue rotates
-				CrossProduct(&tongueUpVector,&ff,&p);
-
-				tongueRotateAngle = acos(dp);
-				tongueRotateStep = tongueRotateAngle / numTongueNodes;
-
-				// Create tongue segments
-				while(numTongueNodes--)
-					CreateTongueSegment(tongueCoordIndex);
-
-				// Set frog mouth open animation, and the speed
-				frog[0]->actor->animation->animTime = 0;
-				AnimateActor(frog[0]->actor,FROG_ANIM_USINGTONGUE,NO,NO,0.5F,0,0);
-
-				tongueState		= TONGUE_NONE | TONGUE_BEINGUSED | TONGUE_OUTGOING;
-			}
-		}
+		if( tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl) )
+			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
+		else if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
+			StartTongue( TONGUE_GET_GARIB, &((GARIB *)tongue[pl].thing)->sprite.pos, pl );
+		else if( tongue[pl].thing = (void *)ScenicIsInRange(tongue[pl].radius,pl) )
+			StartTongue( TONGUE_GET_SCENIC, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
 		else
-		{
-			tongueState = TONGUE_NONE | TONGUE_IDLE;
-		}
+			tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
 	}
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: CreateTongueSegment
-	Purpose			: creates a tongue segment
-	Parameters		: char
-	Returns			: void
-	Info			:
-*/
-void CreateTongueSegment(char idx)
-{
-	QUATERNION q;
-	VECTOR tongueVector;
-
-	float dist;
-	float angle;
-	
-	// Determine the direction the tongue needs to travel in
-	angle = tongueRotateStep * idx;
-
-	q.x = tongueUpVector.v[X];
-	q.y = tongueUpVector.v[Y];
-	q.z = tongueUpVector.v[Z];
-	q.w = angle;
-
-	RotateVectorByRotation(&tongueVector,&ff,&q);
-
-	// Determine how far we need to travel away from the tongue origin
-	dist = tongueMagStep * idx;
-
-	// Update tongue coordinates with new values
-	tongueCoords[tongueCoordIndex].v[X] = tongueCoords[0].v[X] + (tongueVector.v[X] * dist);
-	tongueCoords[tongueCoordIndex].v[Y] = tongueCoords[0].v[Y] + (tongueVector.v[Y] * dist);
-	tongueCoords[tongueCoordIndex].v[Z] = tongueCoords[0].v[Z] + (tongueVector.v[Z] * dist);
-	
-	tongueCoordIndex++;
-}
-
 
 /*	--------------------------------------------------------------------------------
-	Function		: RemoveTongueSegment
-	Purpose			: removes a tongue segment
-	Parameters		: char
-	Returns			: void
+	Function		: CalculateTongue
+	Purpose			: Plot a Hermite curve based on the start and end points
+	Parameters		: 
+	Returns			: 
 	Info			: 
 */
-void RemoveTongueSegment(char idx)
+void CalculateTongue( int pl )
 {
-	dprintf"Remove tongue segment %d\n",idx));
-//	SubSprite(&tongueSprite[tongueSegment]);
-	tongueSprite[idx].scaleX = tongueSprite[idx].scaleX = 0;
-}
+	VECTOR to;
+	float gx[4], gy[4], gz[4], cx[4], cy[4], cz[4], t=0, t2, t3;
+	int n, i, index;
 
+	n = MAX_TONGUENODES; // Should probably be worked out by fraction of max radius covered
 
-/*	--------------------------------------------------------------------------------
-	Function		: AddTongueSprite
-	Purpose			: adds a tongue sprite
-	Parameters		: short index,float,float,float
-	Returns			: void
-	Info			: 
-*/
-void AddTongueSprite(short index,float x,float y,float z)
-{
-	tongueSprite[index].texture		= txtrTongue;
+	SubVector( &to, &tongue[pl].target, &tongue[pl].source );
 
-	tongueSprite[index].pos.v[X]	= x;
-	tongueSprite[index].pos.v[Y]	= y;
-	tongueSprite[index].pos.v[Z]	= z;
+	// Set geometry components
+	gx[0] = tongue[pl].source.v[X];
+	gx[1] = tongue[pl].interp.v[X];
+	gx[2] = tongue[pl].fwd.v[X]*200;
+	gx[3] = to.v[X];
+	gy[0] = tongue[pl].source.v[Y];
+	gy[1] = tongue[pl].interp.v[Y];
+	gy[2] = tongue[pl].fwd.v[Y]*200;
+	gy[3] = to.v[Y];
+	gz[0] = tongue[pl].source.v[Z];
+	gz[1] = tongue[pl].interp.v[Z];
+	gz[2] = tongue[pl].fwd.v[Z]*200;
+	gz[3] = to.v[Z];
 
-	tongueSprite[index].anim.type	= SPRITE_ANIM_NONE;
+	index = (int)(tongue[pl].progress*(MAX_TONGUENODES-1));
+
+	for( i=0; i<=index; i++ )
+	{
+		t += TONGUE_FRACTION;
+		t2 = t*t;
+		t3 = t2*t;
+
+		tongue[pl].sprite[i].pos.v[X] = ((2*t3 - 3*t2 + 1)*gx[0]) + ((-2*t3 + 3*t2)*gx[1]) + ((t3 - 2*t2 + t)*gx[2]) + ((t2-t2)*gx[3]);
+		tongue[pl].sprite[i].pos.v[Y] = ((2*t3 - 3*t2 + 1)*gy[0]) + ((-2*t3 + 3*t2)*gy[1]) + ((t3 - 2*t2 + t)*gy[2]) + ((t2-t2)*gy[3]);
+		tongue[pl].sprite[i].pos.v[Z] = ((2*t3 - 3*t2 + 1)*gz[0]) + ((-2*t3 + 3*t2)*gz[1]) + ((t3 - 2*t2 + t)*gz[2]) + ((t2-t2)*gz[3]);
+		tongue[pl].sprite[i].a = 255;
+	}
+	for( ; i<n; i++ )
+		tongue[pl].sprite[i].a = 0;
 	
-	tongueSprite[index].scaleX		= 32;	//48 - (index << 2);
-	tongueSprite[index].scaleY		= tongueSprite[index].scaleX;
-	tongueSprite[index].r			= 255;
-	tongueSprite[index].g			= 0;
-	tongueSprite[index].b			= 0;
-	tongueSprite[index].a			= 255;
-
-#ifndef PC_VERSION
-	tongueSprite[index].offsetX		= -tongueSprite[index].texture->sx / 2;
-	tongueSprite[index].offsetY		= -tongueSprite[index].texture->sy / 2;
-#else
-	tongueSprite[index].offsetX		= -16;
-	tongueSprite[index].offsetY		= -16;
-#endif
-
-	AddSprite(&tongueSprite[index],NULL);
+	SetVector( &tongue[pl].pos, &tongue[pl].sprite[index].pos );
 }
 
 
@@ -497,32 +337,30 @@ void AddTongueSprite(short index,float x,float y,float z)
 	Returns			: 
 	Info			: 
 */
-void RemoveFrogTongue()
+void RemoveFrogTongue( int pl )
 {
-	int i = MAX_TONGUENODES;
+	int i;
 
 	dprintf"Remove TONGUE\n"));
 
-	while(i--)
+	if( tongue[pl].type == TONGUE_GET_BABY )
 	{
-//		RemoveTongueSegment(i);
-		tongueSprite[i].scaleX = tongueSprite[i].scaleY = 0;
+		ENEMY *baby = (ENEMY *)tongue[pl].thing;
+		baby->nmeActor->actor->scale.v[X] = 1;
+		baby->nmeActor->actor->scale.v[Y] = 1;
+		baby->nmeActor->actor->scale.v[Z] = 1;
 	}
 
-	if( nearestBabyFrog )
-	{
-		nearestBabyFrog->nmeActor->actor->scale.v[X] = 1;
-		nearestBabyFrog->nmeActor->actor->scale.v[Y] = 1;
-		nearestBabyFrog->nmeActor->actor->scale.v[Z] = 1;
-		nearestBabyFrog = NULL;
-	}
+	tongue[pl].flags = TONGUE_NONE | TONGUE_IDLE;
+	tongue[pl].thing = NULL;
+	tongue[pl].radius = TONGUE_RADIUSNORMAL;
+	tongue[pl].type = 0;
+	tongue[pl].progress = 0;
 
-	tongueCoordIndex	= 0;
-	tongueSegment		= 0;
-	numTongueNodes		= MAX_TONGUENODES;
+	for( i=0; i<MAX_TONGUENODES; i++ )
+		SubSprite( &tongue[pl].sprite[i] );
 
-	player[0].frogState &= ~FROGSTATUS_ISTONGUEING;
-	tongueState = TONGUE_IDLE;
+	player[pl].frogState &= ~FROGSTATUS_ISTONGUEING;
 }
 
 
@@ -533,7 +371,7 @@ void RemoveFrogTongue()
 	Returns			: 
 	Info			: returns ptr to the nearest baby frog (if in range)
 */
-ENEMY *BabyFrogIsInTongueRange()
+ENEMY *BabyFrogIsInRange( float radius, int pl )
 {
 	ACTOR2 *act,*nearest;
 	ACTOR2 *inRange[4];
@@ -546,11 +384,15 @@ ENEMY *BabyFrogIsInTongueRange()
 		for(i=0; i<numBabies; i++)
 		{
 			if( babyList[i].baby )
-				if((!babyList[i].isSaved) && (babyList[i].baby->distanceFromFrog < (tongueRadius * tongueRadius)))
+			{
+				dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&babyList[i].baby->actor->pos);
+
+				if((!babyList[i].isSaved) && (dist < (radius * radius)))
 				{
-					mags[numInRange]		= babyList[i].baby->distanceFromFrog;
+					mags[numInRange]		= dist;
 					inRange[numInRange++]	= babyList[i].baby;
 				}
+			}
 		}
 
 		if(numInRange)
@@ -578,3 +420,105 @@ ENEMY *BabyFrogIsInTongueRange()
 	// no baby frog in range
 	return NULL;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: GaribIsInRange
+	Purpose			: indicates if a garib is in range when tongueing
+	Parameters		: 
+	Returns			: GARIB *
+	Info			: returns ptr to the nearest garib (if in range)
+*/
+GARIB *GaribIsInRange( float radius, int pl )
+{
+	GARIB *garib,*nearest;
+	GARIB *inRange[8];
+	float dist,mags[8];
+	int i = 0,numInRange = 0;
+		
+	for(garib = garibCollectableList.head.next; garib != &garibCollectableList.head; garib = garib->next)
+	{
+		// only check for garibs in visual range
+		dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&garib->sprite.pos);
+		if( dist > (radius * radius) )
+			continue;
+
+		if( (garib->active) && (numInRange < 8))
+		{
+			mags[numInRange]		= dist;
+			inRange[numInRange++]	= garib;
+		}
+	}
+
+	if(numInRange)
+	{
+		// return closest item
+		dist	= mags[0];
+		nearest	= inRange[0];
+		for(i=1; i<numInRange; i++)
+		{
+			if(mags[i] < dist)
+			{
+				dist	= mags[i];
+				nearest	= inRange[i];
+			}
+		}
+
+		return nearest;
+	}
+
+	return NULL;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ScenicIsInTongueRange
+	Purpose			: indicates if a scenic is in range when tongueing
+	Parameters		: 
+	Returns			: ACTOR2 *
+	Info			: returns ptr to the nearest scenic (if in range)
+*/
+ACTOR2 *ScenicIsInRange( float radius, int pl )
+{
+	PLATFORM *cur,*next,*nearest;
+	PLATFORM *inRange[4];
+	float dist,mags[4];
+	int i = 0,numInRange = 0;
+		
+	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
+	{
+		next = cur->next;
+
+		// only check for scenics in visual range
+		dist = DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&cur->pltActor->actor->pos);
+		if(dist > (radius * radius))
+			continue;
+
+		if((cur->flags & PLATFORM_NEW_SHAKABLESCENIC) && (numInRange < 4))
+		{
+			mags[numInRange]		= dist;
+			inRange[numInRange++]	= cur;
+		}
+	}
+
+	if(numInRange)
+	{
+		// return closest item
+		dist	= mags[0];
+		nearest	= inRange[0];
+		for(i=1; i<numInRange; i++)
+		{
+			if(mags[i] < dist)
+			{
+				dist	= mags[i];
+				nearest	= inRange[i];
+			}
+		}
+
+		// we now have the nearest 'scenic' - return relevant actor
+		return nearest->pltActor;
+	}
+
+	return NULL;
+}
+

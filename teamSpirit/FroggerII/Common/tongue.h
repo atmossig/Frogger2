@@ -13,20 +13,6 @@
 #define TONGUE_H_INCLUDED
 
 
-#define	MAX_TONGUENODES				12
-
-#define TONGUE_RADIUSNORMAL			125.0
-#define TONGUE_RADIUSLONG			225.0
-
-//extern float TONGUE_RADIUSNORMAL;
-//extern float TONGUE_RADIUSLONG;
-
-#define TONGUE_STICKYRADIUS			10.0
-
-#define TONGUE_OFFSET_UP			-15.0
-#define TONGUE_OFFSET_FORWARD		5.0
-
-#define TONGUE_WRAPAROUNDTHRESHOLD	-0.2
 
 enum
 {
@@ -35,6 +21,22 @@ enum
 	TONGUE_GET_GRAPPLE,
 	TONGUE_GET_SCENIC,
 };
+
+
+typedef struct
+{
+	VECTOR source, target, pos, fwd, interp;
+
+	unsigned long flags;
+	float radius, progress;
+	unsigned char type;
+
+	SPRITE *sprite;
+	TEXTURE *tex;
+
+	void *thing;	// What we're trying to collect
+
+} TONGUE;
 
 
 //----- [ FROG TONGUE FLAGS ] ----------------------------------------------
@@ -53,35 +55,13 @@ enum
 //----- [ GLOBALS ] --------------------------------------------------------
 
 
-extern float			tongueRadius;
-
-extern unsigned long	tongueState;
-
-extern VECTOR			tonguePos;
-extern Vtx				*tongueVtx;
-extern Vtx				*tongueVtx2;
-extern char				tongueToCollect;
-
-extern int				tongueCoordIndex;
-
-extern VECTOR			fu;
-extern VECTOR			fr;
-
-extern int				tongueSegment;
-extern VECTOR			tongueCoords[MAX_TONGUENODES];
-
-extern SPRITE			tongueSprite[MAX_TONGUENODES];
+extern TONGUE tongue[MAX_FROGS];
 
 
 //----- [ FUNCTION PROTOTYPES ] --------------------------------------------
 
-extern void InitTongue(char toGet);
-extern void UpdateFrogTongue();
-extern void CreateTongueSegment(char idx);
-extern void RemoveTongueSegment(char idx);
-extern void RemoveFrogTongue();
-
-
-extern void AddTongueSprite(short index,float x,float y,float z);
+extern void InitTongues( );
+extern void UpdateFrogTongue( int pl );
+extern void RemoveFrogTongue( int pl );
 
 #endif
