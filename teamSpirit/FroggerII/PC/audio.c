@@ -35,7 +35,7 @@ SAMPLE *CreateAndAddSample ( char *lpFile )
 
 	newItem->lpDSound = lpDS;
 
-	if ( !lpDS )
+	if ( lpDS )
 		LoadWav		( lpFile, newItem );
 	// ENDIF
 
@@ -147,7 +147,7 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 {
 	
 	SAMPLE *sample;
-	return 0;
+//	return 0;
 //	if ( num != 0
 	sample = GetEntryFromSampleList ( num );
 
