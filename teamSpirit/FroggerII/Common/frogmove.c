@@ -39,7 +39,7 @@ float superHopSpeed		= 4.0F;
 float longHopHeight		= 24.0F;
 float longHopSpeed		= 9.0F;
 
-unsigned long standardHopFrames = 10;
+unsigned long standardHopFrames = 7;
 unsigned long superHopFrames	= 16;
 unsigned long longHopFrames		= 16;
 
@@ -48,6 +48,7 @@ float gravityModifier	= 1.0F;
 
 
 void AnimateFrogHop(unsigned long direction,long pl);
+
 
 /*	--------------------------------------------------------------------------------
 	Function		: SetFroggerStartPos
@@ -220,6 +221,9 @@ void UpdateFroggerPos(long pl)
 
 	//--------------------------------------------------------------------------------------------
 
+//	if(currPlatform[pl] && DistanceBetweenPointsSquared(&frog[pl]->actor->pos,&currPlatform[pl]->pltActor->actor->pos) > 0)
+//		ScrambleFrogToPlatformCentre(pl);
+
 	if(!(player[pl].canJump) && !(player[pl].frogState & (FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | FROGSTATUS_ISWANTINGL | FROGSTATUS_ISWANTINGR)))
 	{
 		VECTOR newPos;
@@ -240,10 +244,13 @@ void UpdateFroggerPos(long pl)
 		SetVector(&player[pl].hMotionDelta,&player[pl].jumpFwdVector);
 		ScaleVector(&player[pl].hMotionDelta,s);
 
-		SetVector(&newPos,&currTile[pl]->centre);
+		SetVector(&newPos,&player[pl].jumpOrigin);
 		AddToVector(&newPos,&player[pl].vMotionDelta);
 		AddToVector(&newPos,&player[pl].hMotionDelta);
 		SetVector(&frog[pl]->actor->pos,&newPos);
+
+		// check for a platform within the frog's jumping 'area'
+//		FrogCollidedWithPlatform(pl);
 	}
 
 	//--------------------------------------------------------------------------------------------
@@ -362,6 +369,8 @@ void UpdateFroggerPos(long pl)
 
 		if(player[pl].frogState & FROGSTATUS_ISFLOATING) prevTile = currTile[pl];
 
+		AnimateFrogHop((dir + camFacing) & 3,pl);
+
 		nextFrogFacing[pl] = nextCamFacing;
 		player[pl].frogState |= FROGSTATUS_ISSUPERHOPPING;
 
@@ -391,6 +400,8 @@ void UpdateFroggerPos(long pl)
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPD)	dir = MOVE_DOWN;
 		else if(player[pl].frogState & FROGSTATUS_ISWANTINGLONGHOPL)	dir = MOVE_LEFT;
 		else dir = MOVE_RIGHT;
+
+		AnimateFrogHop((dir + camFacing) & 3,pl);
 
 		nextFrogFacing[pl] = nextCamFacing;
 		player[pl].frogState |= FROGSTATUS_ISLONGHOPPING;
@@ -450,11 +461,8 @@ void GetNextTile(unsigned long direction,long pl)
 	unsigned long newCamFacing = camFacing;
 
 	GAMETILE *joiningTile = NULL;
-	VECTOR vecUp,fwdVec,moveVec;
+	VECTOR vecUp;
 	float t2,at2;
-
-	float u,v,a,sH,sV;
-	float h;
 		
 	if(pl == 0)
 		destTile[pl] = currTile[pl]->tilePtrs[(direction + camFacing + 2) & 3]; // hmm...
@@ -553,45 +561,6 @@ void GetNextTile(unsigned long direction,long pl)
 		}
 
 		nextFrogFacing[pl] = newCamFacing;
-
-		//----------------------------------------------------------------------------------------
-
-		// STAGE 1 - frog's movement - new stuff - AndyE
-
-		// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
-		SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
-		AddToVector(&player[pl].jumpUpVector,&destTile[pl]->normal);
-		ScaleVector(&player[pl].jumpUpVector,0.5F);
-
-		SubVector(&player[pl].jumpFwdVector,&destTile[pl]->centre,&frog[pl]->actor->pos);
-		sH = Magnitude(&player[pl].jumpFwdVector);
-		MakeUnit(&player[pl].jumpFwdVector);
-		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
-
-		// STAGE 2 - considering vertical motion
-
-		if(player[pl].isSuperHopping)
-			t = superHopFrames;
-		else
-			t = standardHopFrames;
-
-		// using s = ut + 0.5at^2
-		a = frogGravity;
-		u = ((-a * t * t) + (2 * sV)) / (2 * t);
-
-		player[pl].vInitialVelocity = u;
-
-		// STAGE 3 - considering horizontal motion
-		a = 0;
-		u = ((-a * t * t) + (2 * sH)) / (2 * t);
-
-		player[pl].hInitialVelocity = u;
-
-		// set variables to process frog's jump
-		player[pl].jumpStartFrame = actFrameCount;
-		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
-
-		
 	}
 
 	if((destTile[pl]) && (player[pl].frogState & FROGSTATUS_ISFLOATING))
@@ -651,6 +620,8 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 {
 	char moveLocal = 0;
 	unsigned long dirFlag = 0;
+
+	float sH,sV,t,u,a;
 
 	// clear movement request flags
 	player[pl].frogState &=	~(	FROGSTATUS_ISWANTINGU | FROGSTATUS_ISWANTINGD | 
@@ -902,6 +873,92 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 		return FALSE;
 	}
 
+	// ------------------------------------------------------------------------------------------
+
+	if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOTILE)
+	{
+		// STAGE 1 - frog's movement - new stuff - AndyE
+
+		// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
+		SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
+		AddToVector(&player[pl].jumpUpVector,&destTile[pl]->normal);
+		ScaleVector(&player[pl].jumpUpVector,0.5F);
+
+		SubVector(&player[pl].jumpFwdVector,&destTile[pl]->centre,&frog[pl]->actor->pos);
+		sH = Magnitude(&player[pl].jumpFwdVector);
+		MakeUnit(&player[pl].jumpFwdVector);
+		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
+
+		// STAGE 2 - considering vertical motion
+
+		if(player[pl].isSuperHopping)
+			t = superHopFrames;
+		else if(player[pl].isLongHopping)
+			t = longHopFrames;
+		else
+			t = standardHopFrames;
+
+		// using s = ut + 0.5at^2
+		a = frogGravity;
+		u = ((-a * t * t) + (2 * sV)) / (2 * t);
+
+		player[pl].vInitialVelocity = u;
+
+		// STAGE 3 - considering horizontal motion
+		a = 0;
+		u = ((-a * t * t) + (2 * sH)) / (2 * t);
+
+		player[pl].hInitialVelocity = u;
+
+		// set variables to process frog's jump
+		player[pl].jumpStartFrame = actFrameCount;
+		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
+	}
+	else if(player[pl].frogState & FROGSTATUS_ISJUMPINGTOPLATFORM)
+	{
+		// STAGE 1 - frog's movement - new stuff - AndyE
+
+		// get the up vector and the jump forward vector (up vector is average of curr and dest normals)
+		SetVector(&player[pl].jumpUpVector,&currTile[pl]->normal);
+		AddToVector(&player[pl].jumpUpVector,&destPlatform[pl]->inTile->normal);
+		ScaleVector(&player[pl].jumpUpVector,0.5F);
+
+		SubVector(&player[pl].jumpFwdVector,&destPlatform[pl]->pltActor->actor->pos,&frog[pl]->actor->pos);
+		sH = Magnitude(&player[pl].jumpFwdVector);
+		MakeUnit(&player[pl].jumpFwdVector);
+		sV = (sH * DotProduct(&player[pl].jumpFwdVector,&player[pl].jumpUpVector));
+
+		// STAGE 2 - considering vertical motion
+
+		if(player[pl].isSuperHopping)
+			t = superHopFrames;
+		else if(player[pl].isLongHopping)
+			t = longHopFrames;
+		else
+			t = standardHopFrames;
+
+		// using s = ut + 0.5at^2
+		a = frogGravity;
+		u = ((-a * t * t) + (2 * sV)) / (2 * t);
+
+		player[pl].vInitialVelocity = u;
+
+		// STAGE 3 - considering horizontal motion
+		a = 0;
+		u = ((-a * t * t) + (2 * sH)) / (2 * t);
+
+		player[pl].hInitialVelocity = u;
+
+		// set variables to process frog's jump
+		player[pl].jumpStartFrame = actFrameCount;
+		player[pl].jumpEndFrame	= actFrameCount + (unsigned long)t;
+	}
+
+	// get frogs origin of jump
+	SetVector(&player[pl].jumpOrigin,&frog[pl]->actor->pos);
+
+	// ------------------------------------------------------------------------------------------
+
 	// clear all superhop flags
 	player[pl].frogState &= ~(	FROGSTATUS_ISWANTINGSUPERHOPU | FROGSTATUS_ISWANTINGSUPERHOPD |
 								FROGSTATUS_ISWANTINGSUPERHOPL | FROGSTATUS_ISWANTINGSUPERHOPR);
@@ -916,9 +973,6 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 
 	return TRUE;
 }
-
-
-float speedTest = 11;
 
 /*	--------------------------------------------------------------------------------
 	Function		: CheckForFroggerLanding

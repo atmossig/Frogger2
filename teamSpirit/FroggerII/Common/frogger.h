@@ -92,7 +92,7 @@ typedef struct _PLAYER
 	VECTOR			hMotionDelta;
 	VECTOR			jumpFwdVector;
 	VECTOR			jumpUpVector;
-
+	VECTOR			jumpOrigin;
 
 } PLAYER;
 

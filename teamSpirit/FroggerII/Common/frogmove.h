@@ -92,8 +92,6 @@ extern unsigned long ice[];
 
 extern int frogFacing[4];
 
-extern float speedTest;
-
 extern float frogGravity;
 extern float gravityModifier;
 
