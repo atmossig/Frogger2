@@ -17,7 +17,7 @@
 WININFO winInfo;
 BYTE lButton = 0, rButton = 0;
 
-char baseDirectory[MAX_PATH] = "q:\\work\\froggerii\\pc\\";
+char baseDirectory[MAX_PATH] = "x:\\teamspirit\\pcversion\\";
 char editorOk = 0;
 long drawTimers = 0;
 char keyDelay;
@@ -150,14 +150,16 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 			else
 				keyDelay--;
 			
-			StartTimer(4,"GameLoop");
-			GameLoop();
-			EndTimer(4);
-
-			ProcessUserInput(winInfo.hWndMain);
 			if (editorOk)
 				RunEditor();
+			else
+			{
+				StartTimer(4,"GameLoop");
+				GameLoop();
+				EndTimer(4);
+			}
 
+			ProcessUserInput(winInfo.hWndMain);
 			
 			DrawGraphics();
 			
@@ -218,8 +220,8 @@ int InitialiseWindows(HINSTANCE hInstance,int nCmdShow)
 		//WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE,			// window style
         0,
 		0,
-		640,	//GetSystemMetrics(SM_CXSCREEN),
-		480,	//GetSystemMetrics(SM_CYSCREEN),
+		GetSystemMetrics(SM_CXSCREEN), // 640
+		GetSystemMetrics(SM_CYSCREEN), // 480
         NULL,				// parent window
         NULL,				// menu handle
         hInstance,			// program handle
@@ -282,6 +284,13 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 			rButton = 0;
 			break;
 
+		case WM_CHAR:
+			if (editorOk && !keysEnabled)	// only when editor is set up to "grab" keyboard data
+			{
+				EditorKeypress((char)wParam);
+				return 0;
+			}
+			break;
 	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);
