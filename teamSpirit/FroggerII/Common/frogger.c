@@ -25,7 +25,6 @@
 PLAYER player[MAX_FROGS];
 
 ACTOR2 *frog[MAX_FROGS]					= {0,0,0,0};
-ACTOR2 *frog2					= NULL;
 SPRITEOVERLAY *sprHeart[3]		= { NULL,NULL,NULL };
 
 long NUM_FROGS = 1;
@@ -57,7 +56,7 @@ void CreateFrogActor (GAMETILE *where, char *name,long p)
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
 	InitActorAnim ( (*me)->actor );
-	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667, 10, 0 );
+	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667);
 	
 	(*me)->actor->scale.v[0] = 0.09;
 	(*me)->actor->scale.v[1] = 0.09;
@@ -79,7 +78,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 {
 	int i;
 
-	if ( createFrogActor )
+	if(createFrogActor)
 	{
 		CreateBabies(createBabyActors, createBabyOverlays );
 		for (i=0; i<MAX_FROGS; i++)
@@ -87,42 +86,10 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		
 		for (i=4; i>NUM_FROGS; i--)
 			frog[i-1]->actor->xluOverride = 0;
-		
-/*
-		frog[0]		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
-		frog[0]->actor->shadow->radius = 30;
-		frog[0]->actor->shadow->alpha = 191;
-		frog[0]->flags	|= ACTOR_DRAW_ALWAYS;
-		tongueState	 = TONGUE_NONE | TONGUE_IDLE;
-		InitActorAnim ( frog[0]->actor );
-		AnimateActor  ( frog[0]->actor, 0, YES, NO, 0.667 );
-		frog[0]->actor->scale.v[0] = 0.09;
-		frog[0]->actor->scale.v[1] = 0.09;
-		frog[0]->actor->scale.v[2] = 0.09;
-		CreateBabies(createBabyActors, createBabyOverlays );
-		SetFroggerStartPos ( gTStart[0], frog[0] );
-		frog[0]->action.lives		= 3;
-		frog[0]->action.isOnFire	= 0;
-		frog[0]->radius				= 37.0F;
-*/
-		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
-		frog2->actor->shadow->radius = 30;
-		frog2->actor->shadow->alpha = 191;
-		frog2->flags |= ACTOR_DRAW_ALWAYS;
-		frog2->draw = 1;
-		InitActorAnim ( frog2->actor );
-		AnimateActor  ( frog2->actor, 0, YES, NO, 0.667, 10, 0 );
-		frog2->actor->scale.v[0] = 0.09;
-		frog2->actor->scale.v[1] = 0.09;
-		frog2->actor->scale.v[2] = 0.09;
-		//SetFroggerStartPos ( gTStart[0], frog2,);
-		frog2->action.lives = 3;
 	}
-	// ENIF
 
-	if ( createFrogOverlays )
+	if(createFrogOverlays)
 	{
-
 		// get health icons ready
 		i = 3;
 		while(i--)
@@ -141,5 +108,4 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 			sprHeart[i]->animTime = (i * 3);
 		}
 	}
-	// ENDIF 
 }

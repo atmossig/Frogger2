@@ -116,6 +116,8 @@ void CalcPlatformNormalInterps(PLATFORM *pform);
 void SetPlatformVisibleTime(PLATFORM *pform,short time);
 void SetPlatformRegenerateTime(PLATFORM *pform,short time);
 
+PLATFORM *GetNearestPlatformBelowFrog(GAMETILE *tile,long pl);
+
 //------------------------------------------------------------------------------------------------
 
 

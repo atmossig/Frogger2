@@ -61,7 +61,6 @@ extern float startLongSpeed;
 
 
 extern ACTOR2	*frog[];
-extern ACTOR2	*frog2;
 extern SPRITEOVERLAY *sprHeart[3];
 
 extern float	croakRadius;

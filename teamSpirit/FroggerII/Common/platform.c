@@ -80,31 +80,34 @@ PLATFORM *devPlat2	= NULL;
 
 PATHNODE debug_pathNodes1[] =					// TEST PATH - ANDYE
 { 
-	20,20,0,2,0,	33,20,0,2,0,	34,20,0,2,0,	35,20,0,2,0,	36,20,0,2,0,	23,20,0,2,0,
-	22,20,0,2,0,	21,20,0,2,0
+	345,40,0,0,0
 };
 
 PATHNODE debug_pathNodes2[] =					// TEST PATH - ANDYE
 { 
-	33,20,0,2,0,	34,20,0,2,0,	35,20,0,2,0,	36,20,0,2,0,	23,20,0,2,0,	22,20,0,2,0,
-	21,20,0,2,0,	20,20,0,2,0
+	346,80,0,0,0
 };
 
 PATHNODE debug_pathNodes3[] =					// TEST PATH - ANDYE
 { 
-	34,20,0,2,0,	35,20,0,2,0,	36,20,0,2,0,	23,20,0,2,0,	22,20,0,2,0,
-	21,20,0,2,0,	20,20,0,2,0,	33,20,0,2,0
+	347,40,0,0,0
 };
 
 PATHNODE debug_pathNodes4[] =					// TEST PATH - ANDYE
 { 
-	14,0,100,4,0,
+	347,80,0,0,0
 };
 
-PATH debug_path1 = { 8,0,0,0,debug_pathNodes1 };
-PATH debug_path2 = { 8,0,0,0,debug_pathNodes2 };
-PATH debug_path3 = { 8,0,0,0,debug_pathNodes3 };
+PATHNODE debug_pathNodes5[] =					// TEST PATH - ANDYE
+{ 
+	347,120,0,0,0
+};
+
+PATH debug_path1 = { 1,0,0,0,debug_pathNodes1 };
+PATH debug_path2 = { 1,0,0,0,debug_pathNodes2 };
+PATH debug_path3 = { 1,0,0,0,debug_pathNodes3 };
 PATH debug_path4 = { 1,0,0,0,debug_pathNodes4 };
+PATH debug_path5 = { 1,0,0,0,debug_pathNodes5 };
 
 
 
@@ -129,18 +132,29 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 		if(levelID == LEVELID_GARDENLAWN)
 		{
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path1,PATH_MAKENODETILEPTRS);
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path1,PATH_MAKENODETILEPTRS);
+			SetPlatformVisibleTime(devPlat1,75);
+			SetPlatformRegenerateTime(devPlat1,100);
 
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path2,PATH_MAKENODETILEPTRS);
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path2,PATH_MAKENODETILEPTRS);
+			SetPlatformVisibleTime(devPlat1,75);
+			SetPlatformRegenerateTime(devPlat1,100);
 
 			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat1,PLATFORM_NEW_FORWARDS | PLATFORM_NEW_CYCLE,&debug_path3,PATH_MAKENODETILEPTRS);
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path3,PATH_MAKENODETILEPTRS);
+			SetPlatformVisibleTime(devPlat1,45);
+			SetPlatformRegenerateTime(devPlat1,100);
 
-			devPlat2 = CreateAndAddPlatform("pltlilly.ndo");
-			AssignPathToPlatform(devPlat2,PLATFORM_NEW_MOVEUP | PLATFORM_NEW_PINGPONG,&debug_path4,PATH_MAKENODETILEPTRS);
-//			SetPlatformVisibleTime(devPlat2,75);
-//			SetPlatformRegenerateTime(devPlat2,100);
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path4,PATH_MAKENODETILEPTRS);
+			SetPlatformVisibleTime(devPlat1,45);
+			SetPlatformRegenerateTime(devPlat1,100);
+
+			devPlat1 = CreateAndAddPlatform("pltlilly.ndo");
+			AssignPathToPlatform(devPlat1,PLATFORM_NEW_NONMOVING | PLATFORM_NEW_CRUMBLES | PLATFORM_NEW_REGENERATES,&debug_path5,PATH_MAKENODETILEPTRS);
+			SetPlatformVisibleTime(devPlat1,45);
+			SetPlatformRegenerateTime(devPlat1,100);
 		}
 
 		if(levelID == LEVELID_GARDENMAZE)
@@ -184,7 +198,7 @@ void InitPlatformsForLevel(unsigned long worldID, unsigned long levelID)
 void UpdatePlatforms()
 {
 	PLANE2 rebound;
-	PLATFORM *cur,*next;
+	PLATFORM *cur,*next,*platBelow = NULL;
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd;
 	VECTOR moveVec;
@@ -381,12 +395,23 @@ void UpdatePlatforms()
 
 						CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&cur->pltActor->actor->pos,128,1,0.2,40);
 						
-						player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
 						SetVector(&frog[0]->actor->vel,&currTile[0]->normal);
 						FlipVector(&frog[0]->actor->vel);
 
 						GetPositionForPathNode(&fromPosition,&cur->path->nodes[0]);
 						SetVector(&cur->pltActor->actor->pos,&fromPosition);
+
+						// check if there are any platforms below the frog over the same tile
+						if(destPlatform[0] = GetNearestPlatformBelowFrog(cur->inTile,0))
+						{
+							// set frog falling to nearest dest platform below
+							player[0].frogState |= FROGSTATUS_ISFALLINGTOPLATFORM;
+						}
+						else
+						{
+							// set frog falling to game tile below
+							player[0].frogState |= FROGSTATUS_ISFALLINGTOGROUND;
+						}
 					}
 				}
 
@@ -1248,6 +1273,77 @@ void SetPlatformRegenerateTime(PLATFORM *pform,short time)
 {
 	pform->regenTime	= time;
 	pform->regen		= time;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: GetNearestPlatformBelowFrog
+	Purpose			: returns the nearest platform below the frog on the specified tile
+	Parameters		: GAMETILE *,long
+	Returns			: PLATFORM *
+	Info			: 
+*/
+PLATFORM *GetNearestPlatformBelowFrog(GAMETILE *tile,long pl)
+{
+	int i,numPlats = 0;
+	VECTOR diff;
+	PLATFORM *plts[8],*pltNearest;
+	PLATFORM *cur,*next;
+	float dists[8],t = 9999999;
+	float frogDist;
+	
+	if(platformList.numEntries == 0)
+		return NULL;
+
+	frogDist = DistanceBetweenPoints(&frog[pl]->actor->pos,&tile->centre);
+
+	for(cur = platformList.head.next; cur != &platformList.head; cur = next)
+	{
+		next = cur->next;
+
+		if((cur->inTile == tile) && (cur->active))
+		{
+			// this platform is over the same tile as the frog
+			t = DistanceBetweenPoints(&frog[pl]->actor->pos,&cur->pltActor->actor->pos);
+
+			dprintf"Platform %f\n",t));
+
+			if((t > 0) && (t < frogDist))
+			{
+				plts[numPlats]	= cur;
+				dists[numPlats]	= t;
+				numPlats++;
+			}
+		}
+	}
+
+	// any platforms below ?
+	if(!numPlats)
+		return NULL;
+
+	pltNearest = plts[0];
+	t = dists[0];
+
+	// determine closest platform
+	if(numPlats == 1)
+	{
+		// return the only platform below the frog
+		return pltNearest;
+	}
+	else
+	{
+		// determine the next closest platform below the frog
+		for(i=1; i<numPlats; i++)
+		{
+			if(dists[i] < t)
+			{
+				t = dists[i];
+				pltNearest = plts[i];
+			}
+		}
+	}
+
+	return pltNearest;
 }
 
 //------------------------------------------------------------------------------------------------

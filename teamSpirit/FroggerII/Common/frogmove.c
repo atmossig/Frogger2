@@ -237,6 +237,54 @@ void UpdateFroggerPos(long pl)
 
 		return;
 	}
+	else if(player[pl].frogState & FROGSTATUS_ISFALLINGTOPLATFORM)
+	{
+		// the frog is falling to a platform below
+		SetVector(&ground.point,&destPlatform[pl]->pltActor->actor->pos);
+		SetVector(&ground.normal,&destPlatform[pl]->inTile->normal);
+
+		// update frog position in relation to ground
+//		frog[pl]->actor->vel.v[X] *= 0.95F;
+		frog[pl]->actor->vel.v[Y] += -1.1F;
+//		frog[pl]->actor->vel.v[Z] *= 0.95F;
+
+		AddToVector(&frog[pl]->actor->pos,&frog[pl]->actor->vel);
+		ground.J = -DotProduct(&ground.point,&ground.normal);
+		dist = -(DotProduct(&frog[pl]->actor->pos,&ground.normal) + ground.J);						
+
+		// check if frog has hit (or passed through) the platform
+		if(dist > 0)
+		{
+			SetVector(&frog[pl]->actor->pos,&ground.point);
+			CalcBounce(&frog[pl]->actor->vel,&ground.normal);
+//			frog[pl]->actor->vel.v[X] *= 0.75F;
+			frog[pl]->actor->vel.v[Y] *= 0.75F;
+//			frog[pl]->actor->vel.v[Z] *= 0.75F;
+
+			CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&ground.point,128,0,0.5,15);
+
+			if(MagnitudeSquared(&frog[pl]->actor->vel) < 5.0F)
+			{
+				// stop the frog from bouncing - set to standing on the platform
+				currPlatform[pl] = destPlatform[pl];
+				currPlatform[pl]->flags |= PLATFORM_NEW_CARRYINGFROG;
+				currPlatform[pl]->carrying = frog[pl];
+
+				SetVector(&frog[pl]->actor->pos,&ground.point);
+				player[pl].frogState &= ~FROGSTATUS_ISFALLINGTOPLATFORM;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGU;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGD;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGL;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGR;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPU;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPD;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPL;
+				player[pl].frogState &= ~FROGSTATUS_ISWANTINGSUPERHOPR;
+			}
+		}
+
+		return;
+	}
 
 	if(player[pl].frogState & FROGSTATUS_ISSTANDING)
 	{
