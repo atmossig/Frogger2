@@ -1506,16 +1506,16 @@ void RunFrontendGameLoop (void)
 
 char *chapterPic[BOOK_NUM_PAGES] = 
 {
-	"LEV_GAR1",
-	"LEV_ANC1",
-	"LEV_ANC2",
-	"LEV_SUB1",
-	"LEV_SPA1",
-	"LEV_LAB1",
-	"LEV_HAL2",
-	"LEV_LAB2",
-	"LEV_SPA2",
-	"LEV_SPA3",
+	"CHAPTER1",
+	"CHAPTER2",
+	"CHAPTER3",
+	"CHAPTER4",
+	"CHAPTER5",
+	"CHAPTER6",
+	"CHAPTER7",
+	"CHAPTER8",
+	"CHAPTER9",
+	"CHAPTER10",
 };
 
 #ifdef PC_VERSION
