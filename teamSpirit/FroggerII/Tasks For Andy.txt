@@ -17,3 +17,8 @@ PRIORITY------- Medium
 RESPONSIBILTY-- Matt
 NOTES---------- For smoke especially
 
+TASK----------- Framerate independant sprites (3D animating sprites)
+COMPLETION BY-- Jan 28th
+PRIORITY------- Medium
+RESPONSIBILTY-- Matt
+NOTES---------- For smoke especially
