@@ -31,8 +31,6 @@ enum
 	FOUR_PMODE = 2
 };
 
-extern long carryOnBabies;
-
 extern struct gameStateStruct gameState;
 
 extern unsigned long INPUT_POLLPAUSE;

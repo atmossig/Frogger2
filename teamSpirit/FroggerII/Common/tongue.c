@@ -265,7 +265,7 @@ void UpdateFrogTongue( int pl )
 					else if( tongue[pl].type == TONGUE_GET_BABY )
 					{
 						if( gameState.multi == SINGLEPLAYER )
-							PickupBabyFrog( ((ENEMY *)tongue[pl].thing)->nmeActor );
+							PickupBabyFrog( ((ENEMY *)tongue[pl].thing)->nmeActor, ((ENEMY *)tongue[pl].thing)->inTile );
 						else
 							PickupBabyFrogMulti( (ENEMY *)tongue[pl].thing, pl );
 					}

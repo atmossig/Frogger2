@@ -132,7 +132,7 @@ void DoEnemyCollision( ENEMY *cur )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{
-					if( PickupBabyFrog( cur->nmeActor ) )
+					if( PickupBabyFrog( cur->nmeActor, cur->inTile ) )
 						cur->active = 0;
 				}
 				else NMEDamageFrog(0,cur);
@@ -146,7 +146,7 @@ void DoEnemyCollision( ENEMY *cur )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{
-					if( PickupBabyFrog( cur->nmeActor ) )
+					if( PickupBabyFrog( cur->nmeActor, cur->inTile ) )
 						cur->active = 0;
 				}
 				else NMEDamageFrog(0,cur);
@@ -1525,7 +1525,6 @@ ENEMY *CreateAndAddEnemy(char *eActorName, int flags, long ID, PATH *path, float
 			}
 
 		newItem->nmeActor->effects |= (EF_RIPPLE_RINGS | EF_SLOW);
-		newItem->nmeActor->value1 = 1.07;
 		if( babyList[i].fxColour[0] ) newItem->nmeActor->effects |= EF_TINTRED;
 		if( babyList[i].fxColour[1] ) newItem->nmeActor->effects |= EF_TINTGREEN;
 		if( babyList[i].fxColour[2] ) newItem->nmeActor->effects |= EF_TINTBLUE;

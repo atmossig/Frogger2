@@ -594,7 +594,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 extern float camSideOfs;
 long playMode = NORMAL_PMODE;
-long carryOnBabies = 1;
 long clearTiles = 0;
 
 
@@ -829,6 +828,16 @@ void RunGameLoop (void)
 #ifdef SHOW_ME_THE_TILE_NUMBERS
 	if( frameCount==1 )
 	{
+/*		TEXTURE *tex;
+		VECTOR pos;
+
+		FindTexture( &tex, UpdateCRC("prc_frog.bmp"), YES );
+		SetVector( &pos, &gTStart[0]->centre );
+		pos.v[Z] -= 100;
+		pos.v[Y] += 20;
+
+		CreateAndAddRandomPoly( tex, &pos, &gTStart[0]->normal, 64, 64 );
+*/
 		tileNum = CreateAndAddTextOverlay(0,35,tileString,YES,255,bigFont,0,0);
 	}
 
@@ -1011,21 +1020,7 @@ void RunGameLoop (void)
 	if( gameState.multi == SINGLEPLAYER )
 		UpDateOnScreenInfo();
 	else
-	{
-		int res;
-		switch( player[0].worldNum )
-		{
-		case WORLDID_GARDEN:
-			res = UpdateRace( );
-			break;
-		case WORLDID_SUBTERRANEAN:
-		case WORLDID_HALLOWEEN:
-			res = UpdateCTF( );
-			break;
-		}
-
-		if( !res ) return;
-	}
+		RunMultiplayer();
 
 	// Send network update packet
 #ifdef PC_VERSION

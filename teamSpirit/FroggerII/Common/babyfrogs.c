@@ -124,7 +124,7 @@ void ResetBabies( )
 	Returns			: truth
 	Info			:
 */
-int PickupBabyFrog( ACTOR2 *baby )
+int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 {
 	unsigned long i;
 	SPECFX *fx;
@@ -146,11 +146,20 @@ int PickupBabyFrog( ACTOR2 *baby )
 	babyIcons[i]->a = 255;
 	babyIcons[i]->animSpeed = 1.0F;
 	babiesSaved++;
-	
-	// make baby position the new start position ?
 
-	if(carryOnBabies)
-		gTStart[0] = &firstTile[(int)baby->value1];
+	// If baby references a placeholder then set the respawn position to be the placeholder
+	if( baby->value1 )
+	{
+		ENEMY *respawn = GetEnemyFromUID( baby->value1 );
+		if( respawn )
+			gTStart[0] = respawn->path->nodes->worldTile;
+		else
+			gTStart[0] = tile;
+	}
+	else // Else respawn on the current baby tile
+	{
+		gTStart[0] = tile;
+	}
 
 	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
