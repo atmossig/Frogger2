@@ -78,8 +78,8 @@ void AddObjectsSpritesToSpriteList(OBJECT *obj,short flags);
 void RemoveObjectSprites(OBJECT *obj,BOOL free);
 void FreeObjectSprites(OBJECT *obj);
 
-void CreateCollisionSphereForActor(ACTOR2 *act,float xOffset,float yOffset,float zOffset,float radius);
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2);
+void SetActorCollisionRadius(ACTOR2 *act,float radius);
 
 
 #endif
