@@ -1,3 +1,19 @@
+/*
+
+	This file is part of Frogger2, (c) 1999 Interactive Studios Ltd.
+
+	File		: edglobals.c
+	Programmer	: David Swift
+	Date		: 04/08/99
+
+----------------------------------------------------------------------------------------------- */
+
+
+#include "enemies.h"
+#include "define.h"
+#include "edglobals.h"
+#include "edmaths.h"
+
 const char* TILESTATESTRINGS[NUMTILESTATES] = {
 	"Normal",	//	TILESTATE_NORMAL,
 	"Deadly",	//	TILESTATE_DEADLY,
@@ -5,23 +21,64 @@ const char* TILESTATESTRINGS[NUMTILESTATES] = {
 	"Ice",		//	TILESTATE_ICE,
 	"Superhop",	//	TILESTATE_SUPERHOP,
 	"Join",		//	TILESTATE_JOIN,
-	"Spring",	//	TILESTATE_SPRING,
-	"Teleport",	//	TILESTATE_TELEPORTER,
+	"Safe",		//	TILESTATE_SAFE,
+	"(reserved)",
 	"Grapple",	//	TILESTATE_GRAPPLE,
 	"Smash",	//	TILESTATE_SMASH
-	"Barred"	//	TILESTATE_BARRED
+	"Barred",	//	TILESTATE_BARRED
+	"Fall forever", // TILESTATE_FALLFOREVER
 };
 
 const char* GARIBTYPESTRINGS[] = {
-	"SPAWN_GARIB",			//0
-	"EXTRAHEALTH_GARIB",	//1
-	"EXTRALIFE_GARIB",		//2
-	"AUTOHOP_GARIB",		//3
-	"LONGHOP_GARIB",		//4
-	"LONGTONGUE_GARIB",		//5
-	"WHOLEKEY_GARIB",		//6
-	"HALFLKEY_GARIB",		//7
-	"HALFRKEY_GARIB",		//8
+	"SPAWN_GARIB",
+	"EXTRALIFE_GARIB",
+	"AUTOHOP_GARIB",
+	"LONGTONGUE_GARIB",
+	"QUICKHOP_GARIB",
+	"INVULNERABILITY_GARIB",
+};
+
+const char* CAMTYPESTRINGS[] = {
+	"Fixed",
+	"Fixed, look at frog",
+	"Follow frog",
+	"Follow frog, no tilt"
+};
+
+const char* HELPSTRINGS[] = 
+{
+	"F     Place Flag\0",
+	"K     Kill Path\0",
+	"E     Place Enemy\0",
+	"P     Place Platform\0",
+	"G     Place Garib\0",
+	",     Previous\0",
+	".     Next\0",
+	"A     Toggle Autocamera\0",
+	"I     Information\0",
+	"3     Create\0",
+	"BS    Delete\0",
+	"U     Undo\0",
+	"1     Save\0",
+	"L     Load\0",
+	"S     Multiple Select\0",
+	"C     Copy\0",
+	"V     Paste\0",
+	"D     Pick Flag\0",
+	"R     Speed for all Flags\0",
+	"B     Both Offsets\0",
+	"W     Wait Times\0",
+	"Space Cancel Selection\0",
+	"H     Help Screen\0",
+	"9     Give 999 Lives\0",
+	"Q     Place Frog on Tile\0",
+	"T     Select by Tile\0",
+	"Y     Add Tiles to Camera Case\0",
+	"N     Entity Name\0",
+	"Z     Set Enemy Scale\0",
+	"O     Set Enemy Radius\0",
+	"0     Kill Everything\0",
+	"\n"
 };
 
 /* -------------------------------------------------------------------------
@@ -43,23 +100,29 @@ float	HorizontalWhizziness = 6.0;
 float	InOutWhizziness = 12.0; // for heaven's sake
 BOOL	clicking = FALSE;
 BOOL	showX = FALSE;
-VECTOR	clickPos;
+EDVECTOR	clickPos;
 POINT	oldMousePos;
 short	selectedIcon = -1, garibType = 0;
 int		createFlags = ENEMY_NEW_FORWARDS;
+BOOL	cameraMode = FALSE;
 
 EDITMODE editMode = EDIT_NONE;
 GAMETILE *editTile = NULL;
 //CREATEENTITY *editCreate = NULL;
 EDITPATHNODE *editFlag = NULL;
-GARIB *editGarib = NULL;
-VECTOR editCameraRot = { 0.0, 0.0, 0.0 };
+EDVECTOR editCameraRot = { 0.0, 0.0, 0.0 };
 
 TOOLBAR_SUBMENU submenu = NULL;
 
 char savePath[80] = EDITOR_SAVE_BASE;
+char scriptPath[80] = "";
 
 SELECTFUNC selectFunc = NULL;
 EDITGROUP *selectionList = NULL;
 
-char createTypes[2][MAXTYPELENGTH] = { "wasp.ndo", "pltlilly.ndo" };
+CREATEENTITY *copyEntity;
+short copyFlag = 0;
+short helpScreen = 0;
+short addTiles = 0;
+
+char createTypes[2][MAXTYPELENGTH] = { "wasp.obe", "pltlilly.obe" };
