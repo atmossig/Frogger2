@@ -46,7 +46,7 @@ char *DIKStrings[256][LANG_NUMLANGS] =
 	"p",			"p",              	"p",            "p",            "p",                  
 	"[",			"^",              	"û",            "è",            "[",                  
 	"]",			"$",              	"+",            "+",            "]",                  
-	"Return",		"Retour",         	"Return",       "Return",       "Return",             
+	"Return",		"Retour",         	"Return",       "Return",       "Enter",             
 	"Left Control",	"Left Control",   	"Left Control", "Left Control", "Left Control",       
 	"a",			"q",              	"a",            "a",            "a",                  
 	"s",			"s",				"s",			"s",			"s",			// 30
@@ -104,7 +104,7 @@ char *DIKStrings[256][LANG_NUMLANGS] =
 	".",			".",              	".",            ".",            ".",                  
 	"",				"",               	"",             "",             "",                   
 	"",				"",               	"",             "",             "",                   
-	"\",			"<",               	"<",            "<",             "",                   
+	"\\",			"<",               	"<",            "<",            "\\",                   
 	"F11",			"F11",            	"F11",          "F11",          "F11",                
 	"F12",			"F12",            	"F12",          "F12",          "F12",                
 	"",				"",               	"",             "",             "",                   

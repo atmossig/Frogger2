@@ -17,6 +17,7 @@ enum
 };
 
 void LoadCodeOverlay(int num);
+void initialiseCrypt();
 
 extern int skipTextOverlaysSpecFX;
 extern long turbo;

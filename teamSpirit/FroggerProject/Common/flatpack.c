@@ -18,6 +18,10 @@
 #include "layout.h"
 #include "flatpack.h"
 
+#ifdef PSX_VERSION
+#include <libcrypt.h>
+#endif
+
 int numStakFiles = 0;
 
 STAKFILE stakFiles [ NUM_STAKFILES ] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
@@ -289,6 +293,14 @@ void LoadStakFile ( int stakBank )
 		FREE ( stakFiles [ numStakFiles ].stakFile );
 
 	stakFiles [ numStakFiles++ ].stakFile = (char*)fileLoad ( file, &fileLength);
+#if GOLDCD==1
+#ifdef PSX_VERSION
+	if(stakBank == FRONTEND1_STAK)
+	{
+		Decrypt(stakFiles[numStakFiles - 1]);
+	}
+#endif
+#endif
 }
 
 

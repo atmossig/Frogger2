@@ -36,6 +36,7 @@
 #include <libetc.h>
 #include <libapi.h>
 #include <libspu.h>
+#include <libcrypt.h>
 
 #include <inline_c.h>
 #include <gtemac.h>
@@ -525,6 +526,7 @@ int main ( )
 		//XAsetStatus(CdInit());
 #else
 		fileInitialise("\\FROGGER.DAT;1");
+		initialiseCrypt();
 //		XAsetStatus(CdInit());
 #endif
 
@@ -1201,3 +1203,21 @@ void DisplayOnScreenInfo ( void )
 
 
 
+void initialiseCrypt()
+{
+	unsigned char result[8];
+
+	utilPrintf("Reading crypt key\n");
+	InitCrypt();
+	result[0] = CdlModeSize1;
+	CdControlB(CdlSetmode, result, result);
+	VSync(0);
+	VSync(4);
+	VSync(4);
+	VSync(4);
+	VSync(4);
+	ReadCrypt();
+	while(!GOTKEY)
+		VSync(1);
+	utilPrintf("Obtained crypt key\n");
+}
