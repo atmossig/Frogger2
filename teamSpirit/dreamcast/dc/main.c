@@ -536,7 +536,8 @@ void main()
 	switch(langNum)
 	{
 		case SYD_CFG_JAPANESE:
-			gameTextLang = LANG_UK;
+//			gameTextLang = LANG_UK;
+			gameTextLang = LANG_US;
 			break;
 		case SYD_CFG_ENGLISH:
 			gameTextLang = LANG_UK;
@@ -554,7 +555,8 @@ void main()
 			gameTextLang = LANG_IT;
 			break;
 		default:
-			gameTextLang = LANG_UK;
+//			gameTextLang = LANG_UK;
+			gameTextLang = LANG_US;
 			break;
 	}
 
@@ -629,7 +631,7 @@ void main()
 	cardInitialise();
 
 	// ????
-	LoadGame();
+//	LoadGame();
 
 	// load game from memory card
 	actFrameCount = 0;
