@@ -804,6 +804,10 @@ void UpdateVent( ENEMY *cur )
 		path->endFrame = actFrameCount + (60*path->nodes[0].speed);
 		act->fxCount = 0;
 
+		// Play sound when firing
+		if( path->nodes->sample )
+			PlaySample( path->nodes->sample, &act->actor->pos, 0, SAMPLE_VOLUME, -1 );
+
 		cur->isSnapping = 2;
 		break;
 
@@ -1680,6 +1684,9 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 			path->fromNode = path->toNode;
 			path->toNode++;
 		}
+
+		if( path->nodes[path->fromNode].sample )
+			PlaySample( path->nodes[path->fromNode].sample, &nme->nmeActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
 	}
 	else if(flags & ENEMY_NEW_BACKWARDS) // enemy moves backwards through path nodes
 	{
@@ -1714,15 +1721,18 @@ void UpdateEnemyPathNodes(ENEMY *nme)
 			path->toNode--;
 		}
 
+		if( path->nodes[path->fromNode].sample )
+			PlaySample( path->nodes[path->fromNode].sample, &nme->nmeActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
 	}
 	else if( flags & (ENEMY_NEW_MOVEDOWN | ENEMY_NEW_MOVEUP) )
 	{
 		if( flags & ENEMY_NEW_PINGPONG )
+		{
 			nme->flags	^= (ENEMY_NEW_MOVEUP | ENEMY_NEW_MOVEDOWN);
+			if( path->nodes->sample )
+				PlaySample( path->nodes->sample, &nme->nmeActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
+		}
 	}
-
-	if( path->nodes[path->fromNode].sample )
-		PlaySample( path->nodes[path->fromNode].sample, &nme->nmeActor->actor->pos, 0, SAMPLE_VOLUME, -1 );
 
 	nme->speed		= path->nodes[path->fromNode].speed;
 	nme->isWaiting	= path->nodes[path->fromNode].waitTime;
