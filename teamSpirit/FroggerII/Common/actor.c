@@ -140,6 +140,9 @@ void DrawActorList()
 	{
 		float oFs = fStart, oFe = fEnd;
 		
+		waterObject = 0;
+		modgyObject = 0;
+
 		fStart = 7000.0;
 		fEnd = 7001.0;
 
@@ -177,6 +180,9 @@ void DrawActorList()
 	while(cur)
 	{
 		float slideSpeed = 0;
+
+		waterObject = 0;
+		modgyObject = 0;
 
 		if ((cur->flags & ACTOR_SLIDYTEX))
 		{
