@@ -24,8 +24,8 @@
 */
 void PrintBackdrop(BACKDROP *bDrop)
 {
-	SetRaster(NORMAL);
-	PrintSpriteSize(bDrop->xPos,bDrop->yPos,bDrop->data,640,480);
+//	SetRaster(NORMAL);
+//	PrintSpriteSize(bDrop->xPos,bDrop->yPos,bDrop->data,640,480);
 }
 
 
@@ -76,14 +76,14 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 		}
 		else
 		{
-			SetTexture(tOver->font->data);
-			SetRaster(COLORKEY);
-			SetCullMode(CULLPOLY_NONE);
-			SetColorTex(0xffff);
+//			SetTexture(tOver->font->data);
+//			SetRaster(COLORKEY);
+//			SetCullMode(CULLPOLY_NONE);
+//			SetColorTex(0xffff);
 
 			u = tOver->font->offset[letterID].v[X];
 			v = tOver->font->offset[letterID].v[Y];
-			
+/*			
 			ClipPolygon(x,y,u,v,
 						x+tOver->font->width,y,u+tOver->font->width-1,v,
 						x+tOver->font->width,y+tOver->font->height,u+tOver->font->width-1,v+tOver->font->height-1);
@@ -91,7 +91,7 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 			ClipPolygon(x+tOver->font->width,y+tOver->font->height,u+tOver->font->width-1,v+tOver->font->height-1,
 						x,y+tOver->font->height,u,v+tOver->font->height-1,
 						x,y,u,v);
-
+*/
 			x += tOver->font->xSpacing[letterID];
 		}
 
@@ -111,10 +111,11 @@ void PrintTextAsOverlay(TEXTOVERLAY *tOver)
 */
 void PrintSpriteOverlays()
 {
+/*
 	SPRITEOVERLAY *cur;
 	short *texture,x,y;
 
-	SetRaster(COLORKEY);
+//	SetRaster(COLORKEY);
 	cur = spriteOverlayList;
 	while(cur)
 	{
@@ -187,29 +188,13 @@ void PrintSpriteOverlays()
 			texture = cur->frames[cur->currFrame];
 
 			// use this function until texture sizes other than 256x256 are supported
-			PrintSpriteSize(cur->xPos,cur->yPos,texture,cur->width,cur->height);
+//			PrintSpriteSize(cur->xPos,cur->yPos,texture,cur->width,cur->height);
 
-/*---- [ USE THIS FOR PRINTING SPRITES ON SCREEN-ALIGNED POLYGONS ] ----->
-			SetTexture(texture);
-			SetRaster(COLORKEY);
-			SetCullMode(CULLPOLY_NONE);
-			SetColorTex(0xffff);
-
-			x = cur->xPos;
-			y = cur->yPos;
-		
-			ClipPolygon(x,y,0,0,
-						x+cur->width,y,cur->width-1,0,
-						x+cur->width,y+cur->height,cur->width-1,cur->height-1);
-
-			ClipPolygon(x+cur->width,y+cur->height,cur->width-1,cur->height-1,
-						x,y+cur->height,0,cur->height-1,
-						x,y,0,0);
-*/
 		}
 
 		cur = cur->next;
 	}
+*/
 }
 
 

@@ -69,7 +69,7 @@ LEVEL_HISCORE levelTable[MAX_WORLDS*3] = {
 
 char	validEeprom = FALSE;
 
-char	eepromMessageQueue [ MAX_EEPROM_MESSAGES ];
+//char	eepromMessageQueue [ MAX_EEPROM_MESSAGES ];
 char	eepromMessageNum;
 
 short	eepromPresent = FALSE;
@@ -91,6 +91,7 @@ SAVE_SLOT		saveSlot [ NUM_SAVE_SLOTS ];
 */
 void Wait ( short time )
 {
+/*
 	u64	curTime, stTime;
 
 	stTime = curTime = OS_CYCLES_TO_USEC ( osGetTime ( ) );
@@ -98,6 +99,7 @@ void Wait ( short time )
 	while ( ( curTime - stTime ) < time )
 		curTime = OS_CYCLES_TO_USEC ( osGetTime ( ) );
 	// ENDWHILE
+*/
 }
 
 
@@ -110,6 +112,7 @@ void Wait ( short time )
 */
 void InitEepromMessageQueue ( void )
 {
+/*
 	char x;
 
 	//initialise eeprom message queue
@@ -117,6 +120,7 @@ void InitEepromMessageQueue ( void )
 	for(x = 0; x < MAX_EEPROM_MESSAGES; x++)
 		eepromMessageQueue[x] = EEPROM_IDLE;
 	// ENDFOR
+*/
 }
 
 
@@ -130,9 +134,11 @@ void InitEepromMessageQueue ( void )
 */
 void InitEeprom ( void )
 {
+/*
 	eepromPresent = osEepromProbe(&controllerMsgQ);
 	PostEepromMessage(EEPROM_VALID);
 	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -144,6 +150,7 @@ void InitEeprom ( void )
 */
 void GetEepromMessage ( void )
 {
+/*
 	short x;
 
 	for(x = 0; x < MAX_EEPROM_MESSAGES - 1; x++)
@@ -152,6 +159,7 @@ void GetEepromMessage ( void )
 	}
 	eepromMessageQueue[x] = EEPROM_IDLE;
 	eepromMessageNum--;
+*/
 }
 
 
@@ -165,8 +173,10 @@ void GetEepromMessage ( void )
 */
 void PostEepromMessage ( short message ) 
 {
+/*
 	//add new message to the queue
 	eepromMessageQueue[eepromMessageNum++] = message;
+*/
 }
 
 
@@ -175,12 +185,15 @@ char *cartID = {"GVR8"};
 		
 void SaveID(void)
 {
+/*
 	PostEepromMessage(EEPROM_SAVEID);
 	while(eepromMessageQueue[0] != EEPROM_IDLE);	//wait for eeprom to finish
+*/
 }	
 
 void EepromSaveID(void )
 {
+/*
 	short	res;
 	char	buffer[8];
 
@@ -191,6 +204,7 @@ void EepromSaveID(void )
 		res = osEepromLongWrite(&controllerMsgQ, 0, (u8 *)buffer, 8);
 		Wait(EEPROM_DELAY);
 	}
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -202,6 +216,7 @@ void EepromSaveID(void )
 */
 void EepromValid ( void )
 {
+/*
 	char	buffer[8];
 	short	res;
 
@@ -218,7 +233,7 @@ void EepromValid ( void )
 			validEeprom = FALSE;
 
 	}
-
+*/
 }
 
 
@@ -231,8 +246,10 @@ void EepromValid ( void )
 */
 void SaveLevelScores ( void )
 {
+/*
 	PostEepromMessage ( EEPROM_SAVELEVELSCORES );
 	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
+*/
 }
 
 
@@ -246,6 +263,7 @@ void SaveLevelScores ( void )
 */
 void EepromSaveLevelScores ( void )
 {
+/*
 	short	res = 1;
 
 	if ( eepromPresent )
@@ -257,6 +275,7 @@ void EepromSaveLevelScores ( void )
 		}while(res != 0);
 	}
 	// ENDIF
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -268,8 +287,10 @@ void EepromSaveLevelScores ( void )
 */
 void LoadLevelScores ( void )
 {
+/*
 	PostEepromMessage ( EEPROM_LOADLEVELSCORES );
 	while ( eepromMessageQueue[0] != EEPROM_IDLE );	//wait for eeprom to finish
+*/
 }
 
 /*	--------------------------------------------------------------------------------
@@ -281,6 +302,7 @@ void LoadLevelScores ( void )
 */
 void EepromLoadLevelScores ( void )
 {
+/*
 	short	res = 1;
 
 	if ( eepromPresent )
@@ -292,6 +314,7 @@ void EepromLoadLevelScores ( void )
 		}while(res != 0);
 	}
 	// ENDIF
+*/
 }
 
 

@@ -17,27 +17,6 @@ extern "C"
 {
 #endif
 
-
-#define COLLISION_BASE	"collision\\"
-#define SCENIC_BASE		"scenic\\"
-#define TEXTURE_BASE	"textures\\hardware\\"
-#define OBJECT_BASE		"objects\\"
-
-extern char *baseDirectory;
-
-//----- [ DATA STRUCTURES ] --------------------------------------------------------------------//
-
-typedef struct TAGWININFO
-{
-	HWND		hWndMain;						// main window handle
-	HANDLE		hInstance;						// our instance handle
-
-} WININFO;
-
-//----- [ GLOBALS ] ----------------------------------------------------------------------------//
-
-extern WININFO winInfo;
-
 extern short mouseX;
 extern short mouseY;
 

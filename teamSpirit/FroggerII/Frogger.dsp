@@ -64,6 +64,7 @@ LINK32=link.exe
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
 # ADD CPP /nologo /w /W0 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "PC_VERSION" /YX /FD /c
@@ -76,7 +77,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 gelf.lib dxguid.lib ddraw.lib dinput.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -914,6 +915,22 @@ SOURCE=.\N64\Zbuffer.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\Pc\audio.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\audio.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\block.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\block.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\Controll.cpp
 # End Source File
 # Begin Source File
@@ -922,11 +939,75 @@ SOURCE=.\Pc\Controll.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Pc\directx.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\directx.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Pc\font.c
 # End Source File
 # Begin Source File
 
 SOURCE=.\Pc\font.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\map.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\map.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\objects.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\objects.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\pcmisc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\pcmisc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\printgfx.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\printgfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\savegame.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\savegame.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\Subcube.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\Subcube.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\texture.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Pc\texture.h
 # End Source File
 # End Group
 # Begin Group "Editor"

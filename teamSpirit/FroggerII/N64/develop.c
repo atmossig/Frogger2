@@ -572,22 +572,3 @@ void DrawTestWater()
 
 	seed += devPhaseInc;
 }
-
-void FreeAllLists ( void )
-{
-	FreeActorList();
-	FreeAnimationList();
-	FreeTextureList();
-	FreeBackdrop(myBackdrop);
-
-	FreeLevel();
-	
-	FreeAllObjectBanks();
-	FreeAllTextureBanks();
-	FreeCameoList();
-
-	myBackdrop	= NULL;
-
-	testPause		= 0;
-	darkenedLevel	= 0;
-}

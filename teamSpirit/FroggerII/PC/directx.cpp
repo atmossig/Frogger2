@@ -36,8 +36,6 @@ LPDIRECT3DVIEWPORT2		pDirect3DViewport;
 
 long a565Card = 0;
 
-void dp(char *format, ...);
-
 long DirectXInit(HWND window, long hardware)
 {
 	D3DVIEWPORT				viewport;
@@ -51,12 +49,12 @@ long DirectXInit(HWND window, long hardware)
 	if (DirectDrawCreate(NULL, &pDirectDraw, NULL) != DD_OK)
 	 return FALSE;
 	
-	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_NORMAL)!=DD_OK)
-//	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX) != DD_OK)
+//	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_NORMAL)!=DD_OK)
+	if (pDirectDraw->SetCooperativeLevel(window, DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX) != DD_OK)
 	 return FALSE;
 
-//	if (pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS))
-//	 return FALSE;
+	if (pDirectDraw->SetDisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BITS))
+	 return FALSE;
 
 	// Get the primary display surface
 	DDINIT(ddsd);
@@ -85,8 +83,8 @@ long DirectXInit(HWND window, long hardware)
 	if (pDirectDraw->CreateSurface(&ddsd, &hiddenSrf, NULL) != DD_OK)
 	 return FALSE;
 	
-	//if (primarySrf->AddAttachedSurface(hiddenSrf) != DD_OK)
-	// return FALSE;
+	if (primarySrf->AddAttachedSurface(hiddenSrf) != DD_OK)
+	 return FALSE;
 
 	if (hardware)
 	{
@@ -169,8 +167,9 @@ void DirectXFlip(void)
 	D3DRECT rect;
 	RECT r,a;
 	// Flip the back buffer to the primary surface
-	//primarySrf->Flip(NULL,DDFLIP_WAIT);
-	GetClientRect (win,&r);
+	primarySrf->Flip(NULL,DDFLIP_WAIT);
+	
+/*	GetClientRect (win,&r);
 	GetWindowRect (win,&a);
 	a.left+=GetSystemMetrics(SM_CXSIZEFRAME);
 	a.top+=GetSystemMetrics(SM_CYSIZEFRAME);
@@ -187,7 +186,7 @@ void DirectXFlip(void)
 	rect.x1 = 0;
 	rect.y1 = 0;
 	rect.x2 = SCREEN_WIDTH;
-	rect.y2 = SCREEN_HEIGHT;
+	rect.y2 = SCREEN_HEIGHT;*/
 	pDirect3DViewport->Clear(1, &rect, D3DCLEAR_ZBUFFER);
 }
 
@@ -236,7 +235,6 @@ LPDIRECTDRAWSURFACE CreateTextureSurface(long xs,long ys, short *data, BOOL hard
 	if (pDirectDraw->CreateSurface(&ddsd, &pSurface, NULL) != DD_OK)
 	{
 		RELEASE(pSurface); 
-		dp("Couldn't create surface\n");
 		return NULL;
 	}
 
@@ -279,7 +277,6 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,1);
 	pDirect3DDevice->SetRenderState(D3DRENDERSTATE_ZFUNC,D3DCMP_LESS);
-	//dp("Prim\n");mnlaskdjfhgdqpoieoiurewyytiuw
 	if (pDirect3DDevice->DrawIndexedPrimitive(
 		D3DPT_TRIANGLELIST,
 		D3DVT_TLVERTEX,
@@ -291,7 +288,9 @@ void DrawAHardwarePoly (D3DTLVERTEX *v,long vC, short *fce, long fC, D3DTEXTUREH
 			| D3DDP_DONOTLIGHT 
 			| D3DDP_DONOTUPDATEEXTENTS 
 			| D3DDP_WAIT)!=D3D_OK)
-			dp("Bugger\n");	
+	{
+		// BUGGER !!!!! CAN'T DRAW POLY JOBBY !
+	}
 }
 
 D3DTEXTUREHANDLE ConvertSurfaceToTexture(LPDIRECTDRAWSURFACE srf)

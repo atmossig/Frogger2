@@ -57,8 +57,8 @@ extern char	ActiveController;
 
 //----- [ FUNCTION PROTOTYPES ] ----------------------------------------------------------------//
 
-extern void RunFrontEnd			( void );
-
+void RunFrontEnd();
+void GameLoop();
 
 
 #endif

@@ -294,9 +294,6 @@ void RunSaveLoadSelect ( void )
 			DisableTextOverlay ( slotWorlds [ c ] );
 			DisableTextOverlay ( slotLevels [ c ] );
 		}
-		// ENDFOR
-
-//		CreateOverlays();
 
 		CreateAndAddSpriteOverlay(200,205,"isl1.bmp",32,32,255,255,255,120,0);
 		CreateAndAddSpriteOverlay(232,205,"isl2.bmp",32,32,255,255,255,120,0);
@@ -1535,15 +1532,15 @@ void RunSoundAdjust()
 
 		currFont	= smallFont;
 
-		musicVol	= 1;
-		sfxVol		= 10;
 		start		= CreateAndAddTextOverlay(150,122,"music",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,0);
 		retro		= CreateAndAddTextOverlay(90,140,"sfx",YES,NO,255,255,255,255,currFont,TEXTOVERLAY_WAVECHARS,1,3.14/2);
 
 		musVolText	= CreateAndAddTextOverlay ( 230,122,"",NO,NO,255,255,255,255,currFont,0,1,0);
 		sfxVolText	= CreateAndAddTextOverlay ( 230,140,"",NO,NO,255,255,255,91,currFont,0,1,0);
-		sprintf ( musVolText->text, "%lu", musicVol );
-		sprintf ( sfxVolText->text, "%lu", sfxVol );
+//		musicVol	= 1;
+//		sfxVol		= 10;
+//		sprintf ( musVolText->text, "%lu", musicVol );
+//		sprintf ( sfxVolText->text, "%lu", sfxVol );
 
 //		runningDevStuff = 1;
 
@@ -1585,13 +1582,13 @@ void RunSoundAdjust()
 		{
 			if(currentSelection == 0)
 			{
-				musicVol++;
-				sprintf ( musVolText->text, "%lu", musicVol );
+//				musicVol++;
+//				sprintf ( musVolText->text, "%lu", musicVol );
 			}
 			else if(currentSelection == 1)
 			{
-				sfxVol++;
-				sprintf ( sfxVolText->text, "%lu", sfxVol );
+//				sfxVol++;
+//				sprintf ( sfxVolText->text, "%lu", sfxVol );
 			}
 			// ENDELSEIF - 
 		}
@@ -1599,13 +1596,13 @@ void RunSoundAdjust()
 		{
 			if(currentSelection == 0)
 			{
-				musicVol--;
-				sprintf ( musVolText->text, "%lu", musicVol );
+//				musicVol--;
+//				sprintf ( musVolText->text, "%lu", musicVol );
 			}
 			else if(currentSelection == 1)
 			{
-				sfxVol--;
-				sprintf ( sfxVolText->text, "%lu", sfxVol );
+//				sfxVol--;
+//				sprintf ( sfxVolText->text, "%lu", sfxVol );
 			}
 			// ENDELSEIF - 
 		}
@@ -1814,5 +1811,3 @@ void RunHiScoreMode ( void )
 
 	lastbutton = button;
 }
-
-   

@@ -18,7 +18,6 @@ extern char runningWaterStuff;
 
 extern void RunDevelopmentMenu();
 extern void RunDevelopmentRoutines();
-extern void FreeAllLists();
 
 extern void DrawTestPause();
 

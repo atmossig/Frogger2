@@ -48,7 +48,7 @@ typedef struct _WORLDLEVELHISCORES
 //************************************************************************************************
 //	Global Externs
 
-WORLDLEVELHISCORES	worldHiScoreData	[ MAX_WORLDS ];
-HISCORE				hiScoreData			[ MAX_HISCORE_SLOTS ];
+extern WORLDLEVELHISCORES	worldHiScoreData	[ MAX_WORLDS ];
+extern HISCORE				hiScoreData			[ MAX_HISCORE_SLOTS ];
 
 #endif

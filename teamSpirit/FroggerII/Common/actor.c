@@ -99,7 +99,7 @@ void DrawActorList()
 	float distance;
 		
 	objectMatrix = 0;
-	SetRenderMode();
+//	SetRenderMode();
 
 	cur = actList;
 	while(cur)

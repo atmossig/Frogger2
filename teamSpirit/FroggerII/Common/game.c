@@ -28,6 +28,8 @@ unsigned long currTileNum = 0;
 
 struct gameStateStruct gameState;
 
+unsigned short screenNum = 0;
+
 GAMETILE *firstTile;
 GAMETILE **gTStart;
 
@@ -804,9 +806,13 @@ void SitAndFace(ACTOR2 *me, GAMETILE *tile, long fFacing)
 */
 
 float sinkScale = 5;
-extern long move;
-extern long playMode;
-extern long multiplayerRun;
+//extern long move;
+//extern long playMode;
+//extern long multiplayerRun;
+long move;
+long playMode = NORMAL_PMODE;
+long multiplayerRun;
+
 char tmpBuffer[16];
 
 long carryOnBabies = 1;

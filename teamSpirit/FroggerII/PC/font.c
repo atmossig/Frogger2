@@ -115,7 +115,7 @@ void InitFont()
 
 	// Initialise the 32x32 font ----------------------------------------------------
 
-	dp("Initialising 32x32 font...");
+	dprintf"Initialising 32x32 font..."));
 
 	bigFont->width		= 32;
 	bigFont->height		= 32;
@@ -162,11 +162,11 @@ void InitFont()
 		}
 	}
 
-	dp("OK !\n");
+	dprintf"OK !\n"));
 
 	// Initialise the 16x16 font ----------------------------------------------------
 
-	dp("Initialising 16x16 font...");
+	dprintf"Initialising 16x16 font..."));
 
 	smallFont->width	= 16;
 	smallFont->height	= 16;
@@ -201,13 +201,13 @@ void InitFont()
 		}
 	}
 
-	dp("OK !\n");
+	dprintf"OK !\n"));
 
 	// Initialise the 8x8 font ----------------------------------------------------
 
-	dp("Initialising 8x8 font...");
+	dprintf"Initialising 8x8 font..."));
 
-	dp("OK !\n");
+	dprintf"OK !\n"));
 
 	
 	// Make 16x16 font the current font

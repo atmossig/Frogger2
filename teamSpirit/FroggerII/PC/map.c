@@ -22,15 +22,12 @@ HINSTANCE mapHandle = NULL;
 HINSTANCE sceHandle = NULL;
 char *aLevBank = NULL;
 
-unsigned long numBabies = 3;
 unsigned long numSafe = 1;
 unsigned long numPwrups = 3;
 
 GAMETILE *firstTile;
 
-GAMETILE **bTStart;
 GAMETILE **bTSafe;
-GAMETILE **gTStart;
 GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;
@@ -263,9 +260,12 @@ void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile)
 	frogState |= FROGSTATUS_ISSTANDING;
 	frogState &= ~FROGSTATUS_ISTELEPORTING;
 
+	// create vector with +'s...
+/*
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,act->actor->pos.v[X],act->actor->pos.v[Y],act->actor->pos.v[Z],&upVec,30,0,0,30);
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,act->actor->pos.v[X],act->actor->pos.v[Y] + 20,act->actor->pos.v[Z],&upVec,25,0,0,25);
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,act->actor->pos.v[X],act->actor->pos.v[Y] + 40,act->actor->pos.v[Z],&upVec,20,0,0,20);
 	CreateAndAddFXRipple(RIPPLE_TYPE_TELEPORT,act->actor->pos.v[X],act->actor->pos.v[Y] + 60,act->actor->pos.v[Z],&upVec,15,0,0,15);
+*/
 }
 

@@ -72,8 +72,11 @@ typedef struct
 extern MATRIXSTACK	matrixStack;
 
 
+#ifndef PC_VERSION
 extern char *atantab;
 extern char *acostab;
+#endif
+
 extern VECTOR zero;
 extern QUATERNION zeroQuat;
 extern QUATERNION vertQ;
@@ -85,11 +88,18 @@ extern VECTOR rightVec;
 
 
 //maths functions
+
+#ifndef PC_VERSION
 void InitAtan();
 float acos(float val);
 float acosBetter(float val);
 float atan(float val);
 float atan2(float z,float x);
+#else
+#define acosBetter(x)	(acos(x))
+#endif
+
+
 void RoundToZero(float *f);
 BOOL IntervalsOverlap(float lo1,float hi1,float lo2,float hi2);
 int Random(ULONG val);
@@ -172,6 +182,25 @@ void ComputeResultMatrix();
 void LoadMatrix(float *matrix);
 void CalculateQuatForPlane(ACTOR *actor,QUATERNION *qAim,PLANE *plane);
 void FlipVector2D(VECTOR *vector);
+
+
+#ifdef PC_VERSION
+
+void guRotateF(MATRIX *m1,MATRIX *m2,MATRIX *m3);
+void guMtxF2L(MATRIX *m1,MATRIX *m2,MATRIX *m3);
+void guMtxIdent (float a[4][4]);
+void guScaleF(float a[4][4], float dx, float dy, float dz);
+void guTranslateF(float a[4][4], float dx, float dy, float dz);
+void guMtxCatF(float b[4][4], float a[4][4], float ret[4][4]);
+void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float *destY,float *destZ);
+void guNormalise (float *x, float *y, float *z);
+void guLookAtF (float m[4][4],
+				float xEye, float yEye, float zEye,
+				float xAt, float yAt, float zAt,
+				float xUp, float yUp, float zUp);
+
+#endif
+
 
 
 #endif

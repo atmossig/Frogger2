@@ -17,6 +17,13 @@
 #define ATTACH (1<<0)
 // -----------------
 
+enum
+{
+	NORMAL_PMODE = 0,
+	TWO_PMODE = 1,
+	FOUR_PMODE = 2
+};
+
 extern struct gameStateStruct gameState;
 
 //extern long timeMin,timeSec;
@@ -24,9 +31,15 @@ extern struct gameStateStruct gameState;
 extern long gameIsOver;
 extern long levelIsOver;
 
+extern unsigned short screenNum;
+
 extern unsigned long iceMoveDir;
 extern unsigned long autoPlaying;
 extern unsigned long recordKeying;
+
+extern long move;
+extern long playMode;
+extern long multiplayerRun;
 
 extern unsigned long num;
 

@@ -9,15 +9,14 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+extern "C"
+{
+
 #include <ultra64.h>
 
 #include "incs.h"
 
-extern "C"
-{
-
 OSContPad controllerdata[4];
-
 
 //----- [ PC RELATED ] -------------------------------------------------------------------------//
 
@@ -245,5 +244,18 @@ void ProcessUserInput(HWND hWnd)
 		controllerdata[0].button |= CONT_R;
 
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: ResetParameters
+	Purpose			: resets parameters
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void ResetParameters()
+{
+}
+
 
 }	// extern "C" end

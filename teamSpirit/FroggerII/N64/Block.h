@@ -318,8 +318,6 @@ extern char					mirrorTextures;
 extern short				farPlaneDist;
 extern short				nearPlaneDist;
 
-extern long					screenNum;
-
 extern						Vtx font_vtx[];
 
 extern OSMesgQueue			dmaMessageQ, rspMessageQ, rdpMessageQ, retraceMessageQ;

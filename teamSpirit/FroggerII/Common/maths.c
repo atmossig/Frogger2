@@ -97,6 +97,7 @@ void CrossProductVertical(VECTOR *result,VECTOR *operand2)
 	Returns 	: float
 	Info 		:
 */
+#ifndef PC_VERSION
 float acos(float val)
 {
     int index;
@@ -170,9 +171,11 @@ float acosBetter(float val)
 
 	return ret;
 }
+#endif
 
+
+#ifndef PC_VERSION
 USHORT atanStep,maxAtanVal;
-
 /*	--------------------------------------------------------------------------------
 	Function 	: 
 	Purpose 	: 
@@ -245,6 +248,7 @@ float atan2(float z,float x)
 			return -PI_OVER_2;
 	}
 }
+#endif
 
 /*	--------------------------------------------------------------------------------
 	Method : Slerp
@@ -1622,3 +1626,119 @@ void CalculateQuatForPlane2(float yRot,QUATERNION *qAim,VECTOR *normal)
 	GetQuaternionFromRotation(&tempQ,&tempRot);
 	QuaternionMultiply(qAim,&tempQ,qAim);
 }
+
+
+
+#ifdef PC_VERSION	//----------------------------------------------------------------------------
+
+
+void guRotateF(MATRIX *m1,MATRIX *m2,MATRIX *m3)
+{
+}
+
+void guMtxF2L(MATRIX *m1,MATRIX *m2,MATRIX *m3)
+{
+}
+
+void guMtxIdent (float a[4][4])
+{
+	int i,j;
+	for (i=0; i<4; i++)
+		for (j=0; j<4; j++)
+			a[i][j] = (i==j) ? 1.0f : 0.0f;
+}
+
+void guScaleF(float a[4][4], float dx, float dy, float dz)
+{
+	guMtxIdent (a);
+	
+	a[0][0] = dx;
+	a[1][1] = dy;
+	a[2][2] = dz;
+}
+
+void guTranslateF(float a[4][4], float dx, float dy, float dz)
+{
+	guMtxIdent (a);
+	
+	a[3][0] = dx;
+	a[3][1] = dy;
+	a[3][2] = dz;		
+}
+
+void guMtxCatF(float b[4][4], float a[4][4], float ret[4][4])
+{
+	float adj[4][4]={0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
+	int i,j,k;
+
+ 	for (i=0; i<4; i++) 
+		for (j=0; j<4; j++) 
+			for (k=0; k<4; k++) 
+				adj[i][j] += a[k][j] * b[i][k];
+
+	memcpy (ret,adj,sizeof(float)*16);
+}
+
+void guMtxXFMF(float m[4][4],float srcX,float srcY,float srcZ,float *destX,float *destY,float *destZ)
+{
+	*destX = (m[0][0]*srcX)+(m[1][0]*srcY)+(m[2][0]*srcZ)+(m[3][0]);
+	*destY = (m[0][1]*srcX)+(m[1][1]*srcY)+(m[2][1]*srcZ)+(m[3][1]);
+	*destZ = (m[0][2]*srcX)+(m[1][2]*srcY)+(m[2][2]*srcZ)+(m[3][2]);
+}
+
+void guNormalise (float *x, float *y, float *z)
+{
+	float length = sqrt((*x)*(*x)+(*y)*(*y)+(*z)*(*z));
+	(*x)/=length;
+	(*y)/=length;
+	(*z)/=length;
+}
+
+void guLookAtF (float m[4][4],
+				float xEye, float yEye, float zEye,
+				float xAt, float yAt, float zAt,
+				float xUp, float yUp, float zUp)
+{
+    VECTOR  up, right, view_dir,world_up,from;
+    float dx,dy,dz;
+
+	guMtxIdent (m);
+
+	view_dir.v[X] = xAt - xEye;
+	view_dir.v[Y] = yAt - yEye;
+	view_dir.v[Z] = zAt - zEye;
+	
+	world_up.v[X] = xUp;
+	world_up.v[Y] = yUp;
+	world_up.v[Z] = zUp;
+	
+	from.v[X] = xAt;
+	from.v[Y] = yAt;
+	from.v[Z] = zAt;
+	
+	MakeUnit(&view_dir);
+    
+	CrossProduct(&right, &world_up, &view_dir);
+    CrossProduct(&up, &view_dir, &right);
+    
+    MakeUnit(&right);
+    MakeUnit(&up);
+    
+    m[0][0] = right.v[X];
+    m[1][0] = right.v[Y];
+    m[2][0] = right.v[Z];
+    m[0][1] = up.v[X];
+    m[1][1] = up.v[Y];
+    m[2][1] = up.v[Z];
+    m[0][2] = view_dir.v[X];
+    m[1][2] = view_dir.v[Y];
+    m[2][2] = view_dir.v[Z];
+    m[3][0] = -DotProduct(&right, &from);
+    m[3][1] = -DotProduct(&up, &from);
+    m[3][2] = -DotProduct(&view_dir, &from);
+    
+    //if (roll != 0.0f) 
+	//    view = MatrixMult(RotateZ(-roll), view); 
+}
+
+#endif	//----------------------------------------------------------------------------------------

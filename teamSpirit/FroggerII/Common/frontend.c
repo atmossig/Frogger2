@@ -56,7 +56,7 @@ void RunFrontEnd ( void )
 			break;
 
 		case DEVELOPMENTMENU_MODE:
-				RunDevelopmentMenu();
+//				RunDevelopmentMenu();
 			break;
 
 		case SNDVIEW_MODE:
@@ -85,7 +85,7 @@ void RunFrontEnd ( void )
 			break;
 
 		case DEVELOPMENT_MODE:
-				RunDevelopmentRoutines();
+//				RunDevelopmentRoutines();
 			break;
 
 	};
@@ -93,3 +93,73 @@ void RunFrontEnd ( void )
 
 };
 
+
+/* --------------------------------------------------------------------------------
+	Programmer	: Matthew Cloy
+	Function	: GameLoop 
+
+	Purpose		:
+	Parameters	: (void)
+	Returns		: static void 
+*/
+
+long ingameRate = 3;
+
+void GameLoop(void)
+{
+	switch (gameState.mode)
+	{
+		case GAME_MODE:
+			desiredFrameRate = newDesiredFrameRate = ingameRate;
+//			runningWaterStuff = 1;
+			//currFont = bigFont;
+			if(frameCount == 15)
+				StartDrawing("gameloop");
+
+			UseAAMode = 2;
+			UseZMode = 1;
+		
+			RunGameLoop();
+			frameCount++;
+			break;
+		case CAMEO_MODE:
+		case PAUSE_MODE:
+			desiredFrameRate = newDesiredFrameRate = ingameRate;
+//			runningWaterStuff = 1;
+			//currFont = bigFont;
+			if(frameCount == 15)
+				StartDrawing("gameloop");
+
+			RunPauseMenu();
+			frameCount++;
+			break;
+	
+		//case 
+
+
+
+		case FRONTEND_MODE:
+//			currFont = bigFont;
+			desiredFrameRate = newDesiredFrameRate = 1;
+			if ( frameCount == 15 )
+				StartDrawing ( "gameloop" );
+			// ENDIF - frameCount == 15
+			RunFrontEnd();
+			frameCount++;
+			break;
+
+		case OLDEFROGGER_MODE:
+
+/*			// olde original 2D Frogger mode
+			desiredFrameRate = newDesiredFrameRate = 1;
+			currFont = bigFont;
+			if(frameCount == 15)
+				StartDrawing("gameloop");
+
+			RunOldeFrogger();
+
+			frameCount++;*/
+			gameState.mode = FRONTEND_MODE;
+			break;
+	}
+}

@@ -430,3 +430,31 @@ void FreeLevel(void)
 	testPause		= 0;
 	darkenedLevel	= 0;
 }
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function		: FreeAllLists
+	Purpose			: 
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void FreeAllLists ( void )
+{
+	FreeActorList();
+	FreeAnimationList();
+	FreeTextureList();
+	FreeBackdrop(myBackdrop);
+
+	FreeLevel();
+	
+	FreeAllObjectBanks();
+	FreeAllTextureBanks();
+	FreeCameoList();
+
+	myBackdrop	= NULL;
+
+	testPause		= 0;
+	darkenedLevel	= 0;
+}

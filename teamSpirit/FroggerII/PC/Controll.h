@@ -48,6 +48,8 @@ extern void DeInitMouseControl();
 
 extern void ProcessUserInput(HWND hWnd);
 
+extern void ResetParameters();
+
 #define CONT_UP     0x0001
 #define CONT_DOWN   0x0002
 #define CONT_LEFT   0x0004

@@ -317,4 +317,6 @@ extern void FreeAllObjectBanks();
 extern void InitLevel ( unsigned long worldID, unsigned long levelID );
 extern void FreeLevel();
 
+extern void FreeAllLists();
+
 #endif
