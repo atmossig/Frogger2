@@ -342,6 +342,7 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 	InitGaribLinkedList();
 	InitSpriteOverlayLinkedList();
 	InitTextOverlayLinkedList();
+	InitTriggerList();
 	
 	LoadLevelEntities(worldID,levelID);
 	//InitPlatformsForLevel(worldID,levelID);
@@ -401,6 +402,8 @@ void InitLevel ( unsigned long worldID, unsigned long levelID )
 */
 void FreeLevel(void)
 {
+	KillAllTriggers();
+
 	FreeActorList();
 
 	FreeFXSwarmLinkedList();

@@ -266,7 +266,7 @@ void ToggleEnemyMove( EVENT *event )
 {
 	ENEMY *nme = (ENEMY *)event->data[0];
 
-	nme->speed = (nme->speed) ? 0 : nme->startSpeed;
+	nme->isWaiting = (nme->isWaiting) ? 0 : -1;
 }
 
 
@@ -304,6 +304,22 @@ void PlaySFX( EVENT *event )
 		PlaySampleRadius( snum, point, vol, pitch, radius );
 	else
 		PlaySample( snum, point, vol, pitch );
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: EvAnimateActor
+	Purpose 	: Animate an actor
+	Parameters 	: Pointer to event structure
+*/
+
+void EvAnimateActor( EVENT *event )
+{
+	ACTOR *actor = (ACTOR *)event->data[0];
+	int anim = *(int*)event->data[1];
+	int flags = *(int*)event->data[2];
+	float speed = *(float*)event->data[3];
+
+	AnimateActor(actor, anim, (flags & 1) != 0, (flags & 2) != 0, speed);
 }
 
 

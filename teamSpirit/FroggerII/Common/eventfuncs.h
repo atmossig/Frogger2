@@ -31,6 +31,7 @@ extern void TogglePlatformMove( EVENT *event );
 extern void ToggleEnemyMove( EVENT *event );
 extern void ToggleTileLink( EVENT *event );
 extern void PlaySFX( EVENT *event );
+extern void EvAnimateActor( EVENT *event );
 
 /*----- [ LEVEL SETUP PROTOTYPES ] -------------------------------------------------------------*/
 extern void InitEventsForLevel( unsigned long worldID, unsigned long levelID );
