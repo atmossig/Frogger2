@@ -65,7 +65,7 @@ void CreateFrogger(unsigned long createFrogActor,unsigned long createFrogOverlay
 		SetFroggerStartPos ( gTStart[0], frog[0] );
 		frog[0]->action.lives		= 3;
 		frog[0]->action.isOnFire	= 0;
-		frog[0]->radius				= 20.0F;
+		frog[0]->radius				= 37.0F;
 
 		frog2		 = CreateAndAddActor (me,0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
 		frog2->actor->shadow->radius = 30;
