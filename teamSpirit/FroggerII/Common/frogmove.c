@@ -132,8 +132,8 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	fixedPos = 0;
 	fixedDir = 0;
 
-	CheckForDynamicCameraChange(currTile[p]);
 	lastTile = NULL; // force camera recalculation
+	CheckForDynamicCameraChange(currTile[p]);
 
 	frogFacing[p] = camFacing;
 	SitAndFace(frog[p],currTile[p],frogFacing[p]);
@@ -376,7 +376,6 @@ void UpdateFroggerPos(long pl)
 			
 			SitAndFace(frog[pl], tile, frogFacing[pl]); // this is kinda unreliable..
 
-			CheckForDynamicCameraChange(tile);
 			CheckTileForCollectable(tile, pl);
 		}
 		
@@ -439,8 +438,7 @@ void UpdateFroggerPos(long pl)
 			consider the player to be on its destination tile once it goes past half-way
 			along its 'jump'.
 		*/
-		if (destTile[pl] &&
-			player[pl].canJump &&
+		if (destTile[pl] && player[pl].canJump &&
 			(player[pl].jumpTime > 0.5))
 		{
 			currTile[pl] = destTile[pl];
@@ -1192,9 +1190,6 @@ void CheckForFroggerLanding(long pl)
 				AnimateActor( frog[i]->actor, FROG_ANIM_PINNED, NO, NO, 1.0, 0,0 );
 				StartAnimateActor( frog[i]->actor, FROG_ANIM_PINNEDLOOP, YES, YES, 0.5, 0,0 );
 			}
-
-		// Check for camera transitions on the tile
-		CheckForDynamicCameraChange(tile);
 
 		// Next, check if frog has landed on a collectable
 		CheckTileForCollectable(tile, pl);

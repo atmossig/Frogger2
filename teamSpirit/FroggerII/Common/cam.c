@@ -532,6 +532,18 @@ void UpdateCameraPosition(long cam)
 	if(!frog[0] || !currTile[0] || controlCamera)
 		return;
 	
+	if (currTile[0] != lastTile)	//This causes lots of problems with camera transitions..
+	{
+		if (currTile[0] && lastTile)
+		{
+			if (camFacing == prevCamFacing)
+				camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[0]);
+		}
+		prevCamFacing = camFacing;
+		lastTile = currTile[0];
+		CheckForDynamicCameraChange(currTile[0]);
+	}
+
 	if ( gameState.mode != CAMEO_MODE && !fixedPos )
 	{
 		float afx,afy,afz;
@@ -568,21 +580,6 @@ void UpdateCameraPosition(long cam)
 						afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
 						afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
 						afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
-				}
-
-				if (lastTile == NULL)
-				{
-				}
-
-				if (currTile[0] != lastTile)
-				{
-					if (currTile[0] && lastTile)
-					{
-						if (camFacing == prevCamFacing)
-							camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[0]);
-					}
-					prevCamFacing = camFacing;
-					lastTile = currTile[0];
 				}
 
 				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];

@@ -490,6 +490,7 @@ int PathEffect(ENEMY *nme, int params)
 {
 	SCRIPT_EFFECT_PARAMS *p;
 	GAMETILE *tile;
+	VECTOR v;
 	PATHNODE *node = nme->path->nodes;
 	int c = nme->path->numNodes;
 	
@@ -498,7 +499,8 @@ int PathEffect(ENEMY *nme, int params)
 	while (c--)
 	{
 		tile = node->worldTile;
-		CreateAndAddSpecialEffect(p->type, &tile->centre, &tile->normal, p->size, p->speed, p->accn, p->lifetime);
+		GetPositionForPathNode(&v, node);
+		CreateAndAddSpecialEffect(p->type, &v, &tile->normal, p->size, p->speed, p->accn, p->lifetime);
 		node++;
 	}
 	return 1;
