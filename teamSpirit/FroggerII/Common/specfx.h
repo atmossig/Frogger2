@@ -17,7 +17,6 @@
 #define FADE_IN				0
 #define FADE_OUT			1
 
-
 enum
 {
 	RIPPLE_TYPE_CROAK,

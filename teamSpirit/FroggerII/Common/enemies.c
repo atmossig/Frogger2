@@ -528,6 +528,7 @@ void UpdateEnemies()
 	VECTOR fromPosition,toPosition;
 	VECTOR fwd;
 	VECTOR moveVec;
+	PLANE2 rebound;
 	float length;
 	long i;
 
@@ -955,6 +956,53 @@ void UpdateEnemies()
 			case NMETYPE_MOWER:
 				ProcessNMEMower(cur->nmeActor);
 				break;
+		}
+
+		if( cur->flags & ENEMY_NEW_MAKERIPPLES )
+		{
+			long r;
+			VECTOR rPos;
+			if( cur->nmeActor->value1 )
+				r = Random(cur->nmeActor->value1)+1;
+			else
+				r = 10;
+
+			SetVector( &rPos, &cur->nmeActor->actor->pos );
+			rPos.v[Y] = cur->inTile->centre.v[Y];
+
+			if( !(actFrameCount%r) )
+			{
+				if( cur->flags & ENEMY_NEW_FOLLOWPATH ) // More of a wake effect when moving
+					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 30, cur->speed, 1, 5 );
+				else // Gentle ripples
+					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
+			}
+		}
+		if( cur->flags & ENEMY_NEW_MAKESMOKE )
+		{
+			long r;
+			if( cur->nmeActor->value1 )
+				r = Random(cur->nmeActor->value1)+1;
+			else
+				r = 10;
+
+			if( !(actFrameCount%r) )
+				CreateAndAddFXSmoke( SMOKE_TYPE_FLAMING, &cur->nmeActor->actor->pos, 80, 1, 0.1, 20 );
+		}
+		if( cur->flags & ENEMY_NEW_MAKESPARKS )
+		{
+			long r;
+			if( cur->nmeActor->value1 )
+				r = Random(cur->nmeActor->value1)+1;
+			else
+				r = 10;
+
+			if( !(actFrameCount%r) )
+			{
+				SetVector(&rebound.point,&cur->inTile->centre);
+				SetVector(&rebound.normal,&cur->inTile->normal);
+				CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->nmeActor->actor->pos, &cur->currNormal, 5, 30, &rebound, 10 );
+			}
 		}
 	}
 }

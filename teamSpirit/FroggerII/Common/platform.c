@@ -537,6 +537,32 @@ void UpdatePlatforms()
 					CreateAndAddFXRipple( RIPPLE_TYPE_RING, &rPos, &cur->currNormal, 50, 1, 0.1, 20 );
 			}
 		}
+		if( cur->flags & PLATFORM_NEW_MAKESMOKE )
+		{
+			long r;
+			if( cur->pltActor->value1 )
+				r = Random(cur->pltActor->value1)+1;
+			else
+				r = 10;
+
+			if( !(actFrameCount%r) )
+				CreateAndAddFXSmoke( SMOKE_TYPE_NORMAL, &cur->pltActor->actor->pos, 80, 1, 0.1, 20 );
+		}
+		if( cur->flags & PLATFORM_NEW_MAKESPARKS )
+		{
+			long r;
+			if( cur->pltActor->value1 )
+				r = Random(cur->pltActor->value1)+1;
+			else
+				r = 10;
+
+			if( !(actFrameCount%r) )
+			{
+				SetVector(&rebound.point,&cur->inTile->centre);
+				SetVector(&rebound.normal,&cur->inTile->normal);
+				CreateAndAddFXExplodeParticle( EXPLODEPARTICLE_TYPE_NORMAL, &cur->pltActor->actor->pos, &cur->currNormal, 5, 30, &rebound, 20 );
+			}
+		}
 	}
 }
 

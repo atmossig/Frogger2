@@ -115,6 +115,9 @@ enum
 #define ENEMY_NEW_ROTATEPATH_XZ			(1 << 16)	// Move in a circle around a point. Use tiles though.
 #define ENEMY_NEW_ROTATEPATH_XY			(1 << 17)	// Move in a circle around a point. Use tiles though.
 #define ENEMY_NEW_ROTATEPATH_ZY			(1 << 18)	// Move in a circle around a point. Use tiles though.
+#define ENEMY_NEW_MAKERIPPLES			(1 << 19)	// generate ripples under the enemy
+#define ENEMY_NEW_MAKESMOKE				(1 << 20)	// generate smoke
+#define ENEMY_NEW_MAKESPARKS			(1 << 21)	// generate sparks
 
 
 typedef struct TAGENEMY
