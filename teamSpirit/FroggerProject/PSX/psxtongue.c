@@ -69,7 +69,8 @@ void DrawTongueSegment(SVECTOR *vt, TextureType *tEntry)
 	f4->r0 = 200;
 	f4->g0 = 48;
 	f4->b0 = 48;
-	ENDPRIM(f4, 1, POLY_F4);
+//	ENDPRIM(f4, 1, POLY_F4);
+	ENDPRIM(f4, (vt[0].vz+vt[1].vz+vt[2].vz+vt[3].vz)>>4, POLY_F4);
 }
 
 
@@ -139,7 +140,8 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 	gte_ldv0(&tempSvect);
 	gte_rtps();
 	gte_stsxy(&sxy);
-	gte_stsz(&sz);	//screen z/4 as otz
+//	gte_stsz(&sz);	//screen z/4 as otz
+	gte_stszotz(&sz);	//screen z/4 as otz
 	vT[0].vx = (short)(sxy&0xffff);
 	vT[0].vy = (short)(sxy>>16);
 	vT[0].vz = sz;
@@ -155,7 +157,8 @@ void CalcTongueNodes(SVECTOR *vT, int pl, int i)
 	gte_ldv0(&tempSvect);
 	gte_rtps();
 	gte_stsxy(&sxy);
-	gte_stsz(&sz);	//screen z/4 as otz
+//	gte_stsz(&sz);	//screen z/4 as otz
+	gte_stszotz(&sz);	//screen z/4 as otz
 	vT[1].vx = (short)(sxy&0xffff);
 	vT[1].vy = (short)(sxy>>16);
 	vT[1].vz = sz;

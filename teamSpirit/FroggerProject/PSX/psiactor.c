@@ -1668,10 +1668,13 @@ void UpdateFrogCroak( int pl )
 	{
 		SPECFX *fx;
 
+#ifdef PC_VERSION
 		if( breastMatrix )
 		{
 			// Put code here
 		}
+#else
+#endif
 
 		if( !(player[pl].isCroaking.time%2) )
 		{
@@ -1716,12 +1719,15 @@ void UpdateFrogCroak( int pl )
 	}
 	else
 	{
+#ifdef PC_VERSION
 		if( breastMatrix )
 		{
 			breastMatrix->m[0][0] = breastMatrix->m[1][1] = breastMatrix->m[2][2] = 1;
 
 			croakDir = 0;
 		}
+#else
+#endif
 	}
 }
 
