@@ -167,11 +167,14 @@ void SetFroggerStartPos(GAMETILE *startTile,long p)
 	actorAnimate(frog[p]->actor,FROG_ANIM_BREATHE,YES,NO,64,0);
 
 	if( frog[p]->actor->shadow ) 
+	{
 #ifdef PC_VERSION
-		frog[p]->actor->shadow->draw = 1;
+		if( rHardware ) frog[p]->actor->shadow->draw = 1;
+		else frog[p]->actor->shadow->draw = 0;
 #else
 		frog[p]->actor->shadow->draw = 0;
 #endif
+	}
 
 	if (currPlatform[p])
 	{
@@ -667,13 +670,17 @@ void FroggerHop(int pl)
 			frog[pl]->draw = 0;
 	}
 
-#ifdef PSX_VERSION
-	if( currTile[pl]->state >= TILESTATE_CONVEYOR || currTile[pl]->state == TILESTATE_ICE )
-		frog[pl]->actor->shadow->draw = 0;
-	else
-		frog[pl]->actor->shadow->draw = 1;
-#endif
+	frog[pl]->actor->shadow->draw = 1;
 
+	if( currTile[pl]->state >= TILESTATE_CONVEYOR || currTile[pl]->state == TILESTATE_ICE )
+	{
+#ifdef PSX_VERSION
+		frog[pl]->actor->shadow->draw = 0;
+#else
+		if( !rHardware ) frog[pl]->actor->shadow->draw = 0;
+#endif
+	}
+	
 /*
 	// if we've just passed the midpoint, play a falling animation
 	// this check is wrong and we're probably not gonna do this anyway - ds
@@ -1234,9 +1241,13 @@ void CheckForFroggerLanding(long pl)
 	player[pl].hasDoubleJumped = 0;
 	player[pl].jumpTime = ToFixed(-1);
 	doubleQueue[pl] = 0;
-#ifdef PSX_VERSION
-	frog[pl]->actor->shadow->draw = 0;
+
+#ifdef PC_VERSION
+		if( !rHardware ) frog[pl]->actor->shadow->draw = 0;
+#else
+		frog[pl]->actor->shadow->draw = 0;
 #endif
+
 	// Assume for now that if we've landed after being on another frogs head then we're no longer on it.
 	if( gameState.multi != SINGLEPLAYER && multiplayerMode != MULTIMODE_BATTLE )
 	{
