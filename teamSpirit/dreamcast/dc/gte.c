@@ -2895,6 +2895,33 @@ VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
 
 #else
 
+VECTOR *ApplyMatrix(MATRIX *m, SVECTOR *v0, VECTOR *v1)
+{
+	register short	*mp = &m->m[0][0];
+	register long	*vp = &v1->vx, shift = 12, n;
+	register short	vx = v0->vx, vy = v1->vy, vz = v0->vz;
+
+	n  = *mp++ * vx;
+	n += *mp++ * vy;
+	n += *mp++ * vz;
+	n >>= shift;
+	*vp++ = n;
+	n  = *mp++ * vx;
+	n += *mp++ * vy;
+	n += *mp++ * vz;
+	n >>= shift;
+	*vp++ = n;
+	n  = *mp++ * vx;
+	n += *mp++ * vy;
+	n += *mp   * vz;
+	n >>= shift;
+	*vp   = n;
+
+	return v1;
+}
+#endif
+
+
 VECTOR *ApplyMatrixLV(MATRIX *m, VECTOR *v0, VECTOR *v1)
 {
 	VECTOR v;
