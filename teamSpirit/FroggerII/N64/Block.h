@@ -474,6 +474,14 @@ extern char *_objBank_9_5_SegmentRomStart;
 extern char *_objBank_9_5_SegmentRomEnd;
 extern char *_objBank_9_6_SegmentRomStart;
 extern char *_objBank_9_6_SegmentRomEnd;
+extern char *_objBank_9_7_SegmentRomStart;
+extern char *_objBank_9_7_SegmentRomEnd;
+extern char *_objBank_9_8_SegmentRomStart;
+extern char *_objBank_9_8_SegmentRomEnd;
+extern char *_objBank_9_9_SegmentRomStart;
+extern char *_objBank_9_9_SegmentRomEnd;
+extern char *_objBank_9_10_SegmentRomStart;
+extern char *_objBank_9_10_SegmentRomEnd;
 // SUPERRETRO WORLD - Level Entities
 extern char *_levData_9_1_SegmentRomStart;
 extern char *_levData_9_1_SegmentRomEnd;
@@ -487,6 +495,14 @@ extern char *_levData_9_5_SegmentRomStart;
 extern char *_levData_9_5_SegmentRomEnd;
 extern char *_levData_9_6_SegmentRomStart;
 extern char *_levData_9_6_SegmentRomEnd;
+extern char *_levData_9_7_SegmentRomStart;
+extern char *_levData_9_7_SegmentRomEnd;
+extern char *_levData_9_8_SegmentRomStart;
+extern char *_levData_9_8_SegmentRomEnd;
+extern char *_levData_9_9_SegmentRomStart;
+extern char *_levData_9_9_SegmentRomEnd;
+extern char *_levData_9_10_SegmentRomStart;
+extern char *_levData_9_10_SegmentRomEnd;
 // SUPERRETRO WORLD - Level Scripts
 extern char *_scrData_9_1_SegmentRomStart;
 extern char *_scrData_9_1_SegmentRomEnd;
@@ -500,6 +516,14 @@ extern char *_scrData_9_5_SegmentRomStart;
 extern char *_scrData_9_5_SegmentRomEnd;
 extern char *_scrData_9_6_SegmentRomStart;
 extern char *_scrData_9_6_SegmentRomEnd;
+extern char *_scrData_9_7_SegmentRomStart;
+extern char *_scrData_9_7_SegmentRomEnd;
+extern char *_scrData_9_8_SegmentRomStart;
+extern char *_scrData_9_8_SegmentRomEnd;
+extern char *_scrData_9_9_SegmentRomStart;
+extern char *_scrData_9_9_SegmentRomEnd;
+extern char *_scrData_9_10_SegmentRomStart;
+extern char *_scrData_9_10_SegmentRomEnd;
 
 
 

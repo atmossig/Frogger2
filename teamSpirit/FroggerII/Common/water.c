@@ -134,6 +134,8 @@ int slideSpeed = 0;
 
 void UpdateWaterN64(ACTOR2 *wAct)
 {
+	return;
+
 	// update the water - assumes drawlisted and skinned object....
 	if(wAct)
 	{
@@ -151,7 +153,7 @@ void UpdateWaterN64(ACTOR2 *wAct)
 		{
 			if(wAct->flags & ACTOR_SLIDYTEX)
 			{
-				in->v.tc[1] -= (gameSpeed * slideSpeed * 1024);
+				in->v.tc[1] -= slideSpeed;
 				in->v.cn[3] = modc2;
 			}
 			else
@@ -195,6 +197,8 @@ void UpdateWaterN64(ACTOR2 *wAct)
 */
 void SetWaterModifiersN64(short worldID,short levelID)
 {
+	return;
+
 	// currently based on world - but can go to level based
 	switch(worldID)
 	{
@@ -220,6 +224,8 @@ void AddN64WaterObjectResource(ACTOR *wAct)
 {
 	int i;
 	Vtx *in;
+
+	return;
 
 	if(wAct->objectController && (numN64WaterObjects < MAX_N64_WATEROBJECTS))
 	{
@@ -256,6 +262,8 @@ void FreeN64WaterResources()
 {
 	int i;
 
+	return;
+
 	for(i=0; i<numN64WaterObjects; i++)
 		JallocFree((UBYTE **)&wTC[i]);
 
@@ -274,8 +282,12 @@ void FreeN64WaterResources()
 	Returns			: void
 	Info			: 
 */
+float andyMod = 0.05;
+
 void UpdateModgyTexN64(ACTOR2 *mAct)
 {
+	return;
+
 	// update the water - assumes drawlisted and skinned object....
 	if(mAct)
 	{
@@ -290,8 +302,8 @@ void UpdateModgyTexN64(ACTOR2 *mAct)
 		while(i--)
 		{
 			// modge vertices
-			xval = in->v.ob[X] * 0.05;
-			zval = in->v.ob[Z] * 0.05;
+			xval = in->v.ob[X] * andyMod;
+			zval = in->v.ob[Z] * andyMod;
 
 			t2 = sinf(t + xval * zval * 0.5) - cosf(t + xval * 0.3 * zval);
 
@@ -318,6 +330,8 @@ void AddN64ModgyTexObjectResource(ACTOR *mAct)
 {
 	int i;
 	Vtx *in;
+
+	return;
 
 	if(mAct->objectController && (numN64ModgyTexObjects < MAX_N64_MODGYTEXOBJECTS))
 	{
@@ -350,6 +364,8 @@ void AddN64ModgyTexObjectResource(ACTOR *mAct)
 void FreeN64ModgyTexResources()
 {
 	int i;
+
+	return;
 
 	for(i=0; i<numN64ModgyTexObjects; i++)
 		JallocFree((UBYTE **)&mTC[i]);
