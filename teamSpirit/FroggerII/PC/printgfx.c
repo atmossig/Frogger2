@@ -1026,3 +1026,93 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 	PopMatrix( ); // Rotation
 	PopMatrix( ); // Translation
 }
+
+
+void DrawFXLightning( SPECFX *fx )
+{
+	VECTOR tempVect, m;
+	D3DTLVERTEX vT[5], vTPrev[2];
+	TEXENTRY *tEntry;
+	long i=0;
+
+	if( fx->deadCount )
+		return;
+
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ZWRITEENABLE,0);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_ALPHABLENDENABLE,TRUE);
+	pDirect3DDevice->lpVtbl->SetRenderState(pDirect3DDevice,D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+
+	vT[0].specular = D3DRGB(0,0,0);
+	vT[0].tu = 0;
+	vT[0].tv = 0;
+	vT[1].specular = vT[0].specular;
+	vT[1].tu = 1;
+	vT[1].tv = 0;
+	vT[2].specular = vT[0].specular;
+	vT[2].tu = 1;
+	vT[2].tv = 1;
+	vT[3].specular = vT[0].specular;
+	vT[3].tu = 0;
+	vT[3].tv = 1;
+
+	while( i < fx->numP-1 )
+	{
+		// Copy in previous transformed vertices, if they exist
+		if( i != 0 && vTPrev[0].sz && vTPrev[1].sz )
+			memcpy( vT, vTPrev, sizeof(D3DTLVERTEX)*2 );
+		else
+		{
+			// Otherwise, transform them again
+			tempVect.v[X] = fx->particles[i].poly[0].v[X];
+			tempVect.v[Y] = fx->particles[i].poly[0].v[Y];
+			tempVect.v[Z] = fx->particles[i].poly[0].v[Z];
+			XfmPoint( &m, &tempVect );
+			vT[0].sx = m.v[X];
+			vT[0].sy = m.v[Y];
+			vT[0].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+			vT[0].color = D3DRGBA(fx->particles[i].r/255.0, fx->particles[i].g/255.0, fx->particles[i].b/255.0, fx->particles[i].a/255.0);
+
+			tempVect.v[X] = fx->particles[i].poly[1].v[X];
+			tempVect.v[Y] = fx->particles[i].poly[1].v[Y];
+			tempVect.v[Z] = fx->particles[i].poly[1].v[Z];
+			XfmPoint( &m, &tempVect );
+			vT[1].sx = m.v[X];
+			vT[1].sy = m.v[Y];
+			vT[1].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+			vT[1].color = vT[0].color;
+		}
+
+		// Now the next two, to make a quad
+		tempVect.v[X] = fx->particles[i+1].poly[1].v[X];
+		tempVect.v[Y] = fx->particles[i+1].poly[1].v[Y];
+		tempVect.v[Z] = fx->particles[i+1].poly[1].v[Z];
+		XfmPoint( &m, &tempVect );
+		vT[2].sx = m.v[X];
+		vT[2].sy = m.v[Y];
+		vT[2].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+		vT[2].color = vT[0].color;
+
+		tempVect.v[X] = fx->particles[i+1].poly[0].v[X];
+		tempVect.v[Y] = fx->particles[i+1].poly[0].v[Y];
+		tempVect.v[Z] = fx->particles[i+1].poly[0].v[Z];
+		XfmPoint( &m, &tempVect );
+		vT[3].sx = m.v[X];
+		vT[3].sy = m.v[Y];
+		vT[3].sz = (m.v[Z])?((m.v[Z]+DIST)*0.0005):0;
+		vT[3].color = vT[0].color;
+
+		// Store first 2 vertices of the next segment
+		memcpy( vTPrev, &vT[2], sizeof(D3DTLVERTEX)*2 );
+
+		memcpy( &vT[4], &vT[0], sizeof(D3DTLVERTEX) );
+		// Draw polys, if they're not clipped
+		tEntry = ((TEXENTRY *)fx->tex);
+		if( tEntry && vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
+		{
+			Clip3DPolygon( vT, tEntry->hdl );
+			Clip3DPolygon( &vT[2], tEntry->hdl );
+		}
+
+		i++;
+	} 
+}

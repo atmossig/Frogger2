@@ -67,6 +67,7 @@ void DrawSpecialFX();
 void DrawFXRipple( SPECFX *ripple );
 void DrawFXRing( SPECFX *ring );
 void DrawFXTrail( SPECFX *trail );
+void DrawFXLightning( SPECFX *fx );
 
 void ProcessShadows();
 

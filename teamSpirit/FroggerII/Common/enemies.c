@@ -728,6 +728,7 @@ void UpdateTileSnapper( ENEMY *cur )
 	case 2:
 		if( (actFrameCount-path->startFrame) < 0.8*(path->endFrame-path->startFrame) )
 		{
+			SetVector( &cur->currNormal, &path->nodes[0].worldTile->normal );
 			GetPositionForPathNode(&toPosition,&path->nodes[path->fromNode]);
 			SetQuaternion( &q1, &act->qRot );
 			ActorLookAt( act, &toPosition, LOOKAT_2D );
@@ -743,12 +744,23 @@ void UpdateTileSnapper( ENEMY *cur )
 			VECTOR dir, source;
 			GetPositionForPathNode(&toPosition,&path->nodes[path->fromNode]);
 			SubVector( &dir, &toPosition, &act->pos );
-			MakeUnit( &dir );
-			SetVector( &source, &cur->currNormal );
-			ScaleVector( &source, path->nodes[0].offset2 );
-			AddToVector( &source, &act->pos );
-			fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 15, 40, 0.2, cur->nmeActor->value1 );
-			SetAttachedFXColour( fx, cur->nmeActor->effects );
+			if( MagnitudeSquared(&dir) )
+			{
+				MakeUnit( &dir );
+				SetVector( &source, &cur->currNormal );
+				ScaleVector( &source, path->nodes[0].offset2 );
+				AddToVector( &source, &act->pos );
+				
+				if( cur->nmeActor->effects & EF_FAST )
+					fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.2 );
+				if( cur->nmeActor->effects & EF_SLOW )
+					fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.8 );
+				else
+					fx = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &source, &dir, 5, 40, 0.25, 0.5 );
+
+				fx->tilt = cur->nmeActor->value1; // Branching factor
+				SetAttachedFXColour( fx, cur->nmeActor->effects );
+			}
 		}
 
 		AnimateActor( act, 1, NO, NO, cur->nmeActor->animSpeed, 0, 0 );

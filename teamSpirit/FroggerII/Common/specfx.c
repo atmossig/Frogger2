@@ -39,7 +39,6 @@ TEXTURE *txtrBlank		= NULL;
 TEXTURE *txtrTrail		= NULL;
 
 
-
 void UpdateFXRipple( SPECFX *fx );
 void UpdateFXRing( SPECFX *fx );
 void UpdateFXBolt( SPECFX *fx );
@@ -386,34 +385,27 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 		
 		break;
 	case FXTYPE_LIGHTNING:
-		effect->numP = 32;
+		effect->numP = 8;
 		i = effect->numP;
 
-		effect->sprites = (SPRITE *)JallocAlloc( sizeof(SPRITE)*effect->numP, YES, "Sprites" );
+		effect->particles = (PARTICLE *)JallocAlloc( sizeof(PARTICLE)*effect->numP, YES, "P" );
 
-		effect->tex = txtrSolidRing;
+		effect->tex = txtrTrail;
 
 		while(i--)
 		{
-			effect->sprites[i].texture = effect->tex;
-			SetVector( &effect->sprites[i].pos, &effect->origin );
+			SetVector( &effect->particles[i].pos, &effect->origin );
 
-			effect->sprites[i].scaleX = effect->scale.v[X];
-			effect->sprites[i].scaleY = effect->scale.v[Y];
-			effect->sprites[i].r = effect->r;
-			effect->sprites[i].g = effect->g;
-			effect->sprites[i].b = effect->b;
-			effect->sprites[i].a = effect->a;
+			effect->particles[i].poly = (VECTOR *)JallocAlloc( sizeof(VECTOR)*2, YES, "V" );
 
-			effect->sprites[i].offsetX	= -16;
-			effect->sprites[i].offsetY	= -16;
-			effect->sprites[i].flags = SPRITE_TRANSLUCENT;
-
-			AddSprite( &effect->sprites[i], NULL );
+			effect->particles[i].r = effect->r;
+			effect->particles[i].g = effect->g;
+			effect->particles[i].b = effect->b;
+			effect->particles[i].a = effect->a;
 		}
 
 		effect->Update = UpdateFXLightning;
-		effect->Draw = NULL;
+		effect->Draw = DrawFXLightning;
 		break;
 	}
 
@@ -955,7 +947,7 @@ void AddTrailElement( SPECFX *fx, int i )
 void UpdateFXLightning( SPECFX *fx )
 {
 	VECTOR target, aim, to;
-	VECTOR ran, source;
+	VECTOR ran, source, cross;
 	float scale, fr;
 	long i, h=fx->numP*0.25;
 
@@ -982,7 +974,7 @@ void UpdateFXLightning( SPECFX *fx )
 	// Find a route through space
 	for( i=0; i<fx->numP; i++ )
 	{
-		SetVector( &source, (!i)?(&fx->origin):(&fx->sprites[i-1].pos) );
+		SetVector( &source, (!i)?(&fx->origin):(&fx->particles[i-1].pos) );
 		scale = 2/(float)(fx->numP-i);
 		fr = 1-((float)i/(float)fx->numP);
 		// Get direction from last sprite to target
@@ -997,18 +989,26 @@ void UpdateFXLightning( SPECFX *fx )
 		MakeUnit( &ran );
 		ScaleVector( &ran, fx->accn*(float)min((i-0),(fx->numP-i))*Magnitude(&to) );
 		AddToVector( &to, &ran );
-		AddVector( &fx->sprites[i].pos, &source, &to );
+		AddVector( &fx->particles[i].pos, &source, &to );
+
+		// Push the polys out from the position
+		MakeUnit( &to );
+		CrossProduct( &cross, &to, &upVec );
+		MakeUnit( &cross );
+		ScaleVector( &cross, fx->scale.v[X] );
+		AddVector( &fx->particles[i].poly[0], &fx->particles[i].pos, &cross );
+		SubVector( &fx->particles[i].poly[1], &fx->particles[i].pos, &cross );
 
 		// Randomly fork a new lightning strand
-		if( (Random(100)>98) && (i<fx->numP-h && i>h) && fx->fade < 4 ) // But not if we're near the end or we're more than 2 layers of forking deep already
+		if( (Random(100)>(100-fx->tilt)) && (i<fx->numP-h && i>h) && fx->fade < 4 ) // But not if we're near the end or we're more than 2 layers of forking deep
 		{
 			VECTOR dir;
 			SPECFX *effect;
-			SubVector( &dir, &fx->sprites[i].pos, &source );
+			SubVector( &dir, &fx->particles[i].pos, &source );
 			MakeUnit( &dir );
-			effect = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &fx->sprites[i].pos,
-												&dir, fx->scale.v[X]-Random(6), fx->speed*fr,
-												fx->accn, fx->startLife*fr );
+			effect = CreateAndAddSpecialEffect( FXTYPE_LIGHTNING, &fx->particles[i].pos,
+												&dir, fx->scale.v[X]-Random(3), fx->speed * min(fr*1.5, 1),
+												fx->accn, fx->startLife * min(fr*1.5, 1) );
 			effect->fade = ++fx->fade;
 			SetFXColour( effect, fx->r, fx->g, fx->b );
 		}
@@ -1042,6 +1042,7 @@ void InitSpecFXList( )
 	FindTexture(&txtrFire,UpdateCRC("ai_flame3.bmp"),YES);
 	FindTexture(&txtrBlank,UpdateCRC("ai_fullwhite.bmp"),YES);
 	FindTexture(&txtrTrail,UpdateCRC("ai_trail.bmp"),YES);
+	FindTexture(&txtrLightning,UpdateCRC("ai_electric.bmp"),YES);
 }
 
 
