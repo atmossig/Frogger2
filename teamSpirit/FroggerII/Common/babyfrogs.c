@@ -158,7 +158,7 @@ int PickupBabyFrog( ACTOR2 *baby, GAMETILE *tile )
 		gTStart[0] = tile;
 	}
 
-	player[0].score += (1500 * babiesSaved);
+//	player[0].score += (1500 * babiesSaved);
 	babySaved = 30;
 
 	PlaySample( genSfx[GEN_COLLECT_BABY], &baby->actor->pos, 0, SAMPLE_VOLUME, -1 );

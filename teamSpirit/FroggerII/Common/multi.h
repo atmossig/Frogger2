@@ -15,10 +15,20 @@
 
 typedef struct
 {
-	char lap;
+	union
+	{
+		char lap;
+		char wins;
+	};
+
 	char babyCount;
 
-	short check;
+	union
+	{
+		short check;
+		short score;
+	};
+
 	short trail;
 
 	unsigned char r, g, b;

@@ -250,14 +250,18 @@ void UpdateBattle( )
 			player[i].idleEnable = 0;
 			// Face all frogs towards the centre of the map
 			FaceFrogInwards(i);
+			sprHeart[i*3]->draw = 0;
+			sprHeart[(i*3)+1]->draw = 0;
+			sprHeart[(i*3)+2]->draw = 0;
 		}
 
 		if( count == NUM_FROGS )
 		{
 			GTInit( &endTimer, 0 );
-			GTInit( &powerupTimer, Random(5)+3 );
+			GTInit( &powerupTimer, Random(4)+3 );
 			started = 1;
 			timeTextOver->text[0] = '\0';
+			scoreTextOver->draw = 1;
 		}
 	}
 
@@ -275,8 +279,10 @@ void UpdateBattle( )
 		return;
 	}
 
+	sprintf( scoreTextOver->text, "%i %i %i %i", mpl[0].wins, mpl[1].wins, mpl[2].wins, mpl[3].wins );
 	if( started )
 	{
+		sprintf( timeTextOver->text, "%i %i %i %i", mpl[0].score, mpl[1].score, mpl[2].score, mpl[3].score );
 		GTUpdate( &powerupTimer, -1 );
 		if( !powerupTimer.time )
 		{
@@ -298,7 +304,7 @@ void UpdateBattle( )
 				numMultiItems++;
 			}
 
-			GTInit( &powerupTimer, (Random(4)+4) );
+			GTInit( &powerupTimer, (Random(4)+3) );
 		}
 	}
 
@@ -370,6 +376,7 @@ void UpdateBattle( )
 		if( i!=NUM_FROGS )
 		{
 			sprintf( timeTextOver->text, "P%i won", i );
+			mpl[i].wins++;
 			GTInit( &endTimer, 5 );
 		}
 	}
@@ -665,6 +672,7 @@ void ResetMultiplayer( )
 		{
 			mpl[i].trail = MULTI_BATTLE_TRAILLENGTH;
 			mpl[i].ready = 0;
+			mpl[i].score = 0;
 			node = mpl[i].path;
 			while(node)
 			{
@@ -677,6 +685,7 @@ void ResetMultiplayer( )
 		}
 		FreeGaribLinkedList();
 		InitGaribLinkedList();
+		numMultiItems = 0;
 		break;
 	}
 	case MULTIMODE_RACE_NORMAL:

@@ -123,6 +123,7 @@ void PickupCollectable(GARIB *garib, int pl)
 			if( gameState.multi != SINGLEPLAYER && multiplayerMode == MULTIMODE_BATTLE )
 			{
 				mpl[pl].trail++;
+				mpl[pl].score += 10;
 			}
 			else
 			{
@@ -151,7 +152,7 @@ void PickupCollectable(GARIB *garib, int pl)
 					}
 				}
 
-				player[pl].score += (player[pl].spawnScoreLevel * 10);
+//				player[pl].score += (player[pl].spawnScoreLevel * 10);
 				player[pl].numSpawn++;
 
 				if (player[pl].numSpawn>100)

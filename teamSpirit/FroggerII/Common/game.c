@@ -146,7 +146,7 @@ void GameProcessController(long pl)
 		if(!player[pl].inputPause )
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
-			UpdateScore(frog[pl],hopAmt);
+//			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
 			player[pl].hasJumped = 1;
@@ -167,7 +167,7 @@ void GameProcessController(long pl)
 		if(!player[pl].inputPause)
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
-			UpdateScore(frog[pl],hopAmt);
+//			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
 			player[pl].hasJumped = 1;
@@ -188,7 +188,7 @@ void GameProcessController(long pl)
 		if(!player[pl].inputPause)
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
-			UpdateScore(frog[pl],hopAmt);
+//			UpdateScore(frog[pl],hopAmt);
 	    	
 			player[pl].canJump = 0;
 			player[pl].hasJumped = 1;
@@ -209,7 +209,7 @@ void GameProcessController(long pl)
 		if(!player[pl].inputPause)
 		{
 			player[pl].inputPause = INPUT_POLLPAUSE;
-			UpdateScore(frog[pl],hopAmt);
+//			UpdateScore(frog[pl],hopAmt);
 
 			player[pl].canJump = 0;
 			player[pl].hasJumped = 1;
@@ -311,7 +311,7 @@ void GameProcessController(long pl)
 				player[pl].hasDoubleJumped = 0;
 
 				player[pl].inputPause = INPUT_POLLPAUSE;
-				UpdateScore(frog[pl],hopAmt);
+//				UpdateScore(frog[pl],hopAmt);
 
 				switch(player[pl].extendedHopDir)
 				{
