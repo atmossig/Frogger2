@@ -92,6 +92,12 @@ unsigned long D3DInit(void)
     if ((res = pDirect3DDevice->SetViewport(&vp)) != D3D_OK)
         return FALSE;
 
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MAGFILTER,D3DTFN_LINEAR);  
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_MINFILTER,D3DTFN_LINEAR);
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_MODULATE);
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ALPHAOP,D3DTOP_MODULATE);
+	pDirect3DDevice->SetTextureStageState(0,D3DTSS_ALPHAARG1,D3DTA_TEXTURE);
+
 	return TRUE;
 }
 
@@ -196,9 +202,17 @@ LPDIRECTDRAWSURFACE7 D3DCreateTexSurface2(long xs,long ys,long videoRam, long te
 	ddsd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
 	ddsd.dwWidth = xs;
 	ddsd.dwHeight = ys;
-	
-	ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
-	ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE | DDSCAPS2_HINTDYNAMIC;
+
+	if (videoRam)
+	{	
+		ddsd.ddsCaps.dwCaps = DDSCAPS_TEXTURE;
+		ddsd.ddsCaps.dwCaps2 = DDSCAPS2_TEXTUREMANAGE | DDSCAPS2_HINTDYNAMIC;
+	}
+	else
+	{
+		ddsd.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_TEXTURE;		
+	}
+
 
 	if ((me = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK)
 	{

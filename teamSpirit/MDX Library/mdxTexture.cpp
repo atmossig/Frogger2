@@ -31,7 +31,7 @@ extern "C"
 MDX_TEXENTRY *texList = NULL;
 MDX_TEXPAGE	*texPages = NULL;
 
-#define TEX_PAGE_SIZE 32
+#define TEX_PAGE_SIZE 64
 
 unsigned long maxTexturesInPage = ((TEX_PAGE_SIZE/32) * (TEX_PAGE_SIZE/32));
 
@@ -125,11 +125,9 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	strcpy (mys,shortn);
 	strlwr (mys);
 	
+	texType = TEXTURE_NORMAL;
 	if (strncmp(mys,"ai_",3)==0)
 		texType = TEXTURE_AI;
-
-	if (strncmp(mys,"lg_",3)==0)
-		texType = TEXTURE_LARGE;
 
 	newE = new MDX_TEXENTRY;
 	
@@ -148,9 +146,9 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 			case TEXTURE_NORMAL:
 			{
 				LPDIRECTDRAWSURFACE7 temp;
-				MDX_TEXPAGE *page = GetFreeTexturePage();
+				//MDX_TEXPAGE *page = GetFreeTexturePage();
 
-				newE->surf = page->surf;
+				newE->surf = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1);
 					
 				// Create a temporary surface to hold the texture.
 				if ((temp = D3DCreateTexSurface(xDim,yDim, 0xf81f, 0, 1)) == NULL)
@@ -158,12 +156,12 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,xDim,yDim);
 
-				newE->surf->BltFast(texXCoords[page->numTex],texYCoords[page->numTex],temp,NULL,DDBLTFAST_WAIT);
-				newE->xPos = texXCoords[page->numTex];
-				newE->yPos = texYCoords[page->numTex];
+				newE->surf->BltFast(0,0,temp,NULL,DDBLTFAST_WAIT);
+				newE->xPos = 0;
+				newE->yPos = 0;
 				
 				temp->Release();
-				page->numTex++;
+				//page->numTex++;
 
 				newE->type = TEXTURE_NORMAL;
 				break;
@@ -184,24 +182,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 				
 				newE->type = TEXTURE_AI;
 				break;
-			}
-			
-			case TEXTURE_LARGE:
-			{
-				LPDIRECTDRAWSURFACE7 temp;
-								
-				// Create a temporary surface to hold the texture.
-				if ((temp = D3DCreateTexSurface(128,128, 0xf81f, 0, 1)) == NULL)
-					return;
-
-				DDrawCopyToSurface(temp,(unsigned short *)newE->data,0,128,128);			
-				newE->surf = temp;
-				newE->xPos = 0;
-				newE->yPos = 0;
-				
-				newE->type = TEXTURE_LARGE;
-				break;
-			}
+			}			
 		}
 
 	}

@@ -81,10 +81,13 @@ void GetQuaternionFromRotation(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ);
 void QuatSlerp(MDX_QUATERNION *src1, MDX_QUATERNION *sp2, float t, MDX_QUATERNION *dquat);
 void QuaternionMultiply(MDX_QUATERNION *dest,MDX_QUATERNION *src1,MDX_QUATERNION *src2);
 void MatrixToQuaternion(MDX_MATRIX *smatrix, MDX_QUATERNION *dquat);
+void RotateVectorByRotation(MDX_VECTOR *result,MDX_VECTOR *vect,MDX_QUATERNION *rot);
+void GetRotationFromQuaternion(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ);
 
 extern MDX_QUATERNION zeroQuat;
 
 void MatrixStackInitialise();
+void Normalise(MDX_VECTOR *vect);
 
 #ifdef __cplusplus
 }

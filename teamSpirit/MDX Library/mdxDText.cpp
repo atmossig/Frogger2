@@ -268,7 +268,7 @@ void PrintConsole(void)
 	if (!tSurface)
 	{
 		MDX_TEXENTRY *t;
-		t = GetTexEntryFromCRC(UpdateCRC("lg_spr.bmp"));
+		t = GetTexEntryFromCRC(UpdateCRC("console.bmp"));
 		if (t)
 			tSurface = t->surf;
 	}

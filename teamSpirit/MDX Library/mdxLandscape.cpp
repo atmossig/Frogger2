@@ -29,6 +29,35 @@ extern "C"
 {
 #endif
 
+MDX_LANDSCAPE *ConvertDataToLandscape(short *data, unsigned long xs, unsigned long ys, float scaleFlat, float scaleVert, LPDIRECTDRAWSURFACE7 tex)
+{
+	MDX_LANDSCAPE *me = new MDX_LANDSCAPE;
+	unsigned long numVerts = xs * ys;
+	unsigned long numFaces = ((xs-1) * (ys-1))*2;
+	unsigned long i,j;
+	me->vertices = new MDX_VECTOR[numVerts];
+	me->textures = new LPDIRECTDRAWSURFACE7[numFaces];
+
+	me->faceIndex = new short[numFaces];
+	me->xfmVert = new D3DTLVERTEX[numFaces * 3];
+	
+	for (i=0; i<numFaces; i++)
+		me->textures[i] = tex;
+
+	for (i=0; i<xs; i++)
+		for (j=0; j<ys; j++)
+		{
+			unsigned long pos = i+j*xs;
+			me->vertices[pos].vx = (i * scaleFlat) / xs;
+			me->vertices[pos].vz = (j * scaleFlat) / ys;
+			me->vertices[pos].vy = ((data[i+j*xs] & 0x001f) * scaleVert) / 0x1f;			
+		}
+
+	me->next = NULL;
+	me->children = NULL;
+	return me;	
+}
+
 MDX_LANDSCAPE *ConvertObjectToLandscape(MDX_OBJECT *obj)
 {
 	MDX_LANDSCAPE *me = new MDX_LANDSCAPE;

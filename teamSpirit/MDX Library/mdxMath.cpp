@@ -282,6 +282,23 @@ void QuatSlerp(MDX_QUATERNION *src1, MDX_QUATERNION *sp2, float t, MDX_QUATERNIO
 	}
 }
 
+void GetRotationFromQuaternion(MDX_QUATERNION *destQ,MDX_QUATERNION *srcQ)
+{
+	if (srcQ->w)
+	{
+        destQ->w = 2.0*acos(srcQ->w);
+		SetVector((MDX_VECTOR *)&destQ,(MDX_VECTOR *)&srcQ);
+		Normalise((MDX_VECTOR *)&destQ);
+	}
+	else
+	{
+        destQ->w = 0;
+        destQ->x = 0.0;
+        destQ->y = 1.0;
+        destQ->z = 0.0;		
+	}
+}
+
 void QuaternionMultiply(MDX_QUATERNION *dest,MDX_QUATERNION *src1,MDX_QUATERNION *src2)
 {
 	float dp;
@@ -295,6 +312,52 @@ void QuaternionMultiply(MDX_QUATERNION *dest,MDX_QUATERNION *src1,MDX_QUATERNION
 	temp.z = src1->w*src2->z + src2->w*src1->z + src1->x*src2->y - src1->y*src2->x;
 
 	memcpy(dest,&temp,sizeof(MDX_QUATERNION));
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: RotateVectorByQuaternion
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		: destination CAN be same as source
+*/
+void RotateVectorByRotation(MDX_VECTOR *result,MDX_VECTOR *vect,MDX_QUATERNION *rot)
+{
+	float m,n,sinTheta,cosTheta;
+	MDX_VECTOR mVec,pVec,vVec;
+
+	m = vect->vx*rot->x;
+	m += vect->vy*rot->y;
+	m += vect->vz*rot->z;
+
+	mVec.vx = m*rot->x;				
+	mVec.vy = m*rot->y;
+	mVec.vz = m*rot->z;				
+
+	SubVector(&pVec,vect,&mVec);
+
+	CrossProduct(&vVec,(MDX_VECTOR *)rot,&pVec);
+
+	m = mdxMagnitude(&pVec);
+
+	if(m == 0)
+		SetVector(result,vect);
+	else
+	{
+		n = mdxMagnitude(&vVec);
+		if(n)
+		{
+			m /= n;
+			ScaleVector(&vVec,m);
+		}
+
+		cosTheta = cosf(rot->w);
+		sinTheta = sinf(rot->w);
+
+		result->vx = mVec.vx + cosTheta * pVec.vx + sinTheta * vVec.vx;
+		result->vy = mVec.vy + cosTheta * pVec.vy + sinTheta * vVec.vy;
+		result->vz = mVec.vz + cosTheta * pVec.vz + sinTheta * vVec.vz;
+	}
 }
 
 void MatrixToQuaternion(MDX_MATRIX *smatrix, MDX_QUATERNION *dquat)
