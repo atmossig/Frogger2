@@ -42,3 +42,20 @@ unsigned long gstrcmp(char *a,char *b)
 	return 0;
 }
 
+void stringChange ( char *name )
+{
+	char *tmpName;
+
+	while ( *name != '.' )
+	{
+		dprintf"%c", *name ));
+		name++;
+	}
+
+	name[1] = 'o';
+	name[2] = 'b';
+	name[3] = 'e';
+	name[4] = '\0';
+	dprintf"%c\n", name ));
+
+}

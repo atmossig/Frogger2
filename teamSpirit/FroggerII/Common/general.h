@@ -15,6 +15,7 @@
 
 extern unsigned long gstrcmp(char *a, char *b);
 extern unsigned long gstrlen(const char *a);
+extern void stringChange ( char *name );
 
 
 #endif
