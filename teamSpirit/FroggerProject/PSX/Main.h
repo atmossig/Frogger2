@@ -13,8 +13,11 @@ extern char baseDirectory[256];
 extern psFont *font;
 extern psFont *fontSmall;
 
-extern 	long textEntry;	
-extern 	char textString[255];
+extern long textEntry;	
+extern char textString[255];
+
+extern int drawLandscape;
+
 
 #define ASSERT(A)	if(!(A)) {utilPrintf("Debug ASSERT failed at line %d, in "__FILE__, __LINE__);CRASH;}
 #define MALLOC0(S)	memoryAllocateZero(S, __FILE__, __LINE__)
