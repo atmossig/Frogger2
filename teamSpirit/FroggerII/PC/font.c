@@ -92,12 +92,12 @@ unsigned long letters8_offset[] =
 // Spacing (width) of letters in the font
 unsigned char letters_spacing[] =
 {
-	22,22,22,22,22,22,	// ABCDEF
-	22,22,22,22,22,22,	// GHIJKL
-	22,22,22,22,22,22,	// MNOPQR
-	22,22,22,22,22,22,	// STUVWX
-	22,22,22,22,22,22,	// YZ0123
-	22,22,22,22,22,22,	// 456789
+	30,21,23,25,20,19,	// ABCDEF
+	28,25,10,16,26,20,	// GHIJKL
+	32,25,31,22,32,25,	// MNOPQR
+	21,23,24,26,32,29,	// STUVWX
+	28,27,23,16,23,22,	// YZ0123
+	24,21,23,22,22,22,	// 456789
 	22,22,22,22,22,22,	// ?:,!.(
 	22,22,22,22,22,		// +"/-*
 };
@@ -127,7 +127,7 @@ void InitFont()
 	for(i=0; i<MAX_FONT_CHARS; i++)
 	{
 		// set spacing for individual font chars
-		bigFont->xSpacing[i] = 20;
+		bigFont->xSpacing[i] = letters_spacing[i];
 		bigFont->ySpacing[i] = 24;
 	}
 
