@@ -296,8 +296,7 @@ void StartGameOver()
 
 	FreeAllGameLists();
 
-	CreateAndAddTextOverlay(0, 110, "Game over screen", YES, 255, currFont, 0, 0);
-	CreateAndAddTextOverlay(0, 130, "goes here", YES, 255, currFont, 0, 0);
+	CreateAndAddTextOverlay(0, 120, "Game over", YES, 255, currFont, 0, 0);
 }
 
 /*	--------------------------------------------------------------------------------
@@ -388,7 +387,7 @@ void StartGameIntro()
 
 		ptile = tile;
 	}
-
+/*
 	// load frogger (for no particular reason)
 
 	CreateFrogActor(&tile, "frogger.obe", 0);
@@ -402,7 +401,7 @@ void StartGameIntro()
 	SetVector(&camTarget[0], &currCamTarget[0]);
 
 	SetVector(&camVect, &upVec);
-
+*/
 	controlCamera = 1;
 
 	// set up player
@@ -444,9 +443,9 @@ void RunGameIntro( )
 {
 	long t = actFrameCount - intro->timer;
 	int alpha, i;
-
+/*
 	//CameraLookAtFrog();
-	//UpdateCameraPosition(0);
+	UpdateCameraPosition(0);
 
 	FroggerHop(0);	// just run the movement part of the frog jump code..
 
@@ -472,7 +471,7 @@ void RunGameIntro( )
 	}
 
 	//CheckForFroggerLanding(0);
-
+*/
 
 	switch (intro->stage)
 	{
