@@ -52,7 +52,7 @@ See task lists
 Artist
 ------
 Framing scene					(2/3 : 1/3  facing frog dir)
-Gard1 shed poly flicker artist
+Gard1 shed poly flicker
 Artist checks everything
 Cam too high and vertical
 
@@ -79,6 +79,8 @@ Suggestions/other:
 -----------------------------------------------------
 
 - Thoughts on optimisation
+
+  - utilsCalcAngle returns hyp len in top 16 ! ! ! 
 
   - check loops are counting down for clear/copy mem
 
