@@ -534,7 +534,8 @@ void UpdateBobbingEnemy(ENEMY *nme)
 
 	//nme->animVal = (nme->animVal + gameSpeed) & 0xFFFFFF;
 
-	if (nme->path->endFrame <= nme->path->startFrame) return;
+	if( nme->path->endFrame <= nme->path->startFrame )
+		return;
 
 	bob = rsin(((actFrameCount-nme->path->startFrame)<<12)/(nme->path->endFrame-nme->path->startFrame))>>8;
 
@@ -1993,6 +1994,9 @@ void UpdateBattleEnemy( ENEMY *cur )
 		cur->path->fromNode = 1;
 		cur->path->toNode = 2;
 	}
+
+	if( !cur->inTile )
+		cur->inTile = path->nodes->worldTile;
 
 	// If enemy is on the next path node, set startnode worldtile and the next to zero
 	if( path->nodes[2].worldTile )
