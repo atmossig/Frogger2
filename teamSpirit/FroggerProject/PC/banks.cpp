@@ -386,7 +386,8 @@ void LoadGame(void)
 	void *info; int size;
 	FILE *fp;
 
-	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
+	strcpy(file, baseDirectory);
+	strcat(file, "SaveData\\savegame.dat");
 	
 	info = fileLoad(file, &size);
 	if (!info)
@@ -405,9 +406,9 @@ void SaveGame(void)
 	void *info; unsigned long size;
 	FILE *fp;
 
-	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
+	strcpy(file, baseDirectory);
+	strcat(file, "\\SaveData\\savegame.dat");
 	
-
 	fp = fopen(file,"wb");
 	if (!fp)
 	{
