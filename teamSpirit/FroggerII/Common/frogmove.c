@@ -1458,7 +1458,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				player[pl].frogState &= ~FROGSTATUS_ISSUPERHOPPING;
 				player[pl].frogState &= ~FROGSTATUS_ISLONGHOPPING;
 			}
-			else if( destTile[pl]->state & TILESTATE_SMASH )
+			else if( destTile[pl]->state == TILESTATE_SMASH )
 			{
 				if( !(player[pl].frogState & FROGSTATUS_ISSUPERHOPPING) )
 				{
@@ -1478,7 +1478,7 @@ BOOL MoveToRequestedDestination(int dir,long pl)
 				}
 				else
 				{
-					destTile[pl]->state &= ~TILESTATE_SMASH;
+					destTile[pl]->state = TILESTATE_NORMAL;
 					destTile[pl] = currTile[pl];
 					destPlatform[pl] = NULL;
 					isJump[pl] = 0;
