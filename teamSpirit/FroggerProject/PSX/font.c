@@ -187,6 +187,11 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 	unsigned char	*strPtr, c;
 	int				cx,cy, loop,yAdd;
 	TextureType		*letter;
+	POLY_FT4 	*ft4; 
+
+
+
+
 
 	strPtr = text;
 	cx = x;
@@ -264,7 +269,21 @@ void fontPrintScaled(psFont *font, short x,short y, char *text, unsigned char r,
 			{
 				letter = &font->txPtr[loop];
 				if ((x>-350)&&(x<320))
-					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b, font->alpha,scale);
+				{
+					BEGINPRIM(ft4, POLY_FT4);
+					setPolyFT4(ft4);
+					setXYWH(ft4, x,y-((c>127)?(1):(0)), FMul(letter->w,scale),FMul(letter->h,scale)-1);
+					setRGB0(ft4, r,g,b);
+					setUVWH(ft4, letter->x,letter->y, letter->w-1, letter->h-1);
+					ft4->tpage = letter->tpage;
+					setSemiTrans(ft4, (font->alpha > 0) ? 1 : 0);
+					if(font->alpha)
+						SETSEMIPRIM(ft4, font->alpha);
+					ft4->clut = letter->clut;
+					ENDPRIM(ft4, 4, POLY_FT4);
+
+//					fontDispChar(letter, x,y-((c>127)?(1):(0)), r,g,b, font->alpha,scale);
+				}
 				x += FMul(font->pixelwidth[loop]+2,scale);
 			}
 		}

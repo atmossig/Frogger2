@@ -15,6 +15,9 @@
 #include "game.h"
 #include "multi.h"
 
+int NUM_WATER_TILESX = 8;
+int NUM_WATER_TILESY = 8;
+
 int barProgress = 0;
 
 int barLength = 400;
@@ -29,10 +32,10 @@ SPRITEOVERLAY *playerFace[4] = {NULL,NULL,NULL,NULL};
 
 SPRITEOVERLAY *backgrounds[4] = {NULL,NULL,NULL,NULL};
 
-static VERT waterPoints[NUM_WATER_TILESX][NUM_WATER_TILESY];
-static long waterXYs[NUM_WATER_TILESX][NUM_WATER_TILESY];
-static long waterZs[NUM_WATER_TILESX][NUM_WATER_TILESY];
-static char waterShade[NUM_WATER_TILESX][NUM_WATER_TILESY];
+static VERT waterPoints[8][8];
+static long waterXYs[8][8];
+static long waterZs[8][8];
+static char waterShade[8][8];
 
 char recordStr[256];
 char coinStr[128];
@@ -85,8 +88,8 @@ void loadingInitPolys()
 	{
 		for ( c = 0; c < NUM_WATER_TILESY; c++ )
 		{
-			waterPoints[i][c].vx = (i-NUM_WATER_TILESX/2)*1200 + loadwaterx;
-			waterPoints[i][c].vy = (c-NUM_WATER_TILESY/2)*1000 + loadwatery;
+			waterPoints[i][c].vx = ((i-NUM_WATER_TILESX/2)*(1200*8))/NUM_WATER_TILESX + (loadwaterx*NUM_WATER_TILESX)/8;
+			waterPoints[i][c].vy = ((c-NUM_WATER_TILESY/2)*(1000*8))/NUM_WATER_TILESY + (loadwatery*NUM_WATER_TILESY)/8;
 			waterPoints[i][c].vz = 0;
 		}
 	}
@@ -98,6 +101,11 @@ void loadingInit ( int worldID, int levelID )
 	RECT rect;
 	int store = actFrameCount;
 	int y = 500;
+
+	if(NUM_FROGS == 4)
+		NUM_WATER_TILESX = NUM_WATER_TILESY = 6;
+	else
+		NUM_WATER_TILESX = NUM_WATER_TILESY = 8;
 
 	waterTex = NULL;
 	LoadTextureBank ( LOADING_TEX_BANK );

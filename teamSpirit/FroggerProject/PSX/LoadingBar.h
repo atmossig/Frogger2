@@ -1,10 +1,6 @@
 #ifndef LOADINGBAR_H_INCLUDE
 #define LOADINGBAR_H_INCLUDE
 
-#define NUM_WATER_TILESX 8
-#define NUM_WATER_TILESY 8
-
-
 
 extern int barProgress;
 extern int loadFrameCount;
