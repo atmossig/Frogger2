@@ -346,6 +346,14 @@ SOURCE=.\Common\platform.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Common\ptexture.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\Common\ptexture.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Common\script.c
 # End Source File
 # Begin Source File

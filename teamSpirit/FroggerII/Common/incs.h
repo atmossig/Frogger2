@@ -78,6 +78,7 @@
 #include "multi.h"
 #include "objects.h"
 #include "texture.h"
+#include "ptexture.h"
 #include "collect.h"
 #include "path.h"
 #include "platform.h"

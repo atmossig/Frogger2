@@ -71,6 +71,8 @@ void InitTextureBanks()
 		textureBanks[x].data = NULL;
 		textureBanks[x].numTextures = 0;
 	}
+
+
 }
 
 
@@ -167,7 +169,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	char mys[255];
 	short *dat;
 	TEXENTRY *newE;
-	long isAnim = 0;
+	long isAnim = 0, i;
 	strcpy (mys,shortn);
 	strlwr (mys);
 
@@ -175,11 +177,13 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 	dprintf"%s\n",mys));
 #endif
 
-	isAnim = (((shortn[0]>='0') && (shortn[0]<='9'))
-	 && ((shortn[1]>='0') && (shortn[1]<='9')));
+	// Animated or procedural texture
+	if( ((mys[0]>='0') && (mys[0]<='9')) && ((mys[1]>='0') && (mys[1]<='9')) ) isAnim = 1;
+	else if( mys[0]=='p' && mys[1]=='r' && mys[2]=='c' )
+		isAnim = 2;
 		
 	
-	if (isAnim && (!((shortn[0]=='0') && (shortn[1]=='0'))))
+	if( (isAnim == 1) && (!((shortn[0]=='0') && (shortn[1]=='0'))))
 	{
 		TEXENTRY *cEntry = texList;
 		
@@ -216,7 +220,7 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 		texList = newE;
 	}
 
-	if (isAnim)
+	if( isAnim == 1 )
 	{
 		newE->frameTime = (((shortn[7]-'0')+1) * ((shortn[7]-'0')+1));
 	}
@@ -229,26 +233,26 @@ void AddTextureToTexList(char *file, char *shortn, long finalTex)
 
 	if (newE->data)
 	{
+		if( isAnim == 2 ) CreateAndAddProceduralTexture( newE, mys );
+
 		if (((shortn[0]=='a') & (shortn[1]=='i')) & (shortn[2]=='_'))
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,1);
 			newE->type = TEXTURE_AI;
-
-			if ( newE->surf )
-				newE->hdl = ConvertSurfaceToTexture(newE->surf);
 		}
 		else
 		{
 			newE->surf = CreateTextureSurface(32,32, newE->data, 1,0xf81f,0);
 			newE->type = TEXTURE_NORMAL;
-	
-			if ( newE->surf )
-				newE->hdl = ConvertSurfaceToTexture(newE->surf);
 		}
+
+		if ( newE->surf )
+			newE->hdl = ConvertSurfaceToTexture(newE->surf);
 	}
 	else
 		dprintf"Cannot find texture %s\n",shortn));
 }
+
 
 void PrintTextureInfo(void);
 
