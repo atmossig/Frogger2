@@ -759,17 +759,9 @@ long FAR PASCAL WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 		}
 
 		case MM_MCINOTIFY:
-		{
 			// Loop cd track when it finishes
-			switch( (int)wParam )
-			{
-			case MCI_NOTIFY_SUCCESSFUL:
-				PrepareSongForLevel( player[0].worldNum, player[0].levelNum );
-				break;
-			}
-
+			PrepareSongForLevel( player[0].worldNum, player[0].levelNum );
 			break;
-		}
 	}
 
     return DefWindowProc(hWnd,message,wParam,lParam);
