@@ -21,7 +21,6 @@
 #include "mdxWindows.h"
 #include "gelf.h"
 #include "commctrl.h"
-#include "majikPR.h"
 #include "mdxException.h"
 #include "resource.h"
 
