@@ -26,34 +26,6 @@ extern unsigned long	playerInputPause2;
 
 extern BOOL keysEnabled;
 
-#define CONT_UP     0x0001
-#define CONT_DOWN   0x0002
-#define CONT_LEFT   0x0004
-#define CONT_RIGHT  0x0008
-
-#define CONT_A		0x0010
-#define CONT_B		0x0020
-#define CONT_C		0x0040
-#define CONT_D		0x0080
-#define CONT_E		0x0100
-#define CONT_F		0x0200
-#define CONT_G		0x0400
-#define CONT_L		0x0800
-#define CONT_R		0x1000
-#define CONT_START	0x2000
-#define CONT_SHIFT	0x4000
-
-typedef struct tagOSContPad 
-{
-	unsigned long button, lastbutton;
-	char stick_x;
-	char stick_y;
-	unsigned char errornumber;
-	unsigned long tickOn;
-} OSContPad;
-
-extern OSContPad controllerdata[4];
-
 typedef struct
 {
 	short player;

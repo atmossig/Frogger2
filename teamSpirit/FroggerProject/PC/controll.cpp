@@ -19,14 +19,15 @@
 #include "frogger.h"
 #include "language.h"
 #include "controll.h"
-
+#include "islpad.h"
 
 /*	------------------------------------------------------------------------
 	Global stuff
 */
 
-OSContPad controllerdata[4];
 BYTE keyTable[256];
+
+PadDataType padData;	// PSX-Combatibuuule
 
 
 /*	------------------------------------------------------------------------
@@ -80,68 +81,68 @@ int numJoypads = 0;
 // Need to store DIK, controller number and controller command
 KEYENTRY keymap[56] = 
 {
-	{ 0, CONT_UP, DIK_UP },
-	{ 0, CONT_DOWN, DIK_DOWN },
-	{ 0, CONT_LEFT, DIK_LEFT },
-	{ 0, CONT_RIGHT, DIK_RIGHT },
-	{ 0, CONT_A, DIK_RETURN },
-	{ 0, CONT_B, DIK_RSHIFT },
-	{ 0, CONT_START, DIK_ESCAPE },
-	{ 0, CONT_C, DIK_NUMPAD4 },
-	{ 0, CONT_D, DIK_NUMPAD2 },
-	{ 0, CONT_E, DIK_NUMPAD8 },
-	{ 0, CONT_F, DIK_NUMPAD6 },
-	{ 0, CONT_G, DIK_NUMPAD0 },
-	{ 0, CONT_L, DIK_RCONTROL },
-	{ 0, CONT_R, DIK_R },
+	{ 0, PAD_UP, DIK_UP },
+	{ 0, PAD_DOWN, DIK_DOWN },
+	{ 0, PAD_LEFT, DIK_LEFT },
+	{ 0, PAD_RIGHT, DIK_RIGHT },
+	{ 0, PAD_CROSS, DIK_RETURN },
+	{ 0, PAD_SQUARE, DIK_RSHIFT },
+	{ 0, PAD_START, DIK_ESCAPE },
+	{ 0, PAD_CIRCLE, DIK_NUMPAD4 },
+	{ 0, PAD_TRIANGLE, DIK_NUMPAD2 },
+	{ 0, PAD_L2, DIK_NUMPAD8 },
+	{ 0, PAD_R2, DIK_NUMPAD6 },
+	{ 0, PAD_SELECT, DIK_NUMPAD0 },
+	{ 0, PAD_L1, DIK_RCONTROL },
+	{ 0, PAD_R1, DIK_R },
 
-	{ 1, CONT_UP, DIK_W },
-	{ 1, CONT_DOWN, DIK_S },
-	{ 1, CONT_LEFT, DIK_A },
-	{ 1, CONT_RIGHT, DIK_D },
-	{ 1, CONT_A, DIK_C },
-	{ 1, CONT_B, DIK_E },
-	{ 1, CONT_START, 0 },
-	{ 1, CONT_C, 0 },
-	{ 1, CONT_D, 0 },
-	{ 1, CONT_E, 0 },
-	{ 1, CONT_F, 0 },
-	{ 1, CONT_G, 0 },
-	{ 1, CONT_L, 0 },
-	{ 1, CONT_R, 0 },
+	{ 1, PAD_UP, DIK_W },
+	{ 1, PAD_DOWN, DIK_S },
+	{ 1, PAD_LEFT, DIK_A },
+	{ 1, PAD_RIGHT, DIK_D },
+	{ 1, PAD_CROSS, DIK_C },
+	{ 1, PAD_SQUARE, DIK_E },
+	{ 1, PAD_START, 0 },
+	{ 1, PAD_CIRCLE, 0 },
+	{ 1, PAD_TRIANGLE, 0 },
+	{ 1, PAD_L2, 0 },
+	{ 1, PAD_R2, 0 },
+	{ 1, PAD_SELECT, 0 },
+	{ 1, PAD_L1, 0 },
+	{ 1, PAD_R1, 0 },
 
-	{ 2, CONT_UP, DIK_I },
-	{ 2, CONT_DOWN, DIK_K },
-	{ 2, CONT_LEFT, DIK_J },
-	{ 2, CONT_RIGHT, DIK_L },
-	{ 2, CONT_A, DIK_N },
-	{ 2, CONT_B, DIK_U },
-	{ 2, CONT_START, 0 },
-	{ 2, CONT_C, 0 },
-	{ 2, CONT_D, 0 },
-	{ 2, CONT_E, 0 },
-	{ 2, CONT_F, 0 },
-	{ 2, CONT_G, 0 },
-	{ 2, CONT_L, 0 },
-	{ 2, CONT_R, 0 },
+	{ 2, PAD_UP, DIK_I },
+	{ 2, PAD_DOWN, DIK_K },
+	{ 2, PAD_LEFT, DIK_J },
+	{ 2, PAD_RIGHT, DIK_L },
+	{ 2, PAD_CROSS, DIK_N },
+	{ 2, PAD_SQUARE, DIK_U },
+	{ 2, PAD_START, 0 },
+	{ 2, PAD_CIRCLE, 0 },
+	{ 2, PAD_TRIANGLE, 0 },
+	{ 2, PAD_L2, 0 },
+	{ 2, PAD_R2, 0 },
+	{ 2, PAD_SELECT, 0 },
+	{ 2, PAD_L1, 0 },
+	{ 2, PAD_R1, 0 },
 
-	{ 3, CONT_UP, 0 },
-	{ 3, CONT_DOWN, 0 },
-	{ 3, CONT_LEFT, 0 },
-	{ 3, CONT_RIGHT, 0 },
-	{ 3, CONT_A, 0 },
-	{ 3, CONT_B, 0 },
-	{ 3, CONT_START, 0 },
-	{ 3, CONT_C, 0 },
-	{ 3, CONT_D, 0 },
-	{ 3, CONT_E, 0 },
-	{ 3, CONT_F, 0 },
-	{ 3, CONT_G, 0 },
-	{ 3, CONT_L, 0 },
-	{ 3, CONT_R, 0 }
+	{ 3, PAD_UP, 0 },
+	{ 3, PAD_DOWN, 0 },
+	{ 3, PAD_LEFT, 0 },
+	{ 3, PAD_RIGHT, 0 },
+	{ 3, PAD_CROSS, 0 },
+	{ 3, PAD_SQUARE, 0 },
+	{ 3, PAD_START, 0 },
+	{ 3, PAD_CIRCLE, 0 },
+	{ 3, PAD_TRIANGLE, 0 },
+	{ 3, PAD_L2, 0 },
+	{ 3, PAD_R2, 0 },
+	{ 3, PAD_SELECT, 0 },
+	{ 3, PAD_L1, 0 },
+	{ 3, PAD_R1, 0 }
 };
 
-unsigned int joymap[MAXBUTTONS] = { CONT_A, CONT_B, CONT_L, CONT_SHIFT, CONT_C, CONT_F };
+unsigned int joymap[MAXBUTTONS] = { PAD_CROSS, PAD_SQUARE, PAD_CIRCLE, PAD_TRIANGLE, PAD_START };
 
 // controller type for each player
 #define KEYBOARD 0x200
@@ -547,6 +548,8 @@ void ProcessUserInput()
 	long i;
 	int pressed = 0;
 	
+	unsigned short oldDigital[8];
+
 	//if (keyInput)
 	//{
 		// read keyboard data
@@ -560,15 +563,12 @@ void ProcessUserInput()
 	if(KEYPRESS(DIK_F12))
 		PostMessage(winInfo.hWndMain, WM_CLOSE, 0, 0);
 	
-	controllerdata[0].lastbutton = controllerdata[0].button;
-	controllerdata[1].lastbutton = controllerdata[1].button;
-	controllerdata[2].lastbutton = controllerdata[2].button;
-	controllerdata[3].lastbutton = controllerdata[3].button;
-
-	controllerdata[0].button = 0;
-	controllerdata[1].button = 0;
-	controllerdata[2].button = 0;
-	controllerdata[3].button = 0;
+	// reset states
+	for (i=0; i<8; i++)
+	{
+		oldDigital[i] = padData.digital[i];
+		padData.digital[i] = 0;
+	}
 
 	if (!keysEnabled) return;
 
@@ -597,7 +597,8 @@ void ProcessUserInput()
 	{
 		while ((curPlayKey < playKeyCount) && (playKeyList[curPlayKey*3]<actFrameCount))
 		{
-			controllerdata[playKeyList[(curPlayKey*3)+2]].button = playKeyList[(curPlayKey*3)+1];
+			//controllerdata[playKeyList[(curPlayKey*3)+2]].button = playKeyList[(curPlayKey*3)+1];
+			padData.digital[playKeyList[(curPlayKey*3)+2]] = playKeyList[(curPlayKey*3)+1];
 			curPlayKey++;
 		}
 	}
@@ -606,15 +607,19 @@ void ProcessUserInput()
 		for (i = 0; i<NUM_FROGS * 14; i++)
 				if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
 				{
-					controllerdata[keymap[i].player].button |= keymap[i].button;
+					//controllerdata[keymap[i].player].button |= keymap[i].button;
+					padData.digital[keymap[i].player] |= keymap[i].button;
 					pressed = 1;
 				}
 
 		for( i=0; i < NUM_FROGS; i++ )
 		{
 			
-			if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
-				RecordButtons(controllerdata[i].button,i);
+			//if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
+			//	RecordButtons(controllerdata[i].button,i);
+			
+			if ((rKeyOK) && (padData.digital[i] != oldDigital[i]))
+				RecordButtons(padData.digital[i],i);
 
 			if (controllers[i] & GAMEPAD)
 			{
@@ -640,22 +645,18 @@ void ProcessUserInput()
 					for (int m=0; m < MAXBUTTONS; m++)
 						if (joy.rgbButtons[m]) b |= joymap[m];
 					
-					if (joy.lX < -DEAD_ZONE)
-						b |= (b & CONT_SHIFT) ? CONT_C : CONT_LEFT;		// if shift rotate L else hop L
-					else if (joy.lX > DEAD_ZONE)
-						b |= (b & CONT_SHIFT) ? CONT_F : CONT_RIGHT;	// if shift rotate R else hop R
+					if (joy.lX < -DEAD_ZONE)		b |= PAD_LEFT;
+					else if (joy.lX > DEAD_ZONE)	b |= PAD_RIGHT;
 
 					//if ((b & (CONT_LEFT|CONT_RIGHT)) && (b & (CONT_UP|CONT_DOWN)))
 					//	b &= ~(CONT_LEFT|CONT_RIGHT|CONT_DOWN|CONT_UP);	// diagonals do nothing
 
-					if (joy.lY < -DEAD_ZONE)
-						b |= (b & CONT_SHIFT) ? 0 : CONT_UP;
-					else if (joy.lY > DEAD_ZONE)
-						b |= (b & CONT_SHIFT) ? 0 : CONT_DOWN;
+					if (joy.lY < -DEAD_ZONE)		b |= PAD_UP;
+					else if (joy.lY > DEAD_ZONE)	b |= PAD_DOWN;
 
 					if (b)
 					{
-						controllerdata[i].button |= b;
+						padData.digital[i] |= b;
 						pressed = 1;
 
 						//if (rPlaying) StopKeying();
@@ -664,8 +665,20 @@ void ProcessUserInput()
 					//lpJoystick->UnAcquire();
 				}
 			}
+
 		}
 	}
+
+	// Get "debounce" states
+
+	for (i = 0; i<8; i++)
+	{
+		padData.debounce[i] = (~oldDigital[i]) & padData.digital[i];
+
+		if (padData.debounce[i])
+			utilPrintf("Controller press %08x\n", padData.debounce[i]);
+	}
+
 
 #ifdef FULL_BUILD
 	if (pressed)
