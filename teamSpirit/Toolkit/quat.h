@@ -28,9 +28,9 @@ public:
 	Quaternion( ) { x=y=z=w=0; }
 	Quaternion( float _x, float _y, float _z, float _w ) { x=_x;y=_y;z=_z;w=_w; }
 
-	void operator = (quat &q) { x=q.x; y=q.y; z=q.z; w=q.w; }
-	void operator = (vec &q) { x=q.x; y=q.y; z=q.z; w=0; }
-	void Set(float _x,float _y,float _z,float _w) { x=_x; y=_y; z=_z; w=_w; }
+	Quaternion& operator = (quat &q) { x=q.x; y=q.y; z=q.z; w=q.w; return *this; }
+	Quaternion& operator = (vec &q) { x=q.x; y=q.y; z=q.z; w=0; return *this; }
+	Quaternion& Set(float _x,float _y,float _z,float _w) { x=_x; y=_y; z=_z; w=_w; return *this; }
 
 	Quaternion operator * ( quat &q );
 	Quaternion Slerp( quat &q, float t );

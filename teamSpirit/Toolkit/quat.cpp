@@ -69,14 +69,14 @@ Quaternion Quaternion::Slerp( quat &q, float t )
 	{
 		if( 1.0-cosom > QEPSILON )
 		{
-			omega = acos(cosom);
-			sinom = 1.0 / sinf(omega);
-			sclp = sinf((1.0-t)*omega) * sinom;
-			sclq = sinf(t*omega) * sinom;
+			omega = (float)acos(cosom);
+			sinom = 1.0f / (float)sinf(omega);
+			sclp = (float)sinf((1.0f-t)*omega) * sinom;
+			sclq = (float)sinf(t*omega) * sinom;
 		}
 		else
 		{
-			sclp = 1.0-t;
+			sclp = 1.0f-t;
 			sclq = t;
 		}
 
@@ -91,8 +91,8 @@ Quaternion Quaternion::Slerp( quat &q, float t )
 		dest.y = x;
 		dest.z = -w;
 		dest.w = z;
-		sclp = sinf((1.0-t)*QHALFPI);
-		sclq = sinf(t*QHALFPI);
+		sclp = (float)sinf((1.0f-t)*(float)QHALFPI);
+		sclq = (float)sinf(t*(float)QHALFPI);
 		dest.x = sclp*x + sclq*dest.x;
 		dest.y = sclp*y + sclq*dest.y;
 		dest.z = sclp*z + sclq*dest.z;
@@ -121,7 +121,7 @@ Quaternion Quaternion::SlerpFixedSpeed( quat &q, float speed )
 	else
 		t = -(x*q.x + y*q.y + z*q.z + w*q.w);
 
-	t = fabs(acos(t));
+	t = (float)fabs(acos(t));
 
 	if( t > speed )
 		d = Slerp( q, speed/t );
@@ -143,7 +143,7 @@ Matrix Quaternion::ToMatrix( )
 	Matrix mat;
 	float s, xs,ys,zs, wx,wy,wz, xx,xy,xz, yy,yz,zz;
 
-	s = 2.0/(x*x + y*y + z*z + w*w);
+	s = 2.0f/(x*x + y*y + z*z + w*w);
 
 	xs = x*s;
 	ys = y*s;
@@ -161,17 +161,17 @@ Matrix Quaternion::ToMatrix( )
 	yz = y*zs;
 	zz = z*zs;
 
-	mat.m[0][0] = 1.0-(yy+zz);
+	mat.m[0][0] = 1.0f-(yy+zz);
 	mat.m[0][1] = xy+wz;
 	mat.m[0][2] = xz-wy;
 
 	mat.m[1][0] = xy-wz;
-	mat.m[1][1] = 1.0-(xx+zz);
+	mat.m[1][1] = 1.0f-(xx+zz);
 	mat.m[1][2] = yz+wx;
 
 	mat.m[2][0] = xz+wy;
 	mat.m[2][1] = yz-wx;
-	mat.m[2][2] = 1.0-(xx+yy);
+	mat.m[2][2] = 1.0f-(xx+yy);
 
 	mat.m[0][3] = 0;
 	mat.m[1][3] = 0;
@@ -196,8 +196,8 @@ Quaternion Quaternion::ToRotation( )
 	Quaternion d;
 	float theta,sinThetaOver2,m;
 
-	theta = 2 * acos(w);
-	sinThetaOver2 = sinf(theta/2);
+	theta = 2 * (float)acos(w);
+	sinThetaOver2 = (float)sinf(theta/2);
 	
 	d.w = theta;
 	if( sinThetaOver2 )
@@ -237,7 +237,7 @@ Quaternion Quaternion::ToQuaternion( )
 	float thetaOver2;
 	float sinThetaOver2;
 
-	thetaOver2 = w*0.5;
+	thetaOver2 = w*0.5f;
 	sinThetaOver2 = sinf(thetaOver2);
 
 	d.w = cosf(thetaOver2);
@@ -264,8 +264,8 @@ void Quaternion::FromMatrix( Matrix &mat )
 	if( tr > 0 )
 	{
 		s = sqrtf( tr+1 );
-		w = s*0.5;
-		s = 0.5/s;
+		w = s*0.5f;
+		s = 0.5f/s;
 
 		x = (mat.m[1][2] - mat.m[2][1]) * s;
 		y = (mat.m[2][0] - mat.m[0][2]) * s;
@@ -306,8 +306,8 @@ void Quaternion::FromMatrix( Matrix &mat )
 
 		s = sqrtf((mat.m[i][i]-(mat.m[j][j]+mat.m[k][k]))) + 1;
 
-		*fi = s*0.5;
-		s = 0.5/s;
+		*fi = s*0.5f;
+		s = 0.5f/s;
 		w = (mat.m[j][k]-mat.m[k][j]) * s;
 		*fj = (mat.m[i][j]+mat.m[j][i]) * s;
 		*fk = (mat.m[i][k]+mat.m[k][i]) * s;
