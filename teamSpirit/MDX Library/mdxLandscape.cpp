@@ -123,6 +123,18 @@ MDX_LANDSCAPE *ConvertActorToLandscape(MDX_ACTOR *actor)
 	return ConvertObjectToLandscape(actor->objectController->object);
 }
 
+void FreeLandscape(MDX_LANDSCAPE **me)
+{
+	if (!*me)
+		return;
+	delete (*me)->vertices;
+	delete (*me)->faceIndex;
+	delete (*me)->xfmVert;
+	delete (*me)->textures;
+	delete *me;
+	*me = NULL;
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -33,6 +33,7 @@ typedef struct TAG_MDX_LANDSCAPE
 } MDX_LANDSCAPE;
 
 MDX_LANDSCAPE *ConvertActorToLandscape(MDX_ACTOR *actor);
+void FreeLandscape(MDX_LANDSCAPE **me);
 
 #ifdef __cplusplus
 }
