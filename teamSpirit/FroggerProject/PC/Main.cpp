@@ -821,6 +821,9 @@ int GameStartup()
 
 int GameShutdown()
 {
+	if( !frog[0] )
+		return 0;
+
 	UndoChangeModel( frog[0]->actor );
 
 	SaveGame();
