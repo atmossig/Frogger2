@@ -1198,6 +1198,18 @@ SOURCE=.\Editor\edtoolbars.h
 # End Group
 # Begin Source File
 
+SOURCE=.\Backtile.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\bmp\f2logo.bmp
+# End Source File
+# Begin Source File
+
+SOURCE=.\bmp\frog1.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\resource.h
 # End Source File
 # Begin Source File
