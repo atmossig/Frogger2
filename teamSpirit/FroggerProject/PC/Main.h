@@ -63,7 +63,7 @@ extern char lButton, rButton;
 extern char baseDirectory[MAX_PATH];
 extern char outputMessageBuffer[256];
 extern long keyInput;
-
+extern long drawLandscape;
 extern char	transparentSurf;
 extern char	xluSurf;
 extern char	aiSurf;
