@@ -1429,7 +1429,7 @@ void OptionsProcessController(void)
 	if((options.mode == OP_ARCADE) && ((!CheckCamStill()) || (options.arcadeText->a < 200)))
 		return;
 
-	if(properMultiSelect)
+	if((properMultiSelect) && (options.mode == OP_CHARSEL))
 		button = padData.digital[options.currentPlayer];
 	else
 		button = padData.digital[0];
