@@ -59,11 +59,11 @@ unsigned long tongueColours[] =
 	0xffdd0000, // Frogger - red
 	0xffdd0000, // Lilli - red
 	0xffff9000, // Tad - Orange
-	0xff555500, // Swampy - Dark green
 	0xff8f00ff, // Twee - purple
 	0xffaa0000, // Wart - Deep Red
-	0xffdd0000, // Roobie - Red
 	0xffbbccee, // Tank - Metallic
+	0xffdd0000, // Roobie - Red
+	0xff555500, // Swampy - Dark green
 };
 
 /*	--------------------------------------------------------------------------------

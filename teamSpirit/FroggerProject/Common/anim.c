@@ -86,9 +86,9 @@ void DeathDrowning( int pl )
 	
 	actorAnimate(frog[pl]->actor,FROG_ANIM_DROWN,NO,NO,64,0);
 
-	if( Random(2) )
+//	if( Random(2) )
 		PlaySample(genSfx[GEN_DEATHDROWN],NULL,0,SAMPLE_VOLUME,-1);
-	else
+//	else
 		PlayVoice( pl, "frogdrown2" );
 }
 
