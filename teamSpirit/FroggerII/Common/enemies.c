@@ -472,7 +472,8 @@ void UpdateEnemies()
 	VECTOR moveVec;
 	float length;
 
-	float tileRadiusSquared = snapRadius * snapRadius;
+	float tileRadiusSquared = 
+		snapRadius * snapRadius;
 
 	if(enemyList.numEntries == 0)
 		return;
