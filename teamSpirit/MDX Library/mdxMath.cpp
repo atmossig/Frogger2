@@ -145,18 +145,20 @@ void guLookAtF (float m[4][4],float xEye, float yEye, float zEye,float xAt, floa
 	
 	if (updateView)
 	{
-		if ((fabs(curAt.vx - xAt)<ROTATE_THRESH) &&
+
+		//sbond bodge!!!!!!!!!!!!!!!!!!!!
+/*		if ((fabs(curAt.vx - xAt)<ROTATE_THRESH) &&
 			(fabs(curAt.vy - yAt)<ROTATE_THRESH) &&
 			(fabs(curAt.vz - zAt)<ROTATE_THRESH) &&
 			(fabs(curEye.vx - xEye)<MOVE_THRESH) &&
 			(fabs(curEye.vy - yEye)<MOVE_THRESH) &&
 			(fabs(curEye.vz - zEye)<MOVE_THRESH))
 			changedView = 0;
-	
+*/
 		curAt.vx = xAt;
 		curAt.vy = yAt;
 		curAt.vz = zAt;	
-	
+		
 		curEye.vx = xEye;
 		curEye.vy = yEye;
 		curEye.vz = zEye;

@@ -342,3 +342,8 @@ void RunDesignWorkViewer(void)
 }
 }
 
+void PcNameEntryInit(void)
+{
+	textString[0] = 0;
+}
+

@@ -44,6 +44,8 @@ void EndTimer(int number);
 void PrintTimers(void);
 void HoldTimers(void);
 
+void PcNameEntryInit(void);
+
 LPDIRECTDRAWSURFACE7 LoadEditorTexture(const char*);
 
 extern void PTSurfaceBlit( TextureType *tex, unsigned char *buf, unsigned short *pal );

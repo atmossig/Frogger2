@@ -387,9 +387,9 @@ void TextInput( char c )
 	{
 		textEntry = 0;
 	}
-	else
+	else if(c != 96) // weird ¬ key fucks things up
 	{
-		if (numc<textEntry)
+		if (numc < textEntry)
 		{
 			textString[numc] = c;
 			textString[numc+1] = 0;
@@ -583,7 +583,7 @@ long DrawLoop(void)
 	StartTimer (2,"DrawActorList (old)");
 	DrawActorList();
 
-	if (editorOk || fixedPos)
+	if ((gameState.mode != FRONTEND_MODE) && (editorOk || fixedPos))
 		CalcViewMatrix(0);
 	else
 		CalcViewMatrix(1);
