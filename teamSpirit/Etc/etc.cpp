@@ -6,26 +6,8 @@
 	Programmer	: David Swift
 	Date		: 02/07/99
 
-
 	Event/Trigger Compiler for Frogger2
-	Very (very) simple compiler
-
-	Syntax
-	------
-
-	IF condition param ...
-	command param ...
-	command param ...
-
-	IF condition param ...
-	AND condition param ...
-	command param
-
-	IF ...
-	OR ...
-	command ...
-
-	; Comments start with a semi-colon
+	See "\\server\TeamSpirit\pcversion\docs\Frogger 2 Scripting Manual.doc"
 
 -------------------------------------------------------------------------- */
 
@@ -45,7 +27,9 @@ typedef unsigned char UBYTE;
 
 #define MAX_PATH 256
 #define OUTPUT_FILE_EXT ".fev"
-#define ETC_VERSION 2
+
+const UBYTE		ETC_VERSION			= 3;
+const int		DEBUG_BLOCK_SIZE	= (1 + 2 + 2);
 
 bool
 	hold = false,
@@ -61,31 +45,12 @@ int debugLineNo = 0;
 char error[80];
 char headerfile[256];
 
+char baseDirectory[1024];
+
 #define s(n) ((n != 1) ? "s" : "")
 
 ScriptTokenList triggerList, commandList;
 
-/*
-struct Subroutine
-{
-	Buffer buffer;
-	int address;
-	Subroutine* link;
-};
-
-struct Address
-{
-	Buffer *buffer;
-	int index;
-	Subroutine* sub;
-	Address* link;
-};
-
-
-Subroutine *subList = NULL;
-Address *addList = NULL;
-Lookup SubLookup;
-*/
 
 struct FileList
 {
@@ -195,11 +160,13 @@ bool LoadCommandTable(const char* filename, ScriptTokenList &list)
 
 bool InitTables(const char* exename)
 {
-	char basedir[256], filename[256];
+	char filename[1024];
 
-	GetPath(basedir, exename);
+	GetPath(baseDirectory, exename);
 
-	strcpy(filename, basedir);
+	includePath = baseDirectory;
+
+	strcpy(filename, baseDirectory);
 	strcat(filename, "triggers.ec");
 
 	// Load trigger table
@@ -210,7 +177,7 @@ bool InitTables(const char* exename)
 		return false;	
 	} 
 
-	strcpy(filename, basedir);
+	strcpy(filename, baseDirectory);
 	strcat(filename, "commands.ec");
 
 	// Load command table
@@ -339,42 +306,11 @@ bool AddEvent(Buffer &buffer)
 
 	debugLineNo = CurrentLineNum();
 
-/*
-	strupr(token);
-	int command = NOSUCHCOMMAND;
-	for (char i = 0; i < NUMEVENTS; i++)
-		if (strcmp(token, eventLookup[i].str) == 0)
-		{
-			command = i; break;
-		}
-*/
 	if (!(tokeninfo = commandList.GetEntry(token)))
 	{
-		/*Subroutine *sub = (Subroutine*)SubLookup.GetEntry(token);
-
-		if (!sub)
-		{*/
-			sprintf(error, "'%s' is not a valid event", token);
-			Error(error);
-			return false;
-		/*}
-		else
-		{
-			buffer.AddChar(C_CALL);
-
-			if (verbose)
-			{
-				printf("Adding subroutine call \"%s\" at index %04x\n", token, buffer.Size());
-			}
-			
-			Address *addy = new Address;
-			addy->buffer = &buffer;
-			addy->index = buffer.Size();
-			addy->sub = sub;
-
-			buffer.AddInt(0);
-			return true;
-		}*/
+		sprintf(error, "'%s' is not a valid event", token);
+		Error(error);
+		return false;
 	}
 
 	switch (tokeninfo->token)
@@ -428,39 +364,6 @@ bool AddEvent(Buffer &buffer)
 			return AddBlock(buffer);
 		}
 
-/*	case C_SUB:
-		{
-			char name[80];
-			Subroutine *sub = new Subroutine;
-
-			NextToken();
-			if (tokenType != T_COMMAND)
-			{
-				Error(ERR_EXPECTSUBNAME); return false;
-			}
-
-			strcpy(name, token);
-
-			if (verbose) printf("Creating subroutine \"%s\"\n", name);
-
-			if (AddBlock(sub->buffer))
-			{			
-				sub->link = subList;
-				subList = sub;
-
-				SubLookup.AddEntry(name, (void*)sub);
-
-				if (verbose) printf("End subroutine \"%s\", %04x bytes\n", name);
-
-				return true;
-			}
-			else
-			{
-				delete sub;
-				return false;
-			}
-		}
-*/
 	default:
 		if (verbose > 1)
 		{
@@ -477,7 +380,6 @@ bool AddEvent(Buffer &buffer)
 
 bool WriteDebug(Buffer &buffer)
 {
-	buffer.AddInt(5);
 	buffer.AddUchar(C_DEBUG);
 	buffer.AddWord(0);	// placeholder
 	buffer.AddWord(debugLineNo);
@@ -486,7 +388,8 @@ bool WriteDebug(Buffer &buffer)
 
 bool AddBlock(Buffer &buffer)
 {
-	Buffer b;
+	Buffer b, bb;
+	int e = 0;
 
 	if (!NextToken())
 	{
@@ -496,25 +399,22 @@ bool AddBlock(Buffer &buffer)
 
 	if (tokenType != T_SYMBOL)
 	{
-		if (!AddEvent(b)) return false;
-		if (!b.Size() && !quiet)
+		if (!AddEvent(bb)) return false;
+		if (!bb.Size() && !quiet)
 			Error("Warning: Command does nothing in interpreter");
+
+		e = 1;
 
 		if (writedebug)
 		{
-			buffer.AddInt(2);	
-			WriteDebug(buffer);
+			WriteDebug(b);
+			e = 2;
 		}
-		else
-			buffer.AddInt(1);
 
-		buffer.AddInt(b.Size());
-		buffer.Append(b);
+		b.Append(bb);
 	}
 	else if (token[0] = '{')
 	{
-		Buffer bb;
-		int e = 0;
 		while (true)
 		{
 			NextToken();
@@ -532,7 +432,6 @@ bool AddBlock(Buffer &buffer)
 						e++;
 					}
 					
-					b.AddInt(bb.Size());
 					b.Append(bb);
 					e++;
 				}
@@ -543,14 +442,15 @@ bool AddBlock(Buffer &buffer)
 		
 		if (!e)
 			Error("Warning: Block contains no commands");
-
-		buffer.AddInt(e);
-		buffer.Append(b);
 	}
 	else
 	{
 		Error(ERR_INVALIDCHAR); return false;
 	}
+
+	buffer.AddInt(b.Size() + 2);	// size of [block + number of events]
+	buffer.AddWord(e);				// number of events
+	buffer.Append(b);				// buffer
 	return true;
 }
 
@@ -566,15 +466,7 @@ bool AddTrigger(Buffer &output)
 		Error(error);
 		return false;
 	}
-/*
-	strupr(token);
-	command = NOSUCHCOMMAND;
-	for (i = 0; i < NUMTRIGGERS; i++)
-		if (strcmp(token, triggerLookup[i].str) == 0)
-		{
-			command = i; break;
-		}
-*/
+
 	if (!(tokeninfo = triggerList.GetEntry(token)))
 	{
 		sprintf(error, "'%s' is not a valid trigger", token);
@@ -587,14 +479,6 @@ bool AddTrigger(Buffer &output)
 		sprintf(error, "Adding \"%s\" trigger (%d 0x%02x)", token, tokeninfo->token, tokeninfo->token);
 		Error(error);
 	}
-
-/*
-	trigger.type = triggerLookup[command].token;
-	trigger.numEvents = 0;
-	trigger.params->size = 0;
-	AddParamsToBuffer(params+1, trigger.params);
-	trigger.size = trigger.params->size;
-*/
 
 	output.AddChar(tokeninfo->token);
 
@@ -610,7 +494,7 @@ bool AddTrigger(Buffer &output)
 bool compile(const char* filename, bool save)
 {
 	int err = 0, e = 0;
-	Buffer buffer;
+	Buffer buffer, b;
 	line = 0;
 	
 	if (!OpenFile(filename))
@@ -621,7 +505,8 @@ bool compile(const char* filename, bool save)
 
 	while (NextToken())
 	{
-		Buffer b;
+		b.Clear();
+
 		if (!AddEvent(b)) return false;
 		if (b.Size())
 		{
@@ -631,7 +516,7 @@ bool compile(const char* filename, bool save)
 				e++;
 			}
 
-			buffer.AddInt(b.Size());
+			//buffer.AddInt(b.Size());
 			buffer.Append(b);
 			e++;
 		}
@@ -643,17 +528,20 @@ bool compile(const char* filename, bool save)
 		GetFilenameStart(outfile, filename);
 		strcat(outfile, OUTPUT_FILE_EXT);
 
-		Buffer header;
-
-		header.AddChar(ETC_VERSION);
-		header.AddInt(e);
-
+		if (verbose > 1)
+			printf("Saving version %d FEV file to '%s'...\n", ETC_VERSION, outfile);
+		
 		FILE *f = fopen(outfile, "wb");
 		if (!f)
 		{
 			fprintf(stderr, "Couldn't open '%s' for writing\n");
 			return false;
 		}
+
+		Buffer header;
+		header.AddChar(ETC_VERSION);
+		header.AddInt(buffer.Size() + 2);	// size of entire script (i.e. outmost block)
+		header.AddWord(e);					// number of events in outer block
 
 		fwrite(header.Data(), header.Size(), 1, f);
 		fwrite(buffer.Data(), buffer.Size(), 1, f);
@@ -697,8 +585,9 @@ bool OutputHeader(const char* filename)
 void show_splash()
 {
 	puts(
-		"Event-Trigger Compiler v1.0 for Frogger 2 (Built " __DATE__ ")\n"
-		"(c) 1999 Interactive Studios Ltd.\n");
+		"Event-Trigger Compiler v1.0 for Frogger 2\n"
+		"(c) 1999 Interactive Studios Ltd.\n"
+		"Build " __DATE__ "\n");
 }
 
 void show_helpscreen()
@@ -712,7 +601,7 @@ void show_helpscreen()
 		"  -p        Pause after compiling.\n"
 		"  -q        Quiet compile, do not output anything except on errors.\n"
 		"  -t        Test compile, do not save any files.\n"
-		"  -v        Produce verbose output.");
+		"  -v        Produce verbose output. Successive v's increase verbosity.");
 }
 
 bool interpretCmdLine(int argc, char **argv)
@@ -826,7 +715,7 @@ int main(int argc, char **argv)
 		errors = CompileList();
 		
 		if (errors)
-			printf("\n%d errors & warnings\n", errors);
+			printf("\n%d error%s or warning%s\n", errors, s(errors), s(errors));
 		else if (verbose)
 		{
 			printf("\nCompiled %d trigger%s and %d event%s in %d file%s\n",

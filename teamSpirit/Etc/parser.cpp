@@ -7,6 +7,7 @@
 
 /* ------------------------------------------------------------------------ */
 
+char *includePath = NULL;
 const char* WHITESPACE = " \t\n\r";
 const char* SYMBOLS = "{}(),";
 const char* VARIABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
@@ -102,14 +103,28 @@ bool OpenFile(const char* filename)
 	}
 
 	f = fopen(filename, "r");
+
+	if (!f && currFile >= 0)
+	{
+		char buffer[1024];
+		
+		if (includePath)	// Try include directory
+		{
+			strcpy(buffer, includePath);
+			strncat(buffer, filename, 1023);
+			buffer[1023] = 0;
+			f = fopen(buffer, "r");
+		}
+
+		if (!f)
+		{
+			sprintf(buffer, "Couldn't open '%s'", filename);
+			Error(buffer);
+		}
+	}
+
 	if (!f)
 	{
-		if (currFile >= 0)
-		{
-			char err[255];
-			sprintf(err, "Couldn't open '%s'", filename);
-			Error(err);
-		}
 		return false;
 	}
 

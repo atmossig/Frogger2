@@ -23,4 +23,6 @@ const int CurrentLineNum();
 
 void SetVariable(const char* key, const char* value);
 
+extern char *includePath;
+
 #endif
