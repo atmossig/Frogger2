@@ -607,7 +607,7 @@ HRESULT JoinNetGame(HWND hDlg)
 	dpsd.guidApplication = Frogger2_GUID;
 
 	// Join the session
-	isServer = FALSE;
+	isHost = FALSE;
 	if( FAILED( hr = dplay->Open( &dpsd, DPOPEN_JOIN ) ) )
 		return hr;
 
@@ -641,7 +641,7 @@ HRESULT CreateNetGame(HWND hwnd)
     dpsd.dwMaxPlayers     = 4;
     dpsd.dwFlags          = DPSESSION_KEEPALIVE|DPSESSION_MIGRATEHOST|DPSESSION_DIRECTPLAYPROTOCOL;
 
-	isServer = true;
+	isHost = true;
 
 	if ((res = dplay->Open(&dpsd, DPOPEN_CREATE)) != DP_OK)
 	{

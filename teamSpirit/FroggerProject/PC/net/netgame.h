@@ -12,21 +12,25 @@
 #define __NETGAME_H
 
 #include "overlays.h"
+#include "network.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-extern TEXTOVERLAY		*netMessage;
-extern unsigned long	gameStartTime;
-
 typedef int (*NETGAME_LOOP)(void);
+
+extern TEXTOVERLAY			*netMessage;
+extern unsigned long		gameStartTime;
+
+extern NET_MESSAGEHANDLER	netgameHandler;
+extern NETGAME_LOOP			netgameLoopFunc;
 
 void NetgameStartGame();
 void NetgameRun();
 
-void NetgameWon(unsigned long finishFrame);
+void NetgameDeath();
 
 #ifdef __cplusplus
 }

@@ -38,8 +38,10 @@
 
 unsigned long	nextUpdate = 0, nextPing = 0, gameStartTime = 0;
 bool			hostSync, wasSync, hostReady, gameReady;
-NETGAME_LOOP	netgameLoopFunc = NULL;
 TEXTOVERLAY		*netMessage;
+
+NETGAME_LOOP		netgameLoopFunc = NULL;
+NET_MESSAGEHANDLER	netgameHandler = NULL;
 
 // ---------------------------------------------------------------------------------------
 // Update messages
@@ -51,6 +53,7 @@ TEXTOVERLAY		*netMessage;
 #define NETUPD_DOUBLEJUMP	BIT(1)
 #define NETUPD_DEAD			BIT(4)
 #define NETUPD_SAFE			BIT(5)
+#define NETUPD_READY		BIT(6)
 
 typedef struct
 {
@@ -98,8 +101,7 @@ int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
 void OnPing(MSG_PING*ping, NETPLAYER *player);
 void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player);
 void OnUpdate(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl);
-
-
+void OnDeath(NETPLAYER *player);
 
 // ---------------------------------------------------------------------------------
 
@@ -113,11 +115,13 @@ void SortOutPlayerNumbers()
 	int s, pl, dpid;
 	int start[4] = { -1, -1, -1, -1 };
 
-	for (s=0; s<NUM_FROGS; s++)
+	start[0] = dpidLocalPlayer;
+
+	for (s=1; s<NUM_FROGS; s++)
 	{
 		dpid = 0xFFFFFFFF;
 
-		for (pl=0; pl<NUM_FROGS; pl++)
+		for (pl=1; pl<NUM_FROGS; pl++)
 		{
 			if (start[pl] < 0 && netPlayerList[pl].dpid < dpid)
 			{
@@ -127,7 +131,7 @@ void SortOutPlayerNumbers()
 		}
 	}
 
-	for (pl=0; pl<NUM_FROGS; pl++)
+	for (pl=1; pl<NUM_FROGS; pl++)
 	{
 		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
 		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
@@ -146,15 +150,13 @@ void NetgameStartGame()
 	int players[4];
 
 	nextUpdate = 0;
-	hostSync = hostReady = (isServer);
+	hostSync = hostReady = (isHost);
 	gameReady = false;
 
 	gameState.mode = INGAME_MODE;
 	gameState.multi = MULTIREMOTE;
 	gameState.single = ARCADE_MODE;
 	gameState.difficulty = DIFFICULTY_NORMAL;
-
-	multiplayerMode = MULTIMODE_RACE;
 
 	for (pl=1; pl<MAX_FROGS; pl++)
 	{
@@ -174,17 +176,20 @@ void NetgameStartGame()
 
 	NetInstallMessageHandler(NetgameMessageDispatch);
 
+	// Init game mode here ..
+	NetRaceInit();
+
 	GTInit( &modeTimer, 1 );
 	InitLevel(9, 3);
 
-	for (pl= isServer?1:0; pl<NUM_FROGS; pl++)
+	for (pl= isHost?1:0; pl<NUM_FROGS; pl++)
 	{
 		frog[pl]->draw = 0;
 	}
 	
 	netMessage = CreateAndAddTextOverlay(2048, 2048, "Waiting for players", YES, (char)255, font, TEXTOVERLAY_SHADOW);
 
-	if (isServer)
+	if (isHost)
 	{
 		unsigned char msg;
 		
@@ -197,8 +202,6 @@ void NetgameStartGame()
 		msg = APPMSG_READY;
 		NetBroadcastUrgentMessage(&msg, 1);
 	}
-
-	netgameLoopFunc = NetRaceRun;
 
 	// Add a little disclaimer to say "it's not my fault it's a bit poo". More or less.
 	TEXTOVERLAY *disclaimer = CreateAndAddTextOverlay(2048, 3800, "Frogger2 Network Test", 1, 0xD0, fontSmall, 0);
@@ -214,18 +217,10 @@ void NetgameStartGame()
 	ready and sychronised before running the game proper
 */
 
-void NetgameRun()
+void NetgameGameloop()
 {
-
-	if (!dplay) return;
-
-	wasSync = hostSync;
-	NetProcessMessages();
-
 	if (!WaitForGameReady())
 		return;
-
-	// ... otherwise ...
 
 	// Make sure we don't send update messages EVERY frame, in case we're running at, like,
 	// 8 million frames per second, or some junk
@@ -241,12 +236,25 @@ void NetgameRun()
 		nextPing += PING_PERIOD;
 	}
 
+	bool wasDead = player[0].frogState & FROGSTATUS_ISDEAD;
 
-	if (netgameLoopFunc)
-		netgameLoopFunc();
+	if( endTimer.time ) // If finished the race then wait before replaying
+	{
+		GTUpdate( &endTimer, -1 );
+
+		if( !endTimer.time )
+			StartMultiWinGame( );
+
+		return;
+	}
+	else if (netgameLoopFunc) netgameLoopFunc();
 
 	UpdateEnemies();
 	UpdateSpecialEffects();
+
+	// generate a death message if the player ever *becomes* dead
+	if (player[0].frogState & FROGSTATUS_ISDEAD && !wasDead)
+		NetgameDeath();
 
 	int i;
 
@@ -261,8 +269,27 @@ void NetgameRun()
 		}
 	}
 
-	frameCount++;
-	player[0].inputPause = 0;
+}
+
+void NetgameRun()
+{
+
+	if (!dplay) return;
+
+	wasSync = hostSync;
+	NetProcessMessages();
+
+	// ... otherwise ...
+
+	if (gameState.mode == INGAME_MODE)
+	{
+		NetgameGameloop();
+	
+		frameCount++;
+		player[0].inputPause = 0;
+	}
+	else
+		GameLoop();
 }
 
 
@@ -310,7 +337,7 @@ int WaitForGameReady()
 
 		netMessage->draw = 0;
 
-		if (isServer)
+		if (isHost)
 		{
 			MSG_STARTGAME start;
 
@@ -346,6 +373,18 @@ void OnPing(MSG_PING*ping, NETPLAYER *player)
 	dplay->Send(dpidLocalPlayer, player->dpid, 0, &reply, sizeof(reply));
 }
 
+void SendPing()
+{
+	if (!isHost)
+	{
+		MSG_PING ping;
+
+		ping.appmsg_ping = APPMSG_PING;
+		ping.time = timeGetTime();
+
+		dplay->Send(dpidLocalPlayer, DPID_SERVERPLAYER, 0, &ping, sizeof(ping));
+	}
+}
 
 // ------------------------------------------------------------------------
 // OnPingReply()
@@ -372,41 +411,52 @@ void OnPingReply(MSG_PINGREPLY* pingreply, NETPLAYER *player)
 
 int NetgameMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
 {
+	if (netgameHandler)
+		if (netgameHandler(data, size, player) == 0)
+			return 0;
+
 	switch (*(unsigned char*)data)
 	{
 	case APPMSG_PLAYERNUM:	// See the remark at the top of the file; this is a little test
 		SetFroggerStartPos(gTStart[((UBYTE*)data)[1]], 0);
 		frog[0]->draw = 1;
-		return 0;
+		break;
 
 	case APPMSG_UPDATE:
 		OnUpdate((LPMSG_UPDATEGAME)data, player);
-		return 0;
+		break;
 
 	case APPMSG_PING:
 		OnPing((MSG_PING*)data, player);
-		return 0;
+		break;
 
 	case APPMSG_PINGREPLY:
 		OnPingReply((MSG_PINGREPLY*)data, player);
-		return 0;
+		break;
 
 	case APPMSG_READY:
 		utilPrintf("Net: Player ID %08x is ready\n", player->dpid);
 		player->isReady = true;
-		return 0;
+		break;
 
 	case APPMSG_HOSTREADY:
 		utilPrintf("Net: Host is ready to sync\n");
 		hostReady = true;
-		return 0;
+		break;
+
+	case APPMSG_DEATH:
+		OnDeath(player);
+		break;
 
 	case APPMSG_START:
 		gameStartTime = ((MSG_STARTGAME*)data)->gameStartTime;
-		return 0;
+		break;
+
+	default:
+		return -1;
 	}
 
-	return -1;
+	return 0;
 }
 
 
@@ -434,7 +484,8 @@ int SendUpdateMessage()
 	
 	updateMessage.flags =
 		(player[0].safe.time?NETUPD_SAFE:0) |
-		(player[0].dead.time?NETUPD_DEAD:0);
+		(player[0].dead.time?NETUPD_DEAD:0) |
+		(mpl[0].ready?NETUPD_READY:0);
 	
 	if (player[0].hasDoubleJumped)
 		updateMessage.flags |= NETUPD_DOUBLEJUMP;
@@ -507,29 +558,25 @@ void OnUpdate(LPMSG_UPDATEGAME lpMsg, NETPLAYER *pl)
 	player[i].safe.time = (lpMsg->flags&NETUPD_SAFE)?1:0;
 	player[i].dead.time = (lpMsg->flags&NETUPD_DEAD)?1:0;
 
+	mpl[i].ready = (lpMsg->flags&NETUPD_READY) != 0;
+
 	pl->lastUpdateMsg = lpMsg->tickCount;
 }
 
-void SendPing()
+/*	--------------------------------------------------------------------------------
+	Function		: OnDeath
+	Purpose			: Kills a multiplayer frog (adds penalty, sets win conditions, whatever's necessary)
+	Parameters		: 
+	Returns			: 
+*/
+void OnDeath(NETPLAYER *player)
 {
-	if (!isServer)
-	{
-		MSG_PING ping;
-
-		ping.appmsg_ping = APPMSG_PING;
-		ping.time = timeGetTime();
-
-		dplay->Send(dpidLocalPlayer, DPID_SERVERPLAYER, 0, &ping, sizeof(ping));
-	}
+	int pl = GetPlayerNumFromID(player->dpid);
+	KillMPFrog(pl);
 }
 
-
-void NetgameWon(unsigned long finishFrame)
+void NetgameDeath()
 {
-	MSG_WONGAME	mwg;
-
-	mwg.appmsg_wongame = APPMSG_WONGAME;
-	mwg.gameWonTime = finishFrame;
-
-	NetBroadcastUrgentMessage(&mwg, sizeof(mwg));
+	UBYTE msg = APPMSG_DEATH;
+	NetBroadcastUrgentMessage(&msg, 1);
 }

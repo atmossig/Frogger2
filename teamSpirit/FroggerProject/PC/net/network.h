@@ -52,7 +52,7 @@ extern DPID		dpidLocalPlayer;
 extern HANDLE	hLocalPlayerEvent;
 extern char		sessionName[256];
 extern char		playerName[32];
-extern bool		isServer;
+extern bool		isHost;
 extern NETPLAYER netPlayerList[4];
 
 typedef int (*NET_MESSAGEHANDLER)(void *data, unsigned long size, NETPLAYER *player);

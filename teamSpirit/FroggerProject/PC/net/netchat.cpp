@@ -23,12 +23,14 @@
 #include "main.h"
 #include "../resource.h"
 
-// stuff for level info
-#include "layout.h"
-#include "lang.h"
-
 #include "netchat.h"
 #include "network.h"
+#include "netgame.h"
+
+// common files
+#include "layout.h"
+#include "lang.h"
+#include "frogger.h"
 
 COLORREF systemColor = RGB(0,0x80,0);	// green
 COLORREF errorColor = RGB(0xFF,0,0);		// red
@@ -39,12 +41,12 @@ HWND hwndChat, hwndChatEdit;
 struct MULTILEVEL { int world, level; };
 
 MULTILEVEL multiLevels[NUM_MULTI_LEVELS] = {
-	{ WORLDID_ANCIENT, ANCIENTMULTI_COL },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
-	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
+	{ WORLDID_TEST, 0 },
+	{ WORLDID_TEST, 1 },
+	{ WORLDID_TEST, 2 },
+	{ WORLDID_TEST, 3 },
+	{ WORLDID_TEST, 4 },
+	{ WORLDID_TEST, 5 },
 	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
 	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
 	{ WORLDID_GARDEN, LEVELID_GARDEN1 },
@@ -62,6 +64,55 @@ struct	MSG_GAMESETUP
 int ChatHandler(void *data, unsigned long size, NETPLAYER *player);
 void ShowMessage(const char* string, CHAT_FORMAT f);
 
+/*
+void StartPlayers(HWND hDlg)
+{
+	int s, pl, dpid;
+	int start[4] = { -1, -1, -1, -1 };
+
+	struct {
+		unsigned char msg;
+		NETGAME_STARTUP info;
+	} msg;
+
+	for (s=0; s<4; s++)
+	{
+		dpid = 0xFFFFFFFF;
+
+		for (pl=0; pl<4; pl++)
+		{
+			if (start[pl] < 0 && netPlayerList[pl].dpid && netPlayerList[pl].dpid < dpid)
+			{
+				start[pl] = s;
+				dpid = netPlayerList[pl].dpid;
+			}
+		}
+	}
+
+	int level;
+	HWND hctrl = GetDlgItem(hDlg, IDC_LEVEL);
+
+	level = SendMessage(hctrl, CB_GETCURSEL, 0, 0);
+	level = SendMessage(hctrl, CB_GETITEMDATA, level, 0);
+
+	if (level<0 || level>=NUM_MULTI_LEVELS)
+		level = 0;
+
+	msg.msg = APPMSG_START;
+	msg.info.level = multiLevels[level].level;
+	msg.info.level = multiLevels[level].world;
+
+	for (pl=0; pl<4 && start[pl]>=0; pl++)
+	{
+		msg.info.character = pl;
+		msg.
+
+
+//		UBYTE data[2] = { APPMSG_PLAYERNUM, start[pl] };
+//		dplay->Send(dpidLocalPlayer, netPlayerList[pl].dpid, DPSEND_GUARANTEED, data, 2);
+	}
+}
+*/
 
 // -----------------------------------------------------------------------------------------
 
@@ -72,7 +123,7 @@ bool SetupChatDialog(HWND hdlg)
 	hwndChatEdit = GetDlgItem(hdlg, IDC_RICHCHAT);
 	hwndChat = hdlg;
 
-	ShowMessage(isServer?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
+	ShowMessage(isHost?"I'm the server!":"Joined a game!", CHAT_SYSTEM);
 
 	HWND hList = GetDlgItem(hdlg, IDC_LEVEL);
 
@@ -144,8 +195,8 @@ void UpdateChatWindow()
 		}
 	}
 
-	EnableWindow(GetDlgItem(hwndChat, IDC_LEVEL), isServer);
-	EnableWindow(GetDlgItem(hwndChat, IDC_START), isServer); // && count>=2);
+	EnableWindow(GetDlgItem(hwndChat, IDC_LEVEL), isHost);
+	EnableWindow(GetDlgItem(hwndChat, IDC_START), isHost); // && count>=2);
 }
 
 
@@ -189,7 +240,7 @@ BOOL CALLBACK dialogProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 
 		case IDC_START:
-			if (isServer) {
+			if (isHost) {
 				// ... drumroll please ..
 				utilPrintf("NET: starting the game... drumroll please ...\n");
 

@@ -32,7 +32,7 @@ HANDLE	hLocalPlayerEvent;
 
 char	sessionName[256]	= "Frogger2";
 char	playerName[32]		= "Player";
-bool	isServer			= false;
+bool	isHost			= false;
 
 //void HandleApplicationMessage(LPDPMSG_GENERIC, DWORD, DPID, DPID);
 void HandleSystemMessage(LPDPMSG_GENERIC, DWORD, DPID, DPID);
@@ -254,7 +254,7 @@ void HandleSystemMessage(LPDPMSG_GENERIC lpMsg,DWORD dwMsgSize,DPID idFrom,DPID 
 		{
 			utilPrintf("NET: This machine is now the host\n");
 			// we are now the host
-			isServer = true;
+			isHost = true;
 		}
 		break;
 	}

@@ -15,6 +15,7 @@
 // PC headers
 #include "netrace.h"
 #include "netgame.h"
+#include "network.h"
 #include "controll.h"
 #include "pcaudio.h"
 #include "islutil.h"
@@ -30,18 +31,39 @@
 #include "hud.h"
 #include "frontend.h"	// why is 'SlideTextOverlayToPos' defined here?
 
+
 long started = 0;
 
 int countdown = 4;
 
-int NetRaceRun()
-{
-	int i;
-	static char txt[3];
-	//RunGameLoop();
+int NetRaceCountdown();
+int NetRaceCheckWin();
+int NetRaceRun();
 
-	UpdateCameraPosition();
-	GameProcessController(0);                                      
+int NetRaceMessageDispatch(void *data, unsigned long size, NETPLAYER *player);
+
+// ------------------------------------------------------------------
+// NetRaceInit()
+// Initialises network race mode
+
+int NetRaceInit()
+{
+	netgameHandler	= NetRaceMessageDispatch;
+	netgameLoopFunc	= NetRaceRun;
+	multiplayerMode = MULTIMODE_RACE;
+
+	return 0;
+}
+
+
+
+// ------------------------------------------------------------------
+// NetRaceCountDown()
+// Do the start-of-race countdown based on gameStartTime
+
+int NetRaceCountdown()
+{
+	static char txt[3];
 
 	if (actFrameCount < gameStartTime)
 	{
@@ -73,6 +95,8 @@ int NetRaceRun()
 				PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
 			}
 		}
+
+		return 1;
 	}
 	else
 	{
@@ -83,7 +107,25 @@ int NetRaceRun()
 
 			player[0].canJump = 1;
 		}
+
+		return 0;
 	}
+}
+
+
+// ------------------------------------------------------------------
+// NetRaceRun()
+// gameloop for networked race mode
+
+int NetRaceRun()
+{
+	int i;
+	//RunGameLoop();
+
+	NetRaceCountdown();
+
+	UpdateCameraPosition();
+	GameProcessController(0);                                      
 
 	if (netMessage->a > (gameSpeed>>10))
 		netMessage->a -= (gameSpeed>>10);
@@ -97,8 +139,6 @@ int NetRaceRun()
 
 	if (actFrameCount > gameStartTime)
 	{
-		if( !(IsPointVisible(&frog[0]->actor->position)) )
-			KillMPFrog(0);
 
 		if( player[0].dead.time )
 		{
@@ -112,17 +152,10 @@ int NetRaceRun()
 				GTInit( &player[0].safe, 3 );
 			}
 		}
-
-		if (currTile[0]->state == TILESTATE_FINISHLINE && player[0].canJump)
+		else if( !(IsPointVisible(&frog[0]->actor->position)) )
 		{
-			// Send message saying "This player finished the race on frame X"
-			// Probably want to let the host decide... here's where the arguments start :o)
-
-			mpl[0].ready = 0;
-			utilPrintf("Player finished the race, hurrah!\n");
+			KillMPFrog(0);
 		}
-
-		// from game.c/multi.c
 
 		for( i=0; i<NUM_FROGS; i++ )
 		{
@@ -134,174 +167,54 @@ int NetRaceRun()
 					mpl[i].penalText->draw = 0;
 			}
 
+			if(!frog[i]) continue;
+
 			// Do pretty effects
-			if( frog[i] )
+			if (player[i].safe.time)
 			{
-				if (player[i].safe.time)
-				{
-					if( actFrameCount&1 )
-						CreateRingEffect(i);
+				if( actFrameCount&1 )
+					CreateRingEffect(i);
 
-					GTUpdate( &player[i].safe, -1 );
-				}
+				GTUpdate( &player[i].safe, -1 );
+			}
 
-				frog[i]->draw = (player[i].dead.time==0);
+			frog[i]->draw = (player[i].dead.time==0);
+
+			// Increment the current checkpoint for each player
+			if( currTile[i]->state == mpl[i].lasttile+1 ||
+				(mpl[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
+			{
+				mpl[i].check++;
+				mpl[i].lasttile = currTile[i]->state;
+			}
+		}
+
+		if( currTile[0]->state == TILESTATE_FINISHLINE && mpl[0].lasttile != TILESTATE_FINISHLINE )
+		{
+			mpl[0].lap++;
+			mpl[0].lasttile = currTile[0]->state;
+			mpl[0].check = 0;
+
+			// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
+			if( mpl[0].lap >= 1)//MULTI_RACE_NUMLAPS )
+			{
+				mpl[0].ready = 1;
+				player[0].canJump = 0;
 			}
 		}
 
 		UpDateMultiplayerInfo( );
 	}
 
+	if (isHost)
+		NetRaceCheckWin();
+
 	return 0;
 }
 
-	/*	--------------------------------------------------------------------------------
-	Function		: UpdateRace
-	Purpose			: Do game mechanics for mulitplayer race mode
-	Parameters		: 
-	Returns			: 
-	Info			:
-
-int UpdateNetRace( )
+int NetRaceCheckWin()
 {
-	int i, j;//, score;
-
-	// Wait for all players to be on the start/finish line
-	// this includes a wait-for-synchronisation thang
-	if( !started )
-	{
-		// Hop player 1 only to the front line - after we're sychronised
-
-		FVECTOR fwd;
-		SetVectorFF( &fwd, &currTile[i]->dirVector[(frogFacing[0]+camFacing[i])&3] );
-		
-		// Hop forward to starting line 
-		if( player[0].canJump )
-			HopFrogToTile( FindJoinedTileByDirection(currTile[0],&fwd), i );
-
-		if( currTile[0]->state == TILESTATE_FROGGER1AREA )
-			player[0].canJump = 0;
-	}
-
-	// When all players are ready, start a countdown
-	if( multiTimer.time)
-	{
-		int oldTime = multiTimer.time;
-		GTUpdate( &multiTimer, -1 );
-		if(multiTimer.time==1)
-		{
-			if( started != 2 )
-			{
-				PlaySample( FindSample(utilStr2CRC("racehorngo")), NULL, 0, SAMPLE_VOLUME, -1 );
-				started = 2;
-				for( i=0; i<NUM_FROGS; i++ )
-					player[i].canJump = 1;
-			}
-		}
-		else if( !multiTimer.time )
-			PlayVoice( Random(NUM_FROGS), "frogletsgo" );
-		else if( multiTimer.time != oldTime && multiTimer.time < 5 )
-			PlaySample( FindSample(utilStr2CRC("racehorn")), NULL, 0, SAMPLE_VOLUME, -1 );
-	}
-	else if( endTimer.time ) // If finished the race then wait before replaying
-	{
-		GTUpdate( &endTimer, -1 );
-
-		if( !endTimer.time )
-			StartMultiWinGame( );
-
-		return;
-	}
-
-	// Mini-loop for respawning before race start
-	if( started != 2 )
-	{
-		for( i=0; i<NUM_FROGS; i++ )
-		{
-			// If waiting to respawn, update timer and check for respawn timeout
-			if( player[i].dead.time )
-			{
-				GTUpdate( &player[i].dead, -1 );
-
-				if( !player[i].dead.time )
-				{
-					RaceRespawn(i);
-					frog[i]->draw = 1;
-					GTInit( &player[i].safe, 3 );
-				}
-			}
-		}
-		return;
-	}
-
-	// Proper game loop thing
-	for( i=0; i<NUM_FROGS; i++ )
-	{
-		if(mpl[i].penalText->draw)
-		{
-			SlideTextOverlayToPos(mpl[i].penalText,backTextX[i],backTextY[i],mpl[i].scrX,mpl[i].scrY,40);	
-			if((mpl[i].penalText->xPos == backTextX[i]) && (mpl[i].penalText->yPos == backTextY[i]))
-				mpl[i].penalText->draw = 0;
-		}
-
-
-		if( !mpl[i].ready )
-		{
-			// Increase timer if not finished
-			mpl[i].timer += actFrameCount - lastActFrameCount;
-
-			// If waiting to respawn, update timer and check for respawn timeout
-			if( player[i].dead.time )
-			{
-				GTUpdate( &player[i].dead, -1 );
-
-				if( !player[i].dead.time )
-				{
-					RaceRespawn(i);
-					frog[i]->draw = 1;
-					GTInit( &player[i].safe, 3 );
-				}
-				else continue;
-			}
-
-			// Initialise quickhop for everyone but the lead player
-			if( i != playerFocus )
-			{
-				GTInit( &player[i].quickhop, 3 );
-			}
-
-			// Kill frogs that have fallen off screen
-			if( (frameCount > 50) && !(IsPointVisible(&frog[i]->actor->position)) )
-			{
-				KillMPFrog(i);
-			}
-			else if((currTile[i]->state >= TILESTATE_FROGGER1AREA && currTile[i]->state <= TILESTATE_FROGGER4AREA) || (currTile[i]->state == TILESTATE_FINISHLINE))
-			{
-				// If last tile state was type 4 and this is type 1 then we've got around another lap
-				// sbond changed but seems to work!!!!!!!!!!!!!!
-//				if( currTile[i]->state == TILESTATE_FROGGER1AREA && mpl[i].lasttile != TILESTATE_FROGGER1AREA )
-				if( currTile[i]->state == TILESTATE_FINISHLINE && mpl[i].lasttile != TILESTATE_FINISHLINE )
-				{
-					mpl[i].lap++;
-					mpl[i].lasttile = currTile[i]->state;
-					mpl[i].check = 0;
-
-					// Start of a new lap - if more then the defined number of maps for the race then this player is the winner
-					if( mpl[i].lap >= 1)//MULTI_RACE_NUMLAPS )
-					{
-						mpl[i].ready = 1;
-						player[i].canJump = 0;
-					}
-				}
-				// Else if we've just got to another checkpoint (unlimited repetitions of 2,3,4. Tilestate 1 is used to signal lap changes)
-				else if( currTile[i]->state == mpl[i].lasttile+1 || (mpl[i].lasttile == TILESTATE_FROGGER4AREA && currTile[i]->state == TILESTATE_FROGGER2AREA) )
-				{
-					mpl[i].check++;
-					mpl[i].lasttile = currTile[i]->state;
-				}
-			}
-		}
-	}
+	int i;
 
 	// Check players for finish
 	for( i=0; i<NUM_FROGS; i++ )
@@ -312,20 +225,20 @@ int UpdateNetRace( )
 	{
 		unsigned long best, time, winner, draw;
 		// Find best time
-		for( j=0,best=999999999; j<NUM_FROGS; j++ )
+		for( i=0,best=0xffffffffUL; i<NUM_FROGS; i++ )
 		{
-			time = mpl[j].timer + mpl[j].penalty;
+			time = mpl[i].timer + mpl[i].penalty;
 			if( time < best )
 			{
 				best = time;
-				winner = j;
+				winner = i;
 			}
 		}
 		// If more then one on best time, draw
-		for( j=0,draw=0; j<NUM_FROGS; j++ )
+		for( i=0,draw=0; i<NUM_FROGS; i++ )
 		{
-			time = mpl[j].timer + mpl[j].penalty;
-			if( j!=winner && time == best )
+			time = mpl[i].timer + mpl[i].penalty;
+			if( i!=winner && time == best )
 				draw=1;
 		}
 
@@ -342,6 +255,15 @@ int UpdateNetRace( )
 
 		GTInit( &endTimer, 2 );
 		controlCamera = 1;
+
+		return 1;
 	}
+	else
+		return 0;
 }
-*/
+
+
+int NetRaceMessageDispatch(void *data, unsigned long size, NETPLAYER *player)
+{
+	return -1;
+}
