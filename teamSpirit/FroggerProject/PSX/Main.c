@@ -496,6 +496,8 @@ int main ( )
 
 		CommonInit();
 
+		LoadGame();
+
 		//*****************//
 		//*** MAIN LOOP ***//
 		//*****************//
@@ -521,10 +523,10 @@ int main ( )
 			worldPolyCount = 0;
 
 
-	if ( padData.debounce[0] & PAD_TRIANGLE )
-	{
-		SnapShot("C:\\");
-	}
+			if ( padData.debounce[0] & PAD_TRIANGLE )
+			{
+				SnapShot("C:\\");
+			}
 
 #if GOLDCD==0
 			timerDisplay();
@@ -755,6 +757,8 @@ totalObjs = 0;
 
 		XAsetStatus(0);
 		StopSound();
+
+		SaveGame();
 
 		utilPrintf("\nFROGGER2 QUIT/RESET\n");
 		DrawSync(0);
