@@ -377,7 +377,7 @@ int main ( )
 
 
 		actorInitialise();
-		InitBackdrop ( "FROGGER2.RAW" );
+//		InitBackdrop ( "FROGGER2.RAW" );
 
 		CommonInit();
 
@@ -397,13 +397,13 @@ int main ( )
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
+			DrawBackDrop();
+
+
 			polyCount = 0;
 			actorCount = 0;
 //			countMakeUnit = 0;
 //			countQuatToPSXMatrix = 0;
-
-			DrawBackDrop();
-
 
 			//for timing optimised functions
 			//remember to stop really timing GameLoop
@@ -557,7 +557,6 @@ int main ( )
 			DrawSync(0);
 			TIMER_STOP(TIMER_DRAWSYNC);
 
-
 			TIMER_STOP(TIMER_TOTAL);
 			TIMER_ENDFRAME;
 			TIMER_ZERO;
@@ -566,6 +565,7 @@ int main ( )
 			PutDispEnv(&currentDisplayPage->dispenv);
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
+
 
 			if(gameState.mode!=PAUSE_MODE)
 			{
