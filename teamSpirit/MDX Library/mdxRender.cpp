@@ -1678,71 +1678,141 @@ void PCRenderObject (MDX_OBJECT *obj)
 	//cols = obj->mesh->gouraudColors;
 	//alphaVal = (long)(globalXLU2*255.0);
 
-	for (i=obj->mesh->numFaces; i; i--)
+	if (overrideTex)
 	{
-								
-		tV0 = tV+*(((short *)facesIdx->v));
-		tV1 = tV+*(((short *)facesIdx->v)+1);
-		tV2 = tV+*(((short *)facesIdx->v)+2);
-
-		tex = (MDX_TEXENTRY *)(*tex2);
+		tex = overrideTex;
 		
-		// If we are to be drawn.
-		if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+		for (i=obj->mesh->numFaces; i; i--)
 		{
-			tFog = FOG(tV0->vz);
-			if (tFog>1) tFog = 1;
-			if (tFog<0) tFog = 0;
-			(dVtx)->specular = FOGVAL(tFog);			
-			(dVtx)->sx = tV0->vx;
-			(dVtx)->sy = tV0->vy;
-			(dVtx)->sz = tV0->vz * 0.00025F;
+								
+			tV0 = tV+*(((short *)facesIdx->v));
+			tV1 = tV+*(((short *)facesIdx->v)+1);
+			tV2 = tV+*(((short *)facesIdx->v)+2);
+
 			
-			tFog = FOG(tV1->vz);
-			if (tFog>1) tFog = 1;
-			if (tFog<0) tFog = 0;
-			(dVtx+1)->specular = FOGVAL(tFog);			
-			(dVtx+1)->sx = tV1->vx;
-			(dVtx+1)->sy = tV1->vy;
-			(dVtx+1)->sz = tV1->vz * 0.00025F;
-			
-			tFog = FOG(tV2->vz);
-			if (tFog>1) tFog = 1;
-			if (tFog<0) tFog = 0;
-			(dVtx+2)->specular = FOGVAL(tFog);			
-			(dVtx+2)->sx = tV2->vx;
-			(dVtx+2)->sy = tV2->vy;
-			(dVtx+2)->sz = tV2->vz * 0.00025F;
-			
-			y1on = BETWEEN(tV0->vy,cly0,cly1) +
-				   BETWEEN(tV1->vy,cly0,cly1) +
-				   BETWEEN(tV2->vy,cly0,cly1);
-			
-			if (y1on)
+			// If we are to be drawn.
+			if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
 			{
-				x1on = BETWEEN(tV0->vx,clx0,clx1) +
-					   BETWEEN(tV1->vx,clx0,clx1) +
-					   BETWEEN(tV2->vx,clx0,clx1);
+				tFog = FOG(tV0->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx)->specular = FOGVAL(tFog);			
+				(dVtx)->sx = tV0->vx;
+				(dVtx)->sy = tV0->vy;
+				(dVtx)->sz = tV0->vz * 0.00025F;
 				
-				if (x1on)
+				tFog = FOG(tV1->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx+1)->specular = FOGVAL(tFog);			
+				(dVtx+1)->sx = tV1->vx;
+				(dVtx+1)->sy = tV1->vy;
+				(dVtx+1)->sz = tV1->vz * 0.00025F;
+				
+				tFog = FOG(tV2->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx+2)->specular = FOGVAL(tFog);			
+				(dVtx+2)->sx = tV2->vx;
+				(dVtx+2)->sy = tV2->vy;
+				(dVtx+2)->sz = tV2->vz * 0.00025F;
+				
+				y1on = BETWEEN(tV0->vy,cly0,cly1) +
+					   BETWEEN(tV1->vy,cly0,cly1) +
+					   BETWEEN(tV2->vy,cly0,cly1);
+				
+				if (y1on)
 				{
-					if ((x1on+y1on==6))
+					x1on = BETWEEN(tV0->vx,clx0,clx1) +
+						   BETWEEN(tV1->vx,clx0,clx1) +
+						   BETWEEN(tV2->vx,clx0,clx1);
+					
+					if (x1on)
 					{
-						PushPolys(dVtx,3,facesON,3,tex);
-					}
-					else
-					{
-						Clip3DPolygon(dVtx,tex);
+						if ((x1on+y1on==6))
+						{
+							PushPolys(dVtx,3,facesON,3,tex);
+						}
+						else
+						{
+							Clip3DPolygon(dVtx,tex);
+						}
 					}
 				}
 			}
+			
+			// Update our pointers
+			facesIdx++;
+			tex2++;
+			dVtx+=3;
 		}
-		
-		// Update our pointers
-		facesIdx++;
-		tex2++;
-		dVtx+=3;
 	}
+	else
+		for (i=obj->mesh->numFaces; i; i--)
+		{
+									
+			tV0 = tV+*(((short *)facesIdx->v));
+			tV1 = tV+*(((short *)facesIdx->v)+1);
+			tV2 = tV+*(((short *)facesIdx->v)+2);
+
+			tex = (MDX_TEXENTRY *)(*tex2);
+			
+			// If we are to be drawn.
+			if (((tV0->vz) && (tV1->vz) && (tV2->vz)) && (tex))
+			{
+				tFog = FOG(tV0->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx)->specular = FOGVAL(tFog);			
+				(dVtx)->sx = tV0->vx;
+				(dVtx)->sy = tV0->vy;
+				(dVtx)->sz = tV0->vz * 0.00025F;
+				
+				tFog = FOG(tV1->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx+1)->specular = FOGVAL(tFog);			
+				(dVtx+1)->sx = tV1->vx;
+				(dVtx+1)->sy = tV1->vy;
+				(dVtx+1)->sz = tV1->vz * 0.00025F;
+				
+				tFog = FOG(tV2->vz);
+				if (tFog>1) tFog = 1;
+				if (tFog<0) tFog = 0;
+				(dVtx+2)->specular = FOGVAL(tFog);			
+				(dVtx+2)->sx = tV2->vx;
+				(dVtx+2)->sy = tV2->vy;
+				(dVtx+2)->sz = tV2->vz * 0.00025F;
+				
+				y1on = BETWEEN(tV0->vy,cly0,cly1) +
+					   BETWEEN(tV1->vy,cly0,cly1) +
+					   BETWEEN(tV2->vy,cly0,cly1);
+				
+				if (y1on)
+				{
+					x1on = BETWEEN(tV0->vx,clx0,clx1) +
+						   BETWEEN(tV1->vx,clx0,clx1) +
+						   BETWEEN(tV2->vx,clx0,clx1);
+					
+					if (x1on)
+					{
+						if ((x1on+y1on==6))
+						{
+							PushPolys(dVtx,3,facesON,3,tex);
+						}
+						else
+						{
+							Clip3DPolygon(dVtx,tex);
+						}
+					}
+				}
+			}
+			
+			// Update our pointers
+			facesIdx++;
+			tex2++;
+			dVtx+=3;
+		}
 }
 
 

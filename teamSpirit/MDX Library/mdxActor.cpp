@@ -295,16 +295,16 @@ unsigned long CheckBoundingBox(MDX_VECTOR *bBox,MDX_MATRIX *m)
 	{
 		XfmPoint(r,bBox,m);
 
-		if (r->vx>rXRes || r->vz<10)
+		if (r->vx>rXRes)// || r->vz<10)
 			right++;
 
-		if (r->vx<0 || r->vz<10)		
+		if (r->vx<0)// || r->vz<10)		
 			left++;			
 
-		if (r->vy>rYRes || r->vz<10)
+		if (r->vy>rYRes)// || r->vz<10)
 			bottom++;
 
-		if (r->vy<0 || r->vz<10)
+		if (r->vy<0)// || r->vz<10)
 			top++;				
 
 		r++;
