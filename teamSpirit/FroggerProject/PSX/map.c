@@ -67,7 +67,11 @@ void LoadScenics ( int collBank )
 			break;
 
 		case SPACELEV2_COL:
-			sprintf ( fileName, "SCENICS\\SPACE2.SCE" );
+			sprintf ( fileName, "SCENICS\\SPACE3.SCE" );
+			break;
+
+		case SPACELEV3_COL:
+			sprintf ( fileName, "SCENICS\\SPACEBOSS.SCE" );
 			break;
 
 		case CITYLEV1_COL:
@@ -92,6 +96,10 @@ void LoadScenics ( int collBank )
 
 		case SUBTERRANEANLEV3_COL:
 			sprintf ( fileName, "SCENICS\\SUB3.SCE" );
+			break;
+
+		case SUBTERRANEANMASTER_COL:
+			sprintf ( fileName, "SCENICS\\SUBBOSS.SCE" );
 			break;
 
 		case LABORATORYLEV1_COL:
@@ -251,7 +259,11 @@ void LoadCollision ( int collBank )
 			break;
 
 		case SPACELEV2_COL:
-			sprintf ( fileName, "COLLISION\\SPACE2.COL" );
+			sprintf ( fileName, "COLLISION\\SPACE3.COL" );
+			break;
+
+		case SPACELEV3_COL:
+			sprintf ( fileName, "COLLISION\\SPACEBOSS.COL" );
 			break;
 
 		case CITYLEV1_COL:
@@ -276,6 +288,10 @@ void LoadCollision ( int collBank )
 
 		case SUBTERRANEANLEV3_COL:
 			sprintf ( fileName, "COLLISION\\SUB3.COL" );
+			break;
+
+		case SUBTERRANEANMASTER_COL:
+			sprintf ( fileName, "COLLISION\\SUBBOSS.COL" );
 			break;
 
 		case LABORATORYLEV1_COL:

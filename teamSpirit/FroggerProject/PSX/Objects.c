@@ -90,6 +90,12 @@ void LoadObjectBank ( int objectBank )
 
 		case SPACELEV2_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SPACE\\SPACE2.PIL" );
+			break;
+
+		case SPACELEV3_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\SPACE\\SPACE3.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SPACE\\SPACE3.PIL" );
 			break;
 
 		case CITYLEV1_OBJ_BANK:
@@ -111,7 +117,7 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB1.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB1.PIL" );
 			break;
-
+		
 		case SUBTERRANEANLEV2_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB2.BFF" );
 				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB2.PIL" );
@@ -122,20 +128,19 @@ void LoadObjectBank ( int objectBank )
 				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB3.PIL" );
 			break;
 
-		case LABORATORYMASTER_OBJ_BANK:
-					sprintf ( PILfileName, "OBJECTS\\LAB.PIL" );					
-				break;
+		case SUBTERRANEANBOSS_OBJ_BANK:
+				sprintf ( BFFfileName, "OBJECTS\\SUB\\SUB4.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\SUb\\SUB4.PIL" );
+			break;
 
 		case LABORATORYLEV1_OBJ_BANK:
 				sprintf ( BFFfileName, "OBJECTS\\LAB\\LAB1.BFF" );
-			break;
-
-		case LABORATORYLEV2_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LAB2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\LAB\\LAB1.PIL" );
 			break;
 
 		case LABORATORYLEV3_OBJ_BANK:
-				sprintf ( BFFfileName, "OBJECTS\\LAB\\LAB3.BFF" );
+				sprintf ( BFFfileName, "OBJECTS\\LAB\\LAB2.BFF" );
+				sprintf ( PILfileName, "OBJECTS\\LAB\\LAB2.PIL" );
 			break;
 
 
