@@ -68,16 +68,16 @@ void UpdateLoadingScreen( short addprog )
 		loadProgress = 100;
 
 	BeginDraw( );
+
 	DrawBackdrop( );
-	EndDraw( );
 
 	r.top = rYRes - rYRes/4;
 	r.bottom = rYRes - rYRes/4.8;
 	r.left = rXRes/4;
 	r.right = (((rXRes-(2*r.left))/100) * loadProgress) + r.left;
 
-	BeginDraw( );
-	DrawFlatRect( r, D3DRGBA(1,0.5,0.5,0.8) );
+	DrawFlatRect( r, D3DRGBA(1,0.2,0.2,0.8) );
+
 	EndDraw( );
 
 	DDrawFlip();

@@ -742,6 +742,12 @@ void RemoveSample( SAMPLE *sample )
 	sample->next		= NULL;
 	soundList.numEntries--;
 
+	if( sample->idName )
+		FREE( sample->idName );
+
+	if( sample->data )
+		FREE( sample->data );
+
 	FREE( sample );
 }
 
