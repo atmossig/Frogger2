@@ -681,7 +681,8 @@ void main()
 		DCTIMER_STOP(1);		
 
 		padCounter = 0;
-		for(i=firstPad;i<(firstPad+numPads);i++)
+		i=0;
+		while((padCounter < numPads)&&(i < 4))
 		{
 			switch(i)
 			{
@@ -697,6 +698,12 @@ void main()
 				case 3:	
 					per = pdGetPeripheral(PDD_PORT_D0);
 					break;
+			}
+
+			if(strstr(per->info->product_name,"(none)"))
+			{
+				i++;
+				continue;
 			}
 
 			// temp pad emulation
@@ -721,17 +728,10 @@ void main()
 			if(per->press & PDD_DGT_ST)
 				padData.debounce[padCounter] |= PAD_START;
 
-//			if((per->press & PDD_DGT_TR)&&(per->press & PDD_DGT_TL))
-//			{
-//				padData.debounce[padCounter] |= PAD_R1;
-//			}
-//			else
-//			{
-				if(per->press & PDD_DGT_TR)
-					padData.debounce[padCounter] |= PAD_R1;
-				if(per->press & PDD_DGT_TL)
-					padData.debounce[padCounter] |= PAD_L1;
-//			}
+			if(per->press & PDD_DGT_TR)
+				padData.debounce[padCounter] |= PAD_R1;
+			if(per->press & PDD_DGT_TL)
+				padData.debounce[padCounter] |= PAD_L1;
 		
 			// toggle timer bars on/off
 			if((per->press & PDD_DGT_TY)&&((per->r <= 128)&&(per->r > 0))&&((per->l <= 128)&&(per->l > 0)))
@@ -760,12 +760,16 @@ void main()
 				padData.digital[padCounter] |= PAD_START;
 
 			padCounter++;
+			i++;
 		}
 		
 		if((gameState.mode != PAUSE_MODE ) && (gameState.mode != GAMEOVER_MODE))
 		{
 			UpdateTextureAnimations();
 		}
+
+		// pass through game loop
+		GameLoop();
 
 		// loop the music
 		if(curXA)
@@ -779,9 +783,6 @@ void main()
 				}
 			}
 		}
-
-		// pass through game loop
-		GameLoop();
 
 		// *ASL* 10/08/2000 - Immediately abort the loop on user quit
 		if (globalAbortFlag == 1)
@@ -848,104 +849,6 @@ void main()
 				if(current[i].sound.isPlaying)
 					numUsed++;
 			}
- 
-//		 	sprintf(textbuffer,"numUsed: %d",numUsed);
-//			fontPrint(font, 10,10, textbuffer, 255,255,255);
-
-//			fontPrint(font, textPosX,textPosY, texurestring, 255,255,255);
-
-//			fontPrint(font, textPosX,textPosY+16, texurestring2, 255,255,255);
-
-//			sprintf(textbuffer,"polyCount: %d",polyCount);
-//			fontPrint(font, textPosX,textPosY, textbuffer, 255,255,255);
-
-//			sprintf(textbuffer,"Actors: %d (%d,%d)",(psiActorCount+fmaActorCount),psiActorCount, fmaActorCount);
-//			fontPrint(font, textPosX,textPosY+16, textbuffer, 255,255,255);
-
-			sprintf(textbuffer,"DCK: %d (%d)",DCKnumTextures,texViewer);
-			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
-
-//			sprintf(textbuffer,"Map: %d",mapCount);
-//			fontPrint(font, textPosX,textPosY+32, textbuffer, 255,255,255);
-
-//			syMallocStat(memfree,memsize);
-//			sprintf(textbuffer,"alloc: %d",*memfree);//mallocList.totalMalloc);		
-//			fontPrint(font, textPosX,textPosY+48, textbuffer, 255,255,255);						
-
-//			sprintf(textbuffer,"mallocList: %d",mallocList.numEntries);//mallocList.totalMalloc);		
-//			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
-
-//			sprintf(textbuffer,"fog.max: %d",fog.max);		
-//			fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
-
-//			if(options.titleBak)
-//			{
-//				sprintf(textbuffer,"options.titleBak: %d",options.titleBak->a);		
-//				fontPrint(font, textPosX,textPosY+48+16, textbuffer, 255,255,255);							
-//			}
-
-			if(per->press & PDD_DGT_TR)
-			{
-				if(texViewer < DCKnumTextures)
-					texViewer++;
-			}
-				
-			if(per->press & PDD_DGT_TL)
-			{
-				if(texViewer > 0)
-					texViewer--;
-			}
-			
-/*			vertices_GT4[0].fX = 32;
-			vertices_GT4[0].fY = 32;
-			vertices_GT4[0].u.fZ = 10;
-			vertices_GT4[0].fU = (float)0;
-			vertices_GT4[0].fV = (float)0;
-			vertices_GT4[0].uBaseRGB.dwPacked = RGBA(255,255,255,255);	
-
-			vertices_GT4[1].fX = 32+256;
-			vertices_GT4[1].fY = 32;
-			vertices_GT4[1].u.fZ = 10;
-			vertices_GT4[1].fU = (float)1;
-			vertices_GT4[1].fV = (float)0;
-			vertices_GT4[1].uBaseRGB.dwPacked = RGBA(255,255,255,255);
-
-			vertices_GT4[2].fX = 32;
-			vertices_GT4[2].fY = 32+256;
-			vertices_GT4[2].u.fZ = 10;
-			vertices_GT4[2].fU = (float)0;
-			vertices_GT4[2].fV = (float)1;
-			vertices_GT4[2].uBaseRGB.dwPacked = RGBA(255,255,255,255);
-
-			vertices_GT4[3].fX = 32+256;
-			vertices_GT4[3].fY = 32+256;
-			vertices_GT4[3].u.fZ = 10;
-			vertices_GT4[3].fU = (float)1;
-			vertices_GT4[3].fV = (float)1;
-			vertices_GT4[3].uBaseRGB.dwPacked = RGBA(255,255,255,255);
-
-			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,&DCKtextureList[texViewer].surface);
-			
-			kmStartStrip(&vertexBufferDesc, &StripHead_Sprites);	
-			kmSetVertex(&vertexBufferDesc, &vertices_GT4[0], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-			kmSetVertex(&vertexBufferDesc, &vertices_GT4[1], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));
-			kmSetVertex(&vertexBufferDesc, &vertices_GT4[2], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-			kmSetVertex(&vertexBufferDesc, &vertices_GT4[3], KM_VERTEXTYPE_03, sizeof(KMVERTEX_03));	
-			kmEndStrip(&vertexBufferDesc);
-*/
-/*			kmxxGetCurrentPtr(&vertexBufferDesc);					
-
-			kmChangeStripTextureSurface(&StripHead_Sprites,KM_IMAGE_PARAM1,&DCKtextureList[texViewer].surface);
-
-			kmxxStartStrip(&vertexBufferDesc,&StripHead_Sprites);			
-			
-			kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,32,32,10,0,0,RGBA(255,255,255,255),RGBA(255,255,255,255));
-			kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,32+256,32,10,1,0,RGBA(255,255,255,255),RGBA(255,255,255,255));
-			kmxxSetVertex_3(KM_VERTEXPARAM_NORMAL,32,32+256,10,0,1,RGBA(255,255,255,255),RGBA(255,255,255,255));
-			kmxxSetVertex_3(KM_VERTEXPARAM_ENDOFSTRIP,32+256,32+256,10,1,1,RGBA(255,255,255,255),RGBA(255,255,255,255));
-			
-			kmxxReleaseCurrentPtr(&vertexBufferDesc);			
-*/			
 		}
 	
 		kmEndPass(&vertexBufferDesc);
