@@ -671,7 +671,7 @@ int main ( )
 
 	
 #if GOLDCD == NO
-			if ( padData.digital[1] & PAD_L1 )
+			//if ( padData.digital[1] & PAD_L1 )
 				DisplayOnScreenInfo();
 			// ENDIF
 #endif
@@ -1054,7 +1054,7 @@ void DisplayOnScreenInfo ( void )
 {
 	static char whichSegment = 0;
 
-	int i, x, y, z = 0;
+	static int i, x, y, z = 0;
 	char r, g, b;
 	char tempText[128];
 
@@ -1093,6 +1093,8 @@ void DisplayOnScreenInfo ( void )
 
 	if ( (padData.digital[0] & PAD_TRIANGLE) && (padData.debounce[0] & PAD_L2) )
 	{
+		whichSegment++;
+
 		for ( i = fma_world->n_meshes; i != 0; i--, mesh++ )
 		{
 			(*mesh)->flags &= ~DRAW_SEGMENT;
@@ -1100,14 +1102,12 @@ void DisplayOnScreenInfo ( void )
 			if ( whichSegment == i )
 			{
 				(*mesh)->flags |= DRAW_SEGMENT;
-				x = (*mesh)->posx;
-				y = (*mesh)->posy;
-				z = (*mesh)->posz;
+				(*mesh)->posx = 0;
+				(*mesh)->posy = 0;
+				(*mesh)->posz = 0;
 			}
 		}
 		// ENDFOR
-
-		whichSegment++;
 
 		if ( whichSegment > fma_world->n_meshes )
 		{
@@ -1131,9 +1131,9 @@ void DisplayOnScreenInfo ( void )
 			if ( whichSegment == i )
 			{
 				(*mesh)->flags |= DRAW_SEGMENT;
-				x = (*mesh)->posx;
-				y = (*mesh)->posy;
-				z = (*mesh)->posz;
+				(*mesh)->posx = 0;
+				(*mesh)->posy = 0;
+				(*mesh)->posz = 0;
 			}
 		}
 		// ENDFOR
