@@ -19,7 +19,9 @@
 #define ID_SOUNDOK                      1005
 #define ID_SOUNDCANCEL                  1006
 #define IDC_SESSIONLIST                 1007
+#define IDC_MPLAYER                     1008
 #define IDC_LOGEDIT                     1009
+#define IDC_KEYMAP                      1009
 #define IDC_FROGPIC                     1014
 #define IDC_LOGOPIC                     1016
 #define IDC_UPBUTTON                    1017
@@ -33,7 +35,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1010
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -31,6 +31,7 @@ extern BOOL keysEnabled;
 extern BYTE keyTable[256];
 extern DIMOUSESTATE mouseState;
 
+extern DWORD keymap[56][3];
 
 extern LPDIRECTINPUT lpDI;
 extern LPDIRECTINPUTDEVICE lpKeyb;
@@ -79,6 +80,8 @@ typedef struct tagOSContPad
 } OSContPad;
 
 extern OSContPad controllerdata[4];
+
+extern void MakeKeyMap( );
 
 #ifdef __cplusplus
 }

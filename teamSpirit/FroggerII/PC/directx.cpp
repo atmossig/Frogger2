@@ -615,6 +615,12 @@ BOOL CALLBACK HardwareProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPara
 					PostQuitMessage(0);
 					runQuit = 1;
 					break;
+				case IDC_MPLAYER:
+					InitMPDirectPlay(winInfo.hInstance); // Pop up multiplayer select dialogue box
+					break;
+				case IDC_KEYMAP:
+					MakeKeyMap( );
+					break;
 				case IDOK:
 				{
 					ShowCursor(0);
@@ -712,8 +718,6 @@ long DirectXInit(HWND window, long hardware )
 	GUID guID;
 
 	EnumDXObjects();
-
-	InitMPDirectPlay(winInfo.hInstance);
 
 	DialogBoxParam(winInfo.hInstance, MAKEINTRESOURCE(IDD_DIALOG1),window,(DLGPROC)HardwareProc, ( LPARAM ) &guID );
 
@@ -1382,3 +1386,14 @@ void ScreenShot ( DDSURFACEDESC ddsd )
 }
 
 
+/*	--------------------------------------------------------------------------------
+	Function		: MakeKeyMap
+	Purpose			: Make a dialogue that maps command to keys
+	Parameters		: 
+	Returns			: 
+	Info			: 
+*/
+void MakeKeyMap( )
+{
+
+}

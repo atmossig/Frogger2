@@ -37,6 +37,71 @@ LPDIRECTINPUTDEVICE lpJoystick = NULL;
 LPDIRECTINPUTDEVICE2 lpJoystick2 = NULL;
 LPDIRECTINPUTDEVICE lpMouse	= NULL;
 
+// 14 buttons per controller, 4 controllers.
+// Need to store DIK, controller number and controller command
+DWORD keymap[56][3] = 
+{
+	{ 0, CONT_UP, DIK_UP },
+	{ 0, CONT_DOWN, DIK_DOWN },
+	{ 0, CONT_LEFT, DIK_LEFT },
+	{ 0, CONT_RIGHT, DIK_RIGHT },
+	{ 0, CONT_A, DIK_RETURN },
+	{ 0, CONT_B, DIK_RSHIFT },
+	{ 0, CONT_START, DIK_ESCAPE },
+	{ 0, CONT_C, DIK_NUMPAD4 },
+	{ 0, CONT_D, DIK_NUMPAD2 },
+	{ 0, CONT_E, DIK_NUMPAD8 },
+	{ 0, CONT_F, DIK_NUMPAD6 },
+	{ 0, CONT_G, DIK_NUMPAD0 },
+	{ 0, CONT_L, DIK_RCONTROL },
+	{ 0, CONT_R, DIK_R },
+
+	{ 1, CONT_UP, DIK_T },
+	{ 1, CONT_DOWN, DIK_G },
+	{ 1, CONT_LEFT, DIK_F },
+	{ 1, CONT_RIGHT, DIK_H },
+	{ 1, CONT_A, DIK_Q },
+	{ 1, CONT_B, 0 },
+	{ 1, CONT_START, 0 },
+	{ 1, CONT_C, 0 },
+	{ 1, CONT_D, 0 },
+	{ 1, CONT_E, 0 },
+	{ 1, CONT_F, 0 },
+	{ 1, CONT_G, 0 },
+	{ 1, CONT_L, 0 },
+	{ 1, CONT_R, 0 },
+
+	{ 2, CONT_UP, DIK_I },
+	{ 2, CONT_DOWN, DIK_K },
+	{ 2, CONT_LEFT, DIK_J },
+	{ 2, CONT_RIGHT, DIK_L },
+	{ 2, CONT_A, DIK_M },
+	{ 2, CONT_B, 0 },
+	{ 2, CONT_START, 0 },
+	{ 2, CONT_C, 0 },
+	{ 2, CONT_D, 0 },
+	{ 2, CONT_E, 0 },
+	{ 2, CONT_F, 0 },
+	{ 2, CONT_G, 0 },
+	{ 2, CONT_L, 0 },
+	{ 2, CONT_R, 0 },
+
+	{ 3, CONT_UP, 0 },
+	{ 3, CONT_DOWN, 0 },
+	{ 3, CONT_LEFT, 0 },
+	{ 3, CONT_RIGHT, 0 },
+	{ 3, CONT_A, 0 },
+	{ 3, CONT_B, 0 },
+	{ 3, CONT_START, 0 },
+	{ 3, CONT_C, 0 },
+	{ 3, CONT_D, 0 },
+	{ 3, CONT_E, 0 },
+	{ 3, CONT_F, 0 },
+	{ 3, CONT_G, 0 },
+	{ 3, CONT_L, 0 },
+	{ 3, CONT_R, 0 },
+};
+
 BYTE keyTable[256];
 DIMOUSESTATE mouseState;
 DIJOYSTATE joy;
@@ -278,6 +343,7 @@ extern float vertClip;
 void ProcessUserInput(HWND hWnd)
 {
 	HRESULT hRes;
+	long i,j;
 
 	// read keyboard data
 	hRes = lpKeyb->GetDeviceState(sizeof(keyTable),&keyTable);
@@ -299,10 +365,7 @@ void ProcessUserInput(HWND hWnd)
 	//----- [ KEYBOARD CONTROL ] -----//
 
 	if(KEYPRESS(DIK_F12))
-	{
-		// Quit
 		PostMessage(hWnd,WM_CLOSE,0,0);
-	}
 	
 	controllerdata[0].lastbutton = controllerdata[0].button;
 	controllerdata[1].lastbutton = controllerdata[1].button;
@@ -316,27 +379,6 @@ void ProcessUserInput(HWND hWnd)
 
 	if (!keysEnabled) return;
 	
-	if (KEYPRESS(DIK_UP))// | (joy.lY < -DEAD_ZONE))
-		controllerdata[0].button |= CONT_UP;
-
-	if (KEYPRESS(DIK_DOWN))// | (joy.lY > DEAD_ZONE))
-		controllerdata[0].button |= CONT_DOWN;
-
-	if (KEYPRESS(DIK_LEFT))// | (joy.lX < -DEAD_ZONE))
-		controllerdata[0].button |= CONT_LEFT;
-	
-	if (KEYPRESS(DIK_RIGHT))// | (joy.lX > DEAD_ZONE))
-		controllerdata[0].button |= CONT_RIGHT;
-
-	if (KEYPRESS(DIK_RETURN ))// | (joy.rgbButtons[0]))
-		controllerdata[0].button |= CONT_A;
-	
-	if (KEYPRESS(DIK_RSHIFT))
-		controllerdata[0].button |= CONT_B;
-	
-	if (KEYPRESS(DIK_ESCAPE))
-		controllerdata[0].button |= CONT_START;
-
 	if (KEYPRESS(DIK_NUMPAD7))
 	{
 		farClip*=1.2;
@@ -351,61 +393,13 @@ void ProcessUserInput(HWND hWnd)
 		vertClip/=1.2;
 	}
 
-	if (KEYPRESS(DIK_NUMPAD4))
-		controllerdata[0].button |= CONT_C;
-
-	if (KEYPRESS(DIK_NUMPAD6))
-		controllerdata[0].button |= CONT_F;
-
-	if (KEYPRESS(DIK_NUMPAD8))
-		controllerdata[0].button |= CONT_E;
-
-	if (KEYPRESS(DIK_NUMPAD2))
-		controllerdata[0].button |= CONT_D;
-
-	if (KEYPRESS(DIK_RCONTROL))
-		controllerdata[0].button |= CONT_L;
-
-	if (KEYPRESS(DIK_R))
-		controllerdata[0].button |= CONT_R;
-
-	////////////////////////////////////////////
-
-	if (KEYPRESS(DIK_T))
-		controllerdata[1].button |= CONT_UP;
-
-	if (KEYPRESS(DIK_G))
-		controllerdata[1].button |= CONT_DOWN;
-
-	if (KEYPRESS(DIK_F))
-		controllerdata[1].button |= CONT_LEFT;
-
-	if (KEYPRESS(DIK_H))
-		controllerdata[1].button |= CONT_RIGHT;
-	
-	if (KEYPRESS(DIK_Q))
-		controllerdata[1].button |= CONT_A;
-
-	if (KEYPRESS(DIK_I))
-		controllerdata[2].button |= CONT_UP;
-
-	if (KEYPRESS(DIK_K))
-		controllerdata[2].button |= CONT_DOWN;
-
-	if (KEYPRESS(DIK_J))
-		controllerdata[2].button |= CONT_LEFT;
-
-	if (KEYPRESS(DIK_L))
-		controllerdata[2].button |= CONT_RIGHT;
-	
-	if (KEYPRESS(DIK_M))
-		controllerdata[2].button |= CONT_A;
 
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
 
-	//if (KEYPRESS(DIK_A))
-	//	controllerdata[1].button |= CONT_B;
+	for( i=0; i < NUM_FROGS*14; i++ )
+		if( keymap[i][2] > 0 && KEYPRESS(keymap[i][2]) )
+			controllerdata[keymap[i][0]].button |= keymap[i][1];
 }
 
 
