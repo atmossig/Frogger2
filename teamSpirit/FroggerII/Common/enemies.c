@@ -637,14 +637,8 @@ void UpdateEnemies()
 		// process enemies (update anims, etc.)
 		switch(cur->nmeActor->actor->type)
 		{
-			case NMETYPE_WASP:
-				ProcessNMEWasp(cur->nmeActor);
-				break;
 			case NMETYPE_MOWER:
 				ProcessNMEMower(cur->nmeActor);
-				break;
-			case NMETYPE_ROLLER:
-				ProcessNMERoller(cur->nmeActor);
 				break;
 		}
 	}
@@ -659,25 +653,10 @@ void UpdateEnemies()
 */
 void ProcessNMEMower(ACTOR2 *nme)
 {
-	if(nme->actor->animation->reachedEndOfAnimation)
-		AnimateActor(nme->actor,0,YES,NO,1.5F);
-
 	if((nme->distanceFromFrog < ACTOR_DRAWDISTANCEINNER) && (frameCount & 3) == 0)
 		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&nme->actor->pos,128,1,1,15);
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMERoller
-	Purpose			: process roller enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMERoller(ACTOR2 *nme)
-{
-	if(nme->actor->animation->reachedEndOfAnimation)
-		AnimateActor(nme->actor,0,YES,NO,1.5F);
-}
 
 /*	--------------------------------------------------------------------------------
 	Function			: ProcessNMEDog
@@ -891,40 +870,6 @@ case NMESTATE_SNAPPER_SNAPPING:
 	}
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMEWasp
-	Purpose			: process wasp enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMEWasp(ACTOR2 *nme)
-{
-	if(nme->actor->animation->reachedEndOfAnimation)
-		AnimateActor(nme->actor,0,NO,NO,Random(3)+1.0F);
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMESnake
-	Purpose			: process snake enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMESnake(ACTOR2 *nme)
-{
-	switch(nme->actor->status)
-	{
-		case NMESTATE_SNAKE_IDLE:
-			break;
-
-		case NMESTATE_SNAKE_MOVING:
-			break;
-
-		case NMESTATE_SNAKE_ATTACKING:
-			break;
-	}
-}
 
 /*	--------------------------------------------------------------------------------
 	Function		: ProcessNMECar
@@ -942,34 +887,6 @@ void ProcessNMECar(ACTOR2 *nme)
 		SetVector(&smokePos,&frog[0]->actor->pos);
 		smokePos.v[Y] -= 10;
 		CreateAndAddFXSmoke(SMOKE_TYPE_NORMAL,&smokePos,128,1,1,15);
-	}
-}
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMETruck
-	Purpose			: process truck enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMETruck(ACTOR2 *nme)
-{
-}
-
-
-/*	--------------------------------------------------------------------------------
-	Function		: ProcessNMEShark
-	Purpose			: process truck enemy
-	Parameters		: ACTOR2 *
-	Returns			: void
-	Info			:
-*/
-void ProcessNMEShark(ACTOR2 *nme)
-{
-	switch(nme->actor->status)
-	{
-		case NMESTATE_SHARK_IDLE:
-			break;
 	}
 }
 
@@ -1139,7 +1056,7 @@ ENEMY *CreateAndAddEnemy(char *eActorName)
 				newItem->nmeActor->actor->status = NMESTATE_MOWER_IDLE;
 				break;
 			case NMETYPE_WASP:
-				AnimateActor(newItem->nmeActor->actor,0,NO,NO,1.0F);
+				AnimateActor(newItem->nmeActor->actor,0,YES,NO,2.0F);
 				newItem->nmeActor->actor->status = NMESTATE_WASP_MOVING;
 				newItem->nmeActor->actor->scale.v[X] = 1.5F;
 				newItem->nmeActor->actor->scale.v[Y] = 1.5F;
