@@ -41,20 +41,21 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 			if ( ( gstrcmp ( tmp,"cam_\0") != 0 ) )
 			{
-				if ( ( gstrcmp ( tmp,"wat_\0") ==0 ) )
-				{
-					flags = 0;
+				//if ( ( gstrcmp ( tmp,"wat_\0") ==0 ) )
+				//{
+				//	flags = 0;
 
 					//if ( cur->name[4] == 'f' )
 						//flags = ACTOR_SLIDYTEX;
 					// ENDIF
 
 //					CreateAndAddScenicObject(cur);
-					utilUpperStr ( cur->name );
-					CreateAndAddWaterObject ( cur );
+				//	utilUpperStr ( cur->name );
+				//	CreateAndAddWaterObject ( cur );
+			//		CreateAndAddScenicObject(cur);
 
-				}
-				else if ( ( compare = strstr ( cur->name, "xx_" ) ) || ( compare = strstr ( cur->name, "lea_" ) ) ||
+				//}
+				/*else*/ if ( ( compare = strstr ( cur->name, "xx_" ) ) || ( compare = strstr ( cur->name, "lea_" ) ) ||
 									( compare = strstr ( cur->name, "xxa_" ) ) || ( compare = strstr ( cur->name, "spl_" ) ) ||
 									( compare = strstr ( cur->name, "wh" ) ) || ( compare = strstr ( cur->name, "wat_" ) )||
 									( compare = strstr ( cur->name, "slu_" ) ) || ( compare = strstr ( cur->name, "spm_" ) )||
@@ -75,7 +76,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "swampy" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "glass" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "vs" ) )||
-									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "rails" ) )||
+									( compare = strstr ( cur->name, "wat_" ) )|| ( compare = strstr ( cur->name, "rails" ) )||
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
 					utilUpperStr ( cur->name );
