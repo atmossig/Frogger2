@@ -191,6 +191,8 @@ MDX_TEXPAGE *GetFreeTexturePage(void)
 	Parameters		: short name (lowercase.bmp), raw data, x/y dimensions, 'type'
 	Returns			: texture entry
 */
+#define TEX_TRANSVAL	0x7c1f
+
 MDX_TEXENTRY *AddMemoryTexture(char *name, short *data, int xDim, int yDim, int texType)
 {
 	LPDIRECTDRAWSURFACE7 temp;
@@ -309,32 +311,31 @@ MDX_TEXENTRY *AddMemoryTexture(char *name, short *data, int xDim, int yDim, int 
 		newE->softData = NULL;
 	else
 	{
+		short dt;
+		unsigned long ptr;
+
 		newE->softData = (long *) AllocMem(sizeof(long)*xDim*yDim);
+		newE->keyed = 0;
 
 		for (int i=0; i<xDim; i++)
 			for (int j=0; j<yDim; j++)
 			{
-				short dt;
-				unsigned long r,g,b;
-				dt = newE->data[i+j*xDim];
-				r = (dt>>10) & 0x1f;
-				g = (dt>>5) & 0x1f;
-				b = (dt) & 0x1f;
+				ptr = i+j*xDim;
 
-				if ((r==0x1f) && (b==0x1f) && (g==0))
+				dt = newE->data[ptr];
+
+				if( dt == TEX_TRANSVAL )
 				{
 					newE->keyed = 1;
-					newE->softData[i+j*xDim] = 0x00ff00ff;
+					newE->softData[ptr] = 0x00ff00ff;
 				}
 				else
 				{
-					r<<=3;
-					g<<=3;
-					b<<=3;
-					//if (r565)
-					newE->softData[i+j*xDim] = (r<<16 | g<<8 | b) & 0x00ffffff;
+					// Convert 15 to 24 bit rgb (555 to 888), including scaling of values
+					newE->softData[ptr] = (((((((dt & 0x7c00)>>10)+1)<<3)-1)<<16) | 
+										  ((((((dt & 0x03e0)>>5)+1)<<3)-1)<<8) | 
+										  ((((dt & 0x001f)+1)<<3)-1)) & 0x00ffffff;
 				}
-
 			}
 	}
 
@@ -407,8 +408,6 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 	{
 		MDX_TEXENTRY *newE = AddMemoryTexture(mys, data, xDim, yDim, texType);
 
-		//strncpy(newE->bank,tBnk,60);
-		newE->keyed = 0;
 		newE->numFrames = 1;
 		newE->gelfData = data;
 
