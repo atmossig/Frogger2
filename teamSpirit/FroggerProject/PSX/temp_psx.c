@@ -89,14 +89,6 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 					if(theActor)
 					{
-						if( (compare=strstr( cur->name,"BACKDROP" )) || 
-							(compare=strstr( cur->name,"BOULDER" )) ||
-							(compare=strstr( cur->name, "RISER" )) )
-						{
-							theActor->flags |= ACTOR_DRAW_ALWAYS;
-							theActor->depthShift = 0;
-						}
-
 						actorAnimate ( theActor->actor, 0, YES, NO, 150, NO );
 					}
 				}
@@ -556,55 +548,30 @@ void Actor2ClipCheck(ACTOR2* act)
 	#define CLIP_LEFT	-256
 
 	long sxy,sz;
-	long sx, sy;//extracted from sxy
+	long sx, sy;
 	int distTop, distRight, distBott, distLeft;
 	int radius, FOV;
-
-//	int CLIP_FAR = worldVisualData[player[0].worldNum].levelVisualData[player[0].levelNum].farClip;
 
 	SVECTOR pos = act->actor->position;
 	pos.vx = -pos.vx;
 	pos.vy = -pos.vy;
 
-
-// 	if(!act->draw)
-// 	{
-// 		act->clipped = 1;
-// 		return;
-// 	}
-
-
-	//let special cases through,
-	//such as always draw.
 	if(act->flags & ACTOR_DRAW_ALWAYS)
 	{
-		if( !act->draw )
-		{
-			act->clipped = 1;
-		}
-		else if(act->actor->psiData.object)
+		if(act->actor->psiData.object)
 		{
 			TIMER_START1(TIMER_UPANI);
-	//		oldStackPointer = SetSp(0x1f800400);
 			actorUpdateAnimations(act->actor);
-	//		SetSp(oldStackPointer);
 			TIMER_STOP_ADD1(TIMER_UPANI);
 
 			TIMER_START1(TIMER_SETANI);
-	//		oldStackPointer = SetSp(0x1f800400);
 			actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
-	//		SetSp(oldStackPointer);
 			TIMER_STOP_ADD1(TIMER_SETANI);
 
 			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
-	// 		act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-	// 		act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-	// 		act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
 			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
 			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
 			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
-
-			act->clipped = 0;
 		}
 		else if ( act->bffActor )
 		{
@@ -613,98 +580,11 @@ void Actor2ClipCheck(ACTOR2* act)
 			act->actor->bffMatrix.t[0] = -act->actor->position.vx;
 			act->actor->bffMatrix.t[1] = act->actor->position.vy;
 			act->actor->bffMatrix.t[2] = act->actor->position.vz;
-
-			act->clipped = 0;
 		}
 
+		act->clipped = 0;
 		return;
 	}
-
-
-	//bb if boulder draw, increase far clipping
-	//change this to draw always
-//	if( ( strstr(act->actor->psiData.modelName, "BOULDER") ) || ( strstr(act->actor->psiData.modelName, "PATHFALL") ) )
-//	{
-//		if(act->draw)
-//		{
-//			act->clipped = 0;
-//			act->milesAway = 0;
-
-//it's not animated (is it?)
-/*			TIMER_START1(TIMER_UPANI);
-//			oldStackPointer = SetSp(0x1f800400);
-// 			actorUpdateAnimations(cur->actor);
-//			SetSp(oldStackPointer);
-//			TIMER_STOP_ADD1(TIMER_UPANI);
-
-//			TIMER_START1(TIMER_SETANI);
-//			oldStackPointer = SetSp(0x1f800400);
-//			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
-//			SetSp(oldStackPointer);
-//			TIMER_STOP_ADD1(TIMER_SETANI);
-*/
-//			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
-// 			act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-// 			act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-// 			act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-//			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-//			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-//			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
-
-//			return;
-//		}
-//		else
-//		{
-//			act->clipped = 1;
-//			act->milesAway = 1;
-//			return;
-//		}
-//	}
-
-//	if( strstr(act->actor->psiData.modelName, "RISER") )
-//	{
-//		if(act->draw)
-//		{
-//			act->clipped = 0;
-//			act->milesAway = 0;
-
-//it's not animated (is it?)
-/*			TIMER_START1(TIMER_UPANI);
-//			oldStackPointer = SetSp(0x1f800400);
-// 			actorUpdateAnimations(cur->actor);
-//			SetSp(oldStackPointer);
-//			TIMER_STOP_ADD1(TIMER_UPANI);
-
-//			TIMER_START1(TIMER_SETANI);
-//			oldStackPointer = SetSp(0x1f800400);
-//			actorSetAnimation ( cur->actor, cur->actor->animation.frame, 1 );
-//			SetSp(oldStackPointer);
-//			TIMER_STOP_ADD1(TIMER_SETANI);
-*/
-
-//			QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
-//			act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-//			act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-//			act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
-//			act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
-//			act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
-//			act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
-
-//			return;
-//		}
-//		else
-//		{
-//			act->clipped = 1;
-//			act->milesAway = 1;
-//			return;
-//		}
-//	}
-
-
-
-
-
-
 
 	//calc screen coords of actor
 	//bbxx n.b only needed for psi actors.
@@ -714,9 +594,7 @@ void Actor2ClipCheck(ACTOR2* act)
 	gte_ldv0(&pos);
 	gte_rtps();
 	gte_stsxy(&sxy);
-//	gte_stszotz(&sz);	//screen z/4 as otz
-	gte_stsz(&sz);	//screen z/4 as otz
-
+	gte_stsz(&sz);
 
 // 	if(act->actor->psiData.flags & ACTOR_DYNAMICSORT)
 // 	{
@@ -753,12 +631,6 @@ void Actor2ClipCheck(ACTOR2* act)
 			//the (as yet unwritten) true centre and true radius.
 			//(which we need to calc in psiLoad)
 
-			//calc dists from edges
-	//		distTop		= sy - (CLIP_TOP + 20);
-	//		distRight	= sx - (CLIP_RIGHT - 20);
-	//		distBott	= sy - (CLIP_BOTT - 20);
-	//		distLeft	= sx - (CLIP_LEFT + 20);
-
 			//now with radius check
 			gte_ReadGeomScreen(&FOV);
 			radius = (act->actor->radius *FOV) /sz; //n.b *4 'cos we got z/4, not z
@@ -766,7 +638,6 @@ void Actor2ClipCheck(ACTOR2* act)
 			distRight	= (sx-radius) - CLIP_RIGHT;
 			distBott	= (sy-radius) - CLIP_BOTT;
 			distLeft	= (sx+radius) - CLIP_LEFT;
-
 
 			//clip?
 			if( (distTop<0) || (distRight>0) || (distBott>0) || (distLeft<0) || (sz>fog.max) )
@@ -776,97 +647,65 @@ void Actor2ClipCheck(ACTOR2* act)
 			else
 			{
 				TIMER_START1(TIMER_UPANI);
-//				oldStackPointer = SetSp(0x1f800400);
 				actorUpdateAnimations(act->actor);
-//				SetSp(oldStackPointer);
 				TIMER_STOP_ADD1(TIMER_UPANI);
 
 				TIMER_START1(TIMER_SETANI);
-//				oldStackPointer = SetSp(0x1f800400);
 				actorSetAnimation ( act->actor, act->actor->animation.frame, 1 );
-//				SetSp(oldStackPointer);
 				TIMER_STOP_ADD1(TIMER_SETANI);
 
 				QuatToPSXMatrix(&act->actor->qRot, &act->actor->psiData.object->matrix);
-// 				act->actor->psiData.object->matrix.t[0] += -act->actor->position.vx;
-// 				act->actor->psiData.object->matrix.t[1] += -act->actor->position.vy;
-// 				act->actor->psiData.object->matrix.t[2] +=  act->actor->position.vz;
 				act->actor->psiData.object->matrix.t[0] = -act->actor->position.vx;
 				act->actor->psiData.object->matrix.t[1] = -act->actor->position.vy;
 				act->actor->psiData.object->matrix.t[2] =  act->actor->position.vz;
 				act->clipped = 0;
 			}
-		}//end if psi actor if(act->actor->psiData.object)
-
-		//this is not a psi actor,
-		//so i suppose it's an fma actor?
-//		else if(act->flags & ACTOR_NOANIMATION)
+		}
 		else if(act->bffActor)
 		{
-			//and there is an fma 'world'
-//			if(act->bffActor)
-//			{
-//				FMA_MESH_HEADER *pMesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
-				FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+			FMA_MESH_HEADER **mesh = ((char*)act->bffActor) + sizeof(FMA_WORLD);
+			MATRIX tx, rY;
 
+			//need to do this to transform points
+			QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
 
-				MATRIX tx, rY;
+			act->actor->bffMatrix.t[0] = -act->actor->position.vx;
+			act->actor->bffMatrix.t[1] = act->actor->position.vy;
+			act->actor->bffMatrix.t[2] = act->actor->position.vz;
 
+			//calculate local to screen coords for fma mesh.
+			//(camera matrix and objects' pos/rot matrix)
 
+			(*mesh)->posx = -act->actor->position.vx;
+			(*mesh)->posy = -act->actor->position.vy;
+			(*mesh)->posz = act->actor->position.vz;
 
-				//need to do this to transform points
-				QuatToPSXMatrix(&act->actor->qRot, &act->actor->bffMatrix);
+			gte_SetRotMatrix(&GsWSMATRIX);
+			gte_SetTransMatrix(&GsWSMATRIX);
 
-				act->actor->bffMatrix.t[0] = -act->actor->position.vx;
-				act->actor->bffMatrix.t[1] = act->actor->position.vy;
-				act->actor->bffMatrix.t[2] = act->actor->position.vz;
+			// Unnecessary maths for landscape segments, where pos is always zero.
+			gte_ldlvl( &(*mesh)->posx);
+			gte_rtirtr();
+			gte_stlvl(&tx.t);
 
+//			gte_SetRotMatrix(&GsWSMATRIX);
+//			gte_SetTransMatrix(&tx);
+			
+			gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
+			rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
+			rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
+			RotMatrixY(2048, &rY);
+			gte_MulMatrix0(&tx, &rY, &tx);
+			gte_SetRotMatrix(&tx);
+			gte_SetTransMatrix(&tx);
 
-
-
-				//calculate local to screen coords for fma mesh.
-				//(camera matrix and objects' pos/rot matrix)
-
-				(*mesh)->posx = -act->actor->position.vx;
-				(*mesh)->posy = -act->actor->position.vy;
-				(*mesh)->posz = act->actor->position.vz;
-
-				gte_SetRotMatrix(&GsWSMATRIX);
-				gte_SetTransMatrix(&GsWSMATRIX);
-
-				// Unnecessary maths for landscape segments, where pos is always zero.
-				gte_ldlvl( &(*mesh)->posx);
-				gte_rtirtr();
-				gte_stlvl(&tx.t);
-
-//				gte_SetRotMatrix(&GsWSMATRIX);
-//				gte_SetTransMatrix(&tx);
-				
-				gte_MulMatrix0(&GsWSMATRIX, &act->actor->bffMatrix, &tx);
-				rY.m[0][0] = rY.m[1][1] = rY.m[2][2] = act->actor->size.vx;
-				rY.m[0][1] = rY.m[0][2] = rY.m[1][0] = rY.m[1][2] = rY.m[2][0] = rY.m[2][1] = 0;
-				RotMatrixY(2048, &rY);
-				gte_MulMatrix0(&tx, &rY, &tx);
-				gte_SetRotMatrix(&tx);
-				gte_SetTransMatrix(&tx);
-
-
-
-
-
-
-
-				if(FmaActor_ClipCheck(*mesh))
+			if(FmaActor_ClipCheck(*mesh))
 //				if(FmaActor_ClipCheck_GetSBox(pMesh))
-					act->clipped=0;
-				else
-					act->clipped=1;
-//			}
-
-//		}//end if fma actor if(act->flags & ACTOR_NOANIMATION)
-		}//end if(act->bffActor)
-
-	}//end if(sz>0 && sz<CLIP_FAR)
+				act->clipped=0;
+			else
+				act->clipped=1;
+		}
+	}
 
 	//miles away?
 // 	if(act->clipped)
