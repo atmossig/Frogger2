@@ -709,9 +709,10 @@ BOOL ExecuteCommand(UBYTE **p)
 			flag = MEMGETWORD(p);
 			if (flag > 0 && flag < plt->path->numNodes)
 			{
-				plt->path->fromNode = flag;
+				plt->path->toNode = flag;
 				plt->inTile[0] = plt->path->nodes[flag].worldTile;
 				plt->isWaiting = 1;
+				plt->path->endFrame = actFrameCount;
 				RecalculatePlatform(plt);
 			}
 			break;
