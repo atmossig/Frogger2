@@ -838,6 +838,34 @@ BOOL ExecuteCommand(UBYTE **p)
 		(*p) += 2 + 1 + 4*4;
 		PrintScriptDebugMessage("Enemy/Platform sfx not quite available");
 		break;
+
+	case EV_SCALENMESPEED:
+		{
+			ENEMY *nme;
+			float speed;
+
+			nme = GetEnemyFromUID(MEMGETWORD(p));
+			if (!nme) return 0;
+
+			speed = MEMGETFLOAT(p);
+
+			ScalePathSpeed(nme->path, speed);
+			break;
+		}
+			
+	case EV_SCALEPLATSPEED:
+		{
+			PLATFORM *plat;
+			float speed;
+
+			plat = GetPlatformFromUID(MEMGETWORD(p));
+			if (!plat) return 0;
+
+			speed = MEMGETFLOAT(p);
+
+			ScalePathSpeed(plat->path, speed);
+			break;
+		}
 /*
 	case EV_HURTFROG:
 		{
