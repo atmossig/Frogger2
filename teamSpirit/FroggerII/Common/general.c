@@ -112,14 +112,14 @@ GAMETILE* FindNearestTile(VECTOR v)
 
 #define MEMGETBYTE(p) (*((*p)++))
 
-inline int MEMGETINT(UCHAR **p)		// get a little-endian integer
+inline int MEMGETINT(uchar **p)		// get a little-endian integer
 {
-	UINT i;
+	unsigned int i;
 
-	i = (UINT)*((*p)++);
-	i += ((UINT)*((*p)++) << 8);
-	i += ((UINT)*((*p)++) << 16);
-	i += ((UINT)*((*p)++) << 24);
+	i = (unsigned int)*((*p)++);
+	i += ((unsigned int)*((*p)++) << 8);
+	i += ((unsigned int)*((*p)++) << 16);
+	i += ((unsigned int)*((*p)++) << 24);
 
 	return i;
 }
@@ -129,14 +129,14 @@ inline int MEMGETINT(UCHAR **p)		// get a little-endian integer
 int MemLoadEntities(const void* data, long size)
 {
 	int count, flags, numNodes, startNode, n;
-	UBYTE thing;
+	uchar thing;
 	char type[20];
 	PATH *path;
 	PATHNODE *node;
 	VECTOR v;
 	ENEMY *enemy;
 	PLATFORM *platform;
-	UCHAR *p = (UCHAR*)data;
+	uchar *p = (uchar*)data;
 
 	// Version check - only load files with the current version
 	if (MEMGETBYTE(&p) != 1) return 0;
