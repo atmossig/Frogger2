@@ -10,8 +10,8 @@ public:
 	Lookup();
 	~Lookup();
 
-	bool AddEntry(const char* name, void* whatever);
-	void* GetEntry(const char *name);
+	bool AddEntry(const char* name, unsigned long whatever);
+	unsigned long GetEntry(const char *name);
 };
 
 #endif

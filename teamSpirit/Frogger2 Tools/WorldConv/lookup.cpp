@@ -1,20 +1,21 @@
+#include <string.h>
 #include "lookup.h"
 
 
-*	-----------------------------------------------------------------------
+/*	-----------------------------------------------------------------------
 	LookupEntry
 */
 
 class LookupEntry
 {
 	char *name;
-	void *thing;
+	unsigned long thing;
 	//TokenType *params;
 	//int numParams;
 
 	LookupEntry *left, *right;
 
-	LookupEntry(const char* name, void *whatever);
+	LookupEntry(const char* name, unsigned long whatever);
 	~LookupEntry();
 
 	void Add(LookupEntry*);
@@ -22,11 +23,16 @@ class LookupEntry
 	friend class Lookup;
 };
 
-LookupEntry::LookupEntry(const char* n, void *t)
+LookupEntry::LookupEntry(const char* n, unsigned long t)
 {
-	name = new char[strlen(n) + 1];
-	strcpy(name, n);
-	strupr(name);
+	if (n)
+	{
+		name = new char[strlen(n) + 1];
+		strcpy(name, n);
+		strupr(name);
+	}
+	else
+		name = NULL;
 	thing = t;
 
 	left = NULL; right = NULL;
@@ -50,7 +56,7 @@ Lookup::~Lookup()
 	if (list) delete list;
 }
 
-void *Lookup::GetEntry(const char *name)
+unsigned long Lookup::GetEntry(const char *name)
 {
 	LookupEntry *e = list;
 	int len = strlen(name);
@@ -79,7 +85,7 @@ void *Lookup::GetEntry(const char *name)
 
 
 
-bool Lookup::AddEntry(const char *name, void *thing)
+bool Lookup::AddEntry(const char *name, unsigned long thing)
 {
 	LookupEntry *l = list, *e = new LookupEntry(name, thing);
 

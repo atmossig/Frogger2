@@ -4,11 +4,8 @@
 
 
 	File		: main.cpp
-	Programmer	: Matthew Cloy
+	Programmer	: Matthew Cloy (with modifications by David Swift)
 	Date		: 16/11/98
-
-	Modified 04/08/99 (David Swift)
-	- Saves worlds as a contiguous array
 
 ----------------------------------------------------------------------------------------------- */
 
@@ -17,12 +14,35 @@
 #include "stdio.h"
 #include "math.h"
 
+#include "lookup.h"
+
 char inF[255],outF[255];
 char pc = 0;
 
 enum
 {
-	NORMAL,
+	TILESTATE_NORMAL,
+	TILESTATE_DEADLY,
+	TILESTATE_SINK,
+	TILESTATE_ICE,
+	TILESTATE_SUPERHOP,
+	TILESTATE_JOIN,
+	TILESTATE_SPRING,
+	TILESTATE_TELEPORTER,
+	TILESTATE_GRAPPLE,
+	TILESTATE_SMASH,
+	TILESTATE_BARRED,
+	TILESTATE_LEVELCHANGE,
+
+	TILESTATE_CONVEYOR0 = 0x20,
+	TILESTATE_CONVEYOR1,
+	TILESTATE_CONVEYOR2,
+	TILESTATE_CONVEYOR3,
+};
+
+enum
+{
+	NORMAL = 0,
 	FROG,
 	FROG0,
 	FROG1,
@@ -34,9 +54,38 @@ enum
 	DEADLY,
 	SINK,
 	JUMP,
-	
+	BARRED,
 	SUPERHOP,
-	JOIN
+	JOIN,
+	CONV0,
+	CONV1,
+	CONV2,
+	CONV3,
+
+	NUM_MATERIALS
+};
+
+const char* materialnames[NUM_MATERIALS] =
+{
+	"normal",
+	"froggerstart",
+	"frogger1start",
+	"frogger2start",
+	"frogger3start",
+	"frogger4start",
+	"babystart",
+	"autohop",
+	"safe",
+	"deadly",
+	"sink",
+	"platjump",
+	"barred",
+	"superjump",
+	"link",
+	"conveyor0",
+	"conveyor1",
+	"conveyor2",
+	"conveyor3",
 };
 
 unsigned long mat[200];
@@ -90,16 +139,28 @@ struct square
 #define BC 1
 #define CA 2
 
-vtx vertexList [3000];
+vtx vertexList [20000];
 unsigned long nVtx = 0;
 
-face faceList [3000];
+face faceList [20000];
 unsigned long nFace = 0;
 
-unsigned long fUsed[3000];
+unsigned long fUsed[10000];
 
-square squareList[5000];
+square squareList[10000];
 unsigned long nSquare = 0;
+
+Lookup materialLookup;
+
+/* -------------------------------------------------------------------------------- */
+
+void InitTables(void)
+{
+	for (int i=0; i<NUM_MATERIALS; i++)
+		materialLookup.AddEntry(materialnames[i], i);
+}
+
+/* -------------------------------------------------------------------------------- */
 
 void CalculateNormal (square *me)
 {
@@ -145,7 +206,6 @@ void CalculateNormal (square *me)
 	me->vn.y=-ony;
 	me->vn.z=-onz;
 }
-
 
 
 /* --------------------------------------------------------------------------------
@@ -402,25 +462,38 @@ void BuildSquareList(void)
 								break;
 							case DEADLY:
 								printf(",");
-								squareList[nSquare].status = 1;
+								squareList[nSquare].status = TILESTATE_DEADLY;
 								break;
 							case SINK:
 								printf("v");
-								squareList[nSquare].status = 2;
+								squareList[nSquare].status = TILESTATE_SINK;
 								break;
-							case JUMP:
+/*							case JUMP:
 								printf("^");
-								squareList[nSquare].status = 3;
+								squareList[nSquare].status = TILESTATE_JUMP;
 								break;
-
+*/
 							case SUPERHOP:
 								printf("@");
-								squareList[nSquare].status = 4;
+								squareList[nSquare].status = TILESTATE_SUPERHOP;
 								break;
 							case JOIN:
 								printf("#");
-								squareList[nSquare].status = 5;
+								squareList[nSquare].status = TILESTATE_JOIN;
 								break;
+							case BARRED:
+								printf("£");
+								squareList[nSquare].status = TILESTATE_BARRED;
+								break;
+
+							case CONV0:
+							case CONV1:
+							case CONV2:
+							case CONV3:
+								printf("<");
+								squareList[nSquare].status = faceList[j].mat - CONV0 + TILESTATE_CONVEYOR0;
+								break;
+
 						}
 						
 						squareList[nSquare].p[0] = (p1x+p2x)/2;
@@ -578,32 +651,33 @@ void CalculateAdj(void)
 		CheckSquare (3,i,x1,y1,z1,x2,y2,z2);
 	}
 	
-	// Fill out the normals
-	// Average edges in x and y for north and east, south and west are simply the inverse
+	// Fill out the "normals", aka direction vectors
 	for (i=0; i<nSquare; i++)
 	{
 		vtx t[4];
 		
+		// Average east & west EDGE vectors to find north DIRECTION vector
 		t[0].x = (squareList[i].ed[1].x-squareList[i].ed[0].x) + (squareList[i].ed[2].x-squareList[i].ed[3].x);
 		t[0].y = (squareList[i].ed[1].y-squareList[i].ed[0].y) + (squareList[i].ed[2].y-squareList[i].ed[3].y);
 		t[0].z = (squareList[i].ed[1].z-squareList[i].ed[0].z) + (squareList[i].ed[2].z-squareList[i].ed[3].z);
+		Normalise (&t[0]);
 		
+		// Average north & south edge vectors to find east direction vector
 		t[1].x = (squareList[i].ed[2].x-squareList[i].ed[1].x) + (squareList[i].ed[3].x-squareList[i].ed[0].x);
 		t[1].y = (squareList[i].ed[2].y-squareList[i].ed[1].y) + (squareList[i].ed[3].y-squareList[i].ed[0].y);
 		t[1].z = (squareList[i].ed[2].z-squareList[i].ed[1].z) + (squareList[i].ed[3].z-squareList[i].ed[0].z);
+		Normalise (&t[1]);
 
+		// south is opposite of north
 		t[2].x = -t[0].x;
 		t[2].y = -t[0].y;
 		t[2].z = -t[0].z;
 
+		// west is opposite of east
 		t[3].x = -t[1].x;
 		t[3].y = -t[1].y;
 		t[3].z = -t[1].z;
 
-		Normalise (&t[0]);
-		Normalise (&t[1]);
-		Normalise (&t[2]);
-		Normalise (&t[3]);
 		squareList[i].n[0] = t[0];
 		squareList[i].n[1] = t[1];
 		squareList[i].n[2] = t[2];
@@ -666,88 +740,17 @@ void ProcessLine(char *in)
 	/////////////////////////////////////////////////////////////////////////////
 	//17+name
 
-	if (strncmp(in,"*MATERIAL_NAME \"normal\"",23) == 0)
+	if (strncmp(in,"*MATERIAL_NAME \"",16) == 0)
 	{
-		printf("NORM material %i found.\n",cMat);
-		mat[cMat] = NORMAL;
-	}
+		char material[20];
+		char *i = in + 16, *j = material;
 
-	if (strncmp(in,"*MATERIAL_NAME \"froggerstart\"",29) == 0)
-	{
-		printf("FROG material %i found.\n",cMat);
-		mat[cMat] = FROG;
-	}
+		while(*i && (*i != '\"'))
+			*(j++) = *(i++);
 
-	if (strncmp(in,"*MATERIAL_NAME \"frogger1start\"",29) == 0)
-	{
-		printf("FROG material %i found.\n",cMat);
-		mat[cMat] = FROG0;
-	}
+		*j = 0;
 
-	if (strncmp(in,"*MATERIAL_NAME \"frogger2start\"",29) == 0)
-	{
-		printf("FROG material %i found.\n",cMat);
-		mat[cMat] = FROG1;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"frogger3start\"",29) == 0)
-	{
-		printf("FROG material %i found.\n",cMat);
-		mat[cMat] = FROG2;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"frogger4start\"",29) == 0)
-	{
-		printf("FROG material %i found.\n",cMat);
-		mat[cMat] = FROG3;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"babystart\"",26) == 0)
-	{
-		printf("BABY material %i found.\n",cMat);
-		mat[cMat] = BABY;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"autohop\"",24) == 0)
-	{
-		printf("AUTOHOP material %i found.\n",cMat);
-		mat[cMat] = AUTOHOP;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"safe\"",21) == 0)
-	{
-		printf("SAFE material %i found.\n",cMat);
-		mat[cMat] = SAFE;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"deadly\"",23) == 0)
-	{
-		printf("DEADLY material %i found.\n",cMat);
-		mat[cMat] = DEADLY;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"sink\"",21) == 0)
-	{
-		printf("SINK material %i found.\n",cMat);
-		mat[cMat] = SINK;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"platjump\"",21) == 0)
-	{
-		printf("JUMP material %i found.\n",cMat);
-		mat[cMat] = JUMP;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"superjump\"",26) == 0)
-	{
-		printf("SUPERJUMP material %i found.\n",cMat);
-		mat[cMat] = SUPERHOP;
-	}
-
-	if (strncmp(in,"*MATERIAL_NAME \"link\"",21) == 0)
-	{
-		printf("JOIN material %i found.\n",cMat);
-		mat[cMat] = JOIN;
+		mat[cMat] = materialLookup.GetEntry(material);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -826,7 +829,7 @@ void ProcessLine(char *in)
 }
 	
 
-void ReadData(void)
+bool ReadData(void)
 {
 	FILE *in;
 	char inStr[255];
@@ -834,6 +837,12 @@ void ReadData(void)
 	printf ("Reading: %s \n",inF);
 	in = fopen (inF,"rt");
 	
+	if (!in)
+	{
+		fprintf(stderr, "Couldn't open file\n");
+		return false;
+	}
+
 	fgets(inStr,200,in);
 	while (!feof(in))
 	{	
@@ -842,6 +851,7 @@ void ReadData(void)
 	}
 		
 	fclose (in);
+	return true;
 }
 
 /* --------------------------------------------------------------------------------
@@ -1114,7 +1124,7 @@ void WriteData(void)
 
 int main (int argc, char *argv[])
 {
-	printf("World Converter - V1.01 Matthew Cloy - Interactive Studios Ltd \n\n");
+	printf("Frogger 2 World Converter (built "__DATE__") - Interactive Studios Ltd \n\n");
 	if (argc < 3)
 	{		
 		printf("Parameters: [Infile] [OutFile]\n");
@@ -1130,9 +1140,13 @@ int main (int argc, char *argv[])
 			exit(1);
 		}
 	}
+
+	InitTables();
+
 	strcpy (inF,argv[1]);
 	strcpy (outF,argv[2]);
-	ReadData();
+	if (!ReadData()) return 1;
+
 	printf("\n");
 	BuildSquareList();
 	printf("\n");
