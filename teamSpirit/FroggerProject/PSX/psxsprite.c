@@ -26,16 +26,19 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 	depth = 4 - spr->num;
 
-	atbdx = (spr->xPos/8)-256;
+	atbdx = (spr->xPos>>3)-256;
 	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
 	tPtr = spr->tex;
 
 	if(spr->a == 255)
 	{
 		alpha = 0;
-		r = (spr->r * 128) >> 8;
-		g = (spr->g * 128) >> 8;
-		b = (spr->b * 128) >> 8;
+//		r = (spr->r * 128) >> 8;
+//		g = (spr->g * 128) >> 8;
+//		b = (spr->b * 128) >> 8;
+		r = spr->r>>1;
+		g = spr->g>>1;
+		b = spr->b>>1;
 	}
 	else
 	{
@@ -52,15 +55,15 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 
 		f4->x0 = atbdx;
 		f4->y0 = atbdy;
-		f4->x1 = atbdx + (spr->width/8);
+		f4->x1 = atbdx + (spr->width>>3);
 		f4->y1 = atbdy;
 		f4->x2 = atbdx;
 		f4->y2 = atbdy + (spr->height/(17-PALMODE));
-		f4->x3 = atbdx + (spr->width/8);
+		f4->x3 = atbdx + (spr->width>>3);
 		f4->y3 = atbdy + (spr->height/(17-PALMODE));
-		f4->r0 = r*2;
-		f4->g0 = g*2;
-		f4->b0 = b*2;
+		f4->r0 = r<<1;
+		f4->g0 = g<<1;
+		f4->b0 = b<<1;
 		if(alpha)
 			setSemiTrans(f4,1);
 		ENDPRIM(f4, depth, POLY_F4);
@@ -125,11 +128,11 @@ void DrawSprite ( SPRITEOVERLAY *spr )
 			setPolyFT4(ft4);
 			ft4->x0 = atbdx;
 			ft4->y0 = atbdy;
-			ft4->x1 = atbdx + (spr->width/8);
+			ft4->x1 = atbdx + (spr->width>>3);
 			ft4->y1 = atbdy;
 			ft4->x2 = atbdx;
 			ft4->y2 = atbdy + (spr->height/(17-PALMODE));
-			ft4->x3 = atbdx + (spr->width/8);
+			ft4->x3 = atbdx + (spr->width>>3);
 			ft4->y3 = atbdy + (spr->height/(17-PALMODE));
 			ft4->r0 = r;//( spr->r * 128 ) >> 8;
 			ft4->g0 = g;//( spr->g * 128 ) >> 8;
@@ -176,8 +179,8 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 
 	cosine = rcos(-spr->angle);
 	sine = rsin(-spr->angle);
-	halfWidth = spr->width/2;
-	halfHeight = spr->height/2;
+	halfWidth = spr->width>>1;
+	halfHeight = spr->height>>1;
 
 
 	depth = 4 - spr->num;
@@ -189,9 +192,12 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 	if(spr->a == 255)
 	{
 		alpha = 0;
-		r = (spr->r * 128) >> 8;
-		g = (spr->g * 128) >> 8;
-		b = (spr->b * 128) >> 8;
+//		r = (spr->r * 128) >> 8;
+//		g = (spr->g * 128) >> 8;
+//		b = (spr->b * 128) >> 8;
+		r = spr->r>>1;
+		g = spr->g>>1;
+		b = spr->b>>1;
 	}
 	else
 	{
@@ -220,31 +226,31 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 		newX = FMul(f4->x0,cosine) + FMul(f4->y0,sine);
 		newY = FMul(f4->y0,cosine) - FMul(f4->x0,sine);
 
-		f4->x0 = (newX + atbdx + halfWidth)/8;
+		f4->x0 = (newX + atbdx + halfWidth)>>3;
 		f4->y0 = (newY + atbdy + halfHeight)/(17-PALMODE);
 
 		newX = FMul(f4->x1,cosine) + FMul(f4->y1,sine);
 		newY = FMul(f4->y1,cosine) - FMul(f4->x1,sine);
 
-		f4->x1 = (newX + atbdx + halfWidth)/8;
+		f4->x1 = (newX + atbdx + halfWidth)>>3;
 		f4->y1 = (newY + atbdy + halfHeight)/(17-PALMODE);
 
 		newX = FMul(f4->x2,cosine) + FMul(f4->y2,sine);
 		newY = FMul(f4->y2,cosine) - FMul(f4->x2,sine);
 
-		f4->x2 = (newX + atbdx + halfWidth)/8; 
+		f4->x2 = (newX + atbdx + halfWidth)>>3; 
 		f4->y2 = (newY + atbdy + halfHeight)/(17-PALMODE);
 
 		newX = FMul(f4->x3,cosine) + FMul(f4->y3,sine);
 		newY = FMul(f4->y3,cosine) - FMul(f4->x3,sine);
 
-		f4->x3 = (newX + atbdx + halfWidth)/8; 
+		f4->x3 = (newX + atbdx + halfWidth)>>3; 
 		f4->y3 = (newY + atbdy + halfHeight)/(17-PALMODE);
 
 
-		f4->r0 = r*2;
-		f4->g0 = g*2;
-		f4->b0 = b*2;
+		f4->r0 = r<<1;
+		f4->g0 = g<<1;
+		f4->b0 = b<<1;
 		if(alpha)
 			setSemiTrans(f4,1);
 
@@ -280,28 +286,26 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 		newX = FMul(ft4->x0,cosine) + FMul(ft4->y0,sine);
 		newY = FMul(ft4->y0,cosine) - FMul(ft4->x0,sine);
 
-		ft4->x0 = (newX + atbdx + halfWidth)/8; 
+		ft4->x0 = (newX + atbdx + halfWidth)>>3; 
 		ft4->y0 = (newY + atbdy + halfHeight)/(17 - PALMODE);
 
 		newX = FMul(ft4->x1,cosine) + FMul(ft4->y1,sine);
 		newY = FMul(ft4->y1,cosine) - FMul(ft4->x1,sine);
 
-		ft4->x1 = (newX + atbdx + halfWidth)/8; 
+		ft4->x1 = (newX + atbdx + halfWidth)>>3; 
 		ft4->y1 = (newY + atbdy + halfHeight)/(17 - PALMODE);
 
 		newX = FMul(ft4->x2,cosine) + FMul(ft4->y2,sine);
 		newY = FMul(ft4->y2,cosine) - FMul(ft4->x2,sine);
 
-		ft4->x2 = (newX + atbdx + halfWidth)/8; 
+		ft4->x2 = (newX + atbdx + halfWidth)>>3; 
 		ft4->y2 = (newY + atbdy + halfHeight)/(17 - PALMODE);
 
 		newX = FMul(ft4->x3,cosine) + FMul(ft4->y3,sine);
 		newY = FMul(ft4->y3,cosine) - FMul(ft4->x3,sine);
 
-		ft4->x3 = (newX + atbdx + halfWidth)/8; 
+		ft4->x3 = (newX + atbdx + halfWidth)>>3; 
 		ft4->y3 = (newY + atbdy + halfHeight)/(17 - PALMODE);
-
-
 
 		ft4->r0 = r;//( spr->r * 128 ) >> 8;
 		ft4->g0 = g;//( spr->g * 128 ) >> 8;
@@ -330,200 +334,7 @@ void DrawSpriteOverlayRotating ( SPRITEOVERLAY *spr )
 		setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
 		ENDPRIM(ft4, depth, POLY_FT4);
 	}
-
-
-
-
-
-
-
-/*	int			atbdx,atbdy, w,h, i;
-
-	fixed cosine, sine, newX, newY;
-	SVECTOR points [ 4 ];
-
-	POLY_F4		*f4;
-	POLY_FT4	*ft4;
-	TextureType	*tPtr;
-	uchar alpha,r,g,b;
-	int depth;
-
-	depth = 4 - spr->num;
-
-	atbdx = (spr->xPos/8)-256;
-	atbdy = (spr->yPos/(17-PALMODE))-120-PALMODE*8;
-	tPtr = spr->tex;
-
-	if(spr->a == 255)
-	{
-		alpha = 0;
-		r = (spr->r * 128) >> 8;
-		g = (spr->g * 128) >> 8;
-		b = (spr->b * 128) >> 8;
-	}
-	else
-	{
-		alpha = 2;
-		r = (spr->r * spr->a) >> 9;
-		g = (spr->g * spr->a) >> 9;
-		b = (spr->b * spr->a) >> 9;
-	}
-
-	cosine	= rcos ( spr->angle );
-	sine		= rsin ( spr->angle );
-
-
-
-	points [ 0 ].vx = atbdx;
-	points [ 0 ].vy = atbdy;
-
-	points [ 1 ].vx = atbdx + w;
-	points [ 1 ].vy = atbdy;
-
-	points [ 2 ].vx = atbdx;
-	points [ 2 ].vy = atbdy + h;
-
-	points [ 3 ].vx = atbdx + w;
-	points [ 3 ].vy = atbdy + h;
-
-
-	i = 4;
-	while ( i-- )
-	{
-
-		newX = ( points [ i ].vx * cosine ) + ( points [ i ].vy * sine );
-		newY = ( points [ i ].vy * cosine ) - ( points [ i ].vx * sine );
-
-		points[i].vx = newX + atbdx + w;
-		points[i].vy = newY + atbdy + h;
-
-
-		//v[i].sx = newX + x + w2;
-		//v[i].sy = newY + y + h2;
-
-	}
-	// ENDWHILE
-
-
-
-	if(spr->tex == 0)
-	{
-		BEGINPRIM(f4,POLY_F4);
-		setPolyF4(f4);
-
-		f4->x0 = atbdx;
-		f4->y0 = atbdy;
-		f4->x1 = atbdx + (spr->width/8);
-		f4->y1 = atbdy;
-		f4->x2 = atbdx;
-		f4->y2 = atbdy + (spr->height/(17-PALMODE));
-		f4->x3 = atbdx + (spr->width/8);
-		f4->y3 = atbdy + (spr->height/(17-PALMODE));
-		f4->r0 = spr->r;
-		f4->g0 = spr->g;
-		f4->b0 = spr->b;
-		if ( spr->flags & SPRITE_ADDITIVE )
-		{
-			f4->code  |= 2;
-		}
-		else if ( spr->flags & SPRITE_SUBTRACTIVE )
-		{
-			f4->code  |= 2;
-		}
-		ENDPRIM(f4, depth, POLY_F4);
-	}
-	else
-	{
-		w = tPtr->w-1;
-		h = tPtr->h-1;
-
-		if (spr->width==4096)
-		{	// NEW! 1:1 texels to pixels
-			BEGINPRIM(ft4, POLY_FT4);
-			setPolyFT4(ft4);
-
-
-
-			ft4->x0 = points[0].vx;
-			ft4->y0 = points[0].vy;
-			ft4->x1 = points[1].vx;
-			ft4->y1 = points[1].vy;
-			ft4->x2 = points[2].vx;
-			ft4->y2 = points[2].vy;
-			ft4->x3 = points[3].vx;
-			ft4->y3 = points[3].vy;
-
-			ft4->r0 = r;//( spr->r * 128 ) >> 8;
-			ft4->g0 = g;//( spr->g * 128 ) >> 8;
-			ft4->b0 = b;//( spr->b * 128 ) >> 8;
-			ft4->u0 = tPtr->u0;
-			ft4->v0 = tPtr->v0;
-			ft4->u1 = tPtr->u1;
-			ft4->v1 = tPtr->v1;
-			ft4->u2 = tPtr->u2;
-			ft4->v2 = tPtr->v2;
-			ft4->u3 = tPtr->u3;
-			ft4->v3 = tPtr->v3;
-			ft4->tpage = tPtr->tpage;
-			if ( spr->flags & SPRITE_ADDITIVE )
-			{
-				ft4->code  |= 2;
- 				ft4->tpage |= 32;
-			}
-			else if ( spr->flags & SPRITE_SUBTRACTIVE )
-			{
-				ft4->code  |= 2;
-				ft4->tpage |= 64;
-			}
-			ft4->clut = tPtr->clut;
-			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-			if(alpha)
-				SETSEMIPRIM(ft4, alpha);
-			ENDPRIM(ft4, depth, POLY_FT4);
-		}
-		else
-		{	// Original random scaling method (slightly tidier)
-			BEGINPRIM(ft4, POLY_FT4);
-			setPolyFT4(ft4);
-			ft4->x0 = atbdx;
-			ft4->y0 = atbdy;
-			ft4->x1 = atbdx + (spr->width/8);
-			ft4->y1 = atbdy;
-			ft4->x2 = atbdx;
-			ft4->y2 = atbdy + (spr->height/(17-PALMODE));
-			ft4->x3 = atbdx + (spr->width/8);
-			ft4->y3 = atbdy + (spr->height/(17-PALMODE));
-			ft4->r0 = r;//( spr->r * 128 ) >> 8;
-			ft4->g0 = g;//( spr->g * 128 ) >> 8;
-			ft4->b0 = b;//( spr->b * 128 ) >> 8;
-			ft4->u0 = tPtr->u0;
-			ft4->v0 = tPtr->v0;
-			ft4->u1 = tPtr->u1;
-			ft4->v1 = tPtr->v1;
-			ft4->u2 = tPtr->u2;
-			ft4->v2 = tPtr->v2;
-			ft4->u3 = tPtr->u3;
-			ft4->v3 = tPtr->v3;
-			ft4->tpage = tPtr->tpage;
-			if ( spr->flags & SPRITE_ADDITIVE )
-			{
-				ft4->code  |= 2;
-				ft4->tpage |= 32;
-			}
-			else if ( spr->flags & SPRITE_SUBTRACTIVE )
-			{
-				ft4->code  |= 2;
-				ft4->tpage = tPtr->tpage | 64;
-			}
-			ft4->clut = tPtr->clut;
-			setSemiTrans(ft4, (alpha > 0) ? 1 : 0);
-			if(alpha)
-				SETSEMIPRIM(ft4, alpha);
-			ENDPRIM(ft4, depth, POLY_FT4);
-		}
-	}*/
 }
-
 
 
 
@@ -563,20 +374,11 @@ void PrintSpriteOverlays ( char num )
 			}
 		
 			if ( !cur->angle )
-			{
 				DrawSprite ( cur );
-			}
 			else
-			{
 				DrawSpriteOverlayRotating ( cur );
-			}
-			// ENDELSEIF
 		}
-		// ENDIF
-
-
 	}
-	// ENDFOR
 }
 
 TextureType *tileTexture = NULL;
@@ -603,7 +405,6 @@ void DrawTiledBackdrop(int scroll)
 	{
 		for(y = -1;y < yTile + 1;y++)
 		{
-
 			atbdx = (x*xRes)/xTile - xRes/2 + xScroll;
 			atbdy = (y*yRes)/yTile - yRes/2 + yScroll;
 
@@ -631,18 +432,6 @@ void DrawTiledBackdrop(int scroll)
 			ft4->tpage = tileTexture->tpage;
 			ft4->clut = tileTexture->clut;
 			ENDPRIM(ft4, 1023, POLY_FT4);
-
-
-
-/*
-
-			r.left = (x*xRes)/xTile + xScroll;
-			r.right = ((x+1)*xRes)/xTile + xScroll;
-			r.top = (y*yRes)/yTile + yScroll;
-			r.bottom = ((y+1)*yRes)/yTile + yScroll;
-
-			DrawTexturedRect(r,D3DRGBA(1,1,1,1),((MDX_TEXENTRY *)tileTexture)->surf,0,0,1,1);
-*/
 		}
 	}
 	if(scroll)

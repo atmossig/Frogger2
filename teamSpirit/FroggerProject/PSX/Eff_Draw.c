@@ -209,8 +209,9 @@ void DrawShadow( SVECTOR *pos, FVECTOR *normal, long size, long offset, long alp
 	fx.flags = SPRITE_SUBTRACTIVE;
 	fx.a = alpha;
 	fx.zDepthOff = -18;	//bring the shadow closer to the camera
+	fx.r = fx.g = fx.b = 0;
 
-	Print3D3DSprite ( &fx, vT, colour );
+	Print3D3DSprite( &fx, vT );
 }
 
 
@@ -225,9 +226,9 @@ void DrawFXDecal( SPECFX *ripple )
 	long i;
 
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
-	colour = ripple->r>>1;
-	colour += (ripple->g>>1)<<8;
-	colour += (ripple->b>>1)<<16;
+//	colour = ripple->r>>1;
+//	colour += (ripple->g>>1)<<8;
+//	colour += (ripple->b>>1)<<16;
 
 //set the size of the effect
 	vT[0].vx = (ripple->scale.vx>>12);
@@ -279,11 +280,7 @@ void DrawFXDecal( SPECFX *ripple )
 
 	}
 
-//	#ifdef PSX_VERSION
-	Print3D3DSprite ( ripple, vT, colour );
-//	#else
-//	Print3D3DSprite ( ripple->tex, vT, colour,ripple->a );
-//	#endif
+	Print3D3DSprite ( ripple, vT );
 }
 
 
@@ -330,7 +327,7 @@ void DrawFXRing(SPECFX *fx)
 
 	// Rotate to be around normal
 	CrossProductFFF((FVECTOR*)&cross, (FVECTOR*)&q1, &upVec);
-	MakeUnit(&cross);
+	MakeUnit((FVECTOR *)&cross);
 	t = DotProductFF((FVECTOR*)&q1, &upVec);
 	cross.w = -arccos(t);
 //	GetQuaternionFromRotation( &q3, &cross );
@@ -552,9 +549,9 @@ void DrawFXTrail( SPECFX *trail )
 
 
 //PUTS THE SPRITES RGB'S IN COLOUR, FIRST HALVING THEIR VALUES
-	colour = trail->r>>1;
-	colour += (trail->g>>1)<<8;
-	colour += (trail->b>>1)<<16; 
+//	colour = trail->r>>1;
+//	colour += (trail->g>>1)<<8;
+//	colour += (trail->b>>1)<<16; 
  
  	do
  	{
@@ -585,12 +582,7 @@ void DrawFXTrail( SPECFX *trail )
 		vT[3].vy += trail->origin.vy;
 		vT[3].vz += trail->origin.vz;
 
-//		#ifdef PSX_VERSION
-		Print3D3DSprite ( trail, vT, colour );
-//		#else
-//		Print3D3DSprite ( trail->tex, vT, colour,ripple->a );
-//		#endif
-
+		Print3D3DSprite ( trail, vT );
  
  		if( ++i >= trail->numP ) i=0;
  
