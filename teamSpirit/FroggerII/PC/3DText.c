@@ -36,7 +36,8 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	
 	t3d->radius = (float)w / tmp;
 	t3d->prev = t3d->next = NULL;
-	t3d->string = str;
+	t3d->string = (char *)JallocAlloc(len+1,YES,"String");
+	sprintf( t3d->string, "%s\0", str );
 	t3d->vR = r;
 	t3d->vG = g;
 	t3d->vB = b;
@@ -61,6 +62,8 @@ void CreateAndAdd3DText( char *str, unsigned long w, char r, char g, char b, cha
 	t->next->prev = t3d;
 	t->next = t3d;
 	text3DList.numEntries++;
+
+	t3d->motion |= T3D_CREATED;
 }
 
 
@@ -103,7 +106,7 @@ void Print3DText( )
 
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
-		if( !(t3d->motion & T3D_CALCULATED) )
+		if( !((t3d->motion & T3D_CALCULATED) && (t3d->motion & T3D_CREATED)) )
 			continue;
 		
 		len = strlen(t3d->string);
@@ -168,6 +171,9 @@ void Calculate3DText( )
 	
 	for( t3d=text3DList.head.next; t3d!=&text3DList.head; t3d=t3d->next )
 	{
+		if( !(t3d->motion & T3D_CREATED) )
+			continue;
+
 		if( t3d->type == T3D_CIRCLE )
 			MakeTextCircle( t3d );
 		else
@@ -828,6 +834,9 @@ void Free3DTextList( )
 		if( t3d != NULL )
 		{
 			Sub3DText( t3d );
+
+			JallocFree( (UBYTE **)&t3d->string );
+			JallocFree( (UBYTE **)&t3d->vT );
 
 			t = t3d->next;
 			JallocFree( (UBYTE **)&t3d );
