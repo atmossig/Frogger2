@@ -743,20 +743,20 @@ void DrawTongue( int pl )
 		if( vT[0].sz && vT[1].sz && vT[2].sz && vT[3].sz )
 		{
 			vT[0].specular = D3DRGB(0,0,0);
-			vT[0].tu = 1;
-			vT[0].tv = 1;
+			vT[0].tu = 0;
+			vT[0].tv = 0;
 			vT[0].rhw = 1;
 			vT[1].specular = vT[0].specular;
-			vT[1].tu = 0;
-			vT[1].tv = 1;
+			vT[1].tu = 1;
+			vT[1].tv = 0;
 			vT[1].rhw = 1;
 			vT[2].specular = vT[0].specular;
-			vT[2].tu = 0;
-			vT[2].tv = 0;
+			vT[2].tu = 1;
+			vT[2].tv = 1;
 			vT[2].rhw = 1;
 			vT[3].specular = vT[0].specular;
-			vT[3].tu = 1;
-			vT[3].tv = 0;
+			vT[3].tu = 0;
+			vT[3].tv = 1;
 			vT[3].rhw = 1;
 
 			Clip3DPolygon( vT, tEntry );
@@ -802,7 +802,7 @@ void CalcTongueNodes( D3DTLVERTEX *vT, int pl, int i )
 	vT[0].sx = p2.vx*ONEOVERFIXED;
 	vT[0].sy = p2.vy*ONEOVERFIXED;
 	vT[0].sz = p2.vz*ONEOVERFIXED;
-	vT[0].color = D3DRGBA(1,0,0,1);
+	vT[0].color = D3DRGBA(1,0.5,0.5,1);
 
 	p1.vx = (i)?(20480-(i*1638)):0;
 	p1.vy = 0;
