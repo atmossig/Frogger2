@@ -355,7 +355,13 @@ void UpdateFXSmoke( SPECFX *fx )
 
 	fo = fx->fade * gameSpeed;
 	if( fx->sprites->a > fo ) fx->sprites->a -= fo;
-	else fx->sprites->a = 0;
+	else
+	{
+		if( fx->type == FXTYPE_JUMPBLUR )
+			fx->sprites->a = 255;
+		else
+			fx->sprites->a = 0;
+	}
 
 	AddToVector( &fx->sprites->pos,&fx->vel );
 	fx->vel.v[X] *= 0.95;
@@ -369,8 +375,8 @@ void UpdateFXSmoke( SPECFX *fx )
 	}
 	else if( fx->type == FXTYPE_JUMPBLUR )
 	{
-		fx->sprites->scaleX-=gameSpeed/2;
-		fx->sprites->scaleY-=gameSpeed/2;
+		fx->sprites->scaleX--;
+		fx->sprites->scaleY--;
 	}
 
 	if( (actFrameCount > fx->lifetime) && !fx->deadCount )
