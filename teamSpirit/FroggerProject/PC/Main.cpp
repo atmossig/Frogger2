@@ -77,7 +77,7 @@ char baseDirectory[MAX_PATH] = "X:\\TeamSpirit\\pcversion\\";
 
 char lButton = 0, rButton = 0;
 int editorOk = 0;
-
+char screenshotEnable = 0;
 
 float camY = 100,camZ = 100;
 extern "C" {MDX_LANDSCAPE *world;}
@@ -202,6 +202,11 @@ void GetArgs(char *arglist)
 
 					case 'S': case 's':
 						sortMode = MA_SORTBACKFRONT;
+						break;
+
+					case 'I': case 'i':
+						screenshotEnable = !screenshotEnable;
+						utilPrintf("Screenshot mode is %s\n",screenshotEnable?"enabled":"disabled");
 						break;
 
 					case ' ':
@@ -607,8 +612,10 @@ long DrawLoop(void)
 	BeginDraw();
 	EndDraw();
 
-	if (KEYPRESS(DIK_F9))
-		ScreenShot();
+	if( screenshotEnable )
+		if (KEYPRESS(DIK_F9))
+			ScreenShot();
+
 	DDrawFlip();
 	EndTimer(17);
 	StartTimer(18,"Clear");
