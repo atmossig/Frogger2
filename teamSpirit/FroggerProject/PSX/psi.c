@@ -1738,7 +1738,7 @@ static void psiSortPrimitives()
 	RETURNS:	
 **************************************************************************/
 
-static void psiDrawSortedPrimitives(int depth)
+/*static void psiDrawSortedPrimitives(int depth)
 {
 	register PACKET*		packet;
 	register long			*tfv = transformedVertices;
@@ -1773,7 +1773,7 @@ static void psiDrawSortedPrimitives(int depth)
 		switch (opcd->cd & (0xff-2))
 		{
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT3*)packet)
+/*#define si ((POLY_FT3*)packet)
 #define op ((TMD_P_FT3I*)opcd)
 
 			case GPU_COM_TF3:
@@ -1816,7 +1816,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 				
 				case GPU_COM_TF4:
@@ -1862,7 +1862,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT3*)packet)
+/*#define si ((POLY_GT3*)packet)
 #define op ((TMD_P_GT3I*)opcd)
 
 			case GPU_COM_TG3:
@@ -1909,7 +1909,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT4*)packet)
+/*#define si ((POLY_GT4*)packet)
 #define op opcd
 
 			case GPU_COM_TG4:
@@ -1972,7 +1972,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 
 			case GPU_COM_TF4SPR :
@@ -1985,7 +1985,7 @@ static void psiDrawSortedPrimitives(int depth)
 	bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
 	so we have to do the scaling based on the distance ourselves.
 */
-				width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+/*				width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
 				height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
@@ -2009,7 +2009,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G4*)packet)
+/*#define si ((POLY_G4*)packet)
 #define op ((TMD_P_FG4I*)opcd)
 			case GPU_COM_G4:
 			case GPU_COM_F4:
@@ -2067,7 +2067,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G3*)packet)
+/*#define si ((POLY_G3*)packet)
 #define op ((TMD_P_FG3I*)opcd)
 			
 			case GPU_COM_G3:
@@ -2114,7 +2114,7 @@ static void psiDrawSortedPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-		default:
+/*		default:
 			break;
 		}
 	}
@@ -2127,7 +2127,7 @@ static void psiDrawSortedPrimitives(int depth)
 	RETURNS:	
 **************************************************************************/
 
-void psiDrawPrimitives(int depth)
+/*void psiDrawPrimitives(int depth)
 {
 	register PACKET*		packet;
 	register long *tfv = transformedVertices;
@@ -2159,7 +2159,7 @@ void psiDrawPrimitives(int depth)
 		switch (opcd->cd & (0xff-2))
 		{
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT3*)packet)
+/*#define si ((POLY_FT3*)packet)
 #define op ((TMD_P_FT3I*)opcd)
 		case GPU_COM_TF3:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -2213,7 +2213,7 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 		case GPU_COM_TF4:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -2270,7 +2270,7 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT3*)packet)
+/*#define si ((POLY_GT3*)packet)
 #define op ((TMD_P_GT3I*)opcd)
 		case GPU_COM_TG3:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))	
@@ -2330,7 +2330,7 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_GT4*)packet)
+/*#define si ((POLY_GT4*)packet)
 #define op opcd
 		case GPU_COM_TG4:
 			if((tfd[op->v2] > modctrl->nearclip) && (tfd[op->v2] < modctrl->farclip))
@@ -2404,7 +2404,7 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_FT4*)packet)
+/*#define si ((POLY_FT4*)packet)
 #define op ((TMD_P_FT4I*)opcd)
 		case GPU_COM_TF4SPR :
 			if((tfd[op->v0] > modctrl->nearclip) && (tfd[op->v0] < modctrl->farclip))
@@ -2417,7 +2417,7 @@ void psiDrawPrimitives(int depth)
 	bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
 	so we have to do the scaling based on the distance ourselves.
 */
-				width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+/*				width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
 				height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
@@ -2444,7 +2444,7 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G4*)packet)
+/*#define si ((POLY_G4*)packet)
 #define op ((TMD_P_FG4I*)opcd)
 		case GPU_COM_G4:
 		case GPU_COM_F4:
@@ -2513,7 +2513,7 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-#define si ((POLY_G3*)packet)
+/*#define si ((POLY_G3*)packet)
 #define op ((TMD_P_FG3I*)opcd)
 			
 		case GPU_COM_G3:
@@ -2572,13 +2572,13 @@ void psiDrawPrimitives(int depth)
 #undef si
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
-			default:
+	/*		default:
 				break;
 		}
 		primsleft--;
 	}
 }
-
+*/
 
 
 /**************************************************************************

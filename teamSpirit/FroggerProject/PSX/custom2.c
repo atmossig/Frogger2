@@ -287,8 +287,11 @@ void customDrawPrimitives2 ( int depth )
 		so we have to do the scaling based on the distance ourselves.
 	*/
 
-					width = ((op->v2 * gteH) / (tfd[op->v0]));
-					height = ((op->v3 * gteH) / (tfd[op->v0]));
+					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
+
+					//width = ((op->v2 * gteH) / (tfd[op->v0]));
+					//height = ((op->v3 * gteH) / (tfd[op->v0]));
 
 					// JH : Temp Fix
 					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
@@ -723,8 +726,11 @@ void LSCAPE_DrawSortedPrimitives ( int depth )
 	bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
 	so we have to do the scaling based on the distance ourselves.
 */
-				width = ((op->v2 * gteH) / tfd[op->v0]);
-				height = ((op->v3 * gteH) / tfd[op->v0]);
+				//width = ((op->v2 * gteH) / tfd[op->v0]);
+				//height = ((op->v3 * gteH) / tfd[op->v0]);
+
+					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 				*(u_long *)&si->u0 = *(u_long *)&op->tu0;
@@ -1111,8 +1117,11 @@ void DrawSortedPrimitivesFaded ( int depth )
 		so we have to do the scaling based on the distance ourselves.
 	*/
 
-					width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
-					height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
+					//width = ((op->v2 * gteH) / tfd[op->v0]) / 2;
+					//height = ((op->v3 * gteH) / tfd[op->v0]) / 4;
+
+					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
 
 	 				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 					*(u_long *)&si->u0 = *(u_long *)&op->tu0;
@@ -1165,6 +1174,7 @@ void dcache_LSCAPE_DrawSortedPrimitives ( int depth, long *tfv )
 //	u_long t1;
 
 	int						gteH;
+	long				clipflag;
 
 
 	gte_ReadGeomScreen(&gteH);
@@ -1366,6 +1376,266 @@ void dcache_LSCAPE_DrawSortedPrimitives ( int depth, long *tfv )
 #undef siNext
 #undef op
 /*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_G3*)packet)
+#define op ((TMD_P_FG3I*)opcd)
+
+			case GPU_COM_G3:
+
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					//polyCount ++;	
+				BEGINPRIM(si, POLY_G3);
+
+//				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+				
+				/**(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);*/
+
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+
+
+				//*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
+
+				// JH : Temp Fix.........
+
+ 				gte_nclip_b();	// takes 8 cycles
+		
+
+				gte_stopz(&clipflag);
+
+				if ( !(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) ) break;									// Back face culling
+
+				gte_stsxy3_g3(si);
+
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
+
+// 				si->r0 = ( op->r0 * 128 ) >> 8;
+// 				si->g0 = ( op->g0 * 128 ) >> 8;
+// 				si->b0 = ( op->b0 * 128 ) >> 8;
+// 
+// 				si->r1 = ( op->r1 * 128 ) >> 8;
+// 				si->g1 = ( op->g1 * 128 ) >> 8;
+// 				si->b1 = ( op->b1 * 128 ) >> 8;
+// 
+// 				si->r2 = ( op->r2 * 128 ) >> 8;
+// 				si->g2 = ( op->g2 * 128 ) >> 8;
+// 				si->b2 = ( op->b2 * 128 ) >> 8;
+
+				// SL: put in the additive poly...
+				setPolyG3(si);
+
+
+				si->code = op->cd | modctrl->semitrans;
+				ENDPRIM(si, depth, POLY_G3);
+
+				op = op->next;
+				}
+				break;
+#undef si
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_G4*)packet)
+#define op ((TMD_P_FG4I*)opcd)
+
+			case GPU_COM_G4:
+
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					//polyCount ++;	
+				BEGINPRIM(si, POLY_G4);
+
+//				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+				
+				/**(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);*/
+
+				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
+
+				//*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
+
+				// JH : Temp Fix.........
+
+ 				gte_nclip_b();	// takes 8 cycles
+		
+
+				gte_stopz(&clipflag);
+
+				if ( !(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) ) break;									// Back face culling
+
+				gte_stsxy3_g4(si);
+
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+
+
+
+// 				si->r0 = ( op->r0 * 128 ) >> 8;
+// 				si->g0 = ( op->g0 * 128 ) >> 8;
+// 				si->b0 = ( op->b0 * 128 ) >> 8;
+// 
+// 				si->r1 = ( op->r1 * 128 ) >> 8;
+// 				si->g1 = ( op->g1 * 128 ) >> 8;
+// 				si->b1 = ( op->b1 * 128 ) >> 8;
+// 
+// 				si->r2 = ( op->r2 * 128 ) >> 8;
+// 				si->g2 = ( op->g2 * 128 ) >> 8;
+// 				si->b2 = ( op->b2 * 128 ) >> 8;
+
+				// SL: put in the additive poly...
+				setPolyG4(si);
+
+
+				si->code = op->cd | modctrl->semitrans;
+				ENDPRIM(si, depth, POLY_G4);
+
+				op = op->next;
+				}
+				break;
+#undef si
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+
+
+
+#define si ((POLY_F3*)packet)
+#define op ((TMD_P_FG3I*)opcd)
+
+			case GPU_COM_F3:
+
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					//polyCount ++;	
+				BEGINPRIM(si, POLY_F3);
+
+//				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+				
+				/**(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);*/
+
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+
+
+				//*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
+
+				// JH : Temp Fix.........
+
+ 				gte_nclip_b();	// takes 8 cycles
+		
+
+				gte_stopz(&clipflag);
+
+				if ( !(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) ) break;									// Back face culling
+
+				gte_stsxy3_f3(si);
+
+//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
+
+// 				si->r0 = ( op->r0 * 128 ) >> 8;
+// 				si->g0 = ( op->g0 * 128 ) >> 8;
+// 				si->b0 = ( op->b0 * 128 ) >> 8;
+// 
+// 				si->r1 = ( op->r1 * 128 ) >> 8;
+// 				si->g1 = ( op->g1 * 128 ) >> 8;
+// 				si->b1 = ( op->b1 * 128 ) >> 8;
+// 
+// 				si->r2 = ( op->r2 * 128 ) >> 8;
+// 				si->g2 = ( op->g2 * 128 ) >> 8;
+// 				si->b2 = ( op->b2 * 128 ) >> 8;
+
+				// SL: put in the additive poly...
+				setPolyF3(si);
+
+
+				si->code = op->cd | modctrl->semitrans;
+				ENDPRIM(si, depth, POLY_F3);
+
+				op = op->next;
+				}
+				break;
+#undef si
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_G4*)packet)
+#define op ((TMD_P_FG4I*)opcd)
+
+			case GPU_COM_F4:
+
+				if((tfd[op->v0] > modctrl->nearclip-80) && (tfd[op->v0] < modctrl->farclip))
+				{
+					//polyCount ++;	
+				BEGINPRIM(si, POLY_G4);
+
+//				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+				
+				/**(u_long *)  (&si->u0) = *(u_long *) (&op->tu0);		// Texture coords
+				*(u_long *)  (&si->u1) = *(u_long *) (&op->tu1);*/
+
+				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
+
+				//*(u_long *)  (&si->u2) = *(u_long *) (&op->tu2);
+
+				// JH : Temp Fix.........
+
+ 				gte_nclip_b();	// takes 8 cycles
+		
+
+				gte_stopz(&clipflag);
+
+				if ( !(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) ) break;									// Back face culling
+
+				gte_stsxy3_f4(si);
+
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+
+
+
+// 				si->r0 = ( op->r0 * 128 ) >> 8;
+// 				si->g0 = ( op->g0 * 128 ) >> 8;
+// 				si->b0 = ( op->b0 * 128 ) >> 8;
+// 
+// 				si->r1 = ( op->r1 * 128 ) >> 8;
+// 				si->g1 = ( op->g1 * 128 ) >> 8;
+// 				si->b1 = ( op->b1 * 128 ) >> 8;
+// 
+// 				si->r2 = ( op->r2 * 128 ) >> 8;
+// 				si->g2 = ( op->g2 * 128 ) >> 8;
+// 				si->b2 = ( op->b2 * 128 ) >> 8;
+
+				// SL: put in the additive poly...
+				setPolyF4(si);
+
+
+				si->code = op->cd | modctrl->semitrans;
+				ENDPRIM(si, depth, POLY_G4);
+
+				op = op->next;
+				}
+				break;
+#undef si
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+
+
+
+
+
+
+
+
+
 #define si ((POLY_GT4*)packet)
 #define siNext ((POLY_GT4*)packetNext)
 #define op opcd
@@ -1447,8 +1717,11 @@ void dcache_LSCAPE_DrawSortedPrimitives ( int depth, long *tfv )
 	bone the sprite is attached to, hence we can't rtps the vertex and get the scaled width/height,
 	so we have to do the scaling based on the distance ourselves.
 */
-				width = ((op->v2 * gteH) / tfd[op->v0]);
-				height = ((op->v3 * gteH) / tfd[op->v0]);
+				//width = ((op->v2 * gteH) / tfd[op->v0]);
+				//height = ((op->v3 * gteH) / tfd[op->v0]);
+
+					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
 
  				*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
 				*(u_long *)&si->u0 = *(u_long *)&op->tu0;
@@ -1709,8 +1982,11 @@ void dcacheCustomDrawPrimitives2 ( int depth, long *tfv, long *tfd )
 		so we have to do the scaling based on the distance ourselves.
 	*/
 
-					width = ((op->v2 * gteH) / (tfd[op->v0]));
-					height = ((op->v3 * gteH) / (tfd[op->v0]));
+					//width = ((op->v2 * gteH) / (tfd[op->v0]));
+					//height = ((op->v3 * gteH) / (tfd[op->v0]));
+
+					width = (((op->v2 * gteH) / (tfd[op->v0]))*2)/3;
+					height = (((op->v3 * gteH) / (tfd[op->v0]))*2)/6;
 
 					// JH : Temp Fix
 					*(u_long *)&si->r0 = *(u_long *)&op->r0;			// Texture coords / colors
@@ -1738,7 +2014,6 @@ void dcacheCustomDrawPrimitives2 ( int depth, long *tfv, long *tfd )
 #define si ((POLY_G4*)packet)
 #define op ((TMD_P_FG4I*)opcd)
 			case GPU_COM_G4:
-			case GPU_COM_F4:
 				
 				BEGINPRIM(si, POLY_G4);
    			
@@ -1787,7 +2062,6 @@ void dcacheCustomDrawPrimitives2 ( int depth, long *tfv, long *tfd )
 #define op ((TMD_P_FG3I*)opcd)
 			
 			case GPU_COM_G3:
-			case GPU_COM_F3:
 
 				BEGINPRIM(si, POLY_G3);
    			
@@ -1827,6 +2101,99 @@ void dcacheCustomDrawPrimitives2 ( int depth, long *tfv, long *tfd )
 				si->code = op->cd | modctrl->semitrans;
 
 				ENDPRIM(si, depth, POLY_G3);
+				break;
+#undef si
+#undef op
+#define si ((POLY_F4*)packet)
+#define op ((TMD_P_FG4I*)opcd)
+			case GPU_COM_F4:
+				
+				BEGINPRIM(si, POLY_F4);
+   			
+//				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+
+				*(u_long *)  (&si->x3) = *(u_long *) (&tfv[op->v3]);
+ 
+ 				gte_nclip_b();	// takes 8 cycles
+		
+
+				gte_stopz(&clipflag);
+
+				// Back face culling
+				if ( !(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) ) break;									// Back face culling
+				
+				gte_stsxy3_g4(si);
+
+
+//bbxx - it's drawing all F4's as G4's.
+//bbopt - perhaps a separate case for the F4's
+//will be faster, cos of less rgtb copies
+				//no lighting
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+//				*(u_long *)  (&si->r3) = *(u_long *) (&op->r3);
+
+				setPolyF4(si);
+//				if ( globalClut )
+//				{
+//					si->clut	= globalClut;
+//				}
+
+				// ENDIF
+				si->code = op->cd | modctrl->semitrans;
+
+				modctrl->polysdrawn++;
+
+				ENDPRIM(si, depth, POLY_F4);
+				break;
+#undef si
+#undef op
+/*-----------------------------------------------------------------------------------------------------------------*/
+#define si ((POLY_F3*)packet)
+#define op ((TMD_P_FG3I*)opcd)
+			
+			case GPU_COM_F3:
+
+				BEGINPRIM(si, POLY_F3);
+   			
+//				gte_ldsxy3(GETV(op->v0), GETV(op->v1), GETV(op->v2));		// Load 1st three vertices
+				gte_ldsxy3(tfv[op->v0], tfv[op->v1], tfv[op->v2]);		// Load 1st three vertices
+
+ 
+				*(u_long *)  (&si->r0) = *(u_long *) (&op->r0);
+//				si->r0 = op->r0 >> 1;
+ 				gte_nclip_b();	// takes 8 cycles
+		
+
+				gte_stopz(&clipflag);
+
+	//			if (clipflag >= 0) break; 								// Back face culling
+				if ( !(op->dummy & psiDOUBLESIDED) && (clipflag >= 0) ) break;									// Back face culling
+				
+				gte_stsxy3_g3(si);
+
+
+//bbxx - F3's only have 1 rgb
+//bbopt - perhaps a separate case for the F4's
+//will be faster, cos of less rgtb copies
+				//no lighting
+//				*(u_long *)  (&si->r1) = *(u_long *) (&op->r1);
+//				*(u_long *)  (&si->r2) = *(u_long *) (&op->r2);
+
+				modctrl->polysdrawn++;
+
+				setPolyF3(si);
+//				if ( globalClut )
+//				{
+//					si->clut	= globalClut;
+//				}
+
+				// ENDIF
+				si->code = op->cd | modctrl->semitrans;
+
+				ENDPRIM(si, depth, POLY_F3);
 				break;
 #undef si
 #undef op

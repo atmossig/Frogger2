@@ -43,6 +43,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 					// ENDIF
 
 //					CreateAndAddScenicObject(cur);
+					utilUpperStr ( cur->name );
 					CreateAndAddWaterObject ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, flags );
 
 				}
@@ -66,12 +67,14 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 									( compare = strstr ( cur->name, "wart" ) )|| ( compare = strstr ( cur->name, "twee" ) )||
 									( compare = strstr ( cur->name, "swampy" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "glass" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
+									( compare = strstr ( cur->name, "ancnt2" ) )|| ( compare = strstr ( cur->name, "robofrog" ) )||
 									( compare = strstr ( cur->name, "window" ) )|| ( compare = strstr ( cur->name, "anspike" ) )  ) 
 				{
 					CreateAndAddScenicObject(cur);
 				}
 				else
 				{
+					utilUpperStr ( cur->name );
 					theActor = CreateAndAddActor ( cur->name, cur->pos.vx, cur->pos.vy, cur->pos.vz, INIT_ANIMATION, 0, 0 );
 
 					if ( ( compare = strstr ( cur->name,"BACKDROP" ) ) )
