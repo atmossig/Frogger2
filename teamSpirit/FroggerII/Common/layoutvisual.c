@@ -709,9 +709,9 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	{
 		if (player[0].levelNum == LEVELID_FRONTEND1)
 		{
-//			runAttractMode = attractTime;
+			runAttractMode = attractTime;
 			// Matt, could you PLEASE make these things so they can be turned off?
-			runAttractMode = 2147483647;
+//			runAttractMode = 2147483647;
 
 #ifdef PC_VERSION
 			InitCredits();			
