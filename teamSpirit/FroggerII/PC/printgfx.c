@@ -998,7 +998,7 @@ void CalcTrailPoints( D3DTLVERTEX *vT, SPECFX *trail, int i )
 	}
 
 	// Precalculated rotation
-	PushMatrix( trail->particles[i].rMtrx );
+	PushMatrix( (MATRIX *)trail->particles[i].rMtrx );
 
 	vT[0].sx = trail->particles[i].poly[0].v[X];
 	vT[0].sy = trail->particles[i].poly[0].v[Y];
