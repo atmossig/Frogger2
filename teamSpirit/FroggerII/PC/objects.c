@@ -452,6 +452,10 @@ BOOL LoadObjectBank(int num)
 			strcat (file,"lab3");
 			break;
 
+		case LABORATORYMULTI_OBJ_BANK:
+			strcat (file,"labmulti");
+			break;
+
 		case FRONTEND_OBJ_BANK:
 			strcat(file,"title");
 			break;

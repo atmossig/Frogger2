@@ -17,7 +17,8 @@
 #define DEFAULT_SFX_DIST	500
 
 #define VOLUME_MIN		-5000
-#define VOLUME_PERCENT VOLUME_MIN/100
+#define VOLUME_PERCENT (VOLUME_MIN/100)
+#define PITCH_STEP		(DSBFREQUENCY_MAX/255)
 
 SAMPLEMAP genericMapping[] = 
 {
@@ -206,12 +207,14 @@ int PlaySample( short num, VECTOR *pos, long radius, short volume, short pitch )
 
 		AddBufSample( bufSample );
 
+		bufSample->lpdsBuffer->lpVtbl->SetFrequency( bufSample->lpdsBuffer, pitch*PITCH_STEP );
 		bufSample->lpdsBuffer->lpVtbl->SetVolume( bufSample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
 		bufSample->lpdsBuffer->lpVtbl->SetPan( bufSample->lpdsBuffer, pan );
 		bufSample->lpdsBuffer->lpVtbl->Play( bufSample->lpdsBuffer, 0, 0, 0 );
 	}
 	else
 	{
+		sample->lpdsBuffer->lpVtbl->SetFrequency( bufSample->lpdsBuffer, pitch*PITCH_STEP );
 		sample->lpdsBuffer->lpVtbl->SetVolume( sample->lpdsBuffer, VOLUME_MIN+(VOLUME_PERCENT*vol*-1) );
 		sample->lpdsBuffer->lpVtbl->SetPan( sample->lpdsBuffer, pan );
 		sample->lpdsBuffer->lpVtbl->Play( sample->lpdsBuffer, 0, 0, 0 );
