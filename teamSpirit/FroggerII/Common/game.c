@@ -599,7 +599,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 		if (gstrcmp(ts->name,"world.ndo") == 0 || gstrcmp(ts->name,"world.obe") == 0)
 		{
-			theActor->flags |= ACTOR_DRAW_ALWAYS;
+			theActor->flags = ACTOR_DRAW_ALWAYS;
 			globalLevelActor = theActor;
 		}
 		
@@ -1106,15 +1106,15 @@ void RunGameLoop (void)
 			if (frog[i]->actor)
 			{
 				if (frog[i]->action.healthPoints > 0)
-					frog[i]->actor->xluOverride=100;
+					frog[i]->draw = 1;
 				else
-					frog[i]->actor->xluOverride=0;
+					frog[i]->draw = 0;
 
 			} 
 			if (frog[i]->action.safe) 
 			{
 				if ((frameCount % 2)==0)
-					frog[i]->actor->xluOverride=0;
+					frog[i]->draw = 0;
 				frog[i]->action.safe--;
 			}  
 
