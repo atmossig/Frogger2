@@ -857,7 +857,7 @@ void DrawEditorArrow(int x1, int y1, int x2, int y2, float width, D3DCOLOR col)
 void DrawEditorIcon(int x, int y, int n, BOOL disabled)
 {
 	int page, row, col;
-	RECT r = { x, y, x+15, y+15 };
+	RECT r = { x, y, x+16, y+16 };
 
 	if (n < 0) return;
 

@@ -338,6 +338,13 @@ void LoadGame(void)
 	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
 	
 	fp = fopen(file,"rb");
+	
+	if (!fp)
+	{
+		utilPrintf("Couldn't load savegame %s\n", file);
+		return;
+	}
+
 	fread(&hdr,2,1,fp);
 
 	if ((hdr[0] == 'M') && (hdr[1] == 'T'))
@@ -366,6 +373,12 @@ void SaveGame(void)
 	sprintf(file,"%s%s.fsg",baseDirectory,saveName);
 	
 	fp = fopen(file,"wb");
+	if (!fp)
+	{
+		utilPrintf("Couldn't save savegame %s\n", file);
+		return;
+	}
+
 	fwrite(&hdr,2,1,fp);
 
 	for (int i = 0; i<MAX_WORLDS; i++)
