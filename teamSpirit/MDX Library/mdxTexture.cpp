@@ -427,10 +427,12 @@ MDX_TEXENTRY *AddTextureToTexList(char *file, char *shortn, long finalTex)
 */
 void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSURFACE7 srf)
 {
-	HRESULT res;
+//	if( !texture )
+//		return;
 
 	short tempdata[256*256];
 	long xS,yS,mPitch,j;
+	HRESULT res;
 	
 	if (texture)
 	{
@@ -440,7 +442,6 @@ void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSUR
 		DDSURFACEDESC2		ddsd;
 		DDINIT(ddsd);
 
-		//while (surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR,0)!=DD_OK);
 		if ((res = surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0))==DD_OK)
 		{
 			mPitch = ddsd.lPitch/2;
@@ -455,6 +456,85 @@ void GrabSurfaceToTexture(long x, long y, MDX_TEXENTRY *texture, LPDIRECTDRAWSUR
 		else
 			dp("GrabSurfaceToTexture failed: %d\n", res);
 	}
+
+//	DDSURFACEDESC2 ddsd;
+//	DDINIT(ddsd);
+//	HRESULT res;
+//	RECT r = { 0, 0, texture->xSize-1, texture->ySize-1 };
+//	LPDIRECTDRAWSURFACE7 pSurface;
+
+//	ddsd.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+//	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN;
+//	ddsd.dwHeight = texture->ySize;
+//	ddsd.dwWidth = texture->xSize;
+
+//	if( (res = pDirectDraw7->CreateSurface(&ddsd, &pSurface, NULL)) != DD_OK )
+//	{
+//		ddShowError(res);
+//		return;
+//	}
+	
+//	if( (res = pSurface->Blt( NULL, srf, &r, FALSE, NULL )) != DD_OK )
+//	{
+//		ddShowError(res);
+//		return;
+//	}
+
+//	if( (res = texture->surf->Blt( NULL, pSurface, NULL, FALSE, NULL )) != DD_OK )
+//	{
+//		ddShowError(res);
+//		return;
+//	}
+
+
+
+
+
+
+
+
+
+//	if( (res = texture->surf->Blt( &r, srf, &r, FALSE, NULL )) != DD_OK )
+//		ddShowError(res);
+
+//	if( (res = texture->surf->BltFast( 0, 0, srf, NULL, DDBLTFAST_NOCOLORKEY )) != DD_OK )
+//		ddShowError(res);
+
+
+
+
+
+
+
+
+
+//	HRESULT res;
+
+//	short tempdata[256*256];
+//	long xS,yS,mPitch,j;
+	
+//	if (texture)
+//	{
+//		xS = texture->xSize;
+//		yS = texture->ySize;
+
+//		DDSURFACEDESC2		ddsd;
+//		DDINIT(ddsd);
+
+//		if ((res = surface[RENDER_SRF]->Lock(NULL,&ddsd,DDLOCK_SURFACEMEMORYPTR|DDLOCK_WAIT,0))==DD_OK)
+//		{
+//			mPitch = ddsd.lPitch/2;
+
+//			for (j = 0; j<yS; j++)
+//				memcpy(&tempdata[j*xS],&(((short *)ddsd.lpSurface)[x+(j+y)*mPitch]),xS*2);
+
+//			surface[RENDER_SRF]->Unlock(NULL);
+
+//			DDrawCopyToSurface2(texture->surf,(unsigned short *)tempdata,xS,yS);
+//		}
+//		else
+//			dp("GrabSurfaceToTexture failed: %d\n", res);
+//	}
 
 /*	if only these worked... -ds 
 
