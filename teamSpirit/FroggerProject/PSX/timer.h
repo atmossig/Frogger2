@@ -8,7 +8,26 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+//#define TIMER_SET_0
+//#define TIMER_START0(x) 	 TIMER_START(x)
+//#define TIMER_STOP0(x)  	 TIMER_STOP(x)
+//#define TIMER_STOP_ADD0(x) TIMER_STOP_ADD(x)
+#define TIMER_START0(x)
+#define TIMER_STOP0(x)
+#define TIMER_STOP_ADD0(x)
 
+#define TIMER_SET_1
+#define TIMER_START1(x)    TIMER_START(x)
+#define TIMER_STOP1(x) 	   TIMER_STOP(x)
+#define TIMER_STOP_ADD1(x) TIMER_STOP_ADD(x)
+//#define TIMER_START1(x)
+//#define TIMER_STOP1(x)
+//#define TIMER_STOP_ADD1(x)
+
+
+
+
+#ifdef TIMER_SET_0
 enum {
 	TIMER_TOTAL,
 	TIMER_GAMELOOP,
@@ -23,11 +42,9 @@ enum {
 	TIMER_PROCTEX,
 	TIMER_DRAWSYNC,
 	TIMER_TIMERS,
-	UPDATE_ENEMIES,
 
 	TIMER_NUMTIMERS
 };
-
 
 #define TIMER_NAMES	   	"TOTAL", \
 						"GAMELOOP", \
@@ -41,8 +58,21 @@ enum {
 						"PRINT_OVERS", \
 						"PROCTEX", \
 						"DRAWSYNC", \
-						"TIMERS", \
-						"ENEMY"
+						"TIMERS"
+#endif //TIMER_SET_0
+
+
+#ifdef TIMER_SET_1
+enum {
+	TIMER_TOTAL,
+	TIMER_TIMERS,
+
+	TIMER_NUMTIMERS
+};
+
+#define TIMER_NAMES	   	"TOTAL", \
+						"TIMERS"
+#endif //TIMER_SET_1
 
 
 

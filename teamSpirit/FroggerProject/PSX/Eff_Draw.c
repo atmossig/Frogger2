@@ -87,6 +87,7 @@ void ProcessShadows()
 		if( !nme->active || !nme->nmeActor )
 			continue;
 
+		//bbopt - use clipped flag
 		if(nme->nmeActor->actor->shadow && nme->inTile && nme->nmeActor->distanceFromFrog < ACTOR_DRAWDISTANCEINNER )
 		{
 			SubVectorFSS( &vec, &nme->nmeActor->actor->position, &nme->inTile->centre );
