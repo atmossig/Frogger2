@@ -910,6 +910,10 @@ void PrepareSong(short world, short loop)
 {
 	int track;
 
+#ifdef PC_DEMO
+	return;
+#endif
+
 	switch (world)
 	{
 	case WORLDID_GARDEN:		track = GARDEN_CDAUDIO; break;

@@ -372,6 +372,11 @@ void RunPauseMenu()
 			}
 			else if(quittingLevel == 2)
 			{
+#ifdef PC_DEMO
+				gameState.mode = TEASERSCREEN_MODE;
+				return;
+#endif
+
  				if(gameState.oldMode == FRONTEND_MODE)
  				{
 					PostQuitMessage(0);

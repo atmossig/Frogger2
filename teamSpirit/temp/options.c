@@ -2926,3 +2926,37 @@ void RunArtViewer()
 		keepFade = YES;
 	}
 }
+
+
+#define MAX_TEASERS 6
+
+void RunTeaserScreens( )
+{
+	char name[32];
+
+	GTUpdate(&artTimer,-1);
+	
+	if( !artTimer.time || ((!fadingOut) && (padData.digital[0])) )
+	{
+		ScreenFade(255,0,30);
+		keepFade = YES;
+	}
+
+	if( (!fadingOut) && (keepFade) )
+	{
+		FreeBackdrop();
+		if(currentArt == MAX_TEASERS)
+		{
+			PostQuitMessage(0);
+		}
+		else
+		{
+			sprintf(name,"TEASER%d",currentArt);
+			InitBackdrop(name);
+			currentArt++;
+			ScreenFade(0,255,30);
+			GTInit(&artTimer,6);
+			keepFade = NO;
+		}
+	}
+}

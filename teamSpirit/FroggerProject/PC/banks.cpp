@@ -443,6 +443,10 @@ void LoadGame(void)
 	void *info; int size;
 //	FILE *fp;
 
+#ifdef PC_DEMO
+	return;
+#endif
+
 	strcpy(file, baseDirectory);
 	strcat(file, "SaveData\\savegame.dat");
 	
@@ -464,6 +468,10 @@ void SaveGame(void)
 	char file[MAX_PATH];
 	void *info; unsigned long size;
 	FILE *fp;
+
+#ifdef PC_DEMO
+	return;
+#endif
 
 	strcpy(file, baseDirectory);
 	strcat(file, "\\SaveData\\savegame.dat");

@@ -8,6 +8,7 @@
 
 ----------------------------------------------------------------------------------------------- */
 
+#include <windows.h>
 #include <ddraw.h>
 #include <mdxddraw.h>
 #include <islutil.h>
@@ -15,6 +16,8 @@
 #include "Main.h"
 
 short loadProgress;
+
+int CheckUS();
 
 /*	--------------------------------------------------------------------------------
 	Function 	: InitBackdrop
@@ -77,13 +80,30 @@ void FreeBackdrop(void)
 }
 
 
+#ifdef PC_DEMO
+void InitLoadingScreen( const char *filename )
+{
+	char path[64];
+
+	strcpy( path, filename );
+
+	if( CheckUS() )
+		strcat( path, "US" );
+	else
+		strcat( path, "EU" );
+
+	InitBackdrop( filename );
+
+	loadProgress = 0;
+}
+#else
 void InitLoadingScreen( const char *filename )
 {
 	InitBackdrop( filename );
 
 	loadProgress = 0;
 }
-
+#endif
 
 
 
@@ -137,4 +157,27 @@ void UpdateLoadingScreen(short addprog)
 void FreeLoadingScreen( )
 {
 	FreeBackdrop( );
+}
+
+
+// Get local id from registry and use it to check if we're in the US or not
+int CheckUS()
+{
+	HKEY lid;
+	long type, size=32;
+	char data[32];
+	DWORD value;
+
+	if( (RegOpenKeyEx( HKEY_CURRENT_USER, "Control Panel\\International\0", 0, KEY_READ, &lid )) != ERROR_SUCCESS )
+		return TRUE;
+
+	if( (RegQueryValueEx(lid, "Locale", NULL, &type, data, &size)) != ERROR_SUCCESS )
+		return TRUE;
+
+	value = atoi(data);
+
+	if( value == 0x0409 || value == 0x0C0C )
+		return TRUE;
+
+	return FALSE;
 }

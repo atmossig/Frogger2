@@ -674,6 +674,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 	GAMETILE *tempTile;
 
 	// JH : Turn on, the loading screen.
+	// JIM: Learn proper grammar you flid.
 
 #ifdef PC_VERSION
 	pFrameModifier = 0;
@@ -728,7 +729,7 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 //	memoryShow();
 
 #ifndef PSX_VERSION
-	InitLoadingScreen( "LOADING01" );
+	InitLoadingScreen( "LOADING" );
 #endif
 
 	UpdateLoadingScreen( 10 );
@@ -964,7 +965,11 @@ void InitLevel(unsigned long worldID,unsigned long levelID)
 // JH : #ifdefed because we need a cd for this to work, so uncomment when we have one.....................
 #ifdef PC_VERSION
 	if(useAudio)
+#ifdef PC_DEMO
+		PlaySample( FindSample(UpdateCRC("lp_music")), NULL, 0, SAMPLE_VOLUME, -1 );
+#else
 		PrepareSong((short)worldID, 1);		// loop track
+#endif
 #else
 	bb_InitXA();
 	if(useAudio && XAgetStatus())
@@ -1291,8 +1296,14 @@ void CommonInit(void)
 	quitMainLoop = 0;
 	InitMatrixStack();
 
+#ifdef PC_DEMO
+	player[0].worldNum = WORLDID_GARDEN;
+	player[0].levelNum = LEVELID_GARDEN1;
+	gameState.single = STORY_MODE;
+#else
 	player[0].worldNum = WORLDID_FRONTEND;
 	player[0].levelNum = LEVELID_FRONTEND1;
+#endif
 	gameState.multi = SINGLEPLAYER;
 
 	GTInit( &modeTimer, 1 );

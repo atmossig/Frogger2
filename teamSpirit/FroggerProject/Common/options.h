@@ -223,7 +223,9 @@ void ArcadeStart();
 void MPStart();
 void SetMusicVolume();
 void RunArtViewer();
+void RunTeaserScreens( );
 
+extern TIMER artTimer;
 extern u16 optionsLastButton;
 extern char chapterStr[2][32];
 

@@ -35,7 +35,11 @@ extern "C"
 #define MALLOC0(S)	AllocMem(S)
 //#define MALLOC0(S)	calloc(1,(S))
 
+#ifdef PC_DEMO
+#define REGISTRY_KEY "Software\\Atari\\Frogger2Demo"
+#else
 #define REGISTRY_KEY "Software\\Atari\\Frogger2"
+#endif
 
 
 typedef struct TAGWININFO

@@ -143,7 +143,7 @@ long DrawLoop(void)
 {
 	POINT	t;
 
-	if(gameState.mode == ARTVIEWER_MODE || gameState.mode == STARTUP_MODE)
+	if(gameState.mode == ARTVIEWER_MODE || gameState.mode == STARTUP_MODE || gameState.mode == TEASERSCREEN_MODE )
 	{
 		if( rHardware )
 			BeginDraw();

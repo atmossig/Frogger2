@@ -150,6 +150,16 @@ int GetRegistryInformation(void)
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REGISTRY_KEY, 0, KEY_READ, &hkey) != ERROR_SUCCESS)
 	{
+		int n;
+		char *c;
+
+		// Set up the base directory to be the location of the executable
+		GetModuleFileName(NULL, baseDirectory, MAX_PATH);
+
+		for (c=baseDirectory,n=0; *c; c++,n++);
+		for (c--;n;n--,c--)	if (*c == '\\') break;
+		*(c++) = '\\'; *c = 0;
+
 		utilPrintf("Couldn't open registry key\n"); return 0;
 	}
 	else
@@ -873,6 +883,7 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 	// Load the game here, mostly for network mode - ds
 	LoadGame();
 
+#ifndef PC_DEMO
 #ifdef FINAL_MASTER
 	while (!FindFrogger2CD())
 	{
@@ -885,7 +896,8 @@ int PASCAL WinMain(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,i
 #else
 	FindFrogger2CD();
 #endif
-	
+#endif
+
 	SetUserVideoProc(MyInitProc);
 	// Init common controls
 	InitCommonControls();

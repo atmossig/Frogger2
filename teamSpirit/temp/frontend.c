@@ -140,6 +140,9 @@ void GameLoop(void)
 		}
 		else if(!fadingOut)
 		{
+#ifdef PC_DEMO
+			gameState.mode = INGAME_MODE;
+#else
 			StartVideoPlayback(FMV_ATARI_LOGO);
 			if(quitAllVideo == 0)
 			{
@@ -147,9 +150,10 @@ void GameLoop(void)
 				if(quitAllVideo == 0)
 					StartVideoPlayback(FMV_INTRO);
 			}
+			gameState.mode = FRONTEND_MODE;
+#endif
 			actFrameCount = 0;
 			GTInit(&modeTimer,1);
-			gameState.mode = FRONTEND_MODE;
 			InitLevel(player[0].worldNum,player[0].levelNum);
 			return;
 		}
@@ -225,7 +229,9 @@ void GameLoop(void)
 		break;
 #endif
 */
-
+	case TEASERSCREEN_MODE:
+		RunTeaserScreens( );
+		break;
 	}
 
 	frameCount++;
@@ -372,6 +378,11 @@ void RunGameOver( )
 #ifdef E3_DEMO
 		StartE3LevelSelect();
 #else
+
+#ifdef PC_DEMO
+		gameState.mode = TEASERSCREEN_MODE;
+		return;
+#endif
 		gameState.mode = FRONTEND_MODE;
 
 		player[0].lives = numLives[gameState.difficulty];
@@ -1675,6 +1686,20 @@ void RunLevelComplete()
 				}
 
 				FreeTiledBackdrop();
+#ifdef PC_DEMO
+				if (goFrontend || player[0].worldNum == WORLDID_HALLOWEEN)
+				{
+					gameState.mode = TEASERSCREEN_MODE;
+					return;
+				}
+				else
+				{
+					player[0].worldNum = WORLDID_HALLOWEEN;
+					player[0].levelNum = LEVELID_HALLOWEEN2;
+
+					gameState.mode = INGAME_MODE;
+				}
+#else
 				if (goFrontend)
 				{
 					gameState.mode = FRONTEND_MODE;
@@ -1705,6 +1730,7 @@ void RunLevelComplete()
 					// todo: place Frogger 
 					gameState.mode = INGAME_MODE;
 				}
+#endif
 //				FreeAllLists();
 				frameCount = 0;
 
