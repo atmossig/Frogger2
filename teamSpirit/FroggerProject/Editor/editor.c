@@ -338,9 +338,6 @@ void RunEditor(void)
 {
 	POINT p;
 
-	// recalc viewing matrix
-	CalcViewMatrix();
-	
 	//if (editText.active) return;
 
 	// Get mouse pos and scale it to screen coords
@@ -359,6 +356,9 @@ void RunEditor(void)
 
 	EditorMoveCamera();
 
+	// recalc viewing matrix FOR HEAVENS SAKE
+	CalcViewMatrix();
+	
 	if (showX) PlaceEditX(p.x, p.y);
 
 	if (lButton)
@@ -1334,8 +1334,6 @@ void EditorUpdateCamera()
 	camVect.vx = (fixed)(up.vx * 4096);
 	camVect.vy = (fixed)(up.vy * 4096);
 	camVect.vz = (fixed)(up.vz * 4096);
-
-	CalcViewMatrix();
 }
 
 
