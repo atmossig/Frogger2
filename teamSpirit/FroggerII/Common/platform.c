@@ -610,10 +610,17 @@ void CalcPlatformNormalInterps(PLATFORM *pform)
 
 	pform->srcOrientation = pform->pltActor->actor->qRot;
 
-	SubVector(&fwd, &toNode->worldTile->centre, &fromNode->worldTile->centre);
-	MakeUnit(&fwd);
+	if(!(pform->flags & PLATFORM_NEW_FACEFORWARDS))
+	{
+		SubVector(&fwd, &toNode->worldTile->centre, &fromNode->worldTile->centre);
+		MakeUnit(&fwd);
 
-	Orientate(&pform->destOrientation, &fwd, &toNode->worldTile->normal);
+		Orientate(&pform->destOrientation, &fwd, &toNode->worldTile->normal);
+	}
+	else
+	{
+		Orientate( &pform->destOrientation, &pform->path->nodes->worldTile->dirVector[pform->facing], &toNode->worldTile->normal );
+	}
 
 /*	 v v v v This isn't game speed independant at ALL! v v v v
 
@@ -1105,8 +1112,7 @@ int MovePlatformToNode(PLATFORM *plt, int flag)
 		plt->path->endFrame = actFrameCount;
 		plt->Update(plt);
 
-		if( !(plt->flags & PLATFORM_NEW_FACEFORWARDS) )
-			plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
+		plt->pltActor->actor->qRot = plt->srcOrientation = plt->destOrientation;
 	}
 	else
 		dprintf"MoveEnemyToNode(): Flag (%d) out of range\n", flag));
