@@ -80,7 +80,7 @@ int fontFitToWidth(psFont *font, int width, char *text, char *buffer);
 	RETURNS:	
 **************************************************************************/
 
-void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b, int n);
+//void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsigned char g, unsigned char b, int n);
 
 
 /**************************************************************************
@@ -101,7 +101,7 @@ void fontInitButtonSprites();
 **************************************************************************/
 
 void fontRegisterOtherSprites(char code, TextureType *sprite);
-void fontDispSprite(TextureType *tex, short x,short y);
+void fontDispSprite(TextureType *tex, short x,short y,unsigned char r,unsigned char g,unsigned char b,unsigned char alpha);
 
 
 #endif //__ISLFONT_H__

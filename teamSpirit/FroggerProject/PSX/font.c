@@ -214,32 +214,32 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 			switch(*(strPtr+1))
 			{
 			case 'X':
-			    fontDispSprite(buttonSprites[2], x+3,y + yAdd);
+			    fontDispSprite(buttonSprites[2], x+3,y + yAdd,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[2]->w+6;
 				break;
 			case 'C':
-			   	fontDispSprite(buttonSprites[1], x+3,y + yAdd);
+			   	fontDispSprite(buttonSprites[1], x+3,y + yAdd,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[1]->w+6;
 				break;
 			case 'S':
-			   	fontDispSprite(buttonSprites[3], x+3,y + yAdd);
+			   	fontDispSprite(buttonSprites[3], x+3,y + yAdd,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[3]->w+6;
 				break;
 			case 'T':
-			   	fontDispSprite(buttonSprites[0], x+3,y + yAdd);
+			   	fontDispSprite(buttonSprites[0], x+3,y + yAdd,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[0]->w+6;
 				break;
 			case 'L':
-			   	fontDispSprite(buttonSprites[4], x+3,y + yAdd);
+			   	fontDispSprite(buttonSprites[4], x+3,y + yAdd,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[4]->w+6;
 				break;
 			case 'R':
-			   	fontDispSprite(buttonSprites[5], x+3,y + yAdd);
+			   	fontDispSprite(buttonSprites[5], x+3,y + yAdd,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[5]->w+6;
 				break;
@@ -249,7 +249,7 @@ void fontPrint(psFont *font, short x,short y, char *text, unsigned char r, unsig
 			{
 				if((*(strPtr+1)) == otherChars[loop])
 				{
-					fontDispSprite(otherSprites[loop], x+3,y-3);
+					fontDispSprite(otherSprites[loop], x+3,y-3,r,g,b,font->alpha);
 					strPtr++;
 					x += otherSprites[loop]->w+6;
 					break;
@@ -439,22 +439,22 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 			switch(*(strPtr+1))
 			{
 			case 'X':
-			    fontDispSprite(buttonSprites[2], x+3,y-3);
+			    fontDispSprite(buttonSprites[2], x+3,y-3,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[2]->w+6;
 				break;
 			case 'C':
-			   	fontDispSprite(buttonSprites[1], x+3,y-3);
+			   	fontDispSprite(buttonSprites[1], x+3,y-3,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[1]->w+6;
 				break;
 			case 'S':
-			   	fontDispSprite(buttonSprites[3], x+3,y-3);
+			   	fontDispSprite(buttonSprites[3], x+3,y-3,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[3]->w+6;
 				break;
 			case 'T':
-			   	fontDispSprite(buttonSprites[0], x+3,y-3);
+			   	fontDispSprite(buttonSprites[0], x+3,y-3,r,g,b,font->alpha);
 				strPtr++;
 				x += buttonSprites[0]->w+6;
 				break;
@@ -464,7 +464,7 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 			{
 				if((*(strPtr+1)) == otherChars[loop])
 				{
-					fontDispSprite(otherSprites[loop], x+3,y-3);
+					fontDispSprite(otherSprites[loop], x+3,y-3,r,g,b,font->alpha);
 					strPtr++;
 					x += otherSprites[loop]->w+6;
 					break;
@@ -487,12 +487,11 @@ void fontPrintN(psFont *font, short x,short y, char *text, unsigned char r, unsi
 	}
 }
 
-void fontDispSprite(TextureType *tex, short x,short y)
+void fontDispSprite(TextureType *tex, short x,short y,unsigned char r,unsigned char g,unsigned char b,unsigned char alpha)
 {
 	POLY_FT4 	*si;
 	USHORT		w,h;
 
-	
 	BEGINPRIM(si, POLY_FT4);
 
 	w = tex->w;
@@ -507,9 +506,9 @@ void fontDispSprite(TextureType *tex, short x,short y)
 	si->x3 = x+w-1;
 	si->y3 = y+h-1;
 		
-	si->r0 = 128;
-	si->g0 = 128;
-	si->b0 = 128;
+	si->r0 = r;
+	si->g0 = g;
+	si->b0 = b;
 	si->u0 = tex->u0;
 	si->v0 = tex->v0;
 	si->u1 = tex->u1;
@@ -520,10 +519,11 @@ void fontDispSprite(TextureType *tex, short x,short y)
 	si->v3 = tex->v3;
 	si->tpage = tex->tpage;
 	si->clut = tex->clut;
-	si->code  |= 2;
- 	si->tpage |= 32;
 
 	setPolyFT4(si);
+	setSemiTrans(si, (alpha > 0) ? 1 : 0);
+	if(alpha)
+		SETSEMIPRIM(si, alpha);
 	ENDPRIM(si, 4, POLY_FT4);
 }
 

@@ -273,7 +273,7 @@ long DrawFontCharAtLoc(long x,long y,char ch,unsigned long colour, MDX_FONT *fon
 
 long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *font, float scale,long centredX,long centredY)
 {
-	char *str;
+	char *str,*nullStr = "";
 
 	if (!font || !c)
 		return 0;
@@ -302,6 +302,9 @@ long DrawFontStringAtLoc(long x,long y,char *c,unsigned long color, MDX_FONT *fo
 						break;
 					case 'C':
 						str = GAMESTRING(STR_RIGHT_SHIFT);
+						break;
+					default:
+						str = nullStr;
 						break;
 				}
 
