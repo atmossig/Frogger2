@@ -115,7 +115,7 @@ void LoadSfx( unsigned long worldID )
 	switch( worldID )
 	{
 	case WORLDID_GARDEN: strcat( path, "garden\\" ); break;
-	case WORLDID_ANCIENT: strcat( path, "ancient\\" ); break;
+	case WORLDID_ANCIENT: strcat( path, "ancients\\" ); break;
 	case WORLDID_SPACE: strcat( path, "space\\" ); break;
 	case WORLDID_CITY: strcat( path, "city\\" ); break;
 	case WORLDID_SUBTERRANEAN: strcat( path, "sub\\" ); break;
