@@ -1901,15 +1901,16 @@ void RunOptionsMenu(void)
 		if(fadingOut == 0)
 		{
 			gameState.mode = ARTVIEWER_MODE;
-#ifndef PC_VERSION
+
+#ifdef PC_VERSION
+			pFrameModifier = 0;
+#else
 			SpuSetKey(SPU_OFF,0xffffff);
 #endif
+
 			GTInit(&artTimer,10);
 			currentArt = 0;
 			goingToArtViewer = 0;
-#ifdef PC_VERSION
-			pFrameModifier = 0;
-#endif
 		}
 	}
 	else if(!playingFMV)
