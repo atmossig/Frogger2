@@ -523,6 +523,11 @@ int ResetEnemyFlag(ENEMY *e, int flag)	{ e->flags &= ~flag; return 1; }
 int SetPlatformFlag(PLATFORM *p, int flag)		{ p->flags |= flag;	RecalculatePlatform(p); return 1; }
 int ResetPlatformFlag(PLATFORM *p, int flag)	{ p->flags &= ~flag; RecalculatePlatform(p); return 1; }
 
+int CollapsePlatform(PLATFORM *p, int time)
+{
+	p->countdown = time + Random(time / 4); return 1;
+}
+
 /*	--------------------------------------------------------------------------------
     Function		: ExecuteCommand
 	Parameters		: UBYTE*
@@ -916,6 +921,14 @@ BOOL ExecuteCommand(UBYTE **p)
 			unsigned char counter = MEMGETBYTE(p);
 			SCRIPT_VALIDATE_COUNTER(counter);
 			scriptCounters[counter] = MEMGETWORD(p);
+			break;
+		}
+
+	case EV_COLLAPSE_PLAT:
+		{
+			int id = MEMGETWORD(p);
+			int time = MEMGETFLOAT(p) * 60;
+			EnumPlatforms(id, CollapsePlatform, time);
 			break;
 		}
 /*
