@@ -65,6 +65,10 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 		if( DistanceBetweenPointsSquared(&garib->pos, &frog[0]->actor->pos ) > ACTOR_DRAWDISTANCEINNER)
 			continue;
 
+		// Also don't pickup garibs that the frog is trying to tongue
+		if( garib == (GARIB *)tongue[pl].thing )
+			continue;
+
 		if( garib->type == SPAWN_GARIB )
 			check = &garib->pos;
 		else if( garib->type == EXTRAHEALTH_GARIB )
