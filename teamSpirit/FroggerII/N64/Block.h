@@ -14,6 +14,9 @@
 
 #include "define.h" 
 
+#define MAX_LOOKATS	64
+#define MAX_HILITES 64
+
 extern char _staticSegmentStart[];
 extern char __zbufferSegmentStart[];
 extern char _cfbSegmentStart[];
@@ -48,60 +51,6 @@ extern char *_objBank14SegmentRomStart;
 extern char *_objBank14SegmentRomEnd;
 extern char *_objBank15SegmentRomStart;
 extern char *_objBank15SegmentRomEnd;
-extern char *_objBank16SegmentRomStart;
-extern char *_objBank16SegmentRomEnd;
-extern char *_objBank17SegmentRomStart;
-extern char *_objBank17SegmentRomEnd;
-extern char *_objBank18SegmentRomStart;
-extern char *_objBank18SegmentRomEnd;
-extern char *_objBank19SegmentRomStart;
-extern char *_objBank19SegmentRomEnd;
-extern char *_objBank20SegmentRomStart;
-extern char *_objBank20SegmentRomEnd;
-extern char *_objBank21SegmentRomStart;
-extern char *_objBank21SegmentRomEnd;
-extern char *_objBank22SegmentRomStart;
-extern char *_objBank22SegmentRomEnd;
-extern char *_objBank23SegmentRomStart;
-extern char *_objBank23SegmentRomEnd;
-extern char *_objBank24SegmentRomStart;
-extern char *_objBank24SegmentRomEnd;
-extern char *_objBank25SegmentRomStart;
-extern char *_objBank25SegmentRomEnd;
-extern char *_objBank26SegmentRomStart;
-extern char *_objBank26SegmentRomEnd;
-extern char *_objBank27SegmentRomStart;
-extern char *_objBank27SegmentRomEnd;
-extern char *_objBank28SegmentRomStart;
-extern char *_objBank28SegmentRomEnd;
-extern char *_objBank29SegmentRomStart;
-extern char *_objBank29SegmentRomEnd;
-extern char *_objBank30SegmentRomStart;
-extern char *_objBank30SegmentRomEnd;
-extern char *_objBank31SegmentRomStart;
-extern char *_objBank31SegmentRomEnd;
-extern char *_objBank32SegmentRomStart;
-extern char *_objBank32SegmentRomEnd;
-extern char *_objBank33SegmentRomStart;
-extern char *_objBank33SegmentRomEnd;
-extern char *_objBank34SegmentRomStart;
-extern char *_objBank34SegmentRomEnd;
-extern char *_objBank35SegmentRomStart;
-extern char *_objBank35SegmentRomEnd;
-extern char *_objBank36SegmentRomStart;
-extern char *_objBank36SegmentRomEnd;
-extern char *_objBank37SegmentRomStart;
-extern char *_objBank37SegmentRomEnd;
-extern char *_objBank38SegmentRomStart;
-extern char *_objBank38SegmentRomEnd;
-extern char *_objBank39SegmentRomStart;
-extern char *_objBank39SegmentRomEnd;
-extern char *_objBank40SegmentRomStart;
-extern char *_objBank40SegmentRomEnd;
-extern char *_objBank41SegmentRomStart;
-extern char *_objBank41SegmentRomEnd;
-extern char *_objBank42SegmentRomStart;
-extern char *_objBank42SegmentRomEnd;
 
 
 
@@ -114,20 +63,10 @@ extern char *_texBank3SegmentRomStart;
 extern char *_texBank3SegmentRomEnd;
 extern char *_texBank4SegmentRomStart;
 extern char *_texBank4SegmentRomEnd;
-extern char *_texBank5SegmentRomStart;
-extern char *_texBank5SegmentRomEnd;
-extern char *_texBank6SegmentRomStart;
-extern char *_texBank6SegmentRomEnd;
-extern char *_texBank7SegmentRomStart;
-extern char *_texBank7SegmentRomEnd;
-extern char *_texBank8SegmentRomStart;
-extern char *_texBank8SegmentRomEnd;
-extern char *_texBank9SegmentRomStart;
-extern char *_texBank9SegmentRomEnd;
-extern char *_texBank10SegmentRomStart;
-extern char *_texBank10SegmentRomEnd;
-extern char *_texBank11SegmentRomStart;
-extern char *_texBank11SegmentRomEnd;
+
+extern char *_levData1SegmentRomStart;
+extern char *_levData1SegmentRomEnd;
+
 
 /*extern char *_pbank1SegmentRomStart;
 extern char *_pbank1SegmentRomEnd;
@@ -149,7 +88,7 @@ extern char *_mBank1SegmentRomEnd;
 
 #define	STACKSIZE		0x4000
 #define	SMALLSTACKSIZE	0x400
-#define MAXTASKS		10
+#define MAXTASKS		20
 
 // microcode types
 enum
@@ -196,7 +135,8 @@ enum
 #define RDP_OUTPUT_BUF		0x8004b400		// End of Z buffer
 #define COLOR_BUFFER		0x8016a000
 
-#define RDP_OUTPUT_BUF_LEN	((4096*8)*2)
+//#define RDP_OUTPUT_BUF_LEN	((4096*8)*2)
+#define RDP_OUTPUT_BUF_LEN	(4096)
 
 #define RDP_OUTBUF_SIZE_MIN 0x100			// Min fifo buffer size
 
@@ -304,14 +244,14 @@ extern int					ScreenWidthDelta;
 extern int					UseUCode;
 extern int					OutLen;
 
-extern char					UseTextureMode;
-extern char					UseAAMode;
-extern char					UseZMode;
+//extern char					UseTextureMode;
+//extern char					UseAAMode;
+//extern char					UseZMode;
 extern char					UseWireframeMode;
 
-extern char					transparentSurf;
-extern char					xluSurf;
-extern char					aiSurf;
+//extern char					transparentSurf;
+//extern char					xluSurf;
+//extern char					aiSurf;
 
 extern char					mirrorTextures;
 
@@ -331,6 +271,8 @@ extern OSMesgQueue			main_msgQ;
 
 extern unsigned int			TicksPerFrame;
 
+extern int gfxTasks;
+
 extern void					ApplyGlobalTransformations();
 extern void					ClearViewing();
 extern void					DrawGraphics(void *arg);
@@ -339,7 +281,12 @@ extern void					SetupViewing();
 
 extern int dontClearScreen;
 
+extern short dontDoAnims;
+
+extern char codeRunning;
+
 void ControllerProc(void *arg);
+extern void InitDisplayLists(void);
 
 #endif	/* _LANGUAGE_C */
 

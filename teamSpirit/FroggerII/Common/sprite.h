@@ -33,6 +33,22 @@
 #define LAND   1
 #define WATER  2
 
+
+////////    Fog related
+enum
+{
+	FOG_OFF,
+	FOG_TO_COLOUR,
+};
+
+typedef struct
+{
+	UBYTE r,g,b,mode;
+	short min,max;
+}FOG;
+
+extern FOG fog;
+
 enum
 {
 	SPRITE_ANIM_NONE,

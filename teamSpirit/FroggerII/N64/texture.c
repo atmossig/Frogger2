@@ -88,13 +88,25 @@ void LoadTextureBank(int num)
 			sprintf(message,"SYS_TB");
 			break;
 
-		case GARDEN_TEX_BANK:
+		case GENERIC_TEX_BANK:
 			bankRomStart	= (u32)&_texBank2SegmentRomStart;
 			bankRomEnd		= (u32)&_texBank2SegmentRomEnd;
+			sprintf(message,"GEN_TB");
+			break;
+
+		case GARDEN_TEX_BANK:
+			bankRomStart	= (u32)&_texBank3SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank3SegmentRomEnd;
 			sprintf(message,"GARD_TB");
 			break;
 
-		case SUPERRETRO_TEX_BANK:
+		case ANCIENT_TEX_BANK:
+			bankRomStart	= (u32)&_texBank4SegmentRomStart;
+			bankRomEnd		= (u32)&_texBank4SegmentRomEnd;
+			sprintf(message,"ANC_TB");
+			break;
+
+/*		case SUPERRETRO_TEX_BANK:
 			bankRomStart	= (u32)&_texBank3SegmentRomStart;
 			bankRomEnd		= (u32)&_texBank3SegmentRomEnd;
 			sprintf(message,"SUPER_TB");
@@ -145,7 +157,7 @@ void LoadTextureBank(int num)
 			bankRomStart	= (u32)&_texBank11SegmentRomStart;
 			bankRomEnd		= (u32)&_texBank11SegmentRomEnd;
 			sprintf(message,"SNDVIEW_TB");
-			break;
+			break;*/
 		default:
 			dprintf"Invalid texture bank!\n"));
 			for(;;);

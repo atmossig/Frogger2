@@ -800,11 +800,11 @@ void UpdateAmbientSounds()
 			if(ambientSound->sfx.sampleNum == FX_EERIE_WIND)
 			{
 				// Oscillating tone for wind
-				pitch = 128 + SineWave(50,frameCount,0)*30;
+//				pitch = 128 + SineWave(50,frameCount,0)*30;
 				MusHandleSetFreqOffset(ambientSound->sfx.handle,(float)(pitch-128)/10.0);
 				MusHandleSetTempo(ambientSound->sfx.handle,pitch);
 
-				pitch = (SineWave(60,frameCount,0) + 1)/4 + 0.5;
+//				pitch = (SineWave(60,frameCount,0) + 1)/4 + 0.5;
 				pitch *= ambientSound->sfx.origVolume;
 				MusHandleSetVolume(ambientSound->sfx.handle,pitch);
 				ambientSound->sfx.actualVolume = pitch;

@@ -20,14 +20,14 @@ unsigned long objIDs[128];
 ACTOR2 *viewActor = NULL;
 
 OBJECT_VIEWER objectViewer;
-
+					 
 char objName[32];
 char message[10];
 
 static TEXTOVERLAY *lev[MAX_LEVELS];
 
 char showObjectInfo				= 1;
-int objectMatrix				= 0;
+//int objectMatrix				= 0;
 
 
 /*	--------------------------------------------------------------------------------
@@ -183,9 +183,9 @@ void SelectObjectBank()
 			StopDrawing("wldbanks");
 			// load relevant object bank and texture bank...
 			FreeAllLists();
-			LoadTextureBank(SYSTEM_TEX_BANK);
-			LoadTextureBank(GENERIC_TEX_BANK);
-			LoadVisualBanksForWorld(objectViewer.currWorldID,1);
+			//LoadTextureBank(SYSTEM_TEX_BANK);
+			//LoadTextureBank(GENERIC_TEX_BANK);
+			LoadVisualBanksForWorld(objectViewer.currWorldID,2);
 
 			// ...and get the object ID's from the bank
 			objectViewer.numObjects = 0;
@@ -212,7 +212,7 @@ void SelectObjectBank()
 
 						sprintf(viewActor->actor->objectController->object->name,objCont->object->name);
 						InitActorStructures(viewActor->actor,INIT_ANIMATION);
-						AnimateActor(viewActor->actor,0,YES,NO,0.5F);
+						AnimateActor(viewActor->actor,0,YES,NO,0.1f, 100, 0);
 
 						SetVector(&viewActor->actor->pos,&objectViewer.objPos);
 						viewActor->actor->scale.v[X] = viewActor->actor->scale.v[Y] = viewActor->actor->scale.v[Z] = 1;
@@ -276,8 +276,8 @@ void ViewObjectBank(unsigned long worldID)
 
 	if(showObjectInfo)
 	{
-		CreateAndAddTextOverlay(20,15,objName,NO,NO,255,255,255,95,smallFont,0,0,0);
-		CreateAndAddTextOverlay(20,210,message,NO,NO,255,255,255,95,smallFont,0,0,0);
+	//	CreateAndAddTextOverlay(20,15,objName,NO,NO,255,255,255,95,smallFont,0,0,0);
+	//	CreateAndAddTextOverlay(20,210,message,NO,NO,255,255,255,95,smallFont,0,0,0);
 		showObjectInfo = 0;
 		
 
@@ -590,7 +590,7 @@ void ObjViewReadControllerGeom()
 	if((button & CONT_B) && !(lastbutton & CONT_B))
 	{
 		// Toggle on/off antialiasing
-		UseAAMode ^= 1;
+//		UseAAMode ^= 1;
 	}
 
 	if((button & CONT_A) && !(lastbutton & CONT_A))

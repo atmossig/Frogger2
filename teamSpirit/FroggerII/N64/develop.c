@@ -50,7 +50,7 @@ void RunDevelopmentMenu()
 		FreeAllLists();
 
 		LoadTextureBank(SYSTEM_TEX_BANK);
-		LoadTextureBank(TITLES_TEX_BANK);
+		LoadTextureBank(GENERIC_TEX_BANK);
 
 		currFont = smallFont;
 
@@ -468,7 +468,7 @@ void RunTestRoutine1()
 	gDPSetPrimColor(glistp++,255,255,255,255,255,devTrans1);
 	gDPSetFogColor(glistp++,255,255,255,devTrans1);
 
-	xluSurf = TRUE;
+//	xluSurf = TRUE;
 
 	gSPVertex(glistp++,&verts[0],8,0);
 	gSP2Triangles(glistp++,2,1,0,0,0,3,2,0);
@@ -559,7 +559,7 @@ void DrawTestWater()
 	gDPSetPrimColor(glistp++,255,255,255,255,255,devTrans1);
 	gDPSetFogColor(glistp++,255,255,255,devTrans1);
 
-	xluSurf = TRUE;
+//	xluSurf = TRUE;
 
 	gSPVertex(glistp++,&verts[0],8,0);
 	gSP2Triangles(glistp++,2,1,0,0,0,3,2,0);

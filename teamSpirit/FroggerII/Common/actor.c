@@ -25,6 +25,8 @@
 #include "incs.h"
 
 
+#define MAX_UNIQUE_ACTORS	50
+
 float ACTOR_DRAWDISTANCEINNER = 100000.0F;
 float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
 
@@ -32,6 +34,13 @@ int objectMatrix = 0;
 
 ACTOR2 *actList				= NULL;			// entire actor list
 
+//used to keep a count of how many of each enemy are present at the same time
+char uniqueEnemyCount[20];
+
+//used to keep a count of how many of each enemy are present at the same time
+//char uniqueEnemyCount[CAMEO_ACTOR];
+int uniqueActorCRC[MAX_UNIQUE_ACTORS];
+char numUniqueActors = 0;
 
 /* --------------------------------------------------------------------------------	
 	Programmer	: Matthew Cloy
@@ -43,11 +52,68 @@ ACTOR2 *actList				= NULL;			// entire actor list
 */
 float meMod;
 
-void XformActor(ACTOR *ptr);
+void XformActor(ACTOR *actor);
 
 void XformActorList()
 {
-	ACTOR2 *cur,*next;
+	ACTOR2	*cur;
+
+	cur = actList;
+	while ( cur )
+	{
+		if (frontEndState.mode != OBJVIEW_MODE)
+		{
+			// calculate the distance between the camera and this actor
+			cur->distanceFromFrog = DistanceBetweenPointsSquared ( &cur->actor->pos, &frog[0]->actor->pos );
+
+			// transform actor
+			XformActor ( cur->actor );
+
+			// determine this actor's visibility
+#ifdef PC_VERSION
+			cur->draw = 1;
+#else
+			cur->draw = 0;
+#endif
+			if(cur->flags & ACTOR_DRAW_ALWAYS)
+			{
+				// always draw this actor
+				cur->draw = 1;
+			}
+			else if(cur->flags & ACTOR_DRAW_CULLED)
+			{
+				// determine if actor is visible
+				if(cur->distanceFromFrog < ACTOR_DRAWDISTANCEINNER)
+					cur->draw = 1;
+			} 
+		}
+		else
+		{
+			// transform actor
+			XformActor ( cur->actor );
+			cur->draw = 0;
+			if ( cur->flags & ACTOR_DRAW_ALWAYS )
+			{
+				// always draw this actor
+				cur->draw = 1;
+			}
+			// ENDIF
+		}
+		// ENDIF
+
+		cur = cur->next;
+	}
+	// ENDWHILE
+
+
+
+/*	for(ptr = actorList.head.next;ptr != &actorList.head;ptr = ptr->next)
+	{
+		TransformActor(ptr);
+	}
+  */
+
+/*	ACTOR2 *cur,*next;
 		
 	objectMatrix = 0;
 	cur = actList;
@@ -93,18 +159,33 @@ void XformActorList()
 
 
 		cur = cur->next;
-	}
+	}*/
 }
 
 void DrawActorList()
 {
-	ACTOR2 *cur,*next;
+	ACTOR2	*cur;
+
+
+	vtxPtr = &(objectsVtx[draw_buffer][0]);
+
+	InitDisplayLists();
+	SetRenderMode();
+	SetupViewing();
+
+	if(fog.mode)
+	{
+	   gDPSetFogColor(glistp++, fog.r, fog.g, fog.b, 255);
+
+	   gSPFogPosition(glistp++, fog.min, fog.max);
+	}
+/*	ACTOR2 *cur,*next;
 	float distance;
 		
 	objectMatrix = 0;
 //	SetRenderMode();
 
-	cur = actList;
+*/	cur = actList;
 	while(cur)
 	{
 		if(gameState.mode == GAME_MODE || gameState.mode == OBJVIEW_MODE || 
@@ -116,7 +197,7 @@ void DrawActorList()
 		}
 	
 		cur = cur->next;
-	}
+	} 
 }
 
 /* --------------------------------------------------------------------------------
@@ -176,8 +257,27 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	ACTOR2 *newItem;
 	newItem			= (ACTOR2 *)JallocAlloc(sizeof(ACTOR2), 1, "A2");
 	newItem->actor	= (ACTOR *)JallocAlloc(sizeof(ACTOR), 1, "A");
+
+
 	InitActor(newItem->actor,name,cx,cy,cz,initFlags);
 
+
+	if ( gstrcmp ( name, "wasp.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "treetrnk.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "a_rushes.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "froglet.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+	if ( gstrcmp ( name, "frogger.obe" ) == 0 )
+		MakeUniqueActor(newItem->actor,0);
+	// ENDIF
+		
 	newItem->actor->oldpos.v[X]	= cx;
 	newItem->actor->oldpos.v[Y]	= cy;
 	newItem->actor->oldpos.v[Z]	= cz;
@@ -366,3 +466,183 @@ void SetActorCollisionRadius(ACTOR2 *act,float radius)
 {
 	act->radius = radius;
 }
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void CopyDrawlist(u8 *dest, u8 *source)
+{
+
+	while(*source != 0xB8)
+	{
+		*(Gfx *)dest = *(Gfx *)source;
+		dest+=8;
+		source+=8;
+	}
+	//must copy last entry (end drawlist)
+	*(Gfx *)dest = *(Gfx *)source;
+
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+int CalculateSizeOfDrawlist(Gfx *dl)
+{
+	u8	*temp = (u8 *)dl; 
+	int size = 0;
+
+	while(*temp != 0xB8)
+	{
+		temp += 8;
+		size++;
+	}
+	size++;
+	return size;	
+
+}
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+void MakeUniqueVtx(OBJECT_CONTROLLER *objC)
+{
+	short i;
+	Vtx *vtxa;
+	Vtx *vtxb;
+	Vtx *oldVtxa, *oldVtxb;
+	int offset;
+
+//	dprintf"make unique vtx %s\n", objC->object->name));
+
+	oldVtxa = objC->Vtx[0];
+	oldVtxb = objC->Vtx[1];
+
+	vtxa = (Vtx *)JallocAlloc(sizeof(Vtx) * objC->numVtx * 2, NO, "unqVtx");
+	vtxb = vtxa + objC->numVtx;
+
+	memcpy(vtxa, oldVtxa, sizeof(Vtx) * objC->numVtx);
+	memcpy(vtxb, oldVtxb, sizeof(Vtx) * objC->numVtx);
+
+	//controller now references new vtx's, must also make sure that drawlist is updated
+	objC->Vtx[0] = vtxa;
+	objC->Vtx[1] = vtxb;
+	offset = (int)oldVtxa - (int)vtxa;// - objC->Vtx[0];
+	AddOffsetToVertexLoads(-offset, objC->drawList);
+	
+}
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+
+void MakeUniqueDrawlist(OBJECT_CONTROLLER *objC)
+{
+	Gfx *newDl;
+	int size;
+
+	size = CalculateSizeOfDrawlist(objC->drawList);
+	
+	newDl = (Gfx *)JallocAlloc(size * sizeof(Gfx), NO, "uniqDl");
+
+	CopyDrawlist((u8 *)newDl, (u8 *)objC->drawList);
+	objC->drawList = newDl;
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: SetActorCollisionRadius
+	Purpose			: sets the specified actor's collision radius
+	Parameters		: ACTOR2 *,float
+	Returns			: void
+	Info			: 
+*/
+
+OBJECT *MakeUniqueObject(OBJECT *object)
+{
+
+	OBJECT	*obj;	
+	OBJECTSPRITE **spr, *tempSpr;
+	int		i;
+		
+	obj = object;
+	object = (OBJECT *)JallocAlloc(sizeof(OBJECT), YES, "UniqObj");
+	memcpy(object, obj, sizeof(OBJECT));
+
+/*	if(obj->numSprites)
+	{
+		spr = &object->sprites;
+		tempSpr = (OBJECTSPRITE *)JallocAlloc(sizeof(OBJECTSPRITE) * obj->numSprites, YES, "UniqSpr");
+		memcpy(tempSpr, *spr, sizeof(OBJECTSPRITE) * obj->numSprites);
+		*spr = tempSpr;
+/*		for(i = 0; i < obj->numSprites; i++)
+		{
+			spr = &object->sprites;
+			spr += i;
+			tempSpr = (OBJECTSPRITE *)JallocAlloc(sizeof(OBJECTSPRITE), YES, "UniqSpr");
+			memcpy(tempSpr, *spr, sizeof(OBJECTSPRITE));
+			*spr = tempSpr;
+		}
+ */
+/*	}*/
+
+
+	if(object->children)
+		object->children = MakeUniqueObject(object->children);
+
+	if(object->next)
+		object->next = MakeUniqueObject(object->next);
+		
+	return object;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: MakeUniqueActor
+	Purpose 	: Makes an actor unique by giving it its own object controller, and calls
+        		  make unique object, to sort out the object (including children)
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void MakeUniqueActor(ACTOR *actor,int type)
+{
+
+	OBJECT_CONTROLLER	*objCont;
+
+	objCont = actor->objectController;
+	actor->objectController = (OBJECT_CONTROLLER *)JallocAlloc(sizeof(OBJECT_CONTROLLER), YES, "UniqObjC");
+	memcpy(actor->objectController, objCont, sizeof(OBJECT_CONTROLLER));
+	actor->objectController->object = MakeUniqueObject(actor->objectController->object);
+
+	//if actor is skinned, duplicate Vtx's
+	if(actor->objectController->drawList)
+	{
+		MakeUniqueDrawlist(actor->objectController);
+		MakeUniqueVtx(actor->objectController);
+		XformActor(actor);
+		SwapVtxReferencesInDrawlist(actor->objectController);
+	}
+
+}
+
+

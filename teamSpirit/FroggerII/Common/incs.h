@@ -76,6 +76,7 @@
 
 #ifndef PC_VERSION
 #include "develop.h"
+#include "objview.h"
 #endif
 
 #include "frontend.h"

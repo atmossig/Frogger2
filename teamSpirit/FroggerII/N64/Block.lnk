@@ -81,7 +81,7 @@ _codeSegmentEnd         alias   _code_objend
 		include "levelprogression.obj",code
 		include "event.obj",code
 		include "eventfuncs.obj",code
-		;include "objview.obj",code
+		include "objview.obj",code
 
 		include "develop.obj",code
 		include	"rdp_out0.obj",code
@@ -259,7 +259,7 @@ _objBank4SegmentRomEnd          alias   _objBank4_orgend
 
 oBank4  incbin  "objects/gardenlev3.nob",objBank4.data,64
 
-; [ GARDEN WORLD LEVEL 4 ] >>>>>
+; [ GARDEN WORLD BOSS A ] >>>>>
 
 objBank5        group   obj()
 objBank5bss     group   obj(),bss
@@ -269,9 +269,9 @@ _objBank5SegmentRomEnd          alias   _objBank5_orgend
 
         section.16      objBank5.data,objBank5
 
-oBank5  incbin  "objects/gardenlev4.nob",objBank5.data,64
+oBank5  incbin  "objects/gardenbossa.nob",objBank5.data,64
 
-; [ GARDEN WORLD BONUS ] >>>>>
+; [ GARDEN WORLD BOSS B ] >>>>>
 
 objBank6        group   obj()
 objBank6bss     group   obj(),bss
@@ -281,9 +281,11 @@ _objBank6SegmentRomEnd          alias   _objBank6_orgend
 
         section.16      objBank6.data,objBank6
 
-oBank6  incbin  "objects/gardenbonus.nob",objBank6.data,64
+oBank6  incbin  "objects/gardenbossb.nob",objBank6.data,64
 
-; [ GARDEN WORLD MULTIPLAYER ] >>>>>
+
+
+; [ GARDEN WORLD BONUS ] >>>>>
 
 objBank7        group   obj()
 objBank7bss     group   obj(),bss
@@ -293,10 +295,9 @@ _objBank7SegmentRomEnd          alias   _objBank7_orgend
 
         section.16      objBank7.data,objBank7
 
-oBank7  incbin  "objects/gardenmulti.nob",objBank7.data,64
+oBank7  incbin  "objects/gardenbonuslev.nob",objBank7.data,64
 
-
-; [ SPACE WORLD MASTER ] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; [ GARDEN WORLD MULTIPLAYER ] >>>>>
 
 objBank8        group   obj()
 objBank8bss     group   obj(),bss
@@ -306,9 +307,10 @@ _objBank8SegmentRomEnd          alias   _objBank8_orgend
 
         section.16      objBank8.data,objBank8
 
-oBank8  incbin  "objects/spacemaster.nob",objBank8.data,64
+oBank8  incbin  "objects/gardenmulti.nob",objBank8.data,64
 
-; [ SPACE WORLD LEVEL 1 ] >>>>>
+
+; [ ANCIENT WORLD MASTER ] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 objBank9        group   obj()
 objBank9bss     group   obj(),bss
@@ -318,9 +320,9 @@ _objBank9SegmentRomEnd          alias   _objBank9_orgend
 
         section.16      objBank9.data,objBank9
 
-oBank9  incbin  "objects/spacelev1.nob",objBank9.data,64
+oBank9  incbin  "objects/ancientmaster.nob",objBank9.data,64
 
-; [ SPACE WORLD LEVEL 2 ] >>>>>
+; [ ANCIENT WORLD LEVEL 1 ] >>>>>
 
 objBank10        group   obj()
 objBank10bss     group   obj(),bss
@@ -330,9 +332,9 @@ _objBank10SegmentRomEnd          alias   _objBank10_orgend
 
         section.16      objBank10.data,objBank10
 
-oBank10  incbin  "objects/spacelev2.nob",objBank10.data,64
+oBank10  incbin  "objects/ancientlev1.nob",objBank10.data,64
 
-; [ SPACE WORLD LEVEL 3 ] >>>>>
+; [ ANCIENT WORLD LEVEL 2 ] >>>>>
 
 objBank11        group   obj()
 objBank11bss     group   obj(),bss
@@ -342,9 +344,9 @@ _objBank11SegmentRomEnd          alias   _objBank11_orgend
 
         section.16      objBank11.data,objBank11
 
-oBank11  incbin  "objects/spacelev3.nob",objBank11.data,64
+oBank11  incbin  "objects/ancientlev2.nob",objBank11.data,64
 
-; [ SPACE WORLD LEVEL 4 ] >>>>>
+; [ ANCIENT WORLD LEVEL 3 ] >>>>>
 
 objBank12        group   obj()
 objBank12bss     group   obj(),bss
@@ -354,9 +356,9 @@ _objBank12SegmentRomEnd          alias   _objBank12_orgend
 
         section.16      objBank12.data,objBank12
 
-oBank12  incbin  "objects/spacelev4.nob",objBank12.data,64
+oBank12  incbin  "objects/ancientlev3.nob",objBank12.data,64
 
-; [ SPACE WORLD BONUS ] >>>>>
+; [ ANCIENT WORLD LEVEL 4 ] >>>>>
 
 objBank13        group   obj()
 objBank13bss     group   obj(),bss
@@ -366,9 +368,9 @@ _objBank13SegmentRomEnd          alias   _objBank13_orgend
 
         section.16      objBank13.data,objBank13
 
-oBank13  incbin  "objects/spacebonus.nob",objBank13.data,64
+oBank13  incbin  "objects/ancientbosslev.nob",objBank13.data,64
 
-; [ SPACE WORLD MULTIPLAYER ] >>>>>
+; [ ANCIENT WORLD BONUS ] >>>>>
 
 objBank14        group   obj()
 objBank14bss     group   obj(),bss
@@ -378,10 +380,9 @@ _objBank14SegmentRomEnd          alias   _objBank14_orgend
 
         section.16      objBank14.data,objBank14
 
-oBank14  incbin  "objects/spacemulti.nob",objBank14.data,64
+oBank14  incbin  "objects/ancientbonuslev.nob",objBank14.data,64
 
-
-; [ CITY WORLD MASTER ] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+; [ ANCIENT WORLD MULTIPLAYER ] >>>>>
 
 objBank15        group   obj()
 objBank15bss     group   obj(),bss
@@ -391,334 +392,7 @@ _objBank15SegmentRomEnd          alias   _objBank15_orgend
 
         section.16      objBank15.data,objBank15
 
-oBank15  incbin  "objects/citymaster.nob",objBank15.data,64
-
-; [ CITY WORLD LEVEL 1 ] >>>>>
-
-objBank16        group   obj()
-objBank16bss     group   obj(),bss
-
-_objBank16SegmentRomStart        alias   _objBank16_org
-_objBank16SegmentRomEnd          alias   _objBank16_orgend
-
-        section.16      objBank16.data,objBank16
-
-oBank16  incbin  "objects/citydocks.nob",objBank16.data,64
-
-; [ CITY WORLD LEVEL 2 ] >>>>>
-
-objBank17        group   obj()
-objBank17bss     group   obj(),bss
-
-_objBank17SegmentRomStart        alias   _objBank17_org
-_objBank17SegmentRomEnd          alias   _objBank17_orgend
-
-        section.16      objBank17.data,objBank17
-
-oBank17  incbin  "objects/citywarehouse.nob",objBank17.data,64
-
-; [ CITY WORLD LEVEL 3 ] >>>>>
-
-objBank18        group   obj()
-objBank18bss     group   obj(),bss
-
-_objBank18SegmentRomStart        alias   _objBank18_org
-_objBank18SegmentRomEnd          alias   _objBank18_orgend
-
-        section.16      objBank18.data,objBank18
-
-oBank18  incbin  "objects/citystreets.nob",objBank18.data,64
-
-; [ CITY WORLD LEVEL 4 ] >>>>>
-
-objBank19        group   obj()
-objBank19bss     group   obj(),bss
-
-_objBank19SegmentRomStart        alias   _objBank19_org
-_objBank19SegmentRomEnd          alias   _objBank19_orgend
-
-        section.16      objBank19.data,objBank19
-
-oBank19  incbin  "objects/citytower.nob",objBank19.data,64
-
-; [ CITY WORLD BONUS ] >>>>>
-
-objBank20        group   obj()
-objBank20bss     group   obj(),bss
-
-_objBank20SegmentRomStart        alias   _objBank20_org
-_objBank20SegmentRomEnd          alias   _objBank20_orgend
-
-        section.16      objBank20.data,objBank20
-
-oBank20  incbin  "objects/citybonus.nob",objBank20.data,64
-
-; [ CITY WORLD MULTIPLAYER ] >>>>>
-
-objBank21        group   obj()
-objBank21bss     group   obj(),bss
-
-_objBank21SegmentRomStart        alias   _objBank21_org
-_objBank21SegmentRomEnd          alias   _objBank21_orgend
-
-        section.16      objBank21.data,objBank21
-
-oBank21  incbin  "objects/citymulti.nob",objBank21.data,64
-
-
-; [ HALLOWEEN WORLD MASTER ] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-objBank22        group   obj()
-objBank22bss     group   obj(),bss
-
-_objBank22SegmentRomStart        alias   _objBank22_org
-_objBank22SegmentRomEnd          alias   _objBank22_orgend
-
-        section.16      objBank22.data,objBank22
-
-oBank22  incbin  "objects/halloweenmaster.nob",objBank22.data,64
-
-; [ HALLOWEEN WORLD LEVEL 1 ] >>>>>
-
-objBank23        group   obj()
-objBank23bss     group   obj(),bss
-
-_objBank23SegmentRomStart        alias   _objBank23_org
-_objBank23SegmentRomEnd          alias   _objBank23_orgend
-
-        section.16      objBank23.data,objBank23
-
-oBank23  incbin  "objects/halloweenlev1.nob",objBank23.data,64
-
-; [ HALLOWEEN WORLD LEVEL 2 ] >>>>>
-
-objBank24        group   obj()
-objBank24bss     group   obj(),bss
-
-_objBank24SegmentRomStart        alias   _objBank24_org
-_objBank24SegmentRomEnd          alias   _objBank24_orgend
-
-        section.16      objBank24.data,objBank24
-
-oBank24  incbin  "objects/halloweenlev2.nob",objBank24.data,64
-
-; [ HALLOWEEN WORLD LEVEL 3 ] >>>>>
-
-objBank25        group   obj()
-objBank25bss     group   obj(),bss
-
-_objBank25SegmentRomStart        alias   _objBank25_org
-_objBank25SegmentRomEnd          alias   _objBank25_orgend
-
-        section.16      objBank25.data,objBank25
-
-oBank25  incbin  "objects/halloweenlev3.nob",objBank25.data,64
-
-; [ HALLOWEEN WORLD LEVEL 4 ] >>>>>
-
-objBank26        group   obj()
-objBank26bss     group   obj(),bss
-
-_objBank26SegmentRomStart        alias   _objBank26_org
-_objBank26SegmentRomEnd          alias   _objBank26_orgend
-
-        section.16      objBank26.data,objBank26
-
-oBank26  incbin  "objects/halloweenlev4.nob",objBank26.data,64
-
-; [ HALLOWEEN WORLD BONUS ] >>>>>
-
-objBank27        group   obj()
-objBank27bss     group   obj(),bss
-
-_objBank27SegmentRomStart        alias   _objBank27_org
-_objBank27SegmentRomEnd          alias   _objBank27_orgend
-
-        section.16      objBank27.data,objBank27
-
-oBank27  incbin  "objects/halloweenbonus.nob",objBank27.data,64
-
-; [ HALLOWEEN WORLD MULTIPLAYER ] >>>>>
-
-objBank28        group   obj()
-objBank28bss     group   obj(),bss
-
-_objBank28SegmentRomStart        alias   _objBank28_org
-_objBank28SegmentRomEnd          alias   _objBank28_orgend
-
-        section.16      objBank28.data,objBank28
-
-oBank28  incbin  "objects/halloweenmulti.nob",objBank28.data,64
-
-
-; [ ANCIENT WORLD MASTER ] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-objBank29        group   obj()
-objBank29bss     group   obj(),bss
-
-_objBank29SegmentRomStart        alias   _objBank29_org
-_objBank29SegmentRomEnd          alias   _objBank29_orgend
-
-        section.16      objBank29.data,objBank29
-
-oBank29  incbin  "objects/ancientmaster.nob",objBank29.data,64
-
-; [ ANCIENT WORLD LEVEL 1 ] >>>>>
-
-objBank30        group   obj()
-objBank30bss     group   obj(),bss
-
-_objBank30SegmentRomStart        alias   _objBank30_org
-_objBank30SegmentRomEnd          alias   _objBank30_orgend
-
-        section.16      objBank30.data,objBank30
-
-oBank30  incbin  "objects/ancientlev1.nob",objBank30.data,64
-
-; [ ANCIENT WORLD LEVEL 2 ] >>>>>
-
-objBank31        group   obj()
-objBank31bss     group   obj(),bss
-
-_objBank31SegmentRomStart        alias   _objBank31_org
-_objBank31SegmentRomEnd          alias   _objBank31_orgend
-
-        section.16      objBank31.data,objBank31
-
-oBank31  incbin  "objects/ancientlev2.nob",objBank31.data,64
-
-; [ ANCIENT WORLD LEVEL 3 ] >>>>>
-
-objBank32        group   obj()
-objBank32bss     group   obj(),bss
-
-_objBank32SegmentRomStart        alias   _objBank32_org
-_objBank32SegmentRomEnd          alias   _objBank32_orgend
-
-        section.16      objBank32.data,objBank32
-
-oBank32  incbin  "objects/ancientlev3.nob",objBank32.data,64
-
-; [ ANCIENT WORLD LEVEL 4 ] >>>>>
-
-objBank33        group   obj()
-objBank33bss     group   obj(),bss
-
-_objBank33SegmentRomStart        alias   _objBank33_org
-_objBank33SegmentRomEnd          alias   _objBank33_orgend
-
-        section.16      objBank33.data,objBank33
-
-oBank33  incbin  "objects/ancientlev4.nob",objBank33.data,64
-
-; [ ANCIENT WORLD BONUS ] >>>>>
-
-objBank34        group   obj()
-objBank34bss     group   obj(),bss
-
-_objBank34SegmentRomStart        alias   _objBank34_org
-_objBank34SegmentRomEnd          alias   _objBank34_orgend
-
-        section.16      objBank34.data,objBank34
-
-oBank34  incbin  "objects/ancientbonus.nob",objBank34.data,64
-
-; [ ANCIENT WORLD MULTIPLAYER ] >>>>>
-
-objBank35        group   obj()
-objBank35bss     group   obj(),bss
-
-_objBank35SegmentRomStart        alias   _objBank35_org
-_objBank35SegmentRomEnd          alias   _objBank35_orgend
-
-        section.16      objBank35.data,objBank35
-
-oBank35  incbin  "objects/ancientmulti.nob",objBank35.data,64
-
-
-; [ RETRO WORLD MASTER ] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-objBank36        group   obj()
-objBank36bss     group   obj(),bss
-
-_objBank36SegmentRomStart        alias   _objBank36_org
-_objBank36SegmentRomEnd          alias   _objBank36_orgend
-
-        section.16      objBank36.data,objBank36
-
-oBank36  incbin  "objects/retromaster.nob",objBank36.data,64
-
-; [ RETRO WORLD LEVEL 1 ] >>>>>
-
-objBank37        group   obj()
-objBank37bss     group   obj(),bss
-
-_objBank37SegmentRomStart        alias   _objBank37_org
-_objBank37SegmentRomEnd          alias   _objBank37_orgend
-
-        section.16      objBank37.data,objBank37
-
-oBank37  incbin  "objects/retrolev1.nob",objBank37.data,64
-
-; [ RETRO WORLD LEVEL 2 ] >>>>>
-
-objBank38        group   obj()
-objBank38bss     group   obj(),bss
-
-_objBank38SegmentRomStart        alias   _objBank38_org
-_objBank38SegmentRomEnd          alias   _objBank38_orgend
-
-        section.16      objBank38.data,objBank38
-
-oBank38  incbin  "objects/retrolev2.nob",objBank38.data,64
-
-; [ RETRO WORLD LEVEL 3 ] >>>>>
-
-objBank39        group   obj()
-objBank39bss     group   obj(),bss
-
-_objBank39SegmentRomStart        alias   _objBank39_org
-_objBank39SegmentRomEnd          alias   _objBank39_orgend
-
-        section.16      objBank39.data,objBank39
-
-oBank39  incbin  "objects/retrolev3.nob",objBank39.data,64
-
-; [ RETRO WORLD LEVEL 4 ] >>>>>
-
-objBank40        group   obj()
-objBank40bss     group   obj(),bss
-
-_objBank40SegmentRomStart        alias   _objBank40_org
-_objBank40SegmentRomEnd          alias   _objBank40_orgend
-
-        section.16      objBank40.data,objBank40
-
-oBank40  incbin  "objects/retrolev4.nob",objBank40.data,64
-
-; [ RETRO WORLD BONUS ] >>>>>
-
-objBank41        group   obj()
-objBank41bss     group   obj(),bss
-
-_objBank41SegmentRomStart        alias   _objBank41_org
-_objBank41SegmentRomEnd          alias   _objBank41_orgend
-
-        section.16      objBank41.data,objBank41
-
-oBank41  incbin  "objects/retrobonus.nob",objBank41.data,64
-
-; [ RETRO WORLD MULTIPLAYER ] >>>>>
-
-objBank42        group   obj()
-objBank42bss     group   obj(),bss
-
-_objBank42SegmentRomStart        alias   _objBank42_org
-_objBank42SegmentRomEnd          alias   _objBank42_orgend
-
-        section.16      objBank42.data,objBank42
-
-oBank42  incbin  "objects/retromulti.nob",objBank42.data,64
+oBank15  incbin  "objects/ancientmulti.nob",objBank15.data,64
 
 
 
@@ -741,7 +415,7 @@ _texBank1SegmentRomEnd          alias   _texBank1_orgend
 tBank1  incbin  "textures/system.fla",texBank1.data,64
 
 
-; [ GARDEN ] >>>>>
+; [ GENERIC ] >>>>>
 
 texBank2        group   obj()
 texBank2bss     group   obj(),bss
@@ -751,10 +425,10 @@ _texBank2SegmentRomEnd          alias   _texBank2_orgend
 
         section.16      texBank2.data,texBank2
 
-tBank2  incbin  "textures/garden.fla",texBank2.data,64
+tBank2  incbin  "textures/generic.fla",texBank2.data,64
 
 
-; [ SUPER RETRO ] >>>>>
+; [ GARDEN ] >>>>>
 
 texBank3        group   obj()
 texBank3bss     group   obj(),bss
@@ -764,10 +438,9 @@ _texBank3SegmentRomEnd          alias   _texBank3_orgend
 
         section.16      texBank3.data,texBank3
 
-tBank3  incbin  "textures/retro.fla",texBank3.data,64
+tBank3  incbin  "textures/garden.fla",texBank3.data,64
 
-
-; [ HALLOWEEN ] >>>>>
+; [ ANCIENT ] >>>>>
 
 texBank4        group   obj()
 texBank4bss     group   obj(),bss
@@ -777,98 +450,7 @@ _texBank4SegmentRomEnd          alias   _texBank4_orgend
 
         section.16      texBank4.data,texBank4
 
-tBank4  incbin  "textures/hallow.fla",texBank4.data,64
-
-
-; [ SPACE ] >>>>>
-
-texBank5        group   obj()
-texBank5bss     group   obj(),bss
-
-_texBank5SegmentRomStart        alias   _texBank5_org
-_texBank5SegmentRomEnd          alias   _texBank5_orgend
-
-        section.16      texBank5.data,texBank5
-
-tBank5  incbin  "textures/retro.fla",texBank5.data,64
-
-
-; [ CITY ] >>>>>
-
-;--
-texBank6        group   obj()
-texBank6bss     group   obj(),bss
-
-_texBank6SegmentRomStart        alias   _texBank6_org
-_texBank6SegmentRomEnd          alias   _texBank6_orgend
-
-        section.16      texBank6.data,texBank6
-
-tBank6  incbin  "textures/city.fla",texBank6.data,64
-
-
-; [ ANCIENT ] >>>>>
-
-texBank7        group   obj()
-texBank7bss     group   obj(),bss
-
-_texBank7SegmentRomStart        alias   _texBank7_org
-_texBank7SegmentRomEnd          alias   _texBank7_orgend
-
-        section.16      texBank7.data,texBank7
-
-tBank7  incbin  "textures/ancients.fla",texBank7.data,64
-
-
-; [ TITLE ] >>>>>
-
-texBank8        group   obj()
-texBank8bss     group   obj(),bss
-
-_texBank8SegmentRomStart        alias   _texBank8_org
-_texBank8SegmentRomEnd          alias   _texBank8_orgend
-
-        section.16      texBank8.data,texBank8
-
-tBank8  incbin  "textures/titlscrn.fla",texBank8.data,64
-
-
-; [ OLDEFROG ] >>>>>
-
-texBank9        group   obj()
-texBank9bss     group   obj(),bss
-
-_texBank9SegmentRomStart        alias   _texBank9_org
-_texBank9SegmentRomEnd          alias   _texBank9_orgend
-
-        section.16      texBank9.data,texBank9
-
-tBank9  incbin  "textures/oldefrog.fla",texBank9.data,64
-
-
-; [ FRONT END LANGUAGE ] >>>>>
-
-texBank10        group   obj()
-texBank10bss     group   obj(),bss
-
-_texBank10SegmentRomStart        alias   _texBank10_org
-_texBank10SegmentRomEnd          alias   _texBank10_orgend
-
-        section.16      texBank10.data,texBank10
-
-tBank10  incbin  "textures/front.fla",texBank10.data,64
-
-; [ SOUND PLAYER ] >>>>>
-
-texBank11        group   obj()
-texBank11bss     group   obj(),bss
-
-_texBank11SegmentRomStart        alias   _texBank11_org
-_texBank11SegmentRomEnd          alias   _texBank11_orgend
-
-        section.16      texBank11.data,texBank11
-
-tBank11  incbin  "textures/sndview.fla",texBank11.data,64
+tBank4  incbin  "textures/ancients.fla",texBank4.data,64
 
 
 ;----- [ MUSIC ] ------------------------------------------------------------------------------
@@ -980,6 +562,20 @@ mbnk1  incbin "music/docks.bin",mBank1.data, 32
 ;        section.16       mBank6.data,mBank6
 
 ;mbnk6  incbin "music/space_1.bin",mBank6.data, 32
+
+
+
+;----- [ LEVEL DATA ] ------------------------------------------------------------------------------
+
+levData1        group   obj()
+levData1bss     group   obj(),bss
+
+_levData1SegmentRomStart alias _levData1_org
+_levData1SegmentRomEnd   alias _levData1_orgend
+
+        section.16       levData1.data,levData1
+
+levDat1  incbin "leveldata/entity-0-0.dat",levData1.data, 32
 
 
 

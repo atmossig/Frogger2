@@ -14,6 +14,8 @@ void LoadTexture(TEXTURE *texture);
 
 void SetObjectXlu(OBJECT *object,BOOL xlu);
 
+extern void DoubleBufferSkinVtx ( void );
+extern void AddOffsetToVertexLoads(int offset, Gfx *dl);
 
 extern OBJECT_BANK	objectBanks[];
 extern int numoftc;

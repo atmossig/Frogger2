@@ -112,7 +112,7 @@ void FreeCameoList ( void )
 	while ( curObj )
 	{
 		nextObj = curObj->next;
-		JallocFree ( &curObj );
+		JallocFree ( (UBYTE**)&curObj );
 		curObj = nextObj;
 	}
 	// ENDWHILE
@@ -126,7 +126,7 @@ void FreeCameoList ( void )
 	while ( curCameo )
 	{
 		nextCameo = curCameo->next;
-		JallocFree ( &curCameo );
+		JallocFree ( (UBYTE**)&curCameo );
 		curCameo = nextCameo;
 	}
 	// ENDWHILE
@@ -135,7 +135,7 @@ void FreeCameoList ( void )
 		cameoSet->cameos = NULL;
 	// ENDIF - cameoSet
 
-	JallocFree ( &cameoSet );
+	JallocFree ( (UBYTE**)&cameoSet );
 
 	cameoSet = NULL;
 }
@@ -311,7 +311,7 @@ void UpdateCameos ( void )
 
 				if ( cur->flags & CAMEO_ANIMATE )
 				{
-					AnimateActor ( cur->linkObject->cameoActor->actor, cur->animNum, NO, NO, 0.5F );
+					AnimateActor ( cur->linkObject->cameoActor->actor, cur->animNum, NO, NO, 0.5F, 10, 0 );
 				}
 				// ENDIF
 

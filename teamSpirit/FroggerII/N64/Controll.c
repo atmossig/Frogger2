@@ -35,7 +35,7 @@ static u16		lastbutton;
 int				ControllerMode = 0;
 char			debugCtrlMode[20];
 
-extern char UseAAMode;
+//extern char UseAAMode;
 extern char useFilt;
 
 unsigned long	INPUT_POLLPAUSE = 0;
@@ -117,9 +117,9 @@ void ResetParameters()
 	ShadingMode         = LIGHTING;
 	UseGlobalTransforms = 0;
 
-	UseTextureMode		= 1;
-	UseAAMode			= 0;
-	UseZMode			= 1;
+//	UseTextureMode		= 1;
+//	UseAAMode			= 0;
+//	UseZMode			= 1;
 	UseWireframeMode	= 0;
 }
 
@@ -243,10 +243,10 @@ void ReadDebugPad()
 
 	if((button & CONT_R) && !(lastbutton & CONT_R))
     {
-		if(UseAAMode)
-			UseAAMode = 0;
-		else
-			UseAAMode = 2;
+//		if(UseAAMode)
+//			UseAAMode = 0;
+//		else
+//			UseAAMode = 2;
 	}
 
 	if((button & CONT_START) && !(lastbutton & CONT_START))

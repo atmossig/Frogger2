@@ -18,7 +18,7 @@
 #define SPEED_DOWN			-0.025
 
 
-extern int			objectMatrix;
+//extern int			objectMatrix;
 
 // ----- [ STRUCTURE TO KEEP TOGETHER VALUES USED FOR OBJECT VIEWING ] ---------- //
 

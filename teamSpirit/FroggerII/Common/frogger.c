@@ -43,24 +43,31 @@ char croakB						= 255;
 //----- FUNCTIONS ------------------------------------------------------------//
 //----------------------------------------------------------------------------//
 
-char me[100] = "frogger.ndo";
+char me[100] = "frogger.obe";
 
 void CreateFrogActor (GAMETILE *where, char *name,long p)
 {
 	ACTOR2 **me = &frog[p];
-	(*me)		 = CreateAndAddActor ("frogger.ndo",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+	if ( p == 0 )
+		(*me)		 = CreateAndAddActor ("frogger.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+	else
+		(*me)		 = CreateAndAddActor ("froglet.obe",0,0,200.0,INIT_ANIMATION | INIT_SHADOW,0, 0);
+
 	(*me)->actor->shadow->radius = 30;
 	(*me)->actor->shadow->alpha = 191;
 	(*me)->flags	|= ACTOR_DRAW_ALWAYS;
 	
 	tongueState	 = TONGUE_NONE | TONGUE_IDLE;
 	
-	InitActorAnim ( (*me)->actor );
-	AnimateActor  ( (*me)->actor, 0, YES, NO, 0.667);
+	if ( p == 0 )
+	{
+		InitActorAnim ( (*me)->actor );
+		AnimateActor  ( (*me)->actor, 0,YES, NO, 0.7f, 100, 0 );
+	}
 	
-	(*me)->actor->scale.v[0] = 0.09;
-	(*me)->actor->scale.v[1] = 0.09;
-	(*me)->actor->scale.v[2] = 0.09;
+	(*me)->actor->scale.v[0] = 0.0075;
+	(*me)->actor->scale.v[1] = 0.0075;
+	(*me)->actor->scale.v[2] = 0.0075;
 	
 	SetFroggerStartPos ( where, (*me),p);
 	

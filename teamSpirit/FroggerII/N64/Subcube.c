@@ -16,6 +16,8 @@
 #include "incs.h"
 
 
+short transform = 1;
+
 Vtx	objectsVtx[2][2000];
 Vtx *vtxPtr;
 
@@ -28,7 +30,7 @@ float unitMatrix[4][4] = {0, 0, 0, 0,
 
 char	*tempObjectPtr, *tempObjectPtr2;
 
-VECTOR	actorScale;
+VECTOR	*actorScale;
 VECTOR	parentScaleStack[10];
 int		parentScaleStackLevel = 0;
 
@@ -42,56 +44,32 @@ char	calcMtx = FALSE;
 
 char	staticObj;
 
-void DrawObject(OBJECT *obj);
+float rotmat[4][4], scalemat[4][4], transmat[4][4];
+OBJECT_CONTROLLER *currentObjectController;
 
+char lookatNum = 0;
+char hiliteNum = 0;
 
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	: 
-	Returns 	: 
-	Info 		:
-*/
-int InitObject(OBJECT **objectPtr, short flags)//, char *tempPtr)
+RENDER_MODE renderMode = 
 {
-	int objSize;
+	0,	//	UBYTE	transparentSurf;
+	0,	//	UBYTE	aiSurf;         
+	0,	//	UBYTE	xluSurf;        
+	2,	//	UBYTE	useAAMode;      
+	1,	//	UBYTE	useZMode;       
+	1,	//	UBYTE	useTextureMode; 
+	0,	//	UBYTE	mirrorTextures; 
+	0,	//	UBYTE	phongMode;      
+	0,	//	UBYTE	faceColour;     
+	0,	//	UBYTE	objectColour;   
+	0,	//	UBYTE	actorColour;    
+	0,	//	UBYTE	pixelOut;       
+	1,	//	UBYTE	phongAllowed;   
+};
 
-	objSize = *(int *)tempObjectPtr;
-	tempObjectPtr2 = tempObjectPtr;
-	tempObjectPtr2 += 4;
 
-	*objectPtr = (OBJECT *)tempObjectPtr2;
+//void DrawObject(OBJECT *obj);
 
-	if((*objectPtr)->active)
-		return 0;
-
-	(*objectPtr)->flags = flags;
-
-
-	(*objectPtr)->mesh = (MESH *)((tempObjectPtr) + (int)(*objectPtr)->mesh);
-	(*objectPtr)->scaleKeys = (KEYFRAME *)((tempObjectPtr) + (int)(*objectPtr)->scaleKeys);
-	(*objectPtr)->moveKeys = (KEYFRAME *)((tempObjectPtr) + (int)(*objectPtr)->moveKeys);
-	(*objectPtr)->rotateKeys = (KEYFRAME *)((tempObjectPtr) + (int)(*objectPtr)->rotateKeys);
-
-	(*objectPtr)->mesh->vertices = (VECTOR *)((tempObjectPtr) + (int)(*objectPtr)->mesh->vertices);
-	(*objectPtr)->mesh->faceIndex = (SHORTVECTOR *)((tempObjectPtr) + (int)(*objectPtr)->mesh->faceIndex);
-
-	tempObjectPtr += objSize;
-
-	if((*objectPtr)->children)	
-	{
-		InitObject(&((*objectPtr)->children), flags);//, tempPtr);
-	}
-
-	if((*objectPtr)->next)	
-	{
-		InitObject(&((*objectPtr)->next), flags);//, tempPtr);
-	}
-
-	(*objectPtr)->active = 1;
-	return objSize;
-
-}
 
 /*	--------------------------------------------------------------------------------
 	Function 	: 
@@ -161,454 +139,122 @@ float adjF = 0.3;
 	Returns 	: 
 	Info 		:
 */
-void XformActor(ACTOR *ptr)
+void XformActor(ACTOR *actor)
 {
-	
-	float rotmat[4][4], scalemat[4][4], transmat[4][4];
-	float	animTime = 0;
 
-	QUATERNION tempQ;
-	UpdateAnimations(ptr);	
-	vtxPtr = &(objectsVtx[draw_buffer][0]);	
-	return;
-/*		
-	if(dispFrameCount == 1)
-	{
-		ptr->matrix = NULL;
-	}
-	else
-	{
-		calcMtx = FALSE;	//use precalculated matrix
-	}
+	OBJECT_CONTROLLER *objectC = actor->objectController;
+	float animTime;
 
+//	if(((!gamePaused) || (currentConversation.timer)) && (animateActors) && ((actor->stats == NULL) || (actor->stats->enemyNum == -1) || (enemies[actor->stats->enemyNum][gameInfo.levelSegment]->stunCount == 0)))
+	UpdateAnimations(actor);
 
-	staticObjectMtx = ptr->matrix;
-	if((staticObjectMtx) && (calcMtx == FALSE))
-		staticObj = TRUE;
-	else
-		staticObj = FALSE;
-
-	UpdateAnimations(ptr);
-
-	if(ptr->xluOverride == 0)
+							  
+	if(actor->xluOverride == 0)
 		return;
 
-	matrixStackCount = 0;
-	//create matrix for actors position rotation and scale
 
-	// MATT!
-	staticObj = FALSE;
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
+/*	if(noClip == FALSE) 
 	{
-	/*	guTranslateF(transmat, ptr->pos.v[X], ptr->pos.v[Y], ptr->pos.v[Z]);
-
-		PushMatrix(&transmat[0][0]);
-
-		QuaternionToMatrix(&ptr->qRot,(MATRIX *)rotmat);
-		PushMatrix(&rotmat[0][0]);
-*/
-/*		
-		actorScale.v[X] = ptr->scale.v[X];
-		actorScale.v[Y] = ptr->scale.v[Y];
-		actorScale.v[Z] = ptr->scale.v[Z];
-
-		parentScaleStackLevel = 0;
-		parentScaleStack[parentScaleStackLevel].v[X] = parentScaleStack[parentScaleStackLevel].v[Y] = parentScaleStack[parentScaleStackLevel].v[Z] = 1;
-
-		if((ptr->animation) && (ptr->animation->anims))
-			animTime = ptr->animation->animTime;
-		else
-			animTime = 0;
-	}
-
-	xluOverride = ptr->xluOverride;
-
-	currentDrawActor = ptr;
-	if(ptr->objectController->object)
-	{
-		TransformAndDrawObject(ptr->objectController->object, animTime, 0, 0);
-	}
-*/
-	/*
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		PopMatrix();
-		PopMatrix();
-	}*/
-}
-
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	:  
-	Returns 	: 
-	Info 		:
-*/
-void TransformAndDrawObject2(OBJECT *obj, float time, short animStart, short animEnd)
-{
-	QUATERNION	tempQuat;
-
-	float rotmat[4][4], scalemat[4][4], transmat[4][4];
-	int i;
-	float XTranslateAmount, YTranslateAmount, ZTranslateAmount;
-	float XScaleAmount = 1, YScaleAmount = 1, ZScaleAmount = 1;
-	SPRITE *sprite;
-
-	short	fromKey = -1, toKey = -1, low, high;
-	VECTOR	tempVect;
-	float	tempFloat;
-	int		xluVal;
-
-//handle position keyframes
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-
-		if(obj->numMoveKeys > 1)
-		{
-
-			i = 0;
-			fromKey = toKey = -1;
-
-			low=0;
-			high=obj->numMoveKeys-1;
-
-			while(low<=high)
-			{
-				i= (low+high) >> 1;
-
-				if (obj->moveKeys[i].time==time)
-				{
-					break;
-				}
-				else
-				{
-					if (obj->moveKeys[i].time>time)
-					{
-						high = i-1;
-					}
-					else
-					{
-						low = i+1;
-					}
-				}
-			}
-			
-			if (low>0) low--;
-			for(i = low; i < obj->numMoveKeys; i++)
-			{
-				if(obj->moveKeys[i].time > time)
-				{
-					toKey = i;
-					fromKey = i - 1;
-					break;
-				}
-			}						
-
-
-			if(fromKey != -1)		//time is within valid keyframes
-			{
-				tempFloat = abs(obj->moveKeys[toKey].time - obj->moveKeys[fromKey].time);
-				tempFloat = (time - (float)obj->moveKeys[fromKey].time) / tempFloat;
-
-			}
-			else					// must be between last and first keyframe
-			{
-				fromKey = obj->numMoveKeys-1;
-				toKey = fromKey;
-				tempFloat = 1;
-
-			}
-
-			tempVect.v[X] = obj->moveKeys[fromKey].u.vect.v[X] + ((obj->moveKeys[toKey].u.vect.v[X] - obj->moveKeys[fromKey].u.vect.v[X]) *  tempFloat);
-			tempVect.v[Y] = obj->moveKeys[fromKey].u.vect.v[Y] + ((obj->moveKeys[toKey].u.vect.v[Y] - obj->moveKeys[fromKey].u.vect.v[Y]) *  tempFloat);
-			tempVect.v[Z] = obj->moveKeys[fromKey].u.vect.v[Z] + ((obj->moveKeys[toKey].u.vect.v[Z] - obj->moveKeys[fromKey].u.vect.v[Z]) *  tempFloat);
-			
-			
-			XTranslateAmount = tempVect.v[X];
-			YTranslateAmount = tempVect.v[Y];
-			ZTranslateAmount = tempVect.v[Z];
-
-		}
-		else
-		{
-			XTranslateAmount = (obj->moveKeys[0].u.vect.v)[X];
-			YTranslateAmount = (obj->moveKeys[0].u.vect.v)[Y];
-			ZTranslateAmount = (obj->moveKeys[0].u.vect.v)[Z];
-		}
-
-	// handle scale keyframes
-		if(obj->numScaleKeys > 1)
-		{
-
-			i = 0;
-			fromKey = toKey = -1;
-
-			low=0;
-			high=obj->numScaleKeys-1;
-
-			while(low<=high)
-			{
-				i= (low+high) >> 1;
-
-				if (obj->scaleKeys[i].time==time)
-				{
-					break;
-				}
-				else
-				{
-					if (obj->scaleKeys[i].time>time)
-					{
-						high = i-1;
-					}
-					else
-					{
-						low = i+1;
-					}
-				}
-			}
-			
-			if (low>0) low--;
-			for(i = low; i < obj->numScaleKeys; i++)
-			{
-				if(obj->scaleKeys[i].time > time)
-				{
-					toKey = i;
-					fromKey = i - 1;
-					break;
-				}
-			}						
-
-
-
-
-
-			if(fromKey != -1)		//time is within valid keyframes
-			{
-				tempFloat = abs(obj->scaleKeys[toKey].time - obj->scaleKeys[fromKey].time);
-				tempFloat = (time - (float)obj->scaleKeys[fromKey].time) / tempFloat;
-
-			}
-			else					// must be between last and first keyframe
-			{
-
-				fromKey = obj->numScaleKeys-1;
-				toKey = fromKey;
-				tempFloat = 1;
-
-			}
-
-			tempVect.v[X] = obj->scaleKeys[fromKey].u.vect.v[X] + ((obj->scaleKeys[toKey].u.vect.v[X] - obj->scaleKeys[fromKey].u.vect.v[X]) *  tempFloat);
-			tempVect.v[Y] = obj->scaleKeys[fromKey].u.vect.v[Y] + ((obj->scaleKeys[toKey].u.vect.v[Y] - obj->scaleKeys[fromKey].u.vect.v[Y]) *  tempFloat);
-			tempVect.v[Z] = obj->scaleKeys[fromKey].u.vect.v[Z] + ((obj->scaleKeys[toKey].u.vect.v[Z] - obj->scaleKeys[fromKey].u.vect.v[Z]) *  tempFloat);
-			
-			XScaleAmount = tempVect.v[0];
-			YScaleAmount = tempVect.v[1];
-			ZScaleAmount = tempVect.v[2];
-
-
-		}
-		else
-		{
-			XScaleAmount = obj->scaleKeys[0].u.vect.v[0];
-			YScaleAmount = obj->scaleKeys[0].u.vect.v[1];
-			ZScaleAmount = obj->scaleKeys[0].u.vect.v[2];
-		}
-	// handle rotation keyframes
-		if(obj->numRotateKeys > 1)
-		{
-//			if(obj->flags & OBJECT_FLAGS_CONSTANIM)
-//				time = 1 + (frameCount MOD 40);
-
-			i = 0;
-			fromKey = toKey = -1;
-
-			low=0;
-			high=obj->numRotateKeys-1;
-
-			while(low<=high)
-			{
-				i= (low+high) >> 1;
-
-				if (obj->rotateKeys[i].time==time)
-				{
-					break;
-				}
-				else
-				{
-					if (obj->rotateKeys[i].time>time)
-					{
-						high = i-1;
-					}
-					else
-					{
-						low = i+1;
-					}
-				}
-			}
-			
-			if (low>0) low--;
-			for(i = low; i < obj->numRotateKeys; i++)
-			{
-				if(obj->rotateKeys[i].time > time)
-				{
-					toKey = i;
-					fromKey = i - 1;
-					break;
-				}
-			}						
-
-
-			if(fromKey != -1)		//time is within valid keyframes
-			{
-				tempFloat = abs(obj->rotateKeys[toKey].time - obj->rotateKeys[fromKey].time);
-				tempFloat = (time - (float)obj->rotateKeys[fromKey].time) / tempFloat;
-
-			}
-			else					// must be between last and first keyframe
-			{
-
-				fromKey = obj->numRotateKeys-1;
-				toKey = fromKey;
-				tempFloat = 1;
-
-
-
-			}
-
-			QuatSlerp(&obj->rotateKeys[fromKey].u.quat, &obj->rotateKeys[toKey].u.quat, tempFloat, &tempQuat);
-
-	//convert back to rotation matrix
-			QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
-		}
-		else
-		{
-			QuaternionToMatrix(&obj->rotateKeys[0].u.quat, (MATRIX *)rotmat);
-		}
-
-	
-	    guTranslateF(transmat, XTranslateAmount * actorScale.v[X] * parentScaleStack[parentScaleStackLevel].v[X],
-							   YTranslateAmount * actorScale.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y],
-							   ZTranslateAmount * actorScale.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z]);
-
-		//concatinate rotation and translate matrices quickly
-		rotmat[3][0] = transmat[3][0];
-		rotmat[3][1] = transmat[3][1];
-		rotmat[3][2] = transmat[3][2];
-		rotmat[3][3] = transmat[3][3];
-
-		PushMatrix(&rotmat[0][0]);
-
-//calculate objects scale matrix
-	    guScaleF(scalemat, XScaleAmount * actorScale.v[X], YScaleAmount * actorScale.v[Y], ZScaleAmount * actorScale.v[Z]);
-		PushMatrix(&scalemat[0][0]);
-	}
-
-//here we need the result of our matrix stack 
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		
-		ComputeResultMatrix();		
-		guMtxF2L(matrixStack.result, &dynamicp->modeling4[objectMatrix]);
-	
-
-		//store the static mtx
-		if(calcMtx == TRUE)
-		{
-			if(staticObjectMtx)
-			{
-//				SetMatrix((float *)staticObjectMtx, (float *)&dynamicp->modeling4[objectMatrix]);
-				guMtxF2L(matrixStack.result, staticObjectMtx);
-			}
-		}
-	
-		SetMatrix ((float *)&obj->myMatrix,(float *)matrixStack.result);//&dynamicp->modeling4[objectMatrix]);
-
-//		gSPMatrix(glistp++, 
-//		 OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-//		 G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		
-//		matrixStackCount++;
-		
-
+		actor->visible = IsActorVisible(actor);
+		if(actor->visible == FALSE)
+			return;
 	}
 	else
 	{
-//		guMtxF2L(unitMatrix, &dynamicp->modeling4[objectMatrix]);
-		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)staticObjectMtx);
-//		memcpy(&dynamicp->modeling4[objectMatrix], staticObjectMtx, sizeof(Mtx));
-
-	    gSPMatrix(glistp++, 
-		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		matrixStackCount++;
-
+		actor->visible = TRUE;
 	}
-	
-//		/* --------------------------------------------------------/ *Hey.... Nevermind! */
-/*--------------------------------------------
 
-		if(obj->drawList)
-		{
-			gSPDisplayList(glistp++, obj->drawList);
-		}
-		else if(obj->mesh->numFaces)
-		{
-			if(obj->flags & OBJECT_FLAGS_GOURAUD_SHADED)
-			{
-				if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-				{
-					gSPSetGeometryMode(glistp++, G_LIGHTING);
-				}
-				else
-				{
-				    gSPClearGeometryMode(glistp++, G_LIGHTING);
-				}
-				WriteObjectDisplayListGouraud(obj);
-			}
-			else
-			{
-				if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-				{
-					gSPSetGeometryMode(glistp++, G_LIGHTING);
-				}
-				else
-				{
-				    gSPClearGeometryMode(glistp++, G_LIGHTING);
-				}
-				WriteObjectDisplayListFlat(obj);
-			}
-		}
+	numActorsXformed++;*/
+	staticObjectMtx = actor->matrix;
+	currentDrawActor = actor;
+	currentObjectController = objectC;
+	actorScale = &actor->scale;
 
-		
-		gSPPopMatrix(glistp++, G_MTX_MODELVIEW);
-		matrixStackCount--;
--------------------------------------------------------------------------------------*/
-	if((calcMtx == TRUE) || (staticObj == FALSE))
+	if((actor->animation) && (actor->animation->anims))
+		animTime = actor->animation->animTime;
+	else
+		animTime = 0;
+
+
+	parentScaleStackLevel = 0;
+	parentScaleStack[parentScaleStackLevel].v[X] = parentScaleStack[parentScaleStackLevel].v[Y] = parentScaleStack[parentScaleStackLevel].v[Z] = 1;
+
+
+	if(objectC->drawList)	//if object is skinned, transform mesh before aplying object TM
 	{
-
-		PopMatrix();
-
-//transform children
-		if(obj->children)
+		if(objectC->object)
 		{
-			parentScaleStackLevel++;
-			parentScaleStack[parentScaleStackLevel].v[X] = XScaleAmount/* * actorScale.v[X]*/;
-			parentScaleStack[parentScaleStackLevel].v[Y] = YScaleAmount/* * actorScale.v[Y]*/;
-			parentScaleStack[parentScaleStackLevel].v[Z] = ZScaleAmount/* * actorScale.v[Z]*/;
-			TransformAndDrawObject(obj->children, time, animStart, animEnd);
-			parentScaleStackLevel--;
+//			if((actor->LODObjectController) && (actor->distanceFromCamera - actor->maxRadius > (LODDist)))
+//				TransformSkinnedObject(actor->LODObjectController->object, animTime);
+//			else
+				TransformSkinnedObject(objectC->object, animTime);
 		}
 
-		PopMatrix();
+	}
 
-		if(obj->next)
+
+	//if(staticObjectMtx == NULL)
+	//{
+		guTranslateF(transmat, actor->pos.v[X], actor->pos.v[Y], actor->pos.v[Z]);
+		PushMatrix(transmat);
+
+		/*if((actor->stats) && (actor->stats->bounceSpeed))
 		{
-			TransformAndDrawObject(obj->next, time, animStart, animEnd);
+			guScaleF(scalemat,actor->stats->bounceScale.v[X],actor->stats->bounceScale.v[Y],actor->stats->bounceScale.v[X]);
+			QuaternionToMatrix(&actor->stats->bounceQ,(MATRIX *)rotmat);
+
+			guMtxCatF(scalemat,rotmat,scalemat);
+
+			PushMatrix(scalemat);
+			actor->stats->bounceQ.w = -actor->stats->bounceQ.w;
+			QuaternionToMatrix(&actor->stats->bounceQ,(MATRIX *)transmat);
+			actor->stats->bounceQ.w = -actor->stats->bounceQ.w;
+			PushMatrix(transmat);
+		}*/
+		QuaternionToMatrix(&actor->qRot,(MATRIX *)rotmat);
+		PushMatrix(rotmat);
+
+//	}
+
+
+	if(objectC->drawList == NULL)
+	{
+		if(objectC->object)
+		{
+//				if((actor->LODObjectController) && (actor->distanceFromCamera - actor->maxRadius > (LODDist)))
+//					TransformObject(actor->LODObjectController->object, animTime);
+//				else
+				TransformObject(objectC->object, animTime);
 		}
 	}
+	else
+	{
+		//skinned objects need to store the TM, including the scale which can't be done at vertex xform stage due to interer inaccuracies
+		guScaleF(scalemat,actor->scale.v[X],actor->scale.v[Y],actor->scale.v[Z]);
+		PushMatrix(scalemat);
+		guMtxF2L(matrixStack.stack[matrixStack.stackPosition], &objectC->object->objMatrix);
+		PopMatrix();
+	}
+
+  	parentScaleStackLevel = 0;
+	parentScaleStack[parentScaleStackLevel].v[X] = parentScaleStack[parentScaleStackLevel].v[Y] = parentScaleStack[parentScaleStackLevel].v[Z] = 1;
+
+
+	
+	//if(staticObjectMtx == NULL)
+	//{
+	//matrixStack.stackPosition-=2;
+		PopMatrix();
+		PopMatrix();
+
+/*		if((actor->stats) && (actor->stats->bounceSpeed))
+		{
+			PopMatrix();
+			PopMatrix();
+		}*/
+//	}
 }
+
 
 /*---------------------------------------------------------------------------------------------
 	Function	: DrawMyObject
@@ -616,85 +262,33 @@ void TransformAndDrawObject2(OBJECT *obj, float time, short animStart, short ani
 	Returns		: void 
 */
 
-void DrawObject(OBJECT *obj)
+void DrawObject(OBJECT *obj, Gfx *drawList, int skinned)
 {
-	float	tempFloat;
+	//if(obj->textureAnim)
+	//	AnimateTexture(obj->textureAnim,obj->drawList);
 
-	changeRenderMode = 0;
-	if(!aiSurf)
+	if(staticObjectMtx == NULL)
 	{
-		if(obj->flags & OBJECT_FLAGS_TRANSPARENT)
-		{
-			if(transparentSurf == FALSE)
-			{
-				transparentSurf = TRUE;
-				changeRenderMode = TRUE;
-			}
-		}
-		else
-		{
-			if(transparentSurf == TRUE)
-			{
-				transparentSurf = FALSE;
-				changeRenderMode = TRUE;
-			}
-		}
-		if(obj->flags & OBJECT_FLAGS_XLU)
-		{
-			if(xluSurf == FALSE)
-			{
-				xluSurf = TRUE;
-				changeRenderMode = 1;
-			}
-			if(obj->drawList == 0)
-				xluSurf = TRUE;
-			tempFloat = (float)xluOverride / 100;
-			tempFloat *= (float)obj->xlu;
-			if(tempFloat > 255)
-				tempFloat = 255;
-			if((int)tempFloat != xluFact)
-				changeRenderMode = 1;
-			xluFact = tempFloat;
-		}
-		else
-		{
-			if(xluSurf == TRUE)
-			{
-				xluSurf = FALSE;
-				changeRenderMode = 1;
-			}
-		}
+		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)&obj->objMatrix);
 
-		if(changeRenderMode)
-			SetRenderMode();
+	    gSPMatrix(glistp++, 
+		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
 	}
 	else
 	{
-		gDPSetPrimColor(glistp++,0,0,/*r*/255,/*g*/255,/*b*/255,obj->xlu);
+		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)staticObjectMtx);
+
+	    gSPMatrix(glistp++, 
+		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
+		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
 	}
+	
+	SetupRenderModeForObject(obj);
 
-	
-	PushMatrix(&obj->myMatrix);
-		ComputeResultMatrix();	
-		
-		guMtxF2L(matrixStack.result, &dynamicp->modeling4[objectMatrix]);
-		//	SetMatrix (&dynamicp->modeling4[objectMatrix],(float *)matrixStack.result);
-	
-	//	SetMatrix (&dynamicp->modeling4[objectMatrix],(float *)&obj->myMatrix);
-	//	guMtxCatL(t, dynamicp->modeling4[objectMatrix], dynamicp->modeling4[objectMatrix]);
-	
-	PopMatrix();
-
-	gSPMatrix(glistp++, 
-		 OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-		 G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		
-		matrixStackCount++;
-	
-
-	if(obj->drawList)
+	if(drawList)
 	{
-		gSPDisplayList(glistp++, obj->drawList);
+		gSPDisplayList(glistp++, drawList);
 	}
 	else if(obj->mesh->numFaces)
 	{
@@ -706,9 +300,12 @@ void DrawObject(OBJECT *obj)
 			}
 			else
 			{
-			    gSPClearGeometryMode(glistp++, G_LIGHTING);
+				gSPClearGeometryMode(glistp++, G_LIGHTING);
 			}
-			WriteObjectDisplayListGouraud(obj);
+			if(obj->flags & OBJECT_FLAGS_PHONG)
+				WriteObjectDisplayListGouraudPhong(obj);
+			else
+				WriteObjectDisplayListGouraud(obj);
 		}
 		else
 		{
@@ -718,623 +315,84 @@ void DrawObject(OBJECT *obj)
 			}
 			else
 			{
-			    gSPClearGeometryMode(glistp++, G_LIGHTING);
+				gSPClearGeometryMode(glistp++, G_LIGHTING);
 			}
 			WriteObjectDisplayListFlat(obj);
 		}
 	}
 
-		
 	gSPPopMatrix(glistp++, G_MTX_MODELVIEW);
-	matrixStackCount--;
+
+	if(skinned)
+		return;
 
 	if(obj->children)
-		DrawObject(obj->children);
-	
+		DrawObject(obj->children, obj->children->drawList, skinned);
+
 	if(obj->next)
-		DrawObject(obj->next);
-	
-}
+		DrawObject(obj->next, obj->next->drawList, skinned);
+	 
 
 
-/*
-void DrawActor(ACTOR *ptr)
-{
-	float rotmat[4][4], scalemat[4][4], transmat[4][4];
-	float	animTime = 0;
-
-	QUATERNION tempQ;
-
-	vtxPtr = &(objectsVtx[draw_buffer][0]);			
-	staticObj = FALSE;
-	if(ptr->xluOverride == 0)
-		return;
-	matrixStackCount = 0;	
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		guTranslateF(transmat, ptr->pos.v[X], ptr->pos.v[Y], ptr->pos.v[Z]);
-
-		PushMatrix(&transmat[0][0]);
-
-		QuaternionToMatrix(&ptr->qRot,(MATRIX *)rotmat);
-		PushMatrix(&rotmat[0][0]);
-	}
-
-	xluOverride = ptr->xluOverride;
-	currentDrawActor = ptr;
-	if(ptr->objectController->object)
-		DrawObject(ptr->objectController->object);		
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		PopMatrix();
-		PopMatrix();
-	}
 
 }
-*/
-void DrawActor(ACTOR *ptr)
+
+
+void DrawActor(ACTOR *actor)
 {
-	float rotmat[4][4], scalemat[4][4], transmat[4][4];
-	float	animTime = 0;
-
-	QUATERNION tempQ;
-		
-	if(dispFrameCount == 1)
-	{
-		//this is the first time objects are drawn, so store matrix if static object
-//		if(ptr->type == LANDSCAPE_ACTOR)
-//		{
-//			if(ptr->objectController)
-//				JallocFree((UBYTE **)&ptr->matrix);
-
-//			ptr->matrix = (Mtx *)JallocAlloc(sizeof(Mtx), YES, "statMtx");
-//			calcMtx = TRUE;		//work out the static objects mtx
-//		}
-//		else
-		{
-			ptr->matrix = NULL;
-		}
-	
-	}
-	else
-	{
-		calcMtx = FALSE;	//use precalculated matrix
-
-//		if(IsActorVisible(ptr) == FALSE)
-//			return;
-
-	}
+	OBJECT_CONTROLLER *objectC = actor->objectController;
+	int col;
+	float animTime;
 
 
-	staticObjectMtx = ptr->matrix;
-	if((staticObjectMtx) && (calcMtx == FALSE))
-		staticObj = TRUE;
-	else
-		staticObj = FALSE;
+//	if(actor->visible == FALSE)
+//		return;
 
-
-/*
-	if((!gamePaused) && (animateActors) && ((ptr->stats == NULL) || (ptr->stats->enemyNum == -1) || (enemies[ptr->stats->enemyNum].spellCount[STUN] == 0)))
-	{
-//		if(IsActorVisible(ptr) == FALSE)
-//			return;
-		UpdateAnimations(ptr);
-	}
-*/
-
-
-	if(ptr->xluOverride == 0)
+	if(actor->xluOverride == 0)
 		return;
 
-	matrixStackCount = 0;
-	//create matrix for actors position rotation and scale
-
-	// MATT!
-	staticObj = FALSE;
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
+	staticObjectMtx = actor->matrix;
+	xluOverride = actor->xluOverride;
+	/*if((actor->stats) && (actor->stats->inShadow))
 	{
-		guTranslateF(transmat, ptr->pos.v[X], ptr->pos.v[Y], ptr->pos.v[Z]);
-
-		PushMatrix(&transmat[0][0]);
-
-		/*
-		if((ptr->stats) && (ptr->stats->bounceSpeed))
-		{
-			guScaleF(scalemat,ptr->stats->bounceScale.v[X],ptr->stats->bounceScale.v[Y],ptr->stats->bounceScale.v[X]);
-			QuaternionToMatrix(&ptr->stats->bounceQ,(MATRIX *)rotmat);
-
-			guMtxCatF(scalemat,rotmat,scalemat);
-
-			PushMatrix(&scalemat[0][0]);
-			tempQ = ptr->stats->bounceQ;
-	 		tempQ.w = -tempQ.w;
-			QuaternionToMatrix(&tempQ,(MATRIX *)transmat);
-			PushMatrix(&transmat[0][0]);
-		}
-		*/
-
-		QuaternionToMatrix(&ptr->qRot,(MATRIX *)rotmat);
-		PushMatrix(&rotmat[0][0]);
-
-		actorScale.v[X] = ptr->scale.v[X];
-		actorScale.v[Y] = ptr->scale.v[Y];
-		actorScale.v[Z] = ptr->scale.v[Z];
-
-		parentScaleStackLevel = 0;
-		parentScaleStack[parentScaleStackLevel].v[X] = parentScaleStack[parentScaleStackLevel].v[Y] = parentScaleStack[parentScaleStackLevel].v[Z] = 1;
-
-		if((ptr->animation) && (ptr->animation->anims))
-			animTime = ptr->animation->animTime;
-		else
-			animTime = 0;
+		renderMode.actorColour = 1;
+		col = 255-actor->stats->inShadow;
+		ProcessBackgroundLightsWithCols(1,col,col,col);
 	}
-
-	xluOverride = ptr->xluOverride;
-
-	currentDrawActor = ptr;
-	if(ptr->objectController->object)
-		TransformAndDrawObject(ptr->objectController->object, animTime, 0, 0);
-	
-	if((calcMtx == TRUE) || (staticObj == FALSE))
+	else if(renderMode.actorColour)
 	{
-		PopMatrix();
-		PopMatrix();
+		renderMode.actorColour = 0;
+		ProcessBackgroundLightsWithCols(0,0,0,0);
+	}*/
 
-		/*
-		if((ptr->stats) && (ptr->stats->bounceSpeed))
-		{
-			PopMatrix();
-			PopMatrix();
-		}
-		*/
-	}
-}
+	currentDrawActor = actor;
+	actorScale = &actor->scale;
 
-/*	--------------------------------------------------------------------------------
-	Function 	: 
-	Purpose 	: 
-	Parameters 	:  
-	Returns 	: 
-	Info 		:
-*/
-void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short animEnd)
-{
-	QUATERNION	tempQuat;
-
-	float rotmat[4][4], scalemat[4][4], transmat[4][4];
-	int i;
-	float XTranslateAmount, YTranslateAmount, ZTranslateAmount;
-	float XScaleAmount = 1, YScaleAmount = 1, ZScaleAmount = 1;
-	SPRITE *sprite;
-
-	short	fromKey = -1, toKey = -1, low, high;
-	VECTOR	tempVect;
-	float	tempFloat;
-	int		xluVal;
-
-//handle position keyframes
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-
-		if(obj->numMoveKeys > 1)
-		{
-
-			i = 0;
-			fromKey = toKey = -1;
-
-			low=0;
-			high=obj->numMoveKeys-1;
-
-			while(low<=high)
-			{
-				i= (low+high) >> 1;
-
-				if (obj->moveKeys[i].time==time)
-				{
-					break;
-				}
-				else
-				{
-					if (obj->moveKeys[i].time>time)
-					{
-						high = i-1;
-					}
-					else
-					{
-						low = i+1;
-					}
-				}
-			}
-			
-			if (low>0) low--;
-			for(i = low; i < obj->numMoveKeys; i++)
-			{
-				if(obj->moveKeys[i].time > time)
-				{
-					toKey = i;
-					fromKey = i - 1;
-					break;
-				}
-			}						
-
-
-			if(fromKey != -1)		//time is within valid keyframes
-			{
-				tempFloat = abs(obj->moveKeys[toKey].time - obj->moveKeys[fromKey].time);
-				tempFloat = (time - (float)obj->moveKeys[fromKey].time) / tempFloat;
-
-			}
-			else					// must be between last and first keyframe
-			{
-				fromKey = obj->numMoveKeys-1;
-				toKey = fromKey;
-				tempFloat = 1;
-
-			}
-
-			tempVect.v[X] = obj->moveKeys[fromKey].u.vect.v[X] + ((obj->moveKeys[toKey].u.vect.v[X] - obj->moveKeys[fromKey].u.vect.v[X]) *  tempFloat);
-			tempVect.v[Y] = obj->moveKeys[fromKey].u.vect.v[Y] + ((obj->moveKeys[toKey].u.vect.v[Y] - obj->moveKeys[fromKey].u.vect.v[Y]) *  tempFloat);
-			tempVect.v[Z] = obj->moveKeys[fromKey].u.vect.v[Z] + ((obj->moveKeys[toKey].u.vect.v[Z] - obj->moveKeys[fromKey].u.vect.v[Z]) *  tempFloat);
-			
-			
-			XTranslateAmount = tempVect.v[X];
-			YTranslateAmount = tempVect.v[Y];
-			ZTranslateAmount = tempVect.v[Z];
-
-		}
-		else
-		{
-			XTranslateAmount = (obj->moveKeys[0].u.vect.v)[X];
-			YTranslateAmount = (obj->moveKeys[0].u.vect.v)[Y];
-			ZTranslateAmount = (obj->moveKeys[0].u.vect.v)[Z];
-		}
-
-	// handle scale keyframes
-		if(obj->numScaleKeys > 1)
-		{
-
-			i = 0;
-			fromKey = toKey = -1;
-
-			low=0;
-			high=obj->numScaleKeys-1;
-
-			while(low<=high)
-			{
-				i= (low+high) >> 1;
-
-				if (obj->scaleKeys[i].time==time)
-				{
-					break;
-				}
-				else
-				{
-					if (obj->scaleKeys[i].time>time)
-					{
-						high = i-1;
-					}
-					else
-					{
-						low = i+1;
-					}
-				}
-			}
-			
-			if (low>0) low--;
-			for(i = low; i < obj->numScaleKeys; i++)
-			{
-				if(obj->scaleKeys[i].time > time)
-				{
-					toKey = i;
-					fromKey = i - 1;
-					break;
-				}
-			}						
-
-
-
-
-
-			if(fromKey != -1)		//time is within valid keyframes
-			{
-				tempFloat = abs(obj->scaleKeys[toKey].time - obj->scaleKeys[fromKey].time);
-				tempFloat = (time - (float)obj->scaleKeys[fromKey].time) / tempFloat;
-
-			}
-			else					// must be between last and first keyframe
-			{
-
-				fromKey = obj->numScaleKeys-1;
-				toKey = fromKey;
-				tempFloat = 1;
-
-			}
-
-			tempVect.v[X] = obj->scaleKeys[fromKey].u.vect.v[X] + ((obj->scaleKeys[toKey].u.vect.v[X] - obj->scaleKeys[fromKey].u.vect.v[X]) *  tempFloat);
-			tempVect.v[Y] = obj->scaleKeys[fromKey].u.vect.v[Y] + ((obj->scaleKeys[toKey].u.vect.v[Y] - obj->scaleKeys[fromKey].u.vect.v[Y]) *  tempFloat);
-			tempVect.v[Z] = obj->scaleKeys[fromKey].u.vect.v[Z] + ((obj->scaleKeys[toKey].u.vect.v[Z] - obj->scaleKeys[fromKey].u.vect.v[Z]) *  tempFloat);
-			
-			XScaleAmount = tempVect.v[0];
-			YScaleAmount = tempVect.v[1];
-			ZScaleAmount = tempVect.v[2];
-
-
-		}
-		else
-		{
-			XScaleAmount = obj->scaleKeys[0].u.vect.v[0];
-			YScaleAmount = obj->scaleKeys[0].u.vect.v[1];
-			ZScaleAmount = obj->scaleKeys[0].u.vect.v[2];
-		}
-	// handle rotation keyframes
-		if(obj->numRotateKeys > 1)
-		{
-//			if(obj->flags & OBJECT_FLAGS_CONSTANIM)
-//				time = 1 + (frameCount MOD 40);
-
-			i = 0;
-			fromKey = toKey = -1;
-
-			low=0;
-			high=obj->numRotateKeys-1;
-
-			while(low<=high)
-			{
-				i= (low+high) >> 1;
-
-				if (obj->rotateKeys[i].time==time)
-				{
-					break;
-				}
-				else
-				{
-					if (obj->rotateKeys[i].time>time)
-					{
-						high = i-1;
-					}
-					else
-					{
-						low = i+1;
-					}
-				}
-			}
-			
-			if (low>0) low--;
-			for(i = low; i < obj->numRotateKeys; i++)
-			{
-				if(obj->rotateKeys[i].time > time)
-				{
-					toKey = i;
-					fromKey = i - 1;
-					break;
-				}
-			}						
-
-
-			if(fromKey != -1)		//time is within valid keyframes
-			{
-				tempFloat = abs(obj->rotateKeys[toKey].time - obj->rotateKeys[fromKey].time);
-				tempFloat = (time - (float)obj->rotateKeys[fromKey].time) / tempFloat;
-
-			}
-			else					// must be between last and first keyframe
-			{
-
-				fromKey = obj->numRotateKeys-1;
-				toKey = fromKey;
-				tempFloat = 1;
-
-
-
-			}
-
-			QuatSlerp(&obj->rotateKeys[fromKey].u.quat, &obj->rotateKeys[toKey].u.quat, tempFloat, &tempQuat);
-
-	//convert back to rotation matrix
-			QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
-//			if((obj->collSphere) && (obj->collSphere->quatTag))
-//				QuaternionMultiply(&TagToFirstPlatform(obj->collSphere->quatTag)->actor.qRot,&currentDrawActor->qRot,&tempQuat);
-		}
-		else
-		{
-			QuaternionToMatrix(&obj->rotateKeys[0].u.quat, (MATRIX *)rotmat);
-//			if((obj->collSphere) && (obj->collSphere->quatTag))
-//			{
-//				SetQuaternion(&TagToFirstPlatform(obj->collSphere->tag)->actor.qRot,&obj->rotateKeys[0].u.quat);
-//				QuaternionMultiply(&TagToFirstPlatform(obj->collSphere->quatTag)->actor.qRot,&currentDrawActor->qRot,&obj->rotateKeys[0].u.quat);
-//			}
-		}
-
-	
-	    guTranslateF(transmat, XTranslateAmount * actorScale.v[X] * parentScaleStack[parentScaleStackLevel].v[X],
-							   YTranslateAmount * actorScale.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y],
-							   ZTranslateAmount * actorScale.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z]);
-
-		//concatinate rotation and translate matrices quickly
-		rotmat[3][0] = transmat[3][0];
-		rotmat[3][1] = transmat[3][1];
-		rotmat[3][2] = transmat[3][2];
-		rotmat[3][3] = transmat[3][3];
-
-		PushMatrix(&rotmat[0][0]);
-
-//calculate objects scale matrix
-	    guScaleF(scalemat, XScaleAmount * actorScale.v[X], YScaleAmount * actorScale.v[Y], ZScaleAmount * actorScale.v[Z]);
-		PushMatrix(&scalemat[0][0]);
-	}
-
-	// maintain position of all objects sprites
-	if(obj->numSprites > 0)
-	{
-		for(i=0; i<obj->numSprites; i++)
-		{
-			sprite = obj->sprites[i].sprite;
-			if(sprite)
-			{
-				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale.v[X] * XScaleAmount;
-				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale.v[Y] * YScaleAmount;
-				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition],obj->sprites[i].x,obj->sprites[i].y,obj->sprites[i].z,
-							&sprite->pos.v[X],&sprite->pos.v[Y],&sprite->pos.v[Z]);
-			}
-		}
-	}
-	
-	changeRenderMode = 0;
-
-		if(!aiSurf)
-		{
-			if(obj->flags & OBJECT_FLAGS_TRANSPARENT)
-			{
-				if(transparentSurf == FALSE)
-				{
-					transparentSurf = TRUE;
-					changeRenderMode = TRUE;
-				}
-			}
-			else
-			{
-				if(transparentSurf == TRUE)
-				{
-					transparentSurf = FALSE;
-					changeRenderMode = TRUE;
-				}
-			}
-
-			if(obj->flags & OBJECT_FLAGS_XLU)
-			{
-				if(xluSurf == FALSE)
-				{
-					xluSurf = TRUE;
-					changeRenderMode = 1;
-				}
-				if(obj->drawList == 0)
-					xluSurf = TRUE;
-
-				tempFloat = (float)xluOverride / 100;
-				tempFloat *= (float)obj->xlu;
-				if(tempFloat > 255)
-					tempFloat = 255;
-				if((int)tempFloat != xluFact)
-					changeRenderMode = 1;
-				xluFact = tempFloat;
-			}
-			else
-			{
-				if(xluSurf == TRUE)
-				{
-					xluSurf = FALSE;
-					changeRenderMode = 1;
-				}
-			}
-
-			if(changeRenderMode)
-				SetRenderMode();
-		}
-		else
-		{
-			gDPSetPrimColor(glistp++,0,0,/*r*/255,/*g*/255,/*b*/255,obj->xlu);
-		}
-
-
-//here we need the result of our matrix stack 
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-		ComputeResultMatrix();
-		guMtxF2L(matrixStack.result, &dynamicp->modeling4[objectMatrix]);
-	
-
-		//store the static mtx
-		if(calcMtx == TRUE)
-		{
-			if(staticObjectMtx)
-			{
-//				SetMatrix((float *)staticObjectMtx, (float *)&dynamicp->modeling4[objectMatrix]);
-				guMtxF2L(matrixStack.result, staticObjectMtx);
-			}
-		}
-	
-  gSPMatrix(glistp++, 
-		 OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-		 G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		
-		matrixStackCount++;
-	}
+	if((actor->animation) && (actor->animation->anims))
+		animTime = actor->animation->animTime;
 	else
-	{
-//		guMtxF2L(unitMatrix, &dynamicp->modeling4[objectMatrix]);
-		SetMatrix((float *)&dynamicp->modeling4[objectMatrix], (float *)staticObjectMtx);
-//		memcpy(&dynamicp->modeling4[objectMatrix], staticObjectMtx, sizeof(Mtx));
+		animTime = 0;
 
-	    gSPMatrix(glistp++, 
-		OS_K0_TO_PHYSICAL(&(dynamicp->modeling4[objectMatrix++])),
-		G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-		matrixStackCount++;
-
-	}
-
-		if(obj->drawList)
-		{
-			gSPDisplayList(glistp++, obj->drawList);
+//	if(objectC->objectSize == 1)
+//	{
+//		SetupRenderModeForObject(objectC->object);
+//		gSPDisplayList(glistp++, objectC->object->drawList);
+//	}
+//	else
+//	{
+/*		if(objectC->drawList)	//if object is skinned, draw mesh now
+ 		{
+			gSPSegment(glistp++, 1, objectC->Vtx[objectC->vtxBuf]);
+			DrawObject(objectC->object, objectC->drawList, TRUE);
 		}
-		else if(obj->mesh->numFaces)
-		{
-			if(obj->flags & OBJECT_FLAGS_GOURAUD_SHADED)
-			{
-				if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-				{
-					gSPSetGeometryMode(glistp++, G_LIGHTING);
-				}
-				else
-				{
-				    gSPClearGeometryMode(glistp++, G_LIGHTING);
-				}
-				WriteObjectDisplayListGouraud(obj);
-			}
-			else
-			{
-				if(!(obj->flags & OBJECT_FLAGS_PRELIT))
-				{
-					gSPSetGeometryMode(glistp++, G_LIGHTING);
-				}
-				else
-				{
-				    gSPClearGeometryMode(glistp++, G_LIGHTING);
-				}
-				WriteObjectDisplayListFlat(obj);
-			}
-		}
+		else
+			DrawObject(objectC->object, objectC->object->drawList, FALSE);*/
+//	}
+	if(objectC->drawList)	//if object is skinned, draw mesh now
+ 		DrawObject(objectC->object, objectC->drawList, TRUE);
+	else
+		DrawObject(objectC->object, objectC->object->drawList, FALSE);
 
-		
-		gSPPopMatrix(glistp++, G_MTX_MODELVIEW);
-		matrixStackCount--;
-
-	if((calcMtx == TRUE) || (staticObj == FALSE))
-	{
-
-		PopMatrix();
-
-//transform children
-		if(obj->children)
-		{
-			parentScaleStackLevel++;
-			parentScaleStack[parentScaleStackLevel].v[X] = XScaleAmount/* * actorScale.v[X]*/;
-			parentScaleStack[parentScaleStackLevel].v[Y] = YScaleAmount/* * actorScale.v[Y]*/;
-			parentScaleStack[parentScaleStackLevel].v[Z] = ZScaleAmount/* * actorScale.v[Z]*/;
-			TransformAndDrawObject(obj->children, time, animStart, animEnd);
-			parentScaleStackLevel--;
-		}
-
-		PopMatrix();
-
-		if(obj->next)
-		{
-			TransformAndDrawObject(obj->next, time, animStart, animEnd);
-		}
-	}
 }
 
 
@@ -1347,7 +405,7 @@ void TransformAndDrawObject(OBJECT *obj, float time, short animStart, short anim
 */
 void DeformTextureCoords(OBJECT *obj)
 {
-	int i,j,plus;
+/*	int i,j,plus;
 	USHORT2DVECTOR *texCoord, *oTexCoord;
 	VECTOR	*vectP = obj->mesh->vertices;
 	short	voffset = 0;
@@ -1368,5 +426,1050 @@ void DeformTextureCoords(OBJECT *obj)
 			texCoord++;
 			oTexCoord++;
 		}
+	}*/
+}
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+QUATERNION	tempQuat,morphFromQuat,morphToQuat,morphResultQuat;
+void TransformObject(OBJECT *obj, float time)
+{
+
+	VECTOR translation,scale;
+	VECTOR	morphFrom,morphTo;
+	SPRITE	*sprite;
+	float	tempFloat,interp;
+	short i, j;
+	short	fromKey, toKey;
+	short	xluVal;
+
+//handle position keyframes
+	if(staticObjectMtx == NULL)
+	{
+		if((obj->numMoveKeys > 1) && (currentDrawActor->animation))
+		{
+			if(currentDrawActor->animation->numMorphFrames)
+			{
+				// Find from vector
+				FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numMoveKeys);
+				LinearInterp(&morphFrom,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+
+				// Find to vector
+				FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numMoveKeys);
+				LinearInterp(&morphTo,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+
+				// Interp between from and to vectors
+				tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+				LinearInterp(&translation,&morphFrom,&morphTo,tempFloat);
+			}
+			else
+			{
+				FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,time,obj->numMoveKeys);
+				LinearInterp(&translation,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+			}
+		}
+		else
+		{
+			SetVector(&translation,&obj->moveKeys[0].vect);
+		}
+		if((obj->numScaleKeys > 1) && (currentDrawActor->animation))
+		{
+			if(currentDrawActor->animation->numMorphFrames)
+			{
+				// Find from vector
+				FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numScaleKeys);
+				LinearInterp(&morphFrom,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+
+				// Find to vector
+				FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numScaleKeys);
+				LinearInterp(&morphTo,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+
+				// Slerp between from and to vectors
+				tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+				LinearInterp(&scale,&morphFrom,&morphTo,tempFloat);
+			}
+			else
+			{
+				FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,time,obj->numScaleKeys);
+				LinearInterp(&scale,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+			}
+		}
+		else
+		{
+			SetVector(&scale,&obj->scaleKeys[0].vect);
+		}
+		// handle rotation keyframes
+		if((obj->numRotateKeys > 1) && (currentDrawActor->animation))
+		{
+			if(currentDrawActor->animation->numMorphFrames)
+			{
+				// Find from vector
+				FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
+				QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphFromQuat);
+
+				// Find to vector
+				FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numRotateKeys);
+				QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphToQuat);
+
+				// Slerp between from and to vectors
+				tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+				QuatSlerp(&morphFromQuat, &morphToQuat, tempFloat, &morphResultQuat);
+
+				QuaternionToMatrix(&morphResultQuat, (MATRIX *)rotmat);
+			}
+			else
+			{
+				FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
+				QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
+
+				// convert back to rotation matrix
+				QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
+			}
+		}
+		else
+		{
+			QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
+		}
+
+		rotmat[3][0] = translation.v[X] * actorScale->v[X] * parentScaleStack[parentScaleStackLevel].v[X];
+		rotmat[3][1] = translation.v[Y] * actorScale->v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
+		rotmat[3][2] = translation.v[Z] * actorScale->v[Z] * parentScaleStack[parentScaleStackLevel].v[Z];
+
+		PushMatrix(rotmat);
+
+		guScaleF(scalemat, scale.v[X] * actorScale->v[X], scale.v[Y] * actorScale->v[Y], scale.v[Z] * actorScale->v[Z]);
+
+		PushMatrix(scalemat);
+	}
+
+
+	//if the object has a collision sphere
+	if(obj->collSphere)
+	{
+		SetVector(&obj->collSphere->oldOffset, &obj->collSphere->offset);
+		guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], 0, 0, 0,&obj->collSphere->offset.v[X], &obj->collSphere->offset.v[Y], &obj->collSphere->offset.v[Z]);
+	}
+
+	//maintain posision of all objects sprites        
+/*//	if(obj->numSprites > 0)
+	{
+		for(i = 0; i < obj->numSprites; i++)
+		{
+			sprite = obj->sprites[i].sprite;
+			if(sprite)
+			{
+				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
+					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//				sprite->r = (float)obj->sprites[i].r*inShadow;
+//				sprite->g = (float)obj->sprites[i].g*inShadow;
+//				sprite->b = (float)obj->sprites[i].b*inShadow;
+				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
+				{
+					sprite->red2 = obj->colour.r;
+					sprite->green2 = obj->colour.g;
+					sprite->blue2 = obj->colour.b;
+					sprite->alpha2 = obj->colour.a;
+					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND;
+				}
+				else
+					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND;
+				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT)
+				{
+					sprite->red2 = obj->colour.r;
+					sprite->green2 = obj->colour.g;
+					sprite->blue2 = obj->colour.b;
+					sprite->alpha2 = obj->colour.a;
+					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
+				}
+				else
+					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
+				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
+				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
+				xluVal = ((int)(obj->xlu * xluOverride))/100;
+				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
+				{
+					obj->sprites[i].sprite->r = 0;
+					obj->sprites[i].sprite->g = 0;
+					obj->sprites[i].sprite->b = 0;
+					obj->sprites[i].sprite->a = 254;
+				}
+				else
+					obj->sprites[i].sprite->a = Min(255,xluVal);
+				if(obj->sprites[i].sprite->a >= 255)
+					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
+				else
+					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
+				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
+												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
+				if(renderMode.pixelOut)
+				{
+					sprite->flags |= SPRITE_FLAGS_PIXEL_OUT;
+					sprite->a = (sprite->a * obj->pixelOutAlpha)/255;
+				}
+				else
+					sprite->flags &= -1 - SPRITE_FLAGS_PIXEL_OUT;
+			}
+		}
+	}*/
+
+
+		
+	if(staticObjectMtx == NULL)
+	{
+  		guMtxF2L(matrixStack.stack[matrixStack.stackPosition], &obj->objMatrix);
+	
+		PopMatrix();
+
+
+//transform children
+		if(obj->children)
+		{
+			parentScaleStackLevel++;
+			SetVector(&parentScaleStack[parentScaleStackLevel],&scale);
+			TransformObject(obj->children, time);
+			parentScaleStackLevel--;
+		}
+
+		PopMatrix();
+
+		if(obj->next)
+		{
+			TransformObject(obj->next, time);
+		}
+	}
+}
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void TransformSkinnedObject(OBJECT *obj, float time)
+{
+
+	VECTOR translation,scale, rotation;
+	VECTOR	morphFrom,morphTo;
+	SPRITE	*sprite;
+	float	tempFloat,interp;
+	short i, j;
+	short	fromKey, toKey;
+	short	xluVal;
+	Vtx		*vtx = currentObjectController->Vtx[1 - currentObjectController->vtxBuf];
+
+//handle position keyframes
+	if((obj->numMoveKeys > 1) && (currentDrawActor->animation))
+	{
+		if(currentDrawActor->animation->numMorphFrames)
+		{
+			// Find from vector
+			FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numMoveKeys);
+			LinearInterp(&morphFrom,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+
+			// Find to vector
+			FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numMoveKeys);
+			LinearInterp(&morphTo,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+
+			// Interp between from and to vectors
+			tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+			LinearInterp(&translation,&morphFrom,&morphTo,tempFloat);
+		}
+		else
+		{
+			FindToFromVKeys(obj->moveKeys,&fromKey,&toKey,&interp,time,obj->numMoveKeys);
+			LinearInterp(&translation,&obj->moveKeys[fromKey].vect,&obj->moveKeys[toKey].vect,interp);
+		}
+	}
+	else
+	{
+		SetVector(&translation,&obj->moveKeys[0].vect);
+	}
+	if((obj->numScaleKeys > 1) && (currentDrawActor->animation))
+	{
+		if(currentDrawActor->animation->numMorphFrames)
+		{
+			// Find from vector
+			FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numScaleKeys);
+			LinearInterp(&morphFrom,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+
+			// Find to vector
+			FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numScaleKeys);
+			LinearInterp(&morphTo,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+
+			// Slerp between from and to vectors
+			tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+			LinearInterp(&scale,&morphFrom,&morphTo,tempFloat);
+		}
+		else
+		{
+			FindToFromVKeys(obj->scaleKeys,&fromKey,&toKey,&interp,time,obj->numScaleKeys);
+			LinearInterp(&scale,&obj->scaleKeys[fromKey].vect,&obj->scaleKeys[toKey].vect,interp);
+		}
+	}
+	else
+	{
+		SetVector(&scale,&obj->scaleKeys[0].vect);
+	}
+	// handle rotation keyframes
+	if((obj->numRotateKeys > 1) && (currentDrawActor->animation))
+	{
+		if(currentDrawActor->animation->numMorphFrames)
+		{
+			// Find from vector
+			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphFrom,obj->numRotateKeys);
+			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphFromQuat);
+
+			// Find to vector
+			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,currentDrawActor->animation->morphTo,obj->numRotateKeys);
+			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &morphToQuat);
+
+			// Slerp between from and to vectors
+			tempFloat = (float)currentDrawActor->animation->currentMorphFrame/(float)(Fabs(currentDrawActor->animation->numMorphFrames));
+			QuatSlerp(&morphFromQuat, &morphToQuat, tempFloat, &morphResultQuat);
+
+			QuaternionToMatrix(&morphResultQuat, (MATRIX *)rotmat);
+		}
+		else
+		{
+			FindToFromQKeys(obj->rotateKeys,&fromKey,&toKey,&interp,time,obj->numRotateKeys);
+			QuatSlerp(&obj->rotateKeys[fromKey].quat, &obj->rotateKeys[toKey].quat, interp, &tempQuat);
+
+			// convert back to rotation matrix
+			QuaternionToMatrix(&tempQuat, (MATRIX *)rotmat);
+		}
+	}
+	else
+	{
+		QuaternionToMatrix(&obj->rotateKeys[0].quat, (MATRIX *)rotmat);
+	}
+
+
+	//transform the objects vertex normals ONLY if the object is lit.
+	if((obj->flags & OBJECT_FLAGS_PRELIT) == 0)
+	{
+		PushRMatrix(rotmat);	//uses special matrix stack which only records the rotation
+		
+		for(i = 0; i < obj->numVerts; i++)
+		{
+			guMtxXFMF(rMatrixStack.stack[rMatrixStack.stackPosition], obj->originalVerts[i].n[X], obj->originalVerts[i].n[Y], obj->originalVerts[i].n[Z],
+											&rotation.v[X], &rotation.v[Y], &rotation.v[Z]);
+
+			for(j = 0; j < obj->effectedVerts[i].numVerts; j++)
+			{
+				vtx[obj->effectedVerts[i].verts[j]].n.n[X] = (s8)rotation.v[X];
+				vtx[obj->effectedVerts[i].verts[j]].n.n[Y] = (s8)rotation.v[Y];
+				vtx[obj->effectedVerts[i].verts[j]].n.n[Z] = (s8)rotation.v[Z];
+			}
+		}
+
+	}
+
+
+	rotmat[3][0] = translation.v[X] * parentScaleStack[parentScaleStackLevel].v[X];
+	rotmat[3][1] = translation.v[Y] * parentScaleStack[parentScaleStackLevel].v[Y];
+	rotmat[3][2] = translation.v[Z] * parentScaleStack[parentScaleStackLevel].v[Z];
+
+	PushMatrix(rotmat);
+
+
+	guScaleF(scalemat, scale.v[X], scale.v[Y], scale.v[Z]);
+
+	PushMatrix(scalemat);
+
+
+	//if the object has a collision sphere
+	if(obj->collSphere)
+	{
+		SetVector(&obj->collSphere->oldOffset, &obj->collSphere->offset);
+		guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], 0, 0, 0,&obj->collSphere->offset.v[X], &obj->collSphere->offset.v[Y], &obj->collSphere->offset.v[Z]);
+	}
+
+	//maintain posision of all objects sprites        
+/*//	if(obj->numSprites > 0)
+	{
+		for(i = 0; i < obj->numSprites; i++)
+		{
+			sprite = obj->sprites[i].sprite;
+			if(sprite)
+			{
+				if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow))
+					sprite->r = sprite->g = sprite->b = 255-currentDrawActor->stats->inShadow;
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//				sprite->r = (float)obj->sprites[i].r*inShadow;
+//				sprite->g = (float)obj->sprites[i].g*inShadow;
+//				sprite->b = (float)obj->sprites[i].b*inShadow;
+				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
+				{
+					sprite->red2 = obj->colour.r;
+					sprite->green2 = obj->colour.g;
+					sprite->blue2 = obj->colour.b;
+					sprite->alpha2 = obj->colour.a;
+					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND;
+				}
+				else
+					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND;
+				if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT)
+				{
+					sprite->red2 = obj->colour.r;
+					sprite->green2 = obj->colour.g;
+					sprite->blue2 = obj->colour.b;
+					sprite->alpha2 = obj->colour.a;
+					sprite->flags |= SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
+				}
+				else
+					sprite->flags &= -1 - SPRITE_FLAGS_COLOUR_BLEND_AFTERLIGHT;
+				obj->sprites[i].sprite->scaleX = (float)obj->sprites[i].sx * actorScale->v[X] * scale.v[X];
+				obj->sprites[i].sprite->scaleY = (float)obj->sprites[i].sy * actorScale->v[Y] * scale.v[Y];
+				xluVal = ((int)(obj->xlu * xluOverride))/100;
+				if((currentDrawActor->objectType == BALL_TYPE_OBJECT_SPAWN) || (currentDrawActor->type == DEBRIS))
+				{
+					obj->sprites[i].sprite->r = 0;
+					obj->sprites[i].sprite->g = 0;
+					obj->sprites[i].sprite->b = 0;
+					obj->sprites[i].sprite->a = 254;
+				}
+				else
+					obj->sprites[i].sprite->a = Min(255,xluVal);
+				if(obj->sprites[i].sprite->a >= 255)
+					obj->sprites[i].sprite->flags &= -1 - SPRITE_TRANSLUCENT;
+				else
+					obj->sprites[i].sprite->flags |= SPRITE_TRANSLUCENT;
+				guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->sprites[i].x, obj->sprites[i].y, obj->sprites[i].z,
+												&sprite->pos.v[X], &sprite->pos.v[Y], &sprite->pos.v[Z]);
+				if(renderMode.pixelOut)
+				{
+					sprite->flags |= SPRITE_FLAGS_PIXEL_OUT;
+					sprite->a = (sprite->a * obj->pixelOutAlpha)/255;
+				}
+				else
+					sprite->flags &= -1 - SPRITE_FLAGS_PIXEL_OUT;
+			}
+		}
+	}*/
+
+/*	for(i = 0; i < 20; i++)
+	{
+		vtx[i].n.ob[X] = 0;
+		vtx[i].n.ob[Y] = 0;
+		vtx[i].n.ob[Z] = 0;
+	} */
+//	dprintf"---\n")); 
+	for(i = 0; i < obj->numVerts; i++)
+	{
+		//dprintf"%lu\n",obj->effectedVerts[i].verts[0]));
+/*for(j = 0; j < obj->effectedVerts[i].numVerts; j++)
+{
+	vtx[obj->effectedVerts[i].verts[j]].n.ob[X] = obj->originalVerts[i].v[X];
+	vtx[obj->effectedVerts[i].verts[j]].n.ob[Y] = obj->originalVerts[i].v[Y];
+	vtx[obj->effectedVerts[i].verts[j]].n.ob[Z] = obj->originalVerts[i].v[Z];
+}  */
+
+		
+		//xform the vertex positions
+		guMtxXFMF(matrixStack.stack[matrixStack.stackPosition], obj->originalVerts[i].v[X], obj->originalVerts[i].v[Y], obj->originalVerts[i].v[Z],
+										&translation.v[X], &translation.v[Y], &translation.v[Z]);
+
+		for(j = 0; j < obj->effectedVerts[i].numVerts; j++)
+		{
+			vtx[obj->effectedVerts[i].verts[j]].n.ob[X] = translation.v[X];
+			vtx[obj->effectedVerts[i].verts[j]].n.ob[Y] = translation.v[Y];
+			vtx[obj->effectedVerts[i].verts[j]].n.ob[Z] = translation.v[Z];
+		} 
+	}
+//	dprintf"---\n"));
+//	dprintf"%d - frameCount\n", frameCount));
+
+
+		
+	
+	PopMatrix();
+
+
+//transform children
+	if(obj->children)
+	{
+		parentScaleStackLevel++;
+		SetVector(&parentScaleStack[parentScaleStackLevel],&scale);
+		TransformSkinnedObject(obj->children, time);
+		parentScaleStackLevel--;
+	}
+
+	PopMatrix();
+
+	if((obj->flags & OBJECT_FLAGS_PRELIT) == 0)
+	{
+		PopRMatrix();
+	}
+
+	if(obj->next)
+	{
+		TransformSkinnedObject(obj->next, time);
+	}
+}
+
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void FindToFromVKeys(VKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys)
+{
+	int			i;
+	int			low,high;
+	short		fromKey = -1, toKey;
+	float		tempFloat;
+
+	low = 0;
+	high = numKeys - 1;
+
+	while(low <= high)
+	{
+		i = (low + high)>>1;
+		if(keys[i].time == time)
+		{
+			if(i == numKeys - 1)
+			{
+				fromKey = -2;
+			}
+			else
+			{
+				fromKey = i;
+				toKey = i + 1;
+			}
+			break;
+		}
+		else
+		{
+			if(keys[i].time > time)
+			{
+				high = i - 1;
+			}
+			else
+			{
+				low = i + 1;
+			}
+		}
+	}
+
+	if((fromKey == -1) && (high+1 < numKeys) && (keys[high + 1].time > time))
+	{
+		fromKey = high;
+		toKey = high + 1;
+	}
+
+	if(fromKey >= 0)		//time is within valid keyframes
+	{
+		tempFloat = abs(keys[toKey].time - keys[fromKey].time);
+		*interp = (time - (float)keys[fromKey].time) / tempFloat;
+	}
+	else					// must be between last and first keyframe
+	{
+		fromKey = numKeys-1;
+		toKey = fromKey;
+		*interp = 1;
+	}
+	*from = fromKey;
+	*to = toKey;
+}
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void FindToFromQKeys(QKEYFRAME *keys,short *from,short *to,float *interp,float time,int numKeys)
+{
+	int			i;
+	int			low,high;
+	short		fromKey = -1, toKey;
+	float		tempFloat;
+
+	low = 0;
+	high = numKeys - 1;
+
+	while(low <= high)
+	{
+		i = (low + high)>>1;
+		if(keys[i].time == time)
+		{
+			if(i == numKeys - 1)
+			{
+				fromKey = -2;
+			}
+			else
+			{
+				fromKey = i;
+				toKey = i + 1;
+			}
+			break;
+		}
+		else
+		{
+			if(keys[i].time > time)
+			{
+				high = i - 1;
+			}
+			else
+			{
+				low = i + 1;
+			}
+		}
+	}
+
+	if((fromKey == -1) && (high+1 < numKeys) && (keys[high + 1].time > time))
+	{
+		fromKey = high;
+		toKey = high + 1;
+	}
+
+	if(fromKey >= 0)		//time is within valid keyframes
+	{
+		tempFloat = abs(keys[toKey].time - keys[fromKey].time);
+		*interp = (time - (float)keys[fromKey].time) / tempFloat;
+	}
+	else					// must be between last and first keyframe
+	{
+		fromKey = numKeys-1;
+		toKey = fromKey;
+		*interp = 1;
+	}
+	*from = fromKey;
+	*to = toKey;
+}
+
+
+
+
+/*	--------------------------------------------------------------------------------
+	Function 	: 
+	Purpose 	: 
+	Parameters 	: 
+	Returns 	: 
+	Info 		:
+*/
+void SetupRenderModeForObject ( OBJECT *obj )
+{
+	VECTOR	tempVect;
+	float	tempFloat;
+	Mtx		nomatrix;
+	int		r,g,b;
+	int		phongX,phongY;
+
+//////////////////////////////////////////////////
+//check to see if render mode needs to be changed
+	changeRenderMode = 0;
+
+
+	if(!renderMode.aiSurf)
+	{
+		/*if(obj->flags & OBJECT_FLAGS_OBJECT_COLOUR)
+		{
+			renderMode.objectColour = 1;
+			if((currentDrawActor->stats) && (currentDrawActor->stats->inShadow > 0))
+			{
+				r = (float)(obj->colour.r*(255-currentDrawActor->stats->inShadow))/255.0;
+				g = (float)(obj->colour.g*(255-currentDrawActor->stats->inShadow))/255.0;
+				b = (float)(obj->colour.b*(255-currentDrawActor->stats->inShadow))/255.0;
+				ProcessBackgroundLightsWithCols(1,r,g,b);
+			}
+			else
+				ProcessBackgroundLightsWithCols(1,obj->colour.r,obj->colour.g,obj->colour.b);
+		}
+		else if(renderMode.objectColour)
+		{
+			renderMode.objectColour = 0;
+			if(renderMode.actorColour)
+			{
+				r = 255-currentDrawActor->stats->inShadow;
+				ProcessBackgroundLightsWithCols(1,r,r,r);
+			}
+			else
+				ProcessBackgroundLightsWithCols(0,0,0,0);
+		}*/
+
+		if(obj->flags & OBJECT_FLAGS_TRANSPARENT)
+		{
+			if(renderMode.transparentSurf == FALSE)
+			{
+				renderMode.transparentSurf = TRUE;
+				changeRenderMode = TRUE;
+			}
+		}
+		else
+		{
+			if(renderMode.transparentSurf == TRUE)
+			{
+				renderMode.transparentSurf = FALSE;
+				changeRenderMode = TRUE;
+			}
+		}
+
+		if(obj->flags & OBJECT_FLAGS_XLU)
+		{
+			if(renderMode.xluSurf == FALSE)
+			{
+				renderMode.xluSurf = TRUE;
+				changeRenderMode = 1;
+			}
+			if(obj->drawList == 0)
+				renderMode.xluSurf = TRUE;
+
+			tempFloat = (float)xluOverride / 100;
+			tempFloat *= (float)obj->xlu;
+			if(tempFloat > 255)
+				tempFloat = 255;
+			if((int)tempFloat != xluFact)
+				changeRenderMode = 1;
+			xluFact = tempFloat;
+		}
+		else
+		{
+			if(renderMode.xluSurf == TRUE)
+			{
+				renderMode.xluSurf = FALSE;
+				changeRenderMode = 1;
+			}
+		}
+
+		if(obj->flags & OBJECT_FLAGS_FACE_COLOUR)
+		{
+			if((renderMode.faceColour == NO) && ((!(obj->flags & OBJECT_FLAGS_PHONG)) || (renderMode.phongAllowed == 0)))
+			{
+				renderMode.faceColour = YES;
+				changeRenderMode = YES;
+			}
+		}
+		else if(renderMode.faceColour)
+		{
+			renderMode.faceColour = NO;
+			changeRenderMode = YES;
+		}
+
+		if((obj->pixelOutAlpha) && (obj->pixelOutAlpha < 250))
+		{
+	   		changeRenderMode = YES;
+			renderMode.pixelOut = obj->pixelOutAlpha;
+		    gDPSetAlphaCompare(glistp++, G_AC_DITHER);
+			xluFact = obj->pixelOutAlpha;
+		}
+		else if(renderMode.pixelOut)
+		{
+			renderMode.pixelOut = 0;
+			changeRenderMode = YES;
+		    gDPSetAlphaCompare(glistp++, G_AC_NONE);
+			if(!renderMode.xluSurf)
+				xluFact = 255;
+		}
+		/*if((obj->phongTex) && (renderMode.phongAllowed))
+		{
+			if((lookatNum < MAX_LOOKATS) && (hiliteNum < MAX_HILITES))
+			{
+				phongX = obj->phongTex->sx;
+				phongY = obj->phongTex->sy;
+
+				if(changeRenderMode)
+					SetRenderMode();
+				changeRenderMode = 0;
+				renderMode.useTextureMode = 1;//TEXTURE_MODE_NORMAL;
+				renderMode.phongMode = ON;
+				if(obj->flags & OBJECT_FLAGS_FACE_COLOUR)
+				{
+					/*if((currentDrawActor->objectType == BALL_TYPE_OBJECT_CRYSTAL_BALL) && (crystalBall))
+					{
+						SubVector(&tempVect,&crystalBall->pos,&camera->pos);
+						MakeUnit(&tempVect);
+						ScaleVector(&tempVect,-127);
+						guLookAtHilite(&nomatrix, 
+							&dynamicp->lookat[lookatNum], &dynamicp->hilite[hiliteNum],
+							actualCamPos[draw_buffer].v[X],actualCamPos[draw_buffer].v[Y],actualCamPos[draw_buffer].v[Z],
+							currentDrawActor->pos.v[X], currentDrawActor->pos.v[Y],currentDrawActor->pos.v[Z],
+							camVect.v[X],camVect.v[Y],camVect.v[Z],
+							0,1,0, 	// ignored 
+							tempVect.v[X],tempVect.v[Y],tempVect.v[Z],
+							phongX, phongY);	// texture width 
+					}
+					else
+					{	*/
+		/*				guLookAtHilite(&nomatrix, 
+							&dynamicp->lookat[lookatNum], &dynamicp->hilite[hiliteNum],
+							actualCamPos[draw_buffer].v[X],actualCamPos[draw_buffer].v[Y],actualCamPos[draw_buffer].v[Z],
+							currentDrawActor->pos.v[X], currentDrawActor->pos.v[Y],currentDrawActor->pos.v[Z],
+							camVect.v[X],camVect.v[Y],camVect.v[Z],
+							0,1,0, 	// ignored 
+							backgroundLightList.head.next->direction.v[X],backgroundLightList.head.next->direction.v[Y],backgroundLightList.head.next->direction.v[Z], 	// light 1 direction 
+							phongX, phongY);	// texture width 
+					//}
+				}
+				else
+				{
+					guLookAtHilite(&nomatrix, 
+						&dynamicp->lookat[lookatNum], &dynamicp->hilite[hiliteNum],
+						actualCamPos[draw_buffer].v[X],actualCamPos[draw_buffer].v[Y],actualCamPos[draw_buffer].v[Z],
+						currentDrawActor->pos.v[X], currentDrawActor->pos.v[Y],currentDrawActor->pos.v[Z],
+						camVect.v[X],camVect.v[Y],camVect.v[Z],
+						backgroundLightList.head.next->direction.v[X],backgroundLightList.head.next->direction.v[Y],backgroundLightList.head.next->direction.v[Z], 	// light 1 direction 
+						0,1,0, 	// light 2 direction 
+						phongX, phongY);	// texture width 
+				}
+
+				gSPLookAt(glistp++, &dynamicp->lookat[lookatNum]);
+
+				gDPPipeSync(glistp++);
+				gSPSetGeometryMode(glistp++,G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | 
+					G_CULL_BACK | G_LIGHTING | G_TEXTURE_GEN);
+
+				gDPSetCycleType(glistp++,G_CYC_2CYCLE);
+
+				gSPTexture(glistp++,(phongX<<6),(phongY<<6), 0, G_TX_RENDERTILE+1, G_ON);
+
+				gDPSetTexturePersp(glistp++,G_TP_PERSP);
+				gDPSetTextureFilter(glistp++,G_TF_BILERP);
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Light 1 colour
+				gDPSetPrimColor(glistp++,0, 0, 255, 255, 255, xluFact);
+
+
+				LoadPhongTexture(obj->phongTex);
+
+				if(obj->flags & OBJECT_FLAGS_FACE_COLOUR)
+				{
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Light 1 colour
+
+					if(renderMode.actorColour)
+					{
+						gDPSetEnvColor(glistp++,envCol.r*(255-currentDrawActor->stats->inShadow)/255, envCol.g*(255-currentDrawActor->stats->inShadow)/255, envCol.b*(255-currentDrawActor->stats->inShadow)/255, xluFact);
+					}
+					else
+					{
+						gDPSetEnvColor(glistp++,envCol.r, envCol.g, envCol.b, xluFact);
+					}
+
+					gDPSetCombineMode(glistp++,G_CC_HILITEFACECOLOUR1, G_CC_HILITEFACECOLOUR2);
+					if(obj->phongTex->pixSize == G_IM_SIZ_4b)
+					{
+						gDPSetTile(glistp++,obj->phongTex->format, obj->phongTex->pixSize, (((obj->phongTex->sx)+7)>>4),
+							0, G_TX_RENDERTILE+2, 0, G_TX_WRAP | G_TX_NOMIRROR,
+							obj->phongTex->TCScaleX, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, obj->phongTex->TCScaleY, G_TX_NOLOD);
+					}
+					else if(obj->phongTex->pixSize == G_IM_SIZ_16b)
+					{
+						gDPSetTile(glistp++,obj->phongTex->format, obj->phongTex->pixSize, (((obj->phongTex->sx * obj->phongTex->pixSize)+7)>>3),
+							256, G_TX_RENDERTILE+2, 0, G_TX_WRAP | G_TX_NOMIRROR,
+							obj->phongTex->TCScaleX, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, obj->phongTex->TCScaleY, G_TX_NOLOD);
+					}
+					else
+					{
+						gDPSetTile(glistp++,obj->phongTex->format, obj->phongTex->pixSize, (((obj->phongTex->sx * obj->phongTex->pixSize)+7)>>3),
+							0, G_TX_RENDERTILE+2, 0, G_TX_WRAP | G_TX_NOMIRROR,
+							obj->phongTex->TCScaleX, G_TX_NOLOD, G_TX_WRAP | G_TX_NOMIRROR, obj->phongTex->TCScaleY, G_TX_NOLOD);
+					}
+					gDPSetHilite2Tile(glistp++,G_TX_RENDERTILE+2, &dynamicp->hilite[hiliteNum], obj->phongTex->sx,obj->phongTex->sy);
+
+				}
+				else
+				{
+					gDPSetCombineMode(glistp++,G_CC_HILITERGB_PRIMA, G_CC_PASS2);
+				}
+				if(renderMode.xluSurf)
+				{
+					if(renderMode.pixelOut)
+					{
+						if(renderMode.useZMode)
+						{
+							gDPSetRenderMode(glistp++, G_RM_PASS,G_RM_ZB_CLD_SURF2);      
+						}
+						else
+						{
+							gDPSetRenderMode(glistp++, G_RM_PASS,G_RM_CLD_SURF2);      
+						}
+					}
+					else
+					{
+						if(renderMode.useZMode)
+						{
+							gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_ZB_XLU_SURF2);
+						}
+						else
+						{
+							gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_XLU_SURF2);
+						}
+					}
+				}
+				else
+				{
+					if(renderMode.transparentSurf)
+					{
+						if(renderMode.useZMode)
+						{
+							gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_ZB_TEX_EDGE2);
+						}
+						else
+						{
+							gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_TEX_EDGE2);
+						}
+					}
+					else
+					{
+						if(renderMode.pixelOut)
+						{
+							if(renderMode.useZMode)
+							{
+								gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_ZB_PCL_SURF2);
+							}
+							else
+							{
+								gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_PCL_SURF2);
+							}
+						}
+						else
+						{
+							if(renderMode.useZMode)
+							{
+								gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_ZB_OPA_SURF2);
+							}
+							else
+							{
+								gDPSetRenderMode(glistp++,G_RM_PASS,G_RM_AA_OPA_SURF2);
+							}
+						}
+					}
+				}
+				gDPSetHilite1Tile(glistp++,G_TX_RENDERTILE+1, &dynamicp->hilite[hiliteNum], phongX,phongY);
+				lookatNum++;
+				hiliteNum++;
+			}
+			else
+				dprintf"RUN OUT OF HILITES!!!!!!!!!!!!!!\n"));
+		}*/
+		/*else*/ if(renderMode.phongMode)
+		{
+			renderMode.phongMode = 0;
+			changeRenderMode = YES;
+			gDPPipeSync(glistp++);
+		    gDPSetCycleType(glistp++, G_CYC_1CYCLE);
+			gSPClearGeometryMode(glistp++,G_TEXTURE_GEN);
+			gSPTexture(glistp++,0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+		}
+		/*if(obj->flags & OBJECT_FLAGS_MIP_MAP)
+		{
+		    gDPPipeSync(glistp++);
+			renderMode.useTextureMode = 2;//TEXTURE_MODE_MIP_MAP;
+			SetRenderMode();
+			gSPTexture(glistp++, 0xffff, 0xffff, MIP_MAP_NUMTILES, MIP_MAP_STARTTILE, G_ON);
+			gDPSetTextureLOD(glistp++, G_TL_LOD);
+//			gDPPipelineMode(glistp++, G_PM_1PRIMITIVE);
+			gDPSetCombineMode(glistp++, G_CC_MYTRILERP, G_CC_MODULATERGB_MODULATEPRIMA2); 
+			gDPSetCycleType(glistp++, G_CYC_2CYCLE);
+		}*/
+		/*else*/ if(obj->flags & OBJECT_FLAGS_TEXTURE_BLEND)
+		{
+		    gDPPipeSync(glistp++);
+			renderMode.useTextureMode = 3;//TEXTURE_MODE_BLEND;
+			SetRenderMode();
+			gSPTexture(glistp++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+			gDPSetTextureLOD(glistp++, G_TL_TILE);
+			/*if(obj->flags & OBJECT_FLAGS_TEXTURE_BLEND_ENV)
+			{
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//				gDPSetEnvColor(glistp++,0,0,0,obj->textureBlendAlpha);
+				gDPSetEnvColor(glistp++,0,0,0,SineWave(80,frameCount)*127 + 127);
+				gDPSetCombineMode(glistp++, G_CC_TEXTUREBLENDENV, G_CC_TEXTUREBLEND2); 
+			}
+			else
+			{  */
+				gDPSetCombineMode(glistp++, G_CC_TEXTUREBLEND, G_CC_TEXTUREBLEND2); 
+			/*}*/
+			gDPSetCycleType(glistp++, G_CYC_2CYCLE);
+		}
+		else if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND)
+		{
+			gDPPipeSync(glistp++);
+			renderMode.useTextureMode = 4;//TEXTURE_MODE_COLOUR_BLEND;
+			SetRenderMode();
+			gSPTexture(glistp++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+			gDPSetTextureLOD(glistp++, G_TL_TILE);
+			gDPSetEnvColor(glistp++,obj->colour.r,obj->colour.g,obj->colour.b,obj->colour.a);
+			if(obj->flags & OBJECT_FLAGS_FACE_COLOUR)
+			{
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//do only when xluFact for object changes to save time - need an oldxlu type thang
+				if(obj->flags & OBJECT_FLAGS_XLU)
+					SetXluInDrawList(obj->drawList,xluFact);
+				gDPSetCombineMode(glistp++,G_CC_FACECOLOURBLEND,G_CC_FACECOLOURBLEND2);
+			}
+			else
+			{
+				gDPSetCombineMode(glistp++,G_CC_COLOURBLEND,G_CC_COLOURBLEND2);
+			}
+			gDPSetCycleType(glistp++, G_CYC_2CYCLE);
+		}
+		else if(obj->flags & OBJECT_FLAGS_COLOUR_BLEND_AFTERLIGHT)
+		{
+			gDPPipeSync(glistp++);
+			renderMode.useTextureMode = 5;//TEXTURE_MODE_COLOUR_BLEND_AFTERLIGHT;
+			SetRenderMode();
+			gSPTexture(glistp++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+			gDPSetTextureLOD(glistp++, G_TL_TILE);
+			gDPSetEnvColor(glistp++,obj->colour.r,obj->colour.g,obj->colour.b,obj->colour.a);
+			if(obj->flags & OBJECT_FLAGS_FACE_COLOUR)
+			{
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//do only when xluFact for object changes to save time - need an oldxlu type thang
+				if(obj->flags & OBJECT_FLAGS_XLU)
+					SetXluInDrawList(obj->drawList,xluFact);
+				gDPSetCombineMode(glistp++,G_CC_FACECOLOURBLEND_AFTERLIGHT,G_CC_FACECOLOURBLEND_AFTERLIGHT2);
+			}
+			else
+			{
+				gDPSetCombineMode(glistp++,G_CC_COLOURBLEND_AFTERLIGHT,G_CC_COLOURBLEND_AFTERLIGHT2);
+			}
+			gDPSetCycleType(glistp++, G_CYC_2CYCLE);
+		}
+		else if(renderMode.useTextureMode != 1/*TEXTURE_MODE_NORMAL*/)
+		{
+		    gDPPipeSync(glistp++);
+			renderMode.useTextureMode = 1;//TEXTURE_MODE_NORMAL;
+			gDPSetTextureLOD(glistp++, G_TL_TILE);
+			gSPTexture(glistp++, 0xffff, 0xffff, 0, G_TX_RENDERTILE, G_ON);
+			gDPSetCycleType(glistp++, G_CYC_1CYCLE);
+			changeRenderMode = TRUE;
+		}
+		if(changeRenderMode)
+			SetRenderMode();
+	}
+	else
+	{
+
+		if(obj->flags & OBJECT_FLAGS_XLU)
+		{
+			tempFloat = (float)xluOverride / 100;
+			tempFloat *= (float)obj->xlu;
+			if(tempFloat > 255)
+				tempFloat = 255;
+			xluFact = tempFloat;
+		}
+		gDPSetPrimColor(glistp++,0,0,/*r*/255,/*g*/255,/*b*/255,xluFact);
+//		gDPSetPrimColor(glistp++,0,0,/*r*/255,/*g*/255,/*b*/255,obj->xlu);
 	}
 }

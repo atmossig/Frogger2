@@ -29,6 +29,8 @@ GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;
 
+char message[256];
+
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadMapBank
@@ -75,7 +77,11 @@ void LoadCollision (int num)
 	switch(num)
 	{
 		// GARDEN LEVELS
-		case GARDENMASTER_COL:
+		case GARDENMASTERA_COL:
+			tnum = TRUNK_COLL_BANK;
+			break;
+		case GARDENMASTERB_COL:
+			tnum = TREETOP_COLL_BANK;
 			break;
 		case GARDENMULTI_COL:
 			tnum = GARDENMULTI_COLL_BANK;
@@ -91,7 +97,7 @@ void LoadCollision (int num)
 			break;
 
 		// ANCIENTS LEVELS
-		case ANCIENTMASTER_COL:
+		case ANCIENTMASTERA_COL:
 			break;
 		case ANCIENTMULTI_COL:
 			break;
@@ -99,8 +105,10 @@ void LoadCollision (int num)
 			tnum = RUINEDCITY_COLL_BANK;
 			break;
 		case ANCIENTLEV2_COL:
+			tnum = VOTG_COLL_BANK;
 			break;
 		case ANCIENTLEV3_COL:
+			tnum = TEMPLE_COLL_BANK;
 			break;
 	}
 	
@@ -259,7 +267,7 @@ void LoadScenics (int num)
 	switch(num)
 	{
 		// GARDEN LEVELS
-		case GARDENMASTER_COL:
+		case GARDENMASTERA_COL:
 			break;
 		case GARDENMULTI_COL:
 			tnum = GARDENMULTI_COLL_BANK;
@@ -275,7 +283,7 @@ void LoadScenics (int num)
 			break;
 
 		// ANCIENTS LEVELS
-		case ANCIENTMASTER_COL:
+		case ANCIENTMASTERA_COL:
 			break;
 		case ANCIENTMULTI_COL:
 			break;
@@ -334,6 +342,53 @@ void LoadScenics (int num)
 		}
 		cSc = cSc->next;
 	}		
+}
+
+/*	--------------------------------------------------------------------------------
+	Function		: LoadLevelEntitys
+	Purpose			: Loads in the data for level, inc enemies, platforms etc
+	Parameters		: short worldID - world number
+				 	  short levelID - level number
+	Returns			: void
+	Info			: 
+*/
+void LoadLevelEntitys ( short entityNum )
+{
+	char	*entityDat;
+	u32		bankRomStart, bankRomEnd, bankSize;
+
+	switch ( entityNum )
+	{
+		case GARDENLEV1_ENT:
+				bankRomStart	= (u32)&_levData1SegmentRomStart;
+				bankRomEnd		= (u32)&_levData1SegmentRomEnd;
+				sprintf(message, "GAR_ENT1");				
+			break;
+
+		default:
+			return;
+			break;
+	};
+
+	bankSize = bankRomEnd - bankRomStart;
+
+	entityDat = (char *) JallocAlloc ( DMAGetSize ( bankRomStart, bankRomEnd ), YES, message );
+
+//start download from rom
+
+	DMAMemory ( entityDat, bankRomStart, bankRomEnd );
+	if ( entityDat )
+		dprintf"Loaded entity data %s (size %d)\n",message,(int)bankSize));
+	else
+	{
+		dprintf"Unable to load entity data %s\n",message));
+		return;
+	}
+	// ENDIF - entityDat
+
+	MemLoadEntities(entityDat, bankSize);
+	
+
 }
 
 

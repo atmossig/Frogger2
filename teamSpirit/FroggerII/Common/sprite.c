@@ -27,6 +27,8 @@ TEXTURE_STRUCTURE   *textureList	 = NULL;
 ANIM_STRUCTURE		*animationList	 = NULL;
 
 
+FOG fog = {81,179,255,FOG_OFF,995,5000};
+
 	/***********************************************************************************
 	/********* TEXTURE LIST FUNCTIONS **************************************************
 	/***********************************************************************************
@@ -326,7 +328,7 @@ void AddSprite(SPRITE *sprite,SPRITE *after)
 			}
 		}
 
-		sprite->kill	= 0;
+//		sprite->kill	= 0;
 
 		sprite->prev	= ptr;
 		sprite->next	= ptr->next;
@@ -372,19 +374,19 @@ void AnimateSprites()
 		next = cur->next;
 
 		// check for sprites to be killed
-		if(cur->kill)
-		{
-			SubSprite(cur);
-			continue;
-		}
+//		if(cur->kill)
+//		{
+//			SubSprite(cur);
+//			continue;
+//		}
 
 		// check if this sprite is a spawn score anim...
 		if(cur->anim.type == SPRITE_ANIM_SPAWNSCORE)
 		{
 			cur->pos.v[Y] += 6;
 			cur->a -= 12;
-			if(cur->a < 20)
-				cur->kill = 1;
+//			if(cur->a < 20)
+//				cur->kill = 1;
 			
 			continue;
 		}
