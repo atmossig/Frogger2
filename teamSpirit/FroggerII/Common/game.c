@@ -101,6 +101,10 @@ void GameProcessController(long pl)
 		button[pl] = GetCurrentCameoKey();
 	}
 
+	// check if frog is using extended hop ability
+	if(player[pl].isSuperHopping || player[pl].isLongHopping)
+		player[pl].canJump = 0;
+
 	if((button[pl] & CONT_UP) && !(lastbutton[pl] & CONT_UP) && (player[pl].canJump))
 	{
 		if(!player[pl].inputPause)
@@ -170,54 +174,54 @@ void GameProcessController(long pl)
     {
 		if ( gameState.mode == CAMEO_MODE )
 			gameState.mode = GAME_MODE;
-		if(longHop)
+
+		if((longHop) && !(player[pl].isLongHopping) && !(player[pl].inputPause))
 		{
-			isLong		= 1;
-			longSpeed	= 30.0f;
-			landRadius	= 41.0f;
-			speedTest	= 12.0f;
+			// frog is wanting longhop
+			player[pl].isLongHopping = 1;
+
+			player[pl].inputPause = INPUT_POLLPAUSE;
+			UpdateScore(frog[pl],hopAmt);
+
 			switch(player[pl].extendedHopDir)
 			{
 				case MOVE_UP:
 					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPU;
-				break;
+					break;
 				case MOVE_RIGHT:
 					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPR;
-				break; 
+					break; 
 				case MOVE_DOWN:
 					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPD;
-				break;
+					break;
 				case MOVE_LEFT:
 					player[pl].frogState |= FROGSTATUS_ISWANTINGLONGHOPL;
-				break;
+					break;
 			}
 
 		}
-		else
+		else if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
 		{
-			if(!(player[pl].isSuperHopping) && !(player[pl].inputPause))
+			// frog is wanting superhop
+			player[pl].isSuperHopping = 1;
+
+			player[pl].inputPause = INPUT_POLLPAUSE;
+			UpdateScore(frog[pl],hopAmt);
+
+			switch(player[pl].extendedHopDir)
 			{
-				// frog is wanting superhop
-				player[pl].isSuperHopping = 1;
-
-				player[pl].inputPause = INPUT_POLLPAUSE;
-				UpdateScore(frog[pl],hopAmt);
-
-				switch(player[pl].extendedHopDir)
-				{
-					case MOVE_UP:
-						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
-						break;
-					case MOVE_LEFT:
-						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
-						break;
-					case MOVE_DOWN:
-						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
-						break;
-					case MOVE_RIGHT:
-						player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
-						break;
-				}
+				case MOVE_UP:
+					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPU;
+					break;
+				case MOVE_LEFT:
+					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPL;
+					break;
+				case MOVE_DOWN:
+					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPD;
+					break;
+				case MOVE_RIGHT:
+					player[pl].frogState |= FROGSTATUS_ISWANTINGSUPERHOPR;
+					break;
 			}
 		}
 	}
@@ -244,7 +248,6 @@ void GameProcessController(long pl)
 		camFacing &= 3;
 		if ( recordKeying )
 			AddPlayingActionToList ( CAMERA_LEFT, frameCount );
-
 	}
 
 	if((button[pl] & CONT_C) && !(lastbutton[pl] & CONT_C))
@@ -305,6 +308,24 @@ void GameProcessController(long pl)
 				SetFroggerStartPos(bTStart[bby],pl);
 		}
     }
+
+	if((button[pl] & CONT_G) && !(lastbutton[pl] & CONT_G))
+	{
+		TEXTURE *texOld,*texNew;
+
+		if((frameCount & 1) == 0)
+		{
+			FindTexture(&texOld,UpdateCRC("fgeye.bmp"),YES);
+			FindTexture(&texNew,UpdateCRC("water2.bmp"),YES);
+		}
+		else
+		{
+			FindTexture(&texOld,UpdateCRC("water2.bmp"),YES);
+			FindTexture(&texNew,UpdateCRC("fgeye.bmp"),YES);
+		}
+
+		ReplaceTextureInDrawList(frog[pl]->actor->objectController->drawList,(u32)texOld->data,(u32)texNew->data,YES);
+	}
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
@@ -550,17 +571,12 @@ void UpdateCameraPosition(long cam)
 void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 {
 	unsigned long flags = 0;
-//	static int firstObject = 1;
 		
 	ACTOR2 *theActor,*skyActor;
 	SCENIC *ts = Sc_000;
 	int actCount = 0;
 	OBJECT_CONTROLLER *objCont;
 	
-//	QUATERNION t1 = { 0,0,1,((PI)/2) };
-	QUATERNION t2,t3;
-	
-	// get water sections for the relevant world levels and set the teleporters - ANDYE
 /*	
 	skyActor = CreateAndAddActor("sky.ndo",0,0,0,0,0,0);
 	skyActor->flags |= ACTOR_DRAW_ALWAYS;
@@ -581,7 +597,12 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		dprintf"Added actor '%s'\n",ts->name));
 
 		if (gstrcmp(ts->name,"world.ndo") == 0 || gstrcmp(ts->name,"world.obe") == 0)
+		{
 			flags |= ACTOR_DRAW_ALWAYS;
+			globalLevelActor = theActor;
+		}
+		else
+			flags |= ACTOR_DRAW_CULLED;
 		
 		theActor->flags = flags;
 
@@ -589,54 +610,45 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 		ts->rot.y = ts->rot.z;
 		ts->rot.z = tv;
 
-//		GetQuaternionFromRotation (&t2,&t1);
 		GetQuaternionFromRotation (&theActor->actor->qRot,&ts->rot);
-//		GetQuaternionFromRotation (&t3,&ts->rot);
-
-//		QuaternionMultiply (&t->actor->qRot,&t2,&t3);
 
 		AnimateActor(theActor->actor,0,YES,NO,1,0,0);
-/*		if (ts->name[0] == 'a')
+		if(ts->name[0] == 'a')
 		{
 			float rMin,rMax,rNum;
-			if (ts->name[2] == '_')
+			if(ts->name[2] == '_')
 			{
-				rMin = ts->name[1]-30;
-				if (rMin = 0) 
+				rMin = ts->name[1] - 30;
+				if(rMin = 0) 
 					rMin = 10;
-				rMin /= 10.0
+				rMin /= 10.0;
 				AnimateActor(theActor->actor,0,YES,NO,rMin, 0, 0);
 			}
-			else
-				if (ts->name[3] == '_')
-				{
-					rMin = ts->name[1]-30;
-					if (rMin == 0) 
-						rMin = 10;
-					rMin /= 10.0
+			else if(ts->name[3] == '_')
+			{
+				rMin = ts->name[1] - 30;
+				if(rMin == 0) 
+					rMin = 10;
+				rMin /= 10.0;
 			
-					rMax = ts->name[1]-30;
-					if (rMax == 0) 
-						rMax = 10;
-					rMax /= 10.0
+				rMax = ts->name[1] - 30;
+				if (rMax == 0) 
+					rMax = 10;
+				rMax /= 10.0;
 
-					rNum = Random(1000);
-
-					rNum= rMin + ((rNum * (rMax-rMin)) / 1000);
+				rNum = Random(1000);
+				rNum= rMin + ((rNum * (rMax - rMin)) / 1000);
 									
-					AnimateActor(theActor->actor,0,YES,NO,rNum, 0, 0);
-				}
-		}*/
+				AnimateActor(theActor->actor,0,YES,NO,rNum, 0, 0);
+			}
+		}
 
 		ts = ts->next;
 
 		actCount++;
 	}
 
-//	firstObject = 1;
-
 	dprintf"\n\n** ADDED %d ACTORS **\n\n",actCount));	
-
 }
 
 void Orientate(QUATERNION *me, VECTOR *fd, VECTOR *mfd, VECTOR *up)
