@@ -988,11 +988,7 @@ void RunGameLoop (void)
 				frog[i]->draw = 1;
 				if (player[i].safe.time)
 				{
-					frog[i]->actor->xluOverride = 50;
-					
 					GTUpdate( &player[i].safe, -1 );
-					if( !player[i].safe.time )
-						frog[i]->actor->xluOverride = 100;
 				}
 
 				if( player[i].idleEnable )
