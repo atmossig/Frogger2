@@ -42,6 +42,6 @@ extern BOOL IsATeleportTile(GAMETILE *tile);
 extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
 
 extern void LoadLevelEntities(int worldID, int levelID);
-extern void LoadLevelEvents(int worldID, int levelID);
+extern void LoadLevelScript(int worldID, int levelID);
 
 #endif

@@ -30,6 +30,9 @@ GAMETILE **pwrupTStart;
 
 SCENIC *Sc_000;
 
+#define LOADWITHEDITOR
+
+
 /* --------------------------------------------------------------------------------
 	Programmer	: Matthew Cloy
 	Function	: LoadMapBank
@@ -595,6 +598,11 @@ void LoadLevelEntities(int worldID, int levelID)
 
 	sprintf(file, "%s%sentity-%d-%d.dat", baseDirectory, ENTITY_BASE, worldID, levelID);
 
+#ifdef LOADWITHEDITOR
+	dprintf"Loading %s with EDITOR loader\n", file));
+	LoadCreateList(file);
+	EditorCreateEntities();
+#else
 	h = CreateFile(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL, NULL);
 
@@ -617,9 +625,10 @@ void LoadLevelEntities(int worldID, int levelID)
 	}
 
 	JallocFree((UBYTE**)&buffer);
+#endif
 }
 
-void LoadLevelEvents(int worldID, int levelID)
+void LoadLevelScript(int worldID, int levelID)
 {
 	char file[MAX_PATH];
 	HANDLE h;
@@ -642,7 +651,7 @@ void LoadLevelEvents(int worldID, int levelID)
 	ReadFile(h, buffer, size, &read, NULL);
 	CloseHandle(h);
 
-	dprintf"LoadLevelEvents: Loaded %d of %d bytes\n", (int)read, (int)size));
+	dprintf"LoadLevelScript: Loaded %d of %d bytes\n", (int)read, (int)size));
 
 	if (!MemLoadEvents(buffer, size))
 	{
