@@ -217,7 +217,7 @@ int PASCAL WinMain2(HINSTANCE hInstance,HINSTANCE hPrevInstance,LPSTR lpCmdLine,
 	
 	//InitSaveData();
 
-	//PrepareSong ( 1 );
+	PrepareSong ( 1 );
 /*	InitSaveData();
 	SaveGameData();*/
 	gameState.mode		= FRONTEND_MODE;
