@@ -49,6 +49,8 @@
 #include "audio.h" //mmsfx
 #include "ptexture.h"
 #include "cr_lang.h"
+#include "cam.h"
+#include "psxtongue.h"
 
 
 void customDrawPrimitives2(int);
@@ -450,6 +452,42 @@ int main ( )
 			TIMER_START(TIMER_PROCTEX);
 			ProcessProcTextures( );
 			TIMER_STOP(TIMER_PROCTEX);
+
+
+			if ( padData.digital[1] & PAD_DOWN )
+			{
+				camDist.vy += ( 20 * gameSpeed ) >> 12;
+			}
+			// ENDIF
+
+			if ( padData.digital[1] & PAD_UP )
+			{
+				camDist.vy-=(20*gameSpeed)>>12;
+			}
+			// ENDIF
+
+			if ( padData.digital[1] & PAD_LEFT )
+			{
+				camSideOfs+=20*gameSpeed;
+			}
+			// ENDIF
+			if ( padData.digital[1] & PAD_RIGHT )
+			{
+				camSideOfs-=20*gameSpeed;
+			}
+			// ENDIF
+
+			if ( padData.digital[1] & PAD_TRIANGLE )
+			{
+				camDist.vz+=(20*gameSpeed)>>12;
+			}
+			// ENDIF
+			if ( padData.digital[1] & PAD_CROSS )
+			{
+				camDist.vz-=(20*gameSpeed)>>12;
+			}
+			// ENDIF
+
 
 			timerDisplay();
 
