@@ -320,8 +320,8 @@ ENEMY *CreateAndAddEnemy(char *eActorName,unsigned long *pathIndex,float offset,
 	// specify enemy radius if the enemy is radius based
 	if(initFlags & ENEMY_RADIUSBASEDCOLLISION)
 	{
-		// set a default radius
-		newItem->nmeActor->radius = 25.0F;
+		// set a default collision radius
+		newItem->nmeActor->radius = 15.0F;
 	}
 	else
 	{
@@ -872,8 +872,6 @@ void UpdateEnemies()
 
 		if(cur->flags & ENEMY_RADIUSBASEDCOLLISION)
 		{
-			cur->nmeActor->radius = 15;
-
 			// perform radius collision check between frog and current enemy
 			if(ActorsHaveCollided(frog[0],cur->nmeActor))
 			{

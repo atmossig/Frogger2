@@ -184,6 +184,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 
 	newItem->draw	= 0;
 	newItem->flags	|= ACTOR_DRAW_CULLED;
+	newItem->radius	= 0.0F;
 
 	// add actor object sprites to sprite list
 	if((newItem->actor->objectController) && (newItem->actor->objectController->object))
@@ -192,8 +193,6 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
 	newItem->distanceFromFrog	= 0.0F;
-
-	newItem->collSphere			= NULL;
 
 	newItem->next = actList;
 	actList = newItem;
@@ -334,52 +333,22 @@ void FreeObjectSprites(OBJECT *obj)
 }
 
 
-
-/*	--------------------------------------------------------------------------------
-	Function		: CreateCollisionSphereForActor
-	Purpose			: creates and assigns a collision sphere to an actor
-	Parameters		: ACTOR2 *,float,float,float,float
-	Returns			: void
-	Info			: 
-*/
-void CreateCollisionSphereForActor(ACTOR2 *act,float xOffset,float yOffset,float zOffset,float radius)
-{
-}
-
 /* --------------------------------------------------------------------------------
-	Function	: CollideSphereToSphere 
+	Function	: ActorsHaveCollided
 	Purpose		:
-	Parameters	: (COLLSPHERE *a, COLLSPHERE *b, VECTOR *oa, VECTOR *ob)
+	Parameters	: 
 	Returns		: BOOL 
 */
 BOOL ActorsHaveCollided(ACTOR2 *act1,ACTOR2 *act2)
 {
-/*
-	VECTOR result,va,vb;	
-	float crad = (a->radius+b->radius);
+	VECTOR result;
+	float crad = (act1->radius + act2->radius);
 
-	AddVector (&va,&a->center,oa);
-	AddVector (&vb,&b->center,ob);
-
-	SubVector (&result,&va,&vb);
-
-	if ((Fabs(result.v[0])<crad)	
-	  &&(Fabs(result.v[1])<crad)
-	  &&(Fabs(result.v[2])<crad))
-		return TRUE;
-
-	return FALSE;
-*/
-
-	VECTOR result,aVec,bVec;
-	float cRad;
-
-	cRad = act1->radius + act2->radius;
 	SubVector(&result,&act1->actor->pos,&act2->actor->pos);
 
-	if ((Fabs(result.v[X]) < cRad) &&
-		(Fabs(result.v[Y]) < cRad) &&
-		(Fabs(result.v[Z]) < cRad))
+	if ((Fabs(result.v[0]) < crad) &&
+		(Fabs(result.v[1]) < crad) &&
+		(Fabs(result.v[2]) < crad))
 		return TRUE;
 
 	return FALSE;

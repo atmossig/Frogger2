@@ -22,12 +22,6 @@
 
 //------------------------------------------------------------------------------------------------
 
-typedef struct TAGCOLLSPHERE2
-{
-	VECTOR	origin;
-	VECTOR	radius;
-
-} COLLSPHERE2;
 
 typedef struct TAGACTION
 {	
@@ -65,7 +59,6 @@ typedef struct TAGACTOR2
 	float			offset;
 
 	SPRITE			sprite;
-	COLLSPHERE2		*collSphere;
 
 } ACTOR2;
 
