@@ -298,7 +298,7 @@ void CheckTileForCollectable(GAMETILE *tile, long pl)
 	while(i--)
 	{
 		if( babies[i] )
-		if(babies[i]->distanceFromFrog < PICKUP_RADIUS_SQUARED)
+		if( DistanceBetweenPointsSquared(&babies[i]->actor->pos, &frog[pl]->actor->pos) < PICKUP_RADIUS_SQUARED)
 			PickupBabyFrog(babies[i]);
 	}
 }

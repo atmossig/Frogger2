@@ -28,6 +28,8 @@ extern "C" {
 #include "actor.h"
 #include "overlays.h"
 #include "frogger.h"
+#include "babyfrogs.h"
+#include "game.h"
 
 }
 
@@ -60,6 +62,7 @@ int InitMPDirectPlay( HINSTANCE hInstance )
 
 	InitChatBuffer( );
 	chatFlags = CHAT_SHOW;
+	gameState.multi = MULTIREMOTE;
 
 	return iResult;
 }

@@ -35,8 +35,13 @@ enum gameModes
   
 };
 
+#define SINGLEPLAYER	1
+#define MULTILOCAL		2
+#define MULTIREMOTE		3
+
 struct gameStateStruct
 {
+	unsigned char multi;
 	unsigned long mode;
 	unsigned long oldMode;
 };

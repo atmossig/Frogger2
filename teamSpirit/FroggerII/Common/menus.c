@@ -150,6 +150,7 @@ void RunTitleScreen( )
 				lastbutton = 0;
 				PlaySampleNot3D(0,0,0,0);
 				NUM_FROGS = 1;
+				gameState.multi = SINGLEPLAYER;
 				break;
 			case 1:
 				FreeAllLists();
@@ -165,6 +166,7 @@ void RunTitleScreen( )
 				frontEndState.mode = LEVELSELECT_MODE;
 				PlaySampleNot3D(2,192,128,128);
 				NUM_FROGS = numPlayers;
+				gameState.multi = MULTILOCAL;
 				break;
 			case 3:
 				FreeAllLists();
@@ -205,6 +207,7 @@ void RunTitleScreen( )
 
 			gameState.oldMode = FRONTEND_MODE;
 			gameState.mode = GAME_MODE;
+			gameState.multi = SINGLEPLAYER;
 
 			frameCount = 0;
 			lastbutton = 0;
@@ -422,6 +425,10 @@ void RunLevelSelect( )
 
 				gameState.oldMode = FRONTEND_MODE;
 				gameState.mode = GAME_MODE;
+
+				
+				if( gameState.multi != MULTIREMOTE )
+					gameState.multi = SINGLEPLAYER;
 
 				frameCount = 0;
 				lastbutton = 0;

@@ -866,7 +866,7 @@ void RunGameLoop (void)
 
 
 #ifdef PC_VERSION
-	if( NUM_FROGS > 1 )
+	if( gameState.multi == MULTIREMOTE )
 		if( controllerdata[0].button == 0 || (controllerdata[0].button != controllerdata[0].lastbutton) )
 			SendUpdateMessage( );
 #endif
