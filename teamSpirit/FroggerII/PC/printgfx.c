@@ -1202,11 +1202,11 @@ void CalcTongueNodes( D3DTLVERTEX *vT, TONGUE *t, int i )
 	// Precalculated rotation
 	PushMatrix( (MATRIX *)rMtrx );
 
-	vT[0].sx = -7+(i*0.4);
+	vT[0].sx = -5+(i*0.4);
 	vT[0].sy = 0;
 	vT[0].sz = 0;
 	vT[0].color = D3DRGBA(1,0,0,1);
-	vT[1].sx = 7-(i*0.4);
+	vT[1].sx = 5-(i*0.4);
 	vT[1].sy = 0;
 	vT[1].sz = 0;
 	vT[1].color = vT[0].color;
