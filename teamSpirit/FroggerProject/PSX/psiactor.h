@@ -37,6 +37,13 @@ typedef struct
 	long		animTime;
 
 	short		frame;
+
+	short blendSpeed;
+	short blendFrame;
+	short blendStartFrame;
+	short blendEndFrame;
+	short oldAnimation;
+
 	u8 		exclusive;
 	u8 		spare;
 	struct _SAMPLE **sfxMapping;	// Cue these sound effects off the animations
@@ -134,7 +141,7 @@ void actorInitAnim(ACTOR *actor);
 void actorAdjustPosition(ACTOR *actor);
 
 //PC AnimateActor(ACTOR *actor, int animNum, char loop, char queue, fixed speed, BYTE morphs,BOOL keepProportion)
-void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed,   char skipendframe);
+void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed,   short blendSpeed);
 
 void actorSetAnimationSpeed(ACTOR *actor, int speed);
 
@@ -174,12 +181,14 @@ void ScalePsi(PSIMESH* pPSI);
 void *ChangeModel( ACTOR *actor, char *model );
 int UndoChangeModel( ACTOR *actor );
 
-void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip);
+void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, short blendSpeed);
 
 //void CopyKeyFrames ( ACTOR *dest, ACTOR *src );
 void CopyKeyFrames ( PSIOBJECT *dest, PSIOBJECT *src );
 
 void FindFrogSubObjects( int p );
 void UpdateFrogCroak( int pl  );
+
+void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend);
 
 #endif //__ACTOR_H__

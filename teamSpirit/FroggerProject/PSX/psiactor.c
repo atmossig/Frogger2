@@ -34,7 +34,7 @@ ACTORLIST	actorList;
 int globalCount = 0;
 ACTORSETANIM globalActors [ 50 ];
 
-extern PSIMODEL *psiCheck(char *psiName);
+//extern PSIMODEL *psiCheck(char *psiName);
 
 //PSIDATA oldModel;
 ACTOR oldActor;
@@ -1134,7 +1134,7 @@ void *ChangeModel( ACTOR *actor, char *model )
 	strcat( newName, ".psi" );
 
 //	oldModel = actor->psiData;
-	newModel = psiCheck ( newName );
+	//newModel = psiCheck ( newName );
 
 	utilPrintf("Trying To Find New Model %s : %s................\n", newModel);
 
@@ -1212,10 +1212,10 @@ int UndoChangeModel( ACTOR *actor )
 	Parameters	: actor, anim, loop?, queue?, speed, morph?, keep proportion?
 	Returns		: void
 */
-void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, char skip)
+void StartAnimateActor(ACTOR *actor, int animNum, char loop, char queue, int speed, short blendSpeed)
 {
  	if (actor->animation.currentAnimation != animNum)
- 		actorAnimate(actor, animNum, loop, queue, speed, skip);
+ 		actorAnimate(actor, animNum, loop, queue, speed, blendSpeed);
 }
 
 /*void actorSetAnimationSpeed(ACTOR *actor, int speed)
@@ -1403,7 +1403,7 @@ void actorUpdateAnimation()
 	RETURNS:	
 **************************************************************************/
 
-void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, char skipendframe)
+void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, short blendSpeed)
 {
 
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
@@ -1451,12 +1451,17 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 		actualSpeed = speed;
 	}
 
-	actorAnim->exclusive = skipendframe;
+	actorAnim->exclusive = 0;
 	
 	if(queue == 0)
 	{
 		actorAdjustPosition(actor);
+
+		actor->animation.blendFrame = 0;
+		actorAnim->oldAnimation = actorAnim->currentAnimation;
+
 		actorAnim->currentAnimation = animNum;
+
 		actorAnim->loopAnimation = loop;
 		actorAnim->animationSpeed = actualSpeed;
 		actorAnim->reachedEndOfAnimation = 0;
@@ -1468,6 +1473,14 @@ void actorAnimate(ACTOR *actor, int animNum, char loop, char queue, int speed, c
 		{
 			actorAnim->animTime = anim->animEnd << ANIMSHIFT;
 		}
+
+		//if ( blendSpeed )
+	//	{
+	//		actorAnim->blendSpeed				= blendSpeed;
+	//		actorAnim->blendStartFrame	= ((ANIMATION*)(actor->animSegments + (actorAnim->oldAnimation*2)))->animEnd;
+	//		actorAnim->blendEndFrame		= anim->animStart;
+	//	}
+		// ENDIF
 	}
 	else
 	{
@@ -1736,5 +1749,76 @@ void UpdateFrogCroak( int pl )
 }
 
 
+void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
+{
+	/*PSIOBJECT *world;
+	ACTOR_ANIMATION *actorAnim = &actor->animation;
+	ANIMATION *anim;
+	long temp0,temp1,temp2;
+	VECTOR result;
+
+	world = actor->psiData.object;
+	
+	PSIactorScale = &actor->size;
+
+	psiSetKeyFrames2(world, frame0, frame1, blend);
+
+	utilPrintf("BlendFrame : %d : %d : %d\n", frame0, frame1, blend );
+
+	actor->animation.blendFrame += (actor->animation.blendSpeed) * (gameSpeed>>12);
+	
+	if ( actor->animation.blendFrame > 4096 )
+	{
+		actor->animation.blendFrame = 4096;
+		actor->animation.blendSpeed = 0;
+	}
+	// ENDIF
+
+	/*
+	actor->accumulator.vx = world->matrix.t[0];
+	actor->accumulator.vy = world->matrix.t[1];
+	actor->accumulator.vz = world->matrix.t[2];
+
+	world->matrix.t[0] -= actor->oldPosition.vx;
+	world->matrix.t[1] -= actor->oldPosition.vy;
+	world->matrix.t[2] -= actor->oldPosition.vz;
+
+//	utilPrintf("add %d (%d)\n",world->matrix.t[1],actor->oldPosition.vy);
+
+	actor->oldPosition = actor->accumulator;
+
+	temp0 = world->matrix.t[0];
+	temp1 = world->matrix.t[1];
+	temp2 = world->matrix.t[2];
+	
+	actorRotate(world->rotate.vx,world->rotate.vy,world->rotate.vz,temp0,temp1,temp2,&result);
+
+	world->matrix.t[0] = result.vx;
+	world->matrix.t[1] = result.vy;
+	world->matrix.t[2] = result.vz;
+	*/
+
+	/*if (actorAnim->exclusive)  
+	{
+		anim = (ANIMATION*) (actor->animSegments + (actorAnim->currentAnimation*2));
+		if(actorAnim->frame >= anim->animEnd)
+		{
+			actorAnim->frame = anim->animStart;
+			actorAnim->animTime = anim->animStart<<ANIMSHIFT;
+			actorAdjustPosition(actor);
+		}
+		else 
+		{
+			if(actorAnim->frame < anim->animStart)
+			{
+				actorAnim->frame = anim->animEnd;
+				actorAnim->animTime = anim->animEnd <<ANIMSHIFT;
+				actorAdjustPosition(actor);
+			}
+		}
+	}		
+		// Store Root Bone movement
+		// Use Basic Position - IE Set root bone to zero*/
+}
 
 

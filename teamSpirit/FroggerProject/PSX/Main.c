@@ -831,12 +831,12 @@ int main ( )
  				fontPrintScaled(fontSmall, -200,80, tempText, 200,128,128,4096);
 
  				sprintf(tempText, "%2df", gameSpeed>>12); 
- 				//sprintf(tempText, "%df", totalObjs ); 
+ 				sprintf(tempText, "%df", totalObjs ); 
 
 				fontPrintScaled(fontSmall, 0,-60, tempText, 64,255,64,4096);
 			}
 
-//totalObjs = 0;
+totalObjs = 0;
 #endif
 
 			gte_SetRotMatrix(&GsWSMATRIX);
