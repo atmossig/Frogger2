@@ -763,7 +763,7 @@ extern int	gameTextLang, *gameTextTimings;
 	RETURNS:	
 **************************************************************************/
 
-void gameTextInit(int currLang);
+//void gameTextInit(int currLang);
 
 
 /**************************************************************************
