@@ -42,6 +42,7 @@ extern SCENICOBJLIST scenicObjList;
 
 extern SVECTOR jiggledVerts[250];
 
+
 //void CreateAndAddScenicObject ( char *name, short posx, short posy, short posz, int newFlags );
 void CreateAndAddScenicObject(SCENIC *sc);
 
@@ -63,5 +64,8 @@ void CreateProceduralTexture ( char *name );
 
 // JH: Blits the new texture buffer on to the video memory of the texture.
 void PTSurfaceBlit( TextureType *tex, unsigned long *buf, unsigned short *pal );
+
+void PrintStaticBackdrop( FMA_MESH_HEADER *mesh );
+
 
 #endif
