@@ -188,7 +188,7 @@ long DrawLoop(void)
 	if(tileTexture[0])
 		DrawTiledBackdrop();
 
-	if (backGnd)
+	if((backGnd) && (rHardware))
 		DrawBackground();
 	EndDraw();
 
