@@ -341,7 +341,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			{
 				effect->sprites[i].flags		|= SPRITE_FLAGS_ROTATE;
 				effect->sprites[i].angle		= 0.0f;
-				effect->sprites[i].angleInc		= 1.0 / (float)(5 + (rand() % 6));
+				effect->sprites[i].angleInc		= 1.0 / (float)(12 + (rand() % 16));
 				if(i == 0)
 					effect->sprites[i].angleInc *= -1;
 			}
@@ -407,7 +407,7 @@ SPECFX *CreateAndAddSpecialEffect( short type, VECTOR *origin, VECTOR *normal, f
 			{
 				effect->sprites->flags		|= SPRITE_FLAGS_ROTATE;
 				effect->sprites->angle		= 0.0f;
-				effect->sprites->angleInc	= 1.0 / (float)(5 + (rand() % 6));
+				effect->sprites->angleInc	= 1.0 / (float)(8 + (rand() % 12));
 				if(!(actFrameCount & 1))
 					effect->sprites->angleInc *= -1;
 			}
@@ -688,11 +688,11 @@ void UpdateFXSmoke( SPECFX *fx )
 	if( fx->follow )
 		SetVector( &fx->origin, &fx->follow->pos );
 
-	fo = fx->fade * gameSpeed;
 	
 	i = fx->numP;
 	while(i--)
 	{
+		fo = fx->fade * gameSpeed;
 		if( fx->sprites[i].a > fo ) fx->sprites[i].a -= fo;
 		else fx->sprites->a = 0;
 
