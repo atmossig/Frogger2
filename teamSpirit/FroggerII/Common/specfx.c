@@ -1387,8 +1387,8 @@ void ProcessAttachedEffects( void *entity, int type )
 			else // EF_MEDIUM
 				fx = CreateAndAddSpecialEffect( FXTYPE_SPARKBURST, &act->actor->pos, &normal, 10, 2, 0, 5 );
 
-			SetVector( &fx->rebound->point, &tile->centre );
-			SetVector( &fx->rebound->normal, &tile->normal );
+//			SetVector( &fx->rebound->point, &tile->centre );
+//			SetVector( &fx->rebound->normal, &tile->normal );
 			fx->gravity = act->radius;
 
 			SetAttachedFXColour( fx, act->effects );

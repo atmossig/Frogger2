@@ -356,8 +356,8 @@ void UpdateFrogTongue( int pl )
 		// first priority - check if baby frog is in range
 		if( tongue[pl].thing = (void *)FrogIsInRange(tongue[pl].radius,pl) )
 			StartTongue( TONGUE_GET_FROG, &((ACTOR2 *)tongue[pl].thing)->actor->pos, pl );
-		else if( tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl) )
-			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
+//		else if( tongue[pl].thing = (void *)BabyFrogIsInRange(tongue[pl].radius,pl) )
+//			StartTongue( TONGUE_GET_BABY, &((ENEMY *)tongue[pl].thing)->nmeActor->actor->pos, pl );
 		else if( tongue[pl].thing = (void *)GaribIsInRange(tongue[pl].radius,pl) )
 		{
 			if( ((GARIB *)tongue[pl].thing)->type == SPAWN_GARIB )
