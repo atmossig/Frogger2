@@ -42,6 +42,7 @@ float ACTOR_DRAWDISTANCEOUTER = 125000.0F;
 
 #define WATER_XLU 70
 long waterObject = 0;
+long modgyObject = 0;
 int objectMatrix = 0;
 
 ACTOR2 *actList = NULL;				// entire actor list
@@ -180,6 +181,11 @@ void DrawActorList()
 			continue;
 		}
 		
+		if (cur->flags & ACTOR_MODGETEX)
+			modgyObject = 1;
+		else
+			modgyObject = 0;
+
 		if((cur->flags & ACTOR_DRAW_CULLED) && (cur->distanceFromFrog > ACTOR_DRAWDISTANCEINNER) && !(cur->flags & ACTOR_DRAW_ALWAYS) )
 		{
 			if( cur->distanceFromFrog < ACTOR_DRAWDISTANCEOUTER )
@@ -473,6 +479,20 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 	else
 		newItem->flags = ACTOR_DRAW_ALWAYS;
 
+	if(name[0] != 'x' && name[1] != 'x')
+		newItem->flags = ACTOR_DRAW_CULLED;
+	else
+	{
+		if (name[3]=='g')
+			newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX;
+		else
+			if (name[2]=='a')
+				newItem->flags = ACTOR_DRAW_ALWAYS | ACTOR_MODGETEX | ACTOR_SLIDYTEX;
+			else
+				newItem->flags = ACTOR_DRAW_ALWAYS;
+
+	}
+
 	if (name[0] == 's')
 		if (name[1] == 'p')
 		{
@@ -489,6 +509,7 @@ ACTOR2 *CreateAndAddActor(char *name,float cx,float cy,float cz,int initFlags,fl
 					break;
 			}
 		}
+
 
 	newItem->speed				= 18.0;
 	newItem->offset				= 0.0;
