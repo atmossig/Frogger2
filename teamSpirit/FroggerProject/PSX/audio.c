@@ -485,7 +485,7 @@ int PlaySample( SAMPLE *sample, SVECTOR *pos, long radius, short volume, short p
 */
 void PrepareSong(short worldID)
 {
-	char cdTrack[16];
+//	char cdTrack[16];
 	int trackIndex;
 
 	trackIndex = worldID + GARDEN_CDAUDIO;

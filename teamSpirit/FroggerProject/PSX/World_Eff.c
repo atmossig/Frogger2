@@ -484,7 +484,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	int i;
 
-	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
+//	int min_depth = MIN_MAP_DEPTH + mesh->extra_depth;
 	int max_depth = MAX_MAP_DEPTH + mesh->extra_depth;
 
 	tfv = (long*)transformedVertices;
@@ -525,7 +525,7 @@ void DrawScenicObj ( FMA_MESH_HEADER *mesh, int flags )
 
 	for ( i = mesh->n_gt4s; i != 0; i--, op++ )
 	{
-		char u,v;
+//		char u,v;
 
 
 		gte_ldsz4 ( GETD ( op->vert0 ), GETD ( op->vert1 ), GETD ( op->vert2 ), GETD ( op->vert3 ) );
@@ -623,13 +623,13 @@ void PTTextureLoad ( void )
 void CreateProceduralTexture ( char *name )
 {
 	unsigned long i;
-	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
-	unsigned short newCol,nR,nG,nB,nA;
+//	unsigned long rVand,gVand,bVand,rVshr,gVshr,bVshr;
+	unsigned short newCol,nR,nG,nB;//,nA;
 	unsigned short *tempPalette;
 
-	unsigned char *tempBuf;
+//	unsigned char *tempBuf;
 
-	int counter;
+//	int counter;
 
 	RECT texRect;
 

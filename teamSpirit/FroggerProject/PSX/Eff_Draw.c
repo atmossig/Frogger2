@@ -44,7 +44,7 @@ void ProcessShadows()
 	FVECTOR vec;
 	ENEMY *nme;
 	PLATFORM *plat;
-	GARIB *garib;
+//	GARIB *garib;
 	int i;
 	long tex;
 	fixed height;
@@ -120,10 +120,10 @@ void ProcessShadows()
 
 void DrawShadow( SVECTOR *pos, FVECTOR *normal, fixed size, fixed offset, short alpha, long tex )
 {
-	FVECTOR tempV[4], m, fwd;
+	FVECTOR tempV[4];//, m;//, fwd;
 	SVECTOR vT[4];
-	IQUATERNION cross, q, up;
-	long i, zeroZ=0;
+	IQUATERNION cross, q;//, up;
+	long i;//, zeroZ=0;
 	fixed t;
 	static SPECFX fx;
 	unsigned long colour;

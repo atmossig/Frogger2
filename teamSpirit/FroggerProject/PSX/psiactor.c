@@ -716,8 +716,8 @@ void actorSetAnimation(ACTOR *actor, ULONG frame)
 	PSIOBJECT *world;
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
 	ANIMATION *anim;
-	long temp0,temp1,temp2;
-	VECTOR result;
+//	long temp0,temp1,temp2;
+//	VECTOR result;
 
 	world = actor->psiData.object;
 	
@@ -872,8 +872,8 @@ void actorSetAnimation2(ACTOR *actor, ULONG frame0, ULONG frame1, ULONG blend)
 	PSIOBJECT *world;
 	ACTOR_ANIMATION *actorAnim = &actor->animation;
 	ANIMATION *anim;
-	long temp0,temp1,temp2;
-	VECTOR result;
+//	long temp0,temp1,temp2;
+//	VECTOR result;
 
 	world = actor->psiData.object;
 	
@@ -960,7 +960,7 @@ UBYTE actorIsVisible(ACTOR *actor)
 	VERT	v[3];
 	DVECTOR	scrXY[3];
 	long	scrZ[3];
-	LINE_F2	*line;
+//	LINE_F2	*line;
 
 	gte_SetRotMatrix(&GsWSMATRIX);		// load viewpoint matrices
 	gte_SetTransMatrix(&GsWSMATRIX);
@@ -1331,7 +1331,8 @@ void actorSetBounding(ACTOR *actor,int frame)
 
 void ScalePsi(PSIMESH* pMesh)
 {
-	int m,v;
+//	int m,v;
+	int v;
 	SVKEYFRAME* pK;
 	int i;
 

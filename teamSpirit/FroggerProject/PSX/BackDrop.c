@@ -42,7 +42,7 @@ void InitBackdrop ( char * const filename )
 
 void DrawBackDrop ( void )
 {
-	register PACKET			*packet, *packetNext;
+//	register PACKET			*packet;//, *packetNext;
 
 	int fogFade;
 

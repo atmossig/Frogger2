@@ -29,7 +29,7 @@ void ExtractPsiNames ( void )
 	char *PSIname=0;
 
 	int psiM;
-	int *table,*crcs;
+	int *table;//,*crcs;
 	int i;
 
 

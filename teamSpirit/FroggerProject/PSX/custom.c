@@ -40,7 +40,7 @@ void customDrawSortedPrimitives(int depth)
 	int						primsleft,lightmode;
 	ULONG					*sorts = sortedIndex;
 	ULONG					sortBucket = 0;
-	VERT					*vp = modctrl->VertTop;
+//	VERT					*vp = modctrl->VertTop;
 								  
 	depth >>= 2;
 

@@ -54,7 +54,7 @@ void customDrawPrimitives2(int depth)
 	VERT				*vp = modctrl->VertTop;
 	int					prims,primsleft,lightmode;
 	USHORT				*sorts;
-	long				*tfd = transformedDepths;
+//	long				*tfd = transformedDepths;
 	
 	//utilPrintf("Bugger\n");
 
@@ -1341,22 +1341,22 @@ extern long globalFadeVal;
 
 void LSCAPE_DrawSortedPrimitives(int depth)
 {
-	register PACKET			*packet, *packetNext;
+	register PACKET			*packet;//, *packetNext;
 	register long			*tfv = transformedVertices;
 	register long			*tfd = transformedDepths;
-	VERT 							*tfn = transformedNormals;
+//	VERT 							*tfn = transformedNormals;
 	register TMD_P_GT4I		*opcd;
 	PSIMODELCTRL			*modctrl = &PSImodelctrl;
 	int						primsleft,lightmode;
 	ULONG					*sorts = sortedIndex;
 //	ULONG					*sorts = modctrl->SortOffs;
 	ULONG					sortBucket = 0;
-	VERT					*vp = modctrl->VertTop;
+//	VERT					*vp = modctrl->VertTop;
 	LONG					fogdepth;
-	unsigned short			oldtpage;
+//	unsigned short			oldtpage;
 	long					fogFade;
-	DR_MODE					*dr_mode;
-	u_long t1;
+//	DR_MODE					*dr_mode;
+//	u_long t1;
 
 	int						gteH;
 
