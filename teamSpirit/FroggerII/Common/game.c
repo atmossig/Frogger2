@@ -1091,9 +1091,6 @@ void RunGameLoop (void)
 			{
 				if ( ( frameCount > 15 ) )
 				{
-					if( triggerList.numEntries )
-						UpdateEvents( );
-
 					if(!frog[0]->action.dead)	
 					{
 						for (i=0; i<NUM_FROGS; i++)
@@ -1139,14 +1136,13 @@ void RunGameLoop (void)
 	}
 	// ENDELSEIF
 
-	//***** ANDYE *****//
 	UpdatePlatforms();
 	UpdateEnemies();
 	UpdateSpecialFX();
+	UpdateEvents();
+
 	//UpdateAmbientSounds();
 	//	UpdateWater();
-	
-	//*****************//
 
 	ProcessCollectables();
 
