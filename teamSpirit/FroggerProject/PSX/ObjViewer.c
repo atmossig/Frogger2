@@ -74,7 +74,7 @@ void RunBankSelect ( void )
 		LoadObjectBank ( worldVisualData [ worldSelect ].levelVisualData [ levelSelect ].objectBankToUse );
 
 		CreateFrogger ( 1, 1 );
-		objViewerActorList[0] = CreateAndAddActor ( "dth-ball.PSI", 0, 0, 0, INIT_ANIMATION, 0, 0 ); 
+		objViewerActorList[0] = CreateAndAddActor ( "dth-ball.PSI", 0, 0, 0, INIT_ANIMATION); 
 
 		actorAnimate ( objViewerActorList[0]->actor, 0, 1, 0, 128, 0 );
 

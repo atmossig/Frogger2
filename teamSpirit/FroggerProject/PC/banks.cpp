@@ -470,7 +470,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 
 		if((gstrcmp(ts->name,"backdrop.obe") == 0) || (gstrcmp(ts->name,"backdrop.psi") == 0) )
 		{
-			backGnd = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION, 0, 0);
+			backGnd = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION);
 			if (backGnd)
 			{
 				backGnd->actor->size.vx = ToFixed(5);
@@ -492,7 +492,7 @@ void CreateLevelObjects(unsigned long worldID,unsigned long levelID)
 				
 				if (rHardware || gstrcmp( tmp, "wat_\0" ))
 				{
-					if( !(theActor = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION, 0, 0)) )
+					if( !(theActor = CreateAndAddActor (ts->name,ts->pos.vx,ts->pos.vy,ts->pos.vz,INIT_ANIMATION)) )
 					{
 						ts = ts->next;
 						continue;
