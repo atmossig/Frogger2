@@ -375,6 +375,8 @@ void SlurpCamPosition(long cam)
 	Returns		: void 
 */
 float camSideOfs = 0;
+GAMETILE *lastTile = NULL;
+long prevCamFacing = 0;
 
 void UpdateCameraPosition(long cam)
 {
@@ -416,6 +418,20 @@ void UpdateCameraPosition(long cam)
 					afx2 += currTile[i]->normal.v[0]*currCamDist.v[1];
 					afy2 += currTile[i]->normal.v[1]*currCamDist.v[1];
 					afz2 += currTile[i]->normal.v[2]*currCamDist.v[1];
+				}
+
+				
+				if (currTile[0] != lastTile)
+				{
+					if ((currTile[0]!=NULL) && (lastTile!=NULL))
+					{
+						if (camFacing == prevCamFacing)
+							camFacing = GetTilesMatchingDirection(lastTile,camFacing,currTile[0]);
+
+						prevCamFacing = camFacing;
+					}
+
+					lastTile = currTile[0];
 				}
 
 				afx2 -= currTile[0]->dirVector[camFacing].v[0]*currCamDist.v[2];
