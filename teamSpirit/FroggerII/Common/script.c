@@ -670,7 +670,7 @@ Vis:
 			break;
 		}
 
-	case EV_SETSTARTTILE:	gtStart[0] = GetTileFromNumber(MEMGETINT(p); break;
+	case EV_SETSTARTTILE:	gTStart[0] = GetTileFromNumber(MEMGETINT(p)); break;
 
 	case EV_FOG:
 		{
