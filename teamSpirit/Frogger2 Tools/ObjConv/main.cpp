@@ -24,6 +24,7 @@ int outcount;
 int threshhold = 3;
 int maxlength = 7;
 
+/*
 int FindMatch(char *data1, char *data2, int maxlen)
 {
 	int len = 0;
@@ -57,7 +58,7 @@ int main (int argc, char *argv[])
 		largestlength = threshhold;
 		largestpos = 0;
 		
-		for (unsigned int i=1; i<64; i-=2)
+		for (int i=1; i<64; i-=2)
 		{
 			int thislength;
 
@@ -96,8 +97,9 @@ int main (int argc, char *argv[])
 
 	return 1;
 }
+*/
 
-/*
+
 char inF[255],outF[255];
 
 char typenames[10][255] = 
@@ -415,4 +417,3 @@ int main (int argc, char *argv[])
 	WriteData();
 	return 1;
 }
-*/
