@@ -1,0 +1,19 @@
+BUG------------ Sprites aren't sorted
+COMPLETION BY-- Jan 28th
+INSTANCE-------	
+SENT BY-------- Dave
+RESPONSIBILTY-- Matt
+FIXED NOTES---- lack of sorting also affects the square-edge bug above
+
+TASK----------- Rotating sprites
+COMPLETION BY-- Jan 28th
+PRIORITY------- Medium
+RESPONSIBILTY-- Matt
+NOTES---------- For smoke especially
+
+TASK----------- Static Sprite List
+COMPLETION BY-- Jan 28th
+PRIORITY------- Medium
+RESPONSIBILTY-- Matt
+NOTES---------- For smoke especially
+
