@@ -12,6 +12,7 @@
 #include "..\resource.h"
 #include "incs.h"
 
+#define MYDEBUG
 
 SAMPLEMAP sampleMapping [] = {	"x:\\teamspirit\\pcversion\\timeout.wav",	2, 22050, 16, GEN_TIME_OUT,
 								"x:\\teamspirit\\pcversion\\clocktock.wav", 2, 22050, 16, GEN_CLOCK_TOCK,
@@ -44,11 +45,15 @@ void LoadDemoSamples ( void )
 {
 	int i;
 
+#ifdef MYDEBUG
 	dprintf"NUM_SAMPLE : %d\n", NUM_SAMPLES));
+#endif
 	for ( i = NUM_SAMPLES - 1; i >= 0; i-- )
 	{
+#ifdef MYDEBUG
 		dprintf"NUM_SAMPLE : %d - i : %d \n", NUM_SAMPLES, i));
 		dprintf"sampleMapping[%d] - sampleFileName : %s\n", i, sampleMapping[i].sampleFileName));
+#endif
 		CreateAndAddSample ( sampleMapping [ i ] );
 	}
 	// ENDFOR
@@ -97,7 +102,9 @@ SAMPLE *CreateAndAddSample ( SAMPLEMAP sampleMap )
 
 	SetSampleFormat ( newItem );
 
+#ifdef MYDEBUG
 	dprintf"Calling : AddSampleToList\n"));
+#endif
 	AddSampleToList ( newItem );
 }
 
@@ -124,10 +131,14 @@ void InitSampleList ( void )
 */
 void AddSampleToList ( SAMPLE *sample )
 {
+#ifdef MYDEBUG
 	dprintf"Adding Sample To List - sample->next : (&%x)\n", sample->next));
+#endif
 	if ( sample->next == NULL )
 	{
+#ifdef MYDEBUG
 		dprintf"Adding Sample To List\n"));
+#endif
 		soundList.numEntries++;
 		sample->prev				= &soundList.head;
 		sample->next				= soundList.head.next;
@@ -212,7 +223,9 @@ SAMPLE *GetEntryFromSampleList ( int num )
 	}
 	// ENDFOR
 
+#ifdef MYDEBUG
 	dprintf"sampleID : %d - numEntries : %d", cur->sampleID, soundList.numEntries));
+#endif
 	return NULL;
 }
 
@@ -248,7 +261,9 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 	}
 	// ENDIF
 
+#ifdef MYDEBUG
 	dprintf"Getting Entry From Sample List - %d\n", num));
+#endif
 	sample = GetEntryFromSampleList ( num );
 
 	if ( ( !sample ) )
@@ -264,9 +279,13 @@ int PlaySample ( short num, VECTOR *pos, short tempVol, short pitch )
 	// ENDIF
 
 
+#ifdef MYDEBUG
 	dprintf"About to Play Sample - %d\n", num));
+#endif
 	sample->lpdsBuffer->lpVtbl->Play ( sample->lpdsBuffer, 0, 0, 0 );
+#ifdef MYDEBUG
 	dprintf"Played Sample Ok - %d\n", num));
+#endif
 }
 
 
@@ -282,9 +301,13 @@ void SetSampleFormat ( SAMPLE *sample )
 	wfx.nBlockAlign		= wfx.wBitsPerSample / 8 * wfx.nChannels;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
+#ifdef MYDEBUG
 	dprintf"Setting Sample Format : Buffer = (&%x) FileName : %s\n", sample->lpdsBuffer, sample->idName));
+#endif
 	sample->lpdsBuffer->lpVtbl->SetFormat ( sample->lpdsBuffer, &wfx );
+#ifdef MYDEBUG
 	dprintf"Set Sample Format : Buffer = (&%x)", sample->lpdsBuffer));
+#endif
 }
 
 
