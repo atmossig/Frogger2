@@ -578,7 +578,8 @@ void ProcessUserInput(HWND hWnd)
 	controllerdata[3].button = 0;
 
 	if (!keysEnabled) return;
-	
+
+#ifdef _DEBUG
 	if (KEYPRESS(DIK_NUMPAD7))
 	{
 		farClip*=1.2;
@@ -595,7 +596,7 @@ void ProcessUserInput(HWND hWnd)
 
 	if (KEYPRESS(DIK_Z))
 		ShowJalloc();
-
+#endif
 
 	if (rPlayOK)
 	{

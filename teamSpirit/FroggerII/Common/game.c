@@ -364,6 +364,7 @@ void GameProcessController(long pl)
 		}
 	}
 
+#ifdef _DEBUG
 	if((button[pl] & CONT_R) && !(lastbutton[pl] & CONT_R))
 	{
 		if(numBabies)
@@ -374,6 +375,7 @@ void GameProcessController(long pl)
 				SetFroggerStartPos(bTStart[bby],pl);
 		}
     }
+#endif
 
 	if((button[pl] & CONT_START) && !(lastbutton[pl] & CONT_START))
 	{
