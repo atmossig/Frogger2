@@ -375,3 +375,88 @@ void CopyTexture( TextureType *dest, TextureType *src, int copyPalette )
 		ddShowError(res);
 }
 
+enum { TOP=0x1, BOTTOM=0x2, LEFT=0x4, RIGHT=0x8, INWARD=0x10, OUTWARD=0x20 };
+
+int OutcodeCheck( SVECTOR *p1, SVECTOR *p2 )
+{
+	MDX_VECTOR t1, t2;
+	unsigned long oc1=0, oc2=0;
+	float oozd;
+
+	SetVectorRS( &t2, p1 );
+	ScaleVector( &t2, 0.1 );
+	// do the work of XfmPoint, using the matrix concatenated above
+	guMtxXFMF(vMatrix.matrix,
+		t2.vx,t2.vy,t2.vz,
+		&(t1.vx),&(t1.vy),&(t1.vz));
+
+	// clippage
+
+	if( t1.vz < nearClip )
+		oc1 |= INWARD;
+	else if( t1.vz > farClip )
+		oc1 |= OUTWARD;
+	else
+	{
+		// Perform XfmPoint's really fucked up perspective calculation
+		// that's "so much more efficient".
+		oozd = -FOV * *(oneOver+fftol((((long *)&t1)+2))+DIST);
+		t1.vx = halfWidth+(t1.vx * oozd);
+		t1.vy = halfHeight+(t1.vy * oozd);
+
+		if( t1.vx < 0 )
+			oc1 |= LEFT;
+		else if( t1.vx > rXRes )
+			oc1 |= RIGHT;
+
+		if( t1.vy < 0 )
+			oc1 |= TOP;
+		else if( t1.vy > rYRes )
+			oc1 |= BOTTOM;
+	}
+
+	// Point1 is onscreen
+	if( !oc1 )
+		return 0;
+
+	SetVectorRS( &t1, p2 );
+	ScaleVector( &t1, 0.1 );
+
+	guMtxXFMF(vMatrix.matrix,
+		t1.vx,t1.vy,t1.vz,
+		&(t2.vx),&(t2.vy),&(t2.vz));
+
+	if( t2.vz < nearClip )
+		oc2 |= INWARD;
+	else if( t2.vz > farClip )
+		oc2 |= OUTWARD;
+	else
+	{
+		// Perform XfmPoint's really fucked up perspective calculation
+		// that's "so much more efficient".
+		oozd = -FOV * *(oneOver+fftol((((long *)&t2)+2))+DIST);
+		t2.vx = halfWidth+(t2.vx * oozd);
+		t2.vy = halfHeight+(t2.vy * oozd);
+
+		if( t2.vx < 0 )
+			oc2 |= LEFT;
+		else if( t2.vx > rXRes )
+			oc2 |= RIGHT;
+
+		if( t2.vy < 0 )
+			oc2 |= TOP;
+		else if( t2.vy > rYRes )
+			oc2 |= BOTTOM;
+	}
+
+	// Point2 is onscreen
+	if( !oc2 )
+		return 0;
+
+	// If both offscreen on the same side, clip.
+	if( oc1 & oc2 )
+		return 1;
+
+	// Off different sides - crossing screen
+	return 0;
+}

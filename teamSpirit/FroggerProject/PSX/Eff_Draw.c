@@ -762,3 +762,77 @@ void DrawFXLightning( SPECFX *fx )
 	} 
 }
 
+enum { TOP=0x1, BOTTOM=0x2, LEFT=0x4, RIGHT=0x8, INWARD=0x10, OUTWARD=0x20 };
+
+int OutcodeCheck( SVECTOR *p1, SVECTOR *p2 )
+{
+	unsigned long oc1=0, oc2=0;
+	SVECTOR t1, t2;
+	long z1, z2;
+	short checky = PALMODE?256:240;
+
+	// Tranform first point
+	t2.vx = -p1->vx;
+	t2.vy = -p1->vy;
+	t2.vz = p1->vz;
+
+	gte_ldv0(&t2);
+	gte_rtps();
+	gte_stsxy((long *)&t1.vx);
+	gte_stsz(&z1);
+
+	// Point clippage
+	if( z1 < 20 )
+		oc1 |= INWARD;
+	else if( z1 > fog.max )
+		oc1 |= OUTWARD;
+
+	if( t1.vx < -256 )
+		oc1 |= LEFT;
+	else if( t1.vx > 256 )
+		oc1 |= RIGHT;
+
+	if( t1.vy < -checky )
+		oc1 |= TOP;
+	else if( t1.vy > checky )
+		oc1 |= BOTTOM;
+
+	// Point1 is onscreen
+	if( !oc1 )
+		return 0;
+
+	// Transform second point
+	t1.vx = -p2->vx;
+	t1.vy = -p2->vy;
+	t1.vz = p2->vz;
+
+	gte_ldv0(&t1);
+	gte_rtps();
+	gte_stsxy((long *)&t2.vx);
+	gte_stsz(&z2);
+
+	// Point clippage
+	if( z2 < 20 )
+		oc2 |= INWARD;
+	else if( z2 > fog.max )
+		oc2 |= OUTWARD;
+
+	if( t2.vx < -256 )
+		oc2 |= LEFT;
+	else if( t2.vx > 256 )
+		oc2 |= RIGHT;
+
+	if( t2.vy < -checky )
+		oc2 |= TOP;
+	else if( t2.vy > checky )
+		oc2 |= BOTTOM;
+
+	// Point2 is onscreen
+	if( !oc2 )
+		return 0;
+	// If both offscreen on the same side, clip.
+	if( oc1 & oc2 )
+		return 1;
+	// Off different sides - crossing screen
+	return 0;
+}

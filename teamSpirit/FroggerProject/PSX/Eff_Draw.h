@@ -16,7 +16,7 @@ void DrawFXLightning( SPECFX * );
 /* void DrawRandomPolyList( )                           */
 /* void TransformAndDrawPolygon( POLYGON );             */
 
-
+int OutcodeCheck( SVECTOR *p1, SVECTOR *p2 );
 //croak effect stuff
 //#define NUM_PSX_CROAK_VTX 24
 //extern SVECTOR *psxCroakVtx;

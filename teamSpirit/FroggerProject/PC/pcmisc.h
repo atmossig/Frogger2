@@ -82,6 +82,8 @@ extern void CreateProceduralTexture( TextureType *tex, char *name );
 void mtxSetIdent( float *m );
 void CopyTexture ( TextureType *dest, TextureType *src, int copyPalette );
 
+int OutcodeCheck( SVECTOR *p1, SVECTOR *p2 );
+
 #ifdef __cplusplus
 }
 #endif
