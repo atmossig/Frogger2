@@ -277,6 +277,9 @@ extern int polyCount;
 //extern int movedObjects;
 
 
+int lastpolyCount=0;
+int lastactorCount=0;
+
 int main ( )
 {
 	while ( 1 )
@@ -401,19 +404,6 @@ int main ( )
 
 		while ( !quitMainLoop )
 		{
-			if(gameState.mode!=PAUSE_MODE)
-			{
-				char tempText[64];
-
- 				gameSpeed = vsyncCounter<<12;
- 				actFrameCount += vsyncCounter;
- 				vsyncCounter = 0;
-
- 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
- 						gameSpeed>>12, actorCount, polyCount); 
- 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
-			}
-
 			//turn on/off timers + display
 			if(padData.debounce[0] & PAD_SELECT)
 				timerActive ^= 1;
@@ -424,24 +414,13 @@ int main ( )
 			ClearOTagR(currentDisplayPage->ot, 1024);
 			currentDisplayPage->primPtr = currentDisplayPage->primBuffer;
 
+			DrawBackDrop();
+
+			lastpolyCount =  polyCount;
+			lastactorCount = actorCount;
 			polyCount = 0;
 			actorCount = 0;
-//			countMakeUnit = 0;
-//			countQuatToPSXMatrix = 0;
 
-//			rotatedObjects = 0;
-//			scaledObjects = 0;
-//			movedObjects = 0;
-
-
-			
-			//see if this does anything we need.
-			//probabaly ok without it.
-			//bb just found it in the psi libs
-//			psiResetModelctrl();
-
-
-			DrawBackDrop();
 
 
 			//for timing optimised functions
@@ -582,6 +561,15 @@ int main ( )
 
 			timerDisplay();
 
+			if(gameState.mode!=PAUSE_MODE)
+			{
+				char tempText[64];
+ 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
+ 						gameSpeed>>12, lastactorCount, lastpolyCount); 
+ 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
+			}
+
+
 //			utilPrintf("countMakeUnit %d\n", countMakeUnit);
 //			utilPrintf("countQuatToPSXMatrix %d\n", countQuatToPSXMatrix);
 
@@ -620,26 +608,13 @@ int main ( )
 			PutDrawEnv(&currentDisplayPage->drawenv);
 			DrawOTag(currentDisplayPage->ot+(1024-1));
 
-/*			if(gameState.mode!=PAUSE_MODE)
+			if(gameState.mode!=PAUSE_MODE)
 			{
-				char tempText[64];
-
-// 				actFrameCount += 3;//(GetTickCount()/(1000/60));
-// 				gameSpeed=3<<12;
-
  				gameSpeed = vsyncCounter<<12;
  				actFrameCount += vsyncCounter;
  				vsyncCounter = 0;
-
- 				sprintf(tempText, "% 2d frames  % 2d actors  % 4d polys",
- 						gameSpeed>>12, actorCount, polyCount); 
- 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
-
-// 				sprintf(tempText, "% 4d rotated  % 4d scaled  % 4d moved",
-// 						rotatedObjects, scaledObjects, movedObjects); 
-// 				fontPrint(fontSmall, -200,80, tempText, 200,128,128);
 			}
-*/
+
 		}//end main loop
 
 
