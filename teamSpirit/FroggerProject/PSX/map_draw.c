@@ -17,6 +17,9 @@
 
 #include "actor2.h"
 
+//bb
+#include "world_eff.h"
+
 //#define WATERANIM_1 (u+((rcos(frame<<6))>>11))|((v+((rsin(frame<<6))>>11))<<8)
 //#define WATERANIM_2 (u+((rsin(frame<<6))>>11))|((v+((rcos(frame<<6))>>11))<<8)
 
@@ -953,6 +956,29 @@ void MapDraw_SetMatrix(FMA_MESH_HEADER *mesh, short posx, short posy, short posz
 	gte_stlvl(&tx.t);
 
 	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&tx);
+
+}
+
+void MapDraw_SetScenicMatrix(FMA_MESH_HEADER* mesh, SCENICOBJ* sc)
+{
+	MATRIX tx,r;
+
+	gte_SetRotMatrix(&GsWSMATRIX);
+	gte_SetTransMatrix(&GsWSMATRIX);
+
+	mesh->posx =  sc->matrix.t[0];
+	mesh->posy = -sc->matrix.t[1];
+	mesh->posz =  sc->matrix.t[2];
+
+	// Unnecessary maths for landscape segments, where pos is always zero.
+	gte_ldlvl( &mesh->posx);
+	gte_rtirtr();
+	gte_stlvl(&tx.t);
+
+//	gte_SetRotMatrix(&GsWSMATRIX);
+	MulMatrix0(&GsWSMATRIX, &sc->matrix, &r);
+	gte_SetRotMatrix(&r);
 	gte_SetTransMatrix(&tx);
 
 }

@@ -321,8 +321,19 @@ void DrawScenicObjList ( void )
 			{
 //bb dont need this, they don't move/rotate, just animate.
 //				MapDraw_SetMatrix ( *mesh, -cur->position.vx, cur->position.vy, cur->position.vz );
-				gte_SetRotMatrix(&cur->matrix);
-				gte_SetTransMatrix(&cur->matrix);
+//				MapDraw_SetMatrix ( *mesh, -cur->matrix.t[0], cur->matrix.t[1], cur->matrix.t[2] );
+				MapDraw_SetScenicMatrix(*mesh, cur);
+
+//				MATRIX temp;
+//				MulMatrix0(&GsWSMATRIX, &cur->matrix, &temp);
+//				MulMatrix0(&cur->matrix, &GsWSMATRIX, &temp);
+//				gte_SetRotMatrix(&temp);
+//				gte_SetTransMatrix(&temp);
+
+//				gte_SetRotMatrix(&cur->matrix);
+//				gte_SetTransMatrix(&cur->matrix);
+
+
 
 				if ( MapDraw_ClipCheck ( *mesh ) )
 				{
