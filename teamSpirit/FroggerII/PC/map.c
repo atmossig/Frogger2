@@ -554,50 +554,6 @@ BOOL LoadScenics (int num)
 	return TRUE;
 }
 
-/*	--------------------------------------------------------------------------------
-	Function		: IsATeleportTile
-	Purpose			: checks if the specified tile is a teleport tile
-	Parameters		: GAMETILE *
-	Returns			: BOOL
-	Info			: TRUE if a teleport tile, else FALSE
-*/
-BOOL IsATeleportTile(GAMETILE *tile)
-{
-	if(tile->state == TILESTATE_TELEPORTER)
-		return TRUE;
-
-	return FALSE;
-}
-/*	--------------------------------------------------------------------------------
-	Function		: MakeTeleportTile
-	Purpose			: makes the specified 'from' game tile a teleport tile to 'to' tile
-	Parameters		: GAMETILE *,GAMETILE *,char
-	Returns			: void
-	Info			: 
-*/
-void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType)
-{
-	// determine type of teleporter
-	switch(teleportType)
-	{
-		case TELEPORT_ONEWAY:
-			// make 'from' tile a teleport tile and point it towards the 'to' tile
-			fromTile->state			= TILESTATE_TELEPORTER;
-			fromTile->teleportTo	= toTile;
-			break;
-		
-		case TELEPORT_TWOWAY:
-			// make 'from' tile a teleport tile and point it towards the 'to' tile
-			fromTile->state			= TILESTATE_TELEPORTER;
-			fromTile->teleportTo	= toTile;
-
-			// make the 'to' tile a teleport tile and point it back towards the 'from' tile
-			toTile->state			= TILESTATE_TELEPORTER;
-			toTile->teleportTo		= fromTile;
-			break;
-	}
-}
-
 
 /*	--------------------------------------------------------------------------------
 	Function		: TeleportActorToTile

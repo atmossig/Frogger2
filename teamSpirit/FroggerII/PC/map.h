@@ -37,10 +37,7 @@ extern SCENIC *Sc_000;
 extern BOOL LoadMapBank(int num);
 extern void FreeMapBank(void);
 
-extern void MakeTeleportTile(GAMETILE *fromTile,GAMETILE *toTile,char teleportType);
-extern BOOL IsATeleportTile(GAMETILE *tile);
 extern void TeleportActorToTile(ACTOR2 *act,GAMETILE *tile,long pl);
-
 extern void LoadLevelEntities(int worldID, int levelID);
 extern void LoadLevelScript(int worldID, int levelID);
 
