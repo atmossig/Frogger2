@@ -103,7 +103,7 @@ void loadingInitText(int worldID, int levelID)
 {
 	int i,c,y = 500;
 
-	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+	worldName = CreateAndAddTextOverlay( 2048 + 4096, y + 20, chaptStr, YES, 255, fontSmall, TEXTOVERLAY_LOADING); 
 
 	if(gameState.mode == FRONTEND_MODE)
 		chaptStr[0] = 0;
@@ -125,10 +125,10 @@ void loadingInitText(int worldID, int levelID)
 	if(gameState.mode == FRONTEND_MODE)
 	{
 		y = 1900;
-		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(STR_LOADING), YES, 255, font, TEXTOVERLAY_LOADING); 
 	}
 	else
-		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING); 
+		levelName = CreateAndAddTextOverlay( 2048 - 4096*2, y, GAMESTRING(worldVisualData[worldID].levelVisualData[levelID].description_str), YES, 255, font, TEXTOVERLAY_LOADING); 
 
 
 	backgrounds[1] = CreateAndAddSpriteOverlay(0,y - 30,NULL,4096,400,0,SPRITE_SUBTRACTIVE | SPRITE_LOADING);
@@ -144,7 +144,7 @@ void loadingInitText(int worldID, int levelID)
 	levelName->xPosTo = 2048;
 	levelName->speed = 4096*40*3;
 
-	parTimeText = CreateAndAddTextOverlay( 2048 + 4096*3, y, recordStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+	parTimeText = CreateAndAddTextOverlay( 2048 + 4096*3, y, recordStr, YES, 255, font, TEXTOVERLAY_LOADING);
 	if(gameState.mode == FRONTEND_MODE)
 		recordStr[0] = 0;
 	else if(gameState.multi == SINGLEPLAYER) 
@@ -171,7 +171,7 @@ void loadingInitText(int worldID, int levelID)
 		{
 			sprintf(playerStr[i],"%s %d",GAMESTRING(STR_PLAYER),i + 1);
 			c = (fontExtentWScaled(font,playerStr[i],4096)+96)*4;
-			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*600,playerStr[i],NO,255,font,TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+			playerText[i] = CreateAndAddTextOverlay(2048 - c - 4096*(4+i) - 128 + 256*(i MOD 2),y + i*600,playerStr[i],NO,255,font,TEXTOVERLAY_LOADING);
 			playerText[i]->xPosTo = 2048 - c - 128 + 256*(i MOD 2);
 			playerText[i]->speed = 4096*40*3;
 			playerText[i]->draw = 0;
@@ -196,7 +196,7 @@ void loadingInitText(int worldID, int levelID)
 	}
 	else
 		coinStr[0] = 0;
-	coinsText = CreateAndAddTextOverlay( 2048 - 4096*4, y, coinStr, YES, 255, font, TEXTOVERLAY_SHADOW | TEXTOVERLAY_LOADING);
+	coinsText = CreateAndAddTextOverlay( 2048 - 4096*4, y, coinStr, YES, 255, font, TEXTOVERLAY_LOADING);
 	coinsText->xPosTo = 2048;
 	coinsText->speed = 4096*40*3;
 }

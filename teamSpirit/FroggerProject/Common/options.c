@@ -76,14 +76,14 @@ char playingFMV = NO;
 // JH: A list of CRCs that define the char textures.
 unsigned long frogTexturePool[FROG_NUMFROGS] = 
 {
-	0,
-	295725604,
-	3015291346,
-	11947923,
+	0,			   
+	295725604,	   
+	3015291346,	   
 	2473894757,
-	4155454119,
+	4155454119,	   
+	1018896364,	   
 	4089408853,
-	1018896364,
+	11947923,	   
 };														
 
 int soundSwapTime;

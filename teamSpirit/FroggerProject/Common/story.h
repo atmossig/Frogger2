@@ -55,8 +55,6 @@ typedef struct
 
 extern GAME_LEVEL storySequence[];
 
-extern unsigned long currentChapter;
-
 void StoryStartLevel(void);
 
 #ifdef __cplusplus
