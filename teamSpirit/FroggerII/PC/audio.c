@@ -30,7 +30,9 @@ SAMPLEMAP genericMapping[] =
 	"generic\\froghop.wav",			2, 22050, 16, GEN_FROG_HOP,		FLAGS_NONE,
 	"generic\\superhop.wav",		2, 22050, 16, GEN_SUPER_HOP,	FLAGS_NONE,
 	"generic\\babyfrog.wav",		2, 22050, 16, GEN_BABY_FROG,	FLAGS_NONE,
-	"generic\\froggerF.wav",		2, 22050, 16, GEN_FROG_TONGUE,	FLAGS_NONE
+	"generic\\froggerF.wav",		2, 22050, 16, GEN_FROG_TONGUE,	FLAGS_NONE,
+	"generic\\froggerD.wav",		2, 22050, 16, GEN_FROG_HURT,	FLAGS_NONE,
+	"generic\\froggerE.wav",		2, 22050, 16, GEN_FROG_DEATH,	FLAGS_NONE,
 };
 
 
