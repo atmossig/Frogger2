@@ -23,18 +23,20 @@
 #include "menus.h"
 
 
-/*
+
 char *musicNames[] = { "CD2.XA",//
-					   "CD3.XA",
-					   "CD4.XA",
+					   "CD3.XA",//
+					   "CD4.XA",//
 					   "CD5.XA",//
 					   "CD6.XA",//
 					   "CD7.XA",//
-					   "CD8.XA",
+					   "CD8.XA",//
 					   "CD9.XA",//
 					   "CD10.XA",//
 					   "CD11.XA"};//
-*/
+
+
+/*
 char *musicNames[] = { "CD3.XA",//
 					   "CD3.XA",
 					   "CD4.XA",
@@ -45,6 +47,7 @@ char *musicNames[] = { "CD3.XA",//
 					   "CD4.XA",//
 					   "CD4.XA",//
 					   "CD3.XA"};//
+*/
 
 
 
