@@ -24,6 +24,7 @@
 #include "specfx.h"
 #include "pcmisc.h"
 #include "pcgfx.h"
+#include "layout.h"
 
 
 float tMtrx[4][4], rMtrx[4][4], sMtrx[4][4], dMtrx[4][4];
@@ -364,6 +365,7 @@ void DrawFXRing( SPECFX *fx )
 	MDX_TEXENTRY *tEntry;
 	MDX_VECTOR tempVect, m, scale, normal, pos;
 	MDX_QUATERNION q1, q2, q3, cross;
+	SVECTOR fxpos;
 	float tilt, t;
 	int zeroZ = 0;
 
@@ -440,6 +442,8 @@ void DrawFXRing( SPECFX *fx )
 			MatrixSet( &dMtrx, &matrixStack.stack[matrixStack.stackPosition] );
 			guMtxXFMF( dMtrx, vT[j].sx, vT[j].sy, vT[j].sz, &tempVect.vx, &tempVect.vy, &tempVect.vz );
 
+			if( !j ) SetVectorSR( &fxpos, &tempVect );
+
 			XfmPoint( &m, &tempVect, NULL );
 
 			// Assign back to vT array
@@ -460,19 +464,15 @@ void DrawFXRing( SPECFX *fx )
 
 		if( i&1 )
 		{
-			SVECTOR pos;
-			SPECFX *fx;
+			SPECFX *trail;
 
-			pos.vx = vT[0].sx*SCALE;
-			pos.vy = vT[0].sy*SCALE;
-			pos.vz = vT[0].sz*SCALE;
+			ScaleVector( &fxpos, 10 );
 
-			if( (fx = CreateSpecialEffect( FXTYPE_SPARKLYTRAIL, &pos, &fx->normal, 81920, 8192, 0, 20480 )) )
+			if( (trail = CreateSpecialEffect( FXTYPE_TWINKLE, &fxpos, &fx->normal, 81920, 0, 0, 4096 )) )
 			{
-				fx->gravity = 500;
-
-				if( i&2 ) SetFXColour( fx, 60, 200, 60 );
-				else SetFXColour( fx, 180, 230, 180 );
+				trail->tilt = 4096;
+				if( i&2 ) SetFXColour( trail, 180, 220, 180 );
+				else SetFXColour( trail, fx->r, fx->g, fx->b );
 			}
 		}
 	}
