@@ -1015,7 +1015,19 @@ void SubSpecFX( SPECFX *fx )
 	}
 
 	if( fx->particles )
+	{
+		if(fx->numP)
+		{
+			i = fx->numP;
+			while(i--)
+			{
+				JallocFree( (UBYTE **)&fx->particles[i].poly );
+				JallocFree( (UBYTE **)&fx->particles[i].rMtrx );
+			}
+		}
+
 		JallocFree( (UBYTE **)&fx->particles );
+	}
 
 	if( fx->rebound )
 		JallocFree( (UBYTE **)&fx->rebound );
