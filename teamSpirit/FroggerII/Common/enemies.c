@@ -140,9 +140,9 @@ void DoEnemyCollision( ENEMY *cur )
 		}
 		else
 		{
-			if( (currTile[0] == cur->inTile) && !player[0].dead.time && !player[0].safe.time &&
+			if( (currTile[0] == cur->inTile) && !player[0].dead.time && !player[0].safe.time && 
 				(!(player[0].isSuperHopping) || (cur->flags & ENEMY_NEW_NOJUMPOVER)) &&
-				/*!currPlatform[0] && */!(player[0].frogState & FROGSTATUS_ISFLOATING) && !(cur->flags & ENEMY_NEW_NODAMAGE) )
+				!(player[0].frogState & FROGSTATUS_ISFLOATING) )
 			{
 				if( cur->flags & ENEMY_NEW_BABYFROG )
 				{
@@ -181,7 +181,7 @@ void DoEnemyCollision( ENEMY *cur )
 
 void NMEDamageFrog( int pl, ENEMY *nme )
 {
-	if( !nme || (player[pl].frogState & FROGSTATUS_ISSAFE))
+	if( !nme || (player[pl].frogState & FROGSTATUS_ISSAFE) || (nme->flags & ENEMY_NEW_NODAMAGE) )
 		return;
 
 	if( nme->flags & ENEMY_NEW_ONEHITKILL )
