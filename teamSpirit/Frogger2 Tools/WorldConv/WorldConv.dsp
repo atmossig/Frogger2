@@ -84,6 +84,10 @@ LINK32=link.exe
 # Name "WorldConv - Win32 Debug"
 # Begin Source File
 
+SOURCE=.\define.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\lookup.cpp
 # End Source File
 # Begin Source File
