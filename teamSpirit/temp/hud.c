@@ -144,20 +144,20 @@ void InitArcadeHUD(void)
 	}
 
 #ifdef PSX_VERSION
-	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(100,3332,frogPool[player[0].character].icon,4096,546,0xff,0);
+	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(100,3132,frogPool[player[0].character].icon,4096,546,0xff,0);
 
 	if( gameState.single != STORY_MODE )
 	{
-		arcadeHud.timeFaceOver = CreateAndAddSpriteOverlay(3400,3032,"FROGWATCH01",4096,546,0xff,0);
+		arcadeHud.timeFaceOver = CreateAndAddSpriteOverlay(3300,2932,"FROGWATCH01",4096,546,0xff,0);
 		arcadeHud.timeFaceOver->num = 0;
-		arcadeHud.timeHandOver = CreateAndAddSpriteOverlay(3400,3100,"CLK_HAND",600,700,0xff,0);
+		arcadeHud.timeHandOver = CreateAndAddSpriteOverlay(3300,2900,"CLK_HAND",600,700,0xff,0);
 		arcadeHud.timeHandOver->num = 1;
-		arcadeHud.timeHeadOver = CreateAndAddSpriteOverlay(3400,3100,"CLK_HEAD",600,700,0xff,0);
+		arcadeHud.timeHeadOver = CreateAndAddSpriteOverlay(3300,2900,"CLK_HEAD",600,700,0xff,0);
 		arcadeHud.timeHeadOver->num = 2;
 
-		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(2900,3700,timeStringMin,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		arcadeHud.timeTextSec =		CreateAndAddTextOverlay(2900+200,3700,timeStringSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
-		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(2900+450,3700,timeStringHSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		arcadeHud.timeTextMin =		CreateAndAddTextOverlay(2800,3600,timeStringMin,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		arcadeHud.timeTextSec =		CreateAndAddTextOverlay(2800+200,3600,timeStringSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
+		arcadeHud.timeTextHSec =	CreateAndAddTextOverlay(2800+450,3600,timeStringHSec,NO,255,fontSmall,TEXTOVERLAY_SHADOW);
 		arcadeHud.timeTextHSec->scale = 3072;
 	}
 
@@ -171,7 +171,7 @@ void InitArcadeHUD(void)
 	arcadeHud.quickHopOver->draw = 0;
 
 	arcadeHud.coinsBack =		CreateAndAddSpriteOverlay(3400,300,"HUD_BGR",4096,460,0xff,0);
-	arcadeHud.livesText =		CreateAndAddTextOverlay(370,3750,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
+	arcadeHud.livesText =		CreateAndAddTextOverlay(370,3550,livesText,NO,255,0,TEXTOVERLAY_SHADOW);
 	arcadeHud.coinsOver =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
 	arcadeHud.coinsOver->num = 1;
 	arcadeHud.coinZoom =		CreateAndAddSpriteOverlay(3524,290,"SCOIN0001",205,273,0xff,0);
@@ -192,7 +192,7 @@ void InitArcadeHUD(void)
 
 	
 	
-	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(100,3432,frogPool[player[0].character].icon,410,546,0xff,0);
+	arcadeHud.livesOver =		CreateAndAddSpriteOverlay(100,3332,frogPool[player[0].character].icon,410,546,0xff,0);
 
 	if( gameState.single != STORY_MODE )
 	{
