@@ -792,11 +792,11 @@ void main()
 		{
 			break;
 		}
-
-		DCTIMER_STOP(1);		
 	
 		kmBeginScene(&kmSystemConfig);
 		kmBeginPass(&vertexBufferDesc);
+
+		DCTIMER_STOP(1);		
 
 		DCTIMER_START(2);		
 		DrawSpecialFX();
