@@ -211,7 +211,11 @@ const char* DIErrorStr(HRESULT err)
 void RecordKeyInit(unsigned long worldNum, unsigned long levelNum)
 {
 	FILE *fp;
-	sprintf(rKeyFile,"record_%lu_%lu.key",worldNum,levelNum);
+	
+	if (rKeyOK)
+		return;
+
+	sprintf(rKeyFile,"%srecord-%lu-%lu.key",baseDirectory,worldNum,levelNum);
 	fp = fopen(rKeyFile,"wb");
 	if (fp)
 	{
@@ -233,7 +237,10 @@ unsigned long *playKeyList;
 void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 {
 	FILE *fp;
-	sprintf(rKeyFile,"record_%lu_%lu.key",worldNum,levelNum);
+	if (rPlayOK)
+		return;
+
+	sprintf(rKeyFile,"%srecord-%lu-%lu.key",baseDirectory,worldNum,levelNum);
 	fp = fopen(rKeyFile,"rb");
 	if (fp)
 	{
@@ -242,16 +249,18 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 
 		while (!feof(fp))
 		{
-			fread(&curPlayKey,4,0,fp);
-			fread(&curPlayKey,4,0,fp);
-			fread(&curPlayKey,4,0,fp);
-			playKeyCount ++;
+			fread(&curPlayKey,4,1,fp);
+			fread(&curPlayKey,4,1,fp);
+			fread(&curPlayKey,4,1,fp);
+			playKeyCount++;
 		}
+		
+		fseek(fp,0,SEEK_SET);
 
 		playKeyList = new unsigned long [playKeyCount*3];
 		
 		for (curPlayKey=0; curPlayKey<playKeyCount*3; curPlayKey++)
-			fread(&playKeyList[curPlayKey],4,0,fp);			
+			fread(&(playKeyList[curPlayKey]),4,1,fp);			
 		
 		curPlayKey = 0;
 		rPlayOK = 1;
@@ -270,13 +279,13 @@ void PlayKeyInit(unsigned long worldNum, unsigned long levelNum)
 
 void RecordButtons(unsigned long b0,unsigned long pnum)
 {
-	FILE *fp = fopen(rKeyFile,"ab");
+	FILE *fp = fopen(rKeyFile,"a+b");
 	if (fp)
 	{
-		fwrite(&actFrameCount,4,0,fp);
-		fwrite(&b0,4,0,fp);
-		fwrite(&pnum,4,0,fp);
-		
+		fwrite(&actFrameCount,4,1,fp);
+		fwrite(&b0,4,1,fp);
+		fwrite(&pnum,4,1,fp);
+		fflush(fp);
 		fclose(fp);
 	}
 }
@@ -568,11 +577,21 @@ void ProcessUserInput(HWND hWnd)
 		if( keymap[i].key > 0 && KEYPRESS(keymap[i].key) )
 			controllerdata[keymap[i].player].button |= keymap[i].button;
 
+	if (rPlayOK)
+	{
+		while ((curPlayKey < playKeyCount) && (playKeyList[curPlayKey*3]<actFrameCount))
+		{
+			controllerdata[playKeyList[(curPlayKey*3)+2]].button = playKeyList[(curPlayKey*3)+1];
+			curPlayKey++;
+		}
+	}
+	
 	for( i=0; i < NUM_FROGS; i++ )
 	{
 		
 		if ((rKeyOK) && (controllerdata[i].button != controllerdata[i].lastbutton))
 			RecordButtons(controllerdata[i].button,i);
+
 
 		if (controllers[i] & GAMEPAD)
 		{
